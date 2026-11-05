@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.34
+- **Pictures for every kind of place**: Here pictures with named, tappable spots for the 11 rest-stop types (camp, ferry, herb garden, inn, jetty, mill, orchard, shrine, spring, tower, workshop), village, haven, wonder, delve and lair, plus a plain-place picture for any stop type without its own. Three fight backdrops (open, wood, dark) cover every land, three wander banners (generic, wild, deep) and ten wander icons are in. Importer `tools/import_gate_layouts.py` gained the place list and trims hit boxes off the compass corner. News post for everything since 2.4.92. Needs 2.5.33.
+
 ## 2.5.33
 - **The 2.5D gnome on My Gnome, Today and everywhere your gnome is shown**: the old pixel gnome is replaced by the new standing gnome (your hat, beard and scarf colours) on My Gnome, the Today page, the menu header, the Customise preview, profiles and fights. Pals still stand at its feet. The old picture is the fallback if the art is missing. The World page map opens centred on you at the standard zoom (the whole-world start in 2.5.31 is dropped). Needs 2.5.32.
 

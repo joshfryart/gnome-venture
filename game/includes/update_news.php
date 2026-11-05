@@ -636,6 +636,14 @@ function post_update_news(string $from): void
         . "[*][b]My Gnome[/b]: your level, gardens, energy and health (with Heal), the pals you take along, and tiles for Stats, Calling, Pals, Foods, Villagers and Gardens.\n"
         . "[*][b]Hat and beard dyes[/b] are now on the Stats page. In the menu, [b]🏠 Home[/b] takes you here.\n"
         . "[*]Other gnomes still only see your profile, never your Today.[/list]"],
+    '2.5.34' => ['🎨 Update 2.5.34: new pixel art, big item tiles, and a picture-style way to get around',
+        "[list][*][b]New \"Hearth Pop\" pixel art[/b] across the game: about 1,800 item, seed, food, tool and icon pictures redrawn, and every villager is now a creature (hedgehogs, frogs, otters, tortoises, snails...).\n"
+        . "[*][b]Big square item tiles[/b] in your Satchel and every Crafting menu: a large picture, the name under it, the count as a badge on the picture.\n"
+        . "[*][b]Your gnome is a standing 2.5D gnome[/b] on My Gnome, Today, the menu, your profile, fights and the Trail, in your own hat, beard and scarf colours.\n"
+        . "[*][b]New-player Welcome[/b] is redone for phones, and [b]Wren's tour[/b] is a guided speech bubble that points at exactly what to tap (and asks \"now or later?\").\n"
+        . "[*][b]Callings[/b] say when a chapter has not started yet, and there is a free trip to your calling mentor.\n"
+        . "[*][b]Fixes[/b]: a second browser tab can no longer overwrite your garden with an old copy, energy no longer refunds or double-credits, and the Home header fits on phones.\n"
+        . "[*][b]Coming (being tested, switched on by an admin for now)[/b]: a picture way to get around. [b]Here[/b] shows a picture of where you stand; tap a named place to open a small card (shops, the café, the board, villagers with chat and gifts) without leaving the picture. Routes, World, Fast travel and GPS are round icons under it. The Trail is walked as tile sections with your gnome, fights and finds on the tiles, and a pop-up card for each fight or choice. The World page opens on the world map. New pictures for every kind of place, fight backdrops and wander banners come with it.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

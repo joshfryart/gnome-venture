@@ -217,7 +217,7 @@ function wander_banner(string $tierKey, string $land): string
 {
     $land = preg_replace('/[^a-z]/', '', strtolower($land));
     $first = match ($tierKey) { 'deep' => 'scenes/wander-deep.png', 'hard', 'wild' => 'scenes/wander-wild.png', default => '' };
-    foreach (array_filter([$first, 'scenes/wander-' . $land . '.png']) as $rel) {
+    foreach (array_filter([$first, 'scenes/wander-' . $land . '.png', 'scenes/wander-generic.png']) as $rel) {   // v2.5.34: wander-generic.png is the strip for a land with none of its own
         if ($a = wander_art($rel, 480, 64, 'wc-banner-img')) return '<div class="wc-banner">' . $a . '</div>';
     }
     return '';

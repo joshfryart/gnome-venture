@@ -52,6 +52,13 @@ def resolve_overlaps(o):
                     if (b[1] + b[3]) >= (ob[1] + ob[3]): b[1] = ob[3]
                     else: b[3] = ob[1]
         done.append(b)
+    cc = o.get('compass_clear')   # a hit box never covers the compass corner: trim it up (or left) to the corner's edge
+    if cc:
+        for sp in o['spots']:
+            b = sp['box']
+            if b[0] < cc[2] and b[2] > cc[0] and b[1] < cc[3] and b[3] > cc[1]:
+                if (b[3] - cc[1]) <= (b[2] - cc[0]): b[3] = cc[1]
+                else: b[2] = cc[0]
     # stand slots must stay off every hit box (6 units): a slot the art put on a plaza that is also a box is dropped (lint needs 4 or more left)
     keep = []
     for st in o['stand']:
@@ -69,6 +76,11 @@ def main():
     jobs.append(('town-na', 'here-market-maplewold-v5.png', 'here-market-maplewold-v5.layout.json', MAPLEWOLD_AS))
     for key, art in STOPS.items():
         jobs.append((key, art + '.png', 'pilot-market.layout.json', STOP_AS))
+    PLACES = ['stop-camp', 'stop-ferry', 'stop-herb', 'stop-inn', 'stop-jetty', 'stop-mill', 'stop-orchard', 'stop-shrine', 'stop-spring', 'stop-tower', 'stop-workshop',
+              'village', 'haven', 'wonder', 'delve', 'lair']   # v2.5.34: one picture per place type (places/here-<key>.png + .layout.json); spot k = the behaviour
+    for key in PLACES:
+        jobs.append((key, f'places/here-{key}.png', f'places/here-{key}.layout.json', {}))
+    jobs.append(('stop', 'places/here-generic.png', 'places/here-generic.layout.json', {}))   # the plain place picture is the fallback for any stop type with no picture of its own ('generic' keeps its compass exits)
     for key, png, lay, amap in jobs:
         src_png = os.path.join(ART, png)
         if not os.path.isfile(src_png):

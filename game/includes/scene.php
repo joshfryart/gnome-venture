@@ -181,7 +181,9 @@ function adventure_stage_html(array $u, array $exp, array $scene, ?array $enc, s
     // v2.0.67: the picture follows today's weather and the time of day (scene_stage_key); the fallback colours stay the plain land
     $we = scene_stage_weather($u, $scene);
     $dp = function_exists('hollow_daypart') ? hollow_daypart() : 'day';
-    if ($bgKind === 'fight') return scene_stage('fight', scene_path('fight', $land) !== '' ? $land : 'generic', $units, $id, $land, ['dp' => $dp, 'baked' => true]);
+    if ($bgKind === 'fight') $fk = scene_path('fight', $land) !== '' ? $land : (['forest' => 'wood', 'rainforest' => 'wood', 'wetland' => 'wood', 'delve' => 'dark', 'lair' => 'dark', 'cave' => 'dark', 'underground' => 'dark', 'grassland' => 'open', 'desert' => 'open', 'coast' => 'open', 'island' => 'open', 'mountain' => 'open', 'tundra' => 'open'][strtolower($land)] ?? 'generic');   // v2.5.34: three backdrops (open, wood, dark) for every land
+    if (scene_path('fight', $fk) === '') $fk = 'generic';
+    return scene_stage('fight', $fk, $units, $id, $land, ['dp' => $dp, 'baked' => true]);
     return scene_stage('stage', scene_stage_key($land, $we, $dp), $units, $id, $land, ['dp' => $dp, 'we' => $we, 'baked' => scene_stage_baked($land, $we, $dp)]);
 }
 
