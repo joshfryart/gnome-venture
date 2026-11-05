@@ -467,6 +467,33 @@ Fight and stage characters are drawn as **toy miniatures**: little figurines in 
 Existing 64 x 64 creature stickers stay for lists, the Almanac and icons. On the stage the code uses the miniature if the file exists, else the sticker standing on a code-drawn base.
 """
 
+E3 = """
+Catalogue of the **Here, door and treehouse pictures** (state 2026-11-05). Source of truth for the slots: `includes/data/here_layouts.json` (Admin > Picture layouts, `php tools/lint_here.php`). Full art brief: `claude/art-brief-here.md`. Every picture is exactly its layout's w x h (480 x 270 today), fully opaque, no people or animals baked in (villagers and pals are sprites), no circles, no names (tags are added by code). Dark theme is a code tint; no dark variant is drawn.
+
+## Pictures (`assets/img/scenes/`)
+| File | Layout | Shows | State |
+| --- | --- | --- | --- |
+| `here-<key>.png` (generic, town, village, stop, haven, wonder, delve, lair) | same name | Where you stand, ground flat around every `stand` point | real art for most; `generic` falls back to a drawn sky |
+| `here-town-<region>.png`, `here-stop-<type>-<landscape>_<style>.png` | gate view | Gate views: no exit stubs, spots carry hit boxes | imported with `tools/import_gate_layouts.py` |
+| `resid-4.png`, `resid-6.png`, `resid-8.png` | `resid-<n>` | The street of 4, 6 or 8 houses, lit and dark windows | placeholder |
+| `door-<cottage, burrow, treehouse, hut, stone or boat>.png`, optional `door-<slug>.png` | `door` | A villager's door; `door-<slug>` is one villager's own | placeholder |
+| `craft-workshop.png` | `workshop` | The crafting workshop, one object per crafting area | placeholder |
+| `tree-house.png` | `treehouse` | Rooms: parlour, loft, cellar, puzzles, catfish, contests, books, yard | first-pass art |
+| `yard-pals.png` | `yard` | Job sites: garden, trip, delve, station, sick, board | first-pass art |
+| `fight-<land>.png`, `fight-generic.png` | none | Battle picture at the top of a fight popover (480 x 270) | partly real |
+
+## Optional layers (a missing file draws nothing)
+| File | Size from | Shown when |
+| --- | --- | --- |
+| `tree-dress-<rug, lights, telescope or banner>.png` | treehouse `dress` list | 5, 10, 20 and 40 pals found |
+| `tree-trophy-<k>.png` | treehouse `trophies` list: `top-1`, `top-3`, `expert-1`, `expert-3`, `expert-6` | `top`: you hold this week's top score in at least N games; `expert`: N Expert jigsaw trophies |
+| `<art>-anim-<k>.png` (`tree-`, `yard-`, `craft-`; `here-<key>-anim-<k>.png`) | the layout's `anim` list | always; moves with a CSS class only (`sway`, `bob`, `twinkle`, `drift`, `flicker`, `pulse`), still under reduced motion |
+| `assets/img/pals/<pal-key>.png` | 36 px natural, feet bottom-centre | on a treehouse perch or in the yard; else the sticker, a crop, a silhouette |
+| `assets/img/sprite/npc-<slug>.png` | 96 px tall at most, feet bottom-centre | villager on Here; else mini, bust, emoji circle |
+
+Rules: pixel art with the 1 px umber outline; horizon at the layout's `horizon`; keep the compass corner (`compass_clear`) empty; rooms and sites are painted open inside their `box`; a locked room is shuttered by code. Every `<img>` in the page keeps `image-rendering: pixelated`.
+"""
+
 SECTIONS = [
     ('about', 'front', 'About this guide', ABOUT),
     ('a1', 'a', 'Hearthlight: the look', A1),
@@ -485,6 +512,7 @@ SECTIONS = [
     ('d3', 'd', 'Aseprite workflow and checklist', D3),
     ('e1', 'e', 'Scene art addendum: Aseprite and black border rules', E1),
     ('e2', 'e', 'Toy miniatures (stage characters)', E2),
+    ('e3', 'e', 'Here, door and treehouse pictures', E3),
 ]
 PARTS = {'front': None, 'a': 'Part A. Hearthlight art', 'b': 'Part B. Inline icons', 'c': 'Part C. UI style sheet', 'd': 'Part D. Aseprite pixel art', 'e': 'Part E. Scene art addendum'}
 

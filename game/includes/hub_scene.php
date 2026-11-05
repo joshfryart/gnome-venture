@@ -15,7 +15,7 @@ declare(strict_types=1);
  * Sprite:  ['id', 'x' (feet), 'y' (feet), 'w', 'h' (natural px), 'src' => img path|'', 'emoji', 'name', 'href' => ''|link, 'card' => html|'', 'mark' => emoji]
  * Options: layout (array, required), alt, open (hotspot/sprite id), twin (bool, default true), more (['label' =>, 'href' =>] "+N more" chip),
  *          debug (bool, admin only: numbered dots on every slot), art (kind of picture file: default 'here'), title (heading for the twin)
- *          chrome (bool: the no-circles look, see hub_hotspot_box), dress (milestone layers [['k','x','y','w','h','src']]), nav (['routes' => [...], 'world' => [...]]: compass + globe cards)
+ *          chrome (bool: the no-circles look, see hub_hotspot_box), dress (milestone/trophy layers [['k','x','y','w','h','src']]); the layout's optional 'anim' list is drawn by itself (see here_layers_present), nav (['routes' => [...], 'world' => [...]]: compass + globe cards)
  */
 require_once __DIR__ . '/here_layout.php';
 require_once __DIR__ . '/scene.php';
@@ -262,16 +262,24 @@ function hub_scene(string $key, array $hotspots, array $sprites, array $opts): s
             . '<line class="horizon" x1="0" y1="' . $hz . '" x2="' . $W . '" y2="' . $hz . '"/>';
     }
     $svg .= '<rect class="hub-tint" x="0" y="0" width="' . $W . '" height="' . $H . '" fill="#0b1226" opacity="0" aria-hidden="true"/>';
+    $anim = '';   // animation layers (optional pictures; CSS classes only, still under prefers-reduced-motion)
+    foreach (here_layers_present($L, 'anim', $art, $key) as $a) {
+        $fx = isset(HERE_ANIM_FX[$a['fx'] ?? '']) ? (string)$a['fx'] : 'sway';
+        $sp = in_array($a['speed'] ?? '', ['slow', 'fast'], true) ? ' spd-' . $a['speed'] : '';
+        $anim .= '<g class="hanim fx-' . $fx . $sp . '" data-anim="' . e(hub_id((string)$a['k'])) . '" aria-hidden="true"><image class="pix" href="' . e((string)$a['src']) . '" x="' . (int)$a['x'] . '" y="' . (int)$a['y'] . '" width="' . (int)$a['w'] . '" height="' . (int)$a['h'] . '" image-rendering="pixelated"/></g>';
+    }
     $items = [];
     if (empty($opts['street'])) foreach ($sprites as $s) $items[] = [(int)$s['y'], $chrome ? hub_sprite_chrome($s, $L) : hub_sprite($s, $L)];   // 'street': the villagers stand in a line under the picture instead
     usort($items, fn($a, $b) => $a[0] <=> $b[0]);   // far first, near last
     if ($chrome) {   // rooms and sites are the backdrop (boxes), dressing sits on them, creatures stand in front so they stay tappable
         foreach ($hotspots as $h) $svg .= hub_hotspot_box($h, $L);
+        $svg .= $anim;
         foreach ($opts['dress'] ?? [] as $d) {
             $svg .= '<g class="dress" data-dress="' . e(hub_id((string)$d['k'])) . '">' . (($d['src'] ?? '') !== '' ? '<image class="pix" href="' . e((string)$d['src']) . '" x="' . (int)$d['x'] . '" y="' . (int)$d['y'] . '" width="' . (int)$d['w'] . '" height="' . (int)$d['h'] . '" image-rendering="pixelated"/>' : '') . '</g>';
         }
         foreach ($items as $it) $svg .= $it[1];
     } else {
+        $svg .= $anim;
         foreach ($items as $it) $svg .= $it[1];
         foreach ($hotspots as $h) $svg .= hub_hotspot($h, $L);
     }
