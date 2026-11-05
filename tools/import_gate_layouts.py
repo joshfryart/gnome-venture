@@ -21,7 +21,7 @@ TOWN_AS = {'tea': 'teahouse', 's1': 'special1', 's2': 'special2'}
 MAPLEWOLD_AS = {'sugar_shack': 'special1', 'pie_bakery': 'shops', 'tavern': 'teahouse', 'town_hall': 'library', 'maple_stalls': 'shops', 'general_store': 'shops',
                 'herbalist': 'shops', 'market_square': 'green', 'notice_board': 'board', 'orchard_path': 'wild', 'beaver_pond': 'special2'}
 # rest stop market look spots -> the stop page's behaviours (do = the activities, people = villagers, stop = the rest stop tab)
-STOP_AS = {'cottages': 'homes', 'seed': 'do', 'well': 'do', 'pond': 'do', 'table': 'do', 'trail': 'wild', 'notice': 'people', 'rest': 'stop', 'stall': 'do', 'forage': 'do'}
+STOP_AS = {'cottages': 'homes', 'seed': 'do', 'well': 'do', 'pond': 'do', 'table': 'do', 'trail': 'wild', 'notice': 'people', 'rest': 'stop', 'stall': 'do', 'forage': 'shops'}
 STOPS = {'stop-market-grassland_maplewold': 'pilot-market-grassland_maplewold', 'stop-market-desert_adobe': 'pilot-market-desert_adobe'}
 
 def clean(L, amap):
