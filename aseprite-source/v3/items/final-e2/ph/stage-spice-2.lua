@@ -83,7 +83,7 @@ leaf(33, 22, 40, 16, 47, 14, 3.6, LEAF, { 3, 7 })
 -- terminal bud: pale green pointed, with a hint of white flower bud
 local bm = c:ellipse(32, 11, 2, 3)
 G.toneN(c, bm, X.pillow(bm, 3), STEM, { tok = { r = { name = "bud" } } })
-c:put(32, 8, "#f4f0e0", { r = { name = "bud" } }) c:put(32, 9, "#ffffff", { r = { name = "bud" } })
+c:put(32, 8, "#f4f0e0", { r = { name = "bud" } }) c:put(32, 9, "#f8f4ea", { r = { name = "bud" } })
 -- quirk: a tiny green caterpillar nibbling the lower left leaf
 for i = 0, 3 do
   local x, y = 12 + i * 2, 45 - (i % 2)

@@ -87,7 +87,7 @@ chili({ {21, 33}, {21, 38}, {22, 43}, {20, 46} }, 1.8, { "#1f4a2a", "#2f6a34", "
 local function flower(x, y)
   local t = { r = { name = "fl" .. x } }
   for _, p in ipairs{ {0,-2},{2,-1},{1,2},{-1,2},{-2,-1} } do
-    c:put(x + p[1], y + p[2], "#ffffff", t) c:put(x + p[1], y + p[2] + 0, "#f4f0ea", t) end
+    c:put(x + p[1], y + p[2], "#f8f4ea", t) c:put(x + p[1], y + p[2] + 0, "#f4f0ea", t) end
   for _, p in ipairs{ {0,-1},{1,-1},{-1,-1},{-1,0},{1,0},{0,1} } do c:put(x + p[1], y + p[2], "#e6e0d6", t) end
   c:put(x, y, "#f2c230", t)
   c:put(x - 1, y + 1, "#bdb6ac", t) c:put(x + 1, y + 1, "#bdb6ac", t)

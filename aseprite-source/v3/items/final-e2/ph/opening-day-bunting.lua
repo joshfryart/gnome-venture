@@ -21,17 +21,17 @@ local COLS={
  {"#12462a","#1c6c3c","#2c9a4c","#4cc468","#80e48c","#c0f8c0"},
 }
 local ROPE={"#3a2a1c","#6a4a2c","#a07844","#c8a064"}
-local function yat(x) return 9+13*(1-((x-32)/27)^2) end
+local function yat(x) return 9+13*(1-((x-32)/24)^2) end
 -- rope
 local pts={}
-for x=5,59,1 do pts[#pts+1]={x,yat(x)} end
+for x=9,55,1 do pts[#pts+1]={x,yat(x)} end
 local rope=c:line(pts,1)
 S(rope,ROPE,1,"rope")
 rope:each(function(x,y) if (x%3)==0 then P(x,y,ROPE[1]) end end)
 -- end knots
-for _,x in ipairs{5,59} do local k=c:ellipse(x,floor(yat(x)),2,2); S(k,ROPE,2,"knot") end
+for _,x in ipairs{9,55} do local k=c:ellipse(x,floor(yat(x)),2,2); S(k,ROPE,2,"knot") end
 -- pennants
-local xs={11,21,32,43,53}
+local xs={15,23,32,41,49}
 local hs={19,24,26,24,19}
 for i,x in ipairs(xs) do
   local y=floor(yat(x))+1

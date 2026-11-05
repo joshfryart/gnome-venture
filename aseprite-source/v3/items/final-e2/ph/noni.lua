@@ -28,7 +28,7 @@ for gy=0,9 do for gx=0,8 do
     P(x-1,y-1,SK[6]); P(x,y-1,SK[5])
   end
 end end
-spec(body,n,"#ffffff")
+spec(body,n,"#fffff0")
 -- ripe translucent patch lower right
 for _,p in ipairs{{40,48},{41,48},{40,49},{41,49},{42,49},{39,50},{40,50},{41,50}} do if body:has(p[1],p[2]) then P(p[1],p[2],"#9a8a52") end end
 -- stem + leaf

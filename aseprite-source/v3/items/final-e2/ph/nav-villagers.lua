@@ -16,7 +16,7 @@ local function spec(m, n, col) local x, y = G.specAt(m, n, 30) if x then P(x, y,
 local RED={"#4a1620","#7a2230","#a8332f","#d4503a","#ee7a4c","#ffa870"}
 local BLU={"#1a2250","#26397a","#3a5cb0","#5486d8","#7cacee","#b0d4ff"}
 local SKIN={"#6a3030","#a85a48","#d4846a","#eea488","#ffc4a4","#ffe0c8"}
-local WHT={"#6c6a92","#9a98c0","#c4c4e0","#e4e4f4","#f6f4ff","#ffffff"}
+local WHT={"#6c6a92","#9a98c0","#c4c4e0","#e4e4f4","#f6f4ff","#fffff0"}
 local GIN={"#7a4a22","#a8682c","#d48c3c","#ecb050","#fcd078","#fff0a8"}
 local GRN={"#16382e","#1f5a3e","#2e7e4a","#44a04e","#6cc064","#9ce07c"}
 c:groundShadow(32,55,24,3)

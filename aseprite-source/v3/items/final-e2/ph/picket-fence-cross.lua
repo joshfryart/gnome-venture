@@ -13,14 +13,14 @@ end
 local function P(x, y, col) c:put(x, y, col, { r = { name = "d" } }) end
 local function spec(m, n, col) local x, y = G.specAt(m, n, 30) if x then P(x, y, col or "#fffbe8") end end
 
-local WD={"#6c6a92","#9490b8","#c0bcd8","#e0dcf0","#f4f0fc","#ffffff"}
+local WD={"#6c6a92","#9490b8","#c0bcd8","#e0dcf0","#f4f0fc","#fffff0"}
 local RL={"#4a2a18","#6e4428","#946238","#b88450"}
 local PO={"#7a4a2a","#a8703c","#cc9858","#e4b878","#f4d49c","#fff0c8"}
 local CAPC={"#1a3a6a","#2a5a9c","#4284cc","#6cacee","#a8d4ff","#e0f4ff"}
 c:groundShadow(32,56,26,3)
 local cx,cy=32,32
 -- rails first (under pickets)
-local hr=c:rect(5,cy-2,59,cy+1); local vr=c:rect(cx-2,5,cx+1,59)
+local hr=c:rect(8,cy-2,56,cy+1); local vr=c:rect(cx-2,8,cx+1,56)
 S(hr,RL,2,"hrail"); S(vr,RL,2,"vrail")
 -- pickets: 6x6 boards with a pointed lit top row
 local function pk(x0,y0,i)
@@ -30,7 +30,7 @@ local function pk(x0,y0,i)
   P(x0+4,y0+4,WD[1]); P(x0+3,y0+5,WD[1])
 end
 local n=0
-for _,o in ipairs{11,19,27} do
+for _,o in ipairs{10,17,24} do
   n=n+1; pk(cx-o-3,cy-3+0,n) -- left
   n=n+1; pk(cx+o-2,cy-3,n)   -- right
   n=n+1; pk(cx-3+0,cy-o-3,n)  -- up

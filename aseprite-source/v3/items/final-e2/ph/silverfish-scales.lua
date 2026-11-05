@@ -37,12 +37,12 @@ local function scale(rx, ry, a, L, ramp, name, rib)
   end)
   return m, tok, n
 end
-local aL = scale(20, 44, -1.9, 22, PAL, "sA", 3)
-local aR = scale(44, 44, -1.25, 23, PAL2, "sB", 3)
-local aF = scale(32, 58, -1.57, 24, PAL, "sC", 3)
+local aL = scale(22, 42, -1.9, 17, PAL, "sA", 3)
+local aR = scale(42, 42, -1.25, 17, PAL2, "sB", 3)
+local aF = scale(32, 55, -1.57, 19, PAL, "sC", 3)
 -- bright rim catch on front scale and the shimmer quirk on the right one
 local fm = c:poly({{0,0}})
-aR:edge():each(function(x, y) if y < 28 and x > 40 then local t = (x + y) % 4 c:put(x, y, ({ "#f2a0c8", "#ffe08a", "#8ee8c8", "#a8b8ff" })[t + 1], { r = { name = "shim" } }) end end)
+aR:edge():each(function(x, y) if y < 34 and x > 38 then local t = (x + y) % 4 c:put(x, y, ({ "#f2a0c8", "#ffe08a", "#8ee8c8", "#a8b8ff" })[t + 1], { r = { name = "shim" } }) end end)
 c:put(26, 36, "#e4eaf6") c:put(27, 36, "#e4eaf6") c:put(26, 37, "#c4cee6")
 -- water drop
 c:put(52, 50, "#7ab8e8") c:put(53, 50, "#b4e0f8") c:put(52, 51, "#4a86c0") c:put(53, 51, "#7ab8e8") c:put(52, 52, "#3a66a0")

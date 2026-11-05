@@ -12,7 +12,7 @@ end
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 -- quirk: the shed skin still has two hollow eye-caps at its head and a torn notch
 c:groundShadow(32, 57, 22, 3)
-local sm, sn, ST = G.tube({ {12,50}, {14,20}, {42,50}, {52,18} }, function(t) if t > 0.9 then return 4 + (1 - t) * 40 end return 4.2 + 5 * sin(pi * min(1, t * 1.1)) ^ 0.6 end)
+local sm, sn, ST = G.tube({ {10,50}, {6,12}, {56,58}, {52,16} }, function(t) if t > 0.9 then return 4 + (1 - t) * 40 end return 4.2 + 5 * sin(pi * min(1, t * 1.1)) ^ 0.6 end)
 local PAL = { "#6a6a3c", "#8a8a4c", "#a8a85e", "#c4c47a", "#dcdc9a", "#f0efba" }
 local tok = { r = { name = "skin" } }
 local v = X.light(sn, { amb = 0.1, wrap = 0.3 })

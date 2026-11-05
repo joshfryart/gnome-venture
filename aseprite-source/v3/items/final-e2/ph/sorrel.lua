@@ -17,7 +17,7 @@ local function rot(px, py, ox, oy, a) return { ox + px * cos(a) - py * sin(a), o
 -- arrowhead (hastate) leaf pointing up in local coords then rotated about base
 local function arrow(ox, oy, a, L, W, name)
   local loc = { {0,0}, {W*0.9,0.18*L}, {W*0.5,0.3*L}, {W*0.62,0.2*L}, {W*0.5,0.32*L}, {W*0.25,0.65*L}, {0,L}, {-W*0.25,0.65*L}, {-W*0.5,0.32*L}, {-W*0.62,0.2*L}, {-W*0.5,0.3*L}, {-W*0.9,0.18*L} }
-  loc = { {0,0.06*L}, {W,0.0}, {W*0.55,0.26*L}, {W*0.55,0.34*L}, {W*0.28,0.68*L}, {0,L}, {-W*0.28,0.68*L}, {-W*0.55,0.34*L}, {-W*0.55,0.26*L}, {-W,0.0} }
+  loc = { {0,0.02*L}, {W*0.8,-0.06*L}, {W*0.5,0.2*L}, {W*0.8,0.36*L}, {W*0.5,0.7*L}, {0,L}, {-W*0.5,0.7*L}, {-W*0.8,0.36*L}, {-W*0.5,0.2*L}, {-W*0.8,-0.06*L} }
   local pts = {}
   for i, p in ipairs(loc) do pts[i] = rot(p[1], -p[2], ox, oy, a) end
   local m = c:poly(pts)
@@ -33,9 +33,9 @@ local stok = { r = { name = "stem" } }
 local sv = X.light(stn, { amb = 0.12, wrap = 0.3 })
 X.tone(c, stm, sv, { "#4a1c2c", "#7a2a3a", "#a43c48", "#c4584e", "#8aa448", "#b4c868" }, { cuts = { 0.2, 0.38, 0.55, 0.72, 0.87 }, tok = stok })
 -- big leaves
-arrow(30, 56, -0.95, 30, 11, "lA")
-arrow(30, 56, 0.9, 26, 10, "lB")
-arrow(31, 48, 0.1, 14, 5, "lC")
+arrow(30, 56, -0.7, 30, 9, "lA")
+arrow(30, 56, 0.75, 27, 9, "lB")
+arrow(30, 56, -0.05, 18, 6, "lC")
 -- re-draw stem over leaf C base is fine; rust seed clusters (tiny winged triangles) up the spike
 local RUST = { "#5a1c1c", "#8c2c24", "#b8442c", "#d86a3c", "#ee9456" }
 for i, p in ipairs{ {38,8},{36,12},{39,15},{35,19},{37,23},{34,27} } do
