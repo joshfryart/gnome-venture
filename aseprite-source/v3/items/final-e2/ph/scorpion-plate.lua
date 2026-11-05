@@ -20,15 +20,15 @@ local pn, _, pt = paint(pl, PLATE, 10, "plate")
 local well = c:ellipse(32, 43, 20, 10)
 paint(well, { PLATE[3], PLATE[4], PLATE[5], PLATE[5], PLATE[6], PLATE[6] }, 6, "well", { amb = 0.3 })
 -- tail first (behind): beaded segments curling up on the right
-local pts = { { 33, 46 }, { 42, 52 }, { 56, 46 }, { 52, 28 } }
+local pts = { { 33, 46 }, { 42, 52 }, { 54, 46 }, { 50, 28 } }
 local tm, tn, TT = G.tube(pts, function(t) return 3.2 - 1.2 * t end)
 local tt = { r = { name = "tail" } }
 G.toneN(c, tm, tn, SCOR, { tok = tt, amb = 0.1, wrap = 0.3 })
 tm:each(function(x, y) local t = TT[K(x, y)] if t * 7 - floor(t * 7) < 0.2 then c:put(x, y, SCOR[1], tt) end end)
 -- stinger
-local st = c:poly{ { 50, 29 }, { 54, 29 }, { 52, 21 } }
+local st = c:poly{ { 48, 29 }, { 52, 29 }, { 50, 21 } }
 paint(st, { SCOR[1], SCOR[2], SCOR[3], SCOR[4], SCOR[5], SCOR[6] }, 2, "sting")
-c:put(52, 21, "#d8ffa0", { r = { name = "venom" } }); c:put(52, 22, "#8ae04c", { r = { name = "venom" } })
+c:put(50, 21, "#d8ffa0", { r = { name = "venom" } }); c:put(50, 22, "#8ae04c", { r = { name = "venom" } })
 -- legs
 local lg = { r = { name = "leg" } }
 for i, y in ipairs{ 36, 40, 44 } do
@@ -44,9 +44,9 @@ c:put(28, 28, SCOR[6], bt); c:put(36, 28, "#101010", bt); c:put(28, 27, "#101010
 local function claw(sd)
   local am = c:line({ { 32 + sd * 7, 31 }, { 32 + sd * 11, 26 }, { 32 + sd * 14, 22 } }, 2)
   paint(am, SCOR, 2, "arm" .. sd)
-  local pin = c:poly{ { 32 + sd * 11, 22 }, { 32 + sd * 20, 20 }, { 32 + sd * 20, 14 }, { 32 + sd * 15, 13 }, { 32 + sd * 11, 17 } }
+  local pin = c:poly{ { 32 + sd * 11, 22 }, { 32 + sd * 17, 20 }, { 32 + sd * 17, 14 }, { 32 + sd * 15, 13 }, { 32 + sd * 11, 17 } }
   local n, _, t = paint(pin, SCOR, 4, "pin" .. sd)
-  c:line({ { 32 + sd * 14, 18 }, { 32 + sd * 20, 18 } }, 1):each(function(x, y) c:put(x, y, SCOR[1], t) end)
+  c:line({ { 32 + sd * 14, 18 }, { 32 + sd * 17, 18 } }, 1):each(function(x, y) c:put(x, y, SCOR[1], t) end)
   c:put(32 + sd * 16, 14, SCOR[6], t) end
 claw(-1); claw(1)
 -- quirk: a sprig of parsley garnish

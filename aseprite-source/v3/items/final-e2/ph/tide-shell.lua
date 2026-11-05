@@ -43,8 +43,8 @@ shade(ap, PINK, 6, { amb = .3, wrap = .35 })
 put(c:ellipse(37, 47, 5, 4), "#4a1424")
 put(c:ellipse(37, 48, 3, 2), "#2a0c18")
 -- quirk: a tiny pearl in the throat and a water droplet
-shade(c:ellipse(38, 49, 1, 1), { "#c0b8cc", "#e8e0f0", "#ffffff" }, 1)
-shade(c:ellipse(12, 24, 1, 2), { "#2c6ab4", "#68b0e4", "#f0fcff" }, 1)
+shade(c:ellipse(38, 49, 1, 1), { "#c0b8cc", "#e8e0f0", "#f6fbff" }, 1)
+shade(c:ellipse(12, 24, 1, 2), { "#2c6ab4", "#68b0e4", "#e8f6fc" }, 1)
 c:sparkle(24, 30)
 
 G.save(c, NAME)

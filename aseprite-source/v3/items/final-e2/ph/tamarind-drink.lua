@@ -18,7 +18,7 @@ local function bez(p, t) local u = 1 - t
   return u*u*u*p[1][1] + 3*u*u*t*p[2][1] + 3*u*t*t*p[3][1] + t*t*t*p[4][1],
          u*u*u*p[1][2] + 3*u*u*t*p[2][2] + 3*u*t*t*p[3][2] + t*t*t*p[4][2] end
 
-local GL = { "#5a8a9a", "#86b8c4", "#b0dce2", "#d4f0f2", "#eefafa", "#ffffff" }
+local GL = { "#5a8a9a", "#86b8c4", "#b0dce2", "#d4f0f2", "#eefafa", "#f6fbff" }
 local LIQ = { "#2a0e08", "#4a1a0e", "#702a14", "#9a4220", "#c0642c", "#e08a44" }
 local POD = { "#2e1a14", "#4a2c1e", "#6c4430", "#8e6244", "#b08460", "#d2aa82" }
 local ICE = { "#8ab8d0", "#b4dcec", "#d8f2fa", "#f4fcff" }
@@ -33,7 +33,7 @@ shade(c:rrect(31, 26, 39, 33, 2), ICE, 3, { amb = .4 })
 -- liquid meniscus line
 for x = 19, 41 do c:put(x, 26, LIQ[6]) end
 -- glass highlights and thick base
-for y = 22, 50 do c:put(18 + floor((y - 22) / 9), y, "#ffffff") end
+for y = 22, 50 do c:put(18 + floor((y - 22) / 9), y, "#f6fbff") end
 for x = 21, 39 do c:put(x, 53, GL[3]) c:put(x, 54, GL[2]) end
 -- bubbles
 c:put(34, 40, LIQ[6]) c:put(26, 44, LIQ[5]) c:put(32, 47, LIQ[6])

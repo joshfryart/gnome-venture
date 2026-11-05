@@ -20,12 +20,12 @@ local function bez(p, t) local u = 1 - t
 
 local WOOD = { "#3a2214", "#5a361c", "#7e5028", "#a2703a", "#c4944c", "#e0b86c" }
 local METAL = { "#1c3a46", "#2c6070", "#3c8a96", "#62b4b4", "#98d8cc", "#d0f4e4" }
-local WATER = { "#1c4a8a", "#2c6ab4", "#3c8ad0", "#68b0e4", "#a4d8f4", "#f0fcff" }
+local WATER = { "#1c4a8a", "#2c6ab4", "#3c8ad0", "#68b0e4", "#a4d8f4", "#e8f6fc" }
 local CRAB = { "#6a1c14", "#a02c1c", "#d0482a", "#ec7a3c", "#ffa860" }
 local ROPE = { "#6a5030", "#9a7a46", "#c4a468", "#e6ce90" }
 c:groundShadow(32, 59, 18, 2)
 -- rope handle arch (behind)
-local hm, hn = G.tube({ {17, 27}, {14, -2}, {50, -2}, {47, 27} }, function(t) return 1.8 end)
+local hm, hn = G.tube({ {17, 27}, {14, 1}, {50, 1}, {47, 27} }, function(t) return 1.8 end)
 local ht = tok()
 hm:each(function(x, y) local twist = (x + y) % 4 < 2 c:put(x, y, twist and ROPE[3] or ROPE[2], ht) end)
 -- body
@@ -49,7 +49,7 @@ X.tone(c, sm, X.light(sn, { amb = .2, wrap = .3 }), { "#1a3a22", "#285a2c", "#3c
 -- quirk: little crab peeking over the rim
 shade(c:ellipse(42, 19, 5, 3), CRAB, 3)
 shade(c:ellipse(36, 14, 2, 2), CRAB, 2) shade(c:ellipse(49, 14, 2, 2), CRAB, 2)
-c:put(40, 16, "#1a1218") c:put(44, 16, "#1a1218") c:put(40, 15, "#ffffff") c:put(44, 15, "#ffffff")
+c:put(40, 16, "#1a1218") c:put(44, 16, "#1a1218") c:put(40, 15, "#f6fbff") c:put(44, 15, "#f6fbff")
 c:sparkle(23, 36)
 
 G.save(c, NAME)

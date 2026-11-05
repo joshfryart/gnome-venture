@@ -24,11 +24,11 @@ local function br(x, y, a, l, w, d)
   local x2, y2 = x + cos(a) * l, y + sin(a) * l
   m:add(c:line({ { R(x), R(y) }, { R((x + x2) / 2 - sin(a)), R((y + y2) / 2 + cos(a)) }, { R(x2), R(y2) } }, w))
   if d == 0 then tips[#tips + 1] = { R(x2), R(y2) } return end
-  br(x2, y2, a - 0.55, l * 0.7, max(2, w - 1), d - 1)
-  br(x2, y2, a + 0.55, l * 0.7, max(2, w - 1), d - 1)
+  br(x2, y2, a - 0.8, l * 0.8, max(2, w - 1), d - 1)
+  br(x2, y2, a + 0.8, l * 0.8, max(2, w - 1), d - 1)
   if d == 2 then br(x2, y2, a + 0.05, l * 0.7, max(2, w - 1), d - 1) end
 end
-br(24, 49, -1.85, 8, 4, 3); br(32, 50, -1.57, 10, 4, 3); br(40, 49, -1.3, 8, 4, 3)
+br(25, 49, -1.9, 7, 3, 3); br(32, 50, -1.57, 9, 3, 3); br(39, 49, -1.25, 7, 3, 3)
 local n, idx, tok = paint(m, LICH, 3, "lichen", { amb = 0.15, wrap = 0.35 })
 -- dark gaps / deep fork shadow
 m:each(function(x, y) if idx[K(x, y)] == 1 and X.hash(x, y, 4) > 0.5 then c:put(x, y, LICH[1], tok) end end)
