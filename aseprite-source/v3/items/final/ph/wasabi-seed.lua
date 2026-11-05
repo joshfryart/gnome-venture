@@ -1,8 +1,7 @@
--- wasabi-seed (seed W1_8)
+-- wasabi-seed (seed P1b_S3)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="wasabi-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#1e2a1c","#34402a","#4c5a34","#6a7842","#8c9a58","#b4bc78"}, leaf={"#1c3a2e","#2a5636","#3c7640","#58964a","#80b45c","#aed084"}, sleaf={"#2a5a3a","#3e7a44","#5a9a50","#7cb864","#a4d680","#ccec9e"},
-stem={"#3a5a34","#5a7c44","#7c9e58","#98c070","#b6dc8c"}, root={"#e8e0c4","#d4c8a4","#b8a884"}, vein="#c8e8a0", gloss="#e8f4c8", cool="#3a3a60", red="#7a4a50",
-sl=0.75, sw=0.9, taper=0.05, drop={4}, marks="pits", markc="#1a2216",
-scrap={8,54,26,50,56,42}, scrapW=6.8, scrapExp=0.9, sprout="pair", leafw=4.2, quirk="none"
+ name="wasabi-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#4a5a1a","#627424","#7c8e30","#98aa42","#b4c658","#d2e276"}, leaf={"#0e2e1a","#164024","#1e5430","#2a6a3c","#3a8250","#4e9c64"}, sleaf={"#1e5a2a","#2c7436","#3c8e44","#52a854","#6cc268","#8cdc84"}, stem={"#2a4a1e","#3e6a2a","#568a3a","#76a84e","#98c46a"}, root={"#f5ead2","#e6d6b0","#cebc8c"},
+ vein="#b0e8a0", gloss="#e8ffe0", cool="#5a9ab0", red="#9a5a3a", sl=1.15, sw=1.2, taper=0.02, drop={4,1}, marks="pits", markc="#3a4814",
+ scrap={6,56,32,56,58,42}, scrapW=6.0, scrapExp=0.7, sprout="single", leafw=3.0, quirk="none"
 })

@@ -1,7 +1,5 @@
--- ph/carnation-seed (seed P1pilot)
+-- carnation-seed (seed P1b_S0)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
  name="carnation-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
- seed={"#2b2220","#4a3a32","#6b5646","#8f7a66","#b59f88","#d9c7ae"}, leaf={"#3f5a55","#55756c","#6f9288","#8fb0a4","#aecabd","#cfe3d6"}, sleaf={"#4f7d5a","#63975f","#7db36c","#99cc7d","#b6e096","#d3f0b2"}, stem={"#4a6a55","#5f8566","#76a07a","#8fba90","#aad3a8"}, root={"#efe3c8","#e2d2ae","#cdb88f"},
- vein="#e4f0e2", gloss="#f2eadb", cool="#6b8fa8", red="#d94a6a", sl=1.25, sw=0.8, taper=0.25, drop={4,1}, marks="stripes", markc="#e8dcc6",
- scrap={6,56,26,50,58,42}, scrapW=5.6, scrapExp=0.8, sprout="blades", leafw=3.0, quirk="none"
+ seed={"#1c1816","#322a26","#4a3e38","#625448","#7c6c5e","#988676"}, leaf={"#3c5a58","#4e7470","#648c86","#7ea69c","#9cc0b2","#bcd8c8"}, sleaf={"#4a7a74","#5e948a","#78ae9e","#94c8b4","#b2e0ca","#d0f4e0"}, stem={"#4a6a5a","#5e8470","#76a088","#8cb89c","#a4d0b2"}, vein="#d8f0e0", gloss="#f4fff4", cool="#5a7c9a", red="#c04a6a", sl=1.1, sw=1.3, taper=0.1, drop={4}, marks="none", markc="#6a5c50", scrap={6,52,26,57,57,44}, scrapW=6.0, scrapExp=0.6, sprout="blades", leafw=3.8, quirk="none"
 })

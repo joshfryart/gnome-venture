@@ -1,8 +1,7 @@
--- moth-orchid-seed (seed W1_3)
+-- moth-orchid-seed (seed P1b_S1)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
  name="moth-orchid-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
- seed={"#6a4a1e","#8e6a26","#b48a32","#d4a846","#ecc868","#fce49a"}, leaf={"#24442e","#34603a","#46803e","#5e9c46","#7eb852","#a4d470"}, sleaf={"#3c9a52","#5cb862","#80d278","#a4e890","#c8f8b4","#e8ffd8"}, stem={"#5a3a58","#7a5a70","#9a7a88","#78b068","#98d078"}, root={"#c8d8b0","#dce8c8","#f0f8e0"},
- vein="#bce890", gloss="#fff2c0", cool="#4a3a6a", red="#c0508a",
- sl=0.5, sw=0.6, taper=0.1, drop={4,1}, marks="none", markc="#e8c060",
- scrap={7,56,26,52,57,43}, scrapW=7.4, scrapExp=1.0, sprout="single", leafw=4.6, quirk="none",
+ seed={"#8a6a1c","#b08a28","#d0a83c","#e8c458","#f8dc7c","#fff0a8"}, leaf={"#0c2a30","#143c40","#1c5250","#286a5e","#388470","#4e9e84"}, sleaf={"#1c5a48","#2a7658","#3c9268","#56ae7c","#7aca96","#a2e2b2"}, stem={"#4a5a3a","#667a4c","#82985e","#9ab474","#b6cc90"}, root={"#dcead8","#bcd0b8","#9ab49c"},
+ vein="#8ad0b0", gloss="#e0fff0", cool="#2a6a8a", red="#a85a7a", sl=1.4, sw=1.0, taper=0.35, drop={4,1}, marks="none", markc="#8a6a1c",
+ scrap={7,56,32,56,57,46}, scrapW=5.4, scrapExp=0.5, sprout="blades", leafw=6.0, quirk="none"
 })

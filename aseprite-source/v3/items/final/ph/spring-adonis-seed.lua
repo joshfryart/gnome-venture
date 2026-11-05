@@ -1,8 +1,6 @@
--- spring-adonis-seed (seed W1_5)
-dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="spring-adonis-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#3a3418","#585026","#7a7034","#9c9044","#bcae60","#dccc84"}, leaf={"#2a5a30","#3a7a3a","#52984a","#70b45c","#96cc78","#c0e49c"}, sleaf={"#3c8a40","#52a84c","#70c45e","#94da7a","#b8ec9c","#dcf8c0"}, stem={"#2c5a34","#407840","#5a964e","#80b262","#a8cc80"}, root={"#f2e8d0","#e0ceaa","#c8b084"},
-vein="#8ccc78", gloss="#e8dc9c", cool="#3a3a5e", red="#c0583c",
-sl=0.8, sw=0.85, taper=0.0, drop={4,1}, marks="pits", markc="#2a2410",
-scrap={7,56,28,47,56,41}, scrapW=7.0, scrapExp=0.85, sprout="blades", leafw=2.2, quirk="none"
+-- spring-adonis-seed (seed P1b_S2)
+dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({ name="spring-adonis-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#6a6258","#867c6e","#a29886","#bcb29e","#d4cab4","#ece4d0"}, leaf={"#0e2c1a","#164a26","#206a30","#2e8a3c","#4aa64c","#74c068"}, sleaf={"#164a22","#1e6a2c","#2c8a38","#44a648","#68c062","#94dc88"}, stem={"#3a2a2a","#583c34","#7a5a46","#3a7a38","#58a050"},
+ vein="#a8e898", gloss="#d4fcc0", cool="#28786a", red="#d8a020", sl=1.1, sw=1.1, taper=0.2, drop={4,1}, marks="spots", markc="#5a5248",
+ scrap={10,48,30,62,60,52}, scrapW=5.8, scrapExp=0.55, sprout="blades", leafw=4.6, quirk="none"
 })

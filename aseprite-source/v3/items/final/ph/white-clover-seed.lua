@@ -1,8 +1,7 @@
--- white-clover-seed (seed W1_8)
+-- white-clover-seed (seed P1b_S3)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="white-clover-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#5a3a1e","#8a5a22","#b88430","#d8a840","#ecc85a","#f8e48a"}, leaf={"#2a5a30","#3c7a3a","#58a048","#7cc058","#a4dc78","#cef0a0"}, sleaf={"#3c7e3a","#58a048","#7cc05a","#a0dc78","#c4f098","#e2fcc0"},
-stem={"#5a7a3a","#7a9c4a","#9cbc5c","#8cd070","#b0e890"}, root={"#f4ecd0","#e0d4ae","#c8b88c"}, vein="#e8f8d8", gloss="#fff8d0", cool="#4a3a70", red="#a05860",
-sl=0.55, sw=0.7, taper=0.3, drop={4,1}, marks="none", markc="#8a5a22",
-scrap={10,53,30,52,54,44}, scrapW=5.6, scrapExp=0.5, sprout="pair", leafw=3.2, quirk="none"
+ name="white-clover-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#a87a1e","#c49632","#dcae48","#eec462","#f8d882","#fff0aa"}, leaf={"#1a3a28","#245238","#2e6a46","#3c8456","#4e9e68","#66b87c"}, sleaf={"#3a8a40","#4ea450","#66be62","#82d87c","#a0ee98","#c0ffb6"}, stem={"#4a6a3a","#628a4a","#7ca85c","#98c474","#b4dc90"}, root={"#f5ead2","#e6d6b0","#cebc8c"},
+ vein="#dcf8d0", gloss="#ffffff", cool="#7a9ab0", red="#a8546a", sl=1.1, sw=1.0, taper=0.18, drop={4}, marks="none", markc="#b88a28",
+ scrap={8,50,28,57,56,44}, scrapW=5.8, scrapExp=0.9, sprout="trio", leafw=3.4, quirk="none"
 })

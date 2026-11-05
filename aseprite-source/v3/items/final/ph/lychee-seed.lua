@@ -1,8 +1,5 @@
--- lychee-seed (seed W1_3)
+-- lychee-seed (seed P1b_S0)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
  name="lychee-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
- seed={"#2a1218","#4a1e1c","#6e2e22","#8e4428","#b0662e","#d89a54"}, leaf={"#14302c","#1e4a38","#2c6a3e","#408a46","#62a850","#90c466"}, sleaf={"#2a6a40","#42904a","#62b050","#86cc60","#aae078","#ccf0a0"}, stem={"#4a3040","#6a4a48","#8a6a52","#6a9a4a","#8abe5a"}, root={"#e8d4b0","#f4e6c8","#fff4dc"},
- vein="#a8d880", gloss="#f4d8b0", cool="#3a2a4a", red="#a8503a",
- sl=1.3, sw=1.15, taper=0.05, drop={4}, marks="spots", markc="#e8c898",
- scrap={7,55,28,50,57,42}, scrapW=5.2, scrapExp=0.6, sprout="pair", leafw=3.4, quirk="none",
+ seed={"#2a0e08","#4a1a0e","#6a2a14","#8a3c1c","#a85428","#c8743c"}, leaf={"#9a6a4a","#b08060","#c49676","#d6ac8e","#e6c4a8","#f4dcc4"}, sleaf={"#7a2a2a","#9a3e34","#b85a44","#cf7a58","#e49a72","#f4baa0"}, stem={"#5a2a1e","#7a4030","#9a5a44","#b27458","#ca9072"}, vein="#fff0e0", gloss="#fff8f0", cool="#8a6a6a", red="#c0302a", sl=1.3, sw=1.3, taper=0.05, drop={4,1}, marks="none", markc="#e8c8a0", scrap={8,58,24,48,56,40}, scrapW=6.6, scrapExp=0.7, sprout="trio", leafw=3.8, quirk="none"
 })

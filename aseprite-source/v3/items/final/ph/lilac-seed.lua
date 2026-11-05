@@ -1,10 +1,5 @@
--- lilac-seed (seed W1_2)
+-- lilac-seed (seed P1b_S0)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="lilac-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#2a1c20","#4a2c28","#6e4430","#946444","#b88a5c","#dcb480"}, leaf={"#24443c","#2e6048","#3e8050","#58a058","#7cc068","#a4dc84"}, sleaf={"#2e6a50","#44905a","#62b464","#88d474","#acf08c","#d0ffb0"},
-stem={"#4a3438","#6a4a48","#8c6858","#6c9c58","#8cc070"}, root={"#ece0c8","#d6c4a4","#bca888"},
-vein="#c0e8a8", gloss="#f4d4a8", cool="#4a2a6a", red="#8a4a6a",
-sl=1.0, sw=0.95, taper=0.2, drop={4}, marks="none", markc="#3a2a26",
-scrap={6,54,22,46,57,42}, scrapW=6.6, scrapExp=0.7, sprout="pair", leafw=3.8, quirk="none",
-extra=function(ctx) for i=0,2 do ctx.c:put(20+i*3,50-i,"#b890d8",{r={name="q"}}) end end
+ name="lilac-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#3a2410","#5a3a1a","#7a5428","#9a7038","#b88c4c","#d4aa68"}, leaf={"#506a6a","#648282","#7a9a96","#92b2aa","#acc8be","#c8e0d4"}, sleaf={"#3a6a4a","#4e8458","#66a068","#82bc7e","#a0d89a","#c0f2b8"}, stem={"#5a3a38","#785048","#96685a","#8aa05a","#a4ba6e"}, vein="#e8f4ec", gloss="#fafff6", cool="#7a6aa0", red="#a05a8a", sl=1.3, sw=1.1, taper=0.35, drop={4}, marks="none", markc="#e0b878", scrap={8,53,20,58,56,48}, scrapW=6.0, scrapExp=0.85, sprout="pair", leafw=4.2, quirk="none"
 })

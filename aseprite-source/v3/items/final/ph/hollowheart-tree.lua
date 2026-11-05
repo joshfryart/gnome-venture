@@ -1,49 +1,38 @@
--- hollowheart-tree (lean W2_6)
-local NAME = "hollowheart-tree"
+-- hollowheart-tree (lean P1b_O3)
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function shade(c, m, R, ramp, amb, wrap)
-  local n = X.pillow(m, R)
-  local v = X.light(n, { amb = amb or 0.1, wrap = wrap or 0.25 })
-  X.tone(c, m, v, ramp, { cuts = {.22,.4,.56,.72,.86} })
-  return v, n
-end
-local c = HP.canvas{ w=64, h=64, scale=1, name=NAME }
-local BARK = { "#2f1d2a", "#4e3033", "#704630", "#93603c", "#b78250", "#d9a96c" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#a4d46c" }
-local GLOW = { "#7a2c1c", "#c4561e", "#f08a28", "#ffc450", "#fff0a0", "#fffbd0" }
-c:groundShadow(32, 58, 16, 2)
--- trunk: twisted, flared roots
-local trunk = HP.mask()
-for y = 24, 56 do
-  local t = (y - 24) / 32
-  local hw = 5.5 + 9 * max(0, t - 0.7)^1.3 * 3.2 + sin(t*5) * 0.8
-  local cx = 31 + sin(t * 3.2) * 1.8
-  for x = floor(cx - hw), floor(cx + hw) do trunk:set(x, y) end
-end
-local v = shade(c, trunk, 9, BARK, 0.12, 0.25)
-trunk:each(function(x, y) if y > 28 and (x*3 + floor(y*0.7)) % 6 == 0 and X.hash(x,y,9) > 0.35 then c:px(x, y, BARK[2]) end end)
--- hollow heart: dark heart-shaped cavity with warm glow inside
+local function shade(c, m, R, ramp, o) return G.toneN(c, m, X.pillow(m, R), ramp, o) end
+local function dot(c, x, y, h) c:px(x, y, h) end
+local c = HP.canvas{ w=64, h=64, scale=1, name="hollowheart-tree" }
+local LEAF = { "#183a34", "#235a3c", "#388046", "#58a64c", "#86c85a", "#bbe47e" }
+local BARK = { "#2a1a1c", "#4a2c26", "#6e4430", "#946444", "#b8875a", "#d8aa78" }
+c:groundShadow(32, 58, 14, 3)
+-- trunk: flared tube
+local tm, tn = G.tube({{32,58},{31,50},{33,40},{32,30}}, function(t) return 8.2 - 4.2 * t end)
+tm:add(c:poly{{20,58},{28,50},{36,50},{45,58}}):add(c:ellipse(32,56,13,3))
+local bias = {}
+local ti = G.toneN(c, tm, X.pillow(tm, 8), BARK, { bias = bias })
+tm:each(function(x, y) if (x % 4 == 1 or (x + y) % 9 == 0) and X.hash(x, y, 2) > 0.3 and y > 33 then c:px(x, y, BARK[2]) end end)
+-- hollow: heart-shaped glowing cavity
 local heart = HP.mask()
-heart:add(c:ellipse(29, 39, 3, 3)):add(c:ellipse(35, 39, 3, 3)):add(c:poly{ {26,41}, {38,41}, {32,48} })
-c:fillMask(heart, GLOW[1])
-local inner = heart:copy():shrink(1)
-c:fillMask(inner, GLOW[2])
-inner:each(function(x, y) if y >= 40 then c:px(x, y, GLOW[3]) end end)
-c:px(32, 44, GLOW[4]) c:px(32, 45, GLOW[5]) c:px(31, 44, GLOW[4]) c:px(33, 44, GLOW[4])
-heart:edge():each(function(x, y) if y < 40 then c:px(x, y, BARK[1]) end end)
--- canopy: lumpy clusters of leaf blobs
-local blobs = { {32,13,11,8}, {21,18,8,7}, {43,18,8,7}, {26,10,7,6}, {38,10,7,6}, {17,24,5,4}, {47,24,5,4}, {32,22,10,5} }
+heart:add(c:ellipse(29, 44, 3, 3)):add(c:ellipse(35, 44, 3, 3)):add(c:poly{{26,45},{38,45},{32,53}})
+local rimm = heart:copy():grow(1)
+c:fillMask(rimm, BARK[1])
+shade(c, heart, 5, { "#7a2a1c", "#b8481e", "#e0762a", "#f6a63c", "#ffd36a", "#fff0a0" }, { cuts = {0.2,0.4,0.6,0.8,0.92} })
+c:px(28, 42, "#fff6c0") c:px(29, 42, "#fff6c0")
+-- canopy: cluster of blobs
 local can = HP.mask()
-for _, b in ipairs(blobs) do can:add(c:ellipse(b[1], b[2], b[3], b[4])) end
-shade(c, can, 11, LEAF, 0.08, 0.2)
-can:each(function(x, y)
-  local h = X.hash(x, y, 13)
-  if h > 0.9 then c:px(x, y, LEAF[6]) elseif h < 0.08 and y > 14 then c:px(x, y, LEAF[1]) end
-end)
--- branch hint where canopy meets trunk
-c:px(30, 25, BARK[1]) c:px(33, 25, BARK[1])
--- quirk: a single glowing firefly-leaf drifting out of the hollow
-c:px(44, 36, GLOW[5]) c:px(45, 36, GLOW[4]) c:px(44, 37, GLOW[3])
-G.save(c, NAME)
+for _, b in ipairs{ {32,18,13,10},{20,24,9,8},{44,24,9,8},{26,12,9,7},{39,12,9,7},{32,26,12,6} } do can:add(c:ellipse(b[1], b[2], b[3], b[4])) end
+local n = X.pillow(can, 9)
+local cb = {}
+can:each(function(x, y) local h = X.hash(floor(x / 3), floor(y / 3), 5) if h > 0.72 then cb[K(x, y)] = 1 elseif h < 0.2 then cb[K(x, y)] = -1 end end)
+G.toneN(c, can, n, LEAF, { bias = cb, cuts = {0.2,0.38,0.55,0.72,0.88} })
+-- tuft notches at edge
+can:edge():each(function(x, y) if X.hash(x, y, 8) > 0.82 then c:px(x, y, LEAF[1]) end end)
+-- branch fork under canopy
+c:line({{32,31},{27,27}}, 2):each(function(x, y) c:px(x, y, BARK[3]) end)
+c:line({{32,31},{37,27}}, 2):each(function(x, y) c:px(x, y, BARK[3]) end)
+-- quirk: single floating heart-leaf
+c:px(50, 12, "#e86a8a") c:px(52, 12, "#e86a8a") c:px(49, 13, "#e86a8a") c:px(50, 13, "#f8a0b8") c:px(51, 13, "#e86a8a") c:px(52, 13, "#e86a8a") c:px(53, 13, "#e86a8a") c:px(50, 14, "#e86a8a") c:px(51, 14, "#e86a8a") c:px(52, 14, "#e86a8a") c:px(51, 15, "#c84a6a")
+G.save(c, "hollowheart-tree")

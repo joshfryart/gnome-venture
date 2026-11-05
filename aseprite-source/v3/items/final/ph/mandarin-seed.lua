@@ -1,8 +1,7 @@
--- mandarin-seed (seed W1_3)
+-- mandarin-seed (seed P1b_S1)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
  name="mandarin-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
- seed={"#4a3a28","#6e5636","#927048","#b8905c","#d8b47a","#f2d8a0"}, leaf={"#1c3a2a","#2a5632","#3c7438","#54923e","#78b048","#a4cc62"}, sleaf={"#3a7c34","#58a040","#7cc050","#a0dc66","#c4f088","#e4ffb0"}, stem={"#4a3a48","#6a5650","#8a7458","#78a448","#9cc858"}, root={"#ecdcb8","#f6ecd0","#fffae4"},
- vein="#b4dc78", gloss="#fff0c8", cool="#5a4a68", red="#c8742c",
- sl=0.8, sw=0.75, taper=0.38, drop={4,1}, marks="stripes", markc="#8a6a40",
- scrap={7,56,26,54,57,38}, scrapW=6.0, scrapExp=0.85, sprout="trio", leafw=3.0, quirk="none",
+ seed={"#8a7448","#b09a62","#cdb87c","#e2d095","#f2e4b0","#fff4d2"}, leaf={"#0f2e24","#173f2c","#205636","#2c7040","#3d8a4c","#58a25c"}, sleaf={"#1c5a34","#2a7840","#3c984c","#58b45e","#7ccc78","#a4e298"}, stem={"#5a3a20","#7a5230","#9a6e40","#7a9a48","#9ab85c"}, root={"#f5ead2","#e6d6b0","#cebc8c"},
+ vein="#9ad090", gloss="#e8f8c8", cool="#3a7a7a", red="#d86a1c", sl=1.3, sw=1.1, taper=0.3, drop={4}, marks="stripes", markc="#a89260",
+ scrap={7,54,26,56,57,42}, scrapW=6.0, scrapExp=0.62, sprout="pair", leafw=3.8, quirk="none"
 })

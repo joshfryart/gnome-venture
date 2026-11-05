@@ -1,9 +1,7 @@
--- tibetan-gentian-seed (seed W1_7)
+-- tibetan-gentian-seed (seed P1b_S3)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="tibetan-gentian-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#2e1a1c","#4e2c26","#6e4230","#8c5c3a","#aa7a4c","#c89a62"}, leaf={"#1e5a5e","#2a7470","#3c9082","#58ac90","#7ac4a0","#a0dcb4"}, sleaf={"#2a8078","#3c9c88","#58b898","#78d4ac","#9aecc4","#c0ffe0"},
-stem={"#2a5a60","#3a7470","#4c9080","#5ab08c","#74cca0"}, root={"#e4dcc8","#f2ecdc","#fff8ea"},
-vein="#9adcc0", gloss="#e8f0d0", cool="#2e2a6a", red="#7a4a8a",
-sl=0.8, sw=0.9, taper=0.15, drop={4,1}, marks="spots", markc="#d8b080",
-scrap={7,55,30,50,57,42}, scrapW=5.2, scrapExp=0.6, sprout="pair", leafw=3.2, quirk="hat"
+ name="tibetan-gentian-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#7a5a2a","#9a7a3e","#b89a56","#d2b872","#e8d28e","#f8eab0"}, leaf={"#14324a","#1c4660","#265a76","#326e8a","#428aa2","#5aa4ba"}, sleaf={"#1e5a6a","#2a7480","#388e94","#4ca8a6","#68c4b8","#8adcca"}, stem={"#2a3a5a","#3e5276","#566c92","#4a8a7a","#62a690"}, root={"#f5ead2","#e6d6b0","#cebc8c"},
+ vein="#8ad0e0", gloss="#e0f8ff", cool="#5a7ab8", red="#7a3a8a", sl=1.2, sw=1.3, taper=0.1, drop={4}, marks="stripes", markc="#8a6a30",
+ scrap={6,50,30,58,58,46}, scrapW=6.8, scrapExp=0.8, sprout="pair", leafw=3.0, quirk="none"
 })

@@ -1,8 +1,5 @@
--- kangaroo-paw-seed (seed W1_1)
+-- kangaroo-paw-seed (seed P1b_S0)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="kangaroo-paw-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#0e0c14","#1a1822","#2a2634","#403c4e","#625c72","#8e8aa0"}, leaf={"#24402c","#365c34","#4a7c3c","#689c48","#8abc58","#b2dc78"}, sleaf={"#3a7a3c","#549c48","#74c058","#98dc6c","#bcf488","#e0ffb0"}, stem={"#4a2c3c","#6c4048","#905a56","#709c48","#94bc5a"}, root={"#e4d4b8","#f0e4cc","#fcf2e0"},
-vein="#c8e898", gloss="#c8c4e0", cool="#3c2c64", red="#c43c3c",
-sl=0.9, sw=1.1, taper=0.1, drop={4}, marks="none", markc="#403c4e",
-scrap={5,57,24,54,59,44}, scrapW=3.6, scrapExp=0.45, sprout="blades", leafw=2.4, quirk="none"
+ name="kangaroo-paw-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#14100e","#2a201c","#403430","#5a4a42","#746258","#90806e"}, leaf={"#4a6a50","#5e8462","#749c76","#8cb48a","#a8cca2","#c6e4be"}, sleaf={"#3a6a40","#4c8450","#64a064","#80bc7c","#9ed898","#bef2b4"}, stem={"#3a4a2a","#506a38","#688848","#80a65a","#9cc070"}, vein="#e8f8d8", gloss="#fffff0", cool="#6a8aa8", red="#d0382a", sl=1.3, sw=1.3, taper=0.0, drop={4,1}, marks="spots", markc="#d8c8a8", scrap={5,58,24,46,58,50}, scrapW=5.4, scrapExp=0.65, sprout="blades", leafw=4.4, quirk="none"
 })

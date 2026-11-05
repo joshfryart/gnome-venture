@@ -1,9 +1,7 @@
--- periwinkle-seed (seed W1_4)
+-- periwinkle-seed (seed P1b_S1)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="periwinkle-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#1a1420","#2c2030","#40303a","#5a4046","#7a5a58","#9c7a6c"}, leaf={"#143a36","#1c5a48","#2a7a54","#3c9a60","#5cb872","#8cd890"}, sleaf={"#1e5a46","#2e8056","#44a468","#64c47c","#90dc98","#c0f0b8"},
-stem={"#4a3050","#6a4a66","#8c6a82","#4a8a5a","#68ac70"}, root={"#c0b098","#dccdb0","#f0e6cc"},
-vein="#a8e8b8", gloss="#e8fff0", cool="#34306a", red="#7a4a8a",
-sl=0.75, sw=0.6, taper=0.05, drop={4,1}, marks="stripes", markc="#a08878",
-scrap={7,54,30,53,57,41}, scrapW=5.4, scrapExp=0.6, sprout="pair", leafw=3.0, quirk="none",
+ name="periwinkle-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#1a1210","#32221c","#4a342a","#664a3a","#84644e","#a48464"}, leaf={"#5a8a4a","#70a258","#88ba6a","#a2d282","#bee89e","#daffbc"}, sleaf={"#2a6a3e","#388450","#4a9e62","#64b87a","#84d098","#a8e8b8"}, stem={"#5a3a58","#7a5278","#966a94","#6a9a5a","#88b872"}, root={"#f0eaf4","#d8cce4","#bcaccc"},
+ vein="#f4ffe8", gloss="#f6fff0", cool="#6a8ad0", red="#9a6ad0", sl=1.4, sw=1.0, taper=0.04, drop={4}, marks="stripes", markc="#120c0a",
+ scrap={7,56,30,48,57,41}, scrapW=5.6, scrapExp=0.66, sprout="pair", leafw=3.2, quirk="none"
 })

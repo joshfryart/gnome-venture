@@ -1,8 +1,6 @@
--- spanish-broom-seed (seed W1_5)
-dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="spanish-broom-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#2e2a14","#4a4220","#6a5c2c","#8a7840","#aa9858","#cdbc7c"}, leaf={"#2c4a2c","#3c6a3a","#528a48","#70a85c","#94c47a","#bcdc9c"}, sleaf={"#3c7a38","#52983e","#6cb450","#8cd068","#b0e48a","#d4f2ae"}, stem={"#30582e","#44763a","#5c9448","#82b05c","#a8cc78"}, root={"#f0e8cc","#dccaa0","#c4aa78"},
-vein="#a8d080", gloss="#eadca0", cool="#3c3458", red="#a0623c",
-sl=1.0, sw=0.9, taper=0.05, drop={4}, marks="spots", markc="#1e1a0c",
-scrap={8,55,26,53,57,38}, scrapW=3.6, scrapExp=0.5, sprout="trio", leafw=3.2, quirk="hat"
+-- spanish-broom-seed (seed P1b_S2)
+dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({ name="spanish-broom-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#1c1a0e","#3a3216","#5c4c22","#7e6a30","#9c8644","#bca862"}, leaf={"#4a5a1c","#657a26","#82983a","#a0b44e","#bccc6c","#d8e496"}, sleaf={"#5a7a22","#76982e","#94b43e","#b2cc58","#cee07c","#e8f2a4"}, stem={"#4a3a1a","#6a5628","#8a7438","#8cae3c","#aecc54"},
+ vein="#f0f4b0", gloss="#fffcd0", cool="#78a070", red="#a07a28", sl=1.15, sw=1.35, taper=0.08, drop={4}, marks="spots", markc="#12100a",
+ scrap={8,58,20,44,56,46}, scrapW=6.8, scrapExp=0.85, sprout="trio", leafw=3.0, quirk="none"
 })

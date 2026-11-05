@@ -1,9 +1,6 @@
--- teff-seed (seed W1_7)
-dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="teff-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#5a4030","#86603e","#b08a52","#d2b070","#ead49a","#f8ecc4"}, leaf={"#2c5a38","#3e7a40","#5a9a44","#7cb84e","#a0d062","#c8e88a"}, sleaf={"#3c7a40","#58a048","#7cc452","#a0dc66","#c0f088","#e0ffb0"},
-stem={"#3c6a3a","#5a8a42","#7aa84c","#8cc455","#a8dc6a"}, root={"#e8dcc0","#f4ecd8","#fff6e4"},
-vein="#a6d070", gloss="#fff4d0", cool="#4a3a6a", red="#a85a3a",
-sl=0.5, sw=0.6, taper=0.1, drop={4,1}, marks="none", markc="#8a6a44",
-scrap={6,56,28,50,58,42}, scrapW=4.2, scrapExp=0.5, sprout="blades", leafw=2.4, quirk="none"
+-- teff-seed (seed P1b_S2)
+dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({ name="teff-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#2e1608","#502a10","#74421c","#946030","#b48048","#d4a468"}, leaf={"#707a2c","#8a943a","#a4ae4c","#bec862","#d6de80","#eaf0a4"}, sleaf={"#5a7a2a","#76963a","#92b24c","#aece64","#c8e684","#e2f8a8"}, stem={"#6a5a28","#8a7838","#aa9648","#98ae48","#b4c862"},
+ vein="#f8fcc0", gloss="#ffffe0", cool="#8a9a50", red="#c89a38", sl=1.15, sw=1.15, taper=0.15, drop={4}, marks="spots", markc="#2e1608",
+ scrap={7,60,30,46,58,54}, scrapW=5.2, scrapExp=0.5, sprout="blades", leafw=3.8, quirk="none"
 })

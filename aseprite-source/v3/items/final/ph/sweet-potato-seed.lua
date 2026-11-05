@@ -1,6 +1,7 @@
--- sweet-potato-seed (seed W1_6)
-dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
- name="sweet-potato-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
- seed={"#2a1810","#442818","#623c22","#825430","#a27244","#c49a64"}, leaf={"#2a4a2a","#3a6a30","#52883a","#72a84a","#98c860","#bce47c"}, sleaf={"#4a6a34","#6c8c40","#8eae50","#b0cc64","#cce480","#e4f4a4"}, stem={"#5a2a4a","#7c3a5a","#a0506a","#6a9a4a","#8cbc5c"}, root={"#f0d8c0","#f8e8d4","#fff6e8"},
- vein="#d0e8a0", gloss="#e8c890", cool="#3a2a5a", red="#8a3a6a", sl=0.85, sw=0.95, taper=0.1, drop={4}, marks="pits", markc="#1a0e0a", scrap={9,54,28,54,56,42}, scrapW=7.4, scrapExp=0.95, sprout="pair", leafw=4.0, quirk="none"
+-- sweet-potato-seed (seed P1b_S2)
+dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({ name="sweet-potato-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#1a0e08","#342014","#503420","#6c4a2c","#8a6640","#a8845a"}, leaf={"#4a5a2a","#647a38","#80984a","#9cb460","#b8cc7c","#d6e4a4"}, sleaf={"#4a6a2c","#628a3a","#7ea84c","#9cc462","#bcdc82","#dcf2aa"}, stem={"#38143a","#582058","#7c3478","#6a9a48","#8cb862"},
+ vein="#e8f4b8", gloss="#fafed8", cool="#8a6ab0", red="#9a3a8a", sl=1.1, sw=1.3, taper=0.1, drop={4,1}, marks="pits", markc="#2a1a10",
+ scrap={7,52,34,63,57,48}, scrapW=7.0, scrapExp=0.6, sprout="single", leafw=3.8,
+ root={"#9a4a6a","#c8708a","#e8a4b4"}, quirk="none"
 })

@@ -1,8 +1,7 @@
--- wild-rice-seed (seed W1_8)
+-- wild-rice-seed (seed P1b_S3)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="wild-rice-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#1a1210","#2e201a","#483224","#664a34","#8a6a4a","#b09068"}, leaf={"#3a4a1e","#586a2a","#788c38","#98ae4a","#b8cc64","#d8e48c"}, sleaf={"#4c7a2a","#6a9a38","#8cb84c","#acd466","#c8ec84","#e4fcac"},
-stem={"#5a6a30","#7a8c3e","#9aac52","#7cc050","#a0dc70"}, root={"#e8dcc0","#d0c09c","#b4a07c"}, vein="#dcec9c", gloss="#f4f0c0", cool="#34305a", red="#8a5a4a",
-sl=1.4, sw=0.6, taper=0.2, drop={4}, marks="stripes", markc="#a08060",
-scrap={6,57,28,54,58,40}, scrapW=3.4, scrapExp=0.4, sprout="blades", leafw=2.6, quirk="none"
+ name="wild-rice-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#16101e","#2a1e34","#40304e","#584468","#725c82","#8e78a0"}, leaf={"#8a9a3a","#a0b04c","#b6c660","#cada78","#dcec94","#eefab4"}, sleaf={"#4c8a30","#62a440","#7cbe54","#9ad870","#b8ee90","#d6ffb0"}, stem={"#5a6a2a","#788a3a","#96a84e","#aec468","#c6dc84"}, root={"#f5ead2","#e6d6b0","#cebc8c"},
+ vein="#f6fcd0", gloss="#ffffff", cool="#7a9ab8", red="#a07a3a", sl=1.4, sw=1.0, taper=0.22, drop={4,1}, marks="stripes", markc="#0e0a14",
+ scrap={6,58,30,55,58,48}, scrapW=4.2, scrapExp=0.5, sprout="blades", leafw=3.0, quirk="none"
 })
