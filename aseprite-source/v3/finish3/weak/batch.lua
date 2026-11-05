@@ -103,7 +103,7 @@ local function dolphin(pts, sc, seed)
   local rf = function(t)
     local r
     if t < .55 then r = 2.5 + 13 * sin(t / .55 * 1.5708) ^ .8 else r = 15.5 - (t - .55) / .45 * 6.5 end
-    return r * sc
+    return r * sc * 1.4
   end
   local body = spline(pts, 0, 0, rf, 16, smp)
   local N = #smp
@@ -166,8 +166,8 @@ pic("wonder-pink-river-dolphin-pools", function()
   end
   -- splash rings at entry and exit
   local function ring(x, y, rx, ry) local m = E(x, y, rx, ry):copy():cut(E(x, y, rx - 2, ry - 1)); m:each(function(xx, yy) if (xx + yy) % 3 ~= 0 then P(xx, yy, "#e8fff0") end end) end
-  ring(118, 232, 24, 5); ring(118, 232, 14, 3); ring(352, 232, 26, 5); ring(352, 232, 15, 3)
-  dolphin({ { 120, 236 }, { 158, 178 }, { 214, 124 }, { 282, 104 }, { 336, 142 }, { 356, 206 } }, 1.2, 51)
+  ring(138, 234, 24, 5); ring(138, 234, 14, 3); ring(340, 236, 26, 5); ring(340, 236, 15, 3)
+  dolphin({ { 140, 238 }, { 180, 182 }, { 232, 142 }, { 284, 140 }, { 322, 176 }, { 338, 220 } }, 1.2, 51)
   dolphin({ { 470, 236 }, { 452, 200 }, { 428, 176 }, { 404, 178 }, { 396, 192 } }, .62, 61)
   for i = 1, 26 do local a = H(i, 2, 8) * 6.28; local r = 6 + H(i, 3, 8) * 16; local x, y = 118 + cos(a) * r, 230 + sin(a) * r * .5 - 6
     if y < 232 then P(x, y, i % 3 == 0 and CREAM or "#d8fff0") end end
@@ -498,9 +498,9 @@ pic("lair-of-the-grey-wolf-king", function()
   -- the wolf king: large howling silhouette, snout to the moon
   local ox, oy, sc = 226, 114, .92
   local function W(pts) local t = {} for i, p in ipairs(pts) do t[i] = { ox + p[1] * sc, oy + p[2] * sc } end return PL(t) end
-  local wolf = W({ { -38, -44 }, { -22, -50 }, { -6, -50 }, { 8, -52 }, { 14, -60 }, { 17, -72 }, { 16, -84 }, { 13, -98 }, { 19, -92 }, { 24, -102 }, { 28, -93 }, { 32, -98 },
-    { 40, -108 }, { 50, -118 }, { 58, -128 }, { 63, -126 }, { 62, -121 }, { 54, -111 }, { 46, -101 }, { 38, -91 }, { 33, -80 }, { 32, -70 }, { 34, -56 }, { 32, -42 }, { 31, -26 }, { 30, -12 }, { 33, -1 }, { 20, -1 }, { 19, -12 }, { 14, -28 },
-    { 4, -30 }, { -14, -30 }, { -20, -26 }, { -18, -12 }, { -14, -1 }, { -28, -1 }, { -33, -12 }, { -36, -28 }, { -42, -34 } })
+  local wolf = W({ { -40, -46 }, { -22, -54 }, { -4, -54 }, { 10, -56 }, { 16, -66 }, { 19, -76 }, { 19, -86 }, { 17, -100 }, { 24, -93 }, { 30, -96 },
+    { 42, -105 }, { 52, -114 }, { 59, -120 }, { 62, -116 }, { 59, -110 }, { 50, -101 }, { 41, -92 }, { 36, -82 }, { 37, -68 }, { 38, -54 }, { 36, -40 }, { 35, -24 }, { 34, -10 }, { 38, -1 }, { 20, -1 }, { 20, -12 }, { 16, -26 },
+    { 4, -24 }, { -14, -24 }, { -19, -26 }, { -17, -12 }, { -12, -1 }, { -30, -1 }, { -32, -12 }, { -37, -28 }, { -44, -36 } })
   local tail = spline({ { ox - 38 * sc, oy - 42 * sc }, { ox - 52 * sc, oy - 36 * sc }, { ox - 60 * sc, oy - 22 * sc }, { ox - 58 * sc, oy - 8 * sc } }, 4 * sc, 7 * sc, function(t) return (4 + sin(t * 3.1) * 4) * sc end)
   local sil = wolf:copy():add(tail)
   c:rim(sil, "#1a1830")
@@ -536,7 +536,7 @@ pic("wonder-cenote-of-echoes", function()
   c:rim(hole, INK)
   -- grey rock ring with lit lip
   local RK = RR("#d8dad4", "#a4a8a4", "#6e7480", "#484e5c")
-  lit(ring, RK, 73, { R = 20, tex = .7, sc = 3, ink = true })
+  lit(ring, RK, 73, { R = 20, tex = .7, sc = 3 })
   ring:each(function(x, y) if hole:has(x, y + 1) or hole:has(x - 1, y + 1) then P(x, y, RK.hi) end end)
   -- sparse greenery on the outer lip
   for i = 0, 14 do local a = pi + (i + .5) / 15 * pi; local x, y = CX + 138 * cos(a), CY + 50 * sin(a)
