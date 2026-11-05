@@ -4039,6 +4039,7 @@ nav.tabs:has(+ .shopwrap), .shopwrap ~ nav.tabs { justify-content: center; }
 .tilemap .tmt.reach.spot { outline: 2px dashed rgba(245, 207, 106, .85); outline-offset: -5px; }
 .tilemap .tmt.reach:hover, .tilemap .tmt.reach:focus-visible { background: rgba(245, 207, 106, .22); outline: 2px solid #f5cf6a; outline-offset: -2px; }
 .tilemap .tmt.here { outline: 3px solid rgba(245, 207, 106, .9); outline-offset: -3px; z-index: 1; }
+.tilemap.tm-trail .tmt.here { outline: 0; }   /* the Trail: the walker is drawn, no yellow square round its tile */
 .tilemap .tmt.barred { cursor: not-allowed; }
 .tilemap .tmpv .tmpv-dot { fill: #fff6d0; stroke: #14110e; stroke-width: 1.5; opacity: .95; }
 .tilemap .tmpv .tmpv-end { fill: none; stroke: #f5cf6a; stroke-width: 3; opacity: .95; }

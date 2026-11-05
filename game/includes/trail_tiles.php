@@ -384,7 +384,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy): string
     $data = ' data-tile="' . TM_UNIT . '" data-cols="' . DM_VIEW . '" data-rows="' . DM_VIEW . '" data-x0="' . $win['x0'] . '" data-y0="' . $win['y0'] . '" data-px="' . $sc['x'] . '" data-py="' . $sc['y'] . '" data-mw="' . $w . '" data-mh="' . $h . '" data-open="' . $open . '"';
     if ($walk) $data .= ' data-walk="' . e(implode(';', array_map(fn($p) => $p[0] . ',' . $p[1], $walk['p']))) . '"' . $extData;
     $out = trail_strip_html($u, $exp, $sc) . '<div class="tmwrap tm-' . e($land) . ($busy ? ' busy' : '') . '"><form method="post" class="tmform">' . csrf_field() . '<input type="hidden" name="do" value="trail_go">'
-        . '<div class="tilemap tm-cave" role="group" aria-label="The Trail, section ' . ((int)$sc['st']['sec'] + 1) . ' of ' . (int)$sc['st']['S'] . '"' . $data . '><div class="tmview">' . $extSvg . '<div class="tmstage">' . $svg
+        . '<div class="tilemap tm-cave tm-trail" role="group" aria-label="The Trail, section ' . ((int)$sc['st']['sec'] + 1) . ' of ' . (int)$sc['st']['S'] . '"' . $data . '><div class="tmview">' . $extSvg . '<div class="tmstage">' . $svg
         . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'
         . '<div class="tmgrid">' . $btn . '</div></div></div></div></form>'
         . ($art && !empty($map['art']['caption']) ? '<p class="tmcap">' . e((string)$map['art']['caption']) . '</p>' : '')
