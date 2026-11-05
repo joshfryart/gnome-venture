@@ -52,3 +52,10 @@ Every NPC portrait and 2.5D sprite is a creature, or a gnome that is clearly dif
 
 ## RULE (Josh, 2026-11-04): single pass only
 Scene and picture art is ONE initial pass by Opus medium. No draft-then-rich second pass for now (it may come back later).
+
+## METHOD (Josh approved 2026-11-05: "Love"): hero-scale gate-view scenes, parametric looks
+- Look: GATE VIEW from the entrance (timber/stone gate frame, lantern, bunting), one-point perspective to about (240,112), 480x270 native. HERO SCALE: fewer, bigger, chunky readable fronts and props (80-140 px near, 56+ far), 12+ px gaps, no overlaps, strong 1px dark edge in own darker tone, warm light upper left, cool-violet shade, wide road (150+ px at the bottom), real sky and hill depth. Clickable things can be whole building fronts. Bottom-right 100x40 stays plain (compass + globe icons). No text, circles, people or animals painted. Quirks (4-6, big enough to see).
+- Cost rules: single Opus-medium pass, no rich pass, no fix rounds, minimal reading (CHEATSHEET + scenes part of README, look at 1-2 reference PNGs, do not read other scene Lua). About 110-150k per scene.
+- Per scene output: `.lua/.png/.aseprite` + `.layout.json` {w,h,horizon,view,spots[{k,name,x,y,box}],stand[],compass_clear}.
+- Stops are PARAMETRIC: one script per stop TYPE, looks chosen by `--script-param pal=<landscape_region>` from a PALETTES table (colour ramps by role + flora/roofStyle/wallStyle/skyStyle/hillStyle choices). Pilot: `v3/here-gate/pilot-market.lua` (market hamlet; looks grassland_maplewold and desert_adobe). A new look = one new table entry. Stop uniqueness = type (landmark) x landscape (backdrop/flora) x region (architecture skin) x name (quirk prop by slug hash). Next types: mill, ferry, inn, jetty, herb, orchard, shrine, spring, tower, workshop, camp.
+- Approved references: `here-market-maplewold-v5` (town, hero scale), `pilot-market-*` (stop looks), `here-market-maplewold-v4` (rich fronts). Mockups: `v3/here-gate/mockup-*.png`.
