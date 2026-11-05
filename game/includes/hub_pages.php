@@ -66,20 +66,23 @@ function workshop_view(array $u, string $open = ''): string
             . '<p><a class="btn' . ($f['locked'] ? '' : ' alt') . '" href="' . e(url('inventory.php?tab=craft&c=' . $k)) . '">' . ($f['locked'] ? 'See what unlocks it' : 'Open ' . e($label) . ' as a page') . ' →</a></p>';
         hubp_add($hot, $L, $k, ['label' => $label, 'emoji' => $emo[$k] ?? $icon, 'chip' => hubp_chip('Make', $chip), 'cls' => $f['locked'] ? 'locked' : '', 'href' => url('workshop.php?o=' . $k), 'card' => $body]);
     }
-    return hub_scene($akey, $hot, [], ['layout' => $L, 'art' => $art, 'alt' => 'The crafting workshop', 'open' => $open, 'close_href' => url('workshop.php'), 'title' => 'List of crafting areas', 'twin_open' => false]);
+    return hub_scene($akey, $hot, [], ['layout' => $L, 'art' => $art, 'alt' => 'The crafting workshop', 'open' => $open, 'close_href' => url('workshop.php'), 'title' => 'List of crafting areas', 'twin_open' => false, 'nav' => hubp_nav('workshop'), 'navbar' => true]);   // v2.5.49: compass, globe and Fast travel under the picture
 }
 
 // ------------------------------------------------------------------ shared chrome: compass + globe cards
 
-/** The Routes and World cards of a picture page (the compass and the globe, bottom-right). They link back to Here, the sibling picture and the World; nothing is rebuilt. */
-function hubp_nav(string $page): array
+/** The Routes and World cards of a picture page (the compass and the globe). They link back to Here, the sibling picture and the World; nothing is rebuilt.
+ *  $page = the page name (workshop, treehouse, palyard, residential, door); $q = extra query for the no-script ?o= links (residential and door need their place / villager). */
+function hubp_nav(string $page, string $q = ''): array
 {
-    $sib = $page === 'treehouse' ? ['palyard.php', '🌳 Pal Yard'] : ['treehouse.php', '🌳 Treehouse'];
+    $sib = ['treehouse' => ['palyard.php', '🌳 Pal Yard'], 'palyard' => ['treehouse.php', '🌳 Treehouse'], 'workshop' => ['inventory.php?tab=craft', '🎒 Crafting list'],
+            'residential' => ['town.php', '🏘️ Town square'], 'door' => ['residential.php', '🏠 The street']][$page] ?? ['town.php', '🏘️ Town'];
     $li = fn(string $href, string $label) => '<li class="trow"><a class="btn" href="' . e(url($href)) . '">' . $label . '</a></li>';
     $routes = '<p class="muted">Where to next? One tap travels.</p><ul class="trows">'
         . (gnav_on() ? $li('here.php', '📍 Here') : '') . $li($sib[0], $sib[1]) . $li('town.php', '🏘️ Town') . $li('world.php', '🗺️ World') . '</ul>';
     $world = '<p class="muted">The whole world, region by region.</p><p><a class="btn" href="' . e(url('world.php?tab=map#regionmap')) . '">Open region map</a></p><p><a class="btn alt" href="' . e(url('world.php')) . '">Open the World page</a></p>';
-    return ['routes' => ['href' => url($page . '.php?o=routes'), 'title' => 'Routes', 'card' => $routes], 'world' => ['href' => url($page . '.php?o=world'), 'title' => 'World map', 'card' => $world],
+    $base = $page . '.php?' . ($q !== '' ? $q . '&' : '');
+    return ['routes' => ['href' => url($base . 'o=routes'), 'title' => 'Routes', 'card' => $routes], 'world' => ['href' => url($base . 'o=world'), 'title' => 'World map', 'card' => $world],
             'extra' => [['id' => 'ft', 'label' => 'Fast travel', 'icon' => 'ico-boot.png', 'href' => url('world.php?tab=travel#fasttravel')]]];   // like the gate pictures: Routes, World and Fast travel as round buttons under the picture
 }
 

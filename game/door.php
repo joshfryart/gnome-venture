@@ -29,5 +29,6 @@ $met = resid_met((int)$u['id'], $nid);
 <p class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <a href="<?= e(url('here.php')) ?>"><?= e((string)player_node($u)['name']) ?></a> › <a href="<?= e(url('residential.php?page=' . $page)) ?>">Homes</a> › <b><?= e($met ? (string)$npc['name'] : 'A door') ?></b></p>
 <h1>🚪 <?= e($met ? $npc['name'] . '’s door' : 'A door') ?></h1>
 <?= door_view($u, $npc, $page, $open) ?>
+<?= gnav_tools_html($u, 'door.php', false) /* the Fast travel popover for the round button */ ?>
 <p class="heretools"><a class="btn alt" href="<?= e(url('residential.php?page=' . $page)) ?>">⬅️ Back to the street</a></p>
 <?php page_footer();

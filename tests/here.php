@@ -512,7 +512,7 @@ if ($withDb) {
     sset('gnav_on', '1');
     $u = put($town);
     $ws = workshop_view($u);
-    ok('workshop: one hotspot per crafting section', substr_count($ws, 'id="hs-') === count(CRAFT_CATEGORIES), (string)substr_count($ws, 'id="hs-'));
+    ok('workshop: one hotspot per crafting section', preg_match_all('/id="hs-(?!routes|world|ft")/', $ws) === count(CRAFT_CATEGORIES), (string)preg_match_all('/id="hs-(?!routes|world|ft")/', $ws));
     ok('workshop: each card links into the existing crafting page', substr_count($ws, 'inventory.php?tab=craft&amp;c=') >= count(CRAFT_CATEGORIES));
     ok('workshop: CSP safe, text twin there', !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $ws) && str_contains($ws, 'hubtwin'));
     $th = treehouse_view($u);
@@ -676,9 +676,48 @@ if ($withDb) {
     ok('treehouse list: rooms carry verb chips (Play / Read / Enter)', preg_match('/hubchip-c">(Play|Read|Enter)/', $tcp) === 1);
     $ycp = yard_view($ucp);
     ok('yard list: sites carry Send / Tend / Read chips', str_contains($ycp, 'hubchip-c">Send') && str_contains($ycp, 'hubchip-c">Tend') && str_contains($ycp, 'hubchip-c">Read'));
-    $locH = (int)q_val("SELECT location_id FROM npcs WHERE home_location_id IS NOT NULL AND active = 1 GROUP BY home_location_id ORDER BY COUNT(*) DESC LIMIT 1");
+    $locH = (int)q_val("SELECT home_location_id FROM npcs WHERE home_location_id IS NOT NULL AND active = 1 AND traveller IS NULL GROUP BY home_location_id ORDER BY COUNT(*) DESC LIMIT 1");
     if ($locH) { $uh2 = put($locH); [$rh] = resid_view($uh2, player_node($uh2), 1); ok('street list: each house has a Visit chip', str_contains($rh, 'hubchip-c">Visit')); }
+    echo "== 2.5.49: nav chrome (compass, globe, Fast travel under the picture) on every picture page\n";
+    $wsn = workshop_view($ucp, 'routes');
+    ok('workshop: round icon row with Routes, World and Fast travel', str_contains($wsn, 'class="hubnavbar"') && str_contains($wsn, 'id="hs-routes"') && str_contains($wsn, 'id="hs-world"') && str_contains($wsn, 'id="hs-ft"'));
+    ok('workshop: Routes and World cards exist, ?o=routes opens the card without script', str_contains($wsn, 'id="hubpop-routes"') && str_contains($wsn, 'id="hubpop-world"') && preg_match('/id="hubpop-routes"[^>]*\sopen/', $wsn) === 1);
+    ok('workshop: the picture keeps its own hotspots (not switched to chrome), CSP safe', !str_contains($wsn, 'hubsvg chrome') && !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $wsn));
+    ok('treehouse and yard: Fast travel button carries the popover target too', str_contains($tcp, 'data-pop="hubpop-ft"') && str_contains($ycp, 'data-pop="hubpop-ft"'));
+    if ($locH) {
+        $uh3 = put($locH); [$rh3] = resid_view($uh3, player_node($uh3), 1, 'world');
+        ok('street: round icon row, Routes link keeps the place and page for the no-script card', str_contains($rh3, 'class="hubnavbar"') && str_contains($rh3, 'residential.php?loc=' . $locH . '&amp;page=1&amp;o=routes') && preg_match('/id="hubpop-world"[^>]*\sopen/', $rh3) === 1);
+        $nd = q_one('SELECT * FROM npcs WHERE active = 1 AND traveller IS NULL AND home_location_id = ? ORDER BY id LIMIT 1', [$locH]);
+        $dh = door_view($uh3, $nd, 1);
+        ok('door: round icon row with Routes, World and Fast travel', str_contains($dh, 'class="hubnavbar"') && str_contains($dh, 'door.php?npc=' . $nd['id'] . '&amp;page=1&amp;o=routes') && str_contains($dh, 'id="hs-ft"'));
+    }
+    $pgs = [];
+    foreach (['workshop', 'treehouse', 'palyard', 'residential', 'door'] as $pgn) $pgs[$pgn] = hubp_nav($pgn)['routes']['card'];
+    ok('every picture page has its own sibling link in the Routes card', count(array_unique($pgs)) >= 4);
     sset('gnav_on', '0');
+
+    echo "== 2.5.49: step-off / step-back strip (optional art)\n";
+    require_once $game . '/includes/explore.php';
+    $stepF = $game . '/assets/img/scenes/wander-step.png'; $backF = $game . '/assets/img/scenes/wander-step-back.png';
+    ok('no art: nothing drawn (off and road)', !is_file($stepF) && wander_step_strip('off') === '' && wander_step_strip('road') === '');
+    if (function_exists('imagecreatetruecolor')) {
+        $mk = function (string $f, int $w, int $h) { $im = imagecreatetruecolor($w, $h); imagepng($im, $f); imagedestroy($im); };
+        $mk($stepF, 480, 64);   // 5 frames of 96 x 64
+        $off = wander_step_strip('off'); $road = wander_step_strip('road');
+        ok('5-frame strip: off plays ws-n5, not mirrored, pixelated image', str_contains($off, 'ws-n5') && !str_contains($off, 'flip') && str_contains($off, 'class="pix '), $off);
+        ok('no step-back art: road reuses the strip mirrored', str_contains($road, 'wc-step flip') && str_contains($road, 'wander-step.png'));
+        $mk($backF, 384, 64);
+        ok('step-back art: road uses it (4 frames), no mirror', str_contains(wander_step_strip('road'), 'wander-step-back.png') && str_contains(wander_step_strip('road'), 'ws-n4') && !str_contains(wander_step_strip('road'), 'flip'));
+        $mk($stepF, 100, 64);
+        ok('a wrongly sized strip draws nothing (not a multiple of 96)', wander_step_strip('off') === '');
+        $mk($stepF, 480, 64);
+        $_SESSION['wander_step'] = 'off|' . time();
+        ok('once: the wanted direction shows and is cleared; another direction does not consume it', wander_step_once('road') === '' && isset($_SESSION['wander_step']) && wander_step_once('off') !== '' && !isset($_SESSION['wander_step']));
+        $_SESSION['wander_step'] = 'off|' . (time() - 600);
+        ok('a stale request (over 2 minutes) draws nothing and is cleared', wander_step_once('off') === '' && !isset($_SESSION['wander_step']));
+        @unlink($stepF); @unlink($backF);
+    } else ok('GD missing: strip tests skipped', true);
+    ok('explore_start asks for the off strip, explore_return for the road strip', str_contains((string)file_get_contents($game . '/includes/explore.php'), "'off|' . time()") && str_contains((string)file_get_contents($game . '/includes/explore.php'), "'road|' . time()"));
 
     echo "== flag helpers\n";
     ok('gnav_start_here is off with the flag off', !gnav_start_here(me()));

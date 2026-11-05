@@ -44,8 +44,9 @@ function door_allowed(array $u, array $npc): bool
 }
 
 /** The street picture of a place, page $page (1-based). Returns [html, pages]. */
-function resid_view(array $u, array $loc, int $page): array
+function resid_view(array $u, array $loc, int $page, string $open = ''): array
 {
+    require_once __DIR__ . '/hub_pages.php';   // hubp_nav: the compass, globe and Fast travel under the picture (v2.5.49)
     $uid = (int)$u['id'];
     $npcs = npcs_homed_at((int)$loc['id']);
     [$key, $per] = resid_template(count($npcs));
@@ -69,13 +70,15 @@ function resid_view(array $u, array $loc, int $page): array
     if (isset($spots['back'])) $hot[] = ['id' => 'back', 'x' => (int)$spots['back']['x'], 'y' => (int)$spots['back']['y'], 'label' => 'Back to the square', 'emoji' => '⬅️', 'href' => url('here.php')];
     if ($page > 1 && isset($spots['prev'])) $hot[] = ['id' => 'prev', 'x' => (int)$spots['prev']['x'], 'y' => (int)$spots['prev']['y'], 'label' => '← Back street', 'emoji' => '◀️', 'href' => url('residential.php?loc=' . (int)$loc['id'] . '&page=' . ($page - 1))];
     if ($page < $pages && isset($spots['next'])) $hot[] = ['id' => 'next', 'x' => (int)$spots['next']['x'], 'y' => (int)$spots['next']['y'], 'label' => 'Next street →', 'emoji' => '▶️', 'href' => url('residential.php?loc=' . (int)$loc['id'] . '&page=' . ($page + 1))];
-    $html = hub_scene(str_replace('resid-', '', $key), $hot, [], ['layout' => $L, 'alt' => 'The homes of ' . $loc['name'], 'art' => 'resid', 'title' => 'List of homes']);
+    $html = hub_scene(str_replace('resid-', '', $key), $hot, [], ['layout' => $L, 'alt' => 'The homes of ' . $loc['name'], 'art' => 'resid', 'title' => 'List of homes', 'open' => $open, 'close_href' => url('residential.php?loc=' . (int)$loc['id'] . '&page=' . $page),
+        'nav' => hubp_nav('residential', 'loc=' . (int)$loc['id'] . '&page=' . $page), 'navbar' => true]);
     return [$html, $pages];
 }
 
 /** The door picture of one villager. $back = the street page to return to. */
 function door_view(array $u, array $npc, int $page, string $open = ''): string
 {
+    require_once __DIR__ . '/hub_pages.php';
     $uid = (int)$u['id'];
     $L = here_layouts_all()['door'] ?? null;
     if (!$L) return '<p class="muted">No door picture yet.</p>';
@@ -108,7 +111,8 @@ function door_view(array $u, array $npc, int $page, string $open = ''): string
     $hot[] = ['id' => 'back', 'x' => (int)$spots['back']['x'], 'y' => (int)$spots['back']['y'], 'label' => 'Back to the street', 'emoji' => '⬅️', 'href' => url('residential.php?loc=' . $locId . '&page=' . $page)];
     $hot[] = ['id' => 'plate', 'x' => (int)$spots['plate']['x'], 'y' => (int)$spots['plate']['y'], 'label' => $name, 'emoji' => '🪧', 'chip' => $met ? '' : 'not met yet', 'href' => url('door.php?npc=' . (int)$npc['id'] . '&page=' . $page . '&o=plate'),
               'card' => '<p><b>' . e($name) . '</b>' . ($met ? '' : '. Knock to meet them.') . '</p><p class="muted">' . ($home ? '💡 The window is lit: they are home.' : 'The window is dark: they are out.') . '</p>', 'cls' => $home ? 'homelit' : 'dim'];
-    return hub_scene($artKey, $hot, [], ['layout' => $L, 'alt' => 'The door of ' . $name, 'art' => 'door', 'open' => $open, 'close_href' => url('door.php?npc=' . (int)$npc['id'] . '&page=' . $page), 'title' => 'List view']);
+    return hub_scene($artKey, $hot, [], ['layout' => $L, 'alt' => 'The door of ' . $name, 'art' => 'door', 'open' => $open, 'close_href' => url('door.php?npc=' . (int)$npc['id'] . '&page=' . $page), 'title' => 'List view',
+        'nav' => hubp_nav('door', 'npc=' . (int)$npc['id'] . '&page=' . $page), 'navbar' => true]);
 }
 
 /** Leave a gift at the door: the villager must live where the gnome stands; same once-a-day claim and tastes as a handed gift, half the friendship. */
