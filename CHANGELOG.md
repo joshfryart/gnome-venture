@@ -2,6 +2,7 @@
 
 ## 2.5.42
 - **Treehouse and Pal Yard buttons**: Routes, World and the new Fast travel are round buttons under the picture (like the Here pictures) instead of sitting on top of it, and the rooms / job sites are one folded list in an even grid.
+- **Fix: Adventure page crash**: `adventure_stage_html()` always returned the fight backdrop and passed a null key to `scene_path()`, so /adventure.php threw a TypeError. The fight backdrop is now used only for the encounter popover.
 
 ## 2.5.41
 - **Richer pictures**: all 17 Here pictures (11 rest stops, village, haven, wonder, delve, lair, generic), the Treehouse, its four dressing layers and the Pal Yard got a polish pass: livelier fires, more story props, textured materials, warmer light and more plants. Same layout, same spots.

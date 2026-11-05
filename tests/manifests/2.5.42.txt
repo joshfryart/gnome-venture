@@ -9224,7 +9224,7 @@ b1dad237fd592adc418c2f8035a78a6151dc019c  includes/road_life.php
 7efd1902ba11dd164d220424d2c77b2ee936e86c  includes/road_text.php
 a2c5515ae8b0cbc2a5bca6cd62c5371624482c54  includes/roads.php
 17614f3b341cd35cdb0daf62a8d140658f3125b9  includes/satchel_view.php
-da00b0adaecfdf055bffd05b0a208b4099d61144  includes/scene.php
+f79b57b22f046a5200a0d00c06d5694218cfe2b0  includes/scene.php
 997292e9457b28787d60a558401ffbcca206cabb  includes/schema.php
 67247a0f7a8ed71d5fcca2ac58b1af342c952b29  includes/seed.php
 03b02ea8a546703d9b4e857d69a00ebda346c714  includes/seek.php
@@ -9267,7 +9267,7 @@ ac6c7937eb940f68a7ec457616732a25a391ce54  includes/trek_oldcamp.php
 abc26d37b0ad73eaf63208d3e16306e9af794671  includes/trek_scene.php
 db7f55f68c398a056a09379e4b4582391db40c76  includes/trek_stage.php
 ef431b9a8182ac6ba5b23e20e70af68dcaa71763  includes/trek_textpass.php
-b6eaedbf26c8d2788bbdd7a73990915f60227ffb  includes/update_news.php
+0014d439bcd58b0038f6c546f448aafad67e875a  includes/update_news.php
 ffb1317d8e27c559248c535edc491f31fa06e4a7  includes/updater.php
 3242d42e92eddcfc5424f4df0e43eccbfb25a27c  includes/upgrade100.php
 f5e3d0e119e030ea4a5b4ddb41876d4912077817  includes/upgrade110.php
