@@ -623,6 +623,75 @@ do
   for y = 41, 43 do put(170, y, "#e8dcc0") end
 end
 
+-------------------------------------------------------------- v2.5.40 polish: net, buoys, plank stack, driftwood, shells, layered fire
+do
+  -- fishing net heaped over the jetty's left end: diamond mesh in two tones
+  local net = c:rrect(40, 156, 60, 168, 4)
+  c:rim(net, dk("#c8b48a", .6))
+  fillF(net, function(x, y)
+    if (x + y) % 4 == 0 or (x - y) % 4 == 0 then return "#e8d6a8" end
+    return (x + y) % 2 == 0 and "#b89c6e" or "#8a7250"
+  end)
+  put(44, 156, "#e8d6a8"); put(56, 160, "#e8d6a8")
+  -- two buoys (red, striped) on a rope along the jetty edge
+  for _, b in ipairs({ { 104, 170, "#e8493b" }, { 112, 172, "#f5b82e" } }) do
+    local m = c:ellipse(b[1], b[2], 4, 4)
+    solid(m, b[3], { edge = dk(b[3], .65) })
+    for x = b[1] - 4, b[1] + 4 do put(x, b[2], "#f6f0e4") end
+    put(b[1] - 2, b[2] - 2, "#fff6e0")
+  end
+  c:fillMask(c:line({ { 100, 168 }, { 108, 175 }, { 116, 173 } }, 1), "#a8804a")
+  -- a short stack of planks leaning at the jetty head
+  for i, col in ipairs({ "#9a6a44", "#b88054", "#8a5a38" }) do
+    local m = rect(112, 150 - i * 3, 130, 152 - i * 3)
+    solid(m, col, { edge = "#3a2418" })
+  end
+  put(114, 148, "#e0b880"); put(122, 145, "#e0b880")
+  -- fish crate with a silver catch, beside the barrel
+  local cr = rect(146, 168, 162, 180)
+  solid(cr, "#a07044", { edge = "#3a2418", tex = function(x, y, col) if (y - 168) % 4 == 0 then return "#6e4a30" end return col end })
+  for x = 148, 160, 3 do put(x, 167, "#c8d6e0"); put(x + 1, 166, "#8aa0b8"); put(x + 2, 167, "#e8f0f6") end
+  -- driftwood, shells and a starfish on the sand (outside every spot box and clear of the stand points)
+  fillF(c:line({ { 168, 192 }, { 178, 189 }, { 188, 191 } }, 2), function(x, y) return Hs(x, y, 5) > .7 and "#c8b8a8" or "#a89684" end)
+  put(170, 190, "#e8dccc"); put(178, 187, "#e8dccc")
+  for _, sh in ipairs({ { 160, 196, "#f6c8b8" }, { 164, 200, "#f2e0c8" }, { 352, 240, "#f6c8b8" }, { 360, 236, "#f2e0c8" } }) do
+    put(sh[1], sh[2], sh[3]); put(sh[1] + 1, sh[2], sh[3]); put(sh[1], sh[2] + 1, dk(sh[3], .3)); put(sh[1] + 1, sh[2] + 1, dk(sh[3], .45))
+  end
+  for _, st in ipairs({ { 340, 244 } }) do
+    for _, d in ipairs({ { 0, -2 }, { -2, 0 }, { 2, 0 }, { 0, 2 }, { 0, 0 } }) do put(st[1] + d[1], st[2] + d[2], "#e8704a") end
+    put(st[1], st[2], "#f5a070")
+  end
+  -- beach grass clumps (spiky, 3 tones) at the water line and by the arch
+  for _, g in ipairs({ { 168, 184 }, { 396, 232 }, { 462, 232 }, { 318, 232 } }) do
+    for k = -3, 3 do
+      local hgt = 4 + (k % 2 == 0 and 2 or 0) - abs(k) // 2
+      for y = 0, hgt do put(g[1] + k, g[2] - y, y > hgt - 2 and "#c4d870" or (y > 1 and "#86a650" or "#5f7e3c")) end
+    end
+  end
+  -- fire: layered flame tongues over the old flame, with sparks
+  local function tongue(cx, by, h, w, lean)
+    local m = HP.mask()
+    for y = by, by - h, -1 do
+      local t = (by - y) / h
+      local hw = w * sin(math.pi * min(1, t * 0.92 + 0.08) ^ 0.75) * (1 - t * 0.35)
+      local off = lean * t * t
+      for x = floor(cx + off - hw + 0.5), floor(cx + off + hw + 0.5) do m:set(x, y) end
+    end
+    return m
+  end
+  local function flame(cx, by, h, w, lean)
+    local m = tongue(cx, by, h, w, lean)
+    c:rim(m, "#a83a1e")
+    fillF(m, function() return "#e8662c" end)
+    for i, col in ipairs({ "#f2802e", "#f59a3a", "#fbd35a", "#fff2c0" }) do
+      local mm = m:shrink(i * 2)
+      if mm:count() > 0 then fillF(mm, function() return col end) end
+    end
+  end
+  flame(86, 240, 24, 8, 0); flame(79, 240, 14, 5, -3); flame(94, 240, 16, 5, 3)
+  for _, p in ipairs({ { 78, 208 }, { 96, 206 }, { 74, 198 }, { 100, 200 }, { 86, 190 } }) do put(p[1], p[2], "#fbd35a"); put(p[1] + 1, p[2], "#f59a3a") end
+end
+
 -------------------------------------------------------------- finish, check, save, layout
 c:finish{ outline = false }
 HP.assertClean(c)

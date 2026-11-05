@@ -475,6 +475,67 @@ solid(c:poly{{236, 27}, {244, 27}, {245, 36}, {240, 40}, {235, 36}}, TEAL, { sh 
 c:fillMask(c:rect(237, 31, 243, 31), "#e0b040")
 c:fillMask(c:line({{241, 22}, {246, 26}, {248, 31}}, 1), RED[3])
 
+------------------------------------------------------------------ v2.5.40 polish: dock life, moored boat, lily pads, layered fire
+local function crate(x, y, w, h, seed)
+  shadow(x + w // 2, y + h + 1, w // 2 + 3, 2, 0.4)
+  solid(c:rect(x, y, x + w, y + h), WOOD, { sh = 2, tex = planksH(WOOD, 4, y + 1, seed) })
+  c:fillMask(c:line({{x + 1, y + 1}, {x + w - 1, y + h - 1}}, 1), WOOD[1])
+  c:fillMask(c:rect(x, y, x + 1, y + h), WOOD[2]); c:fillMask(c:rect(x + w - 1, y, x + w, y + h), WOOD[2])
+end
+local function barrel(x, y, w, h)
+  shadow(x + w // 2, y + h + 1, w // 2 + 3, 2, 0.4)
+  solid(c:rrect(x, y, x + w, y + h, 3), WOOD, { sh = 3, tex = planksV(WOOD, 4, x + 1, 9) })
+  for _, hy in ipairs({ y + 3, y + h - 3 }) do c:fillMask(c:rect(x, hy, x + w, hy + 1), DOCK[2]); P(x + 1, hy, DOCK[4]) end
+end
+-- left of the landing: crates, a coil of rope, a barrel (all clear of the stand points)
+crate(182, 148, 14, 11, 2); crate(190, 138, 11, 9, 5); barrel(168, 146, 11, 14)
+for r = 0, 2 do c:fillMask(c:ellipse(163 + 0, 160, 6 - r * 2, 3 - (r > 1 and 2 or r // 1 * 0)), r % 2 == 0 and THAT[3] or THAT[2]) end
+c:fillMask(c:ellipse(163, 160, 1, 1), THAT[1])
+-- right of the landing: barrel and a stacked sack
+barrel(284, 142, 12, 15); barrel(297, 148, 10, 12)
+solid(c:rrect(311, 150, 322, 159, 3), PLAS, { sh = 2, tex = function(x, y, col) if y == 153 then return PLAS[2] end end })
+-- lantern on the left mooring post, with a lighter glow ring (no alpha)
+solid(c:rect(205, 120, 210, 128), BRASS, { sh = 1 })
+c:fillMask(c:rect(206, 122, 209, 126), GLOW[4]); P(207, 122, "#fff8d8")
+c:fillMask(c:rect(204, 119, 211, 119), BRASS[1]); P(207, 118, BRASS[2]); P(208, 118, BRASS[2])
+for _, g in ipairs({ { 203, 124 }, { 212, 124 }, { 207, 130 }, { 208, 116 }, { 202, 121 }, { 213, 121 } }) do P(g[1], g[2], GLOW[3]) end
+-- a moored rowboat with oars, on the left water
+shadow(186, 138, 18, 2, 0.35)
+local hull = c:poly{{168, 126}, {204, 126}, {198, 135}, {174, 135}}
+solid(hull, WOOD, { sh = 2, tex = planksH(WOOD, 3, 126, 4) })
+c:fillMask(c:rect(168, 126, 204, 127), RED[3]); c:fillMask(c:rect(168, 127, 204, 127), RED[2])
+c:fillMask(c:line({{178, 126}, {186, 119}}, 1), WOOD[4]); c:fillMask(c:line({{194, 126}, {188, 118}}, 1), WOOD[4])
+P(186, 118, WOOD[3]); P(188, 117, WOOD[3])
+c:fillMask(c:line({{200, 128}, {206, 131}}, 1), THAT[2])
+-- lily pads and a ripple ring
+for _, l in ipairs({ { 176, 116 }, { 183, 113 }, { 194, 114 }, { 340, 122 }, { 352, 128 }, { 360, 120 } }) do
+  c:fillMask(c:ellipse(l[1], l[2], 3, 1), LEAF[3]); P(l[1] + 1, l[2], LEAF[4]); P(l[1] - 3, l[2], LEAF[1])
+  if l[1] % 2 == 0 then P(l[1] + 2, l[2] - 1, "#ffc4d8") end
+end
+-- fire: layered tongues over the old flame (copied helper from camp), plus sparks
+local function tongue(cx, by, h, w, lean)
+  local m = HP.mask()
+  for y = by, by - h, -1 do
+    local t = (by - y) / h
+    local hw = w * math.sin(math.pi * math.min(1, t * 0.92 + 0.08) ^ 0.75) * (1 - t * 0.35)
+    local off = lean * t * t
+    for x = math.floor(cx + off - hw + 0.5), math.floor(cx + off + hw + 0.5) do m:set(x, y) end
+  end
+  return m
+end
+local function flame(cx, by, h, w, lean)
+  local m = tongue(cx, by, h, w, lean)
+  solid(m, RED, { sh = 1 })
+  for i, col in ipairs({ "#e8602e", GLOW[2], GLOW[3], "#fff2c0" }) do
+    local mm = m:shrink(i * 2)
+    if mm:count() > 0 then c:fillMask(mm, col) end
+  end
+end
+flame(142, 238, 18, 9, 0); flame(135, 238, 12, 5, -2); flame(150, 238, 13, 5, 2)
+for _, g in ipairs({ { 130, 210 }, { 154, 207 }, { 126, 200 }, { 158, 198 }, { 142, 196 } }) do P(g[1], g[2], GLOW[4]); P(g[1] + 1, g[2], GLOW[3]) end
+-- logs peeking out of the pit
+c:fillMask(c:line({{131, 238}, {140, 236}}, 2), WOOD[2]); c:fillMask(c:line({{153, 238}, {145, 236}}, 2), WOOD[2])
+
 ------------------------------------------------------------------ finish + save
 c:finish{ outline = false }
 HP.assertClean(c)
