@@ -17,7 +17,7 @@ def dusk(rgb):
     v = v * 0.84
     t = colorsys.hsv_to_rgb(h, s, v)
     t = mixc(t, (0.34, 0.2, 0.5), max(0, 1 - v * 2.0) * 0.5)       # violet shadows
-    t = (t[0] * 1.2, t[1] * 0.84, t[2] * 0.68)                       # low orange sun
+    t = (t[0] * 1.1, t[1] * 0.88, t[2] * 0.76)                       # low orange sun
     if v > 0.72: t = mixc(t, (1.0, 0.78, 0.5), 0.18)                  # warm highlights
     return clamp(curve(t, 1.12))
 
