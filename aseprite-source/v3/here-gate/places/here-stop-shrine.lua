@@ -594,7 +594,7 @@ c:fillMask(c:rect(264, 92, 267, 93), P.ember.deep)
 -- path stones: hairline cracks, pale lichen on the far (north) lip
 for i, st in ipairs({ {484, 0} }) do end
 for y = 120, 266 do for x = 190, 290 do
-  local g = c:get(x, y)
+  local g = (not nearStand(x, y, 16)) and c:get(x, y) or nil
   if g == P.stone.base and H(x, y, 311) > .985 then c:put(x, y, P.stone.deep) end
   if g == P.stone.hi and H(x, y, 312) > .93 then c:put(x, y, "#e4ecc0") end
 end end
@@ -657,8 +657,8 @@ local function glowRing(cx, cy, rx, ry, col, ok)
     if e < 1 and (x + y) % 2 == 0 and (e > .35 or H(x, y, 401) > .5) and ok(x, y) then c:put(x, y, col) end
   end end
 end
-local function groundOnly(x, y) local g = c:get(x, y); return g ~= nil and (GROUND[g] or g == R.earth.base or g == R.earth.hi or g == "#cdbb7e" or g == R.earth.shade) end
-local function stoneOk(x, y) local g = c:get(x, y); return g ~= nil and (GROUND[g] or g == P.stone.base or g == P.stone.hi or g == P.stone.shade or g == R.earth.base) end
+local function groundOnly(x, y) local g = c:get(x, y); return g ~= nil and not nearStand(x, y, 15) and (GROUND[g] or g == R.earth.base or g == R.earth.hi or g == "#cdbb7e" or g == R.earth.shade) end
+local function stoneOk(x, y) local g = c:get(x, y); return g ~= nil and not nearStand(x, y, 15) and (GROUND[g] or g == P.stone.base or g == P.stone.hi or g == P.stone.shade or g == R.earth.base) end
 local function flame(x, y, big)
   c:put(x, y, P.gold.hi); c:put(x, y - 1, P.gold.base); c:put(x, y + 1, P.ember.base)
   if big then c:put(x, y - 2, P.ember.hi); c:put(x - 1, y, P.gold.base); c:put(x + 1, y, P.gold.base) end
@@ -752,7 +752,7 @@ for _, cx in ipairs({ 88, 94 }) do
 end
 for y = 221, 226 do c:put(70, y, R.thatch.base); c:put(76, y, R.thatch.base) end
 -- fallen blossoms and a handful of offered coins on the path stones
-for _, pc in ipairs({ {232, 186}, {246, 202}, {236, 225}, {250, 246}, {244, 168} }) do c:put(pc[1], pc[2], P.petal.hi); c:put(pc[1] + 1, pc[2], P.petal.base) end
+for _, pc in ipairs({ {232, 186}, {246, 202}, {250, 246}, {244, 168} }) do c:put(pc[1], pc[2], P.petal.hi); c:put(pc[1] + 1, pc[2], P.petal.base) end
 
 -- v2.5.40 polish pass 4: key light top-left (rim glints, shadows fall right), warm glows, haze on far hills, extra flora, foreground blades
 -- atmospheric perspective: far hills and treeline lighter and cooler
@@ -762,7 +762,7 @@ do
 end
 -- cast shadows: one direction (to the right and a touch down) on ground pixels only
 local SHC = "#689a6e"
-local function isGround(x, y) local g = c:get(x, y); return g ~= nil and (GROUND[g] or g == "#bdd27c" or g == "#d5d98a" or g == "#74b068" or g == "#4f8f62" or g == "#6fab62" or g == "#628a74" or g == "#557a6c") end
+local function isGround(x, y) local g = c:get(x, y); return g ~= nil and not nearStand(x, y, 15) and (GROUND[g] or g == "#bdd27c" or g == "#d5d98a" or g == "#74b068" or g == "#4f8f62" or g == "#6fab62" or g == "#628a74" or g == "#557a6c") end
 local function cast(x1, yb, len, d)
   for k = 0, d do
     local y = yb + k
