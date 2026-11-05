@@ -17,6 +17,7 @@ local function set(t) local s = {} for _, k in ipairs(t) do s[k] = true end retu
 local BG = set{ "#2a1a10", "#3d2a1c", "#4a2c1a" }
 local HALO = set{ "#25637d", "#3f8fb0", "#4e3a8a", "#7b66b4", "#e8a317" }
 local PATH = set{ "#9a6b3f", "#74462a", "#c9a96e", "#f2e4c0" }
+local PBODY = set{ "#9a6b3f", "#74462a", "#c9a96e" }
 local DETAIL = set{ "#dd3a2a", "#e46a9b", "#8b8f96", "#5b6470", "#eef8f2", "#d6322b", "#f08a24", "#8a4f2a", "#c8d77a", "#a8582f", "#a9d6ea", "#c3b2ea", "#7a5cc0", "#fff3c8" }
 
 local W, H = 640, 360
@@ -49,7 +50,11 @@ local cur = {}
 for i = 0, W * H - 1 do cur[i] = old[i] end
 for y = 0, H - 1 do for x = 0, W - 1 do
   local k = old[y * W + x]
-  if cls(k) == 4 then cur[y * W + x] = modeAt(old, x, y, 4, true) or modeAt(old, x, y, 9, true) or "#2a1a10" end
+  if k == "#f2e4c0" then
+    local n = 0
+    for dy = -2, 2 do for dx = -2, 2 do local xx, yy = x + dx, y + dy; if xx >= 0 and yy >= 0 and xx < W and yy < H and PBODY[old[yy * W + xx]] then n = n + 1 end end end
+    if n >= 8 then cur[y * W + x] = "#c9a96e" else cur[y * W + x] = modeAt(old, x, y, 4, true) or "#2a1a10" end
+  elseif cls(k) == 4 then cur[y * W + x] = modeAt(old, x, y, 4, true) or modeAt(old, x, y, 9, true) or "#2a1a10" end
 end end
 for pass = 1, 2 do
   local nxt = {}
@@ -61,6 +66,42 @@ for pass = 1, 2 do
 end
 local C = {}
 for i = 0, W * H - 1 do C[i] = cls(cur[i]) end
+do  -- enclosed small bg/halo holes inside the figure become figure colour
+  local seen = {}
+  for i0 = 0, W * H - 1 do
+    if (C[i0] == 1 or C[i0] == 2) and not seen[i0] then
+      local comp, qh, touch = { i0 }, 1, false
+      seen[i0] = true
+      while qh <= #comp and #comp < 400 do
+        local i = comp[qh]; qh = qh + 1
+        local x, y = i % W, i // W
+        if x == 0 or y == 0 or x == W - 1 or y == H - 1 then touch = true end
+        for _, o in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do
+          local xx, yy = x + o[1], y + o[2]
+          if xx >= 0 and yy >= 0 and xx < W and yy < H then
+            local j = yy * W + xx
+            if (C[j] == 1 or C[j] == 2) and not seen[j] then seen[j] = true; comp[#comp + 1] = j end
+          end
+        end
+      end
+      if #comp < 70 and qh > #comp and not touch then
+        for _, i in ipairs(comp) do
+          local x, y = i % W, i // W
+          local best, bn, cnt = nil, 0, {}
+          for dy = -4, 4 do for dx = -4, 4 do
+            local xx, yy = x + dx, y + dy
+            if xx >= 0 and yy >= 0 and xx < W and yy < H then
+              local k = cur[yy * W + xx]; local cc = cls(k)
+              if cc == 5 then cnt[k] = (cnt[k] or 0) + 1; if cnt[k] > bn then bn = cnt[k]; best = k end end
+            end
+          end end
+          if best then cur[i] = best end
+        end
+        for _, i in ipairs(comp) do C[i] = cls(cur[i]) end
+      end
+    end
+  end
+end
 local function cl(x, y) if x < 0 or y < 0 or x >= W or y >= H then return 1 end return C[y * W + x] end
 
 -- 2. distances: dFig = outside distance from figure (blob+path); dIn = inside distance to non-figure
@@ -250,8 +291,9 @@ end
 local clearance = bfs(function(i) return C[i] ~= 5 end)   -- distance from non-blob (path/halo/bg); also keeps paths clear
 local occ = {}
 local function free(x, y, r)
-  if (clearance[y * W + x] or 14) < min(r + 2, 13) then return false end
-  for dy = -r, r, 3 do for dx = -r, r, 3 do
+  if (clearance[y * W + x] or 14) < 7 then return false end
+  local rc = floor(r * .6)
+  for dy = -rc, rc, 3 do for dx = -rc, rc, 3 do
     local xx, yy = x + dx, y + dy
     if xx < 0 or yy < 0 or xx >= W or yy >= H or C[yy * W + xx] ~= 5 or occ[yy * W + xx] then return false end
   end end
@@ -264,17 +306,17 @@ local FAM = {
 }
 local placed = {}
 local list = {}
-for t = 1, 9000 do
+for t = 1, 24000 do
   local x, y = 20 + floor(hash(t, 1, 77) * (W - 40)), 24 + floor(hash(t, 2, 77) * (H - 48))
   local fam = FAM[cur[y * W + x]]
   if fam and C[y * W + x] == 5 then list[#list + 1] = { x, y, fam, t } end
 end
-local want = { green = 12, dark = 7, pink = 6, fire = 5, tan = 6, ice = 4, brown = 5 }
+local want = { green = 16, dark = 9, pink = 8, fire = 8, tan = 8, ice = 5, brown = 7 }
 local got = {}
 for _, p in ipairs(list) do
   local x, y, fam, t = p[1], p[2], p[3], p[4]
   if (got[fam] or 0) < want[fam] then
-    local r = (fam == "dark" or fam == "fire") and 10 or 9
+    local r = (fam == "dark" or fam == "fire") and 13 or 12
     r = r + floor(hash(t, 3, 5) * 3)
     if free(x, y, r) then
       for yy = y - r - 4, y + r do for xx = x - r - 2, x + r + 2 do occ[yy * W + xx] = true end end
@@ -289,20 +331,20 @@ for _, p in ipairs(placed) do
   local sd = t % 97 + 3
   if fam == "green" then
     local k = t % 6
-    if k == 0 then mush(x, y, 6, sd) elseif k == 1 then boulder(x, y, 7, 5, ROCKR, sd) else tree(x, y - 4, 8 + t % 3, GRN[1 + t % 2], sd) end
+    if k == 0 then mush(x, y, 9, sd) elseif k == 1 then boulder(x, y, 10, 7, ROCKR, sd) else tree(x, y - 5, 11 + t % 3, GRN[1 + t % 2], sd) end
   elseif fam == "dark" then
-    if t % 3 == 0 then tree(x, y - 4, 8, GRN[2], sd) else pine(x, y, 24 + t % 5, sd) end
+    if t % 3 == 0 then tree(x, y - 5, 11, GRN[2], sd) else pine(x, y, 32 + t % 6, sd) end
   elseif fam == "pink" then
-    if t % 2 == 0 then tree(x, y - 4, 8, PNK, sd, true) else crystals(x, y, 20, LAV, sd) end
+    if t % 2 == 0 then tree(x, y - 5, 11, PNK, sd, true) else crystals(x, y, 28, LAV, sd) end
   elseif fam == "fire" then
-    if t % 3 == 0 then boulder(x, y, 8, 6, VOLC, sd) else volcano(x, y, 14 + t % 3, 22 + t % 5, sd) end
+    if t % 3 == 0 then boulder(x, y, 11, 8, VOLC, sd) else volcano(x, y, 19 + t % 3, 30 + t % 5, sd) end
   elseif fam == "tan" then
     local k = t % 3
-    if k == 0 then cactus(x, y, 16 + t % 4, sd) elseif k == 1 then peak(x, y, 12, 18, TANR, false, sd) else boulder(x, y, 8, 6, TANR, sd) end
+    if k == 0 then cactus(x, y, 22 + t % 4, sd) elseif k == 1 then peak(x, y, 16, 26, TANR, false, sd) else boulder(x, y, 11, 8, TANR, sd) end
   elseif fam == "ice" then
-    if t % 2 == 0 then crystals(x, y, 22, ICE, sd) else peak(x, y, 12, 20, ROCKR, true, sd) end
+    if t % 2 == 0 then crystals(x, y, 30, ICE, sd) else peak(x, y, 16, 28, ROCKR, true, sd) end
   elseif fam == "brown" then
-    if t % 2 == 0 then mush(x, y, 8, sd) else peak(x, y, 13, 20, rp("#e0b078", "#a8703c", "#6e4230", "#452a2c"), false, sd) end
+    if t % 2 == 0 then mush(x, y, 11, sd) else peak(x, y, 17, 28, rp("#e0b078", "#a8703c", "#6e4230", "#452a2c"), false, sd) end
   end
 end
 c:save{ png = d .. "/out/map-world.png", scale = 1 }

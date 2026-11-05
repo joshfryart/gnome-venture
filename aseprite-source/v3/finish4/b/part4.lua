@@ -5,7 +5,7 @@ local function scales(m, cw, ch, seed, tintcol, strength)
     local o = c:get(x, y); if not o then return end
     if gap < 1.1 then P(x, y, mix(o, "#1a1220", .55))
     elseif x < qx - cw * .15 and y < qy - ch * .15 and gap < 3 then P(x, y, mix(o, "#ffffd0", .28))
-    else P(x, y, mix(o, tintcol, (id - .5) * (strength or .3) + .05)) end
+    else P(x, y, mix(o, tintcol, max(0, (id - .3) * (strength or .3)))) end
   end)
 end
 pic("lair-dragonlizard-den", function()
@@ -108,12 +108,12 @@ pic("wonder-the-oasis-that-moves", function()
   -- far legs
   local SKN = RR("#d8c890", "#a8946a", "#6e5a58", "#44343c")
   local function leg(x0, w, far)
-    local m = PL({ { x0, 190 }, { x0 + w, 190 }, { x0 + w + 4, gy - 4 }, { x0 + w + 8, gy + 8 }, { x0 - 8, gy + 8 }, { x0 - 4, gy - 4 } })
+    local m = PL({ { x0 + 2, 190 }, { x0 + w - 2, 190 }, { x0 + w + 2, gy - 8 }, { x0 + w + 2, gy + 2 }, { x0 - 2, gy + 2 }, { x0 - 2, gy - 8 } }):add(E(x0 + w / 2, gy + 1, w / 2 + 4, 7))
     litL(m, far and RR(SKN.shade, SKN.shade, SKN.deep, SKN.deep) or SKN, x0, { R = 8, tex = .5, sc = 3 })
     vor(m, 5, 4, 77 + x0, function(x, y, qx, qy, id, d1, gap) if gap < 1 then shadeTo(x, y, "#2e2030", .5) end end)
-    for k = 0, 2 do fill(R(x0 - 6 + k * 6, gy + 5, x0 - 3 + k * 6, gy + 8), "#e8d8b0") end
+    for k = 0, 3 do fill(R(x0 - 2 + k * (w / 3), gy + 5, x0 + 2 + k * (w / 3), gy + 8), "#e8d8b0") end
   end
-  leg(168, 38, true); leg(318, 40, true)
+  leg(168, 38, true); leg(318, 40, true); leg(130, 42, false); leg(284, 44, false)
   -- tail and head
   local tail = limb({ { 380, 200 }, { 404, 206 }, { 420, 218 } }, 6, 2, 8); c:rim(tail, INK); lit(tail, SKN, 9, { R = 3, tex = .4, ink = false })
   local neck = limb({ { 130, 196 }, { 104, 186 }, { 78, 190 } }, 14, 11, 10)
@@ -140,7 +140,7 @@ pic("wonder-the-oasis-that-moves", function()
     else P(x, y, mix(o, col, .3)) end
   end)
   -- marginal scutes along the shell hem
-  for k = 0, 19 do local xx = 112 + k * 14; local m = R(xx, 200, xx + 12, 212); m:clip(shell); c:rim(m, INK); fill(m, k % 2 == 0 and "#c8884a" or "#a8663e"); fill(R(xx, 200, xx + 12, 201), "#f6c880"); fill(R(xx, 210, xx + 12, 212), "#6a3a44") end
+  for k = 0, 19 do local xx = 112 + k * 14; local m = R(xx, 202, xx + 12, 212); m:clip(shell); c:rim(m, INK); fill(m, k % 2 == 0 and "#c8884a" or "#a8663e"); fill(R(xx, 200, xx + 12, 201), "#f6c880"); fill(R(xx, 210, xx + 12, 212), "#6a3a44") end
   c:rim(shell, INK)
   -- oasis on the shell crown
   local pond = rough(E(250, 78, 44, 6), 44); c:rim(pond, INK)
@@ -149,8 +149,6 @@ pic("wonder-the-oasis-that-moves", function()
   palm(226, 80, 56, -12, 31); palm(276, 78, 70, 10, 32); palm(250, 74, 36, 3, 33)
   fill(R(244, 86, 256, 92), "#e8b078"); c:rim(R(244, 86, 256, 92), INK) -- tiny tent
   fill(PL({ { 242, 86 }, { 250, 76 }, { 258, 86 } }), "#e0443a"); c:rim(PL({ { 242, 86 }, { 250, 76 }, { 258, 86 } }), INK)
-  -- near legs
-  leg(130, 42, false); leg(284, 44, false)
   -- footprints and dust trail behind
   for i = 0, 8 do fill(E(430 + i * 5 - 20, 252 + (i % 2) * 6, 5, 2), "#a8663e"); dust(420 + i * 7, 246, 10, 3, "#f0c890", i) end
   for i = 0, 6 do fill(E(30 + i * 14, 256 + (i % 2) * 5, 5, 2), "#a8663e") end
