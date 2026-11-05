@@ -749,7 +749,7 @@ R["me"] = function(T)
   part(HP.poly({ {13, 26}, {17, 25}, {19, 26}, {21, 25}, {25, 26}, {23, 28}, {19, 27}, {15, 28} }), BEARD, { rim = "#6e6280", rimTL = "#8a7f98", l1 = .3 })
   -- hat, NOT clipped: wide brim over the ring top, cone with a bent tip that clears the ring (tip at y1)
   local HR = { hi = "#ff9a74", base = "#e8493b", shade = "#a8283a" }
-  local brim = HP.mask(); for y = 14, 19 do for x = 6, 32 do local dx, dy = (x - 19) / 13.2, (y - 16.6) / 2.4; if dx * dx + dy * dy <= 1 then brim:set(x, y) end end end
+  local brim = HP.mask(); for y = 14, 19 do for x = 6, 32 do local dx, dy = (x - 19) / 12.6, (y - 16.2) / 2.0; if dx * dx + dy * dy <= 1 then brim:set(x, y) end end end
   lit(T, brim, { hi = "#d2554a", base = "#b52e3f", shade = "#7e2038" }, { rim = INK, rimTL = INK, l1 = .55 })
   local hat = HP.poly({ {10, 16}, {13, 11}, {16, 7}, {20, 4}, {24, 2}, {28, 1}, {30, 3}, {27, 5}, {25, 8}, {25, 12}, {28, 16} })
   lit(T, hat, HR, { rim = INK, rimTL = INK, l1 = .42 })

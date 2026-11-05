@@ -387,15 +387,21 @@ end
 -- placement: a prop needs its footprint on cavern floor (class 5); its upper part may poke over halo/bg; never over a tunnel.
 local clearance = bfs(function(i) return C[i] ~= 5 end)
 local occ = {}
-local function fits(x, y, hw, h)
-  if (clearance[y * W + x] or 14) < 3 then return false end
+local wide = bfs(function(i) return C[i] ~= 3 end)   -- path-coloured cavern floors (wide, not tunnels)
+local function floorOK(i) return C[i] == 5 or (C[i] == 3 and (wide[i] or 15) >= 4) end
+local function fits(x, y, hw, h, cave)
+  if not cave and (clearance[y * W + x] or 14) < 3 then return false end
   for yy = y - h, y + 2, 2 do for xx = x - hw, x + hw, 2 do
     if xx < 0 or yy < 20 or xx >= W or yy >= H - 22 then return false end
     local i = yy * W + xx
     if occ[i] then return false end
     local inner = abs(xx - x) <= hw * .7
-    if inner and yy > y - h * .6 and C[i] == 3 then return false end
-    if inner and yy > y - h * .4 and C[i] ~= 5 then return false end
+    if cave then
+      if inner and yy > y - h * .4 and not floorOK(i) then return false end
+    else
+      if inner and yy > y - h * .6 and C[i] == 3 then return false end
+      if inner and yy > y - h * .4 and C[i] ~= 5 then return false end
+    end
   end end
   return true
 end
@@ -412,14 +418,16 @@ local KIND = {
   fire  = { { "volcano", 21, 38 }, { "stalV", 17, 34 }, { "volcano", 21, 38 } },
   tan   = { { "cactus", 11, 30 }, { "peakT", 19, 32 }, { "stalT", 17, 32 } },
   ice   = { { "crysI", 16, 40 }, { "peakS", 19, 34 } },
+  cave  = { { "stalB", 17, 34 }, { "mushB", 16, 26 }, { "stalB", 17, 34 } },
   brown = { { "mushR", 16, 26 }, { "stalB", 17, 34 }, { "peakB", 19, 32 } },
 }
-local want = { green = 11, dark = 6, pink = 5, fire = 6, tan = 6, ice = 4, brown = 5 }
+local want = { cave = 4, green = 11, dark = 6, pink = 5, fire = 6, tan = 6, ice = 4, brown = 5 }
 local list = {}
 for t = 1, 30000 do
   local x, y = 24 + floor(hash(t, 1, 77) * (W - 48)), 40 + floor(hash(t, 2, 77) * (H - 70))
   local fam = FAM[cur[y * W + x]]
-  if fam and C[y * W + x] == 5 then list[#list + 1] = { x, y, fam, t } end
+  if fam and C[y * W + x] == 5 then list[#list + 1] = { x, y, fam, t }
+  elseif C[y * W + x] == 3 and (wide[y * W + x] or 15) >= 9 then list[#list + 1] = { x, y, "cave", t } end
 end
 local got, placed = {}, {}
 for _, p in ipairs(list) do
@@ -427,7 +435,7 @@ for _, p in ipairs(list) do
   if (got[fam] or 0) < want[fam] then
     local ks = KIND[fam]
     local k = ks[1 + (got[fam] or 0) % #ks]
-    if fits(x, y, k[2], k[3]) then
+    if fits(x, y, k[2], k[3], fam == "cave") then
       for yy = y - k[3] - 1, y + 3 do for xx = x - k[2] - 1, x + k[2] + 1 do if xx >= 0 and xx < W then occ[yy * W + xx] = true end end end
       got[fam] = (got[fam] or 0) + 1
       placed[#placed + 1] = { x, y, k[1], t }

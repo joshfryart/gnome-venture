@@ -439,7 +439,7 @@ function S.vigpick()
   handle({ 14, 12 }, { C0[1] + d[1] * 3, C0[2] + d[2] * 3 }, 4)
   obj(HP.rect(10, 8, 14, 12), R.leather)
   local function cpt(t) return C0[1] + pv[1] * t * 27 - d[1] * (t * t * 9), C0[2] + pv[2] * t * 27 - d[2] * (t * t * 9) end
-  local function wd(t) return max(.4, 3.6 * (1 - abs(t) ^ 1.6) + .4) end
+  local function wd(t) return max(.4, 4.6 * (1 - abs(t) ^ 1.8) + .4) end
   local up, dn = {}, {}
   for i = -12, 12 do
     local t = i / 12
@@ -477,7 +477,7 @@ function S.vigpick()
   local tx, ty = cpt(1); spark(floor(tx) + 1, floor(ty) + 3, CREAM)
   spark(100, 66, R.gold.hi); spark(112, 80, CREAM); put(96, 74, R.gold.base); put(106, 58, R.gold.base)
   -- chips flying
-  obj(HP.poly({ {74, 62}, {79, 58}, {80, 64} }), R.stone); obj(HP.poly({ {108, 54}, {113, 52}, {112, 58} }), R.stone)
+  obj(HP.poly({ {64, 76}, {69, 72}, {70, 78} }), R.stone); obj(HP.poly({ {108, 54}, {113, 52}, {112, 58} }), R.stone)
   -- rubble
   for _, p in ipairs({ {54, 97, 5}, {46, 101, 3}, {142, 99, 4}, {64, 103, 3} }) do obj(HP.ellipse(p[1], p[2], p[3], p[3] - 1), R.stone) end
   -- mole on mound, facing the rock

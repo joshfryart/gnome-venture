@@ -816,7 +816,7 @@ function P.hazemesas(x, by, o)
     m:each(function(xx, yy)
       local col = cols[2]
       if (not m:has(xx, yy - 1)) or (not m:has(xx - 1, yy) and yy < by - 2) then col = cols[1]
-      elseif xx > cx + w * .1 and ((xx - cx) // 3 + yy // 4) % 5 == 0 then col = cols[3]
+      elseif xx > cx + w * .3 then col = cols[3]
       elseif (by - yy) % 7 == 0 and GX.vn(xx, yy, 6, cx) > .5 then col = cols[3] end
       c:px(xx, yy, col)
     end)
@@ -946,7 +946,7 @@ function P.hoodoo(x, by, o)
   local m = mk()
   for yy = by - h, by do
     local t = (by - yy) / h
-    local hwid = 2 + floor(3 * (1 - t) + sin(t * 9) * 1.2)
+    local hwid = 1 + floor(4 * (1 - t) ^ 1.6 + .5)
     for xx = x - hwid, x + hwid do m:set(xx, yy) end
   end
   E(m, x, by - h - 1, 5, 2)
