@@ -3098,6 +3098,19 @@
      222
     ],
     "as": "wild"
+   },
+   {
+    "k": "beaver_pond",
+    "x": 152,
+    "y": 50,
+    "name": "Beaver Pond",
+    "box": [
+     124,
+     22,
+     180,
+     78
+    ],
+    "as": "special2"
    }
   ],
   "stand": [
@@ -3254,7 +3267,7 @@
      410,
      226
     ],
-    "as": "shops"
+    "as": "do"
    },
    {
     "k": "forage",
@@ -3424,7 +3437,7 @@
      410,
      226
     ],
-    "as": "shops"
+    "as": "do"
    },
    {
     "k": "forage",
