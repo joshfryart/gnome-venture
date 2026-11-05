@@ -353,8 +353,8 @@ function stop_pix(string $name, string $fallback, string $cls = ''): string
 /** The inside of the perk popover: scene banner, perk tickets, meter ring tiles and the acts that fill the picked meter. '' when there is nothing to show. Radio + label tiles: no script needed. */
 function stop_perk_body(array $u, array $node): string
 {
+    if (($node['kind'] ?? '') !== 'village') return '';   // v2.5.78: at every stop, even before a meter has moved
     [$perks, $meters] = stop_perk_data($u, $node);
-    if (!$perks && !$meters) return '';
     $acts = [];   // meter => [[act row, amount], ...]: the acts on offer here now that raise it
     foreach (stop_pool($node, null, (int)$u['id'])['offer'] as $a) {
         if (empty($a['slug']) || empty($a['name'])) continue;

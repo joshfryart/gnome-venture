@@ -135,7 +135,8 @@ ok('a finished story is not offered again', (function () use ($lu, $lkLoc, $tid)
 ok('every thread reward names real items', (function () { foreach (stop_threads() as $t) if (preg_match_all('/item=([a-z0-9-]+)/', $t['reward'], $m)) foreach ($m[1] as $sl) if (!q_val('SELECT 1 FROM items WHERE slug = ?', [$sl])) return false; return true; })());
 // the perk circle by the world icon
 q('DELETE FROM stop_prog WHERE user_id = ?', [$lu]);
-ok('no circle when nothing has moved', stop_perk_chip(me(), $lkLoc) === '');
+ok('the circle shows at a stop even before a meter has moved, with a 0% list and no perk count', ($c0 = stop_perk_chip(me(), $lkLoc)) !== '' && str_contains($c0, 'pkchip') && !str_contains($c0, 'pkdot on'));
+ok('every active act moves a meter (v2.5.78)', ($nomove = array_keys(array_filter(stop_acts(), fn($a) => !stop_act_moves($a)))) === [], implode(',', array_slice($nomove, 0, 8)));
 stop_meter_add($lu, $lid, 'larder', 20);
 $chip = stop_perk_chip(me(), $lkLoc);
 ok('a circle shows once a meter has moved, with the meter list', str_contains($chip, 'pkchip') && str_contains($chip, 'Larder') && !str_contains($chip, 'pkdot on'));

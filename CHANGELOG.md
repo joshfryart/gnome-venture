@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.78
+- **Perks button at every stop**: it no longer waits for a meter to move; before that every plant is a seed at 0% and the card says what fills each bar.
+- **Every act moves a meter**: 182 acts had no tag word and moved nothing (for example Bring the bell-goats home), so doing them never showed the Perks button. They now have a row in `stop_act_state.txt`: 39 raise Repairs (mending, boats, sails, shutters, labour), 47 raise Larder (food, crops, fishing, animals), 96 raise Cheer (games, sights, stories, rest), +10 each. New test asserts no active act is left without a meter.
+
 ## 2.5.77
 - **Perks card meters are plants**: each meter (Repairs, Larder, Cheer) is a pot that grows with the bar (seed, sprout, leafy, bud, and in bloom while its perk runs) on a wooden stake sign with the percent in pixel digits. Tap one to see the acts that fill it. New v3 art `ico-pkplant0` to `ico-pkplant4`, `pk-sign`, `pk-digits` (sources in `aseprite-source/v3/items/perks/`); Larder now uses the v3 jar icon.
 
