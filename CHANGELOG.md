@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.61
+- **More new art**: 14 journal emblems, 7 landing pictures, 14 region maps (same layout, repainted) plus world map, 46 trek tiles. Same sizes, drop-in.
+
 ## 2.5.60
 - **New art**: 81 wonder/delve/haven/lair pictures, 29 banners, 27 gather pieces (slots, vignettes, flourishes, badges, felt, ribbons) redrawn in v3 style. Same sizes, drop-in. Pilot pictures kept.
 
