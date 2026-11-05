@@ -97,6 +97,29 @@ function trail_art_ready(array $art): bool
 }
 
 /**
+ * v2.5.49: the colour the ground fades into past the bottom edge of a baked section: the average of its last pixel rows, a little darker (shade). Read once
+ * from the PNG with GD and kept per picture; '' when GD or the picture is missing (the caller then uses its flat per-land colour).
+ */
+function trail_art_edge_colour(array $art): string
+{
+    static $memo = [];
+    $f = dirname(__DIR__) . '/assets/img/trail/ground/' . (int)$art['route'] . '-' . ((int)$art['sec'] + 1) . '.png';
+    if (isset($memo[$f])) return $memo[$f];
+    $c = '';
+    if (function_exists('imagecreatefrompng') && is_file($f) && ($im = @imagecreatefrompng($f))) {
+        $w = imagesx($im); $h = imagesy($im); $r = $g = $b = $n = 0;
+        for ($y = max(0, $h - 6); $y < $h; $y++) for ($x = 0; $x < $w; $x += 4) {
+            $p = imagecolorat($im, $x, $y);
+            if (!imageistruecolor($im)) { $q = imagecolorsforindex($im, $p); $p = ($q['red'] << 16) | ($q['green'] << 8) | $q['blue']; }
+            $r += ($p >> 16) & 255; $g += ($p >> 8) & 255; $b += $p & 255; $n++;
+        }
+        imagedestroy($im);
+        if ($n) $c = sprintf('#%02x%02x%02x', (int)($r / $n * .72), (int)($g / $n * .72), (int)($b / $n * .72));
+    }
+    return $memo[$f] = $c;
+}
+
+/**
  * The section picture for the window. $state: x0 y0 cols rows (window, in tiles), px py (the walker), tokens [[x, y, icon, ring, done]]
  * (icon ✨ = a find, ⚔️ = the fixed fight, 🚪 = the way on), walk (the path just walked, for the footprints the script reveals).
  * Coordinates are the window's own (0,0 = its top-left tile), like tm_render_svg, so assets/tilemap.js moves the walker unchanged.
@@ -113,10 +136,18 @@ function trail_art_svg(array $map, array $state): string
     $H = (int)$state['rows'] * $C;
     $n = 'tm_n';
     $under = ['grassland' => '#2a5a3e', 'forest' => '#4a2f2d', 'coast' => '#b78a5c', 'tundra' => '#8fb0d8'][$land] ?? '#2a3a2e';
+    if (($edge = trail_art_edge_colour($art)) !== '') $under = $edge;
     $o = '<svg class="tmbg tpix" viewBox="0 0 ' . $W . ' ' . $H . '" preserveAspectRatio="none" aria-hidden="true" focusable="false">';
+    $o .= '<defs><linearGradient id="tmfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' . $under . '" stop-opacity="0"/><stop offset="1" stop-color="' . $under . '" stop-opacity="1"/></linearGradient>'
+        . '<linearGradient id="tmfadex" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="' . $under . '" stop-opacity="1"/><stop offset="1" stop-color="' . $under . '" stop-opacity="0"/></linearGradient></defs>';
     $o .= '<rect width="' . $W . '" height="' . $H . '" fill="' . $under . '"/>';
     $o .= '<image href="' . e(trail_art_url('ground/' . (int)$art['route'] . '-' . ((int)$art['sec'] + 1) . '.png')) . '" x="' . $n(-$x0 * $C) . '" y="' . $n(-$y0 * $C - TRAIL_ART_PAD * $k)
         . '" width="' . $n($map['w'] * $C) . '" height="' . $n(($map['h'] * TRAIL_ART_PX + TRAIL_ART_PAD) * $k) . '"/>';
+    // v2.5.49: the picture stops at the last row with a hard line; the ground fades into shade over the bottom half tile (and the left edge), so the map does not end on a ruler
+    $by = ($map['h'] - $y0) * $C;
+    if ($by > 0 && $by < $H + $C) $o .= '<rect x="0" y="' . $n($by - .6 * $C) . '" width="' . $W . '" height="' . $n(.6 * $C) . '" fill="url(#tmfade)"/>';
+    $lx0 = -$x0 * $C;
+    if ($lx0 > 0 && $lx0 < $W) $o .= '<rect x="' . $n($lx0) . '" y="0" width="' . $n(.5 * $C) . '" height="' . $H . '" fill="url(#tmfadex)"/>';
     $walk = $state['walk'] ?? null;
     if ($walk && count($walk['p']) > 1) {
         $o .= '<g class="tmfeet">';
