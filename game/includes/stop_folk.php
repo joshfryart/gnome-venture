@@ -337,3 +337,12 @@ function stop_errand_drop(array $u, int $errandId): array
     if (q("UPDATE stop_errands SET status = 'dropped' WHERE id = ? AND user_id = ? AND status = 'active'", [$errandId, (int)$u['id']])->rowCount() !== 1) return [false, 'That errand is over.'];
     return [true, 'You hand the errand back. No hard feelings.'];
 }
+
+/** v2.5.37: the v3 art of a stop villager: $dir 'sprite' (4 frames of 64 x 96, first is the idle) or 'portrait' (80 x 100). Three looks per species, picked by the villager. Returns a path under the app or ''. */
+function stop_folk_art(array $folk, string $dir): string
+{
+    $sp = strtolower(trim((string)$folk['species']));
+    $sp = $sp === 'mouse' ? 'field-mouse' : str_replace(' ', '-', $sp);
+    $rel = 'assets/img/folk/' . $dir . '/folk-' . $sp . '-' . (1 + crc32('look|' . (int)$folk['id'] . $folk['name']) % 3) . '.png';
+    return is_file(APP_ROOT . '/' . $rel) ? $rel : '';
+}

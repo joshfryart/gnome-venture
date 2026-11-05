@@ -338,6 +338,7 @@ function local_folk_card(array $u, array $loc, array $folk, array $deliver): str
  */
 function stop_folk_img(array $folk): string
 {
+    if (($art = stop_folk_art($folk, 'portrait')) !== '') return '<img class="portrait folkimg pix" src="' . e(url($art)) . '" alt="' . e((string)$folk['species']) . '" width="80" height="100">';   // v2.5.37: v3 art
     $sp = strtolower((string)$folk['species']);
     foreach (['mouse', 'bee', 'hedgehog', 'snail', 'frog', 'beetle', 'butterfly', 'cricket', 'ladybird'] as $k) {
         if (str_contains($sp, $k) && pixel_has('assets/img/ico/ico-' . $k . '.png')) return '<img class="portrait folkimg pix" src="' . e(url('assets/img/ico/ico-' . $k . '.png')) . '" alt="' . e((string)$folk['species']) . '" width="72" height="72">';
