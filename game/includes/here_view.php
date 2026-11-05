@@ -335,7 +335,7 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
     [$sprites, $over] = here_sprites($u, $node, $L, $kind);
     $opts = ['layout' => $L, 'alt' => 'Where you are: ' . $node['name'], 'open' => $open, 'debug' => $debug, 'close_href' => url($back), 'title' => 'List view'];
     if ($gate) {
-        $opts['chrome'] = true; $opts['pins'] = true; $opts['navbar'] = true;
+        $opts['chrome'] = true; $opts['pills'] = true; $opts['navbar'] = true; $opts['street'] = true;
         $opts['nav'] = [
             'routes' => ['href' => url($back . '?o=routes'), 'title' => 'Routes', 'card' => here_routes_card($u, $node, $back)],
             'world' => ['href' => url($back . '?o=world'), 'title' => 'World map', 'card' => '<p class="muted">The whole world, region by region.</p><p><a class="btn" href="' . e(url('world.php?tab=map#regionmap')) . '">Open region map</a></p><p><a class="btn alt" href="' . e(url('world.php')) . '">Open the World page</a></p>'],

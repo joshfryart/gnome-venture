@@ -7238,15 +7238,21 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .wc-foot { font-size: .75rem; margin: 8px 0 0; opacity: .8; }
 .wanderhide { height: 0; overflow: hidden; }
 
-/* Here, gate view: numbered pins on the picture, the same numbers in the legend, the compass + globe as a bar under the picture, villager popovers */
-.hubsvg.chrome .pin rect { fill: #ffd24a; stroke: #2a1a10; stroke-width: 2; }
-.hubsvg.chrome .pin text { fill: #2a1a10; font-weight: 800; pointer-events: none; }
-.hubsvg.chrome .hs.on .pin rect, .hubsvg.chrome .hs:hover .pin rect, .hubsvg.chrome .hs:focus-visible .pin rect, .hubsvg.chrome .hs.lit .pin rect { fill: #fff; }
-.hubn { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; border-radius: 5px; background: #ffd24a; color: #2a1a10; font-weight: 800; border: 2px solid #2a1a10; box-sizing: border-box; }
-.hubn-p { background: #e8d6b0; }
+/* Here, gate view: named pills on the picture, round compass + globe and the villagers in a line UNDER the picture, villager popovers */
+.hubsvg.chrome .pill rect { fill: rgba(30, 20, 10, .9); stroke: #d4a017; stroke-width: 1.2; }
+.hubsvg.chrome .pill text { fill: #fff; font-weight: 700; pointer-events: none; }
+.hubsvg.chrome .hs.on .pill rect, .hubsvg.chrome .hs:hover .pill rect, .hubsvg.chrome .hs:focus-visible .pill rect, .hubsvg.chrome .hs.lit .pill rect { fill: #ffe9a3; }
+.hubsvg.chrome .hs.on .pill text, .hubsvg.chrome .hs:hover .pill text, .hubsvg.chrome .hs:focus-visible .pill text, .hubsvg.chrome .hs.lit .pill text { fill: #2a1a10; }
 .hubchip-t { font-weight: 700; }
-.hubchip-npc .hubchip-c { margin-left: auto; }
-.hubnavbar { display: flex; gap: 8px; margin: 8px 0 0; }
-.hubnavbtn.wide { flex: 1; width: auto; gap: 8px; font-weight: 700; border-radius: 8px; }
+.hubnavbar { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; }
+.hubnavhint { flex: 1; color: var(--muted); font-size: .85rem; }
+.hubnavbtn.round { width: 48px; height: 48px; border-radius: 50%; border-color: #d4a017; }
+.hubstreet { list-style: none; margin: 8px 0 0; padding: 8px 6px 10px; display: flex; flex-wrap: wrap; justify-content: space-around; align-items: flex-end; gap: 6px 4px; background: linear-gradient(#8a6a44, #6d5033); border: 2px solid var(--line-2); border-radius: 6px; }
+.hubst { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 72px; min-height: 44px; text-decoration: none; }
+.hubst .stp { display: block; image-rendering: pixelated; }
+.hubst .stemo { font-size: 48px; line-height: 1; }
+.hubst .stn { background: rgba(30, 20, 10, .9); border: 1px solid #d4a017; border-radius: 9px; padding: 1px 7px; color: #fff; font-weight: 700; font-size: .78rem; white-space: nowrap; }
+.hubst:hover .stn, .hubst:focus-visible .stn, .hubst.lit .stn { background: #ffe9a3; color: #2a1a10; }
+.hubst:focus-visible { outline: 2px solid var(--focus); }
 .vlazy .vpanel { border: 0; padding: 0; box-shadow: none; }
 .vmore { margin: 8px 0 0; text-align: right; }

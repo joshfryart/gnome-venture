@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.21
+- **Here pictures: named pills and a street line**: each tappable thing in a gate-view picture carries a small named pill (no overlaps), the compass and world globe are round icons in a row under the picture, and the villagers stand in a line under the picture in their 2.5D sprites with name pills (tap opens the villager popover: chat, gift, trade). Needs 2.5.20.
+
 ## 2.5.20
 - **Here pictures, clearer**: each tappable thing in a gate-view picture has a numbered pin (no tiny words on the art), and the list under the picture carries the same numbers, with the villagers listed as rows too. The compass (Routes) and globe (World map) are now a bar under the picture. Tapping a villager opens a popover with the full villager panel (Chat, Give a gift with the item picker, trade) that works in place, with "Open villager page" at the bottom. Needs 2.5.19.
 
