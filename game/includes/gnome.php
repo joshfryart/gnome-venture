@@ -540,7 +540,8 @@ function gnome_name(array $u): string
  */
 function gnome_avatar_pals(array $u, int $size = 96): string
 {
-    $svg = gnome_avatar($u, $size);
+    require_once __DIR__ . '/gnome25.php';
+    $svg = gnome25_avatar($u, $size) ?: gnome_avatar($u, $size);   // v2.5.33: the 2.5D gnome wherever the avatar is shown (My Gnome, Today, nav, profile)
     if ($size < 30 || setting('ppal_party') !== '1') return $svg;
     require_once __DIR__ . '/puzzle_pals.php';
     return ppal_avatar($u, $size, $svg);

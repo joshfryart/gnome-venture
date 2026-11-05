@@ -33,7 +33,8 @@ function here_layout_from_post(array $base): array
             if ($x === '' || $y === '' || !empty($_POST['del'][$g][$i])) continue;
             $r = ['x' => (int)$x, 'y' => (int)$y];
             if ($g === 'exits') { $a = (string)($_POST['n'][$g][$i] ?? ''); if (!isset(HERE_ANCHORS[$a])) continue; $r = ['a' => $a] + $r; }
-            if ($g === 'spots') { $k = (string)($_POST['n'][$g][$i] ?? ''); if (!preg_match('/^[a-z0-9_-]{1,24}$/', $k)) continue; $r = ['k' => $k] + $r; }
+            if ($g === 'spots') { $k = (string)($_POST['n'][$g][$i] ?? ''); if (!preg_match('/^[a-z0-9_-]{1,24}$/', $k)) continue; $r = ['k' => $k] + $r;
+                foreach ($base['spots'] ?? [] as $bs) if (($bs['k'] ?? '') === $k && isset($bs['box'])) $r['box'] = $bs['box']; }   // the editor moves the dot; the hit box (art side) is kept
             $rows[] = $r;
         }
         if ($rows || isset($base[$g])) $L[$g] = $rows;

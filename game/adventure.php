@@ -49,7 +49,7 @@ if (is_post()) {
         require_once __DIR__ . '/includes/explore.php';
         [$ok, $msg] = explore_come_back($u, $do === 'explore_road' ? 'road' : 'wild');
         flash($msg, $ok ? 'ok' : 'err');
-        redirect($ok ? ($do === 'explore_road' ? 'world.php' : 'adventure.php') : 'town.php');
+        redirect($ok ? ($do === 'explore_road' ? (gnav_on() ? 'here.php' : 'world.php') : 'adventure.php') : (gnav_on() ? 'here.php' : 'town.php'));
     }
     if (!$exp) redirect('world.php');
 
@@ -144,7 +144,7 @@ if (is_post()) {
         road_flush();
     }
     db()->commit();
-    if (!empty($visited)) redirect('town.php');
+    if (!empty($visited)) redirect(gnav_on() ? 'here.php' : 'town.php');   // turned back: the place you left is the Here page
     // After arriving, send the player straight to the destination page
     if (!empty($arrivedAt)) {
         require_once __DIR__ . '/includes/destination.php';   // v0.9.3: keep walking to the next stop of the route
@@ -161,7 +161,7 @@ if (is_post()) {
         $dest = q_one('SELECT kind FROM locations WHERE id = ?', [$arrivedAt]);
         $kind = $dest['kind'] ?? '';
         // v0.7.61: every place has its page on town.php (town square, rest stop, haven…). local.php never existed.
-        redirect($kind === 'hub' ? 'town.php?hub=1' : ($kind ? 'town.php' : 'world.php'));
+        redirect(gnav_on() && $kind !== '' ? 'here.php' : ($kind === 'hub' ? 'town.php?hub=1' : ($kind ? 'town.php' : 'world.php')));   // arrived: the Here page of the place
     }
     redirect(safe_back('adventure.php'));
 }
@@ -199,13 +199,37 @@ function act_choice(string $do, string $icon, string $title, string $sub = '', $
         . $extra . choice_row($icon, $title, $sub, $badge, $cls, $attrs) . '</form>';
 }
 
+/**
+ * Optional pixel art for the wander card. A file that does not exist draws NOTHING (the emoji / plain header stays): no broken images.
+ * scenes/wander-<land>.png banner (+ wander-deep.png for the Deep wilds, wander-wild.png for the Hard and Wild tiers), ico/wander-tier-<gentle|wild|dangerous|deep>.png (24 px),
+ * ico/wander-<deeper|roam|back|return|visit>.png (24 px), ico/wander-found.png. Names in claude/todo.md (ART TODO: the wander area).
+ */
+function wander_art(string $rel, int $w, int $h, string $cls = ''): string
+{
+    static $have = [];
+    if (!preg_match('~^[a-z0-9_/-]+\.png$~', $rel)) return '';
+    $have[$rel] ??= is_file(__DIR__ . '/assets/img/' . $rel);
+    return $have[$rel] ? '<img class="pix ' . e($cls) . '" src="' . e(url('assets/img/' . $rel)) . '" width="' . $w . '" height="' . $h . '" alt="" decoding="async">' : '';
+}
+
+/** The banner strip for the card's tier and land: the tier variant when drawn, else the land's strip, else ''. */
+function wander_banner(string $tierKey, string $land): string
+{
+    $land = preg_replace('/[^a-z]/', '', strtolower($land));
+    $first = match ($tierKey) { 'deep' => 'scenes/wander-deep.png', 'hard', 'wild' => 'scenes/wander-wild.png', default => '' };
+    foreach (array_filter([$first, 'scenes/wander-' . $land . '.png', 'scenes/wander-generic.png']) as $rel) {   // v2.5.34: wander-generic.png is the strip for a land with none of its own
+        if ($a = wander_art($rel, 480, 64, 'wc-banner-img')) return '<div class="wc-banner">' . $a . '</div>';
+    }
+    return '';
+}
+
 /** Wander off the Trail, nothing in front of you: one compact popover over the Trail section. Header, what just happened, the four moves, a gather fold. */
 function wander_card_html(array $u, array $exp, array $last, array $log, array $from, array $L): string
 {
     require_once __DIR__ . '/includes/explore.php';
     require_once __DIR__ . '/includes/gathering.php';
     $dep = (int)$exp['depth'];
-    [$hereTier] = explore_tier(max(1, $dep));
+    [$hereTier, $hereKey] = explore_tier(max(1, $dep));
     [$nextTier] = explore_tier($dep + 1);
     $nextLvl = explore_level($u, $dep + 1, $exp);
     $hereLvl = explore_level($u, max(1, $dep), $exp);
@@ -219,13 +243,14 @@ function wander_card_html(array $u, array $exp, array $last, array $log, array $
     }
     $btn = fn(string $do, string $ico, string $title, string $sub, string $cost, string $cls = '', string $extra = '') =>
         '<form method="post" class="wc-b">' . csrf_field() . '<input type="hidden" name="do" value="' . e($do) . '">' . $extra
-        . '<button class="btn wc-btn ' . e($cls) . '"><span class="wc-bt">' . $ico . ' ' . e($title) . '</span><small>' . e($sub) . '</small><i>' . e($cost) . '</i></button></form>';
+        . '<button class="btn wc-btn ' . e($cls) . '"><span class="wc-bt">' . (wander_art('ico/wander-' . $do . '.png', 24, 24, 'wc-mv') ?: $ico) . ' ' . e($title) . '</span><small>' . e($sub) . '</small><i>' . e($cost) . '</i></button></form>';
     $o = '<dialog class="picker hubpop trailpop trailsmall wanderpop" id="trailpop" open aria-label="Off the Trail"><div class="pickbox"><div class="hubcard trailui wcard">'
-        . '<div class="wc-head"><b>🌿 Off the Trail</b><span>' . $L[0] . ' ' . e($L[1]) . ' · step ' . $dep . ' · ' . e($hereTier) . ' · danger ' . (int)$last['level'] . '</span></div>'
+        . wander_banner($hereKey, explore_land($exp))
+        . '<div class="wc-head"><b>🌿 Off the Trail</b><span>' . $L[0] . ' ' . e($L[1]) . ' · step ' . $dep . ' · ' . wander_art('ico/wander-tier-' . (['gentle' => 'gentle', 'medium' => 'wild', 'hard' => 'dangerous', 'wild' => 'dangerous', 'deep' => 'deep'][$hereKey] ?? 'gentle') . '.png', 24, 24, 'wc-tier') . e($hereTier) . ' · danger ' . (int)$last['level'] . '</span></div>'
         . $res;
     $foundId = (int)($_SESSION['explore_found'] ?? 0);
     if ($foundId && ($fl = q_one('SELECT id, name FROM locations WHERE id = ?', [$foundId]))) {
-        $o .= '<div class="wc-grid">' . $btn('visit', '🚶', 'Visit ' . $fl['name'], 'then come back', 'free', 'primary', '<input type="hidden" name="place" value="' . $foundId . '">') . '</div>';
+        $o .= wander_art('ico/wander-found.png', 24, 24, 'wc-found') . '<div class="wc-grid">' . $btn('visit', '🚶', 'Visit ' . $fl['name'], 'then come back', 'free', 'primary', '<input type="hidden" name="place" value="' . $foundId . '">') . '</div>';
     }
     $o .= '<div class="wc-grid">'
         . $btn('deeper', '🌿', 'Go deeper', $nextTier . ' · danger ' . $nextLvl, '⚡1', 'primary')

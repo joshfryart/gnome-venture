@@ -32,7 +32,7 @@ def draw(key, L, name=None):
         d.line([cx, cy, int(e['x']), int(e['y'])], fill=(196, 168, 120), width=max(6, w // 60))
     for s in L.get('stand', []):
         x, y = int(s['x']), int(s['y'])
-        d.ellipse([x - 10, y - 3, x + 10, y + 3], outline=(60, 120, 60))
+        d.rectangle([x - 10, y - 3, x + 10, y + 3], outline=(60, 120, 60))
     f = font(max(9, w // 48))
     for e in L.get('exits', []):
         x, y = int(e['x']), int(e['y'])
@@ -40,11 +40,26 @@ def draw(key, L, name=None):
         d.text((x + 7, y - 6), e['a'], fill=(120, 20, 20), font=f)
     for s in L.get('spots', []):
         x, y = int(s['x']), int(s['y'])
+        if s.get('box'):   # a whole room / site: the hit box from the layout (art paints the room inside it)
+            b = [int(v) for v in s['box']]
+            d.rectangle(b, outline=(40, 80, 160), width=2, fill=(238, 232, 214))
+            d.text((b[0] + 4, b[1] + 3), s['k'], fill=(30, 60, 130), font=f)
+            continue
         d.rectangle([x - 16, y - 16, x + 16, y + 10], outline=(40, 80, 160), width=2, fill=(238, 232, 214))
         d.text((x - 14, y - 8), s['k'][:6], fill=(30, 60, 130), font=f)
-    for p in L.get('pals', []):
+    for i, p in enumerate(L.get('pals', [])):   # pal perches: a square slot with its number (no circles)
         x, y = int(p['x']), int(p['y'])
-        d.ellipse([x - 12, y - 12, x + 12, y + 12], outline=(160, 60, 160), width=2)
+        d.rectangle([x - 12, y - 4, x + 12, y + 10], outline=(160, 60, 160), width=2)
+        d.text((x - 4, y - 1), str(i + 1), fill=(120, 40, 120), font=f)
+    for p in L.get('party', []):   # the party pal's spot by the door
+        x, y = int(p['x']), int(p['y'])
+        d.rectangle([x - 12, y - 4, x + 12, y + 10], outline=(200, 140, 20), width=2)
+    for dr in L.get('dress', []):   # milestone dressing layers (5 / 10 / 20 / 40 pals)
+        d.rectangle([int(dr['x']), int(dr['y']), int(dr['x']) + int(dr['w']), int(dr['y']) + int(dr['h'])], outline=(120, 120, 120), width=1)
+        d.text((int(dr['x']) + 2, int(dr['y']) + 2), 'at %s %s' % (dr['at'], dr['k']), fill=(90, 90, 90), font=f)
+    cc = L.get('compass_clear') or [w - 100, h - 40, w, h]   # kept clear for the compass and the globe
+    d.rectangle(cc, outline=(200, 60, 60), width=1)
+    d.text((cc[0] + 3, cc[1] + 3), 'compass', fill=(200, 60, 60), font=f)
     for i, p in enumerate(L.get('houses', [])):
         x, y = int(p['x']), int(p['y'])
         d.rectangle([x - 28, y - 30, x + 28, y + 14], outline=(150, 100, 40), width=2, fill=(228, 206, 160))

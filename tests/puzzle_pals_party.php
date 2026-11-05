@@ -3,6 +3,7 @@
 $_SERVER['SCRIPT_NAME'] = '/index.php';
 require $argv[1] . '/includes/bootstrap.php';
 require_once APP_ROOT . '/includes/puzzle_pals.php';
+require_once APP_ROOT . '/includes/gnome25.php';
 require_once APP_ROOT . '/includes/games.php';
 require_once APP_ROOT . '/includes/adventure.php';
 $fails = 0;
@@ -31,7 +32,7 @@ echo "== off by default: no change for players\n";
 equip($uid, ['mw-samara-spin', 'mw-bark-badger'], $pid);
 ok('ppal_party 0: nothing equipped, no perks', ppal_equipped($u()) === [] && ppal_perks($u())['road'] === 0 && ppal_perks($u())['lines'] === []);
 ok('ppal_party 0: cannot take along', ppal_set_active($u(), 'mw-acorn-nip', true)[0] === false);
-ok('ppal_party 0: gnome_avatar_pals = gnome_avatar, no gpw', !str_contains(gnome_avatar_pals($u(), 90), 'gpw') && preg_replace('/-[0-9a-f]{6}/', '', gnome_avatar_pals($u(), 90)) === preg_replace('/-[0-9a-f]{6}/', '', gnome_avatar($u(), 90)));
+ok('ppal_party 0: gnome_avatar_pals = gnome_avatar, no gpw', !str_contains(gnome_avatar_pals($u(), 90), 'gpw') && preg_replace('/-[0-9a-f]{6}/', '', gnome_avatar_pals($u(), 90)) === preg_replace('/-[0-9a-f]{6}/', '', (gnome25_avatar($u(), 90) ?: gnome_avatar($u(), 90))));   // v2.5.33: the 2.5D gnome is the avatar when its art is there
 ok('ppal_party 0: tinker xp unchanged', games_pal_xp($uid, 10) === 10);
 $base = gnome_combat($u(), true);
 ok('ppal_party 0: gnome_combat identical with or without pals flag', $base === gnome_combat($u()));
@@ -296,7 +297,7 @@ echo "== the avatar companions\n";
 equip($uid, ['mw-acorn-nip', 'mw-leaf-tuck'], $pid);
 $h = gnome_avatar_pals($u(), 90);
 ok('two companions beside the gnome, class-only (no inline style)', substr_count($h, 'class="gpal gpal-') === 2 && str_contains($h, 'gpal-l') && str_contains($h, 'gpal-r') && !str_contains($h, 'style='), $h);
-ok('the wrapper holds the plain avatar svg', str_starts_with($h, '<span class="gpw') && str_contains($h, '<svg class="gnomeart"'));
+ok('the wrapper holds the plain avatar svg', str_starts_with($h, '<span class="gpw') && str_contains($h, '<svg class="gnomeart'));
 $keep = is_file($ph . 'mw-acorn-nip.png') ? file_get_contents($ph . 'mw-acorn-nip.png') : null;
 @unlink($ph . 'mw-acorn-nip.png'); reset_all();
 ok('a pal with no art draws nothing (never a broken image)', substr_count(gnome_avatar_pals($u(), 90), 'class="gpal gpal-') === 1);

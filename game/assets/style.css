@@ -7051,6 +7051,44 @@ body.tourbub #wrentour.tour-on::after { content: ""; position: absolute; left: 2
 .hubchip.locked, .hubchip.ruin { opacity: .75; border-style: dashed; }
 .hubchip:hover, .hubchip:focus-visible { border-color: var(--focus); }
 dialog.hubpop .hubcard { padding: 10px 14px 14px; overflow-y: auto; overscroll-behavior: contain; }
+/* Chrome picture pages (treehouse, yard): no circles; hit areas come from the layout; tags centred; gold brackets when tapped */
+.hubstage { position: relative; }
+.hubsvg.chrome .hs .hit { fill: rgba(255, 255, 255, .03); stroke: rgba(255, 233, 163, .55); stroke-width: 1; stroke-dasharray: 4 3; }   /* tap area always outlined */
+.hubsvg.chrome .hsp .hit { fill: transparent; stroke: none; }
+.hubsvg.chrome.noart .hs .hit { stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 4 3; fill: rgba(255, 255, 255, .12); }
+.hubsvg.chrome .brk { fill: none; stroke: #ffe9a3; stroke-width: 2; opacity: .9; pointer-events: none; }   /* always on: you can see what to tap */
+.hubsvg.chrome .hs:hover .brk, .hubsvg.chrome .hs:focus-visible .brk, .hubsvg.chrome .hs.on .brk, .hubsvg.chrome .hs.lit .brk { opacity: 1; stroke: #d4a017; stroke-width: 2.5; }
+.hubsvg.chrome .tag { fill: #fff; stroke: rgba(30, 20, 10, .85); stroke-width: 2.4; paint-order: stroke; font-weight: 700; text-anchor: middle; pointer-events: none; }
+.hubsvg.chrome .hs.on .tag, .hubsvg.chrome .hs.lit .tag, .hubsvg.chrome .hs:hover .tag, .hubsvg.chrome .hs:focus-visible .tag { fill: #ffe9a3; }
+.hubsvg.chrome .hs.goal .brk { opacity: 1; stroke: var(--brand-fill); }
+.hubsvg.chrome .shutter { fill: rgba(70, 48, 30, .78); stroke: rgba(30, 20, 10, .9); stroke-width: 1; pointer-events: none; }
+.hubsvg.chrome .perch { fill: rgba(255, 255, 255, .10); stroke: rgba(255, 255, 255, .6); stroke-width: 1; stroke-dasharray: 3 2; }
+.hubsvg.chrome .awaytag { fill: #fff; stroke: rgba(30, 20, 10, .85); stroke-width: 2; paint-order: stroke; text-anchor: middle; pointer-events: none; }
+.hubsvg.chrome .sil { fill: rgba(30, 24, 20, .55); }
+.hubsvg.chrome .hsp:hover .pix, .hubsvg.chrome .hsp:focus-visible .pix { filter: brightness(1.15); }
+.hubsvg.chrome .hsp:focus-visible .hit { stroke: var(--focus); stroke-width: 1; }
+.hubsvg.chrome .spark { fill: #ffe066; stroke: #b8860b; stroke-width: .5; animation: hubspark 1.6s ease-in-out 3; transform-box: fill-box; transform-origin: center; pointer-events: none; }
+@keyframes hubspark { 0%, 100% { opacity: .2; transform: scale(.6); } 50% { opacity: 1; transform: scale(1.3); } }
+.hubsvg.chrome .pjring { pointer-events: none; }
+.hubsvg.chrome .pjring .back { fill: rgba(30, 20, 10, .6); }
+.hubsvg.chrome .pjring .fill { fill: #6fbf5f; }
+.hubsvg.chrome .collect { fill: #ffe9a3; stroke: rgba(30, 20, 10, .85); stroke-width: 2; paint-order: stroke; font-weight: 700; text-anchor: middle; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .hubsvg.chrome .spark { animation: none; opacity: 1; } }
+/* the compass and the world globe: square 44 px buttons in the bottom-right of the picture */
+.hubnav { position: absolute; right: 6px; bottom: 6px; display: flex; gap: 6px; pointer-events: none; }
+.hubnavbtn { pointer-events: auto; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; box-sizing: border-box; border: 2px solid var(--line-2); background: var(--surface); text-decoration: none; }
+.hubnavbtn:hover, .hubnavbtn:focus-visible, .hubnavbtn.on { border-color: #d4a017; }
+.hubnavbtn img { display: block; image-rendering: pixelated; }
+.hubleg.hubleg-chrome { margin-top: 6px; }
+.hubtag { display: inline-block; margin-left: 4px; padding: 0 6px; border: 1px solid var(--line-2); font-size: .78rem; text-align: center; }
+.trows { list-style: none; margin: 0; padding: 0; } .trows .trow { padding: 8px 0; border-bottom: 1px solid var(--line); text-align: left; }
+.tgcard { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.tgcard .btn { margin-left: auto; }
+.tshelf { list-style: none; margin: 4px 0; padding: 0; } .tshelf li { padding: 3px 0; }
+.palcard dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin: 6px 0; } .palcard dt { color: var(--muted); } .palcard dd { margin: 0; }
+.palcard .heretools { margin: 8px 0 0; }
+.yardsite .pjpost { border: 0; padding: 0; margin: 0; }
+.hubsvg.chrome .hs.locked .tag { opacity: .85; }
 dialog.hubpop .hubcard form { margin: 8px 0 0; }
 dialog.hubpop .hubcard .btn { min-height: 44px; }
 .hubtwin { margin: 10px 0; }
@@ -7159,6 +7197,9 @@ dialog.trailpop .fightbtns .choice-title { font-size: 13px; }
 /* 2.5.13: Wander off plays in a popover over the Trail section (read-only behind it) */
 dialog.trailpop.wanderpop .pickbox { width: min(560px, 96vw); max-height: 92dvh; }
 dialog.trailpop.wanderpop .hubcard { text-align: left; }
+.wc-banner { margin: -4px -4px 6px; line-height: 0; }
+.wc-banner img.wc-banner-img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.wc-mv, .wc-tier, .wc-found { vertical-align: middle; image-rendering: pixelated; }
 .wanderbehind .tmgrid button { pointer-events: none; }
 /* 2.5.14: tidy the wander popover: one title (the info line), smaller type, compact folds */
 dialog.wanderpop h1, dialog.wanderpop p.status { display: none; }
@@ -7196,6 +7237,90 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .wcard .wfold { text-align: left; margin: 6px 0 0; }
 .wc-foot { font-size: .75rem; margin: 8px 0 0; opacity: .8; }
 .wanderhide { height: 0; overflow: hidden; }
+
+/* Here, gate view: named pills on the picture, round compass + globe and the villagers in a line UNDER the picture, villager popovers */
+.hubsvg.chrome .pill rect { fill: rgba(30, 20, 10, .9); stroke: #d4a017; stroke-width: 1.2; }
+.hubsvg.chrome .pill text { fill: #fff; font-weight: 700; pointer-events: none; }
+.hubsvg.chrome .hs.on .pill rect, .hubsvg.chrome .hs:hover .pill rect, .hubsvg.chrome .hs:focus-visible .pill rect, .hubsvg.chrome .hs.lit .pill rect { fill: #ffe9a3; }
+.hubsvg.chrome .hs.on .pill text, .hubsvg.chrome .hs:hover .pill text, .hubsvg.chrome .hs:focus-visible .pill text, .hubsvg.chrome .hs.lit .pill text { fill: #2a1a10; }
+.hubchip-t { font-weight: 700; }
+.hubnavbar { list-style: none; margin: 10px 0 0; padding: 0; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.hubnavbar li { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.hubnavcap { font-size: .72rem; font-weight: 700; color: var(--muted); text-align: center; }
+.hubnavbtn.round { width: 48px; height: 48px; border-radius: 50%; border-color: #d4a017; }
+.hubfold { margin: 10px 0 0; text-align: center; } .hubfold summary { cursor: pointer; color: var(--muted); font-size: .85rem; } .hubfold .hubleg { justify-content: center; }
+/* centre things: title, clock, breadcrumbs, picture block, street names, popover heads, actions */
+.herepage h1, .herepage .hereinfo, .herepage .crumbs { text-align: center; }
+.hubpop .pickhead h3 { text-align: center; flex: 1; margin: 0; }
+.hubpop .sdesc, .hubpop .vmore, .hubpop .hubcard > p { text-align: center; }
+.hubpop .tact { justify-content: center; text-align: center; }
+.hubpop .tact small { text-align: center; }
+.hubpop .sfaces { justify-content: center; }
+.hubpop .heretools { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.hubpop .vpanel .vact { text-align: center; }
+.hubstreet { list-style: none; margin: 8px 0 0; padding: 8px 6px 10px; display: flex; flex-wrap: wrap; justify-content: space-around; align-items: flex-end; gap: 6px 4px; background: linear-gradient(#8a6a44, #6d5033); border: 2px solid var(--line-2); border-radius: 6px; }
+.hubst { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 72px; min-height: 44px; text-decoration: none; }
+.hubst .stp { display: block; image-rendering: pixelated; }
+.hubst .stemo { font-size: 48px; line-height: 1; }
+.hubst .stn { background: rgba(30, 20, 10, .9); border: 1px solid #d4a017; border-radius: 9px; padding: 1px 7px; color: #fff; font-weight: 700; font-size: .78rem; white-space: nowrap; }
+.hubst:hover .stn, .hubst:focus-visible .stn, .hubst.lit .stn { background: #ffe9a3; color: #2a1a10; }
+.hubst:focus-visible { outline: 2px solid var(--focus); }
+.vlazy .vpanel { border: 0; padding: 0; box-shadow: none; }
+.vmore { margin: 8px 0 0; text-align: right; }
+
+/* Slim popovers (Here): short text, compact action rows, faces for people */
+.hubpop .pickbox { max-width: 420px; }
+.hubpop .hubcard { font-size: .95rem; }
+.hubpop .sdesc { margin: 0 0 8px; color: var(--muted); font-size: .9rem; }
+.hubpop .tacts { display: flex; flex-direction: column; gap: 6px; margin: 6px 0; }
+.hubpop .tact { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; margin: 0; }
+.hubpop .tact .btn, .hubpop .heretools .btn { min-height: 44px; padding: 6px 12px; }
+.hubpop .tact .cost { font-weight: 400; opacity: .85; margin-left: 4px; }
+.hubpop .tact small { flex: 1 1 100%; margin: 0; }
+.hubpop .sfaces { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; padding-top: 8px; border-top: 1px dashed var(--line-2); }
+.hubpop .sface { display: flex; flex-direction: column; align-items: center; width: 64px; text-decoration: none; font-size: .72rem; font-weight: 700; text-align: center; color: var(--ink); }
+.hubpop .sfpic { display: block; border: 2px solid #d4a017; border-radius: 50%; background: #4a3020; width: 44px; height: 42px; image-rendering: pixelated; box-sizing: content-box; }
+.hubpop .sfemo { display: flex; align-items: center; justify-content: center; font-size: 26px; }
+.hubpop .rumours { margin: 8px 0; font-size: .88rem; } .hubpop .rumours p { margin: 2px 0; }
+.hubpop .favours { border: 0; padding: 0; box-shadow: none; } .hubpop .favours h3 { font-size: 1rem; margin: 6px 0; } .hubpop .favour { padding: 6px 0; }
+/* the villager card: face first, then the one-line mood, then Chat / Give */
+.hubpop .vpanel .npchead { display: flex; gap: 10px; align-items: flex-start; }
+.hubpop .vpanel .npcpic { flex: 0 0 84px; } .hubpop .vpanel .npcpic .portrait { width: 84px; height: auto; border: 2px solid #d4a017; border-radius: 10px; }
+.hubpop .vpanel .npcid h2 { font-size: 1.05rem; margin: 0; } .hubpop .vpanel .npcid p { margin: 2px 0; font-size: .85rem; }
+.hubpop .vpanel .fondbar small { font-size: .72rem; }
+.hubpop .vpanel .vact { margin: 6px 0; } .hubpop .vpanel .btn { min-height: 44px; }
+
+/* Routes card: the little region map */
+.rmapbox { border: 2px solid var(--line-2); border-radius: 8px; overflow: hidden; margin: 0 0 8px; background: #2a1a10; }
+.rmap { display: block; width: 100%; height: auto; }
+.rmap .rp { fill: #f3e6cf; stroke: #d4a017; stroke-width: 2; } .rmap .rp.q { fill: #3a2c22; stroke-dasharray: 3 2; } .rmap .rp.you { fill: #2a1a10; stroke-width: 3; }
+.rmap .rg { fill: #2a1a10; pointer-events: none; } .rmap .rp.q + .rg, .rmap .rp.you + .rg { fill: #fff; }
+.rmap .rn { fill: #fff; stroke: #2a1a10; stroke-width: 2.2; paint-order: stroke; font-weight: 700; pointer-events: none; }
+.rmap a.rmpin.sel .rp { stroke: #7ee07e; stroke-width: 4; }
+.rmap a.rmpin { cursor: pointer; }
+.hubpop .trows { padding: 0; }
+
+/* v2.5.28: shop fronts: each shop's own card, and the Mossbottom stall list */
+.hubpop .shcard { text-align: center; }
+.hubpop .shcard .shbig img { width: 64px; height: auto; image-rendering: pixelated; }
+.hubpop .shcard p { margin: 4px 0; }
+.hubpop .shrows { display: grid; gap: 6px; margin-top: 6px; }
+.hubpop .shrow { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); color: inherit; text-decoration: none; text-align: left; }
+.hubpop .shrow b { flex: 1; }
+.hubpop .shrow i { font-style: normal; font-size: .8rem; color: var(--muted); }
+.hubpop .shrow .shart img { width: 30px; height: auto; image-rendering: pixelated; display: block; }
+.hubpop .shpage { text-align: center; }
+.hubpop .shpage .tabs { justify-content: center; }
+.hubpop .shpage .status, .hubpop .shpage .shopintro { font-size: .9rem; }
+.hubpop .shpage img { max-width: 100%; height: auto; }
+
+/* v2.5.30: World page with graphical navigation: the world map first, no banner */
+.worldprimary .mapwrap { margin: 0; }
+.worldprimary .help { text-align: center; margin: 6px 0; }
+.youpill { text-align: center; margin: 8px 0; }
+.youpill a { display: inline-block; padding: 5px 14px; border-radius: 16px; border: 2px solid #d4a017; background: #1d120b; color: #fff; text-decoration: none; font-weight: 700; }
+.hubnavbtn.round { cursor: pointer; }
+button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 
 /* Trail tiles, Hearth Pop v3 look (includes/trail_art.php): pixel art stays crisp when the css scales it */
 .tilemap .tmbg.tpix { image-rendering: pixelated; }

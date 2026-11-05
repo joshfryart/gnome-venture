@@ -5,6 +5,12 @@ require_once __DIR__ . '/includes/garden_logic.php';
 require_once __DIR__ . '/includes/games.php';
 $u = require_login();
 $uid = (int)$u['id'];
+// picture navigation: with gnav_tree on, the Games page IS the treehouse picture; ?view=list is the text twin (remembered per gnome, ?view=tree turns it off). Contests stay here.
+if (gnav_on() && setting('gnav_tree') === '1') {
+    $gv = (string)($_GET['view'] ?? '');
+    if ($gv === 'list') hub_seen_set($uid, 'pref:gameslist'); elseif ($gv === 'tree') hub_seen_clear($uid, 'pref:gameslist');
+    if (($_GET['tab'] ?? '') !== 'contests' && $gv !== 'list' && ($gv === 'tree' || ($_GET['from'] ?? '') === 'treehouse' || hub_seen_get($uid, 'pref:gameslist') === null)) redirect('treehouse.php');
+}
 ensure_race_secret();
 settle_races();
 settle_marrows();
@@ -21,6 +27,7 @@ page_header('Games');
   <a class="<?= $tab === 'contests' ? 'on' : '' ?>" href="<?= e(url('games.php?tab=contests')) ?>">🏆 Contests</a>
 </nav>
 <?php if ($tab === 'games'): ?>
+<?php if (gnav_on() && setting('gnav_tree') === '1'): ?><p><a class="btn alt" href="<?= e(url('games.php?view=tree')) ?>">🌳 Back to the treehouse picture</a></p><?php endif; ?>
 <p class="help">Plays come back at the daily reset (in <?= nice_time(job_period_left('daily')) ?>).</p>
 <div class="gtiles">
 <?php foreach (GAMES as $key => [$name, $icon, $page, $blurb]):

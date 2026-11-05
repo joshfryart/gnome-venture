@@ -76,6 +76,7 @@
     this.cam = !!ext;   /* v2.0.10: a wider picture came with the walk: the camera follows the token */
     this.svg = this.cam ? ext : box.querySelector('.tmbg');
     this.me = this.svg ? this.svg.querySelector('.tmme') : null;
+    this.rig = !!(this.me && this.me.querySelector('.tkrig'));
     this.chip = box.querySelector('.tmchip');
     this.feet = this.svg ? this.svg.querySelectorAll('.tmft') : [];
     var T = num(box, 'data-tile') || 42, x0 = num(box, this.cam ? 'data-ex0' : 'data-x0'), y0 = num(box, this.cam ? 'data-ey0' : 'data-y0');
@@ -88,7 +89,7 @@
     }
     this.steps = this.pts.length - 1;
     this.n = 0;
-    this.ms = Math.max(60, Math.min(130, 3200 / Math.max(1, this.steps)));
+    this.ms = Math.max(90, Math.min(150, 3200 / Math.max(1, this.steps)));
     this.t0 = 0;
     this.done = false;
     this.skip = function (ev) {
@@ -103,7 +104,7 @@
       if (n > self.n) self.reveal(n);
       var f = k - n, a = self.pts[n], b = self.pts[n + 1];
       var wx = a[0] + (b[0] - a[0]) * f, wy = a[1] + (b[1] - a[1]) * f;
-      self.put(wx, wy - Math.sin(Math.PI * f) * 6);
+      self.put(wx, wy - (self.rig ? 0 : Math.sin(Math.PI * f) * 6));   /* v2.5.27: the 2.5D gnome glides (no hop), so it stays dead centre */
       self.look(wx, wy);
       self.raf = window.requestAnimationFrame(self.tick);
     };
@@ -129,11 +130,15 @@
     if (!tp) return;
     var vc = Math.round(view.clientWidth / tp);
     var ox = x / this.T + this.gx - vc / 2, oy = y / this.T + this.gy - vc / 2;
-    var st = this.svg.style;
-    st.width = (num(b, 'data-ew') * tp).toFixed(1) + 'px';
-    st.height = (num(b, 'data-eh') * tp).toFixed(1) + 'px';
-    st.left = ((this.gx - ox) * tp).toFixed(1) + 'px';
-    st.top = ((this.gy - oy) * tp).toFixed(1) + 'px';
+    var st = this.svg.style, dpr = window.devicePixelRatio || 1;
+    if (!this.sized) {   /* size once; per frame only a transform moves it (no layout, no sub-pixel shimmer) */
+      st.width = (num(b, 'data-ew') * tp).toFixed(1) + 'px';
+      st.height = (num(b, 'data-eh') * tp).toFixed(1) + 'px';
+      st.left = '0px'; st.top = '0px'; st.willChange = 'transform';
+      this.sized = true;
+    }
+    var px = Math.round((this.gx - ox) * tp * dpr) / dpr, py = Math.round((this.gy - oy) * tp * dpr) / dpr;
+    st.transform = 'translate3d(' + px.toFixed(2) + 'px,' + py.toFixed(2) + 'px,0)';
   };
   Walk.prototype.reveal = function (n) {
     this.n = n;

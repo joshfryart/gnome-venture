@@ -8,9 +8,9 @@ require_once __DIR__ . '/includes/hub_pages.php';
 $u = require_login();
 if (!gnav_page_open('gnav_tree')) redirect('games.php');
 $open = preg_match('/^[A-Za-z0-9_-]{1,40}$/', (string)($_GET['o'] ?? '')) ? (string)$_GET['o'] : '';
-page_header('Games');
+page_header('Games');   // the Games menu entry lights up for this page too
 ?>
 <h1>The Great Treehouse</h1>
 <?= treehouse_view($u, $open) ?>
-<p class="heretools"><a class="btn alt" href="<?= e(url('games.php')) ?>">List version</a></p>
+<p class="heretools"><a class="btn alt" href="<?= e(url('games.php?view=list')) ?>">List version</a></p>
 <?php page_footer();

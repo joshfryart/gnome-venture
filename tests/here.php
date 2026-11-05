@@ -133,6 +133,31 @@ ok('lookup: kind beats generic', here_layout_find(['village' => ['w' => 4], 'gen
 ok('lookup: falls back to generic', here_layout_find(['generic' => ['w' => 3]], 'delve', 'tundra')[0] === 'generic');
 ok('missing template (not even generic) = null', here_layout_find([], 'village', 'forest') === null);
 ok('town finds the town template', here_layout_find($all, 'market', '')[0] === 'generic' && here_layout_find($all, 'town', 'desert')[0] === 'town');
+$lk = ['town-na' => ['w' => 1], 'town' => ['w' => 2], 'stop-market-grassland_maplewold' => ['w' => 3], 'stop-market-grassland_zzz' => ['w' => 4], 'stop-market-grassland' => ['w' => 5], 'stop-market' => ['w' => 6], 'stop' => ['w' => 7], 'generic' => ['w' => 8]];
+ok('lookup: a main town finds its region picture', here_layout_find($lk, 'town', 'forest', 'x', ['region' => 'NA'])[0] === 'town-na');
+ok('lookup: a town with no region picture falls to town', here_layout_find($lk, 'town', 'forest', 'x', ['region' => 'ZZ'])[0] === 'town');
+ok('lookup: the hub uses town-hub when drawn', here_layout_find($lk + ['town-hub' => ['w' => 9]], 'town', '', 'x', ['region' => 'hub'])[0] === 'town-hub');
+ok('lookup: slug still wins over the region picture', here_layout_find($lk + ['slug:x' => ['w' => 9]], 'town', '', 'x', ['region' => 'NA'])[0] === 'slug:x');
+ok('lookup: a stop finds type + landscape + style', here_layout_find($lk, 'stop', 'grassland', 's1', ['type' => 'market', 'style' => 'maplewold'])[0] === 'stop-market-grassland_maplewold');
+$lk2 = $lk; unset($lk2['stop-market-grassland_maplewold']);
+ok('lookup: a stop with another region style takes another look of that type + landscape', here_layout_find($lk2, 'stop', 'grassland', 's1', ['type' => 'market', 'style' => 'adobe'])[0] === 'stop-market-grassland_zzz');
+$lk3 = $lk2; unset($lk3['stop-market-grassland_zzz']);
+ok('lookup: then type + landscape, then type, then stop, then generic',
+    here_layout_find($lk3, 'stop', 'grassland', 's1', ['type' => 'market'])[0] === 'stop-market-grassland' && here_layout_find($lk3, 'stop', 'coast', 's1', ['type' => 'market'])[0] === 'stop-market'
+    && here_layout_find($lk3, 'stop', 'coast', 's1', ['type' => 'mill'])[0] === 'stop' && here_layout_find(['generic' => ['w' => 1]], 'stop', 'coast', 's1', ['type' => 'mill'])[0] === 'generic');
+ok('lookup: the look pick is stable for a slug', here_layout_find($lk2 + ['stop-market-grassland_aaa' => ['w' => 1]], 'stop', 'grassland', 'honey', ['type' => 'market', 'style' => 'x'])[0] === here_layout_find($lk2 + ['stop-market-grassland_aaa' => ['w' => 1]], 'stop', 'grassland', 'honey', ['type' => 'market', 'style' => 'x'])[0]);
+ok('lookup: a stop type with odd characters is ignored', here_layout_find($lk, 'stop', 'grassland', 's1', ['type' => '../x'])[0] === 'stop');
+$shipped = here_layouts_shipped();
+$gateKeys = array_filter(array_keys($shipped), fn($k) => str_starts_with($k, 'town-') || str_starts_with($k, 'stop-'));
+ok('shipped gate-view layouts exist (towns and stops)', count($gateKeys) >= 10, (string)count($gateKeys));
+$bad = [];
+foreach ($gateKeys as $k) { $L = $shipped[$k]; if (($L['view'] ?? '') !== 'gate' || !empty($L['exits']) || !is_file($game . '/assets/img/scenes/' . here_layout_file($k))) $bad[] = $k; foreach ($L['spots'] as $sp) if (!isset($sp['box'])) $bad[] = $k . '/' . $sp['k']; }
+ok('every shipped gate layout: view gate, no exits drawn, a PNG, a box on every spot', !$bad, implode(',', $bad));
+ok('gate layouts lint clean', !here_lint_all(array_intersect_key($shipped, array_flip($gateKeys))));
+$tpl = ['w' => 480, 'h' => 270, 'horizon' => 100, 'stand' => [['x' => 100, 'y' => 200], ['x' => 150, 'y' => 200], ['x' => 200, 'y' => 200], ['x' => 250, 'y' => 200]], 'spots' => [['k' => 'a', 'x' => 100, 'y' => 150, 'box' => [80, 120, 130, 170]]]];
+ok('lint: a stand slot 6 or more off a box is fine', !here_lint_layout($tpl));
+$tpl['stand'][0] = ['x' => 100, 'y' => 150];
+ok('lint: a stand slot inside a box is flagged', (bool)array_filter(here_lint_layout($tpl), fn($m) => str_contains($m, 'inside or touching the box')));
 $anch = here_layout_anchors($all['generic']);
 ok('anchors read from a layout', count($anch) === 8 && $anch['N'] === 0.0);
 ok('exit position', here_exit_pos($all['generic'], 'N') === ['x' => 240, 'y' => 118] && here_exit_pos($all['generic'], 'X') === null);
@@ -184,9 +209,9 @@ if ($withDb) {
         $id = (int)q_val($sql);
         if (!$id) { ok("$k: a place of this kind exists in the test world", false); continue; }
         $h = $viewOf($id);
-        ok("$k: the picture renders", str_contains($h, 'class="hubsvg"') && str_contains($h, 'viewBox="0 0 480 270"'));
+        ok("$k: the picture renders", str_contains($h, 'class="hubsvg') && str_contains($h, 'viewBox="0 0 480 270"'));
         ok("$k: CSP safe (no style=, no script, no on* handlers)", !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $h), substr($h, 0, 0));
-        ok("$k: has a text twin", str_contains($h, 'class="hubtwin"'));
+        ok("$k: has a text twin", str_contains($h, 'class="hubtwin"') || str_contains($h, 'class="hubfold"'));
         ok("$k: every hotspot is a real link", preg_match_all('/<a class="hs(?: [^"]*)?" /', $h) === preg_match_all('/<a class="hs(?: [^"]*)?" id="hs-[^"]+" href="[^"]+"/', $h));
     }
 
@@ -195,7 +220,41 @@ if ($withDb) {
     $u = put($town);
     $routes = visible_routes($u, $town);
     $h = here_view($u, player_node($u));
-    ok('one exit hotspot per visible route (up to 8)', substr_count($h, 'id="hs-e') === min(8, count($routes)), substr_count($h, 'id="hs-e') . ' vs ' . count($routes));
+    $sf = here_shop_fronts($u, player_node($u), 4);   // v2.5.28: each shop front is named, the last is the Mossbottom stall
+    ok('shop fronts: named, not all just "Shops"', $sf && count(array_unique(array_column($sf, 0))) === count($sf));
+    ok('shop fronts: the last front is Mossbottom Shops', $sf && end($sf)[0] === 'Mossbottom Shops' && str_contains(end($sf)[2], 'shrow'));
+    ok('shop fronts: one front lists every shop', count(here_shop_fronts($u, player_node($u), 1)) === 1);
+    $vil = (int)q_val("SELECT id FROM locations WHERE kind = 'village' ORDER BY id LIMIT 1");
+    if ($vil) {   // v2.5.35: a rest stop's "Do here" fronts are named for what you do there
+        $uv = put($vil);
+        $df = here_do_fronts($uv, player_node($uv), 'here.php', 6);
+        ok('do fronts: each named for its own activity, none "Do here"', $df && count(array_unique(array_column($df, 0))) === count($df) && !in_array('Do here', array_column($df, 0), true), json_encode(array_column($df, 0)));
+        $hv = here_view($uv, player_node($uv));
+        ok('stop folk stand in the picture and open their panel', !stop_folk_of(player_node($uv)) || str_contains($hv, 'stopfolk.php?folk='), 'no stopfolk card');
+        ok('do fronts: each has its buttons and comes back to here.php', str_contains(implode('', array_column($df, 2)), 'name="back" value="here.php"'));
+    }
+    $gateView = str_contains($h, 'hubsvg chrome');   // a main town with a gate-view picture has no exits on it: the compass card lists every route
+    if ($gateView) {
+        ok('gate view: no exit hotspots on the picture, no circles', substr_count($h, 'id="hs-e') === 0 && !str_contains(preg_replace('#<svg class="rmap".*?</svg>#s', '', $h), '<circle'));;
+        ok('gate view: the compass card holds every route named by its destination, one Set off each', substr_count($h, 'name="route_id"') >= 1 && substr_count($h, 'name="route_id"') <= count($routes), substr_count($h, 'name="route_id"') . ' vs ' . count($routes));
+        ok('gate view: compass and globe are there', str_contains($h, 'id="hs-routes"') && str_contains($h, 'id="hs-world"') && str_contains($h, 'hubpop-routes') && str_contains($h, 'Open region map'));
+        ok('gate view: named pills on the picture, none overlapping', substr_count($h, '<g class="pill">') >= 5 && (function () use ($h) { preg_match_all('/<g class="pill"><rect x="(-?\d+)" y="(-?\d+)" width="(\d+)"/', $h, $m); $r = []; foreach ($m[1] as $i => $x) $r[] = [(int)$x, (int)$m[2][$i], (int)$m[3][$i]]; foreach ($r as $i => $a) foreach ($r as $j => $b) if ($i < $j && $a[0] < $b[0] + $b[2] && $b[0] < $a[0] + $a[2] && $a[1] < $b[1] + 16 && $b[1] < $a[1] + 16) return false; return true; })());
+        ok('gate view: compass + globe are round icons in a bar under the picture, not on it', str_contains($h, 'class="hubnavbar"') && str_contains($h, 'hubnavbtn round') && !str_contains($h, 'class="hubnav"'));
+        ok('gate view: villagers stand in a line under the picture (not drawn in it)', !str_contains($h, 'class="hsp"') && (!str_contains($h, 'data-get=') || str_contains($h, 'class="hubstreet"')));
+        ok('gate view: you stand in the street line in your own gnome (2.5D rig strip)', str_contains($h, 'gnome_sprite.php?v=front') && str_contains($h, 'aria-label="People here"'));
+        require_once $game . '/includes/gnome25.php';
+        $g1 = gnome25_compose('front', ['hat' => '#2f5d9e']); $g2 = gnome25_compose('front', ['hat' => '#c0392b']); $g0 = gnome25_compose('front', []);
+        ok('gnome rig: composes a PNG strip, hat colour changes it, no colour = as drawn', str_starts_with($g1, "\x89PNG") && $g1 !== $g2 && $g0 !== '' && $g0 !== $g1);
+        ok('gnome rig: a bad view is refused', gnome25_compose('up', []) === '');
+        ok('gate view: town places open a popover that loads in place (no page hop)', substr_count($h, 'class="vlazy"') >= 3 && !str_contains($h, 'data-pop="hubpop-s-green" href="' . url('town.php')));
+        $ts1 = q_one("SELECT * FROM town_spots WHERE active = 1 AND kind = 'green' ORDER BY id LIMIT 1");
+        if ($ts1) {
+            require_once $game . '/includes/spot_card.php';
+            $card = spot_card_html(me(), $ts1, false);
+            ok('spot card: slim (description, actions, full-page link, forms post in place)', str_contains($card, 'class="sdesc"') && str_contains($card, 'Open full page') && !str_contains($card, '<form method="post">') && !str_contains($card, '<h1'));
+        }
+
+    } else ok('one exit hotspot per visible route (up to 8)', substr_count($h, 'id="hs-e') === min(8, count($routes)), substr_count($h, 'id="hs-e') . ' vs ' . count($routes));
     // a side path to a place the gnome has not found stays hidden
     $hid = null;
     foreach (q("SELECT r.id, r.a_id, r.b_id FROM routes r WHERE r.kind = 'side' ORDER BY r.id")->fetchAll() as $cand) {
@@ -248,6 +307,10 @@ if ($withDb) {
     $npc = ['slug' => 'zz-nosuchvillager', 'species' => 'frog'];
     $sp = here_sprite($npc);
     ok('no file at all: circle + species emoji', $sp['src'] === '' && $sp['emoji'] !== '');
+    $sp = here_sprite(['slug' => 'abuela-quilla', 'species' => 'donkey']);
+    ok('a 4-frame sprite sheet draws one frame (64 wide), not the strip', $sp['frames'] === 4 && $sp['w'] === 64 && $sp['fw'] === 64);
+    $svgs = hub_sprite(['id' => 'n1', 'x' => 100, 'y' => 200, 'name' => 'A', 'href' => ''] + $sp, ['horizon' => 100, 'h' => 270]);
+    ok('sheet sprite is clipped to its first frame', str_contains($svgs, 'viewBox="0 0 64 96"') && str_contains($svgs, 'width="256"'));
     $dir = $game . '/assets/img/mini'; $f = $dir . '/mini-npc-zz-nosuchvillager.png';
     $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
     if (is_dir($dir) && is_writable($dir)) {
@@ -457,13 +520,110 @@ if ($withDb) {
     ok('treehouse: every game of GAMES sits in a room', array_diff(array_keys(GAMES), array_keys($listed)) === [], implode(',', array_diff(array_keys(GAMES), array_keys($listed))));
     ok('treehouse: contest hall links to the Contests tab', str_contains($th, 'games.php?tab=contests'));
     ok('treehouse: CSP safe', !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $th));
-    $yd = yard_view($u);
-    ok('yard renders (or the level gate hides sites without breaking)', str_contains($yd, 'class="hubsvg"'));
-    ok('yard: job sites link to the pal job form anchors', str_contains($yd, 'paljobs.php#pjt-garden') && str_contains($yd, 'paljobs.php#pjt-trip') && str_contains($yd, 'paljobs.php#pjt-delve') && str_contains($yd, 'paljobs.php#pjt-station'));
-    ok('yard: CSP safe', !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $yd));
     $guestL = here_layouts_all()['treehouse']; ok('treehouse layout has 24 perches', count($guestL['pals']) === 24);
-    // pals: found pals sit on perches in found order; a sprite never breaks without art
     ok('gnav_page_open: off for a player with the flag off', (function () { sset('gnav_craft', '0'); return !gnav_on() || setting('gnav_craft') !== '1'; })());
+
+    echo "== Phase 5: chrome rules (no circles, boxes, compass + globe, tags)\n";
+    ok('treehouse: no circles anywhere', !str_contains($th, '<circle'));
+    ok('treehouse: a room hit area is its layout box (parlour 92,126 to 210,196)', str_contains($th, '<rect class="hit" x="92" y="126" width="118" height="70"/>'));
+    ok('treehouse: tags are centred (text-anchor middle) and there is one per hotspot', substr_count($th, 'class="tag"') >= 6 && substr_count($th, 'class="tag"') === substr_count($th, 'class="tag" x') && !str_contains($th, 'class="tag" text-anchor="start"'));
+    ok('treehouse: compass and world globe buttons, each with a card', str_contains($th, 'id="hs-routes"') && str_contains($th, 'id="hs-world"') && str_contains($th, 'id="hubpop-routes"') && str_contains($th, 'Open region map'));
+    ok('treehouse: the picture has its own sprite-free bottom-right corner (layout compass_clear)', here_compass_clear($guestL) === [366, 218, 480, 270]);
+    ok('here_hit_box: no box = 56 x 56 around x,y', here_hit_box(['x' => 100, 'y' => 100], ['w' => 480, 'h' => 270]) === [72, 72, 128, 128]);
+    ok('here_hit_box: a box is used as given', here_hit_box(['x' => 1, 'y' => 1, 'box' => [10, 20, 90, 60]], ['w' => 480, 'h' => 270]) === [10, 20, 90, 60]);
+    $bad = ['w' => 480, 'h' => 270, 'spots' => [['k' => 'a', 'x' => 50, 'y' => 50, 'box' => [10, 10, 100, 100]], ['k' => 'b', 'x' => 90, 'y' => 90, 'box' => [90, 90, 200, 200]], ['k' => 'c', 'x' => 440, 'y' => 250, 'box' => [400, 240, 480, 270]]]];
+    $lint = implode(' | ', here_lint_layout($bad));
+    ok('lint: overlapping boxes are caught', str_contains($lint, 'boxes of a and b overlap'), $lint);
+    ok('lint: a box over the compass corner is caught', str_contains($lint, 'box of c covers the compass corner'), $lint);
+    ok('chrome sprite: no art and no silhouette draws nothing extra (no circle, no emoji)', (function () use ($guestL) { $h = hub_sprite_chrome(['id' => 'z', 'x' => 100, 'y' => 100, 'w' => 36, 'h' => 36, 'name' => 'Z', 'href' => '/x'], $guestL); return !str_contains($h, '<circle') && !str_contains($h, '<text') && !str_contains($h, '<image'); })());
+    ok('chrome sprites are scaled 0.55 (far) to 0.95 (near)', hub_persp_chrome(['h' => 270, 'horizon' => 0], 0)['scale'] === 0.55 && hub_persp_chrome(['h' => 270, 'horizon' => 0], 270)['scale'] === 0.95);
+
+    echo "== Phase 5: treehouse pals (perches, sparkle, dressing, away, party, edge cases)\n";
+    foreach (['ppal_open' => 1, 'puzzles_open' => 1, 'jigsaw_open' => 1, 'pj_open' => 1, 'pj_min_level' => 10] as $k => $v) sset($k, (string)$v);
+    require_once $game . '/includes/jigsaw.php'; require_once $game . '/includes/puzzle_pals.php'; require_once $game . '/includes/pal_jobs.php'; require_once $game . '/includes/games.php';
+    jigsaw_ensure(); ppal_ensure();
+    $uid = (int)me()['id'];
+    $u = put($town, ['level' => 20]);
+    q('DELETE FROM ppal_found WHERE user_id = ?', [$uid]); q('DELETE FROM hub_seen WHERE user_id = ?', [$uid]); q('DELETE FROM ppal_jobs WHERE user_id = ?', [$uid]);
+    $th0 = treehouse_view($u);
+    ok('0 pals: empty tree plus the hint', str_contains($th0, 'Solve jigsaws to find pals') && substr_count($th0, 'id="sp-p') === 0);
+    ok('0 pals: the games are all still there', str_contains($th0, 'id="hs-parlour"') && str_contains($th0, 'id="hs-cellar"'));
+    sset('ppal_open', '0'); $thOff = treehouse_view($u); sset('ppal_open', '1');
+    ok('ppal_open off: pal parts hidden (book shelf, yard door, hint), games shown', !str_contains($thOff, 'id="hs-books"') && !str_contains($thOff, 'id="hs-yard"') && !str_contains($thOff, 'Solve jigsaws') && str_contains($thOff, 'id="hs-loft"'));
+    q('UPDATE hub_seen SET seen_at = ? WHERE user_id = ?', [gmdate('Y-m-d H:i:s', time() - 3600), $uid]);   // seen an hour ago: a pal found now is new
+    $MAP = (int)q_val("SELECT id FROM puzzle_pics WHERE slug = 'jig-maplewold'");
+    q('DELETE FROM ppal_releases WHERE user_id = ? AND pic_id = ?', [$uid, $MAP]);
+    q('INSERT INTO ppal_releases (user_id, pic_id, released_at, src) VALUES (?, ?, ?, ?)', [$uid, $MAP, now(), 'free']);
+    $keys = array_map(fn($p) => $p['key'], ppal_roster(ppal_pic($MAP)));
+    ppal_claim($u, $keys[0], $MAP);
+    $t1 = treehouse_view($u);
+    ok('1 pal: one sprite on perch 1 (x 60), sparkles on its first view', substr_count($t1, 'id="sp-p') === 1 && str_contains($t1, 'class="spark"'), substr_count($t1, 'id="sp-p') . ' sprites');
+    $t1b = treehouse_view($u);
+    ok('...and only on that first view (hub_seen remembers)', !str_contains($t1b, 'class="spark"') && substr_count($t1b, 'id="sp-p') === 1);
+    ok('hub_seen has the row for this gnome', hub_seen_get($uid, 'treehouse') !== null);
+    $pos1 = preg_match('/id="sp-p[0-9a-f]+".*?<rect class="hit" x="(\d+)" y="(\d+)"/s', $t1b, $m1) ? [$m1[1], $m1[2]] : null;
+    foreach ([1, 2, 3, 4] as $i) { sleep(0); ppal_claim($u, $keys[$i], $MAP); }
+    q('UPDATE ppal_found SET found_at = ? WHERE user_id = ? AND pal_key = ?', [gmdate('Y-m-d H:i:s', time() - 100 - 50), $uid, $keys[0]]);
+    $t5 = treehouse_view($u);
+    ok('5 pals: five sprites, the first pal did not move', substr_count($t5, 'id="sp-p') === 5 && $pos1 !== null && str_contains($t5, '<rect class="hit" x="' . $pos1[0] . '" y="' . $pos1[1] . '"'));
+    ok('5 pals: the 5-pal dressing (rug) is there, the 10-pal one is not', str_contains($t5, 'data-dress="rug"') && !str_contains($t5, 'data-dress="lights"'));
+    ok('4 pals or fewer: no dressing yet', !str_contains($t1b, 'data-dress'));
+    $pj = array_values(pj_pals($uid));
+    $first = $pj[0]; $second = $pj[1];
+    q("UPDATE ppal_found SET status = 'trip' WHERE pal_uid = ?", [$first['uid']]);
+    q("INSERT INTO ppal_jobs (user_id, pal_uid, kind, state, started_at, ends_at, day, result) VALUES (?, ?, 'trip', 'active', ?, ?, ?, '{}')", [$uid, $first['uid'], gmdate('Y-m-d H:i:s', time() - 60), gmdate('Y-m-d H:i:s', time() + 3 * 3600), landmark_day()]);
+    $ta = treehouse_view($u);
+    ok('a pal on a job: an empty perch with an "away" tag and its return time', str_contains($ta, 'class="perch"') && preg_match('/class="awaytag"[^>]*>away \d+ h/', $ta) === 1 && str_contains($ta, 'id="sp-p' . substr($first['uid'], 0, 8) . '"'));
+    ok('a pal on a job is not drawn as a picture too', substr_count($ta, 'class="sil"') + substr_count($ta, '<image class="pix" href="' . url('assets/img/puzzles/pals/')) <= 4);
+    q('UPDATE ppal_found SET active = 1 WHERE pal_uid = ?', [$second['uid']]);
+    $tp = treehouse_view($u);
+    ok('a party pal sits by the door (party slot x 70) and is not duplicated on its perch', substr_count($tp, 'id="sp-p' . substr($second['uid'], 0, 8) . '"') === 1 && preg_match('/id="sp-p' . substr($second['uid'], 0, 8) . '".*?<rect class="hit" x="(\d+)"/s', $tp, $mm) && (int)$mm[1] < 70);
+    ok('pal popover: name, rarity, level, times found, Pal Book', str_contains($tp, 'class="palcard"') && str_contains($tp, '<dt>Rarity</dt>') && str_contains($tp, '<dt>Level</dt>') && str_contains($tp, '<dt>Found</dt>'));
+    ok('pal popover: Send on a job link when level allows', str_contains($tp, 'Send on a job') && str_contains($tp, 'palyard.php'));
+    sset('ppal_party', '1');
+    $tq = treehouse_view($u);
+    ok('pal popover: Take along / Send home post to the Pal Book with back=treehouse', str_contains($tq, 'action="' . url('puzzlepals.php') . '"') && str_contains($tq, 'name="back" value="treehouse"') && (str_contains($tq, 'value="on">Take along') || str_contains($tq, 'value="off">Send home')));
+    q('UPDATE ppal_found SET active = 0 WHERE user_id = ?', [$uid]);
+    $L3 = $guestL; $L3['pals'] = array_slice($L3['pals'], 0, 3);
+    q("DELETE FROM here_layouts WHERE layout_key = 'treehouse'"); q('INSERT INTO here_layouts (layout_key, json, updated_at) VALUES (?, ?, ?)', ['treehouse', json_encode($L3), now()]);
+    $tov = treehouse_view($u);
+    ok('more pals than perches: the tree shows the first N and "+2 in the yard"', substr_count($tov, 'id="sp-p') === 3 && str_contains($tov, '+2 in the yard'));
+    q("DELETE FROM here_layouts WHERE layout_key = 'treehouse'");
+    q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]); q('DELETE FROM ppal_jobs WHERE user_id = ?', [$uid]);
+    ok('perf: pj_pals, ppal_found_map and the view do not break with a removed pal key', (function () use ($uid, $u) { q("INSERT INTO ppal_found (user_id, pal_key, pic_id, found_at, times, active) VALUES (?, 'no-such-pal', 1, ?, 1, 0)", [$uid, now()]); $h = treehouse_view($u); q("DELETE FROM ppal_found WHERE pal_key = 'no-such-pal'"); return str_contains($h, 'class="hubsvg'); })());
+    ok('Contest hall card: this week\'s high scores and the Contests tab', str_contains($th, 'This week’s high scores') && str_contains($th, 'games.php?tab=contests'));
+    ok('locked room: a closed Puzzle Room has shutters and says so', (function () use ($u) { sset('puzzles_open', '0'); $h = treehouse_view($u); sset('puzzles_open', '1'); return str_contains($h, 'class="shutter"') && str_contains($h, 'The Puzzle Room is still being tidied'); })());
+    q('UPDATE users SET level = 1 WHERE id = ?', [$uid]);
+    ok('level-gated game: Marrow says when it opens', str_contains(treehouse_view(me()), 'Opens at level ' . (int)setting('marrow_min_level')));
+    $u = put($town, ['level' => 20]);
+    ok('treehouse CSP safe with pals', !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $tp . $ta . $t5));
+
+    echo "== Phase 5: the yard (sites, real job forms, ledger)\n";
+    q("UPDATE ppal_found SET hp = 3 WHERE pal_uid = ?", [$second['uid']]);
+    $yd = yard_view($u);
+    ok('yard renders, no circles', str_contains($yd, 'class="hubsvg') && !str_contains($yd, '<circle'));
+    ok('yard: every site is a hotspot with a box (garden, trip, delve, station, sick, board)', (function () use ($yd) { foreach (['garden', 'trip', 'delve', 'station', 'sick', 'board'] as $k) if (!str_contains($yd, 'id="hs-' . $k . '"')) return false; return true; })());
+    ok('yard: the four job posts are in the site popovers (the existing Pal Jobs markup)', (function () use ($yd) { foreach (['garden', 'trip', 'delve', 'station'] as $k) if (!str_contains($yd, 'id="pjt-' . $k . '"')) return false; return true; })());
+    ok('yard: the popover shows the caps (jobs out, runs left, level gate)', str_contains($yd, 'jobs out') && str_contains($yd, 'trips and delves left today') && str_contains($yd, 'open at gnome level'));
+    ok('yard: forms post to paljobs.php with back=palyard (existing POST, unchanged)', str_contains($yd, 'action="' . url('paljobs.php') . '"') && str_contains($yd, 'name="back" value="palyard"'));
+    ok('yard: a hurt pal gets a heal form in the Sick bay and a sick-bay badge', str_contains($yd, 'name="do" value="heal"') && str_contains($yd, '1 hurt'));
+    ok('yard: the Ledger popover is the real ledger (countdown JS hooks)', str_contains($yd, 'pjledger') && str_contains($yd, 'class="pjpage"'));
+    ok('yard: pals on stand slots, at most 5', substr_count($yd, 'id="sp-q') >= 1 && substr_count($yd, 'id="sp-q') <= 5);
+    q("INSERT INTO ppal_jobs (user_id, pal_uid, kind, state, started_at, ends_at, day, result) VALUES (?, ?, 'trip', 'active', ?, ?, ?, '{}')", [$uid, $pj[2]['uid'], gmdate('Y-m-d H:i:s', time() - 600), gmdate('Y-m-d H:i:s', time() + 3000), landmark_day()]);
+    q("UPDATE ppal_found SET status = 'trip' WHERE pal_uid = ?", [$pj[2]['uid']]);
+    $ydj = yard_view($u);
+    ok('yard: a pal on a trip stands at the Trail head with a progress bar (a rect, not a ring)', str_contains($ydj, 'class="pjring"') && str_contains($ydj, '1 out'));
+    q("UPDATE ppal_jobs SET ends_at = ? WHERE user_id = ?", [gmdate('Y-m-d H:i:s', time() - 5), $uid]);
+    $ydr = yard_view($u);
+    ok('yard: a finished job shows a Collect bubble and the site is lit', str_contains($ydr, 'class="collect"') && str_contains($ydr, 'class="hs hsb goal"'));
+    q('DELETE FROM ppal_jobs WHERE user_id = ?', [$uid]); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]);
+    q('DELETE FROM ppal_found WHERE user_id = ?', [$uid]);
+    ok('yard: no pals = an empty yard and a hint, sites still there', (function () use ($u) { $h = yard_view($u); return str_contains($h, 'The yard is empty') && str_contains($h, 'id="hs-garden"'); })());
+    ok('yard: CSP safe', !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $yd . $ydj . $ydr));
+    ok('yard: compass and globe cards link back to Here and the World', str_contains($yd, 'id="hubpop-routes"') && str_contains($yd, 'here.php') && str_contains($yd, 'world.php?tab=map'));
+    require_once $game . '/includes/here_schema.php';
+    hub_seen_set($uid, 'pref:gameslist'); ok('games list preference is remembered per gnome', hub_seen_get($uid, 'pref:gameslist') !== null && treehouse_list_pref($uid));
+    hub_seen_clear($uid, 'pref:gameslist'); ok('...and can be turned off', !treehouse_list_pref($uid));
     sset('gnav_on', '0');
 
     echo "== flag helpers\n";

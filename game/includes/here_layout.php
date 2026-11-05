@@ -73,6 +73,31 @@ function here_layout_anchors(array $L): array
     return $out;
 }
 
+/**
+ * The hit box of a hotspot: its own 'box' [x0, y0, x1, y1] (a whole room, building front or area), else a 56 x 56 square around x, y (never outside the picture).
+ * Returns [x0, y0, x1, y1] as ints.
+ */
+function here_hit_box(array $spot, array $L): array
+{
+    $b = $spot['box'] ?? null;
+    if (is_array($b) && count($b) === 4) {
+        $b = array_map('intval', array_values($b));
+        if ($b[2] > $b[0] && $b[3] > $b[1]) return $b;
+    }
+    $x = (int)($spot['x'] ?? 0); $y = (int)($spot['y'] ?? 0);
+    $w = (int)($L['w'] ?? 480); $h = (int)($L['h'] ?? 270);
+    return [max(0, $x - 28), max(0, $y - 28), min($w, $x + 28), min($h, $y + 28)];
+}
+
+/** The corner of a picture kept clear for the compass and the world globe: layout 'compass_clear' [x0, y0, x1, y1], else the bottom-right 100 x 40. */
+function here_compass_clear(array $L): array
+{
+    $c = $L['compass_clear'] ?? null;
+    if (is_array($c) && count($c) === 4) return array_map('intval', array_values($c));
+    $w = (int)($L['w'] ?? 480); $h = (int)($L['h'] ?? 270);
+    return [$w - 100, $h - 40, $w, $h];
+}
+
 /** The position of an anchor in a layout, or null. */
 function here_exit_pos(array $L, string $anchor): ?array
 {
@@ -88,13 +113,28 @@ function here_spot_pos(array $L, string $k): ?array
 }
 
 /**
- * Which template a place uses. Order: slug:<slug> -> <kind>-<landscape> -> <kind> -> generic.
- * $all is the full layout map (key => layout). Returns [key, layout] or null when even 'generic' is missing.
+ * Which template a place uses. Order: slug:<slug> -> (town) town-<region code> -> (stop) stop-<type>-<landscape>_<style>, a look of the same
+ * type + landscape picked by the slug, stop-<type>-<landscape>, stop-<type> -> <kind>-<landscape> -> <kind> -> generic.
+ * $all is the full layout map (key => layout). $ctx: ['region' => region code or 'hub', 'type' => stop type slug, 'style' => look style from
+ * data/stop_looks.php]. Returns [key, layout] or null when even 'generic' is missing.
  */
-function here_layout_find(array $all, string $kind, string $landscape = '', string $slug = ''): ?array
+function here_layout_find(array $all, string $kind, string $landscape = '', string $slug = '', array $ctx = []): ?array
 {
     $tries = [];
     if ($slug !== '') $tries[] = 'slug:' . $slug;
+    $region = strtolower((string)($ctx['region'] ?? ''));
+    if ($kind === 'town' && preg_match('/^[a-z0-9]+$/', $region)) $tries[] = 'town-' . $region;
+    $type = strtolower((string)($ctx['type'] ?? ''));
+    $style = strtolower((string)($ctx['style'] ?? ''));
+    if ($kind === 'stop' && preg_match('/^[a-z0-9_-]+$/', $type) && $landscape !== '') {
+        if ($style !== '') $tries[] = 'stop-' . $type . '-' . $landscape . '_' . $style;
+        $looks = [];   // any look of this type + landscape (another region's style) beats a plain template: stable pick by the slug
+        foreach (array_keys($all) as $k) if (str_starts_with((string)$k, 'stop-' . $type . '-' . $landscape . '_')) $looks[] = (string)$k;
+        sort($looks);
+        if ($looks) $tries[] = $looks[crc32($slug . '|' . $type) % count($looks)];
+        $tries[] = 'stop-' . $type . '-' . $landscape;
+    }
+    if ($kind === 'stop' && preg_match('/^[a-z0-9_-]+$/', $type)) $tries[] = 'stop-' . $type;
     if ($kind !== '' && $landscape !== '') $tries[] = $kind . '-' . $landscape;
     if ($kind !== '') $tries[] = $kind;
     $tries[] = 'generic';
@@ -154,7 +194,7 @@ function here_lint_layout(array $L): array
         if (!is_array($p) || !isset($p['x'], $p['y']) || $p['x'] < 0 || $p['x'] > $w || $p['y'] < 0 || $p['y'] > $h) $bad[] = $what . ' outside the picture';
     };
     $pts = [];
-    foreach (['exits' => 'exit', 'spots' => 'spot', 'stand' => 'stand', 'houses' => 'house', 'pals' => 'perch'] as $key => $what) {
+    foreach (['exits' => 'exit', 'spots' => 'spot', 'stand' => 'stand', 'houses' => 'house', 'pals' => 'perch', 'party' => 'party slot', 'dress' => 'dressing'] as $key => $what) {
         foreach ($L[$key] ?? [] as $i => $p) { $in($what . ' ' . $i, $p); if (is_array($p) && isset($p['x'], $p['y'])) $pts[$key][$i] = $p; }
     }
     $dist = fn($a, $b) => sqrt((($a['x'] - $b['x']) ** 2) + (($a['y'] - $b['y']) ** 2));
@@ -164,9 +204,30 @@ function here_lint_layout(array $L): array
     }
     foreach (($pts['stand'] ?? []) as $i => $s) {
         foreach (array_merge($pts['exits'] ?? [], $pts['spots'] ?? []) as $o) {
+            if (isset($o['box']) && is_array($o['box']) && count($o['box']) === 4) {   // a spot with a hit box: the stand slot must stay 6 units off the box (the box, not its dot, is the thing)
+                $dx = max($o['box'][0] - $s['x'], 0, $s['x'] - $o['box'][2]); $dy = max($o['box'][1] - $s['y'], 0, $s['y'] - $o['box'][3]);
+                if (sqrt($dx * $dx + $dy * $dy) < 6) { $bad[] = 'stand ' . $i . ' inside or touching the box of ' . ($o['k'] ?? '?'); break; }
+                continue;
+            }
             if ($dist($s, $o) < 28) { $bad[] = 'stand ' . $i . ' closer than 28 to ' . ($o['a'] ?? $o['k'] ?? '?'); break; }
         }
         if (isset($L['horizon']) && $s['y'] <= (int)$L['horizon']) $bad[] = 'stand ' . $i . ' above the horizon';
+    }
+    // hit boxes (spots with a 'box'): inside the picture, never overlapping each other, never over the compass / globe corner
+    $clear = here_compass_clear($L);
+    $boxes = [];
+    foreach ($L['spots'] ?? [] as $s) {
+        if (!isset($s['box'])) continue;
+        $nm = (string)($s['k'] ?? '?');
+        $b = $s['box'];
+        if (!is_array($b) || count($b) !== 4 || $b[2] <= $b[0] || $b[3] <= $b[1]) { $bad[] = 'box of ' . $nm . ' is not [x0,y0,x1,y1]'; continue; }
+        if ($b[0] < 0 || $b[1] < 0 || $b[2] > $w || $b[3] > $h) $bad[] = 'box of ' . $nm . ' outside the picture';
+        if ($b[0] < $clear[2] && $b[2] > $clear[0] && $b[1] < $clear[3] && $b[3] > $clear[1]) $bad[] = 'box of ' . $nm . ' covers the compass corner';
+        foreach ($boxes as $o => $ob) if ($b[0] < $ob[2] && $b[2] > $ob[0] && $b[1] < $ob[3] && $b[3] > $ob[1]) $bad[] = 'boxes of ' . $o . ' and ' . $nm . ' overlap';
+        $boxes[$nm] = $b;
+    }
+    foreach (['pals' => 'perch', 'party' => 'party slot'] as $key => $what) foreach ($pts[$key] ?? [] as $i => $p) {
+        if ($p['x'] >= $clear[0] && $p['x'] <= $clear[2] && $p['y'] >= $clear[1] && $p['y'] <= $clear[3]) $bad[] = $what . ' ' . $i . ' in the compass corner';
     }
     if (isset($L['stand']) && count($L['stand']) < 4) $bad[] = 'fewer than 4 stand slots';   // door and street layouts have no 'stand'
     $seen = [];
