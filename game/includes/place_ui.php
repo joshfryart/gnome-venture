@@ -319,7 +319,7 @@ function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '',
             $done = ($a['perk_day'] ?? '') === hollow_date('Y-m-d');
             $h .= '<p>You look after ' . e($node['name']) . '. Tier ' . (int)$a['tier'] . '.</p>'
                 . $form('local', '_perk', '<button class="btn small"' . ($done ? ' disabled' : '') . '>🎁 ' . ($done ? 'Welcome taken today' : 'Collect the welcome') . '</button>')
-                . ' <a class="btn small alt" href="' . e(url('town.php?view=passport')) . '">Hand in materials ›</a>';
+                . stop_slim_needs($u, $node, $a, $form);
         } elseif ($a && $a['user_id']) {
             $h .= '<p class="muted">Looked after by ' . e(stop_gnome_label($a)) . '.</p>';
         } else {
@@ -343,6 +343,28 @@ function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '',
         $h .= '</div>';
     }
     return $h . '</div><p class="vmore"><a href="' . e(url('town.php?view=passport')) . '">Full passport, sets and seasons ›</a></p>';
+}
+
+/** v2.5.54: the next upgrade's needs of a stop you look after, each with a hand-in box, for the Rest stop popover (posts in place; _give). */
+function stop_slim_needs(array $u, array $node, array $a, callable $form): string
+{
+    $tiers = stop_tiers_for($node);
+    $next = (int)$a['tier'] + 1;
+    if (!isset($tiers[$next])) return '<p class="good"><b>🎉 Every upgrade is built.</b></p>';
+    $pool = stop_pool_of($a);
+    $h = '<p><b>Next: ' . e((string)$tiers[$next]['name']) . '</b> needs:</p><ul class="st-needs">';
+    foreach (stop_tier_needs($tiers[$next]) as [$k, $q]) {
+        $given = min($q, (int)($pool[$k] ?? 0));
+        $have = stop_need_have($u, $k);
+        $left = $q - $given;
+        $h .= '<li class="' . ($left <= 0 ? 'good' : '') . '"><span>' . ($left <= 0 ? '✅ ' : '') . e(stop_need_label($k)) . ' <b>' . $given . '/' . $q . '</b> <small class="muted">(you have ' . number_format($have) . ')</small></span>';
+        if ($left > 0) {
+            $max = max(1, min($left, $have));
+            $h .= $form('local', '_give', '<input type="hidden" name="need" value="' . e($k) . '"><input type="number" name="qty" min="1" max="' . $left . '" value="' . $max . '" aria-label="How many"> <button class="btn small"' . ($have < 1 ? ' disabled' : '') . '>Hand in</button>');
+        }
+        $h .= '</li>';
+    }
+    return $h . '</ul>';
 }
 
 /** Main-stop tabs: Square, Villagers, Shops, Orders, Stop. $folkCount badges Villagers (0 = none). v2.0.67: in town, Shops and Orders are town.php views

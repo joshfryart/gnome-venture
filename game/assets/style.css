@@ -7396,3 +7396,6 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 .st-slim__acts { display: grid; gap: 8px; }
 .st-slim__acts .box { padding: 8px 10px; }
 .st-slim__acts .box p { margin: 4px 0 6px; }
+.st-slim .st-needs { list-style: none; padding: 0; margin: 4px 0; display: grid; gap: 6px; }
+.st-slim .st-needs li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; }
+.st-slim .st-needs input[type=number] { width: 4.5em; }

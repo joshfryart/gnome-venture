@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.55
+- **Hand in materials inside the Rest stop popover**: when you look after the stop, its next upgrade's needs (stone, planks, logs, Petals...) each have a Hand in box right in the card. No trip to the passport page.
+
 ## 2.5.54
 - **The stamp comes with being at a rest stop**: opening the Here picture (or its Rest stop card) at a village stamps your passport, like the old local page did. Before, the stamp only came from the old page, so Take hold here said to collect the stamp first.
 
