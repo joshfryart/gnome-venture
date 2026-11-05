@@ -216,7 +216,7 @@ local function mosque()
   for y = 66, 206 do local hw = floor(42 - max(0, 90 - y) * .0); for x = 198, 282 do cf:set(x, y) end end
   cf:cut(R(198, 66, 205, 72)):cut(R(275, 66, 282, 72))
   flat(cf, AD2, 31)
-  for k = 0, 4 do fill(R(206 + k * 16, 60, 213 + k * 16, 66), AD2); c:rim(R(206 + k * 16, 60, 213 + k * 16, 66), INK) end
+  for k = 0, 4 do fill(R(206 + k * 16, 60, 213 + k * 16, 66), AD2.base); c:rim(R(206 + k * 16, 60, 213 + k * 16, 66), INK) end
   fill(R(204, 78, 276, 82), "#2e6ab0"); for x = 204, 276, 4 do P(x, 80, "#9cecf4"); P(x + 2, 79, "#ffe49a") end
   for y = 90, 150, 20 do fill(R(198, y, 202, y), INK); fill(R(278, y, 282, y), INK); fill(R(194, y, 197, y), "#5a3426"); fill(R(283, y, 286, y), "#5a3426") end
   -- big glowing arched door
@@ -685,7 +685,8 @@ local which = app.params.name or "all"
 for _, name in ipairs(order) do
   if which == "all" or which == name then
     c = HP.canvas{ w = 480, h = 270, scale = 1, name = name }
-    SCENES[name]()
+    local ok, err = xpcall(SCENES[name], debug.traceback)
+    if not ok then print(err) end
     foot()
     c:save{ aseprite = d .. "/out/" .. name .. ".aseprite", png = d .. "/out/" .. name .. ".png", scale = 1 }
   end
