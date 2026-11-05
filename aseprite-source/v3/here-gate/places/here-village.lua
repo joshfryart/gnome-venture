@@ -654,9 +654,8 @@ do
   for _, p in ipairs({ { 43, 108 }, { 44, 110 }, { 43, 112 } }) do PG(p[1], p[2], "#8aa062"); PG(p[1] + 1, p[2], "#6f9e48") end
   -- cottage B: moss under the turf eave, brick-red chimney mortar joints
   for x = 127, 150, 3 do PG(x, 108, "#6f9e48") PG(x + 1, 109, "#4f7a3a") end
-  for y = 113, 120, 3 do hl(154, 160, y, R.stone.d) end
+  for y = 83, 90, 3 do hl(155, 159, y, R.stone.d) end
   -- stepping stones and trail: chips and a crack
-  for _, p in ipairs({ { 256, 218 }, { 236, 190 }, { 262, 148 } }) do end
   -- right bramble trunk bark furrows
   for y = 140, 200, 6 do PG(396 + (y % 4), y, R.bark.d); PG(402, y + 2, R.bark.h) end
   -- signpost: rust streak on lantern cap, nail heads and weathered board edge
@@ -668,6 +667,115 @@ do
   PG(105, 245, R.dwood.d); PG(41, 246, R.dwood.d)
   -- garden soil: wet furrow glints
   for x = 50, 112, 7 do PG(x, 208, R.soil.d); PG(x + 1, 224, R.soil.d) end
+end
+
+-------------------------------------------------------------------- v2.5.40 polish pass 3: lived-in props
+do
+  -- handcart with hay and pumpkins, left meadow
+  c:groundShadow(104, 163, 16, 3)
+  local hay = c:poly{ { 95, 150 }, { 99, 144 }, { 106, 143 }, { 111, 150 } }; solid(hay, R.thatch, { sd = 2, sdy = 1 })
+  for _, p in ipairs({ { 99, 147 }, { 104, 146 }, { 108, 148 } }) do hl(p[1], p[1] + 2, p[2], R.thatch.h) end
+  local pk = c:ellipse(102, 149, 3, 3); solid(pk, R.pump, { sd = 2, sdy = 2 }); P(102, 145, R.green.s)
+  local bed = c:rect(92, 150, 113, 156); solid(bed, R.wood, { sd = 2, sdy = 1, tex = function(x, y, col) if (x - 92) % 5 == 0 then return R.wood.d end end })
+  local hand = c:line({ { 92, 152 }, { 87, 158 } }, 1); c:rim(hand, INK); c:fillMask(hand, R.dwood.b)
+  local wh = c:ellipse(100, 158, 5, 5); c:rim(wh, INK); c:fillMask(wh, R.dwood.s)
+  c:fillMask(c:ellipse(100, 158, 3, 3), R.wood.b); c:fillMask(c:ellipse(100, 158, 1, 1), R.dwood.d)
+  vl(100, 154, 162, R.dwood.d); hl(96, 104, 158, R.dwood.d); P(98, 155, R.wood.h)
+  -- stacked firewood between cottages, log ends with rings
+  c:groundShadow(120, 140, 12, 2)
+  local logs = { { 114, 137 }, { 120, 137 }, { 126, 137 }, { 117, 131 }, { 123, 131 }, { 120, 125 } }
+  for _, l in ipairs(logs) do
+    local m = c:ellipse(l[1], l[2], 3, 3); solid(m, R.wood, { sd = 2, sdy = 2 })
+    c:fillMask(c:ellipse(l[1], l[2], 1, 1), R.cork.h); P(l[1], l[2], R.wood.s)
+  end
+  hl(112, 128, 141, R.dwood.d)
+  -- bean stakes with string and climbing leaves in the garden
+  for i, sx in ipairs({ 56, 68, 80 }) do
+    local m = c:rect(sx, 184, sx + 1, 204); solid(m, R.wood, { sd = 1, sdy = 1 })
+    for k = 0, 4 do PG(sx - 1 + (k % 2) * 3, 188 + k * 3, R.green.b); PG(sx - 1 + (k % 2) * 3, 189 + k * 3, R.green.d) end
+    P(sx, 183, R.wood.h)
+  end
+  for x = 57, 79 do P(x, 186 + floor(1.5 * sin((x - 57) / 22 * 3.14)), "#e6d8c0") end
+  -- watering can beside the fence
+  c:groundShadow(138, 256, 8, 2)
+  local can = c:rect(134, 246, 142, 254); solid(can, R.teal, { sd = 2, sdy = 2 })
+  local sp = c:line({ { 133, 249 }, { 129, 244 } }, 1); c:rim(sp, INK); c:fillMask(sp, R.teal.s)
+  hl(134, 142, 245, R.teal.h); vl(144, 246, 252, INK); P(143, 246, INK); P(143, 252, INK)
+  -- barrel by the signpost
+  c:groundShadow(379, 226, 11, 1)
+  local bar = c:poly{ { 372, 214 }, { 384, 214 }, { 386, 221 }, { 384, 228 }, { 372, 228 }, { 370, 221 } }
+  solid(bar, R.wood, { sd = 3, sdy = 2, rim = INK, tex = function(x, y, col) if (x - 372) % 3 == 0 and col == R.wood.b then return R.wood.s end end })
+  hl(371, 385, 217, R.brass.s); hl(371, 385, 225, R.brass.s); hl(372, 384, 214, R.dwood.d); hl(374, 382, 215, R.wood.h)
+  -- well: spare bucket and rope coil on the green
+  local cb = c:poly{ { 120, 206 }, { 128, 206 }, { 127, 212 }, { 121, 212 } }
+  solid(cb, R.wood, { sd = 2, sdy = 1, rim = INK }); hl(120, 128, 208, R.stone.s)
+  -- apple basket by the cottage door
+  local bk = c:poly{ { 44, 135 }, { 54, 135 }, { 53, 140 }, { 45, 140 } }
+  solid(bk, R.cork, { sd = 2, sdy = 1, rim = INK, tex = function(x, y, col) if (x + y) % 2 == 0 then return R.cork.s end end })
+  for _, x in ipairs({ 45, 48, 51 }) do P(x, 133, R.red.b); P(x + 1, 133, R.red.b); P(x, 134, R.red.d) end
+end
+
+-------------------------------------------------------------------- v2.5.40 polish pass 4: light and depth
+do
+  -- cast shadows falling lower-right (flat band + darker edge), on grass only
+  local function shadow(x0, y0, w, h, slant)
+    for y = 0, h - 1 do for x = 0, w - 1 do
+      local xx = x0 + x + floor(y * slant)
+      PGg(xx, y0 + y, (x > w - 3 or y > h - 2) and "#5f8c48" or "#6c9a4c")
+    end end
+  end
+  shadow(334, 249, 14, 3, 1.0)        -- signpost
+  shadow(228, 202, 14, 3, 1.0)        -- well roof drop
+  shadow(112, 214, 12, 2, 1.0)        -- scarecrow/bucket
+  shadow(200, 124, 22, 3, 1.0)        -- washing posts / big tree
+  shadow(384, 229, 12, 3, 1.0)        -- barrel
+  shadow(380, 196, 14, 3, 1.0)        -- bench
+  shadow(122, 146, 14, 3, 1.0)        -- cart
+  shadow(107, 142, 16, 3, 1.0)        -- cottage A
+  -- warm window / lantern glow on the lawn (dither rings, grass only)
+  local function glow(cx, cy, r)
+    for y = cy - r, cy + r do for x = cx - r * 2, cx + r * 2 do
+      local d = ((x - cx) / 2) ^ 2 + (y - cy) ^ 2
+      if d < r * r and ((x + y) % 2 == 0) and (d < r * r * 0.4 or hash(x, y, 230) < 0.5) then PGg(x, y, d < r * r * 0.35 and "#e6d47a" or "#cfd078") end
+    end end
+  end
+  glow(347, 236, 8); glow(55, 146, 5); glow(95, 146, 5); glow(138, 131, 4); glow(262, 162, 0)
+  -- rim light: bright top-left edge pixels on main props
+  hl(161, 187, 140, R.tile.h)
+  vl(142, 177, 201, R.stone.h); vl(296, 141, 189, R.wood.h); hl(291, 303, 138, R.teal.h)
+  hl(343, 352, 202, R.dwood.h); vl(328, 203, 245, R.dwood.h)
+  for i = 0, 8 do P(46 + i * 2, 114 - floor(i * 1.6), R.thatch.h) end
+  vl(372, 215, 227, R.wood.h)
+  -- aerial haze: far things lighter and cooler
+  for y = 98, HZ - 1 do for x = 160, 312 do
+    local g = c:get(x, y)
+    if g and ((x % 3 == 0) and (y % 2 == 0)) and (g == "#4f6a6a" or g == "#3e5260" or g == "#7a9480") then PG(x, y, "#8fa6b0") end
+  end end
+  for y = HZ, HZ + 5 do for x = 0, W - 1 do if ((x + y) % 2 == 0) and hash(x, y, 231) < 0.5 then PGg(x, y, "#b4c898") end end end
+  -- foreground frame plants: ferns, tall reeds, foxglove, lavender (kept off the spot boxes and zones)
+  local function fern(x, y, h)
+    for i = 0, h do
+      local w = floor((h - i) * 0.7) + 1
+      PG(x - w, y - i, i % 2 == 0 and "#2f6a50" or "#3f8f68"); PG(x + w, y - i, i % 2 == 0 and "#3f8f68" or "#2f6a50")
+      PG(x, y - i, "#1e4436")
+    end
+    PG(x - 1, y - h - 1, "#6fbf88"); PG(x + 1, y - h - 1, "#6fbf88")
+  end
+  local function reed(x, y, h) vl(x, y - h, y, "#55803e"); vl(x + 1, y - h + 3, y, "#6f9e48"); PG(x, y - h - 1, "#c8a85a"); PG(x, y - h - 2, "#a8703a") end
+  local function fox(x, y, h)
+    vl(x, y - h, y, "#3f7a44")
+    for i = 0, floor(h / 3) do PG(x - 1, y - h + i * 3, "#c05a9a"); PG(x + 1, y - h + i * 3 + 1, "#e08ac0"); PG(x, y - h + i * 3 + 1, "#7a3a6a") end
+  end
+  local function lav(x, y, h) vl(x, y - h, y, "#4f7a3a"); for i = 0, 3 do PG(x - 1, y - h + i * 2, "#a89ad0"); PG(x + 1, y - h + i * 2 + 1, "#7a6eaa") end end
+  fern(340, 268, 10); fern(352, 269, 8); fern(366, 268, 9)
+  reed(348, 269, 14); reed(360, 269, 11); reed(372, 269, 9)
+  fox(34, 186, 11); fox(41, 184, 9); fox(47, 187, 10)
+  lav(114, 186, 8); lav(119, 184, 9); lav(124, 187, 7); lav(112, 181, 6)
+  for _, p in ipairs({ { 236, 232 }, { 252, 226 }, { 292, 232 }, { 300, 248 } }) do end
+  -- toadstools at the big tree roots
+  for _, m in ipairs({ { 178, 126 }, { 186, 128 } }) do
+    hl(m[1] - 2, m[1] + 2, m[2], R.red.b); hl(m[1] - 1, m[1] + 1, m[2] - 1, R.red.h); vl(m[1], m[2] + 1, m[2] + 2, "#e6d8c0"); P(m[1] + 1, m[2], "#fff4d6")
+  end
 end
 
 c:finish{ outline = false }

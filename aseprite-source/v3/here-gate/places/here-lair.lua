@@ -534,6 +534,194 @@ end
 pfill(c:rect(131, 69, 135, 72), "#c9b896"); pp(132, 70, "#f4ecd6")
 pp(94, 120, "#5a7a48"); pp(95, 121, "#7a9a58"); pp(96, 119, "#5a7a48")
 
+-- v2.5.40 polish pass 3: lived-in props (nest, stake+rag, crate, bones, gnawed sticks, fungus, tracks)
+local INK = "#2b1c26"
+local function pshadow(cx, cy, rx, ry) -- violet drop shadow, falls lower-right
+  c:ellipse(cx + 2, cy + 1, rx, ry):each(function(x, y) if (x + y) % 2 == 0 or ((x - cx) / rx) ^ 2 + ((y - cy) / ry) ^ 2 < 0.6 then gp(x, y, "#5a3346") end end)
+end
+local function prop(m, r, o) -- inked, lit object painted through the guard
+  pfill(m:copy():grow(1):cut(m), INK)
+  m:each(function(x, y)
+    local col = r.b
+    if not m:has(x - 1, y) or not m:has(x, y - 1) then col = r.h
+    elseif not m:has(x + 1, y) or not m:has(x, y + 1) then col = r.s end
+    if o and o.fn then col = o.fn(x, y, col) or col end
+    pp(x, y, col)
+  end)
+end
+local STRAW = { b = "#d0a850", h = "#f0d078", s = "#a07a38" }
+local STICK = { b = "#7e5838", h = "#a87a4a", s = "#4f3434" }
+-- 1. straw-and-stick nest at the mouth (lower-left of the opening), with a worn hollow
+pshadow(188, 164, 22, 3)
+local nst = c:ellipse(188, 160, 20, 6)
+prop(nst, STRAW, { fn = function(x, y, col)
+  if (x * 2 + y) % 5 == 0 then return STRAW.s end
+  if (x - y * 2) % 7 == 0 then return STRAW.h end
+end })
+c:ellipse(188, 160, 11, 3):each(function(x, y) pp(x, y, ((x + y) % 2 == 0) and "#7e5838" or "#5a3c30") end)
+for _, t in ipairs({ { 166, 164, 180, 154 }, { 208, 156, 196, 148 }, { 174, 150, 190, 156 }, { 202, 163, 210, 158 } }) do
+  pfill(c:line({ { t[1], t[2] }, { t[3], t[4] } }, 1), "#7e5838"); pp(t[1], t[2], "#a87a4a")
+end
+for i = 0, 6 do pp(168 + i * 6, 166 + (i % 2), STRAW.b) end -- stray straw trail
+-- 2. toppled crate with spilled planks (right of path)
+pshadow(316, 187, 18, 3)
+local crate = c:poly{ { 304, 186 }, { 306, 174 }, { 322, 172 }, { 328, 183 }, { 326, 188 } }
+prop(crate, STICK, { fn = function(x, y, col)
+  if y % 5 == 0 then return STICK.s end
+  if (x - 304) % 11 == 0 then return STICK.h end
+end })
+pfill(c:rect(309, 177, 322, 184), "#241a2c"); pfill(c:rect(311, 179, 322, 184), "#3a1e28") -- open dark mouth of crate
+pfill(c:line({ { 308, 178 }, { 321, 183 } }, 1), STICK.h)
+local plank = c:poly{ { 326, 190 }, { 342, 186 }, { 343, 189 }, { 327, 193 } }
+prop(plank, STICK); pp(332, 189, STICK.s); pp(338, 188, STICK.s)
+-- 3. warning stake with a tattered rag (left of path)
+pshadow(198, 174, 8, 2)
+local stake = c:poly{ { 196, 144 }, { 199, 144 }, { 199, 174 }, { 196, 174 } }
+prop(stake, STICK, { fn = function(x, y, col) if y % 6 == 0 then return STICK.s end end })
+pfill(c:poly{ { 200, 148 }, { 212, 150 }, { 208, 154 }, { 213, 158 }, { 205, 157 }, { 200, 160 } }, "#b83a3a")
+pfill(c:line({ { 200, 148 }, { 211, 150 } }, 1), "#e86a5a")
+pp(207, 156, "#8a2a34"); pp(210, 157, "#8a2a34"); pp(203, 152, "#8a2a34")
+pfill(c:line({ { 200, 160 }, { 205, 157 } }, 1), "#8a2a34")
+pfill(c:rect(194, 143, 200, 143), STICK.h)
+for _, b in ipairs({ { 194, 150 }, { 201, 166 } }) do pp(b[1], b[2], "#c9b896"); pp(b[1] + 1, b[2], "#e2d5b6") end
+-- 4. scattered bones (no skulls): femur, rib splinter, vertebra string, gnawed knuckle
+local function femur(x, y, dx, dy)
+  local m = c:line({ { x, y }, { x + dx, y + dy } }, 2)
+  prop(m, { b = "#e2d5b6", h = "#f4ecd6", s = "#b4a288" })
+  prop(c:ellipse(x, y, 2, 2), { b = "#e2d5b6", h = "#f4ecd6", s = "#b4a288" })
+  prop(c:ellipse(x + dx, y + dy, 2, 2), { b = "#e2d5b6", h = "#f4ecd6", s = "#b4a288" })
+end
+femur(154, 214, 14, 5); femur(318, 228, 12, -4); femur(88, 252, 10, 4)
+local rib = c:line({ { 334, 242 }, { 338, 236 }, { 346, 234 }, { 350, 238 } }, 2)
+prop(rib, { b = "#e2d5b6", h = "#f4ecd6", s = "#b4a288" })
+for i = 0, 3 do prop(c:rect(168 + i * 4, 232 + (i % 2), 170 + i * 4, 233 + (i % 2)), { b = "#d9ccae", h = "#f4ecd6", s = "#b4a288" }) end
+-- 5. gnawed branches with bite notches
+local function gnaw(x, y, dx, dy)
+  prop(c:line({ { x, y }, { x + dx, y + dy } }, 2), STICK)
+  pp(x + dx, y + dy, "#d8c090"); pp(x + dx - 1, y + dy, "#e8d8a8")
+  pp(x + dx // 2, y + dy // 2 - 1, "#241a2c"); pp(x + dx // 2 + 2, y + dy // 2 + 1, "#241a2c")
+end
+gnaw(120, 176, 16, 6); gnaw(366, 222, 18, -5); gnaw(146, 232, 12, -6)
+-- 6. glowing cave fungus (dithered cool halo; casts onto rock and ground)
+local function fungus(x, y, n)
+  local halo = c:ellipse(x + 2, y, 10, 5)
+  halo:each(function(px, py) if (px + py) % 2 == 0 and ((px - x - 2) / 10) ^ 2 + ((py - y) / 5) ^ 2 > 0.3 then gp(px, py, "#6a6a70") end end)
+  for i = 0, n - 1 do
+    local fx = x + i * 4 - (i % 2); local fh = 4 + (i * 3) % 4
+    prop(c:rect(fx, y - fh, fx + 2, y), { b = "#4ac8a8", h = "#b8f8e0", s = "#2a8a80" })
+    pfill(c:rect(fx - 1, y - fh - 1, fx + 3, y - fh), "#58d8b8"); pp(fx, y - fh - 1, "#d8fff0")
+    pfill(c:rect(fx, y, fx + 1, y + 1), "#2a8a80")
+  end
+end
+fungus(174, 156, 3); fungus(296, 162, 2); fungus(16, 262, 3); fungus(458, 246, 2); fungus(126, 150, 2)
+-- 7. tracks in the dirt: three-toe prints heading from the mouth toward the wild trail (no creature shown)
+local function print3(x, y)
+  pp(x, y, "#3a1e30"); pp(x + 1, y, "#3a1e30"); pp(x, y + 1, "#3a1e30"); pp(x + 1, y + 1, "#3a1e30")
+  pp(x - 2, y - 2, "#3a1e30"); pp(x + 1, y - 3, "#3a1e30"); pp(x + 4, y - 2, "#3a1e30")
+  pp(x - 1, y + 2, "#9a6858"); pp(x + 2, y + 2, "#9a6858")
+end
+for _, pt in ipairs({ { 252, 154 }, { 270, 162 }, { 292, 168 }, { 312, 156 }, { 346, 176 }, { 386, 166 }, { 120, 196 }, { 134, 206 }, { 112, 186 } }) do print3(pt[1], pt[2]) end
+-- drag mark of a hauled bone across the dirt
+for x = 100, 150 do local y = 202 + math.floor((x - 100) * 0.08) + ((x % 9 == 0) and 1 or 0); if x % 3 ~= 2 then gp(x, y, "#6a3e44") end end
+
+-- v2.5.40 polish pass 4: light and depth (key light top-left, shadows lower-right, rim light, mouth glow, haze, plants)
+-- cast shadows: each big prop throws a dithered violet wedge to the lower right (ground pixels only)
+local function cast(m, dx, dy)
+  local sh = m:copy():shift(dx, dy):cut(m)
+  sh:each(function(x, y) if (x + y) % 2 == 0 or m:has(x - dx // 2, y - dy // 2) then gp(x, y, "#5a3346") end end)
+  m:copy():shift(dx // 2, dy // 2):cut(m):each(function(x, y) gp(x, y, "#4a2a3e") end)
+end
+cast(tree:copy():clip(c:rect(90, 138, 140, 154)), 8, 3); cast(hoard, 8, 3); cast(egg, 9, 3); cast(post, 8, 3)
+cast(mound:copy():clip(c:rect(150, 140, 330, 154)), 10, 4); cast(boulder, 7, 3); cast(crate, 5, 2); cast(stake, 5, 2); cast(nst, 5, 2)
+-- rim light: bright top-left edge on the main props
+local function rimlight(m, hex, clipm)
+  m:each(function(x, y) if (not m:has(x - 1, y) and m:has(x + 1, y)) or (not m:has(x, y - 1) and m:has(x, y + 1)) then if not clipm or clipm:has(x, y) then pp(x, y, hex) end end end)
+end
+rimlight(tree, "#b08a70"); rimlight(egg, "#e6d8f4", c:rect(340, 156, 366, 180)); rimlight(post, "#c09870"); rimlight(hoard, "#fff0b0", c:rect(326, 118, 350, 150)); rimlight(boulder, "#a898aa")
+rimlight(mound, "#a090a4", solid:copy():clip(c:rect(168, 40, 240, 150))); rimlight(sk, "#fbf4e0"); rimlight(chest, "#b08060")
+-- warm hoard glow spilling out of the mouth onto the arch ring, fallen blocks, mat and nearby rock
+ring:each(function(x, y)
+  local d = math.sqrt(((x - 240) / 1.0) ^ 2 + ((y - 146) * 1.2) ^ 2)
+  if d < 62 and ((x + y) % 2 == 0 or d < 40) and hash(x, y, 101) < 0.85 then pp(x, y, d < 40 and "#c08a68" or "#a8705e") end
+end)
+for _, b in ipairs({ { 284, 138, 298, 150 }, { 298, 143, 308, 151 } }) do
+  for x = b[1], b[3] do for y = b[2], b[4] do if (x + y) % 2 == 0 and x - b[1] < 6 then pp(x, y, "#a8705e") end end end
+end
+-- cool fungus-light on the left flank rock and the dead-tree roots
+for _, g in ipairs({ { 176, 146 }, { 128, 148 } }) do
+  for dy = -8, 6 do for dx = -10, 10 do
+    if (dx + dy) % 2 == 0 and dx * dx / 100 + dy * dy / 49 < 1 then
+      local x, y = g[1] + dx, g[2] + dy
+      if solid:has(x, y) then pp(x, y, "#6a7a8a") end
+    end
+  end end
+end
+-- atmospheric haze: far ridges are lighter and cooler near the horizon (dithered bands)
+for y = HZ - 16, HZ - 1 do
+  for x = 0, W - 1 do
+    local cur = c:get(x, y)
+    if cur == "#5b2d55" or cur == "#4a2846" or cur == "#3e2a3c" then
+      local t = (y - (HZ - 16)) / 16
+      if (x + y) % 2 == 0 and t > 0.45 and hash(x, y, 105) < 0.8 then c:put(x, y, "#6e4064") end
+    end
+  end
+end
+for y = 88, HZ - 17 do -- high ridgeline top catches a little cool light
+  for x = 0, W - 1 do
+    local cur = c:get(x, y); local up = c:get(x, y - 1)
+    if (cur == "#5b2d55") and up and not (up == "#5b2d55" or up == "#4a2846" or up == "#3e2a3c") and x % 2 == 0 then c:put(x, y, "#7a4a6a") end
+  end
+end
+-- the lintel throws a dithered shadow down onto the sky; pillars onto the ground
+for x = 24, 458 do
+  for y = 17, 22 do
+    local cur = c:get(x, y)
+    if cur and not fr:has(x, y) and (x + y) % 2 == 0 and y - 17 < 5 - (hash(x, 1, 102) * 2) then
+      if cur ~= "#2b1c26" then pp(x, y, "#2e1a3c") end
+    end
+  end
+end
+for y = 124, 262 do
+  for dx = 0, 5 do
+    local x = 24 + dx
+    if not fr:has(x, y) and (x + y) % 2 == 0 and dx < 4 then gp(x, y, "#5a3346") end
+  end
+end
+-- far dead trees: break the copy-paste (one snapped, one with an extra fork)
+fill(c:line({ { 356, 86 }, { 361, 82 } }, 1), "#3a2040"); put(404, 88, "#3a2040"); put(405, 87, "#3a2040"); put(406, 86, "#3a2040")
+-- more plant kinds: thorn bramble, ferns, tall dry reeds, wild green shrub
+local function fern(x, y, n)
+  for i = -n, n do
+    local len = n + 2 - math.abs(i)
+    for k = 1, len do
+      local fx = x + i * 2 + (i > 0 and k // 2 or -(k // 2)); local fy = y - k - (math.abs(i) == 0 and 2 or 0)
+      gp(fx, fy, (k % 2 == 0) and "#4a8a4a" or "#3a6a4a"); pp(fx, fy, (k % 2 == 0) and "#5aa05a" or "#3a6a4a")
+    end
+  end
+  for i = 0, 4 do pp(x, y - i, "#7ac06a") end
+end
+fern(34, 172, 2); fern(172, 192, 2); fern(60, 150, 1); fern(300, 262, 2)
+local function bramble(x, y, w)
+  local m = c:ellipse(x, y, w, 6); m:add(c:ellipse(x + 4, y - 4, w - 5, 5))
+  prop(m, { b = "#4a3a42", h = "#6a5a58", s = "#33242e" }, { fn = function(px, py, col)
+    if hash(px, py, 103) < 0.25 then return "#4a8a4a" end
+    if (px * 3 + py) % 7 == 0 then return "#9a8a70" end end })
+  for i = 0, w, 3 do pp(x - w + i * 2, y - 6 - (i % 2), "#9a8a70"); pp(x - w + i * 2 + 1, y - 7 - (i % 2), "#d8c8a0") end
+  pp(x + 2, y - 2, "#d04a6a"); pp(x - 5, y + 1, "#d04a6a")
+end
+bramble(150, 164, 12)
+local function reeds(x, y, n)
+  for i = 0, n - 1 do
+    local rx = x + i * 3; local h = 9 + (i * 5) % 6
+    for k = 0, h do pp(rx + ((k > h - 4) and 1 or 0), y - k, (k > h - 3) and "#c8a860" or "#a08850") end
+    pp(rx + 1, y - h, "#e8d098"); pp(rx - 1, y - 3, "#7a6a44")
+  end
+end
+reeds(24, 200, 4); reeds(334, 160, 3); reeds(380, 156, 3)
+local shrub = c:ellipse(398, 152, 8, 5)
+prop(shrub, { b = "#4a8a4a", h = "#8ac06a", s = "#2e5a3e" }, { fn = function(x, y, col) if hash(x, y, 104) < 0.2 then return "#6aa05a" end end })
+pp(396, 150, "#e8c060"); pp(401, 153, "#d890c0")
+
 c:finish{ outline = false }
 HP.assertClean(c)
 c:save{ aseprite = OUT .. "here-lair.aseprite", png = OUT .. "here-lair.png", scale = 1 }

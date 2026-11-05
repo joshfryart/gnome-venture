@@ -786,6 +786,279 @@ for i = 1, 26 do
   if gm:has(x, y) and gm:has(x + 1, y) then sp(x, y, "#a8602e") sp(x + 1, y, "#d48a3c") end
 end
 
+---------------------------------------------------------------- v2.5.40 polish pass 2 (material cues: strata, chips, lichen, rust, ore glints)
+local rockSet = {}
+for _, t in ipairs{ R_ROCK, R_ROCKF } do for _, c in ipairs(t) do rockSet[c] = true end end
+local function onRock(x, y) return rockSet[get(x, y)] == true end
+local function rset(x, y, c) if onRock(x, y) then sp(x, y, c) end end
+-- cracks: short wandering dark fissures with a lit lower lip
+local function crack(x, y, len, dir, seed)
+  for i = 1, len do
+    rset(x, y, R_ROCK[1]) rset(x + 1, y + 1, R_ROCK[4])
+    local h = hash(x, y, seed)
+    if h < 0.45 then y = y + 1 elseif h < 0.75 then x = x + dir else y = y + 1 x = x + dir end
+  end
+end
+for i, c in ipairs{ {150,92,12,1},{168,74,9,1},{160,118,10,-1},{214,64,8,-1},{256,62,9,1},{312,88,12,-1},
+  {330,112,9,1},{135,128,8,1},{302,132,8,-1},{185,136,7,1},{338,78,8,-1} } do crack(c[1], c[2], c[3], c[4], 400 + i) end
+-- strata: thin darker bedding lines broken into dashes, lit line just below
+for _, st in ipairs{ {140,104,34},{300,98,40},{150,138,26},{312,124,30},{164,82,22},{290,72,26} } do
+  for x = st[1], st[1] + st[3] do
+    if hash(x, st[2], 410) > 0.3 then rset(x, st[2], R_ROCK[2]) end
+    if hash(x, st[2], 411) > 0.6 then rset(x, st[2] + 1, R_ROCK[4]) end
+  end
+end
+-- chips: small pale scars where stone broke off (top-left facets lit, lower-right dark)
+for i, c in ipairs{ {146,84},{176,112},{196,70},{268,66},{322,100},{340,126},{138,116},{306,70},{244,58},{176,98},{320,140},{150,140} } do
+  local x, y = c[1], c[2]
+  rset(x, y, R_ROCK[5]) rset(x + 1, y, R_ROCK[4]) rset(x, y + 1, R_ROCK[4])
+  rset(x + 1, y + 1, R_ROCK[1]) rset(x + 2, y + 1, R_ROCK[1]) rset(x + 2, y, R_ROCK[2])
+end
+-- lichen on the north (top) faces: pale grey-green patches
+local function lichen(x, y, w)
+  for k = 0, w - 1 do
+    for r = 0, 1 do
+      if hash(x + k, y + r, 420) > 0.25 then rset(x + k, y + r, (k + r) % 2 == 0 and "#9db08a" or "#c4cfa6") end
+    end
+    if hash(x + k, y, 421) > 0.55 then rset(x + k, y + 2, "#7c9070") end
+  end
+end
+lichen(156, 62, 7) lichen(232, 54, 6) lichen(300, 60, 8) lichen(333, 90, 5) lichen(128, 90, 5) lichen(222, 126, 5)
+-- ore glints in the stone: gold fleck with a tiny sparkle cross
+local function glint(x, y)
+  rset(x, y, "#ffd27a") rset(x - 1, y, "#c98a3a") rset(x + 1, y, "#c98a3a")
+  rset(x, y - 1, "#c98a3a") rset(x, y + 1, "#a06a30")
+end
+glint(158, 100) glint(328, 106) glint(172, 130) glint(311, 118) glint(206, 92) glint(266, 98)
+-- rust streaks dripping under the iron bands on the mine posts (timbers)
+local function rustDrip(x0, x1, y)
+  for x = x0, x1 do
+    local len = 2 + floor(hash(x, y, 430) * 4)
+    for k = 0, len do
+      local c = (k < 2) and "#7a3a28" or ((k < len) and "#5e3022" or "#a35a3a")
+      if hash(x, y + 9, 431) > 0.3 then sp(x, y + 1 + k, c) end
+    end
+  end
+end
+rustDrip(191, 203, 90) rustDrip(191, 203, 129) rustDrip(279, 291, 90) rustDrip(279, 291, 129)
+-- timber grain: short dark checks and one lit knot per post
+for _, post in ipairs{ {192, 202}, {280, 290} } do
+  for i = 0, 5 do
+    local y = 76 + i * 9
+    local x = post[1] + floor(hash(i, post[1], 440) * (post[2] - post[1] - 2))
+    sp(x, y, R_TIMBER[1]) sp(x + 1, y, R_TIMBER[1]) sp(x, y + 1, R_TIMBER[2])
+    if i % 3 == 1 then sp(x + 3, y + 2, R_TIMBER[5]) end
+  end
+end
+-- iron bands: bright rivet heads and a rust bloom
+for _, b in ipairs{ {191,86},{191,125},{279,86},{279,125} } do
+  for k = 0, 11, 4 do sp(b[1] + k, b[2], R_STEEL[5]) end
+  sp(b[1] + 2, b[2] + 1, "#7a3a28") sp(b[1] + 7, b[2] + 1, "#a35a3a")
+end
+-- mine-mouth lintel: split-wood checks and a nail streak
+for x = 190, 290, 11 do sp(x, 61, R_TIMBER[1]) sp(x + 1, 61, R_TIMBER[1]) sp(x + 2, 62, R_TIMBER[2]) end
+
+---------------------------------------------------------------- v2.5.40 polish pass 3 (lived-in props)
+local BURLAP = { "#4e3a2a", "#7e6240", "#b08e58", "#d2b478", "#ecd49a" }
+local function castShadow(m, t)  -- shade ground under a prop's footprint (falls lower-right)
+  m:each(function(x, y) if gm:has(x, y) and onRock(x, y) == false then sp(x, y, mix(get(x, y), "#3a2d4a", t or 0.45)) end end)
+end
+local function shadowStrip(x0, y0, len, hgt)  -- parallelogram sheared right
+  local pts = {}
+  local m = mask()
+  for r = 0, hgt - 1 do for x = x0 + r, x0 + r + len do m:add(x, y0 + r) end end
+  castShadow(m, 0.5)
+end
+-- ore sack
+local function sack(x, y, w, h, seed)
+  local body = poly{ {x + 2, y + 2}, {x + w - 2, y + 2}, {x + w, y + 6}, {x + w, y + h - 1}, {x + w - 2, y + h}, {x + 2, y + h}, {x, y + h - 1}, {x, y + 6} }
+  local neck = poly{ {x + floor(w / 2) - 2, y}, {x + floor(w / 2) + 3, y}, {x + floor(w / 2) + 4, y + 3}, {x + floor(w / 2) - 3, y + 3} }
+  shadowStrip(x + 3, y + h - 2, w, 3)
+  spRim(body, INK) spRim(neck, INK)
+  spFill(body, BURLAP[3]) spFill(neck, BURLAP[3])
+  body:each(function(px, py)
+    local rx, ry = px - x, py - y
+    if rx >= w - 3 or ry >= h - 2 then sp(px, py, BURLAP[2])
+    elseif rx <= 2 and ry > 4 and ry < h - 3 then sp(px, py, BURLAP[4])
+    elseif hash(px, py, seed) > 0.8 then sp(px, py, BURLAP[2]) end
+  end)
+  for k = 0, 4 do sp(x + floor(w / 2) - 2 + k, y + 3, (k % 2 == 0) and "#7a3a28" or "#a35a3a") end  -- cord tie
+  sp(x + 2, y + 7, BURLAP[5]) sp(x + 3, y + 7, BURLAP[5])
+  -- spilled ore fleck + stitch
+  sp(x + floor(w / 2), y + floor(h / 2), "#5f5468") sp(x + floor(w / 2) + 1, y + floor(h / 2), "#a598a8")
+  for k = 0, 2 do sp(x + w - 5, y + 8 + k * 3, BURLAP[1]) end
+end
+sack(44, 243, 17, 19, 501) sack(63, 249, 15, 15, 502) sack(54, 233, 14, 14, 503)
+-- tailings pile (little scree hill of broken rock with a dark seam and a few ore sparks)
+do
+  local pile = poly{ {88, 266}, {94, 258}, {104, 252}, {114, 250}, {124, 256}, {130, 266} }
+  shadowStrip(110, 264, 22, 3)
+  spRim(pile, INK)
+  pile:each(function(x, y)
+    local d = (x - 100) * 0.5 + (y - 250) * 0.9
+    local h = hash(floor(x / 2), floor(y / 2), 510)
+    local c = R_ROCK[3]
+    if d > 8 then c = R_ROCK[2] elseif d < -2 then c = R_ROCK[4] end
+    if h > 0.82 then c = R_ROCK[5] elseif h < 0.16 then c = R_ROCK[1] end
+    sp(x, y, c)
+  end)
+  sp(102, 255, "#ffd27a") sp(119, 259, "#ffd27a") sp(110, 262, "#8ee0cc")
+  for _, q in ipairs{ {85,265},{132,265},{128,267},{90,268} } do sp(q[1], q[2], R_ROCK[3]) sp(q[1] + 1, q[2], R_ROCK[1]) end
+end
+-- rope coil lying on the ground
+do
+  local x, y = 119, 192
+  shadowStrip(x + 3, y + 7, 12, 3)
+  local ring = poly{ {x + 3, y}, {x + 11, y}, {x + 14, y + 3}, {x + 14, y + 5}, {x + 11, y + 8}, {x + 3, y + 8}, {x, y + 5}, {x, y + 3} }
+  spRim(ring, INK) spFill(ring, "#b89a62")
+  for k = 0, 7 do for r = 0, 14 do
+    if ring:has(x + r, y + k) then
+      local band = (k + floor(r / 3)) % 2
+      sp(x + r, y + k, (band == 0) and "#d2b478" or "#9a7a48")
+    end
+  end end
+  local hole = poly{ {x + 5, y + 3}, {x + 9, y + 3}, {x + 9, y + 5}, {x + 5, y + 5} }
+  spFill(hole, "#4e3a2a")
+  sp(x + 2, y + 1, "#ecd49a") sp(x + 4, y, "#ecd49a")
+  spLine(x + 12, y + 6, x + 16, y + 9, "#9a7a48") sp(x + 17, y + 9, "#7e6240")  -- loose end
+end
+-- lantern on a post (right, beside the crates)
+do
+  local x = 350
+  shadowStrip(x + 2, 188, 14, 3)
+  spRect(x - 1, 160, x + 3, 188, INK)
+  for y = 161, 187 do
+    sp(x, y, R_TIMBER[4]) sp(x + 1, y, R_TIMBER[3]) sp(x + 2, y, R_TIMBER[2]) sp(x + 3, y, R_TIMBER[1])
+    if y % 6 == 0 then sp(x + 1, y, R_TIMBER[2]) end
+  end
+  spRect(x - 3, 186, x + 5, 188, R_ROCK[3]) spRim(rect(x - 3, 186, x + 5, 188), INK)
+  -- bracket arm to the left, lantern hanging
+  spRect(x - 9, 161, x, 162, INK) spRect(x - 8, 161, x, 161, R_TIMBER[3])
+  spRect(x - 8, 162, x - 8, 165, INK) 
+  local body = rect(x - 12, 166, x - 5, 176)
+  spRim(body, INK) spFill(body, "#3a2c2a")
+  spFill(rect(x - 11, 167, x - 6, 175), "#f5a54a") spFill(rect(x - 11, 168, x - 8, 173), WARM)
+  sp(x - 10, 169, "#fff0c0") sp(x - 10, 170, "#fff0c0")
+  spRect(x - 13, 165, x - 4, 165, R_STEEL[2]) spRect(x - 13, 177, x - 4, 177, R_STEEL[2])
+  sp(x - 8, 164, R_STEEL[2])
+end
+-- tool lean-to by the right gate post: two pickaxes and a shovel
+do
+  local function handle(x0, y0, x1, y1)
+    spLine(x0 - 1, y0, x1 - 1, y1, INK) spLine(x0 + 2, y0, x1 + 2, y1, INK)
+    spLine(x0, y0, x1, y1, R_TIMBER[4]) spLine(x0 + 1, y0, x1 + 1, y1, R_TIMBER[2])
+  end
+  shadowStrip(440, 207, 18, 3)
+  -- pickaxe 1
+  handle(442, 208, 448, 178)
+  spLine(441, 177, 455, 175, INK) spLine(441, 178, 455, 176, INK)
+  spLine(442, 177, 454, 175, R_STEEL[4]) spLine(443, 178, 453, 176, R_STEEL[2])
+  sp(441, 177, R_STEEL[5]) sp(455, 175, R_STEEL[3])
+  -- pickaxe 2 (leaning the other way, shorter)
+  handle(452, 208, 447, 182)
+  spLine(445, 181, 441, 185, INK) spLine(446, 180, 451, 182, INK)
+  spLine(446, 181, 452, 183, R_STEEL[3]) sp(445, 182, R_STEEL[5])
+  -- shovel
+  handle(436, 209, 434, 186)
+  local blade = poly{ {430, 178}, {438, 178}, {439, 183}, {436, 187}, {433, 187}, {430, 183} }
+  spRim(blade, INK) spFill(blade, R_STEEL[3])
+  spFill(rect(431, 179, 432, 183), R_STEEL[5]) spFill(rect(437, 182, 438, 183), R_STEEL[1])
+  spRect(433, 188, 436, 188, R_TIMBER[1])
+end
+-- signal flag on a pole near the shed
+do
+  local x = 130
+  shadowStrip(x + 2, 168, 12, 3)
+  spRect(x - 1, 140, x + 2, 168, INK)
+  for y = 141, 167 do sp(x, y, R_TIMBER[4]) sp(x + 1, y, R_TIMBER[2]) end
+  spRect(x - 2, 166, x + 3, 168, R_ROCK[3]) spRim(rect(x - 2, 166, x + 3, 168), INK)
+  local fl = poly{ {x + 2, 141}, {x + 16, 143}, {x + 13, 148}, {x + 17, 153}, {x + 2, 152} }
+  spRim(fl, INK)
+  fl:each(function(px, py)
+    local band = floor((py - 141) / 4)
+    sp(px, py, (band == 1) and "#f0d49a" or "#c9473a")
+    if px - x < 4 then sp(px, py, (band == 1) and "#fff0c0" or "#e8745a") end
+    if px - x > 12 and band ~= 1 then sp(px, py, "#8e2f30") end
+  end)
+  sp(x, 139, R_STEEL[4]) sp(x + 1, 139, R_STEEL[3]) sp(x, 140, R_STEEL[3])
+end
+
+---------------------------------------------------------------- v2.5.40 polish pass 4 (light, depth, flora)
+-- warm lantern light spilling on stone and dirt: stepped rings, checker edge, no gradients
+local function warmGlow(cx, cy, r, amt)
+  for y = cy - r, cy + r do for x = cx - r, cx + r do
+    local d = abs(x - cx) + abs(y - cy) * 1.25
+    if d <= r * 1.35 and (onRock(x, y) or gm:has(x, y)) then
+      local t = (d < r * 0.55) and amt or ((d < r * 0.95) and amt * 0.6 or ((x + y) % 2 == 0 and amt * 0.4 or 0))
+      if t > 0 then sp(x, y, mix(get(x, y), WARM, t)) end
+    end
+  end end
+end
+warmGlow(338, 170, 14, 0.30)     -- lantern post: lights crate top, dirt and stone
+warmGlow(183, 88, 12, 0.28)      -- lantern on the mine post
+-- far things lighter and cooler: dithered haze over distant ridge and hills behind the mouth/shed
+for y = 92, 124 do for x = 0, 479 do
+  local r, g, b = hx(get(x, y))
+  if b > r and b >= g + 8 and r < 110 then
+    local t = (y < 108) and 0.30 or 0.18
+    if (x + y) % 2 == 0 then sp(x, y, mix(get(x, y), "#b49ccb", t)) end
+  end
+end end
+-- rim light (upper-left key) on main props: crate, barrel, cart, signal pole, lantern post
+for x = 358, 396 do local r = hx(get(x, 190)) if r > 120 then sp(x, 190, mix(get(x, 190), "#fff0c0", 0.4)) end end
+for y = 191, 228 do if get(358, y) ~= INK then sp(358, y, mix(get(358, y), "#fff0c0", 0.3)) end end
+for y = 176, 222 do local c = get(401, y) if c ~= INK then sp(401, y, mix(c, "#ffd9a0", 0.35)) end end
+for x = 404, 418 do local c = get(x, 163 + 14) end
+for x = 30, 110 do local c = get(x, 150 + 25) end
+-- cart top-rim glint
+for x = 28, 60 do local c = get(x, 176) if c == R_STEEL[3] or c == R_STEEL[4] then sp(x, 176, R_STEEL[5]) end end
+-- foreground plants (3 kinds): fern fronds, thistle, berry shrub
+local function fern(x, y, h)
+  for k = 0, h do
+    sp(x, y - k, R_MOSS[1] and "#3f5a30")
+  end
+  for k = 2, h, 2 do
+    local w = floor((h - k) * 0.45) + 2
+    for i = 1, w do
+      sp(x - i, y - k - floor(i * 0.5), (i % 2 == 0) and R_MOSS[2] or R_MOSS[3])
+      sp(x + i, y - k - floor(i * 0.5) + 1, (i % 2 == 0) and R_MOSS[1] or R_MOSS[2])
+    end
+    sp(x - w, y - k - floor(w * 0.5), R_MOSS[4])
+  end
+  sp(x, y - h - 1, R_MOSS[4])
+end
+fern(140, 266, 16) fern(144, 258, 9) fern(137, 250, 8)
+local function thistle(x, y)
+  for k = 0, 8 do sp(x, y - k, "#3f5a30") end
+  sp(x - 2, y - 3, "#6b8a40") sp(x - 1, y - 4, "#4d6a36") sp(x + 2, y - 5, "#6b8a40") sp(x + 1, y - 6, "#4d6a36")
+  sp(x - 1, y - 9, "#b48ae0") sp(x, y - 10, "#d8b8f0") sp(x + 1, y - 9, "#8a5cc0") sp(x - 1, y - 10, "#8a5cc0") sp(x + 1, y - 10, "#b48ae0")
+  sp(x, y - 9, "#5a3c8a")
+end
+thistle(441, 228) thistle(438, 223)
+local function berryShrub(x, y, w)
+  local m = poly{ {x, y}, {x + 3, y - 5}, {x + w / 2, y - 8}, {x + w - 3, y - 5}, {x + w, y}, {x + w - 2, y + 2}, {x + 2, y + 2} }
+  spRim(m, "#2a3a26")
+  m:each(function(px, py)
+    local h = hash(px, py, 601)
+    local c = R_MOSS[2]
+    if py - y < -4 or (px - x) < 3 then c = R_MOSS[3] elseif py - y > 0 then c = R_MOSS[1] end
+    if h > 0.85 then c = R_MOSS[4] elseif h < 0.12 then c = R_MOSS[1] end
+    sp(px, py, c)
+  end)
+  for _, b in ipairs{ {x + 4, y - 2}, {x + w - 5, y - 3}, {x + floor(w / 2), y - 1} } do sp(b[1], b[2], "#c9473a") sp(b[1], b[2] - 1, "#f08a6a") end
+  castShadow(rect(x + 3, y + 3, x + w + 3, y + 4), 0.5)
+end
+berryShrub(354, 244, 17)
+-- moss bunches in damp lee of the boulders
+for _, q in ipairs{ {2,238},{10,236},{22,233},{448,214},{458,212} } do
+  for i = 0, 3 do if onRock(q[1] + i, q[2]) then sp(q[1] + i, q[2], (i % 2 == 0) and R_MOSS[3] or R_MOSS[4]) end end
+end
+-- tall grass blades by the timber posts (foreground frame, never over a spot)
+for _, g in ipairs{ {28,200},{31,206},{27,214},{116,160},{343,200},{346,256},{120,266} } do
+  for k = 0, 4 do sp(g[1] + floor(k / 3), g[2] - k, (k % 2 == 0) and R_MOSS[3] or R_MOSS[2]) end
+  sp(g[1] - 1, g[2] - 3, R_MOSS[4]) sp(g[1] + 2, g[2] - 4, R_MOSS[4])
+end
+
 ---------------------------------------------------------------- 14. write canvas + layout
 local c = HP.canvas{ w = W, h = H, scale = 1, name = NAME }
 for y = 0, H - 1 do for x = 0, W - 1 do c:px(x, y, buf[y * W + x + 1] or "#3b2f5e") end end

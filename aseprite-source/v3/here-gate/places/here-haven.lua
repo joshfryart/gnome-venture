@@ -654,6 +654,184 @@ for _, b in ipairs({ { 49, 148, "#8a3a30" }, { 49, 180, "#8a3a30" }, { 107, 148,
   for i = 0, 6 do mk(b[1] + 14 + i * 3, b[2] + 2 + (i % 2), b[3]) end
   mk(b[1] + 8, b[2] + 4, b[3]); mk(b[1] + 9, b[2] + 5, b[3])
 end
+------------------------------------------------------------------ v2.5.40 polish pass 3: lived-in props
+local function shadow(m) m:each(function(x, y) local cur = c:get(x, y + 0) if cur and GROUND[string.lower(cur)] then gp(x, y, "#3a4535") end end) end
+local function ground_shadow(x0, x1, y) for x = x0, x1 do gp(x, y, "#34402f"); if (x % 2 == 0) then gp(x, y + 1, "#3a4535") end end end
+-- rolled bedroll with cord, by the bunks
+ground_shadow(36, 64, 222)
+local roll = R(38, 211, 62, 220); c:rim(roll, INK)
+obj(roll, { "#3a3a60", "#4e4e82", "#6a68a0", "#8a88bc" }, function(x, y, lx, ly) if lx % 5 == 0 then return -1 end return 0 end, { lit = true })
+c:fillMask(R(38, 211, 41, 220), "#e6d3a8"); put(39, 215, "#c9b48e"); c:fillMask(R(40, 212, 40, 219), "#c9b48e")
+c:fillMask(R(50, 211, 51, 220), "#c0473f"); c:fillMask(R(58, 211, 59, 220), "#c0473f"); put(51, 210, "#c0473f"); put(59, 210, "#8a3a30")
+-- boots by the door
+ground_shadow(16, 34, 224)
+for k = 0, 1 do
+  local bx = 16 + k * 10
+  local bt = R(bx, 212, bx + 4, 222):add(R(bx, 219, bx + 8, 223)); c:rim(bt, INK)
+  obj(bt, { "#3a2a2a", "#5a3a2e", "#7a4e36", "#9a6a4a" }, nil, { lit = true })
+  c:fillMask(R(bx, 212, bx + 4, 213), "#e6d3a8"); put(bx + 6, 219, "#c18c58")
+end
+put(21, 217, "#2b1c26"); put(31, 217, "#2b1c26")
+-- water bucket by the hearth
+ground_shadow(168, 182, 214)
+local bk = R(168, 203, 178, 212); c:rim(bk, INK)
+obj(bk, { "#3e2619", "#5f3a24", "#7e5232", "#a06d42" }, plankV(3, 70), { lit = true })
+c:fillMask(R(168, 204, 178, 204), "#8a8f9a"); c:fillMask(R(168, 209, 178, 209), "#6a6f7a"); c:fillMask(R(169, 203, 177, 203), "#6a8f9a")
+c:fillMask(c:line({ { 168, 203 }, { 173, 197 }, { 178, 203 } }, 1), "#6a6f7a")
+-- stack of folded blankets on the log bench
+local bl = { { 63, 221, 76, 225, "#c0473f", "#8a3a30" }, { 64, 217, 75, 221, "#3f8f8a", "#2c6a66" }, { 65, 213, 74, 217, "#e0b04a", "#b88a30" } }
+for _, b in ipairs(bl) do
+  local m = R(b[1], b[2], b[3], b[4]); c:rim(m, INK)
+  obj(m, { b[6], b[6], b[5], "#efe0c0" }, function(x, y, lx, ly) if ly == 0 then return 1 end if lx % 4 == 0 and ly > 1 then return -1 end return 0 end)
+end
+-- drying herbs on a cord under the eave (inside the lean-to)
+for x = 50, 94 do put(x, 128 + floor_(sin((x - 50) / 44 * 3.14159) * 3), "#d8c6a6") end
+for _, hx in ipairs({ 54, 62, 70, 78, 86 }) do
+  local sy = 128 + floor_(sin((hx - 50) / 44 * 3.14159) * 3)
+  put(hx, sy + 1, "#c0473f")
+  for k = 0, 6 do
+    put(hx - 1 + (k % 3), sy + 2 + k, k % 2 == 0 and "#6a9a52" or "#4f7a44")
+    put(hx + 1 - (k % 2), sy + 3 + k, "#3b5e3a")
+  end
+  put(hx, sy + 8, "#8a6aa8")
+end
+for x = 106, 146 do put(x, 128 + floor_(sin((x - 106) / 40 * 3.14159) * 3), "#d8c6a6") end
+for _, hx in ipairs({ 112, 122, 138 }) do
+  local sy = 128 + floor_(sin((hx - 106) / 40 * 3.14159) * 3)
+  put(hx, sy + 1, "#d9a441")
+  for k = 0, 5 do put(hx - 1 + (k % 3), sy + 2 + k, "#c9a04a"); put(hx + 1, sy + 3 + k, "#e0c06a") end
+end
+-- festoon of little lanterns across the sky between the gate lanterns
+local function festoon(x0, x1, y0, sag)
+  for x = x0, x1 do
+    local t = (x - x0) / (x1 - x0)
+    local y = y0 + floor_(sin(t * 3.14159) * sag)
+    put(x, y, "#3a2a22")
+    if (x - x0) % 14 == 7 then
+      put(x, y + 1, "#3a2a22"); c:fillMask(R(x - 1, y + 2, x + 1, y + 4), "#f2c75c"); put(x, y + 3, "#fff0a8"); put(x - 1, y + 5, "#d9a441"); put(x + 1, y + 5, "#d9a441"); put(x, y + 5, "#d9a441")
+    end
+  end
+end
+festoon(64, 226, 16, 12); festoon(254, 416, 16, 12)
+-- supply cart: barrel, crate stack and sacks beside the cart
+ground_shadow(446, 466, 214)
+local br = R(448, 196, 462, 213); c:rim(br, INK)
+obj(br, { "#3e2619", "#5f3a24", "#7e5232", "#a06d42" }, plankV(3, 71), { lit = true })
+for _, yy in ipairs({ 199, 209 }) do c:fillMask(R(448, yy, 462, yy), "#6a6f7a") end
+c:fillMask(R(449, 196, 461, 197), "#d9b07a"); put(455, 196, "#a77a4a")
+local cr1 = R(446, 183, 462, 195); c:rim(cr1, INK)
+obj(cr1, { "#5f3a1c", "#8a5428", "#b5824a", "#d4a46a" }, function(x, y, lx, ly) if lx == 8 or ly == 6 then return -1 end return 0 end, { lit = true })
+put(449, 186, "#e86a8a")
+local sk2 = PL{ { 446, 213 }, { 444, 206 }, { 447, 201 }, { 450, 199 }, { 453, 201 }, { 454, 206 }, { 454, 213 } }
+sk2 = PL{ { 438, 213 }, { 436, 206 }, { 439, 201 }, { 443, 199 }, { 447, 201 }, { 449, 206 }, { 448, 213 } }
+ground_shadow(436, 450, 214)
+c:rim(sk2, INK); obj(sk2, { "#7a6248", "#a68a64", "#cdb38a", "#e6d4ae" }, function(x, y) return h(x, y, 72) > 0.85 and -1 or 0 end, { lit = true })
+c:fillMask(R(440, 202, 446, 203), "#7a4a2a"); put(443, 208, "#7a4a2a")
+------------------------------------------------------------------ v2.5.40 polish pass 4: light, depth, plants
+local SKY = {}
+for _, v in ipairs({ "#3a2d5c", "#4c3868", "#664574", "#8a5379", "#b4627a", "#d87f6e", "#ee9f6a", "#f6c27c" }) do SKY[v] = true end
+local function skyp(x, y, col) local cur = c:get(x, y); if cur and SKY[string.lower(cur)] and not guarded(x, y) then put(x, y, col) end end
+-- far haze: lighter, cooler dither on far hills, pines and cliff foot
+local HAZE = { ["#475262"] = "#6a7a8e", ["#6a5280"] = "#8c78a0", ["#2c4040"] = "#4a6060", ["#3f5a52"] = "#5c7a74", ["#a77a92"] = "#c0a0b4", ["#8a6690"] = "#a888b0" }
+for y = 70, 111 do for x = 0, W - 1 do
+  local cur = c:get(x, y)
+  local hz = cur and HAZE[string.lower(cur)]
+  if hz and y >= 84 and (x + y) % 2 == 0 and h(x, y, 80) > (111 - y) / 40 then put(x, y, hz) end
+end end
+for y = 100, 110 do for x = 154, 336 do
+  local cur = c:get(x, y)
+  if cur and (cur == "#7a6676" or cur == "#5a4a63" or cur == "#9c8790") and (x + y) % 3 == 0 then put(x, y, "#a08aa0") end
+end end
+-- warm lantern glow rings in the sky (dithered)
+for _, g in ipairs({ { 56, 36 }, { 424, 36 } }) do
+  for y = g[2] - 22, g[2] + 22 do for x = g[1] - 28, g[1] + 28 do
+    local d = ((x - g[1]) / 28) ^ 2 + ((y - g[2]) / 22) ^ 2
+    if d < 1 and (x + y) % 2 == 0 and (d < 0.4 or x % 2 == 0) then skyp(x, y, d < 0.4 and "#f6c27c" or "#ee9f6a") end
+  end end
+end
+-- hearth glow on the ground (warm dither), kept clear of the stand zones by gp()
+for y = 196, 238 do for x = 84, 190 do
+  local d = ((x - 135) / 52) ^ 2 + ((y - 214) / 24) ^ 2
+  if d < 1 and (x + y) % 2 == 0 and h(x, y, 81) > d * 0.8 then gp(x, y, d < 0.45 and "#a8803c" or "#8a7a40") end
+end end
+-- cast shadows, all falling lower-right (dithered, ground only)
+local function cast(x0, x1, y0, y1, slant)
+  for y = y0, y1 do
+    local off = floor_((y - y0) * slant)
+    for x = x0 + off, x1 + off do
+      if ((x + y) % 2 == 0) or y == y0 then gp(x, y, "#34402f") end
+    end
+  end
+end
+cast(176, 200, 206, 214, 1.2)   -- lean-to roof/post
+cast(366, 392, 128, 134, 1.5)   -- sign post
+cast(364, 374, 124, 130, 1.5)   -- stump
+cast(350, 362, 126, 129, 1.0)   -- woodpile
+cast(384, 466, 127, 132, 0.6)   -- arch
+cast(436, 466, 214, 222, 1.0)   -- crate stack / barrel
+cast(100, 162, 223, 228, 0.7)   -- hearth
+cast(96, 112, 218, 222, 1.0)    -- stool
+-- rim light (top-left) on main props
+for y = 170, 196 do mk(343, y, "#86c4bf") end
+for x = 344, 376 do if h(x, 1, 82) > 0.4 then mk(x, 169, "#86c4bf") end end
+for y = 100, 121 do mk(285, y, "#c18c58") end
+for y = 78, 120 do if h(y, 1, 83) > 0.5 then mk(385, y, "#bdb6c8") end end
+for y = 116, 198 do if h(y, 2, 83) > 0.4 then mk(15, y, "#c9bcbc") end end
+for x = 8, 70 do mk(x, 110 - floor_((x - 6) * 24 / 170) + 3, "#b5835c") end
+-- foreground planting: fern, lavender, berry bush, tall grass (never in stand zones / compass corner)
+local function fern(x, y, n)
+  for k = -n, n do
+    local len = n + 3 - abs(k)
+    for t = 1, len do
+      local px, py = x + k * floor_(t / 2) + (k > 0 and 1 or (k < 0 and -1 or 0)) * floor_(t / 3), y - t - floor_(abs(k) * t / 4)
+      mk(px, py, (t % 3 == 0) and "#82a050" or ((k <= 0) and "#4f7a44" or "#35603a"))
+    end
+  end
+  mk(x, y, "#2e4630")
+end
+local function lav(x, y, hgt)
+  for t = 0, hgt do mk(x, y - t, "#4f7a44") end
+  for t = 0, 3 do mk(x - 1 + (t % 2) * 2, y - hgt - t, "#8a7ac8"); mk(x, y - hgt - t, t == 3 and "#c0b0f0" or "#6a5aa8") end
+end
+local function bush(x, y, r)
+  for yy = -r, 0 do for xx = -r - 2, r + 2 do
+    local d = (xx / (r + 2)) ^ 2 + (yy / r) ^ 2
+    if d <= 1 then mk(x + xx, y + yy, (xx + yy < -r * 0.6) and "#6a9a52" or ((xx - yy > r) and "#2f5a3c" or "#4f7a44")) end
+  end end
+  for i = 1, 4 do mk(x - r + floor_(h(i, x, 84) * r * 2), y - floor_(h(i, y, 84) * r), "#d9482b") end
+  mk(x + r + 2, y, "#2e4630"); mk(x - r - 2, y, "#2e4630")
+end
+local function tall(x, y)
+  for k = 0, 4 do mk(x + k * 2, y - 1, "#3d4834"); for t = 0, 5 - abs(2 - k) do mk(x + k * 2 + (k - 2) * floor_(t / 3), y - 2 - t, t % 2 == 0 and "#82904f" or "#6a7a46") end end
+end
+fern(20, 266, 5); fern(52, 264, 5); fern(104, 266, 4); fern(134, 262, 5)
+lav(34, 268, 13); lav(38, 266, 10); lav(42, 269, 12); lav(78, 268, 11); lav(82, 266, 14); lav(122, 266, 12); lav(126, 268, 15); lav(140, 266, 10)
+bush(66, 268, 7); bush(148, 242, 6)
+tall(92, 269); tall(112, 252); tall(148, 258); tall(14, 232)
+-- right-hand mid ground: pale birch with dithered foliage + a round broadleaf sapling on the left (no copy-paste crowns)
+local function crown(cx, cy, rx, ry, lo, mid, hi, seed)
+  for y = cy - ry, cy + ry do for x = cx - rx, cx + rx do
+    local d = ((x - cx) / rx) ^ 2 + ((y - cy) / ry) ^ 2
+    if d < 1 and h(x, y, seed) > d * 0.55 then
+      local lit = (x - cx) / rx + (y - cy) / ry
+      local col = lit < -0.5 and hi or (lit > 0.45 and lo or mid)
+      if d > 0.7 and (x + y) % 2 == 0 then col = lo end
+      mk(x, y, col)
+    end
+  end end
+end
+local function trunk(x0, x1, y0, y1, light, dark, mark)
+  for y = y0, y1 do for x = x0, x1 do mk(x, y, x == x0 and light or (x == x1 and dark or (light == "#e6dcc8" and "#c9bfa8" or "#7e5232"))) end end
+  if mark then for y = y0 + 4, y1 - 2, 6 do mk(x0 + 1, y, "#3a2a2a"); mk(x0, y + 1, "#3a2a2a") end end
+  for x = x0 - 1, x1 + 3 do gp(x, y1 + 1, "#34402f") end
+end
+trunk(456, 459, 150, 180, "#e6dcc8", "#8a8a80", true)
+crown(458, 142, 10, 12, "#6a7a2e", "#98a840", "#c4cc5c", 85)
+crown(452, 150, 6, 7, "#6a7a2e", "#98a840", "#c4cc5c", 86)
+trunk(189, 192, 150, 167, "#a06d42", "#4f3431", false)
+crown(190, 140, 14, 12, "#2f5a3c", "#4f7a44", "#82a050", 87)
+crown(184, 148, 7, 6, "#2f5a3c", "#4f7a44", "#82a050", 88)
+for x = 192, 214 do gp(x, 168 + floor_((x - 192) * 0.15), "#34402f"); if x % 2 == 0 then gp(x, 169 + floor_((x - 192) * 0.15), "#34402f") end end
 c:finish{ outline = false }
 HP.assertClean(c)
 c:save{ aseprite = OUT .. "here-haven.aseprite", png = OUT .. "here-haven.png", scale = 1 }

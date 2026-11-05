@@ -6,6 +6,7 @@ local OUT = (app.params and app.params.out) or (ROOT .. "/v3/here-gate/places/")
 local W, H = 480, 270
 local c = HP.canvas{ w = W, h = H, scale = 1, name = "here-wonder" }
 local floor, sin, abs, max, min = math.floor, math.sin, math.abs, math.max, math.min
+local cos = math.cos
 
 local function hsh(x, y, s)
   local n = sin(x * 127.1 + y * 311.7 + (s or 0) * 74.7) * 43758.5453
@@ -207,6 +208,18 @@ local function flower(x, y, k)
   else gput(x, y, "#c4a8f6"); gput(x, y - 1, "#9878e0"); gput(x - 1, y, "#6e50bc"); gput(x + 1, y, "#6e50bc") end
 end
 for _, p in ipairs({ {30,150,1},{34,153,2},{26,156,3},{112,214,1},{116,217,3},{148,198,2},{152,201,1},{90,248,2},{94,252,1},{134,236,3},{360,196,1},{364,199,2},{300,196,3},{304,190,1},{408,198,2},{412,202,1},{348,258,3},{210,244,1},{214,247,2},{66,226,2},{70,229,3},{44,260,1},{384,196,3},{190,226,2},{132,176,1},{138,178,2},{370,158,3},{372,162,1} }) do flower(p[1], p[2], p[3]) end
+
+-- v2.5.40 polish pass 4a: atmospheric depth (cool haze at the horizon, round-crowned far trees)
+for _, tx in ipairs({ 58, 92, 134, 352, 372, 468 }) do
+  local by = floor(101 + 5 * sin(tx / 45 + 1) + 3 * sin(tx / 17))
+  local r = 4 + floor(hsh(tx, 4, 9) * 3)
+  c:ellipse(tx, by - r + 2, r, r - 1):each(function(x, y) c:put(x, y, (x - tx) + (y - by) < -r and "#2c4c5c" or "#1f3a4a") end)
+  for y = by, by + 3 do c:put(tx, y, "#182838") end
+end
+for y = HZ - 6, HZ + 9 do for x = 0, W - 1 do
+  local d = abs(y - HZ - 1) / 8
+  if hsh(x, y, 331) > d * 0.9 and (x + y) % 2 == 0 and y >= HZ - 2 then c:put(x, y, d < 0.45 and "#4a7478" or "#3a6468") end
+end end
 
 ---------------------------------------------------------------- main path (flagstones in perspective)
 local function halfw(y) return 26 + (y - 160) * 92 / 110 end
@@ -605,6 +618,163 @@ for k = 0, 14 do c:put(40 - k, 186 - floor(k * 0.9), MOSS[5]) ; c:put(82 + k * 0
 for _, q in ipairs({ {166,180,9},{152,180,6},{174,180,4} }) do
   local hh = q[1] == 166 and 16 or (q[1] == 152 and 9 or 6)
   for x = q[1] - q[3] + 2, q[1] + q[3] - 2, 2 do c:put(x, q[2] - hh + 2, CAP[2]) end
+end
+
+-- v2.5.40 polish pass 3: lived-in props (shards in grass, rune stone, offering bowl, cairn, ribbons, stepping stones, mushrooms)
+local function inkEdge(m) m:edge():each(function(x, y) gput(x, y, INK) end) end
+local function dropShadow(cx, cy, rx, ry) c:ellipse(cx, cy, rx, ry):each(function(x, y) gput(x, y, "#16302c") end) end
+-- crystal shards sprouting in the grass
+local function shard(x, y, h, w, R, tilt)
+  dropShadow(x + 3, y + 1, w + 2, 1)
+  local m = c:poly{ {x + (tilt or 0), y - h}, {x + w, y}, {x - w, y} }
+  fill(m, R, { seed = x + y, base = 1.0, ku = 0.5, kt = 0.25, noise = 0.08, edge = INK })
+  gput(x + (tilt or 0), y - h + 1, R[#R]); gput(x - 1, y - h // 2, R[#R])
+  for dx = -w, w do gput(x + dx, y + 1, "#1c3a34") end
+end
+shard(58, 238, 12, 3, CRY, 1); shard(66, 240, 8, 2, VIO, -1); shard(50, 241, 6, 2, TEAL, 0)
+shard(300, 218, 9, 2, CRY, 0); shard(306, 220, 6, 2, VIO, 1)
+-- low rune stone (no text): glyph is three bars and a spiral
+dropShadow(116, 216, 13, 2)
+local rs = c:poly{ {104,214}, {103,202}, {108,196}, {118,196}, {123,203}, {122,214} }
+fill(rs, STONE, { seed = 451, base = 0.95 })
+inkEdge(rs)
+for x = 105, 121 do mput(rs, x, 197, MOSS[3]); if hsh(x, 1, 452) < 0.5 then mput(rs, x, 198, MOSS[2]) end end
+for k = 0, 4 do gput(108 + k, 203, "#7ad8f0") end
+for k = 0, 3 do gput(110 + k, 206, "#5ab8e0") end
+gput(108, 207, "#5ab8e0"); gput(108, 208, "#5ab8e0"); gput(109, 209, "#7ad8f0"); gput(112, 209, "#7ad8f0"); gput(113, 208, "#7ad8f0")
+gput(116, 203, "#d6f6ff")
+-- offering bowl on a slab with glowing pebbles + incense wisp
+dropShadow(158, 207, 11, 2)
+local slab = c:poly{ {146,205}, {150,200}, {166,200}, {170,205}, {168,208}, {148,208} }
+fill(slab, STONE, { seed = 461, base = 0.9, ku = 0.4, kt = 0.2 }); inkEdge(slab)
+local bowl = c:poly{ {152,199}, {166,199}, {164,204}, {154,204} }
+fill(bowl, WARM, { seed = 462, base = 1.05 }); inkEdge(bowl)
+for x = 153, 165 do gput(x, 198, "#ffd878"); if x % 3 == 0 then gput(x, 197, "#ffb848") end end
+gput(158, 196, "#fff0b8"); gput(160, 196, "#a8f0ff"); gput(156, 197, "#a8f0ff")
+for k = 0, 6 do gput(159 + floor(sin(k) * 1.5 + 0.5), 192 - k, k % 2 == 0 and "#9a90d4" or "#7a72b4") end
+-- cairn (four stacked stones, one glowing mark)
+dropShadow(311, 192, 11, 2)
+local cs = { { 303, 190, 14, 5, 3 }, { 305, 185, 10, 4, 4 }, { 307, 181, 7, 3, 2 }, { 308, 178, 4, 3, 5 } }
+for i, q in ipairs(cs) do
+  local m = c:ellipse(q[1] + q[3] // 2, q[2] - q[4] // 2, q[3] // 2, q[4] // 2 + 1)
+  fill(m, STONE, { seed = 470 + i, base = 0.95 }); inkEdge(m)
+end
+gput(310, 188, "#7ad8f0"); gput(311, 188, "#7ad8f0"); gput(311, 187, "#d6f6ff"); gput(309, 178, STONE[6]); gput(309, 183, STONE[6])
+-- ribbons tied to the standing stones (flutter lower-right)
+local function ribbon(x, y, len, col, dark)
+  gput(x, y, "#d8b868"); gput(x + 1, y, "#8a6c3a")
+  for k = 1, len do
+    local xx = x + floor(sin(k * 0.7) * 1.5 + 0.5) + k // 5
+    gput(xx, y + k, k % 4 == 3 and dark or col); gput(xx + 1, y + k, dark)
+  end
+end
+ribbon(130, 99, 14, "#f0a8d8", "#b46ab4"); ribbon(132, 100, 10, "#98e0e8", "#3a8ea8")
+ribbon(344, 91, 13, "#f6d46a", "#be8c36"); ribbon(346, 92, 9, "#f0a8d8", "#b46ab4")
+-- stepping stones toward the mushrooms
+for _, q in ipairs({ {198,173,4},{190,176,4},{182,178,4} }) do
+  local m = c:ellipse(q[1], q[2], q[3], 2)
+  fill(m, STONE, { seed = q[1], base = 0.9, ku = 0.4, kt = 0.3 }); inkEdge(m)
+end
+-- extra glowing mushroom cluster right of the road
+local function minimush(cx, by, r, h)
+  dropShadow(cx + 2, by + 1, r + 1, 1)
+  for y = by - h, by do gput(cx, y, CREAM[3]); gput(cx + 1, y, CREAM[2]) end
+  local cap = c:ellipse(cx, by - h, r, 2):clip(c:rect(cx - r, by - h - 3, cx + r, by - h + 1))
+  fill(cap, CAP, { seed = cx, base = 1.0, edge = CAP[1] })
+  gput(cx - 1, by - h - 1, "#d8fff0")
+end
+minimush(292, 226, 4, 5); minimush(298, 229, 3, 3)
+minimush(34, 262, 4, 5); minimush(40, 264, 3, 3)
+
+-- v2.5.40 polish pass 4: light (rim light top-left, cast shadows lower-right, warm/cool glows) and foreground frame
+local function hexRGB(h) return tonumber(h:sub(2,3),16), tonumber(h:sub(4,5),16), tonumber(h:sub(6,7),16) end
+local function isGround(h)
+  if not h then return false end
+  local r, g, b = hexRGB(h)
+  return g > r + 6 and g >= b and g > 0x30 and g < 0x90
+end
+local function tint(m, f, dr, dg, db, dith)
+  m:each(function(x, y)
+    if y > HZ + 2 and free(x, y) and (not dith or (x + y) % 2 == 0) then
+      local h = c:get(x, y)
+      if isGround(h) then
+        local r, g, b = hexRGB(h)
+        c:put(x, y, string.format("#%02x%02x%02x", max(0, min(255, floor(r * f + dr))), max(0, min(255, floor(g * f + dg))), max(0, min(255, floor(b * f + db)))))
+      end
+    end
+  end)
+end
+-- cast shadows, all falling lower-right
+tint(c:poly{ {100,182}, {138,182}, {164,191}, {124,191} }, 0.72, -2, -2, 4)
+tint(c:poly{ {324,180}, {358,180}, {384,190}, {350,190} }, 0.72, -2, -2, 4)
+tint(c:poly{ {146,181}, {184,181}, {196,185}, {160,185} }, 0.74, -2, -2, 4)
+tint(c:poly{ {50,208}, {94,208}, {116,215}, {66,215} }, 0.74, -2, -2, 4)
+tint(c:poly{ {103,214}, {123,214}, {132,218}, {110,218} }, 0.7, -2, -2, 4)
+tint(c:poly{ {146,208}, {170,208}, {180,212}, {154,212} }, 0.7, -2, -2, 4)
+tint(c:poly{ {303,190}, {318,190}, {330,195}, {314,195} }, 0.7, -2, -2, 4)
+-- warm glow of the offering bowl, cool glow of shards and rune stone
+tint(c:ellipse(158, 205, 22, 7), 1.0, 22, 8, -8, true)
+tint(c:ellipse(158, 203, 12, 4), 1.0, 30, 12, -10, false)
+tint(c:ellipse(60, 242, 14, 5), 1.0, -6, 18, 22, true)
+tint(c:ellipse(303, 220, 9, 3), 1.0, -6, 18, 22, true)
+tint(c:ellipse(112, 205, 12, 6), 1.0, -6, 14, 18, true)
+tint(c:ellipse(44, 212, 16, 5), 1.0, 22, 8, -8, true)
+-- cool crystal light on the inner faces of the stones, warm lantern light on the left stone's top-left
+for y = 100, 176 do for k = 0, 4 do
+  if (y + k) % 2 == 0 then
+    if msL:has(137 - k, y) then local h = c:get(137 - k, y); if h and not isGround(h) then gput(137 - k, y, STONE[4 + (k < 2 and 1 or 0)]) end end
+    if msR:has(325 + k, y) then local h = c:get(325 + k, y); if h and not isGround(h) then gput(325 + k, y, STONE[4 + (k < 2 and 1 or 0)]) end end
+  end
+end end
+for y = 100, 176 do
+  if msL:has(137, y) and y % 2 == 0 then gput(137, y, "#8aa8d0") end
+  if msR:has(325, y) and y % 2 == 0 then gput(325, y, "#8aa8d0") end
+end
+-- rim light along top-left edges of the main props
+local function rim(m, col, col2)
+  m:each(function(x, y)
+    if not m:has(x - 1, y) or not m:has(x, y - 1) then
+      local h = c:get(x, y)
+      if h and not isGround(h) and free(x, y) then gput(x, y, (x + y) % 3 == 0 and col2 or col) end
+    end
+  end)
+end
+rim(msL, STONE[6], STONE[5]); rim(msR, STONE[6], STONE[5])
+rim(pil1, STONE[6], STONE[5]); rim(pil2, STONE[6], STONE[5])
+rim(leftF, "#f0faff", CRY[6]); rim(sideL, "#e4d4ff", VIO[5]); rim(sideR, TEAL[5], TEAL[4])
+rim(arch, ARCH[5], "#b4c4c8"); rim(dais2, STONE[6], STONE[5])
+-- foreground frame: ferns + foxglove, low corners only (stand points and compass stay clear)
+local function fern(bx, by, ang, len, dark, light)
+  local px, py = bx, by
+  for i = 0, len do
+    local t = i / len
+    local x = bx + floor(sin(ang) * i + t * t * ang * 10 + 0.5)
+    local y = by - floor(cos(ang) * i * 0.9 + 0.5)
+    gput(x, y, dark)
+    if i > 3 and i % 2 == 0 then
+      local pl = floor((1 - t) * 7) + 1
+      for k = 1, pl do
+        gput(x - k, y + k // 2, dark); gput(x + k, y + k // 2, dark)
+        if k == pl then gput(x - k, y + k // 2 - 1, light); gput(x + k, y + k // 2 - 1, light) end
+      end
+    end
+  end
+end
+local FD, FL = "#1e4430", "#68a456"
+fern(30, 270, -0.9, 36, FD, FL); fern(30, 270, -0.2, 40, "#27502f", FL); fern(30, 270, 0.55, 34, FD, "#68a050")
+fern(66, 270, 0.25, 30, "#27502f", FL); fern(66, 270, -0.6, 26, FD, FL)
+fern(142, 270, -0.4, 22, FD, FL); fern(150, 270, 0.4, 20, "#27502f", FL)
+-- foxglove spike (violet bells)
+for y = 240, 268 do gput(84, y, "#2e5a34") end
+for i = 0, 9 do
+  local y = 242 + i * 2
+  local side = i % 2 == 0 and -1 or 1
+  gput(84 + side, y, "#9878e0"); gput(84 + side * 2, y, "#6e50bc"); gput(84 + side, y + 1, "#c4a8f6"); gput(84 + side * 2, y + 1, "#4c3290")
+end
+gput(84, 239, "#c4a8f6")
+-- tall reed tufts, foreground
+for _, rx in ipairs({ 124, 130, 136, 346, 352, 358, 8, 14 }) do
+  for y = 258 + (rx % 3), 269 do gput(rx + floor((269 - y) / 5) * (rx % 2 == 0 and 1 or -1), y, y < 262 and "#7cb060" or "#3a7040") end
 end
 
 ---------------------------------------------------------------- layout + save

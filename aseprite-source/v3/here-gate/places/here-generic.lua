@@ -547,6 +547,134 @@ for k = 0, 8 do
   if seg:count() > 0 then shade(seg, stoneCols[1 + (k + 1) % 4], nil, { bias = .06 }) end
 end
 
+---------------------------------------------------------------- v2.5.40 polish pass 2: material cues
+do
+  local MOSS, MOSS2 = "#6f9a52", "#8cb862"
+  -- thatch/shingle moss on the north (upper-left) roof edges, plaster cracks, stone chips + lichen
+  for _, r in ipairs{ { 22, 74, 3 }, { 96, 74, 3 } } do
+    for k = 0, 9 do
+      local x, y = r[1] + 4 + floor(hash(k, r[1], 301) * 12), r[2] + 3 + floor(hash(k, r[1], 302) * 14)
+      c:put(x, y, MOSS) c:put(x + 1, y, MOSS2) c:put(x, y + 1, mix(MOSS, VIO, .35))
+    end
+  end
+  for _, p in ipairs{ { 30, 108, 33, 114 }, { 58, 100, 56, 106 }, { 70, 118, 68, 124 } } do c:put(p[1], p[2], "#8a6a58") c:put(p[3], p[2] + 3, "#8a6a58") c:put(p[3] + 1, p[4], "#8a6a58") end
+  for _, p in ipairs{ { 102, 100 }, { 112, 112 }, { 130, 104 }, { 140, 116 }, { 119, 120 } } do
+    c:put(p[1], p[2], "#8a90a2") c:put(p[1] + 1, p[2], "#d6dae6") c:put(p[1] + 1, p[2] + 1, "#6a6e82")
+  end
+  for k = 0, 7 do c:put(97 + floor(hash(k, 1, 303) * 6), 100 + floor(hash(k, 2, 304) * 22), k % 2 == 0 and "#9cb478" or "#b8c48a") end -- lichen on north corner
+  -- garden wall: chips, lichen, mortar cracks
+  for k = 0, 11 do
+    local x, y = 20 + floor(hash(k, 1, 305) * 130), 144 + floor(hash(k, 2, 306) * 11)
+    c:put(x, y, "#7a746e") c:put(x + 1, y, "#d6cfc4") c:put(x + 1, y + 1, "#6a646a")
+  end
+  for k = 0, 8 do c:put(18 + k * 3, 143 + (k % 2), k % 3 == 0 and "#9cb478" or "#8aa86a") end
+  -- signpost grain, nails, rope, rust
+  for k = 0, 8 do c:put(187 + (k % 2) * 2, 98 + k * 6, "#6a4630") c:put(188, 101 + k * 6, "#a77a54") end
+  c:fillMask(c:rect(186, 137, 190, 138), "#d2b27c") c:put(187, 139, "#b8975a") c:put(189, 140, "#b8975a")  -- rope twist lashing
+  for _, a in ipairs{ { 168, 103 }, { 183, 103 }, { 192, 114 }, { 205, 117 }, { 173, 127 }, { 183, 127 } } do c:put(a[1], a[2], "#cdd0dc") c:put(a[1], a[2] + 1, "#6a5a6a") end
+  for k = 0, 4 do c:put(171 + k * 3, 99 + (k % 2), "#8a3a2e") c:put(193 + k * 3, 113, "#2e6a82") end
+  c:put(188, 91, "#d6c2a0") c:put(186, 93, "#4e3226")
+  -- noticeboard: frame grain, pin heads, wood knots, rust nails on posts
+  for k = 0, 9 do c:put(322 + k * 4, 103, "#8a6a42") c:put(323 + k * 4, 133, "#7a5a36") end
+  for _, p in ipairs{ { 320, 110 }, { 360, 124 }, { 320, 126 }, { 360, 108 } } do c:put(p[1], p[2], "#a8a6b8") c:put(p[1], p[2] + 1, "#5a4a5a") end
+  for _, px in ipairs{ 318, 358 } do c:put(px + 1, 120, "#4e3226") c:put(px + 2, 120, "#4e3226") c:put(px + 1, 121, "#b88e62") c:put(px + 3, 140, "#4e3226") c:put(px + 1, 108, "#d6b07c") end
+  for k = 0, 8 do c:put(314 + k * 6, 94 + (k % 2), "#6a2e2e") end
+  for k = 0, 4 do c:put(324 + k * 8, 91, "#d6805a") end
+  -- bench: wood grain streaks and bolts
+  for _, sy in ipairs{ 117, 123, 135 } do for k = 0, 6 do c:put(371 + k * 6 + (sy % 3), sy + 1, "#3f7a50") end end
+  for _, bx in ipairs{ 372, 404 } do c:put(bx + 1, 135, "#cdd0dc") c:put(bx + 1, 136, "#4a4a5a") c:put(bx + 1, 140, "#7a5a3a") end
+  -- fire pit stones: chips, soot above the flame, lichen; kettle bevel; blanket folds
+  for _, p in ipairs{ { 100, 220 }, { 98, 226 }, { 146, 216 }, { 148, 224 }, { 120, 214 }, { 110, 231 }, { 136, 232 } } do c:put(p[1], p[2], "#6a6470") c:put(p[1] + 1, p[2], "#cfc9bd") end
+  for k = 0, 5 do c:put(100 + k * 8, 213 + (k % 2), k % 2 == 0 and "#8aa86a" or "#9cb478") end
+  c:fillMask(c:rect(118, 179, 119, 187), "#7aaab4") c:put(117, 180, "#cfeaee") c:fillMask(c:rect(129, 186, 130, 189), "#2f5560")
+  c:put(124, 175, "#dfeaf0") c:put(124, 172, "#e6edf2") c:put(126, 169, "#e6edf2") c:put(122, 166, "#e6edf2") -- kettle steam
+  for _, p in ipairs{ { 106, 217 }, { 107, 213 }, { 109, 208 }, { 141, 215 }, { 143, 220 } } do c:put(p[1], p[2], "#9a5a34") c:put(p[1] + 1, p[2], "#6a4228") end -- rust on the tripod legs
+  for k = 0, 10 do c:put(31 + k, 205, "#7a4e34") end
+  c:put(125, 168, "#d6b07c") c:put(124, 171, "#2e2a3a")
+  for k = 0, 5 do c:put(34 + k * 3, 199 + k * 2, "#a8362e") c:put(44 - k, 200 + k * 2, "#a8362e") end -- cloth fold creases
+  c:fillMask(c:line({ { 30, 211 }, { 50, 211 } }, 1), "#b8362e")
+  -- logs: growth rings on the stumps, bark cracks
+  for _, sx in ipairs{ 28, 70 } do for k = 0, 3 do c:put(sx + 3 + k, 211, "#b8905c") c:put(sx + 2 + k, 214 + (k % 2), "#6a4a30") c:put(sx + 7, 216 + k, "#6a4a30") end end
+  c:put(86, 205, "#c49a64") c:put(85, 204, "#8a6040") c:put(86, 206, "#8a6040")
+  -- wild branch: lichen on the north side, knots; trail sign grain; mug glint
+  for k = 0, 9 do c:put(421 + (k % 2), 152 + k * 5, k % 3 == 0 and "#aac27a" or "#8ca868") end
+  c:put(425, 175, "#3e2a22") c:put(426, 175, "#3e2a22") c:put(424, 196, "#3e2a22")
+  for k = 0, 4 do c:put(430 + k * 5, 197 + (k % 2) * 3, "#4e8a3c") c:put(431 + k * 5, 203, "#c8e08a") end
+  c:put(437, 205, "#c4c8d6") c:put(437, 206, "#4a4a5a") c:put(438, 215, "#4e3a2e")
+  c:put(63, 194, "#d6ecf6") c:put(64, 194, "#d6ecf6")
+end
+
+---------------------------------------------------------------- v2.5.40 polish pass 3: lived-in props
+do
+  local function gshadow(cx, cy, rx, ry, t) gmask(c:ellipse(cx, cy, rx, ry), "#41365f", t or .32) end
+  -- barrels by the signpost side (hooped, one with a ladle)
+  local function barrel(x0, y0, x1, y1, col)
+    gshadow((x0 + x1) // 2 + 3, y1 + 1, (x1 - x0) // 2 + 3, 2, .34)
+    local b = c:rrect(x0, y0, x1, y1, 3) shade(b, col, TX.vplank(3))
+    for _, hy in ipairs{ y0 + 3, y1 - 3 } do c:fillMask(c:rect(x0, hy, x1, hy + 1), "#4c4a5e") c:put(x0 + 1, hy, "#9c98b0") end
+    c:fillMask(c:ellipse((x0 + x1) // 2, y0 + 1, (x1 - x0) // 2 - 1, 1), mix(col, WARM2, .45))
+    c:put(x0 + 2, y0 + 6, "#e8d0a0") c:put(x0 + 2, y0 + 7, "#e8d0a0")
+  end
+  barrel(166, 168, 178, 184, "#8c5a38")
+  barrel(181, 172, 193, 187, "#a06a40")
+  c:fillMask(c:line({ { 188, 172 }, { 192, 163 } }, 1), "#5a4436") c:fillMask(c:rect(191, 161, 194, 163), "#7a7488") -- ladle
+  -- hay bales stacked at the trail side, twine bands
+  local function bale(x0, y0, x1, y1)
+    gshadow(x1 - 4, y1 + 1, (x1 - x0) // 2 + 4, 2, .34)
+    local m = c:rrect(x0, y0, x1, y1, 2)
+    shade(m, "#d8b45a", function(x, y) return (hash(x, floor(y / 2), 311) > .62 and -0.1 or 0) + (y % 3 == 0 and 0.05 or 0) end)
+    for _, bx in ipairs{ x0 + 5, x1 - 5 } do c:fillMask(c:rect(bx, y0, bx, y1), "#7a5a30") end
+    for k = 0, 3 do c:put(x0 + 2 + k * 5, y0 - 1, "#e8c870") c:put(x1 - k * 4, y1 + 1, "#b89040") end
+  end
+  bale(372, 214, 394, 226)
+  bale(376, 203, 392, 213)
+  c:put(398, 224, "#e8c870") c:put(399, 225, "#d8b45a") c:put(397, 226, "#b89040") c:put(370, 222, "#e8c870")
+  -- hand cart (two spoked wheels, hay load, shafts)
+  gshadow(352, 264, 24, 3, .34)
+  c:fillMask(c:line({ { 336, 252 }, { 322, 262 } }, 2), "#6a4a34")
+  c:fillMask(c:line({ { 336, 256 }, { 322, 264 } }, 1), "#4e3226")
+  local bedm = c:poly{ { 336, 242 }, { 366, 242 }, { 364, 255 }, { 338, 255 } }
+  shade(bedm, "#a06a40", TX.plank(4))
+  c:fillMask(c:rect(336, 242, 366, 242), "#d6b07c")
+  local load = c:poly{ { 338, 242 }, { 342, 232 }, { 350, 228 }, { 358, 232 }, { 364, 242 } }
+  shade(load, "#d8b45a", function(x, y) return (hash(x, floor(y / 2), 313) > .6 and -0.1 or 0) end)
+  c:put(346, 231, "#e8c870") c:put(354, 230, "#e8c870") c:put(352, 227, "#e8c870") c:put(344, 229, "#c89a44")
+  local sack = c:poly{ { 355, 236 }, { 362, 236 }, { 363, 243 }, { 354, 243 } } shade(sack, "#c4a888", nil)
+  c:fillMask(c:rect(356, 236, 361, 236), "#7a5a40")
+  local wheel = c:ellipse(346, 258, 8, 8)
+  local rim = wheel:copy():cut(wheel:shrink(2)) shade(rim, "#7a5236", nil)
+  for _, d in ipairs{ { 0, -6 }, { 0, 6 }, { -6, 0 }, { 6, 0 }, { 4, 4 }, { -4, -4 }, { 4, -4 }, { -4, 4 } } do c:put(346 + d[1] // 2, 258 + d[2] // 2, "#a77a54") c:put(346 + d[1] * 2 // 3, 258 + d[2] * 2 // 3, "#a77a54") end
+  c:fillMask(c:ellipse(346, 258, 1, 1), "#cdd0dc")
+  c:fillMask(c:ellipse(361, 259, 5, 5):cut(c:ellipse(361, 259, 3, 3)), "#5a4030")
+  c:put(361, 259, "#cdd0dc")
+  -- washing line between the cottages with three cloths
+  c:fillMask(c:line({ { 77, 105 }, { 86, 108 }, { 96, 105 } }, 1), "#5a4a5a")
+  for _, k in ipairs{ { 80, "#f4ecd8", 7 }, { 86, "#6aa0d8", 8 }, { 91, "#e8a23a", 6 } } do
+    local cm = c:rect(k[1], 106 + (k[1] == 86 and 3 or 0), k[1] + 3, 106 + k[3] + (k[1] == 86 and 3 or 0)) shade(cm, k[2], function(x, y) return (x % 2 == 0) and -0.07 or 0 end)
+    c:put(k[1] + 1, 106 + (k[1] == 86 and 3 or 0) - 1, "#d6a35a")
+  end
+  -- firewood pile against the garden wall
+  gshadow(30, 173, 16, 2, .32)
+  for row = 0, 2 do for k = 0, 3 - (row == 2 and 1 or 0) do
+    local lx, ly = 16 + k * 5 + (row % 2) * 2 + (row == 2 and 3 or 0), 169 - row * 4
+    local lg = c:ellipse(lx + 2, ly, 2, 2)
+    shade(lg, "#9a6a46", nil)
+    c:put(lx + 2, ly, "#e2c08a") c:put(lx + 1, ly - 1, "#c49a64")
+  end end
+  -- layered flame tongues with hot cores, embers and sparks
+  local fl0 = c:poly{ { 109, 224 }, { 112, 206 }, { 117, 212 }, { 120, 196 }, { 125, 210 }, { 129, 192 }, { 133, 208 }, { 137, 202 }, { 139, 224 } }
+  local core = fl0:copy():shrink(3)
+  c:fillMask(core, "#f8a63a")
+  c:fillMask(core:copy():shrink(2), "#ffd86a")
+  c:fillMask(core:copy():shrink(4), "#fff0b0")
+  for _, t in ipairs{ { 120, 197, 3 }, { 129, 193, 4 }, { 137, 203, 2 }, { 113, 207, 2 } } do
+    for k = 0, t[3] do c:put(t[1] + (k % 2), t[2] + k, k < 2 and "#ffd86a" or "#f8a63a") end
+  end
+  for _, p in ipairs{ { 106, 221 }, { 142, 222 }, { 112, 228 }, { 134, 229 }, { 125, 231 } } do c:put(p[1], p[2], "#ff9a46") c:put(p[1] + 1, p[2], "#c8482a") end
+  for _, p in ipairs{ { 114, 188 }, { 135, 190 }, { 127, 180 }, { 119, 183 } } do c:put(p[1], p[2], "#ffe08a") c:put(p[1] + 1, p[2] + 1, "#f8a63a") end
+  glow(123, 214, 34, 12, "#ffcf6a", .12)
+end
+
 ---------------------------------------------------------------- the gate frame: posts, beam, leaves, lanterns, teacup charm
 local postL = c:rect(0, 0, 13, H - 1) shade(postL, "#8a6444", TX.vplank(7))
 local postR = c:rect(466, 0, 479, H - 1) shade(postR, "#8a6444", TX.vplank(7))
