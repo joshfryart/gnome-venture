@@ -7197,6 +7197,9 @@ dialog.trailpop .fightbtns .choice-title { font-size: 13px; }
 /* 2.5.13: Wander off plays in a popover over the Trail section (read-only behind it) */
 dialog.trailpop.wanderpop .pickbox { width: min(560px, 96vw); max-height: 92dvh; }
 dialog.trailpop.wanderpop .hubcard { text-align: left; }
+.wc-banner { margin: -4px -4px 6px; line-height: 0; }
+.wc-banner img.wc-banner-img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.wc-mv, .wc-tier, .wc-found { vertical-align: middle; image-rendering: pixelated; }
 .wanderbehind .tmgrid button { pointer-events: none; }
 /* 2.5.14: tidy the wander popover: one title (the info line), smaller type, compact folds */
 dialog.wanderpop h1, dialog.wanderpop p.status { display: none; }

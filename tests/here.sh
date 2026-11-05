@@ -165,6 +165,14 @@ R=$(post adventure.php -d do=trail_wander)
 get adventure.php >/dev/null
 chk "wandering: the page is the Trail section (read-only) with the wander in a popover" "$(grep -q 'class="wanderbehind"' $TD/here-p.html && grep -q 'class="tilemap' $TD/here-p.html && grep -q 'class="picker hubpop trailpop trailsmall wanderpop"' $TD/here-p.html && grep -q 'class="wc-grid"' $TD/here-p.html && grep -q 'name="do" value="deeper"' $TD/here-p.html && grep -q 'value="return"' $TD/here-p.html && echo 1)"
 chk "...and the section behind it cannot be tapped (no reachable tile)" "$(grep -q 'tmt reach' $TD/here-p.html && echo 0 || echo 1)"
+echo "== wander card art hooks: a missing file draws nothing, a present file shows"
+chk "no wander art on disk: no banner, no tier badge, no move image" "$(! grep -q 'wc-banner' $TD/here-p.html && ! grep -q 'wc-tier' $TD/here-p.html && ! grep -q 'wc-mv' $TD/here-p.html && grep -q 'Go deeper' $TD/here-p.html && echo 1)"
+PNG1='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+for f in scenes/wander-grassland scenes/wander-coast scenes/wander-forest scenes/wander-desert scenes/wander-rainforest scenes/wander-mountain scenes/wander-wetland scenes/wander-tundra scenes/wander-island ico/wander-tier-gentle ico/wander-tier-wild ico/wander-deeper; do echo "$PNG1" | base64 -d > "$GAME/assets/img/$f.png"; done
+get adventure.php >/dev/null
+chk "wander art present: the banner, the tier badge and the move image show" "$(grep -q 'wc-banner' $TD/here-p.html && grep -q 'wc-tier' $TD/here-p.html && grep -q 'wc-mv' $TD/here-p.html && echo 1)"
+chk "...and a move with no image keeps its emoji" "$(grep -q '🔁' $TD/here-p.html || grep -q 'Back to the Trail' $TD/here-p.html && echo 1)"
+rm -f "$GAME"/assets/img/scenes/wander-*.png "$GAME"/assets/img/ico/wander-*.png
 R=$(post adventure.php -d do=return)
 R=$(get adventure.php)
 get adventure.php >/dev/null
