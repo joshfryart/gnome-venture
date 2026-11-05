@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.56
+- **Rest stop card wording**: a stop that earlier gnomes already built to the top tier says so ("Fully built already, tier 4 of 4, raised by gnomes who looked after it before you") instead of a bare "Every upgrade is built" right after you adopt it.
+
 ## 2.5.55
 - **Hand in materials inside the Rest stop popover**: when you look after the stop, its next upgrade's needs (stone, planks, logs, Petals...) each have a Hand in box right in the card. No trip to the passport page.
 

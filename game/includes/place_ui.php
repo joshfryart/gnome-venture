@@ -317,7 +317,7 @@ function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '',
         $h .= '<div class="box"><b>🏡 Take hold here</b>';
         if ($a && (int)$a['user_id'] === $uid) {
             $done = ($a['perk_day'] ?? '') === hollow_date('Y-m-d');
-            $h .= '<p>You look after ' . e($node['name']) . '. Tier ' . (int)$a['tier'] . '.</p>'
+            $h .= '<p>You now look after ' . e($node['name']) . '.</p>'
                 . $form('local', '_perk', '<button class="btn small"' . ($done ? ' disabled' : '') . '>🎁 ' . ($done ? 'Welcome taken today' : 'Collect the welcome') . '</button>')
                 . stop_slim_needs($u, $node, $a, $form);
         } elseif ($a && $a['user_id']) {
@@ -350,7 +350,7 @@ function stop_slim_needs(array $u, array $node, array $a, callable $form): strin
 {
     $tiers = stop_tiers_for($node);
     $next = (int)$a['tier'] + 1;
-    if (!isset($tiers[$next])) return '<p class="good"><b>🎉 Every upgrade is built.</b></p>';
+    if (!isset($tiers[$next])) return '<p class="good"><b>🎉 Fully built already</b> (tier ' . (int)$a['tier'] . ' of ' . stop_top_tier() . ', raised by gnomes who looked after it before you). Nothing to hand in: you keep the plaque and the daily welcome.</p>';
     $pool = stop_pool_of($a);
     $h = '<p><b>Next: ' . e((string)$tiers[$next]['name']) . '</b> needs:</p><ul class="st-needs">';
     foreach (stop_tier_needs($tiers[$next]) as [$k, $q]) {
