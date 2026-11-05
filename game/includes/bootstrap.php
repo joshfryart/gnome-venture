@@ -499,6 +499,10 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
                 q("UPDATE locations SET description = ? WHERE kind = 'haven' AND name = ? AND description <> ?", [$row[4], $row[3], $row[4]]);
             }
         });
+        boot_step('living_stops_2572', function () {   // 2.5.72: the living-stops acts (thread, meter answers) join existing installs
+            require_once __DIR__ . '/stops.php';
+            stops_import_regional();
+        });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';
             if ((string)setting('db_version') !== '') post_update_news((string)setting('db_version'));   // v0.7.55: news post for players

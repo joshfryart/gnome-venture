@@ -1,0 +1,9 @@
+# What an act needs to be offered, and which meters it moves (v2.5.72).
+# slug | needs | moves      ("-" = none)
+# needs: parts joined by "/": meter:NAME<N, meter:NAME>=N (NAME = repairs, larder, cheer), fam>=LEVEL (stranger, regular, local, pillar)
+# moves: comma list meter:NAME+N. An act with no row here moves one meter by its tag (fix/craft = repairs, cook/gather/tend = larder, play/lore/trade/rest = cheer).
+mend_board|meter:repairs<60|meter:repairs+20
+tidy_yard|meter:repairs<60|meter:repairs+15
+fill_shelf|meter:larder<60|meter:larder+20
+hang_lanterns|meter:cheer<60|meter:cheer+20
+host_table|fam>=local|meter:cheer+25,meter:larder+10

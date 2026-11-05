@@ -1,0 +1,8 @@
+# Living-stops acts (v2.5.72). Same columns as stop_acts.txt plus a region. Who sees an act that has a row in stop_act_state.txt "needs" is decided there.
+# thread_go is the carrier for a story beat (data/stop_threads.txt): the name and text are filled in per player, so its stop type never matches.
+thread_go|A story at this stop|📜|thread|-|0|thread|1|-|-|-|The next part of a story that has been going on here.|You add your part to it.|
+mend_board|Mend the notice board|🔨|any|-|0|check|2|grit:0:Hammer it straight|c=10:3,xp=5:1,fp=1|xp=2|The notice board leans and the nails are loose.|Straight again, and the notices stay up.|
+tidy_yard|Patch the path|🪵|any|-|0|check|2|grit:6:Lay planks;sense:5:Find the soft spots|c=12:3,xp=6:1,item=rope:1@40|xp=2|The path has gone soft in places.|You pace it out and it holds.|It swallows a boot. Next time.
+fill_shelf|Stock the shelf|🧺|any|-|0|check|2|hardiness:0:Carry the baskets|c=10:3,xp=5:1,crop=1@50,fp=1|xp=2|The shelves are nearly bare. Anything helps.|The shelf looks happy again.|
+hang_lanterns|String the lanterns|🏮|any|-|0|check|2|nimble:6:Climb and tie;charm:5:Get the children to help|c=10:3,xp=5:1,buff=charm:1:30@50|xp=2|There is bunting and nobody to hang it.|It glows, and people drift over to look.|A knot slips. You start again.
+host_table|Host the long table|🍲|any|-|0|check|3|charm:7:Make everyone welcome|c=20:5,xp=9:2,fp=2|xp=2|Folk who know you well are asking you to say a few words.|You get a standing ovation from a goat.|

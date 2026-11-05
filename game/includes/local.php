@@ -36,9 +36,9 @@ function local_card(array $u, array $loc): array
     $types = stop_types();
     $t = $types[stop_type_of($loc)] ?? null;
     [$done, $here, $all] = stop_state((int)$u['id'], (int)$loc['id'], stop_visit_key($u));
-    $slots = stop_slots($loc);
+    $slots = stop_slots($loc, (int)$u['id']);
     $left = max(0, $slots - count($done));
-    $capped = $here >= max(1, (int)setting('stop_daily_cap'));   // v1.4.9: only the per-stop limit stops you
+    $capped = $here >= max(1, (int)setting('stop_daily_cap')) + stop_perk_bonus((int)$u['id'], (int)$loc['id']);   // v1.4.9: only the per-stop limit stops you
     if ($capped) return [($t['icon'] ?? '🪧') . ' ' . ($t['name'] ?? 'Rest stop') . ': that’s enough here for today. Walk on and see what’s happening elsewhere!', 'See the stop →'];
     if ($left === 0) return [($t['icon'] ?? '🪧') . ' ' . ($t['name'] ?? 'Rest stop') . ': you’ve done all ' . $slots . ' things this visit. Walk on and come back for more!', 'See the stop →'];
     return [($t['icon'] ?? '🪧') . ' ' . ($t['name'] ?? 'Rest stop') . ': ' . $left . ' of ' . $slots . ' things left this visit, and ' . count(stop_folk_of($loc)) . ' villagers to meet.', 'Stay a while →'];
@@ -144,6 +144,8 @@ function local_act_buttons(array $u, array $loc, array $a, bool $locked): string
             $h = '<span class="st-picks">';
             foreach ($moves as $i => $mv) $h .= '<button class="btn small alt" name="move" value="' . $i . '"' . $dis . '>' . e($mv) . '</button> ';
             return $f($h . '</span>') . '<span class="help">Each move beats one of the others and loses to the third.</span>';
+        case 'thread':   // v2.5.72
+            return local_form($slug, choice_row('📜', 'Part ' . (int)($a['beat'] ?? 1) . ' of ' . (int)($a['beats'] ?? 1), 'One part of this story a day', '', '', ltrim($dis)), 'choiceform');
         case 'gossip':
             return $f('<button class="btn small"' . $dis . '>Sit and listen</button>') . '<span class="help">you might hear of a hidden place</span>';
         case 'lore':
@@ -416,13 +418,13 @@ function local_panel(array $u, array $loc): string
     $ambLine = $amb[array_search($now['dp'], ['dawn', 'day', 'dusk', 'night'], true)] ?? ($amb[0] ?? '');
     $visit = stop_visit_key($u);
     [$done, $here, $all, $rests] = stop_state($uid, (int)$loc['id'], $visit);
-    $slots = stop_slots($loc);
+    $slots = stop_slots($loc, $uid);
     $left = max(0, $slots - count($done));
-    $capHere = max(1, (int)setting('stop_daily_cap'));
+    $capHere = max(1, (int)setting('stop_daily_cap')) + stop_perk_bonus($uid, (int)$loc['id']);
     $capAll = max(1, (int)setting('stop_daily_total'));
     $capped = $here >= $capHere;   // v1.4.9: the daily total is a soft limit (rewards halve), never a stop
     $tired = $all >= $capAll;
-    $pool = stop_pool($loc, $now);
+    $pool = stop_pool($loc, $now, $uid);
     $adoption = stop_adoption((int)$loc['id']);
     $tier = $adoption ? (int)$adoption['tier'] : 0;
 
@@ -462,7 +464,7 @@ function local_panel(array $u, array $loc): string
     $h .= '</nav>';
 
     if ($tab === 'stop') {
-        $h .= '<p class="st-intro muted">' . e((string)$t['intro']) . '</p>' . stop_plaque($loc);
+        $h .= '<p class="st-intro muted">' . e((string)$t['intro']) . '</p>' . stop_board_html($u, $loc) . stop_plaque($loc);
         if ($pool['tiers'] && stop_adopt_limit() > 0) {
             $h .= '<details class="st-later"><summary>🏡 Unlocked by an adopter (' . count($pool['tiers']) . ')</summary><ul>';
             foreach ($pool['tiers'] as $a) $h .= '<li>' . e((string)$a['icon']) . ' <b>' . e((string)$a['name']) . '</b> <small class="muted">needs tier ' . (int)$a['tier'] . '</small></li>';
@@ -491,6 +493,7 @@ function local_panel(array $u, array $loc): string
 
     // activities
     // v2.0.67: felt scene cards (mockup2); each opens a sheet with the blurb and the same forms as before
+    $h .= stop_meters_html($uid, (int)$loc['id']);   // v2.5.72
     $head = '<h3 class="st-h gx-h">🧭 Things to do <span class="gx-h__sub">' . ($capped ? 'enough here today' : $left . ' of ' . $slots . ' left this visit') . '</span></h3><div class="gcards docards">';
     $locked = $capped || $left === 0;
     $why = $capped ? 'Enough here today' : ($left === 0 ? 'Walk on for more' : '');

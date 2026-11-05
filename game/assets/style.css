@@ -1931,6 +1931,13 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
 .st-head h2 { margin: 0 0 2px; font-size: 20px; color: inherit; }
 .st-amb { margin: 0 0 6px; font-style: italic; }
 .st-hap { margin: 0 0 8px; padding: 6px 10px; border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 4px; }   /* v2.5.72: what is going on here today */
+.st-meters { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; }   /* v2.5.72: the three meters of a stop */
+.st-meters label { display: flex; align-items: center; gap: 6px; font-size: 0.9em; }
+.st-meters meter { width: 90px; height: 12px; }
+.st-perk { margin: 0 0 8px; padding: 6px 10px; border-left: 4px solid var(--good, #4a8); background: var(--accent-soft); border-radius: 4px; }
+.st-board { margin: 0 0 12px; padding: 8px 12px; border: 1px solid var(--line, #ccc); border-radius: 6px; }
+.st-board h4 { margin: 8px 0 2px; font-size: 0.95em; }
+.st-board ul { margin: 0; padding-left: 18px; }
 .st-chips { margin: 0; display: flex; flex-wrap: wrap; gap: 4px; }
 .st-chips .chip { background: var(--surface); color: var(--ink); font-size: 12px; }
 /* time of day: the same stop looks different at dawn, dusk and night */

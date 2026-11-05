@@ -84,3 +84,12 @@ Admin page + tests per step (`tests/stops100.sh` pattern; add `tests/stopstate.p
 - Headline strip (`.st-hap`) on the town stop card and on a happening act's card on the Here picture.
 - Tests: `tests/stops100.php` section "happenings" (129 checks pass in `stops100.sh`).
 - Next: step 3 (per-player meters + `needs=`/`moves=` on acts, notice board, perk), step 4 calendar, 5 props, 6 threads.
+
+## 9. BUILT 2.5.72 (UNRELEASED, branch only): steps 3, 4, 6 (code)
+- `includes/stop_living.php` (new): meters (`meter:<name>` in `stop_prog`; repairs, larder, cheer; +10 per act by tag, -6 a day on read; 100 = restarts at 30 and a PERK for 3 days: +1 thing per visit and +1 turn a day at that stop), familiarity (stranger 0, regular 3, local 20, pillar 60 things done or adopter), needs/moves, calendar, threads, notice board.
+- Data: `stop_act_state.txt` (slug|needs|moves), `stop_acts_living.txt` (thread_go carrier + 5 answer acts), `stop_calendar.txt` (8 rules; a calendar day is today's happening, `c_<id>`, and doubles meter gain), `stop_threads.txt` (3 stories, 4 beats, one beat a day, Regular+, last beat pays).
+- `stop_pool($loc, $now, $uid)`: order = specials, meter/standing answers (max 2), thread beat, happening acts, core, extras, upgrades. `stop_slots($loc, $uid)`. Boot step `living_stops_2572` imports the new acts on existing installs.
+- UI: meter bars + perk line on the Do tab, notice board on the Stop tab (coming up, needs help, done lately, standing), `.st-meters/.st-perk/.st-board` CSS.
+- Admin: `admin/livingstops.php` (read-only preview, menu Rest stops).
+- Tests: `tests/stops100.php` "living stops" section; stops100.sh 181 ok; heredo.sh passes.
+- Not done: step 5 prop overlays (art). Journal line for a full meter (perk is shown on the card only). Phone check.

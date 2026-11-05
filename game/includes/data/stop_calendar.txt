@@ -1,0 +1,11 @@
+# What the calendar does at a stop (v2.5.72). Real UTC dates, like upkeep. A day on the calendar is today's happening there and doubles the gain of meters.
+# rule | id | icon | name | headline ({place}) | stop types (comma or any) | regions (comma, blank = all) | tags (see stop_happenings.txt) | goal
+# rules: weekly:sat  monthly:first:sun  monthly:last:sun  date:06-21  range:12-20..12-26 (month-day, may wrap the year)
+weekly:sat|market_sat|🧺|Saturday market|Stalls fill the square at {place}, and everybody has something to swap.|market,jetty,ferry,inn|||trade,cook|Fill the Cheer bar
+monthly:first:sun|mend_sun|🔨|Mend-up Sunday|Hammers ring out at {place}: it is the first Sunday, and the whole stop gets fixed up.|any|||fix,craft|Fill the Repairs bar
+date:03-20|spring_fair|🌷|Spring fair|The spring fair has come to {place}. Everything smells of blossom.|any|||play,trade|Fill the Cheer bar
+date:06-21|midsummer|🔥|Midsummer night|Fires are lit at {place} for the longest day.|any|||play,lore,cook|Fill the Cheer bar
+range:09-20..09-27|harvest_week|🌾|Harvest week|Baskets pile up at {place}. There is plenty to carry and plenty to eat.|any|||gather,cook,tend|Fill the Larder bar
+date:10-31|lantern_night|🏮|Lantern night|Lanterns hang from every post at {place}, and the children are dressed as badgers.|any|||play,lore|Fill the Cheer bar
+range:12-20..12-26|midwinter|❄️|Midwinter feast|A long table is set at {place} and everybody is invited.|any|||cook,lore,rest|Fill the Larder bar
+range:02-10..02-14|carnival|🎭|Carnival|Drums at {place}, and feathers, and dancing in the road.|any|SA,CB,CA||play,trade|Fill the Cheer bar

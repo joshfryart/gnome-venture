@@ -16,6 +16,8 @@ require_once __DIR__ . '/garden_logic.php';   // UserError, spend_energy
 require_once __DIR__ . '/hollow_clock.php';
 require_once __DIR__ . '/events.php';   // apply_event_effect (energy, buffs)
 
+require_once __DIR__ . '/stop_living.php';
+
 const STOP_DP_WORDS = ['dawn' => 'at dawn', 'day' => 'by day', 'dusk' => 'at dusk', 'night' => 'at night'];
 const STOP_WEATHER_WORDS = ['sun' => 'sunny', 'cloud' => 'cloudy', 'rain' => 'rainy', 'storm' => 'stormy', 'frost' => 'frosty', 'heat' => 'hot', 'wind' => 'windy', 'fog' => 'foggy', 'snow' => 'snowy'];
 
@@ -263,7 +265,7 @@ function stops_import_themes(): int
 function stops_import_regional(): int
 {
     $n = 0;
-    foreach (array_merge(stops_file_rows('stop_acts_regional.txt'), stops_file_rows('stop_acts_waves.txt')) as $r) {
+    foreach (array_merge(stops_file_rows('stop_acts_regional.txt'), stops_file_rows('stop_acts_waves.txt'), stops_file_rows('stop_acts_living.txt')) as $r) {
         if (count($r) < 12 || q_val('SELECT 1 FROM stop_acts WHERE slug = ?', [$r[0]])) continue;
         try {
             db_insert('stop_acts', ['slug' => $r[0], 'name' => $r[1], 'icon' => $r[2], 'types' => $r[3], 'cond' => $r[4], 'tier' => (int)$r[5], 'kind' => $r[6], 'energy' => (int)$r[7],
@@ -454,6 +456,7 @@ function stop_happenings(): array
             $h[$r[0]] = ['id' => $r[0], 'icon' => $r[1], 'name' => $r[2], 'headline' => $r[3], 'types' => $r[4], 'cond' => $r[5],
                 'tags' => array_values(array_filter(array_map('trim', explode(',', $r[6])))), 'weight' => max(1, (int)$r[7])];
         }
+        foreach (stop_calendar() as $ev) $h[$ev['id']] = $ev;   // v2.5.72: calendar days are happenings too (marked 'cal'), picked by date and never by the daily roll
     }
     return $h;
 }
@@ -466,7 +469,9 @@ function stop_happening(array $loc, array $now): ?array
 {
     $type = stop_type_of($loc);
     $fit = [];
+    if ($ev = stop_cal_event($loc, hollow_date('Y-m-d'))) return $ev;   // v2.5.72: a day on the calendar beats the daily roll
     foreach (stop_happenings() as $hp) {
+        if (!empty($hp['cal'])) continue;
         $ts = array_map('trim', explode(',', $hp['types']));
         if (!in_array('any', $ts, true) && !in_array($type, $ts, true)) continue;
         if (!stop_cond_ok($hp['cond'], $now)) continue;
@@ -506,10 +511,10 @@ function stop_act_tags(array $a): array
 
 // ---------------------------------------------------------------- what is on offer
 
-function stop_slots(array $loc): int
+function stop_slots(array $loc, int $uid = 0): int
 {
     require_once __DIR__ . '/stop_adopt.php';
-    return max(1, min(9, (int)setting('stop_slots') + (stop_tier((int)$loc['id']) >= 4 ? 1 : 0)));
+    return max(1, min(9, (int)setting('stop_slots') + (stop_tier((int)$loc['id']) >= 4 ? 1 : 0) + stop_perk_bonus($uid, (int)$loc['id'])));   // v2.5.72: a full meter gives one more
 }
 
 /**
@@ -536,7 +541,7 @@ function stop_diverse(array $list, int $n, array $kinds): array
  * The activities at a stop right now.
  * ['offer' => [act rows, in order, with ['now' => bool special]], 'later' => [act rows that need another time], 'tiers' => [act rows from upgrades still to build]]
  */
-function stop_pool(array $loc, ?array $now = null): array
+function stop_pool(array $loc, ?array $now = null, int $uid = 0): array
 {
     require_once __DIR__ . '/stop_adopt.php';
     $now ??= stop_now($loc);
@@ -544,7 +549,7 @@ function stop_pool(array $loc, ?array $now = null): array
     $region = stop_region_code($loc);
     $tier = stop_tier((int)$loc['id']);
     $day = hollow_date('Y-m-d');
-    $plain = $special = $later = $upgrades = $lockedUp = [];
+    $plain = $special = $later = $upgrades = $lockedUp = $answer = [];
     foreach (stop_acts() as $slug => $a) {
         $ts = array_map('trim', explode(',', (string)$a['types']));
         $explicit = in_array($type, $ts, true);
@@ -562,6 +567,11 @@ function stop_pool(array $loc, ?array $now = null): array
         }
         if ($gated) {
             if (stop_cond_ok((string)$a['cond'], $now)) { $a['now'] = true; $special[] = $a; } else $later[] = $a;
+            continue;
+        }
+        $needs = stop_act_state()[(string)$a['slug']]['needs'] ?? '';
+        if ($needs !== '') {   // v2.5.72: an act that answers a meter or a standing: only for a player who meets it, and then first
+            if ($uid > 0 && stop_needs_ok($needs, $uid, (int)$loc['id'])) $answer[] = $a + ['need' => true];
             continue;
         }
         $a['explicit'] = $explicit;
@@ -583,10 +593,12 @@ function stop_pool(array $loc, ?array $now = null): array
     $used = array_column($core, 'slug');
     $rest = array_values(array_filter($plain, fn($a) => !in_array($a['slug'], $used, true)));
     usort($rest, fn($x, $y) => crc32('day|' . $day . '|' . $loc['slug'] . '|' . $x['slug']) <=> crc32('day|' . $day . '|' . $loc['slug'] . '|' . $y['slug']));
-    $extra = stop_diverse($rest, max(0, (int)setting('stop_extra') - count($hapActs)), array_column($core, 'kind'));
+    $extra = stop_diverse($rest, max(0, (int)setting('stop_extra') - count($hapActs) - count($answer)), array_column($core, 'kind'));
     usort($special, fn($x, $y) => crc32('sp|' . $day . $loc['slug'] . $x['slug']) <=> crc32('sp|' . $day . $loc['slug'] . $y['slug']));
     $special = array_slice($special, 0, 3);
-    return ['offer' => array_merge($special, $hapActs, $core, $extra, $upgrades), 'later' => $later, 'tiers' => $lockedUp, 'happening' => $hap];
+    $answer = array_slice($answer, 0, 2);
+    $thread = $uid > 0 ? stop_thread_offer($uid, $loc) : null;
+    return ['offer' => array_merge($special, $answer, $thread ? [$thread] : [], $hapActs, $core, $extra, $upgrades), 'later' => $later, 'tiers' => $lockedUp, 'happening' => $hap];
 }
 
 /** What's been done: [slugs this visit, number today at this stop, number today anywhere, rests today anywhere]. */
@@ -803,14 +815,14 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
     $acts = stop_acts();
     $a = $acts[$slug] ?? null;
     if (!$a) return [false, 'There’s nothing like that here.'];
-    $pool = stop_pool($loc);
+    $pool = stop_pool($loc, null, $uid);
     $offered = array_column($pool['offer'], null, 'slug');
     if (!isset($offered[$slug])) return [false, 'That isn’t on offer here right now.'];
     $visit = stop_visit_key($u);
     [$done, $here, $all, $rests] = stop_state($uid, (int)$loc['id'], $visit);
     if (in_array($slug, $done, true)) return [false, 'You’ve done that already on this visit.'];
-    if (count($done) >= stop_slots($loc)) return [false, 'You’ve done all you can on this visit. Walk on and come back for another go!'];
-    if ($here >= max(1, (int)setting('stop_daily_cap'))) return [false, 'The villagers have seen plenty of you today. Come back tomorrow!'];
+    if (count($done) >= stop_slots($loc, $uid)) return [false, 'You’ve done all you can on this visit. Walk on and come back for another go!'];
+    if ($here >= max(1, (int)setting('stop_daily_cap')) + stop_perk_bonus($uid, (int)$loc['id'])) return [false, 'The villagers have seen plenty of you today. Come back tomorrow!'];
     // v1.4.9: no daily total any more; after stop_daily_total things in a day, Petals and XP are halved (stop_rewards)
     $kind = (string)$a['kind'];
     if ($kind === 'rest' && $rests >= max(0, (int)setting('stop_rest_daily'))) return [false, 'You’ve rested plenty today. A rest stop can only do so much for tired feet!'];
@@ -834,7 +846,7 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
         // Claim the slot first, so a double click can't do it twice
         db_insert('stop_log', ['user_id' => $uid, 'location_id' => (int)$loc['id'], 'visit_key' => $visit, 'day' => $day, 'act' => $slug, 'kind' => $kind, 'note' => '', 'at' => now()]);
         [$d2, $h2, $a2, $r2] = stop_state($uid, (int)$loc['id'], $visit);   // v1.0.0: the limits again, counted with this action in (the checks above ran before the claim)
-        if (count($d2) > stop_slots($loc) || $h2 > max(1, (int)setting('stop_daily_cap')) || ($kind === 'rest' && $r2 > max(0, (int)setting('stop_rest_daily')))) {
+        if (count($d2) > stop_slots($loc, $uid) || $h2 > max(1, (int)setting('stop_daily_cap')) + stop_perk_bonus($uid, (int)$loc['id']) || ($kind === 'rest' && $r2 > max(0, (int)setting('stop_rest_daily')))) {
             throw new UserError('You’ve done all you can here for now. Come back later!');
         }
         if ($energy > 0 && !spend_energy($uid, $energy)) throw new UserError('You need ' . $energy . ' energy for that.');
@@ -1019,6 +1031,13 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
                 add_xp($uid, 2, 'rest_stop');
                 $msg = $icon . ' “Plant it in good soil, mind.”';
                 break;
+            case 'thread':   // v2.5.72
+                $th = (string)($offered[$slug]['thread'] ?? '');
+                if ($th === '') throw new UserError('That story has ended.');
+                $lines = stop_thread_do($fresh, $loc, $th);
+                $msg = $offered[$slug]['icon'] . ' ' . $offered[$slug]['blurb'];
+                $note = $th;
+                break;
             case 'gossip':
                 add_xp($uid, 3, 'rest_stop');
                 $lines[] = '+3 XP';
@@ -1041,6 +1060,7 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
     if ($folk) {   // a little chat tag so the villager appears in the text sometimes
         $msg = trim($msg);
     }
+    if ($kind !== 'thread') $lines = array_merge($lines ?? [], stop_living_after($u, $loc, $a));   // v2.5.72: the place remembers
     if (function_exists('calling_event')) calling_event($uid, 'townact', 'stop:' . $slug, 1, ['stop' => (string)$loc['slug']]);
     return [true, trim($msg . ($lines ? ' (' . implode(', ', $lines) . ')' : ''))];
 }

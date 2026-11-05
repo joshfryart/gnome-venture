@@ -303,7 +303,7 @@ function here_do_fronts(array $u, array $node, string $back, int $fronts, bool $
 {
     if ($fronts < 1 || (string)$node['kind'] !== 'village') return $fronts > 0 ? array_fill(0, $fronts, ['Do here', '🎯', '<p><a class="btn" href="' . e(url('town.php')) . '">Open this place ›</a></p>']) : [];
     require_once __DIR__ . '/local.php';
-    $pool = stop_pool($node);
+    $pool = stop_pool($node, null, (int)$u['id']);
     $visit = stop_visit_key($u);
     [$done] = stop_state((int)$u['id'], (int)$node['id'], $visit);
     $out = [];
@@ -351,7 +351,7 @@ function here_do_reply(array $u, string $slug, string $msg, bool $ok, string $ba
     $u = q_one('SELECT * FROM users WHERE id = ?', [(int)$u['id']]) ?: $u;
     $node = player_node($u);
     $a = null;
-    if (($node['kind'] ?? '') === 'village') foreach (stop_pool($node)['offer'] as $x) if ((string)$x['slug'] === $slug) { $a = $x; break; }
+    if (($node['kind'] ?? '') === 'village') foreach (stop_pool($node, null, (int)$u['id'])['offer'] as $x) if ((string)$x['slug'] === $slug) { $a = $x; break; }
     header('Content-Type: application/json; charset=utf-8');
     if (!$a) { echo json_encode(['ok' => false, 'msg' => $msg !== '' ? $msg : 'That is not here any more.', 'html' => ''], JSON_UNESCAPED_SLASHES); exit; }
     [$done] = stop_state((int)$u['id'], (int)$node['id'], stop_visit_key($u));
@@ -369,7 +369,7 @@ function here_stall_fronts(array $u, array $node, string $back, int $fronts): ar
 {
     if ($fronts < 1 || (string)$node['kind'] !== 'village') return [];
     require_once __DIR__ . '/local.php';
-    $stalls = array_values(array_filter(stop_pool($node)['offer'], fn($a) => in_array((string)$a['kind'], ['buy', 'snack'], true)));
+    $stalls = array_values(array_filter(stop_pool($node, null, (int)$u['id'])['offer'], fn($a) => in_array((string)$a['kind'], ['buy', 'snack'], true)));
     if (!$stalls) return [];
     [$done] = stop_state((int)$u['id'], (int)$node['id'], stop_visit_key($u));
     $row = function (array $a) use ($u, $node, $back, $done): string {
