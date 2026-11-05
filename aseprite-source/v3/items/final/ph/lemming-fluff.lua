@@ -23,7 +23,7 @@ G.toneN(c, st, X.pillow(st, 6), DK)
 st:each(function(x, y) if (x + y) % 4 == 0 then c:px(x, y, DK[1]) end end)
 -- face: tiny nose + eyes peeking
 c:fillMask(c:ellipse(40, 40, 2, 1), "#e8708a") c:px(39, 39, "#ffc0cc")
-c:fillMask(c:rect(35, 34, 36, 35), DK[1]) c:fillMask(c:rect(44, 34, 45, 35), DK[1]) c:px(35, 34, "#ffffff") c:px(44, 34, "#ffffff")
+c:fillMask(c:rect(35, 34, 36, 35), DK[1]) c:fillMask(c:rect(44, 34, 45, 35), DK[1]) c:px(35, 34, "#fff0c0") c:px(44, 34, "#fff0c0")
 -- highlight tufts
 c:fillMask(c:rect(22, 22, 25, 23), FUR[6]) c:px(21, 24, FUR[5]) c:px(26, 21, FUR[5])
 -- quirk: one stray curl strand on top

@@ -1,35 +1,38 @@
--- loach-scale (lean W2_8)
+-- loach-scale (lean P1b_O4)
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w=64, h=64, scale=1, name="loach-scale" }
-local abs, sqrt, atan2, pi = math.abs, math.sqrt, math.atan2 or function(y,x) return math.atan(y,x) end, math.pi
-local ICE = { "#5a6c98", "#8498c0", "#aebfdc", "#cbd9ee", "#e4eefa", "#f4faff" }
-local OLV = { "#3e3a20", "#665e2c", "#8e8440", "#b4a858", "#d6ca78", "#f0e6a0" }
-local tok = { r = { name = "scale" } }
--- fan-shaped scale: wide round front (top), narrow embedded root bottom-left
-local sc = HP.mask() sc:add(c:ellipse(32, 29, 17, 20))
-local n = X.pillow(sc, 10)
-G.toneN(c, sc, n, ICE, { tok = tok })
--- concentric circuli rings (centred low in the scale) + radial grooves from focus
-local fx, fy = 30, 40
-sc:each(function(x, y)
-  local dx, dy = x - fx, y - fy
-  local r = sqrt(dx*dx + dy*dy)
-  if r % 3.2 < 0.8 and r > 3 and y < 46 then c:put(x, y, (dx + dy < 0) and ICE[5] or ICE[2], tok) end
-  local ang = atan2(dy, dx)
-  for _, a in ipairs{ -2.35, -1.95, -1.57, -1.2, -0.8 } do
-    if abs(ang - a) * r < 0.55 and r > 5 and r < 24 then c:put(x, y, ICE[1], tok) end
-  end
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function sh(c, m, R, ramp, o) return G.toneN(c, m, X.pillow(m, R), ramp, o) end
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "loach-scale" }
+local SV = { "#4a5f8a", "#7a93bc", "#a9c0dc", "#cfe0ee", "#e6f2f8", "#f6fbfc" }
+local RM = { "#7a4a8c", "#b46aa8", "#e898b8", "#f6c8c0", "#ffe6c0" }
+c:groundShadow(32, 51, 18, 3)
+local cx, cy, rx, ry = 31, 29, 22, 20
+local m = c:ellipse(cx, cy, rx, ry)
+-- chip bite out of lower right (quirk)
+local bite = c:ellipse(50, 42, 5, 4)
+m:cut(bite)
+local n = X.pillow(m, 14)
+G.toneN(c, m, n, SV, { cuts = { 0.22, 0.4, 0.58, 0.74, 0.88 }, amb = 0.15 })
+-- growth rings around nucleus (off-centre toward lower right)
+local nx, ny = 36, 34
+m:each(function(x, y)
+  local d = sqrt((x - nx) ^ 2 + (y - ny) ^ 2)
+  if d % 4.5 < 1 and d > 3 then c:px(x, y, SV[2]) elseif d % 4.5 < 2 and d % 4.5 >= 1 and d > 3 and (x + y) % 2 == 0 and false then end
 end)
--- olive-gold skin patch where the scale was seated (lower-right), with pores
-local patch = HP.mask() patch:add(c:ellipse(40, 46, 11, 8)) patch:clip(sc:copy():grow(0))
-local pm = c:ellipse(33, 40, 17, 20) pm = HP.mask() pm:add(c:ellipse(32, 29, 17, 20))
-patch:each(function(x, y) if (x - 40)*0.7 + (y - 46) > 2 then end end)
-local seat = HP.mask()
-sc:each(function(x, y) if (x - 32) * 0.6 + (y - 29) * 0.8 > 15 and (x - 32) > -6 then seat:set(x, y) end end)
-G.toneN(c, seat, X.pillow(seat, 6), OLV, { tok = tok })
-for _, p in ipairs{ {37,47},{41,44},{44,48},{39,51},{43,52} } do if seat:has(p[1], p[2]) then c:put(p[1], p[2], OLV[1], tok) end end
--- spec glint + quirk: a tiny pink-blue iridescent streak
-c:put(23, 17, "#fff6f2", tok) c:put(24, 17, "#fff6f2", tok) c:put(23, 18, "#fff6f2", tok)
-for i = 0, 8 do c:put(34 + i // 2, 13 + i, (i % 2 == 0) and "#f4b4e0" or "#a0e0f0", tok) end
+-- radial ridges fanning from nucleus to upper-left edge
+for _, a in ipairs{ 3.4, 3.9, 4.4, 4.9, 5.3 } do
+  for r = 6, 30 do
+    local x, y = floor(nx + cos(a) * r + 0.5), floor(ny + sin(a) * r + 0.5)
+    if m:has(x, y) and r > 7 then c:px(x, y, SV[1 + (r % 2)]) end
+  end
+end
+-- iridescent rim crescent lower-right
+m:each(function(x, y)
+  local d = sqrt((x - cx) ^ 2 / (rx * rx) + (y - cy) ^ 2 / (ry * ry))
+  if d > 0.86 and x + y > 62 then c:px(x, y, RM[1 + floor((x - y + 40) / 5) % 4]) end
+end)
+c:fillMask(c:ellipse(37, 35, 2, 2), RM[3]) c:px(37, 35, RM[5])
+-- spec glint upper left
+for _, p in ipairs{ {18,17},{19,16},{20,15},{17,18} } do c:px(p[1], p[2], SV[6]) end
 G.save(c, "loach-scale")

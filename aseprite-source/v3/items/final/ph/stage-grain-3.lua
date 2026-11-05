@@ -1,63 +1,62 @@
--- stage-grain-3 (lean W2_23)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-grain-3 (lean P1b_O11)
+local NAME = "stage-grain-3"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local CUT = { 0.2, 0.38, 0.55, 0.7, 0.86 }
-local SOIL = { "#2a1a1e", "#4a2e2a", "#6b4232", "#8d5c3e", "#b07a4e", "#cf9a66" }
-local function part(c, m, ramp, R, amb)
-  local n = X.pillow(m, R)
-  G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, CUT)
-  return n
+local function ball(m, R, ramp, nm, o) local n = X.pillow(m, R) o = o or {} o.tok = { r = { name = nm } } if not o.cuts then o.cuts = {0.2,0.38,0.55,0.72,0.86} end G.toneN(c, m, n, ramp, o) return n end
+local SOIL = { "#1e1218", "#3a2420", "#5e3a2a", "#86583a", "#ae7e4a" }
+local BL = { "#143a2c", "#20603a", "#38884a", "#5cae54", "#8ed068", "#c4ee90" }
+local GOLD = { "#6a3c10", "#a2641a", "#d49a2a", "#f0c446", "#ffe27a", "#fff4b8" }
+local BARK = { "#2a1a1c", "#4a2e26", "#6e4630", "#946238", "#bc8a50" }
+local function base()
+  c:groundShadow(32, 56, 24, 3)
+  local soil = c:ellipse(32, 50, 22, 7)
+  soil:add(c:ellipse(32, 47, 15, 6))
+  ball(soil, 9, SOIL, "soil", { amb = 0.1, wrap = 0.2 })
+  soil:each(function(x, y) local h = X.hash(x, y, 5) if h > 0.9 then c:put(x, y, SOIL[5], { r = { name = "soil" } }) elseif h < 0.07 then c:put(x, y, SOIL[1], { r = { name = "soil" } }) end end)
+  for _, p in ipairs{ {16,52},{17,52},{48,52},{49,52},{47,53} } do c:put(p[1], p[2], "#b8a898", { r = { name = "pb" } }) end
+  for _, p in ipairs{ {18,53},{50,53} } do c:put(p[1], p[2], "#6a5a60", { r = { name = "pb" } }) end
 end
-local function soil(c)
-  local m = c:ellipse(32, 50, 23, 8)
-  part(c, m, SOIL, 8, 0.05)
-  m:each(function(x, y) local h = X.hash(x, y, 3)
-    if h > 0.93 then c:px(x, y, SOIL[5]) elseif h < 0.05 then c:px(x, y, SOIL[1]) end end)
+local function blade(ax, ay, cx, cy, bx, by, w, nm, ramp, rib)
+  ramp = ramp or BL
+  local m, n, T, S = G.blade(ax, ay, cx, cy, bx, by, function(t) if t > 0.985 then return -1 end return max(0.5, w * (1 - t) ^ 0.7 + 0.3) end, { fold = 0.5 })
+  local tok = { r = { name = nm } }
+  G.toneN(c, m, n, ramp, { tok = tok, cuts = {0.18,0.34,0.5,0.66,0.82}, amb = 0.1, wrap = 0.2 })
+  m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.14 and T[k] > 0.1 and T[k] < 0.9 then c:put(x, y, S[k] <= 0 and ramp[6] or ramp[2], tok) end end)
   return m
 end
-local function stalk(c, pts, w, ramp)
-  local m, n = G.tube(pts, function(t) return w end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), ramp, CUT)
+local function oval(cx, cy, rx, ry, ramp, nm) local m = c:ellipse(cx, cy, rx, ry) ball(m, max(rx, ry) + 0.5, ramp, nm) return m end
+local function stalk(p, w, ramp, nm)
+  local m, n = G.tube(p, function(t) return w end)
+  G.toneN(c, m, n, ramp, { tok = { r = { name = nm } }, cuts = {0.3,0.55,0.8}, amb = 0.12, wrap = 0.25 })
   return m
 end
-local function blade(c, pts, wmax, ramp)
-  local m, n = G.tube(pts, function(t) return max(0.5, wmax * sin(pi * min(1, t * 0.9 + 0.1)) ^ 0.7) end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), ramp, CUT)
-  return m
-end
-
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-grain-3" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local EAR  = { "#2f5a34", "#47763a", "#6b9a3f", "#90b94a", "#b6d460", "#dcea8c" }
-local AWN  = { "#6a8a3a", "#8fb04a", "#b9d46c", "#e0eea0" }
-c:groundShadow(32, 56, 24, 3)
-soil(c)
-blade(c, { {20,48}, {14,42}, {10,36}, {6,34} }, 2.6, LEAF)
-blade(c, { {44,48}, {50,42}, {54,37}, {58,36} }, 2.6, LEAF)
-local ears = { {21, 21, 3.4, 7.5}, {32, 15, 3.8, 8.5}, {43, 20, 3.4, 7.5} }
-for i, e in ipairs(ears) do
-  local cx, cy = e[1], e[2]
-  stalk(c, { {cx + (i - 2) * -1, 50}, {cx, 40}, {cx, 30}, {cx, cy + 4} }, 1.2, LEAF)
-  -- awns spray above the ear
-  for k = -2, 2 do
-    G.line(c, { {cx + k, cy - e[4] + 2}, {cx + k * 2, cy - e[4] - 4} }, AWN[2 + (k % 2)])
+base()
+local SG = { "#1c4a30", "#2e7040", "#4a9650", "#72b85c", "#a0d878", "#d0f4a0" }
+-- green wheat ears on stalks
+local function ear(cx, top, bot, nm)
+  stalk({ {cx,48},{cx,40},{cx+((cx>32) and 1 or -1),32},{cx,bot} }, 1.4, SG, nm.."s")
+  local y = bot
+  local k = 0
+  while y > top do
+    local ml = c:ellipse(cx - 1, y, 1.6, 2.2) local mr = c:ellipse(cx + 1, y - 1, 1.6, 2.2)
+    ball(ml, 2.5, SG, nm..k) ball(mr, 2.5, SG, nm..k)
+    y = y - 3 k = k + 1
   end
-  local m = c:ellipse(cx, cy, e[3], e[4])
-  local n = part(c, m, EAR, 3.6)
-  -- grain pairs: chevron rows
-  m:each(function(x, y)
-    local ry = (y - cy + e[4])
-    if ry % 3 == 1 and abs(x - cx) < e[3] - 0.5 then
-      local d = abs(x - cx)
-      if floor(ry / 3) % 2 == 0 and d >= 1 then c:px(x, y, EAR[2]) else c:px(x, y, EAR[1]) end
-    end
-  end)
-  c:px(cx - 1, cy - 3, EAR[6]) c:px(cx - 1, cy - 2, EAR[5])
-  -- leaf sheath wrapped at the base of the ear
-  blade(c, { {cx, cy + e[4] + 6}, {cx - 2, cy + e[4] + 2}, {cx - 1, cy + e[4] - 2}, {cx, cy + e[4] - 4} }, 2.0, LEAF)
+  -- awns
+  for i = 0, 2 do c:put(cx - 1 + i, top - 1 - (i % 2), SG[5], { r = { name = nm.."a" } }) end
+  c:put(cx - 2, top - 3, SG[4], { r = { name = nm.."a" } }) c:put(cx, top - 4, SG[5], { r = { name = nm.."a" } }) c:put(cx + 2, top - 3, SG[4], { r = { name = nm.."a" } })
+  c:put(cx, top - 5, SG[6], { r = { name = nm.."a" } })
 end
--- quirk: a dewdrop on the middle awn tip, and a little ladybird on a blade
-c:px(33, 3, "#e8f6ff") c:px(33, 4, "#8cc4e8")
-c:fillMask(c:ellipse(12, 37, 1.5, 1), "#c4342e") c:px(11, 37, "#2b1c26") c:px(12, 36, "#f0807a")
-G.fin(c, "stage-grain-3")
+blade(31, 47, 20, 36, 8, 34, 3.4, "f1")
+blade(34, 47, 46, 34, 57, 36, 3.4, "f2")
+blade(32, 47, 24, 42, 16, 44, 2.6, "f3")
+ear(21, 14, 30, "e1")
+ear(32, 8, 27, "e2")
+ear(43, 14, 30, "e3")
+-- quirk: ladybird on the flag leaf
+local lb = c:ellipse(14, 34, 2, 1.5)
+G.toneN(c, lb, X.pillow(lb, 2), { "#701018", "#b82028", "#e84840" }, { tok = { r = { name = "lady" } }, cuts = {0.4,0.75} })
+c:put(14, 33, "#2b1c26", { r = { name = "lady" } }) c:put(13, 35, "#2b1c26", { r = { name = "lady" } })
+G.save(c, NAME)

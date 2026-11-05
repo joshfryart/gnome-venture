@@ -7,10 +7,10 @@ local function dot(c, x, y, h) c:px(x, y, h) end
 local c = HP.canvas{ w=64, h=64, scale=1, name="hollowheart-tree" }
 local LEAF = { "#183a34", "#235a3c", "#388046", "#58a64c", "#86c85a", "#bbe47e" }
 local BARK = { "#2a1a1c", "#4a2c26", "#6e4430", "#946444", "#b8875a", "#d8aa78" }
-c:groundShadow(32, 58, 14, 3)
+c:groundShadow(32, 55, 14, 3)
 -- trunk: flared tube
-local tm, tn = G.tube({{32,58},{31,50},{33,40},{32,30}}, function(t) return 8.2 - 4.2 * t end)
-tm:add(c:poly{{20,58},{28,50},{36,50},{45,58}}):add(c:ellipse(32,56,13,3))
+local tm, tn = G.tube({{32,55},{31,48},{33,39},{32,30}}, function(t) return 8.2 - 4.2 * t end)
+tm:add(c:poly{{21,55},{28,48},{36,48},{44,55}}):add(c:ellipse(32,53,12,3))
 local bias = {}
 local ti = G.toneN(c, tm, X.pillow(tm, 8), BARK, { bias = bias })
 tm:each(function(x, y) if (x % 4 == 1 or (x + y) % 9 == 0) and X.hash(x, y, 2) > 0.3 and y > 33 then c:px(x, y, BARK[2]) end end)
@@ -23,7 +23,7 @@ shade(c, heart, 5, { "#7a2a1c", "#b8481e", "#e0762a", "#f6a63c", "#ffd36a", "#ff
 c:px(28, 42, "#fff6c0") c:px(29, 42, "#fff6c0")
 -- canopy: cluster of blobs
 local can = HP.mask()
-for _, b in ipairs{ {32,18,13,10},{20,24,9,8},{44,24,9,8},{26,12,9,7},{39,12,9,7},{32,26,12,6} } do can:add(c:ellipse(b[1], b[2], b[3], b[4])) end
+for _, b in ipairs{ {32,19,13,10},{20,25,9,8},{44,25,9,8},{26,14,9,7},{39,14,9,7},{32,27,12,6} } do can:add(c:ellipse(b[1], b[2], b[3], b[4])) end
 local n = X.pillow(can, 9)
 local cb = {}
 can:each(function(x, y) local h = X.hash(floor(x / 3), floor(y / 3), 5) if h > 0.72 then cb[K(x, y)] = 1 elseif h < 0.2 then cb[K(x, y)] = -1 end end)

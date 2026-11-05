@@ -85,15 +85,15 @@ local function mkBell(cx, y0, y1, R0, flare, nl, depth)
     local nx = px_ / h
     local val = 0.60 + 0.30 * (-nx) * 0.9 + 0.10 * (1 - t) - 0.05 * t
     if y > y1 - 0.5 then val = 0.80 - 0.18 * math.abs(nx) end         -- flared lip catches light
-    if y > y1 - 3.5 and y <= y1 - 0.5 and math.abs(nx) < 0.82 then val = 0.30 end -- dark mouth
+    if y > y1 - 3.5 and y <= y1 - 0.5 and math.abs(nx) < 0.82 then val = 0.40 end -- dark mouth
     if (f < 0.09 or f > 0.93) and t > 0.35 and y <= y1 - 0.5 then val = val - 0.2 end -- petal seams
     if y > y1 - 0.5 and (f < 0.1 or f > 0.92) then val = 0.40 end
     if y < y0 + 1.5 then val = val + 0.08 end
     return ramp(val)
   end
 end
-local big = mkBell(24, 14, 40, 10, 4, 5, 4)
-local small = mkBell(48, 28, 42, 6, 2.5, 5, 3)
+local big = mkBell(24, 14, 38, 10, 4, 4, 7)
+local small = mkBell(48, 28, 41, 6, 2.5, 3, 5)
 local petals = build(function(x, y) return small(x, y) or big(x, y) end)
 -- draw big over small where overlapping: big first in composite
 petals = build(function(x, y) return big(x, y) or small(x, y) end)
@@ -147,6 +147,6 @@ local function clapper(cx, ytop, ybead, rr)
     end
   end end
 end
-clapper(24, 36, 48, 2)
-clapper(48, 38, 45, 1)
+clapper(24, 34, 48, 2)
+clapper(48, 37, 45, 1)
 finish("bell", petals, centre, true)

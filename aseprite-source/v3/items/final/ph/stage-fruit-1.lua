@@ -1,42 +1,50 @@
--- stage-fruit-1 (lean W2_22)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-fruit-1 (lean P1b_O11)
+local NAME = "stage-fruit-1"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-fruit-1" }
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local SOIL = { "#2e1e22", "#4a2e2c", "#6b4430", "#8c5e3a", "#ad7d4b", "#cfa064" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local function soil(cx, cy, rx, ry, seed)
-  local m = c:ellipse(cx, cy, rx, ry)
-  local n = X.pillow(m, 5)
-  G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), SOIL, { 0.2, 0.38, 0.55, 0.72, 0.88 })
-  m:each(function(x, y) local h = X.hash(x, y, seed)
-    if h > 0.93 then c:px(x, y, SOIL[6]) elseif h < 0.07 then c:px(x, y, SOIL[1]) end end)
+local function ball(m, R, ramp, nm, o) local n = X.pillow(m, R) o = o or {} o.tok = { r = { name = nm } } if not o.cuts then o.cuts = {0.2,0.38,0.55,0.72,0.86} end G.toneN(c, m, n, ramp, o) return n end
+local SOIL = { "#1e1218", "#3a2420", "#5e3a2a", "#86583a", "#ae7e4a" }
+local BL = { "#143a2c", "#20603a", "#38884a", "#5cae54", "#8ed068", "#c4ee90" }
+local GOLD = { "#6a3c10", "#a2641a", "#d49a2a", "#f0c446", "#ffe27a", "#fff4b8" }
+local BARK = { "#2a1a1c", "#4a2e26", "#6e4630", "#946238", "#bc8a50" }
+local function base()
+  c:groundShadow(32, 56, 24, 3)
+  local soil = c:ellipse(32, 50, 22, 7)
+  soil:add(c:ellipse(32, 47, 15, 6))
+  ball(soil, 9, SOIL, "soil", { amb = 0.1, wrap = 0.2 })
+  soil:each(function(x, y) local h = X.hash(x, y, 5) if h > 0.9 then c:put(x, y, SOIL[5], { r = { name = "soil" } }) elseif h < 0.07 then c:put(x, y, SOIL[1], { r = { name = "soil" } }) end end)
+  for _, p in ipairs{ {16,52},{17,52},{48,52},{49,52},{47,53} } do c:put(p[1], p[2], "#b8a898", { r = { name = "pb" } }) end
+  for _, p in ipairs{ {18,53},{50,53} } do c:put(p[1], p[2], "#6a5a60", { r = { name = "pb" } }) end
+end
+local function blade(ax, ay, cx, cy, bx, by, w, nm, ramp, rib)
+  ramp = ramp or BL
+  local m, n, T, S = G.blade(ax, ay, cx, cy, bx, by, function(t) if t > 0.985 then return -1 end return max(0.5, w * (1 - t) ^ 0.7 + 0.3) end, { fold = 0.5 })
+  local tok = { r = { name = nm } }
+  G.toneN(c, m, n, ramp, { tok = tok, cuts = {0.18,0.34,0.5,0.66,0.82}, amb = 0.1, wrap = 0.2 })
+  m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.14 and T[k] > 0.1 and T[k] < 0.9 then c:put(x, y, S[k] <= 0 and ramp[6] or ramp[2], tok) end end)
   return m
 end
-c:groundShadow(32, 54, 21, 3)
-soil(32, 49, 21, 6, 8)
--- stem
-local sm, sn = G.tube({ {32,48}, {32,42}, {33,36}, {32,29} }, function(t) return 1.8 - 0.5 * t end)
-G.tone(c, sm, X.light(sn, { amb = 0.15, wrap = 0.3 }), { "#3b6449", "#5b8d5a", "#88b46e", "#b9d793" }, { 0.3, 0.55, 0.8 })
--- two fat seed leaves (cotyledons) drooping out, left plain oval, right with seed-coat hat
-local function cot(cx, cy, ang, rx, ry)
-  local m = HP.mask()
-  for t = -1, 1, 0.05 do local x, y = cx + cos(ang) * t * rx, cy + sin(ang) * t * rx
-    local h = ry * sqrt(max(0, 1 - t * t)) 
-    for dy = -floor(h), floor(h) do m:set(floor(x + 0.5), floor(y + dy + 0.5)) end end
-  local n = X.pillow(m, 3.5)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.25 }), LEAF, { 0.2, 0.38, 0.55, 0.72, 0.88 })
+local function oval(cx, cy, rx, ry, ramp, nm) local m = c:ellipse(cx, cy, rx, ry) ball(m, max(rx, ry) + 0.5, ramp, nm) return m end
+local function stalk(p, w, ramp, nm)
+  local m, n = G.tube(p, function(t) return w end)
+  G.toneN(c, m, n, ramp, { tok = { r = { name = nm } }, cuts = {0.3,0.55,0.8}, amb = 0.12, wrap = 0.25 })
   return m
 end
-cot(21, 34, -0.5, 10, 5)
-cot(44, 33, 0.5, 10, 5)
-for i = 0, 8 do c:px(14 + i, 38 - floor(i * 0.5), LEAF[5]) end
-for i = 0, 8 do c:px(48 - i, 37 - floor(i * 0.5), LEAF[5]) end
--- true first leaf bud on top
-local bm, bn = G.tube({ {32,29}, {32,26}, {32,24}, {33,21} }, function(t) return 1.5 * (1 - t) + 0.6 end)
-G.tone(c, bm, X.light(bn, {}), LEAF, { 0.2, 0.38, 0.55, 0.72, 0.88 })
--- quirk: seed-coat cap perched on right cotyledon tip
-local hat = c:ellipse(53, 29, 3, 2)
-G.tone(c, hat, X.light(X.pillow(hat, 2), {}), { "#6b4430", "#8c5e3a", "#c9a15a", "#e8cf8e", "#f6e8bd", "#fffaf0" }, { 0.25, 0.45, 0.65, 0.8, 0.92 })
-c:px(52, 28, "#fffaf0")
-G.fin(c, "stage-fruit-1")
+base()
+local STM = { "#3a6a3c", "#5e9a4c", "#92c46c", "#c4e49a" }
+stalk({ {32,48},{32,40},{33,32},{32,26} }, 1.6, STM, "stem")
+-- two big cotyledons
+blade(32, 33, 22, 26, 9, 31, 5.2, "co1")
+blade(33, 33, 44, 24, 56, 30, 5.2, "co2")
+-- first true leaves: small toothed pair + bud
+blade(32, 27, 26, 18, 20, 15, 3.2, "tl1", BL)
+blade(32, 27, 38, 17, 44, 13, 3.2, "tl2", BL)
+blade(32, 26, 31, 19, 32, 11, 2.6, "bud", BL)
+-- quirk: seed husk riding on the tip of a cotyledon
+local h = c:ellipse(11, 28, 3, 2)
+G.toneN(c, h, X.pillow(h, 3), { "#5a3a1c", "#8a5e2e", "#bc9050", "#e4c488" }, { tok = { r = { name = "husk" } }, cuts = {0.3,0.6,0.85} })
+c:put(10, 27, "#fff0c8", { r = { name = "husk" } })
+c:put(21, 49, "#e8fbff", { r = { name = "dew" } }) c:put(22, 49, "#6aa8c8", { r = { name = "dew" } })
+G.save(c, NAME)

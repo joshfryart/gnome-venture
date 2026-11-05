@@ -1,32 +1,33 @@
--- lizard-scale (lean W2_8)
+-- lizard-scale (lean P1b_O4)
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w=64, h=64, scale=1, name="lizard-scale" }
-local abs, sin, pi, sqrt = math.abs, math.sin, math.pi, math.sqrt
-local MINT = { "#1e5a58", "#2f8a76", "#4fb890", "#82dcaa", "#b8f0c4", "#e8fff0" }
-local NAVY = { "#161a44", "#232a6c", "#34409a", "#4c60c4", "#7c92e6", "#b8c8ff" }
-local tok = { r = { name = "scale" } }
--- upright-leaning shield: tip top-right, rounded base bottom-left; keel along spine
-local m, n, T, S = G.blade(22,50, 22,30, 44,10, function(u) return 11 * sin(pi * math.min(1, u*0.92+0.04)) ^ 0.75 + 0.3 end)
-G.toneN(c, m, n, MINT, { tok = tok })
--- right half is navy (iridescent shift), keel ridge line, overlapping scale arcs
-m:each(function(x, y) local k = K(x, y)
-  local s, u = S[k], T[k]
-  if s > 0.06 and u > 0.1 then
-    local v = (s > 0.6) and 1 or 0
-    c:put(x, y, NAVY[ (u > 0.6 and 3 or 2) + v * 0 + ((x + y) % 7 == 0 and 1 or 0) ], tok)
-    if s > 0.7 then c:put(x, y, NAVY[2], tok) end
-    if s > 0.9 then c:put(x, y, NAVY[1], tok) end
-  end
-  if abs(s) <= 0.06 and u > 0.08 then c:put(x, y, s <= 0 and MINT[6] or NAVY[5], tok) end
-  -- growth arcs
-  local a = (u * 26) % 6
-  if a < 0.9 and abs(s) > 0.2 and u > 0.12 and u < 0.88 then c:put(x, y, s < 0 and MINT[2] or NAVY[1], tok) end
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function sh(c, m, R, ramp, o) return G.toneN(c, m, X.pillow(m, R), ramp, o) end
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "lizard-scale" }
+local GR = { "#14403f", "#1e6a4a", "#2f9552", "#58bf54", "#9ae060", "#d8f58a" }
+local GD = { "#261f3a", "#3c3a5e", "#4f6a78", "#5f9a86", "#86c79a", "#c6efb4" }
+c:groundShadow(32, 50, 20, 3)
+-- back scale (darker, teal)
+local b = c:poly{ {40,8},{56,18},{50,34},{36,28},{32,16} }
+sh(c, b, 9, GD)
+-- front scale: pointed shield
+local f = c:poly{ {32,16},{50,26},{46,44},{30,52},{14,44},{10,26} }
+f:cut(HP.mask()) 
+local n = X.pillow(f, 12)
+G.toneN(c, f, n, GR, { cuts = { 0.2, 0.38, 0.55, 0.72, 0.88 } })
+-- keel ridge down the middle, 2 tone
+for t = 0, 1, 0.02 do
+  local x, y = 30 + t * 2, 18 + t * 30
+  c:px(floor(x), floor(y), GR[6]) c:px(floor(x) + 1, floor(y), GR[2])
+end
+-- growth rows: curved bands
+f:each(function(x, y)
+  local d = (y - 16) + 0.025 * (x - 30) ^ 2
+  if d % 8 < 1 and y > 22 and abs(x - 30) < 18 and not (abs(x - 30) < 2) then c:px(x, y, GR[2]) end
 end)
--- spec and rainbow glint (quirk: a tiny pink shimmer fleck)
-c:put(25, 31, "#fff6f2", tok) c:put(26, 31, "#fff6f2", tok) c:put(25, 32, MINT[6], tok)
-c:put(33, 25, "#ff9ac8", tok) c:put(34, 24, "#ffd878", tok)
--- torn root stub
-local st = HP.mask() st:add(c:rrect(19, 50, 24, 55, 1))
-G.toneN(c, st, X.pillow(st, 3), { "#5a4a48", "#8a7a74", "#b0a094", "#d4c6b4", "#ece0d0", "#fff6f2" }, { tok = tok })
+-- pits
+for _, p in ipairs{ {20,34},{24,40},{38,34},{36,42},{26,28},{34,26} } do c:px(p[1], p[2], GR[1]) c:px(p[1] - 1, p[2] - 1, GR[5]) end
+-- quirk: gold fleck spot
+c:fillMask(c:ellipse(40, 31, 2, 2), "#f0c040") c:px(40, 30, "#fff2a0") c:px(41, 32, "#c48a20")
+c:px(18, 28, "#f4ffd0") c:px(19, 27, "#f4ffd0") c:px(18, 29, GR[5])
 G.save(c, "lizard-scale")

@@ -1,41 +1,49 @@
--- nav-villagers (lean W2_11)
+-- nav-villagers (lean P1b_O5)
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w=64, h=64, scale=1, name="nav-villagers" }
-local function sh(m, R, ramp, amb)
-  local n = X.pillow(m, R)
-  X.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, { cuts = {.22,.4,.56,.72,.86} })
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local c
+local function gline(cc, pts, col, w) cc:fillMask(cc:line(pts, w or 1), col) end
+local function solid(m, rp, R, o) local n = X.pillow(m, R) local _, v = G.toneN(c, m, n, rp, o) return n, v end
+local function cylN(m, cx, cy, r, horiz) local n = {} m:each(function(x, y) local t = horiz and (y - cy) / r or (x - cx) / r t = max(-0.97, min(0.97, t)) if horiz then n[K(x, y)] = { -0.35, t, sqrt(1 - t*t) } else n[K(x, y)] = { t, -0.35, sqrt(1 - t*t) } end end) return n end
+local NAME = "nav-villagers"
+c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local WOOD = { "#3e2418", "#5e3a22", "#8a5a30", "#b27e44", "#d6a45c", "#f0cc88" }
+local HAT  = { "#5a0f2a", "#8e1c3a", "#c23048", "#e85a5a", "#ff8e7c", "#ffc8a8" }
+local HAT2 = { "#12304a", "#1e5a80", "#2e86b0", "#52b4d2", "#8ae0e6", "#c8f6f0" }
+local MOSS = { "#1c4a30", "#2c7440", "#4ca050", "#88c864" }
+c:groundShadow(32, 57, 15, 2)
+-- post
+local post = c:rect(29, 18, 35, 56)
+solid(post, WOOD, 6, { amb = 0.15 })
+for y = 20, 55, 4 do c:px(31, y, WOOD[2]) c:px(32, y + 1, WOOD[2]) end
+-- mossy base
+for _, p in ipairs{ {28,55},{29,54},{30,53},{31,54},{35,55},{34,54},{33,55} } do c:px(p[1], p[2], MOSS[2]) end
+c:px(29, 55, MOSS[3]) c:px(30, 54, MOSS[4]) c:px(34, 55, MOSS[3])
+-- arrow boards
+local function board(x0, y0, x1, y1, dir, rp)
+  local pts = (dir > 0) and { {x0,y0},{x1-5,y0},{x1,(y0+y1)//2},{x1-5,y1},{x0,y1} } or { {x1,y0},{x0+5,y0},{x0,(y0+y1)//2},{x0+5,y1},{x1,y1} }
+  local m = c:poly(pts)
+  solid(m, rp, 8, { amb = 0.12 })
+  for x = x0 + 2, x1 - 6, 3 do local y = y0 + 1 + floor(X.hash(x, y0, 5) * 3) c:px(x, y, rp[2]) c:px(x + 1, y, rp[2]) end
+  return m
 end
-local RED  = {"#5a1c2e","#8a2535","#b8353a","#d9553f","#ee7a4d","#f7a86a"}
-local BLUE = {"#1f2a5e","#2f4a8c","#3f6bb5","#5a8fd0","#82b4e4","#b4d8f2"}
-local GREEN= {"#173d33","#22583c","#2f7a45","#47a04d","#6cc05a","#9ad87a"}
-local YEL  = {"#6b3a1c","#9a5a20","#c98424","#e8a82e","#f6c94a","#fde88a"}
-local SKINA= {"#6e3a2c","#8e5236","#ae6c44","#c98a58","#e0a870","#f2c898"}
-local SKINB= {"#a45a4a","#c97a62","#e69a7a","#f4b896","#fccdb0","#ffe2cc"}
-local WHITE= {"#6a6a9a","#9a9ac0","#c4c4dc","#e2e2ee","#f4f4fa","#fffaf0"}
-c:groundShadow(32, 58, 26, 3)
--- left gnome body (green coat) and right gnome (yellow tunic)
-sh(c:rrect(6,42,31,58,6), 9, GREEN)
-sh(c:ellipse(43,50,14,9), 9, YEL)
-c:rect(30,44,31,57)
--- right head + blue hat with bent tip and pompom
-sh(c:ellipse(43,40,6,6), 5, SKINB)
-sh(c:poly{{36,37},{50,37},{47,21},{51,13},{57,15},{53,13},{50,13},{43,22}}, 6, BLUE)
-sh(c:ellipse(56,15,2,2), 2, YEL)
--- left head, beard, red hat
-sh(c:ellipse(19,41,6,5), 5, SKINA)
-sh(c:poly{{12,48},{26,48},{19,60},{19,60}}, 5, WHITE)
-sh(c:poly{{11,38},{27,38},{20,5},{18,5}}, 8, RED)
--- hat brims
-c:fillMask(c:rect(11,37,27,38), RED[1])
-c:fillMask(c:rect(36,36,50,37), BLUE[1])
--- eyes, cheeks, nose
-c:px(16,41,"#2b1c26") c:px(22,41,"#2b1c26") c:px(19,42,"#c07050") c:px(19,43,"#c07050")
-c:px(40,40,"#2b1c26") c:px(46,40,"#2b1c26") c:px(43,43,"#d06a6a") c:px(41,43,"#f08a8a") c:px(45,43,"#f08a8a")
--- beard strands, coat buttons, tunic stitch
-for y=50,57,2 do c:px(19,y,WHITE[2]) end
-c:px(24,50,GREEN[5]) c:px(24,54,GREEN[5]) c:px(12,52,GREEN[1])
-for x=36,54,3 do c:px(x,56,YEL[2]) end
-c:px(18,10,RED[6]) c:px(19,14,RED[5]) c:px(45,24,BLUE[6])
-c:sparkle(57,10)
-G.save(c, "nav-villagers")
+board(14, 24, 50, 33, 1, WOOD)
+board(20, 36, 56, 45, -1, WOOD)
+-- paw/boot marks on boards: little 3-px creature prints
+for _, p in ipairs{ {22,27},{30,28},{38,27} } do c:px(p[1], p[2], WOOD[1]) c:px(p[1]+1, p[2]-1, WOOD[1]) c:px(p[1]+1, p[2]+1, WOOD[1]) end
+for _, p in ipairs{ {44,40},{36,39},{28,40} } do c:px(p[1], p[2], WOOD[1]) c:px(p[1]-1, p[2]-1, WOOD[1]) c:px(p[1]-1, p[2]+1, WOOD[1]) end
+-- nails
+c:px(32, 28, WOOD[6]) c:px(32, 40, WOOD[6])
+-- gnome hat on top (quirk), plus a smaller blue hat peeking out of the base
+local hat = c:poly{ {26,19},{32,6},{33,6},{38,19} }
+solid(hat, HAT, 5, { amb = 0.1 })
+c:fillMask(c:rect(24, 19, 40, 21), HAT[2])
+c:fillMask(c:rect(24, 19, 40, 19), HAT[4])
+c:fillMask(c:rect(24, 21, 40, 21), HAT[1])
+c:px(30, 12, HAT[5]) c:px(30, 13, HAT[4]) c:px(31, 9, HAT[5]) c:px(36, 17, HAT[1])
+c:fillMask(c:rect(32, 5, 33, 6), HAT[3]) c:px(32, 5, HAT[6])
+local hat2 = c:poly{ {44,56},{47,47},{48,47},{51,56} }
+solid(hat2, HAT2, 3, { amb = 0.1 })
+c:fillMask(c:rect(42, 55, 53, 56), HAT2[2]) c:fillMask(c:rect(42, 55, 53, 55), HAT2[4])
+G.save(c, NAME)

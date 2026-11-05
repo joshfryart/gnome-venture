@@ -1,40 +1,47 @@
--- nav-tasks (lean W2_10)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- nav-tasks (lean P1b_O5)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local CUTS = { 0.2, 0.38, 0.55, 0.7, 0.86 }
-local function slab(c, m, R, ramp, amb, bias) local n = X.pillow(m, R) G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, CUTS, bias) return n end
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "nav-tasks" }
-local WD = { "#3e2418", "#6a3e24", "#945a32", "#b87a44", "#d49c5c", "#ecc27c" }
-local PA = { "#9a8e9a", "#c4baa8", "#e4dac4", "#f4ecd8", "#fcf6e6", "#fffdf4" }
-local GD = { "#6a3e1c", "#a06a24", "#d49a30", "#f0c850", "#fce48a", "#fff6c4" }
-local GR = { "#1f5a34", "#2f8a44", "#58b85a", "#92dc7c" }
-local BU = { "#2a4a8a", "#3f6cc0", "#7ca4e8", "#c4dcfa" }
--- board
-local board = c:rrect(14, 9, 49, 57, 2)
-slab(c, board, 4, WD, 0.1)
-board:each(function(x, y) if (y * 3 + floor(x / 5) * 7) % 11 == 0 and X.hash(x, y, 2) > 0.3 then c:px(x, y, WD[2]) end end)
--- paper
-local paper = c:rect(18, 15, 45, 53)
-slab(c, paper, 3, PA, 0.35)
-c:fillMask(c:rect(45, 16, 45, 53), PA[2])
--- rows: checkbox + text line
-local rows = { {21, true}, {30, true}, {39, false} }
-for _, r in ipairs(rows) do
-  local y = r[1]
-  c:fillMask(c:rect(21, y, 27, y + 6), BU[1]) c:fillMask(c:rect(22, y + 1, 26, y + 5), r[2] and BU[3] or PA[6])
-  c:px(22, y + 1, BU[4]) c:px(23, y + 1, BU[4])
-  if r[2] then G.line(c, { {22, y + 3}, {24, y + 5}, {28, y - 1} }, GR[2]) c:px(24, y + 4, GR[3]) c:px(27, y, GR[4]) end
-  c:fillMask(c:rect(30, y + 1, 41, y + 2), r[2] and PA[1] or "#4a3a4e")
-  c:fillMask(c:rect(30, y + 4, 37, y + 4), PA[2])
+local c
+local function gline(cc, pts, col, w) cc:fillMask(cc:line(pts, w or 1), col) end
+local function solid(m, rp, R, o) local n = X.pillow(m, R) local _, v = G.toneN(c, m, n, rp, o) return n, v end
+local function cylN(m, cx, cy, r, horiz) local n = {} m:each(function(x, y) local t = horiz and (y - cy) / r or (x - cx) / r t = max(-0.97, min(0.97, t)) if horiz then n[K(x, y)] = { -0.35, t, sqrt(1 - t*t) } else n[K(x, y)] = { t, -0.35, sqrt(1 - t*t) } end end) return n end
+local NAME = "nav-tasks"
+c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local WOOD = { "#4a2a1c", "#6e4126", "#96602f", "#bc8240", "#dba856", "#f2cf80" }
+local PAP  = { "#8c8aa6", "#b7b4c6", "#dcd8de", "#f2eee6", "#fffaf0", "#fffef4" }
+local STEEL= { "#3c4660", "#5c6a88", "#8696b0", "#b4c2d4", "#dce8f2", "#fffef4" }
+local GRN  = { "#1c5a34", "#2c8a46", "#4cbc5c", "#8ae070" }
+local PEN  = { "#a83a12", "#d86a1c", "#f09a30", "#ffd060" }
+c:groundShadow(32, 57, 15, 2)
+local board = c:rrect(16, 9, 47, 56, 3)
+solid(board, WOOD, 18)
+for y = 12, 54, 3 do for x = 18, 45 do if board:has(x, y) and X.hash(x, y, 8) > 0.55 then c:px(x, y, WOOD[2]) end end end
+local paper = c:rect(20, 16, 43, 52)
+solid(paper, PAP, 14, { amb = 0.3, wrap = 0.5 })
+c:fillMask(c:rect(43, 17, 43, 52), PAP[1])
+c:fillMask(c:rect(21, 52, 43, 52), PAP[1])
+-- rows: checkbox + line
+local ys = { 22, 30, 38, 46 }
+for i, y in ipairs(ys) do
+  c:fillMask(c:rect(22, y, 27, y + 5), PAP[6])
+  gline(c, {{22,y},{27,y},{27,y+5},{22,y+5},{22,y}}, STEEL[2])
+  c:fillMask(c:rect(30, y + 1, 40 - (i % 2) * 4, y + 2), STEEL[1])
+  c:fillMask(c:rect(30, y + 4, 36 + (i % 3) * 2, y + 4), STEEL[3])
+  if i < 4 then
+    gline(c, {{23,y+3},{24,y+4},{27,y-1}}, GRN[2])
+    c:px(24, y + 3, GRN[3]) c:px(26, y, GRN[4]) c:px(23, y+3, GRN[4])
+  end
 end
 -- clip
-local clip = c:rrect(24, 5, 39, 14, 2)
-slab(c, clip, 4, GD, 0.1)
-c:fillMask(c:rect(28, 8, 35, 10), GD[1]) c:fillMask(c:rect(29, 9, 34, 9), "#2b1c26")
-c:px(26, 7, GD[6]) c:px(27, 7, GD[5])
--- quirk: stub pencil tucked behind lower-right corner
-local pen = c:poly{ {42, 56}, {52, 46}, {54, 48}, {44, 58} }
-G.tone(c, pen, X.light(X.pillow(pen, 2), { amb = 0.3, wrap = 0.3 }), { "#a8721c", "#d49a30", "#f0c850", "#fce48a", "#fce48a", "#fff6c4" }, CUTS)
-c:px(53, 47, "#e592b0") c:px(52, 46, "#c0628c") c:px(42, 57, "#3e2418")
-G.fin(c, "nav-tasks")
+local clip = c:rrect(25, 5, 38, 14, 2)
+solid(clip, STEEL, 8)
+c:fillMask(c:rect(28, 9, 35, 10), STEEL[1])
+c:px(27, 7, STEEL[6]) c:px(28, 7, STEEL[6]) c:px(26, 8, STEEL[5])
+-- pencil tucked at right (quirk), diagonal
+gline(c, {{51,22},{51,50}}, PEN[2], 3)
+c:fillMask(c:rect(50, 22, 50, 50), PEN[3]) c:fillMask(c:rect(52, 22, 52, 50), PEN[1]) c:px(50, 24, PEN[4])
+c:fillMask(c:rect(50, 20, 52, 21), STEEL[3]) c:fillMask(c:rect(50, 20, 50, 21), STEEL[5]) c:fillMask(c:rect(52, 20, 52, 21), STEEL[1])
+c:fillMask(c:rect(50, 17, 52, 19), "#f09aa0") c:px(50, 17, "#ffd0d4") c:px(52, 19, "#b4586a")
+c:px(50, 51, "#f0d8a8") c:px(51, 51, "#f0d8a8") c:px(52, 51, "#c0a070") c:px(51, 52, "#3a2a30")
+G.save(c, NAME)
