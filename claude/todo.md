@@ -6,6 +6,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Main = 2.5.67. Slim zips are in `releases/` (2.5.67 needs 2.5.65+). Art zips in `upload-zips/` (none for 2.5.67). Josh uploads.
 - 2.5.66: route landmarks (82 large hand-drawn sprites on all 16 Maplewold trail maps, path layer, contact shadows), GPS stops at every stop, no tap dots on trail maps.
 - 2.5.67: Do here and Stall results show in the popover; header energy and Petals pills update live (icon kept, number only).
+- 2.5.63 to 2.5.65 (art): 133 weak items redrawn, all 387 seeds are packets, 4 kind cards, scene fixes (camp flames, ferry dock, wild-trail trees, Snowcrown, turtle scutes, kava circle, banner-desert, trek-me, vig-pick), world + region maps richer, desert/adobe stop looks, hero-scale village/haven/delve/lair, Beaver Pond front, hedgehogs redrawn, gnome eye rim.
 - 2.5.60 to 2.5.62: 81 wonders, 29 banners, gather small art, 14 journal emblems, 7 landing, 14 region maps, 46 trek tiles installed.
 - Flags `gnav_on`, `gnav_tree`, `gnav_tiles` default 0 (check Admin before assuming).
 - Release recipe: bump `APP_VERSION` in `game/includes/bootstrap.php`, CHANGELOG top entry = same, `tools/check_versions.sh`, `bash tests/build_update.sh <v> <two-back> releases`, art zip `upload-zips/gnome-venture-images-v3-<v>.zip`. Never rebuild a zip under the same version. Push main only on Josh's word.
@@ -51,17 +52,17 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 **Trail landmarks (2.5.66 nits)**
 - Wall trees overdraw sprite edges; tall 304/313 sprites hide a step of the walk; small details hard to read; 315 den feathers faint; 312 larder squirrel belly reads as shield; 311 syrup muddy.
 - Rule: delete `obj/lm-*.png` before re-baking after editing sprites.
-**Weak spots**
-- `lair-snowcrown-peak` pyramid; turtle scutes as brick grid (`haven-turtle-nesting-beach`, `haven-kava-circle`); `banner-desert` mesa; `trek-me` hat clipped; `vig-pick` head reads as worm; `map-world` props small; check gather flourishes on satchel backdrop; rainforest monstera/orchids, grassland windmill base, island palm crowns/coconuts, desert/island sand blotchy.
+**Weak spots (re-check on the phone first; 2.5.63 to 2.5.65 redrew many)**
+- Items still pink-bordered in `aseprite-source/v3/rollout/weak.txt` (46 of 179 left); `map-world` props; check gather flourishes on satchel backdrop; rainforest monstera/orchids, grassland windmill base, island palm crowns/coconuts, desert/island sand blotchy.
 - Towns: coralscatter dome + tea house; monsoontangle deck/boats; thornacre arch; blossomreach parasol.
-- 179 weak items in `aseprite-source/v3/rollout/weak.txt`; Ginseng Seed v3 (leaf reads as cannabis); hedgehog model; gnome rig eye contrast on dark skin; seasons + hammer nav icons.
+- Gnome rig eye contrast is fixed (2.5.64); seasons + hammer nav icons still roughest.
 **Not drawn yet**
 - P7: homes (6), tiers, village pictures, craftmap 14, 1,667 acts, landing `shot-*` (824x1120), `map/` 16px tiles.
 - Animation layers `<art>-anim-*.png`, `wander-step-back.png`, workshop/street/door animation, season variants.
 - Here scenes (~45 templates), residential street styles + houses, 6 door arts + per-villager doors, up to 151 villager 2.5D sprites (RULE: no human villagers), treehouse cutaway + dressing, pal sprites + Pal Yard, trail event icons 32x32. Plan: `claude/plan-graphical-nav.md`, `claude/todo-art-v3.md`.
-- Stop looks for 11 more types (only market done), village/haven hero scenes, delve scenes, Beaver Pond front.
-- Animal homes pre-v3; hand-polish procedural yard pieces (`tools/bake_*_art.py`); AI-1 paused: P1 weak items 180, P2 flower heads 19, P3 odd-size UI 41 (`claude/handoff-ai1-art.md`).
-- Variety: `act-craft/collect/tend/contest.png` kind cards; before/after pictures for 9 pilot places; progress picture; stop header picture per adopt tier (`claude/todo-art-variety.md`).
+- Stop looks for 11 more types (only market done and desert/adobe looks).
+- Animal homes pre-v3; hand-polish procedural yard pieces (`tools/bake_*_art.py`); AI-1 paused: P1 weak items (46 left), P2 flower heads 19, P3 odd-size UI 41 (`claude/handoff-ai1-art.md`).
+- Variety: before/after pictures for 9 pilot places; progress picture; stop header picture per adopt tier (`claude/todo-art-variety.md`).
 - Cat Fish lane E (needs pet-shop go-ahead): 55 `cf-pet-<key>.png`, 11 banners `banner-<code>-pets`, 11 shopkeeper busts, `pet_slots` in `room-layout.json`, event props. Lane F: moving side-cat nap/bored, eye pixels on catch/nap frames (`claude/todo-art-catfish.md`).
 - Method for AI art: `aseprite-source/v3/HANDOFF.md`, `ROLLOUT-STATE.md`; single Opus-medium pass per scene (see `claude/todo-art-v3.md` METHOD).
 
