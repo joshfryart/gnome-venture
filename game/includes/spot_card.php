@@ -24,6 +24,7 @@ function spot_card_html(array $u, array $spot, bool $hub, string $msg = '', bool
     require_once __DIR__ . '/journey.php';
     require_once __DIR__ . '/place_ui.php';
     require_once __DIR__ . '/npc_life.php';
+    require_once __DIR__ . '/folk_list.php';
     $uid = (int)$u['id'];
     $town = (string)$spot['region'];
     $q = $hub ? 'hub=1&' : '';
