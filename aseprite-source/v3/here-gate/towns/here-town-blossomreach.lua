@@ -121,17 +121,17 @@ local plaza = poly{ { 224, HZ }, { 256, HZ }, { 306, 132 }, { 336, 160 }, { 344,
 local STONES = { "#cfc4b8", "#c2b8b2", "#d9cfc2", "#bdb4b8", "#d3c7bd", "#c8bfbf" }
 each(plaza, function(x, y)
   local dy = y - (HZ - 4)
-  local z = 1800 / dy
+  local z = 700 / dy
   local row = floor(z)
   local fz = z - row
-  local u = (x - VX) / dy * 22 + ((row % 2 == 0) and .5 or 0)
+  local u = (x - VX) / dy * 9 + ((row % 2 == 0) and .5 or 0)
   local col = floor(u)
   local fu = u - col
   local hv = hsh(col, row, 5)
   local base = STONES[1 + floor(hv * #STONES) % #STONES]
-  local edgeY = 1800 / (dy * dy) -- one pixel in z units
-  local cfr = dy / 22             -- pixels per u unit
-  if dy < 22 then
+  local edgeY = min(.22, 700 / (dy * dy)) -- one pixel in z units
+  local cfr = max(5, dy / 9)             -- pixels per u unit
+  if dy < 8 then
     c:put(x, y, (hsh(x, y, 9) > .7) and "#b9afb2" or "#cdc3ba")
   elseif fz < edgeY * 1.0 or fu < 1 / cfr then
     c:put(x, y, "#8e8396")
@@ -770,10 +770,10 @@ end
 
 -- ---------- layout / save ----------
 local spots = {
-  { k = "green",   name = "The Moss Garden",     box = { 176, 115, 304, 206 } },
+  { k = "green",   name = "The Moss Garden",     box = { 177, 115, 304, 206 } },
   { k = "tea",     name = "The Bamboo Teahouse", box = { 306, 62, 388, 126 } },
   { k = "board",   name = "Notice Board",        box = { 330, 210, 378, 266 } },
-  { k = "library", name = "Library",             box = { 92, 62, 178, 126 } },
+  { k = "library", name = "Library",             box = { 90, 62, 175, 126 } },
   { k = "s1",      name = "Koi Pond",            box = { 20, 214, 142, 268 } },
   { k = "s2",      name = "Blossom Grove",       box = { 338, 136, 460, 200 } },
   { k = "shops",   name = "Shops",               box = { 18, 136, 136, 204 } },
