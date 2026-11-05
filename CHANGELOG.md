@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- **Trail map pilot (route 228, Market to Poppyburrow)**: a worn dirt path now runs from the entry to the exit in each section, and each named feature is a raised landmark sprite (scarecrow, hay bales, stepping-stone ford, mill pond, apple tree, hedge-row topiary). Driven by `claude/maplewold-trail-maps/maplewold_landmarks.json`; `tools/bake_trail_art.py --route=N` re-bakes one route. Other routes are unchanged.
+
 ## 2.5.62
 - **Art polish pass**: 37 wonder pictures redrawn richer (pink river dolphins, animals, havens, delves), 7 banners, journal sea/nwe/oc, world map, trek me + ripples, vig-rod/pick, slot-forage. **Fix**: rarity flourishes are 4-frame 96px sparkle sheets again (2.5.60 had drawn them as bands).
 

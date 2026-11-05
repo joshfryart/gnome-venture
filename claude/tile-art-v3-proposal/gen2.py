@@ -164,6 +164,18 @@ def ground(land, kind, seed):
             cv.put(x, y, R[2], True); cv.put(x + 2, y + 3, R[2], True)
     return cv.im
 
+PATH_RAMP = {"grassland": "litter", "forest": "litter", "coast": "sand", "tundra": "snow"}
+def pathtex(land, seed):
+    """Worn path ground ('p' tiles): packed dirt in the land's own colour, ruts and pebbles; tileable like the rest."""
+    rnd = random.Random(f"p2{land}{seed}"); R = RAMP[PATH_RAMP.get(land, "litter")]
+    cv = ground_base(rnd, R, bias=.0)
+    for x, y in spots(rnd, 5):   # cart-rut dashes: lit crest over a shade line
+        n = rnd.randint(6, 12)
+        for k in range(n): cv.put(x + k, y, R[0], True); cv.put(x + k, y + 1, R[2], True)
+    for x, y in spots(rnd, 6): pebble(cv, x, y, RAMP["stone"], rnd, 2)
+    for x, y in spots(rnd, 14): cv.put(x, y, R[3], True)
+    return cv.im
+
 def understory(land, seed):
     rnd = random.Random(f"u2{land}{seed}"); src = ground(land, "floor", seed).copy(); p = src.load()
     for y in range(T):
@@ -324,6 +336,101 @@ def water(land, seed):
             for k in range(9): cv.put(x + k, y + (k * 2 // 3) % 4, R[3], True)
     return cv.im
 
+# ---------------------------------------------------------------- landmarks: one named feature of a route, drawn as a raised sprite (64 x 96, feet near y 88)
+def _col(cv, x0, x1, y0, y1, R, rnd, speck=.08):
+    """Rectangle shaded left (lit) to right (shade), with a little speckle."""
+    for x in range(x0, x1):
+        u = (x - x0) / max(1, x1 - x0 - 1); t = 0 if u < .15 else 1 if u < .4 else 2 if u < .72 else 3
+        for y in range(y0, y1):
+            tt = t
+            if rnd.random() < speck: tt = max(0, min(4, tt + rnd.choice((-1, 1))))
+            cv.put(x, y, R[tt])
+def _pond(cv, cx, cy, rx, ry, rnd, R=None):
+    R = R or r5(RAMP["sea"])
+    for y in range(cy - ry, cy + ry + 1):
+        for x in range(cx - rx, cx + rx + 1):
+            if (x - cx) ** 2 / rx ** 2 + (y - cy) ** 2 / ry ** 2 <= 1:
+                t = 2 if y > cy else 1 if y > cy - ry // 2 else 0
+                if (x * 5 + y * 3) % 9 == 0: t = max(0, t - 1)
+                cv.put(x, y, R[t])
+    for _ in range(4):
+        x, y = rnd.randint(cx - rx + 4, cx + rx - 8), rnd.randint(cy - ry + 2, cy + ry - 2)
+        for k in range(4):
+            if cv.get(x + k, y)[3]: cv.put(x + k, y, R[0])
+def lm_scarecrow(rnd, cv):
+    W = RAMP["wood"]
+    for y in range(36, 90): cv.put(31, y, W[1]); cv.put(32, y, W[2]); cv.put(33, y, W[3])
+    for x in range(12, 53): cv.put(x, 51, W[1]); cv.put(x, 52, W[2]); cv.put(x, 53, W[3])
+    for x0 in (10, 48):   # straw hands
+        for k in range(5): cv.put(x0 + k, 50 + k % 2, RAMP["sand"][k % 3]); cv.put(x0 + k, 54 - k % 3, RAMP["sand"][1 + k % 2])
+    lump(cv, 32, 62, 10, 11, r5(RAMP["sea"]), rnd, .06)
+    for x, y in ((28, 60), (29, 60), (28, 61), (29, 61), (35, 66), (36, 66), (35, 67), (36, 67)):   # patches
+        cv.put(x, y, RAMP["ember"][1]); 
+    cv.put(28, 60, RAMP["ember"][0]); cv.put(35, 66, RAMP["ember"][0])
+    for x in range(22, 43): cv.put(x, 72, RAMP["sand"][1]); cv.put(x, 73, RAMP["sand"][2]) if x % 2 else None   # straw hem
+    lump(cv, 32, 41, 8, 8, r5(RAMP["sand"]), rnd, .08)
+    cv.put(29, 40, INK); cv.put(35, 40, INK); cv.put(29, 41, INK); cv.put(35, 41, INK)
+    for x in range(30, 35): cv.put(x, 46, RAMP["ember"][2]) if x % 2 else cv.put(x, 45, RAMP["ember"][2])
+    for x in range(19, 46):   # hat brim
+        for y in (33, 34): cv.put(x, y, W[1] if y == 33 else W[2])
+    lump(cv, 32, 29, 9, 8, r5(RAMP["wood"]), rnd, .06)
+    for x in range(23, 42): cv.put(x, 32, RAMP["petal"][1])   # ribbon
+    cv.put(40, 31, RAMP["gold"][0]); cv.put(41, 30, RAMP["gold"][1])
+def lm_haybales(rnd, cv):
+    for cx, cy, rx, ry in ((19, 79, 15, 10), (45, 79, 15, 10), (32, 61, 15, 11)):
+        lump(cv, cx, cy, rx, ry, r5(RAMP["gold"]), rnd, .16)
+        for k in (-8, -2, 5):   # twine
+            for y in range(cy - ry + 1, cy + ry):
+                if cv.get(cx + k, y)[3] and cv.get(cx + k, y) != INK: cv.put(cx + k, y, RAMP["wood"][2] if y % 2 else RAMP["wood"][1])
+        for _ in range(14):   # straw ends
+            x, y = rnd.randint(cx - rx + 2, cx + rx - 2), rnd.randint(cy - ry + 2, cy + ry - 2)
+            if cv.get(x, y)[3] and cv.get(x, y) != INK: cv.put(x, y, RAMP["gold"][0]); cv.put(x + 1, y + 1, RAMP["gold"][3])
+def lm_ford(rnd, cv):
+    _pond(cv, 32, 80, 30, 9, rnd)
+    for cx, cy in ((14, 78), (32, 83), (50, 77)):
+        lump(cv, cx, cy, 7, 4, r5(RAMP["stone"]), rnd, .1)
+        for k in range(-6, 7):   # foam ring
+            if cv.get(cx + k, cy + 5)[3] == 0 or cv.get(cx + k, cy + 5) in r5(RAMP["sea"]): cv.put(cx + k, cy + 5, CREAM)
+def lm_pondmill(rnd, cv):
+    _pond(cv, 24, 82, 22, 8, rnd)
+    W, C = r5(RAMP["wood"]), r5(RAMP["sand"])
+    _col(cv, 36, 58, 56, 86, C, rnd)
+    for y in range(40, 56):   # roof
+        hw = (y - 40) * 11 // 15 + 2
+        for x in range(47 - hw, 47 + hw + 1): cv.put(x, y, RAMP["ember"][0 if x < 44 else 1 if x < 50 else 2] if (y + x) % 7 else RAMP["ember"][3])
+    for y in range(70, 86): cv.put(46, y, W[3]); cv.put(47, y, W[3]); cv.put(48, y, W[3]); cv.put(49, y, W[2])   # door
+    for y in range(62, 67):
+        for x in range(40, 44): cv.put(x, y, RAMP["sea"][0] if y == 62 else RAMP["sea"][2])
+    for a in range(0, 360, 45):   # wheel
+        for r in range(0, 9): cv.put(30 + int(round(math.cos(math.radians(a)) * r)), 76 + int(round(math.sin(math.radians(a)) * r)), W[1] if a % 90 == 0 else W[2])
+    for a in range(0, 360, 12): cv.put(30 + int(round(math.cos(math.radians(a)) * 9)), 76 + int(round(math.sin(math.radians(a)) * 9)), W[3])
+    cv.put(30, 76, RAMP["gold"][1])
+def lm_apple(rnd, cv):
+    c = tree(2, "leaf"); cv.im.alpha_composite(c); cv.p = cv.im.load()
+    for _ in range(40):   # big red apples on the crown, so it reads as the apple tree and not one more tree
+        if sum(1 for q in cv.im.getdata() if q == RAMP["ember"][1]) > 14 * 6: break
+        x, y = rnd.randrange(12, 50), rnd.randrange(20, 60)
+        if all(cv.get(x + dx, y + dy)[3] and cv.get(x + dx, y + dy) != INK and cv.get(x + dx, y + dy) not in RAMP["wood"] for dx in range(3) for dy in range(3)):
+            for dx in range(3):
+                for dy in range(3): cv.put(x + dx, y + dy, RAMP["ember"][1] if dx + dy < 3 else RAMP["ember"][2])
+            cv.put(x, y, RAMP["ember"][0]); cv.put(x + 1, y - 1, RAMP["moss"][1])
+    for a in range(0, 360, 36):   # ring of clover round the foot
+        x, y = 32 + int(round(math.cos(math.radians(a)) * 26)), 87 + int(round(math.sin(math.radians(a)) * 5))
+        for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)): cv.put(x + dx, y + dy, RAMP["moss"][2] if (dx or dy) else RAMP["moss"][1])
+        if a % 72 == 0: cv.put(x, y, CREAM)
+    for k in range(4):   # fallen apples
+        x = 22 + k * 7; cv.put(x, 90, RAMP["ember"][1]); cv.put(x + 1, 90, RAMP["ember"][2])
+def lm_hedgerow(rnd, cv):
+    c = hedge(1); cv.im.alpha_composite(c); cv.p = cv.im.load()
+    for cx, cy, rx, ry in ((16, 52, 8, 9), (47, 55, 7, 7)):   # trimmed topiary, with strong opinions
+        lump(cv, cx, cy, rx, ry, r5(RAMP["moss"]), rnd, .1)
+        for y in range(cy + ry, 64): cv.put(cx, y, RAMP["wood"][2]); cv.put(cx + 1, y, RAMP["wood"][3])
+    cv.put(13, 50, INK); cv.put(18, 50, INK); cv.put(13, 51, CREAM); cv.put(18, 51, CREAM)   # a face on the big one
+    for x in range(14, 18): cv.put(x, 55, RAMP["ember"][2])
+LANDMARKS = {"scarecrow": lm_scarecrow, "haybales": lm_haybales, "ford": lm_ford, "pondmill": lm_pondmill, "apple": lm_apple, "hedgerow": lm_hedgerow}
+def landmark(name):
+    cv = Cv(T, OBJ_H); LANDMARKS[name](random.Random(f"lm{name}"), cv); outline(cv); return cv.im
+
 # ---------------------------------------------------------------- find spots (open / done) and the search icon
 def sparkle(cv, x, y, big=True):
     for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)): cv.put(x + dx, y + dy, CREAM)
@@ -482,7 +589,7 @@ def terrain_layer(land, types, seed=0, blend=True):
         v = int(nv(x, y) * 4.4) % 4   # which texture variant: big organic patches, so variants never meet on a tile line
         k = (t, v if t != "r" else v % 2, (tx * 3 + ty) % 3 if t == "w" else 0)
         if k not in tex:
-            im = understory(land, v) if t == "u" else ground(land, "rough", v % 2) if t == "r" else water(land, k[2]) if t == "w" else ground(land, "floor", v)
+            im = understory(land, v) if t == "u" else ground(land, "rough", v % 2) if t == "r" else water(land, k[2]) if t == "w" else pathtex(land, v % 2) if t == "p" else ground(land, "floor", v)
             tex[k] = im.load()
         return tex[k]
     def tp(x, y):
@@ -503,8 +610,11 @@ def terrain_layer(land, types, seed=0, blend=True):
             t = TM[y][x]
             def at(a, b): return TM[min(max(b, 0), th - 1)][min(max(a, 0), tw - 1)]
             if t == "r":
-                if at(x, y + 1) in "fuw" or at(x + 1, y) in "fuw": P[x, y] = darker(P[x, y], 1)
-                elif at(x, y - 1) in "fu" or at(x - 1, y) in "fu": P[x, y] = lighter(P[x, y])
+                if at(x, y + 1) in "fupw" or at(x + 1, y) in "fupw": P[x, y] = darker(P[x, y], 1)
+                elif at(x, y - 1) in "fup" or at(x - 1, y) in "fup": P[x, y] = lighter(P[x, y])
+            elif t == "p":   # a worn path sits a little lower than the grass: shade on its lit side, grass lip on the far side
+                if at(x, y - 1) not in "pu" or at(x - 1, y) not in "pu": P[x, y] = darker(P[x, y], 1)
+                elif at(x, y + 1) not in "pu" or at(x + 1, y) not in "pu": P[x, y] = lighter(P[x, y])
             elif t == "w":
                 if land == "coast":
                     if at(x, y + 1) != "w": P[x, y] = CREAM

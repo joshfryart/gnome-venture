@@ -8,6 +8,9 @@ Output  game/assets/img/trail/ground/<route>-<section>.png   one blended ground 
         game/assets/img/trail/find-<art land>[-done].png     find spots, 64x64;   gnome.png  the player idle frame, 64x80
         game/includes/data/trail_maps.json                   rows + object list per section, read by includes/trail_art.php. MERGED into the
                                                              routes already in it (re-baking one region keeps the others); --fresh starts empty
+        --route=N  (repeatable) bake only route N and re-bake it even if its pictures exist; the other routes in trail_maps.json are kept
+Landmarks  claude/maplewold-trail-maps/maplewold_landmarks.json: {route_id: [[ [x, y, name, jitter] per feature ] per section]}. A route listed there also
+        gets a worn path (tile type 'p') from the S to the exit; each landmark is a raised sprite obj/lm-<name>.png (drawn by gen2.LANDMARKS).
 Options --check   validate only (shape, characters, a walkable path in every section, continuity between sections), write nothing, exit 1 on a problem
         --all     re-bake routes that already have all their pictures (default: only new or incomplete routes)
         --fresh   start trail_maps.json empty instead of merging
@@ -31,6 +34,7 @@ ART_LAND = {"grassland": "grassland", "forest": "forest", "coast": "coast", "tun
 LIST = os.path.join(REPO, "claude", "route-list.md")
 DATA = os.path.join(REPO, "game", "includes", "data", "trail_maps.json")
 DEFAULT_MAPS = os.path.join(REPO, "claude/maplewold-trail-maps/maplewold_trail_maps_22wide.json")
+LANDMARKS = os.path.join(REPO, "claude/maplewold-trail-maps/maplewold_landmarks.json")   # routes listed here get a worn path and one raised landmark per named feature
 
 def boss_of(rid):
     """'miniboss' when the route list says one end is a delve, 'boss' for a lair (only used when the last section has an E), else ''."""
@@ -94,6 +98,7 @@ def spec(land, x, y, seed):
     return f"pine-{h % 6}" if h % 5 else f"boulder-snow-{h % 4}"
 def build_obj(key):
     p = key.split("-")
+    if p[0] == "lm": return gen2.landmark(p[1])
     if p[0] == "tree": return gen2.tree(int(p[2]), p[1])
     if p[0] == "bush": return gen2.bush(int(p[1]))
     if p[0] == "hedge": return gen2.hedge(int(p[1]))
@@ -110,11 +115,27 @@ def flat_set(land, rows):
             if land == "tundra" and 1 <= x <= W - 2 and 1 <= y <= 5 and ((rows[y][x-1] == "#" and x - 1 > 0) or (rows[y][x+1] == "#" and x + 1 < W - 1)): out.add((x, y))
     return out
 
+def path_cells(rows):
+    """Cells of the shortest walk from the entry (S, or the first open cell on the left edge) to the exit (9), as a set of (x, y)."""
+    W, Hh = len(rows[0]), len(rows)
+    st = next(((x, y) for y, r in enumerate(rows) for x, c in enumerate(r) if c == "S"), None) or next((0, y) for y in range(Hh) if rows[y][0] != "#")
+    en = next((W - 1, y) for y in range(Hh) if rows[y][-1] == "9")
+    prev, q = {st: None}, deque([st])
+    while q:
+        c = q.popleft()
+        if c == en: break
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            n = (c[0] + dx, c[1] + dy)
+            if 0 <= n[0] < W and 0 <= n[1] < Hh and rows[n[1]][n[0]] != "#" and n not in prev: prev[n] = c; q.append(n)
+    out, c = set(), en
+    while c is not None: out.add(c); c = prev[c]
+    return out
+
 def bake(job):
-    rid, si, land, rows = job   # land = the ART land (ART_LAND), the one the drawing code knows
+    rid, si, land, rows, path, lms = job   # land = the ART land (ART_LAND), the one the drawing code knows; path = set of (x, y) or None; lms = landmark objs
     W, Hh = len(rows[0]), len(rows); tw, th = W * T, Hh * T + PAD
     flat = flat_set(land, rows)
-    types = ["".join("w" if (x, y) in flat else "u" if c == "#" else "r" if c == "," else "f" for x, c in enumerate(r)) for y, r in enumerate(rows)]
+    types = ["".join("w" if (x, y) in flat else "u" if c == "#" else "p" if path and (x, y) in path else "r" if c == "," else "f" for x, c in enumerate(r)) for y, r in enumerate(rows)]
     plain = None
     ter = gen2.terrain_layer(land, [types[0].replace("w", "u")] + types, rid, True)
     base = Image.new("RGBA", (tw, th)); base.paste(ter.crop((0, T - PAD, tw, T - PAD + th)), (0, 0))
@@ -128,31 +149,35 @@ def bake(job):
             objs.append([x, y, spec(land, x, y, rid), jit])
     q = base.convert("RGB").quantize(256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
     path = os.path.join(IMG, "ground", f"{rid}-{si + 1}.png"); q.save(path, optimize=True)
-    return rid, si, objs
+    return rid, si, objs + [list(o) for o in lms]
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    only = {int(a.split("=")[1]) for a in sys.argv[1:] if a.startswith("--route=")}
     entries = load_routes(args or [DEFAULT_MAPS])
+    lm_data = json.load(open(LANDMARKS, encoding="utf-8")) if os.path.isfile(LANDMARKS) else {}
     bad = 0
     for f, r in entries:
         for msg in check_route(r) + ([] if r.get("land") in ART_LAND else [f"land {r.get('land')!r} is not in ART_LAND"]):
             print(f"PROBLEM {os.path.basename(f)} route {r.get('route_id')}: {msg}"); bad += 1
     print(f"{len(entries)} routes, {sum(len(r['sections']) for _, r in entries)} sections, {bad} problems")
     if CHECK_ONLY or bad: return 1 if bad else 0
-    routes = [r for _, r in entries]
+    routes = [r for _, r in entries if not only or int(r["route_id"]) in only]
     for d in ("ground", "obj"): os.makedirs(os.path.join(IMG, d), exist_ok=True)
     have = {} if "--fresh" in sys.argv else (json.load(open(DATA)).get("routes", {}) if os.path.isfile(DATA) else {})
     out, jobs = dict(have), []
     for r in routes:
         rid, land = int(r["route_id"]), r["land"]; art = ART_LAND[land]
         done = str(rid) in have and all(os.path.isfile(os.path.join(IMG, "ground", f"{rid}-{i + 1}.png")) for i in range(len(r["sections"]))) and len(have[str(rid)]["sections"]) == len(r["sections"])
-        if done and "--all" not in sys.argv: print("kept", rid); continue
+        if done and "--all" not in sys.argv and rid not in only: print("kept", rid); continue
         secs = []
         for si, s in enumerate(r["sections"]):
             rows = list(s["rows"]); ey = [y for y in range(len(rows)) if rows[y][0] != "#"][0]
             rows[ey] = "S" + rows[ey][1:]   # every section starts at an S on the left edge (section 1 already has one)
             secs.append({"feature": s["feature"], "caption": s["caption"], "rows": rows, "objs": []})
-            jobs.append((rid, si, art, [w.replace("S", ".").replace("9", ".").replace("E", ".").replace("F", ".") for w in rows]))
+            lm = lm_data.get(str(rid))
+            jobs.append((rid, si, art, [w.replace("S", ".").replace("9", ".").replace("E", ".").replace("F", ".") for w in rows],
+                         path_cells(rows) if lm else None, [[x, y, "lm-" + n, j] for x, y, n, j in (lm[si] if lm and si < len(lm) else [])]))
         out[str(rid)] = {"land": land, "art": art, "from": r["from"], "to": r["to"], "boss": boss_of(rid), "sections": secs}
     with Pool(max(1, os.cpu_count() or 1)) as pool:
         for rid, si, objs in pool.imap_unordered(bake, jobs): out[str(rid)]["sections"][si]["objs"] = objs; print("baked", rid, si + 1, flush=True)

@@ -1,0 +1,8 @@
+{
+  "_note": "Route landmarks and worn path. A route listed here gets a path baked into its ground (S to the exit) and one raised sprite per named feature: [tile x, tile y, landmark name, jitter px]. Names come from LANDMARKS in claude/tile-art-v3-proposal/gen2.py. Put each one on a walkable floor cell off the path, with floor (not a wall) in the row below.",
+  "228": [
+    [[4, 2, "scarecrow", 0], [16, 4, "haybales", 0]],
+    [[7, 1, "ford", 0], [13, 1, "pondmill", 0]],
+    [[4, 2, "apple", 0], [14, 1, "hedgerow", 0]]
+  ]
+}
