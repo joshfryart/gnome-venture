@@ -17,6 +17,7 @@ local BONE  = { hi = "#fffae0", base = "#f0dcb4", shade = "#bc9ca4", deep = "#76
 local WARM  = { hi = "#ffd890", base = "#d89a84", shade = "#9a6890", deep = "#5a4478" }
 local COOL  = { hi = "#c4a4cc", base = "#8a6a9e", shade = "#5e4a80", deep = "#38305c" }
 local LEDGE = { hi = "#f8c888", base = "#b8806c", shade = "#7c5a74", deep = "#483452" }
+for _, t in ipairs{ DARK, CREAM, SKIN, TWIG, BONE, WARM, COOL, LEDGE } do local r6 = GX.ramp6(t); for i = 1, 6 do t[i] = r6[i] end end
 
 ---------------------------------------------------------------- sky
 GX.bands(c, 0, 190, { "#3c3880", "#54449a", "#7c52a4", "#b2609e", "#dc7e90", "#f19c74", "#fbbd7a", "#ffd890", "#ffe8aa" }, 3, .22)
@@ -149,7 +150,7 @@ vein(212, 238, { { 12, 8 }, { 16, -10 }, { 12, 6 } }); vein(272, 226, { { 12, 8 
 -- ink on the lower-right dropoff only where the crag meets cloud is already rimmed by lit()
 
 ---------------------------------------------------------------- front cloud mist over the crag foot
-sea(240, 10, { hi = "#fff4d8", base = "#fbd2b0", shade = "#d8a0aa", deep = "#a874a4" }, 43, 20, 270)
+sea(257, 5, { hi = "#fff4d8", base = "#fbd2b0", shade = "#d8a0aa", deep = "#a874a4" }, 43, 20, 270)
 
 ---------------------------------------------------------------- nest, bones, feathers
 local function twigline(x0, y0, x1, y1, col)
@@ -232,7 +233,7 @@ local function wing(sgn, sd)
       if f[6] and y > SY + f[2] + (f[4] - f[2]) * .34 and H(x, y // 2, sd) > .03 then return CREAM end
       return DARK
     end, { R = 4, tex = .4, sc = 3, seed = sd + k, amb = .25, rimlight = true,
-      fn = function(x, y) return (H(x // 2, y, sd + k) - .5) * .12 + (sgn > 0 and -.06 or .04) end })
+      fn = function(x, y) return (H(x // 2, y, sd + k) - .5) * .12 + (sgn > 0 and -.2 or -.12) end })
     -- quill shaft
     local n = floor(max(abs(f[3] - f[1]), abs(f[4] - f[2])))
     for i = 2, n - 2 do
@@ -250,7 +251,7 @@ local function wing(sgn, sd)
   for i = 0, 11 do E(cm, SX + sgn * (14 + i * 13), SY + 2 + floor(H(i, sd, 3) * 6) - floor(i * .4), 9, 6) end
   cm = GX.rough(cm, sd + 50, 1)
   GX.lit(c, cm, DARK, { R = 14, tex = .5, sc = 3, seed = sd + 51, amb = .3, rimlight = true,
-    fn = function(x, y) return (sgn < 0 and .1 or -.04) + (H(x // 3, y // 2, sd) - .5) * .18 end })
+    fn = function(x, y) return (sgn < 0 and -.08 or -.2) + (H(x // 3, y // 2, sd) - .5) * .18 end })
   -- feather scallops on coverts
   cm:each(function(x, y)
     if (x // 4 + y // 3) % 2 == 0 and H(x // 4, y // 3, sd + 9) < .5 and cm:has(x, y + 1) and not cm:has(x, y + 2) then c:px(x, y, DARK.hi) end
@@ -261,7 +262,7 @@ wing(-1, 100); wing(1, 200)
 -- body
 local body = mk(); E(body, SX, 132, 22, 28); E(body, SX, 120, 24, 14)
 body = GX.rough(body, 90, 1)
-GX.lit(c, body, DARK, { R = 20, tex = .5, sc = 3, seed = 91, amb = .3, rimlight = true,
+GX.lit(c, body, DARK, { R = 20, tex = .5, sc = 3, seed = 91, amb = .3, wrap = .1, rimlight = true,
   fn = function(x, y) return (H(x // 3, y // 2, 92) - .5) * .18 end })
 body:each(function(x, y)
   if (x // 3 + y // 3) % 2 == 0 and H(x // 3, y // 3, 93) < .5 and body:has(x, y + 1) and not body:has(x, y + 2) then c:px(x, y, DARK.hi) end
@@ -299,7 +300,7 @@ for _, s in ipairs{ -1, 1 } do
   local ex = SX + s * 6
   for i = 0, 5 do c:px(ex - s * 5 + s * i, 72 + floor((5 - i) * .35), INK) end
   local e = mk(); E(e, ex, 77, 3, 3)
-  GX.lit(c, e, GX.ramp6({ hi = "#ffffff", base = "#fff0c8", shade = "#e8b868", deep = "#a8704a" }), { R = 3, tex = 0, seed = 1, ink = true })
+  GX.lit(c, e, GX.ramp6({ hi = "#ffffff", base = "#fff0c8", shade = "#e8b868", deep = "#a8704a" }), { R = 3, tex = 0, seed = 1 })
   c:px(ex - s, 77, INK); c:px(ex, 77, INK); c:px(ex - s, 78, INK); c:px(ex, 78, INK); c:px(ex - s, 76, "#ffffff")
 end
 -- hooked ivory beak
