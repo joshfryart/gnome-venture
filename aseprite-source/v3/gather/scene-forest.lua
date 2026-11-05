@@ -58,22 +58,35 @@ for i = 0, 340 do   -- grass flecks
   px(x, y, y > 214 and "#4a9050" or "#d4dc70"); px(x, y - 1, y > 214 and "#4a9050" or "#d4dc70")
 end
 
----------------------------------------------------------------- canopy (ink rim, near plane)
-local blobs = { { 30, 18, 44, 26, ORGL }, { 96, 8, 36, 22, REDL }, { 150, 22, 40, 26, GOLDL }, { 208, 10, 38, 22, ORGL }, { 268, 20, 42, 24, REDL },
-  { 330, 8, 40, 22, GOLDL }, { 386, 22, 44, 26, ORGL }, { 446, 10, 40, 24, REDL }, { 8, 40, 28, 16, GOLDL }, { 232, 40, 26, 14, LEAF1 }, { 360, 44, 26, 14, GOLDL } }
-for _, g in ipairs{ { 110, 40, 12, 8 }, { 300, 46, 14, 8 }, { 420, 46, 10, 6 } } do fm(E(g[1], g[2], g[3], g[4]), "#ffd0a0"); px(g[1] - 3, g[2] - 2, "#fff4d6"); px(g[1] - 2, g[2] - 2, "#fff4d6") end
-for _, b in ipairs(blobs) do rim(E(b[1], b[2], b[3], b[4]), INK) end
-for _, b in ipairs(blobs) do
-  local m = E(b[1], b[2], b[3], b[4]); form(m, b[5], { deep = true })
-  m:each(function(x, y)   -- foliage flecks (region-map style)
+---------------------------------------------------------------- canopy: clustered lobes, each with its own light and shade, hanging leaf scallops
+for _, g in ipairs{ { 110, 44, 12, 8 }, { 300, 48, 14, 8 }, { 420, 48, 10, 6 } } do fm(E(g[1], g[2], g[3], g[4]), "#ffd0a0"); px(g[1] - 3, g[2] - 2, "#fff4d6"); px(g[1] - 2, g[2] - 2, "#fff4d6") end
+local clusters = { { 40, 14, 52, 24, ORGL, 1 }, { 110, 6, 46, 20, REDL, 2 }, { 170, 18, 46, 22, GOLDL, 3 }, { 236, 6, 48, 22, ORGL, 4 }, { 300, 18, 50, 24, REDL, 5 },
+  { 362, 6, 46, 20, GOLDL, 6 }, { 424, 16, 50, 24, ORGL, 7 }, { 474, 6, 34, 20, REDL, 8 }, { 14, 40, 32, 14, GOLDL, 9 }, { 250, 40, 34, 12, LEAF1, 10 }, { 372, 42, 34, 12, GOLDL, 11 }, { 70, 42, 26, 10, LEAF2, 12 } }
+local lobesAll = {}
+for _, g in ipairs(clusters) do
+  local cx, cy, rw, rh, ramp, seed = g[1], g[2], g[3], g[4], g[5], g[6]
+  fm(E(cx, cy + rh + 10, rw - 6, 10), "#a888b4")   -- cool shade the canopy throws below
+  local n = 8
+  for i = 1, n do
+    local t = (i - 1) / (n - 1)
+    local lx = cx - rw + floor(2 * rw * t) + (hash(seed, i) % 9 - 4)
+    local ly = cy + floor(abs(t - .5) * rh * .6) + (hash(seed, i + 9) % 7 - 3)
+    local lr = floor(rh * .55) + hash(seed, i + 3) % 5
+    lobesAll[#lobesAll + 1] = { lx, ly, lr + 6, lr + 1, ramp }
+    if i % 2 == 0 then lobesAll[#lobesAll + 1] = { lx + 3, ly + lr, 6, 5, ramp } end   -- hanging scallop
+  end
+  lobesAll[#lobesAll + 1] = { cx, cy + 4, rw - 4, rh - 4, ramp }
+end
+for _, l in ipairs(lobesAll) do rim(E(l[1], l[2], l[3], l[4]), INK) end
+for _, l in ipairs(lobesAll) do
+  local m = E(l[1], l[2], l[3], l[4]); form(m, l[5], { deep = true })
+  m:each(function(x, y)
     local h = hash(x, y)
-    if h % 59 == 0 and m:has(x + 1, y) then px(x, y, b[5].hi); px(x + 1, y, b[5].hi)
-    elseif h % 83 == 1 and m:has(x + 1, y) then px(x, y, b[5].shade); px(x + 1, y, b[5].shade)
-    end
+    if h % 59 == 0 and m:has(x + 1, y) then px(x, y, l[5].hi); px(x + 1, y, l[5].hi) elseif h % 83 == 1 and m:has(x + 1, y) then px(x, y, l[5].shade); px(x + 1, y, l[5].shade) end
   end)
-  for k = 1, 3 do   -- leaf vein glints
-    local vx, vy = b[1] - b[3] + 8 + (k * 17 + b[1]) % (b[3] * 2 - 14), b[2] - 2 + (k * 5) % 7
-    if m:has(vx, vy) and m:has(vx + 4, vy + 2) then px(vx, vy, b[5].hi); px(vx + 1, vy, b[5].hi); px(vx + 2, vy + 1, b[5].shade) end
+  for k = 1, 2 do   -- vein glints
+    local vx, vy = l[1] - l[3] + 6 + (k * 13 + l[1]) % max(4, l[3] * 2 - 12), l[2] - 2 + (k * 3) % 5
+    if m:has(vx, vy) and m:has(vx + 4, vy + 2) then px(vx, vy, l[5].hi); px(vx + 1, vy, l[5].hi); px(vx + 2, vy + 1, l[5].shade) end
   end
 end
 
@@ -119,6 +132,22 @@ local p1 = bunt(112, 54, 166, 50, 8)
 local p2 = bunt(178, 50, 440, 48, 26)
 for _, i in ipairs{ 30, 100, 170, 230 } do local p = p2[i]; if p then lantern(p[1], p[2] + 1) end end
 lantern(p1[28][1], p1[28][2] + 1)
+
+---------------------------------------------------------------- ground richness: dapples, tree shadows, path stones, tufts
+local function blocked(x, y) return (x < 156 and y > 120 and y < 200) or (x > 280 and x < 432 and y > 60 and y < 218) or (abs(x - 240) < 60 and abs(y - 214) < 20) end
+for _, t in ipairs{ { 94, 172, 38, 5 }, { 172, 152, 14, 3 }, { 458, 176, 22, 5 } } do fm(E(t[1], t[2], t[3], t[4]), "#8aa84e") end   -- trunk shadows on the grass
+for i = 0, 10 do local x, y = 30 + hash(i, 51) % 420, 150 + hash(i, 53) % 100; if not blocked(x, y) then fm(E(x, y, 14 + i % 4 * 3, 4), "#d8e47a"); fm(E(x - 2, y - 1, 6, 2), "#eef28e") end end   -- sun dapples
+local STO = { hi = "#e8e4ee", base = "#b4b0c4", shade = "#7e7a98", deep = "#4a4868" }
+for _, s2 in ipairs{ { 232, 268, 20, 6 }, { 262, 254, 16, 5 }, { 214, 246, 13, 4 }, { 246, 238, 11, 4 }, { 224, 232, 9, 3 } } do
+  local m = E(s2[1], s2[2], s2[3], s2[4]); rim(m, INK); form(m, STO, { deep = true }); fm(E(s2[1] - 2, s2[2] - 1, s2[3] // 2, 1), "#7cc35a")
+end
+for i = 0, 40 do   -- grass tufts
+  local x, y = 10 + hash(i, 61) % 460, 160 + hash(i, 63) % 108
+  if not blocked(x, y) then
+    local dk = y > 214 and "#2f7a44" or "#5fa840"
+    px(x - 2, y, dk); px(x - 2, y - 1, dk); px(x, y, dk); px(x, y - 1, dk); px(x, y - 2, dk); px(x, y - 3, "#c4e07a"); px(x + 2, y, dk); px(x + 2, y - 1, dk)
+  end
+end
 
 ---------------------------------------------------------------- mossy log with hollow (left)
 local log = R(10, 138, 142, 190):copy():add(E(10, 164, 2, 26))
@@ -172,6 +201,25 @@ for i = 0, 150 do   -- fallen leaves
   px(x, y, col); px(x + 1, y, col); px(x, y + 1, "#8f4a1f")
 end
 
+
+---------------------------------------------------------------- polish: ivy, bracket fungus, robin, motes
+for i = 0, 9 do   -- ivy down the right trunk
+  local x, y = 446 + (i % 2) * 8 + hash(i, 71) % 4, 30 + i * 13
+  local lf = c:poly{ { x, y }, { x - 5, y + 3 }, { x - 3, y + 9 }, { x + 3, y + 9 }, { x + 5, y + 3 } }
+  rim(lf, INK); form(lf, LEAF1); px(x, y + 3, LEAF1.hi)
+end
+for i = 0, 8 do px(452 + (i % 2) * 2, 26 + i * 13, "#24544a"); px(452 + (i % 2) * 2, 27 + i * 13, "#24544a"); px(452 + (i % 2) * 2, 28 + i * 13, "#24544a") end
+for _, b in ipairs{ { 100, 70 }, { 104, 100 }, { 92, 118 } } do   -- bracket fungus on the left trunk
+  local br = E(b[1], b[2], 9, 4); rim(br, INK); form(br, { hi = "#ffe38a", base = "#f0b43a", shade = "#d0802a", deep = "#8f4a1f" })
+  fm(R(b[1] - 7, b[2] + 2, b[1] + 7, b[2] + 3), "#fff4d6")
+end
+-- robin on the bunting
+local rb = E(300, 50, 5, 4); rim(rb, INK); form(rb, { hi = "#ff9a6a", base = "#e8604a", shade = "#b52e3f", deep = "#6e2038" })
+fm(E(301, 52, 3, 2), "#fff4d6"); fm(E(305, 47, 3, 3), "#8a6a5a"); rim(E(305, 47, 3, 3), INK); fm(E(305, 47, 3, 3), "#8a6a5a"); px(306, 46, INK); px(309, 48, "#ffd470"); px(310, 48, "#ffd470"); px(296, 53, INK); px(298, 54, INK)
+for i = 0, 44 do   -- glowing pollen motes
+  local x, y = 20 + hash(i, 81) % 440, 70 + hash(i, 83) % 120
+  px(x, y, "#fff4d6"); if i % 5 == 0 then px(x + 1, y, "#ffe38a"); px(x, y + 1, "#ffe38a"); px(x - 1, y, "#ffe38a"); px(x, y - 1, "#ffe38a") end
+end
 
 ---------------------------------------------------------------- stories: squirrel, berry bush, snail, wildflowers
 local ORG = { hi = "#ffb85c", base = "#f0882e", shade = "#c95a26", deep = "#7a3423" }
