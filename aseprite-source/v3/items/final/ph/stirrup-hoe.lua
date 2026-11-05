@@ -1,40 +1,81 @@
--- stirrup-hoe (lean W2_28)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stirrup-hoe (lean E2_14)
+local NAME = "stirrup-hoe"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stirrup-hoe" }
-local WOOD = { "#3d2318", "#5e3a22", "#855331", "#a87040", "#c9914f", "#e8b872" }
-local IRON = { "#2f3550", "#4c5878", "#6f7fa0", "#96a8c4", "#bccbdc", "#e6eef4" }
-local RED = { "#6b1f33", "#a02f45", "#d14d56" }
-local function toned(m, ramp, R, o)
-  local n = X.pillow(m, R)
-  G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), ramp, { 0.2, 0.38, 0.55, 0.7, 0.86 })
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local GREY = { "#2f2c3a", "#4b475a", "#6b6678", "#8c879a", "#aeaabb", "#d3d0dc" }
+local WARM = { "#3a2c2c", "#5e4a44", "#86705e", "#a8917a", "#c9b394", "#e6d6b4" }
+local ROSE = { "#3a2a36", "#5e4558", "#86647a", "#a8829a", "#c9a2b8", "#e6c8d6" }
+local GRASS = { "#16382f", "#1f5236", "#2f7040", "#4a8f4a", "#74b05a", "#a4d070" }
+local SOIL = { "#2a1a1c", "#44291f", "#5f3a28", "#7e5233", "#9c6c40", "#bb8a55" }
+local WOOD = { "#2e1c1c", "#4d2e24", "#6e4530", "#8f5f3e", "#b17d4e", "#d3a266" }
+local STEEL = { "#27293c", "#434a63", "#66708a", "#8e9ab2", "#bcc8da", "#eaf0f8" }
+local function shade(m, R, rad, name, o)
+  local n = X.pillow(m, rad or 3)
+  o = o or {}
+  o.tok = { r = { name = name } }
+  G.toneN(c, m, n, R, o)
+  return n
 end
--- handle
-local hm, hn = G.tube({ {12, 55}, {20, 45}, {26, 35}, {32, 26} }, function(t) return 1.5 + 0.5 * t end)
-G.tone(c, hm, X.light(hn, { amb = 0.12, wrap = 0.3 }), WOOD, { 0.2, 0.38, 0.55, 0.7, 0.86 })
-hm:each(function(x, y)
-  if X.hash(x, y, 7) > 0.8 then c:px(x, y, WOOD[2]) end
-  if y >= 47 and y <= 50 then c:px(x, y, (y == 47 or y == 50) and RED[1] or ((x + y) % 2 == 0 and RED[3] or RED[2])) end
+local function stone(m, R, seed, d)
+  d = d or 0
+  local tok = { r = { name = "s" .. seed } }
+  m:each(function(x, y)
+    local up, lf, dn, rt = m:has(x, y - 1), m:has(x - 1, y), m:has(x, y + 1), m:has(x + 1, y)
+    local i, h = 3, X.hash(x, y, seed)
+    if h > 0.9 then i = 4 elseif h < 0.1 then i = 2 end
+    if not up or not lf then i = 5 end
+    if not dn or not rt then i = 2 end
+    if not up and not lf then i = 6 end
+    c:put(x, y, R[max(1, min(6, i + d))], tok)
+  end)
+end
+local function leaf(ax, ay, cx, cy, bx, by, w, R, veins, name, vcol)
+  local m, n, T, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.9 + 0.1)
+    return max(0.5, w * sin(pi * u ^ 1.2) ^ 0.7)
+  end, { fold = 0.45 })
+  local tok = { r = { name = name } }
+  G.toneN(c, m, n, R, { tok = tok, cuts = { 0.18, 0.34, 0.5, 0.66, 0.82 }, amb = 0.1, wrap = 0.22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.13 and t > 0.04 and t < 0.92 then c:put(x, y, s <= 0 and R[6] or R[2], tok) return end
+    for _, vt in ipairs(veins) do
+      local d = t * L - (vt + abs(s) * 4)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.25 and abs(s) < 0.75 then c:put(x, y, s < 0 and R[5] or R[2], tok) return end
+    end
+  end)
+  return m
+end
+local function plus(x, y, a, b)
+  c:put(x, y, b) c:put(x - 1, y, a) c:put(x + 1, y, a) c:put(x, y - 1, a) c:put(x, y + 1, a)
+end
+c:groundShadow(24, 57, 14, 2)
+local hm, hn, HT = G.tube({ {13, 55}, {22, 45}, {30, 35}, {38, 28} }, function(t) return 1.9 end)
+local sv = X.light(hn, { amb = 0.15, wrap = 0.3 })
+local idx = X.tone(c, hm, sv, WOOD, { cuts = { 0.2, 0.38, 0.54, 0.7, 0.86 }, tok = { r = { name = "handle" } } })
+hm:each(function(x, y) local k = K(x, y)
+  local t = HT[k]
+  if t < 0.28 then c:put(x, y, floor(t * 26) % 2 == 0 and "#c8423a" or "#8a2a30") -- red tape grip
+  elseif X.hash(x + y, floor((x - y) / 3), 4) > 0.82 then c:put(x, y, WOOD[max(1, idx[k] - 1)]) end
 end)
-c:px(11, 56, WOOD[1]) c:px(12, 56, WOOD[1])
--- stirrup head: flat D loop, bevelled
-local head = c:rect(28, 10, 52, 26)
-head:cut(c:rect(33, 14, 47, 22))
-toned(head, IRON, 5)
-head:each(function(x, y)
-  local l = not head:has(x - 1, y) or not head:has(x, y - 1)
-  local d = not head:has(x + 1, y) or not head:has(x, y + 1)
-  if l and not d then c:px(x, y, IRON[5]) elseif d and not l then c:px(x, y, IRON[1]) end
+hm:each(function(x, y) if HT[K(x, y)] < 0.28 and not hm:has(x - 1, y - 1) then c:put(x, y, "#e8786a") end end)
+-- ferrule neck
+local neck = c:line({ {37, 30}, {40, 24} }, 3)
+shade(neck, STEEL, 2, "neck", {})
+-- stirrup loop
+local ring = c:rrect(29, 8, 56, 24, 4)
+ring:cut(c:rrect(34, 12, 51, 20, 2))
+local rn = X.pillow(ring, 2.5)
+X.tone(c, ring, X.light(rn, { amb = 0.1, wrap = 0.2 }), STEEL, { cuts = { 0.2, 0.36, 0.52, 0.68, 0.84 }, tok = { r = { name = "ring" } } })
+ring:each(function(x, y)
+  if y >= 21 and not ring:has(x, y + 1) then c:put(x, y, STEEL[2]) end
+  if y >= 21 and ring:has(x, y + 1) and not ring:has(x, y - 1) then c:put(x, y, STEEL[6]) end -- honed cutting edge
+  if y <= 10 and y == 8 + 1 and x > 33 and x < 52 and X.hash(x, y, 8) > 0.5 then c:put(x, y, STEEL[6]) end
 end)
-for x = 30, 36 do c:px(x, 11, IRON[6]) end
-c:px(50, 24, IRON[2]) c:px(49, 25, IRON[2])
--- shadow inside the loop on the lower edge
-for x = 33, 47 do c:px(x, 22, IRON[1]) end
--- socket collar + rivet
-local col = c:rect(29, 24, 35, 29)
-toned(col, IRON, 3)
-for x = 29, 35 do c:px(x, 29, IRON[1]) end
-c:px(32, 26, IRON[6]) c:px(32, 27, IRON[2])
--- quirk: a tiny weed sprout poking through the loop
-for _, p in ipairs{ {40, 21, 2}, {40, 20, 2}, {41, 19, 3}, {39, 19, 3} } do c:px(p[1], p[2], p[3] == 2 and "#47803f" or "#94c45c") end
-G.fin(c, "stirrup-hoe")
+c:put(31, 11, STEEL[6]) c:put(32, 10, STEEL[6])
+-- quirk: a weed seedling caught in the loop
+for y = 16, 20 do c:put(43, y, "#4a9a4a") end
+for _, p in ipairs{ {42, 15, "#72b95a"}, {41, 15, "#4a9a4a"}, {44, 14, "#a2d46e"}, {45, 14, "#72b95a"}, {43, 14, "#a2d46e"}, {42, 16, "#2f7b43"}, {44, 15, "#2f7b43"} } do c:put(p[1], p[2], p[3]) end
+G.save(c, NAME)

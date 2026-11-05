@@ -1,52 +1,40 @@
--- reindeer-lichen (lean W2_15)
--- Upright branching tuft of pale grey-green antler-like lichen on a small mossy pebble; red pixie-cup tips are the quirk.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- reindeer-lichen (lean E2_06)
+local NAME = "reindeer-lichen"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "reindeer-lichen" }
-local cos, sin, pi, sqrt = math.cos, math.sin, math.pi, math.sqrt
-local LICH = { "#4d6a63", "#6f8c7e", "#93ae9a", "#b6cbb0", "#d6e4c8", "#f0f6e0" }
-local SOIL = { "#2c1e24", "#4a3030", "#6b4a3c", "#8f6a4c", "#b08a5c" }
-local MOSS = { "#24472f", "#386c3e", "#58944a", "#86bc5c" }
-local RED  = { "#7a1c2c", "#b52f38", "#e0584a", "#f8a07c" }
--- pebble / soil base
-local base = c:ellipse(32, 54, 14, 5)
-local bv = X.light(X.pillow(base, 8), { amb = 0.2, wrap = 0.3 })
-base:each(function(x, y) if X.hash(x, y, 4) > 0.85 then bv[K(x, y)] = bv[K(x, y)] + 0.15 end end)
-G.tone(c, base, bv, SOIL, { 0.2, 0.4, 0.6, 0.8 })
-base:each(function(x, y) if y < 54 and X.hash(x, y, 7) > 0.5 and (x * 3 + y) % 4 < 2 then c:px(x, y, (x % 2 == 0) and MOSS[3] or MOSS[2]) end end)
-c:px(22, 53, MOSS[4]) c:px(25, 52, MOSS[4]) c:px(41, 53, MOSS[4])
--- branching
-local tips = {}
-local function branch(x, y, ang, len, w, d, seed)
-  local ex, ey = x + cos(ang) * len, y + sin(ang) * len
-  local bend = (X.hash(seed, d, 3) - 0.5) * len * 0.5
-  local px, py = -sin(ang) * bend, cos(ang) * bend
-  local p = { {x, y}, {x + (ex - x) * 0.33 + px, y + (ey - y) * 0.33 + py}, {x + (ex - x) * 0.66 + px, y + (ey - y) * 0.66 + py}, {ex, ey} }
-  local m, n = G.tube(p, function(t) return w * (1 - 0.4 * t) end, { steps = 24 })
-  local v = X.light(n, { amb = 0.3, wrap = 0.4 })
-  G.tone(c, m, v, LICH, { 0.2, 0.38, 0.55, 0.72, 0.88 })
-  if d >= 3 then tips[#tips + 1] = { ex, ey } return end
-  local s = X.hash(seed, d, 9)
-  branch(ex, ey, ang - 0.5 - s * 0.2, len * 0.72, w * 0.8, d + 1, seed * 3 + 1)
-  branch(ex, ey, ang + 0.5 + s * 0.2, len * 0.72, w * 0.8, d + 1, seed * 3 + 2)
-  if d == 0 then
-    local mx, my = G.bez(p, 0.55)
-    branch(mx, my, ang + (s > 0.5 and 0.9 or -0.9), len * 0.6, w * 0.7, d + 2, seed * 3 + 7)
-  end
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function R(v) return floor(v + 0.5) end
+local function paint(m, ramp, rad, name, opt) opt = opt or {}
+  local n = X.pillow(m, rad or 4); local tok = { r = { name = name } }
+  local idx = X.tone(c, m, X.light(n, { amb = opt.amb or 0.08, wrap = opt.wrap or 0.25 }), ramp, { cuts = { 0.22, 0.4, 0.56, 0.72, 0.86 }, tok = tok })
+  return n, idx, tok end
+local function sel(m, fn) local o = HP.mask() m:each(function(x, y) if fn(x, y) then o:set(x, y) end end) return o end
+local function spec(m, n, col, tok) local x, y = G.specAt(m, n, 30) if x then c:put(x, y, col, tok) end end
+local ROCK = { "#2e2833", "#4a4150", "#6a5f68", "#8a7d80", "#aa9d96", "#c8bbae" }
+local MOSS = { "#1f3a2c", "#2f5a38", "#437a42", "#5e9a4c", "#86b960", "#b3d680" }
+local LICH = { "#4a6a62", "#6c8f80", "#93b39c", "#b6d0b4", "#d4e6cc", "#f0f7e2" }
+c:groundShadow(32, 56, 22, 3)
+local rock = c:ellipse(32, 52, 19, 6)
+paint(rock, ROCK, 6, "rock")
+local mt = sel(rock, function(x, y) return y < 50 + 2 * sin(x * 0.9) end)
+paint(mt, MOSS, 3, "moss")
+local m = HP.mask(); local tips = {}
+local function br(x, y, a, l, w, d)
+  local x2, y2 = x + cos(a) * l, y + sin(a) * l
+  m:add(c:line({ { R(x), R(y) }, { R((x + x2) / 2 - sin(a)), R((y + y2) / 2 + cos(a)) }, { R(x2), R(y2) } }, w))
+  if d == 0 then tips[#tips + 1] = { R(x2), R(y2) } return end
+  br(x2, y2, a - 0.8, l * 0.8, max(2, w - 1), d - 1)
+  br(x2, y2, a + 0.8, l * 0.8, max(2, w - 1), d - 1)
+  if d == 2 then br(x2, y2, a + 0.05, l * 0.7, max(2, w - 1), d - 1) end
 end
--- back stalks first, then front
-local mains = { {-90 - 8, 15}, {-90 + 6, 17}, {-90 - 24, 12}, {-90 + 26, 12}, {-90 - 44, 8}, {-90 + 46, 8} }
-for i, mm in ipairs(mains) do
-  local a = mm[1] * pi / 180
-  branch(32 + (mm[1] + 90) * 0.08, 53, a, mm[2], 1.15, 0, 11 + i * 5)
-end
--- small bulb of lichen at the root
-local root = c:ellipse(32, 51, 6, 2)
-G.tone(c, root, X.light(X.pillow(root, 4), { amb = 0.3, wrap = 0.3 }), LICH, { 0.2, 0.4, 0.6, 0.8, 0.9 })
--- red pixie-cup tips (quirk): 3 of the tips
-local picks = { 1, 4, 7 }
-for _, i in ipairs(picks) do local t = tips[i * 2 > #tips and #tips or i * 2]
-  if t then local x, y = math.floor(t[1] + 0.5), math.floor(t[2] + 0.5)
-    c:px(x, y, RED[3]) c:px(x + 1, y, RED[2]) c:px(x, y - 1, RED[4]) c:px(x + 1, y - 1, RED[3]) end end
-c:sparkle(37, 31)
-G.fin(c, "reindeer-lichen")
+br(25, 49, -1.9, 7, 3, 3); br(32, 50, -1.57, 9, 3, 3); br(39, 49, -1.25, 7, 3, 3)
+local n, idx, tok = paint(m, LICH, 3, "lichen", { amb = 0.15, wrap = 0.35 })
+-- dark gaps / deep fork shadow
+m:each(function(x, y) if idx[K(x, y)] == 1 and X.hash(x, y, 4) > 0.5 then c:put(x, y, LICH[1], tok) end end)
+-- quirk: red-capped tips (little soldiers)
+table.sort(tips, function(a, b) return a[2] < b[2] end)
+for i = 1, 4 do local t = tips[i]
+  if t then local rt = { r = { name = "cap" .. i } }
+    c:put(t[1], t[2] - 1, "#c8322e", rt); c:put(t[1] + 1, t[2] - 1, "#e8584a", rt); c:put(t[1], t[2] - 2, "#e8584a", rt); c:put(t[1] + 1, t[2] - 2, "#ff9a78", rt) end end
+G.save(c, NAME)

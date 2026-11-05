@@ -1,57 +1,96 @@
--- stage-tree-3 (lean W2_25)
--- young tree: forked trunk with bark grain, lumpy three-lobe canopy with light clumps, flared roots, one red apple (quirk) and a bird nest gap
+-- stage-tree-3 (lean E2_12)
+local NAME = "stage-tree-3"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local sin, cos, pi, abs, max, min, sqrt = math.sin, math.cos, math.pi, math.abs, math.max, math.min, math.sqrt
-local DIRT = { "#2f1f22", "#4a2f2a", "#6b4533", "#8c5e3c", "#ae7e4c", "#cfa166" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#a4d36c" }
-local STEM = { "#2e5a42", "#4a8450", "#78ad5e", "#aed36f" }
-local function leaf(c, ax, ay, cx, cy, bx, by, w, lob, tok)
-  local m, n, T, S = G.blade(ax, ay, cx, cy, bx, by, function(t) return w * sin(pi * min(1, t * 0.95 + 0.04)) ^ 0.7 * (1 + lob * sin(t * pi * 5)) end)
-  G.toneN(c, m, n, LEAF, { tok = tok })
-  m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.14 and T[k] > 0.08 and T[k] < 0.92 then c:px(x, y, S[k] <= 0 and LEAF[6] or LEAF[3]) end end)
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local LEAF = { "#163a35", "#1f553f", "#2b7046", "#3f8f4c", "#62ad55", "#a4d86a" }
+local SOIL = { "#2a1a1c", "#4a2c26", "#6b4030", "#8c5a3c", "#aa7548", "#c99a64" }
+local STEM = { "#2f4a2c", "#436a34", "#5d8a3e", "#7fa84a", "#a2c863", "#cfe68a" }
+local BARK = { "#2a1a1c", "#4a2c26", "#6b4030", "#8a5a3a", "#a87848", "#c89a64" }
+local CHILI= { "#4a0f1e", "#7a1526", "#a8222c", "#d03a30", "#ec6240", "#ffa070" }
+local function soil()
+  c:groundShadow(32, 57, 22, 4)
+  local m = c:ellipse(32, 52, 20, 6)
+  local n = X.pillow(m, 7)
+  local tok = { r = { name = "soil" } }
+  G.toneN(c, m, n, SOIL, { tok = tok, amb = 0.1, wrap = 0.2 })
+  m:each(function(x, y) local h = X.hash(x, y, 5)
+    if h > 0.9 then c:put(x, y, SOIL[6], tok) elseif h < 0.07 then c:put(x, y, SOIL[1], tok) end end)
   return m
 end
-local function mound(c, cx, cy, rx, ry)
-  c:groundShadow(cx + 1, cy + ry, rx + 2, 2)
-  local m = c:ellipse(cx, cy, rx, ry)
-  local n = X.pillow(m, ry)
-  G.toneN(c, m, n, DIRT, {})
-  m:each(function(x, y) local h = X.hash(x, y, 5) if h > 0.9 then c:px(x, y, DIRT[2]) elseif h < 0.05 then c:px(x, y, DIRT[6]) end end)
+local function leaf(ax, ay, cx, cy, bx, by, w, ramp, veins, fold)
+  ramp = ramp or LEAF
+  local m, n, T, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.9 + 0.1)
+    return max(0.5, w * sin(pi * u ^ 1.2) ^ 0.75)
+  end, { fold = fold or 0.45 })
+  local tok = { r = { name = "lf" .. ax .. "_" .. bx .. "_" .. by } }
+  G.toneN(c, m, n, ramp, { tok = tok, cuts = { 0.18, 0.34, 0.5, 0.66, 0.82 }, amb = 0.12, wrap = 0.22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.14 and t > 0.04 and t < 0.92 then c:put(x, y, s <= 0 and ramp[6] or ramp[2], tok) return end
+    for _, vt in ipairs(veins or {}) do
+      local d = t * L - (vt + abs(s) * 3.4)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.28 and abs(s) < 0.75 then c:put(x, y, s < 0 and ramp[5] or ramp[2], tok) return end
+    end
+  end)
+  return m, n, T, S
+end
+local function tube(pts, wf, ramp, name)
+  local m, n, T = G.tube(pts, wf)
+  G.toneN(c, m, n, ramp, { tok = { r = { name = name or "tube" } }, amb = 0.15, wrap = 0.3 })
+  return m, n, T
+end
+local function clump(list, ramp, seed, name)
+  local m = HP.mask()
+  local sx, sy, cnt = 0, 0, 0
+  for _, e in ipairs(list) do m:add(c:ellipse(e[1], e[2], e[3], e[4])) sx = sx + e[1] sy = sy + e[2] cnt = cnt + 1 end
+  local cx, cy = sx / cnt, sy / cnt
+  local rr = 0 for _, e in ipairs(list) do rr = max(rr, abs(e[1] - cx) + e[3]) end
+  local n = X.pillow(m, rr * 0.8)
+  local tok = { r = { name = name or "clump" } }
+  G.toneN(c, m, n, ramp, { tok = tok, amb = 0.08, wrap = 0.2 })
+  m:each(function(x, y) local h = X.hash(x, y, seed)
+    local side = (x - cx) + (y - cy)
+    if h > 0.86 then if side < 4 then c:put(x, y, ramp[6], tok) else c:put(x, y, ramp[2], tok) end
+    elseif h < 0.08 and side > -2 then c:put(x, y, ramp[1], tok) end end)
+  return m, n
+end
+local function chili(pts, r, ramp)
+  local m, n, T = G.tube(pts, function(t) return max(0.45, r * sqrt(max(0, 1 - t ^ 2.2)) ) end)
+  local tok = { r = { name = "chili" .. pts[1][1] .. "_" .. pts[1][2] } }
+  G.toneN(c, m, n, ramp or CHILI, { tok = tok, amb = 0.08, wrap = 0.18 })
+  local bx, by = G.specAt(m, n, 30)
+  if bx then c:put(bx, by, "#fff0d8", tok) end
+  -- cap
+  local x0, y0 = pts[1][1], pts[1][2]
+  local ct = { r = { name = "cap" } }
+  for _, p in ipairs{ {-2,-1,2},{-1,-1,4},{0,-1,3},{1,-1,2},{2,-1,1},{-1,-2,3},{0,-2,4},{0,-3,3},{-1,0,1},{0,0,2},{1,0,1} } do
+    c:put(x0 + p[1], y0 + p[2], STEM[p[3] + 1] or STEM[3], ct) end
   return m
 end
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-tree-3" }
-local BARK = { "#2a1a1e", "#4a2e2a", "#6d4a36", "#8f6642", "#b08650", "#d0a868" }
-mound(c, 32, 55, 17, 4)
--- trunk + fork
-local tm, tn = G.tube({ {32, 55}, {32, 48}, {31, 42}, {32, 34} }, function(t) return 3.2 - 1.6 * t end)
-G.toneN(c, tm, tn, BARK, {})
-local b1, n1 = G.tube({ {32, 40}, {28, 37}, {24, 34}, {22, 30} }, function(t) return 1.5 - 0.5 * t end)
-local b2, n2 = G.tube({ {32, 38}, {36, 35}, {40, 32}, {43, 29} }, function(t) return 1.5 - 0.5 * t end)
-G.toneN(c, b1, n1, BARK, {}) G.toneN(c, b2, n2, BARK, {})
-tm:each(function(x, y) if (x == 31 or x == 33) and y % 3 == 0 and y > 40 then c:px(x, y, BARK[2]) end end)
-c:px(32, 47, BARK[1]) c:px(32, 48, BARK[1])
+
+soil()
+-- thick trunk with flared roots, broad round crown laden with red apples, one fallen apple
+local tm, tn, tT = tube({ {32,52},{31,44},{33,37},{32,30} }, function(t) return 3.3 - 1.3 * t end, BARK, "trunk")
+tube({ {32,40},{24,35},{19,29},{16,24} }, function(t) return 1.8 - 0.6 * t end, BARK, "brL")
+tube({ {33,38},{41,34},{46,29},{49,24} }, function(t) return 1.8 - 0.6 * t end, BARK, "brR")
 -- root flare
-for _, p in ipairs{ {28,55},{29,54},{27,56},{36,55},{35,54},{37,56} } do c:px(p[1], p[2], BARK[3]) end
--- canopy
-local can = HP.mask()
-can:add(c:ellipse(22, 27, 11, 9)):add(c:ellipse(42, 25, 11, 9)):add(c:ellipse(32, 17, 12, 9)):add(c:ellipse(32, 28, 13, 8))
-local n = X.pillow(can, 10)
-local bias = {}
-for _, L in ipairs{ {22,27,5},{42,25,5},{32,17,5} } do
-  local cm = c:ellipse(L[1], L[2], L[3] + 4, L[3] + 2)
-  cm:each(function(x, y) if y > L[2] + 3 then bias[K(x, y)] = -1 end end)
+for _, p in ipairs{ {27,51},{28,50},{28,51},{37,51},{36,50},{36,51},{26,52},{38,52} } do c:put(p[1], p[2], BARK[3], { r = { name = "root" } }) end
+clump({ {32,16,13,10},{19,21,9,8},{45,21,9,8},{26,12,8,6},{39,12,8,6},{32,25,14,5} }, { "#14352f", "#1c4d3a", "#276a41", "#3a8a4a", "#5aab56", "#94cf6c" }, 23, "crown")
+local function apple(x, y)
+  local m = c:ellipse(x, y, 2, 2)
+  local t = { r = { name = "ap" .. x .. y } }
+  G.toneN(c, m, X.pillow(m, 2.4), CHILI, { tok = t, amb = 0.06, wrap = 0.15 })
+  c:put(x - 1, y - 1, "#fff0d8", t)
+  c:put(x, y - 2, STEM[2], t)
 end
-G.toneN(c, can, n, LEAF, { bias = bias })
-can:each(function(x, y)
-  local h = X.hash(x, y, 7)
-  if h > 0.93 then c:px(x, y, LEAF[6]) elseif h < 0.06 then c:px(x, y, LEAF[1]) end
-end)
--- shade seams between lobes
-for _, p in ipairs{ {32,27},{32,26},{31,28},{32,29},{33,28} } do c:px(p[1], p[2], LEAF[2]) end
--- apple
-local ap = c:ellipse(40, 31, 2, 2)
-G.toneN(c, ap, X.pillow(ap, 2), { "#5a1428", "#8a1e30", "#c0322e", "#e0503a", "#f27a52", "#ffb08a" }, {})
-c:px(40, 28, "#4a3020") c:px(41, 28, LEAF[5])
-c:px(26, 20, "#f4ffd0") c:px(27, 20, "#f4ffd0") c:px(26, 21, LEAF[6])
-G.save(c, "stage-tree-3")
+for _, p in ipairs{ {22,17},{34,10},{42,17},{30,22},{16,24},{46,25},{37,24} } do apple(p[1], p[2]) end
+-- quirk: fallen apple at the roots with a bite taken out
+local fm = c:ellipse(46, 54, 3, 2)
+G.toneN(c, fm, X.pillow(fm, 3), CHILI, { tok = { r = { name = "fall" } }, amb = 0.06 })
+c:put(44, 53, "#fff0d8", { r = { name = "fall" } })
+c:put(48, 53, "#f6e8b8", { r = { name = "fall" } }) c:put(49, 54, "#f6e8b8", { r = { name = "fall" } })
+
+G.save(c, NAME)

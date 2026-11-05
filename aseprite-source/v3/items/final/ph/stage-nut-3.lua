@@ -1,98 +1,83 @@
--- stage-nut-3 (lean D2o_9)
--- Growing nut tree: forked trunk, lopsided crown with a deep shaded inner lobe, two green husks hanging.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-nut-3 (lean E2_11)
+local NAME = "stage-nut-3"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-nut-3" }
-local sin, cos, pi, max, min, abs, floor = math.sin, math.cos, math.pi, math.max, math.min, math.abs, math.floor
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#a4d46e" }
-local LEAF2 = { "#20374a", "#2b5a50", "#3f7f52", "#62a456", "#8cc462", "#c0e07c" }
-local BARK = { "#2e1f2a", "#4a2f31", "#6b4430", "#8b5d3a", "#ab7a4a", "#cf9e63" }
-local SOIL = { "#2f1d22", "#4a2c2a", "#6a4130", "#8a5a3a", "#aa7648", "#c99a5e" }
-local NUT  = { "#43241f", "#6a3a26", "#93532e", "#b9733a", "#dc9a50", "#f4c77a" }
-local HUSK = { "#2d4a2b", "#436b34", "#5f8c3e", "#84ac4a", "#aacb5c", "#d2e88a" }
-local RED  = { "#4d1530", "#7c1f3a", "#b02f3e", "#d9533f", "#f08a55", "#ffc58a" }
-local SPEC = "#fff6e2"
-local tk = { r = { name = "p" } }
-local function blob(m, ramp, R, bias, amb)
-  local n = X.pillow(m, R or 6)
-  local v = X.light(n, { amb = amb or 0.08, wrap = 0.25 })
-  G.tone(c, m, v, ramp, nil, bias, tk)
-  return v
-end
-local function ell(cx, cy, rx, ry) return c:ellipse(cx, cy, rx, ry) end
-local function leafy(m, ramp, seed)  -- leaf-clump texture: dark notches + light flecks + dark under-rim
-  local sh = m:copy():shift(1, 1):cut(m)
-  local inner = m:copy():shrink(1)
-  m:each(function(x, y)
-    local h = X.hash(x, y, seed)
-    if inner:has(x, y) then
-      if h > 0.9 then c:px(x, y, ramp[1 + (y > 0 and 1 or 0)]) elseif h < 0.1 then c:px(x, y, ramp[5]) end
-    end
-  end)
-end
-local function rimlow(m, col)  -- darken lower-right edge pixels
-  local cx, cy, n = 0, 0, 0
-  m:each(function(x, y) cx = cx + x cy = cy + y n = n + 1 end)
-  cx, cy = cx / n, cy / n
-  m:edge():each(function(x, y) if (x - cx) + (y - cy) > 2 then c:px(x, y, col) end end)
-end
-local function leaf(p, wmax, ramp, o)
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local CUTS = { 0.2, 0.38, 0.54, 0.7, 0.85 }
+local LEAF = { "#163a35", "#1f5a40", "#2f7f48", "#47a24f", "#6cc25a", "#a2de6c" }
+local SOIL = { "#2a1a1c", "#4a2e26", "#6e4630", "#8f6038", "#b07c48", "#cf9c60" }
+local BARK = { "#2e1a1a", "#4a2c24", "#6b4230", "#8a5a3c", "#a87650", "#c79a6c" }
+local ACOR = { "#4a2a18", "#7a4824", "#a8682e", "#cc8c42", "#e8b05c", "#f8d488" }
+local CAPR = { "#2e1a14", "#4e3022", "#6e4a30", "#8c6642", "#a8825a", "#c8a678" }
+local GLINT = "#fff4d0"
+local function U(list) local m = list[1]:copy() for i = 2, #list do m:add(list[i]) end return m end
+local function vol(m, ramp, R, nm, o)
   o = o or {}
-  local m, n, T, S = G.tube(p, function(t) return wmax * sin(pi * min(1, t * 0.92 + 0.04)) ^ 0.7 + 0.35 end)
-  local v = X.light(n, { amb = 0.1, wrap = 0.3 })
-  G.tone(c, m, v, ramp, nil, nil, tk)
-  m:each(function(x, y) local k = K(x, y)
-    if abs(S[k]) < 0.22 and T[k] > 0.1 and T[k] < 0.92 then c:px(x, y, S[k] <= 0 and ramp[6] or ramp[3]) end end)
+  local n = X.pillow(m, R or 3)
+  local idx = X.tone(c, m, X.light(n, { amb = o.amb or 0.08, wrap = o.wrap or 0.25 }), ramp, { cuts = CUTS, tok = { r = { name = nm or "p" } } })
+  return idx, n
+end
+local function tube(pts, fn, ramp, nm)
+  local m, n, T = G.tube(pts, fn)
+  G.toneN(c, m, n, ramp, { tok = { r = { name = nm } }, cuts = CUTS, amb = 0.12, wrap = 0.3 })
+  return m, n, T
+end
+local function leaf(ax, ay, cx, cy, bx, by, w, ramp, nm, o)
+  o = o or {}
+  local m, n, T, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.9 + 0.1)
+    local r = w * sin(pi * u ^ (o.p or 1.2)) ^ (o.q or 0.75)
+    if o.lobe then r = r * (1 + o.lobe * sin(t * pi * o.lobes)) end
+    return max(0.5, r)
+  end, { fold = o.fold or 0.45 })
+  local tok = { r = { name = nm } }
+  G.toneN(c, m, n, ramp, { tok = tok, cuts = CUTS, amb = 0.12, wrap = 0.22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.14 and t > 0.05 and t < 0.9 then c:put(x, y, s <= 0 and ramp[6] or ramp[2], tok) return end
+    if o.veins then for _, vt in ipairs(o.veins) do
+      local d = t * L - (vt + abs(s) * 3.4)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.28 and abs(s) < 0.72 then c:put(x, y, s < 0 and ramp[6] or ramp[2], tok) return end
+    end end
+  end)
   return m
 end
-local function mound(extra)
-  c:groundShadow(32, 55, 21, 4)
-  local m = ell(32, 51, 20, 6)
-  local bias = {}
-  X.ao(bias, m, extra or HP.mask(), 2, -1)
-  blob(m, SOIL, 4, bias)
-  m:each(function(x, y) local h = X.hash(x, y, 3)
-    if h > 0.93 then c:px(x, y, SOIL[6]) elseif h < 0.05 then c:px(x, y, SOIL[1]) end end)
-  for _, p in ipairs{ {18,50},{19,50},{45,52},{46,52},{26,55} } do c:px(p[1], p[2], SOIL[5]) end
-  c:px(14, 51, SOIL[6]) c:px(15, 49, SOIL[6])
+local function soil(rx)
+  local m = c:ellipse(32, 54, rx or 20, 4.6)
+  local idx = vol(m, SOIL, 5, "soil")
+  m:each(function(x, y)
+    local h = X.hash(x, y, 7)
+    if h > 0.9 then c:put(x, y, SOIL[6], { r = { name = "soil" } }) elseif h < 0.07 then c:put(x, y, SOIL[1], { r = { name = "soil" } }) end
+  end)
   return m
 end
-local function trunk(p, w0, w1)
-  local m, n, T, S = G.tube(p, function(t) return w0 + (w1 - w0) * t end)
-  local v = X.light(n, { amb = 0.1, wrap = 0.2 })
-  G.tone(c, m, v, BARK, nil, nil, tk)
-  m:each(function(x, y) local k = K(x, y)
-    if X.hash(x, y, 7) > 0.8 and S[k] > -0.4 then c:px(x, y, BARK[2]) end
-    if X.hash(x, y, 8) > 0.9 and S[k] < 0 then c:px(x, y, BARK[5]) end end)
-  return m
-end
-local function nutfn(cx, cy, r)
-  local m = ell(cx, cy, r, r + 0.5)
-  blob(m, NUT, r)
-  local cap = c:rect(cx - r, cy - r - 1, cx + r, cy - r + 1):cut(c:rect(0,0,0,0))
-  cap = ell(cx, cy - r + 0.5, r + 0.5, 1.8)
-  blob(cap, HUSK, 2)
-  c:px(cx - 1, cy, NUT[6])
-  return m:add(cap)
+local function acorn(x, y, s)
+  s = s or 1
+  local b = c:ellipse(x, y + 1, 1.9 * s, 2.4 * s)
+  vol(b, ACOR, 2, "ac")
+  local cp = c:ellipse(x, y - 1, 2.5 * s, 1.5 * s)
+  vol(cp, CAPR, 1.5, "ac")
+  c:put(floor(x - 1 * s), floor(y + 1), GLINT, { r = { name = "ac" } })
 end
 
-local mm = mound()
-local t1 = trunk({ {31,51},{32,42},{30,34},{29,26} }, 2.8, 1.6)
-local t2 = trunk({ {32,40},{35,36},{39,33},{42,29} }, 1.6, 0.9)
-c:px(30, 50, BARK[1]) c:px(33, 50, BARK[1]) c:px(28, 52, BARK[1]) c:px(35, 52, BARK[1])
-local back = ell(32, 22, 10, 7)
-local a, b, d, e = ell(22, 25, 7, 6), ell(42, 24, 7.5, 6), ell(31, 13, 9, 7), ell(32, 24, 8, 5)
-blob(back, LEAF2, 7, nil, 0.0) leafy(back, LEAF2, 21)
-blob(a, LEAF2, 6) leafy(a, LEAF2, 22) rimlow(a, LEAF2[1])
-blob(e, LEAF2, 5, nil, 0.0) leafy(e, LEAF2, 23)
-blob(b, LEAF, 6) leafy(b, LEAF, 24) rimlow(b, LEAF[1])
-blob(d, LEAF, 7) leafy(d, LEAF, 25) rimlow(d, LEAF[1])
-for _, p in ipairs{ {26,10},{27,10},{25,11},{38,18},{39,18},{18,22} } do c:px(p[1], p[2], LEAF[6]) end
-c:px(26, 9, SPEC)
-for _, h in ipairs{ {46, 36}, {40, 41} } do
-  G.line(c, { {h[1], h[2] - 5}, {h[1], h[2] - 2} }, BARK[3])
-  local hm = ell(h[1], h[2], 2.8, 3.2) blob(hm, HUSK, 3)
-  c:px(h[1] - 1, h[2] - 1, HUSK[6]) c:px(h[1], h[2] + 3, HUSK[1])
+-- quirk: a little red toadstool grows between the roots; acorns hang in the crown
+soil(21)
+local function lobe(cx, cy, rx, ry, nm)
+  local m = c:ellipse(cx, cy, rx, ry)
+  local idx = vol(m, LEAF, max(rx, ry) * 0.9, nm)
+  m:each(function(x, y) local h = X.hash(x, y, 11)
+    if h > 0.93 then c:put(x, y, LEAF[min(6, (idx[K(x, y)] or 3) + 1)], { r = { name = nm } }) elseif h < 0.05 then c:put(x, y, LEAF[max(1, (idx[K(x, y)] or 3) - 1)], { r = { name = nm } }) end end)
 end
-
-G.fin(c, "stage-nut-3")
+lobe(22, 19, 10, 8, "b1") lobe(42, 19, 10, 8, "b2") lobe(32, 12, 11, 7, "b3")
+-- trunk
+local tr = c:poly{ {25,54},{29,46},{29,28},{35,28},{35,46},{40,54} }
+vol(tr, BARK, 4, "trunk")
+for _, p in ipairs{ {31,36},{31,37},{33,42},{33,43},{32,48} } do c:put(p[1], p[2], BARK[1], { r = { name = "trunk" } }) end
+lobe(19, 28, 8, 6, "f1") lobe(45, 28, 8, 6, "f2") lobe(32, 26, 12, 7, "f3")
+acorn(21, 36, 1.0) acorn(42, 36, 1.0) acorn(33, 34, 1.0)
+-- toadstool
+vol(c:rect(18, 51, 19, 53), { "#a89472", "#c8b690", "#e2d2b4", "#f0e4c8", "#f6ecd6", "#fffaea" }, 1, "mst")
+vol(c:ellipse(18.5, 50, 3.6, 2.2), { "#5a1420", "#8a2030", "#b8303c", "#d8503c", "#f08060", "#ffb090" }, 2.5, "mcap")
+c:put(17, 49, "#fff4e0", { r = { name = "mcap" } }) c:put(20, 50, "#fff4e0", { r = { name = "mcap" } })
+G.save(c, NAME)

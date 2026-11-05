@@ -1,53 +1,47 @@
--- tallow-wax (lean W2_32)
--- A fat tallow candle slumped on a tin saucer, lit, with runny drips and a fallen drop; quirk: someone's thumbprint pressed in the soft wax.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- NAME (lean E2_16)
+local NAME = "tallow-wax"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "tallow-wax" }
-local sin, floor = math.sin, math.floor
-local WAX = { "#6e5a7a", "#a2907f", "#cfbea4", "#ecdfc2", "#f8eed4", "#fffbea" }
-local TIN = { "#34344e", "#545674", "#7a7e9c", "#a2a8c0", "#c8cde0", "#eef0f8" }
-local function shade(m, ramp, R, o, bias)
-  local n = X.pillow(m, R)
-  G.tone(c, m, X.light(n, o or { amb = 0.1, wrap = 0.3 }), ramp, nil, bias)
-  return n
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local CUTS = { .22, .4, .56, .72, .86 }
+local _n = 0
+local function shade(m, ramp, R, o)
+  o = o or {}; _n = _n + 1
+  local n = X.pillow(m, R or 4)
+  local idx = X.tone(c, m, X.light(n, { amb = o.amb or .1, wrap = o.wrap or .25 }), ramp, { cuts = CUTS, tok = { r = { name = "p" .. _n } } })
+  return idx, n
 end
-c:groundShadow(32, 58, 18, 2)
--- saucer
-shade(c:ellipse(32, 53, 18, 4.5), TIN, 4)
-c:fillMask(c:ellipse(32, 52, 14, 3), TIN[2])
-c:fillMask(c:ellipse(32, 52, 12, 2), WAX[3])
-c:fillMask(c:ellipse(30, 52, 9, 1), WAX[4])
-for x = 17, 22 do c:px(x, 51, TIN[6]) end
--- body, slumping wider toward the base
-local body = HP.mask()
-for y = 22, 52 do
-  local h = 5.4 + 0.6 * sin(y * 0.5) + ((y > 42) and (y - 42) * 0.32 or 0)
-  for x = floor(32 - h + 0.5), floor(32 + h - 0.5) do body:set(x, y) end
+local function tok() _n = _n + 1 return { r = { name = "q" .. _n } } end
+local function put(m, col) local t = tok() m:each(function(x, y) c:put(x, y, col, t) end) end
+local function bez(p, t) local u = 1 - t
+  return u*u*u*p[1][1] + 3*u*u*t*p[2][1] + 3*u*t*t*p[3][1] + t*t*t*p[4][1],
+         u*u*u*p[1][2] + 3*u*u*t*p[2][2] + 3*u*t*t*p[3][2] + t*t*t*p[4][2] end
+
+local TAL = { "#7a6440", "#a68e5a", "#caB27a", "#e6d49c", "#f6ebc0", "#fffadc" }
+c:groundShadow(32, 57, 23, 3)
+shade(c:ellipse(32, 52, 24, 5), { "#9a8458", "#bca470", "#d8c48c", "#ece0aa" }, 4)  -- melted pool
+-- lumpy cake
+local m = HP.mask()
+m:add(c:ellipse(30, 40, 17, 12)) m:add(c:ellipse(42, 42, 10, 9)) m:add(c:ellipse(20, 44, 8, 8)) m:add(c:ellipse(34, 33, 10, 6))
+shade(m, TAL, 7, { amb = .15, wrap = .3 })
+-- drips running down the front
+for _, d in ipairs{ { 24, 46, 55 }, { 36, 48, 53 }, { 45, 44, 50 } } do
+  local dm = c:rrect(d[1] - 1, d[2], d[1] + 1, d[3], 1)
+  shade(dm, TAL, 2, { amb = .3, wrap = .4 })
+  c:put(d[1] + 1, d[3] - 1, TAL[1])
 end
-local n = shade(body, WAX, 5.5, { amb = 0.08, wrap = 0.25 })
--- melted top pool
-c:fillMask(c:ellipse(32, 22, 6.5, 2.3), WAX[2])
-c:fillMask(c:ellipse(32, 22, 5, 1.6), WAX[4])
-c:fillMask(c:ellipse(31, 22, 3, 0.8), WAX[6])
--- drips
-local function drip(x, y0, y1, r)
-  local m = G.rell(x, (y0 + y1) / 2, 0, 1, (y1 - y0) / 2, r):add(G.rell(x, y1 + 0.5, 0, 1, r + 0.9, r + 0.9))
-  m:each(function(px, py) if body:has(px + 1, py) and not m:has(px + 1, py) then c:px(px + 1, py, WAX[2]) end end)
-  shade(m, WAX, 1.6, { amb = 0.2, wrap = 0.3 })
-  c:px(x - 1, y0 + 2, WAX[6])
-end
-drip(27, 22, 34, 1.4) drip(37, 22, 30, 1.2) drip(32, 23, 41, 1.7)
--- thumbprint (quirk)
-c:ellipse(27, 44, 3, 2.4):edge():each(function(x, y) c:px(x, y, WAX[2]) end)
-c:ellipse(27, 44, 1.4, 1):edge():each(function(x, y) c:px(x, y, WAX[3]) end)
--- sheen streak
-for y = 26, 48 do if y % 5 ~= 0 and not (y > 31 and y < 40 and false) then c:px(25, y, WAX[6]) end end
--- fallen drop on the saucer
-shade(c:ellipse(44, 52, 2.5, 1.2), WAX, 1.5)
-c:px(43, 51, WAX[6])
--- wick and flame
-G.line(c, { { 32, 22 }, { 32, 19 }, { 33, 16 } }, "#4a3a40")
-c:fillMask(c:ellipse(33, 12.5, 2.4, 3.6), "#f0802a")
-c:fillMask(c:ellipse(33, 13, 1.4, 2.4), "#ffd860")
-c:px(33, 14, "#fffbe0") c:px(33, 13, "#fffbe0") c:px(33, 8, "#f0802a")
-G.fin(c, "tallow-wax")
+-- thumbprint dent
+shade(c:ellipse(40, 38, 4, 3), { TAL[1], TAL[2], TAL[3], TAL[4] }, 2)
+c:put(38, 37, TAL[6])
+-- braided wick loop out of the top
+local wm, wn = G.tube({ {30, 31}, {26, 20}, {38, 14}, {34, 7} }, function(t) return 1.4 - 0.3 * t end)
+local wt = tok()
+wm:each(function(x, y) local k = K(x, y) local odd = (x + y) % 3 == 0
+  c:put(x, y, odd and "#2a2018" or (y < 12 and "#3a3038" or "#6a5a48"), wt) end)
+c:put(34, 6, "#1a1218") c:put(34, 7, "#2a2018")
+-- wax shavings and a lit glint on top
+c:put(26, 33, TAL[6]) c:put(27, 33, TAL[6]) c:put(25, 34, TAL[5])
+c:sparkle(18, 36)
+
+G.save(c, NAME)

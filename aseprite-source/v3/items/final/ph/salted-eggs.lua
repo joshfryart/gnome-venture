@@ -1,41 +1,45 @@
--- salted-eggs (lean W2_16)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- salted-eggs (lean E2_06)
+local NAME = "salted-eggs"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function cyl(m, cx, hw) local n = {} m:each(function(x, y) local nx = max(-0.97, min(0.97, (x - cx) / hw)); n[K(x, y)] = { nx, -0.1, sqrt(1 - nx * nx) } end) return n end
-local function shade(c, m, n, ramp, bias, amb) G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, nil, bias) end
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "salted-eggs" }
-c:groundShadow(32, 55, 19, 3)
-local TC = { "#4a2418", "#6e3a22", "#9a5530", "#c27a42", "#e0a064", "#f2c88a" }
-local EG = { "#4f6a74", "#7a9aa2", "#a4c0bc", "#c8dcd2", "#e4f0e6", "#f8fff6" }
-local SA = { "#6c7aa0", "#98a6c4", "#c4cee0", "#e4eaf2", "#f6f9fc", "#f8fbff" }
-local YO = { "#7a2a10", "#b0420e", "#d8681a", "#f08c28", "#ffb348", "#ffd890" }
--- eggs behind
-for _, e in ipairs{ { 24, 24, 0.0, 9, 6.5 }, { 36, 22, 0.3, 9.5, 6.8 } } do
-  local ux, uy = -sin(e[3]), -cos(e[3])
-  local m = G.rell(e[1], e[2], ux, uy, e[4], e[5])
-  shade(c, m, X.pillow(m, 6), EG, nil, 0.1)
-  m:each(function(x, y) local h = X.hash(x, y, 5) if h > 0.9 and X.pillow(m, 6)[K(x, y)][3] > 0.5 then c:px(x, y, SA[5]) end end)
-  c:px(floor(e[1] - 3), floor(e[2] - 4), EG[6])
-end
--- crock
-local cr = c:rrect(14, 38, 50, 53, 5)
-shade(c, cr, cyl(cr, 32, 18), TC)
-for x = 16, 48 do if x % 5 ~= 0 then c:px(x, 46, TC[2]) end end
-local rim = c:rrect(12, 35, 52, 40, 2)
-shade(c, rim, cyl(rim, 32, 20), TC)
-for x = 14, 50 do c:px(x, 40, TC[1]) end
-c:px(17, 36, TC[6]) c:px(18, 36, TC[6])
--- salt mound
-local mound = c:ellipse(32, 35, 17, 6):add(c:ellipse(32, 33, 11, 6))
-mound:cut(c:rect(0, 38, 63, 63))
-local bias = {}
-mound:each(function(x, y) local h = X.hash(x, y, 3) if h > 0.78 then bias[K(x, y)] = 1 elseif h < 0.12 then bias[K(x, y)] = -1 end end)
-shade(c, mound, X.pillow(mound, 5), SA, bias, 0.2)
--- halved egg with yolk (quirk)
-local hf = c:ellipse(39, 34, 8, 5)
-shade(c, hf, X.pillow(hf, 4), { "#9a9a8c", "#c4c4b4", "#e4e4d2", "#f4f4e6", "#fcfcf0", "#f8fbff" }, nil, 0.2)
-local yk = c:ellipse(39, 34, 4, 3)
-shade(c, yk, X.pillow(yk, 3), YO)
-c:px(38, 33, YO[6]) c:px(37, 33, YO[5])
-G.fin(c, "salted-eggs")
+local function R(v) return floor(v + 0.5) end
+local function paint(m, ramp, rad, name, opt) opt = opt or {}
+  local n = X.pillow(m, rad or 4); local tok = { r = { name = name } }
+  local idx = X.tone(c, m, X.light(n, { amb = opt.amb or 0.08, wrap = opt.wrap or 0.25 }), ramp, { cuts = { 0.22, 0.4, 0.56, 0.72, 0.86 }, tok = tok })
+  return n, idx, tok end
+local function sel(m, fn) local o = HP.mask() m:each(function(x, y) if fn(x, y) then o:set(x, y) end end) return o end
+local function spec(m, n, col, tok) local x, y = G.specAt(m, n, 30) if x then c:put(x, y, col, tok) end end
+local CROCK = { "#3a2218", "#643a26", "#8e5a38", "#b47a4c", "#d49c68", "#ecc08c" }
+local SALT = { "#6a7aa0", "#8e9ec0", "#b4c2de", "#d6e0f0", "#eef4fc", "#f6fbff" }
+local EGG = { "#6e7a62", "#92a082", "#b8c4a2", "#d6dcc0", "#eceed6", "#fffff0" }
+local YOLK = { "#b8500c", "#e07a14", "#f8a824", "#ffd040", "#ffec80" }
+c:groundShadow(32, 58, 22, 3)
+local cr = c:rrect(12, 38, 52, 57, 5)
+paint(cr, CROCK, 8, "crock")
+-- grooves + rim
+for x = 14, 50 do c:put(x, 46, CROCK[2], { r = { name = "groove" } }) end
+c:rect(11, 36, 53, 40):each(function(x, y) c:put(x, y, y == 36 and CROCK[5] or (y == 40 and CROCK[2] or CROCK[4]), { r = { name = "rim" } }) end)
+-- salt heap
+local heap = c:ellipse(32, 36, 19, 5)
+local hn, hidx, ht = paint(heap, SALT, 4, "salt")
+heap:each(function(x, y) if X.hash(x, y, 3) > 0.9 then c:put(x, y, SALT[6], ht) elseif X.hash(x, y, 5) > 0.9 then c:put(x, y, SALT[2], ht) end end)
+-- eggs
+local function egg(cx, cy, rx, ry, name)
+  local m = G.oval(cx, cy, rx, ry, 0, 0.0)
+  local n, idx, t = paint(m, EGG, 5, name)
+  spec(m, n, "#f6fbff", t); return m, n, idx, t end
+local e1 = egg(21, 28, 7, 9, "egg1")
+local e2 = egg(43, 28, 7, 9, "egg2")
+local e3, n3, i3, t3 = egg(32, 24, 8, 11, "egg3")
+-- cracked front egg: jagged cut showing yolk
+local cut = sel(e3, function(x, y) return y < 17 + ((x % 4 < 2) and 0 or 2) end)
+local yk = c:ellipse(32, 18, 6, 4)
+paint(yk, YOLK, 3, "yolk")
+c:put(30, 16, "#fff8c0", { r = { name = "yolk" } })
+for _, p in ipairs{ {26,16},{27,15},{28,17},{36,17},{37,15},{38,16} } do c:put(p[1], p[2], EGG[6], t3) end
+-- hairline crack on egg 2 and salt grains in front
+for _, p in ipairs{ {43,22},{44,24},{43,26},{45,28} } do c:put(p[1], p[2], EGG[1], { r = { name = "egg2" } }) end
+for _, p in ipairs{ {18,37},{28,39},{40,38},{47,36} } do c:put(p[1], p[2], SALT[6], ht) end
+G.save(c, NAME)

@@ -1,54 +1,52 @@
--- holly-hedge (lean W2_7)
--- A plump cloud-shaped holly hedge on two stubby posts: spiky leaf-edge, berry clusters, a robin perched on top (quirk).
+-- holly-hedge (lean E2_02)
+local NAME = "holly-hedge"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "holly-hedge" }
-local LEAF = { "#10302c", "#1b4a35", "#2b6a3c", "#43883f", "#6aa84a", "#a4d06a" }
-local RED  = { "#4a0f1f", "#7d1428", "#b3202f", "#d93a38", "#f26a50", "#ffc0a0" }
-local WOOD = { "#3a2418", "#5a3a22", "#7e5430", "#a1713f" }
-local BRN  = { "#3b2418", "#5e3a24", "#8a5a36", "#b88556" }
-c:groundShadow(32, 52, 20, 3)
--- posts
-for _, x0 in ipairs{ 19, 41 } do
-  local p = c:rect(x0, 44, x0 + 3, 51)
-  c:part(p, WOOD)
-  c:fillMask(c:rect(x0, 44, x0 + 3, 45), WOOD[1])
-  c:px(x0 + 1, 48, WOOD[4])
+local CUTS = { 0.22, 0.4, 0.56, 0.72, 0.86 }
+local function shade(m, ramp, R, nm, o)
+  o = o or {}
+  local n = X.pillow(m, R or 4)
+  local v = X.light(n, { amb = o.amb or 0.08, wrap = o.wrap or 0.25 })
+  local idx = X.tone(c, m, v, ramp, { cuts = CUTS, tok = { r = { name = nm or "p" } } })
+  return idx, n
 end
--- hedge body: union of lobes
-local m = HP.mask()
-for _, L in ipairs{ {21,31,10,11}, {43,31,10,11}, {32,25,13,12}, {32,36,17,9} } do m:add((G.oval(L[1], L[2], L[3], L[4], 0, 1))) end
-local ring = m:copy():grow(1):cut(m)
-ring:each(function(x, y) if X.hash(x, y, 5) > 0.7 and y < 40 then m:set(x, y) end end)
-local n = X.pillow(m, 9)
-local v = X.light(n, { amb = 0.1, wrap = 0.25 })
-local bias = {}
-X.tone(c, m, v, LEAF, { cuts = { 0.2, 0.38, 0.54, 0.7, 0.86 }, bias = bias })
--- holly leaf texture: pale spiky glints and dark notches
-m:each(function(x, y)
-  local h = X.hash(x, y, 3)
-  local k = K(x, y)
-  if h > 0.88 and v[k] > 0.45 then c:px(x, y, LEAF[6])
-  elseif h > 0.80 and v[k] > 0.3 and X.hash(x + 1, y, 3) > 0.8 then c:px(x, y, LEAF[5])
-  elseif h < 0.1 then c:px(x, y, LEAF[1]) end
-  if (x + y * 2) % 7 == 0 and h > 0.35 and v[k] > 0.25 then c:px(x, y, LEAF[2]) end
-end)
+local function px(x, y, col, nm) c:put(x, y, col, { r = { name = nm or "d" } }) end
+local function spec(m, n, col)
+  local x, y = G.specAt(m, n, 30)
+  if x then px(x, y, col or "#fff4dc", "spec") end
+end
+c:groundShadow(32, 54, 27, 3)
+local HG = { "#0f2a22", "#17402e", "#1f5a38", "#2c7a44", "#44a055", "#7cc872" }
+local RD = { "#4a0e18", "#8a1a22", "#c42828", "#e8463a", "#ff7a5a", "#ffd0b0" }
+local hed = c:rrect(7, 28, 57, 51, 7)
+for i = 0, 10 do local x = 9 + i * 4
+  hed:add(c:poly{ {x, 29}, {x + 2, 23 + (i % 3 == 0 and 0 or 2)}, {x + 4, 29} }) end
+local idx = shade(hed, HG, 10, "hedge")
+-- holly leaves: spiky lobed
+local lv = { {16,34},{28,32},{40,33},{51,34},{12,44},{23,43},{34,44},{45,43},{55,45},{20,26},{34,26},{46,27} }
+for _, p in ipairs(lv) do local x, y = p[1], p[2]
+  local m = c:poly{ {x-4,y}, {x-2,y-2}, {x-1,y-1}, {x+1,y-3}, {x+2,y-1}, {x+4,y}, {x+2,y+1}, {x+1,y+3}, {x,y+1}, {x-2,y+2} }
+  m:shrink(0)
+  m:each(function(a, b) if hed:has(a, b) then px(a, b, HG[4], "lv") end end)
+  for dx = -3, 3 do if hed:has(x + dx, y) then px(x + dx, y, HG[5], "rib") end end
+  if hed:has(x - 3, y - 1) then px(x - 3, y - 1, HG[6], "lv") end
+end
 -- berries
-for _, b in ipairs{ {16,28},{20,36},{25,29},{30,38},{34,31},{40,27},{45,35},{49,30},{38,40},{12,34},{28,22} } do
-  local bm, bn = G.oval(b[1], b[2], 1.9, 1.9, 0, 1)
-  G.toneN(c, bm, bn, RED)
-  c:px(b[1] - 1, b[2] - 1, RED[6])
-  c:px(b[1] + 1, b[2] + 1, RED[1])
+local B = { {17,38},{20,40},{15,41}, {36,38},{39,36},{34,41}, {48,40},{51,38},{47,44}, {26,47},{29,45} }
+for i, p in ipairs(B) do
+  local m = c:ellipse(p[1], p[2], 3, 3)
+  m:grow(1):each(function(x, y) if hed:has(x, y) then px(x, y, HG[1], "bao") end end)
+  shade(m, RD, 3, "b" .. i, { amb = 0.05 })
+  px(p[1] - 1, p[2] - 1, RD[6], "bs")
 end
--- robin on top (quirk)
-local bd, bdn = G.oval(38, 11, 4.2, 3.2, 0, 1)
-G.toneN(c, bd, bdn, BRN)
-local hd, hdn = G.oval(42, 8, 2.6, 2.6, 0, 1)
-G.toneN(c, hd, hdn, BRN)
-for _, p in ipairs{ {41,10},{42,10},{43,10},{42,11},{41,11},{40,12},{41,12} } do c:px(p[1], p[2], "#e8683a") end
-c:px(42, 9, "#f58a4a")
-c:px(42, 7, "#1a1018") c:px(44, 8, "#f2c14a") c:px(45, 8, "#f2c14a")
-c:px(33, 11, BRN[2]) c:px(34, 12, BRN[1]) c:px(33, 12, BRN[1]) c:px(34, 10, BRN[3])
-c:px(37, 9, BRN[4])
-G.save(c, "holly-hedge")
+-- robin
+local rb = c:ellipse(41, 19, 6, 5)
+shade(rb, { "#3a2418", "#5e3a24", "#7e5434", "#a07048", "#c09068", "#dcb088" }, 4, "robin")
+local br = c:ellipse(44, 21, 3, 3)
+shade(br, RD, 3, "breast", { amb = 0.1 })
+c:poly{ {35,19}, {28,23}, {37,22} }:each(function(x, y) px(x, y, "#4e3020", "tail") end)
+px(44, 17, "#1a1018", "eye"); px(47, 19, "#f0c030", "beak"); px(48, 19, "#f0c030", "beak")
+px(41, 24, "#8a6a40", "leg"); px(41, 25, "#8a6a40", "leg")
+G.save(c, NAME)

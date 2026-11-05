@@ -1,74 +1,141 @@
--- stone-wall-gate (lean W2_30)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stone-wall-gate (lean E2_15)
+-- Gateway in the wall: two tall stone posts with overhanging caps and a plank double gate with iron straps and a ring pull.
+-- quirk: a yellow flower grows at the foot of the left post, the right gate leaf stands slightly ajar.
+local NAME = "stone-wall-gate"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stone-wall-gate" }
-local floor, abs = math.floor, math.abs
-local S = { "#2e2940", "#4a4562", "#6a6483", "#8d86a0", "#b3acb8", "#d6cdc8" }
-local WARM = { "#5b4a58", "#7d6a6c", "#a08a82", "#c5ae9c" }
-local function px(x, y, col) if x >= 0 and x < 64 and y >= 0 and y < 64 then c:px(x, y, col) end end
--- masonry block: courses of 5px, staggered joints, per-brick tone + bevel
-local function masonry(x0, y0, x1, y1, seed)
-  for y = y0, y1 do for x = x0, x1 do px(x, y, S[1]) end end
-  local row, y = 0, y0
-  while y <= y1 do
-    local h = math.min(4, y1 - y)
-    local x = x0 - ((row * 3 + seed) % 5)
-    while x <= x1 do
-      local w = 6 + floor(X.hash(x, y, seed) * 5)
-      local r = X.hash(x + 7, y + 3, seed + 1)
-      local base = r < 0.25 and 3 or (r < 0.8 and 2 or 4)
-      local warm = r > 0.86
-      for yy = 0, h - 1 do for xx = 0, w - 2 do
-        local X1, Y1 = x + xx, y + yy
-        if X1 >= x0 and X1 <= x1 and Y1 <= y1 then
-          local t = base
-          if yy == 0 then t = t + 1 elseif yy == h - 1 and h > 2 then t = t - 1 end
-          if xx == 0 then t = math.max(t, base + 1) end
-          if xx == w - 2 then t = t - 1 end
-          t = math.max(2, math.min(6, t))
-          px(X1, Y1, warm and WARM[math.min(4, t - 1)] or S[t - 0 > 6 and 6 or t])
-        end
-      end end
-      x = x + w
-    end
-    y = y + h + 1; row = row + 1
-  end
-end
-local function capstone(x0, y0, x1, y1)
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt, atan2 = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan2 or math.atan
+local function clamp(v,a,b) return max(a,min(b,v)) end
+
+local MORT = "#2e2536"
+local RAMPS = {
+  { "#2f2a3a", "#4e4a60", "#6b6a82", "#8e8ea4", "#b9b9c9" },
+  { "#3a2f36", "#5c4d54", "#7e7078", "#a2949a", "#cdc1c4" },
+  { "#4a3a34", "#74604f", "#9a8266", "#bda47e", "#e0cba0" },
+}
+local CAP = { "#4e4458", "#7a6f86", "#a39bb0", "#cbc4d4", "#eee9f2" }
+local MOSS = { "#24502e", "#3a7a3c", "#68a84a", "#a2d062" }
+local WOOD = { "#3a2218", "#5c3a24", "#7e5232", "#a06c40", "#c48c58" }
+local IRON = { "#26232e", "#3e3b4c", "#5c586e", "#8a869c", "#c4c0d0" }
+local function stone(x0, y0, x1, y1, ramp, seed)
   for y = y0, y1 do for x = x0, x1 do
-    local t = 5
-    if y == y0 then t = 6 elseif y == y1 then t = 3 elseif y == y1 - 1 then t = 4 end
-    if x == x1 then t = t - 1 end
-    px(x, y, S[t])
+    local ex, ey = (x == x0 or x == x1), (y == y0 or y == y1)
+    if not (ex and ey) then
+      local i = 3
+      if y == y0 or x == x0 then i = 4 end
+      if y == y0 and x > x0 and x <= x0 + (x1 - x0) * 0.6 then i = 5 end
+      if y == y1 or x == x1 then i = 2 end
+      if y == y1 and x > x0 + (x1 - x0) * 0.45 then i = 1 end
+      local h = X.hash(x, y, seed)
+      if i == 3 then if h > 0.88 then i = 4 elseif h < 0.1 then i = 2 end end
+      c:put(x, y, ramp[i])
+    end
   end end
-  px(x0 + 2, y0 + 1, S[6]) px(x0 + 3, y0 + 2, S[4]) px(x1 - 3, y0 + 2, S[4])
 end
-local function moss(x, y, n) for i = 0, n - 1 do px(x + i, y, "#5f9a4c") px(x + i, y - 1 + (i % 2), "#8fc462") end px(x, y, "#3d6b3c") end
-
-c:groundShadow(32, 54, 28, 3)
-masonry(4, 22, 17, 52, 5) masonry(46, 22, 59, 52, 9)    -- pillars
-masonry(18, 18, 45, 28, 12)                              -- lintel course
-capstone(2, 14, 19, 21) capstone(44, 14, 61, 21)          -- pillar caps
-for y = 18, 21 do for x = 20, 43 do px(x, y, y == 18 and S[6] or (y == 21 and S[3] or S[5])) end end
--- arched wooden double door
-local W = { "#2f1d1c", "#4d2c24", "#6f4430", "#8f5c3a", "#b57c4c" }
-for y = 29, 52 do for x = 18, 45 do
-  local dx = x - 31.5
-  local inside = true
-  if y < 35 then inside = (dx * dx) / 196 + ((y - 35) ^ 2) / 36 <= 1 end
-  if inside then
-    local t = 3 + ((x - 18) % 4 == 0 and -1 or 0)
-    if x == 31 or x == 32 then t = 1 end
-    if (x - 18) % 4 == 1 then t = 4 end
-    if y > 50 then t = 1 end
-    px(x, y, W[math.max(1, math.min(5, t))])
+local function face(x0, y0, x1, y1, rowH, seed, wmin, wmax)
+  for y = y0, y1 do for x = x0, x1 do c:put(x, y, MORT) end end
+  local r, y = 0, y0
+  while y <= y1 do
+    local ye = min(y + rowH - 2, y1)
+    local sx = x0 - floor(X.hash(r, 1, seed) * (wmax - 1))
+    while sx <= x1 do
+      local w = wmin + floor(X.hash(sx, r, seed + 3) * (wmax - wmin + 1))
+      local a, b = max(x0, sx), min(x1, sx + w - 2)
+      if b - a >= 2 and ye - y >= 2 then stone(a, y, b, ye, RAMPS[1 + floor(X.hash(sx, r, seed + 7) * 3)], seed + sx + r * 13) end
+      sx = sx + w
+    end
+    y = y + rowH; r = r + 1
   end
-end end
-for x = 18, 45 do if (x - 31.5)^2 <= 196 then px(x, 29, S[1]) end end
-for _, yy in ipairs{ 38, 47 } do for x = 19, 44 do px(x, yy, "#3a3a4a") px(x, yy + 1, "#6a6a80") end end
-px(29, 42, "#e4b84a") px(30, 42, "#e4b84a") px(33, 42, "#e4b84a") px(34, 42, "#e4b84a")
-px(29, 43, "#8a6a24") px(34, 43, "#8a6a24")
-px(30, 33, "#e4b84a")  -- quirk: tiny brass keyhole plate
-moss(5, 52, 4) moss(54, 52, 3)
+end
+-- flat top slab of the wall; horiz=true seams are vertical ticks, else horizontal
+local function slab(x0, y0, x1, y1, seed, horiz)
+  for y = y0, y1 do for x = x0, x1 do
+    local i = 3
+    if y == y0 then i = 5 elseif y == y0 + 1 then i = 4 end
+    if x == x0 then i = max(i, 4) end
+    if x == x1 then i = min(i, 2) end
+    if y == y1 then i = 2 elseif y == y1 - 1 and i == 3 then i = 3 end
+    local h = X.hash(x, y, seed)
+    if i == 3 then if h > 0.9 then i = 4 elseif h < 0.12 then i = 2 end end
+    c:put(x, y, CAP[i])
+  end end
+  if horiz then
+    local sx = x0 + 6 + floor(X.hash(1, 1, seed) * 5)
+    while sx < x1 - 3 do
+      for y = y0 + 1, y1 - 1 do c:put(sx, y, CAP[2]) end
+      c:put(sx + 1, y0, CAP[4])
+      sx = sx + 9 + floor(X.hash(sx, 2, seed) * 5)
+    end
+  else
+    local sy = y0 + 6 + floor(X.hash(2, 2, seed) * 4)
+    while sy < y1 - 3 do
+      for x = x0 + 1, x1 - 1 do c:put(x, sy, CAP[2]) end
+      for x = x0 + 1, x1 - 1 do if X.hash(x, sy, seed) > 0.5 then c:put(x, sy + 1, CAP[4]) end end
+      sy = sy + 8 + floor(X.hash(sy, 2, seed) * 4)
+    end
+  end
+end
+local function moss(x, y, n, seed)
+  for i = 1, n do
+    local dx = floor((X.hash(i, 5, seed) - 0.5) * 6)
+    local dy = floor((X.hash(i, 6, seed) - 0.5) * 3)
+    local k = 1 + floor(X.hash(i, 7, seed) * 3)
+    c:put(x + dx, y + dy, MOSS[k])
+  end
+  c:put(x, y, MOSS[3]); c:put(x - 1, y, MOSS[2]); c:put(x + 1, y, MOSS[2]); c:put(x, y - 1, MOSS[4])
+end
+local function flower(x, y, col, hi)
+  c:put(x, y + 1, MOSS[2]); c:put(x, y + 2, MOSS[1])
+  c:put(x - 1, y, col); c:put(x + 1, y, col); c:put(x, y - 1, col); c:put(x, y + 1, col)
+  c:put(x, y, hi)
+end
 
-G.fin(c, "stone-wall-gate")
+c:groundShadow(32, 55, 28, 3)
+-- dirt threshold
+for y = 52, 55 do for x = 20, 44 do c:put(x, y, X.hash(x, y, 3) > 0.6 and "#a88a5e" or "#8a6e48") end end
+-- posts
+local function post(x0, x1, seed)
+  face(x0, 17, x1, 55, 7, seed, 6, 10)
+  slab(x0 - 1, 8, x1 + 1, 16, seed + 5, true)
+  for x = x0 - 1, x1 + 1 do c:put(x, 16, CAP[1]) end
+  for x = x0, x1 do c:put(x, 17, RAMPS[1][1]) end
+end
+post(6, 19, 23)
+post(44, 57, 47)
+-- gate leaves with arched top
+local function topy(x) local t = (x - 32) / 12 return 27 + floor(t * t * 4) end
+for x = 20, 43 do
+  local y0 = topy(x)
+  local pl = floor((x - 20) / 4)
+  local px = (x - 20) % 4
+  for y = y0, 54 do
+    local i = 3
+    if px == 0 then i = 4 elseif px == 3 then i = 2 end
+    if y == y0 then i = 5 end
+    if X.hash(pl, y, 5) > 0.82 and px > 0 and px < 3 then i = 2 end
+    if X.hash(x, y, 9) > 0.93 then i = min(5, i + 1) end
+    c:put(x, y, WOOD[i])
+  end
+end
+-- centre seam (right leaf ajar: dark gap)
+for y = 28, 54 do c:put(31, y, WOOD[1]); c:put(32, y, WOOD[1]) end
+for y = 29, 54 do c:put(33, y, WOOD[2]) end
+-- shade under the posts onto the gate
+for y = 28, 54 do c:put(20, y, WOOD[1]); c:put(43, y, WOOD[1]) end
+-- iron straps with rivets and hinge tips
+for _, sy in ipairs{ 34, 46 } do
+  for x = 20, 43 do
+    if x ~= 31 and x ~= 32 then
+      c:put(x, sy, IRON[4]); c:put(x, sy + 1, IRON[3]); c:put(x, sy + 2, IRON[1])
+      if (x - 20) % 5 == 2 then c:put(x, sy + 1, IRON[5]) end
+    end
+  end
+end
+-- ring pull on the right leaf
+c:put(35, 39, IRON[5]); c:put(36, 39, IRON[4]); c:put(34, 40, IRON[4]); c:put(37, 40, IRON[3]); c:put(34, 41, IRON[3]); c:put(37, 41, IRON[2]); c:put(35, 42, IRON[2]); c:put(36, 42, IRON[1])
+c:put(35, 38, IRON[2]); c:put(36, 38, IRON[2])
+-- quirk flower + moss
+flower(9, 52, "#ffd23a", "#fff4b0")
+moss(16, 54, 3, 2); moss(47, 54, 3, 4); moss(12, 17, 3, 6)
+G.save(c, NAME)

@@ -1,52 +1,56 @@
--- oak-log (lean W2_11)
+-- oak-log (lean E2_04)
+local NAME = "oak-log"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w=64, h=64, scale=1, name="oak-log" }
-local BARK = {"#2e2018","#4a3426","#684a34","#86644a","#a48062","#c4a07c"}
-local WOOD = {"#8a5a34","#b0804c","#d0a468","#e6c488","#f4dca4","#fff0c4"}
-local MOSS = {"#1f4a2a","#2f6a34","#4a9040","#70b858"}
-c:groundShadow(30, 54, 24, 3)
--- trunk body: horizontal cylinder x 6..46, y 24..50
-local X0,X1,Y0,Y1 = 6,46,24,50
-for y=Y0,Y1 do
-  local t=(y-Y0)/(Y1-Y0)
-  local v = 0.95 - 0.8*t + 0.15*math.sin(t*3)  -- lit from above
-  for x=X0,X1 do
-    local h = X.hash(x//3, y, 3)
-    local g = X.hash(x, y//2, 7)
-    local vi = v + (g-0.5)*0.25
-    -- horizontal furrows
-    if (y*7 + (x//9)*5) % 9 == 0 and h > 0.25 then vi = vi - 0.4 end
-    local i = math.max(1, math.min(6, math.floor(vi*5.99)+1))
-    c:put(x,y,BARK[i],{r={name="bark"}})
-  end
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local CUTS = { 0.22, 0.4, 0.56, 0.72, 0.86 }
+local function U(...) local m = HP.mask() for _, x in ipairs{...} do m:add(x) end return m end
+local function S(m, ramp, R, name, amb)
+  local n = X.pillow(m, R or 3)
+  return X.tone(c, m, X.light(n, { amb = amb or 0.08, wrap = 0.25 }), ramp, { cuts = CUTS, tok = { r = { name = name or "p" } } }), n
 end
--- cool shade row at bottom
-for x=X0,X1 do c:px(x,Y1,BARK[1]) c:px(x,Y1-1,BARK[2]) end
--- broken branch stubs on top
-local function stub(x0,w,h,lean)
-  for y=0,h-1 do for x=0,w-1 do
-    local px = x0+x+math.floor(y*lean)
-    c:px(px, Y0-1-y+1, x==0 and BARK[5] or (x==w-1 and BARK[2] or BARK[4]))
-  end end
-  for x=0,w-1 do c:px(x0+x+math.floor(h*lean), Y0-h+1, WOOD[3]) end
+local function P(x, y, col) c:put(x, y, col, { r = { name = "d" } }) end
+local function spec(m, n, col) local x, y = G.specAt(m, n, 30) if x then P(x, y, col or "#fffbe8") end end
+
+local BK={"#2a1a16","#442a20","#664030","#8a5a40","#ac7a58","#d0a078"}
+local WD={"#7a4a2a","#a8703c","#cc9858","#e4b878","#f4d49c","#fff0c8"}
+local GR={"#4a3a1c","#6a5a28","#8c8c3c"}
+local AC={"#5a3418","#8a5224","#b87a34","#dca050"}
+local CAP={"#3a2a1c","#5a4028","#7e5a38"}
+c:groundShadow(30,54,26,3)
+-- branch stub on top left
+local stub = c:rrect(12,10,19,26,2)
+S(stub,BK,3,"stub")
+local stubtop = c:ellipse(15,11,4,2); S(stubtop,WD,2,"stubtop"); P(15,11,WD[2])
+-- body
+local body = c:rrect(7,21,45,49,5)
+local bi,bn = S(body,BK,8,"bark",0.06)
+-- bark furrows
+for _,col in ipairs{{12,0,30},{18,1,31},{24,2,29},{30,0,31},{36,1,30},{41,2,29}} do
+  local x=col[1]
+  for y=24,46 do if X.hash(x,y,col[2])>0.18 then local xx=x+floor(sin(y*0.5+x)*1.2); if body:has(xx,y) then P(xx,y,BK[1]); if body:has(xx-1,y) and X.hash(x,y,7)>0.5 then P(xx-1,y,BK[5]) end end end end
 end
-stub(14,5,7,-0.3) stub(30,4,5,0.2)
--- moss patch low-left
-for _,p in ipairs{{10,48},{11,48},{12,48},{13,48},{9,47},{10,47},{11,47},{12,47},{14,47},{11,46},{12,46},{13,46},{10,49},{12,49},{15,48}} do c:px(p[1],p[2],MOSS[2+(p[1]+p[2])%2]) end
-c:px(11,46,MOSS[4]) c:px(12,47,MOSS[4]) c:px(10,48,MOSS[1])
--- end face (cut rings) ellipse at x=47
-local ef = c:ellipse(47,37,8,13)
-local n = X.pillow(ef, 8)
-X.tone(c, ef, X.light(n,{amb=0.3,wrap=0.4}), WOOD, {cuts={.2,.38,.54,.7,.85}})
-for _,r in ipairs{{6,10},{4,7},{2,4}} do
-  local ring = c:ellipse(47,37,r[1],r[2]) ring:cut(c:ellipse(47,37,r[1]-1,r[2]-1))
-  c:fillMask(ring, WOOD[1+(r[1]%2)])
+-- moss patch
+for _,p in ipairs{{9,44},{10,44},{11,45},{12,45},{10,45},{9,45},{13,46},{14,46},{11,46}} do if body:has(p[1],p[2]) then P(p[1],p[2],GR[1+(p[1]+p[2])%3]) end end
+-- cut end with rings
+local face = c:ellipse(46,35,8,14)
+S(face,WD,9,"face",0.15)
+for _,r in ipairs{{12,6},{8,4},{4,2}} do
+  local ring=c:ellipse(46,35,r[2],r[1])
+  ring:edge():each(function(x,y) if face:has(x,y) then P(x,y,WD[2]) end end)
 end
-c:px(47,37,WOOD[1]) c:px(46,36,WOOD[2])
--- crack from pith (quirk) and bark rim
-for i=0,5 do c:px(48+i//2, 37+i//2, WOOD[1]) end
-c:px(42,30,WOOD[6]) c:px(43,29,WOOD[6]) c:px(41,31,WOOD[5])
--- glint on bark
-c:px(20,26,BARK[6]) c:px(21,26,BARK[6])
-G.save(c, "oak-log")
+P(46,35,WD[1]); P(47,35,WD[1])
+for y=24,32 do P(46,y,WD[1]) end
+-- crack
+-- quirk: acorn resting on the log
+local nut = c:ellipse(30,15,4,5)
+S(nut,AC,3,"acorn")
+local cap = c:rrect(25,9,35,14,2)
+S(cap,CAP,2,"cap")
+for x=26,34,2 do P(x,12,CAP[1]) end
+P(30,7,CAP[2]); P(30,8,CAP[1])
+spec(nut,X.pillow(nut,3),"#ffe8b0")
+spec(body,bn,"#e0b890")
+
+G.save(c, NAME)

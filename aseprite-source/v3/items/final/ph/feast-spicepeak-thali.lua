@@ -1,49 +1,56 @@
--- feast-spicepeak-thali (lean W2_3)
+-- feast-spicepeak-thali (lean E2_00)
+local NAME = "feast-spicepeak-thali"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function T(c, m, R, ramp, amb) local n = X.pillow(m, R) local v = X.light(n, {amb = amb or 0.1, wrap = 0.25}) X.tone(c, m, v, ramp, {cuts = {.22,.4,.56,.72,.86}}) return n, v end
-local NAME = "feast-spicepeak-thali"
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-local STEEL = { "#4d4f78", "#6f77a3", "#97a3c6", "#bfcbe0", "#e2eaf4", "#fbfdff" }
-local RICE = { "#b9803f", "#d9a24e", "#efc466", "#f8dc88", "#fdeeb0", "#fffbe0" }
-local CURRY = { "#6e2a1e", "#9a3b22", "#c75a2a", "#e5822f", "#f3a94a", "#fbd27a" }
-local GREEN = { "#1f4a35", "#2f6e44", "#47934f", "#6fb85a", "#9bd36e", "#c6ec94" }
-local RED = { "#6b1420", "#9c1f2a", "#cc3030", "#ea5a3a", "#f78b5a", "#ffc08a" }
-c:groundShadow(32, 52, 24, 4)
-local plate = c:ellipse(32, 41, 24, 12)
-T(c, plate, 14, STEEL)
-local well = c:ellipse(32, 42, 19, 8.5)
-T(c, well, 10, { STEEL[2], STEEL[3], STEEL[4], STEEL[5], STEEL[5], STEEL[6] }, 0.3)
--- three katori bowls (back row) with curry
-local function bowl(cx, cy, rx, ry, ramp)
-  local body = c:ellipse(cx, cy + 2, rx, ry + 1)
-  T(c, body, 5, STEEL)
-  local top = c:ellipse(cx, cy, rx - 1, ry)
-  T(c, top, 4, ramp, 0.2)
-  c:px(cx - 2, cy - 1, ramp[6]) c:px(cx - 1, cy - 1, ramp[5])
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local CUTS = { 0.22, 0.4, 0.56, 0.72, 0.86 }
+local function shade(m, ramp, R, tok, amb, wrap)
+  local n = X.pillow(m, R)
+  return X.tone(c, m, X.light(n, { amb = amb or 0.08, wrap = wrap or 0.22 }), ramp, { cuts = CUTS, tok = tok }), n
 end
-bowl(17, 38, 6, 3, CURRY)
-bowl(47, 38, 6, 3, GREEN)
-bowl(32, 33, 5, 2.5, RED)
--- naan wedge front-left
-local naan = c:poly{{13,46},{24,43},{27,48},{19,51}}
-T(c, naan, 4, RICE, 0.2)
-c:px(18, 46, RICE[1]) c:px(22, 47, RICE[1]) c:px(20, 49, RICE[1])
--- rice cone (spicepeak)
-local cone = HP.mask()
-for y = 20, 47 do local t = (y - 20) / 27 local h = 1 + t * 10.5 for x = floor(34 - h), floor(34 + h) do cone:set(x, y) end end
-cone:add(c:ellipse(34, 46, 11.5, 3.5))
-local n = X.pillow(cone, 8)
-local v = X.light(n, {amb = 0.08, wrap = 0.25})
-X.tone(c, cone, v, RICE, {cuts = {.2,.38,.54,.7,.86}})
-cone:each(function(x, y) if X.hash(x, y, 3) > 0.9 and v[K(x, y)] > 0.4 then c:px(x, y, RICE[6]) elseif X.hash(x, y, 8) > 0.93 then c:px(x, y, RICE[1]) end end)
--- red spice drizzle bands down the cone
-for _, s in ipairs{{30,30},{37,34},{33,40}} do c:px(s[1], s[2], RED[3]) c:px(s[1]+1, s[2], RED[2]) c:px(s[1]+1, s[2]+1, RED[4]) end
--- chili on the peak (quirk: curled tip)
-local ch = G.tube({{34,21},{35,16},{33,12},{35,8}}, function(t) return 2.0 * (1 - t) + 0.6 end)
-local cm, cn = ch
-T(c, cm, 2.2, RED)
-c:px(34, 14, RED[6]) c:px(35, 21, GREEN[3]) c:px(34, 22, GREEN[2]) c:px(33, 21, GREEN[4])
-c:sparkle(14, 36)
+local function hx(h) return tonumber(h:sub(2,3),16), tonumber(h:sub(4,5),16), tonumber(h:sub(6,7),16) end
+local function mix(a, b, t) local r1,g1,b1 = hx(a) local r2,g2,b2 = hx(b)
+  return string.format("#%02x%02x%02x", floor(r1+(r2-r1)*t+.5), floor(g1+(g2-g1)*t+.5), floor(b1+(b2-b1)*t+.5)) end
+local function ramp6(base) return { mix(base,"#1c1020",.62), mix(base,"#2a1428",.36), mix(base,"#2a1428",.14), base, mix(base,"#fff2b0",.3), mix(base,"#fff8e0",.6) } end
+c:groundShadow(32, 56, 26, 4)
+local STEEL = { "#3c4458", "#5a647c", "#7e8aa4", "#a4b0c8", "#cdd6e6", "#eef2fa" }
+local plate = c:ellipse(32, 31, 25, 25)
+local pt = { r = { name = "plate" } }
+shade(plate, STEEL, 9, pt, 0.2, 0.3)
+local well = c:ellipse(32, 31, 21, 21)
+well:each(function(x, y) c:put(x, y, (x + y < 60) and STEEL[3] or STEEL[2], pt) end)
+well:edge():each(function(x, y) c:put(x, y, STEEL[1], pt) end)
+for a = 0, 2 * pi, 0.2 do c:put(floor(32 + 23 * cos(a) + .5), floor(31 + 23 * sin(a) + .5), STEEL[6], pt) end
+local cols = { "#c62e22", "#e8b020", "#5aa832", "#e07a24", "#8a2e5a" }
+for i = 1, 5 do
+  local a = -2.35 + (i - 1) * (2 * pi / 5)
+  local cx, cy = floor(32 + 14.5 * cos(a) + .5), floor(31 + 14.5 * sin(a) + .5)
+  c:ellipse(cx + 1, cy + 2, 7, 6):each(function(x, y) if well:has(x, y) then c:put(x, y, STEEL[1], pt) end end)
+  local ring = c:ellipse(cx, cy, 6, 6)
+  shade(ring, STEEL, 5, pt, 0.2, 0.3)
+  local fill = c:ellipse(cx, cy, 4, 4)
+  local ft = { r = { name = "curry" .. i } }
+  X.tone(c, fill, X.light(X.pillow(fill, 4), { amb = 0.15, wrap = 0.3 }), ramp6(cols[i]), { cuts = CUTS, tok = ft })
+  c:put(cx - 2, cy - 2, "#fff8e8", ft)
+  if i == 3 then c:put(cx + 1, cy + 1, "#2b6a2c", ft) end
+  if i == 1 then c:put(cx + 1, cy, "#f8d0a0", ft) c:put(cx, cy + 1, "#f8d0a0", ft) end
+end
+-- rice peak in the centre
+local RICE = { "#a89a88", "#cfc2ae", "#e8dcc6", "#f6eede", "#fffaf0", "#fffcf0" }
+local peak = c:ellipse(32, 31, 7, 7)
+local rt = { r = { name = "rice" } }
+shade(peak, RICE, 7, rt, 0.1, 0.3)
+peak:each(function(x, y) if X.hash(x, y, 2) > 0.8 then c:put(x, y, RICE[2], rt) end end)
+for _, p in ipairs{ {30,29},{34,33},{29,33},{35,29} } do c:put(p[1], p[2], "#f0a830", rt) end
+-- chili on top of the peak
+local chm, chn = G.tube({ {29,31}, {31,26}, {33,25}, {37,27} }, function(t) return 1.8 - 1.0 * t end)
+local ct = { r = { name = "chili" } }
+X.tone(c, chm, X.light(chn, { amb = 0.1, wrap = 0.25 }), { "#4a1218", "#7a1c24", "#aa2c30", "#d04838", "#ec7048", "#f8a060" }, { cuts = CUTS, tok = ct })
+c:put(28, 31, "#3f7a2c", ct) c:put(28, 30, "#6aa83a", ct)
+-- quirk: a chili has escaped the plate
+local em, en = G.tube({ {50,53}, {55,57}, {58,53}, {60,49} }, function(t) return 1.7 - 0.9 * t end)
+local et = { r = { name = "chili2" } }
+X.tone(c, em, X.light(en, { amb = 0.1, wrap = 0.25 }), { "#4a1218", "#7a1c24", "#aa2c30", "#d04838", "#ec7048", "#f8a060" }, { cuts = CUTS, tok = et })
+c:put(50, 53, "#3f7a2c", et) c:put(49, 54, "#6aa83a", et)
 G.save(c, NAME)

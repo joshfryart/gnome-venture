@@ -1,43 +1,51 @@
--- marzipan (lean W2_9)
--- A pale-gold marzipan loaf drawn in 3/4 view (top face + front face), crimped along the top edge, a pink sugar rose
--- with two green leaves on top and a whole almond pressed in the front. Quirk: a thumbprint dent on the end face.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- marzipan (lean E2_03)
+local NAME = "marzipan"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "marzipan" }
-local MZ = { "#9c7c4c", "#c4a066", "#dcbb7c", "#ecd290", "#f6e4aa", "#fff4cc" }
-local ROSE = { "#7a1f3e", "#a8305a", "#d0507a", "#ee7a9a", "#f9a8bc", "#ffd8e0" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local ALM = { "#4a2c18", "#744522", "#a06a38", "#c8924e", "#e6b878", "#f6dca8" }
-c:groundShadow(32, 54, 21, 3)
-local front = c:rrect(10, 33, 44, 51, 2)
-local top = c:poly{ {10,33}, {18,23}, {52,23}, {44,33} }
-local side = c:poly{ {44,33}, {52,23}, {52,41}, {44,51} }
-local function paint(m, R, amb, ramp)
-  G.tone(c, m, X.light(X.pillow(m, R), { amb = amb, wrap = 0.3 }), ramp, { 0.2, 0.36, 0.52, 0.7, 0.88 })
+local T = { r = { name = "d" } }
+local function body(m, ramp, R, name, amb)
+  local n = X.pillow(m, R)
+  local idx = X.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, { cuts = { .22, .4, .56, .72, .86 }, tok = { r = { name = name } } })
+  return n, idx
 end
-paint(top, 9, 0.35, MZ) paint(front, 9, 0.2, MZ) paint(side, 8, 0.0, MZ)
-side:each(function(x, y) if X.hash(x, y, 2) > 0.5 then c:px(x, y, MZ[1]) end end)
--- granular texture
-front:each(function(x, y) local h = X.hash(x, y, 9) if h > 0.93 then c:px(x, y, MZ[5]) elseif h < 0.05 then c:px(x, y, MZ[2]) end end)
-top:each(function(x, y) if X.hash(x, y, 7) > 0.92 then c:px(x, y, MZ[6]) end end)
--- crimp along top front edge
-for x = 11, 43 do if x % 3 ~= 2 then c:px(x, 33, MZ[6]) c:px(x, 34, MZ[2]) else c:px(x, 34, MZ[1]) end end
-for i = 0, 8 do c:px(44 + i, 33 - i + 0, MZ[1]) end
--- rose on top
-local rc = c:ellipse(30, 26, 6, 4)
-paint(rc, 4, 0.1, ROSE)
-for _, p in ipairs{ {28,25},{29,25},{30,24},{31,25},{32,26},{31,27},{29,27},{28,26},{30,26} } do c:px(p[1], p[2], ROSE[p[1] % 2 == 0 and 2 or 4]) end
-c:px(30, 26, ROSE[1]) c:px(29, 24, ROSE[6]) c:px(28, 24, ROSE[6])
-c:fillMask(c:ellipse(38, 27, 3, 1.5), LEAF[3]) c:px(37, 27, LEAF[5]) c:px(40, 27, LEAF[2])
-c:fillMask(c:ellipse(22, 27, 3, 1.5), LEAF[3]) c:px(21, 27, LEAF[5]) c:px(24, 27, LEAF[2])
--- almond on front
-local al = c:ellipse(22, 42, 6, 4)
-al:cut(c:rect(0,0,0,0))
-paint(al, 4, 0.1, ALM)
-for x = 18, 26 do c:px(x, 42 + (x % 2), ALM[2]) end
-c:px(20, 40, ALM[6]) c:px(21, 40, ALM[6])
--- thumbprint on side
-for _, p in ipairs{ {47,38},{48,37},{49,38},{48,39},{47,40} } do c:px(p[1], p[2], MZ[1]) end
-c:px(48, 38, MZ[3])
-G.fin(c, "marzipan")
+local function draw(lm, hex, within) lm:each(function(x, y) if (not within) or within:has(x, y) then c:put(x, y, hex, T) end end) end
+local function dot(x, y, hex, within) if (not within) or within:has(x, y) then c:put(x, y, hex, T) end end
+c:groundShadow(32, 54, 20, 3)
+local R = { "#8e4a56", "#bc6c6c", "#e0907e", "#f0b09a", "#f9ceb0", "#fdeacc" }
+-- tail curl (behind)
+local tail = c:line({ {12,36},{8,34},{8,30},{11,29},{12,31} }, 2)
+body(tail, R, 2, "tail")
+-- legs
+for _, lx in ipairs{ 14, 21, 33, 40 } do
+  local lg = c:rect(lx, 44, lx + 4, 52)
+  body(lg, R, 3, "leg" .. lx, 0.0)
+end
+local bd = c:ellipse(27, 38, 19, 13)
+body(bd, R, 14, "body")
+local hd = c:ellipse(45, 36, 9, 9)
+body(hd, R, 9, "head")
+local ear = c:poly{ {40,29},{44,22},{49,28} }
+body(ear, R, 4, "ear")
+local ear_in = c:poly{ {42,28},{44,25},{46,28} } draw(ear_in, "#e6808a")
+local sn = c:ellipse(53, 39, 4, 3)
+body(sn, { "#a8505e", "#d27a80", "#ee9c9a", "#f8b8ac", "#fcd0c0", "#fde8d4" }, 3, "snout")
+dot(52, 39, "#7a3040") dot(54, 39, "#7a3040")
+-- eye + blush
+c:put(46, 33, "#2a1620", T) c:put(46, 34, "#2a1620", T) c:put(47, 33, "#2a1620", T) c:put(47, 34, "#2a1620", T) dot(46, 33, "#fff4e0")
+for _, p in ipairs{ {43,38},{44,38},{43,39},{44,39},{45,38} } do dot(p[1], p[2], "#e8707c") end
+-- crimped fork marks across the back
+bd:each(function(x, y) if y < 33 and (x % 3 == 0) and (y % 3 == 0) and x < 36 then c:put(x, y, R[2], T) end end)
+-- cheek/belly shade line
+bd:each(function(x, y) if y >= 48 then c:put(x, y, R[1], T) end end)
+-- quirk: clover sprig with a red marzipan cherry on its back
+local G1 = { "#1e4a2a", "#2e7a3a", "#58b04c", "#9ce068" }
+for _, p in ipairs{ {24,24,-3,-1},{24,24,3,-1},{24,24,0,-4} } do
+  local lf = c:ellipse(24 + p[3], 24 + p[4] , 2.3, 2.3)
+  body(lf, { G1[1], G1[2], G1[2], G1[3], G1[4], G1[4] }, 2.5, "cl" .. p[3] .. p[4])
+end
+dot(24, 24, G1[1])
+local ch = c:ellipse(30, 25, 2, 2)
+body(ch, { "#5a1020", "#8c1a2c", "#c02a38", "#e0504c", "#f08a7a", "#fff0e0" }, 2.4, "cherry")
+G.save(c, NAME)

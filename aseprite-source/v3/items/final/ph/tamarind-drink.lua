@@ -1,67 +1,48 @@
--- tamarind-drink (lean W2_33)
--- Slim tapered tumbler of dark tamarind juice: pale glass tint, cream foam line, one ice cube, striped straw,
--- and a bumpy tamarind pod propped on the rim (quirk: pod end cracked open showing orange pulp).
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- NAME (lean E2_16)
+local NAME = "tamarind-drink"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "tamarind-drink" }
-local floor, abs, sin, max, min, sqrt = math.floor, math.abs, math.sin, math.max, math.min, math.sqrt
-local function cl(v) return max(0, min(1, v)) end
-local BROWN = { "#2a130f", "#4a2216", "#6e3418", "#97501f", "#c07a32", "#e3a655" }
-local GLASS = { "#7a93b0", "#a3bcd0", "#c9dfe6", "#e4f2f0", "#f4fbf6", "#fffaf0" }
-local POD   = { "#3a2218", "#5a3826", "#7e5236", "#a2754a", "#c79b68", "#e2bf8c" }
-local PULP  = { "#7a2e12", "#a8481a", "#d06c26", "#ee9440" }
-local CX, Y0, Y1 = 30, 22, 54
-local function hw(y) return 10.5 - (y - Y0) / (Y1 - Y0) * 2.5 end
-c:groundShadow(31, 57, 14, 2)
-local glass, liq = HP.mask(), HP.mask()
-for y = Y0, Y1 do local h = hw(y)
-  for x = floor(CX - h + 0.5), floor(CX + h - 0.5) do glass:set(x, y) end end
-local top = 29
-for y = top, Y1 - 3 do local h = hw(y) - 1.5
-  for x = floor(CX - h + 0.5), floor(CX + h - 0.5) do if not (y == top and (x * 3) % 5 == 0) then liq:set(x, y) end end end
--- glass body
-local gv = {}
-glass:each(function(x, y) local u = (x - (CX - hw(y))) / (2 * hw(y)); gv[K(x, y)] = cl(0.92 - u * 0.95) end)
-G.tone(c, glass, gv, GLASS, { 0.2, 0.38, 0.55, 0.7, 0.88 })
--- liquid
-local lv = {}
-liq:each(function(x, y) local u = (x - (CX - hw(y))) / (2 * hw(y)); lv[K(x, y)] = cl(0.8 - u * 0.95 - (y - top) * 0.012 + (X.hash(x, y, 3) - 0.5) * 0.08) end)
-G.tone(c, liq, lv, BROWN, { 0.18, 0.36, 0.54, 0.72, 0.88 })
--- foam line
-for x = floor(CX - hw(top) + 1.5), floor(CX + hw(top) - 1.5) do
-  c:px(x, top - 1, "#f4e6c8") if (x * 7) % 4 ~= 0 then c:px(x, top, "#e8cf9f") end end
-c:px(CX - 7, top - 2, "#fff4de") c:px(CX - 6, top - 2, "#f4e6c8")
--- glass base (thick) and rim
-for x = CX - 6, CX + 6 do c:px(x, Y1 - 2, GLASS[4]) c:px(x, Y1 - 1, GLASS[2]) end
-c:px(CX + 6, Y1 - 2, GLASS[2]) c:px(CX + 5, Y1 - 1, GLASS[1])
-for x = floor(CX - hw(Y0) + 0.5), floor(CX + hw(Y0) - 0.5) do c:px(x, Y0, GLASS[6]) end
-c:px(CX + 9, Y0, GLASS[3])
--- left edge highlight streak + right shade edge
-for y = Y0 + 2, Y1 - 5 do c:px(floor(CX - hw(y) + 1), y, GLASS[6]) end
-for y = top + 2, Y1 - 4 do c:px(floor(CX + hw(y) - 1.5), y, BROWN[1]) end
--- ice cube
-local ice = c:rrect(33, top - 1, 38, top + 4, 1)
-G.tone(c, ice, (function() local v = {} ice:each(function(x, y) v[K(x, y)] = cl(0.95 - (x - 33) * 0.1 - (y - top) * 0.06) end) return v end)(),
-  { "#6a8fb0", "#8fb4cc", "#b7d6e2", "#d8eef2", "#eefafa", "#fffaf0" }, { 0.2, 0.38, 0.55, 0.7, 0.88 })
--- condensation drip
-c:px(CX - 7, 40, GLASS[6]) c:px(CX - 7, 41, GLASS[6]) c:px(CX - 7, 42, GLASS[4])
--- straw: red/white stripes, from in the drink up past the rim
-local sx0, sy0, sx1, sy1 = 33, 42, 46, 6
-local sl = sqrt((sx1 - sx0)^2 + (sy1 - sy0)^2)
-local ux, uy = (sx1 - sx0) / sl, (sy1 - sy0) / sl
-c:line({ { sx0, sy0 }, { sx1, sy1 } }, 2):each(function(x, y)
-  local a = (x - sx0) * ux + (y - sy0) * uy
-  local red = floor(a / 3.2) % 2 == 0
-  local right = ((x - sx0) * -uy + (y - sy0) * ux) > 0
-  if red then c:px(x, y, right and "#a8232e" or "#e24650") else c:px(x, y, right and "#c9bfc2" or "#fbf3f0") end
-end)
-c:px(sx1, sy1, "#fbf3f0")
--- tamarind pod propped on the rim: bumpy bean
-local pm, pn, pT, pS = G.tube({ { 10, 10 }, { 14, 15 }, { 20, 21 }, { 27, 26 } },
-  function(t) return 2.5 + 0.8 * sin(t * 20) - 0.6 * t end)
-G.tone(c, pm, X.light(pn, { amb = 0.15, wrap = 0.3 }), POD, { 0.2, 0.38, 0.55, 0.7, 0.88 })
-pm:each(function(x, y) local k = K(x, y)
-  if pT[k] < 0.14 then c:px(x, y, PULP[(x + y) % 3 + 1]) end
-  if abs(pS[k]) < 0.15 and pT[k] > 0.2 and pT[k] < 0.93 then c:px(x, y, POD[2]) end end)
-c:px(13, 11, POD[6]) c:px(14, 12, POD[6])
-G.fin(c, "tamarind-drink")
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local CUTS = { .22, .4, .56, .72, .86 }
+local _n = 0
+local function shade(m, ramp, R, o)
+  o = o or {}; _n = _n + 1
+  local n = X.pillow(m, R or 4)
+  local idx = X.tone(c, m, X.light(n, { amb = o.amb or .1, wrap = o.wrap or .25 }), ramp, { cuts = CUTS, tok = { r = { name = "p" .. _n } } })
+  return idx, n
+end
+local function tok() _n = _n + 1 return { r = { name = "q" .. _n } } end
+local function put(m, col) local t = tok() m:each(function(x, y) c:put(x, y, col, t) end) end
+local function bez(p, t) local u = 1 - t
+  return u*u*u*p[1][1] + 3*u*u*t*p[2][1] + 3*u*t*t*p[3][1] + t*t*t*p[4][1],
+         u*u*u*p[1][2] + 3*u*u*t*p[2][2] + 3*u*t*t*p[3][2] + t*t*t*p[4][2] end
+
+local GL = { "#5a8a9a", "#86b8c4", "#b0dce2", "#d4f0f2", "#eefafa", "#f6fbff" }
+local LIQ = { "#2a0e08", "#4a1a0e", "#702a14", "#9a4220", "#c0642c", "#e08a44" }
+local POD = { "#2e1a14", "#4a2c1e", "#6c4430", "#8e6244", "#b08460", "#d2aa82" }
+local ICE = { "#8ab8d0", "#b4dcec", "#d8f2fa", "#f4fcff" }
+c:groundShadow(30, 58, 15, 2)
+local glass = c:poly{ {16, 20}, {44, 20}, {40, 56}, {20, 56} }
+shade(glass, GL, 8, { amb = .35, wrap = .4 })
+local inner = c:poly{ {18, 26}, {42, 26}, {38, 52}, {22, 52} }
+shade(inner, LIQ, 9, { amb = .2, wrap = .3 })
+-- ice cubes floating at the surface
+shade(c:rrect(21, 24, 29, 31, 2), ICE, 3, { amb = .4 })
+shade(c:rrect(31, 26, 39, 33, 2), ICE, 3, { amb = .4 })
+-- liquid meniscus line
+for x = 19, 41 do c:put(x, 26, LIQ[6]) end
+-- glass highlights and thick base
+for y = 22, 50 do c:put(18 + floor((y - 22) / 9), y, "#f6fbff") end
+for x = 21, 39 do c:put(x, 53, GL[3]) c:put(x, 54, GL[2]) end
+-- bubbles
+c:put(34, 40, LIQ[6]) c:put(26, 44, LIQ[5]) c:put(32, 47, LIQ[6])
+-- chili-salt rim flecks
+for _, p in ipairs{ {18, 19}, {22, 19}, {27, 19}, {33, 19}, {38, 19}, {42, 19} } do c:put(p[1], p[2], "#d8402c") end
+-- quirk: tamarind pod hooked over the rim
+local pm, pn = G.tube({ {36, 10}, {44, 6}, {52, 12}, {54, 26} }, function(t) return 2.6 * sin(pi * (0.1 + 0.8 * t)) ^ 0.5 + 0.3 end)
+X.tone(c, pm, X.light(pn, { amb = .12, wrap = .25 }), POD, { cuts = CUTS, tok = tok() })
+c:put(46, 6, POD[6]) c:put(47, 6, POD[5])
+c:sparkle(14, 18)
+
+G.save(c, NAME)

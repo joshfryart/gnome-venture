@@ -1,109 +1,79 @@
--- stage-legume-4 (lean D2o_8)
+-- stage-legume-4 (lean E2_11)
 local NAME = "stage-legume-4"
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local DIRT = { "#2f1d22", "#4a2c2c", "#6b4331", "#8d5d3d", "#b0804f", "#d3a669" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local STEM = { "#3b6449", "#5b8d5a", "#88b46e", "#b9d793" }
-local WOOD = { "#2e1c1c", "#4d3022", "#6d4a31", "#8f6643", "#b48a58" }
-local COT  = { "#7a6a3a", "#b5a050", "#dcc872", "#f1e6a0", "#fff6c8" }
-local CUTS6 = { 0.22, 0.4, 0.56, 0.72, 0.86 }
-local function tone(m, ramp, R, cuts, o)
-  local n = X.pillow(m, R)
-  G.tone(c, m, X.light(n, o or { amb = 0.1, wrap = 0.3 }), ramp, cuts or CUTS6)
+local CUTS = { 0.2, 0.38, 0.54, 0.7, 0.85 }
+local LEAF = { "#163a35", "#1f5a40", "#2f7f48", "#47a24f", "#6cc25a", "#a2de6c" }
+local SOIL = { "#2a1a1c", "#4a2e26", "#6e4630", "#8f6038", "#b07c48", "#cf9c60" }
+local BARK = { "#2e1a1a", "#4a2c24", "#6b4230", "#8a5a3c", "#a87650", "#c79a6c" }
+local ACOR = { "#4a2a18", "#7a4824", "#a8682e", "#cc8c42", "#e8b05c", "#f8d488" }
+local CAPR = { "#2e1a14", "#4e3022", "#6e4a30", "#8c6642", "#a8825a", "#c8a678" }
+local GLINT = "#fff4d0"
+local function U(list) local m = list[1]:copy() for i = 2, #list do m:add(list[i]) end return m end
+local function vol(m, ramp, R, nm, o)
+  o = o or {}
+  local n = X.pillow(m, R or 3)
+  local idx = X.tone(c, m, X.light(n, { amb = o.amb or 0.08, wrap = o.wrap or 0.25 }), ramp, { cuts = CUTS, tok = { r = { name = nm or "p" } } })
+  return idx, n
 end
-local function soil(cy, rx, ry)
-  local m = c:ellipse(32, cy, rx, ry)
-  tone(m, DIRT, ry + 1)
+local function tube(pts, fn, ramp, nm)
+  local m, n, T = G.tube(pts, fn)
+  G.toneN(c, m, n, ramp, { tok = { r = { name = nm } }, cuts = CUTS, amb = 0.12, wrap = 0.3 })
+  return m, n, T
+end
+local function leaf(ax, ay, cx, cy, bx, by, w, ramp, nm, o)
+  o = o or {}
+  local m, n, T, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.9 + 0.1)
+    local r = w * sin(pi * u ^ (o.p or 1.2)) ^ (o.q or 0.75)
+    if o.lobe then r = r * (1 + o.lobe * sin(t * pi * o.lobes)) end
+    return max(0.5, r)
+  end, { fold = o.fold or 0.45 })
+  local tok = { r = { name = nm } }
+  G.toneN(c, m, n, ramp, { tok = tok, cuts = CUTS, amb = 0.12, wrap = 0.22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.14 and t > 0.05 and t < 0.9 then c:put(x, y, s <= 0 and ramp[6] or ramp[2], tok) return end
+    if o.veins then for _, vt in ipairs(o.veins) do
+      local d = t * L - (vt + abs(s) * 3.4)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.28 and abs(s) < 0.72 then c:put(x, y, s < 0 and ramp[6] or ramp[2], tok) return end
+    end end
+  end)
+  return m
+end
+local function soil(rx)
+  local m = c:ellipse(32, 54, rx or 20, 4.6)
+  local idx = vol(m, SOIL, 5, "soil")
   m:each(function(x, y)
-    if y >= cy + ry - 1 then c:px(x, y, DIRT[2]) end
-    if y >= cy + ry then c:px(x, y, DIRT[1]) end
-  end)
-  m:copy():shrink(2):each(function(x, y)
-    if X.hash(x, y, 3) > 0.93 then c:px(x, y, DIRT[6]) c:px(x + 1, y + 1, DIRT[2]) end
+    local h = X.hash(x, y, 7)
+    if h > 0.9 then c:put(x, y, SOIL[6], { r = { name = "soil" } }) elseif h < 0.07 then c:put(x, y, SOIL[1], { r = { name = "soil" } }) end
   end)
   return m
 end
-local function stem(p, w0, w1, ramp)
-  local m, n = G.tube(p, function(t) return w0 + (w1 - w0) * t end)
-  G.tone(c, m, X.light(n, { amb = 0.15, wrap = 0.3 }), ramp or STEM, { 0.3, 0.6, 0.85 })
-  return m
+local function acorn(x, y, s)
+  s = s or 1
+  local b = c:ellipse(x, y + 1, 1.9 * s, 2.4 * s)
+  vol(b, ACOR, 2, "ac")
+  local cp = c:ellipse(x, y - 1, 2.5 * s, 1.5 * s)
+  vol(cp, CAPR, 1.5, "ac")
+  c:put(floor(x - 1 * s), floor(y + 1), GLINT, { r = { name = "ac" } })
 end
-local function leaf(p, wmax, ramp)
-  ramp = ramp or LEAF
-  local len = sqrt((p[4][1] - p[1][1])^2 + (p[4][2] - p[1][2])^2)
-  local m, n, T, S = G.tube(p, function(t)
-    if t < 0.05 then return 0 end
-    return max(0.6, wmax * sin(pi * min(1, t)) ^ 0.7)
-  end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.25 }), ramp, CUTS6)
-  m:each(function(x, y) local k = K(x, y)
-    local s, t = S[k], T[k]
-    if abs(s) < 0.2 and t > 0.1 and t < 0.92 then c:px(x, y, s <= 0 and ramp[6] or ramp[3]) end
-    if wmax > 3 and t > 0.3 then
-      for _, vt in ipairs{ 0.4, 0.55, 0.7 } do
-        local d = (t - vt) * len - abs(s) * 2
-        if d > -0.5 and d < 0.5 and abs(s) > 0.3 and abs(s) < 0.8 then c:px(x, y, s < 0 and ramp[5] or ramp[2]) end
-      end
-    end
-  end)
-  return m
+
+-- quirk: one pod has split open to show its plump pale beans
+local PODG = { "#1b4a2c", "#2a6a38", "#3f8a40", "#62a84c", "#8cc860", "#bce088" }
+soil(20)
+tube({ {32,53},{31,42},{33,32},{32,20} }, function(t) return 1.9 - 0.5 * t end, PODG, "stem")
+leaf(32, 22, 20, 10, 8, 14, 6, LEAF, "L1", { veins = { 4, 8, 12 } })
+leaf(32, 22, 44, 10, 56, 14, 6, LEAF, "L2", { veins = { 4, 8, 12 } })
+leaf(32, 22, 31, 14, 32, 6, 4.5, LEAF, "L3", { veins = { 4, 8 } })
+-- closed pod left
+local pm = tube({ {31,24},{19,22},{14,34},{20,47} }, function(t) return (1.9 + 0.55 * sin(t * pi * 6)) * (1 - 0.45 * t ^ 3) end, { "#4a5a14", "#6a8a24", "#8cb034", "#aed048", "#cce670", "#ecfa9c" }, "podL")
+-- open pod right
+local om = tube({ {33,24},{45,22},{50,34},{44,47} }, function(t) return 2.5 * (1 - 0.4 * t ^ 3) end, { "#4a5a14", "#6a8a24", "#8cb034", "#aed048", "#cce670", "#ecfa9c" }, "podR")
+local bp = { {47,28},{49,33},{49,38},{46,43} }
+for i, p in ipairs(bp) do
+  vol(c:ellipse(p[1], p[2], 1.9, 2.0), { "#6a5a28", "#a8924a", "#cdb468", "#e6d488", "#f6ecb0", "#fffbe0" }, 1.8, "bean" .. i)
 end
-local function mirror(p) local q = {} for i, v in ipairs(p) do q[i] = { 64 - v[1], v[2] } end return q end
-local function rot(ux, uy, a) return ux * cos(a) - uy * sin(a), ux * sin(a) + uy * cos(a) end
-local function tri(x, y, dx, dy, s)
-  local E = { x + dx, y + dy }
-  G.line(c, { { x, y }, { x + dx * 0.5, y + dy * 0.5 + 1 }, E }, STEM[2])
-  local l = sqrt(dx * dx + dy * dy)
-  local ux, uy = dx / l, dy / l
-  local L = 7.5 * s
-  for _, a in ipairs{ -1.15, 1.15, 0 } do
-    local vx, vy = rot(ux, uy, a)
-    local px, py = -vy, vx
-    local q = { E, { E[1] + vx * L * 0.3 + px * 0.8, E[2] + vy * L * 0.3 + py * 0.8 },
-      { E[1] + vx * L * 0.65, E[2] + vy * L * 0.65 }, { E[1] + vx * L, E[2] + vy * L } }
-    leaf(q, 2.9 * s)
-  end
-end
-local function vx(y, bx, y0) return bx + 5 * sin((y0 - y) * 0.5) end
-local function helix(bx, y0, y1)
-  local pts = {}
-  for y = y0, y1, -1 do pts[#pts + 1] = { floor(vx(y, bx, y0) + 0.5), y } end
-  local m = c:line(pts, 2)
-  c:fillMask(m, STEM[2])
-  m:each(function(x, y)
-    if not m:has(x - 1, y - 1) then c:px(x, y, STEM[3]) elseif not m:has(x + 1, y + 1) then c:px(x, y, STEM[1]) end
-  end)
-end
-local function stake(bx, y0, y1)
-  local m, n = G.tube({ { bx, y0 }, { bx, y0 + (y1 - y0) / 3 }, { bx, y0 + 2 * (y1 - y0) / 3 }, { bx, y1 } }, function(t) return 1.7 end)
-  G.tone(c, m, X.light(n, { amb = 0.15, wrap = 0.3 }), WOOD, { 0.25, 0.5, 0.75, 0.9 })
-  m:each(function(x, y) if X.hash(x, y, 8) > 0.86 then c:px(x, y, WOOD[2]) end end)
-end
-soil(50, 22, 6)
-stake(42, 47, 13)
-stem({ {30,47}, {30,41}, {36,37}, {42,34} }, 1.6, 1.3)
-helix(42, 34, 15)
-local PODR = { "#1f4a2a", "#2f6a35", "#4a9444", "#78bd54", "#a8dc72" }
-local function pod(x, y, dx, dy)
-  local p = { {x,y}, {x+dx*0.2,y+dy*0.5}, {x+dx*0.8,y+dy*0.7}, {x+dx,y+dy} }
-  local m, n = G.tube(p, function(t) return 0.9 + 1.7 * sin(pi * min(1, t * 1.05)) ^ 0.8 end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), PODR, { 0.2, 0.4, 0.6, 0.82 })
-  for _, t in ipairs{ 0.3, 0.5, 0.7 } do
-    local bx, by = G.bez(p, t)
-    bx, by = floor(bx + 0.5), floor(by + 0.5)
-    c:px(bx - 1, by - 1, PODR[5]) c:px(bx + 1, by + 1, PODR[1])
-  end
-  local tx, ty = G.bez(p, 1)
-  c:px(floor(tx + 0.5), floor(ty + 0.5) + 1, "#7a4a2c")
-end
-pod(vx(21, 42, 34), 21, -3, 17)
-pod(vx(26, 42, 34), 26, -7, 14)
-pod(vx(30, 42, 34), 30, 6, 11)
-tri(vx(17, 42, 34), 17, -8, -4, 0.8)
-tri(vx(23, 42, 34), 23, 5, -5, 0.8)
--- quirk: a curly tendril
-G.line(c, { {47, 18}, {50, 16}, {51, 14}, {49, 13}, {48, 14} }, STEM[3])
-G.fin(c, NAME)
+G.save(c, NAME)

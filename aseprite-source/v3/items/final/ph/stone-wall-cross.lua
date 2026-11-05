@@ -1,69 +1,120 @@
--- stone-wall-cross (lean W2_29)
+-- stone-wall-cross (lean E2_15)
+-- Four-way crossing: wall runs left-right and front-back, plus-shaped silhouette, capstone slabs meet in the middle.
+-- quirk: an ivy sprig with a blue flower climbs the front end face.
 local NAME = "stone-wall-cross"
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, max, min, sqrt = math.floor, math.abs, math.max, math.min, math.sqrt
-local STONE = { "#2f2a3d", "#4a4459", "#6c657a", "#8f889a", "#b6aebb", "#d9d2d6" }
-local WARM  = { "#3d3238", "#5e4d50", "#85706a", "#a8917f", "#c9b496", "#e6d6b4" }
-local MOSS  = { "#1f3d33", "#2f5e3c", "#4b8545", "#78ae56", "#a8d06c" }
-local SPEC = "#fff6f2"
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
--- brick-coursed wall run: top coping strip (lit), mortar, per-brick tone, top-left light, bottom-right shade
-local function bricks(x0, y0, x1, y1, seed, vertical)
-  local m = c:rect(x0, y0, x1, y1)
-  m:each(function(x, y)
-    local ry = y - y0
-    local row = floor(ry / 5)
-    local off = (row % 2) * 4 + floor(X.hash(row, 3, seed) * 3)
-    local bx = x - x0 + off
-    local col = floor(bx / 8)
-    local h = X.hash(col, row, seed + 7)
-    local ramp = (h > 0.78) and WARM or STONE
-    local lvl = 3 + floor(h * 2.4) % 3 - 1
-    local colr = ramp[max(2, min(5, lvl))]
-    local mort = (ry % 5 == 4) or (bx % 8 == 7)
-    if not vertical and ry < 3 then colr = STONE[5 - (ry == 2 and 1 or 0)]; if ry == 0 then colr = STONE[6] end
-    elseif mort then colr = STONE[1]
-    else
-      if ry % 5 == 0 or bx % 8 == 0 then colr = ramp[min(6, lvl + 1)] end
-      if ry % 5 == 3 then colr = ramp[max(1, lvl - 1)] end
-      if X.hash(x, y, seed + 2) > 0.9 then colr = ramp[max(1, lvl - 1)] end
+local floor, abs, sin, cos, pi, max, min, sqrt, atan2 = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan2 or math.atan
+local function clamp(v,a,b) return max(a,min(b,v)) end
+
+local MORT = "#2e2536"
+local RAMPS = {
+  { "#2f2a3a", "#4e4a60", "#6b6a82", "#8e8ea4", "#b9b9c9" },
+  { "#3a2f36", "#5c4d54", "#7e7078", "#a2949a", "#cdc1c4" },
+  { "#4a3a34", "#74604f", "#9a8266", "#bda47e", "#e0cba0" },
+}
+local CAP = { "#4e4458", "#7a6f86", "#a39bb0", "#cbc4d4", "#eee9f2" }
+local MOSS = { "#24502e", "#3a7a3c", "#68a84a", "#a2d062" }
+local WOOD = { "#3a2218", "#5c3a24", "#7e5232", "#a06c40", "#c48c58" }
+local IRON = { "#26232e", "#3e3b4c", "#5c586e", "#8a869c", "#c4c0d0" }
+local function stone(x0, y0, x1, y1, ramp, seed)
+  for y = y0, y1 do for x = x0, x1 do
+    local ex, ey = (x == x0 or x == x1), (y == y0 or y == y1)
+    if not (ex and ey) then
+      local i = 3
+      if y == y0 or x == x0 then i = 4 end
+      if y == y0 and x > x0 and x <= x0 + (x1 - x0) * 0.6 then i = 5 end
+      if y == y1 or x == x1 then i = 2 end
+      if y == y1 and x > x0 + (x1 - x0) * 0.45 then i = 1 end
+      local h = X.hash(x, y, seed)
+      if i == 3 then if h > 0.88 then i = 4 elseif h < 0.1 then i = 2 end end
+      c:put(x, y, ramp[i])
     end
-    if x >= x1 - 1 then colr = STONE[2] end            -- right edge in shade
-    if y >= y1 - 1 and not vertical then colr = STONE[1] end  -- base AO
-    c:px(x, y, colr)
-  end)
-  return m
+  end end
 end
-local function dome(mask, R, ramp, bias)
-  local n = X.pillow(mask, R)
-  G.tone(c, mask, X.light(n, { amb = 0.1, wrap = 0.2 }), ramp, { 0.2, 0.38, 0.55, 0.72, 0.87 })
-  return n
+local function face(x0, y0, x1, y1, rowH, seed, wmin, wmax)
+  for y = y0, y1 do for x = x0, x1 do c:put(x, y, MORT) end end
+  local r, y = 0, y0
+  while y <= y1 do
+    local ye = min(y + rowH - 2, y1)
+    local sx = x0 - floor(X.hash(r, 1, seed) * (wmax - 1))
+    while sx <= x1 do
+      local w = wmin + floor(X.hash(sx, r, seed + 3) * (wmax - wmin + 1))
+      local a, b = max(x0, sx), min(x1, sx + w - 2)
+      if b - a >= 2 and ye - y >= 2 then stone(a, y, b, ye, RAMPS[1 + floor(X.hash(sx, r, seed + 7) * 3)], seed + sx + r * 13) end
+      sx = sx + w
+    end
+    y = y + rowH; r = r + 1
+  end
 end
-local function tuft(x, y, n)
-  for i = 0, n - 1 do c:px(x + i, y, MOSS[3 - (i % 2)]) c:px(x + i, y - 1 - (i % 2), MOSS[4 - (i % 2)]) end
+-- flat top slab of the wall; horiz=true seams are vertical ticks, else horizontal
+local function slab(x0, y0, x1, y1, seed, horiz)
+  for y = y0, y1 do for x = x0, x1 do
+    local i = 3
+    if y == y0 then i = 5 elseif y == y0 + 1 then i = 4 end
+    if x == x0 then i = max(i, 4) end
+    if x == x1 then i = min(i, 2) end
+    if y == y1 then i = 2 elseif y == y1 - 1 and i == 3 then i = 3 end
+    local h = X.hash(x, y, seed)
+    if i == 3 then if h > 0.9 then i = 4 elseif h < 0.12 then i = 2 end end
+    c:put(x, y, CAP[i])
+  end end
+  if horiz then
+    local sx = x0 + 6 + floor(X.hash(1, 1, seed) * 5)
+    while sx < x1 - 3 do
+      for y = y0 + 1, y1 - 1 do c:put(sx, y, CAP[2]) end
+      c:put(sx + 1, y0, CAP[4])
+      sx = sx + 9 + floor(X.hash(sx, 2, seed) * 5)
+    end
+  else
+    local sy = y0 + 6 + floor(X.hash(2, 2, seed) * 4)
+    while sy < y1 - 3 do
+      for x = x0 + 1, x1 - 1 do c:put(x, sy, CAP[2]) end
+      for x = x0 + 1, x1 - 1 do if X.hash(x, sy, seed) > 0.5 then c:put(x, sy + 1, CAP[4]) end end
+      sy = sy + 8 + floor(X.hash(sy, 2, seed) * 4)
+    end
+  end
+end
+local function moss(x, y, n, seed)
+  for i = 1, n do
+    local dx = floor((X.hash(i, 5, seed) - 0.5) * 6)
+    local dy = floor((X.hash(i, 6, seed) - 0.5) * 3)
+    local k = 1 + floor(X.hash(i, 7, seed) * 3)
+    c:put(x + dx, y + dy, MOSS[k])
+  end
+  c:put(x, y, MOSS[3]); c:put(x - 1, y, MOSS[2]); c:put(x + 1, y, MOSS[2]); c:put(x, y - 1, MOSS[4])
+end
+local function flower(x, y, col, hi)
+  c:put(x, y + 1, MOSS[2]); c:put(x, y + 2, MOSS[1])
+  c:put(x - 1, y, col); c:put(x + 1, y, col); c:put(x, y - 1, col); c:put(x, y + 1, col)
+  c:put(x, y, hi)
 end
 
-c:groundShadow(32, 55, 24, 3)
-bricks(25, 8, 39, 24, 21, true)
-bricks(25, 38, 39, 54, 9, true)
-bricks(7, 24, 57, 38, 17, false)
-c:fillMask(c:rect(25, 52, 39, 54), STONE[1])
--- central pillar: round capstone with an iron ring (quirk) and a worn rune
-local cap = c:ellipse(32, 25, 10, 9)
-dome(cap, 7, WARM)
-c:px(27, 20, SPEC) c:px(28, 20, SPEC) c:px(27, 21, WARM[6])
-local IR = { "#1d1a24", "#3a3646", "#59546a", "#8a859a" }
-for a = 0, 15 do
-  local ang = a / 16 * 6.2832
-  local x, y = floor(32 + math.cos(ang) * 5 + 0.5), floor(26 + math.sin(ang) * 4.5 + 0.5)
-  c:px(x, y, (x < 32 and y < 26) and IR[4] or ((x >= 32 and y >= 26) and IR[1] or IR[3]))
-end
-c:px(32, 22, IR[2]) c:px(32, 21, IR[2]) c:px(31, 21, IR[4])
--- worn rune below ring
-c:px(31, 28, WARM[2]) c:px(32, 29, WARM[2]) c:px(33, 28, WARM[2])
--- moss in the north crotch and a lichen patch
-tuft(26, 9, 4) c:px(28, 10, MOSS[2])
-for _, p in ipairs{ {44,28},{45,28},{45,29},{46,28} } do c:px(p[1], p[2], MOSS[3]) end
-c:px(12, 32, MOSS[4]) c:px(13, 32, MOSS[3]) c:px(12, 33, MOSS[2])
-G.fin(c, NAME)
+c:groundShadow(32, 57, 18, 3)
+face(5, 31, 58, 41, 6, 51, 7, 12)
+-- front branch face + top
+face(25, 51, 38, 58, 7, 83, 6, 9)
+slab(25, 31, 38, 50, 91, false)
+-- back branch top
+slab(25, 5, 38, 21, 97, false)
+slab(5, 22, 58, 30, 25, true)
+-- crossing seam hint: dark seams around the central square
+for x = 25, 38 do c:put(x, 22, CAP[2]); c:put(x, 30, CAP[2]) end
+for y = 22, 30 do c:put(25, y, CAP[2]); c:put(38, y, CAP[2]) end
+for x = 26, 37 do c:put(x, 23, CAP[4]) end
+for x = 25, 38 do c:put(x, 50, CAP[1]) end
+for y = 31, 50 do c:put(25, y, CAP[4]); c:put(38, y, CAP[2]) end
+for y = 31, 41 do c:put(24, y, RAMPS[1][1]); c:put(39, y, RAMPS[1][1]) end
+for x = 5, 58 do c:put(x, 31, MORT) end
+for x = 25, 38 do c:put(x, 31, CAP[3]) end
+for x = 25, 38 do c:put(x, 31, CAP[4]) end
+-- ivy on the front face
+local IV = { "#1f4a2c", "#2f7a3c", "#58a84a", "#96d062" }
+local vine = { {31,58},{31,56},{32,54},{33,53},{34,53} }
+for _, p in ipairs(vine) do c:put(p[1], p[2], IV[1]) end
+local function ivy(x, y) c:put(x, y, IV[3]); c:put(x - 1, y, IV[2]); c:put(x + 1, y, IV[2]); c:put(x, y - 1, IV[4]); c:put(x, y + 1, IV[2]) end
+ivy(29, 55); ivy(35, 55); ivy(33, 52)
+c:put(36, 54, "#6ea0f0"); c:put(37, 54, "#a8c8ff"); c:put(37, 53, "#6ea0f0"); c:put(37, 55, "#6ea0f0"); c:put(38, 54, "#6ea0f0")
+moss(10, 40, 4, 5); moss(53, 40, 4, 6); moss(31, 6, 3, 10)
+G.save(c, NAME)

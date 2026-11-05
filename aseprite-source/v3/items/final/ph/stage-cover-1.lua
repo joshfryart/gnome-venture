@@ -1,44 +1,59 @@
--- stage-cover-1 (lean D2o_5)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-cover-1 (lean E2_08)
+local NAME = "stage-cover-1"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-cover-1" }
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function shade(m, ramp, R, o) o = o or {}
-  local n = X.pillow(m, R or 4)
-  local v = X.light(n, { amb = o.amb or 0.1, wrap = o.wrap or 0.25 })
-  G.tone(c, m, v, ramp, o.cuts, o.bias, o.tok)
-  return n, v
+local CUTS = { 0.22, 0.4, 0.56, 0.72, 0.86 }
+local function blob(m, ramp, name, R, o)
+  o = o or {}
+  local n = X.pillow(m, R or 3)
+  local tok = { r = { name = name } }
+  return X.tone(c, m, X.light(n, { amb = o.amb or 0.08, wrap = o.wrap or 0.22 }), ramp, { cuts = CUTS, tok = tok }), n, tok
 end
-local function tshade(m, n, ramp, o) o = o or {}
-  local v = X.light(n, { amb = o.amb or 0.12, wrap = o.wrap or 0.25 })
-  G.tone(c, m, v, ramp, o.cuts, o.bias, o.tok)
-  return v
+local function put(x, y, col, name) c:put(floor(x + .5), floor(y + .5), col, { r = { name = name or "d" } }) end
+local function dots(m, col, name) m:each(function(x, y) c:put(x, y, col, { r = { name = name or "d" } }) end) end
+
+local SOIL = { "#2a1a14", "#4a2e20", "#6e4630", "#8c6240", "#aa8052", "#c8a470" }
+local LEAF = { "#133a2c", "#1c5a38", "#2a7c40", "#44a04c", "#6cc45c", "#a6e07a" }
+local STEM = { "#2a5a30", "#3c7c3c", "#58a04c", "#86c468" }
+c:groundShadow(32, 57, 26, 3)
+local mound = HP.mask()
+for y = 36, 56 do for x = 4, 60 do
+  local dx, dy = (x - 32) / 27, (y - 47) / 9.5
+  if dx * dx + dy * dy <= 1 and not (y < 47 and dx*dx + ((y-47)/11)^2 > 1) then mound:set(x, y) end
+end end
+local _, mn, mtok = blob(mound, SOIL, "soil", 9, { wrap = 0.25 })
+mound:each(function(x, y) local h = X.hash(x, y, 5)
+  if h > 0.9 then c:put(x, y, SOIL[6], mtok) elseif h < 0.07 then c:put(x, y, SOIL[1], mtok) end end)
+-- a pebble
+local peb = c:ellipse(51, 50, 3, 2) blob(peb, { "#4a4850", "#6a6874", "#8a8894", "#aaa8b2", "#c8c6d0", "#e6e4ec" }, "pebble", 2)
+local function stem(pts, w) if #pts == 3 then pts = { pts[1], pts[2], pts[2], pts[3] } elseif #pts == 2 then pts = { pts[1], pts[1], pts[2], pts[2] } end local m = G.tube(pts, function(t) return w or 0.9 end) dots(m, STEM[3], "stem") return m end
+local function leaflet(cx, cy, rx, ry, name)
+  local m = c:ellipse(cx, cy, rx, ry)
+  blob(m, LEAF, name, max(rx, ry) + 0.5, { wrap = 0.25 })
+  put(cx - 1, cy - 1, LEAF[6], "hi")
+  return m
 end
-local SOIL = { "#2a1a1c", "#46291f", "#6b3f28", "#8f5a36", "#b47e4c", "#d5a468" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-c:groundShadow(32, 55, 22, 3)
-local mound = c:ellipse(32, 49, 23, 7):add(c:ellipse(32, 45, 17, 6))
-local sb = {}
-X.ao(sb, mound, c:rect(0, 0, 0, 0), 2, 0)
-shade(mound, SOIL, 9)
-mound:each(function(x, y) if X.hash(x, y, 5) > 0.9 then c:px(x, y, SOIL[5]) elseif X.hash(x, y, 8) > 0.93 then c:px(x, y, SOIL[1]) end end)
-for _, p in ipairs{ {18,49},{24,53},{40,52},{47,48},{34,50} } do c:px(p[1], p[2], SOIL[6]) c:px(p[1] + 1, p[2], SOIL[4]) c:px(p[1], p[2] + 1, SOIL[1]) end
--- three seedlings: slim stalk + cotyledon pair
-local function sprout(x, h, lean, big)
-  local sm, sn = G.tube({ {x, 46}, {x, 46 - h * 0.4}, {x + lean * 0.6, 46 - h * 0.8}, {x + lean, 46 - h} }, function(t) return 1.1 - 0.2 * t end)
-  tshade(sm, sn, LEAF, { cuts = { 0.3, 0.5, 0.65, 0.8, 0.92 } })
-  local tx, ty = x + lean, 46 - h
-  for _, s in ipairs{ -1, 1 } do
-    local ang = s * 0.35
-    local cm = G.rell(tx + s * big * 0.9, ty - 0.5 - s * 0.0, cos(ang) * s, -sin(abs(ang)) * 0.8, big, big * 0.62)
-    shade(cm, LEAF, 3)
-    c:px(floor(tx + s * big * 0.5), floor(ty - 1), LEAF[6])
+local function clover(cx, cy, s, rot, name)
+  for k = 0, 2 do
+    local a = rot + k * 2.094
+    leaflet(cx + cos(a) * s * 0.95, cy + sin(a) * s * 0.95, s * 0.95, s * 0.8, name .. k)
   end
-  c:px(tx, ty - 1, LEAF[3]) c:px(tx, ty - 2, LEAF[4])
-  c:px(tx, ty - 3, LEAF[5])
+  put(cx, cy, LEAF[1], "ao")
 end
-sprout(19, 12, -1, 3.6)
-sprout(45, 14, 2, 3.8)
-sprout(32, 20, 1, 4.6)
-c:px(26, 44, "#c9a070") c:px(38, 44, "#c9a070") c:px(27, 44, "#8f5a36")  -- husk crumbs
-G.fin(c, "stage-cover-1")
+
+local function seedling(x, ytop, ybase, a)
+  stem({ {x, ybase}, {x + a, (ybase + ytop) / 2}, {x, ytop + 2} }, 1.0)
+  local l = G.blade(x, ytop + 2, x - 5, ytop - 3, x - 9, ytop + 1, function(t) if t > .98 then return -1 end return max(.6, 3.2 * sin(pi * t) ^ .7) end)
+  local r = G.blade(x, ytop + 2, x + 5, ytop - 3, x + 9, ytop + 1, function(t) if t > .98 then return -1 end return max(.6, 3.2 * sin(pi * t) ^ .7) end)
+  blob(l, LEAF, "cotL" .. x, 3) blob(r, LEAF, "cotR" .. x, 3)
+end
+seedling(18, 34, 46, 1)
+seedling(46, 36, 47, -1)
+seedling(32, 26, 45, 1)
+-- quirk: seed husk cap on the centre cotyledon tip
+local husk = c:ellipse(25, 24, 2, 1.5)
+blob(husk, { "#3a2218", "#5e3a26", "#82522f", "#a8703c", "#c8924e", "#e6b878" }, "husk", 2)
+c:sparkle(14, 31)
+G.save(c, NAME)

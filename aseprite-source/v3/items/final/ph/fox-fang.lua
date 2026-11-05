@@ -1,33 +1,38 @@
--- fox-fang (lean W2_3)
+-- fox-fang (lean E2_01)
+local NAME = "fox-fang"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function T(c, m, R, ramp, amb) local n = X.pillow(m, R) local v = X.light(n, {amb = amb or 0.1, wrap = 0.25}) X.tone(c, m, v, ramp, {cuts = {.22,.4,.56,.72,.86}}) return n, v end
-local NAME = "fox-fang"
+local floor, abs, sin, cos, pi, max, min, sqrt, ceil = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.ceil
+local CUTS = { 0.18, 0.34, 0.5, 0.66, 0.82 }
+local function inter(a, b) local r = HP.mask() a:each(function(x, y) if b:has(x, y) then r:set(x, y) end end) return r end
+
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-local BONE = { "#8a7a8c", "#b5a8ad", "#d8cdc0", "#eee5d2", "#faf3e2", "#fffaf0" }
-local LEATH = { "#3a2220", "#5e3a2c", "#855437", "#a97646", "#cf9c62", "#ecc88e" }
-local CORD = { "#4a3a5a", "#6f5a82", "#9a85a8" }
-c:groundShadow(32, 54, 12, 2)
--- cord loop up top (twisted)
-local loop = G.tube({{27,18},{22,8},{34,5},{33,16}}, function(t) return 1.1 end)
-local lm = loop
-for _, p in ipairs{} do end
-lm:each(function(x, y) c:px(x, y, ((x + y) % 3 == 0) and CORD[3] or CORD[2]) end)
--- fang: curved cone from wide base (upper-left) to sharp tip (lower-right)
-local fang, fn = G.tube({{28,20},{30,32},{38,42},{50,50}}, function(t) return 6.2 * (1 - t) ^ 0.85 + 0.4 end)
-T(c, fang, 6, BONE)
--- enamel gloss streak + pulp-cavity shade
-fang:each(function(x, y) if x < 33 and y > 24 and y < 34 and fang:has(x - 2, y) and not fang:has(x - 3, y) then c:px(x, y, BONE[6]) end end)
-c:px(29, 27, BONE[6]) c:px(30, 29, BONE[6]) c:px(47, 49, BONE[1])
--- leather wrap around base with stitches
-local wrap = c:rect(22, 19, 35, 27)
-wrap:clip(c:rect(22, 19, 35, 27))
-T(c, c:rrect(22, 18, 35, 27, 2), 4, LEATH)
-for x = 24, 34, 3 do c:px(x, 20, LEATH[6]) c:px(x + 1, 22, LEATH[1]) c:px(x, 24, LEATH[6]) c:px(x + 1, 26, LEATH[1]) end
--- band cuts
-for y = 19, 27, 4 do for x = 23, 34 do c:px(x, y, LEATH[1]) end end
--- quirk: tiny chip nick near the tip
-c:px(44, 44, 0 == 1 and "#000" or BONE[2])
-c:sparkle(18, 36)
+local IVORY = { "#6a5a78", "#9a88a0", "#c8bcc0", "#e6dcd0", "#f6f0e4", "#fffaf0" }
+local CORD = { "#5a2018", "#8c3a24", "#c4642c", "#e89a4a" }
+local FUR = { "#7a2a14", "#b5481c", "#e0742c", "#f2a050", "#fbd08a", "#fff0cc" }
+c:groundShadow(30, 58, 15, 2.5)
+-- fur tuft behind the wrap
+local tuft = c:poly{ {30,14}, {28,8}, {32,10}, {33,5}, {36,9}, {39,5}, {40,10}, {44,8}, {43,14} }
+local ftok = { r = { name = "fur" } }
+local fi = X.tone(c, tuft, X.light(X.pillow(tuft, 3), { amb = 0.1, wrap = 0.25 }), FUR, { cuts = CUTS, tok = ftok })
+tuft:each(function(x, y) local k = K(x, y) if y < 11 and X.hash(x, 0, 4) > 0.6 then c:put(x, y, FUR[min(6, fi[k] + 1)], ftok) end end)
+local m, n, T, S, len = G.blade(36, 13, 47, 38, 20, 56, function(t)
+  if t > 0.985 then return -1 end
+  return max(0.5, 7.2 * (1 - t) ^ 0.85)
+end)
+local tok = { r = { name = "fang" } }
+local idx = X.tone(c, m, X.light(n, { amb = 0.08, wrap = 0.22 }), IVORY, { cuts = CUTS, tok = tok })
+m:each(function(x, y) local k = K(x, y) local t, s = T[k], S[k]
+  if t > 0.22 and t < 0.8 and abs(s + 0.45) < 0.1 then c:put(x, y, IVORY[6], tok)
+  elseif t > 0.22 and t < 0.85 and s > 0.55 then c:put(x, y, "#8a78a0", tok) end
+  if t >= 0.04 and t <= 0.2 then
+    local ci = max(1, ceil(idx[k] * 4 / 6))
+    c:put(x, y, (x + y) % 4 == 0 and CORD[1] or CORD[ci], tok)
+  end
+end)
+-- root cut: dark pulp rim at the top
+m:each(function(x, y) if T[K(x, y)] < 0.04 then c:put(x, y, "#7a5a50", tok) end end)
+local gx, gy = G.specAt(m, n, 30)
+if gx then c:put(gx, gy, IVORY[6], tok) end
+c:sparkle(45, 48)
 G.save(c, NAME)

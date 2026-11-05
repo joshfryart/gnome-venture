@@ -1,53 +1,62 @@
--- ensete (lean W2_1)
--- Ensete (false banana): swollen pale pseudostem with banded sheaths and a maroon stripe, two paddle leaves with red midribs, one frayed, a small sucker pup.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- ensete (lean E2_00)
+local NAME = "ensete"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "ensete" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#a4d070" }
-local STEM = { "#4a5a3c", "#6e8a52", "#97b573", "#bcd496", "#dceab8", "#f4f8d8" }
-local ltok = { r = { name = "leaf" } }
-local function paddle(ax, ay, bx, by, wmax, slits)
-  local len = sqrt((bx - ax)^2 + (by - ay)^2)
-  local m, n, T, S = X.cyl(ax, ay, bx, by, function(t)
+local CUTS = { 0.22, 0.4, 0.56, 0.72, 0.86 }
+local function shade(m, ramp, R, tok, amb, wrap)
+  local n = X.pillow(m, R)
+  return X.tone(c, m, X.light(n, { amb = amb or 0.08, wrap = wrap or 0.22 }), ramp, { cuts = CUTS, tok = tok }), n
+end
+local function hx(h) return tonumber(h:sub(2,3),16), tonumber(h:sub(4,5),16), tonumber(h:sub(6,7),16) end
+local function mix(a, b, t) local r1,g1,b1 = hx(a) local r2,g2,b2 = hx(b)
+  return string.format("#%02x%02x%02x", floor(r1+(r2-r1)*t+.5), floor(g1+(g2-g1)*t+.5), floor(b1+(b2-b1)*t+.5)) end
+local function ramp6(base) return { mix(base,"#1c1020",.62), mix(base,"#2a1428",.36), mix(base,"#2a1428",.14), base, mix(base,"#fff2b0",.3), mix(base,"#fff8e0",.6) } end
+c:groundShadow(32, 57, 15, 3)
+local LEAF = { "#163a35", "#1f553f", "#2b7046", "#3f8f4c", "#62ad55", "#93cb68" }
+local RIB, RIB2 = "#a8344a", "#e0607a"
+local function paddle(ax, ay, cx, cy, bx, by, w)
+  local m, n, T, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t)
     if t > 0.985 then return -1 end
-    if t < 0.15 then return 0.7 end
-    return max(0.7, wmax * sin(pi * min(1, (t - 0.1) / 0.9 * 0.95 + 0.05)) ^ 0.55)
-  end)
-  local cut = HP.mask()
-  for _, s in ipairs(slits) do
-    local t, side = s[1], s[2]
-    local x0, y0 = ax + (bx - ax) * t, ay + (by - ay) * t
-    local ux, uy = (bx - ax) / len, (by - ay) / len
-    local px, py = -uy * side, ux * side
-    for d = 2, 7 do cut:set(floor(x0 + px * d + ux * d * 0.5 + 0.5), floor(y0 + py * d + uy * d * 0.5 + 0.5)) end
-  end
-  m:cut(cut)
-  local v = X.light(n, { amb = 0.12, wrap = 0.25 })
-  G.tone(c, m, v, LEAF, { 0.2, 0.38, 0.55, 0.7, 0.86 }, nil, ltok)
-  m:each(function(x, y) local k = K(x, y)
-    local s, t = S[k], T[k]
-    if abs(s) < 0.17 and t > 0.08 then c:put(x, y, s <= 0 and "#d0586a" or "#8a2a40", ltok)
-    elseif t > 0.2 then
-      local d = ((t * len) - abs(s) * 3.0) % 3.2
-      if d < 0.8 and abs(s) > 0.3 then c:put(x, y, s < 0 and LEAF[5] or LEAF[2], ltok) end
+    local u = min(1, t * 0.95 + 0.05)
+    return max(0.6, w * sin(pi * u ^ 0.8) ^ 0.6)
+  end, { fold = 0.3 })
+  local tok = { r = { name = "lf" .. ax } }
+  G.toneN(c, m, n, LEAF, { tok = tok, cuts = CUTS, amb = 0.1, wrap = 0.22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.1 and t < 0.92 then c:put(x, y, s <= 0 and RIB2 or RIB, tok) return end
+    for _, vt in ipairs{ 4, 8, 12, 16, 20, 24, 28 } do
+      local d = t * L - (vt + abs(s) * 4)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.2 then c:put(x, y, s < 0 and LEAF[5] or LEAF[2], tok) return end
     end
   end)
   return m
 end
-paddle(33, 25, 54, 9, 5.4, {})
-paddle(31, 26, 10, 14, 5.0, { {0.55, 1}, {0.75, -1} })
--- pseudostem
-local sm, sn, ST = G.tube({ {31,53},{30,44},{33,33},{32,24} }, function(t) return 7.2 - 4.4 * t^0.8 end)
-G.tone(c, sm, X.light(sn, { amb = 0.1, wrap = 0.3 }), STEM, { 0.2, 0.36, 0.52, 0.68, 0.84 })
-sm:each(function(x, y)
-  if (y % 5 == 0) and X.hash(x, y, 7) > 0.2 then c:px(x, y, STEM[2]) end
-  if x >= 32 and x <= 33 + floor((53 - y) / 12) and y > 30 and y < 52 and (y % 5 ~= 0) then c:px(x, y, "#7a3446") end
+paddle(30, 31, 13, 4, 10, 27, 6.5)
+local R = paddle(34, 31, 52, 4, 54, 25, 6.5)
+-- furled new leaf
+local fm, fn = G.tube({ {32,33}, {31,24}, {33,15}, {32,8} }, function(t) return 2.2 - 1.2 * t end)
+local FL = { "#3c6a30", "#5a9040", "#82b84e", "#b0d870", "#d4ee98", "#f0fcc0" }
+local ft = { r = { name = "furl" } }
+X.tone(c, fm, X.light(fn, { amb = 0.1, wrap = 0.25 }), FL, { cuts = CUTS, tok = ft })
+for y = 9, 30, 4 do c:put(31, y, FL[2], ft) c:put(32, y + 1, FL[2], ft) end
+c:put(32, 8, "#a8344a", ft) c:put(32, 9, "#a8344a", ft)
+-- swollen pseudostem
+local st = c:ellipse(32, 49, 13, 9)
+st:add(c:poly{{26,47},{28,30},{36,30},{38,47}})
+local SR = { "#3c5a3a", "#5d8449", "#86a95a", "#b0c978", "#d3e09a", "#eef3c0" }
+local tok = { r = { name = "stem" } }
+local idx = shade(st, SR, 8, tok, 0.1, 0.25)
+st:each(function(x, y) local k = K(x, y)
+  for _, ry in ipairs{ 36, 42 } do local yy = ry + floor(abs(x - 32) * 0.18) if y == yy then c:put(x, y, SR[max(1, idx[k] - 2)], tok) end end
+  if (x == 29 or x == 35 or x == 24 or x == 40) and y > 31 and y < 56 and (y % 5 ~= 0) then c:put(x, y, "#8a3040", tok) end
 end)
-c:px(27, 36, STEM[6]) c:px(27, 37, STEM[5]) c:px(26, 44, STEM[6])
--- sucker pup beside the base (quirk)
-local pm, pn = G.tube({ {38,53},{39,50},{40,47},{39,44} }, function(t) return 2.2 - 1.6 * t end)
-G.tone(c, pm, X.light(pn, { amb = 0.12, wrap = 0.3 }), LEAF, { 0.3, 0.55, 0.8 }, nil, ltok)
-c:px(39, 44, LEAF[6]) c:px(40, 45, LEAF[5])
-c:fillMask(c:rect(24, 54, 38, 54), "#3a3a2c")
-G.fin(c, "ensete")
+for _, p in ipairs{ {28,29},{29,29},{30,29},{34,29},{35,29},{36,29} } do c:put(p[1], p[2], SR[2], tok) end
+for _, p in ipairs{ {26,44},{27,45},{27,43} } do c:put(p[1], p[2], SR[6], tok) end
+-- quirk: a dewdrop on the right leaf
+local dm = c:ellipse(50, 13, 2, 2)
+local DT = { r = { name = "dew" } }
+dm:each(function(x, y) c:put(x, y, "#7fc4d8", DT) end)
+c:put(50, 14, "#3c7a98", DT) c:put(51, 14, "#3c7a98", DT) c:put(49, 12, "#f4fdff", DT)
+G.save(c, NAME)

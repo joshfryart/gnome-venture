@@ -1,46 +1,52 @@
--- peanut-toast (lean W2_12)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- peanut-toast (lean E2_04)
+local NAME = "peanut-toast"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "peanut-toast" }
-local CR = { "#4a2a17", "#6e3f1e", "#955a28", "#b97a38", "#d89c52", "#efc17c" }
-local BR = { "#8e5a2a", "#b87d38", "#d9a152", "#efc67a", "#f9e0a2", "#fff1c6" }
-local PB = { "#6a3d1c", "#8c5524", "#ad7030", "#cb8f42", "#e0ab5a", "#f1c982" }
-local cuts = { 0.22, 0.4, 0.56, 0.72, 0.87 }
-c:groundShadow(32, 54, 18, 2)
-local slice = HP.mask()
-slice:add(c:rect(14, 20, 50, 51)):add(c:ellipse(22, 21, 9, 6)):add(c:ellipse(42, 21, 9, 6)):add(c:rect(14, 22, 50, 22))
-slice:cut(c:rect(10, 14, 20, 17))
--- corners rounded
-for _, p in ipairs{ {14,51},{15,51},{14,50},{50,51},{49,51},{50,50} } do slice:cut(HP.mask():add(c:rect(p[1],p[2],p[1],p[2]))) end
--- bite from upper right
-local bite = HP.mask():add(c:ellipse(51, 24, 4, 3)):add(c:ellipse(47, 20, 3, 3)):add(c:ellipse(53, 30, 3, 3))
-slice:cut(bite)
-local n = X.pillow(slice, 5)
-local v = X.light(n, { amb = 0.1, wrap = 0.25 })
-local crust = slice:copy():cut(slice:copy():shrink(3))
-local crumb = slice:copy():shrink(3)
-G.tone(c, crust, v, CR, cuts)
-G.tone(c, crumb, v, BR, cuts)
--- pores in crumb
-crumb:shrink(2):each(function(x, y) if X.hash(x, y, 5) > 0.93 then c:px(x, y, BR[1]) end end)
--- peanut butter spread: ragged blob, knife swirls
-local pb = HP.mask():add(c:ellipse(31, 37, 13, 10)):add(c:ellipse(25, 31, 6, 4)):add(c:ellipse(37, 44, 6, 3))
-pb:each(function(x, y) if X.hash(x, y, 2) > 0.9 and pb:copy():shrink(1):has(x, y) == false then pb:cut(HP.mask():add(c:rect(x,y,x,y))) end end)
-local pbm = pb:copy():clip(crumb)
-local pn = X.pillow(pbm, 6)
-G.tone(c, pbm, X.light(pn, { amb = 0.12, wrap = 0.3 }), PB, cuts)
-for i = 0, 3 do
-  local y = 30 + i * 4
-  G.line(c, { {22 + i, y}, {28, y - 1}, {34, y}, {40 - i, y - 1} }, PB[2])
-  G.line(c, { {23 + i, y - 1}, {28, y - 2}, {34, y - 1} }, PB[5])
+local CUTS = { 0.22, 0.4, 0.56, 0.72, 0.86 }
+local function U(...) local m = HP.mask() for _, x in ipairs{...} do m:add(x) end return m end
+local function S(m, ramp, R, name, amb)
+  local n = X.pillow(m, R or 3)
+  return X.tone(c, m, X.light(n, { amb = amb or 0.08, wrap = 0.25 }), ramp, { cuts = CUTS, tok = { r = { name = name or "p" } } }), n
 end
-c:px(25, 29, PB[6]) c:px(26, 29, PB[6]) c:px(24, 30, PB[6])
--- drip over left crust
-local drip = HP.mask():add(c:rect(13, 34, 15, 44)):add(c:ellipse(14, 46, 2, 2))
-G.tone(c, drip, X.light(X.pillow(drip, 2), { amb = 0.15, wrap = 0.3 }), PB, cuts)
--- quirk: lone peanut at lower right
-local pnut = HP.mask():add(c:ellipse(52, 54, 3, 2)):add(c:ellipse(56, 52, 2, 2))
-G.tone(c, pnut, X.light(X.pillow(pnut, 2), { amb = 0.2, wrap = 0.3 }), CR, cuts)
-c:px(51, 53, CR[6])
-G.fin(c, "peanut-toast")
+local function P(x, y, col) c:put(x, y, col, { r = { name = "d" } }) end
+local function spec(m, n, col) local x, y = G.specAt(m, n, 30) if x then P(x, y, col or "#fffbe8") end end
+
+local CR={"#4a2a10","#7a4a1c","#a86c2c","#cc8c3c","#e4a850","#f8c878"}
+local CB={"#b8843c","#d8a458","#ecc078","#f8d896","#fff0b8","#fffadc"}
+local PB={"#6a3a14","#92561e","#b87a2c","#d89c3c","#ecbc58","#fcdc88"}
+local NT={"#6a4a28","#946a3c","#bc9054","#d8b074","#ecc994","#fae6b8"}
+c:groundShadow(30,57,24,3)
+local bread = U(c:rrect(9,14,51,52,5), c:ellipse(19,15,10,7), c:ellipse(41,15,10,7))
+-- bite out of the lower right
+for _,b in ipairs{{50,46,6},{46,52,5},{53,38,4}} do bread:cut(c:ellipse(b[1],b[2],b[3],b[3])) end
+local bi,bn=S(bread,CR,13,"crust",0.1)
+local crumb=bread:copy():shrink(3)
+S(crumb,CB,9,"crumb",0.2)
+-- crumb pores
+crumb:each(function(x,y) if X.hash(x,y,4)>0.93 then P(x,y,CB[2]) end end)
+-- peanut butter, slightly irregular, with a drip over the crust at left
+local pbm=U(c:rrect(14,19,43,45,6), c:ellipse(29,24,13,7))
+pbm:cut(c:ellipse(46,44,9,9))
+local pbi,pbn=S(pbm,PB,10,"pb",0.1)
+-- swirl
+for _,p in ipairs{{20,28},{22,26},{25,25},{29,25},{33,26},{22,33},{26,35},{30,34},{34,33},{37,30},{24,40},{28,41},{32,40}} do if pbm:has(p[1],p[2]) then P(p[1],p[2],PB[2]); P(p[1]-1,p[2]-1,PB[6]) end end
+spec(pbm,pbn,"#fffbe0")
+-- quirk drip
+local drip=c:rrect(12,38,16,50,1)
+local dr=U(drip,c:ellipse(14,50,2,2))
+S(dr,PB,2,"drip")
+P(13,43,PB[6]); P(13,44,PB[6])
+-- peanuts in front
+local function nut(cx,cy,ang)
+  local m=U(c:ellipse(cx-3,cy,4,3),c:ellipse(cx+3,cy,4,3),c:rect(cx-3,cy-2,cx+3,cy+2))
+  S(m,NT,3,"pn"..cx)
+  m:each(function(x,y) if ((x+y)%3==0) and X.hash(x,y,5)>0.4 then P(x,y,NT[2]) end end)
+  P(cx,cy-3,NT[1]); P(cx,cy+3,NT[1]); P(cx,cy-2,NT[2]); P(cx,cy+2,NT[2])
+  P(cx-4,cy-1,NT[6])
+end
+nut(52,53,0)
+nut(46,22+36,0)
+
+G.save(c, NAME)

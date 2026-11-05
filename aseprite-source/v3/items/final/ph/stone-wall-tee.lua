@@ -1,62 +1,112 @@
--- stone-wall-tee (lean W2_30)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stone-wall-tee (lean E2_15)
+-- T junction: long wall across the back, a branch running toward the viewer from its middle with its own front face.
+-- quirk: a little red toadstool on the branch's capstone.
+local NAME = "stone-wall-tee"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stone-wall-tee" }
-local floor, abs = math.floor, math.abs
-local S = { "#2e2940", "#4a4562", "#6a6483", "#8d86a0", "#b3acb8", "#d6cdc8" }
-local WARM = { "#5b4a58", "#7d6a6c", "#a08a82", "#c5ae9c" }
-local function px(x, y, col) if x >= 0 and x < 64 and y >= 0 and y < 64 then c:px(x, y, col) end end
--- masonry block: courses of 5px, staggered joints, per-brick tone + bevel
-local function masonry(x0, y0, x1, y1, seed)
-  for y = y0, y1 do for x = x0, x1 do px(x, y, S[1]) end end
-  local row, y = 0, y0
-  while y <= y1 do
-    local h = math.min(4, y1 - y)
-    local x = x0 - ((row * 3 + seed) % 5)
-    while x <= x1 do
-      local w = 6 + floor(X.hash(x, y, seed) * 5)
-      local r = X.hash(x + 7, y + 3, seed + 1)
-      local base = r < 0.25 and 3 or (r < 0.8 and 2 or 4)
-      local warm = r > 0.86
-      for yy = 0, h - 1 do for xx = 0, w - 2 do
-        local X1, Y1 = x + xx, y + yy
-        if X1 >= x0 and X1 <= x1 and Y1 <= y1 then
-          local t = base
-          if yy == 0 then t = t + 1 elseif yy == h - 1 and h > 2 then t = t - 1 end
-          if xx == 0 then t = math.max(t, base + 1) end
-          if xx == w - 2 then t = t - 1 end
-          t = math.max(2, math.min(6, t))
-          px(X1, Y1, warm and WARM[math.min(4, t - 1)] or S[t - 0 > 6 and 6 or t])
-        end
-      end end
-      x = x + w
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt, atan2 = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan2 or math.atan
+local function clamp(v,a,b) return max(a,min(b,v)) end
+
+local MORT = "#2e2536"
+local RAMPS = {
+  { "#2f2a3a", "#4e4a60", "#6b6a82", "#8e8ea4", "#b9b9c9" },
+  { "#3a2f36", "#5c4d54", "#7e7078", "#a2949a", "#cdc1c4" },
+  { "#4a3a34", "#74604f", "#9a8266", "#bda47e", "#e0cba0" },
+}
+local CAP = { "#4e4458", "#7a6f86", "#a39bb0", "#cbc4d4", "#eee9f2" }
+local MOSS = { "#24502e", "#3a7a3c", "#68a84a", "#a2d062" }
+local WOOD = { "#3a2218", "#5c3a24", "#7e5232", "#a06c40", "#c48c58" }
+local IRON = { "#26232e", "#3e3b4c", "#5c586e", "#8a869c", "#c4c0d0" }
+local function stone(x0, y0, x1, y1, ramp, seed)
+  for y = y0, y1 do for x = x0, x1 do
+    local ex, ey = (x == x0 or x == x1), (y == y0 or y == y1)
+    if not (ex and ey) then
+      local i = 3
+      if y == y0 or x == x0 then i = 4 end
+      if y == y0 and x > x0 and x <= x0 + (x1 - x0) * 0.6 then i = 5 end
+      if y == y1 or x == x1 then i = 2 end
+      if y == y1 and x > x0 + (x1 - x0) * 0.45 then i = 1 end
+      local h = X.hash(x, y, seed)
+      if i == 3 then if h > 0.88 then i = 4 elseif h < 0.1 then i = 2 end end
+      c:put(x, y, ramp[i])
     end
-    y = y + h + 1; row = row + 1
+  end end
+end
+local function face(x0, y0, x1, y1, rowH, seed, wmin, wmax)
+  for y = y0, y1 do for x = x0, x1 do c:put(x, y, MORT) end end
+  local r, y = 0, y0
+  while y <= y1 do
+    local ye = min(y + rowH - 2, y1)
+    local sx = x0 - floor(X.hash(r, 1, seed) * (wmax - 1))
+    while sx <= x1 do
+      local w = wmin + floor(X.hash(sx, r, seed + 3) * (wmax - wmin + 1))
+      local a, b = max(x0, sx), min(x1, sx + w - 2)
+      if b - a >= 2 and ye - y >= 2 then stone(a, y, b, ye, RAMPS[1 + floor(X.hash(sx, r, seed + 7) * 3)], seed + sx + r * 13) end
+      sx = sx + w
+    end
+    y = y + rowH; r = r + 1
   end
 end
-local function capstone(x0, y0, x1, y1)
+-- flat top slab of the wall; horiz=true seams are vertical ticks, else horizontal
+local function slab(x0, y0, x1, y1, seed, horiz)
   for y = y0, y1 do for x = x0, x1 do
-    local t = 5
-    if y == y0 then t = 6 elseif y == y1 then t = 3 elseif y == y1 - 1 then t = 4 end
-    if x == x1 then t = t - 1 end
-    px(x, y, S[t])
+    local i = 3
+    if y == y0 then i = 5 elseif y == y0 + 1 then i = 4 end
+    if x == x0 then i = max(i, 4) end
+    if x == x1 then i = min(i, 2) end
+    if y == y1 then i = 2 elseif y == y1 - 1 and i == 3 then i = 3 end
+    local h = X.hash(x, y, seed)
+    if i == 3 then if h > 0.9 then i = 4 elseif h < 0.12 then i = 2 end end
+    c:put(x, y, CAP[i])
   end end
-  px(x0 + 2, y0 + 1, S[6]) px(x0 + 3, y0 + 2, S[4]) px(x1 - 3, y0 + 2, S[4])
+  if horiz then
+    local sx = x0 + 6 + floor(X.hash(1, 1, seed) * 5)
+    while sx < x1 - 3 do
+      for y = y0 + 1, y1 - 1 do c:put(sx, y, CAP[2]) end
+      c:put(sx + 1, y0, CAP[4])
+      sx = sx + 9 + floor(X.hash(sx, 2, seed) * 5)
+    end
+  else
+    local sy = y0 + 6 + floor(X.hash(2, 2, seed) * 4)
+    while sy < y1 - 3 do
+      for x = x0 + 1, x1 - 1 do c:put(x, sy, CAP[2]) end
+      for x = x0 + 1, x1 - 1 do if X.hash(x, sy, seed) > 0.5 then c:put(x, sy + 1, CAP[4]) end end
+      sy = sy + 8 + floor(X.hash(sy, 2, seed) * 4)
+    end
+  end
 end
-local function moss(x, y, n) for i = 0, n - 1 do px(x + i, y, "#5f9a4c") px(x + i, y - 1 + (i % 2), "#8fc462") end px(x, y, "#3d6b3c") end
+local function moss(x, y, n, seed)
+  for i = 1, n do
+    local dx = floor((X.hash(i, 5, seed) - 0.5) * 6)
+    local dy = floor((X.hash(i, 6, seed) - 0.5) * 3)
+    local k = 1 + floor(X.hash(i, 7, seed) * 3)
+    c:put(x + dx, y + dy, MOSS[k])
+  end
+  c:put(x, y, MOSS[3]); c:put(x - 1, y, MOSS[2]); c:put(x + 1, y, MOSS[2]); c:put(x, y - 1, MOSS[4])
+end
+local function flower(x, y, col, hi)
+  c:put(x, y + 1, MOSS[2]); c:put(x, y + 2, MOSS[1])
+  c:put(x - 1, y, col); c:put(x + 1, y, col); c:put(x, y - 1, col); c:put(x, y + 1, col)
+  c:put(x, y, hi)
+end
 
-c:groundShadow(32, 58, 24, 3)
-masonry(5, 18, 58, 32, 7)            -- back wall face
-for x = 5, 58 do px(x, 13, S[6]) for y = 14, 16 do px(x, y, S[5]) end px(x, 17, S[4]) end
--- branch wall coming toward the viewer
-masonry(24, 40, 39, 58, 21)
-for x = 24, 39 do for y = 33, 38 do local t = (y == 33) and 6 or ((y == 38) and 3 or 5) px(x, y, S[t]) end end
-for y = 33, 38 do px(39, y, S[3]) px(24, y, S[6]) end
-for y = 33, 58 do px(39, y, S[2]) end
-px(30, 35, S[4]) px(33, 36, S[4])
--- junction cap stone where the two walls meet
-capstone(22, 29, 41, 34)
-moss(26, 58, 4) moss(8, 32, 3)
-px(31, 30, "#f6d34a") px(30, 30, "#fff6f2") px(32, 30, "#fff6f2") px(31, 29, "#fff6f2")  -- quirk: daisy on the junction
-
-G.fin(c, "stone-wall-tee")
+c:groundShadow(32, 57, 18, 3)
+c:groundShadow(32, 31, 27, 2)
+face(5, 17, 58, 29, 7, 61, 7, 12)
+slab(5, 7, 58, 16, 33, true)
+for x = 5, 58 do c:put(x, 17, MORT) end
+for y = 18, 29 do c:put(39, y, RAMPS[1][1]); c:put(40, y, RAMPS[1][2]) end
+-- branch front face then top
+face(25, 47, 38, 57, 6, 71, 6, 9)
+slab(25, 17, 38, 46, 77, false)
+for x = 25, 38 do c:put(x, 46, CAP[1]) end
+for y = 17, 46 do c:put(25, y, CAP[4]); c:put(38, y, CAP[2]) end
+for x = 25, 38 do c:put(x, 17, CAP[5]) end
+-- toadstool
+c:put(31, 30, "#efe6cc"); c:put(31, 31, "#d8caa4"); c:put(32, 30, "#efe6cc"); c:put(32, 31, "#cbb98c")
+local R = { "#7c1426", "#b82638", "#e04658" }
+for _, p in ipairs{ {29,29,2},{30,28,3},{31,28,3},{32,28,2},{33,29,2},{30,29,3},{31,29,3},{32,29,2} } do c:put(p[1], p[2], R[p[3]]) end
+c:put(30, 28, "#f8f0e0"); c:put(32, 29, "#f8f0e0")
+moss(12, 16, 4, 4); moss(50, 29, 3, 8); moss(32, 56, 3, 9)
+G.save(c, NAME)

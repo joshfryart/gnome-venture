@@ -1,45 +1,57 @@
--- ginseng (lean W2_5)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- ginseng (lean E2_01)
+local NAME = "ginseng"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "ginseng" }
-local sin, cos, pi, abs, floor = math.sin, math.cos, math.pi, math.abs, math.floor
-local ROOT = { "#7a5a3c", "#a68257", "#cfaa76", "#e8cb98", "#f6e4b8", "#fff4d6" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local BERRY = { "#5a1220", "#8e1c2a", "#c22f35", "#e8523f", "#ff8a62", "#ffd0a8" }
-local rtok, ltok = { r = { name = "root" } }, { r = { name = "leaf" } }
-local function limb(p, w0, w1)
-  local m, n = G.tube(p, function(t) return w0 + (w1 - w0) * t end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.25 }), ROOT, { 0.2, 0.38, 0.55, 0.72, 0.88 }, nil, rtok)
+local floor, abs, sin, cos, pi, max, min, sqrt, ceil = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.ceil
+local CUTS = { 0.18, 0.34, 0.5, 0.66, 0.82 }
+local function inter(a, b) local r = HP.mask() a:each(function(x, y) if b:has(x, y) then r:set(x, y) end end) return r end
+
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local ROOT = { "#6a4a3a", "#9a7a5a", "#c4a47a", "#e0c8a0", "#f0dfbc", "#faf0d6" }
+local GL = { "#163a35", "#1f553f", "#2b7046", "#3f8f4c", "#62ad55", "#93cb68" }
+local RED = { "#5a0f20", "#8c1c2c", "#c4303c", "#e8584c", "#ff8a6a" }
+c:groundShadow(32, 58, 12, 2.5)
+local function tube(pts, fn, ramp, tag, rings)
+  local m, n = G.tube(pts, fn)
+  local tok = { r = { name = tag } }
+  local idx = X.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), ramp, { cuts = CUTS, tok = tok })
+  if rings then m:each(function(x, y) local k = K(x, y)
+    if y % 4 == 0 and X.hash(x, y, 3) > 0.3 then c:put(x, y, ramp[max(1, idx[k] - 1)], tok) end end) end
   return m
 end
--- limbs first, body over them
-limb({ {31,44},{28,49},{26,53},{25,59} }, 2.4, 0.6)
-limb({ {33,44},{36,48},{39,53},{41,59} }, 2.4, 0.6)
-limb({ {30,31},{25,30},{21,33},{17,34} }, 1.9, 0.5)
-limb({ {34,31},{39,31},{43,30},{47,33} }, 1.9, 0.5)
-local body = limb({ {32,23},{30,31},{34,39},{32,47} }, 5.4, 2.8)
--- growth rings (the ginseng's wrinkles)
-for _, y in ipairs{ 26, 29, 34, 37, 41 } do
-  body:each(function(x, yy) if yy == y and X.hash(x, yy, 3) > 0.25 then c:px(x, yy, ROOT[1]) end end)
+-- limbs first, body over
+local lg1 = tube({ {30,42}, {27,48}, {25,52}, {22,57} }, function(t) return 2.3 - 1.3 * t end, ROOT, "legL", true)
+local lg2 = tube({ {32,42}, {36,48}, {38,52}, {42,57} }, function(t) return 2.3 - 1.3 * t end, ROOT, "legR", true)
+tube({ {29,32}, {23,33}, {19,35}, {15,41} }, function(t) return 2.1 - 1.1 * t end, ROOT, "armL", true)
+tube({ {35,32}, {41,33}, {45,35}, {49,41} }, function(t) return 2.1 - 1.1 * t end, ROOT, "armR", true)
+tube({ {32,26}, {32,32}, {31,38}, {31,45} }, function(t) return 4.6 - 1.2 * t end, ROOT, "body", true)
+-- rootlet hairs
+local htok = { r = { name = "hair" } }
+for _, h in ipairs{ {{22,57},{20,60}}, {{22,57},{23,60}}, {{42,57},{41,60}}, {{42,57},{44,60}}, {{15,41},{13,44}}, {{49,41},{51,44}} } do
+  c:line(h, 1):each(function(x, y) c:put(x, y, ROOT[2], htok) end)
 end
--- quirk: red ribbon knotted round the neck
-for x = 27, 37 do c:px(x, 24, "#c22f35") c:px(x, 25, x > 33 and "#8e1c2a" or "#e8523f") end
-c:px(37, 26, "#c22f35") c:px(38, 27, "#8e1c2a") c:px(26, 26, "#c22f35")
--- stalk
-local sm, sn = G.tube({ {32,22},{32,19},{32,16},{32,12} }, function() return 0.8 end)
-G.tone(c, sm, X.light(sn, {}), LEAF, nil, nil, ltok)
--- palmate whorl: 5 leaflets
-for _, a in ipairs{ -2.7, -2.0, -1.57, -1.1, -0.4 } do
-  local ux, uy = cos(a), sin(a)
-  local m = G.rell(32 + ux * 6, 14 + uy * 5.5, ux, uy, 6, 2.5)
-  local nn = X.pillow(m, 2)
-  G.tone(c, m, X.light(nn, { amb = 0.15, wrap = 0.3 }), LEAF, nil, nil, ltok)
-  for t = 1, 9 do c:px(floor(32 + ux * t + 0.5), floor(14 + uy * t * 0.9 + 0.5), LEAF[6]) end
+-- crown scar
+local crown = c:ellipse(32, 26, 3.4, 2.2)
+X.tone(c, crown, X.light(X.pillow(crown, 2), { amb = 0.1, wrap = 0.2 }), { "#3a241c", "#5e3a2a", "#8a5a3a", "#b07c4c" }, { cuts = { 0.3, 0.55, 0.8 }, tok = { r = { name = "crown" } } })
+-- stem
+local stm = tube({ {32,25}, {32,23}, {32,21}, {32,18} }, function(t) return 1.2 end, GL, "stem", false)
+-- four leaflets
+local function leaflet(ex, ey, cx, cy, tag)
+  local m, n, T, S, L = G.blade(32, 19, cx, cy, ex, ey, function(t)
+    if t > 0.985 then return -1 end
+    return max(0.5, 3.6 * sin(pi * (min(1, t * 0.9 + 0.1))) ^ 0.75)
+  end, { fold = 0.4 })
+  local tok = { r = { name = tag } }
+  X.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), GL, { cuts = CUTS, tok = tok })
+  m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.14 and T[k] > 0.05 and T[k] < 0.9 then c:put(x, y, S[k] <= 0 and GL[6] or GL[2], tok) end end)
 end
--- berry cluster
-for _, b in ipairs{ {32,6,2.3},{29,8,2},{35,8,2},{32,10,1.9} } do
-  local m = c:ellipse(b[1], b[2], b[3], b[3])
-  G.tone(c, m, X.light(X.pillow(m, b[3]), { amb = 0.1, wrap = 0.2 }), BERRY, nil, nil, { r = { name = "berry" } })
+leaflet(12, 19, 21, 13, "l1") leaflet(20, 8, 27, 9, "l2") leaflet(44, 8, 37, 9, "l3") leaflet(52, 19, 43, 13, "l4")
+-- red berry cluster
+c:line({ {32,19}, {32,14} }, 1):each(function(x, y) c:put(x, y, GL[4], { r = { name = "stalk" } }) end)
+for i, b in ipairs{ {30,13}, {34,13}, {32,10} } do
+  local bm = c:ellipse(b[1], b[2], 2.4, 2.4)
+  local t = { r = { name = "berry" .. i } }
+  X.tone(c, bm, X.light(X.pillow(bm, 2), { amb = 0.06, wrap = 0.2 }), RED, { cuts = { 0.25, 0.5, 0.75, 0.9 }, tok = t })
+  c:put(b[1] - 1, b[2] - 1, "#ffd0c0", t)
 end
-c:px(31, 5, BERRY[6]) c:px(28, 7, BERRY[6]) c:px(34, 7, BERRY[6])
-G.fin(c, "ginseng")
+G.save(c, NAME)

@@ -1,40 +1,58 @@
--- grilled-sardines (lean W2_5)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- grilled-sardines (lean E2_02)
+local NAME = "grilled-sardines"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "grilled-sardines" }
-local sin, pi, abs, floor = math.sin, math.pi, math.abs, math.floor
-local WOOD = { "#4a2c1e", "#6e4428", "#8f5d34", "#b07c46", "#cc9a5e", "#e3b97a" }
-local SIL = { "#3a4a66", "#6c7e9c", "#9fb2c8", "#c8d6e0", "#e8f0f2", "#f4fbff" }
-c:groundShadow(30, 52, 24, 2)
--- board + handle
-local board = c:rrect(5, 21, 47, 49, 3):add(c:rect(46, 30, 57, 36)):add(c:ellipse(57, 33, 3, 3))
-local hole = c:ellipse(54, 33, 1, 1)
-local bn = X.pillow(board, 6)
-G.tone(c, board, X.light(bn, { amb = 0.35, wrap = 0.5 }), WOOD, { 0.2, 0.35, 0.5, 0.65, 0.85 }, nil, { r = { name = "board" } })
-board:each(function(x, y) if (y % 5 == 0) and X.hash(x, y, 1) > 0.35 then c:px(x, y, WOOD[2]) end end)
-hole:each(function(x, y) c:px(x, y, WOOD[1]) end)
-local function fish(p, w, y0)
-  local m, n, T, S = G.tube(p, function(t) return w * (0.25 + 0.75 * sin(pi * math.min(1, t * 0.9 + 0.08)) ^ 0.7) end)
-  local tx, ty = p[4][1], p[4][2]
-  local tail = c:poly{ {tx - 1, ty}, {tx + 5, ty - 5}, {tx + 4, ty}, {tx + 5, ty + 5} }
-  G.tone(c, tail, X.light(X.pillow(tail, 3), {}), SIL, nil, nil, { r = { name = "fin" } })
-  G.tone(c, m, X.light(n, { amb = 0.2, wrap = 0.4 }), SIL, { 0.18, 0.34, 0.5, 0.68, 0.86 }, nil, { r = { name = "fish" } })
-  m:each(function(x, y) local k = K(x, y)
-    if S[k] < -0.55 and T[k] > 0.1 then c:px(x, y, S[k] < -0.75 and SIL[1] or SIL[2]) end
-    local d = ((x - p[1][1]) * 0.7 + (y - p[1][2])) % 6
-    if d < 1.2 and T[k] > 0.2 and T[k] < 0.9 then c:px(x, y, "#2b1c26") end   -- grill marks
-  end)
-  c:px(p[1][1] + 3, p[1][2] - 1, SIL[6]) c:px(p[1][1] + 2, p[1][2] - 1, "#2b1c26")  -- eye
-  c:px(p[1][1] + 5, p[1][2], SIL[1]) c:px(p[1][1] + 5, p[1][2] + 1, SIL[1])          -- gill
-  c:px(p[1][1] + 10, p[1][2] - 3, SIL[6]) c:px(p[1][1] + 11, p[1][2] - 3, SIL[5])    -- glint
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local CUTS = { 0.22, 0.4, 0.56, 0.72, 0.86 }
+local function shade(m, ramp, R, nm, o)
+  o = o or {}
+  local n = X.pillow(m, R or 4)
+  local v = X.light(n, { amb = o.amb or 0.08, wrap = o.wrap or 0.25 })
+  local idx = X.tone(c, m, v, ramp, { cuts = CUTS, tok = { r = { name = nm or "p" } } })
+  return idx, n
 end
-fish({ {9,29},{18,26},{28,32},{37,28} }, 4.2)
-fish({ {9,41},{18,44},{28,38},{37,42} }, 4.0)
--- lemon wedge
-local lem = c:poly{ {40,24},{51,24},{47,29} }
-G.tone(c, lem, X.light(X.pillow(lem, 3), { amb = 0.4 }), { "#b88a12", "#e0b020", "#f4d238", "#fbe670", "#fff3a0", "#fffbd0" }, nil, nil, { r = { name = "lemon" } })
-c:px(43, 25, "#fffbd0") c:px(46, 25, "#fffbd0")
--- quirk: curl of steam
-for i, p in ipairs{ {26,18},{27,16},{26,14},{27,12},{26,10},{27,8} } do c:px(p[1], p[2], i % 2 == 0 and "#e8f0f2" or "#c8d6e0") end
-c:px(27, 18, "#c8d6e0") c:px(26, 12, "#c8d6e0")
-G.fin(c, "grilled-sardines")
+local function px(x, y, col, nm) c:put(x, y, col, { r = { name = nm or "d" } }) end
+local function spec(m, n, col)
+  local x, y = G.specAt(m, n, 30)
+  if x then px(x, y, col or "#fff4dc", "spec") end
+end
+c:groundShadow(32, 56, 26, 3)
+local SIL  = { "#1e3450", "#2f5470", "#4f84a0", "#86b4c6", "#bcd8e0", "#e8f4f2" }
+local PL   = { "#2e3342", "#454c60", "#5f6b80", "#7d8aa0", "#a0adc0", "#c8d2de" }
+local LEM  = { "#a8721c", "#d49a1c", "#f0c42a", "#f8dc4e", "#fcec86", "#fff6c0" }
+local plate = c:ellipse(32, 45, 27, 11)
+shade(plate, PL, 8, "plate")
+local inner = c:ellipse(32, 44, 22, 8)
+inner:each(function(x, y) px(x, y, y > 45 and PL[3] or PL[2], "plin") end)
+-- fish
+local body = c:ellipse(30, 32, 19, 8)
+local tail = c:poly{ {13,32}, {3,22}, {7,32}, {3,42} }
+local fin  = c:poly{ {24,26}, {31,17}, {36,26} }
+local fin2 = c:poly{ {30,38}, {34,44}, {37,38} }
+local fish = HP.mask(); fish:add(body); fish:add(tail); fish:add(fin); fish:add(fin2)
+local idx, n = shade(fish, SIL, 5, "fish")
+-- darker back, pale belly
+body:each(function(x, y) if y <= 27 then px(x, y, y <= 26 and SIL[1] or SIL[2], "back") end end)
+body:each(function(x, y) if y >= 37 and x > 18 then px(x, y, y == 37 and SIL[5] or SIL[6], "belly") end end)
+-- scale shimmer
+body:each(function(x, y) if y > 28 and y < 36 and x > 22 and (x + y) % 3 == 0 and X.hash(x, y, 5) > 0.5 then px(x, y, SIL[5], "sc") end end)
+-- grill char bars
+body:each(function(x, y) if x >= 15 and x <= 39 and ((x + y) % 8 < 2) and y > 24 and y < 40 then
+  px(x, y, ((x + y) % 8 == 0) and "#2a1810" or "#5a3a22", "char") end end)
+-- gill, eye
+for yy = 26, 38 do if body:has(41, yy) and abs(yy - 32) > 1 then px(41, yy, SIL[2], "gill") end end
+for _, p in ipairs{ {45,29},{46,29},{45,30},{46,30} } do px(p[1], p[2], "#f4f6e0", "eye") end
+px(46, 30, "#1a1018", "eye")
+-- tail fin streaks
+for _, p in ipairs{ {7,26},{6,28},{7,36},{6,38},{5,32} } do px(p[1], p[2], SIL[2], "tf") end
+spec(body, X.pillow(body, 5), "#ffffee")
+-- lemon wedge (half disc)
+local lem = c:ellipse(47, 45, 8, 8); lem:cut(c:rect(0, 0, 63, 45))
+shade(lem, LEM, 4, "lem")
+lem:shrink(1):each(function(x, y) px(x, y, y > 51 and LEM[3] or LEM[5], "pith") end)
+for _, p in ipairs{ {47,47},{47,48},{47,49},{47,50},{43,48},{51,48},{44,50},{50,50} } do px(p[1], p[2], LEM[2], "seg") end
+px(44, 47, LEM[6], "sp")
+-- steam wisps
+for _, p in ipairs{ {44,22},{45,21},{45,20},{44,19},{44,18},{45,17},{50,24},{51,23},{51,22},{50,21},{50,20} } do px(p[1], p[2], "#dfe8ee", "steam") end
+G.save(c, NAME)

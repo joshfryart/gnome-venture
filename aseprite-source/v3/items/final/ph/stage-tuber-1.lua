@@ -1,60 +1,95 @@
--- stage-tuber-1 (lean W2_25)
--- potato sprout: half-buried lumpy tuber with eyes and a pale bud (quirk), purple-green shoot with pinnate leaflet leaves
+-- stage-tuber-1 (lean E2_13)
+local NAME = "stage-tuber-1"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local sin, cos, pi, abs, max, min, sqrt = math.sin, math.cos, math.pi, math.abs, math.max, math.min, math.sqrt
-local DIRT = { "#2f1f22", "#4a2f2a", "#6b4533", "#8c5e3c", "#ae7e4c", "#cfa166" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#a4d36c" }
-local STEM = { "#2e5a42", "#4a8450", "#78ad5e", "#aed36f" }
-local function leaf(c, ax, ay, cx, cy, bx, by, w, lob, tok)
-  local m, n, T, S = G.blade(ax, ay, cx, cy, bx, by, function(t) return w * sin(pi * min(1, t * 0.95 + 0.04)) ^ 0.7 * (1 + lob * sin(t * pi * 5)) end)
-  G.toneN(c, m, n, LEAF, { tok = tok })
-  m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.14 and T[k] > 0.08 and T[k] < 0.92 then c:px(x, y, S[k] <= 0 and LEAF[6] or LEAF[3]) end end)
-  return m
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local CUTS = { .22, .4, .56, .72, .86 }
+local SOIL = { "#2e1d1a", "#4a2e25", "#6a4430", "#8a5e3e", "#a97a50", "#c79a68" }
+local PL   = { "#12302e", "#1c4a3a", "#2a6a42", "#3d8a4a", "#5fa856", "#8cc668" }
+local PST  = { "#3a2a3a", "#5a3a4a", "#7a5a52", "#5f8a48", "#86ae5a", "#b0cf7a" }
+local SPUD = { "#4a2c26", "#6e4234", "#946048", "#b98462", "#d6a67c", "#efc9a0" }
+local PURP = { "#3a2250", "#5a3a82", "#7d5cab", "#9f84cc", "#c3ade6", "#e8dcf7" }
+local function tn(m, n, ramp, tag, o)
+  o = o or {}
+  return G.toneN(c, m, n, ramp, { tok = { r = { name = tag } }, cuts = CUTS, amb = o.amb or .1, wrap = o.wrap or .22, bias = o.bias })
 end
-local function mound(c, cx, cy, rx, ry)
-  c:groundShadow(cx + 1, cy + ry, rx + 2, 2)
-  local m = c:ellipse(cx, cy, rx, ry)
-  local n = X.pillow(m, ry)
-  G.toneN(c, m, n, DIRT, {})
-  m:each(function(x, y) local h = X.hash(x, y, 5) if h > 0.9 then c:px(x, y, DIRT[2]) elseif h < 0.05 then c:px(x, y, DIRT[6]) end end)
-  return m
-end
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-tuber-1" }
-local POT = { "#4a3226", "#6e4a34", "#946a46", "#b98d5a", "#d8b078", "#efd09a" }
-mound(c, 32, 54, 20, 4)
--- tuber lumpy
-local tb = HP.mask()
-tb:add(c:ellipse(30, 50, 14, 6)):add(c:ellipse(40, 51, 7, 5)):add(c:ellipse(21, 52, 6, 4))
-G.toneN(c, tb, X.pillow(tb, 6), POT, {})
-tb:each(function(x, y) if X.hash(x, y, 3) > 0.93 then c:px(x, y, POT[2]) end end)
-for _, e in ipairs{ {22,49},{34,52},{41,50},{27,53} } do c:px(e[1], e[2], POT[1]) c:px(e[1]+1, e[2], POT[1]) c:px(e[1], e[2]-1, POT[5]) end
--- shoot
-local sm, sn = G.tube({ {30, 46}, {29, 38}, {34, 30}, {33, 20} }, function(t) return 1.4 - 0.4 * t end)
-G.toneN(c, sm, sn, STEM, {})
-sm:each(function(x, y) if (x + y) % 5 == 0 then c:px(x, y, "#7a4a8a") end end)
--- pinnate leaves: rachis + 3 pairs of leaflets
-local function pin(ax, ay, bx, by, s)
-  local dx, dy = bx - ax, by - ay
-  local len = sqrt(dx*dx + dy*dy)
-  local ux, uy = dx / len, dy / len
-  local px, py = -uy, ux
-  c:line({ {ax, ay}, {bx, by} }, 1):each(function(x, y) c:px(x, y, STEM[2]) end)
-  for i, t in ipairs{ 0.35, 0.65, 0.9 } do
-    local r = s * (1.15 - 0.25 * i)
-    for _, sd in ipairs{ -1, 1 } do
-      local cx, cy = ax + dx * t + px * sd * (r + 1), ay + dy * t + py * sd * (r + 1)
-      local m = c:ellipse(cx, cy, r, r * 0.7)
-      G.toneN(c, m, X.pillow(m, r), LEAF, {})
+local function ov(cx, cy, rx, ry, ang, ramp, tag, rib)
+  local m, n = G.oval(cx, cy, rx, ry, ang, 1.0)
+  tn(m, n, ramp, tag)
+  if rib then
+    local ca, sa = cos(ang), sin(ang)
+    for i = -rx + 1, rx - 1, 0.5 do
+      local x, y = floor(cx + ca * i + .5), floor(cy + sa * i + .5)
+      if m:has(x, y) then c:put(x, y, ramp[5], { r = { name = tag .. "rib" } }) end
     end
   end
-  local tip = c:ellipse(bx + ux, by + uy, s * 0.5, s * 0.5)
-  G.toneN(c, tip, X.pillow(tip, 2), LEAF, {})
+  return m
 end
-pin(33, 30, 51, 24, 3.4)
-pin(29, 36, 11, 31, 3.4)
-pin(33, 21, 36, 9, 3.0)
--- pale second bud quirk
-c:px(44, 46, "#f4ecc8") c:px(45, 45, "#f4ecc8") c:px(44, 45, "#c9d890") c:px(45, 44, "#c9d890")
-c:sparkle(14, 18)
-G.save(c, "stage-tuber-1")
+local function bl(ax, ay, cx, cy, bx, by, w, ramp, tag, o)
+  o = o or {}
+  local m, n, T, S, len = G.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.92 + 0.08)
+    return max(0.5, w * sin(pi * u ^ 1.1) ^ 0.7)
+  end, { fold = o.fold or 0.45 })
+  tn(m, n, ramp, tag, { amb = .12, wrap = .22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.12 and t > 0.03 and t < 0.9 then c:put(x, y, s <= 0 and ramp[6] or ramp[2], { r = { name = tag } }) return end
+    if o.veins then for _, vt in ipairs(o.veins) do
+      local d = t * len - (vt + abs(s) * 4)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.2 and abs(s) < 0.75 then c:put(x, y, s < 0 and ramp[5] or ramp[2], { r = { name = tag } }) return end
+    end end
+  end)
+  if o.serr then m:edge():each(function(x, y) local k = K(x, y)
+    if T[k] > 0.25 and T[k] < 0.95 and X.hash(x, y, 7) > 0.55 and (x + y) % 3 == 0 then c.pix[y * c.w + x] = nil c.own[y * c.w + x] = nil end end) end
+  return m, n, T, S
+end
+local function tb(pts, w, ramp, tag)
+  if #pts == 2 then local a, b = pts[1], pts[2]
+    pts = { a, { a[1] + (b[1] - a[1]) / 3, a[2] + (b[2] - a[2]) / 3 }, { a[1] + (b[1] - a[1]) * 2 / 3, a[2] + (b[2] - a[2]) * 2 / 3 }, b }
+  elseif #pts == 3 then local a, q, b = pts[1], pts[2], pts[3]
+    pts = { a, { a[1] + (q[1] - a[1]) * 2 / 3, a[2] + (q[2] - a[2]) * 2 / 3 }, { b[1] + (q[1] - b[1]) * 2 / 3, b[2] + (q[2] - b[2]) * 2 / 3 }, b } end
+  local m, n, T = G.tube(pts, function(t) return type(w) == "function" and w(t) or w end)
+  tn(m, n, ramp, tag, { amb = .15, wrap = .3 })
+  return m
+end
+local function soil(cx, cy, rx, ry)
+  c:groundShadow(cx, cy + ry - 1, rx + 1, 3)
+  local m, n = G.oval(cx, cy, rx, ry, 0, 0.7)
+  local idx = tn(m, n, SOIL, "soil")
+  m:each(function(x, y) local k = K(x, y) local h = X.hash(x, y, 5)
+    if h > 0.9 and idx[k] and idx[k] >= 2 then c:put(x, y, SOIL[max(1, idx[k] - 2)], { r = { name = "soil" } })
+    elseif h < 0.05 and idx[k] and idx[k] >= 3 then c:put(x, y, SOIL[min(6, idx[k] + 2)], { r = { name = "soil" } }) end end)
+  return m
+end
+local function compound(bx, by, ang, len, np, ramp, tag, ls)
+  ls = ls or 3
+  local ex, ey = bx + cos(ang) * len, by + sin(ang) * len
+  c:line({ { bx, by }, { ex, ey } }, 1):each(function(x, y) c:put(x, y, ramp[3], { r = { name = tag .. "r" } }) end)
+  ov(ex + cos(ang) * ls * .5, ey + sin(ang) * ls * .5, ls * 1.15, ls * .72, ang, ramp, tag .. "t", true)
+  for i = np, 1, -1 do
+    local t = i / (np + .5)
+    local px, py = bx + (ex - bx) * t, by + (ey - by) * t
+    local s = ls * (1.1 - 0.4 * t)
+    for _, sg in ipairs{ -1, 1 } do
+      local a = ang + sg * 1.05
+      ov(px + cos(a) * s * .85, py + sin(a) * s * .85, s, s * .64, a, ramp, tag .. i .. sg, true)
+    end
+  end
+end
+local function eyes(m, pts, tag)
+  for _, p in ipairs(pts) do if m:has(p[1], p[2]) then c:put(p[1], p[2], SPUD[1], { r = { name = tag } }) if m:has(p[1] - 1, p[2] - 1) then c:put(p[1] - 1, p[2] - 1, SPUD[5], { r = { name = tag } }) end end end
+end
+soil(32, 50, 20, 6)
+-- seed potato half buried, with eyes and a pale sprout curl
+local sm = ov(21, 49, 7, 4.8, -0.25, SPUD, "spud")
+eyes(sm, { { 18, 48 }, { 23, 50 }, { 21, 46 } }, "spud")
+for _, p in ipairs{ { 25, 46 }, { 26, 45 }, { 27, 45 } } do c:put(p[1], p[2], "#f0d8e0", { r = { name = "sprout" } }) end
+c:put(27, 44, "#c8648a", { r = { name = "sprout" } })
+-- shoot, purple at the foot
+tb({ { 35, 49 }, { 35, 42 }, { 36, 36 }, { 35, 30 } }, 1.2, PST, "shoot")
+compound(35, 36, -2.45, 11, 2, PL, "l1", 3.1)
+compound(36, 33, -0.75, 12, 2, PL, "l2", 3.1)
+ov(35, 28, 2.6, 2, -pi / 2, PL, "bud", true)
+G.save(c, NAME)

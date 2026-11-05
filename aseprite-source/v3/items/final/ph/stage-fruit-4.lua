@@ -1,71 +1,91 @@
--- stage-fruit-4 (lean D2o_6)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-fruit-4 (lean E2_09)
+local NAME = "stage-fruit-4"
+
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-fruit-4" }
-local floor_ = math.floor
-local sin, pi, max, min, abs = math.sin, math.pi, math.max, math.min, math.abs
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local FRU  = { "#2f4a22", "#4a6b2a", "#6f8f35", "#98b341", "#c1d25a", "#e4ec8a" }
-local PINK = { "#5a1f4a", "#8c2a63", "#c13d7c", "#e8609a", "#ff93bd", "#ffd0e0" }
-local HUSK = { "#5a3a22", "#7e5430", "#a8763f", "#cfa05a", "#e8c987", "#f7e6b4" }
-local SOIL = { "#2a1a1c", "#46291f", "#693c27", "#8a5231", "#aa6e3f", "#c98d52" }
-local SPEC = "#fff6f2"
-local lt = { r = { name = "leaf" } }
-local function shade(m, ramp, R, amb)
-  local n = X.pillow(m, R)
-  G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp)
-end
-local function leaf(p, wmax, ramp, pw)
-  local m, n, T, S = G.tube(p, function(t) return max(0.45, wmax * sin(pi * min(1, t)) ^ (pw or 0.7)) end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), ramp, nil, nil, lt)
-  m:each(function(x, y) local k = K(x, y)
-    if abs(S[k]) < 0.17 and T[k] > 0.1 and T[k] < 0.93 then c:px(x, y, S[k] <= 0 and ramp[5] or ramp[2]) end
-  end)
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local LEAF  = { "#163a35", "#1f553f", "#2b7046", "#3f8f4c", "#62ad55", "#93cb68" }
+local LEAF2 = { "#1a4238", "#255f43", "#33804b", "#4f9f52", "#78bd5c", "#a8d877" }
+local STEMG = { "#2f5a3a", "#3f7a46", "#5a9a4e", "#80b85a", "#a8d474" }
+local DIRT  = { "#2a1a1e", "#4a2c28", "#6e4232", "#8e5a3c", "#ae7848", "#cf9a60" }
+local RED   = { "#4a1424", "#7a1e2e", "#a82a36", "#d1403e", "#ea6a4c", "#f8a276" }
+local GFR   = { "#24482e", "#356a3a", "#4c8c42", "#6fac4c", "#98c85e", "#c8e384" }
+local PINK  = { "#5a1f4a", "#8a2d62", "#b8467a", "#dc6892", "#f090b0", "#fcc4d4" }
+local PETAL = { "#a8a0b8", "#d0c8d8", "#ece4ec", "#f8f2f2", "#fff6ea", "#fffbf2" }
+local YEL   = { "#8a5a14", "#b88420", "#dcab2e", "#f2cc44", "#fae27a", "#fff4b8" }
+local GRAIN = { "#6a4a20", "#8e6a2c", "#b8893a", "#d8aa4c", "#ecc668", "#f8e298" }
+local DEW   = { "#2a5a8a", "#3f86b8", "#6cb4dc", "#a4dcf0", "#d6f4fc", "#f2fcff" }
+local CUTS = { 0.22, 0.4, 0.56, 0.72, 0.86 }
+local function tok(n) return { r = { name = n } } end
+local function soil()
+  c:groundShadow(32, 57, 21, 3)
+  local m = c:ellipse(32, 53, 20, 6)
+  local n = X.pillow(m, 6)
+  local tk = tok("soil")
+  X.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), DIRT, { cuts = CUTS, tok = tk })
+  m:each(function(x, y) local h = X.hash(x, y, 7)
+    if h > 0.9 then c:put(x, y, DIRT[2], tk) elseif h < 0.06 then c:put(x, y, DIRT[6], tk) end end)
   return m
 end
-local function stem(p, w)
-  local m, n = G.tube(p, function(t) return w end)
-  G.tone(c, m, X.light(n, { amb = 0.15, wrap = 0.3 }), { LEAF[2], LEAF[3], LEAF[4], LEAF[5], LEAF[6], LEAF[6] })
-  return m
-end
-local function soil(cx, cy, rx, ry, furrow)
-  cy = cy - 3
-  local top = c:ellipse(cx, cy, rx - 2, ry - 1)
-  local lip = c:ellipse(cx, cy + 2, rx, ry + 1) lip:cut(top)
-  shade(lip, SOIL, 4, 0.0)
-  shade(top, SOIL, ry + 1, 0.2)
-  top:edge():each(function(x, y) if y < cy then c:px(x, y, SOIL[5]) end end)
-  top:copy():shrink(1):each(function(x, y)
-    local h = X.hash(x, y, 7)
-    if h > 0.95 then c:px(x, y, SOIL[6]) elseif h < 0.06 then c:px(x, y, SOIL[2]) end
-  end)
-  if furrow then
-    for _, f in ipairs(furrow) do
-      for x = f[1], f[2] do local yy = f[3] + floor_((x - cx) * (x - cx) / (rx * rx) * 1.6)
-        c:px(x, yy, SOIL[2]) c:px(x, yy + 1, SOIL[5]) end
+local function leaf(ax, ay, cx, cy, bx, by, w, ramp, veins, nm)
+  local m, n, T, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.9 + 0.1)
+    return max(0.5, w * sin(pi * u ^ 1.25) ^ 0.75)
+  end, { fold = 0.5 })
+  local tk = tok(nm)
+  G.toneN(c, m, n, ramp, { tok = tk, cuts = { 0.18, 0.34, 0.5, 0.66, 0.82 }, amb = 0.12, wrap = 0.22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.14 and t > 0.05 and t < 0.92 then c:put(x, y, s <= 0 and ramp[6] or ramp[2], tk) return end
+    for _, vt in ipairs(veins or {}) do
+      local d = t * L - (vt + abs(s) * 3.4)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.28 and abs(s) < 0.72 then c:put(x, y, s < 0 and ramp[6] or ramp[2], tk) return end
     end
+  end)
+  return m
+end
+local function stem(pts, w, ramp, nm)
+  local m, n = G.tube(pts, function(t) return w end)
+  local tk = tok(nm)
+  local sv = X.light(n, { amb = 0.15, wrap = 0.3 })
+  m:each(function(x, y) local v = sv[K(x, y)]
+    c:put(x, y, v > 0.7 and ramp[5] or v > 0.5 and ramp[4] or v > 0.3 and ramp[3] or ramp[2], tk) end)
+  return m
+end
+local function ballM(m, ramp, nm, r, nospec)
+  local n = X.pillow(m, r)
+  local tk = tok(nm)
+  local idx = X.tone(c, m, X.light(n, { amb = 0.08, wrap = 0.25 }), ramp, { cuts = CUTS, tok = tk })
+  if not nospec then
+    local bx, by = G.specAt(m, n, 24)
+    if bx then c:put(bx, by, "#fffbe8", tk) c:put(bx + 1, by, "#fffbe8", tk) c:put(bx, by + 1, "#fffbe8", tk) end
   end
-  lip:each(function(x, y) if X.hash(x, y, 3) > 0.93 then c:px(x, y, SOIL[4]) end end)
-  return top
+  return m, n, idx
 end
-
-soil(32, 50, 23, 7)
-leaf({ {30, 47}, {20, 46}, {12, 40}, {8, 34} }, 4.2, LEAF)
-leaf({ {34, 47}, {44, 46}, {52, 40}, {56, 34} }, 4.2, LEAF)
-stem({ {32, 48}, {32, 44}, {32, 40}, {32, 34} }, 1.4)
-local fr = c:ellipse(32, 23, 11, 11)
-shade(fr, FRU, 11, 0.1)
-local function berry(cx, cy, r)
-  local m = c:ellipse(cx, cy, r, r)
-  local ring = m:copy():grow(1) ring:cut(m) c:fillMask(ring, PINK[1])
-  shade(m, PINK, r, 0.08)
-  c:px(cx - 1, cy - 1, SPEC)
+local function ball(cx, cy, rx, ry, ramp, nm, nospec)
+  return ballM(c:ellipse(cx, cy, rx, ry), ramp, nm, max(rx, ry), nospec)
 end
-berry(26, 17, 3) berry(38, 22, 3) berry(27, 29, 3) berry(36, 14, 2)
-berry(18, 41, 3) berry(46, 41, 3) berry(32, 40, 2)
-c:px(31, 22, FRU[6]) c:px(32, 21, FRU[6])
--- quirk: top knot of little sepals
-for _, p in ipairs{ {30,11},{34,11},{32,10},{32,9},{31,10},{33,10} } do c:px(p[1], p[2], FRU[2]) end
-c:px(32, 8, FRU[4])
+local function grown(m, n) local g = m:copy() local r = g:grow(n) return r or g end
 
-G.fin(c, "stage-fruit-4")
+soil()
+leaf(27,50, 16,47, 7,54, 4.4, LEAF, {4}, "ll")
+leaf(37,50, 48,47, 57,54, 4.4, LEAF, {4}, "lr")
+local orig = c:ellipse(32, 34, 15, 14)
+local bite = c:ellipse(47, 28, 5.5, 5.0)
+local dimple = c:ellipse(32, 21, 3.5, 2.5)
+local fm = orig:copy()
+fm:cut(bite) fm:cut(dimple)
+ballM(fm, RED, "fruit", 14)
+-- flesh rim of the bite
+local ring = grown(bite, 1)
+local rt = tok("flesh")
+ring:each(function(x, y) if orig:has(x, y) and not bite:has(x, y) then
+  c:put(x, y, (x - y) > 18 and "#e8c890" or "#fbefc8", rt) end end)
+for _, p in ipairs{ {44,31}, {46,33}, {42,28} } do if fm:has(p[1], p[2]) then c:put(p[1], p[2], "#d8a868", rt) end end
+-- calyx crown + short stem
+leaf(32,23, 25,17, 19,20, 2.8, LEAF2, {}, "c1")
+leaf(32,23, 39,17, 45,20, 2.8, LEAF2, {}, "c2")
+leaf(32,23, 30,15, 25,11, 2.4, LEAF2, {}, "c3")
+stem({ {32,24}, {32,19}, {33,15}, {35,11} }, 1.3, { "#4a2c28", "#6e4232", "#8e5a3c", "#ae7848", "#cf9a60" }, "twig")
+G.save(c, NAME)

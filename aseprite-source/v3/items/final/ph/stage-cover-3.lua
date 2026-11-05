@@ -1,52 +1,70 @@
--- stage-cover-3 (lean D2o_5)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-cover-3 (lean E2_08)
+local NAME = "stage-cover-3"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-cover-3" }
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function shade(m, ramp, R, o) o = o or {}
-  local n = X.pillow(m, R or 4)
-  local v = X.light(n, { amb = o.amb or 0.1, wrap = o.wrap or 0.25 })
-  G.tone(c, m, v, ramp, o.cuts, o.bias, o.tok)
-  return n, v
+local CUTS = { 0.22, 0.4, 0.56, 0.72, 0.86 }
+local function blob(m, ramp, name, R, o)
+  o = o or {}
+  local n = X.pillow(m, R or 3)
+  local tok = { r = { name = name } }
+  return X.tone(c, m, X.light(n, { amb = o.amb or 0.08, wrap = o.wrap or 0.22 }), ramp, { cuts = CUTS, tok = tok }), n, tok
 end
-local function tshade(m, n, ramp, o) o = o or {}
-  local v = X.light(n, { amb = o.amb or 0.12, wrap = o.wrap or 0.25 })
-  G.tone(c, m, v, ramp, o.cuts, o.bias, o.tok)
-  return v
+local function put(x, y, col, name) c:put(floor(x + .5), floor(y + .5), col, { r = { name = name or "d" } }) end
+local function dots(m, col, name) m:each(function(x, y) c:put(x, y, col, { r = { name = name or "d" } }) end) end
+
+local SOIL = { "#2a1a14", "#4a2e20", "#6e4630", "#8c6240", "#aa8052", "#c8a470" }
+local LEAF = { "#133a2c", "#1c5a38", "#2a7c40", "#44a04c", "#6cc45c", "#a6e07a" }
+local STEM = { "#2a5a30", "#3c7c3c", "#58a04c", "#86c468" }
+c:groundShadow(32, 57, 26, 3)
+local mound = HP.mask()
+for y = 36, 56 do for x = 4, 60 do
+  local dx, dy = (x - 32) / 27, (y - 47) / 9.5
+  if dx * dx + dy * dy <= 1 and not (y < 47 and dx*dx + ((y-47)/11)^2 > 1) then mound:set(x, y) end
+end end
+local _, mn, mtok = blob(mound, SOIL, "soil", 9, { wrap = 0.25 })
+mound:each(function(x, y) local h = X.hash(x, y, 5)
+  if h > 0.9 then c:put(x, y, SOIL[6], mtok) elseif h < 0.07 then c:put(x, y, SOIL[1], mtok) end end)
+-- a pebble
+local peb = c:ellipse(51, 50, 3, 2) blob(peb, { "#4a4850", "#6a6874", "#8a8894", "#aaa8b2", "#c8c6d0", "#e6e4ec" }, "pebble", 2)
+local function stem(pts, w) if #pts == 3 then pts = { pts[1], pts[2], pts[2], pts[3] } elseif #pts == 2 then pts = { pts[1], pts[1], pts[2], pts[2] } end local m = G.tube(pts, function(t) return w or 0.9 end) dots(m, STEM[3], "stem") return m end
+local function leaflet(cx, cy, rx, ry, name)
+  local m = c:ellipse(cx, cy, rx, ry)
+  blob(m, LEAF, name, max(rx, ry) + 0.5, { wrap = 0.25 })
+  put(cx - 1, cy - 1, LEAF[6], "hi")
+  return m
 end
-local SOIL = { "#2a1a1c", "#46291f", "#6b3f28", "#8f5a36", "#b47e4c", "#d5a468" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-c:groundShadow(32, 55, 22, 3)
-local mound = c:ellipse(32, 49, 23, 7):add(c:ellipse(32, 45, 17, 6))
-local sb = {}
-X.ao(sb, mound, c:rect(0, 0, 0, 0), 2, 0)
-shade(mound, SOIL, 9)
-mound:each(function(x, y) if X.hash(x, y, 5) > 0.9 then c:px(x, y, SOIL[5]) elseif X.hash(x, y, 8) > 0.93 then c:px(x, y, SOIL[1]) end end)
-for _, p in ipairs{ {18,49},{24,53},{40,52},{47,48},{34,50} } do c:px(p[1], p[2], SOIL[6]) c:px(p[1] + 1, p[2], SOIL[4]) c:px(p[1], p[2] + 1, SOIL[1]) end
--- lush fan of broad leaves with midribs + one flower bud
-local function bigleaf(x0, x1, y1, w, c1)
-  local lm, ln, T, S = G.tube({ {32 + (x0 - 32) * 0.2, 46}, {x0, 40}, {x1 - (x1 - x0) * 0.2, y1 + 8}, {x1, y1} },
-    function(t) return max(0.7, w * sin(pi * min(1, t * 0.9 + 0.08)) ^ 0.7) end)
-  local v = tshade(lm, ln, LEAF, { cuts = { 0.2, 0.38, 0.55, 0.7, 0.86 } })
-  lm:each(function(x, y) local k = K(x, y)
-    if abs(S[k]) < 0.18 and T[k] > 0.15 and T[k] < 0.92 then c:px(x, y, S[k] <= 0 and LEAF[6] or LEAF[4]) end
-    for _, vt in ipairs{ 0.35, 0.5, 0.65, 0.8 } do
-      local d = (T[k] - vt) * 22 - abs(S[k]) * 2.4
-      if d > -0.5 and d < 0.5 and abs(S[k]) > 0.3 and abs(S[k]) < 0.8 then c:px(x, y, S[k] < 0 and LEAF[5] or LEAF[2]) end
-    end
-  end)
+local function clover(cx, cy, s, rot, name)
+  for k = 0, 2 do
+    local a = rot + k * 2.094
+    leaflet(cx + cos(a) * s * 0.95, cy + sin(a) * s * 0.95, s * 0.95, s * 0.8, name .. k)
+  end
+  put(cx, cy, LEAF[1], "ao")
 end
-bigleaf(14, 8, 24, 5.2)
-bigleaf(50, 57, 25, 5.2)
-bigleaf(20, 15, 14, 4.8)
-bigleaf(44, 49, 15, 4.8)
-bigleaf(26, 25, 9, 4.2)
-bigleaf(38, 40, 10, 4.2)
--- centre stalk + bud
-local sm, sn = G.tube({ {32, 46}, {32, 36}, {31, 28}, {32, 20} }, function(t) return 1.3 end)
-tshade(sm, sn, LEAF)
-local bud = c:ellipse(32, 17, 4, 4.8)
-shade(bud, { "#7a1f4a", "#a63a6a", "#d4608a", "#f090aa", "#ffc4cf", "#fff0f0" }, 4)
-for _, p in ipairs{ {32,14},{32,15},{32,16} } do c:px(p[1], p[2], "#a63a6a") end
-c:px(30, 15, "#fff8f0") c:px(32, 21, LEAF[3]) c:px(30, 21, LEAF[4]) c:px(34, 21, LEAF[2])
-G.fin(c, "stage-cover-3")
+
+local PINK = { "#7a2a54", "#b44a78", "#e0709a", "#f4a0bc", "#fcd0dc", "#fafcff" }
+-- dense mat of clover leaves, low at the sides, tall in the back
+clover(15, 41, 4.8, 0.3, "m1") clover(49, 42, 4.8, 2.7, "m2")
+clover(24, 44, 4.5, 1.0, "m3") clover(41, 45, 4.5, 2.0, "m4")
+stem({ {22,44}, {20,34}, {20,28} }) clover(20, 24, 4.6, -1.57, "m5")
+stem({ {43,44}, {45,34}, {45,26} }) clover(45, 22, 4.6, -1.57, "m6")
+clover(32, 46, 4.2, 1.6, "m7")
+-- two pompom flower heads on tall stems
+local function flower(x, y, name)
+  stem({ {x, 46}, {x + 1, (y + 46) // 2}, {x, y + 3} }, 1.0)
+  local fm = c:ellipse(x, y, 5, 5)
+  local _, n, tok = blob(fm, PINK, name, 5, { wrap = 0.3 })
+  fm:each(function(a, b) if (a + b * 2) % 4 == 0 and X.hash(a, b, 7) > 0.2 then c:put(a, b, PINK[5], tok) elseif (a * 2 + b) % 5 == 0 then c:put(a, b, PINK[2], tok) end end)
+  put(x - 2, y - 2, PINK[6], "spec")
+  clover(x + 1, y + 7, 2.2, 0.3, name .. "c")
+end
+flower(32, 14, "fl1")
+flower(53, 28, "fl2")
+-- quirk: a bee visiting the big bloom
+local bee = c:ellipse(40, 10, 2.5, 1.8)
+blob(bee, { "#3a2a08", "#6a4a10", "#a87c1c", "#d8a828", "#f4d048", "#fff0a0" }, "bee", 2)
+put(39,10,"#2a1a10") put(41,10,"#2a1a10")
+put(38,7,"#e8f4ff") put(40,7,"#e8f4ff") put(39,8,"#c4dcf0") put(41,8,"#c4dcf0")
+c:sparkle(10, 34)
+G.save(c, NAME)

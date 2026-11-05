@@ -1,67 +1,73 @@
--- stage-grain-4 (lean W2_23)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-grain-4 (lean E2_10)
+local NAME = "stage-grain-4"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local CUT = { 0.2, 0.38, 0.55, 0.7, 0.86 }
-local SOIL = { "#2a1a1e", "#4a2e2a", "#6b4232", "#8d5c3e", "#b07a4e", "#cf9a66" }
-local function part(c, m, ramp, R, amb)
-  local n = X.pillow(m, R)
-  G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, CUT)
-  return n
-end
-local function soil(c)
-  local m = c:ellipse(32, 50, 23, 8)
-  part(c, m, SOIL, 8, 0.05)
-  m:each(function(x, y) local h = X.hash(x, y, 3)
-    if h > 0.93 then c:px(x, y, SOIL[5]) elseif h < 0.05 then c:px(x, y, SOIL[1]) end end)
+local CUTS = { cuts = { 0.2, 0.38, 0.54, 0.7, 0.86 } }
+local SOIL = { "#2a1a1c", "#4a2c26", "#6e4430", "#8f5e3c", "#b07c4c", "#cf9c62" }
+local GRN  = { "#17382f", "#1f5a3a", "#2f7c3f", "#4c9a44", "#79b852", "#b0d878" }
+local GOLD = { "#5a2e1c", "#8a4e22", "#b8782a", "#dca040", "#f0c460", "#fbe49a" }
+local PUR  = { "#2c1a4a", "#46298a", "#6a46b0", "#8c6acc", "#b095e4", "#d9c8f6" }
+local function soil()
+  c:groundShadow(32, 54, 24, 5)
+  local m = c:ellipse(32, 50, 22, 8)
+  local n = X.pillow(m, 9)
+  local tok = { r = { name = "soil" } }
+  local idx = X.tone(c, m, X.light(n, { amb = 0.15, wrap = 0.3 }), SOIL, { cuts = CUTS.cuts, tok = tok })
+  m:shrink(1):each(function(x, y) local h = X.hash(x, y, 7)
+    if h > 0.9 then c:put(x, y, SOIL[6], tok) elseif h < 0.1 then c:put(x, y, SOIL[1], tok) end end)
   return m
 end
-local function stalk(c, pts, w, ramp)
-  local m, n = G.tube(pts, function(t) return w end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), ramp, CUT)
+local function stalk(pts, w0, w1, ramp)
+  local m, n, T = G.tube(pts, function(t) return w0 + (w1 - w0) * t end)
+  local v = X.light(n, { amb = 0.15, wrap = 0.3 })
+  m:each(function(x, y) local k = K(x, y)
+    local i = v[k] > 0.62 and 4 or (v[k] > 0.4 and 3 or 2)
+    c:put(x, y, ramp[i], { r = { name = "st" } }) end)
   return m
 end
-local function blade(c, pts, wmax, ramp)
-  local m, n = G.tube(pts, function(t) return max(0.5, wmax * sin(pi * min(1, t * 0.9 + 0.1)) ^ 0.7) end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), ramp, CUT)
+local function leaf(ax, ay, cx, cy, bx, by, w, ramp, veins, fold)
+  local m, n, T, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.9 + 0.1)
+    return max(0.5, w * sin(pi * u ^ 1.1) ^ 0.75) end, { fold = fold or 0.4 })
+  local tok = { r = { name = "lf" .. ax .. bx .. ay } }
+  G.toneN(c, m, n, ramp, { tok = tok, cuts = CUTS.cuts, amb = 0.12, wrap = 0.22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.12 and t > 0.05 and t < 0.92 then c:put(x, y, s <= 0 and ramp[6] or ramp[2], tok) return end
+    for _, vt in ipairs(veins or {}) do
+      local d = t * L - (vt + abs(s) * 3)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.3 and abs(s) < 0.75 then c:put(x, y, s < 0 and ramp[5] or ramp[2], tok) return end
+    end end)
+  return m
+end
+local function ball(cx, cy, rx, ry, ramp, spec)
+  local m = c:ellipse(cx, cy, rx, ry)
+  local n = X.pillow(m, max(rx, ry))
+  local tok = { r = { name = "b" .. cx .. cy } }
+  X.tone(c, m, X.light(n, { amb = 0.08, wrap = 0.22 }), ramp, { cuts = CUTS.cuts, tok = tok })
+  if spec then local sx, sy = G.specAt(m, n, 20) if sx then c:put(sx, sy, spec, tok) end end
   return m
 end
 
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-grain-4" }
-local GOLD = { "#6a3a14", "#9a5c1c", "#c88426", "#e4a834", "#f4c852", "#fde48a" }
-local STRAW = { "#7a5a24", "#a8802e", "#d0a844", "#ecd070" }
-local LEAF = { "#2a3a2a", "#3c5a32", "#587a3a", "#7a9a48", "#9cb85a", "#c0d27a" }
-c:groundShadow(32, 56, 24, 3)
-soil(c)
-blade(c, { {38,48}, {40,42}, {44,38}, {50,38} }, 2.4, LEAF)
--- ears hang off arched stalks (different heights/droop)
-local function droopy(pts, ex, ey, ang)
-  stalk(c, pts, 1.1, STRAW)
-  local m = HP.mask()
-  for t = -7, 7 do
-    local w = 3.3 * (1 - (t / 8) ^ 2) ^ 0.6
-    local px, py = ex + sin(ang) * t, ey + cos(ang) * t
-    for dx = -floor(w), floor(w) do
-      for dy = -floor(w), floor(w) do
-        if dx * dx + dy * dy <= w * w + 0.5 then m:set(floor(px + dx + 0.5), floor(py + dy + 0.5)) end
-      end
-    end
+soil()
+local function ripe(pts, ex, ey, ang, n)
+  stalk(pts, 1.3, 1.0, GOLD)
+  for i = 0, n - 1 do
+    local px, py = ex + cos(ang) * i * 3, ey + sin(ang) * i * 3
+    ball(floor(px) - 2, floor(py), 2, 2, GOLD, "#fff2b8"); ball(floor(px) + 2, floor(py) + 1, 2, 2, GOLD, "#fff2b8")
+    -- awns trailing outward
+    local ox, oy = floor(px), floor(py)
+    for k = 1, 4 do c:put(ox - 3 - k, oy - 1 - k, GOLD[5]) c:put(ox + 3 + k, oy - k, GOLD[4]) end
   end
-  part(c, m, GOLD, 3.4)
-  m:each(function(x, y) if (x + y * 2) % 4 == 0 and X.hash(x, y, 6) > 0.35 then c:px(x, y, GOLD[2]) end end)
-  -- tail awns at the ear tip
-  local tx, ty = ex + sin(ang) * 8, ey + cos(ang) * 8
-  G.line(c, { {floor(tx), floor(ty)}, {floor(tx + sin(ang) * 4), floor(ty + cos(ang) * 4)} }, STRAW[3])
-  G.line(c, { {floor(tx) + 1, floor(ty)}, {floor(tx + sin(ang) * 4) + 2, floor(ty + cos(ang) * 4)} }, STRAW[2])
-  return m
 end
-stalk(c, { {32,50}, {28,36}, {24,26}, {26,20} }, 0.9, STRAW)
-droopy({ {26,48}, {24,24}, {26,12}, {34,13} }, 38, 20, -0.4)
-droopy({ {44,50}, {46,34}, {48,26}, {52,24} }, 51, 33, -0.2)
-droopy({ {18,50}, {10,40}, {9,34}, {12,34} }, 12, 40, 0.15)
-blade(c, { {32,50}, {28,44}, {24,40}, {20,40} }, 2.4, LEAF)
--- quirk: loose grains spilled on the soil
-for _, g in ipairs{ {19, 50}, {47, 52}, {40, 54} } do
-  c:fillMask(c:ellipse(g[1], g[2], 1.5, 1), GOLD[4]) c:px(g[1] - 1, g[2] - 1, GOLD[6])
-end
-G.fin(c, "stage-grain-4")
+leaf(26, 50, 16, 46, 10, 52, 2.6, GOLD, { 6 })
+leaf(40, 50, 50, 46, 56, 52, 2.6, GOLD, { 6 })
+ripe({ {32, 48}, {32, 34}, {32, 20}, {32, 14} }, 32, 8, pi / 2, 4)
+ripe({ {25, 49}, {22, 36}, {20, 22}, {24, 15} }, 26, 14, pi / 2 + 0.2, 3)
+ripe({ {39, 49}, {44, 38}, {52, 26}, {54, 18} }, 55, 20, pi / 2 - 0.2, 3)
+-- quirk: dropped kernel on the soil
+ball(46, 52, 2, 1, GOLD, "#fff2b8")
+
+G.save(c, NAME)

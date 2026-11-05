@@ -1,58 +1,52 @@
--- opening-day-bunting (lean W2_12)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- opening-day-bunting (lean E2_04)
+local NAME = "opening-day-bunting"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "opening-day-bunting" }
-local cuts = { 0.25, 0.5, 0.75 }
-local RP = { "#5a3a1e", "#7d5429", "#a47838", "#c9a05a" }
-local FL = {
-  { "#7a1226", "#b8203a", "#e84a52", "#ff8a80" },
-  { "#9a5a08", "#d98c10", "#f5bd2a", "#ffe27a" },
-  { "#14597a", "#2a8fb0", "#52c6dc", "#a6ecf0" },
-  { "#8a2a6a", "#cc4c94", "#ef7fb4", "#ffbcd8" },
-  { "#1f5a2a", "#37913c", "#6cc556", "#b6ee8a" },
+local CUTS = { 0.22, 0.4, 0.56, 0.72, 0.86 }
+local function U(...) local m = HP.mask() for _, x in ipairs{...} do m:add(x) end return m end
+local function S(m, ramp, R, name, amb)
+  local n = X.pillow(m, R or 3)
+  return X.tone(c, m, X.light(n, { amb = amb or 0.08, wrap = 0.25 }), ramp, { cuts = CUTS, tok = { r = { name = name or "p" } } }), n
+end
+local function P(x, y, col) c:put(x, y, col, { r = { name = "d" } }) end
+local function spec(m, n, col) local x, y = G.specAt(m, n, 30) if x then P(x, y, col or "#fffbe8") end end
+
+local COLS={
+ {"#5a1424","#8a1f34","#c42f40","#ec5450","#ff8468","#ffb898"},
+ {"#6a4210","#a8701a","#e0a026","#fcc83c","#ffe070","#fff4b0"},
+ {"#12366a","#1c58a0","#2e82d0","#4cacf0","#80ccff","#c0eaff"},
+ {"#4a1458","#782088","#a838b4","#d058d0","#ec8cec","#ffc0f6"},
+ {"#12462a","#1c6c3c","#2c9a4c","#4cc468","#80e48c","#c0f8c0"},
 }
--- rope: sagging swag, posts at both ends
-local function ry(x) return 26 - 12 * (((x - 32) / 25) ^ 2) end
-local pts = {}
-for x = 7, 57 do pts[#pts + 1] = { x, floor(ry(x) + 0.5) } end
-local function ropeY(x) return floor(ry(x) + 0.5) end
--- flags
-local xs = { 11, 19, 27, 35, 43 }
-local shapes = { 1, 2, 3, 1, 2 }
-for i, x0 in ipairs(xs) do
-  local top = ropeY(x0 + 3) + 1
-  local len = ({ 20, 15, 22, 16, 19 })[i]
-  local m = HP.mask()
-  local shape = shapes[i]
-  for y = top, top + len do
-    local t = (y - top) / len
-    local h
-    if shape == 1 then h = 4 * (1 - t)               -- pennant point
-    elseif shape == 2 then h = 4 * (1 - t * 0.5)     -- swallowtail
-    else h = 4 * (1 - t ^ 2) end                     -- rounded drop
-    for x = floor(x0 + 3 - h + 0.5), floor(x0 + 3 + h - 0.5) do m:set(x, y) end
-    if shape == 2 and t > 0.7 then for x = x0 + 2, x0 + 4 do m:cut(HP.mask():add(c:rect(x, y, x, y))) end end
-  end
-  local n = X.pillow(m, 4)
-  G.tone(c, m, X.light(n, { amb = 0.15, wrap = 0.3 }), FL[i], cuts)
-  -- hem stripe / motif per flag
-  if i == 1 then c:px(x0 + 3, top + 6, FL[i][4]) c:px(x0 + 2, top + 7, FL[i][4]) c:px(x0 + 4, top + 7, FL[i][4]) c:px(x0 + 3, top + 8, FL[i][4])
-  elseif i == 2 then for k = 0, 2 do c:px(x0 + 1 + k * 2, top + 4, FL[i][1]) end
-  elseif i == 3 then G.line(c, { {x0 + 1, top + 5}, {x0 + 5, top + 5} }, FL[i][4]) G.line(c, { {x0 + 2, top + 9}, {x0 + 4, top + 9} }, FL[i][1])
-  elseif i == 4 then c:px(x0 + 2, top + 5, FL[i][4]) c:px(x0 + 4, top + 7, FL[i][4]) c:px(x0 + 3, top + 9, FL[i][1])
-  else c:px(x0 + 3, top + 4, FL[i][4]) c:px(x0 + 3, top + 6, FL[i][4]) end
-  -- tiny peg
-  c:px(x0 + 3, top - 1, RP[1])
+local ROPE={"#3a2a1c","#6a4a2c","#a07844","#c8a064"}
+local function yat(x) return 9+13*(1-((x-32)/24)^2) end
+-- rope
+local pts={}
+for x=9,55,1 do pts[#pts+1]={x,yat(x)} end
+local rope=c:line(pts,1)
+S(rope,ROPE,1,"rope")
+rope:each(function(x,y) if (x%3)==0 then P(x,y,ROPE[1]) end end)
+-- end knots
+for _,x in ipairs{9,55} do local k=c:ellipse(x,floor(yat(x)),2,2); S(k,ROPE,2,"knot") end
+-- pennants
+local xs={14,23,32,41,50}
+local hs={17,20,22,20,17}
+for i,x in ipairs(xs) do
+  local y=floor(yat(x))+1
+  local h=hs[i]
+  local m=c:poly{{x-4,y},{x+4,y},{x,y+h}}
+  S(m,COLS[i],6,"flag"..i,0.3)
+  -- stripe band near top
+  for yy=y+3,y+4 do for xx=x-4,x+4 do if m:has(xx,yy) then P(xx,yy,COLS[i][5]) end end end
+  -- dark fold along right edge
+  -- tie
+  P(x-1,y-1,ROPE[1]); P(x,y-1,ROPE[1]); P(x+1,y-1,ROPE[1])
 end
--- rope drawn after (over flag tops), twisted
-for i, p in ipairs(pts) do
-  c:px(p[1], p[2], (i % 3 == 0) and RP[4] or RP[3])
-  c:px(p[1], p[2] + 1, (i % 3 == 1) and RP[1] or RP[2])
-end
--- end posts: knotted twig stubs with leaf (quirk: a little tied bow on left, twig sprout right)
-G.line(c, { {7, 14}, {6, 12}, {5, 10} }, RP[2]) G.line(c, { {8, 14}, {7, 12} }, RP[1])
-G.line(c, { {57, 14}, {58, 12}, {59, 10} }, RP[2]) G.line(c, { {56, 14}, {57, 12} }, RP[1])
-c:px(59, 9, "#6cc556") c:px(60, 9, "#37913c") c:px(60, 10, "#37913c")
-c:px(5, 9, "#ff8a80") c:px(4, 10, "#e84a52") c:px(6, 10, "#e84a52")
-G.fin(c, "opening-day-bunting")
+-- quirk: heart on the middle flag
+local hx,hy=32,floor(yat(32))+10
+for _,p in ipairs{{-2,0},{-1,0},{1,0},{2,0},{-2,1},{-1,1},{0,1},{1,1},{2,1},{-1,2},{0,2},{1,2},{0,3}} do P(hx+p[1],hy+p[2],"#fff4f0") end
+-- quirk: one flag tip flipped? small ladybug... keep heart
+
+G.save(c, NAME)
