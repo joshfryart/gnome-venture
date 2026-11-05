@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.47
+- **Animal homes show their pixel art in the yard**: the yard was still drawing the old line drawings for the eight animal homes (worm farm, ladybird lodge, frog pond, quail coop, silkworm shelf, tortoise run, snail jar, butterfly bush); it now uses their pixel pictures.
+- **Tortoise Run redrawn**: it was a boxed scene with no outline; now a wooden pen with a dirt floor, a tortoise and a lettuce leaf, outlined like the others.
+- **Butterfly House redrawn**: it was a copy of the bird box; now a glass pavilion with a green roof, flower beds and butterflies. New `tools/draw_fix_art.py`.
 ## 2.5.46
 - **Stepping stones, log seats, toadstool rings and flower pots line up**: like fences, they join their own kind by themselves: end, straight, curve (a corner as an arc), tee and cross, with the pieces of neighbouring squares lining up across the edges. In the yard designer, **🔀 Shape** cycles automatic, end, straight, angle (a sharp corner), curve, T, cross, a cluster, or **one piece**, centred or in any corner of the square; **⚖️ Size** picks big, small or mixed (for one piece: large or small). Drawn by the new `tools/bake_fam_art.py` (360 pictures in `assets/img/fam/`, upright from every side). The old pictures stay for the tray and as a fallback. Needs 2.5.40.
 ## 2.5.45

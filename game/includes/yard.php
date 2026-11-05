@@ -376,7 +376,9 @@ function building_image(string $building, int $level, bool $ph = false): string
         $rel = $dir . $building . '-' . max(1, $level) . '.png';
         if (art_path($rel) !== '') return $rel;
     }
-    if (critter_is_home($building) && is_file(APP_ROOT . '/assets/img/animals/' . $building . '.svg')) return 'assets/img/animals/' . $building . '.svg';   // v1.0.0: the animal homes' own art
+    if (critter_is_home($building)) {   // v1.0.0: the animal homes' own art (v2.5.47: the pixel picture when there is one; it used to serve the old drawing)
+        foreach (['png', 'svg'] as $ext) if (is_file(APP_ROOT . '/assets/img/animals/' . $building . '.' . $ext)) return 'assets/img/animals/' . $building . '.' . $ext;
+    }
     return $ph ? ph_path($building . '-' . max(1, min(3, $level))) : '';   // v1.5.2: placeholder
 }
 
@@ -692,7 +694,7 @@ function render_yard(array $plot, array $tiles, array $plants, array $objects, s
             $cls .= ' fi';
         }
         if ($o['kind'] === 'building' && ($bimg = building_image((string)$o['ref'], building_level((int)$o['plot_id'], (string)$o['ref']), true)) !== '') {   // v0.9.8: art for this level
-            $inner = '<img class="yimg" src="' . e(url($bimg)) . '" alt="" loading="lazy">'; $cls .= ' fi';
+            $inner = '<img class="yimg' . (str_ends_with($bimg, '.png') ? ' pix' : '') . '" src="' . e(url($bimg)) . '" alt="" loading="lazy">'; $cls .= ' fi';
         }
         if ($o['kind'] === 'building' && !empty($o['skin'])) {   // v0.9.7: a building look: tint and badge until there is art (assets/img/skins/{building}-{skin}.png)
             $cls .= ' sk sk-' . e($o['skin']);

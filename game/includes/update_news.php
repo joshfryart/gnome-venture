@@ -668,6 +668,8 @@ function post_update_news(string $from): void
         "A growing bed has damp dark soil, a thirsty one turns pale and cracked, and a ripe one glows golden. You can read your garden at a glance."],
     '2.5.46' => ['🪨 Update 2.5.46: stones, logs, toadstools and pots in lines',
         "Stepping stones, log seats, toadstool rings and flower pots now line up by themselves: straight runs, corners, T-junctions and crossings. In Design your yard, Shape picks a straight, angled or curved look (or a single piece, centred or in a corner) and Size picks big, small or mixed."],
+    '2.5.47' => ['🦋 Update 2.5.47: homes and a butterfly house',
+        "The animal homes in your yard now use their pixel pictures, the Tortoise Run has a proper pen, and the Butterfly House is a glass pavilion full of butterflies."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
