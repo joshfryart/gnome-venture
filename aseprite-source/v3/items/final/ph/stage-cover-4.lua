@@ -1,74 +1,60 @@
 -- stage-cover-4 (lean P1b_O20)
--- Growth stage 4 of ground cover: a dense, domed clover mat of overlapping leaflets over a thin soil rim, tall stalks with pink-white pom-pom flowers, and a fat bee visiting the biggest bloom (quirk).
+-- Growth stage 4 of ground cover (clover): soil mound like stage-grain-1, a fan of tall stalks each with a trefoil of chevron-marked leaflets, three pink pom-pom blooms and a bee (quirk) on the tallest.
 local NAME = "stage-cover-4"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function paint(c, m, ramp, vf, nm, adj)
-  local tok = { r = { name = nm } }
-  local nr = #ramp
-  m:each(function(x, y)
-    local v = vf(x, y)
-    local i = 1 + floor(max(0, min(0.999, v)) * nr)
-    if adj then i = adj(x, y, i, v) or i end
-    c:put(x, y, ramp[max(1, min(nr, i))], tok)
-  end)
-end
-local function T(nm) return { r = { name = nm } } end
-local function blob(c, m, R, ramp, nm, amb, wrap, adj)
-  local v = X.light(X.pillow(m, R), { amb = amb or 0.1, wrap = wrap or 0.25 })
-  paint(c, m, ramp, function(x, y) return v[K(x, y)] end, nm, adj)
-end
-local SOIL = { "#1e1218", "#3a2420", "#5e3a2a", "#86583a", "#ae7e4a" }
-local LEAF = { "#143a2c", "#20603a", "#38884a", "#5cae54", "#8ed068", "#c4ee90" }
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-c:groundShadow(32, 56, 25, 3)
-local soil = c:ellipse(32, 52, 23, 5)
-blob(c, soil, 6, SOIL, "soil", 0.1, 0.2, function(x, y, i) local h = X.hash(x, y, 5) if h > 0.9 then return 5 elseif h < 0.07 then return 1 end end)
+local function tk(n) return { r = { name = n } } end
+local function ball(m, R, ramp, nm, o) local n = X.pillow(m, R) o = o or {} o.tok = tk(nm) if not o.cuts then o.cuts = {0.2,0.38,0.55,0.72,0.86} end G.toneN(c, m, n, ramp, o) return n end
+local SOIL = { "#1e1218", "#3a2420", "#5e3a2a", "#86583a", "#ae7e4a" }
+local LEAF = { "#103a2c", "#1c6238", "#34904a", "#5cb854", "#92da68", "#cdf49a" }
 local STALK = { "#2c5a3a", "#4a8450", "#7cb468", "#b4dc8c" }
--- flower stalks (behind the mat)
-local fl = { {22, 44, 18, 14, 5}, {32, 42, 33, 7, 6}, {45, 44, 49, 17, 5} }
-for _, f in ipairs(fl) do
-  local sm, sn = G.tube({ {f[1], f[2]}, {f[1], f[2] - 10}, {f[3], f[4] + 8}, {f[3], f[4]} }, function(t) return 1.0 end)
-  local sv = X.light(sn, { amb = 0.15, wrap = 0.3 })
-  paint(c, sm, STALK, function(x, y) return sv[K(x, y)] end, "stalk")
+local PINK = { "#7a2a5c", "#b84a86", "#e276aa", "#f8a8c8", "#ffe0ec" }
+c:groundShadow(32, 56, 24, 3)
+local soil = c:ellipse(32, 50, 22, 7)
+soil:add(c:ellipse(32, 47, 15, 6))
+ball(soil, 9, SOIL, "soil", { amb = 0.1, wrap = 0.2 })
+soil:each(function(x, y) local h = X.hash(x, y, 5) if h > 0.9 then c:put(x, y, SOIL[5], tk"soil") elseif h < 0.07 then c:put(x, y, SOIL[1], tk"soil") end end)
+for _, p in ipairs{ {16,52},{17,52},{48,52},{49,52},{47,53} } do c:put(p[1], p[2], "#b8a898", tk"pb") end
+-- stalks: base, control, tip (flower or leaf trio)
+local S = {
+  { 30, 24, 22, 20, 5.5, "bloom" }, { 34, 20, 43, 14, 5.5, "bloom" }, { 32, 12, 33, 6, 5, "bloom" },
+  { 29, 12, 13, 30, 0, "leaf" }, { 35, 12, 51, 30, 0, "leaf" }, { 31, 10, 24, 34, 0, "leaf" }, { 33, 10, 41, 36, 0, "leaf" },
+}
+local function trefoil(cx, cy, r, rot)
+  for k = 0, 2 do
+    local a = rot + k * 2.0944 - 1.5708
+    local lx, ly = cx + cos(a) * r * 0.8, cy + sin(a) * r * 0.8
+    local lm, ln = G.oval(lx, ly, r * 0.85, r * 0.65, a, 1.1)
+    G.toneN(c, lm, ln, LEAF, { tok = tk("leaflet"), amb = 0.1, wrap = 0.3, cuts = {0.2,0.38,0.55,0.72,0.86} })
+    for s = -1, 1 do c:put(floor(lx + cos(a) * s * 1.2 + 0.5), floor(ly + sin(a) * s * 1.2 + 0.5), LEAF[6], tk"chev") end
+  end
 end
--- leaf mat: back-to-front overlapping leaflets over a dome
-local mat = {}
-local rows = { {0.0, 36, 11}, {0.0, 40, 12}, {0.0, 46, 12} }
-local L = {}
-for _, p in ipairs{ {32,31,6},{24,33,6},{40,33,6},{17,38,6},{47,38,6},{29,37,6.5},{37,37,6.5},{22,43,6.5},{42,43,6.5},{32,42,7},{14,46,5.5},{50,46,5.5},{27,48,6.5},{37,48,6.5},{19,48,5},{45,48,5} } do L[#L + 1] = p end
-for i, p in ipairs(L) do
-  local ang = (X.hash(i, 3, 7) - 0.5) * 1.4
-  local lm, ln = G.oval(p[1], p[2], p[3], p[3] * 0.8, ang, 1.1)
-  local lv = X.light(ln, { amb = 0.1, wrap = 0.3 })
-  local shade = (p[2] - 31) / 20
-  paint(c, lm, LEAF, function(x, y) return max(0, min(1, lv[K(x, y)] * (1 - 0.25 * shade) + 0.05)) end, "leaf")
-  -- pale chevron
-  local cx, cy = p[1], p[2] - 1
-  for s = -2, 2 do c:put(floor(cx + s + 0.5), floor(cy + abs(s) * 0.5 + 0.5), LEAF[6], T"chev") end
-  -- dark seam under leaf
-  for s = -p[3] + 1, p[3] - 1 do c:put(floor(p[1] + s + 0.5), floor(p[2] + p[3] * 0.8 + 0.5), LEAF[1], T"seam") end
+local blooms = {}
+for _, s in ipairs(S) do
+  local ax, ay = 32 + (s[1] - 32) * 0.4, 46
+  local sm, sn = G.tube({ {ax, ay}, {s[1], ay - 8}, {s[3], s[4] + 8}, {s[3], s[4]} }, function(t) return 1.1 end)
+  G.toneN(c, sm, sn, STALK, { tok = tk"stalk", amb = 0.15, wrap = 0.3, cuts = {0.3,0.55,0.8} })
+  if s[6] == "leaf" then trefoil(s[3], s[4], 4.5, (s[3] - 32) * 0.03) else blooms[#blooms + 1] = s end
 end
--- pom-pom flowers
-local PINK = { "#8c5a78", "#c08aa8", "#e6b6cc", "#f8dce8", "#fff4f8" }
-for fi, f in ipairs(fl) do
+for fi, f in ipairs(blooms) do
   local r = f[5]
   local fm = c:ellipse(f[3], f[4], r, r - 0.5)
-  blob(c, fm, r + 1, PINK, "flower", 0.12, 0.3)
-  -- florets
-  for k = 1, 9 do
+  ball(fm, r + 1, PINK, "flower", { amb = 0.12, wrap = 0.3, cuts = {0.2,0.4,0.6,0.8} })
+  for k = 1, 10 do
     local a = k * 2.4 + fi
     local rr = (k % 3 + 1) * r / 4
-    local px, py = floor(f[3] + cos(a) * rr + 0.5), floor(f[4] + sin(a) * rr * 0.9 + 0.5)
-    c:put(px, py, k % 2 == 0 and PINK[1] or PINK[5], T"floret")
+    c:put(floor(f[3] + cos(a) * rr + 0.5), floor(f[4] + sin(a) * rr * 0.9 + 0.5), k % 2 == 0 and PINK[1] or PINK[5], tk"floret")
   end
-  c:put(f[3] - 2, f[4] - 2, "#ffffff", T"floret")
+  c:put(f[3] - 2, f[4] - 2, "#fff4f8", tk"floret")
 end
--- bee on the middle bloom
-local bx, by = 40, 9
+-- base leaves hugging the soil
+for _, p in ipairs{ {20,45,4.5},{26,47,4.5},{38,47,4.5},{44,45,4.5},{32,46,5} } do trefoil(p[1], p[2], p[3], (p[1] - 32) * 0.04) end
+-- bee on the top bloom (quirk)
+local bx, by = 40, 5
 c:fillMask(c:ellipse(bx, by, 3, 2), "#f2c230")
-for _, p in ipairs{ {bx-1,by-1},{bx-1,by},{bx-1,by+1},{bx+1,by-1},{bx+1,by},{bx+1,by+1} } do c:put(p[1], p[2], "#2b1c26", T"bee") end
-c:put(bx - 2, by, "#f8e070", T"bee") c:put(bx + 3, by, "#2b1c26", T"bee")
-c:fillMask(c:ellipse(bx - 1, by - 3, 2, 1), "#d8f0ff") c:put(bx - 2, by - 3, "#ffffff", T"bee")
+for _, p in ipairs{ {bx-1,by-1},{bx-1,by},{bx-1,by+1},{bx+1,by-1},{bx+1,by},{bx+1,by+1} } do c:put(p[1], p[2], "#2b1c26", tk"bee") end
+c:put(bx - 2, by, "#f8e070", tk"bee") c:put(bx + 3, by, "#2b1c26", tk"bee")
+c:fillMask(c:ellipse(bx - 1, by - 3, 2, 1), "#d8f0ff") c:put(bx - 2, by - 3, "#e8fbff", tk"bee")
 G.save(c, NAME)
