@@ -467,10 +467,10 @@ function HH.faceFront(c, k, o)
   if o.mouthO then pair(LX(0.5), my + 1, "#6e3442") pair(LX(0.5), my + 2, FACE.deep) end
   -- ears: small round, low on both sides, tucked under the spines
   for side = -1, 1, 2 do
-    local ex, ey = cx + side * 12.8 * s, cy - 2.2 * s
-    local em = c:ellipse(ex, ey, 2.6 * s, 2.5 * s)
+    local ex, ey = cx + side * 13.2 * s, cy - 1.2 * s
+    local em = c:ellipse(ex, ey, 2.1 * s, 2.0 * s)
     em:each(function(x, y) c:put(x, y, side < 0 and FACE.base or FACE.shade) end)
-    c:fillMask(c:ellipse(ex + side * 0.3 * s, ey + 0.4 * s, 1.1 * s, 1.1 * s), HH.EAR)
+    c:fillMask(c:ellipse(ex + side * 0.3 * s, ey + 0.3 * s, 0.7 * s, 0.7 * s), HH.EAR)
     em:each(function(x, y) if not em:has(x, y + 1) or not em:has(x + side, y) and not face:has(x + side, y) then c:put(x, y, FACE.deep) end end)
     em:grow(1):cut(em):each(function(x, y) if not face:has(x, y) then c:put(x, y, INK) end end)
   end
@@ -515,7 +515,7 @@ function HH.portraitFront(o)
   local flank = { { 22, 80, 8, 20, 165, 230 }, { 57, 80, 8, 20, -50, 15 } }
   HH.headFront(c, k, flank)
   k.spine:clip(c:rect(0, 0, 79, 99))
-  k.torso = c:ellipse(39.5, 102, 25, 30):add(c:ellipse(39.5, hy + 22, 9, 7)):clip(c:rect(0, 0, 79, 99))
+  k.torso = c:ellipse(39.5, 97, 28, 24):add(c:ellipse(39.5, hy + 22, 10, 7)):add(c:ellipse(39.5, hy + 29, 16, 6)):clip(c:rect(0, 0, 79, 99))
   c:fillMask(k.torso, k.FACE.base)
   k.pawL, k.pawR = { x = 29, y = 89 }, { x = 50, y = 89 }
   if o.body then o.body(c, k) end

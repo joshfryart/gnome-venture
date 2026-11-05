@@ -1,6 +1,6 @@
--- folk-hedgehog-1 portrait (folk F1_0) variant: 1 (rewrite 2026-11-05, shared lib/hedgehog.lua)
--- Gardener hedgehog, 3/4 view: big swept-back spine mound, cream face mask + long snout + wet nose,
--- straw hat with a blue ribbon and leaf perched in the spines, peach shirt, green dungarees, trowel. Green disc.
+-- folk-hedgehog-1 portrait (folk F1_0) variant: 1 (front view 2026-11-05, HH.portraitFront in lib/hedgehog.lua)
+-- Gardener hedgehog, head-on: spine arch, cream face mask, bead eyes, short snout + wet nose,
+-- straw hat with a blue ribbon and leaf perched in the spines, peach shirt, green dungarees, trowel in the right paw. Green disc.
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HH = dofile(DIR .. "/../../lib/hedgehog.lua")
 local function R4(hi, base, shade, deep) return { hi = hi, base = base, shade = shade, deep = deep } end
@@ -14,20 +14,21 @@ local LEAF = R4("#b8e07a", "#7cb84a", "#4e8a44", "#2f5a3e")
 local METAL = R4("#e6ecee", "#a9b4c4", "#6f7894", "#474a68")
 local WOOD = R4("#d39a5c", "#a5683c", "#714434", "#4a2c2e")
 local NO = { band = 1, nopop = true, inner = false }
-HH.portrait{ name = "folk-hedgehog-1", out = app.params.out or (DIR .. "/"), SP = SP, FACE = FACE, seed = 31,
+HH.portraitFront{ name = "folk-hedgehog-1", out = app.params.out or (DIR .. "/"), SP = SP, FACE = FACE, seed = 31,
   BG = { base = "#a8c886", shade = "#7fa266", deep = "#5b7c50" },
   body = function(c, k)
     c:part(k.torso, SHIRT, { band = 2, inner = false, nopop = true })
-    local d = c:rrect(34, 85, 62, 99, 2)
-    d:add(c:line({ { 36, 86 }, { 31, 77 } }, 3)) d:add(c:line({ { 60, 86 }, { 64, 77 } }, 3))
+    local d = c:rrect(26, 85, 53, 99, 2)
+    d:add(c:line({ { 28, 86 }, { 24, 76 } }, 3)) d:add(c:line({ { 51, 86 }, { 55, 76 } }, 3))
     d:clip(k.torso)
     c:part(d, CLO, { band = 2, inner = false, nopop = true })
-    for x = 40, 56, 2 do c:put(x, 91, CLO.deep) end
-    for y = 92, 98 do c:put(40, y, CLO.shade) c:put(56, y, CLO.shade) end
-    for _, q in ipairs{ { 35, 86 }, { 59, 86 } } do c:put(q[1], q[2], STRAW.hi) c:put(q[1] + 1, q[2], STRAW.base) c:put(q[1], q[2] + 1, STRAW.base) c:put(q[1] + 1, q[2] + 1, STRAW.shade) end
+    for x = 32, 47, 2 do c:put(x, 91, CLO.deep) end
+    for y = 92, 98 do c:put(32, y, CLO.shade) c:put(47, y, CLO.shade) end
+    for _, q in ipairs{ { 27, 86 }, { 51, 86 } } do c:put(q[1], q[2], STRAW.hi) c:put(q[1] + 1, q[2], STRAW.base) c:put(q[1], q[2] + 1, STRAW.base) c:put(q[1] + 1, q[2] + 1, STRAW.shade) end
+    HH.pawFront(c, k, 22, 92, 3.5, 3)
   end,
   hat = function(c, k)
-    local x, y = k.crown.x + 1, k.crown.y + 4
+    local x, y = k.crown.x, k.crown.y + 4
     local brim = c:ellipse(x, y, 16, 3.5)
     local hm = brim:copy():add(c:rrect(x - 9, y - 11, x + 8, y, 4))
     c:part(hm, STRAW, { band = 2, nopop = true, inner = false })
@@ -40,12 +41,12 @@ HH.portrait{ name = "folk-hedgehog-1", out = app.params.out or (DIR .. "/"), SP 
     for px = x - 14, x - 10 do c:put(px, y - 4, LEAF.shade) end
   end,
   front = function(c, k)
-    c:part(c:rrect(64, 76, 68, 88, 1), WOOD, NO)
-    for y = 78, 86, 3 do c:put(65, y, WOOD.shade) end
-    c:part(c:rect(64, 73, 68, 75), METAL, NO)
-    local bl = c:poly{ { 61, 73 }, { 71, 73 }, { 67, 62 }, { 65, 62 } }
+    c:part(c:rrect(58, 76, 62, 88, 1), WOOD, NO)
+    for y = 78, 86, 3 do c:put(59, y, WOOD.shade) end
+    c:part(c:rect(58, 73, 62, 75), METAL, NO)
+    local bl = c:poly{ { 55, 73 }, { 65, 73 }, { 61, 62 }, { 59, 62 } }
     c:part(bl, METAL, { band = 2, nopop = true, inner = false })
-    for y = 65, 72 do c:put(66, y, METAL.shade) end c:put(63, 70, METAL.hi) c:put(64, 67, METAL.hi)
-    local paw = c:ellipse(66, 90, 4, 3.5) c:part(paw, FACE, NO) HH.under(c, paw, FACE.deep)
+    for y = 65, 72 do c:put(60, y, METAL.shade) end c:put(57, 70, METAL.hi) c:put(58, 67, METAL.hi)
+    HH.pawFront(c, k, 60, 89, 4, 3.5)
   end,
 }
