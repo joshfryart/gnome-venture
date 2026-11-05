@@ -182,7 +182,7 @@ P["delve-jaguar-root-caves"] = function()
     local pm = HP.poly({ { 316 + inset, 214 }, { 476 - inset, 214 }, { 479, 269 }, { 262 + inset * 2, 269 } })
     pm:each(function(x, y) c:px(x, y, GX.mix(c:get(x, y) or FL.base, "#ffe8a0", tint)) end)
   end
-  band(0, .16); band(10, .16); band(22, .18)
+  band(0, .22); band(10, .2); band(22, .2)
   for k = 0, 3 do c:fillMask(c:rect(340 + k * 24, 224 + k * 10, 346 + k * 24, 225 + k * 10), "#fff4c8") end
   for _, s in ipairs{ { 40, 20, 40, 9 }, { 96, 24, 26, 7 }, { 150, 30, 34, 8 }, { 220, 36, 20, 6 }, { 290, 30, 28, 7 } } do stal(s[1], s[2], s[3], s[4], s[1], { hi = "#9a7a88", base = "#6e5068", shade = "#4c3858", deep = "#2c2038" }) end
   local RT = { hi = "#d8a060", base = "#946040", shade = "#5c3c3c", deep = "#34202c" }
@@ -327,7 +327,6 @@ P["delve-anaconda-hollows"] = function()
   local function bf(t) return 500 - t * 380, 240 + 13 * sin(t * 9) - max(0, t - .84) * 120 end
   local body = sweep(bf, 400, function(t) return 10 + 8 * t end)
   L(body, SN, { R = 16, tex = .3 }); spots(body, 3, SN.deep)
-  body:each(function(x, y) if y > 226 and (x + y) % 9 == 0 then c:px(x, y, "#f4e8a0") end end)
   local hx, hy = 112, 214
   local head = D(hx, hy, 28, 19, 4); head:add(D(hx - 26, hy + 5, 18, 12)); head:add(D(hx + 14, hy + 8, 18, 13)); head = GX.rough(head, 5, 1)
   L(head, SN, { R = 18, tex = .2 })

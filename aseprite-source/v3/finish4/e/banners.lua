@@ -730,7 +730,7 @@ end
 function P.monolith(x, by, o)
   local base = { { -102, 3 }, { -99, -9 }, { -94, -22 }, { -84, -36 }, { -68, -47 }, { -44, -54 }, { -16, -58 }, { 12, -59 }, { 40, -56 }, { 66, -48 }, { 84, -37 }, { 94, -24 }, { 99, -10 }, { 103, 3 } }
   local pts = {}
-  for i, p in ipairs(base) do pts[#pts + 1] = { x + p[1] + floor((GX.vn(i * 7, 0, 2, 5) - .5) * 3), by + p[2] + floor((GX.vn(i * 3, 9, 2, 6) - .5) * 4) } end
+  for i, p in ipairs(base) do pts[#pts + 1] = { x + p[1] + floor((GX.vn(i * 7, 0, 2, 5) - .5) * 3), by + floor(p[2] * 1.3) + floor((GX.vn(i * 3, 9, 2, 6) - .5) * 5) } end
   local m = c:poly(pts)
   local U = o.R or rp("#ffa468", "#e0603a", "#a63a40", "#5c2846")
   SH(x + 20, by + 1, 110)
@@ -741,7 +741,7 @@ function P.monolith(x, by, o)
       local line = ((by - yy + floor(3 * sin(xx / 21) + 2 * sin(xx / 7))) % 6 == 0) and -.2 or 0
       v = v + line + ((sb % 3 == 0) and .08 or ((sb % 3 == 1) and -.05 or 0))
       local fl = GX.vn(xx, yy * .16, 3.2, 8)
-      if fl < .3 and yy > by - 46 then v = v - .22 end
+      if fl < .3 and yy > by - 62 then v = v - .22 end
       return v
     end })
   -- cave overhangs + water stains
@@ -752,11 +752,11 @@ function P.monolith(x, by, o)
   for k = 1, 7 do
     local sx = x - 80 + k * 22 + floor((H(k, 3, 3) - .5) * 8)
     local len = 14 + floor(H(k, 5, 3) * 16)
-    local topy = by - 54 + floor(abs(sx - x + 10) * .22)
-    for yy = topy + 3, topy + len do if m:has(sx, yy) then c:px(sx, yy, U.deep) end end
+    local topy = by - 70 + floor(abs(sx - x + 10) * .3)
+    for yy = topy + 3, topy + len + 14 do if m:has(sx, yy) then c:px(sx, yy, (yy > topy + len) and U.shade or U.deep); if k % 2 == 0 and m:has(sx + 1, yy) then c:px(sx + 1, yy, U.shade) end end end
   end
   -- lit upper-left ridge + glints
-  for xx = x - 70, x - 14 do local yy = by - 55 + floor((x - 14 - xx) * .16) - floor(abs(xx - x + 40) * .02); if m:has(xx, yy + 1) and H(xx, 1, 2) > .25 then c:px(xx, yy + 1, U.hi) end end
+  for xx = x - 70, x - 14 do local yy = by - 71 + floor((x - 14 - xx) * .2) - floor(abs(xx - x + 40) * .02); if m:has(xx, yy + 1) and H(xx, 1, 2) > .25 then c:px(xx, yy + 1, U.hi) end end
   -- scree + scrub at the foot
   for k = 0, 30 do
     local sx = x - 100 + floor(H(k, 2, 9) * 205)
@@ -771,32 +771,33 @@ end
 
 function P.mesa2(x, by, o)
   local w, h = o.w or 100, o.h or 64
-  local tiers = o.tiers or {
-    { .96, .27, rp("#d89070", "#b05a44", "#7c3a42", "#4e2a3c") },
-    { .76, .25, rp("#ffc48a", "#e88a4c", "#b45a44", "#783c48") },
-    { .62, .22, rp("#fff0b0", "#f0c070", "#c88a50", "#8c5a48") },
-    { .70, .26, rp("#e89a72", "#c25a40", "#8a3a40", "#52283a") } }
-  -- talus slopes
-  local SD = rp("#fff0b8", "#f2c070", "#d08e52", "#9c5e3e")
-  L(c:poly{ { x - w * .72, by + 2 }, { x - w * .42, by - h * .24 }, { x + w * .42, by - h * .24 }, { x + w * .72, by + 2 } }, SD, x, { R = 20, tex = .35, sc = 3, rimlight = true, fn = function(xx, yy) return -(xx - x) / w * .5 end })
+  local prof = o.prof or { { -.50, 0 }, { -.47, -.16 }, { -.40, -.30 }, { -.37, -.36 }, { -.36, -.52 }, { -.29, -.60 }, { -.27, -.74 }, { -.22, -.80 }, { -.21, -1.0 }, { .21, -1.0 }, { .22, -.80 }, { .28, -.72 }, { .29, -.56 }, { .36, -.50 }, { .38, -.34 }, { .43, -.28 }, { .48, -.12 }, { .52, 0 } }
+  local pts = { { x - w * .52 - 4, by + 2 } }
+  for i, p in ipairs(prof) do pts[#pts + 1] = { x + p[1] * w + floor((GX.vn(i * 5, 1, 2, 3) - .5) * 3), by + p[2] * h } end
+  pts[#pts + 1] = { x + w * .52 + 4, by + 2 }
+  local m = c:poly(pts)
+  local bands = {
+    rp("#d89070", "#b05a44", "#7c3a42", "#4e2a3c"), rp("#ffc48a", "#e88a4c", "#b45a44", "#783c48"),
+    rp("#fff0b0", "#f0c070", "#c88a50", "#8c5a48"), rp("#ffa876", "#d8663f", "#9c3e44", "#5a2a40"), rp("#e89a72", "#c25a40", "#8a3a40", "#52283a") }
+  local g6 = {}
+  for i, b in ipairs(bands) do g6[i] = GX.ramp6(b) end
   SH(x + 14, by, w * .6)
-  local y = by - 2
-  for i, t in ipairs(tiers) do
-    local hw, th = w * t[1] / 2, h * t[2]
-    local last = (i == #tiers)
-    local lean = (i == #tiers) and 3 or 1
-    local m = c:poly{ { x - hw, y }, { x - hw + lean + (last and 0 or 1), y - th }, { x + hw - lean - (last and 0 or 1), y - th }, { x + hw, y } }
-    if last then m:add(R(mk(), x - hw - 3, y - th, x + hw + 3, y - th + 3)) end
-    local yb, y0 = y, y - th
-    L(m, t[3], 40 + i, { R = 14, tex = .3, sc = 3, nr = true, rimlight = true,
-      fn = function(xx, yy)
-        local fl = GX.vn(xx, yy * .2, 3, i + 3)
-        return -(xx - x) / w * .55 + ((fl < .3) and -.2 or 0) + ((((yb - yy) % 5) == 0 and H(xx // 4, yy, i) > .5) and -.14 or 0) end })
-    for xx = x - hw, x + hw do if m:has(xx, y0) then c:px(xx, y0, t[3].hi) end end
-    c:fillMask(R(mk(), x - hw + 1, yb - 1, x + hw - 1, yb - 1):clip(m), t[3].deep)
-    y = y - th
-  end
-  c:px(x - 20, y - 4, C.SANDST.hi)
+  L(m, function(xx, yy)
+    local t = (by - yy) / h
+    local i = (t < .2 and 1) or (t < .38 and 2) or (t < .54 and 3) or (t < .72 and 4) or (t < .8 and 3) or 5
+    if t > .8 then i = 5 end
+    return g6[i]
+  end, 61, { R = 24, tex = .25, sc = 3, nr = true, rimlight = true, amb = .3,
+    fn = function(xx, yy)
+      local fl = GX.vn(xx, yy * .18, 3, 6)
+      local edge = (abs((by - yy) / h - .2) < .012 or abs((by - yy) / h - .38) < .012 or abs((by - yy) / h - .54) < .012 or abs((by - yy) / h - .72) < .012 or abs((by - yy) / h - .8) < .012) and -.3 or 0
+      return -(xx - x) / w * .7 + ((fl < .3) and -.2 or 0) + edge + (((by - yy) % 6 == 0 and H(xx // 4, yy, 3) > .6) and -.12 or 0)
+    end })
+  -- talus
+  local SD = rp("#fff0b8", "#f2c070", "#d08e52", "#9c5e3e")
+  local tm = c:poly{ { x - w * .64, by + 2 }, { x - w * .44, by - h * .18 }, { x - w * .30, by - h * .32 }, { x - w * .12, by - h * .2 }, { x + w * .12, by - h * .16 }, { x + w * .3, by - h * .3 }, { x + w * .46, by - h * .17 }, { x + w * .66, by + 2 } }
+  tm:cut(m:copy():cut(R(mk(), x - w, by - h * .1, x + w, by + 4)))
+  L(tm, SD, 9, { R = 10, tex = .35, sc = 3, nr = true, rimlight = true, fn = function(xx, yy) return -(xx - x) / w * .4 end })
 end
 
 --------------------------------------------------------------------------- looks
@@ -885,7 +886,7 @@ look("coast", { sky = sky6("#4aa0e0", "#66b4e8", "#88c8ee", "#aedcf0", "#d2ecf0"
 look("desert", { sky = sky6("#58b4e0", "#80c8e4", "#a8dcdc", "#cce8c4", "#f4eab0", "#fdd890"), sun = { 400, 32, 14, "#fff8c0", "#fffbe0" },
   g = GR("#fff0b8", "#f4cc72", "#d49a54", "#9c6244"), gy = 80, rip = true, far = { { rp("#f0c47c", "#dca46c", "#bc8060", "#8c5c54"), 70, 6, 12 } },
   props = { { "arch", 92, 100, { w = 92, h = 60 } }, { "cactus", 190, 104, { h = 60, w = 6 } }, { "mesa2", 308, 98, { w = 108, h = 72 } }, { "animal", 410, 106, { R = rp("#f4d4a0", "#d8a870", "#a87c54", "#70503e"), rx = 11, ry = 6, leg = 14, lw = 3, nx = 7, ny = 14, nw = 3, hrx = 3, hry = 2, snout = 2, humps = { -4, 4 }, tail = 4 } },
-    { "mesa2", 454, 100, { w = 44, h = 38, tiers = { { .9, .34, rp("#d89070", "#b05a44", "#7c3a42", "#4e2a3c") }, { .64, .34, rp("#ffc48a", "#e88a4c", "#b45a44", "#783c48") }, { .74, .32, rp("#e89a72", "#c25a40", "#8a3a40", "#52283a") } } } },
+    { "mesa2", 456, 102, { w = 50, h = 44 } },
     { "rock", 30, 107, { rx = 12, ry = 6, R = C.SANDST } } } })
 look("forest", { sky = sky6("#7cc8a0", "#98d4a0", "#b4e0a0", "#d0ecA0", "#e4f2b0", "#f4f6c0"), sun = nil, g = GR("#a8d870", "#68a850", "#3e7c48", "#24503e"), gy = 84, far = { { rp("#4c9c64", "#3c845c", "#2c6a50", "#224c44"), 68, 8, 14 } }, flw = { "#ff7aa8", "#ffe38a", "#fff4d0" },
   props = { { "tree", 56, 106, { h = 76, R = C.GREEN, seed = 81, tw = 3 } }, { "pine", 150, 106, { h = 80, n = 4 } }, { "mushroom", 200, 106, { r = 12 } }, { "pine", 250, 106, { h = 70, n = 4 } },
