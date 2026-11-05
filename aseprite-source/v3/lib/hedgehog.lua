@@ -378,4 +378,157 @@ function HH.sprite(o)
   print(o.name .. " sprite ok")
 end
 
+---------------------------------------------------------------- FRONT VIEW (head-on), added 2026-11-05
+-- Symmetric front view for the hedgehog PORTRAITS (sprites stay 3/4 profile). k.hx must be a .5 centre (39.5)
+-- so left/right pixels mirror exactly. Callbacks get k.crown (top of the spine arch), k.torso, k.pawL / k.pawR,
+-- k.faceMask, k.spine; HH.pawFront(c, k, x, y) draws a front paw.
+local function fpoly(c, k, pts)
+  local q = {}
+  for i, p in ipairs(pts) do q[i] = { k.hx + 0.5 + p[1] * k.s, k.hy + p[2] * k.s } end
+  return c:poly(q)
+end
+function HH.faceMaskFront(c, k)
+  local cx, cy, s = k.hx, k.hy, k.s
+  local function E(x, y, rx, ry) return c:ellipse(cx + x * s, cy + y * s, rx * s, ry * s) end
+  local f = E(0, 1.5, 13, 10.5)
+  f:add(fpoly(c, k, { { -8, 5 }, { 8, 5 }, { 4.5, 13 }, { -4.5, 13 } }))
+  f:add(E(0, 13.6, 5, 3.2))
+  -- widow's peak: the spine crown dips into the brow
+  f:cut(fpoly(c, k, { { -6.5, -10.5 }, { 6.5, -10.5 }, { 0, -3.5 } }))
+  return f
+end
+
+-- spine crown as a jagged arch over the top and both sides of the face (+ optional extra shapes)
+function HH.headFront(c, k, extra)
+  local cx, cy, s = k.hx, k.hy, k.s
+  local face = HH.faceMaskFront(c, k)
+  k.faceMask = face
+  local shapes = { { cx, cy - 3 * s, 24 * s, 21 * s, 140, 400 } }
+  for _, e in ipairs(extra or {}) do shapes[#shapes + 1] = e end
+  local sp = HH.spines(c, { SP = k.SP, shapes = shapes, back = { 0, -1 }, sweep = 0.3, len = 6.5 * s, hw = 2.3 * s,
+    step = 10, gap = 3.2 * s, slen = 4, seed = k.o.seed or 1, root = 2 * s, cut = face, cx = cx, cy = cy + 2 * s })
+  k.spine = sp
+  k.crown = { x = rnd(cx), y = rnd(cy - 24 * s) }
+  return sp
+end
+
+function HH.faceFront(c, k, o)
+  o = o or {}
+  local cx, cy, s, FACE, SP = k.hx, k.hy, k.s, k.FACE, k.SP
+  local face = k.faceMask
+  local W = rnd(2 * cx) -- mirror: right pixel = W - left pixel
+  local function pair(lx, y, hex) c:put(lx, y, hex) c:put(W - lx, y, hex) end
+  local function Y(ly) return rnd(cy + ly * s) end
+  local function LX(dx) return floor(cx - dx * s) end
+  -- base shading: light from the upper left, shade band on the right + underside, brow shadow under the spines
+  face:each(function(x, y)
+    local u, v = (x - cx) / (13 * s), (y - cy - 1.5 * s) / (11 * s)
+    local l = -0.6 * u - 0.8 * v
+    local col = FACE.base
+    if not face:has(x + 2, y) and u > 0 then col = FACE.shade end
+    if u > 0.55 and v > -0.3 then col = FACE.shade end
+    if v > 0.25 and not face:has(x, y + 2) then col = FACE.shade end
+    if l > 0.5 and face:has(x - 1, y) and face:has(x, y - 1) and face:has(x, y - 2) then col = FACE.hi end
+    if not face:has(x, y - 1) then col = FACE.shade end
+    c:put(x, y, col)
+  end)
+  face:each(function(x, y) if not face:has(x, y + 1) then c:put(x, y, FACE.deep) end end)
+  -- muzzle: folds down both sides of the short snout, highlight down the bridge (lit side)
+  for _, q in ipairs{ { 7.0, 5 }, { 6.5, 6 }, { 6.0, 7 }, { 5.5, 8 }, { 5.0, 9 }, { 4.6, 10 } } do
+    local lx, y = LX(q[1]), Y(q[2])
+    c:put(lx, y, FACE.shade) c:put(W - lx, y, FACE.deep)
+  end
+  for ly = 3, 8 do c:put(LX(1.5), Y(ly), FACE.hi) end
+  c:put(LX(2.5), Y(4), FACE.hi)
+  -- right side of the snout a tone down
+  for ly = 5, 10 do for dx = 1, 3 do local x = W - LX(dx) if face:has(x, Y(ly)) and c:get(x, Y(ly)) == FACE.base:lower() then c:put(x, Y(ly), FACE.shade) end end end
+  -- blush
+  for _, d in ipairs{ 8, 9 } do pair(LX(d), Y(5), HH.BLUSH) end
+  pair(LX(9), Y(6), HH.BLUSH)
+  -- eyes: small dark beads, 2x3, glint upper-left
+  if k.p and k.p.blink then
+    for _, d in ipairs{ 5, 6, 7 } do pair(LX(d), Y(1), INK) end
+  else
+    for ly = -1, 1 do for _, d in ipairs{ 5.5, 6.5 } do pair(LX(d), Y(ly), INK) end end
+    c:put(LX(6.5), Y(-1), "#f6ead6") c:put(W - LX(6.5), Y(-1), "#f6ead6")
+    c:put(LX(5.5), Y(1), "#5a4458") c:put(W - LX(5.5), Y(1), "#5a4458")
+    -- soft dark patch under each eye
+    for _, d in ipairs{ 5.5, 6.5 } do pair(LX(d), Y(2), FACE.shade) end
+  end
+  -- nose: big wet dark bead at the centre of the snout tip
+  local nose = c:ellipse(cx, cy + 11.4 * s, 3.6 * s, 2.5 * s)
+  c:fillMask(nose, HH.NOSE.base)
+  nose:each(function(x, y) if not nose:has(x, y + 1) then c:put(x, y, HH.NOSE.sh) end end)
+  pair(LX(1.5), Y(12), HH.NOSE.sh)
+  c:put(LX(2.5), Y(10), HH.NOSE.hi) c:put(LX(1.5), Y(10), HH.NOSE.hi) c:put(LX(2.5), Y(11), "#6e5866")
+  -- mouth: small smile under the nose
+  local my = Y(15.2)
+  pair(LX(1.5), my, FACE.deep) pair(LX(0.5), my + 1, FACE.deep)
+  if o.mouthO then pair(LX(0.5), my + 1, "#6e3442") pair(LX(0.5), my + 2, FACE.deep) end
+  -- ears: small round, low on both sides, tucked under the spines
+  for side = -1, 1, 2 do
+    local ex, ey = cx + side * 12.8 * s, cy - 2.2 * s
+    local em = c:ellipse(ex, ey, 2.6 * s, 2.5 * s)
+    em:each(function(x, y) c:put(x, y, side < 0 and FACE.base or FACE.shade) end)
+    c:fillMask(c:ellipse(ex + side * 0.3 * s, ey + 0.4 * s, 1.1 * s, 1.1 * s), HH.EAR)
+    em:each(function(x, y) if not em:has(x, y + 1) or not em:has(x + side, y) and not face:has(x + side, y) then c:put(x, y, FACE.deep) end end)
+    em:grow(1):cut(em):each(function(x, y) if not face:has(x, y) then c:put(x, y, INK) end end)
+  end
+  -- fringe: short spines lying down over the brow, mirrored pairs
+  for _, f in ipairs{ { 5.3, -10.5, 4.6, -6.0 }, { 9.0, -9.5, 8.3, -5.2 }, { 1.8, -9.0, 1.2, -4.0 } } do
+    for side = -1, 1, 2 do
+      local rx, ry = cx + side * f[1] * s, cy + f[2] * s
+      local tx, ty = cx + side * f[3] * s, cy + f[4] * s
+      local vx, vy = nrm(tx - rx, ty - ry)
+      local px, py = -vy, vx
+      local hw = 1.3 * s
+      local m = c:poly{ { rx + px * hw, ry + py * hw }, { tx, ty }, { rx - px * hw, ry - py * hw } }
+      local dl = sqrt((tx - rx) ^ 2 + (ty - ry) ^ 2)
+      m:each(function(x, y)
+        local f2 = ((x + 0.5 - rx) * vx + (y + 0.5 - ry) * vy) / dl
+        local ti = f2 < 0.45 and 3 or (f2 < 0.8 and 4 or 5)
+        if side > 0 then ti = ti - 1 end
+        c:put(x, y, tone(SP, ti))
+      end)
+      m:each(function(x, y) if face:has(x, y + 1) and not m:has(x, y + 1) then c:put(x, y + 1, FACE.shade) end end)
+    end
+  end
+  return face
+end
+
+function HH.pawFront(c, k, x, y, rx, ry)
+  local m = c:ellipse(x, y, rx or 3.5, ry or 3)
+  c:part(m, k.FACE, { band = 1, nopop = true, inner = false })
+  HH.under(c, m, k.FACE.deep)
+  local by = select(4, m:bbox())
+  c:put(x - 1, by - 1, k.FACE.shade) c:put(x + 1, by - 1, k.FACE.shade)
+  return m
+end
+
+function HH.portraitFront(o)
+  local c = HP.canvas{ w = 80, h = 100, scale = 1, name = o.name }
+  local hy = o.hy or 46
+  local k = ctx(c, o, 39.5, hy, o.s or 1, 1, {})
+  k.frontView = true
+  if o.behind then o.behind(c, k) end
+  -- spines continue down behind both shoulders
+  local flank = { { 18, 86, 10, 18, 150, 215 }, { 61, 86, 10, 18, -35, 30 } }
+  HH.headFront(c, k, flank)
+  k.spine:clip(c:rect(0, 0, 79, 99))
+  k.torso = c:ellipse(39.5, 102, 25, 30):add(c:ellipse(39.5, hy + 22, 9, 7)):clip(c:rect(0, 0, 79, 99))
+  c:fillMask(k.torso, k.FACE.base)
+  k.pawL, k.pawR = { x = 29, y = 89 }, { x = 50, y = 89 }
+  if o.body then o.body(c, k) end
+  if o.spines then o.spines(c, k) end
+  HH.faceFront(c, k, o.faceOpts)
+  if o.hat then o.hat(c, k) end
+  if o.front then o.front(c, k) end
+  c:finish{ outline = true }
+  backdrop(c, o.BG or HP.P.sky)
+  HP.assertClean(c)
+  c:save{ aseprite = o.out .. o.name .. ".aseprite", png = o.out .. o.name .. ".png", scale = 1 }
+  print(o.name .. " portrait ok")
+  return c
+end
+
 return HH
