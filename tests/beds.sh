@@ -67,7 +67,7 @@ echo "== stacking: kitchens in several gardens"
 dbx "DELETE FROM garden_buildings WHERE building='kitchen'"
 dbx "INSERT INTO garden_buildings (plot_id,building,level,built_at,last_collect) VALUES ($PL,'kitchen',3,datetime('now'),datetime('now'))"
 page "garden.php?t=bld"; one=$(grep -oE 'All your kitchens together:.*\.' /tmp/b.html | sed 's/<[^>]*>//g' | head -1 | cut -c1-120); echo "  one III: $one"
-chk "one kitchen III: buff +50%" "$(echo "$one" | grep -c '+50% longer')" 1; chk "  pots 4" "$(echo "$one" | grep -c ' 4 pots')" 1
+chk "one kitchen III: buff +50%" "$(echo "$one" | grep -c '+50% longer')" 1; chk "  pots 5 (Kitchen III, default 3,4,5 since v2.4.67)" "$(echo "$one" | grep -c ' 5 pots')" 1
 php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $u=$argv[1]; $r=$p->query("SELECT * FROM plots WHERE id=".$argv[2])->fetch(PDO::FETCH_ASSOC); unset($r["id"]); $c=array_keys($r);
  for($i=0;$i<2;$i++){ $p->prepare("INSERT INTO plots (".implode(",",$c).") VALUES (".implode(",",array_fill(0,count($c),"?")).")")->execute(array_values($r)); }' $SID $PL
 P2=$(db "SELECT id FROM plots WHERE user_id=$SID ORDER BY id LIMIT 1 OFFSET 1"); P3=$(db "SELECT id FROM plots WHERE user_id=$SID ORDER BY id LIMIT 1 OFFSET 2")
@@ -75,20 +75,25 @@ dbx "INSERT INTO garden_buildings (plot_id,building,level,built_at,last_collect)
 page "garden.php?t=bld"; two=$(grep -oE 'All your kitchens together:.*\.' /tmp/b.html | sed 's/<[^>]*>//g' | head -1 | cut -c1-120); echo "  III + III + II: $two"
 chk "buff 50 + 5 x 10 = +100% (cap)" "$(echo "$two" | grep -c '+100% longer')" 1
 chk "  XP 50 + 5 x 5 = +75%" "$(echo "$two" | grep -c '+75% XP')" 1
-chk "  pots 4 + 1 (other III) = 5" "$(echo "$two" | grep -c ' 5 pots')" 1
+chk "  pots 5 + 1 (other III) = 6" "$(echo "$two" | grep -c ' 6 pots')" 1
 dbx "UPDATE garden_buildings SET level=2 WHERE plot_id=$P2 AND building='kitchen'"
 page "garden.php?t=bld"; three=$(grep -oE 'All your kitchens together:.*\.' /tmp/b.html | sed 's/<[^>]*>//g' | head -1 | cut -c1-120)
-chk "III + II + II: buff 50 + 4 x 10 = +90%" "$(echo "$three" | grep -c '+90% longer')" 1; chk "  pots stay 4" "$(echo "$three" | grep -c ' 4 pots')" 1
+chk "III + II + II: buff 50 + 4 x 10 = +90%" "$(echo "$three" | grep -c '+90% longer')" 1; chk "  pots stay 5" "$(echo "$three" | grep -c ' 5 pots')" 1
 dbx "UPDATE garden_buildings SET level=1 WHERE building='kitchen' AND plot_id<>$PL"; dbx "UPDATE garden_buildings SET level=2 WHERE building='kitchen' AND plot_id=$PL"
 page "garden.php?t=bld"; four=$(grep -oE 'All your kitchens together:.*\.' /tmp/b.html | sed 's/<[^>]*>//g' | head -1 | cut -c1-120)
 chk "II + I + I: buff 25 + 2 x 10 = +45%, no feasts" "$(echo "$four" | grep -c '+45% longer')$(echo "$four" | grep -c 'feasts')" 10
 echo "== v2.3.100: square panel (chips, Next line, closed soil fold, one fertility word)"
-dbx "UPDATE plot_tiles SET tilled=1, method='till', fertility=30 WHERE plot_id=$PL AND x=0 AND y=0"
+dbx "UPDATE plot_tiles SET tilled=1, method='till', fertility=30, feed_hours=0 WHERE plot_id=$PL AND x=0 AND y=0"
+page "garden.php?sel=0-0"
+chk "no chip row when nothing needs flagging (v2.4.x: the soil chip row is gone)" "$(grep -c 'class="sqchips"' /tmp/b.html)" 0
+dbx "UPDATE plot_tiles SET feed_hours=3 WHERE plot_id=$PL AND x=0 AND y=0"
 page "garden.php?sel=0-0"
 chk "status chips shown" "$(grep -c 'class="sqchips"' /tmp/b.html)" 1
 chk "soil fold is closed by default" "$(grep -c '<details class="soildet" open' /tmp/b.html)" 0
+dbx "UPDATE plot_tiles SET feed_hours=0 WHERE plot_id=$PL AND x=0 AND y=0"
+page "garden.php?sel=0-0"
 chk "tired soil gets one Next line" "$(grep -c 'class="sqnext"' /tmp/b.html)" 1
-chk "chip and soil table say the same word (tired)" "$(grep -c 'soil tired</span>' /tmp/b.html)$(grep -c 'tired <b>30</b>' /tmp/b.html)" 11
+chk "soil table says tired (the chip is gone; the Next line says it too)" "$(grep -c 'tired <b>30</b>' /tmp/b.html)$(grep -c 'the soil is tired' /tmp/b.html)" 11
 chk "yard tile titles use that word too" "$(grep -c 'soil tired' /tmp/b.html | awk '{print ($1>0)?"yes":"no"}')" yes
 chk "N-P-K is one row of three badges" "$(grep -o 'class="npkchip' /tmp/b.html | wc -l | tr -d ' ')" 3
 echo "== php errors"; if [ -s /tmp/beds-php.log ] && grep -qiE "warning|notice|fatal|deprecated" /tmp/beds-php.log; then grep -iE "warning|notice|fatal|deprecated" /tmp/beds-php.log | head; FAILS=$((FAILS+1)); else echo "(none)"; fi
