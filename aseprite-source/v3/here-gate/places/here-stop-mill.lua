@@ -93,6 +93,16 @@ local function lantern(x, ytop, ychain)
   hl(x - 6, x + 6, ychain + 18, P.wood.shade); hl(x - 6, x + 6, ychain + 17, P.wood.deep)
 end
 
+-- v2.5.40: while POL is on, polish painting is kept out of the compass corner (must stay identical to the original)
+local POLon = false
+do
+  local rawPut, rawFill, rawEdge = c.put, c.fillMask, c.edgeIn
+  local cornerM = c:rect(380, 230, 479, 269)
+  c.put = function(self, x, y, ...) if POLon and x >= 380 and y >= 230 then return end return rawPut(self, x, y, ...) end
+  c.fillMask = function(self, m, ...) if POLon then m = m:copy():cut(cornerM) end return rawFill(self, m, ...) end
+  c.edgeIn = function(self, m, ...) if POLon then m = m:copy():cut(cornerM) end return rawEdge(self, m, ...) end
+end
+
 ---------------------------------------------------------------- sky (late golden afternoon)
 c:stripes(0, 99, { "#7fb8e4", "#9fd0f0", "#c4e6f6", "#ffeccd", "#ffdca3", "#ffc98a" }, { 3, 3, 2, 2, 2, 1 })
 c:cloud(40, 44, 54, P.cream, "#f5c9b0")
@@ -129,6 +139,7 @@ for _, sx in ipairs({ 140, 170, 300, 322, 392, 450, 24 }) do
   local st = PL{ { sx - 3, 109 }, { sx, 102 }, { sx + 3, 109 } }; F(st, P.gold.base); c:edgeIn(st, P.gold.shade)
 end
 
+POLon = true
 ---------------------------------------------------------------- v2.5.40 polish pass 4a: atmospheric perspective + tree variety
 -- haze: far hills melt into warm mist near the field edge (dither bands, cooler/lighter with distance)
 for y = 86, 98 do for x = 0, W - 1 do
@@ -146,6 +157,7 @@ do
   F(cy, "#5a7a58"); shadeR(cy, "#466648", .45); c:edgeIn(cy, "#3c5a44"); vl(430, 82, 94, "#6f8f62")
 end
 
+POLon = false
 ---------------------------------------------------------------- ground
 for y = HOR, H - 1 do
   local col = (y < 124 and "#b8c46a") or (y < 150 and "#a8c060") or (y < 200 and "#97b65a") or "#8aad54"
@@ -191,6 +203,7 @@ for i = 0, 4 do
   F(R(fx, fy, fx + 1, fy + 2), "#c49d72"); c:put(fx, fy - 1, "#c49d72")
 end
 
+POLon = true
 ---------------------------------------------------------------- v2.5.40 polish pass 1: ground variety
 local STANDS = { { 194, 252 }, { 286, 252 }, { 240, 210 }, { 156, 192 }, { 346, 252 }, { 100, 258 } }
 local function freeP(x, y)
@@ -255,6 +268,7 @@ end
 glowDither(303, 143, 14, 4, "#e8d27a", .8); glowDither(369, 140, 12, 4, "#e8d27a", .8)
 glowDither(338, 224, 32, 13, "#d8cc72", .9); glowDither(338, 224, 20, 9, "#e8d078", .9)
 
+POLon = false
 ---------------------------------------------------------------- stream
 local function sTop(x) if x < 240 then return 146 + sin(x / 23) else return 146 + (x - 240) * .11 + sin(x / 23) end end
 local stream = HP.mask()
@@ -614,6 +628,7 @@ for k = -3, 3 do F(LN({ { 240, 34 }, { 240 + k * 2, 22 } }, 1), P.gold.shade) en
 for k = -3, 3 do local gx = 240 + k * 2; F(R(gx - 1, 18 + math.abs(k), gx + 1, 23 + math.abs(k)), P.gold.base); c:put(gx - 1, 18 + math.abs(k), P.gold.hi) end
 F(R(237, 28, 243, 30), P.ember.base); c:put(236, 31, P.ember.shade); c:put(244, 31, P.ember.shade)
 
+POLon = true
 ---------------------------------------------------------------- v2.5.40 polish pass 2: material cues
 local function dots(list, col) for _, p in ipairs(list) do c:put(p[1], p[2], col) end end
 local function patch(x0, y0, x1, y1, cols, seed, p, mk) -- irregular clump of colours inside a box (optionally clipped to mask mk)
@@ -778,6 +793,7 @@ do
   hl(293, 298, 170, "#9db46c")
 end
 
+POLon = false
 ---------------------------------------------------------------- save + layout
 c:finish{ outline = false }
 HP.assertClean(c)

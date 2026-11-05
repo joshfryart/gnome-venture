@@ -561,6 +561,71 @@ do
   P(437, 54, R.red.b); P(443, 54, R.red.b); P(438, 55, R.red.b); P(442, 55, R.red.b)
 end
 
+-------------------------------------------------------------------- v2.5.40 polish helpers
+-- zone guard: nothing is painted within 15 px of a stand point or in the compass corner
+local STANDZ = { { 70, 152 }, { 246, 152 }, { 158, 228 }, { 262, 210 }, { 214, 252 }, { 280, 254 } }
+local function okz(x, y)
+  if x >= 378 and y >= 228 then return false end
+  for _, s in ipairs(STANDZ) do if abs(x - s[1]) <= 15 and abs(y - s[2]) <= 15 then return false end end
+  return true
+end
+local function PG(x, y, h) if x >= 0 and x < W and y >= 0 and y < H and okz(x, y) then c:put(x, y, h) end end
+local GRASSC = { ["#94b46e"] = 1, ["#86ad60"] = 1, ["#7aa656"] = 1, ["#5f8c48"] = 1, ["#a8c872"] = 1, ["#55803e"] = 1, ["#9cc46a"] = 1, ["#c8e090"] = 1, ["#c2c27a"] = 1 }
+local PATHC = { ["#c9a072"] = 1, ["#a9805a"] = 1, ["#e2c08e"] = 1, ["#b08860"] = 1, ["#c49a6c"] = 1, ["#9a7452"] = 1 }
+local function onGrass(x, y) local g = c:get(x, y) return g and GRASSC[g:lower()] end
+local function PGg(x, y, h) if onGrass(x, y) then PG(x, y, h) end end
+
+-------------------------------------------------------------------- v2.5.40 polish pass 1: ground variety
+do
+  -- large dithered tone patches (sunlit and shaded meadow) so no big flat area remains
+  local patches = {
+    { 20, 160, 60, 18, 1 }, { 40, 262, 40, 8, 0 }, { 150, 240, 30, 14, 0 }, { 236, 228, 26, 10, 1 },
+    { 396, 224, 60, 14, 1 }, { 440, 205, 30, 8, 0 }, { 300, 140, 40, 8, 1 }, { 120, 160, 40, 10, 0 },
+    { 390, 150, 20, 10, 1 }, { 260, 130, 20, 6, 0 }, { 350, 262, 40, 8, 0 }, { 90, 150, 30, 8, 1 },
+  }
+  for _, p in ipairs(patches) do
+    local cx, cy, rx, ry, light = p[1], p[2], p[3], p[4], p[5]
+    for y = cy - ry, cy + ry do for x = cx - rx, cx + rx do
+      local d = ((x - cx) / rx) ^ 2 + ((y - cy) / ry) ^ 2
+      if d < 1 then
+        local thr = (1 - d) * 0.9
+        if hash(x, y, 201) < thr and ((x + y) % 2 == 0) then PGg(x, y, light == 1 and "#96bd68" or "#6f9c50") end
+      end
+    end end
+  end
+  -- worn dirt pixels where the trail meets the road, and scuffs along the road edges
+  for x = 290, 312 do for y = 192, 214 do
+    if hash(x, y, 202) < 0.16 and onGrass(x, y) then PG(x, y, hash(x, y, 203) < 0.5 and "#c49a6c" or "#b08860") end
+  end end
+  for y = HZ + 8, H - 2, 2 do
+    local xl, xr = floor(pxl(y)), floor(pxr(y))
+    for k = 1, 3 do
+      if hash(y, k, 204) < 0.5 then PGg(xl - k - floor(hash(y, k, 205) * 3), y, "#b69a68") end
+      if hash(y, k, 206) < 0.5 then PGg(xr + k + floor(hash(y, k, 207) * 3), y, "#b69a68") end
+    end
+  end
+  -- wildflowers in small clusters (yellow, pink, white, blue)
+  local fl = { "#f6e08a", "#f07aa0", "#fff4d6", "#9ab4f0" }
+  for i = 1, 70 do
+    local x = floor(hash(i, 1, 210) * 470) + 5
+    local y = floor(hash(i, 2, 210) * 150) + 118
+    if onGrass(x, y) then
+      local col = fl[(i % 4) + 1]
+      PG(x, y, col); PG(x + 1, y, col)
+      if i % 3 == 0 then PG(x, y + 1, "#3f7a44") end
+    end
+  end
+  -- pebbles and fallen leaves
+  for i = 1, 40 do
+    local x = floor(hash(i, 3, 211) * 470) + 5
+    local y = floor(hash(i, 4, 211) * 140) + 125
+    if onGrass(x, y) and onGrass(x + 1, y) then
+      if i % 2 == 0 then PG(x, y, "#a7a6ba"); PG(x + 1, y, "#7d7c98"); PG(x, y + 1, "#5f5a74")
+      else PG(x, y, "#d49a4a"); PG(x + 1, y, "#a8703a") end
+    end
+  end
+end
+
 c:finish{ outline = false }
 HP.assertClean(c)
 c:save{ aseprite = out .. "here-village.aseprite", png = out .. "here-village.png", scale = 1 }

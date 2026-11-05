@@ -488,6 +488,10 @@ for i = 1, 70 do
   end
 end
 
+-- compass corner guard: snapshot now, restore after the polish blocks so the corner stays identical
+local CSNAP = {}
+for y = 230, 269 do for x = 380, 479 do CSNAP[#CSNAP + 1] = { x, y, c:get(x, y) } end end
+for _, sp in ipairs(STAND) do for y = sp[2] - 15, sp[2] + 15 do for x = sp[1] - 15, sp[1] + 15 do CSNAP[#CSNAP + 1] = { x, y, c:get(x, y) } end end end
 -- v2.5.40 polish pass 1: ground variety (tone drifts, worn path, flowers, pebbles, fallen petals)
 local GROUND = {}
 for _, col in ipairs({ "#a6cf86", "#98c978", "#a4d277", R.grass.base, R.grass.hi, R.grass.shade }) do GROUND[col] = true end
@@ -851,6 +855,8 @@ for i = 1, 14 do
   local x = 150 + floor(H(i, 1, 561) * 120); local y = 30 + floor(H(i, 2, 561) * 90)
   local g = c:get(x, y); if g and not nearStand(x, y, 10) then c:put(x, y, (i % 2 == 0) and P.petal.hi or P.cream) end
 end
+
+for _, q in ipairs(CSNAP) do c:put(q[1], q[2], q[3]) end
 
 ------------------------------------------------------------------ GATE FRAME: weathered timber posts + beam, straw rope, lantern, bell
 local lpost = c:rect(0, 0, 15, Hh - 1)

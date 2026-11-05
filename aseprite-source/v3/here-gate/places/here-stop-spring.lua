@@ -24,6 +24,30 @@ local function hsh(x, y, s)
 end
 local DEEPV, VIO, WARM = "#2a1f3a", "#3b2f5e", "#fff2c8"
 local function ramp(b) return { mix(b, DEEPV, .55), mix(b, VIO, .3), b, mix(b, WARM, .28), mix(b, WARM, .55) } end
+-- v2.5.40 polish guard: while GUARD is on, nothing is painted within 15 px of a stand point or in the compass corner
+local GUARD = false
+local ZST = { {240,166},{190,196},{296,198},{222,244},{110,250},{340,250} }
+local function inZone(x, y)
+  if x >= 380 and y >= 230 then return true end
+  for _, s in ipairs(ZST) do if abs(x - s[1]) <= 15 and abs(y - s[2]) <= 15 then return true end end
+  return false
+end
+local _put, _fillMask, _edgeIn = c.put, c.fillMask, c.edgeIn
+c.put = function(self, x, y, col, tok)
+  if GUARD and inZone(x, y) then return end
+  return _put(self, x, y, col, tok)
+end
+c.fillMask = function(self, m, col, tok)
+  if not GUARD then return _fillMask(self, m, col, tok) end
+  m:each(function(x, y) if not inZone(x, y) then _put(self, x, y, col, tok) end end)
+end
+c.edgeIn = function(self, m, col, ...)
+  if not GUARD then return _edgeIn(self, m, col, ...) end
+  m:each(function(x, y)
+    if (not m:has(x - 1, y) or not m:has(x + 1, y) or not m:has(x, y - 1) or not m:has(x, y + 1)) and not inZone(x, y) then _put(self, x, y, col) end
+  end)
+end
+
 local R = function(...) return c:rect(...) end
 local Pm = function(p) return c:poly(p) end
 local function fill(m, col) c:fillMask(m, col) end
@@ -175,6 +199,7 @@ for i = 0, 140 do
   end
 end
 
+GUARD = true
 -- v2.5.40 polish pass 1: ground variety (tone patches, worn paths, flowers, pebbles, leaves)
 local STAND = { {240,166},{190,196},{296,198},{222,244},{110,250},{340,250} }
 local function nearStand(x, y, r)
@@ -246,6 +271,7 @@ for i = 0, 90 do
   end
 end
 
+GUARD = false
 ---------------------------------------------------------------- dirt track to the wild arch
 local track = Pm{ {250,150},{300,153},{350,153},{398,149},{446,146},{446,157},{398,159},{350,163},{300,163},{250,159} }
 solid(track, ramp("#bc9c72"), function(x, y) local v = hsh(x, y, 61) return v < .1 and -1 or (v > .93 and 1 or 0) end, { edge = false, side = 2, bot = 2 })
@@ -638,6 +664,7 @@ solid(ch, ramp("#b0804e"), nil)
 fill(Pm{ {240,22},{244,27},{243,30},{237,30},{236,27} }, "#4fb4bc")
 c:put(238, 27, "#d4f2f4")
 
+GUARD = true
 -- v2.5.40 polish pass 3: lived-in story props (outside spot boxes, clear of stand points)
 do
   local function ring(cx, cy, rx, ry, col, m)
@@ -898,6 +925,7 @@ do
   end end
 end
 
+GUARD = false
 c:finish{ outline = false }
 HP.assertClean(c)
 c:save{ aseprite = OUT .. NAME .. ".aseprite", png = OUT .. NAME .. ".png", scale = 1 }

@@ -534,6 +534,67 @@ for _, hx in ipairs({ 150, 330 }) do
   for k = 0, 7 do put(hx - 3 + (k % 3) * 3, 20 + floor_(k / 2), k % 2 == 0 and "#6a9a52" or "#4f7a44"); put(hx - 2 + (k % 3) * 2, 21 + floor_(k / 2), "#8a6aa8") end
 end
 
+------------------------------------------------------------------ v2.5.40 polish pass 1: ground variety, worn path, flowers, pebbles
+local GROUND = { ["#3f4b3c"]=1, ["#4a573e"]=1, ["#55633f"]=1, ["#5e6c41"]=1, ["#667444"]=1, ["#7c7a44"]=1, ["#717443"]=1,
+  ["#7f8d50"]=1, ["#3d4834"]=1, ["#82904f"]=1, ["#6a7a46"]=1 }
+local STANDS = { { 200, 252 }, { 292, 252 }, { 352, 242 }, { 250, 205 }, { 250, 152 }, { 198, 188 } }
+local function guarded(x, y)
+  for _, s in ipairs(STANDS) do if abs(x - s[1]) <= 17 and abs(y - s[2]) <= 17 then return true end end
+  return x >= 376 and y >= 226
+end
+-- paint only onto bare ground pixels, never in the protected zones
+local function gp(x, y, col)
+  if x < 12 or x > 467 or y < 113 or y >= H or guarded(x, y) then return false end
+  local cur = c:get(x, y)
+  if cur and GROUND[string.lower(cur)] then put(x, y, col) return true end
+  return false
+end
+-- dithered mottling: darker lush patches and sunlit warm patches
+local patches = { { 60, 250, 40, 14, "d" }, { 30, 160, 22, 10, "l" }, { 290, 140, 40, 9, "l" }, { 440, 150, 26, 12, "d" },
+  { 190, 150, 12, 14, "d" }, { 300, 225, 30, 14, "l" }, { 90, 125, 34, 6, "d" }, { 420, 215, 30, 8, "l" }, { 440, 120, 20, 5, "d" },
+  { 120, 262, 50, 7, "d" }, { 330, 262, 40, 8, "d" }, { 215, 128, 16, 6, "l" } }
+for _, p in ipairs(patches) do
+  for y = p[2] - p[4], p[2] + p[4] do for x = p[1] - p[3], p[1] + p[3] do
+    local d = ((x - p[1]) / p[3]) ^ 2 + ((y - p[2]) / p[4]) ^ 2
+    if d < 1 then
+      local ch = (x + y) % 2 == 0 and (h(x, y, 50) > d * 0.9) or (h(x, y, 51) > 0.8 + d * 0.2 and d < 0.5)
+      if ch then gp(x, y, p[5] == "d" and "#4a573e" or "#7c8a4c") end
+    end
+  end end
+end
+-- worn dirt pixels where feet leave the road toward hearth, cart and trail
+local function wear(x0, y0, x1, y1, n)
+  for i = 0, n do
+    local t = i / n
+    local x = floor_(x0 + (x1 - x0) * t + (h(i, 1, 52) - 0.5) * 7)
+    local y = floor_(y0 + (y1 - y0) * t + (h(i, 2, 52) - 0.5) * 3)
+    gp(x, y, "#8f7a52"); if h(i, 3, 52) > 0.5 then gp(x + 1, y, "#a08a5e") end
+    if h(i, 4, 52) > 0.6 then gp(x, y + 1, "#6e5c40") end
+  end
+end
+wear(168, 232, 126, 224, 34); wear(334, 214, 372, 208, 18); wear(268, 124, 330, 122, 26); wear(262, 130, 296, 142, 14)
+-- pebbles
+for i = 1, 60 do
+  local x, y = floor_(h(i, 5, 53) * 450) + 12, floor_(h(i, 6, 53) * 150) + 118
+  if gp(x, y, "#9a9a9c") then gp(x + 1, y, "#bdb7b0"); gp(x, y + 1, "#6a6670") end
+end
+-- flowers: three kinds (daisy, poppy, bluebell) in clumps, plus clover and leaf litter
+local function daisy(x, y) gp(x, y, "#fff4dc"); gp(x - 1, y, "#fff4dc"); gp(x + 1, y, "#fff4dc"); gp(x, y - 1, "#fff4dc"); gp(x, y + 1, "#fff4dc"); put(x, y, "#f4c24a") end
+local function poppy(x, y) gp(x, y, "#d9482b"); gp(x + 1, y, "#e8644a"); gp(x, y + 1, "#4f7a44") end
+local function bell(x, y) gp(x, y, "#8a7ac8"); gp(x, y - 1, "#a898e0"); gp(x, y + 1, "#4f7a44"); gp(x + 1, y + 1, "#6a9a52") end
+local clumps = { { 60, 262, 1 }, { 28, 200, 2 }, { 200, 130, 3 }, { 320, 135, 1 }, { 455, 135, 2 }, { 130, 244, 3 }, { 240, 262, 1 }, { 440, 205, 3 }, { 188, 164, 2 }, { 300, 245, 3 }, { 16, 252, 2 }, { 280, 200, 1 } }
+for _, cl in ipairs(clumps) do
+  for k = 1, 5 do
+    local x, y = cl[1] + floor_((h(k, cl[1], 54) - 0.5) * 18), cl[2] + floor_((h(k, cl[2], 54) - 0.5) * 8)
+    if cl[3] == 1 then daisy(x, y) elseif cl[3] == 2 then poppy(x, y) else bell(x, y) end
+  end
+end
+for i = 1, 30 do
+  local x, y = floor_(h(i, 7, 55) * 450) + 12, floor_(h(i, 8, 55) * 150) + 118
+  local col = i % 3 == 0 and "#b8742a" or (i % 3 == 1 and "#d09a3a" or "#8a5a2a")
+  gp(x, y, col); gp(x + 1, y + 1, col)
+end
+
 c:finish{ outline = false }
 HP.assertClean(c)
 c:save{ aseprite = OUT .. "here-haven.aseprite", png = OUT .. "here-haven.png", scale = 1 }

@@ -428,6 +428,15 @@ for y = 12, 26 do P(428, y, IRON[1]) end
 local gc = gear(428, 36, 10, 7, 8, 0.15) fill(gc, BRASS, { band = 2, rim = INK })
 c:fillMask(rect(426, 34, 430, 38), BRASS[1]) c:fillMask(rect(427, 35, 429, 37), "#8a6a9a")
 
+-- zone guard: remember the ground inside the stand squares and the compass corner so polish never changes it
+local ZONE = {}
+local function inZone(x, y)
+  if x >= 380 and y >= 230 then return true end
+  for _, s in ipairs{ { 200, 250 }, { 282, 250 }, { 240, 214 }, { 210, 172 }, { 268, 176 }, { 240, 140 } } do if abs(x - s[1]) <= 15 and abs(y - s[2]) <= 15 then return true end end
+  return false
+end
+for y = 0, H - 1 do for x = 0, W - 1 do if inZone(x, y) then ZONE[#ZONE + 1] = { x, y, c:get(x, y) } end end end
+
 ------------------------------------------------------------------ v2.5.40 polish pass 1: ground variety
 local STANDS = { { 200, 250 }, { 282, 250 }, { 240, 214 }, { 210, 172 }, { 268, 176 }, { 240, 140 } }
 local function nearStand(x, y, r) for _, s in ipairs(STANDS) do if abs(x - s[1]) < r and abs(y - s[2]) < r then return true end end return false end
@@ -619,13 +628,13 @@ local pl2 = rect(440, 200, 460, 205) fill(pl2, { "#6a4a30", "#a07848", "#d0a468"
 c:fillMask(c:rect(433, 203, 436, 205), IRON[3]) P(444, 204, IRON[4]) P(445, 204, IRON[4]) P(446, 204, IRON[1])
 for _, p in ipairs{ { 420, 229 }, { 432, 227 }, { 446, 228 }, { 456, 227 } } do shav(p[1], p[2]) end
 -- half-built wheel on a plank stack (north of road, right)
-shadow(c:ellipse(262, 154, 12, 2):shift(3, 0))
-for i = 0, 2 do local pk = rect(252, 148 + i * 2, 268 - (i % 2) * 2, 149 + i * 2) fill(pk, CRATE, { band = 1 }) end
-local rimm = c:ellipse(260, 138, 9, 9) c:rim(rimm, INK) c:rim(c:ellipse(260, 138, 7, 7), INK)
-for a = 0, 11 do local an = a * math.pi / 6 local ra = (an > 0.4 and an < 2.4) and 0 or 1 if ra == 1 then P(R(260 + 8 * cos(an)), R(138 + 8 * sin(an)), CRATE[3]) P(R(260 + 8 * cos(an)) + 1, R(138 + 8 * sin(an)), CRATE[2]) end end
-for a = 0, 3 do local an = a * math.pi / 2 + 0.5 c:fillMask(c:line({ { 260, 138 }, { R(260 + 7 * cos(an)), R(138 + 7 * sin(an)) } }, 1), CRATE[2]) end
-for a = 0, 11 do local an = a * math.pi / 6 if an > 0.4 and an < 2.4 then P(R(260 + 8 * cos(an)), R(138 + 8 * sin(an)), CRATE[1]) end end
-P(260, 138, IRON[3]) P(261, 138, IRON[3])
+shadow(c:ellipse(268, 154, 12, 2):shift(3, 0))
+for i = 0, 2 do local pk = rect(258, 148 + i * 2, 274 - (i % 2) * 2, 149 + i * 2) fill(pk, CRATE, { band = 1 }) end
+local rimm = c:ellipse(266, 138, 9, 9) c:rim(rimm, INK) c:rim(c:ellipse(266, 138, 7, 7), INK)
+for a = 0, 11 do local an = a * math.pi / 6 local ra = (an > 0.4 and an < 2.4) and 0 or 1 if ra == 1 then P(R(266 + 8 * cos(an)), R(138 + 8 * sin(an)), CRATE[3]) P(R(266 + 8 * cos(an)) + 1, R(138 + 8 * sin(an)), CRATE[2]) end end
+for a = 0, 3 do local an = a * math.pi / 2 + 0.5 c:fillMask(c:line({ { 266, 138 }, { R(266 + 7 * cos(an)), R(138 + 7 * sin(an)) } }, 1), CRATE[2]) end
+for a = 0, 11 do local an = a * math.pi / 6 if an > 0.4 and an < 2.4 then P(R(266 + 8 * cos(an)), R(138 + 8 * sin(an)), CRATE[1]) end end
+P(266, 138, IRON[3]) P(261, 138, IRON[3])
 -- shavings and sawdust around the workshop, spilled nails, hoop offcut
 for _, p in ipairs{ { 126, 238 }, { 130, 244 }, { 138, 240 }, { 142, 248 }, { 152, 244 }, { 124, 250 }, { 160, 238 }, { 118, 255 }, { 150, 252 }, { 168, 244 }, { 70, 256 }, { 40, 258 }, { 28, 252 } } do shav(p[1], p[2]) end
 for i = 0, 18 do P(124 + (i * 7) % 40, 250 + (i * 3) % 7, "#d4a870") end
@@ -718,6 +727,9 @@ end
 -- distant fence-post line and haystack silhouette near the far road (depth cue, pale and cool)
 for x = 150, 200, 10 do for y = 104, 110 do P(x, y, "#8c9ab0") end P(x + 1, 104, "#b0bcd0") end
 for x = 150, 200 do P(x, 107, "#8c9ab0") end
+
+-- restore guarded zones (stand ground flat and empty, compass corner free)
+for _, z in ipairs(ZONE) do if z[3] then c:put(z[1], z[2], z[3]) end end
 
 ------------------------------------------------------------------ FINISH + LAYOUT
 c:finish{ outline = false }

@@ -13,7 +13,14 @@ local function hash(x, y, s)
   n = n ~ (n >> 16)
   return (n % 10007) / 10007
 end
-local function px(x, y, col) c:put(x, y, col) end
+local POL = false -- true while a polish block paints: nothing may change the stand-point / compass zones
+local ZST = { {240,250},{198,210},{282,208},{240,162},{100,256},{345,254} }
+local function inZone(x, y)
+  if x >= 378 and y >= 228 then return true end
+  for _, s in ipairs(ZST) do local dx, dy = x - s[1], y - s[2] if dx >= -16 and dx <= 16 and dy >= -16 and dy <= 16 then return true end end
+  return false
+end
+local function px(x, y, col) if POL and inZone(x, y) then return end c:put(x, y, col) end
 local function R(d, s, b, h) return { d = d, s = s, b = b, h = h } end
 local rect, poly = function(...) return c:rect(...) end, function(t) return c:poly(t) end
 
@@ -159,6 +166,7 @@ for i = 0, 40 do
   end
 end
 
+POL = true
 -- v2.5.40 polish pass 4a: atmospheric haze on the far hills and pines (lighter, cooler with distance)
 do
   local FARC = { ["#4a3f6e"]=true, ["#3c4a66"]=true, ["#35505a"]=true, ["#203640"]=true, ["#284048"]=true, ["#2e4a50"]=true, ["#38585a"]=true }
@@ -172,6 +180,7 @@ do
   end end
 end
 
+POL = false
 ---------------------------------------------------------------- ground
 local function pathL(y) return 232 - 72 * (y - HOR) / 157 end
 local function pathR(y) return 248 + 72 * (y - HOR) / 157 end
@@ -241,6 +250,7 @@ local function shadow(m)
   m:each(function(x, y) if y > HOR then px(x, y, pathM:has(x, y) and "#6c5664" or "#3c4a44") end end)
 end
 
+POL = true
 -- v2.5.40 polish pass 1: ground variety (grass bands, worn dirt, flowers, leaves, pebbles)
 local STANDS = { {240,250},{198,210},{282,208},{240,162},{100,256},{345,254} }
 local function free(x, y, r)
@@ -310,6 +320,7 @@ for y = HOR + 6, Hh - 2 do for x = 100, 400 do
   end
 end end
 
+POL = false
 ---------------------------------------------------------------- back pines behind the homes
 for _, t in ipairs({ {270,58,30}, {300,48,40}, {336,56,32}, {372,46,42}, {404,60,28} }) do
   local x, top, hw = t[1], t[2], t[3] // 2
@@ -576,6 +587,7 @@ px(439, 170, "#1e4420") px(440, 170, "#1e4420") px(441, 170, "#1e4420")
 for y = 146, 150 do px(424, y, "#3a2a30") end
 paint(rect(421, 151, 427, 159), Riron, function(x, y) if x > 421 and x < 427 and y > 152 and y < 158 then return GLOW[2] end end, { noshade = true })
 
+POL = true
 -- v2.5.40 polish pass 2: material cues (cracks, chips, moss, grain, rust, rope, cloth folds)
 local function dots(col, t) for _, p in ipairs(t) do px(p[1], p[2], col) end end
 local function seg(col, pts) for i = 1, #pts - 1 do
@@ -805,6 +817,7 @@ for _, fx in ipairs({ 40, 46, 316 }) do
   end
 end
 
+POL = false
 ---------------------------------------------------------------- the gate frame (inn timber + lanterns)
 local fr = HP.mask():add(rect(0, 0, W - 1, 13)):add(rect(0, 0, 15, Hh - 1)):add(rect(W - 16, 0, W - 1, Hh - 1))
 paint(rect(0, 0, 15, Hh - 1), Rframe, planksV(5, 101, 0), { sh = 3 })

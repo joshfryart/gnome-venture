@@ -5,7 +5,7 @@ local OUT = (app.params and app.params.out) or (SRC .. "here-gate/places/")
 local NAME = "here-stop-orchard"
 local W, Hh, VX, VY = 480, 270, 240, 112
 local c = HP.canvas{ w = W, h = Hh, scale = 1, name = NAME }
-local floor, max, min, abs, sin = math.floor, math.max, math.min, math.abs, math.sin
+local floor, max, min, abs, sin, sqrt = math.floor, math.max, math.min, math.abs, math.sin, math.sqrt
 
 local function H(x, y, s) local n = sin(x * 12.9898 + y * 78.233 + (s or 1) * 37.719) * 43758.5453 return n - floor(n) end
 local function put(x, y, hex) if x >= 0 and y >= 0 and x < W and y < Hh then c:put(x, y, hex) end end
@@ -180,7 +180,7 @@ PL.STAND = {{190, 244}, {278, 250}, {240, 212}, {214, 178}, {262, 150}, {338, 25
 function PL.free(x, y)
   if x < 14 or x >= W - 14 or y <= VY + 1 or y >= Hh then return false end
   if x >= 380 and y >= 230 then return false end
-  for _, s in ipairs(PL.STAND) do if abs(x - s[1]) <= 15 and abs(y - s[2]) <= 15 then return false end end
+  for _, s in ipairs(PL.STAND) do if abs(x - s[1]) <= 17 and abs(y - s[2]) <= 17 then return false end end
   return true
 end
 function PL.grass(x, y) return PL.free(x, y) and gtype[y * W + x] == "grass" end
@@ -270,6 +270,56 @@ for i = 1, 60 do
   if (PL.grass(x, y) or PL.path(x, y)) and PL.free(x + 1, y + 1) then
     local o = H(i, 3, 72) > 0.5
     put(x, y, o and "#e8923a" or "#d4b040") put(x + 1, y, o and "#b4503a" or "#a07828")
+  end
+end
+
+function PL.cast(pts) -- cast shadow (always falls lower-right), only on bare ground
+  poly(pts):each(function(x, y)
+    if x >= 0 and y >= 0 and x < W and y < Hh and gtype[y * W + x] and PL.free(x, y) then
+      local h = c:get(x, y)
+      if h then
+        local r, g, b = tonumber(h:sub(2, 3), 16), tonumber(h:sub(4, 5), 16), tonumber(h:sub(6, 7), 16)
+        put(x, y, string.format("#%02x%02x%02x", floor(r * 0.72), floor(g * 0.78), floor(b * 0.9)))
+      end
+    end
+  end)
+end
+-- v2.5.40 polish pass 4a: flora variety (poplar, pear tree, lavender, hollyhocks) drawn behind the buildings
+do
+  -- slim poplar beside the cottages, dappled yellow-green
+  local POP = {"#1e4636", "#3e6a3a", "#5e8a42", "#82aa4e", "#aacb66"}
+  obj(rect(160, 118, 162, 127), R.wood, { tex = planksV(2, 3) })
+  obj(ell(161, 104, 5, 17):add(ell(160, 112, 6, 9)), POP, { tex = clumpT(81), lx = 0.5, ly = 0.15 })
+  for i = 1, 14 do put(158 + floor(H(i, 1, 82) * 7), 92 + floor(H(i, 2, 82) * 28), POP[5]) end
+  -- pear tree beside the road, round and bluer-green, pears hanging
+  local PEAR = {"#1c4036", "#2c6a48", "#4a8a50", "#74aa5a", "#a4cc72"}
+  PL.cast({{258, 126}, {276, 126}, {282, 129}, {262, 129}})
+  obj(rect(264, 114, 266, 125), R.wood, { tex = planksV(2, 5) })
+  obj(ell(265, 106, 9, 8):add(ell(259, 110, 5, 5)):add(ell(272, 110, 5, 5)), PEAR, { tex = clumpT(83), lx = 0.5 })
+  for _, q in ipairs({{260, 108}, {267, 112}, {271, 106}, {263, 103}}) do
+    obj(rect(q[1], q[2], q[1] + 1, q[2] + 2), R.gold, { noise = 0, rimc = R.gold[1] }) put(q[1], q[2], R.gold[5])
+  end
+  -- lavender tufts along both path edges
+  for y = VY + 10, Hh - 14, 11 do
+    local l, r = pathEdge(y)
+    for _, sx in ipairs({floor(l) - 7 - (y % 4), floor(r) + 8 + (y % 5)}) do
+      if PL.grass(sx, y) and PL.grass(sx + 3, y + 3) then
+        for k = -2, 2, 2 do
+          put(sx + k, y + 3, "#3e7a52") put(sx + k, y + 2, "#58985e")
+          for dy = 0, 1 + (k == 0 and 1 or 0) do put(sx + k, y - dy, (dy == 0) and "#d6b0e4" or "#9a6cb8") end
+          put(sx + k, y + 1 - 1 + 0, "#b48ed0")
+        end
+      end
+    end
+  end
+  -- hollyhock stalks against the cottage wall and between the houses
+  for _, hx in ipairs({26, 96}) do
+    for y = 104, 137 do put(hx, y, (y % 6 < 3) and "#3e7a52" or "#2e5a44") end
+    for y = 106, 130, 6 do
+      local col = ((y // 6 + hx) % 2 == 0) and R.blossom or R.apple
+      put(hx - 1, y, col[4]) put(hx + 1, y, col[4]) put(hx, y - 1, col[5]) put(hx, y, col[3]) put(hx - 1, y + 1, col[2]) put(hx + 1, y + 1, col[3])
+      put(hx + 2, y + 3, "#58985e") put(hx - 2, y + 4, "#42803e")
+    end
   end
 end
 
@@ -626,7 +676,7 @@ do
   for _, y in ipairs({148, 152}) do put(360, y, R.cream[4]) put(362, y, R.cream[4]) put(361, y + 1, R.cream[4]) end
   -- tree: bark crevices, lichen north-west, moss in the roots
   for _, x in ipairs({53, 57, 61}) do for y = 204, 242 do if trunk:has(x, y) and H(x, y // 6, 12) > 0.55 then put(x, y, R.wood[1]) put(x + 1, y, R.wood[2]) end end end
-  PL.blob(trunk, 52, 212, 3, 5, PL.LICH, 17) PL.blob(trunk, 47, 248, 5, 5, PL.MOSS, 18) PL.blob(trunk, 62, 228, 2, 3, PL.LICH, 19)
+  PL.blob(trunk, 53, 214, 2, 3, {"#8aa890", "#6e9478", "#a8c4a0"}, 17) PL.blob(trunk, 47, 248, 5, 5, PL.MOSS, 18)
   -- ladder twine repair, crate nails and a split slat
   for _, x0 in ipairs({91, 103}) do for k = 0, 2 do for x = x0, x0 + 2 do put(x, 224 + k, (k % 2 == 0) and "#dcc090" or "#8e6c44") end end end
   for _, cr in ipairs({{104, 238, 127, 258}, {129, 238, 150, 258}, {114, 214, 140, 236}}) do
@@ -650,6 +700,66 @@ do
   for y = 106, 156 do if H(393, y // 3, 15) > 0.62 then put(392, y, R.pale[2]) end end
   PL.nail(388, 112, true) PL.nail(388, 118, true) put(388, 114, PL.RUST[2]) put(388, 120, PL.RUST[2])
   PL.blob(rect(391, 148, 395, 158), 392, 156, 3, 3, PL.MOSS, 21)
+end
+
+-- v2.5.40 polish pass 3: lived-in orchard props (wheelbarrow, crate+sack stack, basket, windfall apples, saw on hook, bucket, woodpile)
+function PL.dk(hex)
+  local r, g, b = tonumber(hex:sub(2, 3), 16), tonumber(hex:sub(4, 5), 16), tonumber(hex:sub(6, 7), 16)
+  return string.format("#%02x%02x%02x", floor(r * 0.72), floor(g * 0.78), floor(b * 0.9))
+end
+function PL.apple3(x, y, gold)
+  local a = rect(x, y, x + 2, y + 2) a:cut(rect(x, y, x, y))
+  local Rp = gold and R.gold or R.apple
+  obj(a, Rp, { noise = 0, rimc = Rp[1] }) put(x + 1, y + 1, Rp[5]) put(x + 2, y - 1, R.wood[2])
+end
+do
+  -- wheelbarrow of apples (red tray, tyre, pale handles)
+  PL.cast({{157, 190}, {184, 190}, {192, 194}, {164, 194}})
+  apples(162, 180, 168, 7)
+  obj(poly{{160, 173}, {181, 173}, {177, 183}, {164, 183}}, R.cloth, { tex = planksH(3, 6) })
+  obj(rect(176, 183, 178, 190), R.wood) obj(rect(165, 183, 166, 190), R.wood)
+  obj(c:line({{180, 176}, {191, 178}}, 2), R.pale, { lift = 0.1 })
+  local tyre = ell(159, 187, 4, 4)
+  c:rim(tyre, R.wood[1]) tyre:each(function(x, y) put(x, y, R.wood[1]) end)
+  ell(159, 187, 2, 2):each(function(x, y) put(x, y, R.pale[3]) end) put(159, 187, R.stone[4]) put(158, 186, R.pale[5])
+  -- crate stack and a fruit sack by the cider press
+  PL.cast({{180, 168}, {200, 168}, {208, 172}, {188, 172}})
+  crate(180, 156, 194, 166, 4) crate(184, 148, 193, 155, 5)
+  local sack = poly{{197, 154}, {205, 154}, {207, 158}, {206, 162}, {197, 162}, {196, 158}}
+  PL.cast({{198, 163}, {210, 163}, {214, 166}, {202, 166}})
+  obj(sack, R.cream, { tex = function(x, y) return ((x + y) % 5 == 0) and -0.2 or 0 end })
+  for x = 198, 204 do put(x, 153, "#8e6c44") end put(200, 152, "#8e6c44") put(202, 152, "#8e6c44") put(201, 154, R.cream[1])
+  put(200, 158, R.apple[3]) put(201, 158, R.apple[4]) put(201, 159, R.apple[3])
+  -- apple basket on the grass
+  PL.cast({{156, 209}, {172, 209}, {178, 213}, {162, 213}})
+  obj(c:line({{157, 202}, {160, 196}, {166, 196}, {169, 202}}, 2), R.wicker, { rim = true })
+  obj(rect(155, 201, 169, 208), R.wicker, { tex = function(x, y) return (((x + y) % 4 == 0) or ((x - y) % 4 == 0)) and -0.3 or 0 end })
+  apples(156, 168, 198, 8)
+  PL.apple3(172, 206, false) PL.apple3(177, 208, true)
+  -- windfall apples in the grass
+  for _, a in ipairs({{28, 217, false}, {41, 229, true}, {74, 231, false}, {31, 249, false}, {77, 247, true}, {20, 237, false}, {119, 266, false},
+      {164, 150, false}, {240, 172, true}, {300, 241, false}, {288, 205, false}, {236, 238, false}}) do
+    if PL.free(a[1], a[2]) and PL.free(a[1] + 3, a[2] + 3) then PL.cast({{a[1] + 1, a[2] + 3}, {a[1] + 5, a[2] + 3}, {a[1] + 6, a[2] + 4}, {a[1] + 2, a[2] + 4}}) PL.apple3(a[1], a[2], a[3]) end
+  end
+  -- pruning saw on a hook at the cider press post
+  obj(rect(162, 119, 167, 123), R.wood, { lift = 0.1 })
+  obj(poly{{163, 124}, {167, 124}, {165, 138}, {164, 138}}, R.stone, { lift = 0.15, noise = 0.05 })
+  for y = 125, 137, 2 do put(163 + floor((y - 124) * 0.12), y, R.stone[1]) end
+  put(167, 121, "#d6d0d8") put(168, 121, R.stone[1]) put(164, 121, R.wood[1])
+  -- water bucket with rope handle
+  PL.cast({{208, 146}, {220, 146}, {224, 149}, {212, 149}})
+  obj(poly{{208, 136}, {216, 136}, {215, 145}, {209, 145}}, R.barrel, { tex = planksV(3, 4) })
+  for x = 208, 216 do put(x, 139, R.stone[2]) put(x, 143, R.stone[2]) end
+  put(210, 136, "#a0bede") put(211, 136, "#d8e4e2") put(212, 136, "#a0bede")
+  PL.rope(208, 136, 212, 131) PL.rope(212, 131, 216, 136)
+  -- woodpile of pruned logs (end grain rings)
+  PL.cast({{263, 135}, {284, 135}, {288, 138}, {267, 138}})
+  for _, l in ipairs({{267, 131}, {273, 131}, {279, 131}, {270, 125}, {276, 125}}) do
+    local lg = ell(l[1], l[2], 3, 3)
+    obj(lg, R.pale, { lift = 0.1 })
+    put(l[1], l[2], R.wood[2]) put(l[1] + 1, l[2], R.wood[3]) put(l[1], l[2] - 1, R.wood[3]) put(l[1] - 2, l[2] + 1, R.pale[2])
+  end
+  put(273, 121, R.leaf[4]) put(274, 120, R.leaf[5]) put(274, 121, R.leaf[3])
 end
 
 ---------------------------------------------------------------- falling petals
@@ -717,6 +827,74 @@ obj(charm, R.apple, { noise = 0.04 })
 put(236, 23, R.apple[5]) put(237, 23, R.apple[5]) put(236, 24, R.apple[5])
 put(240, 19, R.wood[2]) put(242, 18, R.leaf[4]) put(243, 18, R.leaf[5]) put(243, 17, R.leaf[4])
 for x = 233, 247 do if (x % 3) == 0 then put(x, 34, R.gold[4]) end end
+
+-- v2.5.40 polish pass 4b: light and depth (key light top-left, rim light, haze, warm glows, foreground frame)
+function PL.mix(hex, to, t)
+  local function ch(h, i) return tonumber(h:sub(i, i + 1), 16) end
+  return string.format("#%02x%02x%02x", floor(ch(hex, 2) + (ch(to, 2) - ch(hex, 2)) * t + .5), floor(ch(hex, 4) + (ch(to, 4) - ch(hex, 4)) * t + .5), floor(ch(hex, 6) + (ch(to, 6) - ch(hex, 6)) * t + .5))
+end
+function PL.luma(h) return tonumber(h:sub(2, 3), 16) * 0.3 + tonumber(h:sub(4, 5), 16) * 0.59 + tonumber(h:sub(6, 7), 16) * 0.11 end
+PL.BAYER = {{0, 8, 2, 10}, {12, 4, 14, 6}, {3, 11, 1, 9}, {15, 7, 13, 5}}
+-- ordered-dither warm glow: brightens only, never over sky, never in the compass corner
+function PL.glow(cx, cy, r, col, t, ry)
+  ry = ry or r
+  for y = floor(cy - ry), floor(cy + ry) do for x = floor(cx - r), floor(cx + r) do
+    local d = sqrt(((x - cx) / r) ^ 2 + ((y - cy) / ry) ^ 2)
+    if d < 1 and x >= 0 and y >= 0 and x < W and y < Hh and not (x >= 380 and y >= 230) and PL.BAYER[y % 4 + 1][x % 4 + 1] / 16 < (1 - d) * 0.95 then
+      local h = c:get(x, y)
+      if h then
+        local rr, bb = tonumber(h:sub(2, 3), 16), tonumber(h:sub(6, 7), 16)
+        if not (bb > rr + 6) or y > VY then
+          local n = PL.mix(h, col, t)
+          if PL.luma(n) > PL.luma(h) then put(x, y, n) end
+        end
+      end
+    end
+  end end
+end
+do
+  -- atmospheric perspective: dithered cool mist over the far hills and orchard band
+  local far = {["#7ea694"] = 1, ["#729c88"] = 1, ["#8eb468"] = 1, ["#f2b8cc"] = 1, ["#6a9a4c"] = 1, ["#d088a4"] = 1, ["#4e7c42"] = 1, ["#5a4a3a"] = 1, ["#9c9ccc"] = 1, ["#8a8cc0"] = 1}
+  for y = 82, VY - 1 do for x = 0, W - 1 do
+    local h = c:get(x, y)
+    if h and far[h] and PL.BAYER[y % 4 + 1][x % 4 + 1] / 16 < ((y - 82) / 30) * 0.9 then put(x, y, PL.mix(h, "#dce6e4", 0.45)) end
+  end end
+  -- rim light (warm, from the top-left) on the main silhouettes
+  local function rimlight(m, top, t)
+    m:each(function(x, y)
+      if not m:has(x - 1, y) or (top and not m:has(x, y - 1)) then
+        local h = c:get(x, y)
+        if h and PL.luma(h) > 70 then put(x, y, PL.mix(h, "#fff0c0", t or 0.34)) end
+      end
+    end)
+  end
+  rimlight(roof, true) rimlight(hroof, true) rimlight(sroof, true) rimlight(canopy, true, 0.28) rimlight(board, false) rimlight(trunk, false)
+  rimlight(vat, false) rimlight(blank, true, 0.2) rimlight(rect(165, 110, 207, 116), true) rimlight(rect(368, 194, 434, 200), true)
+  -- warm glow from windows, lanterns, string lights, the fire and the arch lantern
+  PL.glow(45, 103, 13, "#ffc870", 0.34) PL.glow(76, 103, 13, "#ffc870", 0.34) PL.glow(78, 122, 12, "#ffc870", 0.34)
+  PL.glow(60, 143, 26, "#ffcf80", 0.3, 8) PL.glow(140, 120, 9, "#ffc870", 0.3)
+  PL.glow(449, 212, 24, "#ffb050", 0.36, 17)
+  PL.glow(426, 97, 10, "#ffd274", 0.4)
+  for x = 384, 432, 8 do PL.glow(x, floor(176 + ((x - 408) ^ 2) / 160) + 2, 5, "#ffd274", 0.45) end
+  -- foreground frame: dark leaf tufts at the bottom edge (outside the compass corner and the stand points)
+  local function tuft(x, y, h, cols)
+    for k = -3, 3 do
+      local hh = h - abs(k) * 1 - floor(H(x + k, 1, 91) * 3)
+      for j = 0, hh do
+        local xx = x + k + floor(k * j * 0.12)
+        if PL.free(xx, y - j) or (y - j) >= Hh - 6 and xx < 380 then put(xx, y - j, (j > hh - 2) and cols[3] or ((k <= 0) and cols[2] or cols[1])) end
+      end
+    end
+  end
+  local FG = {"#1e4a30", "#2e6a3c", "#58985e"}
+  for _, t in ipairs({{19, 268, 7}, {30, 269, 6}, {44, 269, 5}, {120, 269, 6}, {134, 269, 5}, {300, 269, 6}, {314, 269, 7}, {360, 269, 5}}) do tuft(t[1], t[2], t[3], FG) end
+  -- soft dithered vignette in the bottom-left corner
+  for y = 240, Hh - 1 do for x = 14, 60 do
+    local d = ((60 - x) / 46 + (y - 240) / 30) / 2
+    local h = c:get(x, y)
+    if h and gtype[y * W + x] and PL.BAYER[y % 4 + 1][x % 4 + 1] / 16 < d * 0.55 - 0.1 then put(x, y, PL.mix(h, "#2a4a3c", 0.4)) end
+  end end
+end
 
 ---------------------------------------------------------------- save
 HP.assertClean(c)

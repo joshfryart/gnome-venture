@@ -366,6 +366,86 @@ for i, x in ipairs({ 422, 428, 434, 439 }) do
   put(x - 2, 29 + l, BONE.s)
 end
 
+-- v2.5.40 polish helpers (guarded: never touch stand points / compass corner)
+local STANDS = { { 200, 205 }, { 285, 205 }, { 240, 178 }, { 240, 245 }, { 140, 248 }, { 340, 248 } }
+local function guarded(x, y)
+  for _, s in ipairs(STANDS) do if math.abs(x - s[1]) <= 16 and math.abs(y - s[2]) <= 16 then return true end end
+  return x >= 378 and x < 480 and y >= 228 and y < 270
+end
+local function pp(x, y, hex) if x >= 0 and y >= 0 and x < W and y < H and not guarded(x, y) then c:put(x, y, hex) end end
+local GROUND = { ["#6e4048"] = 1, ["#7e4c4a"] = 1, ["#8c5a4c"] = 1, ["#9a6250"] = 1, ["#6a3e44"] = 1, ["#a87060"] = 1,
+  ["#b0805a"] = 1, ["#9a6a4a"] = 1, ["#7a4a48"] = 1, ["#b88a68"] = 1, ["#a07058"] = 1 }
+local function gp(x, y, hex)
+  if x < 0 or y < 0 or x >= W or y >= H or y < HZ + 2 or guarded(x, y) then return end
+  local cur = c:get(x, y)
+  if cur and GROUND[cur] then c:put(x, y, hex) end
+end
+local function gfill(m, hex) m:each(function(x, y) gp(x, y, hex) end) end
+local function pfill(m, hex) m:each(function(x, y) pp(x, y, hex) end) end
+
+-- v2.5.40 polish pass 1: ground variety, worn path edge, pebbles, leaves, flowers
+-- dithered band seams between the three ground tones
+for x = 0, W - 1 do
+  for _, sy in ipairs({ 135, 175 }) do
+    for k = -3, 3 do
+      local y = sy + k
+      if (x + y) % 2 == 0 and math.abs(k) <= 2 then gp(x, y, sy == 135 and "#7e4c4a" or "#8c5a4c") end
+      if (x + y) % 2 == 1 and k == 3 then gp(x, y, sy == 135 and "#6e4048" or "#7e4c4a") end
+    end
+  end
+end
+-- soft earth blotches (2-tone dither): darker hollows and lighter dry crust
+local blots = { { 60, 240, 26, 8, "#7a4a46", "#6a3e44" }, { 110, 224, 20, 6, "#9a6858", "#7e4c4a" }, { 190, 250, 16, 6, "#7a4a46", "#6a3e44" },
+  { 300, 252, 22, 7, "#9a6858", "#7e4c4a" }, { 372, 226, 22, 6, "#7a4a46", "#6a3e44" }, { 430, 214, 26, 7, "#9a6858", "#7e4c4a" },
+  { 24, 232, 16, 6, "#9a6858", "#7e4c4a" }, { 156, 200, 12, 5, "#7a4a46", "#6a3e44" }, { 330, 190, 18, 5, "#7a4a46", "#6a3e44" },
+  { 130, 168, 22, 5, "#7e4c4a", "#6e4048" }, { 190, 166, 14, 4, "#9a6858", "#8c5a4c" } }
+for _, b in ipairs(blots) do
+  local m = c:ellipse(b[1], b[2], b[3], b[4])
+  m:each(function(x, y)
+    local inner = ((x - b[1]) / b[3]) ^ 2 + ((y - b[2]) / b[4]) ^ 2
+    if inner < 0.55 or (x + y) % 2 == 0 then gp(x, y, b[5]) end
+    if inner < 0.2 and hash(x, y, 81) < 0.3 then gp(x, y, b[6]) end
+  end)
+end
+-- worn path edges: dirt and gravel spilling off the flagstones, scuffs leading down to the road
+for y = 150, H - 1 do
+  local hw = pathHalf(y)
+  for _, side in ipairs({ -1, 1 }) do
+    local ex = math.floor(VPX + side * (hw + 2))
+    local n = hash(y, side, 82)
+    if n < 0.55 then gp(ex + side * math.floor(n * 8), y, (n < 0.2) and "#b88a68" or "#7a4a48") end
+    if n > 0.9 then gp(ex + side * 5, y, "#a07058"); gp(ex + side * 6, y, "#b88a68") end
+  end
+end
+-- dirt ruts: tracks fan out of the road at the bottom
+for _, side in ipairs({ -1, 1 }) do
+  for y = 236, H - 1 do
+    local x = math.floor(VPX + side * (pathHalf(y) + 6 + (y - 236) * 0.5))
+    if (y % 3) ~= 0 then gp(x, y, "#6a3e44"); gp(x + side, y, "#7e4c4a") end
+  end
+end
+-- pebbles (lit top-left, dark under)
+local pebs = { { 70, 228 }, { 96, 244 }, { 150, 226 }, { 164, 218 }, { 182, 234 }, { 214, 258 }, { 268, 262 }, { 304, 234 }, { 322, 214 },
+  { 356, 256 }, { 396, 220 }, { 420, 196 }, { 448, 224 }, { 18, 250 }, { 128, 190 }, { 330, 182 }, { 150, 166 }, { 196, 168 } }
+for _, p in ipairs(pebs) do
+  gp(p[1], p[2], "#a89088"); gp(p[1] + 1, p[2], "#8a7480"); gp(p[1], p[2] + 1, "#6e5a68"); gp(p[1] + 1, p[2] + 1, "#4a3448")
+  if hash(p[1], p[2], 83) < 0.5 then gp(p[1] + 2, p[2] + 1, "#6e5a68") end
+end
+-- dead leaves drifting from the dead tree and the wind
+for i = 1, 26 do
+  local x = math.floor(hash(i, 5, 84) * 460) + 8
+  local y = math.floor(hash(i, 6, 84) * 112) + 156
+  local col = (i % 3 == 0) and "#c4783c" or ((i % 3 == 1) and "#9a5a34" or "#b8964a")
+  gp(x, y, col); gp(x + 1, y, col); gp(x + 1, y + 1, "#6a3e44")
+end
+-- wild-side flowers beside the trail (muted dusk blooms with green stems)
+local fl = { { 408, 186, "#d890c0" }, { 418, 208, "#e8c060" }, { 436, 196, "#c890e0" }, { 452, 212, "#d890c0" }, { 462, 190, "#e8c060" },
+  { 444, 222, "#c890e0" }, { 404, 218, "#e8c060" }, { 468, 176, "#d890c0" }, { 396, 196, "#c890e0" } }
+for _, f in ipairs(fl) do
+  gp(f[1], f[2] + 1, "#4a8a4a"); gp(f[1], f[2] + 2, "#3a6a4a"); gp(f[1] - 1, f[2] + 2, "#5aa05a")
+  gp(f[1], f[2], f[3]); gp(f[1] - 1, f[2], "#f4ecd6"); gp(f[1] + 1, f[2], f[3]); gp(f[1], f[2] - 1, f[3])
+end
+
 c:finish{ outline = false }
 HP.assertClean(c)
 c:save{ aseprite = OUT .. "here-lair.aseprite", png = OUT .. "here-lair.png", scale = 1 }

@@ -154,6 +154,60 @@ rowFill(trail, function(x, y)
 end)
 c:fillMask(trail:edge(), "#3e3228")
 
+-- v2.5.40 polish guard: nothing painted within 16 px of stand points or in the compass corner
+local STANDS = { {110,240},{176,246},{256,252},{326,234},{205,197},{282,197} }
+local function free(x, y)
+  if x < 0 or y < 0 or x >= W or y >= H then return false end
+  if x >= 372 and y >= 222 then return false end
+  for _, s in ipairs(STANDS) do if abs(x - s[1]) <= 17 and abs(y - s[2]) <= 17 then return false end end
+  return true
+end
+local function gput(x, y, col) if free(x, y) then c:put(x, y, col) end end
+
+-- v2.5.40 polish pass 1: ground variety (dithered tone patches, worn trail scuffs, flowers, pebbles)
+for y = HZ + 3, H - 1 do for x = 0, W - 1 do
+  local v = sin(x / 19 + y / 13) + 0.6 * sin(x / 7 - y / 9) + 0.5 * sin(x / 41 + y / 5) + (hsh(x, y, 301) - 0.5) * 0.5
+  local fy = (y - HZ) / 150
+  if v > 1.15 then
+    if v > 1.3 or (x + y) % 2 == 0 then gput(x, y, fy < 0.3 and "#2e5848" or "#3a6e50") end
+  elseif v < -1.1 then
+    if v < -1.25 or (x + y) % 2 == 0 then gput(x, y, fy < 0.3 and "#1c3434" or "#274a3c") end
+  elseif v > 0.95 and (x * 3 + y) % 5 == 0 then
+    gput(x, y, "#587f4c")
+  end
+end end
+-- warm dry grass flecks
+for y = HZ + 20, H - 1 do for x = 0, W - 1 do
+  if hsh(x, y, 311) < 0.004 then gput(x, y, "#7e8a50"); gput(x + 1, y - 1, "#6a7c48") end
+end end
+-- worn scuffs: dirt pixels beside the flagstone road and along the wild trail
+for i = 0, 70 do
+  local t = i / 70
+  local x = floor(300 + t * 140 + 0.5)
+  local y = floor(205 + t * 20 + sin(i * 0.9) * 2)
+  for k = -3, 3 do if hsh(x, y + k, 321) < 0.3 then gput(x, y + k, "#5a4a38") end end
+  if i % 5 == 0 then gput(x, y - 5, "#7a6a4e"); gput(x + 1, y - 5, "#6a5a42") end
+  if i % 7 == 3 then gput(x, y + 7, "#4e4034"); gput(x - 1, y + 7, "#4e4034") end
+end
+for _, p in ipairs({ {102,196},{96,206},{86,214},{112,206},{150,204},{158,212},{166,208},{210,236},{200,230} }) do
+  gput(p[1], p[2], "#6a5a44"); gput(p[1] + 1, p[2], "#4e4034"); gput(p[1] - 1, p[2] + 1, "#5a4a38")
+end
+-- pebbles
+for _, p in ipairs({ {70,240,3},{140,222,2},{372,205,2},{300,250,3},{60,262,2},{430,196,2},{402,214,3},{204,260,2},{358,252,2},{20,230,3},{128,258,2},{152,196,2} }) do
+  local x, y, r = p[1], p[2], p[3]
+  for dx = 0, r do gput(x + dx, y, "#8a849c"); gput(x + dx, y + 1, "#5a546c") end
+  gput(x, y, "#b4aec4"); gput(x - 1, y + 1, "#2a2234"); gput(x + r + 1, y + 1, "#2a2234")
+  for dx = 0, r do gput(x + dx, y + 2, "#1c3430") end
+end
+-- flowers (clustered, three kinds)
+local function flower(x, y, k)
+  gput(x, y + 1, "#2e5a34"); gput(x, y + 2, "#2e5a34")
+  if k == 1 then gput(x, y, "#f6d46a"); gput(x - 1, y, "#e8a848"); gput(x + 1, y, "#e8a848"); gput(x, y - 1, "#e8a848")
+  elseif k == 2 then gput(x, y, "#f0c8e0"); gput(x - 1, y, "#c24c8e"); gput(x + 1, y, "#c24c8e"); gput(x, y - 1, "#e070a8")
+  else gput(x, y, "#c4a8f6"); gput(x, y - 1, "#9878e0"); gput(x - 1, y, "#6e50bc"); gput(x + 1, y, "#6e50bc") end
+end
+for _, p in ipairs({ {30,150,1},{34,153,2},{26,156,3},{112,214,1},{116,217,3},{148,198,2},{152,201,1},{90,248,2},{94,252,1},{134,236,3},{360,196,1},{364,199,2},{300,196,3},{304,190,1},{408,198,2},{412,202,1},{348,258,3},{210,244,1},{214,247,2},{66,226,2},{70,229,3},{44,260,1},{384,196,3},{190,226,2},{132,176,1},{138,178,2},{370,158,3},{372,162,1} }) do flower(p[1], p[2], p[3]) end
+
 ---------------------------------------------------------------- main path (flagstones in perspective)
 local function halfw(y) return 26 + (y - 160) * 92 / 110 end
 local pathM = c:poly{ {214,160}, {266,160}, {356,270}, {124,270} }
