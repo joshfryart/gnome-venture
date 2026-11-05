@@ -1057,14 +1057,17 @@ a.rend:hover b { text-decoration: underline; }
 /* ---- The yard (art stays; chrome is flat) ---- */
 .yardwrap { display: block; width: fit-content; max-width: 100%; margin: 0 auto 8px; overflow: auto; background: var(--plot); padding: 8px; border-radius: var(--radius); }
 .yard { --cell: 46px; display: grid; position: relative; background-color: #78a04a; border-radius: 4px;
-  background-image: linear-gradient(rgba(0, 0, 0, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, .06) 1px, transparent 1px); background-size: var(--cell) var(--cell); }
+  background-image: linear-gradient(rgba(0, 0, 0, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, .06) 1px, transparent 1px), url(img/ph/tile-turf.png); background-size: var(--cell) var(--cell), var(--cell) var(--cell), var(--cell) var(--cell); image-rendering: pixelated; }   /* v2.5.43: the yard's ground is the turf the untilled squares share */
 .yard .tile { width: auto; height: auto; margin: 2px; font-size: calc(var(--cell) * .48); }
 .yard .tile .grade { font-size: 8px; line-height: 12px; }
+.yard .tile.wild { margin: 0; border: 0; background: transparent; box-shadow: none; }   /* v2.5.43: untilled squares melt into the turf; a faint line keeps them tappable */
+.yard .tile.wild.sel { box-shadow: none; }
+.yard .tile.wild::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 0 1px rgba(40, 70, 30, .35); pointer-events: none; }
+.yard.mini .tile.wild::after { display: none; }
 .yard .tile.planted .phtile { transform: scale(1.25); transform-origin: 50% 60%; }   /* v2.5.43: crop art was small in its square (the picture has ~25% margin); grow it so it fills the bed */
 .yard .tile.planted .phtile.ripe { transform: scale(1.15); }
 .yard .tile.planted i, .yard .tile.planted s { z-index: 1; }
 .yard .tile:not(.nt) { box-shadow: inset 0 0 0 2px rgba(92, 62, 30, .55); }
-.yard .tile.wild { background: #b7cf86; }
 .yard .tile.sel:not(.nt) { box-shadow: 0 0 0 2px var(--sel); }
 .yo { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 2px; border-radius: var(--radius-sm); font-size: calc(var(--cell) * .55); line-height: 1; text-decoration: none; color: var(--ink); overflow: hidden; }
 .yo .oi { pointer-events: none; }

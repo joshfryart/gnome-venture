@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.5.43
+- **Blended paths**: flagstone, brick, gravel and bark paths are now ground, not little objects. Each square blends into its neighbours (straight runs, corners, T-junctions, crossings) and into the grass with a ragged, lit-and-shaded edge, the way the Trail ground does. Paths of different kinds next to each other meet with a straight edge. Stepping stones are loose stones with the ground showing round them. New `tools/bake_path_art.py` makes the 188 pictures (`assets/img/paths/`); the designer joins them live too. Needs 2.5.40.
+- **Untilled ground, six looks**: untilled squares are flat turf (a meadow, tall weeds, stones, clover, bare patches) instead of the grass cube. All six share one ground with the yard's own turf, so they fade into each other and into the yard. A square keeps its look. New `tools/bake_wild_art.py`.
+- **Bigger crops in the beds**: growing crops are drawn about a quarter larger in their square.
+- **Ripe crops look like themselves**: a ripe bed shows the crop's own harvest picture (a cabbage looks like a cabbage, not the shared melon). Trees and cover crops keep their stage picture.
+- **Fix: Adventure page error**: already in 2.5.42.
+
 ## 2.5.42
 - **Treehouse and Pal Yard buttons**: Routes, World and the new Fast travel are round buttons under the picture (like the Here pictures) instead of sitting on top of it, and the rooms / job sites are one folded list in an even grid.
 - **Fix: Adventure page crash**: `adventure_stage_html()` always returned the fight backdrop and passed a null key to `scene_path()`, so /adventure.php threw a TypeError. The fight backdrop is now used only for the encounter popover.

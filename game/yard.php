@@ -77,7 +77,7 @@ page_header('Design your yard');
       <?php foreach ($byType[$type] as $id => $d): $def = $d['def']; ?>
         <button type="button" class="trayitem" data-item="<?= (int)$id ?>" data-qty="<?= (int)$d['qty'] ?>" data-w="<?= $def['w'] ?>" data-h="<?= $def['h'] ?>"
           data-fam="<?= e(yard_family(['kind' => 'decor', 'bw' => $def['w'], 'bh' => $def['h'], 'look' => $d['slug'], 'type' => $def['type']])) ?>"
-          data-img="<?= e(($im = yard_decor_image((string)$d['slug'], (string)($d['image'] ?? ''))) !== '' ? url($im) : '') ?>" data-icon="<?= e($def['icon']) ?>" data-type="<?= e($def['type']) ?>" data-look="<?= e($d['slug']) ?>" data-name="<?= e($d['name']) ?>"
+          data-img="<?= e(($im = yard_decor_image((string)$d['slug'], (string)($d['image'] ?? ''))) !== '' ? url($im) : '') ?>" data-icon="<?= e($def['icon']) ?>" data-type="<?= e($def['type']) ?>" data-look="<?= e($d['slug']) ?>" data-name="<?= e($d['name']) ?>"<?= in_array($d['slug'], PAVE_LOOKS, true) ? ' data-pave="' . e(url('assets/img/paths/' . substr((string)$d['slug'], 0, -5) . '-')) . '"' : '' ?>
           title="<?= e($d['name'] . ($def['bonus'] !== '' ? ' · ' . YARD_BONUSES[$def['bonus']][3] : '') . ' · appeal ' . $def['appeal']) ?>">
           <span class="swatch t-<?= e($def['type']) ?> d-<?= e($d['slug']) ?>"><?= e($def['icon']) ?></span> <?= e($d['name']) ?>
           <?= $def['w'] * $def['h'] > 1 ? '<small>' . $def['w'] . '×' . $def['h'] . '</small>' : '' ?> <b data-left>×<?= (int)$d['qty'] ?></b></button>

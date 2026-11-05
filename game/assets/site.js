@@ -265,7 +265,7 @@ gvAdvFold();
     pieces[k] = { k: k, el: el, x: num(el, 'data-x'), y: num(el, 'data-y'), w: num(el, 'data-w') || 1, h: num(el, 'data-h') || 1,
       rot: num(el, 'data-rot'), move: el.getAttribute('data-move') === '1', kind: el.getAttribute('data-kind'), id: num(el, 'data-id'),
       item: num(el, 'data-item'), tx: num(el, 'data-tx'), ty: num(el, 'data-ty'), name: el.getAttribute('data-name') || 'That',
-      fam: el.getAttribute('data-fam') || '', shape: el.getAttribute('data-shape') || '', img: el.getAttribute('data-img') || '', mask: -1 };
+      fam: el.getAttribute('data-fam') || '', shape: el.getAttribute('data-shape') || '', img: el.getAttribute('data-img') || '', pave: el.getAttribute('data-pave') || '', mask: -1 };
   });
   var snapBox = btn('snap'), gridBox = btn('grid');
   try { if (localStorage.getItem('gv-yard-grid') === '1') { gridBox.checked = true; yard.classList.add('showgrid'); } } catch (e) { /* storage may be off */ }
@@ -299,6 +299,20 @@ gvAdvFold();
     for (k in pieces) {
       p = pieces[k];
       if (!p.fam || p.x < 0) continue;
+      if (p.fam === 'pave') {   // v2.5.43: paving blends into its eight neighbours (same rule as pave_mask() in includes/yard.php)
+        var has = function (dx, dy) { return cells[(p.x + dx) + ',' + (p.y + dy)] === 'pave'; }, pm = 0;
+        [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0]].forEach(function (a) { if (has(a[1], a[2])) pm |= a[0]; });
+        [[16, 1, 2, 1, -1], [32, 4, 2, 1, 1], [64, 4, 8, -1, 1], [128, 1, 8, -1, -1]].forEach(function (a) { if ((pm & a[1]) && (pm & a[2]) && has(a[3], a[4])) pm |= a[0]; });
+        if (p.mask === pm) continue;
+        p.mask = pm;
+        if (p.pave) {
+          var pi = p.el.querySelector('img.yimg');
+          if (!pi) { pi = document.createElement('img'); pi.className = 'yimg pix'; pi.alt = ''; p.el.appendChild(pi); }
+          pi.className = 'yimg pix'; pi.src = p.pave + pm + '.png';
+          p.el.classList.add('fj', 'fi', 'pv');
+        }
+        continue;
+      }
       var m = 0;
       if (MASK[p.shape]) m = turn(MASK[p.shape], p.rot / 90);
       else {
@@ -391,11 +405,11 @@ gvAdvFold();
     tray.querySelectorAll('.trayitem').forEach(function (b) { b.classList.toggle('picked', !!traySel && traySel.btn === b); });
     var one = sel.length ? pieces[sel[0]] : null;
     btn('rotate').disabled = !(sel.length === 1 && one.kind !== 'bed');
-    btn('shape').disabled = !(sel.length === 1 && one.fam);
+    btn('shape').disabled = !(sel.length === 1 && one.fam && one.fam !== 'pave');
     joinAll();
     btn('away').disabled = !sel.length || sel.some(function (k) { return pieces[k].kind !== 'decor'; });
     if (traySel) say('Tap a square in the yard to place ' + traySel.name + '. Tap it in the tray again to stop.');
-    else if (sel.length === 1 && one.fam) say(one.name + ' picked (shape: ' + SHAPE_NAME[one.shape] + (one.shape ? '' : ', ' + shapeOf(one.mask)) + '). Shape picks a shape by hand; Rotate turns a lone piece or a chosen shape.');
+    else if (sel.length === 1 && one.fam && one.fam !== 'pave') say(one.name + ' picked (shape: ' + SHAPE_NAME[one.shape] + (one.shape ? '' : ', ' + shapeOf(one.mask)) + '). Shape picks a shape by hand; Rotate turns a lone piece or a chosen shape.');
     else if (sel.length === 1) say(one.name + ' picked. Drag it, or tap an empty square to move it there.');
     else if (sel.length > 1) say(sel.length + ' things picked. Drag one to move them all, or tap an empty square.');
     else say('Tap or drag something to start.');
@@ -457,7 +471,7 @@ gvAdvFold();
       if (bimg && !bfam) { var im0 = document.createElement('img'); im0.className = 'yimg'; im0.alt = ''; im0.src = bimg.replace(/\{shape\}|%7Bshape%7D/i, 'straight'); el.appendChild(im0); el.className += ' fi'; }
       yard.appendChild(el);
       p = pieces[k] = { k: k, el: el, x: -1, y: -1, w: w, h: h, rot: 0, move: true, kind: 'decor', id: 0, item: num(b, 'data-item'), name: b.getAttribute('data-name'),
-        fam: bfam, shape: '', img: bfam ? bimg : '', mask: -1 };
+        fam: bfam, shape: '', img: bfam ? bimg : '', pave: b.getAttribute('data-pave') || '', mask: -1 };
     }
     p.x = x; p.y = y;
     setPos(p.el, p);
@@ -576,7 +590,7 @@ gvAdvFold();
     paintSel();
   }
   btn('shape').addEventListener('click', function () {
-    if (sel.length !== 1 || !pieces[sel[0]].fam) return;
+    if (sel.length !== 1 || !pieces[sel[0]].fam || pieces[sel[0]].fam === 'pave') return;
     var p = pieces[sel[0]];
     remember();
     p.shape = SHAPES[(SHAPES.indexOf(p.shape) + 1) % SHAPES.length];

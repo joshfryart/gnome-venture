@@ -660,6 +660,8 @@ function post_update_news(string $from): void
         "[list][*]Every rest stop, village, haven, wonder, delve and lair picture, the Treehouse and the Pal Yard have more life: livelier fires, more things lying about, better light.\n[*]Rooms in the Treehouse and sites in the Pal Yard now have name pills like the towns.[/list]"],
     '2.5.42' => ['🌳 Update 2.5.42: tidier Treehouse and Pal Yard',
         "[list][*]Routes, World and Fast travel are now round buttons under the picture, so they no longer cover a room.\n[*]The rooms and job sites are one tidy list you can fold away.\n[*]The Adventure page no longer errors out when you open it.[/list]"],
+    '2.5.43' => ['🌿 Update 2.5.43: a prettier garden',
+        "[list][*]Paths now blend into the grass and into each other, with proper corners and junctions.\n[*]Untilled ground is soft turf with six different looks.\n[*]Crops are bigger in their beds, and a ripe crop shows its own picture: cabbages look like cabbages.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

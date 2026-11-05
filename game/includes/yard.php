@@ -385,6 +385,7 @@ function yard_decor_image(string $slug, string $raw): string
 {
     if (($img = yard_image($raw)) !== '') return $img;
     require_once __DIR__ . '/items.php';
+    if ($slug === 'stepping-stones' && art_path('assets/img/paths/stones.png') !== '') return 'assets/img/paths/stones.png';   // v2.5.43: loose stones with the ground showing round them
     if (ph_path($slug . '-straight') !== '') return 'assets/img/ph/' . $slug . '-{shape}.svg';
     return ph_path($slug);
 }
@@ -403,7 +404,29 @@ function yard_family(array $o): string
     $look = (string)$o['look'];
     if (str_contains($look, 'gate') && $o['type'] === 'fence') return 'gate';
     if ($o['type'] === 'fence') return str_contains($look, 'wall') ? 'wall' : 'fence';
+    if ($o['type'] === 'path' && in_array($look, PAVE_LOOKS, true)) return 'pave';   // v2.5.43: surface paths blend into the ground and into each other
     return $o['type'] === 'hedge' ? 'hedge' : '';
+}
+
+/** v2.5.43: the path surfaces that join: look => material (assets/img/paths/{material}-{mask}.png). Stepping stones are loose stones (assets/img/paths/stones.png). */
+const PAVE_LOOKS = ['stone-path', 'bark-path', 'gravel-path', 'brick-path'];
+
+/** The 8-neighbour mask of a paving square (N=1 E=2 S=4 W=8 NE=16 SE=32 SW=64 NW=128), a corner counting only when both its sides are paved. Same as tools/bake_path_art.py. */
+function pave_mask(array $cells, int $x, int $y): int
+{
+    $has = fn(int $dx, int $dy): bool => ($cells[($x + $dx) . ',' . ($y + $dy)] ?? '') === 'pave';
+    $m = 0;
+    foreach ([1 => [0, -1], 2 => [1, 0], 4 => [0, 1], 8 => [-1, 0]] as $bit => [$dx, $dy]) if ($has($dx, $dy)) $m |= $bit;
+    foreach ([[16, 1, 2, 1, -1], [32, 4, 2, 1, 1], [64, 4, 8, -1, 1], [128, 1, 8, -1, -1]] as [$bit, $a, $b, $dx, $dy]) if (($m & $a) && ($m & $b) && $has($dx, $dy)) $m |= $bit;
+    return $m;
+}
+
+/** The picture of a paving square for a mask, or '' when it is not drawn. */
+function pave_image(string $look, int $mask): string
+{
+    $mat = substr($look, 0, -5);   // 'stone-path' -> 'stone'
+    $rel = 'assets/img/paths/' . $mat . '-' . $mask . '.png';
+    return art_path($rel) !== '' ? $rel : '';
 }
 
 function yard_joins(string $a, string $b): bool
@@ -444,6 +467,10 @@ function yard_join_info(array $objects): array
         if (!isset($fam[$id])) continue;
         $x = (int)$o['x'];
         $y = (int)$o['y'];
+        if ($fam[$id] === 'pave') {   // v2.5.43: paving takes its look from all eight neighbours
+            $out[$id] = ['fam' => 'pave', 'mask' => pave_mask($cells, $x, $y), 'shape' => '', 'chosen' => ''];
+            continue;
+        }
         $pick = (string)($o['shape'] ?? '');
         if (isset(YARD_SHAPE_MASK[$pick])) {
             $mask = yard_turn(YARD_SHAPE_MASK[$pick], intdiv((int)$o['rot'], 90));
@@ -481,6 +508,11 @@ function yard_join_svg(string $fam, int $mask): string
 /** What a joined piece shows: the item's own image if it has one ({shape} picks the file), otherwise the drawing. [html, extra classes] */
 function yard_join_inner(array $o, array $info): array
 {
+    if ($info['fam'] === 'pave') {
+        $img = pave_image((string)$o['look'], (int)$info['mask']);
+        if ($img !== '') return ['<img class="yimg pix" src="' . e(url($img)) . '" alt="" loading="lazy">', ' fj fi pv'];
+        return ['<img class="yimg" src="' . e(url(yard_decor_image((string)$o['look'], (string)($o['image'] ?? '')))) . '" alt="" loading="lazy">', ' fi'];   // no blended art drawn: the old picture
+    }
     if (($o['image'] ?? '') !== '') {
         $name = $info['fam'] === 'gate' ? 'gate' : $info['shape'];
         $base = YARD_SHAPE_MASK[$info['fam'] === 'gate' ? 'straight' : $info['shape']];
@@ -538,7 +570,13 @@ function tile_view(array $t, array $plants, bool $owner = true): array
     if ($cls !== 'wild' || $icon !== '') {
         if (str_contains($cls, 'thirsty')) $badge .= '<i>💧</i>';
     }
-    if ($icon === '' && !str_contains($cls, 'planted') && ($gp = ph_img('tile-' . (str_contains($cls, 'notill') ? 'notill' : (str_contains($cls, 'tilled') ? 'tilled' : 'wild')), 28, '', 'phtile')) !== '') $icon = $gp;   // v1.5.2: ground placeholder
+    if ($icon === '' && !str_contains($cls, 'planted')) {
+        $gk = str_contains($cls, 'notill') ? 'notill' : (str_contains($cls, 'tilled') ? 'tilled' : 'wild');
+        // v2.5.43: untilled ground has six looks (tile-wild-1..6) that share one turf with the yard behind them; a square keeps its look (picked from where it is)
+        if ($gk === 'wild') $gk = 'wild-' . (1 + (((int)$t['x'] * 7 + (int)$t['y'] * 13) % 6));
+        if (($gp = ph_img('tile-' . $gk, 28, '', 'phtile')) === '' && $gk !== 'notill' && $gk !== 'tilled') $gp = ph_img('tile-wild', 28, '', 'phtile');
+        if ($gp !== '') $icon = $gp;
+    }   // v1.5.2: ground placeholder
     return [$cls, $icon, $label, $badge];
 }
 
@@ -578,6 +616,7 @@ function render_yard(array $plot, array $tiles, array $plants, array $objects, s
             [$inner, $more] = yard_join_inner($o, $ji);
             $cls .= $more;
             $fx = ' data-fam="' . e($ji['fam']) . '" data-shape="' . e($ji['chosen']) . '" data-img="' . e($o['image'] !== '' ? url($o['image']) : '') . '"';
+            if ($ji['fam'] === 'pave') $fx .= ' data-pave="' . e(url('assets/img/paths/' . substr((string)$o['look'], 0, -5) . '-')) . '"';
         } elseif (($o['image'] ?? '') !== '' && $o['kind'] === 'decor') {   // image hook: an item with a picture shows it
             $inner = '<img class="yimg" src="' . e(url(str_replace('{shape}', 'straight', $o['image']))) . '" alt="" loading="lazy">';
             $cls .= ' fi';
