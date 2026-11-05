@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.74
+- **Perks button**: a round medal button next to World in the row under the Here picture once acts at a stop have moved a meter or a perk runs; it opens a card listing the perks (with end dates) and the three meters. The plain stop page has a small circle by the 🌍 in its trail that opens the same list.
+
 ## 2.5.73
 - **Living stops fixes**: the perk end date is now worked out in UTC (it could be a day off on a non-UTC server); the two meter-answer acts offered rotate daily instead of always being the first two in the file; perks now stack (each full meter gives one more thing per visit and one more turn a day).
 
