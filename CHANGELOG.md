@@ -1,7 +1,17 @@
 # Changelog
 
-## Unreleased
+## 2.5.66
 - **Trail maps: a worn path and large landmarks on all 16 Maplewold routes**: each section now has a dirt path from the entry to the exit (forest paths are pale, tundra paths icy so they show on the dark/white floor), and each of the 82 named features is a large raised landmark, 2 to 4 tiles wide and up to 4 tall, so the walker reads as a small gnome (scarecrow, beehives, waterwheel mill, owl den and so on). Landmarks may be any size: `trail_art_obj_size()` reads the PNG, centred on its tile, bottom edge = feet. Placements are in `claude/maplewold-trail-maps/maplewold_landmarks.json`; the sprites are drawn in `claude/tile-art-v3-proposal/gen2.py` and `landmarks_*.py`; `tools/bake_trail_art.py --route=N` re-bakes a route and `tools/preview_trail_landmarks.py` previews without baking. Hand-detail pass: 29 big smooth landmarks (domes, slabs, walls, trunks) redrawn with form-following shading, dithering, cracks, strata, bark and props. Painterly pass: every landmark gets blotchy tone mottling, a rough edge and lit/shade rims (`_painterly` in gen2) so it matches the tree and ground tiles. Polish pass: 23 weak or flat landmarks redrawn bigger and richer, a soft contact shadow baked under every landmark, coast and tundra paths coloured so they show. Note: the bake only redraws a landmark PNG if it is missing, so delete `obj/lm-*.png` before re-baking after editing a sprite.
+- **GPS stops at every stop**: the GPS no longer walks on by itself. It stops at every stop on a remembered route (towns, rest stops and pass-through places) and you tap Set off to go on. The keep-walking and pause-at-towns options are replaced by a note.
+- **Trail map**: the tiny dots that showed when tapping to move (reachable-tile dots, path-preview dots, footprints) are hidden.
+
+## 2.5.65
+- **Art**: all 387 seed pictures are now seed packets; the 11 hedgehog portraits are drawn head-on. Same sizes, drop-in.
+## 2.5.64
+- **Art**: hedgehogs redrawn as real hedgehogs (8 NPC portraits and sprites, 3 folk portraits and sprites); gnome player layers get a 1px skin rim around the eyes so they stay readable on dark skin. Same sizes, drop-in.
+
+## 2.5.63
+- **Art pass 2.5**: 133 weak items redrawn (64x64); 46 seed pictures now seed packets; 4 kind cards (craft, collect, tend, contest) drawn; scene fixes (camp flames, ferry dock, wild-trail trees, Snowcrown Peak, turtle scutes, kava circle, banner-desert, trek-me, vig-pick); world map and all 14 region maps richer; 11 desert/adobe looks for rest stops; village, haven, delve and lair redrawn at hero scale; Maplewold market gets its Beaver Pond front (special2); jigsaw place crops regenerated. Same sizes, drop-in. Pink border stays on the few items still weak.
 
 ## 2.5.62
 - **Art polish pass**: 37 wonder pictures redrawn richer (pink river dolphins, animals, havens, delves), 7 banners, journal sea/nwe/oc, world map, trek me + ripples, vig-rod/pick, slot-forage. **Fix**: rarity flourishes are 4-frame 96px sparkle sheets again (2.5.60 had drawn them as bands).

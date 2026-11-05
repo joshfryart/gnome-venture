@@ -1,9 +1,8 @@
--- kava-seed (seed W1_2)
+-- kava-seed (seed E1_A)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
 name="kava-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#2a1a1e","#4a2a26","#6e4430","#946440","#b88858","#d8b078"}, leaf={"#1e3a3a","#2a5a40","#3a7a48","#58983c","#80b44c","#a8d070"}, sleaf={"#2a5a48","#3e8a50","#5aaa50","#82c858","#a8e070","#d0f090"},
-stem={"#5a4a3a","#7a6a48","#9a8a58","#7aa048","#9cc058"}, root={"#e8dcc0","#d0c0a0","#b8a688"},
-vein="#c8e090", gloss="#f4e0b0", cool="#4a3a6a", red="#a04a3a",
-sl=0.8, sw=1.0, taper=0.1, drop={4}, marks="spots", markc="#3a2420",
-scrap={7,52,26,56,56,42}, scrapW=7.2, scrapExp=0.85, sprout="pair", leafw=4.2, quirk="none"
+seed={"#3c2c2a","#5c4638","#826448","#a8845c","#cca680","#ecca9c"}, leaf={"#24503c","#30703e","#44903c","#6aac44","#94c654","#bcde72"}, sleaf={"#2e8048","#48a84a","#70c654","#9cdc64","#c4ee82","#e2fa9e"}, stem={"#5a3c46","#7a5058","#9a6a5c","#9cbc60","#bcd87c"}, root={"#f2e4cc","#dccaa6","#bea684"},
+vein="#d8eca0", gloss="#f8e8d0", cool="#503a78", red="#b04a5a",
+sl=1.0, sw=1.2, taper=0.2, drop={4}, marks="pits", markc="#3c2c2a",
+scrap={8,55,30,50,56,40}, scrapW=7.6, scrapExp=1.0, sprout="single", leafw=5.2, quirk="none",
 })

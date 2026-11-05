@@ -19,9 +19,9 @@ TOWNS = {'mossbottom': 'hub', 'maizehollow': 'ca', 'sunsprinkle': 'cb', 'rainroo
 TOWN_AS = {'tea': 'teahouse', 's1': 'special1', 's2': 'special2'}
 # The Maplewold market (hand-named spots) -> behaviours. special2 (the Beaver Pond) has no front in this picture.
 MAPLEWOLD_AS = {'sugar_shack': 'special1', 'pie_bakery': 'shops', 'tavern': 'teahouse', 'town_hall': 'library', 'maple_stalls': 'shops', 'general_store': 'shops',
-                'herbalist': 'shops', 'market_square': 'green', 'notice_board': 'board', 'orchard_path': 'wild'}
+                'herbalist': 'shops', 'market_square': 'green', 'notice_board': 'board', 'orchard_path': 'wild', 'beaver_pond': 'special2'}
 # rest stop market look spots -> the stop page's behaviours (do = the activities, people = villagers, stop = the rest stop tab)
-STOP_AS = {'cottages': 'homes', 'seed': 'do', 'well': 'do', 'pond': 'do', 'table': 'do', 'trail': 'wild', 'notice': 'people', 'rest': 'stop', 'stall': 'do', 'forage': 'do'}
+STOP_AS = {'cottages': 'homes', 'seed': 'do', 'well': 'do', 'pond': 'do', 'table': 'do', 'trail': 'wild', 'notice': 'people', 'rest': 'stop', 'stall': 'do', 'forage': 'shops'}
 STOPS = {'stop-market-grassland_maplewold': 'pilot-market-grassland_maplewold', 'stop-market-desert_adobe': 'pilot-market-desert_adobe'}
 
 def clean(L, amap):
@@ -73,7 +73,7 @@ def main():
     jobs = []   # (key, png, layout json, as-map)
     for art, code in TOWNS.items():
         jobs.append(('town-' + code, f'towns/here-town-{art}.png', f'towns/here-town-{art}.layout.json', TOWN_AS))
-    jobs.append(('town-na', 'here-market-maplewold-v5.png', 'here-market-maplewold-v5.layout.json', MAPLEWOLD_AS))
+    jobs.append(('town-na', 'here-market-maplewold-v6.png', 'here-market-maplewold-v6.layout.json', MAPLEWOLD_AS))
     for key, art in STOPS.items():
         jobs.append((key, art + '.png', 'pilot-market.layout.json', STOP_AS))
     PLACES = ['stop-camp', 'stop-ferry', 'stop-herb', 'stop-inn', 'stop-jetty', 'stop-mill', 'stop-orchard', 'stop-shrine', 'stop-spring', 'stop-tower', 'stop-workshop',

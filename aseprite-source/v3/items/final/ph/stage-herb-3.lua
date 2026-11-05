@@ -1,57 +1,80 @@
--- stage-herb-3 (lean W2_23)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-herb-3 (lean E2_10)
+local NAME = "stage-herb-3"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local CUT = { 0.2, 0.38, 0.55, 0.7, 0.86 }
-local SOIL = { "#2a1a1e", "#4a2e2a", "#6b4232", "#8d5c3e", "#b07a4e", "#cf9a66" }
-local function part(c, m, ramp, R, amb)
-  local n = X.pillow(m, R)
-  G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, CUT)
-  return n
-end
-local function soil(c)
-  local m = c:ellipse(32, 50, 23, 8)
-  part(c, m, SOIL, 8, 0.05)
-  m:each(function(x, y) local h = X.hash(x, y, 3)
-    if h > 0.93 then c:px(x, y, SOIL[5]) elseif h < 0.05 then c:px(x, y, SOIL[1]) end end)
+local CUTS = { cuts = { 0.2, 0.38, 0.54, 0.7, 0.86 } }
+local SOIL = { "#2a1a1c", "#4a2c26", "#6e4430", "#8f5e3c", "#b07c4c", "#cf9c62" }
+local GRN  = { "#17382f", "#1f5a3a", "#2f7c3f", "#4c9a44", "#79b852", "#b0d878" }
+local GOLD = { "#5a2e1c", "#8a4e22", "#b8782a", "#dca040", "#f0c460", "#fbe49a" }
+local PUR  = { "#2c1a4a", "#46298a", "#6a46b0", "#8c6acc", "#b095e4", "#d9c8f6" }
+local function soil()
+  c:groundShadow(32, 54, 24, 5)
+  local m = c:ellipse(32, 50, 22, 8)
+  local n = X.pillow(m, 9)
+  local tok = { r = { name = "soil" } }
+  local idx = X.tone(c, m, X.light(n, { amb = 0.15, wrap = 0.3 }), SOIL, { cuts = CUTS.cuts, tok = tok })
+  m:shrink(1):each(function(x, y) local h = X.hash(x, y, 7)
+    if h > 0.9 then c:put(x, y, SOIL[6], tok) elseif h < 0.1 then c:put(x, y, SOIL[1], tok) end end)
   return m
 end
-local function stalk(c, pts, w, ramp)
-  local m, n = G.tube(pts, function(t) return w end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), ramp, CUT)
+local function stalk(pts, w0, w1, ramp)
+  local m, n, T = G.tube(pts, function(t) return w0 + (w1 - w0) * t end)
+  local v = X.light(n, { amb = 0.15, wrap = 0.3 })
+  m:each(function(x, y) local k = K(x, y)
+    local i = v[k] > 0.62 and 4 or (v[k] > 0.4 and 3 or 2)
+    c:put(x, y, ramp[i], { r = { name = "st" } }) end)
   return m
 end
-local function blade(c, pts, wmax, ramp)
-  local m, n = G.tube(pts, function(t) return max(0.5, wmax * sin(pi * min(1, t * 0.9 + 0.1)) ^ 0.7) end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), ramp, CUT)
+local function leaf(ax, ay, cx, cy, bx, by, w, ramp, veins, fold)
+  local m, n, T, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.9 + 0.1)
+    return max(0.5, w * sin(pi * u ^ 1.1) ^ 0.75) end, { fold = fold or 0.4 })
+  local tok = { r = { name = "lf" .. ax .. bx .. ay } }
+  G.toneN(c, m, n, ramp, { tok = tok, cuts = CUTS.cuts, amb = 0.12, wrap = 0.22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.12 and t > 0.05 and t < 0.92 then c:put(x, y, s <= 0 and ramp[6] or ramp[2], tok) return end
+    for _, vt in ipairs(veins or {}) do
+      local d = t * L - (vt + abs(s) * 3)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.3 and abs(s) < 0.75 then c:put(x, y, s < 0 and ramp[5] or ramp[2], tok) return end
+    end end)
+  return m
+end
+local function ball(cx, cy, rx, ry, ramp, spec)
+  local m = c:ellipse(cx, cy, rx, ry)
+  local n = X.pillow(m, max(rx, ry))
+  local tok = { r = { name = "b" .. cx .. cy } }
+  X.tone(c, m, X.light(n, { amb = 0.08, wrap = 0.22 }), ramp, { cuts = CUTS.cuts, tok = tok })
+  if spec then local sx, sy = G.specAt(m, n, 20) if sx then c:put(sx, sy, spec, tok) end end
   return m
 end
 
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-herb-3" }
-local LEAF = { "#27403f", "#36605a", "#4f8068", "#76a082", "#9cbc98", "#c4d8b4" }
-local PETAL = { "#3a2a6a", "#5a3e92", "#7c5cb8", "#9c80d4", "#bea4ea", "#e2d4fa" }
-c:groundShadow(32, 56, 24, 3)
-soil(c)
--- silver-green grey leaves in a rosette
-blade(c, { {30,48}, {22,44}, {14,42}, {7,44} }, 2.2, LEAF)
-blade(c, { {34,48}, {42,44}, {50,42}, {57,44} }, 2.2, LEAF)
-blade(c, { {32,48}, {27,42}, {24,38}, {23,34} }, 1.8, LEAF)
-blade(c, { {33,48}, {38,42}, {42,38}, {44,34} }, 1.8, LEAF)
--- spikes: slender stems, florets as whorled blobs
-local spikes = { {16, 24, 20}, {25, 15, 22}, {32, 9, 26}, {40, 14, 22}, {49, 21, 20} }
-for i, s in ipairs(spikes) do
-  local x, ytop = s[1], s[2]
-  stalk(c, { {32 + (x - 32) * 0.15, 48}, {32 + (x - 32) * 0.5, 40}, {x, 34}, {x, ytop + 8} }, 0.9, LEAF)
-  local len = 12
-  for k = 0, 4 do
-    local y = ytop + k * 3
-    local w = (k == 0) and 1.3 or 2.2 - (k == 4 and 0.4 or 0)
-    local m = c:ellipse(x, y + 1, w + 0.8, 2)
-    part(c, m, PETAL, 2, 0.12)
-    c:px(x - 1, y, PETAL[6])
+soil()
+local function spk(bx, tx, ty, h)
+  stalk({ {bx, 49}, {bx, 38}, {tx, ty + h}, {tx, ty + h - 1} }, 1.0, 1.0, GRN)
+  local y = ty + h
+  local r = 0
+  while y > ty do
+    local rw = (y - ty) < 5 and 2 or 3
+    ball(tx - 1, y, rw, 2, PUR, nil); ball(tx + 2, y - 1, rw - 1, 2, PUR, "#ece0ff")
+    y = y - 3
   end
-  c:px(x, ytop - 2, PETAL[4]) c:px(x, ytop - 1, PETAL[3])
+  ball(tx, ty, 2, 2, PUR, "#ece0ff")
 end
--- quirk: a little bee on the right spike
-c:fillMask(c:ellipse(52, 17, 2.2, 1.5), "#f2c230") c:px(51, 17, "#2b1c26") c:px(53, 17, "#2b1c26") c:px(52, 15, "#e8f4ff") c:px(51, 15, "#e8f4ff")
-G.fin(c, "stage-herb-3")
+-- grey-green narrow basal leaves
+local LG = { "#2a4a40", "#3e6a58", "#5a8a74", "#7aa890", "#9cc4aa", "#c4e0cc" }
+leaf(32, 49, 18, 42, 8, 46, 2.6, LG, { 5 })
+leaf(32, 49, 46, 42, 56, 46, 2.6, LG, { 5 })
+leaf(32, 49, 22, 40, 16, 32, 2.6, LG, { 5 })
+leaf(32, 49, 42, 40, 48, 32, 2.6, LG, { 5 })
+spk(30, 28, 5, 20)
+spk(34, 38, 12, 18)
+spk(27, 18, 18, 16)
+-- quirk: a bee sipping at the top spike
+ball(46, 14, 2, 2, { "#3a2a08", "#6a4a10", "#b08818", "#e0b428", "#f6d048", "#fff0a0" }, "#fff8d0")
+c:put(46, 13, "#1a1014") c:put(46, 15, "#1a1014")
+c:put(44, 11, "#e8f4ff") c:put(45, 10, "#e8f4ff") c:put(47, 11, "#e8f4ff") c:put(48, 10, "#e8f4ff")
+
+G.save(c, NAME)

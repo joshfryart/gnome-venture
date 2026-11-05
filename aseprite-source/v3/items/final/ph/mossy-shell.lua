@@ -1,40 +1,52 @@
--- mossy-shell (lean W2_10)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- mossy-shell (lean E2_03)
+local NAME = "mossy-shell"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local CUTS = { 0.2, 0.38, 0.55, 0.7, 0.86 }
-local function slab(c, m, R, ramp, amb, bias) local n = X.pillow(m, R) G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, CUTS, bias) return n end
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "mossy-shell" }
-local SH = { "#4a3a4e", "#74607a", "#a08c94", "#c9b5a8", "#e6d6c0", "#f8ecd8" }
-local MO = { "#1f4a30", "#2f6a3a", "#478a40", "#6aa84c", "#92c460", "#bddc7c" }
-local PINK = { "#5a1e44", "#8e3a68", "#c0628c", "#e592b0", "#f8c4cc", "#fff0ec" }
--- spiral cone: apex upper-right, mouth lower-left
-local m, n, T, S = X.cyl(51, 14, 19, 46, function(t) local w = 0.8 + 13.5 * t ^ 0.85 if t > 0.86 then w = w * sqrt(max(0, 1 - ((t - 0.86) / 0.14) ^ 2) * 0.9 + 0.1) end return w end)
-G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), SH, CUTS)
--- whorl grooves: slanted dark ridges + one rust stripe
-m:each(function(x, y) local k = K(x, y)
-  local t, s = T[k], S[k]
-  local ph = (t * 5.2 + s * 0.12) % 1
-  if ph < 0.1 and t > 0.06 and t < 0.9 then c:px(x, y, SH[1])
-  elseif ph > 0.1 and ph < 0.17 and t > 0.06 then c:px(x, y, SH[3]) end
-  if abs(s - 0.1) < 0.07 and t > 0.1 and t < 0.92 and (x + y) % 3 ~= 0 then c:px(x, y, "#9a4a3a") end
-end)
--- mouth
-local mouth = c:ellipse(23, 42, 6, 8):cut(c:rect(24, 0, 63, 63):add(c:rect(0, 0, 63, 12)))
-mouth = HP.mask() mouth:add(c:ellipse(25, 41, 4, 6))
-c:fillMask(mouth:copy():grow(1), SH[6])
-G.tone(c, mouth, X.light(X.pillow(mouth, 4), { amb = 0.2, wrap = 0.3 }), PINK, CUTS)
-c:fillMask(c:ellipse(24, 42, 2, 3), PINK[1]) c:px(27, 38, PINK[6]) c:px(26, 37, PINK[5])
--- moss cap on the upper-left shoulder
-local moss = HP.mask()
-m:each(function(x, y) local k = K(x, y)
-  local lim = 0.42 + 0.22 * X.hash(floor(x / 2), floor(y / 2), 3)
-  if S[k] < -0.1 and T[k] > 0.25 and T[k] < 0.82 and (T[k] - 0.25) < lim * (-S[k] + 0.2) * 1.4 then moss:set(x, y) end end)
-local mn = X.pillow(moss, 4)
-G.tone(c, moss, X.light(mn, { amb = 0.1, wrap = 0.3 }), MO, CUTS)
-moss:each(function(x, y) if X.hash(x, y, 9) > 0.86 then c:px(x, y, MO[5]) end end)
--- quirk: tiny sprout curling out of the moss
-G.line(c, { {30, 25}, {30, 22}, {31, 20}, {33, 20} }, MO[4])
-c:px(33, 20, MO[6]) c:px(34, 21, MO[5]) c:px(32, 19, MO[5])
-c:px(41, 26, SH[6]) c:px(42, 26, SH[6])
-G.fin(c, "mossy-shell")
+local T = { r = { name = "d" } }
+local function body(m, ramp, R, name, amb)
+  local n = X.pillow(m, R)
+  local idx = X.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, { cuts = { .22, .4, .56, .72, .86 }, tok = { r = { name = name } } })
+  return n, idx
+end
+local function draw(lm, hex, within) lm:each(function(x, y) if (not within) or within:has(x, y) then c:put(x, y, hex, T) end end) end
+local function dot(x, y, hex, within) if (not within) or within:has(x, y) then c:put(x, y, hex, T) end end
+c:groundShadow(32, 56, 20, 2)
+local R = { "#5c4050", "#8c6874", "#bc928c", "#dcb8a2", "#f0d6b8", "#fcecd2" }
+local m = c:ellipse(31, 33, 21, 20)
+-- aperture lip bulging lower right
+local lip = c:ellipse(46, 46, 9, 7)
+m:add(lip)
+body(m, R, 20, "shell")
+-- spiral whorl
+local cx, cy = 30, 31
+local pts = {}
+for i = 0, 70 do
+  local th = i * 0.17
+  local r = 1.5 + th * 1.55
+  pts[#pts + 1] = { cx + cos(th + 2.4) * r, cy + sin(th + 2.4) * r }
+end
+local sp = c:line(pts, 1)
+sp:each(function(x, y) if m:has(x, y) then c:put(x, y, R[2], T) end end)
+sp:shift(1, 1):each(function(x, y) if m:has(x, y) and not sp:has(x, y) then c:put(x, y, R[6], T) end end)
+sp:shift(-1, -1):each(function(x, y) if m:has(x, y) and not sp:has(x, y) then c:put(x, y, R[1], T) end end)
+-- dark opening
+local mo = c:ellipse(47, 47, 6, 4)
+body(mo, { "#1a0e18", "#2e1426", "#4a2034", "#6a2e44", "#8a4058", "#b05c72" }, 5, "mouth", 0.0)
+for x = 41, 53 do dot(x, 43, R[6], m) end
+-- moss clump upper left, fuzzy past the edge
+local MS = { "#1c3a24", "#2c5a30", "#437c38", "#68a043", "#98c855", "#c8e47a" }
+local mm = c:ellipse(22, 20, 11, 8)
+mm:add(c:ellipse(31, 15, 7, 5)) mm:add(c:ellipse(14, 28, 5, 6))
+local fuzz = HP.mask()
+mm:grow(1):each(function(x, y) if not mm:has(x, y) and X.hash(x, y, 9) > 0.55 then fuzz:set(x, y) end end)
+mm:add(fuzz)
+body(mm, MS, 8, "moss", 0.05)
+mm:each(function(x, y) if X.hash(x, y, 3) > 0.8 then c:put(x, y, MS[6], T) end if X.hash(x, y, 8) > 0.88 then c:put(x, y, MS[2], T) end end)
+-- quirk: tiny red mushroom growing from the moss
+dot(30, 12, "#e8dcc0") dot(30, 11, "#e8dcc0") dot(30, 10, "#d8c8a4")
+local cap2 = c:ellipse(30, 9, 3, 2)
+body(cap2, { "#6a1424", "#a02034", "#d03a40", "#ec6050", "#f89478", "#ffe0c8" }, 3, "cap")
+dot(29, 8, "#fff4e0") dot(32, 9, "#fff4e0")
+G.save(c, NAME)

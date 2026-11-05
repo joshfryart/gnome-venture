@@ -1,57 +1,46 @@
--- tamarind (lean W2_32)
--- A bumpy arching scurfy pod, split open on top to show sticky red-brown pulp, two glossy seeds and fibre strings; quirk: a spare seed and a tiny sprig below.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- NAME (lean E2_16)
+local NAME = "tamarind"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "tamarind" }
-local abs, sin, pi, min, max, floor = math.abs, math.sin, math.pi, math.min, math.max, math.floor
-local PEEL = { "#3a2218", "#5c3824", "#84563a", "#a87a50", "#caa070", "#e8c898" }
-local PULP = { "#3a1a1e", "#5e2a24", "#8a4228", "#b8622e", "#dc8c48", "#f2b868" }
-local SEED = { "#2a1418", "#4a2220", "#6e3226", "#94503a" }
-local LEAF = { "#1e3e3a", "#2e6446", "#4a944e", "#76b85a", "#a4d06c" }
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local CUTS = { .22, .4, .56, .72, .86 }
+local _n = 0
 local function shade(m, ramp, R, o)
-  local n = X.pillow(m, R)
-  G.tone(c, m, X.light(n, o or { amb = 0.12, wrap = 0.3 }), ramp)
+  o = o or {}; _n = _n + 1
+  local n = X.pillow(m, R or 4)
+  local idx = X.tone(c, m, X.light(n, { amb = o.amb or .1, wrap = o.wrap or .25 }), ramp, { cuts = CUTS, tok = { r = { name = "p" .. _n } } })
+  return idx, n
 end
-c:groundShadow(32, 58, 12, 1.6)
-local P = { { 9, 38 }, { 12, 6 }, { 48, 4 }, { 56, 38 } }
-local pm, pn, T, S = G.tube(P, function(t)
-  local e = min(1, t * 7, (1 - t) * 7) ^ 0.6
-  return max(1.1, (3.7 + 0.9 * sin(t * pi * 8)) * e)
-end)
-local v = X.light(pn, { amb = 0.1, wrap = 0.25 })
-local bias = {}
-pm:each(function(x, y) local k = K(x, y)
-  local ph = (T[k] * 8) % 1
-  if ph < 0.09 or ph > 0.94 then bias[k] = -1 end                    -- constrictions between seeds
-  if X.hash(x, y, 7) > 0.88 then bias[k] = (bias[k] or 0) + 1 end    -- scurf specks
-end)
-G.tone(c, pm, v, PEEL, { 0.2, 0.38, 0.54, 0.7, 0.86 }, bias)
--- split window showing pulp
-local win = HP.mask()
-pm:each(function(x, y) local k = K(x, y)
-  if T[k] > 0.36 and T[k] < 0.62 and abs(S[k]) < 0.5 - 0.5 * abs(T[k] - 0.49) * 3 then win:set(x, y) end
-end)
-G.tone(c, win, X.light(X.pillow(win, 2.5), { amb = 0.15, wrap = 0.4 }), PULP)
-win:copy():edge():each(function(x, y) c:px(x, y, PULP[1]) end)
--- seeds in the pulp
-for _, t in ipairs{ 0.43, 0.55 } do
-  local x, y = G.bez(P, t)
-  local sm = G.rell(x, y, 1, 0, 2.3, 1.6)
-  shade(sm, SEED, 2, { amb = 0.1, wrap = 0.2 })
-  c:px(floor(x - 1), floor(y - 1), "#e8b8a0")
+local function tok() _n = _n + 1 return { r = { name = "q" .. _n } } end
+local function put(m, col) local t = tok() m:each(function(x, y) c:put(x, y, col, t) end) end
+local function bez(p, t) local u = 1 - t
+  return u*u*u*p[1][1] + 3*u*u*t*p[2][1] + 3*u*t*t*p[3][1] + t*t*t*p[4][1],
+         u*u*u*p[1][2] + 3*u*u*t*p[2][2] + 3*u*t*t*p[3][2] + t*t*t*p[4][2] end
+
+local POD = { "#2e1a14", "#4a2c1e", "#6c4430", "#8e6244", "#b08460", "#d2aa82" }
+local PUL = { "#3a1408", "#5e2210", "#8a3a1a", "#b0582a", "#d07a3c", "#ec9c58" }
+local SEED = { "#2a100c", "#4a1c14", "#6c2c1c", "#8e4428", "#b0643c", "#e0a070" }
+local P = { { 9, 41 }, { 11, 4 }, { 49, 2 }, { 55, 40 } }
+c:groundShadow(32, 58, 18, 2)
+local pm, pn, PT = G.tube(P, function(t) return max(1.2, (5.2 * sin(pi * (0.08 + 0.84 * t)) ^ 0.5) + 0.9 * sin(t * pi * 8)) end)
+local idx = X.tone(c, pm, X.light(pn, { amb = .12, wrap = .25 }), POD, { cuts = CUTS, tok = tok() })
+-- scurfy shell texture
+pm:each(function(x, y) if X.hash(x, y, 9) > 0.86 then c:put(x, y, POD[max(1, (idx[K(x, y)] or 3) - 1)]) end end)
+-- cracked window: sticky pulp and seeds
+local win = HP.mask(); pm:each(function(x, y) local t = PT[K(x, y)] if t and t > 0.4 and t < 0.64 then win:set(x, y) end end)
+shade(win, PUL, 4, { amb = .2, wrap = .3 })
+for i, t in ipairs{ 0.44, 0.52, 0.6 } do
+  local x, y = bez(P, t)
+  shade(c:ellipse(floor(x + .5), floor(y + .5), 2, 3), SEED, 2)
+  c:put(floor(x - .5), floor(y - 1), "#ffe8c8")
 end
--- fibre strings across the opening
-local fx, fy = G.bez(P, 0.49)
-G.line(c, { { floor(fx), floor(fy - 3) }, { floor(fx + 1), floor(fy) }, { floor(fx), floor(fy + 3) } }, PULP[5])
--- stalk stub and tiny sprig on the right end
-G.line(c, { { 56, 40 }, { 57, 43 }, { 57, 46 } }, PEEL[2])
--- loose seed under the arch
-shade(G.rell(31, 49, 1, -0.3, 3.2, 2.2), SEED, 2.2, { amb = 0.1, wrap = 0.2 })
-c:px(29, 48, "#e8b8a0") c:px(30, 47, "#d09880")
--- sprout from the loose seed: two leaflet pairs on a stalk
-G.line(c, { { 32, 47 }, { 32, 43 }, { 33, 40 } }, LEAF[3])
-for _, l in ipairs{ { 30, 43, -1 }, { 35, 42, 1 }, { 30, 40, -1 }, { 35, 39, 1 } } do
-  shade(G.rell(l[1] + (l[3] > 0 and 0 or 0), l[2], l[3], -0.4, 2, 1), LEAF, 1.2, { amb = 0.2, wrap = 0.3 })
-end
-c:px(33, 38, LEAF[5])
-G.fin(c, "tamarind")
+win:edge():each(function(x, y) if pm:has(x, y) then c:put(x, y, POD[1]) end end)
+-- stalk nub at the left end and a sticky drip
+put(c:rect(7, 41, 10, 45), POD[2]) c:put(8, 42, POD[4]) c:put(7, 45, POD[1])
+local dx, dy = bez(P, 0.52)
+shade(c:ellipse(floor(dx + .5), floor(dy) + 9, 1, 2), PUL, 1)
+c:put(floor(dx + .5), floor(dy) + 8, PUL[5])
+c:sparkle(40, 10)
+
+G.save(c, NAME)

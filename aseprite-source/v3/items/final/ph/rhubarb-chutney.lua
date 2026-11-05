@@ -1,49 +1,45 @@
--- rhubarb-chutney (lean W2_16)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- rhubarb-chutney (lean E2_06)
+local NAME = "rhubarb-chutney"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function cyl(m, cx, hw) local n = {} m:each(function(x, y) local nx = max(-0.97, min(0.97, (x - cx) / hw)); n[K(x, y)] = { nx, -0.1, sqrt(1 - nx * nx) } end) return n end
-local function shade(c, m, n, ramp, bias, amb) G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, nil, bias) end
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "rhubarb-chutney" }
-c:groundShadow(32, 54, 16, 3)
-local GL = { "#3d6b86", "#5d93ad", "#86bfd0", "#b3e0e6", "#dff5f2", "#f3fffb" }
-local CH = { "#3a1420", "#5c1b2a", "#8a2a36", "#b04542", "#d06a52", "#e8946a" }
-local CL = { "#5a1424", "#8a1f34", "#b8324a", "#d9566a", "#ef8090", "#ffb4bc" }
-local glass = c:rrect(19, 26, 45, 52, 4):add(c:rect(23, 21, 41, 27))
-shade(c, glass, cyl(glass, 32, 13), GL)
-local ch = c:rrect(21, 29, 43, 50, 3)
-shade(c, ch, cyl(ch, 32, 11), CH)
-ch:each(function(x, y)
-  local h = X.hash(x, y, 7)
-  if y > 30 and x > 22 and x < 42 then
-    if h > 0.93 then c:px(x, y, "#e88aa0") elseif h > 0.88 then c:px(x, y, "#e0a040") end
-  end
-end)
-for x = 22, 42 do c:px(x, 29, CH[5]) end
-for y = 32, 48 do c:px(20, y, GL[5]) end
-for y = 33, 47 do c:px(43, y, GL[1]) end
-c:px(20, 30, GL[6]) c:px(20, 31, GL[6])
--- label
-c:fillMask(c:rect(25, 36, 38, 46), "#f2e4c4")
-for x = 25, 38 do c:px(x, 46, "#c9ad82") end
-for y = 36, 46 do c:px(38, y, "#c9ad82") end
-c:fillMask(c:line({ { 28, 43 }, { 33, 38 } }, 1), "#d04868")
-c:px(34, 38, "#4b9650") c:px(35, 37, "#4b9650") c:px(34, 37, "#70b45a")
-for x = 28, 35, 2 do c:px(x, 44, "#a88a66") end
--- cloth cap with scalloped hem
-local cl = c:ellipse(32, 18, 12, 5):add(c:rect(20, 18, 44, 25))
-for x = 20, 44 do if (x - 20) % 6 >= 4 then for y = 24, 26 do cl:cut(c:rect(x, y, x, y)) end end end
-local bias = {}
-cl:each(function(x, y) if (floor(x / 3) + floor(y / 3)) % 2 == 0 then bias[K(x, y)] = -1 end end)
-shade(c, cl, X.pillow(cl, 6), CL, bias, 0.12)
-c:px(27, 14, CL[6]) c:px(28, 14, CL[6]) c:px(26, 15, CL[5])
--- twine, bow and tag
-c:fillMask(c:line({ { 21, 25 }, { 43, 25 } }, 1), "#c9a468")
-for x = 22, 42, 2 do c:px(x, 26, "#8a6a3c") end
-c:fillMask(c:ellipse(18, 23, 2, 1.5), "#c9a468") c:fillMask(c:ellipse(18, 27, 2, 1.5), "#c9a468")
-c:px(20, 25, "#8a6a3c") c:px(19, 25, "#c9a468")
-c:fillMask(c:line({ { 18, 27 }, { 15, 31 } }, 1), "#8a6a3c")
-c:fillMask(c:rect(11, 31, 17, 38), "#d9b27a")
-for x = 11, 17 do c:px(x, 38, "#a07c4c") end
-c:px(14, 32, "#5a3a22") c:fillMask(c:rect(13, 34, 14, 36), "#d04868") c:px(15, 34, "#4b9650")
-G.fin(c, "rhubarb-chutney")
+local function R(v) return floor(v + 0.5) end
+local function paint(m, ramp, rad, name, opt) opt = opt or {}
+  local n = X.pillow(m, rad or 4); local tok = { r = { name = name } }
+  local idx = X.tone(c, m, X.light(n, { amb = opt.amb or 0.08, wrap = opt.wrap or 0.25 }), ramp, { cuts = { 0.22, 0.4, 0.56, 0.72, 0.86 }, tok = tok })
+  return n, idx, tok end
+local function sel(m, fn) local o = HP.mask() m:each(function(x, y) if fn(x, y) then o:set(x, y) end end) return o end
+local function spec(m, n, col, tok) local x, y = G.specAt(m, n, 30) if x then c:put(x, y, col, tok) end end
+local GLASS = { "#2a4a5e", "#3f6f86", "#5f9ab0", "#8cc4d0", "#bfe6e8", "#eafafa" }
+local CHUT = { "#4a0f26", "#7a1836", "#a82446", "#cc3c52", "#e8627a", "#ff98a2" }
+local CLOTH = { "#8e2a3a", "#b83c4a", "#d85a62", "#ee8584", "#fbb4ae", "#fff0e8" }
+local CARD = { "#a08a68", "#c8b088", "#e2cfa6", "#f0e2bc", "#f8f0d4", "#fffbea" }
+c:groundShadow(32, 57, 20, 3)
+local jar = c:rrect(16, 26, 48, 56, 6)
+local n, _, jt = paint(jar, GLASS, 8, "glass")
+local fill = c:rrect(18, 31, 46, 54, 5)
+local fn, fidx, ft = paint(fill, CHUT, 7, "chut")
+fill:each(function(x, y) if fidx[K(x, y)] >= 3 and X.hash(x, y, 9) > 0.86 then c:put(x, y, CHUT[6], ft) end end)
+-- glass rim + streak
+for y = 34, 50 do c:put(20, y, GLASS[5], jt) end; c:put(20, 33, GLASS[6], jt); c:put(20, 51, GLASS[4], jt)
+c:rect(18, 26, 46, 28):each(function(x, y) c:put(x, y, GLASS[4], jt) end)
+-- cloth cover with gingham
+local cl = c:poly{ { 14, 28 }, { 15, 18 }, { 22, 13 }, { 42, 13 }, { 49, 18 }, { 50, 28 }, { 44, 25 }, { 32, 27 }, { 20, 25 } }
+local cn, cidx, ct = paint(cl, CLOTH, 6, "cloth")
+cl:each(function(x, y) if (floor(x / 3) + floor(y / 3)) % 2 == 0 then c:put(x, y, CLOTH[cidx[K(x, y)] >= 4 and 6 or 4], ct) end end)
+-- twine
+c:rect(19, 26, 45, 27):each(function(x, y) c:put(x, y, (x % 2 == 0) and "#d8b070" or "#a67c44", { r = { name = "twine" } }) end)
+c:put(33, 28, "#d8b070"); c:put(33, 29, "#a67c44"); c:put(34, 30, "#d8b070"); c:put(30, 29, "#a67c44"); c:put(29, 30, "#d8b070")
+-- label with rhubarb stalk + leaf
+local lab = c:rrect(22, 36, 42, 51, 1)
+local ln, _, lt = paint(lab, CARD, 4, "label", { wrap = 0.1 })
+for _, y in ipairs{ 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48 } do
+  c:put(30 + floor((y - 38) / 5), y, y < 41 and "#7a1836" or "#d8486a", lt); c:put(31 + floor((y - 38) / 5), y, y < 41 and "#a82446" or "#f26b86", lt) end
+for _, p in ipairs{ {29,38},{28,37},{27,38},{28,39},{31,37},{32,36},{33,37},{32,38} } do c:put(p[1] + 0, p[2], "#4f9a48", lt) end
+c:put(28, 38, "#8cc860", lt); c:put(32, 37, "#8cc860", lt)
+-- quirk: chutney drip down the jar side
+for y = 29, 36 do c:put(44, y, CHUT[3], ft) c:put(45, y, CHUT[2], ft) end
+c:put(44, 37, CHUT[4], ft); c:put(44, 38, CHUT[5], ft)
+c:put(23, 30, "#f6fbff", jt)
+G.save(c, NAME)

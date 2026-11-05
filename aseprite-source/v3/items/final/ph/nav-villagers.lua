@@ -1,41 +1,51 @@
--- nav-villagers (lean W2_11)
+-- nav-villagers (lean E2_04)
+local NAME = "nav-villagers"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w=64, h=64, scale=1, name="nav-villagers" }
-local function sh(m, R, ramp, amb)
-  local n = X.pillow(m, R)
-  X.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, { cuts = {.22,.4,.56,.72,.86} })
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local CUTS = { 0.22, 0.4, 0.56, 0.72, 0.86 }
+local function U(...) local m = HP.mask() for _, x in ipairs{...} do m:add(x) end return m end
+local function S(m, ramp, R, name, amb)
+  local n = X.pillow(m, R or 3)
+  return X.tone(c, m, X.light(n, { amb = amb or 0.08, wrap = 0.25 }), ramp, { cuts = CUTS, tok = { r = { name = name or "p" } } }), n
 end
-local RED  = {"#5a1c2e","#8a2535","#b8353a","#d9553f","#ee7a4d","#f7a86a"}
-local BLUE = {"#1f2a5e","#2f4a8c","#3f6bb5","#5a8fd0","#82b4e4","#b4d8f2"}
-local GREEN= {"#173d33","#22583c","#2f7a45","#47a04d","#6cc05a","#9ad87a"}
-local YEL  = {"#6b3a1c","#9a5a20","#c98424","#e8a82e","#f6c94a","#fde88a"}
-local SKINA= {"#6e3a2c","#8e5236","#ae6c44","#c98a58","#e0a870","#f2c898"}
-local SKINB= {"#a45a4a","#c97a62","#e69a7a","#f4b896","#fccdb0","#ffe2cc"}
-local WHITE= {"#6a6a9a","#9a9ac0","#c4c4dc","#e2e2ee","#f4f4fa","#fffaf0"}
-c:groundShadow(32, 58, 26, 3)
--- left gnome body (green coat) and right gnome (yellow tunic)
-sh(c:rrect(6,42,31,58,6), 9, GREEN)
-sh(c:ellipse(43,50,14,9), 9, YEL)
-c:rect(30,44,31,57)
--- right head + blue hat with bent tip and pompom
-sh(c:ellipse(43,40,6,6), 5, SKINB)
-sh(c:poly{{36,37},{50,37},{47,21},{51,13},{57,15},{53,13},{50,13},{43,22}}, 6, BLUE)
-sh(c:ellipse(56,15,2,2), 2, YEL)
--- left head, beard, red hat
-sh(c:ellipse(19,41,6,5), 5, SKINA)
-sh(c:poly{{12,48},{26,48},{19,60},{19,60}}, 5, WHITE)
-sh(c:poly{{11,38},{27,38},{20,5},{18,5}}, 8, RED)
--- hat brims
-c:fillMask(c:rect(11,37,27,38), RED[1])
-c:fillMask(c:rect(36,36,50,37), BLUE[1])
--- eyes, cheeks, nose
-c:px(16,41,"#2b1c26") c:px(22,41,"#2b1c26") c:px(19,42,"#c07050") c:px(19,43,"#c07050")
-c:px(40,40,"#2b1c26") c:px(46,40,"#2b1c26") c:px(43,43,"#d06a6a") c:px(41,43,"#f08a8a") c:px(45,43,"#f08a8a")
--- beard strands, coat buttons, tunic stitch
-for y=50,57,2 do c:px(19,y,WHITE[2]) end
-c:px(24,50,GREEN[5]) c:px(24,54,GREEN[5]) c:px(12,52,GREEN[1])
-for x=36,54,3 do c:px(x,56,YEL[2]) end
-c:px(18,10,RED[6]) c:px(19,14,RED[5]) c:px(45,24,BLUE[6])
-c:sparkle(57,10)
-G.save(c, "nav-villagers")
+local function P(x, y, col) c:put(x, y, col, { r = { name = "d" } }) end
+local function spec(m, n, col) local x, y = G.specAt(m, n, 30) if x then P(x, y, col or "#fffbe8") end end
+
+local RED={"#4a1620","#7a2230","#a8332f","#d4503a","#ee7a4c","#ffa870"}
+local BLU={"#1a2250","#26397a","#3a5cb0","#5486d8","#7cacee","#b0d4ff"}
+local SKIN={"#6a3030","#a85a48","#d4846a","#eea488","#ffc4a4","#ffe0c8"}
+local WHT={"#6c6a92","#9a98c0","#c4c4e0","#e4e4f4","#f6f4ff","#fffff0"}
+local GIN={"#7a4a22","#a8682c","#d48c3c","#ecb050","#fcd078","#fff0a8"}
+local GRN={"#16382e","#1f5a3e","#2e7e4a","#44a04e","#6cc064","#9ce07c"}
+c:groundShadow(32,55,24,3)
+-- left gnome: tall red hat
+local lf = c:ellipse(19,35,8,7)
+local lhat = c:poly{{19,3},{29,28},{9,28}}
+local lbrim = c:rrect(7,26,31,30,1)
+local lbeard = c:poly{{10,34},{28,34},{19,53}}
+S(lf,SKIN,3,"lface"); S(lbeard,WHT,4,"lbeard")
+local nl = c:ellipse(19,35,3,3); S(nl,SKIN,2,"lnose")
+S(lhat,RED,6,"lhat"); S(lbrim,RED,2,"lbrim")
+P(15,33,"#2b1c26"); P(23,33,"#2b1c26"); P(14,32,"#2b1c26");P(24,32,"#2b1c26")
+for _,p in ipairs{{16,44},{21,46},{18,49},{22,41},{13,38}} do P(p[1],p[2],WHT[2]) end
+-- stripe on hat
+for y=14,22 do local hw=floor((y-3)*0.4) for x=19-hw,19+hw do if (y%5==0) then P(x,y,RED[2]) end end end
+-- right gnome: blue floppy hat, gold bell, ginger beard
+local rf = c:ellipse(45,36,8,7)
+local rhat = c:poly{{47,12},{55,31},{35,31}}
+local rbrim = c:rrect(33,29,57,33,1)
+local rbeard = c:poly{{37,37},{54,37},{45,54}}
+S(rf,SKIN,3,"rface"); S(rbeard,GIN,4,"rbeard")
+local nr = c:ellipse(45,38,3,3); S(nr,SKIN,2,"rnose")
+S(rhat,BLU,6,"rhat"); S(rbrim,BLU,2,"rbrim")
+local droop = G.tube({{47,12},{51,10},{56,12},{57,17}}, function(t) return 1.6-0.8*t end)
+S(droop,BLU,2,"droop")
+local bell = c:ellipse(57,19,2,2); S(bell,GIN,2,"bell"); P(57,19,"#7a4a22")
+P(41,35,"#2b1c26"); P(49,35,"#2b1c26")
+for _,p in ipairs{{42,45},{47,47},{45,50},{50,42},{39,41}} do P(p[1],p[2],GIN[2]) end
+-- quirk: tiny leaf tucked in the right hat band
+local lf2 = c:poly{{36,30},{40,26},{40,31}}; S(lf2,GRN,1,"leaf")
+
+G.save(c, NAME)

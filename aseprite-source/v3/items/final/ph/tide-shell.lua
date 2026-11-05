@@ -1,65 +1,50 @@
--- tide-shell (lean W2_34)
--- Scallop fan: ribbed pink valves with scalloped rim, two hinge ears, pearl at the hinge (quirk), barnacle dots.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- NAME (lean E2_16)
+local NAME = "tide-shell"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "tide-shell" }
-local floor, abs, sin, cos, pi, max, min, sqrt, atan = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
-local PINK = { "#5a2a5e", "#8a3d7a", "#b85a90", "#dc7fa4", "#f2a6b6", "#ffd6d2" }
-local PEARL = { "#9a8fb8", "#d8d0e6", "#fff6f4" }
-local HX, HY, NR = 32, 49, 11
-c:groundShadow(32, 54, 18, 3)
-local fan, ribs = HP.mask(), {}
-local A0 = 1.38
-for y = 14, 52 do for x = 8, 56 do
-  local dx, dy = x - HX, y - HY
-  local r = sqrt(dx*dx + dy*dy)
-  local th = atan(dx, -dy)
-  if abs(th) <= A0 and dy <= 0 then
-    local rib = (th / A0 * 0.5 + 0.5) * 9
-    local edge = 24.5 - 2.2 * abs(sin(rib * pi)) ^ 0.7 - 5 * (abs(th) / A0) ^ 3
-    if r <= edge then
-      fan:set(x, y)
-      ribs[K(x, y)] = { r = r, ph = abs(sin(rib * pi)), s = cos(rib * pi), th = th, edge = edge }
-    end
-  end
-end end
--- hinge base block
-local base = HP.mask()
-base:add(c:poly{ {HX - 9, HY - 2}, {HX + 9, HY - 2}, {HX + 12, HY + 4}, {HX - 12, HY + 4} })
-base:add(c:ellipse(HX, HY + 2, 12, 3))
-base:cut(c:rect(0, 0, 63, HY - 3))
-local all = fan:copy():add(base)
-local v = {}
-all:each(function(x, y)
-  local k = K(x, y)
-  local q = ribs[k]
-  local val
-  if q then
-    val = 0.5 + 0.28 * q.s * (q.th > 0 and -1 or 1) * -1
-    val = val + (1 - q.ph) * 0.12 - q.r / 24 * 0.2
-    if q.th < 0 then val = val + 0.12 else val = val - 0.1 end
-    -- concentric growth lines
-    if floor(q.r + 0.5) % 6 == 0 then val = val - 0.14 end
-  else
-    val = 0.4 - (y - HY) * 0.03
-  end
-  v[k] = max(0, min(1, val))
-end)
-G.tone(c, all, v, PINK, { 0.2, 0.36, 0.5, 0.64, 0.8 })
--- rib valley lines
-fan:each(function(x, y)
-  local q = ribs[K(x, y)]
-  if q and q.ph < 0.1 and q.r > NR and q.r < q.edge - 1 then c:px(x, y, PINK[2]) end
-end)
--- ears
-for _, s in ipairs{ -1, 1 } do
-  c:fillMask(c:poly{ {HX + s * 10, HY - 3}, {HX + s * 15, HY - 1}, {HX + s * 12, HY + 3} }, PINK[s < 0 and 4 or 2])
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local CUTS = { .22, .4, .56, .72, .86 }
+local _n = 0
+local function shade(m, ramp, R, o)
+  o = o or {}; _n = _n + 1
+  local n = X.pillow(m, R or 4)
+  local idx = X.tone(c, m, X.light(n, { amb = o.amb or .1, wrap = o.wrap or .25 }), ramp, { cuts = CUTS, tok = { r = { name = "p" .. _n } } })
+  return idx, n
 end
--- hinge shading + pearl
-for x = HX - 6, HX + 6 do c:px(x, HY + 3, PINK[1]) end
-c:fillMask(c:ellipse(HX, HY, 3, 3), PEARL[2])
-c:px(HX + 1, HY + 1, PEARL[1]) c:px(HX + 2, HY, PEARL[1]) c:px(HX - 1, HY - 1, PEARL[3]) c:px(HX - 2, HY - 1, PEARL[3])
--- highlight streak on upper-left valve, barnacles
-for i = 0, 5 do c:px(20 + i, 27 - i, PINK[6]) end
-c:px(21, 26, PINK[6]) c:px(44, 38, PEARL[2]) c:px(45, 38, PEARL[3]) c:px(44, 39, PEARL[1]) c:px(40, 22, PEARL[2]) c:px(40, 23, PEARL[1])
-G.fin(c, "tide-shell")
+local function tok() _n = _n + 1 return { r = { name = "q" .. _n } } end
+local function put(m, col) local t = tok() m:each(function(x, y) c:put(x, y, col, t) end) end
+local function bez(p, t) local u = 1 - t
+  return u*u*u*p[1][1] + 3*u*u*t*p[2][1] + 3*u*t*t*p[3][1] + t*t*t*p[4][1],
+         u*u*u*p[1][2] + 3*u*u*t*p[2][2] + 3*u*t*t*p[3][2] + t*t*t*p[4][2] end
+
+local SH = { "#6a3a3c", "#946054", "#bc8a6c", "#dcb08a", "#f2d4aa", "#fff2d4" }
+local PINK = { "#7a2438", "#b04058", "#d8687c", "#f090a0", "#ffc0c4", "#ffe8e4" }
+local STR = "#7a4034"
+c:groundShadow(32, 58, 20, 2)
+-- spire (stacked whorls, upper right)
+local W = { { 40, 24, 9, 7 }, { 45, 16, 6, 5 }, { 48, 10, 4, 3 } }
+for i = 3, 1, -1 do local w = W[i] shade(c:ellipse(w[1], w[2], w[3], w[4]), SH, w[4]) end
+-- siphon tail (lower left)
+shade(c:poly{ {18, 44}, {30, 52}, {22, 56}, {8, 56} }, SH, 4)
+-- body whorl
+local body = c:ellipse(30, 40, 19, 14)
+shade(body, SH, 9, { amb = .2, wrap = .3 })
+-- spiral grooves
+for _, r in ipairs{ 0.5, 0.72, 0.9 } do
+  for a = 3.4, 6.1, 0.07 do
+    local x, y = floor(30 + cos(a) * 19 * r + .5), floor(40 + sin(a) * 14 * r + .5)
+    if body:has(x, y) then c:put(x, y, STR) end end end
+-- shoulder knobs
+for _, p in ipairs{ {14, 33}, {19, 28}, {26, 26}, {34, 27} } do shade(c:ellipse(p[1], p[2], 2, 2), SH, 2) c:put(p[1] + 1, p[2] + 1, SH[1]) end
+-- aperture: flared pink lip with dark throat
+local ap = c:ellipse(36, 46, 9, 7)
+shade(ap, PINK, 6, { amb = .3, wrap = .35 })
+put(c:ellipse(37, 47, 5, 4), "#4a1424")
+put(c:ellipse(37, 48, 3, 2), "#2a0c18")
+-- quirk: a tiny pearl in the throat and a water droplet
+shade(c:ellipse(38, 49, 1, 1), { "#c0b8cc", "#e8e0f0", "#f6fbff" }, 1)
+shade(c:ellipse(12, 24, 1, 2), { "#2c6ab4", "#68b0e4", "#e8f6fc" }, 1)
+c:sparkle(24, 30)
+
+G.save(c, NAME)

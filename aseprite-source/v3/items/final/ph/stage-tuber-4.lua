@@ -1,79 +1,111 @@
--- stage-tuber-4 (lean W2_26)
--- Mature potato plant: tall stem with pinnate compound leaves and a pale-violet flower cluster, big tuber bulging out of a hill, stolon with baby tuber.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-tuber-4 (lean E2_13)
+local NAME = "stage-tuber-4"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local LEAF  = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local SOIL  = { "#2e1d24", "#4a2d2c", "#6b4330", "#8c5c3a", "#aa7a4c", "#c79a64" }
-local SPOT  = { "#2e1d24", "#4a2d2c", "#6b4330" }
-local CUTS  = { 0.2, 0.38, 0.55, 0.7, 0.86 }
-local ltok = { r = { name = "leaf" } }
-local function blade(c, ax, ay, bx, by, wmax, ramp)
-  local m, n, T, S = X.cyl(ax, ay, bx, by, function(t)
-    if t > 0.985 then return -1 end
-    return max(0.6, wmax * sin(pi * min(1, t * 0.93 + 0.07)) ^ 0.7)
-  end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.25 }), ramp or LEAF, CUTS, nil, ltok)
-  m:each(function(x, y) local k = K(x, y)
-    local s, t = S[k], T[k]
-    if abs(s) < 0.2 and t < 0.93 and t > 0.1 then c:put(x, y, s <= 0 and LEAF[6] or LEAF[3], ltok) end
-  end)
-  return m
+local CUTS = { .22, .4, .56, .72, .86 }
+local SOIL = { "#2e1d1a", "#4a2e25", "#6a4430", "#8a5e3e", "#a97a50", "#c79a68" }
+local PL   = { "#12302e", "#1c4a3a", "#2a6a42", "#3d8a4a", "#5fa856", "#8cc668" }
+local PST  = { "#3a2a3a", "#5a3a4a", "#7a5a52", "#5f8a48", "#86ae5a", "#b0cf7a" }
+local SPUD = { "#4a2c26", "#6e4234", "#946048", "#b98462", "#d6a67c", "#efc9a0" }
+local PURP = { "#3a2250", "#5a3a82", "#7d5cab", "#9f84cc", "#c3ade6", "#e8dcf7" }
+local function tn(m, n, ramp, tag, o)
+  o = o or {}
+  return G.toneN(c, m, n, ramp, { tok = { r = { name = tag } }, cuts = CUTS, amb = o.amb or .1, wrap = o.wrap or .22, bias = o.bias })
 end
-local function soil(c, cx, cy, rx, ry, seed)
-  local m = c:ellipse(cx, cy, rx, ry)
-  local v = X.light(X.pillow(m, ry), { amb = 0.1, wrap = 0.3 })
-  G.tone(c, m, v, SOIL, { 0.2, 0.36, 0.52, 0.68, 0.84 })
-  m:copy():shrink(1):each(function(x, y) local h = X.hash(x, y, seed)
-    if h > 0.9 then c:px(x, y, SOIL[6]) elseif h < 0.08 then c:px(x, y, SOIL[1]) end end)
-  return m
-end
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-tuber-4" }
-local PO = { "#4b2f2a", "#6e4630", "#93633e", "#b78350", "#d4a468", "#ecc88a" }
-local STALK = { "#3b6449", "#5b8d5a", "#88b46e", "#b9d793" }
-c:groundShadow(32, 57, 24, 3)
-soil(c, 32, 53, 25, 6, 9)
--- big tuber bulging forward
-local pm = HP.mask()
-pm:add(c:ellipse(28, 50, 15, 7)) pm:add(c:ellipse(40, 52, 10, 6))
-pm:cut(c:rect(0, 55, 63, 63))
-G.tone(c, pm, X.light(X.pillow(pm, 7), { amb = 0.08, wrap = 0.25 }), PO, { 0.2, 0.38, 0.54, 0.7, 0.86 })
-for _, e in ipairs{ {21,50},{31,48},{38,53},{27,53} } do c:px(e[1], e[2], PO[1]) c:px(e[1]+1, e[2]-1, PO[6]) end
-pm:copy():shrink(1):each(function(x, y) if X.hash(x, y, 2) > 0.92 then c:px(x, y, PO[2]) end end)
-c:px(20, 47, "#fff3dc") c:px(21, 47, "#fff3dc")
--- stem, slightly bent
-local sm, sn = G.tube({ {32, 47}, {31, 38}, {33, 28}, {32, 14} }, function(t) return 1.7 - 0.7 * t end)
-G.tone(c, sm, X.light(sn, { amb = 0.2, wrap = 0.3 }), STALK, { 0.3, 0.55, 0.8 })
--- compound leaves: rachis + leaflet ovals
-local function comp(ax, ay, bx, by, n, r)
-  local len = sqrt((bx-ax)^2 + (by-ay)^2) local ux, uy = (bx-ax)/len, (by-ay)/len
-  for i = 1, n do
-    local t = i / (n + 0.6) local px, py = ax + (bx-ax) * t, ay + (by-ay) * t
-    local rr = r * (1 - 0.35 * t)
-    for _, side in ipairs{ -1, 1 } do
-      local cx, cy = px - uy * side * (rr + 0.8), py + ux * side * (rr + 0.8)
-      local lm = G.rell(cx, cy, -uy * side, ux * side, rr + 0.8, rr)
-      G.tone(c, lm, X.light(X.pillow(lm, 1.6), { amb = 0.15, wrap = 0.3 }), LEAF, CUTS, nil, ltok)
-      c:px(floor(cx + 0.5), floor(cy + 0.5), LEAF[6])
+local function ov(cx, cy, rx, ry, ang, ramp, tag, rib)
+  local m, n = G.oval(cx, cy, rx, ry, ang, 1.0)
+  tn(m, n, ramp, tag)
+  if rib then
+    local ca, sa = cos(ang), sin(ang)
+    for i = -rx + 1, rx - 1, 0.5 do
+      local x, y = floor(cx + ca * i + .5), floor(cy + sa * i + .5)
+      if m:has(x, y) then c:put(x, y, ramp[5], { r = { name = tag .. "rib" } }) end
     end
   end
-  G.line(c, { {ax, ay}, {bx, by} }, STALK[2])
-  local tm = G.rell(bx, by, ux, uy, r + 0.8, r)
-  G.tone(c, tm, X.light(X.pillow(tm, 1.8), { amb = 0.15, wrap = 0.3 }), LEAF, CUTS, nil, ltok)
+  return m
 end
-comp(31, 40, 12, 38, 3, 2.6) comp(32, 41, 53, 37, 3, 2.6)
-comp(32, 31, 15, 22, 3, 2.3) comp(33, 30, 50, 21, 3, 2.3)
--- flower cluster at top
-local FL = { "#5d3f86", "#8a68b4", "#b898d8", "#e2d0ee", "#fff8ee" }
-for _, f in ipairs{ {29,11},{35,10},{32,7},{26,15},{38,14} } do
-  local fx, fy = f[1], f[2]
-  c:fillMask(c:ellipse(fx, fy, 2.4, 2.4), FL[3])
-  c:px(fx - 2, fy, FL[2]) c:px(fx + 2, fy, FL[2]) c:px(fx, fy + 2, FL[1]) c:px(fx + 1, fy + 1, FL[2])
-  c:px(fx - 1, fy - 1, FL[4]) c:px(fx, fy, "#f2c23c") c:px(fx + 1, fy, "#d99a22")
+local function bl(ax, ay, cx, cy, bx, by, w, ramp, tag, o)
+  o = o or {}
+  local m, n, T, S, len = G.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.92 + 0.08)
+    return max(0.5, w * sin(pi * u ^ 1.1) ^ 0.7)
+  end, { fold = o.fold or 0.45 })
+  tn(m, n, ramp, tag, { amb = .12, wrap = .22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.12 and t > 0.03 and t < 0.9 then c:put(x, y, s <= 0 and ramp[6] or ramp[2], { r = { name = tag } }) return end
+    if o.veins then for _, vt in ipairs(o.veins) do
+      local d = t * len - (vt + abs(s) * 4)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.2 and abs(s) < 0.75 then c:put(x, y, s < 0 and ramp[5] or ramp[2], { r = { name = tag } }) return end
+    end end
+  end)
+  if o.serr then m:edge():each(function(x, y) local k = K(x, y)
+    if T[k] > 0.25 and T[k] < 0.95 and X.hash(x, y, 7) > 0.55 and (x + y) % 3 == 0 then c.pix[y * c.w + x] = nil c.own[y * c.w + x] = nil end end) end
+  return m, n, T, S
 end
-c:px(31, 8, FL[5]) c:px(28, 10, FL[5])
--- stolon with baby tuber (quirk), left
-G.line(c, { {14, 54}, {10, 55}, {8, 55} }, STALK[2])
-local bm = c:ellipse(7, 56, 3.2, 2.6)
-G.tone(c, bm, X.light(X.pillow(bm, 3), { amb = 0.1, wrap = 0.25 }), PO, { 0.2, 0.38, 0.54, 0.7, 0.86 })
-G.fin(c, "stage-tuber-4")
+local function tb(pts, w, ramp, tag)
+  if #pts == 2 then local a, b = pts[1], pts[2]
+    pts = { a, { a[1] + (b[1] - a[1]) / 3, a[2] + (b[2] - a[2]) / 3 }, { a[1] + (b[1] - a[1]) * 2 / 3, a[2] + (b[2] - a[2]) * 2 / 3 }, b }
+  elseif #pts == 3 then local a, q, b = pts[1], pts[2], pts[3]
+    pts = { a, { a[1] + (q[1] - a[1]) * 2 / 3, a[2] + (q[2] - a[2]) * 2 / 3 }, { b[1] + (q[1] - b[1]) * 2 / 3, b[2] + (q[2] - b[2]) * 2 / 3 }, b } end
+  local m, n, T = G.tube(pts, function(t) return type(w) == "function" and w(t) or w end)
+  tn(m, n, ramp, tag, { amb = .15, wrap = .3 })
+  return m
+end
+local function soil(cx, cy, rx, ry)
+  c:groundShadow(cx, cy + ry - 1, rx + 1, 3)
+  local m, n = G.oval(cx, cy, rx, ry, 0, 0.7)
+  local idx = tn(m, n, SOIL, "soil")
+  m:each(function(x, y) local k = K(x, y) local h = X.hash(x, y, 5)
+    if h > 0.9 and idx[k] and idx[k] >= 2 then c:put(x, y, SOIL[max(1, idx[k] - 2)], { r = { name = "soil" } })
+    elseif h < 0.05 and idx[k] and idx[k] >= 3 then c:put(x, y, SOIL[min(6, idx[k] + 2)], { r = { name = "soil" } }) end end)
+  return m
+end
+local function compound(bx, by, ang, len, np, ramp, tag, ls)
+  ls = ls or 3
+  local ex, ey = bx + cos(ang) * len, by + sin(ang) * len
+  c:line({ { bx, by }, { ex, ey } }, 1):each(function(x, y) c:put(x, y, ramp[3], { r = { name = tag .. "r" } }) end)
+  ov(ex + cos(ang) * ls * .5, ey + sin(ang) * ls * .5, ls * 1.15, ls * .72, ang, ramp, tag .. "t", true)
+  for i = np, 1, -1 do
+    local t = i / (np + .5)
+    local px, py = bx + (ex - bx) * t, by + (ey - by) * t
+    local s = ls * (1.1 - 0.4 * t)
+    for _, sg in ipairs{ -1, 1 } do
+      local a = ang + sg * 1.05
+      ov(px + cos(a) * s * .85, py + sin(a) * s * .85, s, s * .64, a, ramp, tag .. i .. sg, true)
+    end
+  end
+end
+local function eyes(m, pts, tag)
+  for _, p in ipairs(pts) do if m:has(p[1], p[2]) then c:put(p[1], p[2], SPUD[1], { r = { name = tag } }) if m:has(p[1] - 1, p[2] - 1) then c:put(p[1] - 1, p[2] - 1, SPUD[5], { r = { name = tag } }) end end end
+end
+soil(32, 51, 21, 6)
+tb({ { 29, 50 }, { 29, 40 }, { 30, 30 }, { 29, 20 } }, 1.3, PST, "stalk")
+compound(29, 44, -2.9, 12, 2, PL, "a1", 3.0)
+compound(29, 42, -0.2, 12, 2, PL, "a2", 3.0)
+compound(29, 34, -2.4, 10, 2, PL, "b1", 2.8)
+compound(29, 33, -0.8, 10, 2, PL, "b2", 2.8)
+-- star flowers
+local function flower(cx, cy, r, tag)
+  for k = 0, 4 do
+    local a = -pi / 2 + k * 2 * pi / 5
+    ov(cx + cos(a) * r * 1.05, cy + sin(a) * r * 1.05, r * 1.0, r * .72, a, PURP, tag .. k)
+  end
+  ov(cx, cy, r * .55, r * .55, 0, { "#a06a10", "#c8901a", "#e8b028", "#f8cc3c", "#ffe070", "#fff4a8" }, tag .. "c")
+end
+c:line({ { 29, 22 }, { 36, 14 } }, 1):each(function(x, y) c:put(x, y, PL[3], { r = { name = "fs1" } }) end)
+c:line({ { 29, 22 }, { 22, 14 } }, 1):each(function(x, y) c:put(x, y, PL[3], { r = { name = "fs2" } }) end)
+flower(29, 14, 3.3, "f1")
+flower(37, 11, 2.7, "f2")
+flower(21, 12, 2.7, "f3")
+-- unearthed big potatoes in front
+local p1 = ov(45, 47, 8, 5.6, -0.2, SPUD, "spud1")
+eyes(p1, { { 42, 45 }, { 47, 49 }, { 49, 45 }, { 41, 49 } }, "spud1")
+local p2 = ov(40, 53, 4, 2.8, 0.2, SPUD, "spud2")
+eyes(p2, { { 39, 53 } }, "spud2")
+-- quirk: a bee visiting the flower
+ov(44, 15, 2.2, 1.5, 0, { "#2b1c26", "#6a4a10", "#c89018", "#f2c030", "#ffe070", "#fff0a0" }, "bee")
+c:put(44, 15, "#2b1c26", { r = { name = "bee" } }) c:put(43, 12, "#dff4ff", { r = { name = "bee" } }) c:put(45, 12, "#dff4ff", { r = { name = "bee" } })
+G.save(c, NAME)

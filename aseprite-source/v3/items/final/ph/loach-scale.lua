@@ -1,35 +1,48 @@
--- loach-scale (lean W2_8)
+-- loach-scale (lean E2_03)
+local NAME = "loach-scale"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w=64, h=64, scale=1, name="loach-scale" }
-local abs, sqrt, atan2, pi = math.abs, math.sqrt, math.atan2 or function(y,x) return math.atan(y,x) end, math.pi
-local ICE = { "#5a6c98", "#8498c0", "#aebfdc", "#cbd9ee", "#e4eefa", "#f4faff" }
-local OLV = { "#3e3a20", "#665e2c", "#8e8440", "#b4a858", "#d6ca78", "#f0e6a0" }
-local tok = { r = { name = "scale" } }
--- fan-shaped scale: wide round front (top), narrow embedded root bottom-left
-local sc = HP.mask() sc:add(c:ellipse(32, 29, 17, 20))
-local n = X.pillow(sc, 10)
-G.toneN(c, sc, n, ICE, { tok = tok })
--- concentric circuli rings (centred low in the scale) + radial grooves from focus
-local fx, fy = 30, 40
-sc:each(function(x, y)
-  local dx, dy = x - fx, y - fy
-  local r = sqrt(dx*dx + dy*dy)
-  if r % 3.2 < 0.8 and r > 3 and y < 46 then c:put(x, y, (dx + dy < 0) and ICE[5] or ICE[2], tok) end
-  local ang = atan2(dy, dx)
-  for _, a in ipairs{ -2.35, -1.95, -1.57, -1.2, -0.8 } do
-    if abs(ang - a) * r < 0.55 and r > 5 and r < 24 then c:put(x, y, ICE[1], tok) end
-  end
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local T = { r = { name = "d" } }
+local function body(m, ramp, R, name, amb)
+  local n = X.pillow(m, R)
+  local idx = X.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, { cuts = { .22, .4, .56, .72, .86 }, tok = { r = { name = name } } })
+  return n, idx
+end
+local function draw(lm, hex, within) lm:each(function(x, y) if (not within) or within:has(x, y) then c:put(x, y, hex, T) end end) end
+local function dot(x, y, hex, within) if (not within) or within:has(x, y) then c:put(x, y, hex, T) end end
+c:groundShadow(32, 54, 14, 2)
+local cx, cy = 32, 32
+local m = HP.mask()
+for y = 8, 56 do for x = 8, 56 do
+  local dx, dy = (x - cx) / 22, (y - cy) / 18
+  local ang = math.atan(dy, dx)
+  local r = sqrt(dx * dx + dy * dy)
+  local scal = 1 + (ang < 0 and 0.03 * sin(ang * 9) or 0)   -- scalloped top rim
+  if r <= scal then m:set(x, y) end
+end end
+-- flat narrow base notch (the embedded end)
+local R = { "#34507a", "#5d79a4", "#8aa4c8", "#b2c6e0", "#d4e2f0", "#eef6fc" }
+body(m, R, 18, "lscale")
+-- growth rings: arcs around the focus lower in the scale
+local fx, fy = 32, 42
+m:each(function(x, y)
+  local d = sqrt(((x - fx) / 1.25) ^ 2 + (y - fy) ^ 2)
+  local k = d % 7
+  if k < 1.0 and d > 4 then c:put(x, y, (x < fx) and R[5] or R[2], T) end
 end)
--- olive-gold skin patch where the scale was seated (lower-right), with pores
-local patch = HP.mask() patch:add(c:ellipse(40, 46, 11, 8)) patch:clip(sc:copy():grow(0))
-local pm = c:ellipse(33, 40, 17, 20) pm = HP.mask() pm:add(c:ellipse(32, 29, 17, 20))
-patch:each(function(x, y) if (x - 40)*0.7 + (y - 46) > 2 then end end)
-local seat = HP.mask()
-sc:each(function(x, y) if (x - 32) * 0.6 + (y - 29) * 0.8 > 15 and (x - 32) > -6 then seat:set(x, y) end end)
-G.toneN(c, seat, X.pillow(seat, 6), OLV, { tok = tok })
-for _, p in ipairs{ {37,47},{41,44},{44,48},{39,51},{43,52} } do if seat:has(p[1], p[2]) then c:put(p[1], p[2], OLV[1], tok) end end
--- spec glint + quirk: a tiny pink-blue iridescent streak
-c:put(23, 17, "#fff6f2", tok) c:put(24, 17, "#fff6f2", tok) c:put(23, 18, "#fff6f2", tok)
-for i = 0, 8 do c:put(34 + i // 2, 13 + i, (i % 2 == 0) and "#f4b4e0" or "#a0e0f0", tok) end
-G.save(c, "loach-scale")
+-- radial grooves from the focus to the rim
+for i = -2, 2 do
+  local a = -pi / 2 + i * 0.5
+  local pts = { { fx, fy - 4 }, { fx + cos(a) * 24, fy + sin(a) * 24 } }
+  draw(c:line(pts, 1), i < 0 and R[6] or R[2], m)
+end
+-- iridescent pink-gold patch on the lower right
+m:each(function(x, y) if x > 38 and y > 40 and (x - 38) + (y - 40) > 6 and X.hash(x, y, 4) > 0.15 then c:put(x, y, (x + y) % 2 == 0 and "#f0c8a8" or "#e8a8b8", T) end end)
+-- sparkle + water drop quirk
+dot(22, 17, "#fff6e0", m) dot(23, 17, "#fff6e0", m) dot(22, 18, "#fff6e0", m)
+local drop = c:ellipse(46, 18, 2, 3)
+body(drop, { "#2a6a8a", "#3f90b0", "#68b8d0", "#9adcea", "#c8f0f6", "#f0ffff" }, 2.5, "drop")
+dot(45, 17, "#fff6e0")
+G.save(c, NAME)

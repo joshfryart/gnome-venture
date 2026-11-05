@@ -25,11 +25,11 @@ local legs = legL:copy():add(legR)
 
 local hub = { 36, 45 }
 local leaflets = {   -- ax, ay, ctrl x, ctrl y, tip x, tip y, half width
-  { hub[1], hub[2], 47, 37, 56, 23, 6.0 },
-  { hub[1], hub[2], 36, 28, 33, 7, 6.6 },
-  { hub[1], hub[2], 24, 35, 11, 25, 6.0 },
-  { hub[1], hub[2], 46, 46, 54, 47, 3.2 },
-  { hub[1], hub[2], 26, 46, 14, 44, 3.0 },
+  { hub[1], hub[2], 46, 40, 53, 31, 7.6 },
+  { hub[1], hub[2], 36, 34, 36, 21, 8.2 },
+  { hub[1], hub[2], 26, 40, 19, 31, 7.6 },
+  { hub[1], hub[2], 47, 47, 54, 49, 3.4 },
+  { hub[1], hub[2], 25, 47, 18, 49, 3.2 },
 }
 local ltok = { r = { name = "leaf" } }
 local allLeaf = HP.mask()
@@ -39,11 +39,11 @@ for i, L in ipairs(leaflets) do
     if t > 0.985 then return -1 end
     if t < 0.14 then return 0.55 end
     local u = (t - 0.14) / 0.86
-    return math.max(0.5, L[7] * math.sin(math.pi * u ^ 1.7) ^ 0.55)
+    return math.max(0.5, L[7] * math.sin(math.pi * u ^ 1.15) ^ 0.5)
   end, { fold = 0.38 })
   -- serration: fine forward-pointing teeth, both margins
   m:edge():each(function(x, y) local k = K(x, y)
-    if T[k] > 0.3 and T[k] < 0.94 and (T[k] * len + (S[k] > 0 and 1 or 0)) % 2.6 < 0.9 then m.s[k] = nil end end)
+    if T[k] > 0.3 and T[k] < 0.94 and (T[k] * len + (S[k] > 0 and 1 or 0)) % 4.2 < 0.7 then m.s[k] = nil end end)
   m:cut(allLeaf)
   local bias = {}
   X.ao(bias, m, front, 1, -1) G.cast(bias, m, sm, 2, 2, -1) G.cast(bias, m, sm, 1, 3, -1) G.cast(bias, m, legs, 1, 1, -1)
@@ -62,6 +62,18 @@ for i, L in ipairs(leaflets) do
   end)
   allLeaf:add(m)
 end
+-- red berry cluster (ginseng's signature), clear of the leaf fan
+local SK = { "#2f6a3c", "#62a845" }
+for _, pt in ipairs{ {40,22},{41,21},{42,20},{43,19},{44,18},{45,17},{46,16},{47,15},{48,16},{49,17},{50,18},{51,18} } do c:put(pt[1], pt[2], SK[1], { r = { name = "stalk" } }) end
+local BR = { "#7a1424", "#b52434", "#e0484a", "#ff9a86" }
+local btok = { r = { name = "berry" } }
+for _, b in ipairs{ { 47, 14 }, { 52, 17 }, { 43, 18 } } do
+  for dy = -1, 1 do for dx = -1, 1 do
+    if math.abs(dx) + math.abs(dy) < 3 then c:put(b[1] + dx, b[2] + dy, (dx + dy > 0) and BR[1] or BR[3], btok) end
+  end end
+  c:put(b[1], b[2] + 1, BR[2], btok) c:put(b[1] - 1, b[2] - 1, BR[4], btok)
+end
+
 -- petiole: rounded stalk, pale lit edge, dark joint at the hub
 local pet = c:line({ { 37, 46 }, { 39, 50 }, { 41, 54 }, { 42, 56 } }, 2)
 pet:cut(allLeaf)

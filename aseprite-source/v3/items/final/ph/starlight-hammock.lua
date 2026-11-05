@@ -1,54 +1,92 @@
--- starlight-hammock (lean W2_27)
--- Two carved posts, twisted rope hooks and a sagging indigo woven cloth sewn with gold stars. Quirk: a tiny star charm dangles on a thread.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- starlight-hammock (lean E2_14)
+local NAME = "starlight-hammock"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function shade(c, m, ramp, R, o) o = o or {} local n = X.pillow(m, R) local v = X.light(n, { amb = o.amb or 0.1, wrap = o.wrap or 0.25 }) G.tone(c, m, v, ramp, o.cuts, o.bias) return n, v end
-local function maskf(x0, y0, x1, y1, f) local m = HP.mask() for y = y0, y1 do for x = x0, x1 do if f(x, y) then m:set(x, y) end end end return m end
-
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "starlight-hammock" }
-local WOOD = { "#3a2218", "#5b3a24", "#7f5233", "#a2703f", "#c4935a", "#e0b983" }
-local NAVY = { "#171b45", "#24296a", "#33409a", "#4a5fc0", "#6f86dc", "#a2b6f2" }
-local ROPE = { "#6b5130", "#98763f", "#c49e5a", "#e6cc8c" }
-local GOLD = "#ffd95a"
-c:groundShadow(32, 57, 24, 3)
--- posts
-for _, px in ipairs{ 8, 51 } do
-  local m = maskf(px, 13, px + 5, 56, function(x, y) return true end)
-  m:add(maskf(px - 1, 9, px + 6, 14, function(x, y) return ((x - px - 2.5) / 4.5)^2 + ((y - 12) / 3.5)^2 <= 1 end))
-  local n = X.pillow(m, 4)
-  local v = X.light(n, { amb = 0.1, wrap = 0.2 })
-  G.tone(c, m, v, WOOD, { 0.2, 0.38, 0.55, 0.72, 0.87 })
-  m:each(function(x, y) if (x - px) % 3 == 1 and X.hash(x, floor(y / 5), 5) > 0.4 and y > 15 then c:px(x, y, WOOD[2]) end end)
-  c:px(px + 1, 11, WOOD[6]) c:px(px + 1, 10, WOOD[5])
-  c:fillMask(c:rect(px - 1, 54, px + 6, 56), WOOD[1])
+local GREY = { "#2f2c3a", "#4b475a", "#6b6678", "#8c879a", "#aeaabb", "#d3d0dc" }
+local WARM = { "#3a2c2c", "#5e4a44", "#86705e", "#a8917a", "#c9b394", "#e6d6b4" }
+local ROSE = { "#3a2a36", "#5e4558", "#86647a", "#a8829a", "#c9a2b8", "#e6c8d6" }
+local GRASS = { "#16382f", "#1f5236", "#2f7040", "#4a8f4a", "#74b05a", "#a4d070" }
+local SOIL = { "#2a1a1c", "#44291f", "#5f3a28", "#7e5233", "#9c6c40", "#bb8a55" }
+local WOOD = { "#2e1c1c", "#4d2e24", "#6e4530", "#8f5f3e", "#b17d4e", "#d3a266" }
+local STEEL = { "#27293c", "#434a63", "#66708a", "#8e9ab2", "#bcc8da", "#eaf0f8" }
+local function shade(m, R, rad, name, o)
+  local n = X.pillow(m, rad or 3)
+  o = o or {}
+  o.tok = { r = { name = name } }
+  G.toneN(c, m, n, R, o)
+  return n
+end
+local function stone(m, R, seed, d)
+  d = d or 0
+  local tok = { r = { name = "s" .. seed } }
+  m:each(function(x, y)
+    local up, lf, dn, rt = m:has(x, y - 1), m:has(x - 1, y), m:has(x, y + 1), m:has(x + 1, y)
+    local i, h = 3, X.hash(x, y, seed)
+    if h > 0.9 then i = 4 elseif h < 0.1 then i = 2 end
+    if not up or not lf then i = 5 end
+    if not dn or not rt then i = 2 end
+    if not up and not lf then i = 6 end
+    c:put(x, y, R[max(1, min(6, i + d))], tok)
+  end)
+end
+local function leaf(ax, ay, cx, cy, bx, by, w, R, veins, name, vcol)
+  local m, n, T, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.9 + 0.1)
+    return max(0.5, w * sin(pi * u ^ 1.2) ^ 0.7)
+  end, { fold = 0.45 })
+  local tok = { r = { name = name } }
+  G.toneN(c, m, n, R, { tok = tok, cuts = { 0.18, 0.34, 0.5, 0.66, 0.82 }, amb = 0.1, wrap = 0.22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.13 and t > 0.04 and t < 0.92 then c:put(x, y, s <= 0 and R[6] or R[2], tok) return end
+    for _, vt in ipairs(veins) do
+      local d = t * L - (vt + abs(s) * 4)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.25 and abs(s) < 0.75 then c:put(x, y, s < 0 and R[5] or R[2], tok) return end
+    end
+  end)
+  return m
+end
+local function plus(x, y, a, b)
+  c:put(x, y, b) c:put(x - 1, y, a) c:put(x + 1, y, a) c:put(x, y - 1, a) c:put(x, y + 1, a)
+end
+local BLUE = { "#141c4a", "#1f2d78", "#2f46a4", "#4766c8", "#6c8ce0", "#a2bcf4" }
+local ROPE = { "#6a4c32", "#a47c52", "#d2aa74" }
+c:groundShadow(32, 57, 25, 3)
+for _, px in ipairs{ 10, 48 } do
+  local post = c:rrect(px, 8, px + 5, 54, 2)
+  shade(post, WOOD, 3, "post" .. px, { amb = 0.1, wrap = 0.15 })
+  post:each(function(x, y) if X.hash(x, floor(y / 4), px) > 0.72 and x > px then c:put(x, y, WOOD[2]) end end)
+  c:rect(px, 52, px + 5, 54):each(function(x, y) c:put(x, y, WOOD[1]) end)
+  c:put(px + 1, 10, WOOD[6]) c:put(px + 1, 11, WOOD[5])
 end
 -- cloth
-local function top(x) return 21 + 15 * sin(pi * (x - 14) / 36) end
-local cloth = maskf(14, 18, 50, 52, function(x, y)
-  local u = (x - 14) / 36
-  if u < 0 or u > 1 then return false end
-  local t = top(x)
-  return y >= t and y <= t + 2 + 11 * sin(pi * u) ^ 0.8
-end)
-local n = X.pillow(cloth, 6)
-local v = X.light(n, { amb = 0.14, wrap = 0.3 })
-G.tone(c, cloth, v, NAVY, { 0.18, 0.34, 0.5, 0.68, 0.86 })
-cloth:each(function(x, y) if (x + y) % 2 == 0 and X.hash(x, y, 6) > 0.55 then c:px(x, y, v[K(x, y)] > 0.5 and NAVY[4] or NAVY[2]) end end)
-cloth:copy():cut(cloth:copy():shrink(1)):each(function(x, y) if y < 30 then c:px(x, y, NAVY[5]) end end)
-local function star(x, y) c:px(x, y, GOLD) c:px(x - 1, y, GOLD) c:px(x + 1, y, GOLD) c:px(x, y - 1, GOLD) c:px(x, y + 1, GOLD) c:px(x - 1, y - 1, "#c98f2a") end
-star(26, 34) star(37, 37) star(32, 30)
-c:px(20, 28, GOLD) c:px(44, 29, GOLD) c:px(31, 42, "#fff1b0") c:px(41, 33, "#fff1b0")
--- ropes from posts to cloth ends
-G.line(c, { {13, 18}, {15, 20}, {16, 22}, {17, 24} }, ROPE[3])
-G.line(c, { {14, 18}, {16, 20}, {17, 22}, {18, 24} }, ROPE[1])
-G.line(c, { {51, 18}, {49, 20}, {48, 22}, {47, 24} }, ROPE[3])
-G.line(c, { {50, 18}, {48, 20}, {47, 22}, {46, 24} }, ROPE[1])
-c:fillMask(c:rect(12, 16, 15, 18), ROPE[2]) c:fillMask(c:rect(48, 16, 51, 18), ROPE[2])
-c:px(13, 17, ROPE[4]) c:px(49, 17, ROPE[4])
-c:px(14, 20, ROPE[1]) c:px(49, 21, ROPE[1])
--- charm (quirk)
-G.line(c, { {32, 49}, {32, 51} }, ROPE[3])
-c:fillMask(c:rect(31, 52, 33, 52), GOLD) c:fillMask(c:rect(30, 53, 34, 53), GOLD) c:fillMask(c:rect(31, 54, 33, 54), GOLD) c:px(30, 55, GOLD) c:px(34, 55, GOLD) c:px(32, 51, ROPE[2])
-c:px(32, 53, "#fff1b0")
-G.fin(c, "starlight-hammock")
+local m = HP.mask()
+for x = 16, 47 do
+  local t = (x - 16) / 31
+  local sag = 4 * t * (1 - t)
+  local y0 = floor(17 + 16 * sag)
+  local y1 = floor(y0 + 2.5 + 6.5 * sag)
+  for y = y0, y1 do m:set(x, y) end
+end
+local n = X.pillow(m, 4)
+local idx = X.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), BLUE, { cuts = { 0.2, 0.36, 0.52, 0.68, 0.84 }, tok = { r = { name = "cloth" } } })
+m:each(function(x, y) if (x + y) % 4 == 0 then c:put(x, y, BLUE[max(1, idx[K(x, y)] - 1)]) end end)
+for _, p in ipairs{ {23, 29}, {29, 36}, {37, 36}, {41, 28} } do
+  if m:has(p[1], p[2]) and m:has(p[1] - 1, p[2]) and m:has(p[1], p[2] + 1) and m:has(p[1], p[2] - 1) and m:has(p[1] + 1, p[2]) then plus(p[1], p[2], "#ffe27a", "#fff6c8") end
+end
+-- rope wraps where cloth is lashed to posts
+for _, px in ipairs{ 10, 48 } do
+  for i = 0, 3 do
+    local y = 15 + i * 2
+    c:rect(px, y, px + 5, y):each(function(x, yy) c:put(x, yy, (x + i) % 2 == 0 and ROPE[3] or ROPE[2]) end)
+  end
+  c:rect(px, 22, px + 5, 22):each(function(x, yy) c:put(x, yy, ROPE[1]) end)
+end
+-- quirk: a sleepy fallen star dangling below on a thread
+for y = 41, 44 do c:put(32, y, ROPE[2]) end
+local star = c:poly{ {32, 45}, {34, 48}, {38, 48}, {35, 51}, {36, 55}, {32, 53}, {28, 55}, {29, 51}, {26, 48}, {30, 48} }
+shade(star, { "#a8541c", "#d8821e", "#f0b028", "#ffd84a", "#ffec88", "#fff8d0" }, 3, "star", {})
+c:put(31, 49, "#fffbe0") c:put(32, 49, "#fffbe0")
+G.save(c, NAME)

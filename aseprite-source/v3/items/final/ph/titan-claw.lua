@@ -1,38 +1,42 @@
--- titan-claw (lean W2_34)
--- Big hooked talon hanging point-down: ridged horn, dark keratin tip, leather-bound root with a cord loop; chipped notch quirk.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- titan-claw (lean E2_17)
+local NAME = "titan-claw"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "titan-claw" }
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local HORN = { "#5b4a58", "#8a7466", "#b99f84", "#dcc7a0", "#f3e6c2", "#fff8e4" }
-local TIP  = { "#2b1c2e", "#4a2f3c", "#6e4450", "#93606a" }
-local LEA  = { "#3a2218", "#5e3a24", "#85552e", "#aa7a42" }
-c:groundShadow(34, 56, 12, 2)
-local m, n, T, S = G.tube({ {22, 14}, {20, 40}, {46, 40}, {46, 52} }, function(t) return 6.2 * (1 - t) ^ 0.8 + 0.7 end)
-local v = X.light(n, { amb = 0.12, wrap = 0.25 })
-local bias = {}
-m:each(function(x, y) local k = K(x, y)
-  local t = T[k]
-  local ring = (t * 40) % 4
-  if ring < 0.7 and t > 0.12 and t < 0.8 then bias[k] = -1 end
+local CUTS = { 0.18, 0.34, 0.5, 0.66, 0.82 }
+local function ell(cx, cy, rx, ry, a)
+  a = a or 0
+  local ca, sa = cos(a), sin(a)
+  local m = HP.mask()
+  for y = floor(cy - max(rx, ry)) - 1, floor(cy + max(rx, ry)) + 1 do for x = floor(cx - max(rx, ry)) - 1, floor(cx + max(rx, ry)) + 1 do
+    local dx, dy = x + 0.5 - cx, y + 0.5 - cy
+    local u, v = (dx * ca + dy * sa) / rx, (-dx * sa + dy * ca) / ry
+    if u * u + v * v <= 1 then m:set(x, y) end
+  end end
+  return m
+end
+local function shade(m, ramp, tok, R, amb, wrap)
+  local n = X.pillow(m, R)
+  G.toneN(c, m, n, ramp, { tok = tok, cuts = CUTS, amb = amb or 0.1, wrap = wrap or 0.2 })
+  return n
+end
+local function dot(x, y, col, tok) c:put(floor(x), floor(y), col, tok) end
+local BONE = { "#3b2a2e", "#6e5a52", "#a08b78", "#cdb99a", "#e6d7b8", "#faf0d6" }
+local WRAP = { "#2a1418", "#5a1f26", "#8a2f34", "#b84a40" }
+c:groundShadow(32, 58, 18, 3)
+local m, n, T = G.tube({ {18,8}, {52,14}, {52,42}, {26,56} }, function(t) return 7.2 * (1 - t) ^ 0.8 + 0.7 end)
+local tok = { r = { name = "claw" } }
+G.toneN(c, m, n, BONE, { tok = tok, cuts = CUTS, amb = 0.1, wrap = 0.2 })
+m:each(function(x, y) local k = K(x, y) local t = T[k]
+  for _, r in ipairs{ 0.3, 0.45, 0.6, 0.75 } do if abs(t - r) < 0.012 then c:put(x, y, BONE[2], tok) end end
+  if t > 0.85 and t < 0.97 then c:put(x, y, BONE[6], tok) end
+  if t < 0.2 then local lit = X.light(n, { amb = 0.1, wrap = 0.2 })[k] c:put(x, y, WRAP[1 + floor(min(0.99, lit) * 3.9) % 4], tok) end
 end)
-G.tone(c, m, v, HORN, { 0.2, 0.38, 0.54, 0.7, 0.86 }, bias)
--- dark keratin tip
-local tipm = HP.mask()
-m:each(function(x, y) if T[K(x, y)] > 0.8 then tipm:set(x, y) end end)
-G.tone(c, tipm, v, TIP, { 0.25, 0.5, 0.75 })
--- spec streak along upper-left of horn
-m:each(function(x, y) local k = K(x, y)
-  if S[k] < -0.35 and S[k] > -0.55 and T[k] > 0.2 and T[k] < 0.7 then c:px(x, y, HORN[6]) end
-end)
--- leather binding at root
-local bind = HP.mask()
-m:each(function(x, y) if T[K(x, y)] < 0.17 then bind:set(x, y) end end)
-G.tone(c, bind, v, LEA, { 0.3, 0.6, 0.85 })
-bind:each(function(x, y) if (x + y) % 4 == 0 then c:px(x, y, LEA[1]) end end)
--- cord loop
-G.line(c, { {19, 10}, {17, 7}, {19, 5}, {23, 5}, {25, 7}, {24, 10} }, LEA[4])
-c:px(18, 8, LEA[2]) c:px(24, 9, LEA[2])
--- quirk: chip notch on the outer curve
-c:px(32, 45, HORN[1]) c:px(33, 45, HORN[2]) c:px(32, 46, HORN[1])
-G.fin(c, "titan-claw")
+for _, p in ipairs{ {19,9},{19,13},{21,16} } do end
+-- cord wrap highlights + knot
+for i = 0, 3 do local y = 7 + i * 3 c:line({ {13 + i, y}, {24 + i, y + 3} }, 1):clip(m):each(function(x, yy) c:put(x, yy, i % 2 == 0 and WRAP[4] or WRAP[2], tok) end) end
+-- quirk: gold bead on a short cord tail
+dot(14, 20, "#e8b84a", { r = { name = "bead" } }) dot(15, 20, "#fbe08a", { r = { name = "bead" } }) dot(14, 21, "#a8782a", { r = { name = "bead" } }) dot(15, 21, "#c89838", { r = { name = "bead" } })
+dot(14, 17, WRAP[3], tok) dot(14, 18, WRAP[3], tok) dot(14, 19, WRAP[2], tok)
+G.save(c, NAME)

@@ -1,38 +1,32 @@
--- wind-harp (lean W2_39)
+-- wind-harp (lean E2_18)
+local NAME = "wind-harp"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "wind-harp" }
-local sin, pi, abs, floor = math.sin, math.pi, math.abs, math.floor
-local WOOD = { "#3a2113", "#5c3519", "#84501f", "#aa6f2c", "#cf9444", "#efbc6a" }
-local BRS  = { "#5a3410", "#8a5516", "#b9791f", "#e0a032", "#f5c957", "#fff0a0" }
-local tk = { r = { name = "x" } }
--- curved neck (left arm up and over) + pillar
-local neck, nn = G.tube({ {14, 44}, {12, 28}, {22, 12}, {43, 11} }, function(t) return 2.2 end)
-G.toneN(c, neck, nn, WOOD, { tok = tk })
-local pil = c:rrect(40, 9, 45, 47, 1)
-local pn = X.pillow(pil, 3)
-G.toneN(c, pil, pn, WOOD, { tok = tk })
-pil:each(function(x, y) if x == 42 and X.hash(x, y, 7) > 0.55 then c:px(x, y, WOOD[2]) end end)
--- soundbox
-local box = c:rrect(10, 43, 47, 52, 2)
-G.toneN(c, box, X.pillow(box, 5), WOOD, { tok = tk })
-box:each(function(x, y) if y == 47 and x % 5 ~= 0 and X.hash(x, y, 2) > 0.5 then c:px(x, y, WOOD[3]) end end)
-local hole = c:ellipse(28, 48, 4, 2)
-c:fillMask(hole, WOOD[1]) for x = 25, 31 do c:px(x, 49, "#1a0e08") end
--- strings
-local STR = { "#fff3d0", "#e3d3a2" }
-for i, x in ipairs{ 18, 21, 24, 27, 30, 33, 36 } do
-  local top
-  for y = 8, 43 do if neck:has(x, y) then top = y end end
-  if top then
-    c:px(x, top, BRS[4]) -- peg
-    for y = top + 1, 42 do
-      local dx = 0
-      if x == 27 then dx = floor(1.6 * sin((y - top) * 0.55) + 0.5) end   -- quirk: one string mid-hum
-      c:px(x + dx, y, x == 27 and "#fff8dc" or STR[(i % 2) + 1])
-    end
-  end
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function S(m, ramp, R, nm, amb)
+  local n = X.pillow(m, R or 4)
+  return X.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, { cuts = { .22, .4, .56, .72, .86 }, tok = { r = { name = nm or "p" } } })
 end
-c:sparkle(34, 30)
-c:px(15, 46, BRS[4]) c:px(15, 47, BRS[2])
-G.save(c, "wind-harp")
+local function E(x, y, rx, ry) return c:ellipse(x, y, rx, ry) end
+local function P(m, col, nm) m:each(function(x, y) c:put(x, y, col, { r = { name = nm or "d" } }) end) end
+local function L(pts, w, col, nm) P(c:line(pts, w), col, nm) end
+
+local WOOD = { "#4a2a20", "#6e4228", "#94603a", "#bc8a50", "#dcb070", "#f2d498" }
+local pts = { {11, 46}, {11, 36}, {18, 24}, {30, 15}, {47, 11} }
+local function armY(x) for i = 1, #pts - 1 do local a, b = pts[i], pts[i + 1] if x >= a[1] and x <= b[1] then return a[2] + (b[2] - a[2]) * (x - a[1]) / (b[1] - a[1]) end end return 11 end
+c:groundShadow(32, 56, 22, 3)
+-- strings first (under the frame edges)
+for x = 17, 43, 4 do
+  local y0 = floor(armY(x) + 3)
+  L({ {x, y0}, {x, 45} }, 1, "#fff2c0", "str") c:put(x, y0 + 5, "#ffe070") c:put(x, 44, "#c8a050")
+end
+S(c:line(pts, 4), WOOD, 3, "arm")
+S(c:rrect(45, 9, 51, 47, 2), WOOD, 3, "pillar")
+S(c:rrect(8, 45, 54, 54, 2), WOOD, 4, "base")
+P(c:rect(24, 49, 38, 51), "#2b1c26", "hole") P(c:rect(24, 52, 38, 52), "#94603a", "lip")
+for _, p in ipairs{ {46, 20}, {46, 30}, {46, 40} } do c:put(p[1] + 1, p[2], "#f2d498") end
+-- breeze swirl (quirk)
+L({ {53, 24}, {57, 22}, {58, 27}, {54, 29} }, 1, "#a8e8f0", "wind") c:put(53, 24, "#fffdf4")
+c:sparkle(7, 20)
+G.save(c, NAME)

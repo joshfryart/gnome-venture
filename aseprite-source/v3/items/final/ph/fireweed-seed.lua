@@ -1,8 +1,8 @@
--- fireweed-seed (seed W1_1)
+-- fireweed-seed (seed E1_A)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
 name="fireweed-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#2a1a1e","#4a2c28","#6e4430","#946440","#b88a5c","#dcb888"}, leaf={"#1e3a34","#2c5a42","#3e7c4a","#5c9c54","#84bc64","#b4dc86"}, sleaf={"#2a5a44","#3e8052","#5aa45c","#80c46a","#a8e07c","#d0f4a0"}, stem={"#4a2a3c","#6c3c48","#90565a","#6a9c4c","#8cbc5c"}, root={"#e8d8c0","#f4e8d4","#fff4e4"},
-vein="#c8e49c", gloss="#f4ead8", cool="#4a3a64", red="#b0405c",
-sl=0.6, sw=0.6, taper=0.35, drop={4}, marks="pits", markc="#e8d4b4",
-scrap={6,56,26,50,58,38}, scrapW=4.2, scrapExp=0.55, sprout="pair", leafw=3.0, quirk="none"
+seed={"#3a2430","#5a3a38","#7e5a44","#a47d58","#c9a577","#e8d2a4"}, leaf={"#1f4a3c","#2c6a40","#3f8a3e","#62a845","#8cc454","#b6dc72"}, sleaf={"#2c7a4a","#44a048","#68c04e","#92d860","#bce87c","#dcf49a"}, stem={"#4a5a3a","#6a8044","#8aa050","#a4c45c","#c0dc7a"}, root={"#f2e6c8","#e2d0a6","#c9b284"},
+vein="#d8e89a", gloss="#f6ead0", cool="#4a3a70", red="#b04a6a",
+sl=1.4, sw=0.8, taper=0.35, drop={4}, marks="stripes", markc="#3a2430",
+scrap={6,56,26,50,58,38}, scrapW=5.2, scrapExp=0.6, sprout="pair", leafw=3.2, quirk="none",
 })

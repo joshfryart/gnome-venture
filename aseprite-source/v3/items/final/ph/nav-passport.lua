@@ -1,40 +1,48 @@
--- nav-passport (lean W2_10)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- nav-passport (lean E2_03)
+local NAME = "nav-passport"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local CUTS = { 0.2, 0.38, 0.55, 0.7, 0.86 }
-local function slab(c, m, R, ramp, amb, bias) local n = X.pillow(m, R) G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, CUTS, bias) return n end
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "nav-passport" }
-local BL = { "#14284a", "#1f3d72", "#2f5a9a", "#4a7ac0", "#7aa4dc", "#b0ccf0" }
-local PA = { "#8a7a8c", "#b8aa9e", "#d8ccb6", "#eee4cc", "#faf4e2", "#fffdf4" }
-local GD = { "#6a3e1c", "#a06a24", "#d49a30", "#f0c850", "#fce48a", "#fff6c4" }
-local RD = { "#5a1428", "#8e2238", "#c43a4a", "#e8646a" }
--- page block peeking right and below the cover
-local pages = c:rect(21, 12, 47, 54)
-slab(c, pages, 3, PA, 0.2)
-for y = 16, 52, 3 do c:px(46, y, PA[2]) c:px(45, y + 1, PA[3]) end
--- ribbon bookmark (quirk) hangs from the bottom
-c:fillMask(c:rect(38, 54, 40, 57), RD[3]) c:fillMask(c:rect(38, 54, 38, 56), RD[4]) c:fillMask(c:rect(40, 55, 40, 58), RD[2])
-c:px(38, 58, RD[3]) c:px(40, 59, RD[2]) c:px(39, 58, RD[1])
--- cover
-local cover = c:rrect(17, 8, 43, 53, 2)
-local cn = slab(c, cover, 4, BL, 0.1)
--- spine strip
-c:fillMask(c:rect(18, 9, 21, 52), BL[1]) c:fillMask(c:rect(21, 9, 21, 52), BL[2]) c:fillMask(c:rect(18, 9, 18, 52), BL[3])
--- cloth weave
-cover:each(function(x, y) if x > 22 and x < 42 and y > 10 and y < 52 and (x + y) % 4 == 0 then c:px(x, y, BL[2]) end end)
--- gold border
-for x = 24, 40 do c:px(x, 11, GD[3]) c:px(x, 50, GD[2]) end
-for y = 11, 50 do c:px(24, y, GD[3]) c:px(40, y, GD[2]) end
--- globe emblem
-local gl = c:ellipse(32, 25, 8, 8)
-G.tone(c, gl, X.light(X.pillow(gl, 8), { amb = 0.1, wrap = 0.25 }), GD, CUTS)
-for x = 26, 38 do c:px(x, 25, GD[2]) end
-G.line(c, { {32, 17}, {30, 21}, {30, 29}, {32, 33} }, GD[2]) G.line(c, { {32, 17}, {34, 21}, {34, 29}, {32, 33} }, GD[2])
-c:px(28, 20, GD[6]) c:px(29, 19, GD[6]) c:px(28, 21, GD[5])
--- title bars
-c:fillMask(c:rect(26, 37, 38, 38), GD[3]) c:fillMask(c:rect(26, 37, 38, 37), GD[5]) c:fillMask(c:rect(28, 41, 36, 41), GD[2])
--- red stamp ring
-G.line(c, { {35, 45}, {37, 45}, {38, 46}, {38, 48}, {37, 49}, {35, 49}, {34, 48}, {34, 46}, {35, 45} }, RD[3])
-c:px(36, 47, RD[4])
-G.fin(c, "nav-passport")
+local T = { r = { name = "d" } }
+local function body(m, ramp, R, name, amb)
+  local n = X.pillow(m, R)
+  local idx = X.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, { cuts = { .22, .4, .56, .72, .86 }, tok = { r = { name = name } } })
+  return n, idx
+end
+local function draw(lm, hex, within) lm:each(function(x, y) if (not within) or within:has(x, y) then c:put(x, y, hex, T) end end) end
+local function dot(x, y, hex, within) if (not within) or within:has(x, y) then c:put(x, y, hex, T) end end
+c:groundShadow(32, 58, 16, 2)
+local NV = { "#0e1836", "#182a5a", "#26448a", "#3a62b2", "#5c8ad2", "#9cbcf0" }
+local GD = { "#6a4a14", "#a06e1c", "#d09a2a", "#eebb44", "#f8d878", "#fff2b4" }
+-- page block peeking at right
+local pg = c:rect(16, 7, 48, 55)
+body(pg, { "#9a8a88", "#c8baa8", "#e6dcc4", "#f4ecd6", "#faf4e2", "#fffaec" }, 40, "pages", 0.2)
+for y = 9, 53, 3 do dot(47, y, "#bdae98", pg) end
+local cv = c:rrect(14, 5, 44, 54, 2)
+body(cv, NV, 36, "cover", 0.12)
+-- spine band on left + embossed border
+for y = 6, 53 do dot(15, y, NV[1], cv) dot(16, y, NV[2], cv) dot(17, y, NV[5], cv) end
+for x = 20, 40 do dot(x, 9, GD[2], cv) dot(x, 50, GD[2], cv) end
+for y = 9, 50 do dot(20, y, GD[2], cv) dot(40, y, GD[2], cv) end
+-- gold compass emblem
+local cx, cy = 30, 24
+local ring = c:ellipse(cx, cy, 9, 9)
+body(ring, GD, 9, "ring", 0.1)
+local inner = c:ellipse(cx, cy, 6, 6)
+body(inner, NV, 6, "disc", 0.12)
+-- four-point star
+for i = -7, 7 do
+  local w = max(0, 2 - floor(abs(i) / 3.2))
+  for j = -w, w do dot(cx + j, cy + i, GD[5]) dot(cx + i, cy + j, GD[4]) end
+end
+dot(cx, cy, GD[6]) dot(cx - 1, cy - 1, GD[6])
+-- title bars and small lines
+for x = 22, 38 do dot(x, 38, GD[4]) dot(x, 39, GD[2]) end
+for x = 25, 35 do dot(x, 43, GD[3]) end
+for x = 27, 33 do dot(x, 47, GD[2]) end
+-- quirk: red ribbon bookmark trailing from the bottom
+local rb = c:rect(36, 54, 39, 59)
+body(rb, { "#5a0e1e", "#8c1a2e", "#c02a3c", "#dc4a52", "#f07872", "#ffb0a0" }, 3, "ribbon", 0.1)
+dot(37, 59, "#2b1c26") dot(37, 58, "#2b1c26")
+G.save(c, NAME)

@@ -1,53 +1,48 @@
--- lavender-border-cross (lean W2_7)
--- Plus-shaped raised wooden bed seen from slightly above: soil, five sage mounds each topped with purple spikes, a bee (quirk).
+-- lavender-border-cross (lean E2_02)
+local NAME = "lavender-border-cross"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "lavender-border-cross" }
-local WOOD = { "#3a2418", "#5a3a22", "#7e5430", "#a1713f", "#c28e55" }
-local SOIL = { "#2c1c18", "#44291f", "#5e3a28" }
-local SAGE = { "#2b4a42", "#42695a", "#6a917a", "#93b89b", "#c0d8b8" }
-local PUR  = { "#3a2466", "#5a3a96", "#7c58b8", "#a483d4", "#d2b6ee" }
-local STEM = { "#3e6b46", "#6a9a58" }
-c:groundShadow(32, 56, 22, 3)
-local function cross(dy)
-  local m = HP.mask()
-  m:add(c:rect(6, 36 + dy, 57, 47 + dy)) m:add(c:rect(24, 22 + dy, 39, 56 + dy - 4))
-  return m
+local CUTS = { 0.22, 0.4, 0.56, 0.72, 0.86 }
+local function shade(m, ramp, R, nm, o)
+  o = o or {}
+  local n = X.pillow(m, R or 4)
+  local v = X.light(n, { amb = o.amb or 0.08, wrap = o.wrap or 0.25 })
+  local idx = X.tone(c, m, v, ramp, { cuts = CUTS, tok = { r = { name = nm or "p" } } })
+  return idx, n
 end
-local top = cross(0)
-local front = cross(4)
-c:part(front, { WOOD[1], WOOD[2], WOOD[3], WOOD[4] })
--- wood grain on front face
-front:each(function(x, y) if not top:has(x, y) and (x + y) % 5 == 0 then c:px(x, y, WOOD[1]) end end)
-c:part(top, { WOOD[2], WOOD[3], WOOD[4], WOOD[5] })
-top:each(function(x, y) if X.hash(x, y, 2) > 0.9 then c:px(x, y, WOOD[2]) end end)
-local soil = top:copy():shrink(2)
-soil:each(function(x, y) c:px(x, y, SOIL[1 + floor(X.hash(x, y, 8) * 2.99)]) end)
--- bolts
-for _, p in ipairs{ {8,38},{55,38},{26,24},{37,24} } do c:px(p[1], p[2], WOOD[1]) c:px(p[1], p[2] - 1, WOOD[5]) end
-local function mound(cx, cy, rx, ry)
-  local mm, mn = G.oval(cx, cy, rx, ry, 0, 1.3)
-  G.toneN(c, mm, mn, SAGE)
-  for i = 1, 5 do local x, y = cx + floor((X.hash(i, cx, 4) - 0.5) * rx * 1.4), cy + floor((X.hash(i, cy, 6) - 0.5) * ry) if mm:has(x, y) then c:px(x, y, SAGE[5]) end end
+local function px(x, y, col, nm) c:put(x, y, col, { r = { name = nm or "d" } }) end
+local function spec(m, n, col)
+  local x, y = G.specAt(m, n, 30)
+  if x then px(x, y, col or "#fff4dc", "spec") end
 end
-local function spike(x, y, h)
-  for yy = y, y - h + 4 do c:px(x, yy, (yy % 2 == 0) and STEM[2] or STEM[1]) end
-  local yt = y - h + 3
-  for i = 0, 4 do
-    local yy = yt - i
-    local w = (i == 4) and 0 or ((i % 2 == 0) and 1 or 0)
-    for xx = x - w, x + w do c:px(xx, yy, PUR[(xx <= x and 4 or 3) - (i == 4 and 1 or 0) + (i % 2)]) end
-    c:px(x + w + 1, yy, PUR[2])
-  end
-  c:px(x, yt - 5, PUR[5]) c:px(x - 1, yt - 2, PUR[5])
+c:groundShadow(32, 56, 24, 3)
+local ST = { "#3a3e48", "#555c68", "#74808c", "#96a2ac", "#b8c2c8", "#d8e0e2" }
+local SO = { "#2a1810", "#46281a", "#5e3a22", "#7e5230", "#a07040", "#c29058" }
+local PU = { "#2c1a4a", "#4a2e7a", "#6c48a6", "#8c68c8", "#b090e0", "#dcc4f8" }
+local cross = HP.mask(); cross:add(c:rect(24, 16, 40, 54)); cross:add(c:rect(10, 28, 54, 42))
+local stones = cross:grow(2)
+shade(stones, ST, 6, "stone")
+stones:each(function(x, y) if not cross:has(x, y) and ((x + y * 3) % 7 == 0 or (x * 2 + y) % 9 == 0) then px(x, y, ST[2], "joint") end end)
+-- inner soil
+local soil = cross:shrink(1)
+shade(soil, SO, 6, "soil", { amb = 0.2 })
+soil:each(function(x, y) if X.hash(x, y, 4) > 0.9 then px(x, y, SO[2], "cl") end end)
+-- spikes
+local function spike(x, y)
+  for t = 0, 3 do px(x, y - t, "#5a8a48", "stalk") end
+  px(x - 2, y, "#7fa66a", "lf"); px(x + 2, y, "#4a7a3c", "lf"); px(x - 1, y - 1, "#7fa66a", "lf"); px(x + 1, y - 1, "#4a7a3c", "lf")
+  local m = c:rrect(x - 1, y - 12, x + 1, y - 4, 1)
+  local idx = shade(m, PU, 2, "sp" .. x .. y, { amb = 0.15 })
+  for r = 0, 3 do px(x - 1 + (r % 2), y - 11 + r * 2, PU[6], "bud") end
+  px(x + 1, y - 7, PU[2], "bud"); px(x, y - 5, PU[2], "bud")
 end
-local M = { {32,28,6,4,{30,32,34},{9,11,8}}, {13,41,6,4,{11,14,16},{9,12,8}}, {51,41,6,4,{49,51,54},{9,11,8}}, {32,41,6,4,{30,33,35},{9,12,10}}, {32,50,6,3,{30,33,35},{8,10,8}} }
-for _, M1 in ipairs(M) do
-  mound(M1[1], M1[2], M1[3], M1[4])
-  for i, sx in ipairs(M1[5]) do spike(sx, M1[2] - 1, M1[6][i]) end
-end
--- bee (quirk)
-c:px(44, 31, "#f2c14a") c:px(45, 31, "#2b1c26") c:px(46, 31, "#f2c14a") c:px(47, 31, "#2b1c26") c:px(48, 31, "#f2c14a")
-c:px(45, 30, "#e8f4ff") c:px(46, 29, "#e8f4ff") c:px(47, 30, "#e8f4ff") c:px(44, 30, "#e8f4ff")
-G.save(c, "lavender-border-cross")
+local pts = { {28,24},{36,23},{30,33},{40,34},{16,36},{22,39},{46,38},{52,40},{27,44},{36,46},{29,52},{37,51} }
+table.sort(pts, function(a, b) return a[2] < b[2] end)
+for _, p in ipairs(pts) do spike(p[1], p[2]) end
+-- bee quirk
+for _, p in ipairs{ {47,22},{48,22},{49,22},{50,22} } do px(p[1], p[2], ((p[1] % 2 == 0) and "#2a1c14" or "#f4c82a"), "bee") end
+px(47, 23, "#f4c82a", "bee"); px(48, 23, "#f4c82a", "bee"); px(49, 23, "#2a1c14", "bee"); px(50, 23, "#2a1c14", "bee")
+px(48, 20, "#dcecf4", "wing"); px(49, 20, "#dcecf4", "wing"); px(48, 21, "#b8d0e0", "wing"); px(49, 21, "#b8d0e0", "wing")
+G.save(c, NAME)

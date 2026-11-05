@@ -188,13 +188,60 @@ local function turtle(x,y,s,f,Rs,Rk,sd)
   fill(X(33),Y(-19),X(33)+1,Y(-18),INK); px(X(33),Y(-19),"#fffae8"); fill(X(36),Y(-14),X(40),Y(-14),INK)
   local sh=mk(); E(sh,X(0),Y(-13),22*s,16*s); sh:cut(rc(x-30*s,Y(-6),x+30*s,Y(6))); sh=GX.rough(sh,sd,1)
   L(sh,Rs,{R=max(6,floor(22*s)),tex=.3,sc=3,seed=sd})
-  local w,h=max(5,floor(12*s)),max(4,floor(9*s)); local x0,y0=X(0)-22*s*1.0,Y(-29)
+  -- domed carapace: 5 big central scutes (Voronoi on the dome surface) + 8 marginals round the rim
+  local scx,scy,srx,sry=X(0),Y(-13),22*s,16*s
+  local seeds={{0,-.36},{-.6,-.5},{.6,-.5},{-.42,.02},{.42,.02}}
+  local function lift(u,v) return u,v,sqrt(max(0,1-u*u-v*v*.7)) end
+  local S3={} for i,p in ipairs(seeds) do local a,b,cc=lift(p[1],p[2]); S3[i]={a,b,cc} end
+  local id,ring,tt={}, {}, {}
+  local function K(a,b) return a*4096+b end
   sh:each(function(xx,yy)
-    local row=floor((yy-y0)/h); local uu=(xx-floor(x0)+(row%2)*floor(w/2))%w; local vv=(yy-floor(y0))%h
-    if uu==0 or vv==0 then px(xx,yy,Rs.deep) elseif (uu==1 or vv==1) and xx<X(0) then px(xx,yy,Rs.hi)
-    elseif uu==floor(w/2) and vv==floor(h/2) then px(xx,yy,Rs.hi) end
-    if yy>Y(-10) and (xx%max(3,floor(5*s)))==0 then px(xx,yy,Rs.deep) end
+    local u,v=(xx-scx)/srx,(yy-scy)/sry; local r=sqrt(u*u+(v*sry/srx>0 and v*1.6 or v)^2)
+    local e=sqrt(u*u+v*v)
+    if (e>.8 and v>-.42) or v>.16 then
+      if s>=3 then
+        -- plated rim: bottom band cut by near-vertical seams, side rims cut into 2 plates each
+        local pid
+        if v>.16 and abs(u)<.74 then pid=10+floor((u+.74)/1.48*6) else pid=(u<0 and 20 or 22)+((v<-.08) and 0 or 1) end
+        id[K(xx,yy)]=pid; tt[K(xx,yy)]=(v>.16 and abs(u)<.74) and (v-.16)/.28 or (e-.8)/.2; ring[K(xx,yy)]=0
+      else
+      local ang=math.atan(u,v+.1); local seg=floor((ang+1.85)/3.7*8); id[K(xx,yy)]=10+max(0,min(7,seg)); tt[K(xx,yy)]=(v>.16) and (v-.16)/.22 or (e-.8)/.2; ring[K(xx,yy)]=0
+      end
+    else
+      local a,b,cc=lift(u,v); local d1,d2,best=9,9,1
+      for i,q in ipairs(S3) do local dd=sqrt((a-q[1])^2+(b-q[2])^2+(cc-q[3])^2); if dd<d1 then d2=d1; d1=dd; best=i elseif dd<d2 then d2=dd end end
+      id[K(xx,yy)]=best; local t=d1/(d1+d2); tt[K(xx,yy)]=t; ring[K(xx,yy)]=floor(t*7)
+    end
   end)
+  if s>=3 then
+    -- repaint: lower central scutes lifted toward base/hi; marginal plates flat-lit, lighter at the top, shade only at the very rim
+    sh:each(function(xx,yy)
+      local k=K(xx,yy); local me=id[k]; local u,v=(xx-scx)/srx,(yy-scy)/sry; local cur=c:get(xx,yy)
+      if me<10 then
+        if v>-.5 then px(xx,yy,GX.mix(cur,GX.mix(Rs.base,Rs.hi,.2),min(.85,(v+.5)*1.7))) end
+      else
+        local t=tt[k]; local col=t<.22 and GX.mix(Rs.base,Rs.hi,.55) or (t<.72 and Rs.base or GX.mix(Rs.base,Rs.shade,.55))
+        if (me-10)%2==1 and t>=.22 and t<.72 then col=GX.mix(Rs.base,Rs.hi,.18) end
+        px(xx,yy,col)
+      end
+    end)
+  end
+  local big=s>=1; local wd=s>=2 and 2 or 1
+  local lf,up=nil,nil
+  sh:each(function(xx,yy)
+    local k=K(xx,yy); local me=id[k]; local cur=c:get(xx,yy)
+    local function df(dx,dy) local o=id[K(xx+dx,yy+dy)]; return o and o~=me end
+    lf,up=id[K(xx-1,yy)],id[K(xx,yy-1)]
+    if df(1,0) or df(0,1) or (wd==2 and (df(2,0) or df(0,2))) then px(xx,yy,Rs.deep)       -- dark seam
+    elseif df(-1,0) or df(0,-1) or (wd==2 and me<10 and (df(-2,0) or df(0,-2))) then px(xx,yy,Rs.hi) -- lit upper-left edge of each scute
+    elseif me>=10 and wd==2 and s<3 and (xx+yy)%5~=0 then px(xx,yy,GX.mix(cur,Rs.shade,.35))
+    elseif big and (df(wd+1,0) or df(0,wd+1)) then px(xx,yy,GX.mix(cur,Rs.shade,.6)) -- shaded lower-right lip
+    elseif big and me<10 and ((lf and ring[K(xx-1,yy)]~=ring[k]) or (up and ring[K(xx,yy-1)]~=ring[k])) and ring[k]>=1 and ring[k]<=2 then
+      px(xx,yy,GX.mix(cur,Rs.deep,.45))                                                  -- concentric growth rings
+    elseif me<10 and tt[k]<.12 then px(xx,yy,GX.mix(cur,Rs.hi,.35))                      -- scute boss catches light
+    elseif me>=10 and big and s<3 and (xx+yy)%5==0 and tt[k]>.5 then px(xx,yy,GX.mix(cur,Rs.shade,.5)) end
+  end)
+  if big then for i,p in ipairs(seeds) do local sx,sy=floor(scx+p[1]*srx*.97),floor(scy+p[2]*sry*.97); if sh:has(sx,sy) and sh:has(sx-1,sy-1) then px(sx-1,sy-1,Rs.hi); px(sx,sy-1,GX.mix(Rs.hi,Rs.base,.5)) end end end
   fill(X(-21),Y(-7),X(21),Y(-6),"#f0d890"); fill(X(-21),Y(-5),X(21),Y(-5),"#a88860")
   blob(X(18),Y(-4),7*s,4*s,Rk,sd+8,{R=3}); for j=0,2 do px(X(22)+j*f,Y(-1),Rk.hi) end
 end
@@ -324,9 +371,9 @@ end
 ---------------------------------------------------------------- kava circle
 SC["haven-kava-circle"]=function()
   -- interior wall of woven mats
-  for y=0,269 do for x=0,479 do px(x,y,"#2a1a2c") end end
-  GX.bands(c,0,172,{"#2a1830","#3a2236","#4c2c3c","#62384a","#7c4650"},4,.12)
-  for y=40,170,4 do for x=((y//4)%2)*6,479,12 do px(x,y,"#2a1a2c"); px(x+1,y,"#2a1a2c") end end
+  for y=0,269 do for x=0,479 do px(x,y,"#5a3438") end end
+  GX.bands(c,0,172,{"#3a2236","#4a2a3a","#5e343e","#744246","#8a5450"},4,.12)
+  for y=40,170,4 do for x=((y//4)%2)*6,479,12 do px(x,y,"#3a2236"); px(x+1,y,"#3a2236"); px(x+3,y+1,(y>120) and "#b07a5c" or "#8a5450") end end
   -- window onto the night sea
   local op=rc(176,72,304,150); E(op,240,72,64,40);
   c:rim(op,INK); op:each(function(x,y) px(x,y,y<100 and "#2a2670" or (y<120 and "#4a3a88" or (y<136 and "#c06888" or "#e88a78"))) end)
@@ -335,31 +382,50 @@ SC["haven-kava-circle"]=function()
   moon(264,92,9)
   -- roof underside: rafters
   local rf=mk(); for y=0,64 do for x=0,479 do rf:set(x,y) end end
-  L(rf,THATCH,{R=30,tex=.5,sc=3,seed=5,rimlight=false,ink=false,fn=function(x,y) return (H(x//2,y//5,3)-.5)*.2-((y%6==0) and .1 or 0) end})
+  L(rf,RP("#c8905c","#9a6448","#6a3e40","#3c2434"),{R=30,tex=.5,sc=3,seed=5,rimlight=false,ink=false,fn=function(x,y) return (H(x//2,y//5,3)-.5)*.2-((y%6==0) and .1 or 0) end})
   for i=-4,4 do local x1=240+i*70; for t=0,64 do px(240+(x1-240)*t/64,t,"#4a2840"); px(241+(x1-240)*t/64,t,"#82444a") end end
-  box(0,56,479,70,DWOOD,{R=6,tex=.4}); fill(0,70,479,71,INK)
+  box(0,56,479,70,WOOD,{R=6,tex=.4}); fill(0,70,479,71,INK)
+  for x=6,479,22 do fill(x,62,x+8,62,"#82444a"); px(x+1,61,"#ffd878") end
+  -- deep cool shadow under the beam, dithered off into the wall
+  fill(0,72,479,77,"#24182e"); for y=78,90 do for x=(y%2),479,2 do if (y-78)<(H(x//3,y,6)*14) then px(x,y,"#2e2040") end end end
+  -- cool shadow pooled in the far corners of the wall
+  for y=72,170 do for x=0,479 do local e=math.min(x,479-x); if e<26-((y-72)//10) and (x+y)%2==0 then px(x,y,"#2e2040") end end end
   -- posts with carvings
   for _,x in ipairs{40,156,324,440} do
-    box(x-9,60,x+9,206,WOOD,{R=14,tex=.5,fn=function(xx,yy) return ((xx-x)//4==0 and .08 or 0)-(( (yy//10)%2==0 and (xx-x)%6==0) and .12 or 0) end})
-    for yy=84,190,16 do for k=-6,6,2 do px(x+k,yy+abs(k)//2,"#4a2840") end; px(x,yy+6,"#ffd878") end
+    box(x-9,60,x+9,206,RP("#ffc88a","#d08a54","#9a5a48","#5a3440"),{R=14,tex=.5,fn=function(xx,yy) return ((xx-x)//4==0 and .08 or 0)-(( (yy//10)%2==0 and (xx-x)%6==0) and .12 or 0) end})
+    for yy=84,190,16 do for k=-6,6,2 do px(x+k,yy+abs(k)//2,"#5a3040"); px(x+k,yy+1+abs(k)//2,"#ffd890") end; px(x,yy+6,"#ffe8a0"); px(x-1,yy+6,"#e87a38") end
+    fill(x-9,60,x-9,206,"#ffd890")
+    fill(x+7,72,x+8,206,"#3a2a4a"); for yy=72,206,2 do px(x+6,yy,"#5a3a52") end
     blob(x,206,12,4,DWOOD,x,{R=3})
   end
   -- floor mat
-  GX.ground(c,function(x) return 172 end,RP("#f0c080","#c08048","#8a5048","#4a3048"),5,{top=.86,fall=.5,tex=.3,sc=8})
-  for y=174,268,4 do for x=((y//4)%2)*8,479,16 do fill(x,y,x+7,y,"#6a4048") end end
-  glow(240,214,170,50,"#ffa040",.2)
+  GX.ground(c,function(x) return 172 end,RP("#f8e0a8","#e8b878","#c08a5c","#8a5c50"),5,{top=.88,fall=.45,tex=.25,sc=8})
+  for y=174,268,4 do for x=((y//4)%2)*8,479,16 do fill(x,y,x+7,y,"#cc9866") end end
+  fill(0,166,479,169,"#2e2040"); fill(0,170,479,171,"#3a2a4a"); fill(0,172,479,172,"#fff0c0")
+  glow(240,214,200,60,"#ffb050",.12)
+  for _,x in ipairs{92,388} do glow(x,140,60,60,"#ffb050",.16) end
+  for _,lx in ipairs{98,382} do fill(lx,72,lx,88,INK); lantern(lx,94,5,34,"#ffb050") end
   -- patterned tapa mat
   local mt=mk(); E(mt,240,232,170,28)
-  local r1,r2,r3=R6(RP("#ffe090","#e0a058","#a8684c","#603a48")),R6(RP("#8a4a58","#5a2c48","#3a2038","#241628")),R6(RP("#ffd8a0","#f0b070","#b8706c","#703c5c"))
+  local r1,r2,r3=R6(RP("#ffe090","#e0a058","#a8684c","#603a48")),R6(RP("#d07858","#a8504a","#7a3644","#4a2438")),R6(RP("#ffd8a0","#f0b070","#b8706c","#703c5c"))
   L(GX.rough(mt,4,1),function(x,y) local u=((x+y)//7+(x-y)//7)%2; local e=((x-240)/170)^2+((y-232)/28)^2; if e>.78 then return r3 end; return u==0 and r1 or r2 end,{R=16,tex=.2,seed=3})
   -- bowl (tanoa) with legs
-  shadow(240,250,46,6,"#4a2030")
-  for k=-3,3,2 do limb(240+k*10,240,240+k*12,252,3,2,DWOOD,k+9) end
-  local bw=mk(); E(bw,240,232,44,14); bw=GX.rough(bw,3,1); L(bw,DWOOD,{R=14,tex=.4,sc=2,seed=9,fn=function(x,y) return (((x+y)//4)%2)*.07 end})
-  for k=-40,40,6 do px(240+k,240-floor(sqrt(max(0,1-(k/44)^2))*4),"#ffd878") end
-  local lq=mk(); E(lq,240,229,36,9); L(lq,RP("#e8d8b0","#b8a078","#7a6a58","#44384a"),{R=6,tex=.3,sc=2,seed=4,ink=false,rimlight=false})
-  for k=0,3 do px(228+k*7,228+(k%2),"#fff0d0") end
-  fill(232,226,236,226,"#8a7a62")
+  shadow(240,252,48,6,"#7a4040")
+  local BWL=RP("#ffc070","#c87840","#8a4838","#4e2a38")
+  for k=-3,3,2 do limb(240+k*10,240,240+k*12,253,3,2,BWL,k+9) end
+  local bw=mk(); E(bw,240,232,44,15); bw:cut(rc(190,200,290,224)); bw=GX.rough(bw,3,1); L(bw,BWL,{R=14,tex=.3,sc=2,seed=9,fn=function(x,y) return (((x+y)//4)%2)*.05 end})
+  for k=-40,40,2 do local yy=236+floor(sqrt(max(0,1-(k/44)^2))*6); px(240+k,yy,(k//2)%3==0 and "#ffe8a0" or "#8a4838") end
+  for k=-38,38,8 do local yy=240+floor(sqrt(max(0,1-(k/44)^2))*5); px(240+k,yy,"#4e2a38"); px(240+k+1,yy+1,"#4e2a38"); px(240+k+2,yy,"#4e2a38") end
+  local rimm=mk(); E(rimm,240,225,44,7); L(rimm,BWL,{R=4,tex=.2,seed=2})
+  local lq=mk(); E(lq,240,225,38,5); c:fillMask(lq,"#bcae98")
+  lq:each(function(x,y) local dy=y-225; local dx=(x-240)/38
+    if dy<=-4 then px(x,y,"#7a6e60") elseif dy==-3 then px(x,y,"#9a8e7c")      -- far inner wall shades the surface
+    elseif dy>=4 then px(x,y,"#a89a84") elseif abs(dx)>.86 then px(x,y,"#a89a84") end end)
+  -- milky sheen: a soft oval and one bright streak where the lantern reflects
+  local hl=mk(); E(hl,232,225,16,2); hl:each(function(x,y) if lq:has(x,y) then px(x,y,"#d8cebc") end end)
+  fill(222,225,240,225,"#ece4d4"); fill(226,224,236,224,"#f6f0e2")
+  for _,p in ipairs{{254,227},{258,226},{214,227}} do px(p[1],p[2],"#d8cebc") end
+  fill(248,227,262,227,"#9a8e7c")
   -- coconut cups
   local COCO=RP("#d8985c","#8a5438","#5e3638","#38222e")
   for _,p in ipairs{{150,238},{330,238},{184,256},{296,256}} do local m=mk(); E(m,p[1],p[2],9,7); m:cut(rc(p[1]-11,p[2]-9,p[1]+11,p[2]-3)); L(GX.rough(m,p[1],1),COCO,{R=5})
@@ -530,7 +596,7 @@ SC["haven-turtle-nesting-beach"]=function()
   for i=0,50 do fill(floor(H(i,7,1)*470),152+floor(H(i,8,1)*44),floor(H(i,7,1)*470)+3,152+floor(H(i,8,1)*44),"#5a8cb8") end
   local yfn=function(x) return 198+floor(3*sin(x/41)+2*sin(x/11+1)) end
   GX.ground(c,yfn,RP("#e8d8f0","#b8a8d8","#7a6aa8","#4a4078"),7,{top=.86,fall=.5,tex=.3})
-  for x=0,479 do local y0=yfn(x); px(x,y0-1,"#ffffff"); px(x,y0,"#e8f0ff"); px(x,y0+1,"#8ab0d8"); if GX.vn(x,3,5,9)>.5 then px(x,y0-2,"#d0e0f8") end end
+  for x=0,479 do local y0=yfn(x); px(x,y0-1,"#f4f8ff"); px(x,y0,"#e8f0ff"); px(x,y0+1,"#8ab0d8"); if GX.vn(x,3,5,9)>.5 then px(x,y0-2,"#d0e0f8") end end
   -- hut, bigger
   local HR=RP("#e8a868","#b86e44","#82444a","#4a2840")
   shadow(396,232,92,6,"#4a4078")
@@ -555,7 +621,7 @@ SC["haven-turtle-nesting-beach"]=function()
   for k=0,6 do local x=246+k*30; local y=244+floor(sin(k*1.7)*5); turtle(x,y+10,.5,(k%3==2) and -1 or 1,RP("#a8d870","#4a9448","#2e6444","#1a3a40"),RP("#c8e478","#6cb850","#3a8050","#1e4a48"),k+20) end
   -- nest with eggs
   blob(40,246,26,7,RP("#b89ad8","#8a78b8","#5a4a90","#38306a"),4,{R=5})
-  for k=0,4 do blob(24+k*8,240-(k%2)*2,4,5,RP("#ffffff","#fff0e8","#d8b8c8","#9878a0"),k,{R=3}) end
+  for k=0,4 do blob(24+k*8,240-(k%2)*2,4,5,RP("#fffaf4","#fff0e8","#d8b8c8","#9878a0"),k,{R=3}) end
   for i=0,12 do c:sparkle(floor(H(i,3,3)*470),194) end
 end
 

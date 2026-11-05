@@ -1,11 +1,11 @@
--- finish4 map-world 640x360: cleaned blobs (mode filter), ink rim + lit/shaded edge, glow halos, big hand-placed props.
+-- finish4 map-world 640x360: cleaned blobs (mode filter), ink rim + lit/shaded edge, glow halos; props v2 (big, 3-tone, glow rims) + frame spikes.
 local d = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local V3 = d .. "/../.."
 local HP = dofile(V3 .. "/lib/hp.lua")
 local GX = dofile(V3 .. "/gather/gx.lua")
 local floor, max, min, abs, sin, cos, sqrt, pi = math.floor, math.max, math.min, math.abs, math.sin, math.cos, math.sqrt, math.pi
 local INK = "#2b1c26"
-local SRC = d .. "/../../../../game/assets/img/scenes/map-world.png"
+local SRC = d .. "/base-map-world.png"   -- pre-finish4 picture (was the live map-world.png before finish4)
 local mix = GX.mix
 local function hash(x, y, s)
   local n = (x * 374761393 + y * 668265263 + (s or 0) * 2147483647) % 4294967296
@@ -172,64 +172,164 @@ for y = 1, H - 2 do for x = 1, W - 2 do
   if C[y * W + x] == 3 and cur[y * W + x] == "#74462a" and (cl(x - 1, y) <= 2 or cl(x + 1, y) <= 2 or cl(x, y - 1) <= 2 or cl(x, y + 1) <= 2) then c:put(x, y, "#4a2c1a") end
 end end
 
--- 4. props
-local function groundShadow(x, y, rx, ry, col)
+-- 4. props v2 (finish4 redo): fewer, ~1.6x bigger, clear silhouettes, 1px ink, glow rims, 3-tone shading.
+-- Every prop sits inside its cavern blob (base on cavern floor, nothing over tunnels) so map-world-regions.png stays valid.
+local function groundShadow(x, y, rx, ry)
   for yy = y - ry, y + ry do for xx = x - rx, x + rx do
     if ((xx - x) / rx) ^ 2 + ((yy - y) / ry) ^ 2 <= 1 and fig(xx, yy) then
-      local g = c:get(xx, yy); if g then c:put(xx, yy, mix(g, "#1c1210", .4)) end
+      local g = c:get(xx, yy); if g then c:put(xx, yy, mix(g, "#1c1210", .45)) end
     end
   end end
 end
-local function E(m, cx, cy, rx, ry) return GX.disc(m, floor(cx), floor(cy), floor(rx), floor(ry or rx)) end
-local function lit(m, Rm, seed, o)
-  o = o or {}; o.seed = seed; o.R = o.R or 6
-  GX.lit(c, m, GX.ramp6(Rm), o)
+local function T3(a, b, e) return { hi = a, base = b, shade = e } end
+local function ed(m, x, y, dx, dy, lim)
+  for k = 1, lim do if not m:has(x + dx * k, y + dy * k) then return k end end
+  return lim + 1
 end
-local function rp(a, b, cc, e) return { hi = a, base = b, shade = cc, deep = e } end
-local GRN = { rp("#d2f08a", "#78c458", "#3a8a4c", "#1e5a40"), rp("#c8f07a", "#5cb450", "#2f7c48", "#1a4c3c") }
-local DKG = rp("#7cc060", "#3a8a4c", "#25603f", "#143c36")
-local PNK = rp("#ffe0ec", "#f49ac0", "#c8548a", "#7e2e5e")
-local TRK = rp("#d4985c", "#9c6438", "#6e4230", "#452a2c")
-local ROCKR = rp("#e0d8e0", "#a8a4bc", "#76789a", "#4c4a6e")
-local TANR = rp("#fff0c0", "#e0b070", "#b07c48", "#704a3c")
-local LAV = rp("#e8d6ff", "#a98ae0", "#6c52b0", "#3a2e78")
-local ICE = rp("#f4ffff", "#9ad8ec", "#4a9ac8", "#2a5a8c")
-local LAVA = rp("#ffe090", "#f08a24", "#c8441f", "#6e2030")
-local VOLC = rp("#a8706a", "#74464a", "#4e2e3a", "#2e1c2a")
-local CAP = rp("#ff9a8a", "#e0504a", "#a8324a", "#6c2240")
-local function tree(x, y, r, Rm, seed, blossom)
-  groundShadow(x + 2, y + floor(r * .8), floor(r * 1.2), floor(r * .45))
-  local tm = HP.mask(); for yy = y, y + floor(r * .8) do for xx = x - 1, x + 1 do tm:set(xx, yy) end end
-  lit(tm, TRK, seed, { R = 2, tex = .2, sc = 3 })
-  local cl_ = { { x, y - r * .35, r }, { x - r * .75, y + r * .1, r * .72 }, { x + r * .75, y + r * .1, r * .7 }, { x - r * .25, y - r * .95, r * .62 }, { x + r * .45, y - r * .7, r * .55 } }
-  table.sort(cl_, function(a, b) return a[2] < b[2] end)
-  for i, k in ipairs(cl_) do
-    local f = (i - 1) / (#cl_ - 1)
-    local m = E(HP.mask(), k[1], k[2], k[3] + 1, k[3])
-    m = GX.rough(m, seed + i, 1)
-    local dim = .4 * (1 - f)
-    local Rd = { hi = mix(Rm.hi, Rm.shade, dim * .5), base = mix(Rm.base, Rm.shade, dim), shade = mix(Rm.shade, Rm.deep, dim), deep = Rm.deep }
-    lit(m, Rd, seed + i, { R = k[3] + 2, tex = .5, sc = 3, rimlight = true })
-    if f > .3 then c:px(floor(k[1] - k[3] * .4), floor(k[2] - k[3] * .4), Rm.hi); c:px(floor(k[1] - k[3] * .4) + 1, floor(k[2] - k[3] * .4), Rm.hi) end
+-- glow: 1px solid ring + 1px dithered ring outside the ink line
+local function glowRing(m, g1, g2)
+  local a = m:grow(1); local b = a:grow(1); local e = b:grow(1)
+  b:each(function(x, y) if not a:has(x, y) then c:put(x, y, g1) end end)
+  if g2 then e:each(function(x, y) if not b:has(x, y) and (x + y) % 2 == 0 then local o = c:get(x, y); c:put(x, y, g2) end end) end
+end
+-- 3-tone fill lit from top-left; fn(x,y,tl,br) may return a colour override
+local function draw3(m, R, o)
+  o = o or {}
+  if o.glow then glowRing(m, o.glow, o.glow2) end
+  if o.ink ~= false then local g = m:grow(1); g:each(function(x, y) if not m:has(x, y) then c:put(x, y, INK) end end) end
+  local sw, hw = o.sw or 3, o.hw or 2
+  m:each(function(x, y)
+    local tl = min(ed(m, x, y, -1, -1, hw), ed(m, x, y, -1, 0, hw), ed(m, x, y, 0, -1, hw))
+    local br = min(ed(m, x, y, 1, 1, sw), ed(m, x, y, 1, 0, sw), ed(m, x, y, 0, 1, sw))
+    local col
+    if o.fn then col = o.fn(x, y, tl, br) end
+    if not col then
+      if br <= sw and br <= tl then col = R.shade elseif tl <= hw then col = R.hi else col = R.base end
+    end
+    c:put(x, y, col)
+  end)
+end
+local function disc(cx, cy, rx, ry) return GX.disc(HP.mask(), floor(cx), floor(cy), floor(rx), floor(ry or rx)) end
+
+local CAPR = T3("#ff9a84", "#d8404a", "#8a2442")
+local CAPB = T3("#d4fff2", "#52d6c4", "#2a7898")
+local STEM = T3("#fff6e0", "#e6d0a8", "#a4866a")
+local LEAF = { T3("#c8f080", "#5cb450", "#2a6a44"), T3("#d8f490", "#7ac458", "#3a7a40") }
+local PINKL = T3("#ffe4f0", "#f094c0", "#a84a80")
+local DKL = T3("#8ad070", "#3a8a4c", "#1e5038")
+local BARK = T3("#c08a58", "#8a5634", "#54342a")
+local ICE3 = T3("#f4ffff", "#8ad4f0", "#3a7cc0")
+local LAV3 = T3("#f2e6ff", "#b294f0", "#6046ac")
+local GREY3 = T3("#e4dcea", "#a8a0bc", "#625e86")
+local TAN3 = T3("#fff0c4", "#d8a868", "#94643e")
+local BRN3 = T3("#e8b880", "#a8703c", "#64402c")
+local VOL3 = T3("#b47a70", "#74464a", "#3e2434")
+local LAVA3 = T3("#fff0a0", "#f8a030", "#c8441f")
+local CACT = T3("#c8f080", "#5cb450", "#2a6a44")
+
+local function mushroom(x, y, s, glowCap, seed)
+  local R = glowCap and CAPB or CAPR
+  local rx, ry, sh = floor(15 * s), floor(10 * s), floor(13 * s)
+  if not glowCap then groundShadow(x + 3, y, rx, 3) end
+  local cy = y - sh
+  local cap = disc(x, cy, rx, ry); cap:clip(HP.rect(x - rx - 1, cy - ry - 1, x + rx + 1, cy + 3))
+  local st = HP.rect(x - 3, cy + 2, x + 3, y)
+  for xx = x - 5, x + 5 do st:set(xx, y); if abs(xx - x) <= 4 then st:set(xx, y - 1) end end
+  local both = cap:copy():add(st)
+  if glowCap then glowRing(both, "#9af0e0", "#3f8fb0") end
+  draw3(st, STEM, { sw = 2, hw = 1 })
+  draw3(cap, R, { sw = 3, hw = 2, fn = function(xx, yy, tl, br) if yy >= cy + 2 then return R.shade end end })
+  for xx = x - rx + 2, x + rx - 2 do c:put(xx, cy + 3, INK) end   -- gill line under the rim
+  local spots = { { -7, -5, 3 }, { 2, -7, 2 }, { 7, -2, 2 }, { -2, -2, 2 } }
+  for _, p in ipairs(spots) do
+    local sx, sy = x + floor(p[1] * s), cy + floor(p[2] * s)
+    local m = disc(sx, sy, p[3], p[3] - 1)
+    m:each(function(xx, yy) if cap:has(xx, yy) and not cap:has(xx, yy + 2) == false then c:put(xx, yy, glowCap and "#f4fff8" or "#fff0d8") end end)
   end
-  if blossom then for i = 1, 4 do c:px(x - r + floor(hash(i, seed, 2) * r * 2), y - r * .5 + floor(hash(i, seed, 3) * r), "#fff4d0") end
-  else for i = 1, 3 do c:px(x - r * .6 + floor(hash(i, seed, 2) * r * 1.2), y - r * .4 + floor(hash(i, seed, 3) * r * .8), "#e8506a") end end
+  c:put(x - rx + 4, cy - ry + 4, "#fffaf0"); c:put(x - rx + 5, cy - ry + 3, "#fffaf0")
 end
+
+local function crystals(x, y, h, R, glow, seed)
+  groundShadow(x + 2, y, 13, 3)
+  local shards = { { -9, .62, 4, -4 }, { 9, .55, 4, 4 }, { -3, .42, 3, -2 }, { 2, 1, 6, 0 }, { 7, .38, 3, 2 } }
+  local union, ms = HP.mask(), {}
+  for i, p in ipairs(shards) do
+    local hh, hw, cx, ln = floor(h * p[2]), p[3], x + p[1], p[4]
+    local m = c:poly{ { cx - hw, y }, { cx - hw + ln, y - hh + hw + 2 }, { cx + ln, y - hh }, { cx + hw + ln, y - hh + hw + 2 }, { cx + hw, y } }
+    ms[i] = { m, cx, ln, hh }
+    union:add(m)
+  end
+  glowRing(union, glow, mix(glow, "#2c1c12", .5))
+  for _, s in ipairs(ms) do
+    local m, cx, ln, hh = s[1], s[2], s[3], s[4]
+    draw3(m, R, { fn = function(xx, yy, tl, br)
+      local t = (y - yy) / max(1, hh)
+      local mid = cx + ln * t
+      if tl <= 1 and xx < mid then return R.hi end
+      if xx < mid - .5 then return R.base end
+      if xx <= mid + .5 then return mix(R.base, R.hi, .5) end
+      return R.shade
+    end })
+    c:put(floor(cx + ln * .8) - 1, y - hh + 3, "#ffffee")
+  end
+  c:sparkle(x - 13, y - h + 6); c:sparkle(x + 13, y - floor(h * .6))
+end
+
+local function stalagmites(x, y, h, R, seed)
+  groundShadow(x + 3, y, 15, 3)
+  for _, p in ipairs{ { -9, .6, 6 }, { 9, .48, 5 }, { 0, 1, 8 } } do
+    local hh, hw, cx = floor(h * p[2]), p[3], x + p[1]
+    local pts = { { cx - hw, y } }
+    for i = 1, 4 do local t = i / 5; pts[#pts + 1] = { cx - hw * (1 - t) + (hash(i, seed, p[1] + 9) - .5) * 1.5, y - hh * t } end
+    pts[#pts + 1] = { cx, y - hh }
+    for i = 4, 1, -1 do local t = i / 5; pts[#pts + 1] = { cx + hw * (1 - t) + (hash(i, seed, p[1] + 19) - .5) * 1.5, y - hh * t } end
+    pts[#pts + 1] = { cx + hw, y }
+    local m = c:poly(pts)
+    draw3(m, R, { sw = 3, hw = 2, fn = function(xx, yy, tl, br)
+      if (y - yy) % 7 == 3 and br > 1 and tl > 1 then return R.shade end   -- growth rings
+      if xx > cx + 1 and br <= 3 then return R.shade end
+    end })
+  end
+end
+
+local function tree(x, y, r, R, seed, blossom)
+  groundShadow(x + 3, y + 3, floor(r * 1.2), 4)
+  local tm = HP.rect(x - 2, y - floor(r * .6), x + 2, y + 2)
+  tm:set(x - 3, y + 2); tm:set(x + 3, y + 2)
+  draw3(tm, BARK, { sw = 2, hw = 1 })
+  local cy = y - floor(r * 1.1)
+  local m = HP.mask()
+  for _, k in ipairs{ { 0, -r * .3, r * .8 }, { -r * .62, r * .12, r * .62 }, { r * .62, r * .12, r * .6 }, { -r * .22, -r * .82, r * .55 }, { r * .38, -r * .62, r * .5 } } do
+    m:add(disc(x + k[1], cy + k[2], k[3] + 1, k[3]))
+  end
+  draw3(m, R, { sw = 4, hw = 2, fn = function(xx, yy, tl, br)
+    if br > 4 and tl > 2 and GX.vn(xx, yy, 4, seed) > .66 then return R.hi end   -- leaf clumps catch light
+    if br > 4 and tl > 2 and GX.vn(xx, yy, 4, seed + 5) < .25 then return R.shade end
+  end })
+  local dot = blossom and "#fff4d0" or "#e8506a"
+  for i = 1, 4 do
+    local fx, fy = x - r + 3 + floor(hash(i, seed, 2) * (r * 2 - 6)), cy - floor(r * .5) + floor(hash(i, seed, 3) * r)
+    if m:has(fx, fy) and m:has(fx + 1, fy + 1) then c:put(fx, fy, dot); c:put(fx + 1, fy, dot); c:put(fx, fy + 1, dot); c:put(fx + 1, fy + 1, mix(dot, INK, .3)) end
+  end
+end
+
 local function pine(x, y, h, seed)
-  groundShadow(x + 2, y, floor(h * .35), 3)
+  groundShadow(x + 3, y + 1, floor(h * .4), 4)
+  draw3(HP.rect(x - 2, y - 4, x + 2, y + 1), BARK, { sw = 2, hw = 1 })
   local m = HP.mask()
   for i = 0, 2 do
-    local ay = y - h + i * floor(h * .27)
-    local hw = floor(h * .2) + i * floor(h * .11)
+    local ay = y - h + i * floor(h * .26)
+    local hw = floor(h * .2) + i * floor(h * .1)
     m:add(c:poly{ { x, ay }, { x + hw, ay + floor(h * .4) }, { x - hw, ay + floor(h * .4) } })
   end
-  for yy = y - 3, y do for xx = x - 1, x + 1 do m:set(xx, yy) end end
-  lit(m, DKG, seed, { R = 8, tex = .4, sc = 3, rimlight = true, fn = function(xx, yy) return ((yy + 99) % 5 == 0) and -.12 or 0 end })
+  draw3(m, DKL, { sw = 3, hw = 2, fn = function(xx, yy, tl, br) if xx > x + 1 and br > 1 then return DKL.shade end end })
+  c:put(x, y - h, "#e8f8b0")
 end
-local function peak(x, y, w, h, Rm, snow, seed)
-  groundShadow(x + 4, y, w, 3)
+
+local function peak(x, y, w, h, R, snow, seed)
+  groundShadow(x + 4, y + 1, w, 4)
   local pts = { { x - w, y } }
-  local nn = 8
+  local nn = 9
   for i = 1, nn - 1 do
     local t = i / nn
     local hp = t < .45 and (t / .45) or ((1 - t) / .55)
@@ -238,64 +338,70 @@ local function peak(x, y, w, h, Rm, snow, seed)
   pts[#pts + 1] = { x + w, y }
   local m = c:poly(pts)
   local px_ = x - w + 2 * w * .45
-  lit(m, Rm, seed, { R = max(w, 8), tex = .35, sc = 3, rimlight = true, fn = function(xx, yy) return -(xx - px_) / w * .5 end })
-  if snow then
-    m:each(function(xx, yy) if yy < y - h * .62 + abs(xx - px_) * .5 + (hash(xx, 3, seed) - .5) * 3 then c:px(xx, yy, (xx < px_) and "#f4fbff" or "#c0d4ec") end end)
-  end
-end
-local function volcano(x, y, w, h, seed)
-  groundShadow(x + 4, y, w, 3)
-  local m = c:poly{ { x - w, y }, { x - 5, y - h }, { x + 5, y - h }, { x + w, y } }
-  lit(m, VOLC, seed, { R = max(w, 8), tex = .4, sc = 3, rimlight = true, fn = function(xx, yy) return -(xx - x) / w * .5 end })
-  c:fillMask(HP.rect(x - 4, y - h, x + 4, y - h + 1), LAVA.base); c:fillMask(HP.rect(x - 3, y - h - 1, x + 3, y - h), LAVA.hi)
-  for k = 0, 2 do c:px(x - 2 + k * 2, y - h + 2 + k, LAVA.base); c:px(x - 2 + k * 2, y - h + 3 + k, LAVA.shade) end
-  for k = 1, 5 do c:px(x - 1, y - h + 2 + k * 2, LAVA.base); c:px(x, y - h + 3 + k * 2, LAVA.shade) end
-  for _, p in ipairs{ { 0, -3, 3 }, { 3, -7, 2 }, { -2, -11, 2 } } do local sm = E(HP.mask(), x + p[1], y - h + p[2], p[3]); lit(sm, rp("#fff0e0", "#d8cce0", "#a8a0c0", "#6e6890"), seed + p[3], { R = 3, ink = false, tex = .2 }) end
-end
-local function crystals(x, y, h, Rm, seed)
-  groundShadow(x + 2, y, 8, 3)
-  for i, p in ipairs{ { -5, .62, 3 }, { 4, .8, 3 }, { 0, 1, 4 } } do
-    local hh = floor(h * p[2])
-    local m = c:poly{ { x + p[1] - p[3], y }, { x + p[1] - p[3], y - hh + 4 }, { x + p[1], y - hh }, { x + p[1] + p[3], y - hh + 4 }, { x + p[1] + p[3], y } }
-    lit(m, Rm, seed + i, { R = p[3] + 3, tex = .1, amb = .3, rimlight = true, fn = function(xx, yy) return -(xx - x - p[1]) / 6 end })
-  end
-  c:sparkle(x - 8, y - h + 4)
-end
-local function mush(x, y, r, seed)
-  groundShadow(x + 2, y, r, 3)
-  local st = HP.rect(x - 2, y - r, x + 2, y)
-  lit(st, rp("#fff8e4", "#f0dcb4", "#c9b08a", "#8a6a50"), seed, { R = 3, tex = .1 })
-  local cap = E(HP.mask(), x, y - r, r + 3, floor(r * .75)); cap:clip(HP.rect(x - r - 5, y - r * 3, x + r + 5, y - r + 2))
-  lit(cap, CAP, seed + 1, { R = r + 3, tex = .2, rimlight = true })
-  for _, p in ipairs{ { -4, -3 }, { 2, -5 }, { 5, -1 }, { -1, -1 } } do c:px(x + p[1], y - r + p[2], "#fff4d0"); c:px(x + p[1] + 1, y - r + p[2], "#fff4d0"); c:px(x + p[1], y - r + p[2] + 1, "#f0dcb4") end
-end
-local function cactus(x, y, h, seed)
-  groundShadow(x + 3, y, 7, 3)
-  local m = HP.mask()
-  for yy = y - h, y do for xx = x - 2, x + 2 do m:set(xx, yy) end end
-  for _, a in ipairs{ { -1, h * .55, 6 }, { 1, h * .4, 5 } } do
-    local ay = y - floor(a[2])
-    for xx = min(x, x + a[1] * 6), max(x, x + a[1] * 6) do for yy = ay - 1, ay + 1 do m:set(xx, yy) end end
-    for yy = ay - a[3], ay do for xx = x + a[1] * 6 - 1, x + a[1] * 6 + 1 do m:set(xx, yy) end end
-  end
-  lit(m, rp("#b8e878", "#5cb450", "#2f7c48", "#1a4c3c"), seed, { R = 4, tex = .2, rimlight = true, fn = function(xx, yy) return ((xx % 3) == 0) and -.1 or 0 end })
-  c:px(x, y - h - 1, "#f08aa0"); c:px(x - 1, y - h - 1, "#f08aa0")
-end
-local function boulder(x, y, rx, ry, Rm, seed)
-  groundShadow(x + 3, y + 1, rx + 2, 3)
-  local m = E(HP.mask(), x, y - ry + 2, rx, ry); m:clip(HP.rect(x - rx - 2, y - ry * 2, x + rx + 2, y))
-  lit(m, Rm, seed, { R = max(rx, 6), tex = .4, sc = 3, rimlight = true })
+  draw3(m, R, { fn = function(xx, yy, tl, br)
+    if snow and yy < y - h * .6 + abs(xx - px_) * .5 + (hash(xx, 3, seed) - .5) * 2 then return (xx < px_) and "#f4fbff" or "#b8cce4" end
+    if xx > px_ + (y - yy) * .15 then return R.shade end
+    if tl <= 2 then return R.hi end
+    return R.base
+  end })
 end
 
--- candidate placement: blob pixel colour decides the family
-local clearance = bfs(function(i) return C[i] ~= 5 end)   -- distance from non-blob (path/halo/bg); also keeps paths clear
+local function volcano(x, y, w, h, seed)
+  groundShadow(x + 4, y + 1, w, 4)
+  local m = c:poly{ { x - w, y }, { x - 6, y - h }, { x + 6, y - h }, { x + w, y } }
+  local lava = HP.mask()
+  for yy = y - h, y - floor(h * .25) do
+    local wob = floor(sin(yy * .55 + seed) * 1.5)
+    for xx = x - 1 + wob, x + 1 + wob do if m:has(xx, yy) then lava:set(xx, yy) end end
+  end
+  glowRing(HP.rect(x - 6, y - h - 2, x + 6, y - h + 1), "#f8a030", "#c8441f")
+  draw3(m, VOL3, { fn = function(xx, yy, tl, br) if xx > x + (y - yy) * .1 + 1 then return VOL3.shade end end })
+  lava:each(function(xx, yy) c:put(xx, yy, ((xx + yy) % 3 == 0) and LAVA3.hi or LAVA3.base) end)
+  for xx = x - 5, x + 5 do c:put(xx, y - h, LAVA3.base); c:put(xx, y - h - 1, (abs(xx - x) < 4) and LAVA3.hi or LAVA3.base) end
+  for _, p in ipairs{ { 1, -5, 3 }, { 4, -10, 3 }, { -1, -15, 2 } } do
+    draw3(disc(x + p[1], y - h + p[2] - 1, p[3]), T3("#fff0e0", "#d0c4dc", "#8a82a8"), { sw = 1, hw = 1 })
+  end
+end
+
+local function cactus(x, y, h, seed)
+  groundShadow(x + 3, y + 1, 9, 3)
+  local m = HP.mask()
+  for yy = y - h, y do for xx = x - 3, x + 3 do if not (yy == y - h and abs(xx - x) == 3) then m:set(xx, yy) end end end
+  for _, a in ipairs{ { -1, h * .55, 8 }, { 1, h * .38, 6 } } do
+    local ay = y - floor(a[2])
+    for xx = min(x, x + a[1] * 8), max(x, x + a[1] * 8) do for yy = ay - 2, ay + 1 do m:set(xx, yy) end end
+    for yy = ay - a[3], ay + 1 do for xx = x + a[1] * 8 - 2, x + a[1] * 8 + 2 do m:set(xx, yy) end end
+  end
+  draw3(m, CACT, { sw = 2, hw = 1, fn = function(xx, yy, tl, br) if br > 2 and tl > 1 and xx % 3 == 0 then return CACT.shade end end })
+  for _, p in ipairs{ { -1, -1 }, { 0, -2 }, { 1, -1 }, { 0, -1 } } do c:put(x + p[1], y - h + p[2], "#f08aa0") end
+  c:put(x, y - h - 2, "#ffd0dc")
+end
+
+local function boulder(x, y, rx, ry, R, seed)
+  groundShadow(x + 3, y + 1, rx + 2, 3)
+  local m = disc(x, y - ry + 1, rx, ry); m:clip(HP.rect(x - rx - 1, y - ry * 2, x + rx + 1, y))
+  draw3(m, R, { sw = 3, hw = 2, fn = function(xx, yy, tl, br) if br > 3 and tl > 2 and (xx - x) * .5 + (yy - (y - ry)) > 2 and hash(xx, yy, seed) < .04 then return R.shade end end })
+  c:put(x - floor(rx * .4), y - ry * 2 + 3, "#fffaf0")
+end
+
+-- placement: a prop needs its footprint on cavern floor (class 5); its upper part may poke over halo/bg; never over a tunnel.
+local clearance = bfs(function(i) return C[i] ~= 5 end)
 local occ = {}
-local function free(x, y, r)
-  if (clearance[y * W + x] or 14) < 7 then return false end
-  local rc = floor(r * .6)
-  for dy = -rc, rc, 3 do for dx = -rc, rc, 3 do
-    local xx, yy = x + dx, y + dy
-    if xx < 0 or yy < 0 or xx >= W or yy >= H or C[yy * W + xx] ~= 5 or occ[yy * W + xx] then return false end
+local wide = bfs(function(i) return C[i] ~= 3 end)   -- path-coloured cavern floors (wide, not tunnels)
+local function floorOK(i) return C[i] == 5 or (C[i] == 3 and (wide[i] or 15) >= 4) end
+local function fits(x, y, hw, h, cave)
+  if not cave and (clearance[y * W + x] or 14) < 3 then return false end
+  for yy = y - h, y + 2, 2 do for xx = x - hw, x + hw, 2 do
+    if xx < 0 or yy < 20 or xx >= W or yy >= H - 22 then return false end
+    local i = yy * W + xx
+    if occ[i] then return false end
+    local inner = abs(xx - x) <= hw * .7
+    if cave then
+      if inner and yy > y - h * .4 and not floorOK(i) then return false end
+    else
+      if inner and yy > y - h * .6 and C[i] == 3 then return false end
+      if inner and yy > y - h * .4 and C[i] ~= 5 then return false end
+    end
   end end
   return true
 end
@@ -304,47 +410,96 @@ local FAM = {
   ["#2f6a3a"] = "dark", ["#f6b8cf"] = "pink", ["#e0501f"] = "fire", ["#a8241f"] = "fire", ["#d6322b"] = "fire",
   ["#d9a660"] = "tan", ["#f5cf6a"] = "tan", ["#c8ecdc"] = "ice", ["#7a4a1f"] = "brown", ["#5e2f1e"] = "brown",
 }
-local placed = {}
+-- kinds per family: {name, half-width, height}
+local KIND = {
+  green = { { "tree", 17, 34 }, { "mushR", 16, 26 }, { "tree", 17, 34 }, { "mushB", 16, 26 }, { "boulder", 14, 16 } },
+  dark  = { { "pine", 15, 42 }, { "mushB", 16, 26 }, { "pine", 15, 42 } },
+  pink  = { { "crysL", 16, 38 }, { "treeP", 17, 34 }, { "mushB", 16, 26 } },
+  fire  = { { "volcano", 21, 38 }, { "stalV", 17, 34 }, { "volcano", 21, 38 } },
+  tan   = { { "cactus", 11, 30 }, { "peakT", 19, 32 }, { "stalT", 17, 32 } },
+  ice   = { { "crysI", 16, 40 }, { "peakS", 19, 34 } },
+  cave  = { { "stalB", 17, 34 }, { "mushB", 16, 26 }, { "stalB", 17, 34 } },
+  brown = { { "mushR", 16, 26 }, { "stalB", 17, 34 }, { "peakB", 19, 32 } },
+}
+local want = { cave = 4, green = 11, dark = 6, pink = 5, fire = 6, tan = 6, ice = 4, brown = 5 }
 local list = {}
-for t = 1, 24000 do
-  local x, y = 20 + floor(hash(t, 1, 77) * (W - 40)), 24 + floor(hash(t, 2, 77) * (H - 48))
+for t = 1, 30000 do
+  local x, y = 24 + floor(hash(t, 1, 77) * (W - 48)), 40 + floor(hash(t, 2, 77) * (H - 70))
   local fam = FAM[cur[y * W + x]]
-  if fam and C[y * W + x] == 5 then list[#list + 1] = { x, y, fam, t } end
+  if fam and C[y * W + x] == 5 then list[#list + 1] = { x, y, fam, t }
+  elseif C[y * W + x] == 3 and (wide[y * W + x] or 15) >= 9 then list[#list + 1] = { x, y, "cave", t } end
 end
-local want = { green = 16, dark = 9, pink = 8, fire = 8, tan = 8, ice = 5, brown = 7 }
-local got = {}
+local got, placed = {}, {}
 for _, p in ipairs(list) do
   local x, y, fam, t = p[1], p[2], p[3], p[4]
   if (got[fam] or 0) < want[fam] then
-    local r = (fam == "dark" or fam == "fire") and 13 or 12
-    r = r + floor(hash(t, 3, 5) * 3)
-    if free(x, y, r) then
-      for yy = y - r - 4, y + r do for xx = x - r - 2, x + r + 2 do occ[yy * W + xx] = true end end
+    local ks = KIND[fam]
+    local k = ks[1 + (got[fam] or 0) % #ks]
+    if fits(x, y, k[2], k[3], fam == "cave") then
+      for yy = y - k[3] - 1, y + 3 do for xx = x - k[2] - 1, x + k[2] + 1 do if xx >= 0 and xx < W then occ[yy * W + xx] = true end end end
       got[fam] = (got[fam] or 0) + 1
-      placed[#placed + 1] = { x, y, fam, r, t }
+      placed[#placed + 1] = { x, y, k[1], t }
     end
   end
 end
 table.sort(placed, function(a, b) return a[2] < b[2] end)
 for _, p in ipairs(placed) do
-  local x, y, fam, r, t = p[1], p[2] + 4, p[3], p[4], p[5]
+  local x, y, kind, t = p[1], p[2], p[3], p[4]
   local sd = t % 97 + 3
-  if fam == "green" then
-    local k = t % 6
-    if k == 0 then mush(x, y, 9, sd) elseif k == 1 then boulder(x, y, 10, 7, ROCKR, sd) else tree(x, y - 5, 11 + t % 3, GRN[1 + t % 2], sd) end
-  elseif fam == "dark" then
-    if t % 3 == 0 then tree(x, y - 5, 11, GRN[2], sd) else pine(x, y, 32 + t % 6, sd) end
-  elseif fam == "pink" then
-    if t % 2 == 0 then tree(x, y - 5, 11, PNK, sd, true) else crystals(x, y, 28, LAV, sd) end
-  elseif fam == "fire" then
-    if t % 3 == 0 then boulder(x, y, 11, 8, VOLC, sd) else volcano(x, y, 19 + t % 3, 30 + t % 5, sd) end
-  elseif fam == "tan" then
-    local k = t % 3
-    if k == 0 then cactus(x, y, 22 + t % 4, sd) elseif k == 1 then peak(x, y, 16, 26, TANR, false, sd) else boulder(x, y, 11, 8, TANR, sd) end
-  elseif fam == "ice" then
-    if t % 2 == 0 then crystals(x, y, 30, ICE, sd) else peak(x, y, 16, 28, ROCKR, true, sd) end
-  elseif fam == "brown" then
-    if t % 2 == 0 then mush(x, y, 11, sd) else peak(x, y, 17, 28, rp("#e0b078", "#a8703c", "#6e4230", "#452a2c"), false, sd) end
+  if kind == "tree" then tree(x, y, 15, LEAF[1 + t % 2], sd)
+  elseif kind == "treeP" then tree(x, y, 15, PINKL, sd, true)
+  elseif kind == "mushR" then mushroom(x, y, 1, false, sd)
+  elseif kind == "mushB" then mushroom(x, y, 1, true, sd)
+  elseif kind == "boulder" then boulder(x, y, 13, 8, GREY3, sd)
+  elseif kind == "pine" then pine(x, y, 40, sd)
+  elseif kind == "crysL" then crystals(x, y, 36, LAV3, "#c3b2ea", sd)
+  elseif kind == "crysI" then crystals(x, y, 38, ICE3, "#a9e6fa", sd)
+  elseif kind == "volcano" then volcano(x, y, 20, 34, sd)
+  elseif kind == "stalV" then stalagmites(x, y, 32, VOL3, sd)
+  elseif kind == "stalT" then stalagmites(x, y, 30, TAN3, sd)
+  elseif kind == "stalB" then stalagmites(x, y, 32, BRN3, sd)
+  elseif kind == "cactus" then cactus(x, y, 28, sd)
+  elseif kind == "peakT" then peak(x, y, 18, 30, TAN3, false, sd)
+  elseif kind == "peakS" then peak(x, y, 18, 32, GREY3, true, sd)
+  elseif kind == "peakB" then peak(x, y, 18, 30, BRN3, false, sd)
   end
 end
-c:save{ png = d .. "/out/map-world.png", scale = 1 }
+
+-- 5. frame: big ceiling stalactites and floor stalagmites in the open rock (never over caverns, halos or tunnels)
+local FR = T3("#8a6650", "#56392a", "#33221a")
+local function frameSpike(cx, y0, len, hw, down, seed)
+  local pts = { { cx - hw, y0 } }
+  for i = 1, 4 do local t = i / 5; pts[#pts + 1] = { cx - hw * (1 - t) + (hash(i, seed, 1) - .5) * 1.2, y0 + (down and 1 or -1) * len * t } end
+  pts[#pts + 1] = { cx, y0 + (down and 1 or -1) * len }
+  for i = 4, 1, -1 do local t = i / 5; pts[#pts + 1] = { cx + hw * (1 - t) + (hash(i, seed, 2) - .5) * 1.2, y0 + (down and 1 or -1) * len * t } end
+  pts[#pts + 1] = { cx + hw, y0 }
+  local m = c:poly(pts)
+  local ok = true
+  m:grow(2):each(function(x, y) if x >= 0 and y >= 20 and x < W and y <= 335 and C[y * W + x] ~= 1 then ok = false end end)
+  if not ok then return end
+  draw3(m, FR, { sw = 3, hw = 2, fn = function(xx, yy, tl, br)
+    if xx > cx then return FR.shade end
+    if xx >= cx - 1 and tl > 1 then return FR.base end
+  end })
+  local tip = down and (y0 + len) or (y0 - len)
+  c:put(cx, tip + (down and -1 or 1), FR.hi)
+  if down and hash(cx, 5, seed) > .55 then c:put(cx, tip + 2, "#9ad8ec"); c:put(cx, tip + 3, "#4a9ac8") end   -- drip
+end
+do
+  local cx = 6
+  local i = 0
+  while cx < W - 6 do
+    i = i + 1
+    local hw = 6 + floor(hash(i, 1, 41) * 6)
+    frameSpike(cx + hw, -1, 14 + floor(hash(i, 2, 41) * 20), hw, true, i)
+    cx = cx + hw * 2 + 3 + floor(hash(i, 3, 41) * 14)
+  end
+  cx = 4; i = 0
+  while cx < W - 6 do
+    i = i + 1
+    local hw = 5 + floor(hash(i, 4, 41) * 6)
+    frameSpike(cx + hw, H, 10 + floor(hash(i, 5, 41) * 16), hw, false, i + 50)
+    cx = cx + hw * 2 + 4 + floor(hash(i, 6, 41) * 16)
+  end
+end
+c:save{ png = (app.params.out or (d .. "/out/")) .. "map-world.png", scale = 1 }

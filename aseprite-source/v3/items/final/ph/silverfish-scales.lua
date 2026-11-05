@@ -1,54 +1,50 @@
--- silverfish-scales (lean W2_18)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- silverfish-scales (lean E2_07)
+local NAME = "silverfish-scales"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "silverfish-scales" }
-local floor, rad, cos, sin, sqrt, atan2, abs = math.floor, math.rad, math.cos, math.sin, math.sqrt, math.atan, math.abs
-local SIL = { "#4a4f78", "#6b7499", "#8f9bbb", "#b4c0d8", "#d8e0ee", "#f4f8fc" }
-local VIO = { "#4d3f7a", "#6f5fa0", "#9482be", "#b7a8d8", "#d9cfee", "#f6f0fc" }
-local TEA = { "#2f6b7c", "#3f93a0", "#6dbdb8", "#a2dccb", "#d2f1de", "#f2fff0" }
-local PNK = { "#8a4a82", "#b66aa0", "#d98fb8", "#efb8cc", "#f8d9de", "#fff2ee" }
-local function scale(ox, oy, dir, r, ramp, half)
-  half = half or 62
-  local pts = { { ox, oy } }
-  for k = 0, 14 do
-    local a = rad(dir - half + 2 * half * k / 14)
-    local rr = (k == 0 or k == 14) and r * 0.85 or r
-    pts[#pts + 1] = { floor(ox + cos(a) * rr + 0.5), floor(oy + sin(a) * rr + 0.5) }
-  end
-  local m = c:poly(pts)
-  local rim = m:copy():cut(m:copy():shrink(1))
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function shade(c, m, ramp, R, name, amb, wrap)
+  local n = X.pillow(m, R)
+  local tok = { r = { name = name } }
+  X.tone(c, m, X.light(n, { amb = amb or 0.08, wrap = wrap or 0.25 }), ramp, { cuts = { 0.2, 0.38, 0.55, 0.72, 0.87 }, tok = tok })
+  return n, tok
+end
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+-- quirk: one scale carries a rainbow shimmer along its rim, and a drop of moisture
+c:groundShadow(32, 56, 22, 3)
+local PAL = { "#3c4666", "#59658c", "#7a88ae", "#a0acce", "#c4cee6", "#e4eaf6" }
+local PAL2 = { "#46406c", "#625a8c", "#837aae", "#a89ece", "#cac2e8", "#e8e4f6" }
+-- fan scale: root at (rx,ry), pointing angle a, length L, half-spread
+local function scale(rx, ry, a, L, ramp, name, rib)
+  local m = HP.mask()
+  for y = ry - L - 2, ry + L + 2 do for x = rx - L - 2, rx + L + 2 do
+    local dx, dy = x - rx, y - ry
+    local r = sqrt(dx * dx + dy * dy)
+    local ang = math.atan(dy, dx) - a
+    while ang > pi do ang = ang - 2 * pi end while ang < -pi do ang = ang + 2 * pi end
+    local lim = 1.02 * (0.35 + 0.65 * min(1, r / (L * 0.55)))
+    if abs(ang) <= lim and r <= L * (0.93 + 0.07 * cos(ang * 5)) and r >= 1 then m:set(x, y) end
+  end end
+  local n, tok = shade(c, m, ramp, 7, name, 0.08, 0.22)
+  -- radial ribs and growth arcs
   m:each(function(x, y)
-    local dx, dy = x - ox, y - oy
-    local d = sqrt(dx * dx + dy * dy) / r
-    local ang = math.deg(math.atan(dy, dx)) - dir
-    local i = 4
-    if d < 0.35 then i = 2
-    elseif d > 0.78 then i = (dx * cos(rad(dir + 90)) + dy * sin(rad(dir + 90)) < 0) and 5 or 3 end
-    if d > 0.4 then
-      local fr = ((ang + half) / (2 * half) * 6) % 1
-      if fr < 0.16 then i = i - 1 end
-    end
-    if rim:has(x, y) then i = 1 end
-    c:put(x, y, ramp[math.max(1, i)], { r = { name = "scale" } })
+    local dx, dy = x - rx, y - ry
+    local r = sqrt(dx * dx + dy * dy)
+    local ang = math.atan(dy, dx) - a
+    local k = floor(ang * rib / 0.55 + 0.5)
+    if r > 5 and abs(ang * r - k * (0.55 / rib) * r) < 0.5 and ((x + y) % 2 == 0) then c:put(x, y, ramp[2], tok) end
+    if abs(r - L * 0.55) < 0.55 and r > 4 then c:put(x, y, ramp[2], tok) end
   end)
-  local sx, sy = floor(ox + cos(rad(dir - 25)) * r * 0.8 + 0.5), floor(oy + sin(rad(dir - 25)) * r * 0.8 + 0.5)
-  c:px(sx, sy, ramp[6])
+  return m, tok, n
 end
-c:groundShadow(32, 56, 19, 2)
-local rows = {
-  { 48, { 26, 38 } }, { 40, { 20, 32, 44 } }, { 32, { 14, 26, 38, 50 } }, { 24, { 20, 32, 44 } }, { 16, { 26, 38 } },
-}
-local n = 0
-for _, row in ipairs(rows) do
-  for _, x in ipairs(row[2]) do
-    n = n + 1
-    local ramp = (n % 4 == 0) and VIO or SIL
-    local j = (X.hash(x, row[1], 5) - 0.5) * 18
-    scale(x, row[1], 90 + j, 7 + floor(X.hash(x, row[1], 6) * 2), ramp)
-  end
-end
--- quirk: a loose iridescent scale standing off the patch, with a dew drop
-scale(47, 13, -40, 8, TEA, 55)
-c:px(55, 9, PNK[4]) c:px(56, 10, PNK[3]) c:px(55, 11, PNK[2])
-c:px(10, 24, "#cdd5e8") c:px(8, 30, "#cdd5e8") c:px(55, 44, "#cdd5e8") c:px(51, 54, "#cdd5e8") c:px(12, 50, "#cdd5e8")
-G.fin(c, "silverfish-scales")
+local aL = scale(22, 42, -1.9, 17, PAL, "sA", 3)
+local aR = scale(42, 42, -1.25, 17, PAL2, "sB", 3)
+local aF = scale(32, 55, -1.57, 19, PAL, "sC", 3)
+-- bright rim catch on front scale and the shimmer quirk on the right one
+local fm = c:poly({{0,0}})
+aR:edge():each(function(x, y) if y < 34 and x > 38 then local t = (x + y) % 4 c:put(x, y, ({ "#f2a0c8", "#ffe08a", "#8ee8c8", "#a8b8ff" })[t + 1], { r = { name = "shim" } }) end end)
+c:put(26, 36, "#e4eaf6") c:put(27, 36, "#e4eaf6") c:put(26, 37, "#c4cee6")
+-- water drop
+c:put(52, 50, "#7ab8e8") c:put(53, 50, "#b4e0f8") c:put(52, 51, "#4a86c0") c:put(53, 51, "#7ab8e8") c:put(52, 52, "#3a66a0")
+c:sparkle(10, 22)
+G.save(c, NAME)

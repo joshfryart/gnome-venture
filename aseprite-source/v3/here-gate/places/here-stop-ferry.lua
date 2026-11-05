@@ -116,6 +116,22 @@ for y = 105, 140 do
   local half = 6 + (y - 104) // 3
   for x = 240 - half, 240 + half do if hash(x // 3, y, 2) > 0.55 then P(x, y, "#e8b48a") end end
 end
+-- snapshot of open water (reflections and edge shadows only paint where water still shows)
+local WATER = {}
+for y = 104, 141 do for x = 0, W - 1 do WATER[y * W + x] = c:get(x, y) end end
+local function reflect(x0, x1, yw, h, col, amt)
+  for k = 1, h do
+    if k % 4 ~= 3 then
+      local sh = math.floor(math.sin(k * 1.9 + x0) * 1.3 + 0.5)
+      local a = (amt or 0.5) * (1 - k / (h + 2))
+      for x = x0, x1 do
+        local xx, y = x + sh, yw + k
+        local kk = c:get(xx, y)
+        if kk and WATER[y * W + xx] == kk then P(xx, y, mix(kk, col, a)) end
+      end
+    end
+  end
+end
 
 ------------------------------------------------------------------ NEAR GROUND
 c:stripes(142, 269, {"#a6ba62", "#9bb05a", "#90a652", "#87a04e"}, {2, 3, 3, 4})
@@ -261,26 +277,135 @@ sock(272, 88, "#c45444", "#6e2230")
 sock(284, 88, "#e0b040", "#7a5420")
 
 ------------------------------------------------------------------ DO: landing, ferry raft, bell
--- ripples under far end
+-- polish pass: perspective deck (plank depth compresses toward the far bank), grain, nails, worn centre,
+-- pilings in perspective with rope swags, water shadow along the deck edges
+local DK_L = function(y) return 212 + 6 * (152 - y) / 38 end   -- deck left edge x at row y
+local DK_R = function(y) return 268 - 6 * (152 - y) / 38 end
+local function ZY(z) return 104 + 48 / z end                    -- depth -> screen row (VP at the horizon)
+-- dark water hugging both deck edges (the deck shades the water under its lip)
+for y = 115, 141 do
+  for _, x in ipairs({ math.floor(DK_L(y)) - 1, math.floor(DK_L(y)) - 2, math.floor(DK_R(y)) + 1, math.floor(DK_R(y)) + 2 }) do
+    local k = c:get(x, y)
+    if k and WATER[y * W + x] == k then P(x, y, mix(k, "#2a3a5e", (x % 2 == 0) and 0.45 or 0.3)) end
+  end
+end
 for x = 210, 272 do if x % 4 < 2 then P(x, 116, "#c4dce2") end end
 local dock = c:poly{{212, 152}, {268, 152}, {262, 114}, {218, 114}}
 shadow(240, 117, 26, 3, 0.45)
-solid(dock, DOCK, { sh = 2, tex = function(x, y, col)
-  local step = (y < 130) and 3 or 4
-  if y % step == 0 then return DOCK[1] end
-  if y % step == 1 and col == DOCK[3] then return DOCK[4] end
-  if col == DOCK[3] and hash(x // 4, y, 3) > 0.88 then return DOCK[2] end
-  return col end })
--- dock front face (bank edge)
+-- plank rows from near to far
+local PLK = { "#957d70", "#8a7266", "#9e8676", "#917a6c" }
+local rows, z, yb = {}, 1, 152
+while true do
+  local z2 = z + 0.24
+  local y2 = math.floor(ZY(z2) + 0.5)
+  if y2 >= yb - 1 then y2 = yb - 2 end
+  if y2 < 114 then y2 = 114 end
+  rows[#rows + 1] = { top = y2, bot = yb, z = z }
+  if y2 <= 114 then break end
+  z, yb = z2, y2
+end
+for i, r in ipairs(rows) do
+  local base = PLK[(i * 7) % 4 + 1]
+  if i == 5 then base = "#a08068" end                             -- one newer replacement plank (quirk)
+  local hgt = r.bot - r.top
+  for y = r.top, r.bot - 1 do
+    local x0, x1 = math.ceil(DK_L(y)), math.floor(DK_R(y))
+    for x = x0, x1 do
+      local col = base
+      if y == r.top and hgt >= 3 then col = "#c2a88c" end         -- sunlit leading edge
+      if y == r.bot - 1 and hgt >= 3 then col = "#4e4048" end
+      if hgt <= 2 then col = (i % 2 == 0) and "#7a6460" or "#a89080" end     -- underside of the board / gap
+      -- worn foot-path lighter down the middle
+      if col == base and math.abs(x - 240) < 9 - i * 0.3 and hash(x // 2, y, 31) > 0.55 then col = mix(base, "#d8c0a0", 0.35) end
+      P(x, y, col)
+    end
+    -- grain: 2-3 short streaks per near board
+    if hgt >= 4 and y == r.top + math.floor(hgt / 2) then
+      for g = 1, 3 do
+        local gx = math.floor(x0 + 4 + hash(i, g, 41) * (x1 - x0 - 14))
+        local gl = 3 + math.floor(hash(i, g, 42) * 7 / r.z)
+        for k = 0, gl do P(gx + k, y + ((k > gl // 2) and 1 or 0), "#6c5a5c") end
+      end
+      -- knot
+      local kx = math.floor(x0 + 6 + hash(i, 9, 43) * (x1 - x0 - 12))
+      if i % 3 == 1 then P(kx, y, "#4e4048"); P(kx + 1, y, "#6c5a5c") end
+    end
+  end
+  -- nails over the three joists (edges + centre), fading out with distance
+  if hgt >= 3 then
+    local ny = r.top + 1
+    for _, jx in ipairs({ math.ceil(DK_L(ny)) + 3, 240, math.floor(DK_R(ny)) - 3 }) do
+      P(jx, ny, "#3e3440"); if hgt >= 6 then P(jx + 1, ny, "#3e3440"); P(jx, ny - 0, "#3e3440"); P(jx - 1, ny, "#d8c8b4") end
+    end
+  end
+end
+-- deck side rails (edge boards) catch the warm light on the left, cool shade on the right
+for y = 114, 151 do
+  P(math.ceil(DK_L(y)), y, "#3e3440"); P(math.ceil(DK_L(y)) + 1, y, (y % 3 == 0) and "#c2a88c" or "#e2c8a2")
+  P(math.floor(DK_R(y)), y, "#3e3440"); P(math.floor(DK_R(y)) - 1, y, "#6c5a5c")
+end
+for x = 218, 262 do P(x, 114, "#3e3440") end
+-- dock front face (bank edge): plank end grain
 solid(c:rect(212, 152, 268, 155), {"#2e2632", "#4e4048", "#6c5a5c", "#6c5a5c"}, { sh = 1 })
+for x = 214, 266, 6 do P(x, 153, "#8a7266"); P(x + 1, 153, "#8a7266"); P(x + 3, 154, "#3e3440") end
 -- far end posts
 solid(c:rect(216, 104, 220, 116), DOCK, { sh = 1 })
 solid(c:rect(260, 104, 264, 116), DOCK, { sh = 1 })
+-- mid pilings in perspective (shrink with depth), with rope wraps and a water stub + ripple
+local ropeL, ropeR = { { 208, 139 } }, { { 273, 139 } }
+for _, z in ipairs({ 1.7, 2.6 }) do
+  local yb = math.floor(ZY(z) + 0.5)
+  local w = math.max(4, math.floor(12 / z + 0.5))
+  local h = math.floor(38 / z + 0.5)
+  for side = -1, 1, 2 do
+    local ex = side < 0 and math.floor(DK_L(yb)) or math.ceil(DK_R(yb))
+    local x0 = side < 0 and (ex - w + 1) or ex
+    local m = c:rect(x0, yb - h, x0 + w - 1, yb + math.floor(5 / z))
+    m:grow(1):cut(m):each(function(x, y) P(x, y, "#2b1c26") end)       -- ink rim so the pilings read at phone size
+    solid(m, WOOD, { sh = 1, tex = function(x, y, col) if (y + x) % 5 == 0 and col == WOOD[3] then return WOOD[2] end return col end })
+    P(x0, yb - h, WOOD[4]); P(x0 + 1, yb - h, WOOD[4])
+    c:fillMask(c:rect(x0, yb - h + 2, x0 + w - 1, yb - h + 3 + math.floor(2 / z + 0.5)), THAT[3])
+    for x = x0, x0 + w - 1 do P(x, yb - h + 2, THAT[4]); P(x, yb - h + 4 + math.floor(2 / z + 0.5), THAT[1]) end
+    local wy = yb + math.floor(5 / z) + 1
+    for x = x0 - 2, x0 + w + 1 do if (x + wy) % 2 == 0 then P(x, wy, "#c4dce2") end end
+    local rp = { x0 + (side < 0 and 0 or w - 1), yb - h + 3 }
+    if side < 0 then ropeL[#ropeL + 1] = rp else ropeR[#ropeR + 1] = rp end
+  end
+end
+ropeL[#ropeL + 1] = { 217, 108 }; ropeR[#ropeR + 1] = { 263, 108 }
 -- near mooring posts
 shadow(208, 156, 7, 2); shadow(273, 156, 7, 2)
 solid(c:rect(204, 130, 211, 156), WOOD, { sh = 2, tex = planksV(WOOD, 3, 204, 2) })
 solid(c:rect(270, 130, 277, 156), WOOD, { sh = 2, tex = planksV(WOOD, 3, 270, 3) })
-c:fillMask(c:rect(204, 140, 211, 142), THAT[2]); c:fillMask(c:rect(270, 140, 277, 142), THAT[2]) -- rope wraps
+P(205, 130, WOOD[4]); P(206, 130, WOOD[4]); P(271, 130, WOOD[4]); P(272, 130, WOOD[4])
+for _, px in ipairs({ 204, 270 }) do                               -- rope wraps, twisted
+  c:fillMask(c:rect(px, 138, px + 7, 142), THAT[3])
+  for x = px, px + 7 do for y = 138, 142 do if (x + y) % 3 == 0 then P(x, y, THAT[2]) end end; P(x, 142, THAT[1]); P(x, 138, THAT[4]) end
+end
+-- rope swags along both sides of the deck (sagging between pilings)
+local function swag(pts)
+  for i = 1, #pts - 1 do
+    local a, b = pts[i], pts[i + 1]
+    local n = math.max(math.abs(b[1] - a[1]), math.abs(b[2] - a[2])) * 2
+    local sag = math.max(1, math.floor(math.abs(b[2] - a[2]) / 4 + 1))
+    for s = 0, n do
+      local t = s / n
+      local x = math.floor(a[1] + (b[1] - a[1]) * t + 0.5)
+      local y = math.floor(a[2] + (b[2] - a[2]) * t + sag * 4 * t * (1 - t) + 0.5)
+      P(x, y, THAT[4]); P(x, y + 1, THAT[3]); P(x, y + 2, THAT[1])
+    end
+  end
+end
+swag(ropeL); swag(ropeR)
+-- coil of rope lying on the near deck (right), and a bucket
+for r = 0, 3 do
+  local m = c:ellipse(256, 145, 6 - r, 3 - math.floor(r * 0.7))
+  c:edgeIn(m, (r % 2 == 0) and THAT[3] or THAT[2])
+end
+P(256, 145, THAT[1]); P(250, 146, THAT[1]); c:fillMask(c:line({{262, 145}, {265, 150}}, 1), THAT[3])
+solid(c:poly{{222, 139}, {230, 139}, {229, 147}, {223, 147}}, BLUW, { sh = 1, tex = function(x, y, col) if y == 142 then return BRASS[2] end return col end })
+c:fillMask(c:rect(223, 139, 229, 140), "#6c9fbc"); P(224, 139, "#a8c8d4")
+c:fillMask(c:line({{222, 139}, {226, 135}, {230, 139}}, 1), "#3e3036")
 -- teapot perched on the right mooring post (quirk)
 local pot = c:poly{{268, 129}, {268, 123}, {270, 120}, {277, 120}, {279, 123}, {279, 129}}
 solid(pot, TEAL, { sh = 1 })
@@ -494,11 +619,42 @@ c:fillMask(c:ellipse(163, 160, 1, 1), THAT[1])
 -- right of the landing: barrel and a stacked sack
 barrel(284, 142, 12, 15); barrel(297, 148, 10, 12)
 solid(c:rrect(311, 150, 322, 159, 3), PLAS, { sh = 2, tex = function(x, y, col) if y == 153 then return PLAS[2] end end })
--- lantern on the left mooring post, with a lighter glow ring (no alpha)
-solid(c:rect(205, 120, 210, 128), BRASS, { sh = 1 })
-c:fillMask(c:rect(206, 122, 209, 126), GLOW[4]); P(207, 122, "#fff8d8")
-c:fillMask(c:rect(204, 119, 211, 119), BRASS[1]); P(207, 118, BRASS[2]); P(208, 118, BRASS[2])
-for _, g in ipairs({ { 203, 124 }, { 212, 124 }, { 207, 130 }, { 208, 116 }, { 202, 121 }, { 213, 121 } }) do P(g[1], g[2], GLOW[3]) end
+-- lantern on the left mooring post: brass cap + ring, framed glass, flame, warm glow ring (hard pixels, no alpha)
+local lantM = c:rect(204, 112, 211, 129)
+for y = 104, 140 do for x = 196, 220 do
+  local d = ((x - 207.5) / 11) ^ 2 + ((y - 123) / 12) ^ 2
+  if d < 1 and not lantM:has(x, y) then
+    local k = c:get(x, y)
+    local a = d < 0.45 and 0.32 or ((x + y) % 2 == 0 and 0.18 or 0)
+    if k and a > 0 then P(x, y, mix(k, "#ffd27a", a)) end
+  end
+end end
+c:fillMask(c:rect(207, 112, 208, 112), BRASS[1]); P(206, 113, BRASS[1]); P(209, 113, BRASS[1]); P(206, 114, BRASS[2]); P(209, 114, BRASS[2])
+solid(c:poly{{204, 118}, {207, 115}, {208, 115}, {211, 118}}, BRASS, { sh = 1 })
+solid(c:rect(205, 119, 210, 127), GLOW, { sh = 1, rim = false })
+c:fillMask(c:rect(205, 119, 205, 127), BRASS[1]); c:fillMask(c:rect(210, 119, 210, 127), BRASS[2])
+c:fillMask(c:rect(205, 119, 210, 119), BRASS[2])
+P(207, 122, GLOW[3]); P(207, 123, "#fff8d8"); P(208, 123, "#fff8d8"); P(207, 124, "#fff8d8"); P(208, 124, GLOW[4]); P(207, 125, GLOW[2])
+P(206, 120, "#fff8d8")
+solid(c:rect(204, 128, 211, 129), BRASS, { sh = 1 })
+-- glints of lantern light on the water beside the post
+for _, g in ipairs({ {198, 137}, {200, 139}, {202, 137}, {196, 139}, {203, 140} }) do
+  if WATER[g[2] * W + g[1]] == c:get(g[1], g[2]) then P(g[1], g[2], GLOW[3]); P(g[1] + 1, g[2], GLOW[4]) end
+end
+-- broken reflections of everything standing in the water
+reflect(216, 220, 116, 8, "#3e3440", 0.55); reflect(260, 264, 116, 8, "#3e3440", 0.55)
+reflect(214, 217, 115, 12, WOOD[2], 0.5)
+reflect(268, 328, 129, 9, WOOD[1], 0.5)
+reflect(174, 198, 135, 5, RED[2], 0.45)
+for _, z in ipairs({ 1.7, 2.6 }) do
+  local yb = math.floor(104 + 48 / z + 0.5); local w = math.max(3, math.floor(10 / z + 0.5))
+  reflect(math.floor(212 + 6 * (152 - yb) / 38) - w - 1, math.floor(212 + 6 * (152 - yb) / 38) + 1, yb + math.floor(5 / z) + 1, 6, "#3e3440", 0.5)
+  reflect(math.ceil(268 - 6 * (152 - yb) / 38) - 1, math.ceil(268 - 6 * (152 - yb) / 38) + w + 1, yb + math.floor(5 / z) + 1, 6, "#3e3440", 0.5)
+end
+-- light ripple lines crossing the reflections
+for _, r in ipairs({ {214, 124, 6}, {258, 125, 7}, {280, 133, 12}, {300, 136, 10}, {180, 139, 8} }) do
+  for x = r[1], r[1] + r[3] do if x % 3 ~= 0 then P(x, r[2], "#c4dce2") end end
+end
 -- a moored rowboat with oars, on the left water
 shadow(186, 138, 18, 2, 0.35)
 local hull = c:poly{{168, 126}, {204, 126}, {198, 135}, {174, 135}}

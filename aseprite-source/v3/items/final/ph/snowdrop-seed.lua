@@ -1,8 +1,5 @@
--- snowdrop-seed (seed W1_5)
+-- snowdrop-seed (seed E1_B)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="snowdrop-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#6a5a3a","#8c7848","#b09a5c","#d2bc7c","#ecdca0","#faf0cc"}, leaf={"#1c4a50","#2a6a66","#3c8a78","#58a890","#82c4a6","#b0dcc0"}, sleaf={"#2c7a6a","#3c9a7c","#58b890","#7cd0a4","#a4e4bc","#cef2d4"}, stem={"#2a5e50","#3c7c62","#589a74","#7cb88a","#a2d29e"}, root={"#f6eed8","#e8d8b4","#d0b88c"},
-vein="#a4dcc0", gloss="#fff8dc", cool="#3a3a6a", red="#8a6a8a",
-sl=1.2, sw=0.9, taper=0.3, drop={4}, marks="none", markc="#8c7848",
-scrap={6,56,28,50,58,44}, scrapW=4.2, scrapExp=0.45, sprout="blades", leafw=2.6, quirk="none"
+  name="snowdrop-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+  seed={"#d8d0b0","#e4dcc0","#ece6cc","#f4efd8","#fcf6e0","#fffbea"}, leaf={"#1e5a5a","#287a72","#32968a","#4cb0a0","#74c8b4","#a0dcc8"}, sleaf={"#38a89a","#54c0a8","#74d4b8","#94e4c8","#b4f0da","#d0f8ea"}, stem={"#3a8a78","#4ea48a","#62bc9c","#7ad0ac","#98e0bc"}, root={"#f4ecd4","#e0d4b4","#c4b894"}, vein="#c8f4e4", gloss="#fffaf0", cool="#5a6a98", red="#6aa8a0", sl=1.2, sw=0.9, taper=0.3, drop={4,1}, marks="none", markc="#b0a888", scrap={6,56,29,51,58,41}, scrapW=4.4, scrapExp=1.0, sprout="blades", leafw=2.4, quirk="none"
 })

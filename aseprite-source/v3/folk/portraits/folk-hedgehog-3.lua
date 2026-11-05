@@ -1,116 +1,44 @@
--- folk-hedgehog-3 portrait (folk F1_0) variant: 3
+-- folk-hedgehog-3 portrait (folk F1_0) variant: 3 (front view 2026-11-05, HH.portraitFront in lib/hedgehog.lua)
+-- Cook hedgehog, head-on: dark brown spine arch, cream face, bead eyes, short snout + wet nose, small red polka-dot kerchief
+-- tied on the crown (knot tails trailing through the spines), mustard shirt, cream apron, copper ladle of soup in the right paw. Peach disc.
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
-local HP = dofile(DIR .. "/../../lib/hp.lua")
-local P = HP.P
-local out = app.params.out or (DIR .. "/")
-local INK = "#2b1c26"
+local HH = dofile(DIR .. "/../../lib/hedgehog.lua")
 local function R4(hi, base, shade, deep) return { hi = hi, base = base, shade = shade, deep = deep } end
-local SKIN = R4("#f6dfb0", "#e0b986", "#b38469", "#7d5763")
-local PAW = R4("#e9b89a", "#c98d78", "#9a6468", "#6a4458")
-local NOSE, NOSEHI, BLUSH = "#4a2c3c", "#8a5a6a", "#e8968a"
-local function rnd(v) return math.floor(v + 0.5) end
-local function spiky(c, cx, cy, rx, ry, a0, a1, n, len, w)
-  local m = c:ellipse(cx, cy, rx, ry)
-  local tips = {}
-  for i = 0, n - 1 do
-    local a = math.rad(a0 + (a1 - a0) * (i + 0.5) / n)
-    local ww = math.rad(w)
-    local x1, y1 = cx + math.cos(a - ww) * rx * 0.92, cy + math.sin(a - ww) * ry * 0.92
-    local x2, y2 = cx + math.cos(a + ww) * rx * 0.92, cy + math.sin(a + ww) * ry * 0.92
-    local tx, ty = cx + math.cos(a) * (rx + len), cy + math.sin(a) * (ry + len)
-    m:add(c:poly{ { rnd(x1), rnd(y1) }, { rnd(x2), rnd(y2) }, { rnd(tx), rnd(ty) } })
-    tips[#tips + 1] = { rnd(tx), rnd(ty), a }
-  end
-  return m, tips
-end
-local function quills(c, m, R, cx, cy, rx, ry, tips)
-  m:each(function(x, y) if (x * 7 + y * 13) % 17 == 0 and m:has(x, y + 1) and m:has(x + 1, y) then c:put(x, y, R.deep) end end)
-  for _, t in ipairs(tips) do
-    local a = t[3]
-    local lit = math.cos(a) < 0.25 and math.sin(a) < 0.35
-    local sx, sy = rnd(cx + math.cos(a) * rx * 0.55), rnd(cy + math.sin(a) * ry * 0.55)
-    local ex, ey = rnd(cx + math.cos(a) * (rx + 1)), rnd(cy + math.sin(a) * (ry + 1))
-    c:line({ { sx, sy }, { ex, ey } }, 1):clip(m):each(function(x, y) c:put(x, y, lit and R.hi or R.deep) end)
-    if m:has(t[1], t[2]) then c:put(t[1], t[2], lit and R.hi or R.shade) end
-  end
-end
-local function fill(m, hex, c) m:each(function(x, y) c:put(x, y, hex) end) end
-local NAME = "folk-hedgehog-3"
-local SP = R4("#a06a48", "#6a3f2e", "#46283a", "#3a2236")
+local SP = { hi = "#a06a48", base = "#6a3f2e", shade = "#46283a", deep = "#3a2236", tip = "#e6c79c" }
+local FACE = R4("#f6dfb0", "#e0b986", "#b38469", "#7d5763")
 local CLO = R4("#f2cb6a", "#d69c3a", "#a06a3a", "#6a4236")
 local KER = R4("#f08a6e", "#d0503e", "#963648", "#5e2440")
 local APR = R4("#fbf1d8", "#ecdcb8", "#c3aea0", "#8a7884")
 local COP = R4("#f4b27c", "#cf7a48", "#9a4c40", "#64303a")
 local SOUP, CARROT = "#f2b45a", "#e8703a"
-local BG = { base = "#f0b88a", shade = "#d08c68", deep = "#a2644e" }
-local V = { late = true, ry = -4 }
-function V.behind(c) end
-function V.body(c, sh)
-  c:part(sh, CLO, { band = 3, nopop = true })
-  local a = c:rrect(28, 80, 51, 99, 2)
-  a:add(c:line({ { 30, 81 }, { 32, 73 } }, 2)) a:add(c:line({ { 49, 81 }, { 47, 73 } }, 2))
-  c:part(a, APR, { band = 2, nopop = true, inner = false })
-  for x = 33, 46 do c:put(x, 89, APR.shade) end for y = 90, 95 do c:put(33, y, APR.shade) c:put(46, y, APR.shade) end
-  for y = 83, 98, 3 do c:put(43, y, APR.shade) end
-end
-function V.hat(c)
-  local k = c:ellipse(39.5, 45, 17.5, 16.5):clip(c:rect(0, 0, 79, 36))
-  c:part(k, KER, { band = 2, nopop = true, inner = false })
-  k:each(function(x, y) if (x + 2 * y) % 7 == 0 and y % 3 == 0 and c:get(x, y) == KER.base then c:put(x, y, APR.hi) c:put(x+1, y, APR.base) end end)
-  k:each(function(x, y) if not k:has(x, y + 1) then c:put(x, y, KER.deep) end end)
-  local kn = c:ellipse(57, 33, 3, 2.5)
-  kn:add(c:poly{ { 58, 34 }, { 65, 39 }, { 62, 42 }, { 57, 36 } })
-  kn:add(c:poly{ { 58, 32 }, { 66, 28 }, { 66, 33 }, { 59, 35 } })
-  c:part(kn, KER, { band = 1, nopop = true, inner = false })
-end
-function V.prop(c)
-  c:part(c:line({ { 64, 88 }, { 62, 62 } }, 3), COP, { band = 1, nopop = true, inner = false })
-  c:part(c:ellipse(63, 57, 6, 4), COP, { band = 2, nopop = true, inner = false })
-  fill(c:ellipse(63, 56, 4, 2), SOUP, c)
-  c:put(64, 56, CARROT) c:put(61, 55, CARROT)
-  c:put(59, 55, COP.hi) c:put(60, 54, COP.hi)
-  c:part(c:ellipse(64, 89, 4, 3.5), PAW, { band = 1, nopop = true, inner = false })
-end
-
-local c = HP.canvas{ w = 80, h = 100, scale = 1, name = NAME }
-local function backdrop(r)
-  local disc = HP.ellipse(39.5, 44.5, 30.5, 30.5)
-  disc:each(function(x, y) if not c:get(x, y) then c:put(x, y, disc:has(x + 2, y + 2) and r.base or r.shade, "bg") end end)
-  local ring = disc:grow(1):cut(disc)
-  ring:each(function(x, y) if not c:get(x, y) then
-    local dk = false
-    for _, d in ipairs{ {1,0},{-1,0},{0,1},{0,-1} } do if c:get(x + d[1], y + d[2]) == r.shade then dk = true end end
-    c:put(x, y, dk and r.deep or r.shade, "bg") end end)
-end
-local sh = c:ellipse(39.5, 104, 28, 25):clip(c:rect(0, 0, 79, 99))
-V.behind(c)
-local bm, bt = spiky(c, 39.5, 84, 27, 9, 165, 375, 12, 5, 7)
-bm:clip(c:rect(0, 0, 79, 99))
-c:part(bm, SP, { band = 2, nopop = true, inner = false })
-quills(c, bm, SP, 39.5, 84, 27, 9, bt)
-c:part(c:ellipse(39.5, 71, 13, 8), SKIN, { band = 2, nopop = true, inner = false })
-V.body(c, sh)
-local hm, ht = spiky(c, 39.5, 44, 17, 16, 135, 405, 18, 4, 6)
-c:part(hm, SP, { band = 3, nopop = true, inner = false })
-quills(c, hm, SP, 39.5, 44, 17, 16, ht)
-for _, x in ipairs{ 22, 57 } do
-  c:part(c:ellipse(x, 47, 3.5, 3.5), SKIN, { band = 1, nopop = true, inner = false })
-  fill(c:ellipse(x + (x < 39 and 0.5 or -0.5), 48, 1.5, 1.5), PAW.base, c)
-end
-local f = c:ellipse(39.5, 52, 15, 10.5)
-f:add(c:poly{ { 25, 53 }, { 54, 53 }, { 45, 64 }, { 34, 64 } })
-f:add(c:ellipse(39.5, 64, 5, 3.5))
-c:part(f, SKIN, { band = 3, nopop = true, inner = false })
-fill(c:poly{ { 34, 41 }, { 45, 41 }, { 39.5, 47 } }, SP.shade, c)
-c:line({ { 37, 42 }, { 39, 45 } }, 1):each(function(x, y) c:put(x, y, SP.base) end)
-c:eyeLocked(30, 48) c:eyeLocked(45, 48)
-fill(c:ellipse(39.5, 63, 2.5, 1.5), NOSE, c) c:put(38, 62, NOSEHI)
-for _, q in ipairs{ {37,66},{38,67},{39,67},{40,67},{41,67},{42,66} } do c:put(q[1], q[2], INK) end
-for _, q in ipairs{ {26,57},{27,57},{28,57},{27,58},{51,57},{52,57},{53,57},{52,58} } do c:put(q[1], q[2], BLUSH) end
-V.hat(c)
-V.prop(c)
-c:finish{ outline = true }
-backdrop(BG)
-HP.assertClean(c)
-c:save{ aseprite = out .. NAME .. ".aseprite", png = out .. NAME .. ".png", scale = 1 }
-print(NAME .. " ok")
+local NO = { band = 1, nopop = true, inner = false }
+HH.portraitFront{ name = "folk-hedgehog-3", out = app.params.out or (DIR .. "/"), SP = SP, FACE = FACE, seed = 33,
+  BG = { base = "#f0b88a", shade = "#d08c68", deep = "#a2644e" },
+  body = function(c, k)
+    c:part(k.torso, CLO, { band = 3, inner = false, nopop = true })
+    local a = c:rrect(27, 84, 52, 99, 2)
+    a:add(c:line({ { 29, 85 }, { 31, 76 } }, 2)) a:add(c:line({ { 50, 85 }, { 48, 76 } }, 2))
+    a:clip(k.torso)
+    c:part(a, APR, { band = 2, nopop = true, inner = false })
+    for x = 32, 47 do c:put(x, 92, APR.shade) end for y = 93, 98 do c:put(32, y, APR.shade) c:put(47, y, APR.shade) end
+    HH.pawFront(c, k, 24, 92, 3.5, 3)
+  end,
+  hat = function(c, k)
+    local x, y = k.crown.x, k.crown.y + 4
+    local kh = c:ellipse(x, y, 11, 8):clip(c:rect(0, 0, 79, y))
+    kh:add(c:rrect(x - 12, y - 1, x + 11, y + 2, 1))
+    c:part(kh, KER, { band = 2, nopop = true, inner = false }) HH.under(c, kh, KER.deep)
+    kh:each(function(px, py) if (px + 2 * py) % 6 == 0 and py % 3 == 0 and c:get(px, py) == KER.base:lower() then c:put(px, py, APR.hi) end end)
+    local kn = c:ellipse(x - 12, y, 2.5, 2)
+    kn:add(c:poly{ { x - 13, y + 1 }, { x - 20, y + 6 }, { x - 17, y + 8 }, { x - 12, y + 2 } })
+    kn:add(c:poly{ { x - 13, y - 1 }, { x - 21, y - 4 }, { x - 20, y + 1 }, { x - 13, y + 1 } })
+    c:part(kn, KER, NO) HH.under(c, kn, KER.deep)
+  end,
+  front = function(c, k)
+    c:part(c:line({ { 60, 96 }, { 58, 72 } }, 3), COP, NO)
+    c:part(c:ellipse(60, 68, 7, 4.5), COP, { band = 2, nopop = true, inner = false })
+    c:fillMask(c:ellipse(60, 67, 5, 2), SOUP)
+    c:put(61, 67, CARROT) c:put(57, 66, CARROT) c:put(55, 66, COP.hi) c:put(56, 65, COP.hi)
+    HH.pawFront(c, k, 59, 90, 4, 3.5)
+  end,
+}

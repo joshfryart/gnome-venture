@@ -1,53 +1,84 @@
--- stage-vegetable-4 (lean W2_27)
--- Ripe striped melon on a soil mound, two crescent leaves, hooked stem and curly tendril. Quirk: a ladybug on the rind.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-vegetable-4 (lean E2_14)
+local NAME = "stage-vegetable-4"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function shade(c, m, ramp, R, o) o = o or {} local n = X.pillow(m, R) local v = X.light(n, { amb = o.amb or 0.1, wrap = o.wrap or 0.25 }) G.tone(c, m, v, ramp, o.cuts, o.bias) return n, v end
-local function maskf(x0, y0, x1, y1, f) local m = HP.mask() for y = y0, y1 do for x = x0, x1 do if f(x, y) then m:set(x, y) end end end return m end
-
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-vegetable-4" }
-local SOIL = { "#2a1a1c", "#47291f", "#69402a", "#8c5b36", "#b0804a", "#cfa466" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local MEL  = { "#23504a", "#2f6e55", "#459063", "#65b16f", "#8fcf84", "#c4eba0" }
-local STEM = { "#3b6449", "#5b8d5a", "#88b46e", "#b9d793" }
-c:groundShadow(32, 54, 22, 3)
--- soil mound
-local mound = maskf(8, 44, 56, 56, function(x, y) return ((x - 32) / 24)^2 + ((y - 51) / 5.5)^2 <= 1 end)
-shade(c, mound, SOIL, 4)
-mound:each(function(x, y) if X.hash(x, y, 3) > 0.9 then c:px(x, y, SOIL[6]) elseif X.hash(x, y, 8) > 0.9 then c:px(x, y, SOIL[1]) end end)
--- crescent leaves (behind melon)
-local function leaf(p, w)
-  local m, n, T, S = G.tube(p, function(t) return w * sin(pi * min(1, t * 0.95 + 0.03)) ^ 0.7 end)
-  shade(c, m, LEAF, w)
-  m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.14 and T[k] > 0.08 and T[k] < 0.9 then c:px(x, y, S[k] <= 0 and LEAF[6] or LEAF[3]) end
-    if T[k] > 0.2 and T[k] < 0.8 and abs(abs(S[k]) - 0.55) < 0.12 and floor(T[k] * 22) % 3 == 0 then c:px(x, y, LEAF[2]) end end)
+local GREY = { "#2f2c3a", "#4b475a", "#6b6678", "#8c879a", "#aeaabb", "#d3d0dc" }
+local WARM = { "#3a2c2c", "#5e4a44", "#86705e", "#a8917a", "#c9b394", "#e6d6b4" }
+local ROSE = { "#3a2a36", "#5e4558", "#86647a", "#a8829a", "#c9a2b8", "#e6c8d6" }
+local GRASS = { "#16382f", "#1f5236", "#2f7040", "#4a8f4a", "#74b05a", "#a4d070" }
+local SOIL = { "#2a1a1c", "#44291f", "#5f3a28", "#7e5233", "#9c6c40", "#bb8a55" }
+local WOOD = { "#2e1c1c", "#4d2e24", "#6e4530", "#8f5f3e", "#b17d4e", "#d3a266" }
+local STEEL = { "#27293c", "#434a63", "#66708a", "#8e9ab2", "#bcc8da", "#eaf0f8" }
+local function shade(m, R, rad, name, o)
+  local n = X.pillow(m, rad or 3)
+  o = o or {}
+  o.tok = { r = { name = name } }
+  G.toneN(c, m, n, R, o)
+  return n
 end
-leaf({ {22, 49}, {5, 48}, {3, 32}, {14, 21} }, 4.6)
-leaf({ {42, 49}, {59, 48}, {61, 32}, {50, 21} }, 4.6)
--- melon
-local mm = maskf(16, 20, 48, 52, function(x, y) return ((x - 32) / 14.5)^2 + ((y - 37) / 14)^2 <= 1 end)
-local n, v = X.pillow(mm, 13), nil
-v = X.light(n, { amb = 0.08, wrap = 0.22 })
-G.tone(c, mm, v, MEL, { 0.2, 0.38, 0.55, 0.72, 0.87 })
-local inner = mm:copy():shrink(1)
-inner:each(function(x, y)
-  local u = max(-1, min(1, (x - 32) / 14.5))
-  local a = math.asin(u) / (pi / 6)
-  local d = abs(a - floor(a + 0.5))
-  if d < 0.11 + 0.06 * (1 - abs(u)) and abs(floor(a + 0.5)) <= 2 then c:px(x, y, v[K(x, y)] > 0.55 and MEL[3] or MEL[1]) end
+local function stone(m, R, seed, d)
+  d = d or 0
+  local tok = { r = { name = "s" .. seed } }
+  m:each(function(x, y)
+    local up, lf, dn, rt = m:has(x, y - 1), m:has(x - 1, y), m:has(x, y + 1), m:has(x + 1, y)
+    local i, h = 3, X.hash(x, y, seed)
+    if h > 0.9 then i = 4 elseif h < 0.1 then i = 2 end
+    if not up or not lf then i = 5 end
+    if not dn or not rt then i = 2 end
+    if not up and not lf then i = 6 end
+    c:put(x, y, R[max(1, min(6, i + d))], tok)
+  end)
+end
+local function leaf(ax, ay, cx, cy, bx, by, w, R, veins, name, vcol)
+  local m, n, T, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.9 + 0.1)
+    return max(0.5, w * sin(pi * u ^ 1.2) ^ 0.7)
+  end, { fold = 0.45 })
+  local tok = { r = { name = name } }
+  G.toneN(c, m, n, R, { tok = tok, cuts = { 0.18, 0.34, 0.5, 0.66, 0.82 }, amb = 0.1, wrap = 0.22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.13 and t > 0.04 and t < 0.92 then c:put(x, y, s <= 0 and R[6] or R[2], tok) return end
+    for _, vt in ipairs(veins) do
+      local d = t * L - (vt + abs(s) * 4)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.25 and abs(s) < 0.75 then c:put(x, y, s < 0 and R[5] or R[2], tok) return end
+    end
+  end)
+  return m
+end
+local function plus(x, y, a, b)
+  c:put(x, y, b) c:put(x - 1, y, a) c:put(x + 1, y, a) c:put(x, y - 1, a) c:put(x, y + 1, a)
+end
+local MEL = { "#12452f", "#1a6a40", "#2a8a4a", "#48aa56", "#76c868", "#b4e888" }
+local STR = { "#0e3626", "#14502f", "#1d6e3a", "#2f8a45", "#52a858", "#8cc878" }
+local LG = { "#17402f", "#1f5c3a", "#2f7b43", "#4a9a4a", "#72b95a", "#a2d46e" }
+local VINE = { "#2a4a24", "#3f6a2c", "#5c8a38", "#82aa48", "#aac860" }
+c:groundShadow(32, 57, 22, 3)
+local mound = c:ellipse(32, 53, 20, 5)
+shade(mound, SOIL, 4, "soil")
+mound:each(function(x, y) local h = X.hash(x, y, 6) if h > 0.9 then c:put(x, y, SOIL[5]) elseif h < 0.07 then c:put(x, y, SOIL[1]) end end)
+leaf(22, 52, 9, 50, 6, 36, 5, LG, { 5, 10 }, "bl1")
+leaf(42, 52, 55, 50, 58, 36, 5, LG, { 5, 10 }, "bl2")
+local body = c:ellipse(32, 37, 17, 15)
+local n = X.pillow(body, 7)
+local idx = X.tone(c, body, X.light(n, { amb = 0.08, wrap = 0.2 }), MEL, { cuts = { 0.2, 0.36, 0.52, 0.68, 0.84 }, tok = { r = { name = "mel" } } })
+body:each(function(x, y)
+  local phi = math.atan(x - 32, 37 - y + 1)
+  local s = sin(phi * 5 + 0.3)
+  local k = K(x, y)
+  if s > 0.15 then c:put(x, y, STR[max(1, min(6, idx[k]))], { r = { name = "mel" } }) end
 end)
-mm:edge():each(function(x, y) if x > 32 and y > 38 then c:px(x, y, "#4f8f9a") end end)
-c:px(25, 29, "#f4fff0") c:px(26, 29, "#f4fff0") c:px(25, 30, MEL[6]) c:px(27, 28, MEL[6])
--- ladybug quirk
-c:px(38, 33, "#d83a38") c:px(39, 33, "#d83a38") c:px(38, 34, "#b02a30") c:px(39, 34, "#b02a30") c:px(38, 32, "#2b1c26") c:px(39, 35, "#2b1c26")
--- hooked stem
-local sm, sn = G.tube({ {32, 25}, {32, 18}, {37, 12}, {43, 15} }, function(t) return 2.2 - 0.9 * t end)
-shade(c, sm, STEM, 2.2)
-c:fillMask(c:rect(29, 23, 35, 23), STEM[1])
--- tendril spiral
-local pts = { {35, 20} }
-for i = 0, 22 do local a = i * 0.45 local r = 6.5 - i * 0.22 pts[#pts + 1] = { floor(47 + r * cos(a + 3.3) + 0.5), floor(14 + r * sin(a + 3.3) + 0.5) } end
-G.line(c, pts, STEM[2])
-c:px(54, 10, STEM[4]) c:px(53, 9, STEM[3])
-G.fin(c, "stage-vegetable-4")
+-- ripe field spot, pale yellow, low left
+for _, p in ipairs{ {20, 44}, {21, 45}, {22, 45}, {21, 44}, {22, 46}, {23, 46}, {20, 43} } do if body:has(p[1], p[2]) then c:put(p[1], p[2], p[1] < 22 and "#f0d878" or "#d8b850") end end
+local hx, hy = G.specAt(body, n, 40)
+if hx then c:put(hx, hy, "#f4ffd8") c:put(hx + 1, hy, "#f4ffd8") c:put(hx, hy + 1, "#dcf6b0") end
+-- stalk + curl tendril
+local sm, sn = G.tube({ {32, 24}, {32, 18}, {38, 14}, {42, 18} }, function(t) return 1.6 - 0.5 * t end)
+shade(sm, VINE, 2, "stalk", {})
+for _, p in ipairs{ {43, 20}, {44, 19}, {44, 18}, {43, 17} } do c:put(p[1], p[2], VINE[3]) end
+c:put(41, 17, VINE[4])
+-- quirk: tiny yellow flower still clinging to the tendril
+plus(45, 22, "#ffd84a", "#ff9a2a")
+G.save(c, NAME)

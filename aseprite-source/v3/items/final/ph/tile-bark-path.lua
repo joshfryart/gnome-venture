@@ -1,49 +1,47 @@
--- tile-bark-path (lean W2_34)
--- Square path tile of overlapping curled bark chips, dark gaps, moss specks, a tiny sprout (quirk), earthy raised rim.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- tile-bark-path (lean E2_17)
+local NAME = "tile-bark-path"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "tile-bark-path" }
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local BARK = { "#2e1a1c", "#4a2a24", "#6e4030", "#93603c", "#b98349", "#dca868" }
-local MOSS = { "#2f5a3a", "#58903f", "#9ccd5c" }
-local tile = c:rrect(8, 10, 55, 53, 4)
-local dirt = tile:copy()
-c:fillMask(dirt, BARK[1])
-local R = function(s) return X.hash(s, s * 3 + 1, 77) end
-local chips = {}
-for i = 1, 34 do
-  local cx = 10 + R(i) * 44
-  local cy = 12 + R(i + 50) * 40
-  local a = R(i + 100) * pi
-  chips[#chips + 1] = { cx, cy, cos(a), sin(a), 6 + R(i + 150) * 5, 2.4 + R(i + 200) * 1.6 }
+local CUTS = { 0.18, 0.34, 0.5, 0.66, 0.82 }
+local function ell(cx, cy, rx, ry, a)
+  a = a or 0
+  local ca, sa = cos(a), sin(a)
+  local m = HP.mask()
+  for y = floor(cy - max(rx, ry)) - 1, floor(cy + max(rx, ry)) + 1 do for x = floor(cx - max(rx, ry)) - 1, floor(cx + max(rx, ry)) + 1 do
+    local dx, dy = x + 0.5 - cx, y + 0.5 - cy
+    local u, v = (dx * ca + dy * sa) / rx, (-dx * sa + dy * ca) / ry
+    if u * u + v * v <= 1 then m:set(x, y) end
+  end end
+  return m
 end
-table.sort(chips, function(p, q) return p[2] < q[2] end)
-for i, ch in ipairs(chips) do
-  local m = G.rell(ch[1], ch[2], ch[3], ch[4], ch[5], ch[6]):clip(tile)
-  if m:count() > 0 then
-    local sh = m:copy():shift(1, 1):cut(m)
-    c:fillMask(sh:clip(tile), BARK[1])
-    local n = X.pillow(m, ch[6] + 1)
-    local v = X.light(n, { amb = 0.1, wrap = 0.2 })
-    local tint = 0.12 * (R(i + 300) - 0.5)
-    for k, val in pairs(v) do v[k] = max(0, min(1, val + tint)) end
-    G.tone(c, m, v, BARK, { 0.2, 0.38, 0.54, 0.7, 0.86 })
-    -- grain lines along chip axis
-    m:each(function(x, y)
-      local b = -(x - ch[1]) * ch[4] + (y - ch[2]) * ch[3]
-      if floor(b + 20) % 3 == 0 and abs(b) < ch[6] - 1 and X.hash(x, y, i) > 0.35 then c:px(x, y, BARK[2 + floor(X.hash(x, y, 5) * 2)]) end
-    end)
-  end
+local function shade(m, ramp, tok, R, amb, wrap)
+  local n = X.pillow(m, R)
+  G.toneN(c, m, n, ramp, { tok = tok, cuts = CUTS, amb = amb or 0.1, wrap = wrap or 0.2 })
+  return n
 end
--- moss specks
-for i = 1, 9 do
-  local x, y = floor(12 + R(i + 400) * 40), floor(14 + R(i + 450) * 36)
-  if tile:has(x, y) then c:px(x, y, MOSS[2]) c:px(x + 1, y, MOSS[3]) c:px(x, y + 1, MOSS[1]) end
+local function dot(x, y, col, tok) c:put(floor(x), floor(y), col, tok) end
+local SOIL = { "#1c1218", "#33201f", "#4a2e26" }
+local BARK = { "#3a1f1c", "#5c3322", "#7f4a2c", "#a2693a", "#c48a50", "#e0ae6e" }
+local base = HP.mask() base:add(c:rrect(7, 7, 56, 56, 5))
+local tk = { r = { name = "soil" } }
+base:each(function(x, y) c:put(x, y, SOIL[1 + floor(X.hash(x, y, 3) * 2.6) % 3], tk) end)
+local chips = {
+ {16,16,9,4.5,0.5},{33,14,8,4,-0.3},{49,17,8,5,0.9},{12,30,7,4.5,-0.6},{27,28,9,5,0.2},{44,31,8,4.5,-0.5},
+ {54,43,6,4.5,1.2},{16,44,9,4.5,0.35},{33,43,8,5,-0.4},{47,52,7,3.5,0.1},{24,54,7,3.2,-0.2},{58,28,3.5,3,0} }
+for i, s in ipairs(chips) do
+  local m = ell(s[1], s[2], s[3], s[4], s[5]) m:clip(base:shrink(1))
+  local tok = { r = { name = "chip" .. i } }
+  local n = shade(m, BARK, tok, s[4] + 1, 0.08, 0.15)
+  local ca, sa = cos(s[5]), sin(s[5])
+  m:each(function(x, y)
+    local v = -(x - s[1]) * sa + (y - s[2]) * ca
+    if floor(v * 0.9 + 100) % 3 == 0 and X.hash(x, y, i) > 0.35 then c:put(x, y, BARK[2], tok) end
+  end)
+  m:shift(1, 1):cut(m):clip(base):each(function(x, y) c:put(x, y, SOIL[1], tk) end)
+  local bx, by = G.specAt(m, n, 20) if bx then c:put(bx, by, BARK[6], tok) end
 end
--- rim: lighter lip top-left, shadow bottom-right
-tile:edge():each(function(x, y) end)
-for x = 12, 51 do c:px(x, 10, BARK[4]) c:px(x, 53, BARK[1]) end
-for y = 14, 49 do c:px(8, y, BARK[4]) c:px(55, y, BARK[1]) end
--- sprout quirk
-c:px(44, 31, MOSS[1]) c:px(44, 30, MOSS[2]) c:px(44, 29, MOSS[2]) c:px(43, 28, MOSS[3]) c:px(42, 28, MOSS[2]) c:px(45, 28, MOSS[3]) c:px(46, 27, MOSS[2])
-G.fin(c, "tile-bark-path")
+-- quirk: tiny green seedling pushing through between chips
+for _, p in ipairs{ {38,36,"#3f8f4c"},{38,35,"#3f8f4c"},{37,34,"#62ad55"},{39,34,"#62ad55"},{36,33,"#93cb68"},{40,33,"#93cb68"} } do dot(p[1], p[2], p[3], { r = { name = "sprout" } }) end
+G.save(c, NAME)

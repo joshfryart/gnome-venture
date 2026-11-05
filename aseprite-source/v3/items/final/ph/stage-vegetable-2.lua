@@ -1,63 +1,101 @@
--- stage-vegetable-2 (lean W2_26)
--- Young leafy veg (chard-like) in a furrowed soil bed: fan of five broad ribbed leaves with pale midribs and crinkled edges. Quirk: a ladybird on a leaf.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-vegetable-2 (lean E2_13)
+local NAME = "stage-vegetable-2"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local LEAF  = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local SOIL  = { "#2e1d24", "#4a2d2c", "#6b4330", "#8c5c3a", "#aa7a4c", "#c79a64" }
-local SPOT  = { "#2e1d24", "#4a2d2c", "#6b4330" }
-local CUTS  = { 0.2, 0.38, 0.55, 0.7, 0.86 }
-local ltok = { r = { name = "leaf" } }
-local function blade(c, ax, ay, bx, by, wmax, ramp)
-  local m, n, T, S = X.cyl(ax, ay, bx, by, function(t)
-    if t > 0.985 then return -1 end
-    return max(0.6, wmax * sin(pi * min(1, t * 0.93 + 0.07)) ^ 0.7)
-  end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.25 }), ramp or LEAF, CUTS, nil, ltok)
-  m:each(function(x, y) local k = K(x, y)
-    local s, t = S[k], T[k]
-    if abs(s) < 0.2 and t < 0.93 and t > 0.1 then c:put(x, y, s <= 0 and LEAF[6] or LEAF[3], ltok) end
-  end)
-  return m
+local CUTS = { .22, .4, .56, .72, .86 }
+local SOIL = { "#2e1d1a", "#4a2e25", "#6a4430", "#8a5e3e", "#a97a50", "#c79a68" }
+local PL   = { "#12302e", "#1c4a3a", "#2a6a42", "#3d8a4a", "#5fa856", "#8cc668" }
+local PST  = { "#3a2a3a", "#5a3a4a", "#7a5a52", "#5f8a48", "#86ae5a", "#b0cf7a" }
+local SPUD = { "#4a2c26", "#6e4234", "#946048", "#b98462", "#d6a67c", "#efc9a0" }
+local PURP = { "#3a2250", "#5a3a82", "#7d5cab", "#9f84cc", "#c3ade6", "#e8dcf7" }
+local function tn(m, n, ramp, tag, o)
+  o = o or {}
+  return G.toneN(c, m, n, ramp, { tok = { r = { name = tag } }, cuts = CUTS, amb = o.amb or .1, wrap = o.wrap or .22, bias = o.bias })
 end
-local function soil(c, cx, cy, rx, ry, seed)
-  local m = c:ellipse(cx, cy, rx, ry)
-  local v = X.light(X.pillow(m, ry), { amb = 0.1, wrap = 0.3 })
-  G.tone(c, m, v, SOIL, { 0.2, 0.36, 0.52, 0.68, 0.84 })
-  m:copy():shrink(1):each(function(x, y) local h = X.hash(x, y, seed)
-    if h > 0.9 then c:px(x, y, SOIL[6]) elseif h < 0.08 then c:px(x, y, SOIL[1]) end end)
-  return m
-end
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-vegetable-2" }
-c:groundShadow(32, 56, 26, 3)
-local bed = soil(c, 32, 52, 26, 7, 6)
--- furrow lines
-for x = 10, 54 do if X.hash(x, 3, 1) > 0.15 then c:px(x, 52, SOIL[2]) c:px(x, 53, SOIL[1]) end end
-local RIB = { "#a9c85c", "#d3e48a" }
-local function rleaf(ax, ay, bx, by, w)
-  local m = blade(c, ax, ay, bx, by, w)
-  local len = sqrt((bx-ax)^2 + (by-ay)^2)
-  local ux, uy = (bx-ax)/len, (by-ay)/len
-  for i = 1, floor(len / 3) - 1 do
-    local t = i * 3 / len local px, py = ax + (bx-ax) * t, ay + (by-ay) * t
-    local lw = w * sin(pi * min(1, t * 0.93 + 0.07)) ^ 0.7 * 0.55
-    for _, sd in ipairs{ -1, 1 } do
-      for k = 1, floor(lw) do
-        local x, y = floor(px - uy * sd * k + ux * k * 0.8 + 0.5), floor(py + ux * sd * k + uy * k * 0.8 + 0.5)
-        if m:has(x, y) then c:px(x, y, sd < 0 and LEAF[5] or LEAF[2]) end
-      end
+local function ov(cx, cy, rx, ry, ang, ramp, tag, rib)
+  local m, n = G.oval(cx, cy, rx, ry, ang, 1.0)
+  tn(m, n, ramp, tag)
+  if rib then
+    local ca, sa = cos(ang), sin(ang)
+    for i = -rx + 1, rx - 1, 0.5 do
+      local x, y = floor(cx + ca * i + .5), floor(cy + sa * i + .5)
+      if m:has(x, y) then c:put(x, y, ramp[5], { r = { name = tag .. "rib" } }) end
     end
   end
   return m
 end
-rleaf(32, 50, 8, 38, 5.2) rleaf(33, 50, 56, 37, 5.2)
-rleaf(31, 50, 15, 22, 5.4) rleaf(34, 50, 50, 21, 5.4)
-local mid = rleaf(32, 50, 32, 9, 6.0)
--- pale stalk bases
-local sm, sn = G.tube({ {32, 53}, {32, 50}, {32, 48}, {32, 46} }, function(t) return 2.4 end)
-G.tone(c, sm, X.light(sn, { amb = 0.2, wrap = 0.3 }), { "#b87a8c", "#d89aa6", "#efc0c4", "#fde4dc" }, { 0.3, 0.55, 0.8 })
-c:px(31, 52, "#fff6f2")
--- ladybird quirk on right leaf
-c:fillMask(c:ellipse(46, 27, 2.2, 1.8), "#d6322e")
-c:px(45, 26, "#ff8a7a") c:px(47, 28, "#8a1c26") c:px(44, 27, "#2b1c26") c:px(46, 27, "#2b1c26") c:px(47, 26, "#2b1c26")
-G.fin(c, "stage-vegetable-2")
+local function bl(ax, ay, cx, cy, bx, by, w, ramp, tag, o)
+  o = o or {}
+  local m, n, T, S, len = G.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.92 + 0.08)
+    return max(0.5, w * sin(pi * u ^ 1.1) ^ 0.7)
+  end, { fold = o.fold or 0.45 })
+  tn(m, n, ramp, tag, { amb = .12, wrap = .22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.12 and t > 0.03 and t < 0.9 then c:put(x, y, s <= 0 and ramp[6] or ramp[2], { r = { name = tag } }) return end
+    if o.veins then for _, vt in ipairs(o.veins) do
+      local d = t * len - (vt + abs(s) * 4)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.2 and abs(s) < 0.75 then c:put(x, y, s < 0 and ramp[5] or ramp[2], { r = { name = tag } }) return end
+    end end
+  end)
+  if o.serr then m:edge():each(function(x, y) local k = K(x, y)
+    if T[k] > 0.25 and T[k] < 0.95 and X.hash(x, y, 7) > 0.55 and (x + y) % 3 == 0 then c.pix[y * c.w + x] = nil c.own[y * c.w + x] = nil end end) end
+  return m, n, T, S
+end
+local function tb(pts, w, ramp, tag)
+  if #pts == 2 then local a, b = pts[1], pts[2]
+    pts = { a, { a[1] + (b[1] - a[1]) / 3, a[2] + (b[2] - a[2]) / 3 }, { a[1] + (b[1] - a[1]) * 2 / 3, a[2] + (b[2] - a[2]) * 2 / 3 }, b }
+  elseif #pts == 3 then local a, q, b = pts[1], pts[2], pts[3]
+    pts = { a, { a[1] + (q[1] - a[1]) * 2 / 3, a[2] + (q[2] - a[2]) * 2 / 3 }, { b[1] + (q[1] - b[1]) * 2 / 3, b[2] + (q[2] - b[2]) * 2 / 3 }, b } end
+  local m, n, T = G.tube(pts, function(t) return type(w) == "function" and w(t) or w end)
+  tn(m, n, ramp, tag, { amb = .15, wrap = .3 })
+  return m
+end
+local function soil(cx, cy, rx, ry)
+  c:groundShadow(cx, cy + ry - 1, rx + 1, 3)
+  local m, n = G.oval(cx, cy, rx, ry, 0, 0.7)
+  local idx = tn(m, n, SOIL, "soil")
+  m:each(function(x, y) local k = K(x, y) local h = X.hash(x, y, 5)
+    if h > 0.9 and idx[k] and idx[k] >= 2 then c:put(x, y, SOIL[max(1, idx[k] - 2)], { r = { name = "soil" } })
+    elseif h < 0.05 and idx[k] and idx[k] >= 3 then c:put(x, y, SOIL[min(6, idx[k] + 2)], { r = { name = "soil" } }) end end)
+  return m
+end
+local function compound(bx, by, ang, len, np, ramp, tag, ls)
+  ls = ls or 3
+  local ex, ey = bx + cos(ang) * len, by + sin(ang) * len
+  c:line({ { bx, by }, { ex, ey } }, 1):each(function(x, y) c:put(x, y, ramp[3], { r = { name = tag .. "r" } }) end)
+  ov(ex + cos(ang) * ls * .5, ey + sin(ang) * ls * .5, ls * 1.15, ls * .72, ang, ramp, tag .. "t", true)
+  for i = np, 1, -1 do
+    local t = i / (np + .5)
+    local px, py = bx + (ex - bx) * t, by + (ey - by) * t
+    local s = ls * (1.1 - 0.4 * t)
+    for _, sg in ipairs{ -1, 1 } do
+      local a = ang + sg * 1.05
+      ov(px + cos(a) * s * .85, py + sin(a) * s * .85, s, s * .64, a, ramp, tag .. i .. sg, true)
+    end
+  end
+end
+local function eyes(m, pts, tag)
+  for _, p in ipairs(pts) do if m:has(p[1], p[2]) then c:put(p[1], p[2], SPUD[1], { r = { name = tag } }) if m:has(p[1] - 1, p[2] - 1) then c:put(p[1] - 1, p[2] - 1, SPUD[5], { r = { name = tag } }) end end end
+end
+local LV = { "#143a2c", "#1e5a38", "#2e7c40", "#46a04c", "#6cc258", "#a0e070" }
+local LV2 = { "#1a4234", "#276040", "#38804a", "#58a858", "#82c868", "#b4e684" }
+local RAD = { "#5a1630", "#8a2646", "#bc3a5c", "#e05a78", "#f48ea0", "#ffd0d8" }
+soil(32, 51, 20, 6)
+bl(32, 47, 17, 40, 11, 27, 5.0, LV2, "e1", { serr = true, veins = { 5, 9, 13 } })
+bl(32, 47, 47, 40, 53, 27, 5.0, LV2, "e2", { serr = true, veins = { 5, 9, 13 } })
+bl(32, 46, 22, 34, 20, 14, 5.0, LV, "m1", { serr = true, veins = { 6, 11, 16 } })
+bl(32, 46, 42, 34, 44, 14, 5.0, LV, "m2", { serr = true, veins = { 6, 11, 16 } })
+bl(32, 46, 30, 30, 32, 9, 5.2, LV2, "c1", { serr = true, veins = { 6, 11, 16, 21 } })
+-- radish shoulder peeking from the soil
+local rm = ov(32, 48, 6.5, 4.6, 0, RAD, "rad")
+for _, x in ipairs{ 28, 30, 33, 36 } do c:put(x, 51, RAD[1], { r = { name = "rad" } }) end
+c:put(29, 45, RAD[6], { r = { name = "rad" } }) c:put(30, 44, RAD[6], { r = { name = "rad" } })
+for _, x in ipairs{ 29, 35 } do c:put(x, 46, LV[1], { r = { name = "rad" } }) end
+-- quirk: a ladybug on the right middle leaf
+local lm = ov(46, 22, 2.8, 2.2, 0.4, { "#5a0e14", "#8a1620", "#c02030", "#e83a40", "#ff6a60", "#ffb0a0" }, "lady")
+c:put(46, 20, "#2b1c26", { r = { name = "lady" } }) c:put(46, 22, "#2b1c26", { r = { name = "lady" } }) c:put(45, 23, "#2b1c26", { r = { name = "lady" } }) c:put(48, 21, "#2b1c26", { r = { name = "lady" } })
+G.save(c, NAME)

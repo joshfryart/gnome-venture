@@ -1,42 +1,81 @@
--- stage-fruit-1 (lean W2_22)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-fruit-1 (lean E2_09)
+local NAME = "stage-fruit-1"
+
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-fruit-1" }
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local SOIL = { "#2e1e22", "#4a2e2c", "#6b4430", "#8c5e3a", "#ad7d4b", "#cfa064" }
-local LEAF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local function soil(cx, cy, rx, ry, seed)
-  local m = c:ellipse(cx, cy, rx, ry)
-  local n = X.pillow(m, 5)
-  G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), SOIL, { 0.2, 0.38, 0.55, 0.72, 0.88 })
-  m:each(function(x, y) local h = X.hash(x, y, seed)
-    if h > 0.93 then c:px(x, y, SOIL[6]) elseif h < 0.07 then c:px(x, y, SOIL[1]) end end)
+local LEAF  = { "#163a35", "#1f553f", "#2b7046", "#3f8f4c", "#62ad55", "#93cb68" }
+local LEAF2 = { "#1a4238", "#255f43", "#33804b", "#4f9f52", "#78bd5c", "#a8d877" }
+local STEMG = { "#2f5a3a", "#3f7a46", "#5a9a4e", "#80b85a", "#a8d474" }
+local DIRT  = { "#2a1a1e", "#4a2c28", "#6e4232", "#8e5a3c", "#ae7848", "#cf9a60" }
+local RED   = { "#4a1424", "#7a1e2e", "#a82a36", "#d1403e", "#ea6a4c", "#f8a276" }
+local GFR   = { "#24482e", "#356a3a", "#4c8c42", "#6fac4c", "#98c85e", "#c8e384" }
+local PINK  = { "#5a1f4a", "#8a2d62", "#b8467a", "#dc6892", "#f090b0", "#fcc4d4" }
+local PETAL = { "#a8a0b8", "#d0c8d8", "#ece4ec", "#f8f2f2", "#fff6ea", "#fffbf2" }
+local YEL   = { "#8a5a14", "#b88420", "#dcab2e", "#f2cc44", "#fae27a", "#fff4b8" }
+local GRAIN = { "#6a4a20", "#8e6a2c", "#b8893a", "#d8aa4c", "#ecc668", "#f8e298" }
+local DEW   = { "#2a5a8a", "#3f86b8", "#6cb4dc", "#a4dcf0", "#d6f4fc", "#f2fcff" }
+local CUTS = { 0.22, 0.4, 0.56, 0.72, 0.86 }
+local function tok(n) return { r = { name = n } } end
+local function soil()
+  c:groundShadow(32, 57, 21, 3)
+  local m = c:ellipse(32, 53, 20, 6)
+  local n = X.pillow(m, 6)
+  local tk = tok("soil")
+  X.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), DIRT, { cuts = CUTS, tok = tk })
+  m:each(function(x, y) local h = X.hash(x, y, 7)
+    if h > 0.9 then c:put(x, y, DIRT[2], tk) elseif h < 0.06 then c:put(x, y, DIRT[6], tk) end end)
   return m
 end
-c:groundShadow(32, 54, 21, 3)
-soil(32, 49, 21, 6, 8)
--- stem
-local sm, sn = G.tube({ {32,48}, {32,42}, {33,36}, {32,29} }, function(t) return 1.8 - 0.5 * t end)
-G.tone(c, sm, X.light(sn, { amb = 0.15, wrap = 0.3 }), { "#3b6449", "#5b8d5a", "#88b46e", "#b9d793" }, { 0.3, 0.55, 0.8 })
--- two fat seed leaves (cotyledons) drooping out, left plain oval, right with seed-coat hat
-local function cot(cx, cy, ang, rx, ry)
-  local m = HP.mask()
-  for t = -1, 1, 0.05 do local x, y = cx + cos(ang) * t * rx, cy + sin(ang) * t * rx
-    local h = ry * sqrt(max(0, 1 - t * t)) 
-    for dy = -floor(h), floor(h) do m:set(floor(x + 0.5), floor(y + dy + 0.5)) end end
-  local n = X.pillow(m, 3.5)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.25 }), LEAF, { 0.2, 0.38, 0.55, 0.72, 0.88 })
+local function leaf(ax, ay, cx, cy, bx, by, w, ramp, veins, nm)
+  local m, n, T, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t)
+    if t > 0.985 then return -1 end
+    local u = min(1, t * 0.9 + 0.1)
+    return max(0.5, w * sin(pi * u ^ 1.25) ^ 0.75)
+  end, { fold = 0.5 })
+  local tk = tok(nm)
+  G.toneN(c, m, n, ramp, { tok = tk, cuts = { 0.18, 0.34, 0.5, 0.66, 0.82 }, amb = 0.12, wrap = 0.22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.14 and t > 0.05 and t < 0.92 then c:put(x, y, s <= 0 and ramp[6] or ramp[2], tk) return end
+    for _, vt in ipairs(veins or {}) do
+      local d = t * L - (vt + abs(s) * 3.4)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.28 and abs(s) < 0.72 then c:put(x, y, s < 0 and ramp[6] or ramp[2], tk) return end
+    end
+  end)
   return m
 end
-cot(21, 34, -0.5, 10, 5)
-cot(44, 33, 0.5, 10, 5)
-for i = 0, 8 do c:px(14 + i, 38 - floor(i * 0.5), LEAF[5]) end
-for i = 0, 8 do c:px(48 - i, 37 - floor(i * 0.5), LEAF[5]) end
--- true first leaf bud on top
-local bm, bn = G.tube({ {32,29}, {32,26}, {32,24}, {33,21} }, function(t) return 1.5 * (1 - t) + 0.6 end)
-G.tone(c, bm, X.light(bn, {}), LEAF, { 0.2, 0.38, 0.55, 0.72, 0.88 })
--- quirk: seed-coat cap perched on right cotyledon tip
-local hat = c:ellipse(53, 29, 3, 2)
-G.tone(c, hat, X.light(X.pillow(hat, 2), {}), { "#6b4430", "#8c5e3a", "#c9a15a", "#e8cf8e", "#f6e8bd", "#fffaf0" }, { 0.25, 0.45, 0.65, 0.8, 0.92 })
-c:px(52, 28, "#fffaf0")
-G.fin(c, "stage-fruit-1")
+local function stem(pts, w, ramp, nm)
+  local m, n = G.tube(pts, function(t) return w end)
+  local tk = tok(nm)
+  local sv = X.light(n, { amb = 0.15, wrap = 0.3 })
+  m:each(function(x, y) local v = sv[K(x, y)]
+    c:put(x, y, v > 0.7 and ramp[5] or v > 0.5 and ramp[4] or v > 0.3 and ramp[3] or ramp[2], tk) end)
+  return m
+end
+local function ballM(m, ramp, nm, r, nospec)
+  local n = X.pillow(m, r)
+  local tk = tok(nm)
+  local idx = X.tone(c, m, X.light(n, { amb = 0.08, wrap = 0.25 }), ramp, { cuts = CUTS, tok = tk })
+  if not nospec then
+    local bx, by = G.specAt(m, n, 24)
+    if bx then c:put(bx, by, "#fffbe8", tk) c:put(bx + 1, by, "#fffbe8", tk) c:put(bx, by + 1, "#fffbe8", tk) end
+  end
+  return m, n, idx
+end
+local function ball(cx, cy, rx, ry, ramp, nm, nospec)
+  return ballM(c:ellipse(cx, cy, rx, ry), ramp, nm, max(rx, ry), nospec)
+end
+local function grown(m, n) local g = m:copy() local r = g:grow(n) return r or g end
+
+soil()
+stem({ {32,51}, {32,46}, {32,42}, {32,38} }, 1.4, STEMG, "stem")
+leaf(32,42, 23,32, 11,38, 5.6, LEAF, {4}, "cl")
+leaf(32,42, 41,32, 53,38, 5.6, LEAF, {4}, "cr")
+leaf(32,38, 27,30, 25,22, 2.8, LEAF2, {3}, "tl")
+leaf(32,38, 37,30, 39,22, 2.8, LEAF2, {3}, "tr")
+c:put(32,36,LEAF2[5],tok("bud")) c:put(32,35,LEAF2[6],tok("bud"))
+-- quirk: the empty seed hull still perched on a cotyledon
+local hm = ballM(c:ellipse(50,34,3.4,2.4), GRAIN, "hull", 3)
+c:put(52,34,GRAIN[1],tok("hull")) c:put(53,35,GRAIN[1],tok("hull"))
+G.save(c, NAME)

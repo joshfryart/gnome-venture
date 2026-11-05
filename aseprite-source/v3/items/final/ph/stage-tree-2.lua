@@ -1,84 +1,94 @@
--- stage-tree-2 (lean D2o_10)
--- Sapling on a stake: forked slim trunk, three leafy puffs, a stake tied with a red cord. Quirk: the tie knot.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-tree-2 (lean E2_12)
+local NAME = "stage-tree-2"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-tree-2" }
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local LEAF  = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local LEAFD = { "#14303a", "#1d4640", "#295f3f", "#3d7b44", "#5a9a4c", "#86b85a" }
-local LEAFY = { "#2a5236", "#3f7a42", "#5f9c48", "#86bb52", "#b0d462", "#d8ee90" }
-local WOOD  = { "#2f1c24", "#4b2c2c", "#6d4330", "#8f5e3c", "#b5814c", "#d9a96a" }
-local RED   = { "#4a1030", "#7a1634", "#a82233", "#d03a30", "#ee6a40", "#ffa070" }
-local ORANGE= { "#7a2a1e", "#b0431c", "#dc6a1c", "#f39a24", "#ffc54a", "#fff0a0" }
-local SOIL  = { "#2a1822", "#432733", "#5f3a38", "#7f5440", "#a2704c", "#c49565" }
-local TUBER = { "#4a2a2c", "#6e4338", "#935c44", "#b7805a", "#d6a874", "#efce98" }
-local CUTS = { 0.2, 0.38, 0.55, 0.7, 0.86 }
-local tok = { r = { name = "part" } }
-local function shade(m, ramp, R, amb, bias)
-  local n = X.pillow(m, R)
-  G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, CUTS, bias, tok)
-  return n
-end
-local function blob(cx, cy, rx, ry, ramp) local m = c:ellipse(cx, cy, rx, ry) shade(m, ramp, min(rx, ry) + 1) return m end
-local function bez(p, t) local u = 1 - t
-  return u^3*p[1][1] + 3*u*u*t*p[2][1] + 3*u*t*t*p[3][1] + t^3*p[4][1],
-         u^3*p[1][2] + 3*u*u*t*p[2][2] + 3*u*t*t*p[3][2] + t^3*p[4][2] end
-local function limb(pts, fn, ramp)
-  local m, n = G.tube(pts, fn)
-  G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), ramp, CUTS, nil, tok)
+local LEAF = { "#163a35", "#1f553f", "#2b7046", "#3f8f4c", "#62ad55", "#a4d86a" }
+local SOIL = { "#2a1a1c", "#4a2c26", "#6b4030", "#8c5a3c", "#aa7548", "#c99a64" }
+local STEM = { "#2f4a2c", "#436a34", "#5d8a3e", "#7fa84a", "#a2c863", "#cfe68a" }
+local BARK = { "#2a1a1c", "#4a2c26", "#6b4030", "#8a5a3a", "#a87848", "#c89a64" }
+local CHILI= { "#4a0f1e", "#7a1526", "#a8222c", "#d03a30", "#ec6240", "#ffa070" }
+local function soil()
+  c:groundShadow(32, 57, 22, 4)
+  local m = c:ellipse(32, 52, 20, 6)
+  local n = X.pillow(m, 7)
+  local tok = { r = { name = "soil" } }
+  G.toneN(c, m, n, SOIL, { tok = tok, amb = 0.1, wrap = 0.2 })
+  m:each(function(x, y) local h = X.hash(x, y, 5)
+    if h > 0.9 then c:put(x, y, SOIL[6], tok) elseif h < 0.07 then c:put(x, y, SOIL[1], tok) end end)
   return m
 end
-local function leaf(ax, ay, bx, by, wmax, ramp, heart)
+local function leaf(ax, ay, cx, cy, bx, by, w, ramp, veins, fold)
   ramp = ramp or LEAF
-  local len = sqrt((bx - ax)^2 + (by - ay)^2)
-  local m, n, T, S = X.cyl(ax, ay, bx, by, function(t)
+  local m, n, T, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t)
     if t > 0.985 then return -1 end
-    local w = wmax * sin(pi * (0.05 + 0.95 * t)) ^ 0.7 * (heart and (1.25 - 0.6 * t) or (1 - 0.2 * t))
-    return max(0.5, w)
-  end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.25 }), ramp, CUTS, nil, tok)
-  m:each(function(x, y) local k = K(x, y)
-    local s, t = S[k], T[k]
-    if abs(s) < 0.2 and t < 0.92 and t > 0.05 then c:put(x, y, s <= 0 and ramp[6] or ramp[3], tok)
-    elseif t > 0.25 then
-      for _, vt in ipairs{ 0.4, 0.58, 0.76 } do
-        local d = (t - vt) * len - abs(s) * 1.8
-        if d > -0.5 and d < 0.5 and abs(s) > 0.3 and abs(s) < 0.8 then c:put(x, y, s < 0 and ramp[5] or ramp[2], tok) end
-      end
+    local u = min(1, t * 0.9 + 0.1)
+    return max(0.5, w * sin(pi * u ^ 1.2) ^ 0.75)
+  end, { fold = fold or 0.45 })
+  local tok = { r = { name = "lf" .. ax .. "_" .. bx .. "_" .. by } }
+  G.toneN(c, m, n, ramp, { tok = tok, cuts = { 0.18, 0.34, 0.5, 0.66, 0.82 }, amb = 0.12, wrap = 0.22 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    if abs(s) < 0.14 and t > 0.04 and t < 0.92 then c:put(x, y, s <= 0 and ramp[6] or ramp[2], tok) return end
+    for _, vt in ipairs(veins or {}) do
+      local d = t * L - (vt + abs(s) * 3.4)
+      if d > -0.5 and d < 0.5 and abs(s) > 0.28 and abs(s) < 0.75 then c:put(x, y, s < 0 and ramp[5] or ramp[2], tok) return end
     end
   end)
-  return m
+  return m, n, T, S
 end
-local function soil(cx, cy, rx, ry)
-  c:groundShadow(cx + 2, cy + ry - 1, rx, ry)
-  local m = c:ellipse(cx, cy, rx, ry)
-  local n = X.pillow(m, ry + 1)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.3 }), SOIL, CUTS, nil, tok)
-  for i = 1, 14 do
-    local x, y = cx - rx + 3 + floor(X.hash(i, 3, 7) * (2 * rx - 6)), cy - ry + 1 + floor(X.hash(i, 5, 9) * (2 * ry - 2))
-    if m:has(x, y) then c:px(x, y, X.hash(i, 1, 2) > 0.5 and SOIL[6] or SOIL[1]) end
-  end
-  return m
+local function tube(pts, wf, ramp, name)
+  local m, n, T = G.tube(pts, wf)
+  G.toneN(c, m, n, ramp, { tok = { r = { name = name or "tube" } }, amb = 0.15, wrap = 0.3 })
+  return m, n, T
 end
-local function texture(m, ramp, seed)
+local function clump(list, ramp, seed, name)
+  local m = HP.mask()
+  local sx, sy, cnt = 0, 0, 0
+  for _, e in ipairs(list) do m:add(c:ellipse(e[1], e[2], e[3], e[4])) sx = sx + e[1] sy = sy + e[2] cnt = cnt + 1 end
+  local cx, cy = sx / cnt, sy / cnt
+  local rr = 0 for _, e in ipairs(list) do rr = max(rr, abs(e[1] - cx) + e[3]) end
+  local n = X.pillow(m, rr * 0.8)
+  local tok = { r = { name = name or "clump" } }
+  G.toneN(c, m, n, ramp, { tok = tok, amb = 0.08, wrap = 0.2 })
   m:each(function(x, y) local h = X.hash(x, y, seed)
-    if h > 0.93 then c:px(x, y, ramp[6]) elseif h < 0.05 then c:px(x, y, ramp[1]) end end)
+    local side = (x - cx) + (y - cy)
+    if h > 0.86 then if side < 4 then c:put(x, y, ramp[6], tok) else c:put(x, y, ramp[2], tok) end
+    elseif h < 0.08 and side > -2 then c:put(x, y, ramp[1], tok) end end)
+  return m, n
+end
+local function chili(pts, r, ramp)
+  local m, n, T = G.tube(pts, function(t) return max(0.45, r * sqrt(max(0, 1 - t ^ 2.2)) ) end)
+  local tok = { r = { name = "chili" .. pts[1][1] .. "_" .. pts[1][2] } }
+  G.toneN(c, m, n, ramp or CHILI, { tok = tok, amb = 0.08, wrap = 0.18 })
+  local bx, by = G.specAt(m, n, 30)
+  if bx then c:put(bx, by, "#fff0d8", tok) end
+  -- cap
+  local x0, y0 = pts[1][1], pts[1][2]
+  local ct = { r = { name = "cap" } }
+  for _, p in ipairs{ {-2,-1,2},{-1,-1,4},{0,-1,3},{1,-1,2},{2,-1,1},{-1,-2,3},{0,-2,4},{0,-3,3},{-1,0,1},{0,0,2},{1,0,1} } do
+    c:put(x0 + p[1], y0 + p[2], STEM[p[3] + 1] or STEM[3], ct) end
+  return m
 end
 
-soil(32, 53, 21, 5)
-limb({ {32,52},{31,44},{33,36},{32,26} }, function(t) return 2.1 - 0.8*t end, WOOD)
-limb({ {32,38},{27,36},{24,32},{21,26} }, function(t) return 1.2 - 0.3*t end, WOOD)
-limb({ {33,34},{38,32},{41,28},{43,22} }, function(t) return 1.2 - 0.3*t end, WOOD)
-local st = c:rect(46, 26, 47, 53)
-G.tone(c, st, X.light(X.pillow(st, 2), { amb = 0.1, wrap = 0.25 }), WOOD, CUTS, nil, tok)
-c:fillMask(c:rect(46,24,47,25), WOOD[6]) c:px(46,53,WOOD[1])
-for i = 0, 6 do c:px(37 + i + 2, 42 - floor(i*0.2), RED[3 + (i % 2)]) end
-c:fillMask(c:rect(45,40,48,43), RED[4]) c:px(45,40,RED[6]) c:px(48,43,RED[1]) c:px(49,45,RED[2])
-local m = HP.mask()
-m:add(blob(20,25,7,5,LEAFD)) m:add(blob(43,19,7,5,LEAFD)) m:add(blob(32,16,9,7,LEAFD))
-m:add(blob(18,23,6,4,LEAF)) m:add(blob(41,17,6,4,LEAF)) m:add(blob(30,13,8,6,LEAF))
-blob(31,11,4,3,LEAFY) blob(17,21,3,2,LEAFY) blob(40,15,3,2,LEAFY)
-texture(m, LEAF, 5)
-c:sparkle(27, 9)
+soil()
+-- slim trunk with a fork and a pale scar, tall upright oval crown, pink blossoms
+tube({ {32,51},{31,43},{33,36},{32,30} }, function(t) return 2.2 - 0.9 * t end, BARK, "trunk")
+tube({ {32,38},{26,33},{22,28},{20,22} }, function(t) return 1.3 - 0.4 * t end, BARK, "brL")
+tube({ {33,36},{38,32},{42,27},{44,21} }, function(t) return 1.3 - 0.4 * t end, BARK, "brR")
+clump({ {32,18,10,12},{24,22,6,7},{40,22,6,7},{32,10,6,5} }, { "#14352f", "#1c4d3a", "#276a41", "#3a8a4a", "#5aab56", "#94cf6c" }, 11, "crown")
+-- blossoms
+local function blossom(x, y)
+  local t = { r = { name = "bl" .. x .. y } }
+  for _, p in ipairs{ {0,-1},{1,0},{0,1},{-1,0} } do c:put(x + p[1], y + p[2], "#ffc6d8", t) end
+  c:put(x, y, "#fff2a0", t)
+  c:put(x, y + 1, "#e888a8", t)
+end
+for _, p in ipairs{ {26,14},{35,10},{38,20},{28,24},{33,29},{22,20},{42,26},{31,17} } do blossom(p[1], p[2]) end
+-- quirk: a bird house? no: a small knothole with a pale heart in the trunk
+local th = { r = { name = "hole" } }
+c:put(32, 43, BARK[1], th) c:put(32, 44, BARK[1], th) c:put(31, 44, BARK[2], th) c:put(33, 43, BARK[5], th)
+-- fallen blossom petals on the soil
+c:put(22, 54, "#ffc6d8", { r = { name = "pet" } }) c:put(44, 55, "#ffc6d8", { r = { name = "pet" } }) c:put(26, 56, "#e888a8", { r = { name = "pet" } })
 
-G.fin(c, "stage-tree-2")
+G.save(c, NAME)

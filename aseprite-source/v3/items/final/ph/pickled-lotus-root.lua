@@ -1,73 +1,43 @@
--- pickled-lotus-root (lean W2_13)
--- Two overlapping marinated slices (nine-hole pattern) leaning on a short whole root link whose cut end shows the holes.
--- quirk: a single lotus fibre thread hangs from one hole.
+-- pickled-lotus-root (lean E2_05)
+local NAME = "pickled-lotus-root"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sqrt = math.floor, math.abs, math.sqrt
-local WOOD  = { "#3d2418", "#5e3a22", "#8a5a32", "#b0804a", "#d3a766" }
-local WHITE = { "#5d5a84", "#8d8aae", "#bdbcd2", "#e4e1e6", "#fbf6ea" }
-local BLUE  = { "#223a6e", "#31569a", "#4c7cc4", "#7aaae0", "#b4d6f5" }
-local function shade(x, y, x0, y0, x1, y1, R, base)
-  local i = base or 3
-  if x == x0 then i = i + 1 elseif x == x1 then i = i - 1 end
-  if y == y0 then i = i + 1 elseif y == y1 then i = i - 1 end
-  return R[math.max(1, math.min(#R, i))]
-end
-local function box(c, x0, y0, x1, y1, R, base, grain)
-  for y = y0, y1 do for x = x0, x1 do
-    local col = shade(x, y, x0, y0, x1, y1, R, base)
-    if grain and X.hash(x, y, grain) > 0.82 and x > x0 and x < x1 then col = R[math.max(1, (base or 3) - 1)] end
-    c:put(x, y, col)
-  end end
-end
-local NAME = "pickled-lotus-root"
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-local PINK = { "#7a3b58", "#a65876", "#d08a9c", "#ecb7b4", "#f8dccb", "#fff3e2" }
-local SKIN = { "#5a3a3a", "#7d5448", "#a37a5a", "#c9a478" }
-c:fillMask(c:ellipse(30, 55, 22, 3), "#9a94a8") c:fillMask(c:ellipse(30, 55, 13, 2), "#7c7690")
--- whole root link (horizontal capsule, lower-left)
-local link = c:rrect(7, 41, 33, 53, 5)
-link:each(function(x, y)
-  local t = (y - 41) / 12
-  local i = t < 0.2 and 4 or t < 0.45 and 3 or t < 0.75 and 2 or 1
-  if X.hash(x, y, 3) > 0.9 then i = math.max(1, i - 1) end
-  c:put(x, y, SKIN[i])
-end)
-for _, x in ipairs{ 18 } do for y = 41, 53 do c:put(x, y, SKIN[1]) end c:px(x + 1, 43, SKIN[4]) end
--- slice painter
-local function slice(cx, cy, r, holes)
-  local m = c:ellipse(cx, cy, r, r)
-  m:each(function(x, y)
-    local dx, dy = (x - cx) / r, (y - cy) / r
-    local d = sqrt(dx * dx + dy * dy)
-    local lit = 0.55 - 0.3 * (dx + dy) + 0.1 * (X.hash(x, y, 5) - 0.5)
-    local i = lit > 0.78 and 5 or lit > 0.6 and 4 or lit > 0.42 and 3 or 2
-    if d > 0.84 then i = (dx + dy < -0.2) and 3 or 2 end
-    if d > 0.93 then i = 2 end
-    if dx + dy > 1.0 and d > 0.7 then i = 1 end
-    c:put(x, y, PINK[i])
-  end)
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function P(x, y, col) c:put(x, y, col) end
+local function RC(x0, y0, x1, y1, col) for y = y0, y1 do for x = x0, x1 do P(x, y, col) end end end
+local function dome(m, ramp, R, name, o) local n = X.pillow(m, R) local t = { tok = { r = { name = name } }, cuts = { 0.18, 0.34, 0.5, 0.66, 0.82 }, amb = 0.1, wrap = 0.2 } if o then for k, v in pairs(o) do t[k] = v end end G.toneN(c, m, n, ramp, t) return n end
+local R = { "#70405a", "#a06a80", "#cf96a2", "#e8bab6", "#f6d8cc", "#fff2e4" }
+c:groundShadow(30, 57, 26, 3)
+local function slice(cx, cy, r, name)
+  local m = c:ellipse(cx, cy, r, r - 1)
+  dome(m, R, r * 0.9, name, { amb = 0.2, wrap = 0.4 })
+  -- scalloped rim shading, inner ring line
+  local ring = m:shrink(2):edge()
+  ring:each(function(x, y) if x + y > cx + cy then P(x, y, R[3]) else P(x, y, R[5]) end end)
+  local holes = { { cx, cy, r * 0.17, r * 0.15 } }
+  for i = 0, 5 do local a = i * pi / 3 + 0.3 holes[#holes + 1] = { cx + cos(a) * r * 0.55, cy + sin(a) * r * 0.5, r * 0.19, r * 0.17 } end
   for _, h in ipairs(holes) do
-    local hx, hy, hr = cx + h[1] * r, cy + h[2] * r, h[3] * r
-    c:ellipse(hx, hy, hr, hr):each(function(x, y)
-      local dx, dy = x - hx, y - hy
-      c:put(x, y, (dx + dy > hr * 0.6) and PINK[4] or (dx + dy < -hr * 0.4) and PINK[1] or "#4a2236")
+    local hm = c:ellipse(floor(h[1] + .5), floor(h[2] + .5), h[3], h[4])
+    hm:each(function(x, y)
+      local up = not hm:has(x - 1, y - 1) or not hm:has(x, y - 1)
+      local lo = not hm:has(x + 1, y + 1) and not hm:has(x, y + 1)
+      P(x, y, up and "#3c1c34" or lo and "#d8a0a4" or "#5a2c48")
     end)
   end
   return m
 end
-local function pat(a)
-  local H = { { 0, 0, 0.17 } }
-  for k = 0, 7 do local ang = a + k * math.pi / 4 H[#H + 1] = { math.cos(ang) * 0.55, math.sin(ang) * 0.55, 0.13 } end
-  return H
-end
-slice(23, 22, 14, pat(0.2))
-slice(43, 31, 13, pat(0.5))
--- link cut face
-c:ellipse(33, 47, 4, 6):each(function(x, y) c:put(x, y, PINK[(x + y) % 5 == 0 and 5 or 4]) end)
-for _, p in ipairs{ {33,47}, {32,44}, {34,44}, {32,50}, {34,50} } do c:px(p[1], p[2], "#4a2236") end
--- highlights (marinade gloss)
-c:px(15, 14, PINK[6]) c:px(16, 14, PINK[6]) c:px(36, 24, PINK[6]) c:px(37, 24, PINK[6])
--- quirk: fibre thread
-for i, p in ipairs{ {47,35}, {48,38}, {47,41}, {48,44}, {49,47} } do c:px(p[1], p[2], i % 2 == 0 and "#f4e6c8" or "#d9c49c") end
+slice(44, 24, 12, "back")
+slice(27, 38, 17, "front")
+-- crunchy pickle speckle on front slice
+for y = 22, 54 do for x = 11, 44 do
+  if X.hash(x, y, 9) > 0.985 then P(x, y, R[2]) end
+end end
+-- chili ring quirk tucked on the slice
+local ch = c:ellipse(40, 49, 4, 4)
+local chn = X.pillow(ch, 3)
+G.toneN(c, ch, chn, { "#5a0e18", "#8e1424", "#c4222c", "#e8483a", "#f58a5a", "#ffc890" }, { tok = { r = { name = "chili" } }, cuts = { .18, .34, .5, .66, .82 } })
+local hole = c:ellipse(40, 49, 1, 1)
+hole:each(function(x, y) P(x, y, "#4a1020") end)
+P(38, 47, "#fff0d0")
 G.save(c, NAME)
