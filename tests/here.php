@@ -529,7 +529,7 @@ if ($withDb) {
     echo "== Phase 5: chrome rules (no circles, boxes, compass + globe, tags)\n";
     ok('treehouse: no circles anywhere', !str_contains($th, '<circle'));
     ok('treehouse: a room hit area is its layout box (parlour 92,126 to 210,196)', str_contains($th, '<rect class="hit" x="92" y="126" width="118" height="70"/>'));
-    ok('treehouse: tags are centred (text-anchor middle) and there is one per hotspot', substr_count($th, 'class="tag"') >= 6 && substr_count($th, 'class="tag"') === substr_count($th, 'class="tag" x') && !str_contains($th, 'class="tag" text-anchor="start"'));
+    ok('treehouse: a named pill (centred, text-anchor middle) sits on each room, none of the old small tags', substr_count($th, '<g class="pill">') >= 6 && substr_count($th, '<g class="pill">') === substr_count($th, 'class="pill"><rect') && !str_contains($th, 'class="tag"') && substr_count($th, '<g class="pill">') === substr_count($th, 'text-anchor="middle" font-size="11"'));
     ok('treehouse: compass and world globe buttons, each with a card', str_contains($th, 'id="hs-routes"') && str_contains($th, 'id="hs-world"') && str_contains($th, 'id="hubpop-routes"') && str_contains($th, 'Open region map'));
     ok('treehouse: the picture has its own sprite-free bottom-right corner (layout compass_clear)', here_compass_clear($guestL) === [366, 218, 480, 270]);
     ok('here_hit_box: no box = 56 x 56 around x,y', here_hit_box(['x' => 100, 'y' => 100], ['w' => 480, 'h' => 270]) === [72, 72, 128, 128]);

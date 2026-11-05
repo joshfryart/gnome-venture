@@ -250,7 +250,7 @@ function treehouse_view(array $u, string $open = ''): string
         }
         hub_seen_set($uid, 'treehouse');
     }
-    $o = ['layout' => $L, 'art' => $art, 'alt' => 'The Great Treehouse', 'open' => $open, 'close_href' => url('treehouse.php'), 'title' => 'List of rooms', 'more' => $more, 'chrome' => true, 'dress' => $dress, 'nav' => hubp_nav('treehouse')];
+    $o = ['layout' => $L, 'art' => $art, 'alt' => 'The Great Treehouse', 'open' => $open, 'close_href' => url('treehouse.php'), 'title' => 'List of rooms', 'more' => $more, 'chrome' => true, 'pills' => true, 'dress' => $dress, 'nav' => hubp_nav('treehouse')];
     return hub_scene($akey, $hot, $sprites, $o) . $hint;
 }
 
@@ -321,6 +321,6 @@ function yard_view(array $u, string $open = ''): string
         $sprites[] = $sp;
     }
     $hint = !$pals ? '<p class="help hubhint">The yard is empty. Solve jigsaws to find pals, then send them to work here.</p>' : '';
-    $o = ['layout' => $L, 'art' => $art, 'alt' => 'The pal yard', 'open' => $open, 'close_href' => url('palyard.php'), 'title' => 'List of job sites', 'chrome' => true, 'nav' => hubp_nav('palyard')];
+    $o = ['layout' => $L, 'art' => $art, 'alt' => 'The pal yard', 'open' => $open, 'close_href' => url('palyard.php'), 'title' => 'List of job sites', 'chrome' => true, 'pills' => true, 'nav' => hubp_nav('palyard')];
     return '<div class="pjpage" data-pj-now="' . time() . '">' . hub_scene($akey, $hot, $sprites, $o) . $hint . '</div>';
 }
