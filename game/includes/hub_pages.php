@@ -211,6 +211,8 @@ function treehouse_view(array $u, string $open = ''): string
     if ($showPals) {
         $pals = array_values(pj_pals($uid));   // found order, append-only
         $found = ppal_found_map($uid);
+        $ord = [];   // a perch is the pal's place in the RAW found order (also counting pals later removed from the data), so removing a pal never moves the others
+        try { foreach (q('SELECT pal_uid FROM ppal_found WHERE user_id = ? ORDER BY found_at, id', [$uid])->fetchAll() as $n => $r) $ord[(string)$r['pal_uid']] = $n; } catch (Throwable $e) {}
         $jobs = [];
         foreach (pj_jobs($uid, true) as $j) $jobs[(string)$j['pal_uid']] = $j;
         hubp_add($hot, $L, 'books', ['label' => 'Pal Book', 'emoji' => '📚', 'href' => url('puzzlepals.php'), 'card' => '']);
@@ -220,7 +222,8 @@ function treehouse_view(array $u, string $open = ''): string
         $seenTs = $seen ? ts($seen) : 0;
         $pi = 0;
         $overflow = 0;
-        foreach ($pals as $idx => $p) {   // the perch is the pal's index in found order, so a perch never moves; a party pal sits by the door instead
+        foreach ($pals as $i0 => $p) {   // the perch is the pal's index in found order, so a perch never moves; a party pal sits by the door instead
+            $idx = $ord[$p['uid']] ?? $i0;
             $fi = $found[$p['key']] ?? [];
             $slot = null;
             if ($p['active'] && isset($party[$pi])) $slot = $party[$pi++];
