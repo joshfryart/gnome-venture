@@ -1940,9 +1940,9 @@ a.mpill:focus-visible .mdot { outline: 3px solid var(--focus); outline-offset: 2
 .pkchip { display: inline-block; position: relative; vertical-align: middle; }   /* v2.5.74: perk circle by the world icon */
 .pkchip summary { list-style: none; cursor: pointer; }
 .pkchip summary::-webkit-details-marker { display: none; }
-.pkdot { display: inline-block; min-width: 18px; height: 18px; line-height: 18px; border-radius: 50%; text-align: center; font-size: 0.75em; font-weight: bold; border: 2px solid var(--accent); background: var(--card, #fff); color: var(--ink, #222); }
-.pkdot.on { background: var(--accent); color: #fff; }
-.pkpop { position: absolute; left: 0; top: 24px; z-index: 30; min-width: 220px; max-width: 80vw; padding: 8px 12px; border: 1px solid var(--line, #ccc); border-radius: 6px; background: var(--card, #fff); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+.pkdot { display: inline-block; min-width: 18px; height: 18px; line-height: 18px; border-radius: 50%; text-align: center; font-size: 0.75em; font-weight: bold; border: 2px solid var(--ol); background: var(--surface); color: var(--ink); }
+.pkdot.on { background: var(--accent); color: var(--ink); }
+.pkpop { position: absolute; left: 0; top: 24px; z-index: 30; min-width: 220px; max-width: 80vw; padding: 8px 12px; border: 2px solid var(--ol); background: var(--surface); box-shadow: var(--shadow); }
 .pkpop h4 { margin: 6px 0 2px; font-size: 0.9em; }
 .pkpop ul { margin: 0; padding-left: 16px; }
 .st-board ul { margin: 0; padding-left: 18px; }
