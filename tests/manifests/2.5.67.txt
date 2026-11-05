@@ -45,7 +45,7 @@ d73a68e0810458fe3ed3a30c0f416777e5dcebc7  assets/guides/Gnome-Venture-Style-Guid
 75b37445e62d65c65f33608d89d6d7c501745217  assets/guides/Gnome-Venture-Style-Guide.pdf
 10cffd050bf9ac5d76458f81f5b5e46c1b84d2dd  assets/hereedit.js
 9e6e08f43212eb0fd8017854d1c938c24993ab18  assets/hoop.js
-e779f6be9b566ef8184cdeb3123c4ddd8e148876  assets/hubscene.js
+ec76d22bab50fafec72f91b5635b2523232ce8d7  assets/hubscene.js
 a5d9cc504320956c03f84ad7bd0113c9fad90848  assets/img/acts/act-any-anim.png
 c42bf719c598fc205a42ecc3920a1e0cbce1cecb  assets/img/acts/act-any.png
 d01132444652ba6df52fa4d29c2f7639a5c8bd29  assets/img/acts/act-axe-anim.png

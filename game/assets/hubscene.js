@@ -145,8 +145,9 @@
       var h = res.hdr;   // the header's energy and coin pills follow what the activity cost or paid
       if (h) {
         var en = document.querySelector('.hdr-energy'), co = document.querySelector('.hdr-coins');
-        if (en) { en.textContent = '\u26A1 ' + h.energy + '/' + h.max; en.setAttribute('aria-label', 'Energy ' + h.energy + ' of ' + h.max); en.setAttribute('title', h.title); en.classList.toggle('empty', h.energy <= 0); }
-        if (co) { co.textContent = '\uD83E\uDE99 ' + h.coins_text; co.setAttribute('aria-label', h.coins_label); }
+        var setTxt = function (el, t) { var n = el.lastChild; if (n && n.nodeType === 3) n.nodeValue = ' ' + t; else el.appendChild(document.createTextNode(' ' + t)); };   /* keep the icon the server drew; swap only the number */
+        if (en) { setTxt(en, h.energy + '/' + h.max); en.setAttribute('aria-label', 'Energy ' + h.energy + ' of ' + h.max); en.setAttribute('title', h.title); en.classList.toggle('empty', h.energy <= 0); }
+        if (co) { setTxt(co, h.coins_text); co.setAttribute('aria-label', h.coins_label); }
       }
     });
   }, true);
