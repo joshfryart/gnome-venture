@@ -128,6 +128,18 @@
     var b = f.querySelector('button'); if (b) b.disabled = true;
     ask(f.hasAttribute('data-sform') ? f.getAttribute('action') : box.getAttribute('data-url'), { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) { fill(box, res); });
   }, true);
+  /* "Villagers" on a picture: light up the villagers standing under it (and bring them into view) instead of leaving the page. No one drawn: the link works as normal. */
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest ? ev.target.closest('[data-hl="street"]') : null;
+    if (!a || ev.button !== 0 || ev.ctrlKey || ev.metaKey) return;
+    var sc = a.closest('.hubscene'), st = sc && sc.querySelector('.hubstreet');
+    if (!st || !st.children.length) return;
+    ev.preventDefault(); ev.stopPropagation();
+    var d = a.closest('dialog'); if (d && window.gvCloseDlg) gvCloseDlg(d);
+    st.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    st.classList.remove('hlall'); void st.offsetWidth; st.classList.add('hlall');
+    setTimeout(function () { st.classList.remove('hlall'); }, 2600);
+  }, true);
   /* a face in a place card opens that villager's popover when they are standing in the street line, else their page */
   document.addEventListener('click', function (ev) {
     var a = ev.target.closest ? ev.target.closest('a.sface[data-nid]') : null;

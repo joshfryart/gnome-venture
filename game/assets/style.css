@@ -7265,6 +7265,11 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .hubst .stn { background: rgba(30, 20, 10, .9); border: 1px solid #d4a017; border-radius: 9px; padding: 1px 7px; color: #fff; font-weight: 700; font-size: .78rem; white-space: nowrap; }
 .hubst:hover .stn, .hubst:focus-visible .stn, .hubst.lit .stn { background: #ffe9a3; color: #2a1a10; }
 .hubst:focus-visible { outline: 2px solid var(--focus); }
+.hubstreet.hlall { outline: 3px solid #ffe9a3; outline-offset: 2px; }
+.hubstreet.hlall .hubst .stn { background: #ffe9a3; color: #2a1a10; }
+.hubstreet.hlall .hubst .stp, .hubstreet.hlall .hubst .stemo { animation: hlhop .6s ease-in-out 3; }
+@keyframes hlhop { 50% { transform: translateY(-8px); } }
+@media (prefers-reduced-motion: reduce) { .hubstreet.hlall .hubst .stp, .hubstreet.hlall .hubst .stemo { animation: none; } }
 .vlazy .vpanel { border: 0; padding: 0; box-shadow: none; }
 .vmore { margin: 8px 0 0; text-align: right; }
 

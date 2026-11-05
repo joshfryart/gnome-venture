@@ -38,7 +38,7 @@ function hub_hotspot(array $h, array $L): string
     $label = (string)($h['label'] ?? '');
     $chip = (string)($h['chip'] ?? '');
     $a = '<a class="' . $cls . '" id="hs-' . $id . '" href="' . e((string)$h['href']) . '" aria-label="' . e($label . ($chip !== '' ? ', ' . $chip : '')) . '"'
-        . (($h['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '" aria-haspopup="dialog"' : '') . '>'
+        . (($h['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '" aria-haspopup="dialog"' : '') . (!empty($h['hl']) ? ' data-hl="' . e((string)$h['hl']) . '"' : '') . '>'
         . '<title>' . e($label) . '</title>'
         . '<circle class="hit" cx="' . $x . '" cy="' . $y . '" r="' . $r . '"/>'
         . '<circle class="ring" cx="' . $x . '" cy="' . $y . '" r="' . ($r - 6) . '"/>';
@@ -97,7 +97,7 @@ function hub_hotspot_box(array $h, array $L): string
     $label = (string)($h['label'] ?? '');
     $chip = (string)($h['chip'] ?? '');
     $a = '<a class="' . $cls . '" id="hs-' . $id . '" href="' . e((string)$h['href']) . '" aria-label="' . e($label . ($chip !== '' ? ', ' . $chip : '')) . '"'
-        . (($h['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '" aria-haspopup="dialog"' : '') . '>'
+        . (($h['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '" aria-haspopup="dialog"' : '') . (!empty($h['hl']) ? ' data-hl="' . e((string)$h['hl']) . '"' : '') . '>'
         . '<title>' . e($label) . '</title>'
         . '<rect class="hit" x="' . $x0 . '" y="' . $y0 . '" width="' . ($x1 - $x0) . '" height="' . ($y1 - $y0) . '"/>';
     $icon = (string)($h['icon'] ?? '');
@@ -289,7 +289,7 @@ function hub_scene(string $key, array $hotspots, array $sprites, array $opts): s
     $leg = '';
     foreach ($hotspots as $h) {
         $id = hub_id((string)$h['id']);
-        $leg .= '<li><a class="hubchip ' . e((string)($h['cls'] ?? '')) . '" href="' . e((string)$h['href']) . '" data-for="hs-' . $id . '"' . (($h['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '"' : '') . '>'
+        $leg .= '<li><a class="hubchip ' . e((string)($h['cls'] ?? '')) . '" href="' . e((string)$h['href']) . '" data-for="hs-' . $id . '"' . (!empty($h['hl']) ? ' data-hl="' . e((string)$h['hl']) . '"' : '') . (($h['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '"' : '') . '>'
             . '<span class="hubchip-t">' . e((string)($h['label'] ?? '')) . '</span>' . (($h['chip'] ?? '') !== '' ? ' <small class="hubchip-c">' . e((string)$h['chip']) . '</small>' : '') . '</a></li>';
     }
     if (!empty($opts['more'])) $leg .= '<li><a class="hubchip" href="' . e((string)$opts['more']['href']) . '"><span class="hubchip-t">' . e((string)$opts['more']['label']) . '</span></a></li>';

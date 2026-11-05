@@ -346,6 +346,8 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
     } elseif ($kind === 'village' || $kind === 'stop' || $kind === '') {   // '' = a plain place: the generic picture
         $add('do', here_do_fronts($u, $node, $back, count($want['do'] ?? [])), '🎯', url('town.php'));
         $add('people', 'Villagers', '👥', url('town.php?t=folk'));
+        foreach ($hot as &$hp) if (str_starts_with((string)$hp['id'], 's-people')) $hp['hl'] = 'street';   // v2.5.39: tapping it lights up the villagers standing under the picture
+        unset($hp);
         $add('stop', 'Rest stop', '🪧', url('town.php?t=stop'));
         if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']));
         if ((int)($u['home_village_id'] ?? 0) === (int)$node['id']) $add('garden', 'Your garden', '🌱', url('garden.php'));
