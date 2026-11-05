@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.36
+- **Rest stop folk on the Here picture**: the villagers of a rest stop (Honeybrook and the like) now stand in the line under the picture. Tap one to chat, give a gift or take an errand right there. Needs 2.5.35.
+
 ## 2.5.35
 - **Named things to do at rest stops**: each "Do here" spot on a stop's picture is now one activity, named and with its icon (what the weather, season or hour allows comes first, then the day's picks). Its popover has the buttons, and doing it brings you back to the picture. Needs 2.5.34.
 
