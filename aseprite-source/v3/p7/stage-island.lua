@@ -1,126 +1,130 @@
--- stage-island v3: clear-day desert base backdrop (arch, mesas, saguaros), no weather painted in
+-- stage-island v3: clear-day tropical beach base backdrop
 local d = debug.getinfo(1,"S").source:match("^@(.*)[/\\][^/\\]*$")
 local GX = dofile(d.."/../gather/gx.lua")
 local HP, X = GX.HP, GX.X
-local floor, max, min, abs, sin, cos, sqrt = math.floor, math.max, math.min, math.abs, math.sin, math.cos, math.sqrt
+local floor, max, min, abs, sin, cos, sqrt, pi = math.floor, math.max, math.min, math.abs, math.sin, math.cos, math.sqrt, math.pi
 local H, INK = X.hash, GX.INK
 local c = HP.canvas{ w = 480, h = 270, scale = 1, name = "stage-island" }
 local function mk() return HP.mask() end
 local function E(m, cx, cy, rx, ry) return GX.disc(m, cx, cy, rx, ry or rx) end
 local R6 = GX.ramp6
-local SAND = { hi = "#fff0c0", base = "#f0cc84", shade = "#d4a068", deep = "#a06c4c" }
-local DUNE = { hi = "#ffe89a", base = "#f4c868", shade = "#d89c52", deep = "#a8704a" }
-local RED = { hi = "#f0a078", base = "#d86c48", shade = "#a8444a", deep = "#6a2c40" }
-local CAC = { hi = "#a8e068", base = "#4eb050", shade = "#2e8048", deep = "#1a4c40" }
-local ROCK = { hi = "#e8b890", base = "#c08462", shade = "#8c5a54", deep = "#573646" }
+local SAND = { hi = "#fff8dc", base = "#f8dca2", shade = "#e0b47a", deep = "#b98860" }
+local PALM = { hi = "#c4f060", base = "#58b840", shade = "#2e8a48", deep = "#175040" }
+local PALM2 = { hi = "#a8e458", base = "#3ea044", shade = "#237048", deep = "#143e3c" }
+local BARK = { hi = "#d8a070", base = "#a8683c", shade = "#7a4634", deep = "#47292c" }
+local GRASS = { hi = "#d8f070", base = "#8cc848", shade = "#4e9a40", deep = "#2a6a42" }
+local COCO = { hi = "#b88050", base = "#7a4a30", shade = "#52302c", deep = "#33201f" }
+local WET = "#d8b480"
 
--- sky: plain gradient down to a warm haze
-GX.bands(c, 0, 150, { "#78bce6", "#94d0f0", "#b0e0f4", "#d0ecf0", "#eef2dc", "#fbe8c0" }, 3, .2)
-local sun = mk(); E(sun, 330, 100, 9, 8); sun = GX.rough(sun, 5, 1)
-GX.lit(c, sun, R6({ hi = "#fffbe4", base = "#fff2c0", shade = "#ffe49c", deep = "#f8d48c" }), { R = 8, tex = .1, seed = 3, ink = false, amb = .5 })
-
--- far hazy mesas (flat, no ink)
-local function far(x0, x1, ytop, col, seed)
-  local m = mk()
-  for x = x0, x1 do
-    local u = (x - x0) / (x1 - x0)
-    local t = ytop + floor(min(u, 1 - u) < .12 and (.12 - min(u, 1 - u)) * 90 or 0) + floor((GX.vn(x, 0, 8, seed) - .5) * 3)
-    for y = t, 160 do m:set(x, y) end
-  end
-  c:fillMask(m, col)
+-- sky (clear)
+GX.bands(c, 0, 92, { "#7fd8f8", "#97e0f8", "#b4eafa", "#d0f2f8", "#e6f8ee", "#fff4d0" }, 3, .2)
+-- sea / lagoon
+local sea = { "#7be8f0", "#58dcec", "#4ccfe4", "#52d4d8", "#6adcd0", "#86e8d0", "#a8f0d4", "#c4f6dc" }
+GX.bands(c, 92, 156, sea, 5, .26)
+for i = 0, 70 do
+  local x, y = floor(H(i, 11, 1) * 478), 96 + floor(H(i, 12, 1) ^ 1.2 * 56)
+  local l = 2 + floor(H(i, 13, 1) * 4)
+  for k = 0, l do c:px(x + k, y, y > 130 and "#e8ffff" or "#ffffff") end
 end
-far(0, 70, 112, "#ecc8a4", 1); far(130, 250, 124, "#e6bc98", 2); far(300, 400, 106, "#ecc8a4", 3); far(400, 479, 120, "#e6bc98", 4)
+for i = 0, 40 do local x, y = floor(H(i, 21, 1) * 470), 98 + floor(H(i, 22, 1) * 50); c:fillMask(c:rect(x, y, x + 3 + i % 4, y), "#34b8dc") end
+-- far green island with a small peak
+local isl = mk()
+for x = 192, 300 do
+  local u = (x - 236) / 50; local h = floor(26 * max(0, 1 - abs(u) ^ 1.5) ^ .9 + (GX.vn(x, 0, 6, 3) - .5) * 3)
+  for y = 92 - h, 92 do isl:set(x, y) end
+end
+isl = GX.rough(isl, 3, 1)
+GX.lit(c, isl, R6({ hi = "#b8e8a8", base = "#68b890", shade = "#3c9494", deep = "#287080" }), { R = 16, tex = .5, sc = 3, seed = 3, ink = false })
+for _, p in ipairs{ {206,0},{214,1} } do local m = mk(); E(m, p[1], 88 + p[2], 4, 4); GX.lit(c, m, R6({ hi = "#68b890", base = "#3c9494", shade = "#287080", deep = "#1c5068" }), { R = 3, tex = .2, seed = p[1], ink = false }) end
+-- sailboat
+local function sailboat(x, y)
+  local sail = c:poly{ { x, y - 24 }, { x, y - 2 }, { x - 12, y - 2 } }
+  GX.lit(c, sail, R6({ hi = "#fffaf0", base = "#f4ead8", shade = "#d0c0c0", deep = "#9a8aa0" }), { R = 8, tex = .2, seed = x, ink = false })
+  local jib = c:poly{ { x + 2, y - 18 }, { x + 2, y - 2 }, { x + 11, y - 2 } }
+  GX.lit(c, jib, R6({ hi = "#ffb0c8", base = "#ee6aa0", shade = "#c04888", deep = "#80285a" }), { R = 6, tex = .2, seed = x + 1, ink = false })
+  local hull = c:poly{ { x - 14, y - 1 }, { x + 14, y - 1 }, { x + 10, y + 3 }, { x - 10, y + 3 } }
+  GX.lit(c, hull, R6(BARK), { R = 3, tex = .2, seed = x + 2, rimlight = true })
+  for k = -10, 10 do if H(k, x, 4) > .4 then c:px(x + k, y + 4, "#e8fff8") end end
+end
+sailboat(110, 112)
 
--- dune band behind the props
-local function dy(x) return 156 + floor(5 * sin(x / 37 + 2) + 3 * sin(x / 13)) end
-GX.ground(c, dy, DUNE, 5, { top = .88, fall = .3, tex = .3, sc = 8 })
+-- beach
+local function yfn(x) return 154 + floor(3 * sin(x / 41) + 2 * sin(x / 13 + 1)) end
+GX.ground(c, yfn, SAND, 7, { top = .84, fall = .52, tex = .32, sc = 8 })
+for x = 0, 479 do
+  local y0 = yfn(x)
+  for k = 1, 5 do c:px(x, y0 + k, k < 3 and "#c8a070" or WET) end
+  if GX.vn(x, 3, 5, 9) > .45 then c:px(x, y0 + 6, WET) end
+  c:px(x, y0 - 1, "#ffffff"); c:px(x, y0, "#ffffff")
+  if GX.vn(x, 7, 4, 2) > .5 then c:px(x, y0 - 2, "#d8fff8"); c:px(x, y0 - 3, "#9af4ec") end
+end
+for i = 0, 22 do local x, y = floor(H(i, 31, 1) * 470), 142 + floor(H(i, 32, 1) * 10); c:fillMask(c:rect(x, y, x + 5 + i % 5, y), "#d0fff4") end
+for i = 0, 26 do
+  local x, y = 10 + floor(H(i, 51, 1) * 460), 172 + floor(H(i, 53, 1) * 94)
+  local m = mk(); E(m, x, y, 10 + i % 4 * 3, 2); m = GX.rough(m, i, 1); c:fillMask(m, i % 2 == 0 and "#fff4cc" or "#e8c08a")
+end
+for i = 0, 70 do local x, y = floor(H(i, 71, 1) * 480), 166 + floor(H(i, 73, 1) * 102); c:px(x, y, i % 2 == 0 and "#c89a68" or "#fffbe8") end
 
--- mesa
-local function mesa(x0, x1, ytop, seed)
+-- palms
+local function bez(p0, p1, p2, t) local u = 1 - t; return u*u*p0[1] + 2*u*t*p1[1] + t*t*p2[1], u*u*p0[2] + 2*u*t*p1[2] + t*t*p2[2] end
+local function palmTrunk(p0, p1, p2, r0, r1, seed)
   local m = mk()
-  for x = x0, x1 do
-    local u = (x - x0) / (x1 - x0)
-    local sl = floor(max(0, abs(u - .5) - .36) * 140)
-    for y = ytop + sl + floor((GX.vn(x, 0, 7, seed) - .5) * 3), 172 do m:set(x, y) end
-  end
+  for i = 0, 80 do local x, y = bez(p0, p1, p2, i / 80); E(m, floor(x), floor(y), floor(r0 + (r1 - r0) * i / 80 + .5)) end
   m = GX.rough(m, seed, 1)
-  GX.lit(c, m, function(x, y) local b = ((y - ytop) // 7) % 2; return R6(b == 0 and RED or { hi = RED.base, base = RED.shade, shade = RED.deep, deep = RED.deep }) end,
-    { R = 16, tex = .35, sc = 3, seed = seed, rimlight = true, amb = .26, fn = function(x, y) return (y < ytop + 4) and .15 or 0 end })
-  for x = x0 + 3, x1 - 3 do if m:has(x, ytop + 4) and not m:has(x, ytop - 1 + 0) then end end
+  GX.lit(c, m, R6(BARK), { R = 4, tex = .35, sc = 2.4, seed = seed, rimlight = true, fn = function(x, y) return (floor(y / 3) % 2) * .13 - .06 end })
 end
-mesa(30, 135, 100, 21); mesa(345, 466, 112, 22)
-
--- arch (hero)
-local ax, aw = 240, 52
-local function atop(x) local u = abs(x - ax) / aw; return 106 + floor(u ^ 2.4 * 36) + floor((GX.vn(x, 0, 6, 9) - .5) * 3) end
-local arch = mk()
-for x = ax - aw, ax + aw do for y = atop(x), 172 do arch:set(x, y) end end
-local hole = mk(); E(hole, ax, 175, 32, 52); arch:cut(hole)
-arch = GX.rough(arch, 31, 1)
-GX.lit(c, arch, function(x, y) return R6((y // 8) % 2 == 0 and RED or ROCK) end,
-  { R = 14, tex = .5, sc = 3, seed = 31, rimlight = true, amb = .24 })
--- sky showing through the arch matches the dune/haze behind: repaint with dune ground
-for x = ax - 34, ax + 34 do for y = 118, 172 do
-  if hole:has(x, y) and not arch:has(x, y) then
-    local yy = dy(x)
-    if y >= yy then c:px(x, y, DUNE.base) else c:px(x, y, "#f6e2bc") end
+local function frond(cx, cy, adeg, L, droop, R, seed)
+  local m, mid = mk(), {}
+  local ca, sa = cos(adeg / 57.3), -sin(adeg / 57.3)
+  local steps = floor(L)
+  for i = 0, steps do
+    local t = i / steps
+    local x, y = floor(cx + ca * L * t), floor(cy + sa * L * t + droop * t * t)
+    local w = floor(5.5 * sin(pi * min(1, t * 1.15)) ^ .75 * (.6 + .4 * (i % 3 == 0 and 1 or .35)) + .5)
+    for k = -w, w do m:set(x, y + k) end
+    mid[#mid + 1] = { x, y }
   end
-end end
-local shd = mk(); E(shd, ax, 176, 58, 4); c:fillMask(shd, "#d4a068")
+  GX.lit(c, m, R6(R), { R = 3, tex = .35, sc = 2, seed = seed, rimlight = true, amb = .3 })
+  for i = 2, #mid - 3 do c:px(mid[i][1], mid[i][2], R.deep) end
+end
+local function crown(cx, cy, angs, L, droop, seed)
+  for i, a in ipairs(angs) do frond(cx, cy, a, L - (i % 2) * 5, droop, (i % 2 == 0) and PALM or PALM2, seed + i) end
+end
+local function nuts(ps) for _, p in ipairs(ps) do local m = mk(); E(m, p[1], p[2], 3); GX.lit(c, m, R6(COCO), { R = 3, tex = .1, seed = p[1], rimlight = true }) end end
+palmTrunk({12,236}, {14,120}, {48,48}, 6, 4, 31)
+crown(48, 46, {165, 140, 105, 65, 30, 5, 200}, 46, 20, 40)
+nuts{ {44,52},{51,53},{47,56} }
+palmTrunk({472,236}, {466,130}, {430,56}, 6, 4, 33)
+crown(430, 54, {178, 150, 118, 80, 40, 12, -10}, 44, 18, 60)
+nuts{ {426,59},{433,60},{429,63} }
 
--- saguaro
-local function saguaro(x, yb, h, seed, armL, armR)
-  local m = mk()
-  for y = yb - h, yb do for k = -5, 5 do m:set(x + k, y) end end
-  for y = yb - h - 3, yb - h do for k = -3, 3 do m:set(x + k, y) end end
-  local function arm(dir, ya, rise)
-    for k = 5, 17 do for y = ya, ya + 7 do m:set(x + dir * k, y) end end
-    for k = 14, 19 do for y = ya - rise, ya + 7 do m:set(x + dir * k, y) end end
-  end
-  if armL then arm(-1, yb - floor(h * .5), armL) end
-  if armR then arm(1, yb - floor(h * .6), armR) end
-  m = GX.rough(m, seed, 1)
-  GX.lit(c, m, R6(CAC), { R = 5, tex = .3, sc = 3, seed = seed, rimlight = true, amb = .24,
-    fn = function(px, py) return (px % 4 == 0) and -.12 or 0 end })
-  m:each(function(px, py) if H(px, py, seed) < .03 and m:has(px, py + 1) then c:px(px, py, CAC.hi) end end)
-  local sh = mk(); E(sh, x + 6, yb + 1, 20, 3); sh:cut(m); c:fillMask(sh, "#c89a62")
-  return m
+-- shells, starfish, coconuts (sparse, low)
+local function shell(x, y, col)
+  local m = mk(); E(m, x, y, 4, 3); m:cut(c:rect(x - 6, y + 2, x + 6, y + 6))
+  GX.lit(c, m, R6({ hi = "#ffffff", base = col, shade = GX.mix(col, "#a06070", .45), deep = GX.mix(col, "#5a3050", .6) }), { R = 3, tex = 0, seed = x, rimlight = true })
+  for k = -2, 2, 2 do c:px(x + k, y - 1, GX.mix(col, "#a06070", .5)) end
 end
-local cl = saguaro(30, 176, 130, 41, 26, 20)
-saguaro(452, 178, 100, 43, 18, nil)
--- quirk: a tiny pink flower on the left saguaro's top
-c:px(30, 44, "#ff7aa0"); c:px(29, 45, "#ff7aa0"); c:px(31, 45, "#ff7aa0"); c:px(30, 45, "#ffd0a8")
-
--- near sand ground
-local function gy(x) return 172 + floor(3 * sin(x / 29 + 1) + 1.5 * sin(x / 9)) end
-GX.ground(c, gy, SAND, 7, { top = .86, fall = .5, tex = .24, sc = 9 })
-for x = 0, 479 do c:px(x, gy(x), "#fff4d0"); if H(x, 1, 3) > .6 then c:px(x, gy(x) - 1, "#ffe8a8") end end
--- redo cactus feet over the ground line
-for _, p in ipairs{ {30, 176}, {452, 178} } do local f = mk(); E(f, p[1], p[2], 6, 2); GX.lit(c, f, R6(CAC), { R = 2, tex = 0, ink = false }) end
--- ripple dunes in sand
-for y = 180, 269 do for x = 0, 479 do
-  local w = sin((y + GX.vn(x, y, 22, 41) * 10) * .8)
-  if w > .95 and GX.vn(x, y, 6, 42) > .45 then c:px(x, y, SAND.shade)
-  elseif w < -.97 and GX.vn(x, y, 6, 43) > .5 then c:px(x, y, SAND.hi) end
-end end
-
--- calm foreground details: barrel cacti, pebbles, tufts, bones
-local function barrel(x, y, r, flower)
-  local m = mk(); E(m, x, y, r, r - 1); m = GX.rough(m, x, 1)
-  GX.lit(c, m, R6(CAC), { R = r, tex = .2, seed = x, rimlight = true, fn = function(px) return (px % 3 == 0) and -.12 or 0 end })
-  if flower then c:px(x, y - r, "#ff7aa0"); c:px(x + 1, y - r, "#ffb0c0") end
-  local sh = mk(); E(sh, x + 3, y + r - 1, r + 3, 2); sh:cut(m); c:fillMask(sh, "#c89a62")
+shell(150, 192, "#ffc8c0"); shell(332, 238, "#fff0e0"); shell(250, 206, "#ffd8a0"); shell(410, 258, "#e8d8f8")
+local function star(x, y, base)
+  local pts = {}
+  for k = 0, 9 do local r = (k % 2 == 0) and 9 or 4; local a = -pi / 2 + k * pi / 5; pts[#pts + 1] = { x + floor(r * cos(a) + .5), y + floor(r * sin(a) + .5) } end
+  local m = c:poly(pts)
+  GX.lit(c, m, R6(base), { R = 6, tex = .3, sc = 2, seed = 5, rimlight = true })
+  m:each(function(px, py) if H(px, py, 9) < .07 then c:px(px, py, "#ffe8b0") end end)
 end
-barrel(312, 190, 8, false); barrel(402, 236, 10, true); barrel(90, 248, 6, false)
-for i = 0, 36 do
-  local x, y = 8 + floor(H(i, 21, 5) * 465), 184 + floor(H(i, 22, 5) * 82)
-  local m = mk(); E(m, x, y, 1 + i % 3, 1 + i % 2)
-  GX.lit(c, m, R6(i % 4 == 0 and ROCK or { hi = "#f4e0c0", base = "#c8a888", shade = "#94705c", deep = "#5c4046" }), { R = 2, tex = .15, seed = i, rimlight = true })
+star(98, 246, { hi = "#ffc48a", base = "#f0642e", shade = "#c4402e", deep = "#6e2038" })
+star(382, 226, { hi = "#ffa8d0", base = "#e8589c", shade = "#b83878", deep = "#6e2048" })
+for _, p in ipairs{ {60,252},{68,255} } do local m = mk(); E(m, p[1], p[2], 5, 4); GX.lit(c, m, R6(COCO), { R = 3, tex = .15, seed = p[1], rimlight = true }); c:px(p[1] - 1, p[2] - 1, COCO.hi) end
+for _, p in ipairs{ {30,244},{140,236},{300,250},{440,246},{200,226},{450,200} } do GX.tuft(c, p[1], p[2], GRASS) end
+-- quirk: a tiny hermit crab
+local function crab(x, y)
+  local CR = { hi = "#ff9a70", base = "#f06040", shade = "#c03c3c", deep = "#6e2038" }
+  for _, dx in ipairs{ -2, 1, 4 } do c:px(x + dx, y, INK) end
+  local bd = mk(); E(bd, x + 3, y - 2, 4, 2); GX.lit(c, bd, R6(CR), { R = 3, tex = 0, rimlight = true })
+  local sm = mk(); E(sm, x - 3, y - 5, 5, 4); sm = GX.rough(sm, 14, 1)
+  GX.lit(c, sm, R6({ hi = "#ffffff", base = "#f4d4e0", shade = "#c898b0", deep = "#7a4a68" }), { R = 5, tex = .15, seed = 3, rimlight = true })
+  c:px(x + 6, y - 5, INK); c:px(x + 8, y - 5, INK)
 end
-for i = 0, 11 do
-  GX.tuft(c, 10 + floor(H(i, 61, 1) * 460), 196 + floor(H(i, 63, 1) * 68), { hi = "#d8d880", base = "#a8a860", shade = "#78804c", deep = "#505a42" })
-end
--- bleached rib bone
-for k = 0, 8 do c:px(200 + k, 252 - floor(sin(k / 8 * 3.1) * 3), "#f8ecd8"); c:px(200 + k, 253 - floor(sin(k / 8 * 3.1) * 3), "#c8a888") end
+crab(200, 242)
 
 c:save{ aseprite = d.."/out/stage-island.aseprite", png = d.."/out/stage-island.png", scale = 1 }
