@@ -1057,12 +1057,12 @@ a.rend:hover b { text-decoration: underline; }
 /* ---- The yard (art stays; chrome is flat) ---- */
 .yardwrap { display: block; width: fit-content; max-width: 100%; margin: 0 auto 8px; overflow: auto; background: var(--plot); padding: 8px; border-radius: var(--radius); }
 .yard { --cell: 46px; display: grid; position: relative; background-color: #78a04a; border-radius: 4px;
-  background-image: linear-gradient(rgba(0, 0, 0, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, .06) 1px, transparent 1px), url(img/ph/tile-turf.png); background-size: var(--cell) var(--cell), var(--cell) var(--cell), var(--cell) var(--cell); image-rendering: pixelated; }   /* v2.5.43: the yard's ground is the turf the untilled squares share */
+  background-image: linear-gradient(rgba(0, 0, 0, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, .06) 1px, transparent 1px), url(img/ph/tile-turf-big.png); background-size: var(--cell) var(--cell), var(--cell) var(--cell), calc(var(--cell) * 4) calc(var(--cell) * 4); image-rendering: pixelated; }   /* v2.5.43: the yard's ground is the turf the untilled squares share */
 .yard .tile { width: auto; height: auto; margin: 2px; font-size: calc(var(--cell) * .48); }
 .yard .tile .grade { font-size: 8px; line-height: 12px; }
-.yard .tile.wild { margin: 0; border: 0; background: transparent; box-shadow: none; }   /* v2.5.43: untilled squares melt into the turf; a faint line keeps them tappable */
-.yard .tile.wild.sel { box-shadow: none; }
-.yard .tile.wild::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 0 1px rgba(40, 70, 30, .35); pointer-events: none; }
+.yard .tile.wild:not(.nt) { margin: 0; border: 0; background: transparent; box-shadow: none; }   /* v2.5.43: untilled squares melt into the turf; a faint line keeps them tappable */
+.yard .tile.wild.sel:not(.nt) { box-shadow: none; }
+.yard .tile.wild::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 0 1px rgba(40, 70, 30, .22); pointer-events: none; }
 .yard.mini .tile.wild::after { display: none; }
 .yard .tile.planted .phtile { transform: scale(1.25); transform-origin: 50% 60%; }   /* v2.5.43: crop art was small in its square (the picture has ~25% margin); grow it so it fills the bed */
 .yard .tile.planted .phtile.ripe { transform: scale(1.15); }

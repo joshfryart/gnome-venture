@@ -525,6 +525,34 @@ function yard_join_inner(array $o, array $info): array
 
 // ---------- Drawing ----------
 
+const COVER_KINDS = ['dirt', 'dirt', 'dirt', 'lawn', 'lawn', 'lawn', 'clover', 'clover', 'flowers', 'flowers', 'weeds', 'weeds', 'dry', 'leaves', 'moss'];
+
+/**
+ * v2.5.44: what covers each untilled square: "yard x,y" => [kind, mask]. The kind comes from where the bed is (2 x 2 beds share one, a few are plain lawn), so a square keeps its
+ * covering; the mask says which of the eight neighbours (in the yard) have the same covering, so they blend (same rule and bit order as tools/bake_path_art.py).
+ */
+function yard_covers(array $tiles): array
+{
+    $kind = [];
+    foreach ($tiles as $row) foreach ($row as $t) {
+        if ($t['yx'] === null || $t['plant_id'] || (int)$t['tilled'] || ($t['method'] ?? '') === 'notill') continue;
+        $x = (int)$t['x']; $y = (int)$t['y'];
+        $k = COVER_KINDS[(int)(((crc32('c' . ($x >> 1) . ',' . ($y >> 1)) & 0xffff) / 65536) * count(COVER_KINDS))];
+        if ((crc32('l' . $x . ',' . $y) & 0xffff) / 65535 < .18) $k = 'lawn';
+        $kind[(int)$t['yx'] . ',' . (int)$t['yy']] = $k;
+    }
+    $out = [];
+    foreach ($kind as $pos => $k) {
+        [$x, $y] = array_map('intval', explode(',', $pos));
+        $has = fn(int $dx, int $dy): bool => ($kind[($x + $dx) . ',' . ($y + $dy)] ?? '') === $k;
+        $m = 0;
+        foreach ([1 => [0, -1], 2 => [1, 0], 4 => [0, 1], 8 => [-1, 0]] as $bit => [$dx, $dy]) if ($has($dx, $dy)) $m |= $bit;
+        foreach ([[16, 1, 2, 1, -1], [32, 4, 2, 1, 1], [64, 4, 8, -1, 1], [128, 1, 8, -1, -1]] as [$bit, $a, $b, $dx, $dy]) if (($m & $a) && ($m & $b) && $has($dx, $dy)) $m |= $bit;
+        $out[$pos] = [$k, $m];
+    }
+    return $out;
+}
+
 /** v1.5.2: a bed icon: an emoji (escaped) or a placeholder <img> built by tile_view. */
 function tile_icon_html(string $icon): string
 {
@@ -532,7 +560,7 @@ function tile_icon_html(string $icon): string
 }
 
 /** How one bed square looks: [classes, icon, label, badge html]. */
-function tile_view(array $t, array $plants, bool $owner = true): array
+function tile_view(array $t, array $plants, bool $owner = true, array $covers = []): array
 {
     $cls = 'wild';
     $icon = '';
@@ -572,9 +600,12 @@ function tile_view(array $t, array $plants, bool $owner = true): array
     }
     if ($icon === '' && !str_contains($cls, 'planted')) {
         $gk = str_contains($cls, 'notill') ? 'notill' : (str_contains($cls, 'tilled') ? 'tilled' : 'wild');
-        // v2.5.43: untilled ground has six looks (tile-wild-1..6) that share one turf with the yard behind them; a square keeps its look (picked from where it is)
-        if ($gk === 'wild') $gk = 'wild-' . (1 + (((int)$t['x'] * 7 + (int)$t['y'] * 13) % 6));
-        if (($gp = ph_img('tile-' . $gk, 28, '', 'phtile')) === '' && $gk !== 'notill' && $gk !== 'tilled') $gp = ph_img('tile-wild', 28, '', 'phtile');
+        $gp = '';
+        if ($gk === 'wild' && ($cv = $covers[(int)$t['yx'] . ',' . (int)$t['yy']] ?? null) !== null) {   // v2.5.44: untilled ground is lawn, clover, wildflowers, weeds, dry grass, leaf litter, moss or bare dirt
+            $rel = $cv[0] === 'lawn' ? 'assets/img/cover/lawn-' . (1 + (((int)$t['x'] * 5 + (int)$t['y'] * 11) % 6)) . '.png' : 'assets/img/cover/' . $cv[0] . '-' . $cv[1] . '.png';
+            if (art_path($rel) !== '') $gp = '<img class="phtile pix" src="' . e(url($rel)) . '" width="28" height="28" alt="" loading="lazy" decoding="async">';
+        }
+        if ($gp === '') $gp = ph_img('tile-' . $gk, 28, '', 'phtile');
         if ($gp !== '') $icon = $gp;
     }   // v1.5.2: ground placeholder
     return [$cls, $icon, $label, $badge];
@@ -649,10 +680,11 @@ function render_yard(array $plot, array $tiles, array $plants, array $objects, s
             $html .= '<div class="' . $cls . '" role="img" aria-label="' . e($title) . '" title="' . e($title) . '">' . $inner . '</div>';
         }
     }
+    $covers = yard_covers($tiles);
     foreach ($tiles as $row) {
         foreach ($row as $t) {
             if ($t['yx'] === null) continue;
-            [$cls, $icon, $label, $badge] = tile_view($t, $plants, $owner);
+            [$cls, $icon, $label, $badge] = tile_view($t, $plants, $owner, $covers);
             $pos = yard_pos((int)$t['yx'], (int)$t['yy'], 1, 1);
             $tx = (int)$t['x'];
             $ty = (int)$t['y'];

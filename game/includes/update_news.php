@@ -662,6 +662,8 @@ function post_update_news(string $from): void
         "[list][*]Routes, World and Fast travel are now round buttons under the picture, so they no longer cover a room.\n[*]The rooms and job sites are one tidy list you can fold away.\n[*]The Adventure page no longer errors out when you open it.[/list]"],
     '2.5.43' => ['🌿 Update 2.5.43: a prettier garden',
         "[list][*]Paths now blend into the grass and into each other, with proper corners and junctions.\n[*]Untilled ground is soft turf with six different looks.\n[*]Crops are bigger in their beds, and a ripe crop shows its own picture: cabbages look like cabbages.[/list]"],
+    '2.5.44' => ['🌱 Update 2.5.44: ground with character',
+        "Untilled ground is now a mix of lawn, clover, wildflowers, weeds, dry grass, leaf litter, moss and bare dirt, blending into patches. The grass behind your yard is bigger and no longer repeats."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
