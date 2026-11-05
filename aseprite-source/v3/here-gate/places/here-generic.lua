@@ -282,6 +282,29 @@ glow(299, 170, 22, 7, "#ffcf70", .22)    -- lantern pool
 glow(54, 136, 14, 4, "#ffcf70", .2)      -- cottage A door
 glow(130, 131, 12, 3, "#ffcf70", .2)     -- cottage B door
 
+---------------------------------------------------------------- v2.5.40 polish pass 4a: far haze + long cast shadows (all fall lower-right)
+do
+  local HILL = {}
+  for _, h in ipairs{ "#a3c977", "#7cad5e", "#8fbe6c", "#c8c27a", "#b2d488", "#5e8c55", "#76a465", "#6f9b57", "#6b5a4e", "#93abc4", "#b4c6d6" } do HILL[h] = true end
+  for y = 70, HZ + 6 do
+    local k = (HZ + 6 - y) / 36 -- stronger toward the far horizon
+    for x = 0, W - 1 do
+      local cur = c:get(x, y)
+      if cur and HILL[cur] and (x + y) % 2 == 0 and hash(x, y, 401) < .55 then gmix(x, y, "#dce6e8", min(.34, .1 + (y > 96 and .16 or 0))) end
+    end
+  end
+  local function cast(x0, y0, len, w, t) -- shadow strip falling to the lower right
+    for i = 0, len do for k = 0, w do gmix(x0 + i + k, y0 + floor(i * .45) + (k > 0 and 1 or 0), "#41365f", t) end end
+  end
+  cast(191, 150, 18, 2, .3)    -- signpost
+  cast(302, 168, 16, 2, .3)    -- lantern post
+  cast(322, 150, 15, 3, .28) cast(362, 150, 14, 3, .28) -- noticeboard posts
+  cast(410, 150, 8, 2, .26)    -- bench
+  cast(282, 112, 14, 3, .24)   -- far tree
+  cast(78, 130, 16, 3, .26) cast(152, 126, 16, 3, .26) -- cottages
+  cast(155, 156, 22, 2, .26)   -- garden wall
+end
+
 ---------------------------------------------------------------- objects (back to front)
 -- leafy blob helper
 local function canopy(cx, cy, rx, ry, base, seed)
@@ -673,6 +696,64 @@ do
   for _, p in ipairs{ { 106, 221 }, { 142, 222 }, { 112, 228 }, { 134, 229 }, { 125, 231 } } do c:put(p[1], p[2], "#ff9a46") c:put(p[1] + 1, p[2], "#c8482a") end
   for _, p in ipairs{ { 114, 188 }, { 135, 190 }, { 127, 180 }, { 119, 183 } } do c:put(p[1], p[2], "#ffe08a") c:put(p[1] + 1, p[2] + 1, "#f8a63a") end
   glow(123, 214, 34, 12, "#ffcf6a", .12)
+end
+
+---------------------------------------------------------------- v2.5.40 polish pass 4b: rim light, warm spill, plant kinds, foreground frame
+do
+  local RIM = "#fff0c8"
+  local function rim(x, y0, y1, t) for y = y0, y1 do gmix(x, y, RIM, t or .32) end end
+  rim(186, 95, 148) rim(297, 103, 166) rim(318, 97, 148) rim(358, 97, 148) rim(320, 103, 133, .24)
+  rim(22, 99, 128, .22) rim(96, 96, 124, .22) rim(166, 168, 184, .3) rim(181, 172, 186, .3) rim(336, 243, 254, .28)
+  rim(372, 129, 146, .3) rim(424, 160, 210, .22) rim(436, 197, 220, .26) rim(20, 201, 208, .3) rim(28, 211, 225, .26)
+  for x = 22, 76 do gmix(x, 98 + floor(max(0, 22 - (x - 22)) * 0 + 0), RIM, 0) end
+  for x = 30, 88, 1 do gmix(x, 200, RIM, .2) end -- sunlit log top
+  grect(76, 200, 87, 209, "#ffb550", .2)  -- fire spill on the log's right end
+  grect(130, 214, 148, 232, "#ffb550", .1)
+  gmask(c:rect(146, 213, 150, 232), "#ffb550", .16)
+  -- sunflowers
+  local function sunflower(x, y, h)
+    for k = 0, h do gput(x, y - k, "#4c8a3c") gput(x + 1, y - k, "#3f7a38") end
+    gput(x - 2, y - 3, "#5a9a46") gput(x - 3, y - 4, "#5a9a46") gput(x + 3, y - 2, "#5a9a46") gput(x + 4, y - 3, "#5a9a46")
+    local hy = y - h - 1
+    for _, d in ipairs{ { -3, 0 }, { 3, 0 }, { 0, -3 }, { 0, 3 }, { -2, -2 }, { 2, -2 }, { -2, 2 }, { 2, 2 } } do gput(x + d[1], hy + d[2], "#f6d45a") gput(x + d[1] // 2, hy + d[2] // 2, "#f2b43a") end
+    grect(x - 1, hy - 1, x + 1, hy + 1, "#6a4228") gput(x, hy, "#4e3226") gput(x - 1, hy - 1, "#8a5a38")
+  end
+  sunflower(40, 266, 14) sunflower(52, 262, 10) sunflower(30, 262, 8)
+  -- ferns
+  local function fern(x, y, n)
+    for i = 0, n do
+      local a = -1.2 + i / n * 2.4
+      for k = 1, 9 do
+        local px, py = x + floor(sin(a) * k * 1.1), y - floor(cos(a) * k * .9)
+        gput(px, py, k % 2 == 0 and "#3f8a48" or "#5aa655")
+        if k > 2 and k % 2 == 1 then gput(px - 1, py + 1, "#2f6a3c") gput(px + 1, py, "#74c068") end
+      end
+    end
+  end
+  fern(18, 268, 4) fern(66, 268, 4) fern(150, 262, 3) fern(318, 268, 3) fern(112, 264, 3)
+  -- lavender spikes along the garden wall foot
+  for i = 0, 10 do
+    local x = 22 + i * 12 + floor(hash(i, 1, 411) * 5)
+    for k = 0, 5 do gput(x, 160 - k, k > 2 and "#9a78d0" or "#5a9a46") if k > 1 then gput(x + 1, 160 - k, "#b89ae0") end end
+    gput(x - 1, 161, "#5a9a46") gput(x + 1, 161, "#5a9a46")
+  end
+  -- hollyhocks by the cottage B wall, cattail tufts in the wet spot by the road
+  for i = 0, 3 do local x = 153 + (i % 2) * 3 for k = 0, 14 do gput(x, 128 - k, "#4c8a3c") if k > 5 and k % 2 == 0 then gput(x - 1, 128 - k, i % 2 == 0 and "#f07a9a" or "#e8d0f0") gput(x + 1, 128 - k + 1, "#f6b0c4") end end end
+  for i = 0, 5 do local x, y = 306 + i * 3, 232 for k = 0, 9 do gput(x, y - k, "#6a8a3c") end gput(x, y - 7, "#7a4a32") gput(x, y - 8, "#7a4a32") gput(x + 1, y - 4, "#8aa84a") end
+  -- berry bush at the wall end
+  local bb = c:ellipse(146, 166, 7, 5) shade(bb, "#4f8a52", TX.leaf(14))
+  for _, p in ipairs{ { 142, 164 }, { 147, 162 }, { 150, 167 }, { 144, 169 } } do c:put(p[1], p[2], "#d8384a") c:put(p[1], p[2] - 1, "#f08a96") end
+  -- foreground grass frame along the bottom (does not touch the spots)
+  for i = 0, 340 do
+    local x = 14 + floor(hash(i, 1, 421) * 452)
+    local y = 268 - floor(hash(i, 2, 422) * 4)
+    local h = 4 + floor(hash(i, 3, 423) * 8)
+    local lean = floor((hash(i, 4, 424) - .5) * 4)
+    for k = 0, h do
+      local px, py = x + floor(lean * k / h), y - k
+      gput(px, py, k > h * .6 and "#8cc65a" or k > h * .3 and "#4c8a3c" or "#2f6a3a")
+    end
+  end
 end
 
 ---------------------------------------------------------------- the gate frame: posts, beam, leaves, lanterns, teacup charm

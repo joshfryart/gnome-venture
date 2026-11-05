@@ -942,28 +942,21 @@ do
   spRect(x - 13, 165, x - 4, 165, R_STEEL[2]) spRect(x - 13, 177, x - 4, 177, R_STEEL[2])
   sp(x - 8, 164, R_STEEL[2])
 end
--- tool lean-to by the right gate post: two pickaxes and a shovel
+-- tools by the sacks and tailings: a pickaxe leaning on the sacks, a shovel planted in the pile
 do
   local function handle(x0, y0, x1, y1)
     spLine(x0 - 1, y0, x1 - 1, y1, INK) spLine(x0 + 2, y0, x1 + 2, y1, INK)
     spLine(x0, y0, x1, y1, R_TIMBER[4]) spLine(x0 + 1, y0, x1 + 1, y1, R_TIMBER[2])
   end
-  shadowStrip(440, 207, 18, 3)
-  -- pickaxe 1
-  handle(442, 208, 448, 178)
-  spLine(441, 177, 455, 175, INK) spLine(441, 178, 455, 176, INK)
-  spLine(442, 177, 454, 175, R_STEEL[4]) spLine(443, 178, 453, 176, R_STEEL[2])
-  sp(441, 177, R_STEEL[5]) sp(455, 175, R_STEEL[3])
-  -- pickaxe 2 (leaning the other way, shorter)
-  handle(452, 208, 447, 182)
-  spLine(445, 181, 441, 185, INK) spLine(446, 180, 451, 182, INK)
-  spLine(446, 181, 452, 183, R_STEEL[3]) sp(445, 182, R_STEEL[5])
-  -- shovel
-  handle(436, 209, 434, 186)
-  local blade = poly{ {430, 178}, {438, 178}, {439, 183}, {436, 187}, {433, 187}, {430, 183} }
-  spRim(blade, INK) spFill(blade, R_STEEL[3])
-  spFill(rect(431, 179, 432, 183), R_STEEL[5]) spFill(rect(437, 182, 438, 183), R_STEEL[1])
-  spRect(433, 188, 436, 188, R_TIMBER[1])
+  -- pickaxe: handle from the ground up to the head, lit steel head curving down at both ends
+  handle(86, 262, 80, 236)
+  spLine(71, 238, 90, 234, INK) spLine(71, 239, 90, 235, INK) spLine(72, 237, 89, 233, INK)
+  spLine(72, 238, 89, 234, R_STEEL[4]) spLine(73, 239, 88, 235, R_STEEL[2])
+  sp(72, 238, R_STEEL[5]) sp(73, 238, R_STEEL[5]) sp(70, 240, R_STEEL[3]) sp(91, 236, R_STEEL[1])
+  -- shovel planted in the tailings, T-grip on top
+  handle(123, 232, 124, 254)
+  spRect(119, 230, 128, 231, INK) spRect(120, 230, 127, 230, R_TIMBER[4]) spRect(120, 231, 127, 231, R_TIMBER[2])
+  shadowStrip(124, 254, 8, 2)
 end
 -- signal flag on a pole near the shed
 do
@@ -1007,7 +1000,7 @@ end end
 -- rim light (upper-left key) on main props: crate, barrel, cart, signal pole, lantern post
 for x = 358, 396 do local r = hx(get(x, 190)) if r > 120 then sp(x, 190, mix(get(x, 190), "#fff0c0", 0.4)) end end
 for y = 191, 228 do if get(358, y) ~= INK then sp(358, y, mix(get(358, y), "#fff0c0", 0.3)) end end
-for y = 176, 222 do local c = get(401, y) if c ~= INK then sp(401, y, mix(c, "#ffd9a0", 0.35)) end end
+for y = 188, 222 do local c = get(401, y) if c ~= INK and not gm:has(401, y) then sp(401, y, mix(c, "#ffd9a0", 0.35)) end end
 for x = 404, 418 do local c = get(x, 163 + 14) end
 for x = 30, 110 do local c = get(x, 150 + 25) end
 -- cart top-rim glint
