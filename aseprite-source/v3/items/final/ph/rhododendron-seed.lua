@@ -1,9 +1,5 @@
--- rhododendron-seed (seed W1_4)
+-- rhododendron-seed (seed E1_B)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="rhododendron-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#3a2418","#583420","#7a4c2c","#9c6a3c","#bc8a50","#d8ac70"}, leaf={"#0e3a30","#164e3c","#206a48","#308a58","#4aa86c","#78c88c"}, sleaf={"#2a6a46","#3e8a54","#5aaa62","#7cc874","#a4e096","#cef2bc"},
-stem={"#5a2a40","#7c3e58","#a0587a","#4a9060","#6cb07c"}, root={"#c4b498","#dccdb0","#eee4ca"},
-vein="#b0e0b0", gloss="#e0fff0", cool="#34306e", red="#8a3a6a",
-sl=1.25, sw=0.5, taper=0.4, drop={4,1}, marks="none", markc="#e8c898",
-scrap={5,56,28,53,59,42}, scrapW=7.0, scrapExp=0.8, sprout="trio", leafw=3.4, quirk="none",
+  name="rhododendron-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+  seed={"#3a2412","#5a3a1c","#7e5628","#a07436","#c09448","#dcb464"}, leaf={"#123e30","#18523a","#206a44","#308a56","#4ea66c","#78c08a"}, sleaf={"#1e7a46","#2e9a54","#46b464","#68cc7a","#8ee098","#b0f0b4"}, stem={"#4a3a3a","#664a42","#2e6a44","#3e8a50","#52a460"}, root={"#e8dcc4","#d0c0a0","#b0a080"}, vein="#98d8a8", gloss="#f0d498", cool="#3a3070", red="#a03a5a", sl=1.4, sw=0.6, taper=0.4, drop={4,1}, marks="none", markc="#3a2412", scrap={6,56,30,49,58,40}, scrapW=7.0, scrapExp=0.55, sprout="pair", leafw=4.2, quirk="none"
 })

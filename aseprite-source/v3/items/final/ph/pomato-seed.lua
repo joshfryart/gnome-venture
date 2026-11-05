@@ -1,9 +1,5 @@
--- pomato-seed (seed W1_4)
+-- pomato-seed (seed E1_B)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="pomato-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#5a4228","#7c5e38","#a07c4a","#c29c60","#dcb87c","#f2d6a0"}, leaf={"#2a4a2a","#3e6a30","#548a3a","#70a848","#92c460","#b8de88"}, sleaf={"#3c6a30","#548a3a","#74aa48","#98c860","#bcdc84","#dff0b0"},
-stem={"#5a3a50","#7c5468","#a07484","#70a050","#94c070"}, root={"#cdbc94","#e4d6b0","#f4ecce"},
-vein="#c8e090", gloss="#fffbd8", cool="#40386a", red="#a05a44",
-sl=1.0, sw=1.15, taper=0.3, drop={4}, marks="none", markc="#f4e8c8",
-scrap={6,56,24,48,57,43}, scrapW=6.4, scrapExp=0.5, sprout="blades", leafw=2.8, quirk="none",
+  name="pomato-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+  seed={"#3a2410","#5e3c18","#865a22","#aa7a34","#cc9a4c","#ecb868"}, leaf={"#2a5226","#3a7030","#4c9038","#68ac48","#8cc660","#b0dc80"}, sleaf={"#4a9a30","#68b83c","#88d050","#a8e46c","#c4f08c","#dcf8a8"}, stem={"#4a6a30","#628a3a","#7aa446","#8ebc50","#a4d062"}, root={"#f0e4c0","#dccc9c","#bea87c"}, vein="#c0e888", gloss="#fff0b8", cool="#503a6a", red="#c8683a", sl=0.9, sw=1.2, taper=0.2, drop={4}, marks="spots", markc="#fff0b8", scrap={7,55,27,51,57,41}, scrapW=6.6, scrapExp=0.7, sprout="pair", leafw=3.6, quirk="none"
 })

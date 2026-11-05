@@ -1,8 +1,5 @@
--- morning-glory-seed (seed W1_3)
+-- morning-glory-seed (seed E1_B)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
- name="morning-glory-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
- seed={"#1a1418","#2e2228","#463238","#624650","#826068","#a8848c"}, leaf={"#1e3c34","#2a5a40","#3a7a46","#52984e","#74b45a","#9cd072"}, sleaf={"#2e8a50","#4cac5a","#70c866","#94e07a","#b8f49c","#dcffc4"}, stem={"#4a2e58","#6a4a6c","#8a6a80","#5aa068","#7cc078"}, root={"#e8dcd0","#f4ece0","#fffaf2"},
- vein="#a8e08c", gloss="#e8c8d0", cool="#40305a", red="#9a4a8a",
- sl=0.95, sw=0.85, taper=0.2, drop={4}, marks="stripes", markc="#6a5058",
- scrap={7,55,28,50,56,41}, scrapW=7.0, scrapExp=0.9, sprout="pair", leafw=4.4, quirk="hat",
+  name="morning-glory-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+  seed={"#1a1420","#2e2230","#4a3a3a","#6e5a48","#94785a","#b89a74"}, leaf={"#1f4a3a","#2a6444","#3a8250","#58a05a","#82bc68","#aad47e"}, sleaf={"#2f7a48","#46a050","#68c260","#8ad870","#aaea88","#c8f4a0"}, stem={"#3a6a40","#4e8a4c","#62a458","#78bc5c","#92d070"}, root={"#e8d8b0","#d4c096","#b8a47c"}, vein="#c8e8a0", gloss="#e8d4a8", cool="#4a3a70", red="#c04a7a", sl=1.3, sw=1.1, taper=0.3, drop={4}, marks="none", markc="#1a1420", scrap={7,55,28,50,57,42}, scrapW=6.6, scrapExp=0.6, sprout="pair", leafw=4.4, quirk="none"
 })
