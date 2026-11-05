@@ -154,8 +154,9 @@ local function smoke(x, y, s)
   for k = 0, 2 do
     local yy = y - 1 - k * 3
     dx = dx + ((hash(k, s, 3) > .5) and 1 or 0)
-    put(x + dx, yy, cs[k + 1]); put(x + dx + 1, yy, cs[k + 1]); put(x + dx, yy - 1, cs[k + 1])
-    if k > 0 then put(x + dx + 1, yy - 1, cs[k + 1]) end
+    local function sp(px, py) if inb(px, py) and not hard[I(px, py)] and not soft[I(px, py)] then put(px, py, cs[k + 1]) end end
+    sp(x + dx, yy); sp(x + dx + 1, yy); sp(x + dx, yy - 1)
+    if k > 0 then sp(x + dx + 1, yy - 1) end
   end
 end
 local function shadowBlob(x, y, rx)   -- soft contact shadow on the floor (one darker tone, hard pixels)
@@ -271,6 +272,7 @@ function L.roundhut(x, y, s, R)
         { roof, function(m) fill(m, R or RP.thatch, x - 2, y - 6, 4, 3); each(m, function(px, py) if (px + py) % 3 == 0 and hash(px, py, s) > .4 then put(px, py, (R or RP.thatch)[3]) end end) end } })
   put(x, y - 1, RP.mud[4]); put(x, y, RP.mud[4])
 end
+function L.hutpair(x, y, s) L.roundhut(x - 4, y, s, RP.thatch); L.roundhut(x + 4, y - 2, s + 1, RP.thatch); smoke(x + 5, y - 12, s) end
 function L.hutvillage(x, y, s, R)
   L.roundhut(x - 6, y - 2, s, R); L.roundhut(x + 6, y - 3, s + 1, R); L.roundhut(x, y + 2, s + 2, R)
   smoke(x + 7, y - 13, s)
@@ -315,8 +317,8 @@ end
 function L.acaciasil(x, y, s)   -- far acacia silhouettes on the dark ground (back plane, no ink)
   local tr = M(); line(tr, x, y, x, y - 5); line(tr, x, y - 5, x - 3, y - 8); line(tr, x, y - 5, x + 3, y - 8)
   local cr = ell(M(), x, y - 9, 7 + floor(hash(s, 1, 1) * 3), 1.4); ell(cr, x - 3, y - 10, 3, 1.2); ell(cr, x + 3, y - 10, 3, 1.2)
-  solid(tr, "#5a3034")
-  each(cr, function(px, py) put(px, py, cr[I(px, py - 1)] and "#5e3236" or "#7a4a40") end)
+  solid(tr, "#6a3a36")
+  each(cr, function(px, py) put(px, py, cr[I(px, py - 1)] and "#7a4a40" or "#9a6448") end)
   for xx = x - 5, x + 5 do if inb(xx, y + 1) and cls[I(xx, y + 1)] == 2 and hash(xx, y, s) > .4 then put(xx, y + 1, "#4e2a30") end end
 end
 function L.baobab(x, y, s)
@@ -414,23 +416,26 @@ function L.yak(x, y, s)
   put(x + 4, y - 6, "#f4eee0"); put(x + 6, y - 5, "#f4eee0"); put(x + 5, y - 5, "#e2dad6")
 end
 -- east asia
-function L.terraces(x, y, s, R, bank, rows, wet)
+function L.terraces(x, y, s, R, bank, rows, wet)   -- paddy strips seen from above, wavy banks
   rows = rows or 4
-  local all = M()
+  local all, fld = M(), {}
+  local w = 12
   for r = 0, rows - 1 do
-    local w = 11 - r * 2
-    for dx = -w, w do
-      local t = dx / w
-      local yy = y - r * 3 + floor(t * t * 3 + .5)
-      for k = 0, 2 do mset(all, x + dx + r, yy - k) end
+    local cut = floor(abs(r - (rows - 1) / 2) * 1.5 + .5)
+    for dx = -w + cut, w - cut do
+      local yy = y - rows * 3 + r * 3 + floor(1.3 * sin(dx * .28 + r * 1.7 + s) + .5)
+      for k = 0, 2 do mset(all, x + dx, yy + k); if k < 2 then fld[I(x + dx, yy + k)] = r end end
     end
   end
   rim(all, bank)
   each(all, function(px, py)
-    local up = all[I(px, py - 1)]
-    local dn = all[I(px, py + 1)]
-    local c = R[2]
-    if not dn then c = bank elseif not up then c = wet and (((px + s) % 3 == 0) and "#d0f4ee" or "#8cd4c8") or R[1] elseif hash(px, py, s) > .8 then c = R[3] end
+    local r = fld[I(px, py)]
+    local c = bank
+    if r then
+      c = (r % 2 == 0) and R[1] or R[2]
+      if wet and not fld[I(px, py - 1)] then c = ((px + s) % 3 == 0) and "#d0f4ee" or "#8cd4c8" end
+      if hash(px, py, s) > .86 then c = R[3] end
+    end
     put(px, py, c)
   end)
 end
@@ -457,16 +462,17 @@ function L.cherry(x, y, s)
 end
 function L.tilehouse(x, y, s, R)
   R = R or RP.roofEA
-  local wall = rect(M(), x - 3, y - 4, x + 3, y)
-  local roof = poly(M(), { { x - 6, y - 4 }, { x - 4, y - 8 }, { x + 4, y - 8 }, { x + 6, y - 4 } })
-  mset(roof, x - 6, y - 5); mset(roof, x + 6, y - 5)
+  local wall = rect(M(), x - 4, y - 5, x + 4, y)
+  local roof = poly(M(), { { x - 6.5, y - 5 }, { x - 4, y - 10 }, { x + 4, y - 10 }, { x + 6.5, y - 5 } })
+  mset(roof, x - 7, y - 6); mset(roof, x + 7, y - 6); mset(roof, x - 7, y - 7); mset(roof, x + 7, y - 7)
   obj({ { wall, function(m) fill(m, RP.plaster, x - 2, y - 3, 3, 2) end },
         { roof, function(m) fill(m, R, x - 3, y - 7, 5, 2); each(m, function(px, py) if px % 2 == 0 and py > y - 8 then put(px, py, R[3]) end end) end } })
   put(x, y - 1, "#b03a36"); put(x, y, "#b03a36"); put(x - 2, y - 2, "#5a4050"); put(x + 2, y - 2, "#5a4050")
 end
+function L.tilehouse1(x, y, s) L.tilehouse(x, y, s, (s % 2 == 0) and RP.roofR or RP.roofEA); smoke(x + 3, y - 12, s) end
 function L.tilevillage(x, y, s, R)
-  L.tilehouse(x - 6, y, s, R); L.tilehouse(x + 6, y - 3, s + 1, R)
-  smoke(x + 9, y - 11, s)
+  L.tilehouse(x - 8, y, s, R); L.tilehouse(x + 8, y - 3, s + 1, R)
+  smoke(x + 10, y - 14, s)
 end
 function L.wall(x, y, s)   -- a stretch of great wall with two towers
   local m = M()
@@ -485,6 +491,11 @@ function L.wall(x, y, s)   -- a stretch of great wall with two towers
     put(px, py, c)
   end) end } })
   for _, t in ipairs(tw) do put(t[1], t[2] - 4, INK); put(t[1], t[2] - 3, INK) end
+  for xx = x - 25, x + 25 do   -- the ridge it rides on
+    local yy = y + floor(2.5 * sin((xx - x) * .12 + s) + .5)
+    local hgt = 3 - floor(abs(xx - x) / 12)
+    for k = 1, max(1, hgt) do if inb(xx, yy + k) and cls[I(xx, yy + k)] == 2 and not m[I(xx, yy + k)] then put(xx, yy + k, (k == 1) and "#6a5486" or "#4a3a64") end end
+  end
 end
 function L.crane(x, y, s)
   local b = ell(M(), x, y - 4, 3, 1.6)
@@ -641,8 +652,8 @@ end
 local RTEX = {}
 RTEX.MENA = function(x, y, c, R) local p = y + 4 * sin(x * .05) + 3 * vn(x, y, 30, 3); if vn(x, y, 24, 8) > .45 and p % 9 < 1 then return R[3] end end
 RTEX.WCA = function(x, y, c, R) local p = x + 5 * sin(y * .12) + 4 * vn(x, y, 20, 3); if vn(x, y, 18, 8) > .5 and p % 12 < 1 then return "#3e3a26" end end
-RTEX.ESA = function(x, y, c, R) local p = y + 5 * sin(x * .04) + 3 * vn(x, y, 30, 3); if vn(x, y, 24, 8) > .45 and p % 8 < 1 then return "#5e3434" end end
-RTEX.EA = function(x, y, c, R) local p = x * .7 + y + 6 * sin(x * .05) + 5 * vn(x, y, 25, 3); if vn(x, y, 22, 8) > .7 and p % 14 < 1 then return "#3e6a6a" end end
+RTEX.ESA = function(x, y, c, R) local p = y + 5 * sin(x * .04) + 3 * vn(x, y, 30, 3); if vn(x, y, 24, 8) > .62 and p % 11 < 1 then return "#56303a" end end
+RTEX.EA = function(x, y, c, R) if hash(x, y, 71) > .996 or hash(x - 1, y, 71) > .996 then return (hash(x, y, 72) > .5) and "#5aa898" or "#3e6a6a" end end
 RTEX.OC = function(x, y, c, R) local p = y + 3 * sin(x * .1 + y * .03) + 3 * vn(x, y, 30, 3); if vn(x, y, 20, 8) > .5 and p % 7 < 1 then return "#3a4a6c" end end
 
 -------------------------------------------------------------- per-map programs
@@ -667,7 +678,7 @@ PROG.WCA = {
   { "fern", 14, 1, 5, 7, 1 }, { "vine", 30, 2, 2, 1, 14, 0, 40 },
 }
 PROG.ESA = {
-  { "peak", 1, 2, 16, 18, 1, nil, 230, { 15, 18 } }, { "hutvillage", 2, 1, 11, 15, 4 }, { "giraffe", 1, 1, 5, 14, 1 },
+  { "peak", 1, 2, 16, 18, 1, nil, 230, { 15, 18 } }, { "hutpair", 2, 1, 9, 13, 1 }, { "giraffe", 1, 1, 5, 14, 1 },
   { "baobab", 3, 1, 6, 14, 2 }, { "acacia", 12, 1, 7, 10, 1 }, { "acaciasil", 14, 2, 9, 11, 2 }, { "mound", 8, 1, 4, 10, 1 }, { "rockart", 10, 2, 8, 8, 1 },
 }
 PROG.CSA = {
@@ -675,12 +686,12 @@ PROG.CSA = {
   { "flags", 3, 1, 10, 7, 1 }, { "yak", 1, 1, 6, 7, 1 },
 }
 PROG.EA = {
-  { "wall", 2, 2, 23, 9, 3 }, { "tilevillage", 3, 1, 10, 12, 1 }, { "terraces", 5, 1, 12, 10, 2 }, { "cherry", 7, 1, 7, 11, 2 },
+  { "wall", 2, 2, 23, 9, 3 }, { "tilehouse1", 4, 1, 8, 15, 1 }, { "terraces", 5, 1, 13, 12, 2 }, { "cherry", 7, 1, 7, 11, 2 },
   { "bamboo", 7, 1, 5, 15, 1 }, { "crane", 1, 1, 4, 11, 1 },
 }
 PROG.SEA = {
   { "temple", 1, 1, 10, 18, 1 }, { "stiltvillage", 3, 1, 14, 17, 2 }, { "stream", 1, 1, 20, 5, 6 }, { "buffalo", 1, 1, 7, 7, 1 },
-  { "terraces", 9, 1, 13, 10, 3 }, { "mangrove", 9, 1, 7, 12, 2 }, { "palm", 9, 1, 7, 14, 2 },
+  { "terraces", 9, 1, 13, 15, 3 }, { "mangrove", 9, 1, 7, 12, 2 }, { "palm", 9, 1, 7, 14, 2 },
 }
 PROG.OC = {
   { "whale", 1, 2, 8, 12, 2 }, { "atoll", 5, 2, 15, 11, 11 }, { "reef", 10, 2, 7, 5, 5 }, { "uluru", 1, 1, 13, 10, 2 },
@@ -821,7 +832,7 @@ local function build(name)
           local s = placed * 13 + pi * 7
           if kind == "peak" and args then L.peak(x, y, s, args[1], args[2])
           elseif kind == "terraces" then
-            if name == "SEA" then L.terraces(x, y, s, { "#e4f8b0", "#a8dc6a", "#7ab850", "#3e7a44" }, "#2e6a3e", 4, true) else L.terraces(x, y, s, RP.terr, "#2e5e3e", 4) end
+            if name == "SEA" then L.terraces(x, y, s, { "#e4f8b0", "#a8dc6a", "#7ab850", "#3e7a44" }, "#2e6a3e", 4, true) else L.terraces(x, y, s, RP.terr, "#2e5e3e", 3) end
           elseif kind == "fossil" then L.fossil(x, y, s, { nil, nil, ROCKS[name][3], "#7a6070" })
           elseif kind == "tilevillage" then L.tilevillage(x, y, s, (placed == 2) and RP.roofR or RP.roofEA)
           elseif kind == "hutvillage" then L.hutvillage(x, y, s, (name == "WCA") and { "#c8d070", "#9aa040", "#6a7030", "#40482a" } or RP.thatch)
