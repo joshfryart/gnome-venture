@@ -629,6 +629,45 @@ if ($withDb) {
     hub_seen_clear($uid, 'pref:gameslist'); ok('...and can be turned off', !treehouse_list_pref($uid));
     sset('gnav_on', '0');
 
+    echo "== 2.5.49: Shops popover on rest stops and havens\n";
+    $mkt = null;   // a village whose stop type is a market hamlet, with a stall today
+    foreach (q("SELECT id FROM locations WHERE kind = 'village' ORDER BY id")->fetchAll() as $r0) {
+        $uu = put((int)$r0['id']); $nn = player_node($uu);
+        if (here_stall_fronts($uu, $nn, 'here.php', 2)) { $mkt = [$uu, $nn]; break; }
+    }
+    $fakeL = ['w' => 480, 'h' => 270, 'spots' => [['k' => 'stall', 'as' => 'shops', 'x' => 350, 'y' => 226, 'box' => [290, 150, 410, 226]], ['k' => 'seed', 'as' => 'do', 'x' => 100, 'y' => 200, 'box' => [60, 150, 140, 226]]]];
+    if ($mkt) {
+        [$uu, $nn] = $mkt;
+        $sf2 = here_stall_fronts($uu, $nn, 'here.php', 1);
+        ok('stall front: one named Stall popover with Buy forms that post to town.php and come back to here.php', count($sf2) === 1 && $sf2[0][0] === 'Stall' && str_contains($sf2[0][2], 'name="back" value="here.php"') && str_contains($sf2[0][2], 'name="do" value="local"'), substr($sf2[0][2] ?? '', 0, 200));
+        $hs2 = here_spots($uu, $nn, $fakeL, 'here.php', 'stop');
+        $ids = array_column($hs2, 'id');
+        ok('stop with a stall: the shops spot is its own hotspot (s-shops, verb Shop), the do spot stays', in_array('s-shops', $ids, true) && in_array('s-do', $ids, true) && ($hs2[array_search('s-shops', $ids, true)]['chip'] ?? '') === 'Shop', json_encode($ids));
+        $dfs = here_do_fronts($uu, $nn, 'here.php', 6, true);
+        ok('do fronts skip the stall acts when the stall has its own front', !str_contains(implode('', array_column($dfs, 2)), 'Buy '), '');
+    } else ok('a market stop with a stall exists in the test world (skipped otherwise)', true);
+    $vil2 = (int)q_val("SELECT id FROM locations WHERE kind = 'village' ORDER BY id LIMIT 1");
+    if ($vil2) {   // no stall: the shops spot goes back to Do here (never a lost front)
+        $uu = put($vil2); $nn = player_node($uu);
+        q("UPDATE users SET level = 20 WHERE id = ?", [$uu['id']]);
+        $fk = $fakeL; $fk['spots'][0]['as'] = 'shops';
+        $hs3 = here_spots($uu, $nn, $fk, 'here.php', 'stop');
+        $has = fn(string $p) => count(array_filter(array_column($hs3, 'id'), fn($i) => str_starts_with($i, $p)));
+        ok('stop: a shops spot is never lost (a stall front, or a do front when there is no stall)', $has('s-shops') + $has('s-do') >= 2 || count(here_do_fronts($uu, $nn, 'here.php', 2)) < 2, json_encode(array_column($hs3, 'id')));
+    }
+    $hv2 = (int)q_val("SELECT m.location_id FROM landmarks m JOIN locations l ON l.id = m.location_id WHERE m.kind = 'haven' ORDER BY m.id LIMIT 1");
+    if ($hv2) {   // an open haven: the pantry in a popover, one-click Buy posting to landmark.php and back to here.php
+        $uh = put($hv2); $nh = player_node($uh); $lmh = landmark_at($hv2);
+        $card = here_haven_shop_card($uh, $lmh, 'here.php');
+        ok('haven shop card: today\'s pantry with Buy forms for landmark.php (do=buy, back=here.php)', str_contains($card, 'pantry') && (!haven_pantry($lmh, (int)$uh['id']) || (str_contains($card, 'value="buy"') && str_contains($card, 'name="back" value="here.php"'))), substr($card, 0, 200));
+        $fh = ['w' => 480, 'h' => 270, 'spots' => [['k' => 'fire', 'x' => 200, 'y' => 200, 'box' => [160, 150, 240, 226]], ['k' => 'shop', 'x' => 330, 'y' => 200, 'box' => [290, 150, 370, 226]]]];
+        $hh = here_spots($uh, $nh, $fh, 'here.php', 'haven');
+        $shopSpot = array_values(array_filter($hh, fn($x) => $x['id'] === 's-shop'))[0] ?? null;
+        ok('haven: the Haven shop spot opens a popover (card), verb Shop', $shopSpot && $shopSpot['card'] !== '' && $shopSpot['chip'] === 'Shop', json_encode($shopSpot));
+        ok('haven shop card: CSP safe', !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $card));
+    }
+    sset('gnav_on', '0');
+
     echo "== flag helpers\n";
     ok('gnav_start_here is off with the flag off', !gnav_start_here(me()));
     sset('gnav_on', '1');
