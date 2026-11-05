@@ -86,6 +86,168 @@ def pebble_(cv, x, y, rx, ry, c, rnd):
     lump(cv, x, y, rx, ry, R, rnd, 0)
 def darker_c(c): return mix(c, H("#2b1c26"), .35)
 
+# ------------------------------------------------------------------ hand-drawn detail helpers (form shading, dither, strokes)
+_B4 = ((0, 8, 2, 10), (12, 4, 14, 6), (3, 11, 1, 9), (15, 7, 13, 5))
+_LV = (-0.5, -0.6, 0.62)
+def hd_tone(v, x, y):
+    """continuous tone 0..4 -> int tone with a 4x4 ordered dither so ramp steps melt into a checker."""
+    b = (_B4[y & 3][x & 3] + .5) / 16 - .5
+    return max(0, min(4, int(math.floor(v + b + .5))))
+def hd_noise(rnd, cell, w=900, h=900):
+    gw, gh = w // cell + 3, h // cell + 3; g = [[rnd.random() for _ in range(gw)] for _ in range(gh)]
+    def f(x, y):
+        fx, fy = x / cell, y / cell; x0, y0 = int(fx), int(fy); tx, ty = fx - x0, fy - y0
+        tx = tx * tx * (3 - 2 * tx); ty = ty * ty * (3 - 2 * ty)
+        a, b, c, d = g[y0][x0], g[y0][x0 + 1], g[y0 + 1][x0], g[y0 + 1][x0 + 1]
+        return (a + (b - a) * tx) * (1 - ty) + (c + (d - c) * tx) * ty
+    return f
+def hd_form(cv, box_, inside, hf, R, rnd, gain=2.8, bias=.95, extra=None):
+    """Fill every pixel where inside(x,y) with a ramp tone from a height field hf(x,y) (normal . light, dithered). Returns {(x,y): v}."""
+    x0, y0, x1, y1 = box_; out = {}
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            if not inside(x, y): continue
+            gx = (hf(x + 1, y) - hf(x - 1, y)) / 2.0; gy = (hf(x, y + 1) - hf(x, y - 1)) / 2.0
+            nn = math.sqrt(gx * gx + gy * gy + 1); d = (-gx * _LV[0] - gy * _LV[1] + _LV[2]) / nn
+            v = (bias - d) * gain + (extra(x, y) if extra else 0)
+            out[(x, y)] = v; cv.put(x, y, R[hd_tone(v, x, y)])
+    return out
+def hd_idx(c, R):
+    for i, r in enumerate(R):
+        if r == c: return i
+    return None
+def hd_blade(cv, x, y, h, lean, R, wide=False, ib=None):
+    """one grass blade growing up from (x, y), coloured from whatever it grows on (dark root, lit tip)."""
+    i = hd_idx(cv.get(x, y), R) if ib is None else ib; i = 2 if i is None else i
+    for k in range(h):
+        xx = x + (k * lean) // 3; t = max(0, i - 2) if k >= h - 1 else max(0, i - 1) if k > h // 2 else min(4, i + 1) if k == 0 else i
+        cv.put(xx, y - k, R[t])
+        if wide and k < h - 1: cv.put(xx + 1, y - k, R[min(4, i + 1)])
+def hd_tuft(cv, x, y, n, hmax, R, rnd, spread=3, lean0=0, ib=None):
+    for j in range(n):
+        u = (j - (n - 1) / 2.0); hd_blade(cv, x + int(u * spread / max(1, n - 1) * 2), y + rnd.choice((0, 0, 1)), rnd.randint(max(2, hmax - 2), hmax), int(u * 1.2) + lean0, R, False, ib)
+def hd_line(cv, x0, y0, x1, y1, c, only=None):
+    n = max(abs(x1 - x0), abs(y1 - y0), 1)
+    for i in range(n + 1):
+        x = int(round(x0 + (x1 - x0) * i / n)); y = int(round(y0 + (y1 - y0) * i / n))
+        if only is None or only(x, y): cv.put(x, y, c)
+def hd_blob(cv, cx, cy, rx, ry, c, rnd, only=None, rough=.18):
+    for y in range(int(cy - ry) - 1, int(cy + ry) + 2):
+        for x in range(int(cx - rx) - 1, int(cx + rx) + 2):
+            d = ((x + .5 - cx) / rx) ** 2 + ((y + .5 - cy) / ry) ** 2
+            if d <= 1 - (rough if rnd.random() < .5 else 0) and (only is None or only(x, y)): cv.put(x, y, c)
+def hd_bounce(cv, S, R, lr, bounce_i=1, deep_i=4):
+    """S = set of filled pixels. On the lower-right edge (lr(x,y) true) the outermost px gets a bounce-light tone and the px just inside get the deepest shade."""
+    E = [(x, y) for (x, y) in S if ((x + 1, y) not in S or (x, y + 1) not in S) and lr(x, y)]
+    ES = set(E)
+    for (x, y) in E:
+        for dx, dy in ((-1, 0), (0, -1), (-1, -1)):
+            p = (x + dx, y + dy)
+            if p in S and p not in ES: cv.put(p[0], p[1], R[deep_i] if (p[0] + p[1]) % 3 else R[max(0, deep_i - 1)])
+    for (x, y) in E: cv.put(x, y, R[bounce_i])
+def hd_rock(cv, cx, base, rx, ry, rnd, R, p=2.3, H=60, nfacet=0, strata=0, gain=3.0, light_bias=.95, wiggle=.06):
+    """Dome of rock: superellipse silhouette with a wobbly edge, form shading from a height field, optional voronoi facets (each with its own tilt, creased) and curved strata.
+    Returns {(x, y): tone value}."""
+    nz = hd_noise(rnd, 12); nz2 = hd_noise(rnd, 4); nz3 = hd_noise(rnd, 7)
+    def rr(x, y): return abs((x + .5 - cx) / float(rx)) ** p + abs((y + .5 - base) / float(ry)) ** p
+    def ins(x, y): return y <= base and rr(x, y) <= 1 + (nz3(x, y * .3) - .5) * wiggle * 2 + (nz(x, 3) - .5) * wiggle
+    seeds = [(cx + rnd.uniform(-1, 1) * rx * .95, base - rnd.uniform(0, 1) * ry * .95, rnd.uniform(-1.1, 1.1), rnd.uniform(-1.1, 1.1)) for _ in range(nfacet)]
+    def cell(x, y):
+        best, bi = 1e9, -1
+        for i, (sx, sy, a, b) in enumerate(seeds):
+            d = (x - sx) ** 2 + ((y - sy) * 1.25) ** 2
+            if d < best: best, bi = d, i
+        return bi
+    cells = {}
+    def hf(x, y):
+        r = min(1.0, rr(x, y)); return H * math.sqrt(max(0, 1 - r)) + 2.5 * nz(x, y)
+    bandf = lambda x, y: (y + .0016 * (x - cx) ** 2 + 5 * (nz(x * .6, 9) - .5) * 2) / 9.5
+    S = {}
+    for y in range(base - ry - 4, base + 1):
+        for x in range(cx - rx - 4, cx + rx + 5):
+            if not ins(x, y): continue
+            gx = (hf(x + 1, y) - hf(x - 1, y)) / 2.0; gy = (hf(x, y + 1) - hf(x, y - 1)) / 2.0
+            if nfacet:
+                c = cell(x, y); cells[(x, y)] = c; gx += seeds[c][2]; gy += seeds[c][3]
+            nn = math.sqrt(gx * gx + gy * gy + 1); d = (-gx * _LV[0] - gy * _LV[1] + _LV[2]) / nn
+            v = (light_bias - d) * gain + (nz2(x + 33, y) - .5) * .9 + ((x * 3 + y * 7) % 13 == 0) * .5
+            if strata:
+                b = bandf(x, y); k = int(math.floor(b)); fr = b - k
+                v += (((k * 37) % 7) / 7.0 - .5) * 1.1
+                S[(x, y)] = (v, fr, k)
+            else: S[(x, y)] = (v, 0, 0)
+    for (x, y), (v, fr, k) in S.items():
+        t = hd_tone(v, x, y)
+        if strata and nz3(x * 1.3 + k * 9, k * 5) > .35:
+            if fr < .13: t = min(4, t + 2)         # dark ledge seam
+            elif fr < .26: t = max(0, t - 1)       # lit lip below it
+        cv.put(x, y, R[t])
+    if nfacet:
+        for (x, y), c in cells.items():
+            for (dx, dy) in ((-1, 0), (0, -1)):
+                o = cells.get((x + dx, y + dy))
+                if o is not None and o != c:
+                    vo, vc = S[(x + dx, y + dy)][0], S[(x, y)][0]
+                    cv.put(x, y, R[max(0, min(4, hd_tone(vc + (-.9 if vc < vo else 1.0), x, y)))])
+    return {k: v[0] for k, v in S.items()}
+def hd_barn(cv, x, y, R, big=False):
+    """one barnacle: a little pale volcano with a dark mouth and a shaded right side."""
+    rows = ((-3, -1, 1), (-2, -2, 2), (-1, -3, 3), (0, -3, 3)) if big else ((-2, -1, 0), (-1, -2, 1), (0, -2, 2))
+    for dy, a, b in rows:
+        for dx in range(a, b + 1): cv.put(x + dx, y + dy, CREAM if dx < b - 1 else RAMP["snow"][1] if dx < b else R[3])
+    top = rows[0][0]; cv.put(x - 1 + (1 if big else 0), y + top, R[4]); cv.put(x + (1 if big else 0), y + top, R[3])
+    for dx in range(rows[-1][1] + 1, rows[-1][2] + 2): cv.put(x + dx, y + 1, R[4])
+def hd_barnacles(cv, pts, R, n, rnd, where, cluster=4):
+    for _ in range(n):
+        for _t in range(30):
+            x, y = rnd.choice(pts)
+            if where(x, y): break
+        else: continue
+        for j in range(rnd.randint(2, cluster)):
+            xx, yy = x + rnd.randint(-6, 6), y + rnd.randint(-4, 4)
+            if (xx, yy) in cv_set(pts) and (xx + 3, yy) in cv_set(pts): hd_barn(cv, xx, yy, R, rnd.random() < .3)
+_PTS = {}
+def cv_set(pts):
+    k = id(pts)
+    if k not in _PTS or _PTS[k][0] is not pts: _PTS[k] = (pts, set(pts))
+    return _PTS[k][1]
+def hd_weed(cv, x, y, h, rnd, lean=1, R=None):
+    """kelp / sea-lettuce strand: a swaying ribbon two px wide with lighter frill edge."""
+    R = R or r5(RAMP["pine"]); ph = rnd.random() * 6
+    for k in range(h):
+        xx = x + int(math.sin(k / 4.5 + ph) * 2) + lean * k // 7
+        cv.put(xx, y + k, R[1 if k % 6 else 0]); cv.put(xx + 1, y + k, R[2 if k % 5 else 3])
+        if k % 9 == 4: cv.put(xx - 1, y + k, R[0]); cv.put(xx + 2, y + k, R[3])
+    cv.put(x + int(math.sin((h - 1) / 4.5 + ph) * 2) + lean * (h - 1) // 7, y + h, R[3])
+def hd_crack(cv, x, y, n, rnd, R, d=1, S=None):
+    xx = x
+    for k in range(n):
+        if rnd.random() < .35: xx += d
+        if S is None or (xx, y + k) in S:
+            cv.put(xx, y + k, R[4]); 
+            if k % 2 == 0 and (S is None or (xx + 1, y + k) in S): cv.put(xx + 1, y + k, R[3])
+            if (S is None or (xx - 1, y + k) in S) and k % 3 == 0: cv.put(xx - 1, y + k, R[0])   # lit lip
+def hd_shell(cv, x, y, s, P, rnd, flip=False):
+    """fan shell (scallop) with ridges: s = radius."""
+    for dy in range(-s, 1):
+        w = int(round(math.sqrt(max(0, s * s - dy * dy)))) + 0
+        for dx in range(-w, w + 1):
+            ang = math.atan2(-dy, dx) if (dx or dy) else 0
+            ridge = int(round(ang * 5)) % 2
+            c = P[0] if (dx + dy) < -s * .5 else P[1] if ridge else P[2] if dx > s // 2 else P[1]
+            if abs(dx) >= w - 0 and dy > -s: c = P[3]
+            cv.put(x + dx, y + dy, c)
+    for dx in range(-s // 2, s // 2 + 1): cv.put(x + dx, y + 1, P[3])
+    cv.put(x, y, P[3]); cv.put(x - 1, y - 1, P[0]); cv.put(x, y + 2, P[3]) if s > 3 else None
+def hd_spiral(cv, x, y, s, P, rnd):
+    for yy in range(-s, s + 1):
+        for xx in range(-s, s + 1):
+            d = math.sqrt(xx * xx + yy * yy)
+            if d <= s + .4: cv.put(x + xx, y + yy, P[0] if xx + yy < -s * .5 else P[1] if xx + yy < s * .4 else P[2])
+    for a in range(0, 720, 14):
+        r = s * (1 - a / 820.0); cv.put(x + int(round(math.cos(math.radians(a)) * r)), y + int(round(math.sin(math.radians(a)) * r)), P[3])
+    cv.put(x - 1, y - 1, CREAM)
+
 # ------------------------------------------------------------------ 307
 # ---- polish-pass helpers
 def logh(cv, x0, x1, y0, h, rnd, R=None):
@@ -229,24 +391,111 @@ def lm_barnacles(rnd, cv):   # 270 x 190
     for x in range(8, 262):   # wet foot with weed and foam
         if x % 4 == 0 and cv.get(x, 184)[3] == 0: cv.put(x, 188, RAMP["moss"][2]); cv.put(x, 187, RAMP["moss"][1])
     for x in range(8, 262, 7): cv.put(x, 189, RAMP["sea"][0]); cv.put(x + 1, 189, CREAM)
-def lm_shellhollow(rnd, cv):   # 240 x 150
-    S = r5(RAMP["stone"])
-    mound(cv, 120, 146, 112, 104, S, rnd, .12)   # rocky bank
-    for y in range(56, 146):   # scooped hollow
-        for x in range(30, 211):
-            if ((x - 120) / 80.0) ** 2 + ((y - 118) / 62.0) ** 2 <= 1:
-                u = ((x - 120) / 80.0) ** 2 + ((y - 118) / 62.0) ** 2
-                t = 3 if y < 84 else 2 if u > .6 else 1 if u > .25 else 0
-                cv.put(x, y, RAMP["sand"][t])
-    for a in range(0, 360, 14):   # shells lining the rim
-        x = 120 + int(math.cos(math.radians(a)) * 80); y = 118 + int(math.sin(math.radians(a)) * 62)
-        if y > 60 and a % 28 == 0: spiral(cv, x, y, 4, ["petal", "gold", "snow"][a // 28 % 3])
-        elif y > 60: shell(cv, x, y + 3, 4, ["snow", "petal", "gold"][a // 14 % 3], rnd)
-    for k in range(4):   # echo arcs from "hello"
-        for a in range(-50, 51, 4):
-            r = 16 + k * 10; x = 120 + int(math.cos(math.radians(a - 90)) * r); y = 132 + int(math.sin(math.radians(a - 90)) * r * .8)
-            cv.put(x, y, CREAM if k % 2 == 0 else RAMP["sea"][0])
-    shell(cv, 120, 140, 6, "petal", rnd)
+def lm_shellhollow(rnd, cv):   # 260 x 160
+    S = r5(RAMP["stone"]); A = r5(RAMP["sand"]); M = r5(RAMP["moss"]); PE = r5(RAMP["petal"]); GO = r5(RAMP["gold"]); SN = r5(RAMP["snow"]); SE = r5(RAMP["sea"]); PI = r5(RAMP["pine"])
+    cx, base = 130, 154
+    nz = hd_noise(rnd, 6); nz2 = hd_noise(rnd, 3); nz3 = hd_noise(rnd, 15)
+    rock = hd_rock(cv, cx, base, 122, 108, rnd, S, 2.3, 62, 11, 1, 3.5, 1.25)
+    RS = set(rock)
+    def dh(x, y): return ((x + .5 - cx) / 82.0) ** 2 + ((y + .5 - base - 6) / 62.0) ** 2
+    def inhol(x, y): return (x, y) in RS and dh(x, y) <= 1 + (nz2(x, y) - .5) * .1
+    hol = set(p for p in RS if inhol(*p))
+    def wall_y(x): return 124 - 9 * (1 - ((x - cx) / 82.0) ** 2) + (nz(x, 7) - .5) * 4
+    # ---- the hollow: shaded back wall, sand floor
+    for (x, y) in hol:
+        d = dh(x, y)
+        if y < wall_y(x):   # back wall: deep rock in shadow, strata
+            v = 2.7 + d * 1.2 + (nz2(x, y) - .5) * 1.4 + ((y // 7) % 2) * .35
+            if (y - 100) % 7 == 0 and nz3(x, y) > .3: v += 1.2
+            cv.put(x, y, S[hd_tone(v, x, y)])
+        else:
+            u = (y - wall_y(x)) / 40.0
+            v = 3.1 - u * 2.9 + d * 1.0 + (nz2(x + 9, y) - .5) * 1.1
+            cv.put(x, y, A[hd_tone(v, x, y)])
+    for (x, y) in hol:   # soft cast shadow of the overhang onto the floor, dithered
+        if wall_y(x) <= y < wall_y(x) + 5 and (x + y) % 2 == 0: cv.put(x, y, A[3])
+    for k in range(7):   # ripple ridges in the sand, curved, with a lit crest and a dark trough
+        yk = 126 + k * 4.6
+        for x in range(cx - 80, cx + 81):
+            y = int(yk + 2.2 * math.sin(x / 7.5 + k * 1.7) + (x - cx) ** 2 / 4200.0 * (1 + k * .2))
+            if (x, y) in hol and (x, y + 1) in hol and y > wall_y(x) + 5 and (x * 5 + k * 3) % 9 < 6: cv.put(x, y, A[0]); cv.put(x, y + 1, A[3] if (x + k) % 2 else A[2])
+    for _ in range(90):   # grains: dark and pale single pixels
+        x, y = rnd.randint(cx - 80, cx + 80), rnd.randint(100, 152)
+        if (x, y) in hol and y > wall_y(x) + 3: cv.put(x, y, A[0] if rnd.random() < .5 else A[3])
+    # lip of the hollow: lit rim on the upper left, shadow lip on the right/bottom
+    for (x, y) in hol:
+        if dh(x, y) > .93 and (x + 1, y + 1) in hol or (dh(x, y) > .93):
+            a = math.atan2(y - (base + 6), x - cx)
+            if y < base - 2: cv.put(x, y, S[4] if (x + y) % 2 else S[3])
+    for (x, y) in list(RS - hol):
+        if .98 < dh(x, y) < 1.17 and y < base - 2:
+            a = (x - cx) + (y - base) * .8
+            cv.put(x, y, S[0] if a < -10 and (x + y) % 3 else S[1] if a < 20 else S[2] if (x + y) % 2 else S[3])
+    # ---- shells: ring of embedded ones on the lip, loose ones on the sand
+    PALS = [(PE, 'p'), (GO, 'g'), (SN, 's'), (SE, 'e')]
+    def put_shell(x, y, s, kind, pal):
+        for xx in range(x - s - 1, x + s + 3): cv.put(xx, y + 1, A[4] if y > wall_y(xx) and (xx, y + 1) in hol else cv.get(xx, y + 1)) if (xx + y) % 2 == 0 and cv.get(xx, y + 1) in A else None   # contact shadow
+        (hd_spiral(cv, x, y - s, s, pal, rnd) if kind == 0 else hd_shell(cv, x, y, s, pal, rnd))
+    for a in range(200, 345, 8):
+        x = cx + int(math.cos(math.radians(a)) * 83); y = base + 6 + int(math.sin(math.radians(a)) * 62)
+        if (x, y) in RS: 
+            pal = PALS[(a // 8) % 4][0]; (hd_spiral(cv, x, y, 3 + (a % 3 == 0), pal, rnd) if (a // 8) % 2 else hd_shell(cv, x, y + 3, 3 + (a % 3 == 0), pal, rnd))
+    loose = [(62, 144, 5, 1), (84, 134, 4, 0), (100, 146, 6, 1), (118, 138, 3, 0), (150, 142, 4, 1), (168, 133, 5, 0), (186, 145, 6, 1), (204, 138, 4, 0), (132, 150, 7, 1), (72, 150, 3, 0), (222, 148, 3, 1), (110, 130, 3, 1), (176, 128, 3, 1), (92, 128, 3, 0), (153, 131, 3, 0)]
+    for i, (x, y, s, k) in enumerate(loose):
+        if (x, y) in hol or (x, y - s) in hol: put_shell(x, y, s, k, PALS[i % 4][0])
+    # a small starfish and a cone shell
+    for a_ in range(5):
+        ang = math.radians(-90 + a_ * 72)
+        for k in range(1, 6): cv.put(144 + int(math.cos(ang) * k), 128 + int(math.sin(ang) * k * .8), GO[1 if k % 2 else 0])
+    cv.put(144, 128, GO[3]); cv.put(145, 127, CREAM)
+    for k in range(7): cv.put(95 + k // 2 - (k > 3) * 0, 118 + k, SN[1] if k % 2 else SN[0]); cv.put(96 + k // 2, 118 + k, SN[2])   # cone shell standing in the sand
+    # echo arcs rising from the big shell, drawn as dashes
+    for k in range(3):
+        for a in range(-60, 61, 6):
+            r = 20 + k * 11; x = cx + int(math.cos(math.radians(a - 90)) * r); y = 138 + int(math.sin(math.radians(a - 90)) * r * .7)
+            if (x, y) in hol and a % 12 == 0: cv.put(x, y, CREAM if k % 2 == 0 else SE[0]); cv.put(x + 1, y, CREAM if k % 2 == 0 else SE[1])
+    # ---- fossil shells, cracks, barnacle crust and weed on the dome
+    out = [p for p in RS if p not in hol]; OS = set(out)
+    for (fx, fy, fs) in ((50, 112, 7), (206, 88, 8), (96, 70, 6), (158, 62, 5), (230, 124, 5), (30, 138, 4)):
+        if (fx, fy) in OS:
+            for yy in range(fy - fs - 1, fy + fs + 2):
+                for xx in range(fx - fs - 1, fx + fs + 2):
+                    if (xx, yy) in OS and (xx - fx) ** 2 + (yy - fy) ** 2 <= (fs + 1) ** 2: cv.put(xx, yy, S[4] if (xx - fx) + (yy - fy) > 0 else S[3])
+            hd_spiral(cv, fx - 0, fy - 0, fs - 1, [S[0], mix(CREAM, S[1], .4), S[1], S[3]], rnd)
+            for k in range(-fs, fs): cv.put(fx + k, fy + fs + 1, S[0]) if (fx + k, fy + fs + 1) in OS and k % 3 == 0 else None
+    for (x, y, n, d) in ((84, 54, 18, 1), (170, 80, 22, -1), (210, 110, 14, -1), (40, 98, 16, 1), (126, 40, 10, 1), (60, 76, 12, -1)):
+        hd_crack(cv, x, y, n, rnd, S, d, OS)
+    def low(x, y): return y > 98 and (x, y) in OS and (x < cx - 60 or x > cx + 60 or y > 146)
+    hd_barnacles(cv, out, S, 26, rnd, low, 5)
+    # tide stain: a wavy dark band low on the flanks, wet green near the foot
+    for (x, y) in out:
+        edge = 120 + 8 * math.sin(x / 9.0) + 6 * (nz(x, 2) - .5) + abs(x - cx) * -.22 + (abs(x - cx) > 90) * 0
+        if y > edge + 12:
+            if cv.get(x, y) in S and (x + y) % 2 == 0 or y > edge + 22 and cv.get(x, y) in S: cv.put(x, y, M[hd_tone(2.4 + (y - edge) * .05 + (nz2(x, y) - .5) * 2, x, y)] if nz3(x * 2, y) > .5 else S[hd_tone(3.2 + (nz2(x, y) - .5) * 1.5, x, y)])
+        elif y > edge and (x + y) % 3 == 0 and cv.get(x, y) in S: cv.put(x, y, S[min(4, hd_idx(cv.get(x, y), S) + 1)])
+    for x in range(14, 250, 3):
+        y = int(120 + 8 * math.sin(x / 9.0) + 6 * (nz(x, 2) - .5) + abs(x - cx) * -.22) + 12
+        if (x, y) in OS and nz3(x * 3, 0) > .4 and cv.get(x, y) not in A: hd_weed(cv, x, y, rnd.randint(6, 16), rnd, rnd.choice((-1, 1)), PI)
+    for _ in range(8):   # limpets: pale low cones
+        x, y = rnd.randint(14, 246), rnd.randint(118, 150)
+        if (x, y) in OS: cv.put(x - 1, y, SN[1]); cv.put(x, y, SN[0]); cv.put(x + 1, y, SN[2]); cv.put(x, y - 1, SN[1]); cv.put(x + 2, y, S[4]); cv.put(x, y + 1, S[4]); cv.put(x - 1, y + 1, S[3])
+    # moss cushions and sea-thrift on the top ledges
+    for (mx_, my_, w_) in ((120, 54, 18), (160, 50, 12), (84, 66, 10), (176, 74, 8)):
+        for yy in range(my_ - 4, my_ + 5):
+            for xx in range(mx_ - w_, mx_ + w_ + 1):
+                if (xx, yy) in OS and ((xx - mx_) / float(w_)) ** 2 + ((yy - my_) / 4.0) ** 2 + (nz2(xx, yy) - .5) * .6 <= 1: cv.put(xx, yy, M[hd_tone(1.0 + (yy - my_ + 4) * .35 + (nz2(xx + 4, yy) - .5), xx, yy)])
+        for k in range(w_ // 2): hd_tuft(cv, mx_ - w_ + 2 + k * 4, my_ + 1, 3, 4, M, rnd, 2, 0, 2) if (mx_ - w_ + 2 + k * 4, my_ + 1) in OS else None
+        for k in range(w_ // 4):
+            x, y = mx_ - w_ + rnd.randint(0, 2 * w_), my_ + rnd.randint(-2, 1)
+            if (x, y) in OS: cv.put(x, y, PE[1]); cv.put(x - 1, y, PE[0]); cv.put(x + 1, y, PE[2]); cv.put(x, y - 1, PE[0]); cv.put(x, y + 1, M[3])
+    for _ in range(40):   # lichen
+        x, y = rnd.randint(20, 240), rnd.randint(50, 130)
+        if (x, y) in OS and cv.get(x, y) in S[:3]: cv.put(x, y, GO[1] if rnd.random() < .6 else GO[0]); cv.put(x + 1, y, GO[2]) if rnd.random() < .4 and (x + 1, y) in OS else None
+    # pebbles at the foot and a line of foam
+    for x in range(6, 256, 11):
+        pe = [mix(S[1], CREAM, .3), S[1], S[2], S[3], S[4]]; lump(cv, x + rnd.randint(-2, 2), base - 1 + rnd.randint(0, 2), rnd.randint(3, 5), rnd.randint(2, 3), pe, rnd, .1)
+    for x in range(10, 252, 7): cv.put(x, base + 4, SE[0]); cv.put(x + 1, base + 4, CREAM); cv.put(x + 3, base + 5, SE[1])
+    hd_bounce(cv, RS, S, lambda x, y: (x - cx) * .8 + (y - base) > 40 and x > cx + 20, 1, 4)
 def lm_sandcastle(rnd, cv):   # 230 x 200
     _pond(cv, 115, 178, 108, 17, rnd)
     Sd = r5(RAMP["sand"])
@@ -399,21 +648,99 @@ def lm_causeway(rnd, cv):   # 330 x 160
     for lx in (80, 165, 250): lamp(cv, lx, 96, 62, rnd)
     crab(cv, 148, 86, 1, rnd, wave=True)   # a crab holding the toll
     for x, y in ((10, 100), (320, 104)): weed(cv, x, y, 12, rnd, 1)
-def lm_rockpool(rnd, cv):   # 220 x 150
-    S = r5(RAMP["stone"])
-    mound(cv, 110, 140, 104, 90, S, rnd, .12)
-    for y in range(90, 140):
-        for x in range(30, 191):
-            if ((x - 110) / 72.0) ** 2 + ((y - 118) / 22.0) ** 2 <= 1:
-                u = (y - 96) / 44.0; t = 3 if u > .75 else 2 if u > .4 else 1 if u > .12 else 0
-                if (x * 5 + y * 3) % 9 == 0: t = max(0, t - 1)
-                cv.put(x, y, RAMP["sea"][t])
-    for k in range(6): hline(cv, 60 + k * 18, 70 + k * 18, 106 + k % 3 * 5, RAMP["sea"][0])
-    crab(cv, 112, 108, 1, rnd, wave=True)
-    for a in range(0, 360, 20):   # anemones & weed round the rim
-        x = 110 + int(math.cos(math.radians(a)) * 76); y = 118 + int(math.sin(math.radians(a)) * 25)
-        if a % 40 == 0: disc(cv, x, y + 1, 3, RAMP["petal"][1]); cv.put(x, y - 3, RAMP["petal"][0]); cv.put(x - 3, y - 1, RAMP["petal"][0]); cv.put(x + 3, y - 1, RAMP["petal"][0])
-        else: cv.put(x, y, RAMP["moss"][1]); cv.put(x, y - 1, RAMP["moss"][2]); cv.put(x + 1, y - 2, RAMP["moss"][1])
+def lm_rockpool(rnd, cv):   # 240 x 160
+    S = r5(RAMP["stone"]); A = r5(RAMP["sand"]); M = r5(RAMP["moss"]); PE = r5(RAMP["petal"]); GO = r5(RAMP["gold"]); SN = r5(RAMP["snow"]); SE = r5(RAMP["sea"]); PI = r5(RAMP["pine"]); DU = r5(RAMP["dusk"]); EM = r5(RAMP["ember"])
+    cx, base = 120, 154; pcx, pcy, prx, pry = 120, 128, 82.0, 27.0
+    nz = hd_noise(rnd, 6); nz2 = hd_noise(rnd, 3); nz3 = hd_noise(rnd, 15)
+    rock = hd_rock(cv, cx, base, 114, 100, rnd, S, 2.2, 56, 15, 0, 3.3, 1.2)
+    RS = set(rock)
+    def pd(x, y): return ((x + .5 - pcx) / prx) ** 2 + ((y + .5 - pcy) / pry) ** 2 + (nz2(x, y) - .5) * .12
+    pool = set(p for p in RS if pd(*p) <= 1.0)
+    # ---- tide-line stain across the dome, with a fringe of barnacles on its upper edge
+    def tide(x): return 86 + 7 * math.sin(x / 11.0) + 8 * (nz(x, 3) - .5) + (abs(x - cx) / 114.0) ** 2 * 10
+    out = [p for p in RS if p not in pool]; OS = set(out)
+    for (x, y) in out:
+        e = y - tide(x)
+        if e > 0 and (e > 6 or (x + y) % 2 == 0) and cv.get(x, y) in S:
+            i = hd_idx(cv.get(x, y), S); v = i + 1.2 + (e / 14.0) * .6 + (nz2(x, y) - .5) * 1.6
+            cv.put(x, y, S[hd_tone(v, x, y)] if nz3(x * 2, y * 1.5) < .55 else M[hd_tone(2.5 + (nz2(x + 3, y) - .5) * 2 + e * .02, x, y)])
+    fr = [(x, y) for (x, y) in out if -2 < y - tide(x) < 5]
+    hd_barnacles(cv, fr, S, 22, rnd, lambda x, y: True, 5)
+    for _ in range(9):   # mussels: dark blue ovals with a glint, in a little cluster
+        x0, y0 = rnd.randint(20, 220), rnd.randint(int(tide(120)) + 8, 128)
+        if (x0, y0) in OS and pd(x0, y0) > 1.5:
+            for j in range(rnd.randint(2, 4)):
+                x, y = x0 + rnd.randint(-5, 5), y0 + rnd.randint(-3, 3)
+                if (x + 3, y + 2) in OS:
+                    for dx in range(0, 4): cv.put(x + dx, y + (dx == 0 or dx == 3), DU[3] if dx > 1 else DU[2]); cv.put(x + dx, y + 1 + (dx == 0 or dx == 3), DU[4])
+                    cv.put(x + 1, y, DU[0])
+    for x in range(14, 230, 4):   # weed hanging off the tide line
+        y = int(tide(x)) + 5
+        if (x, y) in OS and pd(x, y + 8) > 1.4 and nz3(x * 3, 8) > .35: hd_weed(cv, x, y, rnd.randint(6, 18), rnd, rnd.choice((-1, 1)), PI)
+    # ---- the pool: depth-dithered water, shadow under the back rim, sunlit shallows, pebbly bed
+    for (x, y) in pool:
+        d = pd(x, y); back = y < pcy
+        depth = max(0, 1 - d)
+        v = .6 + (1 - depth) * -.4 + depth * 2.2 + (nz(x + 5, y * 2) - .5) * 1.0
+        if back: v += (1 - (y - (pcy - pry)) / 12.0) * 1.2 * (1 if y < pcy - pry + 12 else 0) if y < pcy - pry + 12 else 0
+        v += (x - pcx) / prx * .5
+        cv.put(x, y, SE[hd_tone(v, x, y)])
+    for (x, y) in pool:   # pebbles on the bed, visible in the shallows
+        if pd(x, y) > .55 and nz3(x * 2.1, y * 3.3) > .72 and (x + y) % 2 == 0: cv.put(x, y, A[hd_tone(1.8 + (nz2(x, y) - .5) * 2, x, y)])
+    for _ in range(60):   # ripple dashes
+        x, y = rnd.randint(pcx - 78, pcx + 78), rnd.randint(pcy - 24, pcy + 24)
+        if (x, y) in pool and pd(x, y) < .9:
+            for k in range(rnd.randint(3, 8)): cv.put(x + k, y, SE[0]) if (x + k, y) in pool else None; cv.put(x + k + 1, y + 1, SE[3]) if k % 2 == 0 and (x + k + 1, y + 1) in pool else None
+    for k in range(6): hd_line(cv, 70 + k * 3, 110 + k, 82 + k * 3, 106 + k, CREAM, lambda a, b: (a, b) in pool) if k % 2 == 0 else None   # sky reflection streaks
+    # inner wall of the back rim
+    for (x, y) in pool:
+        if y < pcy and .8 < pd(x, y) <= 1.0:
+            cv.put(x, y, S[hd_tone(2.4 + (pd(x, y) - .8) * 6 + (nz2(x, y) - .5), x, y)] if (x + y) % 3 else SE[3])
+    # ---- rim: lit lip in front, shadow face under it, wet dark line along the back
+    for (x, y) in out:
+        d = pd(x, y)
+        if 1.0 < d < 1.07 and y < pcy + 5: cv.put(x, y, S[3] if (x + y) % 2 else S[4])
+        elif 1.0 < d < 1.22 and y >= pcy: cv.put(x, y, S[0] if d < 1.12 and (x + y) % 5 else S[1])
+        elif 1.22 <= d < 1.34 and y >= pcy: cv.put(x, y, S[3] if (x + y) % 2 else S[4])
+        elif 1.0 < d < 1.28 and y < pcy and (x - pcx) < -20: cv.put(x, y, S[1] if (x + y) % 2 else S[0])
+    # ---- the island with the crab, and the starfish
+    isl = [(x, y) for y in range(pcy - 2, pcy + 8) for x in range(pcx + 6, pcx + 42) if ((x - (pcx + 24)) / 18.0) ** 2 + ((y - (pcy + 5)) / 5.0) ** 2 <= 1]
+    lump(cv, pcx + 24, pcy + 3, 18, 7, S, rnd, .1)
+    for k in range(12): cv.put(pcx + 8 + k * 3, pcy + 8, SE[0]); cv.put(pcx + 9 + k * 3, pcy + 9, CREAM) if k % 2 else None
+    crab(cv, pcx + 24, pcy - 9, 1, rnd, wave=True)
+    starfish(cv, pcx - 38, pcy + 6, "ember")
+    for k in range(12): cv.put(pcx - 52 + k * 3, pcy + 13, SE[0]); cv.put(pcx - 51 + k * 3, pcy + 14, SE[1]) if k % 2 else None
+    # fronds of weed rising from the bed
+    for (fx_, fy_, h_) in ((pcx - 58, pcy + 10, 12), (pcx - 12, pcy + 16, 10), (pcx + 62, pcy + 12, 13), (pcx + 4, pcy + 12, 7)):
+        ph = rnd.random() * 6
+        for k in range(h_):
+            x = fx_ + int(math.sin(k / 3.0 + ph) * 1.6); cv.put(x, fy_ - k, PI[1 if k % 4 else 0]); cv.put(x + 1, fy_ - k, PI[2])
+            if k % 4 == 2: cv.put(x - 1, fy_ - k, PI[0]); cv.put(x + 2, fy_ - k - 1, PI[0])
+    # ---- anemones on the front lip and tucked at the sides
+    def anemone(x, y, pal, tip):
+        for yy in range(-3, 1):
+            for xx in range(-3, 4):
+                if abs(xx) <= 3 + yy // 2 + 1 and not (yy == -3 and abs(xx) > 2): cv.put(x + xx, y + yy, pal[0] if xx < -1 else pal[1] if xx < 2 else pal[2])
+        for xx in range(-3, 4): cv.put(x + xx, y + 1, pal[3])
+        for k in range(-3, 4):   # tentacles waving up from the top
+            cv.put(x + k, y - 4 - (abs(k) < 3), pal[1]); cv.put(x + k + (k > 0) - (k < 0), y - 5 - (abs(k) < 3), tip if k % 2 == 0 else pal[0])
+        cv.put(x, y - 1, INK)
+    anemone(pcx + 60, pcy + 28, PE, CREAM); anemone(pcx - 48, pcy + 29, M, CREAM); anemone(pcx + 36, pcy + 31, PE, SN[0]); anemone(pcx - 82, pcy + 8, M, CREAM)
+    # ---- cracks, lichen, moss on top, a snail shell
+    for (x, y, n, d) in ((70, 38, 20, 1), (146, 30, 24, -1), (190, 56, 16, 1), (44, 70, 14, -1), (110, 56, 10, 1)):
+        hd_crack(cv, x, y, n, rnd, S, d, OS)
+    for _ in range(50):
+        x, y = rnd.randint(20, 220), rnd.randint(40, 100)
+        if (x, y) in OS and cv.get(x, y) in S[:3]: cv.put(x, y, GO[1] if rnd.random() < .6 else GO[0]); cv.put(x + 1, y, GO[2]) if (x + 1, y) in OS and rnd.random() < .5 else None
+    for (mx_, my_, w_) in ((100, 44, 14), (150, 38, 10), (62, 62, 8)):
+        for yy in range(my_ - 4, my_ + 5):
+            for xx in range(mx_ - w_, mx_ + w_ + 1):
+                if (xx, yy) in OS and ((xx - mx_) / float(w_)) ** 2 + ((yy - my_) / 4.0) ** 2 + (nz2(xx, yy) - .5) * .6 <= 1: cv.put(xx, yy, M[hd_tone(1.0 + (yy - my_ + 4) * .35 + (nz2(xx + 4, yy) - .5), xx, yy)])
+        for k in range(w_ // 2): hd_tuft(cv, mx_ - w_ + 2 + k * 4, my_ + 1, 3, 4, M, rnd, 2, 0, 2) if (mx_ - w_ + 2 + k * 4, my_ + 1) in OS else None
+    for x in range(8, 236, 9):   # pebbles and foam at the foot
+        pe = [mix(S[1], CREAM, .3), S[1], S[2], S[3], S[4]]; lump(cv, x + rnd.randint(-2, 2), base + rnd.randint(-1, 1), rnd.randint(3, 5), rnd.randint(2, 3), pe, rnd, .1)
+    for x in range(10, 232, 7): cv.put(x, base + 4, SE[0]); cv.put(x + 1, base + 4, CREAM); cv.put(x + 3, base + 5, SE[1])
+    hd_bounce(cv, RS, S, lambda x, y: (x - cx) * .8 + (y - base) > 30 and x > cx + 25, 1, 4)
 def lm_tidesteps(rnd, cv):   # 280 x 200
     K = [H(c) for c in ("#8a8aa6", "#5d5e7c", "#3f4062", "#2c2d48", "#201f36")]
     steps = [(20, 112, 120), (66, 112, 150), (112, 112, 100)]
@@ -595,11 +922,11 @@ def lm_gullparliament(rnd, cv):   # 300 x 250
 LM = {
  "307-tideline": (330, 124, lm_tideline),
  "307-barnacles": (270, 190, lm_barnacles),
- "307-shellhollow": (240, 150, lm_shellhollow),
+ "307-shellhollow": (260, 160, lm_shellhollow),
  "307-sandcastle": (230, 200, lm_sandcastle),
  "308-pebblebar": (300, 170, lm_pebblebar),
  "308-kelpline": (320, 124, lm_kelp),
- "308-rockpool": (220, 150, lm_rockpool),
+ "308-rockpool": (240, 164, lm_rockpool),
  "308-tidesteps": (280, 200, lm_tidesteps),
  "314-driftwood": (300, 220, lm_driftwood),
  "314-shellpile": (210, 170, lm_shellpile),
