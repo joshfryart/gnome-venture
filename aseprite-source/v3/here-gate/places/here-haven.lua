@@ -613,7 +613,7 @@ for x = 156, 334, 1 do
     end
   end
 end
-for _, m in ipairs({ { 390, 80, 408, 90 }, { 440, 80, 462, 92 }, { 16, 110, 38, 124 }, { 14, 200, 36, 208 }, { 116, 202, 134, 206 } }) do
+for _, m in ipairs({ { 390, 80, 408, 90 }, { 440, 80, 462, 92 }, { 16, 110, 38, 124 }, { 14, 200, 36, 208 }, { 44, 201, 90, 205 } }) do
   for i = 1, 7 do
     local x, y = m[1] + floor_(h(i, m[1], 61) * (m[3] - m[1])), m[2] + floor_(h(i, m[2], 61) * (m[4] - m[2]))
     mk(x, y, "#5f7a48"); mk(x + 1, y, "#7f9f58"); mk(x, y + 1, "#4a6440")
@@ -626,7 +626,6 @@ for i = 0, 5 do mk(24 + i, 168 + floor_(i / 2), "#3b3048") end
 for i = 0, 6 do mk(444 - floor_(i / 2), 98 + i, "#35304a") end
 for i = 0, 6 do mk(188 + floor_(i / 2), 84 + i, "#3b3048") end
 -- roof shingles: darker row lines every 7 px with staggered ticks, sod drip of moss at the eave
-for y = 112, 124, 1 do end
 for x = 8, 176 do
   local ty = floor_(110 - (x - 6) * 24 / 170)
   for k = 7, 14, 7 do
@@ -651,8 +650,9 @@ mk(350, 192, "#a88f78"); mk(350, 193, "#d8c6a6"); mk(351, 194, "#a88f78")
 for _, q in ipairs({ { 238, 24 }, { 238, 26 }, { 245, 23 }, { 243, 25 }, { 52, 44 }, { 60, 44 }, { 420, 44 }, { 428, 44 } }) do mk(q[1], q[2], "#9a5a30") end
 mk(238, 27, "#c0743a"); mk(244, 26, "#7a3e22")
 -- cloth folds: quilts get a diagonal fold crease and dark seam, pillows a dimple
-for _, b in ipairs({ { 49, 148 }, { 49, 180 }, { 107, 148 }, { 107, 180 } }) do
-  for i = 0, 6 do mk(b[1] + 14 + i * 3, b[2] + 1 + (i % 2), "#00000000" == "" and "#000" or "#8a3a30") end
+for _, b in ipairs({ { 49, 148, "#8a3a30" }, { 49, 180, "#8a3a30" }, { 107, 148, "#2c6a66" }, { 107, 180, "#2c6a66" } }) do
+  for i = 0, 6 do mk(b[1] + 14 + i * 3, b[2] + 2 + (i % 2), b[3]) end
+  mk(b[1] + 8, b[2] + 4, b[3]); mk(b[1] + 9, b[2] + 5, b[3])
 end
 c:finish{ outline = false }
 HP.assertClean(c)

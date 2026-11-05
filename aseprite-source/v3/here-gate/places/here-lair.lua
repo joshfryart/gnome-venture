@@ -446,6 +446,94 @@ for _, f in ipairs(fl) do
   gp(f[1], f[2], f[3]); gp(f[1] - 1, f[2], "#f4ecd6"); gp(f[1] + 1, f[2], f[3]); gp(f[1], f[2] - 1, f[3])
 end
 
+-- v2.5.40 polish pass 2: material cues (strata chips, cracks, moss, lichen, roots, scorch)
+local function crack(pts, dark, lite)
+  for i = 1, #pts - 1 do
+    local a, b = pts[i], pts[i + 1]
+    local n = math.max(math.abs(b[1] - a[1]), math.abs(b[2] - a[2]))
+    for k = 0, n do
+      local x = math.floor(a[1] + (b[1] - a[1]) * k / n + 0.5); local y = math.floor(a[2] + (b[2] - a[2]) * k / n + 0.5)
+      pp(x, y, dark); pp(x + 1, y + 1, lite)
+    end
+  end
+end
+local solid = mound:copy():cut(open):cut(ring):cut(ring:grow(1)):cut(plaque:grow(1))
+local function onSolid(m) return m:copy():clip(solid) end
+-- mound: three deliberate cracks, chipped notches, a mossy north crown
+crack({ { 196, 96 }, { 200, 104 }, { 197, 112 }, { 203, 122 } }, "#241a2c", "#8f8294")
+crack({ { 292, 70 }, { 288, 78 }, { 291, 86 } }, "#241a2c", "#8f8294")
+crack({ { 218, 54 }, { 213, 62 }, { 216, 68 } }, "#241a2c", "#8f8294")
+for _, ch in ipairs({ { 186, 132 }, { 300, 120 }, { 204, 70 }, { 276, 52 } }) do
+  pp(ch[1], ch[2], "#241a2c"); pp(ch[1] + 1, ch[2], "#241a2c"); pp(ch[1], ch[2] + 1, "#362c40")
+  pp(ch[1] - 1, ch[2] - 1, "#8f8294"); pp(ch[1] + 1, ch[2] - 1, "#8f8294"); pp(ch[1] + 2, ch[2] + 1, "#4e4258")
+end
+solid:each(function(x, y)
+  if not mound:has(x, y - 5) or (not mound:has(x - 1, y - 3) and hash(x, y, 90) < 0.7) then
+    if y < 100 and hash(x, y, 91) < 0.8 then pp(x, y, (hash(x, y, 92) < 0.5) and "#5a7a48" or "#7a9a58") end
+  end
+end)
+solid:each(function(x, y) -- moss tongues creeping down the cracks on the left flank
+  if y < 80 and x < 232 and hash(x, y, 93) < 0.07 then pp(x, y, "#5a7a48"); pp(x, y + 1, "#46663e") end
+end)
+-- orange lichen speckles on the mound
+for i = 1, 14 do
+  local x = 176 + math.floor(hash(i, 1, 94) * 128); local y = 100 + math.floor(hash(i, 2, 94) * 46)
+  if solid:has(x, y) and solid:has(x + 1, y) then pp(x, y, "#d8a048"); pp(x + 1, y, "#f0c868") end
+end
+-- extra strata ledges lit on their upper lip
+for _, st in ipairs({ { 180, 120, 20 }, { 262, 132, 28 }, { 184, 140, 24 } }) do
+  for k = 0, st[3] do
+    local x = st[1] + k; local y = st[2] + ((k % 7 == 3) and 1 or 0)
+    if solid:has(x, y) then pp(x, y, "#2e2438"); pp(x, y - 1, "#8f8294") end
+  end
+end
+-- scorch soot licking up the arch ring and onto the keystone shadow
+local soot = c:ellipse(240, 72, 20, 7):clip(ring)
+soot:each(function(x, y) if (x + y) % 2 == 0 or hash(x, y, 95) < 0.3 then pp(x, y, "#3e2e44") end end)
+for _, sx in ipairs({ 222, 233, 247, 258 }) do
+  for k = 0, 5 do if (k + sx) % 3 ~= 0 then pp(sx, 80 - k, "#33283c") end end
+end
+-- scorched mouth floor and ground in front (soot fan)
+local scorch = c:ellipse(240, 154, 36, 4)
+scorch:each(function(x, y) if y > 150 and ((x + y) % 2 == 0) and hash(x, y, 96) < 0.7 then gp(x, y, "#5a3346") end end)
+-- left pillar and lintel: crack + moss, strata chips
+crack({ { 12, 40 }, { 15, 52 }, { 11, 62 } }, "#241a2c", "#8f8294")
+crack({ { 14, 190 }, { 10, 200 }, { 13, 212 } }, "#241a2c", "#8f8294")
+crack({ { 78, 12 }, { 80, 8 } }, "#241a2c", "#8f8294")
+crack({ { 340, 10 }, { 344, 5 }, { 341, 2 } }, "#241a2c", "#8f8294")
+for y = 20, 110 do
+  if fr:has(3, y) and hash(3, y, 97) < 0.35 then pp(2 + math.floor(hash(y, 1, 97) * 14), y, "#5a7a48"); pp(2 + math.floor(hash(y, 2, 97) * 12), y, "#7a9a58") end
+end
+for x = 6, 470, 1 do
+  if hash(x, 7, 98) < 0.18 and fr:has(x, 10) then pp(x, 9, "#5a7a48"); pp(x, 8, "#7a9a58") end
+end
+-- right pillar chips and lichen
+for _, ch in ipairs({ { 466, 20 }, { 462, 60 }, { 468, 94 } }) do
+  pp(ch[1], ch[2], "#241a2c"); pp(ch[1] + 1, ch[2], "#241a2c"); pp(ch[1] - 1, ch[2] - 1, "#8f8294"); pp(ch[1] + 1, ch[2] + 1, "#4e4258")
+  pp(ch[1] - 3, ch[2] + 4, "#d8a048"); pp(ch[1] - 2, ch[2] + 4, "#f0c868")
+end
+-- boulder (wild): bedding lines, split crack, lichen, moss on the north crown
+for _, ly in ipairs({ 120, 128, 136 }) do
+  for x = 410, 478 do
+    if boulder:has(x, ly) and ((x + ly) % 9 < 6) then pp(x, ly, "#4e4258") end
+  end
+end
+crack({ { 452, 100 }, { 448, 108 }, { 452, 116 }, { 447, 124 } }, "#241a2c", "#8f8294")
+for _, lp in ipairs({ { 420, 130 }, { 466, 126 }, { 436, 118 }, { 472, 138 } }) do
+  pp(lp[1], lp[2], "#d8a048"); pp(lp[1] + 1, lp[2], "#f0c868"); pp(lp[1], lp[2] + 1, "#a87a38")
+end
+-- dead tree: bark fissures, flaring roots clawing the ground, a snapped branch stub
+crack({ { 105, 130 }, { 107, 120 }, { 104, 108 } }, "#2b1c26", "#8e6a58")
+crack({ { 110, 98 }, { 108, 88 } }, "#2b1c26", "#8e6a58")
+for _, rt in ipairs({ { { 98, 150 }, { 90, 154 }, { 82, 153 } }, { { 118, 150 }, { 128, 155 }, { 136, 154 } }, { { 104, 152 }, { 100, 158 }, { 104, 162 } } }) do
+  for i = 1, #rt - 1 do
+    pfill(c:line({ rt[i], rt[i + 1] }, 2), "#4f3434")
+  end
+  pfill(c:line({ { rt[1][1], rt[1][2] - 1 }, { rt[2][1], rt[2][2] - 1 } }, 1), "#6c4a42")
+end
+pfill(c:rect(131, 69, 135, 72), "#c9b896"); pp(132, 70, "#f4ecd6")
+pp(94, 120, "#5a7a48"); pp(95, 121, "#7a9a58"); pp(96, 119, "#5a7a48")
+
 c:finish{ outline = false }
 HP.assertClean(c)
 c:save{ aseprite = OUT .. "here-lair.aseprite", png = OUT .. "here-lair.png", scale = 1 }

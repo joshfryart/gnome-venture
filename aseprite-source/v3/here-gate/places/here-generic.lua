@@ -8,6 +8,14 @@ local floor, max, min, abs, sin, cos = math.floor, math.max, math.min, math.abs,
 local hash = X.hash
 local W, H, HZ = 480, 270, 112
 local c = HP.canvas{ w = W, h = H, scale = 1, name = NAME }
+-- v2.5.40 polish: guarded painting. Nothing is ever changed near a stand point or in the compass corner.
+local STAND = { { 196, 248 }, { 284, 248 }, { 240, 214 }, { 212, 180 }, { 268, 184 }, { 350, 206 } }
+local function zok(x, y)
+  if x < 0 or y < 0 or x >= W or y >= H then return false end
+  if x >= 378 and y >= 228 then return false end
+  for _, s in ipairs(STAND) do if abs(x - s[1]) <= 16 and abs(y - s[2]) <= 16 then return false end end
+  return true
+end
 
 ---------------------------------------------------------------- colour helpers
 local function rgb(h) return tonumber(h:sub(2,3),16), tonumber(h:sub(4,5),16), tonumber(h:sub(6,7),16) end
@@ -23,6 +31,14 @@ local VIO, VIO2, WARM, WARM2 = "#3b2a52", "#4a3d6e", "#ffe7b0", "#fff3d2"
 local function tones(base) return { mix(base, VIO, .55), mix(base, VIO2, .3), base, mix(base, WARM, .3), mix(base, WARM2, .55) } end
 local function edgeOf(base) return mix(base, "#2b1c26", .6) end
 
+local function gput(x, y, col) x, y = floor(x), floor(y) if zok(x, y) and c:get(x, y) then c:put(x, y, col) end end
+local function gmix(x, y, col, t) x, y = floor(x), floor(y) if zok(x, y) then local cur = c:get(x, y) if cur then c:put(x, y, mix(cur, col, t)) end end end
+local function gmask(m, col, t) m:each(function(x, y) if t then gmix(x, y, col, t) else gput(x, y, col) end end) end
+local function gvec(x0, y0, x1, y1, col, t) -- guarded 1px line
+  local n = max(abs(x1 - x0), abs(y1 - y0), 1)
+  for i = 0, n do local x, y = x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n if t then gmix(x, y, col, t) else gput(x, y, col) end end
+end
+local function grect(x0, y0, x1, y1, col, t) for y = y0, y1 do for x = x0, x1 do if t then gmix(x, y, col, t) else gput(x, y, col) end end end end
 local function bbox(m) return m:bbox() end
 -- shade a mask: light from upper-left, optional texture fn(x,y,x0,y0) -> delta
 local function shade(m, base, tex, o)
@@ -194,6 +210,69 @@ for i = 0, 260 do
     local x = floor(VPX + s * (7 + t * 89)) + (s < 0 and 1 or -1)
     local base = mix("#a9cf73", "#64a043", t)
     for k = 0, 1 + floor(t * 3) do c:put(x, y - k, k == 0 and mix(base, "#2f5a33", .3) or base) end
+  end
+end
+
+---------------------------------------------------------------- v2.5.40 polish pass 1: ground variety
+local nopath = path:copy():grow(3)
+local function ongrass(x, y) return y > HZ + 6 and not nopath:has(x, y) end
+-- dithered tone patches (lighter meadow / shaded clover) so no wide field stays one tone
+for i = 0, 70 do
+  local cx, cy = floor(hash(i, 1, 201) * W), HZ + 6 + floor(hash(i, 2, 202) ^ 0.9 * (H - HZ - 8))
+  local t = (cy - HZ) / (H - HZ)
+  local rx, ry = 6 + floor(t * 16) + floor(hash(i, 3, 203) * 6), 2 + floor(t * 6)
+  local lightP = hash(i, 4, 204) > .45
+  c:ellipse(cx, cy, rx, ry):each(function(x, y)
+    if ongrass(x, y) and (x + y) % 2 == 0 and hash(x, y, 205) > .3 then
+      gmix(x, y, lightP and "#dff0a0" or "#3f7a44", lightP and .3 or .25)
+    end
+  end)
+end
+-- worn dirt paths leading from each prop to the road
+local function worn(x0, y0, x1, y1, w)
+  local n = max(abs(x1 - x0), abs(y1 - y0))
+  for i = 0, n do
+    local x, y = x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n
+    y = y + sin(i / 6) * 1.2
+    local ww = w + floor(hash(i, 1, 211) * 2)
+    for k = -ww, ww do
+      local px, py = floor(x), floor(y + k * .5)
+      local edge = abs(k) == ww
+      if not path:has(px, py) then
+        if edge then if hash(px, py, 212) > .5 then gmix(px, py, "#b9a070", .5) end
+        else gput(px, py, hash(px, py, 213) > .75 and "#e2c898" or hash(px, py, 214) < .2 and "#b88e5e" or "#d2b27c") end
+      end
+    end
+  end
+end
+worn(199, 154, 214, 166, 2)    -- signpost -> road
+worn(318, 153, 272, 158, 2)    -- noticeboard -> road
+worn(170, 224, 152, 226, 2)    -- fire pit -> road
+worn(432, 223, 372, 213, 2)    -- wild trail sign -> trail
+worn(160, 149, 150, 150, 1)
+-- flower clusters (several kinds)
+local FL = { "#f6d45a", "#f07a9a", "#fff0d0", "#a07ad8", "#7ab0e8", "#f2904a" }
+for i = 0, 34 do
+  local cx, cy = floor(hash(i, 1, 221) * W), HZ + 10 + floor(hash(i, 2, 222) * (H - HZ - 14))
+  local col = FL[1 + floor(hash(i, 3, 223) * 6)]
+  local t = (cy - HZ) / (H - HZ)
+  for k = 0, 4 + floor(hash(i, 4, 224) * 4) do
+    local x, y = cx + floor((hash(i, k, 225) - .5) * 16), cy + floor((hash(i, k, 226) - .5) * 6)
+    if ongrass(x, y) then
+      gput(x, y + 1, "#4c8a3c")
+      if t > .5 then gput(x, y + 2, "#3f7a38") gput(x - 1, y, col) gput(x + 1, y, col) gput(x, y - 1, col) gput(x, y, "#fff3d2")
+      else gput(x, y, col) gput(x, y - 1, mix(col, "#fff3d2", .4)) end
+    end
+  end
+end
+-- fallen leaves, pebbles and clover on the grass
+for i = 0, 150 do
+  local x, y = floor(hash(i, 1, 231) * W), HZ + 8 + floor(hash(i, 2, 232) * (H - HZ - 10))
+  if ongrass(x, y) then
+    local k = hash(i, 3, 233)
+    if k < .35 then gput(x, y, "#d29a4a") gput(x + 1, y, "#b8743a") gput(x, y - 1, "#e8c070")
+    elseif k < .65 then gput(x, y, "#c4bcb0") gput(x + 1, y, "#9a92a0") gput(x, y + 1, "#7a7488")
+    else gput(x, y, "#4c8a3c") gput(x - 1, y - 1, "#5a9a46") gput(x + 1, y - 1, "#5a9a46") gput(x, y - 1, "#7ab85a") end
   end
 end
 
