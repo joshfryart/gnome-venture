@@ -300,32 +300,59 @@ def lm_sunclearing(rnd, cv):   # 250 x 170
     for x in (12, 40, 210, 236): _tuft(cv, x, 150 + (x % 3), rnd, 3, 7)
 
 # ----------------------------------------------------------------------------------- 306
-def lm_mosslog(rnd, cv):   # 290 x 130
-    W = r5(RAMP["wood"]); M = r5(RAMP["moss"])
-    _pond(cv, 145, 110, 138, 16, rnd)
-    for cx in (30, 262): lump(cv, cx, 100, 26, 14, r5(RAMP["stone"]), rnd, .1)
-    top = lambda x: 36 + int(5 * math.sin((x - 20) / 90 * math.pi)) if 20 <= x <= 270 else 36
-    for x in range(14, 272):
-        y0 = top(x); y1 = y0 + 44 - (6 if x > 250 else 0) - (4 if x < 30 else 0)
+def _fern(cv, x, y, rnd, s=1.0):
+    G = r5(RAMP["pine"])
+    for ang in (-62, -38, -14, 12, 38, 64):
+        a = math.radians(ang + rnd.randint(-5, 5)); L = int((20 + rnd.randint(0, 8)) * s)
+        for k in range(L):
+            px = x + math.sin(a) * k; py = y - math.cos(a) * k + k * k * .02 * (1 if abs(ang) > 30 else .5)
+            t = 3 if k < L * .3 else 2 if k < L * .62 else 1 if k < L * .9 else 0
+            cv.put(int(px), int(py), G[t])
+            if k % 3 == 1 and k > 3:
+                for sd in (-1, 1): cv.put(int(px) + sd * 2, int(py) + 1, G[min(4, t + 1)]); cv.put(int(px) + sd * 3, int(py) + 2, G[t])
+
+def lm_mosslog(rnd, cv):   # 340 x 150
+    W = r5(RAMP["wood"]); M = r5(RAMP["moss"]); S = r5(RAMP["stone"]); SD = r5(RAMP["sand"]); G = r5(RAMP["leaf"])
+    cy, hh = 98, 40
+    for cx, r in ((20, 16), (322, 14)): lump(cv, cx, 138, r, 10, S, rnd, .1)
+    top = lambda x: cy - hh + int(4 * math.sin(x / 37.0)) - (x > 296) * ((x - 296) // 3)
+    bot = lambda x: cy + hh - (4 if x > 290 else 0)
+    for x in range(44, 314):
+        y0 = top(x); y1 = bot(x)
         for y in range(y0, y1):
-            u = (y - y0) / (y1 - y0); t = 0 if u < .1 else 1 if u < .3 else 2 if u < .58 else 3 if u < .84 else 4
-            if (y * 13 + (x // 5) * 7) % 9 == 0: t = min(4, t + 1)
+            u = (y - y0) / (y1 - y0); t = 0 if u < .1 else 1 if u < .28 else 2 if u < .55 else 3 if u < .82 else 4
+            if (y * 13 + (x // 6) * 7) % 11 == 0: t = min(4, t + 1)
+            elif rnd.random() < .03: t = max(0, t - 1)
             cv.put(x, y, W[t])
-    for cy, d in ((60, 1),):   # the cut end, with rings
-        for y in range(36, 82):
-            for x in range(262, 281):
-                if ((x - 268) / 12) ** 2 + ((y - 59) / 23) ** 2 <= 1:
-                    r = math.hypot((x - 268) / 12, (y - 59) / 23); cv.put(x, y, RAMP["sand"][0] if int(r * 7) % 2 == 0 else RAMP["sand"][1])
-        cv.put(268, 59, W[3])
-    for x0 in range(30, 262, 22):   # moss fur on top
-        lump(cv, x0 + rnd.randint(-3, 3), top(x0) + 2, 18 + rnd.randint(-3, 4), 8 + rnd.randint(0, 4), M, rnd, .12)
-    for x in range(30, 260, 3):   # moss drips
+    # cut end with rings and a hollow
+    for y in range(cy - hh, cy + hh + 1):
+        for x in range(22, 70):
+            nx = (x - 46) / 23; ny = (y - cy) / hh
+            if nx * nx + ny * ny > 1: continue
+            r = math.hypot(nx, ny)
+            cv.put(x, y, W[3] if r > .93 else SD[1 if int(r * 9) % 2 else 0] if r > .1 else SD[2])
+    for y in range(cy - 14, cy + 30):
+        for x in range(33, 62):
+            nx = (x - 47) / 14; ny = (y - (cy + 8)) / 22
+            if nx * nx + ny * ny <= 1: cv.put(x, y, INK if ny < .6 else RAMP["litter"][1])
+    for ex in (42, 50): cv.put(ex, cy + 6, CREAM); cv.put(ex, cy + 7, CREAM)   # someone lives here
+    _mush(cv, 40, cy + 29, rnd, 1)
+    for x in range(260, 314):   # the far end snaps off into splinters
         if (x * 7) % 5 < 2:
-            for y in range(top(x) + 8, top(x) + 8 + 4 + (x * 3) % 9): cv.put(x, y, M[2 + (y % 2)])
-    lump(cv, 28, 38, 10, 9, W, rnd, 0)   # branch stub
-    _mush(cv, 120, top(120) + 2, rnd, 1); _mush(cv, 130, top(130) + 4, rnd, 1); _mush(cv, 200, top(200) + 2, rnd, 1)
-    _reeds(cv, 6, 118, 2, rnd)
-    for x in range(60, 230, 30): cv.put(x, 116, RAMP["sea"][0]); cv.put(x + 1, 117, CREAM)
+            for y in range(top(x) - 5, top(x) + 1): cv.put(x, y, W[1 + (x % 2)])
+    for x0 in range(70, 300, 20):   # moss fur on top
+        lump(cv, x0 + rnd.randint(-3, 3), top(x0) + 3, 15 + rnd.randint(0, 6), 9 + rnd.randint(0, 5), M, rnd, .12)
+    for x in range(72, 304, 3):   # moss drips down the side
+        if (x * 7) % 5 < 3:
+            for y in range(top(x) + 10, top(x) + 10 + 5 + (x * 3) % 13): cv.put(x, y, M[2 + (y % 2)])
+    for cx, cyy, rx, ry in ((130, 122, 22, 10), (230, 126, 26, 9), (78, 130, 14, 7)): lump(cv, cx, cyy, rx, ry, M, rnd, .12)
+    for bx, by, bw in ((150, 106, 14), (160, 120, 11), (250, 112, 13)):   # bracket fungi shelves
+        lump(cv, bx, by, bw, 4, SD, rnd, 0); lump(cv, bx, by - 2, bw - 2, 3, r5(RAMP["ember"]), rnd, 0)
+    for mx, s in ((110, 1), (122, 1), (176, 2), (214, 1), (270, 1)): _mush(cv, mx, top(mx) + 5, rnd, s)
+    for k in range(26): cv.put(201, top(201) - k, W[2 + (k % 2)]); cv.put(202, top(201) - k, W[3])   # a sapling
+    for lx, ly, rx, ry in ((194, top(201) - 26, 9, 6), (209, top(201) - 22, 8, 5), (201, top(201) - 34, 7, 6)): lump(cv, lx, ly, rx, ry, G, rnd, .1)
+    _fern(cv, 98, 144, rnd, .9); _fern(cv, 252, 146, rnd, 1.0); _fern(cv, 300, 144, rnd, .7)
+    for x in range(60, 290, 18): cv.put(x, 146, RAMP["sea"][0]); cv.put(x + 1, 147 - 1, CREAM)
 
 def lm_dripgrotto(rnd, cv):   # 250 x 240
     S = r5(RAMP["stone"]); M = r5(RAMP["moss"])
@@ -354,36 +381,57 @@ def lm_dripgrotto(rnd, cv):   # 250 x 240
     _mush(cv, 40, 236, rnd); _tuft(cv, 214, 238, rnd, 3, 8)
     _acorn_ = None
 
-def lm_mossgate(rnd, cv):   # 240 x 230
-    S = r5(RAMP["stone"]); M = r5(RAMP["moss"]); G = RAMP["gold"]
-    posts = ((24, 74, 78, 222), (166, 216, 100, 222))
-    for x0, x1, y0, y1 in posts:
-        _col(cv, x0, x1, y0, y1, S, rnd, .12)
-        for y in range(y0 + 14, y1, 22):   # courses of stone
+def lm_mossgate(rnd, cv):   # 340 x 210
+    S = r5(RAMP["stone"]); M = r5(RAMP["moss"]); G = RAMP["gold"]; W = r5(RAMP["wood"]); GG = G
+    base = 206
+    posts = ((22, 88), (252, 318))
+    for x0, x1 in posts:
+        y0 = 30
+        _col(cv, x0, x1, y0, base, S, rnd, .12)
+        for i, y in enumerate(range(y0 + 22, base - 10, 26)):   # courses of stone with offset joints
             for x in range(x0, x1): cv.put(x, y, S[3])
-        mh = (y1 - y0) * 62 // 100
+            for x in range(x0 + 14 + (i % 2) * 18, x1, 36):
+                for yy in range(y - 26, y): cv.put(x, yy, S[3])
         for x in range(x0, x1):   # moss poured down the post
-            dep = mh + 8 * ((x * 7) % 5) // 2 - (x - x0) // 6
+            dep = 34 + 12 * ((x * 7) % 5) // 2 - abs(x - (x0 + x1) // 2) // 3
             for y in range(y0 + 4, y0 + dep):
                 u = (x - x0) / (x1 - x0); t = 0 if u < .2 else 1 if u < .5 else 2 if u < .8 else 3
-                if y > y0 + dep - 5: t = min(4, t + 1)
+                if y > y0 + dep - 6: t = min(4, t + 1)
                 if rnd.random() < .12: t = max(0, t - 1)
-                cv.put(x, y, M[t + 0])
-        lump(cv, (x0 + x1) // 2, y0 + 2, (x1 - x0) // 2 + 6, 14, M, rnd, .12)   # domed cap
-        for y in range(y1 - 22, y1):   # mossy foot
-            for x in range(x0 - 4, x1 + 4):
+                cv.put(x, y, M[t])
+        lump(cv, (x0 + x1) // 2, y0 - 2, (x1 - x0) // 2 + 8, 12, S, rnd, .1)   # capstone
+        lump(cv, (x0 + x1) // 2 - 3, y0 - 8, (x1 - x0) // 2 + 2, 10, M, rnd, .12)
+        for y in range(base - 26, base):   # mossy foot
+            for x in range(x0 - 6, x1 + 6):
                 if (x * 5 + y) % 7 < 3: cv.put(x, y, M[2 + (y % 2)])
-    for ey, ex in ((124, 74), (184, 74)):   # hinges, holding nothing
-        _rect(cv, ex, ey, ex + 18, ey + 6, S[4]); _rect(cv, ex, ey, ex + 18, ey + 2, S[2])
-        _disc(cv, ex + 20, ey + 3, 4, S[4]); _disc(cv, ex + 20, ey + 3, 2, (0, 0, 0, 0))
-    _line(cv, 94, 130, 94, 160, S[2]); _line(cv, 95, 130, 95, 160, S[3])   # a chain, going nowhere
-    lump(cv, 95, 172, 7, 9, r5(G), rnd, 0); cv.put(95, 180, G[3]); cv.put(95, 181, G[3])
-    _rect(cv, 166 - 8, 158, 166, 164, S[4]); _rect(cv, 158, 158, 166, 160, S[2])
-    for cx, cy in ((50, 76), (192, 98)):   # little flowers on the caps
+    for cx, cy in ((48, 16), (288, 20)):   # flowers on the caps
         for dx, dy, c in ((0, 0, G[1]), (-3, 0, CREAM), (3, 0, CREAM), (0, -3, CREAM), (0, 3, CREAM)): cv.put(cx + dx, cy + dy, c)
-    for x in range(84, 160, 5): _tuft(cv, x, 224, rnd, 2, 6 + (x % 4))
-    _mush(cv, 118, 222, rnd); _mush(cv, 128, 224, rnd)
-    _mush(cv, 12, 224, rnd)
+    # lintel pole with a bell
+    for x in range(88, 252):
+        sag = int(5 * math.sin((x - 88) / 164 * math.pi))
+        for y in range(52 + sag, 62 + sag): cv.put(x, y, W[0 if y < 54 + sag else 1 if y < 57 + sag else 3 if y > 59 + sag else 2])
+    for x in range(100, 240, 9): lump(cv, x, 54 + int(5 * math.sin((x - 88) / 164 * math.pi)), 8, 4, M, rnd, .1)
+    _line(cv, 178, 64, 178, 92, W[4], 2)
+    lump(cv, 178, 104, 12, 14, r5(G), rnd, 0); _rect(cv, 164, 112, 193, 118, G[2]); _disc(cv, 178, 122, 3, G[3])
+    cv.put(176, 98, CREAM); cv.put(177, 97, CREAM)
+    # the gate leaf, hung from the left post, right half missing on purpose
+    for px in range(88, 172, 14):
+        for x in range(px, px + 12):
+            for y in range(100, 200):
+                tt = 0 if x - px < 2 else 1 if x - px < 5 else 2 if x - px < 9 else 3
+                if y < 112: tt = max(0, tt - 1) if False else tt
+                cv.put(x, y, W[tt + (1 if (x * 3 + y // 7) % 11 == 0 else 0) if tt < 3 else 3])
+    for y in range(100, 200): cv.put(171, y, W[4])
+    for ry0 in (112, 176):
+        _rect(cv, 88, ry0, 172, ry0 + 9, W[2]); _rect(cv, 88, ry0, 172, ry0 + 2, W[0]); _rect(cv, 88, ry0 + 8, 172, ry0 + 9, W[4])
+    _line(cv, 92, 186, 166, 122, W[3], 4)
+    for ey in (114, 178): _rect(cv, 88, ey, 114, ey + 5, S[4]); _rect(cv, 88, ey, 114, ey + 2, S[2]); _disc(cv, 116, ey + 2, 3, S[4])
+    for x0 in range(92, 170, 16): lump(cv, x0, 102, 11, 5, M, rnd, .12)
+    _rect(cv, 164, 150, 172, 158, S[4]); _rect(cv, 252, 148, 258, 160, S[4]); _rect(cv, 244, 152, 258, 156, S[4])   # latch and hook
+    for x, y in ((100, 200), (140, 202), (200, 202), (232, 200)): _tuft(cv, x, y + 4, rnd, 3, 7)
+    _fern(cv, 98, base - 2, rnd, 1.0); _fern(cv, 244, base - 2, rnd, 1.1); _fern(cv, 14, base - 2, rnd, .8); _fern(cv, 326, base - 2, rnd, .8)
+    _mush(cv, 200, 204, rnd); _mush(cv, 212, 205, rnd, 1); _mush(cv, 40, base - 1, rnd, 1)
+    for x in range(180, 244, 4): cv.put(x, base - 1, RAMP["litter"][1])
 
 def lm_toadsteps(rnd, cv):   # 260 x 240
     M = r5(RAMP["moss"]); E = r5(RAMP["ember"]); S = r5(RAMP["sand"])
@@ -412,6 +460,6 @@ LM = {
  "304-acorndrop": (210, 250, lm_acorndrop), "304-owloak": (240, 290, lm_owloak),
  "305-birchtunnel": (290, 230, lm_birchtunnel), "305-birchcurtain": (280, 220, lm_birchcurtain),
  "305-fernhollow": (270, 130, lm_fernhollow), "305-sunclearing": (250, 170, lm_sunclearing),
- "306-mosslog": (290, 130, lm_mosslog), "306-dripgrotto": (250, 240, lm_dripgrotto),
- "306-mossgate": (240, 230, lm_mossgate), "306-toadsteps": (260, 240, lm_toadsteps),
+ "306-mosslog": (340, 150, lm_mosslog), "306-dripgrotto": (250, 240, lm_dripgrotto),
+ "306-mossgate": (340, 210, lm_mossgate), "306-toadsteps": (260, 240, lm_toadsteps),
 }

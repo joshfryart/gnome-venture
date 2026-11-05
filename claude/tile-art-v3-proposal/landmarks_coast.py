@@ -87,30 +87,111 @@ def pebble_(cv, x, y, rx, ry, c, rnd):
 def darker_c(c): return mix(c, H("#2b1c26"), .35)
 
 # ------------------------------------------------------------------ 307
-def lm_tideline(rnd, cv):   # 300 x 90
-    W, Hh = 300, 90
-    for y in range(40, 82):   # curved wet-sand band
-        for x in range(4, 296):
-            top = 40 + int(math.sin(x / 38.0) * 7); bot = 70 + int(math.sin(x / 38.0 + 1) * 6)
-            if y < top or y > bot: continue
-            e = min(x - 4, 295 - x)
-            if e < 12 and (y - top) * 12 < (12 - e) * (bot - top): continue
-            t = 1 if y < top + 5 else 2 if y < bot - 8 else 3
+# ---- polish-pass helpers
+def logh(cv, x0, x1, y0, h, rnd, R=None):
+    """horizontal driftwood log, lit from the top, with a ring end on the left and grain lines"""
+    R = R or r5(RAMP["wood"])
+    for x in range(x0, x1):
+        e = min(x - x0, x1 - 1 - x)
+        for r in range(h):
+            if e < 3 and (r < 3 - e or r >= h - 3 + e): continue
+            u = r / float(h - 1); t = 0 if u < .18 else 1 if u < .45 else 2 if u < .75 else 3
+            if (x * 5 + r * 3) % 17 == 0: t = min(4, t + 1)
+            if r in (h // 2,) and (x // 6) % 3 == 0: t = min(4, t + 1)
+            cv.put(x, y0 + r, R[t])
+    for dy in range(h - 2):
+        for dx in range(4):
+            if (dx - 1.5) ** 2 / 4 + (dy - (h - 2) / 2.0) ** 2 / max(1, ((h - 2) / 2.0) ** 2) <= 1: cv.put(x0 + dx, y0 + 1 + dy, R[0] if dx == 1 or dy % 3 == 1 else R[1])
+def stick(cv, x0, y0, x1, y1, w=3, R=None):
+    R = R or RAMP["wood"]; n = max(abs(x1 - x0), abs(y1 - y0), 1)
+    for i in range(n + 1):
+        x = x0 + (x1 - x0) * i // n; y = y0 + (y1 - y0) * i // n
+        for k in range(w): cv.put(x + k, y, R[0 if k == 0 else 1 if k < w - 1 else 3])
+def weed(cv, x, y, h, rnd, lean=1, R=None):
+    R = R or RAMP["pine"]
+    for k in range(h):
+        xx = x + int(math.sin(k / 5.0 + x) * 2) + lean * k // 6
+        cv.put(xx, y - k, R[1 if k % 5 else 0]); cv.put(xx + 1, y - k, R[2])
+        if k % 7 == 3: disc(cv, xx - 2, y - k, 2, R[0])
+def prints(cv, x, y, c, flip=1):
+    for dx, dy in ((0, 0), (-3, -3), (3, -3), (0, -4)):
+        pass
+    cv.put(x, y, c); cv.put(x, y - 1, c); cv.put(x, y - 2, c); cv.put(x - 2, y - 3, c); cv.put(x + 2, y - 3, c); cv.put(x - 1, y - 2, c); cv.put(x + 1, y - 2, c)
+def bottle(cv, x, y, lean=1):
+    """green bottle stuck neck-up in the sand; y is where it sits"""
+    G = [H("#d4f5d0"), H("#8fd4a0"), H("#4fa07c"), H("#2c6358")]
+    for k in range(40):
+        bx = x + lean * (40 - k) // 6; w = 8 if k < 26 else 3
+        for dx in range(-w, w + 1):
+            if k < 26 or abs(dx) <= 3: cv.put(bx + dx, y - k, G[0] if dx < -w + 2 else G[1] if dx < w - 2 else G[2])
+    for k in range(26, 38):
+        bx = x + lean * (40 - k) // 6
+        for dx in range(-2, 3): cv.put(bx + dx, y - k - 1, G[1] if dx < 2 else G[2])
+    bx = x + lean * 2 // 6 * 0
+    tx = x + lean * (40 - 38) // 6
+    for dx in range(-3, 4): cv.put(tx + dx, y - 40, RAMP["wood"][1]); cv.put(tx + dx, y - 41, RAMP["wood"][0]); cv.put(tx + dx, y - 39, RAMP["wood"][2])
+    for k in range(14): cv.put(x - 2 + (k % 2), y - 8 - k, CREAM); cv.put(x + (k % 2) + 1, y - 8 - k, RAMP["sand"][1])   # the message inside
+def cairn(cv, cx, base, n, rnd, cols, w0=18):
+    y = base
+    for i in range(n):
+        rx = max(5, int(w0 * (1 - i * .15) + rnd.randint(-1, 2))); ry = max(3, int(rx * .55))
+        pebble_(cv, cx + rnd.randint(-2, 2), y - ry, rx, ry, cols[(i * 3 + 1) % len(cols)], rnd); y -= int(ry * 1.7)
+    return y
+def para(cv, pts_fn, x0, x1, y0, y1, colfn):
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            if pts_fn(x, y): cv.put(x, y, colfn(x, y))
+def lm_tideline(rnd, cv):   # 330 x 124
+    W = 330; SD = RAMP["sand"]
+    top = lambda x: 82 + int(math.sin(x / 40.0) * 6); bot = lambda x: 118 + int(math.sin(x / 40.0 + 1) * 3)
+    for y in range(70, 124):   # wide curved wet-sand band
+        for x in range(4, W - 4):
+            if y < top(x) or y > bot(x): continue
+            e = min(x - 4, W - 5 - x)
+            if e < 14 and (y - top(x)) * 14 < (14 - e) * (bot(x) - top(x)): continue
+            t = 1 if y < top(x) + 5 else 2 if y < bot(x) - 12 else 3
             if (x * 7 + y * 3) % 13 == 0: t = max(0, t - 1)
-            cv.put(x, y, RAMP["sand"][t])
-    for x in range(6, 294):   # foam edge
-        top = 40 + int(math.sin(x / 38.0) * 7)
-        if x % 5 != 0: cv.put(x, top, CREAM); cv.put(x, top + 1, RAMP["sea"][0] if x % 2 else CREAM)
+            cv.put(x, y, SD[t])
+    for x in range(6, W - 6):   # foam edge, two rows
+        if x % 5 != 0: cv.put(x, top(x), CREAM); cv.put(x, top(x) + 1, RAMP["sea"][0] if x % 2 else CREAM)
+        if x % 9 < 4: cv.put(x, top(x) - 2 + (x // 9) % 2, RAMP["sea"][0])
+    for x in range(10, W - 10, 5): cv.put(x, bot(x) - 1 + (x % 3), SD[3])
+    for x in range(12, W - 10, 11):   # ripples in the wet sand
+        hline(cv, x, x + 5, top(x) + 12 + (x // 11) % 3 * 3, SD[1])
+    # driftwood log with a branch and draped weed, left
+    logh(cv, 22, 122, 94, 14, rnd)
+    stick(cv, 58, 96, 38, 30, 5); stick(cv, 44, 66, 70, 36, 4); stick(cv, 47, 78, 22, 44, 4); stick(cv, 40, 40, 30, 10, 3); stick(cv, 38, 40, 52, 16, 3); stick(cv, 68, 38, 80, 24, 3)
+    weed(cv, 64, 96, 18, rnd, -1); weed(cv, 100, 96, 14, rnd, 1)
+    # crab waving from a tide-line rock
+    lump(cv, 188, 100, 24, 16, r5(RAMP["stone"]), rnd, .1)
+    crab(cv, 188, 52, 3, rnd, wave=True)
+    gull(cv, 112, 76, 2, True)
+    # bottle with a message
+    bottle(cv, 244, 116, -1)
+    # shell piles at both ends
+    for cx, base, rx, ry in ((292, 112, 28, 26), (136, 116, 18, 14)):
+        mound(cv, cx, base, rx, ry, r5(SD), rnd, .1)
     cols = ["gold", "petal", "sand", "snow", "ember", "dusk"]
+    for i in range(34):
+        cx, rx, ry, base = (292, 28, 26, 112) if i < 24 else (136, 18, 14, 116)
+        a = rnd.random() * 3.14; r = math.sqrt(rnd.random()) * .85
+        x = int(cx + math.cos(a) * rx * r * (1 if rnd.random() < .5 else -1)); y = int(base - math.sin(a) * ry * r)
+        if i % 4 == 0: spiral(cv, x, y, 4, cols[i % 6])
+        else: shell(cv, x, y, 4 + i % 2, cols[i % 6], rnd)
     n = 0
-    for x in range(18, 284, 15):   # the long line of shells
-        y = 60 + int(math.sin(x / 38.0 + .5) * 6) + rnd.randint(-3, 3); n += 1
+    for x in range(18, 300, 17):   # the long line of shells along the foam
+        if 270 < x < 314: continue
+        y = top(x) + 18 + rnd.randint(-2, 5) if x < 150 else top(x) + 14 + rnd.randint(-2, 4); n += 1
+        if 100 < x < 170 and y > 92: continue
         if n % 3 == 0: spiral(cv, x, y, 4, cols[n % 6])
         else: shell(cv, x, y, 5 if n % 2 else 4, cols[n % 6], rnd)
-    for x in range(10, 292, 5): cv.put(x, 74 + int(math.sin(x / 38.0 + 1) * 6) + (x % 3), RAMP["sand"][3])
-    for k in range(7):   # tiny pebbles + a seaweed strand
-        x = rnd.randint(14, 286); hline(cv, x, x + 3, 50 + int(math.sin(x / 38.0) * 7) + rnd.randint(2, 6), RAMP["stone"][2])
-    cv.put(0, 0, (0, 0, 0, 0))
+    for x, y in ((196, 110), (214, 104), (262, 100), (246, 94), (150, 108), (160, 111)):   # bird footprints
+        prints(cv, x, y, SD[3])
+    # a lonely sock on a stick
+    stick(cv, 308, 100, 310, 14, 4); rect(cv, 314, 14, 328, 24, RAMP["ember"][1]); rect(cv, 314, 24, 322, 40, RAMP["ember"][2]); rect(cv, 314, 36, 328, 46, RAMP["ember"][2]); rect(cv, 314, 14, 328, 18, CREAM); rect(cv, 314, 28, 322, 31, CREAM)
+    weed(cv, 214, 86, 10, rnd, 1); weed(cv, 20, 90, 12, rnd, 1)
+    for _ in range(10):
+        x = rnd.randint(14, W - 14); pebble_(cv, x, top(x) + rnd.randint(8, 24), rnd.randint(2, 3), 2, rnd.choice([H("#aab0c0"), H("#8c8ca0"), H("#d8c8b0")]), rnd)
 
 def barnacles(cv, cx, cy, rx, ry, n, rnd):
     for _ in range(n):
@@ -119,19 +200,35 @@ def barnacles(cv, cx, cy, rx, ry, n, rnd):
         for dy in range(-3, 1):
             for dx in range(-3 - dy // 2, 4 + dy // 2): cv.put(x + dx, y + dy, CREAM if dx < 1 else RAMP["snow"][1])
         cv.put(x, y - 3, RAMP["stone"][3]); cv.put(x - 1, y - 2, RAMP["stone"][3]); cv.put(x + 1, y - 2, RAMP["stone"][3])
-def lm_barnacles(rnd, cv):   # 200 x 150
+def face(cv, x, y, s=1):
+    for ex in (x - 10 * s, x + 10 * s):
+        rect(cv, ex, y, ex + 5 * s, y + 7 * s, CREAM); rect(cv, ex + s, y + 2 * s, ex + 4 * s, y + 7 * s, INK); cv.put(ex + s, y + 2 * s, CREAM)
+    for k in range(-12 * s, 13 * s): cv.put(x + 2 + k, y + 14 * s - (k * k) // (24 * s) + 6 * s, RAMP["ember"][2]); cv.put(x + 2 + k, y + 15 * s - (k * k) // (24 * s) + 6 * s, RAMP["ember"][3]) if abs(k) < 11 * s else None
+def starfish(cv, x, y, c="ember"):
+    P = RAMP[c]
+    for a in range(5):
+        ang = math.radians(-90 + a * 72)
+        for k in range(1, 9): disc(cv, x + int(math.cos(ang) * k), y + int(math.sin(ang) * k), max(1, 3 - k // 3), P[1] if k % 3 else P[0])
+    disc(cv, x, y, 3, P[1]); cv.put(x, y, P[3])
+def lm_barnacles(rnd, cv):   # 270 x 190
     S = r5(RAMP["stone"])
-    lump(cv, 50, 108, 42, 34, S, rnd, .1); lump(cv, 150, 112, 44, 30, S, rnd, .1); lump(cv, 100, 80, 52, 50, S, rnd, .1)
-    for (cx, cy, rx, ry, n) in ((50, 108, 38, 28, 10), (150, 112, 40, 24, 10), (100, 80, 46, 42, 22)): barnacles(cv, cx, cy, rx, ry, n, rnd)
-    for (ex, ey) in ((86, 66), (114, 66)):   # smiling face on the big one
-        rect(cv, ex, ey, ex + 5, ey + 7, CREAM); rect(cv, ex + 1, ey + 2, ex + 4, ey + 7, INK)
-    for k in range(-14, 15): cv.put(100 + k, 90 + (k * k) // 28 * -1 + 7, RAMP["ember"][2]); cv.put(100 + k, 91 + 7 - (k * k) // 28, RAMP["ember"][3]) if abs(k) < 13 else None
-    for (ex, ey) in ((38, 98), (60, 98)): rect(cv, ex, ey, ex + 3, ey + 4, CREAM); cv.put(ex + 1, ey + 1, INK); cv.put(ex + 1, ey + 2, INK)
-    for k in range(-6, 7): cv.put(49 + k, 112 + (k * k) // 12 * -1 + 3, INK)
-    for (ex, ey) in ((138, 102), (160, 102)): rect(cv, ex, ey, ex + 3, ey + 4, CREAM); cv.put(ex + 1, ey + 1, INK); cv.put(ex + 1, ey + 2, INK)
-    for k in range(-6, 7): cv.put(149 + k, 116 + (k * k) // 12 * -1 + 3, INK)
-    for x in range(10, 190):   # wet foot with weed
-        if x % 4 == 0 and cv.get(x, 140)[3] == 0: cv.put(x, 148, RAMP["moss"][2]); cv.put(x, 147, RAMP["moss"][1])
+    lump(cv, 48, 148, 46, 38, S, rnd, .1); lump(cv, 224, 152, 44, 34, S, rnd, .1); lump(cv, 135, 104, 74, 80, S, rnd, .1)
+    lump(cv, 94, 160, 28, 22, S, rnd, .1)
+    for (cx, cy, rx, ry, n) in ((48, 148, 42, 32, 14), (224, 152, 40, 28, 14), (135, 104, 68, 70, 44), (94, 160, 24, 16, 6)): barnacles(cv, cx, cy, rx, ry, n, rnd)
+    face(cv, 133, 76, 1)   # smiling face on the big one
+    for (fx, fy) in ((36, 134), (219, 138)):   # the little ones smile too
+        for ex in (fx - 6, fx + 8): rect(cv, ex, fy, ex + 4, fy + 5, CREAM); cv.put(ex + 1, fy + 1, INK); cv.put(ex + 1, fy + 2, INK); cv.put(ex + 2, fy + 2, INK)
+        for k in range(-7, 8): cv.put(fx + 2 + k, fy + 12 - (k * k) // 14, INK)
+    for x in range(70, 200, 6):   # tide mark: a pale line of dried salt
+        cv.put(x, 132 + (x // 6) % 2, CREAM)
+    for k in range(5):   # weed hanging off the big rock like hair
+        x = 96 + k * 20; h = rnd.randint(18, 30)
+        for j in range(h): cv.put(x + int(math.sin(j / 4.0 + k) * 2), 34 + j, RAMP["pine"][1 if j % 4 else 0]); cv.put(x + 1 + int(math.sin(j / 4.0 + k) * 2), 34 + j, RAMP["pine"][2])
+    starfish(cv, 38, 160, "ember"); starfish(cv, 224, 128, "gold")
+    crab(cv, 196, 160, 1, rnd)   # a small crab who agrees
+    for x in range(8, 262):   # wet foot with weed and foam
+        if x % 4 == 0 and cv.get(x, 184)[3] == 0: cv.put(x, 188, RAMP["moss"][2]); cv.put(x, 187, RAMP["moss"][1])
+    for x in range(8, 262, 7): cv.put(x, 189, RAMP["sea"][0]); cv.put(x + 1, 189, CREAM)
 def lm_shellhollow(rnd, cv):   # 240 x 150
     S = r5(RAMP["stone"])
     mound(cv, 120, 146, 112, 104, S, rnd, .12)   # rocky bank
@@ -181,33 +278,127 @@ def lm_sandcastle(rnd, cv):   # 230 x 200
     shell(cv, 25, 192, 4, "petal", rnd); shell(cv, 204, 192, 4, "gold", rnd)
 
 # ------------------------------------------------------------------ 308
-def lm_pebblebar(rnd, cv):   # 290 x 90
-    mound(cv, 145, 86, 138, 34, r5(RAMP["sand"]), rnd, .08)
-    cols = [H(h) for h in ("#e86a5c", "#f2b84b", "#7cc0d8", "#a98fd8", "#8fd18a", "#f08fb0", "#fff0d0", "#6f7aa8", "#e0a070", "#3a4a58")]
-    for _ in range(230):
-        x = rnd.randint(14, 276); y = rnd.randint(60, 86)
-        e = ((x - 145) / 134.0) ** 2 + ((y - 86) / 28.0) ** 2
+def lm_pebblebar(rnd, cv):   # 300 x 170
+    PC = [H(h) for h in ("#e86a5c", "#f2b84b", "#7cc0d8", "#a98fd8", "#8fd18a", "#f08fb0", "#fff0d0", "#6f7aa8", "#e0a070", "#3a4a58")]
+    mound(cv, 150, 164, 144, 44, r5(RAMP["sand"]), rnd, .08)
+    for _ in range(330):
+        x = rnd.randint(14, 286); y = rnd.randint(130, 164)
+        e = ((x - 150) / 140.0) ** 2 + ((y - 164) / 40.0) ** 2
         if e > .9: continue
-        pebble_(cv, x, y, rnd.randint(3, 6), rnd.randint(2, 4), rnd.choice(cols), rnd)
+        pebble_(cv, x, y, rnd.randint(3, 6), rnd.randint(2, 4), rnd.choice(PC), rnd)
+    # tilted pebble mosaic: a rainbow on a sheared slab
+    sh = lambda y: int((y - 130) * .28)
+    X0, X1, Y0, Y1 = 98, 206, 52, 134
+    def inside(x, y): return X0 + sh(y) <= x < X1 + sh(y) and Y0 <= y < Y1
+    def slab(x, y):
+        u = (x - X0 - sh(y)) / float(X1 - X0); t = 1 if u < .1 else 2 if u < .8 else 3
+        if y < Y0 + 2: t = 0
+        if y >= Y1 - 4: t = 4
+        if (x * 3 + y * 7) % 19 == 0 and t < 3: t += 1
+        return r5(RAMP["stone"])[t]
+    para(cv, inside, X0 - 40, X1 + 40, Y0, Y1, slab)
+    cx0, cy0 = 152, 124
+    for i, rr in enumerate(range(40, 6, -6)):
+        c = PC[i % 6]
+        for a in range(190, 351, 14 if rr > 20 else 24):
+            px = cx0 + int(math.cos(math.radians(a)) * rr * 1.15) + sh(int(cy0 + math.sin(math.radians(a)) * rr)); py = cy0 + int(math.sin(math.radians(a)) * rr)
+            if Y0 + 4 < py < Y1 - 3: pebble_(cv, px, py, 4, 3, c, rnd)
+    for k in range(6): pebble_(cv, 124 + k * 12 + sh(128), 129, 4, 3, PC[(k + 2) % 10], rnd) if False else None
+    # three pebble cairns, topped with a tiny gnome hat
+    for cx, base, n, w0 in ((46, 152, 6, 20), (250, 150, 7, 22), (92, 162, 4, 14)):
+        ty = cairn(cv, cx, base, n, rnd, PC, w0)
+        if cx == 46 or cx == 250:
+            for k in range(14): hline(cv, cx - 5 + k // 3, cx + 6 - k // 3, ty - 2 - k, RAMP["ember"][1 if k < 7 else 2])
+            hline(cv, cx - 7, cx + 8, ty - 2, CREAM)
+    cairn(cv, 206, 158, 3, rnd, PC, 12)
+    for x, y in ((20, 150), (276, 160)):   # strand of weed on the bar
+        weed(cv, x, y, 12, rnd, 1)
     for _ in range(14):   # the white one with a stripe
-        x = rnd.randint(30, 260); y = rnd.randint(68, 84); pebble_(cv, x, y, 6, 4, CREAM, rnd); hline(cv, x - 4, x + 5, y, RAMP["stone"][1])
-def lm_kelp(rnd, cv):   # 300 x 100
-    G = [RAMP["pine"][0], RAMP["pine"][1], RAMP["pine"][2], RAMP["pine"][3]]
-    for x in range(6, 294):
-        yy = 74 + int(math.sin(x / 11.0) * 4) + int(math.sin(x / 31.0) * 6)
+        x = rnd.randint(30, 270); y = rnd.randint(144, 162); pebble_(cv, x, y, 6, 4, CREAM, rnd); hline(cv, x - 4, x + 5, y, RAMP["stone"][1])
+def ribbon(cv, x, y0, ln, w, rnd, ph=0, R=None):
+    R = R or RAMP["pine"]
+    for k in range(ln):
+        xx = x + int(math.sin(k / 7.0 + ph) * 3); ww = w - (k * 2) // max(1, ln // 2) if k > ln - 8 else w
+        for dx in range(max(2, ww)):
+            t = 0 if dx == 0 else 1 if dx < ww // 2 else 2 if dx < ww - 1 else 3
+            if (k + dx) % 9 == 0: t = max(0, t - 1)
+            cv.put(xx + dx, y0 + k, R[t])
+def float_(cv, x, y, r, c):
+    disc(cv, x, y, r, RAMP[c][1]); disc(cv, x - 1, y - 1, max(1, r - 2), RAMP[c][0]); cv.put(x + r // 2, y + r // 2, RAMP[c][3]); hline(cv, x - r + 1, x + r, y + r - 1, RAMP[c][2])
+def rack(cv, x0, x1, base, top, rnd, ph):
+    W = RAMP["wood"]
+    for px in (x0, x1):
+        stick(cv, px, base, px + 3, top, 5); stick(cv, px - 10, base, px, top + 14, 3); stick(cv, px + 14, base, px + 4, top + 14, 3)
+    for y in range(top, top + 5): hline(cv, x0 - 4, x1 + 9, y, W[0] if y == top else W[1] if y < top + 3 else W[3])
+    n = (x1 - x0) // 13
+    for i in range(n):
+        x = x0 + 8 + i * 13; ln = rnd.randint(40, 64) if i % 2 == 0 else rnd.randint(28, 44)
+        ribbon(cv, x, top + 5, ln, 7, rnd, ph + i)
+    for x in (x0 - 2, x1 + 5): float_(cv, x, top - 6, 6, "gold" if x < x0 else "ember")
+def lm_kelp(rnd, cv):   # 320 x 124
+    G = RAMP["pine"]
+    rack(cv, 24, 112, 116, 22, rnd, 0)
+    rack(cv, 214, 298, 116, 30, rnd, 2)
+    for x in range(6, 314):   # the long line of kelp on the ground
+        yy = 108 + int(math.sin(x / 11.0) * 3) + int(math.sin(x / 31.0) * 4)
         for y in range(yy - 3, yy + 3): cv.put(x, y, G[1 if y < yy else 2 if y < yy + 2 else 3])
-        if x % 11 == 0:   # bladders
-            disc(cv, x, yy - 5, 4, G[0]); disc(cv, x + 1, yy - 4, 2, G[1])
-            for k in range(5): cv.put(x + k // 2, yy - 10 - k, G[1])
-        if x % 7 == 2:   # frills
-            for k in range(10): cv.put(x + (k * 2) // 3 * (1 if x % 2 else -1), yy - 4 - k // 2, G[1 + k % 2])
-    for x in range(10, 290, 3): cv.put(x, 82 + int(math.sin(x / 11.0) * 3), RAMP["sand"][3])   # dribble of sea
-    for fx in (60, 150, 235):   # tiny gull that's trying not to eat it
-        pass
-    # polite sign: a stick with a "do not eat" cross
-    vline(cv, 150, 30, 78, RAMP["wood"][2]); vline(cv, 151, 30, 78, RAMP["wood"][3])
-    rect(cv, 136, 22, 166, 44, RAMP["wood"][0]); hline(cv, 136, 166, 22, RAMP["wood"][3]); hline(cv, 136, 166, 44, RAMP["wood"][3]); vline(cv, 136, 22, 44, RAMP["wood"][3]); vline(cv, 165, 22, 44, RAMP["wood"][3])
-    for k in range(14): cv.put(144 + k, 28 + k, RAMP["ember"][1]); cv.put(145 + k, 28 + k, RAMP["ember"][2]); cv.put(158 - k, 28 + k, RAMP["ember"][1]); cv.put(157 - k, 28 + k, RAMP["ember"][2])
+        if x % 17 == 0: disc(cv, x, yy - 5, 4, G[0]); disc(cv, x + 1, yy - 4, 2, G[1])
+    # tall centre pole with streamers and a bobbing float on top
+    stick(cv, 160, 118, 162, 4, 5)
+    for i, (ln, dx, y0) in enumerate(((60, 5, 16), (80, -9, 24), (50, 5, 52), (70, -9, 60))):
+        ribbon(cv, 160 + dx, y0, ln, 8, rnd, i * 2)
+    float_(cv, 162, 8, 7, "ember"); float_(cv, 148, 100, 7, "gold"); float_(cv, 182, 102, 6, "ember")
+    lump(cv, 135, 102, 20, 12, r5(G), rnd, .12); lump(cv, 190, 104, 16, 9, r5(G), rnd, .12)   # heaps
+    for x, y in ((130, 98), (196, 100)): disc(cv, x, y, 3, G[0])
+def mask_ell(cv, cx, cy, rx, ry):
+    for y in range(cv.h):
+        for x in range(cv.w):
+            if ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 > 1: cv.p[x, y] = (0, 0, 0, 0)
+def bollard(cv, x, y, h, rnd):
+    S = RAMP["stone"]
+    for xx in range(x - 6, x + 7):
+        for yy in range(y - h, y):
+            u = (xx - x + 6) / 12.0; t = 0 if u < .2 else 1 if u < .45 else 2 if u < .8 else 3
+            cv.put(xx, yy, S[t])
+    for xx in range(x - 8, x + 9): cv.put(xx, y - h - 1, S[0]); cv.put(xx, y - h, S[1]); cv.put(xx, y - h + 1, S[3])
+    hline(cv, x - 6, x + 7, y - h // 2, RAMP["wood"][2]); hline(cv, x - 6, x + 7, y - h // 2 + 1, RAMP["wood"][3]); hline(cv, x - 6, x + 7, y - h // 2 - 1, RAMP["wood"][1])
+def lamp(cv, x, y, h, rnd):
+    K = [H(c) for c in ("#8a8aa6", "#5d5e7c", "#3f4062", "#2c2d48")]
+    for xx in range(x - 2, x + 3):
+        for yy in range(y - h, y): cv.put(xx, yy, K[0 if xx == x - 2 else 1 if xx < x + 1 else 3])
+    for xx in range(x - 5, x + 6): cv.put(xx, y - 3, K[1]); cv.put(xx, y - 2, K[3])
+    stick(cv, x - 1, y - h + 4, x - 12, y - h - 2, 2, K) if False else None
+    lx, ly = x, y - h - 12
+    rect(cv, lx - 7, ly - 3, lx + 8, ly, K[2]); rect(cv, lx - 6, ly, lx + 7, ly + 14, RAMP["gold"][0]); rect(cv, lx - 4, ly + 2, lx + 5, ly + 12, CREAM)
+    for yy in range(ly, ly + 14): cv.put(lx - 6, yy, K[1]); cv.put(lx + 7, yy, K[2]); cv.put(lx, yy, K[1])
+    rect(cv, lx - 7, ly + 14, lx + 8, ly + 16, K[2])
+    for k in range(5): hline(cv, lx - 5 + k, lx + 7 - k, ly - 4 - k, K[1 if k < 3 else 0])
+    disc(cv, lx, ly - 11, 2, RAMP["gold"][1])
+def lm_causeway(rnd, cv):   # 330 x 160
+    W = 330
+    seaband(cv, 4, W - 4, 60, 150, rnd)
+    for y in range(60, 150):
+        for x in range(4, W - 4):
+            e = min(x - 4, W - 5 - x)
+            if e < 16 and (y - 60) < (16 - e): cv.p[x, y] = (0, 0, 0, 0)
+    for x in range(10, W - 10, 17): waves(cv, x, x + 12, 70 + (x // 17) % 3 * 14, rnd, 1)
+    stones = [(28, 104), (68, 100), (108, 106), (148, 100), (188, 106), (228, 100), (268, 104), (306, 100)]
+    for i, (x, y) in enumerate(stones):
+        lump(cv, x, y, 25, 12, r5(RAMP["stone"]), rnd, .1)
+        for k in range(-21, 22, 3): cv.put(x + k, y + 13, CREAM) if (k + i) % 2 else None
+        hline(cv, x - 10, x - 3, y - 4, RAMP["stone"][0])
+    for x in range(10, W - 10):
+        for yy in (66, 138):
+            if (x * 3) % 7 < 3: cv.put(x, yy + int(math.sin(x / 8.0) * 2), CREAM)
+    mask_ell(cv, 165, 105, 161, 48)
+    # rope swagging between bollards
+    for bx in (44, 118, 212, 290): bollard(cv, bx, 98, 30, rnd)
+    for ax, bx in ((44, 118), (212, 290)):
+        for x in range(ax, bx + 1):
+            y = 74 + int(math.sin((x - ax) / float(bx - ax) * math.pi) * 14); cv.put(x, y, RAMP["wood"][1]); cv.put(x, y + 1, RAMP["wood"][3])
+    for lx in (80, 165, 250): lamp(cv, lx, 96, 62, rnd)
+    crab(cv, 148, 86, 1, rnd, wave=True)   # a crab holding the toll
+    for x, y in ((10, 100), (320, 104)): weed(cv, x, y, 12, rnd, 1)
 def lm_rockpool(rnd, cv):   # 220 x 150
     S = r5(RAMP["stone"])
     mound(cv, 110, 140, 104, 90, S, rnd, .12)
@@ -314,28 +505,6 @@ def lm_shellpile(rnd, cv):   # 210 x 170
     rect(cv, 170, 106, 204, 124, RAMP["wood"][0]); hline(cv, 170, 204, 106, RAMP["wood"][3]); hline(cv, 170, 204, 124, RAMP["wood"][3])
     for k in range(8): cv.put(180 + k, 115 - (k if k < 4 else 7 - k), RAMP["ember"][2]) if False else None
     spiral(cv, 187, 115, 4, "petal")
-def mask_ell(cv, cx, cy, rx, ry):
-    for y in range(cv.h):
-        for x in range(cv.w):
-            if ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 > 1: cv.p[x, y] = (0, 0, 0, 0)
-def lm_causeway(rnd, cv):   # 300 x 110
-    seaband(cv, 4, 296, 40, 100, rnd)
-    for y in range(40, 100): 
-        for x in range(4, 296):
-            e = min(x - 4, 295 - x)
-            if e < 14 and (y - 40) < (14 - e): cv.p[x, y] = (0, 0, 0, 0)
-    for x in range(10, 290, 17): waves(cv, x, x + 12, 50 + (x // 17) % 3 * 12, rnd, 1)
-    stones = [(26, 70), (62, 66), (100, 72), (138, 66), (176, 72), (214, 66), (252, 70)]
-    for i, (x, y) in enumerate(stones):
-        lump(cv, x, y, 24, 11, r5(RAMP["stone"]), rnd, .1)
-        for k in range(-20, 21, 3): cv.put(x + k, y + 12, CREAM) if (k + i) % 2 else None
-        hline(cv, x - 10, x - 3, y - 3, RAMP["stone"][0])
-    for x, y in ((12, 52), (282, 50)):   # lapping foam along both edges
-        pass
-    for x in range(10, 290):
-        for yy in (45, 92):
-            if (x * 3) % 7 < 3: cv.put(x, yy + int(math.sin(x / 8.0) * 2), CREAM)
-    mask_ell(cv, 150, 70, 147, 34)
 def lm_stepping(rnd, cv):   # 280 x 130
     seaband(cv, 4, 276, 40, 124, rnd)
     for y in range(40, 124):
@@ -424,17 +593,17 @@ def lm_gullparliament(rnd, cv):   # 300 x 250
     for x in range(20, 282, 7): cv.put(x, 249, RAMP["sea"][0]); cv.put(x + 1, 249, CREAM)
 
 LM = {
- "307-tideline": (300, 90, lm_tideline),
- "307-barnacles": (200, 150, lm_barnacles),
+ "307-tideline": (330, 124, lm_tideline),
+ "307-barnacles": (270, 190, lm_barnacles),
  "307-shellhollow": (240, 150, lm_shellhollow),
  "307-sandcastle": (230, 200, lm_sandcastle),
- "308-pebblebar": (290, 90, lm_pebblebar),
- "308-kelpline": (300, 100, lm_kelp),
+ "308-pebblebar": (300, 170, lm_pebblebar),
+ "308-kelpline": (320, 124, lm_kelp),
  "308-rockpool": (220, 150, lm_rockpool),
  "308-tidesteps": (280, 200, lm_tidesteps),
  "314-driftwood": (300, 220, lm_driftwood),
  "314-shellpile": (210, 170, lm_shellpile),
- "314-causeway": (300, 110, lm_causeway),
+ "314-causeway": (330, 160, lm_causeway),
  "314-steppingrocks": (280, 130, lm_stepping),
  "314-lanternrocks": (300, 270, lm_lanternrocks),
  "314-gullparliament": (300, 250, lm_gullparliament),

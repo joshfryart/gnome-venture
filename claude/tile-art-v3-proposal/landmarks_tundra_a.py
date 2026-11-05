@@ -68,52 +68,107 @@ def ground_snow(cv, cx, cy, rx, ry, rnd, speck=.1):
     lump(cv, cx, cy, rx, ry, SN, rnd, speck)
 
 
+def rect(cv, x0, y0, x1, y1, c):
+    for y in range(y0, y1):
+        for x in range(x0, x1): cv.put(x, y, c)
+
+
+def ellfill(cv, cx, cy, rx, ry, fn):
+    """Fill an ellipse; fn(x, y, nx, ny) returns a colour (or None to skip)."""
+    for y in range(int(cy - ry) - 1, int(cy + ry) + 2):
+        for x in range(int(cx - rx) - 1, int(cx + rx) + 2):
+            nx = (x + .5 - cx) / rx; ny = (y + .5 - cy) / ry
+            if nx * nx + ny * ny <= 1:
+                c = fn(x, y, nx, ny)
+                if c: cv.put(x, y, c)
+
+
+def post(cv, x, y0, y1, w, R):
+    for xx in range(x, x + w):
+        u = (xx - x) / max(1, w - 1); t = 0 if u < .2 else 1 if u < .5 else 2 if u < .8 else 3
+        for y in range(y0, y1): cv.put(xx, y, R[t])
+
+
+def star5(cv, cx, cy, r, c):
+    pts = []
+    for i in range(10):
+        a = -math.pi / 2 + i * math.pi / 5; rr = r if i % 2 == 0 else r * .42
+        pts.append((cx + rr * math.cos(a), cy + rr * math.sin(a)))
+    poly(cv, pts, c)
+
+
+def curve(cv, pts_fn, n, c, hi=None, every=5):
+    for i in range(n):
+        x, y = pts_fn(i / (n - 1)); cv.put(int(x), int(y), c)
+        if hi and i % every == 0: cv.put(int(x), int(y) - 1, hi)
+
+
 # ------------------------------------------------------------------ 309
-def lm_frozenpond(rnd, cv):   # 260 x 104
-    cx, cy, rx, ry = 130, 56, 122, 36
-    for y in range(cy - ry - 8, cy + ry + 12):   # thick edge under the lip
-        for x in range(cx - rx - 6, cx + rx + 7):
-            if (x - cx) ** 2 / (rx + 5) ** 2 + (y - 8 - cy) ** 2 / (ry + 4) ** 2 <= 1 and (x - cx) ** 2 / (rx + 5) ** 2 + (y - cy) ** 2 / (ry + 4) ** 2 > 1 or ((x - cx) ** 2 / (rx + 5) ** 2 + (y - cy - 8) ** 2 / (ry + 4) ** 2 <= 1 and y > cy):
-                cv.put(x, y, SN[2] if y < cy + ry else SN[3])
-    for y in range(cy - ry, cy + ry + 1):   # the ice
-        for x in range(cx - rx, cx + rx + 1):
-            if (x - cx) ** 2 / rx ** 2 + (y - cy) ** 2 / ry ** 2 <= 1:
-                u = (y - cy) / ry * .5 + (x - cx) / rx * .35
-                t = 0 if u < -.35 else 1 if u < .0 else 2 if u < .4 else 3
-                if (x + y * 2) % 13 == 0: t = max(0, t - 1)
-                cv.put(x, y, IC[t])
-    for x in range(cx - rx, cx + rx + 1):   # snowy back bank
-        for y in range(cy - ry - 5, cy - ry + 4):
-            if (x - cx) ** 2 / (rx + 4) ** 2 + (y - cy) ** 2 / (ry + 5) ** 2 <= 1 and (x - cx) ** 2 / rx ** 2 + (y - cy) ** 2 / ry ** 2 > .86 and y < cy - 8:
-                cv.put(x, y, SN[0] if (x + y) % 7 else SN[1])
-    for k in range(7):   # glossy streaks
-        x, y = rnd.randint(cx - 90, cx + 40), rnd.randint(cy - 22, cy + 18)
-        for j in range(rnd.randint(8, 16)): cv.put(x + j, y - j // 3, CREAM); cv.put(x + j + 1, y - j // 3, IC[0])
-    for a, b, c, d in ((60, 52, 78, 70), (78, 70, 96, 66), (96, 66, 112, 76), (170, 40, 188, 52), (188, 52, 204, 48)):   # cracks
-        line(cv, [(a, b), (c, d)], IC[3])
-    for k in range(3):   # skate swirls
-        pts = [(cx + 8 + int(54 * math.cos(t / 10)) , cy + 4 + int(14 * math.sin(t / 10))) for t in range(0, 62 + k * 4)]
-        line(cv, pts, IC[2] if k else SN[2])
-    # a hole with a gnome hat sitting politely on its rim
-    hx, hy = 100, 60
-    for y in range(-6, 7):
-        for x in range(-12, 13):
-            if x * x / 144 + y * y / 36 <= 1: cv.put(hx + x, hy + y, SE[3] if y > -2 else SE[2])
-    for x in range(-13, 14):
-        for y in (-7, 7):
-            pass
-    poly(cv, [(hx + 10, hy - 4), (hx + 30, hy - 4), (hx + 24, hy - 24), (hx + 21, hy - 30)], EM[1])
-    poly(cv, [(hx + 10, hy - 4), (hx + 18, hy - 4), (hx + 20, hy - 24), (hx + 21, hy - 30)], EM[0])
-    for x in range(hx + 7, hx + 33): cv.put(x, hy - 3, SN[0]); cv.put(x, hy - 2, SN[1]); cv.put(x, hy - 1, SN[2])
-    for i in range(14):   # footprints leading in, polite ones going round
-        x, y = 150 + i * 7, 30 + int(8 * math.sin(i / 2))
-        if i % 2 == 0: cv.put(x, y, SN[3]); cv.put(x + 1, y, SN[3]); cv.put(x, y + 1, SN[3])
-    for i in range(12):
-        x, y = 128 + i * 7, 68 - i * 2
-        cv.put(x, y, SN[3]); cv.put(x + 1, y + 1, SN[3]); cv.put(x + 3, y, SN[3])
-    for k in range(10):   # snow lumps on the bank
-        x = rnd.randint(14, 246); y = int(cy + math.sqrt(max(0, 1 - ((x - cx) / (rx + 6)) ** 2)) * (ry + 6) * rnd.choice((-1, 1)))
-        if y < cy: lump(cv, x, y, rnd.randint(7, 12), rnd.randint(4, 6), SN, rnd)
+def lm_frozenpond(rnd, cv):   # 330 x 170
+    cx, cy, rx, ry = 165, 100, 146, 42
+    TH = 11
+    # front thickness of the ice shelf, then the packed-snow rim on top of it
+    ellfill(cv, cx, cy + TH, rx + 9, ry + 7, lambda x, y, nx, ny: SN[3] if ny + nx * .2 > -.1 else None)
+    ellfill(cv, cx, cy + TH - 1, rx + 9, ry + 7, lambda x, y, nx, ny: IC[2] if ny > .55 else None)
+    def rim(x, y, nx, ny):
+        u = ny * .6 + nx * .4
+        return SN[0 if u < -.5 else 1 if u < -.1 else 2]
+    ellfill(cv, cx, cy, rx + 9, ry + 7, rim)
+    # the polished plate
+    def ice(x, y, nx, ny):
+        u = ny * .5 + nx * .35; t = 0 if u < -.38 else 1 if u < -.02 else 2 if u < .4 else 3
+        if (x + y * 2) % 17 == 0: t = max(0, t - 1)
+        band = (x * 3 + y * 5) % 97   # two long polished glare bands
+        if band < 7 and abs(nx) < .88: t = 0
+        return IC[t]
+    ellfill(cv, cx, cy, rx, ry, ice)
+    for k in range(9):   # glossy streaks
+        x, y = rnd.randint(cx - 110, cx + 70), rnd.randint(cy - 26, cy + 24)
+        for j in range(rnd.randint(8, 18)): cv.put(x + j, y - j // 3, CREAM); cv.put(x + j + 1, y - j // 3 + 1, IC[0])
+    # cracks that catch the light
+    for x0, y0, dx in ((60, 82, 1), (214, 76, 1), (132, 118, 1)):
+        x, y = x0, y0
+        for k in range(34):
+            cv.put(x, y, IC[3]); cv.put(x, y - 1, CREAM) if k % 3 == 0 else cv.put(x + 1, y - 1, IC[0])
+            x += 1 if k % 3 else 0; y += rnd.choice((-1, 0, 1)) if k % 2 else 0
+            if k in (12, 22):   # a fork
+                fx, fy = x, y
+                for j in range(9): cv.put(fx + j, fy + j // 2, IC[3]); cv.put(fx + j, fy + j // 2 - 1, IC[0]) if j % 3 == 0 else None
+    # the skating gnome's loop: a figure of eight traced in blade scratches
+    for off, col in ((0, SN[3] if False else IC[3]), (2, IC[0])):
+        curve(cv, lambda t: (cx - 52 + 66 * math.sin(t * 2 * math.pi) * (1 if True else 0) + 0, cy + 4 + off + 15 * math.sin(t * 4 * math.pi + .6)), 420, col)
+    for i in range(0, 420, 28):   # footprint-ish tick marks along the loop
+        t = i / 419; x = cx - 52 + 66 * math.sin(t * 2 * math.pi); y = cy + 4 + 15 * math.sin(t * 4 * math.pi + .6)
+        cv.put(int(x), int(y) + 4, SN[2]); cv.put(int(x) + 1, int(y) + 4, SN[2])
+    # the fishing hole with a stool, a rod and a very patient bucket
+    hx, hy = cx + 70, cy + 8
+    ellfill(cv, hx, hy, 17, 8, lambda x, y, nx, ny: SN[1] if ny < 0 else SN[2])
+    ellfill(cv, hx, hy + 1, 12, 5, lambda x, y, nx, ny: SE[2] if ny < -.2 else SE[3])
+    for x in range(hx - 9, hx + 9): cv.put(x, hy - 3, SE[1]) if x % 3 == 0 else None
+    stx, sty = hx - 38, cy + 6   # stool
+    for lx in (-6, 0, 6): rect(cv, stx + lx, sty, stx + lx + 2, sty + 10, WD[3])
+    ellfill(cv, stx, sty, 10, 4, lambda x, y, nx, ny: WD[0] if ny < -.2 else WD[1] if nx < .3 else WD[2])
+    rect(cv, stx - 9, sty + 1, stx + 10, sty + 3, WD[3])
+    line(cv, [(stx + 4, sty - 3), (stx + 26, sty - 36)], WD[2], 2)   # rod
+    line(cv, [(stx + 4, sty - 3), (stx + 26, sty - 36)], WD[0], 1)
+    line(cv, [(stx + 26, sty - 36), (hx - 1, hy - 2)], ST[1], 1)   # line
+    lump(cv, hx - 1, hy - 4, 3, 3, EM, rnd, 0)   # bobber
+    bx = stx - 20   # bucket and one fish tail
+    rect(cv, bx, sty + 2, bx + 12, sty + 12, ST[1]); rect(cv, bx, sty + 2, bx + 12, sty + 4, ST[0]); rect(cv, bx + 9, sty + 4, bx + 12, sty + 12, ST[3])
+    for k in range(5): cv.put(bx + 4 + k // 2, sty - 1 - k, EM[1]); cv.put(bx + 6 + k // 2, sty - 1 - k, EM[2])
+    # a gnome hat sitting politely on the bank
+    hatx, haty = cx - 100, cy - 34
+    poly(cv, [(hatx - 10, haty), (hatx + 10, haty), (hatx + 6, haty - 22), (hatx + 9, haty - 32)], EM[1])
+    poly(cv, [(hatx - 10, haty), (hatx - 2, haty), (hatx + 3, haty - 22), (hatx + 9, haty - 32)], EM[0])
+    for x in range(hatx - 13, hatx + 14): cv.put(x, haty + 1, SN[0]); cv.put(x, haty + 2, SN[1]); cv.put(x, haty + 3, SN[2])
+    # snow banks on the far side and at the two ends, so the plate looks sunk into the ground
+    for a in range(200, 341, 7):
+        x = cx + math.cos(math.radians(a)) * (rx + 12); y = cy + math.sin(math.radians(a)) * (ry + 9) + 2
+        lump(cv, int(x), int(y), rnd.randint(11, 16), rnd.randint(7, 10), SN, rnd, .05)
+    for x, y, a, b in ((cx - rx - 10, cy + 6, 22, 14), (cx + rx + 10, cy + 8, 22, 14), (cx - 110, cy + 44, 30, 9), (cx + 100, cy + 46, 34, 9)):
+        lump(cv, x, y, a, b, SN, rnd, .05)
+    for x, y in ((cx - 60, cy - 10), (cx + 20, cy - 24), (cx + 110, cy - 6)): gen2.sparkle(cv, x, y, False)
+    for x in range(16, 316, 4): cv.put(x, 165, SN[3]) if x % 8 == 0 else None
 
 
 def snowman(cv, cx, base, s, rnd, hat, carrot_kind, scarf=None, mood=0):
@@ -581,7 +636,7 @@ def tone5(d): return gen2.tone5(d)
 
 
 LM = {
-    "309-frozenpond": (260, 104, lm_frozenpond),
+    "309-frozenpond": (330, 170, lm_frozenpond),
     "309-snowmen": (290, 190, lm_snowmen),
     "309-icecave": (270, 220, lm_icecave),
     "309-auroraledge": (260, 170, lm_auroraledge),
