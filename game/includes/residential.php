@@ -62,7 +62,7 @@ function resid_view(array $u, array $loc, int $page): array
         $home = !empty(npc_now($n)['home']);
         $hk = npc_home_key($n);
         $hot[] = ['id' => 'h' . (int)$n['id'], 'x' => (int)$slot['x'], 'y' => (int)$slot['y'], 'label' => $met ? (string)$n['name'] : 'A house (unmet)', 'emoji' => RESID_HOMES[$hk] ?? '🏡',
-                  'chip' => $home ? '💡 window lit' : 'window dark', 'cls' => $home ? 'homelit' : 'dim', 'href' => url('door.php?npc=' . (int)$n['id'] . '&page=' . $page), 'r' => 30];
+                  'chip' => 'Visit · ' . ($home ? '💡 window lit' : 'window dark'), 'cls' => $home ? 'homelit' : 'dim', 'href' => url('door.php?npc=' . (int)$n['id'] . '&page=' . $page), 'r' => 30];
     }
     $spots = [];
     foreach ($L['spots'] ?? [] as $s) $spots[(string)$s['k']] = $s;

@@ -666,6 +666,18 @@ if ($withDb) {
         ok('haven: the Haven shop spot opens a popover (card), verb Shop', $shopSpot && $shopSpot['card'] !== '' && $shopSpot['chip'] === 'Shop', json_encode($shopSpot));
         ok('haven shop card: CSP safe', !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $card));
     }
+    echo "== 2.5.49: verb chips on every list of places\n";
+    $ucp = put((int)q_val("SELECT id FROM locations WHERE kind = 'market' ORDER BY id LIMIT 1"));
+    $wsc = workshop_view($ucp);
+    ok('workshop list: every area has a Make chip', substr_count($wsc, '<small class="hubchip-c">Make') === substr_count($wsc, 'class="hubchip '), substr_count($wsc, 'hubchip-c') . ' chips');
+    require_once $game . '/includes/hub_pages.php';
+    ok('hubp_chip puts the verb first and keeps the note', hubp_chip('Send', '2 out') === 'Send · 2 out' && hubp_chip('Read') === 'Read');
+    $tcp = treehouse_view($ucp);
+    ok('treehouse list: rooms carry verb chips (Play / Read / Enter)', preg_match('/hubchip-c">(Play|Read|Enter)/', $tcp) === 1);
+    $ycp = yard_view($ucp);
+    ok('yard list: sites carry Send / Tend / Read chips', str_contains($ycp, 'hubchip-c">Send') && str_contains($ycp, 'hubchip-c">Tend') && str_contains($ycp, 'hubchip-c">Read'));
+    $locH = (int)q_val("SELECT location_id FROM npcs WHERE home_location_id IS NOT NULL AND active = 1 GROUP BY home_location_id ORDER BY COUNT(*) DESC LIMIT 1");
+    if ($locH) { $uh2 = put($locH); [$rh] = resid_view($uh2, player_node($uh2), 1); ok('street list: each house has a Visit chip', str_contains($rh, 'hubchip-c">Visit')); }
     sset('gnav_on', '0');
 
     echo "== flag helpers\n";
