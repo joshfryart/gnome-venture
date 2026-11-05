@@ -491,6 +491,14 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
             catfish_ensure();   // the catfish_items table (2.2.x room things)
             petshops_ensure();  // the 11 pet shops beside the regional markets (idempotent; the flag petshops220 is set once all 11 exist)
         });
+        boot_step('haven_text_2571', function () {   // 2.5.71: haven text no longer promises specific goods; the seeder only inserts, so refresh the wording of the rows that already exist
+            require_once __DIR__ . '/catalog.php';
+            foreach (catalog_lines('landmarks.txt') as $row) {
+                if (count($row) < 5 || $row[2] !== 'haven') continue;
+                q('UPDATE landmarks SET description = ? WHERE kind = ? AND name = ? AND description <> ?', [$row[4], 'haven', $row[3], $row[4]]);
+                q("UPDATE locations SET description = ? WHERE kind = 'haven' AND name = ? AND description <> ?", [$row[4], $row[3], $row[4]]);
+            }
+        });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';
             if ((string)setting('db_version') !== '') post_update_news((string)setting('db_version'));   // v0.7.55: news post for players

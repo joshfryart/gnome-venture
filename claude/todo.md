@@ -38,11 +38,11 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Shops/Homes popover on non-town stop types; step-off/step-back strip; Lost Letters + landmark panel on World page; gnome walk-frame animation (8 frames, idle only); nav chrome on other picture pages; `balance_sim` for `gnav_enter_energy`.
 - `walk_scene` row deleted when a delve ends, so no delve-completion record.
 **Yard / garden**
-- Designer: corner pick only for corner-shaped pieces; cover squares not recomputed live when a bed moves; planted soil for no-till beds; satchel `satchel_skin` column (canvas/patchwork).
+- Designer: (corner pick already only for corner-shaped pieces: `isCorner()` guards every `cornerFor()` call in `site.js`, read in code, not tried on a phone); cover squares not recomputed live when a bed moves; planted soil for no-till beds; satchel `satchel_skin` column (canvas/patchwork).
 **Content**
  - Build plans: all 94 havens/wonders/delves have plans (2.5.68, Josh not yet reviewed the text). Leftover build verbs (`befriend`, `carry`, `trial`, `vigil`, `wait`, `decorate`); Admin > Build plans page.
 - Stop acts: `cookalong`/`tune`/`teach`/festival kinds; apply review notes for 691 acts.
-- Road: toll/beat/weather kinds; picture per sketch page; collection pages. Region packs for other 11 regions; road_lines admin editor; 146 villages share 9 descriptions; stop chat: 22 lines added for the thin personalities (Generous, Grumpy, Shy, Proud, Curious, Chatty, Cheerful, Sleepy), UNRELEASED; Haven text promises shops that don't exist; tundra thin.
+- Road: toll/beat/weather kinds; picture per sketch page; collection pages. Region packs for other 11 regions; road_lines admin editor; 146 villages share 9 descriptions; stop chat: 22 lines added for the thin personalities (Generous, Grumpy, Shy, Proud, Curious, Chatty, Cheerful, Sleepy), UNRELEASED; Haven text (10 havens reworded in `landmarks.txt` + upgrade step `haven_text_2571` for existing sites; UNRELEASED, not tested on a real upgrade); tundra thin.
 - Treks: scenes (Gloomtooth intro, Sorrel's door, signpost riddle); Ch IV to VI, Thorny/Bramble, respec, Lanternroot crop, hats/stamp/trophy, trailmates 8 (4-7 built).
 - Delve redo: `delve_v2` built OFF (`claude/plan-delves.md`, `claude/checklist-delves.md`).
 - Popover animation polish: 11 glint-only scenes (`bulk.py --report`); animate flags/water/foliage/sun; more icons than 7 stats.
