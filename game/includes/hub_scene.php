@@ -47,6 +47,17 @@ function hub_hotspot(array $h, array $L): string
     return $a . '</a>';
 }
 
+/** The sprite picture. A sprite sheet ('frames' > 1, frames side by side) shows its FIRST frame only (clipped), never the whole strip. */
+function hub_sprite_img(array $s, int $x, int $y, int $w, int $h): string
+{
+    $n = (int)($s['frames'] ?? 1);
+    if ($n > 1 && (int)($s['fw'] ?? 0) > 0 && (int)($s['fh'] ?? 0) > 0) {
+        return '<svg class="pix" x="' . $x . '" y="' . $y . '" width="' . $w . '" height="' . $h . '" viewBox="0 0 ' . (int)$s['fw'] . ' ' . (int)$s['fh'] . '" preserveAspectRatio="xMidYMid meet" overflow="hidden">'
+            . '<image href="' . e((string)$s['src']) . '" x="0" y="0" width="' . ((int)$s['fw'] * $n) . '" height="' . (int)$s['fh'] . '" image-rendering="pixelated"/></svg>';
+    }
+    return '<image class="pix" href="' . e((string)$s['src']) . '" x="' . $x . '" y="' . $y . '" width="' . $w . '" height="' . $h . '" image-rendering="pixelated"/>';
+}
+
 /** One sprite (feet at x,y), sized by perspective, with a soft shadow. */
 function hub_sprite(array $s, array $L): string
 {
@@ -60,7 +71,7 @@ function hub_sprite(array $s, array $L): string
     $name = (string)($s['name'] ?? '');
     $g = '<ellipse class="shadow" cx="' . $x . '" cy="' . $y . '" rx="' . (int)round($w * 0.4) . '" ry="' . max(2, (int)round($w * 0.1)) . '"/>';
     if ((string)($s['src'] ?? '') !== '') {
-        $g .= '<image class="pix" href="' . e((string)$s['src']) . '" x="' . ($x - intdiv($w, 2)) . '" y="' . ($y - $h) . '" width="' . $w . '" height="' . $h . '" image-rendering="pixelated"/>';
+        $g .= hub_sprite_img($s, $x - intdiv($w, 2), $y - $h, $w, $h);
     } else {
         $r = max(10, intdiv($w, 2));
         $g .= '<circle class="fb" cx="' . $x . '" cy="' . ($y - $r) . '" r="' . $r . '"/><text class="emo" x="' . $x . '" y="' . ($y - $r + (int)round($r * 0.45)) . '" text-anchor="middle" font-size="' . (int)round($r * 1.3) . '" aria-hidden="true">' . e((string)($s['emoji'] ?? '🙂')) . '</text>';
@@ -133,7 +144,7 @@ function hub_sprite_chrome(array $s, array $L): string
         $g = '<rect class="perch" x="' . ($x - intdiv($w, 2)) . '" y="' . ($y - $h) . '" width="' . $w . '" height="' . $h . '"/>'
             . '<text class="awaytag" x="' . $x . '" y="' . ($y - intdiv($h, 2) + 3) . '" text-anchor="middle" font-size="7">' . e($away) . '</text>';
     } elseif ((string)($s['src'] ?? '') !== '') {
-        $g .= '<image class="pix" href="' . e((string)$s['src']) . '" x="' . ($x - intdiv($w, 2)) . '" y="' . ($y - $h) . '" width="' . $w . '" height="' . $h . '" image-rendering="pixelated"/>';
+        $g .= hub_sprite_img($s, $x - intdiv($w, 2), $y - $h, $w, $h);
     } elseif (is_array($s['crop'] ?? null)) {
         [$cu, $fw, $fh, $sx, $sy, $sw, $sh] = $s['crop'];
         $g .= '<svg class="crop" x="' . ($x - intdiv($w, 2)) . '" y="' . ($y - $h) . '" width="' . $w . '" height="' . $h . '" viewBox="' . (int)$sx . ' ' . (int)$sy . ' ' . (int)$sw . ' ' . (int)$sh . '" preserveAspectRatio="xMidYMid slice" overflow="hidden">'

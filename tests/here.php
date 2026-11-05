@@ -278,6 +278,10 @@ if ($withDb) {
     $npc = ['slug' => 'zz-nosuchvillager', 'species' => 'frog'];
     $sp = here_sprite($npc);
     ok('no file at all: circle + species emoji', $sp['src'] === '' && $sp['emoji'] !== '');
+    $sp = here_sprite(['slug' => 'abuela-quilla', 'species' => 'donkey']);
+    ok('a 4-frame sprite sheet draws one frame (64 wide), not the strip', $sp['frames'] === 4 && $sp['w'] === 64 && $sp['fw'] === 64);
+    $svgs = hub_sprite(['id' => 'n1', 'x' => 100, 'y' => 200, 'name' => 'A', 'href' => ''] + $sp, ['horizon' => 100, 'h' => 270]);
+    ok('sheet sprite is clipped to its first frame', str_contains($svgs, 'viewBox="0 0 64 96"') && str_contains($svgs, 'width="256"'));
     $dir = $game . '/assets/img/mini'; $f = $dir . '/mini-npc-zz-nosuchvillager.png';
     $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
     if (is_dir($dir) && is_writable($dir)) {

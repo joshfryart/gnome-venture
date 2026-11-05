@@ -289,8 +289,10 @@ function here_sprite(array $npc): array
         if ($slug === '' || !is_file(APP_ROOT . '/' . $rel)) continue;
         if (!isset($size[$rel])) { $sz = @getimagesize(APP_ROOT . '/' . $rel); $size[$rel] = $sz ? [$sz[0], $sz[1]] : [64, 80]; }
         [$w, $h] = $size[$rel];
+        $frames = ($h > 0 && $w >= 2 * $h * 0.6 && $w % 4 === 0 && abs(($w / 4) / $h - 2 / 3) < 0.1) ? 4 : 1;   // npc sprite sheets: 4 frames of 64 x 96 side by side; draw frame 1
+        $fw = intdiv($w, $frames); $fh = $h; $w = $fw;
         if ($h > 96) { $w = (int)round($w * 96 / $h); $h = 96; }   // 96 px tall at most
-        return ['src' => url($rel), 'w' => $w, 'h' => $h, 'emoji' => $emoji];
+        return ['src' => url($rel), 'w' => $w, 'h' => $h, 'emoji' => $emoji, 'frames' => $frames, 'fw' => $fw, 'fh' => $fh];
     }
     return ['src' => '', 'w' => 40, 'h' => 56, 'emoji' => $emoji];
 }

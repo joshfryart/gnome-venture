@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.19
+- **Villager sprites no longer show four copies**: the Here picture drew a villager's whole 4-frame sheet (four bees in a row); it now draws one frame. Tap areas and name tags in the picture scenes are always visible (dashed outline, gold corners, names on small phones too). Needs 2.5.18.
+
 ## 2.5.18
 - **Picture-first Here scenes for every main town**: Mossbottom and the 14 regional towns (plus the Maplewold market and the desert market stop look) show a gate-view picture with whole-building tap areas, a compass that opens the Routes list (named by destination, one tap to set off) and a globe that opens the World map popover with Open region map. Lookup picks the picture by town region, stop type, landscape and style. Wander cards read optional banner and icon art when present. Needs 2.5.17.
 
