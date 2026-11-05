@@ -305,7 +305,7 @@ end
 
 pics["wonder-fairy-ring-clearing"] = function()
   c:stripes(0, 160, { "#10182c", "#16203c", "#1c2a4c", "#223458", "#2a4466" }, { 3, 3, 3, 3, 3 })
-  stars(70, 0, 90, 8)
+  fm(R(0, 161, 479, 269), "#183244"); stars(70, 0, 90, 8)
   local mn = E(380, 40, 20, 20); rim(mn, "#c8d8f0"); fm(mn, "#fff6d0"); ball(mn, RP("#fff0c0", { hi = "#fffbe8", shade = "#e8d8a8", deep = "#d0c090" }), 380, 40, 20, 20)
   fm(E(372, 34, 4, 3), "#e8d8a8"); fm(E(388, 46, 3, 3), "#e8d8a8")
   local function trunks(col, hi, ys, n, seed, wmin, wv)
