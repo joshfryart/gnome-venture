@@ -133,6 +133,31 @@ ok('lookup: kind beats generic', here_layout_find(['village' => ['w' => 4], 'gen
 ok('lookup: falls back to generic', here_layout_find(['generic' => ['w' => 3]], 'delve', 'tundra')[0] === 'generic');
 ok('missing template (not even generic) = null', here_layout_find([], 'village', 'forest') === null);
 ok('town finds the town template', here_layout_find($all, 'market', '')[0] === 'generic' && here_layout_find($all, 'town', 'desert')[0] === 'town');
+$lk = ['town-na' => ['w' => 1], 'town' => ['w' => 2], 'stop-market-grassland_maplewold' => ['w' => 3], 'stop-market-grassland_zzz' => ['w' => 4], 'stop-market-grassland' => ['w' => 5], 'stop-market' => ['w' => 6], 'stop' => ['w' => 7], 'generic' => ['w' => 8]];
+ok('lookup: a main town finds its region picture', here_layout_find($lk, 'town', 'forest', 'x', ['region' => 'NA'])[0] === 'town-na');
+ok('lookup: a town with no region picture falls to town', here_layout_find($lk, 'town', 'forest', 'x', ['region' => 'ZZ'])[0] === 'town');
+ok('lookup: the hub uses town-hub when drawn', here_layout_find($lk + ['town-hub' => ['w' => 9]], 'town', '', 'x', ['region' => 'hub'])[0] === 'town-hub');
+ok('lookup: slug still wins over the region picture', here_layout_find($lk + ['slug:x' => ['w' => 9]], 'town', '', 'x', ['region' => 'NA'])[0] === 'slug:x');
+ok('lookup: a stop finds type + landscape + style', here_layout_find($lk, 'stop', 'grassland', 's1', ['type' => 'market', 'style' => 'maplewold'])[0] === 'stop-market-grassland_maplewold');
+$lk2 = $lk; unset($lk2['stop-market-grassland_maplewold']);
+ok('lookup: a stop with another region style takes another look of that type + landscape', here_layout_find($lk2, 'stop', 'grassland', 's1', ['type' => 'market', 'style' => 'adobe'])[0] === 'stop-market-grassland_zzz');
+$lk3 = $lk2; unset($lk3['stop-market-grassland_zzz']);
+ok('lookup: then type + landscape, then type, then stop, then generic',
+    here_layout_find($lk3, 'stop', 'grassland', 's1', ['type' => 'market'])[0] === 'stop-market-grassland' && here_layout_find($lk3, 'stop', 'coast', 's1', ['type' => 'market'])[0] === 'stop-market'
+    && here_layout_find($lk3, 'stop', 'coast', 's1', ['type' => 'mill'])[0] === 'stop' && here_layout_find(['generic' => ['w' => 1]], 'stop', 'coast', 's1', ['type' => 'mill'])[0] === 'generic');
+ok('lookup: the look pick is stable for a slug', here_layout_find($lk2 + ['stop-market-grassland_aaa' => ['w' => 1]], 'stop', 'grassland', 'honey', ['type' => 'market', 'style' => 'x'])[0] === here_layout_find($lk2 + ['stop-market-grassland_aaa' => ['w' => 1]], 'stop', 'grassland', 'honey', ['type' => 'market', 'style' => 'x'])[0]);
+ok('lookup: a stop type with odd characters is ignored', here_layout_find($lk, 'stop', 'grassland', 's1', ['type' => '../x'])[0] === 'stop');
+$shipped = here_layouts_shipped();
+$gateKeys = array_filter(array_keys($shipped), fn($k) => str_starts_with($k, 'town-') || str_starts_with($k, 'stop-'));
+ok('shipped gate-view layouts exist (towns and stops)', count($gateKeys) >= 10, (string)count($gateKeys));
+$bad = [];
+foreach ($gateKeys as $k) { $L = $shipped[$k]; if (($L['view'] ?? '') !== 'gate' || !empty($L['exits']) || !is_file($game . '/assets/img/scenes/' . here_layout_file($k))) $bad[] = $k; foreach ($L['spots'] as $sp) if (!isset($sp['box'])) $bad[] = $k . '/' . $sp['k']; }
+ok('every shipped gate layout: view gate, no exits drawn, a PNG, a box on every spot', !$bad, implode(',', $bad));
+ok('gate layouts lint clean', !here_lint_all(array_intersect_key($shipped, array_flip($gateKeys))));
+$tpl = ['w' => 480, 'h' => 270, 'horizon' => 100, 'stand' => [['x' => 100, 'y' => 200], ['x' => 150, 'y' => 200], ['x' => 200, 'y' => 200], ['x' => 250, 'y' => 200]], 'spots' => [['k' => 'a', 'x' => 100, 'y' => 150, 'box' => [80, 120, 130, 170]]]];
+ok('lint: a stand slot 6 or more off a box is fine', !here_lint_layout($tpl));
+$tpl['stand'][0] = ['x' => 100, 'y' => 150];
+ok('lint: a stand slot inside a box is flagged', (bool)array_filter(here_lint_layout($tpl), fn($m) => str_contains($m, 'inside or touching the box')));
 $anch = here_layout_anchors($all['generic']);
 ok('anchors read from a layout', count($anch) === 8 && $anch['N'] === 0.0);
 ok('exit position', here_exit_pos($all['generic'], 'N') === ['x' => 240, 'y' => 118] && here_exit_pos($all['generic'], 'X') === null);
@@ -184,7 +209,7 @@ if ($withDb) {
         $id = (int)q_val($sql);
         if (!$id) { ok("$k: a place of this kind exists in the test world", false); continue; }
         $h = $viewOf($id);
-        ok("$k: the picture renders", str_contains($h, 'class="hubsvg"') && str_contains($h, 'viewBox="0 0 480 270"'));
+        ok("$k: the picture renders", str_contains($h, 'class="hubsvg') && str_contains($h, 'viewBox="0 0 480 270"'));
         ok("$k: CSP safe (no style=, no script, no on* handlers)", !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $h), substr($h, 0, 0));
         ok("$k: has a text twin", str_contains($h, 'class="hubtwin"'));
         ok("$k: every hotspot is a real link", preg_match_all('/<a class="hs(?: [^"]*)?" /', $h) === preg_match_all('/<a class="hs(?: [^"]*)?" id="hs-[^"]+" href="[^"]+"/', $h));
@@ -195,7 +220,12 @@ if ($withDb) {
     $u = put($town);
     $routes = visible_routes($u, $town);
     $h = here_view($u, player_node($u));
-    ok('one exit hotspot per visible route (up to 8)', substr_count($h, 'id="hs-e') === min(8, count($routes)), substr_count($h, 'id="hs-e') . ' vs ' . count($routes));
+    $gateView = str_contains($h, 'hubsvg chrome');   // a main town with a gate-view picture has no exits on it: the compass card lists every route
+    if ($gateView) {
+        ok('gate view: no exit hotspots on the picture, no circles', substr_count($h, 'id="hs-e') === 0 && !str_contains($h, '<circle'));
+        ok('gate view: the compass card holds every route named by its destination, one Set off each', substr_count($h, 'name="route_id"') >= 1 && substr_count($h, 'name="route_id"') <= count($routes), substr_count($h, 'name="route_id"') . ' vs ' . count($routes));
+        ok('gate view: compass and globe are there', str_contains($h, 'id="hs-routes"') && str_contains($h, 'id="hs-world"') && str_contains($h, 'hubpop-routes') && str_contains($h, 'Open region map'));
+    } else ok('one exit hotspot per visible route (up to 8)', substr_count($h, 'id="hs-e') === min(8, count($routes)), substr_count($h, 'id="hs-e') . ' vs ' . count($routes));
     // a side path to a place the gnome has not found stays hidden
     $hid = null;
     foreach (q("SELECT r.id, r.a_id, r.b_id FROM routes r WHERE r.kind = 'side' ORDER BY r.id")->fetchAll() as $cand) {

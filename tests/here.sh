@@ -34,7 +34,7 @@ echo "== flag on"
 cli set gnav_on 1 >/dev/null
 chk "login lands on Here" "$([[ $(login) == */here.php ]] && echo 1)"
 R=$(get here.php)
-chk "here.php shows the picture" "$([[ $R == 200* ]] && grep -q 'class="hubsvg"' $TD/here-p.html && echo 1)" "$R"
+chk "here.php shows the picture" "$([[ $R == 200* ]] && grep -q 'class="hubsvg' $TD/here-p.html && echo 1)" "$R"
 chk "no inline style or script on Here (CSP)" "$(grep -qE '\sstyle=|<script[^>]*>[^<]' <(sed -e 's/<script[^>]*src=[^>]*><\/script>//g' $TD/here-p.html | sed -n '/<main/,/<\/main>/p') && echo 0 || echo 1)"
 chk "picture script is loaded" "$(grep -q 'assets/hubscene.js' $TD/here-p.html && echo 1)"
 chk "Fast travel and GPS are on Here" "$(grep -q 'hubpop-ft' $TD/here-p.html && grep -q 'hubpop-gps' $TD/here-p.html && echo 1)"

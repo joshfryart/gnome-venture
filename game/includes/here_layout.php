@@ -113,13 +113,28 @@ function here_spot_pos(array $L, string $k): ?array
 }
 
 /**
- * Which template a place uses. Order: slug:<slug> -> <kind>-<landscape> -> <kind> -> generic.
- * $all is the full layout map (key => layout). Returns [key, layout] or null when even 'generic' is missing.
+ * Which template a place uses. Order: slug:<slug> -> (town) town-<region code> -> (stop) stop-<type>-<landscape>_<style>, a look of the same
+ * type + landscape picked by the slug, stop-<type>-<landscape>, stop-<type> -> <kind>-<landscape> -> <kind> -> generic.
+ * $all is the full layout map (key => layout). $ctx: ['region' => region code or 'hub', 'type' => stop type slug, 'style' => look style from
+ * data/stop_looks.php]. Returns [key, layout] or null when even 'generic' is missing.
  */
-function here_layout_find(array $all, string $kind, string $landscape = '', string $slug = ''): ?array
+function here_layout_find(array $all, string $kind, string $landscape = '', string $slug = '', array $ctx = []): ?array
 {
     $tries = [];
     if ($slug !== '') $tries[] = 'slug:' . $slug;
+    $region = strtolower((string)($ctx['region'] ?? ''));
+    if ($kind === 'town' && preg_match('/^[a-z0-9]+$/', $region)) $tries[] = 'town-' . $region;
+    $type = strtolower((string)($ctx['type'] ?? ''));
+    $style = strtolower((string)($ctx['style'] ?? ''));
+    if ($kind === 'stop' && preg_match('/^[a-z0-9_-]+$/', $type) && $landscape !== '') {
+        if ($style !== '') $tries[] = 'stop-' . $type . '-' . $landscape . '_' . $style;
+        $looks = [];   // any look of this type + landscape (another region's style) beats a plain template: stable pick by the slug
+        foreach (array_keys($all) as $k) if (str_starts_with((string)$k, 'stop-' . $type . '-' . $landscape . '_')) $looks[] = (string)$k;
+        sort($looks);
+        if ($looks) $tries[] = $looks[crc32($slug . '|' . $type) % count($looks)];
+        $tries[] = 'stop-' . $type . '-' . $landscape;
+    }
+    if ($kind === 'stop' && preg_match('/^[a-z0-9_-]+$/', $type)) $tries[] = 'stop-' . $type;
     if ($kind !== '' && $landscape !== '') $tries[] = $kind . '-' . $landscape;
     if ($kind !== '') $tries[] = $kind;
     $tries[] = 'generic';
@@ -189,6 +204,11 @@ function here_lint_layout(array $L): array
     }
     foreach (($pts['stand'] ?? []) as $i => $s) {
         foreach (array_merge($pts['exits'] ?? [], $pts['spots'] ?? []) as $o) {
+            if (isset($o['box']) && is_array($o['box']) && count($o['box']) === 4) {   // a spot with a hit box: the stand slot must stay 6 units off the box (the box, not its dot, is the thing)
+                $dx = max($o['box'][0] - $s['x'], 0, $s['x'] - $o['box'][2]); $dy = max($o['box'][1] - $s['y'], 0, $s['y'] - $o['box'][3]);
+                if (sqrt($dx * $dx + $dy * $dy) < 6) { $bad[] = 'stand ' . $i . ' inside or touching the box of ' . ($o['k'] ?? '?'); break; }
+                continue;
+            }
             if ($dist($s, $o) < 28) { $bad[] = 'stand ' . $i . ' closer than 28 to ' . ($o['a'] ?? $o['k'] ?? '?'); break; }
         }
         if (isset($L['horizon']) && $s['y'] <= (int)$L['horizon']) $bad[] = 'stand ' . $i . ' above the horizon';

@@ -78,7 +78,6 @@ function here_form(string $action, array $fields, string $label, string $cls = '
  */
 function here_exits(array $u, array $node, array $L, string $back): array
 {
-    $uid = (int)$u['id'];
     $nid = (int)$node['id'];
     $routes = visible_routes($u, $nid);
     $byId = [];
@@ -89,58 +88,104 @@ function here_exits(array $u, array $node, array $L, string $back): array
     }
     [$assign, $more] = here_assign_exits(here_layout_anchors($L), $br);
     // the route being followed (GPS): its first leg gets the ring
-    $goalRoute = 0;
-    if ($ds = dest_status($u)) {
-        $plan = dest_plan($u, (int)$ds[0]['id']);
-        $goalRoute = (int)($plan['path'][0]['id'] ?? 0);
-    }
-    $shift = ts($u['community_shift_until'] ?? null) > time();
-    $lvl = (int)$u['level'];
+    $goalRoute = here_goal_route($u);
     $out = [];
     foreach ($assign as $rid => $anchor) {
-        $r = $byId[$rid];
-        $to = $r['to'];
         $pos = here_exit_pos($L, $anchor);
         if (!$pos) continue;
-        $name = here_place_name($uid, $to);
-        $isRoad = ($r['kind'] ?? 'road') === 'road';
-        $cost = route_enter_cost($u, $r);
-        [$dMin, $dMax] = route_danger($u, $r);
-        $cls = '';
-        $card = '';
-        $goal = $rid === $goalRoute;
-        $label = ($goal ? 'Continue to ' : ($isRoad ? 'To ' : 'Side path: ')) . $name;
-        $chip = '⚡' . $cost . ' · ' . (int)$r['steps'] . ' steps · Lv ' . $dMin . ($dMax > $dMin ? '-' . $dMax : '');
-        $lock = ($to['slug'] ?? '') !== '' ? journey_lock($uid, 'place', (string)$to['slug']) : null;
-        $lm = in_array($to['kind'], ['wonder', 'lair', 'haven', 'delve'], true) ? landmark_at((int)$to['id']) : null;
-        $ruin = $lm && landmark_in_ruins($lm, $uid);
-        $body = '<p><b>' . e($name) . '</b> · ' . ($isRoad ? '🛣️ Trail' : '🌿 side path') . '</p><p class="muted">' . e($chip) . ' ' . go_level_chip($lvl, $dMin, $dMax) . '</p>';
-        if ($lock) {
-            $cls = 'locked';
-            $body .= journey_lock_note($lock, $name);
-        } elseif ($ruin) {
-            $cls = 'ruin';
-            $body .= '<p class="box notice">🏚️ ' . e($name) . ' is in ruins. Make it safe first.</p><p><a class="btn" href="' . e(url('world.php')) . '">Repair it on the World page</a></p>';
-        } elseif ($shift) {
-            $body .= '<p class="box notice">🧑‍🌾 You’re on a tending shift at the community garden. Finish it before you set off.</p>';
-        } else {
-            $cls = $goal ? 'goal' : '';
-            if ($goal) $body .= '<p>🧭 This is the next leg of your route.</p>';
-            $body .= here_form('adventure.php', ['do' => 'start', 'route_id' => $rid], '▶ Set off' . ($cost ? ' (⚡' . $cost . ')' : ' (free)'));
-        }
-        $out[] = ['id' => 'e' . $rid, 'x' => $pos['x'], 'y' => $pos['y'], 'label' => $label, 'chip' => $chip, 'cls' => $cls, 'emoji' => $isRoad ? '🛣️' : '🌿',
-                  'href' => url($back . '?o=e' . $rid), 'card' => $body];
+        $i = here_route_info($u, $byId[$rid], $goalRoute, $back);
+        $out[] = ['id' => 'e' . $rid, 'x' => $pos['x'], 'y' => $pos['y'], 'label' => $i['label'], 'chip' => $i['chip'], 'cls' => $i['cls'], 'emoji' => $i['emoji'],
+                  'href' => url($back . '?o=e' . $rid), 'card' => $i['card']];
     }
     // routes that did not fit the template's anchors: one link to the World page, which lists every way
     $moreHot = $more ? ['href' => url('world.php'), 'label' => '+' . count($more) . ' more ways (World page)'] : [];
     return [$out, $moreHot];
 }
 
+/**
+ * Everything the picture shows for ONE route out of a place: the destination's name, the label, the cost chip, the lock / ruin / shift state and
+ * the card body with the "Set off" form. Used by the exit hotspots (here_exits) and by the compass Routes list (here_routes_card).
+ * Returns ['name','label','chip','cls','emoji','card','goal','road','cost','steps'].
+ */
+function here_route_info(array $u, array $r, int $goalRoute, string $back): array
+{
+    $uid = (int)$u['id'];
+    $rid = (int)$r['id'];
+    $to = $r['to'];
+    $name = here_place_name($uid, $to);
+    $isRoad = ($r['kind'] ?? 'road') === 'road';
+    $cost = route_enter_cost($u, $r);
+    [$dMin, $dMax] = route_danger($u, $r);
+    $shift = ts($u['community_shift_until'] ?? null) > time();
+    $lvl = (int)$u['level'];
+    $cls = '';
+    $goal = $rid === $goalRoute;
+    $label = ($goal ? 'Continue to ' : ($isRoad ? 'To ' : 'Side path: ')) . $name;
+    $chip = '⚡' . $cost . ' · ' . (int)$r['steps'] . ' steps · Lv ' . $dMin . ($dMax > $dMin ? '-' . $dMax : '');
+    $lock = ($to['slug'] ?? '') !== '' ? journey_lock($uid, 'place', (string)$to['slug']) : null;
+    $lm = in_array($to['kind'], ['wonder', 'lair', 'haven', 'delve'], true) ? landmark_at((int)$to['id']) : null;
+    $ruin = $lm && landmark_in_ruins($lm, $uid);
+    $body = '<p><b>' . e($name) . '</b> · ' . ($isRoad ? '🛣️ Trail' : '🌿 side path') . '</p><p class="muted">' . e($chip) . ' ' . go_level_chip($lvl, $dMin, $dMax) . '</p>';
+    if ($lock) {
+        $cls = 'locked';
+        $body .= journey_lock_note($lock, $name);
+    } elseif ($ruin) {
+        $cls = 'ruin';
+        $body .= '<p class="box notice">🏚️ ' . e($name) . ' is in ruins. Make it safe first.</p><p><a class="btn" href="' . e(url('world.php')) . '">Repair it on the World page</a></p>';
+    } elseif ($shift) {
+        $body .= '<p class="box notice">🧑‍🌾 You’re on a tending shift at the community garden. Finish it before you set off.</p>';
+    } else {
+        $cls = $goal ? 'goal' : '';
+        if ($goal) $body .= '<p>🧭 This is the next leg of your route.</p>';
+        $body .= here_form('adventure.php', ['do' => 'start', 'route_id' => $rid], '▶ Set off' . ($cost ? ' (⚡' . $cost . ')' : ' (free)'));
+    }
+    return ['name' => $name, 'label' => $label, 'chip' => $chip, 'cls' => $cls, 'emoji' => $isRoad ? '🛣️' : '🌿', 'card' => $body, 'goal' => $goal, 'road' => $isRoad, 'cost' => $cost, 'steps' => (int)$r['steps'],
+            'locked' => $lock !== null || $ruin || $shift];
+}
+
+/** The id of the route the GPS is following (its first leg), or 0. */
+function here_goal_route(array $u): int
+{
+    if ($ds = dest_status($u)) {
+        $plan = dest_plan($u, (int)$ds[0]['id']);
+        return (int)($plan['path'][0]['id'] ?? 0);
+    }
+    return 0;
+}
+
+/**
+ * The compass card of a picture with no exits drawn on it (gate view): EVERY route out of this place, nearest first (the GPS leg on top), each
+ * named by its destination with its cost, and a one-tap "Set off" form (a locked or ruined destination says why instead). Same data and same
+ * forms as the exit hotspots, so the cost and the rules cannot differ between the two.
+ */
+function here_routes_card(array $u, array $node, string $back): string
+{
+    $nid = (int)$node['id'];
+    $routes = visible_routes($u, $nid);
+    if (!$routes) return '<p class="muted">No ways out of here yet.</p>';
+    $goalRoute = here_goal_route($u);
+    $rows = [];
+    foreach ($routes as $r) {
+        $i = here_route_info($u, $r, $goalRoute, $back);
+        $rows[] = [$i['goal'] ? 0 : 1, (int)$r['steps'], $i];
+    }
+    usort($rows, fn($a, $b) => [$a[0], $a[1]] <=> [$b[0], $b[1]]);
+    $h = '<p class="muted">Where to next? One tap travels.</p><ul class="trows">';
+    foreach ($rows as [, , $i]) {
+        $h .= '<li class="trow"><details class="hroute' . ($i['cls'] !== '' ? ' ' . e($i['cls']) : '') . '"' . ($i['goal'] ? ' open' : '') . '><summary><b>' . e($i['name']) . '</b> <span class="muted">' . e($i['chip']) . '</span></summary>' . $i['card'] . '</details></li>';
+    }
+    return $h . '</ul>';
+}
+
 /** Town spots of the node's region, by kind (green, teahouse, board, library). */
 function here_town_spots(array $node): array
 {
     $out = [];
-    foreach (q('SELECT * FROM town_spots WHERE region = ? AND active = 1 ORDER BY id', [(string)$node['region']])->fetchAll() as $s) $out[(string)$s['kind']] ??= $s;
+    $n = 0;
+    foreach (q('SELECT * FROM town_spots WHERE region = ? AND active = 1 ORDER BY id', [(string)$node['region']])->fetchAll() as $s) {
+        $out[(string)$s['kind']] ??= $s;
+        if ((string)$s['kind'] === 'special') $out['special' . (++$n)] = $s;   // the region's own places, in order: layout spots 'special1', 'special2' (an 'as' of those)
+    }
     return $out;
 }
 
@@ -148,17 +193,21 @@ function here_town_spots(array $node): array
 function here_spots(array $u, array $node, array $L, string $back, string $kind): array
 {
     $uid = (int)$u['id'];
-    $want = [];
-    foreach ($L['spots'] ?? [] as $s) $want[(string)$s['k']] = $s;
+    $want = [];   // behaviour key => the layout spots that do it. A spot's 'k' is its own id; an optional 'as' says which behaviour it has (several fronts may share one)
+    foreach ($L['spots'] ?? [] as $s) $want[(string)($s['as'] ?? $s['k'])][] = $s;
     $hot = [];
     $add = function (string $k, string $label, string $emoji, string $href, string $card = '', string $chip = '', string $cls = '') use (&$hot, $want, $back) {
-        if (!isset($want[$k])) return;
-        $hot[] = ['id' => 's-' . $k, 'x' => (int)$want[$k]['x'], 'y' => (int)$want[$k]['y'], 'label' => $label, 'emoji' => $emoji, 'chip' => $chip, 'cls' => $cls,
-                  'href' => $card !== '' ? url($back . '?o=s-' . $k) : $href, 'card' => $card];
+        foreach ($want[$k] ?? [] as $n => $sp) {
+            $id = 's-' . $k . ($n > 0 ? '-' . ($n + 1) : '');   // the id follows the behaviour (stable links), a second front with the same behaviour gets -2, -3
+            $h = ['id' => $id, 'x' => (int)$sp['x'], 'y' => (int)$sp['y'], 'label' => $label, 'emoji' => $emoji, 'chip' => $chip, 'cls' => $cls,
+                  'href' => $card !== '' ? url($back . '?o=' . $id) : $href, 'card' => $card];
+            if (isset($sp['box'])) $h['box'] = $sp['box'];
+            $hot[] = $h;
+        }
     };
     if ($kind === 'town') {
         $ts = here_town_spots($node);
-        foreach (['green' => '🌳', 'teahouse' => '☕', 'board' => '📋', 'library' => '📚'] as $k => $emo) {
+        foreach (['green' => '🌳', 'teahouse' => '☕', 'board' => '📋', 'library' => '📚', 'special1' => '✨', 'special2' => '✨'] as $k => $emo) {
             if (isset($ts[$k])) $add($k, (string)$ts[$k]['name'], $emo, url('town.php?' . ($node['kind'] === 'hub' ? 'hub=1&' : '') . 'spot=' . (int)$ts[$k]['id']));
         }
         $add('shops', 'Shops', '🏪', url('town.php?view=shops'));
@@ -264,20 +313,49 @@ function here_sprites(array $u, array $node, array $L, string $kind): array
 function here_view(array $u, array $node, bool $debug = false, string $open = ''): string
 {
     $kind = here_kind($node);
-    $found = here_layout_find(here_layouts_all(), $kind, (string)($node['landscape'] ?? ''), (string)($node['slug'] ?? ''));
+    $found = here_layout_find(here_layouts_all(), $kind, (string)($node['landscape'] ?? ''), (string)($node['slug'] ?? ''), here_layout_ctx($node, $kind));
     $back = 'here.php';
     if (!$found) {   // no template at all: the list is the page
         return '<p class="muted">No picture for this place yet. Use the list below.</p>' . here_text_list($u, $node);
     }
     [$key, $L] = $found;
-    [$exits, $more] = here_exits($u, $node, $L, $back);
+    $gate = ($L['view'] ?? '') === 'gate';   // a gate-view picture: no exits painted on it; the compass opens the Routes list, the globe the World map
+    if ($gate) { $exits = []; $more = []; } else [$exits, $more] = here_exits($u, $node, $L, $back);
     $spots = here_spots($u, $node, $L, $back, $kind);
     [$sprites, $over] = here_sprites($u, $node, $L, $kind);
     $opts = ['layout' => $L, 'alt' => 'Where you are: ' . $node['name'], 'open' => $open, 'debug' => $debug, 'close_href' => url($back), 'title' => 'List view'];
+    if ($gate) {
+        $opts['chrome'] = true;
+        $opts['nav'] = [
+            'routes' => ['href' => url($back . '?o=routes'), 'title' => 'Routes', 'card' => here_routes_card($u, $node, $back)],
+            'world' => ['href' => url($back . '?o=world'), 'title' => 'World map', 'card' => '<p class="muted">The whole world, region by region.</p><p><a class="btn" href="' . e(url('world.php?tab=map#regionmap')) . '">Open region map</a></p><p><a class="btn alt" href="' . e(url('world.php')) . '">Open the World page</a></p>'],
+        ];
+    }
     if ($over > 0) $opts['more'] = ['label' => '+' . $over . ' more villagers', 'href' => url('villagers.php')];
     $h = hub_scene($key, array_merge($exits, $spots), $sprites, $opts);
     if ($more) $h .= '<p><a class="btn alt" href="' . e($more['href']) . '">' . e($more['label']) . '</a></p>';
     return $h;
+}
+
+/**
+ * What the template lookup needs to know about a place besides its kind and landscape: the region code (a main town's picture is per region;
+ * the hub is 'hub'), and for a rest stop its type and the regional building style (data/stop_looks.php). Pure reads, never fatal.
+ */
+function here_layout_ctx(array $node, string $kind): array
+{
+    $ctx = [];
+    try {
+        if (($node['kind'] ?? '') === 'hub') $ctx['region'] = 'hub';
+        elseif ((int)($node['region_id'] ?? 0) > 0) $ctx['region'] = (string)q_val('SELECT code FROM regions WHERE id = ?', [(int)$node['region_id']]);
+        if ($kind === 'stop') {
+            require_once __DIR__ . '/stops.php';
+            $ctx['type'] = stop_type_of($node);
+            $f = __DIR__ . '/data/stop_looks.php';
+            $map = is_file($f) ? (require $f) : [];
+            $ctx['style'] = (string)($map[(string)($ctx['region'] ?? '')] ?? '');
+        }
+    } catch (Throwable $e) {}
+    return $ctx;
 }
 
 /** Plain text twin for a place with no template at all. */
