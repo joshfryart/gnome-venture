@@ -25,6 +25,8 @@ $kindIcons = ['village' => '🏡', 'haven' => '🏕️', 'wonder' => '✨', 'lai
 <div class="herepage"><p class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></p>
 <h1><?= $kindIcons[loc_real_kind($node)] ?? '📍' ?> <?= e($node['name']) ?></h1>
 <p class="hereinfo"><span class="muted">🕰️ It’s <?= e(hour_label(hollow_hour())) ?> in the Hollow, <?= e(hollow_date('l')) ?></span></p>
+<?php require_once __DIR__ . '/includes/explore.php'; ?>
+<?= wander_step_once('road') /* v2.5.49: the gnome stepping back onto the road, once (art optional) */ ?>
 <?= trail_resume_html($u) /* a walk put away by Wander off the Trail */ ?>
 <?= dest_resume_html($u) ?>
 <?php $hv = here_view($u, $node, $debug, $open); $gate = !empty($GLOBALS['gnav_gate']); ?>

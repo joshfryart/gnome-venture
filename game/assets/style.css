@@ -7209,6 +7209,13 @@ dialog.trailpop.wanderpop .hubcard { text-align: left; }
 .wc-banner { margin: -4px -4px 6px; line-height: 0; }
 .wc-banner img.wc-banner-img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
 .wc-mv, .wc-tier, .wc-found { vertical-align: middle; image-rendering: pixelated; }
+/* 2.5.49: step-off / step-back strip: 4 to 6 frames of 96 x 64, plays once and holds the last frame */
+.wc-step { width: 96px; height: 64px; overflow: hidden; margin: 0 auto 6px; line-height: 0; }
+.wc-step.flip { transform: scaleX(-1); }
+.wc-step img { display: block; max-width: none; image-rendering: pixelated; animation-duration: .7s; animation-fill-mode: forwards; animation-timing-function: steps(3); }
+.wc-step img.ws-n4 { animation-name: wsn4; animation-timing-function: steps(3); } .wc-step img.ws-n5 { animation-name: wsn5; animation-timing-function: steps(4); } .wc-step img.ws-n6 { animation-name: wsn6; animation-timing-function: steps(5); }
+@keyframes wsn4 { to { transform: translateX(-288px); } } @keyframes wsn5 { to { transform: translateX(-384px); } } @keyframes wsn6 { to { transform: translateX(-480px); } }
+@media (prefers-reduced-motion: reduce) { .wc-step img { animation: none; } .wc-step img.ws-n4 { transform: translateX(-288px); } .wc-step img.ws-n5 { transform: translateX(-384px); } .wc-step img.ws-n6 { transform: translateX(-480px); } }
 .wanderbehind .tmgrid button { pointer-events: none; }
 /* 2.5.14: tidy the wander popover: one title (the info line), smaller type, compact folds */
 dialog.wanderpop h1, dialog.wanderpop p.status { display: none; }

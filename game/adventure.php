@@ -246,6 +246,7 @@ function wander_card_html(array $u, array $exp, array $last, array $log, array $
         . '<button class="btn wc-btn ' . e($cls) . '"><span class="wc-bt">' . (wander_art('ico/wander-' . $do . '.png', 24, 24, 'wc-mv') ?: $ico) . ' ' . e($title) . '</span><small>' . e($sub) . '</small><i>' . e($cost) . '</i></button></form>';
     $o = '<dialog class="picker hubpop trailpop trailsmall wanderpop" id="trailpop" open aria-label="Off the Trail"><div class="pickbox"><div class="hubcard trailui wcard">'
         . wander_banner($hereKey, explore_land($exp))
+        . wander_step_once('off')   // v2.5.49: the gnome stepping off the road, once, when art exists
         . '<div class="wc-head"><b>🌿 Off the Trail</b><span>' . $L[0] . ' ' . e($L[1]) . ' · step ' . $dep . ' · ' . wander_art('ico/wander-tier-' . (['gentle' => 'gentle', 'medium' => 'wild', 'hard' => 'dangerous', 'wild' => 'dangerous', 'deep' => 'deep'][$hereKey] ?? 'gentle') . '.png', 24, 24, 'wc-tier') . e($hereTier) . ' · danger ' . (int)$last['level'] . '</span></div>'
         . $res;
     $foundId = (int)($_SESSION['explore_found'] ?? 0);
