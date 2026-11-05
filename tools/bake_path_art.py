@@ -68,10 +68,12 @@ def texture(mat):
     return seamless(im) if mat == "stone" else im
 
 INSET = 3
+WARP = (8, 12, 4, 4)   # noise cell and amplitude: big, small (patches, such as the untilled coverings, set larger values)
 def is_path(m, x, y):
     """Is local pixel (x,y) (may sit just outside 0..63) path, given canonical mask m?"""
-    dx = (vnoise(x % T, y % T, 8, 11) - .5) * 12 + (vnoise(x % T, y % T, 4, 13) - .5) * 4
-    dy = (vnoise(x % T, y % T, 8, 12) - .5) * 12 + (vnoise(x % T, y % T, 4, 14) - .5) * 4
+    c1, a1, c2, a2 = WARP
+    dx = (vnoise(x % T, y % T, c1, 11) - .5) * a1 + (vnoise(x % T, y % T, c2, 13) - .5) * a2
+    dy = (vnoise(x % T, y % T, c1, 12) - .5) * a1 + (vnoise(x % T, y % T, c2, 14) - .5) * a2
     wx, wy = x + dx, y + dy
     cx = -1 if wx < 0 else (1 if wx >= T else 0); cy = -1 if wy < 0 else (1 if wy >= T else 0)
     has = {(0, -1): N, (1, 0): E, (0, 1): S, (-1, 0): W, (1, -1): NE, (1, 1): SE, (-1, 1): SW, (-1, -1): NW}
@@ -89,15 +91,15 @@ def is_path(m, x, y):
 
 def shade(c, f): return (min(255, int(c[0] * f)), min(255, int(c[1] * f)), min(255, int(c[2] * f)), c[3])
 
-def bake_tile(tex, m):
+def bake_tile(tex, m, dark=.74, light=1.16):
     tp = tex.load(); out = Image.new("RGBA", (T, T), (0, 0, 0, 0)); P = out.load()
     pm = {(x, y): is_path(m, x, y) for x in range(-1, T + 1) for y in range(-1, T + 1)}
     for y in range(T):
         for x in range(T):
             if not pm[(x, y)]: continue
             c = tp[x, y]
-            if not pm[(x, y + 1)] or not pm[(x + 1, y)]: c = shade(c, .74)
-            elif not pm[(x, y - 1)] or not pm[(x - 1, y)]: c = shade(c, 1.16)
+            if not pm[(x, y + 1)] or not pm[(x + 1, y)]: c = shade(c, dark)
+            elif not pm[(x, y - 1)] or not pm[(x - 1, y)]: c = shade(c, light)
             P[x, y] = c
     return out
 
