@@ -18,7 +18,7 @@ Test art: `aseprite-source/v3/here-gate/` (`here-market-maplewold*.png`, `here-s
 - **No circles anywhere.** Remove painted exit circles/stubs from the new scenes' rendering path. The 8 compass exits are NOT drawn on the map.
 - **Compass** (bottom-right, 44 px) opens a **Routes popover**: one row per route, named by DESTINATION (e.g. "Lakeside Haven", "Mill Road Rest Stop"), nearest first, one tap travels (keep the existing cost check). Data comes from the existing exits.
 - **World globe icon** (left of the compass) opens a **World map popover**, with a button to open the **Region map**. Reuse existing world/region pages; do not rebuild them.
-- **Spots**: every spot is a link to its area, with a centred name tag under it; tags never overflow the picture; on small phones tags show on tap/hold only. Hit boxes come from the JSON (invisible), so the painted object itself is the button. Tapped state: gold corner brackets + lit tag.
+- **Spots**: every spot is a link to its area, with a centred name tag under it; tags never overflow the picture; on small phones tags show on tap/hold only. Hit areas come from the JSON (invisible): a spot may have `box:[x0,y0,x1,y1]` (a whole building front or area, boxes never overlap); if there is no `box`, use a 56x56 box around x,y. The painted object or facade itself is the button; the name tag is centred in the box. Tapped state: gold corner brackets + lit tag.
 - **NPC slots**: villager sprites stand on the `stand` points (up to 6), scale smaller toward the horizon (try 0.55 to 0.95 by feet y; max 4 to 5 villagers shown).
 - Phone caveat: a 480 px scene on about 412 px scales 0.86; keep picture 1:1 on a crisp integer scale where possible, else nearest-neighbour.
 
