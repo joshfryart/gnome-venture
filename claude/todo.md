@@ -1,9 +1,9 @@
-# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-05, main = 2.5.70)
+# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-05, main = 2.5.71)
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md` (the old todo.md log up to 2.5.62 is at the bottom of the archive). Detail lists for art stay in their own files, linked below, but their OPEN items are copied here.
 
 ## 1. STATE
-- Main = 2.5.70. Slim zips are in `releases/` (2.5.70 needs 2.5.68+; 2.5.69 needs 2.5.67+; 2.5.68 needs 2.5.66+; 2.5.67 needs 2.5.65+). Art zips in `upload-zips/` (none for 2.5.67). Josh uploads.
+- Main = 2.5.71. Slim zips are in `releases/` (2.5.71 needs 2.5.69+; 2.5.70 needs 2.5.68+; 2.5.69 needs 2.5.67+; 2.5.68 needs 2.5.66+; 2.5.67 needs 2.5.65+). Art zips in `upload-zips/` (none for 2.5.67). Josh uploads.
 - 2.5.66: route landmarks (82 large hand-drawn sprites on all 16 Maplewold trail maps, path layer, contact shadows), GPS stops at every stop, no tap dots on trail maps.
 - 2.5.68: build plans for all 94 havens/wonders/delves (58 new, text not yet reviewed by Josh); status-strip energy bar updates live.
 - 2.5.67: Do here and Stall results show in the popover; header energy and Petals pills update live (icon kept, number only).
@@ -32,17 +32,17 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 ## 4. CODE: open
 **Trail / Here**
 - Tile walks Sneak/Hunt buttons released 2.5.70: stance on the trail footer, Sneak = 40% fight chance, Hunt = 250% and up to 3 fights a section; tap again to go back to normal. Josh to confirm numbers; `balance_sim.php` Walks not updated for stances.
-- Upkeep: stamp requirement removed (any gnome can chip in; `stop_upkeep_give`, `stop_slim_upkeep`); UNRELEASED (branch only), no test covers upkeep, not tried live.
+- Upkeep: stamp requirement removed (any gnome can chip in; `stop_upkeep_give`, `stop_slim_upkeep`); released 2.5.71 (branch only), no test covers upkeep, not tried live.
 - Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); released 2.5.69, not phone-checked. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
 - Trail ground and landmarks for the other 11 regions (loader exists; art is stand-ins).
 - Shops/Homes popover on non-town stop types; step-off/step-back strip; Lost Letters + landmark panel on World page; gnome walk-frame animation (8 frames, idle only); nav chrome on other picture pages; `balance_sim` for `gnav_enter_energy`.
-- Delve/lair run records: BUILT, UNRELEASED. New table `landmark_runs` (one row per run: cleared / ko / left, level, depth, stages, route seed, picked nodes, start and end), written by `landmark_run_record()` in `save_exp` before the map row is dropped; in `fresh_start` wipe list; test in `tests/delve2.sh`. No page shows it yet (admin or journal view?). `tests/landmarks.sh` fails here with a DB-open error unrelated to this change.
+- Delve/lair run records: BUILT, released 2.5.71. New table `landmark_runs` (one row per run: cleared / ko / left, level, depth, stages, route seed, picked nodes, start and end), written by `landmark_run_record()` in `save_exp` before the map row is dropped; in `fresh_start` wipe list; test in `tests/delve2.sh`. No page shows it yet (admin or journal view?). `tests/landmarks.sh` fails here with a DB-open error unrelated to this change.
 **Yard / garden**
 - Designer: (corner pick already only for corner-shaped pieces: `isCorner()` guards every `cornerFor()` call in `site.js`, read in code, not tried on a phone); cover squares not recomputed live when a bed moves; planted soil for no-till beds; satchel `satchel_skin` column (canvas/patchwork).
 **Content**
  - Build plans: all 94 havens/wonders/delves have plans (2.5.68, Josh not yet reviewed the text). Leftover build verbs (`befriend`, `carry`, `trial`, `vigil`, `wait`, `decorate`); Admin > Build plans page.
 - Stop acts: `cookalong`/`tune`/`teach`/festival kinds; apply review notes for 691 acts.
-- Road: toll/beat/weather kinds; picture per sketch page; collection pages. Region packs for other 11 regions; road_lines admin editor; village descriptions: FIXED, UNRELEASED (each village = a blurb + a new quirk line from `village_quirks.txt`, fixed clash-free order; `tests/village_desc.php` checks 146 distinct; shows only where `village_blurb()` is used, i.e. the World page; stored text unchanged); stop chat: 22 lines added for the thin personalities (Generous, Grumpy, Shy, Proud, Curious, Chatty, Cheerful, Sleepy), UNRELEASED; Haven text (10 havens reworded in `landmarks.txt` + upgrade step `haven_text_2571` for existing sites; UNRELEASED, not tested on a real upgrade); tundra thin.
+- Road: toll/beat/weather kinds; picture per sketch page; collection pages. Region packs for other 11 regions; road_lines admin editor; village descriptions: FIXED, released 2.5.71 (each village = a blurb + a new quirk line from `village_quirks.txt`, fixed clash-free order; `tests/village_desc.php` checks 146 distinct; shows only where `village_blurb()` is used, i.e. the World page; stored text unchanged); stop chat: 22 lines added for the thin personalities (Generous, Grumpy, Shy, Proud, Curious, Chatty, Cheerful, Sleepy), released 2.5.71; Haven text (10 havens reworded in `landmarks.txt` + upgrade step `haven_text_2571` for existing sites; released 2.5.71, not tested on a real upgrade); tundra thin.
 - Treks: scenes (Gloomtooth intro, Sorrel's door, signpost riddle); Ch IV to VI, Thorny/Bramble, respec, Lanternroot crop, hats/stamp/trophy, trailmates 8 (4-7 built).
 - Delve redo: `delve_v2` built OFF (`claude/plan-delves.md`, `claude/checklist-delves.md`).
 - Popover animation polish: 11 glint-only scenes (`bulk.py --report`); animate flags/water/foliage/sun; more icons than 7 stats.

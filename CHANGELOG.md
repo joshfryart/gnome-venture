@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.5.71
+- **Delve and lair run records**: a new table `landmark_runs` keeps one permanent row per delve or lair run (cleared, ko or left; level, depth, stages, route seed and picked nodes, start and end). `landmark_run_record()` writes it from `save_exp` before the map row is dropped. Test in `tests/delve2.sh`. No page shows it yet.
+- **Every village reads differently**: each generated village shows a blurb plus a new second line (`data/village_quirks.txt`, 90 lines), handed out in a fixed order from `zones.txt` so all 146 are distinct (`tests/village_desc.php`). Stored text unchanged.
+- **Haven text** no longer promises specific goods (10 havens reworded); upgrade step `haven_text_2571` refreshes the rows on existing sites.
+- **Stop upkeep**: any gnome can chip in, no stamp needed.
+- **Stop chat**: 22 more lines for the thinner personalities.
+- **News post** for players covering 2.5.69 to 2.5.71.
+
 ## 2.5.70
 - **Sneak and Hunt on tile walks**: two buttons on the trail footer set how you walk. 🤫 Sneak cuts the random fight chance to 40% of normal; 🏹 Hunt raises it to 250% and allows up to 3 random fights a section (normal is 2). Tap the button again to walk as usual. Free, lasts for the rest of the walk. The safe tiles near the entry and exit are unchanged. Tests in `tests/trail_authored.php`.
 

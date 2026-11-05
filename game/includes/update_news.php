@@ -683,6 +683,13 @@ function post_update_news(string $from): void
         "Carrots, corn, pumpkins, watermelons, pineapples, lots of seeds, the Butterfly House and more now have the new art. Ripe crops in your yard look better too."],
     '2.5.49' => ['🏡 Update 2.5.49: a livelier yard',
         "[list][*]Up to four small pieces (pots, stones, logs, toadstools) can now share one yard square, one in each corner.\n[*]Paths and ground coverings run right up to your beds.\n[*]Bare tilled soil darkens in the rain.\n[*]Visiting gnomes can see which beds are thirsty when friends can water.\n[*]Pal trips can pack Strong and Grand potions, and Pal Jobs has a Select all free pals button.[/list]"],
+    '2.5.71' => ['🧭 Update 2.5.71: sneak or hunt, no more round icons in the workshop',
+        "[list][*][b]Sneak and Hunt[/b]: on a Trail walk, tap 🤫 Sneak for fewer fights or 🏹 Hunt for more (and a third fight a section). Tap again to walk as usual.\n"
+        . "[*][b]The workshop[/b] picture is clean again: no round icons on top of the artwork. Tap the oven, shelf, bench and the rest as before.\n"
+        . "[*][b]Stop upkeep[/b]: any gnome can chip in, with no stamp needed.\n"
+        . "[*][b]Every village has its own description[/b] on the World page, and more rest-stop villagers have things to say.\n"
+        . "[*][b]Havens[/b] no longer promise goods they do not sell: see what is on the shelf each day.\n"
+        . "[*][b]Delves and lairs[/b] now keep a record of every run.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
