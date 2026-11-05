@@ -1,4 +1,4 @@
--- spotted-hide (lean P1b_O10)
+-- spotted-hide (lean P1b_O20)
 -- A cream cow-style pelt draped over a wooden rail: four dangling legs and a tail, big irregular chestnut-black patches, fur-tuft edge, one patch mended with blue cross-stitches (quirk).
 local NAME = "spotted-hide"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")

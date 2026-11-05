@@ -1,4 +1,4 @@
--- tomato (lean P1b_O17)
+-- tomato (lean P1b_O20)
 -- quirk: a little split near the shoulder with a bead of seed gel.
 local NAME = "tomato"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")

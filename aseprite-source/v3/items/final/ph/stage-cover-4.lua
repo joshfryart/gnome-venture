@@ -1,4 +1,4 @@
--- stage-cover-4 (lean P1b_O10)
+-- stage-cover-4 (lean P1b_O20)
 -- Growth stage 4 of ground cover: a dense, domed clover mat of overlapping leaflets over a thin soil rim, tall stalks with pink-white pom-pom flowers, and a fat bee visiting the biggest bloom (quirk).
 local NAME = "stage-cover-4"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")

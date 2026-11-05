@@ -1,4 +1,4 @@
--- titan-claw (lean P1b_O17)
+-- titan-claw (lean P1b_O20)
 -- quirk: a chipped nick on the inner curve and a brass hanging ring.
 local NAME = "titan-claw"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
