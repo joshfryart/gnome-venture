@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.24
+- **Your 2.5D gnome appears**: the gnome rig is in the game. Your gnome stands in the street line under the Here picture ("You", tap = Home) and is the walker on the Trail / delve / trek tile maps, in your own hat, beard and scarf colours (tunic, boots and skin as drawn). Built once per colour set by `gnome_sprite.php` and cached. Leaving the Trail (the way on, or Turn back) and coming back from a Wander now land on the Here page of the place. Needs 2.5.23.
+
 ## 2.5.23
 - **Routes card has a map**: the Routes popover now opens with a small picture of the region (its own map art), cropped to where you stand and where the ways out lead, with the roads, a pin for each route (? for places you have not visited) and "You are here". Tapping a pin picks that route's row, and tapping a row moves the ring to its pin. The Trail walk lights the Here tab, and opening Here during a walk goes straight back to it with no "You're still on the road" message. Needs 2.5.22.
 

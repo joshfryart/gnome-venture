@@ -49,7 +49,7 @@ if (is_post()) {
         require_once __DIR__ . '/includes/explore.php';
         [$ok, $msg] = explore_come_back($u, $do === 'explore_road' ? 'road' : 'wild');
         flash($msg, $ok ? 'ok' : 'err');
-        redirect($ok ? ($do === 'explore_road' ? 'world.php' : 'adventure.php') : 'town.php');
+        redirect($ok ? ($do === 'explore_road' ? (gnav_on() ? 'here.php' : 'world.php') : 'adventure.php') : (gnav_on() ? 'here.php' : 'town.php'));
     }
     if (!$exp) redirect('world.php');
 
@@ -144,7 +144,7 @@ if (is_post()) {
         road_flush();
     }
     db()->commit();
-    if (!empty($visited)) redirect('town.php');
+    if (!empty($visited)) redirect(gnav_on() ? 'here.php' : 'town.php');   // turned back: the place you left is the Here page
     // After arriving, send the player straight to the destination page
     if (!empty($arrivedAt)) {
         require_once __DIR__ . '/includes/destination.php';   // v0.9.3: keep walking to the next stop of the route
@@ -161,7 +161,7 @@ if (is_post()) {
         $dest = q_one('SELECT kind FROM locations WHERE id = ?', [$arrivedAt]);
         $kind = $dest['kind'] ?? '';
         // v0.7.61: every place has its page on town.php (town square, rest stop, haven…). local.php never existed.
-        redirect($kind === 'hub' ? 'town.php?hub=1' : ($kind ? 'town.php' : 'world.php'));
+        redirect(gnav_on() && $kind !== '' ? 'here.php' : ($kind === 'hub' ? 'town.php?hub=1' : ($kind ? 'town.php' : 'world.php')));   // arrived: the Here page of the place
     }
     redirect(safe_back('adventure.php'));
 }

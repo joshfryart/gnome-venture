@@ -396,6 +396,9 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
     if ($gate) { $exits = []; $more = []; } else [$exits, $more] = here_exits($u, $node, $L, $back);
     $spots = here_spots($u, $node, $L, $back, $kind);
     [$sprites, $over] = here_sprites($u, $node, $L, $kind);
+    if ($gate && ($gurl = (function () use ($u): string { require_once __DIR__ . '/gnome25.php'; return gnome25_url($u); })()) !== '') {   // you stand in the street line too, in your own colours (the 2.5D gnome rig)
+        array_unshift($sprites, ['id' => 'you', 'x' => 0, 'y' => 0, 'name' => 'You', 'href' => url('gnome.php'), 'src' => $gurl, 'w' => 64, 'h' => 80, 'fw' => 64, 'fh' => 80, 'frames' => 8, 'emoji' => '🧙']);
+    }
     $opts = ['layout' => $L, 'alt' => 'Where you are: ' . $node['name'], 'open' => $open, 'debug' => $debug, 'close_href' => url($back), 'title' => 'List view'];
     if ($gate) {
         $opts['chrome'] = true; $opts['pills'] = true; $opts['navbar'] = true; $opts['street'] = true; $opts['legfold'] = true; $opts['twin'] = false; $GLOBALS['gnav_gate'] = true;

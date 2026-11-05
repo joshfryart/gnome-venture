@@ -228,6 +228,11 @@ if ($withDb) {
         ok('gate view: named pills on the picture, none overlapping', substr_count($h, '<g class="pill">') >= 5 && (function () use ($h) { preg_match_all('/<g class="pill"><rect x="(-?\d+)" y="(-?\d+)" width="(\d+)"/', $h, $m); $r = []; foreach ($m[1] as $i => $x) $r[] = [(int)$x, (int)$m[2][$i], (int)$m[3][$i]]; foreach ($r as $i => $a) foreach ($r as $j => $b) if ($i < $j && $a[0] < $b[0] + $b[2] && $b[0] < $a[0] + $a[2] && $a[1] < $b[1] + 16 && $b[1] < $a[1] + 16) return false; return true; })());
         ok('gate view: compass + globe are round icons in a bar under the picture, not on it', str_contains($h, 'class="hubnavbar"') && str_contains($h, 'hubnavbtn round') && !str_contains($h, 'class="hubnav"'));
         ok('gate view: villagers stand in a line under the picture (not drawn in it)', !str_contains($h, 'class="hsp"') && (!str_contains($h, 'data-get=') || str_contains($h, 'class="hubstreet"')));
+        ok('gate view: you stand in the street line in your own gnome (2.5D rig strip)', str_contains($h, 'gnome_sprite.php?v=front') && str_contains($h, 'aria-label="People here"'));
+        require_once $game . '/includes/gnome25.php';
+        $g1 = gnome25_compose('front', ['hat' => '#2f5d9e']); $g2 = gnome25_compose('front', ['hat' => '#c0392b']); $g0 = gnome25_compose('front', []);
+        ok('gnome rig: composes a PNG strip, hat colour changes it, no colour = as drawn', str_starts_with($g1, "\x89PNG") && $g1 !== $g2 && $g0 !== '' && $g0 !== $g1);
+        ok('gnome rig: a bad view is refused', gnome25_compose('up', []) === '');
         ok('gate view: town places open a popover that loads in place (no page hop)', substr_count($h, 'class="vlazy"') >= 3 && !str_contains($h, 'data-pop="hubpop-s-green" href="' . url('town.php')));
         $ts1 = q_one("SELECT * FROM town_spots WHERE active = 1 AND kind = 'green' ORDER BY id LIMIT 1");
         if ($ts1) {

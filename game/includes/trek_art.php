@@ -409,6 +409,10 @@ function trek_walk_take(array $run): ?array
 function trek_art_me(array $u): string
 {
     if (!function_exists('gnome_avatar')) return '';
+    require_once __DIR__ . '/gnome25.php';
+    if (($g25 = gnome25_url($u)) !== '') {   // the 2.5D gnome rig (idle frame), in the player's own colours
+        return '<svg x="-14" y="-19" width="28" height="35" viewBox="0 0 64 80" overflow="hidden" aria-hidden="true"><image href="' . e($g25) . '" x="0" y="0" width="512" height="80" image-rendering="pixelated"/></svg>';
+    }
     $svg = gnome_avatar($u, 24);
     if (!preg_match('~<svg[^>]*>(.*)</svg>\s*$~s', $svg, $m)) return '';
     return '<svg x="-13" y="-16" width="26" height="32" viewBox="0 0 80 100" aria-hidden="true">' . $m[1] . '</svg>';
