@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.41
+- **Fix: Adventure page crash**: `adventure_stage_html()` always returned the fight backdrop and passed a null key to `scene_path()`, so /adventure.php threw a TypeError. The fight backdrop is now used only for the encounter popover. Needs 2.5.40.
+
 ## 2.5.40
 - **Homes popover**: the Homes spot on a picture opens a popover with the neighbours' faces and a link to the street of doors.
 - **Verb chips**: the list of places shows what each spot is for (Shop, Talk, Rest, Do, Explore, Enter, Tend, Visit, Eat, Read).
