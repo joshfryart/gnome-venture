@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded",function(){
     if (freeBoxes().length > 1 && f.querySelector('.pjfaces')) {   // v2.5.49: "Select all free pals": rested pals that are not on the party (those need their own tick); JS only
       var all = document.createElement('button');
       all.type = 'button';
-      all.className = 'linkbtn pjall';
+      all.className = 'btn small ghost pjall';
       all.textContent = 'Select all free pals (' + freeBoxes().length + ')';
       all.addEventListener('click', function () {
         var boxes = freeBoxes(), on = boxes.some(function (c) { return !c.checked; });
@@ -254,7 +254,7 @@ document.addEventListener("DOMContentLoaded",function(){
       f.addEventListener('keydown', function (ev) {   // Esc folds the form (the draft clear above runs first on the same key)
         if (ev.key === 'Escape' && !f.querySelector('input[name="pals[]"]:checked')) close(f, true);
       });
-      f.querySelectorAll('.linkbtn').forEach(function (c) {   // Cancel folds the form too
+      f.querySelectorAll('.linkbtn:not(.pjmore)').forEach(function (c) {   // Cancel folds the form too (not "Show all N pals")
         c.addEventListener('click', function () { setTimeout(function () { close(f, true); }, 0); });
       });
     });
