@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.70
+- **Sneak and Hunt on tile walks**: two buttons on the trail footer set how you walk. 🤫 Sneak cuts the random fight chance to 40% of normal; 🏹 Hunt raises it to 250% and allows up to 3 random fights a section (normal is 2). Tap the button again to walk as usual. Free, lasts for the rest of the walk. The safe tiles near the entry and exit are unchanged. Tests in `tests/trail_authored.php`.
+
 ## 2.5.69
 - **Workshop picture has no round icons**: the seven crafting spots (oven, shelf, bench, plant stand, cauldron, bricks, house) are now invisible tap areas, so the round icon circles no longer sit on the artwork. Tapping a spot still opens its card; the chips under the picture are unchanged.
 
