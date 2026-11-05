@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.52
+- **Rest stop on the Here picture opens a popover**: the stamp passport slimmed down (progress, next sets, Orders note) with Open full page; no Seasons, Land or Road Journal folds. Loads in place from `town.php?view=passport&frag=1`.
+
 ## 2.5.51
 - **Fewer finds on Trail maps**: random sections hold 0 to 1 finds (was 1 to 3) and authored sections keep about a third of their finds.
 - **Trail tiles camera**: a walk on a Trail map now slides the picture with the gnome (wide picture like the delve maps), the gnome stays centred, and the final map no longer flashes before the walk.

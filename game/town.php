@@ -60,6 +60,14 @@ $nodeNow = player_node($u);
 $inTown = $hub || in_array($nodeNow['kind'], ['market', 'hub'], true);
 if (!$inTown && $viewReq === 'shops') redirect('world.php?tab=markets');   // v2.0.67: Shops and Orders are town views; away from a town the old pages show them
 if (!$inTown && $viewReq === 'orders') redirect('jobs.php?t=requests');
+if ($viewReq === 'passport' && $ajax && isset($_GET['frag'])) {   // v2.5.52: the Here picture's Rest stop popover: the passport, slimmed (no Seasons, Land or Road Journal folds)
+    require_once __DIR__ . '/includes/stop_pass.php';
+    foreach (stop_sets_check($uid) as $m) flash($m);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['ok' => true, 'msg' => '', 'html' => '<div class="st-page st-slim"><h2 class="gx-h">🛂 Stamp passport</h2>' . stop_passport_html($u)
+        . '<p class="gx-note">📜 <a href="' . e(url('jobs.php?t=requests' . ($hub ? '&hub=1' : ''))) . '">Orders</a> are on the Tasks page.</p></div>'], JSON_UNESCAPED_SLASHES);
+    exit;
+}
 if ($viewReq === 'passport') {   // v2.0.4 menu folds: Passport works from anywhere (Villagers away from a town is villagers.php, see above)
     require_once __DIR__ . '/includes/stop_pass.php';
     page_header('Stamp passport');
