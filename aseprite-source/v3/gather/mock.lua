@@ -214,8 +214,14 @@ elseif MK == "B" then   -- butterflies
 end
 
 ---------------------------------------------------------------- satchel back
-SAT.back(c, GX, MK, P.shadow)
-c:save{ aseprite = d .. "/out/mock" .. MK .. "-scene.aseprite", png = d .. "/out/mock" .. MK .. "-scene.png", scale = 1 }
+local ONAME = app.params.name or ("mock" .. MK .. "-scene")
+if app.params.nosat then
+  local sh = mk(); GX.disc(sh, 357, 213, 74, 5); c:fillMask(sh, P.shadow)   -- plain contact shadow; the satchel is a separate layer in the game
+else
+  SAT.back(c, GX, MK, P.shadow)
+end
+c:save{ aseprite = d .. "/out/" .. ONAME .. ".aseprite", png = d .. "/out/" .. ONAME .. ".png", scale = 1 }
+if app.params.nosat then return end
 
 local f = HP.canvas{ w = 480, h = 270, scale = 1, name = "mock" .. MK .. "front" }
 SAT.front(f, GX, MK)

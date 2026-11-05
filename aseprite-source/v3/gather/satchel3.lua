@@ -21,7 +21,7 @@ function S.back(c, GX, v, shadow)
   local H = X.hash
   local outer, lin = vars(v)
   local ob = { hi = outer.base, base = outer.shade, shade = outer.deep, deep = GX.mix(outer.deep, "#000000", .3) }   -- inside of the bag is darker
-  local sh = HP.mask(); GX.disc(sh, 357, 213, 74, 5); c:fillMask(sh, shadow)
+  if shadow then local sh = HP.mask(); GX.disc(sh, 357, 213, 74, 5); c:fillMask(sh, shadow) end
   local wall = c:rrect(296, 96, 418, 180, 18):clip(c:rect(0, 100, 479, 269))
   GX.lit(c, wall, GX.ramp6(ob), { R = 10, tex = .18, sc = 4, seed = 5 })
   local flap = c:poly{ { 300, 116 }, { 414, 116 }, { 406, 80 }, { 396, 66 }, { 318, 66 }, { 308, 80 } }

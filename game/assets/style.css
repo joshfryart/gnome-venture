@@ -5097,6 +5097,9 @@ body[data-area] main .ph h1, main .ph h1 { margin: 0; padding: 0; background: no
 .gx-stage { position: relative; isolation: isolate; overflow: hidden; }
 .gx-scene { display: block; width: 100%; height: auto; filter: var(--gx-art-dim); }
 .gx-front { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; filter: var(--gx-art-dim); }
+/* v2.5.49: satchel back layer (behind the found item) and weather overlay (above everything in the stage) */
+.gx-back { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; filter: var(--gx-art-dim); }
+.gx-wx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; filter: var(--gx-art-dim); }
 /* the satchel mouth is x 152..204 of 240 (centre 74.17%); the item's foot sits at y 70 of 135, under the front wall from y 63 */
 .gx-find { position: absolute; left: 74.17%; bottom: 48.15%; width: 64px; height: 64px; margin-left: -32px; }
 .gx .gx-item { position: relative; z-index: 2; display: block; width: 64px; height: 64px; max-width: none; filter: drop-shadow(0 2px 0 rgba(42, 26, 16, .45)); animation: gx-pop .55s cubic-bezier(.2, 1.4, .5, 1) both; }
