@@ -149,8 +149,13 @@ function trail_art_svg(array $map, array $state): string
     }
     $lx = ($state['px'] - $x0) * $C + $C / 2;
     $ly = ($state['py'] - $y0) * $C + $C / 2;
-    $items[] = [$state['py'] + .5, $state['px'], '<g class="tmme" transform="translate(' . $n($lx) . ' ' . $n($ly) . ')"><image href="' . e(trail_art_url('gnome.png')) . '" x="' . $n(-32 * $k) . '" y="' . $n(-56 * $k)
-        . '" width="' . $n(64 * $k) . '" height="' . $n(80 * $k) . '"/></g>'];
+    $rig = (string)($state['me'] ?? '');   // v2.5.49: the 2.5D gnome rig (trek_art_me): assets/tilemap.js turns it to face the way it walks and steps its walk frames
+    if ($rig !== '' && str_contains($rig, 'tkrig')) {   // same box as the idle gnome.png (64 x 80 picture units), not the 42 px token box
+        $rig = preg_replace('~^<svg class="tkrig" x="[^"]*" y="[^"]*" width="[^"]*" height="[^"]*"~', '<svg class="tkrig" x="' . $n(-32 * $k) . '" y="' . $n(-56 * $k) . '" width="' . $n(64 * $k) . '" height="' . $n(80 * $k) . '"', $rig, 1, $cnt);
+        if (!$cnt) $rig = '';
+    } else $rig = '';
+    $items[] = [$state['py'] + .5, $state['px'], '<g class="tmme" transform="translate(' . $n($lx) . ' ' . $n($ly) . ')">' . ($rig !== '' ? $rig : '<image href="' . e(trail_art_url('gnome.png')) . '" x="' . $n(-32 * $k) . '" y="' . $n(-56 * $k)
+        . '" width="' . $n(64 * $k) . '" height="' . $n(80 * $k) . '"/>') . '</g>'];
     usort($items, fn($a, $b) => [$a[0], $a[1]] <=> [$b[0], $b[1]]);
     $o .= $marks;   // flat marks lie on the ground, under the walker and the raised things
     foreach ($items as $it) $o .= $it[2];
