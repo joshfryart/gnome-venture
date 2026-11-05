@@ -6,7 +6,7 @@ Gnome Venture is a cosy garden-and-adventure web game. When a player walks a rou
 Small to medium: **each section is 11 tiles wide x 7 tall**, so one route is 33 x 7 laid end to end. Do not make it bigger. The game's camera shows about 9x9 tiles at a time and the player taps tiles to walk.
 
 ## Route list
-Pasted below this prompt: one line per route, `id | from -> to | land (forest, coast, mountain, ...) | steps`. If steps is not 3, make that many sections (1 to 6). Do every route, one at a time.
+The full list is in `route-list.md` (generated from the game's own routes): id, from, to, land, number of sections. 246 routes, grouped by region. Do **one region at a time**. The number of sections is not always 3 (2 to 5): make exactly as many as the line says.
 
 ## Tile characters (ASCII, exactly these)
 - `#` wall: trees, rock, water too deep to cross, hedge. The route's edge. Never leave floor on the outer border except the entry and exit.
