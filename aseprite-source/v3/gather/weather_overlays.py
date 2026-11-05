@@ -78,3 +78,13 @@ for y in range(0, 40):
         t = vn(x, y * 1.6, 22, 21) * .7 + vn(x, y, 9, 22) * .3
         if t > .55 + y / 90: px[x, y] = (226, 230, 240, 255) if vn(x, y, 5, 23) > .35 else (190, 198, 216, 255)
 save(cl, 'cloud')
+
+sn = Image.new('RGBA', (W, H)); px = sn.load(); r = random.Random(5)
+for i in range(180):
+    x, y = r.randrange(W), r.randrange(H)
+    put(px, x, y, (255, 255, 255, 255))
+    if i % 3 == 0: put(px, x + 1, y, (226, 238, 252, 255)); put(px, x, y + 1, (226, 238, 252, 255))
+for y in range(H - 70, H):   # thin snow cover creeping up from the bottom
+    for x in range(W):
+        if vn(x, y, 6, 31) * .6 + (y - (H - 70)) / 70 * .5 > .78: px[x, y] = (240, 246, 255, 255) if vn(x, y, 3, 32) > .35 else (212, 226, 244, 255)
+save(sn, 'snow')
