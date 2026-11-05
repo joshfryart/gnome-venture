@@ -394,5 +394,12 @@ local function fern(x, y) for k = -3, 3 do P(x + k, y - 3 + abs(k), GREEN[k % 2 
 local function reed(x, y) for k = 0, 8 do P(x + (k > 5 and 1 or 0), y - k, GREEN[k > 5 and 5 or 3]) end P(x + 1, y - 9, TIMB[4]); P(x + 1, y - 10, TIMB[3]); P(x + 1, y - 8, TIMB[3]); P(x - 1, y - 3, GREEN[4]); P(x + 2, y - 4, GREEN[4]) end
 for i = 0, 36 do local x, y = floor(hash(i, 11, 55) * 470) + 4, 112 + floor(hash(i, 12, 55) * 140)
   if is(x, y, GRASS) and is(x + 3, y, GRASS) and is(x - 3, y, GRASS) and is(x, y - 10, GRASS) then if i % 2 == 0 then fern(x, y) else reed(x, y) end end end
+
+-- PASS 5: phone-size accents: gold trim on the trail gate, violet glow in the delve mouth, rose eave on the sick bay
+R(360, 99, 424, 99, GOLD[5]); R(360, 105, 424, 105, GOLD[3]); R(362, 103, 368, 103, GOLD[5]); R(416, 103, 422, 103, GOLD[5]); R(362, 140, 368, 140, TIMB[2])
+local fl2 = poly{{424, 96}, {440, 99}, {424, 103}}; c:rim(fl2, INK); c:fillMask(fl2, "#7cb8f0"); P(430, 99, "#f8eacc")
+for y = 188, 213 do for x = 417, 445 do if c:get(x, y) == "#1a1226" and (x - 417 < 3 or 445 - x < 3) and (x + y) % 2 == 0 then P(x, y, VIOLET[2]) end end end
+for y = 107, 110 do for x = 31, 99 do if is(x, y, setOf{ROSE[4], CREAM[5]}) and y >= 108 then P(x, y, ROSE[3]) end end end
+for x = 36, 94, 6 do P(x, 111, ROSE[2]); P(x + 1, 111, ROSE[3]) end
 c:save{ aseprite = OUT .. "yard-pals.aseprite", png = OUT .. "yard-pals.png" }
 print("ok")
