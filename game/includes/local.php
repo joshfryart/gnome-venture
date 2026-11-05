@@ -25,6 +25,7 @@ function local_do(array $u, array $loc, string $kind, array $in): array
         case '_release': return stop_release($u, $loc);
         case '_give': return stop_contribute($u, $loc, (string)($in['need'] ?? ''), (int)($in['qty'] ?? 0));
         case '_perk': return stop_adopter_perk($u, $loc);
+        case '_upkeep': return stop_upkeep_give($u, $loc, (string)($in['need'] ?? ''), (int)($in['qty'] ?? 0));   // v2.5.57
     }
     return stop_do($u, $loc, $kind, $in);
 }

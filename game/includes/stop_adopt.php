@@ -66,8 +66,94 @@ function stop_tier_img(array $loc, int $n, array $t): string
 
 function stop_adoption(int $locId): ?array
 {
-    return q_one('SELECT a.*, u.gnome_name, u.username, f.gnome_name AS founder_name, f.username AS founder_user
+    static $settled = [];
+    $row = q_one('SELECT a.*, u.gnome_name, u.username, f.gnome_name AS founder_name, f.username AS founder_user
                   FROM stop_adoptions a LEFT JOIN users u ON u.id = a.user_id LEFT JOIN users f ON f.id = a.founder_id WHERE a.location_id = ?', [$locId]);
+    if ($row && (int)$row['tier'] >= max(1, stop_top_tier()) && empty($settled[$locId])) {   // v2.5.57: a fully built stop is settled for the month when anyone looks
+        $settled[$locId] = true;
+        if (stop_upkeep_settle($row)) return stop_adoption($locId);
+    }
+    return $row;
+}
+
+/** v2.5.57: a fully built stop needs upkeep every month (real UTC month): STOP_UPKEEP_PCT % of its top tier's needs, from any gnome. A month left unpaid costs one tier ("disrepair"). */
+const STOP_UPKEEP_PCT = 25;
+function stop_upkeep_month(): string { return gmdate('Y-m'); }
+
+/** Upkeep needs for a stop: [[key, qty]], a quarter (rounded up, at least 1) of the top tier's needs. */
+function stop_upkeep_needs(array $loc): array
+{
+    $tiers = stop_tiers_for($loc);
+    if (!$tiers) return [];
+    $top = $tiers[max(array_keys($tiers))];
+    return array_map(fn($n) => [$n[0], max(1, (int)ceil($n[1] * STOP_UPKEEP_PCT / 100))], stop_tier_needs($top));
+}
+
+function stop_upkeep_pool_of(array $a): array
+{
+    return json_decode((string)($a['upkeep_pool'] ?? ''), true) ?: [];
+}
+
+function stop_upkeep_met(array $needs, array $pool): bool
+{
+    foreach ($needs as [$k, $q]) if ((int)($pool[$k] ?? 0) < $q) return false;
+    return true;
+}
+
+/** Roll the month over. First look: start the clock with no penalty. Each full month not paid: one tier lost. Returns true when something changed. */
+function stop_upkeep_settle(array $a): bool
+{
+    $now = stop_upkeep_month();
+    $rec = (string)($a['upkeep_month'] ?? '');
+    $loc = q_one('SELECT * FROM locations WHERE id = ?', [(int)$a['location_id']]);
+    if (!$loc) return false;
+    if ($rec === '') { q('UPDATE stop_adoptions SET upkeep_month = ?, upkeep_pool = ? WHERE id = ? AND upkeep_month IS NULL', [$now, '{}', $a['id']]); return false; }
+    if ($rec >= $now) return false;
+    $needs = stop_upkeep_needs($loc);
+    $months = 0;   // whole months from the recorded one up to (not including) this month
+    for ($m = strtotime($rec . '-01'); gmdate('Y-m', $m) < $now && $months < 24; $m = strtotime('+1 month', $m)) $months++;
+    $lost = stop_upkeep_met($needs, stop_upkeep_pool_of($a)) ? max(0, $months - 1) : $months;
+    $tier = max(0, (int)$a['tier'] - $lost);
+    q('UPDATE stop_adoptions SET tier = ?, pool = ?, upkeep_month = ?, upkeep_pool = ? WHERE id = ? AND upkeep_month = ?', [$tier, $lost > 0 ? '{}' : (string)($a['pool'] ?? '{}'), $now, '{}', $a['id'], $rec]);
+    return true;
+}
+
+/** Hand in some of this month's upkeep: any gnome who has this stop's stamp. */
+function stop_upkeep_give(array $u, array $loc, string $key, int $qty): array
+{
+    $uid = (int)$u['id'];
+    if (!q_val('SELECT 1 FROM stop_stamps WHERE user_id = ? AND location_id = ?', [$uid, (int)$loc['id']])) return [false, 'Visit the stop first and collect its stamp.'];
+    $a = stop_adoption((int)$loc['id']);
+    if (!$a || (int)$a['tier'] < stop_top_tier() || stop_top_tier() < 1) return [false, 'This stop does not need upkeep.'];
+    $aid = (int)$a['id'];
+    return db_tx(function () use ($uid, $loc, $key, $qty, $aid): array {
+        q('UPDATE stop_adoptions SET id = id WHERE id = ?', [$aid]);
+        $a = q_one('SELECT * FROM stop_adoptions WHERE id = ?', [$aid]);
+        $needs = stop_upkeep_needs($loc);
+        $want = null;
+        foreach ($needs as [$k, $q]) if ($k === $key) $want = $q;
+        if ($want === null) { db()->rollBack(); return [false, 'That is not needed for the upkeep.']; }
+        $pool = stop_upkeep_pool_of($a);
+        $qty = min(max(1, $qty), $want - (int)($pool[$key] ?? 0));
+        if ($qty <= 0) { db()->rollBack(); return [false, 'That part of the upkeep is already covered.']; }
+        if ($key === 'coins') {
+            if (q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$qty, $uid, $qty])->rowCount() !== 1) { db()->rollBack(); return [false, 'You need ' . money($qty) . '.']; }
+        } else {
+            $type = in_array($key, ['meal', 'fine'], true) ? $key : 'item';
+            $take = $qty;
+            foreach (rebuild_supply($uid, [$type, $key]) as $it) {
+                $n = min($take, (int)$it['qty']);
+                if ($n > 0 && !give_item($uid, (int)$it['id'], -$n)) { db()->rollBack(); return [false, 'Something went missing from your satchel.']; }
+                $take -= $n;
+                if ($take <= 0) break;
+            }
+            if ($take > 0) { db()->rollBack(); return [false, 'You don’t have enough ' . stop_need_label($key) . '.']; }
+        }
+        $pool[$key] = (int)($pool[$key] ?? 0) + $qty;
+        q('UPDATE stop_adoptions SET upkeep_pool = ? WHERE id = ?', [json_encode($pool), $aid]);
+        add_xp($uid, 3, 'rest_stop');
+        return [true, stop_upkeep_met($needs, $pool) ? '🔧 ' . $loc['name'] . ' is kept up for this month. Thank you!' : '🔧 You hand in ' . $qty . ' × ' . stop_need_label($key) . ' to the upkeep.'];
+    });
 }
 
 function stop_tier(int $locId): int
@@ -154,6 +240,8 @@ function stop_adopt(array $u, array $loc): array
     if (!q_val('SELECT 1 FROM stop_stamps WHERE user_id = ? AND location_id = ?', [$uid, (int)$loc['id']])) return [false, 'Visit the stop first and collect its stamp.'];
     [$slots, $used] = stop_adopt_slots($uid);   // v1.6.3: slots grow with finished stops
     if ($used >= $slots) return [false, 'You already look after ' . $used . ' stop' . ($used === 1 ? '' : 's') . '. Finish building one to its Hall to look after another' . ($slots >= $limit ? ' (the most is ' . $limit . ')' : '') . ', or let one go first.'];
+    $cur = stop_adoption((int)$loc['id']);
+    if ($cur && stop_top_tier() > 0 && (int)$cur['tier'] >= stop_top_tier()) return [false, $loc['name'] . ' is fully built already. Nothing to adopt: chip in to its monthly upkeep instead, or its parts fall into disrepair.'];   // v2.5.57
     $cost = max(0, (int)setting('stop_adopt_cost'));
     db()->beginTransaction();
     try {
@@ -289,6 +377,8 @@ function stop_adopt_panel(array $u, array $loc, callable $form): string
         $h .= '<p>Look after ' . e($loc['name']) . ': hand in building materials over time and it grows a bench, a stall, a well and a hall for everyone who passes. Your name goes on the plaque, and the villagers give you a small gift every day.</p>'
             . '<p class="help">Costs ' . money(max(0, (int)setting('stop_adopt_cost'))) . '. You look after ' . $mineCount . ' of ' . $slots . '.'
             . ($mineCount >= $slots && $slots < $limit && $building !== '' ? ' Finish ' . e($building) . '’s Hall to look after one more.' : ($mineCount >= $slots && $slots >= $limit ? ' That’s the most one gnome can look after.' : '')) . '</p>';
+        $maxed = $a && stop_top_tier() > 0 && (int)$a['tier'] >= stop_top_tier();   // v2.5.57: fully built: no adopting, monthly upkeep instead
+        if ($maxed) $h .= '<p class="muted">Fully built already. Nothing to adopt: chip in to its monthly upkeep below.</p>'; else
         $h .= $has ? $form('_adopt', '<button class="btn small"' . ($mineCount >= $slots ? ' disabled' : '') . '>🏡 Adopt ' . e($loc['name']) . '</button>') : '<p class="muted">Collect this stop’s stamp first (it comes with your first visit).</p>';
         if ($a && (int)$a['tier'] > 0) $h .= '<p class="help">It already has a tier ' . (int)$a['tier'] . ' upgrade from an earlier adopter.</p>';
     } else {
@@ -322,6 +412,9 @@ function stop_adopt_panel(array $u, array $loc, callable $form): string
         $done = ($a['perk_day'] ?? '') === hollow_date('Y-m-d');
         $h .= $form('_perk', '<button class="btn small alt"' . ($done ? ' disabled' : '') . '>🎁 ' . ($done ? 'Today’s welcome taken' : 'Collect the villagers’ welcome') . '</button>')
             . $form('_release', '<button class="btn small alt" data-confirm="Hand this stop back? Its upgrades stay for everyone.">Let it go</button>');
+    }
+    if ($a && stop_top_tier() > 0 && (int)$a['tier'] >= stop_top_tier() && function_exists('stop_slim_upkeep')) {   // v2.5.57
+        $h .= stop_slim_upkeep($u, $loc, $a, fn(string $do, string $kind, string $btn, string $ask = '') => $form($kind, $btn), (bool)q_val('SELECT 1 FROM stop_stamps WHERE user_id = ? AND location_id = ?', [$uid, (int)$loc['id']]));
     }
     return $h . '</details>';
 }
