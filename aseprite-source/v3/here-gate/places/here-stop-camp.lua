@@ -313,7 +313,33 @@ c:put(108, 91, IRON[4]); c:put(108, 92, IRON[4])
 obj(c:rect(105, 93, 111, 101), GLOW, { edge = IRON[4], lit = 1, sh = 1 })
 
 -------------------------------------------------------------- DO: fire ring, flames, tripod kettle (centre)
+-- polish pass: one heat field per flame layer (core / mid / tip tones), coal bed, embers, firelight on ground, stones, logs, kettle
 local FX, FY = 240, 174
+local function hx(h) return tonumber(h:sub(2, 3), 16), tonumber(h:sub(4, 5), 16), tonumber(h:sub(6, 7), 16) end
+local function mix(a, b, t)
+  local r1, g1, b1 = hx(a); local r2, g2, b2 = hx(b)
+  local function f(p, q) local v = floor(p + (q - p) * t + 0.5) if v < 8 then v = 8 end if v > 247 then v = 247 end return v end
+  return string.format("#%02x%02x%02x", f(r1, r2), f(g1, g2), f(b1, b2))
+end
+-- flame tones, hottest last: deep tip red .. pale core (never pure white)
+local FL = { "#7a1f3a", "#c22f3c", "#ea5a2e", "#f78a2c", "#fbb43c", "#ffd968", "#fff1b4" }
+local FIRE_LIGHT = "#ff9a48"
+
+-- firelight on the ground: banded + dithered warm wash, strongest near the ring
+for y = 136, 214 do
+  for x = 150, 330 do
+    local dx, dy = (x - FX) / 92, (y - (FY + 4)) / 34
+    local d = dx * dx + dy * dy
+    if d < 1 then
+      local k = c:get(x, y)
+      local amt = d < 0.35 and 0.34 or (d < 0.62 and 0.22 or 0.12)
+      if d >= 0.62 and (x + y) % 2 == 1 then amt = 0 end
+      if d >= 0.35 and d < 0.62 and (x + y) % 4 == 0 then amt = 0.12 end
+      if k and amt > 0 then c:put(x, y, mix(k, FIRE_LIGHT, amt)) end
+    end
+  end
+end
+
 local back, front = {}, {}
 for k = 0, 17 do
   local a = k / 18 * 2 * pi
@@ -323,58 +349,112 @@ end
 local function stone(s)
   local wv = s.sn > 0 and 6 or 4
   local hv = s.sn > 0 and 4 or 3
-  obj(c:rrect(s.x - wv, s.y - hv, s.x + wv, s.y + hv, 2), STONE, { lit = 1, sh = 1,
+  local m = c:rrect(s.x - wv, s.y - hv, s.x + wv, s.y + hv, 2)
+  obj(m, STONE, { lit = 1, sh = 1,
     tex = function(px, py, i) if i == 2 and hsh(px, py, 31) > 0.85 then return 3 end end })
+  -- the side facing the fire catches warm light (back stones: lower face, front stones: top face)
+  local near = 1 - abs(s.x - FX) / 52
+  m:each(function(px, py)
+    local face = (s.sn > 0) and (not m:has(px, py - 1) or not m:has(px, py - 2)) or (s.sn <= 0 and (not m:has(px, py + 1) or not m:has(px, py + 2)))
+    if face and near > 0.15 then
+      local k = c:get(px, py)
+      c:put(px, py, (not m:has(px, py - 1) and s.sn > 0) and "#ffd2a0" or mix(k, FIRE_LIGHT, 0.45))
+    end
+  end)
+  -- soot on the inner lip
+  if s.sn > 0 then c:put(s.x - 1, s.y - hv + 1, "#6a5060"); c:put(s.x + 2, s.y - hv + 1, "#6a5060") end
 end
 shadow(poly{ { 186, 182 }, { 296, 182 }, { 290, 192 }, { 192, 192 } })
 for _, s in ipairs(back) do stone(s) end
+-- ash bed with a ring of glowing coals
 c:fillMask(c:ellipse(FX, FY, 42, 10), "#4a3a4a")
 for _ = 1, 60 do
   local px, py = math.random(202, 278), math.random(166, 182)
   if c:get(px, py) == "#4a3a4a" then c:put(px, py, hsh(px, py, 7) > 0.5 and EMBER[3] or "#6a4a54") end
 end
--- crossed logs
-obj(c:line({ { 214, 180 }, { 262, 168 } }, 5), LOG, { lit = 1, sh = 1 })
-obj(c:line({ { 266, 180 }, { 218, 168 } }, 5), LOG, { lit = 1, sh = 1 })
--- flames
--- v2.5.40 polish: layered flame tongues (outer red, orange body, yellow, white core) that flicker past the kettle
-local function tongue(cx, by, h, w, lean)
-  local m = HP.mask()
-  for y = by, by - h, -1 do
-    local t = (by - y) / h
-    local hw = w * math.sin(math.pi * math.min(1, (t * 0.92 + 0.08)) ^ 0.75) * (1 - t * 0.35)
-    local off = lean * t * t
-    for x = floor(cx + off - hw + 0.5), floor(cx + off + hw + 0.5) do m:set(x, y) end
+c:fillMask(c:ellipse(FX, FY + 1, 30, 6), "#6e2038")
+c:ellipse(FX, FY + 1, 30, 6):each(function(px, py)
+  local n = hsh(floor(px / 2), py, 77)
+  local dd = ((px - FX) / 30) ^ 2 + ((py - FY - 1) / 6) ^ 2
+  local col = n > 0.55 and "#b52e3f" or "#8a2a3c"
+  if dd < 0.55 and n > 0.35 then col = "#e8493b" end
+  if dd < 0.3 and n > 0.5 then col = "#f78a2c" end
+  if dd < 0.3 and n > 0.85 then col = "#ffd968" end
+  c:put(px, py, col)
+end)
+-- crossed logs: bark, charred ends with glowing cracks, firelit top edge
+local function firelog(a, b)
+  local m = c:line({ a, b }, 5)
+  obj(m, LOG, { lit = 1, sh = 1, tex = function(px, py, i)
+    if i == 2 and (px * 2 + py) % 9 == 0 then return 3 end
+  end })
+  m:each(function(px, py)
+    if not m:has(px, py - 1) then c:put(px, py, "#f0a060") end
+    -- charred where it enters the fire
+    local t = abs(px - FX) / 26
+    if t < 0.55 and m:has(px, py - 1) then
+      local n = hsh(px, py, 81)
+      c:put(px, py, n > 0.8 and "#f78a2c" or (n > 0.55 and "#c22f3c" or "#3e2a36"))
+    end
+  end)
+end
+firelog({ 214, 180 }, { 262, 168 })
+firelog({ 266, 180 }, { 218, 168 })
+
+-- flame builder: union of tongues, max heat per pixel, painted once (core low and central, red tips)
+local function flameLayer(tongues)
+  local heat, m = {}, HP.mask()
+  for _, tg in ipairs(tongues) do
+    local cx, by, h, w, lean, seed = tg[1], tg[2], tg[3], tg[4], tg[5], tg[6] or 1
+    for y = by, by - h, -1 do
+      local t = (by - y) / h
+      local prof = t < 0.22 and (0.72 + t * 1.27) or ((1 - t) / 0.78) ^ 1.15
+      local hw = w * prof
+      local off = lean * t * t + sin(t * 7 + seed) * w * 0.18 * t
+      local x0, x1 = floor(cx + off - hw + 0.5), floor(cx + off + hw + 0.5)
+      for x = x0, x1 do
+        local d = hw > 0.5 and abs(x - (cx + off)) / (hw + 0.5) or 0
+        local v = 1 - (0.82 * t + 0.55 * d ^ 1.6) * (tg[7] or 1)
+        local key = y * W + x
+        m:set(x, y)
+        if not heat[key] or v > heat[key] then heat[key] = v end
+      end
+    end
   end
+  m:each(function(x, y)
+    local v = heat[y * W + x] + (((x + y) % 2 == 0) and 0.035 or -0.035)
+    local i = v > 0.74 and 7 or v > 0.6 and 6 or v > 0.47 and 5 or v > 0.34 and 4 or v > 0.2 and 3 or v > 0.08 and 2 or 1
+    c:put(x, y, FL[i])
+  end)
+  -- tip-red rim on the outer edge, upper half only (base sits in the coals)
+  m:edge():each(function(x, y) if y < FY - 2 then c:put(x, y, (heat[y * W + x] or 0) > 0.45 and FL[3] or FL[2]) end end)
   return m
 end
-local function flame(cx, by, h, w, lean)
-  local m = tongue(cx, by, h, w, lean)
-  obj(m, EMBER, { edge = EMBER[4], lit = 1, sh = 1 })
-  local m2 = m:shrink(2)
-  if m2:count() > 0 then c:fillMask(m2, EMBER[1]) end
-  local m3 = m:shrink(4)
-  if m3:count() > 0 then c:fillMask(m3, GOLD[2]) end
-  local m4 = m:shrink(6)
-  if m4:count() > 0 then c:fillMask(m4, GOLD[1]) end
-  local m5 = m:shrink(8)
-  if m5:count() > 0 then c:fillMask(m5, "#fff6c8") end
+-- back layer: tall tongues behind the kettle, reaching past its sides
+flameLayer({
+  { 240, 178, 54, 15, 0, 1 }, { 223, 178, 58, 10, -7, 2 }, { 257, 178, 62, 10, 8, 3 },
+  { 231, 178, 47, 9, 2, 4 }, { 249, 178, 40, 9, -3, 5 }, { 212, 178, 34, 7, -8, 6 }, { 268, 178, 38, 7, 9, 7 },
+  { 216, 176, 50, 6, -12, 8 }, { 264, 176, 46, 6, 12, 9 },
+})
+-- detached flame wisps above the tips
+for _, wsp in ipairs({ { 202, 120, 3 }, { 278, 116, 4 }, { 214, 108, 2 }, { 268, 104, 2 } }) do
+  local wx, wy, wh = wsp[1], wsp[2], wsp[3]
+  for k = 0, wh do c:put(wx + (k > 1 and 1 or 0), wy - k, k == 0 and FL[4] or FL[3]) end
+  c:put(wx - 1, wy, FL[2]); c:put(wx + 1, wy, FL[2])
 end
-flame(240, 178, 44, 20, 0)
-flame(222, 178, 30, 11, -5)
-flame(258, 178, 34, 12, 6)
-flame(231, 178, 38, 9, 2)
-flame(249, 178, 28, 9, -3)
-flame(213, 178, 16, 6, -3)
-flame(267, 178, 18, 6, 3)
--- sparks lifting off the fire
-for _, p in ipairs({ { 226, 128 }, { 253, 121 }, { 218, 120 }, { 264, 126 }, { 236, 112 }, { 247, 106 } }) do
-  c:put(p[1], p[2], GOLD[1]); c:put(p[1] + 1, p[2], GOLD[2])
+-- rising embers and sparks (mixed sizes, drifting right on the warm air)
+for _, p in ipairs({ { 226, 112, 2 }, { 253, 104, 1 }, { 218, 108, 1 }, { 268, 112, 2 }, { 236, 98, 1 }, { 247, 92, 1 },
+                     { 274, 100, 1 }, { 208, 120, 1 }, { 230, 86, 1 }, { 261, 84, 2 }, { 282, 108, 1 }, { 202, 104, 1 } }) do
+  c:put(p[1], p[2], FL[6])
+  if p[3] == 2 then c:put(p[1] + 1, p[2], FL[4]); c:put(p[1], p[2] + 1, FL[3]) end
 end
-c:put(212, 116, EMBER[1]); c:put(270, 112, EMBER[1])
--- tripod
-obj(c:line({ { 240, 116 }, { 195, 188 } }, 3), WOOD, { lit = 1, sh = 1 })
-obj(c:line({ { 240, 116 }, { 285, 188 } }, 3), WOOD, { lit = 1, sh = 1 })
+for _, p in ipairs({ { 212, 116 }, { 270, 96 }, { 244, 80 }, { 222, 94 } }) do c:put(p[1], p[2], FL[3]) end
+-- tripod (firelit on the inner face of each leg, lower half)
+local legL = c:line({ { 240, 116 }, { 195, 188 } }, 3)
+local legR = c:line({ { 240, 116 }, { 285, 188 } }, 3)
+obj(legL, WOOD, { lit = 1, sh = 1 }); obj(legR, WOOD, { lit = 1, sh = 1 })
+legL:each(function(px, py) if py > 140 and not legL:has(px + 1, py) then c:put(px, py, "#ffb070") end end)
+legR:each(function(px, py) if py > 140 and not legR:has(px - 1, py) then c:put(px, py, "#ffb070") end end)
 obj(c:rect(236, 115, 244, 119), GOLD, { edge = GOLD[4], lit = 0, sh = 1, tex = function(px, py, i) if (px + py) % 3 == 0 then return 3 end end })
 -- chain + bail
 for y = 120, 126 do c:put(240, y, (y % 2 == 0) and STONE[2] or STONE[4]) end
@@ -386,24 +466,33 @@ obj(pot, IRON, { lit = 2, sh = 3, tex = function(px, py, i)
   if py == 147 and i ~= 3 then return 1 end
   if py == 148 then return 3 end
 end })
+-- firelight bouncing up onto the kettle belly and its sides (banded, warm)
+pot:each(function(px, py)
+  local k = c:get(px, py)
+  if py >= 158 then c:put(px, py, mix(k, FIRE_LIGHT, (py >= 161) and 0.55 or 0.38))
+  elseif py >= 153 and (px + py) % 2 == 0 then c:put(px, py, mix(k, FIRE_LIGHT, 0.25)) end
+  if (not pot:has(px - 2, py) or not pot:has(px + 2, py)) and py > 149 then c:put(px, py, mix(c:get(px, py), FIRE_LIGHT, 0.4)) end
+end)
 c:put(229, 144, "#d8d6ea"); c:put(230, 144, "#d8d6ea"); c:put(229, 145, IRON[1])
 obj(c:rrect(229, 135, 251, 140, 2), IRON, { lit = 1, sh = 1 })
 obj(c:rect(237, 131, 243, 134), GOLD, { lit = 1, sh = 1 })
--- flames licking the pot sides
-obj(poly{ { 220, 164 }, { 223, 152 }, { 227, 160 } }, GOLD, { edge = EMBER[3], lit = 1, sh = 0 })
-obj(poly{ { 253, 160 }, { 258, 150 }, { 261, 164 } }, GOLD, { edge = EMBER[3], lit = 1, sh = 0 })
--- steam from the spout (quirk: it curls into a little puff train)
+-- front layer: low tongues licking up the kettle belly
+flameLayer({
+  { 228, 178, 22, 7, -2, 11, 1.15 }, { 240, 178, 19, 9, 1, 12, 1.1 }, { 252, 178, 23, 7, 3, 13, 1.15 },
+  { 219, 178, 14, 5, -3, 14, 1.2 }, { 261, 178, 15, 5, 3, 15, 1.2 },
+})
+-- steam from the spout (quirk: it curls into a little puff train), warm-lit underside
 for _, p in ipairs({ { 268, 132, 3 }, { 273, 125, 4 }, { 280, 118, 3 } }) do
-  obj(c:rrect(p[1] - p[3], p[2] - p[3] + 1, p[1] + p[3], p[2] + p[3] - 1, 2), { "#fbf6ff", "#e8e0f0", "#c8bcd8", "#9a8cb4" }, { lit = 1, sh = 1 })
+  obj(c:rrect(p[1] - p[3], p[2] - p[3] + 1, p[1] + p[3], p[2] + p[3] - 1, 2), { "#fbf6ff", "#e8e0f0", "#e8bcb8", "#9a8cb4" }, { lit = 1, sh = 1 })
 end
 -- front stones
 for _, s in ipairs(front) do stone(s) end
--- marshmallow on a stick propped on the ring (quirk)
+-- marshmallow on a stick propped on the ring (quirk), toasted side toward the fire
 obj(c:line({ { 280, 184 }, { 291, 165 } }, 1), WOOD, { lit = 0, sh = 0 })
 obj(c:rrect(289, 159, 294, 165, 1), CREAM, { lit = 1, sh = 1, tex = function(px, py, i) if py <= 160 then return 3 end end })
--- embers
-for _, p in ipairs({ { 232, 128 }, { 252, 124 }, { 222, 138 }, { 260, 132 } }) do c:put(p[1], p[2], GOLD[1]) end
-c:put(214, 132, EMBER[1])
+c:put(289, 162, "#d08a4a"); c:put(289, 163, "#a8603a"); c:put(290, 164, "#d08a4a")
+-- a few stray embers on the dirt just outside the ring
+for _, p in ipairs({ { 196, 186 }, { 284, 188 }, { 206, 192 }, { 276, 193 } }) do c:put(p[1], p[2], EMBER[2]); c:put(p[1] + 1, p[2], EMBER[4]) end
 
 -------------------------------------------------------------- WILD: side trail through a leafy arch + arrow signpost (right)
 local wbg = poly{ { 410, 174 }, { 432, 164 }, { 456, 174 }, { 463, 202 }, { 412, 202 } }

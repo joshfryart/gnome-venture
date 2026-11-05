@@ -718,45 +718,45 @@ end
 R["foot-h"] = function(T) foot(T, false) end
 R["foot-v"] = function(T) foot(T, true) end
 R["me"] = function(T)
-  local cx, cy = 19, 18
-  local sh = blob(19, 37, 11, 2.4, 3, .1); sh:each(function(x, y) T.p(x, y, "#4a2c1a") end)
+  -- smaller coin (r 15.5) set low; the hat sits ON TOP of the ring and its bent tip rises clear above it
+  local cx, cy = 19, 22
+  local sh = blob(19, 37.6, 11, 2.2, 3, .1); sh:each(function(x, y) T.p(x, y, "#4a2c1a") end)
   disc(T, cx, cy, function(x, y, r, a, dx, dy)
-    if r > 18 then return nil end
-    if r > 17 then return INK end
-    local l = -(dx * .6 + dy * .8) / 18
-    if r > 14.6 then return l > .3 and "#ffe38a" or (l > -.2 and "#f5b82e" or "#d98322") end
-    if r > 13.6 then return "#8f4a1f" end
+    if r > 15.6 then return nil end
+    if r > 14.6 then return INK end
+    local l = -(dx * .6 + dy * .8) / 15.6
+    if r > 12.4 then return l > .3 and "#ffe38a" or (l > -.2 and "#f5b82e" or "#d98322") end
+    if r > 11.5 then return "#8f4a1f" end
     return "#fff4d6"
   end)
-  local function inner(x, y) local dx, dy = x + .5 - cx, y + .5 - cy; return dx * dx + dy * dy <= 13.4 * 13.4 end
+  local function inner(x, y) local dx, dy = x + .5 - cx, y + .5 - cy; return dx * dx + dy * dy <= 11.4 * 11.4 end
   local function P2(x, y, col) if inner(x, y) then T.p(x, y, col) end end
   local inM = HP.mask()
   for y = 0, 39 do for x = 0, 37 do if inner(x, y) then inM:set(x, y) end end end
   local function part(m, Rm, o) m:clip(inM); lit(T, m, Rm, o or {}) end
-  -- beard (long, three lobes) + moustache
+  -- beard (three lobes) + moustache
   local BEARD = { hi = "#fffaf0", base = "#e6e2ec", shade = "#b4aac4" }
-  part(HP.poly({ {9, 23}, {13, 21}, {25, 21}, {29, 23}, {28, 28}, {25, 31}, {22, 33}, {19, 35}, {16, 33}, {13, 31}, {10, 28} }), BEARD, { rim = "#6e6280", rimTL = "#8a7f98", l1 = .3 })
-  for _, p in ipairs({ {16, 30}, {19, 32}, {22, 30}, {14, 28}, {24, 28} }) do P2(p[1], p[2], "#b4aac4"); P2(p[1], p[2] + 1, "#b4aac4") end
+  part(HP.poly({ {11, 25}, {14, 23}, {24, 23}, {27, 25}, {26, 29}, {23, 32}, {19, 34}, {15, 32}, {12, 29} }), BEARD, { rim = "#6e6280", rimTL = "#8a7f98", l1 = .3 })
+  for _, p in ipairs({ {16, 30}, {19, 32}, {22, 30} }) do P2(p[1], p[2], "#b4aac4"); P2(p[1], p[2] + 1, "#b4aac4") end
   -- face
   local face = HP.mask()
-  for y = 14, 26 do for x = 11, 27 do local dx, dy = (x - 19) / 7.2, (y - 20.2) / 5.6; if dx * dx + dy * dy <= 1 then face:set(x, y) end end end
+  for y = 16, 27 do for x = 12, 26 do local dx, dy = (x - 19) / 6.4, (y - 21.6) / 4.8; if dx * dx + dy * dy <= 1 then face:set(x, y) end end end
   part(face, { hi = "#ffd8bc", base = "#f4b894", shade = "#d88c70" }, { rim = "#a8604c", rimTL = "#d88c70", l1 = .5 })
-  -- eyes with glints, cheeks, big round nose
-  for _, ex in ipairs({ 15, 22 }) do P2(ex, 19, INK); P2(ex + 1, 19, INK); P2(ex, 20, INK); P2(ex + 1, 20, INK); P2(ex, 18, "#7a4a3a"); P2(ex + 1, 18, "#7a4a3a"); P2(ex, 19, "#fffaf0") end
-  P2(13, 22, "#f5809f"); P2(14, 22, "#f5809f"); P2(24, 22, "#f5809f"); P2(25, 22, "#f5809f")
-  local nose = HP.mask(); for y = 20, 24 do for x = 17, 21 do local dx, dy = x - 19, y - 22; if dx * dx + dy * dy <= 4 then nose:set(x, y) end end end
+  for _, ex in ipairs({ 15, 22 }) do P2(ex, 20, INK); P2(ex + 1, 20, INK); P2(ex, 21, INK); P2(ex + 1, 21, INK); P2(ex, 20, "#fffaf0") end
+  P2(14, 23, "#f5809f"); P2(24, 23, "#f5809f")
+  local nose = HP.mask(); for y = 21, 25 do for x = 17, 21 do local dx, dy = x - 19, y - 23; if dx * dx + dy * dy <= 3 then nose:set(x, y) end end end
   part(nose, { hi = "#ffb4c4", base = "#f5809f", shade = "#c84a6e" }, { rim = "#9a3a5a", rimTL = "#c84a6e", l1 = .4 })
-  part(HP.poly({ {12, 25}, {17, 23}, {19, 24}, {21, 23}, {26, 25}, {24, 28}, {19, 26}, {14, 28} }), BEARD, { rim = "#6e6280", rimTL = "#8a7f98", l1 = .3 })
-  -- hat: cone with bent tip, lit left, gold band, wide brim
-  local hat = HP.poly({ {10, 13}, {14, 8}, {18, 5}, {23, 2}, {28, 1}, {30, 3}, {27, 5}, {26, 9}, {27, 13} })
+  part(HP.poly({ {13, 26}, {17, 25}, {19, 26}, {21, 25}, {25, 26}, {23, 28}, {19, 27}, {15, 28} }), BEARD, { rim = "#6e6280", rimTL = "#8a7f98", l1 = .3 })
+  -- hat, NOT clipped: wide brim over the ring top, cone with a bent tip that clears the ring (tip at y1)
   local HR = { hi = "#ff9a74", base = "#e8493b", shade = "#a8283a" }
-  local brim = HP.mask(); for y = 11, 16 do for x = 5, 33 do local dx, dy = (x - 19) / 14.5, (y - 13.5) / 3; if dx * dx + dy * dy <= 1 then brim:set(x, y) end end end
-  part(brim, { hi = "#d2554a", base = "#b52e3f", shade = "#7e2038" }, { rim = INK, rimTL = INK, l1 = .55 })
-  part(hat, HR, { rim = INK, rimTL = INK, l1 = .42 })
-  for y = 8, 10 do for x = 9, 28 do if hat:has(x, y) then T.p(x, y, (y == 10) and "#d98322" or "#f5cf6a") end end end
-  P2(19, 9, "#fffaf0"); P2(20, 9, "#fffaf0")
-  T.p(29, 0, "#f5cf6a"); T.p(30, 1, "#f5cf6a"); T.p(29, 1, "#fff2a0")
-  for y = 4, 7 do for x = 13, 18 do if hat:has(x, y) and x < 17 - (y - 4) then T.p(x, y, "#ffb48a") end end end
+  local brim = HP.mask(); for y = 14, 19 do for x = 6, 32 do local dx, dy = (x - 19) / 13.2, (y - 16.6) / 2.4; if dx * dx + dy * dy <= 1 then brim:set(x, y) end end end
+  lit(T, brim, { hi = "#d2554a", base = "#b52e3f", shade = "#7e2038" }, { rim = INK, rimTL = INK, l1 = .55 })
+  local hat = HP.poly({ {10, 16}, {13, 11}, {16, 7}, {20, 4}, {24, 2}, {28, 1}, {30, 3}, {27, 5}, {25, 8}, {25, 12}, {28, 16} })
+  lit(T, hat, HR, { rim = INK, rimTL = INK, l1 = .42 })
+  for y = 11, 13 do for x = 9, 28 do if hat:has(x, y) and hat:has(x - 1, y) and hat:has(x + 1, y) then T.p(x, y, (y == 13) and "#d98322" or "#f5cf6a") end end end
+  T.p(17, 12, "#fffaf0"); T.p(18, 12, "#fffaf0")
+  for y = 6, 10 do for x = 12, 19 do if hat:has(x, y) and hat:has(x - 1, y) and x < 18 - (y - 6) then T.p(x, y, "#ffb48a") end end end
+  T.p(29, 0, "#f5cf6a"); T.p(30, 0, "#fff2a0"); T.p(31, 1, "#f5cf6a")
 end
 
 ---------------------------------------------------------------- driver

@@ -800,6 +800,161 @@ function P.mesa2(x, by, o)
   L(tm, SD, 9, { R = 10, tex = .35, sc = 3, nr = true, rimlight = true, fn = function(xx, yy) return -(xx - x) / w * .4 end })
 end
 
+-- desert v2: hazy far mesas (flat, 3 tones, lit top-left edge)
+function P.hazemesas(x, by, o)
+  local cols = o.cols or { "#f4dcc4", "#e4c4b4", "#d0aaa4" }
+  for _, s in ipairs(o.list) do
+    local cx, w, h, cap = s[1], s[2], s[3], s[4] or .55
+    local m = mk()
+    for xx = cx - w // 2, cx + w // 2 do
+      local t = abs(xx - cx) / (w / 2)
+      local top
+      if t < cap then top = by - h + floor(GX.vn(xx, 0, 5, cx) * 2)
+      else top = by - floor(h * max(0, 1 - (t - cap) / (1 - cap)) ^ .6) + floor(GX.vn(xx, 3, 3, cx) * 2) end
+      for yy = top, by do m:set(xx, yy) end
+    end
+    m:each(function(xx, yy)
+      local col = cols[2]
+      if (not m:has(xx, yy - 1)) or (not m:has(xx - 1, yy) and yy < by - 2) then col = cols[1]
+      elseif xx > cx + w * .1 and ((xx - cx) // 3 + yy // 4) % 5 == 0 then col = cols[3]
+      elseif (by - yy) % 7 == 0 and GX.vn(xx, yy, 6, cx) > .5 then col = cols[3] end
+      c:px(xx, yy, col)
+    end)
+  end
+end
+
+-- eroded butte / mesa: irregular stepped skyline, wavy strata bands, caprock lip, gullies, talus skirt
+local STRATA = {
+  rp("#e8a882", "#c46a4c", "#8e4644", "#5a2c3c"), rp("#ffd2a0", "#eea068", "#bc6a4c", "#7e4044"),
+  rp("#fff2c4", "#f2cc8a", "#cc9460", "#8e5e4a"), rp("#ffb88c", "#de7448", "#a44a42", "#64303e"),
+  rp("#f8c49a", "#d88a60", "#a05a48", "#643a40"), rp("#fff4d0", "#ecd4a0", "#c0a07a", "#806458") }
+local ST6 = {}
+for i, b in ipairs(STRATA) do ST6[i] = GX.ramp6(b) end
+function P.butte(x, by, o)
+  local w, h, sd = o.w or 100, o.h or 60, o.seed or x
+  local L0, R0 = o.lp or { { 0, .62 }, { .22, .56 }, { .28, .46 }, { .52, .42 }, { .58, .34 }, { .86, .32 }, { 1, .28 } },
+                 o.rp or { { 0, .66 }, { .18, .60 }, { .24, .50 }, { .46, .46 }, { .50, .38 }, { .78, .34 }, { 1, .30 } }
+  local function hw(prof, t) -- half-width at height fraction t
+    for i = 2, #prof do
+      if t <= prof[i][1] then
+        local a, b = prof[i - 1], prof[i]
+        return a[2] + (b[2] - a[2]) * (t - a[1]) / max(.001, b[1] - a[1])
+      end
+    end
+    return prof[#prof][2]
+  end
+  local m = mk()
+  local notch = o.notch or .3
+  for yy = floor(by - h), by do
+    local t = (by - yy) / h
+    local jl = floor((GX.vn(0, yy, 3, sd) - .5) * 3)
+    local jr = floor((GX.vn(9, yy, 3, sd + 1) - .5) * 3)
+    local x0, x1 = floor(x - hw(L0, t) * w) + jl, floor(x + hw(R0, t) * w) + jr
+    for xx = x0, x1 do
+      local ok = true
+      if t > .93 then -- uneven caprock skyline with a notch
+        local rel = (xx - x) / w
+        if abs(rel - notch * .5) < .035 and t > .95 then ok = false end
+        if GX.vn(xx, 0, 6, sd) < .25 and t > .97 then ok = false end
+      end
+      if ok then m:set(xx, yy) end
+    end
+  end
+  SH(x + 16, by, w * .62)
+  -- strata index with wavy boundaries
+  local cuts = o.cuts or { .16, .3, .44, .56, .7, .86 }
+  local seq = o.seq or { 1, 4, 2, 3, 5, 4, 6 }
+  local function band(xx, yy)
+    local t = (by - yy) / h + (GX.vn(xx, yy, 18, sd + 3) - .5) * .05 + sin(xx / 13 + sd) * .008
+    for i, ct in ipairs(cuts) do if t < ct then return seq[i], t, ct end end
+    return seq[#seq], t, 2
+  end
+  local cx = x + (hw(R0, .5) - hw(L0, .5)) * w * .5
+  L(m, function(xx, yy) local i = band(xx, yy) return ST6[i] end, sd, { R = floor(w * .22), tex = .22, sc = 3, nr = true, amb = .32,
+    fn = function(xx, yy)
+      local i, t, ct = band(xx, yy)
+      local v = -(xx - cx) / w * .9
+      if ct - t < .018 then v = v - .32 end             -- ledge shadow under each band
+      if not m:has(xx, yy - 1) or not m:has(xx, yy - 2) then v = v + .25 end -- ledge tops catch light
+      local g = GX.vn(xx * 1.0, yy * .12, 4, sd + 5)        -- vertical gullies / varnish streaks
+      if g < .26 then v = v - .2 elseif g > .82 then v = v + .08 end
+      if xx > cx and (xx - cx) % 9 == 0 and H(xx, yy // 6, sd) > .4 then v = v - .14 end
+      return v
+    end })
+  -- lit left rims on every ledge
+  m:each(function(xx, yy)
+    if not m:has(xx - 1, yy) and m:has(xx + 1, yy) and xx < cx then c:px(xx + 1, yy, STRATA[band(xx + 1, yy)].hi) end
+    if not m:has(xx, yy - 1) and m:has(xx, yy + 1) and m:has(xx + 1, yy) and xx < cx + w * .2 then c:px(xx, yy + 1, STRATA[band(xx, yy + 1)].hi) end
+  end)
+  -- talus skirt
+  local SD = rp("#fff0c4", "#f0c47c", "#d09058", "#9c6044")
+  local tl, tr = hw(L0, .0) * w + 10, hw(R0, .0) * w + 14
+  local tm = mk()
+  for xx = floor(x - tl), floor(x + tr) do
+    local rel = xx < x and (x - xx) / tl or (xx - x) / tr
+    local th = floor(h * .2 * max(0, 1 - rel) ^ 1.4 + GX.vn(xx, 1, 5, sd) * 3)
+    for yy = by - th, by + 1 do if not m:has(xx, yy) or yy > by - 3 then tm:set(xx, yy) end end
+  end
+  tm:cut(m:copy():cut(R(mk(), x - w, by - 3, x + w, by + 4)))
+  L(tm, SD, sd + 9, { R = 6, tex = .4, sc = 2, nr = true, ink = false, fn = function(xx, yy) return -(xx - x) / w * .5 end })
+  for k = 0, floor(w / 6) do -- boulders on the talus
+    local bx = floor(x - tl + H(k, sd, 3) * (tl + tr))
+    local by2 = by - floor(H(k, sd, 4) * 4)
+    if not m:has(bx, by2) then
+      local b = E(mk(), bx, by2, 1 + floor(H(k, sd, 5) * 2), 1)
+      L(b, STRATA[1], bx, { R = 2, nr = true, tex = .1 })
+    end
+  end
+end
+
+-- sand dune: gentle lit windward face (left), steep shaded lee (right), sharp crest, wind ripples
+function P.dune(x, by, o)
+  local w, h, sk = o.w or 120, o.h or 14, o.sk or .62
+  local D6 = GX.ramp6(o.R or rp("#fff4cc", "#f6d282", "#d8a05c", "#a46a48"))
+  local x0, x1 = floor(x - w / 2), floor(x + w / 2)
+  local cx = x0 + floor(w * sk)
+  local top = {}
+  for xx = x0, x1 do
+    local hh
+    if xx <= cx then local t = (xx - x0) / (cx - x0); hh = h * (t * t * (3 - 2 * t)) ^ 1.1
+    else local t = (xx - cx) / (x1 - cx); hh = h * max(0, 1 - t) ^ 2.2 end
+    top[xx] = floor(by - hh)
+  end
+  for xx = x0, x1 do
+    for yy = top[xx], by + (o.down or 2) do
+      local v
+      if xx <= cx then
+        v = .66 + (1 - (yy - top[xx]) / max(1, h)) * .18
+        local rip = (xx * 2 + yy * 5 + floor(GX.vn(xx, yy, 9, x) * 6)) % 9
+        if rip == 0 then v = v - .2 elseif rip == 1 then v = v + .1 end
+      else
+        v = .3 + (GX.vn(xx, yy, 6, x) - .5) * .12 + ((xx - cx) / (x1 - cx)) * .18
+        if (yy - top[xx]) > h * .7 then v = v + .12 end
+      end
+      if yy > by - 1 then v = max(v, .5) end
+      c:px(xx, yy, D6[GX.idx(v)])
+    end
+    if xx == cx or xx == cx + 1 then c:px(xx, top[xx], D6[6]) end
+    if xx > cx and xx < cx + w * .18 then c:px(xx, top[xx], D6[2]) end   -- crisp crest edge on the lee side
+    if xx < cx and xx > cx - w * .3 then c:px(xx, top[xx], D6[6]) end    -- sunlit crest line
+  end
+end
+
+-- small hoodoo spire with a balanced caprock
+function P.hoodoo(x, by, o)
+  local h = o.h or 30
+  local m = mk()
+  for yy = by - h, by do
+    local t = (by - yy) / h
+    local hwid = 2 + floor(3 * (1 - t) + sin(t * 9) * 1.2)
+    for xx = x - hwid, x + hwid do m:set(xx, yy) end
+  end
+  E(m, x, by - h - 1, 5, 2)
+  SH(x + 5, by, 7)
+  L(m, function(xx, yy) local t = (by - yy) / h; return ST6[(t > .92) and 6 or ((floor(t * 6) % 2 == 0) and 4 or 2)] end, x,
+    { R = 4, nr = true, tex = .2, amb = .3, fn = function(xx, yy) return -(xx - x) * .07 end })
+end
+
 --------------------------------------------------------------------------- looks
 local function sky6(a, b, c2, d2, e, f) return { a, b, c2, d2, e, f } end
 local LOOK = {}
@@ -884,10 +1039,24 @@ look("coast", { sky = sky6("#4aa0e0", "#66b4e8", "#88c8ee", "#aedcf0", "#d2ecf0"
   props = { { "boat", 120, 80, {} }, { "rock", 330, 91, { rx = 52, ry = 22, R = C.ROCK, streak = true } }, { "lighthouse", 330, 74, { h = 54 } }, { "boat", 230, 76, { s = .6, sail = C.CLOUD, hull = C.BLUE } },
     { "bird", 190, 30, {} }, { "bird", 210, 38, {} }, { "rock", 60, 106, { rx = 14, ry = 8, R = C.ROCK } }, { "rock", 430, 106, { rx = 18, ry = 9, R = C.ROCK } } } })
 look("desert", { sky = sky6("#58b4e0", "#80c8e4", "#a8dcdc", "#cce8c4", "#f4eab0", "#fdd890"), sun = { 400, 32, 14, "#fff8c0", "#fffbe0" },
-  g = GR("#fff0b8", "#f4cc72", "#d49a54", "#9c6244"), gy = 80, rip = true, far = { { rp("#f0c47c", "#dca46c", "#bc8060", "#8c5c54"), 70, 6, 12 } },
-  props = { { "arch", 92, 100, { w = 92, h = 60 } }, { "cactus", 190, 104, { h = 60, w = 6 } }, { "mesa2", 308, 98, { w = 108, h = 72 } }, { "animal", 410, 106, { R = rp("#f4d4a0", "#d8a870", "#a87c54", "#70503e"), rx = 11, ry = 6, leg = 14, lw = 3, nx = 7, ny = 14, nw = 3, hrx = 3, hry = 2, snout = 2, humps = { -4, 4 }, tail = 4 } },
-    { "mesa2", 456, 102, { w = 50, h = 44 } },
-    { "rock", 30, 107, { rx = 12, ry = 6, R = C.SANDST } } } })
+  g = GR("#fff0b8", "#f4cc72", "#d49a54", "#9c6244"), gy = 84, rip = true, ncl = 3,
+  props = {
+    -- far haze: two ranks of flat mesas, the far one palest and coolest
+    { "hazemesas", 0, 80, { cols = { "#f8e4cc", "#ead0c0", "#dcbcb4" }, list = { { 40, 70, 22, .6 }, { 150, 110, 28, .5 }, { 262, 60, 18, .45 }, { 372, 120, 30, .55 }, { 462, 60, 20, .5 } } } },
+    { "hazemesas", 0, 84, { cols = { "#f6d4b0", "#e2b49c", "#c89890" }, list = { { 96, 64, 20, .4 }, { 214, 46, 14, .5 }, { 316, 38, 22, .3 }, { 430, 70, 16, .55 } } } },
+    { "dune", 120, 90, { w = 240, h = 8, sk = .55, R = rp("#fff2c8", "#f2cc84", "#dcaa6c", "#b88060") } },
+    { "dune", 380, 89, { w = 220, h = 7, sk = .6, R = rp("#fff2c8", "#f2cc84", "#dcaa6c", "#b88060") } },
+    { "arch", 70, 100, { w = 84, h = 52 } },
+    { "butte", 300, 100, { w = 132, h = 74, seed = 31, notch = .25 } },
+    { "butte", 452, 100, { w = 66, h = 46, seed = 57, notch = -.3, cuts = { .22, .4, .6, .78 }, seq = { 2, 1, 3, 4, 6 },
+      lp = { { 0, .6 }, { .3, .5 }, { .36, .4 }, { .7, .36 }, { 1, .3 } }, rp = { { 0, .62 }, { .25, .54 }, { .32, .42 }, { .66, .38 }, { 1, .32 } } } },
+    { "hoodoo", 196, 100, { h = 30 } },
+    { "hoodoo", 210, 102, { h = 18 } },
+    { "dune", 150, 112, { w = 230, h = 12, sk = .6, down = 0 } },
+    { "dune", 400, 112, { w = 200, h = 10, sk = .55, down = 0 } },
+    { "cactus", 150, 106, { h = 40, w = 4, arms = { { 22, 1, 9, 12 }, { 14, -1, 8, 8 } } } },
+    { "animal", 372, 108, { R = rp("#f4d4a0", "#d8a870", "#a87c54", "#70503e"), rx = 10, ry = 5, leg = 12, lw = 3, nx = 7, ny = 12, nw = 3, hrx = 3, hry = 2, snout = 2, humps = { -4, 4 }, tail = 4 } },
+    { "rock", 24, 108, { rx = 10, ry = 5, R = C.SANDST } } } })
 look("forest", { sky = sky6("#7cc8a0", "#98d4a0", "#b4e0a0", "#d0ecA0", "#e4f2b0", "#f4f6c0"), sun = nil, g = GR("#a8d870", "#68a850", "#3e7c48", "#24503e"), gy = 84, far = { { rp("#4c9c64", "#3c845c", "#2c6a50", "#224c44"), 68, 8, 14 } }, flw = { "#ff7aa8", "#ffe38a", "#fff4d0" },
   props = { { "tree", 56, 106, { h = 76, R = C.GREEN, seed = 81, tw = 3 } }, { "pine", 150, 106, { h = 80, n = 4 } }, { "mushroom", 200, 106, { r = 12 } }, { "pine", 250, 106, { h = 70, n = 4 } },
     { "tree", 330, 106, { h = 70, R = C.YEL, seed = 82, tw = 3 } }, { "mushroom", 395, 107, { r = 9, R = C.ORANGE } }, { "pine", 430, 106, { h = 84, n = 4 } } } })

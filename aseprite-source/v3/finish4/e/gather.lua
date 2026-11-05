@@ -430,21 +430,51 @@ function S.vigpick()
   -- crystal ore + gold flecks
   for _, p in ipairs({ {108, 70, 7}, {126, 84, 6}, {80, 86, 5} }) do obj(HP.poly({ {p[1], p[2] - p[3]}, {p[1] + 4, p[2]}, {p[1], p[2] + p[3] - 1}, {p[1] - 4, p[2]} }), R.sea); put(p[1] - 1, p[2] - 2, CREAM) end
   for _, p in ipairs({ {90, 52}, {114, 48}, {130, 66} }) do put(p[1], p[2], R.gold.base); put(p[1] + 1, p[2], R.gold.hi) end
-  -- pick: long handle, curved double head biting the rock
-  local d = { .87, .49 }
-  local pv = { -.49, .87 }
-  local C0 = { 90, 56 }
-  handle({ 14, 12 }, C0, 4)
+  -- pick: wood handle up to a socketed iron head; crescent head, both ends drawn to sharp points that curve back
+  -- toward the handle; the lower point bites the rock. Dark steel ramp so it separates from the grey stone.
+  local STEEL = { hi = "#e4e8f4", base = "#7a7e9c", shade = "#4e5070", deep = "#2e3050" }
+  local d = { .87, .49 }        -- handle direction (towards the head)
+  local pv = { -.49, .87 }      -- head axis (perpendicular)
+  local C0 = { 90, 52 }         -- eye of the head
+  handle({ 14, 12 }, { C0[1] + d[1] * 3, C0[2] + d[2] * 3 }, 4)
   obj(HP.rect(10, 8, 14, 12), R.leather)
-  for i = -10, 10 do
-    local t = i / 10
-    local px_ = C0[1] + pv[1] * t * 26 + d[1] * (t * t * 11 + 2)
-    local py_ = C0[2] + pv[2] * t * 26 + d[2] * (t * t * 11 + 2)
-    local r = (abs(i) < 4) and 4 or ((abs(i) < 8) and 3 or 2)
-    L[#L + 1] = { cir(floor(px_ + .5), floor(py_ + .5), r), R.iron }
+  local function cpt(t) return C0[1] + pv[1] * t * 27 - d[1] * (t * t * 9), C0[2] + pv[2] * t * 27 - d[2] * (t * t * 9) end
+  local function wd(t) return max(.4, 3.6 * (1 - abs(t) ^ 1.6) + .4) end
+  local up, dn = {}, {}
+  for i = -12, 12 do
+    local t = i / 12
+    local x, y = cpt(t)
+    local w = wd(t)
+    up[#up + 1] = { x - d[1] * w, y - d[2] * w }
+    dn[#dn + 1] = { x + d[1] * w * 1.1, y + d[2] * w * 1.1 }
   end
-  flush()
-  c:fillMask(ln({ {88, 48}, {82, 36} }, 1), CREAM)
+  local pts = {}
+  for i = 1, #up do pts[#pts + 1] = up[i] end
+  for i = #dn, 1, -1 do pts[#pts + 1] = dn[i] end
+  local head = HP.poly(pts)
+  -- cast shadow on the rock, offset down-right
+  head:each(function(x, y) if not head:has(x + 2, y + 2) and rock:has(x + 2, y + 2) then put(x + 2, y + 2, R.stone.deep) end end)
+  c:rim(head, INK)
+  head:each(function(x, y)
+    -- signed distance across the head: negative = upper-left (lit) face
+    local best, bs = 1e9, 0
+    for i = -12, 12 do
+      local px_, py_ = cpt(i / 12)
+      local dx, dy = x + .5 - px_, y + .5 - py_
+      local dd = dx * dx + dy * dy
+      if dd < best then best = dd; bs = (dx * d[1] + dy * d[2]) / wd(i / 12) end
+    end
+    local t = STEEL.base
+    if bs < -.45 then t = STEEL.hi elseif bs < -.05 then t = mix(STEEL.base, STEEL.hi, .45) elseif bs > .55 then t = STEEL.deep elseif bs > .2 then t = STEEL.shade end
+    put(x, y, t)
+  end)
+  -- socket collar around the eye, wedge, rivet
+  local col = HP.poly({ { C0[1] - 5, C0[2] - 2 }, { C0[1] - 1, C0[2] - 8 }, { C0[1] + 5, C0[2] - 4 }, { C0[1] + 2, C0[2] + 3 } })
+  obj(col, { hi = "#a6aac4", base = "#62668a", shade = "#3e4062", deep = "#2e3050" })
+  put(C0[1] - 1, C0[2] - 3, "#d98322"); put(C0[1], C0[2] - 3, "#f5cf6a"); put(C0[1] - 1, C0[2] - 4, "#f5cf6a")
+  -- glints on the lit edge and the biting point
+  local gx, gy = cpt(-.55); put(floor(gx - d[1] * 2), floor(gy - d[2] * 2), CREAM)
+  local tx, ty = cpt(1); spark(floor(tx) + 1, floor(ty) + 3, CREAM)
   spark(100, 66, R.gold.hi); spark(112, 80, CREAM); put(96, 74, R.gold.base); put(106, 58, R.gold.base)
   -- chips flying
   obj(HP.poly({ {74, 62}, {79, 58}, {80, 64} }), R.stone); obj(HP.poly({ {108, 54}, {113, 52}, {112, 58} }), R.stone)
