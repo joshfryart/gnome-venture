@@ -45,7 +45,7 @@ local function build(name, fn)
     c:fillMask(rg:copy():cut(rg:shift(1,1)), mix(a,"#fff2c8",.4))
     c:fillMask(rg:copy():cut(rg:shift(-1,-1)), mix(a,"#3a2040",.4))
     c:rim(outer, INK)
-    c:rim(inner, INK, outer) ; for y=0,95 do for x=0,95 do if inner:has(x,y) and not inner:shrink(1):has(x,y) then c:put(x,y,INK) end end end
+    c:fillMask(inner:edge(), INK)
     local dots = 12
     for i=0,dots-1 do local t=i/dots*6.2832; px(math.floor(48+44.5*cos(t)), math.floor(48+44.5*sin(t)), b) end
   end
@@ -233,8 +233,8 @@ PIC.sea = function(g) -- Angkor towers + buffalo + lotus
   g.bg("#ffc890","#f8e0a0",58,"#48a8a0","#308888",74)
   g.P({{0,58},{20,46},{44,58}},"#58a888",true); g.P({{50,58},{70,48},{94,58}},"#58a888",true)
   local function tower(x,by,s)
-    for i=0,3 do local w=(8-i*2)*s; g.Rc(x-w,by-(i+1)*5*s,x+w,by-i*5*s,"#b8a078") end
-    g.P({{x,by-26*s},{x-2*s,by-20*s},{x+2*s,by-20*s}},"#c8b088")
+    for i=0,3 do local w=(8-i*2)*s; g.Rc(x-w//1,by-(i+1)*5*s//1,x+w//1,by-i*5*s//1,"#b8a078") end
+    g.P({{x,by-26*s//1},{x-2*s//1,by-20*s//1},{x+2*s//1,by-20*s//1}},"#c8b088")
   end
   g.Rc(14,58,76,64,"#a89068"); tower(26,58,1); tower(60,58,1); tower(43,58,1.4)
   g.Rc(40,54,46,58,"#3a2840",true)
