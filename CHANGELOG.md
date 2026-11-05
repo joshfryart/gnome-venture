@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.5.51
+- **Trail tiles camera**: a walk on a Trail map now slides the picture with the gnome (wide picture like the delve maps), the gnome stays centred, and the final map no longer flashes before the walk.
+- **Garden select bar on a phone**: the quick picks wrap into rows again (a scrolling row showed one pick at a time) and the action bar stays at the bottom, so both menus show.
+- **Art v3 installed**: crafting workshop, six villager doors, the street of 4/6/8 houses, five treehouse trophies, the step-off strip (`wander-step.png`).
+- **Tests**: `paljobs` no longer depends on the clock (its thirsty crop could be ready inside the replay); `here` copes with real trophy and step-off pictures.
+
 ## 2.5.50
 - **Numbering note:** the gather layers below first went live in a slim zip that was called 2.5.49 (built before the merge). The 2.5.49 code work listed under the next heading (yard, Here, pal jobs, Trek and so on) was NOT in that zip: it arrives with 2.5.50, together with everything else.
 - **Gather scene redrawn for all nine landscapes** (coast, mountain, forest, desert, rainforest, grassland, wetland, tundra, island) on a new organic pixel engine (`aseprite-source/v3/gather/gx.lua`): noisy shapes, per-pixel light, bark and leaf texture, one small quirk each. The satchel is no longer painted into the scene: it is two layers (back behind the find, front over it) with three skins, **leather** (default), **canvas** and **patchwork**. There is no satchel item yet; a later `satchel_skin` on the gnome picks the skin.

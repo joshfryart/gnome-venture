@@ -572,6 +572,8 @@ if ($withDb) {
     ok('5 pals: the 5-pal dressing (rug) is there, the 10-pal one is not', str_contains($t5, 'data-dress="rug"') && !str_contains($t5, 'data-dress="lights"'));
     ok('4 pals or fewer: no dressing yet', !str_contains($t1b, 'data-dress'));
     echo "== Phase 5: animation and trophy layers (optional pictures)\n";
+    $realArt = [];   // real pictures shipped in the game are set aside while the test uses stand-ins, then put back
+    foreach (glob($game . '/assets/img/scenes/tree-trophy-*.png') ?: [] as $rf) { rename($rf, $rf . '.keep'); $realArt[] = $rf; }
     $LA = here_layouts_shipped()['treehouse'];
     ok('no layer picture on disk: no animation group, no trophy', !str_contains($t5, 'class="hanim') && !str_contains($t5, 'data-dress="trophy-'));
     $bad1 = here_lint_layout(['anim' => [['k' => 'x', 'fx' => 'spin', 'x' => 10, 'y' => 10, 'w' => 8, 'h' => 8]], 'trophies' => [['k' => 'y', 'kind' => 'gold', 'x' => 10, 'y' => 10, 'w' => 8, 'h' => 8]]] + $LA);
@@ -583,6 +585,7 @@ if ($withDb) {
     ok('an animation layer with a picture is a class-only group (fx-bob spd-slow, no style attribute)', str_contains($svgA, 'class="hanim fx-bob spd-slow"') && !preg_match('/<g class="hanim[^>]*style=/', $svgA));
     ok('trophy layer file is found by name', count(here_layers_present($LA, 'trophies', 'tree', 'treehouse')) === 1);
     foreach ($tmp as $f) @unlink($f);
+    foreach ($realArt as $rf) if (is_file($rf . '.keep')) { @unlink($rf); rename($rf . '.keep', $rf); }
     $pj = array_values(pj_pals($uid));
     $first = $pj[0]; $second = $pj[1];
     q("UPDATE ppal_found SET status = 'trip' WHERE pal_uid = ?", [$first['uid']]);
@@ -711,6 +714,7 @@ if ($withDb) {
     echo "== 2.5.49: step-off / step-back strip (optional art)\n";
     require_once $game . '/includes/explore.php';
     $stepF = $game . '/assets/img/scenes/wander-step.png'; $backF = $game . '/assets/img/scenes/wander-step-back.png';
+    $keepStep = []; foreach ([$stepF, $backF] as $rf) if (is_file($rf)) { rename($rf, $rf . '.keep'); $keepStep[] = $rf; }
     ok('no art: nothing drawn (off and road)', !is_file($stepF) && wander_step_strip('off') === '' && wander_step_strip('road') === '');
     if (function_exists('imagecreatetruecolor')) {
         $mk = function (string $f, int $w, int $h) { $im = imagecreatetruecolor($w, $h); imagepng($im, $f); imagedestroy($im); };
@@ -729,6 +733,7 @@ if ($withDb) {
         ok('a stale request (over 2 minutes) draws nothing and is cleared', wander_step_once('off') === '' && !isset($_SESSION['wander_step']));
         @unlink($stepF); @unlink($backF);
     } else ok('GD missing: strip tests skipped', true);
+    foreach ($keepStep as $rf) { @unlink($rf); rename($rf . '.keep', $rf); }
     ok('explore_start asks for the off strip, explore_return for the road strip', str_contains((string)file_get_contents($game . '/includes/explore.php'), "'off|' . time()") && str_contains((string)file_get_contents($game . '/includes/explore.php'), "'road|' . time()"));
 
     echo "== flag helpers\n";
