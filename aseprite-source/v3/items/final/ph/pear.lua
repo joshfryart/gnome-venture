@@ -1,52 +1,38 @@
--- pear (lean W2_12)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- pear (lean P1b_O6)
+local NAME = "pear"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "pear" }
-local GR = { "#26452e", "#3b6a30", "#5f8f2f", "#92b438", "#c4d04c", "#eee77a" }
-local BL = { "#6b4a1e", "#9a6a22", "#c88a30", "#e6b250" }
-local LF = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local cuts = { 0.22, 0.4, 0.56, 0.72, 0.87 }
-c:groundShadow(31, 55, 11, 2)
-local Y0, Y1 = 22, 53
-local function hw(y)
-  local t = (y - Y0) / (Y1 - Y0)
-  if t < 0.35 then return 3.4 + 5.5 * (t / 0.35) ^ 1.3 end
-  local u = (t - 0.35) / 0.65
-  return 8.9 + 5.6 * sin(min(1, u * 1.15) * pi / 2) ^ 0.7 * (1 - u ^ 4) - 0.6
-end
-local body = HP.mask()
-for y = Y0, Y1 do local h = hw(y) local cx = 32 - (Y1 - y) * 0.02
-  for x = floor(cx - h + 0.5), floor(cx + h - 0.5) do body:set(x, y) end end
-local n = X.pillow(body, 9)
-local v = X.light(n, { amb = 0.08, wrap = 0.2 })
--- ripeness: green top, yellow-ish blush low-left via bias
-local bias = {}
-body:each(function(x, y)
-  local k = K(x, y)
-  if y > 36 and x < 30 and X.hash(x, y, 3) > 0.35 then bias[k] = 1 end
-  if y < 30 then bias[k] = -1 end
-end)
-G.tone(c, body, v, GR, cuts, bias)
--- brown russet patch
-local patch = HP.mask() patch:add(c:ellipse(27, 43, 5, 4))
-patch:each(function(x, y) if X.hash(x, y, 7) > 0.25 and body:has(x, y) then c:px(x, y, BL[2 + floor(X.hash(x, y, 8) * 2)]) end end)
-c:px(26, 41, BL[4]) c:px(25, 42, BL[3])
+local function line(pts, hex) c:line(pts, 1):each(function(x, y) c:px(x, y, hex) end) end
+local function paint(m, ramp, R, o) o = o or {} local n = X.pillow(m, R) local _, v = G.toneN(c, m, n, ramp, o) return n, v end
+
+local GREEN = { "#27431c", "#477a21", "#78aa2b", "#a9cc3d", "#d4e468", "#f2f5a4" }
+local ORNG  = { "#6a2a18", "#b0401e", "#dc5c2c", "#f08a3c", "#fab45c" }
+local LEAF  = { "#17392c", "#1f5a34", "#2f7d3a", "#4a9c42", "#74bb4e", "#a3d664" }
+c:groundShadow(33, 56, 13, 2)
+local body = c:ellipse(32, 43, 15, 13):add(c:ellipse(32, 28, 8, 11)):add(c:ellipse(32, 35, 11.5, 9))
+local n, v = paint(body, GREEN, 10, { amb = 0.08, wrap = 0.2 })
+-- blush on lit-away side
+local bl = c:ellipse(41, 46, 8, 9):clip(body)
+bl:each(function(x, y) if X.hash(x, y, 2) > 0.18 or bl:copy():shrink(1):has(x, y) then
+  local t = v[K(x, y)] or 0.5
+  local i = t < 0.3 and 1 or t < 0.5 and 2 or t < 0.72 and 3 or t < 0.88 and 4 or 5
+  c:px(x, y, ORNG[i]) end end)
 -- lenticels
-for _, p in ipairs{ {36,38},{39,44},{34,48},{30,33},{40,50},{37,32} } do c:px(p[1], p[2], GR[1]) end
--- bloom spec
-c:px(25, 34, "#fffbe0") c:px(26, 34, "#fffbe0") c:px(25, 35, GR[6]) c:px(27, 33, GR[6])
--- cool bounce lower-right
-body:edge():each(function(x, y) if x > 38 and y > 40 then c:px(x, y, "#6fa0a0") end end)
--- stem curving right
-G.line(c, { {32,22}, {32,19}, {33,16}, {35,14}, {37,13} }, BL[2])
-G.line(c, { {33,22}, {33,19}, {34,16}, {36,14} }, BL[1])
-c:px(32, 20, BL[3]) c:px(33, 17, BL[3])
-c:px(31, 23, GR[1]) c:px(33, 23, GR[1]) c:px(32, 23, GR[1])
--- leaf off stem
-local lm, ln = G.tube({ {36,15}, {42,9}, {47,8}, {52,12} }, function(t) return 0.8 + 3.0 * sin(pi * t) ^ 0.7 end)
-G.tone(c, lm, X.light(ln, { amb = 0.12, wrap = 0.25 }), LF, cuts)
-G.line(c, { {37,14}, {44,10}, {50,11} }, LF[6])
--- quirk: dew drop on belly
-c:px(38, 41, "#d8f4f0") c:px(38, 42, "#8fd0c8") c:px(39, 42, "#5a9aa0")
-G.fin(c, "pear")
+body:each(function(x, y) if X.hash(x, y, 7) > 0.955 and (v[K(x, y)] or 0) > 0.3 then c:px(x, y, GREEN[2]) end end)
+-- bloom + spec
+c:px(26, 40, "#fffbe0") c:px(26, 41, "#fffbe0") c:px(27, 39, GREEN[6]) c:px(27, 42, GREEN[6])
+c:px(28, 27, GREEN[6]) c:px(28, 28, GREEN[6])
+-- calyx dimple at base
+c:px(32, 55, GREEN[1]) c:px(31, 54, GREEN[2]) c:px(33, 54, GREEN[2])
+-- stem + leaf
+local sm, sn = G.tube({ {32,18}, {32,13}, {34,10}, {37,7} }, function(t) return 1.5 - 0.4 * t end)
+G.toneN(c, sm, sn, { "#2e1a10", "#5a3a22", "#8a5e36", "#b88a52" })
+local lm, ln = G.blade(35, 11, 43, 2, 57, 11, function(t) return 5.2 * sin(pi * t) ^ 0.75 end, { fold = 0.3 })
+G.toneN(c, lm, ln, LEAF)
+line(c, { {36,11},{42,7},{50,8},{55,10} }, LEAF[6])
+-- ladybird quirk
+c:fillMask(c:rect(37, 31, 39, 33), "#d8342c") c:px(37, 31, "#f2705a") c:px(38, 33, "#8e1c24") c:px(39, 33, "#8e1c24")
+c:px(38, 32, "#2b1c26") c:px(37, 32, "#2b1c26") c:px(38, 30, "#2b1c26") c:px(39, 30, "#2b1c26")
+G.save(c, NAME)

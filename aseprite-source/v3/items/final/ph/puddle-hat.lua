@@ -11,11 +11,11 @@ local STRAW = { "#7a4a1e", "#a8702a", "#d49a3a", "#eebc4c", "#f8d870", "#fff0a4"
 local RED   = { "#4a1424", "#7a2234", "#a83446", "#d05060" }
 local FROG  = { "#1c4a32", "#2e7a40", "#52b04c", "#92dc6a" }
 -- puddle
-local pud = c:ellipse(32, 44, 28, 13)
+local pud = c:ellipse(32, 44, 25, 12)
 local pn = X.pillow(pud, 9, 0.5)
 local pb = {}
 pud:each(function(x, y)
-  local d = sqrt(((x - 32) / 28) ^ 2 + ((y - 44) / 13) ^ 2)
+  local d = sqrt(((x - 32) / 25) ^ 2 + ((y - 44) / 12) ^ 2)
   if d > 0.82 then pb[K(x, y)] = -1 end
   if (floor(d * 14) % 4 == 0) and d < 0.8 and d > 0.45 and X.hash(x, y, 3) > 0.45 then pb[K(x, y)] = 1 end
 end)
@@ -59,6 +59,6 @@ c:px(27, 19, STRAW[6]) c:px(28, 18, STRAW[6]) c:px(26, 20, STRAW[5]) c:px(29, 17
 -- frog quirk on the right brim
 local fm = c:ellipse(48, 35, 4, 3)
 G.toneN(c, fm, X.pillow(fm, 3.5), FROG, { amb = 0.15 })
-c:px(46, 32, FROG[4]) c:px(47, 32, "#ffffff") c:px(50, 32, FROG[4]) c:px(51, 32, FROG[2]) c:px(46, 31, FROG[2]) c:px(47, 31, "#1c1c24") c:px(50, 31, FROG[2]) c:px(51, 31, "#1c1c24")
+c:px(46, 32, FROG[4]) c:px(47, 32, "#f0f4ff") c:px(50, 32, FROG[4]) c:px(51, 32, FROG[2]) c:px(46, 31, FROG[2]) c:px(47, 31, "#1c1c24") c:px(50, 31, FROG[2]) c:px(51, 31, "#1c1c24")
 c:px(49, 37, FROG[1]) c:px(47, 37, FROG[1]) c:px(50, 35, FROG[1])
 G.save(c, NAME)

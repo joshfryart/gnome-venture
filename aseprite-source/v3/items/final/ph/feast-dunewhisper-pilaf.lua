@@ -1,75 +1,69 @@
--- feast-dunewhisper-pilaf (lean W2_2)
--- Desert pilaf: a tall bell-shaped mound of saffron rice on a round brass tray; raisins, pistachio, carrot flecks.
--- quirk: a cinnamon stick poked in the peak and a lemon wedge resting on the tray rim.
+-- feast-dunewhisper-pilaf (lean P1b_O0)
+-- quirk: the steam curls into a wind-swirl and a ripple crest is blown across the rice dune. Teal bowl, saffron rice, carrot / pistachio / raisin flecks.
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local NAME = "feast-dunewhisper-pilaf"
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-local floor, sin, pi, sqrt, max, min = math.floor, math.sin, math.pi, math.sqrt, math.max, math.min
-local RICE = { "#8a4f1c", "#b8741f", "#dea23a", "#f2c653", "#fbe08a", "#fff4c0" }
-local BRASS = { "#4a2a1c", "#7a4426", "#a8602e", "#cf8440", "#ebaa5c", "#fbd08a" }
-local CINN = { "#3a1c14", "#5e2e1c", "#8a4a28", "#b06a38", "#d08a4c", "#e8aa6c" }
-local LEM = { "#a8841a", "#d2aa22", "#efcb3a", "#f9e164", "#fdf0a0", "#fffad0" }
-
-c:groundShadow(32, 54, 24, 3)
--- tray foot + tray + inner dish
-local m, n = G.oval(32, 50, 17, 4, 0, 1) G.toneN(c, m, n, BRASS, {})
-m, n = G.oval(32, 45, 25, 9, 0, 3)
-local bias = {}
-G.toneN(c, m, n, BRASS, { bias = bias })
-local rim = m:copy():shrink(1)
-local dm, dn = G.oval(32, 45, 21, 6.6, 0, 3.5)
-local dv = X.light(dn, { amb = 0.1, wrap = 0.2 })
-local dbias = {}
-dm:each(function(x, y) if y < 42 then dbias[K(x, y)] = -1 end end)
-X.tone(c, dm, dv, BRASS, { cuts = { 0.3, 0.5, 0.68, 0.82, 0.93 }, bias = dbias })
--- tray rim glint
-for x = 14, 24 do c:px(x, 39 + floor((24 - x) * 0.0), BRASS[6]) end
-
--- lemon wedge on the right rim
-local lm, ln = G.oval(51, 48, 5, 3.2, 0.35, 1)
-G.toneN(c, lm, ln, LEM, {})
-for x = 48, 54 do c:px(x, 48 + floor((x - 51) * 0.35), LEM[6]) end
-c:px(50, 47, LEM[5]) c:px(52, 49, LEM[2])
-
--- rice mound
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "feast-dunewhisper-pilaf" }
+local pi, sin, cos, floor, max, min, abs, sqrt = math.pi, math.sin, math.cos, math.floor, math.max, math.min, math.abs, math.sqrt
+local RICE = { "#8a5a1c", "#b87d24", "#e0a52f", "#f5c94c", "#ffe283", "#fff6c4" }
+local TEAL = { "#14304a", "#1d5068", "#2a7a8a", "#47a8a8", "#84d2c0", "#c8f0e0" }
+local WOOD = { "#4a2a16", "#6e4222", "#966434", "#c0904e" }
+c:groundShadow(32, 54, 25, 4)
+-- bowl
+local bm, bn = G.oval(32, 46, 26, 12, 0, 0.8)
+G.toneN(c, bm, bn, TEAL, { amb = 0.1, wrap = 0.3, tok = { r = { name = "bowl" } } })
+local inner = G.oval(32, 44, 21, 8.5, 0, 1)
+c:fillMask(inner, TEAL[1])
+c:fillMask(inner:copy():shrink(1):cut(inner:copy():shrink(1):shift(0, 2)), TEAL[2]) -- inner back-wall
+-- rim glint
+for x = 12, 22 do if bm:has(x, 37 + floor((x - 12) * 0.0)) then end end
+c:px(14, 42, TEAL[6]) c:px(15, 41, TEAL[6]) c:px(16, 40, TEAL[5]) c:px(13, 43, TEAL[5])
+-- dune mound
 local mound = HP.mask()
-for y = 15, 46 do
-  local t = (y - 15) / 31
-  local h = 17 * (t ^ 0.62) + 0.4
-  for x = floor(32 - h + 0.5), floor(32 + h - 0.5) do mound:set(x, y) end
-end
-mound:add(c:ellipse(32, 45, 17, 4))
-local mn = X.pillow(mound, 12)
-local mv = X.light(mn, { amb = 0.08, wrap = 0.2 })
-local mb = {}
-mound:each(function(x, y) if y > 42 then mb[K(x, y)] = -1 end end)
-X.tone(c, mound, mv, RICE, { cuts = { 0.22, 0.4, 0.58, 0.74, 0.88 }, bias = mb })
--- grains and garnish
-local inner = mound:copy():shrink(1)
-inner:each(function(x, y)
-  local h = X.hash(x, y, 5)
-  local k = K(x, y)
-  local lit = mv[k] or 0.5
-  if h > 0.86 and inner:has(x + 1, y) then
-    local col = lit > 0.55 and RICE[6] or RICE[4]
-    c:px(x, y, col) c:px(x + 1, y, col)
-  elseif h < 0.07 and inner:has(x + 1, y) then
-    c:px(x, y, RICE[2]) c:px(x + 1, y, RICE[2])
+local ridgeX = 27
+for x = 9, 55 do
+  local dx = x - ridgeX
+  local L, p = (dx < 0) and 19 or 28, (dx < 0) and 1.15 or 1.05
+  local h = 26 * (1 - (abs(dx) / L) ^ p)
+  if h > 0 then
+    local top = floor(46 - h + 0.5)
+    local bot = floor(46 + 5 * sqrt(max(0, 1 - ((x - 32) / 24) ^ 2)) + 0.5)
+    for y = top, bot do mound:set(x, y) end
   end
-  local g = X.hash(x, y, 9)
-  if g > 0.985 then c:px(x, y, "#5a2a52") c:px(x + 1, y, "#7c3a70") c:px(x, y + 1, "#3e1a3a") elseif g > 0.972 then c:px(x, y, "#78b04a") c:px(x + 1, y, "#4e8a38") elseif g > 0.962 then c:px(x, y, "#ee6a26") c:px(x, y + 1, "#c04a1c") end
-end)
--- dune ripple line: a few shaded rows on the mound
-for _, r in ipairs{ {27, 21, 25}, {33, 17, 24}, {39, 15, 22} } do
-  for x = r[2], r[3] do if mound:has(x, r[1]) then c:px(x, r[1], RICE[2]) end end
 end
--- spec
-c:px(26, 27, RICE[6]) c:px(27, 27, RICE[6]) c:px(26, 28, RICE[5])
-
--- cinnamon stick in the peak
-local sm, sn = G.tube({ { 33, 24 }, { 36, 18 }, { 40, 13 }, { 46, 8 } }, function(t) return 1.8 - 0.3 * t end)
-G.toneN(c, sm, sn, CINN, {})
-sm:each(function(x, y) if (x + y) % 4 == 0 then c:px(x, y, CINN[2]) end end)
-c:px(45, 8, CINN[6]) c:px(46, 7, CINN[1])
-G.save(c, NAME)
+local mn = X.pillow(mound, 12)
+local bias = {}
+mound:each(function(x, y) local k = K(x, y)
+  if x > ridgeX + 1 then bias[k] = -1 end
+  if x <= ridgeX and x > ridgeX - 6 then bias[k] = 1 end
+  if x > ridgeX + 1 then
+    -- wind ripples along the lee slope
+    local r = (y + (x - ridgeX) * 0.55) % 4.5
+    if r < 0.8 then bias[k] = (bias[k] or 0) + 1 elseif r > 3.7 then bias[k] = (bias[k] or 0) - 1 end
+  end
+end)
+G.toneN(c, mound, mn, RICE, { bias = bias, amb = 0.12, wrap = 0.25, tok = { r = { name = "rice" } } })
+-- rice grains
+mound:each(function(x, y)
+  local h = X.hash(x, y, 12)
+  if h > 0.86 and mound:has(x + 1, y) then c:px(x, y, RICE[5]) c:px(x + 1, y, RICE[6]) c:px(x, y + 1, RICE[2])
+  elseif h < 0.05 then c:px(x, y, RICE[2]) end
+end)
+-- toppings
+local function top(x, y, base, hi, lo, w)
+  c:fillMask(c:rect(x, y, x + (w or 2), y + 1), base) c:px(x, y, hi) c:px(x + (w or 2), y + 1, lo)
+end
+top(18, 37, "#f07a1c", "#ffb35a", "#b04a10", 2) top(33, 27, "#f07a1c", "#ffb35a", "#b04a10", 2)
+top(40, 36, "#f07a1c", "#ffb35a", "#b04a10", 2) top(24, 30, "#f07a1c", "#ffb35a", "#b04a10", 1)
+top(21, 43, "#7ab648", "#c4e87c", "#3e7a2c", 1) top(36, 41, "#7ab648", "#c4e87c", "#3e7a2c", 1) top(46, 42, "#7ab648", "#c4e87c", "#3e7a2c", 1)
+top(29, 34, "#6a2c5e", "#b068a0", "#33122e", 1) top(44, 38, "#6a2c5e", "#b068a0", "#33122e", 1) top(15, 42, "#6a2c5e", "#b068a0", "#33122e", 1)
+-- wooden spoon stuck in the lee slope
+local sm, sn = G.tube({ {42,33}, {46,26}, {51,19}, {56,11} }, function(t) return 1.9 - 0.4 * t end)
+G.toneN(c, sm, sn, WOOD, { cuts = { 0.3, 0.6, 0.85 }, tok = { r = { name = "spoon" } } })
+local bowl = G.oval(41, 35, 3.6, 2.6, 0.5, 1)
+bowl:each(function(x, y) if mound:has(x, y) or true then c:px(x, y, WOOD[(x + y) % 3 == 0 and 4 or 3]) end end)
+c:px(40, 34, WOOD[4]) c:px(43, 37, WOOD[1])
+-- steam swirl (wind whisper)
+local st = G.tube({ {26,19}, {22,14}, {30,9}, {26,4} }, function(t) return 1.5 - 0.6 * t end)
+G.toneN(c, st, select(2, G.tube({ {26,19}, {22,14}, {30,9}, {26,4} }, function(t) return 1.5 - 0.6 * t end)), { "#cfc8d8", "#e8e2ee", "#f8f4fb" }, { cuts = { 0.4, 0.75 }, tok = { r = { name = "steam" } } })
+c:line({ {30,6}, {34,4}, {36,7} }, 1):each(function(x, y) c:px(x, y, "#e8e2ee") end)
+G.save(c, "feast-dunewhisper-pilaf")

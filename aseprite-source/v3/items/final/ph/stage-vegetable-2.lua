@@ -1,63 +1,46 @@
--- stage-vegetable-2 (lean W2_26)
--- Young leafy veg (chard-like) in a furrowed soil bed: fan of five broad ribbed leaves with pale midribs and crinkled edges. Quirk: a ladybird on a leaf.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stage-vegetable-2 (lean P1b_O13)
+local NAME = "stage-vegetable-2"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local LEAF  = { "#1b3b3c", "#255644", "#32764b", "#4b9650", "#70b45a", "#9ccd6c" }
-local SOIL  = { "#2e1d24", "#4a2d2c", "#6b4330", "#8c5c3a", "#aa7a4c", "#c79a64" }
-local SPOT  = { "#2e1d24", "#4a2d2c", "#6b4330" }
-local CUTS  = { 0.2, 0.38, 0.55, 0.7, 0.86 }
-local ltok = { r = { name = "leaf" } }
-local function blade(c, ax, ay, bx, by, wmax, ramp)
-  local m, n, T, S = X.cyl(ax, ay, bx, by, function(t)
-    if t > 0.985 then return -1 end
-    return max(0.6, wmax * sin(pi * min(1, t * 0.93 + 0.07)) ^ 0.7)
-  end)
-  G.tone(c, m, X.light(n, { amb = 0.12, wrap = 0.25 }), ramp or LEAF, CUTS, nil, ltok)
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt, atan2 = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
+local function T(nm) return { r = { name = nm } } end
+local function ball(m, R, ramp, nm, o) local n = X.pillow(m, R) o = o or {} o.tok = T(nm) if not o.cuts then o.cuts = {0.2,0.38,0.55,0.72,0.86} end G.toneN(c, m, n, ramp, o) return n end
+local SOIL = { "#1e1218", "#3a2420", "#5e3a2a", "#86583a", "#ae7e4a" }
+local LF = { "#12362e", "#1f5e3c", "#34864a", "#58ac4e", "#8ccc62", "#c2ec8c" }
+c:groundShadow(32, 56, 24, 3)
+local soil = c:ellipse(32, 50, 22, 7) soil:add(c:ellipse(32, 47, 15, 6))
+ball(soil, 9, SOIL, "soil", { amb = 0.1, wrap = 0.2 })
+soil:each(function(x, y) local h = X.hash(x, y, 5) if h > 0.9 then c:put(x, y, SOIL[5], T("soil")) elseif h < 0.07 then c:put(x, y, SOIL[1], T("soil")) end end)
+for _, p in ipairs{ {16,52},{17,52},{48,52},{49,52},{47,53} } do c:put(p[1], p[2], "#b8a898", T("pb")) end
+for _, p in ipairs{ {18,53},{50,53} } do c:put(p[1], p[2], "#6a5a60", T("pb")) end
+local function leaf(ax, ay, cx, cy, bx, by, w, nm)
+  local m, n, Tt, S, L = G.blade(ax, ay, cx, cy, bx, by, function(t) if t > 0.985 then return -1 end return max(0.6, w * sin(pi * min(1, t * 1.04)) ^ 0.7) end, { fold = 0.4 })
+  local tok = T(nm)
+  G.toneN(c, m, n, LF, { tok = tok, cuts = {0.18,0.34,0.5,0.66,0.82}, amb = 0.1, wrap = 0.2 })
   m:each(function(x, y) local k = K(x, y)
-    local s, t = S[k], T[k]
-    if abs(s) < 0.2 and t < 0.93 and t > 0.1 then c:put(x, y, s <= 0 and LEAF[6] or LEAF[3], ltok) end
+    local s, t = S[k], Tt[k]
+    if abs(s) < 0.13 and t > 0.08 and t < 0.92 then c:put(x, y, s <= 0 and LF[6] or LF[2], tok) end
+    if t > 0.25 and t < 0.9 then for _, vt in ipairs{ 0.35, 0.5, 0.65, 0.8 } do
+      local d = (t - vt) * L - abs(s) * 3
+      if d > -0.5 and d < 0.5 and abs(s) > 0.28 and abs(s) < 0.85 then c:put(x, y, s < 0 and LF[5] or LF[2], tok) end end end
+    if abs(s) > 0.9 and X.hash(x, y, 3) > 0.6 then c:put(x, y, LF[1], tok) end
   end)
-  return m
 end
-local function soil(c, cx, cy, rx, ry, seed)
-  local m = c:ellipse(cx, cy, rx, ry)
-  local v = X.light(X.pillow(m, ry), { amb = 0.1, wrap = 0.3 })
-  G.tone(c, m, v, SOIL, { 0.2, 0.36, 0.52, 0.68, 0.84 })
-  m:copy():shrink(1):each(function(x, y) local h = X.hash(x, y, seed)
-    if h > 0.9 then c:px(x, y, SOIL[6]) elseif h < 0.08 then c:px(x, y, SOIL[1]) end end)
-  return m
-end
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stage-vegetable-2" }
-c:groundShadow(32, 56, 26, 3)
-local bed = soil(c, 32, 52, 26, 7, 6)
--- furrow lines
-for x = 10, 54 do if X.hash(x, 3, 1) > 0.15 then c:px(x, 52, SOIL[2]) c:px(x, 53, SOIL[1]) end end
-local RIB = { "#a9c85c", "#d3e48a" }
-local function rleaf(ax, ay, bx, by, w)
-  local m = blade(c, ax, ay, bx, by, w)
-  local len = sqrt((bx-ax)^2 + (by-ay)^2)
-  local ux, uy = (bx-ax)/len, (by-ay)/len
-  for i = 1, floor(len / 3) - 1 do
-    local t = i * 3 / len local px, py = ax + (bx-ax) * t, ay + (by-ay) * t
-    local lw = w * sin(pi * min(1, t * 0.93 + 0.07)) ^ 0.7 * 0.55
-    for _, sd in ipairs{ -1, 1 } do
-      for k = 1, floor(lw) do
-        local x, y = floor(px - uy * sd * k + ux * k * 0.8 + 0.5), floor(py + ux * sd * k + uy * k * 0.8 + 0.5)
-        if m:has(x, y) then c:px(x, y, sd < 0 and LEAF[5] or LEAF[2]) end
-      end
-    end
-  end
-  return m
-end
-rleaf(32, 50, 8, 38, 5.2) rleaf(33, 50, 56, 37, 5.2)
-rleaf(31, 50, 15, 22, 5.4) rleaf(34, 50, 50, 21, 5.4)
-local mid = rleaf(32, 50, 32, 9, 6.0)
--- pale stalk bases
-local sm, sn = G.tube({ {32, 53}, {32, 50}, {32, 48}, {32, 46} }, function(t) return 2.4 end)
-G.tone(c, sm, X.light(sn, { amb = 0.2, wrap = 0.3 }), { "#b87a8c", "#d89aa6", "#efc0c4", "#fde4dc" }, { 0.3, 0.55, 0.8 })
-c:px(31, 52, "#fff6f2")
--- ladybird quirk on right leaf
-c:fillMask(c:ellipse(46, 27, 2.2, 1.8), "#d6322e")
-c:px(45, 26, "#ff8a7a") c:px(47, 28, "#8a1c26") c:px(44, 27, "#2b1c26") c:px(46, 27, "#2b1c26") c:px(47, 26, "#2b1c26")
-G.fin(c, "stage-vegetable-2")
+leaf(31, 46, 16, 40, 8, 30, 4.6, "l1")
+leaf(33, 46, 48, 40, 57, 30, 4.6, "l2")
+leaf(31, 46, 20, 30, 18, 12, 5.2, "l3")
+leaf(33, 46, 46, 28, 48, 12, 5.2, "l4")
+leaf(32, 46, 29, 28, 32, 6, 5.8, "l5")
+-- rosy stalk
+local st = c:rect(30, 42, 34, 48)
+ball(st, 3, { "#6a2040", "#a43a62", "#d46486", "#f8a2b8" }, "stalk", { cuts = {0.3,0.6,0.85} })
+c:put(31, 43, "#ffd8e0", T("stalk"))
+-- quirk: ladybug on right leaf
+local R, D = "#e83a24", "#7a1018"
+for _, p in ipairs{ {45,32},{46,32},{47,32},{44,33},{45,33},{46,33},{47,33},{45,34},{46,34} } do c:put(p[1], p[2], R, T("bug")) end
+for _, p in ipairs{ {46,34},{47,33} } do c:put(p[1], p[2], D, T("bug")) end
+c:put(46, 32, D, T("bug")) c:put(44, 33, "#2b1c26", T("bug")) c:put(45, 32, "#ff9a80", T("bug"))
+-- dew
+c:put(20, 21, "#f0fdff", T("dew")) c:put(21, 21, "#a8dcea", T("dew")) c:put(20, 22, "#6aa8c8", T("dew"))
+G.save(c, NAME)

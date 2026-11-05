@@ -24,7 +24,7 @@ end
 
 -- valves (behind)
 local function valve(ax, ay, cx, cy, bx, by)
-  local m, n, T, S = G.blade(ax, ay, cx, cy, bx, by, function(t) return 2.2 + 3.6 * sin(pi * min(1, t * 1.05)) ^ 0.6 end)
+  local m, n, T, S = G.blade(ax, ay, cx, cy, bx, by, function(t) return 1.8 + 3.0 * sin(pi * min(1, t * 1.05)) ^ 0.6 end)
   m:each(function(x, y) local k = K(x, y)
     local s = abs(S[k])
     if s > 0.55 then c:px(x, y, HUSK[(S[k] < 0) and 4 or 2]) else c:px(x, y, LINE[(S[k] < 0) and 4 or 3]) end
@@ -33,8 +33,8 @@ local function valve(ax, ay, cx, cy, bx, by)
   spines(m, 3, SPINE, 5)
   return m
 end
-valve(14, 42, 4, 33, 10, 17)
-valve(50, 42, 60, 33, 54, 17)
+valve(15, 42, 9, 33, 13, 19)
+valve(49, 42, 55, 33, 51, 19)
 
 -- bowl back interior + front
 local E = G.oval(32, 40, 21, 7, 0, 1)
@@ -49,7 +49,6 @@ nm:each(function(x, y) local k = K(x, y)
 end)
 G.toneN(c, nm, nn, NUT, { bias = bias, amb = 0.08, wrap = 0.2, tok = { r = { name = "nut" } } })
 local hm, hn = G.oval(32, 39, 9, 4.2, 0, 1.2)
-hm:cut(HP.mask():add(nm:copy():shrink(0)):cut(HP.mask():add(nm))) -- keep full hilum
 G.toneN(c, G.oval(32, 39, 9, 4.2, 0, 1.2), hn, HIL, { tok = { r = { name = "hil" } } })
 -- tip tuft
 local tm, tn = G.tube({ {32,14}, {32,11}, {34,9}, {35,6} }, function(t) return 1.9 - 1.4 * t end)

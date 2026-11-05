@@ -1,43 +1,54 @@
--- garden-gate-cross (lean W2_4)
--- Two weathered pickets crossed in an X, pointed tips, bound with a rope wrap and a nail; a red ribbon quirk.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- garden-gate-cross (lean P1b_O2)
+local NAME = "garden-gate-cross"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local CUTS = { 0.2, 0.38, 0.55, 0.7, 0.86 }
-local function shade(c, m, R, r, amb, bias) local n = X.pillow(m, r) local v = X.light(n, { amb = amb or 0.1, wrap = 0.25 }) G.tone(c, m, v, R, CUTS, bias) return v, n end
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "garden-gate-cross" }
-local WD = { "#3d2418", "#5c3a22", "#805030", "#a8703e", "#cf9a5a", "#ebc684" }
-local RP = { "#6d5a32", "#9a8448", "#c6af6a", "#e6d596" }
-local RD = { "#7a1d28", "#b32e36", "#e0505a" }
-local function picket(ax, ay, bx, by)
-  local dx, dy = bx - ax, by - ay
-  local len = sqrt(dx * dx + dy * dy)
-  local ux, uy = dx / len, dy / len
-  local px, py = -uy, ux
-  local w = 3.2
-  local tip = 8
-  local pts = { {ax + px * w, ay + py * w}, {bx - ux * tip + px * w, by - uy * tip + py * w}, {bx, by}, {bx - ux * tip - px * w, by - uy * tip - py * w}, {ax - px * w, ay - py * w} }
-  local m = c:poly(pts)
-  local v = shade(c, m, WD, 3.5, 0.1)
-  m:each(function(x, y)
-    local s = (x - ax) * px + (y - ay) * py
-    local t = (x - ax) * ux + (y - ay) * uy
-    if abs(s - 0.5) < 0.6 and t > 2 and t < len - 10 and X.hash(floor(t), 1, 5) > 0.3 then c:put(x, y, WD[2]) end
-    if abs(s + 1.8) < 0.5 and X.hash(floor(t / 2), 2, 5) > 0.5 then c:put(x, y, WD[5]) end
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt, atan = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
+local drawn = HP.mask()
+-- lit(mask, normals, ramp, opts): tone with normals; opts.seam = colour for the border where it overlaps earlier art
+local function lit(m, n, ramp, o)
+  o = o or {}
+  local prior = drawn:copy()
+  local _, v = G.toneN(c, m, n, ramp, o)
+  if o.seam then m:edge():each(function(x, y) if prior:has(x, y) then c:px(x, y, o.seam) end end) end
+  drawn:add(m)
+  return v
+end
+local function pil(m, ramp, R, o) return lit(m, X.pillow(m, R), ramp, o) end
+local function hx(x, y, s) return X.hash(x, y, s or 1) end
+-- two crossed pointed garden-gate planks lashed with twine; quirk: a ladybird hitchhiker on the lower-left plank
+local W = { "#2e1d12", "#4d3220", "#6f4a2b", "#946438", "#bd8a50", "#e0b476" }
+local ROPE = { "#4a3416", "#6e5226", "#977a3a", "#c0a352", "#e0c878", "#f4e6a0" }
+local function plank(a, b, seed, seam)
+  local dx, dy = b[1] - a[1], b[2] - a[2]
+  local pts = { a, { a[1] + dx / 3, a[2] + dy / 3 }, { a[1] + dx * 2 / 3, a[2] + dy * 2 / 3 }, b }
+  local m, n, T, S = G.tube(pts, function(t) return t > 0.86 and max(0.3, 4.8 * (1 - t) / 0.14) or 4.8 end)
+  local fl = {}
+  for k, v in pairs(n) do fl[k] = { v[1] * 0.55, v[2] * 0.55, v[3] } end   -- flatter, board-like
+  lit(m, fl, W, { seam = seam, amb = 0.1 })
+  m:each(function(x, y) local k = K(x, y) local s, t = S[k], T[k]
+    for _, sv in ipairs{ -0.55, -0.05, 0.45 } do
+      if abs(s - sv) < 0.09 and hx(x, y, seed) > 0.2 then c:px(x, y, s < 0 and W[3] or W[2]) end
+    end
+    if s < -0.7 then c:px(x, y, W[6]) end
+    if t > 0.84 and t < 0.9 and abs(s) < 3 then c:px(x, y, W[2]) end
+    if abs(t - 0.3) < 0.025 and abs(s + 0.2) < 0.12 then c:px(x, y, W[1]) end  -- knot
   end)
   return m
 end
-picket(14, 54, 49, 8)
-picket(50, 54, 15, 8)
--- rope wrap at the crossing
-for i = 0, 4 do
-  local y = 30 + i * 2
-  for x = 27, 37 do if (x + i) % 4 < 3 then c:put(x, y, RP[2 + (i % 2)]) else c:put(x, y, RP[1]) end end
-end
-for x = 27, 37 do c:put(x, 29, "#2b1c26") c:put(x, 39, "#2b1c26") end
-c:put(28, 31, RP[4]) c:put(29, 31, RP[4])
--- nail head
-c:put(32, 34, "#c9d2dc") c:put(33, 34, "#6c7686")
--- red ribbon quirk
-G.line(c, { {37,33},{41,35},{43,40} }, RD[2]) c:put(44, 41, RD[1]) c:put(42, 36, RD[3]) c:put(43, 42, RD[1])
-G.fin(c, "garden-gate-cross")
+plank({ 13, 54 }, { 50, 9 }, 3, nil)
+plank({ 51, 54 }, { 14, 9 }, 7, W[1])
+-- lashing
+local band = G.oval(32, 32, 9, 7.5, 0, 0.9)
+local bm, bn = band
+lit(bm, select(2, G.oval(32, 32, 9, 7.5, 0, 0.9)), ROPE, { seam = ROPE[1] })
+bm:each(function(x, y) if (x + y) % 3 == 0 then c:px(x, y, ROPE[2]) elseif (x + y) % 3 == 1 and hx(x, y, 2) > 0.55 then c:px(x, y, ROPE[6]) end end)
+c:fillMask(c:line({ { 24, 36 }, { 32, 40 } }, 1), ROPE[1])
+-- hanging tail
+local tm, tn = G.tube({ { 38, 36 }, { 41, 42 }, { 37, 47 }, { 41, 53 } }, function(t) return 1.4 - 0.6 * t end)
+lit(tm, tn, ROPE, { seam = ROPE[1] })
+c:px(41, 54, ROPE[4]) c:px(42, 54, ROPE[5]) c:px(40, 54, ROPE[3])
+-- ladybird
+for _, p in ipairs{ {18, 47}, {19, 47}, {20, 47}, {18, 48}, {19, 48}, {20, 48}, {19, 49}, {20, 49} } do c:px(p[1], p[2], "#d8302e") end
+c:px(19, 47, "#2a1a1e") c:px(19, 48, "#2a1a1e") c:px(20, 48, "#ff7a5a") c:px(17, 48, "#2a1a1e") c:px(18, 49, "#2a1a1e")
+G.save(c, NAME)

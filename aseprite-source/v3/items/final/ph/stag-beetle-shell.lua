@@ -1,56 +1,69 @@
--- stag-beetle-shell (lean W2_21)
--- A whole empty beetle husk seen from above: split elytra with ridges, shield pronotum, curved toothed mandibles, six curled legs; a chewed exit hole (quirk).
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stag-beetle-shell (lean P1b_O10)
+-- Glossy mahogany stag-beetle husk, top view: huge toothed antler mandibles, ridged thorax, split elytra with hard gloss streaks, six jointed legs. Quirk: a round exit hole chewed in one wing-case, hollow and dark.
+local NAME = "stag-beetle-shell"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stag-beetle-shell" }
-local sqrt, max, min, floor = math.sqrt, math.max, math.min, math.floor
-local SH = { "#2e1a1f", "#5a2a22", "#8a3f26", "#b5602f", "#d98c45", "#f5bf72" }
-local tok = { r = { name = "shell" } }
-local function shade(m, R) local n = X.pillow(m, R) G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.25 }), SH, nil, nil, tok) return n end
-c:groundShadow(32, 58, 12, 2)
--- legs (behind)
-for _, L in ipairs{ { {23, 33}, {16, 30}, {12, 33}, {10, 40} }, { {22, 41}, {14, 41}, {11, 46}, {12, 52} }, { {24, 48}, {19, 52}, {17, 55}, {20, 57} } } do
-  for side = 0, 1 do
-    local p = {}
-    for i, q in ipairs(L) do p[i] = side == 0 and q or { 63 - q[1], q[2] } end
-    local lm, ln = G.tube(p, function(t) return 1.3 - 0.4 * t end)
-    G.tone(c, lm, X.light(ln, { amb = 0.1, wrap = 0.3 }), SH, nil, nil, tok)
-  end
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local function paint(c, m, ramp, vf, nm, adj)
+  local tok = { r = { name = nm } }
+  local nr = #ramp
+  m:each(function(x, y)
+    local v = vf(x, y)
+    local i = 1 + floor(max(0, min(0.999, v)) * nr)
+    if adj then i = adj(x, y, i, v) or i end
+    c:put(x, y, ramp[max(1, min(nr, i))], tok)
+  end)
 end
--- mandibles
-for side = 0, 1 do
-  local P = { {28, 19}, {20, 17}, {18, 9}, {25, 5} }
-  if side == 1 then for i, q in ipairs(P) do P[i] = { 63 - q[1], q[2] } end end
-  local mm, mn = G.tube(P, function(t) return 1.9 - 1.1 * t end)
-  G.tone(c, mm, X.light(mn, { amb = 0.1, wrap = 0.3 }), SH, nil, nil, tok)
-  local teeth = { {21, 14}, {21, 11}, {22, 8} }
-  for _, q in ipairs(teeth) do local x = side == 0 and q[1] or 63 - q[1] c:px(x, q[2], SH[5]) c:px(x + (side == 0 and 1 or -1), q[2], SH[3]) end
+local function T(nm) return { r = { name = nm } } end
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local SH = { "#220e12", "#4a1a1a", "#78301f", "#a64c28", "#d07036", "#f4a65c" }
+local LEG = { "#1c0c10", "#3e1816", "#64281c", "#8a3c22" }
+c:groundShadow(32, 58, 18, 2)
+local function tube(pts, w, ramp, nm)
+  local m, n = G.tube(pts, w)
+  local v = X.light(n, { amb = 0.15, wrap = 0.3 })
+  paint(c, m, ramp, function(x, y) return v[K(x, y)] end, nm)
+  return m
 end
+-- legs first (under the body)
+local tw = function(t) return 1.5 - 0.5 * t end
+tube({ {24, 30}, {14, 28}, {10, 34}, {9, 41} }, tw, LEG, "leg")
+tube({ {23, 38}, {13, 40}, {10, 46}, {12, 53} }, tw, LEG, "leg")
+tube({ {25, 46}, {17, 52}, {16, 56}, {19, 58} }, tw, LEG, "leg")
+tube({ {40, 30}, {50, 28}, {54, 34}, {55, 41} }, tw, LEG, "leg")
+tube({ {41, 38}, {51, 40}, {54, 46}, {52, 53} }, tw, LEG, "leg")
+tube({ {39, 46}, {47, 52}, {48, 56}, {45, 58} }, tw, LEG, "leg")
+-- elytra
+local ely = c:ellipse(32, 41, 12.5, 16)
+local ev = X.light(X.pillow(ely, 9), { amb = 0.1, wrap = 0.25 })
+local hole = c:ellipse(37, 46, 3, 3)
+paint(c, ely, SH, function(x, y) local v = ev[K(x, y)] return v end, "elytra", function(x, y, i)
+  if x == 32 or x == 31 and y > 28 then return 1 end
+  if (x - 32) % 4 == 0 and abs(x - 32) > 3 and y > 30 and X.hash(x, y, 2) > 0.2 then return i - 1 end
+end)
+-- hard gloss streaks
+for y = 32, 44 do c:put(25, y, SH[6], T"elytra") end
+c:put(25, 45, SH[5], T"elytra") c:put(26, 31, SH[5], T"elytra")
+for y = 33, 38 do c:put(26, y, SH[5], T"elytra") end
+-- exit hole (quirk)
+paint(c, hole, { "#10060a", "#2a0e12", "#4a1a1a" }, function(x, y) return 0.1 + 0.25 * ((x < 37 and y < 46) and 1 or 0) end, "hole")
+-- thorax
+local th = c:ellipse(32, 24, 10, 6)
+paint(c, th, SH, function(x, y) return ev[K(x, y)] ~= nil and 0 or 0 end, "thorax")
+local tv = X.light(X.pillow(th, 6), { amb = 0.1, wrap = 0.25 })
+paint(c, th, SH, function(x, y) return tv[K(x, y)] * 0.9 end, "thorax", function(x, y, i) if y == 24 and abs(x - 32) < 6 then return i - 1 end end)
+c:put(27, 21, SH[6], T"thorax") c:put(28, 21, SH[6], T"thorax") c:put(26, 22, SH[5], T"thorax")
 -- head
-shade(c:ellipse(32, 19, 5, 3), 3)
-c:px(30, 18, SH[6]) c:px(34, 18, SH[1])
--- pronotum
-local pro = c:ellipse(32, 26, 10, 6)
-shade(pro, 6)
-for x = 25, 30 do c:px(x, 22, SH[5]) end
-c:px(26, 23, SH[6])
--- elytra halves
-local whole = c:ellipse(32, 42, 11, 15)
-local L = whole:copy():cut(c:rect(32, 0, 63, 63))
-local R = whole:copy():cut(c:rect(0, 0, 32, 63))
-shade(L, 8) shade(R, 8)
-for y = 28, 56 do
-  local hw = 11 * sqrt(max(0, 1 - ((y - 42) / 15)^2))
-  c:px(32, y, SH[1])
-  if y % 4 ~= 0 then
-    for _, f in ipairs{ 0.4, 0.75 } do
-      c:px(floor(32 - hw * f), y, SH[2]) c:px(floor(33 + hw * f), y, SH[1])
-    end
-  end
-end
--- shine streak on left half
-for y = 33, 44 do c:px(floor(32 - 11 * sqrt(max(0, 1 - ((y - 42) / 15)^2)) * 0.2 - 3), y, SH[6]) end
--- chewed exit hole (quirk)
-c:fillMask(c:rect(36, 36, 38, 37), SH[1]) c:px(39, 36, SH[1]) c:px(37, 38, SH[1])
-c:px(35, 35, SH[5]) c:px(36, 35, SH[5]) c:px(39, 37, SH[2])
-G.fin(c, "stag-beetle-shell")
+local hd = c:ellipse(32, 16, 6, 4)
+local hv = X.light(X.pillow(hd, 5), { amb = 0.1, wrap = 0.25 })
+paint(c, hd, SH, function(x, y) return hv[K(x, y)] * 0.9 end, "head")
+c:put(29, 15, "#10060a", T"eye") c:put(35, 15, "#10060a", T"eye")
+-- mandibles: antlers with teeth
+local mw = function(t) return 2.0 - 1.1 * t end
+tube({ {28, 15}, {19, 14}, {16, 8}, {22, 5} }, mw, SH, "mand")
+tube({ {36, 15}, {45, 14}, {48, 8}, {42, 5} }, mw, SH, "mand")
+for _, p in ipairs{ {18,12},{17,11},{20,9},{21,8},{46,12},{47,11},{44,9},{43,8} } do c:put(p[1], p[2], SH[3], T"mand") end
+c:put(17, 9, SH[6], T"mand")
+-- antennae
+c:put(29, 12, LEG[3], T"ant") c:put(28, 11, LEG[3], T"ant") c:put(35, 12, LEG[3], T"ant") c:put(36, 11, LEG[3], T"ant")
+G.save(c, NAME)

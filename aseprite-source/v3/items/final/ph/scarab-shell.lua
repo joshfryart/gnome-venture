@@ -31,7 +31,7 @@ local wn = X.pillow(W, 14)
 local L, R = HP.mask(), HP.mask()
 W:each(function(x, y) if x < 32 then L:set(x, y) else R:set(x, y) end end)
 G.toneN(c, L, wn, EL, { amb = 0.1, wrap = 0.2 })
-G.toneN(c, R, wn, EL, { amb = 0.05, wrap = 0.15, bias = (function() local b = {} R:each(function(x, y) b[K(x, y)] = -0.5 end) return b end)() })
+G.toneN(c, R, wn, EL, { amb = 0.03, wrap = 0.12 })
 -- seam
 for y = 20, 58 do if W:has(31, y) then c:px(31, y, EL[1]) end if W:has(32, y) then c:px(32, y, EL[2]) end end
 -- striae (grooves)
@@ -56,5 +56,5 @@ hole:clip(W)
 c:fillMask(hole, "#0a0a1c")
 for _, p in ipairs{ {39,44},{40,43},{41,43} } do c:px(p[1], p[2], EL[5]) end
 c:px(44, 46, "#1a1a3a") c:px(42, 47, "#1a1a3a")
-c:sparkle(50, 12)
+c:px(50, 12, "#f4fbff") c:px(49, 12, EL[5]) c:px(51, 12, EL[5]) c:px(50, 11, EL[5]) c:px(50, 13, EL[5])
 G.save(c, "scarab-shell")

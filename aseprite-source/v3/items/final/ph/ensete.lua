@@ -28,12 +28,6 @@ local function leaf(ax, ay, cx, cy, bx, by, w, phase, cutFn)
 end
 -- left, right (torn), centre rolled
 leaf(31, 30, 10, 12, 4, 33, 6.8, 0)
-local tear = function(m)
-  -- rip along a vein from the lower edge into the blade
-  for i = 0, 12 do
-    local x, y = floor(46 + i * 0.7), floor(31 + i * 0.5) m:unset(x, y) m:unset(x + 1, y)
-  end
-end
 leaf(33, 30, 54, 10, 60, 31, 6.8, 0.7, nil)
 leaf(32, 28, 31, 14, 36, 4, 3.4, 0.3, nil)
 -- tear: knock out a thin slit in the right leaf (gap over what is painted)
@@ -53,5 +47,5 @@ G.toneN(c, m, n, STEM, { bias = bias, amb = 0.08, wrap = 0.3, tok = { r = { name
 m:each(function(x, y) if y > 32 and (x + floor(y / 6)) % 5 == 0 and y % 6 > 1 and X.hash(x, y, 3) > 0.45 then c:px(x, y, RIB[2]) end end)
 for x = 25, 39 do if m:has(x, 31) then c:px(x, 31, RIB[1]) end end
 local sx, sy = G.specAt(m, n, 25)
-if sx then c:px(sx, sy, "#ffffff") c:px(sx, sy + 1, STEM[6]) end
+if sx then c:px(sx, sy, "#fff8e8") c:px(sx, sy + 1, STEM[6]) end
 G.save(c, "ensete")

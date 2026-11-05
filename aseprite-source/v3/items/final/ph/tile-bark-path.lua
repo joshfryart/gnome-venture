@@ -1,49 +1,35 @@
--- tile-bark-path (lean W2_34)
--- Square path tile of overlapping curled bark chips, dark gaps, moss specks, a tiny sprout (quirk), earthy raised rim.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- tile-bark-path (lean P1b_O16)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "tile-bark-path" }
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local BARK = { "#2e1a1c", "#4a2a24", "#6e4030", "#93603c", "#b98349", "#dca868" }
-local MOSS = { "#2f5a3a", "#58903f", "#9ccd5c" }
-local tile = c:rrect(8, 10, 55, 53, 4)
-local dirt = tile:copy()
-c:fillMask(dirt, BARK[1])
-local R = function(s) return X.hash(s, s * 3 + 1, 77) end
-local chips = {}
-for i = 1, 34 do
-  local cx = 10 + R(i) * 44
-  local cy = 12 + R(i + 50) * 40
-  local a = R(i + 100) * pi
-  chips[#chips + 1] = { cx, cy, cos(a), sin(a), 6 + R(i + 150) * 5, 2.4 + R(i + 200) * 1.6 }
-end
-table.sort(chips, function(p, q) return p[2] < q[2] end)
-for i, ch in ipairs(chips) do
-  local m = G.rell(ch[1], ch[2], ch[3], ch[4], ch[5], ch[6]):clip(tile)
-  if m:count() > 0 then
-    local sh = m:copy():shift(1, 1):cut(m)
-    c:fillMask(sh:clip(tile), BARK[1])
-    local n = X.pillow(m, ch[6] + 1)
-    local v = X.light(n, { amb = 0.1, wrap = 0.2 })
-    local tint = 0.12 * (R(i + 300) - 0.5)
-    for k, val in pairs(v) do v[k] = max(0, min(1, val + tint)) end
-    G.tone(c, m, v, BARK, { 0.2, 0.38, 0.54, 0.7, 0.86 })
-    -- grain lines along chip axis
-    m:each(function(x, y)
-      local b = -(x - ch[1]) * ch[4] + (y - ch[2]) * ch[3]
-      if floor(b + 20) % 3 == 0 and abs(b) < ch[6] - 1 and X.hash(x, y, i) > 0.35 then c:px(x, y, BARK[2 + floor(X.hash(x, y, 5) * 2)]) end
-    end)
+local floor, abs, sin, cos, pi, max, min, sqrt, atan = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
+local function pick(r, v, cuts) cuts = cuts or {.22,.4,.56,.72,.86} local i = 1 for _, t in ipairs(cuts) do if v > t then i = i + 1 end end return r[min(i, #r)] end
+
+local c = HP.canvas{ w=64, h=64, scale=1, name="tile-bark-path" }
+local BARK = { "#2e1c18", "#51301f", "#7b4a2a", "#a46c3a", "#cf9650", "#efc274" }
+local MOSS = { "#1c4426", "#34753a", "#68ac46", "#a4d868" }
+local X0, X1, Y0, Y1 = 6, 57, 6, 57
+local seeds = {}
+for j = 0, 3 do for i = 0, 3 do
+  seeds[#seeds + 1] = { X0 + (i + 0.5) * 13 + (X.hash(i, j, 1) - 0.5) * 8, Y0 + (j + 0.5) * 13 + (X.hash(i, j, 2) - 0.5) * 8, i + j * 4 }
+end end
+local tile = c:rrect(X0, Y0, X1, Y1, 5)
+tile:each(function(x, y)
+  local d1, d2, s1 = 1e9, 1e9, nil
+  for _, s in ipairs(seeds) do
+    local d = sqrt((x - s[1]) ^ 2 + ((y - s[2]) * 0.8) ^ 2)
+    if d < d1 then d2 = d1 d1 = d s1 = s elseif d < d2 then d2 = d end
   end
+  if d2 - d1 < 1.7 then c:px(x, y, BARK[1]) return end
+  local v = 0.62 + (s1[1] - x) * 0.03 + (s1[2] - y) * 0.03 + (X.hash(s1[3], 0, 9) - 0.5) * 0.3
+  if (x + floor(s1[3] * 1.7)) % 4 == 0 and X.hash(x, y, 6) > 0.3 then v = v - 0.22 end
+  if d2 - d1 < 3 then v = v - 0.12 end
+  c:px(x, y, pick(BARK, v))
+end)
+-- moss in gaps
+for _, p in ipairs{ {15,14}, {16,14}, {16,15}, {40,12}, {41,12}, {41,13}, {22,34}, {23,34}, {50,38}, {50,39}, {49,39}, {35,50}, {36,50}, {14,48}, {13,48}, {13,49} } do
+  c:px(p[1], p[2], MOSS[(p[1] + p[2]) % 3 + 1])
 end
--- moss specks
-for i = 1, 9 do
-  local x, y = floor(12 + R(i + 400) * 40), floor(14 + R(i + 450) * 36)
-  if tile:has(x, y) then c:px(x, y, MOSS[2]) c:px(x + 1, y, MOSS[3]) c:px(x, y + 1, MOSS[1]) end
-end
--- rim: lighter lip top-left, shadow bottom-right
-tile:edge():each(function(x, y) end)
-for x = 12, 51 do c:px(x, 10, BARK[4]) c:px(x, 53, BARK[1]) end
-for y = 14, 49 do c:px(8, y, BARK[4]) c:px(55, y, BARK[1]) end
--- sprout quirk
-c:px(44, 31, MOSS[1]) c:px(44, 30, MOSS[2]) c:px(44, 29, MOSS[2]) c:px(43, 28, MOSS[3]) c:px(42, 28, MOSS[2]) c:px(45, 28, MOSS[3]) c:px(46, 27, MOSS[2])
-G.fin(c, "tile-bark-path")
+-- quirk: a tiny mushroom
+for _, p in ipairs{ {44,46,"#e2c8a8"}, {44,47,"#e2c8a8"}, {43,45,"#d8403a"}, {44,45,"#d8403a"}, {45,45,"#d8403a"}, {44,44,"#ee6a58"}, {43,44,"#ee6a58"}, {45,44,"#a82a30"}, {44,43,"#d8403a"} } do c:px(p[1], p[2], p[3]) end
+c:px(43, 44, "#fff0e0")
+G.save(c, "tile-bark-path")

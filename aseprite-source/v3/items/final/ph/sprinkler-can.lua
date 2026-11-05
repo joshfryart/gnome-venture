@@ -23,10 +23,12 @@ c:groundShadow(28, 57, 20, 3)
 local CX, RX = 26, 13
 -- handle arch (behind/over the top), thin bent strap
 local hm, hn = G.tube({ {14, 30}, {13, 8}, {40, 8}, {38, 30} }, function(t) return 1.4 end)
-paint(c, hm, BRASS, function(x, y) local k = K(x, y) return 0.2 + 0.8 * max(0, -(hn[k] and (hn[k][1] or hn[k].x or 0) or 0)) end, "handle")
+local hv = X.light(hn, { amb = 0.15, wrap = 0.3 })
+paint(c, hm, BRASS, function(x, y) return hv[K(x, y)] end, "handle")
 -- spout (diagonal tube from low on the body)
 local sm, sn = G.tube({ {37, 48}, {46, 44}, {52, 34}, {56, 24} }, function(t) return 2.6 - 1.2 * t end)
-paint(c, sm, TEAL, function(x, y) local k = K(x, y) return 0.2 + 0.8 * max(0, -((sn[k] and (sn[k][1] or sn[k].x)) or 0) * 0.7 + 0.45) end, "spout")
+local sv = X.light(sn, { amb = 0.15, wrap = 0.3 })
+paint(c, sm, TEAL, function(x, y) return sv[K(x, y)] end, "spout")
 -- rose head (tilted disc) with holes
 local rose = G.oval(57, 22, 5, 3.4, -1.1, 0.8)
 local rm = rose

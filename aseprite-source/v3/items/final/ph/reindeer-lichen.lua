@@ -1,52 +1,67 @@
--- reindeer-lichen (lean W2_15)
--- Upright branching tuft of pale grey-green antler-like lichen on a small mossy pebble; red pixie-cup tips are the quirk.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- reindeer-lichen (lean P1b_O7)
+-- A bushy cushion of pale grey-green reindeer lichen: thick forked antler-like branches (6 tones, lit upper-left,
+-- dark inside), sitting on a mossy dark-earth mound with pebbles. quirk: a few tips carry tiny red spore caps.
+local NAME = "reindeer-lichen"
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "reindeer-lichen" }
-local cos, sin, pi, sqrt = math.cos, math.sin, math.pi, math.sqrt
-local LICH = { "#4d6a63", "#6f8c7e", "#93ae9a", "#b6cbb0", "#d6e4c8", "#f0f6e0" }
-local SOIL = { "#2c1e24", "#4a3030", "#6b4a3c", "#8f6a4c", "#b08a5c" }
-local MOSS = { "#24472f", "#386c3e", "#58944a", "#86bc5c" }
-local RED  = { "#7a1c2c", "#b52f38", "#e0584a", "#f8a07c" }
--- pebble / soil base
-local base = c:ellipse(32, 54, 14, 5)
-local bv = X.light(X.pillow(base, 8), { amb = 0.2, wrap = 0.3 })
-base:each(function(x, y) if X.hash(x, y, 4) > 0.85 then bv[K(x, y)] = bv[K(x, y)] + 0.15 end end)
-G.tone(c, base, bv, SOIL, { 0.2, 0.4, 0.6, 0.8 })
-base:each(function(x, y) if y < 54 and X.hash(x, y, 7) > 0.5 and (x * 3 + y) % 4 < 2 then c:px(x, y, (x % 2 == 0) and MOSS[3] or MOSS[2]) end end)
-c:px(22, 53, MOSS[4]) c:px(25, 52, MOSS[4]) c:px(41, 53, MOSS[4])
--- branching
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local LICH = { "#3c5650", "#5c7c6c", "#82a48c", "#a8c8a8", "#cce4c4", "#f0f8e4" }
+local DIRT = { "#22141a", "#3c2424", "#5a3a2c", "#7e5636" }
+local MOSS = { "#1e4a32", "#2e6c3c", "#4c9444", "#7cbc54" }
+local RED  = { "#7a1c2c", "#c0343c", "#f0645c" }
+-- mound
+local mound = c:ellipse(32, 52, 21, 6)
+local mn = X.pillow(mound, 5, 0.9)
+G.toneN(c, mound, mn, DIRT, { amb = 0.2, wrap = 0.4, cuts = { 0.3, 0.55, 0.8 } })
+mound:each(function(x, y) if y < 50 and X.hash(x, y, 2) > 0.45 then c:px(x, y, MOSS[2 + floor(X.hash(x, y, 5) * 2.9)]) end end)
+for _, p in ipairs{ {16,54,2},{47,55,2} } do c:fillMask(c:ellipse(p[1], p[2], 2, 1), "#8a8aa0") c:px(p[1] - 1, p[2] - 1, "#c8c8d8") end
+-- lichen: recursive thick forks
+local lich, dep = HP.mask(), {}
 local tips = {}
-local function branch(x, y, ang, len, w, d, seed)
-  local ex, ey = x + cos(ang) * len, y + sin(ang) * len
-  local bend = (X.hash(seed, d, 3) - 0.5) * len * 0.5
-  local px, py = -sin(ang) * bend, cos(ang) * bend
-  local p = { {x, y}, {x + (ex - x) * 0.33 + px, y + (ey - y) * 0.33 + py}, {x + (ex - x) * 0.66 + px, y + (ey - y) * 0.66 + py}, {ex, ey} }
-  local m, n = G.tube(p, function(t) return w * (1 - 0.4 * t) end, { steps = 24 })
-  local v = X.light(n, { amb = 0.3, wrap = 0.4 })
-  G.tone(c, m, v, LICH, { 0.2, 0.38, 0.55, 0.72, 0.88 })
-  if d >= 3 then tips[#tips + 1] = { ex, ey } return end
-  local s = X.hash(seed, d, 9)
-  branch(ex, ey, ang - 0.5 - s * 0.2, len * 0.72, w * 0.8, d + 1, seed * 3 + 1)
-  branch(ex, ey, ang + 0.5 + s * 0.2, len * 0.72, w * 0.8, d + 1, seed * 3 + 2)
-  if d == 0 then
-    local mx, my = G.bez(p, 0.55)
-    branch(mx, my, ang + (s > 0.5 and 0.9 or -0.9), len * 0.6, w * 0.7, d + 2, seed * 3 + 7)
+local function branch(x, y, a, len, d, seed)
+  local x2, y2 = x + cos(a) * len, y + sin(a) * len
+  local w = (d <= 1) and 3 or ((d == 2) and 2 or 2)
+  local m = c:line({ { floor(x + 0.5), floor(y + 0.5) }, { floor(x2 + 0.5), floor(y2 + 0.5) } }, (d >= 3) and 1 or 2)
+  m:each(function(px, py) lich:set(px, py) dep[K(px, py)] = d end)
+  if d >= 4 then tips[#tips + 1] = { floor(x2 + 0.5), floor(y2 + 0.5) } return end
+  local nb = (d == 0) and 3 or 2
+  for i = 1, nb do
+    local spread = 0.55 + 0.25 * X.hash(seed, i, d)
+    local da = (i - (nb + 1) / 2) * spread + (X.hash(seed, d, i + 3) - 0.5) * 0.35
+    branch(x2, y2, a + da, len * (0.68 + 0.1 * X.hash(seed + 1, i, d)), d + 1, seed * 3 + i)
+  end
+  if d >= 1 and d <= 2 then   -- short side twig
+    local sa = a + ((X.hash(seed, d, 9) > 0.5) and 1 or -1) * 1.1
+    local tx, ty = x + (x2 - x) * 0.55, y + (y2 - y) * 0.55
+    local tm = c:line({ { floor(tx + 0.5), floor(ty + 0.5) }, { floor(tx + cos(sa) * 3.5 + 0.5), floor(ty + sin(sa) * 3.5 + 0.5) } }, 1)
+    tm:each(function(px, py) if not lich:has(px, py) then lich:set(px, py) dep[K(px, py)] = 4 end end)
   end
 end
--- back stalks first, then front
-local mains = { {-90 - 8, 15}, {-90 + 6, 17}, {-90 - 24, 12}, {-90 + 26, 12}, {-90 - 44, 8}, {-90 + 46, 8} }
-for i, mm in ipairs(mains) do
-  local a = mm[1] * pi / 180
-  branch(32 + (mm[1] + 90) * 0.08, 53, a, mm[2], 1.15, 0, 11 + i * 5)
+for i, ang in ipairs{ -2.35, -1.95, -1.57, -1.2, -0.8 } do
+  branch(32 + (i - 3) * 2.5, 50, ang, 11 - abs(i - 3) * 1.3, 0, i * 7 + 1)
 end
--- small bulb of lichen at the root
-local root = c:ellipse(32, 51, 6, 2)
-G.tone(c, root, X.light(X.pillow(root, 4), { amb = 0.3, wrap = 0.3 }), LICH, { 0.2, 0.4, 0.6, 0.8, 0.9 })
--- red pixie-cup tips (quirk): 3 of the tips
-local picks = { 1, 4, 7 }
-for _, i in ipairs(picks) do local t = tips[i * 2 > #tips and #tips or i * 2]
-  if t then local x, y = math.floor(t[1] + 0.5), math.floor(t[2] + 0.5)
-    c:px(x, y, RED[3]) c:px(x + 1, y, RED[2]) c:px(x, y - 1, RED[4]) c:px(x + 1, y - 1, RED[3]) end end
-c:sparkle(37, 31)
-G.fin(c, "reindeer-lichen")
+-- thicken trunk base
+lich:add(c:rect(28, 46, 36, 49)):add(c:rect(30, 43, 34, 46))
+lich:cut(mound:copy():cut(c:rect(0, 0, 63, 49)))
+local pn = X.pillow(lich, 2.2)
+local v = X.light(pn, { amb = 0.15, wrap = 0.3 })
+local bias = {}
+lich:each(function(x, y)
+  local k = K(x, y)
+  local h = (50 - y) / 40
+  bias[k] = (h > 0.55 and 1 or 0) + ((x + y) % 2 == 0 and X.hash(x, y, 6) > 0.7 and 1 or 0) - ((y > 44) and 1 or 0)
+  if lich:has(x + 1, y) and lich:has(x - 1, y) and lich:has(x, y + 1) and lich:has(x, y - 1) then bias[k] = bias[k] - 1 end
+  if (dep[k] or 0) >= 4 and (x - y) % 3 == 0 then bias[k] = bias[k] + 1 end
+end)
+X.tone(c, lich, v, LICH, { cuts = { 0.25, 0.42, 0.58, 0.74, 0.88 }, bias = bias })
+-- lit-edge sparks
+lich:each(function(x, y) if not lich:has(x - 1, y - 1) and X.hash(x, y, 12) > 0.55 and y < 44 then c:px(x, y, LICH[6]) end end)
+-- red spore caps (quirk)
+for _, i in ipairs{ 2, 7, 12 } do
+  local t = tips[min(#tips, i * 2 + 1)]
+  if t then
+    c:fillMask(c:ellipse(t[1], t[2] - 1, 1, 1), RED[2]) c:px(t[1] - 1, t[2] - 2, RED[3]) c:px(t[1] + 1, t[2], RED[1])
+  end
+end
+G.save(c, NAME)
