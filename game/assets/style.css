@@ -7053,10 +7053,11 @@ body.tourbub #wrentour.tour-on::after { content: ""; position: absolute; left: 2
 dialog.hubpop .hubcard { padding: 10px 14px 14px; overflow-y: auto; overscroll-behavior: contain; }
 /* Chrome picture pages (treehouse, yard): no circles; hit areas come from the layout; tags centred; gold brackets when tapped */
 .hubstage { position: relative; }
-.hubsvg.chrome .hs .hit { fill: transparent; stroke: none; }
+.hubsvg.chrome .hs .hit { fill: rgba(255, 255, 255, .03); stroke: rgba(255, 233, 163, .55); stroke-width: 1; stroke-dasharray: 4 3; }   /* tap area always outlined */
+.hubsvg.chrome .hsp .hit { fill: transparent; stroke: none; }
 .hubsvg.chrome.noart .hs .hit { stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 4 3; fill: rgba(255, 255, 255, .12); }
-.hubsvg.chrome .brk { fill: none; stroke: #d4a017; stroke-width: 2; opacity: 0; pointer-events: none; }
-.hubsvg.chrome .hs:hover .brk, .hubsvg.chrome .hs:focus-visible .brk, .hubsvg.chrome .hs.on .brk, .hubsvg.chrome .hs.lit .brk { opacity: 1; }
+.hubsvg.chrome .brk { fill: none; stroke: #ffe9a3; stroke-width: 2; opacity: .9; pointer-events: none; }   /* always on: you can see what to tap */
+.hubsvg.chrome .hs:hover .brk, .hubsvg.chrome .hs:focus-visible .brk, .hubsvg.chrome .hs.on .brk, .hubsvg.chrome .hs.lit .brk { opacity: 1; stroke: #d4a017; stroke-width: 2.5; }
 .hubsvg.chrome .tag { fill: #fff; stroke: rgba(30, 20, 10, .85); stroke-width: 2.4; paint-order: stroke; font-weight: 700; text-anchor: middle; pointer-events: none; }
 .hubsvg.chrome .hs.on .tag, .hubsvg.chrome .hs.lit .tag, .hubsvg.chrome .hs:hover .tag, .hubsvg.chrome .hs:focus-visible .tag { fill: #ffe9a3; }
 .hubsvg.chrome .hs.goal .brk { opacity: 1; stroke: var(--brand-fill); }
@@ -7073,7 +7074,6 @@ dialog.hubpop .hubcard { padding: 10px 14px 14px; overflow-y: auto; overscroll-b
 .hubsvg.chrome .pjring .fill { fill: #6fbf5f; }
 .hubsvg.chrome .collect { fill: #ffe9a3; stroke: rgba(30, 20, 10, .85); stroke-width: 2; paint-order: stroke; font-weight: 700; text-anchor: middle; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .hubsvg.chrome .spark { animation: none; opacity: 1; } }
-@media (max-width: 520px) { .hubsvg.chrome .hs:not(.on):not(.lit):not(:focus-visible) .tag { display: none; } }   /* small phones: tags show on tap or focus; the legend names every place */
 /* the compass and the world globe: square 44 px buttons in the bottom-right of the picture */
 .hubnav { position: absolute; right: 6px; bottom: 6px; display: flex; gap: 6px; pointer-events: none; }
 .hubnavbtn { pointer-events: auto; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; box-sizing: border-box; border: 2px solid var(--line-2); background: var(--surface); text-decoration: none; }
