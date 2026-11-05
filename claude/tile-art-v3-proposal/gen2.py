@@ -458,34 +458,79 @@ def ell(bp, cx, cy, rx, ry, n=1, W=None, Hh=None):
     for y in range(cy - ry, cy + ry + 1):
         for x in range(cx - rx, cx + rx + 1):
             if 0 <= x < W and 0 <= y < Hh and (x - cx) ** 2 / rx ** 2 + (y - cy) ** 2 / ry ** 2 <= 1: bp[x, y] = darker(bp[x, y], n)
-def compose(land, rows, seed, player=None, finds=(), done_finds=()):
+
+def lighter(c):
+    if c in STEP: k, i = STEP[c]; return RAMP[k][max(0, i - 1)]
+    return mix(c, CREAM, .22)
+def wnoise(rnd, w, h, cell):
+    gw, gh = w // cell + 3, h // cell + 3; g = [[rnd.random() for _ in range(gw)] for _ in range(gh)]
+    def f(x, y):
+        fx, fy = x / cell, y / cell; x0, y0 = int(fx), int(fy); tx, ty = fx - x0, fy - y0
+        tx = tx * tx * (3 - 2 * tx); ty = ty * ty * (3 - 2 * ty)
+        a, b, c, d = g[y0][x0], g[y0][x0 + 1], g[y0 + 1][x0], g[y0 + 1][x0 + 1]
+        return (a + (b - a) * tx) * (1 - ty) + (c + (d - c) * tx) * ty
+    return f
+def terrain_layer(land, types, seed=0, blend=True):
+    """One continuous ground picture from a grid of tile types (f floor, r rough, u under walls, w water/ice).
+    Tile boundaries are pushed around by world-space noise, so rough grass spills into the floor and the dark under-wall ground
+    creeps out from the trees; hard pixels only. Rough edges get a lit rim (up-left) and a shade rim (down-right)."""
+    Hh = len(types); W = len(types[0]); tw, th = W * T, Hh * T
+    rnd = random.Random(f"tl{land}{seed}")
+    n1, n2, n3, n4 = wnoise(rnd, tw, th, 14), wnoise(rnd, tw, th, 14), wnoise(rnd, tw, th, 5), wnoise(rnd, tw, th, 5)
+    tex = {}; nv = wnoise(rnd, tw, th, 40)
+    def texof(t, tx, ty, x=0, y=0):
+        v = int(nv(x, y) * 4.4) % 4   # which texture variant: big organic patches, so variants never meet on a tile line
+        k = (t, v if t != "r" else v % 2, (tx * 3 + ty) % 3 if t == "w" else 0)
+        if k not in tex:
+            im = understory(land, v) if t == "u" else ground(land, "rough", v % 2) if t == "r" else water(land, k[2]) if t == "w" else ground(land, "floor", v)
+            tex[k] = im.load()
+        return tex[k]
+    def tp(x, y):
+        x = min(max(x, 0), tw - 1); y = min(max(y, 0), th - 1); return types[y // T][x // T], x // T, y // T
+    img = Image.new("RGBA", (tw, th)); P = img.load(); TM = [[None] * tw for _ in range(th)]
+    for y in range(th):
+        for x in range(tw):
+            if blend:
+                dx = (n1(x, y) - .5) * 15 + (n3(x, y) - .5) * 6; dy = (n2(x, y) - .5) * 15 + (n4(x, y) - .5) * 6
+            else: dx = dy = 0
+            tn = tp(x, y)
+            ts = tp(int(x + dx * .35), int(y + dy * .35))
+            td = ts if ("w" in (tn[0], ts[0])) else tp(int(x + dx), int(y + dy))
+            t, tx, ty = td; TM[y][x] = t; P[x, y] = texof(t, tx, ty, x, y)[x % T, y % T]
+    if not blend: return img
+    for y in range(th):   # rims on rough, foam/ice rim on water, wet floor beside the sea
+        for x in range(tw):
+            t = TM[y][x]
+            def at(a, b): return TM[min(max(b, 0), th - 1)][min(max(a, 0), tw - 1)]
+            if t == "r":
+                if at(x, y + 1) in "fuw" or at(x + 1, y) in "fuw": P[x, y] = darker(P[x, y], 1)
+                elif at(x, y - 1) in "fu" or at(x - 1, y) in "fu": P[x, y] = lighter(P[x, y])
+            elif t == "w":
+                if land == "coast":
+                    if at(x, y + 1) != "w": P[x, y] = CREAM
+                    elif at(x, y + 2) != "w" or at(x, y + 3) != "w" and (x // 2) % 2: P[x, y] = RAMP["sea"][0]
+                    elif at(x - 1, y) != "w" or at(x + 1, y) != "w": P[x, y] = CREAM
+                else:
+                    if at(x, y - 1) != "w" or at(x - 1, y) != "w": P[x, y] = RAMP["ice"][0]
+                    elif at(x, y + 1) != "w" or at(x + 1, y) != "w": P[x, y] = RAMP["ice"][3]
+            elif land == "coast" and t in "f" and any(at(x, y - k) == "w" for k in range(1, 5)):
+                P[x, y] = darker(P[x, y], 1)
+            elif land == "tundra" and t == "f" and any(at(x + a, y + b) == "w" for a, b in ((0, 2), (2, 0), (0, -2), (-2, 0))):
+                P[x, y] = lighter(P[x, y]) if at(x, y + 2) == "w" or at(x + 2, y) == "w" else darker(P[x, y], 1)
+    return img
+
+def compose(land, rows, seed, player=None, finds=(), done_finds=(), blend=True):
     Hh = len(rows); W = len(rows[0]); pad = 40; tw = W * T; th = Hh * T + pad
-    base = Image.new("RGBA", (tw, th), (0, 0, 0, 0)); cache = {}
-    for y, row in enumerate(rows):
-        for x, c in enumerate(row):
-            v = (x * 7 + y * 13) % 4
-            if c == "#": k = ("u", v); cache[k] = cache.get(k) or understory(land, v); til = cache[k]
-            elif c == ",": k = ("r", v % 2); cache[k] = cache.get(k) or ground(land, "rough", v % 2); til = cache[k]
-            else: k = ("f", v); cache[k] = cache.get(k) or ground(land, "floor", v); til = cache[k]
-            base.paste(til, (x * T, pad + y * T))
-    for x in range(W): base.paste(understory(land, x % 4).crop((0, T - pad, T, T)), (x * T, 0))
     flat = set()
     for y, row in enumerate(rows):
         for x, c in enumerate(row):
             if c != "#": continue
             if land == "coast" and y == 0: flat.add((x, y))
             if land == "tundra" and 1 <= x <= 9 and 1 <= y <= 5 and ((rows[y][x-1] == "#" and x - 1 > 0) or (rows[y][x+1] == "#" and x + 1 < W - 1)): flat.add((x, y))
-    for (x, y) in flat: base.paste(water(land, (x * 3 + y) % 3), (x * T, pad + y * T))
+    types = ["".join("w" if (x, y) in flat else "u" if c == "#" else "r" if c == "," else "f" for x, c in enumerate(row)) for y, row in enumerate(rows)]
+    ter = terrain_layer(land, [types[0].replace("w", "u")] + types, seed, blend)   # one extra row above for the top margin
+    base = Image.new("RGBA", (tw, th), (0, 0, 0, 0)); base.paste(ter.crop((0, T - pad, tw, T - pad + th)), (0, 0))
     bp = base.load()
-    if land == "coast":   # foam line and wet sand along the sea edge
-        for (x, y) in list(flat):
-            if (x, y + 1) not in flat:
-                for xx in range(T):
-                    yy = pad + y * T + T - 3 - int(1.6 * math.sin((x * T + xx) * .35)); 
-                    bp[x * T + xx, yy] = CREAM; bp[x * T + xx, yy + 1] = RAMP["sea"][0]; bp[x * T + xx, yy + 2] = RAMP["sea"][2] if xx % 3 else RAMP["sea"][1]
-                if y + 1 < Hh and rows[y + 1][x] != "#":
-                    for yy in range(pad + (y + 1) * T, pad + (y + 1) * T + 6):
-                        for xx in range(T): bp[x * T + xx, yy] = darker(bp[x * T + xx, yy], 1)
     items = []
     for y, row in enumerate(rows):
         for x, c in enumerate(row):
@@ -519,6 +564,7 @@ def main():
         spots_ = [(x, y) for y in range(1, 6) for x in range(2, 9) if rows[y][x] in ".," and rows[y + 1][x] == "#" and (x, y) not in fl]
         px, py = spots_[len(spots_) // 2]
         img, pad = compose(land, plain, rid, (px, py, sprite("gnome-player.png", 0)), fl, ())
+        hard, _ = compose(land, plain, rid, (px, py, sprite("gnome-player.png", 0)), fl, (), False); hard.save(os.path.join(OUT, f"hard-{land}-{rid}.png"))
         name = f"scene-{land}-{rid}.png"; img.save(os.path.join(OUT, name))
         meta[name] = dict(land=land, route=rid, sec=si + 1, w=img.width, h=img.height, pad=pad, rows=rows, finds=fl)
     json.dump(meta, open(os.path.join(OUT, "scenes.json"), "w"))
@@ -541,5 +587,23 @@ def main():
     ic.save(os.path.join(OUT, "ico-search.png"))
     for land in LANDS:
         find_spot(land, False).save(os.path.join(OUT, f"find-{land}.png")); find_spot(land, True).save(os.path.join(OUT, f"find-{land}-done.png"))
+def overlay_sheet():
+    sheet = Image.new("RGBA", (16 * (T + 4) + 4, 4 * (T + 4) + 4), (58, 52, 70, 255))
+    for li, land in enumerate(("grassland", "forest", "coast", "tundra")):
+        for m in range(16):
+            g = [["f"] * 3 for _ in range(3)]
+            if m & 1: g[0][1] = "r"
+            if m & 2: g[1][2] = "r"
+            if m & 4: g[2][1] = "r"
+            if m & 8: g[1][0] = "r"
+            if m & 1 and m & 2: g[0][2] = "r"
+            if m & 2 and m & 4: g[2][2] = "r"
+            if m & 4 and m & 8: g[2][0] = "r"
+            if m & 8 and m & 1: g[0][0] = "r"
+            lay = terrain_layer(land, ["".join(r) for r in g], m).crop((T, T, 2 * T, 2 * T)); base = ground(land, "floor", 0)
+            ov = lay.copy(); mk = terrain_layer(land, ["".join(r) for r in g], m)
+            sheet.paste(lay, (4 + m * (T + 4), 4 + li * (T + 4)))
+    sheet.save(os.path.join(OUT, "edge-masks.png"))
+overlay_sheet()
 LANDS = ("grassland", "forest", "coast", "tundra")
 main()
