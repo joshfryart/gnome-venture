@@ -340,39 +340,65 @@ function stop_perk_data(array $u, array $node): array
     return [stop_perks($uid, $lid), $meters];
 }
 
-/** The inside of the perk list (name, perks, meter tiles and the acts that fill the picked meter), or '' when there is nothing to show. Tiles are radio + label: no script needed. */
+const STOP_METER_ICO = ['repairs' => 'hammer', 'larder' => 'basket', 'cheer' => 'party'];   // v2.5.76: pixel icon per meter (assets/img/ico/ico-<name>.png)
+
+/** A pixel icon <img> from assets/img/ico, or the emoji when the file is missing. */
+function stop_pix(string $name, string $fallback, string $cls = ''): string
+{
+    return is_file(__DIR__ . '/../assets/img/ico/ico-' . $name . '.png')
+        ? '<img class="pkpix' . ($cls !== '' ? ' ' . $cls : '') . '" src="' . e(url('assets/img/ico/ico-' . $name . '.png')) . '" alt="" width="24" height="24">'
+        : '<span class="pkpix">' . e($fallback) . '</span>';
+}
+
+/** The inside of the perk popover: scene banner, perk tickets, meter ring tiles and the acts that fill the picked meter. '' when there is nothing to show. Radio + label tiles: no script needed. */
 function stop_perk_body(array $u, array $node): string
 {
     [$perks, $meters] = stop_perk_data($u, $node);
     if (!$perks && !$meters) return '';
-    $acts = [];   // meter => [[icon, name, amount], ...]: the acts on offer here now that raise it
+    $acts = [];   // meter => [[act row, amount], ...]: the acts on offer here now that raise it
     foreach (stop_pool($node, null, (int)$u['id'])['offer'] as $a) {
         if (empty($a['slug']) || empty($a['name'])) continue;
-        foreach (stop_act_moves($a) as [$m, $amt]) if ($amt > 0) $acts[$m][] = [(string)($a['icon'] ?? ''), (string)$a['name'], $amt];
+        foreach (stop_act_moves($a) as [$m, $amt]) if ($amt > 0) $acts[$m][] = [$a, $amt];
     }
     $first = array_key_first($meters) ?? array_key_first(STOP_METERS);
     $id = 'pkm' . (int)$node['id'];
-    $h = '<p><b>' . e((string)$node['name']) . '</b> <small class="muted">· ' . count($perks) . ' perk' . (count($perks) === 1 ? '' : 's') . '</small></p><h4>Perks</h4>';
+    $today = hollow_date('Y-m-d');
+    $scene = stop_art_file(stop_type_of($node));
+    $n = count($perks);
+    $h = '<div class="pkban' . ($scene === '' ? ' noimg' : '') . '">' . ($scene !== '' ? '<img src="' . e(url('assets/img/scenes/' . $scene)) . '" alt="">' : '')
+        . '<div class="pkbt"><b>' . e((string)$node['name']) . '</b><span class="pkmedals">';
+    for ($i = 0; $i < count(STOP_METERS); $i++) $h .= stop_pix($i < $n ? 'medal-gold' : 'medal-silver', '🏅', $i < $n ? 'on' : 'off');
+    $h .= '</span></div></div><h4>Perks</h4>';
     if ($perks) {
-        $h .= '<ul>';
-        foreach ($perks as $m => $until) $h .= '<li>' . STOP_METERS[$m][0] . ' ' . e(STOP_METERS[$m][1]) . ' is full: one more thing to do here <small class="muted">until ' . e(date('j M', strtotime($until))) . '</small></li>';
-        $h .= '</ul>';
-    } else $h .= '<p class="muted">None yet. Fill a bar to earn one.</p>';
+        foreach ($perks as $m => $until) {
+            $left = max(1, min(STOP_PERK_DAYS, stop_days_between($today, $until) + 1));
+            $pips = '';
+            for ($i = 1; $i <= STOP_PERK_DAYS; $i++) $pips .= '<i class="' . ($i <= $left ? 'on' : '') . '"></i>';
+            $h .= '<div class="pkperk"><span class="pkbadge">' . stop_pix(STOP_METER_ICO[$m] ?? 'star', STOP_METERS[$m][0]) . '</span><div class="pkpt"><b>' . e(STOP_METERS[$m][1]) . ' is full!</b>'
+                . '<span class="pkfx">' . stop_pix('star', '⭐') . ' one more thing per visit</span><span class="pkfx">' . stop_pix('sparkle', '✨') . ' one more turn a day</span></div>'
+                . '<div class="pkleft">' . stop_pix('hourglass', '⏳') . '<span class="pkpips">' . $pips . '</span><small>' . $left . ' day' . ($left === 1 ? '' : 's') . ' left</small></div></div>';
+        }
+    } else $h .= '<div class="pkempty">' . stop_pix('medal-silver', '🏅', 'off') . '<span>No perks yet. Fill a bar to earn one.</span></div>';
     $h .= '<h4>Meters</h4><div class="pkc">';
     foreach (STOP_METERS as $k => $m) $h .= '<input type="radio" class="pkr" name="' . $id . '" id="' . $id . $k . '"' . ($k === $first ? ' checked' : '') . '>';
     $h .= '<div class="pktiles">';
     foreach (STOP_METERS as $k => [$ico, $lab]) {
         $v = (int)($meters[$k] ?? 0);
-        $h .= '<label class="pktile" for="' . $id . $k . '" data-m="' . $k . '"><span class="pkring pkp' . (int)(round($v / 5) * 5) . '"><span>' . $ico . '</span></span>' . e($lab) . '<small>' . $v . '%</small></label>';
+        $h .= '<label class="pktile" for="' . $id . $k . '" data-m="' . $k . '"><span class="pkring pkp' . (int)(round($v / 5) * 5) . '"><span>' . stop_pix(STOP_METER_ICO[$k], $ico) . '</span></span>' . e($lab) . '<small>' . $v . '%</small></label>';
     }
     $h .= '</div>';
     foreach (STOP_METERS as $k => [$ico, $lab]) {
-        $h .= '<div class="pkacts" data-m="' . $k . '"><small class="muted">Acts here that raise ' . $ico . ' ' . e($lab) . '</small>';
-        if (!empty($acts[$k])) foreach ($acts[$k] as [$ai, $an, $amt]) $h .= '<div class="pkact"><span>' . e($ai . ' ' . $an) . '</span><em>+' . $amt . '%</em></div>';
-        else $h .= '<p class="muted">Nothing on offer here today. Check back tomorrow.</p>';
+        $h .= '<div class="pkacts" data-m="' . $k . '"><small class="muted">Acts here that raise ' . e($lab) . '</small>';
+        if (!empty($acts[$k])) {
+            foreach ($acts[$k] as [$a, $amt]) {
+                $art = stop_act_art((string)($a['kind'] ?? ''), (string)$a['slug']);
+                $h .= '<div class="pkact">' . ($art !== '' ? '<img class="pkthumb" src="' . e(url($art)) . '" alt="" loading="lazy">' : '<span class="pkthumb">' . e((string)($a['icon'] ?? '')) . '</span>')
+                    . '<span class="pkan">' . e((string)$a['name']) . '</span><em>+' . $amt . '%</em></div>';
+            }
+        } else $h .= '<p class="muted">Nothing on offer here today. Check back tomorrow.</p>';
         $h .= '</div>';
     }
-    return $h . '</div><p class="muted"><small>Full bar = a perk. Meters fade slowly, about a month to empty.</small></p>';
+    return $h . '</div><p class="pkfoot">' . stop_pix('hourglass', '⏳') . '<small>Full bar = a perk. Meters fade slowly, about a month to empty.</small></p>';
 }
 
 /** The round Perks button for the row under the picture (next to World) as a hub_navbar "extra" entry, or null when there is nothing to show. */

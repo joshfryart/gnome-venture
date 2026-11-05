@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.76
+- **Perks popover is now graphical**: a scene banner for the stop with medal slots, perk tickets (meter badge, what it gives, an hourglass with day pips for the days left), pixel-icon meter rings (hammer, basket, party), and a thumbnail picture for each act that fills the picked meter. Falls back to emoji where an icon is missing.
+
 ## 2.5.75
 - **Perks card redone**: the three meters are now ring tiles (Repairs, Larder, Cheer) with their percent; tap one to see the acts on offer here that raise it and by how much. Works without script.
 - **Slower meters**: meters fade 3 a day instead of 6 (about a month to empty on a full bar), and a perk lasts 7 days instead of 3, so a big map is playable without revisiting every stop.

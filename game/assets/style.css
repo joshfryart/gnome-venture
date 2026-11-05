@@ -7450,3 +7450,22 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 .pkr[id$=cheer]:checked ~ .pktiles .pktile[data-m=cheer] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
 .pkr[id$=cheer]:checked ~ .pkacts[data-m=cheer] { display: block; }
 .pkp0 { --p: 0; } .pkp5 { --p: 5; } .pkp10 { --p: 10; } .pkp15 { --p: 15; } .pkp20 { --p: 20; } .pkp25 { --p: 25; } .pkp30 { --p: 30; } .pkp35 { --p: 35; } .pkp40 { --p: 40; } .pkp45 { --p: 45; } .pkp50 { --p: 50; } .pkp55 { --p: 55; } .pkp60 { --p: 60; } .pkp65 { --p: 65; } .pkp70 { --p: 70; } .pkp75 { --p: 75; } .pkp80 { --p: 80; } .pkp85 { --p: 85; } .pkp90 { --p: 90; } .pkp95 { --p: 95; } .pkp100 { --p: 100; } 
+
+/* v2.5.76: graphical perk popover: scene banner, perk tickets with day pips, pixel-icon rings, act thumbnails */
+.pkpix { width: 24px; height: 24px; image-rendering: pixelated; vertical-align: middle; }
+.pkban { position: relative; margin: 0 0 8px; height: 84px; overflow: hidden; border-bottom: 2px solid var(--ol); background: var(--accent-soft); }
+.pkban img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; display: block; }
+.pkban::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(0,0,0,.65)); }
+.pkbt { position: absolute; left: 10px; right: 10px; bottom: 6px; z-index: 1; display: flex; justify-content: space-between; align-items: flex-end; color: #fff; text-shadow: 0 1px 2px #000; font-size: 1.1em; }
+.pkmedals { display: flex; gap: 2px; } .pkmedals .pkpix.off { opacity: .45; filter: grayscale(1); }
+.pkperk { display: flex; gap: 10px; align-items: center; margin: 6px 0; padding: 8px; border: 2px solid var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 2px var(--surface); }
+.pkbadge { flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 2px solid var(--accent); }
+.pkbadge .pkpix { width: 30px; height: 30px; }
+.pkpt { flex: 1; min-width: 0; } .pkpt b { display: block; } .pkfx { display: block; font-size: .85em; } .pkfx .pkpix { width: 16px; height: 16px; }
+.pkleft { flex: none; text-align: center; font-size: .8em; } .pkleft small { display: block; }
+.pkpips { display: flex; gap: 2px; justify-content: center; margin: 2px 0; } .pkpips i { width: 6px; height: 10px; background: var(--surface); border: 1px solid var(--ol); } .pkpips i.on { background: var(--accent); }
+.pkempty { display: flex; gap: 8px; align-items: center; padding: 8px; border: 2px dashed var(--ol); color: var(--muted, inherit); } .pkempty .pkpix.off { opacity: .5; filter: grayscale(1); }
+.pkring .pkpix { width: 28px; height: 28px; }
+.pkthumb { flex: none; width: 36px; height: 36px; object-fit: cover; border: 2px solid var(--ol); image-rendering: pixelated; display: grid; place-items: center; background: var(--surface); }
+.pkact { align-items: center; } .pkan { flex: 1; min-width: 0; }
+.pkfoot { display: flex; gap: 6px; align-items: center; margin: 8px 0 0; } .pkfoot .pkpix { width: 16px; height: 16px; }
