@@ -229,6 +229,8 @@ if ($withDb) {
         $uv = put($vil);
         $df = here_do_fronts($uv, player_node($uv), 'here.php', 6);
         ok('do fronts: each named for its own activity, none "Do here"', $df && count(array_unique(array_column($df, 0))) === count($df) && !in_array('Do here', array_column($df, 0), true), json_encode(array_column($df, 0)));
+        $hv = here_view($uv, player_node($uv));
+        ok('stop folk stand in the picture and open their panel', !stop_folk_of(player_node($uv)) || str_contains($hv, 'stopfolk.php?folk='), 'no stopfolk card');
         ok('do fronts: each has its buttons and comes back to here.php', str_contains(implode('', array_column($df, 2)), 'name="back" value="here.php"'));
     }
     $gateView = str_contains($h, 'hubsvg chrome');   // a main town with a gate-view picture has no exits on it: the compass card lists every route

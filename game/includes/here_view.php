@@ -444,9 +444,22 @@ function here_npc_card(int $id): string
 function here_sprites(array $u, array $node, array $L, string $kind): array
 {
     $npcs = here_npcs($u, $node, $kind);
+    if ((string)$node['kind'] === 'village') {   // v2.5.36: a rest stop's own folk (the Folk tab) stand here too, each opens its panel (chat, gift, errand)
+        require_once __DIR__ . '/local.php';
+        foreach (stop_folk_of($node) as $f) $npcs[] = ['stop_folk' => 1, 'id' => (int)$f['id'], 'slug' => 'stopfolk-' . (int)$f['id'], 'name' => (string)$f['name'], 'species' => (string)$f['species']];
+    }
     [$pairs, $over] = here_place_npcs($L['stand'] ?? [], $npcs, intdiv(time(), 3600));
     $out = [];
     foreach ($pairs as [$slot, $n]) {
+        if (!empty($n['stop_folk'])) {
+            $sp = ['src' => '', 'w' => 56, 'h' => 56, 'emoji' => npc_icon($n['species'])];
+            $sl = strtolower($n['species']);
+            foreach (['mouse', 'bee', 'hedgehog', 'snail', 'frog', 'beetle', 'butterfly', 'cricket', 'ladybird'] as $k) if ($sp['src'] === '' && str_contains($sl, $k) && is_file(APP_ROOT . '/assets/img/ico/ico-' . $k . '.png')) $sp['src'] = url('assets/img/ico/ico-' . $k . '.png');
+            foreach (['hare', 'wren', 'mole', 'tortoise', 'moth', 'shrew', 'gecko', 'dragonfly', 'toad', 'grasshopper', 'firefly'] as $k) if ($sp['src'] === '' && str_contains($sl, $k) && is_file(APP_ROOT . '/assets/img/folk/' . $k . '.png')) $sp['src'] = url('assets/img/folk/' . $k . '.png');
+            $out[] = ['id' => 'f' . (int)$n['id'], 'x' => (int)$slot['x'], 'y' => (int)$slot['y'], 'name' => $n['name'], 'href' => url('town.php?t=folk'), 'mark' => '',
+                      'card' => here_lazy_card(url('stopfolk.php?folk=' . (int)$n['id']), url('stopfolk.php'), '', '')] + $sp;
+            continue;
+        }
         $sp = here_sprite($n);
         $out[] = ['id' => 'n' . (int)$n['id'], 'x' => (int)$slot['x'], 'y' => (int)$slot['y'], 'name' => (string)$n['name'], 'href' => url('villagers.php?id=' . (int)$n['id']),
                   'mark' => npc_birthday_today($n) ? '🎂' : '',
