@@ -826,10 +826,10 @@ c:save{ aseprite = OUT .. NAME .. ".aseprite", png = OUT .. NAME .. ".png", scal
 local spots = {
   { "green", "The Lemon Grove", 176, 92, 304, 182 },
   { "tea", "Cafe Cicada", 348, 40, 438, 126 },
-  { "board", "Notice Board", 312, 100, 348, 176 },
+  { "board", "Notice Board", 312, 100, 346, 176 },
   { "library", "Library", 34, 36, 124, 126 },
   { "s1", "Olive Press", 14, 128, 114, 208 },
-  { "s2", "Harbour", 0, 202, 100, 269 },
+  { "s2", "Harbour", 0, 210, 100, 269 },
   { "shops", "Shops", 354, 128, 434, 198 },
   { "wild", "Wild Trail", 438, 134, 466, 228 },
 }
