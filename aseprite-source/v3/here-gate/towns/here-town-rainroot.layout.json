@@ -1,0 +1,11 @@
+{"w":480,"h":270,"horizon":112,"view":"gate","spots":[
+{"k":"green","name":"The Highland Green","x":239,"y":183,"box":[166,138,311,228]},
+{"k":"tea","name":"The Yerba Gourd","x":79,"y":175,"box":[22,124,136,226]},
+{"k":"board","name":"Notice Board","x":335,"y":175,"box":[313,120,358,230]},
+{"k":"library","name":"Library","x":171,"y":95,"box":[138,56,204,134]},
+{"k":"s1","name":"Rope Bridge","id":"rr-bridge","verb":"cross the rope bridge","x":76,"y":76,"box":[20,36,132,118]},
+{"k":"s2","name":"Canoe Landing","id":"rr-canoe","verb":"paddle the river","x":87,"y":251,"box":[20,232,155,269]},
+{"k":"shops","name":"Seed Shop","x":409,"y":176,"box":[362,126,458,226]},
+{"k":"wild","name":"Wild Trail","x":422,"y":89,"box":[384,58,458,120]}],
+"stand":[{"x":180,"y":250},{"x":240,"y":250},{"x":300,"y":250},{"x":352,"y":250},{"x":204,"y":198},{"x":276,"y":190}],
+"compass_clear":[380,230,480,270]}
