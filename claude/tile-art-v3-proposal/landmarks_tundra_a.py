@@ -579,36 +579,146 @@ def lm_icecave(rnd, cv):   # 270 x 226
     for x, y in ((110, 108), (200, 172), (54, 164), (150, 90)): glint(cv, x, y, 1)
 
 
-def lm_auroraledge(rnd, cv):   # 260 x 170
-    X0, X1, FT, FB = 22, 238, 56, 140
-    # back / top face
-    slab(cv, [(X0 + 30, 22), (X1 + 14, 22), (X1, FT), (X0, FT)], IC, rnd, .4, .8)
-    # front face, aurora bands showing through
-    COLS = [(SE[0], SE[1], SE[2]), (MO[0], MO[1], MO[2]), (PT[0], PT[1], PT[2]), (SE[0], MO[0], SE[2])]
+def bubble(cv, x, y, r):
+    """A trapped air bubble: bright rim on the top-left, cool rim bottom-right, a clear belly with a glint."""
+    for dy in range(-r - 1, r + 2):
+        for dx in range(-r - 1, r + 2):
+            d = math.hypot(dx + .0, dy + .0)
+            if d > r + .6: continue
+            c = cv.get(x + dx, y + dy)
+            if not c[3]: continue
+            if d > r - .9: cv.put(x + dx, y + dy, WHITE if dx + dy < -r * .5 else mix(c, IC[0], .55) if dx + dy < r * .6 else mix(c, IC[4], .5))
+            else: cv.put(x + dx, y + dy, mix(c, IC[0], .28))
+    if r >= 3: cv.put(x - r // 2, y - r // 2, WHITE)
+
+
+def fracture(cv, x, y, n, rnd, dx=.4, dy=1., br=.14):
+    """A crack deep in the ice: bright line, cold shadow pixel beside it, forking."""
+    fx, fy = float(x), float(y)
+    for i in range(n):
+        fx += dx + rnd.uniform(-.8, .8); fy += dy + rnd.uniform(-.4, .5); px, py = int(fx), int(fy)
+        if not cv.get(px, py)[3]: break
+        cv.put(px, py, IC[0] if i % 5 else WHITE); cv.put(px + 1, py, mix(cv.get(px + 1, py), IC[4], .55)) if cv.get(px + 1, py)[3] else None
+        if rnd.random() < br and n - i > 5: fracture(cv, px, py, (n - i) // 2, rnd, dx + rnd.choice((-1.1, 1.1)), dy * .6, 0)
+
+
+def bubble(cv, x, y, r):
+    """A trapped air bubble: bright rim on the top-left, cool rim bottom-right, a clear belly with a glint."""
+    for dy in range(-r - 1, r + 2):
+        for dx in range(-r - 1, r + 2):
+            d = math.hypot(dx + .0, dy + .0)
+            if d > r + .6: continue
+            c = cv.get(x + dx, y + dy)
+            if not c[3]: continue
+            if d > r - .9: cv.put(x + dx, y + dy, WHITE if dx + dy < -r * .5 else mix(c, IC[0], .55) if dx + dy < r * .6 else mix(c, IC[4], .5))
+            else: cv.put(x + dx, y + dy, mix(c, IC[0], .28))
+    if r >= 3: cv.put(x - r // 2, y - r // 2, WHITE)
+
+
+def fracture(cv, x, y, n, rnd, dx=.4, dy=1., br=.14):
+    """A crack deep in the ice: bright line, cold shadow pixel beside it, forking."""
+    fx, fy = float(x), float(y)
+    for i in range(n):
+        fx += dx + rnd.uniform(-.8, .8); fy += dy + rnd.uniform(-.4, .5); px, py = int(fx), int(fy)
+        if not cv.get(px, py)[3]: break
+        cv.put(px, py, IC[0] if i % 5 else WHITE); cv.put(px + 1, py, mix(cv.get(px + 1, py), IC[4], .55)) if cv.get(px + 1, py)[3] else None
+        if rnd.random() < br and n - i > 5: fracture(cv, px, py, (n - i) // 2, rnd, dx + rnd.choice((-1.1, 1.1)), dy * .6, 0)
+
+
+def bubble(cv, x, y, r):
+    """A trapped air bubble: bright rim on the top-left, cool rim bottom-right, a clear belly with a glint."""
+    for dy in range(-r - 1, r + 2):
+        for dx in range(-r - 1, r + 2):
+            d = math.hypot(dx + .0, dy + .0)
+            if d > r + .6: continue
+            c = cv.get(x + dx, y + dy)
+            if not c[3]: continue
+            if d > r - .9: cv.put(x + dx, y + dy, WHITE if dx + dy < -r * .5 else mix(c, IC[0], .55) if dx + dy < r * .6 else mix(c, IC[4], .5))
+            else: cv.put(x + dx, y + dy, mix(c, IC[0], .28))
+    if r >= 3: cv.put(x - r // 2, y - r // 2, WHITE)
+
+
+def fracture(cv, x, y, n, rnd, dx=.4, dy=1., br=.14):
+    """A crack deep in the ice: bright line, cold shadow pixel beside it, forking."""
+    fx, fy = float(x), float(y)
+    for i in range(n):
+        fx += dx + rnd.uniform(-.8, .8); fy += dy + rnd.uniform(-.4, .5); px, py = int(fx), int(fy)
+        if not cv.get(px, py)[3]: break
+        cv.put(px, py, IC[0] if i % 5 else WHITE); cv.put(px + 1, py, mix(cv.get(px + 1, py), IC[4], .55)) if cv.get(px + 1, py)[3] else None
+        if rnd.random() < br and n - i > 5: fracture(cv, px, py, (n - i) // 2, rnd, dx + rnd.choice((-1.1, 1.1)), dy * .6, 0)
+
+
+def lm_auroraledge(rnd, cv):   # 260 x 176
+    X0, X1, FT, FB = 20, 230, 64, 142; DX = 18; TY = 28
+    nA, nB = vnoise(rnd, 20), vnoise(rnd, 6)
+    AUR = [SE, MO, PT, SE]
+    def hue(x, y):
+        v = (x + y * .8 + 14 * nA(x, y)) / 38.; i = int(math.floor(v)); f = v - i; th = (_BAY[int(y) & 3][int(x) & 3] + .5) / 16
+        if f > .66 and (f - .66) / .34 > th: i += 1
+        elif f < .3 and (.3 - f) / .3 > th: i -= 1
+        return AUR[i % 4], (v % 1)
+    def caustic(x, y): return max(0., math.sin((x * .62 - y * .34) / 8.5 + 3 * nA(x * .5, y * .5))) ** 5
+    front = lambda x, y: X0 <= x <= X1 and FT <= y < FB - (1 if x < X0 + 2 or x > X1 - 2 else 0)
+    # front face: thick clear ice, the aurora showing through it in soft diagonal bands
     for y in range(FT, FB):
         for x in range(X0, X1 + 1):
-            v = ((x + y * .9) / 44.0)
-            band = COLS[int(v) % 4]
-            f = (y - FT) / (FB - FT)
-            t = 0 if f < .28 else 1 if f < .62 else 2
-            if (x + y) % 2 == 0 and abs((f * 3) % 1 - .5) < .0: t = 0
-            c = band[t]
-            if x == X0 or y == FT: c = IC[0]
-            cv.put(x, y, c)
-    for k in range(7):   # glints
-        x, y = rnd.randint(X0 + 10, X1 - 40), rnd.randint(FT + 8, FB - 30)
-        for j in range(rnd.randint(12, 24)): cv.put(x + j, y + j, CREAM); cv.put(x + j + 1, y + j, IC[0])
-    for x in range(X0, X1 + 1): cv.put(x, FB - 1, IC[3]); cv.put(x, FB - 2, IC[3]); cv.put(x, FB - 3, IC[2])
-    for x in range(X1 - 8, X1 + 1):
-        for y in range(FT, FB): cv.put(x, y, darker(cv.get(x, y), 1)) if cv.get(x, y) in SE + MO + PT else None
-    # snow cap and drips
-    for x in range(X0 + 26, X1 + 14):
-        for y in range(16, 24): cv.put(x, y, SN[0] if y < 19 else SN[1]) if (y - 16) < 5 + (x * 7) % 3 else None
-    for x in range(X0, X1, 14): icicle(cv, x + 4, FT + 1, 8 + (x * 5) % 14, 6)
-    # a pair of snowbanks at the foot, and a star glint
-    lump(cv, 40, 150, 30, 14, SN, rnd, .06); lump(cv, 212, 152, 36, 14, SN, rnd, .06); lump(cv, 130, 160, 50, 8, SN, rnd, .06)
-    for x, y in ((90, 8), (170, 12), (200, 4)):
-        gen2.sparkle(cv, x, y, False)
+            if not front(x, y): continue
+            h_, _ = hue(x, y); d = (y - FT) / float(FB - FT)
+            lvl = .4 + 2.7 * d - 1.1 * caustic(x, y) + (nB(x, y) - .5) * 1.1
+            c = quant(h_, lvl, x, y, .6); ci = quant(IC, lvl + .2, x, y, .6)
+            cv.put(x, y, mix(c, ci, .16 + .16 * d))
+    for k in range(5):     # strata: faint frozen layers running across the slab, broken into dashes
+        base = FT + 14 + k * 14 + rnd.randint(-2, 2)
+        for x in range(X0 + 3, X1 - 3):
+            y = base + int(2 * math.sin(x * .05 + k) + 2 * (nA(x, k * 9) - .5))
+            if (x * 7 + k * 3) % 13 < 8 and front(x, y): cv.put(x, y, mix(cv.get(x, y), IC[0], .3))
+    for x in range(X0, X1 + 1):     # chamfers: bright top lip, lit left edge, bounce light above a dark foot
+        for y, c, a in ((FT, ICR[0], 1.), (FT + 1, IC[0], .45)): cv.put(x, y, mix(cv.get(x, y), c, a)) if front(x, y) else None
+        if x % 2 == 0: cv.put(x, FB - 5, mix(cv.get(x, FB - 5), IC[0], .4))
+        cv.put(x, FB - 3, mix(cv.get(x, FB - 3), IC[4], .5)); cv.put(x, FB - 2, IC[4]); cv.put(x, FB - 1, mix(IC[4], DU[3], .5))
+    for y in range(FT, FB - 1):
+        cv.put(X0, y, IC[0]); cv.put(X0 + 1, y, mix(cv.get(X0 + 1, y), IC[0], .5)); cv.put(X1, y, mix(cv.get(X1, y), IC[4], .5)); cv.put(X1 - 1, y, mix(cv.get(X1 - 1, y), IC[3], .3))
+    # right-hand side face (thickness seen at an angle) darker and bluer
+    side = [(X1 + 1, FT), (X1 + DX, TY), (X1 + DX, FB - 15), (X1 + 1, FB - 1)]; ms = _mask(cv.w, cv.h, side)
+    for y in range(TY, FB):
+        for x in range(X1, X1 + DX + 2):
+            if not ms[x, y]: continue
+            u = (x - X1) / float(DX); h_, _ = hue(x - 90, y + 30); d = (y - TY) / float(FB - TY)
+            lvl = 2.1 + 1.4 * u + .9 * d - .8 * caustic(x * 2, y)
+            cv.put(x, y, mix(quant(h_, lvl, x, y, .6), quant(IC, lvl + .3, x, y, .6), .55))
+    for y in range(TY, FB - 14): cv.put(X1 + DX, y, IC[4])
+    # top face: polished ice with sky reflected in it, a snow rim at the back
+    top = [(X0 + 30, TY), (X1 + DX, TY), (X1, FT), (X0, FT)]; mt = _mask(cv.w, cv.h, top)
+    for y in range(TY, FT + 1):
+        for x in range(X0, X1 + DX + 1):
+            if not mt[x, y] or front(x, y) and y > FT: continue
+            d = (y - TY) / float(FT - TY); h_, _ = hue(x * 1.3, y * 2.2)
+            lvl = 1.4 - 1.1 * d + (nB(x, y * 2) - .5) * 1.3 + .5 * caustic(x * 1.2, y * 3)
+            cv.put(x, y, mix(quant(IC, lvl, x, y, .6), quant(h_, 1.4 + 1.2 * d, x, y, .6), .3 + .15 * (1 - d)))
+    for k in range(7):      # long polished streaks on the top face
+        x = rnd.randint(X0 + 20, X1 - 40); y = rnd.randint(TY + 5, FT - 4)
+        for j in range(rnd.randint(14, 30)):
+            if mt[min(cv.w - 1, x + j), y]: cv.put(x + j, y, WHITE if j % 4 else IC[0])
+    for x in range(X0 + 30, X1 + DX): cv.put(x, TY, IC[0]) if mt[x, TY] else None
+    for y in range(TY, FT): cv.put(X0 + 30 - int((y - TY) * 30 / (FT - TY)), y, IC[0])
+    # bubbles, a rising string of them, cracks and glints inside the ice
+    for (x, y, r) in ((50, 96, 4), (92, 116, 3), (140, 88, 5), (176, 122, 3), (206, 100, 4), (74, 128, 2), (118, 124, 2), (162, 76, 2), (36, 114, 3), (190, 80, 2)): bubble(cv, x, y, r)
+    for k in range(6): bubble(cv, 112 + (k % 2), 134 - k * 6, 1 if k % 3 else 2)
+    for (x, y, n, d) in ((70, FT + 1, 30, .5), (180, FT + 2, 26, -.4), (130, FB - 3, 22, -.3)): fracture(cv, x, y, n, rnd, d, 1. if y < FT + 5 else -1.)
+    for (x, y) in ((44, 80), (150, 104), (214, 114), (96, 84), (60, 130), (188, 74), (230, 90), (126, 70)): glint(cv, x, y, 1 if x % 2 else 0)
+    # blown snow on the back rim, and a frost fringe of icicles hanging from the front lip
+    cloud_lump(cv, 128, TY - 1, 62, 5, rnd, bumps=3, bias=-.5); cloud_lump(cv, 60, TY + 1, 24, 4, rnd, bumps=1, bias=-.4); cloud_lump(cv, 214, TY + 2, 18, 4, rnd, bumps=1, bias=-.4)
+    for i, x in enumerate(range(X0 + 6, X1 - 4, 11)): icicle2(cv, x + (i * 3) % 4, FT + 2, 7 + (i * 7) % 12, 5, rnd, bead=(i % 3 == 0))
+    # snowbanks at the foot, tinted pink and green by the light coming through the slab
+    for (x, y, rx, ry) in ((38, 152, 32, 12), (214, 154, 34, 12), (128, 164, 56, 8), (82, 160, 20, 6), (176, 163, 22, 6)): cloud_lump(cv, x, y, rx, ry, rnd, bumps=2, bias=-.3)
+    for y in range(FB, 176):
+        for x in range(4, 256):
+            c = cv.get(x, y)
+            if c in SN and X0 - 14 < x < X1 + DX + 8:
+                h_, _ = hue(x - 10, y * 1.5); f = 1 - (y - FB) / 28.
+                if f > 0 and (_BAY[y & 3][x & 3] + .5) / 16 < f * .9: cv.put(x, y, mix(c, h_[1 if c in SN[:2] else 2], .38))
+    tuft(cv, 14, 164, rnd, 4, 6); sprig(cv, 236, 166, rnd, -1, 10); lump(cv, 246, 160, 8, 5, ST, rnd, .12); cloud_lump(cv, 246, 157, 7, 2, rnd, bumps=1, bias=-.7)
+    for (x, y) in ((90, 12), (170, 16), (200, 6), (30, 20), (240, 20)): glint(cv, x, y, 2) if x % 20 == 0 else gen2.sparkle(cv, x, y, False)
 
 
 # ------------------------------------------------------------------ 310
@@ -657,7 +767,7 @@ def lm_driftpass(rnd, cv):   # 340 x 196
         for x in range(d["x0"], d["x1"] + 1):     # lit crest line, one pixel of wind-polished edge
             if x in top and abs(x - xp) > 2: cv.put(x, int(top[x]), SN[0]); cv.put(x, int(top[x]) + 1, SN[1]) if x < xp else None
     # cornices: the wind has curled each crest over to leeward, with a hollow of blue shade undercut beneath
-    for (x, y, w) in ((158, 43, 14), (312, 90, 11), (134, 75, 9)):
+    for (x, y, w) in ((150, 38, 9), (302, 85, 8), (123, 71, 7)):
         cloud_lump(cv, x, y + 2, w, 5, rnd, bumps=2, bias=-.5)
         for k in range(-w + 2, w - 3):
             yy = y + 7 - int((k / float(w)) ** 2 * 3); cv.put(x + k, yy, SN[3] if k % 2 else SN[4]); cv.put(x + k, yy + 1, SN[2]) if k % 3 else None
@@ -706,17 +816,27 @@ def lm_driftpass(rnd, cv):   # 340 x 196
     # a half-buried boot, sole to the sky, and a trail of footprints that stops right at it
     bx, by = 290, 172
     lump(cv, bx + 2, by + 8, 28, 9, SN, rnd, 0)
-    tube(cv, (bx - 4, by + 4), (bx - 4, by - 22), 10, 10, WD)                 # the leg, going down into the drift
-    tube(cv, (bx - 8, by - 20), (bx + 24, by - 20), 12, 10, WD, rings=(.0,), ring=WD)
-    for x in range(bx - 9, bx + 25):                                          # the sole, facing the sky: dark rubber with tread bars
-        ytop = by - 28 + (x - bx + 9) // 12
-        for y in range(ytop, ytop + 4): cv.put(x, y, WD[4] if y > ytop else WD[3])
-        if (x - bx) % 3 == 0: cv.put(x, ytop + 1, WD[2]); cv.put(x, ytop + 2, WD[3])
-    rect(cv, bx - 10, by - 31, bx - 1, by - 27, WD[4]); cv.put(bx - 10, by - 31, WD[3])   # heel
-    for x in range(bx - 9, bx + 22): cv.put(x, by - 29 + (x - bx + 9) // 12 - 1 + (0 if x % 3 else 0), SN[0] if (x * 5) % 9 < 5 else SN[1])
-    cloud_lump(cv, bx + 6, by - 30, 9, 2, rnd, bumps=1, bias=-.7)
-    for k in range(4): cv.put(bx - 4 + k * 5, by - 9, WD[4]); cv.put(bx - 3 + k * 5, by - 9, WD[3])   # laces gone stiff
-    cloud_lump(cv, bx + 4, by + 5, 22, 6, rnd, bumps=2, bias=-.4)
+    for y in range(by - 22, by + 6):   # the leg, going down into the drift: stitched leather, lit left
+        for x in range(bx - 9, bx + 3): cv.put(x, y, WD[1] if x < bx - 6 else WD[2] if x < bx - 1 else WD[3])
+        cv.put(bx - 9 + (y % 3 == 0), y, WD[0]) if y % 4 else None
+    foot = [(bx - 9, by - 32), (bx + 12, by - 31), (bx + 28, by - 25), (bx + 30, by - 19), (bx + 24, by - 14), (bx - 9, by - 14)]
+    mm = _mask(cv.w, cv.h, foot)
+    for y in range(by - 34, by - 12):
+        for x in range(bx - 10, bx + 32):
+            if not mm[x, y]: continue
+            tp_ = by - 32 + max(0, (x - bx + 9)) * 7 // 38
+            if y < tp_ + 4: c = WD[4] if y > tp_ else WD[3]                       # sole: dark rubber ...
+            elif y == tp_ + 4: c = WD[0]                                          # ... stitched welt
+            else: c = WD[1] if x < bx - 3 else WD[2] if x < bx + 14 else WD[3]    # upper leather
+            if y >= tp_ + 5 and y > by - 18: c = WD[3] if x < bx + 14 else WD[4]
+            cv.put(x, y, c)
+    for x in range(bx - 8, bx + 28, 3):   # tread bars cut into the sole
+        tp_ = by - 32 + max(0, (x - bx + 9)) * 7 // 38; cv.put(x, tp_ + 1, WD[2]); cv.put(x, tp_ + 2, WD[2])
+    rect(cv, bx - 9, by - 36, bx, by - 31, WD[4]); rect(cv, bx - 9, by - 36, bx, by - 35, WD[3])   # heel block
+    for x in range(bx - 9, bx + 27): cv.put(x, by - 33 + max(0, (x - bx + 9)) * 7 // 38 - (1 if x > bx else 3 * (x < bx)), SN[0] if (x * 5) % 9 < 5 else SN[1]) if x > bx else None
+    cloud_lump(cv, bx + 12, by - 34, 9, 2, rnd, bumps=1, bias=-.7)
+    for q in range(4): cv.put(bx - 4 + q * 3, by - 11, WD[4]); cv.put(bx - 3 + q * 3, by - 10, WD[4])
+    cloud_lump(cv, bx + 4, by + 5, 24, 6, rnd, bumps=2, bias=-.4)
     for i in range(9):
         x, y = 188 + i * 10 + (i % 2) * 2, B - 10 - (i % 2) * 5 + (i // 4)
         fprint(cv, x, y, 1, 1 if i % 2 else -1)
@@ -1176,7 +1296,7 @@ LM = {
     "309-frozenpond": (330, 170, lm_frozenpond),
     "309-snowmen": (290, 190, lm_snowmen),
     "309-icecave": (270, 226, lm_icecave),
-    "309-auroraledge": (260, 170, lm_auroraledge),
+    "309-auroraledge": (260, 176, lm_auroraledge),
     "310-driftpass": (340, 196, lm_driftpass),
     "310-sledtrack": (340, 170, lm_sledtrack),
     "310-combridge": (290, 190, lm_comb),

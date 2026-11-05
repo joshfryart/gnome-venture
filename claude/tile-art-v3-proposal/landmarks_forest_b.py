@@ -3,6 +3,150 @@ import gen2
 from gen2 import RAMP, INK, CREAM, Cv, lump, r5, outline, trunk, leaf_texture, darker, mix, H, T, _col, _pond, _reeds
 
 WD = RAMP["wood"]; LT = RAMP["litter"]
+# ----------------------------------------------------------------------------------- hand-drawn toolkit
+BAY = ((.125, .625), (.875, .375))
+def dith(s, x, y):   # float tone 0..4 -> int tone, 2x2 ordered dither (checker at half steps)
+    s = 0 if s < 0 else 4 if s > 4 else s; t = int(s)
+    return 4 if t >= 4 else t + (1 if s - t > BAY[y & 1][x & 1] else 0)
+
+def dome_s(nx, ny):   # float tone for a surface normal (nx, ny); lit top-left
+    return (0.95 - gen2.shade_pt(nx, ny)) * 3.3
+
+def _isw(c, W): return c in W
+
+def bark(cv, span, y0, y1, W, rnd, nr=10, wob=.05):
+    """Cylinder-shaded bark: ridges bunch towards the edges so they wrap, furrows wander and break, lit lip left of every furrow, scale flecks."""
+    rg = []
+    for i in range(nr):
+        th = -1.38 + 2.76 * (i + rnd.uniform(.15, .85)) / nr
+        rg.append((math.sin(th), rnd.uniform(0, 6.3), rnd.uniform(13, 27), rnd.randint(0, 50), rnd.randint(13, 31)))
+    for y in range(y0, y1):
+        sp = span(y)
+        if not sp: continue
+        xl, xr = sp; c = (xl + xr + 1) / 2; w = (xr - xl + 1) / 2; fur = {}
+        for p, ph, lam, off, seg in rg:
+            if ((y + off) // seg) % 4 == 0: continue
+            pp = p + wob * math.sin(y / lam + ph) + wob * .6 * math.sin(y / (lam * .43) + ph * 2)
+            xx = int(round(c + pp * w)); fur[xx] = 2
+            if ((y + off) // 4) % 3 == 0: fur.setdefault(xx + 1, 1)
+        for x in range(xl, xr + 1):
+            u = (x + .5 - c) / w
+            b = .15 + 3.25 * ((u + 1) / 2) ** 1.12
+            if u > .8: b -= 1.1 * (u - .8) / .2      # bounce light on the shaded edge
+            f = fur.get(x, 0)
+            if f == 2: s = b + 2.2
+            elif f == 1: s = b + 1.3
+            elif x + 1 in fur: s = b - .9
+            elif x - 1 in fur: s = b + .7
+            else:
+                s = b
+                if (x * 7 + y * 3) % 19 == 0: s -= .8
+                elif (x * 5 + y * 11) % 23 == 0: s += .8
+            cv.put(x, y, W[dith(s, x, y)])
+
+def crack(cv, x, y, n, W, rnd, vert=True):
+    for k in range(n):
+        if not _isw(cv.get(x, y), W) : break
+        cv.put(x, y, W[4])
+        a, b = (x - 1, y) if vert else (x, y - 1)
+        if _isw(cv.get(a, b), W) and cv.get(a, b) != W[4]: cv.put(a, b, W[1])
+        if vert: y += 1; x += rnd.choice((-1, 0, 0, 1))
+        else: x += 1; y += rnd.choice((-1, 0, 0, 1))
+
+def knot(cv, cx, cy, rx, ry, W, rnd):
+    for y in range(int(cy - ry) - 2, int(cy + ry) + 3):
+        for x in range(int(cx - rx) - 2, int(cx + rx) + 3):
+            nx = (x + .5 - cx) / rx; ny = (y + .5 - cy) / ry; d = math.hypot(nx, ny)
+            if d > 1.15 and d < 1.5 and nx + ny > .2: cv.put(x, y, W[4]) if _isw(cv.get(x, y), W) else None    # cast shade
+            if d > 1: continue
+            if d > .72: s = 1 if nx + ny < -.15 else 3.4 if nx + ny > .4 else 2.2
+            elif d > .45: s = 2.6 + (nx + ny) * .6
+            else: s = 4
+            cv.put(x, y, W[dith(s, x, y)] if d > .45 else INK if d < .3 else W[4])
+    cv.put(int(cx - rx * .55), int(cy - ry * .55), W[2]); cv.put(int(cx + rx * .15), int(cy + ry * .2), W[3])
+
+def root(cv, pts, w0, w1, W, rnd):
+    N = 70; sm = []
+    for i in range(N + 1):
+        t = i / N; x = (1 - t) ** 2 * pts[0][0] + 2 * (1 - t) * t * pts[1][0] + t * t * pts[2][0]
+        y = (1 - t) ** 2 * pts[0][1] + 2 * (1 - t) * t * pts[1][1] + t * t * pts[2][1]
+        sm.append((x, y, (w0 + (w1 - w0) * t ** .8) / 2))
+    for i, (x, y, r) in enumerate(sm):
+        j = min(N, i + 1); k = max(0, i - 1); tx = sm[j][0] - sm[k][0]; ty = sm[j][1] - sm[k][1]
+        L = math.hypot(tx, ty) or 1; nx, ny = -ty / L, tx / L
+        if ny > 0: nx, ny = -nx, -ny
+        v = -r - .5
+        while v <= r + .5:
+            vn = max(-1, min(1, v / r)); px = int(round(x + nx * v)); py = int(round(y + ny * v))
+            s = dome_s(nx * vn, ny * vn)
+            if abs(vn - .3) < .13 and (i // 7) % 3: s += 1.5
+            elif abs(vn + .35) < .1 and (i // 5) % 4: s += 1.2
+            cv.put(px, py, W[dith(s, px, py)]); v += .5
+
+def moss(cv, cx, cy, rx, ry, rnd, onto=None, drip=True):
+    M = r5(RAMP["moss"]); ph = [rnd.uniform(0, 6.3) for _ in range(3)]; lowest = {}
+    for y in range(int(cy - ry * 1.4), int(cy + ry * 1.4) + 1):
+        for x in range(int(cx - rx * 1.4), int(cx + rx * 1.4) + 1):
+            nx = (x + .5 - cx) / rx; ny = (y + .5 - cy) / ry; a = math.atan2(ny, nx)
+            if math.hypot(nx, ny) > 1 + .22 * math.sin(a * 5 + ph[0]) + .13 * math.sin(a * 9 + ph[1]): continue
+            c = cv.get(x, y)
+            if onto is not None and not onto(c): continue
+            s = dome_s(nx * .8, ny * .8) * .8 + .2 + (.7 if (x * 3 + y * 7) % 11 == 0 else 0)
+            cv.put(x, y, M[dith(s, x, y)]); lowest[x] = max(lowest.get(x, y), y)
+    if drip:
+        for x, yy in lowest.items():
+            if (x * 7) % 5 == 0:
+                for k in range(1, 3 + (x * 3) % 5):
+                    if onto is None or onto(cv.get(x, yy + k)): cv.put(x, yy + k, M[2 if k < 3 else 3])
+    for k in range(int(rx * ry / 18)):   # bright flecks
+        x = int(cx + rnd.uniform(-.8, .8) * rx); y = int(cy + rnd.uniform(-.8, .5) * ry)
+        if cv.get(x, y) in M: cv.put(x, y, M[0]); cv.put(x + 1, y, M[1])
+
+def shelf(cv, x, y, rw, rh, rnd):   # bracket fungus, flat underside at y, bulging up and out to the right
+    G = RAMP["gold"]
+    for yy in range(y - rh, y + 1):
+        for xx in range(x, x + rw + 1):
+            nx = (xx - x) / rw; ny = (y - yy) / rh
+            if nx * nx + ny * ny > 1: continue
+            d = math.hypot(nx, ny); band = int(d * 7)
+            s = 2.0 - 2.2 * (1 - ny) * .5 - ny * .6 + (1.1 if band % 2 else 0) + d * .8
+            if d > .9: s = 0.3 if ny > .35 else 2.6
+            cv.put(xx, yy, G[dith(s - .6, xx, yy)] if s < 3.5 else G[3])
+    for xx in range(x, x + rw + 1):
+        nx = (xx - x) / rw
+        if nx < 1:
+            cv.put(xx, y, CREAM if nx < .8 else RAMP["sand"][1]); cv.put(xx, y + 1, RAMP["sand"][2]); cv.put(xx, y + 2, RAMP["wood"][3] if xx % 2 else RAMP["wood"][2])
+
+def lichen(cv, cx, cy, rx, ry, rnd, onto):
+    P = RAMP["sea"][0]; Q = RAMP["moss"][0]
+    for k in range(int(rx * ry * .6)):
+        a = rnd.uniform(0, 6.3); d = rnd.random() ** .6
+        x = int(cx + math.cos(a) * rx * d); y = int(cy + math.sin(a) * ry * d)
+        if onto(cv.get(x, y)): cv.put(x, y, P if k % 3 else Q); cv.put(x + 1, y, Q) if k % 4 == 0 and onto(cv.get(x + 1, y)) else None
+
+def pebble(cv, x, y, rnd, s=1):
+    S = r5(RAMP["stone"]); lump(cv, x, y, 3 * s, 2 * s, S, rnd, 0)
+
+def leaflet(cv, x, y, col):   # a fallen leaf, 3 px
+    cv.put(x, y, col[1]); cv.put(x + 1, y, col[1]); cv.put(x + 1, y - 1, col[0]); cv.put(x + 2, y - 1, col[2])
+
+
+def _arch(cx, hw, spring, top, bottom, n=40):   # points along a doorway arch, left foot -> right foot
+    pts = []
+    for i in range(n + 1):
+        t = i / n
+        if t < .3: pts.append((cx - hw, bottom + (spring - bottom) * t / .3))
+        elif t < .7:
+            a = math.pi * (1 - (t - .3) / .4); pts.append((cx + math.cos(a) * hw, spring - math.sin(a) * (spring - top)))
+        else: pts.append((cx + hw, spring + (bottom - spring) * (t - .7) / .3))
+    return pts
+
+def _inarch(x, y, cx, hw, spring, top, bottom):
+    if y > bottom or y < top: return False
+    if y >= spring: return abs(x - cx) <= hw
+    return ((x - cx) / hw) ** 2 + ((spring - y) / (spring - top)) ** 2 <= 1
+
+
 def line(cv, x0, y0, x1, y1, cols, w=2):
     n = int(max(abs(x1 - x0), abs(y1 - y0))) + 1
     for i in range(n + 1):
@@ -57,43 +201,70 @@ def fern(cv, x, y, rnd, s=1.0):
             if k % 3 == 1 and k > 3:
                 for sd in (-1, 1): cv.put(int(px) + sd * 2, int(py) + 1, G[min(4, t + 1)]); cv.put(int(px) + sd * 3, int(py) + 2, G[t])
 
+def bark_h(cv, x0, x1, topf, botf, W, rnd, nr=12, wob=.05):   # bark whose furrows run along x; lit from the top
+    tmp = Cv(cv.h, cv.w)
+    bark(tmp, lambda r: (topf(r), botf(r) - 1), x0, x1, W, rnd, nr, wob)
+    for r in range(x0, x1):
+        for c in range(tmp.w):
+            p = tmp.get(c, r)
+            if p[3]: cv.put(r, c, p)
+
 def lm_ringlog(rnd, cv):   # 340 x 200
-    W = r5(WD); M = r5(RAMP["moss"]); SD = r5(RAMP["sand"]); S = r5(RAMP["stone"])
+    W = r5(WD); M = r5(RAMP["moss"]); SD = r5(RAMP["sand"]); S = r5(RAMP["stone"]); F = [RAMP["sand"][0], RAMP["sand"][1], RAMP["sand"][2], WD[1], WD[2]]
     cx, cy, rx, ry = 84, 128, 58, 66
-    top = lambda x: cy - ry + 4 + (x // 40) % 2
-    bot = cy + ry
-    for x in range(cx, 328):   # the long trunk behind the cut face
-        y0 = top(x); y1 = bot - (3 if x > 310 else 0)
-        for y in range(y0, y1):
-            u = (y - y0) / (y1 - y0); t = 0 if u < .1 else 1 if u < .28 else 2 if u < .55 else 3 if u < .82 else 4
-            if (x * 5 + y * 3) % 17 == 0: t = min(4, t + 1)
-            if (x // 7 + y // 14) % 6 == 0 and y % 5 == 0: t = min(4, t + 1)
-            cv.put(x, y, W[t])
-    for x in range(cx + 20, 326, 12):   # bark furrows
-        for y in range(top(x) + 6, bot - 4):
-            if (y + x) % 4: cv.put(x, y, W[4])
-    for x in range(cx + 10, 324):   # moss on top
-        for y in range(top(x) - 3, top(x) + 4 + (x * 3) % 8):
-            if (x // 7) % 3 != 0: cv.put(x, y, M[1 + (x + y) % 3 // 2 * 2])
-    lump(cv, 300, top(300) + 3, 22, 9, M, rnd, .1); lump(cv, 215, top(215) + 2, 24, 8, M, rnd, .1)
-    for y in range(cy - ry, cy + ry + 1):   # the huge cut face with annual rings
-        for x in range(cx - rx, cx + rx + 1):
-            nx = (x - cx) / rx; ny = (y - cy) / ry; d = math.hypot(nx, ny)
+    top = lambda x: cy - ry + 4 + int(2.2 * math.sin(x / 17) + 1.4 * math.sin(x / 6.3))
+    bot = lambda x: cy + ry - (3 if x > 310 else 0) - int(1.6 * math.sin(x / 11 + 1))
+    isw = lambda c: c in W or c in F
+    bark_h(cv, cx, 328, top, bot, W, rnd, nr=13, wob=.045)
+    for x in range(cx + 6, 326):   # a darker belly where the log rests on the ground
+        for k in range(3):
+            if (x + k) % 2 == 0 or k == 0: cv.put(x, bot(x) - 1 - k, W[4])
+    for (kx, ky, a, b) in ((150, 118, 6, 5), (250, 140, 7, 6), (210, 96, 4, 4), (296, 112, 5, 5), (180, 160, 5, 4)): knot(cv, kx, ky, a, b, W, rnd)
+    for (x, y, n) in ((120, 100, 26), (176, 80, 22), (232, 84, 24), (270, 100, 30), (300, 150, 20), (140, 150, 22)): crack(cv, x, y, n, W, rnd, False)
+    for (x, y, n) in ((206, 120, 14), (160, 138, 12), (262, 126, 12)): crack(cv, x, y, n, W, rnd)
+    for x in range(cx + 12, 324):   # moss riding the top edge
+        for y in range(top(x) - 2, top(x) + 3 + (x * 3) % 7):
+            if (x // 7) % 3 != 0 and cv.get(x, y) in W: cv.put(x, y, M[dith(1.2 + (y - top(x)) * .35 + (x % 3) * .3, x, y)])
+    moss(cv, 300, top(300) + 4, 24, 9, rnd, isw); moss(cv, 215, top(215) + 3, 26, 8, rnd, isw); moss(cv, 260, bot(260) - 10, 18, 8, rnd, isw); moss(cv, 140, bot(140) - 8, 14, 7, rnd, isw)
+    lichen(cv, 190, 132, 12, 14, rnd, isw); lichen(cv, 280, 90, 10, 10, rnd, isw)
+    root(cv, ((318, bot(318) - 6), (332, bot(318) + 2), (338, bot(318) + 6)), 14, 5, W, rnd)
+    # broken branch stubs with their own little cut faces
+    for sx, ln in ((188, 14), (284, 18)):
+        root(cv, ((sx, top(sx) + 8), (sx + 3, top(sx) - 4), (sx + 8, top(sx) - ln)), 16, 12, W, rnd)
+        for yy in range(top(sx) - ln - 5, top(sx) - ln + 4):
+            for xx in range(sx - 1, sx + 17):
+                nx = (xx - (sx + 8)) / 8; ny = (yy - (top(sx) - ln)) / 4
+                if nx * nx + ny * ny <= 1: cv.put(xx, yy, F[dith(.5 + (nx + ny) * .3 + (1.7 if int(math.hypot(nx, ny) * 3) % 2 else 0), xx, yy)])
+    # the huge cut face: wandering annual rings, bark lip, cracks
+    pcx, pcy = cx + 6, cy + 4; ph = [rnd.uniform(0, 6.3) for _ in range(3)]
+    for y in range(cy - ry - 1, cy + ry + 2):
+        for x in range(cx - rx - 1, cx + rx + 2):
+            nx = (x + .5 - cx) / rx; ny = (y + .5 - cy) / ry; d = math.hypot(nx, ny)
             if d > 1: continue
-            if d > .94: c = W[3]
-            elif d > .88: c = W[1]
-            else:
-                k = int(d * 26 + math.sin(math.atan2(ny, nx) * 2) * .6)
-                c = SD[1] if k % 4 == 0 else SD[2] if k % 4 == 2 else SD[0] if nx + ny < 0 else SD[1]
-                if d < .06: c = W[3]
-            cv.put(x, y, c)
-    for ang, d in ((2.6, .45), (.7, .6), (4.2, .78)):   # radial cracks
-        for k in range(int(d * 40)):
-            cv.put(int(cx + math.cos(ang) * (k + 4) * rx / 40), int(cy + math.sin(ang) * (k + 4) * ry / 40), W[4])
+            dx = (x + .5 - pcx) / rx; dy = (y + .5 - pcy) / ry; dp = math.hypot(dx, dy); a = math.atan2(dy, dx)
+            dd = dp * (1 + .04 * math.sin(a * 3 + ph[0]) + .028 * math.sin(a * 5 + ph[1]) + .012 * math.sin(a * 9 + ph[2]))
+            if d > .955: cv.put(x, y, W[dith(dome_s(nx * .9, ny * .9) + .7 + (1.3 if (x + y * 3) % 5 == 0 else 0), x, y)]); continue
+            if d > .91: cv.put(x, y, W[dith(1.5 + (1.0 if nx + ny > 0 else -.3), x, y)]); continue
+            k = dd * 19; fr = k - int(k)
+            s = .35 + (nx + ny) * .3 + (.5 if (x * 7 + y * 3) % 11 == 0 else 0)
+            if fr < .17: s += 2.1
+            elif fr < .32: s += 1.0
+            if dd < .05: s = 3.6
+            elif dd < .1: s += 1.3
+            cv.put(x, y, F[dith(s, x, y)])
+    for ang0 in (2.6, .7, 4.2, 5.7):
+        a = ang0; r = .06
+        while r < .95:
+            x = int(pcx + math.cos(a) * r * rx); y = int(pcy + math.sin(a) * r * ry)
+            if cv.get(x, y) in F:
+                cv.put(x, y, F[4]); cv.put(x + 1, y, F[0]) if cv.get(x + 1, y) in F else None
+                if r > .5: cv.put(x - 1, y, F[3]) if cv.get(x - 1, y) in F else None
+            r += .004; a += rnd.uniform(-.03, .03)
+    moss(cv, 52, 76, 10, 6, rnd, isw); moss(cv, 112, 188, 14, 5, rnd, isw)
     # gnome-sized number flags planted in rings, counting up then lost
     flag(cv, 84, 100, "1", rnd, 40); flag(cv, 62, 142, "9", rnd, 52, "dusk"); flag(cv, 108, 160, "27", rnd, 58)
     flag(cv, 160, top(160) + 4, "??", rnd, 44, "dusk"); flag(cv, 262, top(262) + 4, "412", rnd, 42)
-    for i in range(6): lump(cv, 190 + i * 11, 38 + (i % 2), 5, 4, S, rnd, 0)   # tally pebbles on top
+    for i in range(6): lump(cv, 196 + i * 11, top(196 + i * 11) - 2, 5, 4, S, rnd, 0)   # tally pebbles on top
     for x, y, s in ((236, 62, 1.0), (252, 66, .7), (150, 68, .8)):
         toadstool(cv, x, y, s, rnd)
     fern(cv, 290, 196, rnd, 1.0); fern(cv, 150, 198, rnd, .8)
@@ -234,81 +405,214 @@ def lm_bramble(rnd, cv):   # 360 x 180
     for x, y in ((159, 126), (160, 126), (162, 124), (163, 124), (165, 126), (166, 126), (169, 124), (170, 124), (172, 126)): cv.put(x, y + 1, CREAM)
     for x in range(150, 210, 7): cv.put(x, 177, RAMP["moss"][1]); cv.put(x + 1, 176, RAMP["moss"][0])
 
-def lm_greatstump(rnd, cv):   # 290 x 210
-    cx, top, rx, ry, hgt = 125, 46, 112, 32, 96
-    for x in range(cx - rx, cx + rx):   # side
-        nx = (x - cx) / rx
-        y1 = int(top + ry * math.sqrt(max(0, 1 - nx * nx))); y2 = int(top + hgt + ry * math.sqrt(max(0, 1 - nx * nx))) + 4
-        u = (x - (cx - rx)) / (2 * rx); t = 0 if u < .1 else 1 if u < .3 else 2 if u < .65 else 3
-        for y in range(y1, y2):
-            tt = t
-            if (x // 4 + y // 9) % 6 == 0 and y % 3: tt = min(3, tt + 1)
-            if x % 9 == 0 and y % 4: tt = min(3, tt + 1)
-            cv.put(x, y, WD[tt])
-    for sx in (-1, 1):   # roots
-        for k in range(26):
-            x = cx + sx * (rx - 4 + k); y = top + hgt + ry // 2 + 10 + k // 5 * 1
-            for h in range(14 - k // 3): cv.put(x, y - h + 6, WD[3 if h < 2 else 2 if sx < 0 else 3])
-    def face(x, y, nx, ny):
-        d = math.sqrt(nx * nx + ny * ny)
-        if d > .95: return WD[3]
-        if d > .9: return WD[2]
-        k = int(d * 30)
-        if k % 4 == 0 and d > .06: return WD[2] if (k // 4) % 3 == 0 else WD[1]
-        return WD[0] if (x + y) % 11 else CREAM
-    ell(cv, cx, top, rx, ry, face)
-    for x in range(cx - 110, cx - 70): cv.put(x, top - 6 + (x * 3) % 4, WD[1]) if False else None
-    # little round door and window: a stump that is a house
-    for y in range(top + hgt - 40, top + hgt + ry + 2):
-        for x in range(cx - 14, cx + 14):
-            dy = y - (top + hgt - 38)
-            if dy < 14 and (x - cx) ** 2 + (dy - 14) ** 2 > 14 ** 2: continue
-            cv.put(x, y, INK if 2 < x - (cx - 14) < 25 else WD[3])
-    for y in range(top + 66, top + hgt + 24, 1): cv.put(cx + 9, y, WD[1]) if y > top + hgt - 24 else None
-    cv.put(cx + 6, top + hgt - 2, RAMP["gold"][0]); cv.put(cx + 7, top + hgt - 2, RAMP["gold"][1])
-    ell(cv, cx + 62, top + 56, 9, 9, lambda x, y, nx, ny: RAMP["gold"][0] if nx + ny < -.3 else INK if abs(nx) < .15 or abs(ny) < .15 else RAMP["sea"][1])
-    for k in range(8): cv.put(cx + 70, top + 96 + k, WD[3]) if False else None
-    for x in range(cx - 104, cx - 34):   # moss cap on the left shoulder
-        for y in range(top + ry - 8, top + ry + 4 + (x * 7) % 8):
-            if cv.get(x, y)[3] and cv.get(x, y) != INK and (x + y) % 3: cv.put(x, y, RAMP["moss"][1 + (x // 3) % 2])
-    toadstool(cv, cx - 62, top + 12, .7, rnd); toadstool(cv, cx - 48, top + 18, .5, rnd)
-    for k in range(5): line(cv, cx + 60 + k * 9, top + 6 - (k % 2) * 3, cx + 60 + k * 9, top - 4 - (k % 2) * 3, [RAMP["moss"][1], RAMP["moss"][0]], 1)
-    grass_tufts(cv, 8, 240, 180, rnd, 12)
+def lm_greatstump(rnd, cv):   # 270 x 205
+    W = r5(WD); M = r5(RAMP["moss"]); SD = RAMP["sand"]; G = RAMP["gold"]; SEA = RAMP["sea"]
+    F = [SD[0], SD[1], SD[2], WD[1], WD[2]]
+    cx, top, rx, ry, hgt = 135, 46, 112, 32, 96
+    y2 = lambda x: int(top + hgt + ry * math.sqrt(max(0, 1 - ((x - cx) / rx) ** 2))) + 3
+    bark(cv, lambda y: (cx - rx, cx + rx - 1), top, top + hgt + ry + 8, W, rnd, nr=30, wob=.03)
+    for x in range(cx - rx, cx + rx):
+        yb = y2(x)
+        for y in range(yb + 1, top + hgt + ry + 9): cv.put(x, y, (0, 0, 0, 0))
+        for k in range(3):
+            c = cv.get(x, yb - k)
+            if c[3] and (x + k) % 2 == 0 or k == 0: cv.put(x, yb - k, W[4] if k < 2 else W[3])
+    isw = lambda c: c in W or c in F
+    # bark detail on the side
+    for (kx, ky, a, b) in ((cx - 74, top + 62, 7, 10), (cx + 36, top + 52, 5, 7), (cx - 38, top + 92, 4, 5), (cx + 88, top + 76, 6, 8), (cx - 100, top + 46, 4, 6)): knot(cv, kx, ky, a, b, W, rnd)
+    for (x, y, n) in ((cx - 96, top + 40, 40), (cx - 60, top + 36, 30), (cx - 20, top + 44, 20), (cx + 12, top + 48, 36), (cx + 58, top + 40, 44), (cx + 96, top + 34, 38), (cx - 84, top + 70, 26), (cx + 74, top + 60, 28), (cx - 46, top + 76, 14)): crack(cv, x, y, n, W, rnd)
+    for yy in (top + 60, top + 84): crack(cv, cx - 60 + yy % 7, yy, 7, W, rnd, False); crack(cv, cx + 54 + yy % 5, yy - 20, 6, W, rnd, False)
+    lichen(cv, cx - 88, top + 70, 10, 12, rnd, isw); lichen(cv, cx + 100, top + 50, 8, 10, rnd, isw); lichen(cv, cx + 30, top + 80, 8, 8, rnd, isw)
+    # ---- roots on the ground
+    for sx in (-1, 1):
+        X = lambda p, sx=sx: cx + sx * (p - cx)
+        root(cv, ((X(cx + 94), top + hgt + 8), (X(cx + 108), top + hgt + 38), (X(cx + 130), top + hgt + 44)), 24, 5, W, rnd)
+        root(cv, ((X(cx + 52), top + hgt + 24), (X(cx + 62), top + hgt + 42), (X(cx + 84), top + hgt + 48)), 16, 4, W, rnd)
+    root(cv, ((cx - 26, top + hgt + 28), (cx - 34, top + hgt + 44), (cx - 52, top + hgt + 50)), 10, 3, W, rnd)
+    # ---- top: cut face with wandering growth rings, cracks, bark rim
+    pcx, pcy = cx + 14, top + 3; ph = [rnd.uniform(0, 6.3) for _ in range(3)]
+    for y in range(top - ry - 1, top + ry + 2):
+        for x in range(cx - rx - 1, cx + rx + 2):
+            nx = (x + .5 - cx) / rx; ny = (y + .5 - top) / ry; d = math.hypot(nx, ny)
+            if d > 1: continue
+            dx = (x + .5 - pcx) / rx; dy = (y + .5 - pcy) / ry; dp = math.hypot(dx, dy); a = math.atan2(dy, dx)
+            dd = dp * (1 + .045 * math.sin(a * 3 + ph[0]) + .03 * math.sin(a * 5 + ph[1]) + .015 * math.sin(a * 9 + ph[2]))
+            if d > .94: cv.put(x, y, W[dith(dome_s(nx * .9, ny * .9) + .6 + (1.4 if (x * 3 + y) % 5 == 0 else 0), x, y)]); continue
+            if d > .89: cv.put(x, y, W[dith(1.4 + (1.2 if ny > 0 else 0), x, y)]); continue
+            k = dd * 14; fr = k - int(k)
+            s = .3 + (nx + ny) * .55 + (.5 if (x * 7 + y * 3) % 11 == 0 else 0)
+            if fr < .2: s += 2.5
+            elif fr < .36: s += 1.3
+            if dd < .06: s = 3.6
+            elif dd < .13: s += 1.3
+            cv.put(x, y, F[dith(s, x, y)])
+    for ang0, ln in ((2.5, .8), (.5, .9), (4.4, .6), (5.5, .75)):   # radial cracks, wider towards the rim
+        a = ang0; r = .08
+        while r < .93:
+            x = int(pcx + math.cos(a) * r * rx); y = int(pcy + math.sin(a) * r * ry)
+            if cv.get(x, y) in F:
+                cv.put(x, y, F[4]); cv.put(x + 1, y, F[0]) if cv.get(x + 1, y) in F else None
+                if r > .5: cv.put(x - 1, y, F[3]) if cv.get(x - 1, y) in F else None
+            r += .005; a += rnd.uniform(-.025, .025)
+        if ln < .7: pass
+    moss(cv, cx - 78, top + 8, 24, 9, rnd, isw); moss(cv, cx - 20, top + ry - 6, 22, 6, rnd, isw); moss(cv, cx + 84, top + 12, 14, 7, rnd, isw)
+    moss(cv, cx - 98, top + 54, 16, 14, rnd, isw)
+    toadstool(cv, cx - 64, top + 14, .7, rnd); toadstool(cv, cx - 50, top + 20, .5, rnd); toadstool(cv, cx + 48, top - 4, .45, rnd)
+    # saplings and tufts sprouting from the rim
+    for sx_, sh in ((cx + 62, 10), (cx + 78, 7)):
+        for k in range(sh): cv.put(sx_, top + 3 - k, M[2] if k % 2 else M[1]); cv.put(sx_ + (k // 4) % 2, top - k + 2, M[1])
+        lump(cv, sx_, top - sh + 1, 5, 4, r5(RAMP["leaf"]), rnd, 0)
+    # ---- the doorway: frame, depth, open door leaf, step
+    dcx, hwd, spr, dtop, dbot = cx, 17, 150, 120, 174
+    inside = lambda x, y: _inarch(x, y, dcx, hwd, spr, dtop, dbot)
+    outer = lambda x, y: _inarch(x, y, dcx, hwd + 6, spr, dtop - 6, dbot)
+    for y in range(dtop - 7, dbot + 1):
+        for x in range(dcx - hwd - 7, dcx + hwd + 8):
+            if inside(x, y):
+                gl = (x - (dcx + 8)) / 9 if True else 0; gy = (y - 164) / 9; g = math.hypot(gl, gy)
+                cv.put(x, y, G[min(3, dith(1.6 + g * 1.8, x, y))] if g < 1 and x > dcx + 2 and y > 156 else INK if (x + y) % 2 else W[4])
+            elif outer(x, y):
+                dy = (y - spr) if y < spr else 0; ox = (x - dcx) / hwd; oy = dy / (spr - dtop); n = math.hypot(ox, oy) or 1
+                near = any(inside(x + a, y + b) for a in range(-2, 3) for b in range(-2, 3) if abs(a) + abs(b) <= 2)
+                s = dome_s(-ox / n * .9, -oy / n * .9) + .2 if near else dome_s(ox / n * .85, oy / n * .85) * .75 - .3 + (1.1 if (x + y * 3) % 7 == 0 else 0)
+                cv.put(x, y, W[dith(s, x, y)])
+    for y in range(128, dbot):   # the door leaf stands open on the right, planks in perspective
+        t = (y - 128) / (dbot - 128)
+        xl = dcx + 4 + int(3 * math.sin(t * 3)) * 0; xr = dcx + hwd - 1
+        for x in range(dcx + 6, xr + 1):
+            if not inside(x, y): continue
+            u = (x - (dcx + 6)) / max(1, xr - dcx - 6); pl = (x - dcx) // 3
+            cv.put(x, y, W[dith(1.6 + u * 1.3 + (.9 if (x - dcx) % 3 == 0 else 0) + (.8 if (y + pl * 5) % 17 == 0 else 0), x, y)])
+    for y in (134, 164): 
+        for x in range(dcx + 7, dcx + 16): cv.put(x, y, SD[3]); cv.put(x, y + 1, W[4])
+    cv.put(dcx + 7, 150, G[0]); cv.put(dcx + 7, 151, G[1]); cv.put(dcx + 8, 150, G[1]); cv.put(dcx + 8, 151, G[2])
+    for x in range(dcx - hwd - 5, dcx + hwd + 6):   # a flat stone step
+        for k in range(4):
+            c = RAMP["stone"]; cv.put(x, dbot + k - 1, c[0 if k == 0 else 1] if x % 7 else c[2]) if abs(x - dcx) < hwd + 5 - k else None
+    for k in range(3): cv.put(dcx - 6 + k, dbot + 3, RAMP["stone"][3])
+    # round window with cross-bars, sill and a flower pot
+    wx, wy = cx + 66, top + 58
+    for y in range(wy - 13, wy + 14):
+        for x in range(wx - 13, wx + 14):
+            nx = (x - wx) / 12; ny = (y - wy) / 12; d = math.hypot(nx, ny)
+            if d > 1: continue
+            if d > .72: cv.put(x, y, W[dith(dome_s(-nx * .9, -ny * .9) + .5 if d < .86 else dome_s(nx * .8, ny * .8) * .8, x, y)])
+            elif abs(nx) < .1 or abs(ny) < .1: cv.put(x, y, W[3])
+            else: cv.put(x, y, SEA[dith(.4 + d * 1.6 + (nx + ny) * .4, x, y) if False else min(3, dith(.2 + d * 1.5 + (nx + ny) * .5, x, y))] if (nx + ny) < 1.2 else SEA[2])
+    cv.put(wx - 5, wy - 6, CREAM); cv.put(wx - 4, wy - 6, CREAM); cv.put(wx - 6, wy - 5, CREAM); cv.put(wx + 5, wy + 5, SEA[0])
+    for x in range(wx - 15, wx + 16):
+        for k in range(3): cv.put(x, wy + 13 + k, W[0 if k == 0 else 2 if k == 1 else 4])
+    for x in range(wx - 5, wx + 6):
+        for k in range(6): cv.put(x, wy + 12 - k, RAMP["ember"][1 if x < wx else 2]) if k < 5 and abs(x - wx) < 5 - k // 3 else None
+    for dx, dy, c in ((-4, -8, RAMP["petal"][1]), (0, -9, RAMP["gold"][1]), (4, -8, RAMP["petal"][0]), (-2, -6, M[2]), (2, -6, M[1])): cv.put(wx + dx, wy + 6 + dy, c); cv.put(wx + dx + 1, wy + 6 + dy, c)
+    # lantern on a bracket beside the door
+    lx = cx - 38
+    for k in range(10): cv.put(lx, top + 62 + k, SD[3])
+    for k in range(5): cv.put(lx + k, top + 62, SD[3])
+    for yy in range(top + 72, top + 82):
+        for xx in range(lx + 1, lx + 7):
+            cv.put(xx, yy, G[0] if (xx - lx) in (2, 3) and 74 + top - top < 99 else G[1] if xx < lx + 5 else G[2])
+    for xx in range(lx, lx + 8): cv.put(xx, top + 71, W[3]); cv.put(xx, top + 82, W[3])
+    grass_tufts(cv, 8, 262, top + hgt + 46, rnd, 16)
+    for x, y in ((18, 186), (252, 188), (120, 192)): toadstool(cv, x, y, .5, rnd)
+    for x, y in ((50, 192), (200, 190), (160, 194)): leaflet(cv, x, y, RAMP["litter"])
+    pebble(cv, 86, 192, rnd); pebble(cv, 188, 193, rnd)
 
-def lm_larder(rnd, cv):   # 230 x 270
-    C = r5(RAMP["leaf"])
-    trunk(cv, 115, 100, 192, 62, rnd)
-    for cx, cy, rx, ry in ((115, 70, 70, 44), (60, 98, 46, 34), (172, 98, 46, 34), (115, 40, 46, 32), (100, 110, 38, 24), (140, 112, 38, 24)):
+def nut(cv, x, y):   # tiny stored acorn, 5 x 7
+    L = RAMP["litter"]; Wd = WD
+    for dx in range(-2, 3):
+        cv.put(x + dx, y - 3, Wd[1] if dx < 0 else Wd[2]); cv.put(x + dx, y - 2, Wd[2] if dx < 1 else Wd[3])
+    for dx in range(-2, 3): cv.put(x + dx, y - 1, L[0] if dx < 0 else L[1])
+    for dx in range(-2, 3): cv.put(x + dx, y, L[1] if dx < 0 else L[2])
+    for dx in range(-1, 2): cv.put(x + dx, y + 1, L[2] if dx < 1 else L[3])
+    cv.put(x, y + 2, L[3]); cv.put(x, y - 4, Wd[3]); cv.put(x - 1, y - 1, RAMP["sand"][0])
+
+def lm_larder(rnd, cv):   # 230 x 202
+    W = r5(WD); C = r5(RAMP["leaf"]); M = r5(RAMP["moss"])
+    sq = [H(c) for c in ("#f0b877", "#d98e4e", "#b06636", "#7c4630", "#522a26")]; CRM = [H(c) for c in ("#fff4d6", "#f4dcae", "#dcb680", "#b88a60")]
+    cxf = lambda y: 115 + 2 * math.sin(y / 21)
+    hw = lambda y, sd: 30 + 1.8 * math.sin(y / 12 + sd) + max(0, y - 166) ** 1.6 / 13
+    span = lambda y: (int(cxf(y) - hw(y, 0)), int(cxf(y) + hw(y, 1)))
+    root(cv, ((84, 176), (62, 192), (32, 197)), 20, 4, W, rnd); root(cv, ((146, 176), (168, 192), (198, 197)), 20, 4, W, rnd)
+    root(cv, ((100, 186), (92, 198), (76, 201)), 10, 3, W, rnd); root(cv, ((130, 186), (140, 198), (156, 201)), 10, 3, W, rnd)
+    bark(cv, span, 92, 200, W, rnd, nr=10, wob=.06)
+    isw = lambda c: c in W
+    def hole(hx, hy, rx, ry, acorns):
+        for y in range(hy - ry - 5, hy + ry + 6):
+            for x in range(hx - rx - 5, hx + rx + 6):
+                nx = (x + .5 - hx) / rx; ny = (y + .5 - hy) / ry; d = math.hypot(nx, ny)
+                if d < 1: cv.put(x, y, INK)
+                elif d < 1.22: cv.put(x, y, W[dith(dome_s(-nx * .9, -ny * .9) + .6, x, y)])
+                elif d < 1.42: cv.put(x, y, W[dith(dome_s(nx * .8, ny * .8) * .8 + (1.2 if (x + y) % 4 == 0 else 0), x, y)])
+        for a, b in acorns: nut(cv, hx + a, hy + b)
+    hole(97, 132, 11, 15, ((-6, 11), (0, 12), (6, 11), (-3, 6), (3, 6), (0, 0)))
+    hole(124, 165, 9, 11, ((-4, 7), (3, 7), (0, 2)))
+    for (kx, ky, a, b) in ((86, 160, 4, 6), (130, 118, 3, 5), (104, 178, 4, 5)): knot(cv, kx, ky, a, b, W, rnd)
+    for (x, y, n) in ((86, 100, 24), (80, 150, 26), (110, 150, 22), (138, 130, 20), (112, 178, 14), (90, 176, 16)): crack(cv, x, y, n, W, rnd)
+    lichen(cv, 84, 124, 6, 10, rnd, isw); moss(cv, 86, 176, 12, 12, rnd, isw); moss(cv, 134, 100, 10, 8, rnd, isw)
+    # canopy
+    for cx, cy, rx, ry in ((115, 70, 70, 44), (60, 98, 46, 34), (172, 98, 46, 34), (115, 50, 46, 28), (100, 110, 38, 24), (140, 112, 38, 24), (36, 112, 22, 16), (196, 112, 22, 16), (150, 46, 24, 14)):
         lump(cv, cx, cy, rx, ry, C, rnd, .12)
-    leaf_texture(cv, C, rnd, 140)
-    def hole(hx, hy, w, h, acorns):
-        ell(cv, hx, hy, w, h, lambda x, y, nx, ny: INK if ny < .3 else WD[3])
-        for dx, dy in acorns:
-            a, b = hx + dx, hy + h - 4 + dy
-            for k in range(4):
-                for j in range(4): cv.put(a + k, b + j, RAMP["gold"][2 if j > 0 else 3]) if j > 1 else cv.put(a + k, b + j, WD[1] if j == 0 else WD[2])
-            cv.put(a + 1, b + 1, RAMP["gold"][0]) if False else None
-    hole(100, 140, 9, 13, ((-6, 0), (0, 1), (5, -1), (-2, -4)))
-    hole(126, 168, 8, 10, ((-5, 0), (1, 1), (-1, -4)))
-    # squirrel peering from the right, eyes sideways
-    S = r5(RAMP["ember"]); sq = [H("#e8a060"), H("#c9783d"), H("#a85a32"), H("#7a3f2a"), H("#5a2c26")]
-    for k in range(40):   # tail
-        for w in range(14): 
-            c = (sq[0] if w < 4 else sq[1] if w < 9 else sq[2]); xx = 166 + int(math.sin(k / 8) * 9) + w - (k // 4); cv.put(xx, 172 - k, c) if (k < 36 or w > 3) else None
-    lump(cv, 156, 166, 15, 20, sq, rnd, 0); lump(cv, 152, 172, 8, 11, [CREAM, CREAM, H("#f0d9a8"), H("#f0d9a8"), H("#f0d9a8")], rnd, 0)
-    lump(cv, 150, 138, 13, 12, sq, rnd, 0)
-    for dx in (-8, -9): cv.put(150 + dx + 6, 124, sq[3])
-    for ex in (144, 154):
-        for dx in range(3): cv.put(ex + dx, 136, CREAM); cv.put(ex + dx, 137, CREAM)
-        cv.put(ex, 136, INK); cv.put(ex, 137, INK)
-    cv.put(146, 144, INK); cv.put(147, 144, INK); cv.put(148, 145, INK)
-    for p in range(2): cv.put(143 + p * 14, 120, sq[2]); cv.put(143 + p * 14, 121, sq[2]); cv.put(144 + p * 14, 119, sq[2])
-    for k, c in ((0, RAMP["gold"][1]), (1, RAMP["gold"][2])):   # acorn pile at roots
-        pass
-    for i in range(14):
-        a, b = 40 + i * 11 + rnd.randint(-3, 3), 190 + rnd.randint(-2, 1)
-        for k in range(4): cv.put(a + k, b, WD[1]); cv.put(a + k, b + 1, RAMP["gold"][2]); cv.put(a + k, b + 2, RAMP["gold"][3])
-    grass_tufts(cv, 30, 200, 192, rnd, 12)
+    leaf_texture(cv, C, rnd, 150)
+    # squirrel peering round the trunk: furred tail with bands, body, head
+    for k in range(48):   # tail: wavy centreline, ragged fur edge, banding
+        tx = 172 + 11 * math.sin(k / 9.5) - k * .12; ty = 178 - k
+        wd = 5 + 3.5 * math.sin(k / 6.5 + .8) + k * .09
+        for xx in range(int(tx - wd - 2), int(tx + wd + 3)):
+            u = (xx - tx) / (wd + 1.5)
+            if abs(u) > 1 + ((k * 7 + xx * 3) % 3 - 1) * .09: continue
+            s = 1.0 + (u + 1) * 1.15 + (1.0 if (k // 5) % 2 and abs(u) < .8 else 0) + (.5 if (xx * 5 + k) % 4 == 0 else 0)
+            cv.put(xx, int(ty), sq[min(4, dith(s, xx, int(ty)))])
+    for y in range(146, 200):   # body, fur strokes
+        for x in range(138, 176):
+            nx = (x - 156) / 17; ny = (y - 168) / 22
+            if nx * nx + ny * ny > 1: continue
+            s = dome_s(nx * .9, ny * .9) * .8 + .5 + (.9 if (x * 3 + y * 2) % 7 == 0 else -.8 if (x + y * 5) % 11 == 0 else 0)
+            cv.put(x, y, sq[min(4, dith(s, x, y))])
+    for y in range(158, 196):   # cream belly with fur ticks
+        for x in range(140, 162):
+            nx = (x - 150) / 9; ny = (y - 176) / 17
+            if nx * nx + ny * ny > 1: continue
+            s = .4 + (nx + ny) * .5 + (1.0 if (x + y * 2) % 6 == 0 else 0)
+            cv.put(x, y, CRM[min(3, dith(s, x, y))])
+    for dx in (-3, 3): lump(cv, 147 + dx * 2, 197, 5, 3, sq, rnd, 0)   # feet
+    for (hx_, hy_) in ((142, 200), (150, 200)):
+        for k in range(3): cv.put(hx_ + k, 201, sq[4])
+    nut(cv, 150, 174); nut(cv, 151, 173)   # holding a snack
+    cv.put(144, 176, sq[2]); cv.put(145, 176, sq[2]); cv.put(155, 176, sq[2]); cv.put(156, 176, sq[2])   # paws
+    for y in range(124, 156):   # head with cheek fluff
+        for x in range(134, 168):
+            nx = (x - 150) / 15.5; ny = (y - 139) / 14; d = math.hypot(nx, ny) * (1 + .05 * ((x * 7 + y * 3) % 3 - 1))
+            if d > 1: continue
+            s = dome_s(nx * .9, ny * .9) * .8 + .5 + (.9 if (x * 5 + y * 3) % 7 == 0 else 0)
+            c = sq[min(4, dith(s, x, y))]
+            if ny > .25 and abs(nx) < .6: c = CRM[min(3, dith(.3 + nx * .5 + ny * .5, x, y))]   # muzzle
+            cv.put(x, y, c)
+    for sd in (-1, 1):   # ears with tufts
+        ex = 150 + sd * 9
+        for k in range(7):
+            for w in range(max(1, 5 - k // 2)):
+                cv.put(ex - 2 + w + (k // 3) * sd, 126 - k, sq[1 if sd < 0 else 3] if w == 0 or k > 7 else sq[0 if sd < 0 and w == 1 else 2] if w < 3 else sq[3])
+        cv.put(ex + sd, 125, RAMP["petal"][1]); cv.put(ex + sd, 124, RAMP["petal"][1])
+        for k in range(4): cv.put(ex + sd * 2 + sd * (k // 2), 117 - k, sq[4])   # tuft tip
+    for ex in (144, 156):   # eyes, glancing sideways
+        for dy in range(3):
+            for dx in range(4): cv.put(ex + dx, 134 + dy, CREAM)
+        for dy in range(3): cv.put(ex, 134 + dy, INK); cv.put(ex + 1, 134 + dy, INK)
+        cv.put(ex, 134, CREAM) if False else None
+    cv.put(144, 135, CREAM); cv.put(156, 135, CREAM)
+    cv.put(149, 143, RAMP["petal"][2]); cv.put(150, 143, RAMP["petal"][2]); cv.put(150, 144, INK); cv.put(148, 145, sq[4]); cv.put(152, 145, sq[4])   # nose and mouth
+    for sd in (-1, 1):
+        for k in range(5): cv.put(150 + sd * (6 + k), 143 + k // 3 - (1 if k > 1 else 0) * 0, CRM[0])   # whiskers
+        for k in range(4): cv.put(150 + sd * (6 + k), 146 + k // 2, CRM[1])
+    # acorn stash at the roots, mushrooms, grass
+    for i in range(18):
+        a, b = 24 + i * 10 + rnd.randint(-3, 3), 196 + rnd.randint(-2, 2)
+        nut(cv, a, b)
+    for x, y in ((14, 200), (212, 200)): _toad = None
+    grass_tufts(cv, 8, 220, 201, rnd, 16)
+    for x, y in ((40, 200), (190, 201), (120, 202)): leaflet(cv, x, y, RAMP["litter"])
+    pebble(cv, 60, 201, rnd); pebble(cv, 176, 201, rnd)
 
 def lm_beaverdam(rnd, cv):   # 360 x 180
     R = r5(RAMP["sea"]); B = [H("#c9884a"), H("#a8683a"), H("#85502e"), H("#5f3a28"), H("#472a24")]
@@ -537,6 +841,6 @@ def lm_glowtunnel(rnd, cv):   # 290 x 210
         x, y = rnd.randint(70, 220), rnd.randint(70, 170); cv.put(x, y, teal[0]); cv.put(x + 1, y, teal[0])
 
 LM = {"312-ringlog": (340, 200, lm_ringlog), "312-woodpecker": (170, 270, lm_woodpecker), "312-toadring": (320, 190, lm_toadring),
-      "312-bramble": (360, 180, lm_bramble), "312-greatstump": (250, 190, lm_greatstump), "312-larder": (230, 196, lm_larder),
+      "312-bramble": (360, 180, lm_bramble), "312-greatstump": (270, 205, lm_greatstump), "312-larder": (230, 206, lm_larder),
       "313-beaverdam": (360, 180, lm_beaverdam), "313-mudslide": (250, 160, lm_mudslide), "313-lodge": (290, 220, lm_lodge),
       "313-stickgate": (250, 200, lm_stickgate), "313-tunnelmouth": (290, 240, lm_tunnelmouth), "313-glowtunnel": (290, 210, lm_glowtunnel)}
