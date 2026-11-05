@@ -470,28 +470,28 @@ paint(rect(342, 188, 342, 190), Riron)
 
 ---------------------------------------------------------------- wild trail (k=wild), arch of trees on the right edge
 -- trail leaving right
-local trail = poly{{404,214},{462,196},{462,206},{420,218}}
+local trail = poly{{414,214},{462,196},{462,206},{428,218}}
 trail:each(function(x, y) px(x, y, hash(x, y, 91) < 0.08 and "#866448" or "#9a7656") end)
 -- trunks
-shadow(rect(402, 212, 420, 216))
-paint(poly{{406,214},{414,214},{418,140},{410,128},{404,130},{410,142}}, Rbark, planksV(3, 92, 406), { sh = 2 })
+shadow(rect(412, 212, 430, 216))
+paint(poly{{416,214},{424,214},{426,140},{420,128},{414,130},{420,142}}, Rbark, planksV(3, 92, 406), { sh = 2 })
 paint(poly{{448,206},{456,206},{458,124},{452,128}}, Rbark, planksV(3, 93, 448), { sh = 2 })
 -- leafy canopy arch with a gap below
 local can = HP.mask()
-can:add(c:rrect(398, 104, 434, 140, 10)):add(c:rrect(422, 96, 462, 132, 10)):add(c:rrect(436, 120, 462, 150, 8))
-can:add(c:rrect(400, 132, 420, 152, 6))
+can:add(c:rrect(410, 104, 440, 140, 10)):add(c:rrect(428, 96, 462, 132, 10)):add(c:rrect(440, 120, 462, 150, 8))
+can:add(c:rrect(412, 132, 428, 152, 6))
 can:clip(rect(0, 0, 463, Hh - 1))
 paint(can, Rbush, leafy(94), { sh = 3 })
 -- bush clumps at feet
-paint(c:rrect(396, 196, 410, 212, 5), Rbush, leafy(95))
+paint(c:rrect(406, 196, 418, 212, 5), Rbush, leafy(95))
 -- signpost with leaf arrow
-shadow(rect(430, 206, 442, 209))
-paint(rect(432, 166, 435, 208), Rbark)
-paint(poly{{420,164},{446,164},{454,170},{446,176},{420,176}}, Rhoney, planksH(4, 96, 164))
-paint(poly{{432,170},{438,166},{444,170},{438,174}}, R("#1e4420", "#3a7a34", "#5aa048", "#86c460"), nil, { noshade = true })
-px(437, 170, "#1e4420") px(438, 170, "#1e4420") px(439, 170, "#1e4420")
+shadow(rect(436, 206, 448, 209))
+paint(rect(438, 166, 441, 208), Rbark)
+paint(poly{{426,164},{450,164},{457,170},{450,176},{426,176}}, Rhoney, planksH(4, 96, 164))
+paint(poly{{434,170},{440,166},{446,170},{440,174}}, R("#1e4420", "#3a7a34", "#5aa048", "#86c460"), nil, { noshade = true })
+px(439, 170, "#1e4420") px(440, 170, "#1e4420") px(441, 170, "#1e4420")
 -- a small lantern hung from the branch
-for y = 140, 150 do px(424, y, "#3a2a30") end
+for y = 146, 150 do px(424, y, "#3a2a30") end
 paint(rect(421, 151, 427, 159), Riron, function(x, y) if x > 421 and x < 427 and y > 152 and y < 158 then return GLOW[2] end end, { noshade = true })
 
 ---------------------------------------------------------------- the gate frame (inn timber + lanterns)
@@ -544,8 +544,8 @@ local layout = [[{"w":480,"h":270,"horizon":112,"view":"gate","spots":[]] ..
   [[{"k":"do","name":"Lantern Inn","x":91,"y":95,"box":[10,14,172,176]},]] ..
   [[{"k":"people","name":"Long Table","x":84,"y":205,"box":[4,180,164,234]},]] ..
   [[{"k":"stop","name":"Stamp Board","x":358,"y":195,"box":[326,164,392,227]},]] ..
-  [[{"k":"homes","name":"Roadside Huts","x":331,"y":101,"box":[254,46,408,138]},]] ..
-  [[{"k":"wild","name":"Wild Trail","x":431,"y":157,"box":[396,96,463,218]}],]] ..
+  [[{"k":"homes","name":"Roadside Huts","x":331,"y":101,"box":[254,46,406,138]},]] ..
+  [[{"k":"wild","name":"Wild Trail","x":435,"y":156,"box":[408,94,463,218]}],]] ..
   [["stand":[{"x":240,"y":250},{"x":198,"y":210},{"x":282,"y":208},{"x":240,"y":162},{"x":100,"y":256},{"x":345,"y":254}],]] ..
   [["compass_clear":[380,230,480,270]}]]
 local f = io.open(OUT .. NAME .. ".layout.json", "w") f:write(layout .. "\n") f:close()
