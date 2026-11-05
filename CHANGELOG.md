@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.41
+- **Richer pictures**: all 17 Here pictures (11 rest stops, village, haven, wonder, delve, lair, generic), the Treehouse, its four dressing layers and the Pal Yard got a polish pass: livelier fires, more story props, textured materials, warmer light and more plants. Same layout, same spots.
+- **Name pills in the Treehouse and Pal Yard**: rooms and job sites now carry the same named pill as the towns and places. Needs 2.5.39.
+
 ## 2.5.40
 - **Homes popover**: the Homes spot on a picture opens a popover with the neighbours' faces and a link to the street of doors.
 - **Verb chips**: the list of places shows what each spot is for (Shop, Talk, Rest, Do, Explore, Enter, Tend, Visit, Eat, Read).

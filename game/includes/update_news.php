@@ -656,6 +656,8 @@ function post_update_news(string $from): void
         "On a rest stop picture, tap [b]Villagers[/b] and the folk standing under the picture are highlighted and brought into view."],
     '2.5.40' => ['🚶 Update 2.5.40: your gnome really walks',
         "[list][*]On the Trail your gnome now faces the way it walks and steps as it goes.\n[*][b]Homes[/b] on a picture opens a popover with your neighbours.\n[*]The list of places says what each spot is for (Shop, Talk, Rest...).[/list]"],
+    '2.5.41' => ['🎨 Update 2.5.41: richer pictures',
+        "[list][*]Every rest stop, village, haven, wonder, delve and lair picture, the Treehouse and the Pal Yard have more life: livelier fires, more things lying about, better light.\n[*]Rooms in the Treehouse and sites in the Pal Yard now have name pills like the towns.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
