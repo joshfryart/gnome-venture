@@ -36,7 +36,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); released 2.5.69, not phone-checked. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
 - Trail ground and landmarks for the other 11 regions (loader exists; art is stand-ins).
 - Shops/Homes popover on non-town stop types; step-off/step-back strip; Lost Letters + landmark panel on World page; gnome walk-frame animation (8 frames, idle only); nav chrome on other picture pages; `balance_sim` for `gnav_enter_energy`.
-- `walk_scene` row deleted when a delve ends, so no delve-completion record.
+- Delve/lair run records: BUILT, UNRELEASED. New table `landmark_runs` (one row per run: cleared / ko / left, level, depth, stages, route seed, picked nodes, start and end), written by `landmark_run_record()` in `save_exp` before the map row is dropped; in `fresh_start` wipe list; test in `tests/delve2.sh`. No page shows it yet (admin or journal view?). `tests/landmarks.sh` fails here with a DB-open error unrelated to this change.
 **Yard / garden**
 - Designer: (corner pick already only for corner-shaped pieces: `isCorner()` guards every `cornerFor()` call in `site.js`, read in code, not tried on a phone); cover squares not recomputed live when a bed moves; planted soil for no-till beds; satchel `satchel_skin` column (canvas/patchwork).
 **Content**

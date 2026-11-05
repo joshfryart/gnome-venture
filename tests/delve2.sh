@@ -113,6 +113,8 @@ chk "all $STG stages cleared (depth = steps_total)" "$([ "$(EDEPTH)" = "$STG" ] 
 logline $EX > $A
 chk "the chest opened and the delve was cleared" "$(grep -q 'Delve cleared' $A && echo 1)"
 chk "a clear is recorded once" "$([ "$(db "SELECT clears FROM landmark_clears WHERE user_id=$SID AND landmark_id=$DID")" = 1 ] && echo 1)"
+chk "a permanent run record is kept (latest run cleared, with its route and picks)" "$([ "$(db "SELECT outcome FROM landmark_runs WHERE user_id=$SID ORDER BY id DESC LIMIT 1")" = cleared ] && [ -n "$(db "SELECT route FROM landmark_runs WHERE user_id=$SID ORDER BY id DESC LIMIT 1")" ] && echo 1)" "$(db "SELECT outcome, route, picks FROM landmark_runs WHERE user_id=$SID")"
+chk "one run record per expedition, one cleared" "$([ "$(db "SELECT COUNT(*) FROM landmark_runs WHERE user_id=$SID AND outcome='cleared'")" = 1 ] && [ "$(db "SELECT COUNT(*) - COUNT(DISTINCT exp_id) FROM landmark_runs")" = 0 ] && echo 1)"
 chk "scene row removed when the delve ends" "$([ "$(SCENES)" = 0 ] && echo 1)"
 chk "log showed the way down" "$WD"
 

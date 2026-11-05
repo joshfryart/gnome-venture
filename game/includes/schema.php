@@ -654,6 +654,23 @@ function schema_statements(string $driver): array
         at DATETIME NOT NULL,
         UNIQUE (user_id, landmark_id, action, day)
     )$END";
+    // v2.5.71: one permanent row per delve or lair run (the walk_scene map is dropped when the run ends; this is what stays)
+    $t[] = "CREATE TABLE IF NOT EXISTS landmark_runs (
+        id $PK,
+        user_id $ID NOT NULL,
+        landmark_id $ID NOT NULL,
+        exp_id $ID NOT NULL,
+        kind VARCHAR(10) NOT NULL,
+        outcome VARCHAR(10) NOT NULL,
+        level INT NOT NULL DEFAULT 1,
+        depth INT NOT NULL DEFAULT 0,
+        stages INT NOT NULL DEFAULT 0,
+        route VARCHAR(40) NULL,
+        picks TEXT NULL,
+        started_at DATETIME NOT NULL,
+        ended_at DATETIME NOT NULL,
+        UNIQUE (exp_id)
+    )$END";
     $t[] = "CREATE TABLE IF NOT EXISTS landmark_clears (
         id $PK,
         user_id $ID NOT NULL,

@@ -487,6 +487,32 @@ function lair_victory(array $u, array &$exp): void
     $exp['status'] = 'done';
 }
 
+/**
+ * v2.5.71: keep a permanent record of a delve or lair run when it ends (cleared / ko / left). Call BEFORE the walk_scene row is dropped, once per
+ * expedition (UNIQUE exp_id makes a second call a no-op). Never throws: a missing table or odd row must not break ending a run.
+ */
+function landmark_run_record(array $exp): void
+{
+    try {
+        $kind = (string)($exp['kind'] ?? '');
+        if (!in_array($kind, ['delve', 'lair'], true) || ($exp['status'] ?? 'active') === 'active') return;
+        $lm = landmark_at((int)$exp['from_id']);
+        if (!$lm) return;
+        $uid = (int)$exp['user_id'];
+        $started = (string)($exp['started_at'] ?? now());
+        $outcome = (string)$exp['status'] === 'ko' ? 'ko' : (q_val('SELECT 1 FROM landmark_clears WHERE user_id = ? AND landmark_id = ? AND last_at >= ?', [$uid, (int)$lm['id'], $started]) ? 'cleared' : 'left');
+        $route = null; $picks = null;
+        if (dm_table_ok() && ($row = q_one('SELECT state FROM walk_scene WHERE exp_id = ? AND user_id = ?', [(int)$exp['id'], $uid]))) {
+            $st = json_decode((string)$row['state'], true);
+            if (is_array($st) && ($st['v'] ?? 0) === 2) { $route = substr((string)($st['rs'] ?? ''), 0, 40); $picks = json_encode($st['pk'] ?? []); }
+        }
+        if (q_val('SELECT 1 FROM landmark_runs WHERE exp_id = ?', [(int)$exp['id']])) return;
+        db_insert('landmark_runs', ['user_id' => $uid, 'landmark_id' => (int)$lm['id'], 'exp_id' => (int)$exp['id'], 'kind' => $kind, 'outcome' => $outcome,
+            'level' => (int)$exp['level'], 'depth' => (int)($exp['depth'] ?? 0), 'stages' => (int)$exp['steps_total'], 'route' => $route, 'picks' => $picks,
+            'started_at' => $started, 'ended_at' => now()]);
+    } catch (Throwable $e) { error_log('landmark_run_record: ' . $e->getMessage()); }
+}
+
 /** Count a delve or lair clear. Returns true the first time. */
 function landmark_record_clear(int $uid, int $lmId): bool
 {

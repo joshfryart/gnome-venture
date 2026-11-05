@@ -272,7 +272,7 @@ function save_exp(array $exp): void
     if (!empty($GLOBALS['gv_hp_full'])) $exp['hp'] = (int)$exp['max_hp'];   // v2.3.5: a level up in this request healed the gnome fully
     q('UPDATE expeditions SET step = ?, hp = ?, encounter = ?, log = ?, status = ?, depth = ?, level = ?, steps_total = ?, trail = ?, chain = ? WHERE id = ?',
         [$exp['step'], $exp['hp'], $exp['encounter'], $exp['log'], $exp['status'], (int)($exp['depth'] ?? 0), (int)$exp['level'], (int)$exp['steps_total'], $exp['trail'] ?? null, ($exp['chain'] ?? '') !== '' ? $exp['chain'] : null, $exp['id']]);
-    if (($exp['status'] ?? 'active') !== 'active' && in_array($exp['kind'] ?? 'walk', ['delve', 'lair'], true)) dm_scene_drop((int)$exp['id']);   // v2.0.6: the map goes when the delve ends
+    if (($exp['status'] ?? 'active') !== 'active' && in_array($exp['kind'] ?? 'walk', ['delve', 'lair'], true)) { landmark_run_record($exp); dm_scene_drop((int)$exp['id']); }   // v2.0.6: the map goes when the delve ends
     if (hp_on() && in_array($exp['kind'] ?? 'walk', ['walk', 'explore', 'delve', 'lair'], true)) hp_store((int)$exp['user_id'], max(1, (int)$exp['hp']), (int)$exp['max_hp'], ($exp['status'] ?? 'active') !== 'active');   // v2.3.5: the health goes home with the gnome
 }
 
