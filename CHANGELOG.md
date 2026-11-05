@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.39
+- **Villagers pill lights up the villagers**: on a rest stop picture, tapping Villagers scrolls to the villagers standing under it and highlights them (if no one is there it opens the Folk tab as before). Needs 2.5.38.
+
 ## 2.5.38
 - **Rest stop folk have their new pixel art**: the villagers of rest stops (20 kinds of animal, 3 looks each) now use the new standing sprites on the Here picture and the new portraits in their panel. Needs 2.5.37.
 
