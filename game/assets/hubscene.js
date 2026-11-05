@@ -97,4 +97,26 @@
     if (link && link.click) { ev.preventDefault(); var dlg = a.closest('dialog.hubpop'); if (dlg && window.gvCloseDlg) gvCloseDlg(dlg); link.click(); }
   });
   document.addEventListener('DOMContentLoaded', function () { document.querySelectorAll('dialog.hubpop[open]').forEach(lazyLoad); });
+
+  /* Routes card: a pin on the little map picks that route's row (opens it, closes the others); the first row starts open */
+  document.addEventListener('click', function (ev) {
+    var pin = ev.target.closest ? ev.target.closest('a.rmpin[data-route]') : null;
+    if (!pin) return;
+    ev.preventDefault();
+    var card = pin.closest('.hubcard');
+    var row = card && card.querySelector('#hroute-' + pin.getAttribute('data-route'));
+    if (!row) return;
+    card.querySelectorAll('details.hroute[open]').forEach(function (d) { if (d !== row) d.removeAttribute('open'); });
+    row.setAttribute('open', '');
+    card.querySelectorAll('a.rmpin.sel').forEach(function (a) { a.classList.remove('sel'); });
+    pin.classList.add('sel');
+    if (row.scrollIntoView) row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
+  document.addEventListener('toggle', function (ev) {   // opening a row by hand moves the ring to its pin
+    var d = ev.target;
+    if (!d.classList || !d.classList.contains('hroute') || !d.open) return;
+    var card = d.closest('.hubcard'); if (!card) return;
+    var id = (d.id || '').replace('hroute-', '');
+    card.querySelectorAll('a.rmpin').forEach(function (a) { a.classList.toggle('sel', a.getAttribute('data-route') === id); });
+  }, true);
 })();

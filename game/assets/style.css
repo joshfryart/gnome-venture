@@ -7289,3 +7289,13 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .hubpop .vpanel .npcid h2 { font-size: 1.05rem; margin: 0; } .hubpop .vpanel .npcid p { margin: 2px 0; font-size: .85rem; }
 .hubpop .vpanel .fondbar small { font-size: .72rem; }
 .hubpop .vpanel .vact { margin: 6px 0; } .hubpop .vpanel .btn { min-height: 44px; }
+
+/* Routes card: the little region map */
+.rmapbox { border: 2px solid var(--line-2); border-radius: 8px; overflow: hidden; margin: 0 0 8px; background: #2a1a10; }
+.rmap { display: block; width: 100%; height: auto; }
+.rmap .rp { fill: #f3e6cf; stroke: #d4a017; stroke-width: 2; } .rmap .rp.q { fill: #3a2c22; stroke-dasharray: 3 2; } .rmap .rp.you { fill: #2a1a10; stroke-width: 3; }
+.rmap .rg { fill: #2a1a10; pointer-events: none; } .rmap .rp.q + .rg, .rmap .rp.you + .rg { fill: #fff; }
+.rmap .rn { fill: #fff; stroke: #2a1a10; stroke-width: 2.2; paint-order: stroke; font-weight: 700; pointer-events: none; }
+.rmap a.rmpin.sel .rp { stroke: #7ee07e; stroke-width: 4; }
+.rmap a.rmpin { cursor: pointer; }
+.hubpop .trows { padding: 0; }

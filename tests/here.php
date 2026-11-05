@@ -222,7 +222,7 @@ if ($withDb) {
     $h = here_view($u, player_node($u));
     $gateView = str_contains($h, 'hubsvg chrome');   // a main town with a gate-view picture has no exits on it: the compass card lists every route
     if ($gateView) {
-        ok('gate view: no exit hotspots on the picture, no circles', substr_count($h, 'id="hs-e') === 0 && !str_contains($h, '<circle'));
+        ok('gate view: no exit hotspots on the picture, no circles', substr_count($h, 'id="hs-e') === 0 && !str_contains(preg_replace('#<svg class="rmap".*?</svg>#s', '', $h), '<circle'));;
         ok('gate view: the compass card holds every route named by its destination, one Set off each', substr_count($h, 'name="route_id"') >= 1 && substr_count($h, 'name="route_id"') <= count($routes), substr_count($h, 'name="route_id"') . ' vs ' . count($routes));
         ok('gate view: compass and globe are there', str_contains($h, 'id="hs-routes"') && str_contains($h, 'id="hs-world"') && str_contains($h, 'hubpop-routes') && str_contains($h, 'Open region map'));
         ok('gate view: named pills on the picture, none overlapping', substr_count($h, '<g class="pill">') >= 5 && (function () use ($h) { preg_match_all('/<g class="pill"><rect x="(-?\d+)" y="(-?\d+)" width="(\d+)"/', $h, $m); $r = []; foreach ($m[1] as $i => $x) $r[] = [(int)$x, (int)$m[2][$i], (int)$m[3][$i]]; foreach ($r as $i => $a) foreach ($r as $j => $b) if ($i < $j && $a[0] < $b[0] + $b[2] && $b[0] < $a[0] + $a[2] && $a[1] < $b[1] + 16 && $b[1] < $a[1] + 16) return false; return true; })());

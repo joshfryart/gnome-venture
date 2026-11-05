@@ -139,7 +139,7 @@ function here_route_info(array $u, array $r, int $goalRoute, string $back): arra
         if ($goal) $body .= '<p>🧭 This is the next leg of your route.</p>';
         $body .= here_form('adventure.php', ['do' => 'start', 'route_id' => $rid], '▶ Set off' . ($cost ? ' (⚡' . $cost . ')' : ' (free)'));
     }
-    return ['name' => $name, 'label' => $label, 'chip' => $chip, 'cls' => $cls, 'emoji' => $isRoad ? '🛣️' : '🌿', 'card' => $body, 'goal' => $goal, 'road' => $isRoad, 'cost' => $cost, 'steps' => (int)$r['steps'],
+    return ['rid' => $rid, 'to_id' => (int)$to['id'], 'name' => $name, 'label' => $label, 'chip' => $chip, 'cls' => $cls, 'emoji' => $isRoad ? '🛣️' : '🌿', 'card' => $body, 'goal' => $goal, 'road' => $isRoad, 'cost' => $cost, 'steps' => (int)$r['steps'],
             'locked' => $lock !== null || $ruin || $shift];
 }
 
@@ -151,6 +151,58 @@ function here_goal_route(array $u): int
         return (int)($plan['path'][0]['id'] ?? 0);
     }
     return 0;
+}
+
+/**
+ * A small graphical map for the Routes card: the region's own picture, cropped to where you stand and the places the ways out lead to, with the
+ * roads between them and a tappable pin per route (hubscene.js opens that route's row; the pin and the row stay in step). Places you have not
+ * visited are "?". Returns '' when the region has no layout or none of the destinations has a slot there (then the rows are all there is).
+ */
+function here_routes_map(array $u, array $node, array $infos): string
+{
+    require_once __DIR__ . '/region_layout.php';
+    require_once __DIR__ . '/scene.php';
+    $rid = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [(int)$node['id']]);
+    $code = (string)q_val('SELECT code FROM regions WHERE id = ?', [$rid]);
+    if ($code === '' || !isset(REGION_MAP[$code])) return '';
+    $L = region_layout($code);
+    if (!$L || empty($L['slots'][(int)$node['id']])) return '';
+    $S = $L['slots'];
+    $here = $S[(int)$node['id']];
+    $pins = [];
+    foreach ($infos as $i) if (isset($S[$i['to_id']])) $pins[] = ['i' => $i, 's' => $S[$i['to_id']]];
+    if (!$pins) return '';
+    $x0 = $x1 = (float)$here['x']; $y0 = $y1 = (float)$here['y'];
+    foreach ($pins as $p) { $x0 = min($x0, (float)$p['s']['x']); $x1 = max($x1, (float)$p['s']['x']); $y0 = min($y0, (float)$p['s']['y']); $y1 = max($y1, (float)$p['s']['y']); }
+    $W = (int)$L['w']; $H = (int)$L['h'];
+    $w = max(150.0, ($x1 - $x0) + 90); $h = max($w * 9 / 16, ($y1 - $y0) + 70); $w = max($w, $h * 16 / 9);   // 16:9, room for the labels
+    $cx = ($x0 + $x1) / 2; $cy = ($y0 + $y1) / 2;
+    $vx = max(0.0, min($W - $w, $cx - $w / 2)); $vy = max(0.0, min($H - $h, $cy - $h / 2));
+    if ($w > $W) { $w = (float)$W; $vx = 0.0; } if ($h > $H) { $h = (float)$H; $vy = 0.0; }
+    $art = scene_path('map', $code);
+    $svg = '<svg class="rmap" viewBox="' . round($vx) . ' ' . round($vy) . ' ' . round($w) . ' ' . round($h) . '" role="group" aria-label="Map of the ways out of ' . e((string)$node['name']) . '">';
+    $svg .= $art !== '' ? '<image class="mapart" href="' . e(url($art)) . '" x="0" y="0" width="' . $W . '" height="' . $H . '" preserveAspectRatio="none" image-rendering="pixelated"/>' : '<rect x="0" y="0" width="' . $W . '" height="' . $H . '" fill="#cfe6e0"/>';
+    foreach ($L['roads'] as $rd) {   // the roads in view
+        $list = $rd['nodes'];
+        for ($k = 1; $k < count($list); $k++) {
+            $a = $S[$list[$k - 1]] ?? null; $b = $S[$list[$k]] ?? null;
+            if (!$a || !$b) continue;
+            $d = 'M' . (int)$a['x'] . ' ' . (int)$a['y'] . ' L' . (int)$b['x'] . ' ' . (int)$b['y'];
+            $svg .= '<path d="' . $d . '" stroke="#2a1a10" stroke-width="7" stroke-linecap="round" fill="none"/><path d="' . $d . '" stroke="#f3e6cf" stroke-width="3" stroke-dasharray="6 5" stroke-linecap="round" fill="none"/>';
+        }
+    }
+    $r = max(8.0, $w / 17);   // a pin is about 38 px wide on a phone
+    $pin = function (float $x, float $y, string $inner, string $cls, string $name) use ($r): string {
+        return '<circle class="rp ' . $cls . '" cx="' . round($x) . '" cy="' . round($y) . '" r="' . round($r) . '"/><text class="rg" x="' . round($x) . '" y="' . round($y + $r * 0.38) . '" text-anchor="middle" font-size="' . round($r * 1.15) . '">' . $inner . '</text>'
+            . ($name !== '' ? '<text class="rn" x="' . round($x) . '" y="' . round($y + $r * 1.9) . '" text-anchor="middle" font-size="' . round($r * 0.75) . '">' . e($name) . '</text>' : '');
+    };
+    foreach ($pins as $k => $p) {
+        $unk = $p['i']['name'] === '???' || $p['i']['name'] === '';
+        $svg .= '<a class="rmpin' . ($k === 0 ? ' sel' : '') . '" href="' . e(url('here.php?o=routes#hroute-' . (int)$p['i']['rid'])) . '" data-route="' . (int)$p['i']['rid'] . '" aria-label="' . e($unk ? 'An unvisited place' : $p['i']['name']) . '">'
+            . $pin((float)$p['s']['x'], (float)$p['s']['y'], $unk ? '?' : e($p['i']['emoji'] ?? '📍'), $unk ? 'q' : '', $unk ? '' : $p['i']['name']) . '</a>';
+    }
+    $svg .= '<g class="rmyou">' . $pin((float)$here['x'], (float)$here['y'], '🎩', 'you', 'You are here') . '</g></svg>';
+    return '<div class="rmapbox">' . $svg . '</div>';
 }
 
 /**
@@ -170,9 +222,11 @@ function here_routes_card(array $u, array $node, string $back): string
         $rows[] = [$i['goal'] ? 0 : 1, (int)$r['steps'], $i];
     }
     usort($rows, fn($a, $b) => [$a[0], $a[1]] <=> [$b[0], $b[1]]);
-    $h = '<p class="muted">Where to next? One tap travels.</p><ul class="trows">';
+    $h = here_routes_map($u, $node, array_map(fn($r) => $r[2], $rows)) . '<p class="muted">Tap a place on the map, or a row. One tap travels.</p><ul class="trows">';
+    $first = true;
     foreach ($rows as [, , $i]) {
-        $h .= '<li class="trow"><details class="hroute' . ($i['cls'] !== '' ? ' ' . e($i['cls']) : '') . '"' . ($i['goal'] ? ' open' : '') . '><summary><b>' . e($i['name']) . '</b> <span class="muted">' . e($i['chip']) . '</span></summary>' . $i['card'] . '</details></li>';
+        $h .= '<li class="trow"><details id="hroute-' . (int)$i['rid'] . '" class="hroute' . ($i['cls'] !== '' ? ' ' . e($i['cls']) : '') . '"' . ($first ? ' open' : '') . '><summary><b>' . e($i['name']) . '</b> <span class="muted">' . e($i['chip']) . '</span></summary>' . $i['card'] . '</details></li>';
+        $first = false;
     }
     return $h . '</ul>';
 }

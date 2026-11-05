@@ -14,7 +14,7 @@ $u = require_login();
 $uid = (int)$u['id'];
 if (!gnav_on() && !is_admin()) redirect('town.php');
 refresh_energy($u);
-if (active_expedition($uid)) { flash('You’re still on the road.', 'err'); redirect('adventure.php'); }
+if (active_expedition($uid)) redirect('adventure.php');   // the walk is the Here page now (Here tab lit): no message
 $node = player_node($u);
 $open = preg_match('/^[A-Za-z0-9_-]{1,40}$/', (string)($_GET['o'] ?? '')) ? (string)$_GET['o'] : '';
 $debug = is_admin() && !empty($_GET['debug']);
