@@ -1060,6 +1060,9 @@ a.rend:hover b { text-decoration: underline; }
   background-image: linear-gradient(rgba(0, 0, 0, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, .06) 1px, transparent 1px), url(img/ph/tile-turf-big.png); background-size: var(--cell) var(--cell), var(--cell) var(--cell), calc(var(--cell) * 4) calc(var(--cell) * 4); image-rendering: pixelated; }   /* v2.5.43: the yard's ground is the turf the untilled squares share */
 .yard .tile { width: auto; height: auto; margin: 2px; font-size: calc(var(--cell) * .48); }
 .yard .tile .grade { font-size: 8px; line-height: 12px; }
+.yard .tile.planted { background: url(img/ph/tile-soil-planted.png) center / 100% 100% no-repeat; image-rendering: pixelated; }   /* v2.5.45: soil states have their own pictures (tools/bake_soil_art.py) */
+.yard .tile.planted.thirsty { background-image: url(img/ph/tile-soil-thirsty.png); }
+.yard .tile.planted.ready { background-image: url(img/ph/tile-soil-ready.png); }
 .yard .tile.wild:not(.nt) { margin: 0; border: 0; background: transparent; box-shadow: none; }   /* v2.5.43: untilled squares melt into the turf; a faint line keeps them tappable */
 .yard .tile.wild.sel:not(.nt) { box-shadow: none; }
 .yard .tile.wild::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 0 1px rgba(40, 70, 30, .22); pointer-events: none; }

@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.5.45
+- **Soil states have their own art**: a planted bed shows damp, dark soil; a thirsty bed shows pale, dusty, cracked soil; a ripe bed shows warm golden soil with a few sparkles. They replace the flat brown squares behind the crops. New `tools/bake_soil_art.py` (`ph/tile-soil-planted.png`, `-thirsty.png`, `-ready.png`).
 ## 2.5.44
 - **Untilled ground has many coverings**: each untilled square is lawn, clover, wildflowers, weeds, dry grass, leaf litter, moss or bare dirt, picked from where the bed is (so it never changes). Squares with the same covering next to each other join into a patch with a ragged lit-and-shaded edge, like the paths and the Trail ground. Replaces the six look-alike tiles of 2.5.43. New `tools/bake_cover_art.py` (335 pictures in `assets/img/cover/`).
 - **A bigger, calmer yard turf**: the grass behind everything is one 256 px picture (four squares wide) instead of a 64 px one, so it no longer repeats square after square.

@@ -664,6 +664,8 @@ function post_update_news(string $from): void
         "[list][*]Paths now blend into the grass and into each other, with proper corners and junctions.\n[*]Untilled ground is soft turf with six different looks.\n[*]Crops are bigger in their beds, and a ripe crop shows its own picture: cabbages look like cabbages.[/list]"],
     '2.5.44' => ['🌱 Update 2.5.44: ground with character',
         "Untilled ground is now a mix of lawn, clover, wildflowers, weeds, dry grass, leaf litter, moss and bare dirt, blending into patches. The grass behind your yard is bigger and no longer repeats."],
+    '2.5.45' => ['🪴 Update 2.5.45: beds that show how they feel',
+        "A growing bed has damp dark soil, a thirsty one turns pale and cracked, and a ripe one glows golden. You can read your garden at a glance."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
