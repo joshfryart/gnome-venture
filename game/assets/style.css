@@ -7249,6 +7249,9 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .hubnavcap { font-size: .72rem; font-weight: 700; color: var(--muted); text-align: center; }
 .hubnavbtn.round { width: 48px; height: 48px; border-radius: 50%; border-color: #d4a017; }
 .hubfold { margin: 10px 0 0; text-align: center; } .hubfold summary { cursor: pointer; color: var(--muted); font-size: .85rem; } .hubfold .hubleg { justify-content: center; }
+/* v2.5.41: the Treehouse and Pal Yard lists are an even grid of equal chips, not ragged rows */
+.hubleg.tidy { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: 8px; margin-top: 10px; }
+.hubleg.tidy .hubchip { width: 100%; box-sizing: border-box; justify-content: center; text-align: center; }
 /* centre things: title, clock, breadcrumbs, picture block, street names, popover heads, actions */
 .herepage h1, .herepage .hereinfo, .herepage .crumbs { text-align: center; }
 .hubpop .pickhead h3 { text-align: center; flex: 1; margin: 0; }
