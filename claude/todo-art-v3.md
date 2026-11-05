@@ -1,6 +1,6 @@
 # Art to-do after the v3 rollout (2026-11-04). Method for ALL of it: Sonnet at medium effort.
 
-Done: 1,662 items/icons at 64x64 (runs 1-4), live in 2.4.98 (see CHANGELOG). Source, scripts and state: `aseprite-source/v3/` (read `HANDOFF.md` first, then `ROLLOUT-STATE.md`). Style: `aseprite-source/art-style-guide-v3.md`.
+Done: 1,662 items/icons at 64x64 (runs 1-4), live in 2.4.98; 2.5.48 added the 35 pictures from `v3/items/batch1` and `batch2` that had never been exported (Ginseng Seed still not: the leaf reads as cannabis, fix it first). See CHANGELOG. Source, scripts and state: `aseprite-source/v3/` (read `HANDOFF.md` first, then `ROLLOUT-STATE.md`). Style: `aseprite-source/art-style-guide-v3.md`.
 
 ## How to run it (cheapest known path, measured)
 - Seeds: `rollout/items-seed.js` (hybrid, params only for `items/seedgen/seedgen.lua`, ~10k tokens per seed, low/medium effort, groups of 12).
