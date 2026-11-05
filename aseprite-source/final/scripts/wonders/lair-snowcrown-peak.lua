@@ -59,7 +59,7 @@ local function height(x, y)
   for si, s in ipairs(SPURS) do
     for i = 2, #s do
       local d = segd(x, y, s[i - 1][1], s[i - 1][2], s[i][1], s[i][2])
-      d = d + (hash(floor(x / 3) + si, floor(y / 2), 11) - 0.5) * 2.6   -- crags
+      d = d + (hash(floor(x / 4) + si, floor(y / 3), 11) - 0.5) * 1.8   -- crags
       local hv = 40 - d - y * 0.08 * (si > 3 and 1.4 or 1)
       if hv > best then best = hv end
     end
@@ -77,7 +77,7 @@ for x = 0, W - 1 do
     inM[k] = true
     local g = height(x + 1, y) - height(x - 1, y)                      -- >0: rises to the east, the face looks west into the sun
     local gy = height(x, y + 1) - height(x, y - 1)
-    local L = g * 0.9 - gy * 0.25 + (hash(x, y, 5) - 0.5) * 0.35
+    local L = g * 1.1 - gy * 0.2 + (hash(floor(x / 2), y, 5) - 0.5) * 0.18
     local t = L > 0.9 and 5 or (L > 0.2 and 4 or (L > -0.5 and 3 or (L > -1.2 and 2 or 1)))
     -- snow: the crown, plus fingers down the gullies and along the spur crests
     local sl = snowline(x)
@@ -89,8 +89,8 @@ for x = 0, W - 1 do
     else
       -- rock strata: tilted bands, broken here and there
       local band = (y + x * 0.22 + 2 * sin(x * 0.09)) % 7
-      if band < 1 and hash(floor(x / 4), floor(y / 7), 13) > 0.2 then t = max(1, t - 1)
-      elseif band >= 1 and band < 2 and t >= 3 and hash(floor(x / 3), floor(y / 7), 14) > 0.5 then t = min(6, t + 1) end
+      if band < 1 and hash(floor(x / 5), floor(y / 7), 13) > 0.12 then t = max(1, t - 1)
+      elseif band >= 1 and band < 2 and t >= 3 and hash(floor(x / 5), floor(y / 7), 14) > 0.3 then t = min(6, t + 1) end
       if y > 84 then t = max(1, t - ((y > 94) and 2 or 1)) end            -- the foot sinks into haze/shadow
       tone[k] = t
     end
