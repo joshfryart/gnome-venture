@@ -367,7 +367,7 @@ function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '',
     return $h . '</div>';
 }
 
-/** v2.5.57: the monthly upkeep box of a fully built stop: what this month still needs, a hand-in for any gnome with the stamp. */
+/** v2.5.57: the monthly upkeep box of a fully built stop: what this month still needs, a hand-in for any gnome. */
 function stop_slim_upkeep(array $u, array $node, array $a, callable $form, bool $here): string
 {
     $needs = stop_upkeep_needs($node);
@@ -381,10 +381,10 @@ function stop_slim_upkeep(array $u, array $node, array $a, callable $form, bool 
         foreach ($needs as [$k, $q]) {
             $given = min($q, (int)($pool[$k] ?? 0)); $left = $q - $given; $have = stop_need_have($u, $k);
             $h .= '<li class="' . ($left <= 0 ? 'good' : '') . '"><span>' . ($left <= 0 ? '✅ ' : '') . e(stop_need_label($k)) . ' <b>' . $given . '/' . $q . '</b> <small class="muted">· you have ' . number_format($have) . '</small></span>';
-            if ($left > 0 && $here) $h .= $form('local', '_upkeep', '<input type="hidden" name="need" value="' . e($k) . '"><input type="number" name="qty" min="1" max="' . $left . '" value="' . max(1, min($left, $have)) . '" aria-label="How many"> <button class="btn small"' . ($have < 1 ? ' disabled' : '') . '>Chip in</button>');
+            if ($left > 0) $h .= $form('local', '_upkeep', '<input type="hidden" name="need" value="' . e($k) . '"><input type="number" name="qty" min="1" max="' . $left . '" value="' . max(1, min($left, $have)) . '" aria-label="How many"> <button class="btn small"' . ($have < 1 ? ' disabled' : '') . '>Chip in</button>');
             $h .= '</li>';
         }
-        $h .= '</ul>' . ($here ? '' : '<p class="muted">Collect this stop’s stamp to chip in.</p>');
+        $h .= '</ul>';
     }
     return $h;
 }

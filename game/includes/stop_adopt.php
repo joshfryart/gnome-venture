@@ -118,11 +118,10 @@ function stop_upkeep_settle(array $a): bool
     return true;
 }
 
-/** Hand in some of this month's upkeep: any gnome who has this stop's stamp. */
+/** Hand in some of this month's upkeep: any gnome (no stamp needed). */
 function stop_upkeep_give(array $u, array $loc, string $key, int $qty): array
 {
     $uid = (int)$u['id'];
-    if (!q_val('SELECT 1 FROM stop_stamps WHERE user_id = ? AND location_id = ?', [$uid, (int)$loc['id']])) return [false, 'Visit the stop first and collect its stamp.'];
     $a = stop_adoption((int)$loc['id']);
     if (!$a || (int)$a['tier'] < stop_top_tier() || stop_top_tier() < 1) return [false, 'This stop does not need upkeep.'];
     $aid = (int)$a['id'];

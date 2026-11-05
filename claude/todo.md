@@ -32,7 +32,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 ## 4. CODE: open
 **Trail / Here**
 - Tile walks Sneak/Hunt buttons released 2.5.70: stance on the trail footer, Sneak = 40% fight chance, Hunt = 250% and up to 3 fights a section; tap again to go back to normal. Josh to confirm numbers; `balance_sim.php` Walks not updated for stances.
-- Upkeep CHECKED 2.5.70: matches Josh's rule (`stop_adopt.php`: any gnome with the stop's stamp can hand in, nothing is owed, an unpaid UTC month drops one tier). No change needed. Only open question: hand-in needs the stamp (Josh: fine, or let anyone chip in?).
+- Upkeep: stamp requirement removed (any gnome can chip in; `stop_upkeep_give`, `stop_slim_upkeep`); UNRELEASED (branch only), no test covers upkeep, not tried live.
 - Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); released 2.5.69, not phone-checked. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
 - Trail ground and landmarks for the other 11 regions (loader exists; art is stand-ins).
 - Shops/Homes popover on non-town stop types; step-off/step-back strip; Lost Letters + landmark panel on World page; gnome walk-frame animation (8 frames, idle only); nav chrome on other picture pages; `balance_sim` for `gnav_enter_energy`.
