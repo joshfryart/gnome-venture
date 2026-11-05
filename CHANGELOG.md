@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2.5.50
+- **Numbering note:** the gather layers below first went live in a slim zip that was called 2.5.49 (built before the merge). The 2.5.49 code work listed under the next heading (yard, Here, pal jobs, Trek and so on) was NOT in that zip: it arrives with 2.5.50, together with everything else.
 - **Gather scene redrawn for all nine landscapes** (coast, mountain, forest, desert, rainforest, grassland, wetland, tundra, island) on a new organic pixel engine (`aseprite-source/v3/gather/gx.lua`): noisy shapes, per-pixel light, bark and leaf texture, one small quirk each. The satchel is no longer painted into the scene: it is two layers (back behind the find, front over it) with three skins, **leather** (default), **canvas** and **patchwork**. There is no satchel item yet; a later `satchel_skin` on the gnome picks the skin.
 - **Time of day**: the scene and satchel come in day, dusk (and dawn) and night versions by the Hollow hour (7-16 day, 5-6 and 17-19 dusk, otherwise night), made by `grade.py` from the day art.
 - **Weather**: rain, storm, frost, wind, fog and cloud overlays on the scene by the Hollow weather (sun and heat draw nothing). Made by `weather_overlays.py`.
