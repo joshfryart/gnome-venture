@@ -340,20 +340,39 @@ function stop_perk_data(array $u, array $node): array
     return [stop_perks($uid, $lid), $meters];
 }
 
-/** The inside of the perk list (name, perks, meters), or '' when there is nothing to show. */
+/** The inside of the perk list (name, perks, meter tiles and the acts that fill the picked meter), or '' when there is nothing to show. Tiles are radio + label: no script needed. */
 function stop_perk_body(array $u, array $node): string
 {
     [$perks, $meters] = stop_perk_data($u, $node);
     if (!$perks && !$meters) return '';
-    $h = '<p><b>' . e((string)$node['name']) . '</b></p><h4>Perks</h4>';
+    $acts = [];   // meter => [[icon, name, amount], ...]: the acts on offer here now that raise it
+    foreach (stop_pool($node, null, (int)$u['id'])['offer'] as $a) {
+        if (empty($a['slug']) || empty($a['name'])) continue;
+        foreach (stop_act_moves($a) as [$m, $amt]) if ($amt > 0) $acts[$m][] = [(string)($a['icon'] ?? ''), (string)$a['name'], $amt];
+    }
+    $first = array_key_first($meters) ?? array_key_first(STOP_METERS);
+    $id = 'pkm' . (int)$node['id'];
+    $h = '<p><b>' . e((string)$node['name']) . '</b> <small class="muted">· ' . count($perks) . ' perk' . (count($perks) === 1 ? '' : 's') . '</small></p><h4>Perks</h4>';
     if ($perks) {
         $h .= '<ul>';
         foreach ($perks as $m => $until) $h .= '<li>' . STOP_METERS[$m][0] . ' ' . e(STOP_METERS[$m][1]) . ' is full: one more thing to do here <small class="muted">until ' . e(date('j M', strtotime($until))) . '</small></li>';
         $h .= '</ul>';
     } else $h .= '<p class="muted">None yet. Fill a bar to earn one.</p>';
-    $h .= '<h4>Meters</h4><ul>';
-    foreach (STOP_METERS as $k => [$ico, $lab]) $h .= '<li>' . $ico . ' ' . e($lab) . ' <meter min="0" max="100" value="' . ($meters[$k] ?? 0) . '">' . ($meters[$k] ?? 0) . '%</meter></li>';
-    return $h . '</ul>';
+    $h .= '<h4>Meters</h4><div class="pkc">';
+    foreach (STOP_METERS as $k => $m) $h .= '<input type="radio" class="pkr" name="' . $id . '" id="' . $id . $k . '"' . ($k === $first ? ' checked' : '') . '>';
+    $h .= '<div class="pktiles">';
+    foreach (STOP_METERS as $k => [$ico, $lab]) {
+        $v = (int)($meters[$k] ?? 0);
+        $h .= '<label class="pktile" for="' . $id . $k . '" data-m="' . $k . '"><span class="pkring pkp' . (int)(round($v / 5) * 5) . '"><span>' . $ico . '</span></span>' . e($lab) . '<small>' . $v . '%</small></label>';
+    }
+    $h .= '</div>';
+    foreach (STOP_METERS as $k => [$ico, $lab]) {
+        $h .= '<div class="pkacts" data-m="' . $k . '"><small class="muted">Acts here that raise ' . $ico . ' ' . e($lab) . '</small>';
+        if (!empty($acts[$k])) foreach ($acts[$k] as [$ai, $an, $amt]) $h .= '<div class="pkact"><span>' . e($ai . ' ' . $an) . '</span><em>+' . $amt . '%</em></div>';
+        else $h .= '<p class="muted">Nothing on offer here today. Check back tomorrow.</p>';
+        $h .= '</div>';
+    }
+    return $h . '</div><p class="muted"><small>Full bar = a perk. Meters fade slowly, about a month to empty.</small></p>';
 }
 
 /** The round Perks button for the row under the picture (next to World) as a hub_navbar "extra" entry, or null when there is nothing to show. */

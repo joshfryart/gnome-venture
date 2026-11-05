@@ -50,7 +50,7 @@ ok('a new meter starts at 0', stop_meter_get($lu, $lid, 'repairs') === 0);
 [$v] = stop_meter_add($lu, $lid, 'repairs', 25);
 ok('a meter moves', $v === 25 && stop_meter_get($lu, $lid, 'repairs') === 25);
 stop_prog_set($lu, $lid, 'meter:repairs', 50, ['d' => gmdate('Y-m-d', strtotime(today() . ' 12:00:00 UTC -3 days'))]);
-ok('a meter drains with the days (3 days, 6 a day)', stop_meter_get($lu, $lid, 'repairs') === 32, (string)stop_meter_get($lu, $lid, 'repairs'));
+ok('a meter drains with the days (3 days, ' . STOP_METER_DECAY . ' a day)', stop_meter_get($lu, $lid, 'repairs') === 50 - 3 * STOP_METER_DECAY, (string)stop_meter_get($lu, $lid, 'repairs'));
 ok('no perk yet, so no extra slot', stop_perk_bonus($lu, $lid) === 0 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc));
 [$v, $filled] = stop_meter_add($lu, $lid, 'cheer', 120);
 ok('a full meter fills, restarts, and gives a perk', $filled === 'cheer' && $v === STOP_METER_AFTER && isset(stop_perks($lu, $lid)['cheer']));

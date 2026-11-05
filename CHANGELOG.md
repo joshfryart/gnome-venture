@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.75
+- **Perks card redone**: the three meters are now ring tiles (Repairs, Larder, Cheer) with their percent; tap one to see the acts on offer here that raise it and by how much. Works without script.
+- **Slower meters**: meters fade 3 a day instead of 6 (about a month to empty on a full bar), and a perk lasts 7 days instead of 3, so a big map is playable without revisiting every stop.
+
 ## 2.5.74
 - **Perks button**: a round medal button next to World in the row under the Here picture once acts at a stop have moved a meter or a perk runs; it opens a card listing the perks (with end dates) and the three meters. The plain stop page has a small circle by the 🌍 in its trail that opens the same list.
 

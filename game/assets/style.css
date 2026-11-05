@@ -7431,3 +7431,22 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 
 /* v2.5.63: no tiny dots over the trail map when tapping to move: the reachable-tile dots, the path-preview dots and the footprints are hidden (the end ring and the tile highlight stay) */
 .tilemap .tmt.reach::after, .tilemap .tmpv .tmpv-dot, .tilemap .tmfeet { display: none; }
+
+/* v2.5.75: perk card: meter tiles (radio + label, no script) and the acts that fill the picked one */
+.pkc .pkr { position: absolute; opacity: 0; pointer-events: none; }
+.pktiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pktile { display: block; text-align: center; padding: 6px 2px; border: 2px solid var(--ol); background: var(--surface); cursor: pointer; font-size: 0.9em; }
+.pktile small { display: block; color: var(--muted, inherit); }
+.pkring { --p: 0; --c: var(--accent); width: 54px; height: 54px; border-radius: 50%; margin: 2px auto 4px; display: grid; place-items: center; font-size: 1.4em; background: conic-gradient(var(--c) calc(var(--p) * 1%), var(--accent-soft) 0); }
+.pkring > span { width: 42px; height: 42px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; }
+.pktile[data-m=repairs] .pkring { --c: #e0884a; } .pktile[data-m=larder] .pkring { --c: #7fb85a; } .pktile[data-m=cheer] .pkring { --c: #e0566e; }
+.pkacts { display: none; margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--ol); }
+.pkact { display: flex; justify-content: space-between; gap: 8px; padding: 4px 8px; margin: 4px 0; background: var(--accent-soft); }
+.pkact em { font-style: normal; font-weight: bold; color: var(--good, #4a8); white-space: nowrap; }
+.pkr[id$=repairs]:checked ~ .pktiles .pktile[data-m=repairs] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.pkr[id$=repairs]:checked ~ .pkacts[data-m=repairs] { display: block; }
+.pkr[id$=larder]:checked ~ .pktiles .pktile[data-m=larder] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.pkr[id$=larder]:checked ~ .pkacts[data-m=larder] { display: block; }
+.pkr[id$=cheer]:checked ~ .pktiles .pktile[data-m=cheer] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.pkr[id$=cheer]:checked ~ .pkacts[data-m=cheer] { display: block; }
+.pkp0 { --p: 0; } .pkp5 { --p: 5; } .pkp10 { --p: 10; } .pkp15 { --p: 15; } .pkp20 { --p: 20; } .pkp25 { --p: 25; } .pkp30 { --p: 30; } .pkp35 { --p: 35; } .pkp40 { --p: 40; } .pkp45 { --p: 45; } .pkp50 { --p: 50; } .pkp55 { --p: 55; } .pkp60 { --p: 60; } .pkp65 { --p: 65; } .pkp70 { --p: 70; } .pkp75 { --p: 75; } .pkp80 { --p: 80; } .pkp85 { --p: 85; } .pkp90 { --p: 90; } .pkp95 { --p: 95; } .pkp100 { --p: 100; } 
