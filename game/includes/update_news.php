@@ -648,6 +648,8 @@ function post_update_news(string $from): void
         "On a rest stop's picture, each spot to do something is now named for the thing itself, with its icon. What you see changes with the weather, season and time of day. Tap one to do it right there."],
     '2.5.36' => ['🐭 Update 2.5.36: rest stop folk are on the picture',
         "The villagers of rest stops like Honeybrook now stand under the Here picture. Tap one to chat, give a gift or take an errand without leaving the page."],
+    '2.5.37' => ['🌲 Update 2.5.37: new-look Maplewold trails',
+        "The Maplewold's walks now have hand-made maps with new pixel art: blended ground, trees and rocks you walk behind, and a find spot for every land. Fights are no longer on the map: they can jump out as you walk, most often in the rough grass. Only a delve's miniboss and a lair's boss wait in one place."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

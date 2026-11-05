@@ -7321,3 +7321,8 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .youpill a { display: inline-block; padding: 5px 14px; border-radius: 16px; border: 2px solid #d4a017; background: #1d120b; color: #fff; text-decoration: none; font-weight: 700; }
 .hubnavbtn.round { cursor: pointer; }
 button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
+
+/* Trail tiles, Hearth Pop v3 look (includes/trail_art.php): pixel art stays crisp when the css scales it */
+.tilemap .tmbg.tpix { image-rendering: pixelated; }
+.tilemap .tmbg.tpix image { image-rendering: pixelated; }
+.tmcap { text-align: center; margin: 6px 12px 0; font-size: 14px; font-style: italic; color: var(--muted); text-wrap: balance; }

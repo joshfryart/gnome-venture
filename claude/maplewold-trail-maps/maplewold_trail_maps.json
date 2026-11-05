@@ -1,0 +1,985 @@
+[
+ {
+  "route_id": 228,
+  "from": "The Maplewold Market",
+  "to": "Poppyburrow",
+  "land": "grassland",
+  "sections": [
+   {
+    "feature": "the scarecrow field",
+    "caption": "A scarecrow in a field of fence posts. He looks very pleased with himself.",
+    "rows": [
+     "###########",
+     "#..,..#F..#",
+     "#.##.,.,..9",
+     "S..#.#.#..#",
+     "#,..,.,.,.#",
+     "#.,..#....#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      7,
+      1,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the stepping-stone ford",
+    "caption": "A shallow ford, stepping stones worn smooth by a thousand small boots.",
+    "rows": [
+     "###########",
+     "#..,.#.,..#",
+     "..,..#.,F.#",
+     "#.,#....,.#",
+     "#....,.,..9",
+     "#.,.##,...#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      8,
+      2,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the lone apple tree",
+    "caption": "One apple tree in a ring of clover. The apples are not for you. Probably.",
+    "rows": [
+     "###########",
+     "#.,.,.#,..#",
+     "#..F....,.#",
+     "#,.#.#,...9",
+     ".....,....#",
+     "#,.,...#.,#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      3,
+      2,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 232,
+  "from": "The Maplewold Market",
+  "to": "Honeybrook",
+  "land": "grassland",
+  "sections": [
+   {
+    "feature": "the beehive meadow",
+    "caption": "Humming from every direction. The bees have a no-visitors sign they can't spell.",
+    "rows": [
+     "###########",
+     "#.,.,.#...#",
+     "S...,..F..#",
+     "#.#.##.#,.#",
+     "#....,.,..9",
+     "#,.....,,.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      7,
+      2,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the hollow log bridge",
+    "caption": "A fallen log, mossy and wide enough for two gnomes who like each other.",
+    "rows": [
+     "###########",
+     "#..,.##,..#",
+     "#,.,..,...9",
+     "#..F.##.,.#",
+     ".,...##,..#",
+     "#.,.,##...#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      3,
+      3,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the clover crossroads",
+    "caption": "A signpost with four arrows, all of them pointing at lunch.",
+    "rows": [
+     "###########",
+     "#.,..#..,.#",
+     "...,....F.#",
+     "#.#.,#,..,9",
+     "#,..,.,.,.#",
+     "#...##..,.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      8,
+      2,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 236,
+  "from": "The Maplewold Market",
+  "to": "Cloverholt",
+  "land": "grassland",
+  "sections": [
+   {
+    "feature": "the wildflower slope",
+    "caption": "Wildflowers up to your knees, all nodding hello.",
+    "rows": [
+     "###########",
+     "#.,.#.,..,#",
+     "#..,.,.#..9",
+     "#.#.F.,.,.#",
+     "S,.,..#...#",
+     "#..,.,..,.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      4,
+      3,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the little stone bridge",
+    "caption": "A stone bridge over a trickle you could step over. The bridge insists.",
+    "rows": [
+     "###########",
+     "#.,..,.,..#",
+     ".,.F...,..#",
+     "#####..####",
+     "#,.,...,..9",
+     "#..,.,.#..#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      3,
+      2,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the windmill",
+    "caption": "A windmill with its sails going round, grinding nothing at all.",
+    "rows": [
+     "###########",
+     "#.,.,..,..#",
+     "#.,.###,..#",
+     "#..,#.#.,.9",
+     "...,.,..,.#",
+     "#.F,..,...#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      2,
+      5,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 304,
+  "from": "Poppyburrow",
+  "to": "Acornby",
+  "land": "forest",
+  "sections": [
+   {
+    "feature": "the oak-root arch",
+    "caption": "Roots arch overhead like a doorway someone grew on purpose.",
+    "rows": [
+     "###########",
+     "#,..#,..#.#",
+     "S..,.,#.F.#",
+     "#.#.#...,.#",
+     "#.,.,.#.#.#",
+     "#.....,..,9",
+     "###########"
+    ],
+    "tokens": [
+     [
+      8,
+      2,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the acorn drop",
+    "caption": "Acorns plink down at random. Wear a hat, or don't, they're only small.",
+    "rows": [
+     "###########",
+     "#..,#,..,.#",
+     "#.#.,.#..,9",
+     "#.,.#F..#.#",
+     "#.#.,.#.,.#",
+     ".,.,.,#...#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      5,
+      3,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 305,
+  "from": "Honeybrook",
+  "to": "Birchhollow",
+  "land": "forest",
+  "sections": [
+   {
+    "feature": "the white-bark tunnel",
+    "caption": "White-barked trees stand close, like friends sharing one big secret.",
+    "rows": [
+     "###########",
+     "#,.#,..#,.#",
+     "#.,.#.,F..9",
+     "#.##,.#.,.#",
+     "S.,.,.,.#.#",
+     "#.#F#.#...#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      7,
+      2,
+      "F"
+     ],
+     [
+      3,
+      5,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the fern hollow",
+    "caption": "A fern hollow, soft as a green pillow. A small snail has the best seat.",
+    "rows": [
+     "###########",
+     "#.,.#,.,..#",
+     ".,..,.,#,.#",
+     "#.#.F.#.,.#",
+     "#,.,.,...,9",
+     "#..#...#,.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      4,
+      3,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 306,
+  "from": "Cloverholt",
+  "to": "Mossgate",
+  "land": "forest",
+  "sections": [
+   {
+    "feature": "the mossy log",
+    "caption": "A log furred in moss. You wouldn't call it a bridge. It would.",
+    "rows": [
+     "###########",
+     "#.,.#,..#,#",
+     "#.#.,.#.,.9",
+     "S,.,.#.,F.#",
+     "#.#.,.#.#.#",
+     "#.,..,.,..#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      8,
+      3,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the mossy gate",
+    "caption": "Two mossy gateposts and no gate. The moss says that's on purpose.",
+    "rows": [
+     "###########",
+     "#,..,#,.,.#",
+     ".,.F.#...,#",
+     "#..,...,..#",
+     "#,.#.#.,.,9",
+     "#.,.,#...,#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      3,
+      2,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 307,
+  "from": "Poppyburrow",
+  "to": "Shellhollow",
+  "land": "coast",
+  "sections": [
+   {
+    "feature": "the long tideline",
+    "caption": "The tide has gone out and left its homework: a long line of shells.",
+    "rows": [
+     "###########",
+     "###,.,..###",
+     "#...,..F..9",
+     "S.,...,..,#",
+     "#,..##..,.#",
+     "##...,..,##",
+     "###########"
+    ],
+    "tokens": [
+     [
+      7,
+      2,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the shell hollow",
+    "caption": "A scoop in the rocks, lined with shells, that echoes if you say 'hello'.",
+    "rows": [
+     "###########",
+     "#.,.###.,.#",
+     "..,..,#,..#",
+     "#.,F..,#..#",
+     "#.##.,.,..9",
+     "#,..,##...#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      3,
+      3,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 308,
+  "from": "Honeybrook",
+  "to": "Pebblestead",
+  "land": "coast",
+  "sections": [
+   {
+    "feature": "the pebble bar",
+    "caption": "Pebbles in every colour, all smooth, all lovely to hold.",
+    "rows": [
+     "###########",
+     "####..,.###",
+     "#,..,.,...#",
+     "#.,.F..,..9",
+     "S..,.##..,#",
+     "#.,..#....#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      4,
+      3,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the rock pool",
+    "caption": "A rock pool with a crab inside who waves one claw. Wave back.",
+    "rows": [
+     "###########",
+     "#.,..,..,.#",
+     "#,...##.,.9",
+     "...,.##F..#",
+     "#,..,.,...#",
+     "#....,.,,.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      7,
+      3,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 309,
+  "from": "Cloverholt",
+  "to": "Iciclecrest",
+  "land": "tundra",
+  "sections": [
+   {
+    "feature": "the frozen pond",
+    "caption": "A frozen pond, polished like a plate. Gnomes walk round it. Mostly.",
+    "rows": [
+     "###########",
+     "#.,..,.,..#",
+     "S.,.###.,.#",
+     "#.,.###...#",
+     "#..,...,..9",
+     "#.F.,.,.,.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      2,
+      5,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the icicle cave mouth",
+    "caption": "A cave mouth fringed with icicles, like a very cold, very polite smile.",
+    "rows": [
+     "###########",
+     "#..,#,.,..#",
+     "#.#,.,.#..9",
+     "#.,.#F.#,.#",
+     ".,.,.#..,.#",
+     "#..,.,.,#.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      5,
+      3,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 310,
+  "from": "Poppyburrow",
+  "to": "Snowcombe",
+  "land": "tundra",
+  "sections": [
+   {
+    "feature": "the snowdrift pass",
+    "caption": "Snow piled in steep drifts. Take the zig, then the zag, then the zig.",
+    "rows": [
+     "###########",
+     "#.,.,F,.,.9",
+     "#.#########",
+     "#.,.,.,.,.#",
+     "#########.#",
+     "S.,.,F,.,.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      5,
+      1,
+      "F"
+     ],
+     [
+      5,
+      5,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the snow-comb ridge",
+    "caption": "A ridge like a comb, with all its teeth pointing politely down.",
+    "rows": [
+     "###########",
+     ".,.,.,..,.#",
+     "#.#.#.#.#.#",
+     "#.,.,.,.,.9",
+     "#.#.#.#.#.#",
+     "#.F,.,.,.,#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      2,
+      5,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 311,
+  "from": "Honeybrook",
+  "to": "The Sugar Shack",
+  "land": "grassland",
+  "sections": [
+   {
+    "feature": "the maple tap row",
+    "caption": "Rows of maple trees, each with a little bucket. Drip, drip, drip.",
+    "rows": [
+     "###########",
+     "#.#,#.#,#.#",
+     "S.,.,.F..,#",
+     "#.#.#.#.#.9",
+     "#,.,.,..,.#",
+     "#.#.#.#.#.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      6,
+      2,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the Sugar Shack yard",
+    "caption": "A little sugar shack with a chimney that smells of pancakes.",
+    "rows": [
+     "###########",
+     "#.,.,..,.,#",
+     "#..,.###..#",
+     ".,.,..#...#",
+     "#,.F..,...9",
+     "#.,.,..,,.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      3,
+      4,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 312,
+  "from": "Cloverholt",
+  "to": "Thousand Rings Stump",
+  "land": "forest",
+  "sections": [
+   {
+    "feature": "the ring-count log",
+    "caption": "A fallen log with its rings showing. Count them. Then lose count. Start again.",
+    "rows": [
+     "###########",
+     "#.,.#.,.,.#",
+     "#.,.,.###.9",
+     "S.#.F.,.,.#",
+     "#.,.,.###.#",
+     "#,...,.,..#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      4,
+      3,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the toadstool ring",
+    "caption": "Toadstools in a perfect ring. Step inside and you feel exactly one inch taller.",
+    "rows": [
+     "###########",
+     "#.,.,..,..#",
+     ".,.,###,..#",
+     "#.,.#F#.,.#",
+     "#,..,.,..,9",
+     "#.,..,.,..#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      5,
+      3,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the great stump",
+    "caption": "A stump as wide as a house. Its rings go back before your grandmother's grandmother.",
+    "rows": [
+     "###########",
+     "#.,.,..,.,#",
+     "#,.#####..#",
+     "#.,#####.,9",
+     ".,.#####..#",
+     "#.F,.,.,..#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      2,
+      5,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 313,
+  "from": "Poppyburrow",
+  "to": "Beaverdam Tunnels",
+  "land": "forest",
+  "sections": [
+   {
+    "feature": "the beaver dam",
+    "caption": "A beaver dam, tidy as a drawer. Walk the top or the bottom; both ways are damp.",
+    "rows": [
+     "###########",
+     "#.,.,..,..#",
+     "S..,.##F..#",
+     "#,.,.##,.,#",
+     "#.,.,##.,.9",
+     "#...,.,.,.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      7,
+      2,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the beaver lodge",
+    "caption": "The beaver lodge, a dome of sticks. Someone is cooking in there. Smells like bark stew.",
+    "rows": [
+     "###########",
+     "#.,.,.,.,.#",
+     "#.#.,.#.,.9",
+     "#.,.#F#,.,#",
+     ".,.,.,..,.#",
+     "#.##...##.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      5,
+      3,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the tunnel mouth",
+    "caption": "A hillside with a round dark doorway and a tiny 'Welcome' sign, hung slightly crooked.",
+    "rows": [
+     "###########",
+     "#,.,..#,.,#",
+     ".,..#.#..,#",
+     "#.#.,.,#.,9",
+     "#,..#F#..,#",
+     "#.E,....,.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      5,
+      4,
+      "F"
+     ],
+     [
+      2,
+      5,
+      "E"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 314,
+  "from": "Honeybrook",
+  "to": "Lighthouse of the Lost Lantern",
+  "land": "coast",
+  "sections": [
+   {
+    "feature": "the driftwood beach",
+    "caption": "Driftwood in lovely shapes: a dragon, a chair, a very tired sofa.",
+    "rows": [
+     "###########",
+     "##..,.,..##",
+     "#,..#.,.#.#",
+     "S..,.F,..,#",
+     "#,.#,...#.9",
+     "##.,..,.,##",
+     "###########"
+    ],
+    "tokens": [
+     [
+      5,
+      3,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the tidal causeway",
+    "caption": "A causeway of flat stones with the tide lapping both sides. Nobody has fallen in. Nobody who'll admit it.",
+    "rows": [
+     "###########",
+     "###.,.,.###",
+     "##,.#F#...9",
+     "#,.,###.###",
+     ".,.,.######",
+     "#,.F.######",
+     "###########"
+    ],
+    "tokens": [
+     [
+      5,
+      2,
+      "F"
+     ],
+     [
+      3,
+      5,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the lantern rocks",
+    "caption": "Tall rocks with a lantern in each, lit by something that sounds like humming.",
+    "rows": [
+     "###########",
+     "#.,..,.,.,#",
+     ".,..##..,.#",
+     "#.,.,#,.,.#",
+     "#,.F.,..,.9",
+     "#.,##.,...#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      3,
+      4,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 315,
+  "from": "Cloverholt",
+  "to": "Den of the Great White Owl",
+  "land": "tundra",
+  "sections": [
+   {
+    "feature": "the snowy gate",
+    "caption": "Two snowy gateposts and a sign that just says 'Owl? Yes.'",
+    "rows": [
+     "###########",
+     "#,.,.,#,.,#",
+     "#.##.,.#..9",
+     "S.,...,.,.#",
+     "#.#.,.#.#.#",
+     "#.F,.,.,..#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      2,
+      5,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the pine slope",
+    "caption": "Pines in rows like a sleeping crowd. The snow slides off their shoulders with a soft 'fwump'.",
+    "rows": [
+     "###########",
+     "#.,.#.,.,.#",
+     ".,..,.#.#.#",
+     "#.#.,.,.,.#",
+     "#,.,#F#.,.9",
+     "#.,.,.,...#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      5,
+      4,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the frozen stream",
+    "caption": "A stream gone to glass, crossed by one bridge of packed snow.",
+    "rows": [
+     "###########",
+     "#,.,.,.,.,#",
+     "#.,F.,.,..9",
+     "#####..####",
+     ".,.,.,.,.,#",
+     "#..,.,.,F.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      3,
+      2,
+      "F"
+     ],
+     [
+      8,
+      5,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the giant feather",
+    "caption": "A single white feather the size of a gnome, standing in the snow like a flag.",
+    "rows": [
+     "###########",
+     "#,.,.##,.,#",
+     ".,..,.#.,.#",
+     "#.#.,.,.#.9",
+     "#,.F#.#..,#",
+     "#.,.,.,.,.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      3,
+      4,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the owl's den",
+    "caption": "A wide round den under a snowy hill, with two big kind eyes inside, blinking slowly.",
+    "rows": [
+     "###########",
+     "#.,.,#.,.,#",
+     "#,.#.,E#,.#",
+     ".,.,.,.,..9",
+     "#.#.F.#.#.#",
+     "#,.,.,.,.,#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      6,
+      2,
+      "E"
+     ],
+     [
+      4,
+      4,
+      "F"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "route_id": 316,
+  "from": "Poppyburrow",
+  "to": "Aurora Camp",
+  "land": "tundra",
+  "sections": [
+   {
+    "feature": "the sky-watch hill",
+    "caption": "A round hill with a flat top, perfect for lying down and counting nothing in particular.",
+    "rows": [
+     "###########",
+     "#,.,.,.,.,#",
+     "#.####.##.9",
+     "S.,.F,.,..#",
+     "#,.,.,.,..#",
+     "#...##.F..#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      4,
+      3,
+      "F"
+     ],
+     [
+      7,
+      5,
+      "F"
+     ]
+    ]
+   },
+   {
+    "feature": "the aurora camp",
+    "caption": "Tents, a banked fire and a kettle, with green lights doing slow dances overhead.",
+    "rows": [
+     "###########",
+     "#.,.,.,..,#",
+     ".,..#.,.#.#",
+     "#.,.F.,...#",
+     "#,.,..#.,.9",
+     "#.##,.,.#.#",
+     "###########"
+    ],
+    "tokens": [
+     [
+      4,
+      3,
+      "F"
+     ]
+    ]
+   }
+  ]
+ }
+]
