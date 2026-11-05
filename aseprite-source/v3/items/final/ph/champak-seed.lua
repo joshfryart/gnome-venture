@@ -1,8 +1,7 @@
--- champak-seed (seed W1_0)
+-- ph/champak-seed (seed P1pilot)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="champak-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#4a1418","#7a2022","#a8322a","#d04c2c","#ee7438","#fca868"}, leaf={"#1e4a30","#2a6a3c","#3a8a4a","#52a85c","#74c476","#9adc90"}, sleaf={"#3c8c46","#54a852","#72c466","#94dc7a","#b4ee98","#d4fab8"}, stem={"#5a4a30","#7a6240","#9a7e52","#5ea25c","#7cbe70"}, root={"#e8d4b0","#f4e6c8","#fff4dc"},
-vein="#c8e8a8", gloss="#ffe4c0", cool="#5a2a5a", red="#d0603a",
-sl=0.9, sw=0.9, taper=0.3, drop={4}, marks="spots", markc="#ffd890",
-scrap={7,56,30,50,56,38}, scrapW=5.0, scrapExp=0.5, sprout="pair", leafw=3.4, quirk="hat"
+ name="champak-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#5a1e12","#8a2e1a","#b84424","#d8643a","#ee8a58","#ffb88a"}, leaf={"#24502a","#336a37","#45863f","#5ca24c","#7bbf62","#a0dc86"}, sleaf={"#4a9a3a","#62b248","#7ecb5a","#9ee47a","#bff59c","#dcffbc"}, stem={"#5c4228","#7a5a38","#9a7a50","#b89a6c","#d4b88a"}, root={"#f4e6c8","#e6d0a4","#cdb67e"},
+ vein="#d8f2b0", gloss="#ffe8d0", cool="#6f9ab0", red="#e23a2a", sl=1.05, sw=0.95, taper=0.15, drop={4,1}, marks="none", markc="#7a2a18",
+ scrap={8,57,32,50,56,41}, scrapW=6.0, scrapExp=0.75, sprout="pair", leafw=3.8, quirk="none"
 })

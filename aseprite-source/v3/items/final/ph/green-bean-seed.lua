@@ -1,8 +1,7 @@
--- green-bean-seed (seed W1_1)
+-- ph/green-bean-seed (seed P1pilot)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="green-bean-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#3c3a1e","#645e30","#8e8644","#b4ac5c","#d4ce80","#eee8aa"}, leaf={"#1e4228","#2c6232","#408a3c","#5cae48","#84d060","#b2ee86"}, sleaf={"#2e7234","#44a040","#64c850","#8ee266","#b4f884","#dcffb0"}, stem={"#503c3c","#745a44","#98784c","#78b040","#9cd058"}, root={"#f0e4c4","#f8f0d8","#fffaec"},
-vein="#c8f49c", gloss="#fffadc", cool="#4a3e68", red="#a85040",
-sl=1.3, sw=1.0, taper=0.15, drop={4}, marks="spots", markc="#6a4a2a",
-scrap={7,55,28,50,57,40}, scrapW=6.4, scrapExp=0.72, sprout="pair", leafw=4.6, quirk="none"
+ name="green-bean-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#4a7a30","#68983e","#88b650","#a8d268","#c6e888","#e4f8ac"}, leaf={"#183e20","#22562a","#2e7036","#3e8c44","#52a656","#6cc06a"}, sleaf={"#3c9a38","#54b444","#70cc58","#90e476","#b0f696","#d0ffb8"}, stem={"#4a6a2a","#628838","#7ea84a","#9ac45e","#b8de7c"}, root={"#f4eed4","#e6dcb2","#cebe8a"},
+ vein="#a8e0a0", gloss="#fdfff0", cool="#6a9ab8", red="#c84a2a", sl=1.4, sw=1.0, taper=0.05, drop={4,1}, marks="none", markc="#f0f4d0",
+ scrap={7,55,29,50,57,40}, scrapW=6.5, scrapExp=0.72, sprout="pair", leafw=4.4, quirk="none"
 })

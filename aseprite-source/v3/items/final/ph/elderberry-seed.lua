@@ -1,8 +1,7 @@
--- elderberry-seed (seed W1_0)
+-- ph/elderberry-seed (seed P1pilot)
 dofile([[/home/user/gnome-venture/aseprite-source/v3/items/seedgen/seedgen.lua]])({
-name="elderberry-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
-seed={"#3a2a30","#5a4240","#7a5e50","#9a7c64","#b89a7c","#d4b898"}, leaf={"#244a30","#306a3c","#42884a","#5ca85c","#80c478","#a8dc98"}, sleaf={"#3a8844","#52a852","#70c468","#92dc80","#b2ee9c","#d2fabc"}, stem={"#5a4438","#7a5e4a","#98785c","#5ea060","#7cbc74"}, root={"#e8d8bc","#f4e8d0","#fff6e4"},
-vein="#c0e4a0", gloss="#f0dcc8", cool="#4a3060", red="#8a3a6a",
-sl=0.6, sw=0.6, taper=0.2, drop={4}, marks="pits", markc="#4a3438",
-scrap={6,55,26,53,58,42}, scrapW=5.4, scrapExp=0.55, sprout="trio", leafw=3.0, quirk="none"
+ name="elderberry-seed", dir=[[/home/user/gnome-venture/aseprite-source/v3/items]],
+ seed={"#6a4a28","#8a6836","#a8864a","#c4a262","#dcbe82","#f0d8a6"}, leaf={"#1c4a30","#27623c","#357c49","#469a58","#5eb56c","#82d08a"}, sleaf={"#3d8f46","#55a94c","#71c35e","#92dc7a","#b2f09a","#d0ffbe"}, stem={"#5a4a6a","#745e86","#8e78a0","#a892ba","#c2acd2"}, root={"#f2ead6","#e2d6b4","#cabc90"},
+ vein="#c8ecb0", gloss="#fff4d8", cool="#7a8ac0", red="#6a1e5a", sl=0.9, sw=0.8, taper=0.3, drop={4,1}, marks="spots", markc="#7a5a2e",
+ scrap={6,54,30,56,58,40}, scrapW=6.6, scrapExp=0.7, sprout="pair", leafw=3.2, quirk="none"
 })
