@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.29
+- **Shops open as the shop, in the popover**: tapping a shop on a town picture shows the shop itself (who is at the counter, Buy / Sell, volunteer) right in the popover, with no "Step in" tap. Buying, selling and Sell/Buy tabs work in place. The Mossbottom Shops popover lists the hub shops; tapping one opens it in the same card, with ‹ All shops to go back. Open full page stays at the bottom. Needs 2.5.28.
+
 ## 2.5.28
 - **Each shop has its own name on the town picture**: the pills that all said "Shops" now carry the shop names (Here town pictures). Tapping one opens that shop's card (picture, a line about it, who is at the counter, Step in). The last front is **Mossbottom Shops** (open from anywhere), which lists the hub shops as rows. More shops than fronts: the last town front lists the rest; a picture with one front lists everything. Needs 2.5.27.
 

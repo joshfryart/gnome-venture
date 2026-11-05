@@ -7309,3 +7309,7 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .hubpop .shrow b { flex: 1; }
 .hubpop .shrow i { font-style: normal; font-size: .8rem; color: var(--muted); }
 .hubpop .shrow .shart img { width: 30px; height: auto; image-rendering: pixelated; display: block; }
+.hubpop .shpage { text-align: center; }
+.hubpop .shpage .tabs { justify-content: center; }
+.hubpop .shpage .status, .hubpop .shpage .shopintro { font-size: .9rem; }
+.hubpop .shpage img { max-width: 100%; height: auto; }

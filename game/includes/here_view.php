@@ -254,15 +254,13 @@ function here_shop_row(array $s, array $u): string
         : '<a class="shrow" href="' . e(url('world.php?go=' . (int)$s['loc_id'] . '#gopanel')) . '">' . $in . '</a>';
 }
 
-/** One shop's own card: picture, name, a line about it, who is at the counter, Step in. */
+/** One shop's own popover: the shop itself (counter, Buy / Sell, volunteer) loads in place; assets/hubscene.js reads the page's main and posts its forms in place. */
 function here_shop_card(array $s, array $u): string
 {
     require_once __DIR__ . '/place_ui.php';
-    $staff = staff_on_duty((int)$s['id']);
     $href = shop_reachable($u, $s) ? url('shop.php?id=' . (int)$s['id']) : url('world.php?go=' . (int)$s['loc_id'] . '#gopanel');
-    return '<div class="shcard"><span class="shbig">' . felt_art_img(town_shop_art((string)($s['shop_type'] ?? ''))) . '</span><p>' . e((string)$s['description']) . '</p>'
-        . '<p class="muted">' . ($staff ? 'At the counter: ' . e(implode(', ', array_column($staff, 'name'))) : 'Closed: nobody on shift') . '</p>'
-        . '<a class="btn act gold" href="' . e($href) . '">Step in ›</a></div>';
+    return '<div class="vlazy shpage" data-page="' . e(url('shop.php?id=' . (int)$s['id'])) . '" data-csrf="' . e(csrf_token()) . '"><p class="muted">Loading…</p></div>'
+        . '<p class="vmore"><a href="' . e($href) . '">Open full page ›</a></p>';
 }
 
 /** The shop fronts of a town picture: each front is one of the town's shops by name, the last is the Mossbottom stall (the hub shops, open from anywhere).
@@ -275,7 +273,7 @@ function here_shop_fronts(array $u, array $node, int $fronts): array
     $isHub = (string)$node['region'] === HUB_REGION;
     $town = $list((string)$node['region']);
     $hub = $isHub ? [] : $list(HUB_REGION);
-    $rows = fn(array $l) => '<div class="shrows">' . implode('', array_map(fn($s) => here_shop_row($s, $u), $l)) . '</div>';
+    $rows = fn(array $l) => '<div class="vlazy shpage" data-list="1" data-csrf="' . e(csrf_token()) . '"><div class="shrows">' . implode('', array_map(fn($s) => here_shop_row($s, $u), $l)) . '</div></div>';
     $hubCard = fn() => '<p class="muted">Open from anywhere</p>' . $rows($hub);
     if (!$hub && !$town) return array_fill(0, $fronts, ['Shops', '🏪', '<p class="muted">No shops here yet.</p>']);
     $out = [];
