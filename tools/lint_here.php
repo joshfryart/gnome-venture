@@ -16,6 +16,7 @@ foreach (glob($game . '/assets/img/scenes/{here-*,resid-*,door-*,craft-*,tree-*,
     $f = basename($path);
     $sz = @getimagesize($path);
     if (!$sz || $sz[2] !== IMAGETYPE_PNG) { echo "FAIL $f is not a PNG\n"; $bad++; continue; }
+    if (str_starts_with($f, 'tree-dress-')) continue;   // optional dressing layers (sizes are in the treehouse layout's 'dress' list)
     if (!isset($files[$f]) && str_starts_with($f, 'door-')) $files[$f] = ['door', (int)$all['door']['w'], (int)$all['door']['h']];   // door-<slug>.png: a villager's own door
     if (str_starts_with($f, 'fight-')) { if ($sz[0] !== 480 || $sz[1] !== 270) { echo "FAIL $f is {$sz[0]}x{$sz[1]}, fight backdrops are 480x270\n"; $bad++; } continue; }
     if (!isset($files[$f])) { echo "note $f has no layout of its own (a layout for it will fall back to a shared one)\n"; continue; }

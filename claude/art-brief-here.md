@@ -30,3 +30,5 @@ Layout schema (`includes/data/here_layouts.json`, same format as `aseprite-sourc
 - `compass_clear:[x0,y0,x1,y1]` (default bottom-right 100x40): kept empty for the compass and world globe buttons (44 px each).
 - A locked room is drawn closed by code (two shutter panels over its box); draw the open room.
 - No circles: no round buttons or rings in the art or the UI; a missing image shows nothing extra.
+
+**Status (2026-11-05):** first-pass art is in: `scenes/tree-house.png`, `scenes/yard-pals.png`, `scenes/tree-dress-{rug,lights,telescope,banner}.png`. Sources and scripts: `aseprite-source/v3/tree-yard/` (`treehouse.lua`, `yard.lua`, `dress.lua`, `common.lua`; run with `/tmp/aseq/squashfs-root/AppRun -b --script-param out=<dir>/ --script x.lua`). Rooms and sites are painted open inside their layout boxes; pal sprites are still the stickers.
