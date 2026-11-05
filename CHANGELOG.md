@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.18
+- **Picture-first Here scenes for every main town**: Mossbottom and the 14 regional towns (plus the Maplewold market and the desert market stop look) show a gate-view picture with whole-building tap areas, a compass that opens the Routes list (named by destination, one tap to set off) and a globe that opens the World map popover with Open region map. Lookup picks the picture by town region, stop type, landscape and style. Wander cards read optional banner and icon art when present. Needs 2.5.17.
+
 ## 2.5.17
 - **Wander redesigned for the Trail**: when nothing is in front of you, Wander off shows one small purpose-built card over the Trail section: a header (land, step, tier, danger), what just happened, the moves as small cards (Go deeper, Keep exploring, Step back, Back to the Trail, Visit a found place) and a Gather here fold. Fights, choices and meetings out there use the same popover as on the Trail. The old explore page is no longer shown behind a Trail wander. Needs 2.5.16.
 
