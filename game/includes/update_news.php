@@ -681,6 +681,8 @@ function post_update_news(string $from): void
         "The animal homes in your yard now use their pixel pictures, the Tortoise Run has a proper pen, and the Butterfly House is a glass pavilion full of butterflies."],
     '2.5.48' => ['🥕 Update 2.5.48: 35 pictures upgraded',
         "Carrots, corn, pumpkins, watermelons, pineapples, lots of seeds, the Butterfly House and more now have the new art. Ripe crops in your yard look better too."],
+    '2.5.49' => ['🏡 Update 2.5.49: a livelier yard',
+        "[list][*]Up to four small pieces (pots, stones, logs, toadstools) can now share one yard square, one in each corner.\n[*]Paths and ground coverings run right up to your beds.\n[*]Bare tilled soil darkens in the rain.\n[*]Visiting gnomes can see which beds are thirsty when friends can water.\n[*]Pal trips can pack Strong and Grand potions, and Pal Jobs has a Select all free pals button.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
