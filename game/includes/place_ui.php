@@ -305,52 +305,63 @@ function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '',
     $stamps = count(stop_stamps_of($uid));
     $total = count(stop_road_stops());
     $here = (bool)q_val('SELECT 1 FROM stop_stamps WHERE user_id = ? AND location_id = ?', [$uid, (int)$node['id']]);
-    $form = fn(string $do, string $kind, string $btn, string $ask = '') => '<form method="post" class="inline" data-vform' . ($ask !== '' ? ' data-confirm="' . e($ask) . '"' : '') . '>'
-        . '<input type="hidden" name="do" value="' . $do . '">' . ($kind !== '' ? '<input type="hidden" name="kind" value="' . $kind . '">' : '') . '<input type="hidden" name="card" value="stop">' . $btn . '</form>';
-    $h = '<div class="st-slim">' . ($msg !== '' ? '<p class="' . ($ok ? 'good' : 'bad') . '" role="status">' . e($msg) . '</p>' : '')
-        . '<p class="st-sumline"><b>' . $stamps . '</b>/' . $total . ' stops stamped' . ($here ? ' · ✅ here' : '') . '</p>'
-        . '<progress max="' . max(1, $total) . '" value="' . $stamps . '" aria-label="Road stops stamped"></progress>';
-    $h .= '<div class="st-slim__acts">';
-    // Take hold here: adopt this stop (a fully built stop is not adopted: it needs monthly upkeep instead)
+    $sec = '';   // the tab being built: each form remembers it, so the card comes back on the same tab
+    $form = function (string $do, string $kind, string $btn, string $ask = '') use (&$sec): string {
+        return '<form method="post" class="inline" data-vform' . ($ask !== '' ? ' data-confirm="' . e($ask) . '"' : '') . '>'
+            . '<input type="hidden" name="do" value="' . $do . '">' . ($kind !== '' ? '<input type="hidden" name="kind" value="' . $kind . '">' : '') . '<input type="hidden" name="card" value="stop"><input type="hidden" name="tab" value="' . $sec . '">' . $btn . '</form>';
+    };
+    $P = [];   // tab key => [label, panel html]
+    $dflt = '';
     if ($node['kind'] === 'village' && on_road((int)$node['id']) && (stop_adopt_limit() > 0 || stop_adoption((int)$node['id']))) {
         $a = stop_adoption((int)$node['id']);
         $maxed = $a && stop_top_tier() > 0 && (int)$a['tier'] >= stop_top_tier();
         $isMine = $a && (int)$a['user_id'] === $uid;
+        $perk = function () use ($a, $form): string {
+            $done = ($a['perk_day'] ?? '') === hollow_date('Y-m-d');
+            return $form('local', '_perk', '<button class="btn small"' . ($done ? ' disabled' : '') . '>🎁 ' . ($done ? 'Welcome taken today' : 'Collect the welcome') . '</button>');
+        };
+        $sec = 'hold'; $b = '';
+        if ($maxed) $b = $isMine ? '<p>You look after this stop (fully built).</p>' . $perk() : '<p class="muted">Fully built' . ($a['user_id'] ? ', looked after by ' . e(stop_gnome_label($a)) : '') . '. Nothing to adopt: keep it up (Upkeep).</p>';
+        elseif ($isMine) $b = '<p>You look after this stop.</p>' . $perk() . stop_slim_needs($u, $node, $a, $form);
+        elseif ($a && $a['user_id']) $b = '<p class="muted">Looked after by ' . e(stop_gnome_label($a)) . '.</p>';
+        else {
+            [$slots, $count] = stop_adopt_slots($uid);
+            $fee = max(0, (int)setting('stop_adopt_cost'));
+            $why = !$here ? 'Collect this stop’s stamp first (it comes with your first visit).' : ($count >= $slots ? 'You look after ' . $count . ' of ' . $slots . ' stops already.' : '');
+            $b = '<p class="muted">Adds a bench, stall, well and hall for all. ' . money($fee) . '.</p>'
+                . ($why === '' ? $form('local', '_adopt', '<button class="btn small">🏡 Take hold of ' . e($node['name']) . '</button>', 'Take hold of ' . $node['name'] . ' for ' . number_format($fee) . '?') : '<p class="muted">' . e($why) . '</p>');
+        }
+        $P['hold'] = ['🏡 Hold', $b];
+        $dflt = 'hold';
         if ($maxed) {
-            if ($isMine) {
-                $done = ($a['perk_day'] ?? '') === hollow_date('Y-m-d');
-                $h .= '<div class="box"><b>🏡 Take hold here</b><p>You look after ' . e($node['name']) . ' (fully built).</p>'
-                    . $form('local', '_perk', '<button class="btn small"' . ($done ? ' disabled' : '') . '>🎁 ' . ($done ? 'Welcome taken today' : 'Collect the welcome') . '</button>') . '</div>';
-            }
-            $h .= stop_slim_upkeep($u, $node, $a, $form, $here);
-        } else {
-            $h .= '<div class="box"><b>🏡 Take hold here</b>';
-            if ($isMine) {
-                $done = ($a['perk_day'] ?? '') === hollow_date('Y-m-d');
-                $h .= '<p>You look after this stop.</p>'
-                    . $form('local', '_perk', '<button class="btn small"' . ($done ? ' disabled' : '') . '>🎁 ' . ($done ? 'Welcome taken today' : 'Collect the welcome') . '</button>')
-                    . stop_slim_needs($u, $node, $a, $form);
-            } elseif ($a && $a['user_id']) {
-                $h .= '<p class="muted">Looked after by ' . e(stop_gnome_label($a)) . '.</p>';
-            } else {
-                [$slots, $count] = stop_adopt_slots($uid);
-                $fee = max(0, (int)setting('stop_adopt_cost'));
-                $why = !$here ? 'Collect this stop’s stamp first (it comes with your first visit).' : ($count >= $slots ? 'You look after ' . $count . ' of ' . $slots . ' stops already.' : '');
-                $h .= '<p class="muted">Adds a bench, stall, well and hall for all. ' . money($fee) . '.</p>'
-                    . ($why === '' ? $form('local', '_adopt', '<button class="btn small">🏡 Take hold of ' . e($node['name']) . '</button>', 'Take hold of ' . $node['name'] . ' for ' . number_format($fee) . '?') : '<p class="muted">' . e($why) . '</p>');
-            }
-            $h .= '</div>';
+            $sec = 'upkeep';
+            $P['upkeep'] = ['🔧 Upkeep', stop_slim_upkeep($u, $node, $a, $form, $here)];
+            if (!stop_upkeep_met(stop_upkeep_needs($node), stop_upkeep_pool_of($a))) $dflt = 'upkeep';
         }
     }
-    // Garden here: the land deed (or your garden in this region)
-    if ($node['kind'] === 'village' && $node['region_id']) {
+    if ($node['kind'] === 'village' && $node['region_id']) {   // Garden here: the land deed (or your garden in this region)
+        $sec = 'garden';
         $plot = q_one('SELECT * FROM plots WHERE user_id = ? AND region_id = ?', [$uid, $node['region_id']]);
         $owned = (int)q_val('SELECT COUNT(*) FROM plots WHERE user_id = ?', [$uid]);
-        $h .= '<div class="box"><b>🌱 Garden here</b>';
-        if ($plot) $h .= '<p>' . eu($plot['garden_name'] ?: 'Your garden') . '</p><a class="btn small" href="' . e(url('garden.php')) . '">Open ›</a>';
-        elseif ($owned < max_gardens($u)) $h .= '<p class="muted">Land for ' . money(deed_cost($uid)) . '. Native crops grow faster.</p>'
+        if ($plot) $g = '<p>' . eu($plot['garden_name'] ?: 'Your garden') . '</p><a class="btn small" href="' . e(url('garden.php')) . '">Open your garden ›</a>';
+        elseif ($owned < max_gardens($u)) $g = '<p class="muted">Land for ' . money(deed_cost($uid)) . '. Native crops grow faster.</p>'
             . $form('deed', '', '<button class="btn small">📜 Buy land deed</button>', 'Buy a land deed here for ' . number_format(deed_cost($uid)) . '?');
-        else $h .= '<p class="muted">' . (next_garden_level($u) ? 'Another garden from gnome level ' . next_garden_level($u) . '.' : 'You tend as many gardens as a gnome can.') . '</p>';
+        else $g = '<p class="muted">' . (next_garden_level($u) ? 'Another garden from gnome level ' . next_garden_level($u) . '.' : 'You tend as many gardens as a gnome can.') . '</p>';
+        $P['garden'] = ['🌱 Garden', $g];
+        if ($dflt === '') $dflt = 'garden';
+    }
+    $want = (string)($_POST['tab'] ?? '');
+    $cur = isset($P[$want]) ? $want : $dflt;
+    $h = '<div class="st-slim">' . ($msg !== '' ? '<p class="' . ($ok ? 'good' : 'bad') . '" role="status">' . e($msg) . '</p>' : '')
+        . '<p class="st-sumline"><b>' . $stamps . '</b>/' . $total . ' stops stamped' . ($here ? ' · ✅ here' : '') . '</p>'
+        . '<progress max="' . max(1, $total) . '" value="' . $stamps . '" aria-label="Road stops stamped"></progress>';
+    if ($P) {   // tabs without script: a radio per tab, the checked one shows its panel (assets/style.css .st-tabs)
+        $h .= '<div class="st-tabs">';
+        foreach ($P as $k => $_) $h .= '<input type="radio" class="vh" name="sttab" id="stt-' . $k . '"' . ($k === $cur ? ' checked' : '') . '>';
+        $h .= '<nav class="st-tabbar" aria-label="Rest stop sections">';
+        foreach ($P as $k => [$lab]) $h .= '<label for="stt-' . $k . '" class="st-tab st-tab--' . $k . '">' . $lab . '</label>';
+        $h .= '</nav>';
+        foreach ($P as $k => [, $body]) $h .= '<div class="st-pan st-pan--' . $k . '">' . $body . '</div>';
         $h .= '</div>';
     }
     return $h . '</div>';
@@ -362,7 +373,7 @@ function stop_slim_upkeep(array $u, array $node, array $a, callable $form, bool 
     $needs = stop_upkeep_needs($node);
     $pool = stop_upkeep_pool_of($a);
     $met = stop_upkeep_met($needs, $pool);
-    $h = '<div class="box"><b>🔧 Monthly upkeep</b>';
+    $h = '';
     $h .= $met ? '<p class="good">✅ Kept up for ' . e(gmdate('F')) . '.</p>'
         : '<p class="muted">Fully built. Unpaid by the end of ' . e(gmdate('F')) . ', it loses a tier. Anyone can chip in.</p>';
     if (!$met) {
@@ -375,7 +386,7 @@ function stop_slim_upkeep(array $u, array $node, array $a, callable $form, bool 
         }
         $h .= '</ul>' . ($here ? '' : '<p class="muted">Collect this stop’s stamp to chip in.</p>');
     }
-    return $h . '</div>';
+    return $h;
 }
 
 /** v2.5.54: the next upgrade's needs of a stop you look after, each with a hand-in box, for the Rest stop popover (posts in place; _give). */

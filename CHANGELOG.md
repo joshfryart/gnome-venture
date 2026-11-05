@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.59
+- **Rest stop card as tabs**: Hold, Upkeep (only on a fully built stop) and Garden, one section at a time, no script needed (radio tabs). Opens on Upkeep when it is due, else Hold, else Garden; after a hand-in or buy it comes back on the same tab.
+
 ## 2.5.58
 - **Rest stop card slimmed**: one-line notes, a title with its button on the same row, hand-in rows on one line each (name, count, box, button), shorter wording, tighter boxes (about half the height).
 
