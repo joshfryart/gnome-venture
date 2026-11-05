@@ -393,10 +393,10 @@ def lm_sledtrack(rnd, cv):   # 340 x 170
         return SN[t]
     ellfill(cv, cx, cy + 3, rx - 10, ry - 8, top)
     # snow ramp, left: a wedge with a sharp lit lip and a shaded face
-    slab(cv, [(14, 130), (56, 108), (108, 58), (126, 66), (126, 134), (14, 134)], SN, rnd, sx=.3, sy=.7, speck=.04)
-    rect(cv, 108, 62, 127, 134, SN[3]); rect(cv, 120, 66, 127, 134, SN[4])
-    for y in range(64, 134, 4): rect(cv, 110, y, 117, y + 1, SN[2])
-    for x in range(18, 108, 3): cv.put(x, 129 - (x - 14) * 70 // 94 - 1, CREAM)
+    slab(cv, [(14, 130), (56, 100), (108, 30), (126, 40), (126, 134), (14, 134)], SN, rnd, sx=.3, sy=.7, speck=.04)
+    rect(cv, 108, 34, 127, 134, SN[3]); rect(cv, 120, 40, 127, 134, SN[4])
+    for y in range(36, 134, 4): rect(cv, 110, y, 117, y + 1, SN[2])
+    for x in range(18, 108, 3): cv.put(x, 129 - (x - 14) * 99 // 94 - 1, CREAM)
     # two deep runners, grooves with a shaded far wall and a lit near lip, wobbling away from the ramp lip towards the sled
     def yc(x): return 104 + (x - 130) * .2 + 7 * math.sin(x / 24.0)
     for off in (-8, 6):
@@ -416,24 +416,23 @@ def lm_sledtrack(rnd, cv):   # 340 x 170
         for x in range(sx - 2, sx + 64): cv.put(x, y, WD[1 if y < sb - 15 else 2]); cv.put(x, y, WD[0]) if y == sb - 18 else None
     for x in range(sx + 6, sx + 62, 10): rect(cv, x, sb - 18, x + 1, sb - 9, WD[3])
     rect(cv, sx - 2, sb - 10, sx + 64, sb - 9, WD[3])
-    rect(cv, sx - 2, sb - 36, sx + 4, sb - 9, WD[2]); rect(cv, sx - 2, sb - 36, sx, sb - 9, WD[1])   # backrest
-    rect(cv, sx - 2, sb - 36, sx + 4, sb - 34, WD[0])
+    rect(cv, sx - 2, sb - 46, sx + 4, sb - 9, WD[2]); rect(cv, sx - 2, sb - 46, sx, sb - 9, WD[1])   # backrest
+    rect(cv, sx - 2, sb - 46, sx + 4, sb - 44, WD[0])
     for x in range(sx + 6, sx + 40): rect(cv, x, sb - 24, x + 1, sb - 18, PT[1] if (x // 5) % 2 else PT[0])   # striped cushion
     lump(cv, sx + 22, sb - 24, 17, 4, PT, rnd, 0)
     line(cv, [(sx + 66, sb - 12), (sx + 76, sb - 4), (sx + 88, sb - 2)], EM[2], 1)   # rope
     rect(cv, sx + 86, sb - 4, sx + 90, sb, EM[1])
     # the flag: pole in the bank, triangular pennant
     fx = 306
-    post(cv, fx, 56, 142, 3, WD)
-    poly(cv, [(fx + 3, 58), (fx + 34, 68), (fx + 3, 80)], EM[1]); poly(cv, [(fx + 3, 58), (fx + 22, 64), (fx + 3, 68)], EM[0])
-    cv.put(fx + 1, 54, GD[0]); cv.put(fx + 1, 55, GD[0]); cv.put(fx + 2, 55, GD[0])
+    post(cv, fx, 16, 142, 3, WD)
+    poly(cv, [(fx + 3, 18), (fx + 36, 30), (fx + 3, 44)], EM[1]); poly(cv, [(fx + 3, 18), (fx + 24, 25), (fx + 3, 31)], EM[0])
+    rect(cv, fx, 12, fx + 3, 16, GD[0])
     lump(cv, fx + 1, 142, 12, 5, SN, rnd, 0)
     # a lost mitten on a stick (the caption's one lost mitten), left in front of the ramp
-    mx = 40
-    post(cv, mx, 74, 120, 3, WD)
-    lump(cv, mx + 1, 66, 8, 10, EM, rnd, .05); lump(cv, mx - 7, 70, 3, 5, EM, rnd, 0)
-    for x in range(mx - 6, mx + 9): cv.put(x, 74, SN[0]); cv.put(x, 75, SN[1])
-    lump(cv, mx + 1, 120, 10, 4, SN, rnd, 0)
+    mx = 90
+    post(cv, mx, 22, 47, 3, WD)
+    lump(cv, mx + 1, 12, 10, 12, EM, rnd, .05); lump(cv, mx - 9, 18, 4, 6, EM, rnd, 0)
+    for x in range(mx - 8, mx + 11): cv.put(x, 24, SN[0]); cv.put(x, 25, SN[1])
     # small gnome footprints trudging back up, snowballs, drifts
     for i in range(10):
         x, y = 136 + i * 8, 134 + int(3 * math.sin(i)); cv.put(x, y, SN[3]); cv.put(x + 1, y, SN[3]); cv.put(x, y + 1, SN[3]) if i % 2 == 0 else cv.put(x + 3, y - 1, SN[3])
@@ -475,77 +474,110 @@ def lm_comb(rnd, cv):   # 290 x 190
     for x in range(40, 250): cv.put(x, B + 1, IC[3]) if x % 5 == 0 else None
 
 
-def lm_icicurtain(rnd, cv):   # 250 x 194
-    B = 192
-    for px in (22, 224):   # posts
-        trunk(cv, px, 20, B, 16, rnd)
-        lump(cv, px, 18, 14, 8, SN, rnd, .04)
-    for y in range(34, 50):   # crossbar
-        for x in range(10, 238): cv.put(x, y, WD[0] if y < 37 else WD[1] if y < 43 else WD[2] if y < 47 else WD[3])
-    for x in range(14, 236):
-        for y in range(28, 34): cv.put(x, y, SN[0] if y < 31 else SN[1]) if (x * 5 + y) % 9 < 7 else None
+def lm_icicurtain(rnd, cv):   # 290 x 186
+    B = 184
+    # snowdrifts banked round the feet of the two posts
+    for px in (30, 260):
+        lump(cv, px, B - 6, 34, 11, SN, rnd, .05)
+    for px in (30, 260):   # fat timber posts, with a snow cap and a ring of rope
+        post(cv, px - 11, 22, B - 6, 22, WD)
+        for y in range(40, B - 8, 28): rect(cv, px - 11, y, px + 11, y + 2, WD[3])
+        lump(cv, px, 20, 18, 9, SN, rnd, .04)
+    for y in range(34, 54):   # crossbar, heavy beam
+        for x in range(8, 282): cv.put(x, y, WD[0] if y < 38 else WD[1] if y < 45 else WD[2] if y < 50 else WD[3])
+    for x in range(8, 282, 17): rect(cv, x, 38, x + 1, 52, WD[3])
+    for x in range(14, 276):   # snow on the beam
+        for y in range(27, 35): cv.put(x, y, SN[0] if y < 30 else SN[1] if y < 33 else SN[2]) if (x * 5 + y) % 9 < 7 else None
+    for x in range(20, 270):   # a frozen sheet under the beam, so the curtain reads as one
+        for y in range(54, 54 + 34 + (x * 7) % 11):
+            cv.put(x, y, IC[0] if (x // 3) % 4 == 0 else IC[1] if (x // 3) % 4 < 3 else IC[2])
     i = 0
-    for x in range(34, 218, 8):
-        ln = 44 + (i * 53) % 58 + (14 if 8 < i < 14 else 0)
-        icicle(cv, x, 50, ln, 7 if i % 3 else 9)
+    for x in range(44, 248, 8):   # the main curtain, ragged lengths
+        ln = 38 + (i * 53) % 62 + (16 if 8 < i < 15 else 0)
+        icicle(cv, x, 54, ln, 7 if i % 3 else 9)
         i += 1
-    for x in range(30, 220, 8):   # shorter secondary row, staggered
-        if (x // 8) % 2: icicle(cv, x + 4, 50, 30 + (x * 3) % 20, 5, IC)
-    for x, ln in ((58, 60), (122, 92), (170, 74), (194, 52)):   # little chime bells
-        y = 50 + ln + 4
-        for dx in range(7):
-            for dy in range(6): cv.put(x - 3 + dx, y + dy, GD[1] if dy < 3 else GD[2]) if (dx - 3) ** 2 + (dy - 5) ** 2 <= 14 else None
-        cv.put(x, y + 6, GD[3])
-    # do-not-lick sign
-    for y in range(120, 150): cv.put(224 - 7, y, WD[3]) if False else None
-    poly(cv, [(190, 140), (226, 140), (226, 168), (190, 168)], WD[1])
-    for x in range(190, 227): cv.put(x, 140, WD[0]); cv.put(x, 168, WD[3])
-    for y in range(140, 169): cv.put(226, y, WD[3])
-    poly(cv, [(198, 148), (203, 148), (203, 151), (198, 151)], COAL); poly(cv, [(212, 148), (217, 148), (217, 151), (212, 151)], COAL)
-    poly(cv, [(202, 158), (214, 158), (214, 162), (202, 162)], COAL)
-    poly(cv, [(206, 162), (211, 162), (211, 166), (206, 166)], PT[1])
-    line(cv, [(194, 144), (222, 164)], EM[1], 2)
-    for x in range(26, 222): cv.put(x, B + 1, SN[3]) if x % 4 == 0 else None
+    for x in range(40, 252, 8):   # shorter staggered row in front
+        if (x // 8) % 2: icicle(cv, x + 4, 54, 24 + (x * 3) % 22, 5, IC)
+    for x in range(40, 252, 6): cv.put(x, 54, IC[0]); cv.put(x, 55, IC[1])
+    for x, ln in ((70, 62), (130, 98), (186, 76), (222, 54)):   # little chime bells
+        y = 54 + ln + 4
+        for dx in range(9):
+            for dy in range(8): cv.put(x - 4 + dx, y + dy, GD[1] if dy < 4 else GD[2]) if (dx - 4) ** 2 + (dy - 7) ** 2 <= 20 else None
+        cv.put(x, y + 8, GD[3]); cv.put(x - 3, y + 2, GD[0])
+    # do-not-lick sign on its own stake
+    sx = 208
+    post(cv, sx + 14, 136, B - 6, 4, WD)
+    poly(cv, [(sx, 112), (sx + 34, 112), (sx + 34, 142), (sx, 142)], WD[1])
+    rect(cv, sx, 112, sx + 34, 114, WD[0]); rect(cv, sx, 140, sx + 34, 142, WD[3]); rect(cv, sx + 32, 112, sx + 34, 142, WD[3])
+    rect(cv, sx + 7, 120, sx + 11, 124, COAL); rect(cv, sx + 22, 120, sx + 26, 124, COAL)   # eyes
+    rect(cv, sx + 11, 129, sx + 23, 133, COAL); rect(cv, sx + 14, 133, sx + 19, 138, PT[1])   # tongue out
+    line(cv, [(sx + 3, 116), (sx + 31, 138)], EM[1], 2)
+    for x in range(20, 272): cv.put(x, B + 1, SN[3]) if x % 4 == 0 else None
 
 
 # ------------------------------------------------------------------ 316
-def lm_skyhill(rnd, cv):   # 290 x 190
-    B = 186; cx = 145; TOP = 70
+def lm_skyhill(rnd, cv):   # 340 x 190
+    B = 186; cx = 170; TOP = 98; K = 1.6
     for y in range(TOP, B):
-        hw = 46 + 98 * math.sqrt(max(0, 1 - ((B - y) / (B - TOP) - 0) ** 2) if False else 98 * 0)
-        hw = 50 + 92 * math.sqrt(max(0, 1 - ((B - y) / (B - TOP + 0.0)) ** 2.4 * 0 - (1 - (y - TOP) / (B - TOP)) ** 2))
+        t = (y - TOP) / (B - TOP)
+        hw = 74 + 90 * math.sqrt(max(0, 1 - (1 - t) ** 2.0))
         for x in range(int(cx - hw), int(cx + hw) + 1):
-            nx = (x - cx) / (hw + 18) * (.9); ny = -(B - y) / (B - TOP) * .6 + .05
-            t = tone5(gen2.shade_pt(nx, ny))
-            if rnd.random() < .08: t = max(0, min(4, t + rnd.choice((-1, 1))))
-            cv.put(x, y, SN[t])
-    for y in range(TOP - 9, TOP + 10):   # flat lit top
-        for x in range(cx - 52, cx + 53):
-            if ((x - cx) / 52) ** 2 + ((y - TOP) / 9) ** 2 <= 1: cv.put(x, y, SN[0] if (x + y) % 11 else CREAM)
-    for k in range(5):   # wind combs on the slope
-        x, y = rnd.randint(40, 230), rnd.randint(TOP + 30, B - 14)
+            nx = (x - cx) / (hw + 22) * .95; ny = -(1 - t) * .7 + .05
+            tt = tone5(gen2.shade_pt(nx, ny))
+            if rnd.random() < .08: tt = max(0, min(4, tt + rnd.choice((-1, 1))))
+            cv.put(x, y, SN[tt])
+    for y in range(TOP - 11, TOP + 12):   # flat lit top
+        for x in range(cx - 80, cx + 81):
+            if ((x - cx) / 80) ** 2 + ((y - TOP) / 11) ** 2 <= 1: cv.put(x, y, SN[0] if (x + y) % 11 else CREAM)
+    for k in range(7):   # wind combs on the slope
+        x, y = rnd.randint(30, 310), rnd.randint(TOP + 20, B - 12)
         if cv.get(x, y)[3] and cv.get(x, y) != INK:
-            for j in range(rnd.randint(10, 20)): cv.put(x + j, y + j // 6, SN[0]); cv.put(x + j, y + j // 6 + 1, SN[3])
-    # a footpath up the hill
-    for i in range(22):
-        t = i / 21; x = int(88 + 24 * math.sin(t * 5) * 0 + t * 40 - 20 * (1 - t) * 0); y = int(B - 8 - t * (B - TOP - 20))
-        x = int(100 + t * 24 + 6 * math.sin(t * 9));
+            for j in range(rnd.randint(12, 24)): cv.put(x + j, y + j // 6, SN[0]); cv.put(x + j, y + j // 6 + 1, SN[3])
+    for i in range(22):   # a footpath of little prints up the hill
+        t = i / 21; x = int(106 + t * 40 + 7 * math.sin(t * 9)); y = int(B - 8 - t * (B - TOP - 10))
         if i % 2: cv.put(x, y, SN[3]); cv.put(x + 1, y, SN[3]); cv.put(x, y + 1, SN[3])
-    # a gnome lying on a blanket, counting nothing
-    bx, by = 140, TOP
-    poly(cv, [(bx - 36, by + 1), (bx + 34, by - 2), (bx + 38, by + 5), (bx - 32, by + 8)], PT[1])
-    for x in range(bx - 34, bx + 36, 6): line(cv, [(x, by + 1), (x + 2, by + 7)], PT[0])
-    lump(cv, bx - 24, by - 2, 7, 5, SN, rnd, 0)   # beard
-    lump(cv, bx - 18, by - 4, 11, 6, SE, rnd, .05)   # belly
-    for sx in (bx + 2, bx + 12):   # boots in the air
-        for y in range(by - 10, by): cv.put(sx, y, SE[2]); cv.put(sx + 1, y, SE[3])
-        for dx in range(5):
-            for dy in range(4): cv.put(sx - 1 + dx, by - 14 + dy, WD[1] if dy < 2 else WD[3])
-    poly(cv, [(bx - 38, by - 4), (bx - 30, by - 4), (bx - 30, by - 20), (bx - 28, by - 30)], EM[1])
-    poly(cv, [(bx - 36, by - 4), (bx - 33, by - 4), (bx - 31, by - 20), (bx - 28, by - 30)], EM[0])
-    for x in range(bx - 40, bx - 27): cv.put(x, by - 3, SN[1])
-    for x, y in ((60, 20), (96, 8), (150, 14), (200, 10), (238, 28), (175, 36), (110, 38)):   # nothing in particular
-        gen2.sparkle(cv, x, y, False)
+    def X(d): return bx + int(d * K)
+    def Y(d): return by + int(d * K)
+    bx, by = 150, TOP - 1
+    # tartan blanket on the flat top
+    poly(cv, [(X(-52), Y(1)), (X(48), Y(-3)), (X(54), Y(5)), (X(-44), Y(8))], PT[1])
+    for d in range(-50, 52, 7): line(cv, [(X(d), Y(1)), (X(d) + 4, Y(7))], PT[0], 1)
+    line(cv, [(X(-48), Y(4)), (X(52), Y(1))], PT[2], 2)
+    for d in range(-44, 54, 3): cv.put(X(d), Y(8) + 1 + (d // 3) % 2, PT[2])
+    # the gnome on his back: face, white beard, round belly, boots up in the air
+    lump(cv, X(-27), Y(-4), 10, 8, PT, rnd, 0)
+    rect(cv, X(-27) - 2, Y(-5), X(-27), Y(-5) + 2, COAL)
+    lump(cv, X(-24), Y(1), 17, 10, SN, rnd, 0)
+    lump(cv, X(-6), Y(-4), 28, 13, SE, rnd, .05)
+    rect(cv, X(-6) - 3, Y(-9), X(-6) + 4, Y(-9) + 7, GD[1])
+    for d in (14, 28):
+        rect(cv, X(d), Y(-12), X(d) + 6, Y(-2), SE[2]); rect(cv, X(d) + 5, Y(-12), X(d) + 6, Y(-2), SE[3])
+        rect(cv, X(d) - 2, Y(-12) - 8, X(d) + 9, Y(-12), WD[1]); rect(cv, X(d) - 2, Y(-12) - 3, X(d) + 9, Y(-12), WD[3])
+    poly(cv, [(X(-44), Y(-5)), (X(-30), Y(-5)), (X(-31), Y(-22)), (X(-24), Y(-38))], EM[1])
+    poly(cv, [(X(-42), Y(-5)), (X(-36), Y(-5)), (X(-31), Y(-22)), (X(-24), Y(-38))], EM[0])
+    for x in range(X(-46), X(-27)): cv.put(x, Y(-5), SN[1]); cv.put(x, Y(-5) + 1, SN[2])
+    for i in range(3):   # counting: thought puffs rising
+        lump(cv, X(-20) + i * 12, Y(-40) - i * 12, 5 - i // 2, 4, SN, rnd, 0)
+    # telescope on a tripod, aimed at nothing in particular
+    tx, ty = 238, TOP + 6
+    for ex in (-18, 0, 18): line(cv, [(tx, ty - 30), (tx + ex, ty + 8)], WD[2], 2)
+    line(cv, [(tx - 14, ty - 6), (tx + 14, ty - 6)], WD[3], 1)
+    poly(cv, [(tx - 16, ty - 26), (tx - 6, ty - 36), (tx + 44, ty - 74), (tx + 52, ty - 64), (tx + 2, ty - 22), (tx - 8, ty - 18)], GD[1])
+    poly(cv, [(tx - 16, ty - 26), (tx - 6, ty - 36), (tx + 44, ty - 74), (tx + 47, ty - 70), (tx - 8, ty - 26)], GD[0])
+    poly(cv, [(tx + 42, ty - 72), (tx + 50, ty - 80), (tx + 60, ty - 72), (tx + 52, ty - 62)], GD[2])
+    cv.put(tx + 54, ty - 72, CREAM); cv.put(tx + 55, ty - 73, CREAM)
+    for k in range(3): line(cv, [(tx + 6 + k * 12, ty - 34 - k * 9), (tx + 9 + k * 12, ty - 27 - k * 9)], GD[3], 1)
+    # steaming flask and cup
+    fx = bx + 82
+    rect(cv, fx, by - 10, fx + 12, by + 6, SE[1]); rect(cv, fx, by - 10, fx + 4, by + 6, SE[0]); rect(cv, fx + 10, by - 10, fx + 12, by + 6, SE[3])
+    rect(cv, fx + 1, by - 15, fx + 11, by - 10, WD[1])
+    for k in range(4): cv.put(fx + 6 + (k % 2) * 2, by - 18 - k * 4, CREAM)
+    # stars, a shooting star
+    for x, y in ((58, 30), (104, 12), (168, 20), (262, 8), (312, 40), (196, 36), (30, 60), (126, 56)): gen2.sparkle(cv, x, y, False)
+    for k in range(12): cv.put(300 - k * 2, 14 + k, CREAM); cv.put(301 - k * 2, 14 + k, GD[0]) if k % 2 == 0 else None
+    # boulders and drifts round the foot of the hill
+    for x, y, a, b in ((34, B - 10, 20, 8), (306, B - 8, 22, 8), (170, B - 2, 50, 6)): lump(cv, x, y, a, b, SN, rnd, .05)
+    for x, y in ((52, B - 16), (292, B - 14)): lump(cv, x, y, 9, 6, ST, rnd, .1); lump(cv, x, y - 4, 7, 3, SN, rnd, 0)
 
 
 def menhir(cv, cx, base, w, h, R, rnd, lean=0, dots=None):
@@ -738,8 +770,8 @@ LM = {
     "310-driftpass": (340, 196, lm_driftpass),
     "310-sledtrack": (340, 170, lm_sledtrack),
     "310-combridge": (290, 190, lm_comb),
-    "310-icicurtain": (250, 194, lm_icicurtain),
-    "316-skyhill": (290, 190, lm_skyhill),
+    "310-icicurtain": (290, 186, lm_icicurtain),
+    "316-skyhill": (340, 190, lm_skyhill),
     "316-starstones": (340, 200, lm_starstones),
     "316-auroracamp": (300, 250, lm_auroracamp),
     "316-kettletree": (240, 232, lm_kettletree),

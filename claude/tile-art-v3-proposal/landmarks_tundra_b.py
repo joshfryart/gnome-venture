@@ -6,6 +6,8 @@ from gen2 import RAMP, INK, CREAM, Cv, lump, r5, outline, trunk, leaf_texture, d
 from PIL import ImageDraw
 
 SN, IC, PN, ST, WD, GD, EM, PT, DK, MS = (r5(RAMP[k]) for k in ("snow", "ice", "pine", "stone", "wood", "gold", "ember", "petal", "dusk", "moss"))
+SE = r5(RAMP["sea"])
+COAL = H("#35295f")
 FONT = {"O": "111101101101111", "W": "101101101111101", "L": "100100100100111", "Y": "101101010010010", "E": "111100110100111",
         "S": "111100111001111", "?": "111001011000010", ".": "000000000000010", "H": "101101111101101"}
 
@@ -16,6 +18,32 @@ def _text(cv, x, y, s, c, sc=2):
             if b == "1":
                 for dx in range(sc):
                     for dy in range(sc): cv.put(x + i * 4 * sc + (k % 3) * sc + dx, y + (k // 3) * sc + dy, c)
+
+def rect(cv, x0, y0, x1, y1, c):
+    for y in range(y0, y1):
+        for x in range(x0, x1): cv.put(x, y, c)
+
+def poly(cv, pts, c):
+    ImageDraw.Draw(cv.im).polygon(pts, fill=c)
+
+def line(cv, pts, c, w=1):
+    ImageDraw.Draw(cv.im).line(pts, fill=c, width=w)
+
+def post(cv, x, y0, y1, w, R):
+    for xx in range(x, x + w):
+        u = (xx - x) / max(1, w - 1); t = 0 if u < .2 else 1 if u < .5 else 2 if u < .8 else 3
+        for y in range(y0, y1): cv.put(xx, y, R[t])
+
+def icicle(cv, x, y, ln, w, R=None):
+    R = R or IC
+    for i in range(ln):
+        hw = max(0, int(round(w / 2 * (1 - i / ln) ** .8)))
+        for k in range(-hw, hw + 1):
+            t = 0 if k < -hw * .3 else 1 if k < hw * .4 else 2
+            if i > ln - 4: t = 0
+            cv.put(x + k, y + i, R[t])
+        if hw == 0 and i < ln - 1: cv.put(x, y + i, R[1])
+    cv.put(x, y + ln, R[0])
 
 def _rect(cv, x0, y0, x1, y1, c):
     for y in range(y0, y1):
@@ -163,30 +191,66 @@ def lm_fort(rnd, cv):   # 250 x 140
     for k in range(6): cv.put(40 + k * 5, 133 - k % 2, IC[2])
 
 # -------------------------------------------------------------------------------------------- section 2
-def lm_stream(rnd, cv):   # 290 x 110
-    def cy(x): return 62 + int(7 * math.sin(x / 38))
-    for x in range(4, 286):
-        c = cy(x); hh = 22 - (max(0, 30 - x, x - 260)) // 2
+def lm_stream(rnd, cv):   # 330 x 124
+    def cy(x): return 78 + int(6 * math.sin(x / 38))
+    # packed-snow banks first, then the glassy ribbon between them with a thick front edge
+    for x in range(8, 322, 4):
+        c = cy(x)
+        lump(cv, x, c - 24, 12, 7 + (x // 4) % 3, SN, rnd, .04)
+    for x in range(6, 324):
+        c = cy(x); hh = 20 - (max(0, 26 - x, x - 298)) // 2
         for y in range(c - hh, c + hh + 1):
             u = (y - (c - hh)) / (2 * hh + 1)
             t = 0 if u < .22 else 1 if u < .55 else 2 if u < .88 else 3
             if (x * 3 + y * 7) % 23 == 0: t = max(0, t - 1)
+            if (x * 2 + y * 5) % 61 < 4 and u < .7: t = 0
             cv.put(x, y, IC[t])
-    for x0, y0 in ((50, 56), (130, 70), (206, 52)):   # cracks and glints
+        for k in range(1, 6): cv.put(x, c + hh + k, IC[2] if k < 3 else IC[3] if k < 5 else SN[4])   # the ice's thick front edge
+    # icicle fringe: hanging from the far bank over the ice, and from the lip at the front
+    i = 0
+    for x in range(14, 316, 7):
+        c = cy(x); hh = 20 - (max(0, 26 - x, x - 298)) // 2
+        icicle(cv, x, c - hh - 1, 7 + (i * 5) % 9, 4, IC); i += 1
+    for x in range(12, 318, 9):
+        c = cy(x); hh = 20 - (max(0, 26 - x, x - 298)) // 2
+        icicle(cv, x, c + hh + 6, 6 + (x * 7) % 10, 4, IC)
+    # cracks and glints, leaves frozen in the glass
+    for x0, y0 in ((40, 62), (118, 72), (250, 58)):
         x, y = x0, y0
         for k in range(26):
-            cv.put(x, y, IC[3]); x += 1 if k % 3 else 0; y += rnd.choice((-1, 0, 1)) if k % 2 else 0
-        for k in range(10): cv.put(x0 + k, y0 - 10, CREAM) if k < 7 else None
-    fx, fy = 150, cy(150) - 2   # fish frozen under the glass, mildly alarmed
-    lump(cv, fx, fy, 16, 7, EM, rnd, 0);
-    for k in range(7): _rect(cv, fx + 15 + k, fy - 3 - k // 2 + (k // 4), fx + 16 + k, fy + 4 + k // 2, EM[2])
-    cv.put(fx - 8, fy - 2, CREAM); cv.put(fx - 9, fy - 2, INK); cv.put(fx - 10, fy + 2, INK); cv.put(fx - 11, fy + 2, INK)
-    for x in range(6, 284, 5):   # snow banks top and bottom
-        c = cy(x)
-        lump(cv, x, c - 24, 11, 6 + (x // 5) % 3, SN, rnd, .04)
-        lump(cv, x + 2, c + 26, 11, 5 + (x // 5) % 2, SN, rnd, .04)
-    for cx, cyy, rx, ry in ((28, 90, 14, 9), (262, 28, 12, 8)):
+            cv.put(x, y, IC[3]); cv.put(x, y - 1, CREAM) if k % 4 == 0 else None; x += 1 if k % 3 else 0; y += rnd.choice((-1, 0, 1)) if k % 2 else 0
+    for x, y, col in ((92, 60, GD), (204, 74, EM), (276, 60, GD), (58, 76, MS), (236, 62, EM), (130, 58, GD)):
+        for dx in range(-3, 4):
+            for dy in range(-2, 3):
+                if dx * dx / 10 + dy * dy / 5 <= 1: cv.put(x + dx, y + dy, col[1] if dy < 1 else col[2])
+        cv.put(x - 1, y - 1, col[0]); cv.put(x + 4, y + 1, col[3]); cv.put(x + 5, y + 1, col[3])
+    fx, fy = 70, 68   # fish frozen under the glass, mildly alarmed
+    lump(cv, fx, fy, 14, 6, EM, rnd, 0)
+    for k in range(6): rect(cv, fx + 13 + k, fy - 3 - k // 2 + (k // 4), fx + 14 + k, fy + 4 + k // 2, EM[2])
+    cv.put(fx - 7, fy - 2, CREAM); cv.put(fx - 8, fy - 2, INK); cv.put(fx - 9, fy + 2, INK); cv.put(fx - 10, fy + 2, INK)
+    # the little plank bridge, humped, with rope rails and a snowy hat
+    bx0, bx1 = 150, 192
+    for x in range(bx0, bx1):
+        c = cy(x); u = (x - bx0) / (bx1 - bx0)
+        for y in range(c - 30, c + 28):
+            hump = int(5 * math.sin(math.pi * (y - (c - 30)) / 58))
+            ty = y
+            t = 0 if (x - bx0) % 7 == 0 else 1 if (x - bx0) % 7 < 4 else 2
+            if y > c + 22: t = 3
+            cv.put(x, y - hump, WD[t])
+        for dy in (-34, 31): pass
+    for x in (bx0 - 1, bx1): rect(cv, x, 14, x + 3, 100, WD[2]) if False else None
+    for px, py in ((bx0 - 2, cy(bx0) - 32), (bx0 - 2, cy(bx0) + 22), (bx1 - 1, cy(bx1) - 32), (bx1 - 1, cy(bx1) + 22)):
+        post(cv, px, py - 12, py + 8, 4, WD); lump(cv, px + 2, py - 12, 4, 3, SN, rnd, 0)
+    for py in (cy(bx0) - 38, cy(bx0) + 18):   # rope rails
+        line(cv, [(bx0, py + 1), (bx1 + 1, py + 1)], WD[0], 1); line(cv, [(bx0, py + 2), (bx1 + 1, py + 2)], WD[3], 1)
+    lump(cv, 170, cy(170) - 2, 12, 4, SN, rnd, 0)
+    # a couple of stones and drifts on the near bank
+    for cx, cyy, rx, ry in ((26, 100, 14, 9), (304, 28, 12, 8)):
         lump(cv, cx, cyy, rx, ry, ST, rnd, .1); lump(cv, cx, cyy - ry + 1, rx - 3, 4, SN, rnd, 0)
+    for x in range(10, 320, 5):
+        c = cy(x); lump(cv, x + 2, c + 32, 11, 4 + (x // 5) % 2, SN, rnd, .04)
+
 
 def lm_bridge(rnd, cv):   # 260 x 180
     gd = r5(RAMP["dusk"])
@@ -224,14 +288,48 @@ def lm_bridge(rnd, cv):   # 260 x 180
     _rect(cv, 116, tp - 36, 146, tp - 33, CREAM); _rect(cv, 116, tp - 30, 140, tp - 27, CREAM)
 
 # -------------------------------------------------------------------------------------------- section 3
-def lm_feather(rnd, cv):   # 150 x 195
-    lump(cv, 75, 178, 62, 16, SN, rnd, .06); lump(cv, 40, 182, 24, 9, SN, rnd, 0); lump(cv, 112, 183, 26, 8, SN, rnd, 0)
-    _feather(cv, 70, 176, 84, 6, 32, rnd, bend=-12)
-    for y in range(205, 226):   # snow collar round the quill
-        for x in range(60, 82): cv.put(x, y, WD[3]) if False else None
-    lump(cv, 72, 174, 22, 8, SN, rnd, 0)
-    for k in range(14): cv.put(20 + k * 8, 190 - k % 3, IC[2])
-    for x in range(98, 116): cv.put(x, 140 + (x - 98) // 3, PT[1]) if False else None
+def lm_feather(rnd, cv):   # 190 x 206
+    B = 202
+    # a mound of snow, trodden down round the base
+    lump(cv, 95, B - 12, 90, 22, SN, rnd, .06)
+    lump(cv, 36, B - 8, 28, 10, SN, rnd, .05); lump(cv, 154, B - 8, 30, 10, SN, rnd, .05)
+    bx, by, tx, ty, wid, bend = 90, B - 14, 100, 6, 36, -12
+    N = 700
+    for k in range(N + 1):   # vane tapers smoothly from a downy base to a soft tip
+        t = k / N; sx = bx + (tx - bx) * t + bend * math.sin(t * math.pi); sy = by + (ty - by) * t
+        w = 0 if t < .26 or t > .99 else wid * math.sin(math.pi * ((t - .26) / .73) ** .75) ** .85
+        jl = 3 * ((int(sy) // 3) % 2) if w > 8 else 0; jr = 3 * (((int(sy) + 1) // 3) % 2) if w > 8 else 0   # ragged barbs
+        for o in range(-int(w) + jl, int(w) + 1 - jr):
+            if .5 < t < .56 and o > w * .4: continue   # a little split in the vane
+            u = (o + w) / max(1, 2 * w); c = SN[0] if u < .35 else SN[1] if u < .62 else SN[2] if u < .88 else SN[3]
+            cv.put(int(sx) + o, int(sy), c)
+        if t > .06: cv.put(int(sx), int(sy), ST[1]); cv.put(int(sx) + 1, int(sy), ST[2])
+    for k in range(30):   # downy fluff near the quill base
+        t = .24 + k / 30 * .1; sx = bx + (tx - bx) * t + bend * math.sin(t * math.pi); sy = by + (ty - by) * t
+        for o in range(-(2 + k // 4), 3 + k // 4): cv.put(int(sx) + o, int(sy), SN[1 if o < 0 else 2])
+    # barbs: diagonal combed lines across the vane
+    sset = set(SN) | set(IC)
+    for y in range(8, B - 20):
+        for x in range(0, 190):
+            c = cv.get(x, y)
+            if c in sset and (y * 2 + x) % 9 == 0 and cv.get(x, y - 1) in sset:
+                cv.put(x, y, IC[1] if c in (SN[0], SN[1]) else SN[3])
+    # shimmer: pearly pink, mint and gold glints scattered over the vane
+    k = 0
+    for y in range(12, B - 34):
+        for x in range(0, 190):
+            c = cv.get(x, y)
+            if c in sset and (x * 7 + y * 13) % 71 == 0:
+                cv.put(x, y, (PT[0], SE[0], GD[0])[k % 3]); k += 1
+    for x, y in ((60, 40), (120, 70), (96, 24), (50, 112), (132, 130), (84, 94)): gen2.sparkle(cv, x, y, y % 20 == 4)
+    lump(cv, 90, B - 16, 20, 7, SN, rnd, 0)   # snow collar round the quill
+    for a in range(0, 360, 51):   # a ring of little stones, as if marking the spot
+        x = 95 + int(math.cos(math.radians(a)) * 66); y = B - 6 + int(math.sin(math.radians(a)) * 9)
+        lump(cv, x, y, 5, 3, ST, rnd, .1)
+    for i in range(7):   # gnome prints leading round it (it was very impressive)
+        x, y = 20 + i * 11, B + 2 - (i % 2) * 3; cv.put(x, y, SN[3]); cv.put(x + 1, y, SN[3]); cv.put(x, y - 1, SN[3])
+    for k in range(18): cv.put(12 + k * 9, B + 1 - k % 3, IC[2])
+
 
 def lm_cairns(rnd, cv):   # 250 x 150
     for cx, widths, fh in ((52, (56, 40, 26, 16), 46), (126, (80, 58, 40, 28, 16), 62), (198, (50, 34, 20), 40)):
@@ -284,28 +382,70 @@ def lm_den(rnd, cv):   # 300 x 190
     _rect(cv, cx0 - 4, 156, cx0 + 5, 160, GD[2]); _rect(cv, cx0 - 2, 160, cx0 + 3, 166, GD[3])   # small beak between the eyes
     lump(cv, 38, 184, 26, 10, SN, rnd, 0); lump(cv, 262, 184, 26, 10, SN, rnd, 0)
 
-def lm_doormat(rnd, cv):   # 230 x 100
-    _drift(cv, 115, 96, 106, 22, rnd)
-    for y in range(36, 88):
-        sk = (88 - y) // 6
-        for x in range(26 + sk, 204 - sk):
-            u = (y - 36) / 52; t = 1 if u < .25 else 2 if u < .6 else 3
-            if (x * 3 + y * 5) % 7 == 0: t = max(0, t - 1)
-            if (x * 5 + y) % 11 == 0: t = min(4, t + 1)
-            cv.put(x, y, MS[t])
-    for y in range(36, 88):   # stitched border
-        sk = (88 - y) // 6
-        for x in (30 + sk, 199 - sk): cv.put(x, y, CREAM) if y % 3 else None
-    for x in range(30, 200, 3):
-        sk0 = (88 - 40) // 6; sk1 = 0
-        cv.put(x + 2, 40, CREAM); cv.put(x + 2, 83, CREAM) if 36 + 0 < x < 196 else None
-    for x in range(26, 204, 3):   # moss fringe
-        for k in range(3 + (x // 3) % 3): cv.put(x, 88 + k, MS[2 if k < 2 else 3])
-    _text(cv, 72, 52, "HOO", GD[0], 5)
-    for ex, ey in ((28, 20), (196, 14), (160, 24)):   # soft feathers drifting down
+def _boot(cv, x, base, rnd, flip=1, tip=False):
+    for dy in range(26):   # leg
+        for dx in range(12):
+            if tip: break
+            cv.put(x + dx, base - 10 - dy, WD[1 if dx < 4 else 2 if dx < 9 else 3])
+    for dy in range(10):   # foot
+        for dx in range(26):
+            xx = x - (4 if flip < 0 else 0) + dx if flip > 0 else x + 12 - dx
+            cv.put(xx, base - dy, WD[0 if dy > 8 else 1 if dx < 8 else 2 if dy < 8 else 3])
+    for dx in range(26):
+        xx = x + dx if flip > 0 else x + 12 - dx
+        cv.put(xx, base - 1, ST[3])   # sole
+    rect(cv, x - 1, base - 38, x + 13, base - 33, SN[1]); rect(cv, x - 1, base - 38, x + 13, base - 36, SN[0])   # snowy cuff
+    for k in range(3): cv.put(x + 3 + k * 3, base - 22, ST[0]); cv.put(x + 3 + k * 3, base - 16, ST[0])   # laces
+
+
+def lm_doormat(rnd, cv):   # 300 x 140
+    B = 136
+    lump(cv, 150, B - 12, 142, 24, SN, rnd, .06)
+    t0, t1 = 62, 116   # mat top and bottom edges
+    for y in range(t0, t1):
+        sk = (t1 - y) // 5
+        for x in range(30 + 12 - (y - t0) // 4 + 0, 270 - 12 + (y - t0) // 4 + 0) if False else range(40 - (y - t0) // 4, 260 + (y - t0) // 4):
+            u = (y - t0) / (t1 - t0)
+            band = (y - t0)
+            if band < 7 or band > t1 - t0 - 8: c = (GD[1], DK[2])[(x // 9) % 2] if band < 7 else (GD[2], DK[3])[(x // 9) % 2]   # owl-stripe borders
+            else:
+                t = 1 if u < .25 else 2 if u < .6 else 3
+                if (x * 3 + y * 5) % 7 == 0: t = max(0, t - 1)
+                if (x * 5 + y) % 11 == 0: t = min(4, t + 1)
+                c = MS[t]
+            cv.put(x, y, c)
+    for y in range(t1, t1 + 4):   # the mat's thick front edge
+        for x in range(40 - (t1 - t0) // 4 - 1, 260 + (t1 - t0) // 4 + 1): cv.put(x, y, MS[3] if y < t1 + 3 else MS[4])
+    for x in range(26, 274, 3):   # moss fringe
+        for k in range(3 + (x // 3) % 3): cv.put(x, t1 + 4 + k, MS[2 if k < 2 else 3])
+    for y in range(t0 + 8, t1 - 8):   # stitched side borders
+        for x in (46 - (y - t0) // 4, 254 + (y - t0) // 4): cv.put(x, y, CREAM) if y % 3 else None
+    _text(cv, 108, t0 + 13, "HOO", GD[0], 6)
+    _text(cv, 109, t0 + 14, "HOO", GD[2], 6) if False else None
+    # boots left on the mat: one upright, one tipped over, a bit muddy
+    _boot(cv, 56, 112, rnd, 1)
+    _boot(cv, 86, 114, rnd, 1)
+    cv.put(70, 100, WD[3]); cv.put(71, 101, WD[3])
+    # a lantern with a tiny flame, on a hook post
+    lx = 224
+    post(cv, lx + 8, 22, 112, 4, WD)
+    line(cv, [(lx + 10, 24), (lx - 2, 24)], WD[2], 2)
+    line(cv, [(lx, 24), (lx, 38)], ST[3], 1)
+    rect(cv, lx - 8, 38, lx + 9, 42, WD[3])
+    for y in range(42, 66):
+        for x in range(lx - 7, lx + 8):
+            edge = x in (lx - 7, lx + 7)
+            cv.put(x, y, WD[3] if edge else GD[0] if (x - lx) ** 2 + (y - 54) ** 2 < 44 else GD[1] if x < lx + 2 else GD[2])
+    rect(cv, lx - 8, 66, lx + 9, 69, WD[3])
+    for k in range(6): cv.put(lx - 8 + k * 3, 36 - (k % 2), WD[3])
+    poly(cv, [(lx - 10, 38), (lx + 10, 38), (lx, 28)], SN[1]); poly(cv, [(lx - 10, 38), (lx - 2, 38), (lx, 28)], SN[0])
+    for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)): cv.put(lx + 16 + dx, 50 + dy, GD[0]); cv.put(lx - 18 + dx, 58 + dy, GD[1])
+    lump(cv, lx + 10, 113, 16, 5, SN, rnd, 0)
+    for ex, ey in ((22, 24), (270, 18), (170, 20), (130, 40)):   # soft feathers drifting down
         _feather(cv, ex, ey + 14, ex + 2, ey, 4, rnd, bend=3)
-    for k in range(4): lump(cv, 46 + k * 46, 92, 7, 4, ST, rnd, .1) if k % 2 == 0 else None
+    for x, y in ((40, 128), (110, 130), (190, 128), (262, 126)): lump(cv, x, y, 8, 4, ST, rnd, .1)
+
 
 LM = {"315-gate": (220, 190, lm_gate), "315-lamps": (240, 200, lm_lamps), "315-slope": (290, 210, lm_slope), "315-fort": (250, 140, lm_fort),
-      "315-stream": (290, 110, lm_stream), "315-bridge": (260, 180, lm_bridge), "315-feather": (150, 196, lm_feather), "315-cairns": (250, 150, lm_cairns),
-      "315-den": (300, 190, lm_den), "315-doormat": (230, 100, lm_doormat)}
+      "315-stream": (330, 124, lm_stream), "315-bridge": (260, 180, lm_bridge), "315-feather": (190, 206, lm_feather), "315-cairns": (250, 150, lm_cairns),
+      "315-den": (300, 190, lm_den), "315-doormat": (300, 140, lm_doormat)}
