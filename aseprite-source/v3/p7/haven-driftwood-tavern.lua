@@ -65,15 +65,15 @@ for i = 0, 60 do local x, y = floor(H(i, 71, 1) * 480), 200 + floor(H(i, 73, 1) 
 
 ---------------------------------------------------------------- boat + sail (distant)
 local hull = mk()
-for x = 186, 230 do local u = (x - 208) / 22; local t = 126 + floor(6 * u * u); for y = t, 133 - floor(2 * u * u) do hull:set(x, y) end end
+for x = 186, 230 do local u = (x - 208) / 22; local t = 134 + floor(6 * u * u); for y = t, 141 - floor(2 * u * u) do hull:set(x, y) end end
 GX.lit(c, GX.rough(hull, 3, 1), R6(WOOD), { R = 5, tex = .3, seed = 3, rimlight = true })
-c:fillMask(c:rect(196, 130, 222, 130), WOOD.deep)
-c:fillMask(c:rect(207, 108, 208, 126), INK)
-local sail = c:poly{ { 210, 106 }, { 230, 124 }, { 210, 124 } }
+c:fillMask(c:rect(196, 138, 222, 138), WOOD.deep)
+c:fillMask(c:rect(207, 116, 208, 134), INK)
+local sail = c:poly{ { 210, 114 }, { 230, 132 }, { 210, 132 } }
 GX.lit(c, sail, R6(CREAM), { R = 7, tex = .25, seed = 5, rimlight = true })
-local sail2 = c:poly{ { 205, 112 }, { 205, 124 }, { 194, 124 } }
+local sail2 = c:poly{ { 205, 120 }, { 205, 132 }, { 194, 132 } }
 GX.lit(c, sail2, R6(PINK), { R = 5, tex = .2, seed = 6, rimlight = true })
-for k = 0, 8 do c:px(186 + k * 5, 135 + k % 2, "#6a5090") end
+for k = 0, 8 do c:px(186 + k * 5, 143 + k % 2, "#6a5090") end
 
 ---------------------------------------------------------------- palms
 local function bez(p0, p1, p2, t) local u = 1 - t; return u*u*p0[1] + 2*u*t*p1[1] + t*t*p2[1], u*u*p0[2] + 2*u*t*p1[2] + t*t*p2[2] end
