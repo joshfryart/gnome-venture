@@ -571,6 +571,18 @@ if ($withDb) {
     ok('5 pals: five sprites, the first pal did not move', substr_count($t5, 'id="sp-p') === 5 && $pos1 !== null && str_contains($t5, '<rect class="hit" x="' . $pos1[0] . '" y="' . $pos1[1] . '"'));
     ok('5 pals: the 5-pal dressing (rug) is there, the 10-pal one is not', str_contains($t5, 'data-dress="rug"') && !str_contains($t5, 'data-dress="lights"'));
     ok('4 pals or fewer: no dressing yet', !str_contains($t1b, 'data-dress'));
+    echo "== Phase 5: animation and trophy layers (optional pictures)\n";
+    $LA = here_layouts_shipped()['treehouse'];
+    ok('no layer picture on disk: no animation group, no trophy', !str_contains($t5, 'class="hanim') && !str_contains($t5, 'data-dress="trophy-'));
+    $bad1 = here_lint_layout(['anim' => [['k' => 'x', 'fx' => 'spin', 'x' => 10, 'y' => 10, 'w' => 8, 'h' => 8]], 'trophies' => [['k' => 'y', 'kind' => 'gold', 'x' => 10, 'y' => 10, 'w' => 8, 'h' => 8]]] + $LA);
+    ok('lint: unknown effect and trophy kind are caught', str_contains(implode('|', $bad1), 'fx must be one of') && str_contains(implode('|', $bad1), 'kind must be'), implode('|', $bad1));
+    ok('lint: the shipped layouts stay clean with trophies', !here_lint_layout($LA));
+    $tmp = [APP_ROOT . '/assets/img/scenes/tree-anim-t1.png', APP_ROOT . '/assets/img/scenes/tree-trophy-top-1.png'];
+    foreach ($tmp as $f) file_put_contents($f, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='));
+    $svgA = hub_scene('treehouse', [], [], ['layout' => ['anim' => [['k' => 't1', 'fx' => 'bob', 'speed' => 'slow', 'x' => 10, 'y' => 10, 'w' => 8, 'h' => 8]]] + $LA, 'art' => 'tree', 'chrome' => true]);
+    ok('an animation layer with a picture is a class-only group (fx-bob spd-slow, no style attribute)', str_contains($svgA, 'class="hanim fx-bob spd-slow"') && !preg_match('/<g class="hanim[^>]*style=/', $svgA));
+    ok('trophy layer file is found by name', count(here_layers_present($LA, 'trophies', 'tree', 'treehouse')) === 1);
+    foreach ($tmp as $f) @unlink($f);
     $pj = array_values(pj_pals($uid));
     $first = $pj[0]; $second = $pj[1];
     q("UPDATE ppal_found SET status = 'trip' WHERE pal_uid = ?", [$first['uid']]);

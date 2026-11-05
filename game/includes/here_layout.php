@@ -194,7 +194,7 @@ function here_lint_layout(array $L): array
         if (!is_array($p) || !isset($p['x'], $p['y']) || $p['x'] < 0 || $p['x'] > $w || $p['y'] < 0 || $p['y'] > $h) $bad[] = $what . ' outside the picture';
     };
     $pts = [];
-    foreach (['exits' => 'exit', 'spots' => 'spot', 'stand' => 'stand', 'houses' => 'house', 'pals' => 'perch', 'party' => 'party slot', 'dress' => 'dressing'] as $key => $what) {
+    foreach (['exits' => 'exit', 'spots' => 'spot', 'stand' => 'stand', 'houses' => 'house', 'pals' => 'perch', 'party' => 'party slot', 'dress' => 'dressing', 'trophies' => 'trophy', 'anim' => 'animation layer'] as $key => $what) {
         foreach ($L[$key] ?? [] as $i => $p) { $in($what . ' ' . $i, $p); if (is_array($p) && isset($p['x'], $p['y'])) $pts[$key][$i] = $p; }
     }
     $dist = fn($a, $b) => sqrt((($a['x'] - $b['x']) ** 2) + (($a['y'] - $b['y']) ** 2));
@@ -229,6 +229,12 @@ function here_lint_layout(array $L): array
     foreach (['pals' => 'perch', 'party' => 'party slot'] as $key => $what) foreach ($pts[$key] ?? [] as $i => $p) {
         if ($p['x'] >= $clear[0] && $p['x'] <= $clear[2] && $p['y'] >= $clear[1] && $p['y'] <= $clear[3]) $bad[] = $what . ' ' . $i . ' in the compass corner';
     }
+    foreach (['trophies' => 'trophy', 'anim' => 'animation layer'] as $key => $what) foreach ($L[$key] ?? [] as $i => $t) {   // optional picture layers: a name, a size, and (anim) a known effect
+        if (!is_array($t) || !preg_match('/^[a-z0-9_-]{1,32}$/', (string)($t['k'] ?? ''))) { $bad[] = $what . ' ' . $i . ' needs a k of a-z 0-9 - _'; continue; }
+        if ((int)($t['w'] ?? 0) < 1 || (int)($t['h'] ?? 0) < 1 || $t['x'] + $t['w'] > $w || $t['y'] + $t['h'] > $h) $bad[] = $what . ' ' . $t['k'] . ' has no w/h or runs off the picture';
+        if ($key === 'trophies' && !in_array($t['kind'] ?? '', HERE_TROPHY_KINDS, true)) $bad[] = 'trophy ' . $t['k'] . ' kind must be ' . implode(' or ', HERE_TROPHY_KINDS);
+        if ($key === 'anim' && !isset(HERE_ANIM_FX[$t['fx'] ?? ''])) $bad[] = 'animation ' . $t['k'] . ' fx must be one of ' . implode(', ', array_keys(HERE_ANIM_FX));
+    }
     if (isset($L['stand']) && count($L['stand']) < 4) $bad[] = 'fewer than 4 stand slots';   // door and street layouts have no 'stand'
     $seen = [];
     foreach ($L['exits'] ?? [] as $e) {
@@ -237,6 +243,30 @@ function here_lint_layout(array $L): array
         $seen[$e['a'] ?? ''] = 1;
     }
     return $bad;
+}
+
+/** Trophy layers (treehouse Contest hall): kind 'expert' = Expert jigsaw trophies held, 'top' = games where you hold this week's top score. */
+const HERE_TROPHY_KINDS = ['expert', 'top'];
+/** Animation layers: effect => seconds per loop. CSS classes only (.hanim.fx-<name>), switched off for prefers-reduced-motion. Optional `speed`: slow (x1.6) or fast (x0.6). */
+const HERE_ANIM_FX = ['sway' => 4, 'bob' => 3, 'twinkle' => 2.5, 'drift' => 12, 'flicker' => 1.2, 'pulse' => 3];
+
+/** Picture file of a layer. Treehouse: tree-trophy-<k>.png, tree-anim-<k>.png; yard: yard-anim-<k>.png; workshop: craft-anim-<k>.png; Here scenes: here-<key>-anim-<k>.png. */
+function here_layer_file(string $art, string $key, string $what, string $k): string
+{
+    $k = preg_replace('/[^a-z0-9_-]/i', '', $k);
+    return ($art === 'here' ? 'here-' . $key . '-' : $art . '-') . $what . '-' . $k . '.png';
+}
+
+/** The entries of $L['anim'] (or 'trophies') whose picture exists, each with 'src' (URL) added. A missing picture draws nothing. */
+function here_layers_present(array $L, string $list, string $art, string $key): array
+{
+    $out = [];
+    foreach ($L[$list] ?? [] as $t) {
+        if (!is_array($t) || !isset($t['k'], $t['x'], $t['y'], $t['w'], $t['h'])) continue;
+        $f = here_layer_file($art, $key, $list === 'anim' ? 'anim' : 'trophy', (string)$t['k']);
+        if (is_file(APP_ROOT . '/assets/img/scenes/' . $f)) $out[] = $t + ['src' => url('assets/img/scenes/' . $f)];
+    }
+    return $out;
 }
 
 /** Lint every layout in a map. Returns [key => problems] for the ones with problems. */

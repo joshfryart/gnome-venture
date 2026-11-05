@@ -194,9 +194,13 @@ function treehouse_view(array $u, string $open = ''): string
     }
     $trophies = 0;
     if (ppal_open() && !is_guest($u)) { try { $trophies = (int)q_val('SELECT COUNT(*) FROM ppal_trophies WHERE user_id = ?', [$uid]); } catch (Throwable $e) {} }
+    $topGames = 0;   // games where you hold this week's top score (feeds the 'top' trophy layers)
+    if (!is_guest($u)) foreach (array_keys(GAMES) as $gk) {
+        try { if ((int)q_val("SELECT s.user_id FROM game_scores s JOIN users x ON x.id = s.user_id WHERE s.game = ? AND s.week = ? AND x.banned = 0 GROUP BY s.user_id ORDER BY MAX(s.score) DESC, MIN(s.id) LIMIT 1", [$gk, job_period_key('weekly')]) === $uid) $topGames++; } catch (Throwable $e) {}
+    }
     hubp_add($hot, $L, 'contests', ['label' => 'Contest hall', 'emoji' => '🏆', 'href' => url('treehouse.php?o=contests'),
         'card' => '<h4>🏅 This week’s high scores</h4>' . ($top !== '' ? '<ul class="tshelf">' . $top . '</ul>' : '<p class="muted">Nobody has scored yet this week.</p>') . '<p class="help">High scores reset every week.</p>'
-            . ($trophies > 0 ? '<h4>🏆 Trophy shelf</h4><p>' . $trophies . ' Expert jigsaw trophy' . ($trophies === 1 ? '' : ' trophies') . '.</p>' : '')
+            . ($trophies > 0 || $topGames > 0 ? '<h4>🏆 Trophy shelf</h4><p>' . ($trophies > 0 ? $trophies . ' Expert jigsaw trophy' . ($trophies === 1 ? '' : ' trophies') . '.' : '') . ($topGames > 0 ? ' Top score this week in ' . $topGames . ' game' . ($topGames === 1 ? '' : 's') . '.' : '') . '</p>' : '')
             . '<p><a class="btn" href="' . e(url('games.php?tab=contests')) . '">Contests →</a></p>']);
     $sprites = [];
     $more = null;
@@ -250,6 +254,10 @@ function treehouse_view(array $u, string $open = ''): string
             $dress[] = ['k' => $k, 'x' => (int)$d['x'], 'y' => (int)$d['y'], 'w' => (int)$d['w'], 'h' => (int)$d['h'], 'src' => is_file(APP_ROOT . '/assets/img/scenes/tree-dress-' . $k . '.png') ? url('assets/img/scenes/tree-dress-' . $k . '.png') : ''];
         }
         hub_seen_set($uid, 'treehouse');
+    }
+    foreach (here_layers_present($L, 'trophies', $art, $akey) as $t) {   // trophy shelf in the Contest hall: only layers whose picture exists, from the same data as the card
+        $n = ($t['kind'] ?? '') === 'expert' ? $trophies : $topGames;
+        if ($n >= max(1, (int)($t['at'] ?? 1))) $dress[] = ['k' => 'trophy-' . $t['k'], 'x' => (int)$t['x'], 'y' => (int)$t['y'], 'w' => (int)$t['w'], 'h' => (int)$t['h'], 'src' => $t['src']];
     }
     $o = ['layout' => $L, 'art' => $art, 'alt' => 'The Great Treehouse', 'open' => $open, 'close_href' => url('treehouse.php'), 'title' => 'List of rooms', 'more' => $more, 'chrome' => true, 'pills' => true, 'dress' => $dress, 'nav' => hubp_nav('treehouse'), 'navbar' => true, 'legfold' => true, 'legtitle' => 'List of rooms', 'legtidy' => true, 'twin' => false];
     return hub_scene($akey, $hot, $sprites, $o) . $hint;

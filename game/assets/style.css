@@ -7051,6 +7051,25 @@ body.tourbub #wrentour.tour-on::after { content: ""; position: absolute; left: 2
 .hubsvg .shadow { fill: rgba(0, 0, 0, .28); }
 .hubsvg .fb { fill: var(--surface); stroke: var(--line-2); stroke-width: 1.5; }
 .hubsvg .emo { pointer-events: none; }
+/* Animation layers (layout "anim" list): classes only; nothing moves under prefers-reduced-motion */
+.hubsvg .hanim, .hubsvg .dress { pointer-events: none; }
+.hubsvg .hanim { transform-box: fill-box; transform-origin: 50% 100%; }
+@media (prefers-reduced-motion: no-preference) {
+  .hubsvg .hanim { animation-duration: 4s; animation-iteration-count: infinite; animation-timing-function: ease-in-out; }
+  .hubsvg .hanim.spd-slow { animation-duration: 6.4s; } .hubsvg .hanim.spd-fast { animation-duration: 2.4s; }
+  .hubsvg .hanim.fx-sway { animation-name: hanimsway; }
+  .hubsvg .hanim.fx-bob { animation-name: hanimbob; animation-duration: 3s; }
+  .hubsvg .hanim.fx-twinkle { animation-name: hanimtwinkle; animation-duration: 2.5s; }
+  .hubsvg .hanim.fx-drift { animation-name: hanimdrift; animation-duration: 12s; animation-direction: alternate; }
+  .hubsvg .hanim.fx-flicker { animation-name: hanimflicker; animation-duration: 1.2s; }
+  .hubsvg .hanim.fx-pulse { animation-name: hanimpulse; animation-duration: 3s; transform-origin: 50% 50%; }
+}
+@keyframes hanimsway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+@keyframes hanimbob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes hanimtwinkle { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@keyframes hanimdrift { 0% { transform: translateX(-12px); } 100% { transform: translateX(12px); } }
+@keyframes hanimflicker { 0%, 100% { opacity: 1; } 30% { opacity: .8; } 60% { opacity: .95; } 80% { opacity: .7; } }
+@keyframes hanimpulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
 @keyframes hubpulse { 0%, 100% { stroke-opacity: 1; } 50% { stroke-opacity: .25; } }
 @media (prefers-reduced-motion: reduce) { .hubsvg .hs.goal .ring { animation: none; } }
 .hubleg { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
