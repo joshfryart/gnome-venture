@@ -465,7 +465,7 @@ def lm_auroracamp(rnd, cv):   # 300 x 250
     B = 244
     # aurora ribbons overhead
     for x in range(6, 294):
-        for band, (cols, off, amp) in enumerate((((SE[1], MO[0], MO[1]), 70, 12), ((PT[1], PT[0], SE[0]), 92, 9))):
+        for band, (cols, off, amp) in enumerate((((SE[1], MO[0], MO[1]), 82, 12), ((PT[1], PT[0], SE[0]), 104, 9))):
             top = int(off + amp * math.sin(x / 26.0 + band * 1.7) + 4 * math.sin(x / 9.0))
             ln = 46 - band * 12 + int(10 * math.sin(x / 13.0 + band))
             for k in range(ln):

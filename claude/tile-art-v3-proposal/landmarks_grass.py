@@ -301,7 +301,14 @@ def lm_beanpoles(rnd, cv):   # 280 x 210
     ell(cv, 118, 168, 12, 8, CREAM); rect(cv, 126, 174, 129, 180, CREAM)
     for k in range(3): cv.put(112 + k * 6, 168, INK); cv.put(113 + k * 6, 168, INK)
     for x in range(8, 270): cv.put(x, 208, M5[3]) if x % 3 == 0 else None
-def lm_windmill(rnd, cv):   # 260 x 300
+def lm_windmill(rnd, cv):   # 260 x 252, drawn big and scaled down (hard pixels, nearest)
+    big = Cv(260, 300); _windmill(rnd, big); outline(big)
+    sm = big.im.resize((213, 246), Image.NEAREST)
+    cv.im.alpha_composite(sm, (23, 252 - 246 - 1))
+    for y in range(cv.h):
+        for x in range(cv.w):
+            if cv.p[x, y][3] and cv.p[x, y][3] != 255: cv.p[x, y] = CLEAR
+def _windmill(rnd, cv):
     def tower(x, y):
         hw = 40 + (y - 112) * 22 // 168.0; u = (x - (130 - hw)) / (2 * hw)
         t = hsh(u)
@@ -464,7 +471,7 @@ LM = {
     "232-beehive": (250, 210, lm_beehive), "232-berrypatch": (240, 130, lm_berrypatch), "232-logbridge": (300, 160, lm_logbridge),
     "232-well": (180, 240, lm_well), "232-crossroads": (220, 240, lm_crossroads), "232-picnicrise": (300, 150, lm_picnicrise),
     "236-wildflowers": (300, 140, lm_wildflowers), "236-dandelions": (250, 190, lm_dandelions), "236-stonebridge": (280, 140, lm_stonebridge),
-    "236-beanpoles": (280, 210, lm_beanpoles), "236-windmill": (260, 300, lm_windmill), "236-haywagon": (270, 180, lm_haywagon),
+    "236-beanpoles": (280, 210, lm_beanpoles), "236-windmill": (260, 252, lm_windmill), "236-haywagon": (270, 180, lm_haywagon),
     "311-taprow": (290, 240, lm_taprow), "311-bucketstacks": (230, 230, lm_bucketstacks), "311-sugarshack": (280, 260, lm_sugarshack),
     "311-pancakelane": (300, 160, lm_pancakelane),
 }
