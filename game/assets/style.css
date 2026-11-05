@@ -1410,6 +1410,18 @@ dialog.picker::backdrop { background: rgba(42, 26, 16, .4); overflow: hidden; ov
   .selon:not([hidden]) .selacts > * { flex: 0 0 auto; margin: 0; }
   .selon:not([hidden]) .selacts { flex-wrap: nowrap !important; justify-content: flex-start; align-items: center; }
   body.game:has(.selon:not([hidden])) { padding-bottom: calc(var(--bar) + var(--sab) + 72px); }
+  /* v2.5.49: a compact select bar on a phone: the count and the quick picks sit in one scrolling row, the help line goes, the action buttons are smaller */
+  .selbar { max-width: 100%; min-width: 0; }
+  .selbar .selon { padding: 4px 8px; max-width: 100%; min-width: 0; box-sizing: border-box; }
+  .selbar .selon > p:first-child { max-width: 100%; min-width: 0; }
+  .selbar .selon p { margin: 4px 0; gap: 6px; }
+  .selbar .selon > p:first-child { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; padding-bottom: 2px; }
+  .selbar .selon > p:first-child > * { flex: 0 0 auto; }
+  .selbar .selon > p:first-child .btn { padding: 2px 8px; font-size: 13px; min-height: 30px; }
+  .selbar .selon .help { display: none; }
+  .selon:not([hidden]) .selacts { padding: 6px 8px; gap: 6px; }
+  .selon:not([hidden]) .selacts .btn { padding: 4px 10px; font-size: 14px; min-height: 36px; }
+  body.game:has(.selon:not([hidden])) { padding-bottom: calc(var(--bar) + var(--sab) + 56px); }
   .backtoyard { display: inline; }
 }
 
@@ -6963,7 +6975,7 @@ a.tile:focus-visible, .wcta a:focus-visible, .wmore summary:focus-visible, .wpac
 .vcard .vil { width: 160px; max-width: 100%; height: 100px; object-fit: contain; }
 .vcard .vfall { display: grid; place-items: center; font-size: 40px; border: 2px solid var(--ol); background: var(--brand-soft); }
 .vfall.ls-coast { background: #a9d6ea; } .vfall.ls-mountain { background: #c9c5bc; } .vfall.ls-forest { background: #7ab55c; } .vfall.ls-desert { background: #f5cf6a; }
-.vfall.ls-rainforest { background: #5fae6a; } .vfall.ls-grassland { background: #c8d09f; } .vfall.ls-wetland { background: #8fc4b0; } .vfall.ls-tundra { background: #e4eef2; }
+.vfall.ls-island { background: #9fd8d0; } .vfall.ls-rainforest { background: #5fae6a; } .vfall.ls-grassland { background: #c8d09f; } .vfall.ls-wetland { background: #8fc4b0; } .vfall.ls-tundra { background: #e4eef2; }
 .vcard .vname { font-weight: 700; font-size: 16px; color: var(--ink); text-align: center; }
 .vcard:has(input:checked) { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 2px var(--brand), var(--drop) 4px 4px 0; }
 .vcard:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 3px; }

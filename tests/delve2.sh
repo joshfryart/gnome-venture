@@ -143,5 +143,20 @@ resolve   # the first tap may have walked into a creature or a trap
 adv; post adventure.php -d do=leave >/dev/null
 chk "climbing out ends the delve and drops the scene" "$([ "$(ESTATUS)" = done ] && [ "$(SCENES)" = 0 ] && echo 1)"
 
+echo "== a delve v2 fight card carries the pal skill buttons (2.5.49 check; they come from the shared fight card)"
+dbx "DELETE FROM landmark_uses WHERE user_id=$SID; UPDATE users SET level=15 WHERE id=$SID; INSERT OR REPLACE INTO settings (name,value) VALUES ('ppal_open','1'),('ppal_party','1'),('ppal_boons','1'),('puzzles_open','1'),('jigsaw_open','1')"
+PMAP=$(db "SELECT id FROM puzzle_pics WHERE slug='jig-maplewold'")
+dbx "DELETE FROM ppal_found WHERE user_id=$SID; INSERT INTO ppal_found (user_id,pal_key,pic_id,found_at,active,status) VALUES ($SID,'mw-samara-spin',$PMAP,'2026-01-01 00:00:00',1,'home')"
+lmact -d do=delve -d lm=$DID
+EX=$(EXPID); T=$(tap); ids=${T#menu }; adv; post adventure.php -d do=route -d "pick=${ids%%,*}" >/dev/null
+php -r '$_SERVER["SCRIPT_NAME"]="/adventure.php"; require $argv[1]."/includes/bootstrap.php"; require_once $argv[1]."/includes/adventure.php"; require_once $argv[1]."/includes/delve_v2.php"; $u=q_one("SELECT * FROM users WHERE id=?",[(int)$argv[2]]); $exp=q_one("SELECT * FROM expeditions WHERE id=?",[(int)$argv[3]]); dv2_fight($u,$exp,3,"test: "); save_exp($exp);' "$GAME" $SID $EX
+adv
+chk "fight popover is up on the v2 floor" "$(grep -q 'id="trailpop"' $A && grep -q 'value="attack"' $A && echo 1)"
+chk "pal skill button (palskill:mw-samara-spin) is in the card" "$(grep -q 'value="palskill:mw-samara-spin"' $A && echo 1)"
+post adventure.php -d do=palskill:mw-samara-spin >/dev/null; adv
+chk "using it marks it used (disabled, Used this fight) or ends the fight" "$({ ! grep -q 'value="palskill:mw-samara-spin"' $A || grep -q 'Used this fight' $A; } && echo 1)"
+resolve; adv; post adventure.php -d do=leave >/dev/null
+dbx "DELETE FROM ppal_found WHERE user_id=$SID; DELETE FROM settings WHERE name IN ('ppal_open','ppal_party','ppal_boons')"
+
 echo
 if [ $FAILS -eq 0 ]; then echo "all delve v2 checks passed"; else echo "$FAILS FAILED"; exit 1; fi

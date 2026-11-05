@@ -500,7 +500,7 @@ const TREK_ITEMS = [
     'clean-dew' => ['Clean Dew', 'misc', 20, 8, 0, 'Water from the unblighted pools.'],
     'cellar-key' => ['Cellar Key', 'misc', 30, 8, 0, 'A small old key, still warm.'],
     'blight-shard' => ['Blight Shard', 'misc', 200, 40, 0, 'A black shard that hums and points down.'],
-    'lanternroot-seed' => ['Lanternroot Seed', 'misc', 80, 30, 0, 'A small seed with a faint glow inside, like a coal that forgot to go out.'],
+    'lanternroot-seed' => ['Lanternroot Seed', 'seed', 80, 30, 0, 'A small seed with a faint glow inside, like a coal that forgot to go out.'],
     'glowing-bead' => ['Glowing Bead', 'part', 40, 40, 1, 'Dropped by the Cave Glowworm.'],
     'singing-pebble' => ['Singing Pebble', 'misc', 25, 12, 1, 'A smooth little pebble that hums when the air moves. The Riddle Stone gave it away.'],
     // v1.9.2 Chapter II-a (all four are quest items: they stay in the trek pack, see TREK_QUEST_ITEMS)
@@ -523,6 +523,37 @@ const TREK_BOOK_CH = ['claybound' => 2, 'silverfin' => 2, 'crossroads' => 2, 'br
     'deeprock' => 3, 'gneiss' => 3,   // v2.0.20: Chapter III-a's two
     'lodge' => 3, 'tally' => 3, 'holler' => 3, 'warden-scute' => 3, 'echo-stone' => 3, 'bell-clapper' => 3];   // v2.0.22: Chapter III-b's pages and items
 
+/**
+ * v2.5.49: Lanternroot is a real crop. The Worm Choir's seed (category seed, so it plants like any seed) grows a Lanternroot plant that gives Lanternroot produce. It is in no region
+ * (no shop, no Percy gift): the seed only comes from the trek. Safe to run again; also repairs an old install where the seed is still category misc. Returns items made.
+ */
+function trek_ensure_lanternroot(): int
+{
+    $made = 0;
+    $seedId = (int)q_val('SELECT id FROM items WHERE slug = ?', ['lanternroot-seed']);
+    if (!$seedId) return 0;
+    q("UPDATE items SET category = 'seed' WHERE id = ? AND category <> 'seed'", [$seedId]);
+    $prodId = (int)q_val('SELECT id FROM items WHERE slug = ?', ['lanternroot']);
+    if (!$prodId) {
+        $prodId = db_insert('items', ['name' => 'Lanternroot', 'slug' => 'lanternroot', 'category' => 'produce', 'rarity' => 30, 'base_price' => 40, 'edible' => 1,
+            'effects' => json_encode(['temp' => ['sense' => 2, 'minutes' => 90], 'energy' => 2]),
+            'description' => 'A pale root that glows faintly from inside, warm to hold. It tastes of toasted chestnut.']);
+        $made++;
+    }
+    if (!q_val('SELECT 1 FROM plants WHERE slug = ?', ['lanternroot'])) {
+        db_insert('plants', ['name' => 'Lanternroot', 'slug' => 'lanternroot', 'kind' => 'tuber', 'perennial' => 0, 'regrow_minutes' => 0, 'common' => 0, 'soil_effect' => -8,
+            'seed_item_id' => $seedId, 'produce_item_id' => $prodId, 'grow_minutes' => 90, 'water_interval_minutes' => 720, 'stages' => 4, 'yield_min' => 1, 'yield_max' => 3,
+            'xp_per_harvest' => 20, 'knowledge_max' => 100, 'knowledge_per_harvest' => 14, 'min_soil' => 0,
+            'description' => 'A lantern-root grows where light is rare. The Worm Choir hands out the seed to anyone who answers well.']);
+    }
+    if (!q_val('SELECT 1 FROM encyclopedia_entries WHERE unlock_key = ?', ['plant:lanternroot'])) {
+        db_insert('encyclopedia_entries', ['chapter' => 'Plants', 'category' => catalog_kind_label('tuber'), 'title' => 'Lanternroot',
+            'body' => "A lantern-root grows where light is rare. The Worm Choir hands out the seed to anyone who answers well.\n\n[b]Where to find the seed:[/b] the Worm Choir on the Withering trek (no shop sells it).",
+            'unlock_key' => 'plant:lanternroot', 'hint' => 'Grow and harvest it once.', 'sort_order' => 0]);
+    }
+    return $made;
+}
+
 /** Make the trek's items, creatures, text slots and Almanac pages. Safe to run again. Returns counts. */
 function trek_import(): array
 {
@@ -534,6 +565,7 @@ function trek_import(): array
         db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => $cat, 'base_price' => $price, 'rarity' => $rar, 'tradable' => $trade, 'description' => $desc]);
         $made['items']++;
     }
+    $made['items'] += trek_ensure_lanternroot();
     // Creatures: same importer as the road creatures, from our file. Left inactive, so no road, lair or town code ever picks them.
     $before = (int)q_val('SELECT COALESCE(MAX(id), 0) FROM creatures');
     $stats = ['items' => 0, 'pages' => 0, 'creatures' => 0];

@@ -424,6 +424,16 @@ foreach (['cellar', 'zinnia', 'choir', 'bracken', 'mother', 'gloomtooth'] as $c)
 echo "  (fatigue from the camp through every objective to the den, one way: about $tot of 100)\n";
 ok('the whole route after the camp fits in 3 fatigue bars at most', $tot < 300, (string)$tot);
 
+echo "== lanternroot crop (2.5.49)\n";
+$sd = q_one("SELECT * FROM items WHERE slug = 'lanternroot-seed'"); $pl = q_one("SELECT * FROM plants WHERE slug = 'lanternroot'");
+ok('seed is a seed item', $sd && $sd['category'] === 'seed');
+ok('plant row links seed and produce', $pl && (int)$pl['seed_item_id'] === (int)$sd['id'] && (int)q_val("SELECT id FROM items WHERE slug = 'lanternroot' AND category = 'produce'") === (int)$pl['produce_item_id']);
+ok('almanac page exists', (bool)q_val("SELECT 1 FROM encyclopedia_entries WHERE unlock_key = 'plant:lanternroot'"));
+q("UPDATE items SET category = 'misc' WHERE slug = 'lanternroot-seed'"); q("DELETE FROM plants WHERE slug = 'lanternroot'"); q("DELETE FROM items WHERE slug = 'lanternroot'");
+trek_import();
+ok('an old install (misc seed, no plant) is repaired', q_val("SELECT category FROM items WHERE slug = 'lanternroot-seed'") === 'seed' && (bool)q_val("SELECT 1 FROM plants WHERE slug = 'lanternroot'"));
+ok('no TODO left in the trek text briefs about Lanternroot', stripos(file_get_contents($argv[1] . '/includes/data/trek_texts.txt'), 'crop does not exist') === false);
+
 echo "== trek_text\n";
 $h = trek_text('ch1.spot.burdock.intro');
 ok('player (non-admin) sees an ellipsis or text, no brief', strpos($h, 'TO WRITE') === false || is_admin());

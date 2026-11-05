@@ -193,10 +193,9 @@ page_header('Welcome to the Hollow');
     <?= csrf_field() ?><input type="hidden" name="do" value="place">
     <div class="vcards" role="radiogroup" aria-label="Village">
       <?php foreach ($cards as $v): $L = LANDSCAPES[$v['landscape']] ?? ['📍', ucfirst($v['landscape']), ''];
-          $vslug = preg_replace('/[^a-z0-9-]/', '', strtolower(slugify((string)$v['name'])));
-          $art = 'assets/img/villages/' . $vslug . '.png'; ?>
+          $art = village_card_art((string)$v['name']); ?>
         <label class="vcard"><input type="radio" name="village_id" value="<?= (int)$v['id'] ?>" required data-vname="<?= e($v['name']) ?>"<?= (int)$v['id'] === $default ? ' checked' : '' ?>>
-          <?php if ($vslug !== '' && is_file(APP_ROOT . '/' . $art)): ?>
+          <?php if ($art !== ''): ?>
             <img class="pxl vil" src="<?= e(url($art)) ?>" width="160" height="100" alt="">
           <?php else: ?>
             <span class="vil vfall ls-<?= e(preg_replace('/[^a-z]/', '', $v['landscape'])) ?>" aria-hidden="true"><?= $L[0] ?></span>

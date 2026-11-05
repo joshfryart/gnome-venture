@@ -26,6 +26,7 @@ if (is_post()) {
     $do = (string)($_POST['do'] ?? '');
     $pal = (string)($_POST['pal'] ?? '');
     $pots = (int)($_POST['potions'] ?? 0);
+    $potMore = ['strong-healing-potion' => (int)($_POST['potions_strong'] ?? 0), 'grand-healing-elixir' => (int)($_POST['potions_grand'] ?? 0)];   // v2.5.49: the stronger tiers, packed too
     $unq = !empty($_POST['unequip']);   // v2.3.2: the player agreed to take an equipped pal off the party
     $jobPal = $do === 'collect' ? (string)q_val('SELECT pal_uid FROM ppal_jobs WHERE id = ? AND user_id = ?', [(int)($_POST['job'] ?? 0), $uid]) : '';
     // v2.3.94: several pals at once. Ticked pals (pals[]) get the same job; each send still checks its own rules (slots, runs per day, one gardener per garden, one re-run per delve per day).
@@ -37,9 +38,9 @@ if (is_post()) {
         foreach ($picked as $pu) {
             $one = match ($do) {
                 'send_garden' => pj_garden_send($u, $pu, (int)$pick($pu, 'plot', $_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
-                'send_trip' => pj_trip_send($u, $pu, (string)$pick($pu, 'land', $_POST['land'] ?? ''), (string)$pick($pu, 'tool', $_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck'])),
+                'send_trip' => pj_trip_send($u, $pu, (string)$pick($pu, 'land', $_POST['land'] ?? ''), (string)$pick($pu, 'tool', $_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck']), $potMore),
                 'send_station' => (function () use ($u, $pu, $unq, $pick): array { [$ar, $ob] = array_pad(explode(':', (string)$pick($pu, 'station', $_POST['station'] ?? ''), 2), 2, ''); return pj_station_send($u, $pu, $ar, $ob, (string)($_POST['mode'] ?? 'all'), (array)($_POST['recipes'] ?? []), (int)($_POST['hours'] ?? 0), $unq); })(),
-                default => pj_delve_send($u, $pu, (int)$pick($pu, 'delve', $_POST['delve'] ?? 0), $pots, $unq),
+                default => pj_delve_send($u, $pu, (int)$pick($pu, 'delve', $_POST['delve'] ?? 0), $pots, $unq, $potMore),
             };
             $pn = (string)(pj_pal($uid, $pu)['name'] ?? 'A pal');
             if (count($picked) === 1) { flash((string)$one[1], $one[0] ? 'ok' : 'err'); $sent = -1; continue; }
@@ -87,8 +88,8 @@ if (is_post()) {
     }
     $res = match ($do) {
         'send_garden' => pj_garden_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (int)($_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
-        'send_trip' => pj_trip_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (string)($_POST['land'] ?? ''), (string)($_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck'])),
-        'send_delve' => pj_delve_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (int)($_POST['delve'] ?? 0), $pots, $unq),
+        'send_trip' => pj_trip_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (string)($_POST['land'] ?? ''), (string)($_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck']), $potMore),
+        'send_delve' => pj_delve_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (int)($_POST['delve'] ?? 0), $pots, $unq, $potMore),
         'recall' => pj_recall($u, (int)($_POST['job'] ?? 0)),
         'heal' => pj_heal($u, $pal, (string)($_POST['potion'] ?? PJ_POTION)),
         'collect' => pj_collect($u, (int)($_POST['job'] ?? 0)),
