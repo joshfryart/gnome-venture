@@ -511,8 +511,43 @@ def lm_hedgerow(rnd, cv):   # 290 x 190
         cv.put(x, y, RAMP["gold"][1])
 LANDMARKS = {"scarecrow": (160, 250, lm_scarecrow), "haybales": (210, 150, lm_haybales), "ford": (270, 110, lm_ford), "pondmill": (290, 250, lm_pondmill),
              "apple": (230, 280, lm_apple), "hedgerow": (290, 190, lm_hedgerow)}
+_TONES = None
+def _tone_map():
+    """colour -> (5-step ramp, index) for every ramp colour, including the mixed middle step of r5()."""
+    global _TONES
+    if _TONES is None:
+        _TONES = {}
+        for k, v in RAMP.items():
+            R = r5(v)
+            for i, c in enumerate(R): _TONES.setdefault(c, (R, i))
+    return _TONES
+def _painterly(cv, rnd):
+    """Make a landmark read like the trees and ground tiles instead of a clean vector drawing: blotchy tone mottling (3 px patches, one ramp step up or down,
+    like the ground and leaf textures), a rough pixel edge, and a lit rim up-left with a shade rim down-right on every outer edge. Hard pixels only."""
+    T_ = _tone_map(); w, h = cv.w, cv.h; src = cv.im.copy(); sp = src.load()
+    n1, n2 = wnoise(rnd, w, h, 4), wnoise(rnd, w, h, 9)
+    def op(x, y): return 0 <= x < w and 0 <= y < h and sp[x, y][3] > 0
+    for y in range(h):
+        for x in range(w):
+            c = sp[x, y]
+            if c[3] == 0 or c == INK: continue
+            v = n1(x, y) * .6 + n2(x, y) * .4; sh = 1 if v > .64 else -1 if v < .36 else 0
+            if rnd.random() < .05: sh = rnd.choice((-1, 1))
+            if c in T_:
+                R, i = T_[c]; c2 = R[max(0, min(4, i + sh))]
+            else: c2 = mix(c, CREAM if sh > 0 else INK, .10) if sh else c
+            up, lf, dn, rt = op(x, y - 1), op(x - 1, y), op(x, y + 1), op(x + 1, y)
+            if not dn or not rt: c2 = darker(c2, 1) if c2 in STEP else mix(c2, INK, .18)   # shade rim, bottom and right
+            elif not up or not lf: c2 = lighter(c2)                                       # lit rim, top and left
+            cv.p[x, y] = c2
+    for y in range(h):   # rough edge: nick a few edge pixels (never the sole pixel of a thin line)
+        for x in range(w):
+            if sp[x, y][3] == 0 or sp[x, y] == INK: continue
+            nb = [op(x, y - 1), op(x - 1, y), op(x, y + 1), op(x + 1, y)]
+            if nb.count(False) == 1 and all(op(x + dx, y + dy) for dx in (-1, 1) for dy in (-1, 1) if (dx, dy) != (0, 0)) and rnd.random() < .12:
+                cv.p[x, y] = (0, 0, 0, 0)
 def landmark(name):
-    w, h, fn = LANDMARKS[name]; cv = Cv(w, h); fn(random.Random(f"lm{name}"), cv); outline(cv)
+    w, h, fn = LANDMARKS[name]; cv = Cv(w, h); rnd = random.Random(f"lm{name}"); fn(rnd, cv); _painterly(cv, random.Random(f"pt{name}")); outline(cv)
     top, bot = cv.im.getbbox()[1], cv.im.getbbox()[3]; return cv.im.crop((0, top, w, bot))
 def _load_landmark_modules():
     """claude/tile-art-v3-proposal/landmarks_*.py each define LM = {name: (canvas w, canvas h, fn(rnd, cv))}; names are '<route id>-<slug>'."""
