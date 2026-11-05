@@ -129,6 +129,34 @@ $drank = null;
 $mid = pj_pal($uid, $p2); $mid['hp'] = 5;
 for ($i = 0; $i < 300 && !$drank; $i++) { $r = pj_roll_trip($mid, $land, 'forage', 3, 8, 3, 'd' . $i); if ($r['potions_used'] > 0) $drank = $r; }
 ok('a hurt pal drinks a packed potion', (bool)$drank && $drank['potions_used'] <= 3);
+echo "== strong and grand potions can be packed (2.5.49)\n";
+ok('pj_pack: tiers in order, bogus slug dropped, 5 in all', pj_pack(3, ['strong-healing-potion' => 4, 'grand-healing-elixir' => 2, 'bogus' => 9]) === ['healing-potion' => 3, 'strong-healing-potion' => 2], json_encode(pj_pack(3, ['strong-healing-potion' => 4, 'grand-healing-elixir' => 2])));
+$pk = ['healing-potion' => 1, 'strong-healing-potion' => 1, 'grand-healing-elixir' => 1];
+$d1 = pj_pack_drink($pk, 30); $d2 = pj_pack_drink($pk, 30); $d3 = pj_pack_drink($pk, 30); $d4 = pj_pack_drink($pk, 30);
+ok('drinks weakest first: +12, +24, full, then nothing', [$d1, $d2, $d3, $d4] === [12, 24, 30, 0], json_encode([$d1, $d2, $d3, $d4]));
+$gdr = null;
+for ($i = 0; $i < 300 && !$gdr; $i++) { $r = pj_roll_trip($mid, $land, 'forage', 3, 8, ['grand-healing-elixir' => 2], 'g' . $i); if ($r['potions_used'] > 0) $gdr = $r; }
+ok('a hurt pal drinks a packed Grand Elixir; used and back add up per tier', $gdr && $gdr['pack_used'] === ['grand-healing-elixir' => $gdr['potions_used']] && array_sum(pj_pack_left($gdr)) === 2 - $gdr['potions_used'], json_encode($gdr['pack_used'] ?? null));
+$rs = pj_recall_scale(['items' => [], 'rounds' => 4, 'pack' => ['strong-healing-potion' => 2], 'pack_used' => ['strong-healing-potion' => 2], 'potions_used' => 2], 0.5, 2);
+ok('recall: strong potions drunk scale by time, the rest come back as strong', $rs['pack_used'] === ['strong-healing-potion' => 1] && $rs['pack_back'] === ['strong-healing-potion' => 1] && $rs['potions_back'] === 1, json_encode($rs));
+$sid = alchemy_item_id('strong-healing-potion'); give_item($uid, $sid, 2); $sBefore = alchemy_count($uid, 'strong-healing-potion');
+$spal = ''; foreach ([$p0, $p1, $p2, $p3] as $cand) { $pp = pj_pal($uid, $cand); if ($pp && $pp['status'] === 'home' && $pp['hp'] > 0 && !$pp['active']) { $spal = $cand; break; } }
+if ($spal !== '') {
+    [$so, $sm] = pj_trip_send($u, $spal, $land, 'forage', 1, 0, false, false, ['strong-healing-potion' => 2]);
+    ok('a trip with 2 Strong Healing Potions packed is sent', $so === true, (string)$sm);
+    ok('they left the satchel', alchemy_count($uid, 'strong-healing-potion') === $sBefore - 2);
+    $sj = q_one("SELECT * FROM ppal_jobs WHERE pal_uid = ? ORDER BY id DESC LIMIT 1", [$spal]); $sr = json_decode($sj['result'], true);
+    ok('the job stores the pack', ($sr['pack'] ?? null) === ['strong-healing-potion' => 2] && (int)$sj['potions'] === 2, (string)$sj['result']);
+    q('UPDATE ppal_jobs SET ends_at = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 5), $sj['id']]); pj_settle($uid);
+    pj_collect($u, (int)$sj['id']);
+    ok('collect hands the unused Strong potions back as Strong', alchemy_count($uid, 'strong-healing-potion') === $sBefore - 2 + (int)$sr['potions_back'], alchemy_count($uid, 'strong-healing-potion') . ' vs ' . $sBefore . '+' . $sr['potions_back']);
+} else ok('a free pal for the strong-potion trip', false, 'none home');
+[$so2] = pj_trip_send($u, $spal, $land, 'forage', 1, 0, false, false, ['grand-healing-elixir' => 99]);
+ok('packing Grand Elixirs you do not own is refused', $so2 === false);
+$shelves = (int)q_val("SELECT COUNT(*) FROM shop_stock st JOIN shops s ON s.id = st.shop_id JOIN items i ON i.id = st.item_id WHERE s.slug = 'twigg-s-seed-emporium' AND i.slug IN ('strong-healing-potion','grand-healing-elixir','lucky-draught','sages-draught','stoneskin-brew','swiftfoot-elixir','garden-tonic')");
+ok('Twigg’s has a shelf for each of the 7 newer potions', $shelves === 7, (string)$shelves);
+q("DELETE FROM shop_stock WHERE item_id = ?", [item_id_by_slug('grand-healing-elixir')]); pj_ensure_content();
+ok('a missing shelf is added back, none doubled', (int)q_val("SELECT COUNT(*) FROM shop_stock WHERE item_id = ?", [item_id_by_slug('grand-healing-elixir')]) === 1 && (int)q_val("SELECT COUNT(*) FROM shop_stock WHERE item_id = ?", [item_id_by_slug('strong-healing-potion')]) === 1);
 $same1 = pj_roll_trip($mid, $land, 'forage', 3, 3, 1, 'x'); $same2 = pj_roll_trip($mid, $land, 'forage', 3, 3, 1, 'x');
 ok('same seed, same result', $same1 === $same2);
 $rland = (string)q_val("SELECT landscapes FROM gatherables WHERE rarity = 'rare' AND active = 1 AND tool = 'forage' AND landscapes <> 'any' LIMIT 1"); $rland = trim(explode(',', $rland)[0]);
