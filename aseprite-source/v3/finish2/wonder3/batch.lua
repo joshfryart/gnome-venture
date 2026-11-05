@@ -83,12 +83,12 @@ local function stork_village()
   house(380, 160, 76, 40, ramp("#f08a6a", "#d0503e", "#903a44", "#5a2838"), ramp("#fff0d0", "#e8c898", "#b08a6a", "#6a5058"), 420)
   stork(70, 118, 1, false); stork(420, 118, 1, false)
   house(150, 150, 180, 70, ramp("#f89a74", "#d85a40", "#9a3c48", "#5a2838"), ramp("#fff4d6", "#f0d0a0", "#b8906c", "#6a5058"), nil)
-  local ch = Rc(216, 70, 264, 134); lit(ch, ramp("#f0a070", "#cc603e", "#8a3a3c", "#5a2430"), 5, { tex = .35 })
-  for y = 76, 132, 8 do for x = 218, 262, 12 do px(x + (y // 8 % 2) * 6, y, "#6a3040"); px(x + (y // 8 % 2) * 6 + 1, y, "#6a3040") end end
-  fm(Rc(212, 66, 268, 72), "#6a4a52"); rim(Rc(212, 66, 268, 72), INK)
-  local nest = blob(240, 62, 40, 11, 7); lit(nest, ramp("#e8c47c", "#b88a50", "#80583c", "#4e3234"), 9, { tex = .6, sc = 2 })
-  for i = 0, 30 do local a = hash(i, 4) % 60; ln(206 + a, 56 + hash(i, 6) % 12, 214 + a, 58 + hash(i, 8) % 12, "#d8b070", 1) end
-  stork(240, 56, 3, true)
+  local ch = Rc(216, 88, 264, 134); lit(ch, ramp("#f0a070", "#cc603e", "#8a3a3c", "#5a2430"), 5, { tex = .35 })
+  for y = 94, 132, 8 do for x = 218, 262, 12 do px(x + (y // 8 % 2) * 6, y, "#6a3040"); px(x + (y // 8 % 2) * 6 + 1, y, "#6a3040") end end
+  fm(Rc(212, 84, 268, 90), "#6a4a52"); rim(Rc(212, 84, 268, 90), INK)
+  local nest = blob(240, 80, 40, 10, 7); lit(nest, ramp("#e8c47c", "#b88a50", "#80583c", "#4e3234"), 9, { tex = .6, sc = 2 })
+  for i = 0, 30 do local a = hash(i, 4) % 60; ln(206 + a, 74 + hash(i, 6) % 12, 214 + a, 76 + hash(i, 8) % 12, "#d8b070", 1) end
+  stork(240, 76, 2, true)
   fm(Rc(238, 164, 246, 180), "#ffd878"); local win = Rc(190, 176, 214, 200); fm(win, "#ffd878"); rim(win); fm(Rc(201, 176, 202, 200), "#8a4a34"); fm(Rc(190, 187, 214, 188), "#8a4a34")
   local dr = c:poly{ { 252, 220 }, { 252, 190 }, { 262, 182 }, { 272, 190 }, { 272, 220 } }; fm(dr, "#7a4a3a"); rim(dr); px(268, 204, "#ffd878")
   for _, p in ipairs{ { 40, 232 }, { 130, 246 }, { 350, 240 }, { 440, 250 } } do GX.flower(c, p[1], p[2], ({ "#ff7a9a", "#ffe07a", "#fff0d0", "#ff9a5a" })[(p[1] // 10) % 4 + 1]) end

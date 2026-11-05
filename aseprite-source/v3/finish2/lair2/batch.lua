@@ -160,18 +160,20 @@ P.dragonfly = { "lair-of-the-jade-dragon-fly", function(S)
   blob(120, 228, 4, 3, pal("#fff4d8", "#ffc8d8", "#e080a8", "#8a3a68"), 4, { R = 3 }); c:px(120, 228, "#ffe27a")
   -- dragonfly: wings (four), body, head
   local WG = pal("#f4fff0", "#c4f0dc", "#86d0bc", "#4a9ca0")
-  local function wing(cx, cy, w, h, ang, seed)
-    local m = mk()
-    for i = 0, w do local t = i / w; local r = floor(h * sin(t * 3.14 ^ .95) * (1 - t * .25)) + 1
-      local x = cx + i * ang; E(m, x, cy + (ang < 0 and 1 or 1) * floor(t * 8 * (ang < 0 and -1 or 1)) * 0 + floor(t * 10), 1, r) end
-    return lit(m, WG, seed, { R = 7, tex = .25, rimlight = true })
+  local function wing(x0, y0, x1, y1, mr, seed)
+    local m = mk(); local n = max(abs(x1 - x0), abs(y1 - y0))
+    for i = 0, n do local t = i / n; local r = 2 + floor(mr * sin(3.14 * min(1, t * 1.1)) ^ .7)
+      E(m, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, r, r) end
+    lit(m, WG, seed, { R = 9, tex = .25 })
+    for i = 3, n - 3 do local t = i / n; local px, py = floor(x0 + (x1 - x0) * t), floor(y0 + (y1 - y0) * t)
+      if m:has(px, py) then c:px(px, py, "#4a9ca0") end
+      if i % 7 == 0 then for k = -5, 5 do if m:has(px + k, py + (k * (x1 - x0) // max(1, abs(y1 - y0)) // 3)) then c:px(px + k, py + floor(k * .4), "#86d0bc") end end end end
+    return m
   end
-  local wm = {
-    wing(236, 96, 120, 14, -1, 1), wing(244, 96, 120, 14, 1, 2),
-    wing(240, 118, 108, 13, -1, 3), wing(248, 118, 108, 13, 1, 4) }
-  for _, w in ipairs(wm) do w:each(function(x, y) if (x % 11 == 0 and w:has(x, y + 1)) or (y % 8 == 0 and x % 2 == 0) then c:px(x, y, "#5aa8a8") end end) end
+  wing(246, 104, 186, 30, 12, 1); wing(262, 104, 318, 26, 12, 2)
+  wing(246, 120, 180, 186, 11, 3); wing(262, 120, 322, 190, 11, 4)
   -- stigma
-  c:fillMask(c:rect(116, 96, 120, 98), "#2a5a46"); c:fillMask(c:rect(360, 96, 364, 98), "#2a5a46")
+  
   -- body (head left, tail right)
   local JADE = pal("#b8f0a0", "#44b080", "#237a68", "#12485a")
   for i = 0, 9 do blob(250 + i * 17, 112 + floor(sin(i / 3) * 2), 10, 5 - floor(i / 6), i % 2 == 0 and JADE or pal("#e8f8b0", "#78c890", "#3a9a78", "#1c5a64"), 20 + i, { R = 5, tex = .2 }) end
@@ -254,7 +256,7 @@ end }
 ---------------------------------------------------------------- smokecap caldera
 P.caldera = { "lair-smokecap-caldera", function(S)
   local c, mk, E, pal, lit, blob, line, limb, eye = S.c, S.mk, S.E, S.pal, S.lit, S.blob, S.line, S.limb, S.eye
-  GX.bands(c, 0, 200, { "#4a3a6e", "#6e4a82", "#9a5a8c", "#c8708a", "#ec8c80", "#fcb078", "#ffd088" }, 3, .22)
+  GX.bands(c, 0, 262, { "#4a3a6e", "#6e4a82", "#9a5a8c", "#c8708a", "#ec8c80", "#fcb078", "#ffd088" }, 3, .22)
   -- far hills
   for x = 0, 479 do local y = 170 + floor(GX.vn(x, 0, 40, 3) * 28); for yy = y, 220 do c:px(x, yy, yy - y < 2 and "#a8628a" or "#8a5088") end end
   -- caldera mountain
@@ -345,7 +347,7 @@ end }
 ---------------------------------------------------------------- tiger moth temple
 P.moth = { "lair-temple-of-the-tiger-moth", function(S)
   local c, mk, E, pal, lit, blob, line, limb, eye = S.c, S.mk, S.E, S.pal, S.lit, S.blob, S.line, S.limb, S.eye
-  GX.bands(c, 0, 220, { "#1c1c4a", "#262658", "#34346c", "#46467e", "#5e5a90", "#7a6ea0" }, 3, .2)
+  GX.bands(c, 0, 262, { "#1c1c4a", "#262658", "#34346c", "#46467e", "#5e5a90", "#7a6ea0" }, 3, .2)
   S.stars(0, 140, 50, 3)
   -- moon
   blob(380, 52, 24, 24, pal("#ffffea", "#fff0b8", "#e8c890", "#b09090"), 5, { R = 22, ink = false, tex = .2 })
@@ -410,7 +412,7 @@ end }
 ---------------------------------------------------------------- sand scarab tomb
 P.scarab = { "lair-tomb-of-the-sand-scarab", function(S)
   local c, mk, E, pal, lit, blob, line, limb, eye = S.c, S.mk, S.E, S.pal, S.lit, S.blob, S.line, S.limb, S.eye
-  GX.bands(c, 0, 200, { "#f8a878", "#fcb888", "#fdc894", "#fed8a0", "#ffe4b0", "#fff0c4" }, 3, .22)
+  GX.bands(c, 0, 262, { "#f8a878", "#fcb888", "#fdc894", "#fed8a0", "#ffe4b0", "#fff0c4" }, 3, .22)
   blob(380, 56, 26, 26, pal("#ffffea", "#fff4b0", "#ffd070", "#f0a060"), 4, { R = 24, ink = false, tex = .15 })
   -- far pyramid and dunes
   c:fillMask(c:poly{ { 60, 190 }, { 130, 120 }, { 200, 190 } }, "#d89478"); c:fillMask(c:poly{ { 130, 120 }, { 200, 190 }, { 150, 190 } }, "#b87470")
