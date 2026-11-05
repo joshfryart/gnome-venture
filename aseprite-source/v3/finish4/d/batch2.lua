@@ -28,7 +28,7 @@ end
 local function eye(x, y) c:fillMask(c:rect(x, y, x + 1, y + 2), INK); c:px(x, y, "#fff0d8") end
 local function glow(cx, cy, r, cols)
   for i = 1, #cols do
-    local m = mk(); E(m, cx, cy, r - (i - 1) * floor(r / #cols), r - (i - 1) * floor(r / #cols))
+    r = floor(r); local rr = r - (i - 1) * floor(r / #cols); local m = mk(); E(m, floor(cx), floor(cy), rr, rr)
     c:fillMask(m, cols[i])
   end
 end

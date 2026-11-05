@@ -397,7 +397,7 @@ function S.vigrod()
   obj(HP.ellipse(96, 75, 3, 3), R.ember); c:fillMask(HP.rect(94, 75, 98, 76), CREAM); put(95, 73, CREAM)
   for _, e in ipairs({ {96, 80, 8, 2}, {96, 82, 15, 3} }) do ring(e[1], e[2], e[3], e[4], 1):each(function(x, y) if (x + y) % 2 == 0 then put(x, y, R.sea.hi) end end) end
   -- whole jumping fish inside the frame
-  fish(110, 46, -.7, 34)
+  fish(102, 46, -.7, 34)
   for _, p in ipairs({ {106, 62, 1}, {112, 66, 1}, {128, 64, 1}, {124, 58, 1}, {101, 52, 1} }) do obj(cir(p[1], p[2], p[3]), R.sea) end
   ring(116, 80, 10, 3, 1):each(function(x, y) if (x + y) % 2 == 0 then put(x, y, CREAM) end end)
   -- lily pad + dragonfly
@@ -557,7 +557,7 @@ function F.rare()
 end
 function F.legendary()
   local G = { hi = "#fff2a0", base = "#f5c43a", shade = "#e8a317", deep = "#7a4a14" }
-  ringFrames({ step = (2 * pi / 12) / 4, r = 36, pulse = { 0, 1, 3, 1 }, draw = function(f, rot, rr)
+  ringFrames({ step = (2 * pi / 12) / 4, r = 31, pulse = { 0, 1, 3, 1 }, draw = function(f, rot, rr)
     for i = 0, 11 do                       -- rays
       local a = rot + i * 2 * pi / 12
       local long = (i % 2 == 0)
