@@ -275,21 +275,21 @@ def lm_mudslide(rnd, cv):   # 250 x 160
 
 def lm_lodge(rnd, cv):   # 290 x 220
     cx, cy = 145, 150
-    for y in range(40, 200):
+    for y in range(70, 200):
         for x in range(10, 280):
-            nx = (x - cx) / 135; ny = (y - 200) / 160
+            nx = (x - cx) / 135; ny = (y - 200) / 130
             if nx * nx + ny * ny * 1.0 <= 1 and y <= 200:
                 u = (nx * -.5 + ny * -.6) ; t = 0 if u > .45 else 1 if u > .2 else 2 if u > -.2 else 3
                 cv.put(x, y, WD[t])
     for _ in range(420):   # sticks across the dome
-        x = rnd.randint(14, 276); y = rnd.randint(46, 198); L = rnd.randint(14, 30); d = rnd.choice((-1, 1)); sl = rnd.choice((0, 1, 1, 2)) * rnd.choice((-1, 1)) / 4
+        x = rnd.randint(14, 276); y = rnd.randint(74, 198); L = rnd.randint(14, 30); d = rnd.choice((-1, 1)); sl = rnd.choice((0, 1, 1, 2)) * rnd.choice((-1, 1)) / 4
         for k in range(L):
             xx, yy = x + d * k, int(y + sl * k)
             if cv.get(xx, yy)[3] and cv.get(xx, yy) != INK and cv.get(xx, yy + 1)[3]:
                 cv.put(xx, yy, LT[0 if k % 6 == 0 else 1] if rnd.random() < .5 else WD[1]); cv.put(xx, yy + 1, WD[3])
     for x in range(10, 280):   # mud at the base
         for y in range(190, 204):
-            if cv.get(x, y)[3] or y < 200: cv.put(x, y, LT[3 if (x + y) % 3 else 2]) if (x - cx) ** 2 / 135 ** 2 + ((y - 200) / 160) ** 2 <= 1.02 or y > 199 else None
+            if cv.get(x, y)[3] or y < 200: cv.put(x, y, LT[3 if (x + y) % 3 else 2]) if (x - cx) ** 2 / 135 ** 2 + ((y - 200) / 130) ** 2 <= 1.02 or y > 199 else None
     ell(cv, cx, 178, 26, 24, lambda x, y, nx, ny: INK if ny < .55 else None)   # doorway
     for y in range(176, 202): 
         for x in range(cx - 26, cx + 27):
@@ -297,15 +297,15 @@ def lm_lodge(rnd, cv):   # 290 x 220
     for x in range(cx - 26, cx + 27): cv.put(x, 202, INK) if False else None
     for k in range(5): cv.put(cx - 12 + k * 6, 192, RAMP["gold"][1]) if k % 2 else None
     # chimney of sticks + stew smoke
-    for y in range(24, 56):
+    for y in range(48, 90):
         for x in range(190, 214): cv.put(x, y, WD[2 if (x // 4 + y // 5) % 2 else 1] if x < 208 else WD[3])
     S = [CREAM, H("#ece6e6"), H("#d3cfdc"), H("#b4b2c8"), H("#9a98b4")]
-    for i, (sx, sy, r) in enumerate(((202, 16, 9), (214, 2, 11), (196, -2, 8))):
+    for i, (sx, sy, r) in enumerate(((202, 36, 8), (212, 22, 8))):
         if sy - r >= 0: lump(cv, sx, sy, r, r, S, rnd, 0)
-    for x in range(194, 212): cv.put(x, 24, WD[3])
+    for x in range(194, 212): cv.put(x, 48, WD[3])
     # tiny leafy roof tuft
     for _ in range(10): 
-        x = rnd.randint(60, 120); lump(cv, x, 62 + (x % 5) * 3, 6, 4, r5(RAMP["moss"]), rnd, 0)
+        x = rnd.randint(60, 120); lump(cv, x, 92 + (x % 5) * 3, 6, 4, r5(RAMP["moss"]), rnd, 0)
     toadstool(cv, 40, 190, .6, rnd)
 
 def lm_stickgate(rnd, cv):   # 250 x 200

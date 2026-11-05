@@ -362,8 +362,8 @@ def lm_comb(rnd, cv):   # 290 x 190
     for x in range(40, 250): cv.put(x, B + 1, IC[3]) if x % 5 == 0 else None
 
 
-def lm_icicurtain(rnd, cv):   # 250 x 230
-    B = 228
+def lm_icicurtain(rnd, cv):   # 250 x 194
+    B = 192
     for px in (22, 224):   # posts
         trunk(cv, px, 20, B, 16, rnd)
         lump(cv, px, 18, 14, 8, SN, rnd, .04)
@@ -373,25 +373,25 @@ def lm_icicurtain(rnd, cv):   # 250 x 230
         for y in range(28, 34): cv.put(x, y, SN[0] if y < 31 else SN[1]) if (x * 5 + y) % 9 < 7 else None
     i = 0
     for x in range(34, 218, 8):
-        ln = 80 + (i * 53) % 70 + (20 if 8 < i < 14 else 0)
+        ln = 44 + (i * 53) % 58 + (14 if 8 < i < 14 else 0)
         icicle(cv, x, 50, ln, 7 if i % 3 else 9)
         i += 1
     for x in range(30, 220, 8):   # shorter secondary row, staggered
         if (x // 8) % 2: icicle(cv, x + 4, 50, 30 + (x * 3) % 20, 5, IC)
-    for x, ln in ((58, 90), (122, 120), (170, 100), (194, 70)):   # little chime bells
+    for x, ln in ((58, 60), (122, 92), (170, 74), (194, 52)):   # little chime bells
         y = 50 + ln + 4
         for dx in range(7):
             for dy in range(6): cv.put(x - 3 + dx, y + dy, GD[1] if dy < 3 else GD[2]) if (dx - 3) ** 2 + (dy - 5) ** 2 <= 14 else None
         cv.put(x, y + 6, GD[3])
     # do-not-lick sign
     for y in range(120, 150): cv.put(224 - 7, y, WD[3]) if False else None
-    poly(cv, [(190, 176), (226, 176), (226, 204), (190, 204)], WD[1])
-    for x in range(190, 227): cv.put(x, 176, WD[0]); cv.put(x, 204, WD[3])
-    for y in range(176, 205): cv.put(226, y, WD[3])
-    poly(cv, [(198, 184), (203, 184), (203, 187), (198, 187)], COAL); poly(cv, [(212, 184), (217, 184), (217, 187), (212, 187)], COAL)
-    poly(cv, [(202, 194), (214, 194), (214, 198), (202, 198)], COAL)
-    poly(cv, [(206, 198), (211, 198), (211, 202), (206, 202)], PT[1])
-    line(cv, [(194, 180), (222, 200)], EM[1], 2)
+    poly(cv, [(190, 140), (226, 140), (226, 168), (190, 168)], WD[1])
+    for x in range(190, 227): cv.put(x, 140, WD[0]); cv.put(x, 168, WD[3])
+    for y in range(140, 169): cv.put(226, y, WD[3])
+    poly(cv, [(198, 148), (203, 148), (203, 151), (198, 151)], COAL); poly(cv, [(212, 148), (217, 148), (217, 151), (212, 151)], COAL)
+    poly(cv, [(202, 158), (214, 158), (214, 162), (202, 162)], COAL)
+    poly(cv, [(206, 162), (211, 162), (211, 166), (206, 166)], PT[1])
+    line(cv, [(194, 144), (222, 164)], EM[1], 2)
     for x in range(26, 222): cv.put(x, B + 1, SN[3]) if x % 4 == 0 else None
 
 
@@ -524,15 +524,15 @@ def lm_auroracamp(rnd, cv):   # 300 x 250
     for x in range(10, 292): cv.put(x, B + 1, SN[3]) if x % 5 == 0 else None
 
 
-def lm_kettletree(rnd, cv):   # 240 x 290
-    B = 286
-    trunk(cv, 120, 190, B, 26, rnd)
+def lm_kettletree(rnd, cv):   # 240 x 232
+    B = 228
+    trunk(cv, 120, 150, B, 24, rnd)
     for x in range(88, 152):
-        for y in range(190, 240):
+        for y in range(150, 190):
             c = cv.get(x, y)
             if c[3] and c in RAMP["wood"]: cv.put(x, y, darker(c, 1))
     tiers = [(120, 6, 112, 52), (120, 52, 156, 92), (120, 100, 200, 134), (120, 150, 236, 176)]   # (cx, apex, base y? , halfwidth)
-    tiers = [(120, 8, 90, 50), (120, 54, 142, 76), (120, 108, 196, 100), (120, 160, 244, 112)]
+    tiers = [(120, 6, 64, 40), (120, 38, 108, 62), (120, 80, 152, 82), (120, 122, 196, 96)]
     for cx_, ay, by_, hw in tiers:
         for y in range(ay, by_):
             f = (y - ay) / (by_ - ay)
@@ -567,14 +567,14 @@ def lm_kettletree(rnd, cv):   # 240 x 290
             for dy in range(11): cv.put(x - 5 + dx, y + dy, R[0] if dx < 2 else R[1] if dx < 6 else R[2])
         for dy in range(2, 9): cv.put(x + 6, y + dy, R[2]); cv.put(x + 7, y + dy, R[2]) if dy in (2, 8) else None
         for dx in range(10): cv.put(x - 5 + dx, y + 1, CREAM)
-    kettle(78, 78, ST); mug(168, 66, GD) if False else None
-    kettle(44, 124, EM); kettle(196, 128, ST)
-    kettle(130, 128, SE); kettle(56, 180, GD); kettle(186, 186, PT)
-    for x, y, R in ((96, 62, EM), (152, 96, GD), (100, 106, SE), (70, 100, PT), (162, 160, EM), (100, 168, SE), (28, 168, ST), (150, 204, GD), (212, 178, GD), (110, 214, PT), (24, 224, SE), (214, 232, EM)):
+    kettle(88, 62, ST)
+    kettle(52, 104, EM); kettle(190, 108, ST)
+    kettle(126, 112, SE); kettle(60, 144, GD); kettle(184, 150, PT)
+    for x, y, R in ((112, 54, EM), (146, 80, GD), (96, 88, SE), (74, 86, PT), (156, 134, EM), (110, 140, SE), (30, 142, ST), (140, 168, GD), (210, 142, GD), (92, 176, PT), (24, 160, SE), (212, 170, EM)):
         mug(x, y, R)
     for x in range(30, 214): cv.put(x, B + 1, SN[3]) if x % 5 == 0 else None
     for k in range(3):   # steam from one kettle
-        for j in range(7): cv.put(130 - 2 + k * 4 + int(2 * math.sin(j)), 128 - j * 3 - 6, SN[0])
+        for j in range(7): cv.put(126 - 2 + k * 4 + int(2 * math.sin(j)), 112 - j * 3 - 6, SN[0])
 
 
 def tone5(d): return gen2.tone5(d)
@@ -588,9 +588,9 @@ LM = {
     "310-driftpass": (290, 140, lm_driftpass),
     "310-sledtrack": (280, 100, lm_sledtrack),
     "310-combridge": (290, 190, lm_comb),
-    "310-icicurtain": (250, 230, lm_icicurtain),
+    "310-icicurtain": (250, 194, lm_icicurtain),
     "316-skyhill": (290, 190, lm_skyhill),
     "316-starstones": (270, 110, lm_starstones),
     "316-auroracamp": (300, 250, lm_auroracamp),
-    "316-kettletree": (240, 290, lm_kettletree),
+    "316-kettletree": (240, 232, lm_kettletree),
 }
