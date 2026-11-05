@@ -17,3 +17,5 @@
 .fe-dmg{position:absolute;font-weight:900;font-size:24px;color:#fff;text-shadow:0 2px 0 var(--red,#c0314f),0 0 6px #000}
 .fe-dmg.miss{font-size:16px;text-shadow:0 1px 0 #000}
 .fe-pow{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;background:#ffd84a;clip-path:polygon(50% 0,62% 32%,96% 22%,72% 48%,100% 70%,64% 66%,60% 100%,46% 70%,10% 92%,30% 54%,0 38%,36% 34%)}
+
+.fe-part{position:absolute;inset:0;display:block;image-rendering:pixelated;background-size:100% 100%;background-repeat:no-repeat}

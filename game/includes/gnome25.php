@@ -66,12 +66,13 @@ function gnome25_ramp(string $base): array
 }
 
 /** The strip (PNG bytes) for a view and colours ['hat' => '#rrggbb', 'beard' => ..., 'scarf' => ...] (missing = as drawn), or '' when the art or GD is missing. */
-function gnome25_compose(string $view, array $cols): string
+function gnome25_compose(string $view, array $cols, array $skip = []): string
 {
     if (!function_exists('imagecreatetruecolor') || !in_array($view, ['front', 'back', 'side'], true)) return '';
     $dir = APP_ROOT . '/assets/img/gnome25/';
     $out = null;
     foreach (GNOME25_ORDER as [$name, $role]) {
+        if (in_array($name, $skip, true)) continue;   // rig parts (tools/gnome_rig_parts.php) leave layers out
         $f = $dir . $view . '-' . $name . '.png';
         if (!is_file($f)) return '';
         $im = @imagecreatefrompng($f);

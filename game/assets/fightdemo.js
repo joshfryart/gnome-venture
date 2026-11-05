@@ -1,9 +1,10 @@
 (function () {
+  var PARTS = { torso: 'assets/img/fight/rig-gnome-torso.png', legB: 'assets/img/fight/rig-gnome-legB.png', legF: 'assets/img/fight/rig-gnome-legF.png', arm: 'assets/img/fight/rig-gnome-arm.png' };
   var eng, busy = false, slug = 'wild-boar';
   function mount() {
     document.getElementById('stage').innerHTML = '';
     eng = FightEngine.create(document.getElementById('stage'), { speed: document.getElementById('slow').checked ? .3 : 1 });
-    eng.add('me', { rig: 'gnome', img: 'assets/img/fight/demo-gnome-side.png', col: 2, side: 'me', name: 'You', hp: 20 });
+    eng.add('me', { rig: 'gnome', parts: PARTS, col: 2, side: 'me', name: 'You', hp: 20 });
     eng.add('foe', { rig: slug, img: 'assets/img/mini/mini-' + slug + '.png', col: 8, flip: true, side: 'foe', name: slug.replace(/-/g, ' '), hp: 12 });
   }
   function go(list) { if (busy) return; busy = true; eng.play(list).then(function () { busy = false; }); }

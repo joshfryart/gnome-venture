@@ -33,3 +33,10 @@ Fluid = motion maths, not many drawn frames. Few key poses + code tweens. Adding
 - Keep mini pedestal creature art, or draw real battle sprites?
 - Fights from 2.5D delve/lair maps too, or trail only first?
 - Sound hooks per move (hit, KO)?
+
+## Update: limb rig for the gnome (2026-11-05)
+- Gnome is now a PARTS rig, not a strip: `torso` (hat, head, beard, body), `legB`, `legF` (boots), `armB`, `armF`. All parts are 64x80 in the same frame coordinates, so they stack without offsets; each rotates about a pivot (torso 32,64; legs 28/36,63; arm shoulder 33,48).
+- Cut by `tools/gnome_rig_parts.php` from the real `gnome25` side idle frame (`gnome25_compose` got a `$skip` list). The ARM IS NEW PIXEL ART drawn in that script (the old gnome had none, hands tucked in the beard); redraw it in Aseprite/Lua later. Parts are untinted for now: tinted parts must be composed per player (same args as `gnome25_url`).
+- `POSES` in `fightengine.js` (idle, run, pluck, guard): per-part keyframes `[ms,{r,x,y},ease]`. Positive r = swing BACK, forward = negative. A move names its pose (`pluck: pose:'pluck'`), or reuses a loop (`flee: pose:{use:'run',dur:350,loops:2}`).
+- Pluck = wind up (arm cocked back, lean back) -> run in (leg stride) -> arm whip at the hit beat (ms 440) -> recover.
+- Next: hit/KO limb poses, walk pose for board movement, far-arm/leg depth, tinted parts, same part rigs for creatures (head, jaw, legs, tail).
