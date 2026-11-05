@@ -288,6 +288,30 @@ function here_shop_fronts(array $u, array $node, int $fronts): array
     return $out;
 }
 
+/** v2.5.35: the "Do here" fronts of a rest stop, each named for one thing to do there (Fish the pond, Light the lamps...). The stop's own pool picks them: what the
+ *  weather, season or hour allows right now comes first (so they change with events), then the day's core and rotating picks. One popover per activity,
+ *  its own buttons post to town.php (do=local) and come back to this picture. Returns [[label, emoji, card html], ...] by front; fewer acts than fronts leaves the rest out. */
+function here_do_fronts(array $u, array $node, string $back, int $fronts): array
+{
+    if ($fronts < 1 || (string)$node['kind'] !== 'village') return $fronts > 0 ? array_fill(0, $fronts, ['Do here', '🎯', '<p><a class="btn" href="' . e(url('town.php')) . '">Open this place ›</a></p>']) : [];
+    require_once __DIR__ . '/local.php';
+    $pool = stop_pool($node);
+    $visit = stop_visit_key($u);
+    [$done] = stop_state((int)$u['id'], (int)$node['id'], $visit);
+    $out = [];
+    foreach (array_slice($pool['offer'], 0, $fronts) as $a) {
+        $isDone = in_array((string)$a['slug'], $done, true);
+        $folk = stop_folk_of($node)[0] ?? null;
+        $blurb = stop_say((string)$a['blurb'], $node, $folk);
+        $card = (!empty($a['now']) ? '<p><b>Right now</b> · ' . e(hollow_weather_info(stop_now($node)['we'], stop_now($node)['dp'])['label']) . '</p>' : '')
+            . ($blurb !== '' ? '<p class="st-blurb">' . e($blurb) . '</p>' : '')
+            . ($isDone ? '<p class="muted">✔ Done this visit.</p>'
+                : '<div class="doacts">' . str_replace('<input type="hidden" name="do" value="local">', '<input type="hidden" name="back" value="' . e($back) . '"><input type="hidden" name="do" value="local">', local_act_buttons($u, $node, $a, false)) . '</div>');
+        $out[] = [(string)$a['name'], (string)$a['icon'], $card];
+    }
+    return $out;
+}
+
 /** Things to do at this place: hotspots on the template's named spots. */
 function here_spots(array $u, array $node, array $L, string $back, string $kind): array
 {
@@ -320,7 +344,7 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
         // 'homes' (Residential) comes in a later release; the spot stays hidden until residential.php exists
         if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']));
     } elseif ($kind === 'village' || $kind === 'stop' || $kind === '') {   // '' = a plain place: the generic picture
-        $add('do', 'Do here', '🎯', url('town.php'));
+        $add('do', here_do_fronts($u, $node, $back, count($want['do'] ?? [])), '🎯', url('town.php'));
         $add('people', 'Villagers', '👥', url('town.php?t=folk'));
         $add('stop', 'Rest stop', '🪧', url('town.php?t=stop'));
         if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']));

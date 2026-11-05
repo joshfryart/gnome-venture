@@ -224,6 +224,13 @@ if ($withDb) {
     ok('shop fronts: named, not all just "Shops"', $sf && count(array_unique(array_column($sf, 0))) === count($sf));
     ok('shop fronts: the last front is Mossbottom Shops', $sf && end($sf)[0] === 'Mossbottom Shops' && str_contains(end($sf)[2], 'shrow'));
     ok('shop fronts: one front lists every shop', count(here_shop_fronts($u, player_node($u), 1)) === 1);
+    $vil = (int)q_val("SELECT id FROM locations WHERE kind = 'village' ORDER BY id LIMIT 1");
+    if ($vil) {   // v2.5.35: a rest stop's "Do here" fronts are named for what you do there
+        $uv = put($vil);
+        $df = here_do_fronts($uv, player_node($uv), 'here.php', 6);
+        ok('do fronts: each named for its own activity, none "Do here"', $df && count(array_unique(array_column($df, 0))) === count($df) && !in_array('Do here', array_column($df, 0), true), json_encode(array_column($df, 0)));
+        ok('do fronts: each has its buttons and comes back to here.php', str_contains(implode('', array_column($df, 2)), 'name="back" value="here.php"'));
+    }
     $gateView = str_contains($h, 'hubsvg chrome');   // a main town with a gate-view picture has no exits on it: the compass card lists every route
     if ($gateView) {
         ok('gate view: no exit hotspots on the picture, no circles', substr_count($h, 'id="hs-e') === 0 && !str_contains(preg_replace('#<svg class="rmap".*?</svg>#s', '', $h), '<circle'));;

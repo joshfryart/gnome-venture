@@ -41,6 +41,7 @@ if (is_post()) {
     if ($ajax && (int)($_POST['spot'] ?? 0) > 0) spot_card_reply(require_login(), $hub, (int)$_POST['spot'], $msg, $ok);   // in place: the card comes back with the result
     flash($msg, $ok ? 'ok' : 'err');
     $spot = (int)($_POST['spot'] ?? 0);
+    if (($_POST['back'] ?? '') === 'here.php') redirect('here.php');   // v2.5.35: a rest-stop thing done from the Here picture comes back to it
     $stTab = ($do === 'local' && in_array($_POST['t'] ?? '', ['folk', 'stop'], true)) ? 't=' . $_POST['t'] : '';   // v1.3.0: rest-stop forms come back to their tab
     if ($stTab) redirect('town.php?' . $stTab);
     if (!$spot && ($_POST['view'] ?? '') === 'orders') redirect('town.php?' . ($hub ? 'hub=1&' : '') . 'view=orders');   // v2.0.67: the town's Orders tab
