@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Redraw two pictures that did not match the rest (Hearth Pop v3): the Tortoise Run (animals/tortoise_run.png, a boxed scene with no outline)
-and the Butterfly House (ph/butterfly-house.png, a copy of the bird box). Both 64x64, transparent, 1 px ink outline, lit top-left.
+"""Redraw the Tortoise Run (animals/tortoise_run.png; it was a boxed scene with no outline), which has no v3 picture. 64x64, transparent, 1 px ink outline, lit top-left.
 Run: python3 -I tools/draw_fix_art.py   (needs Pillow)"""
 import math, os
 from PIL import Image, ImageDraw
@@ -37,37 +36,7 @@ def tortoise_run():
     # a lettuce leaf in front
     d.ellipse([46, 50, 56, 56], fill=c('#97cc66')); d.line([(48, 53), (54, 53)], fill=c('#5a9a48'))
     return outline(im)
-def butterfly(d, x, y, a, b, s=1):
-    d.polygon([(x, y), (x - 3 * s, y - 3 * s), (x - 4 * s, y), (x - 2 * s, y + 2 * s)], fill=a); d.polygon([(x, y), (x + 3 * s, y - 3 * s), (x + 4 * s, y), (x + 2 * s, y + 2 * s)], fill=b)
-    d.point((x, y), fill=c('#2b1c26')); d.point((x - 2 * s, y - 1 * s), fill=c('#ffffff'))
-def butterfly_house():
-    im = Image.new("RGBA", (T, T), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
-    shadow(d, [5, 53, 60, 62])
-    # plinth
-    d.rectangle([8, 48, 55, 56], fill=c('#6e6d82')); d.rectangle([8, 48, 55, 50], fill=c('#aaa9b8')); d.rectangle([8, 54, 55, 56], fill=c('#4a4a5c'))
-    for x in range(12, 55, 8): d.line([(x, 51), (x, 53)], fill=c('#8e8da2'))
-    # glass body: back wall then front, with a pale sky tint
-    d.rectangle([12, 26, 51, 48], fill=c('#a8d8e0')); d.rectangle([12, 26, 51, 36], fill=c('#c8ecf0')); d.rectangle([14, 28, 30, 31], fill=c('#e8f8fa'))
-    # plants and flowers inside
-    for x, col in ((16, '#e8809a'), (22, '#f0d067'), (28, '#b9a0e0'), (40, '#f0d067'), (46, '#e8809a')):
-        d.line([(x, 47), (x, 42)], fill=c('#3f7a3e')); d.ellipse([x - 2, 40, x + 2, 43], fill=c(col))
-    d.rectangle([13, 45, 50, 48], fill=c('#3f7a3e')); d.rectangle([13, 45, 50, 46], fill=c('#5a9a48'))
-    # frame: mullions, sill and door
-    for x in (12, 25, 38, 51): d.rectangle([x - 1, 26, x + 1, 48], fill=c('#f0f0e8')); d.line([(x + 1, 26), (x + 1, 48)], fill=c('#b8b8b0'))
-    d.rectangle([12, 36, 51, 37], fill=c('#f0f0e8')); d.rectangle([12, 47, 51, 49], fill=c('#d8d8d0'))
-    d.pieslice([27, 32, 37, 44], 180, 360, fill=c('#8a5a34')); d.rectangle([27, 38, 37, 48], fill=c('#8a5a34')); d.line([(32, 33), (32, 48)], fill=c('#6b4228')); d.point((35, 43), fill=c('#f0d067'))
-    # butterflies inside
-    butterfly(d, 19, 33, c('#f08a2a'), c('#d86a1a')); butterfly(d, 43, 31, c('#5a8ae0'), c('#3a6ac0')); butterfly(d, 31, 28, c('#e8809a'), c('#c8607a'))
-    # hip roof, lit from the left, with ridge and finial
-    d.polygon([(5, 27), (59, 27), (49, 12), (15, 12)], fill=c('#2f7a6a')); d.polygon([(5, 27), (15, 12), (24, 12), (16, 27)], fill=c('#4aa28a')); d.polygon([(59, 27), (49, 12), (44, 12), (50, 27)], fill=c('#245e52'))
-    d.line([(15, 12), (49, 12)], fill=c('#8ad0b8')); d.line([(5, 27), (59, 27)], fill=c('#1a4a40'), width=2)
-    for x in (22, 32, 42): d.line([(x - 4 + (x - 32) // 4, 27), (x - 2 + (x - 32) // 6, 12)], fill=c('#245e52'))
-    d.rectangle([30, 8, 34, 12], fill=c('#c8965a')); d.ellipse([29, 4, 35, 9], fill=c('#f0d067'))
-    im = outline(im); d2 = ImageDraw.Draw(im)
-    butterfly(d2, 58, 22, c('#f0d067'), c('#d8a02a')); butterfly(d2, 6, 40, c('#b9a0e0'), c('#8a70c0'))
-    return outline(im)
 def main():
     tortoise_run().save(os.path.join(IMG, "animals", "tortoise_run.png"), optimize=True)
-    butterfly_house().save(os.path.join(IMG, "ph", "butterfly-house.png"), optimize=True)
-    print("tortoise_run.png, butterfly-house.png written")
+    print("tortoise_run.png written")
 if __name__ == "__main__": main()

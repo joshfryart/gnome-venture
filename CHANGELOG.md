@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.48
+- **35 pictures finally on the new art**: the v3 drawings from batches 1 and 2 had never been put into the game, which still showed older pictures: Butterfly House, Carrot, Corn, Pumpkin, Watermelon, Pineapple, Coconut, Cacao, Blueberry, Mint, Cassava, Turnip, Rambutan, Fiery Pickled Cabbage, Morel Risotto, Yuzu Marmalade, Bug Net, Tide Pail and Scoop, Fine Foraging Knife, Broken Wheelbarrow, Fossil Shell, Wisp Light, Spotted Pelt, Badger Claw, and the seeds of Banana, Blueberry, Cacao, Carrot, Chili Pepper, Coconut, Corn, Mint, Pineapple, Pumpkin and Watermelon. Ripe beds show the crop pictures, so Carrot, Corn, Pumpkin and the rest look better in the yard. (Ginseng Seed keeps its old picture: the new leaf reads as the wrong plant.)
+- **Butterfly House** is the new v3 picture (a slatted butterfly box on a post), replacing the 2.5.47 redraw. The Tortoise Run keeps the 2.5.47 pen (it has no v3 picture); `tools/draw_fix_art.py` now only draws that.
 ## 2.5.47
 - **Animal homes show their pixel art in the yard**: the yard was still drawing the old line drawings for the eight animal homes (worm farm, ladybird lodge, frog pond, quail coop, silkworm shelf, tortoise run, snail jar, butterfly bush); it now uses their pixel pictures.
 - **Tortoise Run redrawn**: it was a boxed scene with no outline; now a wooden pen with a dirt floor, a tortoise and a lettuce leaf, outlined like the others.
