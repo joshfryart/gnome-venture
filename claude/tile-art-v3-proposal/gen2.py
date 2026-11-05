@@ -514,6 +514,15 @@ LANDMARKS = {"scarecrow": (160, 250, lm_scarecrow), "haybales": (210, 150, lm_ha
 def landmark(name):
     w, h, fn = LANDMARKS[name]; cv = Cv(w, h); fn(random.Random(f"lm{name}"), cv); outline(cv)
     top, bot = cv.im.getbbox()[1], cv.im.getbbox()[3]; return cv.im.crop((0, top, w, bot))
+def _load_landmark_modules():
+    """claude/tile-art-v3-proposal/landmarks_*.py each define LM = {name: (canvas w, canvas h, fn(rnd, cv))}; names are '<route id>-<slug>'."""
+    import glob, importlib.util
+    for f in sorted(glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), "landmarks_*.py"))):
+        spec = importlib.util.spec_from_file_location(os.path.basename(f)[:-3], f); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+        for k in m.LM:
+            assert k not in LANDMARKS, f"landmark {k} is defined twice ({f})"
+        LANDMARKS.update(m.LM)
+if __name__ == "gen2": _load_landmark_modules()
 
 # ---------------------------------------------------------------- find spots (open / done) and the search icon
 def sparkle(cv, x, y, big=True):

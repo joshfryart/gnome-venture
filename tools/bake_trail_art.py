@@ -98,7 +98,7 @@ def spec(land, x, y, seed):
     return f"pine-{h % 6}" if h % 5 else f"boulder-snow-{h % 4}"
 def build_obj(key):
     p = key.split("-")
-    if p[0] == "lm": return gen2.landmark(p[1])
+    if p[0] == "lm": return gen2.landmark(key[3:])
     if p[0] == "tree": return gen2.tree(int(p[2]), p[1])
     if p[0] == "bush": return gen2.bush(int(p[1]))
     if p[0] == "hedge": return gen2.hedge(int(p[1]))
