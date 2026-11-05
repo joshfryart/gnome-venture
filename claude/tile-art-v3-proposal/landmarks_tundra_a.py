@@ -168,16 +168,16 @@ def snowman(cv, cx, base, s, rnd, hat, carrot_kind, scarf=None, mood=0):
 
 
 def lm_snowmen(rnd, cv):   # 290 x 150
-    H_ = 148
+    H_ = 186
     for x in range(8, 282):   # bit of trampled snow floor
         for y in range(H_ - 6, H_ + 1):
             if (x * 7 + y * 3) % 5 and ((x - 145) / 140) ** 2 + ((y - H_ + 2) / 5) ** 2 < 1: cv.put(x, y, SN[1] if y < H_ - 2 else SN[2])
-    snowman(cv, 36, H_ - 2, .95, rnd, "top", "long", PT[1], 0)
-    snowman(cv, 92, H_ - 2, .8, rnd, "bobble", "tiny", None, 3)
-    snowman(cv, 146, H_ - 2, 1.12, rnd, "none", "up", EM[1], 0)
-    snowman(cv, 204, H_ - 2, .85, rnd, "bucket", "fat", SE[1], 1)
-    snowman(cv, 255, H_ - 2, .95, rnd, "pot", "side", None, 2)
-    for x in (62, 118, 172, 230):   # tiny rating flags
+    snowman(cv, 40, H_ - 2, 1.3, rnd, "top", "long", PT[1], 0)
+    snowman(cv, 98, H_ - 2, 1.1, rnd, "bobble", "tiny", None, 3)
+    snowman(cv, 152, H_ - 2, 1.55, rnd, "none", "up", EM[1], 0)
+    snowman(cv, 210, H_ - 2, 1.15, rnd, "bucket", "fat", SE[1], 1)
+    snowman(cv, 255, H_ - 2, 1.35, rnd, "pot", "side", None, 2)
+    for x in (68, 125, 182, 232):   # tiny rating flags
         for y in range(H_ - 18, H_ - 2): cv.put(x, y, WD[2])
         for dx in range(7):
             for dy in range(4): cv.put(x + 1 + dx, H_ - 18 + dy, GD[1] if dx % 2 else GD[0])
@@ -465,7 +465,7 @@ def lm_auroracamp(rnd, cv):   # 300 x 250
     B = 244
     # aurora ribbons overhead
     for x in range(6, 294):
-        for band, (cols, off, amp) in enumerate((((SE[1], MO[0], MO[1]), 22, 12), ((PT[1], PT[0], SE[0]), 40, 9))):
+        for band, (cols, off, amp) in enumerate((((SE[1], MO[0], MO[1]), 70, 12), ((PT[1], PT[0], SE[0]), 92, 9))):
             top = int(off + amp * math.sin(x / 26.0 + band * 1.7) + 4 * math.sin(x / 9.0))
             ln = 46 - band * 12 + int(10 * math.sin(x / 13.0 + band))
             for k in range(ln):
@@ -582,7 +582,7 @@ def tone5(d): return gen2.tone5(d)
 
 LM = {
     "309-frozenpond": (260, 104, lm_frozenpond),
-    "309-snowmen": (290, 150, lm_snowmen),
+    "309-snowmen": (290, 190, lm_snowmen),
     "309-icecave": (270, 220, lm_icecave),
     "309-auroraledge": (260, 170, lm_auroraledge),
     "310-driftpass": (290, 140, lm_driftpass),

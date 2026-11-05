@@ -249,7 +249,7 @@ def lm_fernhollow(rnd, cv):   # 270 x 130
                         cv.put(ax, ay, c); cv.put(ax, ay + 1, R[2] if s < 0 else R[3])
     for x, y, a, ln, b in ((28, 100, 120, 56, 50), (42, 106, 100, 70, 40), (236, 104, 60, 60, -50), (250, 98, 75, 54, -40), (70, 112, 110, 48, 40),
                            (206, 114, 70, 50, -40), (112, 76, 95, 44, 55), (190, 74, 85, 48, -55), (148, 70, 90, 40, 0), (16, 94, 130, 46, 60)):
-        frond(x, y, a, ln, b, L)
+        frond(x, y, a, ln, b, M)
     # snail
     lump(cv, 150, 100, 26, 7, r5(RAMP["sand"]), rnd, 0)
     lump(cv, 132, 92, 8, 9, r5(RAMP["sand"]), rnd, 0)   # head
@@ -361,7 +361,7 @@ def lm_mossgate(rnd, cv):   # 240 x 230
         _col(cv, x0, x1, y0, y1, S, rnd, .12)
         for y in range(y0 + 14, y1, 22):   # courses of stone
             for x in range(x0, x1): cv.put(x, y, S[3])
-        mh = (y1 - y0) * 45 // 100
+        mh = (y1 - y0) * 62 // 100
         for x in range(x0, x1):   # moss poured down the post
             dep = mh + 8 * ((x * 7) % 5) // 2 - (x - x0) // 6
             for y in range(y0 + 4, y0 + dep):
@@ -379,8 +379,8 @@ def lm_mossgate(rnd, cv):   # 240 x 230
     _line(cv, 94, 130, 94, 160, S[2]); _line(cv, 95, 130, 95, 160, S[3])   # a chain, going nowhere
     lump(cv, 95, 172, 7, 9, r5(G), rnd, 0); cv.put(95, 180, G[3]); cv.put(95, 181, G[3])
     _rect(cv, 166 - 8, 158, 166, 164, S[4]); _rect(cv, 158, 158, 166, 160, S[2])
-    for cx in (50, 192):   # little flowers on the caps
-        for dx, dy, c in ((0, 0, G[1]), (-3, 0, CREAM), (3, 0, CREAM), (0, -3, CREAM), (0, 3, CREAM)): cv.put(cx + dx, 66 + dy, c)
+    for cx, cy in ((50, 76), (192, 98)):   # little flowers on the caps
+        for dx, dy, c in ((0, 0, G[1]), (-3, 0, CREAM), (3, 0, CREAM), (0, -3, CREAM), (0, 3, CREAM)): cv.put(cx + dx, cy + dy, c)
     for x in range(84, 160, 5): _tuft(cv, x, 224, rnd, 2, 6 + (x % 4))
     _mush(cv, 118, 222, rnd); _mush(cv, 128, 224, rnd)
     _mush(cv, 12, 224, rnd)

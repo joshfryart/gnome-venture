@@ -104,8 +104,8 @@ def lm_gate(rnd, cv):   # 220 x 190
     _drift(cv, 55, 190, 50, 18, rnd); _drift(cv, 167, 190, 50, 18, rnd); _drift(cv, 110, 190, 36, 10, rnd)
     for k in range(5): cv.put(98 + k * 6, 178 + k % 2, IC[2]); cv.put(99 + k * 6, 178 + k % 2, IC[2])
 
-def lm_lamps(rnd, cv):   # 290 x 200
-    for i, (cx, top) in enumerate(((46, 58), (112, 44), (178, 52), (244, 40))):
+def lm_lamps(rnd, cv):   # 240 x 200
+    for i, (cx, top) in enumerate(((45, 58), (95, 44), (145, 52), (195, 40))):
         by = 192 - (i % 2) * 3
         _drift(cv, cx, by + 2, 24, 9, rnd)
         _col(cv, cx - 3, cx + 3, top + 34, by - 4, ST, rnd, 0)
@@ -224,13 +224,13 @@ def lm_bridge(rnd, cv):   # 260 x 180
     _rect(cv, 116, tp - 36, 146, tp - 33, CREAM); _rect(cv, 116, tp - 30, 140, tp - 27, CREAM)
 
 # -------------------------------------------------------------------------------------------- section 3
-def lm_feather(rnd, cv):   # 150 x 250
-    lump(cv, 75, 232, 62, 16, SN, rnd, .06); lump(cv, 40, 236, 24, 9, SN, rnd, 0); lump(cv, 112, 237, 26, 8, SN, rnd, 0)
-    _feather(cv, 70, 230, 84, 12, 34, rnd, bend=-12)
+def lm_feather(rnd, cv):   # 150 x 195
+    lump(cv, 75, 178, 62, 16, SN, rnd, .06); lump(cv, 40, 182, 24, 9, SN, rnd, 0); lump(cv, 112, 183, 26, 8, SN, rnd, 0)
+    _feather(cv, 70, 176, 84, 6, 32, rnd, bend=-12)
     for y in range(205, 226):   # snow collar round the quill
         for x in range(60, 82): cv.put(x, y, WD[3]) if False else None
-    lump(cv, 72, 228, 22, 8, SN, rnd, 0)
-    for k in range(14): cv.put(20 + k * 8, 244 - k % 3, IC[2])
+    lump(cv, 72, 174, 22, 8, SN, rnd, 0)
+    for k in range(14): cv.put(20 + k * 8, 190 - k % 3, IC[2])
     for x in range(98, 116): cv.put(x, 140 + (x - 98) // 3, PT[1]) if False else None
 
 def lm_cairns(rnd, cv):   # 250 x 150
@@ -306,6 +306,6 @@ def lm_doormat(rnd, cv):   # 230 x 100
         _feather(cv, ex, ey + 14, ex + 2, ey, 4, rnd, bend=3)
     for k in range(4): lump(cv, 46 + k * 46, 92, 7, 4, ST, rnd, .1) if k % 2 == 0 else None
 
-LM = {"315-gate": (220, 190, lm_gate), "315-lamps": (290, 200, lm_lamps), "315-slope": (290, 210, lm_slope), "315-fort": (250, 140, lm_fort),
-      "315-stream": (290, 110, lm_stream), "315-bridge": (260, 180, lm_bridge), "315-feather": (150, 250, lm_feather), "315-cairns": (250, 150, lm_cairns),
+LM = {"315-gate": (220, 190, lm_gate), "315-lamps": (240, 200, lm_lamps), "315-slope": (290, 210, lm_slope), "315-fort": (250, 140, lm_fort),
+      "315-stream": (290, 110, lm_stream), "315-bridge": (260, 180, lm_bridge), "315-feather": (150, 196, lm_feather), "315-cairns": (250, 150, lm_cairns),
       "315-den": (300, 190, lm_den), "315-doormat": (230, 100, lm_doormat)}
