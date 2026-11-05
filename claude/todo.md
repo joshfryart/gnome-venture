@@ -42,7 +42,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 **Content**
  - Build plans: all 94 havens/wonders/delves have plans (2.5.68, Josh not yet reviewed the text). Leftover build verbs (`befriend`, `carry`, `trial`, `vigil`, `wait`, `decorate`); Admin > Build plans page.
 - Stop acts: `cookalong`/`tune`/`teach`/festival kinds; apply review notes for 691 acts.
-- Road: toll/beat/weather kinds; picture per sketch page; collection pages. Region packs for other 11 regions; road_lines admin editor; 146 villages share 9 descriptions; 4 stop personalities lack chat lines; Haven text promises shops that don't exist; tundra thin.
+- Road: toll/beat/weather kinds; picture per sketch page; collection pages. Region packs for other 11 regions; road_lines admin editor; 146 villages share 9 descriptions; stop chat: 22 lines added for the thin personalities (Generous, Grumpy, Shy, Proud, Curious, Chatty, Cheerful, Sleepy), UNRELEASED; Haven text promises shops that don't exist; tundra thin.
 - Treks: scenes (Gloomtooth intro, Sorrel's door, signpost riddle); Ch IV to VI, Thorny/Bramble, respec, Lanternroot crop, hats/stamp/trophy, trailmates 8 (4-7 built).
 - Delve redo: `delve_v2` built OFF (`claude/plan-delves.md`, `claude/checklist-delves.md`).
 - Popover animation polish: 11 glint-only scenes (`bulk.py --report`); animate flags/water/foliage/sun; more icons than 7 stats.
