@@ -16,16 +16,52 @@ declare(strict_types=1);
 const TRAIL_ART_PX = 64;      // pixels a tile has in the PNGs
 const TRAIL_ART_PAD = 40;     // px of margin above row 0 in a ground PNG (tree tops reach into it)
 
-/** All authored routes: [route id string => [land, boss, sections[]]]. */
+/**
+ * Is this authored route usable? Every section needs rows: all the same width (at least 5), all the same height (at least 3), only the characters
+ * # . , S 9 E F, and an exit '9' on the right edge. Anything else is dropped here, so a bad hand-made map falls back to the random generator
+ * instead of breaking a walk. (The path from the entry to the exit is checked by tools/bake_trail_art.py --check and tests/trail_authored.php.)
+ */
+function trail_authored_valid($r): bool
+{
+    if (!is_array($r) || empty($r['sections']) || !is_array($r['sections'])) return false;
+    $w = $h = 0;
+    foreach ($r['sections'] as $s) {
+        $rows = is_array($s) ? ($s['rows'] ?? null) : null;
+        if (!is_array($rows) || count($rows) < 3 || (isset($rows[0]) && !is_string($rows[0]))) return false;
+        $w = $w ?: strlen((string)$rows[0]);
+        $h = $h ?: count($rows);
+        if ($w < 5 || count($rows) !== $h) return false;
+        $nine = 0;
+        foreach ($rows as $row) {
+            if (!is_string($row) || strlen($row) !== $w || !preg_match('/^[#.,S9EF]+$/', $row)) return false;
+            if (str_ends_with($row, '9')) $nine++;
+        }
+        if ($nine !== 1) return false;
+    }
+    return true;
+}
+
+/**
+ * The authored routes found under a data directory, [route id string => [land, boss, sections[]]]: data/trail_maps.json (the merged file
+ * tools/bake_trail_art.py writes) and then every data/trail_maps/*.json (one file per region, same {"v":1,"routes":{id:{...}}} shape; later
+ * names win). Unreadable or invalid entries are skipped. Pure; $dir is only a parameter so the tests can point it at a scratch folder.
+ */
+function trail_authored_load(string $dir): array
+{
+    $files = array_merge(is_file($dir . '/trail_maps.json') ? [$dir . '/trail_maps.json'] : [], glob($dir . '/trail_maps/*.json') ?: []);
+    $all = [];
+    foreach ($files as $f) {
+        $j = json_decode((string)@file_get_contents($f), true);
+        foreach (is_array($j) && is_array($j['routes'] ?? null) ? $j['routes'] : [] as $id => $r) if (ctype_digit((string)$id) && trail_authored_valid($r)) $all[(string)$id] = $r;
+    }
+    return $all;
+}
+
+/** All authored routes of the game (see trail_authored_load). */
 function trail_authored_all(): array
 {
     static $all = null;
-    if ($all === null) {
-        $f = __DIR__ . '/data/trail_maps.json';
-        $j = is_file($f) ? json_decode((string)file_get_contents($f), true) : null;
-        $all = is_array($j) && is_array($j['routes'] ?? null) ? $j['routes'] : [];
-    }
-    return $all;
+    return $all ??= trail_authored_load(__DIR__ . '/data');
 }
 
 /** One authored section (0-based) with 'land', 'route', 'sec' and 'boss' ('' / 'miniboss' / 'boss', only on the last section), or null. */
@@ -35,6 +71,7 @@ function trail_authored_section(int $routeId, int $sec): ?array
     $s = is_array($r) ? ($r['sections'][$sec] ?? null) : null;
     if (!is_array($s) || empty($s['rows'])) return null;
     $s['land'] = (string)$r['land'];
+    if (!empty($r['art'])) $s['art'] = (string)$r['art'];
     $s['route'] = $routeId;
     $s['sec'] = $sec;
     $s['boss'] = ($sec === count($r['sections']) - 1) ? (string)($r['boss'] ?? '') : '';
@@ -97,6 +134,29 @@ function trail_art_ready(array $art): bool
 }
 
 /**
+ * v2.5.49: the colour the ground fades into past the bottom edge of a baked section: the average of its last pixel rows, a little darker (shade). Read once
+ * from the PNG with GD and kept per picture; '' when GD or the picture is missing (the caller then uses its flat per-land colour).
+ */
+function trail_art_edge_colour(array $art): string
+{
+    static $memo = [];
+    $f = dirname(__DIR__) . '/assets/img/trail/ground/' . (int)$art['route'] . '-' . ((int)$art['sec'] + 1) . '.png';
+    if (isset($memo[$f])) return $memo[$f];
+    $c = '';
+    if (function_exists('imagecreatefrompng') && is_file($f) && ($im = @imagecreatefrompng($f))) {
+        $w = imagesx($im); $h = imagesy($im); $r = $g = $b = $n = 0;
+        for ($y = max(0, $h - 6); $y < $h; $y++) for ($x = 0; $x < $w; $x += 4) {
+            $p = imagecolorat($im, $x, $y);
+            if (!imageistruecolor($im)) { $q = imagecolorsforindex($im, $p); $p = ($q['red'] << 16) | ($q['green'] << 8) | $q['blue']; }
+            $r += ($p >> 16) & 255; $g += ($p >> 8) & 255; $b += $p & 255; $n++;
+        }
+        imagedestroy($im);
+        if ($n) $c = sprintf('#%02x%02x%02x', (int)($r / $n * .72), (int)($g / $n * .72), (int)($b / $n * .72));
+    }
+    return $memo[$f] = $c;
+}
+
+/**
  * The section picture for the window. $state: x0 y0 cols rows (window, in tiles), px py (the walker), tokens [[x, y, icon, ring, done]]
  * (icon ✨ = a find, ⚔️ = the fixed fight, 🚪 = the way on), walk (the path just walked, for the footprints the script reveals).
  * Coordinates are the window's own (0,0 = its top-left tile), like tm_render_svg, so assets/tilemap.js moves the walker unchanged.
@@ -105,6 +165,7 @@ function trail_art_svg(array $map, array $state): string
 {
     $art = $map['art'];
     $land = (string)$art['land'];
+    $fland = (string)($art['art'] ?? $land);   // the land whose art stands in (tools/bake_trail_art.py ART_LAND): find sprites are baked per art land
     $C = TM_UNIT;
     $k = $C / TRAIL_ART_PX;
     $x0 = (int)$state['x0'];
@@ -112,11 +173,19 @@ function trail_art_svg(array $map, array $state): string
     $W = (int)$state['cols'] * $C;
     $H = (int)$state['rows'] * $C;
     $n = 'tm_n';
-    $under = ['grassland' => '#2a5a3e', 'forest' => '#4a2f2d', 'coast' => '#b78a5c', 'tundra' => '#8fb0d8'][$land] ?? '#2a3a2e';
+    $under = ['grassland' => '#2a5a3e', 'forest' => '#4a2f2d', 'coast' => '#b78a5c', 'tundra' => '#8fb0d8'][$fland] ?? '#2a3a2e';
+    if (($edge = trail_art_edge_colour($art)) !== '') $under = $edge;
     $o = '<svg class="tmbg tpix" viewBox="0 0 ' . $W . ' ' . $H . '" preserveAspectRatio="none" aria-hidden="true" focusable="false">';
+    $o .= '<defs><linearGradient id="tmfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' . $under . '" stop-opacity="0"/><stop offset="1" stop-color="' . $under . '" stop-opacity="1"/></linearGradient>'
+        . '<linearGradient id="tmfadex" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="' . $under . '" stop-opacity="1"/><stop offset="1" stop-color="' . $under . '" stop-opacity="0"/></linearGradient></defs>';
     $o .= '<rect width="' . $W . '" height="' . $H . '" fill="' . $under . '"/>';
     $o .= '<image href="' . e(trail_art_url('ground/' . (int)$art['route'] . '-' . ((int)$art['sec'] + 1) . '.png')) . '" x="' . $n(-$x0 * $C) . '" y="' . $n(-$y0 * $C - TRAIL_ART_PAD * $k)
         . '" width="' . $n($map['w'] * $C) . '" height="' . $n(($map['h'] * TRAIL_ART_PX + TRAIL_ART_PAD) * $k) . '"/>';
+    // v2.5.49: the picture stops at the last row with a hard line; the ground fades into shade over the bottom half tile (and the left edge), so the map does not end on a ruler
+    $by = ($map['h'] - $y0) * $C;
+    if ($by > 0 && $by < $H + $C) $o .= '<rect x="0" y="' . $n($by - .6 * $C) . '" width="' . $W . '" height="' . $n(.6 * $C) . '" fill="url(#tmfade)"/>';
+    $lx0 = -$x0 * $C;
+    if ($lx0 > 0 && $lx0 < $W) $o .= '<rect x="' . $n($lx0) . '" y="0" width="' . $n(.5 * $C) . '" height="' . $H . '" fill="url(#tmfadex)"/>';
     $walk = $state['walk'] ?? null;
     if ($walk && count($walk['p']) > 1) {
         $o .= '<g class="tmfeet">';
@@ -141,7 +210,7 @@ function trail_art_svg(array $map, array $state): string
         $Y = ($ty - $y0) * $C;
         if (!$in($X, $Y, $C, $C)) continue;
         if ($icon === '✨') {
-            $items[] = [$ty + .45, $tx, '<image href="' . e(trail_art_url('find-' . $land . ($done ? '-done' : '') . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $C . '" height="' . $C . '"/>'];
+            $items[] = [$ty + .45, $tx, '<image href="' . e(trail_art_url('find-' . $fland . ($done ? '-done' : '') . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $C . '" height="' . $C . '"/>'];
         } else {   // the way on and the fixed fight: red-outlined placeholder tiles until their art is drawn
             $marks .= '<g' . ($done ? ' opacity=".5"' : '') . '><rect x="' . ($X + 2) . '" y="' . ($Y + 2) . '" width="' . ($C - 4) . '" height="' . ($C - 4) . '" fill="rgba(255,255,255,.18)" stroke="#e02020" stroke-width="2.5"/>'
                 . '<text x="' . ($X + $C / 2) . '" y="' . $n($Y + $C / 2 + 6) . '" font-size="17" text-anchor="middle">' . e($icon) . '</text></g>';
@@ -149,8 +218,13 @@ function trail_art_svg(array $map, array $state): string
     }
     $lx = ($state['px'] - $x0) * $C + $C / 2;
     $ly = ($state['py'] - $y0) * $C + $C / 2;
-    $items[] = [$state['py'] + .5, $state['px'], '<g class="tmme" transform="translate(' . $n($lx) . ' ' . $n($ly) . ')"><image href="' . e(trail_art_url('gnome.png')) . '" x="' . $n(-32 * $k) . '" y="' . $n(-56 * $k)
-        . '" width="' . $n(64 * $k) . '" height="' . $n(80 * $k) . '"/></g>'];
+    $rig = (string)($state['me'] ?? '');   // v2.5.49: the 2.5D gnome rig (trek_art_me): assets/tilemap.js turns it to face the way it walks and steps its walk frames
+    if ($rig !== '' && str_contains($rig, 'tkrig')) {   // same box as the idle gnome.png (64 x 80 picture units), not the 42 px token box
+        $rig = preg_replace('~^<svg class="tkrig" x="[^"]*" y="[^"]*" width="[^"]*" height="[^"]*"~', '<svg class="tkrig" x="' . $n(-32 * $k) . '" y="' . $n(-56 * $k) . '" width="' . $n(64 * $k) . '" height="' . $n(80 * $k) . '"', $rig, 1, $cnt);
+        if (!$cnt) $rig = '';
+    } else $rig = '';
+    $items[] = [$state['py'] + .5, $state['px'], '<g class="tmme" transform="translate(' . $n($lx) . ' ' . $n($ly) . ')">' . ($rig !== '' ? $rig : '<image href="' . e(trail_art_url('gnome.png')) . '" x="' . $n(-32 * $k) . '" y="' . $n(-56 * $k)
+        . '" width="' . $n(64 * $k) . '" height="' . $n(80 * $k) . '"/>') . '</g>'];
     usort($items, fn($a, $b) => [$a[0], $a[1]] <=> [$b[0], $b[1]]);
     $o .= $marks;   // flat marks lie on the ground, under the walker and the raised things
     foreach ($items as $it) $o .= $it[2];
