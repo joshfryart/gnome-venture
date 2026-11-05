@@ -411,7 +411,7 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
         $add('people', 'Villagers', '👥', url('town.php?t=folk'));
         foreach ($hot as &$hp) if (str_starts_with((string)$hp['id'], 's-people')) $hp['hl'] = 'street';   // v2.5.39: tapping it lights up the villagers standing under the picture
         unset($hp);
-        $add('stop', 'Rest stop', '🪧', url('town.php?view=passport'), here_lazy_card(url('town.php?view=passport&frag=1'), url('town.php'), '', '') . '<p class="vmore"><a href="' . e(url('town.php?view=passport')) . '">Open full page ›</a></p>');
+        $add('stop', 'Rest stop', '🪧', url('town.php?view=passport'), here_lazy_card(url('town.php?view=passport&frag=1'), url('town.php'), '', '') . '<p class="vmore"><a href="' . e(url('town.php?view=passport')) . '">Full passport ›</a></p>');
         if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) { $hm = npcs_homed_at((int)$node['id']); $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']), here_homes_card($hm, (int)$node['id'])); }
         if ((int)($u['home_village_id'] ?? 0) === (int)$node['id']) $add('garden', 'Your garden', '🌱', url('garden.php'));
     } elseif (in_array($kind, ['haven', 'wonder', 'delve', 'lair'], true)) {

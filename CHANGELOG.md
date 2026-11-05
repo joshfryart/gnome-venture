@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.58
+- **Rest stop card slimmed**: one-line notes, a title with its button on the same row, hand-in rows on one line each (name, count, box, button), shorter wording, tighter boxes (about half the height).
+
 ## 2.5.57
 - **Fully built stops cannot be adopted; they need monthly upkeep instead.** A stop at the top tier says so and offers upkeep: a quarter (rounded up) of its top tier's needs each calendar month (UTC), handed in by any gnome who has the stop's stamp (Rest stop card on Here, and the old stop page). If a month passes unpaid, the stop loses one tier ("falls into disrepair"; two unpaid months, two tiers), then it can be adopted and rebuilt like any stop. The first time a stop is looked at after this update only starts its clock, no penalty. Stops that are not fully built are unchanged. New columns `stop_adoptions.upkeep_month`, `upkeep_pool` (added by the usual column check). Tuning: `STOP_UPKEEP_PCT` in `includes/stop_adopt.php`.
 

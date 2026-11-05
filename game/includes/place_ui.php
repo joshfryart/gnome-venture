@@ -308,7 +308,7 @@ function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '',
     $form = fn(string $do, string $kind, string $btn, string $ask = '') => '<form method="post" class="inline" data-vform' . ($ask !== '' ? ' data-confirm="' . e($ask) . '"' : '') . '>'
         . '<input type="hidden" name="do" value="' . $do . '">' . ($kind !== '' ? '<input type="hidden" name="kind" value="' . $kind . '">' : '') . '<input type="hidden" name="card" value="stop">' . $btn . '</form>';
     $h = '<div class="st-slim">' . ($msg !== '' ? '<p class="' . ($ok ? 'good' : 'bad') . '" role="status">' . e($msg) . '</p>' : '')
-        . '<p class="st-sumline"><b>' . $stamps . '</b> of ' . $total . ' road stops stamped' . ($here ? ' · ✅ this one' : '') . '</p>'
+        . '<p class="st-sumline"><b>' . $stamps . '</b>/' . $total . ' stops stamped' . ($here ? ' · ✅ here' : '') . '</p>'
         . '<progress max="' . max(1, $total) . '" value="' . $stamps . '" aria-label="Road stops stamped"></progress>';
     $h .= '<div class="st-slim__acts">';
     // Take hold here: adopt this stop (a fully built stop is not adopted: it needs monthly upkeep instead)
@@ -327,7 +327,7 @@ function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '',
             $h .= '<div class="box"><b>🏡 Take hold here</b>';
             if ($isMine) {
                 $done = ($a['perk_day'] ?? '') === hollow_date('Y-m-d');
-                $h .= '<p>You now look after ' . e($node['name']) . '.</p>'
+                $h .= '<p>You look after this stop.</p>'
                     . $form('local', '_perk', '<button class="btn small"' . ($done ? ' disabled' : '') . '>🎁 ' . ($done ? 'Welcome taken today' : 'Collect the welcome') . '</button>')
                     . stop_slim_needs($u, $node, $a, $form);
             } elseif ($a && $a['user_id']) {
@@ -336,7 +336,7 @@ function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '',
                 [$slots, $count] = stop_adopt_slots($uid);
                 $fee = max(0, (int)setting('stop_adopt_cost'));
                 $why = !$here ? 'Collect this stop’s stamp first (it comes with your first visit).' : ($count >= $slots ? 'You look after ' . $count . ' of ' . $slots . ' stops already.' : '');
-                $h .= '<p>Look after it and it grows a bench, a stall, a well and a hall for everyone. Costs ' . money($fee) . '.</p>'
+                $h .= '<p class="muted">Adds a bench, stall, well and hall for all. ' . money($fee) . '.</p>'
                     . ($why === '' ? $form('local', '_adopt', '<button class="btn small">🏡 Take hold of ' . e($node['name']) . '</button>', 'Take hold of ' . $node['name'] . ' for ' . number_format($fee) . '?') : '<p class="muted">' . e($why) . '</p>');
             }
             $h .= '</div>';
@@ -347,13 +347,13 @@ function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '',
         $plot = q_one('SELECT * FROM plots WHERE user_id = ? AND region_id = ?', [$uid, $node['region_id']]);
         $owned = (int)q_val('SELECT COUNT(*) FROM plots WHERE user_id = ?', [$uid]);
         $h .= '<div class="box"><b>🌱 Garden here</b>';
-        if ($plot) $h .= '<p>Your garden here: <b>' . eu($plot['garden_name'] ?: 'Garden') . '</b>.</p><a class="btn small" href="' . e(url('garden.php')) . '">Open your garden ›</a>';
-        elseif ($owned < max_gardens($u)) $h .= '<p>Land for sale: <b>' . money(deed_cost($uid)) . '</b>. Native crops grow faster at home.</p>'
+        if ($plot) $h .= '<p>' . eu($plot['garden_name'] ?: 'Your garden') . '</p><a class="btn small" href="' . e(url('garden.php')) . '">Open ›</a>';
+        elseif ($owned < max_gardens($u)) $h .= '<p class="muted">Land for ' . money(deed_cost($uid)) . '. Native crops grow faster.</p>'
             . $form('deed', '', '<button class="btn small">📜 Buy land deed</button>', 'Buy a land deed here for ' . number_format(deed_cost($uid)) . '?');
         else $h .= '<p class="muted">' . (next_garden_level($u) ? 'Another garden from gnome level ' . next_garden_level($u) . '.' : 'You tend as many gardens as a gnome can.') . '</p>';
         $h .= '</div>';
     }
-    return $h . '</div><p class="vmore"><a href="' . e(url('town.php?view=passport')) . '">Full passport, sets and seasons ›</a></p>';
+    return $h . '</div>';
 }
 
 /** v2.5.57: the monthly upkeep box of a fully built stop: what this month still needs, a hand-in for any gnome with the stamp. */
@@ -363,13 +363,13 @@ function stop_slim_upkeep(array $u, array $node, array $a, callable $form, bool 
     $pool = stop_upkeep_pool_of($a);
     $met = stop_upkeep_met($needs, $pool);
     $h = '<div class="box"><b>🔧 Monthly upkeep</b>';
-    $h .= $met ? '<p class="good">Kept up for ' . e(gmdate('F')) . '. Thank you!</p>'
-        : '<p>' . e($node['name']) . ' is fully built. Its parts fall into disrepair (it loses a tier) if this month’s upkeep is not met by the end of ' . e(gmdate('F')) . '. Any gnome can chip in.</p>';
+    $h .= $met ? '<p class="good">✅ Kept up for ' . e(gmdate('F')) . '.</p>'
+        : '<p class="muted">Fully built. Unpaid by the end of ' . e(gmdate('F')) . ', it loses a tier. Anyone can chip in.</p>';
     if (!$met) {
         $h .= '<ul class="st-needs">';
         foreach ($needs as [$k, $q]) {
             $given = min($q, (int)($pool[$k] ?? 0)); $left = $q - $given; $have = stop_need_have($u, $k);
-            $h .= '<li class="' . ($left <= 0 ? 'good' : '') . '"><span>' . ($left <= 0 ? '✅ ' : '') . e(stop_need_label($k)) . ' <b>' . $given . '/' . $q . '</b> <small class="muted">(you have ' . number_format($have) . ')</small></span>';
+            $h .= '<li class="' . ($left <= 0 ? 'good' : '') . '"><span>' . ($left <= 0 ? '✅ ' : '') . e(stop_need_label($k)) . ' <b>' . $given . '/' . $q . '</b> <small class="muted">· you have ' . number_format($have) . '</small></span>';
             if ($left > 0 && $here) $h .= $form('local', '_upkeep', '<input type="hidden" name="need" value="' . e($k) . '"><input type="number" name="qty" min="1" max="' . $left . '" value="' . max(1, min($left, $have)) . '" aria-label="How many"> <button class="btn small"' . ($have < 1 ? ' disabled' : '') . '>Chip in</button>');
             $h .= '</li>';
         }
@@ -383,14 +383,14 @@ function stop_slim_needs(array $u, array $node, array $a, callable $form): strin
 {
     $tiers = stop_tiers_for($node);
     $next = (int)$a['tier'] + 1;
-    if (!isset($tiers[$next])) return '<p class="good"><b>🎉 Fully built already</b> (tier ' . (int)$a['tier'] . ' of ' . stop_top_tier() . ', raised by gnomes who looked after it before you). Nothing to hand in: you keep the plaque and the daily welcome.</p>';
+    if (!isset($tiers[$next])) return '<p class="muted">🎉 Fully built (tier ' . (int)$a['tier'] . ' of ' . stop_top_tier() . ').</p>';
     $pool = stop_pool_of($a);
-    $h = '<p><b>Next: ' . e((string)$tiers[$next]['name']) . '</b> needs:</p><ul class="st-needs">';
+    $h = '<p class="muted">Next: <b>' . e((string)$tiers[$next]['name']) . '</b></p><ul class="st-needs">';
     foreach (stop_tier_needs($tiers[$next]) as [$k, $q]) {
         $given = min($q, (int)($pool[$k] ?? 0));
         $have = stop_need_have($u, $k);
         $left = $q - $given;
-        $h .= '<li class="' . ($left <= 0 ? 'good' : '') . '"><span>' . ($left <= 0 ? '✅ ' : '') . e(stop_need_label($k)) . ' <b>' . $given . '/' . $q . '</b> <small class="muted">(you have ' . number_format($have) . ')</small></span>';
+        $h .= '<li class="' . ($left <= 0 ? 'good' : '') . '"><span>' . ($left <= 0 ? '✅ ' : '') . e(stop_need_label($k)) . ' <b>' . $given . '/' . $q . '</b> <small class="muted">· you have ' . number_format($have) . '</small></span>';
         if ($left > 0) {
             $max = max(1, min($left, $have));
             $h .= $form('local', '_give', '<input type="hidden" name="need" value="' . e($k) . '"><input type="number" name="qty" min="1" max="' . $left . '" value="' . $max . '" aria-label="How many"> <button class="btn small"' . ($have < 1 ? ' disabled' : '') . '>Hand in</button>');
