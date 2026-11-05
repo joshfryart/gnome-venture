@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.77
+- **Perks card meters are plants**: each meter (Repairs, Larder, Cheer) is a pot that grows with the bar (seed, sprout, leafy, bud, and in bloom while its perk runs) on a wooden stake sign with the percent in pixel digits. Tap one to see the acts that fill it. New v3 art `ico-pkplant0` to `ico-pkplant4`, `pk-sign`, `pk-digits` (sources in `aseprite-source/v3/items/perks/`); Larder now uses the v3 jar icon.
+
 ## 2.5.76
 - **Perks popover is now graphical**: a scene banner for the stop with medal slots, perk tickets (meter badge, what it gives, an hourglass with day pips for the days left), pixel-icon meter rings (hammer, basket, party), and a thumbnail picture for each act that fills the picked meter. Falls back to emoji where an icon is missing.
 

@@ -340,7 +340,7 @@ function stop_perk_data(array $u, array $node): array
     return [stop_perks($uid, $lid), $meters];
 }
 
-const STOP_METER_ICO = ['repairs' => 'hammer', 'larder' => 'basket', 'cheer' => 'party'];   // v2.5.76: pixel icon per meter (assets/img/ico/ico-<name>.png)
+const STOP_METER_ICO = ['repairs' => 'hammer', 'larder' => 'jar', 'cheer' => 'party'];   // v2.5.76: pixel icon per meter (assets/img/ico/ico-<name>.png)
 
 /** A pixel icon <img> from assets/img/ico, or the emoji when the file is missing. */
 function stop_pix(string $name, string $fallback, string $cls = ''): string
@@ -384,7 +384,12 @@ function stop_perk_body(array $u, array $node): string
     $h .= '<div class="pktiles">';
     foreach (STOP_METERS as $k => [$ico, $lab]) {
         $v = (int)($meters[$k] ?? 0);
-        $h .= '<label class="pktile" for="' . $id . $k . '" data-m="' . $k . '"><span class="pkring pkp' . (int)(round($v / 5) * 5) . '"><span>' . stop_pix(STOP_METER_ICO[$k], $ico) . '</span></span>' . e($lab) . '<small>' . $v . '%</small></label>';
+        $stage = isset($perks[$k]) ? 4 : ($v >= 75 ? 3 : ($v >= 50 ? 2 : ($v >= 25 ? 1 : 0)));   // v2.5.77: the plant grows with the bar; a running perk is in bloom
+        $digits = '';
+        foreach (str_split($v . '%') as $ch) $digits .= '<i class="pkd' . ($ch === '%' ? 10 : (int)$ch) . '"></i>';
+        $h .= '<label class="pktile" for="' . $id . $k . '" data-m="' . $k . '"><img class="pkplant" src="' . e(url('assets/img/ico/ico-pkplant' . $stage . '.png')) . '" alt="" width="64" height="64">'
+            . '<span class="pksign"><span class="pkn" aria-hidden="true">' . $digits . '</span><span class="pksr">' . $v . '%</span></span>'
+            . '<span class="pklab">' . stop_pix(STOP_METER_ICO[$k], $ico, 'pkmi') . ' ' . e($lab) . '</span></label>';
     }
     $h .= '</div>';
     foreach (STOP_METERS as $k => [$ico, $lab]) {

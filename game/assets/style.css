@@ -7469,3 +7469,14 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 .pkthumb { flex: none; width: 36px; height: 36px; object-fit: cover; border: 2px solid var(--ol); image-rendering: pixelated; display: grid; place-items: center; background: var(--surface); }
 .pkact { align-items: center; } .pkan { flex: 1; min-width: 0; }
 .pkfoot { display: flex; gap: 6px; align-items: center; margin: 8px 0 0; } .pkfoot .pkpix { width: 16px; height: 16px; }
+
+/* v2.5.77: counter E: a plant that grows with the bar, on a stake sign with pixel digits (art in aseprite-source/v3/items/perks) */
+.pktile { padding: 4px 2px 6px; }
+.pkplant { width: 80px; height: 80px; display: block; margin: 0 auto; image-rendering: pixelated; }
+.pksign { position: relative; display: block; width: 80px; height: 60px; margin: -2px auto 0; background: url(img/ico/pk-sign.png) center / 100% 100% no-repeat; image-rendering: pixelated; }
+.pkn { position: absolute; left: 0; right: 0; top: 7px; display: flex; justify-content: center; }
+.pkn i { display: block; width: 21px; height: 27px; background: url(img/ico/pk-digits.png) 0 0 / 231px 27px no-repeat; image-rendering: pixelated; }
+.pksr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.pklab { display: block; font-size: 0.85em; margin-top: -2px; } .pkmi { width: 20px; height: 20px; }
+.pktile small { display: none; }
+.pkn .pkd0 { background-position: -0px 0; } .pkn .pkd1 { background-position: -21px 0; } .pkn .pkd2 { background-position: -42px 0; } .pkn .pkd3 { background-position: -63px 0; } .pkn .pkd4 { background-position: -84px 0; } .pkn .pkd5 { background-position: -105px 0; } .pkn .pkd6 { background-position: -126px 0; } .pkn .pkd7 { background-position: -147px 0; } .pkn .pkd8 { background-position: -168px 0; } .pkn .pkd9 { background-position: -189px 0; } .pkn .pkd10 { background-position: -210px 0; } 
