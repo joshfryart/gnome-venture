@@ -162,28 +162,51 @@ function yard_extend_cost(array $plot): int
     return (int)setting('yard_extend_cost') * (1 + (int)($plot['yard_xw'] ?? 0) + (int)($plot['yard_xh'] ?? 0));
 }
 
-/** Mark a w × h footprint on an occupancy grid. */
-function yard_mark(array &$grid, int $x, int $y, int $w, int $h, string $what = '1'): void
+/**
+ * v2.5.49: corner occupancy. A square holds up to four small corner pieces (a family piece whose shape is p<corner>-<set>: pnw pne psw pse).
+ * Quadrant bits: NW 1, NE 2, SW 4, SE 8; 15 = the whole square. A grid cell is a string (a whole-square thing: 't', 'o', '1') or an int (the
+ * quadrants taken so far), so old callers and old saves behave exactly as before.
+ */
+const YARD_QUADS = ['pnw' => 1, 'pne' => 2, 'psw' => 4, 'pse' => 8];
+
+/** The quadrants a thing takes up: its corner when it is a single corner piece (shape "pnw-s"), otherwise the whole square (15). */
+function yard_quads($shape, int $w = 1, int $h = 1): int
 {
+    if ($w !== 1 || $h !== 1 || !is_string($shape) || !preg_match('/^(p(?:nw|ne|sw|se))-[bsm]$/', $shape, $m)) return 15;
+    return YARD_QUADS[$m[1]];
+}
+
+/** Mark a w × h footprint on an occupancy grid. $q: the quadrants taken (only for a 1 × 1 corner piece). */
+function yard_mark(array &$grid, int $x, int $y, int $w, int $h, string $what = '1', int $q = 15): void
+{
+    if ($q !== 15 && $w === 1 && $h === 1) {
+        $k = $x . ',' . $y;
+        $grid[$k] = (is_int($grid[$k] ?? null) ? $grid[$k] : 0) | $q;
+        return;
+    }
     for ($j = 0; $j < $h; $j++) for ($i = 0; $i < $w; $i++) $grid[($x + $i) . ',' . ($y + $j)] = $what;
 }
 
-function yard_fits(array $grid, int $x, int $y, int $w, int $h, int $yw, int $yh): bool
+function yard_fits(array $grid, int $x, int $y, int $w, int $h, int $yw, int $yh, int $q = 15): bool
 {
     if ($x < 0 || $y < 0 || $x + $w > $yw || $y + $h > $yh) return false;
-    for ($j = 0; $j < $h; $j++) for ($i = 0; $i < $w; $i++) if (isset($grid[($x + $i) . ',' . ($y + $j)])) return false;
+    for ($j = 0; $j < $h; $j++) for ($i = 0; $i < $w; $i++) {
+        $k = ($x + $i) . ',' . ($y + $j);
+        if (!isset($grid[$k])) continue;
+        if ($q === 15 || !is_int($grid[$k]) || ($grid[$k] & $q)) return false;   // a whole-square thing blocks everything; corner pieces only block their own corner
+    }
     return true;
 }
 
 /** The nearest free spot for a w × h thing (nearest to $pref, or the first going along the rows). */
-function yard_free_spot(array $grid, int $yw, int $yh, int $w, int $h, ?array $pref = null): ?array
+function yard_free_spot(array $grid, int $yw, int $yh, int $w, int $h, ?array $pref = null, int $q = 15): ?array
 {
     $best = null;
     $bestD = PHP_INT_MAX;
     for ($y = 0; $y + $h <= $yh; $y++) {
         for ($x = 0; $x + $w <= $yw; $x++) {
             $d = $pref ? max(abs($x - $pref[0]), abs($y - $pref[1])) * 1000 + abs($x - $pref[0]) + abs($y - $pref[1]) : $y * 1000 + $x;
-            if ($d < $bestD && yard_fits($grid, $x, $y, $w, $h, $yw, $yh)) {
+            if ($d < $bestD && yard_fits($grid, $x, $y, $w, $h, $yw, $yh, $q)) {
                 $best = [$x, $y];
                 $bestD = $d;
             }
@@ -223,8 +246,9 @@ function yard_sync(int $plotId): void
     $looseObjs = [];
     foreach ($objs as $o) {
         if ((int)$o['x'] < 0) { $looseObjs[] = $o; continue; }
-        if (yard_fits($grid, (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h'], $yw, $yh)) {
-            yard_mark($grid, (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h'], 'o');
+        $oq = yard_quads($o['shape'] ?? null, (int)$o['w'], (int)$o['h']);
+        if (yard_fits($grid, (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h'], $yw, $yh, $oq)) {
+            yard_mark($grid, (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h'], 'o', $oq);
         } else {
             $looseObjs[] = $o;
         }
@@ -266,10 +290,11 @@ function yard_sync(int $plotId): void
     }
     // Things that lost their place: buildings wait for a spot, decor goes back in the satchel if there's no room
     foreach ($looseObjs as $o) {
-        $spot = yard_free_spot($grid, $yw, $yh, (int)$o['w'], (int)$o['h']);
+        $oq = yard_quads($o['shape'] ?? null, (int)$o['w'], (int)$o['h']);
+        $spot = yard_free_spot($grid, $yw, $yh, (int)$o['w'], (int)$o['h'], null, $oq);
         if ($spot) {
             q('UPDATE garden_objects SET x = ?, y = ? WHERE id = ?', [$spot[0], $spot[1], $o['id']]);
-            yard_mark($grid, $spot[0], $spot[1], (int)$o['w'], (int)$o['h'], 'o');
+            yard_mark($grid, $spot[0], $spot[1], (int)$o['w'], (int)$o['h'], 'o', $oq);
         } elseif ($o['kind'] === 'decor') {
             q('DELETE FROM garden_objects WHERE id = ?', [$o['id']]);
             if ($o['item_id']) give_item((int)$plot['user_id'], (int)$o['item_id'], 1);
@@ -772,7 +797,7 @@ function yard_save(array $u, int $plotId, string $json): array
     foreach (q('SELECT id, x, y, yx, yy, plant_id FROM plot_tiles WHERE plot_id = ?', [$plotId])->fetchAll() as $t) $tiles[$t['x'] . '_' . $t['y']] = $t;
     $ints = fn($row, int $n) => is_array($row) && count($row) >= $n ? array_map('intval', array_slice(array_values($row), 0, $n)) : null;
     $rotate = fn(int $bw, int $bh, int $rot) => $rot % 180 ? [$bh, $bw] : [$bw, $bh];
-    $place = [];      // [what, x, y, w, h]
+    $place = [];      // [what, x, y, w, h, quadrants]
     $moves = [];      // object id => [x, y, w, h, rot]
     foreach ((array)($d['o'] ?? []) as $row) {
         $r = $ints($row, 4);
@@ -783,7 +808,7 @@ function yard_save(array $u, int $plotId, string $json): array
         $rot = in_array($rot, [0, 90, 180, 270], true) ? $rot : 0;
         [$w, $h] = $rotate((int)$objs[$id]['bw'], (int)$objs[$id]['bh'], $rot);
         $moves[$id] = [$x, $y, $w, $h, $rot, yard_clean_shape($row[4] ?? '', yard_family($objs[$id]))];
-        $place[] = [$objs[$id]['name'], $x, $y, $w, $h];
+        $place[] = [$objs[$id]['name'], $x, $y, $w, $h, yard_quads($moves[$id][5], $w, $h)];
     }
     $away = [];
     foreach ($objs as $id => $o) {
@@ -809,7 +834,7 @@ function yard_save(array $u, int $plotId, string $json): array
         [$w, $h] = $rotate($def['w'], $def['h'], $rot);
         $need[$itemId] = ($need[$itemId] ?? 0) + 1;
         $new[] = [$itemId, $x, $y, $w, $h, $rot, yard_clean_shape($row[4] ?? '', yard_family(['kind' => 'decor', 'bw' => $def['w'], 'bh' => $def['h'], 'look' => $owned[$itemId]['slug'], 'type' => $def['type']]))];
-        $place[] = [$owned[$itemId]['name'], $x, $y, $w, $h];
+        $place[] = [$owned[$itemId]['name'], $x, $y, $w, $h, yard_quads($new[count($new) - 1][6], $w, $h)];
     }
     foreach ($need as $itemId => $n) {
         if ((int)$owned[$itemId]['qty'] < $n) return [false, 'You only have ' . (int)$owned[$itemId]['qty'] . ' × ' . $owned[$itemId]['name'] . '.'];
@@ -827,13 +852,13 @@ function yard_save(array $u, int $plotId, string $json): array
     }
     foreach ($tiles as $k => $t) {
         [$x, $y] = $tileMoves[$k] ?? [(int)$t['yx'], (int)$t['yy']];
-        $place[] = ['A bed square', $x, $y, 1, 1];
+        $place[] = ['A bed square', $x, $y, 1, 1, 15];
     }
     $grid = [];
-    foreach ($place as [$what, $x, $y, $w, $h]) {
+    foreach ($place as [$what, $x, $y, $w, $h, $pq]) {
         if ($x < 0 || $y < 0 || $x + $w > $yw || $y + $h > $yh) return [false, $what . ' doesn’t fit inside the yard there.'];
-        if (!yard_fits($grid, $x, $y, $w, $h, $yw, $yh)) return [false, $what . ' overlaps something else. Nothing was changed.'];
-        yard_mark($grid, $x, $y, $w, $h);
+        if (!yard_fits($grid, $x, $y, $w, $h, $yw, $yh, $pq)) return [false, $what . ' overlaps something else. Nothing was changed.'];
+        yard_mark($grid, $x, $y, $w, $h, '1', $pq);
     }
 
     $before = yard_snapshot($plotId);
@@ -922,7 +947,7 @@ function yard_undo(array $u, int $plotId): array
     foreach (q('SELECT * FROM garden_objects WHERE plot_id = ?', [$plotId])->fetchAll() as $o) $cur[(int)$o['id']] = $o;
     $old = [];
     foreach ((array)($snap['o'] ?? []) as $r) if (is_array($r) && count($r) >= 10) $old[(int)$r[0]] = $r;
-    $place = [];                                    // [what, x, y, w, h]
+    $place = [];                                    // [what, x, y, w, h, quadrants]
     $keep = [];                                     // id => [x, y, w, h, rot, shape]
     $readd = [];                                    // snapshot rows to create again
     $drop = [];                                     // current decor to put back in the satchel
@@ -930,18 +955,18 @@ function yard_undo(array $u, int $plotId): array
     foreach ($cur as $id => $o) {
         if (!isset($old[$id])) {
             if ($o['kind'] === 'decor') { $drop[] = $o; continue; }
-            if ((int)$o['x'] >= 0) $place[] = ['A building', (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h']];   // built since: stays
+            if ((int)$o['x'] >= 0) $place[] = ['A building', (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h'], 15];   // built since: stays
             continue;
         }
         [, , , , $x, $y, $w, $hh, $rot, $shape] = $old[$id];
         $keep[$id] = [(int)$x, (int)$y, (int)$w, (int)$hh, (int)$rot, $shape === null ? null : (string)$shape];
-        if ((int)$x >= 0) $place[] = ['Something', (int)$x, (int)$y, (int)$w, (int)$hh];
+        if ((int)$x >= 0) $place[] = ['Something', (int)$x, (int)$y, (int)$w, (int)$hh, yard_quads($shape, (int)$w, (int)$hh)];
     }
     foreach ($old as $id => $r) {
         if (isset($cur[$id]) || $r[1] !== 'decor' || !$r[3] || (int)$r[4] < 0) continue;
         $readd[] = $r;
         $need[(int)$r[3]] = ($need[(int)$r[3]] ?? 0) + 1;
-        $place[] = ['Something', (int)$r[4], (int)$r[5], (int)$r[6], (int)$r[7]];
+        $place[] = ['Something', (int)$r[4], (int)$r[5], (int)$r[6], (int)$r[7], yard_quads($r[9] ?? null, (int)$r[6], (int)$r[7])];
     }
     $back = [];
     foreach ($drop as $o) if ($o['item_id']) $back[(int)$o['item_id']] = ($back[(int)$o['item_id']] ?? 0) + 1;
@@ -960,12 +985,12 @@ function yard_undo(array $u, int $plotId): array
     }
     foreach ($tiles as $k => $t) {
         [$x, $y] = $tileMoves[$k] ?? [(int)$t['yx'], (int)$t['yy']];
-        $place[] = ['A bed square', $x, $y, 1, 1];
+        $place[] = ['A bed square', $x, $y, 1, 1, 15];
     }
     $grid = [];
-    foreach ($place as [$what, $x, $y, $w, $hh]) {
-        if (!yard_fits($grid, $x, $y, $w, $hh, $yw, $yh)) return [false, 'The yard has changed too much to undo that now. Nothing was changed.'];
-        yard_mark($grid, $x, $y, $w, $hh);
+    foreach ($place as [$what, $x, $y, $w, $hh, $pq]) {
+        if (!yard_fits($grid, $x, $y, $w, $hh, $yw, $yh, $pq)) return [false, 'The yard has changed too much to undo that now. Nothing was changed.'];
+        yard_mark($grid, $x, $y, $w, $hh, '1', $pq);
     }
     db()->beginTransaction();
     try {

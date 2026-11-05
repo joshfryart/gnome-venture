@@ -375,20 +375,29 @@ gvAdvFold();
     if (!snapBox.checked || /(^|\s)t-(path|fence)(\s|$)/.test(cls) || touchesBed(r)) return r;
     var tries = [[0, -1], [0, 1], [-1, 0], [1, 0]];
     for (var i = 0; i < tries.length; i++) {
-      var c = { x: r.x + tries[i][0], y: r.y + tries[i][1], w: r.w, h: r.h };
+      var c = { x: r.x + tries[i][0], y: r.y + tries[i][1], w: r.w, h: r.h, q: r.q };
       if (fits(c, skip) && touchesBed(c)) return c;
     }
     return r;
   }
   tray.querySelectorAll('.trayitem[data-item]').forEach(function (b) { qty[b.getAttribute('data-item')] = num(b, 'data-qty'); });
 
-  function overlaps(a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h; }
+  // Corner pieces (v2.5.49): a single family piece whose shape is a corner form (pnw pne psw pse) takes one corner of its square, so up to four share it.
+  // Same rule as yard_quads() in includes/yard.php. r.q = the quadrants the thing taking the spot needs (default: the whole square).
+  var QD = { pnw: 1, pne: 2, psw: 4, pse: 8 };
+  function qOf(p) { return p.w === 1 && p.h === 1 ? (QD[famParts(p.shape)[0]] || 15) : 15; }
+  function cornerFor(c) { return (c.fy < 0.5 ? 'pn' : 'ps') + (c.fx < 0.5 ? 'w' : 'e'); }
+  function overlaps(a, b) {
+    if (!(a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h)) return false;
+    var qa = a.q || 15, qb = b.q || 15;
+    return !(qa < 15 && qb < 15 && (qa & qb) === 0);
+  }
   function fits(r, skip) {
     if (r.x < 0 || r.y < 0 || r.x + r.w > W || r.y + r.h > H) return false;
     for (var k in pieces) {
       var p = pieces[k];
       if (p.x < 0 || skip.indexOf(k) >= 0) continue;
-      if (overlaps(r, p)) return false;
+      if (overlaps(r, { x: p.x, y: p.y, w: p.w, h: p.h, q: qOf(p) })) return false;
     }
     return true;
   }
@@ -434,6 +443,7 @@ gvAdvFold();
     joinAll();
     btn('away').disabled = !sel.length || sel.some(function (k) { return pieces[k].kind !== 'decor'; });
     if (traySel) say('Tap a square in the yard to place ' + traySel.name + '. Tap it in the tray again to stop.');
+    else if (sel.length === 1 && one.fam && FAMS_NAMES[one.fam] && isCorner(one)) say(one.name + ' picked (' + FAMF_NAME[famParts(one.shape)[0]] + '). Drag it, or tap, near a corner of any square: up to four small pieces share a square.');
     else if (sel.length === 1 && one.fam && FAMS_NAMES[one.fam]) say(one.name + ' picked (' + FAMF_NAME[famParts(one.shape)[0]] + ', ' + { m: 'mixed', b: 'big', s: 'small' }[famParts(one.shape)[1]] + '). Shape cycles the options, Size picks big, small or mixed, Rotate turns a chosen run.');
     else if (sel.length === 1 && one.fam && one.fam !== 'pave') say(one.name + ' picked (shape: ' + SHAPE_NAME[one.shape] + (one.shape ? '' : ', ' + shapeOf(one.mask)) + '). Shape picks a shape by hand; Rotate turns a lone piece or a chosen shape.');
     else if (sel.length === 1) say(one.name + ' picked. Drag it, or tap an empty square to move it there.');
@@ -442,25 +452,30 @@ gvAdvFold();
   }
   function cellAt(ev) {
     var r = yard.getBoundingClientRect();
-    return { x: Math.floor((ev.clientX - r.left) / r.width * W), y: Math.floor((ev.clientY - r.top) / r.height * H),
+    var gx = (ev.clientX - r.left) / r.width * W, gy = (ev.clientY - r.top) / r.height * H;
+    return { x: Math.floor(gx), y: Math.floor(gy), fx: gx - Math.floor(gx), fy: gy - Math.floor(gy),
       inside: ev.clientX >= r.left && ev.clientX < r.right && ev.clientY >= r.top && ev.clientY < r.bottom };
   }
   function overTray(ev) {
     var r = tray.getBoundingClientRect();
     return ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom;
   }
-  function groupFits(keys, dx, dy) {
-    return keys.every(function (k) { var p = pieces[k]; return fits({ x: p.x + dx, y: p.y + dy, w: p.w, h: p.h }, keys); });
+  function isCorner(p) { return qOf(p) < 15; }
+  // a lone corner piece moves to the corner of the square the pointer is in (corner = 'pnw' etc., or '' to keep its own)
+  function groupFits(keys, dx, dy, corner) {
+    return keys.every(function (k) { var p = pieces[k]; return fits({ x: p.x + dx, y: p.y + dy, w: p.w, h: p.h, q: corner ? QD[corner] : qOf(p) }, keys); });
   }
-  function shift(keys, dx, dy) {
-    if (keys.length === 1 && pieces[keys[0]].kind === 'decor' && (dx || dy)) {
-      var sp = pieces[keys[0]], sr = snapped({ x: sp.x + dx, y: sp.y + dy, w: sp.w, h: sp.h }, [sp.k], sp.el.className);
+  function shift(keys, dx, dy, corner) {
+    if (keys.length === 1 && pieces[keys[0]].kind === 'decor' && (dx || dy) && !isCorner(pieces[keys[0]])) {
+      var sp = pieces[keys[0]], sr = snapped({ x: sp.x + dx, y: sp.y + dy, w: sp.w, h: sp.h, q: 15 }, [sp.k], sp.el.className);
       dx = sr.x - sp.x; dy = sr.y - sp.y;
     }
-    if (!groupFits(keys, dx, dy)) { say('That doesn’t fit there.'); return false; }
-    if (!dx && !dy) return true;
+    if (!groupFits(keys, dx, dy, corner)) { say('That doesn’t fit there.'); return false; }
+    var cp = keys.length === 1 ? pieces[keys[0]] : null, ch = !!(corner && cp && QD[corner] !== qOf(cp));
+    if (!dx && !dy && !ch) return true;
     remember();
     keys.forEach(function (k) { var p = pieces[k]; p.x += dx; p.y += dy; setPos(p.el, p); });
+    if (ch) { cp.shape = famJoin(corner, famParts(cp.shape)[1]); cp.mask = -1; }
     return true;
   }
   function putAway(keys) {
@@ -478,14 +493,16 @@ gvAdvFold();
     for (var k in pieces) { var p = pieces[k]; if (p.kind === 'decor' && p.x < 0 && p.item == item) return p; }
     return null;
   }
-  function placeFromTray(b, x, y) {
+  function placeFromTray(b, x, y, cell) {
     var p = trayPiece(b);
     var w = p ? p.w : num(b, 'data-w') || 1, h = p ? p.h : num(b, 'data-h') || 1;
-    if (fits({ x: x, y: y, w: w, h: h }, p ? [p.k] : [])) {
-      var sr = snapped({ x: x, y: y, w: w, h: h }, p ? [p.k] : [], p ? p.el.className : 't-' + b.getAttribute('data-type'));
+    var pq = p ? qOf(p) : 15, cn = '';
+    if (p && pq < 15 && cell) { cn = cornerFor(cell); pq = QD[cn]; }   // a put-away corner piece goes into the corner that was tapped
+    if (pq === 15 && fits({ x: x, y: y, w: w, h: h, q: 15 }, p ? [p.k] : [])) {
+      var sr = snapped({ x: x, y: y, w: w, h: h, q: 15 }, p ? [p.k] : [], p ? p.el.className : 't-' + b.getAttribute('data-type'));
       x = sr.x; y = sr.y;
     }
-    if (!fits({ x: x, y: y, w: w, h: h }, p ? [p.k] : [])) { say('That doesn’t fit there.'); return; }
+    if (!fits({ x: x, y: y, w: w, h: h, q: pq }, p ? [p.k] : [])) { say('That doesn’t fit there.'); return; }
     remember();
     if (!p) {
       var k = 'n' + (++newN), el = document.createElement('div');
@@ -500,6 +517,7 @@ gvAdvFold();
         fam: bfam, shape: '', img: bfam ? bimg : '', pave: b.getAttribute('data-pave') || '', art: b.getAttribute('data-art') || '', mask: -1 };
     }
     p.x = x; p.y = y;
+    if (cn) { p.shape = famJoin(cn, famParts(p.shape)[1]); p.mask = -1; }
     setPos(p.el, p);
     if (b.getAttribute('data-key')) { traySel = null; sel = [p.k]; }
     refreshTray();
@@ -547,8 +565,9 @@ gvAdvFold();
     var c = cellAt(ev);
     if (drag.kind === 'piece') {
       var lead = pieces[drag.lead], dx = c.x - drag.gx - lead.x, dy = c.y - drag.gy - lead.y;
-      var ok = c.inside && groupFits(drag.keys, dx, dy);
-      drag.dx = dx; drag.dy = dy; drag.ok = ok; drag.tray = overTray(ev);
+      var cn = drag.keys.length === 1 && isCorner(lead) && c.inside && lead.w === 1 ? cornerFor(c) : '';   // a lone corner piece follows the pointer into a corner
+      var ok = c.inside && groupFits(drag.keys, dx, dy, cn);
+      drag.dx = dx; drag.dy = dy; drag.ok = ok; drag.tray = overTray(ev); drag.cn = cn;
       drag.keys.forEach(function (k) {
         var p = pieces[k];
         setPos(p.el, { x: c.inside ? p.x + dx : p.x, y: c.inside ? p.y + dy : p.y, w: p.w, h: p.h, rot: p.rot });
@@ -565,7 +584,8 @@ gvAdvFold();
         yard.appendChild(drag.ghost);
       }
       drag.x = c.x; drag.y = c.y;
-      drag.ok = c.inside && fits({ x: c.x, y: c.y, w: w, h: h }, tp ? [tp.k] : []);
+      drag.cell = c;
+      drag.ok = c.inside && fits({ x: c.x, y: c.y, w: w, h: h, q: tp && isCorner(tp) ? QD[cornerFor(c)] : 15 }, tp ? [tp.k] : []);
       setPos(drag.ghost, { x: c.inside ? c.x : -1, y: c.y, w: w, h: h, rot: 0 });
       drag.ghost.classList.toggle('bad', !drag.ok);
     }
@@ -579,13 +599,13 @@ gvAdvFold();
       if (cancelled) return;
       if (!d.moved) { tapPiece(d.lead); return; }
       if (d.tray) { putAway(d.keys); return; }
-      if (d.ok && shift(d.keys, d.dx, d.dy)) { sel = d.keys.length > 1 ? d.keys : [d.lead]; paintSel(); }
+      if (d.ok && shift(d.keys, d.dx, d.dy, d.cn)) { sel = d.keys.length > 1 ? d.keys : [d.lead]; paintSel(); }
       else say('That doesn’t fit there.');
     } else {
       if (d.ghost) d.ghost.parentNode.removeChild(d.ghost);
       if (cancelled) return;
       if (!d.moved) { tapTray(d.btn); return; }
-      if (d.ok) placeFromTray(d.btn, d.x, d.y);
+      if (d.ok) placeFromTray(d.btn, d.x, d.y, d.cell);
       else if (cellAt(ev).inside) say('That doesn’t fit there.');
     }
   }
@@ -595,10 +615,10 @@ gvAdvFold();
     if (ev.target.closest('[data-k]')) return;
     var c = cellAt(ev);
     if (!c.inside) return;
-    if (traySel) { placeFromTray(traySel.btn, c.x, c.y); return; }
+    if (traySel) { placeFromTray(traySel.btn, c.x, c.y, c); return; }
     if (sel.length) {
       var lead = pieces[sel[0]];
-      if (shift(sel, c.x - lead.x, c.y - lead.y)) paintSel();
+      if (shift(sel, c.x - lead.x, c.y - lead.y, sel.length === 1 && isCorner(lead) ? cornerFor(c) : '')) paintSel();
     }
   });
   tray.addEventListener('click', function (ev) { if (ev.target.closest('.trayitem')) ev.preventDefault(); });
@@ -608,7 +628,7 @@ gvAdvFold();
     if (sel.length !== 1) return;
     var p = pieces[sel[0]];
     if (p.kind === 'bed') return;
-    if (!fits({ x: p.x, y: p.y, w: p.h, h: p.w }, [p.k])) { say('There’s no room to turn it here.'); return; }
+    if (!fits({ x: p.x, y: p.y, w: p.h, h: p.w, q: qOf(p) }, [p.k])) { say('There’s no room to turn it here.'); return; }
     remember();
     var w = p.w; p.w = p.h; p.h = w;
     p.rot = (p.rot + 90) % 360;
@@ -620,8 +640,12 @@ gvAdvFold();
     var p = pieces[sel[0]];
     if (FAMS_NAMES[p.fam]) {   // v2.5.46: cycle the form, keep the size set
       remember();
-      var fp = famParts(p.shape);
-      p.shape = famJoin(FAMF[(FAMF.indexOf(fp[0]) + 1) % FAMF.length], fp[1]);
+      var fp = famParts(p.shape), start = p.shape, tries = 0;
+      do {   // v2.5.49: skip a form that would take a corner or square another piece already holds
+        p.shape = famJoin(FAMF[(FAMF.indexOf(famParts(p.shape)[0]) + 1) % FAMF.length], fp[1]);
+        tries++;
+      } while (tries < FAMF.length && !fits({ x: p.x, y: p.y, w: p.w, h: p.h, q: qOf(p) }, [p.k]));
+      if (!fits({ x: p.x, y: p.y, w: p.w, h: p.h, q: qOf(p) }, [p.k])) p.shape = start;
       p.mask = -1;
       paintSel();
       return;
