@@ -909,7 +909,8 @@ function gvMaps() {
     function maxZ() { return Math.max(8, 4 / pxPer()); }
     var me = (box.getAttribute('data-me') || '500,280').split(',').map(Number);
     var v = null;
-    try { v = JSON.parse(sessionStorage.getItem('gvMapView') || 'null'); } catch (e) { v = null; }
+    var prim = !!box.closest('.worldprimary');   // v2.5.31: the World page's own map always opens on the whole world (the hat button zooms to you)
+    if (!prim) try { v = JSON.parse(sessionStorage.getItem('gvMapView') || 'null'); } catch (e) { v = null; }
     var zp = gvZoomPan(svg, {
       W: W, H: H, view: v, maxZ: maxZ,
       render: function (z, v) {
@@ -918,7 +919,7 @@ function gvMaps() {
         svg.classList.toggle('z2', seen >= 1.4);
         svg.classList.toggle('z3', seen >= 2.8);
         svg.classList.toggle('zoomed', z > 1.02);
-        try { sessionStorage.setItem('gvMapView', JSON.stringify(v)); } catch (e) { /* private window: fine */ }
+        if (!prim) try { sessionStorage.setItem('gvMapView', JSON.stringify(v)); } catch (e) { /* private window: fine */ }
       },
       onTap: function (ev) {
         var m = ev.target.closest('.mk.place');
@@ -950,7 +951,7 @@ function gvMaps() {
       }
     });
     function centre(x, y, z) { zp.show([x - W / z / 2, y - H / z / 2, W / z, H / z]); }
-    if (zp.view() && zp.view().length === 4) zp.apply(); else centre(me[0], me[1], window.innerWidth < 720 ? Math.max(2, 1.5 / pxPer()) : 1);
+    if (zp.view() && zp.view().length === 4) zp.apply(); else if (prim) centre(500, 280, 1); else centre(me[0], me[1], window.innerWidth < 720 ? Math.max(2, 1.5 / pxPer()) : 1);
     var fold = box.closest('details');
     if (fold) fold.addEventListener('toggle', function () { if (fold.open) zp.apply(); });
     window.addEventListener('resize', zp.apply);

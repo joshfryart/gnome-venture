@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.31
+- **World map opens on the whole world**: the World page map no longer reopens zoomed in on a remembered spot (it was reusing the last zoom from the old folded map); it always starts fitted, and the hat button zooms to you. Needs 2.5.30.
+
 ## 2.5.30
 - **World page is the world map** (graphical navigation on): the top banner and the place-switcher row are gone and the page opens on the world map itself, full width. Tap a region to open its map below. Under the map: "You are here" and one centred row of round icons (Map, Fast travel, GPS, Gather, Shops, Wander) that also sits on top of the Gather and Shops pages. The old Go stack of cards stays on the Here page. Needs 2.5.29.
 
