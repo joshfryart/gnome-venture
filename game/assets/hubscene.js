@@ -148,6 +148,15 @@
         var setTxt = function (el, t) { var n = el.lastChild; if (n && n.nodeType === 3) n.nodeValue = ' ' + t; else el.appendChild(document.createTextNode(' ' + t)); };   /* keep the icon the server drew; swap only the number */
         if (en) { setTxt(en, h.energy + '/' + h.max); en.setAttribute('aria-label', 'Energy ' + h.energy + ' of ' + h.max); en.setAttribute('title', h.title); en.classList.toggle('empty', h.energy <= 0); }
         if (co) { setTxt(co, h.coins_text); co.setAttribute('aria-label', h.coins_label); }
+        var st = document.querySelector('.st.energy');   /* the status strip's energy chip: bar, number, regen note */
+        if (st) {
+          var pg = st.querySelector('progress'), nb = st.querySelector('b'), sm = st.querySelector('small');
+          if (pg) { pg.max = h.max; pg.value = h.energy; }
+          if (nb) nb.textContent = h.energy;
+          if (nb && nb.nextSibling && nb.nextSibling.nodeType === 3) nb.nextSibling.nodeValue = '/' + h.max + ' ';
+          if (sm) sm.textContent = h.next || '';
+          st.setAttribute('title', 'Energy' + (h.title ? ': ' + h.title : ''));
+        }
       }
     });
   }, true);

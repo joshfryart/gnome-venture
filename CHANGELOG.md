@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.68
+- **Build plans for every ruined place**: the other 12 regions now have their own four-stage repair plans (58 more places, 232 stages: haul, gather, feed, light, clear, with a line of story each), so no haven, wonder or delve falls back to the generic stones-and-rope stages. Plans are in `build_plans.txt`; the `buildplans` test checks them all and now hides one plan to test the old-stages fallback.
+- **Energy bar updates live too**: after a Do here activity the status strip's energy bar, number and regen note change in place, as the header pills already did.
+
 ## 2.5.67
 - **Do here popovers show what happened**: on the Here picture, doing an activity (or buying at a stall) no longer reloads the page and drops the result in a banner behind the popover. The popover stays open and its card comes back with the result at the top (what you found, XP, coins) and "Done this visit", and the header energy and coin pills update live (the drawn petal icon stays; only the number changes). Without script the forms post as before. New suite `tests/heredo.sh`.
 

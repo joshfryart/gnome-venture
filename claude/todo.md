@@ -1,4 +1,4 @@
-# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-05, main = 2.5.67)
+# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-05, main = 2.5.67; branch has 2.5.68, not on main)
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md` (the old todo.md log up to 2.5.62 is at the bottom of the archive). Detail lists for art stay in their own files, linked below, but their OPEN items are copied here.
 
@@ -21,6 +21,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Maplewold trail tiles; Do here names; folk line; Villagers highlight.
 
 ## 3. JOSH: decisions needed
+- Review the 58 new build plans (2.5.68) on the live site or in `build_plans.txt`.
 - Upkeep: who owes it (built as anyone; adopter only?). Notice to adopter when a stop drops a tier.
 - Approve new stage art (montages sent), then install `aseprite-source/v3/p7/out/derived-<land>/` into `assets/img/scenes/`.
 - P7 art order; craftmap 14 scenes skip?; redraw all 1,667 acts or only used; 480x270 canvas final?
@@ -32,13 +33,12 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 ## 4. CODE: open
 **Trail / Here**
 - Trail ground and landmarks for the other 11 regions (loader exists; art is stand-ins).
-- Header: other energy/Petals readouts lower on the page refresh only on next load.
 - Shops/Homes popover on non-town stop types; step-off/step-back strip; Lost Letters + landmark panel on World page; gnome walk-frame animation (8 frames, idle only); nav chrome on other picture pages; `balance_sim` for `gnav_enter_energy`.
 - `walk_scene` row deleted when a delve ends, so no delve-completion record.
 **Yard / garden**
-- Designer: corner pick only for corner-shaped pieces; cover squares not recomputed live when a bed moves; `tile-tilled-wet.png` unused; planted soil for no-till beds; satchel `satchel_skin` column (canvas/patchwork); generic `scene3-` fallback for unknown landscape.
+- Designer: corner pick only for corner-shaped pieces; cover squares not recomputed live when a bed moves; planted soil for no-till beds; satchel `satchel_skin` column (canvas/patchwork).
 **Content**
-- Build plans for the other 12 regions (`game/includes/data/build_plans.txt`, 2 per release, `tests/buildplans.sh`); leftover build verbs (`befriend`, `carry`, `trial`, `vigil`, `wait`, `decorate`); Admin > Build plans page.
+ - Build plans: all 94 havens/wonders/delves have plans (2.5.68, Josh not yet reviewed the text). Leftover build verbs (`befriend`, `carry`, `trial`, `vigil`, `wait`, `decorate`); Admin > Build plans page.
 - Stop acts: `cookalong`/`tune`/`teach`/festival kinds; apply review notes for 691 acts.
 - Road: toll/beat/weather kinds; picture per sketch page; collection pages. Region packs for other 11 regions; road_lines admin editor; 146 villages share 9 descriptions; 4 stop personalities lack chat lines; Haven text promises shops that don't exist; tundra thin.
 - Treks: scenes (Gloomtooth intro, Sorrel's door, signpost riddle); Ch IV to VI, Thorny/Bramble, respec, Lanternroot crop, hats/stamp/trophy, trailmates 8 (4-7 built).
@@ -68,9 +68,9 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Method for AI art: `aseprite-source/v3/HANDOFF.md`, `ROLLOUT-STATE.md`; single Opus-medium pass per scene (see `claude/todo-art-v3.md` METHOD).
 
 ## 6. WATCH / SMALL
-- Trek map: open-zone walls flat grey; long walks enter from phone-window edge. "Community garden" tab wraps on phone; sign/skin Buy buttons small. Travel card "via X" truncates at 390px.
+- Trek map: open-zone walls flat grey; long walks enter from phone-window edge. (Community garden / My stall tabs wrap to two lines on a phone: looks fine.) Travel card "via X" truncates at 390px.
 - Friend watering duplicates garden water logic; nudge crops-ready approximate; SMTP untested live.
-- Test noise: `social100` 2 FAIL (mid-tour); `stops100` 2 night-fishing FAIL; `beds` 5 FAIL on main; `cook.sh` map checks stale; `games2.sh` no payout test; `walk.sh` "INSTALL FAILED" flake under parallel runs.
+- Test noise: (`beds`, `stops100`, `social100` pass as of 2.5.68); `cook.sh` map checks stale; `games2.sh` no payout test; `walk.sh` "INSTALL FAILED" flake under parallel runs.
 - Balance: week 1 ~8.5k earned vs ~7k sinks; days 1-3 flush; cosmetics have no level check; harvests ~73% of XP.
 
 ## 7. PARKED (Josh: not now)
