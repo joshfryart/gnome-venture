@@ -286,7 +286,7 @@ def wood(cv, x0, y0, x1, y1, rnd, vert=True, R=None, mask=None, grain=.7):
             if g > .5 + (1 - grain) * .3 + .2: t = min(4, t + 1)
             elif g < .3 - (1 - grain) * .2: t = max(0, t - 1)
             cv.put(x, y, R[t])
-    for _ in range(max(1, (w * h) // 500)):   # knots
+    for _ in range((w * h) // 500 if w > 6 and h > 8 else 0):   # knots
         kx, ky = rnd.randint(x0 + 2, x1 - 3), rnd.randint(y0 + 3, y1 - 4)
         if mask and not mask(kx, ky): continue
         cv.put(kx, ky, R[4]); cv.put(kx + 1, ky, R[3]); cv.put(kx, ky + 1, R[3]); cv.put(kx - 1, ky - 1, R[2]); cv.put(kx + 1, ky + 1, R[0] if False else R[2])
@@ -360,71 +360,146 @@ def lm_frozenpond(rnd, cv):   # 330 x 170
     for x in range(16, 316, 4): cv.put(x, 165, SN[3]) if x % 8 == 0 else None
 
 
+def ball(cv, cx, cy, r, rnd, sq=1.0):
+    """A hand-patted snowball: wobbly outline, lumpy surface, form shading, bounce light."""
+    wob = [rnd.random() * 6.28 for _ in range(2)]; nz = vnoise(rnd, 6)
+    def inside(x, y):
+        nx = (x + .5 - cx) / r; ny = (y + .5 - cy) / (r * sq); a = math.atan2(ny, nx); lim = 1 + .045 * math.sin(3 * a + wob[0]) + .03 * math.sin(5 * a + wob[1])
+        return nx * nx + ny * ny <= lim * lim
+    shade(cv, (int(cx - r - 2), int(cy - r - 2), int(cx + r + 2), int(cy + r + 2)), inside, ell_n(cx, cy, r * 1.06, r * 1.06 * sq), SN, bump=lambda x, y: 2.4 * (nz(x, y) - .5),
+          bk=1.7, bias=-.15, gain=4.0, bounce=1.3)
+    for k in range(int(r / 3)):    # pats: lit lip of a thumb-pressed dent, cold shadow below it
+        a = rnd.uniform(math.pi * .95, math.pi * 1.85); px = int(cx + math.cos(a) * r * rnd.uniform(.25, .7)); py = int(cy + math.sin(a) * r * rnd.uniform(.25, .7))
+        for j in range(-2, 3): cv.put(px + j, py + abs(j) // 2, SN[0]) if cv.get(px + j, py + abs(j) // 2) in SN else None; cv.put(px + j, py + 1 + abs(j) // 2, SN[3]) if cv.get(px + j, py + 1 + abs(j) // 2) in SN else None
+
+
+def twig(cv, x0, y0, x1, y1, rnd):
+    n = int(max(abs(x1 - x0), abs(y1 - y0)))
+    for i in range(n + 1):
+        t = i / float(max(1, n)); x = int(round(x0 + (x1 - x0) * t)); y = int(round(y0 + (y1 - y0) * t + math.sin(t * 5) * 1.2))
+        cv.put(x, y, WD[1] if i % 5 else WD[0]); cv.put(x, y + 1, WD[3])
+        if i % 7 == 3: cv.put(x, y - 1, SN[0])
+    d = 1 if x1 > x0 else -1; ex, ey = x1, y1 + int(math.sin(5) * 1.2)
+    for s_ in (-1, 1):   # fingers
+        for k in range(1, 5): cv.put(ex + d * k, ey + s_ * (k + 1) // 2 * 1 - (1 if y1 < y0 else 0) * 0, WD[2] if s_ < 0 else WD[3])
+
+
 def snowman(cv, cx, base, s, rnd, hat, carrot_kind, scarf=None, mood=0):
     rb, rm, rh = int(15 * s), int(11.5 * s), int(8.5 * s)
     yb = base - rb; ym = yb - rb - rm + 5; yh = ym - rm - rh + 4
-    lump(cv, cx, yb, rb, rb, SN, rnd, .05); lump(cv, cx, ym, rm, rm, SN, rnd, .05); lump(cv, cx, yh, rh, rh, SN, rnd, .05)
-    for k in range(3): cv.put(cx - 1 + k, ym - 2 + k * 6, COAL); cv.put(cx - 1 + k, ym + 1 + k * 6, COAL) if False else None
-    for yy in (ym - 3, ym + 4): cv.put(cx, yy, COAL); cv.put(cx + 1, yy, COAL); cv.put(cx, yy + 1, COAL); cv.put(cx + 1, yy + 1, COAL)
-    for d in (-1, 1):   # twig arms
-        for i in range(int(18 * s)):
-            cv.put(cx + d * (rm - 2 + i), ym - 2 - i // 2 * (1 if mood == 0 else -1 if mood == 2 else 0), WD[2]); cv.put(cx + d * (rm - 2 + i), ym - 1 - i // 2 * (1 if mood == 0 else -1 if mood == 2 else 0), WD[3])
-    eye(cv, cx - rh // 2 - 1, yh - 3, 2); eye(cv, cx + rh // 2, yh - 3, 2)
-    for i in range(-3, 4): cv.put(cx + i, yh + rh // 2 + (1 if abs(i) > 1 else 0), COAL) if mood != 3 else None
-    cx_ = cx + 1
-    if carrot_kind == "long": carrot(cv, cx_, yh + 1, 1, int(26 * s), 2)
-    elif carrot_kind == "tiny": carrot(cv, cx_, yh + 1, 1, 6, 1)
-    elif carrot_kind == "up": carrot(cv, cx_, yh + 2, 1, int(20 * s), 2, up=11)
-    elif carrot_kind == "fat": carrot(cv, cx_, yh + 2, 1, int(14 * s), 4)
-    elif carrot_kind == "two": carrot(cv, cx_, yh, 1, int(14 * s), 1, up=-4); carrot(cv, cx_, yh + 3, 1, int(14 * s), 1, up=4)
-    elif carrot_kind == "side": carrot(cv, cx - 3, yh + 2, -1, int(18 * s), 2, up=-3)
+    ball(cv, cx, yb, rb, rnd, .98); ball(cv, cx, ym, rm, rnd); ball(cv, cx, yh, rh, rnd)
+    for (ccx, ccy, cr, ang0) in ((cx, ym, rm, 0), (cx, yh, rh, 0)):   # the crease where each ball presses on the one beneath: a rim of cold shadow, dithered
+        for i in range(int(cr * 5)):
+            a = math.pi * (.08 + .84 * i / (cr * 5)); px = int(ccx + math.cos(a) * (cr + .6)); py = int(ccy + math.sin(a) * (cr + .6))
+            if cv.get(px, py) in SN: cv.put(px, py, SN[4] if i % 3 else SN[3]); cv.put(px, py + 1, SN[3] if i % 2 else SN[2]) if cv.get(px, py + 1) in SN else None
+    for i in range(3):   # coal buttons: lit chip, glint
+        bxx = cx - 1 + (i % 2) * 0; byy = ym - 4 + i * int(rm * .55)
+        for dx, dy in ((0, 0), (1, 0), (0, 1), (1, 1), (-1, 0) if i == 1 else (0, 2)): cv.put(bxx + dx, byy + dy, COAL)
+        cv.put(bxx, byy, ST[1])
+    ad = (-1 if mood == 0 else 1 if mood == 2 else 0)   # twig arms: raised, level or drooping
+    for d in (-1, 1):
+        x0 = cx + d * (rm - 2); y0 = ym - 2
+        twig(cv, x0, y0, x0 + d * int(18 * s), y0 + ad * int(7 * s) - (0 if ad else 1), rnd)
+    for dx in (-rh // 2 - 1, rh // 2):    # eyes: coal, with a glint
+        for i, j in ((0, 0), (1, 0), (0, 1), (1, 1)): cv.put(cx + dx + i, yh - 3 + j, COAL)
+        cv.put(cx + dx, yh - 3, ST[2])
+    my = yh + rh // 2 + 1   # mouth of pebbles
+    if mood == 3:
+        for dx, dy in ((0, 0), (1, 0), (-1, 1), (2, 1), (0, 2), (1, 2)): cv.put(cx + dx, my + dy + 1, COAL)
+    else:
+        for i in range(-3, 4):
+            off = (1 if abs(i) > 1 else 0) * (-1 if mood in (0, 1) else 1) + (1 if mood == 1 and i > 1 else 0)
+            cv.put(cx + i, my + off, COAL); cv.put(cx + i, my + off + 1, COAL) if abs(i) < 2 else None
+    ks = max(1, int(s * 1.2))
+    CAR = [mix(GD[0], EM[0], .5), CARROT[0], CARROT[1], CARROT[2], EM[2]]
+    nx_, ny_ = cx + 1, yh + 1
+    if carrot_kind == "long": tube(cv, (nx_, ny_), (nx_ + int(26 * s), ny_ + 2), 4, 1, CAR)
+    elif carrot_kind == "tiny": tube(cv, (nx_, ny_), (nx_ + 6, ny_ + 1), 3, 1, CAR)
+    elif carrot_kind == "up":
+        tube(cv, (nx_, ny_ + 1), (nx_ + int(12 * s), ny_ + 1), 4, 3, CAR); tube(cv, (nx_ + int(12 * s), ny_ + 1), (nx_ + int(20 * s), ny_ - 9), 4, 1, CAR)
+    elif carrot_kind == "fat": tube(cv, (nx_, ny_ + 1), (nx_ + int(14 * s), ny_ + 3), 7, 1, CAR)
+    elif carrot_kind == "two":
+        tube(cv, (nx_, ny_), (nx_ + int(14 * s), ny_ - 4), 3, 1, CAR); tube(cv, (nx_, ny_ + 2), (nx_ + int(14 * s), ny_ + 6), 3, 1, CAR)
+    elif carrot_kind == "side": tube(cv, (nx_ - 3, ny_ + 1), (nx_ - 3 - int(18 * s), ny_ + 3), 4, 1, CAR)
+    for x in range(nx_, nx_ + 4): cv.put(x, ny_ - 1, SN[3]) if carrot_kind != "side" and cv.get(x, ny_ - 1) in SN else None
     if scarf:
+        SC = [mix(scarf, CREAM, .45), scarf, darker(scarf, 1), mix(scarf, INK, .35)]
         for x in range(cx - rh + 1, cx + rh):
-            for k in range(3): cv.put(x, yh + rh - 1 + k, scarf[(0 if k == 0 else 1 if k == 1 else 2)])
-        for k in range(10): cv.put(cx + rh - 3 + k // 5, yh + rh + 2 + k, scarf[1]); cv.put(cx + rh - 2 + k // 5, yh + rh + 2 + k, scarf[2])
+            dx = (x - cx) / float(rh); y0 = yh + rh - 2 + int(3 * (1 - dx * dx)) - 1
+            for k in range(4): cv.put(x, y0 + k, SC[k] if (x // 3) % 2 == 0 else SC[min(3, k + 1)])
+        for k in range(14):
+            for j in range(4): cv.put(cx + rh - 6 + j + k // 7, yh + rh + 3 + k, SC[j] if (k // 3) % 2 == 0 else SC[min(3, j + 1)])
+        for j in range(4): cv.put(cx + rh - 5 + j * 1, yh + rh + 17, SC[1]) if j % 2 == 0 else None
     top = yh - rh
     if hat == "top":
-        for x in range(cx - rh - 3, cx + rh + 4): cv.put(x, top + 3, ST[3]); cv.put(x, top + 4, ST[3])
-        for y in range(top - 12, top + 3):
-            for x in range(cx - rh + 2, cx + rh - 1): cv.put(x, y, ST[2] if x < cx + 2 else ST[3])
-        for x in range(cx - rh + 2, cx + rh - 1): cv.put(x, top - 1, PT[1]); cv.put(x, top, PT[2])
+        hw_ = int(rh * .62); tube(cv, (cx, top - 13), (cx, top + 1), 2 * hw_, 2 * hw_, ST)
+        for x in range(cx - hw_, cx + hw_): cv.put(x, top - 2, PT[1] if x > cx - hw_ + 1 else PT[0]); cv.put(x, top - 1, PT[2]); cv.put(x, top, PT[3])
+        lump(cv, cx, top + 2, rh + 3, 2, ST, rnd, 0)
+        for x in range(cx - hw_ + 1, cx - 1): cv.put(x, top - 12, ST[0]) if x % 2 else None
     elif hat == "bobble":
-        lump(cv, cx, top + 3, rh, 7, PT, rnd, .05); lump(cv, cx, top - 6, 4, 4, SN, rnd, 0)
-        for x in range(cx - rh, cx + rh + 1): cv.put(x, top + 8, SN[1])
+        lump(cv, cx, top + 1, rh + 1, 7, PT, rnd, 0)
+        for x in range(cx - rh + 2, cx + rh - 1, 3):
+            for y in range(top - 4, top + 5):
+                if cv.get(x, y) in PT: cv.put(x, y, PT[min(4, PT.index(cv.get(x, y)) + 1)])
+        for x in range(cx - rh - 1, cx + rh + 2):
+            for k in range(3): cv.put(x, top + 5 + k, SN[0] if k == 0 else SN[1] if k == 1 else SN[3]) if (x + k) % 4 else None
+        ball(cv, cx, top - 6, 4, rnd)
     elif hat == "pot":
-        for y in range(top - 6, top + 4):
-            for x in range(cx - rh + 1, cx + rh): cv.put(x, y, ST[1] if x < cx - 2 else ST[2] if x < cx + 3 else ST[3])
-        for y in (top - 6, top - 5): cv.put(cx, y, ST[0])
-        for k in range(4): cv.put(cx - 2 + k, top - 8, ST[3]); cv.put(cx - 2 + k, top - 7, ST[2])
+        tube(cv, (cx, top - 6), (cx, top + 2), int(rh * 1.3), int(rh * 1.3), ST)
+        lump(cv, cx, top - 6, int(rh * .65), 2, ST, rnd, 0)
+        for k in range(4): cv.put(cx - 2 + k, top - 9, ST[3]); cv.put(cx - 2 + k, top - 8, ST[2])
+        cv.put(cx - 1, top - 9, ST[0]); cv.put(cx - rh - 1, top - 2, ST[4]); cv.put(cx - rh - 2, top - 1, ST[4]); cv.put(cx + rh, top - 2, ST[4]); cv.put(cx + rh + 1, top - 1, ST[4])
+        for x in range(cx - int(rh * .6), cx + int(rh * .6), 2): cv.put(x, top + 1, ST[4])
     elif hat == "bucket":
-        for y in range(top - 8, top + 4):
-            hw = rh - 1 - (top + 4 - y) // 5 * -1 if False else rh - 2 + (y - top + 8) // 4
-            for x in range(cx - hw, cx + hw + 1): cv.put(x, y, WD[1] if x < cx - 2 else WD[2] if x < cx + 3 else WD[3])
-        for y in (top - 3, top + 1):
-            for x in range(cx - rh, cx + rh + 1): cv.put(x, y, ST[2])
-    elif hat == "crown":
-        for i in range(5):
-            x = cx - 8 + i * 4
-            for k in range(7 + (4 if i % 2 == 0 else 0)): cv.put(x, top - k + 2, GD[1]); cv.put(x + 1, top - k + 2, GD[2])
-        for x in range(cx - 8, cx + 10): cv.put(x, top + 3, GD[2]); cv.put(x, top + 2, GD[1])
+        for y in range(top - 8, top + 5):
+            hw = rh - 3 + (y - top + 8) // 3
+            for x in range(cx - hw, cx + hw + 1):
+                u = (x - (cx - hw)) / float(2 * hw); cv.put(x, y, WD[1] if u < .2 else WD[2] if u < .55 else WD[3] if u < .85 else WD[4])
+        for y in (top - 4, top + 1):
+            for x in range(cx - rh - 1, cx + rh + 3): cv.put(x, y, ST[2] if x < cx + 2 else ST[3]); cv.put(x, y + 1, ST[1] if x < cx - 4 else ST[3]) if 0 else None
+        lump(cv, cx, top - 8, rh - 2, 2, WD, rnd, 0); cv.put(cx - 3, top - 8, SN[0]); cv.put(cx - 2, top - 8, SN[1])
     elif hat == "none":
-        for k in range(3): cv.put(cx - 4 + k * 4, top - 1, WD[2]); cv.put(cx - 4 + k * 4, top - 2, WD[2])
+        for k in range(3):
+            px = cx - 4 + k * 4
+            for j in range(4): cv.put(px + (k - 1) * (j // 2), top - j + 1, WD[2] if j % 2 else WD[1])
+    return (cx, yb, rb)
 
 
-def lm_snowmen(rnd, cv):   # 290 x 150
-    H_ = 186
-    for x in range(8, 282):   # bit of trampled snow floor
-        for y in range(H_ - 6, H_ + 1):
-            if (x * 7 + y * 3) % 5 and ((x - 145) / 140) ** 2 + ((y - H_ + 2) / 5) ** 2 < 1: cv.put(x, y, SN[1] if y < H_ - 2 else SN[2])
-    snowman(cv, 40, H_ - 2, 1.3, rnd, "top", "long", PT[1], 0)
-    snowman(cv, 98, H_ - 2, 1.1, rnd, "bobble", "tiny", None, 3)
-    snowman(cv, 152, H_ - 2, 1.55, rnd, "none", "up", EM[1], 0)
-    snowman(cv, 210, H_ - 2, 1.15, rnd, "bucket", "fat", SE[1], 1)
-    snowman(cv, 255, H_ - 2, 1.35, rnd, "pot", "side", None, 2)
-    for x in (68, 125, 182, 232):   # tiny rating flags
-        for y in range(H_ - 18, H_ - 2): cv.put(x, y, WD[2])
-        for dx in range(7):
-            for dy in range(4): cv.put(x + 1 + dx, H_ - 18 + dy, GD[1] if dx % 2 else GD[0])
+def lm_snowmen(rnd, cv):   # 290 x 190
+    H_ = 184; nB = vnoise(rnd, 7)
+    fl = lambda x, y: 6 <= x <= 284 and H_ - 8 + int(2 * math.sin(x * .1) + (nB(x, 1) - .5) * 3) <= y <= H_ + 1 - (1 if (x * 7) % 9 < 2 else 0)
+    shade(cv, (4, H_ - 14, 286, H_ + 3), fl, lambda x, y: (.03, -.92, .39), SN, bump=lambda x, y: 2 * (nB(x, y) - .5) + 1.4 * math.sin(x * .3 + y * .8 + 3 * nB(x * .5, y * .5)), bk=1.2, bias=-.1, gain=3.0)
+    smen = ((40, 1.3, "top", "long", PT[1], 0), (98, 1.1, "bobble", "tiny", None, 3), (152, 1.55, "none", "up", EM[1], 0), (210, 1.15, "bucket", "fat", SE[1], 1), (255, 1.35, "pot", "side", None, 2))
+    for (x, s, *_) in smen:     # long cold shadows thrown to the right across the trodden snow
+        for yy in range(H_ - 6, H_ + 1):
+            for xx in range(x, x + int(34 * s)):
+                if fl(xx, yy) and ((xx - x - 6) / (30. * s)) ** 2 + ((yy - H_ + 2) / 4.) ** 2 <= 1 and (_BAY[yy & 3][xx & 3] + .5) / 16 < .85: cv.put(xx, yy, SN[3] if (xx + yy) % 5 else SN[4])
+    for (x, s, hat, ck, sc, mood) in smen: snowman(cv, x, H_ - 2, s, rnd, hat, ck, sc, mood)
+    for i, (fx, n) in enumerate(((68, 4), (125, 3), (182, 5), (232, 2))):    # tiny rating flags on sticks, scored in coal dots
+        wood(cv, fx, H_ - 20, fx + 2, H_ - 1, rnd, True, WD, grain=.5)
+        for dx in range(8):
+            for dy in range(6):
+                wv = int(math.sin((dx + i) * .8) * 1)
+                cv.put(fx + 2 + dx, H_ - 20 + dy + wv, GD[0] if dy < 2 else GD[1] if dy < 4 else GD[2])
+        for k in range(n): cv.put(fx + 3 + k, H_ - 18 + (k % 2) + int(math.sin((k + 1 + i) * .8)), COAL)
+        cv.put(fx + 1, H_ - 21, WD[0]); cloud_lump(cv, fx + 1, H_ - 1, 5, 2, rnd, bumps=1, bias=-.5)
+    for x, y in ((18, H_ - 3), (64, H_ - 2), (124, H_ - 1), (180, H_ - 3), (234, H_ - 2), (276, H_ - 3)): fprint(cv, x, y - 2, 0, 1 if x % 2 else -1)
+    for x, y in ((26, 166), (270, 160), (150, 90)): pass
+    tuft(cv, 12, H_ - 3, rnd, 4, 6); tuft(cv, 280, H_ - 2, rnd, 3, 5)
+    for k in range(8): glint(cv, 20 + k * 34, H_ - 6 + (k * 3) % 5, 0)
+
+
+def stalag(cv, x, y, h, w, rnd, R=None):
+    """Ice stalagmite rising from y (mirror of icicle2: lit left flank, cool right flank, bright tip)."""
+    R = R or ICR
+    for i in range(h):
+        f = i / h; hw = max(0, int(round(w / 2 * (1 - f) ** .8 + (1 if 0 < f < .6 and rnd.random() < .25 else 0))))
+        for k in range(-hw, hw + 1):
+            u = (k + hw) / max(1, 2 * hw); t = 1 if u < .34 else 2 if u < .62 else 3 if u < .86 else 4
+            if hw == 0: t = 1
+            if k == -hw and hw > 1: t = 0
+            cv.put(x + k, y - i, R[t])
+    cv.put(x, y - h, R[0])
 
 
 def stalag(cv, x, y, h, w, rnd, R=None):
@@ -467,7 +542,7 @@ def stalag(cv, x, y, h, w, rnd, R=None):
 
 
 def lm_icecave(rnd, cv):   # 270 x 226
-    B = 218; cx = 135; RX = 128; RY = 190
+    B = 218; cx = 135; RX = 128; RY = 176
     n1, n2 = vnoise(rnd, 20), vnoise(rnd, 7)
     def top(x):
         dx = min(abs(x - cx), RX - .01); return B - RY * math.sqrt(max(0., 1 - (dx / RX) ** 2)) + (n1(x, 7) - .5) * 14 * (1 - (dx / RX) ** 4) + (n2(x, 2) - .5) * 3
@@ -942,44 +1017,67 @@ def lm_comb(rnd, cv):   # 290 x 190
 
 
 def lm_icicurtain(rnd, cv):   # 290 x 186
-    B = 184
-    # snowdrifts banked round the feet of the two posts
-    for px in (30, 260):
-        lump(cv, px, B - 6, 34, 11, SN, rnd, .05)
-    for px in (30, 260):   # fat timber posts, with a snow cap and a ring of rope
-        post(cv, px - 11, 22, B - 6, 22, WD)
-        for y in range(40, B - 8, 28): rect(cv, px - 11, y, px + 11, y + 2, WD[3])
-        lump(cv, px, 20, 18, 9, SN, rnd, .04)
-    for y in range(34, 54):   # crossbar, heavy beam
-        for x in range(8, 282): cv.put(x, y, WD[0] if y < 38 else WD[1] if y < 45 else WD[2] if y < 50 else WD[3])
-    for x in range(8, 282, 17): rect(cv, x, 38, x + 1, 52, WD[3])
-    for x in range(14, 276):   # snow on the beam
-        for y in range(27, 35): cv.put(x, y, SN[0] if y < 30 else SN[1] if y < 33 else SN[2]) if (x * 5 + y) % 9 < 7 else None
-    for x in range(20, 270):   # a frozen sheet under the beam, so the curtain reads as one
-        for y in range(54, 54 + 34 + (x * 7) % 11):
-            cv.put(x, y, IC[0] if (x // 3) % 4 == 0 else IC[1] if (x // 3) % 4 < 3 else IC[2])
+    B = 184; nB = vnoise(rnd, 7); nA = vnoise(rnd, 16)
+    fl = lambda x, y: 6 <= x <= 284 and B - 9 + int(2 * math.sin(x * .1) + (nB(x, 1) - .5) * 3) <= y <= B + 1 - (1 if (x * 7) % 9 < 2 else 0)
+    shade(cv, (4, B - 14, 286, B + 3), fl, lambda x, y: (.03, -.92, .39), SN, bump=lambda x, y: 2 * (nB(x, y) - .5) + 1.4 * math.sin(x * .3 + y * .8 + 3 * nA(x * .5, y)), bk=1.2, bias=-.1, gain=3.0)
+    ROPE = [CREAM, FROST[0], FROST[1], FROST[2]]
+    for px in (30, 260):     # fat timber posts, rope lashings, a cap of snow, drifts banked round the feet
+        wood(cv, px - 11, 22, px + 11, B - 6, rnd, True, WD, grain=.95)
+        for k in range(5): crack(cv, px - 8 + k * 4, 40 + (k * 37) % 70, 12 + k * 3, rnd, .05, 1., col=WD[4], lip=False, branch=0, only=WD)
+        for y in (46, 78, 110, 142):
+            for yy in range(y, y + 4):
+                for x in range(px - 12, px + 12):
+                    u = (x - (px - 12)) / 24.; ci = 0 if u < .25 else 1 if u < .5 else 2 if u < .8 else 3
+                    cv.put(x, yy, ROPE[ci] if (x + yy) % 3 else ROPE[min(3, ci + 1)])
+            for x in range(px - 12, px + 12): cv.put(x, y + 4, WD[4]) if x % 2 else None
+        cloud_lump(cv, px, 20, 17, 7, rnd, bumps=3, bias=-.4)
+        cloud_lump(cv, px + 2, B - 6, 33, 10, rnd, bumps=3, bias=-.3)
+        for k in range(3): sastr(cv, px - 26 + k * 8, B - 8 + k, 14, rnd, .5, .02)
+    # heavy cross beam, snow along its top and clinging over the lip
+    bm = lambda x, y: 8 <= x <= 282 and 34 <= y < 55 and not (x < 11 and (y < 36 or y > 52)) and not (x > 279 and (y < 36 or y > 52))
+    wood(cv, 8, 34, 282, 55, rnd, False, WD, mask=bm, grain=.95)
+    for x in range(8, 282, 17): rect(cv, x, 38, x + 1, 52, WD[4]); cv.put(x + 2, 40, WD[3]); cv.put(x + 2, 49, WD[3])
+    for x in range(8, 282, 54): rect(cv, x, 35, x + 4, 40, WD[4]); cv.put(x + 1, 36, WD[1])   # iron cleats
+    cloud_lump(cv, 146, 31, 112, 4, rnd, bumps=3, bias=-.4)
+    for x in range(14, 276):
+        if (x * 5) % 13 < 4: cv.put(x, 35, SN[0]); cv.put(x, 36, SN[1]) if (x * 3) % 4 < 2 else None; cv.put(x, 37, SN[3]) if (x * 7) % 9 < 3 else None
+    # the frozen sheet under the beam, fluted, so the curtain reads as one piece of ice
+    sheet = lambda x, y: 20 <= x <= 270 and 55 <= y < 55 + 22 + (x * 7) % 9 + int(5 * nA(x, 3))
+    shade(cv, (20, 55, 270, 100), sheet, lambda x, y: (.08, -.25, .96), IC, bump=lambda x, y: 1.6 * math.sin(x * 1.05 + 4 * nA(x, y * .4)) + (nB(x, y) - .5) * 2, bk=1.0, bias=.2, gain=3.0)
     i = 0
-    for x in range(44, 248, 8):   # the main curtain, ragged lengths
-        ln = 38 + (i * 53) % 62 + (16 if 8 < i < 15 else 0)
-        icicle(cv, x, 54, ln, 7 if i % 3 else 9)
-        i += 1
-    for x in range(40, 252, 8):   # shorter staggered row in front
-        if (x // 8) % 2: icicle(cv, x + 4, 54, 24 + (x * 3) % 22, 5, IC)
-    for x in range(40, 252, 6): cv.put(x, 54, IC[0]); cv.put(x, 55, IC[1])
-    for x, ln in ((70, 62), (130, 98), (186, 76), (222, 54)):   # little chime bells
-        y = 54 + ln + 4
-        for dx in range(9):
-            for dy in range(8): cv.put(x - 4 + dx, y + dy, GD[1] if dy < 4 else GD[2]) if (dx - 4) ** 2 + (dy - 7) ** 2 <= 20 else None
-        cv.put(x, y + 8, GD[3]); cv.put(x - 3, y + 2, GD[0])
+    for x in range(41, 250, 7):    # the main curtain: ragged lengths, a few hollow tubes and a few lopsided ones
+        ln = 36 + (i * 53) % 58 + (16 if 8 < i < 17 else 0) - (22 if i % 6 == 4 else 0)
+        icicle2(cv, x, 54, ln, 8 if i % 3 else 10, rnd, lean=((i * 7) % 5 - 2) * .5, hollow=(ln > 70 and i % 2 == 0)); i += 1
+    for x in range(36, 252, 8):    # shorter staggered row in front, brighter (nearer the light)
+        if (x // 8) % 2: icicle2(cv, x + 4, 54, 22 + (x * 3) % 24, 6, rnd, bead=(x % 3 == 0))
+    for x in range(40, 252, 6): cv.put(x, 54, ICR[0]); cv.put(x, 55, ICR[1]) if (x // 6) % 2 else None
+    for (x, y) in ((74, 104), (140, 128), (189, 96), (222, 82), (112, 90), (166, 118)):    # sparkles caught in the ice, one tinted pink, one green
+        glint(cv, x, y, 1 if x % 2 else 0)
+    for (x, y, c) in ((130, 70, PT[0]), (200, 66, SE[0]), (80, 82, MO[0])): cv.put(x, y, c); cv.put(x, y + 1, mix(c, IC[0], .5))
+    for x, ln in ((70, 62), (130, 98), (186, 76), (222, 54)):   # little chime bells, each on its own string down through the icicles
+        y = 56 + ln
+        for k in range(ln): cv.put(x, 56 + k, FROST[2] if k % 2 else FROST[1])
+        lump(cv, x, y + 4, 5, 5, GD, rnd, 0); rect(cv, x - 5, y + 7, x + 6, y + 9, GD[2]); rect(cv, x - 5, y + 9, x + 6, y + 10, GD[3]); cv.put(x, y + 11, GD[3]); cv.put(x, y + 12, GD[1]); cv.put(x - 3, y + 2, GD[0]); cv.put(x - 2, y + 1, WHITE)
+        cv.put(x - 1, y - 2, GD[2]); cv.put(x, y - 2, GD[3]); cv.put(x + 1, y - 2, GD[2])
     # do-not-lick sign on its own stake
-    sx = 208
-    post(cv, sx + 14, 136, B - 6, 4, WD)
-    poly(cv, [(sx, 112), (sx + 34, 112), (sx + 34, 142), (sx, 142)], WD[1])
-    rect(cv, sx, 112, sx + 34, 114, WD[0]); rect(cv, sx, 140, sx + 34, 142, WD[3]); rect(cv, sx + 32, 112, sx + 34, 142, WD[3])
-    rect(cv, sx + 7, 120, sx + 11, 124, COAL); rect(cv, sx + 22, 120, sx + 26, 124, COAL)   # eyes
-    rect(cv, sx + 11, 129, sx + 23, 133, COAL); rect(cv, sx + 14, 133, sx + 19, 138, PT[1])   # tongue out
-    line(cv, [(sx + 3, 116), (sx + 31, 138)], EM[1], 2)
-    for x in range(20, 272): cv.put(x, B + 1, SN[3]) if x % 4 == 0 else None
+    sx = 206; sh = lambda x, y: sx <= x <= sx + 34 and 112 <= y <= 142 and not (x in (sx, sx + 34) and y in (112, 142))
+    wood(cv, sx + 14, 138, sx + 20, B - 6, rnd, True, WD, grain=.8)
+    wood(cv, sx, 112, sx + 35, 143, rnd, False, WD, mask=sh, grain=.9)
+    for x in range(sx, sx + 35): cv.put(x, 112, WD[0]); cv.put(x, 142, WD[4]) if sh(x, 142) else None
+    for y in range(112, 143): cv.put(sx + 34, y, WD[4]) if sh(sx + 34, y) else None; cv.put(sx, y, WD[0]) if sh(sx, y) else None
+    for (nx_, ny_) in ((sx + 3, 115), (sx + 31, 115), (sx + 3, 139), (sx + 31, 139)): cv.put(nx_, ny_, WD[4]); cv.put(nx_ - 1, ny_ - 1, WD[0])
+    for dx in (8, 23): rect(cv, sx + dx, 120, sx + dx + 5, 125, COAL); cv.put(sx + dx + 1, 121, CREAM); cv.put(sx + dx + 1, 120, CREAM)
+    rect(cv, sx + 11, 129, sx + 24, 133, COAL); rect(cv, sx + 14, 133, sx + 20, 139, PT[1]); rect(cv, sx + 14, 133, sx + 15, 139, PT[0]); rect(cv, sx + 19, 134, sx + 20, 139, PT[2]); cv.put(sx + 16, 139, PT[3]); cv.put(sx + 17, 139, PT[3])
+    for k in range(34): cv.put(sx + 2 + k, 116 + int(k * .72), EM[1] if k % 3 else EM[2]); cv.put(sx + 3 + k, 116 + int(k * .72), EM[0] if k % 3 == 0 else EM[1])   # the slash
+    for k in range(4): cv.put(sx + 8 + k * 7, 143 + (k % 2), WD[4])
+    crack(cv, sx + 4, 128, 10, rnd, 1., .5, col=WD[4], lip=False, branch=0, only=WD)
+    cloud_lump(cv, sx + 17, 111, 17, 3, rnd, bumps=2, bias=-.6)
+    icicle2(cv, sx + 29, 143, 7, 3, rnd, bead=False)
+    cloud_lump(cv, sx + 17, B - 5, 14, 5, rnd, bumps=2, bias=-.4)
+    tuft(cv, 100, B - 3, rnd, 5, 7); tuft(cv, 180, B - 2, rnd, 4, 6); sprig(cv, 140, B - 3, rnd, 1, 12)
+    lump(cv, 86, B - 4, 8, 5, ST, rnd, .12); cloud_lump(cv, 85, B - 8, 7, 2, rnd, bumps=1, bias=-.7)
+    for x, y in ((72, B - 4), (110, B - 6), (156, B - 3), (190, B - 5)): fprint(cv, x, y, 1 if x % 2 else 0, 1 if x % 2 else -1)
+    for k in range(10): glint(cv, 16 + k * 28, B - 7 + (k * 5) % 6, 0)
 
 
 # ------------------------------------------------------------------ 316
