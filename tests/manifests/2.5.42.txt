@@ -9028,7 +9028,7 @@ abf5955a8863da8847f4646c7c29ed55e0abded2  includes/adventure.php
 87787cfe689c016d5cd71c70ce70f2cf964e03e9  includes/animals140.php
 412f3c8897959f508154cd42dc5b22ed7bd1a13b  includes/arrange_view.php
 0fa370c08e0a6e66183d20c2767d4d6feb2106c3  includes/art_upload.php
-ffe5a4e9cbd428fd4dc89ffa04ac5833045b3796  includes/bootstrap.php
+2f6982071398ce17ab0ea600f07891c4bee08816  includes/bootstrap.php
 bbac817fc82c639f9044f000b406d1b4a6afdf6c  includes/breeding110.php
 88577080e8893717f6a3e3b1b9407cde6b4bc670  includes/calling_quests.php
 ebec686c7270cb4e38d7d44e2ec21d216c029da9  includes/calling_view.php
@@ -9267,7 +9267,7 @@ ac6c7937eb940f68a7ec457616732a25a391ce54  includes/trek_oldcamp.php
 abc26d37b0ad73eaf63208d3e16306e9af794671  includes/trek_scene.php
 db7f55f68c398a056a09379e4b4582391db40c76  includes/trek_stage.php
 ef431b9a8182ac6ba5b23e20e70af68dcaa71763  includes/trek_textpass.php
-55a994ed7ec9d81f1158859111a281407912ee4d  includes/update_news.php
+5cf597f6b54de313f8e17291f3eb33908c7a07d7  includes/update_news.php
 ffb1317d8e27c559248c535edc491f31fa06e4a7  includes/updater.php
 3242d42e92eddcfc5424f4df0e43eccbfb25a27c  includes/upgrade100.php
 f5e3d0e119e030ea4a5b4ddb41876d4912077817  includes/upgrade110.php

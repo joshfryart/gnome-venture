@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.5.41
+## 2.5.42
 - **Fix: Adventure page crash**: `adventure_stage_html()` always returned the fight backdrop and passed a null key to `scene_path()`, so /adventure.php threw a TypeError. The fight backdrop is now used only for the encounter popover. Needs 2.5.40.
 
 ## 2.5.40

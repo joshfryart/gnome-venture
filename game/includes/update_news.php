@@ -656,7 +656,7 @@ function post_update_news(string $from): void
         "On a rest stop picture, tap [b]Villagers[/b] and the folk standing under the picture are highlighted and brought into view."],
     '2.5.40' => ['🚶 Update 2.5.40: your gnome really walks',
         "[list][*]On the Trail your gnome now faces the way it walks and steps as it goes.\n[*][b]Homes[/b] on a picture opens a popover with your neighbours.\n[*]The list of places says what each spot is for (Shop, Talk, Rest...).[/list]"],
-    '2.5.41' => ['🛠️ Update 2.5.41: Adventure page fixed',
+    '2.5.42' => ['🛠️ Update 2.5.42: Adventure page fixed',
         "The Adventure page no longer errors out when you open it."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
