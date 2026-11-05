@@ -531,7 +531,7 @@ function S.songlines()
   dots(54, 80, 40, 40, 1); dots(430, 90, 36, 44, 2); dots(60, 150, 30, 14, 3); dots(420, 156, 30, 14, 4)
   for _, h in ipairs{ { 100, 120 }, { 380, 130 } } do   -- hand prints
     local m = c:rect(h[1], h[2], h[1] + 7, h[2] + 8); if rock:has(h[1], h[2]) and rock:has(h[1] + 7, h[2] + 8) then
-      c:fillMask(m, "#fff0c0"); for i = 0, 3 do c:fillMask(c:rect(h[1] + i * 2, h[2] - 4 + (i == 1 or i == 2 and 1 or 0) * -1, h[1] + i * 2, h[2] - 1), "#fff0c0") end end
+      c:fillMask(m, "#fff0c0"); for i = 0, 3 do c:fillMask(c:rect(h[1] + i * 2, h[2] - 4 + ((i == 1 or i == 2) and 0 or 1), h[1] + i * 2, h[2] - 1), "#fff0c0") end end
   end
   -- spinifex tufts
   for _, p in ipairs{ { 40, 232 }, { 440, 226 }, { 300, 244 }, { 180, 196 } } do
