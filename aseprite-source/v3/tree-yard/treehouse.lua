@@ -9,15 +9,104 @@ local S = dofile(SRC .. "/v3/tree-yard/common.lua").setup(c)
 local floor, max, min, sin = math.floor, math.max, math.min, math.sin
 local TIMB, OAK, CREAM, ROSE, GREEN, LEAF, BARN, GOLD, STONE, TEAL, VIOLET, PINK, IRON =
   S.TIMB, S.OAK, S.CREAM, S.ROSE, S.GREEN, S.LEAF, S.BARN, S.GOLD, S.STONE, S.TEAL, S.VIOLET, S.PINK, S.IRON
+local DIRT = S.DIRT
 local rect, rr, poly, obj, tex, hash = S.rect, S.rr, S.poly, S.obj, S.tex, S.hash
+
+---------------------------------------------------------------- polish guard: pal perches and the compass corner are a contract.
+-- While polish() runs, c:put ignores the 20x12 px above every perch + its strip (x+-10, y-12..y+4) and the compass corner.
+local PAL = {{60,60},{120,40},{180,58},{240,36},{300,58},{360,40},{420,62},{40,118},{96,100},{160,104},{220,96},{280,100},{340,98},{400,104},{450,120},{50,176},{110,170},{170,178},{230,172},{290,176},{350,170},{410,178},{70,236},{350,246},{70,202},{96,206}}
+local PR, GUARD = {}, false
+for _, p in ipairs(PAL) do for y = p[2] - 12, p[2] + 4 do for x = p[1] - 10, p[1] + 10 do PR[y * W + x] = true end end end
+for y = 218, H - 1 do for x = 366, W - 1 do PR[y * W + x] = true end end
+do
+  local rawput = getmetatable(c).__index.put
+  c.put = function(self, x, y, hex, o)
+    if GUARD and (x < 0 or x >= W or PR[y * W + x]) then return end
+    return rawput(self, x, y, hex, o)
+  end
+end
+local function polish(f) GUARD = true; f(); GUARD = false end
+local function P(x, y, col) c:put(x, y, col) end
+local function R(x0, y0, x1, y1, col) for y = y0, y1 do for x = x0, x1 do c:put(x, y, col) end end end
+local function inkrim(m) c:rim(m, "#2b1c26") end
+local GSET = {}
+for _, r in ipairs{GREEN, LEAF} do for _, h in ipairs(r) do GSET[h] = true end end
+local function isGreen(h) return h and GSET[h] or false end
 
 ---------------------------------------------------------------- sky, hills, meadow
 c:stripes(0, 236, {"#7fb8e4", "#98c8ec", "#b0d8f2", "#c8e6f6", "#dcf0f8"}, {2, 2, 2, 2, 3})
 c:cloud(36, 70, 52, "#f8f0e0", "#d6e6f0"); c:cloud(380, 52, 44, "#f8f0e0", "#d6e6f0"); c:cloud(250, 40, 38, "#f8f0e0", "#d6e6f0")
-c:terrain(function(x) return 186 + 14 * sin(x / 52) + 7 * sin(x / 19 + 1) end, "#7e9cc4", 240)
-c:terrain(function(x) return 206 + 9 * sin(x / 41 + 2) + 5 * sin(x / 13) end, "#5f9a78", 244)
-c:terrain(function(x) return 228 + 4 * sin(x / 30) end, GREEN[4], 269)
+local function f1(x) return 186 + 14 * sin(x / 52) + 7 * sin(x / 19 + 1) end
+local function f2(x) return 206 + 9 * sin(x / 41 + 2) + 5 * sin(x / 13) end
+local function f3(x) return 228 + 4 * sin(x / 30) end
+c:terrain(f1, "#7e9cc4", 240)
+polish(function()   -- far hill: pale ridge, hazy dither under it, a thin tree line (far = lighter and cooler)
+  for x = 0, W - 1 do
+    local y0 = floor(f1(x) + .5)
+    P(x, y0, "#a4bede")
+    for d = 1, 3 do if (x + d) % 2 == 0 and (d < 3 or x % 4 == 0) then P(x, y0 + d, "#8eaace") end end
+    if hash(x, 3, 31) > .93 then for k = 1, 5 do P(x + k, y0 + 6 + (k % 2), "#8eaace") end end
+  end
+  for cx = 3, W, 9 do
+    local y0 = floor(f1(cx) + .5) - 1
+    local rx, ry = 3 + floor(hash(cx, 1, 33) * 3), 2 + floor(hash(cx, 2, 33) * 2)
+    local m = c:ellipse(cx, y0, rx, ry); c:fillMask(m, "#7898c0"); c:fillMask(rect(cx - rx, y0 - ry, cx - 1, y0 - ry):clip(m), "#8cacd0")
+    c:fillMask(c:rect(cx + 1, y0 + 1, cx + rx, y0 + ry):clip(m), "#6c8cb8")
+  end
+end)
+c:terrain(f2, "#5f9a78", 244)
+polish(function()   -- near hill: lit ridge, mown furrows, hedgerows and a few pale fields
+  for x = 0, W - 1 do
+    local y0 = floor(f2(x) + .5)
+    P(x, y0, "#86be9a")
+    for d = 1, 3 do if (x + d) % 2 == 0 and (d < 3 or x % 4 == 0) then P(x, y0 + d, "#6eaa86") end end
+    if (x + floor(y0 / 2)) % 7 == 0 then for d = 5, 18, 2 do P(x + floor(d / 4), y0 + d, "#6eaa86") end end
+  end
+  for _, b in ipairs{ {26, 212, 14, 4}, {112, 216, 18, 4}, {204, 211, 12, 3}, {330, 214, 16, 4}, {392, 206, 20, 5}, {452, 212, 14, 4} } do
+    local m = c:ellipse(b[1], b[2], b[3], b[4]); c:fillMask(m, "#4c8668")
+    c:fillMask(c:rect(b[1] - b[3], b[2] - b[4], b[1] + b[3], b[2] - b[4] + 1):clip(m), "#5f9a78")
+    tex(m, function(x, y) if hash(x, y, 34) > .86 then return "#3c7458" end end)
+  end
+  for _, b in ipairs{ {70, 224, 24}, {252, 222, 18}, {420, 224, 22} } do
+    for k = 0, b[3] do for r = 0, 3 do if (k + r) % 2 == 0 then P(b[1] + k - r, b[2] + r, "#7ab492") end end end
+  end
+end)
+c:terrain(f3, GREEN[4], 269)
 tex(rect(0, 232, 479, 269), function(x, y) if hash(x, y, 4) > .955 then return GREEN[5] elseif hash(x, y, 9) > .975 then return GREEN[3] end end)
+polish(function()   -- ground variety: lit ridge, mown bands, dark clover, dirt scuffs, pebbles, tufts, clover flowers
+  for x = 0, W - 1 do
+    local y0 = floor(f3(x) + .5)
+    P(x, y0, GREEN[5])
+    if x % 2 == 0 then P(x, y0 + 1, GREEN[5]) end
+    if x % 2 == 1 then P(x, y0 + 2, GREEN[3]) end
+  end
+  for y = 234, 268 do for x = 0, W - 1 do
+    local band = floor((y - 234) / 6)
+    if (band % 2 == 1) and ((x + y) % 2 == 0) and hash(x, y, 40) > .3 then P(x, y, GREEN[3]) end
+    if (band % 2 == 0) and ((x + y) % 3 == 0) and hash(x, y, 41) > .6 then P(x, y, GREEN[5]) end
+  end end
+  for _, b in ipairs{ {24, 246, 14, 3}, {138, 260, 12, 3}, {316, 262, 14, 3}, {352, 240, 10, 2} } do   -- bare dirt scuffs
+    local m = c:ellipse(b[1], b[2], b[3], b[4]); c:fillMask(m, DIRT[3])
+    tex(m, function(x, y) if y < b[2] - 1 then return DIRT[4] elseif y > b[2] + 1 then return DIRT[2] elseif hash(x, y, 42) > .8 then return DIRT[5] end end)
+    c:fillMask(m:edge():clip(c:rect(b[1] - b[3], b[2], b[1] + b[3], b[2] + b[4])), DIRT[2])
+  end
+  for i = 0, 40 do   -- pebbles
+    local x, y = 4 + floor(hash(i, 1, 43) * 470), 236 + floor(hash(i, 2, 43) * 30)
+    c:fillMask(rect(x, y, x + 1, y), STONE[5]); c:fillMask(rect(x, y + 1, x + 1, y + 1), STONE[3])
+  end
+  for i = 0, 70 do   -- grass tufts: three blades, three kinds
+    local x, y = 2 + floor(hash(i, 3, 44) * 474), 234 + floor(hash(i, 4, 44) * 33)
+    local k = i % 3
+    P(x, y, GREEN[2]); P(x - 1, y - 1, k == 0 and GREEN[5] or GREEN[4]); P(x + 1, y - 2, GREEN[5]); P(x, y - 2, GREEN[4])
+    if k == 1 then P(x + 2, y - 1, LEAF[5]) end
+    if k == 2 then P(x - 2, y - 2, LEAF[4]); P(x - 1, y - 3, LEAF[5]) end
+  end
+  for i = 0, 26 do   -- clover and daisies, white-cream not pure white
+    local x, y = 4 + floor(hash(i, 5, 45) * 470), 238 + floor(hash(i, 6, 45) * 28)
+    if i % 2 == 0 then P(x, y, "#f8eacc"); P(x - 1, y, "#fff4d6"); P(x + 1, y, "#fff4d6"); P(x, y - 1, "#fff4d6"); P(x, y + 1, "#fff4d6"); P(x, y, "#f5b82e")
+    else P(x, y, "#f5809f"); P(x + 1, y, "#cc5c7e"); P(x, y - 1, GREEN[2]) end
+  end
+end)
 
 ---------------------------------------------------------------- canopy (behind everything)
 local function blob(cx, cy, rx, ry, ramp)
@@ -34,6 +123,32 @@ for _, b in ipairs{ {40, 74, 60, 50}, {120, 44, 66, 38}, {210, 36, 60, 34}, {300
   blob(b[1], b[2], b[3], b[4], GREEN)
 end
 for _, b in ipairs{ {80, 50, 38, 26}, {170, 28, 36, 20}, {262, 24, 34, 18}, {350, 30, 38, 20}, {430, 52, 34, 24}, {250, 64, 30, 18} } do blob(b[1], b[2], b[3], b[4], LEAF) end
+polish(function()   -- leaf clusters in 3+ tones, each leaf one step lighter on top / darker under, keeping the blob's own light
+  local pos = {}
+  for _, r in ipairs{GREEN, LEAF} do for i, h in ipairs(r) do pos[h] = { r, i } end end
+  for i = 1, 5200 do
+    local x, y = floor(hash(i, 1, 40) * 478), floor(hash(i, 2, 40) * 168)
+    local u = pos[c:get(x + 2, y + 1) or ""]
+    local kind = floor(hash(i, 9, 40) * 3)
+    local okp = u ~= nil
+    if okp then for dy = 0, 2 do for dx = 0, 4 do if not isGreen(c:get(x + dx, y + dy)) then okp = false end end end end
+    if okp then
+      local r, k = u[1], u[2] + (hash(i, 3, 40) > .8 and 1 or hash(i, 4, 40) > .85 and -1 or 0)
+      local hi, mid, lo = r[min(6, max(1, k + 1))], r[min(6, max(1, k))], r[min(6, max(1, k - 1))]
+      local flip = hash(i, 5, 40) > .5
+      if kind == 0 then
+        for dx = 1, 3 do P(x + dx, y, hi) end
+        for dx = 0, 4 do P(x + dx, y + 1, mid) end
+        for dx = 1, 3 do P(x + dx, y + 2, lo) end
+        P(flip and x or x + 4, y + 1, lo)
+      elseif kind == 1 then   -- diagonal leaf
+        for t = 0, 3 do P(flip and x + 3 - t or x + t, y + (t > 1 and 1 or 0), mid); P(flip and x + 4 - t or x + t + 1, y + (t > 1 and 1 or 0), t < 2 and hi or lo) end
+      else                    -- small leaf pair
+        P(x, y, hi); P(x + 1, y, hi); P(x + 1, y + 1, lo); P(x + 3, y + 1, hi); P(x + 4, y + 1, mid); P(x + 3, y + 2, lo); P(x + 4, y + 2, lo)
+      end
+    end
+  end
+end)
 
 ---------------------------------------------------------------- trunk, roots, limbs
 local trunk = poly{ {196, 74}, {284, 74}, {292, 140}, {300, 214}, {330, 244}, {352, 269}, {128, 269}, {150, 244}, {182, 214}, {188, 140} }
@@ -45,6 +160,86 @@ tex(trunk, function(x, y)
   if (k % 4) == 0 then i = i - 1 end
   if hash(x, floor(y / 3), 8) > .94 then i = i - 1 end
   return TIMB[max(1, min(6, i))]
+end)
+polish(function()   -- bark: plates, cracks, knots, moss on the north (left) side, roots with moss
+  local function edgeL(y) for x = 100, 300 do if trunk:has(x, y) then return x end end end
+  local function edgeR(y) for x = 400, 100, -1 do if trunk:has(x, y) then return x end end end
+  for i = 0, 130 do   -- raised bark plates: lit crown, shadow lip
+    local x, y = 150 + floor(hash(i, 1, 50) * 200), 78 + floor(hash(i, 2, 50) * 190)
+    local w = 4 + floor(hash(i, 3, 50) * 5)
+    local okp = true
+    for k = 0, w + 1 do if not trunk:has(x + k, y) or not trunk:has(x + k, y + 2) then okp = false end end
+    if okp then
+      for k = 0, w - 1 do P(x + k, y, (k < 2 and (x < 230)) and TIMB[6] or TIMB[5]) end
+      for k = 1, w do P(x + k, y + 1, TIMB[2]) end
+      if hash(i, 4, 50) > .5 then P(x + w, y, TIMB[3]) end
+    end
+  end
+  for i = 0, 36 do   -- cracks, jittering down; the right wall of a groove catches the light
+    local x, y = 192 + floor(hash(i, 1, 51) * 108), 80 + floor(hash(i, 2, 51) * 180)
+    local len, cx = 8 + floor(hash(i, 3, 51) * 22), x
+    for k = 0, len - 1 do
+      if trunk:has(cx, y + k) and trunk:has(cx + 1, y + k) then
+        P(cx, y + k, TIMB[1]); P(cx + 1, y + k, k % 3 == 2 and TIMB[4] or TIMB[5])
+        if k > 3 and k < len - 3 and hash(k, i, 53) > .8 then P(cx - 1, y + k, TIMB[2]) end
+      end
+      if hash(k, i, 52) > .62 then cx = cx + (hash(k, i, 54) > .5 and 1 or -1) end
+    end
+  end
+  local function knot(cx, cy)
+    local m = c:ellipse(cx, cy, 3, 4)
+    for ring = 1, 2 do c:rim(c:ellipse(cx, cy, 3 + ring, 4 + ring):cut(c:ellipse(cx, cy, 2 + ring, 3 + ring)), ring == 1 and TIMB[2] or TIMB[3]) end
+    c:rim(m, TIMB[1]); c:fillMask(m, TIMB[2]); c:fillMask(c:ellipse(cx + 1, cy + 1, 1, 2), TIMB[1])
+    P(cx - 2, cy - 2, TIMB[5]); P(cx - 1, cy - 3, TIMB[5]); P(cx - 2, cy - 1, TIMB[4])
+  end
+  for _, k in ipairs{ {254, 158}, {222, 140}, {248, 194}, {166, 238}, {316, 232}, {198, 100}, {282, 150} } do knot(k[1], k[2]) end
+  for y = 76, 262 do   -- moss, north side: thick on the left rim, thin lichen on the right
+    local ex = edgeL(y)
+    if ex then
+      local n = sin(y / 13 + 1) + sin(y / 5.3) + (hash(y, 1, 55) - .5)
+      if n > -.2 then
+        local w = floor(3 + n * 2.5)
+        for dx = 0, w do
+          local tone = (dx == 0 and y % 2 == 0) and GREEN[2] or dx <= w - 2 and GREEN[3] or (hash(dx, y, 56) > .5 and GREEN[4] or TIMB[3])
+          if dx == 1 and hash(y, 2, 56) > .6 then tone = LEAF[3] end
+          if dx <= 1 and sin(y / 7) > .3 then tone = GREEN[4] end
+          P(ex + dx, y, tone)
+        end
+      end
+    end
+    local er = edgeR(y)
+    if er and y > 150 and hash(y, 7, 57) > .86 then P(er - 1, y, GREEN[3]); P(er - 2, y, LEAF[3]) end
+  end
+  local function root(p0, p1, p2, w0, w1)   -- curved root: bezier of round stamps, lit on top, mossy
+    local m = HP.mask()
+    for i = 0, 40 do
+      local t = i / 40
+      local x = (1 - t)^2 * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1]
+      local y = (1 - t)^2 * p0[2] + 2 * (1 - t) * t * p1[2] + t * t * p2[2]
+      local r = (w0 + (w1 - w0) * t) / 2
+      m:add(c:ellipse(floor(x + .5), floor(y + .5), r, r * .9))
+    end
+    c:rim(m, TIMB[1])
+    tex(m, function(x, y)
+      if not m:has(x, y - 1) or not m:has(x - 1, y) and not m:has(x, y - 2) then return TIMB[5] end
+      if not m:has(x, y + 2) then return TIMB[2] end
+      if not m:has(x, y + 1) then return TIMB[3] end
+      if not m:has(x + 1, y) then return TIMB[2] end
+      return (hash(floor(x / 2), floor(y / 3), 58) > .5) and TIMB[4] or TIMB[3]
+    end)
+    m:each(function(x, y)
+      if not m:has(x, y - 1) then
+        local h = hash(x, y, 59)
+        if h > .3 then P(x, y, GREEN[3]); if h > .55 then P(x, y + 1, GREEN[2]) end if h > .8 then P(x, y - 1, GREEN[4]); P(x + 1, y, LEAF[3]) end end
+      end
+    end)
+    return m
+  end
+  root({166, 234}, {136, 244}, {120, 268}, 10, 3)
+  root({150, 252}, {144, 264}, {132, 269}, 6, 2)
+  root({314, 236}, {338, 244}, {336, 262}, 9, 3)
+  root({182, 244}, {170, 258}, {166, 269}, 7, 3)
+  root({320, 252}, {324, 262}, {312, 269}, 7, 3)
 end)
 -- limbs to the side rooms
 local function limb(pts, th)
