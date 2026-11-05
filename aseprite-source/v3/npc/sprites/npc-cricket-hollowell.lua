@@ -4,6 +4,7 @@
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HP = dofile(DIR .. "/../../lib/hp.lua")
 local P = HP.P
+local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or (DIR .. "/")
 local function R2(v) return math.floor(v + 0.5) end
 local function form(c, m, r, o)
@@ -92,33 +93,13 @@ local function frame(p)
   local body = c:ellipse(32, 74 + b, 14, 11)
   body:add(spikes(c, 32, 74 + b, 13, 10, 150, 215, 20, 4, 9)) body:add(spikes(c, 32, 74 + b, 13, 10, -35, 30, 20, 4, 9))
   form(c, body, SPN, { frac = 0.3, off = 2 })
-  quills(c, body, SPN, 32, 74 + b, 13, 10, 150, 215, 20, 4) quills(c, body, SPN, 32, 74 + b, 13, 10, -35, 30, 20, 4)
+  HH.texture(c, body, 32, 72 + b, 14, 11, SPN)
   local belly = c:ellipse(32, 77 + b, 9, 9):clip(c:ellipse(32, 74 + b, 14, 11))
   form(c, belly, FACE, { frac = 0.3, off = 2, pop = { { 26, 72 + b }, { 27, 71 + b } } })
   for _, x in ipairs({ 19, 45 }) do form(c, c:ellipse(x, 74 + b, 2.5, 2.5), PAW, { off = 1, frac = x > 30 and 0.5 or 0.3 }) end
-  -- head: big quill dome
-  local head = c:ellipse(32, 44 + b, 17, 14)
-  head:add(spikes(c, 32, 43 + b, 16, 13, 160, 380, 20, 6, 9))
-  form(c, head, SPN, { frac = 0.32, off = 2 })
-  quills(c, head, SPN, 32, 43 + b, 16, 13, 160, 380, 20, 6)
-  -- ears
-  for _, x in ipairs({ 17, 47 }) do
-    local m = c:ellipse(x, 47 + b, 2.5, 3) form(c, m, PAW, { off = 1, frac = 0.4 })
-    c:put(x, 47 + b, PAW.shade) c:put(x, 48 + b, PAW.shade)
-  end
-  -- face mask with quill drips at the hairline
-  local face = c:ellipse(32, 50 + b, 12.5, 8.5)
-  for _, x0 in ipairs({ 21, 26, 31, 36, 41 }) do face:cut(c:poly{ { x0, 41 + b }, { x0 + 4, 41 + b }, { x0 + 2, 44 + b } }) end
-  form(c, face, FACE, { frac = 0.28, off = 2, pop = { { 23, 46 + b }, { 22, 47 + b } } })
-  -- snout and nose
-  local sn = c:ellipse(32.5, 54 + b, 4.5, 3)
-  form(c, sn, FACE, { off = 1, frac = 0.35, inner = false, pop = { { 30, 52 + b }, { 31, 52 + b } } })
-  under(c, sn, FACE.shade)
-  c:fillMask(c:ellipse(32.5, 56 + b, 2, 1.2), SPN.deep) c:put(31, 55 + b, FACE.hi)
-  eye4(c, 24, 46 + b, p.blink) eye4(c, 37, 46 + b, p.blink)
-  c:cheek(22, 52 + b) c:cheek(42, 52 + b)
+  HH.head(c, { cx = 32, cy = 47 + b, s = 1, SP = SPN, FACE = FACE, blink = p.blink })
   -- apple skewered on the quills (upper right)
-  local ay = 27 + b + (p.ad or 0)
+  local ay = 35 + b + (p.ad or 0)
   local ap = c:ellipse(45, ay, 4, 3.5)
   form(c, ap, APL, { off = 1, frac = 0.35, pop = { { 43, ay - 2 }, { 42, ay - 1 } } })
   under(c, ap, APL.deep)

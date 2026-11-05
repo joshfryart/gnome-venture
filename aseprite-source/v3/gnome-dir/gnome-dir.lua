@@ -58,6 +58,18 @@ local function eye(c, x, y)
   for _, q in ipairs({ { 0, 1 }, { 3, 1 }, { 0, 2 }, { 3, 2 }, { 1, 3 }, { 2, 3 } }) do c:put(x + q[1], y + q[2], P.cream) end
   c:put(x + 1, y + 1, P.cream) c:put(x + 2, y + 1, P.ink) c:put(x + 1, y + 2, P.ink) c:put(x + 2, y + 2, P.ink)
 end
+-- eye ring (skin layer, hi marker): a 1px lit rim hugging each eye so lid + pupil stay readable when skin
+-- is tinted dark (on light skin hi ~ base, so it is near invisible). Only repaints skin base/shade pixels.
+local function eyering(c, x, y)
+  local sk = { [R.skin.base:lower()] = true, [R.skin.shade:lower()] = true }
+  local cur = CUR
+  CUR = "skin"
+  for _, q in ipairs({ { 0, 0 }, { 3, 0 }, { -1, 1 }, { 4, 1 }, { -1, 2 }, { 4, 2 }, { 0, 3 }, { 3, 3 }, { 1, 4 }, { 2, 4 }, { 1, -1 }, { 2, -1 } }) do
+    local px, py = x + q[1], y + q[2]
+    if c.lay[py * c.w + px] == "skin" and sk[c:get(px, py)] then c:put(px, py, R.skin.hi, R.skin) end
+  end
+  CUR = cur
+end
 local function clog(c, x, dy, frac)
   local m = c:ellipse(x, 67.5 + dy, 4, 2.5)
   form(c, m, R.boots, { frac = frac or 0.35, off = 1, pop = { { math.floor(x) - 2, 66 + dy } } })
@@ -160,6 +172,7 @@ local function front(p)
   L("skin")
   local nose = c:ellipse(32.5, 42.5 + b, 2.5, 2.5)
   form(c, nose, R.skin, { off = 1, frac = 0.35, inner = false }) under(c, nose, R.skin.shade)
+  eyering(c, 25, 37 + b) eyering(c, 36, 37 + b)
   L("face") c:put(31, 41 + b, P.cream)
   eye(c, 25, 37 + b) eye(c, 36, 37 + b)
   c:cheek(23, 42 + b) c:cheek(41, 42 + b)
@@ -279,6 +292,7 @@ local function side(p)
   L("skin")
   local nose = c:ellipse(43.5, 42.5 + b, 2.5, 2.5)
   form(c, nose, R.skin, { off = 1, frac = 0.35, inner = false }) under(c, nose, R.skin.shade)
+  eyering(c, 36, 37 + b)
   L("face") c:put(42, 41 + b, P.cream)
   eye(c, 36, 37 + b)
   c:cheek(37, 42 + b)

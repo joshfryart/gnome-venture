@@ -3,6 +3,7 @@
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HP = dofile(DIR .. "/../../lib/hp.lua")
 local P = HP.P
+local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or (DIR .. "/")
 local INK = "#2b1c26"
 local function R(v) return math.floor(v + 0.5) end
@@ -53,25 +54,7 @@ c:part(c:rrect(20, 64, 59, 71, 3), SCF, { band = 2, pop = { x = 23, y = 65 } })
 for x = 23, 56, 3 do c:px(x, 68, SCF.shade) end
 c:part(c:poly{ { 25, 68 }, { 33, 68 }, { 32, 90 }, { 24, 88 } }, SCF, { band = 1, nopop = true })
 for i = 0, 8, 2 do c:px(24 + i, 89, SCF.shade) end
--- head
-local hx, hy = 39.5, 44
-local mass = c:ellipse(hx, hy, 19, 18)
-local ht = spikes(c, mass, hx, hy, 19, 18, 160, 380, 14, 5, 7)
-c:part(mass, SP, { band = 3, pop = { x = 26, y = 33 } })
-for _, s in ipairs{ {27,36,24,31},{33,33,32,28},{40,32,40,27},{47,33,48,28},{53,37,56,32},{22,44,19,41},{57,44,60,41} } do
-  c:line({ { s[1], s[2] }, { s[3], s[4] } }, 1):clip(mass):each(function(x, y) c:px(x, y, SP.hi) end)
-end
-tipsPaint(c, mass, ht)
-for _, x in ipairs{ 22, 57 } do c:part(c:ellipse(x, 41, 3.5, 3.5), FC, { band = 1, nopop = true }) c:fillMask(c:ellipse(x, 41.5, 1.5, 1.5), "#d9909e") end
-local face = c:ellipse(39.5, 52, 15.5, 12)
-c:part(face, FC, { band = 2, pop = { x = 29, y = 44 } })
-c:fillMask(c:poly{ { 32, 40 }, { 47, 40 }, { 39.5, 46 } }:clip(face), SP.base)
-c:eyeLocked(29, 46) c:eyeLocked(46, 46)
-local sn = c:ellipse(39.5, 58.5, 6.5, 5)
-c:part(sn, FC, { band = 1, pop = { x = 36, y = 56 } })
-c:fillMask(c:ellipse(39.5, 55.5, 3, 2), NO) c:px(37, 54, NOG) c:px(38, 54, NOG)
-for _, q in ipairs{ {39,58},{40,58},{39,59},{40,59},{35,61},{36,62},{37,62},{38,62},{39,61},{40,61},{41,62},{42,62},{43,62},{44,61} } do c:px(q[1], q[2], FC.deep) end
-for _, x in ipairs{ 25, 52 } do c:fillMask(c:rect(x, 56, x + 2, 57), "#eaa0a8") c:px(x, 56, "#f6c4c4") end
+HH.head(c, { cx = 39.5, cy = 46, s = 1.4, SP = SP, FACE = FC })
 -- tam
 local hat = c:ellipse(35, 25, 15, 4.5) hat:add(c:ellipse(35, 22, 12, 4.5))
 c:part(hat, SM, { band = 2, pop = { x = 26, y = 20 } })

@@ -4,6 +4,7 @@
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HP = dofile(DIR .. "/../../lib/hp.lua")
 local P = HP.P
+local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or (DIR .. "/")
 local NAME = "npc-juniper-kettleby"
 local SPINE = { hi = "#b98a5e", base = "#7a4f36", shade = "#57364a", deep = "#3a2638" }
@@ -44,31 +45,7 @@ c:part(tun, P.gold, { band = 3, pop = { x = 18, y = 88 } })
 c:part(HP.poly{ { 29, 79 }, { 50, 79 }, { 39.5, 91 } }, KER, { band = 2, nopop = true })
 c:part(c:ellipse(39.5, 80, 3, 2), KER, { band = 1, sep = true })
 for _, y in ipairs{ 93, 97 } do c:paint({ "hb", "bd" }, 39, y, { h = "gold.hi", b = "wood.base", d = "wood.deep" }) end
--- head: spine crown
-local dome = c:ellipse(39.5, 46, 20, 18)
-spikes(dome, 39.5, 46, 20, 18, 150, 390, 15, 5, 3)
-c:part(dome, SPINE, { band = 3, pop = { x = 27, y = 33 } })
-for i = 0, 13 do
-  local a = math.rad(170 + i * 15)
-  for f = 0.55, 1.15, 0.1 do
-    local x, y = math.floor(39.5 + math.cos(a) * 20 * f + .5), math.floor(46 + math.sin(a) * 18 * f + .5)
-    local v = c:get(x, y)
-    if v == SPINE.base then keep(x, y, SPINE.shade) elseif v == SPINE.shade then keep(x, y, SPINE.deep) end
-  end
-  local x, y = math.floor(39.5 + math.cos(a) * 21 + .5), math.floor(46 + math.sin(a) * 19 + .5)
-  if c:get(x, y) == SPINE.base and i < 7 then keep(x, y, SPINE.hi) end
-end
-for _, x in ipairs{ 19, 60 } do
-  c:part(c:ellipse(x, 43, 3.5, 3.5), FACE, { band = 1, sep = true, nopop = true })
-  c:paint({ "pp", "ps" }, x - 1, 43, { p = "petal.base", s = "petal.shade" })
-end
-local face = c:ellipse(39.5, 53, 14, 12):cut(HP.poly{ { 34, 40 }, { 39.5, 47 }, { 45, 40 } })
-c:part(face, FACE, { band = 2, pop = { x = 29, y = 45 } })
-c:part(c:ellipse(39.5, 58, 5.5, 4), SNOUT, { band = 1, nopop = true })
-c:part(c:ellipse(39.5, 57, 2.5, 1.8), NOSE, { band = 1, pop = { x = 38, y = 56 } })
-c:eyeLocked(29, 47) c:eyeLocked(46, 47)
-c:paint({ "i....i", ".iiii." }, 37, 63, { i = "ink" })
-c:paint({ "PPP" }, 26, 56, { P = "petal.base" }) c:paint({ "PPP" }, 51, 56, { P = "petal.base" })
+HH.head(c, { cx = 39.5, cy = 46, s = 1.4, SP = SPINE, FACE = FACE })
 -- copper kettle held up at the right
 local ring = c:ellipse(62, 79, 7, 6):cut(c:ellipse(62, 79, 5, 4)):clip(c:rect(0, 0, 79, 80))
 c:part(ring, COP, { band = 1, nopop = true })

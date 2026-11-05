@@ -3,6 +3,7 @@
 -- wizard hat bent left with a gold star tip, pink robe; prop/quirk: tiny star wand. idle(4), feet fixed.
 local HP = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hp.lua")
 local P = HP.P
+local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or "./"
 local NAME = "npc-bram"
 local SP = { hi = "#c39a78", base = "#86604e", shade = "#58405a", deep = "#36263e" }
@@ -21,6 +22,7 @@ local function frame(p)
   c:part(c:line({ { 46, 82 + b }, { 49, 65 + b + ws } }, 1), P.wood, NO)
   c:paint({ "..X..", "XXXXX", ".XXX.", ".X.X." }, 47, 61 + b + ws, { X = "gold.base" })
   c:put(48, 62 + b + ws, P.gold.hi) c:put(49, 61 + b + ws, P.gold.hi) c:put(50, 63 + b + ws, P.gold.shade)
+  HH.back(c, 32, 68 + b, 15, 10, SP)
   -- robe (hem fixed at the ground, top breathes)
   local robe = c:poly{ { 24, 68 + b }, { 40, 68 + b }, { 45, 87 }, { 19, 87 } }
   robe:add(c:ellipse(32, 70 + b, 8, 3))
@@ -38,34 +40,7 @@ local function frame(p)
   for _, x in ipairs{ 21, 45 } do local m = c:ellipse(x, 80 + b, 2, 1.5) c:part(m, FACE, NO) under(c, m, FACE.shade) end
   -- feet (fixed)
   for _, x in ipairs{ 26.5, 37.5 } do local m = c:ellipse(x, 88, 3, 1.5) c:part(m, FACE, NO) under(c, m, FACE.deep) end
-  -- quill mass with radiating spikes
-  local cx, cy = 32, 58 + b
-  local sp = c:ellipse(cx, cy, 15, 11.5)
-  for a = 150, 390, 20 do
-    local r1, r0, r2 = math.rad(a - 8), math.rad(a), math.rad(a + 8)
-    sp:add(c:poly{ { cx + math.cos(r1) * 14, cy + math.sin(r1) * 10.5 }, { cx + math.cos(r0) * 19.5, cy + math.sin(r0) * 15 },
-      { cx + math.cos(r2) * 14, cy + math.sin(r2) * 10.5 } })
-  end
-  c:part(sp, SP, { band = 2, inner = false, pop = { x = 19, y = 52 + b } })
-  under(c, sp, SP.deep)
-  for a = 160, 380, 16 do for _, rr in ipairs{ 0.6, 0.85 } do
-    local r = math.rad(a + rr * 20)
-    local x, y = math.floor(cx + math.cos(r) * 15 * rr + .5), math.floor(cy + math.sin(r) * 11.5 * rr + .5)
-    local hex = (a < 250) and SP.hi or SP.shade
-    if sp:has(x, y) then c:put(x, y, hex) end
-    local x2, y2 = math.floor(x + math.cos(r) * 1.4 + .5), math.floor(y + math.sin(r) * 1.4 + .5)
-    if sp:has(x2, y2) then c:put(x2, y2, hex) end
-  end end
-  -- face mask + snout + nose
-  local face = c:ellipse(32, 63 + b, 10, 6.5)
-  c:part(face, FACE, { band = 2, inner = false, pop = { x = 25, y = 58 + b } })
-  local sn = c:ellipse(32, 67 + b, 4, 2.5)
-  c:part(sn, FACE, { band = 1, inner = false, pop = { x = 30, y = 65 + b } })
-  under(c, sn, FACE.shade)
-  c:fillMask(c:rect(31, 68 + b, 33, 69 + b), "#4a3048") c:put(31, 68 + b, P.stone.hi)
-  if p.blink then for _, x in ipairs{ 24, 36 } do for i = 0, 4 do c:put(x + i, 60 + b, P.ink) end end
-  else c:eyeLocked(24, 58 + b) c:eyeLocked(36, 58 + b) end
-  c:cheek(21, 64 + b) c:cheek(42, 64 + b)
+  HH.head(c, { cx = 32, cy = 56 + b, s = 1, SP = SP, FACE = FACE, blink = p.blink })
   -- wizard hat, bent tip with star
   local hb = p.hb or 0
   local cone = c:poly{ { 24, 49 + b }, { 40, 49 + b }, { 36, 32 + b }, { 29, 31 + b } }

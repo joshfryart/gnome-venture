@@ -4,6 +4,7 @@
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HP = dofile(DIR .. "/../../lib/hp.lua")
 local P = HP.P
+local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or (DIR .. "/")
 local NAME = "npc-bramble-mossfoot"
 local SPN = { hi = P.wood.base, base = P.wood.shade, shade = P.wood.deep, deep = "#3a2230" }
@@ -40,36 +41,7 @@ c:part(body, P.moss, { band = 3, pop = { x = 17, y = 87 } })
 for y = 84, 98, 2 do for _, x in ipairs{ 33, 46 } do if body:has(x, y) then c:put(x, y, P.moss.shade) c:put(x + 1, y + 1, P.moss.shade) end end end
 c:part(c:rrect(38, 90, 41, 93, 1), P.gold, { band = 1, pop = { x = 38, y = 90 } })
 -- spine cloak
-local cx, cy = 39.5, 47
-local core = c:ellipse(cx, cy, 18, 19)
-local sk, tips = spikes(cx, cy, 18, 19, 145, 395, 17, 4, 3, 7)
-local sp = core:copy():add(sk)
-c:part(sp, SPN, { band = 3, pop = { x = 27, y = 32 } })
-for i = 0, 21 do
-  local a = math.rad(150 + i * 11.5)
-  local s = c:line({ { R(cx + math.cos(a) * 11), R(cy + math.sin(a) * 12) }, { R(cx + math.cos(a + .1) * 18), R(cy + math.sin(a + .1) * 19) } }, 1):clip(sp)
-  local lit = math.cos(a) < 0.1 and math.sin(a) < 0
-  s:each(function(x, y) c:put(x, y, (lit and i % 2 == 0) and SPN.hi or SPN.deep) end)
-end
-for _, t in ipairs(tips) do for dy = -1, 1 do for dx = -1, 1 do
-  if math.abs(dx) + math.abs(dy) <= 1 and sk:has(t[1] + dx, t[2] + dy) and not core:has(t[1] + dx, t[2] + dy) then c:put(t[1] + dx, t[2] + dy, P.wood.hi) end
-end end end
-for _, e in ipairs{ { 22, 40 }, { 57, 40 } } do
-  c:part(c:ellipse(e[1], e[2], 3, 3), FACE, { band = 1, nopop = true })
-  c:put(e[1], e[2], P.skinA.shade) c:put(e[1], e[2] + 1, P.skinA.shade)
-end
--- face + snout + nose
-local fc = c:ellipse(39.5, 55, 14, 12)
-c:part(fc, FACE, { band = 2, pop = { x = 29, y = 46 } })
-local sn = c:ellipse(39.5, 59.5, 6, 4)
-c:part(sn, FACE, { band = 1, sep = true, pop = { x = 36, y = 56 } })
-under(sn, FACE.deep)
-c:part(c:ellipse(39.5, 58, 3, 2), { hi = P.dusk.shade, base = P.dusk.deep, shade = "#251c42", deep = "#1e1630" }, { band = 1, pop = { x = 38, y = 57 } })
-c:put(37, 57, P.stone.hi)
-c:paint({ "i...i", ".iii." }, 37, 65, { i = "ink" })
-c:eyeLocked(29, 49) c:eyeLocked(46, 49)
-c:paint({ "PPh", "PPP" }, 26, 58, { P = "petal.base", h = "petal.hi" }) c:paint({ "hPP", "PPP" }, 51, 58, { P = "petal.base", h = "petal.hi" })
--- scarf, knot and tail
+HH.head(c, { cx = 39.5, cy = 46, s = 1.4, SP = SPN, FACE = FACE })
 local sc = c:rrect(21, 68, 58, 74, 3)
 c:part(sc, P.ember, { band = 2, pop = { x = 24, y = 69 } })
 c:stitch{ { 24, 71 }, { 55, 71 } }

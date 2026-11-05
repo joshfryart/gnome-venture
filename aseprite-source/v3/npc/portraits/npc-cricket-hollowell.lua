@@ -3,6 +3,7 @@
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HP = dofile(DIR .. "/../../lib/hp.lua")
 local P = HP.P
+local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or (DIR .. "/")
 local function R2(v) return math.floor(v + 0.5) end
 local function form(c, m, r, o)
@@ -70,29 +71,7 @@ quills(c, body, SPN, 39.5, 106, 28, 26, 195, 250, 14, 5) quills(c, body, SPN, 39
 local chest = c:ellipse(39.5, 104, 15, 24):clip(body)
 form(c, chest, FACE, { frac = 0.3, off = 2, pop = { { 30, 86 }, { 31, 84 } } })
 for _, y in ipairs({ 88, 93, 97 }) do onlyOver(c, c:line({ { 35, y }, { 37, y + 1 } }, 1), { [FACE.base] = true }, FACE.shade) end
--- head quill dome
-local head = c:ellipse(39.5, 52, 20, 16)
-head:add(spikes(c, 39.5, 50, 19, 15, 150, 390, 15, 7, 7))
-form(c, head, SPN, { frac = 0.3, off = 2 })
-quills(c, head, SPN, 39.5, 50, 19, 15, 150, 390, 15, 7)
-for _, x in ipairs({ 18, 61 }) do
-  local m = c:ellipse(x, 54, 3, 4) form(c, m, PAW, { off = 1, frac = 0.4 })
-  c:fillMask(c:ellipse(x, 55, 1, 2), PAW.shade)
-end
--- face
-local face = c:ellipse(39.5, 58, 15.5, 11)
-for _, x0 in ipairs({ 25, 31, 37, 43, 49 }) do face:cut(c:poly{ { x0, 46 }, { x0 + 5, 46 }, { x0 + 2.5, 50 } }) end
-form(c, face, FACE, { frac = 0.28, off = 2, pop = { { 27, 52 }, { 26, 53 }, { 26, 54 } } })
-c:eyeLocked(30, 51) c:eyeLocked(45, 51)
--- snout + nose
-local sn = c:ellipse(39.5, 62, 6, 4)
-form(c, sn, FACE, { off = 1, frac = 0.35, inner = false, pop = { { 36, 59 }, { 37, 59 }, { 36, 60 } } })
-under(c, sn, FACE.shade)
-c:fillMask(c:ellipse(39.5, 64, 2.5, 1.8), SPN.deep) c:put(38, 63, FACE.hi) c:put(39, 63, SPN.hi)
--- startled 'o' mouth
-for _, q in ipairs({ { 39, 67 }, { 40, 67 }, { 38, 68 }, { 41, 68 }, { 39, 69 }, { 40, 69 } }) do c:put(q[1], q[2], P.ink) end
-c:put(39, 68, P.petal.shade) c:put(40, 68, P.petal.base)
-for _, x in ipairs({ 26, 50 }) do for dx = 0, 3 do for dy = 0, 1 do c:put(x + dx, 61 + dy, P.petal.base) end end c:put(x, 61, P.petal.hi) end
+HH.head(c, { cx = 39.5, cy = 46, s = 1.4, SP = SPN, FACE = FACE })
 -- apple on the quills
 local ap = c:ellipse(55, 29, 5.5, 5)
 form(c, ap, APL, { off = 1, frac = 0.35, pop = { { 52, 26 }, { 53, 26 }, { 52, 27 } } })

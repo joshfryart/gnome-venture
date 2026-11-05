@@ -2,6 +2,7 @@
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HP = dofile(DIR .. "/../../lib/hp.lua")
 local P = HP.P
+local HH = dofile(DIR .. "/../../lib/hedgehog.lua")
 local out = app.params.out or (DIR .. "/")
 local INK = "#2b1c26"
 local function R4(hi, base, shade, deep) return { hi = hi, base = base, shade = shade, deep = deep } end
@@ -91,7 +92,7 @@ local function frame(p)
   V.behind(c, b, p)
   local bk, bt = spiky(c, 32, 69 + b, 13, 10, 150, 390, 12, 4, 8)
   c:part(bk, SP, { band = 1, nopop = true, inner = false })
-  quills(c, bk, SP, 32, 69 + b, 13, 10, bt)
+  HH.texture(c, bk, 32, 69 + b, 13, 10, SP)
   for _, x in ipairs{ 27, 37 } do
     c:part(c:ellipse(x, 88.5, 3.5, 2), PAW, { band = 1, nopop = true, inner = false })
     c:put(x - 2, 88, PAW.hi)
@@ -101,25 +102,7 @@ local function frame(p)
   if not V.late then V.prop(c, b, p) end
   c:part(c:ellipse(20.5, 74 + b + (V.ly or 0), 2.5, 2.5), PAW, { band = 1, nopop = true, inner = false })
   c:part(c:ellipse(43.5, 74 + b + (V.ry or 0), 2.5, 2.5), PAW, { band = 1, nopop = true, inner = false })
-  -- head: spiny dome seen from above-front
-  local hm, ht = spiky(c, 32, 46 + b, 16, 13, 145, 395, 15, 5, 7)
-  c:part(hm, SP, { band = 2, nopop = true, inner = false })
-  quills(c, hm, SP, 32, 46 + b, 16, 13, ht)
-  for _, x in ipairs{ 21.5, 42.5 } do
-    c:part(c:ellipse(x, 49 + b, 2.5, 2.5), SKIN, { band = 1, nopop = true, inner = false })
-    c:put(math.floor(x) + (x < 32 and 0 or 1), 50 + b, PAW.shade)
-  end
-  local f = c:ellipse(32, 55 + b, 10, 6.5)
-  f:add(c:poly{ { 23, 56 + b }, { 41, 56 + b }, { 35, 63 + b }, { 29, 63 + b } })
-  f:add(c:ellipse(32, 63 + b, 3, 2.5))
-  c:part(f, SKIN, { band = 2, nopop = true, inner = false })
-  fill(c:poly{ { 29, 48 + b }, { 35, 48 + b }, { 32, 51 + b } }, SP.shade, c)
-  for x = 31, 33 do c:put(x, 63 + b, NOSE) end c:put(32, 64 + b, NOSE) c:put(31, 63 + b, NOSEHI)
-  c:put(24, 59 + b, BLUSH) c:put(25, 59 + b, BLUSH) c:put(39, 59 + b, BLUSH) c:put(40, 59 + b, BLUSH)
-  for _, x in ipairs{ 26, 37 } do
-    if p.blink then c:put(x, 56 + b, INK) c:put(x + 1, 56 + b, INK)
-    else c:put(x, 55 + b, P.cream) c:put(x + 1, 55 + b, INK) c:put(x, 56 + b, INK) c:put(x + 1, 56 + b, INK) end
-  end
+  HH.head(c, { cx = 32, cy = 51 + b, s = 1, SP = SP, FACE = SKIN, blink = p.blink })
   V.hat(c, b, p)
   if V.late then V.prop(c, b, p) end
   c:finish{ outline = true }

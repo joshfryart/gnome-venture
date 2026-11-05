@@ -2,6 +2,7 @@
 -- Bramble Thornwick: prickly hedgehog in a tilted blue beret, hugging a basket of blackberries. idle x4.
 local HP = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hp.lua")
 local P = HP.P
+local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or "./"
 local function under(c, m, hex) local l = {} m:each(function(x, y) if not m:has(x, y + 1) then l[#l + 1] = { x, y } end end) for _, q in ipairs(l) do c:put(q[1], q[2], hex) end end
 local function spike(c, m, cx, cy, deg, r0x, r0y, r1x, r1y, w)
@@ -42,33 +43,11 @@ local function frame(p)
   local body = c:ellipse(32, 72 + b, 14, 14)
   for _, d in ipairs{ 150, 165, 180, 195, 210, 330, 345, 0, 15, 30 } do spike(c, body, 32, 72 + b, d, 12, 12, 18, 16, 2.2) end
   c:part(body, QU, { pop = { x = 20, y = 64 + b } })
-  hatch(c, body, { [QU.base] = QU.hi }, function(x, y) return x < 30 and (x + 2 * y) % 5 == 0 end)
-  hatch(c, body, { [QU.base] = QU.shade }, function(x, y) return x >= 30 and (x + 2 * y) % 5 == 0 end)
+  HH.texture(c, body, 32, 70 + b, 14, 13, QU)
   under(c, body, QU.deep)
   local belly = c:ellipse(32, 75 + b, 9, 10)
   c:part(belly, FC, { pop = { x = 27, y = 68 + b } })
-  -- head: quill crown with spikes, face below a peaked hairline
-  local head = c:ellipse(32, 46 + b, 15, 12)
-  for d = 170, 370, 14 do spike(c, head, 32, 46 + b, d, 13, 10, 19, 17, 2.3) end
-  c:part(head, QU, { pop = { x = 22, y = 38 + b } })
-  hatch(c, head, { [QU.base] = QU.hi }, function(x, y) return x < 31 and (x + 2 * y) % 5 == 0 end)
-  hatch(c, head, { [QU.base] = QU.shade }, function(x, y) return x >= 31 and (x + 2 * y) % 5 == 1 end)
-  local face = c:ellipse(32, 50 + b, 12, 8):clip(head)
-  for _, x in ipairs{ 24, 29, 35, 40 } do face:cut(c:poly{ { x - 2, 41 + b }, { x + 2, 41 + b }, { x, 45 + b } }) end
-  c:part(face, FC, { pop = { x = 23, y = 47 + b } })
-  -- round ears poking out of the quills (right one twitches)
-  local e = p.ear or 0
-  for i, x in ipairs{ 18, 46 } do
-    local m = c:ellipse(x, 43 + b + (i == 2 and e or 0), 2.5, 2.5) c:part(m, FC, { nopop = true })
-    c:put(x, 43 + b + (i == 2 and e or 0), P.petal.base)
-  end
-  -- eyes, snout + nose, cheeks
-  if p.blink then for _, x in ipairs{ 24, 36 } do for i = 0, 3 do c:put(x + i, 47 + b, P.ink) end end
-  else eye(c, 24, 45 + b) eye(c, 36, 45 + b) end
-  local sn = c:ellipse(32, 52 + b, 3.5, 2.5) c:part(sn, FC, { pop = { x = 30, y = 50 + b } })
-  c:fillMask(c:rect(31, 53 + b, 33, 54 + b), NOSE.base) c:put(31, 53 + b, NOSE.hi) c:put(33, 54 + b, NOSE.deep)
-  c:put(31, 56 + b, FC.deep) c:put(33, 56 + b, FC.deep) c:put(32, 56 + b, FC.shade)
-  c:cheek(23, 51 + b) c:cheek(40, 51 + b)
+  HH.head(c, { cx = 32, cy = 46 + b, s = 1, SP = QU, FACE = FC, blink = p.blink })
   -- basket of blackberries hugged in front
   local bk = c:rrect(25, 78 + b, 39, 85 + b, 2)
   c:part(bk, "wood", { pop = { x = 26, y = 79 + b } })

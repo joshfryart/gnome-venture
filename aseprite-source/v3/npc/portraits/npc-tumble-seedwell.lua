@@ -4,6 +4,7 @@
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HP = dofile(DIR .. "/../../lib/hp.lua")
 local P = HP.P
+local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or (DIR .. "/")
 local NAME = "npc-tumble-seedwell"
 local SPINE = { hi = "#c9b2f0", base = "#8a6fd0", shade = "#5a459e", deep = "#35295f" }
@@ -64,27 +65,8 @@ c:part(c:ellipse(52, 84, 3.5, 3), FACE, { band = 1 })
 local ruff = c:ellipse(39.5, 73, 13, 3)
 for _, x in ipairs{ 28, 33, 39.5, 46, 51 } do ruff:add(HP.ellipse(x, 75, 2, 2)) end
 c:part(ruff, CR, { band = 1 })
--- quilled head
-local hx, hy = 39.5, 44
-local sp = c:ellipse(hx, hy, 20, 18)
-spikes(sp, hx, hy, 20, 18, 150, 390, 15, 6, 7)
-c:part(sp, SPINE, { band = 3, nopop = true }) quills(sp, hx, hy, 5)
-seed(21, 31) seed(50, 25) seed(14, 47) seed(61, 44)
-for _, ex in ipairs{ 23, 56 } do
-  c:part(c:ellipse(ex, 40, 3.5, 3.5), FACE, { band = 1, nopop = true })
-  c:paint({ "pp", "pp" }, ex - 1, 40, { p = "petal.base" })
-end
-local face = c:ellipse(hx, 53, 15.5, 13)
-c:part(face, FACE, { band = 3, pop = { x = 29, y = 45 } })
-local hl = HP.mask()
-for _, x in ipairs{ 29, 34, 39.5, 45, 50 } do hl:add(c:poly{ { x - 2.5, 39 }, { x + 2.5, 39 }, { x, 45 } }) end
-c:part(hl:clip(face), SPINE, { band = 1, nopop = true, inner = false })
-c:part(c:ellipse(hx, 58.5, 6.5, 4.5), SNOUT, { band = 1, pop = { x = 36, y = 55 } })
-c:part(c:ellipse(hx, 61, 2.5, 1.6), { hi = P.petal.hi, base = NOSE, shade = NOSE, deep = P.ink }, { band = 1, inner = false, pop = { x = 38, y = 60 } })
-for _, q in ipairs{ { 36, 64 }, { 37, 65 }, { 38, 65 }, { 39, 64 }, { 40, 64 }, { 41, 65 }, { 42, 65 }, { 43, 64 } } do c:put(q[1], q[2], P.ink) end
-c:eyeLocked(29, 48) c:eyeLocked(46, 48)
-c:paint({ "PPP", "PPP" }, 24, 56, { P = "petal.base" }) c:paint({ "PPP", "PPP" }, 53, 56, { P = "petal.base" })
-c:put(24, 56, P.petal.hi) c:put(53, 56, P.petal.hi)
+HH.head(c, { cx = 39.5, cy = 46, s = 1.4, SP = SPINE, FACE = FACE })
+seed(25, 32) seed(50, 29) seed(57, 39)
 -- crown sprout
 c:part(c:line({ { 41, 27 }, { 42, 20 }, { 42, 14 } }, 2), LEAF, { band = 1, nopop = true, inner = false })
 c:part(c:ellipse(37, 13, 4, 2), LEAF, { band = 1, pop = { x = 34, y = 12 } })
