@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.5.72
+- **Living stops**: every stop now has a happening of the day (8 kinds, same for everyone there) with a headline strip, matching acts offered first and villager lines that react to it.
+- **Meters and perk**: per player per stop, Repairs, Larder and Cheer fill as you do things and drain 6 a day. A full meter gives 3 days of one more thing to do at that stop. Five new answer acts appear when a meter is low or your standing is high (Stranger, Regular, Local, Pillar).
+- **Calendar**: 8 real-date days (Saturday market, Mend-up Sunday, spring fair, midsummer, harvest week, lantern night, midwinter, carnival) replace the daily happening and double meter gain.
+- **Stories**: 3 multi-day stories (hen, roof, hat), one part a day for Regulars and up; the last part pays.
+- **Notice board** on the Stop tab; meter bars on the Do tab. Admin > Rest stops > Living stops (read-only preview). Upgrade step `living_stops_2572` adds the new acts.
+- **Trail**: the yellow square around your avatar on route walks is gone.
+
 ## 2.5.71
 - **Delve and lair run records**: a new table `landmark_runs` keeps one permanent row per delve or lair run (cleared, ko or left; level, depth, stages, route seed and picked nodes, start and end). `landmark_run_record()` writes it from `save_exp` before the map row is dropped. Test in `tests/delve2.sh`. No page shows it yet.
 - **Every village reads differently**: each generated village shows a blurb plus a new second line (`data/village_quirks.txt`, 90 lines), handed out in a fixed order from `zones.txt` so all 146 are distinct (`tests/village_desc.php`). Stored text unchanged.
