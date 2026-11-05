@@ -26,6 +26,13 @@ function here_schema(string $PK, string $ID, string $END): array
         layout_key VARCHAR(80) NOT NULL PRIMARY KEY,
         json TEXT NOT NULL,
         updated_at DATETIME NOT NULL
+    )$END",
+    // what a gnome last saw of a picture page (the treehouse arrival sparkle: a pal found after seen_at sparkles once)
+    "CREATE TABLE IF NOT EXISTS hub_seen (
+        user_id INT NOT NULL,
+        scene VARCHAR(40) NOT NULL,
+        seen_at DATETIME NOT NULL,
+        PRIMARY KEY (user_id, scene)
     )$END"];
     return [$t, [], [['users', 'start_page', 'VARCHAR(8) NULL']]];   // start_page: NULL = the default, 'here' or 'home'
 }
@@ -81,4 +88,43 @@ function here_ensure_layouts_table(): bool
 function gnav_page_open(string $flag): bool
 {
     return is_admin() || (gnav_on() && setting($flag) === '1');
+}
+
+
+/** When this gnome last saw a picture page ('treehouse'), or null (never, or the table is not there yet). */
+function hub_seen_get(int $uid, string $scene): ?string
+{
+    try {
+        $v = q_val('SELECT seen_at FROM hub_seen WHERE user_id = ? AND scene = ?', [$uid, $scene]);
+        return $v ? (string)$v : null;
+    } catch (Throwable $e) {
+        return null;
+    }
+}
+
+/** Remember that this gnome has now seen a picture page. Makes the table on first use; never fatal. */
+function hub_seen_set(int $uid, string $scene): void
+{
+    static $made = false;
+    try {
+        if (!$made) {
+            $made = true;
+            try { q('SELECT 1 FROM hub_seen LIMIT 1'); } catch (Throwable $e) {
+                $sqlite = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+                [$t] = here_schema('', '', $sqlite ? '' : ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+                foreach ($t as $sql) db()->exec($sql);
+            }
+        }
+        if (q('UPDATE hub_seen SET seen_at = ? WHERE user_id = ? AND scene = ?', [now(), $uid, $scene])->rowCount() < 1) {
+            try { q('INSERT INTO hub_seen (user_id, scene, seen_at) VALUES (?, ?, ?)', [$uid, $scene, now()]); } catch (Throwable $e) {}   // a second tab got there first
+        }
+    } catch (Throwable $e) {
+        error_log('hub_seen_set: ' . $e->getMessage());
+    }
+}
+
+/** Forget a hub_seen row (turns a remembered choice off). */
+function hub_seen_clear(int $uid, string $scene): void
+{
+    try { q('DELETE FROM hub_seen WHERE user_id = ? AND scene = ?', [$uid, $scene]); } catch (Throwable $e) {}
 }

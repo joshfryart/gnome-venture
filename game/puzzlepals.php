@@ -22,7 +22,7 @@ if (is_post() && $party) {   // Take along / Send home (one pal at a time; a ful
     if ($do === 'swap') ppal_set_active($u, (string)($_POST['out'] ?? ''), false);
     [$okp, $msgp] = ppal_set_active($u, $key, $do === 'on' || $do === 'swap');
     flash($msgp, $okp ? 'ok' : 'err');
-    redirect('puzzlepals.php');
+    redirect((($_POST['back'] ?? '') === 'treehouse' && gnav_page_open('gnav_tree')) ? 'treehouse.php' : 'puzzlepals.php');   // the treehouse popover's Take along / Send home come back to the picture
 }
 $book = ppal_book($uid);
 $eq = $canParty ? ppal_equipped($u) : [];

@@ -15,6 +15,7 @@ declare(strict_types=1);
  * Sprite:  ['id', 'x' (feet), 'y' (feet), 'w', 'h' (natural px), 'src' => img path|'', 'emoji', 'name', 'href' => ''|link, 'card' => html|'', 'mark' => emoji]
  * Options: layout (array, required), alt, open (hotspot/sprite id), twin (bool, default true), more (['label' =>, 'href' =>] "+N more" chip),
  *          debug (bool, admin only: numbered dots on every slot), art (kind of picture file: default 'here'), title (heading for the twin)
+ *          chrome (bool: the no-circles look, see hub_hotspot_box), dress (milestone layers [['k','x','y','w','h','src']]), nav (['routes' => [...], 'world' => [...]]: compass + globe cards)
  */
 require_once __DIR__ . '/here_layout.php';
 require_once __DIR__ . '/scene.php';
@@ -70,6 +71,105 @@ function hub_sprite(array $s, array $L): string
     return '<a class="hsp" id="sp-' . $id . '" href="' . e($href) . '" aria-label="' . e($name) . '"' . (($s['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '" aria-haspopup="dialog"' : '') . '><title>' . e($name) . '</title>' . $hit . $g . '</a>';
 }
 
+/**
+ * CHROME MODE (opts 'chrome' => true; the treehouse and the yard use it): no circles anywhere, hit areas from the layout.
+ * A hotspot is the painted thing itself: an invisible <rect> over its 'box' [x0,y0,x1,y1] (else 56 x 56 around x,y), a centred tag, gold corner
+ * brackets when tapped / focused / lit. A missing image draws nothing extra. A locked room gets closed shutters.
+ */
+function hub_hotspot_box(array $h, array $L): string
+{
+    $id = hub_id((string)$h['id']);
+    [$x0, $y0, $x1, $y1] = here_hit_box($h, $L);
+    $W = (int)$L['w'];
+    $cx = intdiv($x0 + $x1, 2);
+    $cls = 'hs hsb' . (($h['cls'] ?? '') !== '' ? ' ' . preg_replace('/[^a-z0-9 _-]/i', '', (string)$h['cls']) : '');
+    $label = (string)($h['label'] ?? '');
+    $chip = (string)($h['chip'] ?? '');
+    $a = '<a class="' . $cls . '" id="hs-' . $id . '" href="' . e((string)$h['href']) . '" aria-label="' . e($label . ($chip !== '' ? ', ' . $chip : '')) . '"'
+        . (($h['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '" aria-haspopup="dialog"' : '') . '>'
+        . '<title>' . e($label) . '</title>'
+        . '<rect class="hit" x="' . $x0 . '" y="' . $y0 . '" width="' . ($x1 - $x0) . '" height="' . ($y1 - $y0) . '"/>';
+    $icon = (string)($h['icon'] ?? '');
+    if ($icon !== '') $a .= '<image class="pix" href="' . e($icon) . '" x="' . $x0 . '" y="' . $y0 . '" width="' . ($x1 - $x0) . '" height="' . ($y1 - $y0) . '" preserveAspectRatio="xMidYMid meet" image-rendering="pixelated"/>';
+    if (str_contains((string)($h['cls'] ?? ''), 'locked')) {   // closed shutters: two plain panels over the room
+        $m = intdiv($x1 - $x0, 2);
+        $a .= '<rect class="shutter" x="' . $x0 . '" y="' . $y0 . '" width="' . $m . '" height="' . ($y1 - $y0) . '"/><rect class="shutter" x="' . ($x0 + $m) . '" y="' . $y0 . '" width="' . ($x1 - $x0 - $m) . '" height="' . ($y1 - $y0) . '"/>';
+    }
+    $k = 8; $i = 1;   // gold corner brackets
+    $a .= '<path class="brk" d="M' . ($x0 + $i) . ' ' . ($y0 + $k) . 'V' . ($y0 + $i) . 'H' . ($x0 + $k) . 'M' . ($x1 - $k) . ' ' . ($y0 + $i) . 'H' . ($x1 - $i) . 'V' . ($y0 + $k)
+        . 'M' . ($x1 - $i) . ' ' . ($y1 - $k) . 'V' . ($y1 - $i) . 'H' . ($x1 - $k) . 'M' . ($x0 + $k) . ' ' . ($y1 - $i) . 'H' . ($x0 + $i) . 'V' . ($y1 - $k) . '"/>';
+    $half = (int)ceil(mb_strlen($label) * 2.6) + 4;   // keep the tag inside the picture
+    $tx = max($half, min($W - $half, $cx));
+    $a .= '<text class="tag" x="' . $tx . '" y="' . ($y1 - 4) . '" text-anchor="middle" font-size="9">' . e($label) . '</text>';
+    return $a . '</a>';
+}
+
+/** Perspective for chrome sprites: 0.55 (feet near the horizon / top) to 0.95 (feet at the bottom). */
+function hub_persp_chrome(array $L, int $y): array
+{
+    $h = (int)($L['h'] ?? 270);
+    $hz = (int)($L['horizon'] ?? 0);
+    $t = max(0.0, min(1.0, ($y - $hz) / max(1, $h - $hz)));
+    return ['scale' => round(0.55 + 0.40 * $t, 3), 'z' => $y];
+}
+
+/**
+ * A sprite in chrome mode: feet at x,y. Picture = 'src' (a file), else 'crop' => [url, fullW, fullH, sx, sy, sw, sh] (a piece of the pal's own picture),
+ * else a plain silhouette when 'sil' is set, else NOTHING. 'away' => text draws an empty dashed perch with that tag; 'new' => a one-off sparkle.
+ */
+function hub_sprite_chrome(array $s, array $L): string
+{
+    $p = hub_persp_chrome($L, (int)$s['y']);
+    $sc = $p['scale'];
+    $w = (int)round(max(8, (int)($s['w'] ?? 48)) * $sc);
+    $h = (int)round(max(8, (int)($s['h'] ?? 64)) * $sc);
+    $x = (int)$s['x']; $y = (int)$s['y'];
+    $id = hub_id((string)$s['id']);
+    $href = (string)($s['href'] ?? '');
+    $name = (string)($s['name'] ?? '');
+    $g = '<ellipse class="shadow" cx="' . $x . '" cy="' . $y . '" rx="' . (int)round($w * 0.4) . '" ry="' . max(2, (int)round($w * 0.1)) . '"/>';
+    $away = (string)($s['away'] ?? '');
+    if ($away !== '') {
+        $g = '<rect class="perch" x="' . ($x - intdiv($w, 2)) . '" y="' . ($y - $h) . '" width="' . $w . '" height="' . $h . '"/>'
+            . '<text class="awaytag" x="' . $x . '" y="' . ($y - intdiv($h, 2) + 3) . '" text-anchor="middle" font-size="7">' . e($away) . '</text>';
+    } elseif ((string)($s['src'] ?? '') !== '') {
+        $g .= '<image class="pix" href="' . e((string)$s['src']) . '" x="' . ($x - intdiv($w, 2)) . '" y="' . ($y - $h) . '" width="' . $w . '" height="' . $h . '" image-rendering="pixelated"/>';
+    } elseif (is_array($s['crop'] ?? null)) {
+        [$cu, $fw, $fh, $sx, $sy, $sw, $sh] = $s['crop'];
+        $g .= '<svg class="crop" x="' . ($x - intdiv($w, 2)) . '" y="' . ($y - $h) . '" width="' . $w . '" height="' . $h . '" viewBox="' . (int)$sx . ' ' . (int)$sy . ' ' . (int)$sw . ' ' . (int)$sh . '" preserveAspectRatio="xMidYMid slice" overflow="hidden">'
+            . '<image href="' . e((string)$cu) . '" x="0" y="0" width="' . (int)$fw . '" height="' . (int)$fh . '"/></svg>';
+    } elseif (!empty($s['sil'])) {
+        $g .= '<rect class="sil" x="' . ($x - intdiv($w, 2)) . '" y="' . ($y - $h) . '" width="' . $w . '" height="' . $h . '"/>';
+    }
+    if (isset($s['bar'])) {   // a pal at work: a thin progress bar under its feet (never a ring: no circles)
+        $bw = max(16, $w); $fillw = (int)round($bw * max(0, min(100, (int)$s['bar'])) / 100);
+        $g .= '<g class="pjring"><rect class="back" x="' . ($x - intdiv($bw, 2)) . '" y="' . ($y + 3) . '" width="' . $bw . '" height="3"/><rect class="fill" x="' . ($x - intdiv($bw, 2)) . '" y="' . ($y + 3) . '" width="' . $fillw . '" height="3"/></g>';
+    }
+    if (!empty($s['collect'])) $g .= '<text class="collect" x="' . $x . '" y="' . ($y - $h - 3) . '" text-anchor="middle" font-size="8">' . e((string)$s['collect']) . '</text>';
+    if (!empty($s['new'])) {   // arrival: three little four-point stars, once (reduced-motion safe in CSS)
+        foreach ([[-0.35, 0.0], [0.3, 0.25], [0.0, -0.1]] as [$fx, $fy]) {
+            $sx = $x + (int)round($w * $fx); $sy = $y - $h + (int)round($h * (0.2 + $fy));
+            $g .= '<path class="spark" d="M' . $sx . ' ' . ($sy - 4) . 'L' . ($sx + 1) . ' ' . ($sy - 1) . 'L' . ($sx + 4) . ' ' . $sy . 'L' . ($sx + 1) . ' ' . ($sy + 1) . 'L' . $sx . ' ' . ($sy + 4) . 'L' . ($sx - 1) . ' ' . ($sy + 1) . 'L' . ($sx - 4) . ' ' . $sy . 'L' . ($sx - 1) . ' ' . ($sy - 1) . 'Z"/>';
+        }
+    }
+    if (($s['mark'] ?? '') !== '') $g .= '<text class="mark" x="' . ($x + intdiv($w, 3)) . '" y="' . ($y - $h + 8) . '" font-size="10" aria-hidden="true">' . e((string)$s['mark']) . '</text>';
+    $hw = max(22, intdiv($w, 2));
+    $hit = '<rect class="hit" x="' . ($x - $hw) . '" y="' . ($y - max(44, $h)) . '" width="' . (2 * $hw) . '" height="' . max(44, $h) . '"/>';
+    if ($href === '') return '<g class="hsp" data-z="' . $p['z'] . '">' . $g . '</g>';
+    return '<a class="hsp" id="sp-' . $id . '" href="' . e($href) . '" aria-label="' . e($name) . '"' . (($s['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '" aria-haspopup="dialog"' : '') . '><title>' . e($name) . '</title>' . $hit . $g . '</a>';
+}
+
+/** The compass and the world globe, bottom-right (HTML buttons over the picture; the bottom-right 100 x 40 of the art stays clear). Each opens a card. */
+function hub_navbuttons(array $routes, array $world): string
+{
+    $img = function (string $f, string $alt): string {
+        return is_file(APP_ROOT . '/assets/img/ico/' . $f) ? '<img src="' . e(url('assets/img/ico/' . $f)) . '" width="28" height="28" alt="" decoding="async">' : '';
+    };
+    return '<div class="hubnav">'
+        . '<a class="hubnavbtn" id="hs-world" href="' . e((string)$world['href']) . '" data-pop="hubpop-world" aria-haspopup="dialog" aria-label="World map">' . $img('ico-globe.png', 'World') . '</a>'
+        . '<a class="hubnavbtn" id="hs-routes" href="' . e((string)$routes['href']) . '" data-pop="hubpop-routes" aria-haspopup="dialog" aria-label="Routes">' . $img('ico-compass.png', 'Routes') . '</a></div>';
+}
+
 /** The picture page, whole: svg, legend, cards (dialogs) and the text twin. */
 function hub_scene(string $key, array $hotspots, array $sprites, array $opts): string
 {
@@ -79,7 +179,8 @@ function hub_scene(string $key, array $hotspots, array $sprites, array $opts): s
     $key = scene_key(str_replace(':', '-', $key));   // 'slug:foo' templates use the file name here-slug-foo.png
     $art = (string)($opts['art'] ?? 'here');
     $path = $key !== '' ? scene_path($art, $key) : '';
-    $svg = '<svg class="hubsvg" viewBox="0 0 ' . $W . ' ' . $H . '" role="group" aria-label="' . e((string)($opts['alt'] ?? 'Picture')) . '" focusable="false">';
+    $chrome = !empty($opts['chrome']);
+    $svg = '<svg class="hubsvg' . ($chrome ? ' chrome' : '') . ($chrome && $path === '' ? ' noart' : '') . '" viewBox="0 0 ' . $W . ' ' . $H . '" role="group" aria-label="' . e((string)($opts['alt'] ?? 'Picture')) . '" focusable="false">';
     if ($path !== '') {
         $svg .= '<image class="pix back" href="' . e(url($path)) . '" x="0" y="0" width="' . $W . '" height="' . $H . '" image-rendering="pixelated"/>';
     } else {   // no art yet: a drawn sky, ground and horizon (attributes only), so the page still works and the slots still line up
@@ -88,10 +189,18 @@ function hub_scene(string $key, array $hotspots, array $sprites, array $opts): s
     }
     $svg .= '<rect class="hub-tint" x="0" y="0" width="' . $W . '" height="' . $H . '" fill="#0b1226" opacity="0" aria-hidden="true"/>';
     $items = [];
-    foreach ($sprites as $s) $items[] = [(int)$s['y'], hub_sprite($s, $L)];
+    foreach ($sprites as $s) $items[] = [(int)$s['y'], $chrome ? hub_sprite_chrome($s, $L) : hub_sprite($s, $L)];
     usort($items, fn($a, $b) => $a[0] <=> $b[0]);   // far first, near last
-    foreach ($items as $it) $svg .= $it[1];
-    foreach ($hotspots as $h) $svg .= hub_hotspot($h, $L);
+    if ($chrome) {   // rooms and sites are the backdrop (boxes), dressing sits on them, creatures stand in front so they stay tappable
+        foreach ($hotspots as $h) $svg .= hub_hotspot_box($h, $L);
+        foreach ($opts['dress'] ?? [] as $d) {
+            $svg .= '<g class="dress" data-dress="' . e(hub_id((string)$d['k'])) . '">' . (($d['src'] ?? '') !== '' ? '<image class="pix" href="' . e((string)$d['src']) . '" x="' . (int)$d['x'] . '" y="' . (int)$d['y'] . '" width="' . (int)$d['w'] . '" height="' . (int)$d['h'] . '" image-rendering="pixelated"/>' : '') . '</g>';
+        }
+        foreach ($items as $it) $svg .= $it[1];
+    } else {
+        foreach ($items as $it) $svg .= $it[1];
+        foreach ($hotspots as $h) $svg .= hub_hotspot($h, $L);
+    }
     if (!empty($opts['debug'])) {
         $n = 0;
         foreach (['exits' => '#d33', 'spots' => '#36c', 'stand' => '#2a2', 'houses' => '#c80'] as $k => $col) {
@@ -110,11 +219,13 @@ function hub_scene(string $key, array $hotspots, array $sprites, array $opts): s
             . '<span class="hubchip-t">' . e((string)($h['label'] ?? '')) . '</span>' . (($h['chip'] ?? '') !== '' ? ' <small class="hubchip-c">' . e((string)$h['chip']) . '</small>' : '') . '</a></li>';
     }
     if (!empty($opts['more'])) $leg .= '<li><a class="hubchip" href="' . e((string)$opts['more']['href']) . '"><span class="hubchip-t">' . e((string)$opts['more']['label']) . '</span></a></li>';
-    $out = '<div class="hubscene" data-hub="' . e($key) . '">' . $svg . ($leg !== '' ? '<ul class="hubleg" aria-label="In this picture">' . $leg . '</ul>' : '');
+    $out = '<div class="hubscene' . ($chrome ? ' chrome' : '') . '" data-hub="' . e($key) . '">' . ($chrome ? '<div class="hubstage">' . $svg . (!empty($opts['nav']) ? hub_navbuttons($opts['nav']['routes'], $opts['nav']['world']) : '') . '</div>' : $svg) . ($leg !== '' ? '<ul class="hubleg" aria-label="In this picture">' . $leg . '</ul>' : '');
 
     // cards: one <dialog> per hotspot/sprite with a card. 'open' shows that one (no-JS: it sits open under the picture)
     $open = (string)($opts['open'] ?? '');
-    foreach (array_merge($hotspots, $sprites) as $h) {
+    $navCards = [];
+    foreach (['routes', 'world'] as $nk) if (!empty($opts['nav'][$nk]['card'])) $navCards[] = ['id' => $nk, 'label' => (string)$opts['nav'][$nk]['title'], 'card' => $opts['nav'][$nk]['card']];
+    foreach (array_merge($hotspots, $sprites, $navCards) as $h) {
         if (($h['card'] ?? '') === '') continue;
         $id = hub_id((string)$h['id']);
         $title = (string)($h['label'] ?? $h['name'] ?? '');

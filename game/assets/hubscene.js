@@ -15,6 +15,8 @@
         ev.preventDefault();
         document.querySelectorAll('dialog.hubpop[open]').forEach(function (o) { if (o !== d) { if (o.close) o.close(); else o.removeAttribute('open'); } });   // one card at a time
         if (d.hasAttribute('open') && !d.matches(':modal')) d.removeAttribute('open');   // a no-JS card shown inline: reopen it as a real modal
+        document.querySelectorAll('.hubscene .on').forEach(function (o) { o.classList.remove('on'); });
+        hs.classList.add('on');   // tapped state: gold brackets + lit tag (chrome pictures)
         back = hs; gvOpenDlg(d);
       }
       return;
@@ -38,7 +40,7 @@
   document.addEventListener('focusin', function (ev) { link(ev, true); });
   document.addEventListener('focusout', function (ev) { link(ev, false); });
   document.addEventListener('close', function (ev) {   // 'close' does not bubble: capture phase
-    if (ev.target.classList && ev.target.classList.contains('hubpop') && back) { try { back.focus(); } catch (e) {} back = null; }
+    if (ev.target.classList && ev.target.classList.contains('hubpop') && back) { back.classList.remove('on'); try { back.focus(); } catch (e) {} back = null; }
   }, true);
   /* The encounter on a Trail walk is a popover that cannot be dismissed until it is settled: open it as a real modal on load and after an in-place page swap. */
   function trailPops() {
