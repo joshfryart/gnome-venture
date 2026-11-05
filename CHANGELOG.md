@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2.5.51
+- **Fewer finds on Trail maps**: random sections hold 0 to 1 finds (was 1 to 3) and authored sections keep about a third of their finds.
 - **Trail tiles camera**: a walk on a Trail map now slides the picture with the gnome (wide picture like the delve maps), the gnome stays centred, and the final map no longer flashes before the walk.
 - **Garden select bar on a phone**: the quick picks wrap into rows again (a scrolling row showed one pick at a time) and the action bar stays at the bottom, so both menus show.
 - **Art v3 installed**: crafting workshop, six villager doors, the street of 4/6/8 houses, five treehouse trophies, the step-off strip (`wander-step.png`).

@@ -358,7 +358,7 @@ if ($withDb) {
         $conn = $conn && isset($reach[$m['spots']['9'][1] * $m['w'] + $m['spots']['9'][0]]);
         $e = 0; $f = 0;
         foreach ($t as [$tx, $ty, $k]) { $tokOk = $tokOk && in_array(tm_tile($m, $tx, $ty), ['.', ','], true) && isset($reach[$ty * $m['w'] + $tx]); $k === 'E' ? $e++ : $f++; }
-        $tokCount = $tokCount && $e === 0 && $f >= 1 && $f <= 3 && count(array_unique(array_map(fn($x) => $x[0] . ',' . $x[1], $t))) === count($t);
+        $tokCount = $tokCount && $e === 0 && $f <= 1 && count(array_unique(array_map(fn($x) => $x[0] . ',' . $x[1], $t))) === count($t);
     }
     ok('300 sections: size, entry and exit present', $allOk);
     ok('300 sections: the exit can be reached from the entry', $conn);

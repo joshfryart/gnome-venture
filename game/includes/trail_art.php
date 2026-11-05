@@ -90,7 +90,7 @@ function trail_map_authored(array $art): array
         $row = (string)$row;
         for ($x = 0, $n = strlen($row); $x < $n; $x++) {
             $c = $row[$x];
-            if ($c === 'F' || ($c === 'E' && $art['boss'] !== '')) $tokens[] = [$x, $y, $c];
+            if (($c === 'F' && crc32(((int)($art['route'] ?? 0)) . '/' . ((int)($art['sec'] ?? 0)) . '/' . $x . '/' . $y) % 3 === 0) || ($c === 'E' && $art['boss'] !== '')) $tokens[] = [$x, $y, $c];   // v2.5.51: only about a third of the authored finds are kept (too many)
             if ($c === 'E' || $c === 'F') $row[$x] = '.';
         }
         $rows[] = $row;

@@ -10195,8 +10195,8 @@ d3ba56f57705de85e61a5701cd785892d5d1959d  includes/town.php
 109b6c5642cc97e18f0f076b1afafa9bd4f285e4  includes/town_social.php
 7d8734a96a8759ae15db447e7f1497310125e9dc  includes/townsfolk.php
 e5fa84dade9e2435cf611a9a09b33bb789907b65  includes/trade.php
-32fd840113320cd5850740d448defd6d3e4b015d  includes/trail_art.php
-d5a876ce13ebdf1b72872a9528f4350ed1391ede  includes/trail_tiles.php
+f1f12482d73fef522469ef3813b6b763a27f9fd7  includes/trail_art.php
+13ebfa48d7841b197db4b0d5add0658f8cacedaf  includes/trail_tiles.php
 08c1f12de3d67c34458881d45e1c9492bf8807bd  includes/trek.php
 c2516d13a7d4405a65c9716b379801c112e66e19  includes/trek_art.php
 395363732071f5c088d8c0a5363ae0e3974421c8  includes/trek_camp_ui.php

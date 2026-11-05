@@ -44,7 +44,7 @@ function trail_base_cost(array $u, array $route): int
 
 /**
  * One section's map and tokens, from a seed (pure: same seed, same section). Entry 'S' on the left edge, exit '9' on the right edge, a winding
- * floor between, a few extra floor cells for width. Tokens: 1-3 finds ('F') on floor, never next to the entry or exit. Fights are not tokens: they
+ * floor between, a few extra floor cells for width. Tokens: 0-1 finds ('F') on floor (v2.5.51: was 1-3), never next to the entry or exit. Fights are not tokens: they
  * are rolled while walking (trail_encounter_index); only an authored delve/lair route has a fixed 'E' (miniboss/boss) on its last section.
  * A seed 'routeId|uid|expId|section' of an AUTHORED route (includes/data/trail_maps.json) gives that route's hand-made section instead.
  * Returns [map, tokens [[x, y, kind]]].
@@ -82,7 +82,7 @@ function trail_map_make(string $seed): array
     $floor = [];
     for ($yy = 0; $yy < TRAIL_H; $yy++) for ($x = 3; $x <= TRAIL_W - 4; $x++) if ($g[$yy][$x] === '.' || $g[$yy][$x] === ',') $floor[] = [$x, $yy];
     $tokens = [];
-    $want = array_fill(0, $rng(1, 3), 'F');
+    $want = array_fill(0, $rng(0, 1), 'F');
     foreach ($want as $k) {
         if (!$floor) break;
         $i = $rng(0, count($floor) - 1);
