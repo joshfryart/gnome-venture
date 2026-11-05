@@ -38,7 +38,6 @@ ph/snake-fang
 ph/snowdrop-seed
 ph/spanish-broom-seed
 ph/spider-silk
-ph/spotted-hide
 ph/spring-adonis-seed
 ph/sprinkler-can
 ph/stag-beetle-shell
@@ -67,21 +66,13 @@ ph/tangelo-seed
 ph/thorn-fang
 ph/thyme-seed
 ph/tide-shell
-ph/titan-claw
 ph/tomatillo
-ph/tomato
-ph/tool_shed-1
-ph/tool_shed-lantern
-ph/tool_shed-mossy
 ph/tortoise-scute
 ph/triticale
-ph/turnip-seed
 ph/wasp-stinger
 ph/wattle-fence-corner
 ph/wattle-fence-end
-ph/white-clover-seed
 ph/white-pelt
-ph/wild-rice
 ph/wild-rice-seed
 ph/wild-strawberries
 ph/wind-chime
@@ -89,4 +80,3 @@ ph/wind-harp
 ph/wing-dust
 ph/wing-scale-lantern
 ph/yogurt
-ph/yuzu

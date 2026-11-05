@@ -64,3 +64,9 @@ Scene and picture art is ONE initial pass by Opus medium. No draft-then-rich sec
 - DONE: 15 main town gate scenes (mossbottom + 14 regions) + Maplewold v5, in `aseprite-source/v3/here-gate/towns/`. Imported to game on branch `ccr-4352abc3-code` (not on main).
 - Weak spots to repaint if Josh dislikes: coralscatter wave (dome) + small tea house; monsoontangle bland deck + small boats; thornacre Wild Trail arch squeezed; blossomreach parasol outside box.
 - NEXT art: stop looks for other 11 types (only market done), village/haven hero-scale, folk wiring, hotspot/nav icons.
+
+## Status 2026-11-05 (AI-1: P1, P2, P3)
+- P1 DONE: 179 weak items + Ginseng Seed redrawn (export + zip built). 81 lines left in `rollout/weak.txt` (flagged weak again, e.g. wild-rice-seed, stone-wall, tamarind, hazelnut, wind-harp); the 8 groups cut off by the usage limit never reported notes, so all their items stay on the list until Josh looks. Seeds are near the seedgen ceiling; a third pass would need a hand-drawn approach.
+- P2 DONE: 12 shapes x 3 layers, vessels, packet in `flowers-pixel/`. No code change. Weak: daisy bent petal, rose reads succulent, spike/cluster florets crowded, poppy blobby. Sprigs not redrawn.
+- P3 DONE: 41 files at current size. Weak: gem-c "C" faint, fx-ko face cutesy, stage-feed steam thin.
+- Idea (Josh asked 2026-11-05): seed packets showing the seed art, to make tiny seeds readable. Not started; needs a packet frame with a seed-art slot and a code decision.

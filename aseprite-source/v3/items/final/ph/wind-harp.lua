@@ -1,54 +1,89 @@
--- wind-harp (lean P1b_O19)
+-- wind-harp (lean P1b_O21)
 local NAME = "wind-harp"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt, atan2 = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
+local floor, abs, max, min, sqrt, sin, cos, pi = math.floor, math.abs, math.max, math.min, math.sqrt, math.sin, math.cos, math.pi
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-local function tone(m, n, ramp, o) return G.toneN(c, m, n, ramp, o) end
-local function ball(cx, cy, rx, ry, ang, ramp, o) local m, n = G.oval(cx, cy, rx, ry, ang, o and o.flat) tone(m, n, ramp, o) return m, n end
-local function leaf(ax, ay, cx, cy, bx, by, w, ramp, vein)
-  local m, n, T, S = G.blade(ax, ay, cx, cy, bx, by, function(t) return w * sin(pi * min(1, t)) ^ 0.7 + 0.3 end)
-  tone(m, n, ramp)
-  if vein then m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.17 and T[k] > 0.08 and T[k] < 0.92 then c:put(x, y, vein) end end) end
-  return m
+local WD = { "#34200f", "#5a3519", "#8a5328", "#b87a3a", "#dba458", "#f3cc88" }
+local BR = { "#6b4a1c", "#a8742a", "#d9a53d", "#f6d56b" }
+local SV = { "#58688a", "#9aa9c6", "#d8e4ef", "#f1f6fa" }
+local RB = { "#6e1f3a", "#a8324a", "#d9564f", "#f59a73" }
+c:groundShadow(32, 55, 24, 2.5)
+-- sound box: top face + front face, slight taper
+for y = 40, 53 do
+  local xl = 9 + floor((y - 40) * 0.18 + 0.5)
+  local xr = 55 - floor((y - 40) * 0.18 + 0.5)
+  for x = xl, xr do
+    local ix
+    if y <= 43 then ix = (y == 40) and 6 or ((y == 41) and 5 or 4)
+    else
+      ix = 3
+      if (y + floor(x / 7)) % 4 == 0 and X.hash(x, y, 2) > 0.45 then ix = 2 end
+      if X.hash(x, y, 8) > 0.93 then ix = 4 end
+      if y == 44 then ix = 2 end
+      if y >= 52 then ix = 1 elseif y >= 50 then ix = min(ix, 2) end
+    end
+    if x - xl == 0 then ix = (y <= 43) and 5 or min(6, ix + 1) elseif xr - x <= 1 then ix = max(1, ix - 1) end
+    c:put(x, y, WD[ix])
+  end
 end
-local function tube(p, w, ramp) local m, n = G.tube(p, function(t) return type(w) == "function" and w(t) or w end) tone(m, n, ramp) return m end
-local function cylrect(x0, y0, x1, y1, ramp)
-  local m, n = HP.mask(), {}
-  local hw, cx = (x1 - x0 + 1) / 2, (x0 + x1) / 2
-  for y = y0, y1 do for x = x0, x1 do m:set(x, y) local nx = max(-0.95, min(0.95, (x - cx) / (hw + 0.3))) n[K(x, y)] = { G.norm(nx, 0, sqrt(1 - nx * nx)) } end end
-  tone(m, n, ramp) return m
+-- sound holes with brass rims
+for _, cx in ipairs{ 21, 32, 43 } do
+  for y = 45, 50 do for x = cx - 3, cx + 3 do
+    local d = sqrt((x - cx)^2 + ((y - 47.5) * 1.15)^2)
+    if d <= 3.1 then
+      if d > 2.1 then c:put(x, y, (x - cx) + (y - 47.5) < 0 and BR[4] or BR[2]) else c:put(x, y, "#1c0f12") end
+    end
+  end end
+  c:put(cx - 1, 46, "#3a2430")
 end
-
--- wind harp (aeolian): slim wooden lyre frame, soundbox with hole, five silver strings, a red ribbon tied to one post
-local W = { "#3a1f1c", "#5e3524", "#85502c", "#ad7238", "#d29a50", "#f0c57a" }
-local RD = { "#4a0e1e", "#7a1a2a", "#b0302e", "#dc5238", "#f58652", "#ffc088" }
-local SIL = "#dceaf4"
-local SILD = "#7f94b8"
--- posts first
-tube({ {17, 46}, {13, 34}, {16, 22}, {21, 10} }, 2.2, W)
-tube({ {47, 46}, {51, 34}, {48, 22}, {43, 10} }, 2.2, W)
--- strings
-for _, x in ipairs{ 23, 28, 33, 38, 43 } do
-  for y = 13, 43 do c:put(x, y, (y % 7 == 3) and "#ffffff" or SIL) end
-  c:put(x, 14, SILD) c:put(x, 15, SILD)
+-- bridge
+for x = 16, 48 do c:put(x, 41, BR[3]) c:put(x, 42, BR[1]) end
+c:put(17, 41, BR[4]) c:put(25, 41, BR[4]) c:put(40, 41, BR[4])
+-- posts
+for y = 10, 41 do for x = 10, 13 do
+  local ix = ({ 5, 4, 3, 2 })[x - 9]
+  if X.hash(x, y, 4) > 0.9 then ix = ix - 1 end
+  c:put(x, y, WD[ix])
+end end
+for y = 10, 41 do for x = 51, 54 do
+  local ix = ({ 5, 4, 3, 2 })[x - 50]
+  if X.hash(x, y, 6) > 0.9 then ix = ix - 1 end
+  c:put(x, y, WD[ix])
+end end
+-- arched top rail
+local function ytop(x) return floor(10 - 4 * sin(pi * (x - 10) / 44) + 0.5) end
+for x = 10, 54 do
+  local y0 = ytop(x)
+  for k = 0, 4 do c:put(x, y0 + k, WD[({ 6, 5, 4, 3, 2 })[k + 1]]) end
+  if x % 6 == 3 then c:put(x, y0 + 2, WD[2]) end
 end
--- top bar
-local tb = c:rrect(15, 7, 49, 12, 2)
-tone(tb, X.pillow(tb, 3), W)
-for _, x in ipairs{ 23, 28, 33, 38, 43 } do c:put(x, 9, W[1]) c:put(x, 10, W[6]) end
--- soundbox
-local bx = c:rrect(11, 43, 53, 56, 3)
-local bn = X.pillow(bx, 5)
-tone(bx, bn, W)
-local hole = G.oval(32, 50, 6.5, 2.6, 0, 1)
-c:fillMask(hole, W[1])
-for _, p in ipairs{ {28, 49}, {29, 48}, {30, 48} } do c:px(p[1], p[2], W[2]) end
-c:fillMask(c:rect(18, 44, 46, 44), W[1])
-for x = 16, 48, 4 do c:put(x, 53, W[2]) c:put(x + 1, 53, W[2]) end
-c:put(13, 45, W[6]) c:put(14, 45, W[6]) c:put(13, 46, W[5])
--- ribbon (quirk)
-leaf(44, 9, 52, 0, 58, 7, 1.9, RD, RD[5])
-tube({ {44, 9}, {47, 14}, {45, 18}, {47, 22} }, 1.0, RD)
-
+-- strings with pegs; the 4th is vibrating (quirk)
+local sx = { 17, 22, 27, 32, 37, 42, 47 }
+for i, x in ipairs(sx) do
+  local y0 = ytop(x) + 5
+  for y = y0, 40 do
+    local dx = 0
+    if i == 4 then dx = floor(1.4 * sin((y - y0) * 0.55) + (sin((y - y0) * 0.55) > 0 and 0.4 or -0.4)) end
+    c:put(x + dx, y, SV[3]) c:put(x + dx + 1, y, SV[1])
+    if i == 4 and abs(dx) > 0 then c:put(x - dx, y, SV[2]) end
+  end
+  c:put(x, y0 - 6 + 0, BR[3]) c:put(x + 1, y0 - 6, BR[1])
+  c:put(x, y0 - 7, BR[4]) c:put(x + 1, y0 - 7, BR[2])
+  c:put(x, y0 + 8, SV[4])
+end
+-- finials
+for _, x in ipairs{ 11, 52 } do
+  for y = 5, 8 do for xx = x, x + 2 do
+    local ix = 3
+    if xx == x and y < 7 then ix = 4 end
+    if xx == x + 2 or y == 8 then ix = 2 end
+    if xx == x and y == 5 then ix = 4 end
+    c:put(xx, y, BR[ix]) end end
+  c:put(x, 5, BR[4])
+end
+-- ribbon tied to the right finial
+for i = 0, 6 do c:put(55 + (i > 0 and 1 or 0), 7 + i // 1 - 0, RB[i % 3 == 0 and 3 or 2]) end
+for i = 0, 5 do c:put(54 + (i % 3), 9 + i, RB[3 - (i % 3 == 2 and 1 or 0)]) end
+c:put(56, 8, RB[4]) c:put(54, 9, RB[1])
 G.save(c, NAME)

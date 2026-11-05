@@ -1,64 +1,72 @@
--- yuzu (lean P1b_O19)
+-- yuzu (lean P1b_O21)
 local NAME = "yuzu"
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local floor, abs, sin, cos, pi, max, min, sqrt, atan2 = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan
+local floor, abs, max, min, sqrt, sin, cos, pi = math.floor, math.abs, math.max, math.min, math.sqrt, math.sin, math.cos, math.pi
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-local function tone(m, n, ramp, o) return G.toneN(c, m, n, ramp, o) end
-local function ball(cx, cy, rx, ry, ang, ramp, o) local m, n = G.oval(cx, cy, rx, ry, ang, o and o.flat) tone(m, n, ramp, o) return m, n end
-local function leaf(ax, ay, cx, cy, bx, by, w, ramp, vein)
-  local m, n, T, S = G.blade(ax, ay, cx, cy, bx, by, function(t) return w * sin(pi * min(1, t)) ^ 0.7 + 0.3 end)
-  tone(m, n, ramp)
-  if vein then m:each(function(x, y) local k = K(x, y) if abs(S[k]) < 0.17 and T[k] > 0.08 and T[k] < 0.92 then c:put(x, y, vein) end end) end
-  return m
-end
-local function tube(p, w, ramp) local m, n = G.tube(p, function(t) return type(w) == "function" and w(t) or w end) tone(m, n, ramp) return m end
-local function cylrect(x0, y0, x1, y1, ramp)
-  local m, n = HP.mask(), {}
-  local hw, cx = (x1 - x0 + 1) / 2, (x0 + x1) / 2
-  for y = y0, y1 do for x = x0, x1 do m:set(x, y) local nx = max(-0.95, min(0.95, (x - cx) / (hw + 0.3))) n[K(x, y)] = { G.norm(nx, 0, sqrt(1 - nx * nx)) } end end
-  tone(m, n, ramp) return m
-end
-
--- yuzu: round bumpy golden rind pitted with pores, a green patch, short stem, a single winged-petiole leaf
-local RIND = { "#6b4a0c", "#a47a12", "#d1a31e", "#eecb2e", "#fbe35a", "#fff39a" }
-local LF = { "#10382c", "#1c5a36", "#2f7e3e", "#4fa44a", "#7cc65c", "#b0e084" }
-local GRN = { "#2e5a22", "#4a7c26", "#6a9c30", "#9ac040" }
-local cx, cy, rx, ry = 31, 39, 17, 15
-local m = HP.mask()
-for y = cy - 20, cy + 20 do for x = cx - 22, cx + 22 do
-  local dx, dy = (x - cx) / rx, (y - cy) / ry
-  local d = sqrt(dx * dx + dy * dy)
-  local a = atan2(dy, dx)
-  local bump = 0.05 * sin(a * 9 + 0.5) + 0.035 * sin(a * 15 + 2) + 0.02 * sin(a * 23)
-  if d <= 1 + bump then m:set(x, y) end
+local Y  = { "#7b4a2c", "#b8741f", "#e0a323", "#f2c933", "#fbe262", "#fff4a0" }
+local YG = { "#4e5a24", "#7f8c22", "#a9b52c", "#cfd548", "#e9ea78", "#f7f6b4" }
+local LEAF = { "#14352c", "#1f5636", "#2f7a3e", "#4a9a48", "#76b95a", "#a8d676" }
+local BR = { "#3a2418", "#5e3c24", "#8c6238", "#bf9358" }
+c:groundShadow(32, 57, 16, 2)
+-- lumpy squat fruit
+local fruit = HP.mask()
+local CX, CY = 32, 37
+for y = 14, 60 do for x = 8, 56 do
+  local dx, dy = x - CX, (y - CY) / 0.93
+  local a = math.atan(dy, dx)
+  local r = 21 + 1.0 * sin(3 * a + 1) + 0.7 * sin(5 * a + 2) + 0.5 * sin(8 * a)
+  if sqrt(dx * dx + dy * dy) <= r then fruit:set(x, y) end
 end end
--- leaf behind stem
-local lf = leaf(36, 20, 43, 8, 57, 11, 5.6, LF, LF[6])
-local wg, wn = G.oval(39, 17, 2.4, 1.6, -0.6, 1)
-tone(wg, wn, LF)
-tube({ {33, 24}, {33, 20}, {35, 18}, {36, 19} }, 1.1, { "#3a2a14", "#5a4220", "#7a5c30", "#9a7c48", "#b89c60", "#d4ba80" })
-local n = X.pillow(m, 14)
-local v = X.light(n, { amb = 0.1, wrap = 0.2 })
-local bias = {}
-tone(m, n, RIND, { bias = bias })
--- green patch (quirk)
-m:each(function(x, y) if v[K(x, y)] > 0.35 and ((x - 44) ^ 2 + (y - 31) ^ 2) < 16 and X.hash(x, y, 2) > 0.2 then
-  c:put(x, y, GRN[(v[K(x, y)] > 0.6) and 4 or 3]) end end)
--- pores: dark dimple + pale lit lip up-left
-local taken = {}
-m:copy():shrink(2):each(function(x, y)
-  if X.hash(x, y, 3) > 0.86 and not taken[K(x - 1, y)] and not taken[K(x, y - 1)] and not taken[K(x - 1, y - 1)] and not taken[K(x + 1, y - 1)] then
-    taken[K(x, y)] = true
-    c:px(x, y, RIND[2]) c:px(x + 1, y + 1, RIND[1])
-    if v[K(x, y)] > 0.4 then c:px(x - 1, y - 1, RIND[6]) end
-  end
+local n = X.pillow(fruit, 21)
+local v = X.light(n, { amb = 0.08, wrap = 0.25 })
+local idx = {}
+fruit:each(function(x, y)
+  local k = K(x, y)
+  local val = v[k]
+  local i = 1
+  for j, t in ipairs{ 0.2, 0.38, 0.55, 0.72, 0.88 } do if val >= t then i = j + 1 end end
+  idx[k] = i
 end)
--- calyx + glint
-local cal = G.oval(33, 23, 3.4, 1.6, 0, 1)
-tone(cal, select(2, G.oval(33, 23, 3.4, 1.6, 0, 1)), GRN.dummy or { "#1e3a18", "#2e5a22", "#4a7c26", "#6a9c30", "#9ac040", "#c8e070" })
-c:px(22, 32) c:px(22, 31, "#fffbd0") c:px(23, 31, "#fffbd0") c:px(23, 30, "#fffbd0") c:px(22, 32, "#fffbd0")
--- thorn
-c:px(26, 25, "#4a7c26") c:px(25, 24, "#9ac040")
-
+fruit:each(function(x, y)
+  local k = K(x, y)
+  local green = (y - 15) + X.hash(x, y, 4) * 5 + abs(x - 32) * 0.15
+  c:put(x, y, (green < 14 and X.hash(x, y, 9) > 0.15 or green < 9) and YG[idx[k]] or Y[idx[k]], { r = { name = "fruit" } })
+end)
+-- rind dimples: dark pit, shadowed upper-left lip, lit lower-right lip
+local inner = fruit:copy():shrink(2)
+for gy = 0, 12 do for gx = 0, 12 do
+  local px = 9 + gx * 4 + floor(X.hash(gx, gy, 5) * 4) + (gy % 2) * 2
+  local py = 17 + gy * 4 + floor(X.hash(gx, gy, 6) * 4)
+  if inner:has(px, py) and inner:has(px + 1, py + 1) and inner:has(px - 1, py - 1) then
+    local k = K(px, py)
+    local i = idx[k]
+    c:put(px, py, (py - 15 < 12) and YG[max(1, i - 2)] or Y[max(1, i - 2)])
+    c:put(px - 1, py, (py - 15 < 12) and YG[max(1, i - 1)] or Y[max(1, i - 1)])
+    c:put(px + 1, py + 1, (py - 15 < 12) and YG[min(6, i + 1)] or Y[min(6, i + 1)])
+  end
+end end
+-- cool-violet reflected light along the lower-right rim
+local rim = fruit:edge()
+rim:each(function(x, y) if x + y > 82 and y > 40 then c:put(x, y, "#c88a4a") end end)
+-- specular glints
+for _, p in ipairs{ { 21, 26 }, { 22, 26 }, { 21, 27 }, { 24, 24 } } do c:put(p[1], p[2], "#fffbd0") end
+-- calyx + stem
+for _, p in ipairs{ { 29, 16 }, { 30, 15 }, { 34, 15 }, { 35, 16 }, { 28, 17 }, { 36, 17 }, { 32, 17 } } do c:put(p[1], p[2], LEAF[3]) end
+c:put(30, 16, LEAF[4]) c:put(31, 16, LEAF[2]) c:put(33, 16, LEAF[2]) c:put(32, 16, LEAF[1]) c:put(31, 17, LEAF[2]) c:put(33, 17, LEAF[1])
+for y = 10, 15 do c:put(31, y, BR[3]) c:put(32, y, BR[2]) c:put(33, y, BR[1]) end
+c:put(31, 9, BR[4]) c:put(32, 9, BR[3])
+-- one leaf with a winged petiole
+local m, nn, T, S = G.blade(33, 11, 42, 2, 56, 11, function(t) if t > 0.995 then return -1 end return max(0.4, 4.3 * sin(pi * t ^ 0.75) ^ 0.75) end)
+G.toneN(c, m, nn, LEAF, { amb = 0.1, wrap = 0.3 })
+m:each(function(x, y) local k = K(x, y)
+  if abs(S[k]) < 0.2 and T[k] > 0.1 and T[k] < 0.92 then c:put(x, y, S[k] <= 0 and LEAF[6] or LEAF[3]) end
+  if T[k] > 0.2 and T[k] < 0.85 and abs(abs(S[k]) - 0.55) < 0.09 and ((x + y) % 3 ~= 0) then c:put(x, y, S[k] < 0 and LEAF[5] or LEAF[2]) end
+end)
+local wm, wn = G.oval(38, 12, 3.2, 2.0, -0.4, 1)
+wm:cut(m)
+G.toneN(c, wm, wn, LEAF, { amb = 0.1, wrap = 0.3 })
+c:put(37, 11, LEAF[6])
+-- quirk: a dew drop on the leaf
+c:put(47, 7, "#a8e0f0") c:put(48, 7, "#dff6f6") c:put(47, 8, "#4a8ac0") c:put(48, 8, "#6ab0d8")
 G.save(c, NAME)
