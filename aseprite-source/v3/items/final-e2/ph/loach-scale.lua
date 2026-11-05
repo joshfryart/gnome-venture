@@ -19,8 +19,8 @@ for y = 8, 56 do for x = 8, 56 do
   local dx, dy = (x - cx) / 22, (y - cy) / 18
   local ang = math.atan(dy, dx)
   local r = sqrt(dx * dx + dy * dy)
-  local scal = 1 + (ang < 0 and 0.05 * sin(ang * 14) or 0)   -- scalloped top rim
-  if r <= scal and not (dy > 0.75 and abs(dx) < 0.25) then m:set(x, y) end
+  local scal = 1 + (ang < 0 and 0.03 * sin(ang * 9) or 0)   -- scalloped top rim
+  if r <= scal then m:set(x, y) end
 end end
 -- flat narrow base notch (the embedded end)
 local R = { "#34507a", "#5d79a4", "#8aa4c8", "#b2c6e0", "#d4e2f0", "#eef6fc" }
@@ -29,12 +29,12 @@ body(m, R, 18, "lscale")
 local fx, fy = 32, 42
 m:each(function(x, y)
   local d = sqrt(((x - fx) / 1.25) ^ 2 + (y - fy) ^ 2)
-  local k = d % 5
+  local k = d % 7
   if k < 1.0 and d > 4 then c:put(x, y, (x < fx) and R[5] or R[2], T) end
 end)
 -- radial grooves from the focus to the rim
-for i = -3, 3 do
-  local a = -pi / 2 + i * 0.38
+for i = -2, 2 do
+  local a = -pi / 2 + i * 0.5
   local pts = { { fx, fy - 4 }, { fx + cos(a) * 24, fy + sin(a) * 24 } }
   draw(c:line(pts, 1), i < 0 and R[6] or R[2], m)
 end

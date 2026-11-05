@@ -31,15 +31,15 @@ rope:each(function(x,y) if (x%3)==0 then P(x,y,ROPE[1]) end end)
 -- end knots
 for _,x in ipairs{9,55} do local k=c:ellipse(x,floor(yat(x)),2,2); S(k,ROPE,2,"knot") end
 -- pennants
-local xs={15,23,32,41,49}
-local hs={19,24,26,24,19}
+local xs={14,23,32,41,50}
+local hs={17,20,22,20,17}
 for i,x in ipairs(xs) do
   local y=floor(yat(x))+1
   local h=hs[i]
-  local m=c:poly{{x-5,y},{x+5,y},{x,y+h}}
-  S(m,COLS[i],4,"flag"..i)
+  local m=c:poly{{x-4,y},{x+4,y},{x,y+h}}
+  S(m,COLS[i],6,"flag"..i,0.3)
   -- stripe band near top
-  for yy=y+3,y+4 do for xx=x-5,x+5 do if m:has(xx,yy) then P(xx,yy,COLS[i][6]) end end end
+  for yy=y+3,y+4 do for xx=x-4,x+4 do if m:has(xx,yy) then P(xx,yy,COLS[i][5]) end end end
   -- dark fold along right edge
   -- tie
   P(x-1,y-1,ROPE[1]); P(x,y-1,ROPE[1]); P(x+1,y-1,ROPE[1])
