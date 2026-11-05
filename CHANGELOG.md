@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.27
+- **Smoother Trail walk**: the picture now slides with a GPU transform snapped to whole device pixels instead of re-laying-out every frame, your 2.5D gnome glides with no hop so it stays dead centre, and each step is a little slower (90 ms at the quickest). Needs 2.5.26.
+
 ## 2.5.26
 - **No ring behind your gnome on the Trail**: the round marker behind your 2.5D gnome is gone on the Trail and delve tile maps too, leaving the gnome and its shadow on the tile. Needs 2.5.25.
 
