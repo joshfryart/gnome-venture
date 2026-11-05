@@ -55,6 +55,9 @@ ok('no perk yet, so no extra slot', stop_perk_bonus($lu, $lid) === 0 && stop_slo
 [$v, $filled] = stop_meter_add($lu, $lid, 'cheer', 120);
 ok('a full meter fills, restarts, and gives a perk', $filled === 'cheer' && $v === STOP_METER_AFTER && isset(stop_perks($lu, $lid)['cheer']));
 ok('the perk is one more thing per visit', stop_slots($lkLoc, $lu) === stop_slots($lkLoc) + 1);
+stop_meter_add($lu, $lid, 'larder', 120);
+ok('perks stack: two full meters give two more', stop_perk_bonus($lu, $lid) === 2 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc) + 2);
+q('DELETE FROM stop_prog WHERE user_id = ? AND k = ?', [$lu, 'perk:larder']);
 ok('the perk is only at that stop', stop_perk_bonus($lu, $lid + 99999) === 0);
 ok('the perk ends after its days', (function () use ($lu, $lid) { stop_prog_set($lu, $lid, 'perk:cheer', 1, ['until' => gmdate('Y-m-d', strtotime(today() . ' 12:00:00 UTC -1 days'))]); return stop_perk_bonus($lu, $lid) === 0; })());
 ok('meter names are limited to the known ones', stop_meter_add($lu, $lid, 'nonsense', 5) === [0, '']);

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.5.72');
+define('APP_VERSION', '2.5.73');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);

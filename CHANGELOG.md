@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.73
+- **Living stops fixes**: the perk end date is now worked out in UTC (it could be a day off on a non-UTC server); the two meter-answer acts offered rotate daily instead of always being the first two in the file; perks now stack (each full meter gives one more thing per visit and one more turn a day).
+
 ## 2.5.72
 - **Living stops**: every stop now has a happening of the day (8 kinds, same for everyone there) with a headline strip, matching acts offered first and villager lines that react to it.
 - **Meters and perk**: per player per stop, Repairs, Larder and Cheer fill as you do things and drain 6 a day. A full meter gives 3 days of one more thing to do at that stop. Five new answer acts appear when a meter is low or your standing is high (Stranger, Regular, Local, Pillar).

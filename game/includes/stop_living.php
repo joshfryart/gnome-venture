@@ -69,10 +69,10 @@ function stop_perks(int $uid, int $locId): array
     return $out;
 }
 
-/** A perk is one more thing per visit and one more turn a day at that stop. */
+/** Each running perk is one more thing per visit and one more turn a day at that stop (they stack). */
 function stop_perk_bonus(int $uid, int $locId): int
 {
-    return stop_perks($uid, $locId) ? 1 : 0;
+    return count(stop_perks($uid, $locId));
 }
 
 // ---------------------------------------------------------------- familiarity
