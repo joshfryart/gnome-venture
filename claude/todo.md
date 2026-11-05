@@ -1,9 +1,9 @@
-# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-05, main = 2.5.68)
+# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-05, main = 2.5.69)
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md` (the old todo.md log up to 2.5.62 is at the bottom of the archive). Detail lists for art stay in their own files, linked below, but their OPEN items are copied here.
 
 ## 1. STATE
-- Main = 2.5.68. Slim zips are in `releases/` (2.5.68 needs 2.5.66+; 2.5.67 needs 2.5.65+). Art zips in `upload-zips/` (none for 2.5.67). Josh uploads.
+- Main = 2.5.69. Slim zips are in `releases/` (2.5.69 needs 2.5.67+; 2.5.68 needs 2.5.66+; 2.5.67 needs 2.5.65+). Art zips in `upload-zips/` (none for 2.5.67). Josh uploads.
 - 2.5.66: route landmarks (82 large hand-drawn sprites on all 16 Maplewold trail maps, path layer, contact shadows), GPS stops at every stop, no tap dots on trail maps.
 - 2.5.68: build plans for all 94 havens/wonders/delves (58 new, text not yet reviewed by Josh); status-strip energy bar updates live.
 - 2.5.67: Do here and Stall results show in the popover; header energy and Petals pills update live (icon kept, number only).
@@ -33,7 +33,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 **Trail / Here**
 - Tile walks: add Sneak and Hunt buttons (keep ~40% extra fights as default; Sneak fewer, Hunt more; check `tests/balance_sim.php` Walks).
 - Upkeep: anyone can pay, none owed; stop degrades a tier if unpaid. Check current code matches (no adopter-only gate, no forced notice).
-- Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); UNRELEASED, not phone-checked; no version bump yet. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
+- Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); released 2.5.69, not phone-checked. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
 - Trail ground and landmarks for the other 11 regions (loader exists; art is stand-ins).
 - Shops/Homes popover on non-town stop types; step-off/step-back strip; Lost Letters + landmark panel on World page; gnome walk-frame animation (8 frames, idle only); nav chrome on other picture pages; `balance_sim` for `gnav_enter_energy`.
 - `walk_scene` row deleted when a delve ends, so no delve-completion record.

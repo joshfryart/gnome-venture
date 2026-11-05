@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.69
+- **Workshop picture has no round icons**: the seven crafting spots (oven, shelf, bench, plant stand, cauldron, bricks, house) are now invisible tap areas, so the round icon circles no longer sit on the artwork. Tapping a spot still opens its card; the chips under the picture are unchanged.
+
 ## 2.5.68
 - **Build plans for every ruined place**: the other 12 regions now have their own four-stage repair plans (58 more places, 232 stages: haul, gather, feed, light, clear, with a line of story each), so no haven, wonder or delve falls back to the generic stones-and-rope stages. Plans are in `build_plans.txt`; the `buildplans` test checks them all and now hides one plan to test the old-stages fallback.
 - **Energy bar updates live too**: after a Do here activity the status strip's energy bar, number and regen note change in place, as the header pills already did.
