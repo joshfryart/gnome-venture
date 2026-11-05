@@ -301,7 +301,8 @@ function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '',
     require_once __DIR__ . '/stop_pass.php';
     require_once __DIR__ . '/stop_adopt.php';
     $uid = (int)$u['id'];
-    $mine = $stamps = count(stop_stamps_of($uid));
+    if (($node['kind'] ?? '') === 'village') stop_stamp($uid, $node);   // v2.5.54: being here is the visit
+    $stamps = count(stop_stamps_of($uid));
     $total = count(stop_road_stops());
     $here = (bool)q_val('SELECT 1 FROM stop_stamps WHERE user_id = ? AND location_id = ?', [$uid, (int)$node['id']]);
     $form = fn(string $do, string $kind, string $btn, string $ask = '') => '<form method="post" class="inline" data-vform' . ($ask !== '' ? ' data-confirm="' . e($ask) . '"' : '') . '>'

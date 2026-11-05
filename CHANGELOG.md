@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.54
+- **The stamp comes with being at a rest stop**: opening the Here picture (or its Rest stop card) at a village stamps your passport, like the old local page did. Before, the stamp only came from the old page, so Take hold here said to collect the stamp first.
+
 ## 2.5.53
 - **Rest stop popover slimmed**: your stamp count, **Take hold here** (adopt this stop; or collect the welcome when it is yours) and **Garden here** (buy the land deed, or open your garden in this region). Both post in place and the card comes back with the result. The full passport, sets and seasons stay on the full page.
 

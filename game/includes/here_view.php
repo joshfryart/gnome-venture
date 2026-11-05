@@ -538,6 +538,10 @@ function here_sprites(array $u, array $node, array $L, string $kind): array
 /** The whole picture block for the page. */
 function here_view(array $u, array $node, bool $debug = false, string $open = ''): string
 {
+    if (($node['kind'] ?? '') === 'village' && !$debug) {   // v2.5.54: standing at a rest stop is a visit: the passport stamp comes with it (the old local page did this)
+        require_once __DIR__ . '/stop_pass.php';
+        foreach (stop_stamp((int)$u['id'], $node)[1] as $m) flash($m);
+    }
     $kind = here_kind($node);
     $found = here_layout_find(here_layouts_all(), $kind, (string)($node['landscape'] ?? ''), (string)($node['slug'] ?? ''), here_layout_ctx($node, $kind));
     $back = 'here.php';
