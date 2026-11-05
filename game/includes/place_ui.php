@@ -292,6 +292,58 @@ function stop_tab_html(array $u, array $node, bool $hub): string
     return $h . '</div>';
 }
 
+/**
+ * v2.5.53: the slim Rest stop card for the Here picture (a popover): your stamps, then the two things a stop offers: "Take hold here" (adopt this stop) and
+ * "Garden here" (the land deed). Forms carry data-vform, so assets/hubscene.js posts them to town.php in place and the card comes back with the result.
+ */
+function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '', bool $ok = true): string
+{
+    require_once __DIR__ . '/stop_pass.php';
+    require_once __DIR__ . '/stop_adopt.php';
+    $uid = (int)$u['id'];
+    $mine = $stamps = count(stop_stamps_of($uid));
+    $total = count(stop_road_stops());
+    $here = (bool)q_val('SELECT 1 FROM stop_stamps WHERE user_id = ? AND location_id = ?', [$uid, (int)$node['id']]);
+    $form = fn(string $do, string $kind, string $btn, string $ask = '') => '<form method="post" class="inline" data-vform' . ($ask !== '' ? ' data-confirm="' . e($ask) . '"' : '') . '>'
+        . '<input type="hidden" name="do" value="' . $do . '">' . ($kind !== '' ? '<input type="hidden" name="kind" value="' . $kind . '">' : '') . '<input type="hidden" name="card" value="stop">' . $btn . '</form>';
+    $h = '<div class="st-slim">' . ($msg !== '' ? '<p class="' . ($ok ? 'good' : 'bad') . '" role="status">' . e($msg) . '</p>' : '')
+        . '<p class="st-sumline"><b>' . $stamps . '</b> of ' . $total . ' road stops stamped' . ($here ? ' · ✅ this one' : '') . '</p>'
+        . '<progress max="' . max(1, $total) . '" value="' . $stamps . '" aria-label="Road stops stamped"></progress>';
+    $h .= '<div class="st-slim__acts">';
+    // Take hold here: adopt this stop
+    if ($node['kind'] === 'village' && on_road((int)$node['id']) && (stop_adopt_limit() > 0 || stop_adoption((int)$node['id']))) {
+        $a = stop_adoption((int)$node['id']);
+        $h .= '<div class="box"><b>🏡 Take hold here</b>';
+        if ($a && (int)$a['user_id'] === $uid) {
+            $done = ($a['perk_day'] ?? '') === hollow_date('Y-m-d');
+            $h .= '<p>You look after ' . e($node['name']) . '. Tier ' . (int)$a['tier'] . '.</p>'
+                . $form('local', '_perk', '<button class="btn small"' . ($done ? ' disabled' : '') . '>🎁 ' . ($done ? 'Welcome taken today' : 'Collect the welcome') . '</button>')
+                . ' <a class="btn small alt" href="' . e(url('town.php?view=passport')) . '">Hand in materials ›</a>';
+        } elseif ($a && $a['user_id']) {
+            $h .= '<p class="muted">Looked after by ' . e(stop_gnome_label($a)) . '.</p>';
+        } else {
+            [$slots, $count] = stop_adopt_slots($uid);
+            $fee = max(0, (int)setting('stop_adopt_cost'));
+            $why = !$here ? 'Collect this stop’s stamp first (it comes with your first visit).' : ($count >= $slots ? 'You look after ' . $count . ' of ' . $slots . ' stops already.' : '');
+            $h .= '<p>Look after it and it grows a bench, a stall, a well and a hall for everyone. Costs ' . money($fee) . '.</p>'
+                . ($why === '' ? $form('local', '_adopt', '<button class="btn small">🏡 Take hold of ' . e($node['name']) . '</button>', 'Take hold of ' . $node['name'] . ' for ' . number_format($fee) . '?') : '<p class="muted">' . e($why) . '</p>');
+        }
+        $h .= '</div>';
+    }
+    // Garden here: the land deed (or your garden in this region)
+    if ($node['kind'] === 'village' && $node['region_id']) {
+        $plot = q_one('SELECT * FROM plots WHERE user_id = ? AND region_id = ?', [$uid, $node['region_id']]);
+        $owned = (int)q_val('SELECT COUNT(*) FROM plots WHERE user_id = ?', [$uid]);
+        $h .= '<div class="box"><b>🌱 Garden here</b>';
+        if ($plot) $h .= '<p>Your garden here: <b>' . eu($plot['garden_name'] ?: 'Garden') . '</b>.</p><a class="btn small" href="' . e(url('garden.php')) . '">Open your garden ›</a>';
+        elseif ($owned < max_gardens($u)) $h .= '<p>Land for sale: <b>' . money(deed_cost($uid)) . '</b>. Native crops grow faster at home.</p>'
+            . $form('deed', '', '<button class="btn small">📜 Buy land deed</button>', 'Buy a land deed here for ' . number_format(deed_cost($uid)) . '?');
+        else $h .= '<p class="muted">' . (next_garden_level($u) ? 'Another garden from gnome level ' . next_garden_level($u) . '.' : 'You tend as many gardens as a gnome can.') . '</p>';
+        $h .= '</div>';
+    }
+    return $h . '</div><p class="vmore"><a href="' . e(url('town.php?view=passport')) . '">Full passport, sets and seasons ›</a></p>';
+}
+
 /** Main-stop tabs: Square, Villagers, Shops, Orders, Stop. $folkCount badges Villagers (0 = none). v2.0.67: in town, Shops and Orders are town.php views
  *  (old world.php?tab=markets and jobs.php?t=orders links still work); labels are one word after the icon (the strip never wraps). */
 function main_stop_tabs(bool $hub, bool $inTown, string $active, int $folkCount = 0): array

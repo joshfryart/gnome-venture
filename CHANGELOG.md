@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.53
+- **Rest stop popover slimmed**: your stamp count, **Take hold here** (adopt this stop; or collect the welcome when it is yours) and **Garden here** (buy the land deed, or open your garden in this region). Both post in place and the card comes back with the result. The full passport, sets and seasons stay on the full page.
+
 ## 2.5.52
 - **Rest stop on the Here picture opens a popover**: the stamp passport slimmed down (progress, next sets, Orders note) with Open full page; no Seasons, Land or Road Journal folds. Loads in place from `town.php?view=passport&frag=1`.
 

@@ -7388,3 +7388,11 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 
 /* v2.5.51: a walk replay is about to start: do not flash the final map first (assets/tilemap.js marks it played) */
 .tilemap[data-walk]:not([data-played]) .tmstage { visibility: hidden; }
+
+/* v2.5.53: the slim Rest stop popover (Here picture) */
+.st-slim { display: grid; gap: 8px; }
+.st-slim .st-sumline { margin: 0; }
+.st-slim progress { width: 100%; }
+.st-slim__acts { display: grid; gap: 8px; }
+.st-slim__acts .box { padding: 8px 10px; }
+.st-slim__acts .box p { margin: 4px 0 6px; }

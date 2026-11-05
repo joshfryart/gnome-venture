@@ -20,7 +20,7 @@ if (is_post()) {
     refresh_energy($u);
     $do = (string)($_POST['do'] ?? '');
     $pnode = player_node($u);
-    if (!$hub && $do !== 'local' && !in_array($pnode['kind'], ['market', 'hub'], true)) {   // v0.7.48: the square is in the town itself
+    if (!$hub && !in_array($do, ['local', 'deed'], true) && !in_array($pnode['kind'], ['market', 'hub'], true)) {   // v0.7.48: the square is in the town itself
         flash('You’re not in town right now. Walk to the town at the end of the road to use its square.', 'err');
         redirect('town.php');
     }
@@ -35,9 +35,15 @@ if (is_post()) {
         'rps_play' => town_rps_play($u, (int)($_POST['game'] ?? 0), (string)($_POST['move'] ?? '')),
         'order' => order_deliver($u, (int)($_POST['npc'] ?? 0), town_for($u, $hub)),   // v1.0.0 wave 2b: orders with a quality bar
         'favour' => favour_deliver($u, (int)($_POST['npc'] ?? 0), town_for($u, $hub)),
+        'deed' => buy_land_deed($u, $pnode),
         'local' => (function () use ($u) { require_once __DIR__ . '/includes/local.php'; return local_do($u, player_node($u), (string)($_POST['kind'] ?? ''), $_POST); })(),
         default => [false, 'Unknown action.'],
     };
+    if ($ajax && ($_POST['card'] ?? '') === 'stop') {   // v2.5.53: the Rest stop popover comes back with the result
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['ok' => $ok, 'msg' => $msg, 'html' => stop_slim_card_html(require_login(), player_node(require_login()), $hub, $msg, $ok)], JSON_UNESCAPED_SLASHES);
+        exit;
+    }
     if ($ajax && (int)($_POST['spot'] ?? 0) > 0) spot_card_reply(require_login(), $hub, (int)$_POST['spot'], $msg, $ok);   // in place: the card comes back with the result
     flash($msg, $ok ? 'ok' : 'err');
     $spot = (int)($_POST['spot'] ?? 0);
@@ -60,12 +66,9 @@ $nodeNow = player_node($u);
 $inTown = $hub || in_array($nodeNow['kind'], ['market', 'hub'], true);
 if (!$inTown && $viewReq === 'shops') redirect('world.php?tab=markets');   // v2.0.67: Shops and Orders are town views; away from a town the old pages show them
 if (!$inTown && $viewReq === 'orders') redirect('jobs.php?t=requests');
-if ($viewReq === 'passport' && $ajax && isset($_GET['frag'])) {   // v2.5.52: the Here picture's Rest stop popover: the passport, slimmed (no Seasons, Land or Road Journal folds)
-    require_once __DIR__ . '/includes/stop_pass.php';
-    foreach (stop_sets_check($uid) as $m) flash($m);
+if ($viewReq === 'passport' && $ajax && isset($_GET['frag'])) {   // v2.5.52/53: the Here picture's Rest stop popover (slim: stamps, Take hold here, Garden here)
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(['ok' => true, 'msg' => '', 'html' => '<div class="st-page st-slim"><h2 class="gx-h">🛂 Stamp passport</h2>' . stop_passport_html($u)
-        . '<p class="gx-note">📜 <a href="' . e(url('jobs.php?t=requests' . ($hub ? '&hub=1' : ''))) . '">Orders</a> are on the Tasks page.</p></div>'], JSON_UNESCAPED_SLASHES);
+    echo json_encode(['ok' => true, 'msg' => '', 'html' => stop_slim_card_html($u, player_node($u), $hub)], JSON_UNESCAPED_SLASHES);
     exit;
 }
 if ($viewReq === 'passport') {   // v2.0.4 menu folds: Passport works from anywhere (Villagers away from a town is villagers.php, see above)
