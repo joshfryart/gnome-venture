@@ -1409,6 +1409,18 @@ dialog.picker::backdrop { background: rgba(42, 26, 16, .4); overflow: hidden; ov
   .selon:not([hidden]) .selacts > * { flex: 0 0 auto; margin: 0; }
   .selon:not([hidden]) .selacts { flex-wrap: nowrap !important; justify-content: flex-start; align-items: center; }
   body.game:has(.selon:not([hidden])) { padding-bottom: calc(var(--bar) + var(--sab) + 72px); }
+  /* v2.5.49: a compact select bar on a phone: the count and the quick picks sit in one scrolling row, the help line goes, the action buttons are smaller */
+  .selbar { max-width: 100%; min-width: 0; }
+  .selbar .selon { padding: 4px 8px; max-width: 100%; min-width: 0; box-sizing: border-box; }
+  .selbar .selon > p:first-child { max-width: 100%; min-width: 0; }
+  .selbar .selon p { margin: 4px 0; gap: 6px; }
+  .selbar .selon > p:first-child { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; padding-bottom: 2px; }
+  .selbar .selon > p:first-child > * { flex: 0 0 auto; }
+  .selbar .selon > p:first-child .btn { padding: 2px 8px; font-size: 13px; min-height: 30px; }
+  .selbar .selon .help { display: none; }
+  .selon:not([hidden]) .selacts { padding: 6px 8px; gap: 6px; }
+  .selon:not([hidden]) .selacts .btn { padding: 4px 10px; font-size: 14px; min-height: 36px; }
+  body.game:has(.selon:not([hidden])) { padding-bottom: calc(var(--bar) + var(--sab) + 56px); }
   .backtoyard { display: inline; }
 }
 
