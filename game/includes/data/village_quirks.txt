@@ -1,0 +1,93 @@
+# A second sentence for a village (v2.5.71). landscape | text. village_blurb() joins one of village_blurbs.txt with one of these, picked from the
+# village's slug (the salt in adventure_data.php is chosen so no two of the 146 villages read the same: tests/village_desc.php checks it).
+# One line each; under 100 characters.
+coast|The baker sells bread shaped like fish, and nobody has ever asked why.
+coast|Every door is painted the colour of a different sunset.
+coast|A lopsided lighthouse here is kept lit by three very serious snails.
+coast|Fishing nets hang drying from every window, and some of them are doing very well.
+coast|Folk here can tell the hour by the tide and are rarely wrong.
+coast|The harbour bell rings for dinner, never for danger.
+coast|Washed-up bottles line the wall, each with a note nobody has dared to read.
+coast|There is a long argument here about whose crab is whose.
+coast|Boats are named after grandmothers, and they all steer like them.
+coast|The market stall for seaweed tea has a queue every morning.
+desert|Water is shared at the well, and so is the gossip.
+desert|Shade is the best thing for sale, and the cheapest.
+desert|Lanterns come out at dusk and the whole place turns amber.
+desert|The roofs are flat so folk can sleep under the stars in summer.
+desert|A cactus by the gate has been waved at so long it seems to wave back.
+desert|Every doorway has a curtain of beads that clicks like rain.
+desert|The oldest gnome here says the dunes move house once a year.
+desert|Travellers are fed first and asked questions later.
+desert|Kites are flown at noon, when the heat shimmers just right.
+desert|A single patch of green behind the inn is guarded like treasure.
+forest|Every house is built around a tree, and the trees seem fine with it.
+forest|Mushrooms grow on the roofs and nobody is in a hurry to pick them.
+forest|Paths here are marked with painted acorns, one colour for each family.
+forest|The owl on the post office roof reads the post before it is sent.
+forest|Moss is trimmed, never cut, and there are rules about it.
+forest|Folk leave a bowl of milk out for whatever lives under the bridge.
+forest|The best seat in town is a stump, and the line for it is polite.
+forest|Lanterns hang from low branches so no one walks into a tree.
+forest|There is a very old oak here that will tell you the weather if you ask nicely.
+forest|Squirrels run the post and expect payment in hazelnuts.
+grassland|Windmills turn lazily and the miller waves at every passer-by.
+grassland|The fence posts have faces carved in them, and a few have names.
+grassland|Hay bales are stacked into a little maze for the children.
+grassland|Kites and birds share the sky, and the kites usually lose.
+grassland|The harvest feast here is planned a full year ahead.
+grassland|A bell on the village green rings whenever someone lost finds their way home.
+grassland|Gophers keep a surprisingly tidy lawn under the market stalls.
+grassland|The longest table in the valley stands outside the inn.
+grassland|Scarecrows get new hats every season, and have opinions on them.
+grassland|Everyone here seems to know exactly what the weather will do by lunchtime.
+island|Hammocks are slung between every pair of palms.
+island|The ferry runs when it feels like it, and that is considered a schedule.
+island|Shells are sorted by size on the market stall, then promptly mixed up by the children.
+island|A drum starts up at sunset and the whole beach joins in.
+island|The village chief is a very old tortoise and no one questions the pace of meetings.
+island|Coconuts are sold by the song, and the good singers eat well.
+island|Rowboats are painted in stripes so no one mistakes whose is whose.
+island|Fish are grilled on the sand and the smoke smells of driftwood.
+island|There is a lagoon behind the huts that glows a little at night.
+island|Messages are sent in bottles and are, remarkably, usually answered.
+mountain|Goats are consulted on every bridge before it is crossed.
+mountain|Houses are stacked up the slope like shelves, and the ladders are all named.
+mountain|Folk here yodel to say hello and to say it is dinner.
+mountain|The path in is steep enough that visitors are given soup the moment they arrive.
+mountain|A stone bell rings from the cliff when snow is coming.
+mountain|Chimney smoke rises in thin lines and everyone can tell whose is whose.
+mountain|There is a famous hat here made of a single enormous pine cone.
+mountain|The oldest rope bridge has never snapped and everyone mentions it, constantly.
+mountain|Echoes are treated as guests and greeted on the way through.
+mountain|Cheese is aged in a cave that is rumoured to hum.
+rainforest|Everything is damp, green and quietly growing into everything else.
+rainforest|Rope bridges link the huts and the monkeys use them more than anyone.
+rainforest|Umbrellas are made from single leaves, and there is a leaf shop.
+rainforest|Frogs sing in rounds after the rain, and some are very good at it.
+rainforest|Flowers here grow so tall the children use them as stairs.
+rainforest|A waterfall behind the inn is the village’s washing machine, bath and clock.
+rainforest|The market sells fruit no outsider has a name for.
+rainforest|Boots are left at the door in a neat row of mud.
+rainforest|Orchids on the roofs are counted every spring, with ceremony.
+rainforest|Parrots here repeat the gossip, so folk have learned to whisper.
+tundra|Every house has a very thick door and an even thicker welcome.
+tundra|Lanterns burn all day and nobody minds paying for the oil.
+tundra|Folk here knit hats for visitors without being asked.
+tundra|Ice-fishing holes are marked with little flags, each one a different colour.
+tundra|The soup pot never empties and no one says who fills it.
+tundra|Snow is swept into neat banks and the children slide down them.
+tundra|The northern lights are watched together from the hill, with blankets.
+tundra|There is a stove in every shop and a stool next to every stove.
+tundra|The postman travels by sled and always arrives with frost on his eyebrows.
+tundra|Reindeer wander through town as though they own the place, which they might.
+wetland|Boardwalks creak in a friendly way, and everyone knows each plank’s name.
+wetland|Frogs are paid in flies to keep the evenings quiet. It mostly works.
+wetland|Lilypads here are used as stepping stones, and a few as tables.
+wetland|The ferry is a barrel on a rope, and it has never once been late.
+wetland|Reed roofs are re-thatched in spring with a great deal of singing.
+wetland|Fireflies are so thick at dusk that no one needs a lantern.
+wetland|Boots are kept by the door, upside down, to dry in the mist.
+wetland|There is a heron on the roof who has been there so long it has a mailbox.
+wetland|Fog rolls in every morning and the whole village says hello to it.
+wetland|Folk here walk slowly, mostly because the ground is thinking about it.

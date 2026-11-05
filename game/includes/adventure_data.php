@@ -38,6 +38,9 @@ const LANDSCAPE_FINDS = [
     'island' => [['Cowrie Shell', 'Smooth and glossy, once used as money.'], ['Coconut Husk', 'Hairy, tough and useful.'], ['Sea Grapes', 'Green beads on a string, salty and crisp.'], ['Coir Fibre', 'Tough golden fibre, good for rope.']],
 ];
 
+/** v2.5.71: only for a village that is not in zones.txt (admin-made); generated villages get a fixed, clash-free pair (tests/village_desc.php). */
+if (!defined('VILLAGE_BLURB_SALT')) define('VILLAGE_BLURB_SALT', 'a0');
+
 /**
  * v1.9.4: how a generated village is described. The old text (one sentence per landscape, shared by all 146 villages) is still
  * what is stored; this shows it, or one of the extra sentences in data/village_blurbs.txt, picked from the village's slug so it never changes.
@@ -45,22 +48,52 @@ const LANDSCAPE_FINDS = [
  */
 function village_blurb(array $loc): string
 {
-    static $pools = null;
+    static $pools = null, $quirks = null;
     $desc = (string)($loc['description'] ?? '');
     $land = (string)($loc['landscape'] ?? '');
     if (($loc['kind'] ?? '') !== 'village' || !isset(LANDSCAPES[$land]) || $desc !== LANDSCAPES[$land][2]) return $desc;
     if ($pools === null) {
-        $pools = [];
-        $path = __DIR__ . '/data/village_blurbs.txt';
-        foreach (is_file($path) ? file($path, FILE_IGNORE_NEW_LINES) : [] as $line) {
-            $line = trim($line);
-            if ($line === '' || $line[0] === '#') continue;
-            $f = array_map('trim', explode('|', $line, 2));
-            if (count($f) === 2 && $f[1] !== '') $pools[strtolower($f[0])][] = $f[1];
-        }
+        $read = function (string $file): array {
+            $out = [];
+            $path = __DIR__ . '/data/' . $file;
+            foreach (is_file($path) ? file($path, FILE_IGNORE_NEW_LINES) : [] as $line) {
+                $line = trim($line);
+                if ($line === '' || $line[0] === '#') continue;
+                $f = array_map('trim', explode('|', $line, 2));
+                if (count($f) === 2 && $f[1] !== '') $out[strtolower($f[0])][] = $f[1];
+            }
+            return $out;
+        };
+        $pools = $read('village_blurbs.txt');
+        $quirks = $read('village_quirks.txt');   // v2.5.71: a second sentence, so the pairs outnumber the villages
     }
     $pool = array_merge([$desc], $pools[$land] ?? []);
-    return $pool[crc32((string)($loc['slug'] ?? $loc['name'] ?? '')) % count($pool)];
+    $q = $quirks[$land] ?? [];
+    $slug = (string)($loc['slug'] ?? $loc['name'] ?? '');
+    $rank = village_land_rank($slug, $land);   // the village's place among its landscape's villages: distinct pairs, no clashes
+    if ($rank === null) $rank = crc32(VILLAGE_BLURB_SALT . $slug);   // a village that is not in zones.txt (admin-made): by name
+    else $rank = ($rank * 7 + 3) % max(1, count($pool) * max(1, count($q)));   // 7 is coprime with 50 = 5 blurbs x 10 lines: a shuffle, not a sequence
+    $one = $pool[$rank % count($pool)];
+    return $q ? $one . ' ' . $q[intdiv($rank, count($pool)) % count($q)] : $one;
+}
+
+/** v2.5.71: the 0-based position of a generated village (slug v-<region>-<zone>-<n>) among the villages of its landscape, in zones.txt order; null if unknown. */
+function village_land_rank(string $slug, string $land): ?int
+{
+    static $rank = null;
+    if ($rank === null) {
+        require_once __DIR__ . '/catalog.php';
+        $rank = [];
+        $n = [];
+        foreach (catalog_lines('zones.txt') as $f) {
+            if (count($f) < 6) continue;
+            for ($i = 1; $i <= max(1, min(5, (int)$f[5])); $i++) {
+                $n[$f[2]] = ($n[$f[2]] ?? -1) + 1;
+                $rank['v-' . strtolower($f[0]) . '-' . (int)$f[1] . '-' . $i] = $n[$f[2]];
+            }
+        }
+    }
+    return isset($rank[$slug]) ? $rank[$slug] : null;
 }
 
 const LANDMARK_ICONS = ['haven' => '🏕️', 'wonder' => '✨', 'delve' => '🕳️', 'lair' => '🐉'];
