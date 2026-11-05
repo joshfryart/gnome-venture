@@ -596,6 +596,7 @@ function stop_pool(array $loc, ?array $now = null, int $uid = 0): array
     $extra = stop_diverse($rest, max(0, (int)setting('stop_extra') - count($hapActs) - count($answer)), array_column($core, 'kind'));
     usort($special, fn($x, $y) => crc32('sp|' . $day . $loc['slug'] . $x['slug']) <=> crc32('sp|' . $day . $loc['slug'] . $y['slug']));
     $special = array_slice($special, 0, 3);
+    usort($answer, fn($x, $y) => crc32('ans|' . $day . '|' . $loc['slug'] . '|' . $x['slug']) <=> crc32('ans|' . $day . '|' . $loc['slug'] . '|' . $y['slug']));   // a different two each day, not always the first two in the file
     $answer = array_slice($answer, 0, 2);
     $thread = $uid > 0 ? stop_thread_offer($uid, $loc) : null;
     return ['offer' => array_merge($special, $answer, $thread ? [$thread] : [], $hapActs, $core, $extra, $upgrades), 'later' => $later, 'tiers' => $lockedUp, 'happening' => $hap];

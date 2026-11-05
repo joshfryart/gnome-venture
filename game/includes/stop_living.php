@@ -49,7 +49,7 @@ function stop_meter_add(int $uid, int $locId, string $name, int $amt): array
     if ($v >= 100) {
         $filled = $name;
         $v = STOP_METER_AFTER;
-        $until = date('Y-m-d', strtotime(hollow_date('Y-m-d') . ' +' . (STOP_PERK_DAYS - 1) . ' days UTC'));
+        $until = gmdate('Y-m-d', strtotime(hollow_date('Y-m-d') . ' 12:00:00 UTC +' . (STOP_PERK_DAYS - 1) . ' days'));
         stop_prog_set($uid, $locId, 'perk:' . $name, 1, ['until' => $until]);
     }
     stop_prog_set($uid, $locId, 'meter:' . $name, max(0, $v), ['d' => hollow_date('Y-m-d')]);
