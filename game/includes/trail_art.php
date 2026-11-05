@@ -175,7 +175,7 @@ function trail_art_svg(array $map, array $state): string
     $n = 'tm_n';
     $under = ['grassland' => '#2a5a3e', 'forest' => '#4a2f2d', 'coast' => '#b78a5c', 'tundra' => '#8fb0d8'][$fland] ?? '#2a3a2e';
     if (($edge = trail_art_edge_colour($art)) !== '') $under = $edge;
-    $o = '<svg class="tmbg tpix" viewBox="0 0 ' . $W . ' ' . $H . '" preserveAspectRatio="none" aria-hidden="true" focusable="false">';
+    $o = '<svg class="tmbg tpix' . (($state['sfx'] ?? '') !== '' ? ' tmx' : '') . '" viewBox="0 0 ' . $W . ' ' . $H . '" preserveAspectRatio="none" aria-hidden="true" focusable="false">';
     $o .= '<defs><linearGradient id="tmfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' . $under . '" stop-opacity="0"/><stop offset="1" stop-color="' . $under . '" stop-opacity="1"/></linearGradient>'
         . '<linearGradient id="tmfadex" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="' . $under . '" stop-opacity="1"/><stop offset="1" stop-color="' . $under . '" stop-opacity="0"/></linearGradient></defs>';
     $o .= '<rect width="' . $W . '" height="' . $H . '" fill="' . $under . '"/>';

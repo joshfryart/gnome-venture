@@ -7385,3 +7385,6 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 .tilemap .tmbg.tpix { image-rendering: pixelated; }
 .tilemap .tmbg.tpix image { image-rendering: pixelated; }
 .tmcap { text-align: center; margin: 6px 12px 0; font-size: 14px; font-style: italic; color: var(--muted); text-wrap: balance; }
+
+/* v2.5.51: a walk replay is about to start: do not flash the final map first (assets/tilemap.js marks it played) */
+.tilemap[data-walk]:not([data-played]) .tmstage { visibility: hidden; }
