@@ -3,7 +3,6 @@
 -- glossy button nose, purple wizard hat bent left with a gold star tip, pink robe; holds a star wand.
 local HP = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hp.lua")
 local P = HP.P
-local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or "./"
 local NAME = "npc-bram"
 local SP = { hi = "#c39a78", base = "#86604e", shade = "#58405a", deep = "#36263e" }
@@ -39,7 +38,34 @@ c:part(c:ellipse(39.5, 86, 2.5, 2.5), P.gold, { band = 1, inner = false, pop = {
 c:hem(97, 12, 67)
 local paw = c:ellipse(61.5, 82, 3.5, 3) c:part(paw, FACE, { band = 1, inner = false, pop = { x = 60, y = 80 } }) under(paw, FACE.shade)
 c:put(60, 83, FACE.shade) c:put(62, 83, FACE.shade)
-HH.head(c, { cx = 39.5, cy = 49, s = 1.4, SP = SP, FACE = FACE })
+-- quills
+local cx, cy = 39.5, 52
+local sp = c:ellipse(cx, cy, 20, 15)
+for a = 140, 400, 16 do
+  local r1, r0, r2 = math.rad(a - 6), math.rad(a), math.rad(a + 6)
+  sp:add(c:poly{ { cx + math.cos(r1) * 18.5, cy + math.sin(r1) * 13.5 }, { cx + math.cos(r0) * 26, cy + math.sin(r0) * 20 },
+    { cx + math.cos(r2) * 18.5, cy + math.sin(r2) * 13.5 } })
+end
+c:part(sp, SP, { band = 3, inner = false, pop = { x = 22, y = 44 } }) under(sp, SP.deep)
+for a = 140, 400, 9 do for _, rr in ipairs{ 0.62, 0.8, 0.96 } do
+  local r = math.rad(a + rr * 30)
+  local x, y = cx + math.cos(r) * 20 * rr, cy + math.sin(r) * 15 * rr
+  local hex = (a < 260) and SP.hi or SP.deep
+  c:line({ { x, y }, { x + math.cos(r) * 2.2, y + math.sin(r) * 2.2 } }, 1):clip(sp):each(function(px, py) c:put(px, py, hex) end)
+end end
+-- face
+local face = c:ellipse(39.5, 60, 14, 10.5)
+c:part(face, FACE, { band = 2, inner = false, pop = { x = 30, y = 52 } }) under(face, FACE.shade)
+-- jagged quill hairline into the face
+for x = 27, 52, 3 do for d = 0, 1 do local y = 50 + d + ((x % 2 == 0) and 1 or 0)
+  if face:has(x, y) and not face:has(x, y - 2) then c:put(x, y, SP.base) c:put(x, y - 1, SP.base) end end end
+local sn = c:ellipse(39.5, 64, 5.5, 4)
+c:part(sn, FACE, { band = 1, inner = false, pop = { x = 36, y = 61 } }) under(sn, FACE.shade)
+local nose = c:rrect(37, 64, 42, 67, 1)
+c:fillMask(nose, "#4a3048") c:put(38, 64, P.stone.hi) c:put(39, 64, "#7a5a78") c:put(41, 67, "#2f1f34")
+for _, q in ipairs{ { 37, 69 }, { 38, 70 }, { 39, 70 }, { 40, 70 }, { 41, 70 }, { 42, 69 } } do c:put(q[1], q[2], P.ink) end
+c:eyeLocked(29, 53) c:eyeLocked(46, 53)
+c:paint({ "PPP", "PPP" }, 25, 60, { P = "petal.base" }) c:paint({ "PPP", "PPP" }, 52, 60, { P = "petal.base" })
 -- wizard hat
 local cone = c:poly{ { 28, 41 }, { 51, 41 }, { 46, 19 }, { 36, 17 } }
 cone:add(c:line({ { 41, 19 }, { 37, 12 }, { 31, 8 }, { 26, 7 } }, 5))

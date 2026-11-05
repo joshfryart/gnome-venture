@@ -4,7 +4,6 @@
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HP = dofile(DIR .. "/../../lib/hp.lua")
 local P = HP.P
-local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or (DIR .. "/")
 local NAME = "npc-juniper-kettleby"
 local SPINE = { hi = "#b98a5e", base = "#7a4f36", shade = "#57364a", deep = "#3a2638" }
@@ -37,7 +36,11 @@ local function frame(p)
   local c = HP.canvas{ w = 64, h = 96, name = NAME }
   local b, set, lid = p.b or 0, p.set or 0, p.lid or 0
   c:groundShadow(32, 89.5, 13, 2.5)
-  HH.back(c, 32, 70 + b, 13, 9, SPINE)
+  -- back spines peeking past the body
+  local man = c:ellipse(32, 73 + b, 12, 7)
+  spikes(man, 32, 73 + b, 12, 7, 160, 205, 3, 3 - set, 2)
+  spikes(man, 32, 73 + b, 12, 7, -25, 20, 3, 3 - set, 2)
+  c:part(man, SPINE, { band = 1, nopop = true })
   for _, x in ipairs{ 27, 37 } do c:part(c:ellipse(x, 88, 3.5, 2), PAW, { band = 1 }) end
   local tun = c:ellipse(32, 78 + b, 11, 9)
   c:part(tun, P.gold, { band = 2 })
@@ -52,7 +55,20 @@ local function frame(p)
   c:part(c:ellipse(45, 76.5 + b - lid, 3, 1), COP, { band = 1, nopop = true, inner = true })
   c:put(45, 75 + b - lid, COP.hi)
   c:part(c:ellipse(43, 73 + b, 2, 1.5), PAW, { band = 1, nopop = true })
-  HH.head(c, { cx = 32, cy = 50 + b, s = 1, SP = SPINE, FACE = FACE, blink = p.blink, chin = 8 })
+  -- head: spine dome
+  local dome = c:ellipse(32, 52 + b, 15, 11)
+  spikes(dome, 32, 52 + b, 15, 11, 165, 375, 9, 3 - set, 2.2)
+  c:part(dome, SPINE, { band = 2, pop = { x = 24, y = 45 + b } })
+  streaks(c, 32, 52 + b, 15, 11, 190, 350, 8)
+  local face = c:ellipse(32, 58 + b, 10, 7):cut(HP.poly{ { 29, 50 + b }, { 32, 54 + b }, { 35, 50 + b } })
+  c:part(face, FACE, { band = 1, pop = { x = 25, y = 56 + b } })
+  for _, x in ipairs{ 20, 44 } do c:part(c:ellipse(x, 54 + b, 2, 2), FACE, { band = 1, nopop = true, sep = true }) c:put(x, 54 + b, P.petal.base) end
+  c:part(c:ellipse(32, 61.5 + b, 3, 2), SNOUT, { band = 1, nopop = true })
+  c:part(c:rect(31, 62 + b, 33, 63 + b), NOSE, { band = 1, pop = { x = 31, y = 62 + b } })
+  if p.blink then
+    for _, x in ipairs{ 27, 36 } do c:put(x, 58 + b, P.ink) c:put(x + 1, 58 + b, P.ink) end
+  else c:eyeSmall(27, 56 + b) c:eyeSmall(36, 56 + b) end
+  c:cheek(24, 60 + b) c:cheek(39, 60 + b)
   c:finish{ outline = true }
   HP.assertClean(c)
   return c

@@ -2,7 +2,6 @@
 -- head+shoulders, quill crown, tilted blue beret, pointed muzzle, basket of blackberries in frame. petal backdrop.
 local HP = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hp.lua")
 local P = HP.P
-local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or "./"
 local function under(c, m, hex) local l = {} m:each(function(x, y) if not m:has(x, y + 1) then l[#l + 1] = { x, y } end end) for _, q in ipairs(l) do c:put(q[1], q[2], hex) end end
 local function spike(c, m, cx, cy, deg, r0x, r0y, r1x, r1y, w)
@@ -39,11 +38,26 @@ local body = c:ellipse(39.5, 102, 33, 30):clip(c:rect(0, 66, 79, 99))
 for _, d in ipairs{ 200, 215, 230, 310, 325, 340 } do spike(c, body, 39.5, 102, d, 30, 27, 38, 36, 3) end
 body:clip(c:rect(0, 0, 79, 99))
 c:part(body, QU, { pop = { x = 14, y = 82 } })
-HH.texture(c, body, 39.5, 100, 33, 28, QU)
+hatch(c, body, { [QU.base] = QU.hi }, function(x, y) return x < 38 and (x + 2 * y) % 6 == 0 end)
+hatch(c, body, { [QU.base] = QU.shade }, function(x, y) return x >= 38 and (x + 2 * y) % 6 == 0 end)
 local belly = c:ellipse(39.5, 104, 15, 30):clip(c:rect(0, 72, 79, 99))
 c:part(belly, FC, { pop = { x = 30, y = 78 } })
 -- head with quill crown
-HH.head(c, { cx = 39.5, cy = 46, s = 1.4, SP = QU, FACE = FC })
+local head = c:ellipse(39.5, 50, 20, 17)
+for d = 160, 380, 12 do spike(c, head, 39.5, 50, d, 18, 15, 27, 25, 3) end
+c:part(head, QU, { pop = { x = 25, y = 38 } })
+hatch(c, head, { [QU.base] = QU.hi }, function(x, y) return x < 38 and (x + 2 * y) % 5 == 0 end)
+hatch(c, head, { [QU.base] = QU.shade }, function(x, y) return x >= 38 and (x + 2 * y) % 5 == 1 end)
+local face = c:ellipse(39.5, 55, 17, 12):clip(head)
+for _, x in ipairs{ 27, 33, 39, 46, 52 } do face:cut(c:poly{ { x - 3, 42 }, { x + 3, 42 }, { x, 48 } }) end
+c:part(face, FC, { pop = { x = 26, y = 52 } })
+for _, x in ipairs{ 20, 59 } do c:part(c:ellipse(x, 45, 3.5, 3.5), FC, { nopop = true }) c:fillMask(c:rect(x - 1, 44, x, 46), P.petal.base) end
+c:eyeLocked(28, 49) c:eyeLocked(47, 49)
+c:paint({ "PP", "PP" }, 25, 57, { P = "petal.base" }) c:paint({ "PP", "PP" }, 53, 57, { P = "petal.base" })
+local mz = c:ellipse(39.5, 59, 6.5, 5) c:part(mz, FC, { pop = { x = 35, y = 56 } })
+local ns = c:ellipse(39.5, 58, 3, 2) c:part(ns, NOSE, { pop = { x = 38, y = 57 } })
+c:paint({ "i...i", ".iii." }, 37, 63, { i = "ink" })
+-- basket of blackberries held up front
 local bk = c:rrect(26, 85, 53, 99, 3) c:part(bk, "wood", { pop = { x = 28, y = 87 } })
 hatch(c, bk, { [P.wood.base] = P.wood.shade, [P.wood.hi] = P.wood.base }, function(x, y) return (x + (y % 3 == 0 and 2 or 0)) % 4 == 0 and y > 87 end)
 for _, q in ipairs{ { 31, 81 }, { 37, 79 }, { 43, 80 }, { 49, 82 }, { 34, 83 }, { 46, 84 } } do

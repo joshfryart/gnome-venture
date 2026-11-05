@@ -4,7 +4,6 @@
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HP = dofile(DIR .. "/../../lib/hp.lua")
 local P = HP.P
-local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or (DIR .. "/")
 local NAME = "npc-tumble-seedwell"
 local SPINE = { hi = "#c9b2f0", base = "#8a6fd0", shade = "#5a459e", deep = "#35295f" }
@@ -62,8 +61,26 @@ local function frame(p)
   c:part(c:ellipse(32, 54 + b, 10, 2.5), CR, { band = 1 })
   -- quilled head
   local hy = 38 + b
-  HH.head(c, { cx = 32, cy = hy + 1, s = 1, SP = SPINE, FACE = FACE, blink = p.blink, chin = 8 })
-  seed(c, 23, hy - 6) seed(c, 40, hy - 9) seed(c, 19, hy + 1) seed(c, 45, hy - 1)
+  local sp = c:ellipse(32, hy, 17, 15)
+  spikes(c, sp, 32, hy, 17, 15, 160, 380, 18, 5, 8)
+  c:part(sp, SPINE, { band = 2, nopop = true }) quills(c, sp, 32, hy, 6)
+  seed(c, 21, hy - 9) seed(c, 41, hy - 12) seed(c, 15, hy + 3) seed(c, 47, hy + 1)
+  for _, ex in ipairs{ 21, 43 } do
+    c:part(c:ellipse(ex, hy - 3, 2.5, 2.5), FACE, { band = 1, nopop = true }) c:put(ex, hy - 3, P.petal.base)
+  end
+  local face = c:ellipse(32, hy + 5, 11, 9)
+  c:part(face, FACE, { band = 2, pop = { x = 24, y = hy } })
+  local hl = HP.mask()
+  for _, x in ipairs{ 25, 29, 33, 37 } do hl:add(c:poly{ { x - 2, hy - 5 }, { x + 2, hy - 5 }, { x, hy - 1 } }) end
+  c:part(hl:clip(face), SPINE, { band = 1, nopop = true, inner = false })
+  c:part(c:ellipse(32, hy + 10, 4, 3), SNOUT, { band = 1, nopop = true })
+  c:fillMask(c:ellipse(32, hy + 12, 1.5, 1), NOSE) c:put(31, hy + 11, P.petal.hi)
+  local ey = hy + 1
+  for _, ex in ipairs{ 25, 35 } do
+    if p.blink then for i = 0, 4 do c:put(ex + i, ey + 2, P.ink) c:put(ex + i, ey + 1, FACE.shade) end
+    else c:eyeLocked(ex, ey) end
+  end
+  c:cheek(22, hy + 7) c:cheek(41, hy + 7)
   -- crown sprout
   local lt, ld = p.lt or 0, p.ld or 0
   c:fillMask(c:line({ { 33, hy - 14 }, { 34, hy - 19 }, { 34, hy - 22 } }, 1), LEAF.shade)

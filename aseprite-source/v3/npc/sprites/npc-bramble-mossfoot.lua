@@ -5,7 +5,6 @@
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HP = dofile(DIR .. "/../../lib/hp.lua")
 local P = HP.P
-local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or (DIR .. "/")
 local NAME = "npc-bramble-mossfoot"
 local SPN = { hi = P.wood.base, base = P.wood.shade, shade = P.wood.deep, deep = "#3a2230" }
@@ -42,7 +41,27 @@ local function frame(p)
     local m = c:ellipse(fx, 88, 3.5, 2)
     c:part(m, P.skinB, { band = 1, pop = { x = R(fx) - 2, y = 87 } }) under(c, m, P.skinB.deep)
   end
-  HH.back(c, 32, 65 + b, 15, 12, SPN)
+  -- spine cloak (head top + back), pale tips, radial strands
+  local cx, cy = 32, 58 + b
+  local core = c:ellipse(cx, cy, 16, 17)
+  local sk, tips = spikes(c, cx, cy, 16, 17, 150, 390, 15, 4, 2.5, 6)
+  local sp = core:copy():add(sk)
+  c:part(sp, SPN, { band = 3, pop = { x = 23, y = 46 + b } })
+  for i = 0, 15 do
+    local a = math.rad(160 + i * 14)
+    local s = c:line({ { R(cx + math.cos(a) * 9), R(cy + math.sin(a) * 10) }, { R(cx + math.cos(a + .12) * 15), R(cy + math.sin(a + .12) * 16) } }, 1):clip(sp)
+    local lit = math.cos(a) < 0.1 and math.sin(a) < 0
+    s:each(function(x, y) c:put(x, y, (lit and i % 2 == 0) and SPN.hi or SPN.deep) end)
+  end
+  for _, t in ipairs(tips) do for dy = -1, 1 do for dx = -1, 1 do
+    if math.abs(dx) + math.abs(dy) <= 1 and sk:has(t[1] + dx, t[2] + dy) and not core:has(t[1] + dx, t[2] + dy) then c:put(t[1] + dx, t[2] + dy, P.wood.hi) end
+  end end end
+  -- round ears poking from the spines
+  for i, e in ipairs{ { 19.5 - ex, 50 }, { 44.5 + ex, 50 } } do
+    local m = c:ellipse(e[1], e[2] + b - (i == 2 and ex or 0), 2.5, 2.5)
+    c:part(m, FACE, { band = 1, nopop = true })
+    c:put(R(e[1]), e[2] + b - (i == 2 and ex or 0), P.skinA.shade)
+  end
   -- knit sweater + stubby sleeves and paws
   local sw = c:ellipse(32, 77 + b, 13, 10):clip(c:rect(0, 0, 63, 86))
   c:part(sw, P.moss, { band = 3, pop = { x = 22, y = 71 + b } })
@@ -53,7 +72,17 @@ local function frame(p)
     c:part(c:ellipse(a[1], 79 + b, 2, 1.5), P.skinB, { band = 1, nopop = true })
   end
   c:part(c:rect(31, 76 + b, 32, 77 + b), P.gold, { band = 1, pop = { x = 31, y = 76 + b } })
-  HH.head(c, { cx = 32, cy = 50 + b, s = 1, SP = SPN, FACE = FACE, blink = p.blink })
+  -- face, snout, nose
+  local fc = c:ellipse(32, 59 + b, 11, 8)
+  c:part(fc, FACE, { band = 2, pop = { x = 24, y = 53 + b } })
+  local sn = c:ellipse(32.5, 61 + b, 4.5, 3)
+  c:part(sn, FACE, { band = 1, sep = true, pop = { x = 30, y = 59 + b } })
+  under(c, sn, FACE.deep)
+  c:paint({ ".nn.", "nnnn" }, 31, 61 + b, { n = NOSE })
+  c:put(32, 61 + b, P.stone.hi)
+  c:put(32, 65 + b, P.skinA.shade) c:put(33, 65 + b, P.skinA.shade)
+  eye(c, 24, 54 + b, p.blink) eye(c, 38, 54 + b, p.blink)
+  c:cheek(22, 60 + b) c:cheek(41, 60 + b)
   -- scarf
   local sc = c:rrect(20, 66 + b, 44, 69 + b, 2)
   c:part(sc, P.ember, { band = 1, pop = { x = 22, y = 66 + b } })

@@ -2,7 +2,6 @@
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HP = dofile(DIR .. "/../../lib/hp.lua")
 local P = HP.P
-local HH = dofile(DIR .. "/../../lib/hedgehog.lua")
 local out = app.params.out or (DIR .. "/")
 local INK = "#2b1c26"
 local function R4(hi, base, shade, deep) return { hi = hi, base = base, shade = shade, deep = deep } end
@@ -96,10 +95,26 @@ V.behind(c)
 local bm, bt = spiky(c, 39.5, 84, 27, 9, 165, 375, 12, 5, 7)
 bm:clip(c:rect(0, 0, 79, 99))
 c:part(bm, SP, { band = 2, nopop = true, inner = false })
-HH.texture(c, bm, 39.5, 84, 27, 9, SP)
+quills(c, bm, SP, 39.5, 84, 27, 9, bt)
 c:part(c:ellipse(39.5, 71, 13, 8), SKIN, { band = 2, nopop = true, inner = false })
 V.body(c, sh)
-HH.head(c, { cx = 39.5, cy = 49, s = 1.4, SP = SP, FACE = SKIN })
+local hm, ht = spiky(c, 39.5, 44, 17, 16, 135, 405, 18, 4, 6)
+c:part(hm, SP, { band = 3, nopop = true, inner = false })
+quills(c, hm, SP, 39.5, 44, 17, 16, ht)
+for _, x in ipairs{ 22, 57 } do
+  c:part(c:ellipse(x, 47, 3.5, 3.5), SKIN, { band = 1, nopop = true, inner = false })
+  fill(c:ellipse(x + (x < 39 and 0.5 or -0.5), 48, 1.5, 1.5), PAW.base, c)
+end
+local f = c:ellipse(39.5, 52, 15, 10.5)
+f:add(c:poly{ { 25, 53 }, { 54, 53 }, { 45, 64 }, { 34, 64 } })
+f:add(c:ellipse(39.5, 64, 5, 3.5))
+c:part(f, SKIN, { band = 3, nopop = true, inner = false })
+fill(c:poly{ { 34, 41 }, { 45, 41 }, { 39.5, 47 } }, SP.shade, c)
+c:line({ { 37, 42 }, { 39, 45 } }, 1):each(function(x, y) c:put(x, y, SP.base) end)
+c:eyeLocked(30, 48) c:eyeLocked(45, 48)
+fill(c:ellipse(39.5, 63, 2.5, 1.5), NOSE, c) c:put(38, 62, NOSEHI)
+for _, q in ipairs{ {37,66},{38,67},{39,67},{40,67},{41,67},{42,66} } do c:put(q[1], q[2], INK) end
+for _, q in ipairs{ {26,57},{27,57},{28,57},{27,58},{51,57},{52,57},{53,57},{52,58} } do c:put(q[1], q[2], BLUSH) end
 V.hat(c)
 V.prop(c)
 c:finish{ outline = true }

@@ -4,7 +4,6 @@
 local DIR = debug.getinfo(1, "S").source:match("^@(.*)[/\\][^/\\]*$")
 local HP = dofile(DIR .. "/../../lib/hp.lua")
 local P = HP.P
-local HH = dofile("/home/user/gnome-venture/aseprite-source/v3/lib/hedgehog.lua")
 local out = app.params.out or (DIR .. "/")
 local INK = "#2b1c26"
 local function R(v) return math.floor(v + 0.5) end
@@ -45,7 +44,12 @@ local function frame(p)
   local b, tw, dr, st, hs = p.b or 0, p.tw or 0, p.dr or 0, p.st or 0, p.hs or 0
   c:groundShadow(32, 89.5, 13, 3)
   for _, x in ipairs{ 27, 37 } do c:part(c:ellipse(x, 88, 3.5, 2), SP, { band = 1, nopop = true }) end
-  HH.back(c, 32, 70 + b, 14, 9, SP)
+  -- back spines peeking out around the body
+  local back = c:ellipse(32, 71 + b, 13, 8)
+  local bt = spikes(c, back, 32, 71 + b, 13, 8, 150, 215, 3, 4, 9)
+  local bt2 = spikes(c, back, 32, 71 + b, 13, 8, -35, 30, 3, 4, 9)
+  c:part(back, SP, { band = 2, nopop = true })
+  tipsPaint(c, back, bt) tipsPaint(c, back, bt2)
   -- smock
   local body = c:ellipse(32, 76 + b, 12.5, 10.5)
   c:part(body, SM, { band = 2, pop = { x = 24, y = 72 + b } })
@@ -56,7 +60,26 @@ local function frame(p)
   local tail = c:poly{ { 24, 66 + b }, { 29, 66 + b }, { 28 + st, 76 + b }, { 23 + st, 75 + b } }
   c:part(tail, SCF, { band = 1, nopop = true })
   for i = 0, 4, 2 do c:px(23 + i + st, 75 + b, SCF.shade) end
-  HH.head(c, { cx = 32, cy = 48 + b, s = 1, SP = SP, FACE = FC, blink = p.blink })
+  -- head: spine mass, ears, face, snout
+  local hx, hy = 32, 46 + b
+  local mass = c:ellipse(hx, hy, 17, 14)
+  local ht = spikes(c, mass, hx, hy, 17, 14, 165, 375, 12, 5, 8)
+  c:part(mass, SP, { band = 2, pop = { x = 22, y = 38 + b } })
+  for _, s in ipairs{ {24,41,22,37},{29,38,28,34},{36,38,37,34},{41,41,43,37},{19,47,16,45},{45,47,48,45} } do
+    c:line({ { s[1], s[2] + b }, { s[3], s[4] + b } }, 1):clip(mass):each(function(x, y) c:px(x, y, SP.hi) end)
+  end
+  tipsPaint(c, mass, ht)
+  for _, x in ipairs{ 19, 45 } do c:part(c:ellipse(x, 48 + b, 2.5, 2.5), FC, { band = 1, nopop = true }) end
+  local face = c:ellipse(32, 53 + b, 11, 7.5)
+  c:part(face, FC, { band = 2, pop = { x = 25, y = 50 + b } })
+  c:fillMask(c:poly{ { 26, 45 + b }, { 38, 45 + b }, { 32, 49 + b } }:clip(face), SP.base)
+  local sn = c:ellipse(32, 58.5 + b, 4, 3)
+  c:part(sn, FC, { band = 1, pop = { x = 30, y = 57 + b } })
+  c:fillMask(c:rect(31, 60 + b, 33, 61 + b), NO) c:px(31, 60 + b, NOG)
+  c:px(28, 60 + b, FC.deep) c:px(36, 60 + b, FC.deep)
+  if p.blink then for _, x in ipairs{ 25, 35 } do for i = 0, 3 do c:px(x + i, 51 + b, INK) end end
+  else eye(c, 25, 49 + b) eye(c, 35, 49 + b) end
+  c:cheek(23, 55 + b) c:cheek(40, 55 + b)
   -- tilted indigo tam with a stalk
   local hat = c:ellipse(29, 30 + b, 10, 3.5) hat:add(c:ellipse(29, 28 + b, 8, 3.5))
   c:part(hat, SM, { band = 2, pop = { x = 23, y = 27 + b } })
