@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-- **Trail map pilot (route 228, Market to Poppyburrow)**: a worn dirt path now runs from the entry to the exit in each section, and each named feature is a LARGE landmark (2 to 4 tiles wide, up to 4 tall, so the walker reads as a small gnome): scarecrow, hay bales, stepping-stone ford, mill pond with waterwheel, apple tree, hedge-row topiary. Landmarks may be any size (`trail_art_obj_size()` reads the PNG; centred on their tile, bottom edge = feet). Driven by `claude/maplewold-trail-maps/maplewold_landmarks.json`; `tools/bake_trail_art.py --route=N` re-bakes one route. Other routes are unchanged.
+- **Trail maps: a worn path and large landmarks on all 16 Maplewold routes**: each section now has a dirt path from the entry to the exit (forest paths are pale, tundra paths icy so they show on the dark/white floor), and each of the 82 named features is a large raised landmark, 2 to 4 tiles wide and up to 4 tall, so the walker reads as a small gnome (scarecrow, beehives, waterwheel mill, owl den and so on). Landmarks may be any size: `trail_art_obj_size()` reads the PNG, centred on its tile, bottom edge = feet. Placements are in `claude/maplewold-trail-maps/maplewold_landmarks.json`; the sprites are drawn in `claude/tile-art-v3-proposal/gen2.py` and `landmarks_*.py`; `tools/bake_trail_art.py --route=N` re-bakes a route and `tools/preview_trail_landmarks.py` previews without baking.
 
 ## 2.5.62
 - **Art polish pass**: 37 wonder pictures redrawn richer (pink river dolphins, animals, havens, delves), 7 banners, journal sea/nwe/oc, world map, trek me + ripples, vig-rod/pick, slot-forage. **Fix**: rarity flourishes are 4-frame 96px sparkle sheets again (2.5.60 had drawn them as bands).

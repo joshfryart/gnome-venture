@@ -164,7 +164,7 @@ def ground(land, kind, seed):
             cv.put(x, y, R[2], True); cv.put(x + 2, y + 3, R[2], True)
     return cv.im
 
-PATH_RAMP = {"grassland": "litter", "forest": "litter", "coast": "sand", "tundra": "snow"}
+PATH_RAMP = {"grassland": "litter", "forest": "sand", "coast": "sand", "tundra": "ice"}   # forest floor is already brown and tundra floor already white, so those two paths need a different colour to show
 def pathtex(land, seed):
     """Worn path ground ('p' tiles): packed dirt in the land's own colour, ruts and pebbles; tileable like the rest."""
     rnd = random.Random(f"p2{land}{seed}"); R = RAMP[PATH_RAMP.get(land, "litter")]
