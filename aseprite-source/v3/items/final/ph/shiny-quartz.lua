@@ -1,49 +1,58 @@
--- shiny-quartz (lean W2_18)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- shiny-quartz (lean P1b_O8)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "shiny-quartz" }
-local floor, abs = math.floor, math.abs
-local ICE = { "#4b4d94", "#6f82c6", "#9cb9e4", "#c4def5", "#e3f3fc", "#f8fdff" }
-local ROCK = { "#3a2f4a", "#51446a", "#6d5f88", "#8b7ea6" }
-local EDGE = "#2b1c26"
-c:groundShadow(32, 56, 20, 2)
--- matrix rock lump
-local rock = c:ellipse(32, 53, 19, 4)
-rock:each(function(x, y)
-  local i = (y <= 51) and 4 or (y <= 53 and 3 or (y <= 55 and 2 or 1))
-  if X.hash(x, y, 3) > 0.86 then i = math.min(4, i + 1) end
-  c:put(x, y, ROCK[i], { r = { name = "rock" } })
-end)
--- faceted prism: columns L (lit), M, R (shade) + tip faces
-local function crystal(cx, by, w, h, lean, tipH, shift)
-  local bl, sy = cx - w / 2, by - h
-  local f = { 0, 0.34, 0.7, 1 }
-  local cols = { 4 + shift, 3 + shift, 1 + shift }
-  local tipc = { 5, 4, 2 }
-  local tx, ty = floor(cx + lean + 0.5), sy - tipH
-  for i = 1, 3 do
-    local xa, xb = floor(bl + f[i] * w + 0.5), floor(bl + f[i + 1] * w + 0.5) - 1
-    local m = c:poly{ { xa, by }, { xb, by }, { xb + lean, sy }, { xa + lean, sy } }
-    c:fillMask(m, ICE[math.max(1, math.min(6, cols[i]))])
-    local t = c:poly{ { xa + lean, sy }, { xb + lean, sy }, { tx, ty } }
-    c:fillMask(t, ICE[math.max(1, math.min(6, tipc[i] + (shift > 0 and 0 or -1)))])
+local ICE = { "#3a3f86", "#5a6cc0", "#86a0e4", "#b4ccf6", "#dcecff", "#f2f6ff" }
+local VIO = { "#2a2468", "#4a3d94", "#6c62c0", "#9a90e0" }
+local ROCK = { "#1e1626", "#34283e", "#503e5a", "#745c76", "#9a7e90" }
+c:groundShadow(32, 56, 24, 3)
+-- rock base
+local rk = HP.mask() rk:add(c:ellipse(32, 52, 24, 7))
+rk:add(c:ellipse(20, 49, 9, 5)) rk:add(c:ellipse(45, 50, 9, 5))
+G.toneN(c, rk, X.pillow(rk, 10), ROCK, { amb = 0.1, wrap = 0.2 })
+for _, p in ipairs{ {14,50},{22,55},{30,56},{40,55},{50,52},{36,51} } do c:px(p[1], p[2], ROCK[1]) c:px(p[1] - 1, p[2] - 1, ROCK[5]) end
+-- crystal: bx,by base center; w half-width; h body height; tip height; lean dx at the top
+local function crystal(bx, by, w, h, tip, lean)
+  local topy = by - h
+  local function X0(y) return lean * (by - y) / (h + tip) end
+  local lx, rx, mx = bx - w, bx + w, bx - w + w * 0.7
+  local L = HP.mask() L:add(c:poly{ {lx, by}, {mx, by}, {mx + lean * h / (h + tip), topy}, {lx + lean * h / (h + tip), topy} })
+  local R = HP.mask() R:add(c:poly{ {mx, by}, {rx, by}, {rx + lean * h / (h + tip), topy}, {mx + lean * h / (h + tip), topy} })
+  local tl = HP.mask() tl:add(c:poly{ {lx + lean * h / (h + tip), topy}, {mx + lean * h / (h + tip), topy}, {bx + lean, topy - tip} })
+  local tr = HP.mask() tr:add(c:poly{ {mx + lean * h / (h + tip), topy}, {rx + lean * h / (h + tip), topy}, {bx + lean, topy - tip} })
+  c:fillMask(L, ICE[4]) c:fillMask(R, ICE[2]) c:fillMask(tl, ICE[5]) c:fillMask(tr, ICE[3])
+  -- gradient: lower body darker toward violet
+  L:each(function(x, y) if y > by - h * 0.3 then c:px(x, y, ICE[3]) end if y > by - h * 0.12 then c:px(x, y, ICE[2]) end end)
+  R:each(function(x, y) if y > by - h * 0.4 then c:px(x, y, ICE[1 + 0]) end if y > by - h * 0.7 and y <= by - h * 0.4 then c:px(x, y, ICE[2]) end end)
+  -- facet edges and glints
+  local ex = floor(mx + 0.5)
+  for y = topy, by do local xx = floor(ex + lean * (by - y) / (h + tip) * -1 + lean * h / (h + tip) * 0 + 0.5) end
+  -- bright edge on the left face
+  for y = topy + 2, by - 4 do c:px(floor(lx + 1 + lean * (h - (y - topy)) / (h + tip) * 0 + lean * (by - y) / (h + tip) * 0) + 0, y, ICE[6]) end
+  -- facet ridge between faces
+  for y = topy, by do
+    local xr = floor(mx + lean * (by - y) / h * (h / (h + tip)) * 0 + 0.5)
   end
-  -- ridge highlight between L and M, shoulder line, dark base rim
-  local rx = floor(bl + f[2] * w + 0.5)
-  c:fillMask(c:line({ { rx, by - 1 }, { rx + lean, sy } }, 1), ICE[6])
-  c:fillMask(c:line({ { floor(bl + 0.5) + lean, sy }, { floor(bl + w + 0.5) - 1 + lean, sy } }, 1), ICE[3])
-  c:fillMask(c:line({ { floor(bl + 0.5), by }, { floor(bl + w + 0.5) - 1, by } }, 1), ICE[1])
-  return tx, ty, sy
+  return L, R, tl, tr
 end
-crystal(19, 52, 7, 10, -3, 5, 0)
-crystal(45, 53, 9, 15, 3, 6, 0)
-local tx, ty, sy = crystal(30, 52, 14, 26, 2, 9, 1)
-crystal(38, 55, 5, 5, 0, 3, 0)
--- quirk: phantom inner crystal ghost in the big prism
-for _, p in ipairs{ {28, 45}, {29, 44}, {30, 43}, {31, 44}, {32, 45}, {28, 46}, {32, 46} } do c:px(p[1], p[2], ICE[5]) end
-c:px(30, 42, ICE[2]) c:px(30, 44, "#e8b8e8") c:px(30, 45, "#d890d0")
--- glints
-c:px(26, 30, ICE[6]) c:px(26, 31, ICE[6]) c:px(27, 25, ICE[6])
-c:sparkle(22, 33)
-c:px(44, 41, ICE[6]) c:px(17, 44, ICE[6])
-G.fin(c, "shiny-quartz")
+-- big centre, left and right
+crystal(30, 52, 8, 26, 14, 0)
+crystal(15, 50, 5.5, 14, 9, -3)
+crystal(47, 51, 6, 17, 10, 4)
+-- bright left-edge lines to read as bevel
+for y = 15, 46 do c:px(23, y, ICE[6]) end
+for y = 30, 46 do c:px(10, y, ICE[6]) end
+for y = 30, 46 do c:px(42, y, ICE[6]) end
+-- facet ridges
+for y = 12, 52 do c:px(35, y, ICE[3]) end
+for y = 34, 50 do c:px(19, y, ICE[3]) end
+for y = 34, 50 do c:px(51, y, ICE[3]) end
+-- quirk: rainbow inclusion crack inside the big crystal
+for i, col in ipairs{ "#ff7ab0", "#ffd84a", "#6ae0b0", "#6ab0ff" } do
+  c:px(27 + i, 36 - i, col)
+  c:px(26 + i, 37 - i, col == "#ffd84a" and "#ffeea0" or col)
+end
+c:sparkle(24, 12) c:sparkle(14, 30)
+G.save(c, "shiny-quartz")

@@ -1,37 +1,64 @@
--- ember-spark (lean P1pilot)
-local NAME = "ember-spark"
+-- ember-spark (lean P1b_O0)
+-- quirk: a loose spark drifts off with a four-point glint. Charred coal lump with glowing cracks, big licking flame on top.
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function ball(m, R, ramp, nm, o) local n = X.pillow(m, R) o = o or {} o.tok = { r = { name = nm } } if not o.cuts then o.cuts = {0.2,0.38,0.55,0.72,0.86} end G.toneN(c, m, n, ramp, o) return n end
-local COAL = { "#120d16", "#241a2c", "#3a2c42", "#54425a", "#725c72", "#968096" }
-local HOT = { "#8c1a10", "#d03a12", "#f2701a", "#ffb02a", "#ffe066", "#fffbd0" }
-c:groundShadow(32, 56, 17, 3)
--- angular faceted coal chunk
-local ch = c:poly{ {14,50},{12,38},{19,29},{29,26},{39,28},{48,34},{52,44},{46,53},{30,56},{20,55} }
-local n = X.pillow(ch, 10)
-G.toneN(c, ch, n, COAL, { tok = { r = { name = "coal" } }, cuts = {0.2,0.4,0.58,0.76,0.9}, amb = 0.06, wrap = 0.15 })
--- hard facet planes: lit top-left face, dark lower-right
-ch:each(function(x, y) local f = (x - 32) * 0.7 + (y - 40) * 0.5
-  if f > 6 then c:put(x, y, COAL[1], { r = { name = "coal" } }) end
-  if (x - 14) + (y - 29) * 1.2 < 12 and (x + y) % 2 == 0 and y < 38 then c:put(x, y, COAL[5], { r = { name = "coal" } }) end end)
--- glowing cracks (jagged, white-hot cores)
-local cr = { { {30,28},{29,33},{33,36},{31,42},{35,46},{33,53} }, { {33,36},{40,35},{46,40} }, { {31,42},{23,43},{19,48} }, { {35,46},{43,48} } }
-for _, p in ipairs(cr) do
-  local m = c:line(p, 1)
-  m:each(function(x, y) c:put(x, y, HOT[3], { r = { name = "crack" } }) end)
-  m:shrink(0)
-  for i = 1, #p do c:put(p[i][1], p[i][2], HOT[5], { r = { name = "crack" } }) end
-  m:grow(1):cut(m):clip(ch):each(function(x, y) if (x + y) % 2 == 0 then c:put(x, y, HOT[1], { r = { name = "glow" } }) end end)
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "ember-spark" }
+local floor, abs = math.floor, math.abs
+local COAL = { "#17111c", "#271d2b", "#3d303f", "#58465a", "#7a6578", "#a28fa0" }
+local FL = { "#b02218", "#e2461a", "#fb8a22", "#ffc43a", "#ffe98c", "#fffbe0" }
+local GLOW = { "#c8321a", "#f1661c", "#ffa233", "#ffd866" }
+
+-- coal lump
+local pts = { {15,47}, {18,38}, {26,34}, {38,33}, {47,38}, {51,47}, {47,55}, {34,58}, {21,56} }
+local coal = c:poly(pts)
+local cm, cn = G.oval(33, 46, 19, 12, 0, 0.9)
+local lump = coal:copy()
+local cnn = X.pillow(lump, 11)
+local bias = {}
+lump:each(function(x, y) local k = K(x, y)
+  if X.hash(floor(x / 2), floor(y / 2), 3) > 0.7 then bias[k] = (X.hash(x, y, 9) > 0.5) and -1 or 1 end end)
+G.toneN(c, lump, cnn, COAL, { bias = bias, amb = 0.05, wrap = 0.2, tok = { r = { name = "coal" } } })
+-- glowing cracks
+local cracks = {
+  { {33,36}, {31,41}, {33,45}, {29,49}, {31,54} },
+  { {33,45}, {38,47}, {42,45}, {46,49} },
+  { {29,49}, {23,48}, {20,44} },
+  { {38,47}, {40,52} },
+}
+for _, l in ipairs(cracks) do
+  local mk = c:line(l, 1)
+  mk:each(function(x, y) if lump:has(x, y) then c:px(x, y, GLOW[3]) end end)
+  mk:each(function(x, y) if lump:has(x, y) and (x + y) % 3 == 0 then c:px(x, y, GLOW[4]) end end)
+  c:line(l, 1):grow(1):each(function(x, y) if lump:has(x, y) and not mk:has(x, y) and X.hash(x, y, 4) > 0.45 then c:px(x, y, GLOW[1]) end end)
 end
-c:put(33,36,HOT[6]) c:put(31,42,HOT[6]) c:put(35,46,HOT[6])
--- flame tongue licking up from the top crack (quirk)
-local fl = c:poly{ {28,28},{27,22},{30,16},{29,11},{33,17},{34,12},{37,20},{36,27} }
-local fn = X.pillow(fl, 5)
-G.toneN(c, fl, fn, { HOT[1], HOT[2], HOT[3], HOT[4], HOT[5], HOT[6] }, { tok = { r = { name = "flame" } }, cuts = {0.15,0.3,0.5,0.7,0.88}, amb = 0.2, wrap = 0.1, bias = nil })
--- flying sparks
-for _, p in ipairs{ {18,16},{45,14},{50,24},{12,26},{40,6},{22,8} } do c:put(p[1], p[2], HOT[5], { r = { name = "sp" } }) end
-c:sparkle(46, 12) 
-c:put(18,17,HOT[3]) c:put(50,25,HOT[3])
-G.save(c, NAME)
+-- facet highlights
+c:px(22, 40, COAL[6]) c:px(23, 40, COAL[5]) c:px(21, 41, COAL[5]) c:px(40, 37, COAL[5])
+
+-- flame (leans right, curl tip)
+local outer = c:poly{ {30,4}, {33,10}, {38,16}, {42,23}, {43,30}, {40,36}, {33,39}, {26,37}, {22,31}, {23,24}, {27,18}, {28,11} }
+local tip = c:poly{ {30,4}, {35,2}, {37,6}, {34,9} }
+outer:add(tip)
+local layers = { outer }
+local m1 = outer:copy():shrink(2) local m2 = m1:copy():shrink(2) local m3 = m2:copy():shrink(2)
+c:fillMask(outer, FL[2])
+c:fillMask(outer:copy():cut(m1), FL[1])
+c:fillMask(m1, FL[3])
+c:fillMask(m2, FL[4])
+c:fillMask(m3, FL[5])
+c:fillMask(m3:copy():shrink(1), FL[6])
+-- light flicks: left edge brighter
+outer:each(function(x, y) if not outer:has(x - 1, y) and y > 14 and y < 34 and (y % 3 ~= 0) then c:px(x, y, FL[3]) end end)
+-- side tongues
+c:fillMask(c:poly{ {22,26}, {19,20}, {23,22} }, FL[2])
+c:fillMask(c:poly{ {42,26}, {47,19}, {44,25} }, FL[2])
+c:px(21, 23, FL[3]) c:px(45, 22, FL[3])
+-- sparks
+local function spark(x, y, col, big)
+  c:px(x, y, FL[6]) c:px(x - 1, y, col) c:px(x + 1, y, col) c:px(x, y - 1, col) c:px(x, y + 1, col)
+  if big then c:px(x, y - 2, col) c:px(x, y + 2, col) c:px(x - 2, y, col) c:px(x + 2, y, col) end
+end
+spark(11, 12, FL[3], true)
+spark(53, 9, FL[4], false)
+c:px(55, 30, FL[4]) c:px(54, 31, FL[2])
+c:px(10, 29, FL[3]) c:px(9, 30, FL[2])
+G.save(c, "ember-spark")

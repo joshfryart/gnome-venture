@@ -1,42 +1,62 @@
--- carob (lean P1pilot)
-local NAME = "carob"
+-- carob (lean P1b_O0)
+-- quirk: the pod has one seed-bump swollen bigger than the rest. Scimitar pod + compound leaf of round leathery leaflets.
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function ball(m, R, ramp, nm, o) local n = X.pillow(m, R) o = o or {} o.tok = { r = { name = nm } } if not o.cuts then o.cuts = {0.2,0.38,0.55,0.72,0.86} end G.toneN(c, m, n, ramp, o) return n end
-local POD = { "#1f0e0c", "#3e1c14", "#6a3220", "#8f4a2c", "#b26a3c", "#d9955a" }
-local LEAF = { "#14352e", "#1f5a3c", "#2e8046", "#4aa44e", "#7cc860", "#b4e888" }
-local SEED = { "#2a1410", "#4a2218", "#6e3a22", "#94562e" }
--- twig
-local tm, tn = G.tube({ {50,8}, {46,10}, {42,12}, {38,14} }, function(t) return 1.1 end)
-G.toneN(c, tm, tn, { "#3a2214", "#5e3a20", "#86582c", "#a87c40" }, { tok = { r = { name = "twig" } }, cuts = {0.3,0.55,0.8} })
--- leaflets (round, glossy)
-local function leaflet(cx, cy, rx, ry, nm)
-  local m = c:ellipse(cx, cy, rx, ry)
-  ball(m, 3.5, LEAF, nm, { amb = 0.1, wrap = 0.2 })
-  m:each(function(x, y) if abs(x - cx) < 1 and abs(y - cy) < ry - 1 then c:put(x, y, LEAF[6], { r = { name = nm } }) end end)
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "carob" }
+local pi, sin, cos, floor, max, min, abs, atan = math.pi, math.sin, math.cos, math.floor, math.max, math.min, math.abs, math.atan
+local POD = { "#2a1410", "#4a2518", "#6e3a22", "#93522e", "#b87442", "#e0a56c" }
+local LEAF = { "#173b30", "#1f5a3c", "#2f7d43", "#4fa04a", "#7cc058", "#b4de7c" }
+local STEM = { "#3a2a1a", "#5d6b34", "#8aa046", "#bcd070" }
+local ltok = { r = { name = "leaf" } }
+
+-- compound leaf: rachis + 3 pairs round leaflets + terminal
+local R = { {17,10}, {25,2}, {37,3}, {49,13} }
+local function rp(t) return G.bez(R, t) end
+local leaves = {}
+for i, t in ipairs{ 0.18, 0.42, 0.66 } do
+  for _, side in ipairs{ -1, 1 } do
+    local x, y = rp(t)
+    local x2, y2 = rp(t + 0.02)
+    local a = atan(y2 - y, x2 - x) + side * 1.15
+    local rx, ry = 7.5 - i * 0.6, 5.2 - i * 0.3
+    leaves[#leaves + 1] = { x = x, y = y, a = a, rx = rx, ry = ry }
+  end
 end
-leaflet(54, 5, 4, 3, "l1") leaflet(48, 4, 3, 3, "l2") leaflet(56, 12, 3, 3, "l3") leaflet(42, 6, 3, 3, "l4")
--- pod: long curved bean, hangs from twig, bows left
-local pm, pn, PT = G.tube({ {40,13}, {18,20}, {13,40}, {24,56} }, function(t) return 5.2 * sin(pi * min(1, t * 0.9 + 0.08)) ^ 0.5 + 1.0 end)
+do local x, y = rp(1) local x2, y2 = rp(0.97) local a = atan(y - y2, x - x2) leaves[#leaves + 1] = { x = x - 1, y = y, a = a, rx = 6.5, ry = 4.6 } end
+local rm, rn = G.tube(R, function(t) return 0.9 end)
+G.toneN(c, rm, rn, STEM, { cuts = { 0.3, 0.6, 0.85 }, tok = ltok })
+for _, L in ipairs(leaves) do
+  local dx, dy = cos(L.a), sin(L.a)
+  local m, n = G.oval(L.x + dx * L.rx * 0.9, L.y + dy * L.rx * 0.9, L.rx, L.ry, L.a, 0.9)
+  G.toneN(c, m, n, LEAF, { tok = ltok })
+  for i = 0, floor(L.rx * 1.7) do
+    local px, py = floor(L.x + dx * i + 0.5), floor(L.y + dy * i + 0.5)
+    if m:has(px, py) then c:px(px, py, LEAF[5]) end
+  end
+  -- two veins
+  for _, s in ipairs{ -1, 1 } do for i = 3, floor(L.rx * 1.4), 3 do
+    local px, py = floor(L.x + dx * i - dy * s * (i * 0.28) + 0.5), floor(L.y + dy * i + dx * s * (i * 0.28) + 0.5)
+    if m:has(px, py) then c:px(px, py, LEAF[3]) end end end
+end
+-- stem stub
+local sm, sn = G.tube({ {14,18}, {15,14}, {16,12}, {17,10} }, function(t) return 1.6 end)
+G.toneN(c, sm, sn, STEM, { cuts = { 0.3, 0.6, 0.85 }, tok = ltok })
+
+-- pod
+local pts = { {14,17}, {5,46}, {34,62}, {56,40} }
+local len = 70
+local m, n, T = G.tube(pts, function(t) return 1.8 + 4.4 * sin(pi * t) ^ 0.55 end)
 local bias = {}
-G.toneN(c, pm, pn, POD, { tok = { r = { name = "pod" } }, cuts = {0.2,0.38,0.56,0.74,0.88}, amb = 0.06, wrap = 0.18 })
--- leathery wrinkles across the pod
-pm:each(function(x, y) local k = K(x, y) local t = PT[k]
-  if floor(t * 38 + (x % 2) * 0.5) % 4 == 0 and X.hash(x, y, 8) > 0.35 then c:put(x, y, POD[2], { r = { name = "pod" } }) end end)
--- seed ridge line along the outer edge
-pm:edge():each(function(x, y) if x < 22 and y > 24 then c:put(x, y, POD[1], { r = { name = "pod" } }) end end)
--- cut window showing seeds (pod snapped open near lower end)
-local win = c:ellipse(19, 47, 4, 6):clip(pm)
-win:each(function(x, y) c:put(x, y, "#e8c98a", { r = { name = "pulp" } }) end)
-win:shrink(1):each(function(x, y) c:put(x, y, "#c9954e", { r = { name = "pulp" } }) end)
-for _, s in ipairs{ {19,44}, {18,48}, {19,52} } do
-  local m = c:ellipse(s[1], s[2], 2, 1)
-  m:each(function(x, y) c:put(x, y, SEED[(x < s[1]) and 4 or 3], { r = { name = "seed" } }) end)
-  c:put(s[1] - 1, s[2] - 1, "#c88a5a", { r = { name = "seed" } })
-end
--- spec streak
-for _, p in ipairs{ {26,17},{25,17},{24,18},{20,21},{19,22},{16,28},{15,30},{14,34} } do if pm:has(p[1], p[2]) then c:put(p[1], p[2], POD[6], { r = { name = "pod" } }) end end
-for _, p in ipairs{ {16,29},{15,32} } do c:put(p[1], p[2], "#ffd9a4", { r = { name = "pod" } }) end
-G.save(c, NAME)
+m:each(function(x, y) local k = K(x, y) local t = T[k]
+  local f = (t * 13) % 1
+  if f < 0.2 and t > 0.12 and t < 0.9 then bias[k] = -1
+  elseif f > 0.45 and f < 0.75 and t > 0.12 and t < 0.9 then bias[k] = 1 end
+  if t > 0.5 and t < 0.62 then if f > 0.25 and f < 0.9 then bias[k] = 1 end end -- swollen quirk seed
+end)
+local _, v = G.toneN(c, m, n, POD, { bias = bias, tok = { r = { name = "pod" } }, amb = 0.1 })
+-- seam: dark line along lower/right rim
+local inner = m:copy():shrink(1)
+m:copy():cut(inner):each(function(x, y) local k = K(x, y) if n[k] and n[k][2] + n[k][1] > 0.5 then c:px(x, y, POD[1]) end end)
+local sx, sy = G.specAt(m, n, 30)
+if sx then c:px(sx, sy, "#fff0d6") c:px(sx + 1, sy, POD[6]) c:px(sx, sy + 1, POD[6]) end
+G.save(c, "carob")

@@ -34,7 +34,7 @@ local function spot(cx, cy, rx, ry, seed)
     local q = ((x - cx) / (rx * wob)) ^ 2 + ((y - cy) / (ry * wob)) ^ 2
     if q <= 1 then m:set(x, y) end
   end end
-  return m:cut(hide.copy and hide:copy():shrink(1):add(HP.mask()) and (function() local o = HP.mask() o:add(c:rect(0, 0, 63, 63)) o:cut(hide:copy():shrink(1)) return o end)() or HP.mask())
+  return m:clip(hide:copy():shrink(1))
 end
 local S = { spot(22, 22, 7, 6, 1), spot(42, 20, 6, 5, 2.5), spot(33, 34, 5, 6, 4), spot(16, 38, 3, 4, 5.5), spot(48, 38, 3, 5, 7), spot(37, 49, 2, 3, 8) }
 for _, s in ipairs(S) do spots:add(s) end

@@ -1,85 +1,60 @@
--- scarab-shell (lean W2_17)
--- Empty scarab carapace seen from above: toothed clypeus, pronotum cap, split elytra with striae and a central suture,
--- iridescent green-gold lit side shifting to blue-violet shade, spiny legs and amber wing tips peeking from below.
--- Quirk: a chipped notch in the lower right edge showing pale cream inner shell.
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- scarab-shell (lean P1b_O8)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function lit(m, R, amb, wrap) return X.light(X.pillow(m, R), { amb = amb or 0.08, wrap = wrap or 0.25 }) end
+
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "scarab-shell" }
-local EM = { "#14463e", "#1f6e52", "#2f9a5a", "#58c068", "#98dc7a", "#d6f29a" }
-local BV = { "#1c2056", "#2e3a8a", "#3f66b0", "#4f93c6", "#7fc4d8", "#c4eaec" }
-local LEG = { "#1a2a30", "#2c4a46", "#4a7a62", "#7aa88a" }
-local AMB = { "#7a4a1c", "#b0762a", "#dca040", "#f4cc6c" }
-local CRM = { "#c9b496", "#e8d9b8", "#fff0d4" }
-c:groundShadow(32, 57, 12, 2)
--- legs
-local function leg(p)
-  local m, n = G.tube(p, function(t) return 1.1 * (1 - t) + 0.5 end)
-  G.tone(c, m, X.light(n, { amb = 0.1, wrap = 0.3 }), LEG, { 0.3, 0.55, 0.8 })
-  local ex, ey = G.bez(p, 0.9) c:px(floor(ex + 0.5), floor(ey + 0.5), LEG[1])
+local EL  = { "#0d2a4a", "#12507a", "#1a7f94", "#27ae9a", "#6fd8a8", "#d4f7b0" }
+local GLD = { "#5a3a10", "#9a6a18", "#d09a28", "#f4cc50", "#fff0a0" }
+local PRO = { "#1a1840", "#2d2f72", "#3e57a8", "#5e8ad0", "#98c0f0", "#d8ecff" }
+local LEG = { "#14102a", "#2b2350", "#46407a", "#6c64a0" }
+-- legs first (behind)
+local function leg(pts, w)
+  local m, n = G.tube(pts, function(t) return w * (1 - 0.4 * t) end)
+  G.toneN(c, m, n, LEG, { amb = 0.15, wrap = 0.3, cuts = { 0.3, 0.55, 0.8 } })
 end
-leg({ {20, 30}, {12, 26}, {8, 32}, {7, 38} })
-leg({ {44, 30}, {52, 26}, {56, 32}, {57, 38} })
-leg({ {18, 40}, {10, 40}, {7, 46}, {8, 51} })
-leg({ {46, 40}, {54, 40}, {57, 46}, {56, 51} })
-leg({ {21, 49}, {15, 53}, {14, 55}, {17, 56} })
-leg({ {43, 49}, {49, 53}, {50, 55}, {47, 56} })
--- wing tips
-local wing = c:ellipse(32, 56, 10, 3.2)
-G.tone(c, wing, lit(wing, 4, 0.2, 0.4), AMB, { 0.3, 0.55, 0.8 })
-wing:each(function(x, y) if (x % 3 == 0) and y > 54 then c:px(x, y, AMB[1]) end end)
--- elytra
-local ely = c:ellipse(32, 38, 15.5, 18.5)
-local bite = c:ellipse(46, 52, 3.5, 3)
-local ev = lit(ely, 14, 0.04, 0.15)
-local bias = {}
-ely:each(function(x, y)
-  local d = (x - 32) * 0.7 + (y - 34) * 0.6 + (X.hash(x, y, 3) - 0.5) * 4
-  bias[K(x, y)] = 0
-  if d > 5 then bias[K(x, y)] = 0 end
-end)
-local lo, hi = HP.mask(), HP.mask()
-ely:each(function(x, y)
-  local d = (x - 32) * 0.7 + (y - 34) * 0.6 + (X.hash(x, y, 3) - 0.5) * 3.5
-  if d > 4 then hi:set(x, y) else lo:set(x, y) end
-end)
-G.tone(c, lo, ev, EM, { 0.2, 0.38, 0.55, 0.72, 0.88 })
-G.tone(c, hi, ev, BV, { 0.16, 0.32, 0.48, 0.66, 0.84 })
--- striae and suture
-ely:each(function(x, y)
-  local hwid = 15.5 * sqrt(max(0, 1 - ((y - 38) / 18.5)^2))
-  local rel = (x - 32) / max(hwid, 1)
-  local isb = hi:has(x, y)
-  if y > 24 then
-    if abs(rel) < 0.07 then c:px(x, y, isb and BV[1] or EM[1])
-    else
-      for _, kk in ipairs{ 0.36, 0.68 } do
-        if abs(abs(rel) - kk) < 0.045 and y % 4 ~= 3 then c:px(x, y, isb and BV[2] or EM[2]) end
-      end
-    end
+leg({ {24,26}, {14,22}, {9,24}, {7,32} }, 1.8)
+leg({ {22,36}, {11,36}, {6,42}, {7,50} }, 1.8)
+leg({ {24,46}, {14,50}, {12,56}, {17,60} }, 1.8)
+leg({ {40,26}, {50,22}, {55,24}, {57,32} }, 1.8)
+leg({ {42,36}, {53,36}, {58,42}, {57,50} }, 1.8)
+leg({ {40,46}, {50,50}, {52,56}, {47,60} }, 1.8)
+-- head + horn
+local hm, hn = G.oval(32, 11, 6, 4.2, 0, 1.2)
+G.toneN(c, hm, hn, PRO, { amb = 0.1, wrap = 0.25 })
+local horn = HP.mask() horn:add(c:poly{ {30,8}, {32,3}, {34,8} })
+G.toneN(c, horn, X.pillow(horn, 2.5), GLD, { amb = 0.2, wrap = 0.3, cuts = { 0.3, 0.55, 0.8, 0.95 } })
+c:px(32, 4, GLD[5])
+-- elytra: two halves
+local W = HP.mask() W:add(c:ellipse(32, 38, 15.5, 20))
+local wn = X.pillow(W, 14)
+local L, R = HP.mask(), HP.mask()
+W:each(function(x, y) if x < 32 then L:set(x, y) else R:set(x, y) end end)
+G.toneN(c, L, wn, EL, { amb = 0.1, wrap = 0.2 })
+G.toneN(c, R, wn, EL, { amb = 0.05, wrap = 0.15, bias = (function() local b = {} R:each(function(x, y) b[K(x, y)] = -0.5 end) return b end)() })
+-- seam
+for y = 20, 58 do if W:has(31, y) then c:px(31, y, EL[1]) end if W:has(32, y) then c:px(32, y, EL[2]) end end
+-- striae (grooves)
+for _, gx in ipairs{ 25, 38, 20, 43 } do
+  for y = 24, 56 do
+    local inside = W:has(gx, y) and W:has(gx, y - 2)
+    if inside and (y % 4 ~= 0) then c:px(gx, y, EL[2]) end
   end
-end)
--- chip (quirk)
-local chip = ely:copy()
-chip:cut(c:ellipse(45, 49, 4.5, 4))
-local gone = ely:copy():cut(chip)
-gone:each(function(x, y) c:px(x, y, CRM[2]) end)
-gone:copy():shrink(1):each(function(x, y) c:px(x, y, CRM[3]) end)
-gone:each(function(x, y) if not gone:copy():shrink(1):has(x, y) and x > 44 then c:px(x, y, CRM[1]) end end)
--- gloss streak
-for i = 0, 7 do c:px(22 + floor(i * 0.15), 28 + i, EM[6]) end
-c:px(23, 30, EM[6]) c:px(22, 29, "#fffaf0")
+end
+-- gold iridescent sheen upper-left
+for _, p in ipairs{ {22,26},{23,25},{24,24},{21,28},{20,30},{22,29},{23,27},{24,26},{26,24},{27,23} } do c:px(p[1], p[2], GLD[3 + (p[1] + p[2]) % 2]) end
+c:px(21, 27, GLD[5]) c:px(22, 26, GLD[5])
+-- violet bounce lower right
+for _, p in ipairs{ {44,48},{43,50},{41,53},{39,55},{45,44},{46,40} } do if W:has(p[1], p[2]) then c:px(p[1], p[2], PRO[4]) end end
 -- pronotum
-local pro = c:ellipse(32, 22, 11.5, 6.2)
-local pv = lit(pro, 7, 0.08, 0.25)
-G.tone(c, pro, pv, EM, { 0.2, 0.38, 0.55, 0.72, 0.88 })
-pro:each(function(x, y) if (x * 3 + y * 5) % 7 == 0 and pv[K(x, y)] > 0.4 then c:px(x, y, EM[2]) end end)
-for x = 24, 40 do if pro:has(x, 26) then c:px(x, 27, EM[1]) end end
--- head with teeth
-local head = c:ellipse(32, 14.5, 7, 3.6)
-G.tone(c, head, lit(head, 4, 0.1, 0.3), EM, { 0.2, 0.38, 0.55, 0.72, 0.88 })
-for _, x in ipairs{ 27, 30, 33, 36 } do c:px(x, 10, EM[3]) c:px(x, 11, EM[2]) end
-c:px(29, 12, EM[1]) c:px(32, 12, EM[1]) c:px(35, 12, EM[1])
-c:sparkle(46, 14)
-G.fin(c, "scarab-shell")
+local pm = HP.mask() pm:add(c:ellipse(32, 20, 11, 5.2))
+G.toneN(c, pm, X.pillow(pm, 6), PRO, { amb = 0.08, wrap = 0.25 })
+c:px(27, 18, PRO[6]) c:px(28, 18, PRO[6]) c:px(26, 19, PRO[5])
+-- quirk: a chipped hole in the shell shows the hollow dark inside
+local hole = HP.mask() hole:add(c:poly{ {38,44}, {43,42}, {46,46}, {43,50}, {39,49} })
+hole:clip(W)
+c:fillMask(hole, "#0a0a1c")
+for _, p in ipairs{ {39,44},{40,43},{41,43} } do c:px(p[1], p[2], EL[5]) end
+c:px(44, 46, "#1a1a3a") c:px(42, 47, "#1a1a3a")
+c:sparkle(50, 12)
+G.save(c, "scarab-shell")

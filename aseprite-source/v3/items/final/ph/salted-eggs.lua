@@ -1,41 +1,55 @@
--- salted-eggs (lean W2_16)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- salted-eggs (lean P1b_O8)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function cyl(m, cx, hw) local n = {} m:each(function(x, y) local nx = max(-0.97, min(0.97, (x - cx) / hw)); n[K(x, y)] = { nx, -0.1, sqrt(1 - nx * nx) } end) return n end
-local function shade(c, m, n, ramp, bias, amb) G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, nil, bias) end
+
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "salted-eggs" }
-c:groundShadow(32, 55, 19, 3)
-local TC = { "#4a2418", "#6e3a22", "#9a5530", "#c27a42", "#e0a064", "#f2c88a" }
-local EG = { "#4f6a74", "#7a9aa2", "#a4c0bc", "#c8dcd2", "#e4f0e6", "#f8fff6" }
-local SA = { "#6c7aa0", "#98a6c4", "#c4cee0", "#e4eaf2", "#f6f9fc", "#f8fbff" }
-local YO = { "#7a2a10", "#b0420e", "#d8681a", "#f08c28", "#ffb348", "#ffd890" }
--- eggs behind
-for _, e in ipairs{ { 24, 24, 0.0, 9, 6.5 }, { 36, 22, 0.3, 9.5, 6.8 } } do
-  local ux, uy = -sin(e[3]), -cos(e[3])
-  local m = G.rell(e[1], e[2], ux, uy, e[4], e[5])
-  shade(c, m, X.pillow(m, 6), EG, nil, 0.1)
-  m:each(function(x, y) local h = X.hash(x, y, 5) if h > 0.9 and X.pillow(m, 6)[K(x, y)][3] > 0.5 then c:px(x, y, SA[5]) end end)
-  c:px(floor(e[1] - 3), floor(e[2] - 4), EG[6])
+local CLAY = { "#3b1f1c", "#6a3a2a", "#94552f", "#bd7a3e", "#dd9f55", "#f4c880" }
+local EGG  = { "#6f7f98", "#9aaabc", "#c4d2d8", "#e2eae6", "#f5f8ef", "#f2f6ff" }
+local YOLK = { "#a8331a", "#d9561b", "#f0801f", "#ffa92e", "#ffd25a", "#fff1a0" }
+local SALT = { "#8b94b4", "#b9c0d8", "#dde2ee", "#f2f6ff" }
+c:groundShadow(32, 54, 21, 3)
+-- crock body
+local body = HP.mask()
+for y = 31, 53 do
+  local t = (y - 31) / 22
+  local hw = 17.5 - 4 * (t ^ 1.6) + (t < 0.15 and 1.5 or 0)
+  for x = floor(32 - hw + 0.5), floor(32 + hw - 0.5) do body:set(x, y) end
 end
+local bn = X.pillow(body, 15)
+-- eggs first (behind rim)
+local function egg(cx, cy, rx, ry, ang)
+  local m, n = G.oval(cx, cy, rx, ry, ang, 1.1)
+  G.toneN(c, m, n, EGG, { amb = 0.1, wrap = 0.25 })
+  return m
+end
+egg(24, 22, 7.5, 9.5, -0.2)
+egg(38, 20, 7.5, 9.5, 0.15)
+-- cracked front egg with yolk
+local em = egg(31, 24, 8, 9.5, 0)
+local top = HP.mask() top:add(c:ellipse(31, 17, 6, 3.4))
+top:clip(em)
+c:fillMask(top, EGG[5])
+local yk, yn = G.oval(31.5, 17.5, 3.2, 2.6, 0, 1.3)
+G.toneN(c, yk, yn, YOLK, { amb = 0.1, wrap = 0.3 })
+c:px(30, 16, YOLK[6])
+for _, p in ipairs{ {25,19},{26,17},{27,18},{28,16},{29,15},{34,15},{35,16},{36,15},{37,17},{37,19} } do c:px(p[1], p[2], EGG[6]) end
+for _, p in ipairs{ {25,20},{27,19},{29,16},{34,16},{36,17},{38,19} } do c:px(p[1], p[2], EGG[1]) end
 -- crock
-local cr = c:rrect(14, 38, 50, 53, 5)
-shade(c, cr, cyl(cr, 32, 18), TC)
-for x = 16, 48 do if x % 5 ~= 0 then c:px(x, 46, TC[2]) end end
-local rim = c:rrect(12, 35, 52, 40, 2)
-shade(c, rim, cyl(rim, 32, 20), TC)
-for x = 14, 50 do c:px(x, 40, TC[1]) end
-c:px(17, 36, TC[6]) c:px(18, 36, TC[6])
--- salt mound
-local mound = c:ellipse(32, 35, 17, 6):add(c:ellipse(32, 33, 11, 6))
-mound:cut(c:rect(0, 38, 63, 63))
-local bias = {}
-mound:each(function(x, y) local h = X.hash(x, y, 3) if h > 0.78 then bias[K(x, y)] = 1 elseif h < 0.12 then bias[K(x, y)] = -1 end end)
-shade(c, mound, X.pillow(mound, 5), SA, bias, 0.2)
--- halved egg with yolk (quirk)
-local hf = c:ellipse(39, 34, 8, 5)
-shade(c, hf, X.pillow(hf, 4), { "#9a9a8c", "#c4c4b4", "#e4e4d2", "#f4f4e6", "#fcfcf0", "#f8fbff" }, nil, 0.2)
-local yk = c:ellipse(39, 34, 4, 3)
-shade(c, yk, X.pillow(yk, 3), YO)
-c:px(38, 33, YO[6]) c:px(37, 33, YO[5])
-G.fin(c, "salted-eggs")
+G.toneN(c, body, bn, CLAY, { amb = 0.08, wrap = 0.2 })
+-- bands + grain
+for x = 15, 49 do for _, y in ipairs{ 38, 46 } do if body:has(x, y) then c:px(x, y, CLAY[2]) if body:has(x, y + 1) then c:px(x, y + 1, CLAY[5]) end end end end
+-- rim + salt crust
+local rim = HP.mask() rim:add(c:ellipse(32, 31, 19.5, 4.2))
+local rn = X.pillow(rim, 5)
+G.toneN(c, rim, rn, CLAY, { amb = 0.2, wrap = 0.3 })
+local inner = HP.mask() inner:add(c:ellipse(32, 31.5, 16.5, 2.8))
+c:fillMask(inner, SALT[1])
+inner:each(function(x, y) c:px(x, y, X.hash(x, y, 5) > 0.45 and SALT[3] or SALT[2]) end)
+for _, p in ipairs{ {18,32},{22,33},{28,33},{36,33},{42,33},{46,32} } do c:px(p[1], p[2], SALT[1]) end
+-- salt crystals dripping on the crock + rim
+for _, p in ipairs{ {19,30},{24,29},{41,29},{46,31},{22,36},{27,40},{44,40},{40,36},{37,50} } do c:px(p[1], p[2], SALT[4]) c:px(p[1] + 1, p[2], SALT[3]) end
+-- glaze highlight
+for y = 36, 50 do c:px(19, y, CLAY[6]) end
+for y = 39, 47 do c:px(20, y, CLAY[5]) end
+G.save(c, "salted-eggs")

@@ -1,74 +1,143 @@
--- stone-wall-gate (lean W2_30)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- stone-wall-gate (lean P1b_O14)
+local NAME = "stone-wall-gate"
+
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
-local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "stone-wall-gate" }
-local floor, abs = math.floor, math.abs
-local S = { "#2e2940", "#4a4562", "#6a6483", "#8d86a0", "#b3acb8", "#d6cdc8" }
-local WARM = { "#5b4a58", "#7d6a6c", "#a08a82", "#c5ae9c" }
-local function px(x, y, col) if x >= 0 and x < 64 and y >= 0 and y < 64 then c:px(x, y, col) end end
--- masonry block: courses of 5px, staggered joints, per-brick tone + bevel
-local function masonry(x0, y0, x1, y1, seed)
-  for y = y0, y1 do for x = x0, x1 do px(x, y, S[1]) end end
-  local row, y = 0, y0
-  while y <= y1 do
-    local h = math.min(4, y1 - y)
-    local x = x0 - ((row * 3 + seed) % 5)
-    while x <= x1 do
-      local w = 6 + floor(X.hash(x, y, seed) * 5)
-      local r = X.hash(x + 7, y + 3, seed + 1)
-      local base = r < 0.25 and 3 or (r < 0.8 and 2 or 4)
-      local warm = r > 0.86
-      for yy = 0, h - 1 do for xx = 0, w - 2 do
-        local X1, Y1 = x + xx, y + yy
-        if X1 >= x0 and X1 <= x1 and Y1 <= y1 then
-          local t = base
-          if yy == 0 then t = t + 1 elseif yy == h - 1 and h > 2 then t = t - 1 end
-          if xx == 0 then t = math.max(t, base + 1) end
-          if xx == w - 2 then t = t - 1 end
-          t = math.max(2, math.min(6, t))
-          px(X1, Y1, warm and WARM[math.min(4, t - 1)] or S[t - 0 > 6 and 6 or t])
+local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
+local floor, max, min = math.floor, math.max, math.min
+local R = { "#3a3046", "#5a4e68", "#7b6e88", "#9c8f9e", "#c0b3b4", "#e2d6cc" }
+local W = { "#46393f", "#6a5757", "#8d7a72", "#ab967f", "#c7b498", "#e0d2b2" }
+local M = { "#2b4730", "#4a7636", "#78a844", "#aed25e" }
+local MORT = "#46394f"
+local function cl(i) return max(1, min(6, i)) end
+local function H(x, y, s) return X.hash(x, y, s) end
+-- chunky mortared blocks in region; pred(x,y) limits shape
+local function face(x0, y0, x1, y1, seed, pred, ch)
+  ch = ch or 6
+  local edges = {}
+  for r = 0, floor((y1 - y0) / ch) + 1 do
+    local e, x = {}, x0 - floor(H(r, 3, seed) * 9) - ((r % 2) * 4)
+    while x <= x1 + 12 do e[#e + 1] = x; x = x + 8 + floor(H(x, r, seed + 5) * 6) end
+    edges[r] = e
+  end
+  for y = y0, y1 do
+    local r = floor((y - y0) / ch); local v = (y - y0) % ch
+    local e = edges[r]
+    for x = x0, x1 do
+      if not pred or pred(x, y) then
+        local bi = 1
+        while e[bi + 1] and e[bi + 1] <= x do bi = bi + 1 end
+        local bs, be = e[bi], e[bi + 1] or (e[bi] + 10)
+        local u = x - bs
+        if v == ch - 1 or u == be - bs - 1 then c:put(x, y, MORT)
+        else
+          local hb = H(bi, r, seed + 9)
+          local pal, base = R, 3 + (hb > 0.5 and 1 or 0)
+          if hb > 0.9 then pal, base = W, 3 end
+          if hb < 0.1 then base = 2 end
+          local i = base
+          if v == 0 then i = i + 2 elseif v == 1 then i = i + 1 end
+          if u == 0 then i = i + 1 end
+          if v == ch - 2 then i = i - 1 end
+          if u == be - bs - 2 then i = i - 1 end
+          if x >= x1 - 2 then i = i - 1 end
+          if x <= x0 + 1 then i = i + 1 end
+          local s = H(x, y, seed + 21)
+          if s > 0.93 then i = i - 1 elseif s < 0.05 then i = i + 1 end
+          c:put(x, y, pal[cl(i)])
         end
-      end end
-      x = x + w
+      end
     end
-    y = y + h + 1; row = row + 1
   end
 end
-local function capstone(x0, y0, x1, y1)
-  for y = y0, y1 do for x = x0, x1 do
-    local t = 5
-    if y == y0 then t = 6 elseif y == y1 then t = 3 elseif y == y1 - 1 then t = 4 end
-    if x == x1 then t = t - 1 end
-    px(x, y, S[t])
-  end end
-  px(x0 + 2, y0 + 1, S[6]) px(x0 + 3, y0 + 2, S[4]) px(x1 - 3, y0 + 2, S[4])
+-- light cap slab: bright top, lip underneath, slab joints
+local function cap(x0, y0, x1, y1, seed)
+  local jx = x0 + 6 + floor(H(1, 1, seed) * 5)
+  for y = y0, y1 do
+    local row = y - y0
+    local i = (row == 0) and 6 or ((y == y1) and 3 or ((y == y1 - 1) and 4 or 5))
+    for x = x0, x1 do
+      local j = i
+      if x == x0 then j = min(6, j + 1) elseif x >= x1 - 1 then j = j - 1 end
+      c:put(x, y, R[cl(j)])
+    end
+  end
+  local x = jx
+  while x < x1 - 3 do
+    for y = y0 + 1, y1 - 1 do c:put(x, y, R[3]) end
+    x = x + 9 + floor(H(x, 2, seed) * 5)
+  end
+  for x = x0 + 2, x1 - 2 do if H(x, y0, seed + 4) > 0.8 then c:put(x, y0 + 1, R[4]) end end
 end
-local function moss(x, y, n) for i = 0, n - 1 do px(x + i, y, "#5f9a4c") px(x + i, y - 1 + (i % 2), "#8fc462") end px(x, y, "#3d6b3c") end
+local function moss(x, y, w, seed)
+  for i = 0, w - 1 do
+    local h = 1 + floor(H(x + i, y, seed) * 3)
+    if i == 0 or i == w - 1 then h = max(1, h - 1) end
+    for k = 0, h - 1 do c:put(x + i, y - k, k == h - 1 and M[3 + (H(i, k, seed) > 0.5 and 1 or 0) - (h == 1 and 1 or 0)] or M[2]) end
+    c:put(x + i, y + 1, M[1])
+  end
+end
+local function drip(x, y, n) for k = 0, n - 1 do c:put(x, y + k, k == n - 1 and M[2] or M[3]) end end
+local function ao(x0, x1, y) for x = x0, x1 do c:put(x, y, R[1]) end end
 
-c:groundShadow(32, 54, 28, 3)
-masonry(4, 22, 17, 52, 5) masonry(46, 22, 59, 52, 9)    -- pillars
-masonry(18, 18, 45, 28, 12)                              -- lintel course
-capstone(2, 14, 19, 21) capstone(44, 14, 61, 21)          -- pillar caps
-for y = 18, 21 do for x = 20, 43 do px(x, y, y == 18 and S[6] or (y == 21 and S[3] or S[5])) end end
--- arched wooden double door
-local W = { "#2f1d1c", "#4d2c24", "#6f4430", "#8f5c3a", "#b57c4c" }
-for y = 29, 52 do for x = 18, 45 do
-  local dx = x - 31.5
-  local inside = true
-  if y < 35 then inside = (dx * dx) / 196 + ((y - 35) ^ 2) / 36 <= 1 end
-  if inside then
-    local t = 3 + ((x - 18) % 4 == 0 and -1 or 0)
-    if x == 31 or x == 32 then t = 1 end
-    if (x - 18) % 4 == 1 then t = 4 end
-    if y > 50 then t = 1 end
-    px(x, y, W[math.max(1, math.min(5, t))])
+c:groundShadow(32, 52, 27, 3)
+-- wall body
+face(6, 22, 57, 49, 71)
+-- arch opening with door
+local cx, cy, rr = 32, 36, 11
+local function inarch(x, y) return y >= 49 or ((x-cx)^2 + (y-cy)^2 <= rr*rr and true) or (y > cy and x >= cx-rr and x <= cx+rr) end
+for y = 24, 49 do for x = 21, 43 do
+  if (y >= cy and x >= cx - rr and x <= cx + rr) or ((x-cx)^2 + (y-cy)^2 <= rr*rr) then
+    c:put(x, y, "#2a2034")
   end
 end end
-for x = 18, 45 do if (x - 31.5)^2 <= 196 then px(x, 29, S[1]) end end
-for _, yy in ipairs{ 38, 47 } do for x = 19, 44 do px(x, yy, "#3a3a4a") px(x, yy + 1, "#6a6a80") end end
-px(29, 42, "#e4b84a") px(30, 42, "#e4b84a") px(33, 42, "#e4b84a") px(34, 42, "#e4b84a")
-px(29, 43, "#8a6a24") px(34, 43, "#8a6a24")
-px(30, 33, "#e4b84a")  -- quirk: tiny brass keyhole plate
-moss(5, 52, 4) moss(54, 52, 3)
+-- wooden leaves
+local WD = { "#3e2418", "#5e3a22", "#7e5230", "#a06a3c", "#c48a50" }
+for y = 28, 49 do for x = 22, 42 do
+  if (y >= cy and x >= cx - rr + 1 and x <= cx + rr - 1) or ((x-cx)^2 + (y-cy)^2 <= (rr-1)^2) then
+    local k = (x - 22) % 5
+    local i = (k == 0) and 1 or ((k == 1) and 4 or ((k == 4) and 2 or 3))
+    if H(x, y, 3) > 0.92 then i = max(1, i - 1) end
+    c:put(x, y, WD[i])
+  end
+end end
+for y = 28, 49 do c:put(32, y, WD[1]) c:put(31, y, WD[1]) end
+for x = 22, 42 do c:put(x, 38, "#38303f") c:put(x, 44, "#38303f") end
+c:put(29, 41, "#ffd45a") c:put(34, 41, "#ffd45a") c:put(29, 42, "#c98a22") c:put(34, 42, "#c98a22")
+-- arch voussoirs ring (light stones)
+for a = 0, 180, 15 do
+  local rad = math.rad(a)
+  for t = 0, 1, 0.5 do
+    local r2 = rr + 1 + t * 3
+    local x, y = floor(cx - math.cos(rad) * r2 + 0.5), floor(cy - math.sin(rad) * r2 + 0.5)
+    c:put(x, y, (floor(a / 15) % 2 == 0) and R[5] or R[4])
+  end
+end
+for a = 0, 180, 3 do
+  local rad = math.rad(a)
+  for r2 = rr + 1, rr + 3 do
+    local x, y = floor(cx - math.cos(rad) * r2 + 0.5), floor(cy - math.sin(rad) * r2 + 0.5)
+    local seg = floor(a / 20) % 2
+    local j = (r2 == rr + 1) and 6 or (seg == 0 and 5 or 4)
+    if a % 20 < 3 then j = 2 end
+    c:put(x, y, R[j])
+  end
+end
+-- keystone
+c:fillMask(c:rect(30, 20, 34, 25), R[6]) c:fillMask(c:rect(30, 24, 34, 25), R[4]) c:put(29, 20, R[3]) c:put(35, 20, R[3])
+-- tall pillars with flat caps
+face(6, 12, 19, 49, 73)
+face(45, 12, 57, 49, 74)
+for _, p in ipairs{{4, 21}, {43, 59}} do
+  for y = 6, 12 do for x = p[1], p[2] do
+    local j = (y == 6) and 6 or ((y == 12) and 3 or 5)
+    if x == p[1] then j = min(6, j+1) elseif x >= p[2] - 1 then j = j - 1 end
+    c:put(x, y, R[cl(j)])
+  end end
+end
+-- wall top between pillars
+cap(20, 16, 44, 22, 75)
+moss(6, 6, 6, 31) moss(46, 6, 4, 32) moss(24, 16, 4, 33) moss(8, 49, 5, 34) moss(48, 49, 6, 35)
+drip(12, 13, 3) drip(52, 13, 3)
 
-G.fin(c, "stone-wall-gate")
+G.save(c, NAME)

@@ -23,7 +23,7 @@ tm:each(function(x, y)
   if abs(S[k] + 0.55) < 0.1 and T[k] > 0.15 and T[k] < 0.7 then c:px(x, y, ICE[6]) end
 end)
 -- feather midrib
-G.line(c, { {40, 21}, {45, 27}, {46, 38} }, FEA[1])
+c:fillMask(c:line({ {40, 21}, {45, 27}, {46, 38} }, 1), FEA[1])
 -- gold cord wrap at base
 local wm = HP.mask()
 tm:each(function(x, y) if T[K(x, y)] < 0.2 then wm:set(x, y) end end)

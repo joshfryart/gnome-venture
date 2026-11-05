@@ -1,47 +1,47 @@
--- rosemary (lean W2_16)
-local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch1/_g0.lua")
+-- rosemary (lean P1b_O8)
+local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
-local function cyl(m, cx, hw) local n = {} m:each(function(x, y) local nx = max(-0.97, min(0.97, (x - cx) / hw)); n[K(x, y)] = { nx, -0.1, sqrt(1 - nx * nx) } end) return n end
-local function shade(c, m, n, ramp, bias, amb) G.tone(c, m, X.light(n, { amb = amb or 0.1, wrap = 0.25 }), ramp, nil, bias) end
+
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = "rosemary" }
-local main = { { 24, 57 }, { 22, 42 }, { 30, 26 }, { 40, 10 } }
-local function needles(P, t0, t1, st, len)
-  local t = t0
-  while t <= t1 do
-    local x, y = G.bez(P, t)
-    local x2, y2 = G.bez(P, min(1, t + 0.02))
-    local tx, ty = x2 - x, y2 - y
-    local l = sqrt(tx * tx + ty * ty)
-    tx, ty = tx / l, ty / l
-    for _, s in ipairs{ -1, 1 } do
-      local a = s * 0.95
-      local dx, dy = tx * cos(a) - ty * sin(a), tx * sin(a) + ty * cos(a)
-      local L = len * (1 - 0.35 * t) + (s > 0 and 0 or 0.6)
-      local lit = (dy < 0.1 and dx < 0.6) and 1 or 0
-      for i = 1, floor(L + 0.5) do
-        local col = i == 1 and "#255644" or (i == floor(L + 0.5) and (lit == 1 and "#9ccd6c" or "#70b45a") or (lit == 1 and "#4b9650" or "#32764b"))
-        c:px(floor(x + dx * i + 0.5), floor(y + dy * i + 0.5), col)
-      end
-    end
-    t = t + st
-  end
+local LEAF = { "#1b3a35", "#2c5a46", "#45795a", "#6a9d6c", "#9cc08a", "#d2e4ae" }
+local WOOD = { "#3a2418", "#5a3a26", "#7a5233", "#9a6c42", "#b98c5a", "#dcb482" }
+local FL   = { "#3b2f7d", "#5a58b8", "#7f88e0", "#aebcf6", "#e0e8ff", "#f2f6ff" }
+local P = { {13,58}, {22,45}, {38,31}, {51,9} }
+local function pt(t) return G.bez(P, t) end
+local function needle(t, side, len)
+  local x, y = pt(t)
+  local x2, y2 = pt(min(1, t + 0.01))
+  local a = math.atan(y2 - y, x2 - x) + side * 0.95
+  local bx, by = x + cos(a) * len, y + sin(a) * len
+  local cx, cy = x + cos(a - side * 0.35) * len * 0.55, y + sin(a - side * 0.35) * len * 0.55
+  local m, n = G.blade(x, y, cx, cy, bx, by, function(u) return 0.35 + 1.15 * sin(pi * min(1, u * 1.05)) ^ 0.7 end, { fold = 0.5 })
+  G.toneN(c, m, n, LEAF, { amb = 0.1, wrap = 0.2, cuts = { 0.2, 0.38, 0.55, 0.72, 0.88 } })
+  return bx, by
 end
-local function branch(P, t0, len) needles(P, t0, 1, 0.045, len) end
-local b1 = { { 25, 36 }, { 31, 35 }, { 38, 30 }, { 47, 21 } }
-local b2 = { { 27, 29 }, { 23, 25 }, { 20, 19 }, { 18, 11 } }
-branch(b2, 0.12, 4) branch(b1, 0.12, 4)
-needles(main, 0.12, 1, 0.04, 4.6)
-local function stem(P, w, ramp)
-  local m, n = G.tube(P, function(t) return w * (1 - 0.5 * t) + 0.3 end)
-  shade(c, m, n, ramp)
+local t = 0.22
+local i = 0
+while t < 0.99 do
+  local len = 10.5 - 4.5 * t
+  needle(t, 1, len) needle(t + 0.02, -1, len - 0.8)
+  t = t + 0.04 i = i + 1
 end
-local W = { "#5a3a22", "#7a5a3a", "#a07c4c", "#c9a468" }
-stem(b1, 0.9, W) stem(b2, 0.9, W) stem(main, 1.3, W)
-c:fillMask(c:rect(23, 56, 25, 58), "#e0c890") c:px(24, 57, "#a07c4c")
--- little blue flowers (quirk)
-for _, f in ipairs{ { 41, 11 }, { 47, 18 }, { 17, 14 }, { 36, 20 } } do
-  c:fillMask(c:rect(f[1], f[2], f[1] + 1, f[2] + 1), "#8a8ae0")
-  c:px(f[1], f[2], "#c4c4ff") c:px(f[1] + 1, f[2] + 1, "#5a5ab8") c:px(f[1] + 2, f[2], "#8a8ae0")
+-- stem
+local sm, sn = G.tube(P, function(u) return 1.9 - 1.0 * u end)
+G.toneN(c, sm, sn, WOOD, { amb = 0.08, wrap = 0.25 })
+sm:each(function(x, y) if X.hash(x, y, 3) > 0.8 then c:px(x, y, WOOD[2]) end end)
+-- flowers at tip cluster
+for _, f in ipairs{ {47, 12, 0}, {43, 17, 1}, {52, 17, 2}, {49, 22, 3} } do
+  local m, n = G.oval(f[1], f[2], 2.4, 2.0, 0.6 * f[3], 1)
+  G.toneN(c, m, n, FL, { amb = 0.1, wrap = 0.3 })
+  c:px(f[1] - 1, f[2] - 1, FL[6])
 end
-G.fin(c, "rosemary")
+-- twine bow (quirk)
+local RED = { "#6b1f2a", "#a8323a", "#d8574a", "#f08a68" }
+local bx, by = pt(0.12)
+bx, by = floor(bx + 0.5), floor(by + 0.5)
+for dx = -2, 2 do c:px(bx + dx, by + (dx + 2) // 3 - 1, RED[2]) end
+c:fillMask(c:ellipse(bx - 4, by - 2, 2.2, 1.5), RED[3]) c:fillMask(c:ellipse(bx + 4, by - 2, 2.2, 1.5), RED[3])
+c:px(bx - 5, by - 3, RED[4]) c:px(bx + 3, by - 3, RED[4]) c:px(bx, by - 1, RED[1]) c:px(bx + 1, by + 1, RED[1])
+c:px(bx - 1, by + 2, RED[2]) c:px(bx + 2, by + 3, RED[1])
+G.save(c, "rosemary")
