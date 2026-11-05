@@ -93,7 +93,7 @@ local function house(x, yb, w, h, sd, o)
   local dx = x + (o.doorx or w // 2 - 4)
   local door = mk(); R(door, dx, yb - 13, dx + 8, yb); door:cut((function() local k = mk(); k:set(dx, yb - 13); k:set(dx + 8, yb - 13); return k end)())
   door = GX.rough(door, sd + 4, 1)
-  GX.lit(c, door, GX.ramp6({ hi = "#b87850", base = "#7a4a3e", shade = "#52303a", deep = "#34202c" }), { R = 4, tex = .3, seed = sd + 5, ink = true })
+  GX.lit(c, door, GX.ramp6({ hi = "#b87850", base = "#7a4a3e", shade = "#52303a", deep = "#34202c" }), { R = 4, tex = .3, seed = sd + 5 })
   c:px(dx + 6, yb - 6, "#ffd070")
   -- glowing windows
   for _, wp in ipairs(o.win or {}) do
@@ -173,7 +173,7 @@ rock(470, 108, 7, 4, 64)
 -- scattered tufts and pebbles
 for i = 0, 30 do
   local x, y = 4 + floor(H(i, 71, 1) * 470), 88 + floor(H(i, 73, 1) * 22)
-  GX.tuft(c, x, y, { hi = "#fff0a0", base = "#dcbc58", shade = "#a88040", deep = "#76502e" })
+  if y > 100 or not ((x>96 and x<168) or (x>262 and x<340) or (x>432 and x<480)) then GX.tuft(c, x, y, { hi = "#fff0a0", base = "#dcbc58", shade = "#a88040", deep = "#76502e" }) end
 end
 
 -- hems (stitched, copied from the old banner)
