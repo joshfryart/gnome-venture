@@ -216,7 +216,7 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
     if ($sc['x'] === $tx && $sc['y'] === $ty) return [false, 'You are already here.'];
     $path = tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc, $tx, $ty));
     if (!$path) return [false, 'There is no way there from here.'];
-    [$stop, $sc['st']['quiet'], $sc['st']['fights']] = trail_encounter_index($map, $path, (int)($sc['st']['quiet'] ?? 0), (int)($sc['st']['fights'] ?? 0));
+    [$stop, $sc['st']['quiet'], $sc['st']['fights']] = trail_encounter_index($map, $path, (int)($sc['st']['quiet'] ?? 0), (int)($sc['st']['fights'] ?? 0), null, (string)($sc['st']['stance'] ?? ''));
     if ($stop !== null) {   // something rustles: the walk stops on that tile and a random fight starts
         $path = array_slice($path, 0, $stop + 1);
         [$tx, $ty] = end($path);
@@ -233,6 +233,19 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
     if ($fire !== null) trail_token_event($u, $exp, $fire, (string)($map['art']['boss'] ?? ''));
     $_SESSION['dm_walk'] = ['e' => (int)$exp['id'], 't' => time(), 'p' => $walked];
     return [true, ''];
+}
+
+/** Sneak or Hunt (or back to a normal walk): the stance for the rest of this walk. Free. [ok, message] */
+function trail_stance(array $u, array &$exp, string $mode): array
+{
+    $sc = trail_scene($exp);
+    if (!$sc) return [false, 'Not on a tile walk.'];
+    if ($exp['encounter']) return [false, 'Deal with what is in front of you first.'];
+    if (!in_array($mode, ['sneak', 'hunt', ''], true)) return [false, 'Unknown way of walking.'];
+    if ((string)($sc['st']['stance'] ?? '') === $mode) $mode = '';   // tapping it again goes back to a normal walk
+    $sc['st']['stance'] = $mode;
+    if (!trail_save($sc)) return [false, 'That already happened. Look again.'];
+    return [true, ['' => 'You walk as usual.', 'sneak' => '🤫 You sneak: fewer fights.', 'hunt' => '🏹 You hunt: more fights.'][$mode]];
 }
 
 /** Continue past the exit tile (free): the event is rolled once, the next section starts. [ok, message] */

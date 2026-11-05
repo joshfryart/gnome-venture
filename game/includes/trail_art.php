@@ -103,18 +103,20 @@ function trail_map_authored(array $art): array
 /**
  * Which tile of a walked path (start left out) a random fight stops the walk on, if any. One roll per tile entered, never in the first
  * 3 tiles of the section or within 2 tiles of the exit. Chance: 2% on floor, 8% on rough floor, +1% for every quiet tile since the last
- * fight (the pity counter), and at most 2 random fights a section. $roll(int $percent): bool is the dice (tests pass their own).
+ * fight (the pity counter), and at most 2 random fights a section. $stance 'sneak' scales the chance to 40%, 'hunt' to 250% (and allows 3 a section). $roll(int $percent): bool is the dice (tests pass their own).
  * Returns [index or null, quiet, fights].
  */
-function trail_encounter_index(array $map, array $path, int $quiet, int $fights, ?callable $roll = null): array
+function trail_encounter_index(array $map, array $path, int $quiet, int $fights, ?callable $roll = null, string $stance = ''): array
 {
+    $mult = ['sneak' => 40, 'hunt' => 250][$stance] ?? 100;   // Sneak: fewer fights (40%). Hunt: more (250%) and up to 3 a section
+    $cap = $stance === 'hunt' ? 3 : 2;
     $roll ??= fn(int $pct): bool => random_int(1, 100) <= $pct;
     $en = $map['entry'] ?? [0, 0];
     $ex = $map['spots']['9'] ?? [-99, -99];
     foreach ($path as $i => [$x, $y]) {
-        if ($fights >= 2) break;
+        if ($fights >= $cap) break;
         if (abs($x - $en[0]) + abs($y - $en[1]) < 3 || abs($x - $ex[0]) + abs($y - $ex[1]) < 3) continue;
-        $pct = (tm_tile($map, $x, $y) === ',' ? 8 : 2) + $quiet;
+        $pct = max(1, (int)round(((tm_tile($map, $x, $y) === ',' ? 8 : 2) + $quiet) * $mult / 100));
         if ($roll($pct)) return [$i, 0, $fights + 1];
         $quiet++;
     }

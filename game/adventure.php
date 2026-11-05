@@ -118,16 +118,17 @@ if (is_post()) {
             elseif ($do === 'visit' && explore_visit($u, $exp, (int)($_POST['place'] ?? 0))) $visited = true;
             elseif ($do === 'gather') explore_gather($u, $exp, (string)($_POST['tool'] ?? ''));   // v0.7.80
             if (in_array($do, ['deeper', 'roam', 'back'], true)) rest_after_explore($exp, $logBefore);   // v1.3.0
-        } elseif (in_array($do, ['trail_go', 'trail_next', 'trail_back', 'trail_arrive', 'trail_wander', 'gather'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
+        } elseif (in_array($do, ['trail_go', 'trail_next', 'trail_back', 'trail_arrive', 'trail_wander', 'trail_stance', 'gather'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
             if ($do === 'trail_go') { $xy = explode(',', (string)($_POST['go'] ?? '')); [$tok, $tmsg] = trail_go($u, $exp, (int)($xy[0] ?? -1), (int)($xy[1] ?? -1)); }
             elseif ($do === 'trail_next') [$tok, $tmsg] = trail_next($u, $exp);
             elseif ($do === 'gather') [$tok, $tmsg] = trail_gather($u, $exp, (string)($_POST['tool'] ?? ''));
+            elseif ($do === 'trail_stance') [$tok, $tmsg] = trail_stance($u, $exp, (string)($_POST['mode'] ?? ''));
             elseif ($do === 'trail_wander') { [$tok, $tmsg] = trail_wander($u, $exp); }
             elseif ($do === 'trail_back') { [$tok, $tmsg] = trail_back($u, $exp); $visited = true; }
             elseif (trail_can_arrive($exp)) { arrive($u, $exp); dm_scene_drop((int)$exp['id']); $arrivedAt = (int)$exp['to_id']; $tok = true; $tmsg = ''; }
             else { $tok = false; $tmsg = 'Not there yet.'; }
             if (!$tok && $tmsg !== '') flash($tmsg, 'err');
-            elseif ($tok && in_array($do, ['trail_back', 'trail_wander'], true)) flash($tmsg, 'ok');
+            elseif ($tok && in_array($do, ['trail_back', 'trail_wander', 'trail_stance'], true)) flash($tmsg, 'ok');
         } elseif ($do === 'continue' && (int)$exp['step'] < (int)$exp['steps_total']) {
             next_step($u, $exp);
         } elseif ($do === 'arrive' && (int)$exp['step'] >= (int)$exp['steps_total'] && ts($exp['arrive_at']) <= time()) {
@@ -309,6 +310,7 @@ if ($wi && !$isWalk): ?>
   <div class="trailfoot">
     <a class="btn" data-pop="hubpop-tgather" href="<?= e(url('adventure.php?g=1')) ?>">🧺 Gather here</a>
     <?php if (on_road((int)$exp['from_id'])): ?><a class="btn alt" data-pop="hubpop-twander" href="<?= e(url('adventure.php?w=1')) ?>">🌿 Wander off <small>⚡1</small></a><?php endif; ?>
+    <?php $stance = (string)($trailSc['st']['stance'] ?? ''); foreach (['sneak' => '🤫 Sneak', 'hunt' => '🏹 Hunt'] as $sm => $sl): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_stance"><input type="hidden" name="mode" value="<?= $sm ?>"><button class="btn<?= $stance === $sm ? '' : ' alt' ?>" aria-pressed="<?= $stance === $sm ? 'true' : 'false' ?>"><?= $sl ?></button></form><?php endforeach; ?>
     <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_back"><button class="btn alt">↩️ Turn back</button></form>
   </div>
   <?php if (on_road((int)$exp['from_id'])): ?><dialog class="picker hubpop trailsmall" id="hubpop-twander" aria-labelledby="hubpop-twander-t"<?= !empty($_GET['w']) ? ' open' : '' ?>><div class="pickbox">

@@ -31,7 +31,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 
 ## 4. CODE: open
 **Trail / Here**
-- Tile walks: add Sneak and Hunt buttons (keep ~40% extra fights as default; Sneak fewer, Hunt more; check `tests/balance_sim.php` Walks).
+- Tile walks Sneak/Hunt buttons BUILT, UNRELEASED (branch only, no version bump, no CHANGELOG yet): stance on the trail footer, Sneak = 40% fight chance, Hunt = 250% and up to 3 fights a section; tap again to go back to normal. Josh to confirm numbers; `balance_sim.php` Walks not updated for stances.
 - Upkeep: anyone can pay, none owed; stop degrades a tier if unpaid. Check current code matches (no adopter-only gate, no forced notice).
 - Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); released 2.5.69, not phone-checked. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
 - Trail ground and landmarks for the other 11 regions (loader exists; art is stand-ins).
