@@ -243,6 +243,53 @@ function here_town_spots(array $node): array
     return $out;
 }
 
+/** v2.5.28: a shop as a compact row (art, name, who is at the counter); the whole row links to the shop. */
+function here_shop_row(array $s, array $u): string
+{
+    require_once __DIR__ . '/place_ui.php';
+    $staff = staff_on_duty((int)$s['id']);
+    $reach = shop_reachable($u, $s);
+    $in = '<span class="shart">' . felt_art_img(town_shop_art((string)($s['shop_type'] ?? ''))) . '</span><b>' . e((string)$s['name']) . '</b><i>' . ($staff ? 'open' : 'closed') . '</i>';
+    return $reach ? '<a class="shrow" href="' . e(url('shop.php?id=' . (int)$s['id'])) . '">' . $in . '</a>'
+        : '<a class="shrow" href="' . e(url('world.php?go=' . (int)$s['loc_id'] . '#gopanel')) . '">' . $in . '</a>';
+}
+
+/** One shop's own card: picture, name, a line about it, who is at the counter, Step in. */
+function here_shop_card(array $s, array $u): string
+{
+    require_once __DIR__ . '/place_ui.php';
+    $staff = staff_on_duty((int)$s['id']);
+    $href = shop_reachable($u, $s) ? url('shop.php?id=' . (int)$s['id']) : url('world.php?go=' . (int)$s['loc_id'] . '#gopanel');
+    return '<div class="shcard"><span class="shbig">' . felt_art_img(town_shop_art((string)($s['shop_type'] ?? ''))) . '</span><p>' . e((string)$s['description']) . '</p>'
+        . '<p class="muted">' . ($staff ? 'At the counter: ' . e(implode(', ', array_column($staff, 'name'))) : 'Closed: nobody on shift') . '</p>'
+        . '<a class="btn act gold" href="' . e($href) . '">Step in ›</a></div>';
+}
+
+/** The shop fronts of a town picture: each front is one of the town's shops by name, the last is the Mossbottom stall (the hub shops, open from anywhere).
+ *  More shops than fronts: the last town front lists the rest. One front: everything in one list. Returns [[label, emoji, card html], ...] by front. */
+function here_shop_fronts(array $u, array $node, int $fronts): array
+{
+    if ($fronts < 1) return [];
+    require_once __DIR__ . '/world.php';
+    $list = fn(string $region): array => q('SELECT s.*, l.name AS loc_name, l.id AS loc_id FROM shops s JOIN locations l ON l.id = s.location_id WHERE l.region = ? AND s.open = 1 ORDER BY s.name', [$region])->fetchAll();
+    $isHub = (string)$node['region'] === HUB_REGION;
+    $town = $list((string)$node['region']);
+    $hub = $isHub ? [] : $list(HUB_REGION);
+    $rows = fn(array $l) => '<div class="shrows">' . implode('', array_map(fn($s) => here_shop_row($s, $u), $l)) . '</div>';
+    $hubCard = fn() => '<p class="muted">Open from anywhere</p>' . $rows($hub);
+    if (!$hub && !$town) return array_fill(0, $fronts, ['Shops', '🏪', '<p class="muted">No shops here yet.</p>']);
+    $out = [];
+    if ($fronts === 1) return [['Shops', '🏪', $rows(array_merge($town, $hub))]];
+    $slots = $hub ? $fronts - 1 : $fronts;   // fronts for the town's own shops
+    foreach ($town as $i => $s) {
+        if ($i >= $slots) break;
+        if ($i === $slots - 1 && count($town) > $slots) { $rest = array_slice($town, $i); $out[$i] = ['More shops', '🏪', $rows($rest)]; break; }
+        $out[$i] = [(string)$s['name'], '🏪', here_shop_card($s, $u)];
+    }
+    if ($hub) $out[$fronts - 1] = ['Mossbottom Shops', '🍄', $hubCard()];
+    return $out;
+}
+
 /** Things to do at this place: hotspots on the template's named spots. */
 function here_spots(array $u, array $node, array $L, string $back, string $kind): array
 {
@@ -250,11 +297,15 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
     $want = [];   // behaviour key => the layout spots that do it. A spot's 'k' is its own id; an optional 'as' says which behaviour it has (several fronts may share one)
     foreach ($L['spots'] ?? [] as $s) $want[(string)($s['as'] ?? $s['k'])][] = $s;
     $hot = [];
-    $add = function (string $k, string $label, string $emoji, string $href, string $card = '', string $chip = '', string $cls = '') use (&$hot, $want, $back) {
+    $add = function (string $k, string|array $label, string $emoji, string $href, string $card = '', string $chip = '', string $cls = '') use (&$hot, $want, $back) {
         foreach ($want[$k] ?? [] as $n => $sp) {
+            if (is_array($label)) {   // v2.5.28: one entry per front, [label, emoji, card] (the town's shops); a front with no entry is left out
+                if (!isset($label[$n])) continue;
+                [$lab, $emo, $crd] = $label[$n];
+            } else { $lab = $label; $emo = $emoji; $crd = $card; }
             $id = 's-' . $k . ($n > 0 ? '-' . ($n + 1) : '');   // the id follows the behaviour (stable links), a second front with the same behaviour gets -2, -3
-            $h = ['id' => $id, 'x' => (int)$sp['x'], 'y' => (int)$sp['y'], 'label' => $label, 'emoji' => $emoji, 'chip' => $chip, 'cls' => $cls,
-                  'href' => $card !== '' ? url($back . '?o=' . $id) : $href, 'card' => $card];
+            $h = ['id' => $id, 'x' => (int)$sp['x'], 'y' => (int)$sp['y'], 'label' => $lab, 'emoji' => $emo, 'chip' => $chip, 'cls' => $cls,
+                  'href' => $crd !== '' ? url($back . '?o=' . $id) : $href, 'card' => $crd];
             if (isset($sp['box'])) $h['box'] = $sp['box'];
             $hot[] = $h;
         }
@@ -267,7 +318,7 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
                 $add($k, (string)$ts[$k]['name'], $emo, url('town.php?' . $hq . 'spot=' . (int)$ts[$k]['id']), here_lazy_card(url('town.php?' . $hq . 'spot=' . (int)$ts[$k]['id'] . '&frag=1'), url('town.php'), 'Open full page ›', ''));
             }
         }
-        $add('shops', 'Shops', '🏪', url('town.php?view=shops'));
+        $add('shops', here_shop_fronts($u, $node, count($want['shops'] ?? [])), '🏪', url('town.php?view=shops'));
         // 'homes' (Residential) comes in a later release; the spot stays hidden until residential.php exists
         if (is_file(APP_ROOT . '/residential.php') && npcs_homed_at((int)$node['id'])) $add('homes', 'Homes', '🏠', url('residential.php?loc=' . (int)$node['id']));
     } elseif ($kind === 'village' || $kind === 'stop' || $kind === '') {   // '' = a plain place: the generic picture

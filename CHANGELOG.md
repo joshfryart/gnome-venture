@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.28
+- **Each shop has its own name on the town picture**: the pills that all said "Shops" now carry the shop names (Here town pictures). Tapping one opens that shop's card (picture, a line about it, who is at the counter, Step in). The last front is **Mossbottom Shops** (open from anywhere), which lists the hub shops as rows. More shops than fronts: the last town front lists the rest; a picture with one front lists everything. Needs 2.5.27.
+
 ## 2.5.27
 - **Smoother Trail walk**: the picture now slides with a GPU transform snapped to whole device pixels instead of re-laying-out every frame, your 2.5D gnome glides with no hop so it stays dead centre, and each step is a little slower (90 ms at the quickest). Needs 2.5.26.
 

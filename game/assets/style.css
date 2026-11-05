@@ -7299,3 +7299,13 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .rmap a.rmpin.sel .rp { stroke: #7ee07e; stroke-width: 4; }
 .rmap a.rmpin { cursor: pointer; }
 .hubpop .trows { padding: 0; }
+
+/* v2.5.28: shop fronts: each shop's own card, and the Mossbottom stall list */
+.hubpop .shcard { text-align: center; }
+.hubpop .shcard .shbig img { width: 64px; height: auto; image-rendering: pixelated; }
+.hubpop .shcard p { margin: 4px 0; }
+.hubpop .shrows { display: grid; gap: 6px; margin-top: 6px; }
+.hubpop .shrow { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); color: inherit; text-decoration: none; text-align: left; }
+.hubpop .shrow b { flex: 1; }
+.hubpop .shrow i { font-style: normal; font-size: .8rem; color: var(--muted); }
+.hubpop .shrow .shart img { width: 30px; height: auto; image-rendering: pixelated; display: block; }

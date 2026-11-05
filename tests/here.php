@@ -220,6 +220,10 @@ if ($withDb) {
     $u = put($town);
     $routes = visible_routes($u, $town);
     $h = here_view($u, player_node($u));
+    $sf = here_shop_fronts($u, player_node($u), 4);   // v2.5.28: each shop front is named, the last is the Mossbottom stall
+    ok('shop fronts: named, not all just "Shops"', $sf && count(array_unique(array_column($sf, 0))) === count($sf));
+    ok('shop fronts: the last front is Mossbottom Shops', $sf && end($sf)[0] === 'Mossbottom Shops' && str_contains(end($sf)[2], 'shrow'));
+    ok('shop fronts: one front lists every shop', count(here_shop_fronts($u, player_node($u), 1)) === 1);
     $gateView = str_contains($h, 'hubsvg chrome');   // a main town with a gate-view picture has no exits on it: the compass card lists every route
     if ($gateView) {
         ok('gate view: no exit hotspots on the picture, no circles', substr_count($h, 'id="hs-e') === 0 && !str_contains(preg_replace('#<svg class="rmap".*?</svg>#s', '', $h), '<circle'));;
