@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.04
+- **A find is announced once**: the Trail pop-up and toast repeated the last journal line (for example "You find Four-leaf Clover.") on every step. A line is now announced only when the journal gains a new one, and a reload does not announce it again.
+- Tests: the same line is not announced twice (browser).
+
 ## 2.6.03
 - **Walking onto an item shows its notification again**: 2.6.02 showed the "what just happened" message only when a page loaded from scratch, not after a step on the map, which swaps the page in place. It now shows in the toast box and floats over the gnome after every step.
 - Tests: the browser test now walks a tile.

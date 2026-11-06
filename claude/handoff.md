@@ -1,4 +1,6 @@
-# Gnome Venture handoff (current as of 2026-11-06; main = 2.6.03; MASTER TO-DO is `claude/todo.md` (one file, read it first); older blocks below are history)
+# Gnome Venture handoff (current as of 2026-11-06; main = 2.6.04; MASTER TO-DO is `claude/todo.md` (one file, read it first); older blocks below are history)
+
+**2.6.04 (2026-11-06)**: `data-gvtoast` carrier holds walkid:lines:crc; `gvPageToasts()` announces a journal line once (sessionStorage `gvlatest`). Slim zip needs 2.5.98+.
 
 **2.6.03 (2026-11-06)**: `gvPageToasts()` in site.js runs after both in-place swap paths (walking onto an item toasts again). Slim zip needs 2.5.98+.
 
