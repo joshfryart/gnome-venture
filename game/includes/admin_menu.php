@@ -27,6 +27,7 @@ function admin_menu_def(): array
             ['r:regions', '🌍', null, 'The big regions and their climate', 't:regions'],
             ['r:zones', '🧭', null, 'Zones inside regions', 't:zones'],
             ['r:landmarks', '⛰️', null, 'Landmarks and visitable sights', 't:landmarks'],
+            ['r:landmark_runs', '🗺️', null, 'Every delve and lair run: outcome, depth, stages', 't:landmark_runs'],
             ['r:locations', '📍', null, 'Villages, stops and places to visit', 't:locations'],
             ['r:routes', '🛤️', null, 'Roads between places', 't:routes'],
             ['r:town_spots', '🏘️', null, 'Places inside a town', 't:town_spots'],

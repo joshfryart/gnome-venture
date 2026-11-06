@@ -722,6 +722,23 @@ function admin_resources(): array
                 'pool' => ['type' => 'textarea', 'help' => 'JSON of what has been handed in for the next tier'],
             ],
         ],
+        'landmark_runs' => [   // v2.5.97: one row per delve or lair run (written when the run ends); mostly for reading, edit with care
+            'table' => 'landmark_runs', 'label' => 'Delve and lair runs', 'title_col' => 'id',
+            'list' => ['id', 'user_id', 'landmark_id', 'kind', 'outcome', 'level', 'depth', 'stages', 'ended_at'],
+            'filters' => ['kind', 'outcome'],
+            'fields' => [
+                'user_id' => ['type' => 'fk', 'table' => 'users', 'show' => 'username', 'label' => 'Player', 'required' => true],
+                'landmark_id' => ['type' => 'fk', 'table' => 'landmarks', 'show' => 'name', 'label' => 'Landmark', 'required' => true],
+                'exp_id' => ['type' => 'int', 'min' => 0, 'max' => 2147483647, 'label' => 'Walk id'],
+                'kind' => ['type' => 'text', 'required' => true, 'max' => 10, 'help' => 'delve or lair'],
+                'outcome' => ['type' => 'text', 'required' => true, 'max' => 10, 'help' => 'cleared, ko or left'],
+                'level' => ['type' => 'int', 'min' => 1, 'max' => 999, 'default' => 1],
+                'depth' => ['type' => 'int', 'min' => 0, 'max' => 999, 'default' => 0],
+                'stages' => ['type' => 'int', 'min' => 0, 'max' => 999, 'default' => 0],
+                'route' => ['type' => 'text', 'max' => 40, 'help' => 'The route seed'],
+                'picks' => ['type' => 'textarea', 'help' => 'JSON of the nodes picked'],
+            ],
+        ],
         'problems' => [
             'table' => 'problems', 'label' => 'Problems', 'title_col' => 'slug',
             'list' => ['id', 'slug', 'text', 'landscapes', 'active'],

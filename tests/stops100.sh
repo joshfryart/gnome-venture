@@ -54,6 +54,8 @@ get index.php >/dev/null; echo "today card mentions the stop: $(grep -c 'rest st
 echo "== admin pages"
 rm -f $C; get login.php >/dev/null; post login.php -d username=admin -d password=TestPassword123 >/dev/null
 for r in stop_types stop_acts stop_folk stop_tiers stop_sets stop_adoptions locations; do echo "admin crud $r -> $(get "admin/crud.php?r=$r")  rows=$(grep -c '<tr' $H)"; done
+dbx "INSERT INTO landmark_runs (user_id, landmark_id, exp_id, kind, outcome, level, depth, stages, started_at, ended_at) SELECT (SELECT id FROM users WHERE username='sprout'), id, 987654, 'delve', 'cleared', 3, 4, 5, '2026-01-01 00:00:00', '2026-01-01 00:10:00' FROM landmarks LIMIT 1"
+code=$(get "admin/crud.php?r=landmark_runs"); echo "admin landmark_runs -> $code"; { [ "$code" = 200 ] && grep -q 'cleared' $H && grep -q 'sprout' $H; } || { echo "FAIL admin delve and lair runs list (v2.5.97)"; RC=1; }
 echo "admin livingstops -> $(get admin/livingstops.php)  rows=$(grep -c "<tr" $H) missing=$(grep -c "missing:" $H)"; [ "$(grep -c "<tr" $H)" -ge 20 ] && [ "$(grep -c "missing:" $H)" = 0 ] || { echo "FAIL admin/livingstops.php (v2.5.72)"; RC=1; }
 get admin/settings.php >/dev/null; for k in stop_slots stop_daily_cap stop_adopt_limit stop_daypart_force; do grep -q "name=\"s\[$k\]\"" $H && echo "  setting $k" || echo "  MISSING setting $k"; done
 echo "== php log"
