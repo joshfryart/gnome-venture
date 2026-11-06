@@ -34,7 +34,8 @@ ART_LAND = {"grassland": "grassland", "forest": "forest", "coast": "coast", "tun
 LIST = os.path.join(REPO, "claude", "route-list.md")
 DATA = os.path.join(REPO, "game", "includes", "data", "trail_maps.json")
 DEFAULT_MAPS = os.path.join(REPO, "claude/maplewold-trail-maps/maplewold_trail_maps_22wide.json")
-LANDMARKS = os.path.join(REPO, "claude/maplewold-trail-maps/maplewold_landmarks.json")   # routes listed here get a worn path and one raised landmark per named feature
+LANDMARKS = os.path.join(REPO, "claude/maplewold-trail-maps/maplewold_landmarks.json")
+LANDMARK_FILES = [LANDMARKS] + sorted(glob.glob(os.path.join(REPO, "claude", "trail-landmarks", "*_landmarks.json")))   # + the generated ones for the other regions   # routes listed here get a worn path and one raised landmark per named feature
 
 def boss_of(rid):
     """'miniboss' when the route list says one end is a delve, 'boss' for a lair (only used when the last section has an E), else ''."""
@@ -158,7 +159,9 @@ def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     only = {int(a.split("=")[1]) for a in sys.argv[1:] if a.startswith("--route=")}
     entries = load_routes(args or [DEFAULT_MAPS])
-    lm_data = json.load(open(LANDMARKS, encoding="utf-8")) if os.path.isfile(LANDMARKS) else {}
+    lm_data = {}
+    for lf in LANDMARK_FILES:
+        if os.path.isfile(lf): lm_data.update({k: v for k, v in json.load(open(lf, encoding="utf-8")).items() if not k.startswith("_")})
     bad = 0
     for f, r in entries:
         for msg in check_route(r) + ([] if r.get("land") in ART_LAND else [f"land {r.get('land')!r} is not in ART_LAND"]):

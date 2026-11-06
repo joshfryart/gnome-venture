@@ -2,7 +2,7 @@
 """Generate authored Trail maps (22 wide x 7 tall sections) for every route in claude/route-list.md that has no map yet.
 Deterministic: the same route id always gives the same map. Writes one file per region group:
     claude/<region-slug>-trail-maps/<region-slug>_trail_maps.json   ({"routes": [...]}, the shape tools/bake_trail_art.py reads)
-Skips routes already in game/includes/data/trail_maps.json (the Maplewold) unless --all. Then run:
+Skips the hand-made Maplewold routes (claude/maplewold-trail-maps/maplewold_trail_maps_22wide.json) unless --all. Then run:
     python3 -I tools/bake_trail_art.py --check claude/*-trail-maps     and, to bake the pictures,   python3 -I tools/bake_trail_art.py claude/*-trail-maps
 Rules followed: claude/prompt-route-maps.md (S on x=0 of section 1, one 9 on x=21, floor on the previous exit row at x=0, 1 to 3 F off the line,
 no E except the fixed miniboss/boss spot on the last section of a delve/lair route). Set pieces and captions are in the SETS tables below."""
@@ -191,7 +191,39 @@ def carve_section(rng, land, entry_y, exit_y, last_boss):
         g[yy][x] = "E"
     return ["".join(r) for r in g], exit_y
 
-def make_route(rid, frm, to, land, secs, end_kind):
+CAT = {}   # landmark slug -> {land, feature, caption, routes}: written to claude/trail-landmarks/setpieces.json (the art notes and the stand-in sprites read it)
+
+def slugify(t): return re.sub(r"[^a-z0-9]+", "-", t.lower()).strip("-")
+
+def walk_path(rows):
+    from collections import deque
+    st = next((x, y) for y, r in enumerate(rows) for x, c in enumerate(r) if x == 0 and c != "#")
+    en = next((len(rows[0]) - 1, y) for y, r in enumerate(rows) if r[-1] == "9")
+    prev, q = {st: None}, deque([st])
+    while q:
+        c = q.popleft()
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            n = (c[0] + dx, c[1] + dy)
+            if 0 <= n[0] < W and 0 <= n[1] < H and rows[n[1]][n[0]] != "#" and n not in prev: prev[n] = c; q.append(n)
+    out, c = set(), en
+    while c is not None: out.add(c); c = prev[c]
+    return out
+
+def place_landmark(rng, rows, taken):
+    """A floor cell off the walk line and off the finds, feet row 3 to 5 (tall sprites keep their top in the map), x 3..W-4, 2+ from other landmarks; best: close to the line."""
+    line = walk_path(rows)
+    best = []
+    for y in range(3, H - 1):
+        for x in range(3, W - 3):
+            if rows[y][x] not in ".," or (x, y) in line or any(abs(x - a) + abs(y - b) < 3 for a, b in taken): continue
+            d = min(abs(x - a) + abs(y - b) for a, b in line)
+            if d >= 1: best.append((d, rng.random(), x, y))
+    if not best:   # fallback: any floor cell off the line and not a token
+        best = [(9, rng.random(), x, y) for y in range(1, H - 1) for x in range(2, W - 2) if rows[y][x] in ".," and (x, y) not in line]
+    best.sort()
+    return best[0][2], best[0][3]
+
+def make_route(rid, frm, to, land, secs, end_kind, LM=None):
     rng = random.Random(zlib.crc32(f"gv-trail|{rid}".encode()))
     pool = SETS[land][:]
     rng.shuffle(pool)
@@ -205,9 +237,14 @@ def make_route(rid, frm, to, land, secs, end_kind):
         if si == 0:
             rows = [("S" + r[1:]) if r[0] == "." or r[0] == "," else r for r in rows]
         if last and end_kind in END:
-            feat, cap = rng.choice(END[end_kind]); feat, cap = feat.format(to=to), cap.format(to=to)
+            k = rng.randrange(len(END[end_kind])); feat, cap = END[end_kind][k]; slug = f"end-{end_kind}-{k + 1}-{land}"
+            CAT.setdefault(slug, {"land": land, "feature": f"the way into a {end_kind}: " + feat.format(to="<the place>"), "caption": cap.format(to="<the place>"), "routes": []})["routes"].append(rid)
+            feat, cap = feat.format(to=to), cap.format(to=to)
         else:
-            feat, cap = pool[si % len(pool)]
+            feat, cap = pool[si % len(pool)]; slug = land + "-" + slugify(feat)
+            CAT.setdefault(slug, {"land": land, "feature": feat, "caption": cap, "routes": []})["routes"].append(rid)
+        lx, ly = place_landmark(srng, rows, [])
+        if LM is not None: LM.setdefault(str(rid), []).append([[lx, ly, slug, 0]])
         toks = [[x, y, c] for y, r in enumerate(rows) for x, c in enumerate(r) if c in "EF"]
         sections.append({"feature": feat, "caption": cap, "rows": rows, "tokens": toks})
         entry_y = exit_y
@@ -224,16 +261,20 @@ def parse():
 def slug(s): return re.sub(r"[^a-z0-9]+", "-", s.lower().replace("->", "to")).strip("-")
 
 def main():
-    have = set() if "--all" in sys.argv else set(map(int, json.load(open(os.path.join(REPO, "game/includes/data/trail_maps.json")))["routes"]))
+    have = set() if "--all" in sys.argv else {int(r["route_id"]) for r in json.load(open(os.path.join(REPO, "claude/maplewold-trail-maps/maplewold_trail_maps_22wide.json")))}   # the hand-made ones
     groups = {}
+    LM = {}
     for grp, rid, frm, to, land, secs, endk in parse():
         if rid in have: continue
-        groups.setdefault(grp, []).append(make_route(rid, frm, to, land, secs, endk))
+        groups.setdefault(grp, []).append(make_route(rid, frm, to, land, secs, endk, LM))
     n = 0
     for grp, rs in groups.items():
         d = os.path.join(REPO, "claude", slug(grp) + "-trail-maps"); os.makedirs(d, exist_ok=True)
         json.dump({"routes": rs}, open(os.path.join(d, slug(grp) + "_trail_maps.json"), "w"), indent=1, ensure_ascii=False)
         n += len(rs)
-    print(len(groups), "files,", n, "routes")
+    d = os.path.join(REPO, "claude", "trail-landmarks"); os.makedirs(d, exist_ok=True)
+    json.dump({"_note": "Landmarks for every route outside the Maplewold (generated by tools/gen_trail_maps.py): {route id: [[[x, y, slug, jitter]] per section]}. Same meaning as maplewold_landmarks.json. Slugs are shared set pieces (setpieces.json); sprites are stand-ins until drawn (claude/trail-setpiece-art-notes.md).", **LM}, open(os.path.join(d, "other_regions_landmarks.json"), "w"), separators=(",", ":"))
+    json.dump(CAT, open(os.path.join(d, "setpieces.json"), "w"), indent=1, ensure_ascii=False)
+    print(len(groups), "files,", n, "routes,", len(CAT), "set pieces")
 
 if __name__ == "__main__": main()

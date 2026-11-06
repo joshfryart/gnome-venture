@@ -1,0 +1,1585 @@
+{
+ "grassland-the-plank-footbridge": {
+  "land": "grassland",
+  "feature": "the plank footbridge",
+  "caption": "A plank bridge over a ditch. The ditch is not deep, but the bridge is proud.",
+  "routes": [
+   262,
+   230,
+   234,
+   256,
+   360,
+   273,
+   274,
+   233,
+   237
+  ]
+ },
+ "grassland-the-picnic-knoll": {
+  "land": "grassland",
+  "feature": "the picnic knoll",
+  "caption": "A flat green knoll with a dent in it exactly the shape of a picnic.",
+  "routes": [
+   262,
+   238,
+   231,
+   323,
+   245,
+   234,
+   256,
+   261,
+   391,
+   398,
+   273,
+   274,
+   280,
+   281,
+   229,
+   246,
+   284,
+   423
+  ]
+ },
+ "grassland-the-bramble-gap": {
+  "land": "grassland",
+  "feature": "the bramble gap",
+  "caption": "A gap in the brambles, wide enough for one gnome and one opinion.",
+  "routes": [
+   262,
+   263,
+   268,
+   238,
+   256,
+   276,
+   281,
+   237,
+   247,
+   249
+  ]
+ },
+ "grassland-the-shepherd-s-wall": {
+  "land": "grassland",
+  "feature": "the shepherd's wall",
+  "caption": "A dry-stone wall running off into the grass, with a gate that is mostly decoration.",
+  "routes": [
+   263,
+   240,
+   234,
+   359,
+   278,
+   433,
+   289,
+   275,
+   249,
+   422
+  ]
+ },
+ "grassland-the-wind-combed-meadow": {
+  "land": "grassland",
+  "feature": "the wind-combed meadow",
+  "caption": "Grass lying down in one direction, as if told to. A kite string trails over the path.",
+  "routes": [
+   263,
+   245,
+   279,
+   288,
+   282,
+   283,
+   286
+  ]
+ },
+ "grassland-the-dandelion-drift": {
+  "land": "grassland",
+  "feature": "the dandelion drift",
+  "caption": "A drift of dandelion fluff, ready to leave at the first sneeze.",
+  "routes": [
+   268,
+   231,
+   261,
+   289,
+   276,
+   275,
+   233,
+   283,
+   286
+  ]
+ },
+ "grassland-the-sleepy-windmill": {
+  "land": "grassland",
+  "feature": "the sleepy windmill",
+  "caption": "A little windmill turning slowly, in no hurry at all.",
+  "routes": [
+   268,
+   230,
+   235,
+   261,
+   287,
+   390,
+   411,
+   229,
+   284
+  ]
+ },
+ "forest-the-lantern-branch": {
+  "land": "forest",
+  "feature": "the lantern branch",
+  "caption": "An old lantern hangs from a branch. Somebody trims its wick.",
+  "routes": [
+   378,
+   260,
+   354,
+   292,
+   434,
+   463
+  ]
+ },
+ "forest-the-root-tangle-crossing": {
+  "land": "forest",
+  "feature": "the root-tangle crossing",
+  "caption": "Roots knot across the path like a puzzle with one answer: step high.",
+  "routes": [
+   378,
+   291,
+   260,
+   292,
+   435,
+   464
+  ]
+ },
+ "forest-the-spring-and-the-pebbles": {
+  "land": "forest",
+  "feature": "the spring and the pebbles",
+  "caption": "A trickle of spring water over bright pebbles.",
+  "routes": [
+   379,
+   290,
+   296
+  ]
+ },
+ "forest-the-owl-watch-bough": {
+  "land": "forest",
+  "feature": "the owl-watch bough",
+  "caption": "A low bough where an owl pretends not to see you.",
+  "routes": [
+   379,
+   380,
+   387,
+   290,
+   464
+  ]
+ },
+ "forest-the-glow-moss-grotto": {
+  "land": "forest",
+  "feature": "the glow-moss grotto",
+  "caption": "A damp hollow with moss that glows faintly, like a night-light.",
+  "routes": [
+   380,
+   444,
+   445,
+   428,
+   434
+  ]
+ },
+ "wetland-the-mud-skipper-flats": {
+  "land": "wetland",
+  "feature": "the mud-skipper flats",
+  "caption": "Wet flats with small skippers who race for no reason.",
+  "routes": [
+   381,
+   293,
+   333
+  ]
+ },
+ "wetland-the-stilt-house": {
+  "land": "wetland",
+  "feature": "the stilt-house",
+  "caption": "A house on stilts, with a ladder that has gone for a walk.",
+  "routes": [
+   381,
+   270,
+   295,
+   419,
+   426
+  ]
+ },
+ "wetland-the-willow-curtain": {
+  "land": "wetland",
+  "feature": "the willow curtain",
+  "caption": "Willow branches drape the path like a gentle curtain.",
+  "routes": [
+   382,
+   388,
+   269,
+   270,
+   277,
+   403,
+   405,
+   455,
+   334,
+   339,
+   418
+  ]
+ },
+ "wetland-the-peat-bank": {
+  "land": "wetland",
+  "feature": "the peat bank",
+  "caption": "A soft brown bank that smells of rain and old books.",
+  "routes": [
+   382,
+   269,
+   432,
+   277,
+   403,
+   294
+  ]
+ },
+ "mountain-the-scree-slope": {
+  "land": "mountain",
+  "feature": "the scree slope",
+  "caption": "A slope of loose small stones that tick and chatter underfoot.",
+  "routes": [
+   383,
+   365,
+   429,
+   436
+  ]
+ },
+ "mountain-the-pine-shelf": {
+  "land": "mountain",
+  "feature": "the pine shelf",
+  "caption": "A shelf of pines clinging to a cliff for dear life.",
+  "routes": [
+   383,
+   370,
+   374,
+   377,
+   399,
+   252,
+   341,
+   416
+  ]
+ },
+ "mountain-the-wind-notch": {
+  "land": "mountain",
+  "feature": "the wind notch",
+  "caption": "A notch in the ridge where the wind plays whatever it likes.",
+  "routes": [
+   384,
+   389,
+   327,
+   377,
+   436,
+   424,
+   425
+  ]
+ },
+ "mountain-the-goat-ledge": {
+  "land": "mountain",
+  "feature": "the goat ledge",
+  "caption": "A ledge with a goat. The goat is entirely unbothered.",
+  "routes": [
+   384,
+   389,
+   327,
+   367,
+   370,
+   431,
+   392,
+   250,
+   251,
+   252,
+   424
+  ]
+ },
+ "grassland-the-daisy-ring": {
+  "land": "grassland",
+  "feature": "the daisy ring",
+  "caption": "A circle of daisies so even that someone must have measured. Nobody will own up.",
+  "routes": [
+   385,
+   443,
+   230,
+   275,
+   280,
+   281,
+   229,
+   347,
+   249,
+   283
+  ]
+ },
+ "end-haven-1-grassland": {
+  "land": "grassland",
+  "feature": "the way into a haven: the <the place> path",
+  "caption": "A smell of something warm drifts down the path from <the place>.",
+  "routes": [
+   385,
+   359
+  ]
+ },
+ "forest-the-fern-tunnel": {
+  "land": "forest",
+  "feature": "the fern tunnel",
+  "caption": "Ferns arch overhead and drip softly on everyone's hat.",
+  "routes": [
+   386,
+   438,
+   445,
+   435
+  ]
+ },
+ "forest-the-acorn-scatter": {
+  "land": "forest",
+  "feature": "the acorn scatter",
+  "caption": "Acorns everywhere, as though a squirrel had a very bad day.",
+  "routes": [
+   386,
+   428,
+   435
+  ]
+ },
+ "end-wonder-1-forest": {
+  "land": "forest",
+  "feature": "the way into a wonder: the <the place> gates",
+  "caption": "Something wonderful is close. You can feel it in your shoes.",
+  "routes": [
+   386
+  ]
+ },
+ "forest-the-hollow-oak": {
+  "land": "forest",
+  "feature": "the hollow oak",
+  "caption": "An oak so hollow it could host tea for six.",
+  "routes": [
+   387,
+   291,
+   361
+  ]
+ },
+ "end-delve-2-forest": {
+  "land": "forest",
+  "feature": "the way into a delve: the lantern line to <the place>",
+  "caption": "A line of old lanterns leads to <the place>. Please bring your own light.",
+  "routes": [
+   387
+  ]
+ },
+ "wetland-the-frog-choir": {
+  "land": "wetland",
+  "feature": "the frog choir",
+  "caption": "A bank of frogs rehearsing something important.",
+  "routes": [
+   388,
+   297,
+   271,
+   293,
+   334,
+   419
+  ]
+ },
+ "end-wonder-2-wetland": {
+  "land": "wetland",
+  "feature": "the way into a wonder: the hush before <the place>",
+  "caption": "The air goes quiet, as if <the place> were about to speak.",
+  "routes": [
+   388,
+   412
+  ]
+ },
+ "mountain-the-rope-bridge": {
+  "land": "mountain",
+  "feature": "the rope bridge",
+  "caption": "A rope bridge, sturdy for its age and fond of swaying.",
+  "routes": [
+   389,
+   366,
+   371,
+   392,
+   250,
+   341,
+   348,
+   417,
+   425
+  ]
+ },
+ "mountain-the-waterfall-mist": {
+  "land": "mountain",
+  "feature": "the waterfall mist",
+  "caption": "A waterfall mists the path with tiny rainbows.",
+  "routes": [
+   389,
+   429
+  ]
+ },
+ "end-lair-1-mountain": {
+  "land": "mountain",
+  "feature": "the way into a lair: the long approach to <the place>",
+  "caption": "The grass goes silent. Something big is thinking about you from <the place>.",
+  "routes": [
+   389,
+   327
+  ]
+ },
+ "wetland-the-boardwalk-gap": {
+  "land": "wetland",
+  "feature": "the boardwalk gap",
+  "caption": "A boardwalk with one plank missing. A neat little hop.",
+  "routes": [
+   269,
+   271,
+   293,
+   294,
+   339
+  ]
+ },
+ "grassland-the-clover-patch": {
+  "land": "grassland",
+  "feature": "the clover patch",
+  "caption": "A clover patch. Someone has already checked every leaf for luck.",
+  "routes": [
+   238,
+   239,
+   240,
+   278,
+   279,
+   288,
+   246,
+   286
+  ]
+ },
+ "grassland-the-lonely-scarecrow": {
+  "land": "grassland",
+  "feature": "the lonely scarecrow",
+  "caption": "A scarecrow with a very small hat. The crows seem to like him.",
+  "routes": [
+   239,
+   240,
+   288,
+   390,
+   273,
+   274,
+   233,
+   247,
+   282,
+   284
+  ]
+ },
+ "grassland-the-old-milestone": {
+  "land": "grassland",
+  "feature": "the old milestone",
+  "caption": "A mossy milestone with the numbers worn off. It still points confidently.",
+  "routes": [
+   239,
+   231,
+   245,
+   235,
+   278,
+   287,
+   276,
+   398,
+   246,
+   247
+  ]
+ },
+ "forest-the-mushroom-ring": {
+  "land": "forest",
+  "feature": "the mushroom ring",
+  "caption": "Toadstools in a tidy ring. The path goes round, because the path is sensible.",
+  "routes": [
+   290,
+   291,
+   438,
+   444,
+   353,
+   472
+  ]
+ },
+ "forest-the-mossy-stair": {
+  "land": "forest",
+  "feature": "the mossy stair",
+  "caption": "Steps of root and moss, worn smooth by many small boots.",
+  "routes": [
+   296,
+   361
+  ]
+ },
+ "forest-the-woodcutter-s-stump": {
+  "land": "forest",
+  "feature": "the woodcutter's stump",
+  "caption": "A giant stump, still carrying a very small axe.",
+  "routes": [
+   296,
+   463
+  ]
+ },
+ "coast-the-lighthouse-shadow": {
+  "land": "coast",
+  "feature": "the lighthouse shadow",
+  "caption": "A far lighthouse throws a slow sweep of light over the sand.",
+  "routes": [
+   439,
+   440,
+   446,
+   355,
+   264,
+   372,
+   265,
+   456,
+   328
+  ]
+ },
+ "coast-the-kelp-line": {
+  "land": "coast",
+  "feature": "the kelp-line",
+  "caption": "A line of kelp left by the tide, as neat as a ribbon.",
+  "routes": [
+   439,
+   355,
+   265,
+   302,
+   303,
+   471,
+   266,
+   272,
+   449
+  ]
+ },
+ "coast-the-rope-and-net-rack": {
+  "land": "coast",
+  "feature": "the rope-and-net rack",
+  "caption": "Nets drying on a rack. A gull stands guard, badly.",
+  "routes": [
+   440,
+   362,
+   258,
+   259,
+   303,
+   470,
+   471
+  ]
+ },
+ "desert-the-sun-bleached-bones": {
+  "land": "desert",
+  "feature": "the sun-bleached bones",
+  "caption": "The bones of a very large, very friendly fish. Do not ask.",
+  "routes": [
+   441,
+   447,
+   448,
+   402,
+   345,
+   421,
+   427
+  ]
+ },
+ "desert-the-salt-flat": {
+  "land": "desert",
+  "feature": "the salt flat",
+  "caption": "A flat of white salt that crunches pleasantly.",
+  "routes": [
+   441,
+   442,
+   448,
+   394
+  ]
+ },
+ "desert-the-shade-awning": {
+  "land": "desert",
+  "feature": "the shade awning",
+  "caption": "A faded awning on two poles. Perfect for a very small nap.",
+  "routes": [
+   442,
+   326,
+   465,
+   400
+  ]
+ },
+ "end-haven-2-grassland": {
+  "land": "grassland",
+  "feature": "the way into a haven: the last turn to <the place>",
+  "caption": "A little sign, hand-painted: 'Rest Here'.",
+  "routes": [
+   443,
+   323,
+   411,
+   347,
+   422
+  ]
+ },
+ "end-wonder-2-forest": {
+  "land": "forest",
+  "feature": "the way into a wonder: the hush before <the place>",
+  "caption": "The air goes quiet, as if <the place> were about to speak.",
+  "routes": [
+   444,
+   445,
+   361,
+   434,
+   472
+  ]
+ },
+ "coast-the-bottle-post": {
+  "land": "coast",
+  "feature": "the bottle post",
+  "caption": "A post with a bottle on top. There is a note inside. It says 'hello'.",
+  "routes": [
+   446,
+   258,
+   264,
+   302,
+   471,
+   397,
+   299,
+   300,
+   449,
+   456,
+   328,
+   336
+  ]
+ },
+ "end-wonder-2-coast": {
+  "land": "coast",
+  "feature": "the way into a wonder: the hush before <the place>",
+  "caption": "The air goes quiet, as if <the place> were about to speak.",
+  "routes": [
+   446,
+   336
+  ]
+ },
+ "desert-the-red-rock-arch": {
+  "land": "desert",
+  "feature": "the red rock arch",
+  "caption": "A rock arch that glows when the sun is low.",
+  "routes": [
+   447,
+   401
+  ]
+ },
+ "desert-the-sand-ripple-lane": {
+  "land": "desert",
+  "feature": "the sand-ripple lane",
+  "caption": "Sand rippled like a washboard in neat lines.",
+  "routes": [
+   447,
+   466,
+   473,
+   396,
+   400,
+   402,
+   427
+  ]
+ },
+ "end-delve-2-desert": {
+  "land": "desert",
+  "feature": "the way into a delve: the lantern line to <the place>",
+  "caption": "A line of old lanterns leads to <the place>. Please bring your own light.",
+  "routes": [
+   447,
+   401
+  ]
+ },
+ "desert-the-waystone-cluster": {
+  "land": "desert",
+  "feature": "the waystone cluster",
+  "caption": "Three weathered waystones leaning together like old friends.",
+  "routes": [
+   448,
+   319,
+   320,
+   466,
+   346,
+   421,
+   427
+  ]
+ },
+ "desert-the-dry-riverbed": {
+  "land": "desert",
+  "feature": "the dry riverbed",
+  "caption": "A river that left years ago and kept the bed made.",
+  "routes": [
+   448,
+   467,
+   473,
+   396,
+   402
+  ]
+ },
+ "end-lair-1-desert": {
+  "land": "desert",
+  "feature": "the way into a lair: the long approach to <the place>",
+  "caption": "The grass goes silent. Something big is thinking about you from <the place>.",
+  "routes": [
+   448
+  ]
+ },
+ "wetland-the-lily-pad-ford": {
+  "land": "wetland",
+  "feature": "the lily-pad ford",
+  "caption": "Lily pads big enough to stand on. Almost.",
+  "routes": [
+   297,
+   294,
+   295,
+   340,
+   418
+  ]
+ },
+ "wetland-the-dragonfly-bend": {
+  "land": "wetland",
+  "feature": "the dragonfly bend",
+  "caption": "A bend where dragonflies stitch the air with blue.",
+  "routes": [
+   297,
+   277,
+   405,
+   340
+  ]
+ },
+ "rainforest-the-stepping-roots": {
+  "land": "rainforest",
+  "feature": "the stepping-roots",
+  "caption": "Roots arching out of the mud like a row of green stairs.",
+  "routes": [
+   244,
+   325,
+   407,
+   415
+  ]
+ },
+ "rainforest-the-giant-fern-glade": {
+  "land": "rainforest",
+  "feature": "the giant fern glade",
+  "caption": "Ferns taller than a gnome, nodding in the drip.",
+  "routes": [
+   244,
+   325,
+   413,
+   414,
+   459,
+   344,
+   351
+  ]
+ },
+ "rainforest-the-orchid-tree": {
+  "land": "rainforest",
+  "feature": "the orchid tree",
+  "caption": "A tree dressed head to toe in orchids.",
+  "routes": [
+   244,
+   318,
+   414,
+   415,
+   459,
+   460,
+   343
+  ]
+ },
+ "rainforest-the-canopy-gap": {
+  "land": "rainforest",
+  "feature": "the canopy gap",
+  "caption": "A gap in the canopy where the sun comes down in a column.",
+  "routes": [
+   317,
+   324,
+   408,
+   460
+  ]
+ },
+ "rainforest-the-parrot-perch": {
+  "land": "rainforest",
+  "feature": "the parrot perch",
+  "caption": "A tall branch where parrots argue in three languages.",
+  "routes": [
+   317,
+   452,
+   453,
+   454,
+   342,
+   350,
+   351,
+   331
+  ]
+ },
+ "rainforest-the-vine-bridge": {
+  "land": "rainforest",
+  "feature": "the vine bridge",
+  "caption": "A bridge of woven vines that hums when the wind comes through.",
+  "routes": [
+   318,
+   324,
+   413,
+   415,
+   452,
+   459,
+   342,
+   344,
+   331,
+   332
+  ]
+ },
+ "desert-the-mirage-pool": {
+  "land": "desert",
+  "feature": "the mirage pool",
+  "caption": "A pool that is mostly shimmer, and a little bit not.",
+  "routes": [
+   319,
+   473,
+   395,
+   401,
+   345,
+   352,
+   420
+  ]
+ },
+ "desert-the-cactus-garden": {
+  "land": "desert",
+  "feature": "the cactus garden",
+  "caption": "Cactus in a neat row. Somebody waters them. Somebody is brave.",
+  "routes": [
+   320,
+   395,
+   400,
+   401,
+   420
+  ]
+ },
+ "mountain-the-eagle-s-rest": {
+  "land": "mountain",
+  "feature": "the eagle's rest",
+  "caption": "A flat boulder where an eagle likes to think.",
+  "routes": [
+   321,
+   327,
+   365,
+   367,
+   377,
+   437,
+   285
+  ]
+ },
+ "mountain-the-stone-hut": {
+  "land": "mountain",
+  "feature": "the stone hut",
+  "caption": "A little stone hut with a chimney and no one at home.",
+  "routes": [
+   321,
+   322,
+   371,
+   431,
+   436,
+   437,
+   393,
+   349
+  ]
+ },
+ "mountain-the-echo-wall": {
+  "land": "mountain",
+  "feature": "the echo wall",
+  "caption": "A rock wall that gives your own voice back, only cheekier.",
+  "routes": [
+   322,
+   430,
+   393,
+   251,
+   348,
+   349,
+   285,
+   417
+  ]
+ },
+ "end-wonder-1-rainforest": {
+  "land": "rainforest",
+  "feature": "the way into a wonder: the <the place> gates",
+  "caption": "Something wonderful is close. You can feel it in your shoes.",
+  "routes": [
+   324,
+   459,
+   338
+  ]
+ },
+ "end-delve-2-rainforest": {
+  "land": "rainforest",
+  "feature": "the way into a delve: the lantern line to <the place>",
+  "caption": "A line of old lanterns leads to <the place>. Please bring your own light.",
+  "routes": [
+   325,
+   460
+  ]
+ },
+ "desert-the-trader-s-tent-poles": {
+  "land": "desert",
+  "feature": "the trader's tent poles",
+  "caption": "Poles from a trader's tent, left up in case they return.",
+  "routes": [
+   326,
+   465,
+   394,
+   346
+  ]
+ },
+ "end-wonder-2-desert": {
+  "land": "desert",
+  "feature": "the way into a wonder: the hush before <the place>",
+  "caption": "The air goes quiet, as if <the place> were about to speak.",
+  "routes": [
+   326,
+   400
+  ]
+ },
+ "mountain-the-switchback-bend": {
+  "land": "mountain",
+  "feature": "the switchback bend",
+  "caption": "A tight bend in the path, with a view of the way you just came.",
+  "routes": [
+   327,
+   377,
+   250,
+   251,
+   252,
+   349,
+   416
+  ]
+ },
+ "island-the-hammock-palms": {
+  "land": "island",
+  "feature": "the hammock palms",
+  "caption": "Two palms with a hammock. It has already been claimed by a crab.",
+  "routes": [
+   241,
+   254,
+   457,
+   458,
+   335
+  ]
+ },
+ "island-the-tide-cave": {
+  "land": "island",
+  "feature": "the tide-cave",
+  "caption": "A small cave that breathes in and out with the tide.",
+  "routes": [
+   241,
+   369,
+   376,
+   469,
+   450,
+   458,
+   248
+  ]
+ },
+ "island-the-shell-bell-tree": {
+  "land": "island",
+  "feature": "the shell-bell tree",
+  "caption": "A tree hung with shells that chime like bells.",
+  "routes": [
+   241,
+   368,
+   451,
+   301,
+   253
+  ]
+ },
+ "grassland-the-hay-cart-ruts": {
+  "land": "grassland",
+  "feature": "the hay-cart ruts",
+  "caption": "Two deep ruts from a cart that has long since gone home.",
+  "routes": [
+   235,
+   279,
+   287,
+   433,
+   289,
+   391,
+   280,
+   237,
+   282
+  ]
+ },
+ "forest-the-fallen-log-bridge": {
+  "land": "forest",
+  "feature": "the fallen-log bridge",
+  "caption": "A great log laid across a gully. It wobbles, but only out of politeness.",
+  "routes": [
+   260,
+   354
+  ]
+ },
+ "forest-the-bluebell-glade": {
+  "land": "forest",
+  "feature": "the bluebell glade",
+  "caption": "A glade of bluebells that seems to ring if you listen closely.",
+  "routes": [
+   353,
+   292,
+   472
+  ]
+ },
+ "coast-the-tide-pool-steps": {
+  "land": "coast",
+  "feature": "the tide-pool steps",
+  "caption": "Flat rocks full of small pools, each with a crab who has opinions.",
+  "routes": [
+   356,
+   362,
+   462,
+   267,
+   329,
+   330
+  ]
+ },
+ "coast-the-stranded-rowboat": {
+  "land": "coast",
+  "feature": "the stranded rowboat",
+  "caption": "A rowboat on the sand, waiting for the sea to come back and apologise.",
+  "routes": [
+   356
+  ]
+ },
+ "tundra-the-snow-fort": {
+  "land": "tundra",
+  "feature": "the snow-fort",
+  "caption": "A snow fort with a flag. It has seen better battles, and better snacks.",
+  "routes": [
+   357,
+   358
+  ]
+ },
+ "tundra-the-lone-fir": {
+  "land": "tundra",
+  "feature": "the lone fir",
+  "caption": "One fir tree wearing a good deal of snow.",
+  "routes": [
+   357
+  ]
+ },
+ "tundra-the-aurora-rise": {
+  "land": "tundra",
+  "feature": "the aurora rise",
+  "caption": "A low rise where the sky does green things at night.",
+  "routes": [
+   358,
+   363,
+   364
+  ]
+ },
+ "end-wonder-1-grassland": {
+  "land": "grassland",
+  "feature": "the way into a wonder: the <the place> gates",
+  "caption": "Something wonderful is close. You can feel it in your shoes.",
+  "routes": [
+   360,
+   398
+  ]
+ },
+ "end-delve-1-coast": {
+  "land": "coast",
+  "feature": "the way into a delve: the mine mouth of <the place>",
+  "caption": "The mouth of <the place> breathes cool air and a hint of old echoes.",
+  "routes": [
+   362
+  ]
+ },
+ "tundra-the-frozen-stream": {
+  "land": "tundra",
+  "feature": "the frozen stream",
+  "caption": "A frozen stream, bright as a window.",
+  "routes": [
+   363
+  ]
+ },
+ "tundra-the-ice-shelf-steps": {
+  "land": "tundra",
+  "feature": "the ice-shelf steps",
+  "caption": "Steps of pale ice that squeak under each boot.",
+  "routes": [
+   363
+  ]
+ },
+ "tundra-the-star-chart-stones": {
+  "land": "tundra",
+  "feature": "the star-chart stones",
+  "caption": "Flat stones scratched with constellations by patient hands.",
+  "routes": [
+   363
+  ]
+ },
+ "end-lair-2-tundra": {
+  "land": "tundra",
+  "feature": "the way into a lair: the threshold of <the place>",
+  "caption": "A wide, scuffed circle of earth. The kind of place a very large friend might sleep.",
+  "routes": [
+   363
+  ]
+ },
+ "end-haven-1-tundra": {
+  "land": "tundra",
+  "feature": "the way into a haven: the <the place> path",
+  "caption": "A smell of something warm drifts down the path from <the place>.",
+  "routes": [
+   364
+  ]
+ },
+ "coast-the-sandbar-causeway": {
+  "land": "coast",
+  "feature": "the sandbar causeway",
+  "caption": "A narrow bar of sand with water either side, sparkling.",
+  "routes": [
+   257,
+   298,
+   329,
+   330
+  ]
+ },
+ "coast-the-barnacle-wall": {
+  "land": "coast",
+  "feature": "the barnacle wall",
+  "caption": "A rock wall crusted with barnacles. Please do not tickle them.",
+  "routes": [
+   257,
+   303,
+   462,
+   272,
+   409,
+   299,
+   300,
+   337
+  ]
+ },
+ "coast-the-dune-grass-sweep": {
+  "land": "coast",
+  "feature": "the dune grass sweep",
+  "caption": "Tall dune grass bows all one way, like an audience.",
+  "routes": [
+   257,
+   259,
+   267
+  ]
+ },
+ "coast-the-driftwood-arch": {
+  "land": "coast",
+  "feature": "the driftwood arch",
+  "caption": "A bleached arch of driftwood, hung with shells that click in the wind.",
+  "routes": [
+   258,
+   259,
+   264,
+   266,
+   410,
+   298,
+   300
+  ]
+ },
+ "mountain-the-cairn-pass": {
+  "land": "mountain",
+  "feature": "the cairn pass",
+  "caption": "A pass marked with cairns, each taller than the last.",
+  "routes": [
+   366,
+   374,
+   430,
+   437,
+   399,
+   285,
+   425
+  ]
+ },
+ "island-the-sand-spit": {
+  "land": "island",
+  "feature": "the sand spit",
+  "caption": "A spit of white sand reaching out like a pointing finger.",
+  "routes": [
+   368,
+   254,
+   451,
+   242
+  ]
+ },
+ "island-the-rope-swing": {
+  "land": "island",
+  "feature": "the rope swing",
+  "caption": "A rope swing over a deep blue pool. It is begging to be used.",
+  "routes": [
+   369,
+   375,
+   255,
+   243
+  ]
+ },
+ "end-haven-2-coast": {
+  "land": "coast",
+  "feature": "the way into a haven: the last turn to <the place>",
+  "caption": "A little sign, hand-painted: 'Rest Here'.",
+  "routes": [
+   372,
+   373,
+   337
+  ]
+ },
+ "coast-the-sea-stack-gap": {
+  "land": "coast",
+  "feature": "the sea-stack gap",
+  "caption": "A gap between two tall rocks where the spray tickles your ankles.",
+  "routes": [
+   373,
+   265,
+   302,
+   461,
+   470,
+   267,
+   410
+  ]
+ },
+ "end-wonder-1-mountain": {
+  "land": "mountain",
+  "feature": "the way into a wonder: the <the place> gates",
+  "caption": "Something wonderful is close. You can feel it in your shoes.",
+  "routes": [
+   374,
+   348
+  ]
+ },
+ "island-the-reef-shallows": {
+  "land": "island",
+  "feature": "the reef shallows",
+  "caption": "Warm shallows full of brightly coloured fish.",
+  "routes": [
+   375,
+   255,
+   450,
+   457,
+   301,
+   253,
+   242
+  ]
+ },
+ "end-wonder-1-island": {
+  "land": "island",
+  "feature": "the way into a wonder: the <the place> gates",
+  "caption": "Something wonderful is close. You can feel it in your shoes.",
+  "routes": [
+   375
+  ]
+ },
+ "island-the-palm-lean": {
+  "land": "island",
+  "feature": "the palm lean",
+  "caption": "A palm tree that leans so far it has to be holding something.",
+  "routes": [
+   376,
+   255,
+   458,
+   243,
+   248
+  ]
+ },
+ "end-delve-2-island": {
+  "land": "island",
+  "feature": "the way into a delve: the lantern line to <the place>",
+  "caption": "A line of old lanterns leads to <the place>. Please bring your own light.",
+  "routes": [
+   376
+  ]
+ },
+ "end-lair-2-mountain": {
+  "land": "mountain",
+  "feature": "the way into a lair: the threshold of <the place>",
+  "caption": "A wide, scuffed circle of earth. The kind of place a very large friend might sleep.",
+  "routes": [
+   377,
+   349,
+   425
+  ]
+ },
+ "wetland-the-reed-causeway": {
+  "land": "wetland",
+  "feature": "the reed causeway",
+  "caption": "A narrow causeway through tall reeds, nodding hello.",
+  "routes": [
+   270,
+   404,
+   412,
+   340,
+   426
+  ]
+ },
+ "wetland-the-heron-s-post": {
+  "land": "wetland",
+  "feature": "the heron's post",
+  "caption": "A post where a heron stands as if on a stage.",
+  "routes": [
+   271,
+   404,
+   412,
+   295,
+   333,
+   339,
+   340
+  ]
+ },
+ "end-haven-1-wetland": {
+  "land": "wetland",
+  "feature": "the way into a haven: the <the place> path",
+  "caption": "A smell of something warm drifts down the path from <the place>.",
+  "routes": [
+   432,
+   455
+  ]
+ },
+ "end-wonder-2-grassland": {
+  "land": "grassland",
+  "feature": "the way into a wonder: the hush before <the place>",
+  "caption": "The air goes quiet, as if <the place> were about to speak.",
+  "routes": [
+   433,
+   423
+  ]
+ },
+ "end-lair-2-forest": {
+  "land": "forest",
+  "feature": "the way into a lair: the threshold of <the place>",
+  "caption": "A wide, scuffed circle of earth. The kind of place a very large friend might sleep.",
+  "routes": [
+   435
+  ]
+ },
+ "end-wonder-2-mountain": {
+  "land": "mountain",
+  "feature": "the way into a wonder: the hush before <the place>",
+  "caption": "The air goes quiet, as if <the place> were about to speak.",
+  "routes": [
+   436,
+   399,
+   424
+  ]
+ },
+ "end-delve-1-mountain": {
+  "land": "mountain",
+  "feature": "the way into a delve: the mine mouth of <the place>",
+  "caption": "The mouth of <the place> breathes cool air and a hint of old echoes.",
+  "routes": [
+   437
+  ]
+ },
+ "island-the-coconut-grove": {
+  "land": "island",
+  "feature": "the coconut grove",
+  "caption": "A grove of coconuts, each one trying to look innocent.",
+  "routes": [
+   254,
+   301,
+   243
+  ]
+ },
+ "coast-the-shell-heap": {
+  "land": "coast",
+  "feature": "the shell-heap",
+  "caption": "A mound of shells, sorted by someone with strong feelings about spirals.",
+  "routes": [
+   461,
+   266,
+   272,
+   409,
+   298,
+   299,
+   336
+  ]
+ },
+ "desert-the-well-and-its-rope": {
+  "land": "desert",
+  "feature": "the well and its rope",
+  "caption": "A well with a rope and a very patient bucket.",
+  "routes": [
+   467,
+   402,
+   352
+  ]
+ },
+ "island-the-lagoon-edge": {
+  "land": "island",
+  "feature": "the lagoon edge",
+  "caption": "A lagoon as clear as glass, with tiny striped fish.",
+  "routes": [
+   468,
+   253,
+   242,
+   248
+  ]
+ },
+ "end-haven-1-island": {
+  "land": "island",
+  "feature": "the way into a haven: the <the place> path",
+  "caption": "A smell of something warm drifts down the path from <the place>.",
+  "routes": [
+   468
+  ]
+ },
+ "end-wonder-2-island": {
+  "land": "island",
+  "feature": "the way into a wonder: the hush before <the place>",
+  "caption": "The air goes quiet, as if <the place> were about to speak.",
+  "routes": [
+   469,
+   457
+  ]
+ },
+ "end-wonder-1-coast": {
+  "land": "coast",
+  "feature": "the way into a wonder: the <the place> gates",
+  "caption": "Something wonderful is close. You can feel it in your shoes.",
+  "routes": [
+   470,
+   456
+  ]
+ },
+ "end-lair-2-coast": {
+  "land": "coast",
+  "feature": "the way into a lair: the threshold of <the place>",
+  "caption": "A wide, scuffed circle of earth. The kind of place a very large friend might sleep.",
+  "routes": [
+   471
+  ]
+ },
+ "end-delve-1-desert": {
+  "land": "desert",
+  "feature": "the way into a delve: the mine mouth of <the place>",
+  "caption": "The mouth of <the place> breathes cool air and a hint of old echoes.",
+  "routes": [
+   473,
+   427
+  ]
+ },
+ "end-haven-1-coast": {
+  "land": "coast",
+  "feature": "the way into a haven: the <the place> path",
+  "caption": "A smell of something warm drifts down the path from <the place>.",
+  "routes": [
+   397
+  ]
+ },
+ "end-lair-2-desert": {
+  "land": "desert",
+  "feature": "the way into a lair: the threshold of <the place>",
+  "caption": "A wide, scuffed circle of earth. The kind of place a very large friend might sleep.",
+  "routes": [
+   402
+  ]
+ },
+ "rainforest-the-fallen-giant": {
+  "land": "rainforest",
+  "feature": "the fallen giant",
+  "caption": "A fallen tree, so big the path goes along its trunk.",
+  "routes": [
+   406,
+   413,
+   414,
+   343
+  ]
+ },
+ "rainforest-the-rain-drum-leaf": {
+  "land": "rainforest",
+  "feature": "the rain-drum leaf",
+  "caption": "A huge leaf that drums when it rains. It is raining a little.",
+  "routes": [
+   406,
+   407,
+   415,
+   454,
+   460,
+   350,
+   332,
+   338
+  ]
+ },
+ "rainforest-the-lantern-fruit": {
+  "land": "rainforest",
+  "feature": "the lantern fruit",
+  "caption": "Small glowing fruits hang low, just to be friendly.",
+  "routes": [
+   408,
+   338
+  ]
+ },
+ "end-wonder-2-rainforest": {
+  "land": "rainforest",
+  "feature": "the way into a wonder: the hush before <the place>",
+  "caption": "The air goes quiet, as if <the place> were about to speak.",
+  "routes": [
+   413,
+   350
+  ]
+ },
+ "end-delve-1-rainforest": {
+  "land": "rainforest",
+  "feature": "the way into a delve: the mine mouth of <the place>",
+  "caption": "The mouth of <the place> breathes cool air and a hint of old echoes.",
+  "routes": [
+   414,
+   351
+  ]
+ },
+ "end-lair-2-rainforest": {
+  "land": "rainforest",
+  "feature": "the way into a lair: the threshold of <the place>",
+  "caption": "A wide, scuffed circle of earth. The kind of place a very large friend might sleep.",
+  "routes": [
+   415
+  ]
+ },
+ "rainforest-the-mist-pool": {
+  "land": "rainforest",
+  "feature": "the mist-pool",
+  "caption": "A still pool with mist curling over it like steam from soup.",
+  "routes": [
+   453,
+   350,
+   351
+  ]
+ },
+ "end-lair-1-island": {
+  "land": "island",
+  "feature": "the way into a lair: the long approach to <the place>",
+  "caption": "The grass goes silent. Something big is thinking about you from <the place>.",
+  "routes": [
+   458
+  ]
+ },
+ "end-wonder-1-desert": {
+  "land": "desert",
+  "feature": "the way into a wonder: the <the place> gates",
+  "caption": "Something wonderful is close. You can feel it in your shoes.",
+  "routes": [
+   352
+  ]
+ },
+ "end-haven-2-island": {
+  "land": "island",
+  "feature": "the way into a haven: the last turn to <the place>",
+  "caption": "A little sign, hand-painted: 'Rest Here'.",
+  "routes": [
+   335
+  ]
+ },
+ "end-delve-2-wetland": {
+  "land": "wetland",
+  "feature": "the way into a delve: the lantern line to <the place>",
+  "caption": "A line of old lanterns leads to <the place>. Please bring your own light.",
+  "routes": [
+   339
+  ]
+ },
+ "end-lair-2-wetland": {
+  "land": "wetland",
+  "feature": "the way into a lair: the threshold of <the place>",
+  "caption": "A wide, scuffed circle of earth. The kind of place a very large friend might sleep.",
+  "routes": [
+   340
+  ]
+ },
+ "end-wonder-1-wetland": {
+  "land": "wetland",
+  "feature": "the way into a wonder: the <the place> gates",
+  "caption": "Something wonderful is close. You can feel it in your shoes.",
+  "routes": [
+   426
+  ]
+ }
+}
