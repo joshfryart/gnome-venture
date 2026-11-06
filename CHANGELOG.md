@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.79
+- **Fight engine preview (not in the game yet)**: new page `fight_demo.html` on the site root plays the fight animation engine on the tilted tile board. Gnome on a limb rig (arms, legs, hat that lags, pops off below 25% HP and can be tapped to put back on for +5), and all six wild creatures (boar, wolf, bear, ram, scorpion, frog) on part rigs with their own attack, hit, dodge and KO. Nothing in adventures uses it yet and there is no player news. Files: `assets/fightengine.js`, `assets/fightengine.css`, `assets/fightdemo.js`, `assets/img/fight/`, `gnome_parts.php` (gnome parts in a player's hat, beard and scarf colours, cached), `includes/gnome_rig.php`. Dev notes and tools: `claude/animating-2-5d-sprites.md`, `tools/fight/`.
+
 ## 2.5.78
 - **Perks button at every stop**: it no longer waits for a meter to move; before that every plant is a seed at 0% and the card says what fills each bar.
 - **Every act moves a meter**: 182 acts had no tag word and moved nothing (for example Bring the bell-goats home), so doing them never showed the Perks button. They now have a row in `stop_act_state.txt`: 39 raise Repairs (mending, boats, sails, shutters, labour), 47 raise Larder (food, crops, fishing, animals), 96 raise Cheer (games, sights, stories, rest), +10 each. New test asserts no active act is left without a meter.
