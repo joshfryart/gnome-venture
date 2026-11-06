@@ -8,6 +8,7 @@ const { chromium } = require('playwright');
   const errs = []; p.on('pageerror', e => errs.push(String(e)));
   await p.goto(base + '/login.php'); await p.fill('input[name=username]', 'sprout'); await p.fill('input[name=password]', 'TestPass123!');
   await Promise.all([p.waitForNavigation(), p.press('input[name=password]', 'Enter')]);
+  await p.evaluate(() => sessionStorage.clear());   // the login may have landed here already: a reload does not announce the same line again
   await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' });
   await p.waitForSelector('.tilemap .tmpop', { timeout: 3000 }).catch(() => fail('nothing floats over the map'));
   if (await p.locator('.trailtoast').count()) fail('the old fixed top box is back');
@@ -24,6 +25,13 @@ const { chromium } = require('playwright');
     if (carried && !(await p.locator('.tilemap .tmpop, .toasts').count())) fail('walked: the reply had a message but nothing was shown');
     console.log('walk reply carried a message: ' + carried);
   } else fail('no tile to walk to');
+  // the same journal line must not be announced twice (a step that adds none), a new one must
+  await p.waitForTimeout(4500);
+  const shown = async key => p.evaluate(k => { document.querySelectorAll('.tmpop').forEach(x => x.remove()); const c = document.createElement('div'); c.hidden = true; c.setAttribute('data-gvtoast', k); c.textContent = 'You find a test clover.'; document.body.appendChild(c); gvPageToasts(); return document.querySelectorAll('.tmpop').length; }, key);
+  const k1 = await shown('9:5:111'), k2 = await shown('9:5:111'), k3 = await shown('9:6:222');
+  if (k1 !== 1) fail('a new journal line is not announced (' + k1 + ')');
+  if (k2 !== 0) fail('the same journal line is announced again (' + k2 + ')');
+  if (k3 !== 1) fail('the next new line is not announced (' + k3 + ')');
   if (errs.length) fail('page errors: ' + errs.join(' | '));
   console.log(bad ? bad + ' FAILED' : 'trail pop ok'); await b.close(); process.exit(bad ? 1 : 0);
 })();

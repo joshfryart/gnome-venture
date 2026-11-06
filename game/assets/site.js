@@ -1258,6 +1258,9 @@ function gvPageToasts() {
   var fresh = gvVisibleLog().querySelectorAll('li.ml.new');
   var nodes = (fresh.length && !gvInView(fresh[0])) ? Array.prototype.map.call(fresh, gvToastNode) : [];
   document.querySelectorAll('[data-gvtoast]').forEach(function (x) {
+    var key = x.getAttribute('data-gvtoast') || '', seen = '';   // walk id : number of journal lines: only a NEW line is announced (a step that adds none must not repeat the last one)
+    try { seen = sessionStorage.getItem('gvlatest') || ''; sessionStorage.setItem('gvlatest', key); } catch (e) { seen = window.gvLatestSeen || ''; window.gvLatestSeen = key; }
+    if (key && key === seen) { x.remove(); return; }
     var d = document.createElement('div'); d.className = 'flash ok'; d.textContent = x.textContent.trim(); if (d.textContent && !nodes.some(function (n) { return n.textContent === d.textContent; })) nodes.push(d); x.remove();
     var view = document.querySelector('.tilemap .tmview');
     if (view && d.textContent) { var pop = document.createElement('div'); pop.className = 'tmpop'; pop.setAttribute('aria-hidden', 'true'); pop.textContent = d.textContent; view.appendChild(pop); setTimeout(function () { pop.remove(); }, 4200); }
