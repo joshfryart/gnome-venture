@@ -261,14 +261,42 @@ function trail_next(array $u, array &$exp): array
     $seen = tm_seen_new($map['w'], $map['h']);
     tm_reveal($seen, $map['w'], $map['h'], $map['entry'][0], $map['entry'][1], 20);
     $new = $sc;
-    $new['st'] = ['sec' => $nsec, 'S' => (int)$sc['st']['S'], 'sx' => (int)($sc['st']['sx'] ?? $exp['id']), 'phase' => 'section', 'tokens' => array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens)];
+    $hist = (array)($sc['st']['hist'] ?? []); $hist[$sec] = $sc['st']['tokens'];   // what was found and fought in the stretch you leave stays so if you walk back
+    $revisit = isset($hist[$nsec]);
+    $new['st'] = ['sec' => $nsec, 'S' => (int)$sc['st']['S'], 'sx' => (int)($sc['st']['sx'] ?? $exp['id']), 'phase' => 'section', 'hist' => $hist,
+        'tokens' => $revisit ? $hist[$nsec] : array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens)];
     $new['x'] = $map['entry'][0];
     $new['y'] = $map['entry'][1];
     $new['seen'] = $seen;
     if (!trail_save($new)) return [false, 'You already went on.'];   // the other tab won: no second event
     $exp['step'] = $nsec;
-    trail_roll_event($u, $exp);
+    if (!$revisit) trail_roll_event($u, $exp);   // a stretch you have walked before has no new surprise at its door
     $exp['step'] = $nsec;
+    return [true, ''];
+}
+
+/** Walk back the way you came: from where a stretch begins (not the first) to the end of the one before it. Free. Fights and finds you did stay done. [ok, message] */
+function trail_prev(array $u, array &$exp): array
+{
+    $sc = trail_scene($exp);
+    if (!$sc) return [false, 'There is no tile map for this walk.'];
+    if ($exp['encounter']) return [false, 'Deal with what is in front of you first.'];
+    $st = $sc['st']; $sec = (int)$st['sec'];
+    if ($st['phase'] !== 'section' || $sec < 1) return [false, 'There is no way back from here.'];
+    if ($sc['x'] !== (int)$sc['map']['entry'][0] || $sc['y'] !== (int)$sc['map']['entry'][1]) return [false, 'Walk to where this stretch begins first.'];
+    $psec = $sec - 1;
+    [$map, $tokens] = trail_map_make((int)substr((string)$sc['row']['map_key'], 6) . '|' . (int)$exp['user_id'] . '|' . (int)($st['sx'] ?? $exp['id']) . '|' . $psec);
+    $hist = (array)($st['hist'] ?? []); $hist[$sec] = $st['tokens'];
+    $ptokens = $hist[$psec] ?? array_map(fn($t) => [$t[0], $t[1], $t[2], 1], $tokens);   // no record (an old walk): treat it as done, no fights again
+    [$ex, $ey] = $map['spots']['9'];
+    $seen = tm_seen_new($map['w'], $map['h']);
+    tm_reveal($seen, $map['w'], $map['h'], $ex, $ey, 20);
+    $new = $sc;
+    $new['st'] = ['sec' => $psec, 'S' => (int)$st['S'], 'sx' => (int)($st['sx'] ?? $exp['id']), 'phase' => 'section', 'hist' => $hist, 'tokens' => $ptokens];
+    $new['x'] = $ex; $new['y'] = $ey; $new['seen'] = $seen;
+    if (!trail_save($new)) return [false, 'You already moved. Look again.'];
+    $exp['step'] = $psec;
+    exp_log($exp, '↩️ You walk back along the Trail.');
     return [true, ''];
 }
 
@@ -388,7 +416,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
             $tk = trail_token_at($sc, $x, $y);
             if ($tk >= 0) { $done = (int)$sc['st']['tokens'][$tk][3]; $cls .= ' spot' . ($done ? ' done' : ''); $label = $sc['st']['tokens'][$tk][2] === 'E' ? ($done ? 'Fight, done' : 'A fight waits here') : ($done ? 'Find, done' : 'Something to find'); }
             elseif ($t === '9') { $cls .= ' spot'; $label = 'The way on'; }
-            elseif ($t === 'S') $label = 'Where this stretch begins';
+            elseif ($t === 'S') $label = (int)$sc['st']['sec'] > 0 ? 'The way back' : 'Where this stretch begins';
         }
         if ($me) { $cls .= ' here'; $label = 'You are here'; }
         $dis = !$tap;

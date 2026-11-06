@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.87
+- **Walk back along the Trail**: from where a stretch begins (sections 2 and on) a new button, "Back to section N" (free), takes you to the exit of the stretch before it, so you can walk back the way you came. The start tile is labelled "The way back". Fights and finds you already did stay done, and going on again to a stretch you have walked adds no new surprise at its door. Turn back (end the walk) works as before.
+
 ## 2.5.86
 - **Fight scene fix**: tapping to skip the end scene (or the fight) no longer makes the hat flop about on your head. The hat's spring physics ran with a step as big as the skip speed and blew up; the step is now capped, so the hat just settles. A browser test taps to skip and checks the hat stays still.
 

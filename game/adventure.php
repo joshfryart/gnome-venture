@@ -123,9 +123,10 @@ if (is_post()) {
             elseif ($do === 'visit' && explore_visit($u, $exp, (int)($_POST['place'] ?? 0))) $visited = true;
             elseif ($do === 'gather') explore_gather($u, $exp, (string)($_POST['tool'] ?? ''));   // v0.7.80
             if (in_array($do, ['deeper', 'roam', 'back'], true)) rest_after_explore($exp, $logBefore);   // v1.3.0
-        } elseif (in_array($do, ['trail_go', 'trail_next', 'trail_back', 'trail_arrive', 'trail_wander', 'trail_stance', 'gather'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
+        } elseif (in_array($do, ['trail_go', 'trail_next', 'trail_prev', 'trail_back', 'trail_arrive', 'trail_wander', 'trail_stance', 'gather'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
             if ($do === 'trail_go') { $xy = explode(',', (string)($_POST['go'] ?? '')); [$tok, $tmsg] = trail_go($u, $exp, (int)($xy[0] ?? -1), (int)($xy[1] ?? -1)); }
             elseif ($do === 'trail_next') [$tok, $tmsg] = trail_next($u, $exp);
+            elseif ($do === 'trail_prev') [$tok, $tmsg] = trail_prev($u, $exp);
             elseif ($do === 'gather') [$tok, $tmsg] = trail_gather($u, $exp, (string)($_POST['tool'] ?? ''));
             elseif ($do === 'trail_stance') [$tok, $tmsg] = trail_stance($u, $exp, (string)($_POST['mode'] ?? ''));
             elseif ($do === 'trail_wander') { [$tok, $tmsg] = trail_wander($u, $exp); }
@@ -567,6 +568,9 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
   </div></div></dialog>
   <?php else: ?>
     <p class="help">Tap a lit tile to walk. ⚔️ and ✨ wait on some tiles. Reach 🚪 to go on. Walking is free.</p>
+    <?php if ((int)$trailSc['st']['sec'] > 0 && $trailSc['x'] === (int)$trailSc['map']['entry'][0] && $trailSc['y'] === (int)$trailSc['map']['entry'][1]): ?>
+      <div class="choicelist"><?= act_choice('trail_prev', '↩️', 'Back to section ' . (int)$trailSc['st']['sec'], 'The way you came · free') ?></div>
+    <?php endif; ?>
   <?php endif; ?>
   </div>
 
