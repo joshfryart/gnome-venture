@@ -89,5 +89,5 @@ Playwright and ffmpeg are in the cloud container. `Math.random` is pinned in the
 2. Tinted gnome parts per player; arm redone in Aseprite/Lua; parts built from `aseprite-source/`.
 3. Wire into `adventure.php` behind `gnav_tiles`: event log from `trail_token_event` / `encounter_creature`, replace the popover.
 4. Spring bodies for beard and scarf; idle fidgets (hat tip, beard stroke, blink).
-5. Sound hooks per beat (`hit`, `ko`, `pop`); full reduced-motion path.
+5. Full reduced-motion path.
 6. A `?move=bite` loop preview page for authors.
