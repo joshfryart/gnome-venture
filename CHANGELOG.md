@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.95
+- **The fight menu on route maps shows every option**: Attack (double width), your calling's ability, Run, Fight on, each equipped pal's active and Auto-win are all buttons in the menu, in rows of four with the names wrapping, and the Snack (with its picker) has its own row. Nothing is hidden behind "⋯" any more; the new ⓘ button only explains the odds and what each option does. The menu now sits under the map instead of over it, so it never covers your gnome.
+
 ## 2.5.94
 - **The "on the road" bar is removed from every page.** Walks, their encounters and fights are all on the Adventure page now (and the Trail tile map), so the duplicate bar under the banner is gone, along with its code (`adventure_topbar`).
 

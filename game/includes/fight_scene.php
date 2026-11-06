@@ -62,17 +62,27 @@ function fight_dock_html(array $u, array $exp, array $enc, array $c): string
     $sure = fight_certainty($u, $exp, $c, $enc);
     $hitPct = (int)fight_odds($u, $exp, $enc)['hit'];
     $runPct = max(0, min(100, (21 - (8 + intdiv((int)$c['level'], 3) - eff_mod($u, 'nimble'))) * 5));
+    // v2.5.95: every option sits in the menu itself (no hidden "More"): Attack (double width), the calling's ability and Run on the first row, then Fight on, the pals' actives
+    // and Auto-win, then the snack (its own full row, it has a picker). The (i) sheet only explains the odds and what each one does.
     $o = act_choice('attack', '⚔️', 'Attack', '', '', 'primary');
     $o .= $enc['used'] ? act_choice('ability', '✨', $abName, '', '', '', '', 'disabled') : act_choice('ability', '✨', $abName);
     $o .= act_choice('flee', '🏃', 'Run');
     $o .= can_fight_on($exp) ? act_choice('fighton', '⏩', 'Fight on') : '';
     $more = '<p class="fsodds">⚔️ hit ' . $hitPct . '% · 🏃 run ' . $runPct . '% · d' . (int)$gc['dmg_die'] . '+' . (int)$gc['dmg_bonus'] . ' damage</p>'
-        . '<p class="fsodds">' . e($abName) . ': ' . e($abDesc) . ' Once per fight.</p>';
-    if (ppal_boons_on()) foreach (ppal_fight_actives($u, $enc) as $pa) $more .= $pa['used'] ? act_choice($pa['do'], '✨', $pa['title'], 'Used this fight', '', '', '', 'disabled') : act_choice($pa['do'], '✨', $pa['title'], $pa['sub']);
-    $more .= fight_snack_picker($u, $exp, $enc, fn($do, $label, $extra) => act_choice($do, '🎒', 'Snack', 'Eats a home-cooked snack: heals ' . (int)setting('fight_snack_heal_mult') . '× its energy. Uses your turn; ' . snack_limit($u) . ' a fight.', '', '', $extra));
-    if ($sure === 'win') $more .= act_choice('auto', '⏩', 'Auto-win', 'A sure win: the fight plays out for you.', ['sure', 'cost']);
+        . '<p class="fsodds"><b>' . e($abName) . '</b>: ' . e($abDesc) . ' Once per fight.</p>';
+    if (ppal_boons_on()) foreach (ppal_fight_actives($u, $enc) as $pa) {
+        $o .= $pa['used'] ? act_choice($pa['do'], '✨', $pa['title'], '', '', '', '', 'disabled') : act_choice($pa['do'], '✨', $pa['title']);
+        $more .= '<p class="fsodds"><b>' . e($pa['title']) . '</b>' . ($pa['used'] ? ' (used this fight)' : '') . ': ' . e((string)$pa['sub']) . '</p>';
+    }
+    if ($sure === 'win') {
+        $o .= act_choice('auto', '⏩', 'Auto-win', '', ['sure', 'cost']);
+        $more .= '<p class="fsodds"><b>Auto-win</b>: a sure win; the fight plays out for you.</p>';
+    }
+    $snack = fight_snack_picker($u, $exp, $enc, fn($do, $label, $extra) => act_choice($do, '🎒', 'Snack', '', '', '', $extra));
+    if ($snack !== '') $more .= '<p class="fsodds"><b>Snack</b>: eats a home-cooked snack and heals ' . (int)setting('fight_snack_heal_mult') . '× its energy. Uses your turn; ' . snack_limit($u) . ' a fight.</p>';
     return '<div class="fsdockwrap">' . fight_hatform_html($enc) . '<div class="fsdock" role="group" aria-label="Fight actions">' . $o
-        . '<details class="fsmore"><summary aria-label="More actions">⋯</summary><div class="fsmorebox">' . $more . '</div></details></div></div>';
+        . ($snack !== '' ? '<div class="fssnack">' . $snack . '</div>' : '')
+        . '<details class="fsmore"><summary aria-label="What each option does">ⓘ</summary><div class="fsmorebox">' . $more . '</div></details></div></div>';
 }
 
 /** The hidden form the hat tap submits (do=hat). */
