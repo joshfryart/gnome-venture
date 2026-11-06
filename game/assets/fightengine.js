@@ -463,6 +463,13 @@
         el.style.left = fp[0] + 'px'; el.style.top = fp[1] + 'px'; el.style.opacity = 0; fx.appendChild(el);
         d.el = el; drops.push(d);
       });
+      if (reduce) {   // reduced motion: no flying. The rewards sit still over the gnome's head with their names for a moment (a tap skips), then are counted in
+        drops.forEach(function (d) { d.el.style.left = d.tx + 'px'; d.el.style.top = d.ty + 'px'; d.el.style.transform = 'translate(-50%,-50%)'; d.el.style.opacity = 1; d.el.classList.add('show'); });
+        return new Promise(function (res) { var t = setTimeout(res, 1800); host.addEventListener('click', function () { clearTimeout(t); res(); }, { once: true }); }).then(function () {
+          drops.forEach(function (d) { d.el.remove(); pop(me, d.label, d.xp ? 'xp' : 'heal'); });
+          return sleep(rw.lvl ? 0 : 250).then(function () { if (rw.lvl) { pop(me, 'LEVEL UP!', 'xp'); return sleep(900); } });
+        });
+      }
       var cheer = run(me, 'cheer');
       return Promise.all(drops.map(function (d, i) {   // 1: hop out of the foe and arc up over the gnome's head
         return sleep(i * 140).then(function () {

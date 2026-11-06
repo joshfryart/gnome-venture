@@ -363,6 +363,7 @@ function give_local_seed(array $u, array $scene): ?string
     if (!$seeds) return null;
     $s = $seeds[array_rand($seeds)];
     give_item((int)$u['id'], (int)$s['id'], 1);
+    $GLOBALS['gv_last_seed_id'] = (int)$s['id'];   // so the fight's end scene can draw the packet
     return '🌱 You find some ' . $s['name'] . ' and tuck them into your satchel.';
 }
 
@@ -909,15 +910,18 @@ function win_fight(array $u, array &$exp, array $c, bool $peaceful): void
         foreach (q('SELECT * FROM creature_drops WHERE creature_id = ?', [$c['id']])->fetchAll() as $dr) {
             if (random_int(1, 100) > min(100, (int)$dr['chance'] + $luckBonus + (int)($ps['spoils'] ?? 0))) continue;
             if ($dr['special'] === 'seed') {
-                exp_log($exp, give_local_seed($u, $scene) ?? give_find($u, $scene));
-                $loot[] = ['name' => 'a seed', 'qty' => 1, 'img' => ''];
+                unset($GLOBALS['gv_last_seed_id']);
+                $sLog = give_local_seed($u, $scene);
+                exp_log($exp, $sLog ?? give_find($u, $scene));
+                $sid = (int)($GLOBALS['gv_last_seed_id'] ?? 0);   // the local seed that was found: its packet picture (a plain find has none)
+                $loot[] = ['name' => 'a seed', 'qty' => 1, 'img' => $sid ? (string)(item_art_map()['id'][$sid] ?? '') : ''];
             } elseif ($dr['special'] === 'guide') {
                 $rCode = $scene['region_id'] ? (string)q_val('SELECT code FROM regions WHERE id = ?', [$scene['region_id']]) : '';
                 $gid = $rCode ? item_id_by_slug(guide_item_slug($rCode)) : 0;
                 if ($gid) {
                     give_item($uid, $gid, 1);
                     exp_log($exp, '📗 The ' . $c['name'] . ' was guarding a Gardening Guide!');
-                    $loot[] = ['name' => 'Gardening Guide', 'qty' => 1, 'img' => ''];
+                    $loot[] = ['name' => 'Gardening Guide', 'qty' => 1, 'img' => (string)(item_art_map()['id'][$gid] ?? '')];
                 }
             } elseif ($dr['item_id']) {
                 $qty = calling_perk($u, 'drop_double') > 0 ? 2 : 1;   // v0.9.1: Master Thornblades get double drops
