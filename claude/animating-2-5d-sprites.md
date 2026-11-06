@@ -67,7 +67,7 @@ Playwright and ffmpeg are in the cloud container. `Math.random` is pinned in the
 - Anticipation visible before the big action? Contact frame reads (squash, flash, burst)? Recovery eases, not snaps?
 - Sprites touch, never overlap, at contact. Feet on the shadow at rest.
 - Limbs swing the right way (forward = negative r). Far limb dimmer.
-- Hat lags, tilts, curl whips; pop is brief; fallen hat stays on the ground; refit ends straight.
+- Hat lags, tilts, curl whips; it pops when a hit takes HP below 25% (or KO / `pop:true`), tap ring shows between turns, tap = refit + heal event; fallen hat stays on the ground; refit ends straight.
 - Number pops inside the stage; HP bar updates at the hit beat, not before.
 - KO lies on the ground, not in it. Guard ring gone after flee.
 - Left-facing mirror is correct; slow motion (x0.3) looks the same, only slower.

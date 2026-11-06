@@ -11,6 +11,12 @@ Model hint: Haiku = batch art by script, Sonnet = engine and wiring, one contact
 4. `smoke.js` design matrix: N designs (extreme colours), parts non-empty, pivots inside parts, contrast check, hat pop and refit pass; one 12-design contact sheet.
 Done when: any hat, beard and scarf colour a player can pick plays every move with no artefacts.
 
+## Phase 1b: hat pickup (engine half DONE 2026-11-06)
+- Hat comes off when a hit takes a gnome below 25% HP (once), on KO, or when an event has `pop:true`. Crit alone no longer pops it.
+- Fallen hat gets a pulsing tap ring (between turns only). Tap calls `opts.onHatTap(id)`; with no callback the engine plays `{from,move:'fixhat',heal:5}` locally. The `fixhat` event heals `min(heal, max-hp)` (+N number, bar rises). Hat refits without heal at fight end (KO or flee) or by `eng.finish()`.
+- SERVER HALF (Phase 3): fight state `hat_down` flag set at the 25% crossing; action `pickup_hat` once per fight, no turn cost, validates the flag, heals min(5, max-hp), returns the `fixhat` event. The engine never decides the heal.
+- Covered by `smoke.js` (6 creatures: below 25%, server pop flag, tap click +5, win with hat down, KO no tap).
+
 ## Phase 2: creatures get limbs (biggest quality gap)
 1. Boar part rig (body, head, jaw, legs F/B, tail) cut by script from existing art or redrawn; `POSES` for run, charge, hit, KO.
 2. Wolf, then bear, frog, ram, scorpion. Reuse the pose shape; per-creature numbers in data.
