@@ -449,13 +449,15 @@
       if (rw.xp) list.push({ xp: 1, label: '+' + rw.xp + ' XP' });
       (rw.loot || []).forEach(function (l) { list.push({ img: l.img, label: (l.qty > 1 ? l.qty + ' × ' : '') + l.name }); });
       if (!list.length) return run(me, 'cheer').finished;
-      var br = me.body.getBoundingClientRect(), hr = host.getBoundingClientRect(), n = list.length, gap = 56;
-      var cx = Math.max(gap * (n - 1) / 2 + 30, Math.min(hr.width - gap * (n - 1) / 2 - 30, br.left - hr.left + br.width / 2));   // centred over the head, kept on screen
-      var ty = Math.max(40, br.top - hr.top - br.height * .62 - 16);   // above where he jumps to, so he never covers them
+      var br = me.body.getBoundingClientRect(), hr = host.getBoundingClientRect(), n = list.length;
+      var vl = Math.max(0, -hr.left) + 8, vr = Math.min(hr.width, (root.innerWidth || hr.width) - hr.left) - 8;   // the part of the stage actually on screen
+      var gap = Math.max(34, Math.min(70, (vr - vl) / Math.max(1, n))), half = gap * (n - 1) / 2;
+      var cx = Math.max(vl + half + 26, Math.min(vr - half - 26, br.left - hr.left + br.width / 2));   // centred over the head, kept on screen
+      var ty = Math.max(54, br.top - hr.top - br.height * .62 - 16);   // above where he jumps to, so he never covers them
       list.forEach(function (d, i) {
         var el = document.createElement('div'); el.className = 'fe-drop' + (d.xp ? ' xp' : '');
         if (d.img) { var im = document.createElement('img'); im.src = d.img; im.alt = ''; el.appendChild(im); } else el.textContent = d.xp ? '✦' : '🎁';
-        var lb = document.createElement('span'); lb.className = 'fe-droplbl'; lb.textContent = d.label; el.appendChild(lb);
+        var lb = document.createElement('span'); lb.className = 'fe-droplbl' + (i % 2 && gap < 64 ? ' hi' : ''); lb.style.maxWidth = Math.max(60, gap * 1.9) + 'px'; lb.textContent = d.label; el.appendChild(lb);
         d.tx = cx + (i - (n - 1) / 2) * gap; d.ty = ty;
         el.style.left = fp[0] + 'px'; el.style.top = fp[1] + 'px'; el.style.opacity = 0; fx.appendChild(el);
         d.el = el; drops.push(d);
