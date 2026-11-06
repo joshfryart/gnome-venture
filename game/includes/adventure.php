@@ -535,6 +535,47 @@ function fight_snack_picker(array $u, array $exp, array $enc, callable $form): s
 }
 
 /** Player acts, then the creature (if still standing). Returns true if the fight is over. */
+/**
+ * Fight events (fight scene, claude/fight-wiring-proposal.md): combat_turn records what happened as data, at the place each die is rolled, for assets/fightscene.js to play.
+ * It changes nothing about the fight (tests/fight_events.php proves that). fight_ev($e) records; fight_ev() hands back everything so far and clears it.
+ * Event shapes (me = the gnome, foe = the creature): {from,to,move:'attack'|'pluck',dmg,miss,crit} a blow; {from,move:'hurt',dmg} damage with no attacker (poison, a pal);
+ * {from,move:'heal',heal} / {from,move:'snack',heal}; {from,move:'guard'|'flee'|'stumble'|'charm'|'dazed'|'note'}; {end:'win'|'peace'|'ko'|'flee'} closes a fight.
+ */
+function fight_ev(?array $e = null): array
+{
+    static $buf = [];
+    if ($e === null) { $o = $buf; $buf = []; return $o; }
+    $buf[] = $e;
+    return [];
+}
+
+/** Both sides' health before an action, as the fight card shows it. */
+function fight_ev_start(array $exp, array $enc): array
+{
+    $c = encounter_creature($enc);
+    if ($c) fight_prep($enc, $c);
+    return ['me' => ['hp' => max(0, (int)$exp['hp']), 'max' => (int)$exp['max_hp']], 'foe' => ['hp' => max(0, (int)($enc['hp'] ?? 0)), 'max' => (int)($enc['max'] ?? 0)]];
+}
+
+/** Keep this action's events for the next page render (session, like the Fight on replay: no schema change). Call after the action with the same $exp. */
+function fight_ev_save(array $start, array $exp): void
+{
+    $ev = fight_ev();
+    if (!$ev) return;
+    $encN = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
+    $_SESSION['fight_ev'] = ['exp' => (int)$exp['id'], 't' => time(), 'start' => $start, 'ev' => $ev,
+        'end' => ['me' => ['hp' => max(0, (int)$exp['hp']), 'max' => (int)$exp['max_hp']], 'foe' => ['hp' => $encN ? max(0, (int)($encN['hp'] ?? 0)) : 0]]];
+}
+
+/** The events of the last action for this expedition (once, if fresh), or null. */
+function fight_ev_take(int $expId): ?array
+{
+    $r = $_SESSION['fight_ev'] ?? null;
+    if (!is_array($r) || (int)($r['exp'] ?? 0) !== $expId) return null;
+    unset($_SESSION['fight_ev']);
+    return time() - (int)($r['t'] ?? 0) <= 30 && !empty($r['ev']) ? $r : null;
+}
+
 function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bool
 {
     $enc = json_decode((string)$exp['encounter'], true);
@@ -572,12 +613,14 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
         $mend = min((int)$palSk['mend'], (int)$exp['max_hp'] - (int)$exp['hp']);
         $exp['hp'] = (int)$exp['hp'] + $mend;
         exp_log($exp, '🌱 Your pal mends you: +' . $mend . ' health.');
+        fight_ev(['from' => 'me', 'move' => 'heal', 'heal' => (int)$mend]);
     }
 
     // Poison ticks first
     if ($enc['poison'] > 0) {
         $enc['hp'] -= 2;
         exp_log($exp, '🧪 Poison stings the ' . $c['name'] . ' for 2.');
+        fight_ev(['from' => 'foe', 'move' => 'hurt', 'dmg' => 2, 'kind' => 'poison']);
     }
 
     $peaceful = false;
@@ -586,10 +629,12 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
             case 'flee':
                 if (!empty($enc['pn']) || flee_roll(eff_mod($u, 'nimble') + (int)($palSk['foot'] ?? 0) + (int)($palSk['slip'] ?? 0), (int)$c['level'])) {   // pn: Snare   // v1.3.0: level/3 (was /2)
                     exp_log($exp, '🏃 You slip away from the ' . $c['name'] . '.');
+                    fight_ev(['from' => 'me', 'move' => 'flee']); fight_ev(['end' => 'flee']);
                     $exp['encounter'] = null;
                     return true;
                 }
                 exp_log($exp, '🏃 You try to run, but the ' . $c['name'] . ' cuts you off!');
+                fight_ev(['from' => 'me', 'move' => 'stumble']);
                 break;
             case 'snack':   // v1.4.0: eat one home-cooked snack; heals, uses the turn
                 if (!give_item((int)$u['id'], (int)$snack['id'], -1)) {   // inside the caller's transaction and lock
@@ -601,42 +646,51 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                 $exp['hp'] = (int)$exp['hp'] + $heal;
                 $enc['snacks'] = (int)($enc['snacks'] ?? 0) + 1;
                 exp_log($exp, '🎒 You gulp down the ' . $snack['name'] . ': +' . $heal . ' health.');
+                fight_ev(['from' => 'me', 'move' => 'snack', 'heal' => (int)$heal]);
                 break;
             case 'palskill':
                 switch ($palAct['active']) {
                     case 'strike':
                         $enc['hp'] -= $palAct['value'];
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' strikes the ' . $c['name'] . ' for ' . $palAct['value'] . '.');
+                        fight_ev(['from' => 'foe', 'move' => 'hurt', 'dmg' => (int)$palAct['value'], 'kind' => 'pal']);
                         break;
                     case 'shield':
                         $enc['ps'] = 2; $enc['psv'] = (int)$palAct['value'];
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' shields you: the next 2 hits are ' . $palAct['value'] . ' lighter.');
+                        fight_ev(['from' => 'me', 'move' => 'guard']);
                         break;
                     case 'snare':
                         $enc['pn'] = 1;
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' snares the way out: your next run will work.');
+                        fight_ev(['from' => 'me', 'move' => 'note', 'kind' => 'snare']);
                         break;
                     case 'sap':
                         $enc['hp'] -= $palAct['value'];
                         $enc['poison'] = 1;
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' saps the ' . $c['name'] . ' for ' . $palAct['value'] . ' and leaves it poisoned.');
+                        fight_ev(['from' => 'foe', 'move' => 'hurt', 'dmg' => (int)$palAct['value'], 'kind' => 'pal']);
                         break;
                     case 'daze':
                         $enc['pd'] = 1;
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' dazes the ' . $c['name'] . '.');
+                        fight_ev(['from' => 'foe', 'move' => 'note', 'kind' => 'daze']);
                         break;
                     case 'rouse':
                         $enc['used'] = false;
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' rouses you: your ability is ready again.');
+                        fight_ev(['from' => 'me', 'move' => 'note', 'kind' => 'rouse']);
                         break;
                     case 'gust':
                         $enc['pgu'] = 3; $enc['pgv'] = (int)$palAct['value'];
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' whips up a gust: the ' . $c['name'] . ' will miss more.');
+                        fight_ev(['from' => 'foe', 'move' => 'note', 'kind' => 'gust']);
                         break;
                     case 'patch':
                         $heal = min($palAct['value'], (int)$exp['max_hp'] - (int)$exp['hp']);
                         $exp['hp'] = (int)$exp['hp'] + $heal;
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' patches you up: +' . $heal . ' health.');
+                        fight_ev(['from' => 'me', 'move' => 'heal', 'heal' => (int)$heal]);
                         break;
                 }
                 break;
@@ -655,8 +709,10 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                             $heal = d(6);
                             $exp['hp'] = min((int)$exp['max_hp'], (int)$exp['hp'] + $heal);
                             exp_log($exp, '🌳 The bark knits your wounds: +' . $heal . ' health.');
+                            fight_ev(['from' => 'me', 'move' => 'heal', 'heal' => (int)$heal]);
                         }
                         exp_log($exp, '🌳 Bark Skin! Damage halved for ' . (3 + $kin) . ' rounds.');
+                        fight_ev(['from' => 'me', 'move' => 'guard']);
                         break;
                     case 'bloomcaller':
                         $r = d(20) + eff_mod($u, 'charm') + 2 * $kin;
@@ -664,8 +720,10 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                             $peaceful = true;
                             $enc['hp'] = 0;
                             exp_log($exp, '🌸 You charm the ' . $c['name'] . '. It wanders off peacefully.');
+                            fight_ev(['from' => 'me', 'move' => 'charm', 'ok' => true]);
                         } else {
                             exp_log($exp, '🌸 The ' . $c['name'] . ' isn’t in the mood to be charmed.');
+                            fight_ev(['from' => 'me', 'move' => 'charm', 'ok' => false]);
                         }
                         break;
                     case 'thornblade':
@@ -675,8 +733,10 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                                 $dmg = damage($gc, $crit, $kin);
                                 $enc['hp'] -= $dmg;
                                 exp_log($exp, '🗡️ Thorn Flurry hits for ' . $dmg . ($crit ? ' (critical!)' : '') . '.');
+                                fight_ev(['from' => 'me', 'to' => 'foe', 'move' => 'pluck', 'dmg' => (int)$dmg, 'miss' => false, 'crit' => (bool)$crit, 'ability' => 'thornblade']);
                             } else {
                                 exp_log($exp, '🗡️ Thorn Flurry misses.');
+                                fight_ev(['from' => 'me', 'to' => 'foe', 'move' => 'pluck', 'miss' => true, 'ability' => 'thornblade']);
                             }
                         }
                         break;
@@ -684,6 +744,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                         $dmg = max(1, d(6) + d(6) + eff_mod($u, 'lore') + 2 * $kin);
                         $enc['hp'] -= $dmg;
                         exp_log($exp, '🍄 Spore Burst engulfs the ' . $c['name'] . ' for ' . $dmg . '.');
+                        fight_ev(['from' => 'me', 'to' => 'foe', 'move' => 'pluck', 'dmg' => (int)$dmg, 'miss' => false, 'crit' => false, 'ability' => 'seedkeeper']);
                         break;
                     case 'wayfinder':
                         [, $tot, $crit] = attack_roll($gc, 0, true);
@@ -691,8 +752,10 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                             $dmg = damage($gc, $crit, 2 + 2 * $kin);
                             $enc['hp'] -= $dmg;
                             exp_log($exp, '🎯 Aimed Shot hits for ' . $dmg . ($crit ? ' (critical!)' : '') . '.');
+                            fight_ev(['from' => 'me', 'to' => 'foe', 'move' => 'pluck', 'dmg' => (int)$dmg, 'miss' => false, 'crit' => (bool)$crit, 'ability' => 'wayfinder']);
                         } else {
                             exp_log($exp, '🎯 Aimed Shot just misses.');
+                            fight_ev(['from' => 'me', 'to' => 'foe', 'move' => 'pluck', 'miss' => true, 'ability' => 'wayfinder']);
                         }
                         break;
                     case 'brewroot':
@@ -700,6 +763,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                         $enc['hp'] -= $dmg;
                         $enc['poison'] = 1;
                         exp_log($exp, '🧪 Bitter Brew splashes for ' . $dmg . ' and keeps burning.');
+                        fight_ev(['from' => 'me', 'to' => 'foe', 'move' => 'pluck', 'dmg' => (int)$dmg, 'miss' => false, 'crit' => false, 'ability' => 'brewroot']);
                         break;
                     default:
                         [, $tot, $crit] = attack_roll($gc, 3);
@@ -707,8 +771,10 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                             $dmg = damage($gc, $crit, 3);
                             $enc['hp'] -= $dmg;
                             exp_log($exp, '💪 Gnome Pluck! You hit for ' . $dmg . '.');
+                            fight_ev(['from' => 'me', 'to' => 'foe', 'move' => 'pluck', 'dmg' => (int)$dmg, 'miss' => false, 'crit' => (bool)$crit, 'ability' => 'pluck']);
                         } else {
                             exp_log($exp, '💪 Gnome Pluck... misses.');
+                            fight_ev(['from' => 'me', 'to' => 'foe', 'move' => 'pluck', 'miss' => true, 'ability' => 'pluck']);
                         }
                 }
                 break;
@@ -718,14 +784,17 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                     $dmg = damage($gc, $crit);
                     $enc['hp'] -= $dmg;
                     exp_log($exp, '⚔️ You hit the ' . $c['name'] . ' for ' . $dmg . ($crit ? ' (critical!)' : '') . '.');
+                    fight_ev(['from' => 'me', 'to' => 'foe', 'move' => 'attack', 'dmg' => (int)$dmg, 'miss' => false, 'crit' => (bool)$crit]);
                 } else {
                     exp_log($exp, '⚔️ You miss (rolled ' . $raw . ').');
+                    fight_ev(['from' => 'me', 'to' => 'foe', 'move' => 'attack', 'miss' => true]);
                 }
         }
     }
 
     // Creature defeated?
     if ($enc['hp'] <= 0) {
+        fight_ev(['end' => $peaceful ? 'peace' : 'win']);
         win_fight($u, $exp, $c, $peaceful);
         return true;
     }
@@ -738,6 +807,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     if ($gust) $enc['pgu'] = (int)$enc['pgu'] - 1;
     if ($dazed) {
         exp_log($exp, '💫 The ' . $c['name'] . ' is dazed and loses its turn.');
+        fight_ev(['from' => 'foe', 'move' => 'dazed']);
     } elseif (foe_hits((int)$c['attack'] - $gust, $gc['ac'])) {
         $dmg = foe_damage((int)$c['dmg_die'], (int)$c['dmg_bonus']);
         if ($enc['bark'] > 0) $dmg = max(1, intdiv($dmg, 2));
@@ -753,8 +823,10 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
         if (!empty($palSk['ward'])) $dmg = max(1, $dmg - (int)$palSk['ward']);
         $exp['hp'] = (int)$exp['hp'] - $dmg;
         exp_log($exp, '💥 The ' . $c['name'] . ' hits you for ' . $dmg . '.');
+        fight_ev(['from' => 'foe', 'to' => 'me', 'dmg' => (int)$dmg, 'miss' => false]);
     } else {
         exp_log($exp, '🛡️ The ' . $c['name'] . ' misses you.');
+        fight_ev(['from' => 'foe', 'to' => 'me', 'miss' => true]);
     }
     if ($enc['bark'] > 0) $enc['bark']--;
     $enc['rd'] = (int)($enc['rd'] ?? 0) + 1;
@@ -763,10 +835,12 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
         $rh = min((int)$palSk['rally'], (int)$exp['max_hp'] - (int)$exp['hp']);
         $exp['hp'] = (int)$exp['hp'] + $rh;
         exp_log($exp, '🌱 Your pal rallies you: +' . $rh . ' health.');
+        fight_ev(['from' => 'me', 'move' => 'heal', 'heal' => (int)$rh]);
     }
     $exp['encounter'] = json_encode($enc);
 
     if ((int)$exp['hp'] <= 0) {
+        fight_ev(['end' => 'ko']);
         knock_out($u, $exp, $c);
         return true;
     }
