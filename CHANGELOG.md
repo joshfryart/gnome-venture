@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.6.05
+- **Trail camera stays inside the map**: the picture no longer shows empty ground past the edges of a stretch (the start and the way on used to sit in a band of nothing). The walking camera follows the same rule, so there is no jump when a walk ends.
+- **Delve maps get the same notification as the Trail**: what just happened is one toast and a pop-up over the map, not a card in the page. The wander card keeps its own result line.
+- **Your delve and lair runs**: a "Your runs" fold (cleared, knocked out or left early, how deep, level, date) on the World page panel and on the Here picture's delve and lair card.
+- **Messages wait for a fight's end scene**: toasts no longer cover the scene while it plays; they show when it finishes (they are in Messages meanwhile).
+- Tests: camera clamp, delve map notification, runs list, held messages; the `delvemap` test now expects the removed on-the-road bar to be gone.
+
 ## 2.6.04
 - **A find is announced once**: the Trail pop-up and toast repeated the last journal line (for example "You find Four-leaf Clover.") on every step. A line is now announced only when the journal gains a new one, and a reload does not announce it again.
 - Tests: the same line is not announced twice (browser).

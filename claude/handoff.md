@@ -1,4 +1,6 @@
-# Gnome Venture handoff (current as of 2026-11-06; main = 2.6.04; MASTER TO-DO is `claude/todo.md` (one file, read it first); older blocks below are history)
+# Gnome Venture handoff (current as of 2026-11-06; main = 2.6.04 (dev branch 2.6.05, not merged); MASTER TO-DO is `claude/todo.md` (one file, read it first); older blocks below are history)
+
+**2.6.05 (2026-11-06, dev branch only, not merged to main)**: `tm_window_clamped()` + `data-clamp` (Trail camera), delve map pages use the `data-gvtoast` carrier, `landmark_runs_html()`, toasts wait for `fs-hold`. Slim zip needs 2.5.98+. Known: `folkoverlay` suite fails (Chat link check; also on 6cd6259e, not ours).
 
 **2.6.04 (2026-11-06)**: `data-gvtoast` carrier holds walkid:lines:crc; `gvPageToasts()` announces a journal line once (sessionStorage `gvlatest`). Slim zip needs 2.5.98+.
 
