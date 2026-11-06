@@ -1,4 +1,6 @@
-# Gnome Venture handoff (current as of 2026-11-06; main = 2.6.00; MASTER TO-DO is `claude/todo.md` (one file, read it first); older blocks below are history)
+# Gnome Venture handoff (current as of 2026-11-06; main = 2.6.01; MASTER TO-DO is `claude/todo.md` (one file, read it first); older blocks below are history)
+
+**2.6.01 (2026-11-06)**: `take_toasts()` (functions.php) in the JSON of spot card / Rest stop card / Do-here replies; `hubscene.js` `gvToastsFrom()` shows them (Library finds toast without a reload). Slim zip needs 2.5.98+.
 
 **2.6.00 (2026-11-06)**: `hubscene.js` in-place form post now sends the pressed button (checks/picks/powers in the Rest stop popover did nothing); test `tests/stop_extras.js`. Slim zip needs 2.5.98+.
 

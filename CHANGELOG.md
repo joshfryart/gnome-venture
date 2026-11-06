@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.01
+- **Popover results show their messages at once**: the Library, other Town spots, the Rest stop card and the Do here card showed only their own result line; anything else the action queued (a new Almanac page, a prize, a notice) waited for the next page load. Those messages now pop up as toasts straight away, and are in Messages too.
+- Tests: queued messages come back with the popover reply.
+
 ## 2.6.00
 - **Rest stop popover buttons work**: checks, picks and powers inside the popover (for example the Extras tab's "Trust the bees (Luck check)") did nothing and just said "Pick how to go about it." The in-place form now sends the button you pressed along with it, and the buttons are switched off while it sends so a double tap cannot post twice.
 - Tests: Extras tab Rest, Buy and a Luck check in a headless browser.
