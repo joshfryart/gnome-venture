@@ -9,6 +9,8 @@ const SCEN = {
   'crit alone keeps the hat': { hat: 'worn', list: [{ from: 'foe', to: 'me', dmg: 6, crit: true }] },
   'below 25%: hat down, stays down': { hat: 'free', tap: true, list: [{ from: 'foe', to: 'me', dmg: 16 }] },
   'server pop flag': { hat: 'free', tap: true, list: [{ from: 'foe', to: 'me', dmg: 1, pop: true }] },
+  'plain attack': { hat: 'worn', list: [{ from: 'me', to: 'foe', move: 'attack', dmg: 4 }, { from: 'foe', to: 'me', dmg: 1 }] },
+  'event types: snack, hurt, stumble, charm, dazed, note, end': { hat: 'worn', list: [{ from: 'me', move: 'snack', heal: 3 }, { from: 'foe', move: 'hurt', dmg: 1 }, { from: 'me', move: 'stumble' }, { from: 'me', move: 'charm', ok: true }, { from: 'foe', move: 'dazed' }, { from: 'me', move: 'note' }, { end: 'peace' }] },
   'miss both ways': { hat: 'worn', list: [{ from: 'me', to: 'foe', move: 'pluck', miss: true }, { from: 'foe', to: 'me', miss: true }] },
   'guard': { hat: 'worn', list: [{ from: 'me', move: 'guard' }, { from: 'foe', to: 'me', dmg: 2 }] },
   'flee': { hat: 'worn', list: [{ from: 'me', move: 'flee' }] },

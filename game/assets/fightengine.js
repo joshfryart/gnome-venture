@@ -14,6 +14,10 @@
       [0, {}], [160, { dx: -.15, sx: 1.06, sy: .92, r: -8 }, E.out], [240, { dx: -.2, sx: 1.08, sy: .9, r: -10 }, E.io],
       [420, { x: .97, y: -.12, sx: .92, sy: 1.1, r: 12 }, E['in']], [470, { x: 1, sx: 1.14, sy: .88, r: 5 }, E.out],
       [660, { x: .95 }, E.out], [860, {}, E.io]] },
+    attack: { dur: 660, hit: 330, fx: 'pow', swoosh: 305, dust: [150, 330], pose: 'attack', keys: [      // gnome, plain Attack: a quick step in and one swing (Pluck stays the long ability swing)
+      [0, {}], [120, { dx: -.12, sx: 1.05, sy: .93, r: -6 }, E.out], [310, { x: .97, y: -.08, sx: .94, sy: 1.08, r: 10 }, E['in']], [350, { x: 1, sx: 1.12, sy: .9, r: 4 }, E.out],
+      [500, { x: .96 }, E.out], [660, {}, E.io]] },
+    snack: { dur: 1000, pose: 'snack', keys: [[0, {}], [200, { sx: 1.04, sy: .96 }, E.out], [420, { y: -.06 }, E.io], [560, { sy: .97 }, E.io], [700, { y: -.06 }, E.io], [1000, {}, E.io]] },
     charge: { dur: 900, hit: 430, pose: 'charge', fx: 'pow', keys: [
       [0, {}], [200, { dx: -.25, sx: 1.1, sy: .9, r: -4 }, E.out], [260, { dx: -.25, y: -.08 }], [320, { dx: -.25 }],
       [430, { x: 1, sx: 1.12, sy: .92, r: 6 }, E['in']], [480, { x: 1, sx: .85, sy: 1.1 }, E.out], [700, { x: .7 }, E.out], [900, {}, E.io]] },
@@ -52,6 +56,16 @@
       armB: [[0, {}], [160, { r: -30 }], [240, { r: -45 }], [330, { r: 50 }], [420, { r: -40 }], [470, { r: -70 }], [860, {}, E.io]],
       legF: [[0, {}], [45, { r: 10 }], [90, { r: -10 }], [135, { r: 12 }], [180, { r: -9 }], [240, { r: -10 }], [285, { r: -38 }], [330, { r: 0, y: -3 }], [375, { r: 38 }], [420, { r: -25 }], [470, { r: -15 }], [860, {}, E.io]],
       legB: [[0, {}], [45, { r: -10 }], [90, { r: 10 }], [135, { r: -12 }], [180, { r: 9 }], [240, { r: 10 }], [285, { r: 38 }], [330, { r: 0, y: -3 }], [375, { r: -38 }], [420, { r: 25 }], [470, { r: 15 }], [860, {}, E.io]] } },
+    attack: { dur: 660, tracks: {
+      torso: [[0, {}], [120, { r: -8 }, E.out], [250, { r: -10 }], [330, { r: 12 }, E.out], [500, { r: 5 }], [660, {}, E.io]],
+      armF: [[0, {}], [120, { r: 100 }, E.out], [250, { r: 118 }], [320, { r: -60 }, E['in']], [380, { r: -100 }, E.out], [520, { r: -50 }], [660, {}, E.io]],
+      armB: [[0, {}], [120, { r: -25 }], [330, { r: -55 }], [660, {}, E.io]],
+      legF: [[0, {}], [120, { r: -25 }, E.out], [220, { r: 25 }], [330, { r: -18 }], [660, {}, E.io]],
+      legB: [[0, {}], [120, { r: 25 }, E.out], [220, { r: -25 }], [330, { r: 18 }], [660, {}, E.io]] } },
+    snack: { dur: 1000, tracks: {
+      torso: [[0, {}], [200, { r: -3 }, E.out], [560, { r: 2 }, E.io], [1000, {}, E.io]],
+      armF: [[0, {}], [220, { r: -125 }, E.out], [380, { r: -145 }], [480, { r: -118 }], [580, { r: -145 }], [680, { r: -118 }], [800, { r: -140 }], [1000, {}, E.io]],
+      armB: [[0, {}], [220, { r: -20 }], [1000, {}, E.io]] } },
     hit: { dur: 380, tracks: { torso: [[0, {}], [60, { r: -14 }, E.out], [380, {}, E.io]], armF: [[0, {}], [60, { r: 75 }, E.out], [200, { r: 25 }], [380, {}, E.io]], armB: [[0, {}], [60, { r: -65 }, E.out], [200, { r: -20 }], [380, {}, E.io]], legF: [[0, {}], [60, { r: -14 }, E.out], [380, {}, E.io]], legB: [[0, {}], [60, { r: 10 }, E.out], [380, {}, E.io]] } },
     dodge: { dur: 520, tracks: { torso: [[0, {}], [120, { r: 8 }, E.out], [300, { r: -4 }], [520, {}, E.io]], armF: [[0, {}], [120, { r: -50 }, E.out], [300, { r: 20 }], [520, {}, E.io]], armB: [[0, {}], [120, { r: 40 }, E.out], [520, {}, E.io]], legF: [[0, {}], [120, { r: -35, y: -4 }, E.out], [300, { r: 10 }], [520, {}, E.io]], legB: [[0, {}], [120, { r: -25, y: -4 }, E.out], [300, { r: 5 }], [520, {}, E.io]] } },
     ko: { dur: 900, keep: 1, tracks: { torso: [[0, {}], [120, { r: -10 }, E.out], [500, { r: -12 }], [900, { r: -6 }, E.out]], armF: [[0, {}], [120, { r: 70 }, E.out], [500, { r: 135 }], [900, { r: 150 }, E.out]], armB: [[0, {}], [120, { r: -70 }, E.out], [500, { r: -120 }], [900, { r: -135 }, E.out]], legF: [[0, {}], [500, { r: -25 }], [900, { r: -40 }, E.out]], legB: [[0, {}], [500, { r: 20 }], [900, { r: 35 }, E.out]] } },
@@ -390,11 +404,10 @@
         var wasH = a.hp; pop(a, '-' + (ev.dmg || 0)); setHp(a, a.hp - (ev.dmg || 0)); var hh = run(a, 'hit');
         return hh.finished.then(function () { if (a.hp <= 0 && wasH > 0) { stopIdle(a); if (a.rig.lingers) return run(a, 'koL').finished; a.sh.style.opacity = 0; return run(a, 'ko').finished; } });
       }
-      if (ev.move === 'heal' || ev.move === 'snack') { var hl = Math.max(0, Math.min(ev.heal || 0, a.max - a.hp)); if (hl) { setHp(a, a.hp + hl); pop(a, '+' + hl, 'heal'); } return run(a, 'cheer').finished; }
+      if (ev.move === 'heal' || ev.move === 'snack') { var hl = Math.max(0, Math.min(ev.heal || 0, a.max - a.hp)), sa = run(a, ev.move === 'snack' ? 'snack' : 'cheer'); if (hl) sleep(ev.move === 'snack' ? 650 : 200).then(function () { setHp(a, a.hp + hl); pop(a, '+' + hl, 'heal'); }); return sa.finished; }
       if (ev.move === 'stumble') { pop(a, 'trips!', 'miss'); return run(a, 'dodge').finished; }
       if (ev.move === 'charm' || ev.move === 'dazed' || ev.move === 'note') { pop(a, ev.text || (ev.move === 'charm' ? (ev.ok === false ? 'no charm' : 'charmed!') : ev.move === 'dazed' ? 'dazed' : '...'), ev.move === 'charm' && ev.ok !== false ? 'heal' : 'miss'); return sleep(350); }
-      if (ev.move === 'attack' && !MOVES.attack) ev = Object.assign({}, ev, { move: 'pluck' });   // plain Attack uses the pluck swing until it has its own
-      if (ev.move === 'guard') { var g = document.createElement('div'); g.className = 'fe-guard'; a.body.appendChild(g); a.guardEl = g; return run(a, 'guard').finished; }
+            if (ev.move === 'guard') { var g = document.createElement('div'); g.className = 'fe-guard'; a.body.appendChild(g); a.guardEl = g; return run(a, 'guard').finished; }
       if (ev.move === 'flee') { if (a.guardEl) { a.guardEl.remove(); a.guardEl = null; } (a.held || []).forEach(function (x) { x.cancel(); }); a.held = []; stopIdle(a); a.sh.style.opacity = 0; return run(a, 'flee').finished; }
       var name = ev.move || a.rig.attack, m = MOVES[name], atk = run(a, name, tg);
       if (m.swoosh) sleep(m.swoosh).then(function () { swoosh(a); });
