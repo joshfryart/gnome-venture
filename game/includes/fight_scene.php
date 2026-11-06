@@ -53,7 +53,7 @@ function fight_scene_html(array $u, array $exp, array $enc, array $c, ?array $ov
 
 /**
  * The fight menu on the map (v2.5.96, "Design C"): a small command column over the map with Fight, Item and Flee. Fight and Item open a list beside it
- * (Fight: Attack, the calling's ability, the pals' actives, Fight on, Auto-win; Item: the snacks, one row each). Tap an option once to read what it does in the
+ * (Fight: Attack, the calling's ability, the pals' actives; no Fight on / Auto-win since 2.5.98; Item: the snacks, one row each). Tap an option once to read what it does in the
  * list's top line, tap it again to do it (assets/fightscene.js). After an action the page comes back with the menu closed, so the fight plays out in full view.
  * Every option is a real form: with no script the lists simply sit open. $side 'l' / 'r' = which side of the map the column is on (opposite the gnome); 'b' = in the page flow right under the stage (a short stage off the Trail: the menu would hide it). $withHat false when the stage already carries the hat form (the stage off the Trail: delve, wander, list).
  * Needs fight_snacks() and friends from adventure.php.
@@ -62,7 +62,6 @@ function fight_dock_html(array $u, array $exp, array $enc, array $c, string $sid
 {
     $gc = gnome_combat($u, true);
     [$abName, $abDesc] = CALLING_ABILITIES[$u['calling'] ?? ''] ?? CALLING_ABILITIES[''];
-    $sure = fight_certainty($u, $exp, $c, $enc);
     $hitPct = (int)fight_odds($u, $exp, $enc)['hit'];
     $runPct = max(0, min(100, (21 - (8 + intdiv((int)$c['level'], 3) - eff_mod($u, 'nimble'))) * 5));
     $opt = function (string $do, string $icon, string $title, string $right, string $desc, string $extra = '', bool $off = false): string {
@@ -73,8 +72,6 @@ function fight_dock_html(array $u, array $exp, array $enc, array $c, string $sid
     $fight = $opt('attack', '⚔️', 'Attack', $hitPct . '%', 'A plain swing: d' . (int)$gc['dmg_die'] . '+' . (int)$gc['dmg_bonus'] . ' damage, ' . $hitPct . '% to hit.');
     $fight .= $opt('ability', '✨', $abName, $enc['used'] ? 'used' : '', $abName . ': ' . $abDesc . ' Once per fight.', '', !empty($enc['used']));
     if (ppal_boons_on()) foreach (ppal_fight_actives($u, $enc) as $pa) $fight .= $opt($pa['do'], '🍄', $pa['title'], $pa['used'] ? 'used' : '', $pa['title'] . ': ' . (string)$pa['sub'], '', !empty($pa['used']));
-    if (can_fight_on($exp)) $fight .= $opt('fighton', '⏩', 'Fight on', '', 'Keep attacking until the fight is done or you are at half health.');
-    if ($sure === 'win') $fight .= $opt('auto', '⚡', 'Auto-win', 'sure', 'A sure win: the whole fight plays out for you.');
     $left = snacks_left($u, $enc);
     $snacks = $left > 0 ? fight_snacks($u) : [];
     $item = '';
