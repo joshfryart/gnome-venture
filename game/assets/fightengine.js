@@ -424,8 +424,9 @@
         var h = run(tg, 'hit'); shake(ev.crit ? 6 : 3, ev.crit);
         if (tg.hat && (ev.pop || tg.hp <= 0 || (was >= tg.max * .25 && tg.hp < tg.max * .25))) popHat(tg, tg.dir);   // hat comes off when a hit takes him below 25% (or KO, or the server says so)
         return hitstop(ev.crit ? 110 : 70).then(function () { return h.finished; }).then(function () { if (tg.hp <= 0) { stopIdle(tg); if (tg.rig.lingers) { var kl = run(tg, 'koL'); sleep(750).then(function () { stars(tg); }); return kl.finished; } tg.sh.style.opacity = 0; return run(tg, 'ko').finished; } });
-      }).then(function () { return atk.finished; }).then(function () { if (a.hat && tg.hp <= 0 && !ev.miss) return sleep(200).then(function () { return run(a, 'cheer').finished; }); });
+      }).then(function () { return atk.finished; }).then(function () { if (a.hat && tg.hp <= 0 && !ev.miss && !holdCheer) return sleep(200).then(function () { return run(a, 'cheer').finished; }); });
     }
+    var holdCheer = false;   // host has a reward scene coming: it does the victory jump itself
     function together(list) { busy++; return Promise.all(list.map(step)).then(function () { busy--; }); }
     function finish() {   // fight over: anyone still standing with a hat on the ground puts it back on (no heal)
       return Promise.all(Object.keys(acts).map(function (k) { var a = acts[k]; return a.hat && a.hp > 0 ? sleep(250).then(function () { return fixHat(a); }) : null; }));
@@ -442,44 +443,47 @@
      * rw = {xp, lvl, loot:[{name, qty, img}]}. Returns a promise that resolves when the last one is in (the host then lets the player move again). */
     function reward(rw) {
       var me = acts.me, foe = acts.foe;
+      holdCheer = false;
       if (!me || !foe || me.hp <= 0) return Promise.resolve();
-      var drops = [], n = 0, fp = spot(foe), mp = spot(me), list = [];
+      var drops = [], fp = spot(foe), list = [];
       if (rw.xp) list.push({ xp: 1, label: '+' + rw.xp + ' XP' });
       (rw.loot || []).forEach(function (l) { list.push({ img: l.img, label: (l.qty > 1 ? l.qty + ' × ' : '') + l.name }); });
-      if (!list.length) return Promise.resolve();
-      var gx = (mp[0] - fp[0]) * .45, base = list.length;
+      if (!list.length) return run(me, 'cheer').finished;
+      var br = me.body.getBoundingClientRect(), hr = host.getBoundingClientRect(), n = list.length, gap = 56;
+      var cx = Math.max(gap * (n - 1) / 2 + 30, Math.min(hr.width - gap * (n - 1) / 2 - 30, br.left - hr.left + br.width / 2));   // centred over the head, kept on screen
+      var ty = Math.max(40, br.top - hr.top - br.height * .62 - 16);   // above where he jumps to, so he never covers them
       list.forEach(function (d, i) {
         var el = document.createElement('div'); el.className = 'fe-drop' + (d.xp ? ' xp' : '');
         if (d.img) { var im = document.createElement('img'); im.src = d.img; im.alt = ''; el.appendChild(im); } else el.textContent = d.xp ? '✦' : '🎁';
         var lb = document.createElement('span'); lb.className = 'fe-droplbl'; lb.textContent = d.label; el.appendChild(lb);
-        var tx = fp[0] + gx + (i - (base - 1) / 2) * 52, ty = fp[1] + 14;   // rests on the ground between the two, spread out a little
+        d.tx = cx + (i - (n - 1) / 2) * gap; d.ty = ty;
         el.style.left = fp[0] + 'px'; el.style.top = fp[1] + 'px'; el.style.opacity = 0; fx.appendChild(el);
-        d.el = el; d.tx = tx; d.ty = ty; drops.push(d);
+        d.el = el; drops.push(d);
       });
-      return Promise.all(drops.map(function (d, i) {   // 1: hop out of the foe and land
-        return sleep(i * 160).then(function () {
+      var cheer = run(me, 'cheer');
+      return Promise.all(drops.map(function (d, i) {   // 1: hop out of the foe and arc up over the gnome's head
+        return sleep(i * 140).then(function () {
           return d.el.animate([
             { transform: 'translate(-50%,-50%) scale(.3)', opacity: 0 },
-            { transform: 'translate(calc(-50% + ' + ((d.tx - fp[0]) * .55) + 'px),calc(-50% - 34px)) scale(1.1)', opacity: 1, offset: .5, easing: 'ease-in' },
+            { transform: 'translate(calc(-50% + ' + ((d.tx - fp[0]) * .5) + 'px),calc(-50% + ' + ((d.ty - fp[1]) * .5 - 40) + 'px)) scale(1.15)', opacity: 1, offset: .5, easing: 'ease-in' },
             { transform: 'translate(calc(-50% + ' + (d.tx - fp[0]) + 'px),calc(-50% + ' + (d.ty - fp[1]) + 'px)) scale(1)', opacity: 1 }
-          ], { duration: 620 / sp(), fill: 'forwards' }).finished;
+          ], { duration: 640 / sp(), fill: 'forwards', easing: 'ease-out' }).finished;
         });
-      })).then(function () { d_show(drops); return sleep(900); })   // 2: they rest, names showing
-        .then(function () {   // 3: slowly drawn into the gnome, one after another, shrinking
+      })).then(function () { d_show(drops); return cheer.finished; })   // 2: he jumps for joy underneath, names showing
+        .then(function () { return sleep(500); })
+        .then(function () {   // 3: slowly drawn down into him, one after another
           var m2 = spot(me);
           return Promise.all(drops.map(function (d, i) {
-            return sleep(i * 260).then(function () {
+            return sleep(i * 240).then(function () {
               d.el.classList.remove('show');
-              var dx = m2[0] - d.tx, dy = m2[1] - d.ty;
               var a = d.el.animate([
-                { transform: 'translate(calc(-50% + ' + (d.tx - fp[0]) + 'px),calc(-50% + ' + (d.ty - fp[1]) + 'px)) scale(1) rotate(0)', opacity: 1 },
-                { transform: 'translate(calc(-50% + ' + (d.tx - fp[0] + dx * .55) + 'px),calc(-50% + ' + (d.ty - fp[1] + dy * .45 - 18) + 'px)) scale(.8) rotate(120deg)', opacity: 1, offset: .55, easing: 'cubic-bezier(.5,0,.9,.6)' },
-                { transform: 'translate(calc(-50% + ' + (m2[0] - fp[0]) + 'px),calc(-50% + ' + (m2[1] - fp[1]) + 'px)) scale(.15) rotate(260deg)', opacity: .2 }
-              ], { duration: 1250 / sp(), fill: 'forwards', easing: 'ease-in' });
+                { transform: 'translate(calc(-50% + ' + (d.tx - fp[0]) + 'px),calc(-50% + ' + (d.ty - fp[1]) + 'px)) scale(1)', opacity: 1 },
+                { transform: 'translate(calc(-50% + ' + (m2[0] - fp[0]) + 'px),calc(-50% + ' + (m2[1] - fp[1]) + 'px)) scale(.2)', opacity: .2 }
+              ], { duration: 900 / sp(), fill: 'forwards', easing: 'ease-in' });
               return a.finished.then(function () {
                 d.el.remove();
                 var bump = me.body.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.1,.92)' }, { transform: 'scale(1)' }], { duration: 260 / sp() });
-                pop(me, d.xp ? d.label : d.label, d.xp ? 'xp' : 'heal');
+                pop(me, d.label, d.xp ? 'xp' : 'heal');
                 return bump.finished;
               });
             });
@@ -489,7 +493,7 @@
     function d_show(drops) { drops.forEach(function (d) { d.el.classList.add('show'); }); }
     function destroy() { dead = true; root.removeEventListener('resize', layout); host.innerHTML = ''; acts = {}; }   // stop the physics loop and the resize hook (call before re-creating on the same host)
     layout(); root.addEventListener('resize', layout); root.requestAnimationFrame(tick);
-    return { destroy: destroy, finish: finish, reward: reward, add: add, play: play, popHat: popHat, fixHat: fixHat, together: together, acts: acts, layout: layout, setSpeed: function (s) { speed = s; }, MOVES: MOVES };
+    return { destroy: destroy, finish: finish, reward: reward, add: add, play: play, popHat: popHat, fixHat: fixHat, together: together, acts: acts, layout: layout, setSpeed: function (s) { speed = s; }, holdCheer: function (v) { holdCheer = !!v; }, MOVES: MOVES };
   }
   /* Data lint: returns a list of problems (empty = fine). Run by tools/fight/smoke.js; catches the mistakes that used to crash animate() at play time. */
   function validate() {

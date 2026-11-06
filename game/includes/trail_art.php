@@ -102,21 +102,20 @@ function trail_map_authored(array $art): array
 
 /**
  * Which tile of a walked path (start left out) a random fight stops the walk on, if any. One roll per tile entered, never in the first
- * 3 tiles of the section or within 2 tiles of the exit. Chance: 2% on floor, 8% on rough floor, +1% for every quiet tile since the last
- * fight (the pity counter), and at most 2 random fights a section. $stance 'sneak' scales the chance to 40%, 'hunt' to 250% (and allows 3 a section). $roll(int $percent): bool is the dice (tests pass their own).
- * Returns [index or null, quiet, fights].
+ * 3 tiles of the section or within 2 tiles of the exit. No cap per section: it is a plain chance per tile. Base chance = setting trail_enc_pct
+ * (default 3%) on floor, 2.5x that on rough floor. $stance scales the base: 'sneak' to 40%, 'hunt' to 250%.
+ * $roll(float $percent): bool is the dice (tests pass their own). $quiet and $fights are only counted (kept for the saved scene). Returns [index or null, quiet, fights].
  */
-function trail_encounter_index(array $map, array $path, int $quiet, int $fights, ?callable $roll = null, string $stance = ''): array
+function trail_encounter_index(array $map, array $path, int $quiet, int $fights, ?callable $roll = null, string $stance = '', ?float $base = null): array
 {
-    $mult = ['sneak' => 40, 'hunt' => 250][$stance] ?? 100;   // Sneak: fewer fights (40%). Hunt: more (250%) and up to 3 a section
-    $cap = $stance === 'hunt' ? 3 : 2;
-    $roll ??= fn(int $pct): bool => random_int(1, 100) <= $pct;
+    $mult = ['sneak' => 40, 'hunt' => 250][$stance] ?? 100;
+    $base ??= function_exists('setting') ? (float)setting('trail_enc_pct') : 3.0;
+    $roll ??= fn(float $pct): bool => random_int(1, 1000) <= (int)round($pct * 10);
     $en = $map['entry'] ?? [0, 0];
     $ex = $map['spots']['9'] ?? [-99, -99];
     foreach ($path as $i => [$x, $y]) {
-        if ($fights >= $cap) break;
         if (abs($x - $en[0]) + abs($y - $en[1]) < 3 || abs($x - $ex[0]) + abs($y - $ex[1]) < 3) continue;
-        $pct = max(1, (int)round(((tm_tile($map, $x, $y) === ',' ? 8 : 2) + $quiet) * $mult / 100));
+        $pct = $base * (tm_tile($map, $x, $y) === ',' ? 2.5 : 1) * $mult / 100;
         if ($roll($pct)) return [$i, 0, $fights + 1];
         $quiet++;
     }

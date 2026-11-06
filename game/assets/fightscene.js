@@ -31,6 +31,7 @@
       if (list.length > 12) mine.setSpeed(Math.min(6, list.length / 6));
       host.addEventListener('click', function () { mine.setSpeed(40); });
       var done = function () { mine.setSpeed(reduced ? 40 : 1); host.classList.add('fs-done'); host.classList.remove('fs-live'); document.body.classList.remove('fs-hold'); };
+      if (D.reward) mine.holdCheer(true);
       mine.play(list).then(function () { return D.reward ? mine.reward(D.reward) : null; }).catch(function () { }).then(done);
       return;
     }

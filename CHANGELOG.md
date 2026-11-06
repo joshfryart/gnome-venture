@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.88
+- **Fight rewards float over the gnome's head**: after the last blow the XP and loot hop out of the creature and arc up into a row centred over the gnome, names above each icon. The gnome jumps for joy underneath, never covering them, then they sink into him one by one.
+- **Random fights are a flat chance, not a fixed count**: no more cap of 2 a section and no climbing "pity" chance. Every tile walked rolls the same base chance, new setting `trail_enc_pct` (default 3%, 0 turns random fights off); rough ground is 2.5x it. 🤫 Sneak is 40% of the base, 🏹 Hunt 250%, with no limit per section. Tests in `tests/trail_authored.php`.
+
 ## 2.5.87
 - **Walk back along the Trail**: from where a stretch begins (sections 2 and on) a new button, "Back to section N" (free), takes you to the exit of the stretch before it, so you can walk back the way you came. The start tile is labelled "The way back". Fights and finds you already did stay done, and going on again to a stretch you have walked adds no new surprise at its door. Turn back (end the walk) works as before.
 
