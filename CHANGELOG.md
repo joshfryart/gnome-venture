@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.98
+- **Smaller fight menu**: the Fight list holds only Attack, your calling's ability and your pals' skills (Fight on and Auto-win are gone from the menu; they stay in the plain button list when the fight scene is switched off), and its hint line is shorter ("Tap to read, tap again to do.").
+
 ## 2.5.97
 - **The fight scene is on by default** (setting `fight_scene`; a site that saved it as off stays off). Tapping the stage to speed it up is now 2x (it was 40x). Players with reduced motion still get the fast version.
 - **Fights on delve floors (both kinds, lairs too) and in a wander off the Trail now play on the map**, like the Trail: the stage over the map, the Fight / Item / Flee menu, and the end scene. The simple list view (no map) keeps the stage with the menu under it. This also fixes a wander off the Trail showing no fight at all with the fight scene on.

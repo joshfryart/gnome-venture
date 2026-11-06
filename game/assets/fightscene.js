@@ -83,7 +83,7 @@
       dock.querySelectorAll('.fsc-opt').forEach(function (b) { if (b !== opt) disarm(b); });
       opt.classList.add('armed');
       var sub2 = opt.closest('.fsc-sub'), say = opt.getAttribute('data-desc') || '';
-      if (sub2) sub2.querySelector('.fsc-info').textContent = say + ' Tap again to do it.';
+      if (sub2) sub2.querySelector('.fsc-info').textContent = say + ' Tap again.';
       else { var t = opt.querySelector('.o-t'); if (t && opt.getAttribute('data-armtext')) { opt.setAttribute('data-was', t.textContent); t.textContent = opt.getAttribute('data-armtext'); } closeSubs(dock); }
       return;
     }

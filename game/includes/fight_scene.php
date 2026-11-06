@@ -81,8 +81,8 @@ function fight_dock_html(array $u, array $exp, array $enc, array $c, string $sid
     $top = fn(string $k, string $icon, string $t, bool $off = false) => '<button type="button" class="fsc-top" data-open="' . $k . '"' . ($off ? ' disabled' : '') . '><span class="o-ic" aria-hidden="true">' . $icon . '</span><span class="o-t">' . $t . '</span><span class="o-r" aria-hidden="true">▸</span></button>';
     return '<div class="fsdockwrap fsd-' . ($side === 'b' ? 'b' : ($side === 'r' ? 'r' : 'l')) . '">' . ($withHat ? fight_hatform_html($enc) : '')
         . '<div class="fsdock fsc" role="group" aria-label="Fight actions">'
-        . '<div class="fsc-sub" data-for="fight" data-hint="Tap an option to read it, tap again to do it."><div class="fsc-info"></div>' . $fight . '</div>'
-        . ($item !== '' ? '<div class="fsc-sub" data-for="item" data-hint="Tap a snack to read it, tap again to eat it."><div class="fsc-info"></div>' . $item . '</div>' : '')
+        . '<div class="fsc-sub" data-for="fight" data-hint="Tap to read, tap again to do."><div class="fsc-info"></div>' . $fight . '</div>'
+        . ($item !== '' ? '<div class="fsc-sub" data-for="item" data-hint="Tap to read, tap again to eat."><div class="fsc-info"></div>' . $item . '</div>' : '')
         . '<div class="fsc-menu">' . $top('fight', '⚔️', 'Fight') . $top('item', '🎒', 'Item', $item === '') . $flee . '</div>'
         . '</div></div>';
 }

@@ -1,4 +1,6 @@
-# Gnome Venture handoff (current as of 2026-11-06; main = 2.5.97; MASTER TO-DO is `claude/todo.md` (one file, read it first); older blocks below are history)
+# Gnome Venture handoff (current as of 2026-11-06; main = 2.5.98; MASTER TO-DO is `claude/todo.md` (one file, read it first); older blocks below are history)
+
+**2.5.98 (2026-11-06)**: Fight menu list = Attack, ability, pal skills (`fight_dock_html()` no longer adds Fight on / Auto-win), shorter hint text (`data-hint`, `fightscene.js`). Slim zip needs 2.5.96+.
 
 **2.5.97 (2026-11-06, dev branch `ccr-6945e854-nluxq6`, merged to `main`)**: `fight_scene` default 1 (`here_schema.php`); `fight_map_over()` in `includes/fight_scene.php` draws a fight or its end scene over any tile map (used by `trail_view_html`, `dm_view_html`, `dv2_floor_html`, and the wander's map behind it via `trail_view_html(..., $fightExp)`); the list view uses the stage + dock under it (`fight_dock_html(..., 'b', false)`, css `.fsd-b`); end scenes for flee (reloads after the run so the map redraws the gnome) and KO (stage above the result); pal skills use `fight_pal_events()` (events from `pal0..2`, engine move `mend`); tap speed-up 2x in `fightscene.js`; `trail_stay()` ("Not yet"); admin resource `landmark_runs`. One old failure: `delvemap` "topbar elsewhere shows the quiet lair". Nothing here is phone-checked.
 
