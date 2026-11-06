@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.80
+- **Puzzle Pals on the Here page**: a pal waiting at the place you stand in now appears among the villagers (first slot, so a crowd never pushes it out). Tap it for the Say hello card.
+
 ## 2.5.79
 - **Fight engine preview (not in the game yet)**: new page `fight_demo.html` on the site root plays the fight animation engine on the tilted tile board. Gnome on a limb rig (arms, legs, hat that lags, pops off below 25% HP and can be tapped to put back on for +5), and all six wild creatures (boar, wolf, bear, ram, scorpion, frog) on part rigs with their own attack, hit, dodge and KO. Nothing in adventures uses it yet and there is no player news. Files: `assets/fightengine.js`, `assets/fightengine.css`, `assets/fightdemo.js`, `assets/img/fight/`, `gnome_parts.php` (gnome parts in a player's hat, beard and scarf colours, cached), `includes/gnome_rig.php`. Dev notes and tools: `claude/animating-2-5d-sprites.md`, `tools/fight/`.
 
