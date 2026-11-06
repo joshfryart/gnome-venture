@@ -15,7 +15,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 
 ## 2. JOSH: phone checks
 - DONE 2026-11-06: Josh said "Phone checks done good". Treat everything previously listed here as PASSED: 2.5.90 to 2.5.96 (ground zips, new-region routes, pals, Fight / Item / Flee menu, no bar under banner), 2.5.81 to 2.5.89 fight scene, 2.5.72 (Do tab meters, perks, notice board, happenings, stories, Sneak/Hunt, workshop), 2.5.60 to 2.5.71 items, yard, Here pages, Maplewold tiles. Not itemised, so per-item "not phone-checked" notes in section 4 are now stale.
-- Next: flip `fight_scene` default to 1 (section 4, step 6) once Josh says so; confirm 3% fight rate (section 3).
+- DECIDED 2026-11-06: `fight_scene` ON by default (default flipped in `here_schema.php`, NOT yet released: needs a version bump + slim zip; a site with the setting already saved as 0 stays off). 3% fight rate confirmed OK.
 
 ## 3. JOSH: decisions needed
 - DECIDED 2026-11-06: art uploads go through Admin > Images (never Update); the on-the-road bar and the fight bar are gone from other pages; the Trail fight menu is Design C and closes after every action; Puzzle Pals stand beside the gnome on maps and in fights.
@@ -31,9 +31,9 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 **Trail / Here**
 - Trail fight menu (2.5.96): `fight_dock_html()` + `fightscene.js` tap logic. TODO: dock for delve / wander maps; Flee confirm is "tap again"; if the list covers the foe, consider opening it upward only when there is room.
 - Fight scene (2.5.81 to 2.5.89, setting `fight_scene`, default 0, Trail map only): engine `game/assets/fightengine.js/.css`, adapter `fightscene.js`, PHP `includes/fight_scene.php`, recorder `fight_ev*` in `includes/adventure.php`. Fights play over the real map where the gnome stands, dock under the map, health pills under feet, hat flag/pickup, end scene (XP/loot float over the gnome's head while he jumps, then sink in; map locked until done). Tests: suites `fight_events fight_scene fight_scene_trail trail_back` (run ONE AT A TIME, they clash on ports), `node tools/fight/smoke.js` (slow, ~3 min, alone). Plan `claude/fight-wiring-proposal.md`. NOT phone-checked.
-  - TODO step 5: dock for delve / wander / list maps and other encounter types, then delete the popover code and `fighton.js`. Step 6: Josh phone pass, then flip `fight_scene` default to 1.
+  - TODO step 5: dock for delve / wander / list maps and other encounter types, then delete the popover code and `fighton.js`. Step 6: DONE (phone pass passed, default flipped to 1, unreleased).
   - TODO: KO and flee have no end scene (KO falls back to the old "Knocked out!" panel); reduced motion shows no loot drop (log line only); items with no art show 🎁; Milestone box and Almanac toast can cover the end scene; map camera not clamped at edges (empty green near column 0); more creature rigs.
-- Trail random fights (2.5.88): flat chance per tile, setting `trail_enc_pct` (default 3%, rough ground x2.5, Sneak x0.4, Hunt x2.5, no cap per section, first/last 3 tiles safe). Josh to confirm 3%. `balance_sim.php` Walks not updated.
+- Trail random fights (2.5.88): flat chance per tile, setting `trail_enc_pct` (default 3%, rough ground x2.5, Sneak x0.4, Hunt x2.5, no cap per section, first/last 3 tiles safe). Josh confirmed 3% OK (2026-11-06). `balance_sim.php` Walks not updated.
 - Trail walk back (2.5.87): "Back to section N" on the entry tile of section 2+; TODO: no Continue offered on the exit tile after going back (must step off and on); no way back from the final confirm 🚪; Trail only, not delve/wander.
 - Known: `here` suite red on main (PHP warning `stops.php:327` Undefined array key "slug", from 2.5.80; seen from CLI calls, not tied to a page).
 - Upkeep: stamp requirement removed (any gnome can chip in; `stop_upkeep_give`, `stop_slim_upkeep`); released 2.5.71, no test covers upkeep, not tried live.
