@@ -45,6 +45,8 @@ SPECS = {
       pivots={'head': (50, 38), 'body': (32, 48), 'legB': (23, 46), 'legF': (55, 46), 'tail': (14, 40)}, order=['tail', 'legB', 'legF', 'body', 'head']),
   'dune-scorpion': lambda src: dict(foot=None, parts=[('base', lambda x, y: y >= 44), ('tail', box(10, 16, 19, 30)), ('clawL', box(0, 27, 17, 43)), ('clawR', box(38, 26, 55, 43))],
       bodymask=lambda x, y: True, fills=[], pivots={'body': (28, 40), 'tail': (15, 30), 'clawL': (17, 35), 'clawR': (39, 35)}, order=['base', 'tail', 'body', 'clawL', 'clawR']),
+  'shore-crab': lambda src: dict(foot=None, parts=[('base', lambda x, y: y >= 47), ('clawL', box(0, 24, 17, 46)), ('clawR', box(38, 24, 55, 46))],
+      bodymask=lambda x, y: True, fills=[], pivots={'body': (28, 40), 'clawL': (17, 36), 'clawR': (39, 36)}, order=['base', 'body', 'clawL', 'clawR']),
   'bullfrog': lambda src: dict(foot=None, parts=[('base', lambda x, y: y >= 49), ('eyeL', box(0, 9, 27, 26)), ('eyeR', box(28, 9, 55, 26))],
       bodymask=lambda x, y: True, fills=[('eyeL', (8, 14, 47, 26), (28, 32)), ('eyeR', (8, 14, 47, 26), (28, 32))], pivots={'body': (28, 45), 'eyeL': (18, 24), 'eyeR': (38, 24)}, order=['base', 'body', 'eyeL', 'eyeR']),
 }

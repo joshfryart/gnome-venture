@@ -2,7 +2,7 @@
 // Checks: data lint, every creature plays every scenario with no page errors, no NaN transforms, hat ends worn with no ghost frame, reduced-motion path finishes.
 const { chromium } = require('playwright'), path = require('path');
 const URL = 'file://' + path.resolve(__dirname, '../../game/fight_demo.html');
-const CREATURES = ['wild-boar', 'bramble-wolf', 'black-bear', 'bullfrog', 'cliff-ram', 'dune-scorpion'];
+const CREATURES = ['wild-boar', 'bramble-wolf', 'black-bear', 'bullfrog', 'cliff-ram', 'dune-scorpion', 'shore-crab'];
 // hat = what the gnome's hat should be at the end (worn, or free = on the ground)
 const SCEN = {
   'pluck+hit': { hat: 'worn', list: [{ from: 'me', to: 'foe', move: 'pluck', dmg: 3 }, { from: 'foe', to: 'me', dmg: 2 }] },

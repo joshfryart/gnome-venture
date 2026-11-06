@@ -1,7 +1,7 @@
 // One contact sheet of every creature's animations: a row per creature = attack | hit | dodge | KO, frames cut around the creature, slow motion x0.3.
 //   node tools/fight/creatures.js out.png [slug ...]      (needs playwright + python3 PIL)
 const { chromium } = require('playwright'), path = require('path'), fs = require('fs'), os = require('os'), cp = require('child_process');
-const ALL = ['wild-boar', 'bramble-wolf', 'black-bear', 'cliff-ram', 'dune-scorpion', 'bullfrog'];
+const ALL = ['wild-boar', 'bramble-wolf', 'black-bear', 'cliff-ram', 'dune-scorpion', 'bullfrog', 'shore-crab'];
 // [label, events, frames, ms between frames]
 const SC = [['attack', [{ from: 'foe', to: 'me', dmg: 3 }], 9, 330], ['hit', [{ from: 'foe', move: 'hit' }], 4, 260], ['dodge', [{ from: 'foe', move: 'dodge' }], 4, 380], ['ko', [{ from: 'foe', move: 'ko' }], 5, 550]];
 (async () => {

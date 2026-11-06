@@ -143,11 +143,13 @@
       { id: 'tail', img: 'tail', px: [14, 57] }, { id: 'legB', img: 'legB', px: [23, 63], dim: .85 }, { id: 'legF', img: 'legF', px: [55, 63] }, { id: 'body', img: 'body', px: [32, 65] }, { id: 'head', img: 'head', px: [50, 55] }] },
     'dune-scorpion': { kind: 'parts', w: 2.2, h: 2.2, fw: 56, fh: 64, poses: SCORP, parts: [
       { id: 'base', img: 'base', px: [28, 50] }, { id: 'tail', img: 'tail', px: [15, 30] }, { id: 'body', img: 'body', px: [28, 40] }, { id: 'clawL', img: 'clawL', px: [17, 35] }, { id: 'clawR', img: 'clawR', px: [39, 35] }] },
+    'shore-crab': { kind: 'parts', w: 1.9, h: 1.9, fw: 56, fh: 64, poses: SCORP, parts: [
+      { id: 'base', img: 'base', px: [28, 52] }, { id: 'body', img: 'body', px: [28, 40] }, { id: 'clawL', img: 'clawL', px: [17, 36] }, { id: 'clawR', img: 'clawR', px: [39, 36] }] },
     'bullfrog': { kind: 'parts', w: 1.8, h: 1.8, fw: 56, fh: 64, poses: FROG, parts: [
       { id: 'base', img: 'base', px: [28, 55] }, { id: 'body', img: 'body', px: [28, 45] }, { id: 'eyeL', img: 'eyeL', px: [18, 24] }, { id: 'eyeR', img: 'eyeR', px: [38, 24] }] }
   };
-  var ATTACK = { 'wild-boar': 'charge', 'bramble-wolf': 'pounce', 'bullfrog': 'hop', 'black-bear': 'slam', 'cliff-ram': 'charge', 'dune-scorpion': 'pounce' };
-  var SIZE = { 'black-bear': 2.8, 'bullfrog': 1.8, 'dune-scorpion': 2.2 };
+  var ATTACK = { 'wild-boar': 'charge', 'bramble-wolf': 'pounce', 'bullfrog': 'hop', 'black-bear': 'slam', 'cliff-ram': 'charge', 'dune-scorpion': 'pounce', 'shore-crab': 'pounce' };
+  var SIZE = { 'black-bear': 2.8, 'bullfrog': 1.8, 'dune-scorpion': 2.2, 'shore-crab': 1.9 };
 
   function rigFor(id) {
     if (id === 'gnome') return RIGS.gnome;
