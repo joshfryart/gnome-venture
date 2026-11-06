@@ -34,8 +34,8 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
   - TODO step 5: dock for delve / wander / list maps and other encounter types, then delete the popover code and `fighton.js`. Step 6: DONE (phone pass passed, default flipped to 1, unreleased).
   - TODO: KO and flee have no end scene (KO falls back to the old "Knocked out!" panel); reduced motion shows no loot drop (log line only); items with no art show 🎁; Milestone box and Almanac toast can cover the end scene; map camera not clamped at edges (empty green near column 0); more creature rigs.
 - Trail random fights (2.5.88): flat chance per tile, setting `trail_enc_pct` (default 3%, rough ground x2.5, Sneak x0.4, Hunt x2.5, no cap per section, first/last 3 tiles safe). Josh confirmed 3% OK (2026-11-06). `balance_sim.php` Walks not updated.
-- Trail walk back (2.5.87): "Back to section N" on the entry tile of section 2+; TODO: no Continue offered on the exit tile after going back (must step off and on); no way back from the final confirm 🚪; Trail only, not delve/wander.
-- Known: `here` suite red on main (PHP warning `stops.php:327` Undefined array key "slug", from 2.5.80; seen from CLI calls, not tied to a page).
+- Trail walk back (2.5.87): DONE (unreleased): walking back lands on the exit in the confirm card (Continue offered), new "Not yet" (`trail_stay`) leaves the confirm to roam, tapping the exit you stand on re-opens it. Still open: Trail only, not delve/wander.
+- `here` suite: FIXED (unreleased): `stops.php:327` slug warning guarded; test sets `fight_scene` 0 for the popover checks.
 - Upkeep: stamp requirement removed (any gnome can chip in; `stop_upkeep_give`, `stop_slim_upkeep`); released 2.5.71, no test covers upkeep, not tried live.
 - Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); released 2.5.69, not phone-checked. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
 - Trail: yellow square round the walker's tile removed (`.tm-trail .tmt.here`), released 2.5.72, not phone-checked; delve/lair maps keep theirs.

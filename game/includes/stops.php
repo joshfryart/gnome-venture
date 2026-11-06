@@ -324,7 +324,7 @@ function stop_derive_type(array $loc, array $avoid = [], array $counts = []): st
     if (!$fit) $fit = array_fill_keys(array_keys($types), 1);
     // weighted order from the name: highest hash-weighted score first
     $score = [];
-    foreach ($fit as $slug => $w) $score[$slug] = ((crc32('stop|' . $loc['slug'] . '|' . $slug) % 1000) + 1) * $w / (1 + 0.5 * ($counts[$slug] ?? 0));
+    foreach ($fit as $slug => $w) $score[$slug] = ((crc32('stop|' . ($loc['slug'] ?? $loc['name'] ?? '') . '|' . $slug) % 1000) + 1) * $w / (1 + 0.5 * ($counts[$slug] ?? 0));
     arsort($score);
     foreach (array_keys($score) as $slug) if (!in_array($slug, $avoid, true)) return $slug;
     return (string)array_key_first($score);

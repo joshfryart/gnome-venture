@@ -123,10 +123,11 @@ if (is_post()) {
             elseif ($do === 'visit' && explore_visit($u, $exp, (int)($_POST['place'] ?? 0))) $visited = true;
             elseif ($do === 'gather') explore_gather($u, $exp, (string)($_POST['tool'] ?? ''));   // v0.7.80
             if (in_array($do, ['deeper', 'roam', 'back'], true)) rest_after_explore($exp, $logBefore);   // v1.3.0
-        } elseif (in_array($do, ['trail_go', 'trail_next', 'trail_prev', 'trail_back', 'trail_arrive', 'trail_wander', 'trail_stance', 'gather'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
+        } elseif (in_array($do, ['trail_go', 'trail_next', 'trail_prev', 'trail_stay', 'trail_back', 'trail_arrive', 'trail_wander', 'trail_stance', 'gather'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
             if ($do === 'trail_go') { $xy = explode(',', (string)($_POST['go'] ?? '')); [$tok, $tmsg] = trail_go($u, $exp, (int)($xy[0] ?? -1), (int)($xy[1] ?? -1)); }
             elseif ($do === 'trail_next') [$tok, $tmsg] = trail_next($u, $exp);
             elseif ($do === 'trail_prev') [$tok, $tmsg] = trail_prev($u, $exp);
+            elseif ($do === 'trail_stay') [$tok, $tmsg] = trail_stay($u, $exp);
             elseif ($do === 'gather') [$tok, $tmsg] = trail_gather($u, $exp, (string)($_POST['tool'] ?? ''));
             elseif ($do === 'trail_stance') [$tok, $tmsg] = trail_stance($u, $exp, (string)($_POST['mode'] ?? ''));
             elseif ($do === 'trail_wander') { [$tok, $tmsg] = trail_wander($u, $exp); }
@@ -564,6 +565,7 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
     <div class="choicelist">
       <?= $tLast ? act_choice('trail_arrive', '🏡', 'Head into ' . $to['name'], 'Walk in · free', '', 'primary') : act_choice('trail_next', '🍄', 'Continue along the Trail', 'Section ' . ((int)$trailSc['st']['sec'] + 2) . ' of ' . (int)$trailSc['st']['S'] . ' · free', '', 'primary') ?>
     </div>
+    <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_stay"><button class="btn alt small">👣 Not yet <small>look around</small></button></form>
     <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_back"><button class="btn alt small">↩️ Turn back <small>free</small></button></form>
   </div></div></dialog>
   <?php else: ?>

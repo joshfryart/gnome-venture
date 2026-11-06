@@ -226,7 +226,11 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
     $map = $sc['map'];
     $t = tm_tile($map, $tx, $ty);
     if ($t === '#' || $t === ' ') return [false, 'That is solid rock.'];
-    if ($sc['x'] === $tx && $sc['y'] === $ty) return [false, 'You are already here.'];
+    if ($sc['x'] === $tx && $sc['y'] === $ty) {
+        if ($t !== '9') return [false, 'You are already here.'];
+        $sc['st']['phase'] = 'confirm';   // tapping the exit you stand on asks about going on again (after "Not yet" or a walk back)
+        return trail_save($sc) ? [true, ''] : [false, 'That already happened. Look again.'];
+    }
     $path = tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc, $tx, $ty));
     if (!$path) return [false, 'There is no way there from here.'];
     [$stop, $sc['st']['quiet'], $sc['st']['fights']] = trail_encounter_index($map, $path, (int)($sc['st']['quiet'] ?? 0), (int)($sc['st']['fights'] ?? 0), null, (string)($sc['st']['stance'] ?? ''));
@@ -306,10 +310,22 @@ function trail_prev(array $u, array &$exp): array
     tm_reveal($seen, $map['w'], $map['h'], $ex, $ey, 20);
     $new = $sc;
     $new['st'] = ['sec' => $psec, 'S' => (int)$st['S'], 'sx' => (int)($st['sx'] ?? $exp['id']), 'phase' => 'section', 'stance' => (string)($st['stance'] ?? ''), 'hist' => $hist, 'tokens' => $ptokens];
+    $new['st']['phase'] = 'confirm';   // you stand on that stretch's exit: Continue is offered at once (or "Not yet" to look around)
     $new['x'] = $ex; $new['y'] = $ey; $new['seen'] = $seen;
     if (!trail_save($new)) return [false, 'You already moved. Look again.'];
     $exp['step'] = $psec;
     exp_log($exp, '↩️ You walk back along the Trail.');
+    return [true, ''];
+}
+
+/** "Not yet": from the confirm on an exit tile, stay in this stretch and walk about again. Free. [ok, message] */
+function trail_stay(array $u, array &$exp): array
+{
+    $sc = trail_scene($exp);
+    if (!$sc || $sc['st']['phase'] !== 'confirm') return [false, 'Nothing to step back from.'];
+    if ($exp['encounter']) return [false, 'Deal with what is in front of you first.'];
+    $sc['st']['phase'] = 'section';
+    if (!trail_save($sc)) return [false, 'That already happened. Look again.'];
     return [true, ''];
 }
 

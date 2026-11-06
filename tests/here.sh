@@ -136,7 +136,8 @@ chk "workshop card has the loader box and the page link" "$(get 'workshop.php?o=
 cli set gnav_craft 0 >/dev/null; cli set gnav_tree 0 >/dev/null; cli set ppal_open 0 >/dev/null
 R=$(get 'workshop.php?frag=potions'); chk "flag off: the fragment is not served to players" "$([[ $R == 302* ]] && echo 1)" "$R"
 echo "== the Trail as tiles (gnav_tiles)"
-cli set gnav_on 1 >/dev/null; login >/dev/null
+cli set gnav_on 1 >/dev/null; cli set fight_scene 0 >/dev/null;   # the popover fight (fight_scene is on by default since 2.5.97)
+ login >/dev/null
 chk "tile walk starts" "$([[ $(cli tilewalk | tail -1) == ok ]] && echo 1)"
 get adventure.php >/dev/null
 chk "adventure page shows the tile map and its buttons" "$(grep -q 'class="tilemap' $TD/here-p.html && grep -q 'name="do" value="trail_go"' $TD/here-p.html && grep -q 'Section 1 of' $TD/here-p.html && echo 1)"
