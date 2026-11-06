@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.02
+- **One notification box on the Trail**: "Latest: ..." was a second box fixed over the message bar and the status strip. It now joins the one toast box with the other messages, and also floats up over the gnome on the map, so what you find shows where it happens.
+- Tests: Trail page toast carrier and map pop-up (browser).
+
 ## 2.6.01
 - **Popover results show their messages at once**: the Library, other Town spots, the Rest stop card and the Do here card showed only their own result line; anything else the action queued (a new Almanac page, a prize, a notice) waited for the next page load. Those messages now pop up as toasts straight away, and are in Messages too.
 - Tests: queued messages come back with the popover reply.
