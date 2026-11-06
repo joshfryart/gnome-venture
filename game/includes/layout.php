@@ -132,7 +132,7 @@ function page_header(string $title, bool $admin = false): void
 </header>
 <?php if ($u && !$admin && !$onboarding) { require_once __DIR__ . '/festival.php'; echo festival_bar_html(!empty($GLOBALS['gv_today_page']) && helper_slot($u) === 'fest'); }   // v1.0.0: bunting while a festival runs. v1.6.3: the full banner only on Today (now the home page's TODAY tab); elsewhere on a phone it is an icon in the status line ?>
 <?php if ($u && !$admin && !$onboarding && !empty($u['guest'])) { require_once __DIR__ . '/guest.php'; echo guest_strip_html($u); }   // v2.0.75: guest garden strip ?>
-<div class="chrome2"><?php if ($u && !$admin && !$onboarding && $page !== 'adventure.php') echo adventure_topbar($u);
+<div class="chrome2"><?php /* v2.5.94: the "on the road" bar (adventure_topbar) is gone from every page; the walk, its encounters and fights live on the Adventure page */
 if ($u && !$admin && !$onboarding && !in_array($page, ['adventure.php', 'world.php'], true)) { require_once __DIR__ . '/destination.php'; echo dest_strip_html($u); }   // v2.0.65: trip strip ?>
 <?= $logTop /* v1.6.3: on a phone the walk bar and the 🔔 share one line (.chrome2) */ ?></div>
 <input type="checkbox" id="navtoggle" class="navtoggle" aria-hidden="true" tabindex="-1">
@@ -416,10 +416,6 @@ function page_footer(): void
 <?php
 }
 
-/**
- * The "on the road" bar under the banner: the whole path, health, what's in the way and the buttons,
- * so a walk keeps going while the gnome uses the rest of the site.
- */
 /** A picture for a creature, guessed from its name (creatures have no art yet). */
 function creature_icon(string $name, string $size = 'small'): string
 {
@@ -443,108 +439,6 @@ function creature_pic(array $c, string $artSize = 'md'): string
     require_once __DIR__ . '/items.php';
     $rel = creature_image((string)($c['slug'] ?? ''), true);
     return $rel !== '' ? art_img($rel, $artSize, (string)($c['name'] ?? '')) : creature_icon((string)($c['name'] ?? ''), (string)($c['size'] ?? 'small'));
-}
-
-function adventure_topbar(array $u): string
-{
-    $exp = q_one("SELECT * FROM expeditions WHERE user_id = ? AND status = 'active' ORDER BY id DESC LIMIT 1", [$u['id']]);
-    if (!$exp) return '';
-    $from = (string)q_val('SELECT name FROM locations WHERE id = ?', [$exp['from_id']]);
-    $to = (string)q_val('SELECT name FROM locations WHERE id = ?', [$exp['to_id']]);
-    $final = '';   // v1.6.2: where the whole trip ends, when this leg is only part of it
-    if (($exp['kind'] ?? 'walk') === 'walk') {
-        require_once __DIR__ . '/destination.php';
-        $dw = dest_walk_info($u, $exp);
-        if ($dw && (int)$dw['loc']['id'] !== (int)$exp['to_id']) $final = ' · 🏁 ' . dest_name((int)$u['id'], $dw['loc']);
-    }
-    $back = ltrim((string)preg_replace('~^' . preg_quote(rtrim(url(''), '/'), '~') . '/~', '', (string)($_SERVER['REQUEST_URI'] ?? '')), '/');
-    if (!preg_match('~^[a-z0-9_/-]+\.php(\?[A-Za-z0-9=&_.-]*)?$~', $back)) $back = 'adventure.php';
-    $btn = function (string $do, string $label, string $extra = '', string $attrs = '') use ($back): string {
-        return '<form method="post" action="' . e(url('adventure.php')) . '"' . $attrs . '>' . csrf_field()
-            . '<input type="hidden" name="do" value="' . e($do) . '"><input type="hidden" name="back" value="' . e($back) . '">'
-            . $extra . '<button class="btn small">' . $label . '</button></form>';
-    };
-    $hp = max(0, (int)$exp['hp']);
-    $max = max(1, (int)$exp['max_hp']);
-    $lost = $max - $hp;
-    $pct = (int)round($hp * 100 / $max);
-    $enc = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
-    $log = json_decode((string)$exp['log'], true) ?: [];
-    if ($enc && ($enc['type'] ?? '') === 'creature') return '';   // v2.5.93: a fight is played on the Adventure page's graphical stage; no fight bar on the rest of the site
-
-    $what = '';
-    $actions = '';
-    if ($enc && $enc['type'] === 'problem') {
-        $p = q_one('SELECT text, options FROM problems WHERE id = ?', [$enc['id']]);
-        $what = '<span class="foe">❓ ' . e($p['text'] ?? 'A problem blocks the path.') . '</span>';
-        foreach (json_decode((string)($p['options'] ?? '[]'), true) ?: [] as $i => $o) {
-            $stat = isset(GNOME_STATS[$o['stat']]) ? $o['stat'] : 'grit';
-            $chance = max(5, min(100, (21 - ((int)$o['dc'] + (int)($enc['dc_bonus'] ?? 0) - eff_mod($u, $stat))) * 5));
-            $actions .= $btn('solve', GNOME_STATS[$stat][1] . ' ' . e($o['label']) . ' <small>' . $chance . '%</small>',
-                '<input type="hidden" name="option" value="' . (int)$i . '">');
-        }
-    } elseif ($enc && $enc['type'] === 'choice') {   // v0.7.41: a little choice off the path
-        require_once __DIR__ . '/explore.php';
-        require_once __DIR__ . '/road_life.php';
-        $ch = road_event_get((array)$enc) ?? ['icon' => '🌿', 'text' => 'Something catches your eye.', 'opts' => []];
-        $what = '<span class="foe calm">' . e($ch['icon']) . ' ' . e($ch['text']) . '</span>';
-        foreach ($ch['opts'] as $i => $o) $actions .= $btn('choose', e($o['label']), '<input type="hidden" name="option" value="' . (int)$i . '">');
-    } elseif ($enc && $enc['type'] === 'meet') {   // v1.9.4: somebody on the road
-        $what = '<span class="foe calm">' . e((string)$enc['ic']) . ' ' . e((string)$enc['t']) . '</span>';
-        $actions = $btn('meet', '💬 Chat', '<input type="hidden" name="option" value="0">') . $btn('meet', '👋 Walk on', '<input type="hidden" name="option" value="1">');
-    } elseif (($exp['kind'] ?? 'walk') === 'delve') {
-        if ((int)$exp['depth'] >= 5) {
-            $what = '<span class="foe calm">💰 The chest awaits.</span>';
-            $actions = $btn('chest', '💰 Open the chest');
-        } else {
-            $what = '<span class="foe calm">🕳️ Room ' . (int)$exp['depth'] . ' of 5.</span>';
-            $actions = $btn('next', '🚪 Next room ⚡1') . $btn('leave', '🪜 Climb out');
-        }
-    } elseif (($exp['kind'] ?? 'walk') === 'lair') {   // v2.0.6: the boss has not risen yet (the lair map)
-        $what = '<span class="foe calm">🐉 The boss waits deeper in the lair.</span>';
-        $actions = $btn('lair_engage', '⚔️ Face it') . $btn('leave', '🏃 Slip out');
-    } elseif (($exp['kind'] ?? 'walk') === 'explore') {
-        $what = '<span class="foe calm">🌿 Off the path, ' . (int)$exp['depth'] . ' step' . ((int)$exp['depth'] === 1 ? '' : 's') . ' out.</span>';
-        $actions = $btn('deeper', '🌿 Deeper ⚡1') . ((int)$exp['depth'] >= 1 ? $btn('roam', '🔁 Explore here ⚡1') : '') . $btn('return', '🛣️ Back to the road');
-    } elseif ((int)$exp['step'] < (int)$exp['steps_total']) {
-        $rlTxt = null;   // v1.9.3: the same ambient line the adventure page shows for the next space
-        if (function_exists('road_line') || is_file(__DIR__ . '/road_life.php')) {
-            require_once __DIR__ . '/road_life.php';
-            try { $rlWas = road_state(); if (empty($rlWas['bound'])) road_bind($u, $exp); $rlTxt = road_line(exp_scene($exp), ['seed' => road_line_seed($exp, (int)$exp['step'] + 1), 'record' => false]); if (empty($rlWas['bound'])) road_unbind(); } catch (Throwable $e) { $rlTxt = null; }
-        }
-        $what = '<span class="foe calm">' . ($rlTxt !== null ? '🍃 ' . e($rlTxt) : 'The thread glows on ahead.') . '</span>';
-        $actions = $btn('continue', '🍄 Next space');
-    } else {
-        $wait = (int)strtotime($exp['arrive_at'] . ' UTC') - time();
-        if ($wait > 0) {
-            $what = '<span class="foe calm">' . e($to) . ' is in sight.</span>';   // v1.0.2: the countdown sits in the folded bar's summary
-            $cd = '<b data-countdown="' . $wait . '">' . max(1, (int)ceil($wait / 60)) . ' min</b>';
-            $actions = $btn('arrive', '🏡 Arrive', '', ' hidden data-show-at-zero');
-        } else {
-            $what = '<span class="foe calm">' . e($to) . ' is just ahead.</span>';
-            $actions = $btn('arrive', '🏡 Arrive');
-        }
-    }
-    require_once __DIR__ . '/adventure.php';
-    $what = fight_replay_stage((int)$exp['id']) . $what;   // v1.4.0: Fight on replay (assets/fighton.js)
-    $recent = array_slice($log, -2);
-    // v1.0.2: the bar folds to one line (closed by default). Fights, problems and choices open it; otherwise the buttons sit on the line.
-    $busy = $enc && in_array($enc['type'] ?? '', ['creature', 'problem', 'choice', 'meet'], true);
-    $label = match ($exp['kind'] ?? 'walk') { 'explore' => '🌿 Off the path', 'delve' => '🕳️ ' . e($from), 'lair' => '🐉 ' . e($from), default => '🍄 → ' . e($to) . e($final) };
-    $state = $busy ? ($enc['type'] === 'creature' ? '<b class="advalert">⚔️ Fight!</b>' : ($enc['type'] === 'meet' ? '<b class="advalert">💬 Someone’s on the road</b>' : '<b class="advalert">❓ Something’s in the way</b>'))
-        : (isset($cd) ? '⏳ ' . $cd : '');
-    $sum = '<summary class="advsum"><span class="advsl">' . $label . '</span><span class="advhp' . ($hp * 3 <= $max ? ' low' : '') . '">❤️ ' . $hp . '/' . $max . '</span>'
-        . ($state !== '' ? '<span class="advst">' . $state . '</span>' : '') . (!$busy && $actions !== '' ? '<span class="advbtns">' . $actions . '</span>' : '') . '</summary>';
-    return '<div class="advbar" role="region" aria-label="Your adventure"><details class="advfold"' . ($busy ? ' data-busy="' . (int)$exp['id'] . '-' . (int)($exp['step'] ?? 0) . '-' . (int)($exp['depth'] ?? 0) . '-' . e((string)($enc['type'] ?? '')) . '"' : '') . '>' . $sum . '<div class="advin">'
-        . '<div class="advhead"><b>' . match ($exp['kind'] ?? 'walk') { 'explore' => '🌿 Exploring off the path near ' . e($from), 'delve' => '🕳️ ' . e($from), 'lair' => '🐉 ' . e($from), default => '🍄 ' . e($from) . ' → ' . e($to) . e($final) } . '</b>'
-        . ($enc && $enc['type'] === 'creature' ? '' : '<span class="hpbox" title="Your health">❤️ Your health <meter min="0" max="' . $max . '" low="' . (int)ceil($max / 3) . '" optimum="' . $max . '" value="' . $hp . '"></meter> '
-        . $hp . '/' . $max . ($lost > 0 ? ' <small class="lost">(−' . $lost . ' taken)</small>' : '') . '</span>')
-        . '<span class="lvl">danger lv ' . (int)$exp['level'] . '</span>'
-        . '<a href="' . e(url('adventure.php')) . '">Journal →</a></div>'
-        . mycelium_track($exp, true)
-        . '<div class="advnow">' . $what . (isset($actionsRow) ? $actionsRow : '<span class="advbtns">' . $actions . '</span>') . '</div>'   // v1.0.2: the line's copy of the buttons hides while open
-        . ($recent && !($enc && $enc['type'] === 'creature') ? '<div class="advlog">' . implode(' · ', array_map('e', array_reverse($recent))) . '</div>' : '')
-        . '</div></details></div>';
 }
 
 /**

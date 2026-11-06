@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.94
+- **The "on the road" bar is removed from every page.** Walks, their encounters and fights are all on the Adventure page now (and the Trail tile map), so the duplicate bar under the banner is gone, along with its code (`adventure_topbar`).
+
 ## 2.5.93
 - **No fight bar on the rest of the site**: the "on the road" bar under the banner no longer shows when a creature is in your way (the face-off, health bars and fight buttons). Fights are played on the Adventure page's graphical stage. The bar still shows for walks, problems, choices, meets, delves and lairs.
 - **Puzzle Pals beside your gnome on Trail maps and in fights**: the pals you have taken along (up to 3) stand beside the gnome on the route map and move with it, and stand behind the gnome in the graphical fight. Nothing is added when take-along is off, for guests, or for a pal with no art. Fight stage: `fightengine.js` add() takes an optional `size`; `fightscene.js` adds the pals.
