@@ -38,7 +38,9 @@ db "INSERT OR REPLACE INTO settings (name,value) VALUES ('fight_scene','1')" >/d
 get adventure.php >/dev/null
 grep -q 'id="fightscene"' $H || echo "FAIL no #fightscene when on"
 grep -q 'id="trailpop"' $H && echo "FAIL popover still there"
-grep -q 'class="fightbtns' $H || echo "FAIL buttons missing"
+grep -q 'class="fsdock fsc"' $H && grep -q 'data-open="fight"' $H && grep -q 'name="do" value="attack"' $H || echo "FAIL dock missing (Fight / Item / Flee)"
+grep -q 'class="fightbtns' $H && echo "FAIL the plain button list is still there beside the dock"
+[ "$(grep -c 'class="hatform"' $H)" -le 1 ] || echo "FAIL two hat forms"
 grep -q 'assets/fightengine.js' $H || echo "FAIL engine script missing"
 grep -q 'data-fight=' $H || echo "FAIL no data"
 post adventure.php -d do=attack >/dev/null

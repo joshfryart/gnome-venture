@@ -64,6 +64,16 @@
 .fsc-menu,.fsc-sub{position:absolute;bottom:0;background:rgba(20,12,16,.9);border:2px solid rgba(255,255,255,.3);border-radius:10px;padding:5px;box-shadow:0 6px 18px rgba(0,0,0,.5)}
 .fsc-menu{left:0;width:128px}.fsc-sub{left:136px;right:0}
 .fsd-r .fsc-menu{left:auto;right:0}.fsd-r .fsc-sub{left:0;right:136px}
+/* 'b': under a short stage (off the Trail) the dock is in the page flow: lists on top, the three buttons in a row below them */
+.fsd-b{height:auto;margin:8px 0 4px}
+.fsd-b .fsc{position:static;height:auto;display:flex;flex-direction:column;gap:6px}
+.fsd-b .fsc-menu,.fsd-b .fsc-sub,.fsd-b.fsd-b .fsc-sub{position:static;width:auto;left:auto;right:auto}
+.fsd-b .fsc-menu{display:flex;gap:6px;order:2}
+.fsd-b .fsc-menu>*{flex:1;min-width:0}
+.fsd-b .fsc-sub{order:1}
+.fsd-b .fsc-menu .fsc-top .o-r{display:none}
+.fsd-b .fsc-menu .fsc-top,.fsd-b .fsc-menu .fsc-opt{padding:4px 5px;gap:4px;justify-content:center;white-space:nowrap}
+.fsd-b .fsc-menu .fsc-opt .o-r{font-size:12px}
 .fsc-f{margin:0}
 .fsc-top,.fsc-opt{display:flex;align-items:center;gap:6px;width:100%;min-height:38px;padding:4px 8px;border:0;border-radius:8px;background:transparent;color:#fff;font:inherit;font-size:14px;font-weight:800;text-align:left;text-shadow:0 1px 2px #000;cursor:pointer}
 .fsc-opt{font-size:13px;font-weight:700}.fsc-flee{font-size:14px;font-weight:800}

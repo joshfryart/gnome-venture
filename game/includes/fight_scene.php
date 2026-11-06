@@ -55,10 +55,10 @@ function fight_scene_html(array $u, array $exp, array $enc, array $c, ?array $ov
  * The fight menu on the map (v2.5.96, "Design C"): a small command column over the map with Fight, Item and Flee. Fight and Item open a list beside it
  * (Fight: Attack, the calling's ability, the pals' actives, Fight on, Auto-win; Item: the snacks, one row each). Tap an option once to read what it does in the
  * list's top line, tap it again to do it (assets/fightscene.js). After an action the page comes back with the menu closed, so the fight plays out in full view.
- * Every option is a real form: with no script the lists simply sit open. $side 'l' / 'r' = which side of the map the column is on (opposite the gnome).
+ * Every option is a real form: with no script the lists simply sit open. $side 'l' / 'r' = which side of the map the column is on (opposite the gnome); 'b' = in the page flow right under the stage (a short stage off the Trail: the menu would hide it). $withHat false when the stage already carries the hat form (the stage off the Trail: delve, wander, list).
  * Needs fight_snacks() and friends from adventure.php.
  */
-function fight_dock_html(array $u, array $exp, array $enc, array $c, string $side = 'l'): string
+function fight_dock_html(array $u, array $exp, array $enc, array $c, string $side = 'l', bool $withHat = true): string
 {
     $gc = gnome_combat($u, true);
     [$abName, $abDesc] = CALLING_ABILITIES[$u['calling'] ?? ''] ?? CALLING_ABILITIES[''];
@@ -82,7 +82,7 @@ function fight_dock_html(array $u, array $exp, array $enc, array $c, string $sid
         '<input type="hidden" name="item" value="' . (int)$sn['id'] . '">');
     $flee = '<form method="post" class="fsc-f">' . csrf_field() . '<input type="hidden" name="do" value="flee"><button class="fsc-opt fsc-flee" data-desc="" data-armtext="Run? Tap again"><span class="o-ic" aria-hidden="true">🏃</span><span class="o-t">Flee</span><span class="o-r">' . $runPct . '%</span></button></form>';
     $top = fn(string $k, string $icon, string $t, bool $off = false) => '<button type="button" class="fsc-top" data-open="' . $k . '"' . ($off ? ' disabled' : '') . '><span class="o-ic" aria-hidden="true">' . $icon . '</span><span class="o-t">' . $t . '</span><span class="o-r" aria-hidden="true">▸</span></button>';
-    return '<div class="fsdockwrap fsd-' . ($side === 'r' ? 'r' : 'l') . '">' . fight_hatform_html($enc)
+    return '<div class="fsdockwrap fsd-' . ($side === 'b' ? 'b' : ($side === 'r' ? 'r' : 'l')) . '">' . ($withHat ? fight_hatform_html($enc) : '')
         . '<div class="fsdock fsc" role="group" aria-label="Fight actions">'
         . '<div class="fsc-sub" data-for="fight" data-hint="Tap an option to read it, tap again to do it."><div class="fsc-info"></div>' . $fight . '</div>'
         . ($item !== '' ? '<div class="fsc-sub" data-for="item" data-hint="Tap a snack to read it, tap again to eat it."><div class="fsc-info"></div>' . $item . '</div>' : '')

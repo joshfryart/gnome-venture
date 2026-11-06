@@ -384,7 +384,7 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
     $sure = fight_certainty($u, $exp, $c, $enc);
     [$abName, $abDesc] = CALLING_ABILITIES[$u['calling'] ?? ''] ?? CALLING_ABILITIES['']; ?>
   <?php // v0.7.61: one box; reversed in 2.2.1 so you are on the left, under your gnome on the stage, and the foe on the right under theirs ?>
-  <?php if ($fsc): if (!$trailSc) echo fight_scene_html($u, $exp, $enc, $c);   // on the Trail the stage sits over the map itself (trail_view_html) ?>
+  <?php if ($fsc): if (!$trailSc) echo fight_scene_html($u, $exp, $enc, $c) . fight_dock_html($u, $exp, $enc, $c, 'b', false);   // off the Trail the dock sits right under the stage (the stage is short: over it the lists would hide the fight); the Trail's own is over the map in trail_view_html;   // on the Trail the stage sits over the map itself (trail_view_html) ?>
   <small class="muted fs-line">⚡ <?= (int)$u['energy'] ?> · ⚔️ +<?= $gc['atk'] ?> · 🛡️ <?= $gc['ac'] ?> · 🎲 d<?= $gc['dmg_die'] ?>+<?= $gc['dmg_bonus'] ?> · foe ⚔️ +<?= (int)$c['attack'] ?> 🛡️ <?= (int)$c['defense'] ?><?= $enc['poison'] ? ' · 🧪 poisoned' : '' ?></small>
   <?php else: ?>
   <div class="fightgrid">
@@ -407,7 +407,7 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
   <?php // v1.6.3: fight actions are .choice rows; what each one does sits in its sub line (it used to be a help paragraph)
     $hitPct = (int)fight_odds($u, $exp, $enc)['hit'];
     $runPct = max(0, min(100, (21 - (8 + intdiv((int)$c['level'], 3) - eff_mod($u, 'nimble'))) * 5)); ?>
-  <?php if (!($trailSc && $fsc)): ?>   <?php // on the Trail with the fight scene the buttons are the dock on the map ?>
+  <?php if (!$fsc): ?>   <?php // with the fight scene the buttons are the dock (over the map on the Trail, over the stage elsewhere); the plain list is for the old popover/picture fight ?>
   <div class="fightbtns choicelist">
   <?= act_choice('attack', '⚔️', 'Attack', 'd' . $gc['dmg_die'] . '+' . $gc['dmg_bonus'] . ' damage · +' . $gc['atk'] . ' vs 🛡️ ' . (int)$c['defense'], [$hitPct . '%', choice_odds_class($hitPct)], 'primary') ?>
   <?= $enc['used'] ? act_choice('ability', '✨', $abName, 'Used this fight', '', '', '', 'disabled') : act_choice('ability', '✨', $abName, $abDesc . ' Once per fight.') ?>
