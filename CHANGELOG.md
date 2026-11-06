@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.100
+- **Rest stop popover buttons work**: checks, picks and powers inside the popover (for example the Extras tab's "Trust the bees (Luck check)") did nothing and just said "Pick how to go about it." The in-place form now sends the button you pressed along with it, and the buttons are switched off while it sends so a double tap cannot post twice.
+- Tests: Extras tab Rest, Buy and a Luck check in a headless browser.
+
 ## 2.5.99
 - **Rest stop popover: new ✨ Extras tab**: the activities that come with a stop being built up (the upgrade activities), with their buttons, which the Here pictures have no room for. They stay open while the stop is built, even when it only needs its monthly upkeep; a line at the top says whether the stop is cared for, needs upkeep, is built to some tier, or is not built up yet. Activities for other times of day and the ones still to build are listed under them. The card now has four tabs.
 - **Map links open on your region first**: the Map tab and GPS "Pick a place on the map" open the region map of the region you are in (the world map is still plain World, and "All regions" / "World map" links). The Trail's "World map →" link is now "Region map →".
