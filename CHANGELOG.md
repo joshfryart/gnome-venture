@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.5.89
+- **Sneak/Hunt now last the whole walk**: the stance was lost at every Continue and every "Back to section N"; it now carries over. The two buttons are hidden during a fight (they only gave an error there).
+- **Reward row fits narrow phones**: it is clamped to the part of the stage on screen, closes up when there are many drops, and long names wrap and stagger instead of overlapping.
+- **A dead creature's health pill fades out** instead of sitting at 0 during the end scene.
+- Tests: stance carry-over in `tests/trail_back.php`; `fight_scene_trail` no longer flakes when a random event at the next section's door starts a fight.
+
 ## 2.5.88
 - **Fight rewards float over the gnome's head**: after the last blow the XP and loot hop out of the creature and arc up into a row centred over the gnome, names above each icon. The gnome jumps for joy underneath, never covering them, then they sink into him one by one.
 - **Random fights are a flat chance, not a fixed count**: no more cap of 2 a section and no climbing "pity" chance. Every tile walked rolls the same base chance, new setting `trail_enc_pct` (default 3%, 0 turns random fights off); rough ground is 2.5x it. 🤫 Sneak is 40% of the base, 🏹 Hunt 250%, with no limit per section. Tests in `tests/trail_authored.php`.

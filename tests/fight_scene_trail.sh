@@ -56,7 +56,7 @@ if command -v node >/dev/null && [ -z "$NOBROWSER" ]; then
 fi
 echo "== walking back (trail_prev) on the page"
 cli clearenc >/dev/null
-php -r '$_SERVER["SCRIPT_NAME"]="/adventure.php"; require "'$GAME'/includes/bootstrap.php"; require_once "'$GAME'/includes/adventure.php"; require_once "'$GAME'/includes/trail_tiles.php"; $u=q_one("SELECT * FROM users WHERE username=\"sprout\""); $exp=active_expedition((int)$u["id"]); $sc=trail_scene($exp); [$x,$y]=$sc["map"]["spots"]["9"]; $sc["x"]=$x; $sc["y"]=$y; $sc["st"]["phase"]="confirm"; trail_save($sc); $exp["encounter"]=null; [$ok]=trail_next($u,$exp); save_exp($exp); echo $ok?"ok":"no";' 2>/dev/null | grep -q ok
+php -r '$_SERVER["SCRIPT_NAME"]="/adventure.php"; require "'$GAME'/includes/bootstrap.php"; require_once "'$GAME'/includes/adventure.php"; require_once "'$GAME'/includes/trail_tiles.php"; $u=q_one("SELECT * FROM users WHERE username=\"sprout\""); $exp=active_expedition((int)$u["id"]); $sc=trail_scene($exp); [$x,$y]=$sc["map"]["spots"]["9"]; $sc["x"]=$x; $sc["y"]=$y; $sc["st"]["phase"]="confirm"; trail_save($sc); $exp["encounter"]=null; [$ok]=trail_next($u,$exp); $exp["encounter"]=null; save_exp($exp); echo $ok?"ok":"no";' 2>/dev/null | grep -q ok
 get adventure.php >/dev/null
 chk "section 2 page offers the way back" "$(grep -q 'value="trail_prev"' $TD/here-p.html && grep -q 'Back to section 1' $TD/here-p.html && echo 1)"
 R=$(post adventure.php -d do=trail_prev)

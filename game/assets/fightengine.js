@@ -423,7 +423,7 @@
         var was = tg.hp; pop(tg, '-' + ev.dmg); setHp(tg, tg.hp - ev.dmg);
         var h = run(tg, 'hit'); shake(ev.crit ? 6 : 3, ev.crit);
         if (tg.hat && (ev.pop || tg.hp <= 0 || (was >= tg.max * .25 && tg.hp < tg.max * .25))) popHat(tg, tg.dir);   // hat comes off when a hit takes him below 25% (or KO, or the server says so)
-        return hitstop(ev.crit ? 110 : 70).then(function () { return h.finished; }).then(function () { if (tg.hp <= 0) { stopIdle(tg); if (tg.rig.lingers) { var kl = run(tg, 'koL'); sleep(750).then(function () { stars(tg); }); return kl.finished; } tg.sh.style.opacity = 0; return run(tg, 'ko').finished; } });
+        return hitstop(ev.crit ? 110 : 70).then(function () { return h.finished; }).then(function () { if (tg.hp <= 0) { stopIdle(tg); if (tg.hb) tg.hb.style.opacity = 0; if (tg.rig.lingers) { var kl = run(tg, 'koL'); sleep(750).then(function () { stars(tg); }); return kl.finished; } tg.sh.style.opacity = 0; return run(tg, 'ko').finished; } });
       }).then(function () { return atk.finished; }).then(function () { if (a.hat && tg.hp <= 0 && !ev.miss && !holdCheer) return sleep(200).then(function () { return run(a, 'cheer').finished; }); });
     }
     var holdCheer = false;   // host has a reward scene coming: it does the victory jump itself

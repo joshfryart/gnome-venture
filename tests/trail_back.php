@@ -29,6 +29,8 @@ foreach ($sc['st']['tokens'] as $i => $t) { $sc['st']['tokens'][$i][3] = 1; }
 $sc['x'] = $ex; $sc['y'] = $ey; $sc['st']['phase'] = 'confirm';
 trail_save($sc);
 $tok0 = $sc['st']['tokens'];
+trail_stance($u, $exp, 'sneak');
+$sc = trail_scene($exp); $sc['st']['phase'] = 'confirm'; trail_save($sc);
 $exp['encounter'] = null;
 [$ok2, $m2] = trail_next($u, $exp);
 ok('Continue goes on to section 2', $ok2, (string)$m2);
@@ -46,6 +48,7 @@ $sc3 = trail_scene($exp);
 ok('back in section 1, on its exit tile', (int)$sc3['st']['sec'] === 0 && $sc3['x'] === $ex && $sc3['y'] === $ey && $sc3['st']['phase'] === 'section');
 ok('what was done in section 1 is still done', json_encode($sc3['st']['tokens']) === json_encode($tok0));
 ok('the exp step follows', (int)$exp['step'] === 0);
+ok('Sneak/Hunt holds across Continue and the way back', ($sc3['st']['stance'] ?? '') === 'sneak', json_encode($sc3['st']['stance'] ?? null));
 $exp['encounter'] = null;
 $sc3['st']['phase'] = 'confirm'; trail_save($sc3);
 $logBefore = (string)$exp['log'];

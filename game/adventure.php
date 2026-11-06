@@ -317,7 +317,7 @@ if ($exp && !$trailSc && !$fsc): echo adventure_stage_html($u, $exp, $scene, $en
   <div class="trailfoot">
     <a class="btn" data-pop="hubpop-tgather" href="<?= e(url('adventure.php?g=1')) ?>">🧺 Gather here</a>
     <?php if (on_road((int)$exp['from_id'])): ?><a class="btn alt" data-pop="hubpop-twander" href="<?= e(url('adventure.php?w=1')) ?>">🌿 Wander off <small>⚡1</small></a><?php endif; ?>
-    <?php $stance = (string)($trailSc['st']['stance'] ?? ''); foreach (['sneak' => '🤫 Sneak', 'hunt' => '🏹 Hunt'] as $sm => $sl): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_stance"><input type="hidden" name="mode" value="<?= $sm ?>"><button class="btn<?= $stance === $sm ? '' : ' alt' ?>" aria-pressed="<?= $stance === $sm ? 'true' : 'false' ?>"><?= $sl ?></button></form><?php endforeach; ?>
+    <?php $stance = (string)($trailSc['st']['stance'] ?? ''); foreach (empty($exp['encounter']) ? ['sneak' => '🤫 Sneak', 'hunt' => '🏹 Hunt'] : [] as $sm => $sl): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_stance"><input type="hidden" name="mode" value="<?= $sm ?>"><button class="btn<?= $stance === $sm ? '' : ' alt' ?>" aria-pressed="<?= $stance === $sm ? 'true' : 'false' ?>"><?= $sl ?></button></form><?php endforeach; ?>
     <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_back"><button class="btn alt">↩️ Turn back</button></form>
   </div>
   <?php if (on_road((int)$exp['from_id'])): ?><dialog class="picker hubpop trailsmall" id="hubpop-twander" aria-labelledby="hubpop-twander-t"<?= !empty($_GET['w']) ? ' open' : '' ?>><div class="pickbox">

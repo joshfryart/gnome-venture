@@ -263,7 +263,7 @@ function trail_next(array $u, array &$exp): array
     $new = $sc;
     $hist = (array)($sc['st']['hist'] ?? []); $hist[$sec] = $sc['st']['tokens'];   // what was found and fought in the stretch you leave stays so if you walk back
     $revisit = isset($hist[$nsec]);
-    $new['st'] = ['sec' => $nsec, 'S' => (int)$sc['st']['S'], 'sx' => (int)($sc['st']['sx'] ?? $exp['id']), 'phase' => 'section', 'hist' => $hist,
+    $new['st'] = ['sec' => $nsec, 'S' => (int)$sc['st']['S'], 'sx' => (int)($sc['st']['sx'] ?? $exp['id']), 'phase' => 'section', 'stance' => (string)($sc['st']['stance'] ?? ''), 'hist' => $hist,
         'tokens' => $revisit ? $hist[$nsec] : array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens)];
     $new['x'] = $map['entry'][0];
     $new['y'] = $map['entry'][1];
@@ -292,7 +292,7 @@ function trail_prev(array $u, array &$exp): array
     $seen = tm_seen_new($map['w'], $map['h']);
     tm_reveal($seen, $map['w'], $map['h'], $ex, $ey, 20);
     $new = $sc;
-    $new['st'] = ['sec' => $psec, 'S' => (int)$st['S'], 'sx' => (int)($st['sx'] ?? $exp['id']), 'phase' => 'section', 'hist' => $hist, 'tokens' => $ptokens];
+    $new['st'] = ['sec' => $psec, 'S' => (int)$st['S'], 'sx' => (int)($st['sx'] ?? $exp['id']), 'phase' => 'section', 'stance' => (string)($st['stance'] ?? ''), 'hist' => $hist, 'tokens' => $ptokens];
     $new['x'] = $ex; $new['y'] = $ey; $new['seen'] = $seen;
     if (!trail_save($new)) return [false, 'You already moved. Look again.'];
     $exp['step'] = $psec;
