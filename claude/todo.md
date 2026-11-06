@@ -1,4 +1,4 @@
-# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-05, main = 2.5.74)
+# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-06, main = 2.5.89)
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md` (the old todo.md log up to 2.5.62 is at the bottom of the archive). Detail lists for art stay in their own files, linked below, but their OPEN items are copied here.
 
@@ -13,6 +13,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Release recipe: bump `APP_VERSION` in `game/includes/bootstrap.php`, CHANGELOG top entry = same, `tools/check_versions.sh`, `bash tests/build_update.sh <v> <two-back> releases`, art zip `upload-zips/gnome-venture-images-v3-<v>.zip`. Never rebuild a zip under the same version. Push main only on Josh's word.
 
 ## 2. JOSH: phone checks
+- 2.5.81 to 2.5.89 fight scene (turn on `fight_scene` in Admin): fight over the map, dock buttons, health under creatures, end scene rewards over the head, hat, walk back, Sneak/Hunt carry across sections, 3% fight rate feel, 320px phone.
 - 2.5.72 (new, nothing phone-checked): Do tab meter bars, perk line, answer acts when a meter is low, notice board on Stop tab, daily happening strip, a story beat for a Regular, trail without the yellow square, Sneak/Hunt, workshop without round icons.
 - Josh said "everything live seems fine" (2026-11-05). Not itemised, so the list below stays until he ticks specifics; treat 2.5.66 and 2.5.67 as passed.
 - Trail landmarks 2.5.66 (all 16 routes), GPS auto-stop, hidden dots; Do here popover results + live header pills 2.5.67.
@@ -32,8 +33,12 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 
 ## 4. CODE: open
 **Trail / Here**
-- Fight animation engine (own): build plan `claude/fight-plan.md`, guide `claude/animating-2-5d-sprites.md`, notes `claude/fight-anim-engine.md`; tools `tools/fight/`. Engine + gnome rig + hat physics done, NOT wired into the game yet. Josh chose option B (HP bubbles on the tilted map, no popover).
-- Tile walks Sneak/Hunt buttons released 2.5.70: stance on the trail footer, Sneak = 40% fight chance, Hunt = 250% and up to 3 fights a section; tap again to go back to normal. Josh to confirm numbers; `balance_sim.php` Walks not updated for stances.
+- Fight scene (2.5.81 to 2.5.89, setting `fight_scene`, default 0, Trail map only): engine `game/assets/fightengine.js/.css`, adapter `fightscene.js`, PHP `includes/fight_scene.php`, recorder `fight_ev*` in `includes/adventure.php`. Fights play over the real map where the gnome stands, dock under the map, health pills under feet, hat flag/pickup, end scene (XP/loot float over the gnome's head while he jumps, then sink in; map locked until done). Tests: suites `fight_events fight_scene fight_scene_trail trail_back` (run ONE AT A TIME, they clash on ports), `node tools/fight/smoke.js` (slow, ~3 min, alone). Plan `claude/fight-wiring-proposal.md`. NOT phone-checked.
+  - TODO step 5: dock for delve / wander / list maps and other encounter types, then delete the popover code and `fighton.js`. Step 6: Josh phone pass, then flip `fight_scene` default to 1.
+  - TODO: KO and flee have no end scene (KO falls back to the old "Knocked out!" panel); reduced motion shows no loot drop (log line only); items with no art show 🎁; Milestone box and Almanac toast can cover the end scene; map camera not clamped at edges (empty green near column 0); more creature rigs.
+- Trail random fights (2.5.88): flat chance per tile, setting `trail_enc_pct` (default 3%, rough ground x2.5, Sneak x0.4, Hunt x2.5, no cap per section, first/last 3 tiles safe). Josh to confirm 3%. `balance_sim.php` Walks not updated.
+- Trail walk back (2.5.87): "Back to section N" on the entry tile of section 2+; TODO: no Continue offered on the exit tile after going back (must step off and on); no way back from the final confirm 🚪; Trail only, not delve/wander.
+- Known: `here` suite red on main (PHP warning `stops.php:327` Undefined array key "slug", from 2.5.80; seen from CLI calls, not tied to a page).
 - Upkeep: stamp requirement removed (any gnome can chip in; `stop_upkeep_give`, `stop_slim_upkeep`); released 2.5.71, no test covers upkeep, not tried live.
 - Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); released 2.5.69, not phone-checked. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
 - Trail: yellow square round the walker's tile removed (`.tm-trail .tmt.here`), released 2.5.72, not phone-checked; delve/lair maps keep theirs.
