@@ -306,6 +306,7 @@
         var vx = (p[0] - h.px[0]) / dt / k * f, vy = (p[1] - h.px[1]) / dt / k;
         if (h.warm > 1) { ax = Math.max(-9000, Math.min(9000, (vx - h.pvx) / dt)); ay = Math.max(-9000, Math.min(9000, (vy - h.pvy) / dt)); }
         h.pvx = vx; h.pvy = vy; h.warm++;
+        if (sp() > 4) { ax = 0; ay = 0; }   // skipping (tap, reduced motion): the body runs far faster than real time, so its movement would whip the hat; let the springs just settle
       }
       h.px = p; var q = dt / n;
       for (i = 0; i < n; i++) {
@@ -333,7 +334,7 @@
     var last = 0;
     function tick(now) {
       if (dead) return;
-      var dt = Math.min(.033, (now - (last || now)) / 1000) * sp(); last = now;
+      var dt = Math.min(.08, Math.min(.033, (now - (last || now)) / 1000) * sp()); last = now;   // capped: at skip speed (x40) a huge step would blow the hat springs up
       Object.keys(acts).forEach(function (k) { if (acts[k].hat) stepHat(acts[k], dt); });
       root.requestAnimationFrame(tick);
     }

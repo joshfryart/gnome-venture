@@ -21,7 +21,15 @@ const { chromium } = require('playwright');
   else {
     const mapLocked = await p.evaluate(() => getComputedStyle(document.querySelector('.tmgrid')).pointerEvents === 'none'); if (!mapLocked) fail('map not locked during the end scene');
     const marker = await p.evaluate(() => { const m = document.querySelector('.tilemap .tmme'); return m ? getComputedStyle(m).display : 'none'; }); if (marker !== 'none') fail('the map marker (red-hat gnome) shows behind the stage gnome');
-    let seenDrop = false;
+    let seenDrop = false, maxR = 0, maxXY = 0;
+    await p.evaluate(() => { window.__drops = 0; new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.classList && n.classList.contains('fe-drop')) window.__drops++; }))).observe(document.body, { childList: true, subtree: true }); });
+    if (process.env.SKIPTEST !== '0') {   // tap the stage to skip (speed x40): the hat must not whip about
+      await p.waitForTimeout(1800); await p.click('#fightscene', { force: true, position: { x: 150, y: 60 } }).catch(() => {});
+      for (let k = 0; k < 20; k++) { await p.waitForTimeout(100); const h = await p.evaluate(() => { const a = window.feScene && window.feScene.acts.me && window.feScene.acts.me.hat; return a ? [a.r, a.x, a.y, a.tr] : null; }); if (h && process.env.HATLOG) console.log('s', k, h.map(Math.round).join(','));
+ if (h) { maxR = Math.max(maxR, Math.abs(h[0]), Math.abs(h[3])); maxXY = Math.max(maxXY, Math.abs(h[1]), Math.abs(h[2])); } }
+      if (process.env.HATLOG) console.log('skip hat max r/tip', Math.round(maxR), 'max x/y', Math.round(maxXY));
+      if (maxR > 20 || maxXY > 4) fail('the hat whips about while skipping (max rotation ' + Math.round(maxR) + ', offset ' + Math.round(maxXY) + ')');
+    }
     for (let i = 0; i < (process.env.FRAMES ? 40 : 14); i++) {
       await p.waitForTimeout(process.env.FRAMES ? 150 : 450);
       if (process.env.FRAMES) { await p.evaluate(() => { document.querySelector('.tmwrap').scrollIntoView(); window.scrollBy(0, -70); }); await p.screenshot({ path: shot + '/frm-' + String(i).padStart(2, '0') + '.png', clip: { x: 60, y: 190, width: 270, height: 220 } }); }
@@ -30,7 +38,7 @@ const { chromium } = require('playwright');
       if (process.env.HATLOG) console.log('hat', i, JSON.stringify(await p.evaluate(() => { const h = window.feScene && window.feScene.acts.me && window.feScene.acts.me.hat; return h ? [h.mode, Math.round(h.x), Math.round(h.y), Math.round(h.r), h.rest] : null; })));
       if (shot && [3, 5, 7, 9].includes(i)) { await p.evaluate(() => { document.querySelector('.tmwrap').scrollIntoView(); window.scrollBy(0, -70); }); await p.screenshot({ path: shot + '/fin-' + i + '.png' }); }
     }
-    if (!seenDrop) fail('no XP/loot drop shown');
+    if (!seenDrop && !(await p.evaluate(() => window.__drops))) fail('no XP/loot drop shown');
     await p.waitForFunction(() => !document.body.classList.contains('fs-hold'), null, { timeout: 15000 }).catch(() => fail('map never unlocked'));
     const open = await p.evaluate(() => getComputedStyle(document.querySelector('.tmgrid')).pointerEvents !== 'none'); if (!open) fail('map still locked after the end scene');
   }
