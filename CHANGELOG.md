@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.5.97
+- **The fight scene is on by default** (setting `fight_scene`; a site that saved it as off stays off). Tapping the stage to speed it up is now 2x (it was 40x). Players with reduced motion still get the fast version.
+- **Fights on delve floors (both kinds, lairs too) and in a wander off the Trail now play on the map**, like the Trail: the stage over the map, the Fight / Item / Flee menu, and the end scene. The simple list view (no map) keeps the stage with the menu under it. This also fixes a wander off the Trail showing no fight at all with the fight scene on.
+- **End scenes for running away and being knocked out**: running plays the gnome running off, then the map draws them back; a knock-out plays on the stage above the "Knocked out!" result.
+- **Pal skills are acted by the pal**: Strike and Sap hop at the foe, the other skills do a cheer first and then the effect lands; Patch heals with no gnome pose, Shield shows "shielded". A pal not drawn on the stage keeps the old gnome animation.
+- **Reduced-motion reward display** (the loot sits still with its name, a tap skips) and **seed and Gardening Guide drops show their pictures** in the end scene instead of the gift icon.
+- **Walking back on the Trail**: you land on the exit with Continue offered; a new "Not yet" button on the confirm card lets you look around; tapping the exit tile you stand on opens the confirm again (also the way back from the last section's door).
+- **Admin → World & places: "Delve and lair runs"** lists every delve and lair run (outcome, depth, stages).
+- Fixed a PHP warning in `stop_derive_type` (`stops.php`, undefined key `slug`).
+- Tests: stop upkeep (month roll, hand-in); pal skill events; flee and knock-out end scenes; fights on delve floors and in a wander; the suites that assumed the old default (`here`, `delve2`, `trail_back`, `fight_scene`) follow the new one.
+
 ## 2.5.96
 - **New fight menu on route maps ("Design C")**: a small command column over the map corner with **Fight**, **Item** and **Flee** (it sits on the side away from your gnome). Fight opens a list beside it (Attack, your ability, your pals' actives, Fight on, Auto-win); Item lists your snacks, one row each (dimmed when you have none); Flee shows your chance to get away. Tap an option once to read what it does in the list's top line, tap it again to do it. After any action the menu closes straight away and the page comes back with it closed, so the whole attack plays out in full view. With no script the lists stay open and every option is still a normal form.
 - The fight stage no longer re-enables a button that was disabled on purpose (a used ability) after an animation.
