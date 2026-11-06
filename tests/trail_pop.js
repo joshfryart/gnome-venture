@@ -11,6 +11,8 @@ const { chromium } = require('playwright');
   await p.evaluate(() => sessionStorage.clear());   // the login may have landed here already: a reload does not announce the same line again
   await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' });
   await p.waitForSelector('.tilemap .tmpop', { timeout: 3000 }).catch(() => fail('nothing floats over the map'));
+  const cam = await p.evaluate(() => { const m = document.querySelector('.tilemap[data-clamp]'); return m ? [+m.dataset.x0, +m.dataset.y0, +m.dataset.mw, +m.dataset.mh] : null; });
+  if (!cam) fail('the Trail map has no camera clamp'); else if (cam[0] < -1 || cam[1] < -1 || cam[0] + 8 > cam[2] + 1 || cam[1] + 8 > cam[3] + 1) fail('the camera shows empty ground past the map edge: ' + cam);
   if (await p.locator('.trailtoast').count()) fail('the old fixed top box is back');
   if (await p.locator('.toasts').count() > 1) fail('two toast boxes at once');
   if (await p.locator('[data-gvtoast]').count()) fail('the hidden carrier was not consumed');

@@ -368,7 +368,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     require_once __DIR__ . '/trek_art.php';
     $map = $sc['map'];
     $w = $map['w']; $h = $map['h'];
-    $win = tm_window($sc['x'], $sc['y'], DM_VIEW, DM_VIEW);
+    $win = tm_window_clamped($sc['x'], $sc['y'], DM_VIEW, DM_VIEW, (int)$w, (int)$h);
     $land = (string)(exp_scene($exp)['land'] ?? 'forest');
     $phase = (string)$sc['st']['phase'];
     $tokens = [];
@@ -440,7 +440,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         $dis = !$tap;
         $btn .= '<button type="submit" class="' . $cls . '" name="go" value="' . $x . ',' . $y . '"' . ($dis ? ' disabled' : '') . ($label !== '' ? ' aria-label="' . e($label) . '"' : ($tap ? ' aria-label="Walk here"' : ' tabindex="-1"')) . '></button>';
     }
-    $data = ' data-tile="' . TM_UNIT . '" data-cols="' . DM_VIEW . '" data-rows="' . DM_VIEW . '" data-x0="' . $win['x0'] . '" data-y0="' . $win['y0'] . '" data-px="' . $sc['x'] . '" data-py="' . $sc['y'] . '" data-mw="' . $w . '" data-mh="' . $h . '" data-open="' . $open . '"';
+    $data = ' data-clamp="1" data-tile="' . TM_UNIT . '" data-cols="' . DM_VIEW . '" data-rows="' . DM_VIEW . '" data-x0="' . $win['x0'] . '" data-y0="' . $win['y0'] . '" data-px="' . $sc['x'] . '" data-py="' . $sc['y'] . '" data-mw="' . $w . '" data-mh="' . $h . '" data-open="' . $open . '"';
     if ($walk) $data .= ' data-walk="' . e(implode(';', array_map(fn($p) => $p[0] . ',' . $p[1], $walk['p']))) . '"' . $extData;
     $out = trail_strip_html($u, $exp, $sc) . '<div class="tmwrap tm-' . e($land) . ($busy ? ' busy' : '') . '"><form method="post" class="tmform">' . csrf_field() . '<input type="hidden" name="do" value="trail_go">'
         . '<div class="tilemap tm-cave tm-trail' . ($fightOver ? ' tm-fight' : '') . '" role="group" aria-label="The Trail, section ' . ((int)$sc['st']['sec'] + 1) . ' of ' . (int)$sc['st']['S'] . '"' . $data . '><div class="tmview">' . $extSvg . '<div class="tmstage">' . $svg

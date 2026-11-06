@@ -62,5 +62,16 @@ $logBefore = (string)$exp['log'];
 $sc4 = trail_scene($exp);
 ok('going on again returns to section 2 (same map)', $ok5 && (int)$sc4['st']['sec'] === 1 && json_encode($sc4['map']['entry']) === json_encode($sc2['map']['entry']));
 ok('no new surprise rolled at a door you have walked through', $exp['encounter'] === null);
+
+// the camera stays inside the map (v2.6.05): the 7 x 7 the phone crops to never reaches past an edge
+foreach ([[0, 0], [21, 8], [10, 4], [1, 1], [20, 2]] as [$cx, $cy]) {
+    $wn = tm_window_clamped($cx, $cy, 9, 9, 22, 11);
+    $vx0 = $wn['x0'] + 1; $vy0 = $wn['y0'] + 1;   // the inner 7 x 7
+    ok("camera at $cx,$cy keeps the 7 x 7 inside a 22 x 11 map and the gnome in it", $vx0 >= 0 && $vy0 >= 0 && $vx0 + 7 <= 22 && $vy0 + 7 <= 11 && $cx >= $vx0 && $cx < $vx0 + 7 && $cy >= $vy0 && $cy < $vy0 + 7, json_encode($wn));
+}
+$mid = tm_window_clamped(10, 5, 9, 9, 22, 11);
+ok('in the middle the gnome is still centred (as before)', $mid['x0'] === 6 && $mid['y0'] === 1, json_encode($mid));
+$small = tm_window_clamped(2, 2, 9, 9, 5, 5);
+ok('a map smaller than the window stays centred', $small['x0'] === -2, json_encode($small));
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);

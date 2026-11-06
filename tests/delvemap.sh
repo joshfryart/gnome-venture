@@ -208,7 +208,7 @@ adv
 chk "page shows the lair map + legend with the boss" "$(grep -q 'class="tilemap' $A && grep -q 'Lair map' $A && grep -q 'class="tmlegend"[^>]*><span>.* Boss</span>' $A && echo 1)"
 chk "no fight buttons yet" "$(! grep -q 'value="attack"' $A && echo 1)"
 chk "page has Slip back out" "$(grep -q 'value="leave"' $A && echo 1)"
-chk "topbar elsewhere shows the quiet lair (Face it / Slip out)" "$(get gnome.php >/dev/null; grep -q 'value="lair_engage"' $H && echo 1)"
+chk "no on-the-road bar elsewhere (removed in 2.5.94: the lair is only on its own page)" "$(get gnome.php >/dev/null; grep -q 'value="lair_engage"' $H && echo 0 || echo 1)"
 T=$(walkto 1)
 chk "boss reached on the map ($T): the fight begins" "$([ "$(db "SELECT depth FROM expeditions WHERE id=$EXL")" = 1 ] && [ "$(db "SELECT COUNT(*) FROM expeditions WHERE id=$EXL AND encounter IS NOT NULL")" = 1 ] && echo 1)"
 adv; chk "fight card is the old one (value=attack)" "$(grep -q 'value="attack"' $A && echo 1)"

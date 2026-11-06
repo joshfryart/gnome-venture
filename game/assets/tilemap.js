@@ -154,6 +154,12 @@
     if (!tp) return;
     var vc = Math.round(view.clientWidth / tp);
     var ox = x / this.T + this.gx - vc / 2, oy = y / this.T + this.gy - vc / 2;
+    if (b.getAttribute('data-clamp')) {   /* the Trail keeps the 7 x 7 inside the map, same sum as tm_window_clamped() in tilemap.php */
+      var mw = num(b, 'data-mw'), mh = num(b, 'data-mh');
+      var cx = x / this.T + this.gx, cy = y / this.T + this.gy;
+      cx = mw >= 7 ? Math.max(3.5, Math.min(cx, mw - 3.5)) : mw / 2; cy = mh >= 7 ? Math.max(3.5, Math.min(cy, mh - 3.5)) : mh / 2;
+      ox = cx - vc / 2; oy = cy - vc / 2;
+    }
     var st = this.svg.style, dpr = window.devicePixelRatio || 1;
     if (!this.sized) {   /* size once; per frame only a transform moves it (no layout, no sub-pixel shimmer) */
       st.width = (num(b, 'data-ew') * tp).toFixed(1) + 'px';

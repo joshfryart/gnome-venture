@@ -133,6 +133,18 @@ function tm_window(int $x, int $y, int $cols, int $rows): array
     return ['x0' => $x - intdiv($cols, 2), 'y0' => $y - intdiv($rows, 2), 'cols' => $cols, 'rows' => $rows];
 }
 
+/**
+ * v2.6.05: like tm_window() but clamped to the map, so the picture never shows empty ground past an edge: the 7 x 7 the phone crops to (the 9 x 9 has
+ * a one-tile ring around it) is kept inside a map that is at least 7 wide / high; a smaller map stays centred. assets/tilemap.js does the same sum
+ * while the gnome walks (data-clamp), so there is no jump when the walk ends.
+ */
+function tm_window_clamped(int $x, int $y, int $cols, int $rows, int $mw, int $mh): array
+{
+    $vx = $mw >= 7 ? max(0, min($x - 3, $mw - 7)) : intdiv($mw - 7, 2);
+    $vy = $mh >= 7 ? max(0, min($y - 3, $mh - 7)) : intdiv($mh - 7, 2);
+    return ['x0' => $vx - intdiv($cols - 7, 2), 'y0' => $vy - intdiv($rows - 7, 2), 'cols' => $cols, 'rows' => $rows];
+}
+
 // ------------------------------------------------------------------ the generator
 
 /** A small seeded random number source (xorshift32 on a crc of the seed), so a map is the same every time for the same seed. */
