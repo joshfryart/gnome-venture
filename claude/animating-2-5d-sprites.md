@@ -79,7 +79,7 @@ Playwright and ffmpeg are in the cloud container. `Math.random` is pinned in the
 - Hand-written one-line key arrays are hard to read and review. Mitigated by the validator; a small authoring tool (preview a single move in a loop) would help more.
 - The arm is code-drawn, untinted parts, hand-picked pivots. Art is not in the Aseprite/Lua pipeline yet, so it is not reproducible from source files.
 - Frame capture is video-based and non-deterministic (rAF + timers). Good enough for review; not a pixel-regression test.
-- No sound hooks. No PHP-side tests of the event log. Not wired into `adventure.php`, not merged to `main`.
+- No PHP-side tests of the event log. Not wired into `adventure.php` (on `main`, but unused by the game). Sound is out of scope (Josh: no sound).
 - Reduced-motion is "jump to the end"; it should also drop shake, camera push and flashing.
 - Dark theme and low-end phones (many springs, drop-shadow filters) not profiled.
 **Fixed in this refinement**: engine had no teardown (each re-mount leaked an rAF loop and a resize hook; now `destroy()`); mistakes in move/pose data only showed up as a runtime crash (now `validate()`); tools lived in a scratch folder (now `tools/fight/`); GIFs were upscaled blurry with dead space (now native and cropped); no gate (now `smoke.js`).
