@@ -1,9 +1,10 @@
-# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-06, main = 2.5.89)
+# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-06, main = 2.5.96)
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md` (the old todo.md log up to 2.5.62 is at the bottom of the archive). Detail lists for art stay in their own files, linked below, but their OPEN items are copied here.
 
 ## 1. STATE
-- Main = 2.5.72. Slim zips are in `releases/` (2.5.74 needs 2.5.72+; 2.5.73 needs 2.5.71+; 2.5.72 needs 2.5.70+; 2.5.71 needs 2.5.69+; 2.5.70 needs 2.5.68+; 2.5.69 needs 2.5.67+; 2.5.68 needs 2.5.66+; 2.5.67 needs 2.5.65+). Art zips in `upload-zips/` (none for 2.5.67). Josh uploads.
+- Main = 2.5.96. Slim zips are in `releases/` (each needs the one before; 2.5.96 needs 2.5.95+). Trail ground art: `upload-zips/gnome-venture-trail-ground-partNof9.zip` through Admin > Images. Build: `bash tests/build_update.sh <v> <previous> $PWD/releases slim`.
+- 2.5.90 to 2.5.96: authored maps for all 230 other routes (generated, stand-in art), Admin > Tools Trail maps check, ground pictures upload via Images, on-the-road bar removed, pals beside the gnome on maps and in fights, Trail fight menu = Fight / Item / Flee command column (Design C). Details in `claude/handoff.md`.
 - 2.5.66: route landmarks (82 large hand-drawn sprites on all 16 Maplewold trail maps, path layer, contact shadows), GPS stops at every stop, no tap dots on trail maps.
 - 2.5.68: build plans for all 94 havens/wonders/delves (58 new, text not yet reviewed by Josh); status-strip energy bar updates live.
 - 2.5.67: Do here and Stall results show in the popover; header energy and Petals pills update live (icon kept, number only).
@@ -13,6 +14,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Release recipe: bump `APP_VERSION` in `game/includes/bootstrap.php`, CHANGELOG top entry = same, `tools/check_versions.sh`, `bash tests/build_update.sh <v> <two-back> releases`, art zip `upload-zips/gnome-venture-images-v3-<v>.zip`. Never rebuild a zip under the same version. Push main only on Josh's word.
 
 ## 2. JOSH: phone checks
+- 2.5.90 to 2.5.96 (new, nothing phone-checked): upload the 9 ground zips in Admin > Images and check Admin > Tools > Trail maps check shows 665+ pictures; walk a new-region route (e.g. Mistmoor Market to Larkden, id 256) and check the map, worn path and set piece; pals beside the gnome on the map and in a fight; the Fight / Item / Flee menu (tap once to read, twice to do, closes after the action, Item dimmed with no snacks, side away from the gnome, list not hiding the gnome); no bar under the banner on other pages during a walk or fight.
 - 2.5.81 to 2.5.89 fight scene (turn on `fight_scene` in Admin): fight over the map, dock buttons, health under creatures, end scene rewards over the head, hat, walk back, Sneak/Hunt carry across sections, 3% fight rate feel, 320px phone.
 - 2.5.72 (new, nothing phone-checked): Do tab meter bars, perk line, answer acts when a meter is low, notice board on Stop tab, daily happening strip, a story beat for a Regular, trail without the yellow square, Sneak/Hunt, workshop without round icons.
 - Josh said "everything live seems fine" (2026-11-05). Not itemised, so the list below stays until he ticks specifics; treat 2.5.66 and 2.5.67 as passed.
@@ -24,6 +26,8 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Maplewold trail tiles; Do here names; folk line; Villagers highlight.
 
 ## 3. JOSH: decisions needed
+- DECIDED 2026-11-06: art uploads go through Admin > Images (never Update); the on-the-road bar and the fight bar are gone from other pages; the Trail fight menu is Design C and closes after every action; Puzzle Pals stand beside the gnome on maps and in fights.
+- Open: trail fight menu list can cover the foe while open (accepted for now); stand-in set pieces and borrowed ground art (section 5) wait for art.
 - Review the 58 new build plans (2.5.68) on the live site or in `build_plans.txt`.
 - DECIDED 2026-11-05: upkeep: anyone can pay it, no one owes it; stop just degrades if not paid (see section 4). Tile walks: keep ~40% extra fights, add Sneak and Hunt buttons (section 4). Region maps: Josh sends real route maps (section 3 line below). Pet shops and Puzzles: already open, so lane E is unblocked.
 - Stage art APPROVED 2026-11-05 (contact sheet). `derived-<land>/` files are byte-identical to `game/assets/img/scenes/`, so already installed; nothing to copy.
@@ -33,6 +37,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 
 ## 4. CODE: open
 **Trail / Here**
+- Trail fight menu (2.5.96): `fight_dock_html()` + `fightscene.js` tap logic. TODO: dock for delve / wander maps; Flee confirm is "tap again"; if the list covers the foe, consider opening it upward only when there is room.
 - Fight scene (2.5.81 to 2.5.89, setting `fight_scene`, default 0, Trail map only): engine `game/assets/fightengine.js/.css`, adapter `fightscene.js`, PHP `includes/fight_scene.php`, recorder `fight_ev*` in `includes/adventure.php`. Fights play over the real map where the gnome stands, dock under the map, health pills under feet, hat flag/pickup, end scene (XP/loot float over the gnome's head while he jumps, then sink in; map locked until done). Tests: suites `fight_events fight_scene fight_scene_trail trail_back` (run ONE AT A TIME, they clash on ports), `node tools/fight/smoke.js` (slow, ~3 min, alone). Plan `claude/fight-wiring-proposal.md`. NOT phone-checked.
   - TODO step 5: dock for delve / wander / list maps and other encounter types, then delete the popover code and `fighton.js`. Step 6: Josh phone pass, then flip `fight_scene` default to 1.
   - TODO: KO and flee have no end scene (KO falls back to the old "Knocked out!" panel); reduced motion shows no loot drop (log line only); items with no art show 🎁; Milestone box and Almanac toast can cover the end scene; map camera not clamped at edges (empty green near column 0); more creature rigs.
@@ -61,6 +66,9 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 **Never run on this line:** MySQL `upgrade_check.sh`, full CI list, a real phone. Untested on MySQL: `trek_ms` table, `trek_flag_set` duplicate-insert catch.
 
 ## 5. ART: open
+**New-region Trail routes (2.5.90)**
+- Draw the 137 shared set pieces listed in `claude/trail-setpiece-art-notes.md` (stand-ins in `claude/tile-art-v3-proposal/landmarks_setpieces.py`; replace one by adding a `landmarks_<name>.py` with the same slug and deleting it from the stand-in file, then re-bake `--route=N`).
+- Own ground art for desert, island, mountain, rainforest and wetland (borrowing coast / forest / tundra via `ART_LAND`).
 **Trail landmarks (2.5.66 nits)**
 - Wall trees overdraw sprite edges; tall 304/313 sprites hide a step of the walk; small details hard to read; 315 den feathers faint; 312 larder squirrel belly reads as shield; 311 syrup muddy.
 - Rule: delete `obj/lm-*.png` before re-baking after editing sprites.
