@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.84
+- **Fight scene end scene**: when you win (or befriend), the creature falls, its XP and loot drop on the ground with their names, rest a moment, then are slowly drawn into your gnome one by one. The map stays locked until the last one is in; tap the stage to skip. A level-up says so. Still off by default (setting `fight_scene`).
+- **Fixes**: a fight no longer starts "already over" or pops your hat at full health: the events of an earlier fight could be left over and play onto the next one. Events now only play on the very fight they belong to.
+
 ## 2.5.83
 - **Fight scene, on the map**: the fight buttons are now a glass bar along the bottom of the Trail map (Attack, your calling's ability, Run, Fight on, and a ⋯ button for the odds, pal skills, Snack and Auto-win). Characters are drawn small (about one tile) and each has a thin health bar with its number right under its feet. Still off by default (setting `fight_scene`).
 
