@@ -70,8 +70,13 @@
   function ask(url, init) {
     return fetch(url, init).then(function (r) { return r.json(); }).catch(function () { return { ok: false, msg: 'Could not reach the server. Check your connection and try again.', html: '' }; });
   }
+  function gvToastsFrom(res) {   // v2.6.01: other messages the action queued (items found, level-ups, prizes) show as toasts
+    if (!res || !res.toasts || !res.toasts.length || !window.gvShowToasts) return;
+    gvShowToasts(res.toasts.map(function (t) { var d = document.createElement('div'); d.className = 'flash ' + (t.type === 'err' ? 'err' : 'ok'); d.textContent = t.msg; return d; }));
+  }
   function fill(box, res) {
     box.innerHTML = res.html || '';
+    gvToastsFrom(res);
     if (!res.html) { var p = document.createElement('p'); p.className = 'vmsg err'; p.textContent = res.msg || 'Could not load.'; box.appendChild(p); }
   }
   /* A shop's popover: the shop page (counter, Buy / Sell, volunteer) is fetched and its main is shown in the card; its links and forms stay in place. */
@@ -143,6 +148,7 @@
     ask(box.getAttribute('data-post'), { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) {
       if (res.html) { box.innerHTML = res.html; var r = box.querySelector('.doresult'); if (r && r.scrollIntoView) r.scrollIntoView({ block: 'nearest' }); }
       else { fill(box, res); }
+      gvToastsFrom(res);
       var h = res.hdr;   // the header's energy and coin pills follow what the activity cost or paid
       if (h) {
         var en = document.querySelector('.hdr-energy'), co = document.querySelector('.hdr-coins');

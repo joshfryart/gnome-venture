@@ -138,6 +138,35 @@ function take_flashes(): array
     return $f;
 }
 
+/**
+ * v2.6.01: the messages an in-place popover action queued (flashes, prizes, new Almanac pages), for its JSON reply, so they show as toasts
+ * instead of waiting for the next page load. They go through the page's own message log (msglog_render), so they are in Messages and the next
+ * page does not toast them a second time.
+ * @return list<array{type:string,msg:string}>
+ */
+function take_toasts(): array
+{
+    msglog_render();
+    $out = [];
+    foreach ($_SESSION['msglog'] ?? [] as $m) {
+        if (empty($m['new'])) continue;
+        $k = $m['k'] ?? '';
+        if ($k === 'pages') {
+            $names = array_map(fn($it) => (string)$it[1], $m['items'] ?? []);
+            $msg = '📖 New Almanac page' . (count($names) === 1 ? '' : 's') . ': ' . implode(' · ', $names);
+            $type = 'ok';
+        } elseif ($k === 'prize') {
+            $msg = trim(($m['icon'] ?? '') . ' ' . ($m['title'] ?? '') . ' ' . ($m['big'] ?? '') . (!empty($m['lines']) ? ' · ' . implode(' · ', $m['lines']) : ''));
+            $type = 'ok';
+        } else {
+            $msg = (string)($m['msg'] ?? '');
+            $type = ($m['type'] ?? '') === 'err' ? 'err' : 'ok';
+        }
+        if ($msg !== '') array_unshift($out, ['type' => $type, 'msg' => $msg]);   // oldest first
+    }
+    return $out;
+}
+
 function slugify(string $s): string
 {
     $s = strtolower(trim($s));

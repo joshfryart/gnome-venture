@@ -583,5 +583,18 @@ ok('Extras: kept up says cared for', str_contains($h3, 'Cared for') && str_conta
 ok('Extras: the card has four tabs now (Hold, Upkeep, Extras, Garden) and no inline style', substr_count($h3, 'class="st-tab st-tab--') >= 3 && !preg_match('/\sstyle=/', $h3));
 q('DELETE FROM stop_adoptions WHERE location_id = ?', [$uk['id']]);
 
+echo "== v2.6.01 popover replies carry the messages the action queued (library finds, flashes, prizes)\n";
+$_SESSION = [];
+$firstPage = (int)q_one('SELECT id FROM encyclopedia_entries ORDER BY id LIMIT 1')['id'];
+$_SESSION['new_pages'] = [[$firstPage, 'the library']];
+flash('You hum a tune.', 'ok'); flash('Your pockets are full.', 'err');
+prize('🎁', 'A gift', '+3', ['Two buttons']);
+$tt = take_toasts();
+$all = implode(' | ', array_column($tt, 'msg'));
+ok('toasts: new Almanac page, flashes and prize all come back', count($tt) === 4 && str_contains($all, 'New Almanac page') && str_contains($all, 'You hum a tune.') && str_contains($all, 'A gift'), $all);
+ok('toasts: the error one keeps its type', in_array('err', array_column($tt, 'type'), true));
+ok('toasts: nothing is left queued for the next page to toast again', empty($_SESSION['new_pages']) && empty($_SESSION['flash']) && empty($_SESSION['prizes']));
+ok('toasts: a second call is empty', take_toasts() === []);
+
 echo $fails ? "\n$fails FAILED\n" : "\nall passed\n";
 exit($fails ? 1 : 0);

@@ -45,7 +45,7 @@ if (is_post()) {
     }
     if ($ajax && ($_POST['card'] ?? '') === 'stop') {   // v2.5.53: the Rest stop popover comes back with the result
         header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(['ok' => $ok, 'msg' => $msg, 'html' => stop_slim_card_html(require_login(), player_node(require_login()), $hub, $msg, $ok)], JSON_UNESCAPED_SLASHES);
+        echo json_encode(['ok' => $ok, 'msg' => $msg, 'html' => stop_slim_card_html(require_login(), player_node(require_login()), $hub, $msg, $ok), 'toasts' => take_toasts()], JSON_UNESCAPED_SLASHES);
         exit;
     }
     if ($ajax && (int)($_POST['spot'] ?? 0) > 0) spot_card_reply(require_login(), $hub, (int)$_POST['spot'], $msg, $ok);   // in place: the card comes back with the result

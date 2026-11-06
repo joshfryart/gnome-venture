@@ -65,6 +65,6 @@ function spot_card_reply(array $u, bool $hub, int $spotId, string $msg = '', boo
     header('Content-Type: application/json; charset=utf-8');
     if (!$spot) { echo json_encode(['ok' => false, 'msg' => $msg !== '' ? $msg : 'That place is not here.', 'html' => ''], JSON_UNESCAPED_SLASHES); exit; }
     $u = q_one('SELECT * FROM users WHERE id = ?', [(int)$u['id']]);
-    echo json_encode(['ok' => $ok, 'msg' => $msg, 'html' => spot_card_html($u, $spot, $hub, $msg, $ok)], JSON_UNESCAPED_SLASHES);
+    echo json_encode(['ok' => $ok, 'msg' => $msg, 'html' => spot_card_html($u, $spot, $hub, $msg, $ok), 'toasts' => take_toasts()], JSON_UNESCAPED_SLASHES);
     exit;
 }
