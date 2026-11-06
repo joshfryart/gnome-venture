@@ -26,9 +26,11 @@ function fight_scene_html(array $u, array $exp, array $enc, array $c): string
         'parts' => gnome_rig_urls($u),
         'base' => url('assets/img/fight'),
         'mini' => $slug !== '' && is_file(APP_ROOT . '/assets/img/mini/mini-' . $slug . '.png') ? url('assets/img/mini/mini-' . $slug . '.png') : '',
+        'hat' => !empty($enc['hat']) ? 1 : 0,
         'land' => strtolower((string)($enc['land'] ?? '')),
     ];
     $bar = fn(string $n, int $v, int $m) => '<span class="fs-fb"><b>' . e($n) . '</b> ❤️ <progress max="' . $m . '" value="' . $v . '"></progress> ' . $v . '/' . $m . '</span>';
     return '<div class="fightscene" id="fightscene" data-fight="' . e((string)json_encode($data, JSON_UNESCAPED_UNICODE)) . '" role="img" aria-label="' . e(gnome_name($u) . ' fights ' . $c['name']) . '">'
-        . $bar(gnome_name($u), $meHp, (int)$exp['max_hp']) . $bar((string)$c['name'], $foeHp, (int)$enc['max']) . '</div>';
+        . $bar(gnome_name($u), $meHp, (int)$exp['max_hp']) . $bar((string)$c['name'], $foeHp, (int)$enc['max']) . '</div>'
+        . (!empty($enc['hat']) ? '<form method="post" class="hatform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="hat"></form>' : '');
 }

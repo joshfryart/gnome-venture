@@ -15,7 +15,7 @@
     try {
       eng = FightEngine.create(host, {
         speed: reduced ? 40 : 1,
-        onHatTap: function () { var f = document.querySelector('form.hatform'); if (f) f.submit(); }   // the server heals once (do=hat)
+        onHatTap: function () { var f = document.querySelector('form.hatform'); if (f) { if (f.requestSubmit) f.requestSubmit(); else f.submit(); } }   // the server heals once (do=hat)
       });
       eng.add('me', { rig: 'gnome', parts: D.parts, col: 2, side: 'me', name: D.me.name, hp: D.me.hp, max: D.me.max });
       var foe = { rig: D.slug, img: D.mini, col: 8, flip: true, side: 'foe', name: D.foe.name, hp: D.foe.hp, max: D.foe.max };
@@ -28,7 +28,10 @@
     if (list && list.length > 12) mine.setSpeed(Math.min(6, list.length / 6));   // Fight on / Auto-win: about 7 s
     host.addEventListener('click', function () { mine.setSpeed(40); });   // tap to skip
     (list ? mine.play(list) : mine.together([{ from: 'me', move: 'enter' }, { from: 'foe', move: 'enter' }]))
-      .catch(function () { }).then(function () { mine.setSpeed(reduced ? 40 : 1); if (eng === mine) lock(false); });
+      .catch(function () { }).then(function () {
+        var m = mine.acts.me;   // hat still on the ground from an earlier turn (a reload, or the flag set by the server): put it down
+        if (D.hat && m && m.hp > 0 && m.hat && m.hat.mode === 'worn') mine.popHat(m, m.dir);
+      }).then(function () { mine.setSpeed(reduced ? 40 : 1); if (eng === mine) lock(false); });
   }
   document.addEventListener('gv:swapped', boot);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();

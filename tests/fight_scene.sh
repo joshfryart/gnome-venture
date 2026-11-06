@@ -47,6 +47,22 @@ echo "events after attack: $EV"
 [ "${EV%% *}" -ge 1 ] 2>/dev/null || echo "FAIL no events after attack"
 get adventure.php >/dev/null
 grep -o 'data-fight="[^"]*"' $H | head -1 | grep -q 'events&quot;:\[\]' || echo "FAIL events shown twice"
+encj() { db "SELECT encounter FROM expeditions ORDER BY id DESC LIMIT 1" | php -r '$e=json_decode(trim(stream_get_contents(STDIN)),true); echo (int)($e["hat"]??0)," ",(int)($e["hatd"]??0);'; }
+exphp() { db "SELECT hp FROM expeditions ORDER BY id DESC LIMIT 1"; }
+echo "== hat"
+get adventure.php >/dev/null; grep -q 'class="hatform"' $H && echo "FAIL hat form with no hat"
+db "UPDATE expeditions SET hp=6 WHERE id=(SELECT MAX(id) FROM expeditions)" >/dev/null
+for i in 1 2 3 4 5 6 7 8; do get adventure.php >/dev/null; post adventure.php -d do=attack >/dev/null; [ "$(encj | cut -d' ' -f1)" = 1 ] && break; done
+[ "$(encj)" = "1 0" ] || echo "FAIL hat flag not set under 25% (got $(encj))"
+get adventure.php >/dev/null
+grep -q 'class="hatform"' $H || echo "FAIL no hat form while flagged"
+grep -q 'pop&quot;:true' $H || echo "FAIL pop event missing"
+db "UPDATE expeditions SET hp=10 WHERE id=(SELECT MAX(id) FROM expeditions)" >/dev/null
+post adventure.php -d do=hat >/dev/null
+[ "$(exphp)" = 15 ] || echo "FAIL hat heal: hp $(exphp), want 15"
+[ "$(encj)" = "0 1" ] || echo "FAIL hat flag not spent ($(encj))"
+post adventure.php -d do=hat >/dev/null
+[ "$(exphp)" = 15 ] || echo "FAIL hat healed twice: hp $(exphp)"
 if command -v node >/dev/null && [ -z "$NOBROWSER" ]; then node "$HERE/fight_scene.js" "$BASE" "$SHOT" || echo "FAIL browser"; fi
 echo "== php errors"
 grep -iE 'fatal|warning|notice|deprecated' $LOG && echo "FAIL php errors" || echo "(none)"

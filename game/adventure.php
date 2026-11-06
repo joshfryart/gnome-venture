@@ -69,6 +69,8 @@ if (is_post()) {
                 combat_turn($u, $exp, $do);
             } elseif ($do === 'snack') {   // v1.4.0: one home-cooked snack, same transaction and lock as the rest
                 combat_turn($u, $exp, 'snack', (int)($_POST['item'] ?? 0));
+            } elseif ($do === 'hat' && fight_scene_on()) {   // fight_scene: tap the fallen hat, +5 health once, free
+                fight_hat_pick($u, $exp);
             } elseif ($do === 'fighton') {   // v1.3.0: auto-attack until hurt, done, or 30 rounds (same transaction and lock as above)
                 fight_on($u, $exp);
             } elseif ($do === 'auto') {

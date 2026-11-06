@@ -549,6 +549,30 @@ function fight_ev(?array $e = null): array
     return [];
 }
 
+/** fight_scene: sets enc['hat'] (the gnome's hat is on the ground, tap it for do=hat) the first time health drops under 25%; true when it was just set. Off = nothing changes. */
+function fight_hat_check(array $exp, array &$enc): bool
+{
+    if (!function_exists('fight_scene_on') || !fight_scene_on() || !empty($enc['hat']) || !empty($enc['hatd'])) return false;
+    $hp = (int)$exp['hp'];
+    if ($hp <= 0 || $hp * 4 >= (int)$exp['max_hp']) return false;
+    $enc['hat'] = 1;
+    return true;
+}
+
+/** fight_scene: tap the fallen hat: heal up to 5 once, no turn cost. Returns false when there is no hat to pick up. */
+function fight_hat_pick(array $u, array &$exp): bool
+{
+    $enc = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
+    if (!$enc || ($enc['type'] ?? '') !== 'creature' || empty($enc['hat']) || (int)$exp['hp'] <= 0) return false;
+    $h = max(0, min(5, (int)$exp['max_hp'] - (int)$exp['hp']));
+    $exp['hp'] = (int)$exp['hp'] + $h;
+    $enc['hat'] = 0; $enc['hatd'] = 1;
+    $exp['encounter'] = json_encode($enc);
+    exp_log($exp, '🎩 You pop your hat back on' . ($h > 0 ? ': +' . $h . ' health.' : '.'));
+    fight_ev(['from' => 'me', 'move' => 'fixhat', 'heal' => $h]);
+    return true;
+}
+
 /** Both sides' health before an action, as the fight card shows it. */
 function fight_ev_start(array $exp, array $enc): array
 {
@@ -823,7 +847,8 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
         if (!empty($palSk['ward'])) $dmg = max(1, $dmg - (int)$palSk['ward']);
         $exp['hp'] = (int)$exp['hp'] - $dmg;
         exp_log($exp, '💥 The ' . $c['name'] . ' hits you for ' . $dmg . '.');
-        fight_ev(['from' => 'foe', 'to' => 'me', 'dmg' => (int)$dmg, 'miss' => false]);
+        $hatPop = fight_hat_check($exp, $enc);   // fight_scene: the hat flies off once, when a hit takes you under a quarter of your health
+        fight_ev(['from' => 'foe', 'to' => 'me', 'dmg' => (int)$dmg, 'miss' => false] + ($hatPop ? ['pop' => true] : []));
     } else {
         exp_log($exp, '🛡️ The ' . $c['name'] . ' misses you.');
         fight_ev(['from' => 'foe', 'to' => 'me', 'miss' => true]);
