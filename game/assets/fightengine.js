@@ -127,6 +127,7 @@
       var P = proj(px + c / 2, py + c * .86);
       a.el.style.cssText = 'left:' + (P[0] - c / 2) + 'px;top:' + (P[1] - c) + 'px;width:' + c + 'px;height:' + c + 'px;transform:scale(' + P[2] + ');z-index:' + (a.row + 1);
       a.body.style.cssText = 'left:' + ((c - w) / 2) + 'px;width:' + w + 'px;height:' + h + 'px';
+      if (a.ghost) { a.ghost.style.cssText = a.el.style.cssText; a.ghost.firstChild.style.cssText = a.body.style.cssText; }
       a.sh.style.cssText = 'left:' + (px + c / 2 - w * .35) + 'px;top:' + (py + c * .62) + 'px;width:' + (w * .7) + 'px;height:' + (c * .36) + 'px';
       if (r.kind === 'strip') { a.spr.style.backgroundSize = (r.frames * 100) + '% 100%'; a.spr.style.backgroundPosition = '0 0'; }
     }
@@ -254,13 +255,27 @@
       Object.keys(acts).forEach(function (k) { if (acts[k].hat) stepHat(acts[k], dt); });
       root.requestAnimationFrame(tick);
     }
+    function hatTo(a, world) {   // move the hat layer between the gnome (worn) and a fixed ghost frame (fallen), keeping it where it is on screen
+      var w = a.phys.hat, h = a.hat, k = a.rig.w * c / 64, f = a.flip ? -1 : 1, b = w.getBoundingClientRect(), b0 = [b.left + b.width / 2, b.top + b.height / 2];
+      if (world) {
+        if (!a.ghost) {
+          var g = a.el.cloneNode(false), gb = a.body.cloneNode(false), gs = a.spr.cloneNode(false);
+          gb.appendChild(gs); g.appendChild(gb); actorsEl.appendChild(g); a.ghost = g; a.gspr = gs;
+        }
+        a.gspr.appendChild(w);
+      } else {
+        a.spr.appendChild(w); if (a.ghost) { a.ghost.remove(); a.ghost = a.gspr = null; }
+      }
+      w.style.transform = 'translate(' + (h.x * k) + 'px,' + (h.y * k) + 'px) rotate(' + h.r + 'deg)';
+      b = w.getBoundingClientRect(); h.x -= (b.left + b.width / 2 - b0[0]) * f / k; h.y -= (b.top + b.height / 2 - b0[1]) / k;
+    }
     function popHat(a, away) {   // the hat comes off: up, back, spinning
       var h = a.hat; if (!h || h.mode !== 'worn') return;
-      h.mode = 'free'; h.rest = 0; h.hold = 0; h.vy = -300; h.vx = -50 * (away || 1); h.vr = -520; h.tvr += 400;
+      hatTo(a, true); h.mode = 'free'; h.rest = 0; h.hold = 0; h.vy = -300; h.vx = -50 * (away || 1); h.vr = -520; h.tvr += 400;
     }
     function fixHat(a) {   // run the 'fixhat' move: hat hops back on crooked, a pat or two straightens it
       var h = a.hat; if (!h || h.mode === 'worn') return Promise.resolve();
-      h.mode = 'fixing'; h.ft = 0; h.x0 = h.x; h.y0 = h.y; h.r0 = h.r;
+      hatTo(a, false); h.mode = 'fixing'; h.ft = 0; h.x0 = h.x; h.y0 = h.y; h.r0 = h.r;
       var an = run(a, 'fixhat');
       sleep(830).then(function () { h.hold = 0; h.tvr -= 260; });
       return an.finished;
