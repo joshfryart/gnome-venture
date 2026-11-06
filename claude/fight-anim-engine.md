@@ -40,3 +40,11 @@ Fluid = motion maths, not many drawn frames. Few key poses + code tweens. Adding
 - `POSES` in `fightengine.js` (idle, run, pluck, guard): per-part keyframes `[ms,{r,x,y},ease]`. Positive r = swing BACK, forward = negative. A move names its pose (`pluck: pose:'pluck'`), or reuses a loop (`flee: pose:{use:'run',dur:350,loops:2}`).
 - Pluck = wind up (arm cocked back, lean back) -> run in (leg stride) -> arm whip at the hit beat (ms 440) -> recover.
 - Next: hit/KO limb poses, walk pose for board movement, far-arm/leg depth, tinted parts, same part rigs for creatures (head, jaw, legs, tail).
+
+## Update: 5 iterative passes (2026-11-06)
+1. Limb poses for hit (flail, knockback), dodge (leap, legs tuck), KO (arms flop, legs buckle, fade); softer contact lean on pluck.
+2. `walk` pose and an `enter` move (run in from off-board, parts run cycle); `together([...])` plays events in parallel (both sides enter at once).
+3. Arm swoosh arc at the swing beat (`swoosh:` ms on a move), far leg dimmed for depth.
+4. Polish: damage numbers pop to the side of the head (clamped inside the stage), crit pushes the camera in for a beat, easing on the shake.
+5. Verified by contact sheets: pluck, enter, hit, KO, guard (ring + raised arms), flee, creature pounce. Fixed: pose `use` + `dur` made offsets > 1 (added `len`), guard ring kept after flee, damage numbers clipped at the top.
+Still open: creature part rigs (all creatures are still pedestal pictures), hit/KO for creatures, tinted gnome parts, redraw arm in Aseprite/Lua, wiring into `adventure.php`.
