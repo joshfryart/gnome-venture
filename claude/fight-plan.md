@@ -5,7 +5,7 @@ Status: engine, gnome part rig, hat physics, tools, guide are done and on `main`
 Model hint: Haiku = batch art by script, Sonnet = engine and wiring, one contact-sheet check each.
 
 ## Phase 1: player gnome designs (small, do first)
-1. `game/gnome_parts.php?hat=&beard=&scarf=`: run `gnome25_compose` per part layer, cache by colour hash (like `gnome_sprite.php`), return one atlas PNG. Demo and engine read it instead of the fixed PNGs. Fallback to default colours on error.
+1. DONE (2026-11-06) `game/gnome_parts.php?p=<part>&h=&b=&s=` + `game/includes/gnome_rig.php` (`gnome_rig_parts`, `gnome_rig_png`, `gnome_rig_urls($user)`; `tools/gnome_rig_parts.php` is a thin CLI on it; default output byte-identical). Demo previews a colour set with `fight_demo.html?parts=<dir>`. Cached under `data/gnome25/parts/`. Tested by CLI harness (the endpoint needs an installed site for bootstrap). Original spec: run `gnome25_compose` per part layer, cache by colour hash (like `gnome_sprite.php`), return one atlas PNG. Demo and engine read it instead of the fixed PNGs. Fallback to default colours on error.
 2. Layer-split art: hat, hat outline, tip, bald dome as their own Aseprite layers; `tools/gnome_rig_parts.php` cuts by layer, not by row and column.
 3. Slot contract in data: pivots and hat-physics numbers per design (needed for new hats later; colours only now).
 4. `smoke.js` design matrix: N designs (extreme colours), parts non-empty, pivots inside parts, contrast check, hat pop and refit pass; one 12-design contact sheet.

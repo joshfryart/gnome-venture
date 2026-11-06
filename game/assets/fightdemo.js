@@ -1,5 +1,6 @@
 (function () {
-  var PARTS = { torso: 'assets/img/fight/rig-gnome-torso.png', legB: 'assets/img/fight/rig-gnome-legB.png', legF: 'assets/img/fight/rig-gnome-legF.png', hat: 'assets/img/fight/rig-gnome-hat.png', tip: 'assets/img/fight/rig-gnome-tip.png', arm: 'assets/img/fight/rig-gnome-arm.png' };
+  var base = (/[?&]parts=([\w\/.-]+)/.exec(location.search) || [])[1] || 'assets/img/fight';   // ?parts=<dir> previews another colour set (php tools/gnome_rig_parts.php out=dir)
+  var PARTS = { torso: base + '/rig-gnome-torso.png', legB: base + '/rig-gnome-legB.png', legF: base + '/rig-gnome-legF.png', hat: base + '/rig-gnome-hat.png', tip: base + '/rig-gnome-tip.png', arm: base + '/rig-gnome-arm.png' };
   var eng, busy = false, slug = 'wild-boar';
   function mount() {
     if (eng) eng.destroy();
