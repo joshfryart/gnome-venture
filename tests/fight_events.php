@@ -16,7 +16,9 @@ $record = in_array('--record', $argv, true);
 $file = __DIR__ . '/fight_events_golden.json';
 $u = q_one("SELECT * FROM users WHERE username = 'sprout'");
 $uid = (int)$u['id'];
-foreach (['calling' => 'thornblade'] as $k => $v) $u[$k] = $v;
+// a fixed gnome: walk.sh gives every install a random name and stats, and the golden must not depend on them
+$u['level'] = 4; $u['calling_qt'] = 99;
+foreach (['grit' => 12, 'nimble' => 11, 'hardiness' => 10, 'luck' => 20, 'charm' => 10, 'lore' => 10, 'cheer' => 10, 'cunning' => 10] as $k => $v) $u['stat_' . $k] = $v;
 if (!active_expedition($uid)) explore_start($u);
 $base = active_expedition($uid);
 if (!$base) { echo "FAIL no expedition\n"; exit(1); }

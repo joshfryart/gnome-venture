@@ -2,12 +2,14 @@
     "n": 120,
     "out": {
         "aphid-swarm:attack:0": {
-            "hp": 1,
+            "hp": 3,
             "status": "active",
-            "foe": 1,
+            "foe": null,
             "log": [
-                "⚔️ You hit the Aphid Swarm for 5.",
-                "💥 The Aphid Swarm hits you for 2."
+                "⚔️ You hit the Aphid Swarm for 6.",
+                "🏆 The Aphid Swarm is defeated! +5 XP",
+                "📖 New Almanac page: Aphid Swarm!",
+                "🎁 Loot: Honeydew"
             ],
             "next": 223729378
         },
@@ -16,30 +18,33 @@
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Aphid Swarm for 9.",
-                "🏆 The Aphid Swarm is defeated! +5 XP"
+                "⚔️ You hit the Aphid Swarm for 10.",
+                "🏆 The Aphid Swarm is defeated! +5 XP",
+                "📖 New Almanac page: Aphid Swarm!"
             ],
             "next": 1811942163
         },
         "aphid-swarm:attack:2": {
             "hp": 24,
             "status": "active",
-            "foe": 4,
+            "foe": null,
             "log": [
                 "🧪 Poison stings the Aphid Swarm for 2.",
-                "⚔️ You miss (rolled 3).",
-                "🛡️ The Aphid Swarm misses you."
+                "⚔️ You hit the Aphid Swarm for 7.",
+                "🏆 The Aphid Swarm is defeated! +5 XP",
+                "📖 New Almanac page: Aphid Swarm!"
             ],
-            "next": 724355490
+            "next": 143591878
         },
         "aphid-swarm:ability:0": {
             "hp": 3,
             "status": "active",
             "foe": null,
             "log": [
-                "🗡️ Thorn Flurry hits for 5.",
-                "🗡️ Thorn Flurry hits for 7.",
+                "🗡️ Thorn Flurry hits for 6.",
+                "🗡️ Thorn Flurry hits for 8.",
                 "🏆 The Aphid Swarm is defeated! +5 XP",
+                "📖 New Almanac page: Aphid Swarm!",
                 "🎁 Loot: Honeydew"
             ],
             "next": 1647036614
@@ -61,20 +66,19 @@
             "log": [
                 "🧪 Poison stings the Aphid Swarm for 2.",
                 "🌸 You charm the Aphid Swarm. It wanders off peacefully.",
-                "🌸 The Aphid Swarm is befriended! +2 XP"
+                "🌸 The Aphid Swarm is befriended! +2 XP",
+                "📖 New Almanac page: Aphid Swarm!"
             ],
             "next": 1803351213
         },
         "aphid-swarm:flee:0": {
-            "hp": 2,
-            "status": "ko",
+            "hp": 3,
+            "status": "active",
             "foe": null,
             "log": [
-                "🏃 You try to run, but the Aphid Swarm cuts you off!",
-                "💥 The Aphid Swarm hits you for 3.",
-                "💫 The Aphid Swarm knocks you flat. You wake up back in Honeybrook, a bit sore but with all your things."
+                "🏃 You slip away from the Aphid Swarm."
             ],
-            "next": 2028558261
+            "next": 1476890059
         },
         "aphid-swarm:flee:1": {
             "hp": 16,
@@ -102,10 +106,11 @@
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Aphid Swarm for 4.",
+                "⚔️ You hit the Aphid Swarm for 5.",
                 "🛡️ The Aphid Swarm misses you.",
-                "⚔️ You hit the Aphid Swarm for 2.",
+                "⚔️ You hit the Aphid Swarm for 3.",
                 "🏆 The Aphid Swarm is defeated! +5 XP",
+                "📖 New Almanac page: Aphid Swarm!",
                 "🎁 Loot: Honeydew"
             ],
             "next": 836978498
@@ -115,8 +120,9 @@
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Aphid Swarm for 8.",
+                "⚔️ You hit the Aphid Swarm for 9.",
                 "🏆 The Aphid Swarm is defeated! +5 XP",
+                "📖 New Almanac page: Aphid Swarm!",
                 "🎁 Loot: Honeydew"
             ],
             "next": 786799354
@@ -127,10 +133,11 @@
             "foe": null,
             "log": [
                 "🧪 Poison stings the Aphid Swarm for 2.",
-                "⚔️ You hit the Aphid Swarm for 2.",
+                "⚔️ You hit the Aphid Swarm for 3.",
                 "🛡️ The Aphid Swarm misses you.",
                 "🧪 Poison stings the Aphid Swarm for 2.",
                 "🏆 The Aphid Swarm is defeated! +5 XP",
+                "📖 New Almanac page: Aphid Swarm!",
                 "🎁 Loot: Honeydew"
             ],
             "next": 789063509
@@ -148,9 +155,9 @@
         "aphid-swarm:auto:1": {
             "hp": 16,
             "status": "active",
-            "foe": 2,
+            "foe": 1,
             "log": [
-                "⚔️ You hit the Aphid Swarm for 4.",
+                "⚔️ You hit the Aphid Swarm for 5.",
                 "🛡️ The Aphid Swarm misses you."
             ],
             "next": 1420468903
@@ -169,9 +176,9 @@
         "garden-snail:attack:0": {
             "hp": 3,
             "status": "active",
-            "foe": 2,
+            "foe": 1,
             "log": [
-                "⚔️ You hit the Garden Snail for 4.",
+                "⚔️ You hit the Garden Snail for 5.",
                 "🛡️ The Garden Snail misses you."
             ],
             "next": 1403592477
@@ -181,8 +188,9 @@
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Garden Snail for 8.",
+                "⚔️ You hit the Garden Snail for 9.",
                 "🏆 The Garden Snail is defeated! +5 XP",
+                "📖 New Almanac page: Garden Snail!",
                 "🎁 Loot: Snail Slime"
             ],
             "next": 1553217912
@@ -193,8 +201,9 @@
             "foe": null,
             "log": [
                 "🧪 Poison stings the Garden Snail for 2.",
-                "⚔️ You hit the Garden Snail for 7.",
+                "⚔️ You hit the Garden Snail for 8.",
                 "🏆 The Garden Snail is defeated! +5 XP",
+                "📖 New Almanac page: Garden Snail!",
                 "🎁 Loot: Snail Slime",
                 "🎁 Loot: Spiral Shell"
             ],
@@ -228,6 +237,7 @@
                 "🧪 Poison stings the Garden Snail for 2.",
                 "🍄 Spore Burst engulfs the Garden Snail for 5.",
                 "🏆 The Garden Snail is defeated! +5 XP",
+                "📖 New Almanac page: Garden Snail!",
                 "🎁 Loot: Spiral Shell"
             ],
             "next": 807353615
@@ -244,14 +254,14 @@
             "next": 1749409046
         },
         "garden-snail:flee:1": {
-            "hp": 12,
+            "hp": 16,
             "status": "active",
             "foe": 6,
             "log": [
                 "🏃 You try to run, but the Garden Snail cuts you off!",
-                "💥 The Garden Snail hits you for 4."
+                "🛡️ The Garden Snail misses you."
             ],
-            "next": 916816327
+            "next": 231238671
         },
         "garden-snail:flee:2": {
             "hp": 24,
@@ -268,8 +278,10 @@
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Garden Snail for 6.",
-                "🏆 The Garden Snail is defeated! +5 XP"
+                "⚔️ You hit the Garden Snail for 7.",
+                "🏆 The Garden Snail is defeated! +5 XP",
+                "📖 New Almanac page: Garden Snail!",
+                "🎁 Loot: Snail Slime"
             ],
             "next": 516790282
         },
@@ -278,8 +290,9 @@
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Garden Snail for 6.",
+                "⚔️ You hit the Garden Snail for 7.",
                 "🏆 The Garden Snail is defeated! +5 XP",
+                "📖 New Almanac page: Garden Snail!",
                 "🎁 Loot: Snail Slime"
             ],
             "next": 557080484
@@ -290,10 +303,11 @@
             "foe": null,
             "log": [
                 "🧪 Poison stings the Garden Snail for 2.",
-                "⚔️ You hit the Garden Snail for 2.",
+                "⚔️ You hit the Garden Snail for 3.",
                 "🛡️ The Garden Snail misses you.",
                 "🧪 Poison stings the Garden Snail for 2.",
                 "🏆 The Garden Snail is defeated! +5 XP",
+                "📖 New Almanac page: Garden Snail!",
                 "🎁 Loot: Snail Slime"
             ],
             "next": 1763686706
@@ -313,8 +327,10 @@
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Garden Snail for 6.",
-                "🏆 The Garden Snail is defeated! +5 XP"
+                "⚔️ You hit the Garden Snail for 7.",
+                "🏆 The Garden Snail is defeated! +5 XP",
+                "📖 New Almanac page: Garden Snail!",
+                "🎁 Loot: Spiral Shell"
             ],
             "next": 436401476
         },
@@ -324,8 +340,9 @@
             "foe": null,
             "log": [
                 "🧪 Poison stings the Garden Snail for 2.",
-                "⚔️ You hit the Garden Snail for 6.",
+                "⚔️ You hit the Garden Snail for 7.",
                 "🏆 The Garden Snail is defeated! +5 XP",
+                "📖 New Almanac page: Garden Snail!",
                 "🎁 Loot: Snail Slime"
             ],
             "next": 1311515224
@@ -333,9 +350,9 @@
         "ant-scouts:attack:0": {
             "hp": 3,
             "status": "active",
-            "foe": 5,
+            "foe": 4,
             "log": [
-                "⚔️ You hit the Ant Scouts for 4.",
+                "⚔️ You hit the Ant Scouts for 5.",
                 "🛡️ The Ant Scouts misses you."
             ],
             "next": 1966603098
@@ -343,9 +360,9 @@
         "ant-scouts:attack:1": {
             "hp": 14,
             "status": "active",
-            "foe": 6,
+            "foe": 5,
             "log": [
-                "⚔️ You hit the Ant Scouts for 3.",
+                "⚔️ You hit the Ant Scouts for 4.",
                 "💥 The Ant Scouts hits you for 2."
             ],
             "next": 843307024
@@ -353,13 +370,15 @@
         "ant-scouts:attack:2": {
             "hp": 24,
             "status": "active",
-            "foe": 1,
+            "foe": null,
             "log": [
                 "🧪 Poison stings the Ant Scouts for 2.",
-                "⚔️ You hit the Ant Scouts for 6.",
-                "🛡️ The Ant Scouts misses you."
+                "⚔️ You hit the Ant Scouts for 7.",
+                "🏆 The Ant Scouts is defeated! +10 XP",
+                "📖 New Almanac page: Ant Scouts!",
+                "🎁 Loot: Forager's Crumb"
             ],
-            "next": 116187009
+            "next": 1900071481
         },
         "ant-scouts:ability:0": {
             "hp": 3,
@@ -367,7 +386,8 @@
             "foe": null,
             "log": [
                 "🌸 You charm the Ant Scouts. It wanders off peacefully.",
-                "🌸 The Ant Scouts is befriended! +5 XP"
+                "🌸 The Ant Scouts is befriended! +5 XP",
+                "📖 New Almanac page: Ant Scouts!"
             ],
             "next": 2114722986
         },
@@ -387,8 +407,9 @@
             "foe": null,
             "log": [
                 "🧪 Poison stings the Ant Scouts for 2.",
-                "🎯 Aimed Shot hits for 9.",
+                "🎯 Aimed Shot hits for 10.",
                 "🏆 The Ant Scouts is defeated! +10 XP",
+                "📖 New Almanac page: Ant Scouts!",
                 "🎁 Loot: Ant Chitin",
                 "🌱 You find some Cranberry Seeds and tuck them into your satchel."
             ],
@@ -423,25 +444,25 @@
             "next": 1964493436
         },
         "ant-scouts:fighton:0": {
-            "hp": 1,
+            "hp": 3,
             "status": "active",
-            "foe": 6,
+            "foe": null,
             "log": [
-                "⚔️ You miss (rolled 3).",
-                "🛡️ The Ant Scouts misses you.",
-                "⚔️ You hit the Ant Scouts for 3.",
-                "💥 The Ant Scouts hits you for 2.",
-                "⏩ You stop fighting on: you’re under half health (1\/3)."
+                "⚔️ You hit the Ant Scouts for 10.",
+                "🏆 The Ant Scouts is defeated! +10 XP",
+                "📖 New Almanac page: Ant Scouts!",
+                "🎁 Loot: Ant Chitin"
             ],
-            "next": 1882527855
+            "next": 955996199
         },
         "ant-scouts:fighton:1": {
             "hp": 16,
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Ant Scouts for 9.",
+                "⚔️ You hit the Ant Scouts for 10.",
                 "🏆 The Ant Scouts is defeated! +10 XP",
+                "📖 New Almanac page: Ant Scouts!",
                 "🌱 You find some Blueberry Seeds and tuck them into your satchel."
             ],
             "next": 1078063235
@@ -455,8 +476,9 @@
                 "⚔️ You miss (rolled 1).",
                 "💥 The Ant Scouts hits you for 4.",
                 "🧪 Poison stings the Ant Scouts for 2.",
-                "⚔️ You hit the Ant Scouts for 6.",
+                "⚔️ You hit the Ant Scouts for 7.",
                 "🏆 The Ant Scouts is defeated! +10 XP",
+                "📖 New Almanac page: Ant Scouts!",
                 "🎁 Loot: Ant Chitin"
             ],
             "next": 767163291
@@ -464,9 +486,9 @@
         "ant-scouts:auto:0": {
             "hp": 3,
             "status": "active",
-            "foe": 4,
+            "foe": 3,
             "log": [
-                "⚔️ You hit the Ant Scouts for 5.",
+                "⚔️ You hit the Ant Scouts for 6.",
                 "🛡️ The Ant Scouts misses you."
             ],
             "next": 355917212
@@ -474,30 +496,31 @@
         "ant-scouts:auto:1": {
             "hp": 12,
             "status": "active",
-            "foe": 3,
+            "foe": 2,
             "log": [
-                "⚔️ You hit the Ant Scouts for 6.",
+                "⚔️ You hit the Ant Scouts for 7.",
                 "💥 The Ant Scouts hits you for 4."
             ],
             "next": 1962284244
         },
         "ant-scouts:auto:2": {
-            "hp": 20,
+            "hp": 24,
             "status": "active",
-            "foe": 1,
+            "foe": null,
             "log": [
                 "🧪 Poison stings the Ant Scouts for 2.",
-                "⚔️ You hit the Ant Scouts for 6.",
-                "💥 The Ant Scouts hits you for 4."
+                "⚔️ You hit the Ant Scouts for 7.",
+                "🏆 The Ant Scouts is defeated! +10 XP",
+                "📖 New Almanac page: Ant Scouts!"
             ],
-            "next": 375837761
+            "next": 1842747930
         },
         "gnat-cloud:attack:0": {
             "hp": 2,
             "status": "active",
-            "foe": 2,
+            "foe": 1,
             "log": [
-                "⚔️ You hit the Gnat Cloud for 7.",
+                "⚔️ You hit the Gnat Cloud for 8.",
                 "💥 The Gnat Cloud hits you for 1."
             ],
             "next": 233321029
@@ -507,8 +530,9 @@
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Gnat Cloud for 9.",
+                "⚔️ You hit the Gnat Cloud for 10.",
                 "🏆 The Gnat Cloud is defeated! +10 XP",
+                "📖 New Almanac page: Gnat Cloud!",
                 "🎁 Loot: Gnat Dust"
             ],
             "next": 229614550
@@ -519,8 +543,9 @@
             "foe": null,
             "log": [
                 "🧪 Poison stings the Gnat Cloud for 2.",
-                "⚔️ You hit the Gnat Cloud for 7.",
+                "⚔️ You hit the Gnat Cloud for 8.",
                 "🏆 The Gnat Cloud is defeated! +10 XP",
+                "📖 New Almanac page: Gnat Cloud!",
                 "🎁 Loot: Gnat Dust"
             ],
             "next": 1700503735
@@ -539,23 +564,23 @@
         "gnat-cloud:ability:1": {
             "hp": 16,
             "status": "active",
-            "foe": 4,
+            "foe": 3,
             "log": [
-                "🎯 Aimed Shot hits for 5.",
+                "🎯 Aimed Shot hits for 6.",
                 "🛡️ The Gnat Cloud misses you."
             ],
             "next": 862511100
         },
         "gnat-cloud:ability:2": {
-            "hp": 20,
+            "hp": 24,
             "status": "active",
             "foe": 1,
             "log": [
                 "🧪 Poison stings the Gnat Cloud for 2.",
                 "🧪 Bitter Brew splashes for 6 and keeps burning.",
-                "💥 The Gnat Cloud hits you for 4."
+                "🛡️ The Gnat Cloud misses you."
             ],
-            "next": 525193070
+            "next": 1986226441
         },
         "gnat-cloud:flee:0": {
             "hp": 3,
@@ -591,24 +616,25 @@
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Gnat Cloud for 6.",
+                "⚔️ You hit the Gnat Cloud for 7.",
                 "🛡️ The Gnat Cloud misses you.",
-                "⚔️ You hit the Gnat Cloud for 2.",
-                "🛡️ The Gnat Cloud misses you.",
-                "⚔️ You hit the Gnat Cloud for 9.",
-                "🏆 The Gnat Cloud is defeated! +10 XP"
+                "⚔️ You hit the Gnat Cloud for 3.",
+                "🏆 The Gnat Cloud is defeated! +10 XP",
+                "📖 New Almanac page: Gnat Cloud!",
+                "🎁 Loot: Gnat Dust"
             ],
-            "next": 531543263
+            "next": 1506158168
         },
         "gnat-cloud:fighton:1": {
             "hp": 13,
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Gnat Cloud for 6.",
+                "⚔️ You hit the Gnat Cloud for 7.",
                 "💥 The Gnat Cloud hits you for 3.",
-                "⚔️ You hit the Gnat Cloud for 9.",
+                "⚔️ You hit the Gnat Cloud for 10.",
                 "🏆 The Gnat Cloud is defeated! +10 XP",
+                "📖 New Almanac page: Gnat Cloud!",
                 "🎁 Loot: Gnat Dust"
             ],
             "next": 179524872
@@ -619,22 +645,23 @@
             "foe": null,
             "log": [
                 "🧪 Poison stings the Gnat Cloud for 2.",
-                "⚔️ You hit the Gnat Cloud for 4.",
+                "⚔️ You hit the Gnat Cloud for 5.",
                 "💥 The Gnat Cloud hits you for 3.",
                 "🧪 Poison stings the Gnat Cloud for 2.",
-                "⚔️ You hit the Gnat Cloud for 3.",
                 "🏆 The Gnat Cloud is defeated! +10 XP",
+                "📖 New Almanac page: Gnat Cloud!",
                 "🎁 Loot: Gnat Dust"
             ],
-            "next": 1703763084
+            "next": 12942196
         },
         "gnat-cloud:auto:0": {
             "hp": 3,
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Gnat Cloud for 9.",
+                "⚔️ You hit the Gnat Cloud for 10.",
                 "🏆 The Gnat Cloud is defeated! +10 XP",
+                "📖 New Almanac page: Gnat Cloud!",
                 "🎁 Loot: Gnat Dust"
             ],
             "next": 1380320128
@@ -642,31 +669,32 @@
         "gnat-cloud:auto:1": {
             "hp": 14,
             "status": "active",
-            "foe": 4,
+            "foe": 3,
             "log": [
-                "⚔️ You hit the Gnat Cloud for 5.",
+                "⚔️ You hit the Gnat Cloud for 6.",
                 "💥 The Gnat Cloud hits you for 2."
             ],
             "next": 727773732
         },
         "gnat-cloud:auto:2": {
-            "hp": 23,
+            "hp": 24,
             "status": "active",
-            "foe": 3,
+            "foe": 2,
             "log": [
                 "🧪 Poison stings the Gnat Cloud for 2.",
-                "⚔️ You hit the Gnat Cloud for 4.",
-                "💥 The Gnat Cloud hits you for 1."
+                "⚔️ You hit the Gnat Cloud for 5.",
+                "🛡️ The Gnat Cloud misses you."
             ],
-            "next": 2040981010
+            "next": 296916604
         },
         "leopard-slug:attack:0": {
             "hp": 3,
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Leopard Slug for 9.",
+                "⚔️ You hit the Leopard Slug for 10.",
                 "🏆 The Leopard Slug is defeated! +10 XP",
+                "📖 New Almanac page: Leopard Slug!",
                 "🎁 Loot: Slug Slime"
             ],
             "next": 745488124
@@ -684,10 +712,10 @@
         "leopard-slug:attack:2": {
             "hp": 22,
             "status": "active",
-            "foe": 4,
+            "foe": 3,
             "log": [
                 "🧪 Poison stings the Leopard Slug for 2.",
-                "⚔️ You hit the Leopard Slug for 3.",
+                "⚔️ You hit the Leopard Slug for 4.",
                 "💥 The Leopard Slug hits you for 2."
             ],
             "next": 840639148
@@ -697,7 +725,7 @@
             "status": "ko",
             "foe": null,
             "log": [
-                "🎯 Aimed Shot hits for 7.",
+                "🎯 Aimed Shot hits for 8.",
                 "💥 The Leopard Slug hits you for 4.",
                 "💫 The Leopard Slug knocks you flat. You wake up back in Honeybrook, a bit sore but with all your things."
             ],
@@ -716,10 +744,10 @@
         "leopard-slug:ability:2": {
             "hp": 24,
             "status": "active",
-            "foe": 2,
+            "foe": 1,
             "log": [
                 "🧪 Poison stings the Leopard Slug for 2.",
-                "💪 Gnome Pluck! You hit for 5.",
+                "💪 Gnome Pluck! You hit for 6.",
                 "🛡️ The Leopard Slug misses you."
             ],
             "next": 1527153351
@@ -758,27 +786,27 @@
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Leopard Slug for 4.",
+                "⚔️ You hit the Leopard Slug for 5.",
                 "🛡️ The Leopard Slug misses you.",
-                "⚔️ You hit the Leopard Slug for 17 (critical!).",
+                "⚔️ You hit the Leopard Slug for 18 (critical!).",
                 "🏆 The Leopard Slug is defeated! +10 XP",
+                "📖 New Almanac page: Leopard Slug!",
                 "🎁 Loot: Slug Slime"
             ],
             "next": 1881083866
         },
         "leopard-slug:fighton:1": {
-            "hp": 13,
+            "hp": 16,
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Leopard Slug for 8.",
-                "💥 The Leopard Slug hits you for 3.",
                 "⚔️ You hit the Leopard Slug for 9.",
                 "🏆 The Leopard Slug is defeated! +10 XP",
+                "📖 New Almanac page: Leopard Slug!",
                 "🎁 Loot: Slug Slime",
                 "🎁 Loot: Spotted Hide"
             ],
-            "next": 855804198
+            "next": 1101967755
         },
         "leopard-slug:fighton:2": {
             "hp": 24,
@@ -786,8 +814,9 @@
             "foe": null,
             "log": [
                 "🧪 Poison stings the Leopard Slug for 2.",
-                "⚔️ You hit the Leopard Slug for 7.",
+                "⚔️ You hit the Leopard Slug for 8.",
                 "🏆 The Leopard Slug is defeated! +10 XP",
+                "📖 New Almanac page: Leopard Slug!",
                 "🎁 Loot: Slug Slime",
                 "🎁 Loot: Spotted Hide"
             ],
@@ -798,8 +827,9 @@
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Leopard Slug for 15 (critical!).",
+                "⚔️ You hit the Leopard Slug for 16 (critical!).",
                 "🏆 The Leopard Slug is defeated! +10 XP",
+                "📖 New Almanac page: Leopard Slug!",
                 "🎁 Loot: Slug Slime",
                 "🎁 Loot: Spotted Hide"
             ],
@@ -808,9 +838,9 @@
         "leopard-slug:auto:1": {
             "hp": 16,
             "status": "active",
-            "foe": 5,
+            "foe": 4,
             "log": [
-                "⚔️ You hit the Leopard Slug for 4.",
+                "⚔️ You hit the Leopard Slug for 5.",
                 "🛡️ The Leopard Slug misses you."
             ],
             "next": 490942096
@@ -818,20 +848,22 @@
         "leopard-slug:auto:2": {
             "hp": 24,
             "status": "active",
-            "foe": 7,
+            "foe": null,
             "log": [
                 "🧪 Poison stings the Leopard Slug for 2.",
-                "⚔️ You miss (rolled 3).",
-                "🛡️ The Leopard Slug misses you."
+                "⚔️ You hit the Leopard Slug for 8.",
+                "🏆 The Leopard Slug is defeated! +10 XP",
+                "📖 New Almanac page: Leopard Slug!",
+                "🎁 Loot: Slug Slime"
             ],
-            "next": 599048828
+            "next": 1727767636
         },
         "sand-fleas:attack:0": {
             "hp": 2,
             "status": "active",
-            "foe": 2,
+            "foe": 1,
             "log": [
-                "⚔️ You hit the Sand Flea Pack for 9.",
+                "⚔️ You hit the Sand Flea Pack for 10.",
                 "💥 The Sand Flea Pack hits you for 1."
             ],
             "next": 1824382211
@@ -839,9 +871,9 @@
         "sand-fleas:attack:1": {
             "hp": 12,
             "status": "active",
-            "foe": 5,
+            "foe": 4,
             "log": [
-                "⚔️ You hit the Sand Flea Pack for 6.",
+                "⚔️ You hit the Sand Flea Pack for 7.",
                 "💥 The Sand Flea Pack hits you for 4."
             ],
             "next": 986414111
@@ -870,9 +902,9 @@
         "sand-fleas:ability:1": {
             "hp": 12,
             "status": "active",
-            "foe": 3,
+            "foe": 2,
             "log": [
-                "💪 Gnome Pluck! You hit for 8.",
+                "💪 Gnome Pluck! You hit for 9.",
                 "💥 The Sand Flea Pack hits you for 4."
             ],
             "next": 280713477
@@ -883,9 +915,10 @@
             "foe": null,
             "log": [
                 "🧪 Poison stings the Sand Flea Pack for 2.",
-                "🗡️ Thorn Flurry hits for 6.",
-                "🗡️ Thorn Flurry hits for 3.",
-                "🏆 The Sand Flea Pack is defeated! +14 XP"
+                "🗡️ Thorn Flurry hits for 7.",
+                "🗡️ Thorn Flurry hits for 4.",
+                "🏆 The Sand Flea Pack is defeated! +14 XP",
+                "📖 New Almanac page: Sand Flea Pack!"
             ],
             "next": 1915181930
         },
@@ -924,31 +957,30 @@
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Sand Flea Pack for 9.",
+                "⚔️ You hit the Sand Flea Pack for 10.",
                 "🛡️ The Sand Flea Pack misses you.",
                 "⚔️ You miss (rolled 1).",
                 "🛡️ The Sand Flea Pack misses you.",
-                "⚔️ You hit the Sand Flea Pack for 8.",
+                "⚔️ You hit the Sand Flea Pack for 9.",
                 "🏆 The Sand Flea Pack is defeated! +14 XP",
+                "📖 New Almanac page: Sand Flea Pack!",
                 "🎁 Loot: Sea Glass"
             ],
             "next": 1657930027
         },
         "sand-fleas:fighton:1": {
-            "hp": 10,
+            "hp": 14,
             "status": "active",
             "foe": null,
             "log": [
-                "⚔️ You hit the Sand Flea Pack for 3.",
-                "💥 The Sand Flea Pack hits you for 2.",
-                "⚔️ You hit the Sand Flea Pack for 7.",
-                "💥 The Sand Flea Pack hits you for 4.",
-                "⚔️ You miss (rolled 4).",
-                "🛡️ The Sand Flea Pack misses you.",
                 "⚔️ You hit the Sand Flea Pack for 4.",
-                "🏆 The Sand Flea Pack is defeated! +14 XP"
+                "💥 The Sand Flea Pack hits you for 2.",
+                "⚔️ You hit the Sand Flea Pack for 8.",
+                "🏆 The Sand Flea Pack is defeated! +14 XP",
+                "📖 New Almanac page: Sand Flea Pack!",
+                "🎁 Loot: Flea Legs"
             ],
-            "next": 963090317
+            "next": 27050091
         },
         "sand-fleas:fighton:2": {
             "hp": 24,
@@ -956,31 +988,33 @@
             "foe": null,
             "log": [
                 "🧪 Poison stings the Sand Flea Pack for 2.",
-                "⚔️ You hit the Sand Flea Pack for 9.",
+                "⚔️ You hit the Sand Flea Pack for 10.",
                 "🏆 The Sand Flea Pack is defeated! +14 XP",
-                "🎁 Loot: Flea Legs"
+                "📖 New Almanac page: Sand Flea Pack!",
+                "🎁 Loot: Flea Legs",
+                "🎁 Loot: Sea Glass"
             ],
             "next": 783422600
         },
         "sand-fleas:auto:0": {
             "hp": 1,
             "status": "active",
-            "foe": 3,
+            "foe": 2,
             "log": [
-                "⚔️ You hit the Sand Flea Pack for 8.",
+                "⚔️ You hit the Sand Flea Pack for 9.",
                 "💥 The Sand Flea Pack hits you for 2."
             ],
             "next": 656693112
         },
         "sand-fleas:auto:1": {
-            "hp": 14,
+            "hp": 16,
             "status": "active",
             "foe": 11,
             "log": [
                 "⚔️ You miss (rolled 3).",
-                "💥 The Sand Flea Pack hits you for 2."
+                "🛡️ The Sand Flea Pack misses you."
             ],
-            "next": 846633437
+            "next": 1113269732
         },
         "sand-fleas:auto:2": {
             "hp": 24,
@@ -996,9 +1030,9 @@
         "dusk-moth:attack:0": {
             "hp": 3,
             "status": "active",
-            "foe": 8,
+            "foe": 7,
             "log": [
-                "⚔️ You hit the Dusk Moth for 3.",
+                "⚔️ You hit the Dusk Moth for 4.",
                 "🛡️ The Dusk Moth misses you."
             ],
             "next": 1483676126
@@ -1006,9 +1040,9 @@
         "dusk-moth:attack:1": {
             "hp": 16,
             "status": "active",
-            "foe": 2,
+            "foe": 1,
             "log": [
-                "⚔️ You hit the Dusk Moth for 9 (critical!).",
+                "⚔️ You hit the Dusk Moth for 10 (critical!).",
                 "🛡️ The Dusk Moth misses you."
             ],
             "next": 1751395576
@@ -1019,8 +1053,9 @@
             "foe": null,
             "log": [
                 "🧪 Poison stings the Dusk Moth for 2.",
-                "⚔️ You hit the Dusk Moth for 9.",
-                "🏆 The Dusk Moth is defeated! +14 XP"
+                "⚔️ You hit the Dusk Moth for 10.",
+                "🏆 The Dusk Moth is defeated! +14 XP",
+                "📖 New Almanac page: Dusk Moth!"
             ],
             "next": 611675573
         },
@@ -1029,8 +1064,9 @@
             "status": "active",
             "foe": null,
             "log": [
-                "💪 Gnome Pluck! You hit for 12.",
+                "💪 Gnome Pluck! You hit for 13.",
                 "🏆 The Dusk Moth is defeated! +14 XP",
+                "📖 New Almanac page: Dusk Moth!",
                 "🎁 Loot: Wing Dust"
             ],
             "next": 183432863
@@ -1040,9 +1076,10 @@
             "status": "active",
             "foe": null,
             "log": [
-                "🗡️ Thorn Flurry hits for 7 (critical!).",
-                "🗡️ Thorn Flurry hits for 7.",
+                "🗡️ Thorn Flurry hits for 8 (critical!).",
+                "🗡️ Thorn Flurry hits for 8.",
                 "🏆 The Dusk Moth is defeated! +14 XP",
+                "📖 New Almanac page: Dusk Moth!",
                 "🎁 Loot: Moth Wing",
                 "🎁 Loot: Wing Dust"
             ],
@@ -1094,7 +1131,7 @@
             "status": "ko",
             "foe": null,
             "log": [
-                "⚔️ You hit the Dusk Moth for 8.",
+                "⚔️ You hit the Dusk Moth for 9.",
                 "💥 The Dusk Moth hits you for 3.",
                 "💫 The Dusk Moth knocks you flat. You wake up back in Honeybrook, a bit sore but with all your things."
             ],
@@ -1107,10 +1144,13 @@
             "log": [
                 "⚔️ You miss (rolled 2).",
                 "💥 The Dusk Moth hits you for 1.",
-                "⚔️ You hit the Dusk Moth for 9.",
+                "⚔️ You hit the Dusk Moth for 10.",
                 "🛡️ The Dusk Moth misses you.",
-                "⚔️ You hit the Dusk Moth for 9.",
-                "🏆 The Dusk Moth is defeated! +14 XP"
+                "⚔️ You hit the Dusk Moth for 10.",
+                "🏆 The Dusk Moth is defeated! +14 XP",
+                "📖 New Almanac page: Dusk Moth!",
+                "🎁 Loot: Moth Wing",
+                "🎁 Loot: Wing Dust"
             ],
             "next": 762236181
         },
@@ -1120,20 +1160,21 @@
             "foe": null,
             "log": [
                 "🧪 Poison stings the Dusk Moth for 2.",
-                "⚔️ You hit the Dusk Moth for 5.",
+                "⚔️ You hit the Dusk Moth for 6.",
                 "🛡️ The Dusk Moth misses you.",
                 "🧪 Poison stings the Dusk Moth for 2.",
-                "⚔️ You hit the Dusk Moth for 10 (critical!).",
-                "🏆 The Dusk Moth is defeated! +14 XP"
+                "⚔️ You hit the Dusk Moth for 11 (critical!).",
+                "🏆 The Dusk Moth is defeated! +14 XP",
+                "📖 New Almanac page: Dusk Moth!"
             ],
             "next": 1740305595
         },
         "dusk-moth:auto:0": {
             "hp": 3,
             "status": "active",
-            "foe": 5,
+            "foe": 4,
             "log": [
-                "⚔️ You hit the Dusk Moth for 6.",
+                "⚔️ You hit the Dusk Moth for 7.",
                 "🛡️ The Dusk Moth misses you."
             ],
             "next": 1817379899
@@ -1141,9 +1182,9 @@
         "dusk-moth:auto:1": {
             "hp": 16,
             "status": "active",
-            "foe": 7,
+            "foe": 6,
             "log": [
-                "⚔️ You hit the Dusk Moth for 4.",
+                "⚔️ You hit the Dusk Moth for 5.",
                 "🛡️ The Dusk Moth misses you."
             ],
             "next": 1402376065
@@ -1151,10 +1192,10 @@
         "dusk-moth:auto:2": {
             "hp": 24,
             "status": "active",
-            "foe": 2,
+            "foe": 1,
             "log": [
                 "🧪 Poison stings the Dusk Moth for 2.",
-                "⚔️ You hit the Dusk Moth for 7.",
+                "⚔️ You hit the Dusk Moth for 8.",
                 "🛡️ The Dusk Moth misses you."
             ],
             "next": 1654435629
@@ -1162,9 +1203,9 @@
         "dung-beetle:attack:0": {
             "hp": 3,
             "status": "active",
-            "foe": 9,
+            "foe": 8,
             "log": [
-                "⚔️ You hit the Dung Beetle for 2.",
+                "⚔️ You hit the Dung Beetle for 3.",
                 "🛡️ The Dung Beetle misses you."
             ],
             "next": 31335411
@@ -1172,9 +1213,9 @@
         "dung-beetle:attack:1": {
             "hp": 16,
             "status": "active",
-            "foe": 7,
+            "foe": 6,
             "log": [
-                "⚔️ You hit the Dung Beetle for 4.",
+                "⚔️ You hit the Dung Beetle for 5.",
                 "🛡️ The Dung Beetle misses you."
             ],
             "next": 1552944011
@@ -1182,24 +1223,27 @@
         "dung-beetle:attack:2": {
             "hp": 24,
             "status": "active",
-            "foe": 1,
+            "foe": null,
             "log": [
                 "🧪 Poison stings the Dung Beetle for 2.",
-                "⚔️ You hit the Dung Beetle for 8.",
-                "🛡️ The Dung Beetle misses you."
+                "⚔️ You hit the Dung Beetle for 9.",
+                "🏆 The Dung Beetle is defeated! +14 XP",
+                "📖 New Almanac page: Dung Beetle!",
+                "🎁 Loot: Beetle Shell",
+                "🎁 Loot: Dung Ball"
             ],
-            "next": 1273355572
+            "next": 513257610
         },
         "dung-beetle:ability:0": {
             "hp": 3,
             "status": "active",
-            "foe": 3,
+            "foe": 7,
             "log": [
-                "🗡️ Thorn Flurry hits for 3.",
-                "🗡️ Thorn Flurry hits for 5.",
+                "🗡️ Thorn Flurry hits for 4.",
+                "🗡️ Thorn Flurry misses.",
                 "🛡️ The Dung Beetle misses you."
             ],
-            "next": 1077504913
+            "next": 756290132
         },
         "dung-beetle:ability:1": {
             "hp": 15,
@@ -1255,7 +1299,7 @@
             "status": "ko",
             "foe": null,
             "log": [
-                "⚔️ You hit the Dung Beetle for 8.",
+                "⚔️ You hit the Dung Beetle for 9.",
                 "💥 The Dung Beetle hits you for 4.",
                 "💫 The Dung Beetle knocks you flat. You wake up back in Honeybrook, a bit sore but with all your things."
             ],
@@ -1264,9 +1308,9 @@
         "dung-beetle:fighton:1": {
             "hp": 7,
             "status": "active",
-            "foe": 9,
+            "foe": 8,
             "log": [
-                "⚔️ You hit the Dung Beetle for 2.",
+                "⚔️ You hit the Dung Beetle for 3.",
                 "💥 The Dung Beetle hits you for 4.",
                 "⚔️ You miss (rolled 3).",
                 "🛡️ The Dung Beetle misses you.",
@@ -1289,20 +1333,19 @@
                 "⚔️ You miss (rolled 2).",
                 "💥 The Dung Beetle hits you for 4.",
                 "🧪 Poison stings the Dung Beetle for 2.",
-                "⚔️ You hit the Dung Beetle for 6.",
-                "🛡️ The Dung Beetle misses you.",
-                "🧪 Poison stings the Dung Beetle for 2.",
+                "⚔️ You hit the Dung Beetle for 7.",
                 "🏆 The Dung Beetle is defeated! +14 XP",
-                "🎁 Loot: Dung Ball"
+                "📖 New Almanac page: Dung Beetle!",
+                "🎁 Loot: Beetle Shell"
             ],
-            "next": 514720571
+            "next": 1775473200
         },
         "dung-beetle:auto:0": {
             "hp": 2,
             "status": "ko",
             "foe": null,
             "log": [
-                "⚔️ You hit the Dung Beetle for 9.",
+                "⚔️ You hit the Dung Beetle for 10.",
                 "💥 The Dung Beetle hits you for 3.",
                 "💫 The Dung Beetle knocks you flat. You wake up back in Honeybrook, a bit sore but with all your things."
             ],
@@ -1311,9 +1354,9 @@
         "dung-beetle:auto:1": {
             "hp": 16,
             "status": "active",
-            "foe": 6,
+            "foe": 5,
             "log": [
-                "⚔️ You hit the Dung Beetle for 5.",
+                "⚔️ You hit the Dung Beetle for 6.",
                 "🛡️ The Dung Beetle misses you."
             ],
             "next": 1019005912
@@ -1321,10 +1364,10 @@
         "dung-beetle:auto:2": {
             "hp": 24,
             "status": "active",
-            "foe": 5,
+            "foe": 4,
             "log": [
                 "🧪 Poison stings the Dung Beetle for 2.",
-                "⚔️ You hit the Dung Beetle for 4.",
+                "⚔️ You hit the Dung Beetle for 5.",
                 "🛡️ The Dung Beetle misses you."
             ],
             "next": 793448596
