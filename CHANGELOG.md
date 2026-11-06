@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.03
+- **Walking onto an item shows its notification again**: 2.6.02 showed the "what just happened" message only when a page loaded from scratch, not after a step on the map, which swaps the page in place. It now shows in the toast box and floats over the gnome after every step.
+- Tests: the browser test now walks a tile.
+
 ## 2.6.02
 - **One notification box on the Trail**: "Latest: ..." was a second box fixed over the message bar and the status strip. It now joins the one toast box with the other messages, and also floats up over the gnome on the map, so what you find shows where it happens.
 - Tests: Trail page toast carrier and map pop-up (browser).

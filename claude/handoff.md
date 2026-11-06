@@ -1,4 +1,6 @@
-# Gnome Venture handoff (current as of 2026-11-06; main = 2.6.02; MASTER TO-DO is `claude/todo.md` (one file, read it first); older blocks below are history)
+# Gnome Venture handoff (current as of 2026-11-06; main = 2.6.03; MASTER TO-DO is `claude/todo.md` (one file, read it first); older blocks below are history)
+
+**2.6.03 (2026-11-06)**: `gvPageToasts()` in site.js runs after both in-place swap paths (walking onto an item toasts again). Slim zip needs 2.5.98+.
 
 **2.6.02 (2026-11-06)**: Trail "Latest" line = `data-gvtoast` carrier (adventure.php) read by site.js into the one toast box + `.tmpop` over the map. Slim zip needs 2.5.98+.
 
