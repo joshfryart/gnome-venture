@@ -1,5 +1,16 @@
 // node fight_finale.js BASE [SHOTDIR] : kill the foe in a browser and watch the end scene (needs a 1-hp foe set up by fight_scene_trail.sh)
 const { chromium } = require('playwright');
+// the fight menu is a command column: open Fight, tap Attack once to read it and again to do it (a plain button list still works)
+async function doAttack(p) {
+  if (await p.locator('.fsc-top[data-open=fight]').count()) {
+    await p.click('.fsc-top[data-open=fight]');
+    await p.click('.fsc-sub[data-for=fight] form:has(input[value=attack]) button');
+    await p.click('.fsc-sub[data-for=fight] form:has(input[value=attack]) button');
+    return;
+  }
+  await p.click('.fightbtns form:has(input[value=attack]) button');
+}
+
 (async () => {
   const [base, shot] = [process.argv[2], process.argv[3]];
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--no-sandbox'] }).catch(() => chromium.launch({ args: ['--no-sandbox'] }));
@@ -13,7 +24,7 @@ const { chromium } = require('playwright');
   await p.waitForFunction(() => !document.querySelector('.fsdock.fs-wait'), null, { timeout: 8000 }).catch(() => fail('dock stays locked'));
   let held = false;
   for (let i = 0; i < 6 && !held; i++) {   // a miss just means another swing
-    await p.click('.fsdock form:has(input[value=attack]) button');
+    await doAttack(p);
     held = await p.waitForFunction(() => document.body.classList.contains('fs-hold'), null, { timeout: 7000 }).then(() => true, () => false);
     if (!held) await p.waitForFunction(() => !document.querySelector('.fsdock.fs-wait'), null, { timeout: 8000 }).catch(() => {});
   }

@@ -27,8 +27,8 @@ cli set fight_scene 1 >/dev/null; get adventure.php >/dev/null
 chk "scene on: no popover" "$(grep -q 'trailpop' $TD/here-p.html && echo 0 || echo 1)"
 chk "the stage is inside the map (tmstage), flat over it" "$(sed -n '/class="tmstage"/,/<\/form>/p' $TD/here-p.html | grep -q 'class="fightscene fs-over"' && echo 1)"
 chk "over-map cells are handed over" "$(grep -o 'data-fight="[^"]*"' $TD/here-p.html | head -1 | php -r 'echo html_entity_decode(stream_get_contents(STDIN));' | grep -q '"over":{"cols":9,"rows":9' && echo 1)"
-chk "the action dock sits under the map with an info sheet" "$(grep -q 'class="fsdock"' $TD/here-p.html && grep -q 'class="fsmore"' $TD/here-p.html && echo 1)"
-chk "the dock buttons are real forms (not nested in the map form)" "$([ "$(sed -n '/class=\"fsdock\"/,/class=\"fsmore\"/p' $TD/here-p.html | grep -o '<form' | wc -l)" -ge 3 ] && echo 1)"
+chk "the fight menu (Fight / Item / Flee column) sits over the map" "$(grep -q 'class="fsdock fsc"' $TD/here-p.html && grep -q 'class="fsc-menu"' $TD/here-p.html && echo 1)"
+chk "the dock buttons are real forms (not nested in the map form)" "$([ "$(sed -n '/class=\"fsdock fsc\"/,/class=\"fsc-menu\"/p' $TD/here-p.html | grep -o '<form' | wc -l)" -ge 3 ] && echo 1)"
 chk "the old button list is not repeated under the map" "$(grep -q 'class="fightbtns' $TD/here-p.html && echo 0 || echo 1)"
 chk "fight buttons are there" "$(grep -q 'value="attack"' $TD/here-p.html && echo 1)"
 chk "no inline style or script on the page (CSP)" "$(sed -n '/<main/,/<\/main>/p' $TD/here-p.html | grep -qE '\sstyle=|<script[^>]*>[^<]' && echo 0 || echo 1)"
@@ -38,11 +38,11 @@ get adventure.php >/dev/null
 grep -o 'data-fight="[^"]*"' $TD/here-p.html | head -1 | php -r 'echo html_entity_decode(stream_get_contents(STDIN));' | grep -q '"pop":true' && echo "  FAIL hat pops at full health"
 php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT id,encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetch(); $e=json_decode($r["encounter"],true); $e["hp"]=1; $p->prepare("UPDATE expeditions SET encounter=?, hp=max_hp WHERE id=?")->execute([json_encode($e),$r["id"]]);'
 FIN=0
-for i in 1 2 3 4 5 6 7 8 9 10; do get adventure.php >/dev/null; post adventure.php -d do=attack >/dev/null; get adventure.php >/dev/null; if ! grep -q 'class="fsdock"' $TD/here-p.html; then FIN=1; break; fi; done
+for i in 1 2 3 4 5 6 7 8 9 10; do get adventure.php >/dev/null; post adventure.php -d do=attack >/dev/null; get adventure.php >/dev/null; if ! grep -q 'class="fsdock fsc"' $TD/here-p.html; then FIN=1; break; fi; done
 chk "the killing blow leaves an end scene on the map" "$([ $FIN = 1 ] && grep -q 'class="fightscene fs-over"' $TD/here-p.html && echo 1)"
 FD=$(grep -o 'data-fight="[^"]*"' $TD/here-p.html | head -1 | php -r 'echo html_entity_decode(stream_get_contents(STDIN));')
 chk "...with the last blow, the end marker and the XP" "$(echo "$FD" | grep -q '"finale":1' && echo "$FD" | grep -q '"end":"win"' && echo "$FD" | grep -q '"xp":[1-9]' && echo 1)" "$(echo $FD | cut -c1-300)"
-chk "no popover, no fight dock during the end scene" "$(grep -q 'trailpop' $TD/here-p.html && echo 0 || (grep -q 'class="fsdock"' $TD/here-p.html && echo 0 || echo 1))"
+chk "no popover, no fight dock during the end scene" "$(grep -q 'trailpop' $TD/here-p.html && echo 0 || (grep -q 'class="fsdock fsc"' $TD/here-p.html && echo 0 || echo 1))"
 get adventure.php >/dev/null
 chk "the end scene plays once (a reload shows the plain map)" "$(grep -q 'id="fightscene"' $TD/here-p.html && echo 0 || echo 1)"
 cli forceenc >/dev/null

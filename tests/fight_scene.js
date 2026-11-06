@@ -1,5 +1,18 @@
 // node fight_scene.js BASE [SHOTDIR] : the fight page in a browser (needs the fight set up by fight_scene.sh)
 const { chromium } = require('playwright');
+// the fight menu is a command column: open Fight, tap Attack once to read it and again to do it (a plain button list still works)
+async function doAttack(p, shot) {
+  if (await p.locator('.fsc-top[data-open=fight]').count()) {
+    const snap = async n => { if (shot) { await p.evaluate(() => { const h = document.querySelector('.fsc'); if (h) h.scrollIntoView({ block: 'end' }); }); await p.waitForTimeout(250); await p.screenshot({ path: shot + '/menu-' + n + '.png' }); } };
+    await snap('1-closed');
+    await p.click('.fsc-top[data-open=fight]'); await snap('2-fight-open');
+    await p.click('.fsc-sub[data-for=fight] form:has(input[value=attack]) button'); await snap('3-attack-read');
+    await p.click('.fsc-sub[data-for=fight] form:has(input[value=attack]) button');
+    return;
+  }
+  await p.click('.fightbtns form:has(input[value=attack]) button');
+}
+
 (async () => {
   const [base, shot] = [process.argv[2], process.argv[3]];
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--no-sandbox'] }).catch(() => chromium.launch({ args: ['--no-sandbox'] }));
@@ -17,7 +30,7 @@ const { chromium } = require('playwright');
   if (shot) console.log('HB', JSON.stringify(await p.evaluate(() => [...document.querySelectorAll('.fe-hb')].map(e => { const r = e.getBoundingClientRect(), h = document.getElementById('fightscene').getBoundingClientRect(); return [e.className, Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height), 'host', Math.round(h.x), Math.round(h.y), Math.round(h.width), Math.round(h.height), getComputedStyle(e).display, getComputedStyle(e).opacity]; }))));
   if (shot) await p.evaluate(() => { const h = document.getElementById('fightscene'); if (h) h.scrollIntoView({ block: 'center' }); }); await p.waitForTimeout(300); await p.screenshot({ path: shot + '/fs-enter.png' });
 
-  await p.click('.fsdock form:has(input[value=attack]) button, .fightbtns form:has(input[value=attack]) button');
+  await doAttack(p, shot);
   await p.waitForFunction(() => { const h = document.getElementById('fightscene'); try { return JSON.parse(h.dataset.fight).events.length > 0; } catch (e) { return false; } }, null, { timeout: 15000 }).catch(() => fail('no events after the attack click'));
   try { await p.waitForSelector('#fightscene .fe-view', { timeout: 20000 }); } catch (e) { fail('engine did not mount after attack: ' + errs.join('|') + ' ' + await p.evaluate(() => typeof FightEngine + ' ' + document.readyState)); }
   const locked = await p.evaluate(() => !!document.querySelector('.fightbtns.fs-wait, .fsdock.fs-wait')); if (!locked) fail('buttons not locked while events play');

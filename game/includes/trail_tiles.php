@@ -406,7 +406,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     if ($fightOver && $exp['encounter'] && ($encO = json_decode((string)$exp['encounter'], true)) && ($encO['type'] ?? '') === 'creature' && ($cO = encounter_creature($encO))) {
         require_once __DIR__ . '/fight_scene.php'; fight_prep($encO, $cO);   // the stage over the map: the gnome on its own tile (kept inside the middle 7 of 9 so a narrow phone sees both), the foe two tiles to the right
         $mx = max(1, min(DM_VIEW - 4, $sc['x'] - $win['x0']));
-        $fightDock = fight_dock_html($u, $exp, $encO, $cO);   // real forms: they cannot sit inside the map's own form, so they follow it and are pulled up over the map by css
+        $fightDock = fight_dock_html($u, $exp, $encO, $cO, $mx <= 3 ? 'r' : 'l');   // the column goes on the side away from the gnome   // real forms: they cannot sit inside the map's own form, so they follow it and are pulled up over the map by css
         $fightOver_html = fight_scene_html($u, $exp, $encO, $cO, ['cols' => DM_VIEW, 'rows' => DM_VIEW, 'mx' => $mx, 'my' => max(1, min(DM_VIEW - 2, $sc['y'] - $win['y0'])), 'fx' => $mx + 2]);
     }
     elseif ($fightOver && !$exp['encounter']) {   // the fight just ended: its end scene plays over the map (the foe falls, loot drops and is drawn into the gnome) before the map is usable

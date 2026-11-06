@@ -57,27 +57,25 @@
 .fe-flat .fe-hb b{display:none}
 .fe-flat .fe-hb .fe-hp{height:4px;margin:2px 0 0;background:#0009;border-radius:3px;box-shadow:0 0 0 1px #000a}
 .fe-flat .fe-hb.foe .fe-hp i{background:#ff5d73}.fe-flat .fe-hb.me .fe-hp i{background:#5dffa0}
-/* the action dock on the map (v2.5.95): sits under the map, every option visible: Attack (2 wide), more buttons in rows of 4, the snack on its own row, (i) = what each does; real forms (works without script) */
-.fsdockwrap{position:relative;z-index:8;margin:6px 0 0}
-.fsdock{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:5px;border-radius:16px;
-  background:rgba(20,12,16,.82);border:1px solid rgba(255,255,255,.22);box-shadow:0 6px 18px rgba(0,0,0,.35)}
-.fsdock form{margin:0;min-width:0}
-.fsdock>form:first-of-type{grid-column:span 2}
-.fsdock .choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:100%;height:50px;min-height:0;padding:0 2px;border:0;border-radius:11px;background:rgba(255,255,255,.1);box-shadow:none;color:#fff;font-weight:700;text-shadow:0 1px 2px #000}
-.fsdock .choice-body{display:block;padding:0;margin:0}.fsdock .choice-title{font-size:10px;line-height:1.05;color:#fff;font-weight:700;white-space:normal;text-align:center;overflow-wrap:anywhere}
-.fsdock .choice-sub,.fsdock .choice small,.fsdock .choice-badge{display:none}
-.fsdock .choice-ico{font-size:18px;filter:drop-shadow(0 1px 1px #000)}
-.fsdock>form:first-of-type .choice{background:linear-gradient(#3fae5a,#237a3d);box-shadow:0 0 0 1px #fff4 inset}
-.fsdock .choice[disabled]{opacity:.45}
-.fssnack{grid-column:1/-1}.fssnack form{display:flex;gap:5px;align-items:stretch}.fssnack .choice{height:40px;flex:0 0 38%}.fssnack .choice-body{display:inline}.fssnack .choice{flex-direction:row;gap:4px}
-.fssnack select{flex:1 1 auto;min-width:0;height:40px;border-radius:11px;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:12px;padding:0 6px}.fssnack select option{color:#000}
-.fsmore{position:static;display:flex}
-.fsmore>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:center;width:100%;height:48px;border-radius:11px;background:rgba(255,255,255,.1);color:#fff;font-size:20px;font-weight:800}
-.fsmore>summary::-webkit-details-marker{display:none}
-.fsmore[open]>summary{background:rgba(255,255,255,.24)}
-.fsmorebox{position:absolute;left:0;right:0;bottom:calc(100% + 6px);padding:8px;border-radius:14px;max-height:60vh;overflow:auto;
-  background:rgba(20,12,16,.95);border:1px solid rgba(255,255,255,.22);box-shadow:0 8px 22px rgba(0,0,0,.5)}
-.fsmorebox .fsodds{font-size:12px;color:#fff;opacity:.9;margin:0 0 6px;text-align:left}.fsmorebox .fsodds:first-child{text-align:center}
+/* the fight menu on the map (v2.5.96, Design C): a command column (Fight / Item / Flee) over the lower corner of the map, lists open beside it, tap once to read and again to do.
+   No script = the lists simply sit open (.fsd-js is added by assets/fightscene.js). */
+.fsdockwrap{position:relative;height:0;z-index:8}
+.fsc{position:absolute;left:8px;right:8px;bottom:8px;height:0}
+.fsc-menu,.fsc-sub{position:absolute;bottom:0;background:rgba(20,12,16,.9);border:2px solid rgba(255,255,255,.3);border-radius:10px;padding:5px;box-shadow:0 6px 18px rgba(0,0,0,.5)}
+.fsc-menu{left:0;width:128px}.fsc-sub{left:136px;right:0}
+.fsd-r .fsc-menu{left:auto;right:0}.fsd-r .fsc-sub{left:0;right:136px}
+.fsc-f{margin:0}
+.fsc-top,.fsc-opt{display:flex;align-items:center;gap:6px;width:100%;min-height:38px;padding:4px 8px;border:0;border-radius:8px;background:transparent;color:#fff;font:inherit;font-size:14px;font-weight:800;text-align:left;text-shadow:0 1px 2px #000;cursor:pointer}
+.fsc-opt{font-size:13px;font-weight:700}.fsc-flee{font-size:14px;font-weight:800}
+.o-ic{font-size:17px;flex:0 0 auto}.o-t{flex:1 1 auto;min-width:0;line-height:1.1}.o-r{margin-left:auto;flex:0 0 auto;font-size:11px;color:#9be39b;font-weight:800}
+.fsc-top .o-r{font-size:14px;color:#fff;opacity:.7}
+.fsc-top.on{background:linear-gradient(#3fae5a,#237a3d)}
+.fsc-opt.armed{background:rgba(255,255,255,.2);box-shadow:0 0 0 1px rgba(255,255,255,.55) inset}
+.fsc-opt[disabled],.fsc-top[disabled]{opacity:.45;cursor:default}
+.fsc-info{display:none;padding:4px 8px 6px;font-size:12px;line-height:1.25;color:#f3e3d0;font-weight:500;text-shadow:none;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:3px}
+.fsc-sub .fsc-info:not(:empty){display:block}
+.fsd-js .fsc-sub{display:none}.fsd-js .fsc-sub.open{display:block}
+.fsc.fs-wait{opacity:.55;pointer-events:none}
 .fsdock.fs-wait{opacity:.55;pointer-events:none}
 
 /* end scene: XP orbs and loot rest on the ground, then are drawn into the gnome */

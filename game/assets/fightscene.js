@@ -4,7 +4,7 @@
 (function () {
   var eng = null, cur = null;
   var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function lock(on) { document.querySelectorAll('.fightbtns, .fsdock').forEach(function (btns) { btns.classList.toggle('fs-wait', on); btns.querySelectorAll('button').forEach(function (b) { b.disabled = on; }); }); }
+  function lock(on) { document.querySelectorAll('.fightbtns, .fsdock').forEach(function (btns) { btns.classList.toggle('fs-wait', on); btns.querySelectorAll('button').forEach(function (b) { if (on) { b.setAttribute('data-wasdis', b.disabled ? '1' : ''); b.disabled = true; } else { b.disabled = b.getAttribute('data-wasdis') === '1'; } }); }); }
   function boot() {
     var host = document.getElementById('fightscene');
     if (host === cur) return;
@@ -52,4 +52,39 @@
   }
   document.addEventListener('gv:swapped', boot);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+
+/* The fight menu on the map (includes/fight_scene.php fight_dock_html): Fight / Item open a list, tap an option once to read it, again to do it.
+   After an action the menu closes at once (and the page comes back with it closed), so the fight plays in full view. Delegated, so it works after in-place page swaps. */
+(function () {
+  document.documentElement.classList.add('fsd-js');
+  function closeAll(dock) {
+    dock.querySelectorAll('.fsc-sub').forEach(function (s) { s.classList.remove('open'); var i = s.querySelector('.fsc-info'); if (i) i.textContent = ''; });
+    dock.querySelectorAll('.fsc-top').forEach(function (b) { b.classList.remove('on'); });
+    dock.querySelectorAll('.fsc-opt').forEach(function (b) { disarm(b); });
+  }
+  function disarm(b) { b.classList.remove('armed'); var t = b.querySelector('.o-t'); if (t && b.hasAttribute('data-was')) { t.textContent = b.getAttribute('data-was'); b.removeAttribute('data-was'); } }
+  document.addEventListener('click', function (e) {
+    var dock = e.target.closest && e.target.closest('.fsc'); if (!dock) return;
+    var top = e.target.closest('.fsc-top');
+    if (top) {
+      e.preventDefault(); if (top.disabled) return;
+      var sub = dock.querySelector('.fsc-sub[data-for="' + top.getAttribute('data-open') + '"]'), was = sub && sub.classList.contains('open');
+      closeAll(dock);
+      if (sub && !was) { sub.classList.add('open'); top.classList.add('on'); sub.querySelector('.fsc-info').textContent = sub.getAttribute('data-hint') || ''; }
+      return;
+    }
+    var opt = e.target.closest('.fsc-opt'); if (!opt || opt.disabled) return;
+    if (!opt.classList.contains('armed')) {   // first tap: read it
+      e.preventDefault();
+      dock.querySelectorAll('.fsc-opt').forEach(function (b) { if (b !== opt) disarm(b); });
+      opt.classList.add('armed');
+      var sub2 = opt.closest('.fsc-sub'), say = opt.getAttribute('data-desc') || '';
+      if (sub2) sub2.querySelector('.fsc-info').textContent = say + ' Tap again to do it.';
+      else { var t = opt.querySelector('.o-t'); if (t && opt.getAttribute('data-armtext')) { opt.setAttribute('data-was', t.textContent); t.textContent = opt.getAttribute('data-armtext'); } closeSubs(dock); }
+      return;
+    }
+    setTimeout(function () { closeAll(dock); }, 0);   // second tap: the form goes, the menu goes back to its start state
+  });
+  function closeSubs(dock) { dock.querySelectorAll('.fsc-sub').forEach(function (s) { s.classList.remove('open'); }); dock.querySelectorAll('.fsc-top').forEach(function (b) { b.classList.remove('on'); }); }
 })();

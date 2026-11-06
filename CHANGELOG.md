@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.96
+- **New fight menu on route maps ("Design C")**: a small command column over the map corner with **Fight**, **Item** and **Flee** (it sits on the side away from your gnome). Fight opens a list beside it (Attack, your ability, your pals' actives, Fight on, Auto-win); Item lists your snacks, one row each (dimmed when you have none); Flee shows your chance to get away. Tap an option once to read what it does in the list's top line, tap it again to do it. After any action the menu closes straight away and the page comes back with it closed, so the whole attack plays out in full view. With no script the lists stay open and every option is still a normal form.
+- The fight stage no longer re-enables a button that was disabled on purpose (a used ability) after an animation.
+- Tests: `fight_scene.js` and `fight_finale.js` drive the new menu (open Fight, read, confirm); `fight_scene_trail.sh` checks the new markup.
+
 ## 2.5.95
 - **The fight menu on route maps shows every option**: Attack (double width), your calling's ability, Run, Fight on, each equipped pal's active and Auto-win are all buttons in the menu, in rows of four with the names wrapping, and the Snack (with its picker) has its own row. Nothing is hidden behind "⋯" any more; the new ⓘ button only explains the odds and what each option does. The menu now sits under the map instead of over it, so it never covers your gnome.
 
