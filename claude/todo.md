@@ -9,11 +9,11 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - 2.5.67: Do here and Stall results show in the popover; header energy and Petals pills update live (icon kept, number only).
 - 2.5.63 to 2.5.65 (art): 133 weak items redrawn, all 387 seeds are packets, 4 kind cards, scene fixes (camp flames, ferry dock, wild-trail trees, Snowcrown, turtle scutes, kava circle, banner-desert, trek-me, vig-pick), world + region maps richer, desert/adobe stop looks, hero-scale village/haven/delve/lair, Beaver Pond front, hedgehogs redrawn, gnome eye rim.
 - 2.5.60 to 2.5.62: 81 wonders, 29 banners, gather small art, 14 journal emblems, 7 landing, 14 region maps, 46 trek tiles installed.
-- Flags `gnav_on`, `gnav_tree`, `gnav_tiles` default 0 (check Admin before assuming).
+- Flags `gnav_on`, `gnav_tree`, `gnav_tiles`: all ON live (Josh, 2026-11-06); code default is still 0.
 - Release recipe: bump `APP_VERSION` in `game/includes/bootstrap.php`, CHANGELOG top entry = same, `tools/check_versions.sh`, `bash tests/build_update.sh <v> <two-back> releases`, art zip `upload-zips/gnome-venture-images-v3-<v>.zip`. Never rebuild a zip under the same version. Push main only on Josh's word.
 
 ## 2. JOSH: phone checks
-- 2.5.81 to 2.5.89 fight scene (turn on `fight_scene` in Admin): fight over the map, dock buttons, health under creatures, end scene rewards over the head, hat, walk back, Sneak/Hunt carry across sections, 3% fight rate feel, 320px phone.
+- 2.5.81 to 2.5.89 fight scene: Josh checked the fight scenes on 2026-11-06 (no issues reported; specifics not itemised). Still unchecked from this list, if not covered: fight over the map, dock buttons, health under creatures, end scene rewards over the head, hat, walk back, Sneak/Hunt carry across sections, 3% fight rate feel, 320px phone.
 - 2.5.72 (new, nothing phone-checked): Do tab meter bars, perk line, answer acts when a meter is low, notice board on Stop tab, daily happening strip, a story beat for a Regular, trail without the yellow square, Sneak/Hunt, workshop without round icons.
 - Josh said "everything live seems fine" (2026-11-05). Not itemised, so the list below stays until he ticks specifics; treat 2.5.66 and 2.5.67 as passed.
 - Trail landmarks 2.5.66 (all 16 routes), GPS auto-stop, hidden dots; Do here popover results + live header pills 2.5.67.
