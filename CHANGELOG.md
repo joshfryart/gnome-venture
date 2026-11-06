@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.92
+- **Trail ground pictures upload through Admin → Images**: a file named `<route id>-<section>.png` (for example `256-1.png`) is matched to that Trail section and saved as `uploads/trail/ground/256-1.png`. The game uses an uploaded picture before the one shipped in `assets/img/trail/ground/`. Zips of these pictures are in `upload-zips/gnome-venture-trail-ground-partNofM.zip`.
+- Test: ground picture lookup in `tests/trail_authored.php`.
+
 ## 2.5.91
 - **Admin → Tools: "Trail maps check"** shows the version, the tile-walk flags, whether `trail_maps.json` reads, how many authored routes and ground pictures this site has, and whether four sample routes (228, 256, 238, 444) are authored with their pictures. For finding out why a route still shows a random map.
 

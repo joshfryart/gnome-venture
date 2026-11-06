@@ -141,4 +141,15 @@ ok('depth order: a tree on a row south of the walker is drawn after it (in front
 $expect = 0; foreach ($art['objs'] as $o) { $X = ($o[0] - 12) * TM_UNIT + $o[3] * $k; if ($X + 64 * $k > 0 && $X < 9 * TM_UNIT) $expect++; }
 $far = trail_art_svg($m, ['x0' => 12] + $win);
 ok('only the things in the window are drawn', substr_count($far, '<image href="') - 2 === $expect && $expect < count($art['objs']), substr_count($far, '<image href="') . " vs $expect of " . count($art['objs']));
+echo "== ground picture lookup (Admin > Images uploads win over the shipped ones)\n";
+$sc = sys_get_temp_dir() . '/gv-trail-' . bin2hex(random_bytes(4));
+mkdir($sc . '/assets/img/trail/ground', 0777, true); mkdir($sc . '/uploads/trail/ground', 0777, true);
+ok('no picture anywhere: null', trail_ground_file(256, 1, $sc) === null);
+file_put_contents($sc . '/assets/img/trail/ground/256-1.png', 'x');
+ok('only the shipped picture: that one', trail_ground_file(256, 1, $sc) === $sc . '/assets/img/trail/ground/256-1.png');
+file_put_contents($sc . '/uploads/trail/ground/256-1.png', 'x');
+ok('an uploaded picture beats the shipped one', trail_ground_file(256, 1, $sc) === $sc . '/uploads/trail/ground/256-1.png');
+ok('another section is still null', trail_ground_file(256, 2, $sc) === null);
+array_map('unlink', [$sc . '/assets/img/trail/ground/256-1.png', $sc . '/uploads/trail/ground/256-1.png']);
+foreach (['/assets/img/trail/ground', '/assets/img/trail', '/assets/img', '/assets', '/uploads/trail/ground', '/uploads/trail', '/uploads', ''] as $d) @rmdir($sc . $d);
 exit($fails ? 1 : 0);
