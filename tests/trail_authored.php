@@ -141,6 +141,12 @@ ok('depth order: a tree on a row south of the walker is drawn after it (in front
 $expect = 0; foreach ($art['objs'] as $o) { $X = ($o[0] - 12) * TM_UNIT + $o[3] * $k; if ($X + 64 * $k > 0 && $X < 9 * TM_UNIT) $expect++; }
 $far = trail_art_svg($m, ['x0' => 12] + $win);
 ok('only the things in the window are drawn', substr_count($far, '<image href="') - 2 === $expect && $expect < count($art['objs']), substr_count($far, '<image href="') . " vs $expect of " . count($art['objs']));
+echo "== pals beside the walker (v2.5.93)\n";
+$withPals = trail_art_svg($m, ['x0' => 0] + $win + ['pals' => ['/p/a.png', '/p/b.png']]);
+$noPals = trail_art_svg($m, ['x0' => 0] + $win);
+ok('two pals taken along: two pal pictures, inside the walker group', substr_count($withPals, 'class="tmpal"') === 2 && preg_match('~<g class="tmme"[^>]*>(?:(?!</g>).)*class="tmpal"~s', $withPals) === 1, (string)substr_count($withPals, 'class="tmpal"'));
+ok('no pals: none drawn', substr_count($noPals, 'class="tmpal"') === 0);
+ok('at most three pals are drawn', substr_count(trail_art_svg($m, ['x0' => 0] + $win + ['pals' => ['a', 'b', 'c', 'd']]), 'class="tmpal"') === 3);
 echo "== ground picture lookup (Admin > Images uploads win over the shipped ones)\n";
 $sc = sys_get_temp_dir() . '/gv-trail-' . bin2hex(random_bytes(4));
 mkdir($sc . '/assets/img/trail/ground', 0777, true); mkdir($sc . '/uploads/trail/ground', 0777, true);

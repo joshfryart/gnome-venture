@@ -270,7 +270,8 @@
     function setHp(a, hp) { a.hp = Math.max(0, hp); if (a.bar) { a.bar.style.width = (100 * a.hp / a.max) + '%'; a.num.textContent = a.hp + '/' + a.max; } }
 
     function add(id, d) {
-      var rig = rigFor(d.rig || id), a = { id: id, rig: rig, col: d.col, row: d.row == null ? rows >> 1 : d.row, dir: d.dir || 1, hp: d.hp || 10, max: d.max || d.hp || 10, flip: d.flip };
+      var rig = rigFor(d.rig || id); if (d.size) rig = Object.assign({}, rig, { w: d.size, h: d.size });   // d.size: a small still picture (a pal beside the gnome)
+      var a = { id: id, rig: rig, col: d.col, row: d.row == null ? rows >> 1 : d.row, dir: d.dir || 1, hp: d.hp || 10, max: d.max || d.hp || 10, flip: d.flip };
       var el = document.createElement('div'); el.className = 'fe-act';
       var body = document.createElement('div'); body.className = 'fe-body';
       var spr = document.createElement('i'); spr.className = 'fe-spr'; spr.style.transform = 'scaleX(' + (d.flip ? -1 : 1) + ')';

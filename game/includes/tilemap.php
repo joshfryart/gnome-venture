@@ -458,8 +458,12 @@ function tm_render_svg(array $map, string $theme, array $state): string
         }
     }
     // the walker
+    $pals = '';   // v2.5.93: the Puzzle Pals taken along (state['pals'] = picture URLs), inside the walker's group
+    foreach (array_slice((array)($state['pals'] ?? []), 0, 3) as $i => $pu) {
+        $pals .= '<image class="tmpal" href="' . htmlspecialchars((string)$pu, ENT_QUOTES, 'UTF-8') . '" x="' . [-34, 14, -26][$i] . '" y="' . [-2, -2, -20][$i] . '" width="' . ($i === 2 ? 16 : 20) . '" height="' . ($i === 2 ? 16 : 20) . '" image-rendering="pixelated"/>';
+    }
     if (strpos((string)($state['me'] ?? ''), 'tkrig') !== false)   // v2.5.26: the 2.5D gnome stands on its tile, no ring
-        return $o . '<g class="tmme" transform="translate(' . tm_n($lx) . ' ' . tm_n($ly) . ')"><ellipse cy="13" rx="13" ry="4.5" fill="#000" opacity=".4"/>' . $state['me'] . '</g></svg>';
+        return $o . '<g class="tmme" transform="translate(' . tm_n($lx) . ' ' . tm_n($ly) . ')"><ellipse cy="13" rx="13" ry="4.5" fill="#000" opacity=".4"/>' . $pals . $state['me'] . '</g></svg>';
     $o .= '<g class="tmme" transform="translate(' . tm_n($lx) . ' ' . tm_n($ly) . ')"><ellipse cy="14" rx="12" ry="4" fill="#000" opacity=".3"/><circle r="17" fill="' . $P['cream'] . '" stroke="' . $P['gold'] . '" stroke-width="3"/>'
         . (($state['me'] ?? '') !== '' ? $state['me'] : '<text y="7" font-size="20" text-anchor="middle">🧙</text>') . '</g>';
     return $o . '</svg>';

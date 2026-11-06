@@ -470,58 +470,11 @@ function adventure_topbar(array $u): string
     $pct = (int)round($hp * 100 / $max);
     $enc = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
     $log = json_decode((string)$exp['log'], true) ?: [];
+    if ($enc && ($enc['type'] ?? '') === 'creature') return '';   // v2.5.93: a fight is played on the Adventure page's graphical stage; no fight bar on the rest of the site
 
     $what = '';
     $actions = '';
-    if ($enc && $enc['type'] === 'creature') {
-        // v0.7.18: a proper face-off with both health bars, and the calling ability right here
-        require_once __DIR__ . '/adventure.php';   // encounter_creature() (v0.7.64)
-        $c = encounter_creature($enc);
-        fight_prep($enc, $c);   // v1.3.0: eased health
-        $ch = max(0, (int)$enc['hp']);
-        $cm = max(1, (int)$enc['max']);
-        require_once __DIR__ . '/adventure.php';
-        [$abName, $abDesc] = CALLING_ABILITIES[$u['calling'] ?? ''] ?? CALLING_ABILITIES[''];
-        // v0.7.61: one box, sized for phones. 2.2.1: you on the left (with your energy), the creature on the right, matching the stage above where your gnome stands on the left
-        $what = '<div class="duel">'
-            . '<div class="fighter me' . ($hp * 3 <= $max ? ' low' : '') . '">' . gnome_avatar_pals($u, 44)
-            . '<div class="fwho"><b>' . e(gnome_name($u)) . '</b><br><meter min="0" max="' . $max . '" low="' . (int)ceil($max / 3) . '" optimum="' . $max . '" value="' . $hp . '"></meter> <span class="hpnum">❤️ ' . $hp . '/' . $max . '</span>'
-            . ' <span class="fx" role="img" aria-label="Energy ' . (int)$u['energy'] . '" title="Energy">⚡' . (int)$u['energy'] . '</span>'
-            . (!empty($enc['bark']) ? ' <span class="fx" role="img" aria-label="Bark Skin ' . (int)$enc['bark'] . '" title="Bark Skin">🌳' . (int)$enc['bark'] . '</span>' : '') . '</div></div>'
-            . '<div class="vs">vs</div>'
-            . '<div class="fighter foe' . ($ch * 3 <= $cm ? ' low' : '') . '"><span class="foeicon">' . creature_pic($c) . '</span>'
-            . '<div class="fwho"><b>' . e($c['name'] ?? 'Creature') . '</b> <small>lv ' . (int)($c['level'] ?? 1) . '</small><br><meter min="0" max="' . $cm . '" low="' . (int)ceil($cm / 3) . '" value="' . $ch . '"></meter> <span class="hpnum">❤️ ' . $ch . '/' . $cm . '</span>'
-            . (!empty($enc['poison']) ? ' <span class="fx" role="img" aria-label="Poisoned" title="Poisoned">🧪</span>' : '') . '</div></div>'
-            . '</div>';
-        $actions = $btn('attack', '⚔️ Attack')
-            . (!empty($enc['used']) ? '<button class="btn small" disabled title="' . e($abDesc) . '">✨ ' . e($abName) . ' (used)</button>'
-                                    : $btn('ability', '✨ ' . e($abName), '', ' title="' . e($abDesc . ' Once per fight.') . '"'))
-            . (function_exists('ppal_boons_on') && ppal_boons_on() ? implode('', array_map(fn($pa) => $pa['used'] ? '<button class="btn small" disabled>✨ ' . e($pa['title']) . ' (used)</button>' : $btn($pa['do'], '✨ ' . e($pa['title']), '', ' title="' . e($pa['sub']) . '"'), ppal_fight_actives($u, $enc))) : '')
-            . $btn('flee', '🏃 Run')
-            . (can_fight_on($exp) ? $btn('fighton', '⏩ Fight on') : '')   // v1.3.0
-            . fight_snack_picker($u, $exp, $enc, fn($do, $label, $extra) => $btn($do, $label, $extra, ' class="snackform"'));   // v1.4.0
-        $sure = function_exists('fight_certainty') ? fight_certainty($u, $exp, $c, $enc) : null;
-        if ($sure === 'win') $actions .= $btn('auto', '⏩ Auto-win');   // v1.3.0: only a sure win
-        // v1.6.3.6: the open bar shows the fight actions as .choice rows (same look as the fight page); the closed line keeps the small buttons
-        $cbtn = function (string $do, string $icon, string $title, string $sub = '', $badge = '', string $cls = '', string $extra = '', string $battrs = '') use ($back): string {
-            return '<form method="post" action="' . e(url('adventure.php')) . '" class="choiceform">' . csrf_field()
-                . '<input type="hidden" name="do" value="' . e($do) . '"><input type="hidden" name="back" value="' . e($back) . '">'
-                . $extra . choice_row($icon, $title, $sub, $badge, $cls, $battrs) . '</form>';
-        };
-        $gc = gnome_combat($u, true);
-        $hitPct = (int)fight_odds($u, $exp, $enc)['hit'];
-        $runPct = max(0, min(100, (21 - (8 + intdiv((int)($c['level'] ?? 1), 3) - eff_mod($u, 'nimble'))) * 5));
-        $actionsRow = '<div class="choices advchoices">'
-            . $cbtn('attack', '⚔️', 'Attack', 'd' . $gc['dmg_die'] . '+' . $gc['dmg_bonus'] . ' damage', [$hitPct . '%', choice_odds_class($hitPct)], 'primary')
-            . (!empty($enc['used']) ? $cbtn('ability', '✨', $abName, 'Used this fight', '', '', '', 'disabled') : $cbtn('ability', '✨', $abName, 'Once per fight'))
-            . (function_exists('ppal_boons_on') && ppal_boons_on() ? implode('', array_map(fn($pa) => $pa['used'] ? $cbtn($pa['do'], '✨', $pa['title'], 'Used this fight', '', '', '', 'disabled') : $cbtn($pa['do'], '✨', $pa['title'], 'Once per fight'), ppal_fight_actives($u, $enc))) : '')
-            . $cbtn('flee', '🏃', 'Run', 'No reward', [$runPct . '%', choice_odds_class($runPct)])
-            . (can_fight_on($exp) ? $cbtn('fighton', '⏩', 'Fight on', 'Till done or half health') : '')
-            . fight_snack_picker($u, $exp, $enc, fn($do, $label, $extra) => $cbtn($do, '🎒', 'Snack', 'Heals; uses your turn', '', '', $extra))
-            . ($sure === 'win' ? $cbtn('auto', '⏩', 'Auto-win', 'A sure win', ['sure', 'cost']) : '')
-            . '</div>';
-        $what = '<div class="fightwrap">' . $what . fight_card_extra($u, $exp, $enc, 2) . '</div>';   // v1.3.0 (two rounds in the bar): odds line and the last rounds
-    } elseif ($enc && $enc['type'] === 'problem') {
+    if ($enc && $enc['type'] === 'problem') {
         $p = q_one('SELECT text, options FROM problems WHERE id = ?', [$enc['id']]);
         $what = '<span class="foe">❓ ' . e($p['text'] ?? 'A problem blocks the path.') . '</span>';
         foreach (json_decode((string)($p['options'] ?? '[]'), true) ?: [] as $i => $o) {

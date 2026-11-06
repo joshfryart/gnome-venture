@@ -92,6 +92,19 @@ function trail_map_make(string $seed): array
     return [tm_parse(array_map(fn($r) => implode('', $r), $g)), $tokens];
 }
 
+/** v2.5.93: picture URLs of the Puzzle Pals the gnome has taken along (up to 3, in the order taken); [] when take-along is off, a guest, or a pal has no art. */
+function trail_pal_urls(array $u): array
+{
+    if (!empty($u['guest']) || !function_exists('setting') || setting('ppal_party') !== '1') return [];
+    require_once __DIR__ . '/puzzle_pals.php';
+    $o = [];
+    foreach (ppal_equipped($u) as $e) {
+        $url = ppal_art_url((string)$e['pal']['key']);
+        if ($url !== '' && count($o) < 3) $o[] = $url;
+    }
+    return $o;
+}
+
 /** Start the scene of a new walk: section 1, the gnome at the entry. Never breaks the start if it fails. Returns true when made. */
 function trail_scene_make(int $uid, int $expId, array $route): bool
 {
@@ -372,9 +385,9 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     }
     $art = !empty($map['art']) && trail_art_ready($map['art']);   // an authored section with its baked picture: the Hearth Pop v3 look
     $svg = $art
-        ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW, 'tokens' => $tokens, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u)])
+        ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW, 'tokens' => $tokens, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u), 'pals' => $fightOver ? [] : trail_pal_urls($u)])
         : tm_render_svg($map, $land, ['px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW,
-            'light' => 8, 'tokens' => $tokens, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u)]);   // fight_scene: the fight stage draws the gnome
+            'light' => 8, 'tokens' => $tokens, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u), 'pals' => $fightOver ? [] : trail_pal_urls($u)]);   // fight_scene: the fight stage draws the gnome
     // v2.5.51: a wider picture covering the whole walk, shown only while the gnome walks (assets/tilemap.js keeps the camera on the gnome, like the delve maps)
     $extSvg = ''; $extData = '';
     if ($walk && count($walk['p']) > 1) {
@@ -383,9 +396,9 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         $ex1 = max(max($xs) + 6, $win['x0'] + DM_VIEW); $ey1 = max(max($ys) + 6, $win['y0'] + DM_VIEW);
         if (($ex1 - $ex0) * ($ey1 - $ey0) <= 900) {
             $extSvg = $art
-                ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $ex0, 'y0' => $ey0, 'cols' => $ex1 - $ex0, 'rows' => $ey1 - $ey0, 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u), 'sfx' => 'x'])
+                ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $ex0, 'y0' => $ey0, 'cols' => $ex1 - $ex0, 'rows' => $ey1 - $ey0, 'tokens' => $tokens, 'walk' => $walk, 'pals' => trail_pal_urls($u), 'me' => trek_art_me($u), 'sfx' => 'x'])
                 : tm_render_svg($map, $land, ['px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $ex0, 'y0' => $ey0, 'cols' => $ex1 - $ex0, 'rows' => $ey1 - $ey0,
-                    'light' => 8, 'dim' => 999, 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u), 'sfx' => 'x']);
+                    'light' => 8, 'dim' => 999, 'tokens' => $tokens, 'walk' => $walk, 'pals' => trail_pal_urls($u), 'me' => trek_art_me($u), 'sfx' => 'x']);
             $extData = ' data-ex0="' . $ex0 . '" data-ey0="' . $ey0 . '" data-ew="' . ($ex1 - $ex0) . '" data-eh="' . ($ey1 - $ey0) . '"';
         }
     }

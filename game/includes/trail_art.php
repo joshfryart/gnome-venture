@@ -261,7 +261,12 @@ function trail_art_svg(array $map, array $state): string
         $rig = preg_replace('~^<svg class="tkrig" x="[^"]*" y="[^"]*" width="[^"]*" height="[^"]*"~', '<svg class="tkrig" x="' . $n(-32 * $k) . '" y="' . $n(-56 * $k) . '" width="' . $n(64 * $k) . '" height="' . $n(80 * $k) . '"', $rig, 1, $cnt);
         if (!$cnt) $rig = '';
     } else $rig = '';
-    $items[] = [$state['py'] + .5, $state['px'], '<g class="tmme" transform="translate(' . $n($lx) . ' ' . $n($ly) . ')">' . ($rig !== '' ? $rig : '<image href="' . e(trail_art_url('gnome.png')) . '" x="' . $n(-32 * $k) . '" y="' . $n(-56 * $k)
+    $palsSvg = '';   // v2.5.93: the Puzzle Pals taken along stand beside the gnome (state['pals'] = picture URLs); they sit inside the walker's group so they move with it
+    foreach (array_slice((array)($state['pals'] ?? []), 0, 3) as $i => $pu) {
+        $px = [-50, 20, -38][$i]; $py = [-6, -6, -34][$i]; $sz = $i === 2 ? 24 : 30;
+        $palsSvg .= '<image class="tmpal" href="' . e((string)$pu) . '" x="' . $n($px * $k) . '" y="' . $n($py * $k) . '" width="' . $n($sz * $k) . '" height="' . $n($sz * $k) . '" image-rendering="pixelated"/>';
+    }
+    $items[] = [$state['py'] + .5, $state['px'], '<g class="tmme" transform="translate(' . $n($lx) . ' ' . $n($ly) . ')">' . $palsSvg . ($rig !== '' ? $rig : '<image href="' . e(trail_art_url('gnome.png')) . '" x="' . $n(-32 * $k) . '" y="' . $n(-56 * $k)
         . '" width="' . $n(64 * $k) . '" height="' . $n(80 * $k) . '"/>') . '</g>'];
     usort($items, fn($a, $b) => [$a[0], $a[1]] <=> [$b[0], $b[1]]);
     $o .= $marks;   // flat marks lie on the ground, under the walker and the raised things

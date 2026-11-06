@@ -6,6 +6,19 @@
  */
 require_once __DIR__ . '/gnome_rig.php';
 
+/** v2.5.93: the Puzzle Pals taken along, for the fight stage: [['img' => url, 'name' => name]] (up to 3); [] when take-along is off, a guest, or no art. */
+function fight_scene_pals(array $u): array
+{
+    if (!empty($u['guest']) || setting('ppal_party') !== '1') return [];
+    require_once __DIR__ . '/puzzle_pals.php';
+    $o = [];
+    foreach (ppal_equipped($u) as $e) {
+        $url = ppal_art_url((string)$e['pal']['key']);
+        if ($url !== '' && count($o) < 3) $o[] = ['img' => $url, 'name' => (string)($e['pal']['name'] ?? 'Pal')];
+    }
+    return $o;
+}
+
 function fight_scene_on(): bool
 {
     return setting('fight_scene') === '1' && is_file(APP_ROOT . '/assets/fightengine.js');
@@ -28,6 +41,7 @@ function fight_scene_html(array $u, array $exp, array $enc, array $c, ?array $ov
         'base' => url('assets/img/fight'),
         'mini' => $slug !== '' && is_file(APP_ROOT . '/assets/img/mini/mini-' . $slug . '.png') ? url('assets/img/mini/mini-' . $slug . '.png') : '',
         'over' => $over,
+        'pals' => fight_scene_pals($u),
         'hat' => !empty($enc['hat']) ? 1 : 0,
         'land' => strtolower((string)($enc['land'] ?? '')),
     ];
@@ -98,7 +112,7 @@ function fight_finale_html(array $u, array $exp, array $over): string
         'events' => $take['ev'], 'end' => ['me' => (int)$take['end']['me']['hp'], 'foe' => (int)$take['end']['foe']['hp']],
         'parts' => gnome_rig_urls($u), 'base' => url('assets/img/fight'),
         'mini' => $slug !== '' && is_file(APP_ROOT . '/assets/img/mini/mini-' . $slug . '.png') ? url('assets/img/mini/mini-' . $slug . '.png') : '',
-        'over' => $over, 'hat' => 0, 'finale' => 1,
+        'over' => $over, 'pals' => fight_scene_pals($u), 'hat' => 0, 'finale' => 1,
         'reward' => ['kind' => (string)$last['end'], 'xp' => (int)($last['xp'] ?? 0), 'lvl' => (int)($last['lvl'] ?? 0), 'loot' => $loot],
     ];
     return '<div class="fightscene fs-over" id="fightscene" data-fight="' . e((string)json_encode($data, JSON_UNESCAPED_UNICODE)) . '" role="img" aria-label="The fight is over"></div>';

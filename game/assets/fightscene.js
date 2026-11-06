@@ -22,6 +22,11 @@
       var rig = FightEngine.CRIT && FightEngine.CRIT[D.slug];
       if (rig) { foe.parts = {}; rig.parts.forEach(function (p) { foe.parts[p.img] = D.base + '/rig-' + D.slug + '-' + p.img + '.png'; }); }
       eng.add('foe', foe);
+      (D.pals || []).slice(0, 3).forEach(function (pl, i) {   // the Puzzle Pals taken along stand behind the gnome (no health bar, they only keep it company)
+        var mx = D.over ? D.over.mx : 2, my = D.over ? D.over.my : 3, rws = D.over ? D.over.rows : 7;
+        var row = Math.max(0, Math.min(rws - 1, my + [1, -1, 2][i])); if (row === my) row = my + 1;
+        eng.add('pal' + i, { img: pl.img, size: 1.15, col: Math.max(0, mx - 1), row: row, name: pl.name });
+      });
     } catch (e) { if (window.console) console.warn('fightscene: ' + (e && e.message)); if (eng) { eng.destroy(); eng = null; } host.removeAttribute('role'); return; }
     var mine = eng, list = D.events.length ? D.events : null;
     window.feScene = mine;   // the running engine (for the tests and for debugging in the console)

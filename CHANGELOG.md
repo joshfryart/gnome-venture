@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.93
+- **No fight bar on the rest of the site**: the "on the road" bar under the banner no longer shows when a creature is in your way (the face-off, health bars and fight buttons). Fights are played on the Adventure page's graphical stage. The bar still shows for walks, problems, choices, meets, delves and lairs.
+- **Puzzle Pals beside your gnome on Trail maps and in fights**: the pals you have taken along (up to 3) stand beside the gnome on the route map and move with it, and stand behind the gnome in the graphical fight. Nothing is added when take-along is off, for guests, or for a pal with no art. Fight stage: `fightengine.js` add() takes an optional `size`; `fightscene.js` adds the pals.
+- Tests: pals on the Trail map in `tests/trail_authored.php`.
+
 ## 2.5.92
 - **Trail ground pictures upload through Admin → Images**: a file named `<route id>-<section>.png` (for example `256-1.png`) is matched to that Trail section and saved as `uploads/trail/ground/256-1.png`. The game uses an uploaded picture before the one shipped in `assets/img/trail/ground/`. Zips of these pictures are in `upload-zips/gnome-venture-trail-ground-partNofM.zip`.
 - Test: ground picture lookup in `tests/trail_authored.php`.
