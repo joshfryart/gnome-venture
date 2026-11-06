@@ -125,7 +125,8 @@
     ev.preventDefault(); ev.stopPropagation();   // capture phase, after the seed/food picker handler: nothing else swaps the page
     var box = f.closest('.vlazy');
     var fd = new FormData(f); fd.set('csrf', box.getAttribute('data-csrf'));
-    var b = f.querySelector('button'); if (b) b.disabled = true;
+    var sub = ev.submitter; if (sub && sub.name && !fd.has(sub.name)) fd.append(sub.name, sub.value);   // the button that was pressed (an answer, a pick, a power) goes with the form
+    f.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
     ask(f.hasAttribute('data-sform') ? f.getAttribute('action') : box.getAttribute('data-url'), { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } }).then(function (res) { fill(box, res); });
   }, true);
   /* v2.5.67: a Do here / Stall popover posts in place: the activity comes back with what happened at the top (instead of the page reloading and the result landing

@@ -209,6 +209,12 @@ get 'admin/here_layout.php?key=town' >/dev/null
 post admin/here_layout.php -d key=town -d do=reset >/dev/null
 chk "reset brings the shipped layout back" "$(php -r 'require "'$GAME'/includes/bootstrap.php"; require "'$GAME'/includes/here_layout.php"; echo count(here_layouts_all()["town"]["stand"]) === 6 ? 1 : 0;')"
 chk "a player cannot open the editor" "$(login >/dev/null; [[ $(get 'admin/here_layout.php') == 200* ]] && grep -q 'hdot' $TD/here-p.html && echo 0 || echo 1)"
+echo "== the Extras tab of the Rest stop popover: every button works in place (v2.5.99)"
+if command -v node >/dev/null && [ -z "$NOBROWSER" ]; then
+  php "$HERE/stop_extras_setup.php" "$GAME" >/dev/null 2>&1
+  node "$HERE/stop_extras.js" "$BASE" >$TD/extras-browser.out 2>&1 || { cat $TD/extras-browser.out; FAILS=$((FAILS+1)); }
+  grep -q 'extras buttons ok' $TD/extras-browser.out && echo "  ok   Rest, Buy and a check all work from the Extras tab"
+fi
 echo "== no PHP problems"
 chk "no PHP warnings or fatals in the server log" "$(grep -iE 'fatal|warning|notice|deprecated' $TD/here-php.log | grep -q . && echo 0 || echo 1)" "$(grep -iE 'fatal|warning|notice' $TD/here-php.log | head -3)"
 NEW=$(tail -n +$((ERR0+1)) "$GAME/data/error-log.txt" 2>/dev/null | grep -E 'Error|Exception|Warning' | head -3)
