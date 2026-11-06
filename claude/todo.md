@@ -14,16 +14,8 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Release recipe: bump `APP_VERSION` in `game/includes/bootstrap.php`, CHANGELOG top entry = same, `tools/check_versions.sh`, `bash tests/build_update.sh <v> <two-back> releases`, art zip `upload-zips/gnome-venture-images-v3-<v>.zip`. Never rebuild a zip under the same version. Push main only on Josh's word.
 
 ## 2. JOSH: phone checks
-- 2.5.90 to 2.5.96 (new, nothing phone-checked): upload the 9 ground zips in Admin > Images and check Admin > Tools > Trail maps check shows 665+ pictures; walk a new-region route (e.g. Mistmoor Market to Larkden, id 256) and check the map, worn path and set piece; pals beside the gnome on the map and in a fight; the Fight / Item / Flee menu (tap once to read, twice to do, closes after the action, Item dimmed with no snacks, side away from the gnome, list not hiding the gnome); no bar under the banner on other pages during a walk or fight.
-- 2.5.81 to 2.5.89 fight scene (turn on `fight_scene` in Admin): fight over the map, dock buttons, health under creatures, end scene rewards over the head, hat, walk back, Sneak/Hunt carry across sections, 3% fight rate feel, 320px phone.
-- 2.5.72 (new, nothing phone-checked): Do tab meter bars, perk line, answer acts when a meter is low, notice board on Stop tab, daily happening strip, a story beat for a Regular, trail without the yellow square, Sneak/Hunt, workshop without round icons.
-- Josh said "everything live seems fine" (2026-11-05). Not itemised, so the list below stays until he ticks specifics; treat 2.5.66 and 2.5.67 as passed.
-- Trail landmarks 2.5.66 (all 16 routes), GPS auto-stop, hidden dots; Do here popover results + live header pills 2.5.67.
-- Trail walk camera; select bar; Rest stop card (tabs, stamp, adopt non-maxed stop, hand-in, upkeep, buy deed); new doors/streets/workshop pictures.
-- 2.5.60 to 2.5.62 art: wonders, banners, gather art, journal, landing, region maps, trek tiles.
-- Yard: corner pieces, paths vs beds, wet beds in rain, visitor thirst, crop sizes, ripe pictures, designer Shape/Size.
-- Here pages (stall/pantry popovers, icon row), Pal Jobs Select all, garden select bar in LIGHT theme.
-- Maplewold trail tiles; Do here names; folk line; Villagers highlight.
+- DONE 2026-11-06: Josh said "Phone checks done good". Treat everything previously listed here as PASSED: 2.5.90 to 2.5.96 (ground zips, new-region routes, pals, Fight / Item / Flee menu, no bar under banner), 2.5.81 to 2.5.89 fight scene, 2.5.72 (Do tab meters, perks, notice board, happenings, stories, Sneak/Hunt, workshop), 2.5.60 to 2.5.71 items, yard, Here pages, Maplewold tiles. Not itemised, so per-item "not phone-checked" notes in section 4 are now stale.
+- Next: flip `fight_scene` default to 1 (section 4, step 6) once Josh says so; confirm 3% fight rate (section 3).
 
 ## 3. JOSH: decisions needed
 - DECIDED 2026-11-06: art uploads go through Admin > Images (never Update); the on-the-road bar and the fight bar are gone from other pages; the Trail fight menu is Design C and closes after every action; Puzzle Pals stand beside the gnome on maps and in fights.
