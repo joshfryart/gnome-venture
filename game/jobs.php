@@ -7,15 +7,17 @@ $u = require_login();
 $uid = (int)$u['id'];
 
 settle_player_jobs();
-// v1.7.2 tasks: one Tasks page, tabs ?t= jobs | quests | orders | errands. Inside Jobs, ?p= is daily | weekly | monthly | post.
-// Old links keep working: ?s=quests, and ?t=daily|weekly|monthly|post (the old Job Board sub-tabs).
+// v1.7.2 tasks: one Tasks page, tabs ?t= jobs | journey | requests. Inside Jobs, ?p= is daily | weekly | monthly | post.
+// Old links keep working: ?s=quests, ?t=quests (now Journey), ?t=daily|weekly|monthly|post (the old Job Board sub-tabs), and ?t=orders|errands (T2.2: now one Requests tab).
 $T = (string)($_GET['t'] ?? '');
 $tab = (string)($_GET['p'] ?? 'daily');
-if (($_GET['s'] ?? '') === 'quests') $T = 'quests';
+if (in_array($_GET['s'] ?? '', ['quests', 'journey'], true)) $T = 'journey';
 if (isset(JOB_PERIODS[$T]) || $T === 'post') { $tab = $T; $T = 'jobs'; }
-if (!in_array($T, ['jobs', 'quests', 'orders', 'errands'], true)) $T = 'jobs';
-if (!isset(JOB_PERIODS[$tab]) && $tab !== 'post') $tab = 'daily';
 $hub = !empty($_GET['hub']) || !empty($_POST['hub']);
+if (!is_post() && in_array($T, ['orders', 'errands'], true)) redirect('jobs.php?t=requests' . ($hub ? '&hub=1' : ''));   // T2.2: old Orders / Errands tab links
+if (!is_post() && $T === 'quests') redirect('jobs.php?t=journey' . ($hub ? '&hub=1' : ''));   // the Quests tab is now Journey
+if (!in_array($T, ['jobs', 'journey', 'requests'], true)) $T = 'jobs';
+if (!isset(JOB_PERIODS[$tab]) && $tab !== 'post') $tab = 'daily';
 
 if (is_post()) {
     csrf_check();
@@ -34,7 +36,7 @@ if (is_post()) {
         require_once __DIR__ . '/includes/quests_view.php';
         [$ok, $msg] = tasks_order_post($u, $do, (int)($_POST['npc'] ?? 0), $hub);
         flash($msg, $ok ? 'ok' : 'err');
-        redirect('jobs.php?t=orders' . ($hub ? '&hub=1' : ''));
+        redirect('jobs.php?t=requests' . ($hub ? '&hub=1' : ''));
     }
     $period = (string)($_POST['period'] ?? '');
     if (!isset(JOB_PERIODS[$period])) redirect('jobs.php?t=jobs&p=' . $tab);
@@ -74,14 +76,13 @@ $cnt = tasks_counts($u, $hub);
 $tq = $hub ? '&hub=1' : '';
 ?>
 <h1>📋 Tasks</h1>
-<nav class="tabs tabs4 jqtabs">
-  <?php foreach (['jobs' => ['📋', 'Jobs'], 'quests' => ['📜', 'Quests'], 'orders' => ['📌', 'Orders'], 'errands' => ['🧺', 'Errands']] as $tk => [$ti, $tl]): ?>
-    <a class="<?= $T === $tk ? 'on' : '' ?>" href="<?= e(url('jobs.php?t=' . $tk . ($tk === 'orders' ? $tq : ''))) ?>"><span aria-hidden="true"><?= $ti ?></span><?= $tl ?><?= !empty($cnt[$tk]) ? '<small>' . (int)$cnt[$tk] . '</small>' : '' ?></a>
+<nav class="tabs tabs4 tabs3 jqtabs">
+  <?php foreach (['jobs' => ['📋', 'Jobs'], 'journey' => ['📜', 'Journey'], 'requests' => ['📌', 'Requests']] as $tk => [$ti, $tl]): ?>
+    <a class="<?= $T === $tk ? 'on' : '' ?>" href="<?= e(url('jobs.php?t=' . $tk . ($tk === 'requests' ? $tq : ''))) ?>"><span aria-hidden="true"><?= $ti ?></span><?= $tl ?><?= !empty($cnt[$tk]) ? '<small>' . (int)$cnt[$tk] . '</small>' : '' ?></a>
   <?php endforeach; ?>
 </nav>
-<?php if ($T === 'quests'): tasks_quests($u); page_footer(); return; endif;
-if ($T === 'orders'): tasks_orders($u, $hub); page_footer(); return; endif;
-if ($T === 'errands'): tasks_errands($u); page_footer(); return; endif; ?>
+<?php if ($T === 'journey'): tasks_quests($u); page_footer(); return; endif;
+if ($T === 'requests'): tasks_requests($u, $hub); page_footer(); return; endif; ?>
 <p class="help">Hold one daily, one weekly and one monthly job at a time. Dailies finished: <b><?= (int)$u['job_dailies'] ?></b>
   (every <?= (int)setting('job_streak_every') ?> earns a <?= money((int)setting('job_streak_bonus_coins')) ?> bonus; missing a day never resets it).</p>
 <nav class="tabs jobtabs">
@@ -90,16 +91,16 @@ if ($T === 'errands'): tasks_errands($u); page_footer(); return; endif; ?>
   <?php endforeach; ?>
   <a class="<?= $tab === 'post' ? 'on' : '' ?>" href="<?= e(url('jobs.php?t=jobs&p=post')) ?>">📌 Post a job</a>
 </nav>
-<?php require_once __DIR__ . '/includes/rebuild.php';   // v1.1.0: repairs moved to the Quests section; a pointer here
+<?php require_once __DIR__ . '/includes/rebuild.php';   // v1.1.0: repairs moved to the Journey section; a pointer here
 if ($nRep = count(repair_list($uid))): ?>
-  <p class="help"><a href="<?= e(url('jobs.php?t=quests#repairs')) ?>">🔨 <?= $nRep ?> repair<?= $nRep === 1 ? '' : 's' ?> under way → Quests</a></p>
+  <p class="help"><a href="<?= e(url('jobs.php?t=journey#repairs')) ?>">🔨 <?= $nRep ?> repair<?= $nRep === 1 ? '' : 's' ?> under way → Journey</a></p>
 <?php endif; ?>
 
 <?php foreach (JOB_PERIODS as $period => [$label, $icon, $count]):
     if ($period !== $tab) continue;
     $job = current_job($uid, $period); ?>
   <section class="box jobs" id="<?= $period ?>">
-    <h2><?= $icon ?> <?= e($label) ?> <small class="muted">resets in <?= nice_time(job_period_left($period)) ?></small></h2>
+    <h2><?= $icon ?> <?= e($label) ?> <?php $left = job_period_left($period); ?><small class="muted"><?= $left < 6 * 3600 && $job && $job['status'] !== 'done' ? '⏳ ' : '' ?>ends at Hollow <?= $period === 'daily' ? 'midnight' : ($period === 'weekly' ? 'Sunday midnight' : 'month end') ?> (<?= nice_time($left) ?> left). Progress does not carry over.</small></h2>
     <?php if ($job): $pct = $job['kind'] === 'grade' ? ((int)$job['progress'] >= (int)$job['qty'] ? 100 : max(0, (int)$job['progress']) * 100 / max(1, (int)$job['qty'])) : (int)$job['progress'] * 100 / max(1, (int)$job['qty']); ?>
       <div class="job taken<?= $job['status'] === 'done' ? ' done' : '' ?>">
         <h3><?= e($job['title']) ?> <?= $job['status'] === 'done' ? '<span class="tag">✅ done</span>' : '' ?></h3>

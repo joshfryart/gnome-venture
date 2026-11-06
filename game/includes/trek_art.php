@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/tilemap.php';   // tm_h() / tm_n(): tk_h() and tk_n() delegate to them
 // v1.8.10: the Treks map art. ONE inline SVG for the visible window (colours only from assets/img/ph/palette.json).
 // Open zones: "Hedge Knit, Black Rows" (grey hedge bands that join their neighbours, inset beds). Underground zones: "Root Knot".
 // Every layer is a single <path> per colour (rounded blocks and bars of the same winding, so they merge into one smooth shape).
@@ -39,12 +40,12 @@ function tk_quarter(int $sx, int $sy, bool $nv, bool $nh, bool $dg): array
 /** Deterministic little number from a tile (so the details do not jump when the window moves). */
 function tk_h(int $x, int $y, int $k = 0): int
 {
-    return (($x * 73856093) ^ ($y * 19349663) ^ ($k * 83492791)) & 0xffff;
+    return tm_h($x, $y, $k);
 }
 
 function tk_n(float $v): string
 {
-    return rtrim(rtrim(number_format($v, 1, '.', ''), '0'), '.');
+    return tm_n($v);
 }
 
 /** A clockwise rounded rectangle as path data (all pieces share the winding, so overlapping pieces merge). */
@@ -386,6 +387,7 @@ function trek_art_svg(int $ch, array $run, int $x0, int $y0, int $cols, int $row
     }
     // --- the player
     if ($pix && TK_PIXEL_ME) $o .= '<g class="tkme" transform="translate(' . tk_n($lx) . ' ' . tk_n($ly) . ')">' . $put('me', -19, -22) . '</g>';
+    elseif (strpos($me, 'tkrig') !== false) $o .= '<g class="tkme" transform="translate(' . tk_n($lx) . ' ' . tk_n($ly) . ')"><ellipse cy="13" rx="13" ry="4.5" fill="#000" opacity=".4"/>' . $me . '</g>';   // v2.5.25: the 2.5D gnome stands on its tile, no ring
     else $o .= '<g class="tkme" transform="translate(' . tk_n($lx) . ' ' . tk_n($ly) . ')"><ellipse cy="14" rx="12" ry="4" fill="#000" opacity=".3"/><circle r="17" fill="' . $P['cream'] . '" stroke="' . $P['gold500'] . '" stroke-width="3"/>' . ($me !== '' ? $me : '<text y="7" font-size="20" text-anchor="middle">🧙</text>') . '</g>';   // v1.9.0: the player's own gnome
     $o .= '</svg>';
     return $pix ? str_replace('@@DEFS@@', implode('', $defs), $o) : $o;   // the <defs> are known only after every tile is placed
@@ -408,6 +410,13 @@ function trek_walk_take(array $run): ?array
 function trek_art_me(array $u): string
 {
     if (!function_exists('gnome_avatar')) return '';
+    require_once __DIR__ . '/gnome25.php';
+    if (($g25 = gnome25_url($u)) !== '') {   // the 2.5D gnome rig (idle frame), in the player's own colours
+        // v2.5.40: front (shown), back and side strips: the walk (assets/tilemap.js) picks the view by direction and steps through frames 3-8 (2 idle first)
+        $img = fn(string $v, string $href, string $extra = '') => '<g class="tkv" data-v="' . $v . '"' . $extra . '><image href="' . e($href) . '" x="0" y="0" width="512" height="80" image-rendering="pixelated"/></g>';
+        return '<svg class="tkrig" x="-20" y="-36" width="40" height="50" viewBox="0 0 64 80" overflow="hidden" aria-hidden="true">' . $img('front', $g25)
+            . $img('back', gnome25_url($u, 'back') ?: $g25, ' display="none"') . $img('side', gnome25_url($u, 'side') ?: $g25, ' display="none"') . '</svg>';
+    }
     $svg = gnome_avatar($u, 24);
     if (!preg_match('~<svg[^>]*>(.*)</svg>\s*$~s', $svg, $m)) return '';
     return '<svg x="-13" y="-16" width="26" height="32" viewBox="0 0 80 100" aria-hidden="true">' . $m[1] . '</svg>';

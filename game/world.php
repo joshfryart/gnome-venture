@@ -33,7 +33,7 @@ if (is_post()) {
             flash('Welcome home! You’ve received seeds from your home region.');
         }
     }
-    redirect('world.php');
+    redirect(active_expedition((int)$u['id']) ? 'adventure.php' : 'world.php');   // v2.3.94: a walk (or a villager met on the road) waits on the adventure page
 }
 require_once __DIR__ . '/includes/items.php';   // v1.5.2: ph_or_emoji
 
@@ -91,6 +91,8 @@ if (($_GET['dest'] ?? '') === 'off') { dest_set((int)$u['id'], 0); $u['dest_id']
 $goId = (int)($_GET['go'] ?? 0);
 $selRegion = (int)($_GET['r'] ?? 0) ?: null;
 if ($selRegion !== null && !isset($_GET['tab'])) $tab = 'map';   // v1.6.6: maps have their own tab; old ?r= links land there
+$gn = gnav_on();   // v2.5.30: graphical navigation: the World page is the world map first (the Go stack lives on the Here page)
+if ($gn && !isset($_GET['tab']) && !$goId && !isset($_GET['seek'])) $tab = 'map';
 $worldOpen = isset($_GET['w']);   // v1.6.6: ?w=1 opens the world map fold
 $lvl = (int)$u['level'];
 /** A level badge: green at or below your level, amber a little above, red well above. */
@@ -102,7 +104,9 @@ $badge = function (int $min, int $max = 0) use ($lvl): string {
 
 page_header('World');
 ?>
+<?php if (!$gn): ?>
 <?= place_switcher_html($node, 'world') ?>
+<?php if (gnav_on()) { require_once __DIR__ . '/includes/here_view.php'; echo gnav_tools_html($u, 'world.php'); }   // graphical navigation: Fast travel + GPS up front ?>
 <?php $mapCode = !empty($node['region_id']) ? (string)q_val('SELECT code FROM regions WHERE id = ?', [$node['region_id']]) : ''; ?>
 <?= place_header_html(is_file(__DIR__ . '/assets/img/scenes/map-' . $mapCode . '.png') ? 'map-' . $mapCode . '.png' : 'map-world.png', 'Map of ' . (string)$node['region'], 'World · ' . (string)$node['region'], '🌍 World', '', place_chips($u)) ?>
 <?php $canWander = on_road((int)$node['id']) && ts($u['community_shift_until'] ?? null) <= time();   // v2.0.x: Wander is a tab, not a Go-panel button ?>
@@ -116,6 +120,23 @@ page_header('World');
     'here' => [in_array($node['kind'], ['market', 'hub'], true) ? '🏘️ Town square' : '🪧 Rest stop', url('town.php'), ''],
 ], $tab, 'World sections') ?>
 
+<?php else:
+require_once __DIR__ . '/includes/here_view.php'; echo gnav_tools_html($u, 'world.php', false);   // the Fast travel + GPS popovers
+$canWander = on_road((int)$node['id']) && ts($u['community_shift_until'] ?? null) <= time();
+if ($canWander) echo '<form method="post" action="' . e(url('adventure.php')) . '" id="wanderform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="explore"></form>';
+$ico = fn(string $f, string $alt) => '<img src="' . e(url('assets/img/ico/' . $f)) . '" width="28" height="28" alt="" decoding="async">';
+$navb = function (string $label, string $icon, string $attrs, bool $on = false) use ($ico): string { return '<li><a class="hubnavbtn round' . ($on ? ' on' : '') . '" ' . $attrs . ' aria-label="' . e($label) . '">' . $ico($icon, $label) . '</a><span class="hubnavcap">' . e($label) . '</span></li>'; };
+$wnav = '<ul class="hubnavbar worldnav" aria-label="World">'
+    . $navb('Map', 'ico-globe.png', 'href="' . e(url('world.php')) . '"', $tab === 'map')
+    . $navb('Fast travel', 'ico-boot.png', 'href="' . e(url('world.php?tab=travel#fasttravel')) . '" data-pop="hubpop-ft" aria-haspopup="dialog"')
+    . $navb('Gather', 'ico-basket.png', 'href="' . e(url('world.php?tab=gather')) . '"', $tab === 'gather')
+    . $navb('Shops', 'ico-shop.png', 'href="' . e(url('world.php?tab=markets')) . '"', $tab === 'markets')
+    . ($canWander ? '<li><button type="submit" form="wanderform" class="hubnavbtn round" aria-label="Wander off the path" title="Wander off the path">' . $ico('ico-leaf.png', 'Wander') . '</button><span class="hubnavcap">Wander</span></li>' : '')
+    . '</ul>';
+$youpill = '<p class="youpill"><a href="' . e(url('here.php')) . '">🎩 You are here · ' . e((string)$node['name']) . '</a></p>';
+?>
+<?php endif; ?>
+
 <?php if ($tab === 'go' && (setting('ppal_open') === '1' || is_admin())) { require_once __DIR__ . '/includes/puzzle_pals.php'; echo ppal_here_html($u, (int)$node['id']) . ppal_chip_html($u); } ?>
 
 <?php if (!$home): ?>
@@ -128,8 +149,18 @@ page_header('World');
   </form>
 <?php endif; ?>
 
+<?php if ($gn && $tab !== 'map') echo $wnav; ?>
 <?php if ($tab === 'map'):   // v1.6.6: region map is its own tab; the world map folds below it
 $mapRegion = $selRegion ?? ((int)($node['region_id'] ?? 0) ?: (int)($regionList[0]['id'] ?? 0)); ?>
+<?php if ($gn): ?>
+  <div class="worldprimary" id="worldmap">
+    <div class="mapwrap<?= myc_on() && world_art_path() === '' ? ' mycwrap' : '' ?>"><?= world_map_svg($u, $mapRegion) ?></div>
+    <p class="help maphelp">Tap a region to open its map. 🎩 you · 🍄 Mossbottom is reachable from anywhere.</p>
+  </div>
+  <?= $youpill . $wnav ?>
+  <?php require_once __DIR__ . '/includes/letters.php'; echo letters_box($u) . landmark_panel($u, $node);   // v2.5.49: the Lost Letter and the place's own panel were only on the old Go stack ?>
+<?php endif; ?>
+<?php if (!$gn || $selRegion !== null): ?>
 <?php if (myc_on() && region_art_path($mapRegion) === ''):   // the pixel-art region map is the default whenever its picture is there ?>
   <div class="regionmapbox" id="regionmap">
     <?= region_nav($u, $mapRegion) ?>
@@ -146,6 +177,8 @@ $mapRegion = $selRegion ?? ((int)($node['region_id'] ?? 0) ?: (int)($regionList[
   </div>
 <?php endif; ?>
 <?= region_panel($u, $mapRegion) ?>
+<?php endif; ?>
+<?php if (!$gn): ?>
 <div class="mapfolds">
 <details class="fold mapfold" id="worldmap"<?= $worldOpen ? ' open' : '' ?>><summary>🌍 World map</summary>
 <?php if (myc_on() && world_art_path() === ''):   // the pixel-art world map is the default whenever its picture is there ?>
@@ -158,6 +191,7 @@ $mapRegion = $selRegion ?? ((int)($node['region_id'] ?? 0) ?: (int)($regionList[
 <?php endif; ?>
 </details>
 </div>
+<?php endif; ?>
 <?php endif; ?>
 <?php if ($tab === 'go'):
 $nodeRegion = $node['region_id'] ? q_one('SELECT * FROM regions WHERE id = ?', [$node['region_id']]) : null;

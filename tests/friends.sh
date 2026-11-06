@@ -14,7 +14,7 @@ TW=$(db "SELECT id FROM shops WHERE slug='twigg-s-seed-emporium'")
 NID=$(db "SELECT npc_id FROM npc_schedules WHERE shop_id=$TW LIMIT 1"); dbx "UPDATE npc_schedules SET start_hour=0, end_hour=24, days='all' WHERE npc_id=$NID AND shop_id=$TW"
 ST=$(curl -s -b $C "$BASE/shop.php?id=$TW" | grep -oE 'data-id="[0-9]+" data-price="[0-9]+"' | head -1 | grep -oE '[0-9]+' | head -1)   # first tile on the Buy tab
 price() { curl -s -b $C "$BASE/shop.php?id=$TW" | grep -oE "data-id=\"$ST\" data-price=\"[0-9]+\"" | grep -oE '[0-9]+"$' | tr -d '"'; }
-curl -s -b $C "$BASE/shop.php?id=$TW" > /tmp/f.html; echo "staff links on shop page: $(grep -c 'folk.php?id=' /tmp/f.html)"
+curl -s -b $C "$BASE/shop.php?id=$TW" > /tmp/f.html; echo "staff links on shop page: $(grep -c 'villagers.php?id=' /tmp/f.html)"
 P0=$(price)
 echo "== talk to $(db "SELECT name||' ('||personality||')' FROM npcs WHERE id=$NID")"; np $NID -d do=talk | cut -c1-200; np $NID -d do=talk
 read LOVED LIKECAT DIS <<< "$(php $(dirname $0)/npctaste.php $GAME $NID 2>/dev/null | tail -1)"
@@ -31,6 +31,6 @@ curl -s -c $C -b $C "$BASE/shop.php?id=$TW" > /tmp/f0.html; curl -s -c $C -b $C 
 echo "list price $PR, shown price $P1, paid $((C0 - $(db "SELECT coins FROM users WHERE id=$UID_")))"
 echo "== someone not around"; FAR=$(db "SELECT s.npc_id FROM npc_schedules s JOIN shops sh ON sh.id=s.shop_id JOIN locations l ON l.id=sh.location_id WHERE l.region <> 'Mossbottom' AND l.region <> (SELECT r.gnomish_name FROM regions r JOIN users u ON u.region_id=r.id WHERE u.id=$UID_) LIMIT 1")
 np $FAR -d do=talk; echo "notice shown: $(grep -c 'Not anywhere you can reach' /tmp/f.html)"
-curl -s -b $C $BASE/gnome.php > /tmp/f.html; echo "gnome friends rows: $(grep -c 'folk.php?id=' /tmp/f.html)"
+curl -s -b $C $BASE/gnome.php > /tmp/f.html; echo "gnome friends rows: $(grep -c 'villagers.php?id=' /tmp/f.html)"
 curl -s -b $C $BASE/world.php > /tmp/f.html; echo "world folk links: $(grep -c 'href="[^"]*view=villagers"' /tmp/f.html)"
 echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' /tmp/fr-php.log || echo "(none)"

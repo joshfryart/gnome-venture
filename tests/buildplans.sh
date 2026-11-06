@@ -91,9 +91,12 @@ chk "old stage 1 (6 stone + 150) handed in" "$([ "$(stage_of $RID)" = 1 ] && ech
 echo "== a place with no plan uses the old stages"
 NP=$(db "SELECT m.id FROM landmarks m WHERE m.kind IN ('haven','wonder','delve') AND m.region_id=(SELECT id FROM regions WHERE code='MENA') ORDER BY m.id LIMIT 1" | tr -d ' ')
 dbx "UPDATE landmarks SET ruined=1, restored_at=NULL WHERE id=$NP"; dbx "DELETE FROM landmark_repairs WHERE landmark_id=$NP"; dbx "DELETE FROM landmark_rebuilds WHERE landmark_id=$NP"
+# every haven/wonder/delve has a plan now: hide this one's plan for the check (and put the file back after)
+NPN=$(db "SELECT name FROM landmarks WHERE id=$NP"); cp $GAME/includes/data/build_plans.txt /tmp/bp-plans.bak; grep -vF "P|$NPN|" /tmp/bp-plans.bak > $GAME/includes/data/build_plans.txt
 move $NP; act $NP -d do=repair_start
 chk "unplanned repair has no plan stamp" "$([ -z "$(db "SELECT COALESCE(plan,'') FROM landmark_repairs WHERE landmark_id=$NP AND user_id=$SID" | tr -d ' ')" ] && echo 1)"
 page world.php; chk "unplanned panel asks for Dressed Stone" "$(grep -q 'Dressed Stone' /tmp/bp.html && echo 1)"
+cp /tmp/bp-plans.bak $GAME/includes/data/build_plans.txt
 
 echo "== php errors"
 chk "no PHP warnings or fatals" "$(grep -iE 'fatal|warning|notice|deprecated|exception' /tmp/bp-php.log | grep -q . && echo 0 || echo 1)" "$(grep -iE 'fatal|warning|notice|deprecated|exception' /tmp/bp-php.log | head -3)"

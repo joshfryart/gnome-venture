@@ -39,4 +39,24 @@ echo "== expiry + abandon"; dbx "UPDATE user_jobs SET period_key='2000-01-01' WH
 board; db "SELECT 'old daily status: '||status FROM user_jobs WHERE user_id=$UID_ AND period='daily'"; echo "daily offers back: $(grep -c 'Take this job' /tmp/j.html)"
 jp -d period=daily -d do=take -d i=0; jp -d period=daily -d do=abandon; db "SELECT GROUP_CONCAT(status) FROM user_jobs WHERE user_id=$UID_ AND period='daily'"
 echo "== bad csrf / bad period"; curl -s -b $C -X POST "$BASE/jobs.php" -d csrf=x -d period=daily -d do=take -o /dev/null -w '%{http_code}\n'
+echo "== T2.2 Tasks tabs: Jobs / Journey / Requests, 3/3/2 offers"
+curl -s -b $C "$BASE/jobs.php?t=jobs&p=weekly" -o /tmp/j.html
+T=$(grep -o 'jobs.php?t=[a-z]*' /tmp/j.html | sort -u | tr '\n' ' '); echo "  tab links: $T"
+grep -q 'jobs.php?t=requests' /tmp/j.html || echo "FAIL no Requests tab"
+grep -q "jobs.php?t=journey" /tmp/j.html && ! grep -q "jobs.php?t=quests\"" /tmp/j.html || echo "FAIL Journey tab missing or old Quests tab still shown"
+grep -qE 'jobs.php\?t=(orders|errands)"' /tmp/j.html && echo "FAIL old Orders/Errands tab still shown"
+dbx "DELETE FROM user_jobs WHERE user_id=$UID_"
+for p in daily weekly monthly; do n=$(curl -s -b $C "$BASE/jobs.php?t=jobs&p=$p" | grep -c 'Take this job'); want=$([ $p = monthly ] && echo 2 || echo 3); echo "  $p offers: $n"; [ "$n" -le "$want" ] && [ "$n" -ge 1 ] || echo "FAIL $p offers $n (want 1..$want)"; done
+for o in orders errands; do r=$(curl -s -b $C "$BASE/jobs.php?t=$o&hub=1" -o /dev/null -w '%{http_code} %{redirect_url}' | sed 's#http://[^/]*/##'); echo "  old ?t=$o -> $r"; case "$r" in "302 jobs.php?t=requests&hub=1") ;; *) echo "FAIL ?t=$o did not redirect to Requests";; esac; done
+r=$(curl -s -b $C "$BASE/jobs.php?t=quests&hub=1" -o /dev/null -w "%{http_code} %{redirect_url}" | sed "s#http://[^/]*/##"); echo "  old ?t=quests -> $r"; [ "$r" = "302 jobs.php?t=journey&hub=1" ] || echo "FAIL ?t=quests did not redirect to Journey"
+curl -s -b $C "$BASE/jobs.php?t=requests" -o /tmp/j.html; echo "  requests: $(curl -s -b $C "$BASE/jobs.php?t=requests" -o /dev/null -w '%{http_code}')"
+grep -q 'Requests</h2>' /tmp/j.html || echo "FAIL Requests heading missing"
+grep -q 'Errands</h3>' /tmp/j.html && grep -qE 'Orders(</h3>| from the townsfolk)' /tmp/j.html || echo "FAIL Requests tab lacks the Orders or Errands section"
+F=$(db "SELECT id FROM stop_folk ORDER BY id LIMIT 1"); if [ -n "$F" ]; then   # in-flight errands still show (old stop_errands rows), soonest first
+  dbx "INSERT INTO stop_errands (user_id,folk_id,kind,qty,coins,xp,status,offered_day,expires_day,created_at) VALUES ($UID_,$F,'fetch',2,30,5,'active',date('now','-1 day'),date('now','+5 day'),datetime('now')),($UID_,$F,'fetch',1,20,5,'active',date('now'),date('now','+1 day'),datetime('now'))"
+  curl -s -b $C "$BASE/jobs.php?t=requests&hub=1" -o /tmp/j.html; L=$(grep -oE '[0-9]+ days? left</span><br><small class="muted">From' /tmp/j.html | grep -oE '^[0-9]+' | tr '\n' ' '); echo "  errands days left (in order): $L"
+  set -- $L; [ $# -eq 2 ] && [ "$1" -lt "$2" ] || echo "FAIL errands not listed soonest first: $L"
+  grep -qE 'Orders from the townsfolk|Favours from the townsfolk' /tmp/j.html || echo "FAIL hub Requests tab has no order board"
+fi
+echo "== First Week / Today job links still land on the Job Board"; curl -s -b $C "$BASE/jobs.php" | grep -q 'class="tabs jobtabs"' && echo "  jobs.php -> Jobs tab" || echo "FAIL jobs.php no longer opens the Jobs tab"
 echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' /tmp/jobs-php.log || echo "(none)"

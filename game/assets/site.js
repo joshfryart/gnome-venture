@@ -265,7 +265,7 @@ gvAdvFold();
     pieces[k] = { k: k, el: el, x: num(el, 'data-x'), y: num(el, 'data-y'), w: num(el, 'data-w') || 1, h: num(el, 'data-h') || 1,
       rot: num(el, 'data-rot'), move: el.getAttribute('data-move') === '1', kind: el.getAttribute('data-kind'), id: num(el, 'data-id'),
       item: num(el, 'data-item'), tx: num(el, 'data-tx'), ty: num(el, 'data-ty'), name: el.getAttribute('data-name') || 'That',
-      fam: el.getAttribute('data-fam') || '', shape: el.getAttribute('data-shape') || '', img: el.getAttribute('data-img') || '', mask: -1 };
+      fam: el.getAttribute('data-fam') || '', shape: el.getAttribute('data-shape') || '', img: el.getAttribute('data-img') || '', pave: el.getAttribute('data-pave') || '', art: el.getAttribute('data-art') || '', mask: -1 };
   });
   var snapBox = btn('snap'), gridBox = btn('grid');
   try { if (localStorage.getItem('gv-yard-grid') === '1') { gridBox.checked = true; yard.classList.add('showgrid'); } } catch (e) { /* storage may be off */ }
@@ -293,12 +293,50 @@ gvAdvFold();
     } else s += '<circle class="po" cx="50" cy="50" r="' + (fam === 'hedge' ? 20 : fam === 'wall' ? 18 : 11) + '"/>';
     return s + '</svg>';
   }
+  // Stones, log seats, toadstools and flower pots (v2.5.46): same rules as yard.php (fam_parse / yard_join_info): "<form>-<set>" in the piece's shape
+  var FAMF = ['', 'e', 's', 'a', 'u', 't', 'x', '1', 'pc', 'pnw', 'pne', 'psw', 'pse'], FAMSET = ['m', 'b', 's'], FB = { e: 2, s: 10, a: 6, u: 6, t: 14, x: 15 };
+  var FAMF_NAME = { '': 'automatic', e: 'end', s: 'straight', a: 'angle', u: 'curve', t: 'T', x: 'cross', '1': 'cluster', pc: 'one piece, centred', pnw: 'one piece, top left', pne: 'one piece, top right', psw: 'one piece, bottom left', pse: 'one piece, bottom right' };
+  var FAMS_NAMES = { steps: 1, logs: 1, toads: 1, pots: 1 };
+  function famParts(v) { var m = /^([eastux1]|p(?:c|nw|ne|sw|se))?-([bsm])$/.exec(v || ''); return m ? [m[1] || '', m[2]] : ['', 'm']; }
+  function famJoin(f, st) { return (!f && st === 'm') ? '' : f + '-' + st; }
+  function famPaint(p, cells) {
+    var parts = famParts(p.shape), form = parts[0], set = parts[1], m = 0, q = 0;
+    if (!form) {
+      [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0]].forEach(function (a) { if (cells[(p.x + a[1]) + ',' + (p.y + a[2])] === p.fam) m |= a[0]; });
+      var n = (m & 1) + ((m >> 1) & 1) + ((m >> 2) & 1) + ((m >> 3) & 1);
+      form = n === 0 ? '1' : n === 1 ? 'e' : n === 2 ? ((m === 5 || m === 10) ? 's' : 'u') : n === 3 ? 't' : 'x';
+      if (FB[form]) while (q < 3 && turn(FB[form], q) !== m) q++;
+    } else if (FB[form]) { q = (p.rot / 90) % 4; m = turn(FB[form], q); }
+    var key = form + '|' + set + '|' + q;
+    if (p.mask === key) return;
+    p.mask = key;
+    var im = p.el.querySelector('img.yimg');
+    if (!im) { im = document.createElement('img'); im.alt = ''; p.el.appendChild(im); }
+    im.className = 'yimg pix'; im.src = p.art + set + '-' + form + (FB[form] ? q : '') + '.png';
+    ['ra0', 'ra90', 'ra180', 'ra270'].forEach(function (c) { p.el.classList.remove(c); });
+    p.el.classList.add('fj', 'fi');
+  }
   function joinAll() {
     var cells = {}, k, p;
-    for (k in pieces) { p = pieces[k]; if (p.fam && p.x >= 0) cells[p.x + ',' + p.y] = p.fam; }
+    for (k in pieces) { p = pieces[k]; if (p.fam && p.x >= 0) cells[p.x + ',' + p.y] = p.fam; else if (p.kind === 'bed' && p.x >= 0) cells[p.x + ',' + p.y] = 'bed'; }
     for (k in pieces) {
       p = pieces[k];
       if (!p.fam || p.x < 0) continue;
+      if (p.art && FAMS_NAMES[p.fam]) { famPaint(p, cells); continue; }
+      if (p.fam === 'pave') {   // v2.5.43: paving blends into its eight neighbours (same rule as pave_mask() in includes/yard.php)
+        var has = function (dx, dy) { return cells[(p.x + dx) + ',' + (p.y + dy)] === 'pave' || cells[(p.x + dx) + ',' + (p.y + dy)] === 'bed'; }, pm = 0;   // v2.5.49: bed squares count as joined
+        [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0]].forEach(function (a) { if (has(a[1], a[2])) pm |= a[0]; });
+        [[16, 1, 2, 1, -1], [32, 4, 2, 1, 1], [64, 4, 8, -1, 1], [128, 1, 8, -1, -1]].forEach(function (a) { if ((pm & a[1]) && (pm & a[2]) && has(a[3], a[4])) pm |= a[0]; });
+        if (p.mask === pm) continue;
+        p.mask = pm;
+        if (p.pave) {
+          var pi = p.el.querySelector('img.yimg');
+          if (!pi) { pi = document.createElement('img'); pi.className = 'yimg pix'; pi.alt = ''; p.el.appendChild(pi); }
+          pi.className = 'yimg pix'; pi.src = p.pave + pm + '.png';
+          p.el.classList.add('fj', 'fi', 'pv');
+        }
+        continue;
+      }
       var m = 0;
       if (MASK[p.shape]) m = turn(MASK[p.shape], p.rot / 90);
       else {
@@ -337,20 +375,29 @@ gvAdvFold();
     if (!snapBox.checked || /(^|\s)t-(path|fence)(\s|$)/.test(cls) || touchesBed(r)) return r;
     var tries = [[0, -1], [0, 1], [-1, 0], [1, 0]];
     for (var i = 0; i < tries.length; i++) {
-      var c = { x: r.x + tries[i][0], y: r.y + tries[i][1], w: r.w, h: r.h };
+      var c = { x: r.x + tries[i][0], y: r.y + tries[i][1], w: r.w, h: r.h, q: r.q };
       if (fits(c, skip) && touchesBed(c)) return c;
     }
     return r;
   }
   tray.querySelectorAll('.trayitem[data-item]').forEach(function (b) { qty[b.getAttribute('data-item')] = num(b, 'data-qty'); });
 
-  function overlaps(a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h; }
+  // Corner pieces (v2.5.49): a single family piece whose shape is a corner form (pnw pne psw pse) takes one corner of its square, so up to four share it.
+  // Same rule as yard_quads() in includes/yard.php. r.q = the quadrants the thing taking the spot needs (default: the whole square).
+  var QD = { pnw: 1, pne: 2, psw: 4, pse: 8 };
+  function qOf(p) { return p.w === 1 && p.h === 1 ? (QD[famParts(p.shape)[0]] || 15) : 15; }
+  function cornerFor(c) { return (c.fy < 0.5 ? 'pn' : 'ps') + (c.fx < 0.5 ? 'w' : 'e'); }
+  function overlaps(a, b) {
+    if (!(a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h)) return false;
+    var qa = a.q || 15, qb = b.q || 15;
+    return !(qa < 15 && qb < 15 && (qa & qb) === 0);
+  }
   function fits(r, skip) {
     if (r.x < 0 || r.y < 0 || r.x + r.w > W || r.y + r.h > H) return false;
     for (var k in pieces) {
       var p = pieces[k];
       if (p.x < 0 || skip.indexOf(k) >= 0) continue;
-      if (overlaps(r, p)) return false;
+      if (overlaps(r, { x: p.x, y: p.y, w: p.w, h: p.h, q: qOf(p) })) return false;
     }
     return true;
   }
@@ -391,36 +438,44 @@ gvAdvFold();
     tray.querySelectorAll('.trayitem').forEach(function (b) { b.classList.toggle('picked', !!traySel && traySel.btn === b); });
     var one = sel.length ? pieces[sel[0]] : null;
     btn('rotate').disabled = !(sel.length === 1 && one.kind !== 'bed');
-    btn('shape').disabled = !(sel.length === 1 && one.fam);
+    btn('shape').disabled = !(sel.length === 1 && one.fam && one.fam !== 'pave');
+    btn('size').disabled = !(sel.length === 1 && one.fam && FAMS_NAMES[one.fam]);
     joinAll();
     btn('away').disabled = !sel.length || sel.some(function (k) { return pieces[k].kind !== 'decor'; });
     if (traySel) say('Tap a square in the yard to place ' + traySel.name + '. Tap it in the tray again to stop.');
-    else if (sel.length === 1 && one.fam) say(one.name + ' picked (shape: ' + SHAPE_NAME[one.shape] + (one.shape ? '' : ', ' + shapeOf(one.mask)) + '). Shape picks a shape by hand; Rotate turns a lone piece or a chosen shape.');
+    else if (sel.length === 1 && one.fam && FAMS_NAMES[one.fam] && isCorner(one)) say(one.name + ' picked (' + FAMF_NAME[famParts(one.shape)[0]] + '). Drag it, or tap, near a corner of any square: up to four small pieces share a square.');
+    else if (sel.length === 1 && one.fam && FAMS_NAMES[one.fam]) say(one.name + ' picked (' + FAMF_NAME[famParts(one.shape)[0]] + ', ' + { m: 'mixed', b: 'big', s: 'small' }[famParts(one.shape)[1]] + '). Shape cycles the options, Size picks big, small or mixed, Rotate turns a chosen run.');
+    else if (sel.length === 1 && one.fam && one.fam !== 'pave') say(one.name + ' picked (shape: ' + SHAPE_NAME[one.shape] + (one.shape ? '' : ', ' + shapeOf(one.mask)) + '). Shape picks a shape by hand; Rotate turns a lone piece or a chosen shape.');
     else if (sel.length === 1) say(one.name + ' picked. Drag it, or tap an empty square to move it there.');
     else if (sel.length > 1) say(sel.length + ' things picked. Drag one to move them all, or tap an empty square.');
     else say('Tap or drag something to start.');
   }
   function cellAt(ev) {
     var r = yard.getBoundingClientRect();
-    return { x: Math.floor((ev.clientX - r.left) / r.width * W), y: Math.floor((ev.clientY - r.top) / r.height * H),
+    var gx = (ev.clientX - r.left) / r.width * W, gy = (ev.clientY - r.top) / r.height * H;
+    return { x: Math.floor(gx), y: Math.floor(gy), fx: gx - Math.floor(gx), fy: gy - Math.floor(gy),
       inside: ev.clientX >= r.left && ev.clientX < r.right && ev.clientY >= r.top && ev.clientY < r.bottom };
   }
   function overTray(ev) {
     var r = tray.getBoundingClientRect();
     return ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom;
   }
-  function groupFits(keys, dx, dy) {
-    return keys.every(function (k) { var p = pieces[k]; return fits({ x: p.x + dx, y: p.y + dy, w: p.w, h: p.h }, keys); });
+  function isCorner(p) { return qOf(p) < 15; }
+  // a lone corner piece moves to the corner of the square the pointer is in (corner = 'pnw' etc., or '' to keep its own)
+  function groupFits(keys, dx, dy, corner) {
+    return keys.every(function (k) { var p = pieces[k]; return fits({ x: p.x + dx, y: p.y + dy, w: p.w, h: p.h, q: corner ? QD[corner] : qOf(p) }, keys); });
   }
-  function shift(keys, dx, dy) {
-    if (keys.length === 1 && pieces[keys[0]].kind === 'decor' && (dx || dy)) {
-      var sp = pieces[keys[0]], sr = snapped({ x: sp.x + dx, y: sp.y + dy, w: sp.w, h: sp.h }, [sp.k], sp.el.className);
+  function shift(keys, dx, dy, corner) {
+    if (keys.length === 1 && pieces[keys[0]].kind === 'decor' && (dx || dy) && !isCorner(pieces[keys[0]])) {
+      var sp = pieces[keys[0]], sr = snapped({ x: sp.x + dx, y: sp.y + dy, w: sp.w, h: sp.h, q: 15 }, [sp.k], sp.el.className);
       dx = sr.x - sp.x; dy = sr.y - sp.y;
     }
-    if (!groupFits(keys, dx, dy)) { say('That doesn’t fit there.'); return false; }
-    if (!dx && !dy) return true;
+    if (!groupFits(keys, dx, dy, corner)) { say('That doesn’t fit there.'); return false; }
+    var cp = keys.length === 1 ? pieces[keys[0]] : null, ch = !!(corner && cp && QD[corner] !== qOf(cp));
+    if (!dx && !dy && !ch) return true;
     remember();
     keys.forEach(function (k) { var p = pieces[k]; p.x += dx; p.y += dy; setPos(p.el, p); });
+    if (ch) { cp.shape = famJoin(corner, famParts(cp.shape)[1]); cp.mask = -1; }
     return true;
   }
   function putAway(keys) {
@@ -438,14 +493,16 @@ gvAdvFold();
     for (var k in pieces) { var p = pieces[k]; if (p.kind === 'decor' && p.x < 0 && p.item == item) return p; }
     return null;
   }
-  function placeFromTray(b, x, y) {
+  function placeFromTray(b, x, y, cell) {
     var p = trayPiece(b);
     var w = p ? p.w : num(b, 'data-w') || 1, h = p ? p.h : num(b, 'data-h') || 1;
-    if (fits({ x: x, y: y, w: w, h: h }, p ? [p.k] : [])) {
-      var sr = snapped({ x: x, y: y, w: w, h: h }, p ? [p.k] : [], p ? p.el.className : 't-' + b.getAttribute('data-type'));
+    var pq = p ? qOf(p) : 15, cn = '';
+    if (p && pq < 15 && cell) { cn = cornerFor(cell); pq = QD[cn]; }   // a put-away corner piece goes into the corner that was tapped
+    if (pq === 15 && fits({ x: x, y: y, w: w, h: h, q: 15 }, p ? [p.k] : [])) {
+      var sr = snapped({ x: x, y: y, w: w, h: h, q: 15 }, p ? [p.k] : [], p ? p.el.className : 't-' + b.getAttribute('data-type'));
       x = sr.x; y = sr.y;
     }
-    if (!fits({ x: x, y: y, w: w, h: h }, p ? [p.k] : [])) { say('That doesn’t fit there.'); return; }
+    if (!fits({ x: x, y: y, w: w, h: h, q: pq }, p ? [p.k] : [])) { say('That doesn’t fit there.'); return; }
     remember();
     if (!p) {
       var k = 'n' + (++newN), el = document.createElement('div');
@@ -457,9 +514,10 @@ gvAdvFold();
       if (bimg && !bfam) { var im0 = document.createElement('img'); im0.className = 'yimg'; im0.alt = ''; im0.src = bimg.replace(/\{shape\}|%7Bshape%7D/i, 'straight'); el.appendChild(im0); el.className += ' fi'; }
       yard.appendChild(el);
       p = pieces[k] = { k: k, el: el, x: -1, y: -1, w: w, h: h, rot: 0, move: true, kind: 'decor', id: 0, item: num(b, 'data-item'), name: b.getAttribute('data-name'),
-        fam: bfam, shape: '', img: bfam ? bimg : '', mask: -1 };
+        fam: bfam, shape: '', img: bfam ? bimg : '', pave: b.getAttribute('data-pave') || '', art: b.getAttribute('data-art') || '', mask: -1 };
     }
     p.x = x; p.y = y;
+    if (cn) { p.shape = famJoin(cn, famParts(p.shape)[1]); p.mask = -1; }
     setPos(p.el, p);
     if (b.getAttribute('data-key')) { traySel = null; sel = [p.k]; }
     refreshTray();
@@ -507,8 +565,9 @@ gvAdvFold();
     var c = cellAt(ev);
     if (drag.kind === 'piece') {
       var lead = pieces[drag.lead], dx = c.x - drag.gx - lead.x, dy = c.y - drag.gy - lead.y;
-      var ok = c.inside && groupFits(drag.keys, dx, dy);
-      drag.dx = dx; drag.dy = dy; drag.ok = ok; drag.tray = overTray(ev);
+      var cn = drag.keys.length === 1 && isCorner(lead) && c.inside && lead.w === 1 ? cornerFor(c) : '';   // a lone corner piece follows the pointer into a corner
+      var ok = c.inside && groupFits(drag.keys, dx, dy, cn);
+      drag.dx = dx; drag.dy = dy; drag.ok = ok; drag.tray = overTray(ev); drag.cn = cn;
       drag.keys.forEach(function (k) {
         var p = pieces[k];
         setPos(p.el, { x: c.inside ? p.x + dx : p.x, y: c.inside ? p.y + dy : p.y, w: p.w, h: p.h, rot: p.rot });
@@ -525,7 +584,8 @@ gvAdvFold();
         yard.appendChild(drag.ghost);
       }
       drag.x = c.x; drag.y = c.y;
-      drag.ok = c.inside && fits({ x: c.x, y: c.y, w: w, h: h }, tp ? [tp.k] : []);
+      drag.cell = c;
+      drag.ok = c.inside && fits({ x: c.x, y: c.y, w: w, h: h, q: tp && isCorner(tp) ? QD[cornerFor(c)] : 15 }, tp ? [tp.k] : []);
       setPos(drag.ghost, { x: c.inside ? c.x : -1, y: c.y, w: w, h: h, rot: 0 });
       drag.ghost.classList.toggle('bad', !drag.ok);
     }
@@ -539,13 +599,13 @@ gvAdvFold();
       if (cancelled) return;
       if (!d.moved) { tapPiece(d.lead); return; }
       if (d.tray) { putAway(d.keys); return; }
-      if (d.ok && shift(d.keys, d.dx, d.dy)) { sel = d.keys.length > 1 ? d.keys : [d.lead]; paintSel(); }
+      if (d.ok && shift(d.keys, d.dx, d.dy, d.cn)) { sel = d.keys.length > 1 ? d.keys : [d.lead]; paintSel(); }
       else say('That doesn’t fit there.');
     } else {
       if (d.ghost) d.ghost.parentNode.removeChild(d.ghost);
       if (cancelled) return;
       if (!d.moved) { tapTray(d.btn); return; }
-      if (d.ok) placeFromTray(d.btn, d.x, d.y);
+      if (d.ok) placeFromTray(d.btn, d.x, d.y, d.cell);
       else if (cellAt(ev).inside) say('That doesn’t fit there.');
     }
   }
@@ -555,10 +615,10 @@ gvAdvFold();
     if (ev.target.closest('[data-k]')) return;
     var c = cellAt(ev);
     if (!c.inside) return;
-    if (traySel) { placeFromTray(traySel.btn, c.x, c.y); return; }
+    if (traySel) { placeFromTray(traySel.btn, c.x, c.y, c); return; }
     if (sel.length) {
       var lead = pieces[sel[0]];
-      if (shift(sel, c.x - lead.x, c.y - lead.y)) paintSel();
+      if (shift(sel, c.x - lead.x, c.y - lead.y, sel.length === 1 && isCorner(lead) ? cornerFor(c) : '')) paintSel();
     }
   });
   tray.addEventListener('click', function (ev) { if (ev.target.closest('.trayitem')) ev.preventDefault(); });
@@ -568,7 +628,7 @@ gvAdvFold();
     if (sel.length !== 1) return;
     var p = pieces[sel[0]];
     if (p.kind === 'bed') return;
-    if (!fits({ x: p.x, y: p.y, w: p.h, h: p.w }, [p.k])) { say('There’s no room to turn it here.'); return; }
+    if (!fits({ x: p.x, y: p.y, w: p.h, h: p.w, q: qOf(p) }, [p.k])) { say('There’s no room to turn it here.'); return; }
     remember();
     var w = p.w; p.w = p.h; p.h = w;
     p.rot = (p.rot + 90) % 360;
@@ -576,10 +636,30 @@ gvAdvFold();
     paintSel();
   }
   btn('shape').addEventListener('click', function () {
-    if (sel.length !== 1 || !pieces[sel[0]].fam) return;
+    if (sel.length !== 1 || !pieces[sel[0]].fam || pieces[sel[0]].fam === 'pave') return;
     var p = pieces[sel[0]];
+    if (FAMS_NAMES[p.fam]) {   // v2.5.46: cycle the form, keep the size set
+      remember();
+      var fp = famParts(p.shape), start = p.shape, tries = 0;
+      do {   // v2.5.49: skip a form that would take a corner or square another piece already holds
+        p.shape = famJoin(FAMF[(FAMF.indexOf(famParts(p.shape)[0]) + 1) % FAMF.length], fp[1]);
+        tries++;
+      } while (tries < FAMF.length && !fits({ x: p.x, y: p.y, w: p.w, h: p.h, q: qOf(p) }, [p.k]));
+      if (!fits({ x: p.x, y: p.y, w: p.w, h: p.h, q: qOf(p) }, [p.k])) p.shape = start;
+      p.mask = -1;
+      paintSel();
+      return;
+    }
     remember();
     p.shape = SHAPES[(SHAPES.indexOf(p.shape) + 1) % SHAPES.length];
+    p.mask = -1;
+    paintSel();
+  });
+  btn('size').addEventListener('click', function () {
+    if (sel.length !== 1 || !pieces[sel[0]].fam || !FAMS_NAMES[pieces[sel[0]].fam]) return;
+    var p = pieces[sel[0]], fp = famParts(p.shape);
+    remember();
+    p.shape = famJoin(fp[0], FAMSET[(FAMSET.indexOf(fp[1]) + 1) % FAMSET.length]);
     p.mask = -1;
     paintSel();
   });
@@ -744,8 +824,11 @@ gvAdvFold();
         gvMetro();
         gvRouteFade();   // v2.0.57
         gvGarden();
+        document.dispatchEvent(new Event('gv:swapped'));   // v2.4.97: Wren's tour bubble re-aims after an in-place page swap
         gvAlmTabs();
         gvWanderFolds();
+        gvShelves();   // v2.4.67: the swapped-in Satchel / Crafting shelves get their handlers
+        if (window.gvShpopAfterSwap) window.gvShpopAfterSwap();   // and a Satchel sheet that was open opens again
         if (after) after();
       })
       .catch(function () { busy = false; fallback(); });
@@ -783,7 +866,7 @@ gvAdvFold();
     load(to.href, { method: 'GET' }, null, function () { location.href = to.href; });
   });
   document.addEventListener('click', function (ev) {
-    var a = ev.target.closest ? ev.target.closest('a[data-inplace], main nav.tabs a, main nav.gvtabs a, main nav.chips a, main nav.ccfilter a') : null;
+    var a = ev.target.closest ? ev.target.closest('a[data-inplace], main nav.tabs a, main nav.gvtabs a, main nav.gvtiles a, main a.gvbacklink, main nav.chips a, main nav.ccfilter a') : null;
     if (!a || ev.defaultPrevented || ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;
     var to = new URL(a.href, location.href);
     if (to.origin !== location.origin || to.pathname !== location.pathname) return;
@@ -841,6 +924,57 @@ document.addEventListener('toggle', function (ev) {
   }
 }, true);
 
+/* The zoom and pan core the three map zooms share (world map, region map, mycelium region map): the view box and its clamp, the wheel,
+   one-finger drag, two-finger pinch, and a tap that is not a drag. A map passes what differs: its zoom limit (maxZ), what a zoom draws (render),
+   whether the wheel needs Ctrl / Alt (wheelModifier), and what a tap does (onTap). */
+function gvZoomPan(svg, o) {
+  var W = o.W, H = o.H, v = o.view;
+  function zoom() { return W / v[2]; }
+  function apply() {
+    var z = Math.max(1, Math.min(o.maxZ(), W / v[2])), w = W / z, h = H / z;
+    var cx = Math.max(w / 2, Math.min(W - w / 2, v[0] + v[2] / 2)), cy = Math.max(h / 2, Math.min(H - h / 2, v[1] + v[3] / 2));
+    v = [cx - w / 2, cy - h / 2, w, h];
+    svg.setAttribute('viewBox', v.map(function (n) { return n.toFixed(1); }).join(' '));
+    o.render(z, v);
+  }
+  function zoomAt(f, px, py) { v = [px - (px - v[0]) / f, py - (py - v[1]) / f, v[2] / f, v[3] / f]; apply(); }
+  function toMap(x, y) { var r = svg.getBoundingClientRect(); return [v[0] + (x - r.left) / r.width * v[2], v[1] + (y - r.top) / r.height * v[3]]; }
+  svg.addEventListener('wheel', function (ev) {
+    if (o.wheelModifier) { if (!ev.ctrlKey && !ev.altKey) return; }   // a plain wheel keeps scrolling the page; Ctrl / Alt + wheel zooms
+    else if (ev.deltaY > 0 && zoom() <= 1.01) return;   // all the way out: let the page scroll
+    ev.preventDefault();
+    var p = toMap(ev.clientX, ev.clientY);
+    zoomAt(ev.deltaY < 0 ? 1.25 : 0.8, p[0], p[1]);
+  }, { passive: false });
+  var pts = {}, moved = 0, pinch = null;
+  svg.addEventListener('pointerdown', function (ev) { pts[ev.pointerId] = [ev.clientX, ev.clientY]; if (Object.keys(pts).length === 1) moved = 0; pinch = null; });   // a second finger keeps the drag/pinch (no stray tap)
+  svg.addEventListener('pointermove', function (ev) {
+    if (!pts[ev.pointerId]) return;
+    var ids = Object.keys(pts), old = pts[ev.pointerId], r = svg.getBoundingClientRect();
+    pts[ev.pointerId] = [ev.clientX, ev.clientY];
+    if (ids.length === 1) {
+      var dx = ev.clientX - old[0], dy = ev.clientY - old[1];
+      moved += Math.abs(dx) + Math.abs(dy);
+      if (moved > 6 && zoom() > 1.01) {
+        if (svg.setPointerCapture && !svg.hasPointerCapture(ev.pointerId)) svg.setPointerCapture(ev.pointerId);
+        v[0] -= dx / r.width * v[2]; v[1] -= dy / r.height * v[3]; apply();
+      }
+    } else if (ids.length === 2) {
+      var a = pts[ids[0]], b = pts[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]), mid = toMap((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+      if (pinch) zoomAt(d / pinch, mid[0], mid[1]);
+      pinch = d; moved = 99;
+    }
+  });
+  function up(ev) { delete pts[ev.pointerId]; pinch = null; }
+  svg.addEventListener('pointerup', up);
+  svg.addEventListener('pointercancel', up);
+  svg.addEventListener('click', function (ev) {   // a drag isn't a tap
+    if (moved > 6) { ev.preventDefault(); ev.stopPropagation(); moved = 0; return; }
+    if (o.onTap) o.onTap(ev);
+  }, true);
+  return { apply: apply, zoom: zoom, zoomAt: zoomAt, toMap: toMap, view: function () { return v; }, show: function (nv) { v = nv; apply(); } };
+}
+
 /* v0.7.53: the world map zooms (buttons, wheel, pinch, drag) and shows more as you get closer */
 function gvMaps() {
   document.querySelectorAll('.mapzoom:not(.on)').forEach(function (box) {
@@ -850,105 +984,66 @@ function gvMaps() {
     if (box.parentNode && box.parentNode.classList) box.parentNode.classList.add('zoomable');
     var ctl = box.querySelector('.mapctl'), card = box.querySelector('.mapcard'), goForm = box.querySelector('form.mapgo');
     ctl.hidden = false;
-    var W = 1000, H = 560, v = null;
+    var W = 1000, H = 560;
     function pxPer() { return (svg.getBoundingClientRect().width || Math.min(window.innerWidth - 32, 1000)) / W; }   // screen pixels per map unit
     function maxZ() { return Math.max(8, 4 / pxPer()); }
     var me = (box.getAttribute('data-me') || '500,280').split(',').map(Number);
-    try { v = JSON.parse(sessionStorage.getItem('gvMapView') || 'null'); } catch (e) { v = null; }
-    function zoom() { return W / v[2]; }
-    function apply() {
-      var z = Math.max(1, Math.min(maxZ(), W / v[2])), w = W / z, h = H / z;
-      var cx = Math.max(w / 2, Math.min(W - w / 2, v[0] + v[2] / 2)), cy = Math.max(h / 2, Math.min(H - h / 2, v[1] + v[3] / 2));
-      v = [cx - w / 2, cy - h / 2, w, h];
-      svg.setAttribute('viewBox', v.map(function (n) { return n.toFixed(1); }).join(' '));
-      var px = pxPer(), seen = z * px;   // how big the map really is on screen decides how much detail shows
-      svg.style.setProperty('--zs', (Math.pow(z, -0.8) * Math.min(1.8, Math.max(1, 0.8 / px))).toFixed(3));   // small screens: bigger markers
-      svg.classList.toggle('z2', seen >= 1.4);
-      svg.classList.toggle('z3', seen >= 2.8);
-      svg.classList.toggle('zoomed', z > 1.02);
-      try { sessionStorage.setItem('gvMapView', JSON.stringify(v)); } catch (e) { /* private window: fine */ }
-    }
-    function zoomAt(f, px, py) { v = [px - (px - v[0]) / f, py - (py - v[1]) / f, v[2] / f, v[3] / f]; apply(); }
-    function centre(x, y, z) { v = [x - W / z / 2, y - H / z / 2, W / z, H / z]; apply(); }
-    function toMap(x, y) { var r = svg.getBoundingClientRect(); return [v[0] + (x - r.left) / r.width * v[2], v[1] + (y - r.top) / r.height * v[3]]; }
-    if (v && v.length === 4) apply(); else centre(me[0], me[1], window.innerWidth < 720 ? Math.max(2, 1.5 / pxPer()) : 1);
+    var v = null;
+    var prim = !!box.closest('.worldprimary');   // v2.5.31: the World page's own map never reuses a remembered zoom: it opens centred on you
+    if (!prim) try { v = JSON.parse(sessionStorage.getItem('gvMapView') || 'null'); } catch (e) { v = null; }
+    var zp = gvZoomPan(svg, {
+      W: W, H: H, view: v, maxZ: maxZ,
+      render: function (z, v) {
+        var px = pxPer(), seen = z * px;   // how big the map really is on screen decides how much detail shows
+        svg.style.setProperty('--zs', (Math.pow(z, -0.8) * Math.min(1.8, Math.max(1, 0.8 / px))).toFixed(3));   // small screens: bigger markers
+        svg.classList.toggle('z2', seen >= 1.4);
+        svg.classList.toggle('z3', seen >= 2.8);
+        svg.classList.toggle('zoomed', z > 1.02);
+        if (!prim) try { sessionStorage.setItem('gvMapView', JSON.stringify(v)); } catch (e) { /* private window: fine */ }
+      },
+      onTap: function (ev) {
+        var m = ev.target.closest('.mk.place');
+        if (!m) { card.hidden = true; return; }
+        ev.preventDefault();
+        card.textContent = '';
+        var x = document.createElement('button');
+        x.type = 'button'; x.className = 'mapcardx'; x.textContent = '✕'; x.setAttribute('aria-label', 'Close');
+        x.addEventListener('click', function () { card.hidden = true; });
+        var h = document.createElement('b'); h.textContent = m.getAttribute('data-name');
+        var p = document.createElement('p'); p.className = 'help'; p.textContent = m.getAttribute('data-what');
+        card.appendChild(x); card.appendChild(h); card.appendChild(p);
+        var route = m.getAttribute('data-route'), q = document.createElement('p');
+        if (m.getAttribute('data-here')) { if (window.gvIcoLine) gvIcoLine(q, 'ico-gnome-hat', ' You are here.'); else q.textContent = '🎩 You are here.'; }
+        else if (route && goForm) {
+          var go = document.createElement('button');
+          go.type = 'button'; go.className = 'btn small';
+          go.textContent = 'Go → (' + m.getAttribute('data-steps') + ' steps)';
+          go.addEventListener('click', function () { goForm.querySelector('[name=route_id]').value = route; goForm.submit(); });
+          q.appendChild(go);
+        } else if (m.getAttribute('data-go')) {   // v0.7.98: directions there (the first walk only)
+          var a = document.createElement('a');
+          a.className = 'btn small alt'; a.href = m.getAttribute('data-go'); if (window.gvIcoLine) gvIcoLine(a, 'ico-compass', ' How do I get there?'); else a.textContent = '🧭 How do I get there?';
+          q.appendChild(a);
+        } else q.textContent = 'Not next to you: walk the roads to get here.';
+        q.className = q.className || 'muted';
+        card.appendChild(q);
+        card.hidden = false;
+      }
+    });
+    function centre(x, y, z) { zp.show([x - W / z / 2, y - H / z / 2, W / z, H / z]); }
+    if (zp.view() && zp.view().length === 4) zp.apply(); else centre(me[0], me[1], window.innerWidth < 720 ? Math.max(2, 1.5 / pxPer()) : 1);
     var fold = box.closest('details');
-    if (fold) fold.addEventListener('toggle', function () { if (fold.open) apply(); });
-    window.addEventListener('resize', apply);
-
+    if (fold) fold.addEventListener('toggle', function () { if (fold.open) zp.apply(); });
+    window.addEventListener('resize', zp.apply);
     ctl.addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-z]');
       if (!b) return;
-      var k = b.getAttribute('data-z'), cx = v[0] + v[2] / 2, cy = v[1] + v[3] / 2;
-      if (k === 'in') zoomAt(1.6, cx, cy);
-      else if (k === 'out') zoomAt(1 / 1.6, cx, cy);
-      else if (k === 'me') centre(me[0], me[1], Math.max(zoom(), 3 / pxPer()));
+      var k = b.getAttribute('data-z'), vw = zp.view(), cx = vw[0] + vw[2] / 2, cy = vw[1] + vw[3] / 2;
+      if (k === 'in') zp.zoomAt(1.6, cx, cy);
+      else if (k === 'out') zp.zoomAt(1 / 1.6, cx, cy);
+      else if (k === 'me') centre(me[0], me[1], Math.max(zp.zoom(), 3 / pxPer()));
       else centre(500, 280, 1);
     });
-    svg.addEventListener('wheel', function (ev) {
-      if (ev.deltaY > 0 && zoom() <= 1.01) return;   // all the way out: let the page scroll
-      ev.preventDefault();
-      var p = toMap(ev.clientX, ev.clientY);
-      zoomAt(ev.deltaY < 0 ? 1.25 : 0.8, p[0], p[1]);
-    }, { passive: false });
-
-    var pts = {}, moved = 0, pinch = null;
-    svg.addEventListener('pointerdown', function (ev) { pts[ev.pointerId] = [ev.clientX, ev.clientY]; if (Object.keys(pts).length === 1) moved = 0; pinch = null; });   // a second finger keeps the drag/pinch (no stray tap)
-    svg.addEventListener('pointermove', function (ev) {
-      if (!pts[ev.pointerId]) return;
-      var ids = Object.keys(pts), old = pts[ev.pointerId], r = svg.getBoundingClientRect();
-      pts[ev.pointerId] = [ev.clientX, ev.clientY];
-      if (ids.length === 1) {
-        var dx = ev.clientX - old[0], dy = ev.clientY - old[1];
-        moved += Math.abs(dx) + Math.abs(dy);
-        if (moved > 6 && zoom() > 1.01) {
-          if (svg.setPointerCapture && !svg.hasPointerCapture(ev.pointerId)) svg.setPointerCapture(ev.pointerId);
-          v[0] -= dx / r.width * v[2];
-          v[1] -= dy / r.height * v[3];
-          apply();
-        }
-      } else if (ids.length === 2) {
-        var a = pts[ids[0]], b = pts[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
-        var mid = toMap((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
-        if (pinch) zoomAt(d / pinch, mid[0], mid[1]);
-        pinch = d;
-        moved = 99;
-      }
-    });
-    function up(ev) { delete pts[ev.pointerId]; pinch = null; }
-    svg.addEventListener('pointerup', up);
-    svg.addEventListener('pointercancel', up);
-
-    // A drag isn't a tap; a tap on a place opens its card
-    svg.addEventListener('click', function (ev) {
-      if (moved > 6) { ev.preventDefault(); ev.stopPropagation(); moved = 0; return; }
-      var m = ev.target.closest('.mk.place');
-      if (!m) { card.hidden = true; return; }
-      ev.preventDefault();
-      card.textContent = '';
-      var x = document.createElement('button');
-      x.type = 'button'; x.className = 'mapcardx'; x.textContent = '✕'; x.setAttribute('aria-label', 'Close');
-      x.addEventListener('click', function () { card.hidden = true; });
-      var h = document.createElement('b'); h.textContent = m.getAttribute('data-name');
-      var p = document.createElement('p'); p.className = 'help'; p.textContent = m.getAttribute('data-what');
-      card.appendChild(x); card.appendChild(h); card.appendChild(p);
-      var route = m.getAttribute('data-route'), q = document.createElement('p');
-      if (m.getAttribute('data-here')) { if (window.gvIcoLine) gvIcoLine(q, 'ico-gnome-hat', ' You are here.'); else q.textContent = '🎩 You are here.'; }
-      else if (route && goForm) {
-        var go = document.createElement('button');
-        go.type = 'button'; go.className = 'btn small';
-        go.textContent = 'Go → (' + m.getAttribute('data-steps') + ' steps)';
-        go.addEventListener('click', function () { goForm.querySelector('[name=route_id]').value = route; goForm.submit(); });
-        q.appendChild(go);
-      } else if (m.getAttribute('data-go')) {   // v0.7.98: directions there (the first walk only)
-        var a = document.createElement('a');
-        a.className = 'btn small alt'; a.href = m.getAttribute('data-go'); if (window.gvIcoLine) gvIcoLine(a, 'ico-compass', ' How do I get there?'); else a.textContent = '🧭 How do I get there?';
-        q.appendChild(a);
-      } else q.textContent = 'Not next to you: walk the roads to get here.';
-      q.className = q.className || 'muted';
-      card.appendChild(q);
-      card.hidden = false;
-    }, true);
   });
 }
 /* v1.6.0: mycelium maps: the All / Folk / Quests / Gathering chips show or hide the overlays (CSS keys off data-f on .mycbox).
@@ -1007,6 +1102,8 @@ function gvFightScroll(ended) {
 }
 function gvFightScrollNow(ended) {
   if (!window.matchMedia || !window.matchMedia('(max-width: 720px)').matches) return;
+  if (document.querySelector('.trailstrip')) return;   // 2.5.07: the Trail tile page places itself (hubscene.js centreMap)
+  if (document.querySelector('.dv2strip') && !document.querySelector('.advgrid.fighting')) return;   // v2.3.1: the delve floor / route menu stays where it is (no jump after a tap)
   var card = document.querySelector('.panel.encounter');
   if (card && !card.getClientRects().length && ended) card = document.querySelector('.advgrid .choicelist');   // v2.1.11: the wander layout has no card box, centre the actions
   if (!card || !card.getClientRects().length) return;
@@ -1056,59 +1153,27 @@ function gvRegionZoom() {
     if (!svg || !ctl) return;
     box.classList.add('on');
     ctl.hidden = false;
-    var vb = (svg.getAttribute('viewBox') || '0 0 400 300').split(/\s+/).map(Number), W = vb[2], H = vb[3], v = [0, 0, W, H];
-    function zoom() { return W / v[2]; }
-    function apply() {
-      var z = Math.max(1, Math.min(6, W / v[2])), w = W / z, h = H / z;
-      var cx = Math.max(w / 2, Math.min(W - w / 2, v[0] + v[2] / 2)), cy = Math.max(h / 2, Math.min(H - h / 2, v[1] + v[3] / 2));
-      v = [cx - w / 2, cy - h / 2, w, h];
-      svg.setAttribute('viewBox', v.map(function (n) { return n.toFixed(1); }).join(' '));
-      // v2.0.61: markers and names shrink on the map as it zooms (so they spread apart) but grow on screen; a narrow phone gets them a little bigger
-      var px = (svg.getBoundingClientRect().width || W) / W;
-      svg.style.setProperty('--zs', (Math.pow(z, -0.75) * Math.min(1.25, Math.max(1, 0.9 / px))).toFixed(3));
-      svg.classList.toggle('zoomed', z > 1.02);
-      svg.classList.toggle('z2', z >= 1.9);
-    }
-    function zoomAt(f, px, py) { v = [px - (px - v[0]) / f, py - (py - v[1]) / f, v[2] / f, v[3] / f]; apply(); }
-    function toMap(x, y) { var r = svg.getBoundingClientRect(); return [v[0] + (x - r.left) / r.width * v[2], v[1] + (y - r.top) / r.height * v[3]]; }
+    var vb = (svg.getAttribute('viewBox') || '0 0 400 300').split(/\s+/).map(Number), W = vb[2], H = vb[3];
+    var view = [0, 0, W, H];
     var fo = (svg.getAttribute('data-focus') || '').split(' ').map(Number);   // v2.0.84: the Go tab opens zoomed in on you
-    if (fo.length === 3 && fo[2] > 1) v = [fo[0] - W / fo[2] / 2, fo[1] - H / fo[2] / 2, W / fo[2], H / fo[2]];
-    apply();
+    if (fo.length === 3 && fo[2] > 1) view = [fo[0] - W / fo[2] / 2, fo[1] - H / fo[2] / 2, W / fo[2], H / fo[2]];
+    var zp = gvZoomPan(svg, {
+      W: W, H: H, view: view, maxZ: function () { return 6; },
+      render: function (z) {
+        // v2.0.61: markers and names shrink on the map as it zooms (so they spread apart) but grow on screen; a narrow phone gets them a little bigger
+        var px = (svg.getBoundingClientRect().width || W) / W;
+        svg.style.setProperty('--zs', (Math.pow(z, -0.75) * Math.min(1.25, Math.max(1, 0.9 / px))).toFixed(3));
+        svg.classList.toggle('zoomed', z > 1.02);
+        svg.classList.toggle('z2', z >= 1.9);
+      }
+    });
+    zp.apply();
     ctl.addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-z]');
       if (!b) return;
-      var k = b.getAttribute('data-z'), cx = v[0] + v[2] / 2, cy = v[1] + v[3] / 2;
-      if (k === 'in') zoomAt(1.6, cx, cy); else if (k === 'out') zoomAt(1 / 1.6, cx, cy); else { v = [0, 0, W, H]; apply(); }
+      var k = b.getAttribute('data-z'), vw = zp.view(), cx = vw[0] + vw[2] / 2, cy = vw[1] + vw[3] / 2;
+      if (k === 'in') zp.zoomAt(1.6, cx, cy); else if (k === 'out') zp.zoomAt(1 / 1.6, cx, cy); else zp.show([0, 0, W, H]);
     });
-    svg.addEventListener('wheel', function (ev) {
-      if (ev.deltaY > 0 && zoom() <= 1.01) return;
-      ev.preventDefault();
-      var p = toMap(ev.clientX, ev.clientY);
-      zoomAt(ev.deltaY < 0 ? 1.25 : 0.8, p[0], p[1]);
-    }, { passive: false });
-    var pts = {}, moved = 0, pinch = null;
-    svg.addEventListener('pointerdown', function (ev) { pts[ev.pointerId] = [ev.clientX, ev.clientY]; if (Object.keys(pts).length === 1) moved = 0; pinch = null; });   // a second finger keeps the drag/pinch (no stray tap)
-    svg.addEventListener('pointermove', function (ev) {
-      if (!pts[ev.pointerId]) return;
-      var ids = Object.keys(pts), old = pts[ev.pointerId], r = svg.getBoundingClientRect();
-      pts[ev.pointerId] = [ev.clientX, ev.clientY];
-      if (ids.length === 1) {
-        var dx = ev.clientX - old[0], dy = ev.clientY - old[1];
-        moved += Math.abs(dx) + Math.abs(dy);
-        if (moved > 6 && zoom() > 1.01) {
-          if (svg.setPointerCapture && !svg.hasPointerCapture(ev.pointerId)) svg.setPointerCapture(ev.pointerId);
-          v[0] -= dx / r.width * v[2]; v[1] -= dy / r.height * v[3]; apply();
-        }
-      } else if (ids.length === 2) {
-        var a = pts[ids[0]], b = pts[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]), mid = toMap((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
-        if (pinch) zoomAt(d / pinch, mid[0], mid[1]);
-        pinch = d; moved = 99;
-      }
-    });
-    function up(ev) { delete pts[ev.pointerId]; pinch = null; }
-    svg.addEventListener('pointerup', up);
-    svg.addEventListener('pointercancel', up);
-    svg.addEventListener('click', function (ev) { if (moved > 6) { ev.preventDefault(); ev.stopPropagation(); moved = 0; } }, true);
   });
 }
 
@@ -1120,52 +1185,20 @@ function gvMycZoom() {
     if (!svg || !ctl) return;
     box.classList.add('on');
     ctl.hidden = false;
-    var vb = (svg.getAttribute('viewBox') || '0 0 360 300').split(/\s+/).map(Number), W = vb[2], H = vb[3], v = [0, 0, W, H];
-    function apply() {
-      var z = Math.max(1, Math.min(5, W / v[2])), w = W / z, h = H / z;
-      var cx = Math.max(w / 2, Math.min(W - w / 2, v[0] + v[2] / 2)), cy = Math.max(h / 2, Math.min(H - h / 2, v[1] + v[3] / 2));
-      v = [cx - w / 2, cy - h / 2, w, h];
-      svg.setAttribute('viewBox', v.map(function (n) { return n.toFixed(1); }).join(' '));
-      svg.classList.toggle('zoomed', z > 1.02);
-      svg.classList.toggle('zn', z >= 1.5);
-    }
-    function zoomAt(f, px, py) { v = [px - (px - v[0]) / f, py - (py - v[1]) / f, v[2] / f, v[3] / f]; apply(); }
-    function toMap(x, y) { var r = svg.getBoundingClientRect(); return [v[0] + (x - r.left) / r.width * v[2], v[1] + (y - r.top) / r.height * v[3]]; }
+    var vb = (svg.getAttribute('viewBox') || '0 0 360 300').split(/\s+/).map(Number), W = vb[2], H = vb[3];
+    var zp = gvZoomPan(svg, {
+      W: W, H: H, view: [0, 0, W, H], maxZ: function () { return 5; }, wheelModifier: true,
+      render: function (z) {
+        svg.classList.toggle('zoomed', z > 1.02);
+        svg.classList.toggle('zn', z >= 1.5);
+      }
+    });
     ctl.addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-mz]');
       if (!b) return;
-      var k = b.getAttribute('data-mz'), cx = v[0] + v[2] / 2, cy = v[1] + v[3] / 2;
-      if (k === 'in') zoomAt(1.5, cx, cy); else if (k === 'out') zoomAt(1 / 1.5, cx, cy); else { v = [0, 0, W, H]; apply(); }
+      var k = b.getAttribute('data-mz'), vw = zp.view(), cx = vw[0] + vw[2] / 2, cy = vw[1] + vw[3] / 2;
+      if (k === 'in') zp.zoomAt(1.5, cx, cy); else if (k === 'out') zp.zoomAt(1 / 1.5, cx, cy); else zp.show([0, 0, W, H]);
     });
-    svg.addEventListener('wheel', function (ev) {
-      if (!ev.ctrlKey && !ev.altKey) return;   // a plain wheel keeps scrolling the page; Ctrl / Alt + wheel zooms
-      ev.preventDefault();
-      var p = toMap(ev.clientX, ev.clientY);
-      zoomAt(ev.deltaY < 0 ? 1.25 : 0.8, p[0], p[1]);
-    }, { passive: false });
-    var pts = {}, moved = 0, pinch = null;
-    svg.addEventListener('pointerdown', function (ev) { pts[ev.pointerId] = [ev.clientX, ev.clientY]; if (Object.keys(pts).length === 1) moved = 0; pinch = null; });
-    svg.addEventListener('pointermove', function (ev) {
-      if (!pts[ev.pointerId]) return;
-      var ids = Object.keys(pts), old = pts[ev.pointerId], r = svg.getBoundingClientRect();
-      pts[ev.pointerId] = [ev.clientX, ev.clientY];
-      if (ids.length === 1) {
-        var dx = ev.clientX - old[0], dy = ev.clientY - old[1];
-        moved += Math.abs(dx) + Math.abs(dy);
-        if (moved > 6 && W / v[2] > 1.01) {
-          if (svg.setPointerCapture && !svg.hasPointerCapture(ev.pointerId)) svg.setPointerCapture(ev.pointerId);
-          v[0] -= dx / r.width * v[2]; v[1] -= dy / r.height * v[3]; apply();
-        }
-      } else if (ids.length === 2) {
-        var a = pts[ids[0]], b = pts[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]), mid = toMap((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
-        if (pinch) zoomAt(d / pinch, mid[0], mid[1]);
-        pinch = d; moved = 99;
-      }
-    });
-    function up(ev) { delete pts[ev.pointerId]; pinch = null; }
-    svg.addEventListener('pointerup', up);
-    svg.addEventListener('pointercancel', up);
-    svg.addEventListener('click', function (ev) { if (moved > 6) { ev.preventDefault(); ev.stopPropagation(); moved = 0; } }, true);
   });
 }
 
@@ -1273,6 +1306,38 @@ function gvGarden() {
     pk.querySelector('[data-go]') && pk.querySelector('[data-go]').addEventListener('click', function () { if (pk.ongo) pk.ongo(); });
   });
 
+  // v2.4.87: seed picker filter: search + type chips + in-season toggle (hides with .pf-off, so it never fights the [hidden] the square panel sets)
+  document.querySelectorAll('.picker .pickfilter:not(.wired)').forEach(function (f) {
+    f.classList.add('wired');
+    var pk = f.closest('.picker'), q = f.querySelector('.pfq'), now = f.querySelector('.pfnow'), type = '';
+    var chips = f.querySelectorAll('.pfchip'), sel = f.querySelector('.pfsel'), empty = pk.querySelector('.pfempty');
+    function ok(c, t) {
+      return (!t || c.getAttribute('data-pk') === t) && (c.getAttribute('data-nm') || '').indexOf(q.value.trim().toLowerCase()) >= 0 && (!now.checked || c.getAttribute('data-in') === '1');
+    }
+    function apply() {
+      var cards = pk.querySelectorAll('.pcard'), shown = 0;
+      cards.forEach(function (c) { var o = ok(c, type); c.classList.toggle('pf-off', !o); if (o && !c.hidden) shown++; });
+      chips.forEach(function (b) {
+        var t = b.getAttribute('data-pk'), n = 0;
+        cards.forEach(function (c) { if (!c.hidden && ok(c, t)) n++; });
+        b.querySelector('small').textContent = n;
+        b.setAttribute('aria-pressed', t === type ? 'true' : 'false');
+      });
+      if (sel) Array.prototype.forEach.call(sel.options, function (o) {
+        var n = 0, t = o.value;
+        cards.forEach(function (c) { if (!c.hidden && ok(c, t)) n++; });
+        o.textContent = o.getAttribute('data-l') + ' (' + n + ')';
+      });
+      if (empty) empty.hidden = shown > 0;
+    }
+    q.addEventListener('input', apply);
+    now.addEventListener('change', apply);
+    f.querySelector('.pfx').addEventListener('click', function () { q.value = ''; apply(); q.focus(); });
+    if (sel) sel.addEventListener('change', function () { type = sel.value; apply(); });
+    chips.forEach(function (b) { b.addEventListener('click', function () { type = b.getAttribute('data-pk'); apply(); }); });
+    apply();
+  });
+
   if (!bar || !yard || bar.classList.contains('wired')) return;
   bar.classList.add('wired');
   bar.hidden = false;
@@ -1313,7 +1378,17 @@ function gvGarden() {
     paint();
   }
   onBtn.addEventListener('click', function () { setOn(true); });
-  bar.querySelector('[data-sel="off"]').addEventListener('click', function () { setOn(false); });
+  bar.querySelector('[data-sel="off"]').addEventListener('click', function () { try { sessionStorage.removeItem('gvgsel'); } catch (e) {} setOn(false); });
+  /* v2.4.80: after a batch action (Mulch, Sheet mulch, Work in, Water ...) the page reloads: pick up where you were, same squares still selected,
+     so sheet mulch then mulch then water needs no re-selecting. Only within a minute of the action; Done clears it. */
+  try {
+    var kept = JSON.parse(sessionStorage.getItem('gvgsel') || 'null');
+    if (kept && Date.now() - kept.t < 60000 && kept.k && kept.k.length) {
+      setOn(true);
+      kept.k.forEach(function (k) { if (flags.hasOwnProperty(k)) picked[k] = true; });
+      paint();
+    }
+  } catch (e) {}
   yard.addEventListener('click', function (ev) {
     if (!on) return;
     var a = ev.target.closest('a.tile');
@@ -1358,10 +1433,11 @@ function gvGarden() {
     form.querySelector('[name=act]').value = act;
     form.querySelector('[name=item_id]').value = '';
     if (extra) extra(add, form);
+    try { sessionStorage.setItem('gvgsel', JSON.stringify({ t: Date.now(), k: Object.keys(picked) })); } catch (e) {}   // v2.4.80: keep the picked squares across the reload
     closeAll();
     sendForm(form);
   }
-  bar.querySelectorAll('[data-act]').forEach(function (b) {
+  bar.querySelectorAll('[data-act]:not([data-open])').forEach(function (b) {   // v2.4.80: Sheet mulch… has data-act too but opens the picker; it was also submitting at once with no mulch chosen, which reloaded the page and closed every menu
     b.addEventListener('click', function () {
       var ask = b.getAttribute('data-ask');   // v0.7.61: e.g. dig up asks first
       var askif = b.getAttribute('data-askif');   // v1.6.2: only when a picked square has this flag (till: a no-till bed)
@@ -1388,7 +1464,7 @@ function gvGarden() {
           c.classList.toggle('on', kind === 'seed' ? cn > 0 : choice === id);
           if (c.hasAttribute('aria-pressed')) c.setAttribute('aria-pressed', c.classList.contains('on') ? 'true' : 'false');   // v2.0.67: item squares
           var badge = c.querySelector('.pccount');
-          badge.hidden = !(kind === 'seed' && cn > 0); badge.textContent = cn;
+          badge.hidden = !(kind === 'seed' && cn > 0); badge.textContent = cn + ' planting';
           var btns = c.querySelector('.pcbtns'); if (btns) btns.hidden = !(cn > 0);
         });
         var t = kind === 'seed' ? Math.min(total(), n) : (choice ? n : 0);
@@ -1396,16 +1472,54 @@ function gvGarden() {
                                           : (choice ? n + ' squares · ⚡ up to ' + n * (costs[act] || 1) : 'Tap one to choose it');
         go.disabled = !t;
       }
+      /* v2.4.80: seeds: tapping a square opens a popover with what the seed needs and how many to plant (− / + / All), instead of tap-to-count on the square */
+      var pop = null;
+      function seedPop() {
+        if (pop) return pop;
+        pop = document.createElement('dialog'); pop.className = 'isheet seedpop'; pop.setAttribute('aria-label', 'How many to plant');
+        pop.innerHTML = '<button type="button" class="sheetx" data-spx aria-label="Close">✕</button><div class="shead"><span class="sico" aria-hidden="true"></span><b class="sname"></b> <span class="rarword"></span></div>'
+          + '<p class="stags"></p><div class="qctl"><button type="button" class="qbtn" data-sq="-1" aria-label="One less">−</button><input type="number" class="qin" min="0" inputmode="numeric" aria-label="How many to plant">'
+          + '<button type="button" class="qbtn" data-sq="1" aria-label="One more">+</button><button type="button" class="qbtn qmax" data-sq="max">All</button></div>'
+          + '<p class="sline"><b class="sleft"></b></p><button type="button" class="btn sgo" data-spx>Done</button>';
+        pk.appendChild(pop);
+        return pop;
+      }
+      function openSeedPop(card) {
+        var id = card.getAttribute('data-id'), qty = +card.getAttribute('data-qty'), d = seedPop();
+        var win = card.querySelector('.itm__win'), pic = win && win.querySelector('.itm__ic, .itm__svg, .itm__emo');
+        d.querySelector('.sico').innerHTML = pic ? pic.outerHTML : '';
+        d.querySelector('.sname').textContent = (card.querySelector('.itm__name') || {}).textContent || '';
+        var rar = card.querySelector('.itm__rar'); d.querySelector('.rarword').textContent = rar ? rar.textContent : '';
+        var tg = d.querySelector('.stags'); tg.textContent = '';
+        [(card.querySelector('.pcinfo') || {}).innerHTML, (card.querySelector('.pcmore') || {}).innerHTML].forEach(function (h) {
+          (h || '').split(' · ').forEach(function (part) { if (part.replace(/<[^>]*>/g, '').trim()) { var t = document.createElement('span'); t.className = 'tag'; t.innerHTML = part; tg.appendChild(t); } });
+        });
+        var inp = d.querySelector('.qin'), left = d.querySelector('.sleft');
+        function room() { return n - (total() - (counts[id] || 0)); }
+        function max() { return Math.max(0, Math.min(qty, room())); }
+        function set(v) {
+          v = Math.max(0, Math.min(max(), Math.floor(+v || 0)));
+          if (v) { counts[id] = v; if (order.indexOf(id) < 0) order.push(id); } else { delete counts[id]; order = order.filter(function (o) { return o !== id; }); }
+          inp.value = v; inp.max = max();
+          left.textContent = Math.min(total(), n) + ' of ' + n + ' squares · ⚡ up to ' + Math.min(total(), n) * (costs[act] || 1) + (qty ? ' · you have ' + qty : '');
+          show();
+        }
+        var cur = counts[id] || 0;
+        d.onclick = function (ev) {
+          var t = ev.target;
+          if (t.closest('[data-spx]') || t === d) { gvCloseDlg(d); return; }
+          var q = t.closest('[data-sq]'); if (!q) return;
+          var s = q.getAttribute('data-sq'), v = +inp.value || 0;
+          set(s === 'max' ? max() : v + (+s));
+        };
+        inp.oninput = function () { set(inp.value); };
+        set(cur > 0 ? cur : (room() > 0 ? Math.min(qty, total() ? 1 : room()) : 0));   // v1.6.2: the first pick fills every picked square
+        gvOpenDlg(d);
+      }
       pk.onpick = function (card, step) {
         var id = card.getAttribute('data-id'), qty = +card.getAttribute('data-qty');
-        if (kind !== 'seed') { choice = id; show(); return; }
-        var cur = counts[id] || 0, room = n - total();
-        var s = step ? step.getAttribute('data-step') : '+1';
-        if (s === '-1') cur = Math.max(0, cur - 1);
-        else if (s === 'max') cur = Math.min(qty, cur + room);
-        else if (room > 0) cur = Math.min(qty, cur + (cur === 0 && !total() ? room : 1));   // v1.6.2: the first tap fills every picked square
-        if (cur) { counts[id] = cur; if (order.indexOf(id) < 0) order.push(id); } else { delete counts[id]; order = order.filter(function (o) { return o !== id; }); }
-        show();
+        if (kind === 'seed') { openSeedPop(card); return; }
+        choice = id; show();
       };
       pk.ongo = function () {
         submit(act, function (add, f) {
@@ -1575,7 +1689,7 @@ document.addEventListener('click', function (ev) {
   if (x) { gvCloseDlg(x.closest('dialog')); return; }
   if (t.tagName === 'DIALOG' && t.classList.contains('isheet')) { gvCloseDlg(t); return; }   // tap on the dimmed backdrop
   var q = t.closest('.qbtn');
-  if (q) {
+  if (q && q.closest('.sheetform')) {   // v2.4.80: the seed popover has its own - / + / All
     var form = q.closest('form'), inp = form.querySelector('.qin'), max = +form.getAttribute('data-max') || 1, d = q.getAttribute('data-q');
     var cur = Math.max(1, +inp.value || 1);
     inp.value = d === 'max' ? max : Math.max(1, Math.min(max, cur + (+d)));
@@ -2029,10 +2143,12 @@ document.addEventListener('animationend', function (ev) {
 
 /* Shelves (the Satchel and the Crafting tabs other than the Pantry): a pill opens its panel in place (every panel is already in the page,
    hidden), one at a time, and the address follows so a reload keeps it; the shelves remember being folded for this tab (sessionStorage);
-   the search box filters the pills as you type (Enter still searches on the server). Without script the pills and ✕ are plain links. */
-(function () {
+   the search box filters the pills as you type (Enter still searches on the server). Without script the pills and ✕ are plain links.
+   v2.4.67: a function, so an in-place swap (eating from the Satchel) can wire the fresh .shelves again. */
+function gvShelves() {
   var root = document.querySelector('.shelves');
-  if (!root) return;
+  if (!root || root.hasAttribute('data-shwired')) return;
+  root.setAttribute('data-shwired', '1');
   function shut(p) {
     var panel = document.getElementById(p.getAttribute('data-pick'));
     if (panel) panel.hidden = true;
@@ -2085,4 +2201,5 @@ document.addEventListener('animationend', function (ev) {
     });
     if (none) none.hidden = any;
   });
-})();
+}
+gvShelves();

@@ -56,7 +56,7 @@ $fold = function (string $icon, string $title, bool $open = false): string {
 
 <?= $fold('🧙', 'Your gnome and stats') ?>
   <ul>
-    <li>You level up as you work. Each level gives <b>stat points</b> to spend in <a href="<?= e(url('gnome.php')) ?>">My Gnome</a>.</li>
+    <li>You level up as you work. Each level gives <b>stat points</b> to spend on your home page: <a href="<?= e(url('gnome.php?tab=stats')) ?>">My Gnome → Stats</a>.</li>
     <li>Seven stats: Grit, Nimble, Hardiness, Lore, Sense, Charm and Luck. Each helps in its own way.</li>
     <li>What you eat boosts stats for a while. A few rare plants raise one for good.</li>
   </ul>

@@ -1,0 +1,220 @@
+# Mangrove Root Maze: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , rough floor, W tidal water.
+
+@mangrove-root-maze/root_knot_tangle
+size: 3
+tags: dry,knot,roots,rough
+,#.
+.,,
+#.W
+
+@mangrove-root-maze/tidal_pool_corner
+size: 3
+tags: wet,tidal,corner,water
+W.#
+W..
+.,.
+
+@mangrove-root-maze/hummock_island
+size: 3
+tags: dry,hummock,island,rough
+#,#
+,.,
+#.#
+
+@mangrove-root-maze/root_bridge_cross
+size: 3
+tags: wet,bridge,narrow,roots
+#.#
+W.W
+#.#
+
+@mangrove-root-maze/mud_flat_strip
+size: 3
+tags: wet,mud,channel,rough
+,,,
+WWW
+,,.
+
+@mangrove-root-maze/channel_bend
+size: 3
+tags: wet,channel,bend
+#.W
+..W
+.##
+
+@mangrove-root-maze/arch_over_tide
+size: 5
+tags: wet,arch,roots,tide
+#####
+.#.#.
+.....
+W.W.W
+WWWWW
+
+@mangrove-root-maze/pond_clearing_ring
+size: 5
+tags: wet,pond,clearing,ring
+.#.#.
+.....
+#W.W#
+.....
+.#.#.
+
+@mangrove-root-maze/winding_thicket
+size: 5
+tags: wet,thicket,winding,roots
+#.W##
+#.#W.
+W..W#
+#W#..
+##.W#
+
+@mangrove-root-maze/stilt_roots_grid
+size: 5
+tags: wet,stilts,grid,bridge
+W.W.W
+..W..
+.....
+..W..
+W.W.W
+
+@mangrove-root-maze/mud_lens_bank
+size: 5
+tags: wet,mud,bank,lens
+##,##
+#,,,#
+,,,,.
+WW,WW
+WW.WW
+
+@mangrove-root-maze/coil_path
+size: 5
+tags: wet,coil,winding,bridge
+.....
+#WWW.
+W.,W.
+W.WW.
+W....
+
+@mangrove-root-maze/hummock_pools
+size: 5
+tags: wet,hummock,rough,pools
+,,#,,
+,W,W,
+#,,,#
+,W,W,
+,,#,,
+
+@mangrove-root-maze/twin_channels
+size: 5
+tags: wet,channels,crossing,split
+..#..
+.W#W.
+.....
+.W#W.
+..#..
+
+@mangrove-root-maze/tidal_hollow
+size: 5
+tags: wet,hollow,rough,side-doors
+#####
+.,,,#
+.,W,.
+.,,,.
+#####
+
+@mangrove-root-maze/tidal_elbow
+size: 5
+tags: wet,corner,stair,channel
+W####
+W####
+WW...
+.##.W
+.#W..
+
+@mangrove-root-maze/root_gate_pool
+size: 5
+tags: wet,gates,pool,ring
+#.#.#
+.,,,.
+#,W,#
+.,,,.
+#.#.#
+
+@mangrove-root-maze/stilt_crossing_dry
+size: 5
+tags: dry,zigzag,stilts,rough
+,,,,#
+##.##
+#,,,,
+##.##
+,,,,#
+
+@mangrove-root-maze/mud_flat_island
+size: 5
+tags: wet,mud,flat,island,moat
+.WWW.
+W,,,W
+.,#,.
+W,,,W
+.WWW#
+
+@mangrove-root-maze/narrow_thicket_gap
+size: 5
+tags: wet,thicket,narrow,gap,diagonal
+###..
+##W.#
+,.W##
+.W###
+..###
+
+@mangrove-root-maze/flooded_root_hall
+size: 6
+tags: wet,hall,room,pool
+######
+#....#
+#.WW.#
+..WW..
+#.....
+######
+
+@mangrove-root-maze/terrace_bank
+size: 6
+tags: wet,mud,bank,terrace,steps,roots
+..,,WW
+.#,WW#
+,,#WW.
+,#WW.#
+WWW.,.
+#W.,..
+
+@mangrove-root-maze/channel_thicket
+size: 6
+tags: wet,channels,thicket,maze
+#WWW.#
+#.#W.#
+#.#W..
+##.W##
+.W..W.
+.W##W.
+
+@mangrove-root-maze/lagoon_bridge_cross
+size: 6
+tags: wet,bridge,lagoon,channels
+##W..W
+##W..W
+......
+W..W##
+W..W##
+......
+
+@mangrove-root-maze/root_hummock_court
+size: 6
+tags: dry,hummocks,court,rough
+#.#.#.
+#,,,,.
+.,#,,#
+#,,,,.
+.#,,#.
+.,,,,.

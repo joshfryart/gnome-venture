@@ -44,12 +44,17 @@ document.addEventListener("DOMContentLoaded",function(){
 
   /* 2-5. the job posts */
   var forms = Array.prototype.slice.call(root.querySelectorAll('form.pjform'));
-  function picked(f) { return f.querySelector('input[name="pal"]:checked'); }
+  function picked(f) { return f.querySelector('input[name="pals[]"]:checked'); }
+  function pickedAll(f) { return f.querySelectorAll('input[name="pals[]"]:checked'); }   // v2.3.94: several pals per job
   function nameOf(input) { var n = input && input.closest('.pjface').querySelector('.pjnm'); return n ? n.textContent : ''; }
   function checkedVal(f, name) { var r = f.querySelector('input[name="' + name + '"]:checked'); return r ? +r.value : 0; }
   function update(f) {
     var p = picked(f), kind = f.getAttribute('data-pj-kind'), send = f.querySelector('[data-pj-send] span'), back = f.querySelector('[data-pj-back]');
-    if (send) send.textContent = p ? 'Send ' + nameOf(p) : 'Send';
+    var n = pickedAll(f).length;
+    if (send) send.textContent = n > 1 ? 'Send ' + n + ' pals' : (p ? 'Send ' + nameOf(p) : 'Tick a pal to send');
+    var allb = f.querySelector('.pjall');   // keeps the shortcut's words true after a Cancel or a single tick
+    if (allb) { var fr = f.querySelectorAll('input[name="pals[]"]:not(:disabled):not([data-pj-party])'); allb.textContent = Array.prototype.every.call(fr, function (c) { return c.checked; }) ? 'Clear all' : 'Select all free pals (' + fr.length + ')'; }
+    var sb = f.querySelector('[data-pj-send]'); if (sb) sb.disabled = n < 1;   // v2.3.98: always visible, live once a pal is ticked
     if (!back) return;
     var t = now();
     if (kind === 'garden') back.textContent = 'Back on ' + day(t + checkedVal(f, 'days') * 864e5) + '.';
@@ -71,7 +76,7 @@ document.addEventListener("DOMContentLoaded",function(){
       cancel.textContent = 'Cancel';
       cancel.addEventListener('click', function () {
         var p = picked(f);
-        if (p) { p.checked = false; update(f); p.focus(); }
+        if (p) { pickedAll(f).forEach(function (c) { c.checked = false; }); update(f); p.focus(); }
       });
       go.appendChild(cancel);
     }
@@ -90,11 +95,28 @@ document.addEventListener("DOMContentLoaded",function(){
       });
       f.querySelector('.pjfaces').after(more);
     }
+    var freeBoxes = function () { return Array.prototype.filter.call(f.querySelectorAll('input[name="pals[]"]:not(:disabled)'), function (c) { return !c.hasAttribute('data-pj-party'); }); };
+    if (freeBoxes().length > 1 && f.querySelector('.pjfaces')) {   // v2.5.49: "Select all free pals": rested pals that are not on the party (those need their own tick); JS only
+      var all = document.createElement('button');
+      all.type = 'button';
+      all.className = 'btn small ghost pjall';
+      all.textContent = 'Select all free pals (' + freeBoxes().length + ')';
+      all.addEventListener('click', function () {
+        var boxes = freeBoxes(), on = boxes.some(function (c) { return !c.checked; });
+        f.querySelectorAll('.pjfaces > li').forEach(function (li) { li.hidden = false; });
+        var mr = f.querySelector('.pjmore'); if (mr) mr.remove();
+        boxes.forEach(function (c) { c.checked = on; });
+        all.textContent = on ? 'Clear all' : 'Select all free pals (' + boxes.length + ')';
+        f.dispatchEvent(new Event('change', { bubbles: true }));
+        forms.forEach(function (o) { if (o !== f && on && picked(o)) { pickedAll(o).forEach(function (c) { c.checked = false; }); update(o); } });
+      });
+      f.querySelector('.pjfaces').before(all);
+    }
     f.querySelectorAll('input[data-pj-step]').forEach(function (inp) {   // potion stepper: big targets, never past min/max
       var wrap = document.createElement('div');
       wrap.className = 'pjstepper';
       wrap.setAttribute('role', 'group');
-      wrap.setAttribute('aria-label', 'Potions to pack');
+      wrap.setAttribute('aria-label', inp.getAttribute('data-pj-label') || 'Potions to pack');
       var mk = function (d, label, txt) {
         var b = document.createElement('button');
         b.type = 'button';
@@ -116,13 +138,73 @@ document.addEventListener("DOMContentLoaded",function(){
       sync();
     });
     f.addEventListener('change', function (ev) {
-      if (ev.target.name === 'pal' && ev.target.checked) {   // one draft at a time
-        forms.forEach(function (o) { if (o !== f && picked(o)) { picked(o).checked = false; update(o); } });
+      if (ev.target.name === 'pals[]' && ev.target.checked) {   // one draft at a time
+        forms.forEach(function (o) { if (o !== f && picked(o)) { pickedAll(o).forEach(function (c) { c.checked = false; }); update(o); } });
       }
       update(f);
     });
+    /* v2.4.61: station shifts: the recipe picker is a fold (only for "Chosen"), a scrolling list of the recipes the station makes, with a filter and a 5-pick limit */
+    var gSt = f.querySelector('[data-pj-gstation]'), rbox = f.querySelector('[data-pj-recipes]');
+    if (gSt && rbox) {
+      var rq = rbox.querySelector('[data-pj-rfilter]'), cnt = rbox.querySelector('[data-pj-rcount]'), none = rbox.querySelector('.pjrnone');
+      var modes = f.querySelectorAll('input[name="mode"]');
+      var chosenMode = function () { var m = f.querySelector('input[name="mode"]:checked'); return !m || m.value === 'chosen'; };
+      var refresh = function () {
+        var q = ((rq && rq.value) || '').trim().toLowerCase(), picked = 0, shown = 0;
+        rbox.querySelectorAll('.pjrecipe').forEach(function (r) {
+          var cb = r.querySelector('input'), on = (r.getAttribute('data-st') || '').split(' ').indexOf(gSt.value) > -1;
+          if (!on && cb.checked) cb.checked = false;
+          if (cb.checked) picked++;
+          r.hidden = !on || (q !== '' && (r.getAttribute('data-name') || '').indexOf(q) < 0);
+          if (!r.hidden) shown++;
+        });
+        rbox.querySelectorAll('.pjrecipe input').forEach(function (cb) { cb.disabled = !cb.checked && picked >= 5; });   // up to 5
+        if (cnt) cnt.textContent = picked + ' of 5';
+        if (none) none.hidden = shown > 0;
+        rbox.hidden = !chosenMode();
+      };
+      gSt.addEventListener('change', refresh);
+      modes.forEach(function (m) { m.addEventListener('change', function () { refresh(); if (chosenMode()) rbox.open = true; }); });
+      rbox.addEventListener('change', refresh);
+      if (rq) rq.addEventListener('input', refresh);
+      refresh();
+    }
+    /* v2.3.99: a tool picker only offers tools that can gather in the chosen land (options carry data-lands) */
+    var gLand = f.querySelector('[data-pj-gland]'), gTool = f.querySelector('[data-pj-gtool]');
+    if (gLand && gTool) {
+      var fit = function (sel, land, keepBlank) {   // disable tools that cannot gather in `land`; make sure the pick is a valid one
+        var firstOk = null;
+        Array.prototype.forEach.call(sel.options, function (o) {
+          if (o.value === '') return;
+          var ok = !land || (o.getAttribute('data-lands') || '').split(' ').indexOf(land) > -1;
+          o.disabled = !ok; o.hidden = !ok;
+          if (ok && !firstOk) firstOk = o;
+        });
+        var cur = sel.options[sel.selectedIndex];
+        if (cur && cur.value !== '' && cur.disabled && firstOk) sel.value = firstOk.value;
+        else if (cur && cur.value === '' && !keepBlank && firstOk) sel.value = firstOk.value;
+      };
+      var refit = function () {
+        fit(gTool, gLand.value, false);
+        f.querySelectorAll('.pjover').forEach(function (box) {
+          var pl = box.querySelector('[data-pj-pland]'), pt = box.querySelector('[data-pj-ptool]');
+          if (!pt) return;
+          var land = (pl && pl.value) || gLand.value;
+          fit(pt, land, true);
+          if (pt.value === '' && gTool.options[gTool.selectedIndex].disabled) pt.value = '';
+          var asAbove = pt.options[0];
+          if (asAbove && asAbove.value === '') {   // "As above" is only fine if the default tool can gather in this pal's land
+            var gt = gTool.options[gTool.selectedIndex], okAbove = gt && (gt.getAttribute('data-lands') || '').split(' ').indexOf(land) > -1;
+            asAbove.disabled = !okAbove; asAbove.hidden = !okAbove;
+            if (!okAbove && pt.value === '') { var first = Array.prototype.find.call(pt.options, function (o) { return o.value !== '' && !o.disabled; }); if (first) pt.value = first.value; }
+          }
+        });
+      };
+      f.addEventListener('change', function (ev) { if (ev.target.matches('[data-pj-gland],[data-pj-gtool],[data-pj-pland],[data-pj-ptool]')) refit(); });
+      refit();
+    }
     f.addEventListener('keydown', function (ev) {   // Esc closes the draft
-      if (ev.key === 'Escape' && picked(f)) { var p = picked(f); p.checked = false; update(f); p.focus(); }
+      if (ev.key === 'Escape' && picked(f)) { var p = picked(f); pickedAll(f).forEach(function (c) { c.checked = false; }); update(f); p.focus(); }
     });
     f.addEventListener('submit', function () {   // a second tap does nothing (the server is safe anyway: the pal is claimed in one UPDATE)
       if (btn) { setTimeout(function () { btn.disabled = true; }, 0); }
@@ -150,7 +232,7 @@ document.addEventListener("DOMContentLoaded",function(){
     forms.forEach(function (f) {   // an equipped pal needs the "take off my party" box ticked (it is only shown for such a pal)
       var cb = f.querySelector('input[name="unequip"]');
       if (!cb) return;
-      f.addEventListener('change', function () { var p = f.querySelector('input[name="pal"]:checked'); cb.required = !!(p && p.hasAttribute('data-pj-party')); if (!cb.required) cb.checked = false; });
+      f.addEventListener('change', function () { var p = f.querySelector('input[name="pals[]"][data-pj-party]:checked'); cb.required = !!p; if (!cb.required) cb.checked = false; });
     });
     forms.forEach(function (f, i) {
       f.setAttribute('autocomplete', 'off');   // Firefox would restore a half-filled form after a reload or Back
@@ -165,14 +247,14 @@ document.addEventListener("DOMContentLoaded",function(){
         if (!f.hidden) { close(f); return; }
         forms.forEach(function (o) { if (o !== f && !o.hidden) close(o); });
         f.hidden = false; b.setAttribute('aria-expanded', 'true');
-        var first = f.querySelector('input[name="pal"]:not(:disabled)');
+        var first = f.querySelector('input[name="pals[]"]:not(:disabled)');
         if (first) first.focus({ preventScroll: true });
         f.scrollIntoView({ block: 'nearest' });
       });
       f.addEventListener('keydown', function (ev) {   // Esc folds the form (the draft clear above runs first on the same key)
-        if (ev.key === 'Escape' && !f.querySelector('input[name="pal"]:checked')) close(f, true);
+        if (ev.key === 'Escape' && !f.querySelector('input[name="pals[]"]:checked')) close(f, true);
       });
-      f.querySelectorAll('.linkbtn').forEach(function (c) {   // Cancel folds the form too
+      f.querySelectorAll('.linkbtn:not(.pjmore)').forEach(function (c) {   // Cancel folds the form too (not "Show all N pals")
         c.addEventListener('click', function () { setTimeout(function () { close(f, true); }, 0); });
       });
     });

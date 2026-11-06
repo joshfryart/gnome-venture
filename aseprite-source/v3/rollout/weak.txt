@@ -1,0 +1,5 @@
+# weak images (agents notes + Josh); one folder/name per line. Edit freely. pinkify.py adds the pink 2px border in the live copy only.
+ph/ginseng
+ph/stone-wall-end
+ph/tomato
+ph/stuffed-peppers-goat

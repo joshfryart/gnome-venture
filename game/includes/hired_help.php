@@ -53,13 +53,6 @@ function helper_skill_text(array $h): string
     return implode(', ', array_map(fn($s) => HELP_SKILLS[$s][0] . ' ' . HELP_SKILLS[$s][1], helper_skills($h)));
 }
 
-/** The active hire for a garden, joined with its helper, or null. */
-function current_hire(int $plotId): ?array
-{
-    return q_one('SELECT g.*, h.name, h.species, h.icon, h.skills, h.wage, h.bio FROM garden_hires g JOIN helpers h ON h.id = g.helper_id
-                  WHERE g.plot_id = ? AND g.active = 1 ORDER BY g.id DESC LIMIT 1', [$plotId]) ?: null;
-}
-
 /** v0.7.99: every helper staying in this garden (a Tool Shed holds 1, 2 or 3 by its level). */
 function current_hires(int $plotId): array
 {
@@ -93,6 +86,7 @@ function hire_helper(array $u, int $plotId, int $helperId, int $days): array
     if (!$h) return [false, 'That helper isn’t available.'];
     $cost = (int)$h['wage'] * $days;
     db()->beginTransaction();
+    q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // v2.3.94: lock this gnome so two hires cannot both take the last slot
     $n = count(current_hires($plotId));
     if ($n >= helper_slots($plotId)) {
         db()->rollBack();
@@ -133,9 +127,10 @@ function dismiss_helper(array $u, int $plotId, int $hireId = 0): array
  * Called from load_plot for each tile, before normal growth: replay the helper's watering visits.
  * Returns the tile, and counts waterings in $stats.
  */
-function helper_water_tile(array $t, ?array $p, array $visits, array &$stats): array
+function helper_water_tile(array $t, ?array $p, array $visits, array &$stats, ?array &$raw = null): array
 {
     if (!$p || !$visits) return $t;
+    $before = $stats['water'];
     foreach ($visits as $v) {
         if ($v <= (ts($t['growth_updated_at']) ?: ts($t['planted_at']))) continue;   // before planting, or before you last tended it
         $t = tile_grow($t, $p, $v);
@@ -147,9 +142,15 @@ function helper_water_tile(array $t, ?array $p, array $visits, array &$stats): a
             $stats['water']++;
         }
     }
-    q('UPDATE plot_tiles SET last_watered = ?, growth_seconds = ?, growth_updated_at = ? WHERE id = ?',
+    $write = fn() => q('UPDATE plot_tiles SET last_watered = ?, growth_seconds = ?, growth_updated_at = ? WHERE id = ?',
         [$t['last_watered'], $t['growth_seconds'], $t['growth_updated_at'], $t['id']]);
-    return $t;
+    if ($raw === null) { $write(); return $t; }
+    if (tile_write_guarded($raw, $write)) {   // v2.4.97: only if nobody changed the square since it was read
+        $raw = array_merge($raw, ['last_watered' => $t['last_watered'], 'growth_seconds' => $t['growth_seconds'], 'growth_updated_at' => $t['growth_updated_at']]);
+        return $t;
+    }
+    $stats['water'] = $before;   // lost the race: their square stands, so this visit's waterings aren't counted
+    return annotate_tile($raw, $p);
 }
 
 /** Finish a helper's visits: record them, close an ended contract, and return a "while you were out" line. */

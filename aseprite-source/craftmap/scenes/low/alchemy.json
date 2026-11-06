@@ -1,0 +1,47 @@
+{
+ "scene": "alchemy",
+ "w": 300,
+ "h": 200,
+ "hotspots": [
+  {
+   "id": "potions",
+   "label": "Potion shelf",
+   "x": 4,
+   "y": 12,
+   "w": 94,
+   "h": 60
+  },
+  {
+   "id": "mortar",
+   "label": "Mortar and pestle",
+   "x": 4,
+   "y": 72,
+   "w": 92,
+   "h": 82
+  },
+  {
+   "id": "cauldron",
+   "label": "Cauldron",
+   "x": 98,
+   "y": 60,
+   "w": 92,
+   "h": 132
+  },
+  {
+   "id": "still",
+   "label": "Alembic still",
+   "x": 190,
+   "y": 50,
+   "w": 68,
+   "h": 102
+  },
+  {
+   "id": "book",
+   "label": "Spell book",
+   "x": 258,
+   "y": 62,
+   "w": 42,
+   "h": 114
+  }
+ ]
+}

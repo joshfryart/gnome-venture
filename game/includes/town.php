@@ -306,7 +306,7 @@ function town_claim_use(int $uid, array $a): bool
 function town_tea_item(string $region): int
 {
     $slug = 'teahouse-' . town_key($region);
-    $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+    $id = item_id_by_slug($slug);
     if ($id) return $id;
     [$tea, $drink, $stat] = TOWN_FLAVOUR[$region] ?? ['The Teahouse', 'cup of tea', 'charm'];
     return db_insert('items', ['name' => mb_substr(ucfirst($drink) . ' (to go)', 0, 80), 'slug' => $slug, 'category' => 'food', 'rarity' => 5,

@@ -1,0 +1,31 @@
+# Code slimming review: core loops (read-only audit, 2026-11-02)
+
+Scope: game/ (82 top-level pages, ~69k lines). Largest: catfish.php 1647, garden_logic.php 1530, schema.php 1480, trek.php 1441, trek_fight.php 1261, puzzle_pals.php 1223. Maps: graphify-out/ (GRAPH_REPORT.md, SECTIONS.md). Mini-game page files (race 113, spit 70, memory 71, pest 66, letters 105, carve 83, mushroom 101) are thin and distinct: no merge win. The redirect stubs (kitchen, passport, seasons, hollow) are 5-6 lines and PRODUCT.md says keep them. Do not touch.
+
+## Ranked findings
+
+1. **add_xp lost update (bug, fix first).** includes/gnome.php:251-259 reads xp/level, then writes absolute `xp = ?, level = ?`. Two concurrent awards (harvest + mini-game, double tap, mentor share at :261) overwrite each other: XP lost, level-up and stat_points can double or drop. Change: `UPDATE users SET xp = xp + ?` then re-read level and loop. Saves ~0 lines. Risk: medium (touches every XP path, mentors120 hook). Tests: rewards.sh, balance_xp097.php, social100.sh, mentors120.sh, walk.sh.
+
+2. **One payout helper for mini-games.** Same petals + games_give_xp + game_energy block repeated 8 times: games.php:322-327 (worms), :439-444 (memory), :642-646 (spit), :743-745 (marrow), :532-533 (race); letters.php:195-211, mushroom.php:148-159, pest.php:272-276. Add `game_pay($uid, $petalsRaw, $xpRaw, $good): array` in games.php. Saves ~60 lines. Risk: low-medium (ordering relative to commit differs: worms inside txn, mushroom/letters after commit). Tests: games140.sh, games2.sh, rewards.sh.
+
+3. **Inconsistent paths found while doing #2 (bugs).** (a) memory finish, games.php:440, uses raw `UPDATE users SET coins = coins + ?` and bypasses give_petals/reward_log, and runs even when 0. (b) games_pal_xp (Puzzle Pals perk) is applied only in worms/memory/spit; letters, mushroom, pest, marrow skip it. (c) game_energy does a full `SELECT *` of users (games.php:41) per award. Fold into #2. Saves ~10 lines. Risk: low, but (b) changes XP for those games by up to +6%; confirm intent. Tests: games140.sh, rewards.sh.
+
+4. **garden_action race window.** garden_logic.php:956-964 reads tile and user BEFORE beginTransaction (:975). harvest/plant/dig have WHERE claims, but till (:1100), soil (:1127), mulch, sheet, broadfork, weed, water, dig have none. A double tap on soil/sheet consumes two items (give_item -1 twice) for one effect; energy is also spent twice. Change: add the guard to each UPDATE (e.g. `AND feed_hours = 0`, `AND tilled = 0`) and throw UserError on rowCount 0, inside the txn so the item and energy roll back. Adds ~15 lines, removes none. Risk: medium. Tests: garden100.sh, beds.sh, walk.sh, calling.sh.
+
+5. **garden_action is one 250-line switch with two passes (check then do).** Split into `garden_check_<action>` / `garden_do_<action>` tables, or at least move the check switch to its own function. Net lines about -0 but cuts the biggest hot-path function; only worth it after #4. Risk: high. Tests: garden100.sh, beds.sh, buildplans.sh, tour/walk.sh.
+
+6. **market100.php (883 lines) eager-loaded on every request.** bootstrap.php:56 (also social.php:55, trade.php:141 conditional). Usage CSV: npc_orders, market_buys, stall_listings, trade_offers, gifts all 0 rows. Heavy dead-ish paths: npc_order/order_deliver/orders_board_box (market100.php:437-651, ~215 lines), basket_* contest (:754-849, ~100), market_stall_buy (:689-752, ~65), and trade.php list_for_sale/buy_listing/make_offer/answer_offer/expire_offers (:138-322, ~185). Cheapest win is not deleting: lazy-load. Move the orders, stall and basket blocks to market_orders.php and require it from market.php and the few callers. Saves 0 lines, cuts ~400 parsed lines per request. Risk: medium (callers via grep `order_`, `basket_`, `market_stall`). Tests: market100.sh, trade.sh, social100.sh.
+
+7. **Fold gifts/offers/listings into one table family.** send_gift (trade.php:72), make_offer (:138) and list_for_sale (:254) all do take item/coins, insert row, notify, refund-on-expire. With 0 rows in each, trade.php could shrink to gift + offer (drop the stall listing UI, market.php + admin). Saves ~150-200 lines. Risk: medium-high (product call; the offer refund path at :181 must stay). Tests: trade.sh, social.sh, security190.sh.
+
+8. **first_week and daily_tick (0 rows).** first_week.php 180 lines + welcome_back.php 126 + daily.php: both are card claim UIs duplicating the Today card pattern; first_week_claim (:136) hand-rolls claim-by-insert (fine) but pays petals, then XP after commit (add_xp after db commit, :171) so a crash loses the XP. Fold daily_tick into first_week or drop it if the card is off. Saves ~120 lines. Risk: low-medium. Tests: social100.sh, clock.sh, walk.sh.
+
+9. **Treks (trek 1441 + trek_fight 1261 + trek.php 1080 + data 872 + events 489 + art 416 + others, about 7k lines).** Ships OFF (trek_open), 0 treks in usage. Do not delete. Trim candidates: trek_ch3.php + trek_ch3b.php (209), trek_stage.php (35), trek_textpass.php (61): fold into trek_data.php / trek_scene.php. trek_petals_capped (trek_fight.php:1087) and catfish_claim_petals (catfish.php:1365) are two copies of the daily Petal cap pattern: one `capped_petals($uid, $key, $want, $cap)` helper. Saves ~60-90 lines. Risk: medium. Tests: treks.sh, trekshell.sh, catfish.sh.
+
+10. **Dead includes and reward_log stub.** race.php:4, spit.php:4 etc. `require_once garden_logic.php` where bootstrap or games.php already pulls what is needed (verify per page); games.php loads on demand via bootstrap.php:105. reward_log (rewards.php:14) is an empty hook called on every give/take: delete or implement. Also give_xp wraps add_xp with debug_backtrace (rewards.php:56) and add_xp itself does backtrace twice more (gnome.php:234, 238, 261): resolve source once. Saves ~25 lines. Risk: low. Tests: rewards.sh, then full ci_suites.sh.
+
+## Test run
+`tests/ci_suites.sh rewards games140 games2 garden100 market100 trade social100 treks catfish walk` for targeted; full `tests/ci_suites.sh` with the default list before release. Also `php -l` on touched files (PHP 8.1 compatible, SQLite and MySQL).
+
+## Order
+1 (data-loss bug), 3, 2, 4, then 10, 6, 8, 9, 7. Total realistic saving about 450-550 lines plus ~400 lines less parsed per request.

@@ -39,7 +39,7 @@ dbx "UPDATE settings SET value='1' WHERE name='orders_on'"; dbx "INSERT OR IGNOR
 rm -f $C; get login.php >/dev/null; post login.php -d username=sprout -d 'password=TestPass123!' >/dev/null
 for pg in index.php "town.php" "town.php?view=quests" marketday.php "marketday.php?hub=1" garden.php world.php; do echo "$pg -> $(get "$pg")"; done
 get "town.php?view=quests" >/dev/null; echo "order board: $(grep -c 'class="favour order' $H) orders, header=$(grep -c 'Orders from the townsfolk' $H)"
-get index.php >/dev/null; echo "today: orders card $(grep -c '📜 Orders' $H), market card $(grep -c 'marketcard' $H), rail $(grep -c 'rmarket' $H)"
+get gnome.php >/dev/null; echo "today: orders card $(grep -c '📜 Orders' $H), market card $(grep -c 'marketcard' $H), rail $(grep -c 'rmarket' $H)"
 get town.php >/dev/null; echo "square: market banner $(grep -c 'marketbanner' $H)"
 get marketday.php >/dev/null; echo "market page: stalls $(grep -c 'mkstall' $H), wanted+stall tiles $(grep -c 'class="btile stile' $H), basket form $(grep -c 'name="do" value="basket"' $H)"
 STALL=$(grep -o 'name="npc" value="[0-9]*"' $H | head -1 | sed 's/.*value="//;s/"//'); ITEM=$(grep -o 'name="item" value="[0-9]*"' $H | sed -n 1p | sed 's/.*value="//;s/"//')

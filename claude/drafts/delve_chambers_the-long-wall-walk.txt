@@ -1,0 +1,226 @@
+# The Long Wall Walk: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , rough floor, W loose stones.
+
+# --- size 3 ---
+
+@the-long-wall-walk/notch_run
+size: 3
+tags: dry,walk,notch,battlement
+.#.
+...
+##.
+
+@the-long-wall-walk/tower_turn
+size: 3
+tags: dry,corner,tower,turn
+##.
+...
+#..
+
+@the-long-wall-walk/rubble_gap
+size: 3
+tags: loose,gap,collapsed,rubble
+.W.
+.W.
+...
+
+@the-long-wall-walk/stair_steps
+size: 3
+tags: rough,stairs,steps,corner
+..#
+,.#
+,,.
+
+@the-long-wall-walk/gate_stub
+size: 3
+tags: dry,gate,passage,stub
+#.#
+...
+#..
+
+@the-long-wall-walk/broken_walk
+size: 3
+tags: loose,broken,walk,rough
+.W#
+.,.
+#W.
+
+# --- size 5 ---
+
+@the-long-wall-walk/battlement_walk
+size: 5
+tags: dry,walk,battlement,notch,open
+#.#.#
+.....
+.....
+.....
+.....
+
+@the-long-wall-walk/windy_serpent
+size: 5
+tags: dry,serpent,wall-top,windy
+.###.
+.#...
+.#.#.
+...#.
+.###.
+
+@the-long-wall-walk/gate_arch
+size: 5
+tags: dry,gatehouse,passage,hero,hourglass
+###.#
+#...#
+.....
+#...#
+#.###
+
+@the-long-wall-walk/rubble_band
+size: 5
+tags: loose,collapsed,gap,band
+.....
+.....
+WWWWW
+.....
+.....
+
+@the-long-wall-walk/diag_towers
+size: 5
+tags: dry,gatehouse,towers,passage
+#...#
+#.#.#
+.....
+#.#.#
+#...#
+
+@the-long-wall-walk/steps_down
+size: 5
+tags: rough,stairs,steps,ledge
+####.
+###..
+#,,..
+,,,..
+.....
+
+@the-long-wall-walk/notched_corner
+size: 5
+tags: dry,corner,battlement,notch,open
+.#.#.
+.....
+#....
+#....
+#....
+
+@the-long-wall-walk/tower_ring
+size: 5
+tags: dry,keep,battlement,walk-around
+#.#.#
+.....
+.###.
+.....
+#.#.#
+
+@the-long-wall-walk/chicane
+size: 5
+tags: dry,zigzag,windy,passage
+...##
+##...
+...##
+##...
+.....
+
+@the-long-wall-walk/gap_wall
+size: 5
+tags: dry,wall,gap,collapsed,rubble
+.....
+.....
+##W##
+.....
+.....
+
+@the-long-wall-walk/stub_crossing
+size: 5
+tags: dry,stub,crossing,collapsed
+..#..
+.....
+#...#
+.....
+..#..
+
+@the-long-wall-walk/horseshoe_bastion
+size: 5
+tags: dry,horseshoe,bastion,hero,pocket
+##.##
+#...#
+#.#.#
+#...#
+#...#
+
+@the-long-wall-walk/crenel_stones
+size: 5
+tags: loose,crenel,battlement,stones
+.#.#.
+.....
+.W.W.
+.....
+.#.#.
+
+@the-long-wall-walk/pinch_gates
+size: 5
+tags: dry,gates,pinch,doorways
+.....
+##.##
+.....
+##.##
+##...
+
+# --- size 6 ---
+
+@the-long-wall-walk/corner_towers
+size: 6
+tags: dry,towers,corner,open
+##....
+##....
+......
+......
+....##
+....##
+
+@the-long-wall-walk/tower_ring_wide
+size: 6
+tags: rough,ring,tower,hero,loose
+......
+......
+..##..
+..##..
+......
+..WW..
+
+@the-long-wall-walk/broken_wall_run
+size: 6
+tags: loose,collapsed,gap,wall,run
+......
+......
+##WWW#
+......
+......
+......
+
+@the-long-wall-walk/twin_gatehouse
+size: 6
+tags: dry,gatehouse,passage,hero,double
+##..##
+##..##
+......
+......
+##..##
+##..##
+
+@the-long-wall-walk/stepped_towers
+size: 6
+tags: rough,stairs,towers,diagonal,steps
+###...
+##....
+#.....
+......
+.....#
+....##

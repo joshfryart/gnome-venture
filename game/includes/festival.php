@@ -195,7 +195,7 @@ function festival_take_reward(array $f, int $uid, string $key, array $r): string
     if (!empty($r['coins'])) q('UPDATE users SET coins = coins + ? WHERE id = ?', [(int)$r['coins'], $uid]);
     if (!empty($r['item'])) {
         [$slug, $qty] = explode(':', $r['item']) + [1 => '1'];
-        if ($iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug])) give_item($uid, $iid, max(1, (int)$qty));
+        if ($iid = item_id_by_slug($slug)) give_item($uid, $iid, max(1, (int)$qty));
     }
     if (!empty($r['title'])) q("UPDATE users SET title = ? WHERE id = ? AND (title IS NULL OR title = '')", [$r['title'], $uid]);
     return '🎁 Reward: ' . $r['text'] . '.';

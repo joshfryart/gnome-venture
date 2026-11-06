@@ -105,7 +105,7 @@ $shopKind = ['seeds' => 'Seed shop', 'food' => 'Kitchen', 'decor' => 'Home & cur
 $shopArt = scene_shop_key($shop); ?>
 <?= place_header_html($shopArt !== '' ? 'shop-' . $shopArt . '.png' : '', 'Inside ' . $shop['name'], $shopKind . ($shopTown ? ' · ' . $shopTown['name'] : ''), (string)$shop['name'], (string)$shop['description']) ?>
 <p class="status shopintro">
-  <?= $staff ? '🧑‍🌾 At the counter: ' . implode(', ', array_map(fn($n) => '<a href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">' . e($n['name']) . '</a> the ' . e(strtolower($n['personality']) . ' ' . strtolower($n['species'])), $staff)) . ' <span class="muted">(tap a name to chat)</span>' : '🚪 Nobody is on shift. Come back later.' ?>
+  <?= $staff ? '🧑‍🌾 At the counter: ' . implode(', ', array_map(fn($n) => '<a href="' . e(url('villagers.php?id=' . (int)$n['id'])) . '">' . e($n['name']) . '</a> the ' . e(strtolower($n['personality']) . ' ' . strtolower($n['species'])), $staff)) . ' <span class="muted">(tap a name to chat)</span>' : '🚪 Nobody is on shift. Come back later.' ?>
   · You have <b class="mycoins" data-coins="<?= $fresh ?>"><?= money($fresh) ?></b>
 </p>
 
@@ -148,6 +148,7 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
               . (str_contains($sc, 'chip-in') ? '🌿 in season' : '🍂 off season') . ' · price ' . $arrow . '</span>';
       } elseif ($bc !== '') $tags[] = $bc;
       elseif ($sc !== '') $tags[] = $sc;
+      if ($s['plant_id'] && ($xpH = (int)q_val('SELECT xp_per_harvest FROM plants WHERE id = ?', [(int)$s['plant_id']])) > 0) $tags[] = '<span class="tag" title="XP for each harvest of this crop">⭐ +' . $xpH . ' XP / harvest</span>';   // v2.3.94
       if ($read) $tags[] = '<span class="tag good">✔ read</span>';
       elseif ($gkey !== '' && !empty($owned[(int)$s['iid']])) $tags[] = '<span class="tag">in satchel</span>';
       if ($unknown) $tags[] = '<span class="tag" title="Unstudied: grows slower and gives less until you study its region">📕 unstudied <small class="muted">grows slower</small></span>';

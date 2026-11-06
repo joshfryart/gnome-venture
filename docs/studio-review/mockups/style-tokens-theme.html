@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Style Tokens Theme</title>
+<style>
+:root{--pbg:#f1ece0;--pink:#2a1a10;--pmuted:#74462a;--pline:#c9a96e;--psurf:#fff3c8}
+@media (prefers-color-scheme:dark){:root{--pbg:#2a1a10;--pink:#f2e4c0;--pmuted:#c9a96e;--pline:#74462a;--psurf:#3d2a1c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--pbg);color:var(--pink);font:400 1rem/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.page{max-width:1100px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;line-height:1.25;margin:0 0 6px;font-weight:700}
+h2{font-size:18px;line-height:1.25;margin:28px 0 8px;font-weight:700}
+.lede{color:var(--pmuted);margin:0 0 14px;max-width:70ch}
+.note{font-size:13px;color:var(--pmuted);margin:6px 0 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rowlabel{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--pmuted);margin:18px 0 6px}
+@media (max-width:720px){.grid2{grid-template-columns:1fr}}
+/* themed panels: the DESIGN.md tokens, scoped */
+.th{--px:2px;padding:16px;border:2px solid var(--line);min-width:0}
+.th.light{--bg:#f1ece0;--surface:#fff3c8;--surface-2:#f2e4c0;--ink:#2a1a10;--ink-2:#4a2c1a;--muted:#74462a;--line:#c9a96e;--line-2:#9a6b3f;--brand:#2f5a2a;--brand-ink:#2f5a2a;--brand-soft:#c8d09f;--accent:#e8a317;--accent-ink:#7a4a1f;--danger:#a8241f;--danger-fill:#a8241f;--danger-soft:#f6b8cf;--info-soft:#a9d6ea;--info-ink:#1f4a6a;--focus:#25637d;--felt:#3d2a1c;--felt-ink:#f2e4c0;--on-fill:#f2e4c0;--ol:#2a1a10;--drop:#c9a96e;--edge-lt:#74462a;--edge-dk:#2a1a10;--thread:#e8a317;--thread-bright:#f5cf6a;--area-solid:#2f5a2a;--btn-hi:#4f9a45;--btn-lo:#1f3f3a;--btn-hover:#2f6a3a;background:var(--bg);color:var(--ink)}
+.th.dark{--bg:#2a1a10;--surface:#3d2a1c;--surface-2:#4a2c1a;--ink:#f2e4c0;--ink-2:#c9a96e;--muted:#c9a96e;--line:#74462a;--line-2:#9a6b3f;--brand:#7ab55c;--brand-ink:#a4b86a;--brand-soft:#1f3f3a;--accent:#e8a317;--accent-ink:#f5cf6a;--danger:#f08a24;--danger-fill:#a8241f;--danger-soft:#6b1b2c;--info-soft:#1f4a6a;--info-ink:#a9d6ea;--focus:#a9d6ea;--felt:#3d2a1c;--felt-ink:#f2e4c0;--on-fill:#f2e4c0;--ol:#2a1a10;--drop:#291d4a;--edge-lt:#9a6b3f;--edge-dk:#74462a;--thread:#f5cf6a;--thread-bright:#f5cf6a;--area-solid:#2f5a2a;--btn-hi:#4f9a45;--btn-lo:#1f3f3a;--btn-hover:#2f6a3a;background:var(--bg);color:var(--ink)}
+.th h3{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.th .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:0 0 14px}
+.frame{box-shadow:0 -2px 0 0 var(--edge-lt),-2px 0 0 0 var(--edge-lt),0 2px 0 0 var(--edge-dk),2px 0 0 0 var(--edge-dk),2px 4px 0 0 var(--drop),4px 2px 0 0 var(--drop)}
+.frame-lite{box-shadow:0 -2px 0 0 var(--line),-2px 0 0 0 var(--line),0 2px 0 0 var(--line-2),2px 0 0 0 var(--line-2)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;margin-left:6px;vertical-align:middle;background:var(--psurf);color:var(--pink);box-shadow:0 0 0 1px var(--pline)}
+.tag.bad{background:#f6b8cf;color:#6b1b2c}.tag.ok{background:#c8d09f;color:#2f5a2a}
+
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.sw div{padding:8px;font-size:11px;line-height:1.3;border:1px solid var(--pline)}
+.sw b{display:block;font-size:12px}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:6px 0}
+th,td{padding:5px 8px;border-bottom:1px solid var(--pline);text-align:left;vertical-align:middle}
+.pair{display:inline-flex;gap:0;vertical-align:middle}.pair i{width:22px;height:16px;display:block;border:1px solid var(--pink)}
+.ctr{display:inline-block;padding:2px 10px;font:700 14px system-ui}
+.fail{outline:2px solid #a8241f}
+.cfb{padding:.5rem .6rem;border:1px solid #ddd;border-radius:12px;background:#eee;color:#333;font-size:.85rem}
+.cfa{padding:8px 10px;background:var(--surface);color:var(--ink);font-size:13px}
+</style></head><body><div class="page">
+<h1>Colour tokens and theme handling</h1>
+<p class="lede">style.css holds 537 hex literals outside token blocks (288 distinct); 163 already equal a DESIGN.md token value and can become <code>var(--x)</code> mechanically. 71 more are within 14/255 of a token (near-misses). Catfish adds 211 hex (136 are mask #000, legit) and puzzles.css 8.</p>
+<h2>Palette (DESIGN.md)</h2><div class="sw"><div style="background:#f1ece0;color:#2a1a10"><b>bg</b>#f1ece0</div><div style="background:#fff3c8;color:#2a1a10"><b>surface</b>#fff3c8</div><div style="background:#f2e4c0;color:#2a1a10"><b>surface-2</b>#f2e4c0</div><div style="background:#2a1a10;color:#f2e4c0"><b>ink</b>#2a1a10</div><div style="background:#4a2c1a;color:#f2e4c0"><b>ink-2</b>#4a2c1a</div><div style="background:#74462a;color:#f2e4c0"><b>muted</b>#74462a</div><div style="background:#c9a96e;color:#2a1a10"><b>line</b>#c9a96e</div><div style="background:#9a6b3f;color:#f2e4c0"><b>line-2</b>#9a6b3f</div><div style="background:#2f5a2a;color:#f2e4c0"><b>brand</b>#2f5a2a</div><div style="background:#c8d09f;color:#2a1a10"><b>brand-soft</b>#c8d09f</div><div style="background:#7ab55c;color:#2a1a10"><b>brand-line</b>#7ab55c</div><div style="background:#e8a317;color:#2a1a10"><b>accent</b>#e8a317</div><div style="background:#7a4a1f;color:#f2e4c0"><b>accent-ink</b>#7a4a1f</div><div style="background:#a8241f;color:#f2e4c0"><b>danger</b>#a8241f</div><div style="background:#f6b8cf;color:#2a1a10"><b>danger-soft</b>#f6b8cf</div><div style="background:#a9d6ea;color:#2a1a10"><b>info-soft</b>#a9d6ea</div><div style="background:#1f4a6a;color:#f2e4c0"><b>info-ink</b>#1f4a6a</div><div style="background:#4e3a8a;color:#f2e4c0"><b>purple</b>#4e3a8a</div><div style="background:#25637d;color:#f2e4c0"><b>focus</b>#25637d</div><div style="background:#3d2a1c;color:#f2e4c0"><b>felt</b>#3d2a1c</div></div>
+<h2>Near-miss hex that should snap to a token</h2>
+<table><tr><th>Swatch</th><th>Literal to token</th><th>Token</th><th>Where</th></tr><tr><td><span class="pair"><i style="background:#a8231f"></i><i style="background:#a8241f"></i></span></td><td><code>#a8231f</code> to <code>#a8241f</code></td><td><code>--danger</code></td><td>4 uses (.cptab selected, style.css:6674)</td></tr><tr><td><span class="pair"><i style="background:#f4f0e0"></i><i style="background:#f1ece0"></i></span></td><td><code>#f4f0e0</code> to <code>#f1ece0</code></td><td><code>--bg</code></td><td>4 (trekmap focus rings, :3944-3946)</td></tr><tr><td><span class="pair"><i style="background:#f4f1ea"></i><i style="background:#f1ece0"></i></span></td><td><code>#f4f1ea</code> to <code>#f1ece0</code></td><td><code>--bg</code></td><td>5 (picket fence, :1153-1156) - art, keep</td></tr><tr><td><span class="pair"><i style="background:#3a2410"></i><i style="background:#3d2a1c"></i></span></td><td><code>#3a2410</code> to <code>#3d2a1c</code></td><td><code>--felt</code></td><td>12 (racelane :2704, catfish outlines)</td></tr><tr><td><span class="pair"><i style="background:#2f6026"></i><i style="background:#2f5a2a"></i></span></td><td><code>#2f6026</code> to <code>#2f5a2a</code></td><td><code>--brand</code></td><td>6 (hedge art, :1161,1212)</td></tr><tr><td><span class="pair"><i style="background:#a06a40"></i><i style="background:#9a6b3f"></i></span></td><td><code>#a06a40</code> to <code>#9a6b3f</code></td><td><code>--line-2</code></td><td>2 (digboard hover, :1043,2377)</td></tr><tr><td><span class="pair"><i style="background:#f2d06b"></i><i style="background:#f5cf6a"></i></span></td><td><code>#f2d06b</code> to <code>#f5cf6a</code></td><td><code>--thread-bright</code></td><td>1 (:1104)</td></tr><tr><td><span class="pair"><i style="background:#2b1b0a"></i><i style="background:#2a1a10"></i></span></td><td><code>#2b1b0a</code> to <code>#2a1a10</code></td><td><code>--ink</code></td><td>1 (:1821)</td></tr><tr><td><span class="pair"><i style="background:#a8281c"></i><i style="background:#a8241f"></i></span></td><td><code>#a8281c</code> to <code>#a8241f</code></td><td><code>--danger</code></td><td>2 (:1069,2480)</td></tr></table>
+<h2>Contrast fixes (WCAG AA, 4.5:1 for text)</h2>
+<table><tr><th>Where</th><th>Before</th><th>After</th></tr>
+<tr><td><code>.pzchip.on</code> puzzles.css:232</td><td><span class="ctr fail" style="background:#e8a317;color:#fff">Animals 2.17:1</span></td><td><span class="ctr" style="background:#e8a317;color:#2a1a10">Animals 7.72:1</span></td></tr>
+<tr><td>Dark <code>--ink-2</code> style.css:56</td><td><span class="ctr" style="background:#3d2a1c;color:#c9c5bc">#c9c5bc cool grey</span></td><td><span class="ctr" style="background:#3d2a1c;color:#c9a96e">#c9a96e warm (=muted)</span></td></tr>
+<tr><td>Dark red button vs token</td><td><span class="ctr" style="background:#a8241f;color:#f2e4c0">btn.red #a8241f</span> <span class="ctr" style="background:#2a1a10;color:#f08a24">--danger orange</span></td><td><span class="ctr" style="background:#a8241f;color:#f2e4c0">--danger-fill</span> <span class="ctr" style="background:#2a1a10;color:#f08a24">--danger (text)</span></td></tr></table>
+<h2>Cat Fish: Material-style outlier, before and after</h2>
+<div class="grid2"><div class="th light"><h3>Before</h3><div class="cfb">8-12px radius, 1px #ddd line, grey #eee/#333, rem sizes</div><p class="note" style="color:var(--muted)">light theme falls back to #ddd; dark has one rule (catfish.css:33).</p></div>
+<div class="th dark"><h3>Before, dark</h3><div class="cfb" style="background:#3a3a44;color:#eee;border-color:#555">same card, cool greys on warm felt</div></div>
+<div class="th light"><h3>After</h3><div class="cfa frame">hard corners, --surface, stitched frame, 13px</div></div>
+<div class="th dark"><h3>After, dark</h3><div class="cfa frame">same tokens, dark theme free</div></div></div>
+<p class="note">Static review mockup. Palette from DESIGN.md; counts from docs/studio-review/style-review.md (game/assets/*.css at v2.4.63). Nothing here is applied to game/.</p>
+</div></body></html>

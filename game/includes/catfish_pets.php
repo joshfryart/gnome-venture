@@ -297,7 +297,7 @@ function catfish_pet_use(int $uid, int $no, array $opts = [], ?float $roll = nul
             if (!$cat) return [false, 'Adopt a cat first, so there is Kibble to find.', []];
             $paidMin = min($popMin, catfish_pet_cfg('catfish_pet_pop_min_day', 60) - $day['kmin']);
             if ($paidMin < 1) return [false, 'Today\'s room things have found all the Kibble they can (' . catfish_pet_cfg('catfish_pet_pop_min_day', 60) . ' minutes of it). Try again tomorrow.', []];
-            $kph = catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid));
+            $kph = catfish_kph($s['up'], $cat, true, (int)$s['yarn'], catfish_extra_mult($uid, $s));
             $paid = max(1, (int)floor($kph * $paidMin / 60));
         }
         if (isset($fx['reroll'])) {

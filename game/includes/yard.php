@@ -58,7 +58,7 @@ const DECOR = [
     'holly-hedge'     => ['Holly Hedge', '', 'hedge', 1, 1, 2, 55, 'hedge', 'Glossy and prickly, with red berries.', 1],
     'lavender-border' => ['Lavender Border', '', 'hedge', 1, 1, 3, 60, 'hedge', 'Low, scented and buzzing.', 1],
     'silver-birch'    => ['Silver Birch', '🌳', 'tree', 1, 1, 3, 150, 'shade', 'A slender tree with dappled shade.', 1],
-    'blossom-cherry'  => ['Blossom Cherry', '🌸', 'tree', 1, 1, 5, 320, 'shade', 'Clouds of pink petals.', 1],
+    'blossom-cherry'  => ['Blossom Cherry', '🌸', 'tree', 2, 2, 5, 320, 'shade', 'Clouds of pink petals, 2 × 2.', 1],   // v2.4.67 was 1 × 1
     'garden-oak'      => ['Garden Oak', '🌳', 'tree', 2, 2, 6, 600, 'shade', 'A broad old oak, 2 × 2.', 1],
     'weeping-willow'  => ['Weeping Willow', '🌿', 'tree', 2, 2, 7, 750, 'shade', 'Trailing green curtains, 2 × 2.', 1],
     'birdbath'        => ['Birdbath', '🐦', 'water', 1, 1, 3, 120, 'birds', 'A stone bowl the birds queue for.', 1],
@@ -162,28 +162,51 @@ function yard_extend_cost(array $plot): int
     return (int)setting('yard_extend_cost') * (1 + (int)($plot['yard_xw'] ?? 0) + (int)($plot['yard_xh'] ?? 0));
 }
 
-/** Mark a w × h footprint on an occupancy grid. */
-function yard_mark(array &$grid, int $x, int $y, int $w, int $h, string $what = '1'): void
+/**
+ * v2.5.49: corner occupancy. A square holds up to four small corner pieces (a family piece whose shape is p<corner>-<set>: pnw pne psw pse).
+ * Quadrant bits: NW 1, NE 2, SW 4, SE 8; 15 = the whole square. A grid cell is a string (a whole-square thing: 't', 'o', '1') or an int (the
+ * quadrants taken so far), so old callers and old saves behave exactly as before.
+ */
+const YARD_QUADS = ['pnw' => 1, 'pne' => 2, 'psw' => 4, 'pse' => 8];
+
+/** The quadrants a thing takes up: its corner when it is a single corner piece (shape "pnw-s"), otherwise the whole square (15). */
+function yard_quads($shape, int $w = 1, int $h = 1): int
 {
+    if ($w !== 1 || $h !== 1 || !is_string($shape) || !preg_match('/^(p(?:nw|ne|sw|se))-[bsm]$/', $shape, $m)) return 15;
+    return YARD_QUADS[$m[1]];
+}
+
+/** Mark a w × h footprint on an occupancy grid. $q: the quadrants taken (only for a 1 × 1 corner piece). */
+function yard_mark(array &$grid, int $x, int $y, int $w, int $h, string $what = '1', int $q = 15): void
+{
+    if ($q !== 15 && $w === 1 && $h === 1) {
+        $k = $x . ',' . $y;
+        $grid[$k] = (is_int($grid[$k] ?? null) ? $grid[$k] : 0) | $q;
+        return;
+    }
     for ($j = 0; $j < $h; $j++) for ($i = 0; $i < $w; $i++) $grid[($x + $i) . ',' . ($y + $j)] = $what;
 }
 
-function yard_fits(array $grid, int $x, int $y, int $w, int $h, int $yw, int $yh): bool
+function yard_fits(array $grid, int $x, int $y, int $w, int $h, int $yw, int $yh, int $q = 15): bool
 {
     if ($x < 0 || $y < 0 || $x + $w > $yw || $y + $h > $yh) return false;
-    for ($j = 0; $j < $h; $j++) for ($i = 0; $i < $w; $i++) if (isset($grid[($x + $i) . ',' . ($y + $j)])) return false;
+    for ($j = 0; $j < $h; $j++) for ($i = 0; $i < $w; $i++) {
+        $k = ($x + $i) . ',' . ($y + $j);
+        if (!isset($grid[$k])) continue;
+        if ($q === 15 || !is_int($grid[$k]) || ($grid[$k] & $q)) return false;   // a whole-square thing blocks everything; corner pieces only block their own corner
+    }
     return true;
 }
 
 /** The nearest free spot for a w × h thing (nearest to $pref, or the first going along the rows). */
-function yard_free_spot(array $grid, int $yw, int $yh, int $w, int $h, ?array $pref = null): ?array
+function yard_free_spot(array $grid, int $yw, int $yh, int $w, int $h, ?array $pref = null, int $q = 15): ?array
 {
     $best = null;
     $bestD = PHP_INT_MAX;
     for ($y = 0; $y + $h <= $yh; $y++) {
         for ($x = 0; $x + $w <= $yw; $x++) {
             $d = $pref ? max(abs($x - $pref[0]), abs($y - $pref[1])) * 1000 + abs($x - $pref[0]) + abs($y - $pref[1]) : $y * 1000 + $x;
-            if ($d < $bestD && yard_fits($grid, $x, $y, $w, $h, $yw, $yh)) {
+            if ($d < $bestD && yard_fits($grid, $x, $y, $w, $h, $yw, $yh, $q)) {
                 $best = [$x, $y];
                 $bestD = $d;
             }
@@ -223,8 +246,9 @@ function yard_sync(int $plotId): void
     $looseObjs = [];
     foreach ($objs as $o) {
         if ((int)$o['x'] < 0) { $looseObjs[] = $o; continue; }
-        if (yard_fits($grid, (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h'], $yw, $yh)) {
-            yard_mark($grid, (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h'], 'o');
+        $oq = yard_quads($o['shape'] ?? null, (int)$o['w'], (int)$o['h']);
+        if (yard_fits($grid, (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h'], $yw, $yh, $oq)) {
+            yard_mark($grid, (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h'], 'o', $oq);
         } else {
             $looseObjs[] = $o;
         }
@@ -266,10 +290,11 @@ function yard_sync(int $plotId): void
     }
     // Things that lost their place: buildings wait for a spot, decor goes back in the satchel if there's no room
     foreach ($looseObjs as $o) {
-        $spot = yard_free_spot($grid, $yw, $yh, (int)$o['w'], (int)$o['h']);
+        $oq = yard_quads($o['shape'] ?? null, (int)$o['w'], (int)$o['h']);
+        $spot = yard_free_spot($grid, $yw, $yh, (int)$o['w'], (int)$o['h'], null, $oq);
         if ($spot) {
             q('UPDATE garden_objects SET x = ?, y = ? WHERE id = ?', [$spot[0], $spot[1], $o['id']]);
-            yard_mark($grid, $spot[0], $spot[1], (int)$o['w'], (int)$o['h'], 'o');
+            yard_mark($grid, $spot[0], $spot[1], (int)$o['w'], (int)$o['h'], 'o', $oq);
         } elseif ($o['kind'] === 'decor') {
             q('DELETE FROM garden_objects WHERE id = ?', [$o['id']]);
             if ($o['item_id']) give_item((int)$plot['user_id'], (int)$o['item_id'], 1);
@@ -376,7 +401,9 @@ function building_image(string $building, int $level, bool $ph = false): string
         $rel = $dir . $building . '-' . max(1, $level) . '.png';
         if (art_path($rel) !== '') return $rel;
     }
-    if (critter_is_home($building) && is_file(APP_ROOT . '/assets/img/animals/' . $building . '.svg')) return 'assets/img/animals/' . $building . '.svg';   // v1.0.0: the animal homes' own art
+    if (critter_is_home($building)) {   // v1.0.0: the animal homes' own art (v2.5.47: the pixel picture when there is one; it used to serve the old drawing)
+        foreach (['png', 'svg'] as $ext) if (is_file(APP_ROOT . '/assets/img/animals/' . $building . '.' . $ext)) return 'assets/img/animals/' . $building . '.' . $ext;
+    }
     return $ph ? ph_path($building . '-' . max(1, min(3, $level))) : '';   // v1.5.2: placeholder
 }
 
@@ -385,6 +412,7 @@ function yard_decor_image(string $slug, string $raw): string
 {
     if (($img = yard_image($raw)) !== '') return $img;
     require_once __DIR__ . '/items.php';
+    if ($slug === 'stepping-stones' && art_path('assets/img/paths/stones.png') !== '') return 'assets/img/paths/stones.png';   // v2.5.43: loose stones with the ground showing round them
     if (ph_path($slug . '-straight') !== '') return 'assets/img/ph/' . $slug . '-{shape}.svg';
     return ph_path($slug);
 }
@@ -401,9 +429,49 @@ function yard_family(array $o): string
 {
     if (($o['kind'] ?? '') !== 'decor' || (int)$o['bw'] !== 1 || (int)$o['bh'] !== 1) return '';
     $look = (string)$o['look'];
+    if (isset(FAM_LOOKS[$look])) return FAM_LOOKS[$look];   // v2.5.46
     if (str_contains($look, 'gate') && $o['type'] === 'fence') return 'gate';
     if ($o['type'] === 'fence') return str_contains($look, 'wall') ? 'wall' : 'fence';
+    if ($o['type'] === 'path' && in_array($look, PAVE_LOOKS, true)) return 'pave';   // v2.5.43: surface paths blend into the ground and into each other
     return $o['type'] === 'hedge' ? 'hedge' : '';
+}
+
+/** v2.5.43: the path surfaces that join: look => material (assets/img/paths/{material}-{mask}.png). Stepping stones are loose stones (assets/img/paths/stones.png). */
+const PAVE_LOOKS = ['stone-path', 'bark-path', 'gravel-path', 'brick-path'];
+
+/**
+ * v2.5.46: small things that line up like fences: look => family. Stones, stumps, mushrooms and pots join their own kind (end, straight, angle, curve, tee, cross),
+ * or stand alone: a single cluster, or one piece centred or in a corner. The choice is kept in garden_objects.shape as "<form>-<set>" (<=8 chars):
+ * form e end | s straight | a angle | u curve | t tee | x cross | 1 cluster | pc pnw pne psw pse one piece; set b big | s small | m mixed ("" = automatic, mixed).
+ * Pictures: assets/img/fam/<family>-<set>-<form>.png (tools/bake_fam_art.py).
+ */
+const FAM_LOOKS = ['stepping-stones' => 'steps', 'log-seat' => 'logs', 'toadstool-ring' => 'toads', 'flower-pot' => 'pots'];
+const FAM_NAMES = ['steps', 'logs', 'toads', 'pots'];
+const FAM_BASE = ['e' => 2, 's' => 10, 'a' => 6, 'u' => 6, 't' => 14, 'x' => 15];
+
+/** A family piece's choice split into [form, set]; anything unreadable is automatic and mixed. */
+function fam_parse(string $v): array
+{
+    return preg_match('/^([eastux1]|p(?:c|nw|ne|sw|se))?-([bsm])$/', $v, $m) ? [$m[1] ?? '', $m[2]] : ['', 'm'];
+}
+
+/** The 8-neighbour mask of a paving square (N=1 E=2 S=4 W=8 NE=16 SE=32 SW=64 NW=128), a corner counting only when both its sides are paved. Same as tools/bake_path_art.py. */
+function pave_mask(array $cells, int $x, int $y, array $beds = []): int
+{
+    // v2.5.49: a bed square next to a path (tilled, planted, or untilled) counts as joined: the path runs flush up to it instead of fading into turf with a strip of grass between
+    $has = fn(int $dx, int $dy): bool => ($cells[($x + $dx) . ',' . ($y + $dy)] ?? '') === 'pave' || isset($beds[($x + $dx) . ',' . ($y + $dy)]);
+    $m = 0;
+    foreach ([1 => [0, -1], 2 => [1, 0], 4 => [0, 1], 8 => [-1, 0]] as $bit => [$dx, $dy]) if ($has($dx, $dy)) $m |= $bit;
+    foreach ([[16, 1, 2, 1, -1], [32, 4, 2, 1, 1], [64, 4, 8, -1, 1], [128, 1, 8, -1, -1]] as [$bit, $a, $b, $dx, $dy]) if (($m & $a) && ($m & $b) && $has($dx, $dy)) $m |= $bit;
+    return $m;
+}
+
+/** The picture of a paving square for a mask, or '' when it is not drawn. */
+function pave_image(string $look, int $mask): string
+{
+    $mat = substr($look, 0, -5);   // 'stone-path' -> 'stone'
+    $rel = 'assets/img/paths/' . $mat . '-' . $mask . '.png';
+    return art_path($rel) !== '' ? $rel : '';
 }
 
 function yard_joins(string $a, string $b): bool
@@ -429,7 +497,7 @@ function yard_shape_of(int $mask): string
  * (the override column) uses it, turned by its rotation; a lone piece is a straight run turned by its rotation; otherwise the arms
  * are whichever of the four sides have a piece of the same family.
  */
-function yard_join_info(array $objects): array
+function yard_join_info(array $objects, array $beds = []): array
 {
     $cells = [];
     $fam = [];
@@ -444,6 +512,27 @@ function yard_join_info(array $objects): array
         if (!isset($fam[$id])) continue;
         $x = (int)$o['x'];
         $y = (int)$o['y'];
+        if (in_array($fam[$id], FAM_NAMES, true)) {   // v2.5.46: stones, stumps, mushrooms and pots: a run, a cluster, or one piece
+            [$form, $set] = fam_parse((string)($o['shape'] ?? ''));
+            $mask = 0;
+            $q = 0;
+            if ($form === '' ) {
+                foreach ([1 => [0, -1], 2 => [1, 0], 4 => [0, 1], 8 => [-1, 0]] as $bit => [$dx, $dy]) if (($cells[($x + $dx) . ',' . ($y + $dy)] ?? '') === $fam[$id]) $mask |= $bit;
+                $arms = ($mask & 1) + (($mask >> 1) & 1) + (($mask >> 2) & 1) + (($mask >> 3) & 1);
+                $form = $arms === 0 ? '1' : ($arms === 1 ? 'e' : ($arms === 2 ? (in_array($mask, [5, 10], true) ? 's' : 'u') : ($arms === 3 ? 't' : 'x')));
+                if (isset(FAM_BASE[$form])) while ($q < 3 && yard_turn(FAM_BASE[$form], $q) !== $mask) $q++;
+            } elseif (isset(FAM_BASE[$form])) {
+                $q = intdiv((int)$o['rot'], 90) % 4;
+                $mask = yard_turn(FAM_BASE[$form], $q);
+            }
+            $out[$id] = ['fam' => $fam[$id], 'mask' => $mask, 'shape' => '', 'chosen' => (string)($o['shape'] ?? ''), 'q' => $q,
+                'art' => 'assets/img/fam/' . $fam[$id] . '-' . $set . '-' . $form . (isset(FAM_BASE[$form]) ? $q : '') . '.png'];   // runs have four turned drawings
+            continue;
+        }
+        if ($fam[$id] === 'pave') {   // v2.5.43: paving takes its look from all eight neighbours
+            $out[$id] = ['fam' => 'pave', 'mask' => pave_mask($cells, $x, $y, $beds), 'shape' => '', 'chosen' => ''];
+            continue;
+        }
         $pick = (string)($o['shape'] ?? '');
         if (isset(YARD_SHAPE_MASK[$pick])) {
             $mask = yard_turn(YARD_SHAPE_MASK[$pick], intdiv((int)$o['rot'], 90));
@@ -481,6 +570,15 @@ function yard_join_svg(string $fam, int $mask): string
 /** What a joined piece shows: the item's own image if it has one ({shape} picks the file), otherwise the drawing. [html, extra classes] */
 function yard_join_inner(array $o, array $info): array
 {
+    if (isset($info['art'])) {   // v2.5.46
+        if (art_path($info['art']) !== '') return ['<img class="yimg pix" src="' . e(url($info['art'])) . '" alt="" loading="lazy">', ' fj fi'];
+        return ['<img class="yimg" src="' . e(url(yard_decor_image((string)$o['look'], (string)($o['image'] ?? '')))) . '" alt="" loading="lazy">', ' fi'];   // no picture drawn: the old one
+    }
+    if ($info['fam'] === 'pave') {
+        $img = pave_image((string)$o['look'], (int)$info['mask']);
+        if ($img !== '') return ['<img class="yimg pix" src="' . e(url($img)) . '" alt="" loading="lazy">', ' fj fi pv'];
+        return ['<img class="yimg" src="' . e(url(yard_decor_image((string)$o['look'], (string)($o['image'] ?? '')))) . '" alt="" loading="lazy">', ' fi'];   // no blended art drawn: the old picture
+    }
     if (($o['image'] ?? '') !== '') {
         $name = $info['fam'] === 'gate' ? 'gate' : $info['shape'];
         $base = YARD_SHAPE_MASK[$info['fam'] === 'gate' ? 'straight' : $info['shape']];
@@ -493,15 +591,54 @@ function yard_join_inner(array $o, array $info): array
 
 // ---------- Drawing ----------
 
+const COVER_KINDS = ['dirt', 'dirt', 'dirt', 'lawn', 'lawn', 'lawn', 'clover', 'clover', 'flowers', 'flowers', 'weeds', 'weeds', 'dry', 'leaves', 'moss'];
+
+/**
+ * v2.5.44: what covers each untilled square: "yard x,y" => [kind, mask]. The kind comes from where the bed is (2 x 2 beds share one, a few are plain lawn), so a square keeps its
+ * covering; the mask says which of the eight neighbours (in the yard) have the same covering, so they blend (same rule and bit order as tools/bake_path_art.py).
+ */
+function yard_covers(array $tiles, array $pave = []): array
+{
+    $kind = [];
+    $beds = $pave;   // v2.5.49: tilled, planted and no-till squares (and paths) count as joined: a covering runs flush up to them instead of fading into turf
+    foreach ($tiles as $row) foreach ($row as $t) {
+        if ($t['yx'] === null) continue;
+        if ($t['plant_id'] || (int)$t['tilled'] || ($t['method'] ?? '') === 'notill') { $beds[(int)$t['yx'] . ',' . (int)$t['yy']] = true; continue; }
+        $x = (int)$t['x']; $y = (int)$t['y'];
+        $k = COVER_KINDS[(int)(((crc32('c' . ($x >> 1) . ',' . ($y >> 1)) & 0xffff) / 65536) * count(COVER_KINDS))];
+        if ((crc32('l' . $x . ',' . $y) & 0xffff) / 65535 < .18) $k = 'lawn';
+        $kind[(int)$t['yx'] . ',' . (int)$t['yy']] = $k;
+    }
+    $out = [];
+    foreach ($kind as $pos => $k) {
+        [$x, $y] = array_map('intval', explode(',', $pos));
+        $has = fn(int $dx, int $dy): bool => ($kind[($x + $dx) . ',' . ($y + $dy)] ?? '') === $k || isset($beds[($x + $dx) . ',' . ($y + $dy)]);
+        $m = 0;
+        foreach ([1 => [0, -1], 2 => [1, 0], 4 => [0, 1], 8 => [-1, 0]] as $bit => [$dx, $dy]) if ($has($dx, $dy)) $m |= $bit;
+        foreach ([[16, 1, 2, 1, -1], [32, 4, 2, 1, 1], [64, 4, 8, -1, 1], [128, 1, 8, -1, -1]] as [$bit, $a, $b, $dx, $dy]) if (($m & $a) && ($m & $b) && $has($dx, $dy)) $m |= $bit;
+        $out[$pos] = [$k, $m];
+    }
+    return $out;
+}
+
 /** v1.5.2: a bed icon: an emoji (escaped) or a placeholder <img> built by tile_view. */
 function tile_icon_html(string $icon): string
 {
     return str_starts_with($icon, '<img class="phtile') ? $icon : e($icon);
 }
 
-/** How one bed square looks: [classes, icon, label, badge html]. */
-function tile_view(array $t, array $plants, bool $owner = true): array
+/** v2.5.49: is it raining (or storming) over this garden today? Bare tilled soil then shows wet. Same rule as the rain that waters crops (garden_day_fx). */
+function yard_raining(int $plotId): bool
 {
+    static $c = [];
+    if (!isset($c[$plotId])) $c[$plotId] = function_exists('gfx_on') && gfx_on() && setting('rain_waters') !== '0' && in_array(garden_weather_on($plotId), ['rain', 'storm'], true);
+    return $c[$plotId];
+}
+
+/** How one bed square looks: [classes, icon, label, badge html]. */
+function tile_view(array $t, array $plants, bool $owner = true, array $covers = [], bool $showThirst = false): array
+{
+    $sees = $owner || $showThirst;   // thirst is the owner's to see, unless the visit page lets friends water (visit.php passes thirsty)
     $cls = 'wild';
     $icon = '';
     $label = 'Untilled ground';
@@ -509,21 +646,23 @@ function tile_view(array $t, array $plants, bool $owner = true): array
     if ($t['plant_id'] && isset($plants[(int)$t['plant_id']])) {
         $p = $plants[(int)$t['plant_id']];
         $info = tile_info($t, $p);
-        $cls = 'planted' . ($info['ready'] ? ' ready' : '') . ($info['thirsty'] && $owner ? ' thirsty' : '');
+        $cls = 'planted' . ($info['ready'] ? ' ready' : '') . ($info['thirsty'] && $sees ? ' thirsty' : '');
         $icon = $info['ready'] ? catalog_kind_icon((string)$p['kind']) : ($info['stage'] <= 1 ? '🌱' : '🌿');
         $sn = $info['ready'] ? 4 : ($info['stage'] <= 1 ? 1 : ($info['stage'] === 2 ? 2 : 3));   // v1.5.2: a crop-stage placeholder, if drawn
         if (($sp = ph_img('stage-' . (string)$p['kind'] . '-' . $sn, 28, '', 'phtile')) !== '') $icon = $sp;
-        $label = $p['name'] . ($info['ready'] ? ' (ready!)' : ($owner ? ($info['thirsty'] ? ' (thirsty)' : ' (' . nice_time($info['time_left']) . ' left)') : ' (growing)'));
+        // v2.5.43: a ripe crop shows its own harvest picture (cabbage looked like the shared melon-on-a-vine ripe art); no picture, or a tree/cover crop, keeps the kind art
+        if ($info['ready'] && !in_array((string)$p['kind'], ['tree', 'cover'], true) && !empty($p['slug']) && ($rp = ph_img((string)$p['slug'], 28, '', 'phtile ripe')) !== '') $icon = $rp;
+        $label = $p['name'] . ($info['ready'] ? ' (ready!)' : ($sees && $info['thirsty'] ? ' (thirsty)' : ($owner ? ' (' . nice_time($info['time_left']) . ' left)' : ' (growing)')));
     } elseif ((int)$t['tilled']) {
         $cls = $t['method'] === 'notill' ? 'notill' : 'tilled';
         $label = $t['method'] === 'notill' ? 'No-till bed' : 'Tilled soil';
+        if ($t['method'] !== 'notill' && yard_raining((int)$t['plot_id'])) { $cls .= ' wet'; $label = 'Tilled soil (wet with rain)'; }   // v2.5.49: rain darkens bare tilled soil (tile-tilled-wet.png)
         if ($owner && ts($t['settle_until']) > time()) $label .= ' (settling)';
     }
     if ($t['method'] === 'notill') {
         $cls .= ' nt';
         $gi = grade_index($t);
-        $badge = '<b class="grade g' . $gi . '">' . e(grade_name($gi)) . ($owner && (int)$t['checkpoint'] > 0 ? '🛡' : '') . '</b>'
-            . ($owner && bed_problems($t) ? '<s>⚠️</s>' : '');
+        $badge = ($owner && bed_problems($t) ? '<s>⚠️</s>' : '');   // v2.4.81: the grade letter is no longer drawn on the square (like the care stars of tilled beds); it stays in the label and the panel
         $label .= ' · grade ' . grade_name($gi) . ($owner && bed_problems($t) ? ' · needs care' : '');
     }
     elseif (($cs = care_stars($t)) > 0) {   // v0.8.7: soil care stars on tilled (or wild) squares
@@ -533,11 +672,20 @@ function tile_view(array $t, array $plants, bool $owner = true): array
         $badge .= '<em class="pestb" aria-hidden="true">' . e($pd['icon']) . '</em>';
         $label .= ' · ' . e((string)$pd['name']) . ' (slowing it down)';
     }
-    if ($owner) $label .= ' · fertility ' . (int)$t['fertility'];
+    if ($owner) $label .= ' · soil ' . (function_exists('soil_words') ? soil_words($t)['fertility'] : 'fertility ' . (int)$t['fertility']);   // v2.3.100: same word as the panel
     if ($cls !== 'wild' || $icon !== '') {
         if (str_contains($cls, 'thirsty')) $badge .= '<i>💧</i>';
     }
-    if ($icon === '' && !str_contains($cls, 'planted') && ($gp = ph_img('tile-' . (str_contains($cls, 'notill') ? 'notill' : (str_contains($cls, 'tilled') ? 'tilled' : 'wild')), 28, '', 'phtile')) !== '') $icon = $gp;   // v1.5.2: ground placeholder
+    if ($icon === '' && !str_contains($cls, 'planted')) {
+        $gk = str_contains($cls, 'notill') ? 'notill' : (str_contains($cls, 'tilled') ? (str_contains($cls, ' wet') ? 'tilled-wet' : 'tilled') : 'wild');
+        $gp = '';
+        if ($gk === 'wild' && ($cv = $covers[(int)$t['yx'] . ',' . (int)$t['yy']] ?? null) !== null) {   // v2.5.44: untilled ground is lawn, clover, wildflowers, weeds, dry grass, leaf litter, moss or bare dirt
+            $rel = $cv[0] === 'lawn' ? 'assets/img/cover/lawn-' . (1 + (((int)$t['x'] * 5 + (int)$t['y'] * 11) % 6)) . '.png' : 'assets/img/cover/' . $cv[0] . '-' . $cv[1] . '.png';
+            if (art_path($rel) !== '') $gp = '<img class="phtile pix" src="' . e(url($rel)) . '" width="28" height="28" alt="" loading="lazy" decoding="async">';
+        }
+        if ($gp === '') $gp = ph_img('tile-' . $gk, 28, '', 'phtile');
+        if ($gp !== '') $icon = $gp;
+    }   // v1.5.2: ground placeholder
     return [$cls, $icon, $label, $badge];
 }
 
@@ -564,7 +712,9 @@ function render_yard(array $plot, array $tiles, array $plants, array $objects, s
     $bonus = $mode === 'own' ? yard_bonus_map((int)$plot['id']) : [];
     $html = '<div class="yard yc' . $yw . ' yr' . $yh . ($mode === 'mini' ? ' mini' : '') . ($mode === 'edit' ? ' editing' : '') . '"'
         . ($mode === 'edit' ? ' data-yard-edit data-w="' . $yw . '" data-h="' . $yh . '"' : '') . '>';
-    $joins = yard_join_info($objects);   // v0.9.5: fences, walls and hedges take their shape from their neighbours
+    $beds = [];
+    foreach ($tiles as $row) foreach ($row as $t) if ($t['yx'] !== null) $beds[(int)$t['yx'] . ',' . (int)$t['yy']] = true;
+    $joins = yard_join_info($objects, $beds);   // v0.9.5: fences, walls and hedges take their shape from their neighbours
     foreach ($objects as $o) {
         if ((int)$o['x'] < 0 && $mode !== 'edit') continue;
         $ji = $joins[(int)$o['id']] ?? null;
@@ -577,12 +727,14 @@ function render_yard(array $plot, array $tiles, array $plants, array $objects, s
             [$inner, $more] = yard_join_inner($o, $ji);
             $cls .= $more;
             $fx = ' data-fam="' . e($ji['fam']) . '" data-shape="' . e($ji['chosen']) . '" data-img="' . e($o['image'] !== '' ? url($o['image']) : '') . '"';
+            if (in_array($ji['fam'], FAM_NAMES, true)) $fx .= ' data-art="' . e(url('assets/img/fam/' . $ji['fam'] . '-')) . '"';
+            if ($ji['fam'] === 'pave') $fx .= ' data-pave="' . e(url('assets/img/paths/' . substr((string)$o['look'], 0, -5) . '-')) . '"';
         } elseif (($o['image'] ?? '') !== '' && $o['kind'] === 'decor') {   // image hook: an item with a picture shows it
             $inner = '<img class="yimg" src="' . e(url(str_replace('{shape}', 'straight', $o['image']))) . '" alt="" loading="lazy">';
             $cls .= ' fi';
         }
         if ($o['kind'] === 'building' && ($bimg = building_image((string)$o['ref'], building_level((int)$o['plot_id'], (string)$o['ref']), true)) !== '') {   // v0.9.8: art for this level
-            $inner = '<img class="yimg" src="' . e(url($bimg)) . '" alt="" loading="lazy">'; $cls .= ' fi';
+            $inner = '<img class="yimg' . (str_ends_with($bimg, '.png') ? ' pix' : '') . '" src="' . e(url($bimg)) . '" alt="" loading="lazy">'; $cls .= ' fi';
         }
         if ($o['kind'] === 'building' && !empty($o['skin'])) {   // v0.9.7: a building look: tint and badge until there is art (assets/img/skins/{building}-{skin}.png)
             $cls .= ' sk sk-' . e($o['skin']);
@@ -609,10 +761,14 @@ function render_yard(array $plot, array $tiles, array $plants, array $objects, s
             $html .= '<div class="' . $cls . '" role="img" aria-label="' . e($title) . '" title="' . e($title) . '">' . $inner . '</div>';
         }
     }
+    $pave = [];
+    foreach ($objects as $o) if ((int)$o['x'] >= 0 && ($joins[(int)$o['id']]['fam'] ?? '') === 'pave') $pave[(int)$o['x'] . ',' . (int)$o['y']] = true;
+    $covers = yard_covers($tiles, $pave);
+    $showThirst = !empty($extra['thirsty']);   // v2.5.49: a visit page shows thirst when friends can water
     foreach ($tiles as $row) {
         foreach ($row as $t) {
             if ($t['yx'] === null) continue;
-            [$cls, $icon, $label, $badge] = tile_view($t, $plants, $owner);
+            [$cls, $icon, $label, $badge] = tile_view($t, $plants, $owner, $covers, $showThirst);
             $pos = yard_pos((int)$t['yx'], (int)$t['yy'], 1, 1);
             $tx = (int)$t['x'];
             $ty = (int)$t['y'];
@@ -659,7 +815,7 @@ function yard_save(array $u, int $plotId, string $json): array
     foreach (q('SELECT id, x, y, yx, yy, plant_id FROM plot_tiles WHERE plot_id = ?', [$plotId])->fetchAll() as $t) $tiles[$t['x'] . '_' . $t['y']] = $t;
     $ints = fn($row, int $n) => is_array($row) && count($row) >= $n ? array_map('intval', array_slice(array_values($row), 0, $n)) : null;
     $rotate = fn(int $bw, int $bh, int $rot) => $rot % 180 ? [$bh, $bw] : [$bw, $bh];
-    $place = [];      // [what, x, y, w, h]
+    $place = [];      // [what, x, y, w, h, quadrants]
     $moves = [];      // object id => [x, y, w, h, rot]
     foreach ((array)($d['o'] ?? []) as $row) {
         $r = $ints($row, 4);
@@ -670,7 +826,7 @@ function yard_save(array $u, int $plotId, string $json): array
         $rot = in_array($rot, [0, 90, 180, 270], true) ? $rot : 0;
         [$w, $h] = $rotate((int)$objs[$id]['bw'], (int)$objs[$id]['bh'], $rot);
         $moves[$id] = [$x, $y, $w, $h, $rot, yard_clean_shape($row[4] ?? '', yard_family($objs[$id]))];
-        $place[] = [$objs[$id]['name'], $x, $y, $w, $h];
+        $place[] = [$objs[$id]['name'], $x, $y, $w, $h, yard_quads($moves[$id][5], $w, $h)];
     }
     $away = [];
     foreach ($objs as $id => $o) {
@@ -696,7 +852,7 @@ function yard_save(array $u, int $plotId, string $json): array
         [$w, $h] = $rotate($def['w'], $def['h'], $rot);
         $need[$itemId] = ($need[$itemId] ?? 0) + 1;
         $new[] = [$itemId, $x, $y, $w, $h, $rot, yard_clean_shape($row[4] ?? '', yard_family(['kind' => 'decor', 'bw' => $def['w'], 'bh' => $def['h'], 'look' => $owned[$itemId]['slug'], 'type' => $def['type']]))];
-        $place[] = [$owned[$itemId]['name'], $x, $y, $w, $h];
+        $place[] = [$owned[$itemId]['name'], $x, $y, $w, $h, yard_quads($new[count($new) - 1][6], $w, $h)];
     }
     foreach ($need as $itemId => $n) {
         if ((int)$owned[$itemId]['qty'] < $n) return [false, 'You only have ' . (int)$owned[$itemId]['qty'] . ' × ' . $owned[$itemId]['name'] . '.'];
@@ -714,13 +870,13 @@ function yard_save(array $u, int $plotId, string $json): array
     }
     foreach ($tiles as $k => $t) {
         [$x, $y] = $tileMoves[$k] ?? [(int)$t['yx'], (int)$t['yy']];
-        $place[] = ['A bed square', $x, $y, 1, 1];
+        $place[] = ['A bed square', $x, $y, 1, 1, 15];
     }
     $grid = [];
-    foreach ($place as [$what, $x, $y, $w, $h]) {
+    foreach ($place as [$what, $x, $y, $w, $h, $pq]) {
         if ($x < 0 || $y < 0 || $x + $w > $yw || $y + $h > $yh) return [false, $what . ' doesn’t fit inside the yard there.'];
-        if (!yard_fits($grid, $x, $y, $w, $h, $yw, $yh)) return [false, $what . ' overlaps something else. Nothing was changed.'];
-        yard_mark($grid, $x, $y, $w, $h);
+        if (!yard_fits($grid, $x, $y, $w, $h, $yw, $yh, $pq)) return [false, $what . ' overlaps something else. Nothing was changed.'];
+        yard_mark($grid, $x, $y, $w, $h, '1', $pq);
     }
 
     $before = yard_snapshot($plotId);
@@ -763,6 +919,7 @@ function yard_save(array $u, int $plotId, string $json): array
 /** A shape the designer sent, kept only for pieces that join (and only a known shape). NULL = joins by itself. */
 function yard_clean_shape($shape, string $family): ?string
 {
+    if (in_array($family, FAM_NAMES, true)) return is_string($shape) && preg_match('/^([eastux1]|p(?:c|nw|ne|sw|se))?-([bsm])$/', $shape) ? $shape : null;   // v2.5.46
     return $family !== '' && is_string($shape) && in_array($shape, YARD_JOIN_SHAPES, true) ? $shape : null;
 }
 
@@ -808,7 +965,7 @@ function yard_undo(array $u, int $plotId): array
     foreach (q('SELECT * FROM garden_objects WHERE plot_id = ?', [$plotId])->fetchAll() as $o) $cur[(int)$o['id']] = $o;
     $old = [];
     foreach ((array)($snap['o'] ?? []) as $r) if (is_array($r) && count($r) >= 10) $old[(int)$r[0]] = $r;
-    $place = [];                                    // [what, x, y, w, h]
+    $place = [];                                    // [what, x, y, w, h, quadrants]
     $keep = [];                                     // id => [x, y, w, h, rot, shape]
     $readd = [];                                    // snapshot rows to create again
     $drop = [];                                     // current decor to put back in the satchel
@@ -816,18 +973,18 @@ function yard_undo(array $u, int $plotId): array
     foreach ($cur as $id => $o) {
         if (!isset($old[$id])) {
             if ($o['kind'] === 'decor') { $drop[] = $o; continue; }
-            if ((int)$o['x'] >= 0) $place[] = ['A building', (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h']];   // built since: stays
+            if ((int)$o['x'] >= 0) $place[] = ['A building', (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h'], 15];   // built since: stays
             continue;
         }
         [, , , , $x, $y, $w, $hh, $rot, $shape] = $old[$id];
         $keep[$id] = [(int)$x, (int)$y, (int)$w, (int)$hh, (int)$rot, $shape === null ? null : (string)$shape];
-        if ((int)$x >= 0) $place[] = ['Something', (int)$x, (int)$y, (int)$w, (int)$hh];
+        if ((int)$x >= 0) $place[] = ['Something', (int)$x, (int)$y, (int)$w, (int)$hh, yard_quads($shape, (int)$w, (int)$hh)];
     }
     foreach ($old as $id => $r) {
         if (isset($cur[$id]) || $r[1] !== 'decor' || !$r[3] || (int)$r[4] < 0) continue;
         $readd[] = $r;
         $need[(int)$r[3]] = ($need[(int)$r[3]] ?? 0) + 1;
-        $place[] = ['Something', (int)$r[4], (int)$r[5], (int)$r[6], (int)$r[7]];
+        $place[] = ['Something', (int)$r[4], (int)$r[5], (int)$r[6], (int)$r[7], yard_quads($r[9] ?? null, (int)$r[6], (int)$r[7])];
     }
     $back = [];
     foreach ($drop as $o) if ($o['item_id']) $back[(int)$o['item_id']] = ($back[(int)$o['item_id']] ?? 0) + 1;
@@ -846,12 +1003,12 @@ function yard_undo(array $u, int $plotId): array
     }
     foreach ($tiles as $k => $t) {
         [$x, $y] = $tileMoves[$k] ?? [(int)$t['yx'], (int)$t['yy']];
-        $place[] = ['A bed square', $x, $y, 1, 1];
+        $place[] = ['A bed square', $x, $y, 1, 1, 15];
     }
     $grid = [];
-    foreach ($place as [$what, $x, $y, $w, $hh]) {
-        if (!yard_fits($grid, $x, $y, $w, $hh, $yw, $yh)) return [false, 'The yard has changed too much to undo that now. Nothing was changed.'];
-        yard_mark($grid, $x, $y, $w, $hh);
+    foreach ($place as [$what, $x, $y, $w, $hh, $pq]) {
+        if (!yard_fits($grid, $x, $y, $w, $hh, $yw, $yh, $pq)) return [false, 'The yard has changed too much to undo that now. Nothing was changed.'];
+        yard_mark($grid, $x, $y, $w, $hh, '1', $pq);
     }
     db()->beginTransaction();
     try {
@@ -1050,7 +1207,7 @@ function upgrade_095_yard(): void
     if ($shop) {
         foreach (DECOR as $slug => $d) {
             if (!$d[9]) continue;
-            $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+            $iid = item_id_by_slug($slug);
             if (!$iid || q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$shop, $iid])) continue;
             $p = (int)$d[6];
             db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => $iid, 'price_min' => max(1, (int)floor($p * 0.9)), 'price_max' => (int)ceil($p * 1.2),
@@ -1076,7 +1233,7 @@ function ensure_yards(): void
             'restock_minutes' => 45]);
         foreach (DECOR as $slug => $d) {
             if (!$d[9]) continue;
-            $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+            $iid = item_id_by_slug($slug);
             if (!$iid) continue;
             $p = (int)$d[6];
             db_insert('shop_stock', ['shop_id' => $shopId, 'item_id' => $iid, 'price_min' => max(1, (int)floor($p * 0.9)), 'price_max' => (int)ceil($p * 1.2),

@@ -1,0 +1,226 @@
+# Delve chambers: The Canopy Bridges (the-canopy-bridges). 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # air-gap wall, . bridge/platform floor, , rope-net rough floor, W rotten planks (slow, costs torch).
+
+# --- size 3 ---
+
+@the-canopy-bridges/stub_ladder
+size: 3
+tags: dry,ladder,stem,bend
+#.#
+#..
+##.
+
+@the-canopy-bridges/rope_horseshoe
+size: 3
+tags: dry,horseshoe,rope,rotten-end
+.#.
+.#.
+W..
+
+@the-canopy-bridges/rotten_span
+size: 3
+tags: rotten,span,bridge,cross
+..#
+W.W
+#..
+
+@the-canopy-bridges/rotten_crossing
+size: 3
+tags: rotten,crossing,zigzag
+.#W
+.W.
+..#
+
+@the-canopy-bridges/landing_net
+size: 3
+tags: rope-net,landing,rough,corner
+#..
+#.#
+..,
+
+@the-canopy-bridges/hub_cross
+size: 3
+tags: hub,cross,rotten,tips
+.#.
+W.W
+.#.
+
+# --- size 5 ---
+
+@the-canopy-bridges/trunk_ring
+size: 5
+tags: rough,ring,trunk,round-platform
+,,,,,
+,###,
+,###,
+,###,
+,,,,,
+
+@the-canopy-bridges/rope_cross
+size: 5
+tags: dry,cross,rope,crossing
+..#..
+..#..
+.....
+..#..
+..#..
+
+@the-canopy-bridges/hourglass_span
+size: 5
+tags: dry,hourglass,waist,span
+#...#
+.....
+##.##
+.....
+#...#
+
+@the-canopy-bridges/stem_fork_ladder
+size: 5
+tags: dry,stems,fork,ladder
+.#.#.
+.,,,.
+##,##
+#...#
+#.#.#
+
+@the-canopy-bridges/round_deck
+size: 5
+tags: rough,deck,round,trunk,medium
+##,##
+#,,,.
+,,#,,
+#,,,#
+##,##
+
+@the-canopy-bridges/switchback_rope
+size: 5
+tags: dry,switchback,rope,bend
+...##
+.#.##
+.#...
+##.#.
+##...
+
+@the-canopy-bridges/tree_hollow
+size: 5
+tags: dry,hollow,tree,four-ends
+##.##
+#,,,.
+..,##
+#..##
+##.##
+
+@the-canopy-bridges/gap_pinch
+size: 5
+tags: dry,pinch,twin-stems,tight
+.#.##
+.#.##
+.....
+##.#.
+##.#.
+
+@the-canopy-bridges/slant_rope
+size: 5
+tags: dry,diagonal,rope,slant
+...##
+#..##
+##...
+###..
+####.
+
+@the-canopy-bridges/rope_net_drop
+size: 5
+tags: rough,net,drop,landing
+,,,,,
+#.,.#
+##,##
+#...#
+##.##
+
+@the-canopy-bridges/net_landing
+size: 5
+tags: rough,net,landing,holes,open
+,,.,,
+,##,,
+.,,,.
+,,,##
+,,.,,
+
+@the-canopy-bridges/ladder_window
+size: 5
+tags: dry,window,ladder,rotten
+#.W.#
+#.#.#
+W...W
+#.#.#
+#.W.#
+
+@the-canopy-bridges/bough_fork
+size: 5
+tags: dry,fork,bough,branch
+#...#
+#.#.#
+#,,,#
+##.##
+..,..
+
+@the-canopy-bridges/rope_ladder_net
+size: 5
+tags: rough,ladder,net,stems
+#.#.#
+.,,,.
+#,#,#
+.,,,.
+##.##
+
+# --- size 6 ---
+
+@the-canopy-bridges/figure_eight_span
+size: 6
+tags: dry,figure-eight,twin-loops,hero
+##..##
+......
+.#WW#.
+......
+##..##
+######
+
+@the-canopy-bridges/coil_bridge
+size: 6
+tags: dry,spiral,coil,hero
+......
+#####.
+....#.
+.##.#.
+.#W.#.
+......
+
+@the-canopy-bridges/trunk_deck
+size: 6
+tags: rough,deck,trunk,round-platform
+#,,,,#
+,,##,,
+,,##,,
+,,,,,,
+#,,,,#
+##..##
+
+@the-canopy-bridges/stepped_rope_tight
+size: 6
+tags: tight,rope,stepped,rotten-center
+##.#.#
+#..,.#
+##.###
+#.W.##
+##.,.#
+##..##
+
+@the-canopy-bridges/ladder_stack
+size: 6
+tags: dry,ladder,stack,stems,rotten-ends
+#.##.#
+#.##.#
+......
+#.##.#
+#.##.#
+W....W

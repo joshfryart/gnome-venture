@@ -22,6 +22,8 @@ const SHOW_CROPS = [
     'radish' => ['Biggest Radish', 'g', 40.0, 1],
 ];
 const SHOW_PRIZES = [1 => [1000, '@treasure-seed:1'], 2 => [500, 'rich-loam:3'], 3 => [250, 'worm-castings:3']];
+const SHOW_QUIET_COINS = 100;   // a quiet week (fewer than fair_min_entries gnomes entered): every entrant gets this and SHOW_QUIET_XP, no placing, no ribbon
+const SHOW_QUIET_XP = 10;
 
 /** This week's show crop (the same for everyone; rotates weekly). */
 function show_crop(?string $week = null): string
@@ -75,10 +77,18 @@ function settle_shows(): void
         $rows = q('SELECT e.*, COALESCE(u.gnome_name, u.username) AS name FROM show_entries e JOIN users u ON u.id = e.user_id
                    WHERE e.week = ? AND ' . gnome_in_play_sql('u') . ' ORDER BY e.size DESC, e.entered_at', [$week])->fetchAll();
         $rank = 0;
+        $quiet = count($rows) < max(1, (int)setting('fair_min_entries'));   // a quiet week (fewer gnomes than the Fair needs): no placings, everyone gets the taking-part thanks
         foreach ($rows as $r) {
             $rank++;
             db()->beginTransaction();
-            if (q('UPDATE show_entries SET placed = ? WHERE id = ? AND placed IS NULL', [$rank, $r['id']])->rowCount() === 1) {
+            if (q('UPDATE show_entries SET placed = ? WHERE id = ? AND placed IS NULL', [$quiet ? 0 : $rank, $r['id']])->rowCount() === 1) {   // a quiet week places nobody (0)
+                if ($quiet) {
+                    q('UPDATE users SET coins = coins + ? WHERE id = ?', [SHOW_QUIET_COINS, $r['user_id']]);
+                    add_xp((int)$r['user_id'], SHOW_QUIET_XP);
+                    notify((int)$r['user_id'], '🏅 A quiet week at the ' . SHOW_CROPS[$r['crop']][0] . ' show: the judges thank you for your ' . show_size_text($r['crop'], (float)$r['size']) . ' entry. Here’s ' . money(SHOW_QUIET_COINS) . ' and ' . SHOW_QUIET_XP . ' XP for taking part.');
+                    db()->commit();
+                    continue;
+                }
                 [$coins, $spec] = SHOW_PRIZES[$rank] ?? [25, ''];
                 q('UPDATE users SET coins = coins + ?' . ($rank <= 3 ? ', ribbons = ribbons + 1' : '') . ' WHERE id = ?', [$coins, $r['user_id']]);
                 add_xp((int)$r['user_id'], [1 => 30, 2 => 20, 3 => 10][$rank] ?? 5);   // v0.7.42
@@ -206,8 +216,9 @@ function contests_hub_rows(array $u): array
     $rows = [];
     // Village Show (weekly)
     $crop = show_crop();
-    $in = (bool)q_val('SELECT 1 FROM show_entries WHERE week = ? AND user_id = ?', [job_period_key('weekly'), $uid]);
-    $rows[] = ['🏅', 'Village Show', 'This week: ' . SHOW_CROPS[$crop][0] . '.',
+    $in = (bool)q_val('SELECT 1 FROM show_entries WHERE week = ? AND user_id = ? UNION ALL SELECT 1 FROM arrangement_entries WHERE week = ? AND user_id = ?',
+        [job_period_key('weekly'), $uid, job_period_key('weekly'), $uid]);   // T2.1: the Arrangements class is on the same page
+    $rows[] = ['🏅', 'Village Show', 'This week: ' . SHOW_CROPS[$crop][0] . ', and flower arrangements.',
         'Closes in ' . nice_time(job_period_left('weekly')), $in, 'show.php', $in ? 'View' : 'Enter'];
     // Grand Harvest Fair (monthly)
     $n = (int)q_val('SELECT COUNT(*) FROM fair_entries WHERE user_id = ? AND month = ?', [$uid, job_period_key('monthly')]);

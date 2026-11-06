@@ -4,6 +4,9 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/includes/bootstrap.php';
 require_once dirname(__DIR__) . '/includes/admin_helpers.php';
 $me = require_admin();
+stats_reset_handle('retention', 'retention.php');   // v2.4.94
+$base = stats_baseline('retention');   // '' = never reset; else only players who signed up after it
+$baseT = $base !== '' ? (strtotime($base . ' UTC') ?: 0) : 0;
 
 $now = time();
 $DAY = 86400;
@@ -13,7 +16,7 @@ $rows = q("SELECT created_at, onboarded, last_seen FROM users WHERE banned = 0 A
 $users = [];
 foreach ($rows as $r) {
     $c = strtotime((string)$r['created_at'] . ' UTC');
-    if (!$c) continue;
+    if (!$c || $c < $baseT) continue;
     $l = !empty($r['last_seen']) ? strtotime((string)$r['last_seen'] . ' UTC') : 0;
     $users[] = ['c' => $c, 'on' => (int)$r['onboarded'] === 1, 'l' => $l ?: 0];
 }
@@ -39,7 +42,7 @@ $pct = fn(int $n, int $d) => $d > 0 ? round($n * 100 / $d, 1) . '%' : '–';
 $cohorts = [
     ['Last 7 days', $now - 7 * $DAY, $now + 1],
     ['Last 30 days', $now - 30 * $DAY, $now + 1],
-    ['All time', 0, $now + 1],
+    [$baseT > 0 ? 'Since reset' : 'All time', 0, $now + 1],
 ];
 // weekly cohorts: 8 weeks, Monday to Sunday (UTC), this week first
 $mon = strtotime('monday this week 00:00:00 UTC', $now);
@@ -78,6 +81,7 @@ page_header('Retention', true);
 <?php admin_crumbs('retention.php'); ?>
 <h1>🔁 Retention</h1>
 <p><a class="btn small" href="<?= e(url('admin/retention.php?export=csv')) ?>" download>⬇️ Export (CSV)</a></p>
+<?php if ($baseT > 0): ?><p class="help"><b>Counting players who signed up after <?= e($base) ?> UTC</b> (reset). Earlier players are left out.</p><?php endif; ?>
 <p class="help">Of the players who signed up in each period: how many finished the welcome tour and came back. Admins, moderators and banned players are left out. “Back after day N” only counts players who signed up at least N days ago.</p>
 <p class="help">Heads up: the game only remembers each player’s latest visit, so a player who came back on day 2 but also played on day 40 counts as back after day 30. Day 1 and 7 are a little too high, not too low.</p>
 <?php
@@ -98,3 +102,4 @@ $box = function (array $list) use ($data, $steps, $pct) { ?>
 <?php for ($i = 3; $i < count($data); $i += 2): ?>
   <div class="box"><?php $box(array_filter([$i, $i + 1], fn($x) => $x < count($data))); ?></div>
 <?php endfor; ?>
+<?php stats_reset_box('retention', 'Counts only players who sign up from now on. Nothing in the game is deleted: only this report forgets earlier players.', 'Reset the Retention numbers? Nothing in the game is deleted.'); ?>

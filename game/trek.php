@@ -196,14 +196,6 @@ function trek_form(string $do, string $label, array $extra = [], string $class =
     return '<form method="post" class="inline"' . $formAttrs . '>' . csrf_field() . '<input type="hidden" name="do" value="' . e($do) . '">' . $h . '<button class="' . e($class) . '">' . e($label) . '</button></form> ';
 }
 
-/** A choice row as a submit button of the surrounding form. */
-function trek_choice(string $do, string $icon, string $title, string $sub = '', $badge = '', string $cls = '', array $attrs = []): string
-{
-    $a = 'type="submit" name="do" value="' . e($do) . '"';
-    foreach ($attrs as $k => $v) $a .= ' ' . e($k) . '="' . e((string)$v) . '"';
-    return choice_row($icon, $title, $sub, $badge, $cls, $a);
-}
-
 function trek_bar(int $v, int $max, string $cls = ''): string
 {
     return '<progress class="' . e($cls) . '" max="' . max(1, $max) . '" value="' . max(0, min($max, $v)) . '"></progress>';

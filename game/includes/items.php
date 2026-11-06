@@ -174,7 +174,7 @@ function ph_or_emoji(string $name, string $emoji, int $px = 20, string $alt = ''
 /** menu icons: the menu entries that have an icon, nav-{slug} (placeholder assets/img/ph/nav-{slug}.svg; real art uploaded in Admin → Images as nav-{slug}.png). slug => label */
 const NAV_ICONS = ['gnome' => 'My Gnome', 'almanac' => 'Almanac', 'satchel' => 'Satchel', 'crafting' => 'Crafting', 'garden' => 'Garden', 'arranging' => 'Arranging',
     'world' => 'World', 'town' => 'Town', 'villagers' => 'Villagers', 'seasons' => 'Seasons', 'passport' => 'Passport', 'games' => 'Games', 'trading' => 'Trading',
-    'together' => 'Together', 'tasks' => 'Tasks', 'friends' => 'Gnome friends', 'account' => 'Account', 'today' => 'Today', 'festival' => 'Festival',
+    'together' => 'Together', 'tasks' => 'Tasks', 'friends' => 'Friends', 'account' => 'Account', 'today' => 'Today', 'festival' => 'Festival',
     'start' => 'Getting started', 'feedback' => 'Send feedback'];
 
 /** menu icons: a menu icon as HTML: uploaded art (uploads/nav/{slug}.png) wins, then the placeholder, then the emoji. */
@@ -265,6 +265,7 @@ function item_emoji(array $i): string
  */
 const NAME_EMOJI = [
     // names that contain another word come first
+    'potion' => '🧪', 'elixir' => '🧪', 'draught' => '🧪', 'stoneskin brew' => '🧪', 'tonic' => '🧪',   // Alchemy Table potions
     'sweet potato' => '🍠', 'eggplant' => '🍆', 'peanut' => '🥜', 'grapefruit' => '🍊', 'candle' => '🕯️', 'watering can' => '🚿', 'crystal' => '💎', 'gall' => '🌰', 'sea glass' => '🔮',
     // dishes
     'feast' => '🍽️', 'pie' => '🥧', 'tart' => '🥧', 'crumble' => '🥧', 'cake' => '🍰', 'muffin' => '🧁', 'cookie' => '🍪', 'biscuit' => '🍪',

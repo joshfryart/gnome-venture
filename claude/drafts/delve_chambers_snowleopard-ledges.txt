@@ -1,0 +1,221 @@
+# Snowleopard Ledges: 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , rough floor, W ice patch (hazard).
+# Shape language: diagonal ledges, switchbacks, one-wide cliff paths, boulder clusters, cave pockets.
+
+@snowleopard-ledges/diagonal_shelf
+size: 3
+tags: dry,ledge,diagonal,shelf
+.##
+..#
+#..
+
+@snowleopard-ledges/ice_chute_bend
+size: 3
+tags: ice,cliff,one-wide,bend,tight
+#.#
+#W#
+#..
+
+@snowleopard-ledges/pocket_ice_nook
+size: 3
+tags: ice,cave,pocket,nook
+###
+.#.
+.W.
+
+@snowleopard-ledges/rubble_step
+size: 3
+tags: rough,ledge,step,rubble
+#..
+#..
+.,,
+
+@snowleopard-ledges/ice_diagonal
+size: 3
+tags: ice,diagonal,open,slide
+.WW
+..W
+W..
+
+@snowleopard-ledges/cliff_ridge_path
+size: 3
+tags: dry,cliff,ridge,boulders,edge-path
+#..
+#..
+#..
+
+@snowleopard-ledges/zigzag_ledges
+size: 5
+tags: dry,switchback,ledge,hero,zigzag
+.....
+.###.
+.....
+####.
+.....
+
+@snowleopard-ledges/ring_cliff_block
+size: 5
+tags: dry,ring,cliff,boulders,hero,ice-edge
+.....
+.###.
+.###.
+.###.
+.W.W.
+
+@snowleopard-ledges/cave_mouth_pocket
+size: 5
+tags: cave,mouth,pocket,horseshoe,hero,rough
+##.##
+#...#
+##.##
+.....
+,...,
+
+@snowleopard-ledges/cross_stub
+size: 5
+tags: dry,cross,junction,hero,stubs
+##.##
+##.##
+.....
+#...#
+##.##
+
+@snowleopard-ledges/boulder_twin_blocks
+size: 5
+tags: dry,boulders,clusters,diagonal
+.##..
+.##..
+.....
+..##.
+..##.
+
+@snowleopard-ledges/boulder_drift
+size: 5
+tags: dry,boulders,clusters,open,drift
+..##.
+...#.
+.#...
+.##..
+.....
+
+@snowleopard-ledges/stair_ledges_tight
+size: 5
+tags: dry,switchback,ledge,tight
+.....
+####.
+.....
+.####
+.....
+
+@snowleopard-ledges/ice_rink_bowl
+size: 5
+tags: ice,open,patch,rink
+..WW.
+.WWW.
+..W..
+##...
+.....
+
+@snowleopard-ledges/boulder_switchback
+size: 5
+tags: dry,boulders,switchback,clusters
+.#...
+.##..
+....#
+##..#
+....#
+
+@snowleopard-ledges/scree_slope_rubble
+size: 5
+tags: rough,scree,open,rubble
+,,,,.
+,###.
+,,,,.
+.,,,,
+.,,,,
+
+@snowleopard-ledges/cliff_hook_gully
+size: 5
+tags: dry,cliff,hook,gully,one-wide
+.....
+.####
+.#...
+.#.##
+...##
+
+@snowleopard-ledges/twin_passes_ice
+size: 5
+tags: ice,cliff,split,crossing,two-way
+..#..
+..#..
+.WWW.
+.....
+##.##
+
+@snowleopard-ledges/frozen_lake_edge
+size: 5
+tags: ice,shelf,open,shore
+WWWW.
+WWWW.
+.....
+##...
+#....
+
+@snowleopard-ledges/dead_end_pocket
+size: 5
+tags: cave,pocket,dead-end,ice,tight
+#####
+#...#
+#.W.#
+##.##
+..W..
+
+@snowleopard-ledges/boulder_corners_6
+size: 6
+tags: dry,boulders,open,clusters,corners
+##....
+#.....
+..##..
+......
+....##
+....##
+
+@snowleopard-ledges/switchback_hairpin
+size: 6
+tags: dry,switchback,hairpin,ledge,one-wide
+....##
+###.##
+....##
+.#####
+......
+##....
+
+@snowleopard-ledges/frost_hollow_cave
+size: 6
+tags: cave,ice,pocket,hollow,rough
+##..##
+#WWWW#
+#W..W#
+##..##
+#,,,,#
+......
+
+@snowleopard-ledges/diagonal_ledge_6
+size: 6
+tags: ice,ledge,diagonal,cliff,shelf
+....##
+##...#
+###W..
+####..
+####..
+##.W..
+
+@snowleopard-ledges/ice_hourglass
+size: 6
+tags: ice,hourglass,hero,narrow,waist
+......
+#....#
+##WW##
+##WW##
+#....#
+......

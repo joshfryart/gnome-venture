@@ -55,3 +55,36 @@ se=autumn|Fussy|“Leaves on the step again, {name}. I swept it this morning. An
 dp=night|Dreamy|“The moon is very close tonight, {name}. I almost waved.”
 we=fog|Dreamy|“Fog, {name}. The world is just thinking out loud.”
 dp=dusk|Dreamy|“That sky, {name}. Someone has spilled all the colours again.”
+-|Generous|“Here, {name}. Take the good end of the loaf. I insist.”
+-|Generous|“There’s always a bit extra at {place} for a traveller.”
+dp=night|Generous|“Cold night, {name}. Have a blanket. Keep it, even.”
+we=rain|Generous|“Dry socks, {name}? I have a whole drawer of them.”
+-|Grumpy|“Don’t mind me, {name}. I’m like this with everyone. It’s a gift.”
+-|Grumpy|“Wipe your boots. No, the other boots. Hmph. Good.”
+dp=dawn|Grumpy|“Too early for talking, {name}. Sit. Be quiet. Welcome.”
+we=rain|Grumpy|“Rain. Of course it’s rain. Come in before you drip on everything.”
+-|Shy|“Oh! You came back. I… um. I’m glad. That’s all.”
+-|Shy|“I made too much tea, {name}. If you wanted some. No pressure.”
+dp=night|Shy|“It’s nicer at night. Fewer people. Hello, {name}.”
+-|Proud|“Have you seen the garden at {place}, {name}? I did most of it myself.”
+-|Proud|“Folk come from three valleys over to see this place. Just so you know.”
+dp=dusk|Proud|“Best view on the whole road, {name}. Everyone says so.”
+-|Curious|“{name}, what’s the strangest thing you’ve found on your travels? Tell me everything.”
+-|Curious|“I’ve been counting the stones on the path. I keep getting a different number.”
+we=storm|Curious|“Did you see where that lightning landed, {name}? I want to go and look!”
+-|Chatty|“Oh, {name}, sit, sit! Where do I even start. The roof, the baker, the goat…”
+dp=dawn|Chatty|“You’re up early! I’ve been up since four. Let me tell you why.”
+-|Cheerful|“Look at you, {name}! The road suits you.”
+dp=dusk|Cheerful|“What a lovely end to the day. Isn’t it, {name}?”
+-|Sleepy|“Mm? Oh. {name}. I wasn’t asleep. I was resting my eyes. Loudly.”
+dp=day|Sleepy|“Is it afternoon already? Nap time, nearly. Stay if you like, {name}.”
+hp=market_day|any|“Market day, {name}! Take a look at the stalls before the good things go.”
+hp=market_day|Chatty|“Everyone’s out today, {name}. I’ve sold three pies and heard five rumours.”
+hp=traveller|any|“Did you see the traveller, {name}? Pack bigger than they are.”
+hp=lost_thing|any|“Seen a lost thing anywhere, {name}? Half of {place} is looking.”
+hp=repairs|any|“Mind the ladder, {name}. We’re mending everything at once.”
+hp=repairs|Grumpy|“Hmph. If you’re standing there, you can hold the other end.”
+hp=cosy_weather|any|“Come in out of that, {name}. The kettle’s on and there’s room by the fire.”
+hp=harvest_glut|any|“Take some, {name}. Please. We have more apples than sense.”
+hp=night_watch|any|“Quiet one tonight, {name}. Sit with us and look up.”
+hp=quiet_day|any|“Nothing’s happening today, {name}, and I’m rather enjoying it.”

@@ -1,0 +1,11 @@
+{"w":480,"h":270,"horizon":104,"view":"gate","spots":[
+  {"k":"sugarshack","name":"Sugar Shack","x":53,"y":132,"box":[22,88,84,176]},
+  {"k":"bakery","name":"Pie Bakery","x":121,"y":133,"box":[96,104,146,162]},
+  {"k":"tavern","name":"Tavern","x":178,"y":123,"box":[158,98,198,148]},
+  {"k":"hall","name":"Town Hall","x":240,"y":71,"box":[211,18,269,124]},
+  {"k":"stalls","name":"Maple Stalls","x":302,"y":124,"box":[282,100,322,148]},
+  {"k":"store","name":"General Store","x":361,"y":133,"box":[334,104,388,162]},
+  {"k":"guild","name":"Herbalist","x":428,"y":138,"box":[400,100,456,176]},
+  {"k":"square","name":"Market Square","x":240,"y":196,"box":[212,170,268,222]},
+  {"k":"board","name":"Notice Board","x":63,"y":203,"box":[34,180,92,226]},
+  {"k":"orchard","name":"Orchard Path","x":349,"y":203,"box":[320,180,378,226]}],"stand":[{"x":180,"y":172},{"x":296,"y":170},{"x":150,"y":208},{"x":290,"y":212},{"x":116,"y":186},{"x":404,"y":200}],"compass_clear":[430,222,480,270]}

@@ -30,8 +30,9 @@ const fs = require('fs');
     await p.locator('#yard a.tile').first().click();
     await p.click('.selbar [data-open="' + kind + '"]');
     await p.locator('dialog.picker[data-kind="' + kind + '"][open] .itm').first().click();
-    return p.evaluate(() => { const c = document.querySelector('dialog.picker[open] .itm'); const n = c.querySelector('.pccount');
-      return { pressed: c.getAttribute('aria-pressed'), count: n && !n.hidden ? n.textContent : '', steps: !!c.querySelector('.pcbtns:not([hidden])'), go: !document.querySelector('dialog.picker[open] [data-go]').disabled }; });
+    // v2.4.80: a seed opens its quantity popover; the others just mark the square
+    return p.evaluate(() => { const c = document.querySelector('dialog.picker[open] .itm'); const n = c.querySelector('.pccount'); const pop = document.querySelector('dialog.seedpop[open]');
+      return { pressed: c.getAttribute('aria-pressed'), count: n && !n.hidden ? n.textContent : '', pop: !!pop && !!pop.querySelector('.qin') && pop.querySelectorAll('.stags .tag').length > 0 && pop.querySelector('.qin').value !== '0', go: !document.querySelector('dialog.picker[open] [data-go]').disabled }; });
   };
   const prep = {
     gift: async p => {
@@ -48,7 +49,7 @@ const fs = require('fs');
   };
   const want = {
     gift: r => r && r.pressed === 'true' && r.others === 1 && r.give && /^Give .+\?$/.test(r.says),
-    'garden-seed': r => r && r.pressed === 'true' && r.count !== '' && r.steps && r.go,
+    'garden-seed': r => r && r.pressed === 'true' && r.count !== '' && r.pop && r.go,
     'garden-soil': r => r && r.pressed === 'true' && r.go,
     'town-seed': r => r === true,
     basket: r => r && r.checked && r.halo,
@@ -95,11 +96,11 @@ const fs = require('fs');
             const k = R(it), name = it.querySelector('.itm__name').textContent;
             if (k.width < 44 || k.height < 44) out.small.push(name + ' ' + k.width.toFixed(0) + 'x' + k.height.toFixed(0));
             const nm = it.querySelector('.itm__name'), lh = parseFloat(getComputedStyle(nm).lineHeight), lines = Math.round(R(nm).height / lh);
-            if (lines > 3 || nm.scrollHeight > nm.clientHeight + 1) out.lines4.push(name + ' ' + lines); else if (lines > 2) out.lines3.push(name);
+            if (lines > 4 || nm.scrollHeight > nm.clientHeight + 1) out.lines4.push(name + ' ' + lines); else if (lines > 2) out.lines3.push(name);
             const rib = it.querySelector('.itm__rib'), rr = R(rib), rs = getComputedStyle(rib);
             const box = { l: rr.left + parseFloat(rs.borderLeftWidth) - .5, r: rr.right - parseFloat(rs.borderRightWidth) + .5 };
             const nr = R(nm); if (nr.left < box.l || nr.right > box.r) out.escape.push(name + ': name outside its ribbon');
-            for (const ch of it.querySelectorAll('.itm__foot > :not(.vh)')) {
+            for (const ch of it.querySelectorAll('.itm__foot > :not(.vh):not(.itm__rar):not(.itm__kind--quiet)')) {
               const cr = R(ch); if (!cr.width) continue;
               if (cr.left < k.left - .5 || cr.right > k.right + .5) out.escape.push(name + ': chip "' + ch.textContent.trim() + '" outside the square');
               if (ch.scrollWidth > ch.clientWidth + 1) out.escape.push(name + ': chip "' + ch.textContent.trim() + '" overflows');

@@ -1,0 +1,10 @@
+{"w":480,"h":270,"horizon":104,"view":"gate",
+ "spots":[
+  {"k":"do","name":"Ferry landing and bell","x":266,"y":110,"box":[202,50,330,158]},
+  {"k":"people","name":"Travellers' table and fire","x":96,"y":217,"box":[32,176,160,258]},
+  {"k":"stop","name":"Stamp post and notice board","x":376,"y":183,"box":[340,148,412,218]},
+  {"k":"homes","name":"Riverside huts","x":91,"y":108,"box":[18,68,166,150]},
+  {"k":"wild","name":"Wild Trail","x":440,"y":166,"box":[416,104,462,228]}
+ ],
+ "stand":[{"x":194,"y":238},{"x":286,"y":238},{"x":240,"y":186},{"x":172,"y":172},{"x":308,"y":174},{"x":344,"y":246}],
+ "compass_clear":[380,230,480,270]}

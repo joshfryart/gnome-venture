@@ -12,6 +12,10 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/tilemap.php';
+require_once __DIR__ . '/delve_floors.php';   // v2.3.1: the floor pool of the delve redo (pure functions)
+require_once __DIR__ . '/delve_route.php';    // v2.3.1: the route graph of the delve redo (pure functions)
+require_once __DIR__ . '/delve_stamp.php';    // v2.3.1: floors stamped from a delve's chambers (pure functions)
+require_once __DIR__ . '/delve_v2.php';       // v2.3.1: the delve redo engine (behind delve_v2)
 
 const DM_DELVE_SIZE = 11;
 const DM_LAIR_SIZE = 13;
@@ -22,6 +26,10 @@ function dm_settings(): array
 {
     return [
         'delve_map' => ['label' => 'Delves: map view', 'type' => 'bool', 'default' => '1'],   // v2.0.6: off = delves and lairs show only the simple list
+        'delve_v2' => ['label' => 'Delves: route menu and tile floors (the redo)', 'type' => 'bool', 'default' => '0'],   // v2.3.1: off = today's five rooms; running delves finish on their own rules
+        'dv_enc_steps' => ['label' => 'Delves (redo): steps walked between rolls for a wandering creature', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 100],
+        'dv_enc_chance' => ['label' => 'Delves (redo): percent chance a roll meets a wandering creature (0 = none)', 'type' => 'int', 'default' => '25', 'min' => 0, 'max' => 100],
+        'dv_enc_cap' => ['label' => 'Delves (redo): most wandering creatures on one floor', 'type' => 'int', 'default' => '2', 'min' => 0, 'max' => 10],
     ];
 }
 
@@ -66,6 +74,12 @@ function dm_on(): bool
 {
     $v = setting('delve_map');
     return ($v === '' || $v === '1') && dm_table_ok();
+}
+
+/** Are the new route menu and floors switched on? (Needs the map view. A delve already running keeps the rules it started with: see the map_key prefix.) */
+function dv_on(): bool
+{
+    return setting('delve_v2') === '1' && dm_on();
 }
 
 /** The player's choice for this session: 'map' (default) or 'list' (the old five-room flow). */
@@ -284,14 +298,6 @@ function dm_walk_take(array $exp, array $sc): ?array
     return $last[0] === $sc['x'] && $last[1] === $sc['y'] ? ['p' => $p] : null;
 }
 
-/** What the tile under the player is, in words, for the line under the map. */
-function dm_here_note(array $sc, array $exp): string
-{
-    $t = tm_tile($sc['map'], $sc['x'], $sc['y']);
-    if ($t === 'S') return 'You are at the entrance.';
-    return '';
-}
-
 /**
  * The whole map block: the picture, the grid of buttons over it (a form: name="go" value="x,y"), the legend and the link to the list.
  * $busy = something is in front of you (a fight or a trap): the buttons rest.
@@ -365,7 +371,7 @@ function dm_view_html(array $u, array $exp, array $sc, bool $busy): string
             $cls = 'tmt' . (($i === 0 || $j === 0 || $i === DM_VIEW - 1 || $j === DM_VIEW - 1) ? ' ring' : '');
             $label = '';
             $me = $x === $sc['x'] && $y === $sc['y'];
-            $tap = isset($lit[$y * $w + $x]) && !$busy;
+            $tap = $x >= 0 && $x < $w && $y >= 0 && $y < $h && isset($lit[$y * $w + $x]) && !$busy;
             if (!$seenIt || $t === ' ') $cls .= ' fog';
             elseif ($t === '#') $cls .= ' wall';
             else {

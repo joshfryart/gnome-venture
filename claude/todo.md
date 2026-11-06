@@ -1,131 +1,92 @@
-# Gnome Venture: to-do (updated 2026-10-31, latest built release 2.3.2 (Pal Jobs: equipped-pal guard); delve redo planned, see plan-delves.md)
+# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-05, main = 2.5.74)
 
+Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md` (the old todo.md log up to 2.5.62 is at the bottom of the archive). Detail lists for art stay in their own files, linked below, but their OPEN items are copied here.
 
-## NOW (2.3.0 to 2.3.2, 2026-10-31): Pal jobs. ALL BUILT, on main (`7f1419c1`), slim zips `releases/GnomeVenture-2.3.{0,1,2}-web-update.zip`. 2.3.0 slim zip `releases/GnomeVenture-2.3.0-web-update.zip` (needs 2.2.6+). Joshua uploads. Open from gnome level 10 when `ppal_open` is on (`pj_open`, `pj_min_level`).
-- **Shipped:** `includes/pal_jobs.php` + `paljobs.php`, table `ppal_jobs`, `ppal_found` columns (16-hex `pal_uid`, `g_xp`, `a_xp`, `hp`, `hp_at`, `status`, `eq_since`). Garden duty (one pal per garden, no Tool Shed slot, water / weed from Gardening 3 / harvest at 9, hooked into `load_plot` via `pj_garden_hires`), gathering trips (tool, land, 1/3/8 h, potions), re-runs of delves the gnome cleared (about 60% of a clear, once a day per delve). Rolled at start from a seed; Collect pays once. 0 HP goes home early. Duplicate find +15 XP each kind; equipped pal 1 XP each kind an hour. Healing Potion (craft Meadowsweet x2 + Sphagnum, shop at Twigg's). Caps: `pj_max_away` 3, `pj_runs_per_day` 6. `tests/paljobs.sh`.
-- **Joshua to check (phone):** Pal Book "Pal jobs" button, the page, send forms, Collect flash lines; trip and delve payout feel (numbers are a first guess); a pal tending a real garden over a few visits.
-- **2.3.2 BUILT (slim zip, needs 2.3.1+, manifest `tests/manifests/2.3.2.txt`):** sending an equipped pal needs a tick on "Take it off my party" (`pj_can_send` `$unequip`). Phone check it.
-- **2.3.1 BUILT (slim zip `releases/GnomeVenture-2.3.1-web-update.zip`, needs 2.3.0+; manifest `tests/manifests/2.3.1.txt`; no player news; not run on MySQL):** Pal Jobs redesign: Out / At home / Jobs tabs, ledger with live countdown, "Send a pal" unfold, one-line counts row (Potions chip links to Crafting). Files: `paljobs.php`, `assets/paljobs.js` (new), `puzzles.css` pj block, `layout.php` (script tag, community area). `tests/paljobs.sh` passes. Joshua to check on phone: tabs, unfold, Back/F5 after send, error flash lands on Jobs tab. Mockups + notes: `claude/paljobs-final.html`, `claude/paljobs-integration.md`.
-- **Pal jobs follow-ups:** Alchemy Table (see below), `PRODUCT.md` / `DESIGN.md` via impeccable `init` / `document` (none yet), a "pals home with loot" notice on Today, loot-per-hour balance sim, Collect receipt wording, MySQL run of `ppal_jobs`.
-- **NEXT:** balance sim for loot per hour across the three jobs; Pal job tab/notice on Today ("2 pals home with loot"); not run: `puzzle_pals.sh` and the full CI list on this change, MySQL (`ppal_jobs`, new `ppal_found` columns); the 2.2.6 to 2.2.61 test failures `gather150`, `folkoverlay` are old.
+## 1. STATE
+- Main = 2.5.72. Slim zips are in `releases/` (2.5.74 needs 2.5.72+; 2.5.73 needs 2.5.71+; 2.5.72 needs 2.5.70+; 2.5.71 needs 2.5.69+; 2.5.70 needs 2.5.68+; 2.5.69 needs 2.5.67+; 2.5.68 needs 2.5.66+; 2.5.67 needs 2.5.65+). Art zips in `upload-zips/` (none for 2.5.67). Josh uploads.
+- 2.5.66: route landmarks (82 large hand-drawn sprites on all 16 Maplewold trail maps, path layer, contact shadows), GPS stops at every stop, no tap dots on trail maps.
+- 2.5.68: build plans for all 94 havens/wonders/delves (58 new, text not yet reviewed by Josh); status-strip energy bar updates live.
+- 2.5.67: Do here and Stall results show in the popover; header energy and Petals pills update live (icon kept, number only).
+- 2.5.63 to 2.5.65 (art): 133 weak items redrawn, all 387 seeds are packets, 4 kind cards, scene fixes (camp flames, ferry dock, wild-trail trees, Snowcrown, turtle scutes, kava circle, banner-desert, trek-me, vig-pick), world + region maps richer, desert/adobe stop looks, hero-scale village/haven/delve/lair, Beaver Pond front, hedgehogs redrawn, gnome eye rim.
+- 2.5.60 to 2.5.62: 81 wonders, 29 banners, gather small art, 14 journal emblems, 7 landing, 14 region maps, 46 trek tiles installed.
+- Flags `gnav_on`, `gnav_tree`, `gnav_tiles` default 0 (check Admin before assuming).
+- Release recipe: bump `APP_VERSION` in `game/includes/bootstrap.php`, CHANGELOG top entry = same, `tools/check_versions.sh`, `bash tests/build_update.sh <v> <two-back> releases`, art zip `upload-zips/gnome-venture-images-v3-<v>.zip`. Never rebuild a zip under the same version. Push main only on Josh's word.
 
-## NEXT (complements Pal jobs): Alchemy Table in Crafting
-Own station for potions (today the "no building needed" Potions tab in `includes/crafting.php`, `inventory.php?tab=craft&c=potions`). Pal Jobs "N Potions" chip links there. Ideas: build/upgrade the table, more recipes (Healing tiers, trip luck, garden boost), batch craft, show potion stock. Not built.
+## 2. JOSH: phone checks
+- 2.5.72 (new, nothing phone-checked): Do tab meter bars, perk line, answer acts when a meter is low, notice board on Stop tab, daily happening strip, a story beat for a Regular, trail without the yellow square, Sneak/Hunt, workshop without round icons.
+- Josh said "everything live seems fine" (2026-11-05). Not itemised, so the list below stays until he ticks specifics; treat 2.5.66 and 2.5.67 as passed.
+- Trail landmarks 2.5.66 (all 16 routes), GPS auto-stop, hidden dots; Do here popover results + live header pills 2.5.67.
+- Trail walk camera; select bar; Rest stop card (tabs, stamp, adopt non-maxed stop, hand-in, upkeep, buy deed); new doors/streets/workshop pictures.
+- 2.5.60 to 2.5.62 art: wonders, banners, gather art, journal, landing, region maps, trek tiles.
+- Yard: corner pieces, paths vs beds, wet beds in rain, visitor thirst, crop sizes, ripe pictures, designer Shape/Size.
+- Here pages (stall/pantry popovers, icon row), Pal Jobs Select all, garden select bar in LIGHT theme.
+- Maplewold trail tiles; Do here names; folk line; Villagers highlight.
 
-## NEXT BIG: Delve redo (planned, not built): `claude/plan-delves.md`
-Route menu (pick the next stage) + tile-map floors (fog, torch, pickups, pal strip), each stage 5 min at most, each delve has its own pool of about 12 floors (`data/delve_floors.txt`, 168 total). Mockups on branch `ccr-5e82e48d-1d6u8o` (`claude/delve-mockups/`), gallery https://claude.ai/artifact/TWQYNTxPecKASSqhSsx6ye. First: floor format + lint, route generator, M step (existing 5 rooms as tile floors with torch + fog + route menu), then author 3 delves. Joshua's 7 open questions are at the end of the plan file.
+## 3. JOSH: decisions needed
+- Review the 58 new build plans (2.5.68) on the live site or in `build_plans.txt`.
+- DECIDED 2026-11-05: upkeep: anyone can pay it, no one owes it; stop just degrades if not paid (see section 4). Tile walks: keep ~40% extra fights, add Sneak and Hunt buttons (section 4). Region maps: Josh sends real route maps (section 3 line below). Pet shops and Puzzles: already open, so lane E is unblocked.
+- Stage art APPROVED 2026-11-05 (contact sheet). `derived-<land>/` files are byte-identical to `game/assets/img/scenes/`, so already installed; nothing to copy.
+- DECIDED: craftmap 14 scenes: DRAW (not started). Acts: do not redraw all 1,667, keep stills, draw ~15 state props + 4 kind cards (see living-stops plan). Still open: P7 art order; 480x270 canvas final?
+- Josh to send real route maps for the other 11 regions (`claude/prompt-route-maps.md`, `claude/route-list.md`); stand-ins (`ART_LAND`) stay until then.
+- Admin upload `uploads/items/<slug>.png` shadows `assets/img/ph/` (reason an item can show old art).
 
-## NOW (2.2.2 to 2.2.4, 2026-10-30): Puzzle Pals on the map, bigger perks, combat skills. BUILT, on main (`79a83035`), slim zips in `releases/`. Joshua uploads. Still OFF for players (`ppal_open`; `ppal_party` for take along, perks, skills).
-- **Shipped:** perks 8/15/30% (road 1/2/4); pals wait at places on the map in level bands (rares a stretch above you), kept until collected, topped up daily to 3; Places pals at their own place; sticker + rarity ring on region maps, 🧩 badge on world maps; World Go chip + "Say hello" card; Pal Book "Waiting on the map"; 6 passive combat skills; My Gnome shows skills; Cat Fish pal Kibble by rarity; admin Test a pal find puts a pal on the admin's map. Details and function names: `handoff.md` "2.2.2 to 2.2.4".
-- **Joshua to check (phone, dark and light):** pal stickers on the region map (both styles), the World Go "Say hello" card, the Pal Book waiting list, skills on My Gnome, a rare actually waiting in a tougher place; does 3 waiting a day feel right (`ppal_spawn_count`)?
-- **NEXT (Joshua picks):**
-  1. Balance pass on the numbers: perks 8/15/30, Sip 10/20/40%, Cat Fish pal Kibble 4/8/16% (cap +50%); a second perk for rares (planned, not built).
-  2. Skills for Treks (not wanted so far); an active skill button (rejected for now: needs fight state and golden-test care).
-  3. Not checked: dark theme and wide screens for the new markers, the mycelium map by screenshot, the Say hello button in a real browser, MySQL CI (`ppal_spawns` + `users.ppal_spawn_day`), the full CI list on main. Known failing on base: `gather150`, `folkoverlay`.
-  4. Page mode (`ppal_find_mode` = page) is kept for rollback; remove it and `ppal_maybe_find` once map mode is settled.
-  5. Maybe: a "pal arrived" cue when the daily top-up adds pals (today a gnome only sees them on the map, the Go chip or the book).
+## 4. CODE: open
+**Trail / Here**
+- Fight animation engine (own): build plan `claude/fight-plan.md`, guide `claude/animating-2-5d-sprites.md`, notes `claude/fight-anim-engine.md`; tools `tools/fight/`. Engine + gnome rig + hat physics done, NOT wired into the game yet. Josh chose option B (HP bubbles on the tilted map, no popover).
+- Tile walks Sneak/Hunt buttons released 2.5.70: stance on the trail footer, Sneak = 40% fight chance, Hunt = 250% and up to 3 fights a section; tap again to go back to normal. Josh to confirm numbers; `balance_sim.php` Walks not updated for stances.
+- Upkeep: stamp requirement removed (any gnome can chip in; `stop_upkeep_give`, `stop_slim_upkeep`); released 2.5.71, no test covers upkeep, not tried live.
+- Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); released 2.5.69, not phone-checked. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
+- Trail: yellow square round the walker's tile removed (`.tm-trail .tmt.here`), released 2.5.72, not phone-checked; delve/lair maps keep theirs.
+- Trail ground and landmarks for the other 11 regions (loader exists; art is stand-ins).
+- Shops/Homes popover on non-town stop types; step-off/step-back strip; Lost Letters + landmark panel on World page; gnome walk-frame animation (8 frames, idle only); nav chrome on other picture pages; `balance_sim` for `gnav_enter_energy`.
+- Delve/lair run records: BUILT, released 2.5.71. New table `landmark_runs` (one row per run: cleared / ko / left, level, depth, stages, route seed, picked nodes, start and end), written by `landmark_run_record()` in `save_exp` before the map row is dropped; in `fresh_start` wipe list; test in `tests/delve2.sh`. No page shows it yet (admin or journal view?). `tests/landmarks.sh` fails here with a DB-open error unrelated to this change.
+**Yard / garden**
+- Designer: (corner pick already only for corner-shaped pieces: `isCorner()` guards every `cornerFor()` call in `site.js`, read in code, not tried on a phone); cover squares not recomputed live when a bed moves; planted soil for no-till beds; satchel `satchel_skin` column (canvas/patchwork).
+**Content**
+ - Build plans: all 94 havens/wonders/delves have plans (2.5.68, Josh not yet reviewed the text). Leftover build verbs (`befriend`, `carry`, `trial`, `vigil`, `wait`, `decorate`); Admin > Build plans page.
+- Perk button (released 2.5.74): a round Perks button (medal) next to World in the row under the Here picture (`stop_perk_nav()`, card `hubpop-perks`, `stop_perk_body()`), shown once a meter has moved or a perk runs; the plain stop page (town.php) has a circle by the 🌍 in its trail (`stop_perk_chip()`). Not phone-checked.
+- Stop acts: `claude/plan-living-stops.md`. CODE DONE, released 2.5.72, fixes 2.5.73 (UTC perk date, daily rotation of answer acts, perks stack): steps 2-4 and 6 (happenings, per-player meters + perk, needs/moves, calendar, 3 stories, notice board, Admin > Living stops read-only preview). Josh: finish code before art. Left: step 5 prop overlays + kind cards (ART, later); phone check; more happenings/stories/calendar rows (data files only); Admin editor is read-only (edit `data/stop_*.txt`).
+- Road: toll/beat/weather kinds; picture per sketch page; collection pages. Region packs for other 11 regions; road_lines admin editor; village descriptions: FIXED, released 2.5.71 (each village = a blurb + a new quirk line from `village_quirks.txt`, fixed clash-free order; `tests/village_desc.php` checks 146 distinct; shows only where `village_blurb()` is used, i.e. the World page; stored text unchanged); stop chat: 22 lines added for the thin personalities (Generous, Grumpy, Shy, Proud, Curious, Chatty, Cheerful, Sleepy), released 2.5.71; Haven text (10 havens reworded in `landmarks.txt` + upgrade step `haven_text_2571` for existing sites; released 2.5.71, not tested on a real upgrade); tundra thin.
+- Treks: scenes (Gloomtooth intro, Sorrel's door, signpost riddle); Ch IV to VI, Thorny/Bramble, respec, Lanternroot crop, hats/stamp/trophy, trailmates 8 (4-7 built).
+- Delve redo: `delve_v2` built OFF (`claude/plan-delves.md`, `claude/checklist-delves.md`).
+- Popover animation polish: 11 glint-only scenes (`bulk.py --report`); animate flags/water/foliage/sun; more icons than 7 stats.
+- Snail Trail 3rd puzzle game; Jeff `tada` redo; guest-friendly treks.
+- Ideas: preset postcards, follow a friend's trail, seed lineage, satchel split stacks by quality (then re-enable `orders_food_quality`), crop economy (radish sells ~4, seed 8-13; maybe `price_base_pct` 60 to 70), cPanel cron for reminder emails, /testvault/.
+- How-to-play "Folk & friendship" title needs a guarded migration.
+**Never run on this line:** MySQL `upgrade_check.sh`, full CI list, a real phone. Untested on MySQL: `trek_ms` table, `trek_flag_set` duplicate-insert catch.
 
+## 5. ART: open
+**Trail landmarks (2.5.66 nits)**
+- Wall trees overdraw sprite edges; tall 304/313 sprites hide a step of the walk; small details hard to read; 315 den feathers faint; 312 larder squirrel belly reads as shield; 311 syrup muddy.
+- Rule: delete `obj/lm-*.png` before re-baking after editing sprites.
+**Weak spots (re-check on the phone first; 2.5.63 to 2.5.65 redrew many)**
+- Items still pink-bordered in `aseprite-source/v3/rollout/weak.txt` (46 of 179 left); `map-world` props; check gather flourishes on satchel backdrop; rainforest monstera/orchids, grassland windmill base, island palm crowns/coconuts, desert/island sand blotchy.
+- Towns: coralscatter dome + tea house; monsoontangle deck/boats; thornacre arch; blossomreach parasol.
+- Gnome rig eye contrast is fixed (2.5.64); seasons + hammer nav icons still roughest.
+**Not drawn yet**
+- P7: homes (6), tiers, village pictures, craftmap 14, 1,667 acts, landing `shot-*` (824x1120), `map/` 16px tiles.
+- Animation layers `<art>-anim-*.png`, `wander-step-back.png`, workshop/street/door animation, season variants.
+- Here scenes (~45 templates), residential street styles + houses, 6 door arts + per-villager doors, up to 151 villager 2.5D sprites (RULE: no human villagers), treehouse cutaway + dressing, pal sprites + Pal Yard, trail event icons 32x32. Plan: `claude/plan-graphical-nav.md`, `claude/todo-art-v3.md`.
+- Stop looks for 11 more types (only market done and desert/adobe looks).
+- Animal homes pre-v3; hand-polish procedural yard pieces (`tools/bake_*_art.py`); AI-1 paused: P1 weak items (46 left), P2 flower heads 19, P3 odd-size UI 41 (`claude/handoff-ai1-art.md`).
+- Variety: before/after pictures for 9 pilot places; progress picture; stop header picture per adopt tier (`claude/todo-art-variety.md`).
+- Cat Fish lane E (pet shops open, unblocked): 55 `cf-pet-<key>.png`, 11 banners `banner-<code>-pets`, 11 shopkeeper busts, `pet_slots` in `room-layout.json`, event props. Lane F: moving side-cat nap/bored, eye pixels on catch/nap frames (`claude/todo-art-catfish.md`).
+- Method for AI art: `aseprite-source/v3/HANDOFF.md`, `ROLLOUT-STATE.md`; single Opus-medium pass per scene (see `claude/todo-art-v3.md` METHOD).
 
-## NOW (2.2.1, 2026-10-30): BUILT, now on main (merged with 2.2.2). Was on the work branch `ccr-b73ceb76-4mtdt1`. Slim + FULL + source zips in `releases/`. Joshua uploads (Admin > Update) and decides when main gets it.
-- **Shipped:** 137 new Pantry preserves (17 -> 154) + 16 Pomeroy recipes (156 total), 155+ new item icons; the Gourmand (Pomeroy Crumbworth), OFF; `give_item`/`item_quality` fix; Pantry/market balance (stale-cache preserve pricing + one-time reprice of six jars, stall rarity multiplier, preserve time curve, 5 recipes, `dried-*` filter); quick-jar spoon bars 42/49/55. SCHEMA change (additive, self-migrating): table `gourmand_ledger`, column `cook_pots.score`. Slim needs 2.2.0. Player news has ONE entry (Pantry recipes + fixes; nothing about Pomeroy).
-- **Docs:** `claude/plan-gourmand.md`, `decisions-gourmand.md`, `review-gourmand.md`, `review-gourmand-rewards.md`, `proposal-gourmand.md`, `balance-pantry.md`, `art-pantry-estimate.md`. Art specs: `aseprite-source/img-redraw-full/specs/ph/<slug>.md`.
-- **Turn the Gourmand on:** Admin > Settings, `gourmand_open` = 1. Players see Pomeroy only after playing through a region. Off = no menu, no news, no recipes shown to players.
-- **Tests (run ONE suite at a time, they share /tmp files):** see handoff.md "2.2.1" for the table. Known failures on the BASE commit too: `gather150`, `social100`, `catfish`, `folkoverlay`; the reset-install check fails on base. `pantry` is flaky when suites overlap.
-- **NEXT (Joshua picks):**
-  1. Optional Brewroot calling task for Pomeroy (skipped so the feature stays invisible while off).
-  2. Still-weak 16 px art, left unchanged: tamarind-chutney, tahini, candied-chestnuts, natto, doenjang, radish-kimchi, cured-olives, pickled-bamboo-shoots, palusami, bean-tamales, hibiscus-cordial.
-  3. 14 art banners and the camp sprite were cut from P1 (not drawn).
-  4. MySQL CI job NOT run for these changes (new table + column); full CI list NOT re-run on the merged main.
-  5. `balance-pantry.md` still shows the old "never 3 spoons" jam row (the code now has the 42/49/55 bars).
-  6. Tests share fixed /tmp files (`images.sh` img-php.log, walk.html, walk-ck): parallel agents clobber each other. Give each suite its own TMPDIR/paths.
-  7. Cat Fish ideas from 2.2.x (scene events, short taps) are in `claude/plan-catfish-petshops.md`; the 2.1.x/2.2.0 todo blocks are in `todo-archive.md`.
+## 6. WATCH / SMALL
+- Trek map: open-zone walls flat grey; long walks enter from phone-window edge. (Community garden / My stall tabs wrap to two lines on a phone: looks fine.) Travel card "via X" truncates at 390px.
+- Friend watering duplicates garden water logic; nudge crops-ready approximate; SMTP untested live.
+- Test noise: (`beds`, `stops100`, `social100` pass as of 2.5.68); `cook.sh` map checks stale; `games2.sh` no payout test; `walk.sh` "INSTALL FAILED" flake under parallel runs.
+- Balance: week 1 ~8.5k earned vs ~7k sinks; days 1-3 flush; cosmetics have no level check; harvests ~73% of XP.
 
+## 7. PARKED (Josh: not now)
+Combat intent/Guard, KO cost on road fights, Inbox, test environment, growing villages, caravans, more festivals, Duck Pond animal.
 
-## NOW (2.0.94, 2026-10-29): My Gnome home page. Built, slim zip in `releases/`, on main. Joshua uploads.
-- **Done:** index.php redirects players to gnome.php (`?today=1` keeps Today); login goes to gnome.php; My Gnome tabs load in place (`main nav.gvtabs a` in site.js).
-- **Joshua to check (phone, dark):** tabs swap without reload and Back/forward work; Today link reachable; logo/Home link lands on My Gnome; welcome-back page still first after days away.
-- **Maybe:** rename "Today" labels if My Gnome is now "Home"; tests that expect `index.php` Today for logged-in players (`tests/*.sh`) not re-run, check CI.
-
-## NOW (2.0.93, 2026-10-29): Cat Fish. Built, tested, OFF for players (`catfish_open`). 2.0.92 is on main with a slim zip; 2.0.93 (game clock) is on branch ccr-12f7bb05-4plve4, no zip yet.
-- **Art todo: `claude/catfish-art-brief.md`.** About 80 hand-drawn pieces (cat body 8 frames, 20 pattern overlays, ears/tail 8, fish + rod 6, room 5, 16 upgrade icons, 9 badges + 5 ribbons, 5 small UI). Colours are made by script. **The 3 style decisions are approved (2026-10-29):** ring-tinted cat eyes, palette-swap script for the 8 coats, layered cat PNGs. Art lands one piece at a time: `catfish_img()` shows `assets/img/catfish/cf-<kind>-<name>.png` when it exists, else the emoji.
-- **Art status:** drawn as test art in `aseprite-source/catfish/test/`; code is wired with fallbacks (rod, fish, icons, banner, room, Cat Book heads, layered cats). To switch on: `python3 tools/catfish_build_art.py --install` and review. Gaps: `claude/catfish-art-brief.md` "Known art gaps".
-- **Plan and state:** `claude/plan-catfish.md` (all four weeks ticked; Opus reviewed every week). Tests: `tests/catfish.sh` (182 checks, in CI). Balance sim: `claude/catfish-sim.php`.
-- **Time (done, 2.0.93):** Cat Fish days and weeks follow `game_timezone` (Halifax) via `catfish_today()` / `catfish_week()`; no UTC date maths (a test guards it).
-- **Open decisions (Joshua):** (1) Rare Shelter 2 + 3 swaps a day shows a legendary on about 42% of days: lower `CATFISH_REROLL_MAX`? (3) switch `catfish_open` on when ready; `catfish_petal_cap` default 100 a week.
-
-## NOW (2.0.88 BUILT 2026-10-29): Puzzle Pals. (SUPERSEDED in 2.2.2 to 2.2.4: finds are on the map, perks are 8/15/30%, level gate 15 is gone since 2.0.91; read the block above first. The rest of this block is history.) Version bumped, zips in `releases/` (slim needs 2.0.47+). Branch ccr-95ceb3bf-h5hdxf, NOT on main yet. All behind `ppal_open` / `ppal_party` (off; Joshua flips them).
-- **Built (code, steps 1 to 4):** `includes/puzzle_pals.php` (data, roster generator, art gate `ppal_art_ready`, release on Advanced solve via `ppal_on_solve`, Expert TROPHY + pal buff record, find lane `ppal_maybe_find`/`ppal_claim`, book queries, badges, `ppal_piece_html`), `puzzlepals.php` (Pal Book + hub card + Jigsaw pip + win-card text + profile shelf), find lane in `events.php` (`random_event_roll`, `ppal_lane`, box variant `ppalfind`), `PPAL_QUIET_PAGES` in layout.php, admin/tools.php "Test a pal find", schema `ppal_releases`/`ppal_found`/`ppal_trophies` + `users.ppal_*`, 7 settings "Puzzle Pals: ...". Tests `tests/puzzle_pals.sh` (in ci.yml DEFAULT_SUITES). Plans: `claude/plan-puzzle-pals.md`, `claude/plan-places-pals.md`.
-- **Step 4 BUILT (2026-10-29):** Take along (max `ppal_party_max` = 2 at gnome level 15+, Pal Book party strip + Take along / Swap / Send home), `ppal_perks` (gather, road, finder, tinker, bloom, shine; hooks in gathering.php, `gnome_combat($u, true)` for road/lair/delve only, games.php `games_pal_xp`, garden harvest luck, the find lane), `gnome_avatar_pals` (wrapper in includes/gnome.php; used at gnome, today, back, customise, sinks, town, profile, nav head, road fight cards), Expert-trophy buff = +1 perk unit per equipped pal of that picture. All behind `ppal_open` + `ppal_party` (0). Tests `tests/puzzle_pals.sh` + `tests/puzzle_pals_party.php`. Follower sticker stretch not built.
-- **Step 5 BUILT (2026-10-29):** Admin > Jigsaw > Pals tab (read only: 95 pictures, roster + art-ready, found/released/trophy counts, ppal_* settings, link to Test a pal find), `tests/jigsaw.sh` + `events.sh` extended, news entry + CHANGELOG 2.0.88, version bump, zips. Suites run: jigsaw, events, puzzle_pals pass (sqlite). Full CI list, upgrade check and MySQL NOT run.
-- **NOT in 2.0.88:** weekly Jigsaw Schedule tab (NOT started, moved later); follower sticker (not built); lair/delve art polish pending (draft-state sets); weak pals list is in the contact sheets (`claude/pals-sheets/`). The 2.0.88 news entry posts to players on upgrade even though pals stay off until `ppal_open` is flipped (drop it from `update_news.php` before shipping if that is unwanted).
-- **Pal art (UPDATE: all 570 pals drawn, 84 gallery + 486 Places; older note below), was 252 of 486 drawn (Opus, 64x64 stickers, `aseprite-source/pals/`):** 14 gallery pictures (84), 14 lairs (84), 14 delves (84). Contact sheets: `claude/pals-sheets/pals_all_{gallery,lair,delve}.png`. Scripts `pals_<set>.py` (gallery) and `pals_pl_<code>.py` (Places), helpers `palib.py`, lair parts `kit_lair.py`. Outputs `game/assets/img/puzzles/pals/<key>.png`. Re-run a set: `PAL_SHEET=<png> python3 -B aseprite-source/pals/pals_pl_<code>.py`. Checks: `tools/pal_unique_check.py`, `tools/lint_puzzle_pals.py`, `tools/dedupe_puzzle_pals.py`, `tools/pal_briefs.py --brief-kind <kind>`.
-- **Rosters:** `includes/data/puzzle_pals.txt` = 252 authored pals (14 gallery + 14 lair + 14 delve pictures x 6 = 3 common/2 uncommon/1 rare). Places haven (18) and wonder (35) are NOT authored: they would get generated names (`ppal_place_roster`) and have NO art, so they release nothing. Per `claude/plan-places-pals.md`: author them with Haiku draft + Opus review (see `claude/drafts/places_*_review.md` for the model and lessons), Joshua approves names BEFORE art, then Opus art 9 to 20 agents at once (Joshua allowed up to 20), unique pals (distinct colour/accessory/silhouette/face), mirror-symmetric blanks on Ring/Plus/hook pals (NO swastika/pinwheel read, Joshua rule), kit parts are blocks not pals. Cost about 45k to 135k tokens per place.
-- **Known art weak spots (Joshua may want polish passes):** gallery sets polished once (Opus low); lair and delve sets NOT polished yet (the delve run was killed by a container restart, 11 sets are draft-state). Per-set notes in the agent reports are summarised in `claude/handoff.md`.
-- **Decisions (Joshua 2026-10-28):** Expert (216) gives a trophy and a buff to that picture's pals if found; 6 per roster 3/2/1; finds 1 in 60 views, 30 min cooldown, 4/day; roster-complete reward cosmetic only; no trading/gifting; Places rosters authored (not generated), names reviewed first; follower sticker = stretch; art path: Opus draws, Sonnet codes/scripts, Haiku drafts rosters; art approved ("looks good") for gallery sets; every pal unique; pals are puzzle pieces, Treks have NO pals.
-
-## 2.0.87 (shipped, on main, zips in `releases/`): Jigsaw
-- Shipped: Jigsaw section (3 fixed tiers 24 / 96 / 216, 3:2 pictures), 14 region pictures (3-pass method), Places (81 unique-location scenes unlock on first visit; admins see all, players only what they unlocked), free-play bests, save and resume, tournaments + three-tier cups, Admin > Jigsaw, new cast art and icons, README screenshots (`bash tests/readme_shots.sh`). Changelog is the top entry. Plans: `claude/plan-jigsaw.md`, art process `claude/jigsaw-art-process.md`. OFF for players until Joshua sets `puzzles_open`, `jigsaw_open` (and `jigsaw_tournaments`) in Admin > Settings; admins see it now. Joshua playtested 2.0.87: looks OK.
-- Known gaps: Tidy button (rows) not built; `ico-piece` is a blob at 16 px and `jeff-piece` reads as a card at 38 px; `ico-piece`, `ico-cup`, `ico-jigsaw-box` exist but are not used anywhere yet; style-guide PDF not rebuilt (needs Chromium); `tests/emoji_icons.php` 1 failure and `landing` suite (stale 2.0.73 screenshots) fail on main too; upload hosts may need `uploads/jigsaw/` allowed and PHP `upload_max_filesize` above 3 MB; full CI list, upgrade check and MySQL not run for 2.0.87.
-- Earlier decisions: tier sizes 24 / 96 / 216; weekly Schedule tab is 2.0.88; Treks are standalone stories and get NO pals; party = 2 equipped pals, passive perks, shown wherever the gnome shows (gnome level 15+), no fighting pals; gallery pictures use the 3-pass method.
-
-## Earlier: what is done and approved
-- **Variety project, content (Joshua approved the road cards and the art, 2026-10-28):** build plans for 2 regions (2.0.76), themed stop upgrades + regional materials (2.0.77), villager overlay (2.0.77), stop activity kinds + 810 activities (2.0.78), road card kinds + Road Journal + 25 cards in every region (2.0.79 to 2.0.80), first-pass art for every variety placeholder (stage icons, 48 stop tiers, 11 folk, 810 activity scenes, road icons, 14 journal pictures). Plan: `claude/plan-variety.md`; art list and what is drawn: `claude/todo-art-variety.md`, `claude/todo-art-acts.md`.
-- **2.0.80/2.0.81 small fixes:** villager faces/names open the chat pop-over (Who's here, Orders, passport known list) with a "See full details" link; craft button text shows no raw tags; rest-stop daily cap 8 (migration `stopcap8` in `upgrade140.php`); stall above the activity cards, cards three across; shop card ink dark in both themes.
-- **2.0.82 / 2.0.84: popover art is animated (done, Joshua confirmed it plays).** Only inside the open activity popover (`dialog.isheet.dosheet[open]`), never on the page cards or shop-tile popovers. CSS motion (`gv-pop-bob/breathe/hop/wiggle/blink`, steps(), transform-only, inside `prefers-reduced-motion: no-preference`) covers every activity and the option icons incl. emoji in buttons. Real frame strips: `game/assets/img/acts/act-<slug>-anim.png` (6 frames of 144x108, 6fps) for all 829 scenes and `img/ico/ico-<name>-anim.png` (6 frames of 64x64) for 7 stat icons; `gvAnimArt()` in site.js plays them, `stop_act_anim()`/`anim_strip_attrs()` in PHP add `data-anim` (popover only, only when the file exists). Optional sidecar `<file>.png.json` `{frames,fps}`. Test: `tests/popart.sh` (in ci.yml DEFAULT_SUITES).
-- **Strip sources:** 15 hand-made in Aseprite (`aseprite-source/anim/*.aseprite`, scripts `animlib.lua`/`scenes.lua`/`icons.lua`, run `Aseprite.exe -b --script X`); the other 814 generated by `aseprite-source/anim/scripts/bulk.py` (Pillow+numpy, ~1 min, skips slugs with a pilot .aseprite; `bulk_verify.py` checks frame 1 == still, palette, 2px grid; `bulk_zoom.py` crops; README there). Never overwrite the 15 pilot strips.
-- Joshua still has to check on his phone: Road Journal pages in a few regions, a fork/riddle/trade/chain card, the 3-across activity cards, shop cards in dark mode.
-
-## NEXT (Joshua picks; suggested order)
-1. **Build plans for the other 12 regions** (`game/includes/data/build_plans.txt`, 4 stages per landmark, never the same 4 verbs twice in a region; tests in `tests/buildplans.sh`). 2 regions per release, Opus writers, review artifact for Joshua.
-2. **Leftover build verbs:** `befriend` (landmarks need stop folk first), `carry`, `trial`, `vigil`, `wait`, `decorate`; Admin > Build plans page (read-only list first); before/after pictures per place.
-3. **Stop acts:** `cookalong` / `tune` / `teach` / festival kinds; regional acts already done (35 per region). Review notes for the 691 acts on the review artifact are still to apply.
-4. **Road:** toll/beat/weather kinds (not built), a picture per sketch page (6 per region), "Birds of the Maplewold" style collection pages.
-5a. **Popover animation polish:** 11 scenes are glint-only (gnome hat not detected: night_fishing, r_sa_frost_potatoes, r_ea_snow_monkeys, r_na_toboggan, w2_ice_paddles, w3_politest_bow, w5_bathers_hats +4; list via `bulk.py --report`); generator does NOT animate flags/bunting/cloth, foliage/grass, water, sun/moon (best next effects); pilot eyes-icon blink is rough; closer look at multi-gnome scenes (r_csa_courtyard_ragas, r_na_stump_rings, r_na_toboggan); animate more icons than the 7 stats (wits etc.); full `ci_suites.sh` not run on 2.0.82-2.0.84 (only popart); hand-draw the most-seen scenes (kind fallbacks, w5) over the generated ones.
-5. **Art polish:** weakest drawn icons are listed in `claude/todo-art-variety.md` (trade, chain road icons). Stop header picture per adopt tier (not wired).
-6. **Puzzles etc. (older, see archive):** Snail Trail 3rd puzzle game, Jeff `tada` redo, guest-friendly treks, open Puzzles to players once checked.
-
-## Working notes
-- Waves: a writer subagent per region drafts into the scratchpad, lint (`tools/lint_road_events.py DRAFT claude/drafts/item_slugs.txt --region X --prefix x-`, `tools/lint_stop_acts.py`), then merge into the data file and fix the pack-count tests (`tests/roadlife.php`, `tests/roadkinds.php`).
-- Releases on Windows: `build_update.sh` breaks on a space in the repo path, a relative/unix output dir (MiKTeX zip) and CRLF in its file list. Run a patched copy (strip CR in the `while read` loop) with a space-free Windows-style out dir (e.g. `C:/Users/hello/gvzips`), then move the zips into `releases/`. Upstream may drop/redo a version number: `git fetch` first.
-- Releases: `bash tests/build_update.sh <ver> 2.0.47 /home/user/gnome-venture/releases`, keep latest 4 versions in `releases/`, older to `releases/archive/`. The web updater skips a zip whose version is already installed: never rebuild a zip under the same version, bump instead (2.0.80 to 2.0.81 lesson).
-- Push main = `git push origin HEAD:main`, only on Joshua's word. Do not push `git status` clean-ups of old branches without asking (see `claude/branches.md`).
-- `choice_row()` escapes its text: pass plain text, never HTML.
-- Anchors with `color: inherit` inside felt cards pick up the light page text on dark: use `--gx-felt-ink`.
-
-## Explore: next (from `claude/explore-review.md`; 1-5, 7, 10 done)
-- Region packs for the other 11 regions. 6 traces of other players, 9 festival/goal chips, 11 calling/animal lines, 12 delve room text, 8 Tales.
-- Also: road_lines admin editor (draft status like trek text); 146 villages share 9 descriptions; 4 stop personalities lack chat lines; Haven text promises shops that don't exist; tundra thin.
-
-## Treks: next
-- Scenes next: Gloomtooth intro, Sorrel's door, signpost riddle as pop-overs (need speaker-tagged text); gnome reply lines are drafts.
-- II-b watch: only 2 new crew moments. Road data files have no admin editor (road roll % settings done 2.0.16).
-- Not built: Ch III-b to VI, Thorny/Bramble, respec, Lanternroot real crop, hats/stamp/trophy, trailmates 8 (4-7 built).
-
-
-## Next (ideas, Joshua picks)
-- No-typing social: preset postcards; follow a friend's trail; seed lineage.
-- How-to-play "Folk & friendship" title still says Folk (title is DB key in ensure_almanac_howto; needs guarded migration).
-- Satchel split stacks by quality; then turn `orders_food_quality` back on.
-- Crops lose money on bought seed (radish sells ~4, seed 8-13). Look at seed price / yield / sell %. Quick option: `price_base_pct` 60 → 70.
-- Later: cPanel cron for reminder emails; test site /testvault/ (code ready, skipped).
-
-## Small / watch
-- `walk_scene` row is deleted when a delve ends, so delve completion is not recorded anywhere; the plan's gate after the maps has no data source until a count is added (Usage has no map line).
-- Trek map: open-zone walls flat grey; long walks enter from phone-window edge.
-- "Community garden" tab wraps on phone. Sign/skin Buy buttons small.
-- Friend watering duplicates garden water logic. Nudge crops-ready approximate; SMTP untested live.
-- Seasons + hammer nav icons roughest.
-- Travel card "via X" truncates at 390px with long names.
-- Test noise: social100 2 FAIL on pristine (mid-tour); cook.sh map checks stale; games2.sh doesn't test payouts; walk.sh "INSTALL FAILED" flake under parallel runs.
-- Balance (audit 2026-10-17): week 1 ~8.5k earned vs ~7k sinks (mild). Days 1-3 flush. Cosmetics no level check. Harvests ~73% of XP.
-- MySQL watch: trek_ms table (1.8.9, untested on MySQL), trek_flag_set duplicate-insert catch on InnoDB.
-
-## Parked (Joshua said not now)
-- Combat intent/Guard, KO cost on road fights. Inbox. Test environment.
-- Growing villages · caravans · more festivals · Duck Pond animal.
-
-## Art
-- Placeholders game/assets/img/ph/*.svg, palette ph/palette.json, guide = "Gnome Venture Art Guide" artifact.
-- Names: `{item-slug}`, `creature-{slug}`, `npc-{slug}` (400×500), `{building}-{1..3}`, `{building}-{mossy|painted|lantern}`, `{fence}-{end|straight|corner|tee|cross|gate}`, `tile-{...}`, `stage-{kind}-{1..4}`, `land-{...}`, `banner-{code}`, `hat-{calling}`, `lm-{haven|wonder|delve|lair}`, `logo`, `nav-{gnome|almanac|satchel|crafting|garden|arranging|world|town|villagers|seasons|passport|games|trading|together|tasks|friends|account|today|festival|start|feedback|treks}`.
-- Trek art needed: creature-{slug} for trek creatures (Ch I + Ch II incl. Silverfin), npc for Sorrel Inkcap + innkeeper (name TBD).
-
+## 8. WORKING NOTES
+- STANDING RULE (Josh, 2026-11-05): after every change or release, update this todo.md, and handoff.md if needed, before ending the turn.
+- Playwright test method: throwaway SQLite install (copy `game/`, delete `data/`, run `tests/walk.sh`, `php -S` with `tests/router.php`); unique `PORT_BASE` per suite run; session cookie `garden_sess`; touch drag via CDP `Input.dispatchTouchEvent`.
+- Waves: writer subagent per region drafts into scratchpad, lint (`tools/lint_road_events.py`, `tools/lint_stop_acts.py`), merge, fix pack-count tests (`tests/roadlife.php`, `tests/roadkinds.php`).
+- CSP: no inline styles. `choice_row()` escapes text: pass plain text. Anchors with `color: inherit` in felt cards: use `--gx-felt-ink`.
+- Windows release builds: `build_update.sh` breaks on spaces, relative output dir, CRLF; use a space-free out dir.
+- Branch hygiene: see `claude/branches.md`; do not clean old branches without asking.
+- Icons: emoji are swapped for drawn icons by `ico_swap` (e.g. 🪙 shows as the petal). JS must not overwrite icon markup; change only text nodes.

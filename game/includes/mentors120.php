@@ -209,7 +209,7 @@ function mentors120_request(array $u, int $mentorId): array
         catch (PDOException $e) { return [false, 'Your request is already waiting.']; }
     }
     require_once __DIR__ . '/trade.php';
-    notify($mentorId, '🎓 ' . gnome_name($u) . ' (level ' . (int)$u['level'] . ') asks you to be their mentor. Answer under Gnome friends → Gnome mentor.');
+    notify($mentorId, '🎓 ' . gnome_name($u) . ' (level ' . (int)$u['level'] . ') asks you to be their mentor. Answer under Friends → Gnome mentor.');
     return [true, '🎓 Request sent to ' . $name . '.'];
 }
 

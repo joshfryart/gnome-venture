@@ -151,12 +151,6 @@ function social100_schema(string $PK, string $ID, string $END): array
     return [$t, $i, $c];
 }
 
-/** Hollow date (Y-m-d) of a UTC 'Y-m-d H:i:s' string. */
-function social_hollow_day(?string $utc): string
-{
-    return $utc ? hollow_date('Y-m-d', (int)strtotime($utc . ' UTC')) : '';
-}
-
 /** A gnome's name for other gnomes, or null if they are gone or in a time-out. */
 function social_name(int $uid): ?string
 {

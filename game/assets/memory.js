@@ -4,39 +4,10 @@
    you win, and it stops a fast second tap from turning into a full page reload while the first is still being sent. */
 (function () {
   'use strict';
-  var rmq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  var rmq = window.gvFx.rmq;
   var prev = null;   // what the last board looked like: { total, up:{i:1}, matched:{i:1} }
 
-  function burst(x, y, kind, n) {
-    if (rmq.matches) return;
-    for (var i = 0; i < n; i++) {
-      var p = document.createElement('span');
-      p.className = 'dirtbit ' + kind;
-      var a = Math.random() * Math.PI * 2, d = 16 + Math.random() * 24;
-      p.style.left = x + 'px'; p.style.top = y + 'px';
-      p.style.setProperty('--dx', Math.round(Math.cos(a) * d) + 'px');
-      p.style.setProperty('--dy', Math.round(Math.sin(a) * d - 14) + 'px');
-      p.style.setProperty('--sz', (4 + Math.random() * 4).toFixed(1) + 'px');
-      document.body.appendChild(p);
-      setTimeout(function (q) { return function () { if (q.parentNode) q.parentNode.removeChild(q); }; }(p), 800);
-    }
-  }
-  function centre(el) { var r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
-
-  function petals() {
-    if (rmq.matches) return;
-    for (var i = 0; i < 34; i++) {
-      var p = document.createElement('span');
-      p.className = 'petal p' + (i % 4);
-      p.style.setProperty('--x', Math.round(Math.random() * 100) + 'vw');
-      p.style.setProperty('--dx', Math.round(Math.random() * 120 - 60) + 'px');
-      p.style.setProperty('--r', Math.round(240 + Math.random() * 420) + 'deg');
-      p.style.setProperty('--t', (2.2 + Math.random() * 1.6).toFixed(2) + 's');
-      p.style.setProperty('--dl', (Math.random() * 0.7).toFixed(2) + 's');
-      document.body.appendChild(p);
-      setTimeout(function (q) { return function () { if (q.parentNode) q.parentNode.removeChild(q); }; }(p), 4600);
-    }
-  }
+  var burst = window.gvFx.burst, petals = window.gvFx.petals;
 
   function init(board) {
     board.classList.add('on');
@@ -55,7 +26,7 @@
         if (isNew && !rmq.matches) c.classList.add('flipin');
         if (same && c.classList.contains('matched') && !prev.matched[i]) {
           c.classList.add('settle');
-          setTimeout(function () { if (!c.isConnected) return; var m = centre(c); burst(m[0], m[1], 'leaf', 7); }, 420);
+          setTimeout(function () { if (!c.isConnected) return; var m = window.gvFx.centre(c); burst(m[0], m[1], 'leaf', 7); }, 420);
         }
       } else if (same && prev.up[i] && !rmq.matches) {
         c.classList.add('flipback');   // a miss turning back over
@@ -71,7 +42,7 @@
       board.setAttribute('data-wait', '1'); guard = Date.now();
       board.classList.add('turning');
       b.classList.add('pressed');
-      var c = centre(b);
+      var c = window.gvFx.centre(b);
       burst(c[0], c[1], 'leaf', 3);
     });
   }

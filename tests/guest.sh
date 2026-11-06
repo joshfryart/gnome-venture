@@ -86,5 +86,11 @@ dbx "UPDATE users SET last_seen = datetime('now', '-30 hours') WHERE id = $GOLD"
 ok "an idle guest is sent away" "$(code -b $W/g1 $BASE/garden.php)" 302
 ok "the idle guest row is gone" "$(dbv "SELECT COUNT(*) FROM users WHERE id = $GOLD")" 0
 ok "no rows left in any table for it" "$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $id='$GOLD'; $cols=["user_id","from_id","to_id","seller_id","mentor_id","taker_id","friend_id","poster_id","owner_id","author_id","sender_id","recipient_id"]; $n=0; foreach($p->query("SELECT name FROM sqlite_master WHERE type=\"table\" AND name NOT LIKE \"sqlite_%\" AND name<>\"users\"")->fetchAll(PDO::FETCH_COLUMN) as $t){ foreach($p->query("PRAGMA table_info($t)") as $c){ if(in_array($c["name"],$cols)) $n+=(int)$p->query("SELECT COUNT(*) FROM $t WHERE {$c["name"]} = $id")->fetchColumn(); } } echo $n;')" 0
+# v2.4.71: expired guests are swept by ANY page load (an anonymous visitor too), not only when a guest loads a page
+dbx "DELETE FROM login_attempts"; newguest $W/g9 >/dev/null
+GOLD2=$(dbv "SELECT id FROM users WHERE guest = 1 ORDER BY id LIMIT 1")
+dbx "UPDATE users SET last_seen = datetime('now', '-30 hours') WHERE id = $GOLD2"; setg guest_last_sweep 0
+code $BASE/login.php >/dev/null
+ok "an expired guest is swept by an anonymous page load" "$(dbv "SELECT COUNT(*) FROM users WHERE id = $GOLD2")" 0
 ok "admin usage page shows guests" "$(rm -f $W/a; curl -s -c $W/a -b $W/a $BASE/login.php > $W/l.html; curl -s -c $W/a -b $W/a -o /dev/null -X POST $BASE/login.php --data-urlencode "csrf=$(csrf $W/l.html)" -d username=admin --data-urlencode 'password=TestPassword123'; curl -s -b $W/a $BASE/admin/usage.php | grep -c 'Guest gardens')" 1
 setg guest_open 0

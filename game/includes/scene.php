@@ -151,8 +151,8 @@ function gnome_stage_ico(array $u): string
 }
 
 /** v2.0.43: the Adventure stage: your gnome on the land's scene, and the creature opposite in a fight. */
-function adventure_stage_html(array $u, array $exp, array $scene, ?array $enc): string
-{
+function adventure_stage_html(array $u, array $exp, array $scene, ?array $enc, string $bgKind = 'stage', string $id = 'advstage'): string
+{   // $bgKind 'fight' = the battle backdrop of the encounter popover (scenes/fight-<land>.png, else fight-generic.png, else a drawn colour)
     require_once __DIR__ . '/items.php';
     $land = (string)($scene['land'] ?? 'grassland');
     $fight = $enc && ($enc['type'] ?? '') === 'creature';
@@ -181,7 +181,12 @@ function adventure_stage_html(array $u, array $exp, array $scene, ?array $enc): 
     // v2.0.67: the picture follows today's weather and the time of day (scene_stage_key); the fallback colours stay the plain land
     $we = scene_stage_weather($u, $scene);
     $dp = function_exists('hollow_daypart') ? hollow_daypart() : 'day';
-    return scene_stage('stage', scene_stage_key($land, $we, $dp), $units, 'advstage', $land, ['dp' => $dp, 'we' => $we, 'baked' => scene_stage_baked($land, $we, $dp)]);
+    if ($bgKind === 'fight') $fk = scene_path('fight', $land) !== '' ? $land : (['forest' => 'wood', 'rainforest' => 'wood', 'wetland' => 'wood', 'delve' => 'dark', 'lair' => 'dark', 'cave' => 'dark', 'underground' => 'dark', 'grassland' => 'open', 'desert' => 'open', 'coast' => 'open', 'island' => 'open', 'mountain' => 'open', 'tundra' => 'open'][strtolower($land)] ?? 'generic');   // v2.5.34: three backdrops (open, wood, dark) for every land
+    if ($bgKind === 'fight') {
+        if (scene_path('fight', $fk) === '') $fk = 'generic';
+        return scene_stage('fight', $fk, $units, $id, $land, ['dp' => $dp, 'baked' => true]);
+    }
+    return scene_stage('stage', scene_stage_key($land, $we, $dp), $units, $id, $land, ['dp' => $dp, 'we' => $we, 'baked' => scene_stage_baked($land, $we, $dp)]);
 }
 
 /**
@@ -216,13 +221,6 @@ function scene_shop_key(array $shop): string
         if ($k !== '' && scene_path('shop', $k) !== '') return $k;
     }
     return '';
-}
-
-/** A shop's banner/interior strip (old 4:1 banner; shop.php now shows the interior in its place header). '' if none is drawn. */
-function scene_shop_banner(array $shop): string
-{
-    $k = scene_shop_key($shop);
-    return $k !== '' ? '<div class="scene-bannerwrap">' . scene_banner($k, (string)($shop['name'] ?? ''), 'shop') . '</div>' : '';
 }
 
 /** Which of the six home interiors a villager has (stable per villager). */

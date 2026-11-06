@@ -1,0 +1,227 @@
+# Delve chambers for Anaconda Hollows (anaconda-hollows): 25 terrain chambers (6 of size 3, 14 of size 5, 5 of size 6).
+# Terrain only: no objects. # wall, . floor, , reed-rough floor, W creek water.
+# Shape language: sinuous S-curves, coils and long thin winding corridors, with a creek cutting across or along.
+
+# --- size 3 ---
+
+@anaconda-hollows/creek_bend_post
+size: 3
+tags: wet,creek,bend,tight
+.W#
+.W.
+,.,
+
+@anaconda-hollows/splash_horseshoe
+size: 3
+tags: wet,horseshoe,splash,open
+.#.
+W.W
+.W.
+
+@anaconda-hollows/diagonal_ford
+size: 3
+tags: wet,ford,diagonal,corner
+,W.
+.W#
+..W
+
+@anaconda-hollows/throat_tee
+size: 3
+tags: wet,throat,tee,tight
+#W#
+.W.
+#.#
+
+@anaconda-hollows/zig_creek_s
+size: 3
+tags: wet,zigzag,s-bend,winding
+..#
+W#.
+W..
+
+@anaconda-hollows/ford_pinch
+size: 3
+tags: reed,pinch,ford,band
+,,,
+#W#
+,,,
+
+# --- size 5 ---
+
+@anaconda-hollows/coil_spiral_creek
+size: 5
+tags: wet,coil,spiral,hero,tight
+.....
+.###.
+.#W#.
+.#WW.
+.###.
+
+@anaconda-hollows/serpent_creek_z
+size: 5
+tags: wet,serpent,zigzag,hero,reed
+..WW.
+###W#
+#WWW#
+#.###
+,,,,,
+
+@anaconda-hollows/split_creek_fork
+size: 5
+tags: wet,fork,channel,reed
+,,,,,
+,#W#,
+,#W#,
+,#W#,
+,,,,,
+
+@anaconda-hollows/winding_hollow_log
+size: 5
+tags: dry,hollow-log,tunnel,winding,tight
+...##
+##.##
+,WW..
+.##.#
+.##..
+
+@anaconda-hollows/reed_creek_braid
+size: 5
+tags: wet,braid,reed,rough,open
+,,WW.
+.#,W,
+,,W,.
+.W#,,
+,.W,.
+
+@anaconda-hollows/switchback_creek
+size: 5
+tags: wet,switchback,corridor,bend
+.W...
+.W###
+...W.
+###W.
+...W.
+
+@anaconda-hollows/confluence_cross
+size: 5
+tags: wet,cross,confluence,hero,open
+,.W.,
+#.W.#
+WWWWW
+#.W.#
+,.W.,
+
+@anaconda-hollows/muddy_bank_steps
+size: 5
+tags: mud,bank,steps,reed,rough
+,,,,.
+,###.
+,,W#.
+.###.
+.,,,,
+
+@anaconda-hollows/tight_zigzag_bog
+size: 5
+tags: wet,zigzag,bog,tight,winding
+.#.W.
+.#.#.
+W..#.
+#.##.
+..W..
+
+@anaconda-hollows/hairpin_bend_creek
+size: 5
+tags: wet,hairpin,bend,corridor
+.,,W.
+.###W
+.,,W.
+W###.
+W,,,.
+
+@anaconda-hollows/reed_throat_pinch
+size: 5
+tags: reed,throat,pinch,creek,medium
+#,,,#
+,#W,,
+,.W.,
+,,W#,
+#,,,#
+
+@anaconda-hollows/braided_fords
+size: 5
+tags: wet,braid,ford,open,rough
+.W.,.
+.W#W.
+,.W..
+#W.W,
+,.,.W
+
+@anaconda-hollows/diagonal_spine
+size: 5
+tags: wet,diagonal,spine,gap,medium
+,,W,#
+.,W#,
+.,.,.
+.#.W.
+#,,,.
+
+@anaconda-hollows/eel_crossing
+size: 5
+tags: wet,crossing,eel,lattice-free,open
+.,W,.
+.W.#.
+W.W.W
+.#.W.
+.,W,.
+
+# --- size 6 ---
+
+@anaconda-hollows/figure_eight_rings
+size: 6
+tags: wet,figure-eight,hero,rings,medium
+.W.###
+.#.###
+.W..W.
+###.#W
+###...
+######
+
+@anaconda-hollows/hourglass_waist_creek
+size: 6
+tags: wet,hourglass,hero,waist,pinch
+......
+#....#
+##W.##
+##.W##
+#....#
+......
+
+@anaconda-hollows/serpent_long_creek
+size: 6
+tags: wet,serpent,hero,long,winding
+.WW..#
+####W#
+#.WW.#
+#W####
+#.....
+######
+
+@anaconda-hollows/spiral_coil_creek
+size: 6
+tags: wet,spiral,coil,hero,tight
+......
+#####.
+#.WW#.
+#.###.
+#..W..
+######
+
+@anaconda-hollows/bank_creek_meander
+size: 6
+tags: wet,bank,meander,open,creek-edge
+W.....
+W####.
+W.....
+W#.#..
+W.,,,.
+W.....

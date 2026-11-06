@@ -4,7 +4,7 @@ $_SERVER['REQUEST_METHOD']='GET'; $_SERVER['HTTP_HOST']='x'; $_SERVER['REQUEST_U
 require 'includes/bootstrap.php'; require 'includes/garden_logic.php'; require_once 'includes/items.php';
 $IL = item_lookups();
 $S = fn($k) => (int)setting($k);
-echo "settings: bed_add_cost=", $S('bed_add_cost'), " land_deed_cost=", $S('land_deed_cost'), " start_plot=", $S('starting_plot_size'), " max_plot=", $S('max_plot_size'), " seed_save=", $S('seed_save_chance'), "\n";
+echo "settings: bed_add_cost=", $S('bed_add_cost'), " bed_add_growth_pct=", $S('bed_add_growth_pct'), " land_deed_cost=", $S('land_deed_cost'), " start_plot=", $S('starting_plot_size'), " max_plot=", $S('max_plot_size'), " seed_save=", $S('seed_save_chance'), "\n";
 $rows = [];
 foreach (q('SELECT p.*, si.base_price AS seedp, pi.id AS pid, pi.name AS pname, pi.slug AS pslug, pi.base_price AS prodbase, pi.category AS pcat, pi.effects, pi.rarity FROM plants p JOIN items si ON si.id = p.seed_item_id JOIN items pi ON pi.id = p.produce_item_id')->fetchAll() as $p) {
     if ($p['kind'] === 'cover') continue;
@@ -124,3 +124,39 @@ foreach ([10, 17, 20, 23, 26, 29, 32, 35] as $lv) {
     $lvls = array_count_values(array_map(fn($c) => (int)$c['level'], $pool)); ksort($lvls);
     echo "  lv$lv: ", $pool ? count($pool) . ' creatures, levels ' . implode(',', array_keys($lvls)) : 'NONE → falls back to any creature up to lv' . ($lv + 2) . ' (including level 1s)', "\n";
 }
+
+// v2.5.49: walks. A timer walk costs route_energy() (max(1, steps/3)) and rolls the creature band on each space; a tile walk (gnav_tiles) costs
+// gnav_enter_energy ONCE to step on, sections are free, fights are random encounters on the tiles walked (trail_encounter_index) plus one event between
+// sections (60% of them roll like a space). Both modes are computed whatever the flag is, so gnav_enter_energy can be judged before the flag goes on.
+echo "\nWalks: energy and fights per walk, timer vs tile walk (gnav_tiles=", setting('gnav_tiles'), ", gnav_enter_energy=", $S('gnav_enter_energy'), ")\n";
+require_once 'includes/tilemap.php'; require_once 'includes/trail_art.php'; require_once 'includes/trail_tiles.php';
+$enter = max(0, $S('gnav_enter_energy'));
+$rb = function_exists('road_roll_bands') ? road_roll_bands() : ['creature' => 40, 'total' => 100];
+$pCreature = $rb['creature'] / max(1, $rb['total']);
+$byStep = [];
+foreach (q("SELECT id, steps, kind FROM routes")->fetchAll() as $rt) $byStep[(int)$rt['steps']][] = $rt;
+ksort($byStep);
+$sectionFights = function (int $seedId, int $sec): float {   // fights per section: walk the shortest path entry -> exit, 3000 rolls
+    [$map] = trail_map_make($seedId . '|1|1|' . $sec);
+    $en = $map['entry']; $ex = $map['spots']['9'] ?? null;
+    if (!$en || !$ex) return 0.0;
+    $path = tm_path($map, $en[0], $en[1], $ex[0], $ex[1]);
+    $sum = 0;
+    for ($i = 0; $i < 3000; $i++) { [, , $f] = trail_encounter_index($map, $path, 0, 0); $sum += $f; }
+    return $sum / 3000;
+};
+printf("  %-6s %6s %9s %9s %12s %12s\n", 'steps', 'routes', 'timer E', 'tile E', 'timer fights', 'tile fights');
+$tot = [0, 0, 0, 0, 0];
+foreach ($byStep as $steps => $list) {
+    $te = max(1, intdiv($steps, 3));
+    $tf = $steps * $pCreature;
+    $secF = 0; for ($s = 0; $s < $steps; $s++) $secF += $sectionFights(900000 + $steps, $s);   // the random-map generator stands in for the 2-5 section average
+    $nf = $secF + max(0, $steps - 1) * 0.6 * $pCreature;
+    printf("  %-6d %6d %9d %9d %12.2f %12.2f\n", $steps, count($list), $te, $enter, $tf, $nf);
+    $n = count($list); $tot[0] += $n; $tot[1] += $te * $n; $tot[2] += $enter * $n; $tot[3] += $tf * $n; $tot[4] += $nf * $n;
+}
+$N = max(1, $tot[0]);
+printf("  all %d routes: mean energy timer %.2f vs tile %.2f; mean fights timer %.2f vs tile %.2f\n", $tot[0], $tot[1] / $N, $tot[2] / $N, $tot[3] / $N, $tot[4] / $N);
+$regenH = 60 / max(1, $S('energy_regen_minutes'));
+printf("  at %dE/h regen: %.0f tile walks/h vs %.0f timer walks/h (mean route); a tile walk is not paced by a timer, so energy is its only brake\n",
+    $regenH, $regenH / max(0.01, $enter), $regenH / max(0.01, $tot[1] / $N));

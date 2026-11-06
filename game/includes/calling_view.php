@@ -28,6 +28,58 @@ function calling_reward_text(array $ch): string
     return implode(', ', $bits);
 }
 
+/** Next version: the chapter of this gnome's calling that is on offer and not taken yet: [chapter, calling_status()] or null. */
+function calling_offered(array $u): ?array
+{
+    if (empty($u['calling']) || setting('calling_quests') !== '1' || !isset(CALLINGS[$u['calling']]) || !empty($u['calling_chapter'])) return null;
+    $next = calling_next_chapter($u);
+    if (!$next) return null;
+    $st = calling_status($u, $next);
+    return $st['state'] === 'available' ? [$next, $st] : null;
+}
+
+/** Next version: the state badge of a chapter card: Active, Not started, Finished or Locked. */
+function calling_state_badge(string $state): string
+{
+    return match ($state) {
+        'active' => '<span class="chip chip-in cbadge">▶ Active</span>',
+        'available' => '<span class="chip chip-off cbadge">⏳ Not started</span>',
+        'done' => '<span class="chip cbadge">✔ Finished</span>',
+        default => '<span class="chip cbadge">🔒 Locked</span>',
+    };
+}
+
+/**
+ * Next version: the block at the top of a chapter that is on offer but not taken yet (a player read "Visit Tumble Waymarsh to take it on"
+ * at the bottom of the card and wondered why "Reach 5 steps off the road" stayed at 0). Says plainly that it is not started and where to
+ * go, that event tasks count only once it is taken while state tasks show progress already, and offers the next step: the Take-it-on
+ * button when the mentor is here, else the free trip to the mentor when calling_mentor_trip_check() allows it, else why not (a place
+ * not walked to yet gets the hint only, so no undiscovered town is given away).
+ */
+function calling_start_block(array $u, array $ch, array $st, ?array $npc, bool $here): string
+{
+    $name = (string)($npc['name'] ?? 'your mentor');
+    $town = ($pl = calling_mentor_place((string)$ch['calling'])) ? (string)$pl['region']['gnomish_name'] : '';
+    $hid = csrf_field() . '<input type="hidden" name="ch" value="' . (int)$ch['id'] . '"><input type="hidden" name="m" value="' . e((string)($npc['slug'] ?? '')) . '">';
+    $h = '<div class="cstart" id="cstart-' . (int)$ch['id'] . '">'
+        . '<p class="cstart-head">' . calling_state_badge('available') . ' <b>Visit ' . e($name) . ($town !== '' ? ' in ' . e($town) : '') . ' to start.</b></p>';
+    if ($here) {
+        $h .= '<p>' . e($name) . ' is here.</p><form method="post" action="' . e(url('mentor.php')) . '"><input type="hidden" name="do" value="start">' . $hid
+            . '<button class="btn gold">📜 Take on this chapter</button></form>';
+    } else {
+        $why = calling_mentor_trip_check($u, $ch, $st);
+        if ($why === '') {
+            $h .= '<form method="post" action="' . e(url('mentor.php')) . '"><input type="hidden" name="do" value="trip">' . $hid
+                . '<button class="btn gold">🧭 Travel to ' . e($name) . ' (free)</button></form>'
+                . '<small class="muted">Free.</small>';
+        } else {
+            $h .= '<p class="help">📍 ' . e($why) . '</p>';
+        }
+    }
+    $h .= '<p class="help">⏳ = counts after you start.</p>';
+    return $h . '</div>';
+}
+
 /**
  * One chapter on the mentor's page. $here = the mentor is in the gnome's town right now (buttons work only then).
  */
@@ -38,12 +90,13 @@ function calling_chapter_box(array $u, array $ch, array $st, ?array $npc, bool $
     $field = fn(string $do) => csrf_field() . '<input type="hidden" name="do" value="' . $do . '"><input type="hidden" name="ch" value="' . (int)$ch['id'] . '"><input type="hidden" name="m" value="' . e((string)($npc['slug'] ?? '')) . '">';
     ?>
       <div class="box jdetail" id="chapter-<?= (int)$ch['id'] ?>">
-        <h3>📜 <?= e((string)$ch['title']) ?> <small class="muted">· <?= e($tier) ?> chapter</small></h3>
+        <h3>📜 <?= e((string)$ch['title']) ?> <small class="muted">· <?= e($tier) ?> chapter</small> <?= calling_state_badge((string)$st['state']) ?></h3>
+        <?php if ($st['state'] === 'available') echo calling_start_block($u, $ch, $st, $npc, $here); ?>
         <?php if ($st['state'] === 'locked'): ?>
           <p class="muted">🔒 <?= e((string)$st['why']) ?></p>
         <?php else: ?>
           <?php if ($st['state'] !== 'done'): ?>
-            <div class="jintro"><?php if ($npc): ?><a href="<?= e(url('folk.php?id=' . (int)$npc['id'])) ?>"><?= npc_portrait($npc, 'small') ?></a><?php endif; ?>
+            <div class="jintro"><?php if ($npc): ?><a href="<?= e(url('villagers.php?id=' . (int)$npc['id'])) ?>"><?= npc_portrait($npc, 'small') ?></a><?php endif; ?>
               <div class="ptext"><?= format_text((string)$ch['intro']) ?></div></div>
           <?php endif; ?>
           <ol class="jtasks">
@@ -51,7 +104,8 @@ function calling_chapter_box(array $u, array $ch, array $st, ?array $npc, bool $
               <li class="<?= $done ? 'done' : '' ?><?= $isGive ? ' stage' : '' ?>">
                 <span class="jtick"><?= $done ? '✅' : ($isGive ? '📦' : '⬜') ?></span>
                 <span class="jlabel"><?= e((string)$t['label']) ?><?php if (!$isGive && !$done && $tk['goal'] > 1): ?> <small class="muted">(<?= (int)$tk['now'] ?>/<?= (int)$tk['goal'] ?>)</small><?php endif; ?></span>
-                <?php if ($t['mode'] === 'state' && !$done && $st['state'] !== 'done'): ?><small class="jwhy">💡 Counts what you have done already, even before you took the chapter.</small><?php endif; ?>
+                
+                <?php if ($t['mode'] === 'event' && $st['state'] === 'available'): ?><small class="jwhy">⏳ After you start</small><?php endif; ?>
                 <?php if ($isGive && !$done && $st['state'] === 'active'):
                     $needs = journey_need_status($u, (string)$t['spec']); $ok = !array_filter($needs, fn($x) => $x[2] < $x[1]); ?>
                   <span class="jneeds"><?php foreach ($needs as [$label, $need, $have]): ?><span class="chip <?= $have >= $need ? 'good' : 'bad' ?>"><?= $have >= $need ? '✔' : '✖' ?> <?= e($label) ?>: <?= min($have, $need) ?>/<?= $need ?></span> <?php endforeach; ?></span>
@@ -68,8 +122,7 @@ function calling_chapter_box(array $u, array $ch, array $st, ?array $npc, bool $
           <?php if ($st['state'] === 'available'): ?>
             <?php if ($here): ?>
               <form method="post" action="<?= e(url('mentor.php')) ?>"><?= $field('start') ?><button class="btn gold">📜 Take on this chapter</button></form>
-            <?php else: ?><p class="help">📍 Visit <?= e((string)($npc['name'] ?? 'your mentor')) ?> to take it on.</p><?php endif; ?>
-            <p class="help">Tasks like harvests and crafts count from the moment you take the chapter. The ones that look at what you have already done tick at once.</p>
+            <?php else: ?><p class="help">📍 Not started: visit <?= e((string)($npc['name'] ?? 'your mentor')) ?> to start.</p><?php endif; ?>
           <?php elseif ($st['state'] === 'active' && $st['complete']): ?>
             <?php if ($here): ?>
               <form method="post" action="<?= e(url('mentor.php')) ?>"><?= $field('finish') ?><button class="btn gold">📜 Finish the chapter</button></form>
@@ -92,12 +145,13 @@ function calling_today_line(array $u): string
     if ($open) {
         $st = calling_status($u, $open);
         $n = count(array_filter($st['tasks'], fn($t) => $t['done']));
-        $flag = $st['complete'] ? ' · <b>ready to finish</b>' : ($st['work_done'] && $st['give_next'] ? ' · <b>ready to hand in</b>' : '');
-        return '<p class="todayfx"><a href="' . e($link) . '">📜 ' . e((string)$open['title']) . ': ' . $n . ' of ' . count($st['tasks']) . ' done' . $flag . '</a></p>';
+        $flag = $st['complete'] ? ' · <b>finish!</b>' : ($st['work_done'] && $st['give_next'] ? ' · <b>hand in</b>' : '');
+        return '<p class="todayfx"><a href="' . e($link) . '">📜 ' . e((string)$open['title']) . ': ' . $n . ' of ' . count($st['tasks']) . $flag . '</a></p>';
     }
     $next = calling_next_chapter($u);
     if ($next && (int)$u['level'] >= calling_level_for_tier((int)$next['tier']) && $mentor) {
-        return '<p class="todayfx"><a href="' . e($link) . '">📜 ' . e((string)$mentor['name']) . ' has a ' . e(strtolower(CALLING_TIER_LABELS[(int)$next['tier']] ?? '')) . ' chapter for you: ' . e((string)$next['title']) . '</a></p>';
+        $where = ($pl = calling_mentor_place((string)$u['calling'])) ? ' in ' . $pl['region']['gnomish_name'] : '';
+        return '<p class="todayfx"><a href="' . e($link) . '">📜 Visit ' . e((string)$mentor['name']) . e($where) . ' to start</a></p>';   // next version: fewest words (the header box is narrow on a phone)
     }
     return '';
 }
@@ -115,8 +169,14 @@ function calling_gnome_line(array $u): string
     if ($open) {
         $st = calling_status($u, $open);
         $n = count(array_filter($st['tasks'], fn($t) => $t['done']));
-        $h .= '<p>Chapter on the go: <b>' . e((string)$open['title']) . '</b> · ' . $n . ' of ' . count($st['tasks']) . ' tasks done'
+        $h .= '<p>' . calling_state_badge('active') . ' Chapter on the go: <b>' . e((string)$open['title']) . '</b> · ' . $n . ' of ' . count($st['tasks']) . ' tasks done'
             . ($st['complete'] ? ' · <b>ready to finish</b>' : '') . '.</p>';
+    } elseif ($off = calling_offered($u)) {   // next version: on offer, not taken: say so plainly, with the way there
+        [$next, $st] = $off;
+        $here = $mentor && npc_here($u, (int)$mentor['id']);
+        $h .= '<p>Next chapter: <b>' . e((string)$next['title']) . '</b> (' . e(CALLING_TIER_LABELS[(int)$next['tier']] ?? '') . ') · <a href="'
+            . e(url('mentor.php?m=' . ($mentor['slug'] ?? '') . '#chapter-' . (int)$next['id'])) . '">see its tasks →</a></p>'
+            . calling_start_block($u, $next, $st, $mentor, $here);
     } elseif ($qt >= 2) {
         $h .= '<p>Both chapters are finished. You are a Master.</p>';
     } else {

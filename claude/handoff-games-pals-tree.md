@@ -1,0 +1,31 @@
+# Handoff: Treehouse, Puzzle Pals, Pal Yard as pictures (Phase 5) + their art (2026-11-05)
+
+Repo `joshfryart/gnome-venture`, branch `ccr-0a395161-w8rs7y` (latest `3b8d5c0e`). Never push to `main`, no PRs unless Josh asks, do NOT change `APP_VERSION` or `CHANGELOG.md` (Josh releases). Josh wants short, exact replies. Original brief: `claude/prompt-games-pals-build.md`; plan: `claude/plan-graphical-nav.md` Phase 5 (10a/10b/10c).
+
+## State: built, tested, pushed. Everything is behind setting `gnav_tree` (default 0; needs `gnav_on`). Flag off = today's pages. Admins can always preview `treehouse.php` / `palyard.php`.
+
+## What exists (read these)
+- **Engine chrome** `game/includes/hub_scene.php`: opt-in `'chrome' => true` (only treehouse + yard use it; Here page untouched). `hub_hotspot_box()` (hit rect from layout `box`, else 56x56; centred tag; gold brackets on tap/focus/`.on`; shutters for `cls=locked`), `hub_sprite_chrome()` (src, else `crop`, else `sil`, else nothing; `away` = empty dashed perch + tag; `new` = sparkle; `bar` = progress rect; `collect` bubble), `hub_navbuttons()` (compass + globe, bottom-right, inside `.hubstage`), `dress` layers, `nav` cards. No circles anywhere. CSS block "Chrome picture pages" in `assets/style.css`; `assets/hubscene.js` adds `.on` on tap.
+- **Pages** `game/includes/hub_pages.php`: `treehouse_view()`, `yard_view()`, `hubp_nav()`, `treehouse_game_card()`, `treehouse_pal_pic()`, `treehouse_pal_card()`. Data: `includes/data/treehouse_rooms.php` (room => [label, emoji, game keys]; a new game = one word). `treehouse.php`, `palyard.php` are thin pages.
+- **Treehouse rules:** perch = pal's index in found order (append-only, never moves); party pal sits on layout `party` slots, not duplicated; pal on a job = empty perch + "away <time>"; sparkle via `hub_seen` (`found_at > seen_at`, or last 24 h if never seen); dressing at 5/10/20/40 pals from layout `dress`; 0 pals = hint; more than perches = "+N in the yard"; `ppal_open()` off or guest = pal parts hidden, games still shown; one `pj_pals` + one `ppal_found_map` per page. Pal popover POSTs to `puzzlepals.php` with `back=treehouse`.
+- **Yard:** `includes/pal_jobs_view.php` (NEW) holds the Pal Jobs markup as `pjv_ctx($u,'yard')`, `pjv_ledger`, `pjv_home`, `pjv_post($c,$kind)`; `paljobs.php` now uses it (output unchanged). Site popovers hold the REAL job forms; they post `back=palyard` and `paljobs.php` redirects back to `palyard.php` (only when `gnav_page_open('gnav_tree')`). `pj_*`, POSTs, caps, level gate untouched. `layout.php` loads `puzzles.css` + `paljobs.js` for `palyard.php`; the yard is wrapped in `.pjpage data-pj-now` so the countdown JS works.
+- **games.php:** with `gnav_on` + `gnav_tree` real flag it redirects to `treehouse.php`; `?view=list` = old tile grid (remembered per gnome via `hub_seen` scene `pref:gameslist`), `?view=tree` forgets it, `?from=treehouse` always returns to the picture, `?tab=contests` stays. Games' "← All games" links therefore return to the tree.
+- **Schema:** `includes/here_schema.php` adds table `hub_seen(user_id, scene, seen_at)` + `hub_seen_get/set/clear` (self-creating).
+- **Layouts** `includes/data/here_layouts.json` (`treehouse`, `yard`): `spots[{k,x,y,box}]`, `pals` (24 perches), `party`, `dress[{at,k,name,x,y,w,h}]`, `stand`, `compass_clear` [366,218,480,270]. `here_layout.php`: `here_hit_box()`, `here_compass_clear()`; lint now flags overlapping boxes and anything in the compass corner. The admin editor (`admin/here_layout.php`) preserves a spot's `box`; it does not edit `party`/`dress`/`compass_clear` (kept as is).
+- **Art (done, first pass):** `game/assets/img/scenes/tree-house.png`, `yard-pals.png`, `tree-dress-{rug,lights,telescope,banner}.png`. Sources: `aseprite-source/v3/tree-yard/` (`common.lua`, `treehouse.lua`, `yard.lua`, `dress.lua`, `*.layout.json`, `out/`). Run: `mkdir -p /tmp/aseq && cp aseprite-source/Aseprite_1.3.18.6-x64.AppImage /tmp/aseq/ && cd /tmp/aseq && chmod +x *.AppImage && ./Aseprite*.AppImage --appimage-extract`, then `/tmp/aseq/squashfs-root/AppRun -b --script-param out=<dir>/ --script treehouse.lua`. If the layout boxes/perches change, redraw to match. Schema documented at the bottom of `claude/art-brief-here.md`.
+- `tools/gen_here_placeholders.py` draws boxes/perches/party/dress/compass slots (squares, no circles) if you need placeholders again.
+
+## Tests (all green at hand-off)
+`tests/ci_suites.sh here paljobs pjobs puzzle_pals games2 games140 puzzles css_lint`, plus `php tools/lint_here.php`. New coverage lives in `tests/here.php` ("Phase 5" blocks: chrome rules, perches, sparkle, dressing, away/party, overflow, locked rooms, yard forms/Collect/sick bay, list pref) and `tests/here.sh` (flag off/on page checks, redirects, `back=palyard`). Baseline was green before the work. NOT run: MySQL, `upgrade_check.sh`, full CI, a real phone.
+
+## Open / next
+1. **Josh phone check (412 px, light + dark):** tap every room, pal and site; tags/brackets; compass + globe bottom-right (two 44 px buttons are a bit wider than 100x40 px, so the clear zone is 114x52 units); send a pal from a yard popover and land back on the yard; Back from a game returns to the tree. I only viewed one dark-theme treehouse screenshot and flat renders of the yard and layers.
+2. **Pal perch sprites not drawn** (pals use the sticker, then piece crop, then silhouette). Optional `assets/img/pals/<pal-key>.png`, ~36 px, feet bottom-centre.
+3. **Art polish:** single Opus-style pass, no fix round; no animation layers; rug now sits on the grass at (120,244) (Josh may want it elsewhere).
+4. **Known limits:** a removed pal key shifts later perches by one; no tournament-trophy art; `plan-graphical-nav.md` status line still says Phase 5 is "plan only" (update it); `claude/todo.md` has a NOW block for this work (add the art line).
+5. Release mechanics (version, CHANGELOG, zip, MySQL check) are Josh's.
+
+## Pitfalls
+- Don't rewrite `here_layouts.json` by hand-formatting: it round-trips with `json.dumps(indent=1, ensure_ascii=False)`.
+- Tests that need a DB run in a copy of `game/` via `tests/ci_suites.sh`; `walk.sh` installs player `sprout`.
+- Any new picture rule goes in the shared engine only behind `chrome`, so Here and the other scenes keep working.

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.3.2');
+define('APP_VERSION', '2.5.80');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -51,6 +51,7 @@ register_shutdown_function(function () {
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/inventory.php';   // inventory domain (give_item, unlock_entries, starter/home seeds)
+require_once __DIR__ . '/here_schema.php';   // graphical navigation flag helpers (gnav_on, gnav_start_here)
 require_once __DIR__ . '/upgrade100.php';   // v1.0.0: guarded upgrade steps
 require_once __DIR__ . '/social.php';   // v1.0.0 wave 3: settings, tables, the welcome-back note
 require_once __DIR__ . '/market100.php';   // v1.0.0 wave 2b: orders, market day, price drift
@@ -88,6 +89,21 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
         db_migrate(db(), (string)($CONFIG['db']['driver'] ?? 'mysql'));
         boot_step('energy_rescale_world', function () {
             energy_rescale_world();  // v0.7.23: older worlds' energy numbers (before new content is added in the new scale)
+        });
+        boot_step('kitchen_pots_2467', function () {   // v2.4.67: new default pots 3,4,5, only if the row still holds the old default
+            if (q_val("SELECT value FROM settings WHERE name = 'kitchen_pots'") === '2,3,4') set_setting('kitchen_pots', '3,4,5');
+        });
+        boot_step('cherry_2x2_2467', function () {   // v2.4.67: the Blossom Cherry grows to 2 x 2 like the oak and willow (placed ones stay 1 x 1 until placed again)
+            $it = q_one("SELECT id, effects, description FROM items WHERE slug = 'blossom-cherry'");
+            $fx = $it ? json_decode((string)$it['effects'], true) : null;
+            if (is_array($fx) && (int)($fx['decor']['w'] ?? 0) === 1 && (int)($fx['decor']['h'] ?? 0) === 1) {
+                $fx['decor']['w'] = 2; $fx['decor']['h'] = 2;
+                q('UPDATE items SET effects = ?, description = ? WHERE id = ?', [json_encode($fx, JSON_UNESCAPED_UNICODE), str_replace('Clouds of pink petals.', 'Clouds of pink petals, 2 × 2.', (string)$it['description']), (int)$it['id']]);
+            }
+        });
+        boot_step('xp_curve_2467', function () {   // v2.4.67: gentler climb, only where the row still holds the old default
+            if (q_val("SELECT value FROM settings WHERE name = 'xp_steep_percent'") === '20') set_setting('xp_steep_percent', '15');
+            if (q_val("SELECT value FROM settings WHERE name = 'xp_action_scale_percent'") === '5') set_setting('xp_action_scale_percent', '9');
         });
         boot_step('ensure_tools', function () {
             require_once __DIR__ . '/tools.php';
@@ -192,6 +208,7 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
         upgrade_163_run();                // v1.6.3: adopt-a-stop limit 3, worm colony 12 hours (upgrade163.php)
         require_once __DIR__ . '/upgrade170.php'; upgrade_170_run();   // v1.7.0: garden reactions become guestbook stamps
         require_once __DIR__ . '/upgrade193.php'; upgrade_193_run();   // v1.9.3: road life: weather problems, cond tags on problems, creatures, gatherables
+        require_once __DIR__ . '/upgrade249.php'; upgrade_249_run();   // after 2.4.89: bed growth 20%, Guess the Weight jackpot cap and growth (only old defaults)
         boot_step('ensure_lair_bosses', function () {
             require_once __DIR__ . '/landmarks.php';
             ensure_lair_bosses();    // each lair's own legendary creature (v0.7.26)
@@ -473,6 +490,18 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
             require_once __DIR__ . '/catfish.php';
             catfish_ensure();   // the catfish_items table (2.2.x room things)
             petshops_ensure();  // the 11 pet shops beside the regional markets (idempotent; the flag petshops220 is set once all 11 exist)
+        });
+        boot_step('haven_text_2571', function () {   // 2.5.71: haven text no longer promises specific goods; the seeder only inserts, so refresh the wording of the rows that already exist
+            require_once __DIR__ . '/catalog.php';
+            foreach (catalog_lines('landmarks.txt') as $row) {
+                if (count($row) < 5 || $row[2] !== 'haven') continue;
+                q('UPDATE landmarks SET description = ? WHERE kind = ? AND name = ? AND description <> ?', [$row[4], 'haven', $row[3], $row[4]]);
+                q("UPDATE locations SET description = ? WHERE kind = 'haven' AND name = ? AND description <> ?", [$row[4], $row[3], $row[4]]);
+            }
+        });
+        boot_step('living_stops_2572', function () {   // 2.5.72: the living-stops acts (thread, meter answers) join existing installs
+            require_once __DIR__ . '/stops.php';
+            stops_import_regional();
         });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';

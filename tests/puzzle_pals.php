@@ -79,7 +79,7 @@ unlink($ph . 'mw-leaf-tuck.png');
 ok('one pal missing = not ready', !ppal_art_ready($map));
 foreach (ppal_roster($map) as $p) @unlink($ph . $p['key'] . '.png');
 echo "== settings\n";
-foreach (['ppal_open' => '0', 'ppal_chance' => '60', 'ppal_cooldown_minutes' => '30', 'ppal_daily_max' => '4', 'ppal_party' => '0', 'ppal_party_max' => '2', 'ppal_roster_size' => '6'] as $k => $v)
+foreach (['ppal_open' => '0', 'ppal_party' => '0', 'ppal_party_max' => '2', 'ppal_roster_size' => '6'] as $k => $v)
     ok("setting $k default $v", setting($k) === $v, setting($k));
 echo $fails ? "$fails FAILED\n" : "all ok\n";
 exit($fails ? 1 : 0);

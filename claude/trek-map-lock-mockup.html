@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trek map-lock mockup v2 (reconciled with 2.4.63 battle layout)</title>
+<style>
+:root{--ink:#f1ead8;--bg:#2a1d12;--card:#3a2a1c;--line:#6a4f32;--accent:#e0a020;--danger:#e0603f;--ok:#8fbf5a;--muted:#b9a584}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.35 system-ui,sans-serif;background:#ddd;color:#222;display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px}
+.ctl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:760px}
+.ctl button{padding:6px 10px;border:1px solid #888;background:#fff;border-radius:6px;cursor:pointer}
+.ctl button.on{background:#333;color:#fff}
+.note{max-width:430px;font-size:13px;color:#444;text-align:center;min-height:54px}
+.phone{width:390px;height:800px;background:var(--bg);color:var(--ink);border:8px solid #111;border-radius:30px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+/* real app chrome: header on top, bottom nav at the bottom; the Trek area between them never scrolls */
+.app{height:48px;flex:none;display:flex;align-items:center;gap:8px;padding:0 10px;background:#4a3420;border-bottom:2px dashed var(--accent);font-weight:700}
+.app .sp{flex:1}.app .pill{background:#5a4128;padding:3px 8px;border-radius:6px;font-size:13px}
+.nav{height:56px;flex:none;display:flex;background:#4a3420;border-top:2px dashed var(--accent);font-size:11px;text-align:center}
+.nav div{flex:1;padding-top:8px;color:var(--muted)}.nav .on{color:var(--ink)}
+.trek{flex:1;min-height:0;position:relative;display:flex;flex-direction:column;gap:6px;padding:6px 8px}
+.hud{display:flex;gap:8px;align-items:center;font-size:13px;flex:none}
+.hud progress{width:44px;height:8px}.hud .sp{flex:1}
+.map{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;background:#000;border:3px solid #000;border-radius:8px;flex:none}
+.t{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:15px;background:#6b5a40}
+.t.w{background:#4a525c}.t.m{background:#4e3a27}.t.r{background:#3f5a2c}.t.f{background:#03050a}.t.s{background:#6a4030}
+.t.me{outline:3px solid var(--accent);outline-offset:-3px}.t.foe{animation:p 1s infinite}@keyframes p{50%{filter:brightness(1.5)}}
+.strip{flex:1;min-height:0;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;overflow:hidden;font-size:14px}
+.strip b{display:block}.mut{color:var(--muted);font-size:13px}
+.dock{display:flex;gap:6px;flex:none}
+.dock button{flex:1;min-height:44px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;font-size:14px}
+.dock button.pri{background:var(--accent);color:#2a1d12;font-weight:700}
+/* battle: scene, then the actions straight under it */
+.scene{height:150px;flex:none;border-radius:8px;border:2px solid #000;position:relative;overflow:hidden;background:linear-gradient(#f0dfb4 0 45%,#a8b86a 45% 60%,#8a6a44 60%)}
+.fig{position:absolute;bottom:18px;font-size:34px}.hp{position:absolute;height:6px;width:54px;background:#222;border-radius:3px;overflow:hidden}.hp i{display:block;height:100%;background:var(--danger)}.hp.y i{background:var(--ok)}
+.rnd{text-align:center;font-weight:700;font-size:16px;flex:none}
+.plan{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);flex:none}
+.go{min-height:48px;border:0;border-radius:8px;background:var(--accent);color:#2a1d12;font-weight:700;font-size:16px;flex:none}
+.mini{display:flex;gap:6px;flex:none}.mini button{flex:1;min-height:40px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px}
+.row2{display:flex;gap:8px;flex:1;min-height:0}
+.minimap{width:112px;flex:none;display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:#000;border:2px solid #000;border-radius:6px;align-self:flex-start}
+.minimap .t{font-size:10px}
+.row2 .strip{padding:6px 8px;font-size:13px}
+/* sheet: covers only the lower part, map or scene stays visible above */
+.sheet{position:absolute;left:0;right:0;bottom:0;height:46%;background:var(--card);border-top:2px solid var(--accent);border-radius:14px 14px 0 0;box-shadow:0 -6px 20px rgba(0,0,0,.5);transform:translateY(105%);transition:transform .2s;display:flex;flex-direction:column;z-index:5}
+.sheet.open{transform:none}
+.sheet header{display:flex;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);font-weight:700}
+.sheet header span{flex:1}.sheet header button{border:0;background:#5a4128;color:var(--ink);border-radius:6px;min-width:36px;min-height:32px}
+.sheet .body{padding:10px 12px;overflow:auto;flex:1;font-size:14px}
+.tabs{display:flex;gap:4px;padding:6px 12px 0}.tabs button{flex:1;padding:6px;border:1px solid var(--line);border-bottom:0;border-radius:6px 6px 0 0;background:#2a1d12;color:var(--ink)}.tabs button.on{background:var(--card);font-weight:700}
+.row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dotted var(--line)}
+.sbtn{display:grid;grid-template-columns:1fr 1fr;gap:6px}.sbtn button{min-height:44px;border:1px solid var(--line);background:#2a1d12;color:var(--ink);border-radius:8px}
+</style></head><body>
+<div class="ctl" id="ctl">
+ <button data-s="explore" class="on">1 Exploring</button><button data-s="spot">2 Spot card</button><button data-s="fight">3 Fight</button><button data-s="sheet">4 Party sheet</button><button data-s="log">5 Log sheet</button>
+</div>
+<div class="note" id="note"></div>
+<div class="phone">
+ <div class="app"><span>Gnome Venture</span><span class="sp"></span><span class="pill">⚡ 12/106</span><span class="pill">🪙 399</span></div>
+ <div class="trek" id="trek"></div>
+ <div class="nav"><div>🌱<br>Garden</div><div>🌍<br>World</div><div>👜<br>Satchel</div><div class="on">📍<br>Here</div><div>📋<br>Tasks</div><div>☰<br>More</div></div>
+ <div class="sheet" id="sheet"><div class="tabs" id="tabs"></div><header><span id="stitle"></span><button id="sx" aria-label="Close">✕</button></header><div class="body" id="sbody"></div></div>
+</div>
+<script>
+var L=['wwwwwwwww','wffffffrw','wfmrrrmfw','wfrfsfrfw','wfrrmrrfw','wmfrrrfmw','wffrsrffw','wfffrffrw','wwwwwwwww'];
+function tile(x,y,foe){var c=L[y][x],e='',k=c;if(x==4&&y==4){k+=' me';e='🧙'}if(foe&&x==5&&y==4){k+=' foe';e='🐛'}if(c=='s'&&!e)e='❗';return '<div class="t '+k+'">'+e+'</div>'}
+function map(foe){var h='';for(var y=0;y<9;y++)for(var x=0;x<9;x++)h+=tile(x,y,foe);return '<div class="map">'+h+'</div>'}
+function mini(){var h='';for(var y=2;y<7;y++)for(var x=2;x<7;x++)h+=tile(x,y,1);return '<div class="minimap" aria-label="Where it began">'+h+'</div>'}
+var HUD='<div class="hud"><span>🧙 Moss <progress value="8" max="10"></progress></span><span>🐿️ Pip <progress value="5" max="10"></progress></span><span class="sp"></span><span>😴 Tired 53</span></div>';
+function dock(a){return '<div class="dock">'+['🧭 Map','🧑‍🤝‍🧑 Party','🎒 Pack','📜 Log'].map(function(t,i){return '<button class="'+(i==a?'pri':'')+'">'+t+'</button>'}).join('')+'</div>'}
+var S={
+explore:{note:'Exploring: HUD line, the map at full width, a fixed-height strip, and the dock. Nothing above the map ever appears or disappears.',
+ html:HUD+map(0)+'<div class="strip"><b>Mossy Path</b>Tap a tile to walk. ❗ opens a card.<div class="mut">Last: You found a mushroom.</div></div>'+dock(0)},
+spot:{note:'A spot, event or milestone is a bottom sheet. The map stays in view above it and nothing behind it moves.',
+ html:HUD+map(0)+'<div class="strip"><b>Mossy Path</b>You are at a spot.</div>'+dock(0),
+ sheet:{t:'❗ The Wilting Gate',b:'<p>A gate hangs open. Something has chewed the roots.</p><div class="sbtn"><button>🔍 Look closer</button><button>⚔️ Hunt</button><button>⛺ Camp</button><button>↩ Leave</button></div>'}},
+fight:{note:'Fight (reconciled with 2.4.63): the scene carries the HP bars, so there are no health rows. Round heading and action buttons sit straight under the scene. The map shrinks to a 5x5 thumbnail so it is still on screen; "What happened" sits beside it. Party/Pack/Log stay in the dock.',
+ html:HUD+'<div class="scene"><span class="fig" style="left:30px">🧙</span><span class="hp y" style="left:22px;bottom:62px"><i style="width:80%"></i></span><span class="fig" style="right:90px">🐛</span><span class="hp" style="right:82px;bottom:62px"><i style="width:100%"></i></span><span class="fig" style="right:30px">🪱</span><span class="hp" style="right:22px;bottom:62px"><i style="width:100%"></i></span></div>'
+ +'<div class="rnd">⚔️ Round 1</div><div class="plan"><span>✅ Plan: all ⚔️</span><span>Change ›</span></div><button class="go">⚔️ Fight round 1</button><div class="mini"><button>🔁 Auto 1</button><button>⏩ Auto</button><button>🏃 Run</button></div>'
+ +'<div class="row2">'+mini()+'<div class="strip"><b class="mut">WHAT HAPPENED</b>Withered Aphid and Earthworm Bully block the way!</div></div>'+dock(-1)},
+sheet:{note:'Party, Pack and Log reuse the existing drawer as a tabbed bottom sheet at the same height as every other sheet.',
+ html:HUD+map(0)+'<div class="strip"><b>Mossy Path</b>Tap a tile to walk.</div>'+dock(1),
+ sheet:{t:'🧑‍🤝‍🧑 Party',tabs:0,b:'<div class="row"><span>🧙 Moss (L3)</span><span>HP 8/10</span></div><div class="row"><span>🐿️ Pip</span><span>HP 5/10</span></div><div class="row"><span>Tired</span><span>53/100</span></div><div class="row"><span>Camp kits</span><span>1</span></div>'}},
+log:{note:'The latest log line stays in the strip (live region). The whole log is a sheet.',
+ html:HUD+map(0)+'<div class="strip"><b>Mossy Path</b>You found a mushroom.</div>'+dock(3),
+ sheet:{t:'📜 Log',tabs:2,b:'<div class="row"><span>You found a mushroom.</span></div><div class="row"><span>Pip nips a grub for 3.</span></div><div class="row"><span>Fight won.</span></div>'}}
+};
+function show(k){var s=S[k];document.getElementById('note').textContent=s.note;document.getElementById('trek').innerHTML=s.html;
+ var sh=document.getElementById('sheet');
+ if(s.sheet){document.getElementById('stitle').textContent=s.sheet.t;document.getElementById('sbody').innerHTML=s.sheet.b;
+  var tb=document.getElementById('tabs');tb.style.display=(k=='sheet'||k=='log')?'flex':'none';
+  tb.innerHTML='<button class="'+(k=='sheet'?'on':'')+'">Party</button><button>Pack</button><button class="'+(k=='log'?'on':'')+'">Log</button>';sh.classList.add('open')}else sh.classList.remove('open');
+ [].forEach.call(document.querySelectorAll('#ctl button'),function(b){b.classList.toggle('on',b.dataset.s==k)})}
+document.getElementById('ctl').addEventListener('click',function(e){if(e.target.dataset.s)show(e.target.dataset.s)});
+document.getElementById('sx').addEventListener('click',function(){document.getElementById('sheet').classList.remove('open')});
+show('explore');
+</script></body></html>

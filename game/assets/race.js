@@ -4,11 +4,9 @@
    chips, and it stops a fast second tap on "Back this snail" from turning into a full page reload. */
 (function () {
   'use strict';
-  var rmq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  var rmq = window.gvFx.rmq;
   var KEY = 'gvRaceSeen';
 
-  function seenGet() { try { return window.localStorage.getItem(KEY); } catch (e) { return null; } }
-  function seenSet(v) { try { window.localStorage.setItem(KEY, v); } catch (e) { /* private mode: replay next time */ } }
 
   function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
   function rng(seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -80,7 +78,7 @@
     if (rmq.matches || !track.animate) return;
     if (btn) { btn.hidden = false; btn.addEventListener('click', function () { play(track, btn); }); }
     var race = track.getAttribute('data-race') || '';
-    if (seenGet() !== race && document.visibilityState !== 'hidden') { seenSet(race); play(track, btn); }
+    if (window.gvFx.seenGet(KEY) !== race && document.visibilityState !== 'hidden') { window.gvFx.seenSet(KEY, race); play(track, btn); }
   }
 
   /* ---- countdown chip ---- */

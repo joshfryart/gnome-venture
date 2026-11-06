@@ -65,8 +65,31 @@ function ensure_calling_quests(): int
         }
         $added++;
     }
+    calling_add_serve_tasks($tasks);
     ensure_calling_mentors();
     return $added;
+}
+
+/**
+ * 2.2.1 follow-up: a Pomeroy task (event kind "serve") in the file joins a chapter that is already in the database (the import above
+ * skips known chapters). It goes just before the hand-in, and gnomes part-way through the chapter get a progress row. Idempotent.
+ */
+function calling_add_serve_tasks(array $tasks): void
+{
+    foreach ($tasks as $cslug => $list) {
+        foreach ($list as $t) {
+            if ($t['kind'] !== 'serve') continue;
+            $cid = (int)q_val('SELECT id FROM calling_chapters WHERE slug = ?', [$cslug]);
+            if (!$cid || q_val("SELECT 1 FROM calling_tasks WHERE chapter_id = ? AND kind = 'serve'", [$cid])) continue;
+            $sort = (int)(q_val("SELECT MIN(sort_order) FROM calling_tasks WHERE chapter_id = ? AND mode = 'give'", [$cid]) ?: 0);
+            if ($sort > 0) q('UPDATE calling_tasks SET sort_order = sort_order + 1 WHERE chapter_id = ? AND sort_order >= ?', [$cid, $sort]);
+            else $sort = (int)q_val('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM calling_tasks WHERE chapter_id = ?', [$cid]);
+            $tid = (int)db_insert('calling_tasks', ['chapter_id' => $cid, 'sort_order' => $sort] + $t);
+            foreach (q('SELECT user_id FROM user_calling_chapters WHERE chapter_id = ? AND done_at IS NULL', [$cid])->fetchAll(PDO::FETCH_COLUMN) as $u) {
+                db_insert('user_calling_tasks', ['user_id' => (int)$u, 'task_id' => $tid, 'progress' => 0]);
+            }
+        }
+    }
 }
 
 /** The six mentors: calling => [name, npc slug, species, personality, bio, region code, lodge slug, lodge icon, lodge name, lodge description]. */
@@ -145,9 +168,15 @@ function calling_chapter(int $id): ?array
     return q_one('SELECT * FROM calling_chapters WHERE id = ?', [$id]) ?: null;
 }
 
-function calling_tasks(int $chapterId): array
+/**
+ * A chapter's tasks in order. A Pomeroy task (event kind "serve") is left out while the Gourmand is off for players
+ * (setting gourmand_open), so it is neither shown nor needed to finish; $all = true keeps it (start, admin).
+ */
+function calling_tasks(int $chapterId, bool $all = false): array
 {
-    return q('SELECT * FROM calling_tasks WHERE chapter_id = ? ORDER BY sort_order, id', [$chapterId])->fetchAll();
+    $rows = q('SELECT * FROM calling_tasks WHERE chapter_id = ? ORDER BY sort_order, id', [$chapterId])->fetchAll();
+    if ($all || setting('gourmand_open') === '1') return $rows;
+    return array_values(array_filter($rows, fn($t) => $t['kind'] !== 'serve'));
 }
 
 /** A calling's chapters, Journeyman first. */
@@ -408,7 +437,7 @@ function calling_start(array $u, int $chapterId): array
         if (!q_val('SELECT 1 FROM user_calling_chapters WHERE user_id = ? AND chapter_id = ?', [$uid, $chapterId])) {
             db_insert('user_calling_chapters', ['user_id' => $uid, 'chapter_id' => $chapterId, 'started_at' => now()]);
         }
-        foreach (calling_tasks($chapterId) as $t) {
+        foreach (calling_tasks($chapterId, true) as $t) {   // all: a hidden Pomeroy task still gets its progress row, ready for when he opens
             if ($t['mode'] === 'state') continue;
             if (!q_val('SELECT 1 FROM user_calling_tasks WHERE user_id = ? AND task_id = ?', [$uid, $t['id']])) {
                 db_insert('user_calling_tasks', ['user_id' => $uid, 'task_id' => $t['id'], 'progress' => 0]);
@@ -422,6 +451,66 @@ function calling_start(array $u, int $chapterId): array
     }
     calling_active_tasks($uid, true);
     return [true, '📜 You take on the chapter: ' . $ch['title'] . '.'];
+}
+
+/**
+ * Next version: where a calling's mentor keeps their lodge. ['region' => regions row, 'loc' => the town's market stop (where a fast
+ * travel lands, and where npc_here() finds them), 'lodge' => the lodge's name] or null.
+ */
+function calling_mentor_place(string $calling): ?array
+{
+    $m = CALLING_MENTORS[$calling] ?? null;
+    if (!$m) return null;
+    $region = q_one('SELECT * FROM regions WHERE code = ?', [$m[5]]);
+    if (!$region) return null;
+    $loc = q_one("SELECT * FROM locations WHERE region_id = ? AND kind = 'market' ORDER BY id LIMIT 1", [$region['id']]);
+    return $loc ? ['region' => $region, 'loc' => $loc, 'lodge' => $m[8]] : null;
+}
+
+/**
+ * Next version: can this gnome take the free trip to their mentor for this chapter? '' = yes (show the button), otherwise why not.
+ * Only for a chapter that is offered and not yet taken (state 'available'), only to a town the gnome could fast-travel to anyway
+ * (can_fast_travel: home, a garden there, or been there), never while a walk, a trip into the wilds, a delve, a lair, a trek
+ * or a tending shift holds them (travel_blocked), never for guests, and not when they are already with the mentor.
+ * $st is calling_status() when the caller has it already.
+ */
+function calling_mentor_trip_check(array $u, array $ch, ?array $st = null): string
+{
+    require_once __DIR__ . '/world.php';
+    if (function_exists('is_guest') && is_guest($u)) return 'Guests can’t take on calling chapters.';
+    $st ??= calling_status($u, $ch);
+    if ($st['state'] !== 'available') return $st['state'] === 'active' ? 'You’ve already taken this chapter on.' : ($st['why'] !== '' ? $st['why'] : 'This chapter isn’t on offer.');
+    $npc = calling_mentor((string)$ch['calling']);
+    $place = calling_mentor_place((string)$ch['calling']);
+    if (!$npc || !$place) return 'Nobody is teaching this chapter yet.';
+    require_once __DIR__ . '/friends.php';
+    if (npc_here($u, (int)$npc['id'])) return 'You’re already with ' . $npc['name'] . '.';
+    if (!can_fast_travel($u, (int)$place['region']['id'])) return 'You haven’t been to ' . $place['region']['gnomish_name'] . ' yet. Walk the roads there once, then the trip is free.';
+    return travel_blocked($u);
+}
+
+/**
+ * Next version: the free trip to the mentor, to take a chapter on. No Petals, no energy, no time. Lands on the mentor's town market,
+ * like a fast travel: location, location_id and arrived_at, the region visit (already there: can_fast_travel needs it) and the
+ * place's Almanac page, as arrive() does. On purpose it fires no 'travel', 'arrive' or 'walk' calling event (and so
+ * no Hollow jar event for them): the trip is free and can be taken again, so it must never count as walking or travelling for a task
+ * or the jar. (It is only offered while the chapter is untaken, so no calling task could be listening anyway.) The Almanac page sends
+ * its usual one-time 'page' event if it is new, as on any first arrival. No XP and no seed find (those belong to paid travel).
+ */
+function calling_mentor_trip(array $u, int $chapterId): array
+{
+    $uid = (int)$u['id'];
+    $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+    $ch = calling_chapter($chapterId);
+    if (!$u || !$ch) return [false, 'There’s no such chapter.'];
+    if (($why = calling_mentor_trip_check($u, $ch)) !== '') return [false, $why];
+    $npc = calling_mentor((string)$ch['calling']);
+    $place = calling_mentor_place((string)$ch['calling']);
+    $loc = $place['loc'];
+    q('UPDATE users SET location = ?, location_id = ?, arrived_at = ? WHERE id = ?', [(string)($loc['region'] ?: $place['region']['gnomish_name']), (int)$loc['id'], now(), $uid]);
+    record_region_visit($uid, (int)$place['region']['id']);
+    unlock_entries($uid, 'village:' . $loc['slug']);
+    return [true, '🧭 You travel to ' . $place['region']['gnomish_name'] . ' for free. ' . $npc['name'] . ' is waiting at ' . $place['lodge'] . '.'];
 }
 
 /** Hand in the next give task (once every other task is done). */
@@ -480,7 +569,7 @@ function calling_finish(array $u, int $chapterId): array
     }
     $lines = [];
     if ((int)$ch['reward_coins'] > 0) { q('UPDATE users SET coins = coins + ? WHERE id = ?', [(int)$ch['reward_coins'], $uid]); $lines[] = '+' . money((int)$ch['reward_coins']); }
-    if ($ch['reward_item_slug'] && ($iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$ch['reward_item_slug']]))) {
+    if ($ch['reward_item_slug'] && ($iid = item_id_by_slug($ch['reward_item_slug']))) {
         give_item($uid, $iid, max(1, (int)$ch['reward_qty']));
         $lines[] = '+' . max(1, (int)$ch['reward_qty']) . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$iid]);
     }

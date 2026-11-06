@@ -1,0 +1,102 @@
+pl-wced-1|Moonlit Leavings|spoils|-|Peeks out after each scuffle and lights up whatever the creature dropped among the cedar roots.
+pl-wced-2|Needle by Needle|mend|-|Warms your scrapes the way it warms the cedars, one small glow every round.
+pl-wced-3|Tiptoe Exit|slip|-|Shows you its quiet way round the stones, so slipping off from a fight is easy as anything.
+pl-wced-4|Mountain Wake-Up|first|-|Wakes with a start when trouble comes, and your opening blow lands with all that cold, fresh surprise.
+pl-wced-5|Front Row Seat|petal|-|From its seat in the moss it spots the creature’s soft side and nudges your best blows there.
+pl-wced-6|Mist Hum|foot|gust|Hums you steady and light-footed through the cedars, and can hum the mist in so the creature swings at shadows.
+pl-wcen-1|Echo Supper|tonic|-|Croaks again after every meal or potion, and while the echo lasts you feel stronger and quicker.
+pl-wcen-2|Patient Plinks|mend|-|Each round it plinks once more, and each plink smooths away a little bruise.
+pl-wcen-3|Diver’s Wisdom|lesson|-|Opens its lid a crack after every scrap and lets a glint of know-how slip out for you.
+pl-wcen-4|Gleam on the Floor|spoils|-|Points a beam at the ground once the creature’s gone, and there’s often something shiny left.
+pl-wcen-5|Second Splash|petal|-|Sends a late ripple under the creature’s feet just as you swing, so your best blows land true.
+pl-wcen-6|Finfan Getaway|foot|snare|Fans you along like a current and firms your step, and one flick of its fin makes your next dash away certain.
+pl-wcof-1|Thatch Over You|ward|-|Keeps a little roof over your head in a scrap, and every blow slides off the straw a bit softer.
+pl-wcof-2|One for the Road|spoils|-|Passes the bowl to beaten creatures too, and they kindly leave a little something behind.
+pl-wcof-3|Roasting Mutter|sip|-|Mutters over your snack until it is warm through, and a warm snack mends a good deal more.
+pl-wcof-4|The Third Cup|rally|-|Keeps the last cup back for the worst moment, and pours it out when you’re nearly done in.
+pl-wcof-5|Lit Doorway|petal|-|Throws its warm glow across the creature, showing just where a lucky blow will land.
+pl-wcof-6|Steady Pour|feast|sap|Tops up every snack for extra goodness, and can fling a bitter cup that hits a creature and keeps on stinging.
+pl-wfri-1|Moonlit Picnic|feast|-|Shines on your snack like it’s the star of the show, and you get extra goodness from every bite.
+pl-wfri-2|Tiny Fingers’ Gift|kindle|-|Unwrap it before a scrap and your calling feels a step stronger, just as the little folk intended.
+pl-wfri-3|Underground Sweetness|sip|-|Threads a little golden goodness through each snack, so it mends you more than it ought to.
+pl-wfri-4|Huddle Up|guard|-|Leans close round you at the start of a fight, and the first blow is halved before it reaches you.
+pl-wfri-5|Through the Crack|petal|-|Lets you peek at the creature through its gap, so you know exactly where to aim your best blows.
+pl-wfri-6|Twirl and Tumble|foot|daze|Teaches you its nimble, sturdy steps, and can twirl a creature so dizzy it forgets its next turn.
+pl-wfla-1|Under the Awning|rally|-|Pulls you into its shade when things look grim, and a sweet striped rest picks you right back up.
+pl-wfla-2|Feather Dusting|mend|-|Dusts you down with soft pink quills each round, brushing a little hurt away every time.
+pl-wfla-3|Flock Notes|lesson|-|Watches every scrap from across the water and sends back pink-feathered notes on what to try next.
+pl-wfla-4|Taking Turns|edge|-|Leans in with you one neck after another, and your blows come down with four necks’ worth of push.
+pl-wfla-5|Curious Distraction|slip|-|Asks the creature so many questions with its neck that you can slip away while it’s puzzling.
+pl-wfla-6|Counted Twice|foot|rouse|Keeps your kit as tidy as its stall, and by counting twice lets you use your calling a second time.
+pl-wgwo-1|Stillness Practice|ward|-|Has taught you to stand like stone, so every blow that lands shrinks a little on the way.
+pl-wgwo-2|Wandering Glow|mend|-|Drifts down to your bruises each round, glows a moment, then floats back up a little dimmer.
+pl-wgwo-3|First Hop Aside|guard|-|Lets you hop to a stone as a fight begins, so that first blow only half finds you.
+pl-wgwo-4|Cave Star Map|kindle|-|Lights up the way your calling works, so you use it a step better than before.
+pl-wgwo-5|Hush Before the Swing|petal|-|Hushes the cave as you take aim, and in the quiet your best blows find their mark.
+pl-wgwo-6|Silk Thread Swing|sip|snare|Hums a glow into your snacks so they mend more, and can swing you clean out of any scrap on its thread.
+pl-wgoa-1|Sun-Baked Tiles|ward|-|Tiles you over like a farmhouse roof, and blows patter off you like summer rain.
+pl-wgoa-2|Sway Aside|guard|-|Sways you just out of reach as a scrap begins, so the opening blow only half lands.
+pl-wgoa-3|Sticky Opener|first|-|Tosses a sticky grape at the creature to start you off, and your first swing lands while it splutters.
+pl-wgoa-4|Pickers’ Stamina|bulwark|-|Marches you along the rows at the pickers’ pace, so you’ve more puff left in you on the road.
+pl-wgoa-5|Vintage Luck|petal|-|Rolls a barrel your way at just the right moment, and a lucky blow lands far harder.
+pl-wgoa-6|Goat-Path Headbutt|foot|sap|Leads you sure-footed along the goat paths, and charges in with a butt that leaves creatures feeling sour.
+pl-wgor-1|Treetop Hindsight|lesson|-|Sees every scuffle from above and drops a ripe little lesson for you after each win.
+pl-wgor-2|Shy Little Pats|mend|-|Peeks out each round to pat your sore bits, a little braver and a little kinder every time.
+pl-wgor-3|Mind Your Manners|spoils|-|Teaches beaten creatures their manners, so they more often leave a polite gift as they go.
+pl-wgor-4|Sunlit Steps|foot|-|Lays its golden steps beneath your boots, so you stand firmer and scamper off quicker.
+pl-wgor-5|Please and Thank You|petal|-|Hands you the orange at the right moment, and a well-mannered swing lands its very best.
+pl-wgor-6|Stern Look|tonic|snare|Makes every meal or potion count for more strength and nimbleness, and one stern look lets you leave any fight.
+pl-wlfe-1|Far Shore Smile|bulwark|-|Keeps smiling at you from across the water, and you walk the long road with more in you.
+pl-wlfe-2|Riverlight Path|foot|-|Lights a buttery track along the bank, so your step is sure and your getaway quick.
+pl-wlfe-3|Dappled Treat|sip|-|Dapples your snack with lantern light, and somehow it mends you all the more.
+pl-wlfe-4|Bridge Rail Glow|edge|-|Glows a hotter red as you swing, and your blows land all the harder for it.
+pl-wlfe-5|Inner Glow|petal|-|Shines from inside like a good idea, lighting the very spot where a lucky blow will land.
+pl-wlfe-6|Wish on the Water|mend|gust|Warms you a little every round, and can drift its light into the creature’s eyes so it misses more.
+pl-wlig-1|Polished Brass|tonic|-|Polishes up every meal or potion boost, so while it lasts your strength and quickness shine brighter.
+pl-wlig-2|Nodding Supper|feast|-|Nods off over your snack and leaves you an extra helping by the time it wakes.
+pl-wlig-3|Ship’s Biscuit|sip|-|Sails a tiny cargo of comfort home, so every snack does you more good.
+pl-wlig-4|Golden Top Layer|edge|-|Stacks a little more on every swing, and your blows land heavier for each layer.
+pl-wlig-5|Lamp Room Lookout|petal|-|Stares down the creature’s weak spots, and your best blows find them more often.
+pl-wlig-6|Rockside Lights|spoils|patch|Lights the rocks after a win so you spot dropped treasure, and can hold a warm candle to your hurts to heal you.
+pl-wmud-1|Dreamy Musings|lesson|-|Daydreams over each scrap afterwards, and you wake up knowing a little more about fighting.
+pl-wmud-2|Hope and String|mend|-|Ties up your scrapes with a bit of string and a lot of hope, a little better each round.
+pl-wmud-3|Striped Sweetness|sip|-|Adds a stripe of sweetness to every snack, so it mends you more.
+pl-wmud-4|Recipe Scrolls|feast|-|Finds you the best snack recipe on its shelves, and each bite heals you that bit extra.
+pl-wmud-5|High Window Glimpse|petal|-|Glimpses the creature from up high and spots where a lucky blow will hurt it most.
+pl-wmud-6|Dignified Retreat|edge|snare|Shows you where to strike from his scrolls, and knows the one quiet aisle out of any scrap.
+pl-wpan-1|Who’s There?|first|-|Knocks before the scrap starts, and while the creature wonders who it is, your first blow lands.
+pl-wpan-2|Munch Break|mend|-|Shares a shoot with you every round, and each crunchy bite eases a bump.
+pl-wpan-3|Fresh Shoots|kindle|-|Pushes your calling up a step, the way the shoots push up through the grass.
+pl-wpan-4|Paw Prints to Follow|lesson|-|Leaves soft paw prints through each scrap, and you learn more by walking in them afterwards.
+pl-wpan-5|Slow Blink|petal|-|Blinks slowly at the creature until it drowses, and your best blows catch it off guard.
+pl-wpan-6|Judge’s Ruling|spoils|snare|Rules that beaten creatures owe you a little something, and can wave you out of any fight with one paw.
+pl-wpea-1|Buoyed Up|tonic|-|Bobs your meal or potion boost along, and while it lasts your strength and quickness float higher.
+pl-wpea-2|Darting Nibbles|mend|-|Darts in each round to nibble at your bruises, and leaves them a touch smaller.
+pl-wpea-3|Wave Hello|first|-|Waves the creature a friendly hello, and your opening blow lands before it can wave back.
+pl-wpea-4|Shut-Shell Chorus|edge|-|Hums a marching tune under your swings, and your blows land harder in time with it.
+pl-wpea-5|Shining Moment|petal|-|Flashes its pearl at the creature, and in that dazzle your best blows land.
+pl-wpea-6|Diver’s Lungful|ward|snare|Shows you how to take a blow like a dive, softer every time, and how to kick off out of any trouble.
+pl-wdol-1|Green Shade|ward|-|Spreads over you like a lily pad over a frog, and every blow lands a little softer.
+pl-wdol-2|Rowdy Get Well|mend|-|Squawks a cheerful get-well-soon at you every round, and you do feel a bit better.
+pl-wdol-3|Fruit Up High|feast|-|Lets you climb to the best fruit to go with your snack, so each one heals you extra.
+pl-wdol-4|Fin Up, Chin Up|rally|-|Pops up when you’re nearly beaten and waves you back to your feet with a splash of fresh strength.
+pl-wdol-5|Special Delivery|petal|-|Delivers a lucky moment right to your swing, and your best blows land more often.
+pl-wdol-6|Gentle Nudge|kindle|rouse|Nudges your calling a step stronger, and one more nudge lets you use it all over again.
+pl-wpry-1|Hopeful Touch|foot|-|Give it a hopeful touch and your footing firms up, your guard stiffens, and running is easier.
+pl-wpry-2|Meltwater Dab|mend|-|Trickles cool meltwater on your bruises every round, and they ease a little each time.
+pl-wpry-3|Pocket Luck|kindle|-|Rides in your pocket for luck, and your calling works a step better for it.
+pl-wpry-4|Wind at Your Back|slip|-|Reads your wish to leave out loud, and the wind carries you off from the fight.
+pl-wpry-5|Wish on Top|petal|-|Puts a wish on each of your swings, and now and then one lands as a mighty blow.
+pl-wpry-6|Yak’s Steady Plod|first|snare|Lumbers in so steadily your first blow lands true, and can carry you off from any fight at a plod.
+pl-wroo-1|Stone Hat Brim|ward|-|Lends you its mossy brim, and every blow that lands is softened by a cushion of green.
+pl-wroo-2|Friendly Elbow|petal|-|Nudges your elbow at just the right moment, and the blow that follows lands extra hard.
+pl-wroo-3|Canopy Dewdrop|sip|-|Drips a little canopy dew onto your snack, and it does you more good.
+pl-wroo-4|Carved Instructions|edge|-|Its dotted letter turns out to be fighting tips, and your blows land harder for reading it.
+pl-wroo-5|Left On for You|rally|-|When you’re nearly beaten, its little flame guides you back in and warms you up again.
+pl-wroo-6|Root-Wrapped Smile|bulwark|shield|Its patient smile keeps you going on the road, and its roots can wrap round you to soften the next two hits.
+pl-wsta-1|Join the Dots|kindle|-|Draws a line between your calling and the stars, and it works a step stronger.
+pl-wsta-2|Sleepy Wisdom|lesson|-|Mumbles something wise after each win, and you learn more from the scrap than you expected.
+pl-wsta-3|Beach Toastie|sip|-|Toasts your snack by its little flame, so every bite mends you more.
+pl-wsta-4|Full Sail|edge|-|Fills your swings with a good stiff breeze, and they land harder for it.
+pl-wsta-5|Smiling Prow|petal|-|Grins at the creature from the shore, and your best blows land while it’s grinning back.
+pl-wsta-6|Stars Lined Up|slip|strike|Knows which stars to follow out of any scrap, and cheers in a blow that never misses.

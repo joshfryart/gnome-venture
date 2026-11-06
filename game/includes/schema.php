@@ -654,6 +654,23 @@ function schema_statements(string $driver): array
         at DATETIME NOT NULL,
         UNIQUE (user_id, landmark_id, action, day)
     )$END";
+    // v2.5.71: one permanent row per delve or lair run (the walk_scene map is dropped when the run ends; this is what stays)
+    $t[] = "CREATE TABLE IF NOT EXISTS landmark_runs (
+        id $PK,
+        user_id $ID NOT NULL,
+        landmark_id $ID NOT NULL,
+        exp_id $ID NOT NULL,
+        kind VARCHAR(10) NOT NULL,
+        outcome VARCHAR(10) NOT NULL,
+        level INT NOT NULL DEFAULT 1,
+        depth INT NOT NULL DEFAULT 0,
+        stages INT NOT NULL DEFAULT 0,
+        route VARCHAR(40) NULL,
+        picks TEXT NULL,
+        started_at DATETIME NOT NULL,
+        ended_at DATETIME NOT NULL,
+        UNIQUE (exp_id)
+    )$END";
     $t[] = "CREATE TABLE IF NOT EXISTS landmark_clears (
         id $PK,
         user_id $ID NOT NULL,
@@ -1304,12 +1321,16 @@ function schema_statements(string $driver): array
     // Columns added after v0.7.0 (fresh install). Older installs get them via "Upgrade database".
     $c = [
         ['users', 'gnome_name', 'VARCHAR(30) NULL'],
+        ['cook_pots', 'pal_uid', 'VARCHAR(16) NULL'],                  // pal passive cooking: the pal tending this pot (NULL = the gnome's own pot)
         ['users', 'theme', "VARCHAR(8) NOT NULL DEFAULT 'dark'"],      // v1.6.5: dark / light / auto
+        ['users', 'hp', 'INT NULL'],                                   // v2.3.5: the gnome's health (NULL = full), see includes/health.php
+        ['users', 'hp_at', 'DATETIME NULL'],                           // v2.3.5: when the town health clock last ran (NULL = stopped)
         ['users', 'sess_ver', 'INT NOT NULL DEFAULT 0'],              // v1.2.2: bumped on password change/reset; older sessions are signed out
         ['users', 'hat_color', 'VARCHAR(7) NULL'],
         ['users', 'beard_color', 'VARCHAR(7) NULL'],
         ['users', 'onboarded', 'INT NOT NULL DEFAULT 1'],      // existing players skip the welcome flow
         ['users', 'tour_step', 'INT NOT NULL DEFAULT 0'],
+        ['users', 'tour_ask', 'TINYINT NOT NULL DEFAULT 0'],   // v2.4.97: Wren asks "tour now or later?" (1 = asking, 2 = said later, 0 = answered)
         ['plot_tiles', 'feed_fert', 'INT NOT NULL DEFAULT 0'],
         ['plot_tiles', 'feed_life', 'INT NOT NULL DEFAULT 0'],
         ['plot_tiles', 'feed_hours', 'INT NOT NULL DEFAULT 0'],
@@ -1474,5 +1495,7 @@ function schema_statements(string $driver): array
     [$ppt, $ppi, $ppc] = ppal_schema($PK, $ID, $END);
     require_once __DIR__ . '/gourmand.php';   // next version: the Gourmand's ledger and cook_pots.score
     [$gmt, $gmi, $gmc] = gourmand_schema($PK, $ID, $END);
-    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc)];
+    require_once __DIR__ . '/here_schema.php';   // graphical navigation: here_layouts + users.start_page
+    [$hrt, $hri, $hrc] = here_schema($PK, $ID, $END);
+    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc)];
 }

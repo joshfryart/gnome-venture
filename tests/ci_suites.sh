@@ -4,7 +4,7 @@
 # A suite counts as failed when it prints a line starting with "FAIL" (optionally indented), "N FAILED", a PHP fatal, or exits non-zero.
 # Suites that install themselves (they call walk.sh) get a copy with no data/; the others get a copy walk.sh has installed first (player "sprout", admin "admin").
 HERE=$(cd "$(dirname "$0")" && pwd)
-SELF_INSTALLING="${SELF_INSTALLING:-clock gourmand calling garden100 market100 mentors120 roads097 roadlife roadtext scenes social100 stops100 treks trekshell villagers fix100 breeding110 security190 updrollback}"
+SELF_INSTALLING="${SELF_INSTALLING:-walk clock gourmand calling garden100 market100 mentors120 roads097 roadlife roadtext scenes social100 stops100 heredo treks trekshell villagers fix100 breeding110 security190 updrollback}"
 LIST="${*:-$SUITES}"
 [ -n "$LIST" ] || LIST="${DEFAULT_SUITES:-}"
 [ -n "$LIST" ] || { echo "no suites given"; exit 2; }
@@ -13,11 +13,11 @@ for s in $LIST; do
   s=${s%.sh}; N=$((N+1)); PORT=$((PORT+1))
   T=$(mktemp -d); cp -r "$HERE/../game" "$T/game"; rm -rf "$T/game/data" "$T/game/config.php"; mkdir -p "$T/game/data"
   if ! echo " $SELF_INSTALLING " | grep -q " $s "; then
-    bash "$HERE/walk.sh" "$T/game" "$PORT" "$HERE/router.php" >"$T/walk.out" 2>&1
+    TMPDIR="$T" bash "$HERE/walk.sh" "$T/game" "$PORT" "$HERE/router.php" >"$T/walk.out" 2>&1
     grep -q "^installed" "$T/walk.out" || { echo "FAIL $s: walk.sh could not install"; BAD=$((BAD+1)); rm -rf "$T"; continue; }
     PORT=$((PORT+1))
   fi
-  : >"$T/.start"; rm -f /tmp/img-php.log   # fixed-name php server log some suites write; clear it so only this suite's lines are shown
+  : >"$T/.start"   # walk.sh and images.sh write their scratch files under TMPDIR (= $T), so parallel runs do not share them
   TMPDIR="$T" timeout 600 bash "$HERE/$s.sh" "$T/game" "$PORT" "$HERE/router.php" >"$T/out" 2>&1; rc=$?   # TMPDIR: the suite's own mktemp logs land inside $T
   if [ $rc -ne 0 ] || grep -qE '^\s*FAIL|[0-9]+ FAILED|PHP Fatal|Fatal error' "$T/out"; then
     echo "FAIL $s (exit $rc)"; grep -E '^\s*FAIL|[0-9]+ FAILED|Fatal' "$T/out" | head -8 | sed 's/^/     /'; BAD=$((BAD+1))

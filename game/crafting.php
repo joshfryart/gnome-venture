@@ -21,6 +21,25 @@ if (is_post()) {
         if ($ok) foreach (check_milestones($uid) as $m) flash($m);
         redirect('inventory.php?tab=craft&c=cooking');
     }
+    if ($act === 'pal_pot_recipe') {   // pal passive cooking: pick what the pal cooks next (kept until changed or the shift ends)
+        require_once __DIR__ . '/includes/pal_jobs.php';
+        [$ok, $msg] = pj_pot_set_recipe($u, (int)($_POST['job_id'] ?? 0), (int)($_POST['recipe_id'] ?? 0));
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect('inventory.php?tab=craft&c=cooking');
+    }
+    if ($act === 'pal_recall') {   // send a tending pal home early from its pot pop-up
+        require_once __DIR__ . '/includes/pal_jobs.php';
+        [$ok, $msg] = pj_recall($u, (int)($_POST['job_id'] ?? 0));
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect('inventory.php?tab=craft&c=cooking');
+    }
+    if ($act === 'cook_again') {   // v2.4.67: cook the last dish again, as many as the free pots, stock and energy allow
+        $rid = (int)q_val("SELECT r.id FROM recipes r JOIN users u ON u.last_cooked_id = r.output_item_id WHERE u.id = ? AND r.category = 'cooking'", [$uid]);
+        [$ok, $msg] = $rid > 0 ? craft($u, $rid, 'all') : [false, 'Cook something once first.'];
+        flash($msg, $ok ? 'ok' : 'err');
+        if ($ok) foreach (check_milestones($uid) as $m) flash($m);
+        redirect('inventory.php?tab=craft&c=cooking');
+    }
     if ($act === 'jar_collect' || $act === 'jar_collect_all') {   // v0.9.8: take finished preserves out of the Pantry jars
         [$ok, $msg] = $act === 'jar_collect_all' ? pantry_collect_all($u) : array_slice(pantry_collect_one($u, (int)($_POST['jar_id'] ?? 0)), 0, 2);
         flash($msg, $ok ? 'ok' : 'err');
@@ -28,7 +47,9 @@ if (is_post()) {
         redirect('inventory.php?tab=craft&c=pantry');
     }
     // v0.7.88: qty is 1, 2, 5 or 'all' (as many as fit). craft() clamps it to what the stock and energy allow.
-    $want = ($_POST['qty'] ?? '') === 'all' ? 'all' : max(1, (int)($_POST['qty'] ?? 1));
+    $qtyIn = $_POST['qty'] ?? '1';
+    $want = $qtyIn === 'all' ? 'all' : (is_string($qtyIn) && ctype_digit($qtyIn) && (int)$qtyIn >= 1 ? (int)$qtyIn : 0);
+    if ($want === 0) { flash('Pick how many to make: 1 or more.', 'err'); redirect('inventory.php?tab=craft'); }   // v2.3.94: 0, -1 and "abc" no longer craft one by surprise
     [$ok, $msg] = craft($u, (int)($_POST['recipe_id'] ?? 0), $want);
     flash($msg, $ok ? 'ok' : 'err');
     if ($ok) foreach (check_milestones($uid) as $m) flash($m);

@@ -533,5 +533,31 @@ $day('2026-12-14'); $at('The Maplewold'); $rowO = gourmand_menu('NA', '2026-12')
 ok('off: a serve is refused and fires nothing', !gourmand_serve($U(), 'plate')[0] && $jobN() === $off0 && (int)q_val('SELECT COUNT(*) FROM gourmand_ledger WHERE user_id = ?', [$uid]) === $lead0);
 ok('off: the Hollow pool never offers the serve jar; on, it does', !in_array('serve', array_column(hollow_goal_pool(), 0), true) && (function () { cfg(['gourmand_open' => '1']); $r = in_array('serve', array_column(hollow_goal_pool(), 0), true); cfg(['gourmand_open' => '0']); return $r; })());
 
+echo "== the Brewroot Master task for Pomeroy: hidden while off, joins old worlds once\n";
+$bch = q_one("SELECT * FROM calling_chapters WHERE slug = 'brewroot-2'");
+$serveT = fn(bool $all = false) => array_values(array_filter(calling_tasks((int)$bch['id'], $all), fn($t) => $t['kind'] === 'serve'));
+$allT = calling_tasks((int)$bch['id'], true);
+ok('brewroot-2 has one serve task (spoons>=2, 5), just before the hand-in', count($serveT(true)) === 1 && $serveT(true)[0]['spec'] === 'spoons>=2' && (int)$serveT(true)[0]['qty'] === 5 && end($allT)['mode'] === 'give' && $allT[count($allT) - 2]['kind'] === 'serve');
+ok('off: calling_tasks leaves it out', setting('gourmand_open') === '0' && $serveT() === [] && count(calling_tasks((int)$bch['id'])) === count($allT) - 1);
+q("UPDATE users SET calling = 'brewroot', calling_qt = 1, calling_chapter = NULL, level = 40 WHERE id = ?", [$uid]); calling_qt_cached($uid, true);
+q('DELETE FROM user_calling_chapters WHERE user_id = ?', [$uid]); q('DELETE FROM user_calling_tasks WHERE user_id = ?', [$uid]);
+[$okk, $m] = calling_start($U(), (int)$bch['id']);
+$sid = (int)$serveT(true)[0]['id'];
+$labels = fn() => array_map(fn($r) => $r['task']['label'], calling_status($U(), $bch)['tasks']);
+ok('off: the chapter starts, the mentor page lists no Pomeroy task, but a progress row is ready', $okk && !array_filter($labels(), fn($l) => str_contains($l, 'Pomeroy')) && (bool)q_val('SELECT 1 FROM user_calling_tasks WHERE user_id = ? AND task_id = ?', [$uid, $sid]), $m);
+cfg(['gourmand_open' => '1']);
+ok('on: the task shows', (bool)array_filter($labels(), fn($l) => str_contains($l, 'Pomeroy')));
+calling_active_tasks($uid, true);
+calling_event($uid, 'serve', 'NA', 1, ['course' => 'plate', 'spoons' => 1, 'region' => 'NA']);
+calling_event($uid, 'serve', 'NA', 1, ['course' => 'pot', 'spoons' => 2, 'region' => 'NA']);
+ok('on: a 2-spoon serve counts, a 1-spoon serve does not', (int)q_val('SELECT progress FROM user_calling_tasks WHERE user_id = ? AND task_id = ?', [$uid, $sid]) === 1);
+cfg(['gourmand_open' => '0']);
+q('DELETE FROM user_calling_tasks WHERE task_id = ?', [$sid]); q('DELETE FROM calling_tasks WHERE id = ?', [$sid]);
+q("UPDATE calling_tasks SET sort_order = sort_order - 1 WHERE chapter_id = ? AND mode = 'give'", [$bch['id']]);
+ensure_calling_quests(); ensure_calling_quests();
+$allT = calling_tasks((int)$bch['id'], true); $s2 = $serveT(true);
+ok('an old world without the task gets it once, before the hand-in', count($s2) === 1 && end($allT)['mode'] === 'give' && $allT[count($allT) - 2]['kind'] === 'serve');
+ok('and a gnome part-way through the chapter gets its progress row', count($s2) === 1 && (bool)q_val('SELECT 1 FROM user_calling_tasks WHERE user_id = ? AND task_id = ?', [$uid, $s2[0]['id']]));
+
 echo $fails ? "\n$fails FAILED\n" : "\nall passed\n";
 exit($fails ? 1 : 0);

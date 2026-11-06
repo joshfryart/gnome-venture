@@ -1,0 +1,103 @@
+{
+ "delve1": [
+  "delve-anaconda-hollows",
+  "delve-beaverdam-tunnels",
+  "delve-firefly-caves",
+  "delve-fynbos-fire-trails",
+  "delve-jaguar-root-caves",
+  "delve-mangrove-root-maze",
+  "delve-pirate-gull-grottoes"
+ ],
+ "delve2": [
+  "delve-rose-red-canyon-city",
+  "delve-salt-mine-galleries",
+  "delve-sea-cave-smugglers-run",
+  "delve-snowleopard-ledges",
+  "delve-the-canopy-bridges",
+  "delve-the-long-wall-walk",
+  "delve-the-red-rock-songlines"
+ ],
+ "haven1": [
+  "haven-aurora-camp",
+  "haven-baobab-inn",
+  "haven-cherry-blossom-teahouse",
+  "haven-driftwood-tavern",
+  "haven-drum-circle-market",
+  "haven-floating-flower-market",
+  "haven-floating-market",
+  "haven-gaucho-gnome-ranch",
+  "haven-kava-circle"
+ ],
+ "haven2": [
+  "haven-lemon-grove-monastery",
+  "haven-market-of-a-thousand-chilies",
+  "haven-northern-lights-sauna",
+  "haven-olive-press-piazza",
+  "haven-painted-egg-house",
+  "haven-spice-souk",
+  "haven-thatchtop-tearoom",
+  "haven-the-sugar-shack",
+  "haven-turtle-nesting-beach"
+ ],
+ "lair1": [
+  "lair-barrow-of-the-frost-toad",
+  "lair-condors-crag",
+  "lair-den-of-the-great-white-owl",
+  "lair-dragonlizard-den",
+  "lair-forge-of-the-cinder-wyrm",
+  "lair-hollow-of-the-silverback-spider",
+  "lair-of-the-grey-wolf-king"
+ ],
+ "lair2": [
+  "lair-of-the-hurricane-crab",
+  "lair-of-the-jade-dragon-fly",
+  "lair-reef-of-the-box-jelly-queen",
+  "lair-smokecap-caldera",
+  "lair-snowcrown-peak",
+  "lair-temple-of-the-tiger-moth",
+  "lair-tomb-of-the-sand-scarab"
+ ],
+ "wonder1": [
+  "wonder-cedar-sanctuary",
+  "wonder-cenote-of-echoes",
+  "wonder-coffee-ceremony-hut",
+  "wonder-fairy-ring-clearing",
+  "wonder-flamingo-shallows",
+  "wonder-glowworm-grotto",
+  "wonder-goat-path-vineyards",
+  "wonder-gorilla-glade",
+  "wonder-lantern-festival-river"
+ ],
+ "wonder2": [
+  "wonder-lighthouse-of-the-lost-lantern",
+  "wonder-mud-mosque-library",
+  "wonder-panda-bamboo-grove",
+  "wonder-pearl-diver-cove",
+  "wonder-pink-river-dolphin-pools",
+  "wonder-prayer-flag-pass",
+  "wonder-root-wrapped-temple",
+  "wonder-starpath-canoe",
+  "wonder-stone-head-watchers"
+ ],
+ "wonder3": [
+  "wonder-stork-chimney-village",
+  "wonder-sunken-gnome-galleon",
+  "wonder-tea-garden-slopes",
+  "wonder-the-amber-woods",
+  "wonder-the-great-migration",
+  "wonder-the-hanging-garden-ruins",
+  "wonder-the-labyrinth-isle",
+  "wonder-the-mirror-salt-flat",
+  "wonder-the-oasis-that-moves"
+ ],
+ "wonder4": [
+  "wonder-the-silk-road-caravanserai",
+  "wonder-the-singing-waterfall",
+  "wonder-the-sky-city-ruins",
+  "wonder-the-standing-stones",
+  "wonder-the-stepped-seed-temple",
+  "wonder-the-thousand-gates",
+  "wonder-thousand-rings-stump",
+  "wonder-volcano-spice-gardens"
+ ]
+}

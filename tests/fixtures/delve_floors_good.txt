@@ -1,0 +1,55 @@
+# Sample floors for tests/delvefloors.php. Three good ones.
+
+@sample-delve/mossy_hall
+tier: small
+rule: Glowcaps light the tiles next to them.
+sig: no
+for: fight,mystery
+#########
+#S..1..##
+#.##.##.#
+#.#...#.#
+#..,2,..#
+#.#...#.#
+#.##3##.#
+#.....E.#
+#########
+
+@sample-delve/key_vault
+tier: standard
+rule: The vault door needs the rusty key from the west cave.
+sig: yes
+for: treasure
+title: The Key Vault
+#############
+#S.....#...C#
+#K.....#....#
+#..1...#..2.#
+#......D....#
+#..,...#....#
+#......#..3.#
+#..WW..#....#
+#......#...E#
+#......######
+#......######
+#......######
+#############
+
+@sample-delve/old_throne
+tier: standard
+rule: The guardian wakes when you take the chest key.
+sig: yes
+for: boss
+#############
+#S..........#
+#.##.###.##.#
+#.#...#...#.#
+#.#.#...#.#.#
+#...#.B.#...#
+#.#.#...#.#.#
+#.#...#...#.#
+#.##.###.##.#
+#....,.,....#
+#.#.##C##.#.#
+#...#...#...#
+#############

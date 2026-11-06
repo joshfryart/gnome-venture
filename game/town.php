@@ -12,13 +12,15 @@ require_once __DIR__ . '/includes/place_ui.php';   // v2.0.61: town folk / actio
 $u = require_login();
 $uid = (int)$u['id'];
 $hub = !empty($_GET['hub']) || !empty($_POST['hub']);
+$ajax = ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fetch';   // the Here popovers (assets/hubscene.js) ask for a spot card and post its forms in place
+require_once __DIR__ . '/includes/spot_card.php';
 
 if (is_post()) {
     csrf_check();
     refresh_energy($u);
     $do = (string)($_POST['do'] ?? '');
     $pnode = player_node($u);
-    if (!$hub && $do !== 'local' && !in_array($pnode['kind'], ['market', 'hub'], true)) {   // v0.7.48: the square is in the town itself
+    if (!$hub && !in_array($do, ['local', 'deed'], true) && !in_array($pnode['kind'], ['market', 'hub'], true)) {   // v0.7.48: the square is in the town itself
         flash('You’re not in town right now. Walk to the town at the end of the road to use its square.', 'err');
         redirect('town.php');
     }
@@ -33,19 +35,31 @@ if (is_post()) {
         'rps_play' => town_rps_play($u, (int)($_POST['game'] ?? 0), (string)($_POST['move'] ?? '')),
         'order' => order_deliver($u, (int)($_POST['npc'] ?? 0), town_for($u, $hub)),   // v1.0.0 wave 2b: orders with a quality bar
         'favour' => favour_deliver($u, (int)($_POST['npc'] ?? 0), town_for($u, $hub)),
+        'deed' => buy_land_deed($u, $pnode),
         'local' => (function () use ($u) { require_once __DIR__ . '/includes/local.php'; return local_do($u, player_node($u), (string)($_POST['kind'] ?? ''), $_POST); })(),
         default => [false, 'Unknown action.'],
     };
+    if ($ajax && ($_POST['card'] ?? '') === 'do' && $do === 'local') {   // v2.5.67: a Do here / Stall popover of the Here picture comes back with the result in place
+        require_once __DIR__ . '/includes/here_view.php';
+        here_do_reply(require_login(), (string)($_POST['kind'] ?? ''), $msg, $ok);
+    }
+    if ($ajax && ($_POST['card'] ?? '') === 'stop') {   // v2.5.53: the Rest stop popover comes back with the result
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['ok' => $ok, 'msg' => $msg, 'html' => stop_slim_card_html(require_login(), player_node(require_login()), $hub, $msg, $ok)], JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+    if ($ajax && (int)($_POST['spot'] ?? 0) > 0) spot_card_reply(require_login(), $hub, (int)$_POST['spot'], $msg, $ok);   // in place: the card comes back with the result
     flash($msg, $ok ? 'ok' : 'err');
     $spot = (int)($_POST['spot'] ?? 0);
+    if (($_POST['back'] ?? '') === 'here.php') redirect('here.php');   // v2.5.35: a rest-stop thing done from the Here picture comes back to it
     $stTab = ($do === 'local' && in_array($_POST['t'] ?? '', ['folk', 'stop'], true)) ? 't=' . $_POST['t'] : '';   // v1.3.0: rest-stop forms come back to their tab
     if ($stTab) redirect('town.php?' . $stTab);
     if (!$spot && ($_POST['view'] ?? '') === 'orders') redirect('town.php?' . ($hub ? 'hub=1&' : '') . 'view=orders');   // v2.0.67: the town's Orders tab
-    if (!$spot && ($_POST['view'] ?? '') === 'quests') redirect('jobs.php?t=orders' . ($hub ? '&hub=1' : ''));   // v1.7.2 tasks: the order board moved to Tasks
+    if (!$spot && ($_POST['view'] ?? '') === 'quests') redirect('jobs.php?t=requests' . ($hub ? '&hub=1' : ''));   // v1.7.2 tasks: the order board moved to Tasks
     redirect('town.php?' . ($hub ? 'hub=1&' : '') . ($spot ? 'spot=' . $spot : ''));
 }
 
-if (($_GET['view'] ?? '') === 'quests') redirect('jobs.php?t=orders' . ($hub ? '&hub=1' : ''));   // v1.7.2 tasks: orders, Journey and repairs live on the Tasks page
+if (($_GET['view'] ?? '') === 'quests') redirect('jobs.php?t=requests' . ($hub ? '&hub=1' : ''));   // v1.7.2 tasks: orders, Journey and repairs live on the Tasks page
 refresh_energy($u);
 if (active_expedition($uid)) { flash('You’re still on the road.', 'err'); redirect('adventure.php'); }   // v0.9.1a
 $viewReq = (string)($_GET['view'] ?? '');
@@ -55,21 +69,20 @@ if ($viewReq === 'villagers' && !$hub && !in_array(player_node($u)['kind'], ['ma
 $nodeNow = player_node($u);
 $inTown = $hub || in_array($nodeNow['kind'], ['market', 'hub'], true);
 if (!$inTown && $viewReq === 'shops') redirect('world.php?tab=markets');   // v2.0.67: Shops and Orders are town views; away from a town the old pages show them
-if (!$inTown && $viewReq === 'orders') redirect('jobs.php?t=orders');
-if ($viewReq === 'passport' || ($viewReq === 'villagers' && !$inTown)) {   // v2.0.4 menu folds: Passport and Villagers you know (were passport.php, folk.php) work from anywhere
+if (!$inTown && $viewReq === 'orders') redirect('jobs.php?t=requests');
+if ($viewReq === 'passport' && $ajax && isset($_GET['frag'])) {   // v2.5.52/53: the Here picture's Rest stop popover (slim: stamps, Take hold here, Garden here)
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['ok' => true, 'msg' => '', 'html' => stop_slim_card_html($u, player_node($u), $hub)], JSON_UNESCAPED_SLASHES);
+    exit;
+}
+if ($viewReq === 'passport') {   // v2.0.4 menu folds: Passport works from anywhere (Villagers away from a town is villagers.php, see above)
     require_once __DIR__ . '/includes/stop_pass.php';
-    $isPass = $viewReq === 'passport';
-    page_header($isPass ? 'Stamp passport' : 'Villagers you know');
+    page_header('Stamp passport');
     ?>
     <h1>🏘️ Town</h1>
-    <?= main_stop_tabs_html(main_stop_tabs($hub, $inTown, $isPass ? 'stop' : 'villagers'), $isPass ? 'stop' : 'villagers') ?>
+    <?= main_stop_tabs_html(main_stop_tabs($hub, $inTown, 'stop'), 'stop') ?>
     <div class="townview">
-    <?php if ($isPass): ?>
       <?= stop_tab_html($u, $nodeNow, $hub) ?>
-    <?php else: ?>
-      <?= town_known_html($u, $hub) ?>
-      <?php require_once __DIR__ . '/includes/local.php'; ?><?= folk_overlay_html() ?>
-    <?php endif; ?>
     </div>
     <?php
     page_footer();
@@ -79,6 +92,7 @@ $town = town_for($u, $hub);
 $q = $hub ? 'hub=1&' : '';
 $spot = !empty($_GET['spot']) ? q_one('SELECT * FROM town_spots WHERE id = ? AND region = ? AND active = 1', [(int)$_GET['spot'], $town]) : null;
 if ($spot) town_mark_present($uid, (int)$spot['id']);
+if ($ajax && $spot && isset($_GET['frag'])) spot_card_reply($u, $hub, (int)$spot['id']);
 $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
 $uses = town_uses_today($uid);
 $quiz = $_SESSION['town_quiz'] ?? null;
@@ -95,8 +109,9 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
     $road = road_of((int)$node['id']);
     page_header($node['name']);
     ?>
-    <p class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></p>
+    <div class="crumbs">🌍<?= (function () use ($u, $node) { require_once __DIR__ . '/includes/stops.php'; return stop_perk_chip($u, $node); })() ?> <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></div>
     <?= place_switcher_html($node, 'here') ?>
+    <?php if (setting('ppal_open') === '1' || is_admin()) { require_once __DIR__ . '/includes/puzzle_pals.php'; echo ppal_here_html($u, (int)$node['id']); }   // a waiting Puzzle Pal shows on the Here page too, not only World ?>
     <?php if ($node['kind'] === 'village'): $stType = stop_type_of($node); ?>
       <?= place_header_html(stop_art_file($stType), $node['name'], 'Rest stop · ' . (string)$node['region'], $node['name'], '', [$road ? '🛣️ ' . e($road['name']) : '🌿 Hidden village, off the road']) ?>
     <?php else: ?>
@@ -219,7 +234,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
     <div class="festival marketbanner"><span>🧺</span><div><b>Market day in <?= e($town) ?>!</b> Stalls are up on the square, wanted goods pay extra and the best-basket judging is on.<br><a class="btn small" href="<?= e(url('marketday.php' . ($hub ? '?hub=1' : ''))) ?>">To the market →</a></div></div>
   <?php endif; ?>
   <?php $bdays = $glance ? array_filter(town_folk($town), fn($n) => npc_birthday_today($n)) : []; if ($bdays): ?>
-    <p class="bday tnote">🎂 Today is <?= implode(' and ', array_map(fn($n) => '<a class="inl" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '">' . e($n['name']) . '</a>’s', $bdays)) ?> birthday! A gift today means three times as much.</p>
+    <p class="bday tnote">🎂 Today is <?= implode(' and ', array_map(fn($n) => '<a class="inl" href="' . e(url('villagers.php?id=' . (int)$n['id'])) . '">' . e($n['name']) . '</a>’s', $bdays)) ?> birthday! A gift today means three times as much.</p>
   <?php endif; ?>
   <?php // Today at a glance (v0.7.38; v2.0.67 gold felt box)
   $todoAll = 0; $openNow = 0; $gnomesAll = 0;
@@ -245,7 +260,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
     if (market_day_on()) $chips[] = '🧺 <b><a class="inl" href="' . e(url('marketday.php' . ($hub ? '?hub=1' : ''))) . '">Market day</a></b>: stalls are up!';
     elseif (($md = market_days_until()) > 0 && $md <= 2) $chips[] = '🧺 Market day in ' . $md . ' day' . ($md === 1 ? '' : 's');
     if ($chips): ?><ul class="tday__more"><?php foreach ($chips as $ch): ?><li class="tday__chip"><?= $ch ?></li><?php endforeach; ?></ul><?php endif; ?>
-    <?php foreach ($travHere as $th): $isG = $th['traveller'] === 'gourmand'; ?><a class="tday__row" href="<?= e(url($isG ? 'gourmand.php' : 'folk.php?id=' . (int)$th['id'])) ?>"><span aria-hidden="true">🧭</span><span class="tday__rowt"><b><?= e($th['name']) ?></b> is <?= $isG ? 'at ' . e((string)(npc_now($th)['spot']['name'] ?? 'his camp')) : 'visiting' ?></span><span class="tday__go" aria-hidden="true">›</span></a><?php endforeach; ?>
+    <?php foreach ($travHere as $th): $isG = $th['traveller'] === 'gourmand'; ?><a class="tday__row" href="<?= e(url($isG ? 'gourmand.php' : 'villagers.php?id=' . (int)$th['id'])) ?>"><span aria-hidden="true">🧭</span><span class="tday__rowt"><b><?= e($th['name']) ?></b> is <?= $isG ? 'at ' . e((string)(npc_now($th)['spot']['name'] ?? 'his camp')) : 'visiting' ?></span><span class="tday__go" aria-hidden="true">›</span></a><?php endforeach; ?>
   </section>
   <?php endif; ?>
   <?php $present = [];
@@ -261,6 +276,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       elseif (!isset($present[(int)$rn['id']])) $homeOut[] = [$rn, $hm, $nw];
   } ?>
   <?= main_stop_tabs_html(main_stop_tabs($hub, true, $view, count($present) + count($homeIn)), $view) ?>
+  <?php if ($view === 'square' && !$hub && (setting('ppal_open') === '1' || is_admin())) { require_once __DIR__ . '/includes/puzzle_pals.php'; echo ppal_here_html($u, (int)$node['id']); }   // a waiting Puzzle Pal shows on the Here page too, not only World ?>
   <?php require_once __DIR__ . '/includes/local.php'; ?><?= folk_overlay_html() ?>
   <?php if ($view === 'villagers'): ?>
     <h3 class="gx-h">🚶 Out and about</h3>
@@ -270,7 +286,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
         <?= villager_row_html(npc_portrait($n, 'small'), e($n['name']),
             [e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))) . (!empty($n['traveller']) ? ' · traveller' : ''),
              '📍 <a href="' . e(url('town.php?' . $q . 'spot=' . (int)$ps['id'])) . '">' . e($ps['icon'] . ' ' . $ps['name']) . '</a> · 💛 ' . e($fl['name'])],
-            '<a class="fbtn" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '" data-folk-npc="' . (int)$n['id'] . '">Chat</a>', '', '', false, npc_birthday_today($n) ? '<span class="vlcard__badge">🎂 birthday</span>' : '', url('folk.php?id=' . (int)$n['id']), ' data-folk-npc="' . (int)$n['id'] . '"') ?>
+            '<a class="fbtn" href="' . e(url('villagers.php?id=' . (int)$n['id'])) . '" data-folk-npc="' . (int)$n['id'] . '">Chat</a>', '', '', false, npc_birthday_today($n) ? '<span class="vlcard__badge">🎂 birthday</span>' : '', url('villagers.php?id=' . (int)$n['id']), ' data-folk-npc="' . (int)$n['id'] . '"') ?>
       <?php endforeach; ?>
     </ul>
     <?php endif; ?>
@@ -280,7 +296,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
       <?php foreach ($homeIn as [$n, $hm]): $fl = friend_level((int)friendship($uid, (int)$n['id'])['points']); ?>
         <?= villager_row_html(npc_portrait($n, 'small'), e($n['name']),
             [e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))), '🏡 ' . e($hm['name']) . ' · 💛 ' . e($fl['name'])],
-            '<a class="fbtn" href="' . e(url('villagers.php?home=1&id=' . (int)$n['id'])) . '">🚪 Knock</a>', '', '', false, npc_birthday_today($n) ? '<span class="vlcard__badge">🎂 birthday</span>' : '', url('folk.php?id=' . (int)$n['id']), ' data-folk-npc="' . (int)$n['id'] . '"') ?>
+            '<a class="fbtn" href="' . e(url('villagers.php?home=1&id=' . (int)$n['id'])) . '">🚪 Knock</a>', '', '', false, npc_birthday_today($n) ? '<span class="vlcard__badge">🎂 birthday</span>' : '', url('villagers.php?id=' . (int)$n['id']), ' data-folk-npc="' . (int)$n['id'] . '"') ?>
       <?php endforeach; ?>
     </ul>
     <?php endif; ?>
@@ -301,7 +317,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
   <?php $trav = q('SELECT * FROM npcs WHERE traveller IS NOT NULL AND active = 1 ORDER BY name')->fetchAll(); if ($trav): ?>
     <details class="fold box travellers"><summary>🧭 Where the travellers are</summary>
       <?php foreach ($trav as $t): $st = traveller_stop($t); ?>
-        <p><?= npc_icon($t['species']) ?> <a href="<?= e(url('folk.php?id=' . (int)$t['id'])) ?>"><?= e($t['name']) ?></a>:
+        <p><?= npc_icon($t['species']) ?> <a href="<?= e(url('villagers.php?id=' . (int)$t['id'])) ?>"><?= e($t['name']) ?></a>:
           <?= $st['town'] === $town ? ($t['traveller'] === 'gourmand' ? '<b>here, at ' . e((string)(npc_now($t)['spot']['name'] ?? 'his camp')) . '!</b>' : '<b>here, on the Green!</b>') : 'in ' . e($st['town']) . ', then ' . e($st['next']) ?></p>
       <?php endforeach; ?></details>
   <?php endif; ?>

@@ -68,7 +68,7 @@ if ($wanted) {
 <div class="mkstalls">
 <?php foreach ($stalls as ['npc' => $n, 'goods' => $goods]): ?>
   <div class="box mkstall">
-    <h3><?= npc_icon($n['species']) ?> <a href="<?= e(url('folk.php?id=' . (int)$n['id'])) ?>"><?= e($n['name']) ?></a>’s stall</h3>
+    <h3><?= npc_icon($n['species']) ?> <a href="<?= e(url('villagers.php?id=' . (int)$n['id'])) ?>"><?= e($n['name']) ?></a>’s stall</h3>
     <div class="shopwrap"><div class="itmwrap"><div class="itms">
     <?php foreach ($goods as $g): $it = $g['item']; $had = market_bought_today($uid, (int)$n['id'], (int)$it['id']); $left = max(0, (int)setting('market_stall_limit') - $had);
         $info = ($had ? '<p class="help">You bought ' . $had . ' today.</p>' : '') . ($left < 1 ? '<p class="help">Sold out for you today.</p>' : '<p class="help">You can buy ' . $left . ' more today.</p>');
@@ -115,6 +115,6 @@ if ($wanted) {
 <?php endif; ?>
 <?php endif; ?>
 
-<p><a class="btn alt" href="<?= e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : '') . '#orders')) ?>">📜 Order board</a>
+<p><a class="btn alt" href="<?= e(url('jobs.php?t=requests' . ($hub ? '&hub=1' : '') . '#orders')) ?>">📜 Order board</a>
   <a class="btn alt" href="<?= e(url('world.php?tab=markets')) ?>">🏪 Shops</a></p>
 <?php page_footer();

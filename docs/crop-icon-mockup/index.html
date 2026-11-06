@@ -1,0 +1,27 @@
+<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>Crop icon size mockup</title>
+<style>
+body{margin:0;background:#2a1a12;color:#f1e3c8;font:14px system-ui}
+h2{margin:16px 10px 6px;font-size:15px;color:#e0b86a}
+.wrap{display:flex;flex-wrap:wrap;gap:20px;padding:0 10px 20px}
+.col{width:360px}.col.d{width:640px}
+.pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.d .pills{grid-template-columns:repeat(3,minmax(0,1fr))}
+.pill{display:flex;align-items:center;gap:8px;padding:4px 8px 4px 6px;background:#3c281c;border:1px solid #6b4528;min-height:48px;position:relative}
+.pill img{image-rendering:pixelated;flex:none;width:var(--s);height:var(--s)}
+.pill b{display:block;font-size:var(--f);line-height:1.25}.pill small{color:#c9b390;font-size:12px}
+.pill{min-height:calc(var(--s) + 12px)}
+.now{--s:28px;--f:13px}.new{--s:40px;--f:14px}
+.d .now{--s:32px;--f:14px}.d .new{--s:44px;--f:15px}
+</style>
+<h2>Mobile — NOW (28px)  |  NEW (40px)</h2>
+<div class=wrap id=m></div>
+<h2>Desktop — NOW (32px)  |  NEW (44px)</h2>
+<div class=wrap id=d></div>
+<script>
+const it=[['carrot','Carrot','×13'],['lettuce','Lettuce','×20'],['oats','Oats','×41'],['radish','Radish','×12'],['tomato','Tomato','×6'],['apple','Apple','×1']];
+const h=c=>`<div class="pills ${c}">`+it.map(([s,n,q])=>`<div class="pill ${c}"><img src="../../game/assets/img/ph/${s}.png" alt=""><span><b>${n}</b><small>${q}</small></span></div>`).join('')+'</div>';
+m.innerHTML=`<div class=col>${h('now')}</div><div class=col>${h('new')}</div>`;
+d.innerHTML=`<div class="col d">${h('now')}</div><div class="col d">${h('new')}</div>`;
+document.querySelectorAll('.pills').forEach(p=>{const c=p.classList.contains('now')?'now':'new';p.querySelectorAll('.pill').forEach(x=>x.classList.add(c))});
+</script>

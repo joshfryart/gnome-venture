@@ -1,5 +1,577 @@
 # Changelog
 
+## 2.5.80
+- **Puzzle Pals on the Here page**: a pal waiting at the place you stand in now appears among the villagers (first slot, so a crowd never pushes it out). Tap it for the Say hello card.
+
+## 2.5.79
+- **Fight engine preview (not in the game yet)**: new page `fight_demo.html` on the site root plays the fight animation engine on the tilted tile board. Gnome on a limb rig (arms, legs, hat that lags, pops off below 25% HP and can be tapped to put back on for +5), and all six wild creatures (boar, wolf, bear, ram, scorpion, frog) on part rigs with their own attack, hit, dodge and KO. Nothing in adventures uses it yet and there is no player news. Files: `assets/fightengine.js`, `assets/fightengine.css`, `assets/fightdemo.js`, `assets/img/fight/`, `gnome_parts.php` (gnome parts in a player's hat, beard and scarf colours, cached), `includes/gnome_rig.php`. Dev notes and tools: `claude/animating-2-5d-sprites.md`, `tools/fight/`.
+
+## 2.5.78
+- **Perks button at every stop**: it no longer waits for a meter to move; before that every plant is a seed at 0% and the card says what fills each bar.
+- **Every act moves a meter**: 182 acts had no tag word and moved nothing (for example Bring the bell-goats home), so doing them never showed the Perks button. They now have a row in `stop_act_state.txt`: 39 raise Repairs (mending, boats, sails, shutters, labour), 47 raise Larder (food, crops, fishing, animals), 96 raise Cheer (games, sights, stories, rest), +10 each. New test asserts no active act is left without a meter.
+
+## 2.5.77
+- **Perks card meters are plants**: each meter (Repairs, Larder, Cheer) is a pot that grows with the bar (seed, sprout, leafy, bud, and in bloom while its perk runs) on a wooden stake sign with the percent in pixel digits. Tap one to see the acts that fill it. New v3 art `ico-pkplant0` to `ico-pkplant4`, `pk-sign`, `pk-digits` (sources in `aseprite-source/v3/items/perks/`); Larder now uses the v3 jar icon.
+
+## 2.5.76
+- **Perks popover is now graphical**: a scene banner for the stop with medal slots, perk tickets (meter badge, what it gives, an hourglass with day pips for the days left), pixel-icon meter rings (hammer, basket, party), and a thumbnail picture for each act that fills the picked meter. Falls back to emoji where an icon is missing.
+
+## 2.5.75
+- **Perks card redone**: the three meters are now ring tiles (Repairs, Larder, Cheer) with their percent; tap one to see the acts on offer here that raise it and by how much. Works without script.
+- **Slower meters**: meters fade 3 a day instead of 6 (about a month to empty on a full bar), and a perk lasts 7 days instead of 3, so a big map is playable without revisiting every stop.
+
+## 2.5.74
+- **Perks button**: a round medal button next to World in the row under the Here picture once acts at a stop have moved a meter or a perk runs; it opens a card listing the perks (with end dates) and the three meters. The plain stop page has a small circle by the 🌍 in its trail that opens the same list.
+
+## 2.5.73
+- **Living stops fixes**: the perk end date is now worked out in UTC (it could be a day off on a non-UTC server); the two meter-answer acts offered rotate daily instead of always being the first two in the file; perks now stack (each full meter gives one more thing per visit and one more turn a day).
+
+## 2.5.72
+- **Living stops**: every stop now has a happening of the day (8 kinds, same for everyone there) with a headline strip, matching acts offered first and villager lines that react to it.
+- **Meters and perk**: per player per stop, Repairs, Larder and Cheer fill as you do things and drain 6 a day. A full meter gives 3 days of one more thing to do at that stop. Five new answer acts appear when a meter is low or your standing is high (Stranger, Regular, Local, Pillar).
+- **Calendar**: 8 real-date days (Saturday market, Mend-up Sunday, spring fair, midsummer, harvest week, lantern night, midwinter, carnival) replace the daily happening and double meter gain.
+- **Stories**: 3 multi-day stories (hen, roof, hat), one part a day for Regulars and up; the last part pays.
+- **Notice board** on the Stop tab; meter bars on the Do tab. Admin > Rest stops > Living stops (read-only preview). Upgrade step `living_stops_2572` adds the new acts.
+- **Trail**: the yellow square around your avatar on route walks is gone.
+
+## 2.5.71
+- **Delve and lair run records**: a new table `landmark_runs` keeps one permanent row per delve or lair run (cleared, ko or left; level, depth, stages, route seed and picked nodes, start and end). `landmark_run_record()` writes it from `save_exp` before the map row is dropped. Test in `tests/delve2.sh`. No page shows it yet.
+- **Every village reads differently**: each generated village shows a blurb plus a new second line (`data/village_quirks.txt`, 90 lines), handed out in a fixed order from `zones.txt` so all 146 are distinct (`tests/village_desc.php`). Stored text unchanged.
+- **Haven text** no longer promises specific goods (10 havens reworded); upgrade step `haven_text_2571` refreshes the rows on existing sites.
+- **Stop upkeep**: any gnome can chip in, no stamp needed.
+- **Stop chat**: 22 more lines for the thinner personalities.
+- **News post** for players covering 2.5.69 to 2.5.71.
+
+## 2.5.70
+- **Sneak and Hunt on tile walks**: two buttons on the trail footer set how you walk. 🤫 Sneak cuts the random fight chance to 40% of normal; 🏹 Hunt raises it to 250% and allows up to 3 random fights a section (normal is 2). Tap the button again to walk as usual. Free, lasts for the rest of the walk. The safe tiles near the entry and exit are unchanged. Tests in `tests/trail_authored.php`.
+
+## 2.5.69
+- **Workshop picture has no round icons**: the seven crafting spots (oven, shelf, bench, plant stand, cauldron, bricks, house) are now invisible tap areas, so the round icon circles no longer sit on the artwork. Tapping a spot still opens its card; the chips under the picture are unchanged.
+
+## 2.5.68
+- **Build plans for every ruined place**: the other 12 regions now have their own four-stage repair plans (58 more places, 232 stages: haul, gather, feed, light, clear, with a line of story each), so no haven, wonder or delve falls back to the generic stones-and-rope stages. Plans are in `build_plans.txt`; the `buildplans` test checks them all and now hides one plan to test the old-stages fallback.
+- **Energy bar updates live too**: after a Do here activity the status strip's energy bar, number and regen note change in place, as the header pills already did.
+
+## 2.5.67
+- **Do here popovers show what happened**: on the Here picture, doing an activity (or buying at a stall) no longer reloads the page and drops the result in a banner behind the popover. The popover stays open and its card comes back with the result at the top (what you found, XP, coins) and "Done this visit", and the header energy and coin pills update live (the drawn petal icon stays; only the number changes). Without script the forms post as before. New suite `tests/heredo.sh`.
+
+## 2.5.66
+- **Trail maps: a worn path and large landmarks on all 16 Maplewold routes**: each section now has a dirt path from the entry to the exit (forest paths are pale, tundra paths icy so they show on the dark/white floor), and each of the 82 named features is a large raised landmark, 2 to 4 tiles wide and up to 4 tall, so the walker reads as a small gnome (scarecrow, beehives, waterwheel mill, owl den and so on). Landmarks may be any size: `trail_art_obj_size()` reads the PNG, centred on its tile, bottom edge = feet. Placements are in `claude/maplewold-trail-maps/maplewold_landmarks.json`; the sprites are drawn in `claude/tile-art-v3-proposal/gen2.py` and `landmarks_*.py`; `tools/bake_trail_art.py --route=N` re-bakes a route and `tools/preview_trail_landmarks.py` previews without baking. Hand-detail pass: 29 big smooth landmarks (domes, slabs, walls, trunks) redrawn with form-following shading, dithering, cracks, strata, bark and props. Painterly pass: every landmark gets blotchy tone mottling, a rough edge and lit/shade rims (`_painterly` in gen2) so it matches the tree and ground tiles. Polish pass: 23 weak or flat landmarks redrawn bigger and richer, a soft contact shadow baked under every landmark, coast and tundra paths coloured so they show. Note: the bake only redraws a landmark PNG if it is missing, so delete `obj/lm-*.png` before re-baking after editing a sprite.
+- **GPS stops at every stop**: the GPS no longer walks on by itself. It stops at every stop on a remembered route (towns, rest stops and pass-through places) and you tap Set off to go on. The keep-walking and pause-at-towns options are replaced by a note.
+- **Trail map**: the tiny dots that showed when tapping to move (reachable-tile dots, path-preview dots, footprints) are hidden.
+
+## 2.5.65
+- **Art**: all 387 seed pictures are now seed packets; the 11 hedgehog portraits are drawn head-on. Same sizes, drop-in.
+## 2.5.64
+- **Art**: hedgehogs redrawn as real hedgehogs (8 NPC portraits and sprites, 3 folk portraits and sprites); gnome player layers get a 1px skin rim around the eyes so they stay readable on dark skin. Same sizes, drop-in.
+
+## 2.5.63
+- **Art pass 2.5**: 133 weak items redrawn (64x64); 46 seed pictures now seed packets; 4 kind cards (craft, collect, tend, contest) drawn; scene fixes (camp flames, ferry dock, wild-trail trees, Snowcrown Peak, turtle scutes, kava circle, banner-desert, trek-me, vig-pick); world map and all 14 region maps richer; 11 desert/adobe looks for rest stops; village, haven, delve and lair redrawn at hero scale; Maplewold market gets its Beaver Pond front (special2); jigsaw place crops regenerated. Same sizes, drop-in. Pink border stays on the few items still weak.
+
+## 2.5.62
+- **Art polish pass**: 37 wonder pictures redrawn richer (pink river dolphins, animals, havens, delves), 7 banners, journal sea/nwe/oc, world map, trek me + ripples, vig-rod/pick, slot-forage. **Fix**: rarity flourishes are 4-frame 96px sparkle sheets again (2.5.60 had drawn them as bands).
+
+## 2.5.61
+- **More new art**: 14 journal emblems, 7 landing pictures, 14 region maps (same layout, repainted) plus world map, 46 trek tiles. Same sizes, drop-in.
+
+## 2.5.60
+- **New art**: 81 wonder/delve/haven/lair pictures, 29 banners, 27 gather pieces (slots, vignettes, flourishes, badges, felt, ribbons) redrawn in v3 style. Same sizes, drop-in. Pilot pictures kept.
+
+## 2.5.59
+- **Rest stop card as tabs**: Hold, Upkeep (only on a fully built stop) and Garden, one section at a time, no script needed (radio tabs). Opens on Upkeep when it is due, else Hold, else Garden; after a hand-in or buy it comes back on the same tab.
+
+## 2.5.58
+- **Rest stop card slimmed**: one-line notes, a title with its button on the same row, hand-in rows on one line each (name, count, box, button), shorter wording, tighter boxes (about half the height).
+
+## 2.5.57
+- **Fully built stops cannot be adopted; they need monthly upkeep instead.** A stop at the top tier says so and offers upkeep: a quarter (rounded up) of its top tier's needs each calendar month (UTC), handed in by any gnome who has the stop's stamp (Rest stop card on Here, and the old stop page). If a month passes unpaid, the stop loses one tier ("falls into disrepair"; two unpaid months, two tiers), then it can be adopted and rebuilt like any stop. The first time a stop is looked at after this update only starts its clock, no penalty. Stops that are not fully built are unchanged. New columns `stop_adoptions.upkeep_month`, `upkeep_pool` (added by the usual column check). Tuning: `STOP_UPKEEP_PCT` in `includes/stop_adopt.php`.
+
+## 2.5.56
+- **Rest stop card wording**: a stop that earlier gnomes already built to the top tier says so ("Fully built already, tier 4 of 4, raised by gnomes who looked after it before you") instead of a bare "Every upgrade is built" right after you adopt it.
+
+## 2.5.55
+- **Hand in materials inside the Rest stop popover**: when you look after the stop, its next upgrade's needs (stone, planks, logs, Petals...) each have a Hand in box right in the card. No trip to the passport page.
+
+## 2.5.54
+- **The stamp comes with being at a rest stop**: opening the Here picture (or its Rest stop card) at a village stamps your passport, like the old local page did. Before, the stamp only came from the old page, so Take hold here said to collect the stamp first.
+
+## 2.5.53
+- **Rest stop popover slimmed**: your stamp count, **Take hold here** (adopt this stop; or collect the welcome when it is yours) and **Garden here** (buy the land deed, or open your garden in this region). Both post in place and the card comes back with the result. The full passport, sets and seasons stay on the full page.
+
+## 2.5.52
+- **Rest stop on the Here picture opens a popover**: the stamp passport slimmed down (progress, next sets, Orders note) with Open full page; no Seasons, Land or Road Journal folds. Loads in place from `town.php?view=passport&frag=1`.
+
+## 2.5.51
+- **Fewer finds on Trail maps**: random sections hold 0 to 1 finds (was 1 to 3) and authored sections keep about a third of their finds.
+- **Trail tiles camera**: a walk on a Trail map now slides the picture with the gnome (wide picture like the delve maps), the gnome stays centred, and the final map no longer flashes before the walk.
+- **Garden select bar on a phone**: the quick picks wrap into rows again (a scrolling row showed one pick at a time) and the action bar stays at the bottom, so both menus show.
+- **Art v3 installed**: crafting workshop, six villager doors, the street of 4/6/8 houses, five treehouse trophies, the step-off strip (`wander-step.png`).
+- **Tests**: `paljobs` no longer depends on the clock (its thirsty crop could be ready inside the replay); `here` copes with real trophy and step-off pictures.
+
+## 2.5.50
+- **Numbering note:** the gather layers below first went live in a slim zip that was called 2.5.49 (built before the merge). The 2.5.49 code work listed under the next heading (yard, Here, pal jobs, Trek and so on) was NOT in that zip: it arrives with 2.5.50, together with everything else.
+- **Gather scene redrawn for all nine landscapes** (coast, mountain, forest, desert, rainforest, grassland, wetland, tundra, island) on a new organic pixel engine (`aseprite-source/v3/gather/gx.lua`): noisy shapes, per-pixel light, bark and leaf texture, one small quirk each. The satchel is no longer painted into the scene: it is two layers (back behind the find, front over it) with three skins, **leather** (default), **canvas** and **patchwork**. There is no satchel item yet; a later `satchel_skin` on the gnome picks the skin.
+- **Time of day**: the scene and satchel come in day, dusk (and dawn) and night versions by the Hollow hour (7-16 day, 5-6 and 17-19 dusk, otherwise night), made by `grade.py` from the day art.
+- **Weather**: rain, storm, frost, wind, fog and cloud overlays on the scene by the Hollow weather (sun and heat draw nothing). Made by `weather_overlays.py`.
+- Files: `assets/img/gather/scene3-<land>[-dusk|-night].png`, `satchel-back|front-<skin>[-dusk|-night].png`, `weather-*.png`; code `gather_scene_layers()` in `includes/gathering.php`, CSS `.gx-back` `.gx-wx`. A landscape without `scene3-` art keeps the old picture and fixed satchel. Rebuild: `python3 aseprite-source/v3/gather/build_gather.py`.
+## 2.5.49
+- **Corner pieces**: up to four small pieces share a yard square. A flower pot, stepping stone, log seat or toadstool ring set to "one piece" in a corner (Shape) takes only that corner; whole-square things still block all four. Dragging or tapping a corner piece puts it in the corner nearest the pointer. No schema change (the corner is already kept in `garden_objects.shape`); old saves behave as before. `yard_fits`/`yard_mark` take a quadrant mask; designer, save, undo and bed-adding use it.
+- **Paths and coverings meet the beds**: path squares and untilled coverings now run flush into tilled, planted and no-till squares (and each other) instead of fading into turf with a grass gap. The designer joins them live too.
+- **Wet tilled soil**: bare tilled squares use `tile-tilled-wet.png` while it rains or storms (same rain rule as crop watering).
+- **Thirsty squares for visitors**: when friend watering is on, a visited yard shows which beds are thirsty (before, the "Water for them" button counted them but the picture hid them). Otherwise thirst stays the owner's.
+- **Touch**: the yard designer was checked with real touch events in a phone-sized browser (drag from the tray, drag into a corner, refuse a whole piece onto a shared square).
+- **Here pages**: Shops popover on rest stops (stall) and havens (pantry); verb chips on workshop, treehouse, Pal Yard and street lists; icon row (Routes, World, Fast travel) on workshop, street and door, Fast travel popover on Treehouse and Pal Yard; Lost Letters and the place panel on the World map; optional step-off / step-back strip (needs `scenes/wander-step.png`, nothing shows without it). Flags `gnav_on`, `gnav_tree`, `gnav_tiles` still default 0.
+- **Treehouse**: optional trophy layers in the Contest hall (`tree-trophy-<k>.png`) and optional CSS-only animation layers in any picture layout; lint covers both. Nothing is drawn without the files.
+- **Trail**: authored sections use the 2.5D gnome rig (heading and walk frames); the ground fades into shade at the bottom and left edge; maps can be added for any region (`includes/data/trail_maps/*.json`, `tools/bake_trail_art.py` merges and `--check`s; desert, island, rainforest, mountain and wetland use stand-in art). `tests/balance_sim.php` models walks: a tile walk costs the same 1 energy, with about 40% more fights than a timer walk.
+- **Treks**: Lanternroot is a real crop (seed from the Worm Choir plants and grows; old saves repaired on upgrade).
+- **Pals**: trips and delves pack Strong and Grand healing potions (5 in all, weakest first, unused come back); Twigg's stocks the 7 newer potions; Pal Jobs has a "Select all free pals" button; "Show all N pals" no longer folds the form.
+- **Garden**: the select-squares bar is much smaller on a phone. **Welcome**: village cards without a picture use a tested landscape fallback (all 146 villages walked, island colour added).
+- **Docs/news**: Here/door/treehouse catalogue in the art guide, README Key systems, DESIGN.md, plan status line; player news for 2.3.91, 2.3.93 and 2.5.49.
+- **Tests**: beds, stops100, roads097, redirects and catfish were stale tests (3,4,5 pots, removed chip row, 9% action XP, Wren's tour question, 2.5D scarf, date-dependent rest-stop specials) and now match the game; gather150, help and folkoverlay pass alone (earlier failures were port clashes). New `welcome_villages`. Not run: MySQL, full CI.
+## 2.5.48
+- **35 pictures finally on the new art**: the v3 drawings from batches 1 and 2 had never been put into the game, which still showed older pictures: Butterfly House, Carrot, Corn, Pumpkin, Watermelon, Pineapple, Coconut, Cacao, Blueberry, Mint, Cassava, Turnip, Rambutan, Fiery Pickled Cabbage, Morel Risotto, Yuzu Marmalade, Bug Net, Tide Pail and Scoop, Fine Foraging Knife, Broken Wheelbarrow, Fossil Shell, Wisp Light, Spotted Pelt, Badger Claw, and the seeds of Banana, Blueberry, Cacao, Carrot, Chili Pepper, Coconut, Corn, Mint, Pineapple, Pumpkin and Watermelon. Ripe beds show the crop pictures, so Carrot, Corn, Pumpkin and the rest look better in the yard. (Ginseng Seed keeps its old picture: the new leaf reads as the wrong plant.)
+- **Butterfly House** is the new v3 picture (a slatted butterfly box on a post), replacing the 2.5.47 redraw. The Tortoise Run keeps the 2.5.47 pen (it has no v3 picture); `tools/draw_fix_art.py` now only draws that.
+## 2.5.47
+- **Animal homes show their pixel art in the yard**: the yard was still drawing the old line drawings for the eight animal homes (worm farm, ladybird lodge, frog pond, quail coop, silkworm shelf, tortoise run, snail jar, butterfly bush); it now uses their pixel pictures.
+- **Tortoise Run redrawn**: it was a boxed scene with no outline; now a wooden pen with a dirt floor, a tortoise and a lettuce leaf, outlined like the others.
+- **Butterfly House redrawn**: it was a copy of the bird box; now a glass pavilion with a green roof, flower beds and butterflies. New `tools/draw_fix_art.py`.
+## 2.5.46
+- **Stepping stones, log seats, toadstool rings and flower pots line up**: like fences, they join their own kind by themselves: end, straight, curve (a corner as an arc), tee and cross, with the pieces of neighbouring squares lining up across the edges. In the yard designer, **🔀 Shape** cycles automatic, end, straight, angle (a sharp corner), curve, T, cross, a cluster, or **one piece**, centred or in any corner of the square; **⚖️ Size** picks big, small or mixed (for one piece: large or small). Drawn by the new `tools/bake_fam_art.py` (360 pictures in `assets/img/fam/`, upright from every side). The old pictures stay for the tray and as a fallback. Needs 2.5.40.
+## 2.5.45
+- **Soil states have their own art**: a planted bed shows damp, dark soil; a thirsty bed shows pale, dusty, cracked soil; a ripe bed shows warm golden soil with a few sparkles. They replace the flat brown squares behind the crops. New `tools/bake_soil_art.py` (`ph/tile-soil-planted.png`, `-thirsty.png`, `-ready.png`).
+## 2.5.44
+- **Untilled ground has many coverings**: each untilled square is lawn, clover, wildflowers, weeds, dry grass, leaf litter, moss or bare dirt, picked from where the bed is (so it never changes). Squares with the same covering next to each other join into a patch with a ragged lit-and-shaded edge, like the paths and the Trail ground. Replaces the six look-alike tiles of 2.5.43. New `tools/bake_cover_art.py` (335 pictures in `assets/img/cover/`).
+- **A bigger, calmer yard turf**: the grass behind everything is one 256 px picture (four squares wide) instead of a 64 px one, so it no longer repeats square after square.
+## 2.5.43
+- **Blended paths**: flagstone, brick, gravel and bark paths are now ground, not little objects. Each square blends into its neighbours (straight runs, corners, T-junctions, crossings) and into the grass with a ragged, lit-and-shaded edge, the way the Trail ground does. Paths of different kinds next to each other meet with a straight edge. Stepping stones are loose stones with the ground showing round them. New `tools/bake_path_art.py` makes the 188 pictures (`assets/img/paths/`); the designer joins them live too. Needs 2.5.40.
+- **Untilled ground, six looks**: untilled squares are flat turf (a meadow, tall weeds, stones, clover, bare patches) instead of the grass cube. All six share one ground with the yard's own turf, so they fade into each other and into the yard. A square keeps its look. New `tools/bake_wild_art.py`.
+- **Bigger crops in the beds**: growing crops are drawn about a quarter larger in their square.
+- **Ripe crops look like themselves**: a ripe bed shows the crop's own harvest picture (a cabbage looks like a cabbage, not the shared melon). Trees and cover crops keep their stage picture.
+- **Fix: Adventure page error**: already in 2.5.42.
+
+## 2.5.42
+- **Treehouse and Pal Yard buttons**: Routes, World and the new Fast travel are round buttons under the picture (like the Here pictures) instead of sitting on top of it, and the rooms / job sites are one folded list in an even grid.
+- **Fix: Adventure page crash**: `adventure_stage_html()` always returned the fight backdrop and passed a null key to `scene_path()`, so /adventure.php threw a TypeError. The fight backdrop is now used only for the encounter popover.
+
+## 2.5.41
+- **Richer pictures**: all 17 Here pictures (11 rest stops, village, haven, wonder, delve, lair, generic), the Treehouse, its four dressing layers and the Pal Yard got a polish pass: livelier fires, more story props, textured materials, warmer light and more plants. Same layout, same spots.
+- **Name pills in the Treehouse and Pal Yard**: rooms and job sites now carry the same named pill as the towns and places. Needs 2.5.39.
+
+## 2.5.40
+- **Homes popover**: the Homes spot on a picture opens a popover with the neighbours' faces and a link to the street of doors.
+- **Verb chips**: the list of places shows what each spot is for (Shop, Talk, Rest, Do, Explore, Enter, Tend, Visit, Eat, Read).
+- **The walking gnome**: on the Trail the 2.5D gnome now faces the way it walks (front, back, side, flipped for west) and steps through its walk frames. Needs 2.5.39.
+
+## 2.5.39
+- **Villagers pill lights up the villagers**: on a rest stop picture, tapping Villagers scrolls to the villagers standing under it and highlights them (if no one is there it opens the Folk tab as before). Needs 2.5.38.
+
+## 2.5.38
+- **Rest stop folk have their new pixel art**: the villagers of rest stops (20 kinds of animal, 3 looks each) now use the new standing sprites on the Here picture and the new portraits in their panel. Needs 2.5.37.
+
+## 2.5.37
+- **Trail tiles, Hearth Pop v3 look, first test region (The Maplewold)**: the 16 Maplewold routes (41 sections, 22 tiles wide) now have hand-made maps (`includes/data/trail_maps.json`) drawn with new pixel art: blended ground, raised trees, rocks, hedges and pines that the gnome walks behind or in front of, per-land find spots with a searched state, the v3 gnome sprite, and a short caption under each map. Routes without a map, or sections without their baked picture, keep the old drawn look. Placeholders: the way-on tile and the fixed fight are red-outlined squares until their art is drawn.
+- **Fights are random encounters**: no more fight markers on the map. Each tile walked rolls (2% on floor, 8% on rough floor, +1% per quiet tile, never in the first 3 tiles or within 2 of the exit, at most 2 a section) and a hit stops the walk there; random fights never bring a boss. Only a delve's miniboss or a lair's boss is a fixed spot, on the last section. Between-section events are unchanged.
+- New: `tools/bake_trail_art.py` (bakes the art and the map data), `includes/trail_art.php`, `tests/trail_authored.php`, search icon `ico-search.png`. Still behind `gnav_tiles`.
+
+## 2.5.36
+- **Rest stop folk on the Here picture**: the villagers of a rest stop (Honeybrook and the like) now stand in the line under the picture. Tap one to chat, give a gift or take an errand right there. Needs 2.5.35.
+
+## 2.5.35
+- **Named things to do at rest stops**: each "Do here" spot on a stop's picture is now one activity, named and with its icon (what the weather, season or hour allows comes first, then the day's picks). Its popover has the buttons, and doing it brings you back to the picture. Needs 2.5.34.
+
+## 2.5.34
+- **Pictures for every kind of place**: Here pictures with named, tappable spots for the 11 rest-stop types (camp, ferry, herb garden, inn, jetty, mill, orchard, shrine, spring, tower, workshop), village, haven, wonder, delve and lair, plus a plain-place picture for any stop type without its own. Three fight backdrops (open, wood, dark) cover every land, three wander banners (generic, wild, deep) and ten wander icons are in. Importer `tools/import_gate_layouts.py` gained the place list and trims hit boxes off the compass corner. News post for everything since 2.4.92. Needs 2.5.33.
+
+## 2.5.33
+- **The 2.5D gnome on My Gnome, Today and everywhere your gnome is shown**: the old pixel gnome is replaced by the new standing gnome (your hat, beard and scarf colours) on My Gnome, the Today page, the menu header, the Customise preview, profiles and fights. Pals still stand at its feet. The old picture is the fallback if the art is missing. The World page map opens centred on you at the standard zoom (the whole-world start in 2.5.31 is dropped). Needs 2.5.32.
+
+## 2.5.32
+- The World page icon row no longer has a GPS button (Map, Fast travel, Gather, Shops, Wander). Needs 2.5.31.
+
+## 2.5.31
+- **World map opens on you**: the World page map no longer reopens on a remembered zoom (it was reusing the last zoom from the old folded map); it always opens centred on you at the standard zoom. Needs 2.5.30.
+
+## 2.5.30
+- **World page is the world map** (graphical navigation on): the top banner and the place-switcher row are gone and the page opens on the world map itself, full width. Tap a region to open its map below. Under the map: "You are here" and one centred row of round icons (Map, Fast travel, GPS, Gather, Shops, Wander) that also sits on top of the Gather and Shops pages. The old Go stack of cards stays on the Here page. Needs 2.5.29.
+
+## 2.5.29
+- **Shops open as the shop, in the popover**: tapping a shop on a town picture shows the shop itself (who is at the counter, Buy / Sell, volunteer) right in the popover, with no "Step in" tap. Buying, selling and Sell/Buy tabs work in place. The Mossbottom Shops popover lists the hub shops; tapping one opens it in the same card, with ‹ All shops to go back. Open full page stays at the bottom. Needs 2.5.28.
+
+## 2.5.28
+- **Each shop has its own name on the town picture**: the pills that all said "Shops" now carry the shop names (Here town pictures). Tapping one opens that shop's card (picture, a line about it, who is at the counter, Step in). The last front is **Mossbottom Shops** (open from anywhere), which lists the hub shops as rows. More shops than fronts: the last town front lists the rest; a picture with one front lists everything. Needs 2.5.27.
+
+## 2.5.27
+- **Smoother Trail walk**: the picture now slides with a GPU transform snapped to whole device pixels instead of re-laying-out every frame, your 2.5D gnome glides with no hop so it stays dead centre, and each step is a little slower (90 ms at the quickest). Needs 2.5.26.
+
+## 2.5.26
+- **No ring behind your gnome on the Trail**: the round marker behind your 2.5D gnome is gone on the Trail and delve tile maps too, leaving the gnome and its shadow on the tile. Needs 2.5.25.
+
+## 2.5.25
+- **Gnome stands on the tile**: on the Trail, delve and trek maps your 2.5D gnome is bigger, has a shadow and no ring around it, so it no longer looks like an event token. The old round icon remains as the fallback. Also fixes a place card that could error when a villager was listed. Needs 2.5.24.
+
+## 2.5.24
+- **Your 2.5D gnome appears**: the gnome rig is in the game. Your gnome stands in the street line under the Here picture ("You", tap = Home) and is the walker on the Trail / delve / trek tile maps, in your own hat, beard and scarf colours (tunic, boots and skin as drawn). Built once per colour set by `gnome_sprite.php` and cached. Leaving the Trail (the way on, or Turn back) and coming back from a Wander now land on the Here page of the place. Needs 2.5.23.
+
+## 2.5.23
+- **Routes card has a map**: the Routes popover now opens with a small picture of the region (its own map art), cropped to where you stand and where the ways out lead, with the roads, a pin for each route (? for places you have not visited) and "You are here". Tapping a pin picks that route's row, and tapping a row moves the ring to its pin. The Trail walk lights the Here tab, and opening Here during a walk goes straight back to it with no "You're still on the road" message. Needs 2.5.22.
+
+## 2.5.22
+- **Here: everything resolves in a popover**: tapping a place in a town picture (Green, Café, Notice Board, Library, special places) opens a slim card that loads in place: one line about it, the things to do as compact rows, who is here as little faces (tap = their popover), favours / gossip, and Open full page last. Its buttons act without leaving the picture. Villager popovers show the portrait first. Under the picture there is one centred row of round icons with captions (Routes, World, Fast travel, GPS); the big place buttons, the List view and the Town square / World map / Villagers buttons are gone (a small "List of places" fold remains). Titles, clock, popover heads and actions are centred. Needs 2.5.21.
+
+## 2.5.21
+- **Here pictures: named pills and a street line**: each tappable thing in a gate-view picture carries a small named pill (no overlaps), the compass and world globe are round icons in a row under the picture, and the villagers stand in a line under the picture in their 2.5D sprites with name pills (tap opens the villager popover: chat, gift, trade). Needs 2.5.20.
+
+## 2.5.20
+- **Here pictures, clearer**: each tappable thing in a gate-view picture has a numbered pin (no tiny words on the art), and the list under the picture carries the same numbers, with the villagers listed as rows too. The compass (Routes) and globe (World map) are now a bar under the picture. Tapping a villager opens a popover with the full villager panel (Chat, Give a gift with the item picker, trade) that works in place, with "Open villager page" at the bottom. Needs 2.5.19.
+
+## 2.5.19
+- **Villager sprites no longer show four copies**: the Here picture drew a villager's whole 4-frame sheet (four bees in a row); it now draws one frame. Tap areas and name tags in the picture scenes are always visible (dashed outline, gold corners, names on small phones too). Needs 2.5.18.
+
+## 2.5.18
+- **Picture-first Here scenes for every main town**: Mossbottom and the 14 regional towns (plus the Maplewold market and the desert market stop look) show a gate-view picture with whole-building tap areas, a compass that opens the Routes list (named by destination, one tap to set off) and a globe that opens the World map popover with Open region map. Lookup picks the picture by town region, stop type, landscape and style. Wander cards read optional banner and icon art when present. Needs 2.5.17.
+
+## 2.5.17
+- **Wander redesigned for the Trail**: when nothing is in front of you, Wander off shows one small purpose-built card over the Trail section: a header (land, step, tier, danger), what just happened, the moves as small cards (Go deeper, Keep exploring, Step back, Back to the Trail, Visit a found place) and a Gather here fold. Fights, choices and meetings out there use the same popover as on the Trail. The old explore page is no longer shown behind a Trail wander. Needs 2.5.16.
+
+## 2.5.16
+- **Wander popover, more tidy**: buttons come right after what just happened; Gather here stays folded; the long map caption and World map link are gone; folds and Journal sit last. Needs 2.5.15.
+
+## 2.5.15
+- **Wander popover tidied**: the big heading and the duplicate status box are gone (the info line next to the map says it once); smaller type, tighter buttons and folds. Needs 2.5.14.
+
+## 2.5.14
+- **Wander off is one popover, no page change**: the confirm card still shows first; after Wander off, the whole wander (the existing explore screen) plays in a popover over the Trail section, which stays visible but untappable behind it. When the wander ends, the Trail walk is picked up again by itself (no Resume tap). Needs 2.5.13.
+
+## 2.5.13
+- **Wander off is a popover**: tapping it opens a small card (what it does, ⚡1, Wander off or Stay on the Trail). Works without script via `?w=1`. Needs 2.5.12.
+
+## 2.5.12
+- **Fight popover, smaller and tidier**: 380 px wide, shorter picture and buttons; the odds line ("You hit 90% ...") sits between the picture and the buttons; the green and red stat cards at the bottom are gone (the picture shows both health bars). Needs 2.5.11.
+
+## 2.5.11
+- **Fight popover is smaller**: sized to its content (up to 440 px wide, 88% of the screen tall) instead of the whole screen. Needs 2.5.10.
+
+## 2.5.10
+- **Trail "way on" popover is a small card** over the map, not the full-screen sheet (the fight popover stays full size). Needs 2.5.09.
+
+## 2.5.09
+- **Trail "The way on lies ahead" is a popover over the map** (with Continue or Head into, and a free Turn back). The Section text card above the buttons is now one line. Needs 2.5.08.
+
+## 2.5.08
+- **Trail page scroll fix**: the old adventure scroll helper no longer drags the Trail tile page to the bottom (e.g. after tapping Here while on the road). Needs 2.5.07.
+
+## 2.5.07
+- **Trail page opens on the map**: the strip and tile map are scrolled into view on every load and move (it could open at the bottom). Needs 2.5.06.
+- **Trail buttons under the map**: Gather here, Wander off and Turn back sit in one small row right under the tile map.
+
+## 2.5.06
+- **Trail page tidy**: no scene picture or route ribbon over the tile map (the strip says it); "Latest" is now a brief pop-up that fades; the map is centred on screen after each move. Needs 2.5.05.
+
+## 2.5.05
+- **Workshop popover loads the real crafting section** (`workshop.php?frag=<key>` JSON fragment + `assets/workshop.js`): Make, Collect and filters work inside the card; "All areas" closes it.
+- **Trail strip**: a slim centered strip over the tile map: Trail to the place, Section X of Y, energy chip, HP bar.
+- **GPS hand-off** (picture navigation on): after a leg ends at a pass-through stop on a remembered route, you land on Here with that next leg's "Continue to" card open. Each leg still charges its own start energy. Towns still pause as before.
+- Needs 2.5.04. No new tables.
+
+## 2.5.04
+- **Real Here pictures for town, village and haven** (test). `game/assets/img/scenes/here-town.png`, `here-village.png` and `here-haven.png` replace the placeholders. Same size (480x270), drawn to the existing layout slots in `here_layouts.json` (8 exit stubs, spots, stand points), so no code or layout changes. The other Here pictures stay placeholders. Admin > Picture layouts shows the slot dots over them.
+- Images uploaded in Admin > Images or scene uploads still win over these files.
+- No code, schema or setting changes. Only `bootstrap.php` (version) and 3 image files.
+
+## 2.5.03
+- **Picture navigation (all off by default; this release carries release A, the Here page, and the rest).** New setting `gnav_on` (Admin → Settings): a Here picture page (`here.php`), login lands on Here (`gnav_login_here`, Account → Start on), bottom bar and menu Here, Fast travel and GPS buttons on World and Here. Further settings: Settings: `gnav_tiles` (Trail tiles), `gnav_craft` (Crafting workshop picture), `gnav_tree` (Treehouse and Pal Yard pictures); all need `gnav_on`. Admins can open every new page while the setting is off.
+- **The Trail as tile sections** (`gnav_tiles`): 1 energy to step onto a Trail, then walk tile sections (fights and finds on tiles), a free Continue with an event rolled once between sections, Turn back is free, and the last step heads into the place. Also on the page: Gather here (popover), Wander off the Trail (the walk waits and Resume brings the same section back), centered text. A walk that began as a timer walk stays one.
+- **Fights and other encounters on tile maps are a popover** (Trail, delve and lair maps): a battle picture on top (placeholder `fight-generic.png`, real art `fight-<land>.png`), small stylized buttons under it, odds and log, the stat cards last. It cannot be closed until settled.
+- **Residential and Door** (`residential.php`, `door.php`, a Homes spot on Here): a street of houses with lit windows, a door with Knock (only when they are home), Leave gift (any time, once a day, half friendship) and Back.
+- **Crafting workshop, Treehouse, Pal Yard** (`workshop.php`, `treehouse.php`, `palyard.php`): picture pages with popovers that link into the existing pages, found pals on perches, pals at their job sites. The old pages stay.
+- **Admin → Images & art → Picture layouts**: drag the slots of every picture, lint, save, reset, copy. `tools/lint_here.php` and `tools/gen_here_placeholders.py` (red-border placeholder pictures, included: `scenes/here-*`, `resid-*`, `door-*`, `craft-workshop`, `tree-house`, `yard-pals`, `fight-generic`).
+- Fix: none to existing features; `npc_gift()` gets an optional door mode (default off). Needs 2.5.02 or newer. New column `users.start_page`, new table `here_layouts`. Tests: `tests/here.php`, `tests/here.sh`; plan `claude/plan-graphical-nav.md`.
+
+## 2.5.02
+- **Creature villagers.** All 81 NPC portraits in `game/assets/img/ph/npc-<slug>.png` are redrawn in v3 Hearth Pop (80x100). Every villager is now a creature (hedgehog, field mouse, frog, snail, tortoise, moth, beetle, otter, elephant and more; old human-looking art was redesigned to fit the name and mood). Same file names, so nothing in the code changes.
+- **New 2.5D villager sprites** in `game/assets/img/sprite/npc-<slug>.png`: 64x96 cells, 4-frame idle strip (256x96), feet at bottom-centre. Not used by any page yet (they are for the graphical-navigation build).
+- Images uploaded in Admin > Images win over these files: upload `gnome-venture-images-v3-npc-portraits.zip` to replace old portraits.
+- No code, schema or setting changes. Only `bootstrap.php` (version) and image files.
+
+## 2.5.01
+- **Redone art for 179 items.** The 179 weak images from 2.4.98 (tiny seeds, look-alikes, muddy materials) are redrawn in v3 Hearth Pop, same file names, so nothing in the code changes: 55 seed icons and 124 other item, stage, fence, wall, shed, pelt and food images in `game/assets/img/ph/`. The pink 2 px review border is removed; `aseprite-source/v3/rollout/weak.txt` is now empty and `export_game.py` re-adds the border to any name put back in it.
+- Images you uploaded in Admin > Images still win over these files; re-upload the `gnome-venture-images-v3-*` zips to replace them.
+- No code, schema or setting changes. Only `bootstrap.php` (version) and image files.
+
+## 2.5.00
+- **Satchel and Crafting items are now big square tiles.** Every item in the Satchel shelves (Seeds, Crops, Food, Soil, Tools and the rest) and in all Crafting menus is a tile: 72 px picture on top (was 28 to 32 px), name under it, 3 per row on a phone and as many as fit on a computer.
+- **Count is a badge on the picture** (`×13`). Extra notes (in use, broken, untasted) sit under the name. Crafting tiles keep their line under the name (time and energy, "short 2", "N/M found"). The status stripe moved from the left edge to the top edge.
+- Code: `sh_shelves()` in `includes/shelves.php` (picture now `lg` art, `.shic` / `.shqty` wrappers, bag `small` no longer starts with the count); `.shelves .shpill*` rules in `assets/style.css`. Picture size is one variable, `--shic` (72 px). The art is 64 px, so 64 px is the crisp size if 72 looks uneven.
+- No schema or setting changes.
+
+## 2.4.98
+- **New "Hearth Pop" art for 1,662 items and icons.** Same file names, so nothing in the code changes: `game/assets/img/ph/` (item, seed, food, tool, building and pelt art, including the 14 `nav-*` and stage art), `game/assets/img/games/` and `game/assets/img/ico/` now hold the v3 pixel art (64x64, slim shapes, 5-6 tone ramps, one small quirk each, 1px ink outline). The game already prefers `<name>.png` over the old `.svg`, so the new art shows straight away; the old SVGs stay as the fallback. Flower heads are not included (they need a tintable rig).
+- **Review aid: 179 images wear a bright pink 2 px border.** These are the ones the artists or Josh marked weak (tiny seeds, look-alikes, muddy materials). The border is only in the game copy; the source art is untouched, and `aseprite-source/v3/rollout/weak.txt` plus `rollout/export_game.py` regenerate it (remove a line from `weak.txt` and re-run to clear one).
+- No code, schema or setting changes. Only `bootstrap.php` (version) and image files.
+
+## 2.4.97
+- **Fix: a second tab or visitor can no longer overwrite your garden with an old copy.** `load_plot()` and `helper_water_tile()` lock the square and check it is unchanged before saving (`tile_write_guarded()` in `includes/garden_logic.php`); if it changed, nothing is written and the fresh square is shown. Closes a perennial re-harvest and weeding, mulch or compost being undone by a stale page load.
+- **Fix: energy refresh no longer refunds spent energy or credits ticks twice.** `refresh_energy()` adds the ticks (capped at the maximum) and only when `energy_updated_at` is still the value it read.
+- **Tests.** `tests/garden100.php` has a "v2.4.97 stale writes" block: stale square rejected, fresh row handed back, unchanged square written, no open transaction, spend kept across a refresh, no double credit.
+- Not changed: helper visit totals can still double-count when two tabs load at once (cosmetic; harvests are still claimed).
+- **Wren's tour is now a guided speech bubble.** The tour card becomes a bubble above the bottom bar (bottom right on a computer) with a pulsing ring and a pointing finger on exactly what to tap: a wild square, then **Till**; the tilled square, then **Work in** / **Plant**; the planted square, then **Water**; the satchel's Eat button; the Almanac, level and World links (the **More** button first when the link is in the menu); the ready square, then **Harvest**. Nothing is blocked or dimmed: the player's own tap does the job and the bubble moves on to the next thing. A wrong page or garden tab rings the Garden link or the Beds tab. "Skip the tour" is on every bubble. Without script the card stays a plain card. `assets/tour.js` (new), `TOUR_TARGETS` in `includes/tour.php`, `gv:swapped` event after an in-place page swap in `assets/site.js`.
+- **Tour text is short, with petal bullets.** Each step is one sentence, then one point per petal-bullet line (`tour_text_html()` in `includes/tour.php`; the energy note is a bullet too). The live "Tap …" hint sits under it.
+- **Wren asks "now or later?" once the garden is named.** New `users.tour_ask` (1 asking, 2 said later, 0 answered). **Show me now** starts the tour at Till; **Later** leaves a one-line "Wren's tour is waiting" chip and Wren asks again on the next login. Nothing on the tour counts, and no garden action is free, until the question is answered. Accounts already mid-tour are untouched (answered). `tour.php` `do=start` / `later`.
+- **Visit steps show their words.** Opening the Almanac, My Gnome, World or a shop finishes the step before the page is drawn, so the bubble now shows what that step was about first (**Next ›**), then the next step.
+- **Compost step can be skipped.** Rich soil has no Work in button, so that step has "Can't see it? Skip this step" (`do=nextstep`, only for steps marked skippable).
+- **Tests.** New `tests/tour.sh` (question, later and re-ask, start, free till, skip step, arrival card, paused visit, skip), added to CI; `tests/cook.sh` sets `tour_ask=0` where it moves the tour by hand.
+
+## 2.4.96
+- **New-player Welcome flow redesigned for phones (`welcome.php`).** Progress tiles with pixel icons (done tiles link back), Wren's portrait bubble with the long copy behind a **More** toggle, a sticky bottom bar with one big button and Back. **Step 1:** meadow stage with the live gnome, name box, 44 px hat and beard colour tiles (checkmark on the chosen one, name on title and label). **Step 2:** village cards with scene art (Poppyburrow, Honeybrook; other villages get a landscape-colour card with its emoji until they get art at `assets/img/villages/<name>.png`), and the village's welcome basket drawn top-down with item slots (picture, ×N badge, name). Every village's basket is on the page and the picked one shows (`assets/welcome.js`); without script the checked one is shown. Items pop in with a short stagger, none with reduced motion. **Step 3:** name, Petals / plot / energy tiles, and three pack cards (seeds, village basket, everyday kit) with five slots each; tap a card for the full list.
+- **Same fields and rules.** `do=gnome` / `place` / `finish` and every field name are unchanged; the live gnome preview still works; no inline styles (CSP). New art in `assets/img/welcome/` and `assets/img/villages/` (11 PNGs). New `pack_slots()`, `pack_icon()`, `swatch_tile()` in `includes/onboard.php`; the old `.wsteps`, `.zonecard`, `.villagepick` styles are gone.
+- Open for Josh: long Wren copy now sits behind "More"; baskets of more than 6 items scroll inside the basket.
+
+## 2.4.95
+- **Fresh start also clears feature tables made on first use** (Cat Fish, Puzzle Pals and their jobs, hybrids, Treks, rest stop progress, puzzle runs and wins, Jigsaw unlocks); a table that does not exist yet is skipped. (Built outside this repo; notes reconstructed from the diff.)
+
+## 2.4.94
+- **Admin: "Start counting again" on XP sources, Usage and Retention.** Usage and Retention count only from the reset date (Retention only players who signed up after it); XP sources clears its log (gnome XP and levels are untouched). Nothing else in the game is deleted. `stats_baseline()`, `stats_reset_handle()`, `stats_reset_box()` in `includes/admin_helpers.php`. (Built outside this repo; notes reconstructed from the diff.)
+
+## 2.4.93
+- **Home header no longer overflows on phones.** The place, weather and Calling lines wrap inside the box; the boosts line shows two boosts and a count (full list with times on Stats).
+- **Calling card wording trimmed:** one legend line instead of a note on every task; tile says "Not started" / "Active".
+- **Fix: "Reach N steps off the road" now counts when you slip back into the wilds.** Coming back from a place found off the path put you at your old depth without telling the Calling, so a gnome already 7 steps out only counted after the next step. (Event tasks, like this one, still count only from the moment the chapter is taken.)
+- **Calling chapters say when you have not started them.** A chapter on offer but not taken now has a **⏳ Not started** badge and a box at the top of its card: "Visit Tumble Waymarsh in The Rainroot Reaches to start", plus two short lines: harvest, depth, wonder… tasks count only after you start; region, place, road… tasks show your progress now. Its event tasks say "Counts after you start". A chapter on the go has a **▶ Active** badge. The same box is on My Gnome → Calling, the Calling tile says "Chapter not started" / "Chapter active", and the Today header and Tasks → Journey line is now just "📜 Visit <mentor> in <region> to start" (or "📜 <chapter>: N of M", with "finish!" / "hand in").
+- **Free trip to your calling mentor.** The not-started box has a **🧭 Travel to <mentor> (free)** button (no Petals, no energy) that puts you at the mentor's town market, where the Take-on button waits. Only for a chapter you have not taken; only to a town you could fast-travel to anyway (been there, home, or a garden there: an unvisited town shows the hint, no button); not on a walk, in the wilds, a delve, a lair, a trek or a tending shift (the same checks as fast travel, now `travel_blocked()` in `includes/world.php`); not for guests. It sets your place and arrival time, the region visit and the place's Almanac page like an arrival, but sends no travel / arrive / walk event, so it never counts for a task or the Hollow jar. `mentor.php` `do=trip`; `calling_mentor_trip_check()` / `calling_mentor_trip()` in `includes/calling_quests.php`.
+- **Tests.** `tests/calling.sh` checks the not-started text and badges, no trip button for an unvisited town, on a walk or once started, the trip moving you free (energy and Petals unchanged), and the Take-on button after it.
+
+## 2.4.92
+- **Today and My Gnome are one home page (`gnome.php`).** A shared header (avatar, "Good morning, Name!", place, weather, tomorrow, boosts, trip and calling lines) and two tabs under it: **TODAY** (default; news, the six cards, a one-line Hollow box: jar % · festival % · who is about · Open, Wren's tip; the prize pop-up still pays before the page starts) and **MY GNOME** (`?tab=gnome`: rank and title, level and XP, gardens, energy, health bar with Heal, "See your profile as others do", Pals along with the picker and Pal Book, and a "Your gnome" tile row to Stats (stat-point badge), Calling, Pals, Foods, Villagers and Gardens). The sub-pages keep their `?tab=` addresses and get a "← My Gnome" back link. Tabs are plain links (work without script) and load in place. Phone first; the open tab has a gold top bar; light and dark.
+- **Moved / cut.** Hat and beard dyes and a "Your record" line (ribbons, community help, lairs, delves) move to Stats. The Overview tab's stats chart, fact row and stat-point flash, the "Your gnome" filler card and the "📅 Today →" link are gone. `?tab=overview` opens MY GNOME; `?dye=1` with no tab opens Stats.
+- **Today's code** lives in `includes/today_view.php` (`today_prepare()` before `page_header`, `today_head_html()`, `today_html()`); `today_social_html($u, 'line')` is the one-line Hollow box.
+- **Old links.** `index.php`, `index.php?today=1` -> `gnome.php`; `?t=out` / `?t=hollow` -> `gnome.php#todaycards` / `#hollowtoday`; `index.php?news=all` is unchanged. `daily.php` and First Week's "Back to Today" go to `gnome.php`; the Dye Pot links to `gnome.php?tab=stats&dye=1#dyes`. `gnome.php?id=<another gnome>` goes to their profile, so other players only ever see the profile, never your Today.
+- **Menu and rail.** The menu has one home entry, **🏠 Home** (the My Gnome tile is gone; the avatar at the top opens MY GNOME). The desktop rail's "Go to Today" box is gone. The status strip's health and level open MY GNOME, the ✨ stat badge opens Stats. The full festival banner and the trimmed rail follow the TODAY tab. Wren's tour step 7 links to `gnome.php?tab=gnome` and ticks only on MY GNOME, not on landing.
+- **Tests.** New `tests/redirects.sh` (old addresses, POST redirects, menu, tour step 7; in CI). `social100.sh`, `paljobs.sh` (the pals-home notice is drawn once), `sinks097.sh` (dyes on Stats), `health.sh`, `calling.sh`, `polish_audit.js` follow; `market100.sh`'s Today check was a no-op (302 without `-L`) and now reads `gnome.php`.
+
+## 2.4.91
+- **Petals show once on desktop.** From 721 px the menu's status line no longer repeats the Petals count (the header pill shows it); the destination line stays. Phones are unchanged: the menu sheet still shows Petals.
+- **Petals have a petal icon.** New `ico-petal` (pixel PNG drawn with gvlib, `aseprite-source/final/scripts/ico/ico-petal.lua`; SVG fallback from `tests/gen_ico_petal.py`) replaces the coin for 🪙 everywhere (header pill, prizes, treks, games, the chest reveal), read as "Petals" by screen readers. `💱` (admin Trade) keeps the coin. `users.coins` is unchanged.
+- **Crisper Satchel tiles.** Tile icons were 26-28 px (0.41-0.44x of the 64 px art, nearest-neighbour), which dropped and doubled outline pixels. They are now 32 px on phones (1:1 on 2x screens, smooth halving on 1x) and 64 px from 900 px; labels 14/13 px on phones, 16/14 px on desktop.
+- **Tasks: the Quests tab is now Journey.** Tab key `?t=journey` (old `?t=quests` and `?s=quests` links redirect there, like Orders and Errands go to Requests). Repair links, the nav badge count and the tests follow. Help text that pointed at "the town square's Quests tab" now says Tasks → Journey, and "Satchel → Arranging" now says Satchel → Arrange.
+- **Docs.** README, PRODUCT and the to-do header no longer say Treks stop at Chapter II-b (Chapter III is built, `trek_chapters_open` defaults to 3) or that `crafting.php` is a redirect stub. The 2.3.7 update note no longer mentions the removed My Gnome Potions box.
+- **My Gnome: the Potions box is gone.** Boost potions and Garden Tonic are used from the Satchel (Garden Tonic: pour it from the Garden). `alchemy_card_html()` and the `do=drink` handler on `gnome.php` are removed.
+
+## 2.4.90
+- **Patch note: a full garden is now within reach, and the shows stop paying for being alone.** Adding beds costs far less (all 144 beds about 31,600 Petals, not 170 million), and a quiet show week thanks every entrant instead of crowning the only one.
+- **Beds are priced by beds owned (T1.1).** `bed_add_cost()` uses `k = (beds - start²) / 4`, multiplier `min(6, (1 + growth)^k)`, Petals `round(200 x mult x n/4)`, planks `ceil(2 x mult x n/4)` (12 at most). A partial buy (fewer than 4 beds of room) pays per bed and no longer jumps the curve. `bed_add_growth_pct` default 50 -> 20. `bed_adds` is still written, for history only.
+- **No prizes for being alone (T1.2).** Village Show and Arrangements show: with fewer than `fair_min_entries` (3) gnomes entered, nobody is placed (`placed` 0), every entrant gets 100 Petals and 10 XP, no ribbon ("a quiet week"). Guess the Weight: the closest-guess consolation needs 2 or more guessers; `marrow_jackpot_max` 25,000 -> 10,000, `marrow_jackpot_grow` 1,000 -> 500 (a pot already above the new cap is not cut, it waits to be won).
+- **Faster first week (T1.3).** Wren's tour now gives 100 XP (gnome level 2 at the end). First Week XP 10/10/15/15/20/20/40 -> 40/40/50/50/30/30/60.
+- **Honest streak copy (T1.4).** Daily jobs settings say "a lifetime count, never resets". Rain Barrel and Gnome Beds show "Solved N times" instead of "Streak: N days" (`pz_streak()` replaced by `pz_solved()`).
+- **First Week day 5 (T1.5).** The friend-request and guestbook tasks are gone (a world may have no other open garden to sign); the card asks for a chat with a second townsperson (`talk2`). Pay unchanged.
+- **Calmer Tasks (T2.2).** Orders and Errands are one **Requests** tab (Tasks is now Jobs / Quests / Requests): town orders and rest-stop errands, soonest deadline first, each errand with its days left. Old `jobs.php?t=orders` and `?t=errands` links redirect to `?t=requests` (hub kept); orders and errands already taken are untouched (same tables). The job board shows 3 daily, 3 weekly and 2 monthly offers (`JOB_PERIODS` 5/5/3 -> 3/3/2); the 7-dailies bonus is unchanged.
+- **One show page (T2.1).** The weekly Arrangements show is now the second class on the Village Show page (`show.php#arrangements`, form `do=enter_arr`). The arranging workshop (arrange, drying rack, seed packets, florists) is the Satchel's **Arrange** tab (`inventory.php?tab=arrange`, `includes/arrange_view.php`; live score `&t=preview`). The Arranging menu tile is gone. `arrange.php` is a redirect stub: GET 302 to the new place (sub-tab and preview query kept, `?t=show` to the show), POST 307 so an open old form still works. The Contests card for the Village Show counts an arrangement entry and says so.
+- **Grand Harvest Fair: 3 classes (T2.1).** Vegetables, Fruit, Grains and Herbs & spices merge into **Produce** (same plant kinds); Flowers and Preserves stay. Prizes, half prizes below `fair_min_entries` and Best in Show are unchanged. Old keys live on in `FAIR_CATS_OLD` (labels only), so old ribbons still read "Grains, 2025-08" and an unjudged old month is judged in its old classes. Switchover: upgrade step `upg249_faircats` turns this month's open old-class `fair_best` and unjudged `fair_entries` rows into one Produce row per gnome, keeping their best (`fair_merge_old_classes()`); chosen over a month-boundary switch so no date-gated code is needed.
+- **Upgrade steps** in `includes/upgrade249.php` (`upg249_bedgrowth`, `upg249_marrowmax`, `upg249_marrowgrow`) rewrite a stored setting only while it still holds the old default; `upg249_faircats` merges this month's fair rows (T2.1).
+
+## 2.4.89
+- **Seed picker: search, type filter, in-season toggle (restored).** "Choose seeds" (Plant…) has a search box, a type filter (chips for 5 types or fewer, a drop-down for more) with live counts, and an "In season only" checkbox (off by default: off-season seeds can still be planted). Shown from 5 seeds up. Re-applied on top of 2.4.88 after the 2.4.87 build was not carried into main.
+
+## 2.4.88
+- **Fix: Jigsaw best times and tier badges could vanish.** Starting a Rain Barrel or Gnome Beds run had a 1 in 50 chance of purging every `puzzle_runs` row older than 14 days, including finished Jigsaw runs (which hold personal bests). The purge now leaves Jigsaw rows alone.
+- **Expert before Advanced now frees the pals.** Finishing a picture at Expert first used to give only the trophy and no pals. Whichever of Advanced or Expert you finish first frees the picture's pals (once); Expert also still earns the trophy, and the win card shows both lines when both are new.
+- **Fix: delve map ghost buttons.** Cells outside the map (near a left or right edge) could alias into the next row and show as invisible "Walk here" buttons. They are now disabled, and the path preview ignores out-of-range targets.
+- **Fix: Jigsaw saves.** Changing tier on a picture that was still loading, then leaving, could make the next picture skip its saved go and delete it. A pending save also no longer rewrites the old tier's save after a tier change.
+
+## 2.4.86
+- **Fix: Today / Home crashed (`Unknown column 'pal_uid'`).** The Welcome back and daily card checks filtered Pantry jars and drying racks on a column only the cooking pots have.
+- **Admin Tools and update backups now report real failures.** SQL and SQLite backups are built first and checked (a failure shows a red error and downloads nothing; a good SQL file ends with an `END OF BACKUP` line). Delete image, clear logs, and the test pal button no longer say OK when they failed. Update backups check every write.
+
+## 2.4.85
+- **Square panel: slimmer action buttons, settle time in the status line.** Action buttons are thinner (40 px). A tool with a row / ×3 reach now shows its two buttons side by side on one row ("Water bed" + "Whole row ⚡1 each"; the repeated name is gone). A settling bed's status line now says "Settling · ready to plant in 15 min" (the separate Settling note is gone).
+## 2.4.84
+- **Square panel: no-till tidy.** The soil grade (with its bar) and the N-P-K chips share one line; the mulch / weeds / moisture / fertility / roots checks are a 2-column grid of small boxes; Water bed, Till, Work in and Add mulch sit in an aligned grid (Water bed and Till side by side, each picker row the same width).
+## 2.4.83
+- **Square panel: soil info up top, everything centred.** Fertility, soil life and water, the N-P-K chips and the soil care (or no-till grade) checks now sit right under the heading in one box instead of behind "Soil details". The fold is now "More soil details" (tips, how care works, the Soil Probe). The soil / care chips row is gone (the box says it), and the big grade letter is hidden. Text, chips, icons and buttons in the panel are centred.
+## 2.4.82
+- **Square panel, tidier.** The heading is now one line plus a status line (no more "Tilled" twice). The plant card is: name and tags, season / weather chips, the progress bar, ONE status line ("Growing · about 22 min left · water lasts 11h"), then Water / Dig up side by side; the long text (unstudied note, life, what it feeds on) is behind **About this plant**.
+- **Soil details, consolidated.** Fertility, soil life and water holds sit on one row; N-P-K has a one-line legend; the big care star box is gone (the stars are in the title) and the three care checks are small chips ("✔ Improver added", "✖ Soil life too low").
+## 2.4.81
+- **No-till grade letter hidden on the yard.** The grade (F, D+, A ...) is no longer drawn on each no-till square, the same as the soil-care stars on tilled beds. It is still in the square's label and in the bed panel; the ⚠️ marker for a bed that needs care stays.
+## 2.4.80
+- **Garden seed picker: a popover for the details.** Seed squares are clean now (picture, name, how many you have, a green "N planting" chip once picked). Tapping one opens a popover with what the seed needs (season, regrows, unstudied, soil) and a − / number / + / All box for how many to plant; Done closes it. The Seedling / Cutting / Seeds chips are no longer drawn on tiles (screen readers still hear them).
+- **Fix: Sheet mulch in Select squares closed every menu.** The Sheet mulch… button was also wired as an instant action, so it submitted at once with no mulch chosen and reloaded the page. It now opens the mulch picker like Mulch… does.
+- **Select squares stays on after an action.** After Mulch, Sheet mulch, Work in, Water and the rest, the same squares stay selected so you can chain the next step without re-picking. **Done** clears it.
+## 2.4.79
+- **Item tiles: chips and count share one line.** The Wanted / in basket / short chips sit on the left and the ×# count on the right, on one line right above the name ribbon (they no longer stack and push the count up).
+## 2.4.78
+- **Item tiles: count always on the ribbon, quieter chips.** The ×# count now sits right on the name ribbon even when chips are shown (they stack above it; they had been pushing the count up). The "Seeds" chip is no longer drawn (the picture says it; screen readers still hear it) and the Wanted chip is faded.
+## 2.4.77
+- **Item tiles: 3 across on phones.** Phone squares are larger (3 per row, was 4) with bigger names, price chips, counts and pictures. Desktop is unchanged (4 to 6 across).
+## 2.4.76
+- **Item tiles are bigger on desktop.** Wide screens now show 4 to 6 squares across (was up to 8), with larger names, price chips, counts and pictures, so they read like the phone version.
+## 2.4.75
+- **Item tiles: the count always sits on top of the name ribbon.** The ×# count (and the chips above the ribbon) now ride the ribbon's top edge, so a two- or three-line name no longer covers the count.
+## 2.4.74
+- **Square item tiles everywhere.** Shop, Satchel, crafting, pickers and market tiles are now squares, 4 across on phones (3 in the garden seed picker). Rarity shield top left, price chip (arrow + Petal) top right, count bottom right, name on a slightly faded ribbon along the bottom. Other chips (in basket, have / need, notes, kind) stack bottom left; state badges moved to the bottom left corner. The rarity word is for screen readers only. `tests/itemsq_check.js` expects 3 or 4 columns.
+## 2.4.73
+- **Pal Jobs: Collect all opens the chest.** Petals, XP and finds from every ready pal are totalled and shown with the chest animation. The long list of lines is replaced by a short row of chips (Petals, finds, XP, potions, dishes served).
+- **Shops on phones.** The basket bar is slimmer: its item list is capped at about two rows and scrolls inside itself, so a full basket no longer scrolls the page. Shop squares are 4 across on screens up to 520px.
+## 2.4.72
+- **Fix: expired guest gardens now get deleted.** They were only swept when a guest loaded a page or a new guest was made, so with no guest traffic they stayed forever. Any page load now sweeps them (at most once every 10 minutes).
+## 2.4.71
+- **Fix: road traveller chat crashed.** Stopping to chat with a travelling villager on an expedition threw "undefined function npc_icon()" (a white error page) unless another page had loaded the NPC file first. The chat now loads it itself.
+## 2.4.70
+- **Pal pot pop-up.** Tap a pal's pot in the Kitchen to open a pop-up: what it is cooking now (dish, time left), a **Cooks next** picker (kept until changed or the shift ends) and **Send home early**.
+- **Call any pal home early.** Every active job (gathering, delve, garden, pot, old shifts) has **Call home** on the Pal Jobs page, with a confirm box that says the cost. Trips and delves keep half of what the time so far earned (needs 10% of the time done). A pot pal keeps the dishes already served; a dish still cooking loses half (rounded down) and the pot is yours again. Gardeners lose nothing.
+## 2.4.69
+- **Pals cook passively, one pot each.** A pal sent to the Stove now holds one pot for the whole shift (no ingredients taken up front) and checks it every 10 minutes: it serves a finished dish into your satchel and starts one batch of its chosen recipe. Send as many pals as you have free pots; you can't use a pal's pot while it works. A dish still cooking at shift end becomes your own pot to collect. Checks run when you next load a page (no timer), up to 60 caught up per load.
+- **Pal shown on its pot.** A pot a pal tends says "🧩 {pal} is tending this pot" on the Kitchen shelf and in the right rail, instead of "Empty". Each of those pots has a **Cooks next** picker that sticks until you change it or the shift ends.
+- Cooking shifts no longer count toward the daily station-shift cap. New column `cook_pots.pal_uid`.
+## 2.4.68
+- **Cooking pots tidy.** Pots are small squares, centred, and wrap to a second row when there are more. Cook again and Collect all sit centred under the pots.
+## 2.4.67
+- **Cooking: less waiting, less tapping.** Pots are now 3 / 4 / 5 for Kitchen I / II / III (was 2 / 3 / 4). A pot now holds 1 / 3 / 5 meals and 1 / 1 / 2 feasts by Kitchen level (snacks still 5). New **Cook again** button on the pots row repeats the last dish into the free pots. Settings: `kitchen_pots`, `meal_batch_kitchen`, `feast_batch_kitchen`. Energy regen and max energy are unchanged.
+- **Blossom Cherry is now 2 × 2** like the oak and willow (was one square). Cherries already placed stay 1 × 1 until you place them again.
+- **Fixes.** XP awards at the same moment no longer overwrite each other (XP is added in the database; the level-up is claimed once). A double tap or second tab on a garden square now sees what the first one did, so it can't spend items or energy twice. Pal delve Petals are 40% of a player chest (was 60%; setting `ppal_delve_coin_pct`).
+- **Gentler late levels.** Steepness past level 10 is 15% (was 20%) and action XP grows 9% per level past 10 (was 5%). Gnomes already above the new thresholds level up on their next XP.
+- **Satchel: using an item keeps your place.** Eating, reading or mending from a Satchel sheet no longer closes the sheet. It stays open with the item's panel (or the sheet, if you used the last one). Pills and panels keep working after the in-place update.
+
+## 2.4.66
+- **Studio review follow-up (no gameplay changes).** Phone header: the duplicate menu button is hidden (More in the bottom bar opens the same menu). Status-line links get 44 px tap areas. Satchel loses the repeated heading and the Belt link, and its tile labels and badges are larger. 182 unused CSS rules are removed (about 14 KB). `item_id_by_slug()` replaces 51 identical slug lookups. The zoom and pan blocks in `site.js` share one factory, and petals and burst are shared in `window.gvFx`.
+## 2.4.65
+- **Studio review cleanup (no gameplay changes).** Contrast fixes: the selected recipe tab and filter chip, the puzzle chip, and the warn, low and effect chips now reach at least 4.5:1. Five undefined CSS tokens (`--bg-2`, `--good`, `--bad`, `--card`, `--panel`) are now defined, 8 duplicate CSS rules are gone, and 15 hex literals use tokens. Shared JS helpers (reduced-motion probe, centre, seen) now live in `window.gvFx` in `early.js`. 21 unused PHP functions are removed, and `trek_item_id`, `tk_h` and `tk_n` now delegate. Reports: `docs/studio-review/`.
+## 2.4.64
+- **Trek on phones: the map stays put.** Map view: the map sticks under the header (at most half the screen tall); the latest line and Sneak / Camp / Leave follow it, then the cards that need a tap (event, crew, milestone, spot), the party chips, the scene and the map key. New cards no longer push the map down.
+- Fight view: the "Where it began" map is no longer a fold that opens and closes; a small map is always shown under What happened, so the page height stays the same all fight.
+- Party, Pack and Log open as a bottom sheet over the lower half (was a tall panel), so the map stays visible above it.
+- Moving between map and fight scrolls to the map (map view) or the scene (fight). Desktop unchanged.
+
+## 2.4.63
+- **Trek fight on phones is shorter.** The health rows under the scene are hidden (the figures already show the HP bars), and the Round heading and the action buttons (Fight, Auto 1, Auto, Run, Change plan) now sit right under the scene. What happened, the boss hint and the party chips come after.
+
+## 2.4.62
+- **Trek on phones keeps the stage in view.** When a walk turns into a fight (or the fight ends), and when the fight map folds away, the page now scrolls the stage to just under the header instead of leaving you down the page with nothing to look at.
+
+## 2.4.61
+- **Pals can man crafting stations.** New Pal Jobs card "Man a station": pick a station (an object of a crafting area, e.g. Cooking · Stove), tick the pal(s), choose Everything it can make or up to 5 chosen recipes (a closed picker with a filter and a scrolling list, so long recipe lists stay short), and 1, 3 or 8 hours. No energy is spent. Slower than you: one make per 60 minutes at Crafting level 1 (24 at level 10), plus a chance of an extra output as the pal's new Crafting skill grows. Ingredients are taken at send; the dishes arrive when you collect. One pal per station; cooking holds one of your pots; own daily cap (`pj_stations_per_day`, default 4). Pantry jars come later.
+- XP from a shift is split: half to you (Crafting XP), half to the pal's Crafting skill.
+- Crafting popovers get a "🧩 Let a pal work here" link that opens Pal Jobs on that station.
+- Satchel: the Kitchen tile is now called Food.
+
+## 2.4.6
+- **Satchel is 8 square tiles** (about 920 px tall page, was about 1500): Seeds, Crops, Flowers, Food, Soil, Tools, Materials, More. Tap a tile and a sheet opens with that group's things: search, chips (for example Soil / Mulch, Tools / Broken, Untasted), sort, and the same item panels and buttons. Typing in the page search counts matches on each tile; Enter or any other filter shows the plain list as before. Quick actions stay under the tiles.
+- **One home per thing:** mulch, Food Scrap, Cardboard Sheet and Garden Tonic sit with Soil; broken tools with Tools; parts and decor are Materials; supplies, guides and the rest are More; crops and finds share Crops; flowers and arrangements share Flowers.
+- Crafting pages drop the shopping list (a popover's Missing tab already says what you lack).
+- Tests: `itemsq.sh` covers tiles, sheets and the plain list. Plan: `claude/plan-satchel-layout.md`.
+
+## 2.4.5
+- **Pantry jars are square slots on shelves:** one shelf per kind that has jars (Jam, Chutney, Pickle, Ferment, Cordial), with its count (3/5), each jar a small square (dish and time, "Ready!" with Collect, or an empty jar), standing on a wooden plank. Smaller than the old chips. Cooking pots stand on a plank the same way and are a little smaller.
+
+## 2.4.4
+- **Cooking page:** the energy and Petals chips are gone (the top bar already shows them). Each pot is now a square tile: the dish and time left, "Ready!" with a Collect button, or an "Empty" pot (one tile per free pot instead of "+N free pots"). "Collect all" still appears when two or more are ready.
+
+## 2.4.3
+- **My Gnome is slimmer on phones** (Overview with pals: about 1700 px down to about 1085 px): Health is one slim line inside the gnome card (heart, bar, hp/max; the potion and snack buttons sit in a closed "Heal" drawer when you are hurt), tabs fit in two rows, fact tiles are two columns, pal slots are smaller, "How to meet your first pals" is a closed fold.
+- **Link to Today** (📅 Today →) beside "See your profile as others do" on My Gnome.
+- **Crafting area strip never scrolls:** all seven areas share one row on a phone, thumbnails shrink to fit.
+
+## 2.4.2
+- **Trip strip ("Heading to ...") is one slim line:** about 28 px tall (was about 95 px on a phone): destination on the left, stops left or leg on the right, hairline progress bar underneath. Style only.
+
+## 2.4.1
+- **Crafting pages are shorter:** the recipe list under the scene is a closed fold ("All recipes · N ready · N missing · N to discover") that opens by itself for a tapped object, a search, a List pick or an open recipe. Pantry keeps its jar strip visible. Smaller area thumbnails on phones.
+- **Tiny green ! on scene objects** you can make something with right now (also in the object's accessible label).
+- **Potions area gets popovers** like the others (Potion shelf, Mortar, Cauldron, Spellbook, Copper still).
+- Tests: `craft.sh` and `alchemy.php` updated for the potions objects.
+
+## 2.4.0
+- **Crafting scene popovers:** tap an object in a crafting scene (Stove, Bread oven, Jam cupboard, Workbench...) and a sheet slides up with what you can make there, in three tabs: **Can craft** (craft right in the sheet), **Missing** (what is lacking, in red) and **Unknown** (a hint). Works in every area except Potions. Without JS the object still filters the shelf list as before.
+- **"Ready" is now honest:** a recipe that needed a building or more energy than you have used to sit in Ready. Ready now means you can make it right now; the rest moves to Missing.
+- **Food shows what it gives:** energy and buff on the shop sheet for every edible item, on craft cards and in the popover (satchel, cooking cards and pantry jars already did).
+- **Garden square panel is much shorter** (planted square on a phone: about 1090 px down to about 600 px, plus the closed fold). Status chips and ONE "Next:" line replace the repeated advice; "Soil details" is closed by default; one fertility word everywhere (also in yard tile titles); N, P and K are small colour badges (low = ▼, high = ▲, the crop's nutrient gets a ring).
+- Also rolled in since 2.3.97: Pal Jobs send/collect several pals, per-pal Where/Tool, Send always visible, tools offered only where they work.
+- Tests: `craft.sh` (popovers), `beds.sh` (square panel). Notes: `claude/plan-craft-popover.md`, `claude/soil-display-assessment.md`.
+- **Garden square panel is much shorter** (planted square on a phone: about 1090 px down to about 600 px, plus the closed fold).
+- Status chips (soil word, low nutrient, care stars or no-till grade, improver working) and ONE "Next:" line (water or harvest now, low nutrient fix, add compost, no-till fix, till it first) replace the repeated advice.
+- "Soil details" is closed by default, one fertility word scale everywhere (also in the yard tile titles), N, P and K are three small colour badges (green, orange, purple; low = ▼, high = ▲; the crop's nutrient gets a ring), the Watered row and repeated compost help are gone, and care details sit behind "How care works".
+- Test: `beds.sh` covers the panel. Assessment: `claude/soil-display-assessment.md`.
+
+## 2.3.99
+- **Pal Jobs, gathering trips:** the Tool pickers only offer tools that can gather in the chosen land (greyed out and hidden otherwise), and the land list only shows lands where one of your tools works. Applies to the job default and to each pal's own pick. Changing the land switches an unusable tool to one that works.
+
+## 2.3.98
+- **Pal Jobs:** the job options and the Send button are always shown. Send is greyed and says "Tick a pal to send" until you tick one (before, they were hidden until a pal was ticked, so a card looked like it had no Send).
+
+## 2.3.97
+- Test release: version bump only, to check Back up and install from 2.3.96.
+
+## 2.3.96
+- **Fix:** "Back up and install" (and every other button that asks "Are you sure?") did nothing in 2.3.94 and 2.3.95. The new double-tap guard counted the first, cancelled submit as sent and then swallowed the OK. The guard now only counts a form once the submit really goes through. Checked in a browser: confirm then OK submits, Cancel then retry submits, a double tap posts once.
+
+## 2.3.95
+- **Pal Jobs fix:** in 2.3.94 the job options and the Send button never appeared after ticking pals (the page styles still looked for the old single-pal picker). Fixed.
+- **Per-pal choices:** each ticked pal can have its own Where and Tool (trips), Garden (gardens) or Delve, or "As above" to use the job's default. Length and potions stay shared.
+- Test checks the styles match the checkboxes.
+
+## 2.3.94
+- **Playtest fixes:** batch plant tries the next picked seed when one needs richer soil; harvest says the square is bare and needs tilling; plant list and shop seeds show XP per harvest; Crafting refuses quantity 0, negative or text; garden names cannot use `<` or `>`; Adventure shows fresh energy; Jobs show when each period ends and that progress does not carry over; repeated flash messages no longer stack (log capped at 20).
+- **Double taps:** a form sent twice within 2 seconds is done once (browser and server). The server sends you back to the same page and says "Already done: that was sent twice."
+- **Races:** two walks started at once keep only the first (energy refunded); two hires cannot take the last helper slot.
+- **Pal Jobs:** tick several pals and send them on the same job in one go (each keeps its own limits; "N of M pals sent"). "Collect all" when 2 or more jobs are ready, with one receipt.
+- **Animals:** the feeder card shows its cap and the per-gift need ("6/6 · 4 scraps per gift") instead of "6/4".
+- **Tests:** `paljobs` covers multi-send and Collect all; `walk` listed as self-installing in `ci_suites.sh`. Report: `claude/playtest-report.md`.
+
+## 2.3.93
+- **Polish pass** (audit and notes in `claude/polish-audit.md`, plan in `claude/plan-polish.md`). Look and navigation only; no database change, no new settings.
+- **Status strip** no longer scrolls sideways on tablet and desktop: the chips wrap to a second row. **World header** image stacks above the title between 721 and 999 px (it covered the title at 768 px). **Menu labels** wrap instead of being cut ("Whisker Po...", "Gnome frie..."). **My Gnome / Mentor tabs** wrap onto rows on phones (7 tabs, 299 px of them were out of sight).
+- **Menu:** the duplicate "Whisker Pond" tile is gone (Cat Fish is a tile on Games; its page name is Cat Fish); Games lights up on Cat Fish, Puzzles, Jigsaw, GIFsaw, Rain Barrel, Gnome Beds, Fair, Village Show and Garden of the Month; Pal Jobs lights up Puzzle Pals. "Gnome friends" is now "Friends".
+- **Pals:** Pal Book and Pal Jobs share one tab row.
+- **Villagers:** every villager link goes to `villagers.php`; `folk.php` is a redirect stub (POST kept); the dead "Villagers you know" list in Town and the unused `folk.php` page template are removed.
+- **Tap targets and focus:** logo, footer links and the status badge have 44 px hit areas; keyboard focus draws a dashed ring on the world, region and mycelium map links (it only changed fill opacity before).
+- **CSS:** width breakpoints 24 down to 17 (430 px phones now get the compact header and tab labels of 412 px phones; Almanac spread at 721-760 px has more padding); three min/max pairs that both applied at one exact width fixed. New `tests/css_lint.sh` in CI.
+- **Tests:** `gather150` assertions updated for per-landscape scene art and the gather form id; `tests/polish_audit.js` added; landing shots regenerated.
+- **Docs:** `PRODUCT.md`, `DESIGN.md` (drafts, marked where inferred), `claude/css-map.md`, `claude/ci-2.3.92.md`.
+- No player news entry. Not run: MySQL, phone check (Joshua).
+## 2.3.92
+- **Cat Fish, fewer queries:** `catfish_extra_mult()` takes the caller's `catfish_state()` row for the Buddy check instead of reading it again, and loads the pictures behind a gnome's found Puzzle Pals with one `IN (...)` query instead of one per picture. No change to what players see or earn.
+- **Tests:** `tests/catfish.sh` passes again (0 failed): the Puzzle Pals bonus checks use the 2.2.3 values (+4% a common pal, best 10 count), the hub check counts the Games tile, not the menu's own link, and the bunting checks measure the jar's change, not its total.
+- No player news entry (nothing visible changed). No database change.
+## 2.3.91
+- **Merge:** brings the 2.3.9 branch (Boons, health bars, Pantry rooms) together with `main`'s 2.3.8 (shorter Stamp passport).
+- **Here page:** a Puzzle Pal waiting at your spot now also shows its "Say hello" card on the Here page (rest stop and town square), not only on World > Go.
+- **Pal actives stack:** pals with the same active skill give one fight button at double (or more) strength, not a second button.
+
+## 2.3.9
+- **Puzzle Pal Boons** (from 2.3.8, still OFF: `ppal_boons`, needs `ppal_party`): all 570 pals have a Boon, rares have an active skill. Included here again so one zip carries everything since 2.3.4.
+- **Health bars:** the My Gnome bar is a `<progress>` that shows the live value (the old inline `style="width"` was blocked by the CSP, and the stored value was stale while out on a trip, `hp_display()`); new health bar beside the level bar in the top bar (`status_strip`, desktop pill and phone line, `hp_bar_html()`).
+- **Pantry rooms:** every kind (jam, chutney, pickle, ferment, cordial; `PANTRY_KINDS`, `pantry_kind()`) has its own set of jars, each with the same count the Pantry gave in total (`pantry_free()`, `pantry_busy_by_kind()`). Per-room counts on the Pantry tab and Kitchen tile. Tests updated in `tests/pantry.sh` (a full jam room does not stop chutney).
+- Player news entry added.
+
+## 2.3.8
+- **Stamp passport, shorter.** Town > Stop tab, about 75% shorter on a phone (390px: 5800px to about 1400px) and on desktop (1366px: 4492px to about 1040px). One summary bar, a "Next up" list of the three closest sets, and closed folds for Titles earned, All sets and rewards, Stops by kind and the Road Journal. Regions are rows with a count and a bar; only your current region opens, with small stamp thumbnails. Regions with no stamps share a "Not started yet" fold. Desktop: sets and regions in columns that follow the tab width (container query `stoptab`), Road Journal beside Seasons & weather.
+- Built from the site's own parts: `h2.gx-h` / `.gx-note` headings, `.box` panels with `details.fold` rows. The Seasons & weather summary now reads "Seasons & weather" with Summer and the weather beside it, so it no longer wraps (shared `season_fold_html`; rest-stop Stop tab checked).
+- Files: `includes/stop_pass.php`, `includes/place_ui.php`, `includes/road_life.php` (journal is a closed fold), passport block of `style.css`. No schema change, no new settings. Tests: `stops100`, `roadkinds`, `roadlife`, `roadtext`, `villagers`. Not run: MySQL, phone check.
+
+## 2.3.8 (Boons build, folded into 2.3.9)
+- **Puzzle Pal Boons (OFF: setting `ppal_boons`, needs `ppal_party`).** Every one of the 570 pals has its own combat Boon instead of its calling skill: 16 effects (ward, edge, foot, mend, sip, petal, guard, bulwark, slip, feast, rally, first, kindle, spoils, lesson, tonic) in `includes/data/puzzle_pal_boons.txt`, sizes by rarity in `PPAL_EFFECTS`. Rosters are unique (no two share 4+ effect/rarity pairs). Pals of uploaded pictures get a seeded Boon (`ppal_seeded_boon`).
+- **Rare actives:** each rare has one once-per-fight skill (strike, shield, patch, snare, sap, daze, rouse, gust) as a fight button (`palskill:KEY`, three fight renders), uses the turn, no dice.
+- **Tools and tests:** `tools/lint_pal_boons.py` (`--require-boons` in `tests/puzzle_pals.sh`), `tools/pal_boons_draft.py`, `claude/pal-boons-sim.php`, Boon sections in `tests/puzzle_pals_party.php`. Design: `claude/brainstorm-pal-rosters.md`. No schema change, no player news (feature hidden).
+- Also: the Pal Book test no longer fails when a pal happens to wait on the map.
+
+## 2.3.7
+- **Merge release.** Alchemy: 7 new potions (`includes/alchemy.php`; Strong Healing, Grand Healing Elixir, Lucky, Sage's, Stoneskin, Swiftfoot, Garden Tonic), each usable by the gnome (Satchel Drink, My Gnome Potions box, Garden Tonic on a plot) and some by pals; B icon set. Crafting map: per-object recipe tags (`?o=`), one recipe pass for the landing badges. Pantry: 11 new icons (B), hidden Brewroot Pomeroy task (needs `gourmand_open`), tests honour TMPDIR.
+- **Puzzle Pals: page mode removed** (map mode only; settings `ppal_find_mode`, `ppal_chance`, `ppal_cooldown_minutes`, `ppal_daily_max` gone), "pal arrived" notice on the daily top-up.
+- **Pal Jobs:** no level gates (every pal does every task from level 1; level scales yield), Risky tag for delve jobs below Adventuring 5, pals work after hired garden help instead of being refused, "N pals home with loot" notice on Today and My Gnome, clearer Collect receipt.
+- **Delve v2 (still OFF):** each delve has its own hazard with a real effect (health or torch), wandering creatures (`dv_enc_steps`, `dv_enc_chance`, `dv_enc_cap`), torch fuel 30/45/50, pal re-runs walk the gnome's route, 26 authored floors (Beaverdam, Salt Mine, Firefly Caves; names DRAFT).
+
+## 2.3.6
+- **Crafting area map.** The Crafting tab opens on a picture map: seven cards (Cooking, Pantry, Tools, Garden supplies, Potions, Building, Yard & decor), each a new Stitched Toy scene with a progress bar ("8 of 85 known") and a badge (needs the building (Locked), N ready, N jars done). Inside an area, an "All areas" button, a scrolling picture strip to switch area, and the area's scene with five tappable objects (oven, stove, anvil, cauldron...) that open that area's list filtered by what they make. All plain links, so it works without JS; labels show on hover, focus and on touch screens.
+- The Make dropdown is gone from Cooking, Pantry and every other area (the List dropdown stays).
+- Files: new `includes/craft_map.php`, `includes/data/craft_scenes.php` (hotspot boxes), 14 pictures in `assets/img/craftmap/`; `craft_view.php`, `craft_shelves.php`, `pantry_view.php`, `inventory.php`, a 2.3.3 block at the end of `style.css`. Art sources: `aseprite-source/scenes-pil/craft_*.py`, `aseprite-source/craftmap/`. Test: `tests/craft.sh` (area map section).
+
+## 2.3.5
+- **Health stays with the gnome.** Before, every adventure (road walk, off-road explore, delve, lair) started at full health. Now `users.hp` (NULL = full) is carried into the next adventure. It comes back at 1 a minute while the gnome stands in a village, market, hub or haven and is not adventuring (a clock in `users.hp_at`), by resting at a haven fire (half) or staying the night (full), by a rest-stop inn or table (half) or bath/soak (full), by a Healing Potion (half) or a home-cooked snack from My Gnome, and fully on a level up. A knock-out wakes at half. Treks keep their own party health. My Gnome has a Health box. Settings: `hp_persist` (off = the old full-health starts), `hp_regen_per_minute`, `hp_ko_percent`, `hp_rest_percent`, `hp_potion_percent`. New columns `users.hp`, `users.hp_at` (additive). Code: `includes/health.php`. Test: `tests/health.sh`. News entry added.
+## 2.3.4
+- **Delve finds use the chest animation** (`delve_v2` only). Picking up a find, a floor chest or Mo's gift now pops the delve chest over the page (a short version for small finds, the full one for a floor chest) with what you got, instead of a notice under the map you had to scroll to. Petals and XP show only when there are any. The guardian's chest is unchanged.
+## 2.3.3
+- **Delve redo (first playable cut, OFF by default).** New setting `delve_v2` (Admin > Settings, "Delves: route menu and tile floors"). Off: delves play exactly as before and a delve already running finishes on the rules it started with. On: a delve is 3 or 4 stages. You pick the next stage from a small route menu (creature, treasure, mystery, puzzle, shrine, Mo the mole, then the guardian), each floor is a tile map with fog and a torch (each step burns it; at 0 your light shrinks, nothing else happens), with finds, creatures, traps, chests, keys and doors, shrines and the way down on it. Your gnome and the pals taken along show in a strip under the map. One expedition per delve, one energy to go in (no per-room energy), the same guardian chest and clear count. The route is the same for a gnome and delve all day.
+- Each of the 14 delves has its own chamber library (25 hand-made terrain chambers each, `includes/data/delve_chambers.txt`); floors are 4 chambers stamped in a 2x2 grid with doorways and objects. Authored floors can be added to `includes/data/delve_floors.txt` (empty for now) and are used first. Lint tools: `tools/lint_delve_floors.php`, `tools/lint_delve_chambers.php`, `tools/check_chamber_dups.php`.
+- Tests: `delve2`, `delvefloors`, `delveroute`, `delvestamp` (new), `delvemap` unchanged. Plan and checklist: `claude/plan-delves.md`, `claude/checklist-delves.md`.
 ## 2.3.2
 - **Pal jobs: an equipped pal is not sent by accident.** A pal on your party shows an "On party" tag in the pickers. Picking one shows a "Take it off my party to send it out" box that must be ticked; without it the send is refused with a message. Works without JS (the server checks). Tests added in `tests/paljobs.php`.
 ## 2.3.1

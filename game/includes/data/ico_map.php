@@ -235,8 +235,8 @@ return [
     "⚙\u{FE0F}" => ['ico-cog', true],
     "💱" => ['ico-coin', true],
     "💱\u{FE0F}" => ['ico-coin', true],
-    "🪙" => ['ico-coin', true],
-    "🪙\u{FE0F}" => ['ico-coin', true],
+    "🪙" => ['ico-petal', false, 'Petals'],   // v2.4.91: the Petals currency is a petal, not a coin
+    "🪙\u{FE0F}" => ['ico-petal', false, 'Petals'],
     "🧭" => ['ico-compass', true],
     "🧭\u{FE0F}" => ['ico-compass', true],
     "♻" => ['ico-compost', true],

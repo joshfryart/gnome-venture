@@ -4,6 +4,9 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/includes/bootstrap.php';
 require_once dirname(__DIR__) . '/includes/admin_helpers.php';
 $me = require_admin();
+stats_reset_handle('usage', 'usage.php');   // v2.4.94
+$base = stats_baseline('usage');   // '' = never reset; else count only from then on
+$snap = $base !== '' ? (json_decode((string)setting('stats_usage_snap'), true) ?: []) : [];
 
 $now = time();
 $D7 = 7 * 86400;
@@ -18,68 +21,23 @@ $PLAYERS = "SELECT id FROM users WHERE banned = 0 AND guest = 0 AND role NOT IN 
  * Feature list. [label, table, user column, time column or '', time kind dt|day].
  * No time column = totals only (the 7-day columns show a dash).
  */
-$groups = [
-    'Tasks & requests' => [
-        ['Daily/weekly/monthly jobs', 'user_jobs', 'user_id', '', ''],
-        ['Posted jobs (player to player)', 'player_jobs', 'poster_id', '', ''],
-        ['Townsfolk orders done', 'npc_orders', 'user_id', 'done_at', 'dt'],
-        ['Favours done', 'npc_favours', 'user_id', 'done_at', 'dt'],
-        ['Rest stop errands', 'stop_errands', 'user_id', 'created_at', 'dt'],
-        ['Journey (quest chapters)', 'user_quests', 'user_id', 'started_at', 'dt'],
-        ['Calling tasks done', 'user_calling_tasks', 'user_id', 'done_at', 'dt'],
-        ['Hollow Goal claims', 'hollow_goal_claims', 'user_id', 'claimed_at', 'dt'],
-        ['First Week claims', 'first_week_claims', 'user_id', 'claimed_at', 'dt'],
-        ['Daily card (days seen)', 'daily_ticks', 'user_id', 'day', 'day'],
-    ],
-    'Helpers & social' => [
-        ['Hired garden help', 'garden_hires', 'user_id', 'started_at', 'dt'],
-        ['Helper side of hires', 'garden_hires', 'helper_id', 'started_at', 'dt'],
-        ['Helping water', 'garden_waterings', 'helper_id', 'created_at', 'dt'],
-        ['Gifts sent', 'gifts', 'from_id', 'sent_at', 'dt'],
-        ['Friend requests', 'player_friends', 'user_id', 'created_at', 'dt'],
-        ['Player mentor links', 'pmentor_links', 'newcomer_id', 'created_at', 'dt'],
-        ['Trade offers', 'trade_offers', 'from_id', 'created_at', 'dt'],
-        ['Stall listings', 'stall_listings', 'seller_id', 'listed_at', 'dt'],
-        ['Community garden log', 'community_log', 'user_id', 'at', 'dt'],
-    ],
-    'Villagers & places' => [
-        ['Rest stop log (visits, acts)', 'stop_log', 'user_id', 'at', 'dt'],
-        ['Stop villager friendships', 'stop_friend', 'user_id', 'last_talk', 'dt'],
-        ['Named NPC friendships', 'npc_friends', 'user_id', '', ''],
-        ['Adopted stops', 'stop_adoptions', 'user_id', 'adopted_at', 'dt'],
-        ['Landmark uses', 'landmark_uses', 'user_id', 'at', 'dt'],
-        ['Town action uses', 'town_uses', 'user_id', 'day', 'day'],
-        ['Local deals (stops)', 'local_deals', 'user_id', 'at', 'dt'],
-        ['Traveller deals', 'traveller_deals', 'user_id', 'at', 'dt'],
-    ],
-    'Buying & selling' => [
-        ['Market day buys', 'market_buys', 'user_id', 'day', 'day'],
-        ['Curio buys', 'curio_buys', 'user_id', '', ''],
-        ['Dye pot / skins owned', 'sink_owned', 'user_id', 'at', 'dt'],
-        ['Festival stall buys', 'festival_buys', 'user_id', '', ''],
-    ],
-    'Contests' => [
-        ['Harvest Fair entries', 'fair_entries', 'user_id', 'at', 'dt'],
-        ['Village Show entries', 'show_entries', 'user_id', 'entered_at', 'dt'],
-        ['Garden of the Month entries', 'gotm_entries', 'user_id', 'entered_at', 'dt'],
-        ['Pumpkin carvings', 'carvings', 'user_id', 'carved_at', 'dt'],
-        ['Guess the Weight', 'marrow_guesses', 'user_id', 'at', 'dt'],
-        ['Snail Race bets', 'snail_bets', 'user_id', 'placed_at', 'dt'],
-    ],
-    'Adventuring' => [
-        ['Road walks and wanders', 'expeditions', 'user_id', '', ''],
-        ['Treks started (admins excluded)', 'trek_runs', 'user_id', '', ''],
-    ],
-];
+$groups = usage_feature_list();
 
 /** Counts for one feature. Returns null when the table or column is missing (e.g. old install). */
-$count = function (string $table, string $ucol, string $tcol, string $kind) use ($PLAYERS, $cut_dt, $cut_day): ?array {
+$count = function (string $table, string $ucol, string $tcol, string $kind) use ($PLAYERS, $cut_dt, $cut_day, $base, $snap): ?array {
     try {
         $in = "$ucol IN ($PLAYERS)";
-        $all = q("SELECT COUNT(*) AS n, COUNT(DISTINCT $ucol) AS u FROM $table WHERE $in")->fetch();
+        $from = $base === '' ? null : ($kind === 'day' ? substr($base, 0, 10) : $base);   // v2.4.94: after a reset, count only from then on
+        $since = ($tcol !== '' && $from !== null) ? " AND $tcol >= " . db()->quote($from) : '';
+        $all = q("SELECT COUNT(*) AS n, COUNT(DISTINCT $ucol) AS u FROM $table WHERE $in$since")->fetch();
         $out = ['n' => (int)$all['n'], 'u' => (int)$all['u'], 'n7' => null, 'u7' => null];
+        if ($tcol === '' && $base !== '') {   // no date column: total now minus the total at the reset; the player count cannot be split
+            $out['n'] = max(0, $out['n'] - (int)($snap[$table . '|' . $ucol] ?? 0));
+            $out['u'] = null;
+        }
         if ($tcol !== '') {
             $cut = $kind === 'day' ? $cut_day : $cut_dt;
+            if ($from !== null && $from > $cut) $cut = $from;
             $w = q("SELECT COUNT(*) AS n, COUNT(DISTINCT $ucol) AS u FROM $table WHERE $in AND $tcol >= ?", [$cut])->fetch();
             $out['n7'] = (int)$w['n'];
             $out['u7'] = (int)$w['u'];
@@ -91,7 +49,7 @@ $count = function (string $table, string $ucol, string $tcol, string $kind) use 
 };
 
 // Player base.
-$total = (int)q_val("SELECT COUNT(*) FROM users WHERE banned = 0 AND role NOT IN ('admin','mod')");
+$total = (int)q_val("SELECT COUNT(*) FROM users WHERE banned = 0 AND role NOT IN ('admin','mod') AND created_at >= ?", [$base]);
 $act7 = (int)q_val("SELECT COUNT(*) FROM users WHERE banned = 0 AND role NOT IN ('admin','mod') AND last_seen >= ?", [$cut_dt]);
 $act30 = (int)q_val("SELECT COUNT(*) FROM users WHERE banned = 0 AND role NOT IN ('admin','mod') AND last_seen >= ?", [$cut_30]);
 
@@ -100,9 +58,9 @@ $games = [];
 try {
     $games = q("SELECT game, COUNT(*) AS n, COUNT(DISTINCT user_id) AS u,
                    SUM(CASE WHEN played_at >= ? THEN 1 ELSE 0 END) AS n7
-                FROM game_scores WHERE user_id IN ($PLAYERS) GROUP BY game ORDER BY n DESC", [$cut_dt])->fetchAll();
+                FROM game_scores WHERE user_id IN ($PLAYERS) AND played_at >= ? GROUP BY game ORDER BY n DESC", [max($cut_dt, $base), $base])->fetchAll();
     foreach ($games as &$g) {
-        $g['u7'] = (int)q_val("SELECT COUNT(DISTINCT user_id) FROM game_scores WHERE game = ? AND played_at >= ? AND user_id IN ($PLAYERS)", [$g['game'], $cut_dt]);
+        $g['u7'] = (int)q_val("SELECT COUNT(DISTINCT user_id) FROM game_scores WHERE game = ? AND played_at >= ? AND user_id IN ($PLAYERS)", [$g['game'], max($cut_dt, $base)]);
     }
     unset($g);
 } catch (Throwable $e) {
@@ -140,7 +98,7 @@ page_header('Usage', true);
 <?php admin_crumbs('usage.php'); ?>
 <h1>📊 Usage</h1>
 <p><a class="btn small" href="<?= e(url('admin/usage.php?export=csv')) ?>" download>⬇️ Export (CSV)</a></p>
-<p class="help">What real players use. Admins, moderators and banned players are left out. Use this before you cut or merge anything. “–” = the table keeps no date, so only totals exist.</p>
+<p class="help"><?= $base !== '' ? '<b>Counting since ' . e($base) . ' UTC</b> (reset). Rows with no date show only what was added since; their player counts show “–”. ' : '' ?>What real players use. Admins, moderators and banned players are left out. Use this before you cut or merge anything. “–” = the table keeps no date, so only totals exist.</p>
 
 <div class="box">
   <h2>Players</h2>
@@ -189,3 +147,5 @@ foreach ($by as $gname => $list): ?>
   <p class="help">Only games that log a score show here. Games with no score row (for example Snail Race, Guess the Weight) are in Contests above.</p>
   <?php endif; ?>
 </div>
+
+<?php stats_reset_box('usage', 'Starts the Rows and Players columns from zero as of now. Nothing in the game is deleted: only this report forgets the past.', 'Reset the Usage numbers? Nothing in the game is deleted.'); ?>

@@ -78,11 +78,6 @@ function game_save(int $uid, string $game, array $state): void
     }
 }
 
-function game_clear(int $uid, string $game): void
-{
-    q('DELETE FROM game_state WHERE user_id = ? AND game = ?', [$uid, $game]);
-}
-
 function game_score(int $uid, string $game, int $score): void
 {
     db_insert('game_scores', ['user_id' => $uid, 'game' => $game, 'score' => $score, 'day' => game_day(), 'week' => job_period_key('weekly'), 'played_at' => now()]);
@@ -295,7 +290,7 @@ function worm_dig(array $u, int $i): array
     $qty = $what === 'night' ? 3 : 1;
     $msg = $icon . ' ' . $label . '.';
     if ($slug && !($what === 'rock' && !tool_tier($uid, 'pick'))) {
-        $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        $id = item_id_by_slug($slug);
         if ($id) {
             give_item($uid, $id, $qty);
             $s['found'][$slug] = ($s['found'][$slug] ?? 0) + $qty;
@@ -782,9 +777,9 @@ function settle_marrows(): void
             }
             set_setting('marrow_pot', (string)max(0, (int)setting('marrow_jackpot')));
         } else {
-            set_setting('marrow_pot', (string)min(max(0, (int)setting('marrow_jackpot_max')), $pot + max(0, (int)setting('marrow_jackpot_grow'))));
+            set_setting('marrow_pot', (string)max($pot, min(max(0, (int)setting('marrow_jackpot_max')), $pot + max(0, (int)setting('marrow_jackpot_grow')))));   // a pot already over a lowered cap stays until won
         }
-        $close = max(0, (int)setting('marrow_close_prize'));
+        $close = count($claimed) >= 2 ? max(0, (int)setting('marrow_close_prize')) : 0;   // the consolation needs someone to be closest against
         foreach ($claimed as $r) {
             if ($exact && (int)$r['grams'] === $w) continue;
             $first = !$exact && $r['rank'] === 1;

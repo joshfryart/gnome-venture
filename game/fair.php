@@ -31,7 +31,7 @@ page_header('Grand Harvest Fair');
     $fm = max(1, (int)setting('fair_min_entries'));
     echo game_rules_html([
         ['🎯', 'Goal.', 'Grow the best crop in each class. The best of all wins Best in Show.'],
-        ['🌽', 'Classes.', implode(', ', array_map(fn($c) => $c[1], FAIR_CATS)) . '.'],
+        ['🌽', 'Classes.', implode(', ', array_map(fn($c) => $c[1], FAIR_CATS)) . '. Produce is every vegetable, fruit, grain and herb.'],
         ['⭐', 'Judging.', 'Every harvest is judged for quality, and your best in each class is kept for the month.'],
         ['🫙', 'Preserves.', 'Judged on jars from your Pantry. The longer the ferment, the better the score.'],
         ['📝', 'Entering.', 'Press “Enter it” to put your best in the fair. You can swap in a better one before the month ends. It is free.'],
@@ -61,7 +61,7 @@ endif; ?>
   <?php if ($mine): ?>
     <p>Your best: <b><?= e($mine['crop'] ?? 'a crop') ?></b>, <?= e(fair_word((int)$mine['score'])) ?> <?= (int)$mine['score'] ?></p>
   <?php else: ?>
-    <p class="muted"><?= $key === 'preserve' ? 'No jar collected yet this month. Fill a jar in your 🫙 Pantry, wait for it, and collect it.' : 'No harvest yet this month. Grow a ' . e(strtolower($label)) . ' crop and harvest it.' ?></p>
+    <p class="muted"><?= $key === 'preserve' ? 'No jar collected yet this month. Fill a jar in your 🫙 Pantry, wait for it, and collect it.' : 'No harvest yet this month. ' . ($key === 'produce' ? 'Grow any vegetable, fruit, grain or herb and harvest it.' : 'Grow a ' . e(strtolower($label)) . ' crop and harvest it.') ?></p>
   <?php endif; ?>
   <?php if ($entry): ?>
     <p class="help">In the fair: <?= e($entry['crop'] ?? 'a crop') ?>, <?= e(fair_word((int)$entry['score'])) ?> <?= (int)$entry['score'] ?></p>

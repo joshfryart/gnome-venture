@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/health.php';   // v2.3.5: health that stays with the gnome (settings, regen)
 require_once __DIR__ . '/hollow_clock.php';   // v1.0.0: season, weather, part of the day (its constants are used by settings_schema)
 
 // ======================= Output & URLs =======================
@@ -106,7 +107,12 @@ function safe_back(string $default): string
 
 function flash(string $msg, string $type = 'ok'): void
 {
-    $_SESSION['flash'][] = ['msg' => $msg, 'type' => $type];
+    $q = $_SESSION['flash'] ?? [];
+    $last = end($q);
+    if ($last && $last['msg'] === $msg && $last['type'] === $type) return;   // v2.3.94: no stacked repeats
+    if (count($q) >= 20) array_shift($q);                                    // and the queue is capped
+    $q[] = ['msg' => $msg, 'type' => $type];
+    $_SESSION['flash'] = $q;
 }
 
 /**
@@ -210,6 +216,26 @@ function csrf_check(): void
         http_response_code(400);
         exit('Your form expired or was invalid. Go back, refresh the page and try again.');
     }
+    // v2.3.94: the exact same form sent twice within 2 seconds (a double tap, a re-sent request) is done once.
+    // Plain form posts only: the fetch() game APIs send JSON/ajax and are left alone.
+    if (empty($_SERVER['HTTP_X_REQUESTED_WITH']) && str_contains((string)($_SERVER['HTTP_ACCEPT'] ?? ''), 'text/html')) {
+        $body = $_POST; unset($body['csrf']);
+        ksort($body);
+        $fp = md5(($_SERVER['SCRIPT_NAME'] ?? '') . '|' . json_encode($body));
+        $prev = $_SESSION['last_post'] ?? null;
+        $_SESSION['last_post'] = [$fp, microtime(true)];
+        if ($prev && $prev[0] === $fp && microtime(true) - (float)$prev[1] < 2.0) {
+            // v2.3.94: go back to the page the form was on: same-site Referer only, else this very URL (query string kept)
+            $ref = (string)($_SERVER['HTTP_REFERER'] ?? '');
+            $rp = $ref !== '' ? parse_url($ref) : false;
+            $back = ($rp && isset($rp['host']) && strcasecmp($rp['host'], (string)preg_replace('/:\d+$/', '', (string)($_SERVER['HTTP_HOST'] ?? ''))) === 0)
+                ? (($rp['path'] ?? '/') . (isset($rp['query']) ? '?' . $rp['query'] : ''))
+                : (string)($_SERVER['REQUEST_URI'] ?? ($_SERVER['SCRIPT_NAME'] ?? '/'));
+            flash('Already done: that was sent twice.', 'ok');
+            header('Location: ' . $back, true, 303);
+            exit;
+        }
+    }
 }
 
 function is_post(): bool
@@ -281,6 +307,7 @@ function settings_schema(): array
     require_once __DIR__ . '/mentors120.php';   // v1.2.0: player mentors
     require_once __DIR__ . '/trek_data.php';   // v1.8.0: Treks
     require_once __DIR__ . '/delve_map.php';   // v2.0.6: Delves: map view
+    require_once __DIR__ . '/here_schema.php';   // graphical navigation: gnav_* settings
     require_once __DIR__ . '/emoji_icons.php';   // v2.0.23: emoji to icons
     return $schema = [
         'site_name'          => ['label' => 'Site: name', 'type' => 'text', 'default' => 'Gnome Venture'],
@@ -294,9 +321,9 @@ function settings_schema(): array
         'starting_coins'     => ['label' => 'Start: currency', 'type' => 'int', 'default' => '500', 'min' => 0, 'max' => 1000000],
         'starting_plot_size' => ['label' => 'Start: plot size (squares per side)', 'type' => 'int', 'default' => '4', 'min' => 2, 'max' => 20],
         'max_plot_size'      => ['label' => 'Plots: biggest size (squares per side)', 'type' => 'int', 'default' => '12', 'min' => 2, 'max' => 30],
-        'bed_add_cost'       => ['label' => 'Add 4 beds: Petals for the first purchase (v0.9.5; each later one costs more, see growth %)', 'type' => 'int', 'default' => '200', 'min' => 0, 'max' => 100000000],
+        'bed_add_cost'       => ['label' => 'Add 4 beds: Petals for the first purchase (v0.9.5; later ones cost more as the garden grows, see growth %)', 'type' => 'int', 'default' => '200', 'min' => 0, 'max' => 100000000],
         'bed_add_items'      => ['label' => 'Add 4 beds: items for the first purchase (slug:qty, comma separated)', 'type' => 'text', 'default' => 'timber-plank:2'],
-        'bed_add_growth_pct' => ['label' => 'Add 4 beds: each purchase costs this % more than the one before (Petals and items)', 'type' => 'int', 'default' => '50', 'min' => 0, 'max' => 1000],
+        'bed_add_growth_pct' => ['label' => 'Add 4 beds: each 4 beds the garden has past its start make the next ones cost this % more (Petals and items; never more than 6x the first price)', 'type' => 'int', 'default' => '20', 'min' => 0, 'max' => 1000],
         'starter_items'      => ['label' => 'Start: items (slug:qty, comma separated)', 'type' => 'text', 'default' => 'radish-seed:6,lettuce-seed:4,carrot-seed:4,tomato-seed:2,worn-trowel:1,tin-watering-can:1,foraging-knife:1,plain-compost:6,cardboard-sheet:2,straw-mulch:2'],
         'home_seed_qty'      => ['label' => 'Start: seeds of each home-region staple crop given at sign-up', 'type' => 'int', 'default' => '2', 'min' => 0, 'max' => 100],
         'energy_regen_amount' => ['label' => 'Energy: regained each time', 'type' => 'select', 'default' => '1', 'options' => ['1' => '1 energy', '2' => '2 energy', '3' => '3 energy', '4' => '4 energy', '5' => '5 energy']],   // v0.9.0
@@ -345,8 +372,8 @@ function settings_schema(): array
         'event_cooldown_minutes' => ['label' => 'Random events: at least … minutes apart', 'type' => 'int', 'default' => '120', 'min' => 0, 'max' => 10080],
         'event_daily_max'    => ['label' => 'Random events: most per gnome per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 100],
         'job_reset_hour_utc' => ['label' => 'Daily jobs: not used since 1.2.2 (day turns over at midnight Hollow time)', 'type' => 'int', 'default' => '4', 'min' => 0, 'max' => 23],
-        'job_streak_every'   => ['label' => 'Daily jobs: bonus every … daily jobs finished', 'type' => 'int', 'default' => '7', 'min' => 1, 'max' => 100],
-        'job_streak_bonus_coins' => ['label' => 'Daily jobs: streak bonus (currency)', 'type' => 'int', 'default' => '300', 'min' => 0, 'max' => 100000],
+        'job_streak_every'   => ['label' => 'Daily jobs: bonus every … daily jobs finished (a lifetime count, never resets)', 'type' => 'int', 'default' => '7', 'min' => 1, 'max' => 100],
+        'job_streak_bonus_coins' => ['label' => 'Daily jobs: bonus for every … daily jobs finished (currency; a lifetime count, never resets)', 'type' => 'int', 'default' => '300', 'min' => 0, 'max' => 100000],
         'worm_rounds_per_day' => ['label' => 'Worm Hunting: digs per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 50],
         'worm_digs'          => ['label' => 'Worm Hunting: digs per go (before rock pick bonus)', 'type' => 'int', 'default' => '10', 'min' => 3, 'max' => 36],
         'worm_count'         => ['label' => 'Worm Hunting: worms hidden in each dig', 'type' => 'int', 'default' => '8', 'min' => 1, 'max' => 20],
@@ -380,17 +407,15 @@ function settings_schema(): array
         'jigsaw_tries_advanced' => ['label' => 'Jigsaw tournaments: timed goes per day, Advanced (v2.0.87)', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 50],
         'jigsaw_tries_expert' => ['label' => 'Jigsaw tournaments: timed goes per day, Expert (v2.0.87)', 'type' => 'int', 'default' => '5', 'min' => 1, 'max' => 50],
         'jigsaw_reserve_days' => ['label' => 'Jigsaw tournaments: days a settled tournament’s picture waits before it joins free play (0 = at once) (v2.0.87)', 'type' => 'int', 'default' => '0', 'min' => 0, 'max' => 60],
-        'ppal_open' => ['label' => 'Puzzle Pals: pals released by an Advanced Jigsaw solve, found on pages (needs Jigsaw open; off = admins only) (v2.0.88)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
-        'ppal_find_mode' => ['label' => 'Puzzle Pals: how released pals are found (v2.0.92)', 'type' => 'select', 'default' => 'map', 'options' => ['map' => 'Waiting at places on the map (collect by standing there)', 'page' => 'Random find on a page view (the old way)']],
+        'ppal_open' => ['label' => 'Puzzle Pals: pals released by an Advanced Jigsaw solve, found waiting on the map (needs Jigsaw open; off = admins only) (v2.0.88)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off (admins only)', '1' => 'On']],
         'ppal_spawn_count' => ['label' => 'Puzzle Pals: pals waiting on the map at once per gnome (v2.0.92)', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 10],
-        'ppal_chance' => ['label' => 'Puzzle Pals: page mode only: a find on a page view is 1 in this many (v2.0.88)', 'type' => 'int', 'default' => '60', 'min' => 5, 'max' => 5000],
-        'ppal_cooldown_minutes' => ['label' => 'Puzzle Pals: page mode only: minutes between finds (v2.0.88)', 'type' => 'int', 'default' => '30', 'min' => 0, 'max' => 1440],
-        'ppal_daily_max' => ['label' => 'Puzzle Pals: page mode only: most finds per gnome per day (v2.0.88)', 'type' => 'int', 'default' => '4', 'min' => 0, 'max' => 100],
         'ppal_party' => ['label' => 'Puzzle Pals: gnomes can take pals along (perks, shown beside the gnome; the Expert trophy adds +1 unit) (v2.0.88)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
         'pj_open' => ['label' => 'Pal jobs: found pals can tend a garden, gather, and re-run cleared delves (needs Puzzle Pals open) (v2.3.0)', 'type' => 'select', 'default' => '1', 'options' => ['0' => 'Off', '1' => 'On']],
         'pj_min_level' => ['label' => 'Pal jobs: gnome level needed (v2.3.0)', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 100],
         'pj_max_away' => ['label' => 'Pal jobs: pals out at once per gnome (v2.3.0)', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 10],
         'pj_runs_per_day' => ['label' => 'Pal jobs: trips and delve runs per gnome per Hollow day (v2.3.0)', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 50],
+        'ppal_delve_coin_pct' => ['label' => 'Pal Jobs: Petals a pal brings from a delve, as a percent of a player chest (v2.4.67; was 60)', 'type' => 'int', 'default' => '40', 'min' => 0, 'max' => 200],
+        'ppal_boons' => ['label' => 'Puzzle Pals: pals with a Boon use it instead of their calling skill (needs take-along on) (v2.3.8)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
         'ppal_party_max' => ['label' => 'Puzzle Pals: pals a gnome can take along (v2.0.88)', 'type' => 'int', 'default' => '2', 'min' => 1, 'max' => 3],
         'ppal_roster_size' => ['label' => 'Puzzle Pals: pals per picture (6 = 3 common, 2 uncommon, 1 rare; authored rosters are cut to this) (v2.0.88)', 'type' => 'int', 'default' => '6', 'min' => 1, 'max' => 6],
         'puzzles_tournaments' => ['label' => 'Games: Puzzle tournaments (best time on one picture, trophies and badges only; needs Puzzles open) (v2.0.68)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
@@ -420,9 +445,9 @@ function settings_schema(): array
         'fair_best_in_show'  => ['label' => 'Harvest Fair: Best in Show Petals', 'type' => 'int', 'default' => '1000', 'min' => 0, 'max' => 100000],
         'marrow_guesses_per_day' => ['label' => 'Guess the Weight: guesses per day', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 1],
         'marrow_jackpot'     => ['label' => 'Guess the Weight: jackpot for an exact guess (starts here after a win)', 'type' => 'int', 'default' => '5000', 'min' => 0, 'max' => 10000000],
-        'marrow_jackpot_grow' => ['label' => 'Guess the Weight: the jackpot grows this much each day nobody is exact', 'type' => 'int', 'default' => '1000', 'min' => 0, 'max' => 1000000],
-        'marrow_jackpot_max' => ['label' => 'Guess the Weight: the jackpot never grows past this', 'type' => 'int', 'default' => '25000', 'min' => 0, 'max' => 10000000],
-        'marrow_close_prize' => ['label' => 'Guess the Weight: consolation for the closest guess when nobody is exact (0 = none)', 'type' => 'int', 'default' => '100', 'min' => 0, 'max' => 100000],
+        'marrow_jackpot_grow' => ['label' => 'Guess the Weight: the jackpot grows this much each day nobody is exact', 'type' => 'int', 'default' => '500', 'min' => 0, 'max' => 1000000],
+        'marrow_jackpot_max' => ['label' => 'Guess the Weight: the jackpot never grows past this', 'type' => 'int', 'default' => '10000', 'min' => 0, 'max' => 10000000],
+        'marrow_close_prize' => ['label' => 'Guess the Weight: consolation for the closest guess when nobody is exact and 2 or more gnomes guessed (0 = none)', 'type' => 'int', 'default' => '100', 'min' => 0, 'max' => 100000],
         'marrow_min_level'   => ['label' => 'Guess the Weight: gnome level needed to guess', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 1000],
         'marrow_min_days'    => ['label' => 'Guess the Weight: days an account must be in the Hollow before guessing', 'type' => 'int', 'default' => '2', 'min' => 0, 'max' => 365],
         'race_bets_per_day'  => ['label' => 'Snail Race: bets one gnome can back per day', 'type' => 'int', 'default' => '5', 'min' => 0, 'max' => 24],
@@ -494,9 +519,9 @@ function settings_schema(): array
         'regrow_yield_percent' => ['label' => 'Perennials: harvests after the first give this % of the crop', 'type' => 'int', 'default' => '75', 'min' => 1, 'max' => 100],
         'regrow_xp_percent'  => ['label' => 'Perennials: harvests after the first give this % of the XP', 'type' => 'int', 'default' => '60', 'min' => 0, 'max' => 100],
         'xp_steep_from'      => ['label' => 'Gnome levels: from this level on, each level needs extra XP', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 1000],
-        'xp_steep_percent'   => ['label' => 'Gnome levels: extra XP needed per level past that point (%)', 'type' => 'int', 'default' => '20', 'min' => 0, 'max' => 1000],   // v0.9.1: 10 -> 20
+        'xp_steep_percent'   => ['label' => 'Gnome levels: extra XP needed per level past that point (%)', 'type' => 'int', 'default' => '15', 'min' => 0, 'max' => 1000],   // v0.9.1: 10 -> 20
         // v0.9.7 mid/late game: action XP, easy roads, quick walks on roads far below you
-        'xp_action_scale_percent' => ['label' => 'Gnome levels: action XP (harvest, cook, craft, fight): extra % per gnome level past the XP-steep level (quest, chapter and milestone XP are not scaled)', 'type' => 'int', 'default' => '5', 'min' => 0, 'max' => 1000],
+        'xp_action_scale_percent' => ['label' => 'Gnome levels: action XP (harvest, cook, craft, fight): extra % per gnome level past the XP-steep level (quest, chapter and milestone XP are not scaled)', 'type' => 'int', 'default' => '9', 'min' => 0, 'max' => 1000],
         'easy_roads_below'   => ['label' => 'Easy roads: on by default for gnomes below this level (used when upgrading older worlds; new gnomes start with it on; anyone can switch it any time on My Gnome)', 'type' => 'int', 'default' => '5', 'min' => 1, 'max' => 1000],
         'easy_roads_gap'     => ['label' => 'Easy roads: near-home encounters stay this many levels below the gnome (never bosses)', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 100],
         'low_road_gap'       => ['label' => 'Quick walks: a road whose top level is this many levels (or more) below the gnome is a quick walk', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 1000],
@@ -514,7 +539,9 @@ function settings_schema(): array
         'cook_energy_tiers'  => ['label' => 'Cooking: energy to cook one dish: snack, meal, feast (comma separated)', 'type' => 'text', 'default' => '0,1,2'],
         'cook_minutes_tiers' => ['label' => 'Cooking: cook time in minutes: snack, meal, feast (used for new recipes; each recipe keeps its own in Admin → Recipes)', 'type' => 'text', 'default' => '3,15,45'],
         'snack_batch_max'    => ['label' => 'Cooking: snacks made in one go (new recipes; each recipe keeps its own in Admin → Recipes)', 'type' => 'int', 'default' => '5', 'min' => 1, 'max' => 100],
-        'kitchen_pots'       => ['label' => 'Cooking: pots for Kitchen level I, II, III (comma separated; 0 = no pots, dishes are cooked instantly)', 'type' => 'text', 'default' => '2,3,4'],   // v0.9.4 part 2
+        'kitchen_pots'       => ['label' => 'Cooking: pots for Kitchen level I, II, III (comma separated; 0 = no pots, dishes are cooked instantly)', 'type' => 'text', 'default' => '3,4,5'],   // v0.9.4 part 2; v2.4.67 was 2,3,4
+        'meal_batch_kitchen' => ['label' => 'Cooking: meals made in one pot for Kitchen level I, II, III (comma separated; a recipe\'s own batch size still counts if bigger)', 'type' => 'text', 'default' => '1,3,5'],   // v2.4.67
+        'feast_batch_kitchen' => ['label' => 'Cooking: feasts made in one pot for Kitchen level I, II, III (comma separated)', 'type' => 'text', 'default' => '1,1,2'],   // v2.4.67
         'stack_kitchen_buff_pct' => ['label' => 'Stacking: meal buff time, % extra per Kitchen level in your other gardens (the best Kitchen counts fully)', 'type' => 'int', 'default' => '10', 'min' => 0, 'max' => 100],
         'stack_kitchen_buff_max' => ['label' => 'Stacking: most meal buff time bonus (%) all Kitchens can give together', 'type' => 'int', 'default' => '100', 'min' => 0, 'max' => 1000],
         'stack_kitchen_xp_pct' => ['label' => 'Stacking: cooking XP, % extra per Kitchen level in your other gardens', 'type' => 'int', 'default' => '5', 'min' => 0, 'max' => 100],
@@ -630,7 +657,7 @@ function settings_schema(): array
 
         'travel_needs_visit' => ['label' => 'Travel: only fast-travel to regions a gnome has already walked to', 'type' => 'bool', 'default' => '1'],
         'gotm_thanks'        => ['label' => 'Garden of the Month: Petals for every other entry', 'type' => 'int', 'default' => '50', 'min' => 0, 'max' => 1000000],
-    ] + social100_settings() + market100_settings() + garden100_settings() + mentors120_settings() + social169_settings() + nudge_settings() + trek_settings() + dm_settings() + ico_settings();   // v1.2.0: mentors. v1.6.8: reminder emails. v1.8.0: Treks
+    ] + social100_settings() + market100_settings() + garden100_settings() + mentors120_settings() + social169_settings() + nudge_settings() + trek_settings() + dm_settings() + hp_settings() + ico_settings() + here_settings();   // v1.2.0: mentors. v1.6.8: reminder emails. v1.8.0: Treks
 }
 
 /** v1.7.6: scale a mini-game's Petal payout by games_petals_percent (never below 1 if the game paid something). */
@@ -673,6 +700,13 @@ function set_setting(string $name, string $value): void
 
 function load_current_user(): ?array
 {
+    // v2.4.71: expired guest gardens were only swept when a guest loaded a page (or one was made), so with no guest traffic they stayed forever.
+    // Any page load now sweeps them, at most once every 10 minutes.
+    if ((int)setting('guest_last_sweep') < time() - 600) {
+        set_setting('guest_last_sweep', (string)time());
+        require_once __DIR__ . '/guest.php';
+        try { guest_purge(true); } catch (Throwable $e) { error_log('guest sweep: ' . $e->getMessage()); }
+    }
     $id = (int)($_SESSION['uid'] ?? 0);
     if (!$id) {
         return null;
@@ -907,21 +941,6 @@ function region_select(string $name, int $selected = 0): string
         $label = $r['gnomish_name'] . ' — ' . $r['real_name'];
         $html .= '<option value="' . (int)$r['id'] . '" title="' . e(climate_text($r)) . '"'
             . ((int)$r['id'] === $selected ? ' selected' : '') . '>' . e($label) . '</option>';
-    }
-    return $html . '</select>';
-}
-
-/** A <select> of every starting zone in a region. */
-function zone_select(string $name, int $regionId, int $selected = 0): string
-{
-    $icons = ['coast' => '🌊', 'mountain' => '⛰️', 'forest' => '🌲', 'desert' => '🏜️',
-        'rainforest' => '🌴', 'grassland' => '🌾', 'wetland' => '🪷', 'tundra' => '❄️', 'island' => '🏝️'];
-    $html = '<select name="' . e($name) . '" required><option value="">— choose —</option>';
-    foreach (q('SELECT id, zone_num, landscape, name, difficulty FROM zones WHERE region_id = ? ORDER BY zone_num', [$regionId])->fetchAll() as $z) {
-        $icon = $icons[$z['landscape']] ?? '📍';
-        $tag = $z['difficulty'] === 'easy' ? ' (starter)' : ' (' . $z['difficulty'] . ')';
-        $html .= '<option value="' . (int)$z['id'] . '"' . ((int)$z['id'] === $selected ? ' selected' : '') . '>'
-            . $icon . ' ' . e($z['name']) . $tag . '</option>';
     }
     return $html . '</select>';
 }

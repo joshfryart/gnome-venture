@@ -252,7 +252,7 @@ function hollow_goal_settle(int $uid): array
             $got = '';
             if ($spec = HOLLOW_GOAL_TIER_ITEMS[$tier - 1] ?? '') {
                 [$slug, $qty] = explode(':', $spec) + [1 => '1'];
-                if ($iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug])) { give_item($uid, $iid, max(1, (int)$qty)); $got = ' + ' . (int)$qty . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$iid]); }
+                if ($iid = item_id_by_slug($slug)) { give_item($uid, $iid, max(1, (int)$qty)); $got = ' + ' . (int)$qty . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$iid]); }
             }
             db()->commit();
             $lines[] = $g['icon'] . ' ' . $g['title'] . ': tier ' . $tier . ' of 4 reached! ' . money($coins) . ' + ' . HOLLOW_GOAL_TIER_XP[$tier - 1] . ' XP' . $got . '.';

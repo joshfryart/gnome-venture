@@ -481,7 +481,7 @@ function sink_shop_panel(array $u, array $shop, bool $open): string
     } else {
         $own = array_fill_keys(q("SELECT ref FROM sink_owned WHERE user_id = ? AND kind = 'dye'", [$uid])->fetchAll(PDO::FETCH_COLUMN), true);
         $h .= '<section class="box dyes" id="dyepots"><h2>🎨 Dye pots</h2>'
-            . '<p class="help">Buy a pot once; the colour is yours. Pick it on <a href="' . e(url('gnome.php?dye=1#dyes')) . '">My Gnome</a>.</p>';
+            . '<p class="help">Buy a pot once; the colour is yours. Pick it on <a href="' . e(url('gnome.php?tab=stats&dye=1#dyes')) . '">My Gnome → Stats</a>.</p>';
         foreach (DYE_TIER_NAMES as $tier => $tname) {
             $h .= '<h3>' . e($tname) . ' <small class="muted">' . money(dye_price($tier)) . ' a pot</small></h3><div class="shopwrap"><div class="itmwrap"><div class="itms">';
             foreach (['hat' => '🎩 Hat', 'beard' => '🧔 Beard'] as $part => $plabel) {

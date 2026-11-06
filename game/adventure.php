@@ -3,6 +3,8 @@ declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/adventure.php';
 require_once __DIR__ . '/includes/scene.php';   // v2.0.43: the stage
+require_once __DIR__ . '/includes/puzzle_pals.php';   // v2.3.8: pal actives on the fight buttons
+require_once __DIR__ . '/includes/trail_tiles.php';   // graphical navigation 2d: the Trail as tile sections (gnav_tiles)
 $u = require_login();
 $uid = (int)$u['id'];
 
@@ -33,6 +35,11 @@ if (is_post()) {
         else { dest_save_opts($uid); flash('🧭 Saved.', 'ok'); }
         redirect(safe_back($exp ? 'adventure.php' : 'world.php'));
     }
+    if ($do === 'trail_resume') {   // graphical navigation 2d: pick a put-away walk up again
+        [$ok, $msg] = trail_resume($u);
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect($ok ? 'adventure.php' : 'here.php');
+    }
     if ($do === 'explore') {
         [$ok, $msg] = explore_start($u);
         flash($msg, $ok ? 'ok' : 'err');
@@ -42,7 +49,7 @@ if (is_post()) {
         require_once __DIR__ . '/includes/explore.php';
         [$ok, $msg] = explore_come_back($u, $do === 'explore_road' ? 'road' : 'wild');
         flash($msg, $ok ? 'ok' : 'err');
-        redirect($ok ? ($do === 'explore_road' ? 'world.php' : 'adventure.php') : 'town.php');
+        redirect($ok ? ($do === 'explore_road' ? (gnav_on() ? 'here.php' : 'world.php') : 'adventure.php') : (gnav_on() ? 'here.php' : 'town.php'));
     }
     if (!$exp) redirect('world.php');
 
@@ -56,7 +63,7 @@ if (is_post()) {
         road_bind($u, $exp);   // v1.9.3: the recent-picks memory, read after the lock above and written (road_flush) before the commit below
         $enc = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
         if ($enc && $enc['type'] === 'creature') {
-            if (in_array($do, ['attack', 'ability', 'flee'], true)) {
+            if (in_array($do, ['attack', 'ability', 'flee'], true) || preg_match('/^palskill:[a-z0-9_-]{1,48}$/', $do)) {   // v2.3.8: palskill:KEY = a rare pal's active
                 combat_turn($u, $exp, $do);
             } elseif ($do === 'snack') {   // v1.4.0: one home-cooked snack, same transaction and lock as the rest
                 combat_turn($u, $exp, 'snack', (int)($_POST['item'] ?? 0));
@@ -73,6 +80,19 @@ if (is_post()) {
             if ($do === 'choose') explore_choose($u, $exp, (int)($_POST['option'] ?? -1));
         } elseif ($enc && $enc['type'] === 'meet') {   // v1.9.4: a villager or traveller met on the road
             if ($do === 'meet') road_meet_resolve($u, $exp, (int)($_POST['option'] ?? -1));
+        } elseif (($exp['kind'] ?? 'walk') === 'delve' && ($dv2 = dv2_scene($exp))) {   // v2.3.1: the route menu and tile floors
+            if ($do === 'route') {
+                [$gok, $gmsg] = dv2_pick($u, $exp, $dv2, (string)($_POST['pick'] ?? ''));
+            } elseif ($do === 'quick') {
+                [$gok, $gmsg] = dv2_quick($u, $exp, $dv2);
+            } elseif ($do === 'go') {
+                [$gx, $gy] = array_map('intval', array_pad(explode(',', (string)($_POST['go'] ?? ''), 2), 2, '0'));
+                [$gok, $gmsg] = dv2_walk($u, $exp, $dv2, $gx, $gy);
+            } elseif ($do === 'leave') { delve_leave($u, $exp); $gok = true; $gmsg = ''; }
+            elseif ($do === 'chest') { delve_chest($u, $exp); $gok = true; $gmsg = ''; }
+            else { $gok = true; $gmsg = ''; }
+            if (!$gok) flash($gmsg, 'err');
+            elseif ($gmsg !== '') flash($gmsg, 'ok');   // hazard ground and wandering creatures say what happened
         } elseif (($exp['kind'] ?? 'walk') === 'delve') {
             if ($do === 'next') delve_next($u, $exp);
             elseif ($do === 'leave') delve_leave($u, $exp);
@@ -98,6 +118,17 @@ if (is_post()) {
             elseif ($do === 'visit' && explore_visit($u, $exp, (int)($_POST['place'] ?? 0))) $visited = true;
             elseif ($do === 'gather') explore_gather($u, $exp, (string)($_POST['tool'] ?? ''));   // v0.7.80
             if (in_array($do, ['deeper', 'roam', 'back'], true)) rest_after_explore($exp, $logBefore);   // v1.3.0
+        } elseif (in_array($do, ['trail_go', 'trail_next', 'trail_back', 'trail_arrive', 'trail_wander', 'trail_stance', 'gather'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
+            if ($do === 'trail_go') { $xy = explode(',', (string)($_POST['go'] ?? '')); [$tok, $tmsg] = trail_go($u, $exp, (int)($xy[0] ?? -1), (int)($xy[1] ?? -1)); }
+            elseif ($do === 'trail_next') [$tok, $tmsg] = trail_next($u, $exp);
+            elseif ($do === 'gather') [$tok, $tmsg] = trail_gather($u, $exp, (string)($_POST['tool'] ?? ''));
+            elseif ($do === 'trail_stance') [$tok, $tmsg] = trail_stance($u, $exp, (string)($_POST['mode'] ?? ''));
+            elseif ($do === 'trail_wander') { [$tok, $tmsg] = trail_wander($u, $exp); }
+            elseif ($do === 'trail_back') { [$tok, $tmsg] = trail_back($u, $exp); $visited = true; }
+            elseif (trail_can_arrive($exp)) { arrive($u, $exp); dm_scene_drop((int)$exp['id']); $arrivedAt = (int)$exp['to_id']; $tok = true; $tmsg = ''; }
+            else { $tok = false; $tmsg = 'Not there yet.'; }
+            if (!$tok && $tmsg !== '') flash($tmsg, 'err');
+            elseif ($tok && in_array($do, ['trail_back', 'trail_wander', 'trail_stance'], true)) flash($tmsg, 'ok');
         } elseif ($do === 'continue' && (int)$exp['step'] < (int)$exp['steps_total']) {
             next_step($u, $exp);
         } elseif ($do === 'arrive' && (int)$exp['step'] >= (int)$exp['steps_total'] && ts($exp['arrive_at']) <= time()) {
@@ -114,22 +145,25 @@ if (is_post()) {
         road_flush();
     }
     db()->commit();
-    if (!empty($visited)) redirect('town.php');
+    if (!empty($visited)) redirect(gnav_on() ? 'here.php' : 'town.php');   // turned back: the place you left is the Here page
     // After arriving, send the player straight to the destination page
     if (!empty($arrivedAt)) {
         require_once __DIR__ . '/includes/destination.php';   // v0.9.3: keep walking to the next stop of the route
         $chain = dest_chain_after_arrival($uid);
         if ($chain) {
-            flash($chain[1], $chain[0] ? 'ok' : 'err');
+            flash($chain[1], 'ok');
             if ($chain[0]) redirect('adventure.php');
         }
+        // v2.5.63: the GPS stops at every stop, pass-through places included, so there is no skipping ahead to the next "Head into" card any more
         $dest = q_one('SELECT kind FROM locations WHERE id = ?', [$arrivedAt]);
         $kind = $dest['kind'] ?? '';
         // v0.7.61: every place has its page on town.php (town square, rest stop, haven…). local.php never existed.
-        redirect($kind === 'hub' ? 'town.php?hub=1' : ($kind ? 'town.php' : 'world.php'));
+        redirect(gnav_on() && $kind !== '' ? 'here.php' : ($kind === 'hub' ? 'town.php?hub=1' : ($kind ? 'town.php' : 'world.php')));   // arrived: the Here page of the place
     }
     redirect(safe_back('adventure.php'));
 }
+if (!$exp && trail_resume_offer($u)) { [$rok, $rmsg] = trail_resume($u); flash($rmsg, $rok ? 'ok' : 'err'); redirect('adventure.php'); }   // the wander is over: back to the Trail, no page to click through
+refresh_energy($u);   // v2.3.94: a GET showed the energy from the last POST ("too tired" after a rest)
 
 // Show the last finished expedition's log if there's no active one
 $last = $exp ?: q_one('SELECT * FROM expeditions WHERE user_id = ? ORDER BY id DESC LIMIT 1', [$uid]);
@@ -146,6 +180,8 @@ $gc = gnome_combat($u, true);
 $L = LANDSCAPES[$scene['land']] ?? ['🌱', 'Wilds', ''];
 $dmScene = ($exp && dm_on()) ? dm_scene($exp) : null;   // v2.0.6: a delve or lair that has a map (the list still works for it)
 $mapMode = $dmScene && dm_pref() === 'map';
+$trailSc = $exp ? trail_scene($exp) : null;   // graphical navigation 2d: a walk that began as tile sections stays one, even if gnav_tiles is switched off meanwhile
+$dv2Scene = ($exp && ($exp['kind'] ?? '') === 'delve') ? dv2_scene($exp) : null;   // v2.3.1: a delve with the route menu and tile floors
 
 function act(string $do, string $label, string $extra = '', string $class = ''): string
 {
@@ -160,13 +196,86 @@ function act_choice(string $do, string $icon, string $title, string $sub = '', $
         . $extra . choice_row($icon, $title, $sub, $badge, $cls, $attrs) . '</form>';
 }
 
+/**
+ * Optional pixel art for the wander card. A file that does not exist draws NOTHING (the emoji / plain header stays): no broken images.
+ * scenes/wander-<land>.png banner (+ wander-deep.png for the Deep wilds, wander-wild.png for the Hard and Wild tiers), ico/wander-tier-<gentle|wild|dangerous|deep>.png (24 px),
+ * ico/wander-<deeper|roam|back|return|visit>.png (24 px), ico/wander-found.png. Names in claude/todo.md (ART TODO: the wander area).
+ */
+function wander_art(string $rel, int $w, int $h, string $cls = ''): string
+{
+    static $have = [];
+    if (!preg_match('~^[a-z0-9_/-]+\.png$~', $rel)) return '';
+    $have[$rel] ??= is_file(__DIR__ . '/assets/img/' . $rel);
+    return $have[$rel] ? '<img class="pix ' . e($cls) . '" src="' . e(url('assets/img/' . $rel)) . '" width="' . $w . '" height="' . $h . '" alt="" decoding="async">' : '';
+}
+
+/** The banner strip for the card's tier and land: the tier variant when drawn, else the land's strip, else ''. */
+function wander_banner(string $tierKey, string $land): string
+{
+    $land = preg_replace('/[^a-z]/', '', strtolower($land));
+    $first = match ($tierKey) { 'deep' => 'scenes/wander-deep.png', 'hard', 'wild' => 'scenes/wander-wild.png', default => '' };
+    foreach (array_filter([$first, 'scenes/wander-' . $land . '.png', 'scenes/wander-generic.png']) as $rel) {   // v2.5.34: wander-generic.png is the strip for a land with none of its own
+        if ($a = wander_art($rel, 480, 64, 'wc-banner-img')) return '<div class="wc-banner">' . $a . '</div>';
+    }
+    return '';
+}
+
+/** Wander off the Trail, nothing in front of you: one compact popover over the Trail section. Header, what just happened, the four moves, a gather fold. */
+function wander_card_html(array $u, array $exp, array $last, array $log, array $from, array $L): string
+{
+    require_once __DIR__ . '/includes/explore.php';
+    require_once __DIR__ . '/includes/gathering.php';
+    $dep = (int)$exp['depth'];
+    [$hereTier, $hereKey] = explore_tier(max(1, $dep));
+    [$nextTier] = explore_tier($dep + 1);
+    $nextLvl = explore_level($u, $dep + 1, $exp);
+    $hereLvl = explore_level($u, max(1, $dep), $exp);
+    $lastLine = $log ? (string)end($log) : '';
+    $res = '';
+    if ($lastLine !== '' && !str_contains($lastLine, 'You step off the Trail')) {
+        [$cls, $ico, $title, $sub] = road_result_parts($lastLine);
+        $res = '<div class="wc-res ' . e($cls) . '" aria-live="polite"><span class="wc-ico" aria-hidden="true">' . e($ico) . '</span><span><b>' . e($title) . '</b>' . ($sub !== '' ? '<small>' . e($sub) . '</small>' : '') . '</span></div>';
+    } else {
+        $res = '<div class="wc-res"><span>The wild mycelium stretches away from the road…</span></div>';
+    }
+    $btn = fn(string $do, string $ico, string $title, string $sub, string $cost, string $cls = '', string $extra = '') =>
+        '<form method="post" class="wc-b">' . csrf_field() . '<input type="hidden" name="do" value="' . e($do) . '">' . $extra
+        . '<button class="btn wc-btn ' . e($cls) . '"><span class="wc-bt">' . (wander_art('ico/wander-' . $do . '.png', 24, 24, 'wc-mv') ?: $ico) . ' ' . e($title) . '</span><small>' . e($sub) . '</small><i>' . e($cost) . '</i></button></form>';
+    $o = '<dialog class="picker hubpop trailpop trailsmall wanderpop" id="trailpop" open aria-label="Off the Trail"><div class="pickbox"><div class="hubcard trailui wcard">'
+        . wander_banner($hereKey, explore_land($exp))
+        . wander_step_once('off')   // v2.5.49: the gnome stepping off the road, once, when art exists
+        . '<div class="wc-head"><b>🌿 Off the Trail</b><span>' . $L[0] . ' ' . e($L[1]) . ' · step ' . $dep . ' · ' . wander_art('ico/wander-tier-' . (['gentle' => 'gentle', 'medium' => 'wild', 'hard' => 'dangerous', 'wild' => 'dangerous', 'deep' => 'deep'][$hereKey] ?? 'gentle') . '.png', 24, 24, 'wc-tier') . e($hereTier) . ' · danger ' . (int)$last['level'] . '</span></div>'
+        . $res;
+    $foundId = (int)($_SESSION['explore_found'] ?? 0);
+    if ($foundId && ($fl = q_one('SELECT id, name FROM locations WHERE id = ?', [$foundId]))) {
+        $o .= wander_art('ico/wander-found.png', 24, 24, 'wc-found') . '<div class="wc-grid">' . $btn('visit', '🚶', 'Visit ' . $fl['name'], 'then come back', 'free', 'primary', '<input type="hidden" name="place" value="' . $foundId . '">') . '</div>';
+    }
+    $o .= '<div class="wc-grid">'
+        . $btn('deeper', '🌿', 'Go deeper', $nextTier . ' · danger ' . $nextLvl, '⚡1', 'primary')
+        . ($dep >= 1 ? $btn('roam', '🔁', 'Keep exploring', $hereTier . ' · danger ' . $hereLvl, '⚡1') : '')
+        . ($dep >= 2 ? $btn('back', '↩️', 'Step back', explore_tier($dep - 1)[0], '⚡1') : '')
+        . $btn('return', '🛣️', 'Back to the Trail', 'free · keep everything', 'free', 'alt')
+        . '</div>';
+    if ($dep >= 1) $o .= '<details class="wfold wgather"><summary>🧺 Gather here</summary>' . gather_here_box($u, explore_land($exp), url('adventure.php'), '') . '</details>';
+    $o .= '<p class="help wc-foot">Knocked out? You wake on the road with all your things.</p></div></div></dialog>';
+    return $o;
+}
+
 page_header('On the mycelium');
+// graphical navigation 2d: Wander off the Trail plays in a popover over the Trail's section; when the wander ends the walk is picked up again
+$wanderView = null;
+if ($exp && ($exp['kind'] ?? '') === 'explore' && ($snap = trail_snapshot($u))) $wanderView = trail_snapshot_view($u, $snap, $exp);
+if ($wanderView) {
+    echo '<div class="wanderbehind">' . trail_view_html($u, $wanderView[0], $wanderView[1], true) . '</div>';
+    if (!$enc) { echo wander_card_html($u, $exp, $last, $log, $from, $L); page_footer(); exit; }   // nothing in front of you: the purpose-built wander card
+    ob_start();   // something in front of you: the usual encounter popover (fight, choice, meeting), the old page hidden behind it
+}
 ?>
 <?php $isExplore = ($last['kind'] ?? 'walk') === 'explore'; $kind = $last['kind'] ?? 'walk'; $isWalk = !in_array($kind, ['delve', 'lair', 'explore'], true);   // v2.0.51: a road walk gets the route ribbon instead of the heading, status line and route strip ?>
 <?php if ($kind === 'delve' || $kind === 'lair'): ?>
 <h1><?= $kind === 'delve' ? '🕳️' : '🐉' ?> <?= e($from['name']) ?></h1>
-<p class="status">
-  <?= $kind === 'delve' ? 'Room <b>' . (int)$last['depth'] . '</b>/' . DELVE_ROOMS . ' · ' : '' ?>danger level <?= (int)$last['level'] ?>
+<p class="status<?= $dv2Scene ? ' dv2status' : '' ?>">
+  <?= $kind === 'delve' ? ($dv2Scene ? 'Stage <b>' . min((int)$last['steps_total'], (int)$last['depth'] + 1) . '</b>/' . (int)$last['steps_total'] : 'Room <b>' . (int)$last['depth'] . '</b>/' . DELVE_ROOMS) . ' · ' : '' ?>danger level <?= (int)$last['level'] ?>
 <?php elseif ($isExplore): [$tierName] = explore_tier((int)$last['depth']); ?>
 <h1>🌿 Off the path near <?= e($from['name']) ?></h1>
 <?php require_once __DIR__ . '/includes/seek.php'; echo seek_chip($u, $exp);   // v0.7.97 ?>
@@ -179,19 +288,40 @@ page_header('On the mycelium');
 $wi = $exp ? dest_walk_info($u, $exp) : null;   // v0.9.3
 if ($wi && !$isWalk): ?>
 <div class="routestrip"><div class="routestrip-summary">🏁 <b><?= e(dest_name($uid, $wi['loc'])) ?></b> · leg <?= (int)$wi['k'] ?> of <?= (int)$wi['n'] ?> · <?= (int)$wi['left'] ?> stop<?= (int)$wi['left'] === 1 ? '' : 's' ?> left</div>
-  <details class="routeopts-collapse">
-    <summary>Travel options</summary>
-    <form method="post" class="inline routeopts"><?= csrf_field() ?><input type="hidden" name="do" value="dest_opts"><input type="hidden" name="back" value="adventure.php"><?= dest_opts_html($u) ?> <button class="btn ghost">Save</button></form>
-  </details>
+  <p class="routeopts"><?= dest_opts_html($u) ?></p>
 </div>
 <?php endif; ?>
 <?php $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$fighting;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold); v2.1.12: event cards use it too ?>
 <div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $wander ? ' wander' : '' ?>">
 <div class="mapcol">
-<?php if ($exp): echo adventure_stage_html($u, $exp, $scene, $enc); endif; ?>
-<?php if ($mapMode): // v2.0.6: the map is the default; the list is one tap away ?>
+<?php if ($exp && !$trailSc): echo adventure_stage_html($u, $exp, $scene, $enc); endif;   // the tile page has no scene picture: the map is the picture ?>
+<?php if ($dv2Scene): // v2.3.1: the floor you are on, or the route menu between floors ?>
+<?php if ($dv2Scene['map']): ?><?= dv2_floor_html($u, $exp, $dv2Scene, (bool)$enc) ?>
+<?php elseif ($dv2Scene['st']['q']): ?><?= dv2_quick_html($dv2Scene) ?>
+<?php else: ?><?= dv2_menu_html($u, $exp, $dv2Scene, (bool)$enc) ?>
+<?php endif; ?>
+<?= dv2_party_html($u, $exp, $dv2Scene) ?>
+<?php elseif ($mapMode): // v2.0.6: the map is the default; the list is one tap away ?>
 <?= dm_view_html($u, $exp, $dmScene, (bool)$enc) ?>
 <p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
+<?php elseif ($trailSc): ?>
+<?= trail_view_html($u, $exp, $trailSc, (bool)$enc) ?>
+<?php $tLand0 = (string)(exp_scene($exp)['land'] ?? 'grassland'); ?><div class="trailui">
+  <div class="trailfoot">
+    <a class="btn" data-pop="hubpop-tgather" href="<?= e(url('adventure.php?g=1')) ?>">🧺 Gather here</a>
+    <?php if (on_road((int)$exp['from_id'])): ?><a class="btn alt" data-pop="hubpop-twander" href="<?= e(url('adventure.php?w=1')) ?>">🌿 Wander off <small>⚡1</small></a><?php endif; ?>
+    <?php $stance = (string)($trailSc['st']['stance'] ?? ''); foreach (['sneak' => '🤫 Sneak', 'hunt' => '🏹 Hunt'] as $sm => $sl): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_stance"><input type="hidden" name="mode" value="<?= $sm ?>"><button class="btn<?= $stance === $sm ? '' : ' alt' ?>" aria-pressed="<?= $stance === $sm ? 'true' : 'false' ?>"><?= $sl ?></button></form><?php endforeach; ?>
+    <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_back"><button class="btn alt">↩️ Turn back</button></form>
+  </div>
+  <?php if (on_road((int)$exp['from_id'])): ?><dialog class="picker hubpop trailsmall" id="hubpop-twander" aria-labelledby="hubpop-twander-t"<?= !empty($_GET['w']) ? ' open' : '' ?>><div class="pickbox">
+    <div class="pickhead"><h3 id="hubpop-twander-t">🌿 Wander off the Trail?</h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
+    <div class="hubcard trailui"><p class="help">Leave the Trail for the wilds. ⚡1. Your walk waits for you on the road, and you can resume it from there.</p>
+      <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_wander"><button class="btn">🌿 Wander off <small>⚡1</small></button></form>
+      <a class="btn alt" href="<?= e(url('adventure.php')) ?>" data-pop-close>Stay on the Trail</a></div></div></dialog><?php endif; ?>
+  <dialog class="picker hubpop" id="hubpop-tgather" aria-labelledby="hubpop-tgather-t"<?= !empty($_GET['g']) ? ' open' : '' ?>><div class="pickbox">
+    <div class="pickhead"><h3 id="hubpop-tgather-t">🧺 Gather here</h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
+    <div class="hubcard"><?= gather_here_box($u, $tLand0, url('adventure.php'), '') ?></div></div></dialog>
+</div>
 <?php elseif ($isWalk): ?>
 <?= route_ribbon_html($u, $last, $wi, (int)$scene['level']) ?>
 <?php else: ?>
@@ -214,12 +344,15 @@ if ($resultCard): ?>
 <?php elseif ($log && !($enc && in_array($enc['type'] ?? '', ['choice', 'meet', 'problem'], true))): // v0.7.61: what just happened, right under the map so you don't have to scroll to the journal (v1.9.4: not while the card says the same thing) ?>
   <div class="advlatest" aria-live="polite"><b>Latest:</b> <?= e((string)end($log)) ?></div>
 <?php endif;
-$latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card already shows the rounds
+$latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';
+if ($trailSc && !$enc) { $latestHtml = $latestHtml !== '' ? '<div class="trailtoast" role="status">' . $latestHtml . '</div>' : ''; }   // tile page: what just happened pops up briefly (CSS fade), not a card in the page   // a fight card already shows the rounds
 ?>
 <?php if ($isWalk && !$mapMode) echo route_fold_html($u, $last, $wi); ?>
 </div>
 
 
+<?php $trailPop = ($trailSc || $mapMode || $dv2Scene || $wanderView) && $enc;   // on every tile map the encounter (a fight above all) is a popover over the screen, sized to it; it cannot be closed until it is settled
+if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria-label="<?= $enc['type'] === 'creature' ? 'A fight' : 'Something in your way' ?>"><div class="pickbox"><div class="hubcard trailui"><?= adventure_stage_html($u, $exp, $scene, $enc, 'fight', 'fightstage') /* the battle backdrop (placeholder art: scenes/fight-<land>.png) */ ?><?php endif; ?>
 <div class="panel box encounter">
 <?= fight_replay_stage((int)$last['id']) ?>   <?php // v1.4.0: Fight on replay, played by assets/fighton.js ?>
 <?= $latestHtml ?>
@@ -265,6 +398,7 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
   <div class="fightbtns choicelist">
   <?= act_choice('attack', '⚔️', 'Attack', 'd' . $gc['dmg_die'] . '+' . $gc['dmg_bonus'] . ' damage · +' . $gc['atk'] . ' vs 🛡️ ' . (int)$c['defense'], [$hitPct . '%', choice_odds_class($hitPct)], 'primary') ?>
   <?= $enc['used'] ? act_choice('ability', '✨', $abName, 'Used this fight', '', '', '', 'disabled') : act_choice('ability', '✨', $abName, $abDesc . ' Once per fight.') ?>
+  <?php if (ppal_boons_on()): foreach (ppal_fight_actives($u, $enc) as $pa): ?><?= $pa['used'] ? act_choice($pa['do'], '✨', $pa['title'], 'Used this fight', '', '', '', 'disabled') : act_choice($pa['do'], '✨', $pa['title'], $pa['sub']) ?><?php endforeach; endif; ?>
   <?= act_choice('flee', '🏃', 'Run', 'Slip away, no reward · Nimble check', [$runPct . '%', choice_odds_class($runPct)]) ?>
   <?php if (can_fight_on($exp)): ?><?= act_choice('fighton', '⏩', 'Fight on', 'Keeps attacking (no ability) until the fight ends, you drop under half health, or 30 rounds.') ?><?php endif; ?>
   <?= fight_snack_picker($u, $exp, $enc, fn($do, $label, $extra) => act_choice($do, '🎒', 'Snack', 'Eats a home-cooked snack: heals ' . (int)setting('fight_snack_heal_mult') . '× its energy. Uses your turn; ' . snack_limit($u) . ' a fight.', '', '', $extra)) ?>   <?php // v1.4.0 ?>
@@ -333,6 +467,11 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
   <?php endforeach; ?>
   </div>
 
+<?php elseif ($dv2Scene): // v2.3.1: nothing in front of you ?>
+  <?php if ($kind === 'delve' && (int)$exp['depth'] >= (int)$exp['steps_total']): ?>
+    <h3>💰 The chest sits in the last chamber, unguarded at last.</h3>
+    <div class="choicelist"><?= act_choice('chest', '💰', 'Open the chest', 'Everything in it is yours', '', 'primary') ?></div>
+  <?php endif; ?>
 <?php elseif ($mapMode): // v2.0.6: nothing in front of you: walk the map ?>
   <?php if ($kind === 'delve' && (int)$exp['depth'] >= DELVE_ROOMS): ?>
     <h3>💰 The chest sits in the last room, unguarded at last.</h3>
@@ -396,10 +535,28 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
   <?= act_choice('return', '🛣️', 'Head to the road', 'Free · keep everything', ['free', 'free']) ?>
   </div>
   <details class="wfold wmore"><summary>More</summary><?= $wmore ?><p class="help">If you’re knocked out, you wake up on the road with all your things.</p></details>   <?php // v2.1.11: the long notes, folded ?>
-  <?php if ($dep >= 1): $gOpen = !empty($_SESSION['gather_reveal']);   // v2.1.11: gather lives in a fold, open when a find has just come in ?>
+  <?php if ($dep >= 1): $gOpen = !$wanderView && !empty($_SESSION['gather_reveal']);   // v2.1.11: gather lives in a fold, open when a find has just come in ?>
   <details class="wfold wgather"<?= $gOpen ? ' open' : '' ?>><summary>🧺 Gather here</summary><?= gather_here_box($u, explore_land($exp), url('adventure.php'), '') ?></details>   <?php // v0.7.80 ?>
   <?php endif; ?>
 
+
+<?php elseif ($trailSc): // graphical navigation 2d: nothing in front of you. Text is centered here, always. ?>
+  <?php $tPhase = (string)$trailSc['st']['phase']; $tLast = (int)$trailSc['st']['sec'] + 1 >= (int)$trailSc['st']['S'];
+  $tLand = (string)(exp_scene($exp)['land'] ?? 'grassland'); ?>
+  <div class="trailui">
+  <?php if ($tPhase === 'confirm'): ?>
+  <dialog class="picker hubpop trailpop trailsmall" id="trailpop" open aria-label="The way on"><div class="pickbox"><div class="hubcard trailui">
+    <h3><?= $tLast ? e($to['name']) . ' is just ahead.' : 'The way on lies ahead.' ?></h3>
+    <p class="help"><?= $tLast ? 'Head into ' . e($to['name']) . '? No more energy.' : 'Section ' . ((int)$trailSc['st']['sec'] + 1) . ' of ' . (int)$trailSc['st']['S'] . ' done. Continuing is free.' ?></p>
+    <div class="choicelist">
+      <?= $tLast ? act_choice('trail_arrive', '🏡', 'Head into ' . $to['name'], 'Walk in · free', '', 'primary') : act_choice('trail_next', '🍄', 'Continue along the Trail', 'Section ' . ((int)$trailSc['st']['sec'] + 2) . ' of ' . (int)$trailSc['st']['S'] . ' · free', '', 'primary') ?>
+    </div>
+    <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_back"><button class="btn alt small">↩️ Turn back <small>free</small></button></form>
+  </div></div></dialog>
+  <?php else: ?>
+    <p class="help">Tap a lit tile to walk. ⚔️ and ✨ wait on some tiles. Reach 🚪 to go on. Walking is free.</p>
+  <?php endif; ?>
+  </div>
 
 <?php elseif ((int)$exp['step'] < (int)$exp['steps_total']): ?>
   <?php $rl = road_line($scene, ['seed' => road_line_seed($exp, (int)$exp['step'] + 1), 'record' => false]);   // v1.9.3: the line the next space will log ?>
@@ -421,19 +578,18 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
       $nextName = dest_name($uid, $wi['next']);
       $goalName = dest_name($uid, $wi['loc']);
       $thenTxt = (int)$wi['next']['id'] === (int)$wi['loc']['id'] ? 'on to <b>' . e($nextName) . '</b> (your destination)' : 'on to <b>' . e($nextName) . '</b>, then toward <b>' . e($goalName) . '</b> (your destination)';
-      if ((int)($u['dest_auto'] ?? 1) && (int)($u['dest_pause_towns'] ?? 0) && $arr && dest_is_town($arr)): ?>
-    <p class="help">⏸️ You’ll pause at <b><?= e((string)$arr['name']) ?></b> to look around. Tap Set off when you’re ready, then <?= $thenTxt ?>.</p>
-    <?php else: ?>
-    <p class="help"><?= (int)($u['dest_auto'] ?? 1) ? '🧭 After this stop: walk ' . $thenTxt . ' (⚡' . (int)$wi['next_energy'] . ') as soon as you arrive.' : '🧭 Next stop on your route after this one: ' . e($nextName) . '.' ?></p>
+      if ($arr): ?>
+    <p class="help">⏸️ You’ll stop at <b><?= e((string)$arr['name']) ?></b> to look around. Tap Set off when you’re ready, then <?= $thenTxt ?> (⚡<?= (int)$wi['next_energy'] ?>).</p>
     <?php endif; ?>
   <?php endif; ?>
 <?php endif; ?>
 </div>
+<?php if ($trailPop): ?></div></div></dialog><?php endif; ?>
 </div>
 <div class="gardenwrap">
 
 <details class="panel box advjournal"<?= $exp ? '' : ' open' ?>>
-  <summary><b>Journal</b> <small class="muted">(<?= count($log) ?>)</small><?php if ($log): ?><span class="jpeek"><?= e((string)end($log)) ?></span><?php endif; ?></summary>
+  <summary><b>Journal</b> <small class="muted">(<?= count($log) ?>)</small><?php if ($log && !$dv2Scene): ?><span class="jpeek"><?= e((string)end($log)) ?></span><?php endif; ?></summary>
   <ul class="journal">
     <?php foreach (array_reverse(array_slice($log, -25)) as $line): ?><li><?= e($line) ?></li><?php endforeach; ?>
   </ul>
@@ -442,4 +598,5 @@ $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';   // a fight card
 <?php if (!in_array($kind, ['delve', 'lair'], true)): ?>
 <p class="tmlinks worldlink"><a href="<?= e(url('world.php?tab=map#regionmap')) ?>">🗺️ World map →</a></p>
 <?php endif; ?>
+<?php if ($wanderView): ?><div class="wanderhide"><?= ob_get_clean() ?></div><?php endif; ?>
 <?php page_footer();

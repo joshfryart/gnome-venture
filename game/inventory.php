@@ -7,6 +7,12 @@ $u = require_login();
 require_once __DIR__ . '/includes/items.php';
 require_once __DIR__ . '/includes/crafting.php';
 require_once __DIR__ . '/includes/tools.php';
+if (($_GET['tab'] ?? '') === 'arrange') {   // T2.1: Arranging is a Satchel tab (it was arrange.php); its own buttons and live score
+    require_once __DIR__ . '/includes/arrange_view.php';
+    flowers_boot();
+    if (arrange_tab() === 'preview') arrange_preview($u);
+    if (is_post()) arrange_post($u);
+}
 if (is_post()) {
     csrf_check();
     if (($_POST['do'] ?? '') === 'read') {
@@ -16,6 +22,11 @@ if (is_post()) {
         refresh_energy($u);
         [$ok, $msgs] = eat_item($u, (int)($_POST['item_id'] ?? 0));
         if ($msgs) flash(implode(' ', $msgs), $ok ? 'ok' : 'err');   // one message box for the whole meal
+    } elseif (($_POST['do'] ?? '') === 'drink_heal') {   // Alchemy: a healing tier, from the Satchel
+        require_once __DIR__ . '/includes/health.php';
+        require_once __DIR__ . '/includes/adventure.php';   // hp_use reads active_expedition()
+        [$ok, $msg] = hp_use($u, 'potion', (int)($_POST['item_id'] ?? 0));
+        flash($msg, $ok ? 'ok' : 'err');
     } elseif (($_POST['do'] ?? '') === 'open_packet') {   // v0.9.9: open a seed packet
         require_once __DIR__ . '/includes/flowers.php';
         [$ok, $msg] = packet_open($u, (int)($_POST['item_id'] ?? 0));
@@ -30,24 +41,32 @@ if (is_post()) {
     $iid = (int)($_POST['item_id'] ?? 0);
     $srt = preg_match('/^[a-z]{2,6}$/', (string)($_POST['sort'] ?? '')) ? '&sort=' . $_POST['sort'] : '';
     $quick = !empty($_POST['quick']);   // the Satchel's quick bar: stay at the top, nothing opened
-    redirect('inventory.php?cat=' . $back . $srt . ($iid && !$quick ? '&open=' . $iid . '#i' . $iid : ''));
+    $sheet = '';   // v2.4.67: the sheet the item sat in, so it opens again even when the last one was just used up
+    if ($iid && !$quick && ($it = q_one('SELECT slug, category FROM items WHERE id = ?', [$iid]))) { require_once __DIR__ . '/includes/shelves.php'; $sheet = sh_bag_group($it); }
+    redirect('inventory.php?cat=' . $back . $srt . ($iid && !$quick ? '&open=' . $iid . ($sheet !== '' ? '&sheet=' . $sheet : '') . '#i' . $iid : ''));
 }
 
 $tabNow = (string)($_GET['tab'] ?? '');
-$view = in_array($tabNow, ['craft', 'belt'], true) ? $tabNow : 'bag';   // v0.7.61: Satchel and Crafting share one page; v0.7.88: and the Toolbelt
-page_header(['craft' => 'Crafting', 'belt' => 'Toolbelt'][$view] ?? 'Satchel');
+$view = in_array($tabNow, ['craft', 'belt', 'arrange'], true) ? $tabNow : 'bag';   // v0.7.61: Satchel and Crafting share one page; v0.7.88: and the Toolbelt; T2.1: and Arranging
+page_header(['craft' => 'Crafting', 'belt' => 'Toolbelt', 'arrange' => 'Arranging'][$view] ?? 'Satchel');
 ?>
 <h1>👜 Your Satchel</h1>
 <nav class="tabs bagtabs tabs4">   <?php // v1.6.3: four equal columns, one row (icon over a short word) ?>
   <a class="<?= $view === 'bag' ? 'on' : '' ?>" href="<?= e(url('inventory.php')) ?>"><span aria-hidden="true">👜</span> Satchel</a>
   <a class="<?= $view === 'craft' ? 'on' : '' ?>" href="<?= e(url('inventory.php?tab=craft')) ?>"><span aria-hidden="true">🔨</span> Crafting</a>
   <a class="<?= $view === 'belt' ? 'on' : '' ?>" href="<?= e(url('inventory.php?tab=belt')) ?>"><span aria-hidden="true">🧰</span> Belt</a>
-  <a href="<?= e(url('arrange.php')) ?>"><span aria-hidden="true">💐</span> Arrange</a>
+  <a class="<?= $view === 'arrange' ? 'on' : '' ?>" href="<?= e(url('inventory.php?tab=arrange')) ?>"><span aria-hidden="true">💐</span> Arrange</a>
 </nav>
-<?php if ($view === 'craft') {
+<?php if ($view === 'arrange') {
+    refresh_energy($u);
+    arrange_view($u, arrange_tab());
+    page_footer();
+    exit;
+}
+if ($view === 'craft') {
     refresh_energy($u);   // v0.7.88: the ×N buttons count the energy the gnome has now
     require_once __DIR__ . '/includes/craft_view.php';
-    craft_view($u, (string)($_GET['c'] ?? 'cooking'));
+    craft_view($u, (string)($_GET['c'] ?? ''));
     page_footer();
     exit;
 }

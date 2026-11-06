@@ -27,4 +27,7 @@ db "SELECT 'pattern ones '||(LENGTH(pattern)-LENGTH(REPLACE(pattern,'1','')))||'
 CID=$(db "SELECT id FROM carvings LIMIT 1"); pg $A carve.php -d do=vote -d id=$CID; pg $T carve.php -d do=vote -d id=$CID; pg $T carve.php -d do=vote -d id=$CID
 echo "gallery: $(grep -c 'class="box carving"' /tmp/k.html) escaped: $(grep -c 'Grinning &lt;Gourd&gt;' /tmp/k.html)"
 echo "-- settle last year"; dbx "UPDATE carvings SET year=2025"; curl -s -b $A $BASE/carve.php -o /dev/null; db "SELECT 'carving placed '||placed||' votes '||votes FROM carvings"
+echo "== T2.1: Harvest Fair, three classes"; php "$(dirname "$0")/fair3.php" $GAME
+curl -s -b $A $BASE/fair.php > /tmp/k.html; echo "fair classes on the page: $(grep -c '<div class="box fair-card">' /tmp/k.html) (3 classes + last month)"
+[ "$(grep -c '<div class="box fair-card">' /tmp/k.html)" = 4 ] && grep -q '> Produce</h2>' /tmp/k.html && echo "ok   fair page shows Produce, Flowers, Preserves" || echo "FAIL fair page classes"
 echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' /tmp/ct-php.log || echo "(none)"

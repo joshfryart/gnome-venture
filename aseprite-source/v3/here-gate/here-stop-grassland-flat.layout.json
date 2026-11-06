@@ -1,0 +1,15 @@
+{"w":480,"h":270,"horizon":96,"view":"flat",
+ "spots":[
+  {"k":"rest","name":"Rest Bench","x":55,"y":240},
+  {"k":"trader","name":"Trader Stall","x":167,"y":168},
+  {"k":"well","name":"Wishing Well","x":247,"y":164},
+  {"k":"table","name":"Long Table","x":376,"y":174},
+  {"k":"board","name":"Notice Board","x":252,"y":80},
+  {"k":"seeds","name":"Seed Swap","x":348,"y":238},
+  {"k":"forage","name":"Forage Patch","x":41,"y":172},
+  {"k":"pond","name":"Fishing Pond","x":207,"y":242},
+  {"k":"homes","name":"Cottages","x":78,"y":80},
+  {"k":"wild","name":"Wild Trail","x":430,"y":100}
+ ],
+ "stand":[{"x":104,"y":170},{"x":306,"y":166},{"x":446,"y":172},{"x":128,"y":236},{"x":282,"y":236},{"x":190,"y":127}],
+ "compass_clear":[380,230,480,270]}

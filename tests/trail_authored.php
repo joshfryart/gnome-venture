@@ -1,0 +1,140 @@
+<?php
+// Authored Trail maps + random encounters (pure; no database).  php tests/trail_authored.php [GAMEDIR]
+// Needs game/includes/data/trail_maps.json (python3 tools/bake_trail_art.py) and the baked pictures under assets/img/trail.
+$game = $argv[1] ?? dirname(__DIR__) . '/game';
+$fails = 0;
+function ok(string $what, bool $cond, string $extra = ''): void { global $fails; echo ($cond ? '  ok   ' : '  FAIL ') . $what . ($cond ? '' : "  $extra") . "\n"; if (!$cond) $fails++; }
+function e($v): string { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
+require_once $game . '/includes/tilemap.php';
+require_once $game . '/includes/trail_art.php';
+require_once $game . '/includes/trail_tiles.php';   // trail_map_make (its includes only define functions)
+
+echo "== authored maps\n";
+$all = trail_authored_all();
+ok('the Maplewold is authored: its 16 routes are there (more regions may have been added)', count($all) >= 16 && isset($all['228'], $all['316']), (string)count($all));
+$secs = 0; $bad = []; $badFiles = []; $bossRoutes = [];
+foreach ($all as $rid => $r) {
+    foreach ($r['sections'] as $si => $_) {
+        $secs++;
+        $art = trail_authored_section((int)$rid, $si);
+        [$m, $t] = trail_map_authored($art);
+        $reach = tm_reach($m, $m['entry'][0], $m['entry'][1]);
+        $exit = $m['spots']['9'] ?? null;
+        if ($m['h'] !== 7 || $m["w"] !== ($w0 = $si === 0 ? $m["w"] : $w0) || $m["w"] < 11 || !$m['entry'] || !$exit || $m['entry'][0] !== 0 || $exit[0] !== $m['w'] - 1 || !isset($reach[$exit[1] * $m['w'] + $exit[0]])) $bad[] = "$rid#$si layout";
+        foreach ($t as [$x, $y, $k]) {
+            if (!isset($reach[$y * $m['w'] + $x])) $bad[] = "$rid#$si token $x,$y unreachable";
+            if ($k === 'E') $bossRoutes[$rid . '#' . $si] = $art['boss'];
+        }
+        if (!trail_art_ready($art)) $badFiles[] = "$rid#$si";
+        if ($si > 0) { $prev = trail_map_authored(trail_authored_section((int)$rid, $si - 1))[0]; if ($m['entry'][1] !== $prev['spots']['9'][1]) $bad[] = "$rid#$si entry row != previous exit row"; }
+    }
+}
+ok('at least the 41 Maplewold sections', $secs >= 41, (string)$secs);
+ok('every section: 7 rows, one width per route, entry on the left edge, exit on the right, exit reachable, tokens reachable, entry row = previous exit row', !$bad, implode('; ', $bad));
+ok('every section has its baked ground picture', !$badFiles, implode(', ', $badFiles));
+ok('fixed fights only where a delve (313) or lair (315) ends', $bossRoutes === ['313#2' => 'miniboss', '315#4' => 'boss'], json_encode($bossRoutes));
+[$m, $t] = trail_map_make('304|7|9|0');
+ok('trail_map_make gives the authored section for an authored route', isset($m['art']) && $m['art']['feature'] !== '' && $m['w'] >= 11);
+[$m2] = trail_map_make('3|7|9|0');
+ok('an unauthored route keeps the random generator (11x7, no art)', isset($all['3']) || (!isset($m2['art']) && $m2['w'] === 11));
+ok('a route asked for a section it does not have falls back too', !isset(trail_map_make('304|7|9|5')[0]['art']));
+$fixed = 0; foreach ($t as $tk) $fixed += $tk[2] === 'E' ? 1 : 0;
+ok('a normal authored section has finds but no fight marker', $fixed === 0 && count($t) >= 1);
+
+echo "== loader: maps for any region\n";
+// Fixtures below are test data, not game data. A real region file is the same shape: {"v":1,"routes":{"<route id>":{land, art, from, to, boss, sections}}}.
+$tmp = sys_get_temp_dir() . '/trail-loader-' . getmypid();
+@mkdir($tmp . '/trail_maps', 0777, true);
+$secOf = fn(array $rows) => ['feature' => 'fixture', 'caption' => 'c', 'objs' => [], 'rows' => $rows];
+$good = ['land' => 'desert', 'art' => 'coast', 'from' => 'A', 'to' => 'B', 'boss' => '', 'sections' => [$secOf(['#####', 'S...9', '#####']), $secOf(['#####', '....9', '#####'])]];
+file_put_contents($tmp . '/trail_maps.json', json_encode(['v' => 1, 'routes' => ['900001' => $good]]));
+file_put_contents($tmp . '/trail_maps/blossomreach.json', json_encode(['v' => 1, 'routes' => [
+    '900002' => $good,
+    'abc' => $good,
+    '900003' => ['land' => 'desert', 'sections' => [$secOf(['#####', 'S..9.', '#####'])]],      // the 9 is not on the right edge
+    '900004' => ['land' => 'desert', 'sections' => [$secOf(['#####', 'S...9', '####'])]],       // unequal rows
+    '900005' => ['land' => 'desert', 'sections' => [$secOf(['#####', 'S...9', '#####x'])]],     // a character that is not a tile
+    '900006' => ['land' => 'desert', 'sections' => []],
+]]));
+file_put_contents($tmp . '/trail_maps/zzz.json', json_encode(['v' => 1, 'routes' => ['900001' => ['land' => 'coast'] + $good]]));
+file_put_contents($tmp . '/trail_maps/broken.json', '{not json');
+$l = trail_authored_load($tmp);
+ok('the merged file and the per-region files are both read', isset($l['900001'], $l['900002']), implode(',', array_keys($l)));
+ok('a route in a later region file wins over the same id earlier', ($l['900001']['land'] ?? '') === 'coast');
+ok('invalid entries are dropped (9 off the edge, unequal rows, odd character, bad id, no sections) and a broken file is skipped', array_map('strval', array_keys($l)) === ['900001', '900002'], implode(',', array_keys($l)));
+ok('a missing folder gives no routes', trail_authored_load($tmp . '/none') === []);
+ok('the shipped data folder loads the same way trail_authored_all() does', trail_authored_load($game . '/includes/data') === $all);
+ok('a route whose picture is missing has no baked ground (the old drawn look takes over)', !trail_art_ready(['route' => 900002, 'sec' => 0]));
+$a1 = ['route' => 900001, 'sec' => 0, 'land' => 'desert', 'art' => 'coast', 'rows' => ['#####', 'S...9', '#####'], 'objs' => [], 'boss' => ''];
+[$mm] = trail_map_authored($a1);
+ok('any width and height parse (5x3)', $mm['w'] === 5 && $mm['h'] === 3 && $mm['entry'] === [0, 1]);
+$svgA = trail_art_svg($mm, ['px' => 0, 'py' => 1, 'x0' => 0, 'y0' => 0, 'cols' => 5, 'rows' => 3, 'tokens' => [[2, 1, '✨', 'gold', false]]]);
+ok('a desert route draws the find sprite of its "art" land (coast)', str_contains($svgA, 'find-coast.png') && !str_contains($svgA, 'find-desert'));
+ok('the bottom edge fades (gradient layer)', str_contains($svgA, 'url(#tmfade)'));
+array_map('unlink', glob($tmp . '/trail_maps/*')); @rmdir($tmp . '/trail_maps'); @unlink($tmp . '/trail_maps.json'); @rmdir($tmp);
+$py = trim((string)shell_exec('command -v python3'));
+if ($py !== '') {   // the baker's --check mode (no Pillow needed)
+    $bt = escapeshellarg($py) . ' -I ' . escapeshellarg(dirname($game) . '/tools/bake_trail_art.py') . ' --check ';
+    $okf = sys_get_temp_dir() . '/trail-check-ok-' . getmypid() . '.json'; $badf = sys_get_temp_dir() . '/trail-check-bad-' . getmypid() . '.json';
+    $rt = ['route_id' => 1, 'from' => 'A', 'to' => 'B', 'land' => 'desert', 'sections' => [['feature' => 'f', 'caption' => 'c', 'tokens' => [], 'rows' => ['###########', '#.........#', 'S.......,.9', '#.........#', '###########', '###########', '###########']]]];
+    file_put_contents($okf, json_encode([$rt]));
+    $rt['sections'][0]['rows'][2] = 'S###.....#9';   // the entry is walled in
+    file_put_contents($badf, json_encode($rt));
+    exec($bt . escapeshellarg($okf) . ' 2>&1', $o1, $c1);
+    exec($bt . escapeshellarg($badf) . ' 2>&1', $o2, $c2);
+    exec($bt . escapeshellarg(dirname($game) . '/claude/maplewold-trail-maps/maplewold_trail_maps_22wide.json') . ' 2>&1', $o3, $c3);
+    ok('bake_trail_art.py --check accepts a good map for a new land (desert)', $c1 === 0, implode(' ', $o1));
+    ok('bake_trail_art.py --check refuses a map with no path to the exit', $c2 === 1 && str_contains(implode(' ', $o2), 'no path'), implode(' ', $o2));
+    ok('...and the Maplewold file passes the same check', $c3 === 0, implode(' ', $o3));
+    @unlink($okf); @unlink($badf);
+}
+
+echo "== random encounters\n";
+$flat = tm_parse(["#########", "S.......9", "#########"]);
+$path = [[1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1]];
+$asked = [];
+[$i, $q, $f] = trail_encounter_index($flat, $path, 0, 0, function (int $p) use (&$asked): bool { $asked[] = $p; return false; });
+ok('no roll in the first 3 tiles or within 2 of the exit', $i === null && count($asked) === 3, json_encode($asked));
+ok('the pity counter climbs +1 per quiet tile (2%, 3%, 4%)', $asked === [2, 3, 4], json_encode($asked));
+ok('quiet tiles are counted back out', $q === 3 && $f === 0);
+[$i, $q, $f] = trail_encounter_index($flat, $path, 0, 0, fn(int $p): bool => true);
+ok('a hit stops the walk on that tile, resets quiet, counts a fight', $i === 2 && $q === 0 && $f === 1, "$i/$q/$f");
+[$i] = trail_encounter_index($flat, $path, 0, 2, fn(int $p): bool => true);
+ok('at most 2 random fights a section', $i === null);
+$asked = []; trail_encounter_index($flat, $path, 0, 0, function (int $p) use (&$asked): bool { $asked[] = $p; return false; }, 'sneak');
+ok('Sneak rolls 40% of the chance (min 1%)', $asked === [1, 1, 2], json_encode($asked));
+$asked = []; trail_encounter_index($flat, $path, 0, 0, function (int $p) use (&$asked): bool { $asked[] = $p; return false; }, 'hunt');
+ok('Hunt rolls 250% of the chance', $asked === [5, 8, 10], json_encode($asked));
+[$i] = trail_encounter_index($flat, $path, 0, 2, fn(int $p): bool => true, 'hunt');
+ok('Hunt allows a 3rd random fight a section', $i === 2);
+[$i] = trail_encounter_index($flat, $path, 0, 3, fn(int $p): bool => true, 'hunt');
+ok('...but not a 4th', $i === null);
+$rough = tm_parse(["#########", "S...,...9", "#########"]);
+$asked = []; trail_encounter_index($rough, $path, 0, 0, function (int $p) use (&$asked): bool { $asked[] = $p; return false; });
+ok('rough floor rolls 8% (+ pity), floor 2% (+ pity)', $asked === [2, 9, 4], json_encode($asked));
+$hits = 0; $runs = 20000;
+for ($n = 0; $n < $runs; $n++) { [$i] = trail_encounter_index($flat, $path, 0, 0); $hits += $i === null ? 0 : 1; }
+ok('a plain 6-tile stretch of floor brings a fight about 1 time in 15 (rolled for real)', $hits / $runs > .04 && $hits / $runs < .10, (string)round($hits / $runs, 3));
+
+echo "== the picture\n";
+$art = trail_authored_section(304, 0);
+[$m] = trail_map_authored($art);
+$svg = trail_art_svg($m, ['px' => 3, 'py' => 2, 'x0' => -1, 'y0' => -1, 'cols' => 9, 'rows' => 9, 'tokens' => [[6, 2, '✨', 'gold', false], [5, 3, '🚪', 'gold', false]], 'walk' => ['p' => [[2, 2], [3, 2]]]]);
+ok('ground picture, walker, a find, an exit mark, footprints', str_contains($svg, 'ground/304-1.png') && str_contains($svg, 'class="tmme"') && str_contains($svg, 'find-forest.png') && str_contains($svg, '#e02020') && str_contains($svg, 'tmft'));
+ok('the find turns into its searched sprite when done', str_contains(trail_art_svg($m, ['px' => 3, 'py' => 2, 'x0' => -1, 'y0' => -1, 'cols' => 9, 'rows' => 9, 'tokens' => [[6, 2, '✨', 'gold', true]]]), 'find-forest-done.png'));
+$win = ['px' => 3, 'py' => 2, 'x0' => -1, 'y0' => -1, 'cols' => 9, 'rows' => 9, 'tokens' => []];
+$svg2 = trail_art_svg($m, $win);
+$gp = strpos($svg2, 'class="tmme"');
+$k = TM_UNIT / TRAIL_ART_PX;
+$posOf = function (array $o) use ($k, $svg2) {   // where this object's <image> sits in the markup (the href may carry a cache-busting suffix)
+    $re = '~obj/' . preg_quote($o[2], '~') . '\.png[^"]*" x="' . preg_quote(tm_n(($o[0] + 1) * TM_UNIT + $o[3] * $k), '~') . '" y="' . preg_quote(tm_n((($o[1] + 1) * TRAIL_ART_PX - 29) * $k), '~') . '"~';
+    return preg_match($re, $svg2, $mm, PREG_OFFSET_CAPTURE) ? $mm[0][1] : false;
+};
+$south = null; $north = null;
+foreach ($art['objs'] as $o) { if ($o[0] >= 0 && $o[0] <= 6) { if ($o[1] > 2) $south ??= $o; if ($o[1] < 2) $north ??= $o; } }
+ok('depth order: a tree on a row south of the walker is drawn after it (in front), one to the north before it (behind)', $south && $north
+    && ($ps = $posOf($south)) !== false && ($pn = $posOf($north)) !== false && $ps > $gp && $pn < $gp, json_encode([$south, $north]));
+$expect = 0; foreach ($art['objs'] as $o) { $X = ($o[0] - 12) * TM_UNIT + $o[3] * $k; if ($X + 64 * $k > 0 && $X < 9 * TM_UNIT) $expect++; }
+$far = trail_art_svg($m, ['x0' => 12] + $win);
+ok('only the things in the window are drawn', substr_count($far, '<image href="') - 2 === $expect && $expect < count($art['objs']), substr_count($far, '<image href="') . " vs $expect of " . count($art['objs']));
+exit($fails ? 1 : 0);

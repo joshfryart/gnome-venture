@@ -33,15 +33,15 @@ chk "12 heads + 3 vessels + 3 sprigs + packet" "$(ls $GAME/assets/img/flowers/*.
 chk "168 flowers have a look" "$(grep -vc '^#' $GAME/includes/data/flower_looks.txt)" 168
 
 echo "== preview score is deterministic and order-independent"
-P1=$(curl -s -b $S "$BASE/arrange.php?t=preview&v=vase&s=0:$R,1:$D,2:$C,5:$L,6:$D")
-P2=$(curl -s -b $S "$BASE/arrange.php?t=preview&v=vase&s=6:$D,5:$L,2:$C,1:$D,0:$R")
+P1=$(curl -s -b $S "$BASE/inventory.php?tab=arrange&t=preview&v=vase&s=0:$R,1:$D,2:$C,5:$L,6:$D")
+P2=$(curl -s -b $S "$BASE/inventory.php?tab=arrange&t=preview&v=vase&s=6:$D,5:$L,2:$C,1:$D,0:$R")
 chk "same composition, same JSON" "$P1" "$P2"
 echo "$P1" | grep -q '"ok":true' && echo "ok   preview: $(echo "$P1" | grep -o '"total":[0-9]*') $(echo "$P1" | grep -o '"name":"[^"]*"')" || echo "FAIL preview: $P1"
-chk "too few stems refused" "$(curl -s -b $S "$BASE/arrange.php?t=preview&v=vase&s=0:$R" | grep -o '"ok":[a-z]*')" '"ok":false'
+chk "too few stems refused" "$(curl -s -b $S "$BASE/inventory.php?tab=arrange&t=preview&v=vase&s=0:$R" | grep -o '"ok":[a-z]*')" '"ok":false'
 
 echo "== arranging consumes stems and energy, makes an item"
 E0=$(db "SELECT energy FROM users WHERE id=$SID"); RQ=$(qty $R); DQ=$(qty $D)
-post arrange.php -d do=arrange -d v=vase -d "slot[0]=$R" -d "slot[1]=$D" -d "slot[2]=$C" -d "slot[5]=$L" -d "slot[6]=$D"
+post "inventory.php?tab=arrange" -d do=arrange -d v=vase -d "slot[0]=$R" -d "slot[1]=$D" -d "slot[2]=$C" -d "slot[5]=$L" -d "slot[6]=$D"
 AID=$(db "SELECT id FROM items WHERE category='arrangement' ORDER BY id DESC LIMIT 1")
 chk "one arrangement item" "$(db "SELECT COUNT(*) FROM items WHERE category='arrangement'")" 1
 chk "rose used 1" "$(( RQ - $(qty $R) ))" 1
@@ -52,17 +52,17 @@ chk "stored score equals preview" "$(db "SELECT effects FROM items WHERE id=$AID
 get "inventory.php?cat=arrangement"
 chk "arrangement draws as SVG in the satchel" "$(grep -c 'class="flsvg flsvg-\(md\|lg\)"' $T/p.html | awk '{print ($1>0)?"yes":"no"}')" yes
 echo "-- refused cases use nothing"
-post arrange.php -d do=arrange -d v=jar -d "slot[0]=$R" -d "slot[1]=$D"
+post "inventory.php?tab=arrange" -d do=arrange -d v=jar -d "slot[0]=$R" -d "slot[1]=$D"
 chk "2 stems refused" "$(qty $R)" "$(( RQ - 1 ))"
 dbx "UPDATE user_items SET qty=1 WHERE user_id=$SID AND item_id=$C"
-post arrange.php -d do=arrange -d v=jar -d "slot[0]=$C" -d "slot[1]=$C" -d "slot[2]=$C"
+post "inventory.php?tab=arrange" -d do=arrange -d v=jar -d "slot[0]=$C" -d "slot[1]=$C" -d "slot[2]=$C"
 chk "3 cosmos with 1 owned refused" "$(qty $C)" 1
 chk "still one arrangement" "$(db "SELECT COUNT(*) FROM items WHERE category='arrangement'")" 1
 dbx "UPDATE user_items SET qty=4 WHERE user_id=$SID AND item_id=$C"
-post arrange.php -d do=arrange -d v=jar -d "slot[0]=$R" -d "slot[1]=$D" -d "slot[2]=$C" -d "slot[3]=$L" -d "slot[4]=$R" -d "slot[5]=$D" -d "slot[6]=$C"
+post "inventory.php?tab=arrange" -d do=arrange -d v=jar -d "slot[0]=$R" -d "slot[1]=$D" -d "slot[2]=$C" -d "slot[3]=$L" -d "slot[4]=$R" -d "slot[5]=$D" -d "slot[6]=$C"
 chk "jar ignores spots it does not have (3 stems kept)" "$(db "SELECT COUNT(*) FROM items WHERE category='arrangement'")" 2
 dbx "UPDATE users SET energy=0 WHERE id=$SID"
-post arrange.php -d do=arrange -d v=vase -d "slot[0]=$R" -d "slot[1]=$D" -d "slot[2]=$C"
+post "inventory.php?tab=arrange" -d do=arrange -d v=vase -d "slot[0]=$R" -d "slot[1]=$D" -d "slot[2]=$C"
 chk "no energy: refused" "$(db "SELECT COUNT(*) FROM items WHERE category='arrangement'")" 2
 dbx "UPDATE users SET energy=100 WHERE id=$SID"
 
@@ -74,9 +74,9 @@ GOT=$(( $(db "SELECT coins FROM users WHERE id=$SID") - C0 )); LO=$(php -r "echo
 chk "arrangement gone" "$(qty $AID)" 0
 
 echo "== gift: better than a single flower"
-post arrange.php -d do=arrange -d v=vase -d "slot[0]=$R" -d "slot[1]=$D" -d "slot[2]=$C" -d "slot[5]=$L" -d "slot[6]=$D"
+post "inventory.php?tab=arrange" -d do=arrange -d v=vase -d "slot[0]=$R" -d "slot[1]=$D" -d "slot[2]=$C" -d "slot[5]=$L" -d "slot[6]=$D"
 AID=$(db "SELECT id FROM items WHERE category='arrangement' ORDER BY id DESC LIMIT 1")
-get "shop.php?id=$FL"; NPC=$(grep -o 'folk.php?id=[0-9]*' $T/p.html | head -1 | grep -o '[0-9]*$')
+get "shop.php?id=$FL"; NPC=$(grep -o 'villagers.php?id=[0-9]*' $T/p.html | head -1 | grep -o '[0-9]*$')
 dbx "DELETE FROM npc_friends WHERE user_id=$SID"
 post "villagers.php?id=$NPC" -d id=$NPC -d do=gift -d item_id=$AID   # v2.0.39: gifts are given on the Villagers page (folk.php only redirects GETs)
 GP=$(db "SELECT points FROM npc_friends WHERE user_id=$SID AND npc_id=$NPC")
@@ -85,59 +85,66 @@ chk "arrangement given" "$(qty $AID)" 0
 
 echo "== weekly show: enter, judge once"
 dbx "UPDATE user_items SET qty=4 WHERE user_id=$SID AND item_id IN ($R,$D,$C,$L)"
-post arrange.php -d do=arrange -d v=basket -d "slot[0]=$R" -d "slot[1]=$D" -d "slot[2]=$C" -d "slot[3]=$L" -d "slot[4]=$R" -d "slot[5]=$D"
+post "inventory.php?tab=arrange" -d do=arrange -d v=basket -d "slot[0]=$R" -d "slot[1]=$D" -d "slot[2]=$C" -d "slot[3]=$L" -d "slot[4]=$R" -d "slot[5]=$D"
 A2=$(db "SELECT id FROM items WHERE category='arrangement' ORDER BY id DESC LIMIT 1")
-post "arrange.php?t=show" -d do=enter -d item_id=$A2
+post show.php -d do=enter_arr -d item_id=$A2
 chk "one entry" "$(db "SELECT COUNT(*) FROM arrangement_entries WHERE user_id=$SID")" 1
 chk "entered arrangement left the satchel" "$(qty $A2)" 0
-get "arrange.php?t=show"; chk "show page lists the leader" "$(grep -c 'arrleaders' $T/p.html | awk '{print ($1>0)?"yes":"no"}')" yes
+get show.php; chk "show page lists the leader" "$(grep -c 'arrleaders' $T/p.html | awk '{print ($1>0)?"yes":"no"}')" yes
 dbx "UPDATE arrangement_entries SET week='2000-W01' WHERE user_id=$SID"
 C1=$(db "SELECT coins FROM users WHERE id=$SID")
-get "arrange.php?t=show"
-chk "judged: placed 1" "$(db "SELECT placed FROM arrangement_entries WHERE user_id=$SID")" 1
+get show.php
+chk "quiet week (1 gnome < fair_min_entries 3): nobody placed" "$(db "SELECT placed FROM arrangement_entries WHERE user_id=$SID")" 0
+chk "taking-part thanks paid" "$(( $(db "SELECT coins FROM users WHERE id=$SID") - C1 ))" 100
+get show.php
+chk "not paid twice" "$(( $(db "SELECT coins FROM users WHERE id=$SID") - C1 ))" 100
+dbx "UPDATE arrangement_entries SET placed=NULL WHERE user_id=$SID; INSERT OR REPLACE INTO settings (name,value) VALUES ('fair_min_entries','1')"
+C1=$(db "SELECT coins FROM users WHERE id=$SID"); get show.php
+chk "enough gnomes: judged, placed 1" "$(db "SELECT placed FROM arrangement_entries WHERE user_id=$SID")" 1
 chk "prize paid" "$(( $(db "SELECT coins FROM users WHERE id=$SID") - C1 ))" 800
-get "arrange.php?t=show"
+get show.php
 chk "not paid twice" "$(( $(db "SELECT coins FROM users WHERE id=$SID") - C1 ))" 800
+dbx "DELETE FROM settings WHERE name='fair_min_entries'"
 
 echo "== drying rack: real timer"
 dbx "UPDATE user_items SET qty=4 WHERE user_id=$SID AND item_id IN ($R,$D,$C,$L)"
 RQ=$(qty $R)
-post "arrange.php?t=dry" -d do=dry -d item_id=$R -d qty=2
+post "inventory.php?tab=arrange&t=dry" -d do=dry -d item_id=$R -d qty=2
 chk "2 roses hung" "$(( RQ - $(qty $R) ))" 2
 RK=$(db "SELECT id FROM dry_racks WHERE user_id=$SID AND collected_at IS NULL ORDER BY id DESC LIMIT 1")
-post "arrange.php?t=dry" -d do=dry_collect -d rack=$RK
+post "inventory.php?tab=arrange&t=dry" -d do=dry_collect -d rack=$RK
 chk "not dry yet: still hanging" "$(db "SELECT COUNT(*) FROM dry_racks WHERE user_id=$SID AND collected_at IS NULL")" 1
 chk "ready a day away (hours)" "$(db "SELECT ((strftime('%s', ready_at) - strftime('%s','now')) + 60) / 3600 FROM dry_racks WHERE id=$RK")" 24
 dbx "UPDATE dry_racks SET ready_at=datetime('now','-1 minute') WHERE id=$RK"
-post "arrange.php?t=dry" -d do=dry_collect -d rack=$RK
+post "inventory.php?tab=arrange&t=dry" -d do=dry_collect -d rack=$RK
 DR=$(item dried-damask-rose)
 chk "2 dried roses" "$(qty ${DR:-0})" 2
-post "arrange.php?t=dry" -d do=dry_collect -d rack=$RK
+post "inventory.php?tab=arrange&t=dry" -d do=dry_collect -d rack=$RK
 chk "double collect gives nothing more" "$(qty $DR)" 2
 chk "dried sells higher than cut" "$(db "SELECT (SELECT base_price FROM items WHERE slug='dried-damask-rose') > (SELECT base_price FROM items WHERE slug='cut-damask-rose')")" 1
-chk "dried can be arranged" "$(curl -s -b $S "$BASE/arrange.php?t=preview&v=vase&s=0:$DR,1:$D,2:$C" | grep -o '"ok":[a-z]*')" '"ok":true'
+chk "dried can be arranged" "$(curl -s -b $S "$BASE/inventory.php?tab=arrange&t=preview&v=vase&s=0:$DR,1:$D,2:$C" | grep -o '"ok":[a-z]*')" '"ok":true'
 for i in 1 2 3 4; do dbx "INSERT INTO dry_racks (user_id,item_id,qty,started_at,ready_at) VALUES ($SID,$D,1,datetime('now'),datetime('now','+1 day'))"; done
-post "arrange.php?t=dry" -d do=dry -d item_id=$C -d qty=1
+post "inventory.php?tab=arrange&t=dry" -d do=dry -d item_id=$C -d qty=1
 chk "rack full: refused" "$(db "SELECT COUNT(*) FROM dry_racks WHERE user_id=$SID AND collected_at IS NULL")" 4
 dbx "DELETE FROM dry_racks WHERE user_id=$SID"
 
 echo "== seed packets: mastery gate"
 PL=$(db "SELECT id FROM plants WHERE slug='dahlia'"); SEED=$(db "SELECT seed_item_id FROM plants WHERE slug='dahlia'")
 dbx "INSERT OR REPLACE INTO user_items (user_id,item_id,qty) VALUES ($SID,$SEED,9)"
-post "arrange.php?t=packets" -d do=packet -d plant_id=$PL
+post "inventory.php?tab=arrange&t=packets" -d do=packet -d plant_id=$PL
 chk "not mastered: no packet" "$(db "SELECT COUNT(*) FROM items WHERE category='packet'")" 0
 chk "seeds untouched" "$(qty $SEED)" 9
 dbx "DELETE FROM user_plant_knowledge WHERE user_id=$SID AND plant_id=$PL"
 dbx "INSERT INTO user_plant_knowledge (user_id,plant_id,knowledge) SELECT $SID,id,knowledge_max FROM plants WHERE id=$PL"
 C2=$(db "SELECT coins FROM users WHERE id=$SID")
-post "arrange.php?t=packets" -d do=packet -d plant_id=$PL
+post "inventory.php?tab=arrange&t=packets" -d do=packet -d plant_id=$PL
 PK=$(item dahlia-packet)
 chk "mastered: packet made" "$(qty ${PK:-0})" 1
 chk "3 seeds used" "$(qty $SEED)" 6
 chk "fee paid" "$(( C2 - $(db "SELECT coins FROM users WHERE id=$SID") ))" 20
 get "inventory.php?cat=seed"; chk "packet shows as SVG" "$(grep -c 'flsvg' $T/p.html | awk '{print ($1>0)?"yes":"no"}')" yes
 dbx "UPDATE flower_daily SET n=5 WHERE user_id=$SID AND kind='packet'"
-post "arrange.php?t=packets" -d do=packet -d plant_id=$PL
+post "inventory.php?tab=arrange&t=packets" -d do=packet -d plant_id=$PL
 chk "daily limit: still one packet" "$(qty $PK)" 1
 post inventory.php -d do=open_packet -d item_id=$PK
 chk "opened: packet gone" "$(qty $PK)" 0
@@ -168,8 +175,30 @@ echo "-- daily limit (3 a day)"
 for i in 1 2 3 4; do dbx "UPDATE users SET energy=100 WHERE id=$SID; UPDATE florist_shifts SET collected_at=datetime('now') WHERE user_id=$SID AND collected_at IS NULL"; post "shop.php?id=$FL" -d do=flo_start; done
 chk "3 shifts a day in all, the 4th refused" "$(db "SELECT COUNT(*) FROM florist_shifts WHERE user_id=$SID")" 3
 
+echo "== T2.1: arrange.php is a redirect stub; the show is on the Village Show page; no Arranging menu tile"
+loc() { curl -s -b $S -o /dev/null -w '%{http_code} %{redirect_url}' "$@" | sed "s|$BASE/||"; }
+chk "arrange.php -> Satchel Arrange tab" "$(loc "$BASE/arrange.php")" "302 inventory.php?tab=arrange"
+chk "arrange.php?t=dry keeps the sub-tab" "$(loc "$BASE/arrange.php?t=dry")" "302 inventory.php?tab=arrange&t=dry"
+chk "arrange.php?t=show -> show.php" "$(loc "$BASE/arrange.php?t=show")" "302 show.php#arrangements"
+chk "old preview URL still scores (followed)" "$(curl -s -L -b $S "$BASE/arrange.php?t=preview&v=vase&s=0:$R,1:$D,2:$C,5:$L,6:$D")" "$P1"
+get "inventory.php?tab=arrange"; CS=$(csrf $T/p.html)
+chk "old POST is re-sent (307)" "$(loc -X POST "$BASE/arrange.php" --data-urlencode "csrf=$CS" -d do=dry_all)" "307 inventory.php?tab=arrange"
+dbx "UPDATE user_items SET qty=4 WHERE user_id=$SID AND item_id IN ($R,$D,$C,$L); UPDATE users SET energy=100 WHERE id=$SID"
+N0=$(db "SELECT COUNT(*) FROM items WHERE category='arrangement'")
+curl -s -L -c $S -b $S -X POST "$BASE/arrange.php" --data-urlencode "csrf=$CS" -d do=arrange -d v=jar -d "slot[0]=$R" -d "slot[1]=$D" -d "slot[2]=$C" -o /dev/null
+chk "an old arrange form still makes an arrangement" "$(db "SELECT COUNT(*) FROM items WHERE category='arrangement'")" "$(( N0 + 1 ))"
+chk "old show POST goes to show.php" "$(loc -X POST "$BASE/arrange.php" --data-urlencode "csrf=$CS" -d do=enter -d item_id=0)" "307 show.php"
+get show.php
+chk "show page has the Arrangements class" "$(grep -c 'id="arrangements"' $T/p.html)" 1
+chk "show page has the crop class" "$(grep -c 'id="crop"' $T/p.html)" 1
+get garden.php
+chk "no Arranging tile in the menu" "$(grep -c 'href="[^"]*arrange.php' $T/p.html)" 0
+get "inventory.php?tab=arrange"
+chk "Satchel Arrange tab is on" "$(grep -c 'class="on" href="[^"]*inventory.php?tab=arrange"><span aria-hidden="true">' $T/p.html)" 1
+
 echo "== anonymous is sent to log in"
 chk "arrange.php anonymous" "$(curl -s -o /dev/null -w '%{http_code}' "$BASE/arrange.php")" 302
+chk "inventory.php?tab=arrange anonymous" "$(curl -s -o /dev/null -w '%{http_code}' "$BASE/inventory.php?tab=arrange")" 302
 echo "== php errors"
 grep -E "Warning|Notice|Deprecated|Fatal" /tmp/flowers-php.log | head -5
 echo "(nothing above = zero PHP warnings)"

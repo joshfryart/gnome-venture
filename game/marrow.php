@@ -42,7 +42,7 @@ page_header('Guess the Weight');
         ['🎯', 'Goal.', 'Old Moss puts something enormous on the scales each day. Guess its weight to the nearest 0.1 kg.'],
         ['🔍', 'Clues.', 'You see the crop, roughly how wide it is and how plump. It weighs between 8 and 40 kg.'],
         ['💰', 'Jackpot.', 'Only an exact guess wins it, shared if more than one gnome is exact. Now ' . money(marrow_pot()) . '.'],
-        ['📈', 'No exact guess?', 'The jackpot grows by ' . money((int)setting('marrow_jackpot_grow')) . ' (up to ' . money((int)setting('marrow_jackpot_max')) . ')' . ($cp ? ' and the closest guess gets ' . money($cp) . '.' : '.')],
+        ['📈', 'No exact guess?', 'The jackpot grows by ' . money((int)setting('marrow_jackpot_grow')) . ' (up to ' . money((int)setting('marrow_jackpot_max')) . ')' . ($cp ? ' and the closest guess gets ' . money($cp) . ' (when 2 or more gnomes guessed).' : '.')],
         ['🔁', 'Daily limit.', (int)setting('marrow_guesses_per_day') . ' guess a day. Results come after the daily reset, as a message.'],
         ['🔑', 'Who can guess.', 'Gnome level ' . (int)setting('marrow_min_level') . ' or more' . ((int)setting('marrow_min_days') > 0 ? ', and ' . (int)setting('marrow_min_days') . ' days in the Hollow.' : '.')],
         (int)setting('games_energy_cap') > 0 ? ['⚡', 'Energy.', 'Making your guess gives you +1 energy' . ((int)setting('games_energy_cap') >= 100 ? '.' : ' (up to ' . (int)setting('games_energy_cap') . ' a day from games).')] : null,

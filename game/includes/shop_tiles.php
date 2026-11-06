@@ -113,9 +113,12 @@ function shop_tile(array $o): string
         'price' => $price, 'trend' => $trend, 'trendWord' => $trend === '' ? '' : ($mode === 'sell' ? ($trend === 'up' ? ', pays more today' : ', pays less today') : ($trend === 'up' ? ', dearer today' : ', cheaper today')),
         'chips' => $chips, 'states' => array_values(array_unique($states)), 'flag' => (string)($o['flag'] ?? ''),
         'class' => 'spick', 'attrs' => ['data-sheet' => true, 'aria-haspopup' => 'dialog']]);
+    // v2.4.0: what eating it gives (energy and buff), for anything edible
+    $foodH = '';
+    if (!empty($i['edible']) && ($ft = item_food_line((string)($i['effects'] ?? ''), null, false)) !== '') $foodH = '<p class="sfood">' . e($ft) . '</p>';
     return '<div class="btile stile itmcell' . (!empty($o['dim']) ? ' dim' : '') . '" data-cat="' . shop_cat_of((string)($i['category'] ?? '')) . '" data-id="' . $id . '" data-price="' . $price . '" data-max="' . $max . '" data-name="' . e((string)$i['name']) . '">'
         . $sq
         . '<dialog class="isheet" aria-label="' . e((string)$i['name']) . '"><button type="button" class="sheetx" data-sheetx aria-label="Close">✕</button>'
         . '<div class="shead"><span class="sico" aria-hidden="true">' . ($icon !== '' ? $icon : item_icon($i)) . '</span><b class="sname">' . e((string)$i['name']) . '</b> <span class="rarword r' . $rl . '">' . e($rw) . '</span></div>'
-        . ($tags ? '<p class="stags">' . implode(' ', $tags) . '</p>' : '') . $descH . $info . $form . '</dialog></div>';
+        . ($tags ? '<p class="stags">' . implode(' ', $tags) . '</p>' : '') . $descH . $foodH . $info . $form . '</dialog></div>';
 }

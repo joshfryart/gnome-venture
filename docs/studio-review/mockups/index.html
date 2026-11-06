@@ -1,0 +1,51 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Studio review mockups</title><style>
+:root{--bg:#f1ece0;--surface:#fff3c8;--surface-2:#f2e4c0;--ink:#2a1a10;--ink-2:#4a2c1a;--muted:#74462a;--line:#c9a96e;--line-2:#9a6b3f;--brand:#2f5a2a;--brand-soft:#c8d09f;--accent:#e8a317;--accent-soft:#fff3c8;--accent-ink:#7a4a1f;--danger:#a8241f;--focus:#25637d;--felt:#3d2a1c;--felt-ink:#f2e4c0;--on-fill:#f2e4c0;--drop:#c9a96e;--tap:44px;
+--page:#e7dfcb;--note:#a8241f;--ok:#2f5a2a}
+@media (prefers-color-scheme:dark){:root{--page:#1b110a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:16px}
+@media (prefers-color-scheme:dark){body{color:#f2e4c0}}
+h1{font-size:1.4rem;margin:0 0 4px}h2{font-size:1.05rem;margin:0 0 8px}
+.lead{margin:0 0 16px;max-width:70ch}
+.compare{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.col{flex:0 0 auto}
+.tag{display:inline-block;font-weight:700;font-size:13px;padding:2px 10px;margin:0 0 8px;background:var(--felt);color:var(--felt-ink)}
+.tag.after{background:var(--brand)}
+.tag.before{background:var(--danger)}
+.phone{width:390px;border:2px solid var(--ink);background:var(--bg);position:relative;overflow:hidden;box-shadow:6px 6px 0 var(--drop)}
+.desk{width:1200px;border:2px solid var(--ink);background:var(--bg);position:relative;box-shadow:6px 6px 0 var(--drop)}
+.scrollx{overflow-x:auto;max-width:100%;padding-bottom:10px}
+/* app chrome, copied from tokens */
+.hdr{display:flex;align-items:center;gap:6px;height:52px;padding:0 16px;background:var(--felt);border-bottom:2px dashed var(--accent);color:var(--felt-ink)}
+.hdr .logo{font-weight:700;font-size:18px;margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+.hdr .sp{flex:1}
+.pill{display:inline-flex;align-items:center;height:34px;padding:0 8px;background:#2a1a10;color:#f5cf6a;font-weight:600;font-size:14px;white-space:nowrap}
+.pill.coin{background:#f5cf6a;color:#2a1a10}
+.mbtn{width:44px;height:44px;background:#2a1a10;color:var(--felt-ink);border:0;font-size:22px;display:inline-flex;align-items:center;justify-content:center;font-family:inherit}
+.strip{display:flex;justify-content:center;gap:12px;align-items:center;min-height:36px;padding:4px 16px;font-size:13px;background:var(--bg);border-bottom:1px solid var(--line);color:var(--ink)}
+.strip a{color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:4px;position:relative}
+.strip .bar{width:56px;height:6px;background:var(--surface-2);border:1px solid var(--line-2);display:inline-block}
+.strip .bar i{display:block;height:100%;width:62%;background:var(--brand)}
+.badge{background:var(--accent-soft);color:var(--accent-ink);border:1px solid var(--accent);padding:1px 8px;font-weight:600}
+.body{padding:12px 16px;min-height:300px}
+.card{background:var(--surface);border:2px solid var(--line);box-shadow:2px 2px 0 var(--drop);padding:10px 12px;margin:0 0 10px;color:var(--ink)}
+.ph{height:12px;background:var(--surface-2);margin:6px 0}
+.bar5{display:flex;height:56px;background:var(--surface);border-top:2px solid var(--line);color:var(--ink-2)}
+.bar5 a,.bar5 b{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font:500 12px/1.1 inherit;gap:2px;border-top:3px solid transparent;margin-top:-2px;font-weight:500}
+.bar5 .on{border-top-color:var(--brand);color:var(--brand);font-weight:700}
+.bar5 span{font-size:20px;line-height:1}
+.mark{position:absolute;font:700 11px/1.2 system-ui;color:#fff;background:var(--note);padding:2px 6px;z-index:5;white-space:nowrap}
+.mark.g{background:var(--ok)}
+.hit{outline:2px dashed var(--focus);outline-offset:0;background:rgba(37,99,125,.12)}
+.notes{margin:12px 0 0;padding:0 0 0 18px;max-width:70ch;font-size:14px}
+.notes li{margin:2px 0}
+a.back{color:inherit}
+
+ul.l{list-style:none;padding:0;max-width:640px}ul.l li{margin:0 0 10px}ul.l a{display:block;padding:12px 14px;min-height:44px;background:var(--surface);color:var(--ink);border:2px solid var(--line);box-shadow:2px 2px 0 var(--drop);text-decoration:none}ul.l a:focus-visible,ul.l a:hover{outline:2px solid var(--focus)}ul.l small{display:block;color:var(--muted)}</style></head><body>
+<h1>Studio review: before / after mockups</h1><p class="lead">Static mockups for the findings in <a href="../ux-review.md">ux-review.md</a>. Stitched Toy tokens from DESIGN.md. Nothing here is wired into the game.</p>
+<ul class="l">
+<li><a href="phone-shell.html"><b>Phone shell</b> (P1-1, P1-3)<small>Duplicate menu button removed, status-line tap targets, 390px</small></a></li>
+<li><a href="desktop-dedupe.html"><b>Desktop shell</b> (P2-1)<small>Header, strip, menu and rail: each fact once, 1200px</small></a></li>
+<li><a href="satchel.html"><b>Satchel</b> (P1-4, P2-2)<small>One heading, legible tiles, 390px</small></a></li>
+<li><a href="contrast.html"><b>Contrast fixes</b> (P1-2, P1-5)<small>Selected tab/chip, warn, low, effect, badge</small></a></li>
+</ul></body></html>

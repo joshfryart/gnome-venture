@@ -14,7 +14,7 @@ const CRAFT_CATEGORIES = [
     'pantry' => ['Pantry', '🫙', 'kitchen', 'Jam, pickles, sauerkraut and cordials from your harvests, kept in the jars of a Pantry (a Kitchen add-on). They take real days, never spoil, and sell for more than the crops.'],
     'tools'   => ['Tools', '🔨', 'tool_shed', 'Upgrade your tools with things you gather on adventures. Masterwork tools can only be made here.'],
     'garden'  => ['Garden supplies', '🪴', null, 'Compost, loam and mulch from gathered materials. No building needed.'],
-    'potions' => ['Potions', '🧪', null, 'Healing Potions for Puzzle Pals out on jobs. No building needed.'],
+    'potions' => ['Potions', '🧪', null, 'Healing potions for you and your pals, draughts and brews for a short boost, and a tonic for the soil. No building needed.'],
     'building' => ['Building', '🧱', null, 'Dressed stone, timber and rope for repairing the Hollow’s ruined landmarks (take on a repair at the place itself). No building needed.'],
     'decor' => ['Yard & decor', '🏡', null, 'Paths, fences and ornaments for your yard, from things you gather. No building needed. Place them with ✏️ Design yard.'],
 ];
@@ -39,7 +39,7 @@ function ensure_crafts(): int
         [$slug, $name, $cat, $makes, $ingr, $energy] = $r;
         if (!isset(CRAFT_CATEGORIES[$cat]) || q_val('SELECT 1 FROM recipes WHERE slug = ?', [$slug])) continue;
         [$outSlug, $outQty] = array_map('trim', explode(':', $makes) + [1 => 1]);
-        $outId = (int)q_val('SELECT id FROM items WHERE slug = ?', [$outSlug]);
+        $outId = item_id_by_slug($outSlug);
         if (!$outId) continue;   // output item missing (e.g. deleted in admin): skip quietly
         $ing = [];
         foreach (explode(',', $ingr) as $pair) {
@@ -111,13 +111,18 @@ function craft_recipes(int $uid, ?string $category = null): array
     $names = [];
     $sql = 'SELECT r.*, i.name AS out_name, i.description, i.effects, i.category AS out_cat FROM recipes r JOIN items i ON i.id = r.output_item_id';
     $rows = $category ? q($sql . ' WHERE r.category = ? ORDER BY r.name', [$category])->fetchAll() : q($sql . ' ORDER BY r.name')->fetchAll();
+    $want = [];   // v2.3.7: every ingredient name in one query (was one query per ingredient slug)
+    foreach ($rows as $r) foreach (array_keys(json_decode((string)$r['ingredients'], true) ?: []) as $slug) $want[(string)$slug] = true;
+    foreach (array_chunk(array_keys($want), 400) as $part) {
+        foreach (q('SELECT slug, name FROM items WHERE slug IN (' . implode(',', array_fill(0, count($part), '?')) . ')', $part)->fetchAll() as $it) $names[(string)$it['slug']] = (string)$it['name'];
+    }
     $out = [];
     foreach ($rows as $r) {
         $ings = [];
         $all = true;
         $can = true;
         foreach (json_decode((string)$r['ingredients'], true) ?: [] as $slug => $qty) {
-            $names[$slug] ??= (string)(q_val('SELECT name FROM items WHERE slug = ?', [$slug]) ?: $slug);
+            $names[$slug] ??= (string)$slug;
             $h = $have[$slug] ?? 0;
             $all = $all && isset($seen[$slug]);
             $can = $can && $h >= $qty;
@@ -296,27 +301,81 @@ function cook_pot_limit(array $u): int
     return max(1, $v[min($kl, count($v)) - 1]) + $kb['pots'] + max(0, calling_perk($u, 'extra_pot'));
 }
 
-/** Pots in use: cooking, or done and waiting to be collected. */
+/** v2.4.67: makes one pot of this recipe holds: the recipe's batch_max, or the Kitchen level's meal / feast size if bigger (snacks keep their own). */
+function cook_chunk(array $u, array $r): int
+{
+    $chunk = max(1, (int)$r['batch_max']);
+    $key = ['meal' => 'meal_batch_kitchen', 'feast' => 'feast_batch_kitchen'][(string)($r['tier'] ?? '')] ?? '';
+    if ($key === '') return $chunk;
+    require_once __DIR__ . '/gardens.php';
+    $kl = user_building_bonus((int)$u['id'], 'kitchen')['best'];
+    $v = array_values(array_filter(array_map('trim', explode(',', (string)setting($key))), fn($x) => $x !== ''));
+    if ($kl < 1 || !$v) return $chunk;
+    return max($chunk, (int)$v[min($kl, count($v)) - 1]);
+}
+
+/**
+ * Pots in use: cooking, or done and waiting to be collected. A pal tending a pot (passive cooking) holds exactly one: the job counts it, so the pal's own
+ * cook_pots rows (pal_uid set) are not counted again. Old up-front shifts (tool NULL) hold a pot until collected.
+ */
 function cook_pots_busy(int $uid): int
 {
-    return (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL', [$uid]);
+    $n = (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND pal_uid IS NULL', [$uid]);
+    try {
+        $n += (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target LIKE 'cooking:%'
+            AND ((tool = 'passive' AND state = 'active') OR (tool IS NULL AND state IN ('active','ready')))", [$uid]);
+    } catch (Throwable $e) {}
+    return $n;
 }
 
 /** Pots whose timer has run out and that are still waiting to be collected (the nav badge). */
 function cook_ready_count(int $uid): int
 {
-    return (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND ready_at <= ?', [$uid, now()]);
+    return (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND pal_uid IS NULL AND ready_at <= ?', [$uid, now()]);
 }
 
-/** Pots in use, oldest first, with the dish name and seconds left (0 = ready). */
+/**
+ * Pots in use, oldest first, with the dish name and seconds left (0 = ready). A pot a pal tends has 'pal' (name), 'job' (ppal_jobs id), 'plan' (recipe id the pal
+ * cooks next), 'plan_name' and a 'pal_uid'; a pal between two cooks gets an idle row (id 0, 'idle' true). Old up-front shifts show as locked rows too.
+ */
 function cook_pots_list(int $uid): array
 {
-    $rows = q('SELECT p.id, p.makes, p.dishes, p.ready_at, i.name, i.id AS item_id FROM cook_pots p
+    $rows = q('SELECT p.id, p.makes, p.dishes, p.ready_at, p.pal_uid, i.name, i.id AS item_id FROM cook_pots p
                LEFT JOIN recipes r ON r.id = p.recipe_id LEFT JOIN items i ON i.id = r.output_item_id
                WHERE p.user_id = ? AND p.collected_at IS NULL ORDER BY p.id', [$uid])->fetchAll();
+    $jobs = [];
+    try {
+        foreach (q("SELECT * FROM ppal_jobs WHERE user_id = ? AND kind = 'station' AND target LIKE 'cooking:%' AND ((tool = 'passive' AND state = 'active') OR (tool IS NULL AND state IN ('active','ready'))) ORDER BY id", [$uid])->fetchAll() as $j) $jobs[] = $j;
+    } catch (Throwable $e) {}
+    $names = [];
+    if ($jobs) {
+        require_once __DIR__ . '/pal_jobs.php';
+        foreach (pj_pals($uid) as $pu => $pp) $names[(string)$pu] = (string)$pp['name'];
+    }
+    $byPal = [];
+    foreach ($jobs as $j) if ($j['tool'] === 'passive') $byPal[(string)$j['pal_uid']] = $j;
+    $planName = function (array $j): array {
+        $pid = (int)(json_decode((string)$j['result'], true)['plan'] ?? 0);
+        return [$pid, $pid > 0 ? (string)q_val('SELECT i.name FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.id = ?', [$pid]) : ''];
+    };
     foreach ($rows as &$r) {
         $r['left'] = max(0, (int)strtotime($r['ready_at'] . ' UTC') - time());
         $r['name'] = (string)($r['name'] ?? 'Dish');
+        if ($r['pal_uid'] && isset($byPal[(string)$r['pal_uid']])) {
+            $j = $byPal[(string)$r['pal_uid']]; [$pid, $pn] = $planName($j);
+            $r += ['pal' => $names[(string)$r['pal_uid']] ?? 'A pal', 'job' => (int)$j['id'], 'plan' => $pid, 'plan_name' => $pn];
+            unset($byPal[(string)$r['pal_uid']]);
+        }
+    }
+    unset($r);
+    foreach ($byPal as $pu => $j) {   // a tending pal with no pot cooking right now
+        [$pid, $pn] = $planName($j);
+        $rows[] = ['id' => 0, 'makes' => 0, 'dishes' => 0, 'ready_at' => '', 'pal_uid' => $pu, 'name' => $pn !== '' ? $pn : 'Nothing chosen', 'item_id' => 0, 'left' => 0, 'idle' => true,
+            'pal' => $names[$pu] ?? 'A pal', 'job' => (int)$j['id'], 'plan' => $pid, 'plan_name' => $pn];
+    }
+    foreach ($jobs as $j) if ($j['tool'] === null) {   // old shift: the pot is held until collected
+        $rows[] = ['id' => 0, 'makes' => 0, 'dishes' => 0, 'ready_at' => '', 'pal_uid' => (string)$j['pal_uid'], 'name' => 'Shift', 'item_id' => 0, 'left' => 0, 'idle' => true, 'locked' => true,
+            'pal' => $names[(string)$j['pal_uid']] ?? 'A pal', 'job' => (int)$j['id'], 'plan' => 0, 'plan_name' => ''];
     }
     return $rows;
 }
@@ -350,7 +409,7 @@ function cook_start(array $u, array $r, int|string $want, int $station): array
     $uid = (int)$u['id'];
     $tier = (string)($r['tier'] ?: 'meal');
     $pots = cook_pots_on();
-    $chunk = max(1, (int)$r['batch_max']);
+    $chunk = cook_chunk($u, $r);
     $free = $pots ? cook_pot_limit($u) - cook_pots_busy($uid) : 0;
     $none = ['ids' => [], 'qty' => 0, 'cost' => 0, 'fee' => 0, 'clamped' => false];
     if ($pots && $free < 1) return [false, 'All your pots are busy. Collect a finished one, or wait for a timer.', $none];
@@ -419,11 +478,12 @@ function cook_start(array $u, array $r, int|string $want, int $station): array
  * recipe page, Food Scraps (1 per cook_scraps_per ingredient items) and one 'cook' job event per pot. Returns [ok, message, info];
  * info: name, dishes, xp, scraps, extra, page.
  */
-function cook_collect_one(array $u, int $potId): array
+function cook_collect_one(array $u, int $potId, bool $byPal = false): array
 {
     $uid = (int)$u['id'];
     $pot = q_one('SELECT * FROM cook_pots WHERE id = ? AND user_id = ? AND collected_at IS NULL', [$potId, $uid]);
     if (!$pot) return [false, 'That pot is already empty.', []];
+    if (!$byPal && $pot['pal_uid'] !== null && $pot['pal_uid'] !== '') return [false, 'A pal is tending that pot. They serve it at their next check.', []];
     if ($pot['ready_at'] > now()) return [false, 'That pot isn’t ready yet.', []];
     $r = q_one('SELECT r.*, i.name AS out_name FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.id = ?', [$pot['recipe_id']]);
     db()->beginTransaction();
@@ -467,7 +527,7 @@ function cook_collect_all(array $u): array
 {
     $done = [];
     foreach (cook_pots_list((int)$u['id']) as $p) {
-        if ($p['left'] > 0) continue;
+        if ($p['left'] > 0 || !empty($p['pal_uid']) || (int)$p['id'] < 1) continue;
         $res = cook_collect_one($u, (int)$p['id']);
         if ($res[0]) $done[] = $res[2];
     }
@@ -494,6 +554,13 @@ function cook_collect_msg(array $infos, string $verb, string $spent = ''): strin
 }
 
 /** Short text for a food's energy and buff: "⚡+4 (🛡️ Hardiness +3 for 6 h)". v0.9.1a: buff in brackets, time adjusted for $u when given. */
+/** v2.4.0: the one food line every surface shows: "⚡+12 energy · ✨ ..." (or '' if the item gives neither). $homeCooked = dishes at cook_energy_percent (the Brewroot perk stays hidden). */
+function item_food_line(?string $effects, ?array $u = null, bool $homeCooked = false): string
+{
+    $t = buff_text($effects, $u, $homeCooked);
+    return $t === '' ? '' : $t;
+}
+
 function buff_text(?string $effects, ?array $u = null, bool $homeCooked = false): string
 {
     $fx = json_decode((string)$effects, true) ?: [];

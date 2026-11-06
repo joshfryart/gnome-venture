@@ -59,6 +59,12 @@ function q_val(string $sql, array $params = [])
     return $v === false ? null : $v;
 }
 
+/** Item id for a slug, 0 when there is no such item. Uncached on purpose: seed and install insert items mid-run. */
+function item_id_by_slug($slug): int
+{
+    return (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+}
+
 /** Insert a row from a [column => value] array. Column names must come from code, never from users. */
 function db_insert(string $table, array $row): int
 {

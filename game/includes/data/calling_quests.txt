@@ -128,4 +128,5 @@ T|brewroot-2|event|cook|tier=feast|2|Cook 2 feasts (needs Kitchen III)
 T|brewroot-2|state|regions|CSA,SEA|2|Visit Spicepeak and the Monsoon Tangle
 T|brewroot-2|event|sell|cat=food|10|Sell 10 food items to shops
 T|brewroot-2|event|eat|homecooked=1,tier=meal/feast|15|Eat 15 home-cooked meals
+T|brewroot-2|event|serve|spoons>=2|5|Serve Pomeroy 5 courses at two spoons or better
 T|brewroot-2|give|give|meal:6,fine:2|1|Bring Juniper 6 home-cooked meals and 2 uncommon or rare finds

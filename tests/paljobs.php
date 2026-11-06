@@ -129,9 +129,44 @@ $drank = null;
 $mid = pj_pal($uid, $p2); $mid['hp'] = 5;
 for ($i = 0; $i < 300 && !$drank; $i++) { $r = pj_roll_trip($mid, $land, 'forage', 3, 8, 3, 'd' . $i); if ($r['potions_used'] > 0) $drank = $r; }
 ok('a hurt pal drinks a packed potion', (bool)$drank && $drank['potions_used'] <= 3);
+echo "== strong and grand potions can be packed (2.5.49)\n";
+ok('pj_pack: tiers in order, bogus slug dropped, 5 in all', pj_pack(3, ['strong-healing-potion' => 4, 'grand-healing-elixir' => 2, 'bogus' => 9]) === ['healing-potion' => 3, 'strong-healing-potion' => 2], json_encode(pj_pack(3, ['strong-healing-potion' => 4, 'grand-healing-elixir' => 2])));
+$pk = ['healing-potion' => 1, 'strong-healing-potion' => 1, 'grand-healing-elixir' => 1];
+$d1 = pj_pack_drink($pk, 30); $d2 = pj_pack_drink($pk, 30); $d3 = pj_pack_drink($pk, 30); $d4 = pj_pack_drink($pk, 30);
+ok('drinks weakest first: +12, +24, full, then nothing', [$d1, $d2, $d3, $d4] === [12, 24, 30, 0], json_encode([$d1, $d2, $d3, $d4]));
+$gdr = null;
+for ($i = 0; $i < 300 && !$gdr; $i++) { $r = pj_roll_trip($mid, $land, 'forage', 3, 8, ['grand-healing-elixir' => 2], 'g' . $i); if ($r['potions_used'] > 0) $gdr = $r; }
+ok('a hurt pal drinks a packed Grand Elixir; used and back add up per tier', $gdr && $gdr['pack_used'] === ['grand-healing-elixir' => $gdr['potions_used']] && array_sum(pj_pack_left($gdr)) === 2 - $gdr['potions_used'], json_encode($gdr['pack_used'] ?? null));
+$rs = pj_recall_scale(['items' => [], 'rounds' => 4, 'pack' => ['strong-healing-potion' => 2], 'pack_used' => ['strong-healing-potion' => 2], 'potions_used' => 2], 0.5, 2);
+ok('recall: strong potions drunk scale by time, the rest come back as strong', $rs['pack_used'] === ['strong-healing-potion' => 1] && $rs['pack_back'] === ['strong-healing-potion' => 1] && $rs['potions_back'] === 1, json_encode($rs));
+$sid = alchemy_item_id('strong-healing-potion'); give_item($uid, $sid, 2); $sBefore = alchemy_count($uid, 'strong-healing-potion');
+$spal = ''; foreach ([$p0, $p1, $p2, $p3] as $cand) { $pp = pj_pal($uid, $cand); if ($pp && $pp['status'] === 'home' && $pp['hp'] > 0 && !$pp['active']) { $spal = $cand; break; } }
+if ($spal !== '') {
+    [$so, $sm] = pj_trip_send($u, $spal, $land, 'forage', 1, 0, false, false, ['strong-healing-potion' => 2]);
+    ok('a trip with 2 Strong Healing Potions packed is sent', $so === true, (string)$sm);
+    ok('they left the satchel', alchemy_count($uid, 'strong-healing-potion') === $sBefore - 2);
+    $sj = q_one("SELECT * FROM ppal_jobs WHERE pal_uid = ? ORDER BY id DESC LIMIT 1", [$spal]); $sr = json_decode($sj['result'], true);
+    ok('the job stores the pack', ($sr['pack'] ?? null) === ['strong-healing-potion' => 2] && (int)$sj['potions'] === 2, (string)$sj['result']);
+    q('UPDATE ppal_jobs SET ends_at = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 5), $sj['id']]); pj_settle($uid);
+    pj_collect($u, (int)$sj['id']);
+    ok('collect hands the unused Strong potions back as Strong', alchemy_count($uid, 'strong-healing-potion') === $sBefore - 2 + (int)$sr['potions_back'], alchemy_count($uid, 'strong-healing-potion') . ' vs ' . $sBefore . '+' . $sr['potions_back']);
+} else ok('a free pal for the strong-potion trip', false, 'none home');
+[$so2] = pj_trip_send($u, $spal, $land, 'forage', 1, 0, false, false, ['grand-healing-elixir' => 99]);
+ok('packing Grand Elixirs you do not own is refused', $so2 === false);
+$shelves = (int)q_val("SELECT COUNT(*) FROM shop_stock st JOIN shops s ON s.id = st.shop_id JOIN items i ON i.id = st.item_id WHERE s.slug = 'twigg-s-seed-emporium' AND i.slug IN ('strong-healing-potion','grand-healing-elixir','lucky-draught','sages-draught','stoneskin-brew','swiftfoot-elixir','garden-tonic')");
+ok('Twigg’s has a shelf for each of the 7 newer potions', $shelves === 7, (string)$shelves);
+q("DELETE FROM shop_stock WHERE item_id = ?", [item_id_by_slug('grand-healing-elixir')]); pj_ensure_content();
+ok('a missing shelf is added back, none doubled', (int)q_val("SELECT COUNT(*) FROM shop_stock WHERE item_id = ?", [item_id_by_slug('grand-healing-elixir')]) === 1 && (int)q_val("SELECT COUNT(*) FROM shop_stock WHERE item_id = ?", [item_id_by_slug('strong-healing-potion')]) === 1);
 $same1 = pj_roll_trip($mid, $land, 'forage', 3, 3, 1, 'x'); $same2 = pj_roll_trip($mid, $land, 'forage', 3, 3, 1, 'x');
 ok('same seed, same result', $same1 === $same2);
-ok('no rare finds below Adventuring 5', !array_filter(pj_roll_trip(array_merge($mid, ['a' => 1]), $land, 'forage', 3, 8, 0, 'r')['items'], fn($it) => q_val('SELECT rarity FROM gatherables WHERE item_id = ?', [$it[0]]) === 'rare'));
+$rland = (string)q_val("SELECT landscapes FROM gatherables WHERE rarity = 'rare' AND active = 1 AND tool = 'forage' AND landscapes <> 'any' LIMIT 1"); $rland = trim(explode(',', $rland)[0]);
+$rares = function (int $a) use ($mid, $rland): int { $n = 0; for ($i = 0; $i < 150; $i++) foreach (pj_roll_trip(array_merge($mid, ['a' => $a, 'hp' => 60, 'max' => 60]), $rland, 'forage', 3, 8, 0, 'r' . $i)['items'] as $it)
+    if (q_val('SELECT rarity FROM gatherables WHERE item_id = ?', [$it[0]]) === 'rare') $n += $it[1]; return $n; };
+$r1 = $rares(1); $r5 = $rares(5); $r10 = $rares(10);
+ok('v2.3.3: rare finds from Adventuring 1, more as the level grows', $r1 > 0 && $r5 > $r1 && $r10 > $r5, "$r1 / $r5 / $r10");
+ok('v2.3.3: rare scale is smooth (0.36 at 1, 1.0 at 5, 1.4 at 10)', abs(pj_rare_mult(1) - 0.36) < 0.001 && abs(pj_rare_mult(5) - 1.0) < 0.001 && abs(pj_rare_mult(10) - 1.4) < 0.001);
+ok('v2.3.3: delve rares possible at Adventuring 1', (function () use ($mid) { for ($i = 0; $i < 400; $i++) { $r = pj_roll_delve(array_merge($mid, ['a' => 1, 'hp' => 200, 'max' => 200]), ['level' => 10, 'name' => 'x'], 0, 'q' . $i);
+    foreach ($r['items'] as $it) if (q_val('SELECT rarity FROM gatherables WHERE item_id = ?', [$it[0]]) === 'rare') return true; } return false; })());
 q('UPDATE ppal_found SET hp = 0, hp_at = ? WHERE pal_uid = ?', [now(), $p4]);
 [$h0] = pj_trip_send($u, $p4, $land, 'forage', 1, 0); ok('a pal at 0 HP is not sent', $h0 === false);
 ok('rest regrows HP (1 per 6 min)', (function () use ($uid, $p4) { q('UPDATE ppal_found SET hp_at = ? WHERE pal_uid = ?', [gmdate('Y-m-d H:i:s', time() - 3600), $p4]); return pj_pal($uid, $p4)['hp'] >= 10; })());
@@ -176,6 +211,49 @@ ok('clear count of the real delve is untouched', (int)q_val('SELECT clears FROM 
 $best = pj_roll_delve(array_merge(pj_pal($uid, $p3), ['a' => 10, 'hp' => 60, 'max' => 60]), ['level' => 1, 'name' => 'x'], 0, 'z');
 ok('a strong pal clears all 5 rooms and is paid', $best['rounds'] === DELVE_ROOMS && !$best['fainted'] && $best['coins'] > 0);
 
+echo "== delve re-runs on the new route (delve_v2)\n";
+require_once APP_ROOT . '/includes/delve_v2.php';
+$bp = array_merge(pj_pal($uid, $p3), ['a' => 10, 'hp' => 60, 'max' => 60]);
+$lmB = ['level' => 5, 'name' => 'Beaverdam Tunnels'];
+$routeOf = fn(string $rs) => dv_route($rs, 'beaverdam-tunnels', dv_stages(5));
+$wayOk = true; $thornOk = true; $noBoss = true; $lenOk = true; $paid = true;
+foreach (range(1, 40) as $i) {
+    $rs = 'rs' . $i;
+    $route = $routeOf($rs);
+    foreach (['wayfinder', 'thornblade'] as $cl) {
+        $pp = $bp; $pp['pal']['calling'] = $cl;
+        $res = pj_roll_delve_route($pp, $lmB, 0, 'x' . $i, $rs);
+        if (in_array('boss', $res['path'], true)) $noBoss = false;
+        if (count($res['path']) !== $route['stages'] - 1 && !$res['fainted']) $lenOk = false;
+        if (!$res['fainted'] && ($res['coins'] <= 0 || $res['rounds'] !== DELVE_ROOMS)) $paid = false;
+        $first = dv_route_choices($route, null);
+        $kinds = array_map(fn($id) => dv_route_node($route, $id)['kind'], $first);
+        if ($cl === 'wayfinder' && $res['path'][0] === 'fight' && array_diff($kinds, ['fight'])) $wayOk = false;
+        if ($cl === 'thornblade' && in_array('fight', $kinds, true) && $res['path'][0] !== 'fight') $thornOk = false;
+    }
+}
+ok('route re-run: the pal never fights the guardian', $noBoss);
+ok('route re-run: one pick per row before the guardian', $lenOk);
+ok('route re-run: a strong pal is paid, rounds scaled to DELVE_ROOMS', $paid);
+ok('route re-run: a Wayfinder avoids a fight when it can', $wayOk);
+ok('route re-run: a Thornblade picks the fight', $thornOk);
+$r1 = pj_roll_delve_route($bp, $lmB, 0, 'same', 'rs1'); $r2 = pj_roll_delve_route($bp, $lmB, 0, 'same', 'rs1');
+ok('route re-run: same seeds, same walk', $r1['path'] === $r2['path'] && $r1['hp'] === $r2['hp']);
+$weak = array_merge($bp, ['a' => 1, 'hp' => 3, 'max' => 3]); $weak['pal']['calling'] = 'thornblade';
+$wf = 0; foreach (range(1, 20) as $i) { $wr = pj_roll_delve_route($weak, ['level' => 20, 'name' => 'Beaverdam Tunnels'], 0, 'w' . $i, 'rs' . $i); if ($wr['fainted']) { $wf++; if ($wr['coins'] !== 0) $wf = -99; } }
+ok('route re-run: a weak pal faints in a hard delve and brings nothing', $wf > 0, (string)$wf);
+cfg(['delve_v2' => 1, 'delve_map' => 1]);
+$dl2 = q_one("SELECT id, name FROM landmarks WHERE kind = 'delve' AND id <> ? ORDER BY id LIMIT 1", [$dl['id']]);
+q('INSERT INTO landmark_clears (user_id, landmark_id, clears, first_at, last_at) VALUES (?, ?, 1, ?, ?)', [$uid, $dl2['id'], now(), now()]);
+[$d3, $dm3] = pj_delve_send($u, $p2, (int)$dl2['id'], 0);
+$dr3 = json_decode((string)q_val("SELECT result FROM ppal_jobs WHERE kind = 'delve' ORDER BY id DESC LIMIT 1"), true);
+ok('delve_v2 on: the send walks the route', $d3 === true && isset($dr3['path']) && count($dr3['path']) >= 1, $dm3 . ' ' . json_encode($dr3));
+q("UPDATE ppal_jobs SET ends_at = ? WHERE kind = 'delve' AND pal_uid = ?", [gmdate('Y-m-d H:i:s', time() - 5), $p2]);
+$j3 = (int)q_val("SELECT id FROM ppal_jobs WHERE kind = 'delve' AND pal_uid = ? ORDER BY id DESC LIMIT 1", [$p2]);
+[$c3, $l3] = pj_collect($u, $j3);
+ok('collect names the way taken', $c3 === true && (bool)array_filter($l3, fn($l) => str_starts_with($l, '🗺️')), json_encode($l3));
+cfg(['delve_v2' => 0]);
+
 echo "== equipped xp\n";
 cfg(['ppal_party' => 1]);
 q("UPDATE ppal_found SET status = 'home', active = 1, eq_since = ?, g_xp = 0, a_xp = 0 WHERE pal_uid = ?", [gmdate('Y-m-d H:i:s', time() - 5 * 3600 - 30), $p2]);
@@ -184,6 +262,7 @@ $e = q_one('SELECT g_xp, a_xp FROM ppal_found WHERE pal_uid = ?', [$p2]);
 ok('5 h equipped = 5 XP of each kind', (int)$e['g_xp'] === 5 && (int)$e['a_xp'] === 5, json_encode($e));
 pj_settle_equip($uid);
 ok('settling twice does not pay twice', (int)q_val('SELECT g_xp FROM ppal_found WHERE pal_uid = ?', [$p2]) === 5);
+q("UPDATE ppal_found SET hp = 100, hp_at = ? WHERE pal_uid = ?", [now(), $p2]);   // the delve re-run above may have fainted it: keep this check deterministic
 [$eqa, $eqm2] = pj_can_send($u, $p2);
 ok('an equipped pal is not sent without agreeing', $eqa === null && str_contains($eqm2, 'party'), $eqm2);
 [$eqb] = pj_can_send($u, $p2, true);
@@ -192,6 +271,305 @@ ok('sending a pal out takes it off the party', pj_claim_pal($uid, $p2, 'trip') &
 [$eq1, $eqm] = ppal_set_active($u, q_val('SELECT pal_key FROM ppal_found WHERE pal_uid = ?', [$p2]), true);
 ok('an away pal cannot be taken along', $eq1 === false, (string)$eqm);
 ok('away pals are not equipped', !array_filter(ppal_equipped($u, true) ?: [], fn($x) => true) || true);
+
+echo "== collect receipt wording + home notice (v2.3.3)\n";
+q("UPDATE ppal_jobs SET state = 'done' WHERE user_id = ?", [$uid]); q("UPDATE ppal_found SET status = 'home', active = 0, hp = -1 WHERE user_id = ?", [$uid]);
+$pr = pj_pal($uid, $p0);
+ok('home notice: nothing due, nothing shown', pj_home_count($u) === 0 && pj_home_notice_html($u) === '');
+$fake = ['rounds' => 2, 'items' => [], 'hp' => 0, 'potions_used' => 1, 'potions_back' => 1, 'fainted' => true, 'log' => []];
+q("UPDATE ppal_found SET status = 'trip' WHERE pal_uid = ?", [$p0]);
+$fj = db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $p0, 'kind' => 'trip', 'target' => $land, 'plot_id' => null, 'day' => landmark_day(), 'tool' => 'forage',
+    'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() - 5), 'last_tick' => now(), 'potions' => 2, 'state' => 'active', 'result' => json_encode($fake)]);
+$nh = pj_home_notice_html($u);
+ok('home notice: 1 pal home with loot (due, not yet settled), links to the jobs page', pj_home_count($u) === 1 && str_contains($nh, '1 pal home with loot') && str_contains($nh, 'paljobs.php'), $nh);
+ok('home notice: no inline style', !str_contains($nh, 'style='));
+[$fo, $fl, $fh] = pj_collect($u, (int)$fj);
+ok('receipt head names the pal and the place, early', $fo && str_contains($fh, $pr['name']) && str_contains($fh, 'came home early') && str_contains($fh, strtolower(LANDSCAPES[$land][1])), $fh);
+ok('receipt: faint line first', str_starts_with($fl[0] ?? '', '😵'), json_encode($fl));
+ok('receipt: says no finds when empty', (bool)array_filter($fl, fn($l) => str_contains($l, 'No finds')), json_encode($fl));
+ok('receipt: potions drunk and back in one line', (bool)array_filter($fl, fn($l) => str_contains($l, 'Drank 1 potion, 1 back')), json_encode($fl));
+ok('receipt: XP line', (bool)array_filter($fl, fn($l) => str_starts_with($l, '⭐ +4 Adventuring XP')), json_encode($fl));
+ok('home notice gone after collect', pj_home_count($u) === 0 && pj_home_notice_html($u) === '');
+q("UPDATE ppal_found SET a_xp = 28, status = 'delve' WHERE pal_uid = ?", [$p0]);
+$dj2 = db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $p0, 'kind' => 'delve', 'target' => (string)$dl['id'], 'plot_id' => null, 'day' => landmark_day(), 'tool' => null,
+    'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() - 5), 'last_tick' => now(), 'potions' => 0, 'state' => 'ready',
+    'result' => json_encode(['rounds' => 5, 'coins' => 30, 'items' => [], 'hp' => 9, 'potions_used' => 0, 'potions_back' => 0, 'fainted' => false, 'log' => []])]);
+q("UPDATE ppal_found SET status = 'home' WHERE pal_uid = ?", [$p0]);
+ok('home notice: 2 pals wording', (function () use ($u, $uid, $p1, $land) {
+    q("UPDATE ppal_found SET status = 'trip' WHERE pal_uid = ?", [$p1]);
+    $id = db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $p1, 'kind' => 'trip', 'target' => $land, 'plot_id' => null, 'day' => landmark_day(), 'tool' => 'forage',
+        'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() - 5), 'last_tick' => now(), 'potions' => 0, 'state' => 'ready', 'result' => json_encode(['rounds' => 1, 'items' => [], 'hp' => 5, 'potions_used' => 0, 'potions_back' => 0, 'fainted' => false])]);
+    $ok = str_contains(pj_home_notice_html($u), '2 pals home with loot');
+    q('DELETE FROM ppal_jobs WHERE id = ?', [$id]); q("UPDATE ppal_found SET status = 'home' WHERE pal_uid = ?", [$p1]);
+    return $ok; })());
+[$do2, $dl3, $dh2] = pj_collect($u, (int)$dj2);
+ok('delve receipt: back from the delve by name', $do2 && str_contains($dh2, 'is back from ' . $dl['name']), $dh2);
+ok('delve receipt: coins and a level up', (bool)array_filter($dl3, fn($l) => str_starts_with($l, '💰')) && (bool)array_filter($dl3, fn($l) => str_contains($l, 'now level 2')), json_encode($dl3));
+pj_garden_send($u, $p1, $plot, 1);
+q("UPDATE ppal_jobs SET ends_at = ? WHERE kind = 'garden' AND state = 'active'", [gmdate('Y-m-d H:i:s', time() - 5)]);
+ok('a garden stay never counts as loot', pj_home_count($u) === 0);
+q('DELETE FROM ppal_jobs WHERE id IN (?, ?)', [$fj, $dj2]); q("UPDATE ppal_jobs SET state = 'done' WHERE user_id = ?", [$uid]); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]);   // leave the runs and slots free for the page tests
+cfg(['pj_open' => 0]); ok('home notice hidden when pal jobs are closed', pj_home_notice_html($u) === ''); cfg(['pj_open' => 1]);
+
+echo "== v2.3.3: garden tasks from level 1, and a pal beside hired help (no double work, no double pay)\n";
+q("UPDATE ppal_jobs SET state = 'done' WHERE user_id = ?", [$uid]); q("UPDATE ppal_found SET status = 'home', g_xp = 0 WHERE user_id = ?", [$uid]);
+ok('Gardening 1 pal waters, weeds and harvests', pj_garden_skills(1) === ['water', 'weed', 'harvest']);
+ok('extra-crop odds grow smoothly (0 at 1, 36 at 10)', pj_garden_extra_pct(1) === 0 && pj_garden_extra_pct(5) === 16 && pj_garden_extra_pct(10) === 36);
+ok('visits come more often with Gardening', pj_garden_step(1) > pj_garden_step(8));
+ensure_helpers();
+$H = []; foreach (q('SELECT * FROM helpers ORDER BY wage')->fetchAll() as $hr) $H[(string)$hr['skills']] = $hr;
+$slow = q_one("SELECT * FROM plants WHERE kind <> 'cover' ORDER BY grow_minutes DESC, id LIMIT 1");   // the slowest crop stays thirsty, not ready
+q('UPDATE plants SET grow_minutes = 100000 WHERE id = ?', [$slow['id']]);   // day speed (season/weather by Hollow date) can make a 6 h crop ready inside the 9 h replay; keep it thirsty on any clock
+$slow = q_one('SELECT * FROM plants WHERE id = ?', [$slow['id']]);
+$rad = q_one("SELECT * FROM plants WHERE slug = 'radish'");
+$T = q('SELECT id FROM plot_tiles WHERE plot_id = ? ORDER BY id LIMIT 3', [$plot])->fetchAll(PDO::FETCH_COLUMN);
+$ago = fn(int $h): string => gmdate('Y-m-d H:i:s', time() - $h * 3600);
+$setup = function (?array $helper) use ($uid, $plot, $p3, $T, $slow, $rad, $ago): int {
+    q("DELETE FROM garden_hires WHERE plot_id = ?", [$plot]);
+    q("DELETE FROM ppal_jobs WHERE kind = 'garden'");
+    q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]);
+    q("UPDATE plot_tiles SET plant_id = NULL, planted_at = NULL, growth_seconds = 0, last_watered = NULL, weeds = 0, pest = NULL, method = 'dig', tilled = 0 WHERE plot_id = ?", [$plot]);
+    q("UPDATE plot_tiles SET tilled = 1, plant_id = ?, planted_at = ?, growth_updated_at = ?, growth_seconds = 0, last_watered = NULL WHERE id = ?", [$slow['id'], $ago(9), $ago(9), $T[0]]);   // thirsty
+    q("UPDATE plot_tiles SET tilled = 1, plant_id = ?, planted_at = ?, growth_updated_at = ?, growth_seconds = 999999, last_watered = ? WHERE id = ?", [$rad['id'], $ago(9), now(), now(), $T[1]]);   // ready
+    q("UPDATE plot_tiles SET tilled = 1, method = 'notill', weeds = 30, maint_at = ? WHERE id = ?", [now(), $T[2]]);   // weedy
+    if ($helper) db_insert('garden_hires', ['plot_id' => $plot, 'user_id' => $uid, 'helper_id' => $helper['id'], 'started_at' => $ago(9), 'ends_at' => gmdate('Y-m-d H:i:s', time() + 86400), 'last_visit' => $ago(9), 'paid' => (int)$helper['wage']]);
+    q("UPDATE ppal_found SET status = 'garden' WHERE pal_uid = ?", [$p3]);
+    return db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $p3, 'kind' => 'garden', 'target' => (string)$plot, 'plot_id' => $plot, 'day' => landmark_day(),
+        'started_at' => $ago(9), 'ends_at' => gmdate('Y-m-d H:i:s', time() + 86400), 'last_tick' => $ago(9), 'potions' => 0, 'state' => 'active', 'result' => null]);
+};
+// alone: the pal does all three
+$jid = $setup(null);
+load_plot($uid);
+ok('pal alone: harvested the ready square', !q_val('SELECT plant_id FROM plot_tiles WHERE id = ?', [$T[1]]));
+ok('pal alone: weeded the bed', (int)q_val('SELECT weeds FROM plot_tiles WHERE id = ?', [$T[2]]) === 0);
+ok('pal alone: watered the thirsty square', q_val('SELECT last_watered FROM plot_tiles WHERE id = ?', [$T[0]]) !== null);
+ok('pal alone: tasks = water + weed + 2 x harvest', (int)q_val('SELECT tasks FROM ppal_jobs WHERE id = ?', [$jid]) >= 4, (string)q_val('SELECT tasks FROM ppal_jobs WHERE id = ?', [$jid]));
+require_once APP_ROOT . '/includes/social169.php';
+[, $tl, $pl] = load_plot($uid);
+ok('a friend finds nothing thirsty after the pal (need-gated, no double watering)', !array_filter(social169_thirsty($tl, $pl), fn($t) => (int)$t['id'] === (int)$T[0]));
+foreach ($H as $sk => $hr) {
+    $skills = explode(',', $sk);
+    $jid = $setup($hr);
+    $mine = pj_garden_hires($plot)[0]['skills'] ?? '?';
+    ok($hr['name'] . ' (' . $sk . '): the pal still has all three tasks (works after the helper)', $mine === 'water,weed,harvest', $mine);
+    load_plot($uid);
+    $gh = q_one('SELECT * FROM garden_hires WHERE plot_id = ?', [$plot]);
+    $tasks = (int)q_val('SELECT tasks FROM ppal_jobs WHERE id = ?', [$jid]);
+    $want = (in_array('weed', $skills, true) ? 0 : 1) + (in_array('harvest', $skills, true) ? 0 : 2);   // same visit times: the helper waters first, so nothing is dry for the pal
+    ok($hr['name'] . ': the pal does only what the helper left (' . $want . ')', $tasks === $want, "tasks $tasks, hire " . json_encode([$gh['waterings'], $gh['weedings'], $gh['harvests']]));
+    ok($hr['name'] . ': ready square harvested exactly once', !q_val('SELECT plant_id FROM plot_tiles WHERE id = ?', [$T[1]]) && (int)$gh['harvests'] + intdiv($tasks, 2) === 1, json_encode($gh));
+    ok($hr['name'] . ': weedy bed weeded exactly once', (int)q_val('SELECT weeds FROM plot_tiles WHERE id = ?', [$T[2]]) === 0 && (int)$gh['weedings'] + ($tasks % 2) === 1);
+    ok($hr['name'] . ': the helper is still paid only its wage (no pay for the pal)', (int)$gh['paid'] === (int)$hr['wage']);
+}
+$all = $H['water,weed,harvest'];
+// a helper who does all three, visits due at the same times as the pal: the helper acts first, the pal finds nothing left
+$jid = $setup($all);
+load_plot($uid);
+$gh = q_one('SELECT * FROM garden_hires WHERE plot_id = ?', [$plot]);
+ok('all-three helper + pal, same visits: helper first, pal has nothing left (0 tasks)', (int)q_val('SELECT tasks FROM ppal_jobs WHERE id = ?', [$jid]) === 0, json_encode($gh));
+ok('all-three helper + pal: one harvest, one weeding, square watered', (int)$gh['harvests'] === 1 && (int)$gh['weedings'] === 1 && (int)$gh['waterings'] >= 1 && !q_val('SELECT plant_id FROM plot_tiles WHERE id = ?', [$T[1]]));
+// the same helper with no visit due yet: the pal picks up the leftovers on its own visits
+$jid = $setup($all);
+q('UPDATE garden_hires SET last_visit = ? WHERE plot_id = ?', [now(), $plot]);
+$rq0 = (int)q_val('SELECT COALESCE(SUM(qty), 0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $rad['produce_item_id']]);
+load_plot($uid);
+$gh = q_one('SELECT * FROM garden_hires WHERE plot_id = ?', [$plot]);
+$tk = (int)q_val('SELECT tasks FROM ppal_jobs WHERE id = ?', [$jid]);
+ok('all-three helper not due: the pal harvests, weeds and waters the leftovers', $tk >= 4 && (int)$gh['harvests'] === 0 && (int)$gh['weedings'] === 0 && (int)$gh['waterings'] === 0, "pal $tk, hire " . json_encode([$gh['waterings'], $gh['weedings'], $gh['harvests']]));
+ok('leftovers: the ready square is harvested once and the crop is paid once', !q_val('SELECT plant_id FROM plot_tiles WHERE id = ?', [$T[1]]) && (int)q_val('SELECT COALESCE(SUM(qty), 0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $rad['produce_item_id']]) > $rq0);
+load_plot($uid);
+ok('loading again does nothing twice (no new tasks, helper still idle)', (int)q_val('SELECT tasks FROM ppal_jobs WHERE id = ?', [$jid]) === $tk && (int)q_val('SELECT harvests FROM garden_hires WHERE plot_id = ?', [$plot]) === 0);
+// sending is never refused because of hired help
+$setup($all); q("DELETE FROM ppal_jobs WHERE kind = 'garden'"); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]);
+[$gb, $gm] = pj_garden_send($u, $p3, $plot, 1);
+ok('a helper who does everything: the pal can still be sent, and is told it works after the helper', $gb === true && str_contains((string)$gm, 'working after your hired help'), (string)$gm);
+q("DELETE FROM ppal_jobs WHERE kind = 'garden'"); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]); q("DELETE FROM garden_hires WHERE plot_id = ?", [$plot]);
+[$gb2, $gm2] = pj_garden_send($u, $p3, $plot, 1);
+ok('no hired help: the message does not mention it', $gb2 === true && !str_contains((string)$gm2, 'hired help'), (string)$gm2);
+q("DELETE FROM garden_hires WHERE plot_id = ?", [$plot]); q("UPDATE ppal_jobs SET state = 'done' WHERE kind = 'garden'"); q("UPDATE ppal_found SET status = 'home', g_xp = 0 WHERE user_id = ?", [$uid]);
+q("UPDATE plot_tiles SET plant_id = NULL, planted_at = NULL, growth_seconds = 0, last_watered = NULL, weeds = 0, method = 'dig' WHERE plot_id = ?", [$plot]);
+$xtra = 0; for ($i = 0; $i < 200; $i++) $xtra += pj_garden_extra($uid, $rad, ['pj_job' => 1, 'pj_extra' => pj_garden_extra_pct(10)]);
+ok('Gardening 10 brings extra crops about a third of the time', $xtra > 40 && $xtra < 110, (string)$xtra);
+ok('Gardening 1 brings none', array_sum(array_map(fn() => pj_garden_extra($uid, $rad, ['pj_job' => 1, 'pj_extra' => 0]), range(1, 50))) === 0);
+
+echo "== MySQL safety (static: no MySQL here)\n";
+[$mt, $mi, $mc] = ppal_schema('INT UNSIGNED AUTO_INCREMENT PRIMARY KEY', 'INT UNSIGNED', ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+$defs = [];
+foreach ($mt as $sql) {
+    preg_match('/CREATE TABLE IF NOT EXISTS (\w+) \((.*)\)/s', $sql, $m);
+    foreach (preg_split('/,\s*\n/', trim($m[2])) as $line) {
+        if (preg_match('/^(\w+)\s+(.+)$/', trim($line), $c) && !in_array(strtoupper($c[1]), ['UNIQUE', 'PRIMARY', 'KEY', 'INDEX'], true)) $defs[] = [$m[1], $c[1], $c[2]];
+    }
+}
+foreach ($mc as [$tb, $col, $def]) $defs[] = [$tb, $col, $def];
+// MySQL 8.0 reserved words (a column or table with one of these names breaks unless it is quoted everywhere)
+$RES = ['ACCESSIBLE','ADD','ALL','ALTER','ANALYZE','AND','AS','ASC','BEFORE','BETWEEN','BY','CALL','CASCADE','CASE','CHANGE','CHECK','COLUMN','CONDITION','CONSTRAINT','CONTINUE','CREATE','CROSS',
+  'CUBE','CUME_DIST','CURRENT_DATE','CURRENT_TIME','CURRENT_USER','CURSOR','DATABASE','DEFAULT','DELETE','DENSE_RANK','DESC','DESCRIBE','DISTINCT','DIV','DROP','DUAL','EACH','ELSE','EMPTY','EXISTS',
+  'EXIT','EXPLAIN','FALSE','FETCH','FIRST_VALUE','FOR','FORCE','FOREIGN','FROM','FUNCTION','GENERATED','GET','GRANT','GROUP','GROUPING','GROUPS','HAVING','IF','IGNORE','IN','INDEX','INNER','INSERT',
+  'INTERVAL','INTO','IS','ITERATE','JOIN','KEY','KEYS','KILL','LAG','LAST_VALUE','LATERAL','LEAD','LEADING','LEAVE','LEFT','LIKE','LIMIT','LINES','LOAD','LOCK','LOOP','MATCH','MOD','NATURAL','NOT',
+  'NTH_VALUE','NTILE','NULL','OF','ON','OPTION','OR','ORDER','OUT','OUTER','OVER','PARTITION','PERCENT_RANK','PRIMARY','PROCEDURE','RANGE','RANK','READ','RECURSIVE','REFERENCES','RELEASE','RENAME',
+  'REPEAT','REPLACE','REQUIRE','RESIGNAL','RESTRICT','RETURN','REVOKE','RIGHT','ROW','ROWS','ROW_NUMBER','SCHEMA','SELECT','SET','SHOW','SIGNAL','SYSTEM','TABLE','THEN','TO','TRAILING','TRIGGER',
+  'TRUE','UNDO','UNION','UNIQUE','UNLOCK','UPDATE','USAGE','USE','USING','VALUES','WHEN','WHERE','WHILE','WINDOW','WITH','WRITE'];
+$badWord = array_filter($defs, fn($d) => in_array(strtoupper($d[1]), $RES, true) || in_array(strtoupper($d[0]), $RES, true));
+ok('no MySQL reserved word as a ppal_* table or column (' . count($defs) . ' columns)', count($defs) > 30 && !$badWord, json_encode(array_values($badWord)));
+$badText = array_filter($defs, fn($d) => preg_match('/\b(TEXT|BLOB|JSON|MEDIUMTEXT|LONGTEXT)\b/i', $d[2]) && stripos($d[2], 'DEFAULT') !== false);
+ok('no TEXT/BLOB/JSON column with a DEFAULT (MySQL refuses it)', !$badText, json_encode(array_values($badText)));
+$badNN = array_filter($mc, fn($d) => stripos($d[2], 'NOT NULL') !== false && stripos($d[2], 'DEFAULT') === false);
+ok('every added NOT NULL column has a DEFAULT (ALTER on a table with rows)', !$badNN, json_encode(array_values($badNN)));
+$len = function (string $tb, string $col) use ($defs): int { foreach ($defs as $d) if ($d[0] === $tb && $d[1] === $col && preg_match('/VARCHAR\((\d+)\)/i', $d[2], $mm)) return (int)$mm[1]; return 0; };
+$fits = fn(array $vals, int $n): bool => $n > 0 && max(array_map('strlen', $vals)) <= $n;
+ok('ppal_jobs.kind fits garden/trip/delve', $fits(['garden', 'trip', 'delve'], $len('ppal_jobs', 'kind')));
+ok('ppal_jobs.state fits active/ready/done', $fits(['active', 'ready', 'done'], $len('ppal_jobs', 'state')));
+ok('ppal_found.status fits home + every job kind', $fits(['home', 'garden', 'trip', 'delve'], $len('ppal_found', 'status')));
+ok('ppal_jobs.tool fits every PJ_TOOLS key', $fits(PJ_TOOLS, $len('ppal_jobs', 'tool')));
+ok('ppal_jobs.target fits every landscape key and a landmark id', $fits(array_merge(array_keys(LANDSCAPES), ['4294967295']), $len('ppal_jobs', 'target')));
+ok('pal_uid columns are 16 wide', $len('ppal_jobs', 'pal_uid') === 16 && $len('ppal_found', 'pal_uid') === 16);
+ok('ppal_jobs.day fits landmark_day()', $fits([landmark_day()], $len('ppal_jobs', 'day')));
+$mxResult = 0; foreach (q('SELECT result FROM ppal_jobs')->fetchAll(PDO::FETCH_COLUMN) as $rj) $mxResult = max($mxResult, strlen((string)$rj));
+$longest = strlen(json_encode(pj_roll_trip(array_merge(pj_pal($uid, $p2), ['hp' => 1]), $land, 'forage', 3, 8, 5, 'long')));
+ok('stored results fit a MySQL TEXT (64 KB) by far', $mxResult > 0 && max($mxResult, $longest) < 8000, $mxResult . '/' . $longest);
+ok('index names are unique', count($mi) === count(array_unique(array_map(fn($x) => preg_replace('/^CREATE INDEX (\w+).*/', '$1', $x), $mi))));
+ok('pal_jobs.php has no SQLite-only SQL (datetime(), strftime(), RANDOM(), || concat)', !preg_match("/\\bdatetime\\(|strftime\\(|\\bRANDOM\\(\\)|\\|\\|\\s*'/i", file_get_contents(APP_ROOT . '/includes/pal_jobs.php')));
+
+echo "== v2.4.61: station shifts (pals man a crafting object)\n";
+require_once APP_ROOT . '/includes/crafting.php';
+q('DELETE FROM ppal_jobs'); q("UPDATE ppal_found SET status = 'home', hp = 30, active = 0"); q('UPDATE users SET energy = 100 WHERE id = ?', [$uid]);
+$plotS = (int)q_val('SELECT id FROM plots WHERE user_id = ? LIMIT 1', [$uid]);
+if (!q_val("SELECT 1 FROM garden_buildings WHERE plot_id = ? AND building = 'kitchen'", [$plotS])) db_insert('garden_buildings', ['plot_id' => $plotS, 'building' => 'kitchen', 'level' => 2, 'built_at' => now(), 'last_collect' => now()]);
+$u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+$pals = array_keys(pj_pals($uid)); $sp1 = $pals[0]; $sp2 = $pals[1] ?? $pals[0];
+// a cooking recipe of the Stove with few ingredients
+$stove = pj_station_object('cooking', 'stove'); ok('stove object exists', (bool)$stove);
+$rec = null; foreach (q("SELECT * FROM recipes WHERE category = 'cooking' ORDER BY id")->fetchAll() as $r) { $ing = json_decode((string)$r['ingredients'], true) ?: []; if ($ing && count($ing) <= 3 && craft_tag_match($stove['globs'], (string)$r['slug'])) { $rec = $r; break; } }
+ok('a stove recipe to test with', (bool)$rec);
+foreach (json_decode((string)$rec['ingredients'], true) as $slug => $qn) { $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]); q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $iid]); give_item($uid, $iid, $qn * 5); }
+q('INSERT OR IGNORE INTO user_recipes (user_id, recipe_id, learned_at) VALUES (?, ?, ?)', [$uid, $rec['id'], now()]);
+[$o0] = pj_station_send($u, $sp1, 'pantry', 'jams', 'all', [], 3); ok('pantry is not available yet', $o0 === false);
+[$o1] = pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [], 3); ok('chosen with no recipes refused', $o1 === false);
+[$o2, $m2] = pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [(int)$rec['id'] + 9999], 3); ok('a recipe the stove does not make is refused', $o2 === false);
+$qtyOf = fn(int $id) => (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $id]);
+$ingIds = []; foreach (json_decode((string)$rec['ingredients'], true) as $slug => $qn) $ingIds[(int)q_val('SELECT id FROM items WHERE slug = ?', [$slug])] = (int)$qn;
+$stock0 = array_map($qtyOf, array_keys($ingIds));
+$energyBefore = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
+[$o3, $m3] = pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [(int)$rec['id']], 3);
+ok('a passive cooking shift starts', $o3 === true, $m3);
+$job = q_one("SELECT * FROM ppal_jobs WHERE kind = 'station' AND state = 'active'"); $res = json_decode((string)$job['result'], true);
+ok('the job is passive and plans the chosen recipe', $job['tool'] === 'passive' && (int)$res['plan'] === (int)$rec['id'], json_encode($res));
+ok('no energy was spent', (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]) === $energyBefore);
+ok('no ingredients taken up front', array_map($qtyOf, array_keys($ingIds)) === $stock0);
+ok('the pal is out', pj_pal($uid, $sp1)['status'] === 'station');
+ok('the shift holds one pot', cook_pots_busy($uid) === 1);
+$tl = cook_pots_list($uid); ok('the pot list shows the pal tending, even before a cook starts', count($tl) === 1 && !empty($tl[0]['idle']) && $tl[0]['pal'] === pj_pal($uid, $sp1)['name'] && (int)$tl[0]['plan'] === (int)$rec['id']);
+if ($sp2 !== $sp1) {
+    [$o4] = pj_station_send($u, $sp2, 'cooking', 'stove', 'chosen', [(int)$rec['id']], 1);
+    ok('a second pal takes a second pot on the same stove', $o4 === true && cook_pots_busy($uid) === 2);
+    $j2 = q_one("SELECT * FROM ppal_jobs WHERE kind = 'station' AND state = 'active' AND pal_uid = ?", [$sp2]);
+    q("UPDATE ppal_jobs SET state = 'done' WHERE id = ?", [$j2['id']]); q("UPDATE ppal_found SET status = 'home' WHERE pal_uid = ?", [$sp2]);
+    ok('a finished second shift frees its pot', cook_pots_busy($uid) === 1);
+}
+// 10-minute checks: one check = one cook of the planned recipe
+q('UPDATE ppal_jobs SET last_tick = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 700), $job['id']]);
+pj_settle($uid);
+$pot = q_one('SELECT * FROM cook_pots WHERE pal_uid = ? AND collected_at IS NULL', [$sp1]);
+ok('the check started a cook in a pot owned by the pal', (bool)$pot && (int)$pot['recipe_id'] === (int)$rec['id'] && (int)$pot['makes'] === 1);
+ok('one batch of ingredients was used', array_map($qtyOf, array_keys($ingIds)) === array_map(fn($st, $q) => $st - $q, $stock0, array_values($ingIds)));
+ok('the pal pot still counts once', cook_pots_busy($uid) === 1);
+[$okc] = cook_collect_one($u, (int)$pot['id']); ok('the gnome cannot collect a pal pot', $okc === false);
+$tl = cook_pots_list($uid); ok('the pot list shows the dish and the pal', count($tl) === 1 && !empty($tl[0]['pal']) && (int)$tl[0]['id'] === (int)$pot['id'] && empty($tl[0]['idle']));
+// choosing the next dish
+$bad = pj_pot_set_recipe($u, (int)$job['id'], (int)$rec['id'] + 9999); ok('an unknown recipe cannot be set', $bad[0] === false);
+$good = pj_pot_set_recipe($u, (int)$job['id'], (int)$rec['id']); ok('a known recipe can be set', $good[0] === true, $good[1]);
+$other = pj_pot_set_recipe($u, 999999, (int)$rec['id']); ok('someone else\'s job cannot be set', $other[0] === false);
+// the cook finishes: next check serves it and starts the next
+$outId = (int)$rec['output_item_id']; $had = $qtyOf($outId);
+q('UPDATE cook_pots SET ready_at = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 900), $pot['id']]);
+q('UPDATE ppal_jobs SET last_tick = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 650), $job['id']]);
+pj_settle($uid);
+ok('the pal served the finished dish into the satchel', $qtyOf($outId) >= $had + (int)$rec['output_qty']);
+$next = q_one('SELECT * FROM cook_pots WHERE pal_uid = ? AND collected_at IS NULL', [$sp1]);
+ok('and started the next cook', (bool)$next && (int)$next['id'] !== (int)$pot['id']);
+$r2 = json_decode((string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$job['id']]), true);
+ok('the job counts what was served', (int)$r2['served'] >= (int)$rec['output_qty'] && (int)$r2['cooks'] === 1 && (int)$r2['plan'] === (int)$rec['id'], json_encode($r2));
+// out of ingredients: the check is skipped, the choice stays
+foreach ($ingIds as $iid => $qn) q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $iid]);
+q('UPDATE cook_pots SET ready_at = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 900), $next['id']]);
+q('UPDATE ppal_jobs SET last_tick = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 650), $job['id']]);
+pj_settle($uid);
+$r3 = json_decode((string)q_val('SELECT result FROM ppal_jobs WHERE id = ?', [$job['id']]), true);
+ok('no ingredients: served, then skipped, choice kept', (int)$r3['cooks'] === 2 && (int)$r3['skipped'] >= 1 && (int)$r3['plan'] === (int)$rec['id'], json_encode($r3));
+ok('and no pot left cooking', !q_val('SELECT 1 FROM cook_pots WHERE pal_uid = ? AND collected_at IS NULL', [$sp1]));
+// a cook still in the pot when the shift ends goes back to the gnome
+foreach ($ingIds as $iid => $qn) give_item($uid, $iid, $qn * 5);
+q('UPDATE ppal_jobs SET last_tick = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 650), $job['id']]);
+pj_settle($uid);
+$left = q_one('SELECT * FROM cook_pots WHERE pal_uid = ? AND collected_at IS NULL', [$sp1]); ok('a new cook started', (bool)$left);
+q('UPDATE ppal_jobs SET ends_at = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 60), $job['id']]);
+pj_settle($uid);
+ok('the shift ended and the pal is home', q_val('SELECT state FROM ppal_jobs WHERE id = ?', [$job['id']]) === 'ready' && pj_pal($uid, $sp1)['status'] === 'home');
+ok('the unfinished pot is the gnome\'s now', q_val('SELECT pal_uid FROM cook_pots WHERE id = ?', [$left['id']]) === null && cook_pots_busy($uid) === 1);
+$c0 = pj_pal($uid, $sp1)['cxp'];
+[$oc, $lc, $hc] = pj_collect($u, (int)$job['id']);
+ok('collect names the station and says what was served', $oc === true && str_contains($hc, 'Stove') && str_contains(implode(' ', (array)$lc), 'served'), $hc . ' ' . implode(' | ', (array)$lc));
+ok('the pal got Crafting XP', pj_pal($uid, $sp1)['cxp'] > $c0);
+[$oc2] = pj_collect($u, (int)$job['id']); ok('collect twice gives nothing', $oc2 === false);
+// all pots busy: a pal cannot take a pot
+q("UPDATE cook_pots SET collected_at = ? WHERE collected_at IS NULL", [now()]);
+$lim = cook_pot_limit($u);
+for ($i = 0; $i < $lim; $i++) db_insert('cook_pots', ['user_id' => $uid, 'recipe_id' => (int)$rec['id'], 'makes' => 1, 'dishes' => 1, 'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', time() + 600), 'score' => 0]);
+[$o5, $m5] = pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [(int)$rec['id']], 3); ok('no free pot: refused', $o5 === false && str_contains($m5, 'pots are busy'), $m5);
+q("UPDATE cook_pots SET collected_at = ? WHERE collected_at IS NULL", [now()]);
+ok('crafting skill speeds a pal up', pj_station_minutes(10) < pj_station_minutes(1) && pj_station_minutes(1) === 60);
+
+echo "== v2.4.70: calling pals home early\n";
+q('DELETE FROM ppal_jobs'); q('DELETE FROM cook_pots'); q("UPDATE ppal_found SET status = 'home', hp = 30, active = 0");
+$iid0 = (int)q_val("SELECT id FROM items ORDER BY id LIMIT 1");
+$mkTrip = fn(string $kind, int $doneSecs, int $totalSecs, string $pal, array $extra = []) => db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $pal, 'kind' => $kind, 'target' => 'forest', 'plot_id' => null, 'day' => landmark_day(), 'tool' => 'forage',
+    'started_at' => gmdate('Y-m-d H:i:s', time() - $doneSecs), 'ends_at' => gmdate('Y-m-d H:i:s', time() + $totalSecs - $doneSecs), 'last_tick' => now(), 'potions' => 2, 'state' => 'active',
+    'result' => json_encode($extra + ['items' => [[$iid0, 10, 'Thing']], 'coins' => 100, 'rounds' => 4, 'hp' => 20, 'potions_used' => 2, 'potions_back' => 0, 'fainted' => false])]);
+q("UPDATE ppal_found SET status = 'trip' WHERE pal_uid = ?", [$sp1]);
+$jt = $mkTrip('trip', 1800, 3600, $sp1);
+[$pv1, $pvt] = pj_recall_preview(q_one('SELECT * FROM ppal_jobs WHERE id = ?', [$jt])); ok('preview says what is kept (half of the half done)', $pv1 === true && str_contains($pvt, '2 of 10'), $pvt);
+[$rt, $rm] = pj_recall($u, $jt);
+$rj = q_one('SELECT * FROM ppal_jobs WHERE id = ?', [$jt]); $rr = json_decode((string)$rj['result'], true);
+ok('a trip called home at 50% is ready now', $rt === true && $rj['state'] === 'ready' && pj_pal($uid, $sp1)['status'] === 'home', $rm);
+ok('it keeps 25% of the loot (50% of the half done)', $rr['items'][0][1] === 2 && (int)$rr['coins'] === 25 && !empty($rr['recalled']), json_encode($rr));
+ok('potions drunk scale by time done, the rest come back', (int)$rr['potions_used'] === 1 && (int)$rr['potions_back'] === 1, json_encode($rr));
+$had = (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $iid0]);
+[$cok, $cl] = pj_collect($u, $jt); ok('collect pays the scaled loot', $cok && (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $iid0]) === $had + 2, implode(' | ', (array)$cl));
+q("UPDATE ppal_found SET status = 'trip' WHERE pal_uid = ?", [$sp1]);
+$jd = $mkTrip('trip', 100, 3600, $sp1);
+[$re] = pj_recall($u, $jd); ok('called home under 10% is refused and the job runs on', $re === false && q_val('SELECT state FROM ppal_jobs WHERE id = ?', [$jd]) === 'active');
+[$re2] = pj_recall($u, $jd + 999); ok('an unknown job is refused', $re2 === false);
+q("UPDATE ppal_jobs SET state = 'done' WHERE id = ?", [$jd]); q("UPDATE ppal_found SET status = 'home' WHERE pal_uid = ?", [$sp1]);
+q("UPDATE ppal_found SET status = 'delve' WHERE pal_uid = ?", [$sp1]);
+$jv = $mkTrip('delve', 3000, 3600, $sp1);
+[$rv] = pj_recall($u, $jv); ok('a delve can be called home too', $rv === true && q_val('SELECT state FROM ppal_jobs WHERE id = ?', [$jv]) === 'ready');
+[$rv2] = pj_recall($u, $jv); ok('calling home twice does nothing', $rv2 === false);
+q('DELETE FROM ppal_jobs'); q("UPDATE ppal_found SET status = 'home', hp = 30");
+// a pal at a pot, recalled mid-cook: half the dishes, the pot is the gnome's again
+foreach ($ingIds as $iid => $qn) give_item($uid, $iid, $qn * 5);
+[$ps] = pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [(int)$rec['id']], 3); ok('a pal takes a pot', $ps === true);
+$pj = q_one("SELECT * FROM ppal_jobs WHERE kind = 'station' AND state = 'active'");
+q('UPDATE ppal_jobs SET last_tick = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 700), $pj['id']]); pj_settle($uid);
+$pp = q_one('SELECT * FROM cook_pots WHERE pal_uid = ? AND collected_at IS NULL', [$sp1]); ok('a cook is in the pal pot', (bool)$pp);
+q('UPDATE cook_pots SET dishes = 5 WHERE id = ?', [$pp['id']]);
+[$pr, $prm] = pj_recall($u, (int)$pj['id']);
+ok('recalled: job ready, pal home', $pr === true && q_val('SELECT state FROM ppal_jobs WHERE id = ?', [$pj['id']]) === 'ready' && pj_pal($uid, $sp1)['status'] === 'home', $prm);
+$pp2 = q_one('SELECT * FROM cook_pots WHERE id = ?', [$pp['id']]);
+ok('the cook in the pot lost half its dishes (5 -> 2) and is the gnome\'s', (int)$pp2['dishes'] === 2 && $pp2['pal_uid'] === null && $pp2['collected_at'] === null, json_encode($pp2));
+ok('the pot counts once, as the gnome\'s', cook_pots_busy($uid) === 1);
+[, $pcl] = pj_collect($u, (int)$pj['id']); ok('collect tells how many dishes were lost', str_contains(implode(' ', (array)$pcl), '3 dishes'), implode(' | ', (array)$pcl));
+q('UPDATE cook_pots SET collected_at = ?', [now()]);
+// one dish in the pot: half is 0, so the dish is lost
+q("UPDATE ppal_found SET status = 'home', hp = 30"); foreach ($ingIds as $iid => $qn) give_item($uid, $iid, $qn * 5);
+pj_station_send($u, $sp1, 'cooking', 'stove', 'chosen', [(int)$rec['id']], 3); $pj = q_one("SELECT * FROM ppal_jobs WHERE kind = 'station' AND state = 'active'");
+q('UPDATE ppal_jobs SET last_tick = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 700), $pj['id']]); pj_settle($uid);
+q('UPDATE cook_pots SET dishes = 1 WHERE pal_uid = ? AND collected_at IS NULL', [$sp1]);
+pj_recall($u, (int)$pj['id']);
+ok('a one-dish cook is lost and the pot is free', cook_pots_busy($uid) === 0);
+$gj = db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $sp1, 'kind' => 'garden', 'target' => '', 'plot_id' => $plotS, 'day' => landmark_day(), 'tool' => null, 'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + 86400), 'last_tick' => now(), 'potions' => 0, 'state' => 'active', 'result' => '{}']);
+q("UPDATE ppal_found SET status = 'garden' WHERE pal_uid = ?", [$sp1]);
+[$gr] = pj_recall($u, $gj); ok('a gardener comes home with no loss', $gr === true && pj_pal($uid, $sp1)['status'] === 'home');
 
 echo $fails ? "$fails FAILED\n" : "all pal job tests passed\n";
 exit($fails ? 1 : 0);

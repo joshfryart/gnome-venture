@@ -30,7 +30,7 @@ function ensure_gatherables(): int
         [$slug, $name, $lands, $tool, $rarity, $price, $stat, $desc] = $f;
         $cond = $f[8] ?? '';   // v1.9.3: optional last column: when it turns up more often (or "!" = only then)
         if (!isset(TOOL_TYPES[$tool]) || !isset(GATHER_RARITY[$rarity])) continue;
-        $itemId = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        $itemId = item_id_by_slug($slug);
         if (!$itemId) {
             $edible = $stat !== '-' && isset(GNOME_STATS_KEYS[$stat]);
             $itemId = db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => 'forage',
@@ -229,6 +229,57 @@ function gather_item_img(string $rel, int $px, string $cls): string
     return '<img class="' . e($cls) . (str_ends_with($rel, '.png') ? ' pix' : '') . '" src="' . e(url($rel)) . '" width="' . $px . '" height="' . $px . '" alt="" decoding="async">';
 }
 
+/** Satchel skins that exist as art (assets/img/gather/satchel-back-<key>.png + satchel-front-<key>.png). The first is the default. */
+const GATHER_SATCHELS = ['leather', 'canvas', 'patchwork'];
+
+/** The skin of the satchel the gnome carries. There is no satchel item yet: a future column/item sets $u['satchel_skin']; until then everyone has leather. */
+function gather_satchel_key(array $u): string
+{
+    $k = (string)($u['satchel_skin'] ?? '');
+    return in_array($k, GATHER_SATCHELS, true) ? $k : GATHER_SATCHELS[0];
+}
+
+/** Part of the day for the scene art: 'day' | 'dusk' (dawn and dusk) | 'night', from the Hollow clock. */
+function gather_day_part(?int $hour = null): string
+{
+    $h = $hour ?? (function_exists('hollow_hour') ? hollow_hour() : 12);
+    if ($h >= 7 && $h <= 16) return 'day';
+    if ($h >= 17 && $h <= 19) return 'dusk';
+    if ($h >= 5 && $h <= 6) return 'dusk';
+    return 'night';
+}
+
+/** Weather overlay file for the scene ('' = none). Sun and heat draw nothing. */
+function gather_weather_file(?string $weather = null): string
+{
+    $w = $weather ?? (function_exists('hollow_weather') ? hollow_weather() : 'sun');
+    $f = ['rain' => 'rain', 'storm' => 'storm', 'frost' => 'frost', 'wind' => 'wind', 'fog' => 'fog', 'cloud' => 'cloud'][$w] ?? '';
+    return ($f !== '' && is_file(__DIR__ . '/../assets/img/gather/weather-' . $f . '.png')) ? 'weather-' . $f . '.png' : '';
+}
+
+/**
+ * The picture layers of the gather scene: scene < satchel back < found item < satchel front < weather.
+ * New art (no satchel painted in): scene3-<land>-<dusk|night>.png, else scene3-<land>.png, with the satchel as two layers by skin.
+ * Old art (satchel painted into scene-<land>.png, fixed satchel-front.png) is used for any landscape without new art yet.
+ * @return array{scene:string,back:string,front:string,wx:string}
+ */
+function gather_scene_layers(array $u, string $land): array
+{
+    $dir = __DIR__ . '/../assets/img/gather/';
+    $has = fn(string $f): bool => is_file($dir . $f);
+    $wx = gather_weather_file();
+    if (isset(LANDSCAPES[$land]) && $has('scene3-' . $land . '.png')) {
+        $part = gather_day_part();
+        $scene = ($part !== 'day' && $has('scene3-' . $land . '-' . $part . '.png')) ? 'scene3-' . $land . '-' . $part . '.png' : 'scene3-' . $land . '.png';
+        $key = gather_satchel_key($u);
+        $suf = ($part !== 'day' && $has('satchel-back-' . $key . '-' . $part . '.png')) ? '-' . $part : '';
+        if (!$has('satchel-back-' . $key . $suf . '.png') || !$has('satchel-front-' . $key . $suf . '.png')) { $key = GATHER_SATCHELS[0]; $suf = ''; }
+        if ($has('satchel-back-' . $key . $suf . '.png') && $has('satchel-front-' . $key . $suf . '.png'))
+            return ['scene' => $scene, 'back' => 'satchel-back-' . $key . $suf . '.png', 'front' => 'satchel-front-' . $key . $suf . '.png', 'wx' => $wx];
+    }
+    return ['scene' => (isset(LANDSCAPES[$land]) && $has('scene-' . $land . '.png')) ? 'scene-' . $land . '.png' : 'scene.png', 'back' => '', 'front' => 'satchel-front.png', 'wx' => $wx];
+}
+
 /** One felt card (shared shape for the Gather tab: art, growing ribbon label, meta chunks). $attrs is trusted markup. */
 function gather_card_html(string $art, string $label, array $meta, string $attrs): string
 {
@@ -259,10 +310,13 @@ function gather_scene_html(array $u, string $land, string $action, string $hidde
     $rar = isset(GATHER_RARITY_MARK[$find['rarity'] ?? '']) ? (string)$find['rarity'] : 'common';
     $item = $find ? gather_item_img((string)($find['icon'] ?? ''), 64, 'aimg aimg-lg gx-item') : '';
     $max = function_exists('max_energy') ? max_energy($u) : 0;
+    $lay = gather_scene_layers($u, $land);
     $h = '<section class="gx gatherbox" aria-label="Gather here"><div class="gx-hero"><div class="gx-stage">'
-        . gather_ui_img((isset(LANDSCAPES[$land]) && is_file(__DIR__ . '/../assets/img/gather/scene-' . $land . '.png')) ? 'scene-' . $land . '.png' : 'scene.png', 480, 270, 'gx-scene pix')
+        . gather_ui_img($lay['scene'], 480, 270, 'gx-scene pix')
+        . ($lay['back'] !== '' ? gather_ui_img($lay['back'], 480, 270, 'gx-back pix') : '')
         . ($item !== '' ? '<span class="gx-find"><span class="gx-spark gx-spark--' . $rar . '"></span>' . $item . '</span>' : '')
-        . gather_ui_img('satchel-front.png', 480, 270, 'gx-front pix') . '</div>'
+        . gather_ui_img($lay['front'], 480, 270, 'gx-front pix')
+        . ($lay['wx'] !== '' ? gather_ui_img($lay['wx'], 480, 270, 'gx-wx pix') : '') . '</div>'
         . '<ul class="gx-hero__chips"><li class="gx-chip">' . $L[0] . ' ' . e($L[1]) . '</li>'
         . '<li class="gx-chip">⚡ ' . (int)($u['energy'] ?? 0) . ($max > 0 ? ' / ' . $max : '') . '</li></ul></div>';
     if ($find) {

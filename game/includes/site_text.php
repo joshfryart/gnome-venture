@@ -76,19 +76,6 @@ function stext(string $key): string
     return strtr($s, $vars);
 }
 
-/** Formatted (BBCode) version, safe to print. */
-function stext_html(string $key): string
-{
-    return format_text(stext($key));
-}
-
-/** A feature box text: [title, formatted body]. */
-function stext_box(string $key): array
-{
-    $parts = preg_split('/\R/', trim(stext($key)), 2);
-    return [trim($parts[0] ?? ''), format_text(trim($parts[1] ?? ''))];
-}
-
 /** Q:/A: text as [[question, answer], …]. */
 function stext_faq(string $key): array
 {

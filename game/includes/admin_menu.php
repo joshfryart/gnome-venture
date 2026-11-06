@@ -49,6 +49,7 @@ function admin_menu_def(): array
             ['r:stop_tier_themes', '🏗️', null, 'Themed upgrades by kind of stop', 't:stop_tier_themes'],
             ['r:stop_sets', '🎫', null, 'Passport rewards', 't:stop_sets'],
             ['r:stop_adoptions', '🏡', null, 'Which player looks after which stop', 't:stop_adoptions'],
+            ['livingstops.php', '🌱', 'Living stops', 'Today’s happenings, the calendar, stories and meter rules (read-only)', ''],
         ]],
         ['items', '🎒', 'Items & crafting', [
             ['r:items', '🎒', null, 'Every item: seeds, produce, tools, goods', 't:items'],
@@ -101,6 +102,7 @@ function admin_menu_def(): array
         ['art', '🖼️', 'Images & art', [
             ['images.php', '🖼️', 'Images', 'Upload pictures and see which are still missing', 'img'],
             ['artguide.php', '🎨', 'Art & style guide', 'Download the style sheet and icon guide as a PDF', ''],
+            ['here_layout.php', '📍', 'Picture layouts', 'Place exits, spots and villagers on the Here pictures', ''],
             ['puzzles.php', '🧩', 'GIFsaw', 'GIF pictures, uploads and tournaments', ''],   // v2.0.68; v2.0.69 renamed GIFsaw
             ['jigsaw.php', '🧩', 'Jigsaw', 'Pictures, uploads, tournaments', ''],   // v2.0.87
         ]],

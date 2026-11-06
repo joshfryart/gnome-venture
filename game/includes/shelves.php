@@ -19,10 +19,18 @@ require_once __DIR__ . '/almanac.php';
 require_once __DIR__ . '/gardens.php';
 require_once __DIR__ . '/item_square.php';
 require_once __DIR__ . '/catalog.php';
+require_once __DIR__ . '/alchemy.php';   // potion tiers (Drink buttons)
 
 // the Satchel's types, in the order of its Show list (icon, label)
-const SH_BAG_GROUPS = ['seed' => ['🌱', 'Seeds'], 'produce' => ['🥕', 'Crops'], 'flower' => ['🌸', 'Flowers'], 'food' => ['🍲', 'Food'], 'soil' => ['🪱', 'Soil'],
-    'mulch' => ['🍂', 'Mulch'], 'forage' => ['🍄', 'Finds'], 'tool' => ['🧰', 'Tools'], 'decor' => ['🏡', 'Decor'], 'arrangement' => ['💐', 'Arrangements'], 'other' => ['📦', 'Other']];
+const SH_BAG_GROUPS = ['seed' => ['🌱', 'Seeds'], 'crops' => ['🥕', 'Crops'], 'flower' => ['🌸', 'Flowers'], 'kitchen' => ['🍲', 'Food'], 'soil' => ['🪱', 'Soil'],
+    'tool' => ['🧰', 'Tools'], 'material' => ['🪵', 'Materials'], 'more' => ['🧪', 'More']];
+/** v2.5.0: item category => [group, kind word, chip label]. One home per kind of thing (Soil holds mulch, Tools holds broken tools...). */
+const SH_BAG_CATS = ['seed' => ['seed', 'Seed', 'Seeds'], 'packet' => ['seed', 'Seed packet', 'Packets'], 'produce' => ['crops', 'Crop', 'Crops'], 'forage' => ['crops', 'Find', 'Finds'],
+    'flower' => ['flower', 'Flower', 'Flowers'], 'arrangement' => ['flower', 'Arrangement', 'Arrangements'], 'food' => ['kitchen', 'Food', 'Food'],
+    'soil' => ['soil', 'Soil', 'Soil'], 'mulch' => ['soil', 'Mulch', 'Mulch'], 'tool' => ['tool', 'Tool', 'Tools'], 'broken' => ['tool', 'Broken tool', 'Broken'],
+    'part' => ['material', 'Part', 'Parts'], 'decor' => ['material', 'Decor', 'Decor'], 'supply' => ['more', 'Supply', 'Supplies'], 'guide' => ['more', 'Guide', 'Guides'], 'misc' => ['more', 'Misc', 'Other']];
+/** slugs that live elsewhere than their category says (garden helpers sit with the soil) */
+const SH_BAG_SLUGS = ['food-scrap' => 'soil', 'cardboard-sheet' => 'soil', 'garden-tonic' => 'soil'];
 const SH_TIERS = ['snack' => ['🥨', 'snack'], 'meal' => ['🍲', 'meal'], 'feast' => ['🍳', 'feast']];
 
 /** an item's picture for a pill or panel: decorative (the name is right beside it), so an empty alt */
@@ -31,10 +39,10 @@ function sh_icon(array $item, string $size): string
     return str_replace(' alt="-"', ' alt=""', item_icon($item, $size, '-'));
 }
 
-/** the Satchel shelf an item sits on: Broken tools with the tools, seed packets with the seeds */
+/** the Satchel group an item sits in (SH_BAG_CATS, with a few slugs moved to the group of what they are used for) */
 function sh_bag_group(array $i): string
 {
-    return $i['category'] === 'broken' ? 'tool' : ($i['category'] === 'packet' ? 'seed' : (isset(SH_BAG_GROUPS[$i['category']]) ? (string)$i['category'] : 'other'));
+    return SH_BAG_SLUGS[(string)($i['slug'] ?? '')] ?? (SH_BAG_CATS[(string)$i['category']][0] ?? 'more');
 }
 
 /** a one-button POST form to inventory.php (the fields the Satchel always sent; $quick: the quick bar, which does not open the item afterwards) */
@@ -81,7 +89,7 @@ function sh_bag_entries(array $u, array $items, string $hid): array
         $flag = $perm ? 'Rare taste!' : ((string)($i['got_at'] ?? '') >= $newSince ? 'New' : '');
         $price = (int)$i['base_price'];
         [$gIc, $gL] = SH_BAG_GROUPS[$g];
-        $kind = $broken ? 'Broken tool' : ($i['category'] === 'packet' ? 'Seed packet' : ($i['category'] === 'guide' ? 'Guide' : ($g === 'other' ? ucfirst((string)$i['category']) : rtrim($gL, 's'))));
+        $kind = SH_BAG_CATS[(string)$i['category']][1] ?? ucfirst((string)$i['category']);
         // the panel: the same words and buttons the old pop-up had
         $b = '<div class="shdesc">' . desc_html((string)$i['description']) . '</div>';
         if ($i['category'] === 'seed' && ($sp = $IL['seed'][$id] ?? null) && plant_unstudied($u, $sp))
@@ -90,7 +98,7 @@ function sh_bag_entries(array $u, array $items, string $hid): array
         $b .= tool_wear_html($uid, $i, $wear, $hid);   // uses left, and the mend form for a worn or broken tool
         $acts = []; $quick = null;
         if ((int)$i['edible']) {
-            $verb = !empty($fx['tea']) ? '☕ Drink' : '😋 Eat';
+            $verb = !empty($fx['tea']) ? '☕ Drink' : ($i['category'] === 'supply' ? '🧪 Drink' : '😋 Eat');   // supply: Alchemy potions
             $b .= '<p class="help shnote">' . ($i['tasted'] ? '🍴 Tasted' : '✨ Never tasted') . ($perm ? ' — rare! Eating it raises a stat permanently.' : '') . '</p>';
             $acts[] = sh_bag_form('eat', $id, $verb, $hid);
             if ($untasted) $quick = sh_bag_form('eat', $id, $verb, $hid, 'btn small', true);
@@ -103,10 +111,16 @@ function sh_bag_entries(array $u, array $items, string $hid): array
         }
         if ($i['category'] === 'arrangement' && ($comp = arrangement_of($i))) {
             $b .= '<div class="arrbig">' . arrangement_svg($comp, 'full', (string)$i['name']) . '</div>';
-            $acts[] = '<a class="btn alt" href="' . e(url('arrange.php?t=show')) . '">🎗️ Enter the weekly show</a>';
+            $acts[] = '<a class="btn alt" href="' . e(url('show.php#arrangements')) . '">🎗️ Enter the weekly show</a>';
         } elseif ($i['category'] === 'packet') {
             $acts[] = sh_bag_form('open_packet', $id, '📦 Open the packet', $hid);
             $quick = sh_bag_form('open_packet', $id, '📦 Open', $hid, 'btn small', true);
+        }
+        if (isset(ALCHEMY_HEAL[(string)$i['slug']])) {   // Alchemy healing tiers: drink one to heal (pals: Pal Jobs)
+            $acts[] = sh_bag_form('drink_heal', $id, '🧪 Drink (+' . alchemy_gnome_pct((string)$i['slug']) . '% health)', $hid);
+            $quick ??= sh_bag_form('drink_heal', $id, '🧪 Drink', $hid, 'btn small', true);
+        } elseif ($i['slug'] === 'garden-tonic') {
+            $acts[] = '<a class="btn" href="' . e(url('garden.php')) . '">🪴 Pour on a garden square</a>';
         }
         if ($i['category'] === 'decor') $acts[] = '<a class="btn" href="' . e(url('yard.php')) . '">✏️ Place it in your yard</a>';
         if ($i['category'] === 'guide') {
@@ -121,7 +135,7 @@ function sh_bag_entries(array $u, array $items, string $hid): array
         $tags = '<span class="tag">' . $gIc . ' ' . e($kind) . '</span>' . ($rl !== 'C' ? ' <span class="tag rarword r' . $rl . '">' . e($rw) . '</span>' : '')
               . ($status === 'use' ? ' <span class="tag shok">In use</span>' : ($isTool ? ' <span class="tag">Spare</span>' : '')) . ($flag !== '' ? ' <span class="tag shflag">' . e($flag) . '</span>' : '');
         $sub = 'You have <b>×' . number_format((int)$i['qty']) . '</b>' . ($price > 0 ? ' · worth ' . money($price) . ' each' : '');
-        $small = '×' . number_format((int)$i['qty']) . ($status === 'use' ? ' · in use' : '') . ($broken ? ' · broken' : '') . ($untasted ? ' · ✨' . ($perm ? ' rare taste' : ' untasted') : '');
+        $small = implode(' · ', array_filter([$status === 'use' ? 'in use' : '', $broken ? 'broken' : '', $untasted ? '✨' . ($perm ? 'rare taste' : 'untasted') : '']));   // the ×count is the badge on the tile's icon
         $out[] = [
             'id' => $id, 'item' => $i, 'name' => (string)$i['name'], 'count' => (int)$i['qty'], 'status' => $status, 'group' => $g, 'flag' => $flag, 'rarity' => $rl,
             'small' => e($small), 'tags' => $tags, 'sub' => $sub, 'panel' => $b . ($acts ? '<div class="p2acts shacts">' . implode('', $acts) . '</div>' : ''),
@@ -165,10 +179,9 @@ function sh_craft_entries(array $u, string $tab, array $recipes, array $stations
         $tier = $tab === 'cooking' ? (string)($r['tier'] ?: 'meal') : '';
         $item = $outItems[(int)$r['output_item_id']] ?? null;
         $shortN = array_sum(array_map(fn($i) => max(0, (int)$i['qty'] - (int)$i['have']), $r['ings']));
-        $status = !$known ? 'unk' : ($r['can'] && !($feast && !$kitchen3) ? 'ok' : 'miss');
         $cost = craft_energy_cost($u, $tab, (int)$r['energy'], $tier);
         $fee = $tier === 'feast' ? max(0, (int)setting('feast_petal_fee')) : 0;
-        $chunk = max(1, (int)$r['batch_max']);
+        $chunk = $tab === 'cooking' ? cook_chunk($u, $r) : max(1, (int)$r['batch_max']);
         $secs = $tier ? cook_seconds($u, $r) : 0;
         $timeTxt = $tier ? ($secs > 0 ? cook_time_text($secs) : 'instant') : '';
         // the make block: the old card's rules, in the same order
@@ -194,12 +207,20 @@ function sh_craft_entries(array $u, string $tab, array $recipes, array $stations
             elseif ($fee > 0 && $coins < $fee) $acts = '<p class="ccneed p2note">Needs ' . e(money_txt($fee)) . ' for firewood and spices.</p>';
             elseif ($cost > 0 && $now < $cost) $acts = '<p class="ccneed p2note">Too tired: this takes ⚡' . $cost . ', you have ⚡' . $now . '.</p>';
         }
+        // v2.4.0: Ready means you can really make it now: ingredients AND building AND energy AND pot AND coins (a recipe that only lacked the building used to sit in Ready)
+        $canNow = $known && str_contains($acts, 'p2make');
+        $status = !$known ? 'unk' : ($canNow ? 'ok' : 'miss');
+        $why = '';   // one plain reason for the Missing tab
+        if ($known && !$canNow) {
+            if (!$r['can']) $why = implode(', ', array_map(fn($i) => $i['name'] . ' ' . (int)$i['have'] . '/' . (int)$i['qty'], array_filter($r['ings'], fn($i) => $i['have'] < $i['qty'])));
+            else $why = trim(html_entity_decode(strip_tags($acts)));
+        }
         $tw = $tier ? SH_TIERS[$tier] : null;
         $pic = $known && $item ? sh_icon($item, 'lg') : '❔';
         $head = '<div class="shdh"><span class="p2big" aria-hidden="true">' . $pic . '</span><span class="p2dt"><b class="p2name">' . ($known ? e((string)$r['name']) : '???') . '</b>'
               . '<span class="p2tags">' . ($tw ? '<span class="tag">' . $tw[0] . ' ' . e($tw[1]) . '</span>' : '<span class="tag">' . CRAFT_CATEGORIES[$tab][1] . ' ' . e(strtolower(CRAFT_CATEGORIES[$tab][0])) . '</span>')
               . (!empty($r['new']) ? ' <span class="tag">new!</span>' : '') . '</span>'
-              . '<small class="p2sub">' . ($known ? ($tab === 'cooking' ? e(buff_text($r['effects'], $u, true)) : 'Makes ' . (int)$r['output_qty'] . ' × ' . e((string)$r['out_name'])) : 'Not discovered yet') . '</small></span>';
+              . '<small class="p2sub">' . ($known ? ($tab === 'cooking' ? e(buff_text($r['effects'], $u, true)) : 'Makes ' . (int)$r['output_qty'] . ' × ' . e((string)$r['out_name']) . (($ff = item_food_line((string)$r['effects'], $u, true)) !== '' ? ' · ' . e($ff) : '')) : 'Not discovered yet') . '</small></span>';
         if ($known) {
             $when = ($cost ? '⚡<b>' . $cost . '</b> each' : 'No energy') . ($fee ? ' · ' . money($fee) . ' each' : '') . ($timeTxt ? ' · ⏱ <b>' . e($timeTxt) . '</b>' : '')
                   . ($potsOn ? ' <span class="muted">· ' . ($potsFree > 0 ? $potsFree . ' pot' . ($potsFree === 1 ? '' : 's') . ' free' : 'no free pot right now') . ($chunk > 1 ? ', up to ' . $chunk . ' in one pot' : '') . '</span>' : '');
@@ -218,12 +239,14 @@ function sh_craft_entries(array $u, string $tab, array $recipes, array $stations
             $body = '<p class="ccingh p2ingh">Ingredients</p>' . item_grid($sq, 'itms--flush ccings p2ings');
         }
         $small = $known ? ($status === 'ok' ? ($timeTxt ? str_replace([' minutes', ' minute', ' hours', ' hour'], [' min', ' min', ' h', ' h'], $timeTxt) . ' · ' : '') . ($cost ? '⚡' . $cost : 'no ⚡')
-                                            : ($feast && !$kitchen3 && $r['can'] ? '🔒 Kitchen 3' : 'short ' . $shortN))
+                                            : ($feast && !$kitchen3 && $r['can'] ? '🔒 Kitchen 3' : ($shortN > 0 ? 'short ' . $shortN : 'not now')))
                         : count(array_filter($r['ings'], fn($i) => $i['seen'])) . '/' . count($r['ings']) . ' found';
         $out[] = [
             'id' => (int)$r['id'], 'item' => $known ? $item : null, 'name' => $known ? (string)$r['name'] : '???', 'count' => null, 'status' => $status,
-            'group' => $status === 'ok' ? 'ready' : ($status === 'unk' ? 'unk' : ($shortN > 0 && $shortN <= 2 ? 'close' : 'far')),
+            'group' => $status === 'ok' ? 'ready' : ($status === 'unk' ? 'unk' : ($shortN <= 2 ? 'close' : 'far')),
             'flag' => !empty($r['new']) ? 'New' : '', 'small' => e($small), 'head' => $head, 'panel' => $body . '<div class="p2acts shacts">' . $acts . '</div>',
+            'acts' => $acts, 'why' => $why, 'food' => $known ? item_food_line((string)$r['effects'], $u, true) : '', 'desc' => $known ? (string)($r['description'] ?? '') : '',
+            'found' => $known ? '' : count(array_filter($r['ings'], fn($i) => $i['seen'])) . ' of ' . count($r['ings']) . ' ingredients found',
             'quick' => null, 'hay' => $known ? $r['name'] . ' ' . implode(' ', array_column($r['ings'], 'name')) : '', 'short' => $shortN, 'ings' => $r['ings'], 'icons' => $icons,
         ];
     }
@@ -252,9 +275,10 @@ function sh_shelves(array $entries, array $defs, array $open, int $selId, string
             $isSel = $selId === $e['id'];
             $pid = ($surface === 'bag' ? 'i' : 'r') . $e['id'];
             $o .= '<a class="shpill ' . e($e['status']) . ($isSel ? ' sel' : '') . '" id="' . $pid . '" href="' . e($isSel ? $close() : $link($e['id'])) . '" data-pick="shp-' . $pid . '"'
-                . ' aria-controls="shp-' . $pid . '" aria-expanded="' . ($isSel ? 'true' : 'false') . '" data-hay="' . e(mb_strtolower($e['hay'])) . '">'
-                . '<span class="p2ic" aria-hidden="true">' . ($e['item'] ? sh_icon($e['item'], 'sm') : '❔') . '</span>'
-                . '<span class="shpt"><b>' . e($e['name']) . '</b><small>' . $e['small'] . '</small></span>'
+                . ' aria-controls="shp-' . $pid . '" aria-expanded="' . ($isSel ? 'true' : 'false') . '" data-hay="' . e(mb_strtolower($e['hay'])) . '" data-cat="' . e((string)($e['item']['category'] ?? '')) . '" data-qty="' . (int)($e['count'] ?? 0) . '" data-name="' . e(mb_strtolower((string)$e['name'])) . '" data-got="' . e((string)($e['item']['got_at'] ?? '')) . '"' . (!empty($e['untasted']) ? ' data-un="1"' : '') . '>'
+                . '<span class="shic"><span class="p2ic" aria-hidden="true">' . ($e['item'] ? sh_icon($e['item'], 'lg') : '❔') . '</span>'
+                . ($e['count'] !== null ? '<em class="shqty">×' . number_format((int)$e['count']) . '</em>' : '') . '</span>'
+                . '<span class="shpt"><b>' . e($e['name']) . '</b>' . ($e['small'] !== '' ? '<small>' . $e['small'] . '</small>' : '') . '</span>'
                 . ($e['flag'] !== '' ? '<i class="shnew' . ($e['flag'] === 'Rare taste!' ? ' taste' : '') . '" aria-hidden="true"></i><span class="vh"> (' . e($e['flag']) . ')</span>' : '') . "</a>\n";
             $head = $e['head'] ?? ('<div class="shdh"><span class="p2big" aria-hidden="true">' . sh_icon($e['item'], 'lg') . '</span><span class="p2dt"><b class="p2name">' . e($e['name']) . '</b>'
                   . '<span class="p2tags">' . $e['tags'] . '</span><small class="p2sub">' . $e['sub'] . '</small></span>');

@@ -24,7 +24,7 @@ function fresh_start_columns(): array
         'stat_points' => 4, 'calling' => null, 'buff' => null, 'buff_until' => null, 'buff2' => null, 'buff2_until' => null,
         'location_id' => null, 'home_village_id' => null, 'active_plot_id' => null, 'energy_updated_at' => null, 'title' => null,
         'region_id' => null, 'location' => null, 'gnome_name' => null, 'hat_color' => null, 'beard_color' => null, 'hat_dye' => null,
-        'onboarded' => 0, 'tour_step' => 0, 'job_dailies' => 0, 'sapling_day' => null, 'sapling_count' => 0,
+        'onboarded' => 0, 'tour_step' => 0, 'tour_ask' => 0, 'job_dailies' => 0, 'sapling_day' => null, 'sapling_count' => 0,
         'community_day' => null, 'community_shift_until' => null, 'shift_actions' => 0, 'community_rep' => 0, 'ribbons' => 0,
         'event_at' => null, 'event_day' => null, 'event_count' => 0, 'ev_stat' => null, 'ev_amt' => 0, 'ev_until' => null,
         'easy_roads' => 1, 'ev_harvest_bonus' => 0, 'ev_quickwalk' => 0, 'ev_gather_until' => null, 'ev_sale_until' => null,
@@ -44,7 +44,7 @@ const FRESH_USER_TABLES = [
     'user_plant_knowledge' => 'user_id', 'user_guides' => 'user_id', 'user_quests' => 'user_id', 'user_jobs' => 'user_id',
     'user_calling_chapters' => 'user_id', 'user_calling_tasks' => 'user_id', 'user_food_bonus' => 'user_id', 'user_tasted' => 'user_id',
     'user_npc_met' => 'user_id', 'npc_friends' => 'user_id', 'npc_favours' => 'user_id', 'expeditions' => 'user_id', 'walk_scene' => 'user_id',
-    'region_visits' => 'user_id', 'landmark_clears' => 'user_id', 'landmark_uses' => 'user_id', 'landmark_repairs' => 'user_id', 'road_journal' => 'user_id',
+    'region_visits' => 'user_id', 'landmark_clears' => 'user_id', 'landmark_runs' => 'user_id', 'landmark_uses' => 'user_id', 'landmark_repairs' => 'user_id', 'road_journal' => 'user_id',
     'landmark_rebuilds' => 'user_id', 'xp_log' => 'user_id', 'game_scores' => 'user_id', 'game_state' => 'user_id',
     'snail_bets' => 'user_id', 'marrow_guesses' => 'user_id', 'stall_listings' => 'seller_id', 'job_rerolls' => 'user_id',
     'town_uses' => 'user_id', 'traveller_deals' => 'user_id', 'local_deals' => 'user_id', 'stop_log' => 'user_id', 'stop_friend' => 'user_id', 'stop_errands' => 'user_id', 'stop_stamps' => 'user_id', 'stop_set_claims' => 'user_id', 'community_log' => 'user_id',
@@ -53,6 +53,14 @@ const FRESH_USER_TABLES = [
     'gotm_entries' => 'user_id', 'notices' => 'user_id', 'gifts' => 'from_id', 'sink_owned' => 'user_id', 'curio_buys' => 'user_id',   // v0.9.7
     'dry_racks' => 'user_id', 'florist_shifts' => 'user_id', 'arrangement_entries' => 'user_id', 'flower_daily' => 'user_id',   // v0.9.9
     'item_quality' => 'user_id', 'gourmand_ledger' => 'user_id',   // next version
+];
+
+/** Same, for tables that are created on first use by their feature: a missing table is skipped. */
+const FRESH_LAZY_TABLES = [
+    'cats' => 'user_id', 'catfish_state' => 'user_id', 'cat_book' => 'user_id', 'cat_ribbons' => 'user_id', 'catfish_items' => 'user_id',
+    'ppal_releases' => 'user_id', 'ppal_found' => 'user_id', 'ppal_trophies' => 'user_id', 'ppal_spawns' => 'user_id', 'ppal_jobs' => 'user_id',
+    'user_hybrids' => 'user_id', 'trek_ms' => 'user_id', 'trek_runs' => 'user_id', 'stop_prog' => 'user_id',
+    'puzzle_attempts' => 'user_id', 'puzzle_runs' => 'user_id', 'puzzle_wins' => 'user_id', 'jigsaw_unlocks' => 'user_id',
 ];
 
 /**
@@ -106,6 +114,14 @@ function fresh_start_player(int $uid): array
         foreach (q('SELECT plot_id, COUNT(*) AS c FROM garden_admires WHERE user_id = ? GROUP BY plot_id', [$uid])->fetchAll() as $v) {
             q('UPDATE plots SET admired = CASE WHEN admired > ? THEN admired - ? ELSE 0 END WHERE id = ?', [(int)$v['c'], (int)$v['c'], $v['plot_id']]);
         }
+
+        // Tables made lazily by their own feature (may not exist yet on this install): cats, puzzle pals, treks, puzzles, stops, hybrids.
+        $plotIds = 'SELECT id FROM plots WHERE user_id = ?';
+        foreach (FRESH_LAZY_TABLES as $t => $col) {
+            try { $del("DELETE FROM $t WHERE $col = ?", [$uid]); } catch (Throwable $e) {}
+        }
+        try { $del("DELETE FROM ppal_jobs WHERE plot_id IN ($plotIds)", [$uid]); } catch (Throwable $e) {}
+        try { $del("DELETE FROM garden_react_notes WHERE plot_id IN ($plotIds)", [$uid]); } catch (Throwable $e) {}
 
         market_fresh_start($uid);   // v1.0.0 wave 2b: item quality, orders, market buys, baskets
         social_fresh_start($uid);   // v1.0.0 wave 3: friends, blocks, stamps, goal shares, First Week, festival rows (before the gardens go)

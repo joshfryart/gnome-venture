@@ -1,0 +1,108 @@
+pl-aurc-1|Camp’s Open|spoils|-|Flaps a welcome so cheerful that beaten creatures leave a parting gift on their way out.
+pl-aurc-2|Ember Dance|mend|-|Drifts down from its dance now and then to warm your scrapes, a little every round.
+pl-aurc-3|Night Watch Flask|sip|-|Wide awake all night, it keeps your snacks warm under its boughs so they do you more good.
+pl-aurc-4|Sky Lessons|lesson|-|Has watched every scrap from up in the sky, and points out what you could do better next time.
+pl-aurc-5|Peeking Point|petal|-|Peeks round the creature’s shoulder and shows you just the spot to land your best blow.
+pl-aurc-6|Warmest Tail|ward|strike|Wraps its tail round you so every blow lands softer, then darts out in a nip that never misses.
+pl-baob-1|Late Traveller’s Stew|foot|-|One bowl before you set off, and your boots feel lighter and your coat a good deal tougher.
+pl-baob-2|Dawn Chorus|mend|-|Sings over you while you fight, and every verse mends a scrape or two.
+pl-baob-3|Supper Talk|lesson|-|Sits you down at supper to go over the day’s scuffles, so each win teaches you more.
+pl-baob-4|Rustle Warning|edge|-|Rustles the moment trouble comes up the path, and your blows land harder for the warning.
+pl-baob-5|Light Left On|bulwark|-|Knowing a window is lit for you, you stride the road with more puff left in you.
+pl-baob-6|House Welcome|kindle|strike|Its welcome puts heart into your calling, and when needed it swings the door shut on a creature, never missing.
+pl-cblo-1|Bowing Spout|ward|-|Tips a bow to every blow as well, and somehow each one lands a little softer on you.
+pl-cblo-2|Petal in the Cup|tonic|-|Drops a petal into your meal or potion, and while it lasts you feel stronger and quicker for it.
+pl-cblo-3|Dawn Greeting|sip|-|Greet the mountain before a snack, as it likes, and the snack sits better and mends you more.
+pl-cblo-4|Red Glow Swing|edge|-|Bobs along beside you on the hill path, and its red glow puts real weight behind your swings.
+pl-cblo-5|First Light Find|spoils|-|Catches the sun first, and catches the glint of anything a beaten creature drops, too.
+pl-cblo-6|Always a Cup|rally|strike|Waves you in for a cup when you’re nearly beaten, and its eaves swoop down in a blow that never misses.
+pl-drft-1|Steel Pan Ring|ward|-|Rings out each time a blow lands on you, and the blow comes away a little duller for it.
+pl-drft-2|Keeping Time|kindle|-|Nods along while you work your calling, and with a beat to follow it comes out a step stronger.
+pl-drft-3|Tide Leavings|spoils|-|Laps up the sand after each fight and washes in a little extra from whatever you beat.
+pl-drft-4|Coconut Cup|feast|-|Keeps the coconut cups cool in its shade, and every snack comes with a refreshing extra.
+pl-drft-5|Sea View|petal|-|Shows you the sea and the fight at once, and from that view your best blows find their spot.
+pl-drft-6|Opening Drumroll|first|shield|Drums you into the fight so your first swing lands true, and its drum takes the next two blows.
+pl-drmc-1|Hearty Ladle|ward|-|A ladle of the hungriest gnome’s stew before you go, and blows land on you a bit softer all day.
+pl-drmc-2|Night-Long Hum|foot|-|Hums you along the road at a steady pace, so your feet stay quick and your coat holds.
+pl-drmc-3|Offbeat Clapping|kindle|-|Claps you on, a bit off the beat, and somehow your calling comes out a step stronger.
+pl-drmc-4|Shady Swing|edge|-|Keeps the sun off your back, so your arms stay fresh and every hit lands harder.
+pl-drmc-5|Fireside Glow|tonic|-|While a meal or potion warms you, the circle’s glow makes you sturdier and quicker still.
+pl-drmc-6|Late Drummer’s Plate|feast|strike|Always keeps a plate back so your snacks go further, and its doorway thumps a creature without fail.
+pl-flfm-1|Bloom Cushion|ward|-|Heaps a few blooms about you, and every blow lands on petals before it lands on you.
+pl-flfm-2|Strung Together|lesson|-|Each win strings another bloom on your garland, and you learn a little more from every one.
+pl-flfm-3|Mountain Breath|bulwark|-|Face it at sunrise, and you set off down the road with more strength to spare.
+pl-flfm-4|Heaped Order|edge|-|Bundles your blows up like a garland order, so each one arrives with more behind it.
+pl-flfm-5|Spilled Light|petal|-|Spills a shaft of morning light on the creature, showing you the spot for your best blow.
+pl-flfm-6|Marigold Garland|tonic|patch|Its garland makes meals and potions count for more, and it rows over to heal you when you need it.
+pl-flmk-1|Flap and Shade|kindle|-|Flaps over your head as you work, and your calling comes out a step stronger in its shade.
+pl-flmk-2|Open Shutters|slip|-|Swings its shutters wide when you need to leave, and you nip out before the creature notices.
+pl-flmk-3|One-Hand Stir|mend|-|Stirs you a spoonful of broth each round with one hand, and waves you on with the other.
+pl-flmk-4|Well-Timed Coconut|edge|-|Drops a coconut on the creature just as you swing, so your hits land heavier.
+pl-flmk-5|Ripe Pick|petal|-|Knows exactly which melon is ripest, and which spot on a creature your best blow should land.
+pl-flmk-6|One More Bowl|guard|shield|Pushes a bowl into the first blow so it lands at half, and always has more bowls for the next two.
+pl-gaun-1|After-Supper Mate|mend|-|Shares its mate in the quiet moments, and each round a warm sip mends you a little.
+pl-gaun-2|Good Scratch|kindle|-|Lets you lean on it between fights, and your calling comes out a step stronger for the rest.
+pl-gaun-3|Passed Round|sip|-|Passes the gourd round with every snack, and the snack does you more good for the company.
+pl-gaun-4|Fresh Water Pump|bulwark|-|Pumps fresh water for the road, and you travel on with more health to spare.
+pl-gaun-5|Noon Rest|petal|-|Lets you catch your breath in its shade, so your aim is clearer and big hits come more often.
+pl-gaun-6|Gaucho’s Lasso|tonic|strike|Rides alongside while a meal or potion is in you, so you’re tougher and nimbler, and his lasso never misses.
+pl-kava-1|Moonrise Luck|spoils|-|Rises just in time after each fight to light up what the creature dropped.
+pl-kava-2|Listening Leaf|mend|-|Laughs along mid-fight and drops a cool leaf on your scrapes every round.
+pl-kava-3|Slow Sipping|tonic|-|Shows you how to sip a potion slowly, so while it lasts your arms and feet both feel the benefit.
+pl-kava-4|Out of the Breeze|edge|-|Keeps the wind out of your eyes, so every blow lands square and harder.
+pl-kava-5|Round the Circle|lesson|-|Passes round the story of each win, and everyone’s advice leaves you with more learned.
+pl-kava-6|Sleepy Company|first|patch|Its sleepy smile lulls creatures so your first swing lands better, and a sip from it heals you on the spot.
+pl-lemn-1|Dawn Bell|foot|-|Rings you out of the gate at dawn, light of foot and snugly buttoned up.
+pl-lemn-2|Unfinished Tune|spoils|-|Hums at beaten creatures until they hand over something extra just to make it stop.
+pl-lemn-3|Cordial Clink|petal|-|Clinks as you swing, and on the loudest clink your blow lands as a cracker.
+pl-lemn-4|Choir Practice|bulwark|-|Stands shoulder to shoulder with you on the road, and you go further before you flag.
+pl-lemn-5|Evening Blessing|kindle|-|Lays its halo over your calling, and it comes out a step stronger than before.
+pl-lemn-6|Blessed Fruit|guard|strike|Blesses you before each fight so the first blow lands at half, and his lemon toss never misses.
+pl-chil-1|Kept Crisp|feast|-|Keeps your snacks out of the sun, so each one stays fresh and heals you a little extra.
+pl-chil-2|This Way, Shoppers|spoils|-|Flags down anything a beaten creature dropped, so you never walk past a find.
+pl-chil-3|Smoke Screen|guard|-|Curls round you as a fight begins, and the first blow gets lost in it and lands at half.
+pl-chil-4|Hot Hands|edge|-|Rubs a little of its heat into your hands, and every hit you land stings more.
+pl-chil-5|Cocoa Dunk|sip|-|Lets you dunk your snack in warm cocoa, and it mends you more for it.
+pl-chil-6|Royal Spice|kindle|shield|Spices your calling up a step, and holds up his crown to soften the next two blows.
+pl-aurs-1|Warmed Through|feast|-|Warms your snacks in its steam, and each one heals you a little extra.
+pl-aurs-2|Lakeside Lookout|rally|-|Keeps an eye on you as well as the sauna, and when you’re nearly beaten it rushes in with warmth.
+pl-aurs-3|Creaky Boards|foot|-|Creaks a warning before every step, so your feet go quick and sure and your coat stays snug.
+pl-aurs-4|Swirl of Light|edge|-|Dances round your arms in green swirls, and every blow you land hits harder.
+pl-aurs-5|Bracing Plunge|lesson|-|A quick cool dip after a fight clears your head, and you take more from what you learned.
+pl-aurs-6|Big Bear Hug|spoils|strike|Hugs beaten creatures till they drop extra, and its paw comes down on any creature without missing.
+pl-oliv-1|Little Dance|mend|-|Dances you through each round, and a bit of the joy patches up your scrapes.
+pl-oliv-2|Swept Aside|ward|-|Sweeps a little off every blow that comes your way, as neatly as its fallen leaves.
+pl-oliv-3|Last Warm Roll|rally|-|Saves a warm roll for the moment you’re nearly beaten, and shares it with you there and then.
+pl-oliv-4|Hour Bell|spoils|-|Rings out at every win, and beaten creatures leave more behind to answer it.
+pl-oliv-5|Steady Grind|foot|-|Turns slow and steady beside you, grinding your boots tough and your stride sure.
+pl-oliv-6|Finest Oil|kindle|patch|Oils your calling until it runs a step stronger, and dabs its golden oil on your wounds.
+pl-eggs-1|Rattling Branch|ward|-|Rattles its eggs at every blow, and the blow comes down on you a little softer, politely.
+pl-eggs-2|Fresh Paint|slip|-|Dabs a fresh stripe on the creature, and while it stares you slip quietly away.
+pl-eggs-3|Little Shadow|foot|-|Follows close at your heels, quick little steps that keep you light and well tucked in.
+pl-eggs-4|Lined Up|guard|-|Stands in a row in front of you, so the first blow of each fight is shared out and lands at half.
+pl-eggs-5|Framed Just So|kindle|-|Frames your calling like a little window, and it comes out a step stronger.
+pl-eggs-6|Never Cracked|lesson|strike|Never cracks under pressure and teaches you the same, so wins teach more, and its roll never misses.
+pl-spsk-1|Long Way Round|mend|-|Makes trouble take the long way round, and every round you get a breath to mend a little.
+pl-spsk-2|Kettle Rhythm|bulwark|-|Sways you along the road to the kettle’s song, and you go further before tiring.
+pl-spsk-3|Lamplit Find|spoils|-|Swings its light over the ground after a win, and shows you what the creature dropped.
+pl-spsk-4|Sprinkle of Spice|feast|-|Shakes a pinch of spice on your snacks, and each one heals you a little extra.
+pl-spsk-5|Brass Bowl Block|guard|-|Holds itself up like a shield as the fight begins, and the first blow rings off at half.
+pl-spsk-6|Wink and a Cup|lesson|shield|Teaches you a trader’s trick from every win, and pours mint tea to soften the next two blows.
+pl-thch-1|Pot on the Boil|sip|-|Keeps a pot on the boil, so your snacks come with a hot cuppa that mends you more.
+pl-thch-2|Morning Watering|foot|-|Gives your boots a sprinkle each morning, and you step out quick, sure and snug.
+pl-thch-3|Bring a Scone|mend|-|Lets you in for a sit-down each round, and you come out a little more mended.
+pl-thch-4|Jam on Top|lesson|-|Every win earns a scone with jam, and something learned over the crumbs.
+pl-thch-5|Sleepy Owl|slip|-|Watches the garden for an open gate, so you can slip off when a fight turns sour.
+pl-thch-6|Never Spills|tonic|shield|Carries your meal or potion so steadily it does you more good, and curls up to take the next two blows.
+pl-sugr-1|Last Sweet Drop|rally|-|Saves its sweetest drop for when you’re nearly beaten, and plinks it straight into your mouth.
+pl-sugr-2|Gentle Drill|lesson|-|Shows you just how hard to press, and every win teaches you a little more.
+pl-sugr-3|Maple Haze|first|-|Drifts in ahead of you so the creature is lost in sweet steam, and your first swing lands true.
+pl-sugr-4|Autumn Gust|kindle|-|Blows across your calling like the wind across the roof, and it comes out a step stronger.
+pl-sugr-5|Syrup Coat|ward|-|A warm coat of syrup clings to you, and every blow slides off a little softer.
+pl-sugr-6|Mayor’s Welcome|bulwark|strike|Hands you syrup at the door so you last longer on the road, and taps any creature without fail.
+pl-turt-1|Full Moon Find|spoils|-|Lights up the sand after a win, so nothing a beaten creature drops goes unseen.
+pl-turt-2|Never Look Back|mend|-|Flaps hard beside you every round, and its pluck mends you a little each time.
+pl-turt-3|Moonlit Tickle|tonic|-|Tickles your toes while a meal or potion is working, and you feel stronger and nimbler for it.
+pl-turt-4|Follow the Prints|rally|-|Lines up behind you, and when you’re nearly beaten they push you back on your feet.
+pl-turt-5|Long Swim Wisdom|petal|-|Has seen every trick of the sea, and shows you where to land your best blow.
+pl-turt-6|Down to the Water|slip|shield|Leads you down to the water when you need to slip away, and its shell softens the next two blows.

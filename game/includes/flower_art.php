@@ -332,7 +332,7 @@ function flower_item_facts(array $i): array
         $f[] = e('🎁 A loved present: it pleases folk more than a single flower. You can also put it in the weekly Arrangements show.');
     } elseif (($i['category'] ?? '') === 'flower') {
         if (!empty($fx['dried'])) $f[] = e('🌾 Dried: it never wilts. Use it in an arrangement as an everlasting flower.');
-        else $f[] = e('💐 Use cut flowers in Satchel → Arranging, or hang them to dry for a day.');
+        else $f[] = e('💐 Use cut flowers in Satchel → Arrange, or hang them to dry for a day.');
     } elseif (($i['category'] ?? '') === 'packet') {
         $f[] = e('📦 Open it in your Satchel for ' . (int)($fx['seeds'] ?? 3) . ' seeds. Give it away or sell it.');
     }

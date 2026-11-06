@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Perks mockups</title>
+<style>
+:root{--bg:#24170f;--card:#3b2a1e;--card2:#4a3526;--line:#6b4f35;--tx:#e9d7a8;--mut:#a99470;--gold:#d9b04a;--grn:#2fae62;--trk:#e8e8ee;--rep:#e0884a;--lar:#7fb85a;--chr:#e0566e}
+*{box-sizing:border-box}body{margin:0;background:#150d08;color:var(--tx);font:15px/1.35 system-ui,sans-serif;padding:16px}
+h1{font-size:18px;margin:0 0 12px}
+.row{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.col{width:360px;max-width:100%}
+.lab{font-weight:700;color:var(--gold);margin:0 0 6px}.note{font-size:12px;color:var(--mut);margin:6px 0 0}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:6px}
+.mh{display:flex;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line);font-weight:700}
+.mb{padding:12px 14px}
+h4{margin:10px 0 6px;font-size:14px}
+.muted{color:var(--mut)}.sm{font-size:12px}
+.bar{height:12px;background:var(--trk);border-radius:8px;overflow:hidden}.bar i{display:block;height:100%}
+.rep i{background:var(--rep)}.lar i{background:var(--lar)}.chr i{background:var(--chr)}
+/* A: segmented */
+.seg{display:flex;gap:3px}.seg b{flex:1;height:12px;background:#2a1c12;border-radius:3px}.seg b.on{background:var(--grn)}
+.mr{margin:10px 0}.mr .t{display:flex;justify-content:space-between;margin-bottom:4px}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.chip{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:1px 8px;font-size:12px}
+.chip.go{border-color:var(--gold);color:var(--gold)}
+/* B: perk cards */
+.perk{display:flex;gap:10px;align-items:center;background:linear-gradient(90deg,#4d3a1a,var(--card2));border:1px solid var(--gold);border-radius:8px;padding:10px;margin-bottom:8px}
+.perk .ic{font-size:26px}.perk b{display:block}
+.pill{margin-left:auto;background:#2a1c12;border-radius:10px;padding:2px 8px;font-size:12px;color:var(--gold);white-space:nowrap}
+.empty{border:1px dashed var(--line);border-radius:8px;padding:10px;text-align:center;color:var(--mut)}
+.mini{display:flex;align-items:center;gap:8px;margin:6px 0}.mini .bar{flex:1;height:8px}.mini small{width:34px;text-align:right;color:var(--mut)}
+/* C: tiles */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:8px 4px;text-align:center}
+.tile.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.ring{--p:30;width:54px;height:54px;border-radius:50%;margin:4px auto;display:grid;place-items:center;font-size:22px;background:conic-gradient(var(--c) calc(var(--p)*1%),#2a1c12 0)}
+.ring span{width:42px;height:42px;border-radius:50%;background:var(--card2);display:grid;place-items:center}
+.acts{margin-top:8px;border-top:1px solid var(--line);padding-top:8px}
+.act{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:#2f2016;border-radius:6px;margin:4px 0}
+.act em{font-style:normal;color:var(--grn);font-weight:700}
+</style></head><body>
+<h1>Perks here: 3 mockups (acts drive meters, full meter = perk)</h1>
+<div class="row">
+
+<div class="col"><p class="lab">A · Segmented meters + act chips</p>
+<div class="modal"><div class="mh"><span>🏅 Perks here</span><span>✖</span></div><div class="mb">
+<b>Windburrow</b>
+<h4>Perks</h4><p class="muted" style="margin:0">None yet. Fill a bar to earn one.</p>
+<h4>Meters · each act +1 segment</h4>
+<div class="mr"><div class="t"><span>🔨 Repairs</span><span class="muted sm">0/10</span></div><div class="seg"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></div>
+<div class="chips"><span class="chip go">Fix</span><span class="chip go">Craft</span></div></div>
+<div class="mr"><div class="t"><span>🧺 Larder</span><span class="muted sm">0/10</span></div><div class="seg"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></div>
+<div class="chips"><span class="chip go">Cook</span><span class="chip go">Gather</span><span class="chip go">Tend</span></div></div>
+<div class="mr"><div class="t"><span>🎈 Cheer</span><span class="muted sm">3/10</span></div><div class="seg"><b class="on"></b><b class="on"></b><b class="on"></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></div>
+<div class="chips"><span class="chip go">Play</span><span class="chip go">Lore</span><span class="chip go">Trade</span><span class="chip go">Rest</span></div></div>
+<p class="note">Fill all 10 = perk: +1 thing per visit, +1 turn a day, 3 days. Meters fade 6%/day.</p>
+</div></div></div>
+
+<div class="col"><p class="lab">B · Perk cards first, meters compact</p>
+<div class="modal"><div class="mh"><span>🏅 Perks here</span><span>✖</span></div><div class="mb">
+<b>Windburrow</b>
+<h4>Active perks</h4>
+<div class="perk"><span class="ic">🎈</span><div><b>Cheer is full</b><span class="sm muted">+1 thing per visit · +1 turn a day</span></div><span class="pill">⏳ 2 days</span></div>
+<div class="empty">🔨 🧺 No other perks yet</div>
+<h4>Filling up</h4>
+<div class="mini">🔨 <div class="bar rep"><i style="width:0"></i></div><small>0%</small></div>
+<div class="mini">🧺 <div class="bar lar"><i style="width:0"></i></div><small>0%</small></div>
+<div class="mini">🎈 <div class="bar chr"><i style="width:30%"></i></div><small>30%</small></div>
+<p class="note">Meters lose 6% a day. Do acts here to keep them up.</p>
+</div></div></div>
+
+<div class="col"><p class="lab">C · Tap a meter → see acts that fill it</p>
+<div class="modal"><div class="mh"><span>🏅 Perks here</span><span>✖</span></div><div class="mb">
+<b>Windburrow</b> <span class="muted sm">· 0 perks</span>
+<h4>Meters</h4>
+<div class="tiles">
+<div class="tile"><div class="ring" style="--p:0;--c:var(--rep)"><span>🔨</span></div>Repairs<div class="sm muted">0%</div></div>
+<div class="tile"><div class="ring" style="--p:0;--c:var(--lar)"><span>🧺</span></div>Larder<div class="sm muted">0%</div></div>
+<div class="tile sel"><div class="ring" style="--p:30;--c:var(--chr)"><span>🎈</span></div>Cheer<div class="sm muted">30%</div></div>
+</div>
+<div class="acts"><div class="sm muted" style="margin-bottom:4px">Acts here that raise 🎈 Cheer</div>
+<div class="act"><span>🎲 Play a game</span><em>+10%</em></div>
+<div class="act"><span>📖 Swap a tale</span><em>+10%</em></div>
+<div class="act"><span>🤝 Trade</span><em>+10%</em></div>
+<div class="act"><span>🛏️ Rest a while</span><em>+10%</em></div></div>
+<p class="note">Full bar = perk. Meters fade slowly, about a month to empty.</p>
+</div></div></div>
+
+</div></body></html>

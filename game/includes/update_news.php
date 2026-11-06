@@ -609,6 +609,87 @@ function post_update_news(string $from): void
         "[list][*]The Satchel now has a [b]Quick[/b] bar for one-tap eating, opening and reading, and your things sit on foldable shelves. Tap one to see what it can do.\n"
         . "[*]Crafting shows what you can make now, a shopping list of what to gather for the next recipes, and the rest on shelves. After you make something, its recipe stays open.\n"
         . "[*]Much less scrolling on a phone.[/list]"],
+    '2.3.5' => ['❤️ Update 2.3.5: health stays with you',
+        "[list][*]Your health no longer resets when you leave the road or reach a stop. What you lose on an adventure (a road walk, wandering off the path, a delve or a lair) is still lost when the next one starts.\n"
+        . "[*]In a town (a village, market, hub or haven) and not out adventuring, you heal [b]1 a minute[/b].\n"
+        . "[*]Faster: rest by a haven fire (half), stay the night at a haven (full), rest at a stop's inn, a hot bath or a soak, drink a [b]Healing Potion[/b] or eat a home-cooked snack (both from [b]My Gnome[/b]), or level up (full).\n"
+        . "[*]If you are knocked out you wake up with half your health.[/list]"],
+    '2.3.7' => ['🧪 Update 2.3.7: more potions, smarter crafting map',
+        "[list][*][b]Alchemy[/b]: seven new potions. Strong Healing Potion and Grand Healing Elixir, Lucky, Sage's, Stoneskin and Swiftfoot draughts, and a Garden Tonic for your soil. Drink them from the Satchel.\n"
+        . "[*][b]Crafting map[/b]: tap an object in a scene (a cheese wheel, the anvil, the seed trays) and you see just the recipes it makes.\n"
+        . "[*]Eleven Pantry preserves have new pictures.[/list]"],
+    '2.3.8' => ['🛂 Update 2.3.8: a shorter Stamp passport',
+        "[list][*]The [b]Stamp passport[/b] (Town, Stop tab) is much shorter. You see your total, the three sets closest to done, and your current region.\n"
+        . "[*]Titles, all sets, stops by kind and the Road Journal tuck into folds. Tap one to open it.\n"
+        . "[*]Regions you have not started wait in one fold, and on a wide screen the sets and regions sit in columns.[/list]"],
+    '2.3.9' => ['❤️ Update 2.3.9: health bars and Pantry rooms',
+        "[list][*][b]Health[/b]: a health bar now sits next to your level bar at the top of every page, and the bar on My Gnome shows your real health, even while you are out adventuring.\n"
+        . "[*][b]Pantry[/b]: jam, chutney, pickles, ferments and cordials each have their own room of jars, so a full jam shelf never stops you pickling.[/list]"],
+    '2.3.91' => ['👋 Update 2.3.91: pals say hello on Here, and matching skills stack',
+        "[list][*][b]Say hello[/b]: a Puzzle Pal waiting where you stand now shows its [b]Say hello[/b] card on the Here page too (rest stops and town squares), not only on World.\n"
+        . "[*][b]Pals with the same fight skill[/b] now give you one button at double strength (or more), instead of a second button.[/list]"],
+    '2.3.93' => ['🧭 Update 2.3.93: tidier pages and menus',
+        "[list][*][b]Top strip and World[/b]: the status chips wrap instead of scrolling sideways, and the World header picture no longer covers the title on tablets.\n"
+        . "[*][b]Menus and tabs[/b]: long labels wrap instead of being cut off, and the My Gnome and Mentor tabs wrap onto rows on phones so none are hidden.\n"
+        . "[*][b]Games[/b] has one Whisker Pond tile (Cat Fish), Games stays lit while you are in any of its games, and Pal Book and Pal Jobs share one tab row. \"Gnome friends\" is now just [b]Friends[/b].\n"
+        . "[*][b]Villagers[/b]: every villager link goes to the same Villagers page.\n"
+        . "[*][b]Easier taps[/b]: the logo, footer links and status badge are bigger targets, and keyboard focus shows clearly on the maps.[/list]"],
+    '2.4.73' => ['🧺 Update 2.4.73: Collect all opens the chest, slimmer shop basket',
+        "[list][*][b]Pal Jobs[/b]: [b]Collect all[/b] now opens the chest with everything your pals found, and the long list is a few short chips.\n[*][b]Shops on phones[/b]: the basket bar stays slim (its list scrolls inside) and shop squares sit four across.[/list]"],
+    '2.4.74' => ['🟫 Update 2.4.74: square item tiles',
+        "Every item tile is now a neat square, four across on phones. The rarity shield is top left, the price (with its ↑ / ↓ arrow) top right, how many you have bottom right, and the name sits on a slightly see-through ribbon so you see more of the picture."],
+    // next version (unreleased): keyed 2.4.92; change the key if the release gets another number
+    '2.4.92' => ['🏠 Update 2.4.92: Today and My Gnome are one home page',
+        "[list][*][b]One home page[/b]: your greeting, the weather and tomorrow's forecast sit at the top, with two tabs under them: [b]Today[/b] and [b]My Gnome[/b].\n"
+        . "[*][b]Today[/b] (where you land): the news, your garden, Wren's Journey, jobs, the town or rest stop and Adventure cards, and the Hollow jar on one line.\n"
+        . "[*][b]My Gnome[/b]: your level, gardens, energy and health (with Heal), the pals you take along, and tiles for Stats, Calling, Pals, Foods, Villagers and Gardens.\n"
+        . "[*][b]Hat and beard dyes[/b] are now on the Stats page. In the menu, [b]🏠 Home[/b] takes you here.\n"
+        . "[*]Other gnomes still only see your profile, never your Today.[/list]"],
+    '2.5.34' => ['🎨 Update 2.5.34: new pixel art, big item tiles, and a picture-style way to get around',
+        "[list][*][b]New \"Hearth Pop\" pixel art[/b] across the game: about 1,800 item, seed, food, tool and icon pictures redrawn, and every villager is now a creature (hedgehogs, frogs, otters, tortoises, snails...).\n"
+        . "[*][b]Big square item tiles[/b] in your Satchel and every Crafting menu: a large picture, the name under it, the count as a badge on the picture.\n"
+        . "[*][b]Your gnome is a standing 2.5D gnome[/b] on My Gnome, Today, the menu, your profile, fights and the Trail, in your own hat, beard and scarf colours.\n"
+        . "[*][b]New-player Welcome[/b] is redone for phones, and [b]Wren's tour[/b] is a guided speech bubble that points at exactly what to tap (and asks \"now or later?\").\n"
+        . "[*][b]Callings[/b] say when a chapter has not started yet, and there is a free trip to your calling mentor.\n"
+        . "[*][b]Fixes[/b]: a second browser tab can no longer overwrite your garden with an old copy, energy no longer refunds or double-credits, and the Home header fits on phones.\n"
+        . "[*][b]Coming (being tested, switched on by an admin for now)[/b]: a picture way to get around. [b]Here[/b] shows a picture of where you stand; tap a named place to open a small card (shops, the café, the board, villagers with chat and gifts) without leaving the picture. Routes, World, Fast travel and GPS are round icons under it. The Trail is walked as tile sections with your gnome, fights and finds on the tiles, and a pop-up card for each fight or choice. The World page opens on the world map. New pictures for every kind of place, fight backdrops and wander banners come with it.[/list]"],
+    '2.5.35' => ['🎯 Update 2.5.35: every "Do here" has a name',
+        "On a rest stop's picture, each spot to do something is now named for the thing itself, with its icon. What you see changes with the weather, season and time of day. Tap one to do it right there."],
+    '2.5.36' => ['🐭 Update 2.5.36: rest stop folk are on the picture',
+        "The villagers of rest stops like Honeybrook now stand under the Here picture. Tap one to chat, give a gift or take an errand without leaving the page."],
+    '2.5.37' => ['🌲 Update 2.5.37: new-look Maplewold trails',
+        "The Maplewold's walks now have hand-made maps with new pixel art: blended ground, trees and rocks you walk behind, and a find spot for every land. Fights are no longer on the map: they can jump out as you walk, most often in the rough grass. Only a delve's miniboss and a lair's boss wait in one place."],
+    '2.5.38' => ['🦔 Update 2.5.38: new art for rest stop folk',
+        "The animal villagers at rest stops now have the new pixel art: a standing figure under the Here picture and a new portrait when you talk to them."],
+    '2.5.39' => ['👥 Update 2.5.39: Villagers lights up the villagers',
+        "On a rest stop picture, tap [b]Villagers[/b] and the folk standing under the picture are highlighted and brought into view."],
+    '2.5.40' => ['🚶 Update 2.5.40: your gnome really walks',
+        "[list][*]On the Trail your gnome now faces the way it walks and steps as it goes.\n[*][b]Homes[/b] on a picture opens a popover with your neighbours.\n[*]The list of places says what each spot is for (Shop, Talk, Rest...).[/list]"],
+    '2.5.41' => ['🎨 Update 2.5.41: richer pictures',
+        "[list][*]Every rest stop, village, haven, wonder, delve and lair picture, the Treehouse and the Pal Yard have more life: livelier fires, more things lying about, better light.\n[*]Rooms in the Treehouse and sites in the Pal Yard now have name pills like the towns.[/list]"],
+    '2.5.42' => ['🌳 Update 2.5.42: tidier Treehouse and Pal Yard',
+        "[list][*]Routes, World and Fast travel are now round buttons under the picture, so they no longer cover a room.\n[*]The rooms and job sites are one tidy list you can fold away.\n[*]The Adventure page no longer errors out when you open it.[/list]"],
+    '2.5.43' => ['🌿 Update 2.5.43: a prettier garden',
+        "[list][*]Paths now blend into the grass and into each other, with proper corners and junctions.\n[*]Untilled ground is soft turf with six different looks.\n[*]Crops are bigger in their beds, and a ripe crop shows its own picture: cabbages look like cabbages.[/list]"],
+    '2.5.44' => ['🌱 Update 2.5.44: ground with character',
+        "Untilled ground is now a mix of lawn, clover, wildflowers, weeds, dry grass, leaf litter, moss and bare dirt, blending into patches. The grass behind your yard is bigger and no longer repeats."],
+    '2.5.45' => ['🪴 Update 2.5.45: beds that show how they feel',
+        "A growing bed has damp dark soil, a thirsty one turns pale and cracked, and a ripe one glows golden. You can read your garden at a glance."],
+    '2.5.46' => ['🪨 Update 2.5.46: stones, logs, toadstools and pots in lines',
+        "Stepping stones, log seats, toadstool rings and flower pots now line up by themselves: straight runs, corners, T-junctions and crossings. In Design your yard, Shape picks a straight, angled or curved look (or a single piece, centred or in a corner) and Size picks big, small or mixed."],
+    '2.5.47' => ['🦋 Update 2.5.47: homes and a butterfly house',
+        "The animal homes in your yard now use their pixel pictures, the Tortoise Run has a proper pen, and the Butterfly House is a glass pavilion full of butterflies."],
+    '2.5.48' => ['🥕 Update 2.5.48: 35 pictures upgraded',
+        "Carrots, corn, pumpkins, watermelons, pineapples, lots of seeds, the Butterfly House and more now have the new art. Ripe crops in your yard look better too."],
+    '2.5.49' => ['🏡 Update 2.5.49: a livelier yard',
+        "[list][*]Up to four small pieces (pots, stones, logs, toadstools) can now share one yard square, one in each corner.\n[*]Paths and ground coverings run right up to your beds.\n[*]Bare tilled soil darkens in the rain.\n[*]Visiting gnomes can see which beds are thirsty when friends can water.\n[*]Pal trips can pack Strong and Grand potions, and Pal Jobs has a Select all free pals button.[/list]"],
+    '2.5.71' => ['🧭 Update 2.5.71: sneak or hunt, no more round icons in the workshop',
+        "[list][*][b]Sneak and Hunt[/b]: on a Trail walk, tap 🤫 Sneak for fewer fights or 🏹 Hunt for more (and a third fight a section). Tap again to walk as usual.\n"
+        . "[*][b]The workshop[/b] picture is clean again: no round icons on top of the artwork. Tap the oven, shelf, bench and the rest as before.\n"
+        . "[*][b]Stop upkeep[/b]: any gnome can chip in, with no stamp needed.\n"
+        . "[*][b]Every village has its own description[/b] on the World page, and more rest-stop villagers have things to say.\n"
+        . "[*][b]Havens[/b] no longer promise goods they do not sell: see what is on the shelf each day.\n"
+        . "[*][b]Delves and lairs[/b] now keep a record of every run.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

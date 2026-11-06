@@ -38,6 +38,8 @@ VIL=$(db "SELECT l.id FROM locations l WHERE l.kind='village' AND l.stop_type='j
 dbx "UPDATE users SET location_id=$VIL, arrived_at='2031-01-01 00:00:09' WHERE username='sprout'"
 get town.php >/dev/null; code=$(get town.php); echo "town.php (a jetty) -> $code  cards=$(grep -o 'class="gcard docard"' $H | wc -l) sheets=$(grep -o 'class="isheet dosheet"' $H | wc -l) head=$(grep -c 'class="st-head"' $H) svg=$(grep -c '<svg class="st-ico-lg' $H)"
 [ "$(grep -o 'class="gcard docard"' $H | wc -l)" -ge 1 ] || { echo "FAIL Do tab has no felt cards"; RC=1; }   # v2.0.67
+grep -q 'class="st-meters"' $H || { echo "FAIL Do tab has no meters (v2.5.72)"; RC=1; }
+get 'town.php?t=stop' >/dev/null; grep -q 'class="st-board"' $H || { echo "FAIL Stop tab has no notice board (v2.5.72)"; RC=1; }
 grep -q 'class="st-tile' $H && { echo "FAIL Do tab still has old st-tile text tiles"; RC=1; }
 grep -qE '\sstyle=' $H && { echo "FAIL Do tab has a style= attribute (CSP)"; RC=1; }
 get 'town.php?t=folk' >/dev/null; echo "folk tab: folk=$(grep -o '<li class="vlcard">' $H | wc -l) errand-offers=$(grep -c 'class="st-errand"' $H) (v1.3.0: at most stop_errands_offered)"   # v1.3.0: villagers live on the Folk tab
@@ -47,10 +49,12 @@ KIND=$(grep -oE 'name="kind" value="[a-z_]+"' $H | sed -n 8p | sed 's/.*value="\
 echo "post an activity -> $(post town.php -d do=local -d kind=chores -d opt=0)"
 get town.php >/dev/null; flashes=$(grep -oE 'class="flash (ok|err)">[^<]*' $H | head -2); echo "flash: $flashes"
 get "town.php?view=passport" >/dev/null; echo "passport -> $(get "town.php?view=passport")  stamps=$(grep -c 'class="st-stamp has' $H) sets=$(grep -c 'class="st-sets"' $H)"
+get town.php >/dev/null; grep -q 'class="pkchip"' $H || { echo "FAIL no perk circle after doing an act (v2.5.74)"; RC=1; }
 get index.php >/dev/null; echo "today card mentions the stop: $(grep -c 'rest stop' $H)"
 echo "== admin pages"
 rm -f $C; get login.php >/dev/null; post login.php -d username=admin -d password=TestPassword123 >/dev/null
 for r in stop_types stop_acts stop_folk stop_tiers stop_sets stop_adoptions locations; do echo "admin crud $r -> $(get "admin/crud.php?r=$r")  rows=$(grep -c '<tr' $H)"; done
+echo "admin livingstops -> $(get admin/livingstops.php)  rows=$(grep -c "<tr" $H) missing=$(grep -c "missing:" $H)"; [ "$(grep -c "<tr" $H)" -ge 20 ] && [ "$(grep -c "missing:" $H)" = 0 ] || { echo "FAIL admin/livingstops.php (v2.5.72)"; RC=1; }
 get admin/settings.php >/dev/null; for k in stop_slots stop_daily_cap stop_adopt_limit stop_daypart_force; do grep -q "name=\"s\[$k\]\"" $H && echo "  setting $k" || echo "  MISSING setting $k"; done
 echo "== php log"
 grep -iE 'fatal|warning|notice|deprecated' $LOG || echo "(none)"

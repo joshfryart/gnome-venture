@@ -165,4 +165,37 @@ echo "== crafting tab and satchel"
 echo "  crafting decor tab: $(curl -s -b $A "$BASE/crafting.php?t=decor" | grep -c 'Yard &amp; decor')"
 echo "  satchel decor chip: $(curl -s -b $A "$BASE/inventory.php" | grep -c 'Decor')"
 echo "  shop: $(curl -s -b $A "$BASE/shop.php?id=$(db "SELECT id FROM shops WHERE slug='hedge-and-hearth'")" -o /dev/null -w '%{http_code}')"
+echo "== corner pieces: up to four small pieces share a square (v2.5.49)"
+FP=$(item flower-pot); dbx "DELETE FROM user_items WHERE user_id=$SID AND item_id=$FP"; dbx "INSERT INTO user_items (user_id,item_id,qty) VALUES ($SID,$FP,9)"
+dbx "UPDATE plots SET yard_xw=4, yard_xh=4 WHERE id=$PL"
+read CX CY <<< "$(free 1 1)"; read DX DY <<< "$(free 3 3)"
+echo "  unit: $(phpq '$g = []; $ok = [];
+  yard_mark($g, 1, 1, 1, 1, "1", yard_quads("pnw-s")); $ok[] = yard_fits($g, 1, 1, 1, 1, 9, 9, yard_quads("pse-b")) ? "ok" : "FAIL pse blocked by pnw";
+  $ok[] = yard_fits($g, 1, 1, 1, 1, 9, 9, yard_quads("pnw-m")) ? "FAIL same corner free" : "ok";
+  $ok[] = yard_fits($g, 1, 1, 1, 1, 9, 9) ? "FAIL whole square free" : "ok";
+  yard_mark($g, 2, 2, 1, 1, "t"); $ok[] = yard_fits($g, 2, 2, 1, 1, 9, 9, yard_quads("pne-s")) ? "FAIL bed square shares" : "ok";
+  $ok[] = yard_quads(null) === 15 && yard_quads("") === 15 && yard_quads("pc-s") === 15 && yard_quads("1-m") === 15 && yard_quads("pnw-s", 2, 1) === 15 ? "ok" : "FAIL quads of whole things";
+  $ok[] = yard_quads("pne-b") === 2 && yard_quads("psw-m") === 4 && yard_quads("pse-s") === 8 ? "ok" : "FAIL quads of corners";
+  echo implode(" ", $ok);')"
+FOUR="[$FP,$CX,$CY,0,\"pnw-s\"],[$FP,$CX,$CY,0,\"pne-b\"],[$FP,$CX,$CY,0,\"psw-m\"],[$FP,$CX,$CY,0,\"pse-s\"]"
+R4=$(save2 "{\"o\":[$(cur)],\"n\":[$FOUR]}"); echo "  four pots in one square: $R4 · stored: $(db "SELECT COUNT(*) FROM garden_objects WHERE plot_id=$PL AND x=$CX AND y=$CY")"
+[ "$(db "SELECT COUNT(*) FROM garden_objects WHERE plot_id=$PL AND x=$CX AND y=$CY")" = 4 ] || echo "FAIL four corner pots were not all saved"
+NB0=$(db "SELECT COUNT(*) FROM garden_objects WHERE plot_id=$PL"); R5=$(save2 "{\"o\":[$(cur)],\"n\":[[$FP,$CX,$CY,0,\"pnw-s\"]]}" yard.php); echo "  a fifth in a taken corner: refused"
+[ "$(db "SELECT COUNT(*) FROM garden_objects WHERE plot_id=$PL")" = "$NB0" ] || echo "FAIL a taken corner accepted a second pot"
+NB0=$(db "SELECT COUNT(*) FROM garden_objects WHERE plot_id=$PL"); R6=$(save2 "{\"o\":[$(cur)],\"n\":[[$FP,$CX,$CY,0,\"\"]]}" yard.php); echo "  a whole-square pot on top of four corners: refused"
+[ "$(db "SELECT COUNT(*) FROM garden_objects WHERE plot_id=$PL")" = "$NB0" ] || echo "FAIL a whole-square pot went onto corner pieces"
+NB0=$(db "SELECT COUNT(*) FROM garden_objects WHERE plot_id=$PL"); R7=$(save2 "{\"o\":[$(cur)],\"n\":[[$FP,$CX,$CY,0,\"pc-s\"]]}" yard.php); echo "  a centred pot on corner pieces: refused"
+[ "$(db "SELECT COUNT(*) FROM garden_objects WHERE plot_id=$PL")" = "$NB0" ] || echo "FAIL a centred pot went onto corner pieces"
+echo "  stored shapes: $(db "SELECT group_concat(shape, ',') FROM garden_objects WHERE plot_id=$PL AND x=$CX AND y=$CY")"
+# move one corner piece to another corner of the same square (everything else stays): must fit; into a taken corner: must not
+MID=$(db "SELECT id FROM garden_objects WHERE plot_id=$PL AND x=$CX AND y=$CY AND shape='pnw-s'")
+ROWS=$(db "SELECT group_concat('['||id||','||x||','||y||','||rot||',\"'||COALESCE(shape,'')||'\"]') FROM garden_objects WHERE plot_id=$PL AND x>=0 AND id<>$MID")
+R8=$(save2 "{\"o\":[$ROWS,[$MID,$CX,$CY,0,\"pne-s\"]]}" yard.php); echo "  move a corner piece into a taken corner: refused"
+[ "$(db "SELECT shape FROM garden_objects WHERE id=$MID")" = "pnw-s" ] || echo "FAIL a corner piece moved into a taken corner"
+# an old save: pots with no shape at all take their whole square and still load, join and draw
+dbx "UPDATE garden_objects SET shape=NULL WHERE plot_id=$PL AND x=$CX AND y=$CY"
+echo "  old save (no shape) loads: sync $(phpq 'yard_sync('$PL'); echo (int)q_val("SELECT COUNT(*) FROM garden_objects WHERE plot_id='$PL' AND x >= 0 AND shape IS NULL AND item_id='$FP'");') pots kept, yard page $(curl -s -b $A $BASE/garden.php -o /dev/null -w '%{http_code}')"
+dbx "UPDATE garden_objects SET shape='pnw-s' WHERE id=$MID"
+curl -s -b $A $BASE/garden.php > /tmp/y.html; echo "  garden page draws $(grep -c 'data-fam=\"pots\"\|d-flower-pot' /tmp/y.html) pot lines · no inline style: $(grep -c ' style=' /tmp/y.html)"
+echo "  designer sends corner shape back: $(curl -s -b $A $BASE/yard.php | grep -o 'data-fam="pots" data-shape="[^"]*"' | head -2 | tr '\n' ' ')"
 echo "== php errors"; grep -iE 'fatal|warning|notice|deprecated' /tmp/yard-php.log || echo "(none)"

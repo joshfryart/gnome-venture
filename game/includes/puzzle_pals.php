@@ -101,7 +101,7 @@ function ppal_schema(string $PK, string $ID, string $END): array
     $c = [['users', 'ppal_at', 'DATETIME NULL'], ['users', 'ppal_day', 'VARCHAR(10) NULL'], ['users', 'ppal_count', 'INT NOT NULL DEFAULT 0'], ['users', 'ppal_spawn_day', 'VARCHAR(10) NULL'],
         ['ppal_found', 'pal_uid', 'VARCHAR(16) NULL'], ['ppal_found', 'g_xp', 'INT NOT NULL DEFAULT 0'], ['ppal_found', 'a_xp', 'INT NOT NULL DEFAULT 0'],
         ['ppal_found', 'hp', 'INT NOT NULL DEFAULT -1'], ['ppal_found', 'hp_at', 'DATETIME NULL'], ['ppal_found', 'status', "VARCHAR(8) NOT NULL DEFAULT 'home'"],
-        ['ppal_found', 'eq_since', 'DATETIME NULL']];
+        ['ppal_found', 'eq_since', 'DATETIME NULL'], ['ppal_found', 'c_xp', 'INT NOT NULL DEFAULT 0']];
     return [$t, $i, $c];
 }
 
@@ -320,8 +320,8 @@ function ppal_pal_units(array $pal, int $uid, int $picId): int
 }
 
 /**
- * A timed jigsaw was just DONE (server-verified by the caller: min time, drops, single-use token). Advanced (96) releases the picture's roster; Expert (216)
- * earns its trophy; Easy does nothing. Once per (gnome, picture) each. Skips guests, a closed feature, and (for players) a roster whose art is not ready.
+ * A timed jigsaw was just DONE (server-verified by the caller: min time, drops, single-use token). Advanced (96) or Expert (216), whichever is first, releases the
+ * picture's roster; Expert also earns its trophy; Easy does nothing. Once per (gnome, picture) each. Skips guests, a closed feature, and (for players) a roster whose art is not ready.
  * $src 'free' | 'tourney'. Returns what is NEW for the win card: ['title', 'released' => pals, 'trophy' => bool], or [] (also on any error: never breaks a finish).
  */
 function ppal_on_solve(int $uid, int $picId, string $tier, string $src, int $runId = 0): array
@@ -332,22 +332,29 @@ function ppal_on_solve(int $uid, int $picId, string $tier, string $src, int $run
         $pic = q_one("SELECT * FROM puzzle_pics WHERE id = ? AND kind = 'still'", [$picId]);
         if (!$pic) return [];
         $src = $src === 'tourney' ? 'tourney' : 'free';
-        $out = [];
-        if ($tier === 'advanced') {
-            if (!ppal_roster($pic) || (!is_admin() && !ppal_art_ready($pic))) return [];
+        // Advanced or Expert: whichever is finished first releases the roster (once per gnome and picture). Expert also earns the trophy.
+        $released = 0;
+        if (ppal_roster($pic) && (is_admin() || ppal_art_ready($pic))) {
             try {
                 db_insert('ppal_releases', ['user_id' => $uid, 'pic_id' => $picId, 'released_at' => now(), 'src' => $src, 'run_id' => $runId ?: null]);
-            } catch (Throwable $e) { return []; }   // UNIQUE: released already
-            $out = ['title' => (string)$pic['title'], 'released' => count(ppal_roster($pic)), 'trophy' => false, 'mode' => ppal_find_mode()];
+                $released = count(ppal_roster($pic));
+            } catch (Throwable $e) {}   // UNIQUE: released already
+        }
+        if ($released) {
             try { q('UPDATE users SET ppal_spawn_day = NULL WHERE id = ?', [$uid]); } catch (Throwable $e) {}   // v2.0.92: the new roster gets its map spawns on the next page
             require_once __DIR__ . '/trade.php';
-            notify($uid, '🧩 The magic of the jigsaw is loose! ' . $out['released'] . ' Puzzle Pals from ' . $pic['title'] . (ppal_find_mode() === 'map' ? ' will wait at places on the map. Look for their stickers.' : ' are somewhere about the Hollow.'));
-        } else {
+            notify($uid, '🧩 The magic of the jigsaw is loose! ' . $released . ' Puzzle Pals from ' . $pic['title'] . ' will wait at places on the map. Look for their stickers.');
+        }
+        $trophy = false;
+        if ($tier === 'expert') {
             try {
                 db_insert('ppal_trophies', ['user_id' => $uid, 'pic_id' => $picId, 'earned_at' => now(), 'src' => $src, 'run_id' => $runId ?: null]);
-            } catch (Throwable $e) { return []; }   // UNIQUE: trophy already
-            $out = ['title' => (string)$pic['title'], 'released' => 0, 'trophy' => true];
+                $trophy = true;
+            } catch (Throwable $e) {}   // UNIQUE: trophy already
         }
+        if (!$released && !$trophy) return [];
+        $out = ['title' => (string)$pic['title'], 'released' => $released, 'trophy' => $trophy];
+        if ($released) $out['mode'] = 'map';
         return $out;
     } catch (Throwable $e) {
         error_log('ppal_on_solve: ' . $e->getMessage());
@@ -355,7 +362,7 @@ function ppal_on_solve(int $uid, int $picId, string $tier, string $src, int $run
     }
 }
 
-// ---------------- step 2: the find lane (events.php calls ppal_maybe_find after the ordinary event roll found nothing) ----------------
+// ---------------- step 2: finding pals (only on the map, see ppal_spawn_refresh / ppal_spawn_collect; the page find lane is gone) ----------------
 
 /** A picture row by id (still pictures only). */
 function ppal_pic(int $picId): ?array
@@ -388,76 +395,6 @@ function ppal_find_pal(array $pic, string $key): ?array
     return null;
 }
 
-/**
- * Pick the pal a find shows: missing pals of released pictures first (weighted by rarity), duplicates only when every released roster is complete.
- * $test (the admin's button) with nothing released picks from the first picture that has a roster. Returns ['pal' => row, 'pic' => row, 'test' => bool] or null.
- */
-function ppal_pick(int $uid, bool $test = false): ?array
-{
-    $rel = ppal_releases($uid);
-    $have = ppal_found_map($uid);
-    $missing = $all = [];
-    foreach (array_keys($rel) as $picId) {
-        $pic = ppal_pic((int)$picId);
-        if (!$pic) continue;
-        foreach (ppal_roster($pic) as $p) {
-            $all[] = [$p, $pic];
-            if (!isset($have[$p['key']])) $missing[] = [$p, $pic];
-        }
-    }
-    $isTest = false;
-    if (!$all && $test && is_admin()) {
-        foreach (q("SELECT * FROM puzzle_pics WHERE kind = 'still' AND active = 1 ORDER BY sort, id")->fetchAll() as $pic) {
-            if (($r = ppal_roster($pic))) { foreach ($r as $p) $all[] = [$p, $pic]; $missing = $all; $isTest = true; break; }
-        }
-    }
-    $pool = $missing ?: $all;
-    if (!$pool) return null;
-    $tot = 0;
-    foreach ($pool as [$p]) $tot += PPAL_RARITIES[$p['rarity']] ?? 10;
-    $roll = random_int(1, max(1, $tot));
-    foreach ($pool as [$p, $pic]) {
-        $roll -= PPAL_RARITIES[$p['rarity']] ?? 10;
-        if ($roll <= 0) return ['pal' => $p, 'pic' => $pic, 'test' => $isTest];
-    }
-    return ['pal' => $pool[0][0], 'pic' => $pool[0][1], 'test' => $isTest];
-}
-
-/**
- * The second lane of maybe_random_event(): a Puzzle Pal turns up. Own odds, cooldown and daily cap (users.ppal_*), never alongside another box
- * (the caller runs it only when the ordinary roll produced nothing), never on a quiet page, guests skipped. Sets $_SESSION['event_pending'] (slug 'ppal' + token).
- * The admin's "test a pal find" ($_SESSION['ppal_force']) skips the roll, cooldown and cap, never the quiet pages.
- */
-function ppal_maybe_find(array $u): bool
-{
-    try {
-        if (!ppal_open() || is_guest($u) || !ppal_ensure()) return false;
-        if (ppal_find_mode() === 'map' && empty($_SESSION['ppal_force'])) return false;   // v2.0.92: pals wait on the map; the page lane is the old mode (setting ppal_find_mode = page)
-        if (!empty($_SESSION['event_pending']) || !empty($_SESSION['event_box'])) return false;
-        if (in_array(basename((string)($_SERVER['SCRIPT_NAME'] ?? '')), defined('PPAL_QUIET_PAGES') ? PPAL_QUIET_PAGES : [], true)) return false;   // PPAL_QUIET_PAGES is set in layout.php
-        $uid = (int)$u['id'];
-        $force = !empty($_SESSION['ppal_force']);
-        $day = hollow_date('Y-m-d');
-        if (!$force) {
-            $chance = max(2, (int)setting('ppal_chance'));
-            if (($fp = ppal_perks($u)['finder']) > 0) $chance = max(2, (int)round($chance / (1 + $fp / 100)));   // step 4: the finder perk (+5% per unit, cap +30%)
-            if (random_int(1, $chance) !== 1) return false;
-            $cool = max(0, (int)setting('ppal_cooldown_minutes')) * 60;
-            if (!empty($u['ppal_at']) && strtotime($u['ppal_at'] . ' UTC') > time() - $cool) return false;
-            if (($u['ppal_day'] ?? '') === $day && (int)($u['ppal_count'] ?? 0) >= (int)setting('ppal_daily_max')) return false;
-        }
-        $pick = ppal_pick($uid, $force);
-        unset($_SESSION['ppal_force']);
-        if (!$pick) return false;
-        q('UPDATE users SET ppal_at = ?, ppal_count = CASE WHEN ppal_day = ? THEN ppal_count + 1 ELSE 1 END, ppal_day = ? WHERE id = ?', [now(), $day, $day, $uid]);
-        $_SESSION['event_pending'] = ['slug' => 'ppal', 'token' => bin2hex(random_bytes(8)), 'pal' => $pick['pal']['key'], 'pic' => (int)$pick['pic']['id'], 'test' => $pick['test'] ? 1 : 0];
-        return true;
-    } catch (Throwable $e) {
-        error_log('ppal_maybe_find: ' . $e->getMessage());
-        return false;
-    }
-}
-
 /** The pal's sticker as an <img> (class $cls), the red-bordered placeholder when its art is missing, and a plain emoji when even that is gone. Never a broken image. */
 function ppal_img(string $key, string $alt = '', string $cls = 'ppalimg', int $px = 64): string
 {
@@ -480,22 +417,18 @@ function ppal_piece_html(array $pic, string $piece, string $cls = ''): string
 }
 
 /**
- * Claim a find (from finish_event, which has already matched the token and used it up: one go only). Checks the pal is on the roster of a picture this gnome
- * has released (the admin's test find skips that), then INSERTs the found row; a pal already found just waves (+1 times). Returns [ok, box|message].
+ * Claim a find (from ppal_spawn_collect, the map). Checks the pal is on the roster of a picture this gnome
+ * has released, then INSERTs the found row; a pal already found just waves (+1 times). Returns [ok, box|message].
  * The box is the session event_box array: icon, title, text, lines, plus 'ppal' (the pal key, for the sticker).
  */
-function ppal_claim(array $u, string $key, int $picId, bool $test = false): array
+function ppal_claim(array $u, string $key, int $picId): array
 {
     $uid = (int)$u['id'];
     if (!ppal_open() || is_guest($u) || !ppal_ensure()) return [false, 'That moment has passed.'];
     $pic = ppal_pic($picId);
     $pal = $pic ? ppal_find_pal($pic, $key) : null;
     if (!$pal) return [false, 'That moment has passed.'];
-    $test = $test && is_admin();
-    if (!$test && !ppal_released($uid, $picId)) return [false, 'That moment has passed.'];   // re-check the release (an admin may have revoked it since the find)
-    if ($test && !ppal_released($uid, $picId)) {
-        try { db_insert('ppal_releases', ['user_id' => $uid, 'pic_id' => $picId, 'released_at' => now(), 'src' => 'free', 'run_id' => null]); } catch (Throwable $e) {}
-    }
+    if (!ppal_released($uid, $picId)) return [false, 'That moment has passed.'];   // re-check the release (an admin may have revoked it since the find)
     $new = true;
     try {
         db_insert('ppal_found', ['user_id' => $uid, 'pal_key' => $key, 'pic_id' => $picId, 'found_at' => now(), 'times' => 1, 'active' => 0, 'pal_uid' => bin2hex(random_bytes(8))]);
@@ -518,22 +451,6 @@ function ppal_claim(array $u, string $key, int $picId, bool $test = false): arra
         $head = $pal['name'] . ' waves!';
     }
     return [true, ['icon' => '🧩', 'title' => $head, 'text' => '', 'lines' => $lines, 'ppal' => $key]];
-}
-
-/** The find card, in the event box's "waiting" shape: sticker, rarity frame, name, picture, one button. $form builds the post form (see event_box_html_core). */
-function ppal_find_html(array $pend, callable $form): string
-{
-    if (!ppal_open()) return '';
-    $pic = ppal_pic((int)($pend['pic'] ?? 0));
-    $pal = $pic ? ppal_find_pal($pic, (string)($pend['pal'] ?? '')) : null;
-    if (!$pal) return '';
-    $have = ppal_found_map((int)(current_user()['id'] ?? 0));
-    $again = isset($have[$pal['key']]);
-    return '<div class="eventbox waiting ppalfind ppr-' . e($pal['rarity']) . '" role="dialog" aria-label="A Puzzle Pal appears">'
-        . '<div class="ppalst">' . ppal_img($pal['key'], $pal['name']) . '</div><div class="evbody">'
-        . '<div class="evkicker">🧩 A Puzzle Pal!</div><div class="evtitle">' . e($pal['name']) . '</div>'
-        . '<p><span class="ppalrar ppr-' . e($pal['rarity']) . '">' . e(ucfirst($pal['rarity'])) . '</span> · ' . ($again ? 'an old friend from ' : 'a Puzzle Pal from ') . e((string)$pic['title']) . '</p>'
-        . '<div class="evbtns">' . $form('go', $again ? 'Wave back' : 'Say hello') . '</div></div></div>';
 }
 
 // ---------------- step 3: the Pal Book, shelf badges ----------------
@@ -810,7 +727,7 @@ function ppal_howto_html(): string
     $jig = jigsaw_open() ? '<a href="' . e(url('jigsaw.php')) . '">Jigsaw</a>' : 'Jigsaw';
     return '<div class="palhowto"><b>How to meet your first pals</b><ol>'
         . '<li>Play a ' . $jig . ' picture and finish it at <b>Advanced</b> size (or Expert). That sets the picture’s six pals free.</li>'
-        . '<li>' . (ppal_find_mode() === 'map' ? 'Then look at the <b>World map</b>. A freed pal waits at a place, shown as its sticker. Walk there and say hello. Rarer pals wait in tougher places.' : 'Then keep going about your day. A freed pal now and then turns up on an ordinary page, in a little box. Tap it to catch it.') . '</li>'
+        . '<li>' . 'Then look at the <b>World map</b>. A freed pal waits at a place, shown as its sticker. Walk there and say hello. Rarer pals wait in tougher places.' . '</li>'
         . '<li>Caught pals live in your <a href="' . e(url('puzzlepals.php')) . '">Pal Book</a>. Pick up to ' . ppal_party_max() . ' to take along here on My Gnome.</li></ol>'
         . '<small>Each new picture you finish at Advanced frees six more pals.</small></div>';
 }
@@ -827,16 +744,10 @@ function ppal_sticker_html(string $key, int $px = 44): string
 /** Rarity => level band round the gnome's level [from, to]: commons at or just below it, rares a stretch above it, so the rare ones push a gnome to harder places. */
 const PPAL_BANDS = ['common' => [-2, 0], 'uncommon' => [-1, 2], 'rare' => [1, 3]];
 
-/** 'map' (default): released pals wait at places on the map and are collected by standing there. 'page' = the old random find on a page view. */
-function ppal_find_mode(): string
-{
-    return setting('ppal_find_mode') === 'page' ? 'page' : 'map';
-}
-
 /** Are map spawns on for this viewer? */
 function ppal_map_on(): bool
 {
-    return ppal_find_mode() === 'map' && ppal_open();
+    return ppal_open();   // map mode settled: the map is the only way to find pals (setting ppal_find_mode and the page lane were removed)
 }
 
 /** Pals waiting on the map at once (setting ppal_spawn_count, 1 to 10, default 3). */
@@ -932,7 +843,8 @@ function ppal_spawn_refresh(array $u, int $extra = 0): int
     try {
         if (!ppal_map_on() || is_guest($u) || !ppal_ensure()) return 0;
         $day = hollow_date('Y-m-d');
-        if ($extra <= 0 && (string)q_val('SELECT ppal_spawn_day FROM users WHERE id = ?', [$uid]) === $day) return 0;
+        $prevDay = (string)q_val('SELECT ppal_spawn_day FROM users WHERE id = ?', [$uid]);
+        if ($extra <= 0 && $prevDay === $day) return 0;
         $rel = ppal_releases($uid);
         if (!$rel) return 0;
         if ($extra <= 0 && q('UPDATE users SET ppal_spawn_day = ? WHERE id = ? AND (ppal_spawn_day IS NULL OR ppal_spawn_day <> ?)', [$day, $uid, $day])->rowCount() !== 1) return 0;   // a second tab got there first
@@ -970,6 +882,10 @@ function ppal_spawn_refresh(array $u, int $extra = 0): int
             } catch (Throwable $e) {}   // UNIQUE: already waiting
         }
         ppal_spawns_reset();
+        if ($made > 0 && $extra <= 0 && $prevDay !== '') {   // the daily top-up: a notice (flash on the next page). Not after a fresh release (day was NULLed; the release notice said it already) nor the admin test
+            require_once __DIR__ . '/trade.php';
+            notify($uid, '🧩 ' . ($made === 1 ? 'A Puzzle Pal has' : $made . ' Puzzle Pals have') . ' arrived on your map. Look for ' . ($made === 1 ? 'its sticker' : 'their stickers') . ' and say hello.');
+        }
         return $made;
     } catch (Throwable $e) {
         error_log('ppal_spawn_refresh: ' . $e->getMessage());
@@ -1061,12 +977,118 @@ const PPAL_SKILLS = [
 ];
 /** A rare pal also carries the skill of this other calling, at common strength. */
 const PPAL_SKILL_SECOND = ['rootwarden' => 'wayfinder', 'thornblade' => 'bloomcaller', 'wayfinder' => 'rootwarden', 'seedkeeper' => 'brewroot', 'brewroot' => 'seedkeeper', 'bloomcaller' => 'thornblade'];
-const PPAL_SKILL_CAP = ['ward' => 4, 'edge' => 3, 'foot' => 4, 'mend' => 4, 'sip' => 60, 'petal' => 6];
+const PPAL_SKILL_CAP = ['ward' => 4, 'edge' => 3, 'foot' => 4, 'mend' => 4, 'sip' => 60, 'petal' => 6, 'guard' => 3];
 
-/** One pal's skills as [kind => value]: its calling's skill by rarity, plus (rare) the second calling's at common strength. Pure. */
+/**
+ * v2.3.8 Boons (claude/brainstorm-pal-rosters.md): a pal with a row in includes/data/puzzle_pal_boons.txt has its own combat effect instead of its calling's
+ * skill (setting ppal_boons = 1). Always on, no conditions. Effect => [label, value for [common, uncommon, rare], sentence, party cap].
+ * Only the effects the fight code reads are listed here; the rest of the planned 16 arrive with the rosters that use them (tools/lint_pal_boons.py checks this list).
+ */
+const PPAL_EFFECTS = [
+    'ward' => ['Thorn Ward', [1, 2, 3], 'Takes %d off every hit you suffer', 4],
+    'edge' => ['Keen Edge', [1, 1, 2], 'Adds %d damage to your hits', 3],
+    'foot' => ['Fleet Foot', [1, 2, 3], 'Adds %d to your armour and to running away', 4],
+    'mend' => ['Mend', [1, 2, 3], 'Heals you %d at the start of every round', 4],
+    'sip' => ['Sip', [10, 20, 40], 'Snacks heal %d%% more', 60],
+    'petal' => ['Lucky Petal', [1, 2, 4], 'Adds %d%% to your chance of a critical hit', 6],
+    'guard' => ['Guard', [1, 1, 2], 'Halves the first %d hit(s) you take in each fight', 3],
+    'bulwark' => ['Bulwark', [2, 4, 8], 'Adds %d to your health on the road', 12],
+    'slip' => ['Slip Away', [1, 2, 3], 'Adds %d to running away', 4],
+    'feast' => ['Feast', [1, 2, 4], 'Snacks heal %d more', 8],
+    'rally' => ['Rally', [4, 7, 12], 'Once a fight, at 30%% health or less, heals you %d', 12],
+    'first' => ['First Strike', [2, 3, 5], 'Adds %d to your first attack of a fight', 6],
+    'kindle' => ['Kindle', [1, 1, 1], 'Makes your calling ability %d step stronger', 2],
+    'spoils' => ['Spoils', [5, 10, 20], 'Adds %d%% to the chance of a creature’s drop after a win', 30],
+    'lesson' => ['Lesson', [5, 10, 20], 'Adds %d%% Fighting XP from a win', 30],
+    'tonic' => ['Tonic', [1, 1, 2], 'While a meal or potion boost is on you, adds %d to your Grit and Nimble in fights', 2],
+];
+/** Active skills a rare may have (row column 4): once per fight, uses your turn, fixed numbers, no dice. Value and sentence. More arrive with the rosters that use them (the lint reads this list). */
+const PPAL_ACTIVES = [
+    'strike' => [6, 'A hit that cannot miss, for %d damage'],
+    'shield' => [3, 'The next 2 hits you take are %d lighter'],
+    'patch' => [10, 'Heals you %d now'],
+    'snare' => [1, 'Your next run always works'],
+    'sap' => [4, 'Poisons the creature and hits it for %d'],
+    'daze' => [1, 'The creature loses its next turn (a boss only has its next hit halved)'],
+    'rouse' => [1, 'Your calling ability can be used again this fight'],
+    'gust' => [2, 'The creature misses more: -%d to hit for 3 rounds'],
+];
+
+function ppal_boons_on(): bool
+{
+    return setting('ppal_boons') === '1';
+}
+
+/** includes/data/puzzle_pal_boons.txt parsed once: pal key => ['name', 'effect', 'active', 'line']. Bad lines are skipped (tools/lint_pal_boons.py reports them). */
+function ppal_boon_data(): array
+{
+    static $d = null;
+    if ($d !== null) return $d;
+    $d = [];
+    $f = __DIR__ . '/data/puzzle_pal_boons.txt';
+    foreach (is_file($f) ? (file($f, FILE_IGNORE_NEW_LINES) ?: []) : [] as $l) {
+        if (trim($l) === '' || $l[0] === '#') continue;
+        $c = explode('|', $l);
+        if (count($c) !== 5 || !isset(PPAL_EFFECTS[$c[2]])) continue;
+        $d[$c[0]] = ['name' => $c[1], 'effect' => $c[2], 'active' => $c[3] === '-' ? '' : $c[3], 'line' => $c[4]];
+    }
+    return $d;
+}
+
+/** The actives of the pals taken along: [['key' => pal key, 'pal' => pal name, 'active' => 'strike', 'value' => 6, 'text' => sentence], ...]. [] unless Boons and take-along are on. */
+function ppal_actives(int|array $u): array
+{
+    $o = [];
+    if (!ppal_boons_on()) return $o;
+    foreach (ppal_equipped($u) as $e) {
+        $b = ppal_boon($e['pal']);
+        if (!$b || $b['active'] === '' || !isset(PPAL_ACTIVES[$b['active']])) continue;
+        $name = (string)$e['pal']['name'];
+        if (isset($o[$b['active']])) {   // v2.3.91: the same active from two pals is ONE button at double strength (numbers scale; yes/no effects just stay on)
+            $o[$b['active']]['n']++;
+            $o[$b['active']]['pal'] .= ' and ' . $name;
+            $o[$b['active']]['value'] = PPAL_ACTIVES[$b['active']][0] * $o[$b['active']]['n'];
+            $o[$b['active']]['text'] = sprintf(PPAL_ACTIVES[$b['active']][1], $o[$b['active']]['value']);
+            continue;
+        }
+        $o[$b['active']] = ['key' => (string)$e['pal']['key'], 'pal' => $name, 'active' => $b['active'], 'n' => 1, 'value' => PPAL_ACTIVES[$b['active']][0], 'text' => sprintf(PPAL_ACTIVES[$b['active']][1], PPAL_ACTIVES[$b['active']][0])];
+    }
+    return array_values($o);
+}
+
+/** The fight buttons for the party's actives: [['do' => 'palskill:KEY', 'title' => 'Strike', 'sub' => 'Samara Spin: ...', 'used' => bool], ...]. */
+function ppal_fight_actives(int|array $u, array $enc): array
+{
+    $o = [];
+    foreach (ppal_actives($u) as $a) $o[] = ['do' => 'palskill:' . $a['key'], 'title' => ucfirst($a['active']), 'sub' => $a['pal'] . ': ' . $a['text'] . '. Once per fight.', 'used' => in_array($a['key'], (array)($enc['pa'] ?? []), true)];
+    return $o;
+}
+
+/** A pal of a generated roster (uploaded pictures, no authored rows) has no row: its Boon is drawn from crc32(key) by rarity, always the same one. Null for a row without a key or a rarity. */
+function ppal_seeded_boon(array $pal): ?array
+{
+    $k = (string)($pal['key'] ?? '');
+    $pools = ['common' => ['mend', 'sip', 'feast', 'petal', 'guard', 'bulwark', 'slip', 'first'], 'uncommon' => ['ward', 'foot', 'bulwark', 'slip', 'guard', 'first', 'rally', 'feast', 'edge', 'mend'],
+        'rare' => ['edge', 'first', 'rally', 'petal', 'foot', 'ward', 'bulwark', 'guard', 'mend', 'sip', 'slip', 'feast', 'kindle', 'spoils', 'lesson', 'tonic']];
+    $rar = (string)($pal['rarity'] ?? '');
+    if ($k === '' || !isset($pools[$rar])) return null;
+    $h = ppal_h($k . ':boon');
+    $e = $pools[$rar][$h % count($pools[$rar])];
+    $act = $rar === 'rare' ? array_keys(PPAL_ACTIVES)[intdiv($h, 7) % count(PPAL_ACTIVES)] : '';
+    return ['name' => PPAL_EFFECTS[$e][0], 'effect' => $e, 'active' => $act, 'line' => ''];
+}
+
+/** This pal's Boon row, or null when Boons are off, the pal has none, or the row passed has no key (then it plays by its calling as before). */
+function ppal_boon(array $pal): ?array
+{
+    return ppal_boons_on() && isset($pal['key']) ? ($GLOBALS['ppal_boon_test'][(string)$pal['key']] ?? ppal_boon_data()[(string)$pal['key']] ?? ppal_seeded_boon($pal)) : null;   // ppal_boon_test: tests swap a Boon in
+}
+
+/** One pal's skills as [kind => value]: its Boon's effect by rarity, else its calling's skill by rarity plus (rare) the second calling's at common strength. Pure apart from the setting. */
 function ppal_pal_skills(array $pal): array
 {
     $i = ['common' => 0, 'uncommon' => 1, 'rare' => 2][$pal['rarity']] ?? 0;
+    if ($b = ppal_boon($pal)) return [$b['effect'] => PPAL_EFFECTS[$b['effect']][1][$i]];
     $out = [];
     foreach ([[$pal['calling'], $i], ...($i === 2 && isset(PPAL_SKILL_SECOND[$pal['calling']]) ? [[PPAL_SKILL_SECOND[$pal['calling']], 0]] : [])] as [$calling, $at]) {
         if (!isset(PPAL_SKILLS[$calling])) continue;
@@ -1080,6 +1102,10 @@ function ppal_pal_skills(array $pal): array
 function ppal_skill_line(array $pal): string
 {
     $i = ['common' => 0, 'uncommon' => 1, 'rare' => 2][$pal['rarity']] ?? 0;
+    if ($b = ppal_boon($pal)) {
+        [, $vals, $text] = PPAL_EFFECTS[$b['effect']];
+        return '⚔️ ' . $b['name'] . ': ' . sprintf($text, $vals[$i]) . ($b['active'] !== '' ? ' · ✨ Skill: ' . ucfirst($b['active']) : '');
+    }
     $parts = [];
     foreach ([[$pal['calling'], $i], ...($i === 2 && isset(PPAL_SKILL_SECOND[$pal['calling']]) ? [[PPAL_SKILL_SECOND[$pal['calling']], 0]] : [])] as [$calling, $at]) {
         if (!isset(PPAL_SKILLS[$calling])) continue;
@@ -1090,8 +1116,8 @@ function ppal_skill_line(array $pal): string
 }
 
 /**
- * The combat numbers from the pals taken along: ['ward', 'edge' (damage), 'foot' (armour and running), 'mend', 'sip' (percent), 'petal' (percent)],
- * summed over the party and capped (PPAL_SKILL_CAP). [] when take-along is off or nobody comes along. Cached per request through ppal_equipped().
+ * The combat numbers from the pals taken along: ['ward', 'edge' (damage), 'foot' (armour and running), 'mend', 'sip' (percent), 'petal' (percent)] and, only when a Boon gives them,
+ * 'guard' (hits halved a fight), 'bulwark' (max health), 'slip' (running), 'feast' (snack HP), 'rally' (once-a-fight heal), 'first' (round-1 to-hit), summed over the party and capped (PPAL_EFFECTS). [] when take-along is off or nobody comes along. Cached per request through ppal_equipped().
  */
 function ppal_skills(int|array $u): array
 {
@@ -1099,7 +1125,8 @@ function ppal_skills(int|array $u): array
     foreach (ppal_equipped($u) as $e) foreach (ppal_pal_skills($e['pal']) as $k => $v) $t[$k] = ($t[$k] ?? 0) + $v;
     if (!$t) return [];
     $o = ['ward' => $t['ward'] ?? 0, 'edge' => $t['edge'] ?? 0, 'foot' => $t['foot'] ?? 0, 'mend' => $t['mend'] ?? 0, 'sip' => $t['sip'] ?? 0, 'petal' => $t['petal'] ?? 0];
-    foreach ($o as $k => $v) $o[$k] = min(PPAL_SKILL_CAP[$k], $v);
+    foreach (['guard', 'bulwark', 'slip', 'feast', 'rally', 'first', 'kindle', 'spoils', 'lesson', 'tonic'] as $k) if (!empty($t[$k])) $o[$k] = $t[$k];
+    foreach ($o as $k => $v) $o[$k] = min(PPAL_EFFECTS[$k][3], $v);
     return array_sum($o) > 0 ? $o : [];
 }
 
@@ -1144,10 +1171,9 @@ function ppal_own_node(array $pic, array $nodes): ?array
 /** Short skill text for a pal's row ("Thorn Ward 2" / "Sip 10%"; a rare shows both its skills). */
 function ppal_skill_short(array $pal): string
 {
+    $b = ppal_boon($pal);
     $out = [];
-    foreach (ppal_pal_skills($pal) as $kind => $v) {
-        foreach (PPAL_SKILLS as [$k, $name]) if ($k === $kind) { $out[] = $name . ' ' . $v . ($kind === 'sip' || $kind === 'petal' ? '%' : ''); break; }
-    }
+    foreach (ppal_pal_skills($pal) as $kind => $v) $out[] = ($b ? $b['name'] : PPAL_EFFECTS[$kind][0]) . ' ' . $v . ($kind === 'sip' || $kind === 'petal' ? '%' : '');
     return implode(', ', $out);
 }
 
@@ -1156,7 +1182,7 @@ function ppal_skill_lines(int|array $u): array
 {
     $sk = ppal_skills($u);
     $out = [];
-    foreach (PPAL_SKILLS as [$kind, $name, , $text]) if (!empty($sk[$kind])) $out[] = $name . ': ' . sprintf($text, $sk[$kind]);
+    foreach (PPAL_EFFECTS as $kind => [$name, , $text]) if (!empty($sk[$kind])) $out[] = $name . ': ' . sprintf($text, $sk[$kind]);
     return $out;
 }
 
@@ -1190,4 +1216,15 @@ function ppal_admin_spawn(array $u): string
     if (!$new) return 'No pal could be added (every pal of your released pictures is found or already waiting).';
     $w = ppal_spawns($uid)[reset($new)];
     return $w['pal']['name'] . ' (' . $w['pal']['rarity'] . ') now waits at ' . $w['loc'] . ' (level ' . $w['level'] . '). Open the map or the Pal Book.';
+}
+
+/** Polish: one tab row shared by the Pal Book and Pal Jobs pages ($cur = 'book' or 'jobs'). Empty until Pal jobs are open and a pal is found. */
+function ppal_hub_tabs_html(string $cur): string
+{
+    require_once __DIR__ . '/pal_jobs.php';
+    $u = current_user();
+    if (!$u || !pj_open($u)) return '';
+    return '<nav class="tabs ppaltabs" aria-label="Pals">'
+        . '<a href="' . e(url('puzzlepals.php')) . '"' . ($cur === 'book' ? ' class="on" aria-current="page"' : '') . '>📖 Pal Book</a>'
+        . '<a href="' . e(url('paljobs.php')) . '"' . ($cur === 'jobs' ? ' class="on" aria-current="page"' : '') . '>🧭 Pal jobs</a></nav>';
 }

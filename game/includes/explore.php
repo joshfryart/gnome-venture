@@ -171,10 +171,11 @@ function explore_start(array $u): array
     $free = staff_free($uid);
     if (!$free && !spend_energy($uid, 1)) return [false, 'You need 1 energy to wander off the path. Rest or eat something first.'];
     unset($_SESSION['explore_found'], $_SESSION['explore_back']);
+    $_SESSION['wander_step'] = 'off|' . time();   // v2.5.49: the wander card shows the step-off strip once
     $gc = gnome_combat($u, true);
     db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $here['id'], 'to_id' => $here['id'], 'route_id' => 0, 'kind' => 'explore', 'depth' => 0,
-        'steps_total' => 0, 'step' => 0, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => max(1, (int)$u['level']), 'scaled' => 0,
+        'steps_total' => 0, 'step' => 0, 'hp' => hp_start($u, (int)$gc['max_hp']), 'max_hp' => $gc['max_hp'], 'level' => max(1, (int)$u['level']), 'scaled' => 0,
         'log' => json_encode(['🌿 You step off the road at ' . $here['name'] . ' and into the wild mycelium.']),
         'started_at' => now(), 'arrive_at' => now(),
     ]);
@@ -295,6 +296,7 @@ function explore_return(array $u, array &$exp): void
     q('UPDATE users SET location_id = ?, location = ?, arrived_at = ? WHERE id = ?', [$from['id'], $from['region'], now(), $u['id']]);
     $exp['status'] = 'done';
     unset($_SESSION['explore_found']);
+    $_SESSION['wander_step'] = 'road|' . time();   // v2.5.49: the Here page shows the step-back strip once
     exp_log($exp, '🛣️ You follow your own footprints back to the road at ' . $from['name'] . '.');
     // v0.7.74: a long trip pays: XP from step 3, and Petals from the warning step on (more the further out)
     $depth = (int)$exp['depth'];
@@ -362,7 +364,7 @@ function explore_choose(array $u, array &$exp, int $option): void
             $exp['hp'] = max(1, (int)$exp['hp'] + (int)($p[1] ?? 0));
             $lines[] = (int)($p[1] ?? 0) . ' ❤️';
         } elseif ($p[0] === 'take') {   // v2.0.79: hand over goods (a trade, a toll in kind): take:slug:qty
-            $tid = (int)q_val('SELECT id FROM items WHERE slug = ?', [(string)($p[1] ?? '')]);
+            $tid = item_id_by_slug((string)($p[1] ?? ''));
             $tq = max(1, (int)($p[2] ?? 1));
             if (!$tid || !give_item($uid, $tid, -$tq)) {
                 $exp['encounter'] = null;
@@ -434,9 +436,37 @@ function explore_come_back(array $u, string $how): array
     $depth = (int)$b['depth'];
     db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $from['id'], 'to_id' => $from['id'], 'route_id' => 0, 'kind' => 'explore', 'depth' => $depth,
-        'steps_total' => $depth, 'step' => $depth, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => explore_level($u, $depth, ['from_id' => $from['id']]),
+        'steps_total' => $depth, 'step' => $depth, 'hp' => hp_start($u, (int)$gc['max_hp']), 'max_hp' => $gc['max_hp'], 'level' => explore_level($u, $depth, ['from_id' => $from['id']]),
         'scaled' => 0, 'log' => json_encode(['🌿 You slip back into the wild mycelium, ' . $depth . ' step' . ($depth === 1 ? '' : 's') . ' out from ' . $from['name'] . '.']),
         'started_at' => now(), 'arrive_at' => now(),
     ]);
+    calling_event($uid, 'depth', '', $depth);   // slipping back in at depth N counts as being N steps off the road (highest counts)
     return [true, '🌿 Back into the wilds.'];
+}
+
+/**
+ * v2.5.49: the step-off / step-back strip. A little animation of the gnome leaving the road ($dir 'off') or coming back to it ('road'): the wander card shows
+ * 'off' once after you have stepped off, the Here page shows 'road' once after "Back to the Trail". Art is optional, nothing is drawn without it:
+ * `assets/img/scenes/wander-step.png` = 4 to 6 frames of 96 x 64 side by side (stepping off); `wander-step-back.png` = the same for coming back, else the
+ * first strip mirrored. It plays once and holds its last frame (with reduced motion it just shows the last frame). CSS only (.ws-n4 .ws-n5 .ws-n6).
+ */
+function wander_step_strip(string $dir): string
+{
+    $dir = $dir === 'road' ? 'road' : 'off';
+    $rel = $dir === 'road' && is_file(APP_ROOT . '/assets/img/scenes/wander-step-back.png') ? 'scenes/wander-step-back.png' : 'scenes/wander-step.png';
+    $flip = $dir === 'road' && $rel === 'scenes/wander-step.png';
+    $file = APP_ROOT . '/assets/img/' . $rel;
+    if (!is_file($file) || !($sz = @getimagesize($file)) || $sz[1] !== 64 || $sz[0] % 96 !== 0) return '';   // missing or the wrong shape: nothing drawn
+    $n = intdiv($sz[0], 96);
+    if ($n < 4 || $n > 6) return '';
+    return '<div class="wc-step' . ($flip ? ' flip' : '') . '" aria-hidden="true"><img class="pix ws-n' . $n . '" src="' . e(url('assets/img/' . $rel)) . '" width="' . $sz[0] . '" height="64" alt="" decoding="async"></div>';
+}
+
+/** The strip the last wander move asked for, once ($_SESSION['wander_step'] = '<off|road>|<time>', set by explore_start / explore_return); only $want and only if it is fresh. */
+function wander_step_once(string $want): string
+{
+    [$d, $t] = array_pad(explode('|', (string)($_SESSION['wander_step'] ?? ''), 2), 2, '0');
+    if ($d !== $want) return '';
+    unset($_SESSION['wander_step']);
+    return time() - (int)$t <= 120 ? wander_step_strip($d) : '';
 }

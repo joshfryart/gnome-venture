@@ -91,3 +91,11 @@ glazed-garden-pot|Glazed Garden Pot|decor|glazed-garden-pot:1|snail-trail-glaze:
 
 # Potions (v2.3.0): Puzzle Pals drink these on trips and delve runs
 healing-potion|Healing Potion|potions|healing-potion:1|meadowsweet:2,sphagnum:1|2
+# Alchemy Table potions (items: includes/alchemy.php). Healing tiers heal pals and the gnome; draughts and brews are drunk for a timed buff; the tonic feeds soil.
+strong-healing-potion|Strong Healing Potion|potions|strong-healing-potion:1|healing-potion:2,pine-resin:1|2
+grand-healing-elixir|Grand Healing Elixir|potions|grand-healing-elixir:1|strong-healing-potion:2,edelweiss:1|3
+lucky-draught|Lucky Draught|potions|lucky-draught:1|wild-strawberries:2,butterfly-scales:1,meadowsweet:1|2
+sages-draught|Sage’s Draught|potions|sages-draught:1|chanterelle:1,bilberries:2,sphagnum:1|2
+stoneskin-brew|Stoneskin Brew|potions|stoneskin-brew:1|cattail-root:2,river-clay:1,stag-beetle-shell:1|2
+swiftfoot-elixir|Swiftfoot Elixir|potions|swiftfoot-elixir:1|dragonfly-wing:1,crowberries:2,ramsons:1|2
+garden-tonic|Garden Tonic|potions|garden-tonic:2|bladderwrack:2,meadowsweet:1,sphagnum:1|1

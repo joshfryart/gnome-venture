@@ -120,14 +120,16 @@ function haven_act(array $u, int $lmId, string $what, int $itemId = 0): array
     $uid = (int)$u['id'];
     require_once __DIR__ . '/events.php';
     if ($what === 'rest') {
-        // v0.7.85: a full gnome gets nothing, and the day's rest is not spent
+        // v0.7.85: a full gnome gets nothing, and the day's rest is not spent (v2.3.5: a hurt one still gets the rest)
         require_once __DIR__ . '/gnome.php';   // max_energy()
-        if ((int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]) >= max_energy($u)) {
-            return [false, 'You’re already full of energy. Come back to rest when you’re tired.'];
+        [$hpNow, $hpMax] = hp_get($u);
+        if ((int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]) >= max_energy($u) && $hpNow >= $hpMax) {
+            return [false, 'You’re already full of energy and health. Come back to rest when you’re tired or hurt.'];
         }
         if (!landmark_once($uid, $lmId, 'rest')) return [false, 'You’ve already rested here today.'];
         calling_event($uid, 'haven', 'lm:' . $lmId, 1, ['act' => 'rest']);   // v0.9.4 N3: a haven used
-        prize('🔥', $lm['name'], 'You doze by the fire while the kettle sings.', apply_event_effect($u, 'energy:' . (landmark_rebuilt_by($lm, $uid) ? 6 : 4)));   // v0.7.88: a rested fire for the gnome who made it safe
+        $healed = hp_heal_pct($u, hp_pct('hp_rest_percent', 50));   // v2.3.5
+        prize('🔥', $lm['name'], 'You doze by the fire while the kettle sings.', array_merge(apply_event_effect($u, 'energy:' . (landmark_rebuilt_by($lm, $uid) ? 6 : 4)), $healed > 0 ? ['+' . $healed . ' ❤️'] : []));   // v0.7.88: a rested fire for the gnome who made it safe
         return [true, ''];
     }
     if ($what === 'stay') {
@@ -138,7 +140,8 @@ function haven_act(array $u, int $lmId, string $what, int $itemId = 0): array
         }
         $stat = haven_stat($lm);
         calling_event($uid, 'haven', 'lm:' . $lmId, 1, ['act' => 'stay']);   // v0.9.4 N3
-        prize('🛏️', $lm['name'], 'You sleep soundly and wake up feeling wonderful.', array_merge(['−' . money(20)], apply_event_effect($u, 'tbuff:' . $stat . ':3:120+energy:2')));
+        $healed = hp_heal_pct($u, 100);   // v2.3.5: a night's sleep heals fully
+        prize('🛏️', $lm['name'], 'You sleep soundly and wake up feeling wonderful.', array_merge(['−' . money(20)], apply_event_effect($u, 'tbuff:' . $stat . ':3:120+energy:2'), $healed > 0 ? ['+' . $healed . ' ❤️'] : []));
         return [true, ''];
     }
     if ($what === 'buy') {
@@ -303,13 +306,17 @@ function delve_start(array $u, int $lmId): array
         return [false, 'You need 1 energy to go in.'];
     }
     $gc = gnome_combat($u, true);
+    $v2 = dv_on();   // v2.3.1: the route menu and tile floors (setting delve_v2); a delve that starts now keeps these rules to its end
     $expId = db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $lm['location_id'], 'to_id' => $lm['location_id'], 'route_id' => 0, 'kind' => 'delve', 'depth' => 0,
-        'steps_total' => DELVE_ROOMS, 'step' => 0, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => (int)$lm['level'], 'scaled' => 0,
+        'steps_total' => $v2 ? dv_stages((int)$lm['level']) : DELVE_ROOMS, 'step' => 0, 'hp' => hp_start($u, (int)$gc['max_hp']), 'max_hp' => $gc['max_hp'], 'level' => (int)$lm['level'], 'scaled' => 0,
         'log' => json_encode(array_values(array_filter(['🕳️ You light a lantern and step into ' . $lm['name'] . '.',
             ($el = delve_room_line('entry', (string)($lm['landscape'] ?? 'forest'), $lmId . '|' . $uid . '|' . now())) !== '' ? '🏮 ' . $el : '']))), 'started_at' => now(), 'arrive_at' => now(),
     ]);
-    if (dm_on()) dm_scene_make($uid, $expId, $lm, 'delve');   // v2.0.6: the map (the simple list works the same without it)
+    if ($v2 && !dv2_scene_make($uid, $expId, $lm)) {   // could not make the route: this delve plays the old way
+        q('UPDATE expeditions SET steps_total = ? WHERE id = ?', [DELVE_ROOMS, $expId]);
+        if (dm_on()) dm_scene_make($uid, $expId, $lm, 'delve');
+    } elseif (!$v2 && dm_on()) dm_scene_make($uid, $expId, $lm, 'delve');   // v2.0.6: the map (the simple list works the same without it)
     return [true, '🕳️ Into the delve! (−1 energy)'];
 }
 
@@ -354,7 +361,7 @@ function delve_next(array $u, array &$exp): void
 /** The chest at the bottom (once the last room is clear). */
 function delve_chest(array $u, array &$exp): void
 {
-    if ($exp['encounter'] || (int)$exp['depth'] < DELVE_ROOMS || !empty($exp['_opened'])) return;
+    if ($exp['encounter'] || (int)$exp['depth'] < ((int)($exp['steps_total'] ?? 0) ?: DELVE_ROOMS) || !empty($exp['_opened'])) return;   // v2.3.1: steps_total = the stages of a v2 delve (DELVE_ROOMS for the old ones)
     $uid = (int)$u['id'];
     $lm = landmark_at((int)$exp['from_id']);
     $lvl = (int)($lm['level'] ?? 5);
@@ -371,7 +378,7 @@ function delve_chest(array $u, array &$exp): void
     }
     if (random_int(1, 100) <= 15 && $lm) {
         $code = (string)q_val('SELECT code FROM regions WHERE id = ?', [$lm['region_id']]);
-        $gid = $code ? (int)q_val('SELECT id FROM items WHERE slug = ?', [guide_item_slug($code)]) : 0;
+        $gid = $code ? item_id_by_slug(guide_item_slug($code)) : 0;
         if ($gid) { give_item($uid, $gid, 1); exp_log($exp, '📗 Tucked under the gold: a Gardening Guide!'); $loot[$gid] = [$gid, ($loot[$gid][1] ?? 0) + 1, 'rare']; }
     }
     add_xp($uid, 10 + 2 * $lvl);
@@ -425,7 +432,7 @@ function lair_start(array $u, int $lmId): array
     $map = dm_on() && dm_pref() === 'map';   // v2.0.6: with the map the boss waits at the far end of the lair; with the list it rises at once, as it always did
     $expId = db_insert('expeditions', [
         'user_id' => $uid, 'from_id' => $lm['location_id'], 'to_id' => $lm['location_id'], 'route_id' => 0, 'kind' => 'lair', 'depth' => $map ? 0 : 1,
-        'steps_total' => 1, 'step' => $map ? 0 : 1, 'hp' => $gc['max_hp'], 'max_hp' => $gc['max_hp'], 'level' => (int)$boss['level'], 'scaled' => 0,
+        'steps_total' => 1, 'step' => $map ? 0 : 1, 'hp' => hp_start($u, (int)$gc['max_hp']), 'max_hp' => $gc['max_hp'], 'level' => (int)$boss['level'], 'scaled' => 0,
         'encounter' => $map ? null : json_encode(lair_boss_encounter($boss)),
         'log' => json_encode([$map ? '🐉 You step into ' . $lm['name'] . '. The ' . $boss['name'] . ' waits somewhere deeper in the dark.' : '🐉 You step into ' . $lm['name'] . '. The ' . $boss['name'] . ' rises to meet you!']), 'started_at' => now(), 'arrive_at' => now(),
     ]);
@@ -478,6 +485,32 @@ function lair_victory(array $u, array &$exp): void
         if ($sid) { give_item($uid, (int)$sid, 1); exp_log($exp, '🌟 Among the bones: ' . q_val('SELECT name FROM items WHERE id = ?', [$sid]) . '!'); }
     }
     $exp['status'] = 'done';
+}
+
+/**
+ * v2.5.71: keep a permanent record of a delve or lair run when it ends (cleared / ko / left). Call BEFORE the walk_scene row is dropped, once per
+ * expedition (UNIQUE exp_id makes a second call a no-op). Never throws: a missing table or odd row must not break ending a run.
+ */
+function landmark_run_record(array $exp): void
+{
+    try {
+        $kind = (string)($exp['kind'] ?? '');
+        if (!in_array($kind, ['delve', 'lair'], true) || ($exp['status'] ?? 'active') === 'active') return;
+        $lm = landmark_at((int)$exp['from_id']);
+        if (!$lm) return;
+        $uid = (int)$exp['user_id'];
+        $started = (string)($exp['started_at'] ?? now());
+        $outcome = (string)$exp['status'] === 'ko' ? 'ko' : (q_val('SELECT 1 FROM landmark_clears WHERE user_id = ? AND landmark_id = ? AND last_at >= ?', [$uid, (int)$lm['id'], $started]) ? 'cleared' : 'left');
+        $route = null; $picks = null;
+        if (dm_table_ok() && ($row = q_one('SELECT state FROM walk_scene WHERE exp_id = ? AND user_id = ?', [(int)$exp['id'], $uid]))) {
+            $st = json_decode((string)$row['state'], true);
+            if (is_array($st) && ($st['v'] ?? 0) === 2) { $route = substr((string)($st['rs'] ?? ''), 0, 40); $picks = json_encode($st['pk'] ?? []); }
+        }
+        if (q_val('SELECT 1 FROM landmark_runs WHERE exp_id = ?', [(int)$exp['id']])) return;
+        db_insert('landmark_runs', ['user_id' => $uid, 'landmark_id' => (int)$lm['id'], 'exp_id' => (int)$exp['id'], 'kind' => $kind, 'outcome' => $outcome,
+            'level' => (int)$exp['level'], 'depth' => (int)($exp['depth'] ?? 0), 'stages' => (int)$exp['steps_total'], 'route' => $route, 'picks' => $picks,
+            'started_at' => $started, 'ended_at' => now()]);
+    } catch (Throwable $e) { error_log('landmark_run_record: ' . $e->getMessage()); }
 }
 
 /** Count a delve or lair clear. Returns true the first time. */

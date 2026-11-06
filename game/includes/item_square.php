@@ -99,12 +99,13 @@ function item_square(array $o): string
     $count = isset($o['count']) && $o['count'] !== null
         ? '<b class="itm__n"><span class="vh">' . e((string)($o['countLabel'] ?? 'You have')) . ' </span>×' . number_format((int)$o['count']) . '</b>' : '';
 
+    $priceH = '';
     $foot = $rl !== 'C' ? '<span class="itm__rar">' . e(RARITY_WORDS[$rl]) . '</span>' : '';
-    if ($kind !== '') $foot .= '<span class="itm__kind">' . e($kind) . '<span class="vh"> (' . e($full) . ')</span></span>';
+    if ($kind !== '') $foot .= '<span class="itm__kind' . (in_array($kind, ['Seeds', 'Seed packet', 'Seedling', 'Cutting'], true) ? ' itm__kind--quiet' : '') . '">' . e($kind) . '<span class="vh"> (' . e($full) . ')</span></span>';
     if (isset($o['price']) && $o['price'] !== null) {
         $tr = (string)($o['trend'] ?? '');
         $arrow = $tr === 'up' ? '↑' : ($tr === 'down' ? '↓' : '');
-        $foot .= '<span class="itm__price">' . ($arrow !== '' ? '<span class="itm__trend" aria-hidden="true">' . $arrow . '</span>' : '') . item_square_money((int)$o['price'])
+        $priceH = '<span class="itm__price">' . ($arrow !== '' ? '<span class="itm__trend" aria-hidden="true">' . $arrow . '</span>' : '') . item_square_money((int)$o['price'])
             . ($arrow !== '' ? '<span class="vh">' . e((string)($o['trendWord'] ?? ($tr === 'up' ? ', dearer today' : ', cheaper today'))) . '</span>' : '') . '</span>';
     }
     foreach ((array)($o['chips'] ?? []) as $c) {
@@ -116,9 +117,9 @@ function item_square(array $o): string
     $foot .= (string)($o['vh'] ?? '');
 
     $flag = (string)($o['flag'] ?? '');
-    $inner = '<span class="itm__win">' . $icon . '<i class="itm__gem" aria-hidden="true"></i>' . $count . '</span>'
-        . '<span class="itm__rib"><span class="itm__name">' . e($base) . '</span></span>'
-        . '<span class="itm__foot">' . $foot . '</span>'
+    $inner = '<span class="itm__win">' . $icon . '<i class="itm__gem" aria-hidden="true"></i></span>'
+        . $priceH . '<span class="itm__stack"><span class="itm__mid"><span class="itm__foot">' . $foot . '</span>' . $count . '</span>'
+        . '<span class="itm__rib"><span class="itm__name">' . e($base) . '</span></span></span>'
         . ($flag !== '' ? '<span class="itm__flag' . (($o['flagClass'] ?? '') === 'taste' ? ' itm__flag--taste' : '') . '">' . e($flag) . '</span>' : '');
 
     $tag = in_array($o['tag'] ?? 'button', ['button', 'summary', 'div', 'span', 'a'], true) ? (string)($o['tag'] ?? 'button') : 'button';

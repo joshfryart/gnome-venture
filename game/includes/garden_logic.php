@@ -303,9 +303,14 @@ function refresh_energy(array &$u): void
     if ($ticks > 0) {
         $new = min($max, (int)$u['energy'] + $ticks * $amt);
         $stamp = $new >= $max ? time() : $last + $ticks * $per;
-        q('UPDATE users SET energy = ?, energy_updated_at = ? WHERE id = ?', [$new, gmdate('Y-m-d H:i:s', $stamp), $u['id']]);
-        $u['energy'] = $new;
-        $u['energy_updated_at'] = gmdate('Y-m-d H:i:s', $stamp);
+        $stampStr = gmdate('Y-m-d H:i:s', $stamp);
+        // v2.4.97: add the ticks (don't overwrite with a stale total, which would hand back energy spent meanwhile) and only
+        // when the stamp is still the one we read, so two tabs can't credit the same ticks twice.
+        $won = q('UPDATE users SET energy = CASE WHEN energy + ? > ? THEN ? ELSE energy + ? END, energy_updated_at = ? WHERE id = ? AND energy_updated_at = ?',
+            [$ticks * $amt, $max, $max, $ticks * $amt, $stampStr, $u['id'], (string)$u['energy_updated_at']])->rowCount() === 1;
+        $row = q_one('SELECT energy, energy_updated_at FROM users WHERE id = ?', [$u['id']]);
+        if ($row) { $u['energy'] = (int)$row['energy']; $u['energy_updated_at'] = $row['energy_updated_at']; }
+        elseif ($won) { $u['energy'] = $new; $u['energy_updated_at'] = $stampStr; }
     }
 }
 
@@ -457,6 +462,23 @@ function garden_batch_action(int $uid, string $action, array $squares, array $qu
                 if ($qi >= count($queue)) { $stop = 'You ran out of ' . (string)q_val('SELECT name FROM items WHERE id = ?', [$item]) . '.'; break 2; }
                 continue;
             }
+            // v2.3.94: a seed that needs richer soil than this square has no longer blocks the whole batch: try the next seed picked
+            if ($action === 'plant' && str_contains($err, 'needs richer soil')) {
+                $alt = false;
+                for ($j = $qi + 1; $j < count($queue); $j++) {
+                    if ($queue[$j][1] > 0 && ($used[$queue[$j][0]] ?? 0) >= $queue[$j][1]) continue;
+                    [$ok2, $m2] = garden_action($uid, $action, (int)$x, (int)$y, (int)$queue[$j][0]);
+                    if ($ok2) {
+                        $done++;
+                        $used[(int)$queue[$j][0]] = ($used[(int)$queue[$j][0]] ?? 0) + 1;
+                        foreach ($m2 as $line) if (!preg_match('/^(You till the soil|You plant |You water |You work |You spread |You pile |🌿 You pull|You dig up |🍂 You lay cardboard)/u', $line)) $other[] = $line;
+                        $alt = true;
+                        break;
+                    }
+                    if (str_contains((string)end($m2), 'too tired')) { $stop = (string)end($m2); break 3; }
+                }
+                if ($alt) break;
+            }
             $skipped[$err] = ($skipped[$err] ?? 0) + 1;
             break;
         }
@@ -475,7 +497,7 @@ function garden_batch_action(int $uid, string $action, array $squares, array $qu
     }
     foreach (array_values(array_unique($other)) as $line) $msgs[] = $line;
     foreach ($skipped as $why => $n) $msgs[] = 'Skipped ' . $n . ' square' . ($n === 1 ? '' : 's') . ': ' . $why;
-    if ($stop) $msgs[] = $stop;
+    if ($stop) $msgs[] = $stop . ($done && str_contains($stop, 'too tired') ? ' The squares you finished stay finished.' : '');
     if (!$done && !$msgs) $msgs[] = 'Nothing to do on those squares.';
     return [$done > 0, $msgs];
 }
@@ -703,6 +725,32 @@ function tile_grow(array $t, ?array $p, ?int $at = null): array
     return $t;
 }
 
+/**
+ * v2.4.97: write a square only if it is still what this request read. $raw is the row as loaded (before annotate_tile).
+ * Locks the row (README race pattern), re-reads it and compares; if another tab or visitor changed it meanwhile, nothing is written,
+ * $raw becomes the fresh row, and false comes back so the caller can show the fresh square instead of overwriting it with an old copy.
+ */
+function tile_write_guarded(array &$raw, callable $write): bool
+{
+    $own = !db()->inTransaction();
+    if ($own) db()->beginTransaction();
+    try {
+        q('UPDATE plot_tiles SET id = id WHERE id = ?', [$raw['id']]);
+        $fresh = q_one('SELECT * FROM plot_tiles WHERE id = ?', [$raw['id']]);
+        if (!$fresh || $fresh != $raw) {
+            if ($own) db()->rollBack();
+            if ($fresh) $raw = $fresh;
+            return false;
+        }
+        $write();
+        if ($own) db()->commit();
+        return true;
+    } catch (Throwable $e) {
+        if ($own && db()->inTransaction()) db()->rollBack();
+        throw $e;
+    }
+}
+
 /** Save growth, the no-till upkeep clock and the soil feeding clock. */
 function save_growth(array $t): void
 {
@@ -826,13 +874,14 @@ function load_plot(int $uid, bool $helperDone = false, ?int $visitPlot = null): 
     $hv = $hs = $hst = [];
     foreach ($hires as $k => $hh) { $hv[$k] = hire_visits($hh); $hs[$k] = helper_skills($hh); $hst[$k] = ['water' => 0, 'weed' => 0, 'harvest' => 0]; }
     foreach (q('SELECT * FROM plot_tiles WHERE plot_id = ? ORDER BY y, x', [$plotId])->fetchAll() as $t) {
+        $raw = $t;   // v2.4.97: the row as the database held it, to check before any write
         $p = null;
         if ($t['plant_id']) {
             $pid = (int)$t['plant_id'];
             $p = $plants[$pid] ??= q_one('SELECT * FROM plants WHERE id = ?', [$pid]);
         }
         $t = annotate_tile($t, $p);
-        foreach ($hires as $k => $hh) if ($hv[$k] && in_array('water', $hs[$k], true)) $t = helper_water_tile($t, $p, $hv[$k], $hst[$k]);
+        foreach ($hires as $k => $hh) if ($hv[$k] && in_array('water', $hs[$k], true)) $t = helper_water_tile($t, $p, $hv[$k], $hst[$k], $raw);
         if ($p || $t['method'] === 'notill' || (int)$t['feed_hours'] > 0) {
             $origSig = growth_sig($t);   // v1.2.2: what the database holds now (helper_water_tile has already saved its own changes)
             $origClock = (string)$t['growth_updated_at'];
@@ -856,7 +905,12 @@ function load_plot(int $uid, bool $helperDone = false, ?int $visitPlot = null): 
             // as before so a later watering can't be counted over time it spent dry.
             // The clock is still saved at least once an hour, so the day-by-day replay (seasons, frost, pests) never has to cover a long gap.
             $capped = !$p || (int)$t['growth_seconds'] >= (int)$p['grow_minutes'] * 60;
-            if (growth_sig($t) !== $origSig || ((string)$t['growth_updated_at'] !== $origClock && (!$capped || time() - (ts($origClock) ?: 0) > 3600))) save_growth($t);
+            if (growth_sig($t) !== $origSig || ((string)$t['growth_updated_at'] !== $origClock && (!$capped || time() - (ts($origClock) ?: 0) > 3600))) {
+                $keep = $t;
+                if (!tile_write_guarded($raw, fn() => save_growth($keep))) {   // v2.4.97: someone changed this square meanwhile; show theirs, don't overwrite it
+                    $t = feed_tick(bed_tick(tile_grow(annotate_tile($raw, $p), $p), $ownerRow));
+                }
+            }
         }
         $best = max($best, grade_index($t));
         $tiles[(int)$t['y']][(int)$t['x']] = $t;
@@ -883,6 +937,7 @@ function load_plot(int $uid, bool $helperDone = false, ?int $visitPlot = null): 
                     }
                     db()->commit();
                     $hst[$k]['harvest']++;
+                    if (isset($hire['pj_job'])) $hst[$k]['extra'] = ($hst[$k]['extra'] ?? 0) + pj_garden_extra($uid, $p, $hire);   // v2.3.3: a skilled pal brings an extra crop
                     $done[$t['id']] = true;
                 } catch (Throwable $e) {
                     if (db()->inTransaction()) db()->rollBack();
@@ -957,6 +1012,12 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
 
     db()->beginTransaction();
     try {
+        // v2.4.67: claim the square (a write lock) and read it again, so a double tap or a second tab sees what the first one did
+        q('UPDATE plot_tiles SET x = x WHERE plot_id = ? AND user_id = ? AND x = ? AND y = ?', [(int)$t['plot_id'], $uid, $x, $y]);
+        $fresh = q_one('SELECT * FROM plot_tiles WHERE plot_id = ? AND user_id = ? AND x = ? AND y = ?', [(int)$t['plot_id'], $uid, $x, $y]);
+        if (!$fresh) throw new UserError('That square isn’t part of your plot.');
+        $p = $fresh['plant_id'] ? q_one('SELECT * FROM plants WHERE id = ?', [$fresh['plant_id']]) : null;
+        $t = feed_tick(bed_tick(tile_grow(annotate_tile($fresh, $p), $p), $u));
         // 1. Check the rules
         switch ($action) {
             case 'till':
@@ -1241,6 +1302,7 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
             [$notill ? 1 : 0, clamp100($f), clamp100($l), clamp100($m), $score, $t['id'], $p['id']])->rowCount();
     }
     if (!$claimed) throw new UserError('Not ready yet.');
+    if ($t['method'] !== 'notill' && !((int)$p['perennial'] && !$isCover && !$lastHarvest)) $msgs[] = '🌱 The square is bare ground again: till it before you replant.';   // v2.3.94
     if ($t['method'] !== 'notill' && ($cm = care_after_harvest($t))) $msgs[] = $cm;   // v0.8.7: soil care on tilled squares
     fair_record($u, $t, $p);   // v0.8.1: the Grand Harvest Fair keeps your best of the month (tile as it was before harvest)
     if (!$isCover && ($hl = heap_add((int)$t['plot_id']))) $msgs[] = $hl;   // v0.7.95: the trimmings go on the compost heap (cover crops already feed the soil)
@@ -1342,7 +1404,7 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
     // A+ and S beds sometimes turn up treasure in the soil.
     if ($g >= 9 && random_int(1, 100) <= ($g === 10 ? 20 : 10)) {
         $find = random_int(1, 3) === 1 ? 'rich-loam' : 'worm-castings';
-        $fid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$find]);
+        $fid = item_id_by_slug($find);
         if ($fid) {
             give_item($uid, $fid, 1);
             $msgs[] = '✨ Your thriving soil turned up ' . q_val('SELECT name FROM items WHERE id = ?', [$fid]) . '!';
@@ -1427,14 +1489,19 @@ function bed_room(array $plot): int
     return max(0, $max * $max - (int)q_val('SELECT COUNT(*) FROM plot_tiles WHERE plot_id = ?', [$plot['id']]));
 }
 
-/** What the next purchase costs: [petals, [slug => qty]]. Both climb by bed_add_growth_pct per purchase made. */
-function bed_add_cost(array $plot): array
+/** What the next purchase of $n beds costs: [petals, [slug => qty]]. Priced by beds owned past the starting square (not by purchases made):
+ *  each 4 beds owned make the price bed_add_growth_pct more, up to 6x the first price; a partial buy pays per bed (n/4). bed_adds is history only. */
+function bed_add_cost(array $plot, ?int $n = null): array
 {
-    $mult = (1 + max(0, (int)setting('bed_add_growth_pct')) / 100) ** bed_adds($plot);
+    $n ??= max(1, min(4, bed_room($plot)));
+    $start = max(2, (int)setting('starting_plot_size'));
+    $beds = (int)q_val('SELECT COUNT(*) FROM plot_tiles WHERE plot_id = ?', [$plot['id']]);
+    $k = max(0, ($beds - $start * $start) / 4);
+    $mult = min(6, (1 + max(0, (int)setting('bed_add_growth_pct')) / 100) ** $k) * $n / 4;
     $items = [];
     foreach (explode(',', (string)setting('bed_add_items')) as $pair) {
-        [$s, $n] = array_map('trim', explode(':', $pair) + [1 => 0]);
-        if ($s !== '' && (int)$n > 0) $items[$s] = (int)ceil((int)$n * $mult - 1e-9);
+        [$s, $q] = array_map('trim', explode(':', $pair) + [1 => 0]);
+        if ($s !== '' && (int)$q > 0) $items[$s] = (int)ceil((int)$q * $mult - 1e-9);   // 2 planks x 6 = 12 at most
     }
     return [(int)round((int)setting('bed_add_cost') * $mult), $items];
 }
@@ -1452,7 +1519,7 @@ function expand_plot(int $uid): array
             : 'Your garden needs a higher garden level before it can hold more beds. Harvests raise it.'];
     }
     $n = min(4, $room);
-    [$cost, $items] = bed_add_cost($plot);
+    [$cost, $items] = bed_add_cost($plot, $n);
     $adds = bed_adds($plot) + 1;   // (counted before the new beds go in)
     db()->beginTransaction();
     if ($cost > 0 && !take_petals((int)$uid, (int)$cost)) {
@@ -1460,7 +1527,7 @@ function expand_plot(int $uid): array
         return [false, 'Adding beds costs ' . number_format($cost) . ' ' . setting('currency_name') . ($items ? ' and ' . upgrade_mats_text($items) : '') . '.'];
     }
     foreach ($items as $slug => $qty) {
-        $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        $id = item_id_by_slug($slug);
         if (!$id || !give_item($uid, $id, -$qty)) {
             db()->rollBack();
             return [false, 'You need ' . upgrade_mats_text($items) . ' for that.'];
@@ -1480,7 +1547,7 @@ function expand_plot(int $uid): array
         [$yw, $yh] = yard_size($plot);
         $grid = [];
         foreach (q('SELECT yx, yy FROM plot_tiles WHERE plot_id = ? AND yx IS NOT NULL', [$plotId])->fetchAll() as $t) yard_mark($grid, (int)$t['yx'], (int)$t['yy'], 1, 1);
-        foreach (q('SELECT x, y, w, h FROM garden_objects WHERE plot_id = ? AND x >= 0', [$plotId])->fetchAll() as $o) yard_mark($grid, (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h']);
+        foreach (q('SELECT x, y, w, h, shape FROM garden_objects WHERE plot_id = ? AND x >= 0', [$plotId])->fetchAll() as $o) yard_mark($grid, (int)$o['x'], (int)$o['y'], (int)$o['w'], (int)$o['h'], '1', yard_quads($o['shape'], (int)$o['w'], (int)$o['h']));
         $c = q('SELECT AVG(yx) AS cx, AVG(yy) AS cy FROM plot_tiles WHERE plot_id = ? AND yx IS NOT NULL', [$plotId])->fetch();
         $spot = yard_free_spot($grid, $yw, $yh, 2, 2, $c && $c['cx'] !== null ? [(int)round((float)$c['cx']), (int)round((float)$c['cy'])] : null);
     }

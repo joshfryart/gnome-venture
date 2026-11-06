@@ -22,10 +22,10 @@ dbx "UPDATE users SET onboarded=1, level=20, coins=100000, active_plot_id=$PL WH
 dbx "DELETE FROM user_items WHERE user_id=$SID AND item_id=$PLANK"; dbx "INSERT INTO user_items (user_id,item_id,qty) VALUES ($SID,$PLANK,20)"
 dbx "UPDATE plots SET garden_level=8, bed_adds=NULL WHERE id=$PL"
 
-echo "== add 4 beds: cost climbs, items taken"
+echo "== add 4 beds: cost climbs 20% per 4 beds owned, items taken"
 page "garden.php?t=grow"; echo "  panel: $(grep -oE 'Next 4 beds cost <b>[^<]*</b>[^(]*' /tmp/b.html | sed 's/<[^>]*>//g')"; chk "old expand form gone" "$(grep -c 'Add a column' /tmp/b.html)" 0
 chk "start beds" "$(beds)" 16
-for want in "20 200 18" "24 300 15" "28 450 10"; do
+for want in "20 200 18" "24 240 15" "28 288 12"; do
   set -- $want; c0=$(db "SELECT coins FROM users WHERE id=$SID"); p0=$(planks); msg=$(expand)
   chk "beds after buy" "$(beds)" $1; chk "  petals spent" "$((c0 - $(db "SELECT coins FROM users WHERE id=$SID")))" $2; chk "  planks left" "$(planks)" $3
 done
@@ -45,7 +45,8 @@ dbx "UPDATE users SET coins=100000 WHERE id=$SID; UPDATE plots SET garden_level=
 echo "  $(expand)"; chk "over the cap: refused" "$(beds)" 28
 dbx "DELETE FROM plot_tiles WHERE plot_id=$PL AND (x>=5 OR y>=5); UPDATE plots SET width=5, height=5, bed_adds=NULL WHERE id=$PL"; chk "25-square garden" "$(beds)" "$(db "SELECT COUNT(*) FROM plot_tiles WHERE plot_id=$PL")"
 dbx "DELETE FROM plot_tiles WHERE plot_id=$PL AND (x+y*5)>=20"; dbx "UPDATE plots SET bed_adds=1 WHERE id=$PL"   # 20 beds, cap 25: room for 5 -> adds 4 then 1
-expand >/dev/null; chk "20 -> 24" "$(beds)" 24; echo "  $(expand)"; chk "partial add up to the cap" "$(beds)" 25
+expand >/dev/null; chk "20 -> 24" "$(beds)" 24; c0=$(db "SELECT coins FROM users WHERE id=$SID"); echo "  $(expand)"; chk "partial add up to the cap" "$(beds)" 25
+chk "  1 bed pays a quarter: round(200 x 1.2^2 / 4)" "$((c0 - $(db "SELECT coins FROM users WHERE id=$SID")))" 72
 echo "  $(expand)"; chk "at the cap: refused" "$(beds)" 25
 page "garden.php?t=grow"; chk "panel says cap" "$(grep -c 'higher garden level lets it hold more beds' /tmp/b.html)" 1
 
@@ -59,14 +60,14 @@ page garden.php   # boot runs the upgrade
 chk "beds kept" "$(beds)" 25; chk "size kept" "$(db "SELECT width||'x'||height FROM plots WHERE id=$PL")" 5x5
 chk "migration counted 3 purchases" "$(db "SELECT bed_adds FROM plots WHERE id=$PL")" 3
 chk "old setting gone" "$(db "SELECT COUNT(*) FROM settings WHERE name='plot_expand_cost'")" 0
-page "garden.php?t=grow"; chk "next cost 200 x 1.5^3" "$(grep -oE 'Next 4 beds cost <b>[0-9,]*' /tmp/b.html | grep -oE '[0-9,]+$')" 675
+page "garden.php?t=grow"; chk "next cost by beds owned: 25 beds = 200 x 1.2^2.25" "$(grep -oE 'Next 4 beds cost <b>[0-9,]*' /tmp/b.html | grep -oE '[0-9,]+$')" 301
 chk "db_version restored" "$(db "SELECT value FROM settings WHERE name='db_version'")" "$(grep -oE "APP_VERSION', '[^']*" $GAME/includes/bootstrap.php | grep -oE '[0-9.]+$')"
 
 echo "== stacking: kitchens in several gardens"
 dbx "DELETE FROM garden_buildings WHERE building='kitchen'"
 dbx "INSERT INTO garden_buildings (plot_id,building,level,built_at,last_collect) VALUES ($PL,'kitchen',3,datetime('now'),datetime('now'))"
 page "garden.php?t=bld"; one=$(grep -oE 'All your kitchens together:.*\.' /tmp/b.html | sed 's/<[^>]*>//g' | head -1 | cut -c1-120); echo "  one III: $one"
-chk "one kitchen III: buff +50%" "$(echo "$one" | grep -c '+50% longer')" 1; chk "  pots 4" "$(echo "$one" | grep -c ' 4 pots')" 1
+chk "one kitchen III: buff +50%" "$(echo "$one" | grep -c '+50% longer')" 1; chk "  pots 5 (Kitchen III, default 3,4,5 since v2.4.67)" "$(echo "$one" | grep -c ' 5 pots')" 1
 php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $u=$argv[1]; $r=$p->query("SELECT * FROM plots WHERE id=".$argv[2])->fetch(PDO::FETCH_ASSOC); unset($r["id"]); $c=array_keys($r);
  for($i=0;$i<2;$i++){ $p->prepare("INSERT INTO plots (".implode(",",$c).") VALUES (".implode(",",array_fill(0,count($c),"?")).")")->execute(array_values($r)); }' $SID $PL
 P2=$(db "SELECT id FROM plots WHERE user_id=$SID ORDER BY id LIMIT 1 OFFSET 1"); P3=$(db "SELECT id FROM plots WHERE user_id=$SID ORDER BY id LIMIT 1 OFFSET 2")
@@ -74,12 +75,26 @@ dbx "INSERT INTO garden_buildings (plot_id,building,level,built_at,last_collect)
 page "garden.php?t=bld"; two=$(grep -oE 'All your kitchens together:.*\.' /tmp/b.html | sed 's/<[^>]*>//g' | head -1 | cut -c1-120); echo "  III + III + II: $two"
 chk "buff 50 + 5 x 10 = +100% (cap)" "$(echo "$two" | grep -c '+100% longer')" 1
 chk "  XP 50 + 5 x 5 = +75%" "$(echo "$two" | grep -c '+75% XP')" 1
-chk "  pots 4 + 1 (other III) = 5" "$(echo "$two" | grep -c ' 5 pots')" 1
+chk "  pots 5 + 1 (other III) = 6" "$(echo "$two" | grep -c ' 6 pots')" 1
 dbx "UPDATE garden_buildings SET level=2 WHERE plot_id=$P2 AND building='kitchen'"
 page "garden.php?t=bld"; three=$(grep -oE 'All your kitchens together:.*\.' /tmp/b.html | sed 's/<[^>]*>//g' | head -1 | cut -c1-120)
-chk "III + II + II: buff 50 + 4 x 10 = +90%" "$(echo "$three" | grep -c '+90% longer')" 1; chk "  pots stay 4" "$(echo "$three" | grep -c ' 4 pots')" 1
+chk "III + II + II: buff 50 + 4 x 10 = +90%" "$(echo "$three" | grep -c '+90% longer')" 1; chk "  pots stay 5" "$(echo "$three" | grep -c ' 5 pots')" 1
 dbx "UPDATE garden_buildings SET level=1 WHERE building='kitchen' AND plot_id<>$PL"; dbx "UPDATE garden_buildings SET level=2 WHERE building='kitchen' AND plot_id=$PL"
 page "garden.php?t=bld"; four=$(grep -oE 'All your kitchens together:.*\.' /tmp/b.html | sed 's/<[^>]*>//g' | head -1 | cut -c1-120)
 chk "II + I + I: buff 25 + 2 x 10 = +45%, no feasts" "$(echo "$four" | grep -c '+45% longer')$(echo "$four" | grep -c 'feasts')" 10
+echo "== v2.3.100: square panel (chips, Next line, closed soil fold, one fertility word)"
+dbx "UPDATE plot_tiles SET tilled=1, method='till', fertility=30, feed_hours=0 WHERE plot_id=$PL AND x=0 AND y=0"
+page "garden.php?sel=0-0"
+chk "no chip row when nothing needs flagging (v2.4.x: the soil chip row is gone)" "$(grep -c 'class="sqchips"' /tmp/b.html)" 0
+dbx "UPDATE plot_tiles SET feed_hours=3 WHERE plot_id=$PL AND x=0 AND y=0"
+page "garden.php?sel=0-0"
+chk "status chips shown" "$(grep -c 'class="sqchips"' /tmp/b.html)" 1
+chk "soil fold is closed by default" "$(grep -c '<details class="soildet" open' /tmp/b.html)" 0
+dbx "UPDATE plot_tiles SET feed_hours=0 WHERE plot_id=$PL AND x=0 AND y=0"
+page "garden.php?sel=0-0"
+chk "tired soil gets one Next line" "$(grep -c 'class="sqnext"' /tmp/b.html)" 1
+chk "soil table says tired (the chip is gone; the Next line says it too)" "$(grep -c 'tired <b>30</b>' /tmp/b.html)$(grep -c 'the soil is tired' /tmp/b.html)" 11
+chk "yard tile titles use that word too" "$(grep -c 'soil tired' /tmp/b.html | awk '{print ($1>0)?"yes":"no"}')" yes
+chk "N-P-K is one row of three badges" "$(grep -o 'class="npkchip' /tmp/b.html | wc -l | tr -d ' ')" 3
 echo "== php errors"; if [ -s /tmp/beds-php.log ] && grep -qiE "warning|notice|fatal|deprecated" /tmp/beds-php.log; then grep -iE "warning|notice|fatal|deprecated" /tmp/beds-php.log | head; FAILS=$((FAILS+1)); else echo "(none)"; fi
 echo "failures: $FAILS"; exit $FAILS

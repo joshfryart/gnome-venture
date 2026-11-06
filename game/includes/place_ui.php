@@ -115,7 +115,7 @@ $sCh = hollow_weather_chances($sn['season'], $sRegion);
 arsort($sCh);
 $sRegions = q('SELECT code, gnomish_name AS name, real_name FROM regions ORDER BY id')->fetchAll(); ?>
 <details class="fold box seasonfold" id="seasons"<?= ($_GET['tab'] ?? '') === 'seasons' ? ' open' : '' ?>>
-  <summary><?= $sn['season_emoji'] ?> Seasons &amp; weather: <?= e($sn['season_label']) ?>, <?= $sn['weather_emoji'] ?> <?= e($sn['weather_label']) ?></summary>
+  <summary><?= $sn['season_emoji'] ?> Seasons &amp; weather <small class="muted"><?= e($sn['season_label']) ?> · <?= $sn['weather_emoji'] ?> <?= e($sn['weather_label']) ?></small></summary><?php /* v2.3.x: name, then the state as a muted note (as the Road Journal fold), so it breaks between them, not mid-phrase */ ?>
   <p><b><?= e(hollow_line($sRegion)) ?></b></p>
   <p class="muted"><?= e(HOLLOW_SEASONS[$sn['season']][3]) ?> <?= e(HOLLOW_WEATHER[$sn['weather']][3]) ?>
     <?= $sn['mode'] === 'game' ? 'Day ' . $sn['season_day'] . ' of ' . $sn['season_length'] . '.' : 'Following the real calendar.' ?>
@@ -173,60 +173,12 @@ function land_card_html(array $u, array $node, ?array $nodeRegion): string
 }
 
 // Town helpers moved from town.php (phase 1b, unchanged)
-/** v2.0.4 menu folds: everyone you've met, where they are now, with search and filters (was the folk.php list). */
-function town_known_html(array $u, bool $hub, bool $title = true): string
-{
-    require_once __DIR__ . '/maps.php';
-    require_once __DIR__ . '/folk_list.php';
-    require_once __DIR__ . '/friends.php';
-    $uid = (int)$u['id'];
-    $all = met_npcs($uid);
-    $qs = trim((string)($_GET['q'] ?? ''));
-    $f = (string)($_GET['f'] ?? '');
-    $reg = (string)($_GET['r'] ?? '');
-    $regions = array_values(array_unique(array_filter(array_map(fn($n) => (string)($n['home']['region'] ?? ''), $all))));
-    sort($regions);
-    $list = array_filter($all, function ($n) use ($qs, $f, $reg, $u) {
-        if ($qs !== '' && stripos($n['name'] . ' ' . $n['species'] . ' ' . $n['personality'], $qs) === false) return false;
-        if ($f === 'here' && !npc_here($u, (int)$n['id'])) return false;
-        if ($reg !== '' && ($n['home']['region'] ?? '') !== $reg) return false;
-        return true;
-    });
-    $byLevel = [];
-    foreach ($list as $n) $byLevel[$n['level']['index']][] = $n;
-    krsort($byLevel);
-    $total = (int)q_val('SELECT COUNT(*) FROM npcs WHERE active = 1');
-    $h = ($title ? '<h2 id="known">👥 Villagers you know</h2>' : '')
-        . '<p class="help">Everyone you’ve met: ' . count($all) . ' of the Hollow’s ' . $total . ' villagers. You meet people by visiting their shop while they’re at the counter, finding them about town, or chatting and giving gifts. Their full pages are in your <a href="' . e(url('book.php?ch=Folk')) . '">Almanac → Villagers</a> too.</p>'
-        . '<form method="get" action="' . e(url('town.php')) . '" class="box folkfilter"><input type="hidden" name="view" value="villagers"><input type="hidden" name="known" value="1">' . ($hub ? '<input type="hidden" name="hub" value="1">' : '')
-        . '<input type="search" name="q" value="' . e($qs) . '" placeholder="Search by name…" aria-label="Search by name">'
-        . '<select name="r" aria-label="Home region"><option value="">All regions</option>';
-    foreach ($regions as $rg) $h .= '<option' . ($rg === $reg ? ' selected' : '') . '>' . e($rg) . '</option>';
-    $h .= '</select><label><input type="checkbox" name="f" value="here"' . ($f === 'here' ? ' checked' : '') . '> Here now</label>'
-        . '<button class="btn small">Show</button>' . ($qs !== '' || $f !== '' || $reg !== '' ? ' <a href="' . e(url('town.php?' . ($hub ? 'hub=1&' : '') . 'view=villagers#known')) . '">Clear</a>' : '') . '</form>';
-    if (!$all) $h .= '<div class="box"><p class="muted">Nobody yet. Visit a shop or wander the town square to meet the locals.</p></div>';
-    elseif (!$list) $h .= '<div class="box"><p class="muted">Nobody matches that.</p></div>';
-    foreach ($byLevel as $li => $group) {
-        $h .= '<h3 class="folkgroup">💛 ' . e(FRIEND_LEVELS[$li][1] ?? 'Stranger') . ' <small>' . count($group) . '</small></h3><div class="box">';
-        foreach ($group as $n) {
-            $lnk = e(url('folk.php?id=' . (int)$n['id']));
-            $h .= '<div class="folkrow"><a href="' . $lnk . '" data-folk-npc="' . (int)$n['id'] . '">' . npc_portrait($n, 'small') . '</a>'
-                . '<div><a href="' . $lnk . '" data-folk-npc="' . (int)$n['id'] . '"><b>' . e($n['name']) . '</b></a> <small class="muted">' . e(trim(strtolower((string)$n['personality'] . ' ' . (string)$n['species']))) . (!empty($n['traveller']) ? ' · traveller' : '') . '</small>'
-                . '<br><small>📍 ' . e($n['now']['what']) . (npc_here($u, (int)$n['id']) ? ' · <b class="good">here now</b>' : '') . '</small>'
-                . '<br><small class="muted">🏡 ' . ($n['home'] ? e($n['home']['name'] . ' · ' . $n['home']['region']) : (!empty($n['traveller']) ? 'travels the Hollow' : '—')) . (npc_birthday_today($n) ? ' · 🎂 birthday today!' : '') . '</small></div></div>';
-        }
-        $h .= '</div>';
-    }
-    return $h . '<details class="fold mapfold"><summary>🗺️ On the world map</summary><div class="mapwrap">' . world_map_svg($u) . '</div>'
-        . '<p class="help">👤 marks a town where villagers you know (Acquaintance or better) are right now. 🎩 is you.</p></details>';
-}
-
 /** Who's at a place: little links to each NPC. */
 function npc_faces(array $npcs, bool $names): string
 {
     $h = '';
     foreach ($npcs as $n) {
-        $h .= '<a class="npcface" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '" data-folk-npc="' . (int)$n['id'] . '" title="' . e($n['name']) . '">' . npc_icon($n['species'])
+        $h .= '<a class="npcface" href="' . e(url('villagers.php?id=' . (int)$n['id'])) . '" data-folk-npc="' . (int)$n['id'] . '" title="' . e($n['name']) . '">' . npc_icon($n['species'])
             . ($names ? ' ' . e($n['name']) . (!empty($n['traveller']) ? ' <small class="tag">traveller</small>' : '') : '') . '</a>';
     }
     return $h;
@@ -268,7 +220,7 @@ function town_favours_box(int $uid, string $town, bool $hub, int $sid): void
       <?php $shown = 0; foreach ($folk as $n): $o = favour_offer($uid, $n, $town); if (!$o) continue; $shown++;
           $have = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $o['item']['id']]); ?>
         <div class="favour<?= $o['done'] ? ' done' : '' ?>"><span class="ficon"><?= npc_icon($n['species']) ?></span>
-          <div><b><a href="<?= e(url('folk.php?id=' . (int)$n['id'])) ?>"><?= e($n['name']) ?></a></b>: “Could you bring me <?= (int)$o['qty'] ?> × <?= e($o['item']['name']) ?>?”
+          <div><b><a href="<?= e(url('villagers.php?id=' . (int)$n['id'])) ?>"><?= e($n['name']) ?></a></b>: “Could you bring me <?= (int)$o['qty'] ?> × <?= e($o['item']['name']) ?>?”
             <br><small class="muted">Reward: <?= money($o['coins']) ?>, 10 XP and friendship · you have <?= $have ?></small></div>
           <?php if ($o['done']): ?><span class="muted">✔️ Done this week</span>
           <?php else: ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="favour"><input type="hidden" name="npc" value="<?= (int)$n['id'] ?>">
@@ -324,17 +276,139 @@ function stop_tab_html(array $u, array $node, bool $hub): string
     $uid = (int)$u['id'];
     foreach (stop_sets_check($uid) as $m) flash($m);   // a set can be complete after an admin changed the numbers
     $nodeRegion = !empty($node['region_id']) ? q_one('SELECT * FROM regions WHERE id = ?', [$node['region_id']]) : null;
-    $h = '<h2>🛂 Stamp passport</h2><p class="muted">Every rest stop gives you a stamp on your first visit. Fill the sets for rewards and titles. Hidden villages you find count too.</p>';
+    // v2.3.x: the same section head and note as the other Town tabs (Orders, Villagers); .st-page is the container the wide layout keys off
+    $h = '<div class="st-page"><h2 class="gx-h">🛂 Stamp passport</h2><p class="gx-note gx-note--top">A stamp for every rest stop you visit. Sets pay rewards and titles.</p>';
     $titles = stop_titles($uid);
-    if ($titles) {
-        $h .= '<p>Titles earned: ';
-        foreach ($titles as $t) $h .= '<span class="tag">“' . e($t) . '”</span> ';
-        $h .= '<a href="' . e(url('book.php?ch=Milestones')) . '">Choose yours in the Almanac →</a></p>';
+    $tf = '';
+    if ($titles) {   // v2.3.x: a fold row inside the passport summary box, not a wall of tags above it
+        $tf = '<details class="fold st-titles"><summary>Titles earned <small class="muted">' . count($titles) . '</small></summary><p class="st-tags">';
+        foreach ($titles as $t) $tf .= '<span class="tag">“' . e($t) . '”</span> ';
+        $tf .= '</p><a class="st-almanac" href="' . e(url('book.php?ch=Milestones')) . '">Choose yours in the Almanac →</a></details>';
     }
-    $h .= stop_passport_html($u);
-    $h .= '<p class="help">📜 <a href="' . e(url('jobs.php?t=orders' . ($hub ? '&hub=1' : ''))) . '">Orders</a> · all open orders are on the Tasks page.</p>';
-    $h .= season_fold_html($u) . land_card_html($u, $node, $nodeRegion);
+    require_once __DIR__ . '/road_life.php';
+    $h .= stop_passport_html($u, $tf);
+    $h .= '<p class="gx-note">📜 <a href="' . e(url('jobs.php?t=requests' . ($hub ? '&hub=1' : ''))) . '">Orders</a> · all open orders are on the Tasks page.</p>';
+    $h .= '<div class="st-folds">' . road_journal_html($uid) . season_fold_html($u) . '</div>' . land_card_html($u, $node, $nodeRegion);
+    return $h . '</div>';
+}
+
+/**
+ * v2.5.53: the slim Rest stop card for the Here picture (a popover): your stamps, then the two things a stop offers: "Take hold here" (adopt this stop) and
+ * "Garden here" (the land deed). Forms carry data-vform, so assets/hubscene.js posts them to town.php in place and the card comes back with the result.
+ */
+function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '', bool $ok = true): string
+{
+    require_once __DIR__ . '/stop_pass.php';
+    require_once __DIR__ . '/stop_adopt.php';
+    $uid = (int)$u['id'];
+    if (($node['kind'] ?? '') === 'village') stop_stamp($uid, $node);   // v2.5.54: being here is the visit
+    $stamps = count(stop_stamps_of($uid));
+    $total = count(stop_road_stops());
+    $here = (bool)q_val('SELECT 1 FROM stop_stamps WHERE user_id = ? AND location_id = ?', [$uid, (int)$node['id']]);
+    $sec = '';   // the tab being built: each form remembers it, so the card comes back on the same tab
+    $form = function (string $do, string $kind, string $btn, string $ask = '') use (&$sec): string {
+        return '<form method="post" class="inline" data-vform' . ($ask !== '' ? ' data-confirm="' . e($ask) . '"' : '') . '>'
+            . '<input type="hidden" name="do" value="' . $do . '">' . ($kind !== '' ? '<input type="hidden" name="kind" value="' . $kind . '">' : '') . '<input type="hidden" name="card" value="stop"><input type="hidden" name="tab" value="' . $sec . '">' . $btn . '</form>';
+    };
+    $P = [];   // tab key => [label, panel html]
+    $dflt = '';
+    if ($node['kind'] === 'village' && on_road((int)$node['id']) && (stop_adopt_limit() > 0 || stop_adoption((int)$node['id']))) {
+        $a = stop_adoption((int)$node['id']);
+        $maxed = $a && stop_top_tier() > 0 && (int)$a['tier'] >= stop_top_tier();
+        $isMine = $a && (int)$a['user_id'] === $uid;
+        $perk = function () use ($a, $form): string {
+            $done = ($a['perk_day'] ?? '') === hollow_date('Y-m-d');
+            return $form('local', '_perk', '<button class="btn small"' . ($done ? ' disabled' : '') . '>🎁 ' . ($done ? 'Welcome taken today' : 'Collect the welcome') . '</button>');
+        };
+        $sec = 'hold'; $b = '';
+        if ($maxed) $b = $isMine ? '<p>You look after this stop (fully built).</p>' . $perk() : '<p class="muted">Fully built' . ($a['user_id'] ? ', looked after by ' . e(stop_gnome_label($a)) : '') . '. Nothing to adopt: keep it up (Upkeep).</p>';
+        elseif ($isMine) $b = '<p>You look after this stop.</p>' . $perk() . stop_slim_needs($u, $node, $a, $form);
+        elseif ($a && $a['user_id']) $b = '<p class="muted">Looked after by ' . e(stop_gnome_label($a)) . '.</p>';
+        else {
+            [$slots, $count] = stop_adopt_slots($uid);
+            $fee = max(0, (int)setting('stop_adopt_cost'));
+            $why = !$here ? 'Collect this stop’s stamp first (it comes with your first visit).' : ($count >= $slots ? 'You look after ' . $count . ' of ' . $slots . ' stops already.' : '');
+            $b = '<p class="muted">Adds a bench, stall, well and hall for all. ' . money($fee) . '.</p>'
+                . ($why === '' ? $form('local', '_adopt', '<button class="btn small">🏡 Take hold of ' . e($node['name']) . '</button>', 'Take hold of ' . $node['name'] . ' for ' . number_format($fee) . '?') : '<p class="muted">' . e($why) . '</p>');
+        }
+        $P['hold'] = ['🏡 Hold', $b];
+        $dflt = 'hold';
+        if ($maxed) {
+            $sec = 'upkeep';
+            $P['upkeep'] = ['🔧 Upkeep', stop_slim_upkeep($u, $node, $a, $form, $here)];
+            if (!stop_upkeep_met(stop_upkeep_needs($node), stop_upkeep_pool_of($a))) $dflt = 'upkeep';
+        }
+    }
+    if ($node['kind'] === 'village' && $node['region_id']) {   // Garden here: the land deed (or your garden in this region)
+        $sec = 'garden';
+        $plot = q_one('SELECT * FROM plots WHERE user_id = ? AND region_id = ?', [$uid, $node['region_id']]);
+        $owned = (int)q_val('SELECT COUNT(*) FROM plots WHERE user_id = ?', [$uid]);
+        if ($plot) $g = '<p>' . eu($plot['garden_name'] ?: 'Your garden') . '</p><a class="btn small" href="' . e(url('garden.php')) . '">Open your garden ›</a>';
+        elseif ($owned < max_gardens($u)) $g = '<p class="muted">Land for ' . money(deed_cost($uid)) . '. Native crops grow faster.</p>'
+            . $form('deed', '', '<button class="btn small">📜 Buy land deed</button>', 'Buy a land deed here for ' . number_format(deed_cost($uid)) . '?');
+        else $g = '<p class="muted">' . (next_garden_level($u) ? 'Another garden from gnome level ' . next_garden_level($u) . '.' : 'You tend as many gardens as a gnome can.') . '</p>';
+        $P['garden'] = ['🌱 Garden', $g];
+        if ($dflt === '') $dflt = 'garden';
+    }
+    $want = (string)($_POST['tab'] ?? '');
+    $cur = isset($P[$want]) ? $want : $dflt;
+    $h = '<div class="st-slim">' . ($msg !== '' ? '<p class="' . ($ok ? 'good' : 'bad') . '" role="status">' . e($msg) . '</p>' : '')
+        . '<p class="st-sumline"><b>' . $stamps . '</b>/' . $total . ' stops stamped' . ($here ? ' · ✅ here' : '') . '</p>'
+        . '<progress max="' . max(1, $total) . '" value="' . $stamps . '" aria-label="Road stops stamped"></progress>';
+    if ($P) {   // tabs without script: a radio per tab, the checked one shows its panel (assets/style.css .st-tabs)
+        $h .= '<div class="st-tabs">';
+        foreach ($P as $k => $_) $h .= '<input type="radio" class="vh" name="sttab" id="stt-' . $k . '"' . ($k === $cur ? ' checked' : '') . '>';
+        $h .= '<nav class="st-tabbar" aria-label="Rest stop sections">';
+        foreach ($P as $k => [$lab]) $h .= '<label for="stt-' . $k . '" class="st-tab st-tab--' . $k . '">' . $lab . '</label>';
+        $h .= '</nav>';
+        foreach ($P as $k => [, $body]) $h .= '<div class="st-pan st-pan--' . $k . '">' . $body . '</div>';
+        $h .= '</div>';
+    }
+    return $h . '</div>';
+}
+
+/** v2.5.57: the monthly upkeep box of a fully built stop: what this month still needs, a hand-in for any gnome. */
+function stop_slim_upkeep(array $u, array $node, array $a, callable $form, bool $here): string
+{
+    $needs = stop_upkeep_needs($node);
+    $pool = stop_upkeep_pool_of($a);
+    $met = stop_upkeep_met($needs, $pool);
+    $h = '';
+    $h .= $met ? '<p class="good">✅ Kept up for ' . e(gmdate('F')) . '.</p>'
+        : '<p class="muted">Fully built. Unpaid by the end of ' . e(gmdate('F')) . ', it loses a tier. Anyone can chip in.</p>';
+    if (!$met) {
+        $h .= '<ul class="st-needs">';
+        foreach ($needs as [$k, $q]) {
+            $given = min($q, (int)($pool[$k] ?? 0)); $left = $q - $given; $have = stop_need_have($u, $k);
+            $h .= '<li class="' . ($left <= 0 ? 'good' : '') . '"><span>' . ($left <= 0 ? '✅ ' : '') . e(stop_need_label($k)) . ' <b>' . $given . '/' . $q . '</b> <small class="muted">· you have ' . number_format($have) . '</small></span>';
+            if ($left > 0) $h .= $form('local', '_upkeep', '<input type="hidden" name="need" value="' . e($k) . '"><input type="number" name="qty" min="1" max="' . $left . '" value="' . max(1, min($left, $have)) . '" aria-label="How many"> <button class="btn small"' . ($have < 1 ? ' disabled' : '') . '>Chip in</button>');
+            $h .= '</li>';
+        }
+        $h .= '</ul>';
+    }
     return $h;
+}
+
+/** v2.5.54: the next upgrade's needs of a stop you look after, each with a hand-in box, for the Rest stop popover (posts in place; _give). */
+function stop_slim_needs(array $u, array $node, array $a, callable $form): string
+{
+    $tiers = stop_tiers_for($node);
+    $next = (int)$a['tier'] + 1;
+    if (!isset($tiers[$next])) return '<p class="muted">🎉 Fully built (tier ' . (int)$a['tier'] . ' of ' . stop_top_tier() . ').</p>';
+    $pool = stop_pool_of($a);
+    $h = '<p class="muted">Next: <b>' . e((string)$tiers[$next]['name']) . '</b></p><ul class="st-needs">';
+    foreach (stop_tier_needs($tiers[$next]) as [$k, $q]) {
+        $given = min($q, (int)($pool[$k] ?? 0));
+        $have = stop_need_have($u, $k);
+        $left = $q - $given;
+        $h .= '<li class="' . ($left <= 0 ? 'good' : '') . '"><span>' . ($left <= 0 ? '✅ ' : '') . e(stop_need_label($k)) . ' <b>' . $given . '/' . $q . '</b> <small class="muted">· you have ' . number_format($have) . '</small></span>';
+        if ($left > 0) {
+            $max = max(1, min($left, $have));
+            $h .= $form('local', '_give', '<input type="hidden" name="need" value="' . e($k) . '"><input type="number" name="qty" min="1" max="' . $left . '" value="' . $max . '" aria-label="How many"> <button class="btn small"' . ($have < 1 ? ' disabled' : '') . '>Hand in</button>');
+        }
+        $h .= '</li>';
+    }
+    return $h . '</ul>';
 }
 
 /** Main-stop tabs: Square, Villagers, Shops, Orders, Stop. $folkCount badges Villagers (0 = none). v2.0.67: in town, Shops and Orders are town.php views
@@ -346,7 +420,7 @@ function main_stop_tabs(bool $hub, bool $inTown, string $active, int $folkCount 
         'square' => ['🏘️ ' . ($inTown ? 'Square' : 'Here'), url('town.php' . ($hub ? '?hub=1' : '')), ''],
         'villagers' => ['👥 Villagers', url('town.php?' . $q . 'view=villagers'), $folkCount > 0 ? (string)$folkCount : ''],
         'shops' => ['🏪 Shops', $inTown ? url('town.php?' . $q . 'view=shops') : url('world.php?tab=markets'), ''],
-        'orders' => ['📜 Orders', $inTown ? url('town.php?' . $q . 'view=orders') : url('jobs.php?t=orders' . ($hub ? '&hub=1' : '')), ''],   // 5th tab for now (Joshua, 2026-10-27)
+        'orders' => ['📜 Orders', $inTown ? url('town.php?' . $q . 'view=orders') : url('jobs.php?t=requests' . ($hub ? '&hub=1' : '')), ''],   // 5th tab for now (Joshua, 2026-10-27)
         'stop' => ['🛂 Stop', url('town.php?' . $q . 'view=stop'), ''],
     ];
 }
@@ -481,7 +555,7 @@ function town_orders_html(int $uid, string $town, bool $hub): string
               . '<input type="hidden" name="spot" value="0"><input type="hidden" name="view" value="orders">' . ($hub ? '<input type="hidden" name="hub" value="1">' : '')
               . '<button class="fbtn ocard__act"' . ($c['enough'] ? '' : ' disabled') . '>Deliver</button></form>';
         $h .= '<li class="ocard' . ($done ? ' is-done' : '') . '">'
-            . '<a class="ocard__who" href="' . e(url('folk.php?id=' . (int)$n['id'])) . '" data-folk-npc="' . (int)$n['id'] . '"><span class="ocard__face">' . npc_portrait($n, 'small') . '</span><span class="vlcard__ribbon"><span class="vlcard__name">' . e($n['name']) . '</span></span></a>'
+            . '<a class="ocard__who" href="' . e(url('villagers.php?id=' . (int)$n['id'])) . '" data-folk-npc="' . (int)$n['id'] . '"><span class="ocard__face">' . npc_portrait($n, 'small') . '</span><span class="vlcard__ribbon"><span class="vlcard__name">' . e($n['name']) . '</span></span></a>'
             . '<p class="ocard__q">“' . e($o['text']) . '”</p><p class="ocard__tags">' . $tags . '</p><p class="ocard__rw">' . $rw . '</p>'
             . '<div class="ocard__foot">' . $foot . '</div></li>';
     }

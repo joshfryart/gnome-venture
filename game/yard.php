@@ -40,12 +40,13 @@ page_header('Design your yard');
 <h1>✏️ Design your yard</h1>
 <p class="help"><b>Drag</b> things to move them, or <b>tap</b> one and then tap where it should go. Drag decor from the tray onto the yard, and back to the tray to put it away.
   Empty bed squares can move too; beds with something growing stay put. Nothing changes until you press <b>Save</b>.
-  Fences, walls and hedges join up by themselves; <b>🔀 Shape</b> picks a shape by hand.</p>
+  Fences, walls, hedges, stepping stones, log seats, toadstools and flower pots join up by themselves; <b>🔀 Shape</b> picks a shape by hand (stones and the like can also stand alone: a cluster, or one piece centred or in a corner) and <b>⚖️ Size</b> picks big, small or mixed.</p>
 <noscript><div class="flash err">The yard designer needs JavaScript turned on.</div></noscript>
 
 <div class="yardtools" data-yard-tools>
   <button type="button" class="btn small" data-act="rotate" disabled>↻ Rotate</button>
   <button type="button" class="btn small" data-act="shape" disabled title="Fences, walls and hedges join their neighbours by themselves. Tap to choose a shape instead: end, straight, corner, T, cross, then back to automatic.">🔀 Shape</button>
+  <button type="button" class="btn small" data-act="size" disabled title="Stones, stumps, mushrooms and pots: big, small or mixed. For a single piece: one large or one small.">⚖️ Size</button>
   <button type="button" class="btn small" data-act="away" disabled>📦 Put away</button>
   <label class="multi"><input type="checkbox" data-act="multi"> Pick several</label>
   <label class="multi"><input type="checkbox" data-act="grid"> Grid</label>
@@ -77,7 +78,7 @@ page_header('Design your yard');
       <?php foreach ($byType[$type] as $id => $d): $def = $d['def']; ?>
         <button type="button" class="trayitem" data-item="<?= (int)$id ?>" data-qty="<?= (int)$d['qty'] ?>" data-w="<?= $def['w'] ?>" data-h="<?= $def['h'] ?>"
           data-fam="<?= e(yard_family(['kind' => 'decor', 'bw' => $def['w'], 'bh' => $def['h'], 'look' => $d['slug'], 'type' => $def['type']])) ?>"
-          data-img="<?= e(($im = yard_decor_image((string)$d['slug'], (string)($d['image'] ?? ''))) !== '' ? url($im) : '') ?>" data-icon="<?= e($def['icon']) ?>" data-type="<?= e($def['type']) ?>" data-look="<?= e($d['slug']) ?>" data-name="<?= e($d['name']) ?>"
+          data-img="<?= e(($im = yard_decor_image((string)$d['slug'], (string)($d['image'] ?? ''))) !== '' ? url($im) : '') ?>" data-icon="<?= e($def['icon']) ?>" data-type="<?= e($def['type']) ?>" data-look="<?= e($d['slug']) ?>" data-name="<?= e($d['name']) ?>"<?= isset(FAM_LOOKS[$d['slug']]) ? ' data-art="' . e(url('assets/img/fam/' . FAM_LOOKS[$d['slug']] . '-')) . '"' : '' ?><?= in_array($d['slug'], PAVE_LOOKS, true) ? ' data-pave="' . e(url('assets/img/paths/' . substr((string)$d['slug'], 0, -5) . '-')) . '"' : '' ?>
           title="<?= e($d['name'] . ($def['bonus'] !== '' ? ' · ' . YARD_BONUSES[$def['bonus']][3] : '') . ' · appeal ' . $def['appeal']) ?>">
           <span class="swatch t-<?= e($def['type']) ?> d-<?= e($d['slug']) ?>"><?= e($def['icon']) ?></span> <?= e($d['name']) ?>
           <?= $def['w'] * $def['h'] > 1 ? '<small>' . $def['w'] . '×' . $def['h'] . '</small>' : '' ?> <b data-left>×<?= (int)$d['qty'] ?></b></button>

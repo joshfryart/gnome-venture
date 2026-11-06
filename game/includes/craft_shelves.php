@@ -28,29 +28,26 @@ $show = (string)($_GET['show'] ?? '');
 if (!in_array($show, ['ready', 'missing', 'unknown'], true)) $show = '';
 $qs = trim((string)($_GET['q'] ?? ''));
 $selId = (int)($_GET['r'] ?? 0);
+require_once __DIR__ . '/craft_map.php';
+$obj = craft_obj_pick($tab);   // v2.3.7: a tapped scene object (?o=) keeps only its recipes, known or not
+$slugOf = [];
+foreach ($recipes as $r) $slugOf[(int)$r['id']] = (string)($r['slug'] ?? '');
 $shelfOf = ['ready' => ['ready'], 'missing' => ['close', 'far'], 'unknown' => ['unk']];
-$shown = array_values(array_filter($all, fn($e) => ($show === '' || in_array($e['group'], $shelfOf[$show], true)) && ($qs === '' || mb_stripos($e['hay'], $qs) !== false)));
+$shown = array_values(array_filter($all, fn($e) => ($show === '' || in_array($e['group'], $shelfOf[$show], true)) && ($qs === '' || mb_stripos($e['hay'], $qs) !== false)
+    && (!$obj || craft_tag_match($obj['globs'], $slugOf[(int)$e['id']] ?? ''))));
 $defs = ['ready' => ['✅', 'Ready to ' . ($tab === 'cooking' ? 'cook' : 'make')], 'close' => ['🧺', 'One trip away'], 'far' => ['📋', 'Need more'], 'unk' => ['❔', 'To discover']];
-$open = $show !== '' || $qs !== '' ? array_fill_keys(array_keys($defs), true) : ['ready' => true, 'close' => true];
-$base = 'inventory.php?' . http_build_query(array_filter(['tab' => 'craft', 'c' => $tab, 'show' => $show, 'q' => $qs], 'strlen'));
+$open = $show !== '' || $qs !== '' || $obj ? array_fill_keys(array_keys($defs), true) : ['ready' => true, 'close' => true];
+$base = 'inventory.php?' . http_build_query(array_filter(['tab' => 'craft', 'c' => $tab, 'show' => $show, 'q' => $qs, 'o' => $obj['id'] ?? ''], 'strlen'));
 $link = fn(int $id) => url($base . '&r=' . $id) . '#r' . $id;
 $close = fn() => url($base);
 $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   // v0.9.4: pots with timers (kitchen_pots 0 = instant)
 ?>
+<?php craft_area_header($tab, craft_can_by_obj($tab, $all, $slugOf)); ?>
+<?= craft_pop_html($tab, $all, $slugOf) /* v2.4.0: outside .shelves so the shelf handlers never see the dialogs */ ?>
 <div class="pantry2 shelves shcraft">
 <div class="p2head shhead">
-  <?php // v1.6.3: category and Ready/Missing/To discover are two dropdowns in one row; every Crafting category (the Pantry too) stays one pick away ?>
-  <form method="get" action="<?= e(url('inventory.php')) ?>" class="pickform p2cat shpick"><input type="hidden" name="tab" value="craft">
-    <label>Make <select name="c" data-autosubmit>
-      <?php foreach (CRAFT_CATEGORIES as $k => [$l, $ic]): ?><option value="<?= e($k) ?>"<?= $k === $tab ? ' selected' : '' ?>><?= $ic ?> <?= e($l) ?> (<?= (int)($counts[$k]['have'] ?? 0) ?>/<?= (int)($counts[$k]['total'] ?? 0) ?>)</option><?php endforeach; ?>
-    </select></label>
-    <label>List <select name="show" data-autosubmit>
-      <option value=""<?= $show === '' ? ' selected' : '' ?>>🗂️ All shelves</option>
-      <?php foreach (['ready' => ['✅ Ready', $n['ready']], 'missing' => ['📋 Missing', $n['missing']], 'unknown' => ['❔ To discover', $n['unknown']]] as $k => [$l, $c]): ?><option value="<?= $k ?>"<?= $show === $k ? ' selected' : '' ?>><?= $l ?> (<?= $c ?>)</option><?php endforeach; ?>
-    </select></label>
-    <button class="btn small pickgo">Go</button>
-  </form>
-  <h2 class="p2title"><?= $icon ?> <?= e($label) ?> <small><?= $known ?>/<?= count($all) ?> recipes known</small></h2>
+  <?php // v2.3.3: the area is picked on the map above (craft_map.php); this form keeps it and only filters the list ?>
+  <h2 class="p2title" id="shelves"><?= $icon ?> <?= e($label) ?> <small><?= $known ?>/<?= count($all) ?> recipes known</small></h2>
   <details class="helpfold p2help"><summary>❓ How crafting works</summary><p class="help"><?= e($blurb) ?> One workbench for everything you make. A recipe appears once you’ve collected every ingredient:
     grown it, gathered it on an adventure, or carried it in your satchel. Once found, it stays found.<?= $tab === 'cooking' ? ' Dishes wait in the pot until you collect them. Snacks cook in minutes, meals take longer, feasts longest.' : '' ?></p></details>
 </div>
@@ -61,23 +58,59 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
     You can still discover recipes in the meantime.</div>
 <?php endif; ?>
 <section class="p2jars shstation" aria-label="<?= $potsOn ? 'Pots' : 'Station' ?>">
-  <div class="p2jarrow">
-    <span class="p2jar shstat"><span class="p2ic" aria-hidden="true">⚡</span><span class="p2jt"><b><?= (int)$u['energy'] ?></b> energy</span></span>
-    <span class="p2jar shstat"><span class="p2ic" aria-hidden="true">🌸</span><span class="p2jt"><?= money((int)$u['coins']) ?></span></span>
+  <div class="p2jarrow<?= $potsOn ? ' p2shelf' : '' ?>">
     <?php if ($potsOn):
-        $pots = cook_pots_list($uid); $lim = cook_pot_limit($u); $readyN = count(array_filter($pots, fn($p) => $p['left'] <= 0));
+        require_once __DIR__ . '/pal_jobs.php';
+        try { pj_settle($uid); } catch (Throwable $e) {}   // pals tending pots check them when you look
+        $pots = cook_pots_list($uid); $lim = cook_pot_limit($u); $readyN = count(array_filter($pots, fn($p) => $p['left'] <= 0 && empty($p['pal'])));
+        $palOpts = [];   // recipes a tending pal can be set to, per station
         $outItems = [];
         foreach (q("SELECT i.* FROM items i JOIN recipes r ON r.output_item_id = i.id WHERE r.category = 'cooking'")->fetchAll() as $it) $outItems[(int)$it['id']] = $it;
-        foreach ($pots as $p): $done = $p['left'] <= 0; ?>
-      <div class="p2jar pot <?= $done ? 'done' : 'busy' ?>" title="<?= e($p['name']) ?>">
+        foreach ($pots as $p): $done = $p['left'] <= 0;
+          if (!empty($p['pal'])): // a pal tends this pot: its dish is the pal's choice, changed here and kept until changed or the shift ends
+            $jr = q_one('SELECT target FROM ppal_jobs WHERE id = ?', [(int)$p['job']]);
+            if (!isset($palOpts[(string)($jr['target'] ?? '')])) {
+                [$pa, $pb] = array_pad(explode(':', (string)($jr['target'] ?? ''), 2), 2, ''); $po = pj_station_object($pa, $pb);
+                $palOpts[(string)($jr['target'] ?? '')] = $po ? pj_station_recipes($uid, $pa, $po['globs']) : [];
+            }
+            $opts = $palOpts[(string)($jr['target'] ?? '')]; ?>
+      <button type="button" class="p2jar pot potsq palpot <?= $done && empty($p['idle']) ? 'done' : 'busy' ?>" data-palpot="palpot-<?= (int)$p['job'] ?>" title="<?= e($p['pal'] . ' is tending this pot') ?>">
+        <span class="p2ic" aria-hidden="true"><?= isset($outItems[(int)$p['item_id']]) ? sh_icon($outItems[(int)$p['item_id']], 'sm') : '🧩' ?></span>
+        <span class="shpn"><?= e($p['name']) ?><?= (int)$p['makes'] > 1 ? ' ×' . (int)$p['makes'] : '' ?></span>
+        <span class="potleft">🧩 <?= e($p['pal']) ?> is tending this pot<?= !empty($p['idle']) ? '' : ' · ' . ($done ? 'ready, served at the next check' : e(energy_clock((int)$p['left']))) ?></span>
+      </button>
+      <dialog class="picker craftpop shbagpop palpotpop" id="palpot-<?= (int)$p['job'] ?>" aria-labelledby="palpot-<?= (int)$p['job'] ?>-t"><div class="pickbox">
+        <div class="pickhead"><h3 id="palpot-<?= (int)$p['job'] ?>-t">🧩 <?= e($p['pal']) ?> at the pot</h3><button type="button" class="pickx" data-shpd-close aria-label="Close">✕</button></div>
+        <p><b>Cooking now:</b> <?= !empty($p['idle']) ? '<span class="muted">nothing yet (waits for the next check)</span>' : e($p['name']) . ((int)$p['dishes'] > 0 ? ' ×' . (int)$p['dishes'] : '') . ' · ' . ($done ? 'ready, served at the next check' : e(energy_clock((int)$p['left'])) . ' left') ?></p>
+        <?php if (empty($p['locked'])): ?>
+        <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>" class="potpick"><?= csrf_field() ?>
+          <input type="hidden" name="do" value="pal_pot_recipe"><input type="hidden" name="job_id" value="<?= (int)$p['job'] ?>">
+          <label><b>Cooks next</b> <select name="recipe_id" aria-label="What <?= e($p['pal']) ?> cooks next">
+            <?php foreach ($opts as $rid => $rx): ?><option value="<?= (int)$rid ?>"<?= (int)$rid === (int)$p['plan'] ? ' selected' : '' ?>><?= e((string)$rx['name']) ?></option><?php endforeach; ?>
+          </select></label> <button class="btn small">Set</button></form>
+        <p class="muted">Kept until you change it or the shift ends.</p>
+        <?php $pj = q_one('SELECT * FROM ppal_jobs WHERE id = ?', [(int)$p['job']]); [$canR, $txtR] = $pj ? pj_recall_preview($pj) : [false, '']; if ($canR): ?>
+        <details class="pjrecall"><summary class="btn small ghost">Send home early</summary><p class="muted"><?= e($txtR) ?></p>
+          <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="pal_recall"><input type="hidden" name="job_id" value="<?= (int)$p['job'] ?>"><button class="btn small">Send home now</button></form></details>
+        <?php endif; ?>
+        <?php else: ?><p><a class="rgo" href="<?= e(url('paljobs.php')) ?>">Collect the shift →</a></p><?php endif; ?>
+        <noscript><p><a href="<?= e(url('paljobs.php')) ?>">Manage on the Pal Jobs page</a></p></noscript>
+      </div></dialog>
+    <?php continue; endif; ?>
+      <div class="p2jar pot potsq <?= $done ? 'done' : 'busy' ?>" title="<?= e($p['name']) ?>">
         <span class="p2ic" aria-hidden="true"><?= isset($outItems[(int)$p['item_id']]) ? sh_icon($outItems[(int)$p['item_id']], 'sm') : '🍲' ?></span>
-        <span class="p2jt"><span class="shpn"><?= e($p['name']) ?><?= (int)$p['makes'] > 1 ? ' ×' . (int)$p['makes'] : '' ?></span> <span class="potleft" data-potleft="<?= (int)$p['left'] ?>"><?= $done ? 'Ready!' : e(energy_clock((int)$p['left'])) ?></span></span>
+        <span class="shpn"><?= e($p['name']) ?><?= (int)$p['makes'] > 1 ? ' ×' . (int)$p['makes'] : '' ?></span>
+        <span class="potleft" data-potleft="<?= (int)$p['left'] ?>"><?= $done ? 'Ready!' : e(energy_clock((int)$p['left'])) ?></span>
         <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>" class="potcollect"<?= $done ? '' : ' hidden' ?>><?= csrf_field() ?>
           <input type="hidden" name="do" value="collect"><input type="hidden" name="pot_id" value="<?= (int)$p['id'] ?>"><button class="btn small">Collect</button></form>
       </div>
     <?php endforeach;
         $free = max(0, $lim - count($pots)); ?>
-    <?php if ($free): ?><div class="p2jar empty"><span class="p2ic" aria-hidden="true">🫕</span><span class="p2jt">+<?= $free ?> free pot<?= $free > 1 ? 's' : '' ?></span></div><?php endif; ?>
+    <?php for ($fi = 0; $fi < $free; $fi++): ?><div class="p2jar pot potsq empty" title="Empty pot"><span class="p2ic" aria-hidden="true">🫕</span><span class="shpn">Empty</span><span class="potleft">free</span></div><?php endfor; ?>
+    </div><div class="p2potacts">
+    <?php if ($free > 0 && ($lastDish = (string)q_val('SELECT i.name FROM users u JOIN items i ON i.id = u.last_cooked_id WHERE u.id = ?', [(int)$u['id']])) !== ''): ?>
+    <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>" class="p2all"><?= csrf_field() ?><input type="hidden" name="do" value="cook_again"><button class="btn small">Cook again: <?= e($lastDish) ?></button></form>
+    <?php endif; ?>
     <form method="post" action="<?= e(url('crafting.php?c=cooking')) ?>" class="p2all" data-potall<?= $readyN >= 2 ? '' : ' hidden' ?>><?= csrf_field() ?><input type="hidden" name="do" value="collect_all"><button class="btn small alt">Collect all</button></form>
     <?php elseif ($stations[$tab] === 0): $b = BUILDINGS[$building]; ?>
       <span class="p2jar shstat empty"><span class="p2ic" aria-hidden="true">🔒</span><span class="p2jt"><?= e($b[0]) ?> needed</span></span>
@@ -88,28 +121,26 @@ $potsOn = $tab === 'cooking' && cook_pots_on() && $stations['cooking'] !== 0;   
     <?php endif; ?>
   </div>
 </section>
-<?php // shopping list: what the "one trip away" recipes still need, summed (the most wanted first)
-$shop = []; $closeN = 0;
-foreach ($all as $e) if ($e['group'] === 'close') { $closeN++; foreach ($e['ings'] as $i) if ($i['have'] < $i['qty']) {
-    $shop[$i['slug']] ??= ['name' => $i['name'], 'need' => 0, 'have' => (int)$i['have'], 'for' => 0, 'it' => $e['icons'][$i['slug']] ?? null];
-    $shop[$i['slug']]['need'] = max($shop[$i['slug']]['need'], (int)$i['qty']); $shop[$i['slug']]['for']++;
-} }
-uasort($shop, fn($a, $b) => $b['for'] <=> $a['for']);
-if ($shop): ?>
-<section class="shquick shshop" aria-label="Shopping list"><h3 class="shqh">🧺 Shopping list <small>gather these to unlock <?= $closeN ?> more</small></h3>
-  <div class="shqrow">
-    <?php foreach (array_slice($shop, 0, 12, true) as $x): ?>
-      <div class="shqi"><span class="p2ic" aria-hidden="true"><?= $x['it'] ? sh_icon($x['it'], 'sm') : '❔' ?></span><span class="shqt"><b><?= e($x['name']) ?></b><small><?= $x['have'] ?>/<?= $x['need'] ?> · for <?= $x['for'] ?></small></span></div>
-    <?php endforeach; ?>
-  </div>
-</section>
-<?php endif; ?>
+<?php // v2.4.0: the long list is a closed fold: the scene popovers do the crafting. It opens by itself for a tapped object, a search, a List pick or an open recipe (and without JS) ?>
+<details class="craftall" id="shelves-all"<?= ($obj || $qs !== '' || $show !== '' || $selId > 0) ? ' open' : '' ?>><summary><b>All recipes</b> <small class="muted"><?= $n['ready'] ?> ready · <?= $n['missing'] ?> missing · <?= $n['unknown'] ?> to discover</small></summary>
+<div class="p2head shhead craftallhd">
+  <form method="get" action="<?= e(url('inventory.php')) ?>" class="pickform p2cat shpick"><input type="hidden" name="tab" value="craft"><input type="hidden" name="c" value="<?= e($tab) ?>"><?php if ($obj): ?><input type="hidden" name="o" value="<?= e($obj['id']) ?>"><?php endif; ?>
+    <label>List <select name="show" data-autosubmit>
+      <option value=""<?= $show === '' ? ' selected' : '' ?>>🗂️ All shelves</option>
+      <?php foreach (['ready' => ['✅ Ready', $n['ready']], 'missing' => ['📋 Missing', $n['missing']], 'unknown' => ['❔ To discover', $n['unknown']]] as $k => [$l, $c]): ?><option value="<?= $k ?>"<?= $show === $k ? ' selected' : '' ?>><?= $l ?> (<?= $c ?>)</option><?php endforeach; ?>
+    </select></label>
+    <button class="btn small pickgo">Go</button>
+  </form>
+</div>
+<?php // v2.5.0: the shopping list is gone: a popover's Missing tab already says what you lack ?>
 <?= sh_search($qs, '<input type="hidden" name="tab" value="craft"><input type="hidden" name="c" value="' . e($tab) . '">' . ($show !== '' ? '<input type="hidden" name="show" value="' . e($show) . '">' : ''), '🔍 Search ' . $known . ' recipes or an ingredient…') ?>
+<?php if ($obj) echo craft_obj_line($obj, url('inventory.php?' . http_build_query(array_filter(['tab' => 'craft', 'c' => $tab, 'show' => $show, 'q' => $qs], 'strlen'))) . '#shelves', count($shown)); ?>
 <?php if (!$shown): ?>
-  <p class="muted"><?= $qs !== '' ? 'Nothing matches “' . e($qs) . '”.' : (['ready' => 'Nothing you can make right now. Check 📋 Missing to see what to gather.', 'missing' => 'Nothing missing: everything you know, you can make.', 'unknown' => 'You’ve discovered every recipe here!'][$show] ?? 'No recipes yet.') ?></p>
+  <p class="muted"><?= $obj ? 'Nothing here on this list.' : '' ?><?= $obj ? '' : ($qs !== '' ? 'Nothing matches “' . e($qs) . '”.' : (['ready' => 'Nothing you can make right now. Check 📋 Missing to see what to gather.', 'missing' => 'Nothing missing: everything you know, you can make.', 'unknown' => 'You’ve discovered every recipe here!'][$show] ?? 'No recipes yet.')) ?></p>
 <?php endif; ?>
 <?= sh_shelves($shown, $defs, $open, $selId, 'craft-' . $tab, $link, $close, false) ?>
 <p class="muted shnone" hidden>Nothing matches.</p>
+</details>
 </div>
 <?php
 }

@@ -8,20 +8,33 @@ require_once __DIR__ . '/includes/puzzle_pals.php';   // v2.0.89: pals along
 require_once __DIR__ . '/includes/friends.php';
 $u = require_login();
 
-/* v2.0.89: My Gnome is a rail of tabs (Overview, Pals, Stats, Calling, Foods, Villagers, Gardens). Every tab is a plain link (?tab=), so it works without script. */
+// A link to another gnome's page goes to their public profile: other players only ever see the gnome part, never your Today.
+if (isset($_GET['id']) && (int)$_GET['id'] !== (int)$u['id']) redirect('profile.php?id=' . (int)$_GET['id']);
+
+/* Next version: Today and My Gnome are one home page. Two tabs under a shared header: TODAY (the default: news, the cards, the Hollow line)
+   and MY GNOME (level, health, pals along, and tiles to the sub-pages Stats, Calling, Pals, Foods, Villagers, Gardens, which keep their old
+   ?tab= addresses and get a back link). Every tab is a plain link (?tab=), so it works without script; in-place loads via AJAX_PAGES. */
 $palsOn = ppal_open() && !is_guest($u);
-$TABS = ['overview' => ['🧙', 'Overview'], 'pals' => ['🐾', 'Pals'], 'stats' => ['💪', 'Stats'], 'calling' => ['🎩', 'Calling'],
-         'foods' => ['🍴', 'Foods eaten'], 'folk' => ['💛', 'Villagers'], 'gardens' => ['🏡', 'Gardens']];
-if (!$palsOn) unset($TABS['pals']);
-$tab = (string)($_GET['tab'] ?? 'overview');
-if (!isset($TABS[$tab])) $tab = 'overview';
-$gurl = fn(string $t, array $x = [], string $frag = ''): string => url('gnome.php?' . http_build_query(['tab' => $t] + $x)) . $frag;
+$todayOn = (int)($u['onboarded'] ?? 1) === 1;   // a gnome still being set up has no garden yet: the gnome part only
+$SUBS = ['stats' => ['💪', 'Stats'], 'calling' => ['🎩', 'Calling'], 'pals' => ['🐾', 'Pals'], 'foods' => ['🍴', 'Foods'], 'folk' => ['💛', 'Villagers'], 'gardens' => ['🏡', 'Gardens']];
+if (!$palsOn) unset($SUBS['pals']);
+$TABS = ['today' => 1, 'gnome' => 1] + $SUBS;
+$tab = (string)($_GET['tab'] ?? (isset($_GET['dye']) ? 'stats' : 'today'));   // the Dye Pot's old link (?dye=1#dyes) opens Stats, where the dyes are now
+if ($tab === 'overview') $tab = 'gnome';   // the old Overview tab
+if (!isset($TABS[$tab])) $tab = 'today';
+if ($tab === 'today' && !$todayOn) $tab = 'gnome';
+$gurl = fn(string $t, array $x = [], string $frag = ''): string => url('gnome.php' . ($t === 'today' && !$x ? '' : '?' . http_build_query(['tab' => $t] + $x))) . $frag;
 
 if (is_post()) {
     csrf_check();
     $do = (string)($_POST['do'] ?? '');
-    $back = (string)($_POST['back'] ?? 'overview');
-    if (!isset($TABS[$back])) $back = 'overview';
+    $back = (string)($_POST['back'] ?? 'gnome');
+    if (!isset($TABS[$back])) $back = 'gnome';
+    if ($do === 'heal') {   // v2.3.5: a Healing Potion or a snack, from the Health box
+        [$ok, $msg] = hp_use($u, (string)($_POST['what'] ?? ''), (int)($_POST['item'] ?? 0));
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect('gnome.php?tab=gnome');
+    }
     if ($do === 'stat') {
         $sk = (string)($_POST['stat'] ?? '');
         [$ok, $msg] = spend_stat_point($u, $sk);
@@ -39,7 +52,7 @@ if (is_post()) {
             if (!$ok) { flash($msg, 'err'); $bad++; }
         }
         if (!$bad) flash('🎨 Your gnome looks splendid.');
-        redirect('gnome.php?dye=1#dyes');
+        redirect('gnome.php?tab=stats&dye=1#dyes');
     } elseif (in_array($do, ['take', 'home'], true) && $palsOn) {   // v2.0.89: pals along. take = into the picked slot (the pal there goes home first)
         $key = (string)($_POST['pal'] ?? '');
         if ($do === 'take' && ($out = (string)($_POST['out'] ?? '')) !== '') ppal_set_active($u, $out, false);
@@ -47,9 +60,17 @@ if (is_post()) {
         flash($msg, $ok ? 'ok' : 'err');
         redirect($gurl($back));
     }
-    redirect('gnome.php');
+    redirect('gnome.php?tab=gnome');
 }
 
+if ($tab === 'today') {
+    $GLOBALS['gv_today_page'] = true;   // layout.php: trims the right rail, shows the full festival banner, and skips the tour's visit:gnome step
+    require_once __DIR__ . '/includes/today_view.php';
+    $tctx = today_prepare($u);   // pays Hollow jar tiers before page_header (the prize pop-up is queued first)
+    $u = $tctx['u'];
+} else {
+    $tctx = [];
+}
 refresh_energy($u);
 $GLOBALS['CURRENT_USER'] = $u;
 $uid = (int)$u['id'];
@@ -75,7 +96,7 @@ $pick = $canParty && isset($_GET['pick']) ? max(0, min(ppal_party_max() - 1, (in
 $palBook = $palsOn ? ppal_book($uid) : null;
 [$palF, $palT] = $palsOn ? ppal_counts($uid) : [0, 0];
 
-$radarSvg = function (string $selK = '') use ($u, $gurl): string {   // the stat web: Overview (no selection) and Stats tab
+$radarSvg = function (string $selK = '') use ($u, $gurl): string {   // the stat web on the Stats sub-page
     $keys = array_keys(GNOME_STATS);
     $n = count($keys); $cx = 130; $cy = 128; $R = 92;
     $ptAt = function (int $i, float $f) use ($n, $cx, $cy, $R): array { $a = -M_PI / 2 + 2 * M_PI * $i / $n; return [round($cx + cos($a) * $R * $f, 1), round($cy + sin($a) * $R * $f, 1)]; };
@@ -90,23 +111,37 @@ $radarSvg = function (string $selK = '') use ($u, $gurl): string {   // the stat
     return $o . '</svg>';
 };
 
-page_header('My Gnome');
+$pick = in_array($tab, ['gnome', 'pals'], true) ? $pick : null;   // the pal picker opens from the strip, which shows on MY GNOME and Pals
+page_header($tab === 'today' ? 'Today' : 'My Gnome');
+if (!$tctx) { $hour = hollow_hour(); $tctx['hello'] = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening'); }
+require_once __DIR__ . '/includes/today_view.php';
+$onGnome = $tab !== 'today';
 ?>
-<div class="gvpage">
-<div class="gnomehead box">
-  <?= gnome_avatar_pals($u, 90) ?>
-  <div>
-    <h1><?= e(gnome_name($u)) ?><?= $u['title'] ? ' <small class="title">“' . e($u['title']) . '”</small>' : '' ?></h1>
-    <p class="help"><a href="<?= e(url('profile.php')) ?>">👤 See your profile as others do</a></p>
-    <p><?= $u['calling'] ? e(CALLINGS[$u['calling']][0]) . ' · ' : '' ?>Garden gnome<?= $home ? ' of ' . e($home['gnomish_name']) : '' ?></p>
-    <p class="status">
-      🧑‍🌾 Gnome level <b><?= (int)$u['level'] ?></b> (<?= (int)$u['xp'] ?>/<?= xp_for_level((int)$u['level'] + 1) ?> XP)
-      · 🏡 <?= count($gardens) ?>/<?= max_gardens($u) ?> garden<?= max_gardens($u) === 1 ? '' : 's' ?>
-      · ⚡ <?= (int)$u['energy'] ?>/<?= max_energy($u) ?> energy
-    </p>
-  </div>
+<div class="homepage">
+<?= today_head_html($u, $tctx, ['class' => 'homehead', 'px' => 64]) ?>
+<?php if ($todayOn): ?>
+<nav class="tabs hometabs" aria-label="Home">
+  <a href="<?= e($gurl('today')) ?>"<?= $onGnome ? '' : ' class="on" aria-current="page"' ?>>Today</a>
+  <a href="<?= e($gurl('gnome')) ?>"<?= $onGnome ? ' class="on"' . ($tab === 'gnome' ? ' aria-current="page"' : '') : '' ?>>My Gnome</a>
+</nav>
+<?php endif; ?>
+<div class="homepanel<?= $onGnome ? ' gvpage' : '' ?>">
+<?php if ($tab === 'today'): ?>
+<div class="hometoday">
+<?= today_html($u, $tctx, ['hollow' => 'line']) ?>
 </div>
-
+<?php else: ?>
+<?php if ($tab === 'gnome' && $palsOn) { require_once __DIR__ . '/includes/pal_jobs.php'; echo pj_home_notice_html($u); }   // v2.3.3: pals back from a trip or delve ?>
+<?php if ($tab === 'gnome'): ?>
+<section class="box gnomecard" aria-label="Your gnome">
+  <p class="gcrank"><?= $u['title'] ? '“' . e($u['title']) . '” · ' : '' ?><?= $u['calling'] ? e(CALLINGS[$u['calling']][0]) . ' · ' : '' ?>Garden gnome<?= $home ? ' of ' . e($home['gnomish_name']) : '' ?></p>
+  <p class="gclevel">🎩 <b>Level <?= (int)$u['level'] ?></b> · <?= number_format((int)$u['xp']) ?>/<?= number_format(xp_for_level((int)$u['level'] + 1)) ?> XP</p>
+  <p class="gcline">🏡 <?= count($gardens) ?>/<?= max_gardens($u) ?> garden<?= max_gardens($u) === 1 ? '' : 's' ?> · ⚡ <?= (int)$u['energy'] ?>/<?= max_energy($u) ?> energy</p>
+  <?php if (!is_guest($u)) echo hp_card_html($u); ?>
+  <p class="gcprof"><a href="<?= e(url('profile.php')) ?>">See your profile as others do</a></p>
+</section>
+<?php endif; ?>
+<?php if (in_array($tab, ['gnome', 'pals'], true)): ?>
 <?php if (ppal_party_on() && !is_guest($u)): ?>
 <section class="palstrip" aria-label="Pals along">
   <div class="palhead"><b>🐾 Pals along · <?= count($eq) ?> of <?= ppal_party_max() ?></b>
@@ -122,7 +157,7 @@ page_header('My Gnome');
         </a>
       <?php endfor; ?>
     </div>
-    <?php if ((int)$palBook['found'] === 0 && $pick === null) echo ppal_howto_html(); ?>
+    <?php if ((int)$palBook['found'] === 0 && $pick === null): ?><details class="gpalhow"><summary>How to meet your first pals</summary><?= ppal_howto_html() ?></details><?php endif; ?>
   <?php endif; ?>
 </section>
 <?php if ($pick !== null): $cur = $eq[$pick] ?? null; $eqKeys = array_map(fn($x) => $x['pal']['key'], $eq); ?>
@@ -142,33 +177,24 @@ page_header('My Gnome');
   <?php endforeach; endforeach; if (!$any) echo ppal_howto_html(); ?>
 </section>
 <?php endif; endif; ?>
-
-<div class="gvrow">
-  <nav class="gvtabs" aria-label="My Gnome sections">
-    <?php foreach ($TABS as $tk => [$ti, $tl]): ?><a href="<?= e($gurl($tk)) ?>"<?= $tk === $tab ? ' class="on" aria-current="page"' : '' ?>><span aria-hidden="true"><?= $ti ?></span> <?= e($tl) ?><?= $tk === 'stats' && $pts > 0 ? ' <b class="gvbadge">' . $pts . '</b>' : '' ?></a><?php endforeach; ?>
-  </nav>
-  <div class="gvmain">
-<?php if ($tab === 'overview'):
+<?php endif; ?>
+<?php if ($tab === 'gnome'):
     $tastedN = (int)q_val('SELECT COUNT(*) FROM user_tasted WHERE user_id = ?', [$uid]);
-    $edibleTotal = (int)q_val('SELECT COUNT(*) FROM items WHERE edible = 1');
-    $lc = q_one("SELECT SUM(CASE WHEN lm.kind = 'lair' THEN 1 ELSE 0 END) AS lairs, SUM(CASE WHEN lm.kind = 'delve' THEN 1 ELSE 0 END) AS delves
-                 FROM landmark_clears c JOIN landmarks lm ON lm.id = c.landmark_id WHERE c.user_id = ?", [$uid]);
-    $knownN = (int)q_val('SELECT COUNT(*) FROM npc_friends WHERE user_id = ? AND points > 0', [$uid]); ?>
-    <?php if ($pts > 0): ?><div class="flash ok">✨ You have <b><?= $pts ?></b> stat point<?= $pts === 1 ? '' : 's' ?> to spend. <a href="<?= e($gurl('stats')) ?>">Spend them →</a></div><?php endif; ?>
-    <div class="factrow">
-      <a class="fact" href="<?= e($gurl('foods')) ?>"><span>🍴</span><b><?= $tastedN ?></b><small>foods tasted<?= $edibleTotal ? ' of ' . $edibleTotal : '' ?></small></a>
-      <a class="fact" href="<?= e($gurl('calling')) ?>"><span><?= ph_or_emoji('hat-' . (string)$u['calling'], '🎩', 24) ?></span><b><?= $u['calling'] ? e(CALLINGS[$u['calling']][0]) : ((int)$u['level'] >= $callingLevel ? 'Choose!' : 'Lv ' . $callingLevel) ?></b><small>calling</small></a>
-      <?php if ($palsOn): ?><a class="fact" href="<?= e($gurl('pals')) ?>"><span>🐾</span><b><?= $palT > 0 ? $palF . '/' . $palT : 'Pals' ?></b><small><?= count($eq) ?> along · puzzle pals</small></a><?php endif; ?>
-      <a class="fact" href="<?= e($gurl('folk')) ?>"><span>💛</span><b><?= $knownN ?></b><small>villagers who know you</small></a>
-      <a class="fact" href="<?= e($gurl('gardens')) ?>"><span>🏡</span><b><?= count($gardens) ?>/<?= max_gardens($u) ?></b><small>gardens</small></a>
-      <?php if ((int)($u['ribbons'] ?? 0)): ?><span class="fact"><span>🎀</span><b><?= (int)$u['ribbons'] ?></b><small>ribbons</small></span><?php endif; ?>
-      <?php if ((int)($u['community_rep'] ?? 0)): ?><span class="fact"><span>💚</span><b><?= (int)$u['community_rep'] ?></b><small>community help</small></span><?php endif; ?>
-      <?php if ((int)($lc['lairs'] ?? 0)): ?><span class="fact"><span>🐉</span><b><?= (int)$lc['lairs'] ?></b><small>lairs conquered</small></span><?php endif; ?>
-      <?php if ((int)($lc['delves'] ?? 0)): ?><span class="fact"><span>🕳️</span><b><?= (int)$lc['delves'] ?></b><small>delves cleared</small></span><?php endif; ?>
-    </div>
-    <div class="box"><h3>💪 Stats</h3><?= $radarSvg() ?><p class="help"><a href="<?= e($gurl('stats')) ?>">Open stats →</a></p></div>
-    <?= dye_editor_html($u) ?>
-
+    $knownN = (int)q_val('SELECT COUNT(*) FROM npc_friends WHERE user_id = ? AND points > 0', [$uid]);
+    $tileTxt = ['stats' => 'Stats', 'calling' => $u['calling'] ? CALLINGS[$u['calling']][0] : ((int)$u['level'] >= $callingLevel ? 'Calling: choose!' : 'Calling'),
+        'pals' => 'Pals' . ($palT > 0 ? ' ' . $palF . '/' . $palT : ''), 'foods' => 'Foods ' . $tastedN, 'folk' => 'Villagers ' . $knownN, 'gardens' => 'Gardens ' . count($gardens) . '/' . max_gardens($u)];
+    // next version: the Calling tile says whether a chapter is on the go or on offer and not taken yet
+    require_once __DIR__ . '/includes/calling_view.php';
+    $tileSub = ['calling' => !empty($u['calling_chapter']) && setting('calling_quests') === '1' ? '<small class="gvsub on">Active</small>'
+        : (calling_offered($u) ? '<small class="gvsub">Not started</small>' : '')]; ?>
+<h2 class="gvhead">Your gnome</h2>
+<nav class="gvtiles" aria-label="Your gnome">
+  <?php foreach ($SUBS as $tk => [$ti, $tl]): ?><a href="<?= e($gurl($tk)) ?>"><span class="gvti" aria-hidden="true"><?= $tk === 'calling' ? ph_or_emoji('hat-' . (string)$u['calling'], '🎩', 24) : $ti ?></span><span class="gvtl"><?= e($tileTxt[$tk]) ?></span><?= $tileSub[$tk] ?? '' ?><?= $tk === 'stats' && $pts > 0 ? '<b class="gvbadge" aria-label="' . $pts . ' stat point' . ($pts === 1 ? '' : 's') . ' to spend">' . $pts . '</b>' : '' ?></a><?php endforeach; ?>
+</nav>
+<?php else: ?>
+<p class="gvback"><a class="gvbacklink" href="<?= e($gurl('gnome')) ?>">← My Gnome</a> <span class="muted">· <?= e($SUBS[$tab][1]) ?></span></p>
+<?php endif; ?>
+<?php if ($tab === 'gnome'): ?>
 <?php elseif ($tab === 'pals'):
     $perks = $canParty ? ppal_perks($u) : ['lines' => []]; ?>
     <section class="box">
@@ -219,6 +245,14 @@ page_header('My Gnome');
         <p class="help">A new meal replaces the old meal’s boost. Town outings and lucky moments each have their own slot, so they add up.</p>
       <?php else: ?><p class="help">No boosts right now. Eat something from your <a href="<?= e(url('inventory.php')) ?>">satchel</a> or cook something at your <a href="<?= e(url('inventory.php?tab=craft')) ?>">workbench</a>.</p><?php endif; ?>
     </section>
+    <?php $lc = q_one("SELECT SUM(CASE WHEN lm.kind = 'lair' THEN 1 ELSE 0 END) AS lairs, SUM(CASE WHEN lm.kind = 'delve' THEN 1 ELSE 0 END) AS delves
+                 FROM landmark_clears c JOIN landmarks lm ON lm.id = c.landmark_id WHERE c.user_id = ?", [$uid]);
+    $rec = array_filter([(int)($u['ribbons'] ?? 0) ? '🎀 ' . (int)$u['ribbons'] . ' ribbon' . ((int)$u['ribbons'] === 1 ? '' : 's') : '',
+        (int)($u['community_rep'] ?? 0) ? '💚 ' . (int)$u['community_rep'] . ' community help' : '',
+        (int)($lc['lairs'] ?? 0) ? '🐉 ' . (int)$lc['lairs'] . ' lair' . ((int)$lc['lairs'] === 1 ? '' : 's') . ' conquered' : '',
+        (int)($lc['delves'] ?? 0) ? '🕳️ ' . (int)$lc['delves'] . ' delve' . ((int)$lc['delves'] === 1 ? '' : 's') . ' cleared' : '']);
+    if ($rec): ?><p class="help gvrecord"><b>Your record:</b> <?= implode(' · ', $rec) ?></p><?php endif; ?>
+    <?= dye_editor_html($u)   // the hat and beard dyes (moved here from the old Overview tab) ?>
 
 <?php elseif ($tab === 'foods'):   // F1: one menu card with courses
     $showUn = !empty($_GET['un']);
@@ -268,7 +302,7 @@ page_header('My Gnome');
           <div class="grow"><h3><?= e($selNpc['name']) ?></h3><p class="muted"><?= e((string)$selNpc['species']) ?></p>
             <p><span class="hearts" aria-hidden="true"><?= $hearts((int)$f['points']) ?></span> <?= e($lv['name']) ?><?= $lv['discount'] ? ' · ' . (int)$lv['discount'] . '% off' : '' ?></p>
             <p><b>You know:</b> <?= e($tastes ? implode(' · ', $tastes) : 'Nothing yet. Talk to them or bring a gift.') ?></p>
-            <p><a class="btn small" href="<?= e(url('folk.php?id=' . (int)$selNpc['id'])) ?>">Go and visit</a> <a class="btn small ghost" href="<?= e($gurl('folk')) ?>">Close</a></p></div>
+            <p><a class="btn small" href="<?= e(url('villagers.php?id=' . (int)$selNpc['id'])) ?>">Go and visit</a> <a class="btn small ghost" href="<?= e($gurl('folk')) ?>">Close</a></p></div>
         </div>
       <?php elseif ($selNpc): ?><div class="folkcard"><div class="polaroid big qp" aria-hidden="true">?</div><div class="grow"><b>Not met yet.</b><br>Look for them in the villages and towns you visit.<p><a class="btn small ghost" href="<?= e($gurl('folk')) ?>">Close</a></p></div></div><?php endif; ?>
       <div class="wall">
@@ -339,7 +373,7 @@ page_header('My Gnome');
 </details>
 <?php endif; ?>
 <?php endif; ?>
-  </div>
+<?php endif; ?>
 </div>
 </div>
 <?php page_footer();

@@ -45,7 +45,7 @@ curl -s -b $W/p $BASE/games.php > $W/h.html; ok "hub: no Cat Fish link while off
 setg festivals_on 0   # a running festival doubles Yarn from a Nap; keep the checks date-independent
 setg catfish_open 1
 ok "gate on: player gets the page" "$(curl -s -b $W/p -o /dev/null -w '%{http_code}' $BASE/catfish.php)" 200
-curl -s -b $W/p $BASE/games.php > $W/h.html; ok "hub: Cat Fish link shows" "$(grep -c 'href="[^"]*catfish.php"' $W/h.html)" 1
+curl -s -b $W/p $BASE/games.php > $W/h.html; ok "hub: Cat Fish tile shows (the menu has its own Whisker Pond link too, so count the tile)" "$(grep -c 'class="gtile[^"]*" href="[^"]*catfish.php"' $W/h.html)" 1
 
 # shelter page, no cat yet
 curl -s -b $W/p $BASE/catfish.php > $W/c0.html
@@ -482,18 +482,22 @@ cfpost -d do=ballset -d key= >/dev/null; ok "back to the plain ball for free" "$
 dbx "UPDATE catfish_state SET yarn=200, meta='{\"extra\":2,\"ys\":0}' WHERE user_id=$UID_"
 cfpost -d do=scarfset -d key=blue >/dev/null; ok "scarf colour before buying: refused" "$(mget scarf)" 0
 cfpost -d do=scarfbuy >/dev/null; ok "the scarf costs 12 Yarn: ys=12, red to start" "$(mget ys),$(mget scarf)" "12,red"
-PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "the gnome wears the scarf on the profile" "$([ "$(echo "$PRF" | grep -c 'data-part="scarf"')" -ge 1 ] && echo y || echo n)" y
-cfpost -d do=scarfset -d key=blue >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf colour: blue" "$(mget scarf),$([ "$(echo "$PRF" | grep -c '#2f5d9e\|tint-2f5d9e')" -ge 1 ] && echo y || echo n)" "blue,y"
+# v2.5.33: the profile draws the 2.5D gnome (gnome_sprite.php?...&s=<scarf hex>) instead of the layered SVG with data-part="scarf"; either shows the scarf
+PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "the gnome wears the scarf on the profile" "$([ "$(echo "$PRF" | grep -c 'data-part="scarf"\|gnome_sprite.php[^"]*s=c0392b')" -ge 1 ] && echo y || echo n)" y
+cfpost -d do=scarfset -d key=blue >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf colour: blue" "$(mget scarf),$([ "$(echo "$PRF" | grep -c '#2f5d9e\|tint-2f5d9e\|gnome_sprite.php[^"]*s=2f5d9e')" -ge 1 ] && echo y || echo n)" "blue,y"
 cfpost -d do=scarfset -d key=nonsense >/dev/null; ok "unknown scarf colour refused: still blue" "$(mget scarf)" blue
 cfpost -d do=scarfset -d key= >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf off: gone from the profile" "$(echo "$PRF" | grep -c 'data-part="scarf"')" 0
 cfpost -d do=bunting >/dev/null; ok "bunting with no festival: refused, no Yarn spent" "$(mget ys)" 12
 setg festivals_on 1; setg fest_opening_day_start "$TD"; setg fest_opening_day_end "$TM"
 curl -s -b $W/p $BASE/festival.php >/dev/null   # the page makes the jar
+jar() { dbv "SELECT COALESCE(SUM(amount),0) FROM hollow_goal_contrib WHERE user_id=$UID_ AND goal_id=(SELECT id FROM hollow_goals WHERE festival='opening_day')"; }
+J0=$(jar)   # other things the gnome did earlier in this run may already be in the jar, so measure the change, not the total
 for i in 1 2 3 4; do cfpost -d do=bunting >/dev/null; done
 ok "bunting: 1 Yarn each, three a day (ys 12 + 3)" "$(mget ys)" 15
-ok "bunting: +3 each in the festival jar (9)" "$(dbv "SELECT amount FROM hollow_goal_contrib WHERE user_id=$UID_ AND goal_id=(SELECT id FROM hollow_goals WHERE festival='opening_day')")" 9
+ok "bunting: +3 each in the festival jar (+9)" "$(( $(jar) - J0 ))" 9
+J1=$(jar)
 dbx "UPDATE catfish_state SET yarn=12, meta='{\"extra\":2,\"ys\":12}' WHERE user_id=$UID_"
-cfpost -d do=bunting >/dev/null; ok "bunting with no Yarn left: refused, no jar points" "$(dbv "SELECT amount FROM hollow_goal_contrib WHERE user_id=$UID_ AND goal_id=(SELECT id FROM hollow_goals WHERE festival='opening_day')")" 9
+cfpost -d do=bunting >/dev/null; ok "bunting with no Yarn left: refused, no jar points" "$(( $(jar) - J1 ))" 0
 setg festivals_on 0
 
 # 4g. Rod Tune-up, Catnip Hour, Mood Treat, Cat bio, Collar tint, Seasonal room
@@ -764,7 +768,7 @@ ok "admin never opened Cat Fish: no catfish_state row before" "$(dbv "SELECT COU
 curl -s -b $W/a -o /dev/null $BASE/garden.php
 ok "garden visit by a fresh gnome: no catfish_state row created" "$(dbv "SELECT COUNT(*) FROM catfish_state WHERE user_id=$ADM")" 0
 
-# Puzzle Pals bonus through view.kph: 2% per pal, 10 pals max (+20%), ppal_open and gnome level PPAL_PARTY_LEVEL (1) or more
+# Puzzle Pals bonus through view.kph: +4% a common pal (the test pals have no roster entry, so each counts as common), best 10 pals count (+40% here; the +50% cap needs rarer pals), needs ppal_open, no gnome level
 LV=$(dbv "SELECT level FROM users WHERE id=$UID_")
 setg puzzles_open 1; setg jigsaw_open 1; setg ppal_open 1
 dbx "UPDATE users SET level=1 WHERE id=$UID_"
@@ -777,11 +781,11 @@ ppal_fill 5; KB=$(kp)
 ok "ppal_open off: 5 found pals leave view.kph unchanged" "$(kp_eq $KB $KA)" y
 setg ppal_open 1
 KC=$(kp)
-ok "ppal_open on, 5 pals: view.kph is x1.10 (within 0.2)" "$(kp_eq $KC $(awk "BEGIN{print $KA*1.10}"))" y
+ok "ppal_open on, 5 pals: view.kph is x1.20 (within 0.2)" "$(kp_eq $KC $(awk "BEGIN{print $KA*1.20}"))" y
 ppal_fill 15; KD=$(kp)
-ok "ppal_open on, 15 pals: view.kph is capped at x1.20 (within 0.2)" "$(kp_eq $KD $(awk "BEGIN{print $KA*1.20}"))" y
+ok "ppal_open on, 15 pals: only the best 10 count, view.kph is x1.40 (within 0.2)" "$(kp_eq $KD $(awk "BEGIN{print $KA*1.40}"))" y
 dbx "UPDATE users SET level=0 WHERE id=$UID_"; KE=$(kp)
-ok "the Pals bonus needs no gnome level (level 0 still x1.20, within 0.2)" "$(kp_eq $KE $(awk "BEGIN{print $KA*1.20}"))" y
+ok "the Pals bonus needs no gnome level (level 0 still x1.40, within 0.2)" "$(kp_eq $KE $(awk "BEGIN{print $KA*1.40}"))" y
 dbx "UPDATE users SET level=$LV WHERE id=$UID_; DELETE FROM ppal_found WHERE user_id=$UID_"
 setg ppal_open 0; dbx "DELETE FROM settings WHERE name IN ('ppal_open','puzzles_open','jigsaw_open')"
 

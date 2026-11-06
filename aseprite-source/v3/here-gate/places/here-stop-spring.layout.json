@@ -1,0 +1,8 @@
+{"w":480,"h":270,"horizon":112,"view":"gate","spots":[
+{"k":"do","name":"Steaming Spring Pool","x":90,"y":182,"box":[20,144,160,220]},
+{"k":"people","name":"Fireside Gathering","x":395,"y":190,"box":[328,160,462,220]},
+{"k":"stop","name":"Stamp Post","x":301,"y":115,"box":[266,80,336,150]},
+{"k":"homes","name":"Spring Huts","x":85,"y":103,"box":[18,64,152,142]},
+{"k":"wild","name":"Wild Trail","x":408,"y":117,"box":[352,76,464,158]}],
+"stand":[{"x":240,"y":166},{"x":190,"y":196},{"x":296,"y":198},{"x":222,"y":244},{"x":110,"y":250},{"x":340,"y":250}],
+"compass_clear":[380,230,480,270]}

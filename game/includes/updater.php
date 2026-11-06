@@ -120,15 +120,15 @@ function update_backup_db(string $path): void
         : $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
     foreach ($tables as $t) {
         if (!preg_match('/^[A-Za-z0-9_]+$/', (string)$t)) continue;
-        fwrite($fh, "DELETE FROM $t;\n");
+        if (fwrite($fh, "DELETE FROM $t;\n") === false) { fclose($fh); throw new RuntimeException('Database backup failed (disk full?).'); }
         $st = $pdo->query("SELECT * FROM $t");
         while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
             $vals = array_map(fn($v) => $v === null ? 'NULL' : $pdo->quote((string)$v), array_values($row));
-            fwrite($fh, 'INSERT INTO ' . $t . ' (' . implode(', ', array_keys($row)) . ') VALUES (' . implode(', ', $vals) . ");\n");
+            if (fwrite($fh, 'INSERT INTO ' . $t . ' (' . implode(', ', array_keys($row)) . ') VALUES (' . implode(', ', $vals) . ");\n") === false) { fclose($fh); throw new RuntimeException('Database backup failed (disk full?).'); }
         }
         fwrite($fh, "\n");
     }
-    fclose($fh);
+    if (!fclose($fh)) throw new RuntimeException('Database backup failed to finish.');
 }
 
 /** Zip up the current program files (the same kinds of file an update writes). */
@@ -145,7 +145,7 @@ function update_backup_files(string $path): int
         $z->addFile($f->getPathname(), $rel);
         $n++;
     }
-    $z->close();
+    if (!$z->close() || $n === 0) throw new RuntimeException('Couldn’t finish the files backup.');
     return $n;
 }
 

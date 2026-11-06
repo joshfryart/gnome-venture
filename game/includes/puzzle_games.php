@@ -340,7 +340,7 @@ function pz_run_start(array $u, string $game, string $mode, int $size, array $si
     if (!pzgames_ensure()) return [false, 'Puzzles aren’t ready yet.', 0, 0, ''];
     $uid = (int)$u['id'];
     $day = game_day();
-    if (random_int(1, 50) === 1) q('DELETE FROM puzzle_runs WHERE started_at < ?', [gmdate('Y-m-d H:i:s', time() - 14 * 86400)]);   // old runs (the daily wins and streaks live in puzzle_wins)
+    if (random_int(1, 50) === 1) q("DELETE FROM puzzle_runs WHERE game <> 'jigsaw' AND started_at < ?", [gmdate('Y-m-d H:i:s', time() - 14 * 86400)]);   // old runs (the daily wins live in puzzle_wins; jigsaw rows hold personal bests)
     if ($mode !== 'practice') { $mode = 'daily'; $size = $dailySize; }
     if (!isset($sizes[$size])) $size = $dailySize;
     $n = (int)q_val("SELECT COUNT(*) FROM puzzle_runs WHERE user_id = ? AND game = ? AND day = ? AND mode = ?", [$uid, $game, $day, $mode]);
@@ -487,16 +487,11 @@ function pz_daily_board(string $game, int $limit = 10): array
               WHERE r.game = ? AND r.day = ? AND r.mode = 'daily' AND r.status = 'done' AND " . gnome_in_play_sql('u') . " GROUP BY r.user_id, u.gnome_name, u.username ORDER BY best LIMIT " . max(1, $limit), [$game, game_day()])->fetchAll();
 }
 
-/** Days in a row (ending today or yesterday) with a daily win for this game. */
-function pz_streak(int $uid, string $game): int
+/** How many daily puzzles of this game the gnome has solved, ever (not days in a row: the game promises no streaks). */
+function pz_solved(int $uid, string $game): int
 {
     if (!pzgames_ensure()) return 0;
-    $days = array_flip(array_map('strval', q('SELECT day FROM puzzle_wins WHERE user_id = ? AND game = ? ORDER BY day DESC LIMIT 400', [$uid, $game])->fetchAll(PDO::FETCH_COLUMN)));
-    $d = new DateTimeImmutable(game_day());
-    if (!isset($days[$d->format('Y-m-d')])) $d = $d->modify('-1 day');
-    $n = 0;
-    while (isset($days[$d->format('Y-m-d')])) { $n++; $d = $d->modify('-1 day'); }
-    return $n;
+    return (int)q_val('SELECT COUNT(*) FROM puzzle_wins WHERE user_id = ? AND game = ?', [$uid, $game]);
 }
 
 function pz_done_today(int $uid, string $game): ?int

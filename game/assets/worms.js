@@ -4,7 +4,7 @@
    and it stops a fast second tap from turning into a full page reload while the first is still being dug. */
 (function () {
   'use strict';
-  var rmq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  var rmq = window.gvFx.rmq;
 
   function burst(x, y, kind, n) {
     if (rmq.matches) return;
@@ -20,13 +20,12 @@
       setTimeout(function (q) { return function () { if (q.parentNode) q.parentNode.removeChild(q); }; }(p), 800);
     }
   }
-  function centre(el) { var r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
 
   function init(board) {
     board.classList.add('on');
     var fresh = board.querySelector('.dug.fresh, .soil.loose.fresh');
     if (fresh) {
-      var c = centre(fresh);
+      var c = window.gvFx.centre(fresh);
       var rare = /k-(fossil|gem|geode)/.test(fresh.className) || fresh.classList.contains('loose');
       burst(c[0], c[1], rare ? 'spark' : 'dirt', rare ? 14 : 8);
       if (/k-(worm|night)/.test(fresh.className)) fresh.classList.add('wig');
@@ -49,7 +48,7 @@
       board.setAttribute('data-wait', '1'); guard = Date.now();
       board.classList.add('digging');
       b.classList.add('pressed');
-      var c = centre(b);
+      var c = window.gvFx.centre(b);
       burst(c[0], c[1], 'dirt', 5);
     });
   }

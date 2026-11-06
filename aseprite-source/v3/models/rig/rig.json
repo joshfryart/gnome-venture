@@ -1,0 +1,769 @@
+{
+ "name": "gnome-player rig",
+ "source": "../gnome-player.lua (art), gnome-rig.lua (split)",
+ "cell": {
+  "w": 64,
+  "h": 80
+ },
+ "frames": 6,
+ "strip": {
+  "w": 384,
+  "h": 80
+ },
+ "tags": [
+  {
+   "name": "idle",
+   "from": 1,
+   "to": 2
+  },
+  {
+   "name": "walk",
+   "from": 3,
+   "to": 6
+  }
+ ],
+ "anchor": {
+  "x": 32,
+  "y": 70,
+  "note": "feet baseline y=70, figure centred on x~32; same for every layer"
+ },
+ "markers": {
+  "hi": "#f0f0f0",
+  "base": "#b4b4b4",
+  "shade": "#787878",
+  "deep": "#3c3c3c"
+ },
+ "recipe": {
+  "space": "HSL (h deg, s, l 0..1), hue moved along the shorter arc by at most hue_max",
+  "hi": {
+   "hue_toward": 45,
+   "hue_max": 10,
+   "light": "L + 0.30*(1-L)",
+   "sat": "S"
+  },
+  "shade": {
+   "hue_toward": 270,
+   "hue_max": 8,
+   "light": "L * 0.80",
+   "sat": "S * 0.80"
+  },
+  "deep": {
+   "hue_toward": 270,
+   "hue_max": 20,
+   "light": "L * 0.55",
+   "sat": "S * 0.60"
+  },
+  "notes": "L clamped to [0.03, 0.97] (never pure black/white); channel = floor(v*255 + 0.5). Constants fitted to the Hearth Pop 50 ramps."
+ },
+ "layers": [
+  {
+   "order": 0,
+   "name": "shadow",
+   "file": "gnome-shadow.png",
+   "role": null,
+   "tint": false,
+   "contents": "ground shadow, 2-tone stone (fixed)"
+  },
+  {
+   "order": 1,
+   "name": "outline",
+   "file": "gnome-outline.png",
+   "role": null,
+   "tint": false,
+   "contents": "1px ink outline #2b1c26 (fixed)"
+  },
+  {
+   "order": 2,
+   "name": "boots",
+   "file": "gnome-boots.png",
+   "role": "boots",
+   "tint": true,
+   "contents": "boots incl. inner/underside deep"
+  },
+  {
+   "order": 3,
+   "name": "tunic",
+   "file": "gnome-tunic.png",
+   "role": "tunic",
+   "tint": true,
+   "contents": "tunic + sleeves"
+  },
+  {
+   "order": 4,
+   "name": "scarf",
+   "file": "gnome-scarf.png",
+   "role": "scarf",
+   "tint": true,
+   "contents": "scarf ring + knotted tail + fringe"
+  },
+  {
+   "order": 5,
+   "name": "skin",
+   "file": "gnome-skin.png",
+   "role": "skin",
+   "tint": true,
+   "contents": "head, ears, nose, mitten hands"
+  },
+  {
+   "order": 6,
+   "name": "beard",
+   "file": "gnome-beard.png",
+   "role": "beard",
+   "tint": true,
+   "contents": "beard, moustache, scallop notches"
+  },
+  {
+   "order": 7,
+   "name": "face",
+   "file": "gnome-face.png",
+   "role": null,
+   "tint": false,
+   "contents": "eyes (ink + cream glint), nose glint (cream), cheeks (petal.base) (fixed)"
+  },
+  {
+   "order": 8,
+   "name": "hat",
+   "file": "gnome-hat.png",
+   "role": "hat",
+   "tint": true,
+   "contents": "hat cone, rim, floppy tip"
+  },
+  {
+   "order": 9,
+   "name": "trim",
+   "file": "gnome-trim.png",
+   "role": "trim",
+   "tint": true,
+   "contents": "bell + hat-band stitch"
+  }
+ ],
+ "composite": "layers are disjoint (each pixel lives in exactly one layer) so draw order only matters for consistency; use 'order' bottom->top",
+ "roles": [
+  "hat",
+  "tunic",
+  "scarf",
+  "beard",
+  "boots",
+  "skin",
+  "trim"
+ ],
+ "presets": {
+  "hat": {
+   "default": {
+    "ramp": [
+     "#ff8a5c",
+     "#e8493b",
+     "#b52e3f",
+     "#6e2038"
+    ],
+    "src": "as drawn (ember)"
+   },
+   "ember red": {
+    "ramp": [
+     "#ff8a5c",
+     "#e8493b",
+     "#b52e3f",
+     "#6e2038"
+    ],
+    "src": "palette ember"
+   },
+   "gold": {
+    "ramp": [
+     "#ffe38a",
+     "#f5b82e",
+     "#d98322",
+     "#8f4a1f"
+    ],
+    "src": "palette gold"
+   },
+   "moss": {
+    "ramp": [
+     "#c4e07a",
+     "#7cc35a",
+     "#3f9150",
+     "#24544a"
+    ],
+    "src": "palette moss"
+   },
+   "sea": {
+    "ramp": [
+     "#b6f0e0",
+     "#5fc4c8",
+     "#3a86b0",
+     "#2a4a7a"
+    ],
+    "src": "palette sea"
+   },
+   "dusk": {
+    "ramp": [
+     "#c9b2f0",
+     "#8a6fd0",
+     "#5a459e",
+     "#35295f"
+    ],
+    "src": "palette dusk"
+   },
+   "petal": {
+    "ramp": [
+     "#ffc4d8",
+     "#f5809f",
+     "#c94f84",
+     "#7d2c5e"
+    ],
+    "src": "palette petal"
+   },
+   "wood": {
+    "ramp": [
+     "#e8b982",
+     "#b97a4a",
+     "#864c33",
+     "#51302b"
+    ],
+    "src": "palette wood"
+   },
+   "stone": {
+    "ramp": [
+     "#e2e0e6",
+     "#aaa9b8",
+     "#74758c",
+     "#444663"
+    ],
+    "src": "palette stone"
+   },
+   "sky": {
+    "ramp": [
+     "#e4f6ff",
+     "#b9e2f5",
+     "#8bc4ea",
+     "#5f9ad0"
+    ],
+    "src": "palette sky"
+   },
+   "plum": {
+    "base": "#8e3a7a"
+   },
+   "navy": {
+    "base": "#34508f"
+   },
+   "forest": {
+    "base": "#2f7a4a"
+   }
+  },
+  "tunic": {
+   "default": {
+    "ramp": [
+     "#b6f0e0",
+     "#5fc4c8",
+     "#3a86b0",
+     "#2a4a7a"
+    ],
+    "src": "as drawn (sea)"
+   },
+   "sea": {
+    "ramp": [
+     "#b6f0e0",
+     "#5fc4c8",
+     "#3a86b0",
+     "#2a4a7a"
+    ],
+    "src": "palette sea"
+   },
+   "moss": {
+    "ramp": [
+     "#c4e07a",
+     "#7cc35a",
+     "#3f9150",
+     "#24544a"
+    ],
+    "src": "palette moss"
+   },
+   "dusk": {
+    "ramp": [
+     "#c9b2f0",
+     "#8a6fd0",
+     "#5a459e",
+     "#35295f"
+    ],
+    "src": "palette dusk"
+   },
+   "ember red": {
+    "ramp": [
+     "#ff8a5c",
+     "#e8493b",
+     "#b52e3f",
+     "#6e2038"
+    ],
+    "src": "palette ember"
+   },
+   "wood": {
+    "ramp": [
+     "#e8b982",
+     "#b97a4a",
+     "#864c33",
+     "#51302b"
+    ],
+    "src": "palette wood"
+   },
+   "stone": {
+    "ramp": [
+     "#e2e0e6",
+     "#aaa9b8",
+     "#74758c",
+     "#444663"
+    ],
+    "src": "palette stone"
+   },
+   "petal": {
+    "ramp": [
+     "#ffc4d8",
+     "#f5809f",
+     "#c94f84",
+     "#7d2c5e"
+    ],
+    "src": "palette petal"
+   },
+   "gold": {
+    "ramp": [
+     "#ffe38a",
+     "#f5b82e",
+     "#d98322",
+     "#8f4a1f"
+    ],
+    "src": "palette gold"
+   },
+   "navy": {
+    "base": "#34508f"
+   },
+   "forest": {
+    "base": "#2f7a4a"
+   },
+   "mustard": {
+    "base": "#c99a2e"
+   },
+   "plum": {
+    "base": "#8e3a7a"
+   }
+  },
+  "scarf": {
+   "default": {
+    "ramp": [
+     "#ffe38a",
+     "#f5b82e",
+     "#d98322",
+     "#51302b"
+    ],
+    "src": "as drawn (gold, deep folded to wood.deep)"
+   },
+   "gold": {
+    "ramp": [
+     "#ffe38a",
+     "#f5b82e",
+     "#d98322",
+     "#8f4a1f"
+    ],
+    "src": "palette gold"
+   },
+   "ember red": {
+    "ramp": [
+     "#ff8a5c",
+     "#e8493b",
+     "#b52e3f",
+     "#6e2038"
+    ],
+    "src": "palette ember"
+   },
+   "moss": {
+    "ramp": [
+     "#c4e07a",
+     "#7cc35a",
+     "#3f9150",
+     "#24544a"
+    ],
+    "src": "palette moss"
+   },
+   "sea": {
+    "ramp": [
+     "#b6f0e0",
+     "#5fc4c8",
+     "#3a86b0",
+     "#2a4a7a"
+    ],
+    "src": "palette sea"
+   },
+   "dusk": {
+    "ramp": [
+     "#c9b2f0",
+     "#8a6fd0",
+     "#5a459e",
+     "#35295f"
+    ],
+    "src": "palette dusk"
+   },
+   "petal": {
+    "ramp": [
+     "#ffc4d8",
+     "#f5809f",
+     "#c94f84",
+     "#7d2c5e"
+    ],
+    "src": "palette petal"
+   },
+   "sky": {
+    "ramp": [
+     "#e4f6ff",
+     "#b9e2f5",
+     "#8bc4ea",
+     "#5f9ad0"
+    ],
+    "src": "palette sky"
+   },
+   "stone": {
+    "ramp": [
+     "#e2e0e6",
+     "#aaa9b8",
+     "#74758c",
+     "#444663"
+    ],
+    "src": "palette stone"
+   },
+   "cream": {
+    "base": "#f2e2b8"
+   },
+   "teal": {
+    "base": "#2a9a8a"
+   },
+   "berry": {
+    "base": "#b0306a"
+   },
+   "orange": {
+    "base": "#f08a2e"
+   }
+  },
+  "beard": {
+   "default": {
+    "ramp": [
+     "#fff4d6",
+     "#e2e0e6",
+     "#aaa9b8",
+     "#74758c"
+    ],
+    "src": "as drawn (light stone + cream)"
+   },
+   "white": {
+    "ramp": [
+     "#fff4d6",
+     "#e2e0e6",
+     "#aaa9b8",
+     "#74758c"
+    ],
+    "src": "light stone + cream"
+   },
+   "snow": {
+    "base": "#f5f0e6"
+   },
+   "grey": {
+    "ramp": [
+     "#e2e0e6",
+     "#aaa9b8",
+     "#74758c",
+     "#444663"
+    ],
+    "src": "palette stone"
+   },
+   "silver": {
+    "base": "#c4c6d0"
+   },
+   "ginger": {
+    "base": "#e07a32"
+   },
+   "ginger wood": {
+    "ramp": [
+     "#e8b982",
+     "#b97a4a",
+     "#864c33",
+     "#51302b"
+    ],
+    "src": "palette wood"
+   },
+   "auburn": {
+    "base": "#9a4a2e"
+   },
+   "blond": {
+    "base": "#e8c46a"
+   },
+   "honey": {
+    "base": "#d9a35a"
+   },
+   "chestnut": {
+    "base": "#6e4430"
+   },
+   "black-brown": {
+    "base": "#3e2c26"
+   },
+   "lilac": {
+    "base": "#b9a2e6"
+   }
+  },
+  "boots": {
+   "default": {
+    "ramp": [
+     "#e8b982",
+     "#b97a4a",
+     "#864c33",
+     "#51302b"
+    ],
+    "src": "as drawn (wood)"
+   },
+   "wood": {
+    "ramp": [
+     "#e8b982",
+     "#b97a4a",
+     "#864c33",
+     "#51302b"
+    ],
+    "src": "palette wood"
+   },
+   "tan": {
+    "base": "#c48a52"
+   },
+   "dark leather": {
+    "base": "#6a4430"
+   },
+   "black-brown": {
+    "base": "#3e2c26"
+   },
+   "oxblood": {
+    "base": "#7e2a30"
+   },
+   "stone": {
+    "ramp": [
+     "#e2e0e6",
+     "#aaa9b8",
+     "#74758c",
+     "#444663"
+    ],
+    "src": "palette stone"
+   },
+   "ember red": {
+    "ramp": [
+     "#ff8a5c",
+     "#e8493b",
+     "#b52e3f",
+     "#6e2038"
+    ],
+    "src": "palette ember"
+   },
+   "moss": {
+    "ramp": [
+     "#c4e07a",
+     "#7cc35a",
+     "#3f9150",
+     "#24544a"
+    ],
+    "src": "palette moss"
+   },
+   "sea": {
+    "ramp": [
+     "#b6f0e0",
+     "#5fc4c8",
+     "#3a86b0",
+     "#2a4a7a"
+    ],
+    "src": "palette sea"
+   },
+   "dusk": {
+    "ramp": [
+     "#c9b2f0",
+     "#8a6fd0",
+     "#5a459e",
+     "#35295f"
+    ],
+    "src": "palette dusk"
+   },
+   "gold": {
+    "ramp": [
+     "#ffe38a",
+     "#f5b82e",
+     "#d98322",
+     "#8f4a1f"
+    ],
+    "src": "palette gold"
+   },
+   "petal": {
+    "ramp": [
+     "#ffc4d8",
+     "#f5809f",
+     "#c94f84",
+     "#7d2c5e"
+    ],
+    "src": "palette petal"
+   }
+  },
+  "skin": {
+   "default": {
+    "ramp": [
+     "#ffe0bd",
+     "#f0b98d",
+     "#c98462",
+     "#51302b"
+    ],
+    "src": "as drawn (skinA, deep folded to wood.deep)"
+   },
+   "skinA": {
+    "ramp": [
+     "#ffe0bd",
+     "#f0b98d",
+     "#c98462",
+     "#7a4036"
+    ],
+    "src": "palette skinA"
+   },
+   "skinB": {
+    "ramp": [
+     "#d9a070",
+     "#b57850",
+     "#8a5638",
+     "#55332a"
+    ],
+    "src": "palette skinB"
+   },
+   "skinC": {
+    "ramp": [
+     "#a8704a",
+     "#84523a",
+     "#5e3a2e",
+     "#3a2420"
+    ],
+    "src": "palette skinC"
+   },
+   "porcelain": {
+    "base": "#f6d2b8"
+   },
+   "rose": {
+    "base": "#e8a090"
+   },
+   "tan": {
+    "base": "#cc915f"
+   },
+   "olive": {
+    "base": "#b39060"
+   },
+   "bronze": {
+    "base": "#9c6642"
+   },
+   "umber": {
+    "base": "#74482f"
+   },
+   "deep": {
+    "base": "#55352a"
+   },
+   "moss sprite": {
+    "base": "#8cc27a"
+   },
+   "dusk sprite": {
+    "base": "#a894d8"
+   }
+  },
+  "trim": {
+   "default": {
+    "ramp": [
+     "#ffe38a",
+     "#f5b82e",
+     "#d98322",
+     "#51302b"
+    ],
+    "src": "as drawn (gold thread + bell)"
+   },
+   "gold": {
+    "ramp": [
+     "#ffe38a",
+     "#f5b82e",
+     "#d98322",
+     "#8f4a1f"
+    ],
+    "src": "palette gold"
+   },
+   "silver": {
+    "ramp": [
+     "#e2e0e6",
+     "#aaa9b8",
+     "#74758c",
+     "#444663"
+    ],
+    "src": "palette stone"
+   },
+   "copper": {
+    "base": "#c76a3a"
+   },
+   "brass": {
+    "base": "#d4a640"
+   },
+   "ember red": {
+    "ramp": [
+     "#ff8a5c",
+     "#e8493b",
+     "#b52e3f",
+     "#6e2038"
+    ],
+    "src": "palette ember"
+   },
+   "moss": {
+    "ramp": [
+     "#c4e07a",
+     "#7cc35a",
+     "#3f9150",
+     "#24544a"
+    ],
+    "src": "palette moss"
+   },
+   "sea": {
+    "ramp": [
+     "#b6f0e0",
+     "#5fc4c8",
+     "#3a86b0",
+     "#2a4a7a"
+    ],
+    "src": "palette sea"
+   },
+   "dusk": {
+    "ramp": [
+     "#c9b2f0",
+     "#8a6fd0",
+     "#5a459e",
+     "#35295f"
+    ],
+    "src": "palette dusk"
+   },
+   "petal": {
+    "ramp": [
+     "#ffc4d8",
+     "#f5809f",
+     "#c94f84",
+     "#7d2c5e"
+    ],
+    "src": "palette petal"
+   },
+   "sky": {
+    "ramp": [
+     "#e4f6ff",
+     "#b9e2f5",
+     "#8bc4ea",
+     "#5f9ad0"
+    ],
+    "src": "palette sky"
+   },
+   "wood": {
+    "ramp": [
+     "#e8b982",
+     "#b97a4a",
+     "#864c33",
+     "#51302b"
+    ],
+    "src": "palette wood"
+   },
+   "cream": {
+    "base": "#f2e2b8"
+   }
+  }
+ }
+}

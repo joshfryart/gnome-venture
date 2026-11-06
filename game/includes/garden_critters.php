@@ -267,7 +267,7 @@ function critter_feed(array $u, int $plotId, string $building): array
         $foodNames = array_map(fn($s) => (string)(q_val('SELECT name FROM items WHERE slug = ?', [$s]) ?: $s), $foods);   // v1.2.0: the message names what they eat
         $took = 0;
         foreach ($foods as $slug) {
-            $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+            $iid = item_id_by_slug($slug);
             $short = (string)q_val('SELECT name FROM items WHERE id = ?', [$iid]);
             $have = $iid ? (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $iid]) : 0;
             $n = min($room - $took, $have);
@@ -310,7 +310,7 @@ function critter_collect(array $u, int $plotId, string $building): array
     if (!$tally) { db()->rollBack(); return [false, 'Nothing waiting yet. Check back soon.']; }
     $bits = [];
     foreach ($tally as $slug => $n) {
-        $iid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$slug]);
+        $iid = item_id_by_slug($slug);
         if (!$iid) continue;
         give_item($uid, $iid, $n);
         $bits[] = $n . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$iid]);
@@ -415,7 +415,7 @@ function critter_panel_html(array $u, array $plot, string $b): string
             $ready += (int)$c['held'];
             $line = [];
             $unitC = critter_food_unit($b, array_fill_keys(array_filter(array_map('trim', explode(',', (string)$k['foods']))), true));   // v1.6.3
-            if ($eats) $line[] = '🍽️ ' . (int)$c['meals'] . '/' . ((int)$k['meals_per'] > 0 ? (int)$k['meals_per'] . ' ' . $unitC : $cap);   // v1.6.3: feeder against what one gift needs
+            if ($eats) $line[] = '🍽️ ' . (int)$c['meals'] . '/' . $cap . ((int)$k['meals_per'] > 0 ? ' · ' . (int)$k['meals_per'] . ' ' . $unitC . ' per gift' : '');   // v1.6.3: feeder against what one gift needs
             if (($gl = critter_gift_line($c, $k, $unitC)) !== '') $line[] = '⏳ ' . $gl;   // v1.6.3
             if ((int)$c['held'] > 0) $line[] = '🎁 ' . (int)$c['held'];
             if ($c['kind'] === 'tadpole' && $c['grows_at']) $line[] = $c['fed_at'] ? '🌱 growing up in ' . nice_time(max(60, ts($c['grows_at']) - time())) : '🌱 needs a feed to grow';

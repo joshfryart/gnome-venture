@@ -62,7 +62,7 @@ function journey_chapter_box(array $u, array $ch, array $st, string $back = ''):
         <?php if (!$row): ?>
           <p class="muted">🔒 This chapter starts when you first reach <?= e($ch['region']) ?> (recommended gnome level <?= (int)$ch['min_level'] ?>). Walk the roads there from a neighbouring region.</p>
         <?php else: ?>
-          <div class="jintro"><?php if ($npc): ?><a href="<?= e(url('folk.php?id=' . (int)$npc['id'])) ?>"><?= npc_portrait($npc, 'small') ?></a><?php endif; ?>
+          <div class="jintro"><?php if ($npc): ?><a href="<?= e(url('villagers.php?id=' . (int)$npc['id'])) ?>"><?= npc_portrait($npc, 'small') ?></a><?php endif; ?>
             <div class="ptext"><?= format_text((string)$ch['intro']) ?></div></div>
           <?php if (!$row['done_at'] && trim((string)($ch['locks'] ?? '')) !== ''):   // v0.7.66: what stays closed until it's done
               $names = [];
@@ -105,7 +105,7 @@ function journey_chapter_box(array $u, array $ch, array $st, string $back = ''):
           <p class="help">🎁 Reward: <?= money((int)$ch['reward_coins']) ?>, <?php /* v0.9.1: the paid XP, not the listed XP */ ?><?= (int)round((int)$ch['reward_xp'] * (int)setting('journey_xp_percent') / 100) ?> XP<?= $ch['reward_item_slug'] ? ', ' . (int)$ch['reward_qty'] . ' × ' . e((string)q_val('SELECT name FROM items WHERE slug = ?', [$ch['reward_item_slug']])) : '' ?>,
             📗 <?= e($ch['region']) ?> studied<?= $ch['reward_title'] ? ', the title “' . e($ch['reward_title']) . '”' : '' ?>.
             <br><?= e((string)$ch['project_icon']) ?> <b>Lasting benefit:</b> <?= e((string)$ch['benefit_text']) ?></p>
-          <p class="help">🧱 How it works: finish the ⬜ tasks first, then hand in the 🧱 project stages in order with the ✋ Hand in button (here or on the town square’s 📜 Quests tab). Dressed Stone, Timber Planks and Rope are made in Satchel → Crafting → Building from things you gather. Home-cooked meals need a Kitchen.</p>
+          <p class="help">🧱 How it works: finish the ⬜ tasks first, then hand in the 🧱 project stages in order with the ✋ Hand in button (here or on Tasks → Journey). Dressed Stone, Timber Planks and Rope are made in Satchel → Crafting → Building from things you gather. Home-cooked meals need a Kitchen.</p>
           <?php if (!$row['done_at'] && $st['complete']): ?>
             <form method="post" action="<?= e(url('journey.php')) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="finish"><input type="hidden" name="ch" value="<?= (int)$ch['id'] ?>"><input type="hidden" name="back" value="<?= e($back) ?>">
               <button class="btn gold">📜 Finish the chapter</button></form>

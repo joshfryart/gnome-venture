@@ -12,7 +12,7 @@ if (!puzzle_game_open('barrel')) { flash('Rain Barrel is coming soon.', 'err'); 
 $uid = (int)$u['id'];
 $done = pz_done_today($uid, 'barrel');
 $board = pz_daily_board('barrel', 10);
-$streak = pz_streak($uid, 'barrel');
+$solved = pz_solved($uid, 'barrel');
 $best = pzgames_ensure() ? q_val("SELECT MIN(ms) FROM puzzle_runs WHERE user_id = ? AND game = 'barrel' AND day = ? AND mode = 'daily' AND status = 'done'", [$uid, game_day()]) : null;
 $J = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 $data = ['api' => url('puzzle_game_api.php'), 'csrf' => csrf_token(), 'hintMs' => PZ_HINT_MS, 'maxHints' => PZ_MAX_HINTS];
@@ -37,7 +37,7 @@ page_header('Rain Barrel');
   </div>
   <p class="help" id="rbstat" aria-live="polite">
     <?php if ($done !== null): ?><span class="rbface rbsleep"><?= puzzle_cast('jeff-sleep', 'Jeff asleep') ?></span> Today: done ✓ best <b><?= e(puzzle_ms_text((int)$best)) ?></b>.<?php else: ?>Today’s barrel is waiting.<?php endif; ?>
-    <?= $streak > 0 ? ' Streak: <b>' . $streak . '</b> day' . ($streak === 1 ? '' : 's') . '.' : '' ?>
+    <?= $solved > 0 ? ' Solved <b>' . $solved . '</b> time' . ($solved === 1 ? '' : 's') . '.' : '' ?>
   </p>
   <div id="rbplay" hidden>
     <div class="rbbar"><span id="rbclock" aria-live="off">0:00</span><span id="rbhints"></span><button class="btn ghost" id="rbhint" type="button" title="The Old Wizard fixes one tile (+<?= intdiv(PZ_HINT_MS, 1000) ?>s)">Hint</button></div>

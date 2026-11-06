@@ -196,11 +196,6 @@ function eff_mod(array $u, string $stat): int
     return stat_mod(eff_stat($u, $stat));
 }
 
-function is_calling(array $u, string $calling): bool
-{
-    return ($u['calling'] ?? null) === $calling;
-}
-
 function max_energy(array $u): int
 {
     // v0.7.23: 10 at level 1, +5 a level (settings), +1 per Hardiness modifier point
@@ -253,15 +248,26 @@ function add_xp(int $uid, int $n, string $source = ''): ?int
             }
         } catch (Throwable $e) { /* the log is optional */ }
     }
+    // v2.4.67: add the XP in the database (two awards at once no longer overwrite each other), then claim the level-up by the old level
+    q('UPDATE users SET xp = xp + ? WHERE id = ?', [$n, $uid]);
     $u = q_one('SELECT level, xp FROM users WHERE id = ?', [$uid]);
-    $xp = (int)$u['xp'] + $n;
+    $xp = (int)$u['xp'];
     $level = (int)$u['level'];
-    while ($xp >= xp_for_level($level + 1)) {
-        $level++;
+    $gained = 0;
+    $newLevel = $level;
+    while ($xp >= xp_for_level($newLevel + 1)) {
+        $newLevel++;
     }
-    $gained = $level - (int)$u['level'];
-    q('UPDATE users SET xp = ?, level = ?, stat_points = stat_points + ? WHERE id = ?',
-        [$xp, $level, $gained * (int)setting('stat_points_per_level'), $uid]);
+    if ($newLevel > $level) {
+        if (q('UPDATE users SET level = ?, stat_points = stat_points + ? WHERE id = ? AND level = ?',
+            [$newLevel, ($newLevel - $level) * (int)setting('stat_points_per_level'), $uid, $level])->rowCount() === 1) {
+            $gained = $newLevel - $level;
+            $level = $newLevel;
+        } else {
+            $level = (int)q_val('SELECT level FROM users WHERE id = ?', [$uid]);   // another award levelled the gnome first
+        }
+    }
+    if ($gained > 0) hp_full($uid);   // v2.3.5: a level up heals fully
     if ($earned > 0) mentors120_after_xp($uid, $earned, $source !== '' ? $source : (string)(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'] ?? 'other'), $level);   // v1.2.0: mentor share + graduation
     return $gained ? $level : null;
 }
@@ -406,7 +412,7 @@ function eat_item(array $u, int $itemId): array
         db()->commit();
         return [true, array_merge(['☕ You drink the ' . $item['name'] . '. Lovely.'], $lines)];
     }
-    $msgs[] = '😋 You eat the ' . $item['name'] . '.' . ($firstTaste ? ' 🍴 First taste, added to your list.' : '');
+    $msgs[] = ($item['category'] === 'supply' ? '🧪 You drink the ' : '😋 You eat the ') . $item['name'] . '.' . ($firstTaste ? ' 🍴 First taste, added to your list.' : '');
 
     // Permanent bonus: once per item per gnome, capped per stat
     if (!empty($fx['perm']) && is_array($fx['perm'])) {
@@ -464,7 +470,7 @@ function eat_item(array $u, int $itemId): array
                 if ($rows > 0) break;
             }
             $parts = array_map(fn($s, $n) => GNOME_STATS[$s][0] . ' +' . $n, array_keys($buff), $buff);
-            $msgs[] = $rows > 0 ? '🍽️ Meal buff for ' . nice_minutes($minutes) . ': ' . implode(', ', $parts) . '.'
+            $msgs[] = $rows > 0 ? ($item['category'] === 'supply' ? '🧪 Potion buff for ' : '🍽️ Meal buff for ') . nice_minutes($minutes) . ': ' . implode(', ', $parts) . '.'
                 : '🍽️ The meal boost didn’t settle (you ate two things at once). Eat another for the boost.';
         }
     }
@@ -534,7 +540,8 @@ function gnome_name(array $u): string
  */
 function gnome_avatar_pals(array $u, int $size = 96): string
 {
-    $svg = gnome_avatar($u, $size);
+    require_once __DIR__ . '/gnome25.php';
+    $svg = gnome25_avatar($u, $size) ?: gnome_avatar($u, $size);   // v2.5.33: the 2.5D gnome wherever the avatar is shown (My Gnome, Today, nav, profile)
     if ($size < 30 || setting('ppal_party') !== '1') return $svg;
     require_once __DIR__ . '/puzzle_pals.php';
     return ppal_avatar($u, $size, $svg);

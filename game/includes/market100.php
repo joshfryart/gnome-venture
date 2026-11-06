@@ -494,7 +494,7 @@ function npc_order(array $npc, ?string $date = null): ?array
             $diff = 2; $qty = 3 + $h('qty') % 4;
             $name = 'Dried ' . $fl['pname']; $unit = max(10, (int)round((int)$fl['base_price'] * max(50, mk_int('dried_price_pct', 130)) / 100));
             $text = 'Could you hang and dry ' . $qty . ' × ' . $fl['pname'] . ' for me? I need ' . $qty . ' × ' . $name . '.';
-            $itemId = (int)q_val('SELECT id FROM items WHERE slug = ?', ['dried-' . $fl['pslug']]) ?: -1;
+            $itemId = item_id_by_slug('dried-' . $fl['pslug']) ?: -1;
             break;
     }
     // deadline
@@ -629,7 +629,7 @@ function orders_board_box(int $uid, string $town, bool $hub, int $sid): void
           $done = order_done($uid, (int)$n['id'], $o['cycle']);
           $c = $done ? null : order_check($uid, $o); ?>
         <div class="favour order d<?= (int)$o['diff'] ?><?= $done ? ' done' : '' ?>"><span class="ficon"><?= npc_icon($n['species']) ?></span>
-          <div><b><a href="<?= e(url('folk.php?id=' . (int)$n['id'])) ?>"><?= e($n['name']) ?></a></b>: “<?= e($o['text']) ?>”
+          <div><b><a href="<?= e(url('villagers.php?id=' . (int)$n['id'])) ?>"><?= e($n['name']) ?></a></b>: “<?= e($o['text']) ?>”
             <br><small>
               <span class="tag" role="img" aria-label="Difficulty: <?= (int)$o['diff'] ?> of 3" title="Difficulty"><?= str_repeat('★', $o['diff']) . str_repeat('☆', 3 - $o['diff']) ?></span>
               <?php if ($o['bar']): ?><span class="tag"><?= e($o['bar']) ?></span> <?php endif; ?>
@@ -853,29 +853,6 @@ function market_sell_wanted(array $u, string $town, int $itemId, int $qty): arra
     if (!market_is_wanted($itemId)) return [false, 'The market buyers only want this week’s wanted goods.'];
     $r = sell_to_shop($u, $itemId, $qty, 0);
     return [$r[0], $r[1]];
-}
-
-/** Today page card + town square banner data. Returns HTML of one small card (or ''). */
-function market_today_card(array $u, string $town): string
-{
-    $uid = (int)$u['id'];
-    $h = '';
-    $open = setting('orders_on') === '1' ? orders_open_count($uid, $town) : 0;
-    if (setting('orders_on') === '1') {
-        $b = array_values(array_filter(orders_board($town), fn($x) => !order_done($uid, (int)$x['npc']['id'], $x['o']['cycle'])));
-        $h .= '<a class="box tcard" href="' . e(url('jobs.php?t=orders#orders')) . '"><h3>📜 Orders</h3><p>';
-        if ($b) {
-            foreach (array_slice($b, 0, 3) as $x) $h .= e($x['npc']['name']) . ': ' . (int)$x['o']['qty'] . ' × ' . e($x['o']['item_name']) . ($x['o']['minq'] ? ' <small class="muted">' . e(market_grade($x['o']['minq'])) . '+</small>' : '') . ' <small class="muted">⏳' . (int)$x['o']['days_left'] . 'd</small><br>';
-            if ($open > 3) $h .= '<span class="muted">and ' . ($open - 3) . ' more</span>';
-        } else $h .= '<span class="muted">Nothing open in ' . e($town) . ' right now.</span>';
-        $h .= '</p><span class="tgo">Order board →</span></a>';
-    }
-    if (market_day_on()) {
-        $h .= '<a class="box tcard marketcard" href="' . e(url('marketday.php')) . '"><h3>🧺 Market day!</h3><p><b>Stalls are up in ' . e($town) . '.</b><br>Wanted goods pay more, and the best-basket judging is on.</p><span class="tgo">To the market →</span></a>';
-    } elseif (($d = market_days_until()) > 0) {
-        $h .= '<a class="box tcard marketcard" href="' . e(url('marketday.php')) . '"><h3>🧺 Market day</h3><p class="muted">' . MARKET_WEEKDAYS[max(0, min(6, mk_int('market_day', 6)))] . ' (in ' . $d . ' day' . ($d === 1 ? '' : 's') . '). Stock up on goods to sell and show.</p><span class="tgo">What’s wanted →</span></a>';
-    }
-    return $h;
 }
 
 /** Right-rail box: market day now, or when the next one is, and the week’s wanted goods. */

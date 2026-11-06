@@ -141,6 +141,7 @@ has "open button" 'data-giftopen="1">' $H
 hasnt "no style= attribute" '\sstyle=' $H
 
 echo "== garden pickers (garden.php)"
+grep -q "\[data-act\]:not(\[data-open\])" $GAME/assets/site.js && echo "ok   select bar: Sheet mulch (data-open + data-act) is not also wired as an instant action" || echo "FAIL select bar: Sheet mulch fires at once with no mulch chosen and reloads the page (closing every menu)"
 curl -s -b $J "$BASE/garden.php" > $H
 pk() { tr '\n' ' ' < $H | grep -o "<dialog class=\"picker\" data-kind=\"$1\".*" | sed 's/<\/dialog>.*//'; }
 for k in seed soil mulch; do
@@ -150,9 +151,10 @@ for k in seed soil mulch; do
   pk $k | grep -q '<div class="itmwrap"><div class="itms pickgrid">' && echo "ok   $k: item grid" || echo "FAIL $k: no item grid"
 done
 chk "soil: one square per soil improver" "$(pk soil | grep -o 'pcard" type="button"' | wc -l | tr -d ' ')" "$(db "SELECT COUNT(*) FROM user_items ui JOIN items i ON i.id=ui.item_id WHERE ui.user_id=$SID AND ui.qty>0 AND i.category='soil'")"
-chk "seed: step buttons on every seed" "$(pk seed | grep -o '<span class="pcbtns" hidden><i data-step="-1" role="button"' | wc -l | tr -d ' ')" "$(pk seed | grep -o 'pcard" type="button"' | wc -l | tr -d ' ')"
+chk "seed: info rides in a hidden span the popover reads" "$(pk seed | grep -o '<span class="pcinfo" hidden>' | wc -l | tr -d ' ')" "$(pk seed | grep -o 'pcard" type="button"' | wc -l | tr -d ' ')"
+chk "seed: no step buttons on the squares any more" "$(pk seed | grep -c 'pcbtns')" 0
 pk soil | grep -q 'class="itm__note">' && echo "ok   soil: what it does as a note" || echo "FAIL soil: no note chip"
-pk seed | grep -q 'class="itm__kind">Seeds' && echo "ok   seed: Seeds lifted into a chip" || echo "FAIL seed: no Seeds chip"
+pk seed | grep -q 'class="itm__kind itm__kind--quiet">Seeds' && echo "ok   seed: Seeds lifted into a chip" || echo "FAIL seed: no Seeds chip"
 hasnt "no style= attribute" '\sstyle=' $H
 
 echo "== town picker (bird seed / picnic) and market-day basket"
@@ -170,4 +172,15 @@ if command -v node >/dev/null && NODE_PATH=${NODE_PATH:-$(npm root -g 2>/dev/nul
   ISQ_CSS2="$HERE/../claude/build/css-items2.css" ISQ_NPC=$NID ISQ_SPOT=$GREEN ISQ_MARKET=$MK NODE_PATH=${NODE_PATH:-$(npm root -g 2>/dev/null)} node "$HERE/itemsq_check.js" "$BASE" "$SH" "$HH" "$HERE/../claude/build/css-items.css" $SHOTS
 else echo "skip: no node + playwright here"; fi
 
+echo "== v2.5.0: Satchel tiles and sheets"
+curl -s -b $J "$BASE/inventory.php" > $H
+chk "landing shows 8 tiles (full or empty)" "$(n 'class="shtile( empty)?"' $H)" 8
+has "tiles are links to ?cat= (no-JS list)" 'data-shpop="shd-' $H
+has "a sheet has search, sort and the same pills" 'data-shpd-filter' $H
+hasnt "no inline style/script in a sheet" '<dialog class="picker craftpop shbagpop"[^>]*style=' $H
+curl -s -b $J "$BASE/inventory.php?cat=soil" > $H
+has "?cat=soil still shows the plain list" 'class="shpill' $H
+hasnt "plain list has no tiles" 'class="shtiles"' $H
+curl -s -b $J "$BASE/inventory.php?q=a" > $H
+hasnt "?q= search shows the plain list, not tiles" 'class="shtiles"' $H
 grep -hE 'PHP (Warning|Notice|Deprecated|Fatal)' /tmp/isq-php.log | head -5 | sed 's/^/FAIL php: /'

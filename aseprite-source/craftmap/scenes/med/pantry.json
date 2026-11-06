@@ -1,0 +1,47 @@
+{
+ "scene": "pantry",
+ "w": 300,
+ "h": 200,
+ "hotspots": [
+  {
+   "id": "jams",
+   "label": "Jam cupboard",
+   "x": 2,
+   "y": 12,
+   "w": 124,
+   "h": 156
+  },
+  {
+   "id": "cheese",
+   "label": "Hanging cheese",
+   "x": 126,
+   "y": 14,
+   "w": 58,
+   "h": 72
+  },
+  {
+   "id": "cordials",
+   "label": "Cordial bottles",
+   "x": 192,
+   "y": 20,
+   "w": 106,
+   "h": 82
+  },
+  {
+   "id": "crock",
+   "label": "Pickle crock",
+   "x": 126,
+   "y": 90,
+   "w": 66,
+   "h": 102
+  },
+  {
+   "id": "kraut",
+   "label": "Sauerkraut tub",
+   "x": 196,
+   "y": 102,
+   "w": 104,
+   "h": 96
+  }
+ ]
+}

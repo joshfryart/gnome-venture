@@ -25,6 +25,137 @@ function doit(string $slug, array $in = []): array { $u = me(); return local_do(
 function offered(array $loc): array { return array_column(stop_pool($loc)['offer'], 'slug'); }
 function today(): string { return hollow_date('Y-m-d'); }
 
+echo "== happenings (v2.5.72)\n";
+ok('happenings load', count(stop_happenings()) >= 6, (string)count(stop_happenings()));
+$mk = stopOfType('market');
+$nowM = stop_now($mk);
+ok('stop_now carries the happening id', array_key_exists('hp', $nowM));
+ok('the happening is the same twice (same stop, same day)', (stop_happening($mk, $nowM)['id'] ?? '') === (stop_happening($mk, $nowM)['id'] ?? ''));
+$seen = [];
+foreach (q("SELECT * FROM locations WHERE kind = 'village' ORDER BY id")->fetchAll() as $l) { $n = stop_now($l); $seen[$n['hp']] = 1; }
+ok('different stops get different happenings today (at least 3 kinds across the world)', count($seen) >= 3, json_encode(array_keys($seen)));
+$p = stop_pool($mk, $nowM);
+ok('the pool says what is going on', isset($p['happening']) && ($p['happening']['id'] ?? '') === $nowM['hp'] || $nowM['hp'] === '');
+$hapN = count(array_filter($p['offer'], fn($a) => !empty($a['hap'])));
+ok('up to 3 happening acts, and they carry a matching tag', $hapN <= 3 && (!$p['happening'] || $hapN >= 1), "$hapN for " . ($p['happening']['id'] ?? 'none'));
+foreach ($p['offer'] as $a) if (!empty($a['hap'])) ok('a happening act matches the happening tags: ' . $a['slug'], array_intersect($p['happening']['tags'], stop_act_tags($a)) !== []);
+ok('no act is offered twice', count(array_unique(array_column($p['offer'], 'slug'))) === count($p['offer']));
+ok('hp= is a valid condition', stop_cond_parse('hp=market_day,quiet_day') === ['hp' => ['market_day', 'quiet_day']]);
+ok('every act can be tagged without error', count(array_filter(stop_acts(), fn($a) => stop_act_tags($a) !== [])) > 100, (string)count(array_filter(stop_acts(), fn($a) => stop_act_tags($a) !== [])));
+
+echo "== living stops: meters, perks, needs, calendar, threads (v2.5.72)\n";
+$lk = at(stopOfType('market')); $lkLoc = player_node($lk); $lu = (int)$lk['id']; $lid = (int)$lkLoc['id'];
+q('DELETE FROM stop_prog WHERE user_id = ?', [$lu]); q('DELETE FROM stop_log WHERE user_id = ?', [$lu]);
+ok('a new meter starts at 0', stop_meter_get($lu, $lid, 'repairs') === 0);
+[$v] = stop_meter_add($lu, $lid, 'repairs', 25);
+ok('a meter moves', $v === 25 && stop_meter_get($lu, $lid, 'repairs') === 25);
+stop_prog_set($lu, $lid, 'meter:repairs', 50, ['d' => gmdate('Y-m-d', strtotime(today() . ' 12:00:00 UTC -3 days'))]);
+ok('a meter drains with the days (3 days, ' . STOP_METER_DECAY . ' a day)', stop_meter_get($lu, $lid, 'repairs') === 50 - 3 * STOP_METER_DECAY, (string)stop_meter_get($lu, $lid, 'repairs'));
+ok('no perk yet, so no extra slot', stop_perk_bonus($lu, $lid) === 0 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc));
+[$v, $filled] = stop_meter_add($lu, $lid, 'cheer', 120);
+ok('a full meter fills, restarts, and gives a perk', $filled === 'cheer' && $v === STOP_METER_AFTER && isset(stop_perks($lu, $lid)['cheer']));
+ok('the perk is one more thing per visit', stop_slots($lkLoc, $lu) === stop_slots($lkLoc) + 1);
+stop_meter_add($lu, $lid, 'larder', 120);
+ok('perks stack: two full meters give two more', stop_perk_bonus($lu, $lid) === 2 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc) + 2);
+q('DELETE FROM stop_prog WHERE user_id = ? AND k = ?', [$lu, 'perk:larder']);
+ok('the perk is only at that stop', stop_perk_bonus($lu, $lid + 99999) === 0);
+ok('the perk ends after its days', (function () use ($lu, $lid) { stop_prog_set($lu, $lid, 'perk:cheer', 1, ['until' => gmdate('Y-m-d', strtotime(today() . ' 12:00:00 UTC -1 days'))]); return stop_perk_bonus($lu, $lid) === 0; })());
+ok('meter names are limited to the known ones', stop_meter_add($lu, $lid, 'nonsense', 5) === [0, '']);
+// needs
+q('DELETE FROM stop_prog WHERE user_id = ?', [$lu]);
+ok('needs: a low meter meets meter:repairs<60', stop_needs_ok('meter:repairs<60', $lu, $lid));
+stop_prog_set($lu, $lid, 'meter:repairs', 80, ['d' => today()]);
+ok('needs: a high meter does not', !stop_needs_ok('meter:repairs<60', $lu, $lid) && stop_needs_ok('meter:repairs>=60', $lu, $lid));
+ok('needs: a stranger is not a regular', !stop_needs_ok('fam>=regular', $lu, $lid) && stop_needs_ok('fam>=stranger', $lu, $lid));
+q('DELETE FROM stop_prog WHERE user_id = ?', [$lu]);
+$offAnon = array_column(stop_pool($lkLoc, null, 0)['offer'], 'slug');
+$offMe = array_column(stop_pool($lkLoc, null, $lu)['offer'], 'slug');
+ok('a meter-answer act is offered to a player with a low meter, first after the specials', in_array('mend_board', $offMe, true));
+ok('a meter-answer act is not offered with no player', !in_array('mend_board', $offAnon, true));
+ok('a need-act is never in the plain rotation of someone with a full meter', (function () use ($lu, $lid, $lkLoc) {
+    foreach (['repairs', 'larder', 'cheer'] as $m) stop_prog_set($lu, $lid, 'meter:' . $m, 90, ['d' => today()]);
+    $o = array_column(stop_pool($lkLoc, null, $lu)['offer'], 'slug');
+    return !array_intersect($o, ['mend_board', 'tidy_yard', 'fill_shelf', 'hang_lanterns']);
+})());
+q('DELETE FROM stop_prog WHERE user_id = ?', [$lu]);
+ok('every need and move in stop_act_state.txt names a real act', (function () {
+    foreach (stop_act_state() as $slug => $st) if (!isset(stop_acts()[$slug])) return false;
+    return true;
+})());
+// doing an act moves a meter, and says so
+$mv = stop_act_moves(stop_acts()['mend_board']);
+ok('mend_board moves repairs by 20 (its row)', $mv === [['repairs', 20]], json_encode($mv));
+$tagged = array_values(array_filter(stop_acts(), fn($a) => stop_act_state()[$a['slug']] ?? null ? false : stop_act_moves($a) !== []));
+ok('most acts move one meter by their tag', count($tagged) > 200, (string)count($tagged));
+$lu0 = at($lkLoc); q('UPDATE users SET energy = 900 WHERE id = ?', [$lu]);
+$before = stop_meter_get($lu, $lid, 'repairs');
+$res = doit('mend_board', $IN);
+ok('doing mend_board works', $res[0] === true, json_encode($res));
+ok('and raised repairs', stop_meter_get($lu, $lid, 'repairs') >= $before + 20, (string)stop_meter_get($lu, $lid, 'repairs'));
+ok('the result line mentions the meter', str_contains((string)$res[1], 'Repairs'), (string)$res[1]);
+// calendar
+ok('calendar: weekly:sat', stop_cal_match('weekly:sat', '2026-11-07') && !stop_cal_match('weekly:sat', '2026-11-08'));
+ok('calendar: first Sunday of a month', stop_cal_match('monthly:first:sun', '2026-11-01') && !stop_cal_match('monthly:first:sun', '2026-11-08'));
+ok('calendar: last Sunday of a month', stop_cal_match('monthly:last:sun', '2026-11-29') && !stop_cal_match('monthly:last:sun', '2026-11-22'));
+ok('calendar: a fixed date', stop_cal_match('date:06-21', '2027-06-21') && !stop_cal_match('date:06-21', '2027-06-22'));
+ok('calendar: a range, and one that wraps the year', stop_cal_match('range:12-20..12-26', '2026-12-25') && !stop_cal_match('range:12-20..12-26', '2026-12-27') && stop_cal_match('range:12-28..01-03', '2027-01-01') && stop_cal_match('range:12-28..01-03', '2026-12-30') && !stop_cal_match('range:12-28..01-03', '2026-06-01'));
+ok('calendar loads', count(stop_calendar()) >= 6, (string)count(stop_calendar()));
+ok('a Saturday market at a market stop', ($ev = stop_cal_event($lkLoc, '2026-11-07')) && $ev['id'] === 'c_market_sat', json_encode($ev['id'] ?? null));
+ok('and not at a shrine', stop_cal_event(stopOfType('shrine'), '2026-11-07') === null);
+ok('calendar days are happenings, found by id', isset(stop_happenings()['c_midsummer']) && !empty(stop_happenings()['c_midsummer']['cal']));
+ok('calendar tags are real tags', (function () { $all = array_keys(STOP_TAG_WORDS); foreach (stop_calendar() as $e) foreach ($e['tags'] as $t) if (!in_array($t, $all, true)) return false; return true; })());
+ok('the next events list is dates after today', (function () use ($lkLoc) { foreach (stop_cal_next($lkLoc, 3, 400) as [$d]) if ($d <= today()) return false; return true; })());
+ok('the daily roll never picks a calendar day', (function () { foreach (q("SELECT * FROM locations WHERE kind = 'village' ORDER BY id")->fetchAll() as $l) { $n = stop_now($l); if (str_starts_with($n['hp'], 'c_') && !stop_cal_event($l, today())) return false; } return true; })());
+// threads
+q('DELETE FROM stop_prog WHERE user_id = ?', [$lu]); q('DELETE FROM stop_log WHERE user_id = ?', [$lu]);
+ok('threads load', count(stop_threads()) >= 3 && isset(stop_acts()['thread_go']), (string)count(stop_threads()));
+ok('a stranger is offered no story', stop_thread_offer($lu, $lkLoc) === null);
+for ($i = 0; $i < 3; $i++) db_insert('stop_log', ['user_id' => $lu, 'location_id' => $lid, 'visit_key' => 'seed' . $i, 'day' => today(), 'act' => 'chores', 'kind' => 'check', 'note' => '', 'at' => now()]);
+ok('a regular (3 things done) is a Regular', stop_fam_level($lu, $lid) === 'regular');
+$to = stop_thread_offer($lu, $lkLoc);
+ok('a regular is offered the first beat of a story', $to && $to['beat'] === 1 && $to['kind'] === 'thread' && $to['name'] !== '' && $to['blurb'] !== '', json_encode($to));
+ok('and it is in the pool', in_array('thread_go', array_column(stop_pool($lkLoc, null, $lu)['offer'], 'slug'), true));
+$at = at($lkLoc); q('DELETE FROM stop_log WHERE user_id = ? AND act = ?', [$lu, 'thread_go']);
+$tid = $to['thread'];
+$r1 = doit('thread_go');
+ok('doing the beat works', $r1[0] === true, json_encode($r1));
+[$tn] = stop_prog_get($lu, $lid, 'thread:' . $tid);
+ok('and moves the story on one', $tn === 1, (string)$tn);
+ok('only one beat a day: nothing offered until tomorrow', stop_thread_offer($lu, $lkLoc) === null);
+stop_prog_set($lu, $lid, 'thread:' . $tid, 1, ['day' => '2000-01-01']);
+$to2 = stop_thread_offer($lu, $lkLoc);
+ok('the next day brings beat 2', $to2 && $to2['beat'] === 2 && $to2['thread'] === $tid, json_encode($to2['beat'] ?? null));
+$last = count(stop_threads()[$tid]['beats']);
+stop_prog_set($lu, $lid, 'thread:' . $tid, $last - 1, ['day' => '2000-01-01']);
+$coin = (int)me()['coins'];
+$at = at($lkLoc); q('DELETE FROM stop_log WHERE user_id = ? AND act = ?', [$lu, 'thread_go']);
+$r2 = doit('thread_go');
+ok('the last beat ends the story and pays', $r2[0] === true && str_contains((string)$r2[1], 'The end') && (int)me()['coins'] > $coin, json_encode($r2));
+ok('a finished story is not offered again', (function () use ($lu, $lkLoc, $tid) { $o = stop_thread_offer($lu, $lkLoc); return !$o || $o['thread'] !== $tid; })());
+ok('every thread reward names real items', (function () { foreach (stop_threads() as $t) if (preg_match_all('/item=([a-z0-9-]+)/', $t['reward'], $m)) foreach ($m[1] as $sl) if (!q_val('SELECT 1 FROM items WHERE slug = ?', [$sl])) return false; return true; })());
+// the perk circle by the world icon
+q('DELETE FROM stop_prog WHERE user_id = ?', [$lu]);
+ok('the circle shows at a stop even before a meter has moved, with a 0% list and no perk count', ($c0 = stop_perk_chip(me(), $lkLoc)) !== '' && str_contains($c0, 'pkchip') && !str_contains($c0, 'pkdot on'));
+ok('every active act moves a meter (v2.5.78)', ($nomove = array_keys(array_filter(stop_acts(), fn($a) => !stop_act_moves($a)))) === [], implode(',', array_slice($nomove, 0, 8)));
+stop_meter_add($lu, $lid, 'larder', 20);
+$chip = stop_perk_chip(me(), $lkLoc);
+ok('a circle shows once a meter has moved, with the meter list', str_contains($chip, 'pkchip') && str_contains($chip, 'Larder') && !str_contains($chip, 'pkdot on'));
+stop_meter_add($lu, $lid, 'cheer', 120);
+$chip = stop_perk_chip(me(), $lkLoc);
+ok('the circle lists the perks and counts them', str_contains($chip, 'pkdot on">1<') && str_contains($chip, 'Cheer is full'));
+ok('the round Perks button is offered with a perk, next to the others', ($pn = stop_perk_nav(me(), $lkLoc)) && $pn['id'] === 'perks' && $pn['label'] === 'Perks' && is_file(__DIR__ . '/../game/assets/img/ico/' . $pn['icon']));
+ok('and the perk card has the list', str_contains(stop_perk_body(me(), $lkLoc), 'Cheer is full') && str_contains(stop_perk_body(me(), $lkLoc), 'Meters'));
+ok('no round button off a stop', stop_perk_nav(me(), ['kind' => 'wonder', 'id' => $lid, 'name' => 'x']) === null);
+ok('no circle off a stop', stop_perk_chip(me(), ['kind' => 'wonder', 'id' => $lid, 'name' => 'x']) === '');
+ok('the circle has no inline styles', !str_contains($chip, 'style='));
+q('DELETE FROM stop_prog WHERE user_id = ?', [$lu]);
+// the notice board
+$board = stop_board_html(me(), $lkLoc);
+ok('the notice board has its three parts and a standing', str_contains($board, 'Coming up') && str_contains($board, 'Needs help') && str_contains($board, 'Done lately') && str_contains($board, 'Your standing'));
+ok('the meter bars render without inline styles', ($mh = stop_meters_html($lu, $lid)) !== '' && !str_contains($mh, 'style='));
+require_once $argv[1] . '/includes/crafting.php';
+try { $pg = local_panel(me(), $lkLoc); ok('the stop page renders with the bars', str_contains($pg, 'st-meters')); } catch (Throwable $e) { ok('stop page renders: ' . $e->getMessage() . ' ' . basename($e->getFile()) . ':' . $e->getLine(), false); }
+
 echo "== migration and data\n";
 ok('12 stop types', count(stop_types()) === 12);
 ok('at least 50 activities', count(stop_acts()) >= 50, (string)count(stop_acts()));
@@ -116,6 +247,12 @@ cfg(['stop_daily_cap' => 6, 'stop_daily_total' => 3]);
 ok('v1.4.9: all-stops daily total is soft (no stop, rewards halved)', $o && !empty($GLOBALS['gv_stop_tired']), $m);
 cfg(['stop_daily_total' => 15, 'stop_daily_cap' => 6]); q('DELETE FROM stop_log');
 
+// The pool shows at most 3 conditional ("special") activities, picked by a hash of today's real date, so whether night fishing or the pie
+// contest makes the cut depends on the day the suite runs. For those checks, park the OTHER conditional untiered activities (active=0)
+// so the date cannot hide the one under test; spare() puts them back.
+$parked = [];
+function only_special(string $slug): void { global $parked; spare(); foreach (q("SELECT slug FROM stop_acts WHERE slug <> ? AND cond <> '' AND tier = 0 AND active = 1", [$slug])->fetchAll(PDO::FETCH_COLUMN) as $x) { $parked[] = $x; q('UPDATE stop_acts SET active = 0 WHERE slug = ?', [$x]); } stop_acts(true); }
+function spare(): void { global $parked; foreach ($parked as $x) q('UPDATE stop_acts SET active = 1 WHERE slug = ?', [$x]); $parked = []; stop_acts(true); }
 echo "== time of day, season and weather\n";
 $jet = stopOfType('jetty');
 cfg(['stop_daypart_force' => 'day', 'weather_force' => 'sun', 'season_force' => 'spring']);
@@ -124,10 +261,11 @@ ok('...but is listed under other times', in_array('night_fishing', array_column(
 at($jet);
 [$o, $m] = doit('night_fishing', $IN);
 ok('doing it by day is refused', !$o && str_contains($m, 'isn’t on offer'), $m);
-cfg(['stop_daypart_force' => 'night']);
+cfg(['stop_daypart_force' => 'night']); only_special('night_fishing');
 ok('night fishing is offered at night', in_array('night_fishing', offered($jet), true));
 at($jet); [$o] = doit('night_fishing', $IN);
 ok('and works at night', $o);
+spare();
 $inn = stopOfType('inn');
 cfg(['stop_daypart_force' => 'day', 'weather_force' => 'sun']);
 ok('rainy-day stories not in sun', !in_array('rainy_stories', offered($inn), true));
@@ -139,8 +277,9 @@ cfg(['stop_core' => 3]);
 cfg(['season_force' => 'summer', 'weather_force' => 'sun']);
 ok('no frost fair in summer', !in_array('frost_fair', offered($inn), true));
 cfg(['season_force' => 'autumn']);
-$orch = stopOfType('orchard');
+$orch = stopOfType('orchard'); only_special('pie_contest');
 ok('pie contest in autumn at an orchard', in_array('pie_contest', offered($orch), true));
+spare();
 cfg(['stop_daypart_force' => 'night']);
 ok('the ambience changes with the time of day', true);
 $t = stop_types()['inn']; $amb = explode(';;', $t['ambience']); ok('four ambience lines per type', count($amb) === 4);

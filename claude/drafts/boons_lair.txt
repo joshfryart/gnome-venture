@@ -1,0 +1,84 @@
+pl-frt-1|Toad’s First Croak|first|-|Croaks once as a fight begins, and your opening blow follows the sound straight home.
+pl-frt-2|Barrow Lullaby|mend|-|Hums its toad lullaby over your bruises, and each round a little more of the ache drifts off to sleep.
+pl-frt-3|Meltwater Sup|sip|-|Drips spring meltwater onto your snacks, so they go down cool and do you a deal more good.
+pl-frt-4|Wart-Knuckle Bump|edge|-|Rides on your knuckles like frosty studs, so every blow arrives with a cold extra bump.
+pl-frt-5|Barrow Hoard Peek|spoils|-|Peers into the creature’s den after a win and spies something worth carrying home.
+pl-frt-6|Toad King’s Larder|feast|rouse|Keeps your snacks on ice in the barrow larder so they fill you more, and croaks your calling awake for another go.
+pl-cnd-1|Talon-Tip Thrust|edge|-|Still sure it is a spear, it lends your swing a sharp bronze point that bites a bit deeper.
+pl-cnd-2|Eyrie Tailwind|tonic|-|Whenever a meal or potion is warming you, it lifts you on a crag wind and you fight tougher and quicker.
+pl-cnd-3|Thermal Puff|bulwark|-|Tucks itself under your collar and keeps you warm and well puffed up for the long, windy road.
+pl-cnd-4|Clutching Claw|ward|-|Grips you as tightly as it grips the crag, so every blow has to shove past it before it lands.
+pl-cnd-5|Eyrie Safety Nest|rally|-|When you’re about to tumble, it wobbles under you just in time and catches you with a little heal.
+pl-cnd-6|Crag Lord’s Shadow|kindle|daze|Its great shadow lifts your calling a step higher, and one sweep over a creature leaves it too dazed to act.
+pl-owl-1|Den-Down Lining|bulwark|-|Lines your boots with soft den down, so you walk on further and sturdier before you tire.
+pl-owl-2|Owl’s-Eye Glimmer|first|-|Lights up the creature the moment a fight begins, so your first blow finds it easily.
+pl-owl-3|Roost Scarf Wrap|rally|-|When you’re nearly beaten, it wraps round you like the owl’s own scarf and warms you back up.
+pl-owl-4|Owlet’s Beak Peck|edge|-|Bored in the den, it pecks along with you, and every blow lands a little sharper.
+pl-owl-5|Snowy Roost Hollow|ward|-|Tucks you into its snowy hollow, and every hit sinks into the drift a bit softer.
+pl-owl-6|Great Owl’s Wingfold|guard|patch|Folds a wing round you so the first blow lands half as hard, and preens a quick heal into you when you’re hurt.
+pl-dlz-1|Scaly Hide Flake|ward|-|Laughs a flake of scale onto your sleeve, and blows glance off that little patch of hide.
+pl-dlz-2|Fly-Snatch Tongue|spoils|-|Flicks out after a win and comes back with something the creature left lying in its den.
+pl-dlz-3|Sunbask Tail Tap|tonic|-|Taps its tail in time while a meal or potion warms you, and your grit and nimble feet keep the beat.
+pl-dlz-4|Diamondback Spike|edge|-|Lends you one proud diamond spur, and your blows land with a jab of real lizard scale.
+pl-dlz-5|Den-Mouth Yawn|bulwark|-|Yawns you a lungful of cool den air, and you stride the road a good deal sturdier for it.
+pl-dlz-6|Mossback Basking Stare|guard|daze|Takes the first blow on its mossy back so it lands half as hard, then stares a creature still for a turn.
+pl-cwy-1|Wyrm-Scale Ember|edge|-|Glows on your knuckles like a scrap of wyrm scale, so every blow leaves a little scorch.
+pl-cwy-2|Slow Forge Drip|mend|-|Drips its warm glow onto your hurts, slowly, and each round one more ache melts away.
+pl-cwy-3|Forge-Warmed Snack|sip|-|Holds your snacks over the wyrm’s coals so they come out toasty and do you more good.
+pl-cwy-4|Sparkspine Startle|guard|-|Pops like a sparkler as a fight starts, and the first blow flinches to half its weight.
+pl-cwy-5|Cinderhide Wreath|ward|-|Settles round your shoulders like cool ash, and every hit puffs out a little weaker.
+pl-cwy-6|Wyrm’s Hearth Supper|feast|daze|Toasts your snacks on its last flame so they fill you more, and flares in a creature’s eyes to daze it.
+pl-sbs-1|Silk Stitch-Up|mend|-|Stitches your scrapes shut with sticky silk, a few more each round you keep fighting.
+pl-sbs-2|First Strand Snag|guard|-|Snags the first blow of a fight on a loose thread, and it lands only half as hard.
+pl-sbs-3|Hollow Silk Padding|ward|-|Pads you with silk from its hiding spot, so blows sink in and lose their sting.
+pl-sbs-4|Eight-Leg Grapple|edge|-|Holds the creature tight with all eight legs while you swing, so your blows land harder.
+pl-sbs-5|Dewdrop Draught|bulwark|-|Shakes its dew into your flask each morning, and you walk the road sturdier for the sip.
+pl-sbs-6|Silverback Lifeline|rally|sap|Spins you a lifeline when you’re nearly beaten, and can lash a creature with a venom-laced thread.
+pl-gwk-1|Moon-Growl Grit|bulwark|-|Growls you on through the night, and you find a good deal more puff left in you on the road.
+pl-gwk-2|Pack Feast Paw|tonic|-|Stamps its paw on your full belly, so while a meal or potion is on you, you fight with wolfish grit.
+pl-gwk-3|Moonlit Hackles|guard|-|Glows pale as a fight opens, and the first blow shies off to half its weight.
+pl-gwk-4|Wolf King’s Bite|edge|-|Points out the creature’s weak spot, every bit the king, and your hits bite harder.
+pl-gwk-5|Echoing Den Howl|ward|-|Rings round you before each blow lands, so the blow comes in a little smaller too.
+pl-gwk-6|Pack Hunt Whistle|spoils|sap|Whistles up the pack to sniff out loot after a win, and one sharp blast sends a wolf for a festering bite.
+pl-hcr-1|Storm-Claw Snap|edge|-|Snaps and crackles along with every swing you make, so each blow lands with more bite.
+pl-hcr-2|Crabshell Rattle|ward|-|Rattles over the spot you’re about to be hit, and its orange shell takes the edge off.
+pl-hcr-3|Whirling Lair Breeze|mend|-|Circles you round and round, and every turn of its breeze carries a little hurt away.
+pl-hcr-4|Four-Pincer Spin|first|-|Spins in fast at the start of a fight, so your opening blow arrives exactly where you aimed.
+pl-hcr-5|Storm’s Eye Calm|petal|-|Lends you its calm in the middle of the din, and now and then you strike a perfect blow.
+pl-hcr-6|Castaway Crab Tales|lesson|daze|Shares what each fight taught it so wins teach you more, and can bowl a creature over so it loses a turn.
+pl-jdf-1|Jade-Wing Edge|edge|-|Hums along your swing like a thin jade blade, and each blow cuts a little deeper.
+pl-jdf-2|Reedbed Cling|mend|-|Clings to you through the scuffle and, round by round, hums a little of the hurt away.
+pl-jdf-3|Pond-Glare Dazzle|first|-|Flashes sunlight in the creature’s eyes as the fight begins, so your first blow lands true.
+pl-jdf-4|Four-Wing Flutter|guard|-|All four rush to be first in front of you, and the opening blow lands only half as hard.
+pl-jdf-5|Lanternlit Getaway|slip|-|Lights up every gap in the reeds, so when it’s time to leg it you can always find the way out.
+pl-jdf-6|Lotus Nap Hideaway|petal|snare|Hums your swings onto soft spots for more crushing blows, and opens its petals so your next run always works.
+pl-bjq-1|Reef-Current Sway|foot|-|Sways you along to its secret tune, so you run lighter and your armour sits snug as a shell.
+pl-bjq-2|Anemone Bolthole|rally|-|When you’re nearly beaten, it pops out of the coral and pulls you in for a quick, soothing breather.
+pl-bjq-3|Queen’s Bell Chime|petal|-|Chimes when the queen is near and, now and then, just as your blow lands on the soft spot.
+pl-bjq-4|Stinging Tiara Spike|edge|-|Lends you one of its gold spikes, and your hits leave a sting the creature will remember.
+pl-bjq-5|Royal Bell Window|tonic|-|While a meal or potion is on you, it shows you the queen’s view, and your grit and quickness swell like a tide.
+pl-bjq-6|Square Queen’s Sting|mend|sap|By royal decree your scrapes mend a little each round, and once a fight she stings a creature with poison.
+pl-smk-1|Crater Smoke Puff|kindle|-|Puffs warm crater smoke into your calling, and it comes out a good step stronger.
+pl-smk-2|Rain-Scented Cap|mend|-|Breathes a smell of rain over your bruises, and each round in the heat one of them cools off.
+pl-smk-3|Salamander Spot Glow|bulwark|-|Glows on your sleeve like a salamander spot, keeping you warm and hardy down the long road.
+pl-smk-4|Crater-Rim Prong|edge|-|Lends your blows a hot rock prong from the rim, and they land with a fair bit more heft.
+pl-smk-5|Smokehole Swirl|ward|-|Swirls round you so blows punch into smoke first, and come out a little softer.
+pl-smk-6|Salamander Snore|petal|daze|Snores on your shoulder as your hits find hot spots more often, and one big puff dazes a creature for a turn.
+pl-snw-1|Snowlion Nip|edge|-|Nibbles the creature’s nose for you mid-swing, so your blows catch it off guard and hit harder.
+pl-snw-2|Lion’s Lookout Branch|lesson|-|Points from its lookout at what went wrong, so every win up the peak teaches you more.
+pl-snw-3|Giggling Melt|mend|-|Trickles cool snowmelt over your scrapes, giggling, and each round eases one more.
+pl-snw-4|Peak-Chilled Snack|sip|-|Chills your snacks between its snowy points so they keep fresh and do you more good.
+pl-snw-5|Big Paw Buffer|ward|-|Waves hello at every incoming blow, and those soft paws pat it down a size.
+pl-snw-6|Cub’s Pounce|first|daze|Pounces from your pack so your first blow lands true, and a fluffy mane-shake leaves a creature dazed.
+pl-tgm-1|Moth-Dust Sneeze|first|-|Tickles the creature into a sneeze as a fight starts, and your first blow lands while it blinks.
+pl-tgm-2|Temple Offering|spoils|-|Flutters nervously over beaten creatures until they leave a little offering behind.
+pl-tgm-3|Counted Stone Step|ward|-|Counts every blow out loud as it lands, and somehow each one adds up to a bit less.
+pl-tgm-4|Tigerstripe Flurry|edge|-|Flaps four ways at once to fluster the creature, and your blows land harder in the muddle.
+pl-tgm-5|Moonwing Rescue|rally|-|When you’re nearly beaten, it flutters you through its moon hole and out the other side mended.
+pl-tgm-6|Eyespot Lantern|petal|sap|Its glowing eyespot shows you soft spots for crushing blows, and it can dust a creature with poisonous powder.
+pl-scr-1|Tomb-Dust Point|edge|-|Sharpens itself into a tiny pyramid tip, and your blows land with a pointed extra jab.
+pl-scr-2|Scarab Shell Gleam|ward|-|Lends you its teal shell for a breastplate, and every blow skids off with less behind it.
+pl-scr-3|Tomb-Clock Tick|first|-|Ticks out the very moment to strike, so your first blow of a fight lands right on time.
+pl-scr-4|Homeward Scuttle|rally|-|When you’re nearly beaten, it marches in step beside you and you pull yourself up a little mended.
+pl-scr-5|Noon Sundisk Glow|kindle|-|Lets the noon sun pour through its peephole into your calling, which shines a step stronger.
+pl-scr-6|Red Jewel Wink|tonic|daze|While a meal or potion is on you, its jewel lends you tomb-old grit, and one red blink dazes a creature.
