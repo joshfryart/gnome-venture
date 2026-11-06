@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.86
+- **Fight scene fix**: tapping to skip the end scene (or the fight) no longer makes the hat flop about on your head. The hat's spring physics ran with a step as big as the skip speed and blew up; the step is now capped, so the hat just settles. A browser test taps to skip and checks the hat stays still.
+
 ## 2.5.85
 - **Fight scene fix**: no more "fallen hat" lying by the gnome after a fight on the Trail. It was the map's own default gnome marker (red hat) peeking out from behind the smaller fight gnome. The marker is now hidden while the fight stage is up.
 
