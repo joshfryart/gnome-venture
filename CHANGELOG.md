@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.5.100
+## 2.6.00
 - **Rest stop popover buttons work**: checks, picks and powers inside the popover (for example the Extras tab's "Trust the bees (Luck check)") did nothing and just said "Pick how to go about it." The in-place form now sends the button you pressed along with it, and the buttons are switched off while it sends so a double tap cannot post twice.
 - Tests: Extras tab Rest, Buy and a Luck check in a headless browser.
 
