@@ -1,0 +1,27 @@
+// node fight_scene.js BASE [SHOTDIR] : the fight page in a browser (needs the fight set up by fight_scene.sh)
+const { chromium } = require('playwright');
+(async () => {
+  const [base, shot] = [process.argv[2], process.argv[3]];
+  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--no-sandbox'] }).catch(() => chromium.launch({ args: ['--no-sandbox'] }));
+  const p = await (await b.newContext({ viewport: { width: 390, height: 800 } })).newPage();
+  const errs = []; let bad = 0; p.on('console', m => { if (m.type() === 'warning' || m.type() === 'error') errs.push(m.text()); });
+  p.on('pageerror', e => errs.push(String(e)));
+  const fail = m => { console.log('FAIL ' + m); bad++; };
+  await p.goto(base + '/login.php'); await p.fill('input[name=username]', 'sprout'); await p.fill('input[name=password]', 'TestPass123!'); await Promise.all([p.waitForNavigation(), p.press('input[name=password]', 'Enter')]);
+  await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' });
+  try { await p.waitForSelector('#fightscene .fe-view', { timeout: 4000 }); } catch (e) { fail('engine did not mount'); }
+  try { await p.waitForFunction(() => !document.querySelector('.fightbtns.fs-wait'), null, { timeout: 8000 }); } catch (e) { fail('buttons stay locked after the enter'); }
+  if (shot) await p.screenshot({ path: shot + '/fs-enter.png' });
+
+  await p.click('form:has(input[value=attack]) button');
+  await p.waitForFunction(() => { const h = document.getElementById('fightscene'); try { return JSON.parse(h.dataset.fight).events.length > 0; } catch (e) { return false; } }, null, { timeout: 15000 }).catch(() => fail('no events after the attack click'));
+  try { await p.waitForSelector('#fightscene .fe-view', { timeout: 20000 }); } catch (e) { fail('engine did not mount after attack: ' + errs.join('|') + ' ' + await p.evaluate(() => typeof FightEngine + ' ' + document.readyState)); }
+  const locked = await p.evaluate(() => !!document.querySelector('.fightbtns.fs-wait')); if (!locked) fail('buttons not locked while events play');
+  await p.waitForSelector('#fightscene .fe-dmg', { timeout: 6000 }).catch(() => fail('no damage number popped'));
+  if (shot) await p.screenshot({ path: shot + '/fs-attack.png' });
+  try { await p.waitForFunction(() => !document.querySelector('.fightbtns.fs-wait'), null, { timeout: 12000 }); } catch (e) { fail('buttons stay locked after the events'); }
+  const hp = await p.evaluate(() => { const bars = [...document.querySelectorAll('#fightscene .fe-hud *')]; return bars.length; });
+  if (errs.length) fail('page errors: ' + errs.join(' | '));
+  console.log(bad ? 'browser: ' + bad + ' problem(s)' : 'browser ok (' + hp + ' hud nodes)');
+  await b.close(); process.exit(bad ? 1 : 0);
+})();

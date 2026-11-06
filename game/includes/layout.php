@@ -58,7 +58,7 @@ function page_header(string $title, bool $admin = false): void
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="<?= theme_pref() === 'light' ? 'light' : 'dark' ?>">
-<?= seo_head($title, $admin) ?><link rel="stylesheet" href="<?= e(url('assets/style.css?v=' . APP_VERSION)) ?>">
+<?= seo_head($title, $admin) ?><link rel="stylesheet" href="<?= e(url('assets/style.css?v=' . APP_VERSION)) ?>"><?php if (!$admin && $page === 'adventure.php' && function_exists('fight_scene_on') && fight_scene_on()): ?><link rel="stylesheet" href="<?= e(url('assets/fightengine.css?v=' . APP_VERSION)) ?>"><?php endif; /* fight_scene: the animated fight stage */ ?>
 <?php if (!$admin && !$u && in_array($page, ['index.php', 'guide.php'], true)): ?><link rel="stylesheet" href="<?= e(url('assets/landing.css?v=' . APP_VERSION)) ?>">
 <?php endif; /* v1.6.3: landing.css only on the logged-out front page and How to play */ ?>
 <?php if ($admin): ?><link rel="stylesheet" href="<?= e(url('assets/admin.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/admin.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* v1.6.3: admin look and menu, admin pages only */ ?>
@@ -96,6 +96,8 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* v2.0.6: assets/tilemap.js (walk the token on a delve or lair map) */ ?>
 <?php if (!$admin && !$onboarding && $tourStep > 0): ?><script src="<?= e(url('assets/tour.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v2.4.97: Wren's tour bubble and rings */ ?>
+<?php if (!$admin && $page === 'adventure.php' && function_exists('fight_scene_on') && fight_scene_on()): ?><script src="<?= e(url('assets/fightengine.js?v=' . APP_VERSION)) ?>" defer></script><script src="<?= e(url('assets/fightscene.js?v=' . APP_VERSION)) ?>" defer></script>
+<?php endif; /* fight_scene: engine + adapter load with the page, so a fight that starts after an in-place swap has them */ ?>
 <?php if (!$admin && $u && !$onboarding): ?><script src="<?= e(url('assets/fighton.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.0: Fight on replay, for the fight card and the walk bar */ ?>
 <?php if (!$admin && $u && !$onboarding): ?><script src="<?= e(url('assets/chest.js?v=' . APP_VERSION)) ?>" defer></script>

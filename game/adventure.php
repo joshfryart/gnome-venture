@@ -4,6 +4,7 @@ require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/adventure.php';
 require_once __DIR__ . '/includes/scene.php';   // v2.0.43: the stage
 require_once __DIR__ . '/includes/puzzle_pals.php';   // v2.3.8: pal actives on the fight buttons
+require_once __DIR__ . '/includes/fight_scene.php';   // fight_scene: the animated fight stage
 require_once __DIR__ . '/includes/trail_tiles.php';   // graphical navigation 2d: the Trail as tile sections (gnav_tiles)
 $u = require_login();
 $uid = (int)$u['id'];
@@ -296,7 +297,8 @@ if ($wi && !$isWalk): ?>
 <?php $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$fighting;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold); v2.1.12: event cards use it too ?>
 <div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $wander ? ' wander' : '' ?>">
 <div class="mapcol">
-<?php if ($exp && !$trailSc): echo adventure_stage_html($u, $exp, $scene, $enc); endif;   // the tile page has no scene picture: the map is the picture ?>
+<?php $fsc = $fighting && fight_scene_on();   // fight_scene: the animated stage replaces the picture and the popover for a creature fight
+if ($exp && !$trailSc && !$fsc): echo adventure_stage_html($u, $exp, $scene, $enc); endif;   // the tile page has no scene picture: the map is the picture ?>
 <?php if ($dv2Scene): // v2.3.1: the floor you are on, or the route menu between floors ?>
 <?php if ($dv2Scene['map']): ?><?= dv2_floor_html($u, $exp, $dv2Scene, (bool)$enc) ?>
 <?php elseif ($dv2Scene['st']['q']): ?><?= dv2_quick_html($dv2Scene) ?>
@@ -353,7 +355,7 @@ if ($trailSc && !$enc) { $latestHtml = $latestHtml !== '' ? '<div class="trailto
 </div>
 
 
-<?php $trailPop = ($trailSc || $mapMode || $dv2Scene || $wanderView) && $enc;   // on every tile map the encounter (a fight above all) is a popover over the screen, sized to it; it cannot be closed until it is settled
+<?php $trailPop = ($trailSc || $mapMode || $dv2Scene || $wanderView) && $enc && !$fsc;   // on every tile map the encounter (a fight above all) is a popover over the screen, sized to it; it cannot be closed until it is settled
 if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria-label="<?= $enc['type'] === 'creature' ? 'A fight' : 'Something in your way' ?>"><div class="pickbox"><div class="hubcard trailui"><?= adventure_stage_html($u, $exp, $scene, $enc, 'fight', 'fightstage') /* the battle backdrop (placeholder art: scenes/fight-<land>.png) */ ?><?php endif; ?>
 <div class="panel box encounter">
 <?= fight_replay_stage((int)$last['id']) ?>   <?php // v1.4.0: Fight on replay, played by assets/fighton.js ?>
@@ -378,6 +380,9 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
     $sure = fight_certainty($u, $exp, $c, $enc);
     [$abName, $abDesc] = CALLING_ABILITIES[$u['calling'] ?? ''] ?? CALLING_ABILITIES['']; ?>
   <?php // v0.7.61: one box; reversed in 2.2.1 so you are on the left, under your gnome on the stage, and the foe on the right under theirs ?>
+  <?php if ($fsc): echo fight_scene_html($u, $exp, $enc, $c); ?>
+  <small class="muted fs-line">⚡ <?= (int)$u['energy'] ?> · ⚔️ +<?= $gc['atk'] ?> · 🛡️ <?= $gc['ac'] ?> · 🎲 d<?= $gc['dmg_die'] ?>+<?= $gc['dmg_bonus'] ?> · foe ⚔️ +<?= (int)$c['attack'] ?> 🛡️ <?= (int)$c['defense'] ?><?= $enc['poison'] ? ' · 🧪 poisoned' : '' ?></small>
+  <?php else: ?>
   <div class="fightgrid">
     <div class="fcard you">
       <div class="fname"><?= gnome_avatar_pals($u, 30) ?> <b><?= e(gnome_name($u)) ?></b></div>
@@ -392,6 +397,7 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
       <small>⚔️ +<?= (int)$c['attack'] ?> · 🛡️ <?= (int)$c['defense'] ?><?= $enc['poison'] ? ' · 🧪 poisoned' : '' ?></small>
     </div>
   </div>
+  <?php endif; ?>
   <details class="helpfold"><summary>About the <?= e($c['name']) ?></summary><p><i><?= e($c['description']) ?></i></p></details>
   <?= fight_card_extra($u, $exp, $enc, 3, true) ?>
   <?php // v1.6.3: fight actions are .choice rows; what each one does sits in its sub line (it used to be a help paragraph)

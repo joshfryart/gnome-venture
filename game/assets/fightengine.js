@@ -384,6 +384,16 @@
         if (heal) sleep(620).then(function () { setHp(a, a.hp + heal); pop(a, '+' + heal, 'heal'); });
         return fixHat(a);
       }
+      if (ev.end || ev.move === 'end') return Promise.resolve();
+      if (!a) return Promise.resolve();
+      if (ev.move === 'hurt') {   // damage with no attacker (poison, a pal's strike): number pops, bar drops, target flinches
+        var wasH = a.hp; pop(a, '-' + (ev.dmg || 0)); setHp(a, a.hp - (ev.dmg || 0)); var hh = run(a, 'hit');
+        return hh.finished.then(function () { if (a.hp <= 0 && wasH > 0) { stopIdle(a); if (a.rig.lingers) return run(a, 'koL').finished; a.sh.style.opacity = 0; return run(a, 'ko').finished; } });
+      }
+      if (ev.move === 'heal' || ev.move === 'snack') { var hl = Math.max(0, Math.min(ev.heal || 0, a.max - a.hp)); if (hl) { setHp(a, a.hp + hl); pop(a, '+' + hl, 'heal'); } return run(a, 'cheer').finished; }
+      if (ev.move === 'stumble') { pop(a, 'trips!', 'miss'); return run(a, 'dodge').finished; }
+      if (ev.move === 'charm' || ev.move === 'dazed' || ev.move === 'note') { pop(a, ev.text || (ev.move === 'charm' ? (ev.ok === false ? 'no charm' : 'charmed!') : ev.move === 'dazed' ? 'dazed' : '...'), ev.move === 'charm' && ev.ok !== false ? 'heal' : 'miss'); return sleep(350); }
+      if (ev.move === 'attack' && !MOVES.attack) ev = Object.assign({}, ev, { move: 'pluck' });   // plain Attack uses the pluck swing until it has its own
       if (ev.move === 'guard') { var g = document.createElement('div'); g.className = 'fe-guard'; a.body.appendChild(g); a.guardEl = g; return run(a, 'guard').finished; }
       if (ev.move === 'flee') { if (a.guardEl) { a.guardEl.remove(); a.guardEl = null; } (a.held || []).forEach(function (x) { x.cancel(); }); a.held = []; stopIdle(a); a.sh.style.opacity = 0; return run(a, 'flee').finished; }
       var name = ev.move || a.rig.attack, m = MOVES[name], atk = run(a, name, tg);
@@ -407,7 +417,7 @@
       busy++;
       return list.reduce(function (p, ev) { return p.then(function () { return step(ev); }).then(function () { return sleep(150); }); }, Promise.resolve()).then(function () {
         busy--;
-        var over = list.some(function (ev) { return ev.move === 'flee'; }) || Object.keys(acts).some(function (k) { return acts[k].hp <= 0; });
+        var over = list.some(function (ev) { return ev.move === 'flee' || !!ev.end; }) || Object.keys(acts).some(function (k) { return acts[k].hp <= 0; });
         return over ? finish() : null;
       });
     }

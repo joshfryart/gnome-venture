@@ -31,3 +31,6 @@
 .fe-hattap:focus-visible{outline:2px solid #fff;outline-offset:2px}
 @keyframes fe-tap{50%{transform:scale(1.14);opacity:.65}}
 @media (prefers-reduced-motion:reduce){.fe-hattap{animation:none}}
+.fightscene{position:relative;max-width:480px;margin:0 auto}
+.fightscene .fs-fb{display:block;font-size:13px}
+.fightbtns.fs-wait{opacity:.55;pointer-events:none}
