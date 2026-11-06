@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.5.90
+- **Authored Trail maps for every route**: the 230 routes outside the Maplewold's own region (624 sections) now each have a hand-shaped 22 x 7 map instead of a random corridor, with the section count the route had before. Each section has a named set piece, a short caption, finds off the walk line and a worn path; routes ending at a delve or lair have the fixed miniboss/boss spot on their last section.
+- **Set-piece landmarks are wired in** with stand-in sprites (137 shared set pieces). Real art is listed in `claude/trail-setpiece-art-notes.md`. Desert, island, mountain, rainforest and wetland still use the coast, tundra and forest ground art.
+- Tools: `tools/gen_trail_maps.py` makes the maps and landmark slots (deterministic), `tools/bake_trail_art.py` also reads `claude/trail-landmarks/*_landmarks.json`. Test `tests/trail_authored.php` expects fixed fights on the last section of every delve/lair route.
+- Needs the tile walks flag (`gnav_tiles`) on to be seen.
+
 ## 2.5.89
 - **Sneak/Hunt now last the whole walk**: the stance was lost at every Continue and every "Back to section N"; it now carries over. The two buttons are hidden during a fight (they only gave an error there).
 - **Reward row fits narrow phones**: it is clamped to the part of the stage on screen, closes up when there are many drops, and long names wrap and stagger instead of overlapping.
