@@ -153,10 +153,10 @@ lmact -d do=delve -d lm=$DID
 EX=$(EXPID); T=$(tap); ids=${T#menu }; adv; post adventure.php -d do=route -d "pick=${ids%%,*}" >/dev/null
 php -r '$_SERVER["SCRIPT_NAME"]="/adventure.php"; require $argv[1]."/includes/bootstrap.php"; require_once $argv[1]."/includes/adventure.php"; require_once $argv[1]."/includes/delve_v2.php"; $u=q_one("SELECT * FROM users WHERE id=?",[(int)$argv[2]]); $exp=q_one("SELECT * FROM expeditions WHERE id=?",[(int)$argv[3]]); dv2_fight($u,$exp,3,"test: "); save_exp($exp);' "$GAME" $SID $EX
 adv
-chk "fight popover is up on the v2 floor" "$(grep -q 'id="trailpop"' $A && grep -q 'value="attack"' $A && echo 1)"
+chk "the fight plays on the v2 floor itself, with the fight menu over it" "$(grep -q 'class="tilemap tm-cave tm-fight"' $A && grep -q 'class="fightscene fs-over"' $A && grep -q 'class="fsdock fsc"' $A && grep -q 'value="attack"' $A && ! grep -q 'id="trailpop"' $A && echo 1)"
 chk "pal skill button (palskill:mw-samara-spin) is in the card" "$(grep -q 'value="palskill:mw-samara-spin"' $A && echo 1)"
 post adventure.php -d do=palskill:mw-samara-spin >/dev/null; adv
-chk "using it marks it used (disabled, Used this fight) or ends the fight" "$({ ! grep -q 'value="palskill:mw-samara-spin"' $A || grep -q 'Used this fight' $A; } && echo 1)"
+chk "using it marks it used (disabled, Used this fight) or ends the fight" "$({ ! grep -q 'value="palskill:mw-samara-spin"' $A || grep -q 'Used this fight' $A || grep -q '<span class="o-r">used</span>' $A; } && echo 1)"
 resolve; adv; post adventure.php -d do=leave >/dev/null
 dbx "DELETE FROM ppal_found WHERE user_id=$SID; DELETE FROM settings WHERE name IN ('ppal_open','ppal_party','ppal_boons')"
 

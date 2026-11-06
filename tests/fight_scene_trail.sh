@@ -80,6 +80,21 @@ FD=$(grep -o 'data-fight="[^"]*"' $TD/here-p.html | head -1 | php -r 'echo html_
 chk "a knock-out plays on the stage before the result" "$([ $DOWN = 1 ] && grep -q 'class="fightscene" id="fightscene"' $TD/here-p.html && echo "$FD" | grep -q '"finale":1' && echo "$FD" | grep -q '"end":"ko"\|"ko"' && echo "$FD" | grep -q '"reward":null' && echo 1)" "$(echo $FD | cut -c1-200)"
 get adventure.php >/dev/null
 chk "...once: a reload shows only the result" "$(grep -q 'id="fightscene"' $TD/here-p.html && echo 0 || echo 1)"
+echo "== a fight off the Trail (wander) plays on the map behind it"
+login >/dev/null
+cli set gnav_on 1 >/dev/null; cli set gnav_tiles 1 >/dev/null
+chk "a new tile walk starts" "$([[ $(cli tilewalk | tail -1) == ok ]] && echo 1)"
+cli clearenc >/dev/null
+get adventure.php >/dev/null
+post adventure.php -d do=trail_wander >/dev/null
+cli forceenc >/dev/null
+php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT id,encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetch(); $e=json_decode($r["encounter"],true); $e["hp"]=$e["max"]=900; $p->prepare("UPDATE expeditions SET encounter=?, hp=999, max_hp=999 WHERE id=?")->execute([json_encode($e),$r["id"]]);'
+get adventure.php >/dev/null
+chk "the wander fight is drawn over the Trail map, with the fight menu" "$(sed -n '/class="wanderbehind"/,$p' $TD/here-p.html | grep -q 'class="tilemap tm-cave tm-trail tm-fight"' && grep -q 'class="fightscene fs-over"' $TD/here-p.html && grep -q 'class="fsdock fsc"' $TD/here-p.html && echo 1)"
+chk "...once only (one stage, one menu) and no popover" "$([ "$(grep -c 'id="fightscene"' $TD/here-p.html)" = 1 ] && [ "$(grep -c 'class="fsdock fsc"' $TD/here-p.html)" = 1 ] && ! grep -q 'id="trailpop"' $TD/here-p.html && echo 1)"
+FLED=0
+for i in $(seq 1 25); do get adventure.php >/dev/null; post adventure.php -d do=flee >/dev/null; get adventure.php >/dev/null; if ! grep -q 'class="fsdock fsc"' $TD/here-p.html; then FLED=1; break; fi; done
+chk "running from a wander fight leaves its end scene on the map" "$([ $FLED = 1 ] && grep -q 'class="fightscene fs-over"' $TD/here-p.html && echo 1)"
 cli set gnav_on 0 >/dev/null; cli set gnav_tiles 0 >/dev/null; cli set fight_scene 0 >/dev/null
 ERR1=$(cat "$GAME/data/error-log.txt" 2>/dev/null | wc -l)
 [ "$ERR1" -gt "$ERR0" ] && { echo "  FAIL php errors logged"; tail -n +$((ERR0+1)) "$GAME/data/error-log.txt" | head -5; FAILS=$((FAILS+1)); }

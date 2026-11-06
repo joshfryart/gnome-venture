@@ -363,7 +363,7 @@ function trail_strip_html(array $u, array $exp, array $sc): string
 }
 
 /** The tile map block for adventure.php: the section picture with its buttons (same markup and script as the delve map), then the confirm card. */
-function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $fightOver = false): string
+function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $fightOver = false, ?array $fightExp = null): string
 {
     require_once __DIR__ . '/trek_art.php';
     $map = $sc['map'];
@@ -399,6 +399,8 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         $last = end($p);
         if ($last[0] === $sc['x'] && $last[1] === $sc['y']) $walk = ['p' => $p];
     }
+    require_once __DIR__ . '/fight_scene.php';
+    [$fightOver_html, $fightDock, $fightOver] = fight_map_over($u, $fightExp ?? $exp, $sc, $win, $fightOver);   // the stage over the map (or its end scene) and the fight menu under it
     $art = !empty($map['art']) && trail_art_ready($map['art']);   // an authored section with its baked picture: the Hearth Pop v3 look
     $svg = $art
         ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW, 'tokens' => $tokens, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u), 'pals' => $fightOver ? [] : trail_pal_urls($u)])
@@ -417,19 +419,6 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
                     'light' => 8, 'dim' => 999, 'tokens' => $tokens, 'walk' => $walk, 'pals' => trail_pal_urls($u), 'me' => trek_art_me($u), 'sfx' => 'x']);
             $extData = ' data-ex0="' . $ex0 . '" data-ey0="' . $ey0 . '" data-ew="' . ($ex1 - $ex0) . '" data-eh="' . ($ey1 - $ey0) . '"';
         }
-    }
-    $fightOver_html = ''; $fightDock = '';
-    if ($fightOver && $exp['encounter'] && ($encO = json_decode((string)$exp['encounter'], true)) && ($encO['type'] ?? '') === 'creature' && ($cO = encounter_creature($encO))) {
-        require_once __DIR__ . '/fight_scene.php'; fight_prep($encO, $cO);   // the stage over the map: the gnome on its own tile (kept inside the middle 7 of 9 so a narrow phone sees both), the foe two tiles to the right
-        $mx = max(1, min(DM_VIEW - 4, $sc['x'] - $win['x0']));
-        $fightDock = fight_dock_html($u, $exp, $encO, $cO, $mx <= 3 ? 'r' : 'l');   // the column goes on the side away from the gnome   // real forms: they cannot sit inside the map's own form, so they follow it and are pulled up over the map by css
-        $fightOver_html = fight_scene_html($u, $exp, $encO, $cO, ['cols' => DM_VIEW, 'rows' => DM_VIEW, 'mx' => $mx, 'my' => max(1, min(DM_VIEW - 2, $sc['y'] - $win['y0'])), 'fx' => $mx + 2]);
-    }
-    elseif ($fightOver && !$exp['encounter']) {   // the fight just ended: its end scene plays over the map (the foe falls, loot drops and is drawn into the gnome) before the map is usable
-        require_once __DIR__ . '/fight_scene.php';
-        $mx = max(1, min(DM_VIEW - 4, $sc['x'] - $win['x0']));
-        $fightOver_html = fight_finale_html($u, $exp, ['cols' => DM_VIEW, 'rows' => DM_VIEW, 'mx' => $mx, 'my' => max(1, min(DM_VIEW - 2, $sc['y'] - $win['y0'])), 'fx' => $mx + 2]);
-        if ($fightOver_html === '') $fightOver = false;
     }
     $btn = '';
     for ($j = 0; $j < DM_VIEW; $j++) for ($i = 0; $i < DM_VIEW; $i++) {

@@ -440,7 +440,7 @@ function dv2_quick_html(array $sc): string
 }
 
 /** The floor: like dm_view_html, with the objects of the floor as tokens, fog by the torch. */
-function dv2_floor_html(array $u, array $exp, array $sc, bool $busy): string
+function dv2_floor_html(array $u, array $exp, array $sc, bool $busy, bool $fightOver = false): string
 {
     require_once __DIR__ . '/trek_art.php';
     $map = $sc['map'];
@@ -486,8 +486,10 @@ function dv2_floor_html(array $u, array $exp, array $sc, bool $busy): string
     }
     $walk = dm_walk_take($exp, $sc);
     $light = dv2_light($uid, $torch) + 1;
+    require_once __DIR__ . '/fight_scene.php';
+    [$fightOver_html, $fightDock, $fightOver] = fight_map_over($u, $exp, $sc, $win, $fightOver);   // a fight (or its end scene) plays over the floor; the gnome is the stage's then
     $svg = tm_render_svg($map, $land, ['px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW,
-        'light' => $light, 'haz' => [$haz[0], $haz[2]], 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u)]);
+        'light' => $light, 'haz' => [$haz[0], $haz[2]], 'tokens' => $tokens, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u)]);
     $btn = '';
     for ($j = 0; $j < DM_VIEW; $j++) {
         for ($i = 0; $i < DM_VIEW; $i++) {
@@ -519,7 +521,7 @@ function dv2_floor_html(array $u, array $exp, array $sc, bool $busy): string
     $legend = '<span>✨ Find</span><span>⚔️ Creature</span><span>🪤 Trap</span><span>🎁 Chest</span><span>🕳️ Way down</span>'
         . (strpos(implode('', $map['t']), 'W') !== false ? '<span>' . $haz[0] . ' ' . e($haz[1]) . ' (' . ($hfx['kind'] === 'hp' ? '-' . $hfx['n'] . ' ❤️' : '-' . ($hfx['n'] + DV_HAZARD_COST) . ' 🔦') . ')</span>' : '');
     return '<div class="tmwrap dv2wrap tm-' . e($land) . ($busy ? ' busy' : '') . '"><form method="post" class="tmform">' . csrf_field() . '<input type="hidden" name="do" value="go">'
-        . '<div class="tilemap tm-cave" role="group" aria-label="Delve floor"' . $data . '><div class="tmview"><div class="tmstage">' . $svg
+        . '<div class="tilemap tm-cave' . ($fightOver ? ' tm-fight' : '') . '" role="group" aria-label="Delve floor"' . $data . '><div class="tmview"><div class="tmstage">' . $svg
         . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'
-        . '<div class="tmgrid">' . $btn . '</div></div></div></div></form><p class="tmlegend" aria-hidden="true">' . $legend . '</p></div>';
+        . '<div class="tmgrid">' . $btn . '</div>' . $fightOver_html . '</div></div></div></form>' . $fightDock . '<p class="tmlegend" aria-hidden="true">' . $legend . '</p></div>';
 }

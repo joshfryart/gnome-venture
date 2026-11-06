@@ -273,7 +273,8 @@ page_header('On the mycelium');
 $wanderView = null;
 if ($exp && ($exp['kind'] ?? '') === 'explore' && ($snap = trail_snapshot($u))) $wanderView = trail_snapshot_view($u, $snap, $exp);
 if ($wanderView) {
-    echo '<div class="wanderbehind">' . trail_view_html($u, $wanderView[0], $wanderView[1], true) . '</div>';
+    $wOver = $exp && fight_scene_on() && (($enc && ($enc['type'] ?? '') === 'creature') || fight_finale_pending($exp));   // a fight off the Trail still plays on the map behind it
+    echo '<div class="wanderbehind">' . trail_view_html($u, $wanderView[0], $wanderView[1], true, $wOver, $exp) . '</div>';
     if (!$enc) { echo wander_card_html($u, $exp, $last, $log, $from, $L); page_footer(); exit; }   // nothing in front of you: the purpose-built wander card
     ob_start();   // something in front of you: the usual encounter popover (fight, choice, meeting), the old page hidden behind it
 }
@@ -298,22 +299,24 @@ if ($wi && !$isWalk): ?>
   <p class="routeopts"><?= dest_opts_html($u) ?></p>
 </div>
 <?php endif; ?>
-<?php $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$fighting;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold); v2.1.12: event cards use it too ?>
-<div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $fighting && $trailSc && fight_scene_on() ? ' fsover' : '' ?><?= $wander ? ' wander' : '' ?>">
+<?php $hasMap = $trailSc || $wanderView || $mapMode || ($dv2Scene && $dv2Scene['map']); $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$fighting;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold); v2.1.12: event cards use it too ?>
+<div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $fighting && $hasMap && fight_scene_on() ? ' fsover' : '' ?><?= $wander ? ' wander' : '' ?>">
 <div class="mapcol">
 <?php $fsc = $fighting && fight_scene_on();   // fight_scene: the animated stage replaces the picture and the popover for a creature fight
-if ($exp && !$trailSc && !$fsc): echo adventure_stage_html($u, $exp, $scene, $enc); endif;   // the tile page has no scene picture: the map is the picture ?>
+$overMap = $exp && fight_scene_on() && ($fighting || fight_finale_pending($exp));   // a fight (or its end scene) is drawn over whichever map the page shows
+if ($exp && $overMap && !$fighting && !$hasMap) echo fight_finale_html($u, $exp, null);   // no map on the page (the list): the end scene plays on a stage of its own
+if ($exp && !$trailSc && !$fsc && !($overMap && !$hasMap)): echo adventure_stage_html($u, $exp, $scene, $enc); endif;   // the tile page has no scene picture: the map is the picture ?>
 <?php if ($dv2Scene): // v2.3.1: the floor you are on, or the route menu between floors ?>
-<?php if ($dv2Scene['map']): ?><?= dv2_floor_html($u, $exp, $dv2Scene, (bool)$enc) ?>
+<?php if ($dv2Scene['map']): ?><?= dv2_floor_html($u, $exp, $dv2Scene, (bool)$enc, $overMap) ?>
 <?php elseif ($dv2Scene['st']['q']): ?><?= dv2_quick_html($dv2Scene) ?>
 <?php else: ?><?= dv2_menu_html($u, $exp, $dv2Scene, (bool)$enc) ?>
 <?php endif; ?>
 <?= dv2_party_html($u, $exp, $dv2Scene) ?>
 <?php elseif ($mapMode): // v2.0.6: the map is the default; the list is one tap away ?>
-<?= dm_view_html($u, $exp, $dmScene, (bool)$enc) ?>
+<?= dm_view_html($u, $exp, $dmScene, (bool)$enc, $overMap) ?>
 <p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
 <?php elseif ($trailSc): ?>
-<?= trail_view_html($u, $exp, $trailSc, (bool)$enc, fight_scene_on() && ($fighting || fight_finale_pending($exp))) ?>
+<?= trail_view_html($u, $exp, $trailSc, (bool)$enc, $overMap) ?>
 <?php $tLand0 = (string)(exp_scene($exp)['land'] ?? 'grassland'); ?><div class="trailui">
   <div class="trailfoot">
     <a class="btn" data-pop="hubpop-tgather" href="<?= e(url('adventure.php?g=1')) ?>">🧺 Gather here</a>
@@ -385,7 +388,7 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
     $sure = fight_certainty($u, $exp, $c, $enc);
     [$abName, $abDesc] = CALLING_ABILITIES[$u['calling'] ?? ''] ?? CALLING_ABILITIES['']; ?>
   <?php // v0.7.61: one box; reversed in 2.2.1 so you are on the left, under your gnome on the stage, and the foe on the right under theirs ?>
-  <?php if ($fsc): if (!$trailSc) echo fight_scene_html($u, $exp, $enc, $c) . fight_dock_html($u, $exp, $enc, $c, 'b', false);   // off the Trail the dock sits right under the stage (the stage is short: over it the lists would hide the fight); the Trail's own is over the map in trail_view_html;   // on the Trail the stage sits over the map itself (trail_view_html) ?>
+  <?php if ($fsc): if (!$hasMap) echo fight_scene_html($u, $exp, $enc, $c) . fight_dock_html($u, $exp, $enc, $c, 'b', false);   // off the Trail the dock sits right under the stage (the stage is short: over it the lists would hide the fight); the Trail's own is over the map in trail_view_html;   // on the Trail the stage sits over the map itself (trail_view_html) ?>
   <small class="muted fs-line">⚡ <?= (int)$u['energy'] ?> · ⚔️ +<?= $gc['atk'] ?> · 🛡️ <?= $gc['ac'] ?> · 🎲 d<?= $gc['dmg_die'] ?>+<?= $gc['dmg_bonus'] ?> · foe ⚔️ +<?= (int)$c['attack'] ?> 🛡️ <?= (int)$c['defense'] ?><?= $enc['poison'] ? ' · 🧪 poisoned' : '' ?></small>
   <?php else: ?>
   <div class="fightgrid">

@@ -90,6 +90,27 @@ function fight_dock_html(array $u, array $exp, array $enc, array $c, string $sid
         . '</div></div>';
 }
 
+/**
+ * A fight, or its end scene, over a tile map (the Trail, a delve floor, the map behind a wander). $fexp = the expedition the fight belongs to (a wander's own, not the map's),
+ * $sc = the map scene (x, y), $win = tm_window of it. Returns [stage html, dock html, over]: over false = nothing to draw (the plain map). The gnome stands on its own tile,
+ * kept inside the middle 7 of 9 so a narrow phone sees both, the foe two tiles to the right; the dock goes on the side away from the gnome.
+ */
+function fight_map_over(array $u, array $fexp, array $sc, array $win, bool $fightOver): array
+{
+    if (!$fightOver) return ['', '', false];
+    $mx = max(1, min(DM_VIEW - 4, $sc['x'] - $win['x0']));
+    $over = ['cols' => DM_VIEW, 'rows' => DM_VIEW, 'mx' => $mx, 'my' => max(1, min(DM_VIEW - 2, $sc['y'] - $win['y0'])), 'fx' => $mx + 2];
+    if (!empty($fexp['encounter']) && ($enc = json_decode((string)$fexp['encounter'], true)) && ($enc['type'] ?? '') === 'creature' && ($c = encounter_creature($enc))) {
+        fight_prep($enc, $c);
+        return [fight_scene_html($u, $fexp, $enc, $c, $over), fight_dock_html($u, $fexp, $enc, $c, $mx <= 3 ? 'r' : 'l'), true];   // real forms: they cannot sit inside the map's own form, so they follow it and css pulls them up over the map
+    }
+    if (empty($fexp['encounter'])) {   // the fight just ended: its end scene plays over the map before the map is usable
+        $h = fight_finale_html($u, $fexp, $over);
+        if ($h !== '') return [$h, '', true];
+    }
+    return ['', '', false];
+}
+
 /** The hidden form the hat tap submits (do=hat). */
 function fight_hatform_html(array $enc): string
 {

@@ -302,7 +302,7 @@ function dm_walk_take(array $exp, array $sc): ?array
  * The whole map block: the picture, the grid of buttons over it (a form: name="go" value="x,y"), the legend and the link to the list.
  * $busy = something is in front of you (a fight or a trap): the buttons rest.
  */
-function dm_view_html(array $u, array $exp, array $sc, bool $busy): string
+function dm_view_html(array $u, array $exp, array $sc, bool $busy, bool $fightOver = false): string
 {
     require_once __DIR__ . '/trek_art.php';   // trek_art_me(): the player's own gnome as the token (read only)
     $map = $sc['map'];
@@ -339,9 +339,11 @@ function dm_view_html(array $u, array $exp, array $sc, bool $busy): string
         }
     }
     $walk = dm_walk_take($exp, $sc);
+    require_once __DIR__ . '/fight_scene.php';
+    [$fightOver_html, $fightDock, $fightOver] = fight_map_over($u, $exp, $sc, $win, $fightOver);   // a fight (or its end scene) plays over the floor; the gnome is the stage's then
     $svg = tm_render_svg($map, $land, [
         'px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW,
-        'light' => dm_reveal_radius((int)$u['id']) + 1, 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u),
+        'light' => dm_reveal_radius((int)$u['id']) + 1, 'tokens' => $tokens, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u),
     ]);
     // v2.0.10: a wider picture covering the whole walk, shown only while the token walks (assets/tilemap.js keeps the camera on it)
     $extSvg = '';
@@ -395,9 +397,9 @@ function dm_view_html(array $u, array $exp, array $sc, bool $busy): string
     if ($walk) $data .= ' data-walk="' . e(implode(';', array_map(fn($p) => $p[0] . ',' . $p[1], $walk['p']))) . '"';
     $legend = $lair ? '<span>🐉 Boss</span><span>🪜 Entrance</span>' : '<span>🚪 Room</span><span>🛡️ Guardian</span><span>💰 Chest</span><span>🪜 Entrance</span>';
     $out = '<div class="tmwrap tm-' . e($land) . ($busy ? ' busy' : '') . '"><form method="post" class="tmform">' . csrf_field() . '<input type="hidden" name="do" value="go">'
-        . '<div class="tilemap tm-cave" role="group" aria-label="' . ($lair ? 'Lair map' : 'Delve map') . '"' . $data . '><div class="tmview">' . $extSvg . '<div class="tmstage">' . $svg
+        . '<div class="tilemap tm-cave' . ($fightOver ? ' tm-fight' : '') . '" role="group" aria-label="' . ($lair ? 'Lair map' : 'Delve map') . '"' . $data . '><div class="tmview">' . $extSvg . '<div class="tmstage">' . $svg
         . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'
-        . '<div class="tmgrid">' . $btn . '</div></div></div></div></form>'
+        . '<div class="tmgrid">' . $btn . '</div>' . $fightOver_html . '</div></div></div></form>' . $fightDock
         . '<p class="tmlegend" aria-hidden="true">' . $legend . '</p></div>';
     return $out;
 }

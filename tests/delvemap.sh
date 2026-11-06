@@ -212,6 +212,7 @@ chk "topbar elsewhere shows the quiet lair (Face it / Slip out)" "$(get gnome.ph
 T=$(walkto 1)
 chk "boss reached on the map ($T): the fight begins" "$([ "$(db "SELECT depth FROM expeditions WHERE id=$EXL")" = 1 ] && [ "$(db "SELECT COUNT(*) FROM expeditions WHERE id=$EXL AND encounter IS NOT NULL")" = 1 ] && echo 1)"
 adv; chk "fight card is the old one (value=attack)" "$(grep -q 'value="attack"' $A && echo 1)"
+chk "the lair fight plays on the map itself, with the fight menu over it (fight scene)" "$(grep -q 'class="tilemap tm-cave tm-fight"' $A && grep -q 'class="fightscene fs-over"' $A && grep -q 'class="fsdock fsc"' $A && ! grep -q 'class="fightbtns' $A && ! grep -q 'id="trailpop"' $A && echo 1)"
 resolve
 chk "lair over: scene row removed" "$([ "$(SCENES)" = 0 ] && [ "$(ESTATUS)" != active ] && echo 1)"
 logline $EXL > $A; echo "   $(grep -E 'hoard|First victory|escape|knocks' $A | head -2 | tr '\n' ' ')"
