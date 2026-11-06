@@ -32,7 +32,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 
 ## 4. CODE: open
 **Trail / Here**
-- Fight animation engine (own): plan in `claude/fight-anim-engine.md`; mockup B online; not built. Josh chose option B (HP bubbles on the tilted map, no popover).
+- Fight animation engine (own): plan in `claude/fight-plan.md (build plan), fight-anim-engine.md`; mockup B online; not built. Josh chose option B (HP bubbles on the tilted map, no popover).
 - Tile walks Sneak/Hunt buttons released 2.5.70: stance on the trail footer, Sneak = 40% fight chance, Hunt = 250% and up to 3 fights a section; tap again to go back to normal. Josh to confirm numbers; `balance_sim.php` Walks not updated for stances.
 - Upkeep: stamp requirement removed (any gnome can chip in; `stop_upkeep_give`, `stop_slim_upkeep`); released 2.5.71, no test covers upkeep, not tried live.
 - Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); released 2.5.69, not phone-checked. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
