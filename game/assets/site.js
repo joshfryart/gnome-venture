@@ -743,9 +743,7 @@ gvAdvFold();
         gvFightScroll(wasFight && !document.querySelector('.advgrid.fighting'));
         busy = false;
         if (window.gvRailFit) window.gvRailFit();
-        var log = window.gvVisibleLog ? gvVisibleLog() : null;
-        var news = log ? log.querySelectorAll('li.ml.new') : [];
-        if (news.length && window.gvShowToasts && !gvInView(news[0])) gvShowToasts(Array.prototype.slice.call(news).map(gvToastNode));
+        gvPageToasts();
       })
       .catch(fallback);
   }, true);
@@ -812,8 +810,7 @@ gvAdvFold();
         swap(doc, '.msglog.mlside');
         swap(doc, '.msglog.top');
         if (window.gvRailFit) window.gvRailFit();
-        var fresh = gvVisibleLog().querySelectorAll('li.ml.new');
-        if (fresh.length && !gvInView(fresh[0])) toast(Array.prototype.slice.call(fresh).map(gvToastNode));
+        gvPageToasts();
         gvCountdown();
         gvAdvFold();   // v1.0.2
         gvMaps();
@@ -1255,16 +1252,20 @@ function gvToastNode(li) {
   if (pages && pages[1].split(' · ').length > 3) gvIcoLine(d, 'ico-book-open', ' ' + pages[1].split(' · ').length + ' new Almanac pages. See them in your Almanac.');
   return d;
 }
-(function () {
+/* v2.6.02: after a page load or an in-place swap: the new messages (when the list is out of sight) and what just happened on a map page ride in ONE toast box;
+   the latter also floats up over the gnome (.tmpop). v2.6.03: runs after in-place swaps too (walking over an item swaps the page). */
+function gvPageToasts() {
   var fresh = gvVisibleLog().querySelectorAll('li.ml.new');
   var nodes = (fresh.length && !gvInView(fresh[0])) ? Array.prototype.map.call(fresh, gvToastNode) : [];
-  document.querySelectorAll('[data-gvtoast]').forEach(function (x) {   // v2.6.02: what just happened on a map page rides in the same box as the messages (one stack, not two boxes over each other)
+  document.querySelectorAll('[data-gvtoast]').forEach(function (x) {
     var d = document.createElement('div'); d.className = 'flash ok'; d.textContent = x.textContent.trim(); if (d.textContent && !nodes.some(function (n) { return n.textContent === d.textContent; })) nodes.push(d); x.remove();
-    var view = document.querySelector('.tilemap .tmview');   // and it floats up over the gnome on the map, so items and finds show where they happen
+    var view = document.querySelector('.tilemap .tmview');
     if (view && d.textContent) { var pop = document.createElement('div'); pop.className = 'tmpop'; pop.setAttribute('aria-hidden', 'true'); pop.textContent = d.textContent; view.appendChild(pop); setTimeout(function () { pop.remove(); }, 4200); }
   });
   if (nodes.length) gvShowToasts(nodes);
-})();
+}
+gvPageToasts();
+
 
 /* v0.7.54: garden select mode, and Satchel-style pickers instead of dropdowns */
 function gvGarden() {

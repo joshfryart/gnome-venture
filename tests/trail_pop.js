@@ -15,6 +15,15 @@ const { chromium } = require('playwright');
   if (await p.locator('[data-gvtoast]').count()) fail('the hidden carrier was not consumed');
   const r = await p.evaluate(() => { const v = document.querySelector('.tilemap .tmview').getBoundingClientRect(), o = document.querySelector('.tilemap .tmpop'); if (!o) return null; const q = o.getBoundingClientRect(); return q.left >= v.left - 1 && q.right <= v.right + 1 && q.top >= v.top - 1; });
   if (r === false) fail('the pop-up spills outside the map');
+  // walking swaps the page in place: whatever the reply says just happened must still show (toast + pop-up), not be left as a hidden carrier
+  let carried = false; p.on('response', async r => { if (r.request().method() === 'POST' && /adventure\.php/.test(r.url())) { const t = await r.text().catch(() => ''); if (t.includes('data-gvtoast')) carried = true; } });
+  const reach = p.locator('.tilemap .tmt.reach').first();
+  if (await reach.count()) {
+    await reach.click(); await p.waitForTimeout(1500);
+    if (await p.locator('[data-gvtoast]').count()) fail('after walking, the carrier was left unread (no notification)');
+    if (carried && !(await p.locator('.tilemap .tmpop, .toasts').count())) fail('walked: the reply had a message but nothing was shown');
+    console.log('walk reply carried a message: ' + carried);
+  } else fail('no tile to walk to');
   if (errs.length) fail('page errors: ' + errs.join(' | '));
   console.log(bad ? bad + ' FAILED' : 'trail pop ok'); await b.close(); process.exit(bad ? 1 : 0);
 })();
