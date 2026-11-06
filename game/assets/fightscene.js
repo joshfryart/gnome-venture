@@ -4,7 +4,7 @@
 (function () {
   var eng = null, cur = null;
   var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function lock(on) { var btns = document.querySelector('.fightbtns'); if (!btns) return; btns.classList.toggle('fs-wait', on); btns.querySelectorAll('button').forEach(function (b) { b.disabled = on; }); }
+  function lock(on) { document.querySelectorAll('.fightbtns, .fsdock').forEach(function (btns) { btns.classList.toggle('fs-wait', on); btns.querySelectorAll('button').forEach(function (b) { b.disabled = on; }); }); }
   function boot() {
     var host = document.getElementById('fightscene');
     if (host === cur) return;
@@ -14,7 +14,7 @@
     var D; try { D = JSON.parse(host.getAttribute('data-fight')); } catch (e) { return; }
     try {
       eng = FightEngine.create(host, {
-        speed: reduced ? 40 : 1, flat: !!D.over, cols: D.over ? D.over.cols : undefined, rows: D.over ? D.over.rows : undefined,
+        speed: reduced ? 40 : 1, flat: !!D.over, scale: D.over ? .62 : 1, cols: D.over ? D.over.cols : undefined, rows: D.over ? D.over.rows : undefined,
         onHatTap: function () { var f = document.querySelector('form.hatform'); if (f) { if (f.requestSubmit) f.requestSubmit(); else f.submit(); } }   // the server heals once (do=hat)
       });
       eng.add('me', { rig: 'gnome', parts: D.parts, col: D.over ? D.over.mx : 2, row: D.over ? D.over.my : undefined, side: 'me', name: D.me.name, hp: D.me.hp, max: D.me.max });

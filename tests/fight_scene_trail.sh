@@ -27,6 +27,9 @@ cli set fight_scene 1 >/dev/null; get adventure.php >/dev/null
 chk "scene on: no popover" "$(grep -q 'trailpop' $TD/here-p.html && echo 0 || echo 1)"
 chk "the stage is inside the map (tmstage), flat over it" "$(sed -n '/class="tmstage"/,/<\/form>/p' $TD/here-p.html | grep -q 'class="fightscene fs-over"' && echo 1)"
 chk "over-map cells are handed over" "$(grep -o 'data-fight="[^"]*"' $TD/here-p.html | head -1 | php -r 'echo html_entity_decode(stream_get_contents(STDIN));' | grep -q '"over":{"cols":9,"rows":9' && echo 1)"
+chk "the action dock sits on the map with a More sheet" "$(grep -q 'class="fsdock"' $TD/here-p.html && grep -q 'class="fsmore"' $TD/here-p.html && echo 1)"
+chk "the dock buttons are real forms (not nested in the map form)" "$([ "$(sed -n '/class=\"fsdock\"/,/class=\"fsmore\"/p' $TD/here-p.html | grep -o '<form' | wc -l)" -ge 3 ] && echo 1)"
+chk "the old button list is not repeated under the map" "$(grep -q 'class="fightbtns' $TD/here-p.html && echo 0 || echo 1)"
 chk "fight buttons are there" "$(grep -q 'value="attack"' $TD/here-p.html && echo 1)"
 chk "no inline style or script on the page (CSP)" "$(sed -n '/<main/,/<\/main>/p' $TD/here-p.html | grep -qE '\sstyle=|<script[^>]*>[^<]' && echo 0 || echo 1)"
 if command -v node >/dev/null && [ -z "$NOBROWSER" ]; then node "$HERE/fight_scene.js" "$BASE" "$SHOT" >$TD/fs-browser.out 2>&1 || { cat $TD/fs-browser.out; FAILS=$((FAILS+1)); }; [ -n "$SHOT" ] && cat $TD/fs-browser.out; fi

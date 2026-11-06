@@ -361,10 +361,11 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
             $extData = ' data-ex0="' . $ex0 . '" data-ey0="' . $ey0 . '" data-ew="' . ($ex1 - $ex0) . '" data-eh="' . ($ey1 - $ey0) . '"';
         }
     }
-    $fightOver_html = '';
+    $fightOver_html = ''; $fightDock = '';
     if ($fightOver && $exp['encounter'] && ($encO = json_decode((string)$exp['encounter'], true)) && ($encO['type'] ?? '') === 'creature' && ($cO = encounter_creature($encO))) {
         require_once __DIR__ . '/fight_scene.php'; fight_prep($encO, $cO);   // the stage over the map: the gnome on its own tile (kept inside the middle 7 of 9 so a narrow phone sees both), the foe two tiles to the right
         $mx = max(1, min(DM_VIEW - 4, $sc['x'] - $win['x0']));
+        $fightDock = fight_dock_html($u, $exp, $encO, $cO);   // real forms: they cannot sit inside the map's own form, so they follow it and are pulled up over the map by css
         $fightOver_html = fight_scene_html($u, $exp, $encO, $cO, ['cols' => DM_VIEW, 'rows' => DM_VIEW, 'mx' => $mx, 'my' => max(1, min(DM_VIEW - 2, $sc['y'] - $win['y0'])), 'fx' => $mx + 2]);
     }
     $btn = '';
@@ -392,7 +393,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     $out = trail_strip_html($u, $exp, $sc) . '<div class="tmwrap tm-' . e($land) . ($busy ? ' busy' : '') . '"><form method="post" class="tmform">' . csrf_field() . '<input type="hidden" name="do" value="trail_go">'
         . '<div class="tilemap tm-cave tm-trail" role="group" aria-label="The Trail, section ' . ((int)$sc['st']['sec'] + 1) . ' of ' . (int)$sc['st']['S'] . '"' . $data . '><div class="tmview">' . $extSvg . '<div class="tmstage">' . $svg
         . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'
-        . '<div class="tmgrid">' . $btn . '</div>' . $fightOver_html . '</div></div></div></form>'
+        . '<div class="tmgrid">' . $btn . '</div>' . $fightOver_html . '</div></div></div></form>' . $fightDock
         . ($art && !empty($map['art']['caption']) ? '<p class="tmcap">' . e((string)$map['art']['caption']) . '</p>' : '')
         . '<p class="tmlegend" aria-hidden="true">' . (!empty($map['art']['boss']) ? '<span>⚔️ A fight waits</span>' : '') . '<span>✨ A find</span><span>🚪 The way on</span></p></div>';
     return $out;

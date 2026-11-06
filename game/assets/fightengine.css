@@ -33,7 +33,7 @@
 @media (prefers-reduced-motion:reduce){.fe-hattap{animation:none}}
 .fightscene{position:relative;max-width:480px;margin:0 auto}
 .fightscene .fs-fb{display:block;font-size:13px}
-.fightbtns.fs-wait{opacity:.55;pointer-events:none}
+.fightbtns.fs-wait,.fsdock.fs-wait{opacity:.55;pointer-events:none}
 
 /* flat mode: the stage sits exactly over a tile map picture (fights on the Trail); only the actors, bubbles and effects show */
 .fe-stage.fe-flat{background:none;border:0;padding:0;border-radius:0;overflow:visible}
@@ -50,3 +50,31 @@
 /* the map shows only its middle 7 x 7 tiles on a narrow phone: keep the health bubbles inside that */
 .fe-flat .fe-hud{inset:calc(100% / 9 + 4px)}
 @container tm (min-width: 396px){.fe-flat .fe-hud{inset:6px}}
+
+/* flat mode health: a thin bar and the number right above each head, no box, no name */
+.fe-flat .fe-hud{inset:0}
+.fe-flat .fe-hb{width:54px;padding:0;background:none;border:0;font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000;text-align:center;line-height:1}
+.fe-flat .fe-hb b{display:none}
+.fe-flat .fe-hb .fe-hp{height:4px;margin:2px 0 0;background:#0009;border-radius:3px;box-shadow:0 0 0 1px #000a}
+.fe-flat .fe-hb.foe .fe-hp i{background:#ff5d73}.fe-flat .fe-hb.me .fe-hp i{background:#5dffa0}
+/* the action dock on the map: glass bar, Attack + three more + a More sheet; real forms (works without script) */
+.fsdockwrap{position:relative;height:0;z-index:8}
+.fsdock{position:absolute;left:8px;right:8px;bottom:8px;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr auto;gap:5px;padding:5px;border-radius:16px;
+  backdrop-filter:blur(8px) saturate(1.2);-webkit-backdrop-filter:blur(8px) saturate(1.2);background:rgba(20,12,16,.6);border:1px solid rgba(255,255,255,.22);box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.fsdock form{margin:0;min-width:0}
+.fsdock .choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:100%;height:46px;min-height:0;padding:0 2px;border:0;border-radius:11px;background:rgba(255,255,255,.08);box-shadow:none;color:#fff;font-weight:700;text-shadow:0 1px 2px #000}
+.fsdock .choice-body{display:block;padding:0;margin:0}.fsdock .choice-title{font-size:10px;color:#fff;font-weight:700;white-space:nowrap}
+.fsdock .choice-sub,.fsdock .choice small,.fsdock .choice-badge{display:none}
+.fsdock .choice-ico{font-size:18px;filter:drop-shadow(0 1px 1px #000)}
+.fsdock form:first-child .choice{background:linear-gradient(#3fae5a,#237a3d);box-shadow:0 0 0 1px #fff4 inset}
+.fsdock .choice[disabled]{opacity:.45}
+.fsmore{position:static}
+.fsmore>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:center;width:42px;height:46px;border-radius:11px;background:rgba(255,255,255,.08);color:#fff;font-size:22px;font-weight:800}
+.fsmore>summary::-webkit-details-marker{display:none}
+.fsmore[open]>summary{background:rgba(255,255,255,.22)}
+.fsmorebox{position:absolute;left:0;right:0;bottom:calc(100% + 6px);padding:8px;border-radius:14px;max-height:60vh;overflow:auto;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);background:rgba(20,12,16,.82);border:1px solid rgba(255,255,255,.22);box-shadow:0 8px 22px rgba(0,0,0,.5)}
+.fsmorebox .choice{margin:0 0 5px;width:100%}
+.fsmorebox .fsodds{font-size:12px;color:#fff;opacity:.85;margin:0 0 6px;text-align:center}
+.fsmorebox .choice-body{display:block}.fsmorebox .choice-sub{display:block}
+.fsdock.fs-wait{opacity:.55;pointer-events:none}

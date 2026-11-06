@@ -34,5 +34,35 @@ function fight_scene_html(array $u, array $exp, array $enc, array $c, ?array $ov
     $bar = fn(string $n, int $v, int $m) => '<span class="fs-fb"><b>' . e($n) . '</b> ❤️ <progress max="' . $m . '" value="' . $v . '"></progress> ' . $v . '/' . $m . '</span>';
     return '<div class="fightscene' . ($over ? ' fs-over' : '') . '" id="fightscene" data-fight="' . e((string)json_encode($data, JSON_UNESCAPED_UNICODE)) . '" role="img" aria-label="' . e(gnome_name($u) . ' fights ' . $c['name']) . '">'
         . $bar(gnome_name($u), $meHp, (int)$exp['max_hp']) . $bar((string)$c['name'], $foeHp, (int)$enc['max']) . '</div>'
-        . (!empty($enc['hat']) ? '<form method="post" class="hatform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="hat"></form>' : '');
+        . (!$over ? fight_hatform_html($enc) : '');   // over a map the stage sits inside the map's own form: the hat form goes with the dock, outside it
+}
+
+/**
+ * The action dock for a fight on the map (the same forms as the fight buttons: Attack, the calling's ability, Run, Fight on) plus a "More" sheet for the rest
+ * (pal actives, snack, Auto-win) and the odds. Pure HTML forms, no script needed. Needs act_choice() from adventure.php.
+ */
+function fight_dock_html(array $u, array $exp, array $enc, array $c): string
+{
+    $gc = gnome_combat($u, true);
+    [$abName, $abDesc] = CALLING_ABILITIES[$u['calling'] ?? ''] ?? CALLING_ABILITIES[''];
+    $sure = fight_certainty($u, $exp, $c, $enc);
+    $hitPct = (int)fight_odds($u, $exp, $enc)['hit'];
+    $runPct = max(0, min(100, (21 - (8 + intdiv((int)$c['level'], 3) - eff_mod($u, 'nimble'))) * 5));
+    $o = act_choice('attack', '⚔️', 'Attack', '', '', 'primary');
+    $o .= $enc['used'] ? act_choice('ability', '✨', $abName, '', '', '', '', 'disabled') : act_choice('ability', '✨', $abName);
+    $o .= act_choice('flee', '🏃', 'Run');
+    $o .= can_fight_on($exp) ? act_choice('fighton', '⏩', 'Fight on') : '';
+    $more = '<p class="fsodds">⚔️ hit ' . $hitPct . '% · 🏃 run ' . $runPct . '% · d' . (int)$gc['dmg_die'] . '+' . (int)$gc['dmg_bonus'] . ' damage</p>'
+        . '<p class="fsodds">' . e($abName) . ': ' . e($abDesc) . ' Once per fight.</p>';
+    if (ppal_boons_on()) foreach (ppal_fight_actives($u, $enc) as $pa) $more .= $pa['used'] ? act_choice($pa['do'], '✨', $pa['title'], 'Used this fight', '', '', '', 'disabled') : act_choice($pa['do'], '✨', $pa['title'], $pa['sub']);
+    $more .= fight_snack_picker($u, $exp, $enc, fn($do, $label, $extra) => act_choice($do, '🎒', 'Snack', 'Eats a home-cooked snack: heals ' . (int)setting('fight_snack_heal_mult') . '× its energy. Uses your turn; ' . snack_limit($u) . ' a fight.', '', '', $extra));
+    if ($sure === 'win') $more .= act_choice('auto', '⏩', 'Auto-win', 'A sure win: the fight plays out for you.', ['sure', 'cost']);
+    return '<div class="fsdockwrap">' . fight_hatform_html($enc) . '<div class="fsdock" role="group" aria-label="Fight actions">' . $o
+        . '<details class="fsmore"><summary aria-label="More actions">⋯</summary><div class="fsmorebox">' . $more . '</div></details></div></div>';
+}
+
+/** The hidden form the hat tap submits (do=hat). */
+function fight_hatform_html(array $enc): string
+{
+    return !empty($enc['hat']) ? '<form method="post" class="hatform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="hat"></form>' : '';
 }

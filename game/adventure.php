@@ -405,6 +405,7 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
   <?php // v1.6.3: fight actions are .choice rows; what each one does sits in its sub line (it used to be a help paragraph)
     $hitPct = (int)fight_odds($u, $exp, $enc)['hit'];
     $runPct = max(0, min(100, (21 - (8 + intdiv((int)$c['level'], 3) - eff_mod($u, 'nimble'))) * 5)); ?>
+  <?php if (!($trailSc && $fsc)): ?>   <?php // on the Trail with the fight scene the buttons are the dock on the map ?>
   <div class="fightbtns choicelist">
   <?= act_choice('attack', '⚔️', 'Attack', 'd' . $gc['dmg_die'] . '+' . $gc['dmg_bonus'] . ' damage · +' . $gc['atk'] . ' vs 🛡️ ' . (int)$c['defense'], [$hitPct . '%', choice_odds_class($hitPct)], 'primary') ?>
   <?= $enc['used'] ? act_choice('ability', '✨', $abName, 'Used this fight', '', '', '', 'disabled') : act_choice('ability', '✨', $abName, $abDesc . ' Once per fight.') ?>
@@ -416,6 +417,7 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
     <?= act_choice('auto', '⏩', 'Auto-win', 'A sure win: the fight plays out for you.', ['sure', 'cost']) ?>
   <?php endif; ?>
   </div>
+  <?php endif; ?>
 
 <?php elseif ($enc && $enc['type'] === 'choice'):
     $ch = road_event_get($enc) ?? road_events()['ev'][array_key_first(road_events()['ev'])];

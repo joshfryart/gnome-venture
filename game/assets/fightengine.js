@@ -175,7 +175,7 @@
   }
   function create(host, opts) {
     opts = opts || {};
-    var cols = opts.cols || 11, rows = opts.rows || 7, speed = opts.speed || 1, c = 30, acts = {}, live = new Set();
+    var cols = opts.cols || 11, rows = opts.rows || 7, speed = opts.speed || 1, c = 30, acts = {}, live = new Set(), sc = opts.scale || 1;   // sc: actor size on the board (the fight over a map draws them small, about a tile)
     var reduce = root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var terrain = opts.terrain || function (x, y) { return y === (rows >> 1) ? 'p' : ((x + y) % 5 === 0 ? 'f' : (x * y % 7 === 3 ? 'r' : '')); };
     host.classList.add('fe-stage'); if (opts.flat) host.classList.add('fe-flat');   // flat: no tilt, transparent tiles, cells = the tiles of the map picture under the host
@@ -201,17 +201,18 @@
       return [board.offsetLeft + p.x / p.w, board.offsetTop + p.y / p.w, Math.abs(q.x / q.w - p.x / p.w) / 10];
     }
     function place(a) {
-      var r = a.rig, px = a.col * (c + 1), py = a.row * (c + 1), w = r.w * c, h = r.h * c;
+      var r = a.rig, px = a.col * (c + 1), py = a.row * (c + 1), w = r.w * sc * c, h = r.h * sc * c;
       var P = proj(px + c / 2, py + c * .86);
       a.el.style.cssText = 'left:' + (P[0] - c / 2) + 'px;top:' + (P[1] - c) + 'px;width:' + c + 'px;height:' + c + 'px;transform:scale(' + P[2] + ');z-index:' + (a.row + 1);
       a.body.style.cssText = 'left:' + ((c - w) / 2) + 'px;width:' + w + 'px;height:' + h + 'px';
       if (a.ghost) { a.ghost.style.cssText = a.el.style.cssText; a.ghost.firstChild.style.cssText = a.body.style.cssText; }
+      if (a.hb && opts.flat) { var hw = a.hb.offsetWidth || 54; a.hb.style.cssText = 'left:' + (P[0] - hw / 2) + 'px;top:' + (P[1] - h - 13) + 'px;right:auto;bottom:auto'; }   // health sits right above the head
       a.sh.style.cssText = 'left:' + (px + c / 2 - w * .35) + 'px;top:' + (py + c * .62) + 'px;width:' + (w * .7) + 'px;height:' + (c * .36) + 'px';
       if (r.kind === 'strip') { a.spr.style.backgroundSize = (r.frames * 100) + '% 100%'; a.spr.style.backgroundPosition = '0 0'; }
     }
     function run(a, name, target) {   // play MOVES[name] on actor a; reach = cells to the target
       var m = MOVES[name], reach = 0;
-      if (target) reach = Math.max(0, Math.abs(target.col - a.col) - 1.0 * (a.rig.w + target.rig.w) / 2);
+      if (target) reach = Math.max(0, Math.abs(target.col - a.col) - 1.0 * sc * (a.rig.w + target.rig.w) / 2);
       var k = kfs(m, a, reach, c), dur = m.dur / sp();
       var o = { duration: dur, fill: m.keep ? 'forwards' : 'none' };
       var anim = a.body.animate(k.map(function (f) { return { offset: f.offset, transform: f.transform, filter: f.filter, opacity: f.opacity, easing: f.easing }; }), o);
@@ -222,7 +223,7 @@
         pa.forEach(function (x) { live.add(x); x.finished.then(function () { live.delete(x); }, function () { live.delete(x); }); });
       }
       if (m.clip && a.rig.kind === 'strip') {   // the walk strip plays while the gnome rushes in
-        var wpx = a.rig.w * c;
+        var wpx = a.rig.w * sc * c;
         a.spr.animate([{ backgroundPosition: '0 0' }, { backgroundPosition: (-a.rig.frames * wpx) + 'px 0' }], { duration: m.clip[1] / sp(), delay: m.clip[0] / sp(), easing: 'steps(' + a.rig.frames + ')' });
       }
       if (m.dust) for (var dt = m.dust[0]; dt < m.dust[1]; dt += 95) setTimeout(function () { puff(a); }, dt / sp());
@@ -232,7 +233,7 @@
     }
     function poseOf(a, name) { return (a.rig.poses && a.rig.poses[name]) || POSES[name]; }   // a rig may bring its own poses (creatures)
     function poseRun(a, P, delay) {   // limb animation for a part rig; returns the animations
-      var out = [], k = a.rig.w * c / (a.rig.fw || 64);
+      var out = [], k = a.rig.w * sc * c / (a.rig.fw || 64);
       a.rig.parts.forEach(function (pt) {
         var tr = P.tracks[pt.id]; if (!tr) return;
         var f = tr.map(function (q, i) {
@@ -289,7 +290,7 @@
       if (d.side) {
         var hb = document.createElement('div'); hb.className = 'fe-hb ' + d.side;
         hb.innerHTML = '<b></b> <span></span><div class="fe-hp"><i></i></div>';
-        hb.children[0].textContent = d.name || id; hud.appendChild(hb); a.num = hb.children[1]; a.bar = hb.children[2].children[0];
+        hb.children[0].textContent = d.name || id; hud.appendChild(hb); a.hb = hb; a.num = hb.children[1]; a.bar = hb.children[2].children[0];
       }
       acts[id] = a; place(a); setHp(a, a.hp);
       if (rig.kind === 'parts') a.idleParts = poseRun(a, poseOf(a, 'idle'), -Math.random() * 1600);
@@ -300,7 +301,7 @@
      * worn = springs; free = flies off (hit hard), bounces, lies on the ground; fixing = the gnome puts it back, crooked, then straightens it. Units: gnome-frame px. */
     function headPos(a) { var r = a.pel.torso.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height * .2]; }
     function stepHat(a, dt) {
-      var h = a.hat, k = a.rig.w * c / 64, f = a.flip ? -1 : 1, p = headPos(a), ax = 0, ay = 0, n = 2, i, prevVr = h.vr;
+      var h = a.hat, k = a.rig.w * sc * c / 64, f = a.flip ? -1 : 1, p = headPos(a), ax = 0, ay = 0, n = 2, i, prevVr = h.vr;
       if (h.px && dt > 0) {
         var vx = (p[0] - h.px[0]) / dt / k * f, vy = (p[1] - h.px[1]) / dt / k;
         if (h.warm > 1) { ax = Math.max(-9000, Math.min(9000, (vx - h.pvx) / dt)); ay = Math.max(-9000, Math.min(9000, (vy - h.pvy) / dt)); }
@@ -337,7 +338,7 @@
       root.requestAnimationFrame(tick);
     }
     function hatTo(a, world) {   // move the hat layer between the gnome (worn) and a fixed ghost frame (fallen), keeping it where it is on screen
-      var w = a.phys.hat, h = a.hat, k = a.rig.w * c / 64, f = a.flip ? -1 : 1, b = w.getBoundingClientRect(), b0 = [b.left + b.width / 2, b.top + b.height / 2];
+      var w = a.phys.hat, h = a.hat, k = a.rig.w * sc * c / 64, f = a.flip ? -1 : 1, b = w.getBoundingClientRect(), b0 = [b.left + b.width / 2, b.top + b.height / 2];
       if (world) {
         if (!a.ghost) {
           var g = a.el.cloneNode(false), gb = a.body.cloneNode(false), gs = a.spr.cloneNode(false);
