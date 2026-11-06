@@ -206,6 +206,7 @@ chk "lair expedition active, boss has not risen (no encounter, depth 0)" "$([ "$
 chk "a 13 x 13 lair scene" "$([ "$(db "SELECT substr(map_key,1,3) FROM walk_scene WHERE exp_id=$EXL")" = g13 ] && echo 1)"
 adv
 chk "page shows the lair map + legend with the boss" "$(grep -q 'class="tilemap' $A && grep -q 'Lair map' $A && grep -q 'class="tmlegend"[^>]*><span>.* Boss</span>' $A && echo 1)"
+chk "the lair map page has no Latest card in the page (it is a toast and a pop-up over the map)" "$(grep -q 'class="advlatest"' $A && echo 0 || echo 1)"
 chk "no fight buttons yet" "$(! grep -q 'value="attack"' $A && echo 1)"
 chk "page has Slip back out" "$(grep -q 'value="leave"' $A && echo 1)"
 chk "no on-the-road bar elsewhere (removed in 2.5.94: the lair is only on its own page)" "$(get gnome.php >/dev/null; grep -q 'value="lair_engage"' $H && echo 0 || echo 1)"

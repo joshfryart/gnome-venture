@@ -356,7 +356,14 @@ if ($resultCard): ?>
   <div class="advlatest" aria-live="polite"><b>Latest:</b> <?= e((string)end($log)) ?></div>
 <?php endif;
 $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';
-if ($trailSc && !$enc) { $latestHtml = $latestHtml !== '' ? '<div hidden data-gvtoast="' . (int)($exp['id'] ?? 0) . ':' . count($log) . ':' . crc32((string)end($log)) . '">' . e(trim(html_entity_decode(strip_tags(str_replace(['</b>', '</small>'], ' ', $latestHtml)), ENT_QUOTES | ENT_HTML5))) . '</div>' : ''; }   // v2.6.02: joins the one toast stack (site.js) instead of a second box fixed over the message bar   // tile page: what just happened pops up briefly (CSS fade), not a card in the page   // a fight card already shows the rounds
+$gvCarrier = function (string $html) use ($exp, $log): string {   // the "what just happened" line as a hidden carrier that site.js (gvPageToasts) turns into a toast and/or a pop-up over the map
+    $txt = trim(html_entity_decode(strip_tags(str_replace(['</b>', '</small>'], ' ', $html)), ENT_QUOTES | ENT_HTML5));
+    $txt = trim(preg_replace('/^Latest:\s*/u', '', $txt));
+    return $txt === '' ? '' : '<div hidden data-gvtoast="' . (int)($exp['id'] ?? 0) . ':' . count($log) . ':' . crc32((string)end($log)) . '">' . e($txt) . '</div>';
+};
+if (!$enc && $latestHtml !== '') {
+    if ($trailSc || $mapMode || ($dv2Scene && $dv2Scene['map'])) $latestHtml = $gvCarrier($latestHtml);   // a tile map page (Trail, delve): one toast box + a pop-up over the map, no card in the page
+}
 ?>
 <?php if ($isWalk && !$mapMode) echo route_fold_html($u, $last, $wi); ?>
 </div>
