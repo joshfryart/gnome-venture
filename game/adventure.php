@@ -618,7 +618,7 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
 </details>
 </div>
 <?php if (!in_array($kind, ['delve', 'lair'], true)): ?>
-<p class="tmlinks worldlink"><a href="<?= e(url('world.php?tab=map#regionmap')) ?>">🗺️ World map →</a></p>
+<p class="tmlinks worldlink"><a href="<?= e(url('world.php?tab=map#regionmap')) ?>">🗺️ Region map →</a></p>
 <?php endif; ?>
 <?php if ($wanderView): ?><div class="wanderhide"><?= ob_get_clean() ?></div><?php endif; ?>
 <?php page_footer();

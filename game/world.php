@@ -90,6 +90,7 @@ require_once __DIR__ . '/includes/destination.php';   // v0.7.98
 if (($_GET['dest'] ?? '') === 'off') { dest_set((int)$u['id'], 0); $u['dest_id'] = null; }
 $goId = (int)($_GET['go'] ?? 0);
 $selRegion = (int)($_GET['r'] ?? 0) ?: null;
+if ($selRegion === null && ($_GET['tab'] ?? '') === 'map' && !isset($_GET['w']) && gnav_on()) $selRegion = (int)($node['region_id'] ?? 0) ?: null;   // v2.5.99: the Map tab (and GPS "Pick a place on the map") opens on the region you are in first; ?w=1 is the world map
 if ($selRegion !== null && !isset($_GET['tab'])) $tab = 'map';   // v1.6.6: maps have their own tab; old ?r= links land there
 $gn = gnav_on();   // v2.5.30: graphical navigation: the World page is the world map first (the Go stack lives on the Here page)
 if ($gn && !isset($_GET['tab']) && !$goId && !isset($_GET['seek'])) $tab = 'map';

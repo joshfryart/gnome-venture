@@ -37,7 +37,7 @@
       host.addEventListener('click', function () { mine.setSpeed(2); });
       var done = function () {
         mine.setSpeed(reduced ? 40 : 1); host.classList.add('fs-done'); host.classList.remove('fs-live'); document.body.classList.remove('fs-hold');
-        if (!D.reward && D.over) { try { window.location.reload(); } catch (e) { } }   // the gnome ran off the map: look again so the map draws him back (the scene is spent)
+        if (!D.reward && D.over) { try { if (!(window.gvRefresh && window.gvRefresh())) window.location.reload(); } catch (e) { } }   // the gnome ran off the map: look again so the map draws him back (the scene is spent)
       };
       if (D.reward) mine.holdCheer(true);
       mine.play(list).then(function () { return D.reward ? mine.reward(D.reward) : null; }).catch(function () { }).then(done);

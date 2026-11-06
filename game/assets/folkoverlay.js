@@ -19,7 +19,7 @@
     foot = dlg.querySelector('.folkfoot');
     dlg.querySelector('.sheetx').addEventListener('click', function () { dlg.close(); });
     dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });   // a tap on the backdrop
-    dlg.addEventListener('close', function () { if (changed) { changed = false; window.location.reload(); } });   // hearts and buttons on the page are stale now
+    dlg.addEventListener('close', function () { if (changed) { changed = false; if (!(window.gvRefresh && window.gvRefresh())) window.location.reload(); } });   // hearts and buttons on the page are stale now
     dlg.addEventListener('submit', function (e) {
       var f = e.target.closest('[data-vform],[data-sform]');
       if (!f) return;

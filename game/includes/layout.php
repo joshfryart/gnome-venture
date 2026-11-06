@@ -11,7 +11,8 @@ const AJAX_PAGES = ['worms.php', 'memory.php', 'race.php', 'spit.php', 'marrow.p
     // v0.7.47: most game pages update in place
     'world.php', 'trek.php', 'town.php', 'inventory.php', 'shop.php', 'crafting.php', 'jobs.php', 'gnome.php', 'community.php', 'market.php', 'folk.php', 'tend.php', 'book.php', 'gotm.php', 'event.php',
     'festival.php', 'marketday.php', 'hollow.php', 'pals.php', 'index.php',   // v1.2.0: festival + market-day stalls, the Hollow, friends and the Today tabs update in place too (gnome.php above: the home page's TODAY / MY GNOME tabs)
-    'mushroom.php', 'letters.php', 'fair.php', 'pest.php', 'gourmand.php'];   // v1.4.0: the last three game pages update in place too
+    'mushroom.php', 'letters.php', 'fair.php', 'pest.php', 'gourmand.php',
+    'here.php'];   // v2.5.99: the Here picture's buttons (rest at a haven, wonders, GPS, wander) update in place too: their results show as messages instead of after a reload   // v1.4.0: the last three game pages update in place too
 
 function page_header(string $title, bool $admin = false): void
 {

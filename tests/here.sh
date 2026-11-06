@@ -135,6 +135,16 @@ R=$(get 'workshop.php?frag=nonsense'); chk "workshop fragment: an unknown sectio
 chk "workshop card has the loader box and the page link" "$(get 'workshop.php?o=potions' >/dev/null; grep -q 'class="wsfrag" data-frag="potions"' $TD/here-p.html && grep -q 'assets/workshop.js' $TD/here-p.html && echo 1)"
 cli set gnav_craft 0 >/dev/null; cli set gnav_tree 0 >/dev/null; cli set ppal_open 0 >/dev/null
 R=$(get 'workshop.php?frag=potions'); chk "flag off: the fragment is not served to players" "$([[ $R == 302* ]] && echo 1)" "$R"
+echo "== map links: the Map tab opens on your region first; ?w=1 is the world map (v2.5.99)"
+cli set gnav_on 1 >/dev/null; login >/dev/null
+get 'world.php?tab=map' >/dev/null
+chk "world.php?tab=map (GPS \"Pick a place on the map\") shows the region map first" "$(grep -q 'id="regionmap"' $TD/here-p.html && echo 1)"
+get 'world.php?tab=map&w=1' >/dev/null
+chk "world.php?tab=map&w=1 is the world map, no region map forced" "$(grep -q 'id="worldmap"' $TD/here-p.html && ! grep -q 'id="regionmap"' $TD/here-p.html && echo 1)"
+get 'world.php' >/dev/null
+chk "world.php alone is still the world map first" "$(grep -q 'id="worldmap"' $TD/here-p.html && ! grep -q 'id="regionmap"' $TD/here-p.html && echo 1)"
+get 'here.php' >/dev/null
+chk "the Here page updates its buttons in place (data-ajax)" "$(grep -q '<body[^>]*data-ajax' $TD/here-p.html && echo 1)"
 echo "== the Trail as tiles (gnav_tiles)"
 cli set gnav_on 1 >/dev/null; cli set fight_scene 0 >/dev/null;   # the popover fight (fight_scene is on by default since 2.5.97)
  login >/dev/null

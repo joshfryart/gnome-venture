@@ -833,6 +833,12 @@ gvAdvFold();
       })
       .catch(function () { busy = false; fallback(); });
   }
+  // v2.5.99: other scripts (the fight end scene, the villager card) ask for the page to be looked at again without a reload: true = started
+  window.gvRefresh = function () {
+    if (busy) return false;
+    load(location.href, { method: 'GET' }, null, function () { location.reload(); });
+    return true;
+  };
   document.addEventListener('submit', function (ev) {
     var form = ev.target;
     if (ev.defaultPrevented || busy || (form.method || '').toLowerCase() !== 'post' || form.hasAttribute('data-noajax')) return;
