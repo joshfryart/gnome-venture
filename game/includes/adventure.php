@@ -613,6 +613,32 @@ function fight_ev_take(int $expId, ?array $encNow = null, ?array $expNow = null)
     return $r;
 }
 
+/** fight_scene: which Puzzle Pal on the stage (pal0..pal2, same order as fight_scene_pals) uses the skill of pal key $key; -1 when that pal is not drawn there. */
+function fight_pal_slot(array $u, string $key): int
+{
+    if (!empty($u['guest']) || setting('ppal_party') !== '1' || !function_exists('ppal_equipped')) return -1;
+    $i = 0;
+    foreach (ppal_equipped($u) as $e) {
+        if (ppal_art_url((string)$e['pal']['key']) === '' || $i >= 3) continue;
+        if ((string)$e['pal']['key'] === $key) return $i;
+        $i++;
+    }
+    return -1;
+}
+
+/**
+ * fight_scene: the events of a pal skill ($slot = fight_pal_slot, -1 = not on the stage). The pal does the moving: it hops at the foe ($strike = damage), or does a little cheer and then $effect plays (what lands on the gnome or the foe,
+ * with no gnome pose when $palEffect is given). A pal that is not drawn on the stage falls back to $effect as it was (the gnome guards, cheers, and so on).
+ */
+function fight_pal_events(int $slot, array $effect, ?array $palEffect = null, ?int $strike = null): void
+{
+    if ($slot < 0) { foreach ($effect as $e) fight_ev($e); return; }
+    $from = 'pal' . $slot;
+    if ($strike !== null) { fight_ev(['from' => $from, 'to' => 'foe', 'move' => 'hop', 'dmg' => $strike, 'miss' => false, 'kind' => 'pal']); return; }
+    fight_ev(['from' => $from, 'move' => 'cheer', 'kind' => 'pal']);
+    foreach ($palEffect ?? $effect as $e) fight_ev($e);
+}
+
 function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bool
 {
     $enc = json_decode((string)$exp['encounter'], true);
@@ -690,44 +716,44 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                     case 'strike':
                         $enc['hp'] -= $palAct['value'];
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' strikes the ' . $c['name'] . ' for ' . $palAct['value'] . '.');
-                        fight_ev(['from' => 'foe', 'move' => 'hurt', 'dmg' => (int)$palAct['value'], 'kind' => 'pal']);
+                        fight_pal_events(fight_pal_slot($u, (string)$palAct['key']), [['from' => 'foe', 'move' => 'hurt', 'dmg' => (int)$palAct['value'], 'kind' => 'pal']], null, (int)$palAct['value']);
                         break;
                     case 'shield':
                         $enc['ps'] = 2; $enc['psv'] = (int)$palAct['value'];
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' shields you: the next 2 hits are ' . $palAct['value'] . ' lighter.');
-                        fight_ev(['from' => 'me', 'move' => 'guard']);
+                        fight_pal_events(fight_pal_slot($u, (string)$palAct['key']), [['from' => 'me', 'move' => 'guard']], [['from' => 'me', 'move' => 'note', 'kind' => 'shield', 'text' => 'shielded']]);   // the pal acts; no pal on the stage: the gnome guards as before
                         break;
                     case 'snare':
                         $enc['pn'] = 1;
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' snares the way out: your next run will work.');
-                        fight_ev(['from' => 'me', 'move' => 'note', 'kind' => 'snare']);
+                        fight_pal_events(fight_pal_slot($u, (string)$palAct['key']), [['from' => 'me', 'move' => 'note', 'kind' => 'snare']]);
                         break;
                     case 'sap':
                         $enc['hp'] -= $palAct['value'];
                         $enc['poison'] = 1;
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' saps the ' . $c['name'] . ' for ' . $palAct['value'] . ' and leaves it poisoned.');
-                        fight_ev(['from' => 'foe', 'move' => 'hurt', 'dmg' => (int)$palAct['value'], 'kind' => 'pal']);
+                        fight_pal_events(fight_pal_slot($u, (string)$palAct['key']), [['from' => 'foe', 'move' => 'hurt', 'dmg' => (int)$palAct['value'], 'kind' => 'pal']], null, (int)$palAct['value']);
                         break;
                     case 'daze':
                         $enc['pd'] = 1;
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' dazes the ' . $c['name'] . '.');
-                        fight_ev(['from' => 'foe', 'move' => 'note', 'kind' => 'daze']);
+                        fight_pal_events(fight_pal_slot($u, (string)$palAct['key']), [['from' => 'foe', 'move' => 'note', 'kind' => 'daze']]);
                         break;
                     case 'rouse':
                         $enc['used'] = false;
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' rouses you: your ability is ready again.');
-                        fight_ev(['from' => 'me', 'move' => 'note', 'kind' => 'rouse']);
+                        fight_pal_events(fight_pal_slot($u, (string)$palAct['key']), [['from' => 'me', 'move' => 'note', 'kind' => 'rouse']]);
                         break;
                     case 'gust':
                         $enc['pgu'] = 3; $enc['pgv'] = (int)$palAct['value'];
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' whips up a gust: the ' . $c['name'] . ' will miss more.');
-                        fight_ev(['from' => 'foe', 'move' => 'note', 'kind' => 'gust']);
+                        fight_pal_events(fight_pal_slot($u, (string)$palAct['key']), [['from' => 'foe', 'move' => 'note', 'kind' => 'gust']]);
                         break;
                     case 'patch':
                         $heal = min($palAct['value'], (int)$exp['max_hp'] - (int)$exp['hp']);
                         $exp['hp'] = (int)$exp['hp'] + $heal;
                         exp_log($exp, '✨ ' . $palAct['pal'] . ' patches you up: +' . $heal . ' health.');
-                        fight_ev(['from' => 'me', 'move' => 'heal', 'heal' => (int)$heal]);
+                        fight_pal_events(fight_pal_slot($u, (string)$palAct['key']), [['from' => 'me', 'move' => 'heal', 'heal' => (int)$heal]], [['from' => 'me', 'move' => 'mend', 'heal' => (int)$heal]]);   // the pal cheers; the gnome only gets the health back
                         break;
                 }
                 break;

@@ -410,6 +410,7 @@
         return hh.finished.then(function () { if (a.hp <= 0 && wasH > 0) { stopIdle(a); if (a.rig.lingers) return run(a, 'koL').finished; a.sh.style.opacity = 0; return run(a, 'ko').finished; } });
       }
       if (ev.move === 'heal' || ev.move === 'snack') { var hl = Math.max(0, Math.min(ev.heal || 0, a.max - a.hp)), sa = run(a, ev.move === 'snack' ? 'snack' : 'cheer'); if (hl) sleep(ev.move === 'snack' ? 650 : 200).then(function () { setHp(a, a.hp + hl); pop(a, '+' + hl, 'heal'); }); return sa.finished; }
+      if (ev.move === 'mend') { var ml = Math.max(0, Math.min(ev.heal || 0, a.max - a.hp)); if (ml) { setHp(a, a.hp + ml); pop(a, '+' + ml, 'heal'); } return sleep(450); }   // health back with no pose of the gnome's own (a pal did it)
       if (ev.move === 'stumble') { pop(a, 'trips!', 'miss'); return run(a, 'dodge').finished; }
       if (ev.move === 'charm' || ev.move === 'dazed' || ev.move === 'note') { pop(a, ev.text || (ev.move === 'charm' ? (ev.ok === false ? 'no charm' : 'charmed!') : ev.move === 'dazed' ? 'dazed' : '...'), ev.move === 'charm' && ev.ok !== false ? 'heal' : 'miss'); return sleep(350); }
             if (ev.move === 'guard') { var g = document.createElement('div'); g.className = 'fe-guard'; a.body.appendChild(g); a.guardEl = g; return run(a, 'guard').finished; }

@@ -15,7 +15,8 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 
 ## 2. JOSH: phone checks
 - DONE 2026-11-06: Josh said "Phone checks done good". Treat everything previously listed here as PASSED: 2.5.90 to 2.5.96 (ground zips, new-region routes, pals, Fight / Item / Flee menu, no bar under banner), 2.5.81 to 2.5.89 fight scene, 2.5.72 (Do tab meters, perks, notice board, happenings, stories, Sneak/Hunt, workshop), 2.5.60 to 2.5.71 items, yard, Here pages, Maplewold tiles. Not itemised, so per-item "not phone-checked" notes in section 4 are now stale.
-- DECIDED 2026-11-06: tapping the fight stage speeds it up 2x (was 40x), in `fightscene.js`; reduced motion still runs at 40x.
+- DONE 2026-11-06 (unreleased, not phone-checked): pal skills in the fight scene are acted by the pal on the stage (strike/sap: it hops at the foe; others: it cheers, then the effect lands; patch heals with no gnome pose; shield shows "shielded"). `fight_pal_events` / `fight_pal_slot` in `includes/adventure.php`, engine move `mend`. A pal not drawn on the stage (no art, 4th pal) keeps the old gnome animation.
+& speeds it up 2x (was 40x), in `fightscene.js`; reduced motion still runs at 40x.
 - DECIDED 2026-11-06: `fight_scene` ON by default (default flipped in `here_schema.php`, NOT yet released: needs a version bump + slim zip; a site with the setting already saved as 0 stays off). 3% fight rate confirmed OK.
 
 ## 3. JOSH: decisions needed

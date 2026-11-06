@@ -72,6 +72,19 @@ foreach ($creatures as $ci => $c) foreach (['attack', 'ability', 'flee', 'fighto
     if ($act === 'fighton' && count($ev) < 2) $fail("$key: fight on made no events");
     $out[$key]['ev'] = count($ev);
 }
+// pal skills: the pal does the moving (fight_pal_events); a pal that is not on the stage leaves the old events
+if (function_exists('fight_pal_events')) {
+    fight_ev();
+    fight_pal_events(-1, [['from' => 'foe', 'move' => 'hurt', 'dmg' => 4, 'kind' => 'pal']], null, 4); $e = fight_ev();
+    if ($e !== [['from' => 'foe', 'move' => 'hurt', 'dmg' => 4, 'kind' => 'pal']]) $fail('pal strike with no pal on the stage keeps the plain hurt event: ' . json_encode($e));
+    fight_pal_events(1, [['from' => 'foe', 'move' => 'hurt', 'dmg' => 4, 'kind' => 'pal']], null, 4); $e = fight_ev();
+    if (count($e) !== 1 || $e[0]['from'] !== 'pal1' || $e[0]['to'] !== 'foe' || $e[0]['move'] !== 'hop' || $e[0]['dmg'] !== 4) $fail('pal strike: the pal hops at the foe: ' . json_encode($e));
+    fight_pal_events(0, [['from' => 'me', 'move' => 'guard']], [['from' => 'me', 'move' => 'note', 'text' => 'shielded']]); $e = fight_ev();
+    if (count($e) !== 2 || $e[0]['from'] !== 'pal0' || $e[0]['move'] !== 'cheer' || $e[1]['move'] !== 'note') $fail('pal shield: the pal cheers, no gnome guard: ' . json_encode($e));
+    fight_pal_events(2, [['from' => 'foe', 'move' => 'note', 'kind' => 'daze']]); $e = fight_ev();
+    if (count($e) !== 2 || $e[0]['from'] !== 'pal2' || $e[1]['from'] !== 'foe') $fail('pal daze: the pal cheers, then the foe is dazed: ' . json_encode($e));
+    if (fight_pal_slot($u, 'no-such-pal') !== -1) $fail('a pal that is not along has no slot');
+}
 if ($record) { file_put_contents($file, json_encode(['n' => $n, 'out' => array_map(fn($o) => array_diff_key($o, ['ev' => 1]), $out)], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); echo "recorded $n fights\n"; exit($bad ? 1 : 0); }
 $gold = json_decode((string)file_get_contents($file), true);
 foreach ($gold['out'] as $k => $g) { $o = $out[$k] ?? null; if ($o === null) { $fail("$k missing"); continue; } if (array_diff_key($o, ["ev" => 1]) != $g) { $fail("$k: the fight changed"); if (getenv("FEDBG")) { echo json_encode(array_diff_key($o, ["ev" => 1])), "\n", json_encode($g), "\n"; } } }
