@@ -34,7 +34,7 @@
     if (D.finale) {   // the end scene: last blow, the foe falls, XP and loot drop and are drawn into the gnome; the map stays locked until then
       document.body.classList.add('fs-hold');
       if (list.length > 12) mine.setSpeed(Math.min(6, list.length / 6));
-      host.addEventListener('click', function () { mine.setSpeed(40); });
+      host.addEventListener('click', function () { mine.setSpeed(2); });
       var done = function () { mine.setSpeed(reduced ? 40 : 1); host.classList.add('fs-done'); host.classList.remove('fs-live'); document.body.classList.remove('fs-hold'); };
       if (D.reward) mine.holdCheer(true);
       mine.play(list).then(function () { return D.reward ? mine.reward(D.reward) : null; }).catch(function () { }).then(done);
@@ -43,7 +43,7 @@
     lock(true);
 
     if (list && list.length > 12) mine.setSpeed(Math.min(6, list.length / 6));   // Fight on / Auto-win: about 7 s
-    host.addEventListener('click', function () { mine.setSpeed(40); });   // tap to skip
+    host.addEventListener('click', function () { mine.setSpeed(2); });   // tap to speed up (2x, not a jump to the end)
     (list ? mine.play(list) : mine.together([{ from: 'me', move: 'enter' }, { from: 'foe', move: 'enter' }]))
       .catch(function (e) { if (window.console) console.warn('fightscene play: ' + (e && e.message)); }).then(function () {
         var m = mine.acts.me;   // hat still on the ground from an earlier turn (a reload, or the flag set by the server): put it down
