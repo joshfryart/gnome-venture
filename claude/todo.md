@@ -13,7 +13,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Release recipe: bump `APP_VERSION` in `game/includes/bootstrap.php`, CHANGELOG top entry = same, `tools/check_versions.sh`, `bash tests/build_update.sh <v> <two-back> releases`, art zip `upload-zips/gnome-venture-images-v3-<v>.zip`. Never rebuild a zip under the same version. Push main only on Josh's word.
 
 ## 2. JOSH: phone checks
-- 2.5.81 to 2.5.89 fight scene: Josh checked the fight scenes on 2026-11-06 (no issues reported; specifics not itemised). Still unchecked from this list, if not covered: fight over the map, dock buttons, health under creatures, end scene rewards over the head, hat, walk back, Sneak/Hunt carry across sections, 3% fight rate feel, 320px phone.
+- 2.5.81 to 2.5.89 fight scene: ALL phone-checked, OK (Josh, 2026-11-06). Nothing open here.
 - 2.5.72 (new, nothing phone-checked): Do tab meter bars, perk line, answer acts when a meter is low, notice board on Stop tab, daily happening strip, a story beat for a Regular, trail without the yellow square, Sneak/Hunt, workshop without round icons.
 - Josh said "everything live seems fine" (2026-11-05). Not itemised, so the list below stays until he ticks specifics; treat 2.5.66 and 2.5.67 as passed.
 - Trail landmarks 2.5.66 (all 16 routes), GPS auto-stop, hidden dots; Do here popover results + live header pills 2.5.67.
