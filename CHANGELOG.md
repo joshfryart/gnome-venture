@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.5.81
+- **Fight scene (off by default)**: new setting `fight_scene` (Admin > settings). On, a creature fight plays on the animated tilted stage under the map instead of the popover picture: your gnome in your own hat, beard and scarf colours, the creature as a rig (boar, wolf, bear, ram, scorpion, bullfrog, shore crab) or its picture, damage numbers, misses, guard, run, snacks. Buttons sit under the stage and wait while it plays; tap the stage to skip. Fight on and Auto-win play the whole fight (sped up). Off = the fights exactly as before.
+- **Hat**: when a hit takes you under 25% health your hat flies off once. Tap it on the ground to put it on: +5 health (never above your max), once a fight, no turn used. If the fight ends first it just goes back on.
+- **Server fight events**: each fight action now records what happened (hits, misses, heals, run, snack, charm...) for the stage. No change to the fight rules: a seeded test checks 120 fights end exactly as before.
+- New gnome Attack and Snack moves; new tests `fight_events` and `fight_scene`.
+
 ## 2.5.80
 - **Puzzle Pals on the Here page**: a pal waiting at the place you stand in now appears among the villagers (first slot, so a crowd never pushes it out). Tap it for the Say hello card.
 
