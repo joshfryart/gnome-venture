@@ -32,7 +32,28 @@ chk "the dock buttons are real forms (not nested in the map form)" "$([ "$(sed -
 chk "the old button list is not repeated under the map" "$(grep -q 'class="fightbtns' $TD/here-p.html && echo 0 || echo 1)"
 chk "fight buttons are there" "$(grep -q 'value="attack"' $TD/here-p.html && echo 1)"
 chk "no inline style or script on the page (CSP)" "$(sed -n '/<main/,/<\/main>/p' $TD/here-p.html | grep -qE '\sstyle=|<script[^>]*>[^<]' && echo 0 || echo 1)"
+echo "== end scene and stale events"
+get adventure.php >/dev/null
+[ "$(grep -o 'data-fight="[^"]*"' $TD/here-p.html | head -1 | php -r 'echo html_entity_decode(stream_get_contents(STDIN));' | grep -c '"events":\[\]')" = 1 ] || echo "  FAIL a fresh fight page already carries events (old events leaking)"
+grep -o 'data-fight="[^"]*"' $TD/here-p.html | head -1 | php -r 'echo html_entity_decode(stream_get_contents(STDIN));' | grep -q '"pop":true' && echo "  FAIL hat pops at full health"
+php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT id,encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetch(); $e=json_decode($r["encounter"],true); $e["hp"]=1; $p->prepare("UPDATE expeditions SET encounter=?, hp=max_hp WHERE id=?")->execute([json_encode($e),$r["id"]]);'
+FIN=0
+for i in 1 2 3 4 5 6 7 8 9 10; do get adventure.php >/dev/null; post adventure.php -d do=attack >/dev/null; get adventure.php >/dev/null; if ! grep -q 'class="fsdock"' $TD/here-p.html; then FIN=1; break; fi; done
+chk "the killing blow leaves an end scene on the map" "$([ $FIN = 1 ] && grep -q 'class="fightscene fs-over"' $TD/here-p.html && echo 1)"
+FD=$(grep -o 'data-fight="[^"]*"' $TD/here-p.html | head -1 | php -r 'echo html_entity_decode(stream_get_contents(STDIN));')
+chk "...with the last blow, the end marker and the XP" "$(echo "$FD" | grep -q '"finale":1' && echo "$FD" | grep -q '"end":"win"' && echo "$FD" | grep -q '"xp":[1-9]' && echo 1)" "$(echo $FD | cut -c1-300)"
+chk "no popover, no fight dock during the end scene" "$(grep -q 'trailpop' $TD/here-p.html && echo 0 || (grep -q 'class="fsdock"' $TD/here-p.html && echo 0 || echo 1))"
+get adventure.php >/dev/null
+chk "the end scene plays once (a reload shows the plain map)" "$(grep -q 'id="fightscene"' $TD/here-p.html && echo 0 || echo 1)"
+cli forceenc >/dev/null
+php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT id,encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetch(); $e=json_decode($r["encounter"],true); $e["hp"]=$e["max"]=900; $p->prepare("UPDATE expeditions SET encounter=?, hp=max_hp WHERE id=?")->execute([json_encode($e),$r["id"]]);'
+get adventure.php >/dev/null
+chk "the next fight starts clean: no old events" "$(grep -o 'data-fight="[^"]*"' $TD/here-p.html | head -1 | php -r 'echo html_entity_decode(stream_get_contents(STDIN));' | grep -q '"events":\[\]' && echo 1)"
 if command -v node >/dev/null && [ -z "$NOBROWSER" ]; then node "$HERE/fight_scene.js" "$BASE" "$SHOT" >$TD/fs-browser.out 2>&1 || { cat $TD/fs-browser.out; FAILS=$((FAILS+1)); }; [ -n "$SHOT" ] && cat $TD/fs-browser.out; fi
+if command -v node >/dev/null && [ -z "$NOBROWSER" ]; then
+  php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT id,encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetch(); $e=json_decode($r["encounter"],true); $e["hp"]=1; $p->prepare("UPDATE expeditions SET encounter=?, hp=max_hp WHERE id=?")->execute([json_encode($e),$r["id"]]);'
+  node "$HERE/fight_finale.js" "$BASE" "$SHOT" >$TD/fs-fin.out 2>&1 || { cat $TD/fs-fin.out; FAILS=$((FAILS+1)); }; [ -n "$SHOT" ] && cat $TD/fs-fin.out
+fi
 cli set gnav_on 0 >/dev/null; cli set gnav_tiles 0 >/dev/null; cli set fight_scene 0 >/dev/null
 ERR1=$(cat "$GAME/data/error-log.txt" 2>/dev/null | wc -l)
 [ "$ERR1" -gt "$ERR0" ] && { echo "  FAIL php errors logged"; tail -n +$((ERR0+1)) "$GAME/data/error-log.txt" | head -5; FAILS=$((FAILS+1)); }

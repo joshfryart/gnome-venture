@@ -40,7 +40,7 @@
 .fe-flat .fe-board{transform:none;box-shadow:none;margin:0}
 .fe-flat .fe-grid{gap:0}.fe-flat .fe-t{background:none}
 .fe-flat .fe-hud{inset:6px}
-.fightscene.fs-over{position:absolute;inset:0;max-width:none;margin:0;z-index:4;pointer-events:auto}
+.fightscene.fs-over{position:absolute;inset:0;max-width:none;margin:0;z-index:4;pointer-events:none}.fightscene.fs-over.fs-live{pointer-events:auto}
 .fightscene.fs-over .fs-fb{display:none}
 .fe-hb{color:#fff2dc;background:#2b1c26ee}
 .fe-flat .fe-hb{width:44%}
@@ -78,3 +78,13 @@
 .fsmorebox .fsodds{font-size:12px;color:#fff;opacity:.85;margin:0 0 6px;text-align:center}
 .fsmorebox .choice-body{display:block}.fsmorebox .choice-sub{display:block}
 .fsdock.fs-wait{opacity:.55;pointer-events:none}
+
+/* end scene: XP orbs and loot rest on the ground, then are drawn into the gnome */
+.fe-drop{position:absolute;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;filter:drop-shadow(0 2px 2px #0008);pointer-events:none}
+.fe-drop img{width:26px;height:26px;image-rendering:pixelated;object-fit:contain}
+.fe-drop.xp{color:#ffe27a;text-shadow:0 0 8px #ffd23f,0 0 2px #fff}
+.fe-droplbl{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:2px;white-space:nowrap;font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000;opacity:0;transition:opacity .25s}
+.fe-drop.show .fe-droplbl{opacity:1}
+.fe-dmg.xp{color:#ffe27a;text-shadow:0 2px 0 #7a5a00,0 0 6px #000}
+.fightscene.fs-over.fs-live.fs-done{pointer-events:none}
+body.fs-hold .tmgrid,body.fs-hold .trailfoot{pointer-events:none}

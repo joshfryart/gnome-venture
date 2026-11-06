@@ -311,7 +311,7 @@ if ($exp && !$trailSc && !$fsc): echo adventure_stage_html($u, $exp, $scene, $en
 <?= dm_view_html($u, $exp, $dmScene, (bool)$enc) ?>
 <p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
 <?php elseif ($trailSc): ?>
-<?= trail_view_html($u, $exp, $trailSc, (bool)$enc, $fighting && fight_scene_on()) ?>
+<?= trail_view_html($u, $exp, $trailSc, (bool)$enc, fight_scene_on() && ($fighting || fight_finale_pending($exp))) ?>
 <?php $tLand0 = (string)(exp_scene($exp)['land'] ?? 'grassland'); ?><div class="trailui">
   <div class="trailfoot">
     <a class="btn" data-pop="hubpop-tgather" href="<?= e(url('adventure.php?g=1')) ?>">🧺 Gather here</a>

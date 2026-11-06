@@ -368,6 +368,12 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         $fightDock = fight_dock_html($u, $exp, $encO, $cO);   // real forms: they cannot sit inside the map's own form, so they follow it and are pulled up over the map by css
         $fightOver_html = fight_scene_html($u, $exp, $encO, $cO, ['cols' => DM_VIEW, 'rows' => DM_VIEW, 'mx' => $mx, 'my' => max(1, min(DM_VIEW - 2, $sc['y'] - $win['y0'])), 'fx' => $mx + 2]);
     }
+    elseif ($fightOver && !$exp['encounter']) {   // the fight just ended: its end scene plays over the map (the foe falls, loot drops and is drawn into the gnome) before the map is usable
+        require_once __DIR__ . '/fight_scene.php';
+        $mx = max(1, min(DM_VIEW - 4, $sc['x'] - $win['x0']));
+        $fightOver_html = fight_finale_html($u, $exp, ['cols' => DM_VIEW, 'rows' => DM_VIEW, 'mx' => $mx, 'my' => max(1, min(DM_VIEW - 2, $sc['y'] - $win['y0'])), 'fx' => $mx + 2]);
+        if ($fightOver_html === '') $fightOver = false;
+    }
     $btn = '';
     for ($j = 0; $j < DM_VIEW; $j++) for ($i = 0; $i < DM_VIEW; $i++) {
         $x = $win['x0'] + $i; $y = $win['y0'] + $j;

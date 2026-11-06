@@ -545,6 +545,7 @@ function fight_ev(?array $e = null): array
 {
     static $buf = [];
     if ($e === null) { $o = $buf; $buf = []; return $o; }
+    if (isset($e['__merge'])) { if ($buf) $buf[count($buf) - 1] = $e['__merge'] + $buf[count($buf) - 1]; return []; }   // add fields (the reward) to the last event (the end marker)
     $buf[] = $e;
     return [];
 }
@@ -578,7 +579,7 @@ function fight_ev_start(array $exp, array $enc): array
 {
     $c = encounter_creature($enc);
     if ($c) fight_prep($enc, $c);
-    return ['me' => ['hp' => max(0, (int)$exp['hp']), 'max' => (int)$exp['max_hp']], 'foe' => ['hp' => max(0, (int)($enc['hp'] ?? 0)), 'max' => (int)($enc['max'] ?? 0)]];
+    return ['me' => ['hp' => max(0, (int)$exp['hp']), 'max' => (int)$exp['max_hp']], 'foe' => ['hp' => max(0, (int)($enc['hp'] ?? 0)), 'max' => (int)($enc['max'] ?? 0), 'slug' => (string)($c['slug'] ?? ''), 'name' => (string)($c['name'] ?? '')]];
 }
 
 /** Keep this action's events for the next page render (session, like the Fight on replay: no schema change). Call after the action with the same $exp. */
@@ -591,13 +592,24 @@ function fight_ev_save(array $start, array $exp): void
         'end' => ['me' => ['hp' => max(0, (int)$exp['hp']), 'max' => (int)$exp['max_hp']], 'foe' => ['hp' => $encN ? max(0, (int)($encN['hp'] ?? 0)) : 0]]];
 }
 
-/** The events of the last action for this expedition (once, if fresh), or null. */
-function fight_ev_take(int $expId): ?array
+/**
+ * The events of the last action for this expedition (once, if fresh and it belongs to what is on the page now), or null.
+ * With a fight on: the record must end exactly where the fight stands now (both healths) and not be a finished fight. With no fight on: only a finished one (the end scene).
+ * Anything else is an old record that must never play on a new fight.
+ */
+function fight_ev_take(int $expId, ?array $encNow = null, ?array $expNow = null): ?array
 {
     $r = $_SESSION['fight_ev'] ?? null;
     if (!is_array($r) || (int)($r['exp'] ?? 0) !== $expId) return null;
     unset($_SESSION['fight_ev']);
-    return time() - (int)($r['t'] ?? 0) <= 30 && !empty($r['ev']) ? $r : null;
+    if (time() - (int)($r['t'] ?? 0) > 30 || empty($r['ev'])) return null;
+    $last = end($r['ev']); $finished = is_array($last) && isset($last['end']);
+    if ($encNow !== null) {
+        $raw = $expNow && $expNow['encounter'] ? (json_decode((string)$expNow['encounter'], true) ?: []) : [];   // the stored fight (the page's copy may have been eased by fight_prep)
+        if ($finished || !$expNow || (int)$r['end']['me']['hp'] !== max(0, (int)$expNow['hp']) || (int)$r['end']['foe']['hp'] !== max(0, (int)($raw['hp'] ?? 0))) return null;
+        if ((string)($r['start']['foe']['slug'] ?? '') !== '' && (string)$r['start']['foe']['slug'] !== (string)(encounter_creature($encNow)['slug'] ?? '')) return null;
+    } elseif (!$finished) return null;
+    return $r;
 }
 
 function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bool
@@ -890,6 +902,7 @@ function win_fight(array $u, array &$exp, array $c, bool $peaceful): void
     if (unlock_entries($uid, 'creature:' . $c['slug'])) {
         exp_log($exp, '📖 New Almanac page: ' . $c['name'] . '!');
     }
+    $loot = [];   // for the end scene: what dropped (name, qty, picture)
     if (!$peaceful) {
         $scene = exp_scene($exp);
         $luckBonus = max(0, luck_mod($u)) * 2;
@@ -897,17 +910,20 @@ function win_fight(array $u, array &$exp, array $c, bool $peaceful): void
             if (random_int(1, 100) > min(100, (int)$dr['chance'] + $luckBonus + (int)($ps['spoils'] ?? 0))) continue;
             if ($dr['special'] === 'seed') {
                 exp_log($exp, give_local_seed($u, $scene) ?? give_find($u, $scene));
+                $loot[] = ['name' => 'a seed', 'qty' => 1, 'img' => ''];
             } elseif ($dr['special'] === 'guide') {
                 $rCode = $scene['region_id'] ? (string)q_val('SELECT code FROM regions WHERE id = ?', [$scene['region_id']]) : '';
                 $gid = $rCode ? item_id_by_slug(guide_item_slug($rCode)) : 0;
                 if ($gid) {
                     give_item($uid, $gid, 1);
                     exp_log($exp, '📗 The ' . $c['name'] . ' was guarding a Gardening Guide!');
+                    $loot[] = ['name' => 'Gardening Guide', 'qty' => 1, 'img' => ''];
                 }
             } elseif ($dr['item_id']) {
                 $qty = calling_perk($u, 'drop_double') > 0 ? 2 : 1;   // v0.9.1: Master Thornblades get double drops
                 give_item($uid, (int)$dr['item_id'], $qty);
                 exp_log($exp, '🎁 Loot: ' . ($qty > 1 ? $qty . ' × ' : '') . q_val('SELECT name FROM items WHERE id = ?', [$dr['item_id']]));
+                $loot[] = ['name' => (string)q_val('SELECT name FROM items WHERE id = ?', [$dr['item_id']]), 'qty' => (int)$qty, 'img' => (string)(item_art_map()['id'][(int)$dr['item_id']] ?? '')];
             }
         }
     }
@@ -916,6 +932,7 @@ function win_fight(array $u, array &$exp, array $c, bool $peaceful): void
         $exp['hp'] = (int)$exp['max_hp'];
         exp_log($exp, '🗡️ You shake it off: full health.');
     }
+    fight_ev(['__merge' => ['xp' => (int)$xp, 'lvl' => $lvl ? (int)$lvl : 0, 'loot' => $loot]]);   // the end scene shows these
     $exp['encounter'] = null;
 }
 

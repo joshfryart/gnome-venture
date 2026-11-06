@@ -437,9 +437,58 @@
         return over ? finish() : null;
       });
     }
+    /* The end scene: after the last blow the foe's XP and loot drop on the ground (a little hop), rest a moment with their names, then are slowly drawn into the gnome.
+     * rw = {xp, lvl, loot:[{name, qty, img}]}. Returns a promise that resolves when the last one is in (the host then lets the player move again). */
+    function reward(rw) {
+      var me = acts.me, foe = acts.foe;
+      if (!me || !foe || me.hp <= 0) return Promise.resolve();
+      var drops = [], n = 0, fp = spot(foe), mp = spot(me), list = [];
+      if (rw.xp) list.push({ xp: 1, label: '+' + rw.xp + ' XP' });
+      (rw.loot || []).forEach(function (l) { list.push({ img: l.img, label: (l.qty > 1 ? l.qty + ' × ' : '') + l.name }); });
+      if (!list.length) return Promise.resolve();
+      var gx = (mp[0] - fp[0]) * .45, base = list.length;
+      list.forEach(function (d, i) {
+        var el = document.createElement('div'); el.className = 'fe-drop' + (d.xp ? ' xp' : '');
+        if (d.img) { var im = document.createElement('img'); im.src = d.img; im.alt = ''; el.appendChild(im); } else el.textContent = d.xp ? '✦' : '🎁';
+        var lb = document.createElement('span'); lb.className = 'fe-droplbl'; lb.textContent = d.label; el.appendChild(lb);
+        var tx = fp[0] + gx + (i - (base - 1) / 2) * 52, ty = fp[1] + 14;   // rests on the ground between the two, spread out a little
+        el.style.left = fp[0] + 'px'; el.style.top = fp[1] + 'px'; el.style.opacity = 0; fx.appendChild(el);
+        d.el = el; d.tx = tx; d.ty = ty; drops.push(d);
+      });
+      return Promise.all(drops.map(function (d, i) {   // 1: hop out of the foe and land
+        return sleep(i * 160).then(function () {
+          return d.el.animate([
+            { transform: 'translate(-50%,-50%) scale(.3)', opacity: 0 },
+            { transform: 'translate(calc(-50% + ' + ((d.tx - fp[0]) * .55) + 'px),calc(-50% - 34px)) scale(1.1)', opacity: 1, offset: .5, easing: 'ease-in' },
+            { transform: 'translate(calc(-50% + ' + (d.tx - fp[0]) + 'px),calc(-50% + ' + (d.ty - fp[1]) + 'px)) scale(1)', opacity: 1 }
+          ], { duration: 620 / sp(), fill: 'forwards' }).finished;
+        });
+      })).then(function () { d_show(drops); return sleep(900); })   // 2: they rest, names showing
+        .then(function () {   // 3: slowly drawn into the gnome, one after another, shrinking
+          var m2 = spot(me);
+          return Promise.all(drops.map(function (d, i) {
+            return sleep(i * 260).then(function () {
+              d.el.classList.remove('show');
+              var dx = m2[0] - d.tx, dy = m2[1] - d.ty;
+              var a = d.el.animate([
+                { transform: 'translate(calc(-50% + ' + (d.tx - fp[0]) + 'px),calc(-50% + ' + (d.ty - fp[1]) + 'px)) scale(1) rotate(0)', opacity: 1 },
+                { transform: 'translate(calc(-50% + ' + (d.tx - fp[0] + dx * .55) + 'px),calc(-50% + ' + (d.ty - fp[1] + dy * .45 - 18) + 'px)) scale(.8) rotate(120deg)', opacity: 1, offset: .55, easing: 'cubic-bezier(.5,0,.9,.6)' },
+                { transform: 'translate(calc(-50% + ' + (m2[0] - fp[0]) + 'px),calc(-50% + ' + (m2[1] - fp[1]) + 'px)) scale(.15) rotate(260deg)', opacity: .2 }
+              ], { duration: 1250 / sp(), fill: 'forwards', easing: 'ease-in' });
+              return a.finished.then(function () {
+                d.el.remove();
+                var bump = me.body.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.1,.92)' }, { transform: 'scale(1)' }], { duration: 260 / sp() });
+                pop(me, d.xp ? d.label : d.label, d.xp ? 'xp' : 'heal');
+                return bump.finished;
+              });
+            });
+          }));
+        }).then(function () { if (rw.lvl) { pop(me, 'LEVEL UP!', 'xp'); return sleep(900); } return sleep(250); });
+    }
+    function d_show(drops) { drops.forEach(function (d) { d.el.classList.add('show'); }); }
     function destroy() { dead = true; root.removeEventListener('resize', layout); host.innerHTML = ''; acts = {}; }   // stop the physics loop and the resize hook (call before re-creating on the same host)
     layout(); root.addEventListener('resize', layout); root.requestAnimationFrame(tick);
-    return { destroy: destroy, finish: finish, add: add, play: play, popHat: popHat, fixHat: fixHat, together: together, acts: acts, layout: layout, setSpeed: function (s) { speed = s; }, MOVES: MOVES };
+    return { destroy: destroy, finish: finish, reward: reward, add: add, play: play, popHat: popHat, fixHat: fixHat, together: together, acts: acts, layout: layout, setSpeed: function (s) { speed = s; }, MOVES: MOVES };
   }
   /* Data lint: returns a list of problems (empty = fine). Run by tools/fight/smoke.js; catches the mistakes that used to crash animate() at play time. */
   function validate() {

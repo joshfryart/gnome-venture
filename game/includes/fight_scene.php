@@ -16,7 +16,7 @@ function fight_scene_on(): bool
 function fight_scene_html(array $u, array $exp, array $enc, array $c, ?array $over = null): string
 {
     $slug = (string)($c['slug'] ?? '');
-    $take = fight_ev_take((int)$exp['id']);
+    $take = fight_ev_take((int)$exp['id'], $enc, $exp);   // only events that belong to this very fight
     $meHp = max(0, (int)$exp['hp']); $foeHp = max(0, (int)($enc['hp'] ?? 0));
     $data = [
         'slug' => preg_match('/^[a-z0-9-]+$/', $slug) ? $slug : '',
@@ -65,4 +65,41 @@ function fight_dock_html(array $u, array $exp, array $enc, array $c): string
 function fight_hatform_html(array $enc): string
 {
     return !empty($enc['hat']) ? '<form method="post" class="hatform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="hat"></form>' : '';
+}
+
+/** Is there an end scene waiting (a fight that just finished on this walk)? Looks, does not consume. */
+function fight_finale_pending(array $exp): bool
+{
+    $r = $_SESSION['fight_ev'] ?? null;
+    if (!is_array($r) || (int)($r['exp'] ?? 0) !== (int)$exp['id'] || time() - (int)($r['t'] ?? 0) > 30 || empty($r['ev'])) return false;
+    $last = end($r['ev']);
+    return is_array($last) && in_array($last['end'] ?? '', ['win', 'peace'], true);   // a run or a knock-out just returns to the page
+}
+
+/**
+ * The end scene of a fight, drawn over the map after the last blow: the foe falls (or the gnome runs), XP and loot drop and are drawn into the gnome,
+ * then the map unlocks (assets/fightscene.js, FightEngine reward). $over = the same cells as fight_scene_html. '' when nothing is waiting.
+ */
+function fight_finale_html(array $u, array $exp, array $over): string
+{
+    $take = fight_ev_take((int)$exp['id']);
+    if (!$take) return '';
+    $last = end($take['ev']);
+    $slug = (string)($take['start']['foe']['slug'] ?? '');
+    $loot = [];
+    foreach ((array)($last['loot'] ?? []) as $l) {
+        $rel = (string)($l['img'] ?? '');
+        $loot[] = ['name' => (string)$l['name'], 'qty' => (int)($l['qty'] ?? 1), 'img' => $rel !== '' && art_path($rel) !== '' ? url($rel) : ''];
+    }
+    $data = [
+        'slug' => preg_match('/^[a-z0-9-]+$/', $slug) ? $slug : '',
+        'me' => ['name' => gnome_name($u), 'hp' => (int)$take['start']['me']['hp'], 'max' => (int)$take['start']['me']['max']],
+        'foe' => ['name' => (string)($take['start']['foe']['name'] ?? ''), 'hp' => (int)$take['start']['foe']['hp'], 'max' => (int)$take['start']['foe']['max']],
+        'events' => $take['ev'], 'end' => ['me' => (int)$take['end']['me']['hp'], 'foe' => (int)$take['end']['foe']['hp']],
+        'parts' => gnome_rig_urls($u), 'base' => url('assets/img/fight'),
+        'mini' => $slug !== '' && is_file(APP_ROOT . '/assets/img/mini/mini-' . $slug . '.png') ? url('assets/img/mini/mini-' . $slug . '.png') : '',
+        'over' => $over, 'hat' => 0, 'finale' => 1,
+        'reward' => ['kind' => (string)$last['end'], 'xp' => (int)($last['xp'] ?? 0), 'lvl' => (int)($last['lvl'] ?? 0), 'loot' => $loot],
+    ];
+    return '<div class="fightscene fs-over" id="fightscene" data-fight="' . e((string)json_encode($data, JSON_UNESCAPED_UNICODE)) . '" role="img" aria-label="The fight is over"></div>';
 }
