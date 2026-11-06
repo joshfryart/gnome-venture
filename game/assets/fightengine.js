@@ -70,12 +70,31 @@
       { id: 'hat', img: 'hat', px: [32, 37], phys: 1 }, { id: 'tip', img: 'tip', px: [28, 11], phys: 1, parent: 'hat' }], lingers: 1, hat: 1 },
     creature: { kind: 'still', w: 2.3, h: 2.3, attack: 'charge' }
   };
+  /* Creature part rigs: 80x80 parts cut by tools/creature_rig_parts.py (pedestal dropped, feet on the bottom row). Quadruped poses are shared; a creature without an entry here is still a single picture. */
+  var QUAD = {
+    idle: { dur: 1600, loops: Infinity, tracks: { head: [[0, {}], [800, { r: 3, y: .5 }, E.io], [1600, {}, E.io]], legF: [[0, {}], [1600, {}]], legB: [[0, {}], [1600, {}]] } },
+    run: { dur: 420, loops: Infinity, tracks: {
+      legF: [[0, { r: -35 }], [210, { r: 35 }, E.io], [420, { r: -35 }, E.io]], legB: [[0, { r: 30 }], [210, { r: -30 }, E.io], [420, { r: 30 }, E.io]],
+      body: [[0, {}], [105, { y: -2 }], [210, {}], [315, { y: -2 }], [420, {}]], head: [[0, { r: -4 }], [210, { r: 4 }, E.io], [420, { r: -4 }, E.io]] } },
+    charge: { dur: 900, tracks: {
+      head: [[0, {}], [200, { r: 24 }, E.out], [320, { r: 28 }], [430, { r: 10 }, E['in']], [480, { r: -8 }, E.out], [900, {}, E.io]],
+      legF: [[0, {}], [110, { r: 42 }, E.out], [170, { r: -8 }], [230, { r: 42 }], [290, { r: -8 }], [430, { r: -38 }, E['in']], [560, { r: 20 }], [900, {}, E.io]],
+      legB: [[0, {}], [200, { r: -12 }, E.out], [430, { r: 36 }, E['in']], [560, { r: -14 }], [900, {}, E.io]],
+      body: [[0, {}], [200, { r: -5 }, E.out], [430, { r: 5 }, E['in']], [480, { r: 2 }], [900, {}, E.io]] } },
+    hit: { dur: 380, tracks: { head: [[0, {}], [60, { r: -24 }, E.out], [380, {}, E.io]], legF: [[0, {}], [60, { r: 18 }, E.out], [380, {}, E.io]], legB: [[0, {}], [60, { r: -14 }, E.out], [380, {}, E.io]], body: [[0, {}], [60, { r: -5 }, E.out], [380, {}, E.io]] } },
+    dodge: { dur: 520, tracks: { head: [[0, {}], [120, { r: -12 }, E.out], [520, {}, E.io]], legF: [[0, {}], [120, { r: 32, y: -3 }, E.out], [300, { r: 8 }], [520, {}, E.io]], legB: [[0, {}], [120, { r: -28, y: -3 }, E.out], [300, { r: -6 }], [520, {}, E.io]] } },
+    ko: { dur: 900, keep: 1, tracks: { head: [[0, {}], [120, { r: -20 }, E.out], [500, { r: -30 }], [900, { r: -38 }, E.out]], legF: [[0, {}], [120, { r: 20 }, E.out], [500, { r: -70 }], [900, { r: -80 }, E.out]], legB: [[0, {}], [120, { r: -20 }, E.out], [500, { r: 60 }], [900, { r: 70 }, E.out]], body: [[0, {}], [900, {}]] } }
+  };
+  var CRIT = {
+    'wild-boar': { kind: 'parts', w: 2.3, h: 2.3, fw: 80, fh: 80, poses: QUAD, parts: [
+      { id: 'legB', img: 'legB', px: [20, 68], dim: .85 }, { id: 'legF', img: 'legF', px: [56, 68] }, { id: 'body', img: 'body', px: [30, 67] }, { id: 'head', img: 'head', px: [48, 59] }] }
+  };
   var ATTACK = { 'wild-boar': 'charge', 'bramble-wolf': 'pounce', 'bullfrog': 'hop', 'black-bear': 'slam', 'cliff-ram': 'charge', 'dune-scorpion': 'pounce' };
   var SIZE = { 'black-bear': 2.8, 'bullfrog': 1.8, 'dune-scorpion': 2.2 };
 
   function rigFor(id) {
     if (id === 'gnome') return RIGS.gnome;
-    var r = Object.assign({}, RIGS.creature);
+    var r = Object.assign({}, CRIT[id] || RIGS.creature);
     r.attack = ATTACK[id] || r.attack;
     if (SIZE[id]) r.w = r.h = SIZE[id];
     return r;
@@ -138,8 +157,8 @@
       var o = { duration: dur, fill: m.keep ? 'forwards' : 'none' };
       var anim = a.body.animate(k.map(function (f) { return { offset: f.offset, transform: f.transform, filter: f.filter, opacity: f.opacity, easing: f.easing }; }), o);
       a.sh.animate(k.map(function (f) { return { offset: f.offset, transform: 'translate(' + f._x + 'px,0) scale(' + (1 - Math.min(.5, Math.max(0, -f._y / c) * .4)) + ')', opacity: f.opacity, easing: f.easing }; }), o);
-      if (m.pose && a.rig.kind === 'parts') {
-        var P = typeof m.pose === 'string' ? POSES[m.pose] : Object.assign({}, POSES[m.pose.use], { len: POSES[m.pose.use].dur }, m.pose);
+      var P = m.pose && a.rig.kind === 'parts' ? (typeof m.pose === 'string' ? poseOf(a, m.pose) : (poseOf(a, m.pose.use) ? Object.assign({}, poseOf(a, m.pose.use), { len: poseOf(a, m.pose.use).dur }, m.pose) : null)) : null;
+      if (P) {
         var pa = poseRun(a, P); if (m.keep || P.keep) a.held = (a.held || []).concat(pa);
         pa.forEach(function (x) { live.add(x); x.finished.then(function () { live.delete(x); }, function () { live.delete(x); }); });
       }
@@ -152,8 +171,9 @@
       live.add(anim); anim.finished.then(function () { live.delete(anim); }, function () { live.delete(anim); });
       return anim;
     }
+    function poseOf(a, name) { return (a.rig.poses && a.rig.poses[name]) || POSES[name]; }   // a rig may bring its own poses (creatures)
     function poseRun(a, P, delay) {   // limb animation for a part rig; returns the animations
-      var out = [], k = a.rig.w * c / 64;
+      var out = [], k = a.rig.w * c / (a.rig.fw || 64);
       a.rig.parts.forEach(function (pt) {
         var tr = P.tracks[pt.id]; if (!tr) return;
         var f = tr.map(function (q, i) {
@@ -197,7 +217,7 @@
       var pel = {}, phys = {};
       if (rig.kind === 'parts') rig.parts.forEach(function (pt) {   // one stacked, pivoted layer per limb
         var q = document.createElement('i'); q.className = 'fe-part'; q.style.backgroundImage = 'url("' + d.parts[pt.img] + '")';
-        var org = (pt.px[0] / 64 * 100) + '% ' + (pt.px[1] / 80 * 100) + '%'; q.style.transformOrigin = org; if (pt.dim) q.style.filter = 'brightness(' + pt.dim + ')';
+        var org = (pt.px[0] / (rig.fw || 64) * 100) + '% ' + (pt.px[1] / (rig.fh || 80) * 100) + '%'; q.style.transformOrigin = org; if (pt.dim) q.style.filter = 'brightness(' + pt.dim + ')';
         var host = pt.parent ? pel[pt.parent] : spr;
         if (pt.phys) { var w = document.createElement('i'); w.className = 'fe-part'; w.style.transformOrigin = org; w.appendChild(q); host.appendChild(w); phys[pt.id] = w; }   // w: the physics layer (set by the loop), q: scripted poses
         else host.appendChild(q);
@@ -213,7 +233,7 @@
         hb.children[0].textContent = d.name || id; hud.appendChild(hb); a.num = hb.children[1]; a.bar = hb.children[2].children[0];
       }
       acts[id] = a; place(a); setHp(a, a.hp);
-      if (rig.kind === 'parts') a.idleParts = poseRun(a, POSES.idle, -Math.random() * 1600);
+      if (rig.kind === 'parts') a.idleParts = poseRun(a, poseOf(a, 'idle'), -Math.random() * 1600);
       a.idle = body.animate(kfs(MOVES.idle, a, 0, c).map(function (f) { return { offset: f.offset, transform: f.transform, easing: f.easing }; }), { duration: 1600, iterations: Infinity, delay: -Math.random() * 1600 });
       return a;
     }
@@ -355,6 +375,10 @@
   /* Data lint: returns a list of problems (empty = fine). Run by tools/fight/smoke.js; catches the mistakes that used to crash animate() at play time. */
   function validate() {
     var bad = [], partIds = RIGS.gnome.parts.map(function (p) { return p.id; });
+    Object.keys(CRIT).forEach(function (n) {
+      var ids = CRIT[n].parts.map(function (p) { return p.id; });
+      Object.keys(CRIT[n].poses).forEach(function (pn) { var p = CRIT[n].poses[pn]; Object.keys(p.tracks).forEach(function (part) { if (ids.indexOf(part) < 0) bad.push('CRIT.' + n + ' pose ' + pn + ': unknown part ' + part); times(p.tracks[part], p.dur, 'CRIT.' + n + '.' + pn + '.' + part); }); });
+    });
     function times(list, dur, where) {
       list.forEach(function (k, i) {
         if (typeof k[0] !== 'number') bad.push(where + ': key ' + i + ' has no time');
@@ -378,5 +402,5 @@
     Object.keys(ATTACK).forEach(function (s) { if (!MOVES[ATTACK[s]]) bad.push('ATTACK.' + s + ': no move ' + ATTACK[s]); });
     return bad;
   }
-  root.FightEngine = { validate: validate, create: create, MOVES: MOVES, POSES: POSES, RIGS: RIGS, ATTACK: ATTACK };
+  root.FightEngine = { validate: validate, CRIT: CRIT, create: create, MOVES: MOVES, POSES: POSES, RIGS: RIGS, ATTACK: ATTACK };
 })(window);

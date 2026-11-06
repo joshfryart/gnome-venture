@@ -6,7 +6,9 @@
     if (eng) eng.destroy();
     eng = FightEngine.create(document.getElementById('stage'), { speed: document.getElementById('slow').checked ? .3 : 1, onHatTap: function (id) { go([{ from: id, move: 'fixhat', heal: 5 }]); } });
     eng.add('me', { rig: 'gnome', parts: PARTS, col: 2, side: 'me', name: 'You', hp: 20 });
-    eng.add('foe', { rig: slug, img: 'assets/img/mini/mini-' + slug + '.png', col: 8, flip: true, side: 'foe', name: slug.replace(/-/g, ' '), hp: 12 });
+    var foe = { rig: slug, img: 'assets/img/mini/mini-' + slug + '.png', col: 8, flip: true, side: 'foe', name: slug.replace(/-/g, ' '), hp: 12 };
+    if (FightEngine.CRIT[slug]) { foe.parts = {}; FightEngine.CRIT[slug].parts.forEach(function (p) { foe.parts[p.img] = 'assets/img/fight/rig-' + slug + '-' + p.img + '.png'; }); }   // part rig when the creature has one
+    eng.add('foe', foe);
     busy = true; eng.together([{ from: 'me', move: 'enter' }, { from: 'foe', move: 'enter' }]).then(function () { busy = false; });
   }
   function go(list) { if (busy) return; busy = true; eng.play(list).then(function () { busy = false; }); }
