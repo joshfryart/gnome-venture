@@ -14,16 +14,16 @@
       [0, {}], [160, { dx: -.15, sx: 1.06, sy: .92, r: -8 }, E.out], [240, { dx: -.2, sx: 1.08, sy: .9, r: -10 }, E.io],
       [420, { x: .97, y: -.12, sx: .92, sy: 1.1, r: 12 }, E['in']], [470, { x: 1, sx: 1.14, sy: .88, r: 5 }, E.out],
       [660, { x: .95 }, E.out], [860, {}, E.io]] },
-    charge: { dur: 900, hit: 430, fx: 'pow', keys: [
+    charge: { dur: 900, hit: 430, pose: 'charge', fx: 'pow', keys: [
       [0, {}], [200, { dx: -.25, sx: 1.1, sy: .9, r: -4 }, E.out], [260, { dx: -.25, y: -.08 }], [320, { dx: -.25 }],
       [430, { x: 1, sx: 1.12, sy: .92, r: 6 }, E['in']], [480, { x: 1, sx: .85, sy: 1.1 }, E.out], [700, { x: .7 }, E.out], [900, {}, E.io]] },
-    pounce: { dur: 850, hit: 410, fx: 'pow', keys: [
+    pounce: { dur: 850, hit: 410, pose: 'pounce', fx: 'pow', keys: [
       [0, {}], [220, { dx: -.1, sx: 1.15, sy: .78 }, E.out], [330, { x: .5, y: -1.1, sx: .9, sy: 1.15, r: -10 }, E.out],
       [410, { x: 1, y: -.2, sx: 1.1, sy: .9, r: 10 }, E['in']], [470, { x: 1, sx: 1.12, sy: .85 }, E.out], [850, {}, E.io]] },
-    hop: { dur: 800, hit: 360, fx: 'pow', keys: [
+    hop: { dur: 800, hit: 360, pose: 'hop', fx: 'pow', keys: [
       [0, {}], [120, { sx: 1.12, sy: .85 }, E.out], [220, { x: .45, y: -.5, sy: 1.1, sx: .94 }, E.out], [300, { x: .5, sx: 1.1, sy: .88 }, E['in']],
       [360, { x: 1, y: -.45, sx: .9, sy: 1.12 }, E.out], [440, { x: 1, sx: 1.12, sy: .85 }, E['in']], [800, {}, E.io]] },
-    slam: { dur: 1100, hit: 620, fx: 'pow', keys: [
+    slam: { dur: 1100, hit: 620, pose: 'slam', fx: 'pow', keys: [
       [0, {}], [300, { y: -.3, sy: 1.2, sx: .92, r: -8 }, E.out], [480, { y: -.3, sy: 1.22, sx: .9, r: -10 }], [620, { x: .85, y: .05, sy: .8, sx: 1.2, r: 10 }, E['in']],
       [720, { x: .85, sy: .86, sx: 1.14 }, E.out], [1100, {}, E.io]] },
     hit: { dur: 380, pose: 'hit', keys: [[0, {}], [60, { dx: -.18, sx: .9, sy: 1.1, b: 2.2, r: -8 }, E.out], [160, { dx: -.1, sx: 1.06, sy: .94, b: 1.3, r: 3 }], [380, {}, E.io]] },
@@ -72,22 +72,65 @@
   };
   /* Creature part rigs: 80x80 parts cut by tools/creature_rig_parts.py (pedestal dropped, feet on the bottom row). Quadruped poses are shared; a creature without an entry here is still a single picture. */
   var QUAD = {
-    idle: { dur: 1600, loops: Infinity, tracks: { head: [[0, {}], [800, { r: 3, y: .5 }, E.io], [1600, {}, E.io]], legF: [[0, {}], [1600, {}]], legB: [[0, {}], [1600, {}]] } },
-    run: { dur: 420, loops: Infinity, tracks: {
+    idle: { dur: 1600, loops: Infinity, tracks: { tail: [[0, {}], [800, { r: 6 }, E.io], [1600, {}, E.io]], head: [[0, {}], [800, { r: 3, y: .5 }, E.io], [1600, {}, E.io]], legF: [[0, {}], [1600, {}]], legB: [[0, {}], [1600, {}]] } },
+    run: { dur: 420, loops: Infinity, tracks: { tail: [[0, { r: -10 }], [210, { r: 10 }, E.io], [420, { r: -10 }, E.io]],
       legF: [[0, { r: -35 }], [210, { r: 35 }, E.io], [420, { r: -35 }, E.io]], legB: [[0, { r: 30 }], [210, { r: -30 }, E.io], [420, { r: 30 }, E.io]],
       body: [[0, {}], [105, { y: -2 }], [210, {}], [315, { y: -2 }], [420, {}]], head: [[0, { r: -4 }], [210, { r: 4 }, E.io], [420, { r: -4 }, E.io]] } },
-    charge: { dur: 900, tracks: {
+    charge: { dur: 900, tracks: { tail: [[0, {}], [200, { r: 10 }, E.out], [430, { r: -15 }, E['in']], [900, {}, E.io]],
       head: [[0, {}], [200, { r: 24 }, E.out], [320, { r: 28 }], [430, { r: 10 }, E['in']], [480, { r: -8 }, E.out], [900, {}, E.io]],
       legF: [[0, {}], [110, { r: 42 }, E.out], [170, { r: -8 }], [230, { r: 42 }], [290, { r: -8 }], [430, { r: -38 }, E['in']], [560, { r: 20 }], [900, {}, E.io]],
       legB: [[0, {}], [200, { r: -12 }, E.out], [430, { r: 36 }, E['in']], [560, { r: -14 }], [900, {}, E.io]],
       body: [[0, {}], [200, { r: -5 }, E.out], [430, { r: 5 }, E['in']], [480, { r: 2 }], [900, {}, E.io]] } },
-    hit: { dur: 380, tracks: { head: [[0, {}], [60, { r: -24 }, E.out], [380, {}, E.io]], legF: [[0, {}], [60, { r: 18 }, E.out], [380, {}, E.io]], legB: [[0, {}], [60, { r: -14 }, E.out], [380, {}, E.io]], body: [[0, {}], [60, { r: -5 }, E.out], [380, {}, E.io]] } },
+    hit: { dur: 380, tracks: { tail: [[0, {}], [60, { r: 20 }, E.out], [380, {}, E.io]], head: [[0, {}], [60, { r: -24 }, E.out], [380, {}, E.io]], legF: [[0, {}], [60, { r: 18 }, E.out], [380, {}, E.io]], legB: [[0, {}], [60, { r: -14 }, E.out], [380, {}, E.io]], body: [[0, {}], [60, { r: -5 }, E.out], [380, {}, E.io]] } },
     dodge: { dur: 520, tracks: { head: [[0, {}], [120, { r: -12 }, E.out], [520, {}, E.io]], legF: [[0, {}], [120, { r: 32, y: -3 }, E.out], [300, { r: 8 }], [520, {}, E.io]], legB: [[0, {}], [120, { r: -28, y: -3 }, E.out], [300, { r: -6 }], [520, {}, E.io]] } },
-    ko: { dur: 900, keep: 1, tracks: { head: [[0, {}], [120, { r: -20 }, E.out], [500, { r: -30 }], [900, { r: -38 }, E.out]], legF: [[0, {}], [120, { r: 20 }, E.out], [500, { r: -70 }], [900, { r: -80 }, E.out]], legB: [[0, {}], [120, { r: -20 }, E.out], [500, { r: 60 }], [900, { r: 70 }, E.out]], body: [[0, {}], [900, {}]] } }
+    pounce: { dur: 850, tracks: {
+      head: [[0, {}], [220, { r: 20 }, E.out], [330, { r: -10 }], [410, { r: 15 }, E['in']], [470, { r: 5 }], [850, {}, E.io]],
+      legF: [[0, {}], [220, { r: 30 }, E.out], [330, { r: -60 }, E.out], [410, { r: -45 }], [470, { r: 10 }], [850, {}, E.io]],
+      legB: [[0, {}], [220, { r: -15 }, E.out], [330, { r: 50 }, E.out], [410, { r: 40 }], [470, { r: -5 }], [850, {}, E.io]],
+      body: [[0, {}], [220, { r: -6 }, E.out], [330, { r: 8 }], [410, { r: 6 }], [850, {}, E.io]],
+      tail: [[0, {}], [220, { r: -15 }, E.out], [330, { r: 25 }], [410, { r: 10 }], [850, {}, E.io]] } },
+    slam: { dur: 1100, tracks: {
+      head: [[0, {}], [300, { r: -20 }, E.out], [480, { r: -24 }], [620, { r: 30 }, E['in']], [720, { r: 20 }], [1100, {}, E.io]],
+      legF: [[0, {}], [300, { r: -80 }, E.out], [480, { r: -95 }], [620, { r: 20 }, E['in']], [720, { r: 10 }], [1100, {}, E.io]],
+      legB: [[0, {}], [300, { r: 20 }, E.out], [480, { r: 25 }], [620, { r: -5 }, E['in']], [1100, {}, E.io]],
+      body: [[0, {}], [300, { r: -10 }, E.out], [480, { r: -12 }], [620, { r: 8 }, E['in']], [720, { r: 4 }], [1100, {}, E.io]] } },
+    ko: { dur: 900, keep: 1, tracks: { tail: [[0, {}], [500, { r: 30 }], [900, { r: 40 }, E.out]], head: [[0, {}], [120, { r: -20 }, E.out], [500, { r: -30 }], [900, { r: -38 }, E.out]], legF: [[0, {}], [120, { r: 20 }, E.out], [500, { r: -70 }], [900, { r: -80 }, E.out]], legB: [[0, {}], [120, { r: -20 }, E.out], [500, { r: 60 }], [900, { r: 70 }, E.out]], body: [[0, {}], [900, {}]] } }
+  };
+  /* Front-facing toys (scorpion, frog): claws, tail and eyes move on a static base. Positive r on the LEFT claw lifts it; on the RIGHT claw, negative lifts. */
+  var SCORP = {
+    idle: { dur: 1600, loops: Infinity, tracks: { tail: [[0, {}], [800, { r: 5 }, E.io], [1600, {}, E.io]], clawL: [[0, {}], [800, { r: 4 }, E.io], [1600, {}, E.io]], clawR: [[0, {}], [800, { r: -4 }, E.io], [1600, {}, E.io]] } },
+    run: { dur: 420, loops: Infinity, tracks: { clawL: [[0, { r: 10 }], [210, { r: -10 }, E.io], [420, { r: 10 }, E.io]], clawR: [[0, { r: 10 }], [210, { r: -10 }, E.io], [420, { r: 10 }, E.io]], tail: [[0, { r: -8 }], [210, { r: 8 }, E.io], [420, { r: -8 }, E.io]], body: [[0, {}], [105, { y: -2 }], [210, {}], [315, { y: -2 }], [420, {}]] } },
+    pounce: { dur: 850, tracks: {
+      clawL: [[0, {}], [220, { r: 35 }, E.out], [330, { r: 40 }], [410, { r: -22 }, E['in']], [470, { r: -28 }, E.out], [850, {}, E.io]],
+      clawR: [[0, {}], [220, { r: -35 }, E.out], [330, { r: -40 }], [410, { r: 22 }, E['in']], [470, { r: 28 }, E.out], [850, {}, E.io]],
+      tail: [[0, {}], [220, { r: -25 }, E.out], [330, { r: -30 }], [410, { r: 20 }, E['in']], [850, {}, E.io]], body: [[0, {}], [220, { r: -3 }, E.out], [410, { r: 3 }, E['in']], [850, {}, E.io]] } },
+    hit: { dur: 380, tracks: { clawL: [[0, {}], [60, { r: -18 }, E.out], [380, {}, E.io]], clawR: [[0, {}], [60, { r: 18 }, E.out], [380, {}, E.io]], tail: [[0, {}], [60, { r: 25 }, E.out], [380, {}, E.io]] } },
+    dodge: { dur: 520, tracks: { clawL: [[0, {}], [120, { r: 30 }, E.out], [520, {}, E.io]], clawR: [[0, {}], [120, { r: -30 }, E.out], [520, {}, E.io]], tail: [[0, {}], [120, { r: -20 }, E.out], [520, {}, E.io]] } },
+    ko: { dur: 900, keep: 1, tracks: { clawL: [[0, {}], [500, { r: -45 }], [900, { r: -55 }, E.out]], clawR: [[0, {}], [500, { r: 45 }], [900, { r: 55 }, E.out]], tail: [[0, {}], [500, { r: 35 }], [900, { r: 45 }, E.out]] } }
+  };
+  var FROG = {
+    idle: { dur: 1600, loops: Infinity, tracks: { eyeL: [[0, {}], [800, { y: -.6 }, E.io], [1600, {}, E.io]], eyeR: [[0, {}], [800, { y: -.6 }, E.io], [1600, {}, E.io]] } },
+    run: { dur: 420, loops: Infinity, tracks: { eyeL: [[0, {}], [210, { y: -2 }, E.io], [420, {}, E.io]], eyeR: [[0, {}], [210, { y: -2 }, E.io], [420, {}, E.io]] } },
+    hop: { dur: 800, tracks: {
+      eyeL: [[0, {}], [120, { y: 2 }, E.out], [220, { y: -3 }, E.out], [360, { y: -2 }], [440, { y: 2 }, E['in']], [800, {}, E.io]],
+      eyeR: [[0, {}], [120, { y: 2 }, E.out], [220, { y: -3 }, E.out], [360, { y: -2 }], [440, { y: 2 }, E['in']], [800, {}, E.io]] } },
+    hit: { dur: 380, tracks: { eyeL: [[0, {}], [60, { r: -14, y: 2 }, E.out], [380, {}, E.io]], eyeR: [[0, {}], [60, { r: 14, y: 2 }, E.out], [380, {}, E.io]] } },
+    dodge: { dur: 520, tracks: { eyeL: [[0, {}], [120, { y: -3 }, E.out], [520, {}, E.io]], eyeR: [[0, {}], [120, { y: -3 }, E.out], [520, {}, E.io]] } },
+    ko: { dur: 900, keep: 1, tracks: { eyeL: [[0, {}], [500, { r: 30, y: 2 }], [900, { r: 40, y: 3 }, E.out]], eyeR: [[0, {}], [500, { r: -30, y: 2 }], [900, { r: -40, y: 3 }, E.out]] } }
   };
   var CRIT = {
     'wild-boar': { kind: 'parts', w: 2.3, h: 2.3, fw: 80, fh: 80, poses: QUAD, parts: [
-      { id: 'legB', img: 'legB', px: [20, 68], dim: .85 }, { id: 'legF', img: 'legF', px: [56, 68] }, { id: 'body', img: 'body', px: [30, 67] }, { id: 'head', img: 'head', px: [48, 59] }] }
+      { id: 'legB', img: 'legB', px: [20, 68], dim: .85 }, { id: 'legF', img: 'legF', px: [56, 68] }, { id: 'body', img: 'body', px: [30, 67] }, { id: 'head', img: 'head', px: [48, 59] }] },
+    'bramble-wolf': { kind: 'parts', w: 2.3, h: 2.3, fw: 80, fh: 80, poses: QUAD, parts: [
+      { id: 'tail', img: 'tail', px: [20, 59] }, { id: 'legB', img: 'legB', px: [26, 68], dim: .85 }, { id: 'legF', img: 'legF', px: [51, 68] }, { id: 'body', img: 'body', px: [34, 67] }, { id: 'head', img: 'head', px: [48, 57] }] },
+    'black-bear': { kind: 'parts', w: 2.3, h: 2.3, fw: 80, fh: 80, poses: QUAD, parts: [
+      { id: 'legB', img: 'legB', px: [23, 68], dim: .85 }, { id: 'legF', img: 'legF', px: [55, 68] }, { id: 'body', img: 'body', px: [30, 67] }, { id: 'head', img: 'head', px: [46, 59] }] },
+    'cliff-ram': { kind: 'parts', w: 2.3, h: 2.3, fw: 80, fh: 80, poses: QUAD, parts: [
+      { id: 'tail', img: 'tail', px: [14, 57] }, { id: 'legB', img: 'legB', px: [23, 63], dim: .85 }, { id: 'legF', img: 'legF', px: [55, 63] }, { id: 'body', img: 'body', px: [32, 65] }, { id: 'head', img: 'head', px: [50, 55] }] },
+    'dune-scorpion': { kind: 'parts', w: 2.2, h: 2.2, fw: 56, fh: 64, poses: SCORP, parts: [
+      { id: 'base', img: 'base', px: [28, 50] }, { id: 'tail', img: 'tail', px: [15, 30] }, { id: 'body', img: 'body', px: [28, 40] }, { id: 'clawL', img: 'clawL', px: [17, 35] }, { id: 'clawR', img: 'clawR', px: [39, 35] }] },
+    'bullfrog': { kind: 'parts', w: 1.8, h: 1.8, fw: 56, fh: 64, poses: FROG, parts: [
+      { id: 'base', img: 'base', px: [28, 55] }, { id: 'body', img: 'body', px: [28, 45] }, { id: 'eyeL', img: 'eyeL', px: [18, 24] }, { id: 'eyeR', img: 'eyeR', px: [38, 24] }] }
   };
   var ATTACK = { 'wild-boar': 'charge', 'bramble-wolf': 'pounce', 'bullfrog': 'hop', 'black-bear': 'slam', 'cliff-ram': 'charge', 'dune-scorpion': 'pounce' };
   var SIZE = { 'black-bear': 2.8, 'bullfrog': 1.8, 'dune-scorpion': 2.2 };
@@ -376,7 +419,7 @@
   function validate() {
     var bad = [], partIds = RIGS.gnome.parts.map(function (p) { return p.id; });
     Object.keys(CRIT).forEach(function (n) {
-      var ids = CRIT[n].parts.map(function (p) { return p.id; });
+      var ids = []; Object.keys(CRIT).forEach(function (q) { CRIT[q].parts.forEach(function (p) { ids.push(p.id); }); });   // shared pose sets: a track may name any creature part
       Object.keys(CRIT[n].poses).forEach(function (pn) { var p = CRIT[n].poses[pn]; Object.keys(p.tracks).forEach(function (part) { if (ids.indexOf(part) < 0) bad.push('CRIT.' + n + ' pose ' + pn + ': unknown part ' + part); times(p.tracks[part], p.dur, 'CRIT.' + n + '.' + pn + '.' + part); }); });
     });
     function times(list, dur, where) {
@@ -389,8 +432,9 @@
     Object.keys(MOVES).forEach(function (n) {
       var m = MOVES[n], w = 'MOVES.' + n; times(m.keys, m.dur, w);
       if (m.hit > m.dur) bad.push(w + ': hit past dur');
-      if (m.pose && typeof m.pose === 'string' && !POSES[m.pose]) bad.push(w + ': unknown pose ' + m.pose);
-      if (m.pose && m.pose.use && !POSES[m.pose.use]) bad.push(w + ': unknown pose.use ' + m.pose.use);
+      var known = function (n) { return POSES[n] || Object.keys(CRIT).some(function (q) { return CRIT[q].poses[n]; }); };   // gnome poses or any creature pose set
+      if (m.pose && typeof m.pose === 'string' && !known(m.pose)) bad.push(w + ': unknown pose ' + m.pose);
+      if (m.pose && m.pose.use && !known(m.pose.use)) bad.push(w + ': unknown pose.use ' + m.pose.use);
       if (m.keys[m.keys.length - 1][0] !== m.dur) bad.push(w + ': last key is not at dur (the move would snap)');
     });
     Object.keys(POSES).forEach(function (n) {
