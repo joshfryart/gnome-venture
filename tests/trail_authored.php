@@ -32,7 +32,13 @@ foreach ($all as $rid => $r) {
 ok('at least the 41 Maplewold sections', $secs >= 41, (string)$secs);
 ok('every section: 7 rows, one width per route, entry on the left edge, exit on the right, exit reachable, tokens reachable, entry row = previous exit row', !$bad, implode('; ', $bad));
 ok('every section has its baked ground picture', !$badFiles, implode(', ', $badFiles));
-ok('fixed fights only where a delve (313) or lair (315) ends', $bossRoutes === ['313#2' => 'miniboss', '315#4' => 'boss'], json_encode($bossRoutes));
+// Fixed fights: exactly one E per delve/lair route, on its LAST section, kind from the route list ((delve) = miniboss, (lair) = boss); none anywhere else.
+$want = [];
+foreach (file(dirname($game) . '/claude/route-list.md') as $ln) {
+    if (preg_match('/^\|\s*(\d+)\s*\|.*\((delve|lair)\)\s*\|\s*\w+\s*\|\s*\d+\s*\|/', $ln, $mm) && isset($all[$mm[1]])) $want[$mm[1] . '#' . (count($all[$mm[1]]['sections']) - 1)] = $mm[2] === 'lair' ? 'boss' : 'miniboss';
+}
+ksort($want); ksort($bossRoutes);
+ok('fixed fights only on the last section of a delve (miniboss) or lair (boss) route', $bossRoutes === $want && count($want) >= 2, json_encode(array_diff_assoc($bossRoutes, $want) + array_diff_assoc($want, $bossRoutes)));
 [$m, $t] = trail_map_make('304|7|9|0');
 ok('trail_map_make gives the authored section for an authored route', isset($m['art']) && $m['art']['feature'] !== '' && $m['w'] >= 11);
 [$m2] = trail_map_make('3|7|9|0');
