@@ -19,6 +19,9 @@ post() { curl -s -c $C -b $C -X POST "$BASE/$1" --data-urlencode "csrf=$(csrf $T
 
 cli set gnav_on 1 >/dev/null; cli set gnav_tiles 1 >/dev/null; cli set fight_scene 0 >/dev/null; login >/dev/null
 chk "tile walk starts" "$([[ $(cli tilewalk | tail -1) == ok ]] && echo 1)"
+get adventure.php >/dev/null
+chk "what just happened rides in the one toast stack (data-gvtoast), no second fixed box over the message bar" "$(grep -q 'class="trailtoast"' $TD/here-p.html && echo 0 || (grep -q 'data-gvtoast' $TD/here-p.html && echo 1))"
+if command -v node >/dev/null && [ -z "$NOBROWSER" ]; then node "$HERE/trail_pop.js" "$BASE" >$TD/trail-pop.out 2>&1 || { cat $TD/trail-pop.out; FAILS=$((FAILS+1)); }; fi
 cli forceenc >/dev/null
 php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT id,encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetch(); $e=json_decode($r["encounter"],true); $e["hp"]=$e["max"]=900; $p->prepare("UPDATE expeditions SET encounter=?, hp=max_hp WHERE id=?")->execute([json_encode($e),$r["id"]]);'   # a foe that survives the test's hits
 get adventure.php >/dev/null

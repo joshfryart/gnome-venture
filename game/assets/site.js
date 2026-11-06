@@ -1257,8 +1257,13 @@ function gvToastNode(li) {
 }
 (function () {
   var fresh = gvVisibleLog().querySelectorAll('li.ml.new');
-  if (!fresh.length || gvInView(fresh[0])) return;
-  gvShowToasts(Array.prototype.map.call(fresh, gvToastNode));
+  var nodes = (fresh.length && !gvInView(fresh[0])) ? Array.prototype.map.call(fresh, gvToastNode) : [];
+  document.querySelectorAll('[data-gvtoast]').forEach(function (x) {   // v2.6.02: what just happened on a map page rides in the same box as the messages (one stack, not two boxes over each other)
+    var d = document.createElement('div'); d.className = 'flash ok'; d.textContent = x.textContent.trim(); if (d.textContent && !nodes.some(function (n) { return n.textContent === d.textContent; })) nodes.push(d); x.remove();
+    var view = document.querySelector('.tilemap .tmview');   // and it floats up over the gnome on the map, so items and finds show where they happen
+    if (view && d.textContent) { var pop = document.createElement('div'); pop.className = 'tmpop'; pop.setAttribute('aria-hidden', 'true'); pop.textContent = d.textContent; view.appendChild(pop); setTimeout(function () { pop.remove(); }, 4200); }
+  });
+  if (nodes.length) gvShowToasts(nodes);
 })();
 
 /* v0.7.54: garden select mode, and Satchel-style pickers instead of dropdowns */

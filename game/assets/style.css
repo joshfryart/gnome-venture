@@ -7487,3 +7487,8 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 .pklab { display: block; font-size: 0.85em; margin-top: -2px; } .pkmi { width: 20px; height: 20px; }
 .pktile small { display: none; }
 .pkn .pkd0 { background-position: -0px 0; } .pkn .pkd1 { background-position: -21px 0; } .pkn .pkd2 { background-position: -42px 0; } .pkn .pkd3 { background-position: -63px 0; } .pkn .pkd4 { background-position: -84px 0; } .pkn .pkd5 { background-position: -105px 0; } .pkn .pkd6 { background-position: -126px 0; } .pkn .pkd7 { background-position: -147px 0; } .pkn .pkd8 { background-position: -168px 0; } .pkn .pkd9 { background-position: -189px 0; } .pkn .pkd10 { background-position: -210px 0; } 
+
+/* v2.6.02: what just happened floats up over the gnome on a tile map (the same words are in the toast and Messages) */
+.tilemap .tmpop { position: absolute; left: 50%; top: 38%; transform: translateX(-50%); z-index: 5; max-width: 86%; padding: 6px 12px; border-radius: 12px; background: rgba(30, 20, 12, .88); color: #fff3d6; border: 1px solid rgba(245, 207, 106, .7); font-size: 14px; line-height: 1.25; text-align: center; pointer-events: none; box-shadow: 0 4px 14px #0009; animation: tmpopup 4s ease-out forwards; }
+@keyframes tmpopup { 0% { opacity: 0; margin-top: 14px; } 10% { opacity: 1; margin-top: 0; } 75% { opacity: 1; margin-top: -18px; } 100% { opacity: 0; margin-top: -34px; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .tilemap .tmpop { animation: none; } }

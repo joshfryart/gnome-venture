@@ -356,7 +356,7 @@ if ($resultCard): ?>
   <div class="advlatest" aria-live="polite"><b>Latest:</b> <?= e((string)end($log)) ?></div>
 <?php endif;
 $latestHtml = ob_get_clean(); if ($fighting) $latestHtml = '';
-if ($trailSc && !$enc) { $latestHtml = $latestHtml !== '' ? '<div class="trailtoast" role="status">' . $latestHtml . '</div>' : ''; }   // tile page: what just happened pops up briefly (CSS fade), not a card in the page   // a fight card already shows the rounds
+if ($trailSc && !$enc) { $latestHtml = $latestHtml !== '' ? '<div hidden data-gvtoast>' . e(trim(html_entity_decode(strip_tags(str_replace(['</b>', '</small>'], ' ', $latestHtml)), ENT_QUOTES | ENT_HTML5))) . '</div>' : ''; }   // v2.6.02: joins the one toast stack (site.js) instead of a second box fixed over the message bar   // tile page: what just happened pops up briefly (CSS fade), not a card in the page   // a fight card already shows the rounds
 ?>
 <?php if ($isWalk && !$mapMode) echo route_fold_html($u, $last, $wi); ?>
 </div>
