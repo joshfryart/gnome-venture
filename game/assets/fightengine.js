@@ -206,7 +206,7 @@
       a.el.style.cssText = 'left:' + (P[0] - c / 2) + 'px;top:' + (P[1] - c) + 'px;width:' + c + 'px;height:' + c + 'px;transform:scale(' + P[2] + ');z-index:' + (a.row + 1);
       a.body.style.cssText = 'left:' + ((c - w) / 2) + 'px;width:' + w + 'px;height:' + h + 'px';
       if (a.ghost) { a.ghost.style.cssText = a.el.style.cssText; a.ghost.firstChild.style.cssText = a.body.style.cssText; }
-      if (a.hb && opts.flat) { var hw = a.hb.offsetWidth || 54; a.hb.style.cssText = 'left:' + (P[0] - hw / 2) + 'px;top:' + (P[1] - h - 13) + 'px;right:auto;bottom:auto'; }   // health sits right above the head
+      if (a.hb && opts.flat) { var hw = a.hb.offsetWidth || 54; a.hb.style.cssText = 'left:' + (P[0] - hw / 2) + 'px;top:' + (P[1] + 3) + 'px;right:auto;bottom:auto'; }   // health sits right under the feet
       a.sh.style.cssText = 'left:' + (px + c / 2 - w * .35) + 'px;top:' + (py + c * .62) + 'px;width:' + (w * .7) + 'px;height:' + (c * .36) + 'px';
       if (r.kind === 'strip') { a.spr.style.backgroundSize = (r.frames * 100) + '% 100%'; a.spr.style.backgroundPosition = '0 0'; }
     }

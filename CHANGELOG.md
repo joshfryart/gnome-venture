@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.83
+- **Fight scene, on the map**: the fight buttons are now a glass bar along the bottom of the Trail map (Attack, your calling's ability, Run, Fight on, and a ⋯ button for the odds, pal skills, Snack and Auto-win). Characters are drawn small (about one tile) and each has a thin health bar with its number right under its feet. Still off by default (setting `fight_scene`).
+
 ## 2.5.82
 - **Fight scene sits on the real map**: on the Trail the fight now plays over the tile map where your gnome stands (gnome on its own tile, the creature two tiles right), the buttons sit under the map, and the health bubbles are readable. Still off by default (setting `fight_scene`); other maps (delve, wander) keep the tilted stage for now.
 
