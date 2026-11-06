@@ -31,7 +31,7 @@ For anyone adding a creature, a move, or a quirk. Engine: `game/assets/fightengi
 
 **New pose**: tracks per part; the torso leads, limbs follow (offset keys by 20 to 60 ms for drag). Opposite limbs get opposite rotations. Loops: first and last key identical; `loops:Infinity` in the pose. Reuse a loop inside a move: `pose:{use:'run', dur:350, loops:2}` (`len` is the base duration, handled for you).
 
-**New creature (today)**: drop `mini-<slug>.png` (80x80, faces right), add `ATTACK` and `SIZE` rows. It is still a single picture on a pedestal. **Target**: a parts rig like the gnome (body, head, jaw, front and back legs, tail), cut by a script like `tools/gnome_rig_parts.php`, same `POSES` shape. Do this boar and wolf first.
+**New creature**: drop `mini-<slug>.png` (80x80, faces right), add `ATTACK` and `SIZE` rows: it works at once as a single picture. To give it limbs: add a spec to `tools/creature_rig_parts.py` (`--grid` prints a measured grid; head mask, leg boxes, belly row, fill colour), run it, add a `CRIT[slug]` entry (parts in back-to-front order, pivots printed by the tool), reuse `QUAD` poses or write its own. Boar is the worked example. Other creatures **still single pictures**; goal: a parts rig like the gnome (body, head, jaw, front and back legs, tail), cut by a script like `tools/gnome_rig_parts.php`, same `POSES` shape. Do this boar and wolf first.
 
 **Secondary motion** (the cheap magic): never script follow-through by hand. Make the part a spring body (`phys:1`) driven by the host's measured movement (`stepHat`). Hat lag, tilt and the whipping curl all come free on every move. Same recipe for a beard, scarf tail, tail.
 

@@ -9,8 +9,8 @@ const DEF = [{ from: 'me', to: 'foe', move: 'pluck', dmg: 4 }, { from: 'foe', to
   p.on('pageerror', e => console.log('E:', e.message));
   await p.addInitScript(() => { Math.random = () => 0.9; });
   await p.goto('file://' + path.resolve(__dirname, '../../game/fight_demo.html'));
-  await p.addStyleTag({ content: 'body{padding:0!important}main{max-width:none!important}h1,select,label,.btns,p{display:none!important}' });
   if (slug) await p.selectOption('#cr', slug);
+  await p.addStyleTag({ content: 'body{padding:0!important}main{max-width:none!important}h1,select,label,.btns,p{display:none!important}' });
   await p.waitForTimeout(+lead * 1000);
   const box = await p.locator('.fe-stage').boundingBox(), t0 = Date.now();
   await p.evaluate(l => { window.__p = feDemo().play(l); }, events);

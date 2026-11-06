@@ -18,6 +18,7 @@ Done when: any hat, beard and scarf colour a player can pick plays every move wi
 - Covered by `smoke.js` (6 creatures: below 25%, server pop flag, tap click +5, win with hat down, KO no tap).
 
 ## Phase 2: creatures get limbs (biggest quality gap)
+STATUS: boar DONE (2026-11-06): `tools/creature_rig_parts.py wild-boar` cuts body, head, legB (hind pair), legF (fore pair) from `mini-wild-boar.png` (pedestal dropped, feet on the bottom row); `CRIT['wild-boar']` + shared `QUAD` poses (idle, run, charge, hit, dodge, ko) in `fightengine.js`. Next: wolf (pounce pose + tail part), bear (slam), ram, frog (hop, different body), scorpion. Add a spec to `SPECS` (use `--grid` to measure), a `CRIT` entry, a pose set if it moves differently.
 1. Boar part rig (body, head, jaw, legs F/B, tail) cut by script from existing art or redrawn; `POSES` for run, charge, hit, KO.
 2. Wolf, then bear, frog, ram, scorpion. Reuse the pose shape; per-creature numbers in data.
 3. Creature hit, KO, dodge, idle fidgets. Tail or ear spring bodies (same recipe as the hat).
