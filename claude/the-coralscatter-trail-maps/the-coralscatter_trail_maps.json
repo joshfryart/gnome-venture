@@ -1,0 +1,1265 @@
+{
+ "routes": [
+  {
+   "route_id": 254,
+   "from": "Palmgate",
+   "to": "Reefknoll",
+   "land": "island",
+   "sections": [
+    {
+     "feature": "the coconut grove",
+     "caption": "A grove of coconuts, each one trying to look innocent.",
+     "rows": [
+      "######################",
+      "######################",
+      "##########.....,##,###",
+      "##########.#..F##.,,,#",
+      "S..,.##..,.#..,##..#.#",
+      "#...,..........,...#.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sand spit",
+     "caption": "A spit of white sand reaching out like a pointing finger.",
+     "rows": [
+      "######################",
+      "########F########..###",
+      "#######,,..####.F,.###",
+      "###....,.#.,.#,,.,...9",
+      "##.....#####,..,,##.,#",
+      "..,.##.######,#####.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       1,
+       "F"
+      ],
+      [
+       16,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hammock palms",
+     "caption": "Two palms with a hammock. It has already been claimed by a crab.",
+     "rows": [
+      "######################",
+      "###..,..###.,...#,.###",
+      "##..#.,,##..##.,,....9",
+      ".,,##.F,.,.###.#######",
+      "#####.#.##############",
+      "#####.#,,F.,,#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       3,
+       "F"
+      ],
+      [
+       9,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 255,
+   "from": "Reefknoll",
+   "to": "The Coralscatter Market",
+   "land": "island",
+   "sections": [
+    {
+     "feature": "the reef shallows",
+     "caption": "Warm shallows full of brightly coloured fish.",
+     "rows": [
+      "######################",
+      "######################",
+      "###################.##",
+      "##,##########.,#F....#",
+      "#,.##F###F#..,,.,....9",
+      "S,.,.,..,,.,###..##.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       3,
+       "F"
+      ],
+      [
+       5,
+       4,
+       "F"
+      ],
+      [
+       9,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the palm lean",
+     "caption": "A palm tree that leans so far it has to be holding something.",
+     "rows": [
+      "######################",
+      "####..######.F...,####",
+      "####..###########.#,##",
+      "#####F##########,,,.##",
+      ".......#####.,.#....##",
+      "#####.......,,...##,,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       1,
+       "F"
+      ],
+      [
+       5,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the rope swing",
+     "caption": "A rope swing over a deep blue pool. It is begging to be used.",
+     "rows": [
+      "######################",
+      "#########,...,,F,..,,9",
+      "########..F..,..,#####",
+      "#######,.#######.#####",
+      "##.###..,#############",
+      ".,,...,#F.....########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       15,
+       1,
+       "F"
+      ],
+      [
+       10,
+       2,
+       "F"
+      ],
+      [
+       8,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 302,
+   "from": "Turtleburrow",
+   "to": "Brineglen",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the sea-stack gap",
+     "caption": "A gap between two tall rocks where the spray tickles your ankles.",
+     "rows": [
+      "######################",
+      "S....####,........,..9",
+      "#,#...,...,....#######",
+      "####F##,..##..########",
+      "#######F.,,F.#########",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       3,
+       "F"
+      ],
+      [
+       7,
+       4,
+       "F"
+      ],
+      [
+       11,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the bottle post",
+     "caption": "A post with a bottle on top. There is a note inside. It says 'hello'.",
+     "rows": [
+      "######################",
+      ".,..,.#F########,#####",
+      "##..#,...,.#####...###",
+      "######..##,....,.#...9",
+      "######.F####.F#####,##",
+      "########.,..,.#####.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       1,
+       "F"
+      ],
+      [
+       7,
+       4,
+       "F"
+      ],
+      [
+       13,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the kelp-line",
+     "caption": "A line of kelp left by the tide, as neat as a ribbon.",
+     "rows": [
+      "######################",
+      "############,#########",
+      "#...#####.#..###F###,#",
+      ".......##....,.#..#..9",
+      "#####.,.,.##.#,....,.#",
+      "#######,.....#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 303,
+   "from": "Brineglen",
+   "to": "The Coralscatter Market",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the barnacle wall",
+     "caption": "A rock wall crusted with barnacles. Please do not tickle them.",
+     "rows": [
+      "######################",
+      "#,####.........##..#.#",
+      "#...F..###..,.....,..9",
+      "S....,#######.....#,.#",
+      "###..#####...F#,###.##",
+      "####.#####,..,,,###.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       2,
+       "F"
+      ],
+      [
+       13,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the rope-and-net rack",
+     "caption": "Nets drying on a rack. A gull stands guard, badly.",
+     "rows": [
+      "######################",
+      "#########,.F...#######",
+      "..######...###,####,##",
+      "#...,F##.,,.##.#.#...9",
+      "####,.,..#.,##.....,.#",
+      "###########,...###.###",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ],
+      [
+       5,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the kelp-line",
+     "caption": "A line of kelp left by the tide, as neat as a ribbon.",
+     "rows": [
+      "######################",
+      "######.#######.#######",
+      "######F#####.#F.######",
+      "..####,..##..#,,.,#.##",
+      "#.,....#...,.,,##..,.9",
+      "#.##..######F#.#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       2,
+       "F"
+      ],
+      [
+       14,
+       2,
+       "F"
+      ],
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 461,
+   "from": "Palmgate",
+   "to": "Shellknoll",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the shell-heap",
+     "caption": "A mound of shells, sorted by someone with strong feelings about spirals.",
+     "rows": [
+      "######################",
+      "##.,,,...,.....,.....9",
+      "#,,#,##..,#F##......##",
+      "S,.######.############",
+      "#####.....,###########",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sea-stack gap",
+     "caption": "A gap between two tall rocks where the spray tickles your ankles.",
+     "rows": [
+      "######################",
+      "...#.F########,.######",
+      "#...,..,.####,,...####",
+      "#.#.F........,#......9",
+      "#######.....,##.#,.,##",
+      "##########.....,##.###",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       1,
+       "F"
+      ],
+      [
+       4,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 462,
+   "from": "Reefknoll",
+   "to": "Salthollow",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the barnacle wall",
+     "caption": "A rock wall crusted with barnacles. Please do not tickle them.",
+     "rows": [
+      "######################",
+      "######################",
+      "#############.....#..#",
+      "S..#####.##...###.,..9",
+      "#,......,.,.F.########",
+      "###.F,####F.##########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       4,
+       "F"
+      ],
+      [
+       4,
+       5,
+       "F"
+      ],
+      [
+       10,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the tide-pool steps",
+     "caption": "Flat rocks full of small pools, each with a crab who has opinions.",
+     "rows": [
+      "######################",
+      "#####.################",
+      "#####.F#.########.####",
+      "......,...,.##....####",
+      "#..,..#...,....#,.,..9",
+      "####F####F############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       2,
+       "F"
+      ],
+      [
+       4,
+       5,
+       "F"
+      ],
+      [
+       9,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 463,
+   "from": "Turtleburrow",
+   "to": "Mossby",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the woodcutter's stump",
+     "caption": "A giant stump, still carrying a very small axe.",
+     "rows": [
+      "######################",
+      "#.#######...F..#######",
+      "#.##.,,##,###.,#######",
+      "S.,,.#..#......,F..###",
+      "##..###...####,.....##",
+      "#########F#########..9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       1,
+       "F"
+      ],
+      [
+       16,
+       3,
+       "F"
+      ],
+      [
+       9,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the lantern branch",
+     "caption": "An old lantern hangs from a branch. Somebody trims its wick.",
+     "rows": [
+      "######################",
+      "######.,..,F##########",
+      "##,####.##############",
+      "#..##.#.#.####,...####",
+      "#..#..,...,......,,..9",
+      ".,...##.,..########,##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 464,
+   "from": "Brineglen",
+   "to": "Toadstoolbrook",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the root-tangle crossing",
+     "caption": "Roots knot across the path like a puzzle with one answer: step high.",
+     "rows": [
+      "######################",
+      "########.##....,.,.###",
+      "S.###,.,..,,.##.#,..,9",
+      "#.....#,##.#.#########",
+      "####,,#.##F###########",
+      "#####......###########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the owl-watch bough",
+     "caption": "A low bough where an owl pretends not to see you.",
+     "rows": [
+      "######################",
+      "#....F,..##..,...#.#,#",
+      ".,#.,..#,......#...,.9",
+      "#########..######.,..#",
+      "#########.############",
+      "#########..F,..#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       1,
+       "F"
+      ],
+      [
+       11,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 465,
+   "from": "Palmgate",
+   "to": "Miragewell",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the shade awning",
+     "caption": "A faded awning on two poles. Perfect for a very small nap.",
+     "rows": [
+      "######################",
+      "###.#.#F#,.....#..##.9",
+      "###......,###...,....#",
+      "S,......########.##,##",
+      "#.##############.##.##",
+      "###########.,.,,F#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       1,
+       "F"
+      ],
+      [
+       16,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the trader's tent poles",
+     "caption": "Poles from a trader's tent, left up in case they return.",
+     "rows": [
+      "######################",
+      "...,...##..#,,.,,,.,,9",
+      "#.,.##..,.,....#.,,..#",
+      "#,#,###.####.####.####",
+      "############.,,F.,####",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       15,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 466,
+   "from": "Reefknoll",
+   "to": "Oasiswick",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the sand-ripple lane",
+     "caption": "Sand rippled like a washboard in neat lines.",
+     "rows": [
+      "######################",
+      "S,,######F...F.#######",
+      "##,,#,###.##.#####.###",
+      "##,.......#..##..#.#.#",
+      "###...###........#.,.9",
+      "##########..#.,#....##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       1,
+       "F"
+      ],
+      [
+       13,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the waystone cluster",
+     "caption": "Three weathered waystones leaning together like old friends.",
+     "rows": [
+      "######################",
+      "######..##############",
+      "#######.###########.##",
+      "###.##....,####.#,...#",
+      ".......#,.,,..#...##.9",
+      "####,#.F..#,.,..######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 467,
+   "from": "Turtleburrow",
+   "to": "Ambercove",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the dry riverbed",
+     "caption": "A river that left years ago and kept the bed made.",
+     "rows": [
+      "######################",
+      "###,,#....#.##.#,..###",
+      "###..,,.#...,,,,.#,,.9",
+      "##..,..####.,,#,.##..#",
+      "#.,########.,..F,#####",
+      "S,,###################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       15,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the well and its rope",
+     "caption": "A well with a rope and a very patient bucket.",
+     "rows": [
+      "######################",
+      "####,....###.#########",
+      ".....F#......##.######",
+      "#.#####,#.......#.#..9",
+      "###########F...,,..#.#",
+      "##############.##.,.,#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       2,
+       "F"
+      ],
+      [
+       11,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 468,
+   "from": "Brineglen",
+   "to": "Kava Circle",
+   "land": "island",
+   "sections": [
+    {
+     "feature": "the lagoon edge",
+     "caption": "A lagoon as clear as glass, with tiny striped fish.",
+     "rows": [
+      "######################",
+      "############F#########",
+      "#########.##,,..####.#",
+      "S.##.###F....##......9",
+      "#..,.,#...#####F.,####",
+      "#####.,,.#############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       1,
+       "F"
+      ],
+      [
+       8,
+       3,
+       "F"
+      ],
+      [
+       15,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the Kava Circle path",
+     "caption": "A smell of something warm drifts down the path from Kava Circle.",
+     "rows": [
+      "######################",
+      "####,...,#...,,..,..,#",
+      "#.,..###....,,,#,,...9",
+      "..#,#####.##..######.#",
+      "#########.##########.#",
+      "#########....F,#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 469,
+   "from": "Palmgate",
+   "to": "Starpath Canoe",
+   "land": "island",
+   "sections": [
+    {
+     "feature": "the tide-cave",
+     "caption": "A small cave that breathes in and out with the tide.",
+     "rows": [
+      "######################",
+      "######################",
+      "######################",
+      "######...,#,.F..,#####",
+      "##.#...##..F.##,..#..#",
+      "S,,..####.....,..,...9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       3,
+       "F"
+      ],
+      [
+       11,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before Starpath Canoe",
+     "caption": "The air goes quiet, as if Starpath Canoe were about to speak.",
+     "rows": [
+      "######################",
+      "########.F,,,.######.9",
+      "############..,.,###.#",
+      "#########....#.,..,,,#",
+      "##,#F#,#..#####F#..#.#",
+      ".,........############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       1,
+       "F"
+      ],
+      [
+       4,
+       4,
+       "F"
+      ],
+      [
+       15,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 470,
+   "from": "Reefknoll",
+   "to": "Glowworm Grotto",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the rope-and-net rack",
+     "caption": "Nets drying on a rack. A gull stands guard, badly.",
+     "rows": [
+      "######################",
+      "######################",
+      "S..#################.#",
+      "#,,..F###,#.########.#",
+      "#...,........###.,#..#",
+      "####..,.###..,,...,..9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sea-stack gap",
+     "caption": "A gap between two tall rocks where the spray tickles your ankles.",
+     "rows": [
+      "######################",
+      "######################",
+      "############..F...####",
+      "############F..##.,###",
+      "#####.,,.##,.,.#...###",
+      "...,..##.,,.....,..,.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       2,
+       "F"
+      ],
+      [
+       12,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the Glowworm Grotto gates",
+     "caption": "Something wonderful is close. You can feel it in your shoes.",
+     "rows": [
+      "######################",
+      "######################",
+      "###########......#####",
+      "####..#####..,#..###,#",
+      "###..,..,.....,...##,9",
+      "..,,##,.####F####,...#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 471,
+   "from": "Turtleburrow",
+   "to": "Reef of the Box Jelly Queen",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the kelp-line",
+     "caption": "A line of kelp left by the tide, as neat as a ribbon.",
+     "rows": [
+      "######################",
+      "###.##################",
+      "##....F###############",
+      "##....################",
+      "S...#.,....##F.....,.#",
+      "##.###,.##...,.#...#.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       2,
+       "F"
+      ],
+      [
+       13,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the bottle post",
+     "caption": "A post with a bottle on top. There is a note inside. It says 'hello'.",
+     "rows": [
+      "######################",
+      "#####...,..###########",
+      "##########,,#F######.9",
+      "######,.,.,...######.#",
+      "#..,,..###F#,.######.#",
+      "....,#.#####F.......,#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       2,
+       "F"
+      ],
+      [
+       10,
+       4,
+       "F"
+      ],
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the rope-and-net rack",
+     "caption": "Nets drying on a rack. A gull stands guard, badly.",
+     "rows": [
+      "######################",
+      "#..,......#F##....,#.9",
+      "..##,..,#............#",
+      "####,#.F###########,.#",
+      "####,###############,#",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ],
+      [
+       7,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the threshold of Reef of the Box Jelly Queen",
+     "caption": "A wide, scuffed circle of earth. The kind of place a very large friend might sleep.",
+     "rows": [
+      "######################",
+      "....#....#####.##E####",
+      "#.#...##..F..........9",
+      "####F####...##.,####.#",
+      "#########F#,##########",
+      "#########.############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       17,
+       1,
+       "E"
+      ],
+      [
+       10,
+       2,
+       "F"
+      ],
+      [
+       4,
+       3,
+       "F"
+      ],
+      [
+       9,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 472,
+   "from": "Brineglen",
+   "to": "Stone Head Watchers",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the bluebell glade",
+     "caption": "A glade of bluebells that seems to ring if you listen closely.",
+     "rows": [
+      "######################",
+      "S,#####F######,##..,.#",
+      "#....,...##.......,#.9",
+      "##..,.....,,#...,.##.#",
+      "#####...,,.######.####",
+      "#####...,.,###########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the mushroom ring",
+     "caption": "Toadstools in a tidy ring. The path goes round, because the path is sensible.",
+     "rows": [
+      "######################",
+      "#######...##..F...####",
+      "..####,,#.,.F#.#######",
+      "#.,#...##.#..#...#.#.#",
+      "##..,#######...#,..,.9",
+      "#############,###..###",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       1,
+       "F"
+      ],
+      [
+       12,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before Stone Head Watchers",
+     "caption": "The air goes quiet, as if Stone Head Watchers were about to speak.",
+     "rows": [
+      "######################",
+      "######################",
+      "######...F,.##########",
+      "#,####,.#......F.,,.,#",
+      ".,#..,.,.....#,..,.#.9",
+      "#...####..##,#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       2,
+       "F"
+      ],
+      [
+       15,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 473,
+   "from": "Palmgate",
+   "to": "The Red Rock Songlines",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the mirage pool",
+     "caption": "A pool that is mostly shimmer, and a little bit not.",
+     "rows": [
+      "######################",
+      "############......####",
+      "#################..###",
+      "##.####...###..#.....#",
+      "#,..F#...,...,,.,.,#.9",
+      "S.,...,#####,..F######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       4,
+       "F"
+      ],
+      [
+       15,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sand-ripple lane",
+     "caption": "Sand rippled like a washboard in neat lines.",
+     "rows": [
+      "######################",
+      "#########...F........9",
+      "####.#,...F.......####",
+      "##.......###..F...####",
+      ".....,..##############",
+      "#.####################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       1,
+       "F"
+      ],
+      [
+       10,
+       2,
+       "F"
+      ],
+      [
+       14,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the dry riverbed",
+     "caption": "A river that left years ago and kept the bed made.",
+     "rows": [
+      "######################",
+      "...###,.F..F##########",
+      "#..#,..###.##F##.#####",
+      "##....,,.,.##.#,.#.#.#",
+      "####.###.....,.#.....#",
+      "#########...,#,..#..,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       1,
+       "F"
+      ],
+      [
+       11,
+       1,
+       "F"
+      ],
+      [
+       13,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the mine mouth of The Red Rock Songlines",
+     "caption": "The mouth of The Red Rock Songlines breathes cool air and a hint of old echoes.",
+     "rows": [
+      "######################",
+      "########.###.F#..E.###",
+      "#####.,...#..,..#,...9",
+      "##....,#F..,,.,#######",
+      "##....###.####.#######",
+      ".,..#####.,..F,#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       1,
+       "F"
+      ],
+      [
+       17,
+       1,
+       "E"
+      ],
+      [
+       8,
+       3,
+       "F"
+      ],
+      [
+       13,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

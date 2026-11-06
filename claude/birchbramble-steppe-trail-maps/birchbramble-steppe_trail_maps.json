@@ -1,0 +1,1094 @@
+{
+ "routes": [
+  {
+   "route_id": 262,
+   "from": "Thistleburrow",
+   "to": "Haynook",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the plank footbridge",
+     "caption": "A plank bridge over a ditch. The ditch is not deep, but the bridge is proud.",
+     "rows": [
+      "######################",
+      "########,...F.########",
+      "########.####.##,#####",
+      "####..,#,,F#......,###",
+      "S,##.,.....,.,..#...,9",
+      "#.....####.,.#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       1,
+       "F"
+      ],
+      [
+       10,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the picnic knoll",
+     "caption": "A flat green knoll with a dent in it exactly the shape of a picnic.",
+     "rows": [
+      "######################",
+      "########,#####,.######",
+      "#######F,..##,..,##,##",
+      "#######..#....#......9",
+      ".,,.##..###.###.....,#",
+      "#,,,.,,####.########,#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the bramble gap",
+     "caption": "A gap in the brambles, wide enough for one gnome and one opinion.",
+     "rows": [
+      "######################",
+      "##.##....#.####......9",
+      "##..,..#,..###..######",
+      ".....#####,.#.,#######",
+      "#.#,######,.,,########",
+      "############F.########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 263,
+   "from": "Haynook",
+   "to": "Birchbramble Steppe Market",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the bramble gap",
+     "caption": "A gap in the brambles, wide enough for one gnome and one opinion.",
+     "rows": [
+      "######################",
+      "######,,,.####..##,.##",
+      "#####...,,,,.,...#.,.9",
+      "####,..,#..F,###....##",
+      "#,.,,#...F.,######.###",
+      "S...##################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       3,
+       "F"
+      ],
+      [
+       9,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the shepherd's wall",
+     "caption": "A dry-stone wall running off into the grass, with a gate that is mostly decoration.",
+     "rows": [
+      "######################",
+      "#.,######,,,,#########",
+      ".,,.#.##..##.,########",
+      "#..#..,.,####..#F##,,#",
+      "#...,.#.,,###...,.,,,9",
+      "##...##....F.###...,.#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       3,
+       "F"
+      ],
+      [
+       11,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the wind-combed meadow",
+     "caption": "Grass lying down in one direction, as if told to. A kite string trails over the path.",
+     "rows": [
+      "######################",
+      "#####,.,.##...F.,#####",
+      "#.#.,,#..######,,#####",
+      "#.#,...,..####,.,.#,.#",
+      "..,,.##.#,,,...##..,.9",
+      "#.##,#####..##F##,##.#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       1,
+       "F"
+      ],
+      [
+       14,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 268,
+   "from": "Birchbramble Steppe Market",
+   "to": "Tussockgate",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the bramble gap",
+     "caption": "A gap in the brambles, wide enough for one gnome and one opinion.",
+     "rows": [
+      "######################",
+      "S...##,.....,#.#,,,#.#",
+      "###.,.....,,.,...#,..9",
+      "#######.#..F,..F,#.#.#",
+      "#######.######..######",
+      "###############,######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       3,
+       "F"
+      ],
+      [
+       15,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the dandelion drift",
+     "caption": "A drift of dandelion fluff, ready to leave at the first sneeze.",
+     "rows": [
+      "######################",
+      "#########.,,...#######",
+      ".,############.#######",
+      "#...##########F....###",
+      "###.,.####.,..,,#.,.,9",
+      "#####.,.....##,#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sleepy windmill",
+     "caption": "A little windmill turning slowly, in no hurry at all.",
+     "rows": [
+      "######################",
+      "##..######..,F.,######",
+      "###.########.#..#..###",
+      "##...#,,..#F,...,....9",
+      ".....,.##,...#.F,#...#",
+      "##.###################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       1,
+       "F"
+      ],
+      [
+       11,
+       3,
+       "F"
+      ],
+      [
+       15,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 378,
+   "from": "Thistleburrow",
+   "to": "Hazelthorpe",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the lantern branch",
+     "caption": "An old lantern hangs from a branch. Somebody trims its wick.",
+     "rows": [
+      "######################",
+      "S,####################",
+      "#...##################",
+      "##..##F###############",
+      "##....,.####...#F###,9",
+      "##.#.,#...........,.,#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       3,
+       "F"
+      ],
+      [
+       16,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the root-tangle crossing",
+     "caption": "Roots knot across the path like a puzzle with one answer: step high.",
+     "rows": [
+      "######################",
+      "########.#,,....###.,9",
+      "######.,.####.#,,....#",
+      "######..,,###.,....###",
+      ".,.,...#...,..########",
+      "#,.######F#,,#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 379,
+   "from": "Haynook",
+   "to": "Mossknoll",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the spring and the pebbles",
+     "caption": "A trickle of spring water over bright pebbles.",
+     "rows": [
+      "######################",
+      "S...#####F,...,#######",
+      "###.....#.####.,F#####",
+      "#####.,....###...,,###",
+      "#####,###.....,..#...9",
+      "###########F##########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       1,
+       "F"
+      ],
+      [
+       16,
+       2,
+       "F"
+      ],
+      [
+       11,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the owl-watch bough",
+     "caption": "A low bough where an owl pretends not to see you.",
+     "rows": [
+      "######################",
+      "####,.#...,#....,,..,9",
+      "#,.,,...##...#..###.##",
+      "#,..#F################",
+      "..###.################",
+      "#####..F.,,###########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       3,
+       "F"
+      ],
+      [
+       7,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 380,
+   "from": "Tussockgate",
+   "to": "Fernford",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the glow-moss grotto",
+     "caption": "A damp hollow with moss that glows faintly, like a night-light.",
+     "rows": [
+      "######################",
+      "###########.,.,.,#####",
+      "###########.#F########",
+      "###########,..########",
+      "###...#.,##.,.,.##..##",
+      "S..........,##......,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the owl-watch bough",
+     "caption": "A low bough where an owl pretends not to see you.",
+     "rows": [
+      "######################",
+      "#########,..###,######",
+      "###,....,....#..######",
+      "#...##,.,.##...,,.,,.9",
+      "#..####..F,..#########",
+      ".,####################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 381,
+   "from": "Thistleburrow",
+   "to": "Miregate",
+   "land": "wetland",
+   "sections": [
+    {
+     "feature": "the mud-skipper flats",
+     "caption": "Wet flats with small skippers who race for no reason.",
+     "rows": [
+      "######################",
+      "S...,#################",
+      "#..#.,...F,.F#..######",
+      "#####,,..,......,...,9",
+      "######...#,,####..#.,#",
+      "########F.#######,####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       2,
+       "F"
+      ],
+      [
+       12,
+       2,
+       "F"
+      ],
+      [
+       8,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the stilt-house",
+     "caption": "A house on stilts, with a ladder that has gone for a walk.",
+     "rows": [
+      "######################",
+      "#####...,.,,.,....#.,9",
+      "###.,.F,,#.##.,F...#,#",
+      ".,..######..,F..##,..#",
+      "#,################.###",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       2,
+       "F"
+      ],
+      [
+       15,
+       2,
+       "F"
+      ],
+      [
+       13,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 382,
+   "from": "Haynook",
+   "to": "Reedby",
+   "land": "wetland",
+   "sections": [
+    {
+     "feature": "the willow curtain",
+     "caption": "Willow branches drape the path like a gentle curtain.",
+     "rows": [
+      "######################",
+      "S......,,###,..##...##",
+      "#####.,#,...,#,...#,,9",
+      "#########..,##########",
+      "#########.#.##########",
+      "######..F..F##########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       5,
+       "F"
+      ],
+      [
+       11,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the peat bank",
+     "caption": "A soft brown bank that smells of rain and old books.",
+     "rows": [
+      "######################",
+      "######################",
+      "..,,##.##...,..#######",
+      "###,.#..#,##,..####..#",
+      "####.,,.,...,..##,,,.9",
+      "#####F##,,##.#,...####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 383,
+   "from": "Tussockgate",
+   "to": "Echohollow",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the scree slope",
+     "caption": "A slope of loose small stones that tick and chatter underfoot.",
+     "rows": [
+      "######################",
+      "########..#..,.##,####",
+      "S...##.,......,....#.9",
+      "#.....,###,.F.,F,,,..#",
+      "#####F##############.#",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       3,
+       "F"
+      ],
+      [
+       15,
+       3,
+       "F"
+      ],
+      [
+       5,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the pine shelf",
+     "caption": "A shelf of pines clinging to a cliff for dear life.",
+     "rows": [
+      "######################",
+      "##,,....#,...,####,..9",
+      "..,,.F#,.,F##...,..###",
+      "###.############.,####",
+      "######################",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       2,
+       "F"
+      ],
+      [
+       10,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 384,
+   "from": "Thistleburrow",
+   "to": "Flintknoll",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the wind notch",
+     "caption": "A notch in the ridge where the wind plays whatever it likes.",
+     "rows": [
+      "######################",
+      "######################",
+      "S..,###...,..F,.######",
+      "###.....#..####F######",
+      "#####..##.,,,...,.####",
+      "###########....,#....9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       2,
+       "F"
+      ],
+      [
+       15,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the goat ledge",
+     "caption": "A ledge with a goat. The goat is entirely unbothered.",
+     "rows": [
+      "######################",
+      "######################",
+      "#######,,..F.#########",
+      "#######.##########..##",
+      "#####,.,..###..#...,,#",
+      ".,...,#,.,.,,,,..,.#.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 385,
+   "from": "Haynook",
+   "to": "Painted Egg House",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the daisy ring",
+     "caption": "A circle of daisies so even that someone must have measured. Nobody will own up.",
+     "rows": [
+      "######################",
+      "###########.....F#.,.#",
+      "#######.F#,.##..,.,,.9",
+      "########....######..##",
+      "S,...,.....###########",
+      "###.,.###,,F..,#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       1,
+       "F"
+      ],
+      [
+       8,
+       2,
+       "F"
+      ],
+      [
+       11,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the Painted Egg House path",
+     "caption": "A smell of something warm drifts down the path from Painted Egg House.",
+     "rows": [
+      "######################",
+      "#.,######,,...F#######",
+      ".....#..#,#.##.#######",
+      "####..,..,......F#,###",
+      "######.#.#,.#.,,.,,..#",
+      "##############F##....9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       1,
+       "F"
+      ],
+      [
+       16,
+       3,
+       "F"
+      ],
+      [
+       14,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 386,
+   "from": "Tussockgate",
+   "to": "The Amber Woods",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the fern tunnel",
+     "caption": "Ferns arch overhead and drip softly on everyone's hat.",
+     "rows": [
+      "######################",
+      "#####F,....###########",
+      "##########..#####...##",
+      "S.####,..,..####,.,..#",
+      "#...#..,##F........,.9",
+      "###..,#######,#####.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       1,
+       "F"
+      ],
+      [
+       10,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the acorn scatter",
+     "caption": "Acorns everywhere, as though a squirrel had a very bad day.",
+     "rows": [
+      "######################",
+      "#######.,....,..#,...9",
+      "##.##.,.##..##..,,..##",
+      "##,#..F###.######..###",
+      ".....#################",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the The Amber Woods gates",
+     "caption": "Something wonderful is close. You can feel it in your shoes.",
+     "rows": [
+      "######################",
+      "...,###F.....######,.#",
+      "#.#..,.,...######....9",
+      "##.......#..####...###",
+      "########F#......,#####",
+      "#############....#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       1,
+       "F"
+      ],
+      [
+       8,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 387,
+   "from": "Thistleburrow",
+   "to": "Salt Mine Galleries",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the owl-watch bough",
+     "caption": "A low bough where an owl pretends not to see you.",
+     "rows": [
+      "######################",
+      "S..##.################",
+      "#,,.,...,F..,F.#######",
+      "#.#,.###..####,.######",
+      "#########,,##.,#####.#",
+      "##########...,...,,..9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       2,
+       "F"
+      ],
+      [
+       13,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hollow oak",
+     "caption": "An oak so hollow it could host tea for six.",
+     "rows": [
+      "######################",
+      "#######F.,...######..#",
+      "##########F#######.,.#",
+      "##########..####,,.#,#",
+      "####..#,.,......,,#,,9",
+      ".,....,.,,,#..########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       1,
+       "F"
+      ],
+      [
+       10,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the lantern line to Salt Mine Galleries",
+     "caption": "A line of old lanterns leads to Salt Mine Galleries. Please bring your own light.",
+     "rows": [
+      "######################",
+      "############.F#,.E,,##",
+      "############,,,.F.#..9",
+      "###.#######..#########",
+      ".....,####..##########",
+      "#####.,,...###########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       1,
+       "F"
+      ],
+      [
+       17,
+       1,
+       "E"
+      ],
+      [
+       16,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 388,
+   "from": "Haynook",
+   "to": "Stork Chimney Village",
+   "land": "wetland",
+   "sections": [
+    {
+     "feature": "the frog choir",
+     "caption": "A bank of frogs rehearsing something important.",
+     "rows": [
+      "######################",
+      "#.#####.###..,,#######",
+      "#....,,.##..,..,.,...9",
+      "S.,.##,..,.####,,,,###",
+      "#,########F######.####",
+      "############..F.,,####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       4,
+       "F"
+      ],
+      [
+       14,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the willow curtain",
+     "caption": "Willow branches drape the path like a gentle curtain.",
+     "rows": [
+      "######################",
+      "#####,...######.,##.,#",
+      ".,##...#,,,##.,...,,.9",
+      "#..,.#####,...##.##,##",
+      "###.#######F,.,.F#####",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       4,
+       "F"
+      ],
+      [
+       16,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before Stork Chimney Village",
+     "caption": "The air goes quiet, as if Stork Chimney Village were about to speak.",
+     "rows": [
+      "######################",
+      "######################",
+      "...###################",
+      "##....,#############.#",
+      "####....#,.F.###.....#",
+      "#######...##...,.#,.,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 389,
+   "from": "Tussockgate",
+   "to": "Lair of the Grey Wolf King",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the goat ledge",
+     "caption": "A ledge with a goat. The goat is entirely unbothered.",
+     "rows": [
+      "######################",
+      "#########...##,..###.#",
+      "######.#.,#...,,,..#.9",
+      "######.,.##.####F.,..#",
+      "###....####,F..,.#####",
+      "S..,#,################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       3,
+       "F"
+      ],
+      [
+       12,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the rope bridge",
+     "caption": "A rope bridge, sturdy for its age and fond of swaying.",
+     "rows": [
+      "######################",
+      "#####F#####.,,,F.#####",
+      "......,####F#,########",
+      "##.#,#.,,,....,#######",
+      "#########..,#..#...,.9",
+      "##############...#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       1,
+       "F"
+      ],
+      [
+       15,
+       1,
+       "F"
+      ],
+      [
+       11,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the waterfall mist",
+     "caption": "A waterfall mists the path with tiny rainbows.",
+     "rows": [
+      "######################",
+      "######,.###,.F.,.#####",
+      "##....,.,..,.##F,#####",
+      "#.,#####.#..,,,..,#,.#",
+      "..#########,....,....9",
+      "###############F,#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       1,
+       "F"
+      ],
+      [
+       15,
+       2,
+       "F"
+      ],
+      [
+       15,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the wind notch",
+     "caption": "A notch in the ridge where the wind plays whatever it likes.",
+     "rows": [
+      "######################",
+      "######.###############",
+      "###.#.,#######F#######",
+      "##......##......,..,.#",
+      ".....##....,.,.,,###.9",
+      "#,#.#######.,.,..#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the long approach to Lair of the Grey Wolf King",
+     "caption": "The grass goes silent. Something big is thinking about you from Lair of the Grey Wolf King.",
+     "rows": [
+      "######################",
+      "########,....F########",
+      "########,,#,..########",
+      "###...,,,.....#..E,..9",
+      ".,.,#..######..,##..##",
+      "#############.,####.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       1,
+       "F"
+      ],
+      [
+       17,
+       3,
+       "E"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

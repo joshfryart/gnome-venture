@@ -1,0 +1,1310 @@
+{
+ "routes": [
+  {
+   "route_id": 266,
+   "from": "Gullwell",
+   "to": "Gullstead",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the driftwood arch",
+     "caption": "A bleached arch of driftwood, hung with shells that click in the wind.",
+     "rows": [
+      "######################",
+      "#####.########F.....,#",
+      "#####.,#####.,,,.###.#",
+      "###..,..###.,##F####,9",
+      "#,...........######,,#",
+      "S,,######.#,..,.,,##,#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       1,
+       "F"
+      ],
+      [
+       15,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the kelp-line",
+     "caption": "A line of kelp left by the tide, as neat as a ribbon.",
+     "rows": [
+      "######################",
+      "##########.,....######",
+      "####.#####.F###.######",
+      "..#....###,..##,######",
+      "#...#...#,.#......#..9",
+      "###.#.F....##...,...##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       2,
+       "F"
+      ],
+      [
+       6,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the shell-heap",
+     "caption": "A mound of shells, sorted by someone with strong feelings about spirals.",
+     "rows": [
+      "######################",
+      "#####.....,.,....,,###",
+      "###...#.#,....,#.#...9",
+      "#...#.#.##,#.######.,#",
+      "..,####,.,.,F#########",
+      "#,.###################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 267,
+   "from": "Gullstead",
+   "to": "The Dunewhisper Market",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the tide-pool steps",
+     "caption": "Flat rocks full of small pools, each with a crab who has opinions.",
+     "rows": [
+      "######################",
+      "S..##...,.,###########",
+      "##.,F.################",
+      "###...###,############",
+      "####,..#...,##,F#,####",
+      "####F#.,,.,..........9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       2,
+       "F"
+      ],
+      [
+       15,
+       4,
+       "F"
+      ],
+      [
+       4,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the dune grass sweep",
+     "caption": "Tall dune grass bows all one way, like an audience.",
+     "rows": [
+      "######################",
+      "###########F##...###.9",
+      "########..,....#..##.#",
+      "#####,,.,..#,###.....#",
+      "####,.,,####.####,#,.#",
+      "...,,.######F...F.####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ],
+      [
+       12,
+       5,
+       "F"
+      ],
+      [
+       16,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sea-stack gap",
+     "caption": "A gap between two tall rocks where the spray tickles your ankles.",
+     "rows": [
+      "######################",
+      ".,,#...#.#############",
+      "#,,..#..,###.,,.F.####",
+      "########..F#.#########",
+      "#########....F#####,.#",
+      "############.,.,..,,.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       2,
+       "F"
+      ],
+      [
+       10,
+       3,
+       "F"
+      ],
+      [
+       13,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 272,
+   "from": "The Dunewhisper Market",
+   "to": "Brineburrow",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the barnacle wall",
+     "caption": "A rock wall crusted with barnacles. Please do not tickle them.",
+     "rows": [
+      "######################",
+      "#####,.....#..########",
+      "#####..#####,F########",
+      "###.#.#.###,...,.#...#",
+      "#.......,,..###,,.,..9",
+      "S.###,####.###########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the shell-heap",
+     "caption": "A mound of shells, sorted by someone with strong feelings about spirals.",
+     "rows": [
+      "######################",
+      "##.########,###F.#.###",
+      "##.#######...,....,.,#",
+      "#.....##..,##..##....9",
+      "..##,..,..##.F####,###",
+      "###########......#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       15,
+       1,
+       "F"
+      ],
+      [
+       13,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the kelp-line",
+     "caption": "A line of kelp left by the tide, as neat as a ribbon.",
+     "rows": [
+      "######################",
+      "#......####....,,...##",
+      "#....#.,..,.####,.,.,9",
+      "..##..#..,.########..#",
+      "#..#####.,F..,,.####.#",
+      "########F.############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       4,
+       "F"
+      ],
+      [
+       8,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 276,
+   "from": "The Dunewhisper Market",
+   "to": "Meadowbrook",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the bramble gap",
+     "caption": "A gap in the brambles, wide enough for one gnome and one opinion.",
+     "rows": [
+      "######################",
+      "S,....#.###......#,.##",
+      "#####....F,.,,.,,,#,.#",
+      "######..,..####.#....9",
+      "#########....F..######",
+      "#########F############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       2,
+       "F"
+      ],
+      [
+       13,
+       4,
+       "F"
+      ],
+      [
+       9,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the old milestone",
+     "caption": "A mossy milestone with the numbers worn off. It still points confidently.",
+     "rows": [
+      "######################",
+      "###,.#,.,,,,....,,,###",
+      "#,......F#...,#F.,...9",
+      "..#.#.#####,####.##,.#",
+      "####################.#",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       2,
+       "F"
+      ],
+      [
+       15,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the dandelion drift",
+     "caption": "A drift of dandelion fluff, ready to leave at the first sneeze.",
+     "rows": [
+      "######################",
+      "#,.,...F#.############",
+      ".,..#.,.#..###########",
+      "###.#..,....##########",
+      "#######F###,.,.##.,#,9",
+      "#######.####.,,......#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       1,
+       "F"
+      ],
+      [
+       7,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 390,
+   "from": "Gullwell",
+   "to": "Windford",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the sleepy windmill",
+     "caption": "A little windmill turning slowly, in no hurry at all.",
+     "rows": [
+      "######################",
+      "###.....####,####.####",
+      "##.,,#.....,.##..,...9",
+      "#...##.##F##.,..F.,..#",
+      "S,#############.#,.,##",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       3,
+       "F"
+      ],
+      [
+       16,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the lonely scarecrow",
+     "caption": "A scarecrow with a very small hat. The crows seem to like him.",
+     "rows": [
+      "######################",
+      "##########...,...,####",
+      "..#########,,F.#######",
+      "#.....#.,....,########",
+      "##,,#.,.,.#F#,,.###..9",
+      "######.#######,.,....#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       2,
+       "F"
+      ],
+      [
+       11,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 391,
+   "from": "Gullstead",
+   "to": "Prairieden",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the hay-cart ruts",
+     "caption": "Two deep ruts from a cart that has long since gone home.",
+     "rows": [
+      "######################",
+      "##########.....##...##",
+      "#########.,.,......,.9",
+      "########,.##.F.,###..#",
+      "S.,.#...,###.##.######",
+      "#,#..,,.####..,.,.####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the picnic knoll",
+     "caption": "A flat green knoll with a dent in it exactly the shape of a picnic.",
+     "rows": [
+      "######################",
+      "##..####..####F###...#",
+      "...,......####....,..9",
+      "####,..,,.....,###,,,#",
+      "####.,###.#.,#####,###",
+      "####,#######.#####,###",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       1,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 392,
+   "from": "Brineburrow",
+   "to": "Craghollow",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the rope bridge",
+     "caption": "A rope bridge, sturdy for its age and fond of swaying.",
+     "rows": [
+      "######################",
+      "######################",
+      "######################",
+      "#,######,.,###########",
+      "S...###..#.F..,.#.##.9",
+      "#.,.....#######,....,#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the goat ledge",
+     "caption": "A ledge with a goat. The goat is entirely unbothered.",
+     "rows": [
+      "######################",
+      "####..#.##F#,,.###...#",
+      "##...,.,#.,..#.....#,9",
+      "#.,####...##F##..#####",
+      "..#####..F..,#########",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       1,
+       "F"
+      ],
+      [
+       12,
+       3,
+       "F"
+      ],
+      [
+       9,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 393,
+   "from": "Meadowbrook",
+   "to": "Cragmead",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the stone hut",
+     "caption": "A little stone hut with a chimney and no one at home.",
+     "rows": [
+      "######################",
+      "######################",
+      "#########,#,F....#####",
+      "########,.,.###,..,..9",
+      "S,.####.,,,,.,....,.,#",
+      "##......,###..#,##,###",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the echo wall",
+     "caption": "A rock wall that gives your own voice back, only cheekier.",
+     "rows": [
+      "######################",
+      "######################",
+      "##########F..F..F#####",
+      "...#####....#,,,.##.,#",
+      "#.,,......,.,.##,.,..9",
+      "######..##,#######..##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       2,
+       "F"
+      ],
+      [
+       13,
+       2,
+       "F"
+      ],
+      [
+       16,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 394,
+   "from": "Gullwell",
+   "to": "Ambercrest",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the trader's tent poles",
+     "caption": "Poles from a trader's tent, left up in case they return.",
+     "rows": [
+      "######################",
+      "S.#########,F#########",
+      "#...F.,....,..########",
+      "#.#..,#,..,.....#.####",
+      "#####...#..,#.....##.9",
+      "################,....#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       1,
+       "F"
+      ],
+      [
+       4,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the salt flat",
+     "caption": "A flat of white salt that crunches pleasantly.",
+     "rows": [
+      "######################",
+      "#####.,..,...,.....#.9",
+      "####...F###.,####....#",
+      "#....#.####.#####.##.#",
+      ".,.#.#.,....##########",
+      "####.#################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 395,
+   "from": "Gullstead",
+   "to": "Amberholt",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the mirage pool",
+     "caption": "A pool that is mostly shimmer, and a little bit not.",
+     "rows": [
+      "######################",
+      "#######F##############",
+      "#######...#########.##",
+      "#####...#..#,..###..##",
+      "S.....#F##..,.,.##...9",
+      "#,.#######.#F.#...,.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       1,
+       "F"
+      ],
+      [
+       7,
+       4,
+       "F"
+      ],
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the cactus garden",
+     "caption": "Cactus in a neat row. Somebody waters them. Somebody is brave.",
+     "rows": [
+      "######################",
+      "######################",
+      "#####...F..####F#.####",
+      "##########,#...,,.#.##",
+      "..#.#####F....###....#",
+      "#...,....,,,..######.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       2,
+       "F"
+      ],
+      [
+       15,
+       2,
+       "F"
+      ],
+      [
+       9,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 396,
+   "from": "Brineburrow",
+   "to": "Sandbottom",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the dry riverbed",
+     "caption": "A river that left years ago and kept the bed made.",
+     "rows": [
+      "######################",
+      "#.##...,#######.##,..#",
+      "S....#.,.####.#,.....9",
+      "#...............,,####",
+      "#,###.#...#,#.###.####",
+      "########F.....########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sand-ripple lane",
+     "caption": "Sand rippled like a washboard in neat lines.",
+     "rows": [
+      "######################",
+      "#####.,....###########",
+      ".,..#F.###############",
+      "###....#F#############",
+      "#####....,######...#.#",
+      "#####.....,.....,#...9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       2,
+       "F"
+      ],
+      [
+       8,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 397,
+   "from": "Meadowbrook",
+   "to": "Spice Souk",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the bottle post",
+     "caption": "A post with a bottle on top. There is a note inside. It says 'hello'.",
+     "rows": [
+      "######################",
+      "###########F##########",
+      "###########..#######.9",
+      "####.###,.......####.#",
+      "#......#..##..,..###.#",
+      "S.##.#...#######,.,..#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the Spice Souk path",
+     "caption": "A smell of something warm drifts down the path from Spice Souk.",
+     "rows": [
+      "######################",
+      "#.....##F..#########.9",
+      "..#.#..#....F##..###.#",
+      "######.,.##...,..,...#",
+      "##############F###.,.#",
+      "#########,.....#####.#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       1,
+       "F"
+      ],
+      [
+       12,
+       2,
+       "F"
+      ],
+      [
+       14,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 398,
+   "from": "Gullwell",
+   "to": "The Hanging Garden Ruins",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the picnic knoll",
+     "caption": "A flat green knoll with a dent in it exactly the shape of a picnic.",
+     "rows": [
+      "######################",
+      "######,..,F.#.,#.##,##",
+      "S,...,,.##,....,,##,.9",
+      "###.,......#####..,,##",
+      "######,,.#############",
+      "#######F.#############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       1,
+       "F"
+      ],
+      [
+       7,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the old milestone",
+     "caption": "A mossy milestone with the numbers worn off. It still points confidently.",
+     "rows": [
+      "######################",
+      "#.,..#..,..,.####,...9",
+      "...#,,..#,.#,.##....##",
+      "####.####.,##...,#.###",
+      "####F########.##...###",
+      "###########.F..,.#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       4,
+       "F"
+      ],
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the The Hanging Garden Ruins gates",
+     "caption": "Something wonderful is close. You can feel it in your shoes.",
+     "rows": [
+      "######################",
+      "...,###,...,,,,..,..,9",
+      "#........#..#..##.,.##",
+      "###.F#....,.#..#######",
+      "##############.#######",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 399,
+   "from": "Gullstead",
+   "to": "Cedar Sanctuary",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the pine shelf",
+     "caption": "A shelf of pines clinging to a cliff for dear life.",
+     "rows": [
+      "######################",
+      "S.,,,F#####..#########",
+      "##....,.,...,.########",
+      "######.,#..##,,#######",
+      "########...###..#.,.##",
+      "#####.....,####....,.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the cairn pass",
+     "caption": "A pass marked with cairns, each taller than the last.",
+     "rows": [
+      "######################",
+      "######################",
+      "######,,F..F##########",
+      "######F##...##########",
+      "#,.#.....,#..,,##.,#.9",
+      "...,,##.,#####..,.,..#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       2,
+       "F"
+      ],
+      [
+       11,
+       2,
+       "F"
+      ],
+      [
+       6,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before Cedar Sanctuary",
+     "caption": "The air goes quiet, as if Cedar Sanctuary were about to speak.",
+     "rows": [
+      "######################",
+      "######################",
+      "######################",
+      "#####,.,,.####F###.,.#",
+      "...,..#......#..##,..#",
+      "############....,.,#.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 400,
+   "from": "Brineburrow",
+   "to": "The Oasis That Moves",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the cactus garden",
+     "caption": "Cactus in a neat row. Somebody waters them. Somebody is brave.",
+     "rows": [
+      "######################",
+      "##################..##",
+      "#.#,,.#......,####,.##",
+      "#.........###..####..9",
+      "S.###......#,.F###,..#",
+      "#.#####.#..,.......#.#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sand-ripple lane",
+     "caption": "Sand rippled like a washboard in neat lines.",
+     "rows": [
+      "######################",
+      "#####.#..F.#########,9",
+      "#####......,####,,.,.#",
+      "......#.##....#,....##",
+      "##..,######.....##.###",
+      "##.#,###..F...########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       1,
+       "F"
+      ],
+      [
+       10,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the shade awning",
+     "caption": "A faded awning on two poles. Perfect for a very small nap.",
+     "rows": [
+      "######################",
+      "..#..#################",
+      "#....###F.....F#######",
+      "##,#.,##.,####..######",
+      "#####,,,.,.......#,###",
+      "######...F,.####...,.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       2,
+       "F"
+      ],
+      [
+       14,
+       2,
+       "F"
+      ],
+      [
+       9,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before The Oasis That Moves",
+     "caption": "The air goes quiet, as if The Oasis That Moves were about to speak.",
+     "rows": [
+      "######################",
+      "####.###..,..#######,#",
+      "###...,,..,,,..###.,.9",
+      "##,,...#,##.F#..,,..##",
+      "#.,.########.##.###.##",
+      ".,#.#######,.#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 401,
+   "from": "Meadowbrook",
+   "to": "Rose-red Canyon City",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the mirage pool",
+     "caption": "A pool that is mostly shimmer, and a little bit not.",
+     "rows": [
+      "######################",
+      "S....F################",
+      "#.##...,.F..F#########",
+      "#####.....,...######,9",
+      "#####.#.,...#..#,,##.#",
+      "#########.###....,,..#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       1,
+       "F"
+      ],
+      [
+       9,
+       2,
+       "F"
+      ],
+      [
+       12,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the cactus garden",
+     "caption": "Cactus in a neat row. Somebody waters them. Somebody is brave.",
+     "rows": [
+      "######################",
+      "#.,....#####.,#,...#.9",
+      "#..#F#..#.,,.,..##..,#",
+      ".,..###...,########..#",
+      "#..####F###########.##",
+      "#.#####.##############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       2,
+       "F"
+      ],
+      [
+       7,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the red rock arch",
+     "caption": "A rock arch that glows when the sun is low.",
+     "rows": [
+      "######################",
+      ".,,########,F....#####",
+      "#..#############.#####",
+      "##.,######,#####.#####",
+      "#.......##..,.,.,#####",
+      "#,.###.....#.##.,....9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the lantern line to Rose-red Canyon City",
+     "caption": "A line of old lanterns leads to Rose-red Canyon City. Please bring your own light.",
+     "rows": [
+      "######################",
+      "##########..#.,..E,.,9",
+      "#######..,......,##.,#",
+      "#######..#,.###.F#####",
+      "#,...,,.###,..,.,#####",
+      "....,##.,#############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       17,
+       1,
+       "E"
+      ],
+      [
+       16,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 402,
+   "from": "Gullwell",
+   "to": "Tomb of the Sand Scarab",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the dry riverbed",
+     "caption": "A river that left years ago and kept the bed made.",
+     "rows": [
+      "######################",
+      "#####.,##......##,...#",
+      "##,..,..#.####.##..#,9",
+      "S..#.,F.,.#.#......###",
+      "#.#######.,...#..#####",
+      "########F...,#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       3,
+       "F"
+      ],
+      [
+       8,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the well and its rope",
+     "caption": "A well with a rope and a very patient bucket.",
+     "rows": [
+      "######################",
+      "#,.#.....F.###########",
+      ".,....##,,.####....###",
+      "##,#..,#.#..,...#...##",
+      "#####.,,.....#F.#....9",
+      "####,..#F########.##.#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       1,
+       "F"
+      ],
+      [
+       14,
+       4,
+       "F"
+      ],
+      [
+       8,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sand-ripple lane",
+     "caption": "Sand rippled like a washboard in neat lines.",
+     "rows": [
+      "######################",
+      "###########......,...9",
+      "#########,,.,.#F.#.,##",
+      "#.###F....##.#####,###",
+      "..##....####.,########",
+      "#.,...#####,..,..#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       15,
+       2,
+       "F"
+      ],
+      [
+       5,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sun-bleached bones",
+     "caption": "The bones of a very large, very friendly fish. Do not ask.",
+     "rows": [
+      "######################",
+      "....#.,........F####.9",
+      "###...#,##.##..,...#,#",
+      "####.##.#######..,..,#",
+      "######...,F.######.#.#",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       15,
+       1,
+       "F"
+      ],
+      [
+       10,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the threshold of Tomb of the Sand Scarab",
+     "caption": "A wide, scuffed circle of earth. The kind of place a very large friend might sleep.",
+     "rows": [
+      "######################",
+      ".,...,.....,...###..,9",
+      "#..##..#..#.#...,E,,.#",
+      "#####.##F######.,.##.#",
+      "################F..###",
+      "###########,...,.#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       17,
+       2,
+       "E"
+      ],
+      [
+       8,
+       3,
+       "F"
+      ],
+      [
+       16,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

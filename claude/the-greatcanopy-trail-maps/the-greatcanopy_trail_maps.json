@@ -1,0 +1,1192 @@
+{
+ "routes": [
+  {
+   "route_id": 274,
+   "from": "Cloverbottom",
+   "to": "Thistleholt",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the picnic knoll",
+     "caption": "A flat green knoll with a dent in it exactly the shape of a picnic.",
+     "rows": [
+      "######################",
+      "####...,,..#F####,####",
+      "###,.#,###...####.##.#",
+      "##..##.F.,.....#.,,..9",
+      "#.,###########...,...#",
+      "S.,############,..#.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       1,
+       "F"
+      ],
+      [
+       7,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the plank footbridge",
+     "caption": "A plank bridge over a ditch. The ditch is not deep, but the bridge is proud.",
+     "rows": [
+      "######################",
+      "######################",
+      "###.#.F##.#.,..,,,####",
+      ".........,#.,##,..,,.9",
+      "#,,..###.,.,.##,.###,#",
+      "#.#,####,.,,.,..######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the lonely scarecrow",
+     "caption": "A scarecrow with a very small hat. The crows seem to like him.",
+     "rows": [
+      "######################",
+      "######################",
+      "#.####################",
+      ".....########.########",
+      "##.#.,,...#....,,.##.#",
+      "##.##F..#..,....#,,,,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 275,
+   "from": "Thistleholt",
+   "to": "The Greatcanopy Market",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the daisy ring",
+     "caption": "A circle of daisies so even that someone must have measured. Nobody will own up.",
+     "rows": [
+      "######################",
+      "S....#F#,####.,#######",
+      "#.#.,.,..,.,##.##,..##",
+      "#####.....,.....#....9",
+      "##########....,..,#,##",
+      "###########,#######.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the shepherd's wall",
+     "caption": "A dry-stone wall running off into the grass, with a gate that is mostly decoration.",
+     "rows": [
+      "######################",
+      "####....,,.,...#,....9",
+      "##.,.####F##.#,..,#..#",
+      "....F####..F.,.#####,#",
+      "##,.##################",
+      "##.###################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       2,
+       "F"
+      ],
+      [
+       4,
+       3,
+       "F"
+      ],
+      [
+       11,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the dandelion drift",
+     "caption": "A drift of dandelion fluff, ready to leave at the first sneeze.",
+     "rows": [
+      "######################",
+      "..#....#...F##########",
+      "#.,,##.,.,.#######,.##",
+      "######F###.,...#,....9",
+      "##############.,.#####",
+      "###############.######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ],
+      [
+       6,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 280,
+   "from": "The Greatcanopy Market",
+   "to": "Hayglen",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the hay-cart ruts",
+     "caption": "Two deep ruts from a cart that has long since gone home.",
+     "rows": [
+      "######################",
+      "#####.##..,..F########",
+      "#####..#F###.,#F######",
+      "#.#..,.....,,,#....#.9",
+      "S.,,..#....##,.......#",
+      "#.,.#,###..#####.##.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       1,
+       "F"
+      ],
+      [
+       8,
+       2,
+       "F"
+      ],
+      [
+       15,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the picnic knoll",
+     "caption": "A flat green knoll with a dent in it exactly the shape of a picnic.",
+     "rows": [
+      "######################",
+      "######################",
+      "###,######...,,.######",
+      "...,,#####.########.##",
+      "###..F##....#.####...#",
+      "####,.....#,,..,.,,,.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the daisy ring",
+     "caption": "A circle of daisies so even that someone must have measured. Nobody will own up.",
+     "rows": [
+      "######################",
+      "######################",
+      "######################",
+      "###.##################",
+      "##.,####....##F#..#,,#",
+      "....,,,.,##.,...,....9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 403,
+   "from": "Cloverbottom",
+   "to": "Fenmead",
+   "land": "wetland",
+   "sections": [
+    {
+     "feature": "the willow curtain",
+     "caption": "Willow branches drape the path like a gentle curtain.",
+     "rows": [
+      "######################",
+      "####.,,,##.F####...,##",
+      "S.,..##.,,,..,...##.,9",
+      "##..#####F#.,#########",
+      "###########,##########",
+      "###########..,,..#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ],
+      [
+       9,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the peat bank",
+     "caption": "A soft brown bank that smells of rain and old books.",
+     "rows": [
+      "######################",
+      "#,..,.....,,...####,.#",
+      "....,.#####..#.,#.,..9",
+      "#####F#####F###...#,.#",
+      "######,F,.,.###.######",
+      "##############,,######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       3,
+       "F"
+      ],
+      [
+       11,
+       3,
+       "F"
+      ],
+      [
+       7,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 404,
+   "from": "Thistleholt",
+   "to": "Fenwell",
+   "land": "wetland",
+   "sections": [
+    {
+     "feature": "the reed causeway",
+     "caption": "A narrow causeway through tall reeds, nodding hello.",
+     "rows": [
+      "######################",
+      "#####F,,...###########",
+      "#####.####F##.######.#",
+      "#,##..####.,,..####..#",
+      "#..........##,...,...9",
+      "S.####.,..######,..###",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       1,
+       "F"
+      ],
+      [
+       10,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the heron's post",
+     "caption": "A post where a heron stands as if on a stage.",
+     "rows": [
+      "######################",
+      "###############.,,.,.9",
+      "########..F..F.,#,,..#",
+      "#..,####..,.,..#######",
+      "..#,.##...##.#F#######",
+      "####,..,######.#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       2,
+       "F"
+      ],
+      [
+       13,
+       2,
+       "F"
+      ],
+      [
+       14,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 405,
+   "from": "Hayglen",
+   "to": "Heronwick",
+   "land": "wetland",
+   "sections": [
+    {
+     "feature": "the dragonfly bend",
+     "caption": "A bend where dragonflies stitch the air with blue.",
+     "rows": [
+      "######################",
+      "#####..,..,######..,##",
+      "S,#...,#,...,.....#.,9",
+      "#..,##.###,..#,.###.##",
+      "##########F...F.######",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       4,
+       "F"
+      ],
+      [
+       14,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the willow curtain",
+     "caption": "Willow branches drape the path like a gentle curtain.",
+     "rows": [
+      "######################",
+      "#.,.###F##############",
+      "..#..,.,##############",
+      "###,###..####F########",
+      "######,F...#...##...##",
+      "##########...#,...#.,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       1,
+       "F"
+      ],
+      [
+       13,
+       3,
+       "F"
+      ],
+      [
+       7,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 406,
+   "from": "Cloverbottom",
+   "to": "Vineden",
+   "land": "rainforest",
+   "sections": [
+    {
+     "feature": "the fallen giant",
+     "caption": "A fallen tree, so big the path goes along its trunk.",
+     "rows": [
+      "######################",
+      "##...,,.,,..,.......,9",
+      "#,.#..,,######..##.,,#",
+      "S.###F################",
+      "#.####################",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the rain-drum leaf",
+     "caption": "A huge leaf that drums when it rains. It is raining a little.",
+     "rows": [
+      "######################",
+      ".,,###################",
+      "##,..#################",
+      "###.,.#F###########.##",
+      "#####,.,...###.F##,,,#",
+      "##########.....,...#,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       3,
+       "F"
+      ],
+      [
+       15,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 407,
+   "from": "Thistleholt",
+   "to": "Lianawick",
+   "land": "rainforest",
+   "sections": [
+    {
+     "feature": "the rain-drum leaf",
+     "caption": "A huge leaf that drums when it rains. It is raining a little.",
+     "rows": [
+      "######################",
+      "S..##.################",
+      "#...,.#####F...F,#####",
+      "#####,..#...,#.#,..#,9",
+      "#######...,......,.,.#",
+      "########.##,#,.##.#.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       2,
+       "F"
+      ],
+      [
+       15,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the stepping-roots",
+     "caption": "Roots arching out of the mud like a row of green stairs.",
+     "rows": [
+      "######################",
+      "##########...,...,..,9",
+      "#,#######..#.,#,,.####",
+      "..,.####..######.#####",
+      "#..,,,,.,.############",
+      "#,######F,,.,F,#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       5,
+       "F"
+      ],
+      [
+       13,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 408,
+   "from": "Hayglen",
+   "to": "Mistcrest",
+   "land": "rainforest",
+   "sections": [
+    {
+     "feature": "the lantern fruit",
+     "caption": "Small glowing fruits hang low, just to be friendly.",
+     "rows": [
+      "######################",
+      "######################",
+      "#.########F...,.###.##",
+      "S,,#######,####,###.##",
+      "##,,###,..,......,...9",
+      "###....,###.##.,..####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the canopy gap",
+     "caption": "A gap in the canopy where the sun comes down in a column.",
+     "rows": [
+      "######################",
+      "######...,,.####,..###",
+      "###.##,.##,,,.,#..,###",
+      "###..,.#######...#.,.9",
+      ".,..,,,###########,###",
+      "##.###.,F,,.##########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 409,
+   "from": "Cloverbottom",
+   "to": "Driftglen",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the barnacle wall",
+     "caption": "A rock wall crusted with barnacles. Please do not tickle them.",
+     "rows": [
+      "######################",
+      "S,.,#...#,.......#.#.9",
+      "#.#...#...#F###F,....#",
+      "###########.########.#",
+      "###################..#",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       2,
+       "F"
+      ],
+      [
+       15,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the shell-heap",
+     "caption": "A mound of shells, sorted by someone with strong feelings about spirals.",
+     "rows": [
+      "######################",
+      "...######.###F########",
+      "##,.#####.#.#.########",
+      "###.,.,.F....,######.#",
+      "####,.#,..###...,#.#.9",
+      "####.########F##,....#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       1,
+       "F"
+      ],
+      [
+       8,
+       3,
+       "F"
+      ],
+      [
+       13,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 410,
+   "from": "Thistleholt",
+   "to": "Pebblenook",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the sea-stack gap",
+     "caption": "A gap between two tall rocks where the spray tickles your ankles.",
+     "rows": [
+      "######################",
+      "#############..#####,9",
+      "#####.#F.....,,..#..,#",
+      "##..,..,,..####,...,.#",
+      "##.,##.,##.####..#.###",
+      "S..###.###F,..,.F#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       2,
+       "F"
+      ],
+      [
+       10,
+       5,
+       "F"
+      ],
+      [
+       16,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the driftwood arch",
+     "caption": "A bleached arch of driftwood, hung with shells that click in the wind.",
+     "rows": [
+      "######################",
+      "..,#.....,.###########",
+      "#.....#.,#####..####.#",
+      "###,....,.##..,..#...9",
+      "#######..,.#..##...,##",
+      "##########...F###.####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 411,
+   "from": "Hayglen",
+   "to": "Drum Circle Market",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the sleepy windmill",
+     "caption": "A little windmill turning slowly, in no hurry at all.",
+     "rows": [
+      "######################",
+      "S.######.F############",
+      "#,..###F#.############",
+      "###..##,.,.###,#######",
+      "###.,....#,.#,.####,.#",
+      "####F#####...,,......9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       1,
+       "F"
+      ],
+      [
+       7,
+       2,
+       "F"
+      ],
+      [
+       4,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the last turn to Drum Circle Market",
+     "caption": "A little sign, hand-painted: 'Rest Here'.",
+     "rows": [
+      "######################",
+      "########F.#..,###,.,.9",
+      "#######,...,......####",
+      "#.#.F#.,,.#######.####",
+      "#......F,.############",
+      "..###.##.#############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       1,
+       "F"
+      ],
+      [
+       4,
+       3,
+       "F"
+      ],
+      [
+       7,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 412,
+   "from": "Cloverbottom",
+   "to": "Mud Mosque Library",
+   "land": "wetland",
+   "sections": [
+    {
+     "feature": "the heron's post",
+     "caption": "A post where a heron stands as if on a stage.",
+     "rows": [
+      "######################",
+      "####..,...####..,..,.9",
+      "##..,####......#######",
+      "##..######,,##########",
+      "S.,#######,###########",
+      "#########,...F,#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the reed causeway",
+     "caption": "A narrow causeway through tall reeds, nodding hello.",
+     "rows": [
+      "######################",
+      "...###....F,##########",
+      "##..##.###############",
+      "###..,..##########..##",
+      "######F,..F...##,,.,.#",
+      "#########,..#,.,.###,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       1,
+       "F"
+      ],
+      [
+       6,
+       4,
+       "F"
+      ],
+      [
+       10,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before Mud Mosque Library",
+     "caption": "The air goes quiet, as if Mud Mosque Library were about to speak.",
+     "rows": [
+      "######################",
+      "######################",
+      "######################",
+      "###################.,#",
+      "###..####..#F.,..,,.,#",
+      ".,....,............#,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 413,
+   "from": "Thistleholt",
+   "to": "Gorilla Glade",
+   "land": "rainforest",
+   "sections": [
+    {
+     "feature": "the fallen giant",
+     "caption": "A fallen tree, so big the path goes along its trunk.",
+     "rows": [
+      "######################",
+      "#######...,F.#######.#",
+      "######....##.,,..,...9",
+      "#####,.#######..#,.,##",
+      "##.#.,###########..###",
+      "S,,..#################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the vine bridge",
+     "caption": "A bridge of woven vines that hums when the wind comes through.",
+     "rows": [
+      "######################",
+      "#.##########..,.######",
+      "...###F##,#..#..###,##",
+      "#.,,.,.##.,.##,...,,##",
+      "##...#...,.####,,.,..9",
+      "########.#.,.,,.######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the giant fern glade",
+     "caption": "Ferns taller than a gnome, nodding in the drip.",
+     "rows": [
+      "######################",
+      "###########F##########",
+      "#########..,######.,,#",
+      "###,..#...#..###....,9",
+      ".,.,#...###.,,.,.#####",
+      "#.####......##########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before Gorilla Glade",
+     "caption": "The air goes quiet, as if Gorilla Glade were about to speak.",
+     "rows": [
+      "######################",
+      "######################",
+      "#,####################",
+      "..#.######....F,#..###",
+      "#....#####.####..,,.##",
+      "##....,.,..,..,,.##.,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 414,
+   "from": "Hayglen",
+   "to": "The Canopy Bridges",
+   "land": "rainforest",
+   "sections": [
+    {
+     "feature": "the orchid tree",
+     "caption": "A tree dressed head to toe in orchids.",
+     "rows": [
+      "######################",
+      "######################",
+      "################.#####",
+      "S..#############F.####",
+      "#.,##,.F##.##..#..,..#",
+      "##,..,.,.,,,...,.,,#.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       3,
+       "F"
+      ],
+      [
+       7,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the giant fern glade",
+     "caption": "Ferns taller than a gnome, nodding in the drip.",
+     "rows": [
+      "######################",
+      "######################",
+      "######################",
+      "#################.#..#",
+      "##,#######.F####.,.,.#",
+      ".,,.,,.,.,...,..,.,#,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the fallen giant",
+     "caption": "A fallen tree, so big the path goes along its trunk.",
+     "rows": [
+      "######################",
+      "#######.###,..,##...##",
+      "######......F#,,...,,9",
+      "######..######...,####",
+      "#......#######F#.#####",
+      "..##,.###...F..#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       2,
+       "F"
+      ],
+      [
+       14,
+       4,
+       "F"
+      ],
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the mine mouth of The Canopy Bridges",
+     "caption": "The mouth of The Canopy Bridges breathes cool air and a hint of old echoes.",
+     "rows": [
+      "######################",
+      "##.#,,..##############",
+      ".,.#,.#......,########",
+      "#.,,.##...##...#.E...9",
+      "#######,.,F.,#.....###",
+      "################,#.###",
+      "######################"
+     ],
+     "tokens": [
+      [
+       17,
+       3,
+       "E"
+      ],
+      [
+       10,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 415,
+   "from": "Cloverbottom",
+   "to": "Hollow of the Silverback Spider",
+   "land": "rainforest",
+   "sections": [
+    {
+     "feature": "the rain-drum leaf",
+     "caption": "A huge leaf that drums when it rains. It is raining a little.",
+     "rows": [
+      "######################",
+      "S,######..,,,,########",
+      "#..##########F########",
+      "#....######.,.,#######",
+      "####..##........######",
+      "#####.,.,.#####.,....9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the vine bridge",
+     "caption": "A bridge of woven vines that hums when the wind comes through.",
+     "rows": [
+      "######################",
+      "##########,..,########",
+      "###.##.....#,,.#####.9",
+      "##..,.,..F###..,,###.#",
+      "#.,..#.#.,######,....#",
+      "..####....F.#####..,.#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       3,
+       "F"
+      ],
+      [
+       10,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the stepping-roots",
+     "caption": "Roots arching out of the mud like a row of green stairs.",
+     "rows": [
+      "######################",
+      "#.......F..###########",
+      "..##,.,###.#F#########",
+      "#.####,,.,,....##.####",
+      "#######.,###.#...,..##",
+      "########.###,#F..,...9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       1,
+       "F"
+      ],
+      [
+       12,
+       2,
+       "F"
+      ],
+      [
+       14,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the orchid tree",
+     "caption": "A tree dressed head to toe in orchids.",
+     "rows": [
+      "######################",
+      "#######......#########",
+      "###.######.#F####,...#",
+      "##,,.,.#..,,.#,,.,#,,9",
+      "##..##,,..,.,,.#F##,.#",
+      ".,.##F.###.#,###..####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       2,
+       "F"
+      ],
+      [
+       16,
+       4,
+       "F"
+      ],
+      [
+       5,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the threshold of Hollow of the Silverback Spider",
+     "caption": "A wide, scuffed circle of earth. The kind of place a very large friend might sleep.",
+     "rows": [
+      "######################",
+      "###########.##########",
+      "########.#F.####.#####",
+      "..####.,.#..,.,..#####",
+      "#..##.,....##....E...9",
+      "##,...,.,.###F####,.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       2,
+       "F"
+      ],
+      [
+       17,
+       4,
+       "E"
+      ],
+      [
+       13,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

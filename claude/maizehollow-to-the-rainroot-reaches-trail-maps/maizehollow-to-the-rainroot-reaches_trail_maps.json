@@ -1,0 +1,97 @@
+{
+ "routes": [
+  {
+   "route_id": 245,
+   "from": "Jadedell",
+   "to": "Barleyglen",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the old milestone",
+     "caption": "A mossy milestone with the numbers worn off. It still points confidently.",
+     "rows": [
+      "######################",
+      "########F...F.,...,.,9",
+      "#####,#.,.#...,.##...#",
+      "#,###..,,,..##.#######",
+      "S,#.,,########.#######",
+      "#,....################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       1,
+       "F"
+      ],
+      [
+       12,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the picnic knoll",
+     "caption": "A flat green knoll with a dent in it exactly the shape of a picnic.",
+     "rows": [
+      "######################",
+      ".,....,,.....,.#######",
+      "######F#.F#.##...,,###",
+      "########.########...,#",
+      "#######.,.,,F####.#.,#",
+      "###################,.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       2,
+       "F"
+      ],
+      [
+       9,
+       2,
+       "F"
+      ],
+      [
+       12,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the wind-combed meadow",
+     "caption": "Grass lying down in one direction, as if told to. A kite string trails over the path.",
+     "rows": [
+      "######################",
+      "######.F...F##########",
+      "######,.###########.##",
+      "###,#..,.######F##...#",
+      "#,....,.,....,.,,.,#,9",
+      ".,...####..#...,,.####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       1,
+       "F"
+      ],
+      [
+       11,
+       1,
+       "F"
+      ],
+      [
+       15,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

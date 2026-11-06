@@ -1,0 +1,82 @@
+{
+ "routes": [
+  {
+   "route_id": 289,
+   "from": "Poppythorpe",
+   "to": "Poppywell",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the dandelion drift",
+     "caption": "A drift of dandelion fluff, ready to leave at the first sneeze.",
+     "rows": [
+      "######################",
+      "#..#########.#########",
+      "S,####.###.#,.########",
+      "#,..,..F##.......,..,#",
+      "##,.,#..#...##F..#...9",
+      "#######...#,F...,#.###",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       3,
+       "F"
+      ],
+      [
+       14,
+       4,
+       "F"
+      ],
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hay-cart ruts",
+     "caption": "Two deep ruts from a cart that has long since gone home.",
+     "rows": [
+      "######################",
+      "################.#####",
+      "######,#########....##",
+      "##.###..#,#####....,,9",
+      "..,#.,..,.##.#..####,#",
+      "#.,,,.F##....,.,######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the shepherd's wall",
+     "caption": "A dry-stone wall running off into the grass, with a gate that is mostly decoration.",
+     "rows": [
+      "######################",
+      "#################.####",
+      "#####.F.,.,#..#.#.####",
+      "...#.#####.#,,.....#.#",
+      "#,.,.#..#.,....#,#..,9",
+      "##.,...,....##########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

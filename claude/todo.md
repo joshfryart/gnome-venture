@@ -28,7 +28,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - DECIDED 2026-11-05: upkeep: anyone can pay it, no one owes it; stop just degrades if not paid (see section 4). Tile walks: keep ~40% extra fights, add Sneak and Hunt buttons (section 4). Region maps: Josh sends real route maps (section 3 line below). Pet shops and Puzzles: already open, so lane E is unblocked.
 - Stage art APPROVED 2026-11-05 (contact sheet). `derived-<land>/` files are byte-identical to `game/assets/img/scenes/`, so already installed; nothing to copy.
 - DECIDED: craftmap 14 scenes: DRAW (not started). Acts: do not redraw all 1,667, keep stills, draw ~15 state props + 4 kind cards (see living-stops plan). Still open: P7 art order; 480x270 canvas final?
-- Josh to send real route maps for the other 11 regions (`claude/prompt-route-maps.md`, `claude/route-list.md`); stand-ins (`ART_LAND`) stay until then.
+- Route maps for all 230 other routes are now GENERATED (tools/gen_trail_maps.py, claude/*-trail-maps/, baked into trail_maps.json, 22 wide, ART_LAND stand-ins, no landmark sprites). They are placeholder-quality layouts: Josh can replace any region with hand-made maps from claude/prompt-route-maps.md and re-bake with --route=N; landmark art (maplewold_landmarks.json style) is still open.
 - Admin upload `uploads/items/<slug>.png` shadows `assets/img/ph/` (reason an item can show old art).
 
 ## 4. CODE: open

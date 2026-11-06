@@ -1,0 +1,1295 @@
+{
+ "routes": [
+  {
+   "route_id": 270,
+   "from": "Newtdell",
+   "to": "Rushdell",
+   "land": "wetland",
+   "sections": [
+    {
+     "feature": "the stilt-house",
+     "caption": "A house on stilts, with a ladder that has gone for a walk.",
+     "rows": [
+      "######################",
+      "##############,,######",
+      "#,###F..,,.##......###",
+      "S,##,.#.#.F...#.#..###",
+      "#.,.,...,....#####..,9",
+      "######.,#.,#F######,,#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       2,
+       "F"
+      ],
+      [
+       10,
+       3,
+       "F"
+      ],
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the reed causeway",
+     "caption": "A narrow causeway through tall reeds, nodding hello.",
+     "rows": [
+      "######################",
+      "############,#########",
+      "###..,,.#.#....###.###",
+      "##..###.,,,.##.,...,.9",
+      "..,#######.####..#####",
+      "#####.,,..,#####F#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the willow curtain",
+     "caption": "Willow branches drape the path like a gentle curtain.",
+     "rows": [
+      "######################",
+      "######F##.#,.######,.9",
+      "#..##.,......,###,..,#",
+      ".,....#.,.,##.....,.##",
+      "#.#..##########.#.####",
+      "############,,.,,.####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       1,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 271,
+   "from": "Rushdell",
+   "to": "Spicepeak Market",
+   "land": "wetland",
+   "sections": [
+    {
+     "feature": "the heron's post",
+     "caption": "A post where a heron stands as if on a stage.",
+     "rows": [
+      "######################",
+      "###,#.F###############",
+      "##.....,.,####.#######",
+      "S..,,..##,,....,.###.9",
+      "##########F......,##.#",
+      "##########....,F#...,#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       1,
+       "F"
+      ],
+      [
+       10,
+       4,
+       "F"
+      ],
+      [
+       15,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the boardwalk gap",
+     "caption": "A boardwalk with one plank missing. A neat little hop.",
+     "rows": [
+      "######################",
+      "#######...############",
+      "#..###,.,,.###.###.###",
+      ".,,.....##...,..,..,.9",
+      "##.##.####.,,##,####,#",
+      "#####...,F.###########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the frog choir",
+     "caption": "A bank of frogs rehearsing something important.",
+     "rows": [
+      "######################",
+      "##.,,######F....,###.9",
+      "#..#,,##..,.#..#.....#",
+      "..###.,.,#########.###",
+      "######..##########.###",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 278,
+   "from": "Heronby",
+   "to": "Cloverburrow",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the shepherd's wall",
+     "caption": "A dry-stone wall running off into the grass, with a gate that is mostly decoration.",
+     "rows": [
+      "######################",
+      "###########,####F#####",
+      "S..#.F,##.#...,,,#####",
+      "#..,.#,,.,.,.#,,.#...9",
+      "####,...,....#.,,,.###",
+      "####,.#..F,..###.#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       1,
+       "F"
+      ],
+      [
+       5,
+       2,
+       "F"
+      ],
+      [
+       9,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the clover patch",
+     "caption": "A clover patch. Someone has already checked every leaf for luck.",
+     "rows": [
+      "######################",
+      "###...###.....,...,#.9",
+      "##,.#.....######,...,#",
+      ".,.####..F#########,##",
+      "##,####.,#############",
+      "########.,F..,########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       3,
+       "F"
+      ],
+      [
+       10,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the old milestone",
+     "caption": "A mossy milestone with the numbers worn off. It still points confidently.",
+     "rows": [
+      "######################",
+      "....##################",
+      "##..,F,###############",
+      "###...##########.,####",
+      "###..,..,.,.#,.....,##",
+      "####..,.F.....###,#,.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       2,
+       "F"
+      ],
+      [
+       8,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 279,
+   "from": "Cloverburrow",
+   "to": "Spicepeak Market",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the wind-combed meadow",
+     "caption": "Grass lying down in one direction, as if told to. A kite string trails over the path.",
+     "rows": [
+      "######################",
+      "######.F....##########",
+      "S.,###.##.#.#..#######",
+      "#,...F..#,,.,.,,,.##.9",
+      "##....,...,,##.,.,.,,#",
+      "###...#.#.F#######,,.#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       1,
+       "F"
+      ],
+      [
+       5,
+       3,
+       "F"
+      ],
+      [
+       10,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hay-cart ruts",
+     "caption": "Two deep ruts from a cart that has long since gone home.",
+     "rows": [
+      "######################",
+      "#...#....,..,.,,#,#,.9",
+      "#.,...,###...,F..,,.##",
+      "..,.#.################",
+      "##.###################",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the clover patch",
+     "caption": "A clover patch. Someone has already checked every leaf for luck.",
+     "rows": [
+      "######################",
+      "..,###################",
+      "##.,##F###############",
+      "#..,.#,,,,.,..#####,.#",
+      "##,....,.,#,.,,.,....#",
+      "#####.#,.......###.#.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 287,
+   "from": "Windstead",
+   "to": "Spicepeak Market",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the sleepy windmill",
+     "caption": "A little windmill turning slowly, in no hurry at all.",
+     "rows": [
+      "######################",
+      "#,.#####.....,#......9",
+      "S,###,#..##.#...F...##",
+      "#,..,.,.###.F....,,###",
+      "#......###############",
+      "####.#################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       2,
+       "F"
+      ],
+      [
+       12,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hay-cart ruts",
+     "caption": "Two deep ruts from a cart that has long since gone home.",
+     "rows": [
+      "######################",
+      "..####################",
+      "#,.,############F##..#",
+      "#...###########,.#,..#",
+      "###.,#,,#,...,.,...#.#",
+      "####.....,#...#,.#.#,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the old milestone",
+     "caption": "A mossy milestone with the numbers worn off. It still points confidently.",
+     "rows": [
+      "######################",
+      "######,..F,.##########",
+      "########,#############",
+      "########.,###F.#######",
+      "####...,,.,.#,,.#.####",
+      "..,..####.#..,.,..,.,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       1,
+       "F"
+      ],
+      [
+       13,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 288,
+   "from": "Spicepeak Market",
+   "to": "Poppythorpe",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the clover patch",
+     "caption": "A clover patch. Someone has already checked every leaf for luck.",
+     "rows": [
+      "######################",
+      "###.###########.#....#",
+      "##....,##,.###....#..#",
+      "#..#..,..,..#..####..9",
+      "S.###.#..,,..,########",
+      "#.###....F.###########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the wind-combed meadow",
+     "caption": "Grass lying down in one direction, as if told to. A kite string trails over the path.",
+     "rows": [
+      "######################",
+      "#############F,,####.9",
+      "#####....F,###.#####.#",
+      "..##.#.####..,.###...#",
+      "#,.,,#..F##,.#..,....#",
+      "##...,.,....##.##..###",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       1,
+       "F"
+      ],
+      [
+       9,
+       2,
+       "F"
+      ],
+      [
+       8,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the lonely scarecrow",
+     "caption": "A scarecrow with a very small hat. The crows seem to like him.",
+     "rows": [
+      "######################",
+      "....F,,,...#####..#,##",
+      "###....,#######....,,#",
+      "####.,.,,#####,..,,#.9",
+      "######.......,,#.#####",
+      "########,.,#,#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       1,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 292,
+   "from": "Spicepeak Market",
+   "to": "Leafmead",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the root-tangle crossing",
+     "caption": "Roots knot across the path like a puzzle with one answer: step high.",
+     "rows": [
+      "######################",
+      "###########F##..######",
+      "#######,,#.....,.,...9",
+      "##.....,...#,.##,...##",
+      "S...##....,..#########",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the bluebell glade",
+     "caption": "A glade of bluebells that seems to ring if you listen closely.",
+     "rows": [
+      "######################",
+      "#..#.....,#F#####.####",
+      ".......,....,.....,#.9",
+      "##,#######,.,####.,.,#",
+      "############...,.,#.##",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the lantern branch",
+     "caption": "An old lantern hangs from a branch. Somebody trims its wick.",
+     "rows": [
+      "######################",
+      "##..##################",
+      ".....###F..F,.########",
+      "###...#..##...########",
+      "#####,,..###.,.,...###",
+      "########......,,....,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       2,
+       "F"
+      ],
+      [
+       11,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 428,
+   "from": "Newtdell",
+   "to": "Hollowby",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the glow-moss grotto",
+     "caption": "A damp hollow with moss that glows faintly, like a night-light.",
+     "rows": [
+      "######################",
+      "#########..F.,.#######",
+      "#########F##.#########",
+      "###,.##.,.#...#####.,#",
+      "##,..,...,,..,......,9",
+      "S...#..##.##.#..#...##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ],
+      [
+       9,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the acorn scatter",
+     "caption": "Acorns everywhere, as though a squirrel had a very bad day.",
+     "rows": [
+      "######################",
+      "####......#.....######",
+      "##.....,,.....#...,..9",
+      "#..###.####.###,.##.##",
+      ".,.###.####.###F######",
+      "######.F..,.##########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       15,
+       4,
+       "F"
+      ],
+      [
+       7,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 429,
+   "from": "Rushdell",
+   "to": "Cliffmead",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the scree slope",
+     "caption": "A slope of loose small stones that tick and chatter underfoot.",
+     "rows": [
+      "######################",
+      "######################",
+      "######################",
+      "###..#################",
+      "S....,.#.,.,,..####..#",
+      "#,.##F..,##,.#.,..,.,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the waterfall mist",
+     "caption": "A waterfall mists the path with tiny rainbows.",
+     "rows": [
+      "######################",
+      "#######...,.,#########",
+      "##.##,#.##############",
+      "##.##..,,####,#F######",
+      "##...,,.,.##,.#.,#####",
+      ".,,######.,.......,,.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       15,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 430,
+   "from": "Heronby",
+   "to": "Pinecrest",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the echo wall",
+     "caption": "A rock wall that gives your own voice back, only cheekier.",
+     "rows": [
+      "######################",
+      "#######..######,,,####",
+      "#####,....####..#..###",
+      "#,..,,###,.F,.,###...9",
+      "S..#######...,########",
+      "############F#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       3,
+       "F"
+      ],
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the cairn pass",
+     "caption": "A pass marked with cairns, each taller than the last.",
+     "rows": [
+      "######################",
+      "######################",
+      "######################",
+      "...##F################",
+      "##...,########..,.,..#",
+      "###,#..,......,###..,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 431,
+   "from": "Cloverburrow",
+   "to": "Screeden",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the goat ledge",
+     "caption": "A ledge with a goat. The goat is entirely unbothered.",
+     "rows": [
+      "######################",
+      "S,.,.,..,,.F.....,.,.9",
+      "##,##..,.##########,.#",
+      "######################",
+      "######################",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the stone hut",
+     "caption": "A little stone hut with a chimney and no one at home.",
+     "rows": [
+      "######################",
+      "....##################",
+      "#,.....#F....F########",
+      "######,,...##,,.####.#",
+      "######,#.,,.,.,....#.#",
+      "########.##..,##.,...9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       2,
+       "F"
+      ],
+      [
+       13,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 432,
+   "from": "Windstead",
+   "to": "Floating Flower Market",
+   "land": "wetland",
+   "sections": [
+    {
+     "feature": "the peat bank",
+     "caption": "A soft brown bank that smells of rain and old books.",
+     "rows": [
+      "######################",
+      "###########...########",
+      "#######...,.#,.#######",
+      "######.....##.,.,.##.9",
+      "S.##..,#F....F.##..,.#",
+      "#..,.#############..##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       4,
+       "F"
+      ],
+      [
+       13,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the Floating Flower Market path",
+     "caption": "A smell of something warm drifts down the path from Floating Flower Market.",
+     "rows": [
+      "######################",
+      "#.#,.,,#.#############",
+      "#...##...#,,#....#,.,9",
+      "..######.,,..,..,,.,##",
+      "##########.#F##,######",
+      "##########.....,######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 433,
+   "from": "Poppythorpe",
+   "to": "The Silk Road Caravanserai",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the shepherd's wall",
+     "caption": "A dry-stone wall running off into the grass, with a gate that is mostly decoration.",
+     "rows": [
+      "######################",
+      "######,,.#.##.F###,###",
+      "####.,,.,...#........9",
+      "###,.#.##.,,,..###.,##",
+      "##..#########.F#######",
+      "S..#####,,F,..########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       1,
+       "F"
+      ],
+      [
+       14,
+       4,
+       "F"
+      ],
+      [
+       10,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hay-cart ruts",
+     "caption": "Two deep ruts from a cart that has long since gone home.",
+     "rows": [
+      "######################",
+      "##......##.,#,,.,....#",
+      "....#,....#.....,..#,9",
+      "#####,..#.,.##########",
+      "######.###,.##########",
+      "######.F,...##########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before The Silk Road Caravanserai",
+     "caption": "The air goes quiet, as if The Silk Road Caravanserai were about to speak.",
+     "rows": [
+      "######################",
+      "##.#,,###########..###",
+      "....,,.####.....,....9",
+      "#..,#.,,.#,.,.#..,..##",
+      "#,######...#.,#.,..###",
+      "#######,F.###...######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 434,
+   "from": "Leafmead",
+   "to": "Tea Garden Slopes",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the lantern branch",
+     "caption": "An old lantern hangs from a branch. Somebody trims its wick.",
+     "rows": [
+      "######################",
+      "######################",
+      "S..###..,,.F##########",
+      "##..#######.###.######",
+      "##,,,##..,#....,.,.,,#",
+      "####....#.,.##..#....9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the glow-moss grotto",
+     "caption": "A damp hollow with moss that glows faintly, like a night-light.",
+     "rows": [
+      "######################",
+      "##########...#########",
+      "########...#.,########",
+      "#######...###..F####.9",
+      "##.,....######.....,.#",
+      "....###F,..F.##..#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       15,
+       3,
+       "F"
+      ],
+      [
+       7,
+       5,
+       "F"
+      ],
+      [
+       11,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before Tea Garden Slopes",
+     "caption": "The air goes quiet, as if Tea Garden Slopes were about to speak.",
+     "rows": [
+      "######################",
+      "######################",
+      "##.###################",
+      "...,,############.####",
+      "####,...###.,##,.,...#",
+      "#####F#...,...,,#..,.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 435,
+   "from": "Newtdell",
+   "to": "Temple of the Tiger Moth",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the acorn scatter",
+     "caption": "Acorns everywhere, as though a squirrel had a very bad day.",
+     "rows": [
+      "######################",
+      "#####.,F,,....,,.....9",
+      "#####.###...###F######",
+      "#,#.#....,.###########",
+      "S.....#,.#.###########",
+      "###..F,###############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       1,
+       "F"
+      ],
+      [
+       15,
+       2,
+       "F"
+      ],
+      [
+       5,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the root-tangle crossing",
+     "caption": "Roots knot across the path like a puzzle with one answer: step high.",
+     "rows": [
+      "######################",
+      ".,,.#######F.....#####",
+      "#,,.,####...###F,..###",
+      "####..##.....##..#...#",
+      "#####....##,,....,.#.9",
+      "########.####.#####..#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ],
+      [
+       15,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the fern tunnel",
+     "caption": "Ferns arch overhead and drip softly on everyone's hat.",
+     "rows": [
+      "######################",
+      "########...,.F..,,.#.9",
+      "###########....#.,...#",
+      "#..#.#..#.##..####,###",
+      "..,...,,...,.#########",
+      "###,########,#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the threshold of Temple of the Tiger Moth",
+     "caption": "A wide, scuffed circle of earth. The kind of place a very large friend might sleep.",
+     "rows": [
+      "######################",
+      "....,###F,..F,########",
+      "###...##.#,.,.##.#####",
+      "####.,.....#,.#..##..#",
+      "######.#####,...,E...9",
+      "################F.,###",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       1,
+       "F"
+      ],
+      [
+       12,
+       1,
+       "F"
+      ],
+      [
+       17,
+       4,
+       "E"
+      ],
+      [
+       16,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 436,
+   "from": "Rushdell",
+   "to": "Prayer-flag Pass",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the wind notch",
+     "caption": "A notch in the ridge where the wind plays whatever it likes.",
+     "rows": [
+      "######################",
+      "S.,###################",
+      "##.,.###,..,..########",
+      "###,..,#.####,########",
+      "######........######,9",
+      "######,F..#,,,,,.,...#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the scree slope",
+     "caption": "A slope of loose small stones that tick and chatter underfoot.",
+     "rows": [
+      "######################",
+      "#############,....####",
+      "########.,#,..###,,.,9",
+      "#,.,###,...,########.#",
+      "..#...,,#,#.##########",
+      "#.###.,####F.....#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the stone hut",
+     "caption": "A little stone hut with a chimney and no one at home.",
+     "rows": [
+      "######################",
+      "######,,..F.######,###",
+      ".,,###.###..#,......##",
+      "##..#..,##.....##.,.,9",
+      "###,,.#,,..###########",
+      "####.###...###########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before Prayer-flag Pass",
+     "caption": "The air goes quiet, as if Prayer-flag Pass were about to speak.",
+     "rows": [
+      "######################",
+      "###..######...F..#####",
+      "##..,.#########.F###,9",
+      "...##.,.######..,....#",
+      "#######..,,,...####..#",
+      "########..,,##########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       1,
+       "F"
+      ],
+      [
+       16,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 437,
+   "from": "Heronby",
+   "to": "Snowleopard Ledges",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the cairn pass",
+     "caption": "A pass marked with cairns, each taller than the last.",
+     "rows": [
+      "######################",
+      "######...,.F##########",
+      "S,.,...###############",
+      "###.F#,.##########.,.#",
+      "#######,..#....#...#.#",
+      "########,..,##,..###.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ],
+      [
+       4,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the stone hut",
+     "caption": "A little stone hut with a chimney and no one at home.",
+     "rows": [
+      "######################",
+      "########..,,..########",
+      "#####,.#.#######,.#,.#",
+      "##,,.,...#####.......9",
+      "#,...F#.,..#.,.#F#####",
+      ".,########..,.########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       4,
+       "F"
+      ],
+      [
+       16,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the eagle's rest",
+     "caption": "A flat boulder where an eagle likes to think.",
+     "rows": [
+      "######################",
+      "########.,.,F.########",
+      "##########.##.,#######",
+      "....##.,##....#..#..##",
+      "#....,...,.,......#..9",
+      "##.#,.###F#######.,,##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       1,
+       "F"
+      ],
+      [
+       9,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the mine mouth of Snowleopard Ledges",
+     "caption": "The mouth of Snowleopard Ledges breathes cool air and a hint of old echoes.",
+     "rows": [
+      "######################",
+      "##.,..#######..,.#,..9",
+      "##,,#,.,...#.,,,.E.,,#",
+      "#..###.,##,..,########",
+      "..#####.####.#########",
+      "#######,.F.,,#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       17,
+       2,
+       "E"
+      ],
+      [
+       9,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

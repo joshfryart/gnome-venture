@@ -1,0 +1,87 @@
+{
+ "routes": [
+  {
+   "route_id": 281,
+   "from": "Hayglen",
+   "to": "Meadowden",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the bramble gap",
+     "caption": "A gap in the brambles, wide enough for one gnome and one opinion.",
+     "rows": [
+      "######################",
+      "#.....,##,,#,#####...#",
+      "S...#F.,..,...,,#..#.9",
+      "#.#####..#F........#.#",
+      "#######.###.###....#.#",
+      "###########,.F.,.#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       2,
+       "F"
+      ],
+      [
+       10,
+       3,
+       "F"
+      ],
+      [
+       13,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the daisy ring",
+     "caption": "A circle of daisies so even that someone must have measured. Nobody will own up.",
+     "rows": [
+      "######################",
+      "#...#.,,....,..#.....9",
+      "..#.,..#..#F##,,...###",
+      "#,,##.#####....F.,.###",
+      "#,,###################",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       2,
+       "F"
+      ],
+      [
+       15,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the picnic knoll",
+     "caption": "A flat green knoll with a dent in it exactly the shape of a picnic.",
+     "rows": [
+      "######################",
+      ".,,.,#.....,##########",
+      "##.....####.##########",
+      "#####,.,....####F#####",
+      "#########.#,.#..,##.,#",
+      "###########,,..#.,,,.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

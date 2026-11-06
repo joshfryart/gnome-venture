@@ -1,0 +1,1295 @@
+{
+ "routes": [
+  {
+   "route_id": 246,
+   "from": "Barleyglen",
+   "to": "Windwell",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the clover patch",
+     "caption": "A clover patch. Someone has already checked every leaf for luck.",
+     "rows": [
+      "######################",
+      "#########F...,.,.....9",
+      "########,..#,..#######",
+      "########..####,#######",
+      "#...,.,..,####,#######",
+      "S..#,#.##..,F,.#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       1,
+       "F"
+      ],
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the picnic knoll",
+     "caption": "A flat green knoll with a dent in it exactly the shape of a picnic.",
+     "rows": [
+      "######################",
+      ".,..,.##.,,####.....##",
+      "#,.#....,#..,..,#.,,.9",
+      "#.####,.##.F..####,,.#",
+      "######F.###..#########",
+      "###########..,.,,#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       3,
+       "F"
+      ],
+      [
+       6,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the old milestone",
+     "caption": "A mossy milestone with the numbers worn off. It still points confidently.",
+     "rows": [
+      "######################",
+      "#######.######,###.###",
+      ".....,.,.###F#,###,..#",
+      "#,.,.###.,,,..,#,,,#,9",
+      "##########F,##,..#.###",
+      "##########..F...######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       2,
+       "F"
+      ],
+      [
+       10,
+       4,
+       "F"
+      ],
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 247,
+   "from": "Windwell",
+   "to": "The Rainroot Reaches Market",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the lonely scarecrow",
+     "caption": "A scarecrow with a very small hat. The crows seem to like him.",
+     "rows": [
+      "######################",
+      "#####..######,####.,.#",
+      "####...,..#....#..,.,9",
+      "###.,#.,,.,.##...###,#",
+      "#.,.###,F,####.#######",
+      "S..###,.#.F...F#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       4,
+       "F"
+      ],
+      [
+       10,
+       5,
+       "F"
+      ],
+      [
+       14,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the bramble gap",
+     "caption": "A gap in the brambles, wide enough for one gnome and one opinion.",
+     "rows": [
+      "######################",
+      "##,,..##############.9",
+      "...##.,.F#,,..,...#..#",
+      "######..,..,##..#,.,.#",
+      "######F,#..######,..##",
+      "#######.,....#####,###",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       2,
+       "F"
+      ],
+      [
+       6,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the old milestone",
+     "caption": "A mossy milestone with the numbers worn off. It still points confidently.",
+     "rows": [
+      "######################",
+      "..##F######,##########",
+      "#..#..#..#.....#######",
+      "##.....,,,..,..,.,.#.#",
+      "####.,##F###.#.,#...,9",
+      "############,F..,,,..#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       1,
+       "F"
+      ],
+      [
+       8,
+       4,
+       "F"
+      ],
+      [
+       13,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 250,
+   "from": "Thistlebottom",
+   "to": "Flintburrow",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the rope bridge",
+     "caption": "A rope bridge, sturdy for its age and fond of swaying.",
+     "rows": [
+      "######################",
+      "###..,.######..,#....9",
+      "##.,...,..##,.#,,.#..#",
+      "#..###F.,...,####.####",
+      "S,###..##.##F#########",
+      "#.,###,##.,...,#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       3,
+       "F"
+      ],
+      [
+       12,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the switchback bend",
+     "caption": "A tight bend in the path, with a view of the way you just came.",
+     "rows": [
+      "######################",
+      "...,..,.,#############",
+      "####,.##...,##.,..,#.9",
+      "##########,....###...#",
+      "###########F##########",
+      "###########.##########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the goat ledge",
+     "caption": "A ledge with a goat. The goat is entirely unbothered.",
+     "rows": [
+      "######################",
+      "#.####################",
+      "..###########.########",
+      "#..#########,.,F####,#",
+      "##...#..,##..#..#....9",
+      "####.,,,,.,,###,....,#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       15,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 251,
+   "from": "Flintburrow",
+   "to": "The Rainroot Reaches Market",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the switchback bend",
+     "caption": "A tight bend in the path, with a view of the way you just came.",
+     "rows": [
+      "######################",
+      "######################",
+      "###,##################",
+      "S.....##########..####",
+      "###.,.,####.,#....####",
+      "#####F....,,,..#F.,..9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       5,
+       "F"
+      ],
+      [
+       16,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the goat ledge",
+     "caption": "A ledge with a goat. The goat is entirely unbothered.",
+     "rows": [
+      "######################",
+      "########,#####....,,,#",
+      "#####,,...#..,..,.,,.9",
+      "####.,#.#...######.,##",
+      "###..######.##########",
+      ".,..##F,,...##########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the echo wall",
+     "caption": "A rock wall that gives your own voice back, only cheekier.",
+     "rows": [
+      "######################",
+      "##,,#.,.F....#########",
+      ".....,,.####,,F.,,..##",
+      "#######.,.#..,,.#.,..9",
+      "#########,..,#########",
+      "#########,############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       1,
+       "F"
+      ],
+      [
+       14,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 252,
+   "from": "The Rainroot Reaches Market",
+   "to": "Highcove",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the pine shelf",
+     "caption": "A shelf of pines clinging to a cliff for dear life.",
+     "rows": [
+      "######################",
+      "###.#.........,..,#..9",
+      "###.,.##..F,.####...##",
+      "S..,##################",
+      "###.##################",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the switchback bend",
+     "caption": "A tight bend in the path, with a view of the way you just came.",
+     "rows": [
+      "######################",
+      "..##F#################",
+      "#,.#,#################",
+      "##,,.##,.,###..#######",
+      "####....#,.,...,.,...9",
+      "####F######..####...##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       1,
+       "F"
+      ],
+      [
+       4,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the goat ledge",
+     "caption": "A ledge with a goat. The goat is entirely unbothered.",
+     "rows": [
+      "######################",
+      "######################",
+      "####...F##############",
+      "#.#.,#...#.,##########",
+      "...,###...,.,.,#######",
+      "#######,,F,,F..,....,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       2,
+       "F"
+      ],
+      [
+       9,
+       5,
+       "F"
+      ],
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 341,
+   "from": "Barleyglen",
+   "to": "Stoneden",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the pine shelf",
+     "caption": "A shelf of pines clinging to a cliff for dear life.",
+     "rows": [
+      "######################",
+      "S.####################",
+      "#..######.F.,,.#######",
+      "##,,###.,,,....,######",
+      "##....,,..,#,.#.,.,#.9",
+      "############F,####...#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       2,
+       "F"
+      ],
+      [
+       12,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the rope bridge",
+     "caption": "A rope bridge, sturdy for its age and fond of swaying.",
+     "rows": [
+      "######################",
+      "##########.###########",
+      "#.###.F###.,##########",
+      "#.,...###.,.,...######",
+      "..###.....#####.,##,,9",
+      "######,..#######,..,,#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 342,
+   "from": "Windwell",
+   "to": "Figknoll",
+   "land": "rainforest",
+   "sections": [
+    {
+     "feature": "the parrot perch",
+     "caption": "A tall branch where parrots argue in three languages.",
+     "rows": [
+      "######################",
+      "S,,.,...F.,....#######",
+      "#..##...#...F,.#,.####",
+      "#######,.....,,..,...9",
+      "########,,####..###..#",
+      "##############F####.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       1,
+       "F"
+      ],
+      [
+       12,
+       2,
+       "F"
+      ],
+      [
+       14,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the vine bridge",
+     "caption": "A bridge of woven vines that hums when the wind comes through.",
+     "rows": [
+      "######################",
+      "####,......###,.######",
+      "#.....#,,,.,,,,..,.#.9",
+      "...#####,##..###...,.#",
+      "###########..####.####",
+      "#########..F.,.#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 343,
+   "from": "Thistlebottom",
+   "to": "Frondstead",
+   "land": "rainforest",
+   "sections": [
+    {
+     "feature": "the fallen giant",
+     "caption": "A fallen tree, so big the path goes along its trunk.",
+     "rows": [
+      "######################",
+      "S.####################",
+      "#..#F##########,######",
+      "##.,.##########F###.##",
+      "####.,#.######.,..#.,#",
+      "#####,.,,.,....#.....9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       2,
+       "F"
+      ],
+      [
+       15,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the orchid tree",
+     "caption": "A tree dressed head to toe in orchids.",
+     "rows": [
+      "######################",
+      "######################",
+      "#########,.,.#F#######",
+      "####.###....,#...#,###",
+      "####.....,#..,,.,.,..9",
+      "...,.#..###,.....#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 344,
+   "from": "Flintburrow",
+   "to": "Canopyglen",
+   "land": "rainforest",
+   "sections": [
+    {
+     "feature": "the vine bridge",
+     "caption": "A bridge of woven vines that hums when the wind comes through.",
+     "rows": [
+      "######################",
+      "######################",
+      "#.#####F###,,..,,#####",
+      "#......,,,.....,.#..,9",
+      "S.,,###.###...##...###",
+      "##.###################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the giant fern glade",
+     "caption": "Ferns taller than a gnome, nodding in the drip.",
+     "rows": [
+      "######################",
+      "###########.##########",
+      "##########..####,,.###",
+      "...,#.,....,,.,.....,9",
+      "##....F####.##.#,#####",
+      "#####.#####.,.,..#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 345,
+   "from": "Highcove",
+   "to": "Scorchby",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the mirage pool",
+     "caption": "A pool that is mostly shimmer, and a little bit not.",
+     "rows": [
+      "######################",
+      "S...#####.###F########",
+      "##..,..##.###,.#######",
+      "#.,#.#,.......########",
+      "####.###....,..#.###.9",
+      "####.####..###.....,.#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sun-bleached bones",
+     "caption": "The bones of a very large, very friendly fish. Do not ask.",
+     "rows": [
+      "######################",
+      "##...,..#.#...###..#.#",
+      "##,,#,#.....,...,..#.9",
+      "#...,##....,.###.#...#",
+      "..##F,###F##.#########",
+      "#########..,.F.#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       4,
+       "F"
+      ],
+      [
+       9,
+       4,
+       "F"
+      ],
+      [
+       13,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 346,
+   "from": "Barleyglen",
+   "to": "Duneford",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the waystone cluster",
+     "caption": "Three weathered waystones leaning together like old friends.",
+     "rows": [
+      "######################",
+      "#########..##.....,.,#",
+      "######,....,..##..#..9",
+      "###.#,.F####.###.###,#",
+      "S.#,..######,###.#####",
+      "#,..############.#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the trader's tent poles",
+     "caption": "Poles from a trader's tent, left up in case they return.",
+     "rows": [
+      "######################",
+      "#,...,.....,,...,....9",
+      "..#.,....F##..##.,####",
+      "#,.####.##############",
+      "##.####.##############",
+      "#######,,....#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 347,
+   "from": "Windwell",
+   "to": "Gaucho Gnome Ranch",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the daisy ring",
+     "caption": "A circle of daisies so even that someone must have measured. Nobody will own up.",
+     "rows": [
+      "######################",
+      "############...,.#.###",
+      "#####.##,.###.....,..9",
+      "#####F..,,.,,,######,#",
+      "#...#,.,#.############",
+      "S.....###,....,#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the last turn to Gaucho Gnome Ranch",
+     "caption": "A little sign, hand-painted: 'Rest Here'.",
+     "rows": [
+      "######################",
+      "#.######F...,F########",
+      "...###.#.#############",
+      "#..#..,,,,.,##.#######",
+      "#,,,.##...,..#.,######",
+      "###.F#####.#....,.,..9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       1,
+       "F"
+      ],
+      [
+       13,
+       1,
+       "F"
+      ],
+      [
+       4,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 348,
+   "from": "Thistlebottom",
+   "to": "The Sky City Ruins",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the echo wall",
+     "caption": "A rock wall that gives your own voice back, only cheekier.",
+     "rows": [
+      "######################",
+      "##########.,.F..#.####",
+      "##########,,###,.,.#.9",
+      "#########.....,...,,.#",
+      "##..#,.,.,####.####,.#",
+      "S..,..###,############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the rope bridge",
+     "caption": "A rope bridge, sturdy for its age and fond of swaying.",
+     "rows": [
+      "######################",
+      "#....,......,...,.,.,9",
+      ".,#####,.#.,##,#######",
+      "########.#F###########",
+      "#####F.,F,,###########",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       3,
+       "F"
+      ],
+      [
+       5,
+       4,
+       "F"
+      ],
+      [
+       8,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the The Sky City Ruins gates",
+     "caption": "Something wonderful is close. You can feel it in your shoes.",
+     "rows": [
+      "######################",
+      ".......###F#.,,,...###",
+      "######.,.#...#####...9",
+      "########,,,########,.#",
+      "#####.F,...###########",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       1,
+       "F"
+      ],
+      [
+       6,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 349,
+   "from": "Flintburrow",
+   "to": "Condor's Crag",
+   "land": "mountain",
+   "sections": [
+    {
+     "feature": "the stone hut",
+     "caption": "A little stone hut with a chimney and no one at home.",
+     "rows": [
+      "######################",
+      "S.####################",
+      "#,,#####,##..,F..#####",
+      "##.,##.,,.,.F,,,.###.9",
+      "###..,,...,..,.,,.##.#",
+      "###########.,##F#....#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       2,
+       "F"
+      ],
+      [
+       12,
+       3,
+       "F"
+      ],
+      [
+       15,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the echo wall",
+     "caption": "A rock wall that gives your own voice back, only cheekier.",
+     "rows": [
+      "######################",
+      "######################",
+      "#########F,....#######",
+      "...######.########,###",
+      "##,.####.....#####..##",
+      "###,...,,..#.,,...,..9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the switchback bend",
+     "caption": "A tight bend in the path, with a view of the way you just came.",
+     "rows": [
+      "######################",
+      "###########,....,.,,,9",
+      "##...#####,.F#,#.,####",
+      "##...,,,...###########",
+      "#,.#F###.,############",
+      "..#######F############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       2,
+       "F"
+      ],
+      [
+       4,
+       4,
+       "F"
+      ],
+      [
+       9,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the threshold of Condor's Crag",
+     "caption": "A wide, scuffed circle of earth. The kind of place a very large friend might sleep.",
+     "rows": [
+      "######################",
+      ".......,.#############",
+      "######....############",
+      "########F.,###########",
+      "##########.,###..E####",
+      "###########.,,..#.,..9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       3,
+       "F"
+      ],
+      [
+       17,
+       4,
+       "E"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 350,
+   "from": "Highcove",
+   "to": "Pink River Dolphin Pools",
+   "land": "rainforest",
+   "sections": [
+    {
+     "feature": "the parrot perch",
+     "caption": "A tall branch where parrots argue in three languages.",
+     "rows": [
+      "######################",
+      "S.,.......,.,,.,..,..9",
+      "#####F#######F#,.##..#",
+      "######################",
+      "######################",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       5,
+       2,
+       "F"
+      ],
+      [
+       13,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the mist-pool",
+     "caption": "A still pool with mist curling over it like steam from soup.",
+     "rows": [
+      "######################",
+      "..#...,..,....#.######",
+      "#,.,##,F#.,.#.,,.,,#.9",
+      "###,#######.######,.,#",
+      "###########.##########",
+      "######..F..F##########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       2,
+       "F"
+      ],
+      [
+       8,
+       5,
+       "F"
+      ],
+      [
+       11,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the rain-drum leaf",
+     "caption": "A huge leaf that drums when it rains. It is raining a little.",
+     "rows": [
+      "######################",
+      "#.......,#..##.,##,..9",
+      "..#####...,,,....,..##",
+      "#.#######F##..#F.#####",
+      "#############.#.######",
+      "##########..,.F.######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       3,
+       "F"
+      ],
+      [
+       15,
+       3,
+       "F"
+      ],
+      [
+       14,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before Pink River Dolphin Pools",
+     "caption": "The air goes quiet, as if Pink River Dolphin Pools were about to speak.",
+     "rows": [
+      "######################",
+      "....,,...,##...,,.,,.9",
+      "#,.######.,..#..##,###",
+      "##########F###########",
+      "######################",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 351,
+   "from": "Barleyglen",
+   "to": "Anaconda Hollows",
+   "land": "rainforest",
+   "sections": [
+    {
+     "feature": "the giant fern glade",
+     "caption": "Ferns taller than a gnome, nodding in the drip.",
+     "rows": [
+      "######################",
+      "S.,.######F###########",
+      "##.,.,.,#,...#########",
+      "###.,#,..........#.,.9",
+      "###.####,####.##..,###",
+      "###.####F,....########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       1,
+       "F"
+      ],
+      [
+       8,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the mist-pool",
+     "caption": "A still pool with mist curling over it like steam from soup.",
+     "rows": [
+      "######################",
+      "#######,....,#########",
+      "#######.######.#######",
+      "..#####.#.####F#######",
+      "#...##..#.......,...,#",
+      "###.,...,,#....#.,,.,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the parrot perch",
+     "caption": "A tall branch where parrots argue in three languages.",
+     "rows": [
+      "######################",
+      "#######....,.#......,9",
+      "#######F###,....,##,.#",
+      "##,##...,...##########",
+      "#,...,F#.,.###########",
+      "..,,..################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       2,
+       "F"
+      ],
+      [
+       6,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the mine mouth of Anaconda Hollows",
+     "caption": "The mouth of Anaconda Hollows breathes cool air and a hint of old echoes.",
+     "rows": [
+      "######################",
+      "...######.##########.#",
+      "##..F###..,.#######.,#",
+      "###..###..#...####.,,#",
+      "####..,..##F..##,E,..#",
+      "#####.,,#####..,.###.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       2,
+       "F"
+      ],
+      [
+       11,
+       4,
+       "F"
+      ],
+      [
+       17,
+       4,
+       "E"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 352,
+   "from": "Windwell",
+   "to": "The Mirror Salt Flat",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the well and its rope",
+     "caption": "A well with a rope and a very patient bucket.",
+     "rows": [
+      "######################",
+      "#######..F....,##..,.9",
+      "#####......###.#.,,.,#",
+      "##.#.,.##.........#.##",
+      "S......######...#.####",
+      "#.#..########F.##,,###",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       1,
+       "F"
+      ],
+      [
+       13,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the mirage pool",
+     "caption": "A pool that is mostly shimmer, and a little bit not.",
+     "rows": [
+      "######################",
+      ".,,####...,..######.##",
+      "#....##F,.###.##....##",
+      "##,.........#..,.,..,9",
+      "##.###.,##.,.,...#####",
+      "######,#####.,##.#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the The Mirror Salt Flat gates",
+     "caption": "Something wonderful is close. You can feel it in your shoes.",
+     "rows": [
+      "######################",
+      "#####.F,...###.#######",
+      "###.######.#.#.F##.###",
+      "..,.##.,,,........,.##",
+      "##.,,,.####..F..#.,..9",
+      "###.,..##########.####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       1,
+       "F"
+      ],
+      [
+       15,
+       2,
+       "F"
+      ],
+      [
+       13,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

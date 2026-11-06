@@ -1,0 +1,77 @@
+{
+ "routes": [
+  {
+   "route_id": 249,
+   "from": "Palmknoll",
+   "to": "Thistlebottom",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the shepherd's wall",
+     "caption": "A dry-stone wall running off into the grass, with a gate that is mostly decoration.",
+     "rows": [
+      "######################",
+      "S,.,,,#......#.,...,.#",
+      "#..##.,.##,..,,#,.#..9",
+      "##########.######.####",
+      "##########,###########",
+      "#####,,F,.F###########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       5,
+       "F"
+      ],
+      [
+       10,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the daisy ring",
+     "caption": "A circle of daisies so even that someone must have measured. Nobody will own up.",
+     "rows": [
+      "######################",
+      "###.##################",
+      ".,,....#.#########,###",
+      "##.#.....,###.####.###",
+      "######..,..,#..,...###",
+      "#########,....#.F#,,,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the bramble gap",
+     "caption": "A gap in the brambles, wide enough for one gnome and one opinion.",
+     "rows": [
+      "######################",
+      "####.######......#####",
+      "##....,########F.#####",
+      "##..,#,.##,###.,,###,9",
+      "#..,#.,,,......,....,#",
+      "..####.#...,#######..#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       15,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

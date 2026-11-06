@@ -1,0 +1,87 @@
+{
+ "routes": [
+  {
+   "route_id": 273,
+   "from": "Brineburrow",
+   "to": "Cloverbottom",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the plank footbridge",
+     "caption": "A plank bridge over a ditch. The ditch is not deep, but the bridge is proud.",
+     "rows": [
+      "######################",
+      "##,..##.#####.F.###,##",
+      "#.....#...##,..#F##..9",
+      "S..#.,..,.,,..,,.#,.##",
+      "#########F####...,.###",
+      "#########.,,,,,#######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       1,
+       "F"
+      ],
+      [
+       16,
+       2,
+       "F"
+      ],
+      [
+       9,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the picnic knoll",
+     "caption": "A flat green knoll with a dent in it exactly the shape of a picnic.",
+     "rows": [
+      "######################",
+      "#..#F#....F.#######.##",
+      "...,,######.######..##",
+      "###,,######,,........#",
+      "####,...##...#.##.##,#",
+      "#######,...#########.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       1,
+       "F"
+      ],
+      [
+       10,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the lonely scarecrow",
+     "caption": "A scarecrow with a very small hat. The crows seem to like him.",
+     "rows": [
+      "######################",
+      "###########,,..,,.,###",
+      "#####,,####.,#..##.,.9",
+      "##.#,.......###,##.,.#",
+      "##...#,.##.,######,###",
+      "...####.F.,.,#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

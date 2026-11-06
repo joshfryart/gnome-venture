@@ -1,0 +1,1257 @@
+{
+ "routes": [
+  {
+   "route_id": 238,
+   "from": "Honeythorpe",
+   "to": "Clovercove",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the picnic knoll",
+     "caption": "A flat green knoll with a dent in it exactly the shape of a picnic.",
+     "rows": [
+      "######################",
+      "#....###.#,.,.,.F#.###",
+      "S.,,.,,,...##,#..#..,9",
+      "###.####.######,..,.##",
+      "############..,.F.####",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       1,
+       "F"
+      ],
+      [
+       16,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the bramble gap",
+     "caption": "A gap in the brambles, wide enough for one gnome and one opinion.",
+     "rows": [
+      "######################",
+      "##.#########F,....####",
+      "..,###,#####.,.##.####",
+      "##,,,.,#.##....,.,,###",
+      "###..#.,..,,,.#,,....9",
+      "######,#,...######.,.#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the clover patch",
+     "caption": "A clover patch. Someone has already checked every leaf for luck.",
+     "rows": [
+      "######################",
+      "#########.,....#######",
+      "#########.############",
+      "#.####.##.,.##########",
+      "....#,....,..,F##,##.#",
+      "#.,....#,.#....,....,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 239,
+   "from": "Clovercove",
+   "to": "Blossomreach Market",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the lonely scarecrow",
+     "caption": "A scarecrow with a very small hat. The crows seem to like him.",
+     "rows": [
+      "######################",
+      "##########,######.####",
+      "#######.,.,###,.,...##",
+      "#......,...,..,#..,..9",
+      "S.,..,###F#,.#F####..#",
+      "##.,#####.############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       4,
+       "F"
+      ],
+      [
+       14,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the clover patch",
+     "caption": "A clover patch. Someone has already checked every leaf for luck.",
+     "rows": [
+      "######################",
+      "################F#..##",
+      "##.#F..#..,,.F#.,,,..#",
+      "...,.#.#...##....###.#",
+      "###..,,,.,,...######,9",
+      "###.,...,#,..#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       1,
+       "F"
+      ],
+      [
+       4,
+       2,
+       "F"
+      ],
+      [
+       13,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the old milestone",
+     "caption": "A mossy milestone with the numbers worn off. It still points confidently.",
+     "rows": [
+      "######################",
+      "##################.#.9",
+      "#####,.,,,F####,#.,,.#",
+      "########.,.###......##",
+      "..####,..#..,..##.####",
+      "#......#F##..#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       2,
+       "F"
+      ],
+      [
+       8,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 290,
+   "from": "Poppywell",
+   "to": "Bramblebrook",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the mushroom ring",
+     "caption": "Toadstools in a tidy ring. The path goes round, because the path is sensible.",
+     "rows": [
+      "######################",
+      "###################..#",
+      "##,######...,..##..,.#",
+      "S.,...#.,..,##F#.....9",
+      "#..,.,,,..,,.....#.###",
+      "############..,#F#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       3,
+       "F"
+      ],
+      [
+       16,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the owl-watch bough",
+     "caption": "A low bough where an owl pretends not to see you.",
+     "rows": [
+      "######################",
+      "######################",
+      "#########F.#F.....####",
+      ".,.#...###.#.#,......#",
+      "##,,....,.,....#####,9",
+      "#########..##.########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       2,
+       "F"
+      ],
+      [
+       12,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the spring and the pebbles",
+     "caption": "A trickle of spring water over bright pebbles.",
+     "rows": [
+      "######################",
+      "######################",
+      "######################",
+      "##########,.F...######",
+      "......##.,F##..F#..###",
+      "#####......,...,,...,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       3,
+       "F"
+      ],
+      [
+       10,
+       4,
+       "F"
+      ],
+      [
+       15,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 291,
+   "from": "Bramblebrook",
+   "to": "Blossomreach Market",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the mushroom ring",
+     "caption": "Toadstools in a tidy ring. The path goes round, because the path is sensible.",
+     "rows": [
+      "######################",
+      "###.############.#####",
+      "##.,..####...,#...,#,9",
+      "#..#.......##...##,,.#",
+      "S.#####.,.########,#.#",
+      "#######F##############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the root-tangle crossing",
+     "caption": "Roots knot across the path like a puzzle with one answer: step high.",
+     "rows": [
+      "######################",
+      "##########.F..,.######",
+      ".,.#..####.####.#.####",
+      "##.....###......#.####",
+      "######.....####....###",
+      "#######,.######,.....9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hollow oak",
+     "caption": "An oak so hollow it could host tea for six.",
+     "rows": [
+      "######################",
+      "#####.....,.###......#",
+      "##....##F..,....,#.,.9",
+      "##..########,######.##",
+      "#,.####,.....#########",
+      "..####################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 296,
+   "from": "Blossomreach Market",
+   "to": "Birchford",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the mossy stair",
+     "caption": "Steps of root and moss, worn smooth by many small boots.",
+     "rows": [
+      "######################",
+      "##########.F..F.######",
+      "##########,###########",
+      "##########.#F###.#####",
+      "#.,,####..,..##,..####",
+      "S.#,.....##.....#....9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ],
+      [
+       14,
+       1,
+       "F"
+      ],
+      [
+       12,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the spring and the pebbles",
+     "caption": "A trickle of spring water over bright pebbles.",
+     "rows": [
+      "######################",
+      "#####.F....###########",
+      "######.###############",
+      "######,,..########.###",
+      "##...,.....###,.#....9",
+      "...,######,....,,...##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the woodcutter's stump",
+     "caption": "A giant stump, still carrying a very small axe.",
+     "rows": [
+      "######################",
+      "##########....,.######",
+      "#######,.#.,#.##.##.##",
+      "######.#,,....##..,..#",
+      "...###...####....#,..9",
+      "##,,,,..#####F..,#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 438,
+   "from": "Honeythorpe",
+   "to": "Brambleburrow",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the mushroom ring",
+     "caption": "Toadstools in a tidy ring. The path goes round, because the path is sensible.",
+     "rows": [
+      "######################",
+      "#.,..#.#..F#......##.9",
+      "S..,,.....,..##.,.,..#",
+      "########F###.#########",
+      "########.,,F.,########",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       1,
+       "F"
+      ],
+      [
+       8,
+       3,
+       "F"
+      ],
+      [
+       11,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the fern tunnel",
+     "caption": "Ferns arch overhead and drip softly on everyone's hat.",
+     "rows": [
+      "######################",
+      "....########F######,.#",
+      "#....#######,.##....,9",
+      "#.##.,,,.,.......##.##",
+      "#####F##.#..##..###.##",
+      "##########....,.######",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       1,
+       "F"
+      ],
+      [
+       5,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 439,
+   "from": "Clovercove",
+   "to": "Sprayholt",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the lighthouse shadow",
+     "caption": "A far lighthouse throws a slow sweep of light over the sand.",
+     "rows": [
+      "######################",
+      "S...##,#####,.,F..####",
+      "###..,.########.######",
+      "##..#..#######..######",
+      "#####....,.##..,,##,.#",
+      "#######.#..,..##.....9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       15,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the kelp-line",
+     "caption": "A line of kelp left by the tide, as neat as a ribbon.",
+     "rows": [
+      "######################",
+      "######.......,....##,9",
+      "#####,,####,##.F..,..#",
+      "####..############..##",
+      "#..,..################",
+      "..##.#################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       15,
+       2,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 440,
+   "from": "Poppywell",
+   "to": "Tidecombe",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the rope-and-net rack",
+     "caption": "Nets drying on a rack. A gull stands guard, badly.",
+     "rows": [
+      "######################",
+      "S..#.###.,....,.######",
+      "##..,###.....,#,.....9",
+      "####,,..,.#.F...,.,..#",
+      "#####..##########.####",
+      "#####,.###############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the lighthouse shadow",
+     "caption": "A far lighthouse throws a slow sweep of light over the sand.",
+     "rows": [
+      "######################",
+      "#..,#.....F###########",
+      "..#...####.###########",
+      "###...####.#####F###,#",
+      "#####....#,.,F#,.#,..#",
+      "#######......,...,.#.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       1,
+       "F"
+      ],
+      [
+       16,
+       3,
+       "F"
+      ],
+      [
+       13,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 441,
+   "from": "Bramblebrook",
+   "to": "Coppergate",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the sun-bleached bones",
+     "caption": "The bones of a very large, very friendly fish. Do not ask.",
+     "rows": [
+      "######################",
+      "######################",
+      "#####,,F,..#,####.####",
+      "##,##.####.#.###..####",
+      "S,..#.,.#,.#.....,,..9",
+      "#....,F.,...,#,.,....#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       2,
+       "F"
+      ],
+      [
+       6,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the salt flat",
+     "caption": "A flat of white salt that crunches pleasantly.",
+     "rows": [
+      "######################",
+      "####.#################",
+      "####,..#.#.....,######",
+      "##..,.,.....###,######",
+      "...,###.F.,..##.##,###",
+      "###########F....,...,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       4,
+       "F"
+      ],
+      [
+       11,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 442,
+   "from": "Birchford",
+   "to": "Dunewick",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the salt flat",
+     "caption": "A flat of white salt that crunches pleasantly.",
+     "rows": [
+      "######################",
+      "##,.##########.,,....#",
+      "##..#####..F....,.#.,#",
+      "###..F########..###.,9",
+      "S,.,.,.####,,..#####,#",
+      "######.....,,.########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       2,
+       "F"
+      ],
+      [
+       5,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the shade awning",
+     "caption": "A faded awning on two poles. Perfect for a very small nap.",
+     "rows": [
+      "######################",
+      "####,.F....,........,9",
+      "####....##.,##########",
+      ".,.,,..###############",
+      "##...#################",
+      "##.###################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       6,
+       1,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 443,
+   "from": "Honeythorpe",
+   "to": "Cherry Blossom Teahouse",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the daisy ring",
+     "caption": "A circle of daisies so even that someone must have measured. Nobody will own up.",
+     "rows": [
+      "######################",
+      "S,.#.,...,.....,.....9",
+      "##..,####,,.####.,.,,#",
+      "####,####.#.###.F##,.#",
+      "######,.,,F.##########",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       16,
+       3,
+       "F"
+      ],
+      [
+       10,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the last turn to Cherry Blossom Teahouse",
+     "caption": "A little sign, hand-painted: 'Rest Here'.",
+     "rows": [
+      "######################",
+      "..####################",
+      "#..###################",
+      "#,.,####F#...F..,#####",
+      "###,,,#,....#.#..,#.##",
+      "#####,,,,..,..,.....,9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       3,
+       "F"
+      ],
+      [
+       13,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 444,
+   "from": "Clovercove",
+   "to": "The Thousand Gates",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the glow-moss grotto",
+     "caption": "A damp hollow with moss that glows faintly, like a night-light.",
+     "rows": [
+      "######################",
+      "#....,.....,###,#..#.#",
+      "##..F######..##,,.,..9",
+      "S,.########.....#.####",
+      "######F,,.F...########",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       2,
+       "F"
+      ],
+      [
+       6,
+       4,
+       "F"
+      ],
+      [
+       10,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the mushroom ring",
+     "caption": "Toadstools in a tidy ring. The path goes round, because the path is sensible.",
+     "rows": [
+      "######################",
+      "###,###..,.,F#########",
+      "...,###,##.###########",
+      "###.,.#.##F##F########",
+      "####..#.#.,##.,.,#...#",
+      "#####..........#...,.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       1,
+       "F"
+      ],
+      [
+       10,
+       3,
+       "F"
+      ],
+      [
+       13,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before The Thousand Gates",
+     "caption": "The air goes quiet, as if The Thousand Gates were about to speak.",
+     "rows": [
+      "######################",
+      "#####.####,.F,..######",
+      "###,#F###..####.######",
+      "#,#....##.#####F.#####",
+      "#...##,....,.#,.....,9",
+      "..##########.....#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       1,
+       "F"
+      ],
+      [
+       5,
+       2,
+       "F"
+      ],
+      [
+       15,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 445,
+   "from": "Poppywell",
+   "to": "Panda Bamboo Grove",
+   "land": "forest",
+   "sections": [
+    {
+     "feature": "the fern tunnel",
+     "caption": "Ferns arch overhead and drip softly on everyone's hat.",
+     "rows": [
+      "######################",
+      "S.....,#####...#...,##",
+      "#..###..#...,#..,#...9",
+      "#######.....#######..#",
+      "#######F##############",
+      "#######...,F.#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       4,
+       "F"
+      ],
+      [
+       11,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the glow-moss grotto",
+     "caption": "A damp hollow with moss that glows faintly, like a night-light.",
+     "rows": [
+      "######################",
+      "###.##################",
+      "..#...,#,...F.########",
+      "#,.,....F###....##.,##",
+      "#######...#,.##.,....9",
+      "#########.,,###.,##,##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       12,
+       2,
+       "F"
+      ],
+      [
+       8,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before Panda Bamboo Grove",
+     "caption": "The air goes quiet, as if Panda Bamboo Grove were about to speak.",
+     "rows": [
+      "######################",
+      "##########F##F##..####",
+      "#####,##,...,..,..,..9",
+      "###.....,,#.,..,###,.#",
+      "..,.##..####.#######.#",
+      "#,####,#####..F...####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       10,
+       1,
+       "F"
+      ],
+      [
+       13,
+       1,
+       "F"
+      ],
+      [
+       14,
+       5,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 446,
+   "from": "Bramblebrook",
+   "to": "Pearl Diver Cove",
+   "land": "coast",
+   "sections": [
+    {
+     "feature": "the lighthouse shadow",
+     "caption": "A far lighthouse throws a slow sweep of light over the sand.",
+     "rows": [
+      "######################",
+      "##.#.,#,..########.,##",
+      "S,,..,,,.,..#F.#.....#",
+      "####.###.##....,,,.#.#",
+      "#########..F#######..9",
+      "######,,F...#######.##",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       2,
+       "F"
+      ],
+      [
+       11,
+       4,
+       "F"
+      ],
+      [
+       8,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the bottle post",
+     "caption": "A post with a bottle on top. There is a note inside. It says 'hello'.",
+     "rows": [
+      "######################",
+      "###########F####.#.,.#",
+      "#######.......,....#.#",
+      "#..##..,.,,.####..##.9",
+      "......,.F##,#####.##.#",
+      "####.F#.####,.....####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ],
+      [
+       8,
+       4,
+       "F"
+      ],
+      [
+       5,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the hush before Pearl Diver Cove",
+     "caption": "The air goes quiet, as if Pearl Diver Cove were about to speak.",
+     "rows": [
+      "######################",
+      "#########..,.##.#....#",
+      "#.######..#..,#,.,...9",
+      "...#.#....#F#.,.###..#",
+      "#,.#....#####,########",
+      "##.,.##...,..#########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 447,
+   "from": "Birchford",
+   "to": "The Long Wall Walk",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the red rock arch",
+     "caption": "A rock arch that glows when the sun is low.",
+     "rows": [
+      "######################",
+      "#..,#..###,,,####.####",
+      "S,#,.,...,..##.#....##",
+      "###.,##.,,#..F,.,....9",
+      "###########,.,.###..##",
+      "######,...,F#.########",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       3,
+       "F"
+      ],
+      [
+       11,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sand-ripple lane",
+     "caption": "Sand rippled like a washboard in neat lines.",
+     "rows": [
+      "######################",
+      "##...,..,.#..#.##.,#.#",
+      "#.,#,.##F......,.,,,.9",
+      "..###########,..###.##",
+      "###############.######",
+      "###########.....F#####",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       2,
+       "F"
+      ],
+      [
+       16,
+       5,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sun-bleached bones",
+     "caption": "The bones of a very large, very friendly fish. Do not ask.",
+     "rows": [
+      "######################",
+      "######,###############",
+      "...##..,.###.F..,.####",
+      "#...#...,,...#####...#",
+      "###....#.,.,...###...9",
+      "######.#####.......###",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the lantern line to The Long Wall Walk",
+     "caption": "A line of old lanterns leads to The Long Wall Walk. Please bring your own light.",
+     "rows": [
+      "######################",
+      "########F,..F.#####,##",
+      "########.####.####..##",
+      "##,####..####F.,##...#",
+      "....#.##.,#..,...#...#",
+      "#.#..,.,.....#..,E.#.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       1,
+       "F"
+      ],
+      [
+       12,
+       1,
+       "F"
+      ],
+      [
+       13,
+       3,
+       "F"
+      ],
+      [
+       17,
+       5,
+       "E"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "route_id": 448,
+   "from": "Honeythorpe",
+   "to": "Lair of the Jade Dragon-fly",
+   "land": "desert",
+   "sections": [
+    {
+     "feature": "the sun-bleached bones",
+     "caption": "The bones of a very large, very friendly fish. Do not ask.",
+     "rows": [
+      "######################",
+      "##,....F..,....,.....9",
+      "#.....,,.#...#.,#....#",
+      "S..##...##,F###.###.##",
+      "#####...F..###########",
+      "######################",
+      "######################"
+     ],
+     "tokens": [
+      [
+       7,
+       1,
+       "F"
+      ],
+      [
+       11,
+       3,
+       "F"
+      ],
+      [
+       8,
+       4,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the salt flat",
+     "caption": "A flat of white salt that crunches pleasantly.",
+     "rows": [
+      "######################",
+      ".....,.####......#####",
+      "#,##..,.#F####.#######",
+      "#,#..,,.#,###.,#######",
+      "#######.,,##..,...#..#",
+      "########.....#....,,.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       9,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the waystone cluster",
+     "caption": "Three weathered waystones leaning together like old friends.",
+     "rows": [
+      "######################",
+      "######################",
+      "########F#,F,..F######",
+      "#.#....,,..####,.#####",
+      "#,.,.....#...##...##.9",
+      "..#.#..#.##.........,#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       8,
+       2,
+       "F"
+      ],
+      [
+       11,
+       2,
+       "F"
+      ],
+      [
+       15,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the dry riverbed",
+     "caption": "A river that left years ago and kept the bed made.",
+     "rows": [
+      "######################",
+      "############,,F.,.####",
+      "#################.#.##",
+      "#.######.####.###,#.,#",
+      "..,...........,.,,...#",
+      "##...,..#..,,...#.##.9",
+      "######################"
+     ],
+     "tokens": [
+      [
+       14,
+       1,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the long approach to Lair of the Jade Dragon-fly",
+     "caption": "The grass goes silent. Something big is thinking about you from Lair of the Jade Dragon-fly.",
+     "rows": [
+      "######################",
+      "#########.##,...,E...9",
+      "########...#,..#####.#",
+      "#.#####.,..,.#########",
+      "#..###..#F.###########",
+      "..,,...##.############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       17,
+       1,
+       "E"
+      ],
+      [
+       9,
+       4,
+       "F"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

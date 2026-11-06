@@ -1,0 +1,82 @@
+{
+ "routes": [
+  {
+   "route_id": 261,
+   "from": "Hollowknoll",
+   "to": "Thistleburrow",
+   "land": "grassland",
+   "sections": [
+    {
+     "feature": "the picnic knoll",
+     "caption": "A flat green knoll with a dent in it exactly the shape of a picnic.",
+     "rows": [
+      "######################",
+      "S...,#####,..F..######",
+      "##.#,.####.####,######",
+      "#####..F##,#...,######",
+      "####.......,..#,..##.9",
+      "########,##..####,.,.#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       13,
+       1,
+       "F"
+      ],
+      [
+       7,
+       3,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the sleepy windmill",
+     "caption": "A little windmill turning slowly, in no hurry at all.",
+     "rows": [
+      "######################",
+      "######.####.,,...,####",
+      "###.F#.###,,.####.,.,#",
+      "#......##.,.########,#",
+      "..,.##...,##########.9",
+      "######,#.#############",
+      "######################"
+     ],
+     "tokens": [
+      [
+       4,
+       2,
+       "F"
+      ]
+     ]
+    },
+    {
+     "feature": "the dandelion drift",
+     "caption": "A drift of dandelion fluff, ready to leave at the first sneeze.",
+     "rows": [
+      "######################",
+      "######,.,..F##########",
+      "####.######.##########",
+      "#..,..####...F.##,.###",
+      "..###..........,,..,.9",
+      "######,,,,..#....##,.#",
+      "######################"
+     ],
+     "tokens": [
+      [
+       11,
+       1,
+       "F"
+      ],
+      [
+       13,
+       3,
+       "F"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}
