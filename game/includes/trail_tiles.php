@@ -306,7 +306,7 @@ function trail_strip_html(array $u, array $exp, array $sc): string
 }
 
 /** The tile map block for adventure.php: the section picture with its buttons (same markup and script as the delve map), then the confirm card. */
-function trail_view_html(array $u, array $exp, array $sc, bool $busy): string
+function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $fightOver = false): string
 {
     require_once __DIR__ . '/trek_art.php';
     $map = $sc['map'];
@@ -344,9 +344,9 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy): string
     }
     $art = !empty($map['art']) && trail_art_ready($map['art']);   // an authored section with its baked picture: the Hearth Pop v3 look
     $svg = $art
-        ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW, 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u)])
+        ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW, 'tokens' => $tokens, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u)])
         : tm_render_svg($map, $land, ['px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW,
-            'light' => 8, 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u)]);
+            'light' => 8, 'tokens' => $tokens, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u)]);   // fight_scene: the fight stage draws the gnome
     // v2.5.51: a wider picture covering the whole walk, shown only while the gnome walks (assets/tilemap.js keeps the camera on the gnome, like the delve maps)
     $extSvg = ''; $extData = '';
     if ($walk && count($walk['p']) > 1) {
@@ -360,6 +360,12 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy): string
                     'light' => 8, 'dim' => 999, 'tokens' => $tokens, 'walk' => $walk, 'me' => trek_art_me($u), 'sfx' => 'x']);
             $extData = ' data-ex0="' . $ex0 . '" data-ey0="' . $ey0 . '" data-ew="' . ($ex1 - $ex0) . '" data-eh="' . ($ey1 - $ey0) . '"';
         }
+    }
+    $fightOver_html = '';
+    if ($fightOver && $exp['encounter'] && ($encO = json_decode((string)$exp['encounter'], true)) && ($encO['type'] ?? '') === 'creature' && ($cO = encounter_creature($encO))) {
+        require_once __DIR__ . '/fight_scene.php'; fight_prep($encO, $cO);   // the stage over the map: the gnome on its own tile (kept inside the middle 7 of 9 so a narrow phone sees both), the foe two tiles to the right
+        $mx = max(1, min(DM_VIEW - 4, $sc['x'] - $win['x0']));
+        $fightOver_html = fight_scene_html($u, $exp, $encO, $cO, ['cols' => DM_VIEW, 'rows' => DM_VIEW, 'mx' => $mx, 'my' => max(1, min(DM_VIEW - 2, $sc['y'] - $win['y0'])), 'fx' => $mx + 2]);
     }
     $btn = '';
     for ($j = 0; $j < DM_VIEW; $j++) for ($i = 0; $i < DM_VIEW; $i++) {
@@ -386,7 +392,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy): string
     $out = trail_strip_html($u, $exp, $sc) . '<div class="tmwrap tm-' . e($land) . ($busy ? ' busy' : '') . '"><form method="post" class="tmform">' . csrf_field() . '<input type="hidden" name="do" value="trail_go">'
         . '<div class="tilemap tm-cave tm-trail" role="group" aria-label="The Trail, section ' . ((int)$sc['st']['sec'] + 1) . ' of ' . (int)$sc['st']['S'] . '"' . $data . '><div class="tmview">' . $extSvg . '<div class="tmstage">' . $svg
         . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'
-        . '<div class="tmgrid">' . $btn . '</div></div></div></div></form>'
+        . '<div class="tmgrid">' . $btn . '</div>' . $fightOver_html . '</div></div></div></form>'
         . ($art && !empty($map['art']['caption']) ? '<p class="tmcap">' . e((string)$map['art']['caption']) . '</p>' : '')
         . '<p class="tmlegend" aria-hidden="true">' . (!empty($map['art']['boss']) ? '<span>⚔️ A fight waits</span>' : '') . '<span>✨ A find</span><span>🚪 The way on</span></p></div>';
     return $out;

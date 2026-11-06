@@ -297,7 +297,7 @@ if ($wi && !$isWalk): ?>
 </div>
 <?php endif; ?>
 <?php $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$fighting;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold); v2.1.12: event cards use it too ?>
-<div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $wander ? ' wander' : '' ?>">
+<div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $fighting && $trailSc && fight_scene_on() ? ' fsover' : '' ?><?= $wander ? ' wander' : '' ?>">
 <div class="mapcol">
 <?php $fsc = $fighting && fight_scene_on();   // fight_scene: the animated stage replaces the picture and the popover for a creature fight
 if ($exp && !$trailSc && !$fsc): echo adventure_stage_html($u, $exp, $scene, $enc); endif;   // the tile page has no scene picture: the map is the picture ?>
@@ -311,7 +311,7 @@ if ($exp && !$trailSc && !$fsc): echo adventure_stage_html($u, $exp, $scene, $en
 <?= dm_view_html($u, $exp, $dmScene, (bool)$enc) ?>
 <p class="tmlinks"><a data-inplace href="<?= e(url('adventure.php?view=list')) ?>">Use the simple list</a></p>
 <?php elseif ($trailSc): ?>
-<?= trail_view_html($u, $exp, $trailSc, (bool)$enc) ?>
+<?= trail_view_html($u, $exp, $trailSc, (bool)$enc, $fighting && fight_scene_on()) ?>
 <?php $tLand0 = (string)(exp_scene($exp)['land'] ?? 'grassland'); ?><div class="trailui">
   <div class="trailfoot">
     <a class="btn" data-pop="hubpop-tgather" href="<?= e(url('adventure.php?g=1')) ?>">🧺 Gather here</a>
@@ -382,7 +382,7 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
     $sure = fight_certainty($u, $exp, $c, $enc);
     [$abName, $abDesc] = CALLING_ABILITIES[$u['calling'] ?? ''] ?? CALLING_ABILITIES['']; ?>
   <?php // v0.7.61: one box; reversed in 2.2.1 so you are on the left, under your gnome on the stage, and the foe on the right under theirs ?>
-  <?php if ($fsc): echo fight_scene_html($u, $exp, $enc, $c); ?>
+  <?php if ($fsc): if (!$trailSc) echo fight_scene_html($u, $exp, $enc, $c);   // on the Trail the stage sits over the map itself (trail_view_html) ?>
   <small class="muted fs-line">⚡ <?= (int)$u['energy'] ?> · ⚔️ +<?= $gc['atk'] ?> · 🛡️ <?= $gc['ac'] ?> · 🎲 d<?= $gc['dmg_die'] ?>+<?= $gc['dmg_bonus'] ?> · foe ⚔️ +<?= (int)$c['attack'] ?> 🛡️ <?= (int)$c['defense'] ?><?= $enc['poison'] ? ' · 🧪 poisoned' : '' ?></small>
   <?php else: ?>
   <div class="fightgrid">

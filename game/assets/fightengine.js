@@ -178,7 +178,7 @@
     var cols = opts.cols || 11, rows = opts.rows || 7, speed = opts.speed || 1, c = 30, acts = {}, live = new Set();
     var reduce = root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var terrain = opts.terrain || function (x, y) { return y === (rows >> 1) ? 'p' : ((x + y) % 5 === 0 ? 'f' : (x * y % 7 === 3 ? 'r' : '')); };
-    host.classList.add('fe-stage');
+    host.classList.add('fe-stage'); if (opts.flat) host.classList.add('fe-flat');   // flat: no tilt, transparent tiles, cells = the tiles of the map picture under the host
     host.innerHTML = '<div class="fe-view"><div class="fe-board"><div class="fe-grid"></div></div><div class="fe-actors"></div></div><div class="fe-hud"></div><div class="fe-fx"></div>';
     var view = host.children[0], board = view.children[0], actorsEl = view.children[1], grid = board.children[0], hud = host.children[1], fx = host.children[2];
     var t = '', dead = false, busy = 0;
@@ -188,13 +188,13 @@
     function sp() { return reduce ? 40 : speed; }
     function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms / sp()); }); }
     function layout() {
-      var w = host.clientWidth - 16; c = (w - (cols - 1)) / cols;
-      board.style.width = w + 'px'; view.style.paddingTop = (.5 * c) + 'px';
+      var w = host.clientWidth - (opts.flat ? 0 : 16); c = opts.flat ? w / cols - 1 : (w - (cols - 1)) / cols;
+      board.style.width = w + 'px'; view.style.paddingTop = opts.flat ? '0px' : (.5 * c) + 'px';
       Object.keys(acts).forEach(function (k) { place(acts[k]); });
     }
     /* Actors are NOT 3D objects: the board is tilted with one perspective transform, and each actor is an upright, screen-aligned picture put at the projected
      * position of its feet, scaled by the local perspective scale. No depth sorting, so a body can lie down, rotate or fly without vanishing behind tiles. */
-    var TILT = 'perspective(520px) rotateX(42deg) scale(.96)';
+    var TILT = opts.flat ? '' : 'perspective(520px) rotateX(42deg) scale(.96)';
     function proj(x, y) {   // board-local px -> [x, y, scale] in the view
       var W = board.offsetWidth, H = board.offsetHeight, m = new DOMMatrix('translate(' + (W / 2) + 'px,' + H + 'px) ' + TILT + ' translate(' + (-W / 2) + 'px,' + (-H) + 'px)');
       var p = m.transformPoint(new DOMPoint(x, y, 0, 1)), q = m.transformPoint(new DOMPoint(x + 10, y, 0, 1));
