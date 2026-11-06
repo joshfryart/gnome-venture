@@ -24,3 +24,10 @@
 .fe-dust{position:absolute;width:12px;height:9px;border-radius:50%;background:#efe6cf}
 .fe-stars{position:absolute;width:0;height:0}.fe-stars i{position:absolute;left:-7px;top:-7px;font-style:normal;color:#ffd84a;font-size:15px;text-shadow:0 1px 0 #2b1c26}
 .fe-stars i:nth-child(1){transform:translate(26px,0)}.fe-stars i:nth-child(2){transform:translate(-13px,-9px)}.fe-stars i:nth-child(3){transform:translate(-13px,9px)}
+
+.fe-hatmark{position:absolute;left:47%;top:27%;width:1px;height:1px;pointer-events:none}
+.fe-dmg.heal{color:#8dffb0;text-shadow:0 2px 0 #1f7a43,0 0 6px #000}
+.fe-hattap{position:absolute;z-index:7;width:46px;height:46px;margin:-23px 0 0 -23px;padding:0;border-radius:50%;border:2px solid #ffd96a;background:#ffd96a22;box-shadow:0 0 10px #ffd96acc;cursor:pointer;pointer-events:auto;animation:fe-tap 1s ease-in-out infinite}
+.fe-hattap:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@keyframes fe-tap{50%{transform:scale(1.14);opacity:.65}}
+@media (prefers-reduced-motion:reduce){.fe-hattap{animation:none}}

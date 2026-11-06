@@ -4,7 +4,7 @@
   var eng, busy = false, slug = 'wild-boar';
   function mount() {
     if (eng) eng.destroy();
-    eng = FightEngine.create(document.getElementById('stage'), { speed: document.getElementById('slow').checked ? .3 : 1 });
+    eng = FightEngine.create(document.getElementById('stage'), { speed: document.getElementById('slow').checked ? .3 : 1, onHatTap: function (id) { go([{ from: id, move: 'fixhat', heal: 5 }]); } });
     eng.add('me', { rig: 'gnome', parts: PARTS, col: 2, side: 'me', name: 'You', hp: 20 });
     eng.add('foe', { rig: slug, img: 'assets/img/mini/mini-' + slug + '.png', col: 8, flip: true, side: 'foe', name: slug.replace(/-/g, ' '), hp: 12 });
     busy = true; eng.together([{ from: 'me', move: 'enter' }, { from: 'foe', move: 'enter' }]).then(function () { busy = false; });

@@ -103,7 +103,7 @@
     host.classList.add('fe-stage');
     host.innerHTML = '<div class="fe-view"><div class="fe-board"><div class="fe-grid"></div></div><div class="fe-actors"></div></div><div class="fe-hud"></div><div class="fe-fx"></div>';
     var view = host.children[0], board = view.children[0], actorsEl = view.children[1], grid = board.children[0], hud = host.children[1], fx = host.children[2];
-    var t = '', dead = false;
+    var t = '', dead = false, busy = 0;
     for (var y = 0; y < rows; y++) for (var x = 0; x < cols; x++) t += '<div class="fe-t ' + terrain(x, y) + '"></div>';
     grid.innerHTML = t; grid.style.gridTemplateColumns = 'repeat(' + cols + ',1fr)';
 
@@ -248,6 +248,7 @@
       h.tvr += (-320 * h.tr - 9 * h.tvr - .45 * acc - .05 * ax) * dt; h.tr = Math.max(-60, Math.min(60, h.tr + h.tvr * dt));
       a.phys.hat.style.transform = 'translate(' + (h.x * k) + 'px,' + (h.y * k) + 'px) rotate(' + h.r + 'deg)';
       a.phys.tip.style.transform = 'rotate(' + h.tr + 'deg)';
+      tapStep(a);
     }
     var last = 0;
     function tick(now) {
@@ -264,11 +265,28 @@
           gb.appendChild(gs); g.appendChild(gb); actorsEl.appendChild(g); a.ghost = g; a.gspr = gs;
         }
         a.gspr.appendChild(w);
+        if (!a.mark) { a.mark = document.createElement('i'); a.mark.className = 'fe-hatmark'; w.appendChild(a.mark); }   // a point on the hat's brim: where the tap target goes
       } else {
-        a.spr.appendChild(w); if (a.ghost) { a.ghost.remove(); a.ghost = a.gspr = null; }
+        dropTap(a); a.spr.appendChild(w); if (a.ghost) { a.ghost.remove(); a.ghost = a.gspr = null; }
       }
       w.style.transform = 'translate(' + (h.x * k) + 'px,' + (h.y * k) + 'px) rotate(' + h.r + 'deg)';
       b = w.getBoundingClientRect(); h.x -= (b.left + b.width / 2 - b0[0]) * f / k; h.y -= (b.top + b.height / 2 - b0[1]) / k;
+    }
+    /* Tap the fallen hat (between turns) to put it back on: the host decides what that is worth (opts.onHatTap(id) -> ask the server); with no callback the engine plays a local +5 heal. */
+    function dropTap(a) { if (a.tap) { a.tap.remove(); a.tap = null; } }
+    function tapHat(a) {
+      if (busy || a.hp <= 0 || !a.hat || a.hat.mode !== 'free') return;
+      if (opts.onHatTap) opts.onHatTap(a.id); else play([{ from: a.id, move: 'fixhat', heal: 5 }]);
+    }
+    function tapStep(a) {   // make, show, hide and place the tap target
+      var h = a.hat, ok = h.mode === 'free' && h.rest && a.hp > 0;
+      if (!ok) { dropTap(a); return; }
+      if (!a.tap) {
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'fe-hattap'; b.setAttribute('aria-label', 'Pick up the hat');
+        b.onclick = function () { tapHat(a); }; host.appendChild(b); a.tap = b;
+      }
+      a.tap.style.display = busy ? 'none' : '';
+      if (!busy && a.mark) { var r = a.mark.getBoundingClientRect(), hr = host.getBoundingClientRect(); a.tap.style.left = (r.left - hr.left) + 'px'; a.tap.style.top = (r.top - hr.top) + 'px'; }
     }
     function popHat(a, away) {   // the hat comes off: up, back, spinning
       var h = a.hat; if (!h || h.mode !== 'worn') return;
@@ -298,6 +316,11 @@
     }
     function step(ev) {
       var a = acts[ev.from], tg = ev.to ? acts[ev.to] : null; face();
+      if (ev.move === 'fixhat') {   // pick the hat up: it hops back on; a heal (decided by the server) ticks the bar
+        var heal = Math.max(0, Math.min(ev.heal || 0, a.max - a.hp));
+        if (heal) sleep(620).then(function () { setHp(a, a.hp + heal); pop(a, '+' + heal, 'heal'); });
+        return fixHat(a);
+      }
       if (ev.move === 'guard') { var g = document.createElement('div'); g.className = 'fe-guard'; a.body.appendChild(g); a.guardEl = g; return run(a, 'guard').finished; }
       if (ev.move === 'flee') { if (a.guardEl) { a.guardEl.remove(); a.guardEl = null; } (a.held || []).forEach(function (x) { x.cancel(); }); a.held = []; stopIdle(a); a.sh.style.opacity = 0; return run(a, 'flee').finished; }
       var name = ev.move || a.rig.attack, m = MOVES[name], atk = run(a, name, tg);
@@ -307,21 +330,27 @@
         if (ev.miss) { pop(tg, 'miss', 'miss'); run(tg, 'dodge'); return; }
         if (tg.guardEl) { tg.guardEl.remove(); tg.guardEl = null; (tg.held || []).forEach(function (x) { x.cancel(); }); tg.held = []; pop(tg, 'block', 'miss'); }
         if (m.fx) burst(tg);
-        pop(tg, '-' + ev.dmg); setHp(tg, tg.hp - ev.dmg);
+        var was = tg.hp; pop(tg, '-' + ev.dmg); setHp(tg, tg.hp - ev.dmg);
         var h = run(tg, 'hit'); shake(ev.crit ? 6 : 3, ev.crit);
-        if (tg.hat && (ev.pop || ev.crit || tg.hp <= 0)) popHat(tg, tg.dir);
+        if (tg.hat && (ev.pop || tg.hp <= 0 || (was >= tg.max * .25 && tg.hp < tg.max * .25))) popHat(tg, tg.dir);   // hat comes off when a hit takes him below 25% (or KO, or the server says so)
         return hitstop(ev.crit ? 110 : 70).then(function () { return h.finished; }).then(function () { if (tg.hp <= 0) { stopIdle(tg); if (tg.rig.lingers) { var kl = run(tg, 'koL'); sleep(750).then(function () { stars(tg); }); return kl.finished; } tg.sh.style.opacity = 0; return run(tg, 'ko').finished; } });
       }).then(function () { return atk.finished; }).then(function () { if (a.hat && tg.hp <= 0 && !ev.miss) return sleep(200).then(function () { return run(a, 'cheer').finished; }); });
     }
-    function together(list) { return Promise.all(list.map(step)); }
-    function play(list) {   // then anyone whose hat is on the ground and who is still standing puts it back on
+    function together(list) { busy++; return Promise.all(list.map(step)).then(function () { busy--; }); }
+    function finish() {   // fight over: anyone still standing with a hat on the ground puts it back on (no heal)
+      return Promise.all(Object.keys(acts).map(function (k) { var a = acts[k]; return a.hat && a.hp > 0 ? sleep(250).then(function () { return fixHat(a); }) : null; }));
+    }
+    function play(list) {   // the hat stays down between turns (tap it); when someone is KO'd or flees, the fight is over and the survivor refits it
+      busy++;
       return list.reduce(function (p, ev) { return p.then(function () { return step(ev); }).then(function () { return sleep(150); }); }, Promise.resolve()).then(function () {
-        return Promise.all(Object.keys(acts).map(function (k) { var a = acts[k]; return a.hat && a.hp > 0 ? sleep(250).then(function () { return fixHat(a); }) : null; }));
+        busy--;
+        var over = list.some(function (ev) { return ev.move === 'flee'; }) || Object.keys(acts).some(function (k) { return acts[k].hp <= 0; });
+        return over ? finish() : null;
       });
     }
     function destroy() { dead = true; root.removeEventListener('resize', layout); host.innerHTML = ''; acts = {}; }   // stop the physics loop and the resize hook (call before re-creating on the same host)
     layout(); root.addEventListener('resize', layout); root.requestAnimationFrame(tick);
-    return { destroy: destroy, add: add, play: play, popHat: popHat, fixHat: fixHat, together: together, acts: acts, layout: layout, setSpeed: function (s) { speed = s; }, MOVES: MOVES };
+    return { destroy: destroy, finish: finish, add: add, play: play, popHat: popHat, fixHat: fixHat, together: together, acts: acts, layout: layout, setSpeed: function (s) { speed = s; }, MOVES: MOVES };
   }
   /* Data lint: returns a list of problems (empty = fine). Run by tools/fight/smoke.js; catches the mistakes that used to crash animate() at play time. */
   function validate() {
