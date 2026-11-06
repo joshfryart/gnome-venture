@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.85
+- **Fight scene fix**: no more "fallen hat" lying by the gnome after a fight on the Trail. It was the map's own default gnome marker (red hat) peeking out from behind the smaller fight gnome. The marker is now hidden while the fight stage is up.
+
 ## 2.5.84
 - **Fight scene end scene**: when you win (or befriend), the creature falls, its XP and loot drop on the ground with their names, rest a moment, then are slowly drawn into your gnome one by one. The map stays locked until the last one is in; tap the stage to skip. A level-up says so. Still off by default (setting `fight_scene`).
 - **Fixes**: a fight no longer starts "already over" or pops your hat at full health: the events of an earlier fight could be left over and play onto the next one. Events now only play on the very fight they belong to.

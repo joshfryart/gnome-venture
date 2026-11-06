@@ -52,7 +52,7 @@ chk "the next fight starts clean: no old events" "$(grep -o 'data-fight="[^"]*"'
 if command -v node >/dev/null && [ -z "$NOBROWSER" ]; then node "$HERE/fight_scene.js" "$BASE" "$SHOT" >$TD/fs-browser.out 2>&1 || { cat $TD/fs-browser.out; FAILS=$((FAILS+1)); }; [ -n "$SHOT" ] && cat $TD/fs-browser.out; fi
 if command -v node >/dev/null && [ -z "$NOBROWSER" ]; then
   php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT id,encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetch(); $e=json_decode($r["encounter"],true); $e["hp"]=1; $p->prepare("UPDATE expeditions SET encounter=?, hp=max_hp WHERE id=?")->execute([json_encode($e),$r["id"]]);'
-  node "$HERE/fight_finale.js" "$BASE" "$SHOT" >$TD/fs-fin.out 2>&1 || { cat $TD/fs-fin.out; FAILS=$((FAILS+1)); }; [ -n "$SHOT" ] && cat $TD/fs-fin.out
+  node "$HERE/fight_finale.js" "$BASE" "$SHOT" >$TD/fs-fin.out 2>&1 || { cat $TD/fs-fin.out; FAILS=$((FAILS+1)); }; [ -n "$SHOT$HATLOG" ] && cat $TD/fs-fin.out
 fi
 cli set gnav_on 0 >/dev/null; cli set gnav_tiles 0 >/dev/null; cli set fight_scene 0 >/dev/null
 ERR1=$(cat "$GAME/data/error-log.txt" 2>/dev/null | wc -l)

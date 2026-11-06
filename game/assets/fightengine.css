@@ -88,3 +88,6 @@
 .fe-dmg.xp{color:#ffe27a;text-shadow:0 2px 0 #7a5a00,0 0 6px #000}
 .fightscene.fs-over.fs-live.fs-done{pointer-events:none}
 body.fs-hold .tmgrid,body.fs-hold .trailfoot{pointer-events:none}
+
+/* the fight stage draws the gnome: the map's own marker (a default gnome, red hat) must not peek out from behind the smaller one */
+.tilemap.tm-fight .tmme{display:none}

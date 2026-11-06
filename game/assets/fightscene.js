@@ -24,6 +24,7 @@
       eng.add('foe', foe);
     } catch (e) { if (window.console) console.warn('fightscene: ' + (e && e.message)); if (eng) { eng.destroy(); eng = null; } host.removeAttribute('role'); return; }
     var mine = eng, list = D.events.length ? D.events : null;
+    window.feScene = mine;   // the running engine (for the tests and for debugging in the console)
     host.classList.add('fs-live');   // the stage takes taps (skip) only while the script runs it
     if (D.finale) {   // the end scene: last blow, the foe falls, XP and loot drop and are drawn into the gnome; the map stays locked until then
       document.body.classList.add('fs-hold');

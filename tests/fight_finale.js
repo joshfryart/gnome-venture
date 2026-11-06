@@ -20,10 +20,14 @@ const { chromium } = require('playwright');
   if (!held) fail('no end scene after the killing blow');
   else {
     const mapLocked = await p.evaluate(() => getComputedStyle(document.querySelector('.tmgrid')).pointerEvents === 'none'); if (!mapLocked) fail('map not locked during the end scene');
+    const marker = await p.evaluate(() => { const m = document.querySelector('.tilemap .tmme'); return m ? getComputedStyle(m).display : 'none'; }); if (marker !== 'none') fail('the map marker (red-hat gnome) shows behind the stage gnome');
     let seenDrop = false;
-    for (let i = 0; i < 14; i++) {
-      await p.waitForTimeout(450);
+    for (let i = 0; i < (process.env.FRAMES ? 40 : 14); i++) {
+      await p.waitForTimeout(process.env.FRAMES ? 150 : 450);
+      if (process.env.FRAMES) { await p.evaluate(() => { document.querySelector('.tmwrap').scrollIntoView(); window.scrollBy(0, -70); }); await p.screenshot({ path: shot + '/frm-' + String(i).padStart(2, '0') + '.png', clip: { x: 60, y: 190, width: 270, height: 220 } }); }
       if (await p.evaluate(() => !!document.querySelector('.fe-drop'))) seenDrop = true;
+      if (process.env.DOMLOG && (i === 1 || i === 9)) console.log('dom', i, JSON.stringify(await p.evaluate(() => [...document.querySelectorAll('.tmstage image, .tmstage img, .tmstage use, .tmstage [class*=hat], .tmstage [class*=me], .tmstage [class*=gnome]')].filter(e => !e.closest('.fe-actors')).map(e => [e.tagName, String(e.getAttribute('class')), (e.getAttribute('href') || e.getAttribute('src') || '').split('/').pop().slice(0, 40), Math.round(e.getBoundingClientRect().x), Math.round(e.getBoundingClientRect().y), Math.round(e.getBoundingClientRect().width)]).slice(0, 14))));
+      if (process.env.HATLOG) console.log('hat', i, JSON.stringify(await p.evaluate(() => { const h = window.feScene && window.feScene.acts.me && window.feScene.acts.me.hat; return h ? [h.mode, Math.round(h.x), Math.round(h.y), Math.round(h.r), h.rest] : null; })));
       if (shot && [3, 5, 7, 9].includes(i)) { await p.evaluate(() => { document.querySelector('.tmwrap').scrollIntoView(); window.scrollBy(0, -70); }); await p.screenshot({ path: shot + '/fin-' + i + '.png' }); }
     }
     if (!seenDrop) fail('no XP/loot drop shown');
