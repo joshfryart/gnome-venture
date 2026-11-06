@@ -37,7 +37,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Trail random fights (2.5.88): flat chance per tile, setting `trail_enc_pct` (default 3%, rough ground x2.5, Sneak x0.4, Hunt x2.5, no cap per section, first/last 3 tiles safe). Josh confirmed 3% OK (2026-11-06). `balance_sim.php` Walks checked 2026-11-06: it already rolls `trail_encounter_index`, so it follows `trail_enc_pct` (mean fights timer 1.08 vs tile 1.06).
 - Trail walk back (2.5.87): DONE (unreleased): walking back lands on the exit in the confirm card (Continue offered), new "Not yet" (`trail_stay`) leaves the confirm to roam, tapping the exit you stand on re-opens it. Still open: Trail only, not delve/wander.
 - `here` suite: FIXED (unreleased): `stops.php:327` slug warning guarded; test sets `fight_scene` 0 for the popover checks.
-- Upkeep: stamp requirement removed (any gnome can chip in; `stop_upkeep_give`, `stop_slim_upkeep`); released 2.5.71, no test covers upkeep, not tried live.
+- Upkeep: stamp requirement removed (any gnome can chip in; `stop_upkeep_give`, `stop_slim_upkeep`); released 2.5.71; tests added 2026-11-06 in `tests/stops100.php` (month roll: first look, unpaid, paid, two months; coin hand-in), unreleased; not tried live.
 - Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); released 2.5.69, not phone-checked. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
 - Trail: yellow square round the walker's tile removed (`.tm-trail .tmt.here`), released 2.5.72, not phone-checked; delve/lair maps keep theirs.
 - Trail ground and landmarks for the other 11 regions (loader exists; art is stand-ins).

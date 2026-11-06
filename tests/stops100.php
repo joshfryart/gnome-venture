@@ -518,5 +518,47 @@ ok('Do tab: no style attributes (CSP)', !preg_match('/\sstyle=/', $page));
 $_GET['t'] = 'folk'; $page = local_panel($u, player_node($u)); $_GET['t'] = 'do';
 ok('Villagers tab: felt villager rows', substr_count($page, '<li class="vlcard">') >= 1 && str_contains($page, '<ul class="vlcards st-folks">'));
 
+echo "== upkeep (v2.5.57, no stamp since 2.5.71)\n";
+require_once $argv[1] . '/includes/stop_adopt.php';
+$uk = stopOfType('market', 2); $ukU = at($uk); $top = stop_top_tier();
+q('DELETE FROM stop_adoptions WHERE location_id = ?', [$uk['id']]);
+q('INSERT INTO stop_adoptions (location_id, user_id, founder_id, tier, pool, adopted_at) VALUES (?, ?, ?, ?, ?, ?)', [$uk['id'], $ukU['id'], $ukU['id'], $top, '{}', gmdate('Y-m-d H:i:s')]);
+$needs = stop_upkeep_needs($uk);
+ok('upkeep needs are a quarter (at least 1) of the top tier needs', $needs && count($needs) === count(stop_tier_needs(stop_tiers_for($uk)[$top])) && min(array_column($needs, 1)) >= 1, json_encode($needs));
+function ukrow(int $id): array { return q_one('SELECT * FROM stop_adoptions WHERE location_id = ?', [$id]); }
+function ukroll(int $id): void { stop_upkeep_settle(ukrow($id)); }   // stop_adoption() settles once per request, so the test rolls the month directly
+ukroll((int)$uk['id']); $a = ukrow((int)$uk['id']);
+ok('first look starts the clock with no penalty', (int)$a['tier'] === $top && $a['upkeep_month'] === stop_upkeep_month(), json_encode([$a['tier'], $a['upkeep_month'] ?? null]));
+// a whole month with nothing paid costs one tier
+q('UPDATE stop_adoptions SET upkeep_month = ?, upkeep_pool = ? WHERE location_id = ?', [gmdate('Y-m', strtotime('-1 month')), '{}', $uk['id']]);
+ukroll((int)$uk['id']);
+ok('a month left unpaid costs one tier', (int)stop_tier((int)$uk['id']) === $top - 1, (string)stop_tier((int)$uk['id']));
+// a month paid in full costs nothing
+q('UPDATE stop_adoptions SET tier = ?, upkeep_month = ?, upkeep_pool = ? WHERE location_id = ?', [$top, gmdate('Y-m', strtotime('-1 month')), json_encode(array_column($needs, 1, 0)), $uk['id']]);
+ukroll((int)$uk['id']);
+ok('a month paid in full keeps the tier', (int)stop_tier((int)$uk['id']) === $top, (string)stop_tier((int)$uk['id']));
+// two months unpaid costs two tiers
+q('UPDATE stop_adoptions SET tier = ?, upkeep_month = ?, upkeep_pool = ? WHERE location_id = ?', [$top, gmdate('Y-m', strtotime('-2 month')), '{}', $uk['id']]);
+ukroll((int)$uk['id']);
+ok('two months unpaid cost two tiers', (int)stop_tier((int)$uk['id']) === max(0, $top - 2), (string)stop_tier((int)$uk['id']));
+// handing in: any gnome, no stamp; coins when the stop asks for them
+q('UPDATE stop_adoptions SET tier = ?, upkeep_month = ?, upkeep_pool = ? WHERE location_id = ?', [$top, stop_upkeep_month(), '{}', $uk['id']]);
+$other = q_one("SELECT * FROM users WHERE username <> 'sprout' AND username <> 'admin' LIMIT 1") ?: me();
+ok('a stop below the top tier needs no upkeep', (function () use ($uk, $top, $other) { q('UPDATE stop_adoptions SET tier = ? WHERE location_id = ?', [$top - 1, $uk['id']]); [$o] = stop_upkeep_give($other, $uk, 'coins', 1); q('UPDATE stop_adoptions SET tier = ? WHERE location_id = ?', [$top, $uk['id']]); return !$o; })());
+[$oNo] = stop_upkeep_give($other, $uk, 'no-such-need', 1);
+ok('something the upkeep does not ask for is refused', !$oNo);
+$coinNeed = 0; foreach ($needs as [$k, $qn]) if ($k === 'coins') $coinNeed = $qn;
+if ($coinNeed > 0) {
+    q('UPDATE users SET coins = ? WHERE id = ?', [$coinNeed + 50, $other['id']]);
+    [$oc, $mc] = stop_upkeep_give(q_one('SELECT * FROM users WHERE id = ?', [$other['id']]), $uk, 'coins', 9999);
+    $left = (int)q_val('SELECT coins FROM users WHERE id = ?', [$other['id']]);
+    ok('handing in coins takes only what is still owed', $oc && $left === 50, $mc . " left=$left");
+    [$oc2] = stop_upkeep_give(q_one('SELECT * FROM users WHERE id = ?', [$other['id']]), $uk, 'coins', 1);
+    ok('a part that is covered takes no more', !$oc2);
+    $pool = stop_upkeep_pool_of(q_one('SELECT * FROM stop_adoptions WHERE location_id = ?', [$uk['id']]));
+    ok('the pool records the coins', (int)($pool['coins'] ?? 0) === $coinNeed, json_encode($pool));
+} else echo "  (top tier asks for no coins here: coin hand-in not run)\n";
+q('DELETE FROM stop_adoptions WHERE location_id = ?', [$uk['id']]);
+
 echo $fails ? "\n$fails FAILED\n" : "\nall passed\n";
 exit($fails ? 1 : 0);
