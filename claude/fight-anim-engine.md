@@ -1,6 +1,7 @@
 # Fight animation engine (own engine, rough pass 2026-11-05)
 
 Goal: fluid 2.5D fights on the trail tile map (mockup B: tilted board, upright sprites, HP bubbles over tiles). Cheap to author, cheap in tokens.
+**How-to guide for others: `claude/animating-2-5d-sprites.md`. Tools: `tools/fight/` (smoke.js gate, sheet.js, gif.js, build_demo.py).**
 Mockup: https://claude.ai/artifact/Jrj4LnTBFpVe3Sx8Eg9hRu (source was scratchpad `trailfight.html`; same ideas as below). Status: BRAINSTORM, nothing in game yet. Today fights open as the old encounter popover (`adventure.php:354`).
 
 ## Core idea

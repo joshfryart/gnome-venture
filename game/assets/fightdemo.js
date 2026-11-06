@@ -2,7 +2,7 @@
   var PARTS = { torso: 'assets/img/fight/rig-gnome-torso.png', legB: 'assets/img/fight/rig-gnome-legB.png', legF: 'assets/img/fight/rig-gnome-legF.png', hat: 'assets/img/fight/rig-gnome-hat.png', tip: 'assets/img/fight/rig-gnome-tip.png', arm: 'assets/img/fight/rig-gnome-arm.png' };
   var eng, busy = false, slug = 'wild-boar';
   function mount() {
-    document.getElementById('stage').innerHTML = '';
+    if (eng) eng.destroy();
     eng = FightEngine.create(document.getElementById('stage'), { speed: document.getElementById('slow').checked ? .3 : 1 });
     eng.add('me', { rig: 'gnome', parts: PARTS, col: 2, side: 'me', name: 'You', hp: 20 });
     eng.add('foe', { rig: slug, img: 'assets/img/mini/mini-' + slug + '.png', col: 8, flip: true, side: 'foe', name: slug.replace(/-/g, ' '), hp: 12 });

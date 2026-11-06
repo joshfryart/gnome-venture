@@ -103,7 +103,7 @@
     host.classList.add('fe-stage');
     host.innerHTML = '<div class="fe-view"><div class="fe-board"><div class="fe-grid"></div></div><div class="fe-actors"></div></div><div class="fe-hud"></div><div class="fe-fx"></div>';
     var view = host.children[0], board = view.children[0], actorsEl = view.children[1], grid = board.children[0], hud = host.children[1], fx = host.children[2];
-    var t = '';
+    var t = '', dead = false;
     for (var y = 0; y < rows; y++) for (var x = 0; x < cols; x++) t += '<div class="fe-t ' + terrain(x, y) + '"></div>';
     grid.innerHTML = t; grid.style.gridTemplateColumns = 'repeat(' + cols + ',1fr)';
 
@@ -251,6 +251,7 @@
     }
     var last = 0;
     function tick(now) {
+      if (dead) return;
       var dt = Math.min(.033, (now - (last || now)) / 1000) * sp(); last = now;
       Object.keys(acts).forEach(function (k) { if (acts[k].hat) stepHat(acts[k], dt); });
       root.requestAnimationFrame(tick);
@@ -318,8 +319,35 @@
         return Promise.all(Object.keys(acts).map(function (k) { var a = acts[k]; return a.hat && a.hp > 0 ? sleep(250).then(function () { return fixHat(a); }) : null; }));
       });
     }
+    function destroy() { dead = true; root.removeEventListener('resize', layout); host.innerHTML = ''; acts = {}; }   // stop the physics loop and the resize hook (call before re-creating on the same host)
     layout(); root.addEventListener('resize', layout); root.requestAnimationFrame(tick);
-    return { add: add, play: play, popHat: popHat, fixHat: fixHat, together: together, acts: acts, layout: layout, setSpeed: function (s) { speed = s; }, MOVES: MOVES };
+    return { destroy: destroy, add: add, play: play, popHat: popHat, fixHat: fixHat, together: together, acts: acts, layout: layout, setSpeed: function (s) { speed = s; }, MOVES: MOVES };
   }
-  root.FightEngine = { create: create, MOVES: MOVES, POSES: POSES, RIGS: RIGS, ATTACK: ATTACK };
+  /* Data lint: returns a list of problems (empty = fine). Run by tools/fight/smoke.js; catches the mistakes that used to crash animate() at play time. */
+  function validate() {
+    var bad = [], partIds = RIGS.gnome.parts.map(function (p) { return p.id; });
+    function times(list, dur, where) {
+      list.forEach(function (k, i) {
+        if (typeof k[0] !== 'number') bad.push(where + ': key ' + i + ' has no time');
+        else if (k[0] > dur) bad.push(where + ': key at ' + k[0] + ' is past dur ' + dur);
+        if (i && k[0] < list[i - 1][0]) bad.push(where + ': times go backwards at ' + k[0]);
+      });
+    }
+    Object.keys(MOVES).forEach(function (n) {
+      var m = MOVES[n], w = 'MOVES.' + n; times(m.keys, m.dur, w);
+      if (m.hit > m.dur) bad.push(w + ': hit past dur');
+      if (m.pose && typeof m.pose === 'string' && !POSES[m.pose]) bad.push(w + ': unknown pose ' + m.pose);
+      if (m.pose && m.pose.use && !POSES[m.pose.use]) bad.push(w + ': unknown pose.use ' + m.pose.use);
+      if (m.keys[m.keys.length - 1][0] !== m.dur) bad.push(w + ': last key is not at dur (the move would snap)');
+    });
+    Object.keys(POSES).forEach(function (n) {
+      var p = POSES[n]; Object.keys(p.tracks).forEach(function (part) {
+        if (partIds.indexOf(part) < 0) bad.push('POSES.' + n + ': unknown part ' + part);
+        times(p.tracks[part], p.dur, 'POSES.' + n + '.' + part);
+      });
+    });
+    Object.keys(ATTACK).forEach(function (s) { if (!MOVES[ATTACK[s]]) bad.push('ATTACK.' + s + ': no move ' + ATTACK[s]); });
+    return bad;
+  }
+  root.FightEngine = { validate: validate, create: create, MOVES: MOVES, POSES: POSES, RIGS: RIGS, ATTACK: ATTACK };
 })(window);
