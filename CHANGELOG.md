@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.91
+- **Admin → Tools: "Trail maps check"** shows the version, the tile-walk flags, whether `trail_maps.json` reads, how many authored routes and ground pictures this site has, and whether four sample routes (228, 256, 238, 444) are authored with their pictures. For finding out why a route still shows a random map.
+
 ## 2.5.90
 - **Authored Trail maps for every route**: the 230 routes outside the Maplewold's own region (624 sections) now each have a hand-shaped 22 x 7 map instead of a random corridor, with the section count the route had before. Each section has a named set piece, a short caption, finds off the walk line and a worn path; routes ending at a delve or lair have the fixed miniboss/boss spot on their last section.
 - **Set-piece landmarks are wired in** with stand-in sprites (137 shared set pieces). Real art is listed in `claude/trail-setpiece-art-notes.md`. Desert, island, mountain, rainforest and wetland still use the coast, tundra and forest ground art.

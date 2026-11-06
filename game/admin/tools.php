@@ -161,6 +161,23 @@ page_header('Tools', true);
     </div>
   <?php else: ?><p class="muted">No images yet.</p><?php endif; ?>
 </div>
+<div class="box" id="trailmaps">
+  <h2>Trail maps check</h2>
+  <?php
+  require_once APP_ROOT . '/includes/trail_art.php';
+  $tmFile = APP_ROOT . '/includes/data/trail_maps.json';
+  $tmJson = is_file($tmFile) ? json_decode((string)file_get_contents($tmFile), true) : null;
+  $tmAll = trail_authored_all();
+  $tmGround = glob(APP_ROOT . '/assets/img/trail/ground/*.png') ?: [];
+  ?>
+  <p class="help">Version <b><?= e(APP_VERSION) ?></b>. Tile walks: gnav_on <b><?= e((string)setting('gnav_on')) ?></b>, gnav_tiles <b><?= e((string)setting('gnav_tiles')) ?></b>.
+    trail_maps.json: <?= is_file($tmFile) ? e(number_format((int)filesize($tmFile))) . ' bytes, saved ' . e(gmdate('Y-m-d H:i', (int)filemtime($tmFile))) . ' UTC, ' . (is_array($tmJson) ? 'reads fine' : '<b>does NOT read (' . e(json_last_error_msg()) . ')</b>') : '<b>missing</b>' ?>.
+    Authored routes the game loads: <b><?= count($tmAll) ?></b> (a full 2.5.90 has 246). Ground pictures on disk: <b><?= count($tmGround) ?></b> (a full 2.5.90 has 666 or more).</p>
+  <table class="list"><tr><th>Route</th><th>Authored?</th><th>Sections</th><th>Ground pictures present</th></tr>
+  <?php foreach ([228 => 'Maplewold Market to Poppyburrow', 256 => 'Mistmoor Market to Larkden', 238 => 'Honeythorpe to Clovercove', 444 => 'Clovercove to The Thousand Gates'] as $rid => $nm): $r = $tmAll[(string)$rid] ?? null; $n = $r ? count($r['sections']) : 0; $have = 0; for ($i = 1; $i <= $n; $i++) if (is_file(APP_ROOT . '/assets/img/trail/ground/' . $rid . '-' . $i . '.png')) $have++; ?>
+    <tr><td><?= $rid ?> <?= e($nm) ?></td><td><?= $r ? 'yes' : '<b>NO</b>' ?></td><td><?= $n ?></td><td><?= $have ?> of <?= $n ?></td></tr>
+  <?php endforeach; ?></table>
+</div>
 <div class="box" id="errors">
   <h2>Error log</h2>
   <p class="help">When a page breaks, the details land here (newest at the bottom). Copy the last entry and send it to whoever is fixing the game.</p>
