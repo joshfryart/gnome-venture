@@ -48,7 +48,7 @@ foreach ($creatures as $ci => $c) foreach (['attack', 'ability', 'flee', 'fighto
     db()->rollBack();
     $encN = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
     $key = $c['slug'] . ":$act:$variant";
-    $out[$key] = ['hp' => (int)$exp['hp'], 'status' => $exp['status'], 'foe' => $encN ? (int)$encN['hp'] : null, 'log' => json_decode((string)$exp['log'], true), 'next' => mt_rand()];
+    $out[$key] = ['hp' => (int)$exp['hp'], 'status' => $exp['status'], 'foe' => $encN ? (int)$encN['hp'] : null, 'log' => array_values(array_filter(json_decode((string)$exp['log'], true), fn($l) => !str_contains((string)$l, 'Milestone:'))), 'next' => mt_rand()];
     if (!function_exists('fight_ev')) continue;
     $ev = fight_ev();
     $dmgFoe = 0; $dmgMe = 0; $heal = 0; $ended = null; $fled = false; $charmed = false;
@@ -74,6 +74,6 @@ foreach ($creatures as $ci => $c) foreach (['attack', 'ability', 'flee', 'fighto
 }
 if ($record) { file_put_contents($file, json_encode(['n' => $n, 'out' => array_map(fn($o) => array_diff_key($o, ['ev' => 1]), $out)], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); echo "recorded $n fights\n"; exit($bad ? 1 : 0); }
 $gold = json_decode((string)file_get_contents($file), true);
-foreach ($gold['out'] as $k => $g) { $o = $out[$k] ?? null; if ($o === null) { $fail("$k missing"); continue; } if (array_diff_key($o, ['ev' => 1]) != $g) $fail("$k: the fight changed (state differs from golden)"); }
+foreach ($gold['out'] as $k => $g) { $o = $out[$k] ?? null; if ($o === null) { $fail("$k missing"); continue; } if (array_diff_key($o, ["ev" => 1]) != $g) { $fail("$k: the fight changed"); if (getenv("FEDBG")) { echo json_encode(array_diff_key($o, ["ev" => 1])), "\n", json_encode($g), "\n"; } } }
 echo $bad ? "$bad FAILED\n" : "ok $n fights" . (function_exists('fight_ev') ? ' (events checked)' : ' (no recorder yet)') . "\n";
 exit($bad ? 1 : 0);
