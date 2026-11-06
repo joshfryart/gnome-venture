@@ -48,3 +48,12 @@ Fluid = motion maths, not many drawn frames. Few key poses + code tweens. Adding
 4. Polish: damage numbers pop to the side of the head (clamped inside the stage), crit pushes the camera in for a beat, easing on the shake.
 5. Verified by contact sheets: pluck, enter, hit, KO, guard (ring + raised arms), flee, creature pounce. Fixed: pose `use` + `dur` made offsets > 1 (added `len`), guard ring kept after flee, damage numbers clipped at the top.
 Still open: creature part rigs (all creatures are still pedestal pictures), hit/KO for creatures, tinted gnome parts, redraw arm in Aseprite/Lua, wiring into `adventure.php`.
+
+## Update: fluidity, style, hat physics (2026-11-06)
+- **Actors are no longer 3D objects.** Chrome depth-sorted the upright planes against the tilted tiles, so a rotated or lying body vanished (a sliver) once the hat was in play. Now the board is one `perspective(520px) rotateX(42deg)` transform and each actor is a flat, screen-aligned picture placed at the projected position of its feet (`proj()`, DOMMatrix) and scaled by the local perspective scale. Nothing hides behind tiles; bodies can lie down or fly. z-index = row.
+- **Hat = 2 spring bodies.** `hat` (pivot 32,37) and `tip` (the curl and bobble, pivot 28,11; cut by `tools/gnome_rig_parts.php`). A rAF loop measures how the head moves (screen px, so hitstop and slow motion are free) and drives damped springs: hat lags, tilts, tip whips. Head is a bald dome with three hairs (drawn in the parts script) so the hat can come off.
+- **Pop and fix:** a crit, `ev.pop`, or a KO pops the hat (ballistic arc, spin, two bounces, lies at -82 deg). When the fight list ends the gnome, if standing, plays `fixhat`: hat hops back on crooked (-22), a pat or two (arm up), the spring straightens it.
+- **Style:** pluck winds up with a shimmy (torso and legs scrabble) before the rush; dust puffs on run-ins and rushes; a win gives a two-hop `cheer` with a fist pump; a KO'd gnome (`lingers`) lies on its back with dizzy stars orbiting.
+- **Fluidity:** per-part lag (far arm 20 ms, near arm 35 ms) for overlap, hat/tip follow-through from physics, hit-stop pauses limb poses too, crit pushes the camera in.
+- Held end poses (`keep`) are committed to plain style when finished.
+- Still open: creature part rigs, tinted gnome parts, arm redraw in Aseprite/Lua, wiring into `adventure.php`. Ideas for more quirk: beard sway as a third spring, scarf tail, idle fidgets (hat tip, beard stroke), blink.

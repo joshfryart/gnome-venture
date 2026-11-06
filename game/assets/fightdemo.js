@@ -1,5 +1,5 @@
 (function () {
-  var PARTS = { torso: 'assets/img/fight/rig-gnome-torso.png', legB: 'assets/img/fight/rig-gnome-legB.png', legF: 'assets/img/fight/rig-gnome-legF.png', arm: 'assets/img/fight/rig-gnome-arm.png' };
+  var PARTS = { torso: 'assets/img/fight/rig-gnome-torso.png', legB: 'assets/img/fight/rig-gnome-legB.png', legF: 'assets/img/fight/rig-gnome-legF.png', hat: 'assets/img/fight/rig-gnome-hat.png', tip: 'assets/img/fight/rig-gnome-tip.png', arm: 'assets/img/fight/rig-gnome-arm.png' };
   var eng, busy = false, slug = 'wild-boar';
   function mount() {
     document.getElementById('stage').innerHTML = '';
