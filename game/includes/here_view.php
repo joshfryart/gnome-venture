@@ -551,8 +551,22 @@ function here_sprites(array $u, array $node, array $L, string $kind): array
         require_once __DIR__ . '/local.php';
         foreach (stop_folk_of($node) as $f) $npcs[] = ['stop_folk' => 1, 'id' => (int)$f['id'], 'slug' => 'stopfolk-' . (int)$f['id'], 'name' => (string)$f['name'], 'species' => (string)$f['species']] ;
     }
-    [$pairs, $over] = here_place_npcs($L['stand'] ?? [], $npcs, intdiv(time(), 3600));
+    $stand = $L['stand'] ?? [];
+    $palSlot = null;
+    $pal = null;
+    if ($stand && (setting('ppal_open') === '1' || is_admin()) && !is_guest($u)) {   // a waiting Puzzle Pal stands with the villagers; it keeps the first slot so a crowd never crowds it out
+        require_once __DIR__ . '/puzzle_pals.php';
+        $pal = ppal_map_spawns($u)[(int)$node['id']] ?? null;
+        if ($pal) $palSlot = array_shift($stand);
+    }
+    [$pairs, $over] = here_place_npcs($stand, $npcs, intdiv(time(), 3600));
     $out = [];
+    if ($pal && $palSlot) {
+        $pk = $pal['pal'];
+        $art = ppal_art_url($pk['key']);
+        $out[] = ['id' => 'ppal', 'x' => (int)$palSlot['x'], 'y' => (int)$palSlot['y'], 'name' => $pk['name'] . ' (Puzzle Pal)', 'href' => url('puzzlepals.php'), 'mark' => '🧩',
+                  'card' => ppal_here_html($u, (int)$node['id']), 'src' => $art, 'w' => 56, 'h' => 56, 'emoji' => '🧩'];
+    }
     foreach ($pairs as [$slot, $n]) {
         if (!empty($n['stop_folk'])) {
             $sp = ['src' => '', 'w' => 56, 'h' => 56, 'emoji' => npc_icon($n['species'])];
