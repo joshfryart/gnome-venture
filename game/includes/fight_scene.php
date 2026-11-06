@@ -102,14 +102,14 @@ function fight_finale_pending(array $exp): bool
     $r = $_SESSION['fight_ev'] ?? null;
     if (!is_array($r) || (int)($r['exp'] ?? 0) !== (int)$exp['id'] || time() - (int)($r['t'] ?? 0) > 30 || empty($r['ev'])) return false;
     $last = end($r['ev']);
-    return is_array($last) && in_array($last['end'] ?? '', ['win', 'peace'], true);   // a run or a knock-out just returns to the page
+    return is_array($last) && in_array($last['end'] ?? '', ['win', 'peace', 'flee'], true);   // a knock-out ends the walk: its scene sits on the result page (fight_finale_html with no map)
 }
 
 /**
  * The end scene of a fight, drawn over the map after the last blow: the foe falls (or the gnome runs), XP and loot drop and are drawn into the gnome,
  * then the map unlocks (assets/fightscene.js, FightEngine reward). $over = the same cells as fight_scene_html. '' when nothing is waiting.
  */
-function fight_finale_html(array $u, array $exp, array $over): string
+function fight_finale_html(array $u, array $exp, ?array $over): string
 {
     $take = fight_ev_take((int)$exp['id']);
     if (!$take) return '';
@@ -128,7 +128,7 @@ function fight_finale_html(array $u, array $exp, array $over): string
         'parts' => gnome_rig_urls($u), 'base' => url('assets/img/fight'),
         'mini' => $slug !== '' && is_file(APP_ROOT . '/assets/img/mini/mini-' . $slug . '.png') ? url('assets/img/mini/mini-' . $slug . '.png') : '',
         'over' => $over, 'pals' => fight_scene_pals($u), 'hat' => 0, 'finale' => 1,
-        'reward' => ['kind' => (string)$last['end'], 'xp' => (int)($last['xp'] ?? 0), 'lvl' => (int)($last['lvl'] ?? 0), 'loot' => $loot],
+        'reward' => in_array((string)($last['end'] ?? ''), ['win', 'peace'], true) ? ['kind' => (string)$last['end'], 'xp' => (int)($last['xp'] ?? 0), 'lvl' => (int)($last['lvl'] ?? 0), 'loot' => $loot] : null,   // a run or a knock-out has nothing to collect: the scene is just the last moves
     ];
-    return '<div class="fightscene fs-over" id="fightscene" data-fight="' . e((string)json_encode($data, JSON_UNESCAPED_UNICODE)) . '" role="img" aria-label="The fight is over"></div>';
+    return '<div class="fightscene' . ($over ? ' fs-over' : '') . '" id="fightscene" data-fight="' . e((string)json_encode($data, JSON_UNESCAPED_UNICODE)) . '" role="img" aria-label="The fight is over"></div>';
 }

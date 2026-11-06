@@ -54,6 +54,15 @@ if command -v node >/dev/null && [ -z "$NOBROWSER" ]; then
   php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT id,encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetch(); $e=json_decode($r["encounter"],true); $e["hp"]=1; $p->prepare("UPDATE expeditions SET encounter=?, hp=max_hp WHERE id=?")->execute([json_encode($e),$r["id"]]);'
   node "$HERE/fight_finale.js" "$BASE" "$SHOT" >$TD/fs-fin.out 2>&1 || { cat $TD/fs-fin.out; FAILS=$((FAILS+1)); }; [ -n "$SHOT$HATLOG" ] && cat $TD/fs-fin.out
 fi
+echo "== end scene of a run (flee)"
+cli forceenc >/dev/null
+php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT id,encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetch(); $e=json_decode($r["encounter"],true); $e["hp"]=$e["max"]=900; $p->prepare("UPDATE expeditions SET encounter=?, hp=?, max_hp=? WHERE id=?")->execute([json_encode($e),999,999,$r["id"]]);'
+FLED=0
+for i in $(seq 1 25); do get adventure.php >/dev/null; post adventure.php -d do=flee >/dev/null; get adventure.php >/dev/null; if ! grep -q 'class="fsdock fsc"' $TD/here-p.html; then FLED=1; break; fi; done
+FD=$(grep -o 'data-fight="[^"]*"' $TD/here-p.html | head -1 | php -r 'echo html_entity_decode(stream_get_contents(STDIN));')
+chk "running away leaves a scene on the map (the gnome runs off)" "$([ $FLED = 1 ] && grep -q 'class="fightscene fs-over"' $TD/here-p.html && echo "$FD" | grep -q '"finale":1' && echo "$FD" | grep -q '"flee"' && echo "$FD" | grep -q '"reward":null' && echo 1)" "$(echo $FD | cut -c1-200)"
+get adventure.php >/dev/null
+chk "...once: a reload shows the plain map" "$(grep -q 'id="fightscene"' $TD/here-p.html && echo 0 || echo 1)"
 echo "== walking back (trail_prev) on the page"
 cli clearenc >/dev/null
 php -r '$_SERVER["SCRIPT_NAME"]="/adventure.php"; require "'$GAME'/includes/bootstrap.php"; require_once "'$GAME'/includes/adventure.php"; require_once "'$GAME'/includes/trail_tiles.php"; $u=q_one("SELECT * FROM users WHERE username=\"sprout\""); $exp=active_expedition((int)$u["id"]); $sc=trail_scene($exp); [$x,$y]=$sc["map"]["spots"]["9"]; $sc["x"]=$x; $sc["y"]=$y; $sc["st"]["phase"]="confirm"; trail_save($sc); $exp["encounter"]=null; [$ok]=trail_next($u,$exp); $exp["encounter"]=null; save_exp($exp); echo $ok?"ok":"no";' 2>/dev/null | grep -q ok
@@ -62,6 +71,15 @@ chk "section 2 page offers the way back" "$(grep -q 'value="trail_prev"' $TD/her
 R=$(post adventure.php -d do=trail_prev)
 get adventure.php >/dev/null
 chk "the way back leads to section 1, and the offer is gone" "$(grep -q 'Section 1 of' $TD/here-p.html && ! grep -q 'value="trail_prev"' $TD/here-p.html && echo 1)"
+echo "== end scene of a knock-out"
+cli forceenc >/dev/null
+php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT id,encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetch(); $e=json_decode($r["encounter"],true); $e["hp"]=$e["max"]=900; $p->prepare("UPDATE expeditions SET encounter=?, hp=?, max_hp=? WHERE id=?")->execute([json_encode($e),1,20,$r["id"]]);'
+DOWN=0
+for i in $(seq 1 40); do get adventure.php >/dev/null; post adventure.php -d do=attack >/dev/null; get adventure.php >/dev/null; if grep -q 'Knocked out!' $TD/here-p.html; then DOWN=1; break; fi; done
+FD=$(grep -o 'data-fight="[^"]*"' $TD/here-p.html | head -1 | php -r 'echo html_entity_decode(stream_get_contents(STDIN));')
+chk "a knock-out plays on the stage before the result" "$([ $DOWN = 1 ] && grep -q 'class="fightscene" id="fightscene"' $TD/here-p.html && echo "$FD" | grep -q '"finale":1' && echo "$FD" | grep -q '"end":"ko"\|"ko"' && echo "$FD" | grep -q '"reward":null' && echo 1)" "$(echo $FD | cut -c1-200)"
+get adventure.php >/dev/null
+chk "...once: a reload shows only the result" "$(grep -q 'id="fightscene"' $TD/here-p.html && echo 0 || echo 1)"
 cli set gnav_on 0 >/dev/null; cli set gnav_tiles 0 >/dev/null; cli set fight_scene 0 >/dev/null
 ERR1=$(cat "$GAME/data/error-log.txt" 2>/dev/null | wc -l)
 [ "$ERR1" -gt "$ERR0" ] && { echo "  FAIL php errors logged"; tail -n +$((ERR0+1)) "$GAME/data/error-log.txt" | head -5; FAILS=$((FAILS+1)); }

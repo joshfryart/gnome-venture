@@ -374,6 +374,7 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
   <?php elseif ($last['status'] === 'done'): ?>
     <h3>🏡 You’ve arrived at <?= e($to['name']) ?>.</h3>
   <?php else: ?>
+    <?php if (fight_scene_on()) echo fight_finale_html($u, $last, null);   // the knock-out plays on the stage first (nothing is shown if the record is gone) ?>
     <h3>💫 Knocked out!</h3><p>You woke up back in <?= e($from['name']) ?>. Nothing was lost except a little energy and pride.</p>
   <?php endif; ?>
   <p><a class="btn" href="<?= e(url('world.php')) ?>">Look around</a></p>

@@ -85,6 +85,26 @@ if (function_exists('fight_pal_events')) {
     if (count($e) !== 2 || $e[0]['from'] !== 'pal2' || $e[1]['from'] !== 'foe') $fail('pal daze: the pal cheers, then the foe is dazed: ' . json_encode($e));
     if (fight_pal_slot($u, 'no-such-pal') !== -1) $fail('a pal that is not along has no slot');
 }
+// end scenes for a run and a knock-out (fight_finale_*): a flee is pending on the map, a KO is not (its walk is over); neither has a reward to collect
+if (is_file($argv[1] . '/includes/fight_scene.php')) {
+    require_once $argv[1] . '/includes/fight_scene.php';
+    $rec = fn(string $end) => ['exp' => 777, 't' => time(), 'start' => ['me' => ['hp' => 9, 'max' => 20], 'foe' => ['hp' => 5, 'max' => 5, 'slug' => 'aphid-swarm', 'name' => 'Aphid']],
+        'ev' => [['from' => 'me', 'move' => $end === 'ko' ? 'attack' : 'flee'], ['end' => $end]], 'end' => ['me' => ['hp' => $end === 'ko' ? 0 : 9, 'max' => 20], 'foe' => ['hp' => 5]]];
+    foreach (['flee' => true, 'ko' => false, 'win' => true] as $end => $pending) {
+        $_SESSION['fight_ev'] = $rec($end);
+        if (fight_finale_pending(['id' => 777]) !== $pending) $fail("finale pending after $end should be " . ($pending ? 'yes' : 'no'));
+    }
+    foreach (['flee', 'ko'] as $end) {
+        $_SESSION['fight_ev'] = $rec($end);
+        $h = fight_finale_html($u, ['id' => 777], $end === 'flee' ? ['cols' => 9, 'rows' => 9, 'mx' => 2, 'my' => 4, 'fx' => 4] : null);
+        $d = preg_match('/data-fight="([^"]*)"/', $h, $m) ? json_decode(html_entity_decode($m[1]), true) : null;
+        if (!$d || !$d['finale'] || $d['reward'] !== null) $fail("$end end scene: finale with no reward");
+        if ($end === 'ko' && str_contains($h, 'fs-over')) $fail('KO end scene with no map must not use the over-the-map layout');
+        if ($end === 'flee' && !str_contains($h, 'fs-over')) $fail('flee end scene sits over the map');
+        if (isset($_SESSION['fight_ev'])) $fail("$end end scene did not consume the record");
+    }
+    $_SESSION['fight_ev'] = $rec('win'); fight_finale_html($u, ['id' => 777], ['cols' => 9, 'rows' => 9, 'mx' => 2, 'my' => 4, 'fx' => 4]);
+}
 if ($record) { file_put_contents($file, json_encode(['n' => $n, 'out' => array_map(fn($o) => array_diff_key($o, ['ev' => 1]), $out)], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); echo "recorded $n fights\n"; exit($bad ? 1 : 0); }
 $gold = json_decode((string)file_get_contents($file), true);
 foreach ($gold['out'] as $k => $g) { $o = $out[$k] ?? null; if ($o === null) { $fail("$k missing"); continue; } if (array_diff_key($o, ["ev" => 1]) != $g) { $fail("$k: the fight changed"); if (getenv("FEDBG")) { echo json_encode(array_diff_key($o, ["ev" => 1])), "\n", json_encode($g), "\n"; } } }
