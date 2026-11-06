@@ -596,5 +596,17 @@ ok('toasts: the error one keeps its type', in_array('err', array_column($tt, 'ty
 ok('toasts: nothing is left queued for the next page to toast again', empty($_SESSION['new_pages']) && empty($_SESSION['flash']) && empty($_SESSION['prizes']));
 ok('toasts: a second call is empty', take_toasts() === []);
 
+echo "== v2.6.05 your runs into a delve or lair (landmark_runs, player-facing)\n";
+require_once $argv[1] . '/includes/landmarks.php';
+$me = me(); $lmRow = q_one("SELECT id FROM landmarks WHERE kind = 'delve' ORDER BY id LIMIT 1");
+ok('runs: nothing to show before the first run', landmark_runs_html((int)$me['id'], (int)$lmRow['id']) === '');
+foreach ([['cleared', 3, 2, 4, '2026-11-01 10:00:00'], ['ko', 3, 1, 4, '2026-11-02 10:00:00'], ['left', 4, 0, 4, '2026-11-03 10:00:00']] as $i => [$oc, $lv, $dp, $stg, $at]) {
+    db_insert('landmark_runs', ['user_id' => (int)$me['id'], 'landmark_id' => (int)$lmRow['id'], 'exp_id' => 900000 + $i, 'kind' => 'delve', 'outcome' => $oc, 'level' => $lv, 'depth' => $dp, 'stages' => $stg, 'started_at' => $at, 'ended_at' => $at]);
+}
+$rh = landmark_runs_html((int)$me['id'], (int)$lmRow['id']);
+ok('runs: the fold counts and lists all three, newest first', str_contains($rh, 'Your runs (3)') && strpos($rh, 'Left early') < strpos($rh, 'Knocked out') && strpos($rh, 'Knocked out') < strpos($rh, 'Cleared'), strip_tags($rh));
+ok('runs: another player sees none of them', landmark_runs_html((int)$me['id'] + 9999, (int)$lmRow['id']) === '');
+q('DELETE FROM landmark_runs WHERE exp_id >= 900000');
+
 echo $fails ? "\n$fails FAILED\n" : "\nall passed\n";
 exit($fails ? 1 : 0);

@@ -34,6 +34,12 @@ const { chromium } = require('playwright');
   if (k1 !== 1) fail('a new journal line is not announced (' + k1 + ')');
   if (k2 !== 0) fail('the same journal line is announced again (' + k2 + ')');
   if (k3 !== 1) fail('the next new line is not announced (' + k3 + ')');
+  // messages wait while a fight's end scene plays on the map, then show
+  await p.evaluate(() => { document.querySelectorAll('.toasts').forEach(x => x.remove()); document.body.classList.add('fs-hold'); const d = document.createElement('div'); d.className = 'flash ok'; d.textContent = 'You find a held clover.'; gvShowToasts([d]); });
+  await p.waitForTimeout(300);
+  if (await p.locator('.toasts').count()) fail('a message covered the end scene while it was playing');
+  await p.evaluate(() => document.body.classList.remove('fs-hold'));
+  await p.waitForSelector('.toasts', { timeout: 2000 }).catch(() => fail('the held message never showed after the end scene'));
   if (errs.length) fail('page errors: ' + errs.join(' | '));
   console.log(bad ? bad + ' FAILED' : 'trail pop ok'); await b.close(); process.exit(bad ? 1 : 0);
 })();

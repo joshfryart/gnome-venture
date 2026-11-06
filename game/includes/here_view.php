@@ -480,6 +480,7 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
                 $done = $kind === 'delve' && landmark_done_today($uid, $lmId, 'delve');
                 $card = '<p>' . e((string)($lm['description'] ?? '')) . '</p><p class="muted">Level ' . (int)$lm['level'] . ($kind === 'delve' ? ' · −1 energy to go in · once a day' : '') . '</p>'
                     . ($done ? '<p class="muted">You’ve been down there today. The delve needs a day to settle.</p>' : here_form('landmark.php', $f + ['do' => $kind], $kind === 'delve' ? '🕳️ Go in' : '🐉 Face the lair'));
+                $card .= landmark_runs_html($uid, $lmId);   // v2.6.05: your past runs here
             }
             $add('mouth', (string)$node['name'], $kind === 'delve' ? '🕳️' : '🐉', url('world.php'), $card, '', $lock ? 'locked' : ($ruin ? 'ruin' : ''));
         }

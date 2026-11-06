@@ -513,6 +513,27 @@ function landmark_run_record(array $exp): void
     } catch (Throwable $e) { error_log('landmark_run_record: ' . $e->getMessage()); }
 }
 
+/**
+ * v2.6.05: your own past runs into a delve or lair (the `landmark_runs` rows), newest first, in a fold: how each ended, how deep and when.
+ * Empty string when you have never been in.
+ */
+function landmark_runs_html(int $uid, int $lmId, int $limit = 6): string
+{
+    try {
+        $n = (int)q_val('SELECT COUNT(*) FROM landmark_runs WHERE user_id = ? AND landmark_id = ?', [$uid, $lmId]);
+        if ($n < 1) return '';
+        $rows = q('SELECT kind, outcome, level, depth, stages, ended_at FROM landmark_runs WHERE user_id = ? AND landmark_id = ? ORDER BY id DESC LIMIT ' . (int)$limit, [$uid, $lmId])->fetchAll();
+    } catch (Throwable $e) { return ''; }
+    $how = ['cleared' => ['🏆', 'Cleared'], 'ko' => ['💫', 'Knocked out'], 'left' => ['🚪', 'Left early']];
+    $li = '';
+    foreach ($rows as $r) {
+        [$ico, $word] = $how[(string)$r['outcome']] ?? ['•', ucfirst((string)$r['outcome'])];
+        $deep = $r['kind'] === 'delve' && (int)$r['stages'] > 0 ? ' · stage ' . min((int)$r['stages'], (int)$r['depth'] + ((string)$r['outcome'] === 'cleared' ? 0 : 1)) . ' of ' . (int)$r['stages'] : '';
+        $li .= '<li>' . $ico . ' <b>' . e($word) . '</b>' . $deep . ' · level ' . (int)$r['level'] . ' <small class="muted">' . e(date('j M', ts((string)$r['ended_at']))) . '</small></li>';
+    }
+    return '<details class="lmruns"><summary>📖 Your runs (' . $n . ')</summary><ul>' . $li . '</ul></details>';
+}
+
 /** Count a delve or lair clear. Returns true the first time. */
 function landmark_record_clear(int $uid, int $lmId): bool
 {
@@ -662,6 +683,7 @@ function landmark_panel(array $u, array $node): string
                 . $form('delve', '🕳️ Go in <span class="cost">⚡1' . (tool_tier($uid, 'lantern') ? ', rooms free (🏮)' : ', then 1 a room') . '</span>', '', $done)
                 . '<p class="help">' . ($done ? '✔️ Explored today. ' : '') . 'Once a day.' . ($cleared ? ' Cleared ' . $cleared . ' time' . ($cleared === 1 ? '' : 's') . '.' : '')
                 . ((int)$lm['level'] > (int)$u['level'] + 4 ? ' ⚠️ Well above your gnome level.' : '') . '</p>';
+            $h .= landmark_runs_html($uid, $id);
             break;
         case 'lair':
             $boss = lair_boss($lm);
@@ -675,6 +697,7 @@ function landmark_panel(array $u, array $node): string
                     . ($cleared ? ' You’ve beaten it ' . $cleared . ' time' . ($cleared === 1 ? '' : 's') . '.' : '')
                     . ((int)$boss['level'] > (int)$u['level'] + 4 ? ' ⚠️ This is a legendary creature, far above your level. Losing costs nothing but pride.' : '') . '</p>';
             }
+            $h .= landmark_runs_html($uid, $id);
             break;
     }
     return $h . '</div>';

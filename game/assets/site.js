@@ -1263,7 +1263,7 @@ function gvPageToasts() {
     if (key && key === seen) { x.remove(); return; }
     var d = document.createElement('div'); d.className = 'flash ok'; d.textContent = x.textContent.trim(); if (d.textContent && !nodes.some(function (n) { return n.textContent === d.textContent; })) nodes.push(d); x.remove();
     var view = document.querySelector('.tilemap .tmview');
-    if (view && d.textContent) { var pop = document.createElement('div'); pop.className = 'tmpop'; pop.setAttribute('aria-hidden', 'true'); pop.textContent = d.textContent; view.appendChild(pop); setTimeout(function () { pop.remove(); }, 4200); }
+    if (view && d.textContent && !view.querySelector('.fightscene')) { var pop = document.createElement('div'); pop.className = 'tmpop'; pop.setAttribute('aria-hidden', 'true'); pop.textContent = d.textContent; view.appendChild(pop); setTimeout(function () { pop.remove(); }, 4200); }
   });
   if (nodes.length) gvShowToasts(nodes);
 }
@@ -1596,6 +1596,15 @@ function gvCapToasts(nodes) {
    errors stay until tapped (✕). Computers: as before. Always role status (ok) or alert (error). */
 function gvShowToasts(nodes) {
   if (!nodes.length) return;
+  /* v2.6.05: while a fight's end scene plays on the map (body.fs-hold), the messages wait for it to finish instead of covering it (they are in Messages meanwhile) */
+  if (document.body.classList.contains('fs-hold') || document.body.classList.contains('fo-playing')) {
+    var mo = new MutationObserver(function () {
+      if (document.body.classList.contains('fs-hold') || document.body.classList.contains('fo-playing')) return;
+      mo.disconnect(); gvShowToasts(nodes);
+    });
+    mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return;
+  }
   var phone = window.innerWidth <= 720;
   if (phone) document.querySelectorAll('.toasts').forEach(function (old) { old.remove(); });   // v1.6.2: never stack two toast boxes
   var box = document.createElement('div');
