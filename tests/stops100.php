@@ -558,6 +558,29 @@ if ($coinNeed > 0) {
     $pool = stop_upkeep_pool_of(q_one('SELECT * FROM stop_adoptions WHERE location_id = ?', [$uk['id']]));
     ok('the pool records the coins', (int)($pool['coins'] ?? 0) === $coinNeed, json_encode($pool));
 } else echo "  (top tier asks for no coins here: coin hand-in not run)\n";
+// the Extras tab of the Rest stop popover (v2.5.99): the upgrade activities, open while the stop is built, even when it only needs upkeep
+require_once $argv[1] . '/includes/place_ui.php';
+$xu = me();
+$xn = null; foreach (stop_road_stops() as $rs) { if (!$rs['on_road']) continue; $cand = q_one('SELECT * FROM locations WHERE id = ?', [$rs['id']]); if (stop_pool($cand, null, (int)$xu['id'])['tiers']) { $xn = $cand; break; } }
+ok('Extras: a road stop with upgrade activities exists to test with', $xn !== null);
+$uk = $xn ?: $uk;
+q('UPDATE users SET location_id = ?, location = ?, energy = 900 WHERE username = ?', [$uk['id'], $uk['region'], 'sprout']);
+$needs = stop_upkeep_needs($uk);
+$extras = function () use ($xu, $xn): string { return stop_slim_card_html(me(), $xn, false); };
+cfg(['stop_adopt_limit' => 1]);
+q('DELETE FROM stop_adoptions WHERE location_id = ?', [$uk['id']]);
+$h0 = $extras();
+ok('Extras: a stop nobody built up says so and lists what is still to build, locked', str_contains($h0, 'Nobody has built this stop up yet') && str_contains($h0, 'Still to build') && str_contains($h0, 'needs tier'), substr(strip_tags($h0), 0, 160));
+q('INSERT INTO stop_adoptions (location_id, user_id, founder_id, tier, pool, adopted_at) VALUES (?, ?, ?, ?, ?, ?)', [$uk['id'], $xu['id'], $xu['id'], 1, '{}', gmdate('Y-m-d H:i:s')]);
+$h1 = $extras();
+ok('Extras: a stop built to tier 1 shows its tier and its open activities with in-place buttons', str_contains($h1, 'Built to tier 1') && str_contains($h1, 'class="st-extra"') && str_contains($h1, 'name="tab" value="extras"') && str_contains($h1, 'data-vform'), substr(strip_tags($h1), 0, 200));
+q('UPDATE stop_adoptions SET tier = ?, upkeep_month = ?, upkeep_pool = ? WHERE location_id = ?', [$top, stop_upkeep_month(), '{}', $uk['id']]);
+$h2 = $extras();
+ok('Extras: a fully built stop that only needs upkeep still has every activity open, and says why', str_contains($h2, 'Needs its upkeep') && str_contains($h2, 'class="st-extra"') && str_contains($h2, 'data-vform') && !str_contains($h2, 'Still to build'), substr(strip_tags($h2), 0, 200));
+q('UPDATE stop_adoptions SET upkeep_pool = ? WHERE location_id = ?', [json_encode(array_column($needs, 1, 0)), $uk['id']]);
+$h3 = $extras();
+ok('Extras: kept up says cared for', str_contains($h3, 'Cared for') && str_contains($h3, 'class="st-extra"'), substr(strip_tags($h3), 0, 160));
+ok('Extras: the card has four tabs now (Hold, Upkeep, Extras, Garden) and no inline style', substr_count($h3, 'class="st-tab st-tab--') >= 3 && !preg_match('/\sstyle=/', $h3));
 q('DELETE FROM stop_adoptions WHERE location_id = ?', [$uk['id']]);
 
 echo $fails ? "\n$fails FAILED\n" : "\nall passed\n";

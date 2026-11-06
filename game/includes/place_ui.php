@@ -339,6 +339,11 @@ function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '',
             if (!stop_upkeep_met(stop_upkeep_needs($node), stop_upkeep_pool_of($a))) $dflt = 'upkeep';
         }
     }
+    if ($node['kind'] === 'village' && on_road((int)$node['id']) && (stop_adopt_limit() > 0 || stop_adoption((int)$node['id']))) {   // v2.5.99: the extras of a stop (its upgrade activities)
+        $sec = 'extras';
+        $ex = stop_slim_extras($u, $node, stop_adoption((int)$node['id']));
+        if ($ex !== null) $P['extras'] = ['✨ Extras', $ex];
+    }
     if ($node['kind'] === 'village' && $node['region_id']) {   // Garden here: the land deed (or your garden in this region)
         $sec = 'garden';
         $plot = q_one('SELECT * FROM plots WHERE user_id = ? AND region_id = ?', [$uid, $node['region_id']]);
@@ -365,6 +370,56 @@ function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '',
         $h .= '</div>';
     }
     return $h . '</div>';
+}
+
+/**
+ * v2.5.99: the Extras tab of the Rest stop popover: the activities that come with a stop being built up (the upgrade activities), which the Here pictures have no room for.
+ * They stay open to everyone while the stop is built, even when it only needs its monthly upkeep (the line at the top says which; unpaid for a whole month it loses a tier).
+ * What a stop that is not built up yet would give is listed under it, locked. Each activity has its own buttons, posted in place (data-vform, back on this tab).
+ * Returns null when this kind of stop has no upgrade activities at all.
+ */
+function stop_slim_extras(array $u, array $node, ?array $a): ?string
+{
+    require_once __DIR__ . '/local.php';
+    $uid = (int)$u['id'];
+    $pool = stop_pool($node, null, $uid);
+    $open = array_values(array_filter($pool['offer'], fn($x) => (int)($x['tier'] ?? 0) > 0));
+    $later = array_values(array_filter($pool['later'], fn($x) => (int)($x['tier'] ?? 0) > 0));
+    $locked = $pool['tiers'];
+    if (!$open && !$later && !$locked) return null;
+    $tier = $a ? (int)$a['tier'] : 0;
+    $top = stop_top_tier();
+    $maxed = $a && $top > 0 && $tier >= $top;
+    $kept = $maxed && stop_upkeep_met(stop_upkeep_needs($node), stop_upkeep_pool_of($a));
+    if ($maxed && $kept) $state = '<p class="good">✅ Cared for: fully built and kept up for ' . e(gmdate('F')) . '. Everything below is open.</p>';
+    elseif ($maxed) $state = '<p class="muted">🔧 Needs its upkeep for ' . e(gmdate('F')) . '. Everything below is still open. <label for="stt-upkeep" class="st-jump">Open Upkeep</label> to keep it that way.</p>';
+    elseif ($tier > 0) $state = '<p class="muted">🏗️ Built to tier ' . $tier . ' of ' . $top . '. More opens as it grows.</p>';
+    else $state = '<p class="muted">Nobody has built this stop up yet. Take hold of it (Hold tab) to open its extras.</p>';
+    $folk = stop_folk_of($node)[0] ?? null;
+    $item = function (array $x, string $body) use ($node, $folk): string {
+        $blurb = stop_say((string)($x['blurb'] ?? ''), $node, $folk);
+        return '<li class="st-extra"><b>' . e((string)$x['icon']) . ' ' . e((string)$x['name']) . '</b>' . ($blurb !== '' ? ' <small class="muted">' . e($blurb) . '</small>' : '') . $body . '</li>';
+    };
+    $h = $state;
+    if ($open) {
+        $h .= '<ul class="st-extras">';
+        foreach ($open as $x) {
+            $btn = str_replace(['<form method="post"', '<input type="hidden" name="do" value="local">'], ['<form method="post" data-vform', '<input type="hidden" name="card" value="stop"><input type="hidden" name="tab" value="extras"><input type="hidden" name="do" value="local">'], local_act_buttons($u, $node, $x, false));
+            $h .= $item($x, '<div class="doacts">' . $btn . '</div>');
+        }
+        $h .= '</ul>';
+    } elseif ($tier > 0) $h .= '<p class="muted">Nothing from the upgrades is open right now.</p>';
+    if ($later) {
+        $h .= '<p class="muted"><b>🕰️ Other times</b></p><ul class="st-extras">';
+        foreach ($later as $x) $h .= $item($x, ' <small class="muted">' . e(stop_cond_text((string)$x['cond'])) . '</small>');
+        $h .= '</ul>';
+    }
+    if ($locked) {
+        $h .= '<p class="muted"><b>🔒 Still to build</b></p><ul class="st-extras">';
+        foreach ($locked as $x) $h .= '<li class="st-extra">' . e((string)$x['icon']) . ' ' . e((string)$x['name']) . ' <small class="muted">needs tier ' . (int)$x['tier'] . '</small></li>';
+        $h .= '</ul>';
+    }
+    return $h;
 }
 
 /** v2.5.57: the monthly upkeep box of a fully built stop: what this month still needs, a hand-in for any gnome. */
