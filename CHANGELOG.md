@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.5.99
+- **Rest stop popover: new ✨ Extras tab**: the activities that come with a stop being built up (the upgrade activities), with their buttons, which the Here pictures have no room for. They stay open while the stop is built, even when it only needs its monthly upkeep; a line at the top says whether the stop is cared for, needs upkeep, is built to some tier, or is not built up yet. Activities for other times of day and the ones still to build are listed under them. The card now has four tabs.
+- **Map links open on your region first**: the Map tab and GPS "Pick a place on the map" open the region map of the region you are in (the world map is still plain World, and "All regions" / "World map" links). The Trail's "World map →" link is now "Region map →".
+- **The Here page updates in place**: resting at a haven, wonders, GPS, Wander and Set off post without a page reload and show their messages as toasts. The fight end scene after running away and closing a villager card also refresh in place instead of reloading.
+- Tests: Extras tab states and the map links.
+
 ## 2.5.98
 - **Smaller fight menu**: the Fight list holds only Attack, your calling's ability and your pals' skills (Fight on and Auto-win are gone from the menu; they stay in the plain button list when the fight scene is switched off), and its hint line is shorter ("Tap to read, tap again to do.").
 

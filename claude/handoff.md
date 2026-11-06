@@ -1,4 +1,6 @@
-# Gnome Venture handoff (current as of 2026-11-06; main = 2.5.98; MASTER TO-DO is `claude/todo.md` (one file, read it first); older blocks below are history)
+# Gnome Venture handoff (current as of 2026-11-06; main = 2.5.99; MASTER TO-DO is `claude/todo.md` (one file, read it first); older blocks below are history)
+
+**2.5.99 (2026-11-06)**: Rest stop popover Extras tab (`stop_slim_extras()` in `place_ui.php`, 4-tab css); `world.php` Map tab opens on the player's region (`?w=1` = world); `here.php` in `AJAX_PAGES`; `window.gvRefresh()` in `site.js` (used by `fightscene.js`, `folkoverlay.js`). Slim zip needs 2.5.97+. Still to ask Josh: which other notifications need a reload.
 
 **2.5.98 (2026-11-06)**: Fight menu list = Attack, ability, pal skills (`fight_dock_html()` no longer adds Fight on / Auto-win), shorter hint text (`data-hint`, `fightscene.js`). Slim zip needs 2.5.96+.
 
