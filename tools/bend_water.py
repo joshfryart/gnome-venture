@@ -3,6 +3,7 @@ Streams are not read (they are thin and the pictures draw them inconsistently); 
 region_ponds(code) -> [{x, y, r}] in the 480 x 270 region frame (r = about the pond's radius). Crystals and other small blue things are filtered by shape."""
 import colorsys, functools, math, os, random, zlib
 from PIL import Image
+from region_waterways import HAND
 HERE = os.path.dirname(os.path.abspath(__file__)); REPO = os.path.dirname(HERE)
 
 def is_river_blue(r, g, b):
@@ -61,6 +62,8 @@ def region_streams(code, frame=(480, 270)):
     """The region's water ways, upstream -> downstream: [{name, kind, wide, pts}] (Maplewold 'NA' = the hand-derived network of tools/maplewold_waterways.py).
     Drawn rivers keep their own line; their downstream end is the one nearer to a bigger water body or the map edge, and a derived connector runs on to it.
     Ponds get an outlet to the nearest bigger body within 120 units (none: a closed pond)."""
+    if code in HAND:      # hand-drawn (tools/region_waterways.py)
+        return [dict(name=f"{code}-{n}", kind="hand", wide=w, pts=[list(map(float, p)) for p in pts]) for n, w, pts in HAND[code]["streams"]]
     if code == "NA":
         import maplewold_waterways as MW
         return [dict(name=k, kind=v["kind"], wide=k in ("hub-river", "mid-outlet", "bridge-brook"), pts=v["pts"]) for k, v in MW.WATER.items() if "pts" in v]
@@ -86,7 +89,10 @@ def region_streams(code, frame=(480, 270)):
 @functools.lru_cache(maxsize=None)
 def region_ponds(code):
     """Ponds and lakes of a region: [{x, y, r}] in the 480 x 270 frame (r = about the radius). Crystals, snow and stone are not water-blue; thin streams are not ponds."""
-    return [dict(x=round(c["cx"]), y=round(c["cy"]), r=max(2, round((c["w"] + c["h"]) / 4))) for c in _components(code) if _is_pond(c)]
+    out = [dict(x=round(c["cx"]), y=round(c["cy"]), r=max(2, round((c["w"] + c["h"]) / 4))) for c in _components(code) if _is_pond(c)]
+    for x, y, r in HAND.get(code, {}).get("ponds", []):      # ponds the colour reader cannot see (oases, odd colours), unless one is read there already
+        if not any(math.hypot(o["x"] - x, o["y"] - y) < 10 for o in out): out.append(dict(x=x, y=y, r=r))
+    return out
 
 
 # ---- streams through a section ----
