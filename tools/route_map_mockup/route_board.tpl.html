@@ -1,0 +1,134 @@
+<title>Route Map Layout</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: map-table page. Region tabs on top, region map (480x270) with road bands, route board below that unrolls a route's sections. */
+:root{--bg:#f3efe6;--panel:#fbf8f1;--fg:#2a2620;--muted:#6f675a;--line:#d6cfbf;--road:#fff4d0;--roadline:#7a5a2a;--red:#d32f2f;--ok:#2f6b3f;--chip:#e9e3d3;--pin:#e0d8c4;--font:'Atkinson Hyperlegible',system-ui,sans-serif;--mono:'DM Mono',ui-monospace,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17150f;--panel:#201d15;--fg:#ece5d3;--muted:#a79e8a;--line:#3a3527;--road:#f1d98f;--roadline:#2a1f0c;--red:#ff6b5e;--ok:#7bc28d;--chip:#2c281c;--pin:#3a3527;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17150f;--panel:#201d15;--fg:#ece5d3;--muted:#a79e8a;--line:#3a3527;--road:#f1d98f;--roadline:#2a1f0c;--red:#ff6b5e;--ok:#7bc28d;--chip:#2c281c;--pin:#3a3527;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--font);padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;max-width:1100px;margin:0 auto}
+h1{font-size:26px;line-height:1.15;margin:0 0 6px;text-wrap:balance}
+h2{font-size:17px;margin:0 0 8px;text-wrap:balance}
+p{margin:0 0 8px;max-width:68ch}
+.lead{color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:12px 0 16px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:26px;height:12px;display:inline-block}
+.sw.red{border:2px dashed var(--red);border-radius:3px}
+.sw.rd{background:var(--road);border:2px solid var(--roadline);height:6px;border-radius:3px}
+.sw.pin{width:14px;height:14px;background:var(--pin);border:1.5px solid var(--muted);border-radius:3px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px}
+.tabs button,.seg button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--chip);color:var(--fg);padding:6px 11px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"],.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px}
+.mapwrap{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:760px){.mapwrap{grid-template-columns:minmax(0,1fr)}}
+svg{display:block;width:100%;height:auto}
+.rlist{display:flex;flex-direction:column;gap:4px;max-height:330px;overflow:auto}
+.rlist button{font:inherit;font-size:13px;text-align:left;border:1px solid var(--line);background:var(--chip);color:var(--fg);padding:5px 9px;border-radius:5px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+.rlist button[aria-current="true"]{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
+.rlist small{color:var(--muted);font-family:var(--mono);font-size:11px;white-space:nowrap}
+.board{margin-top:16px}
+.bhead{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:8px}
+.seg{display:flex;gap:6px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:10px;font-size:13px}
+.facts div{border-top:1px solid var(--line);padding-top:6px}
+.facts b{display:block;font-family:var(--mono);font-weight:500;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.boardsvg{overflow:auto;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.boardsvg svg{min-width:560px;max-height:640px}
+.lbl{font-family:var(--font);font-size:12px;fill:var(--fg)}
+.mono{font-family:var(--mono);font-size:10px;fill:var(--muted)}
+.redtxt{font-family:var(--mono);font-size:10px;fill:var(--red)}
+.notes{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.notes .panel p{font-size:13.5px;margin:0}
+</style>
+<h1>Route Map Layout</h1>
+<p class="lead">Every region map with its roads, and every route's sections unrolled. Today each route plays as a flat 22×7 strip, left to right, whichever way the road points on the region map. Switch the board to "Follows region path" to see the strips turn with the road. Red dashed boxes are the mockup of the extended areas.</p>
+<div class="legend">
+  <span><i class="sw rd"></i>Road on the region map</span>
+  <span><i class="sw red"></i>Extended area mockup (taller and longer)</span>
+  <span><i class="sw pin"></i>Stop placeholder (picture to come)</span>
+</div>
+<div class="tabs" id="tabs" role="tablist" aria-label="Regions"></div>
+<div class="mapwrap">
+  <div class="panel"><svg id="rmap" viewBox="0 0 480 270" role="img" aria-label="Region map with roads"></svg></div>
+  <div class="panel"><h2 id="rtitle"></h2><p class="lead" id="rsub"></p><div class="rlist" id="rlist"></div></div>
+</div>
+<div class="panel board">
+  <div class="bhead"><h2 id="btitle">Route</h2>
+    <div class="seg" role="group" aria-label="Board mode"><button id="mNow" aria-pressed="false">Now: strips in a row</button><button id="mFol" aria-pressed="true">Follows region path</button></div></div>
+  <div class="boardsvg"><svg id="board" role="img" aria-label="Route sections"></svg></div>
+  <div class="facts" id="facts"></div>
+</div>
+<div class="notes">
+  <div class="panel"><h2>What the sizes mean</h2><p>Now: 22 × 7 tiles a section, 2 to 4 sections a route, and the screen always shows the full 7 rows. Mockup: about 30 × 18 tiles a section (red), so the camera scrolls up and down as well as along.</p></div>
+  <div class="panel"><h2>What "follows the path" means</h2><p>Each section is turned to the heading of the region-map road under it. The first section starts at the stop it leaves and the last one ends at the stop it reaches, so a road heading north-east plays north-east.</p></div>
+  <div class="panel"><h2>Stops</h2><p>Stops show as grey square placeholders with a cross. Swap in the real stop picture when it exists. Boss routes show the boss name on the board.</p></div>
+</div>
+<script>
+const DATA=__DATA__;
+const $=id=>document.getElementById(id), NS='http://www.w3.org/2000/svg';
+const el=(t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
+let reg=DATA[0],route=null,mode='fol';
+const SW=220,SH=76,EW=308,EH=198; // strip size on the board; red box = about 30x18 tiles
+function pin(p,x,y,s,label,anchor){const g=el('g',{},p);el('rect',{x:x-s/2,y:y-s/2,width:s,height:s,rx:s*.18,fill:'var(--pin)',stroke:'var(--muted)','stroke-width':s*.07},g);
+ el('path',{d:`M${x-s/2} ${y-s/2}L${x+s/2} ${y+s/2}M${x+s/2} ${y-s/2}L${x-s/2} ${y+s/2}`,stroke:'var(--muted)','stroke-width':s*.05,opacity:.7},g);
+ if(label){const t=el('text',{x:x,y:y+s/2+s*.45,'text-anchor':anchor||'middle',class:'lbl','font-size':s*.42,'paint-order':'stroke',stroke:'var(--bg)','stroke-width':s*.12},g);t.textContent=label}return g}
+function tabs(){const t=$('tabs');t.innerHTML='';DATA.forEach(r=>{const b=document.createElement('button');b.textContent=r.name;b.setAttribute('role','tab');b.setAttribute('aria-selected',r===reg);b.onclick=()=>{reg=r;route=r.routes[0]||null;draw()};t.appendChild(b)})}
+function drawMap(){const s=$('rmap');s.innerHTML='';el('image',{href:reg.map,x:0,y:0,width:480,height:270},s);el('rect',{x:0,y:0,width:480,height:270,fill:'#000',opacity:.18},s);
+ reg.routes.forEach(r=>{const d='M'+curveOf(r).map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L');
+  el('path',{d,fill:'none',stroke:'var(--red)','stroke-width':r===route?26:20,'stroke-dasharray':'5 4','stroke-linecap':'round','stroke-linejoin':'round',opacity:r===route?1:.55},s);});
+ reg.routes.forEach(r=>{const d='M'+curveOf(r).map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L');
+  el('path',{d,fill:'none',stroke:'var(--roadline)','stroke-width':r===route?7:5,'stroke-linecap':'round'},s);
+  el('path',{d,fill:'none',stroke:'var(--road)','stroke-width':r===route?4:2.4,'stroke-linecap':'round'},s);
+  const h=el('path',{d,fill:'none',stroke:'transparent','stroke-width':22,style:'cursor:pointer'},s);h.onclick=()=>{route=r;draw()};});
+ const seen=new Set();[reg.town,...reg.stops].forEach(p=>{const k=p.x+','+p.y;if(seen.has(k))return;seen.add(k);pin(s,p.x,p.y,p===reg.town?16:11,null)});
+ const t=el('text',{x:reg.town.x+10,y:reg.town.y-9,class:'lbl','font-size':9,'paint-order':'stroke',stroke:'var(--bg)','stroke-width':3},s);t.textContent=reg.town.name;
+ reg.exits.forEach(e=>{const t=el('text',{x:Math.min(440,Math.max(6,e.x-14)),y:Math.min(262,Math.max(10,e.y+(e.y>240?-8:12))),class:'lbl','font-size':8,'paint-order':'stroke',stroke:'var(--bg)','stroke-width':3},s);t.textContent='to '+e.name})}
+function list(){$('rtitle').textContent=reg.name;$('rsub').textContent=reg.routes.length+' routes leave this region\'s stops. Pick one.';const l=$('rlist');l.innerHTML='';
+ reg.routes.forEach(r=>{const b=document.createElement('button');b.setAttribute('aria-current',r===route);b.innerHTML='<span>'+r.from+' → '+r.to+'</span><small>'+r.secs.length+' sec</small>';b.onclick=()=>{route=r;draw()};l.appendChild(b)})}
+
+// Smooth curve for a route: Catmull-Rom through the road's own points, so a route leaves a stop the way the road arrives, and side trails bow a little.
+function curveOf(r){if(r._c)return r._c;const a=r.path[0],b=r.path[r.path.length-1];let p0=a,p3=b,found=false;
+ for(const rd of reg.roads){const q=rd.pts;for(let j=0;j<q.length-1;j++){const f=q[j][0]===a[0]&&q[j][1]===a[1]&&q[j+1][0]===b[0]&&q[j+1][1]===b[1],rv=q[j][0]===b[0]&&q[j][1]===b[1]&&q[j+1][0]===a[0]&&q[j+1][1]===a[1];
+  if(f){p0=q[j-1]||a;p3=q[j+2]||b;found=true}else if(rv){p0=q[j+2]||a;p3=q[j-1]||b;found=true}}}
+ if(!found){const dx=b[0]-a[0],dy=b[1]-a[1],sg=((r.id*7)%2?1:-1),bw=.18;const n=[-dy*bw*sg,dx*bw*sg];p0=[a[0]+n[0]-dx*.2,a[1]+n[1]-dy*.2];p3=[b[0]+n[0]+dx*.2,b[1]+n[1]+dy*.2]}
+ const pts=[];const T=40;for(let i=0;i<=T;i++){const t=i/T,t2=t*t,t3=t2*t;const f=k=>.5*((2*a[k])+(-p0[k]+b[k])*t+(2*p0[k]-5*a[k]+4*b[k]-p3[k])*t2+(-p0[k]+3*a[k]-3*b[k]+p3[k])*t3);pts.push([f(0),f(1)])}
+ return r._c=pts}
+function arcs(P){const c=[0];for(let i=1;i<P.length;i++)c.push(c[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));return c}
+function pointAt(P,c,u){let i=1;while(i<c.length-1&&c[i]<u)i++;const l=(c[i]-c[i-1])||1,f=Math.max(0,Math.min(1,(u-c[i-1])/l));return[P[i-1][0]+(P[i][0]-P[i-1][0])*f,P[i-1][1]+(P[i][1]-P[i-1][1])*f]}
+function normalAt(P,c,u){const e=3,a=pointAt(P,c,Math.max(0,u-e)),b=pointAt(P,c,Math.min(c[c.length-1],u+e)),d=Math.hypot(b[0]-a[0],b[1]-a[1])||1;return[-(b[1]-a[1])/d,(b[0]-a[0])/d]}
+function heading(a,b){const d=Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI;return d}
+function compass(d){const n=['E','SE','S','SW','W','NW','N','NE'];return n[Math.round(((d%360)+360)%360/45)%8]}
+function board(){const s=$('board');s.innerHTML='';if(!route){$('btitle').textContent='No routes';return}
+ const N=route.secs.length;$('btitle').textContent=route.from+' → '+route.to;
+ const C0=curveOf(route),c0=arcs(C0),k=(N*EW)/(c0[c0.length-1]||1),o=C0[0];
+ const P=mode==='now'?Array.from({length:41},(_,i)=>[i/40*N*EW,0]):C0.map(p=>[(p[0]-o[0])*k,(p[1]-o[1])*k]),c=arcs(P);
+ const xs=[],ys=[],secs=[];
+ for(let i=0;i<N;i++){const u0=i*EW,u1=(i+1)*EW,m=(u0+u1)/2,L=[],Rr=[];
+  for(let j=0;j<=12;j++){const u=u0+(u1-u0)*j/12,p=pointAt(P,c,u),n=normalAt(P,c,u);L.push([p[0]+n[0]*EH/2,p[1]+n[1]*EH/2]);Rr.push([p[0]-n[0]*EH/2,p[1]-n[1]*EH/2])}
+  const poly=L.concat(Rr.reverse());poly.forEach(p=>{xs.push(p[0]);ys.push(p[1])});
+  const a=pointAt(P,c,u0+(EW-SW)/2),b=pointAt(P,c,u0+(EW+SW)/2),mid=pointAt(P,c,m);
+  secs.push({poly,mid:[(a[0]+b[0])/2,(a[1]+b[1])/2],ang:heading(a,b)})}
+ secs.forEach((q,i)=>{
+  el('polygon',{points:q.poly.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' '),fill:'var(--red)','fill-opacity':.07,stroke:'var(--red)','stroke-width':2.5,'stroke-dasharray':'9 6','stroke-linejoin':'round'},s);
+  const fl=Math.abs(q.ang)>90,g=el('g',{transform:`translate(${q.mid[0]} ${q.mid[1]}) rotate(${fl?q.ang+180:q.ang})`},s);
+  el('image',{href:route.secs[i],x:-SW/2,y:-SH/2,width:SW,height:SH,preserveAspectRatio:'none'},g);
+  el('rect',{x:-SW/2,y:-SH/2,width:SW,height:SH,fill:'none',stroke:'var(--fg)','stroke-width':1.2,opacity:.7},g);
+  const t=el('text',{x:-SW/2+4,y:SH/2-5,class:'mono',style:'font-size:9px;fill:#fff;paint-order:stroke;stroke:#000;stroke-width:2.5px'},g);t.textContent='section '+(i+1)+' now 22x7';
+  el('path',{d:fl?`M${-SW/2+26} ${-SH/2+14}h-20m7 -6l-7 6l7 6`:`M${SW/2-26} ${-SH/2+14}h20m-7 -6l7 6l-7 6`,fill:'none',stroke:'#fff','stroke-width':3,'stroke-linecap':'round','stroke-linejoin':'round',style:'filter:drop-shadow(0 0 2px #000)'},g);
+  const lp=q.poly[1],t2=el('text',{x:lp[0]+4,y:lp[1]+(lp[1]<q.mid[1]?14:-6),class:'redtxt'},s);t2.textContent='extended ~30x18'});
+ const end=(u,sg)=>{const p=pointAt(P,c,Math.max(0,Math.min(c[c.length-1],u))),q=pointAt(P,c,Math.max(0,Math.min(c[c.length-1],u+sg*8))),d=Math.hypot(q[0]-p[0],q[1]-p[1])||1;return[p[0]-(q[0]-p[0])/d*48,p[1]-(q[1]-p[1])/d*48]};
+ const a=end(0,1),b=end(c[c.length-1],-1);pin(s,a[0],a[1],52,route.from,'middle');pin(s,b[0],b[1],52,route.to,'middle');[a,b].forEach(p=>{xs.push(p[0]-70,p[0]+70);ys.push(p[1]-40,p[1]+60)});
+ const mg=70,x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+ s.setAttribute('viewBox',`${x0-mg} ${y0-mg} ${x1-x0+2*mg} ${y1-y0+2*mg}`);
+
+ const reg0=heading(route.path[0],route.path[route.path.length-1]);
+ $('facts').innerHTML=`<div><b>Region path heads</b>${compass(reg0)} (${Math.round((reg0+360)%360)}° on the map)</div><div><b>Route plays today</b>W to E, flat</div><div><b>Land</b>${route.land}</div><div><b>Sections</b>${N}: ${route.feat.filter(Boolean).join(', ')||'plain'}</div>${route.boss?`<div><b>Boss</b>${route.boss}</div>`:''}`}
+function draw(){tabs();drawMap();list();board()}
+$('mNow').onclick=()=>{mode='now';$('mNow').setAttribute('aria-pressed',true);$('mFol').setAttribute('aria-pressed',false);board()};
+$('mFol').onclick=()=>{mode='fol';$('mFol').setAttribute('aria-pressed',true);$('mNow').setAttribute('aria-pressed',false);board()};
+route=reg.routes[0];draw();
+</script>

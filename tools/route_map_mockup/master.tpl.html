@@ -1,0 +1,97 @@
+<title>Master Route Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one full-width zoomable world table. Toolbar on top, SVG world below (drag to pan, wheel or buttons to zoom). */
+:root{--bg:#f3efe6;--panel:#fbf8f1;--fg:#2a2620;--muted:#6f675a;--line:#d6cfbf;--road:#fff4d0;--roadline:#7a5a2a;--red:#d32f2f;--chip:#e9e3d3;--pin:#e0d8c4;--font:'Atkinson Hyperlegible',system-ui,sans-serif;--mono:'DM Mono',ui-monospace,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17150f;--panel:#201d15;--fg:#ece5d3;--muted:#a79e8a;--line:#3a3527;--road:#f1d98f;--roadline:#2a1f0c;--red:#ff6b5e;--chip:#2c281c;--pin:#3a3527;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17150f;--panel:#201d15;--fg:#ece5d3;--muted:#a79e8a;--line:#3a3527;--road:#f1d98f;--roadline:#2a1f0c;--red:#ff6b5e;--chip:#2c281c;--pin:#3a3527;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--font);margin:0;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:16px 28px}
+h1{font-size:24px;line-height:1.15;margin:0 0 4px}
+.lead{color:var(--muted);margin:0 0 10px;max-width:72ch;font-size:14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:10px}
+.grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+button,select{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--chip);color:var(--fg);padding:6px 11px;border-radius:6px;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+label.t{font-size:13px;display:inline-flex;gap:5px;align-items:center;cursor:pointer}
+.zoomn{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:56px}
+#stage{border:1px solid var(--line);border-radius:8px;background:#0e0c08;height:calc(100vh - 190px);min-height:380px;touch-action:none;overflow:hidden;position:relative;cursor:grab}
+#stage.drag{cursor:grabbing}
+svg{display:block;width:100%;height:100%}
+.leg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted);margin-top:8px}
+.leg i{display:inline-block;vertical-align:middle;margin-right:6px}
+.tip{position:absolute;left:10px;bottom:10px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:13px;pointer-events:none;max-width:70%}
+text{font-family:var(--font);paint-order:stroke;stroke:#000;stroke-width:calc(var(--px)*2.5px);fill:#fff;stroke-linejoin:round}
+.rname{font-weight:700;font-size:calc(var(--px)*13px)}
+.sname{font-size:calc(var(--px)*11px/.165);stroke-width:calc(var(--px)*2.5px/.165)}
+.xt{font-family:var(--mono);font-size:calc(var(--px)*9px/.165);fill:#ffb4ab}
+</style>
+<h1>Master Route Map</h1>
+<p class="lead">All 14 regions on the world map, every route in its place along the region roads. Drag to pan, scroll or pinch to zoom, or pick a region to jump to it. Red dashed bands are the extended-area mockup. Zoom in far enough and each route's section pictures appear.</p>
+<div class="bar">
+  <div class="grp"><button id="zi" aria-label="Zoom in">+</button><button id="zo" aria-label="Zoom out">−</button><button id="zr">Whole world</button><span class="zoomn" id="zn"></span></div>
+  <div class="grp"><label for="jump" class="t">Go to</label><select id="jump"></select></div>
+  <div class="grp"><label class="t"><input type="checkbox" id="lMap" checked>Region maps</label><label class="t"><input type="checkbox" id="lBand" checked>Extended bands</label><label class="t"><input type="checkbox" id="lSec" checked>Section pictures</label><label class="t"><input type="checkbox" id="lStop" checked>Stops</label></div>
+</div>
+<div id="stage"><svg id="w" viewBox="0 0 1000 563" role="img" aria-label="World map with all routes"></svg><div class="tip" id="tip" hidden></div></div>
+<div class="leg"><span><i style="width:24px;height:6px;background:var(--road);border:2px solid var(--roadline);border-radius:3px"></i>Road</span><span><i style="width:24px;height:11px;border:2px dashed var(--red);border-radius:3px"></i>Extended area mockup, about 30×18 tiles a section</span><span><i style="width:13px;height:13px;background:var(--pin);border:1.5px solid var(--muted);border-radius:3px"></i>Stop placeholder</span></div>
+<script>
+const D=__DATA__;
+const NS='http://www.w3.org/2000/svg',svg=document.getElementById('w'),stage=document.getElementById('stage'),$=id=>document.getElementById(id);
+const el=(t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
+const W0=1000,H0=563,F=.165,FW=480*F,FH=270*F,SW=220,SH=76,EW=308,EH=198;
+const L={map:[],band:[],sec:[],stop:[]};
+el('image',{href:D.world,x:0,y:0,width:W0,height:H0,preserveAspectRatio:'none'},svg);
+const root=el('g',{},svg);
+function curveOf(reg,r){const a=r.path[0],b=r.path[r.path.length-1];let p0=a,p3=b,found=false;
+ for(const rd of reg.roads){const q=rd.pts;for(let j=0;j<q.length-1;j++){const f=q[j][0]===a[0]&&q[j][1]===a[1]&&q[j+1][0]===b[0]&&q[j+1][1]===b[1],rv=q[j][0]===b[0]&&q[j][1]===b[1]&&q[j+1][0]===a[0]&&q[j+1][1]===a[1];
+  if(f){p0=q[j-1]||a;p3=q[j+2]||b;found=true}else if(rv){p0=q[j+2]||a;p3=q[j-1]||b;found=true}}}
+ if(!found){const dx=b[0]-a[0],dy=b[1]-a[1],sg=((r.id*7)%2?1:-1),bw=.18;const n=[-dy*bw*sg,dx*bw*sg];p0=[a[0]+n[0]-dx*.2,a[1]+n[1]-dy*.2];p3=[b[0]+n[0]+dx*.2,b[1]+n[1]+dy*.2]}
+ const pts=[],T=40;for(let i=0;i<=T;i++){const t=i/T,t2=t*t,t3=t2*t;const f=k=>.5*((2*a[k])+(-p0[k]+b[k])*t+(2*p0[k]-5*a[k]+4*b[k]-p3[k])*t2+(-p0[k]+3*a[k]-3*b[k]+p3[k])*t3);pts.push([f(0),f(1)])}return pts}
+const arcs=P=>{const c=[0];for(let i=1;i<P.length;i++)c.push(c[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));return c};
+function at(P,c,u){let i=1;while(i<c.length-1&&c[i]<u)i++;const l=(c[i]-c[i-1])||1,f=Math.max(0,Math.min(1,(u-c[i-1])/l));return[P[i-1][0]+(P[i][0]-P[i-1][0])*f,P[i-1][1]+(P[i][1]-P[i-1][1])*f]}
+function nor(P,c,u){const e=c[c.length-1]*.01+.01,a=at(P,c,Math.max(0,u-e)),b=at(P,c,Math.min(c[c.length-1],u+e)),d=Math.hypot(b[0]-a[0],b[1]-a[1])||1;return[-(b[1]-a[1])/d,(b[0]-a[0])/d]}
+const pts=a=>a.map(p=>p[0].toFixed(2)+','+p[1].toFixed(2)).join(' ');
+function pinAt(g,x,y,s,label,cls){const q=el('g',{},g);el('rect',{x:x-s/2,y:y-s/2,width:s,height:s,rx:s*.18,fill:'var(--pin)',stroke:'#8a8070','stroke-width':s*.08},q);el('path',{d:`M${x-s/2} ${y-s/2}L${x+s/2} ${y+s/2}M${x+s/2} ${y-s/2}L${x-s/2} ${y+s/2}`,stroke:'#8a8070','stroke-width':s*.05,opacity:.7},q);
+ if(label){const t=el('text',{x:x,y:y+s/2+s*.9,'text-anchor':'middle',class:cls||'sname'},q);t.textContent=label}return q}
+D.regions.forEach(R=>{
+ const g=el('g',{transform:`translate(${R.wx-FW/2} ${R.wy-FH/2}) scale(${F})`},root);
+ const im=el('image',{href:R.map,x:0,y:0,width:480,height:270,opacity:.9},g);L.map.push(im);
+ el('rect',{x:0,y:0,width:480,height:270,fill:'none',stroke:'#fff','stroke-width':1.2,'stroke-opacity':.6,'vector-effect':'non-scaling-stroke'},g);
+ R.routes.forEach(r=>{
+  const C=curveOf(R,r),c=arcs(C),Ltot=c[c.length-1],N=r.secs.length,sl=Ltot/N,k=sl/EW,rg=el('g',{class:'rt','data-t':r.from+' → '+r.to+' ('+R.name+', '+N+' sections)'},g);
+  for(let i=0;i<N;i++){const u0=i*sl,u1=(i+1)*sl,Lf=[],Rr=[];
+   for(let j=0;j<=10;j++){const u=u0+(u1-u0)*j/10,p=at(C,c,u),n=nor(C,c,u);Lf.push([p[0]+n[0]*EH*k/2,p[1]+n[1]*EH*k/2]);Rr.push([p[0]-n[0]*EH*k/2,p[1]-n[1]*EH*k/2])}
+   const bd=el('polygon',{points:pts(Lf.concat(Rr.reverse())),fill:'var(--red)','fill-opacity':.1,stroke:'var(--red)','stroke-width':1.6,'stroke-dasharray':'6 4','vector-effect':'non-scaling-stroke'},rg);L.band.push(bd);
+   const a=at(C,c,u0+(sl-SW*k)/2),b=at(C,c,u0+(sl+SW*k)/2),ang=Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI,fl=Math.abs(ang)>90;
+   const sg=el('g',{transform:`translate(${(a[0]+b[0])/2} ${(a[1]+b[1])/2}) rotate(${fl?ang+180:ang}) scale(${k})`},rg);L.sec.push(sg);
+   el('image',{href:r.secs[i],x:-SW/2,y:-SH/2,width:SW,height:SH,preserveAspectRatio:'none'},sg);
+   el('rect',{x:-SW/2,y:-SH/2,width:SW,height:SH,fill:'none',stroke:'#fff','stroke-width':1.2,'vector-effect':'non-scaling-stroke'},sg)}
+  const d='M'+pts(C).replace(/ /g,'L');el('path',{d,fill:'none',stroke:'var(--roadline)','stroke-width':3,'stroke-linecap':'round','vector-effect':'non-scaling-stroke',opacity:.0},rg);
+  rg.onmouseenter=()=>{const t=$('tip');t.textContent=rg.dataset.t;t.hidden=false};rg.onmouseleave=()=>{$('tip').hidden=true}});
+ const sg=el('g',{},g);L.stop.push(sg);const seen=new Set();[R.town,...R.stops].forEach(p=>{const kk=p.x+','+p.y;if(seen.has(kk))return;seen.add(kk);pinAt(sg,p.x,p.y,p===R.town?10:7,p.name,'sname')});
+ const rn=el('text',{x:R.wx,y:R.wy-FH/2-1.5,'text-anchor':'middle',class:'rname'},root);rn.textContent=R.name});
+// ----- view: zoom and pan by viewBox
+let vb={x:0,y:0,w:W0,h:H0};const MINW=6;
+function fit(){const r=stage.getBoundingClientRect(),asp=r.width/r.height;let w=W0,h=W0/asp;if(h<H0){h=H0;w=H0*asp}return{x:(W0-w)/2,y:(H0-h)/2,w,h}}
+function apply(){const r=stage.getBoundingClientRect();svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);svg.style.setProperty('--px',vb.w/r.width);
+ $('zn').textContent=(W0/vb.w).toFixed(1)+'×';const f=fit();vis()}
+function vis(){/* section pictures appear once they are big enough to read */const r=stage.getBoundingClientRect(),zoom=W0/vb.w;const showSec=$('lSec').checked,showBand=$('lBand').checked;
+ L.sec.forEach(e=>e.style.display=showSec&&zoom>3?'':'none');L.band.forEach(e=>e.style.display=showBand?'':'none');L.map.forEach(e=>e.style.display=$('lMap').checked?'':'none');L.stop.forEach(e=>e.style.display=$('lStop').checked&&zoom>2?'':'none')}
+function zoomAt(f,cx,cy){const r=stage.getBoundingClientRect(),px=(cx-r.left)/r.width,py=(cy-r.top)/r.height,nw=Math.max(MINW,Math.min(fit().w,vb.w/f)),nh=nw*vb.h/vb.w,mx=vb.x+px*vb.w,my=vb.y+py*vb.h;vb={x:mx-px*nw,y:my-py*nh,w:nw,h:nh};apply()}
+stage.addEventListener('wheel',e=>{e.preventDefault();zoomAt(Math.exp(-e.deltaY*.0015),e.clientX,e.clientY)},{passive:false});
+const ptr=new Map();let last=0;
+stage.addEventListener('pointerdown',e=>{stage.setPointerCapture(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);stage.classList.add('drag');last=0});
+stage.addEventListener('pointermove',e=>{if(!ptr.has(e.pointerId))return;const o=ptr.get(e.pointerId),n=[e.clientX,e.clientY],r=stage.getBoundingClientRect();
+ if(ptr.size===1){vb.x-=(n[0]-o[0])*vb.w/r.width;vb.y-=(n[1]-o[1])*vb.h/r.height;ptr.set(e.pointerId,n);apply()}
+ else{ptr.set(e.pointerId,n);const ps=[...ptr.values()],d=Math.hypot(ps[0][0]-ps[1][0],ps[0][1]-ps[1][1]);if(last)zoomAt(d/last,(ps[0][0]+ps[1][0])/2,(ps[0][1]+ps[1][1])/2);last=d}});
+const up=e=>{ptr.delete(e.pointerId);last=0;if(!ptr.size)stage.classList.remove('drag')};stage.addEventListener('pointerup',up);stage.addEventListener('pointercancel',up);
+const ctr=()=>{const r=stage.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]};
+$('zi').onclick=()=>zoomAt(1.6,...ctr());$('zo').onclick=()=>zoomAt(1/1.6,...ctr());$('zr').onclick=()=>{vb=fit();apply()};
+const j=$('jump');j.innerHTML='<option value="">Pick a region</option>'+D.regions.map(r=>`<option value="${r.code}">${r.name}</option>`).join('');
+j.onchange=()=>{const R=D.regions.find(r=>r.code===j.value);if(!R)return;const r=stage.getBoundingClientRect(),asp=r.width/r.height;let h=FH*1.15,w=h*asp;if(w<FW*1.1){w=FW*1.1;h=w/asp}vb={x:R.wx-w/2,y:R.wy-h/2,w,h};apply()};
+['lMap','lBand','lSec','lStop'].forEach(i=>$(i).onchange=vis);
+addEventListener('resize',()=>{if(vb.w>=fit().w-1)vb=fit();apply()});
+vb=fit();apply();
+</script>
