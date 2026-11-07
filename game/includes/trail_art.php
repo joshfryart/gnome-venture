@@ -16,10 +16,34 @@ declare(strict_types=1);
 const TRAIL_ART_PX = 64;      // pixels a tile has in the PNGs
 const TRAIL_ART_PAD = 40;     // px of margin above row 0 in a ground PNG (tree tops reach into it)
 
+/** Adventure tool types a gate can ask for (the gathering tools of includes/tools.php). */
+const TRAIL_GATE_TOOLS = ['forage', 'pick', 'net', 'bucket', 'axe', 'rod', 'basket', 'staff', 'lantern'];
+
+/** Where a section's entry tile is, when it is not marked S in the rows: the section's 'entry' ({x, y, side} or [x, y]), or null. */
+function trail_section_entry($s): ?array
+{
+    $e = is_array($s) ? ($s['entry'] ?? null) : null;
+    if (!is_array($e)) return null;
+    $x = $e['x'] ?? ($e[0] ?? null);
+    $y = $e['y'] ?? ($e[1] ?? null);
+    return is_int($x) && is_int($y) ? [$x, $y] : null;
+}
+
+/** Is this a usable gate record? tiles [[x, y], ...] inside the map, tool_type a gathering tool, min_tier 1..4 (Worn..Masterwork), kind lock or shortcut. */
+function trail_gate_valid($g, int $w, int $h): bool
+{
+    if (!is_array($g) || !is_array($g['tiles'] ?? null) || !$g['tiles'] || !in_array($g['tool_type'] ?? '', TRAIL_GATE_TOOLS, true)) return false;
+    if (!is_int($g['min_tier'] ?? null) || $g['min_tier'] < 1 || $g['min_tier'] > 4 || !in_array($g['kind'] ?? '', ['lock', 'shortcut'], true)) return false;
+    foreach ($g['tiles'] as $t) if (!is_array($t) || count($t) !== 2 || !is_int($t[0]) || !is_int($t[1]) || $t[0] < 0 || $t[1] < 0 || $t[0] >= $w || $t[1] >= $h) return false;
+    return true;
+}
+
 /**
  * Is this authored route usable? Every section needs rows: all the same width (at least 5), all the same height (at least 3), only the characters
- * # . , S 9 E F, and an exit '9' on the right edge. Anything else is dropped here, so a bad hand-made map falls back to the random generator
- * instead of breaking a walk. (The path from the entry to the exit is checked by tools/bake_trail_art.py --check and tests/trail_authored.php.)
+ * # . , S 9 E F, exactly one exit '9' on an edge of the map (any edge: v2.7 bendy maps leave on any side), and at most one S. A section without an S
+ * needs an 'entry' ({x, y}) on an edge, on floor. Optional 'gates' must be valid records (trail_gate_valid). Anything else is dropped here, so a bad
+ * hand-made map falls back to the random generator instead of breaking a walk. (The path from the entry to the exit is checked by
+ * tools/bake_trail_art.py --check and tests/trail_authored.php.)
  */
 function trail_authored_valid($r): bool
 {
@@ -31,14 +55,38 @@ function trail_authored_valid($r): bool
         $w = $w ?: strlen((string)$rows[0]);
         $h = $h ?: count($rows);
         if ($w < 5 || count($rows) !== $h) return false;
-        $nine = 0;
-        foreach ($rows as $row) {
+        $nine = $nS = 0;
+        $edge = fn(int $x, int $y): bool => $x === 0 || $y === 0 || $x === $w - 1 || $y === $h - 1;
+        foreach ($rows as $y => $row) {
             if (!is_string($row) || strlen($row) !== $w || !preg_match('/^[#.,S9EF]+$/', $row)) return false;
-            if (str_ends_with($row, '9')) $nine++;
+            if (($x = strpos($row, '9')) !== false) { $nine += substr_count($row, '9'); if (!$edge($x, $y)) return false; }
+            $nS += substr_count($row, 'S');
         }
-        if ($nine !== 1) return false;
+        if ($nine !== 1 || $nS > 1) return false;
+        if ($nS === 0) {
+            $e = trail_section_entry($s);
+            if (!$e || $e[0] < 0 || $e[1] < 0 || $e[0] >= $w || $e[1] >= $h || !$edge($e[0], $e[1]) || $rows[$e[1]][$e[0]] === '#') return false;
+        }
+        if (isset($s['gates'])) {
+            if (!is_array($s['gates'])) return false;
+            foreach ($s['gates'] as $g) if (!trail_gate_valid($g, $w, $h)) return false;
+        }
     }
     return true;
+}
+
+/**
+ * The gates of a section that are shut for this walker, ["x,y" => gate]. $tierOf(type) = the tier of the best tool of that type the gnome owns (0 = none).
+ * A gate is shut while the best tool of its type is below min_tier. Pure; trail_gate() closes these tiles for the walk.
+ */
+function trail_gates_closed(array $art, callable $tierOf): array
+{
+    $out = [];
+    foreach ($art['gates'] ?? [] as $g) {
+        if ((int)$tierOf((string)$g['tool_type']) >= (int)$g['min_tier']) continue;
+        foreach ($g['tiles'] as [$x, $y]) $out[$x . ',' . $y] = $g;
+    }
+    return $out;
 }
 
 /**
@@ -86,8 +134,12 @@ function trail_map_authored(array $art): array
 {
     $rows = [];
     $tokens = [];
+    $entry = trail_section_entry($art);   // v2.7: a section without an S in its rows (the later ones of a bendy route) gets its entry from 'entry'
+    $hasS = false;
+    foreach ($art['rows'] as $row) if (str_contains((string)$row, 'S')) $hasS = true;
     foreach ($art['rows'] as $y => $row) {
         $row = (string)$row;
+        if (!$hasS && $entry && $entry[1] === $y) $row[$entry[0]] = 'S';
         for ($x = 0, $n = strlen($row); $x < $n; $x++) {
             $c = $row[$x];
             if (($c === 'F' && crc32(((int)($art['route'] ?? 0)) . '/' . ((int)($art['sec'] ?? 0)) . '/' . $x . '/' . $y) % 3 === 0) || ($c === 'E' && $art['boss'] !== '')) $tokens[] = [$x, $y, $c];   // v2.5.51: only about a third of the authored finds are kept (too many)

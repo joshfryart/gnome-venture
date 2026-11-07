@@ -150,9 +150,10 @@ function trail_token_at(array $sc, int $x, int $y): int
 }
 
 /** Closes tiles: a token that is not done yet is only walked ONTO as the goal (a fight or find waits there), never through. */
-function trail_gate(array $sc, ?int $gx = null, ?int $gy = null): callable
+function trail_gate(array $sc, ?int $gx = null, ?int $gy = null, array $shut = []): callable
 {
-    return function (int $x, int $y, string $t) use ($sc, $gx, $gy): bool {
+    return function (int $x, int $y, string $t) use ($sc, $gx, $gy, $shut): bool {
+        if (isset($shut[$x . ',' . $y])) return false;   // v2.7: a tool gate the gnome cannot pass yet (trail_gates_closed)
         $i = trail_token_at($sc, $x, $y);
         if ($i < 0 || (int)$sc['st']['tokens'][$i][3] === 1) return true;
         return $x === $gx && $y === $gy;
@@ -216,6 +217,16 @@ function trail_roll_event(array $u, array &$exp): void
     $exp['step'] = $keep;
 }
 
+/** What to tell a gnome whose walk crosses a shut tool gate: the first shut gate on the path, or null when the path crosses none. Pure. */
+function trail_gate_message(array $shut, array $path): ?string
+{
+    foreach ($path as [$x, $y]) if (isset($shut[$x . ',' . $y])) {
+        $g = $shut[$x . ',' . $y];
+        return 'Blocked: ' . $g['label'] . '. Bring a ' . ($g['tool_name'] ?? 'better tool') . ' or a better one.';
+    }
+    return null;
+}
+
 /** A tap on a tile of the section. [ok, message]. The scene is saved with a compare-and-swap, so a second tab cannot repeat it. */
 function trail_go(array $u, array &$exp, int $tx, int $ty): array
 {
@@ -231,7 +242,9 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
         $sc['st']['phase'] = 'confirm';   // tapping the exit you stand on asks about going on again (after "Not yet" or a walk back)
         return trail_save($sc) ? [true, ''] : [false, 'That already happened. Look again.'];
     }
-    $path = tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc, $tx, $ty));
+    $shut = function_exists('tool_tier') && !empty($map['art']['gates']) ? trail_gates_closed($map['art'], fn(string $type): int => tool_tier((int)$u['id'], $type)) : [];
+    $path = tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc, $tx, $ty, $shut));
+    if (!$path && $shut && ($open = tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc, $tx, $ty))) && ($why = trail_gate_message($shut, $open)) !== null) return [false, $why];   // only a tool gate is in the way: say which
     if (!$path) return [false, 'There is no way there from here.'];
     [$stop, $sc['st']['quiet'], $sc['st']['fights']] = trail_encounter_index($map, $path, (int)($sc['st']['quiet'] ?? 0), (int)($sc['st']['fights'] ?? 0), null, (string)($sc['st']['stance'] ?? ''));
     if ($stop !== null) {   // something rustles: the walk stops on that tile and a random fight starts
