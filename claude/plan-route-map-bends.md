@@ -6,6 +6,8 @@ Mockups (private artifacts, built from the current data, nothing in the game cha
 
 Goal: a route's map follows the road's heading and curves on the region map, at the larger size (about 30 x 18 tiles a section, up from 22 x 7).
 
+Rule: the road must be bendy, not a straight line all the time. Even where the region road heads one way, the walkable path inside a section wiggles (gentle S-curves, small turns), so no route is a ruler-straight run edge to edge. Straight stretches are allowed, but only short ones.
+
 ## Today
 - Every route section is a flat 22 x 7 strip (`game/includes/data/trail_maps.json`, ground pictures `game/assets/img/trail/ground/<route>-<section>.png`, 1408 x 488).
 - A route always plays left to right, whatever way the road points on the region map (`region_layout.php`, 480 x 270 frame).
@@ -21,6 +23,23 @@ Goal: a route's map follows the road's heading and curves on the region map, at 
 7. **Camera.** The 7 x 7 view must scroll vertically as well as along the route. The 2.6.05 clamp (`tm_window_clamped`) needs a vertical test.
 8. **Side trails and branches.** Stop-to-place trails are straight lines in the layout; give each a heading rule (bow left or right) so its first section turns the right way.
 9. **Region map art.** If roads on the region map picture change, the layout data and the pictures (`map-<CODE>.png`) must stay in sync (`tools/map_layout.php`).
+
+10. **Wiggle rule.** Generator adds seeded gentle wander to the path in every section (cap on straight run length, e.g. no more than about 8 tiles in a row without a turn; exact cap to pick). Wander must keep entry and exit tiles fixed so joins (item 4) still match. Lint flags any section whose path is too straight.
+
+11. **Gated areas (to consider).** Some areas can only be passed with a tool of a given quality (e.g. a better axe to clear a thicket, a rope for a ravine). Questions for the layout:
+    - Where does a gate sit: on a section tile, at a section join, or on a side trail only?
+    - Gate placement must not break the main road. Keep an open route between every stop pair, with the gated path as a shortcut or a side branch, unless the gate is a deliberate lock.
+    - Store per gate: tile(s), tool kind, minimum quality. Lint checks that the tile sits on the path and that a bypass exists where needed.
+    - Bendy road (item 10) and gate tiles must agree: wander must not move the gate off the path.
+    - Show it on the maps: a mark on the route map and on the master map mockup.
+    - No existing tool-quality field found in `game/`, `tools/`, `claude/`; data model and item system need checking first.
+
+12. **Mini-bosses and bosses (to consider).** Engine rule today: a delve route's last section may hold a fixed `E` mini-boss (large creature); a lair route's last section holds a boss; other routes roll normal encounters. Bends must keep the `E` tile on the path and in the last section.
+    - Maplewold set already: 313 Beaverdam Tunnels (delve, forest, medium) mini-boss, large forest creature level about 20 to 23 (Moss Golem, Wild Boar, Tufted Lynx); 315 Den of the Great White Owl (lair, tundra, hard) boss Snow Owl Monarch level 30.
+    - Optional new mini-boss spots (new data needed): 312 great stump, Bramble Wolf (22); 314 lantern rocks, Clam Lurker (23) or Tide Crab Knight (19); 310 snowdrift pass, Grumpy Wolverine (21); 309 icicle cave mouth, Arctic Fox (17).
+    - Keep free of fights: starter routes 228, 232, 236; havens Sugar Shack (311) and Aurora Camp (316).
+    - Other region bosses by landscape if lairs are added: forest Old Bramblehorn 30, coast Reef Leviathan 29, grassland Great Hawk 28.
+    - Pair with gates (item 11): 315 gates (rope, then pick) lead to the boss; 313 lantern-gated tunnel mouth holds its mini-boss.
 
 ## Open choices
 - Bend by drawing corner sections, or by making sections bigger and letting the road wander inside them.
