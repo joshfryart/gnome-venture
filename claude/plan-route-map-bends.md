@@ -34,6 +34,13 @@ Rule: the road must be bendy, not a straight line all the time. Even where the r
     - Show it on the maps: a mark on the route map and on the master map mockup.
     - No existing tool-quality field found in `game/`, `tools/`, `claude/`; data model and item system need checking first.
 
+12. **Mini-bosses and bosses (to consider).** Engine rule today: a delve route's last section may hold a fixed `E` mini-boss (large creature); a lair route's last section holds a boss; other routes roll normal encounters. Bends must keep the `E` tile on the path and in the last section.
+    - Maplewold set already: 313 Beaverdam Tunnels (delve, forest, medium) mini-boss, large forest creature level about 20 to 23 (Moss Golem, Wild Boar, Tufted Lynx); 315 Den of the Great White Owl (lair, tundra, hard) boss Snow Owl Monarch level 30.
+    - Optional new mini-boss spots (new data needed): 312 great stump, Bramble Wolf (22); 314 lantern rocks, Clam Lurker (23) or Tide Crab Knight (19); 310 snowdrift pass, Grumpy Wolverine (21); 309 icicle cave mouth, Arctic Fox (17).
+    - Keep free of fights: starter routes 228, 232, 236; havens Sugar Shack (311) and Aurora Camp (316).
+    - Other region bosses by landscape if lairs are added: forest Old Bramblehorn 30, coast Reef Leviathan 29, grassland Great Hawk 28.
+    - Pair with gates (item 11): 315 gates (rope, then pick) lead to the boss; 313 lantern-gated tunnel mouth holds its mini-boss.
+
 ## Open choices
 - Bend by drawing corner sections, or by making sections bigger and letting the road wander inside them.
 - Fixed headings (8 compass directions) or free angles.
