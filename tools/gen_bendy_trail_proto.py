@@ -102,34 +102,74 @@ def make_line(rng, entry, exit_, esd, xsd):
         if c != out[-1]: out.append(c)
     return out
 
-def carve(rng, land_feel, line, entry, exit_, first, boss_last, tries=0):
+def noise_field(rng, scale):
+    """Smooth value noise, W x H, 0..1: random values on a coarse grid, smoothstep-blended."""
+    gw, gh = W // scale + 3, H // scale + 3
+    g = [[rng.random() for _ in range(gw)] for _ in range(gh)]
+    def at(x, y):
+        fx, fy = x / scale, y / scale; ix, iy = int(fx), int(fy); tx, ty = fx - ix, fy - iy
+        tx, ty = tx * tx * (3 - 2 * tx), ty * ty * (3 - 2 * ty)
+        a = g[iy][ix] * (1 - tx) + g[iy][ix + 1] * tx; b = g[iy + 1][ix] * (1 - tx) + g[iy + 1][ix + 1] * tx
+        return a * (1 - ty) + b * ty
+    return [[at(x, y) for x in range(W)] for y in range(H)]
+
+def carve(rng, land_feel, line, entry, exit_, first, boss_last):
+    """Off the road is a landscape, not rock: open meadow, rough ground, and thickets / outcrops (#) in soft blobs that come and go.
+    wall = share of thicket, widen = how much stays open meadow, rough = share of rough ground. Walls thin out beside the road."""
     wall, widen, rough = land_feel
-    g = [["#"] * W for _ in range(H)]
-    for x, y in line: g[y][x] = "."
+    big, small = noise_field(rng, 8), noise_field(rng, 4)
+    fld = [[0.65 * big[y][x] + 0.35 * small[y][x] for x in range(W)] for y in range(H)]
     on = set(line)
-    for _ in range(int(widen * 40)):     # widen a little: floor beside floor, never on the border
-        x, y = rng.randint(1, W - 2), rng.randint(1, H - 2)
-        if g[y][x] == "#" and any(g[y + dy][x + dx] in ".," for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))): g[y][x] = "."
-    spurs = []
-    for _ in range(rng.randint(1, 2)):   # finds sit at the end of short spurs off the line
-        cand = [i for i in range(3, len(line) - 3)]
-        rng.shuffle(cand)
-        for i in cand:
-            x, y = line[i]; dx, dy = rng.choice(((1, 0), (-1, 0), (0, 1), (0, -1)))
-            ln = rng.randint(3, 4); cells = [(x + dx * k, y + dy * k) for k in range(2, ln + 2)]
-            if (x + dx, y + dy) not in on and g[y + dy][x + dx] == "#" and all(1 <= cx <= W - 2 and 1 <= cy <= H - 2 and g[cy][cx] == "#" for cx, cy in cells):
-                for cx, cy in [(x + dx, y + dy)] + cells: g[cy][cx] = "."
-                spurs.append(cells[-1]); break
-    for y in range(1, H - 1):
-        for x in range(1, W - 1):
-            if g[y][x] == "." and rng.random() < rough: g[y][x] = ","
+    near = {}
+    for x, y in line:
+        for dy in range(-3, 4):
+            for dx in range(-3, 4):
+                k = (x + dx, y + dy); d = abs(dx) + abs(dy)
+                if k not in near or d < near[k]: near[k] = d
+    inner = [(x, y) for y in range(1, H - 1) for x in range(1, W - 1) if (x, y) not in on]
+    vals = sorted(fld[y][x] + (0.0 if near.get((x, y), 9) > 2 else -0.16 if near.get((x, y)) == 2 else -0.30) for x, y in inner)
+    t_wall = vals[int(len(vals) * (1 - wall * 0.75))]
+    rvals = sorted(fld[y][x] for x, y in inner)
+    t_rough_lo, t_rough_hi = rvals[int(len(rvals) * 0.30)], rvals[int(len(rvals) * (0.30 + rough * 0.6))]
+    g = [["#"] * W for _ in range(H)]
+    for x, y in inner:
+        v = fld[y][x] + (0.0 if near.get((x, y), 9) > 2 else -0.16 if near.get((x, y)) == 2 else -0.30)
+        if v >= t_wall: continue
+        g[y][x] = "," if t_rough_lo <= fld[y][x] < t_rough_hi else "."
+    for x, y in line: g[y][x] = "."
+    for x, y in line:      # the road itself: now and then a rough patch on it too
+        if rng.random() < rough * 0.5 and (x, y) not in (entry, exit_): g[y][x] = ","
     g[entry[1]][entry[0]] = "S" if first else "."
     g[exit_[1]][exit_[0]] = "9"
-    toks = []
-    for x, y in spurs: g[y][x] = "F"; toks.append([x, y, "F"])
+    seen, st = {entry}, [entry]      # drop floor the entry cannot reach (a pocket cut off by a thicket)
+    while st:
+        cx, cy = st.pop()
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            n = (cx + dx, cy + dy)
+            if 0 <= n[0] < W and 0 <= n[1] < H and n not in seen and g[n[1]][n[0]] != "#": seen.add(n); st.append(n)
+    for y in range(H):
+        for x in range(W):
+            if g[y][x] != "#" and (x, y) not in seen: g[y][x] = "#"
+    free = [(x, y) for (x, y) in seen if (x, y) not in on and 1 <= x <= W - 2 and 1 <= y <= H - 2 and 3 <= near.get((x, y), 9) + (0 if (x, y) in near else 6)]
+    free = [c for c in free if g[c[1]][c[0]] in ".,"]
+    rng.shuffle(free)
+    toks, marks = [], []
+    for c in free:        # finds: out in the landscape, 3+ from the road, 5+ apart
+        if len(toks) >= rng.randint(1, 3): break
+        if all(abs(c[0] - t[0]) + abs(c[1] - t[1]) >= 5 for t in toks): toks.append([c[0], c[1], "F"])
+    if not toks:
+        c = next((q for q in free), None)
+        if c: toks.append([c[0], c[1], "F"])
+    for x, y, _ in toks: g[y][x] = "F"
     if boss_last:
         x, y = line[-5]; g[y][x] = "E"; toks.append([x, y, "E"])
-    return ["".join(r) for r in g], toks
+    lms = []              # landmarks: floor cells beside the road (2 to 5 away), feet row >= 3, spaced 6 apart
+    cand = [c for c in seen if c not in on and g[c[1]][c[0]] in ".," and 3 <= c[1] <= H - 2 and 3 <= c[0] <= W - 4 and 2 <= near.get(c, 9) <= 5]
+    rng.shuffle(cand)
+    for c in cand:
+        if len(lms) >= 2: break
+        if all(abs(c[0] - m[0]) + abs(c[1] - m[1]) >= 6 for m in lms): lms.append(c)
+    return ["".join(r) for r in g], toks, lms
 
 def main():
     rid = int(sys.argv[1]) if len(sys.argv) > 1 else 313
@@ -152,8 +192,8 @@ def main():
             line = make_line(rng, entry, exit_, esd, xsd)
             if runs_ok(line) and len(line) >= 25: break
         else: raise SystemExit(f"no wiggly line for section {i + 1}")
-        rows, toks = carve(rng, feel, line, entry, exit_, i == 0, i == n - 1 and r["sections"][-1].get("tokens") is not None and rid in (313, 315))
-        s = dict(r["sections"][i]); s["rows"] = rows; s["tokens"] = toks
+        rows, toks, lms = carve(rng, feel, line, entry, exit_, i == 0, i == n - 1 and r["sections"][-1].get("tokens") is not None and rid in (313, 315))
+        s = dict(r["sections"][i]); s["rows"] = rows; s["tokens"] = toks; s["landmarks"] = [[x, y, f"{rid}-lm{i + 1}", 0] for i, (x, y) in enumerate(lms)]
         s.update({"w": W, "h": H, "heading": head, "entry": {"side": esd, "x": entry[0], "y": entry[1]}, "exit": {"side": xsd, "x": exit_[0], "y": exit_[1]}, "line": [list(c) for c in line]})
         secs.append(s); prev_exit, prev_cell = xsd, exit_
     out = {"route_id": rid, "from": r["from"], "to": r["to"], "land": r["land"], "w": W, "h": H, "sections": secs}
