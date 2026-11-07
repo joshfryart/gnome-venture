@@ -44,6 +44,7 @@ php -d display_errors=1 "$HERE/advforce.php" "$GAME" wander 2>&1 | tail -1
 echo "wander page: $(get adventure.php) wander=$(grep -c 'advgrid withrings wander' $H) gatherfold=$(grep -c 'wfold wgather' $H) actions=$(grep -c 'choiceform' $H)"
 if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" wander; OPEN=1 node "$HERE/advshot.js" "$BASE" "$SHOT" wanderopen; fi
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" choice 2>&1 | tail -1
+echo "choice stage: $(get adventure.php) fightscene=$(grep -c 'id="fightscene"' $H) event=$(grep -c '&quot;event&quot;' $H)"   # 2.6.07: events stand on the fight stage (needs fight_scene on, the default)
 if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" choice; fi
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" problem 2>&1 | tail -1
 if [ -n "$SHOT" ]; then node "$HERE/advshot.js" "$BASE" "$SHOT" problem; fi

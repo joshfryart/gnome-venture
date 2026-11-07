@@ -305,7 +305,9 @@ if ($wi && !$isWalk): ?>
 <?php $fsc = $fighting && fight_scene_on();   // fight_scene: the animated stage replaces the picture and the popover for a creature fight
 $overMap = $exp && fight_scene_on() && ($fighting || fight_finale_pending($exp));   // a fight (or its end scene) is drawn over whichever map the page shows
 if ($exp && $overMap && !$fighting && !$hasMap) echo fight_finale_html($u, $exp, null);   // no map on the page (the list): the end scene plays on a stage of its own
-if ($exp && !$trailSc && !$fsc && !($overMap && !$hasMap)): echo adventure_stage_html($u, $exp, $scene, $enc); endif;   // the tile page has no scene picture: the map is the picture ?>
+$evStage = $exp && !$trailSc && !$hasMap && fight_scene_on() && $enc && in_array($enc['type'] ?? '', ['choice', 'problem'], true);   // an event or a skill check stands on the same stage
+if ($evStage) { echo fight_event_html($u, $enc); }
+elseif ($exp && !$trailSc && !$fsc && !($overMap && !$hasMap)) { echo adventure_stage_html($u, $exp, $scene, $enc); }   // the tile page has no scene picture: the map is the picture ?>
 <?php if ($dv2Scene): // v2.3.1: the floor you are on, or the route menu between floors ?>
 <?php if ($dv2Scene['map']): ?><?= dv2_floor_html($u, $exp, $dv2Scene, (bool)$enc, $overMap) ?>
 <?php elseif ($dv2Scene['st']['q']): ?><?= dv2_quick_html($dv2Scene) ?>

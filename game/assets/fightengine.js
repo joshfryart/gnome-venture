@@ -208,6 +208,7 @@
       if (a.ghost) { a.ghost.style.cssText = a.el.style.cssText; a.ghost.firstChild.style.cssText = a.body.style.cssText; }
       if (a.hb && opts.flat) { var hw = a.hb.offsetWidth || 54; a.hb.style.cssText = 'left:' + (P[0] - hw / 2) + 'px;top:' + (P[1] + 3) + 'px;right:auto;bottom:auto'; }   // health sits right under the feet
       a.sh.style.cssText = 'left:' + (px + c / 2 - w * .35) + 'px;top:' + (py + c * .62) + 'px;width:' + (w * .7) + 'px;height:' + (c * .36) + 'px';
+      if (a.emoji) a.spr.style.fontSize = (h * .72) + 'px';
       if (r.kind === 'strip') { a.spr.style.backgroundSize = (r.frames * 100) + '% 100%'; a.spr.style.backgroundPosition = '0 0'; }
     }
     function run(a, name, target) {   // play MOVES[name] on actor a; reach = cells to the target
@@ -283,7 +284,8 @@
         if (pt.phys) { var w = document.createElement('i'); w.className = 'fe-part'; w.style.transformOrigin = org; w.appendChild(q); host.appendChild(w); phys[pt.id] = w; }   // w: the physics layer (set by the loop), q: scripted poses
         else host.appendChild(q);
         pel[pt.id] = q;
-      }); else spr.style.backgroundImage = 'url("' + d.img + '")';
+      }); else if (d.emoji) { spr.className += ' fe-emo'; spr.textContent = d.emoji; a.emoji = 1; }   // a prop that is not a creature (an event or a riddle): one big emoji standing opposite the gnome
+      else spr.style.backgroundImage = 'url("' + d.img + '")';
       body.appendChild(spr); el.appendChild(body);
       var sh = document.createElement('div'); sh.className = 'fe-sh';
       board.appendChild(sh); actorsEl.appendChild(el);

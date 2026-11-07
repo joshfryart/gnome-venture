@@ -51,6 +51,16 @@ function fight_scene_html(array $u, array $exp, array $enc, array $c, ?array $ov
         . (!$over ? fight_hatform_html($enc) : '');   // over a map the stage sits inside the map's own form: the hat form goes with the dock, outside it
 }
 
+/** The stage for a non-fight encounter (an event, a riddle, a skill check): the gnome and pals on the stage, the event's icon standing opposite, no health bars. */
+function fight_event_html(array $u, array $enc): string
+{
+    $icon = '❓';
+    if (($enc['type'] ?? '') === 'choice' && ($ch = road_event_get($enc))) $icon = (string)($ch['icon'] ?? '❓');
+    $data = ['event' => $icon, 'slug' => '', 'me' => ['name' => gnome_name($u), 'hp' => 1, 'max' => 1], 'foe' => ['name' => '', 'hp' => 1, 'max' => 1], 'events' => [],
+        'parts' => gnome_rig_urls($u), 'base' => url('assets/img/fight'), 'mini' => '', 'over' => null, 'pals' => fight_scene_pals($u), 'hat' => 0, 'land' => ''];
+    return '<div class="fightscene" id="fightscene" data-fight="' . e((string)json_encode($data, JSON_UNESCAPED_UNICODE)) . '" role="img" aria-label="' . e(gnome_name($u) . ' meets something on the road') . '"></div>';
+}
+
 /**
  * The fight menu on the map (v2.5.96, "Design C"): a small command column over the map with Fight, Item and Flee. Fight and Item open a list beside it
  * (Fight: Attack, the calling's ability, the pals' actives; no Fight on / Auto-win since 2.5.98; Item: the snacks, one row each). Tap an option once to read what it does in the

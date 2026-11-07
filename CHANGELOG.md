@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.07
+- **Events and skill checks stand on the fight stage**: on pages without a map (the list), an event, riddle or skill check shows your gnome and pals on the animated stage with the event's icon standing opposite (no health bars) instead of the popover picture. The choice rows are unchanged. Engine: `FightEngine.add` takes `emoji`.
+- Tests: `adventure.sh` checks the stage on a choice event.
+
 ## 2.6.06
 - **Crafted satchels**: a Canvas Satchel and a Patchwork Satchel can be made in the Tool Shed (Tools tab) from gathered coir, cottongrass, pine resin, red ochre and desert glass. The Gather tab shows the best satchel you own (patchwork, then canvas, then the leather one everyone starts with).
 - **More living stops**: 13 new daily happenings (fog, frost, storm aftermath, bake day, berries, spring clean, snow day, lamplit stalls, late ferry, pilgrims, busy mill, fiddler, bee swarm), 8 new stories (the lantern that went out, the wobbly plank, the runaway cheese, the stranger with no name, the apple that would not drop, the singing well, the boat nobody owns, the kite in the tower) and 8 new calendar days (Slow Sunday, Swap day, May Day, Equinox supper, Hearth week, Long days, New Year, Blossom week).
