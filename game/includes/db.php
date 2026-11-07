@@ -29,21 +29,34 @@ function db_connect(array $c): PDO
     return new PDO($dsn, $c['user'], $c['pass'], $opts);
 }
 
-function db(): PDO
+function db(bool $reconnect = false): PDO
 {
     static $pdo = null;
     global $CONFIG;
-    if ($pdo === null) {
+    if ($pdo === null || $reconnect) {
         $pdo = db_connect($CONFIG['db']);
     }
     return $pdo;
 }
 
+/** MySQL dropped the connection (2006 gone away / 2013 lost connection), as after a long picture upload outlives wait_timeout. */
+function db_lost(Throwable $e): bool
+{
+    $m = $e->getMessage();
+    return $e instanceof PDOException && (strpos($m, '2006') !== false || strpos($m, '2013') !== false || stripos($m, 'gone away') !== false);
+}
+
 /** Run a prepared query. ALWAYS pass user input through $params, never into $sql. */
 function q(string $sql, array $params = []): PDOStatement
 {
-    $st = db()->prepare($sql);
-    $st->execute($params);
+    try {
+        $st = db()->prepare($sql);
+        $st->execute($params);
+    } catch (PDOException $e) {
+        if (!db_lost($e) || db()->inTransaction()) throw $e;   // a half-done transaction cannot be replayed
+        $st = db(true)->prepare($sql);   // 2.6.08: one fresh connection, then the same query again
+        $st->execute($params);
+    }
     return $st;
 }
 

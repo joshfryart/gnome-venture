@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.08
+- **Image upload no longer dies with "MySQL server has gone away"**: a long upload (a big zip) outlived the MySQL idle timeout, so the next query failed. `q()` now opens one fresh connection and repeats the query when MySQL reports 2006 / 2013 (not inside a transaction).
+
 ## 2.6.07
 - **Events and skill checks stand on the fight stage**: on pages without a map (the list), an event, riddle or skill check shows your gnome and pals on the animated stage with the event's icon standing opposite (no health bars) instead of the popover picture. The choice rows are unchanged. Engine: `FightEngine.add` takes `emoji`.
 - Tests: `adventure.sh` checks the stage on a choice event.
