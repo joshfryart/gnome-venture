@@ -469,7 +469,7 @@ function stop_happening(array $loc, array $now): ?array
 {
     $type = stop_type_of($loc);
     $fit = [];
-    if ($ev = stop_cal_event($loc, hollow_date('Y-m-d'))) return $ev;   // v2.5.72: a day on the calendar beats the daily roll
+    if (!defined('GV_TEST_NO_CALENDAR') && ($ev = stop_cal_event($loc, hollow_date('Y-m-d')))) return $ev;   // GV_TEST_NO_CALENDAR: tests define it so a calendar day does not change what they count on   // v2.5.72: a day on the calendar beats the daily roll
     foreach (stop_happenings() as $hp) {
         if (!empty($hp['cal'])) continue;
         $ts = array_map('trim', explode(',', $hp['types']));

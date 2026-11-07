@@ -16,6 +16,9 @@ copper-watering-can|Copper Watering Can|tools|copper-watering-can:1|tin-watering
 gathering-basket|Gathering Basket|tools|gathering-basket:1|gathering-pouch:1,coir-fibre:3|3
 fine-mesh-net|Fine-mesh Net|tools|fine-mesh-net:1|bug-net:1,cottongrass:3|3
 prospector-s-pick|Prospector’s Pick|tools|prospector-s-pick:1|rock-pick:1,flint:3,slate-shard:2|3
+# v2.6.06: satchels (the Gather tab shows the best one you own)
+canvas-satchel|Canvas Satchel|tools|canvas-satchel:1|coir-fibre:6,cottongrass:3,pine-resin:2|4
+patchwork-satchel|Patchwork Satchel|tools|patchwork-satchel:1|coir-fibre:4,cottongrass:4,red-ochre:2,desert-glass:1|5
 
 # Garden supplies
 # v0.9.4: leftovers from eating raw food; no building and no energy (worse than a Compost Bin on purpose). The 12 is the setting scrap_compost_cost.

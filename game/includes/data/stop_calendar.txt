@@ -9,3 +9,11 @@ range:09-20..09-27|harvest_week|🌾|Harvest week|Baskets pile up at {place}. Th
 date:10-31|lantern_night|🏮|Lantern night|Lanterns hang from every post at {place}, and the children are dressed as badgers.|any|||play,lore|Fill the Cheer bar
 range:12-20..12-26|midwinter|❄️|Midwinter feast|A long table is set at {place} and everybody is invited.|any|||cook,lore,rest|Fill the Larder bar
 range:02-10..02-14|carnival|🎭|Carnival|Drums at {place}, and feathers, and dancing in the road.|any|SA,CB,CA||play,trade|Fill the Cheer bar
+weekly:sun|slow_sun|☕|Slow Sunday|Nobody is in a hurry at {place}. Pots of tea go round and the chairs have come out onto the road.|any|||rest,cook,lore|Fill the Cheer bar
+monthly:last:sat|swap_sat|🔄|Swap day|Everything at {place} is for swapping today: a button for a hat, a hat for a loaf, a loaf for a song.|market,jetty,ferry,inn,camp|||trade,play|Fill the Cheer bar
+date:05-01|may_day|🌸|May Day|Ribbons on a pole at {place}, and the whole stop is dancing in circles.|any|||play,craft,lore|Fill the Cheer bar
+date:09-22|equinox|🌗|Equinox supper|Day and night are the same length, and {place} lays a table for both.|any|||cook,lore,rest|Fill the Larder bar
+range:11-01..11-07|first_snow_week|🌨️|Hearth week|The nights have turned. At {place} everyone has found a reason to light the fire early.|any|||cook,rest,craft|Fill the Larder bar
+range:07-01..07-07|long_days|🌞|Long days|The evenings at {place} go on and on. People forget to go home.|any|||play,gather,rest|Fill the Cheer bar
+date:01-01|new_year|🎆|New Year|Everyone at {place} stays up to see the first light, and nobody is sure who is supposed to be keeping count.|any|||play,cook,lore|Fill the Cheer bar
+range:04-10..04-16|blossom_week|🌼|Blossom week|The trees around {place} are all in flower, and petals blow down the road like snow.|orchard,herb,spring,market,camp|||gather,tend,lore|Fill the Larder bar

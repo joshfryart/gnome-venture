@@ -10,3 +10,16 @@ cosy_weather|☔|A day for staying in|The weather has everyone indoors at {place
 harvest_glut|🍎|Too much harvest|{place} has more harvest than it can eat. Everyone is picking, cooking and giving it away.|market,mill,inn,orchard,herb,camp|se=autumn|gather,cook,trade|4
 repairs|🔨|Repair day|The weather has been hard on {place}. Fences, roofs and ropes need hands.|any|se=autumn,winter,spring|fix,craft,tend|3
 night_watch|🌙|A still night|{place} is quiet and the sky is full. Folk have come out to watch and tell tales.|any|dp=dusk,night|lore,rest,play|3
+fog_morning|🌫️|A fog on the water|The fog is so thick at {place} that everyone is talking in whispers and walking into things.|any|we=fog|lore,rest,play|3
+first_frost|🧊|The first frost|Every puddle at {place} has a lid on it this morning, and the children are skating on them in boots.|any|we=frost,snow|play,cook,rest|3
+storm_aftermath|🌩️|After the storm|Branches and tiles are everywhere at {place}. Folk are out with brooms and ladders.|any|we=storm,wind|fix,tend,gather|3
+bake_day|🥖|Bake day|The big oven at {place} is lit, and the whole stop smells of crust and woodsmoke.|market,mill,inn,camp|dp=dawn,day|cook,trade,rest|4
+berry_rush|🫐|Berries are ripe|The bushes around {place} are heavy and everybody has purple fingers.|orchard,herb,camp,spring,market|se=summer,autumn|gather,cook,trade|4
+spring_clean|🧹|Spring clean|Doors and windows at {place} are flung open, and rugs hang over every rail.|any|se=spring|tend,fix,craft|3
+snow_day|⛄|A snow day|Snow has shut {place} in. Nobody is going anywhere, so everybody is making something.|any|we=snow|craft,cook,play|3
+market_dusk|🕯️|Lamplit stalls|The stalls at {place} stay open after dark, lit by lanterns, selling the odds and ends.|market,inn,jetty,ferry|dp=dusk,night|trade,lore,cook|3
+ferry_late|⛴️|The ferry is late|The ferry has not come and the whole queue at {place} has decided to make the best of it.|ferry,jetty|dp=dawn,day,dusk|play,lore,cook|3
+shrine_day|🕊️|A quiet pilgrimage|Walkers in grey cloaks have come to {place}. They leave small gifts and do not say why.|shrine,spring,tower|dp=dawn,day|lore,rest,tend|3
+mill_busy|🌾|The wheel is turning|The mill at {place} is grinding flat out, and flour hangs in the air like a mild snow.|mill,market|se=autumn,winter|cook,trade,craft|3
+fiddler|🎻|A fiddler passes through|A fiddler has settled on a barrel at {place} and cannot be persuaded to stop.|any|dp=dusk,night|play,cook,lore|3
+swarm|🐝|A swarm of bees|A swarm has settled on a gatepost at {place}. Everyone is being very calm and very far away.|orchard,herb,camp,market,spring|se=spring,summer|gather,tend,lore|2

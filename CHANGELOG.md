@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.06
+- **Crafted satchels**: a Canvas Satchel and a Patchwork Satchel can be made in the Tool Shed (Tools tab) from gathered coir, cottongrass, pine resin, red ochre and desert glass. The Gather tab shows the best satchel you own (patchwork, then canvas, then the leather one everyone starts with).
+- **More living stops**: 13 new daily happenings (fog, frost, storm aftermath, bake day, berries, spring clean, snow day, lamplit stalls, late ferry, pilgrims, busy mill, fiddler, bee swarm), 8 new stories (the lantern that went out, the wobbly plank, the runaway cheese, the stranger with no name, the apple that would not drop, the singing well, the boat nobody owns, the kite in the tower) and 8 new calendar days (Slow Sunday, Swap day, May Day, Equinox supper, Hearth week, Long days, New Year, Blossom week).
+- Tests: `satchel` suite; `stops100` no longer depends on today's date (calendar days are switched off for the daily-roll checks, the answer act is whichever of the four is offered).
+
 ## 2.6.05
 - **Trail camera stays inside the map**: the picture no longer shows empty ground past the edges of a stretch (the start and the way on used to sit in a band of nothing). The walking camera follows the same rule, so there is no jump when a walk ends.
 - **Delve maps get the same notification as the Trail**: what just happened is one toast and a pop-up over the map, not a card in the page. The wander card keeps its own result line.

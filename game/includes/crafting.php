@@ -30,6 +30,8 @@ function ensure_crafts(): int
     ensure_decor_items();      // v0.7.33: yard decor, some of it crafted
     require_once __DIR__ . '/pal_jobs.php';
     pj_ensure_content();       // v2.3.0: the Healing Potion must exist before its recipe
+    require_once __DIR__ . '/gathering.php';
+    gather_ensure_satchel_items();   // v2.6.06: the satchels must exist before their recipes
     $stats = ['items' => 0];
     $added = import_recipes($stats);
     // Recipes made before v0.7.5 have no slug: give them their dish's slug

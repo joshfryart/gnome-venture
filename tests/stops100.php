@@ -25,6 +25,7 @@ function doit(string $slug, array $in = []): array { $u = me(); return local_do(
 function offered(array $loc): array { return array_column(stop_pool($loc)['offer'], 'slug'); }
 function today(): string { return hollow_date('Y-m-d'); }
 
+define('GV_TEST_NO_CALENDAR', 1);   // the daily roll is tested as the daily roll: a calendar day (any stop, any date) must not decide the result
 echo "== happenings (v2.5.72)\n";
 ok('happenings load', count(stop_happenings()) >= 6, (string)count(stop_happenings()));
 $mk = stopOfType('market');
@@ -70,8 +71,12 @@ ok('needs: a stranger is not a regular', !stop_needs_ok('fam>=regular', $lu, $li
 q('DELETE FROM stop_prog WHERE user_id = ?', [$lu]);
 $offAnon = array_column(stop_pool($lkLoc, null, 0)['offer'], 'slug');
 $offMe = array_column(stop_pool($lkLoc, null, $lu)['offer'], 'slug');
-ok('a meter-answer act is offered to a player with a low meter, first after the specials', in_array('mend_board', $offMe, true));
-ok('a meter-answer act is not offered with no player', !in_array('mend_board', $offAnon, true));
+// the answer acts rotate by day (two of the four), so use whichever one is offered today, and its own meter
+$ANS = ['mend_board' => 'repairs', 'tidy_yard' => 'repairs', 'fill_shelf' => 'larder', 'hang_lanterns' => 'cheer'];
+$mendSlug = ''; foreach ($ANS as $sl => $m) if (in_array($sl, $offMe, true)) { $mendSlug = $sl; break; }
+$mendMeter = $ANS[$mendSlug] ?? 'repairs';
+ok('a meter-answer act is offered to a player with a low meter, first after the specials', $mendSlug !== '', json_encode($offMe));
+ok('a meter-answer act is not offered with no player', !array_intersect(array_keys($ANS), $offAnon));
 ok('a need-act is never in the plain rotation of someone with a full meter', (function () use ($lu, $lid, $lkLoc) {
     foreach (['repairs', 'larder', 'cheer'] as $m) stop_prog_set($lu, $lid, 'meter:' . $m, 90, ['d' => today()]);
     $o = array_column(stop_pool($lkLoc, null, $lu)['offer'], 'slug');
@@ -88,11 +93,11 @@ ok('mend_board moves repairs by 20 (its row)', $mv === [['repairs', 20]], json_e
 $tagged = array_values(array_filter(stop_acts(), fn($a) => stop_act_state()[$a['slug']] ?? null ? false : stop_act_moves($a) !== []));
 ok('most acts move one meter by their tag', count($tagged) > 200, (string)count($tagged));
 $lu0 = at($lkLoc); q('UPDATE users SET energy = 900 WHERE id = ?', [$lu]);
-$before = stop_meter_get($lu, $lid, 'repairs');
-$res = doit('mend_board', $IN);
-ok('doing mend_board works', $res[0] === true, json_encode($res));
-ok('and raised repairs', stop_meter_get($lu, $lid, 'repairs') >= $before + 20, (string)stop_meter_get($lu, $lid, 'repairs'));
-ok('the result line mentions the meter', str_contains((string)$res[1], 'Repairs'), (string)$res[1]);
+$before = stop_meter_get($lu, $lid, $mendMeter);
+$res = doit($mendSlug ?: 'mend_board', $IN);
+ok('doing ' . ($mendSlug ?: 'mend_board') . ' works', $res[0] === true, json_encode($res));
+ok('and raised its meter', stop_meter_get($lu, $lid, $mendMeter) >= $before + 15, (string)stop_meter_get($lu, $lid, $mendMeter));
+ok('the result line mentions the meter', str_contains((string)$res[1], ucfirst($mendMeter)), (string)$res[1]);
 // calendar
 ok('calendar: weekly:sat', stop_cal_match('weekly:sat', '2026-11-07') && !stop_cal_match('weekly:sat', '2026-11-08'));
 ok('calendar: first Sunday of a month', stop_cal_match('monthly:first:sun', '2026-11-01') && !stop_cal_match('monthly:first:sun', '2026-11-08'));
@@ -101,7 +106,7 @@ ok('calendar: a fixed date', stop_cal_match('date:06-21', '2027-06-21') && !stop
 ok('calendar: a range, and one that wraps the year', stop_cal_match('range:12-20..12-26', '2026-12-25') && !stop_cal_match('range:12-20..12-26', '2026-12-27') && stop_cal_match('range:12-28..01-03', '2027-01-01') && stop_cal_match('range:12-28..01-03', '2026-12-30') && !stop_cal_match('range:12-28..01-03', '2026-06-01'));
 ok('calendar loads', count(stop_calendar()) >= 6, (string)count(stop_calendar()));
 ok('a Saturday market at a market stop', ($ev = stop_cal_event($lkLoc, '2026-11-07')) && $ev['id'] === 'c_market_sat', json_encode($ev['id'] ?? null));
-ok('and not at a shrine', stop_cal_event(stopOfType('shrine'), '2026-11-07') === null);
+ok('and not at a shrine', stop_cal_event(stopOfType('shrine'), '2026-11-14') === null);
 ok('calendar days are happenings, found by id', isset(stop_happenings()['c_midsummer']) && !empty(stop_happenings()['c_midsummer']['cal']));
 ok('calendar tags are real tags', (function () { $all = array_keys(STOP_TAG_WORDS); foreach (stop_calendar() as $e) foreach ($e['tags'] as $t) if (!in_array($t, $all, true)) return false; return true; })());
 ok('the next events list is dates after today', (function () use ($lkLoc) { foreach (stop_cal_next($lkLoc, 3, 400) as [$d]) if ($d <= today()) return false; return true; })());

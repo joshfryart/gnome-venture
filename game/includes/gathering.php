@@ -232,11 +232,33 @@ function gather_item_img(string $rel, int $px, string $cls): string
 /** Satchel skins that exist as art (assets/img/gather/satchel-back-<key>.png + satchel-front-<key>.png). The first is the default. */
 const GATHER_SATCHELS = ['leather', 'canvas', 'patchwork'];
 
-/** The skin of the satchel the gnome carries. There is no satchel item yet: a future column/item sets $u['satchel_skin']; until then everyone has leather. */
+/** v2.6.06: satchels are crafted (Tool Shed). slug => [name, base price, description]. Leather is the one every gnome starts with. */
+const GATHER_SATCHEL_ITEMS = [
+    'canvas-satchel' => ['Canvas Satchel', 120, 'A tough waxed-canvas satchel with a brass buckle. Your gnome carries it on the Gather tab once you own it.'],
+    'patchwork-satchel' => ['Patchwork Satchel', 260, 'Every pocket a different scrap, every scrap a story. Your gnome carries it on the Gather tab once you own it (it wins over the canvas one).'],
+];
+
+/** Make the satchel items (adds only, safe to repeat); their recipes are in data/crafts.txt. */
+function gather_ensure_satchel_items(): void
+{
+    foreach (GATHER_SATCHEL_ITEMS as $slug => [$name, $price, $desc]) {
+        if (q_val('SELECT 1 FROM items WHERE slug = ?', [$slug])) continue;
+        db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => 'supply', 'rarity' => 20, 'base_price' => $price, 'description' => $desc]);
+    }
+}
+
+/** The skin of the satchel the gnome carries: $u['satchel_skin'] if a column ever sets it, else the best satchel in the gnome's pack (patchwork, canvas), else leather. */
 function gather_satchel_key(array $u): string
 {
     $k = (string)($u['satchel_skin'] ?? '');
-    return in_array($k, GATHER_SATCHELS, true) ? $k : GATHER_SATCHELS[0];
+    if (in_array($k, GATHER_SATCHELS, true)) return $k;
+    $uid = (int)($u['id'] ?? 0);
+    if ($uid > 0) {
+        foreach (['patchwork' => 'patchwork-satchel', 'canvas' => 'canvas-satchel'] as $key => $slug) {
+            if (q_val('SELECT 1 FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND i.slug = ? AND ui.qty > 0', [$uid, $slug])) return $key;
+        }
+    }
+    return GATHER_SATCHELS[0];
 }
 
 /** Part of the day for the scene art: 'day' | 'dusk' (dawn and dusk) | 'night', from the Hollow clock. */
