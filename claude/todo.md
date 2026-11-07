@@ -22,6 +22,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - DONE 2026-11-06: `fight_scene` is ON by default (released 2.5.97; a site that saved 0 stays off).
 
 ## 3. JOSH: decisions needed
+- DECIDED 2026-11-07 (sleep-days, design `claude/plan-sleep-days.md`): the game moves by DAYS the player chooses by sleeping in the hovel (unlimited, no brake); sleep = full energy refill; timed 1/min regen removed; garden, pantry jars, pal jobs (fewer slots, longer), Cat Fish cap (7 sleeps), NPC chat/gifts (NPCs move on) and festivals run on game-days (per-player calendar); minigame Petals, shared goals, contests, visits stay real-time; NPC shop sell-bucket per crop per player (size = base x beds, real-time drain, 75/50/25% steps, meter), stalls/gifts/trades untouched. Accepted risks are in section 8 of the plan. Design only, nothing built.
 - DECIDED 2026-11-06: art uploads go through Admin > Images (never Update); the on-the-road bar and the fight bar are gone from other pages; the Trail fight menu is Design C and closes after every action; Puzzle Pals stand beside the gnome on maps and in fights.
 - DECIDED 2026-11-07 (route map bends, plan `claude/plan-route-map-bends.md`): square tiles stay (hexagons deferred), 8 compass headings, wandering road in bigger sections (30 x 18, up from 22 x 7), straight run of the road at most 6 tiles (one per section up to 10), thickets close in on bends. Still open for Josh: tool-quality gates, extra mini-boss spots (Maplewold lists in the plan), tall 18 x 30 sections for N/S. DECIDED later 2026-11-07: gates use the game's tool types and tiers (Worn, Sturdy, Fine, Masterwork), min tier = region level + 1 (Maplewold: Sturdy), 314 causeway is a shortcut (long way round open), 314 extra mini-boss is Clam Lurker.
 - Open: trail fight menu list can cover the foe while open (accepted for now); stand-in set pieces and borrowed ground art (section 5) wait for art.
@@ -33,6 +34,11 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Admin upload `uploads/items/<slug>.png` shadows `assets/img/ph/` (reason an item can show old art).
 
 ## 4. CODE: open
+**Sleep-days (design `claude/plan-sleep-days.md`, no code yet)**
+- TODO: code audit first (plan section 9): `refresh_energy()`, `energy_tick()`, every `hollow_date(` call (about 59 files: personal / shared / cap), plant, pantry and pal timers, `shop.php` sell path.
+- TODO: prototype garden growth on game-days behind a flag (default off), then remove regen, then the rest in plan section 11 order.
+- TODO: write NPC move-on schedules and the per-player festival calendar (content).
+- TODO: migration script (running timers to nearest sleeps, round up).
 - FIX 2026-11-07 (2.6.06, not phone-checked): Josh: the fallen hat could not be tapped on a phone (menu covers it) and went back on during the next attack, then fell off again. Now the menu has a one-tap 🎩 Hat button (`fsc-hatbtn`, `fight_dock_html()`), and a hat still down from an earlier turn starts on the ground (`dropHat` in `fightengine.js`, called in `fightscene.js`). Test: `tests/fight_scene_trail.sh`.
 - DONE 2026-11-07 (2.6.06, on main): crafted satchels (Josh: "Crafting"): items `canvas-satchel` / `patchwork-satchel` (`gather_ensure_satchel_items()`), recipes in `crafts.txt` (Tools, needs a Tool Shed), `gather_satchel_key()` picks the best owned; test `tests/satchel.sh`. Content: 13 happenings, 8 stories, 8 calendar days appended to `data/stop_*.txt`. `stops100` made date-proof (`GV_TEST_NO_CALENDAR`). Josh OK'd 2026-11-07: Flee confirm "tap again" and the yard designer items stay as they are.
 **Trail / Here**
