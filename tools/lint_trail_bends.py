@@ -3,7 +3,9 @@
 Per section: size, one entry and one exit on edges, S only on section 1, walls elsewhere on the border, the stored road line is floor and connected,
 starts at the entry and ends at the exit, straight runs <= 6 tiles (one run up to 10), F off the line, E on the line, no E except last section.
 Between sections: exit of N moved across the join equals the entry of N+1 (same row for E/W, same column for N/S).
-Warns (does not fail) when the shortest walk entry to exit is straighter than the road line. Exit 1 on any FAIL."""
+Also: no cell used twice on the road line and no step straight back; landscape share (walls 12 to 45% of the inside, some rough ground);
+the shortest walk entry to exit is at least 80% of the road line and has no straight run over 10 (no meadow shortcut that skips the bends);
+every F can be reached; landmarks are floor, off the road, off F and E, feet row >= 3, inside x 3..W-4. Exit 1 on any FAIL."""
 import json, sys
 from collections import deque
 CAP, LONG = 6, 10
@@ -55,9 +57,35 @@ def lint(path):
                 if c == "F" and (x, y) in on: bad.append(f"{t}: F on the road line at {x},{y}")
                 if c == "E" and (x, y) not in on: bad.append(f"{t}: E off the road line at {x},{y}")
                 if c == "E" and i != len(secs) - 1: bad.append(f"{t}: E only on the last section")
+        if len(set(line)) != len(line): bad.append(f"{t}: road line uses a cell twice")
+        st_ = [(b[0] - a[0], b[1] - a[1]) for a, b in zip(line, line[1:])]
+        if any(a[0] == -b[0] and a[1] == -b[1] for a, b in zip(st_, st_[1:])): bad.append(f"{t}: road line steps straight back")
+        inside = [rows[y][x] for y in range(1, H - 1) for x in range(1, W - 1)]
+        wallshare = inside.count("#") / len(inside); roughshare = inside.count(",") / len(inside)
+        if not 0.12 <= wallshare <= 0.45: bad.append(f"{t}: thicket share {wallshare:.0%} (want 12 to 45%)")
+        if roughshare < 0.02: bad.append(f"{t}: almost no rough ground ({roughshare:.0%})")
         sp = shortest(rows, (en["x"], en["y"]), (ex["x"], ex["y"]))
         if sp is None: bad.append(f"{t}: entry cannot reach exit")
-        elif rr and max(runs(sp) or [0]) > LONG: warn.append(f"{t}: shortest walk has a straight run of {max(runs(sp))}")
+        else:
+            if (len(sp) - 1) / max(1, len(line) - 1) < 0.80: bad.append(f"{t}: shortcut saves {1 - (len(sp) - 1) / (len(line) - 1):.0%} of the road (limit 20%)")
+            if runs(sp) and max(runs(sp)) > LONG: bad.append(f"{t}: shortest walk has a straight run of {max(runs(sp))} (limit {LONG})")
+        reach = set(sp or [])
+        seen, stk = {(en["x"], en["y"])}, [(en["x"], en["y"])]
+        while stk:
+            cx, cy = stk.pop()
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                n_ = (cx + dx, cy + dy)
+                if 0 <= n_[0] < W and 0 <= n_[1] < H and n_ not in seen and rows[n_[1]][n_[0]] != "#": seen.add(n_); stk.append(n_)
+        toks_ = {(x, y): c for y, row in enumerate(rows) for x, c in enumerate(row) if c in "FE"}
+        for (x, y), c in toks_.items():
+            if (x, y) not in seen: bad.append(f"{t}: {c} at {x},{y} cannot be reached")
+        if not any(c == "F" for c in toks_.values()): bad.append(f"{t}: no find (F)")
+        lm_ = [(l[0], l[1]) for l in s.get("landmarks", [])]
+        for (x, y) in lm_:
+            if not (3 <= x <= W - 4 and 3 <= y <= H - 2): bad.append(f"{t}: landmark {x},{y} out of bounds (x 3..{W - 4}, feet row 3..{H - 2})")
+            elif rows[y][x] not in ".,": bad.append(f"{t}: landmark {x},{y} is not on plain floor")
+            elif (x, y) in on: bad.append(f"{t}: landmark {x},{y} sits on the road")
+        if len(set(lm_)) != len(lm_): bad.append(f"{t}: two landmarks on one tile")
         if i + 1 < len(secs):
             n = secs[i + 1]["entry"]
             if ex["side"] in "EW": ok = n["y"] == ex["y"] and n["side"] != ex["side"]
