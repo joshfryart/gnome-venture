@@ -14,11 +14,12 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Release recipe: bump `APP_VERSION` in `game/includes/bootstrap.php`, CHANGELOG top entry = same, `tools/check_versions.sh`, `bash tests/build_update.sh <v> <two-back> releases`, art zip `upload-zips/gnome-venture-images-v3-<v>.zip`. Never rebuild a zip under the same version. Push main only on Josh's word.
 
 ## 2. JOSH: phone checks
-- 2.5.97 (new, nothing phone-checked): fights on delve floors and in a wander over the map with the menu, flee and KO end scenes, pal skills acted by the pal, tap speed-up 2x, walk back (Not yet), seed/guide pictures in the loot, reduced-motion loot, admin Delve and lair runs.
+- DONE 2026-11-07: Josh said "All my checks ok". Treat everything listed here before 2.6.07 as PASSED: 2.5.97 to 2.6.06 (delve/wander fights, flee/KO, pal skills, 2x speed-up, walk back, Extras tab, toast fixes, Hat button).
+- 2.6.07 (new, nothing phone-checked): events / riddles / skill checks on the stage (list page, no map); look that the gnome and the event icon show and the choice rows still work.
 - DONE 2026-11-06: Josh said "Phone checks done good". Treat everything previously listed here as PASSED: 2.5.90 to 2.5.96 (ground zips, new-region routes, pals, Fight / Item / Flee menu, no bar under banner), 2.5.81 to 2.5.89 fight scene, 2.5.72 (Do tab meters, perks, notice board, happenings, stories, Sneak/Hunt, workshop), 2.5.60 to 2.5.71 items, yard, Here pages, Maplewold tiles. Not itemised, so per-item "not phone-checked" notes in section 4 are now stale.
 - DONE 2026-11-06 (2.5.97, not phone-checked): pal skills in the fight scene are acted by the pal on the stage (strike/sap: it hops at the foe; others: it cheers, then the effect lands; patch heals with no gnome pose; shield shows "shielded"). `fight_pal_events` / `fight_pal_slot` in `includes/adventure.php`, engine move `mend`. A pal not drawn on the stage (no art, 4th pal) keeps the old gnome animation.
 & speeds it up 2x (was 40x), in `fightscene.js`; reduced motion still runs at 40x.
-- DECIDED 2026-11-06: `fight_scene` ON by default (default flipped in `here_schema.php`, NOT yet released: needs a version bump + slim zip; a site with the setting already saved as 0 stays off). 3% fight rate confirmed OK.
+- DONE 2026-11-06: `fight_scene` is ON by default (released 2.5.97; a site that saved 0 stays off).
 
 ## 3. JOSH: decisions needed
 - DECIDED 2026-11-06: art uploads go through Admin > Images (never Update); the on-the-road bar and the fight bar are gone from other pages; the Trail fight menu is Design C and closes after every action; Puzzle Pals stand beside the gnome on maps and in fights.
