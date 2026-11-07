@@ -18,7 +18,10 @@ import functools, glob, json, math, os, random, subprocess, sys, zlib
 HERE = os.path.dirname(os.path.abspath(__file__)); REPO = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 from bend_rules import SHORTCUT_AIM, LONG_CAP, WALL_MIN, WALL_MAX, CAP, road_ok, walk, reachable, run_lengths
-from gen_trail_maps import LAND_FEEL, parse    # one table of land feel for both generators; parse() reads claude/route-list.md
+from gen_trail_maps import LAND_FEEL, parse
+from bend_stamps import apply_ops
+VARIETY = False      # --variety: landscape stamps by land + ponds read from the region picture (tools/bend_stamps.py, tools/bend_water.py); written to claude/bend-prototype-v2/
+K = 0.75             # tiles per region unit, for placing ponds    # one table of land feel for both generators; parse() reads claude/route-list.md
 W, H = 30, 18
 MIN_LINE = 25                              # a road shorter than this has no room to wander
 DIRS = {"E": (1, 0), "SE": (1, 1), "S": (0, 1), "SW": (-1, 1), "W": (-1, 0), "NW": (-1, -1), "N": (0, -1), "NE": (1, -1)}   # y points down
@@ -159,7 +162,26 @@ def noise_field(rng, scale):
 
 def quantile(sorted_vals, f): return sorted_vals[min(len(sorted_vals) - 1, max(0, int(len(sorted_vals) * f)))]
 
-def carve(rng, feel, line, entry, exit_, first, boss_last, n_landmarks):
+STAMPS = {"grassland": ["grove", "orchard", "hedgefield", "drift", "marsh"], "forest": ["log", "clearing", "grove", "marsh"], "coast": ["dune", "rockstack", "tidepool"],
+    "tundra": ["icelake", "pines", "drift"], "desert": ["dune", "rockstack", "drift"], "mountain": ["rockstack", "pines", "drift"], "wetland": ["marsh", "grove", "tidepool"],
+    "rainforest": ["grove", "log", "clearing", "marsh"], "island": ["dune", "tidepool", "grove", "rockstack"]}
+
+def variety_ops(rng, land, near, ponds):
+    """Ops for one section: the ponds the region picture puts here, then 2 to 3 stamps of the land's kind, 4+ tiles from the road and 7+ from each other."""
+    ops = list(ponds); centres = [(op[1], op[2]) for op in ponds]
+    free = [(x, y) for y in range(3, H - 3) for x in range(3, W - 3) if near.get((x, y), 9) >= 4]; rng.shuffle(free)
+    kinds = STAMPS.get(land, ["grove", "drift"])
+    for c in free:
+        if len(ops) - len(ponds) >= rng.randint(2, 3): break
+        if any(abs(c[0] - q[0]) + abs(c[1] - q[1]) < 7 for q in centres): continue
+        k = rng.choice(kinds); x, y = c
+        op = {"grove": ("grove", x, y, rng.randint(2, 3)), "orchard": ("orchard", x, y, x + 5, y + 3, 2), "hedgefield": ("hedgefield", x, y, min(W - 3, x + 7), min(H - 3, y + 4), x + 3),
+              "drift": ("drift", x, y, 3, 2), "marsh": ("marsh", x, y, 2), "log": ("log", x, y, 4), "clearing": ("clearing", x, y, 2), "dune": ("dune", x, y, 3, 1),
+              "rockstack": ("rockstack", x, y), "tidepool": ("tidepool", x, y), "icelake": ("icelake", x, y, 2), "pines": ("pines", x, y, 2)}[k]
+        ops.append(op); centres.append(c)
+    return ops
+
+def carve(rng, feel, line, entry, exit_, first, boss_last, n_landmarks, land="", ponds=()):
     """Rows, tokens and landmark cells for one section, or None when this seed cannot be made to fit (the caller tries the next one).
     feel = (thicket share, unused, rough share) from LAND_FEEL. Walls thin out beside the road so the road stays readable."""
     wall, _, rough = feel
@@ -180,6 +202,9 @@ def carve(rng, feel, line, entry, exit_, first, boss_last, n_landmarks):
     g = [["#"] * W for _ in range(H)]
     for c in inner:
         if fld[c] + thin(c) < t_wall: g[c[1]][c[0]] = "," if rough_lo <= fld[c] < rough_hi else "."
+    prot = set()
+    if VARIETY: apply_ops(g, prot, variety_ops(rng, land, near, ponds))
+    prot -= on
     for x, y in line: g[y][x] = "," if rng.random() < rough * 0.5 and (x, y) not in (entry, exit_) else "."
     g[entry[1]][entry[0]] = "S" if first else "."
     g[exit_[1]][exit_[0]] = "9"
@@ -188,14 +213,14 @@ def carve(rng, feel, line, entry, exit_, first, boss_last, n_landmarks):
         sp = walk(g, entry, exit_)
         if sp is None: return None
         if (len(sp) - 1) / L >= SHORTCUT_AIM and max(run_lengths(sp), default=0) <= LONG_CAP: break
-        cut = [c for c in sp if c not in on]
+        cut = [c for c in sp if c not in on and c not in prot]
         if not cut: return None
         cx, cy = max(cut, key=lambda c: (near.get(c, 9), rng.random()))
         rad = rng.choice((1, 2))
         for dy in range(-rad, rad + 1):
             for dx in range(-rad, rad + 1):
                 q = (cx + dx, cy + dy)
-                if abs(dx) + abs(dy) <= rad and q not in on and 1 <= q[0] <= W - 2 and 1 <= q[1] <= H - 2: g[q[1]][q[0]] = "#"
+                if abs(dx) + abs(dy) <= rad and q not in on and q not in prot and 1 <= q[0] <= W - 2 and 1 <= q[1] <= H - 2: g[q[1]][q[0]] = "#"
     else: return None
     seen = reachable(g, entry)                 # floor the entry cannot reach (a pocket cut off by a thicket) becomes thicket
     for y in range(H):
@@ -222,9 +247,29 @@ def carve(rng, feel, line, entry, exit_, first, boss_last, n_landmarks):
     if len(lms) < n_landmarks: return None
     return ["".join(r) for r in g], toks, lms
 
+def pond_ops(ponds, line):
+    """("pond", cx, cy, r) for the ponds this section owns: ponds = [(pond vector in region units from the road, pond radius)]."""
+    out = []
+    for (vx, vy), pr in ponds or []:
+        n = math.hypot(vx, vy) or 1; px, py = line[len(line) // 2]
+        out.append(("pond", max(5, min(W - 6, round(px + vx / n * 7))), max(5, min(H - 6, round(py + vy / n * 7))), 3 if pr >= 10 else 2))
+    return out
+
+def section_ponds(path, rcode, n):
+    """For each section, the ponds (vector, radius) of the region picture that lie within 14 region units of its stretch of the route; a pond belongs to the section it is nearest to."""
+    from bend_water import region_ponds
+    fine = sample(path, n * 40); best = {}
+    for pi, pd in enumerate(region_ponds(rcode)):
+        for sec in range(n):
+            seg = fine[sec * 40: sec * 40 + 41]; k = min(seg, key=lambda p: math.dist(p, (pd["x"], pd["y"]))); d = math.dist(k, (pd["x"], pd["y"])) - pd["r"]
+            if d <= 14 and (pi not in best or d < best[pi][0]): best[pi] = (d, sec, ((pd["x"] - k[0], pd["y"] - k[1]), pd["r"]))
+    out = [[] for _ in range(n)]
+    for d, sec, v in best.values(): out[sec].append(v)
+    return out
+
 # ---------- a route ----------
 
-def build_section(rid, salt, i, n, head, esd, xsd, prev_cell, feel, boss_last, names):
+def build_section(rid, salt, i, n, head, esd, xsd, prev_cell, feel, boss_last, names, land="", ponds=None):
     """One section, trying seeds until a road, landscape and tokens all fit. Raises NoFit."""
     for attempt in range(800):
         rng = random.Random(zlib.crc32(f"gv-bend|{rid}|{salt}|{i}|{attempt}".encode()))
@@ -233,7 +278,7 @@ def build_section(rid, salt, i, n, head, esd, xsd, prev_cell, feel, boss_last, n
         exit_ = edge_cell(xsd, min(0.9, max(0.1, rng.uniform(lean - 0.2, lean + 0.2))))
         line = make_line(rng, entry, exit_, esd, xsd)
         if len(line) < MIN_LINE or not road_ok(line): continue
-        res = carve(rng, feel, line, entry, exit_, i == 0, boss_last, len(names))
+        res = carve(rng, feel, line, entry, exit_, i == 0, boss_last, len(names), land, pond_ops(ponds, line))
         if res: return entry, exit_, line, res
     raise NoFit(f"section {i + 1}")
 
@@ -244,7 +289,7 @@ def build_route(r, group, end_kind, routes_lm, region=None):
     if r["land"] not in LAND_FEEL: raise SystemExit(f"route {rid}: no land feel for '{r['land']}' in gen_trail_maps.LAND_FEEL")
     home, away = group_regions(group)
     path, kind, rcode = region_path(rid, r["from"], r["to"], region or home, away)
-    pts = sample(path, n)
+    pts = sample(path, n); ponds = section_ponds(path, rcode, n) if VARIETY else [[] for _ in range(n)]
     for salt in range(6):                      # if a later section cannot fit the join, start the whole route over with new seeds
         try:
             secs, prev_exit, prev_cell = [], None, None
@@ -252,7 +297,7 @@ def build_route(r, group, end_kind, routes_lm, region=None):
                 head = snap(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1])
                 esd, xsd = sides_for(head, i, prev_exit)
                 names = [lm[2] for lm in (routes_lm[i] if i < len(routes_lm) else [])]
-                entry, exit_, line, (rows, toks, lms) = build_section(rid, salt, i, n, head, esd, xsd, prev_cell, LAND_FEEL[r["land"]], bool(boss) and i == n - 1, names)
+                entry, exit_, line, (rows, toks, lms) = build_section(rid, salt, i, n, head, esd, xsd, prev_cell, LAND_FEEL[r["land"]], bool(boss) and i == n - 1, names, r["land"], ponds[i])
                 s = dict(r["sections"][i]); s.update(rows=rows, tokens=toks, landmarks=[[x, y, nm, 0] for (x, y), nm in zip(lms, names)], w=W, h=H, heading=head,
                     entry={"side": esd, "x": entry[0], "y": entry[1]}, exit={"side": xsd, "x": exit_[0], "y": exit_[1]}, line=[list(c) for c in line])
                 secs.append(s); prev_exit, prev_cell = xsd, exit_
@@ -261,7 +306,7 @@ def build_route(r, group, end_kind, routes_lm, region=None):
     raise SystemExit(f"route {rid}: could not be built")
 
 def write(out):
-    d = os.path.join(REPO, "claude", "bend-prototype"); os.makedirs(d, exist_ok=True)
+    d = os.path.join(REPO, "claude", "bend-prototype-v2" if VARIETY else "bend-prototype"); os.makedirs(d, exist_ok=True)
     base = os.path.join(d, f"route-{out['route_id']}")
     json.dump(out, open(base + ".json", "w"), indent=1, ensure_ascii=False)
     with open(base + ".txt", "w") as f:
@@ -286,6 +331,8 @@ def load_landmarks():
     return lm
 
 def main():
+    global VARIETY
+    VARIETY = "--variety" in sys.argv
     ids = [int(a) for a in sys.argv[1:] if a.isdigit()]
     region = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--region=")), None)
     src, lm = load_sources(), load_landmarks()
