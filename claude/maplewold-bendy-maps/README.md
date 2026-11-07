@@ -65,3 +65,6 @@ Per section field `extra_minibosses` (`x`, `y` on the road, `creature` slug, `le
 - Kept free of fights: 228, 232, 236 (starters), 311 (Sugar Shack), 316 (Aurora Camp). 313 and 315 keep their `E`.
 
 Check: `python3 tools/lint_maplewold_extras.py claude/maplewold-bendy-maps/route-*.json` (gate and mini-boss rules) next to `tools/lint_trail_bends.py`. Pictures show gates in magenta, the bypass in green and extra mini-bosses as orange dots (`route-<id>-water.png`).
+
+## Engine (source only, no version bump)
+`tools/bendy_to_trail_maps.py` makes `trail_maps_maplewold_30x18.json` in the game's authored-map shape (plus `entry`, `gates`, `extra_minibosses`, `water` per section). `php tests/trail_bendy.php` loads it through the real loader (`trail_authored_load`) and checks 41 sections, edges, joins, gates and the 30 x 18 camera; `php tests/trail_authored.php` still passes. Not in `game/includes/data` yet: there are no 30 x 18 ground pictures (the bake is the next step), and `extra_minibosses` are not read by the engine.

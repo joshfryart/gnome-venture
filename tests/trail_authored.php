@@ -52,7 +52,7 @@ echo "== loader: maps for any region\n";
 $tmp = sys_get_temp_dir() . '/trail-loader-' . getmypid();
 @mkdir($tmp . '/trail_maps', 0777, true);
 $secOf = fn(array $rows) => ['feature' => 'fixture', 'caption' => 'c', 'objs' => [], 'rows' => $rows];
-$good = ['land' => 'desert', 'art' => 'coast', 'from' => 'A', 'to' => 'B', 'boss' => '', 'sections' => [$secOf(['#####', 'S...9', '#####']), $secOf(['#####', '....9', '#####'])]];
+$good = ['land' => 'desert', 'art' => 'coast', 'from' => 'A', 'to' => 'B', 'boss' => '', 'sections' => [$secOf(['#####', 'S...9', '#####']), $secOf(['#####', '....9', '#####']) + ['entry' => ['side' => 'W', 'x' => 0, 'y' => 1]]]];   // v2.7: a section without an S names its entry
 file_put_contents($tmp . '/trail_maps.json', json_encode(['v' => 1, 'routes' => ['900001' => $good]]));
 file_put_contents($tmp . '/trail_maps/blossomreach.json', json_encode(['v' => 1, 'routes' => [
     '900002' => $good,
@@ -61,13 +61,14 @@ file_put_contents($tmp . '/trail_maps/blossomreach.json', json_encode(['v' => 1,
     '900004' => ['land' => 'desert', 'sections' => [$secOf(['#####', 'S...9', '####'])]],       // unequal rows
     '900005' => ['land' => 'desert', 'sections' => [$secOf(['#####', 'S...9', '#####x'])]],     // a character that is not a tile
     '900006' => ['land' => 'desert', 'sections' => []],
+    '900007' => ['land' => 'desert', 'sections' => [$secOf(['#####', 'S...9', '#####']), $secOf(['#####', '....9', '#####'])]],   // no S and no entry in section 2
 ]]));
 file_put_contents($tmp . '/trail_maps/zzz.json', json_encode(['v' => 1, 'routes' => ['900001' => ['land' => 'coast'] + $good]]));
 file_put_contents($tmp . '/trail_maps/broken.json', '{not json');
 $l = trail_authored_load($tmp);
 ok('the merged file and the per-region files are both read', isset($l['900001'], $l['900002']), implode(',', array_keys($l)));
 ok('a route in a later region file wins over the same id earlier', ($l['900001']['land'] ?? '') === 'coast');
-ok('invalid entries are dropped (9 off the edge, unequal rows, odd character, bad id, no sections) and a broken file is skipped', array_map('strval', array_keys($l)) === ['900001', '900002'], implode(',', array_keys($l)));
+ok('invalid entries are dropped (9 off the edge, unequal rows, odd character, bad id, no sections, no S and no entry) and a broken file is skipped', array_map('strval', array_keys($l)) === ['900001', '900002'], implode(',', array_keys($l)));
 ok('a missing folder gives no routes', trail_authored_load($tmp . '/none') === []);
 ok('the shipped data folder loads the same way trail_authored_all() does', trail_authored_load($game . '/includes/data') === $all);
 ok('a route whose picture is missing has no baked ground (the old drawn look takes over)', !trail_art_ready(['route' => 900002, 'sec' => 0]));
