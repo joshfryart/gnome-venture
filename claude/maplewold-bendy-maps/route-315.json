@@ -476,7 +476,7 @@
      ],
      "road_index": 16,
      "tool": "rope",
-     "min_quality": 1,
+     "min_quality": 2,
      "kind": "lock",
      "label": "pine slope: needs a rope"
     }
@@ -809,7 +809,7 @@
      ],
      "road_index": 19,
      "tool": "prospector-s-pick",
-     "min_quality": 1,
+     "min_quality": 2,
      "kind": "lock",
      "label": "icicle bridge: needs a pick to clear the icicles"
     }

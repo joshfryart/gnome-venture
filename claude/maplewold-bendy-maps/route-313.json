@@ -770,7 +770,7 @@
      ],
      "road_index": 17,
      "tool": "miner-s-lantern",
-     "min_quality": 1,
+     "min_quality": 2,
      "kind": "lock",
      "label": "tunnel mouth: needs a lantern"
     }

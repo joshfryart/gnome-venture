@@ -57,11 +57,11 @@ More stamps in the library: `dune`, `rockstack`, `tidepool` (coast), `icelake`, 
 Per section field `gates`: `tiles` (3 tiles across the chokepoint, centred on the road), `road_index`, `tool` (item slug from crafts.txt), `min_quality`, `kind`, `label`. The builder walls the whole section across the road at that tile, open only at the gate tiles.
 - **Locks** (blocking the tiles cuts entry from exit): 313 s3 tunnel mouth `miner-s-lantern`; 315 s2 pine slope `rope`; 315 s3 icicle bridge `prospector-s-pick`. All lie before the boss/mini-boss `E`.
 - **Shortcut:** 314 s2 tidal causeway `hiking-staff`; a second opening 5 tiles away (`bypass`) gives the long way round (at least 6 steps longer).
-- `min_quality` is 1 everywhere: the game has no tool-quality field yet (crafts.txt has tools but no quality). Josh to decide the quality scale and whether the lock tools are right (lantern, rope, pick).
+- **Quality rule (decided):** `min_quality` = region tier + 1, one tier above the base tier. Maplewold is tier 1, so every gate here needs quality 2; later regions go up by one per region tier. The game has no tool-quality field yet (crafts.txt has tools but no quality), so this is data for when it exists. Lantern, rope and pick confirmed. The 314 causeway stays a shortcut.
 
 ## Extra mini-boss spots (data only, not `E`)
 Per section field `extra_minibosses` (`x`, `y` on the road, `creature` slug, `level`, `label`), one per section, 5+ steps from the entry and 7+ from the exit:
-- 312 s3 great stump: Bramble Wolf (22); 314 s3 lantern rocks: Tide Crab Knight (19; Clam Lurker 23 is the harder option); 310 s1 snowdrift pass: Grumpy Wolverine (21); 309 s2 icicle cave mouth: Arctic Fox (17).
+- 312 s3 great stump: Bramble Wolf (22); 314 s3 lantern rocks: Clam Lurker (23); 310 s1 snowdrift pass: Grumpy Wolverine (21); 309 s2 icicle cave mouth: Arctic Fox (17).
 - Kept free of fights: 228, 232, 236 (starters), 311 (Sugar Shack), 316 (Aurora Camp). 313 and 315 keep their `E`.
 
 Check: `python3 tools/lint_maplewold_extras.py claude/maplewold-bendy-maps/route-*.json` (gate and mini-boss rules) next to `tools/lint_trail_bends.py`. Pictures show gates in magenta, the bypass in green and extra mini-bosses as orange dots (`route-<id>-water.png`).

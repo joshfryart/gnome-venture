@@ -8,6 +8,7 @@ import json, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); REPO = os.path.dirname(HERE); sys.path.insert(0, HERE)
 from bend_rules import walk
 TOOLS = {"rope", "prospector-s-pick", "hiking-staff", "wayfarer-s-staff", "miner-s-lantern", "glowcap-lantern"}   # items in crafts.txt (tools / building); no quality field in the game yet
+REGION_TIER = {"NA": 1}   # Maplewold = tier 1. Gate rule: min_quality = region tier + 1 (one above the base tier), rising as regions level up
 FREE = {228, 232, 236, 311, 316}
 CREATURES = {}
 for l in open(os.path.join(REPO, "game/includes/data/creatures.txt"), encoding="utf-8"):
@@ -24,7 +25,7 @@ def lint(path):
             if not any(c in line for c in tiles): bad.append(f"{t}: gate '{g['label']}' has no tile on the road")
             if any(s["rows"][y][x] == "#" for x, y in tiles): bad.append(f"{t}: gate tile is a wall")
             if g["tool"] not in TOOLS: bad.append(f"{t}: gate tool {g['tool']} is not a known tool")
-            if g["kind"] not in ("lock", "shortcut") or g.get("min_quality", 0) < 1: bad.append(f"{t}: gate kind or quality")
+            if g["kind"] not in ("lock", "shortcut") or g.get("min_quality") != REGION_TIER.get(r["region"], 0) + 1: bad.append(f"{t}: gate kind, or quality is not region tier + 1")
             if not (5 <= g["road_index"] <= len(line) - 7): bad.append(f"{t}: gate too near the section ends")
             grid = [list(row) for row in s["rows"]]
             for x, y in tiles: grid[y][x] = "#"

@@ -424,7 +424,7 @@
      ],
      "road_index": 17,
      "tool": "hiking-staff",
-     "min_quality": 1,
+     "min_quality": 2,
      "kind": "shortcut",
      "label": "tidal causeway: a staff for the short way, the long way round is open",
      "bypass": [
@@ -611,9 +611,9 @@
      "x": 22,
      "y": 5,
      "road_index": 16,
-     "creature": "tide-crab-knight",
-     "level": 19,
-     "label": "lantern rocks: Tide Crab Knight (Clam Lurker 23 is the harder option)"
+     "creature": "clam-lurker",
+     "level": 23,
+     "label": "lantern rocks: Clam Lurker"
     }
    ]
   }
