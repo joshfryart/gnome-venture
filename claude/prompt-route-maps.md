@@ -1,3 +1,5 @@
+> **Status 2026-11-07:** this prompt describes the original flat 11 x 7 sections (the game now plays 22 x 7). The planned new design is 30 x 18 sections with a wandering road that enters and leaves on any edge (`claude/plan-route-map-bends.md`, prototype in `claude/bend-prototype/`, rules in `tools/bend_rules.py`, check with `tools/lint_trail_bends.py`). Use this prompt only for the old flat format.
+
 # Prompt for another AI: one authored Trail map per route
 
 ## Purpose
