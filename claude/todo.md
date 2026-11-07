@@ -54,7 +54,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Workshop picture: round icons hidden (hotspots now `ghost` = invisible tap areas, `style.css` `.hs.ghost`); released 2.5.69, not phone-checked. Same icons may show on other picture pages (Here, treehouse, pal yard): ask Josh.
 - Trail: yellow square round the walker's tile removed (`.tm-trail .tmt.here`), released 2.5.72, not phone-checked; delve/lair maps keep theirs.
 - Trail ground and landmarks for the other 11 regions (loader exists; art is stand-ins).
-- DONE (checked 2026-11-06, all were already built; this line was stale): Shops (stall) and Homes popovers on non-town stops (`here_layouts.json` has `homes`; stall via `here_stall_fronts`), step-off/step-back strip code (`wander_step_once`, draws only when `wander-step*.png` art exists), Lost Letters + landmark panel on the World Map tab (`world.php`). STILL OPEN: gnome walk-frame animation (8 frames, idle only; needs art); nav chrome on other picture pages (not defined: ask Josh which pages); `balance_sim` for `gnav_enter_energy`.
+- DONE (checked 2026-11-06, all were already built; this line was stale): Shops (stall) and Homes popovers on non-town stops (`here_layouts.json` has `homes`; stall via `here_stall_fronts`), step-off/step-back strip code (`wander_step_once`, draws only when `wander-step*.png` art exists), Lost Letters + landmark panel on the World Map tab (`world.php`). Gnome walk-frame animation: DONE (tilemap.js plays strip frames 2-7 while walking; Josh confirmed 2026-11-07). `balance_sim` for `gnav_enter_energy`: DONE (its Walks section, both modes). STILL OPEN: nav chrome on other picture pages (not defined: ask Josh which pages).
 - Delve/lair run records: BUILT, released 2.5.71. New table `landmark_runs` (one row per run: cleared / ko / left, level, depth, stages, route seed, picked nodes, start and end), written by `landmark_run_record()` in `save_exp` before the map row is dropped; in `fresh_start` wipe list; test in `tests/delve2.sh`. Admin page DONE 2026-11-06 (2.5.97): Admin > World > Delve and lair runs (`landmark_runs` resource, list + filters kind/outcome, test in `tests/stops100.sh`). A player-facing journal view is still undecided. `tests/landmarks.sh` fails here with a DB-open error unrelated to this change.
 **Yard / garden**
 - Designer: (corner pick already only for corner-shaped pieces: `isCorner()` guards every `cornerFor()` call in `site.js`, read in code, not tried on a phone); cover squares not recomputed live when a bed moves; planted soil for no-till beds; satchel `satchel_skin` column (canvas/patchwork).
@@ -68,7 +68,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Popover animation polish: 11 glint-only scenes (`bulk.py --report`); animate flags/water/foliage/sun; more icons than 7 stats.
 - Snail Trail 3rd puzzle game; Jeff `tada` redo; guest-friendly treks.
 - Ideas: preset postcards, follow a friend's trail, seed lineage, satchel split stacks by quality (then re-enable `orders_food_quality`), crop economy (radish sells ~4, seed 8-13; maybe `price_base_pct` 60 to 70), cPanel cron for reminder emails, /testvault/.
-- How-to-play "Folk & friendship" title needs a guarded migration.
+- How-to-play "Folk & friendship": DONE/stale (checked 2026-11-07: the title has been "Folk & friendship" since the page was added in 88e8b80c, so there is nothing to migrate).
 **Never run on this line:** MySQL `upgrade_check.sh`, full CI list, a real phone. Untested on MySQL: `trek_ms` table, `trek_flag_set` duplicate-insert catch.
 
 ## 5. ART: open
@@ -93,7 +93,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Method for AI art: `aseprite-source/v3/HANDOFF.md`, `ROLLOUT-STATE.md`; single Opus-medium pass per scene (see `claude/todo-art-v3.md` METHOD).
 
 ## 6. WATCH / SMALL
-- `folkoverlay` suite fails: "Chat is a link to the villager page AND opens the overlay" (town villagers view). Also fails on commit 6cd6259e, so not from 2.6.x work; not investigated.
+- `folkoverlay` suite: PASSED on 2026-11-07 (run alone via `tests/ci_suites.sh`); the failure was intermittent, probably when no villager is out in town (the check is skipped then). It failed before with: "Chat is a link to the villager page AND opens the overlay" (town villagers view). Also fails on commit 6cd6259e, so not from 2.6.x work; not investigated.
 - Trek map: open-zone walls flat grey; long walks enter from phone-window edge. (Community garden / My stall tabs wrap to two lines on a phone: looks fine.) Travel card "via X" truncates at 390px.
 - Friend watering duplicates garden water logic; nudge crops-ready approximate; SMTP untested live.
 - Test noise: (`beds`, `stops100`, `social100` pass as of 2.5.68); `cook.sh` map checks stale; `games2.sh` no payout test; `walk.sh` "INSTALL FAILED" flake under parallel runs.
