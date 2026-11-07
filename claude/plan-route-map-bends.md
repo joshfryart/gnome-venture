@@ -62,3 +62,8 @@ Rule: the road must be bendy, not a straight line all the time. Even where the r
 - Findings from it: near hubs (Maplewold Market, Poppyburrow, Honeybrook, Cloverholt) many routes leave in a fan and their extended bands overlap, so extended maps need room or a rule for crossing. Route lengths on the region frame are short (about 30 to 60 units), so sections need the region frame scaled up or the extra size treated as its own space.
 - Rebuild: `tools/route_map_mockup/gen.py` (reads the layout dump and route data, writes `data.json`), templates `route_board.tpl.html` and `master.tpl.html` (replace `__DATA__`). Scripts expect `layout.json` from `php tools/map_layout.php` and Pillow; paths inside are the session scratchpad and need changing.
 - Not in the mockup: delve and lair maps, treks, town maps, cross-region road continuity beyond the exit edge.
+
+## Prototype status (2026-11-07)
+- `tools/gen_bendy_trail_proto.py` + `tools/bend_rules.py` + `tools/lint_trail_bends.py` + `tools/preview_bend_proto.py` make and check bendy 30 x 18 sections. Square tiles, 8 headings, wandering road, runs <= 6 (one up to 10), thickets close in on bends. Game data untouched.
+- All 246 routes (665 sections) generated into `claude/bend-prototype/route-<id>.json/.txt`; lint passes on all. Road source: 57 real roads, 170 side trails, 19 cross-border (stop to region exit).
+- Not done: engine (validator wants `9` on the east edge, 22-wide rows, S on the west edge), ground-picture bake at 30 x 18, tool gates and extra mini-boss spots in the data, sprite art for the many landmark names, hand-tuning of Maplewold.

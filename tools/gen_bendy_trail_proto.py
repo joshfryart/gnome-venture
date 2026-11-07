@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """PROTOTYPE: bendy trail maps (plan: claude/plan-route-map-bends.md). Does NOT touch game data.
-Makes a Maplewold route as 30 x 18 sections whose road wanders and enters / leaves on any edge (headings from the region road, snapped to 8 compass
+Makes any route of the game (all 246) as 30 x 18 sections whose road wanders and enters / leaves on any edge (headings from the region road, snapped to 8 compass
 directions) and writes, per route,
     claude/bend-prototype/route-<id>.json   (the game's map shape plus w, h, heading, entry, exit, line, landmarks per section)
     claude/bend-prototype/route-<id>.txt    (ASCII preview)
-Usage:  python3 tools/gen_bendy_trail_proto.py [route_id ...] [--all] [--region=CODE]      (default route 313; needs php for tools/map_layout.php)
+Usage:  python3 tools/gen_bendy_trail_proto.py [route_id ...] [--all] [--region=CODE]      (default route 313; --all = every route; needs php for tools/map_layout.php; sources: claude/*-trail-maps, groups from claude/route-list.md)
 Check:  python3 tools/lint_trail_bends.py claude/bend-prototype/route-*.json        Picture:  python3 tools/preview_bend_proto.py <route.json>
 Rules (numbers in tools/bend_rules.py):
   road     wanders; straight run <= 6 tiles, one run per section up to 10; no cell twice, no step back
@@ -12,19 +12,18 @@ Rules (numbers in tools/bend_rules.py):
   land     off the road: meadow, rough ground and thickets in soft blobs (12 to 45% thicket); thickets close in on the inside of the bends until a shortcut
            saves at most about 18% of the road and gives no straight run over 10
   tokens   1 to 3 F out in the landscape (3+ tiles from the road, reachable); E on the road 4 steps before the exit on the last section of a delve / lair route
-  landmarks  the route's own hand-set names (maplewold_landmarks.json), beside the road, feet row >= 3
+  landmarks  the route's own names (maplewold_landmarks.json, trail-landmarks/other_regions_landmarks.json), beside the road, feet row >= 3
 Same route id and region always give the same maps."""
-import functools, json, math, os, random, re, subprocess, sys, zlib
+import functools, glob, json, math, os, random, subprocess, sys, zlib
 HERE = os.path.dirname(os.path.abspath(__file__)); REPO = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 from bend_rules import SHORTCUT_AIM, LONG_CAP, WALL_MIN, WALL_MAX, CAP, road_ok, walk, reachable, run_lengths
-from gen_trail_maps import LAND_FEEL      # one table of land feel for both generators
+from gen_trail_maps import LAND_FEEL, parse    # one table of land feel for both generators; parse() reads claude/route-list.md
 W, H = 30, 18
 MIN_LINE = 25                              # a road shorter than this has no room to wander
 DIRS = {"E": (1, 0), "SE": (1, 1), "S": (0, 1), "SW": (-1, 1), "W": (-1, 0), "NW": (-1, -1), "N": (0, -1), "NE": (1, -1)}   # y points down
 OPP = {"E": "W", "W": "E", "N": "S", "S": "N"}
 STEP = {"E": (1, 0), "W": (-1, 0), "N": (0, -1), "S": (0, 1)}
-SRC = os.path.join(REPO, "claude", "maplewold-trail-maps")
 
 class NoFit(Exception): pass
 
@@ -44,32 +43,44 @@ def curve(pts, i0, i1):
         out += [catmull(p0, pts[i], pts[i + 1], p3, k / 12) for k in range(12)]
     return out + [pts[i1]]
 
-def region_path(rid, frm, to, region=None):
-    """(curve, kind, region code). kind: 'road' = along a real road, 'trail' = a drawn side trail, 'bowed' = no line in the layout, so a curve bowed to one side
-    by route id (plan item 8). Village names repeat across regions, so a real road or trail between the pair beats two names that merely share a region;
-    --region=CODE forces one."""
-    found = []
-    for x in layout():
-        if region and x["code"] != region: continue
-        pos = {x["town"]["name"]: (x["town"]["x"], x["town"]["y"])}
-        pos.update({s["name"]: (s["x"], s["y"]) for s in x["stops"]})
-        if frm not in pos or to not in pos: continue
-        a, b = pos[frm], pos[to]
-        for r in x["roads"]:
-            pts = [tuple(q) for q in r["pts"]]
-            if a in pts and b in pts:
-                i, j = pts.index(a), pts.index(b); cur = curve(pts, min(i, j), max(i, j))
-                found.append((0, x["code"], cur if i < j else cur[::-1], "road"))
-        for t in x["trails"]:
-            t = [tuple(q) for q in t]
-            if (t[0], t[-1]) == (a, b): found.append((1, x["code"], t, "trail"))
-            elif (t[0], t[-1]) == (b, a): found.append((1, x["code"], t[::-1], "trail"))
-        vx, vy = b[0] - a[0], b[1] - a[1]; n = math.hypot(vx, vy) or 1; bow = 0.18 * n * (1 if rid % 2 else -1)
-        found.append((2, x["code"], [a, ((a[0] + b[0]) / 2 - vy / n * bow, (a[1] + b[1]) / 2 + vx / n * bow), b], "bowed"))
-    if not found: raise SystemExit(f"route {rid}: {frm} -> {to} not found in the layout")
-    best = [f for f in found if f[0] == min(f[0] for f in found)]
-    if len(best) > 1: print(f"warn: route {rid} matches regions {', '.join(f[1] for f in best)}; using {best[0][1]} (--region=CODE to choose)", file=sys.stderr)
-    return best[0][2], best[0][3], best[0][1]
+@functools.lru_cache(maxsize=1)
+def region_codes():
+    """Gnomish region name -> code, from game/includes/data/regions.txt (the route list groups routes by these names)."""
+    return {l.split("|")[1]: l.split("|")[0] for l in open(os.path.join(REPO, "game/includes/data/regions.txt"), encoding="utf-8") if "|" in l and not l.startswith("#")}
+
+def group_regions(group):
+    """('A', None) for 'A', ('A', 'B') for 'A -> B' (region codes)."""
+    names = [g.strip() for g in group.split("->")]
+    return region_codes()[names[0]], (region_codes()[names[1]] if len(names) > 1 else None)
+
+def region_path(rid, frm, to, region, to_region=None):
+    """(curve, kind, region code) in region `region`. kind: 'road' = along a real road, 'trail' = a drawn side trail, 'exit' = a stop to the road's exit toward the next
+    region (for a route that crosses a border), 'bowed' = no line in the layout, so a curve bowed to one side by route id (plan item 8)."""
+    x = next(r for r in layout() if r["code"] == region)
+    pos = {x["town"]["name"]: (x["town"]["x"], x["town"]["y"])}
+    pos.update({s["name"]: (s["x"], s["y"]) for s in x["stops"]})
+    roads = [[tuple(q) for q in r["pts"]] for r in x["roads"]]
+    if to_region:                                  # crosses a border: the stop to the exit toward the next region, along its road if the stop is on it
+        ex = next((e for e in x["exits"] if e["to"] == to_region), None)
+        if frm in pos and ex:
+            a, end = pos[frm], (ex["x"], ex["y"]); pts = roads[ex["road"]] if ex.get("road") is not None else []
+            if a in pts and end in pts:
+                i, j = pts.index(a), pts.index(end); cur = curve(pts, min(i, j), max(i, j))
+                return (cur if i < j else cur[::-1]), "exit", region
+            return [a, end], "exit", region
+        raise SystemExit(f"route {rid}: no way from {frm} to the exit toward {to_region} in {region}")
+    if frm not in pos or to not in pos: raise SystemExit(f"route {rid}: {frm} or {to} not in region {region}")
+    a, b = pos[frm], pos[to]
+    for pts in roads:
+        if a in pts and b in pts:
+            i, j = pts.index(a), pts.index(b); cur = curve(pts, min(i, j), max(i, j))
+            return (cur if i < j else cur[::-1]), "road", region
+    for t in x["trails"]:
+        t = [tuple(q) for q in t]
+        if (t[0], t[-1]) == (a, b): return t, "trail", region
+        if (t[0], t[-1]) == (b, a): return t[::-1], "trail", region
+    vx, vy = b[0] - a[0], b[1] - a[1]; n = math.hypot(vx, vy) or 1; bow = 0.18 * n * (1 if rid % 2 else -1)
+    return [a, ((a[0] + b[0]) / 2 - vy / n * bow, (a[1] + b[1]) / 2 + vx / n * bow), b], "bowed", region
 
 def sample(path, n):
     """n + 1 points spread evenly along a polyline by length."""
@@ -213,13 +224,6 @@ def carve(rng, feel, line, entry, exit_, first, boss_last, n_landmarks):
 
 # ---------- a route ----------
 
-def boss_of(rid):
-    """'miniboss' for a route that ends at a delve, 'boss' at a lair (claude/route-list.md), else ''."""
-    for line in open(os.path.join(REPO, "claude", "route-list.md"), encoding="utf-8"):
-        m = re.match(r"\|\s*(\d+)\s*\|(.*)\|", line)
-        if m and int(m.group(1)) == rid: return "boss" if "(lair)" in m.group(2) else "miniboss" if "(delve)" in m.group(2) else ""
-    return ""
-
 def build_section(rid, salt, i, n, head, esd, xsd, prev_cell, feel, boss_last, names):
     """One section, trying seeds until a road, landscape and tokens all fit. Raises NoFit."""
     for attempt in range(800):
@@ -233,10 +237,13 @@ def build_section(rid, salt, i, n, head, esd, xsd, prev_cell, feel, boss_last, n
         if res: return entry, exit_, line, res
     raise NoFit(f"section {i + 1}")
 
-def build_route(r, region, routes_lm):
-    rid, n, boss = int(r["route_id"]), len(r["sections"]), boss_of(int(r["route_id"]))
+def build_route(r, group, end_kind, routes_lm, region=None):
+    """r = a route in the game's map shape (sections with feature / caption); group and end_kind come from claude/route-list.md."""
+    rid, n = int(r["route_id"]), len(r["sections"])
+    boss = {"lair": "boss", "delve": "miniboss"}.get(end_kind, "")
     if r["land"] not in LAND_FEEL: raise SystemExit(f"route {rid}: no land feel for '{r['land']}' in gen_trail_maps.LAND_FEEL")
-    path, kind, rcode = region_path(rid, r["from"], r["to"], region)
+    home, away = group_regions(group)
+    path, kind, rcode = region_path(rid, r["from"], r["to"], region or home, away)
     pts = sample(path, n)
     for salt in range(6):                      # if a later section cannot fit the join, start the whole route over with new seeds
         try:
@@ -263,15 +270,29 @@ def write(out):
             f.write("\n".join(s["rows"]) + "\n\n")
     print(f"wrote {base}.json (region {out['region']}, path {out['path_kind']}, boss '{out['boss']}')")
 
+def load_sources():
+    """{route id: route in the game's map shape} from every claude/*-trail-maps folder; the 22-wide hand-made Maplewold file wins over the older 11-wide one."""
+    out = {}
+    for f in sorted(glob.glob(os.path.join(REPO, "claude", "*-trail-maps", "*.json"))):
+        if f.endswith("_landmarks.json") or f.endswith("maplewold_trail_maps.json") or f.endswith("_preview.json"): continue
+        j = json.load(open(f)); rs = j["routes"] if isinstance(j, dict) else j
+        for r in rs: out[int(r["route_id"])] = r
+    return out
+
+def load_landmarks():
+    lm = {}
+    for f in (os.path.join(REPO, "claude/maplewold-trail-maps/maplewold_landmarks.json"), os.path.join(REPO, "claude/trail-landmarks/other_regions_landmarks.json")):
+        lm.update({k: v for k, v in json.load(open(f)).items() if not k.startswith("_")})
+    return lm
+
 def main():
     ids = [int(a) for a in sys.argv[1:] if a.isdigit()]
     region = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--region=")), None)
-    src = json.load(open(os.path.join(SRC, "maplewold_trail_maps_22wide.json")))
-    lm = json.load(open(os.path.join(SRC, "maplewold_landmarks.json")))
-    have = {int(r["route_id"]): r for r in src}
-    if "--all" in sys.argv: ids = sorted(have)
+    src, lm = load_sources(), load_landmarks()
+    info = {rid: (grp, endk) for grp, rid, _f, _t, _l, _s, endk in parse()}
+    if "--all" in sys.argv: ids = sorted(info)
     for rid in ids or [313]:
-        if rid not in have: raise SystemExit(f"route {rid} is not a Maplewold route (have: {', '.join(map(str, sorted(have)))})")
-        write(build_route(have[rid], region, lm.get(str(rid), [])))
+        if rid not in src or rid not in info: raise SystemExit(f"route {rid} has no source map or is not in claude/route-list.md")
+        write(build_route(src[rid], *info[rid], lm.get(str(rid), []), region))
 
 if __name__ == "__main__": main()
