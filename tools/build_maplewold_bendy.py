@@ -20,7 +20,7 @@ sys.path.insert(0, HERE)
 from bend_rules import SHORTCUT_AIM, LONG_CAP, WALL_MIN, WALL_MAX, road_ok, walk, reachable, run_lengths
 from gen_bendy_trail_proto import noise_field, quantile, W, H
 
-PRESET = {"grassland": dict(wall=.15, rough=.14), "forest": dict(wall=.36, rough=.10), "coast": dict(wall=.17, rough=.13), "tundra": dict(wall=.15, rough=.20)}
+PRESET = {"grassland": dict(wall=.15, rough=.14), "forest": dict(wall=.40, rough=.10, tight=True, scale=5), "coast": dict(wall=.17, rough=.13), "tundra": dict(wall=.15, rough=.20)}
 STEP = {"N": (0, -1), "S": (0, 1), "E": (1, 0), "W": (-1, 0)}
 
 def parse_road(entry, text):

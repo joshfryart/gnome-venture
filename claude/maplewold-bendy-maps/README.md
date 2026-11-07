@@ -26,9 +26,9 @@ Route data, captions, landmark names, entry/exit tiles and sides come from `clau
 | 316 | sky-watch hill with rough top, star stones (singles); aurora camp clearing, kettle tree |
 
 ## Notes for Josh
-- Set pieces are readable but rough (rect and disc stamps). Forest routes are still looser than "tight with clearings"; the noise base gives big blobs. A tighter forest base would need a base change in the builder.
+- Set pieces are readable but rough (rect and disc stamps). Forest routes (304, 305, 306, 312, 313) now use the tight forest base (narrow lanes, small clearings; `mockup-forest.png` shows old vs tight for 304 and 313).
 - Landmark and find positions are snapped by the builder to the nearest valid tile; sprites for new landmark names are not checked here.
-- Pictures: `route-<id>.png` next to each file. Pictures were looked at for 313, 315, 228, 305, 308, 309, 310, 312, 314, 316; the others only via lint and the stamps.
+- Pictures: `route-<id>.png` next to each file. Pictures were looked at for all routes except 304 and 305 after the tight-forest rebuild.
 - Rules felt tight: a tunnel corridor needs the one long run (10) per section; 314 section 3 and 313 section 3 use it.
 - Not done: the optional gate and extra mini-boss proposal. Suggested spots: 313 s3 tunnel mouth (x 19-20, y 10-12); 315 s3 icicle bridge strip (x 14-15, y 8) and s2 pine slope (x 7-12, y 1-4); 314 s2 causeway strip (x 12, y 5-6); extra mini-boss spot at the end of 312 s3 (great stump) on the road.
 

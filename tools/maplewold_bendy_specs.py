@@ -2,14 +2,14 @@
 SPECS = {}
 
 SPECS[313] = [
- dict(road="E4 N3 E6 S3 E6 N3 E6 S4 E5 N1 E2",
+ dict(land=dict(wall=.28), road="E4 N3 E6 S3 E6 N3 E6 S4 E5 N1 E2",
       ops=[("W",13,1,14,16), ("W",15,1,22,5), ("W",17,13,24,16), ("r",26,14,4), ("r",24,12,2)],
       F=[(5,15),(20,3)], L=[(11,5),(26,14)]),
- dict(road="E5 N2 E6 S3 E5 S2 E4 S4", land=dict(wall=.38),
+ dict(road="E5 N2 E6 S3 E5 S2 E4 S4",
       ops=[("W",14,2,14,16), ("w",9,2,2), ("r",9,4,1)],
       F=[(4,15),(22,4),(24,13)], L=[(8,5),(12,14)]),
  dict(road="S4 W3 S4 E2 S3 E10",
-      land=dict(wall=.30, rough=.18),
+      land=dict(rough=.18),
       ops=[("W",20,6,28,9), ("W",20,13,28,16), ("F",20,10,28,12), ("F",23,7,23,9), ("F",22,7,24,8), ("r",4,3,4), ("r",11,14,3)],
       F=[(5,14),(26,2)], L=[(17,11),(23,8)]),
 ]
@@ -68,13 +68,13 @@ SPECS[304] = [
       F=[(27,14),(5,2),(16,15)], L=[(23,12),(12,6)]),
 ]
 SPECS[305] = [
- dict(land=dict(wall=.12), road="S5 E2 S6 W1 S6", ops=[("W",13,1,14,10), ("W",20,1,21,10), ("pat",10,14,["#.#.#.#.#.#.#.#.#"])],    # white-bark tunnel, birch curtain
+ dict(road="S5 E2 S6 W1 S6", ops=[("W",13,1,14,10), ("W",20,1,21,10), ("pat",10,14,["#.#.#.#.#.#.#.#.#"])],    # white-bark tunnel, birch curtain
       F=[(4,4),(26,4),(4,15)], L=[(14,11),(20,14)]),
- dict(land=dict(wall=.40), road="S5 W3 S6 W4 S6", ops=[("r",18,9,3), ("f",6,13,3), ("r",6,13,1)],                         # fern hollow, sunbeam clearing
+ dict(road="S5 W3 S6 W4 S6", ops=[("r",18,9,3), ("f",6,13,3), ("r",6,13,1)],                         # fern hollow, sunbeam clearing
       F=[(25,3),(26,14),(3,3)], L=[(13,3),(7,13)]),
 ]
 SPECS[306] = [
- dict(land=dict(wall=.25), road="W5 S2 W6 N1 W6 S1 W6 N1 W6", ops=[("W",17,14,23,14), ("w",10,4,2), ("w",9,6,1)],              # mossy log, drip-stone grotto
+ dict(land=dict(wall=.30), road="W5 S2 W6 N1 W6 S1 W6 N1 W6", ops=[("W",17,14,23,14), ("w",10,4,2), ("w",9,6,1)],              # mossy log, drip-stone grotto
       F=[(27,15),(4,15),(14,3)], L=[(22,9),(10,9)]),
  dict(road="W6 S2 W6 S1 W6 S3", ops=[("W",20,1,20,12), ("W",20,14,20,16), ("r",14,9,1), ("r",16,11,1), ("r",12,8,1)],  # mossy gate, toadstool steps
       F=[(26,3),(3,4),(26,15)], L=[(19,10),(8,12)]),
@@ -113,7 +113,7 @@ SPECS[311] = [
 SPECS[312] = [
  dict(road="W5 N2 W5 S2 W5 N1 W5 S1 W5 N1 W4", ops=[("W",17,12,25,12), ("w",12,3,2)],                   # ring-count log, woodpecker tree
       F=[(27,14),(4,14),(6,2)], L=[(21,10),(12,3)]),
- dict(road="W5 S2 W5 N1 W5 S2 W5 S1 W5 N1 W4", ops=[("W",2,5,13,7), ("W",2,12,13,16), ("pat",20,10,["?,,,?", ",...,", ",.#.,", ",...,", "?,,,?"])],   # toadstool ring, bramble corridor
+ dict(land=dict(wall=.28), road="W5 S2 W5 N1 W5 S2 W5 S1 W5 N1 W4", ops=[("W",2,5,13,7), ("W",2,12,13,16), ("pat",20,10,["?,,,?", ",...,", ",.#.,", ",...,", "?,,,?"])],   # toadstool ring, bramble corridor
       F=[(26,14),(16,15),(24,2)], L=[(22,11),(11,11)]),
  dict(road="W5 N1 W5 S2 W5 N2 W5 S1 W5 N2 W4", ops=[("r",16,13,3), ("w",7,4,1), ("w",5,4,1)],               # great stump, squirrel's larder
       F=[(27,14),(25,3),(3,14)], L=[(16,13),(7,5)]),
