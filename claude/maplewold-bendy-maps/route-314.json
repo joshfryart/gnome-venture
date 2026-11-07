@@ -225,7 +225,8 @@
      29,
      4
     ]
-   ]
+   ],
+   "water": []
   },
   {
    "feature": "the tidal causeway, and the stepping rocks",
@@ -403,7 +404,8 @@
      18,
      0
     ]
-   ]
+   ],
+   "water": []
   },
   {
    "feature": "the lantern rocks, and the gull parliament",
@@ -569,7 +571,8 @@
      29,
      5
     ]
-   ]
+   ],
+   "water": []
   }
  ]
 }

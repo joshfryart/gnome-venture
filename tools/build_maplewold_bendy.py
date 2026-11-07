@@ -78,7 +78,12 @@ def water_for(rid, i, line, entry, exit_):
     ops, notes, skip_pond = [], [], set()
     for c in sorted(_WCACHE[rid][i], key=lambda c: "dir" not in c):
         if "dir" in c:
-            idx = round(min(0.85, max(0.15, c["t"])) * (len(line) - 1)); px, py = line[idx]; dx, dy = c["dir"]
+            dx, dy = c["dir"]; i0 = round(min(0.85, max(0.15, c["t"])) * (len(line) - 1))
+            def along(k):      # how much a stream through road tile k would run along the road (1 = parallel)
+                a, b = line[max(0, k - 2)], line[min(len(line) - 1, k + 2)]; L = math.hypot(b[0] - a[0], b[1] - a[1]) or 1
+                return abs((b[0] - a[0]) * dx + (b[1] - a[1]) * dy) / L
+            idx = min((k for k in range(max(4, i0 - 8), min(len(line) - 4, i0 + 9))), key=lambda k: (round(along(k), 1), abs(k - i0)))
+            px, py = line[idx]
             wide = c["name"] in ("hub-river", "mid-outlet", "bridge-brook")
             rg = random.Random(zlib.crc32(f"{rid}|{i}|{c['name']}".encode())); ph = rg.uniform(0, 6.3)
             cells, pts = [], []
@@ -151,7 +156,7 @@ def build_section(rid, i, spec, land, entry, exit_, first, last_boss, lm_names, 
     g = [["#"] * W for _ in range(H)]
     for c in inner:
         if fld[c] + thin(c) < t_wall: g[c[1]][c[0]] = "," if r_lo <= fld[c] < r_hi else "."
-    wops, wnotes = water_for(rid, i, line, entry, exit_); prot = set(); apply_ops(g, prot, wops + spec.get("ops", []))
+    wops, wnotes = water_for(rid, i, line, entry, exit_); prot = set(); apply_ops(g, prot, spec.get("ops", [])); apply_ops(g, set(), wops)
     for x, y in line: g[y][x] = "," if (x, y) not in (entry, exit_) and rng.random() < p["rough"] * 0.5 else "."
     prot -= on
     g[entry[1]][entry[0]] = "S" if first else "."; g[exit_[1]][exit_[0]] = "9"
