@@ -23,6 +23,10 @@ for i, s in enumerate(r["sections"]):
             a, b = w["pts"][len(w["pts"]) // 2 - 1], w["pts"][len(w["pts"]) // 2 + 1]
             d.line([ox + a[0] * T + 9, oy + a[1] * T + 9, ox + b[0] * T + 9, oy + b[1] * T + 9], fill=(255, 255, 255), width=3)
             d.ellipse([ox + b[0] * T + 5, oy + b[1] * T + 5, ox + b[0] * T + 13, oy + b[1] * T + 13], fill=(255, 255, 255))
+    for g in s.get("gates", []):
+        for x, y in g["tiles"]: d.rectangle([ox + x * T + 3, oy + y * T + 3, ox + x * T + T - 4, oy + y * T + T - 4], outline=(230, 60, 200), width=3)
+        for x, y in g.get("bypass", []): d.rectangle([ox + x * T + 5, oy + y * T + 5, ox + x * T + T - 6, oy + y * T + T - 6], outline=(150, 220, 150), width=2)
+    for m in s.get("extra_minibosses", []): d.ellipse([ox + m["x"] * T, oy + m["y"] * T, ox + m["x"] * T + T - 1, oy + m["y"] * T + T - 1], fill=(240, 120, 30), outline=(255, 255, 255), width=2)
     for (x, y) in s["line"]: d.ellipse([ox + x * T + 6, oy + y * T + 6, ox + x * T + 11, oy + y * T + 11], fill=(120, 80, 40))
     for x, y, nm, _ in s.get("landmarks", []): d.rectangle([ox + x * T + 2, oy + y * T + 2, ox + x * T + T - 3, oy + y * T + T - 3], outline=(255, 255, 255), width=2); d.text((ox + x * T + 5, oy + y * T + 3), "L", fill=(255, 255, 255))
 out = sys.argv[1].replace(".json", "-water.png"); im.save(out); print(out)

@@ -226,7 +226,17 @@
      6
     ]
    ],
-   "water": []
+   "water": [],
+   "extra_minibosses": [
+    {
+     "x": 17,
+     "y": 8,
+     "road_index": 15,
+     "creature": "wolverine",
+     "level": 21,
+     "label": "snowdrift pass: Grumpy Wolverine"
+    }
+   ]
   },
   {
    "feature": "the snow-comb ridge, and the icicle curtain",

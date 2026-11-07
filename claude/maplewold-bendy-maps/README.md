@@ -30,7 +30,7 @@ Route data, captions, landmark names, entry/exit tiles and sides come from `clau
 - Landmark and find positions are snapped by the builder to the nearest valid tile; sprites for new landmark names are not checked here.
 - Pictures: `route-<id>.png` next to each file. Pictures were looked at for all routes except 304 and 305 after the tight-forest rebuild.
 - Rules felt tight: a tunnel corridor needs the one long run (10) per section; 314 section 3 and 313 section 3 use it.
-- Not done: the optional gate and extra mini-boss proposal. Suggested spots: 313 s3 tunnel mouth (x 19-20, y 10-12); 315 s3 icicle bridge strip (x 14-15, y 8) and s2 pine slope (x 7-12, y 1-4); 314 s2 causeway strip (x 12, y 5-6); extra mini-boss spot at the end of 312 s3 (great stump) on the road.
+- Gates and extra mini-boss spots are now in the data (section below); they were a proposal before.
 
 ## Lint
 `python3 tools/lint_trail_bends.py claude/maplewold-bendy-maps/route-*.json` -> 0 problems for all 16 files.
@@ -49,3 +49,19 @@ Route data, captions, landmark names, entry/exit tiles and sides come from `clau
 - **Crossing tile:** the builder moves each crossing along the road (within 8 tiles) to where the stream meets the road most squarely. Where the stream runs the same way as the road (306 s2 South Brook, 313 s2 South Brook) the road still wades along it for 6 to 11 tiles; that is a ford path, not a mistake.
 - **Shallows:** each stream also gets one rough 1-tile shallow away from the road so the two banks stay connected.
 - **Water is applied after the hand stamps**, so a set piece cannot erase a stream; the shortcut closing may still wall over a stream tile (then it is thicket, not water).
+
+## Terrain variety, all lands
+More stamps in the library: `dune`, `rockstack`, `tidepool` (coast), `icelake`, `pines` (tundra), `log`, `clearing` (forest). Added to every coast, tundra and forest route (`more(...)` at the bottom of `tools/maplewold_bendy_specs.py`).
+
+## Gates (data only: no new tile character, ground tiles are unchanged)
+Per section field `gates`: `tiles` (3 tiles across the chokepoint, centred on the road), `road_index`, `tool` (item slug from crafts.txt), `min_quality`, `kind`, `label`. The builder walls the whole section across the road at that tile, open only at the gate tiles.
+- **Locks** (blocking the tiles cuts entry from exit): 313 s3 tunnel mouth `miner-s-lantern`; 315 s2 pine slope `rope`; 315 s3 icicle bridge `prospector-s-pick`. All lie before the boss/mini-boss `E`.
+- **Shortcut:** 314 s2 tidal causeway `hiking-staff`; a second opening 5 tiles away (`bypass`) gives the long way round (at least 6 steps longer).
+- `min_quality` is 1 everywhere: the game has no tool-quality field yet (crafts.txt has tools but no quality). Josh to decide the quality scale and whether the lock tools are right (lantern, rope, pick).
+
+## Extra mini-boss spots (data only, not `E`)
+Per section field `extra_minibosses` (`x`, `y` on the road, `creature` slug, `level`, `label`), one per section, 5+ steps from the entry and 7+ from the exit:
+- 312 s3 great stump: Bramble Wolf (22); 314 s3 lantern rocks: Tide Crab Knight (19; Clam Lurker 23 is the harder option); 310 s1 snowdrift pass: Grumpy Wolverine (21); 309 s2 icicle cave mouth: Arctic Fox (17).
+- Kept free of fights: 228, 232, 236 (starters), 311 (Sugar Shack), 316 (Aurora Camp). 313 and 315 keep their `E`.
+
+Check: `python3 tools/lint_maplewold_extras.py claude/maplewold-bendy-maps/route-*.json` (gate and mini-boss rules) next to `tools/lint_trail_bends.py`. Pictures show gates in magenta, the bypass in green and extra mini-bosses as orange dots (`route-<id>-water.png`).

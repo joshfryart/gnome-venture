@@ -131,6 +131,39 @@ def water_for(rid, i, line, entry, exit_):
             ops.append(("pond", cx, cy, 2)); notes.append(dict(name=c["name"], pond=[cx, cy]))
     return ops, notes
 
+# ---- gates (tool-locked chokepoints) and extra mini-boss spots ----
+def road_tile(line, hint, lo=5, hi=7, avoid=()):
+    """Index of the road tile nearest to hint, at least lo steps from the entry and hi from the exit (the mini-boss E sits 4 before the exit)."""
+    ok = [k for k in range(lo, len(line) - hi) if all(abs(k - a) > 2 for a in avoid)]
+    return min(ok, key=lambda k: (abs(line[k][0] - hint[0]) + abs(line[k][1] - hint[1]), k))
+
+def gates_for(specs, line, wnotes):
+    """Gate = a wall across the whole section at a road tile, open only at the gate tiles (3 wide, centred on the road). kind 'shortcut' also gets a second,
+    longer opening far along the wall (the bypass). Returns (ops, gate records)."""
+    ops, out = [], []
+    for sp in specs:
+        k = road_tile(line, sp["at"]); px, py = line[k]; a, b = line[k - 1], line[k + 1]
+        vertical_wall = abs(b[0] - a[0]) >= abs(b[1] - a[1])          # road runs E-W: wall runs N-S
+        if vertical_wall:
+            ops.append(("W", px, 1, px, H - 2)); tiles = [(px, y) for y in range(max(1, py - 1), min(H - 2, py + 1) + 1)]
+        else:
+            ops.append(("W", 1, py, W - 2, py)); tiles = [(x, py) for x in range(max(1, px - 1), min(W - 2, px + 1) + 1)]
+        ops += [("F", x, y, x, y) for x, y in tiles]
+        rec = dict(tiles=[list(t) for t in tiles], road_index=k, tool=sp["tool"], min_quality=sp.get("q", 1), kind=sp.get("kind", "lock"), label=sp["label"])
+        if rec["kind"] == "shortcut":
+            far = sp["bypass"]; byp = [(px, far), (px, far + 1)] if vertical_wall else [(far, py), (far + 1, py)]
+            ops += [("F", x, y, x, y) for x, y in byp]; rec["bypass"] = [list(t) for t in byp]
+        out.append(rec)
+    return ops, out
+
+def check_gates(rows, entry, exit_, gates):
+    for gt in gates:
+        g = [list(r) for r in rows]
+        for x, y in gt["tiles"]: g[y][x] = "#"
+        sp = walk(g, entry, exit_)
+        if gt["kind"] == "lock" and sp is not None: raise SystemExit(f"gate {gt['label']}: a lock that can be walked around")
+        if gt["kind"] == "shortcut" and sp is None: raise SystemExit(f"gate {gt['label']}: shortcut has no bypass")
+
 def apply_ops(g, prot, ops):
     ops = [e for op in ops for e in expand(op)]
     def put(c, ch):
@@ -176,7 +209,10 @@ def build_section(rid, i, spec, land, entry, exit_, first, last_boss, lm_names, 
     g = [["#"] * W for _ in range(H)]
     for c in inner:
         if fld[c] + thin(c) < t_wall: g[c[1]][c[0]] = "," if r_lo <= fld[c] < r_hi else "."
-    wops, wnotes = water_for(rid, i, line, entry, exit_); prot = set(); apply_ops(g, prot, spec.get("ops", [])); apply_ops(g, set(), wops)
+    wops, wnotes = water_for(rid, i, line, entry, exit_)
+    gate_ops, gates = gates_for(spec.get("gates", []), line, wnotes)
+    if gates: wops = [o for o in wops if not (o[0] == "r" and len(o) == 4 and o[3] == 0)]      # no shallows around a gate: it must stay the only way
+    prot = set(); apply_ops(g, prot, spec.get("ops", []) + gate_ops); apply_ops(g, set(), wops)
     for x, y in line: g[y][x] = "," if (x, y) not in (entry, exit_) and rng.random() < p["rough"] * 0.5 else "."
     prot -= on
     g[entry[1]][entry[0]] = "S" if first else "."; g[exit_[1]][exit_[0]] = "9"
@@ -213,7 +249,11 @@ def build_section(rid, i, spec, land, entry, exit_, first, last_boss, lm_names, 
         c = snap(h, lambda c: c not in on and g[c[1]][c[0]] in ".," and 2 <= near.get(c, 99) <= 5 and 3 <= c[0] <= W - 4 and 3 <= c[1] <= H - 2)
         if c is None: raise SystemExit(f"route {rid} section {i + 1}: no place for landmark {name} near {h}")
         taken.add(c); lms.append([c[0], c[1], name, 0])
-    return ["".join(r) for r in g], toks, lms, line, wnotes
+    rows_out = ["".join(r) for r in g]; check_gates(rows_out, entry, exit_, gates)
+    gate_k = [gt["road_index"] for gt in gates]; minis = []
+    for m in spec.get("mini", []):
+        k = road_tile(line, m["at"], avoid=gate_k); minis.append(dict(x=line[k][0], y=line[k][1], road_index=k, creature=m["slug"], level=m["level"], label=m["label"]))
+    return rows_out, toks, lms, line, wnotes, gates, minis
 
 def show(sec):
     g = [list(r) for r in sec["rows"]]
@@ -230,8 +270,11 @@ def build(rid, do_show=False):
     for i, s in enumerate(src["sections"]):
         spec = SPECS[rid][i]; t = dict(s); t.update(spec.get("meta", {}))
         entry, exit_ = (s["entry"]["x"], s["entry"]["y"]), (s["exit"]["x"], s["exit"]["y"])
-        rows, toks, lms, line, wnotes = build_section(rid, i, spec, src["land"], entry, exit_, i == 0, bool(src["boss"]) and i == len(src["sections"]) - 1, [l[2] for l in s["landmarks"]], None)
-        t.update(rows=rows, tokens=toks, landmarks=lms, line=[list(c) for c in line], water=wnotes); out["sections"].append(t)
+        rows, toks, lms, line, wnotes, gates, minis = build_section(rid, i, spec, src["land"], entry, exit_, i == 0, bool(src["boss"]) and i == len(src["sections"]) - 1, [l[2] for l in s["landmarks"]], None)
+        t.update(rows=rows, tokens=toks, landmarks=lms, line=[list(c) for c in line], water=wnotes)
+        if gates: t["gates"] = gates
+        if minis: t["extra_minibosses"] = minis
+        out["sections"].append(t)
         if do_show: print(f"route {rid} section {i + 1}: {s['feature']}"); show(t)
     d = os.path.join(REPO, "claude", "maplewold-bendy-maps"); os.makedirs(d, exist_ok=True)
     json.dump(out, open(os.path.join(d, f"route-{rid}.json"), "w"), indent=1, ensure_ascii=False)

@@ -147,3 +147,13 @@ more(305,0, ("clearing",5,5,2), ("log",24,5,4)); more(305,1, ("log",22,8,4), ("c
 more(306,0, ("log",4,5,4), ("clearing",26,4,2)); more(306,1, ("log",5,6,4), ("clearing",25,14,2))
 more(312,0, ("clearing",5,15,2), ("log",24,12,4)); more(312,1, ("log",22,14,4)); more(312,2, ("clearing",24,4,2), ("log",5,13,4))
 more(313,0, ("clearing",4,4,2)); more(313,1, ("log",21,4,4), ("clearing",25,14,2))
+
+# ---- gates (tool, minimum quality, lock or shortcut) and extra mini-boss spots (plan items 11 and 12) ----
+SPECS[313][2]["gates"] = [dict(at=(20,11), tool="miner-s-lantern", q=1, label="tunnel mouth: needs a lantern")]
+SPECS[315][1]["gates"] = [dict(at=(12,6), tool="rope", q=1, label="pine slope: needs a rope")]
+SPECS[315][2]["gates"] = [dict(at=(15,8), tool="prospector-s-pick", q=1, label="icicle bridge: needs a pick to clear the icicles")]
+SPECS[314][1]["gates"] = [dict(at=(14,5), tool="hiking-staff", q=1, kind="shortcut", bypass=10, label="tidal causeway: a staff for the short way, the long way round is open")]
+SPECS[312][2]["mini"] = [dict(at=(16,10), slug="bramble-wolf", level=22, label="great stump: Bramble Wolf")]
+SPECS[314][2]["mini"] = [dict(at=(22,5), slug="tide-crab-knight", level=19, label="lantern rocks: Tide Crab Knight (Clam Lurker 23 is the harder option)")]
+SPECS[310][0]["mini"] = [dict(at=(17,7), slug="wolverine", level=21, label="snowdrift pass: Grumpy Wolverine")]
+SPECS[309][1]["mini"] = [dict(at=(13,7), slug="arctic-fox", level=17, label="icicle cave mouth: Arctic Fox")]

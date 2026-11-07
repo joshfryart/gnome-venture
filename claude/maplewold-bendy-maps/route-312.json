@@ -888,7 +888,17 @@
      7
     ]
    ],
-   "water": []
+   "water": [],
+   "extra_minibosses": [
+    {
+     "x": 16,
+     "y": 10,
+     "road_index": 16,
+     "creature": "bramble-wolf",
+     "level": 22,
+     "label": "great stump: Bramble Wolf"
+    }
+   ]
   }
  ]
 }

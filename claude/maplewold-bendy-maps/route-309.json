@@ -544,6 +544,16 @@
       13
      ]
     }
+   ],
+   "extra_minibosses": [
+    {
+     "x": 13,
+     "y": 7,
+     "road_index": 17,
+     "creature": "arctic-fox",
+     "level": 17,
+     "label": "icicle cave mouth: Arctic Fox"
+    }
    ]
   }
  ]
