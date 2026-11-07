@@ -149,10 +149,10 @@ more(312,0, ("clearing",5,15,2), ("log",24,12,4)); more(312,1, ("log",22,14,4));
 more(313,0, ("clearing",4,4,2)); more(313,1, ("log",21,4,4), ("clearing",25,14,2))
 
 # ---- gates (tool, minimum quality, lock or shortcut) and extra mini-boss spots (plan items 11 and 12) ----
-SPECS[313][2]["gates"] = [dict(at=(20,11), tool="miner-s-lantern", q=2, label="tunnel mouth: needs a lantern")]
-SPECS[315][1]["gates"] = [dict(at=(12,6), tool="rope", q=2, label="pine slope: needs a rope")]
-SPECS[315][2]["gates"] = [dict(at=(15,8), tool="prospector-s-pick", q=2, label="icicle bridge: needs a pick to clear the icicles")]
-SPECS[314][1]["gates"] = [dict(at=(14,5), tool="hiking-staff", q=2, kind="shortcut", bypass=10, label="tidal causeway: a staff for the short way, the long way round is open")]
+SPECS[313][2]["gates"] = [dict(at=(20,11), tool="lantern", label="tunnel mouth: needs a lantern")]
+SPECS[315][1]["gates"] = [dict(at=(12,6), tool="axe", label="pine slope: needs an axe to cut steps")]
+SPECS[315][2]["gates"] = [dict(at=(15,8), tool="pick", label="icicle bridge: needs a pick to clear the icicles")]
+SPECS[314][1]["gates"] = [dict(at=(14,5), tool="staff", kind="shortcut", bypass=10, label="tidal causeway: a staff for the short way, the long way round is open")]
 SPECS[312][2]["mini"] = [dict(at=(16,10), slug="bramble-wolf", level=22, label="great stump: Bramble Wolf")]
 SPECS[314][2]["mini"] = [dict(at=(22,5), slug="clam-lurker", level=23, label="lantern rocks: Clam Lurker")]
 SPECS[310][0]["mini"] = [dict(at=(17,7), slug="wolverine", level=21, label="snowdrift pass: Grumpy Wolverine")]

@@ -475,10 +475,11 @@
       ]
      ],
      "road_index": 16,
-     "tool": "rope",
-     "min_quality": 2,
+     "tool_type": "axe",
+     "min_tier": 2,
+     "tool_name": "Woodcutter’s Axe",
      "kind": "lock",
-     "label": "pine slope: needs a rope"
+     "label": "pine slope: needs an axe to cut steps"
     }
    ]
   },
@@ -808,8 +809,9 @@
       ]
      ],
      "road_index": 19,
-     "tool": "prospector-s-pick",
-     "min_quality": 2,
+     "tool_type": "pick",
+     "min_tier": 2,
+     "tool_name": "Prospector’s Pick",
      "kind": "lock",
      "label": "icicle bridge: needs a pick to clear the icicles"
     }

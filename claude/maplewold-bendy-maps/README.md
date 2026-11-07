@@ -54,10 +54,10 @@ Route data, captions, landmark names, entry/exit tiles and sides come from `clau
 More stamps in the library: `dune`, `rockstack`, `tidepool` (coast), `icelake`, `pines` (tundra), `log`, `clearing` (forest). Added to every coast, tundra and forest route (`more(...)` at the bottom of `tools/maplewold_bendy_specs.py`).
 
 ## Gates (data only: no new tile character, ground tiles are unchanged)
-Per section field `gates`: `tiles` (3 tiles across the chokepoint, centred on the road), `road_index`, `tool` (item slug from crafts.txt), `min_quality`, `kind`, `label`. The builder walls the whole section across the road at that tile, open only at the gate tiles.
-- **Locks** (blocking the tiles cuts entry from exit): 313 s3 tunnel mouth `miner-s-lantern`; 315 s2 pine slope `rope`; 315 s3 icicle bridge `prospector-s-pick`. All lie before the boss/mini-boss `E`.
-- **Shortcut:** 314 s2 tidal causeway `hiking-staff`; a second opening 5 tiles away (`bypass`) gives the long way round (at least 6 steps longer).
-- **Quality rule (decided):** `min_quality` = region tier + 1, one tier above the base tier. Maplewold is tier 1, so every gate here needs quality 2; later regions go up by one per region tier. The game has no tool-quality field yet (crafts.txt has tools but no quality), so this is data for when it exists. Lantern, rope and pick confirmed. The 314 causeway stays a shortcut.
+Per section field `gates`: `tiles` (3 tiles across the chokepoint, centred on the road), `road_index`, `tool_type` (adventure tool type from `game/includes/tools.php`), `min_tier` (1 Worn, 2 Sturdy, 3 Fine, 4 Masterwork), `tool_name` (the tool of that type and tier), `kind`, `label`. The builder walls the whole section across the road at that tile, open only at the gate tiles. The best tool of a type in the satchel is used, so a gate needs any tool of that type at `min_tier` or higher.
+- **Rank rule (decided):** `min_tier` = region level + 1, +1 per region level, capped at 4. Maplewold is level 1, so every gate here needs tier 2 (Sturdy). Next regions: tier 3 (Fine), then 4 (Masterwork).
+- **Locks** (blocking the tiles cuts entry from exit): 313 s3 tunnel mouth, `lantern` tier 2 (Miner’s Lantern); 315 s2 pine slope, `axe` tier 2 (Woodcutter’s Axe; a Rope is a building item, not a tool type, so it became an axe to cut steps); 315 s3 icicle bridge, `pick` tier 2 (Prospector’s Pick). All lie before the boss/mini-boss `E`.
+- **Shortcut (decided):** 314 s2 tidal causeway, `staff` tier 2 (Hiking Staff); a second opening 5 tiles away (`bypass`) gives the long way round (at least 6 steps longer).
 
 ## Extra mini-boss spots (data only, not `E`)
 Per section field `extra_minibosses` (`x`, `y` on the road, `creature` slug, `level`, `label`), one per section, 5+ steps from the entry and 7+ from the exit:

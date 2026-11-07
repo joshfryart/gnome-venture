@@ -769,8 +769,9 @@
       ]
      ],
      "road_index": 17,
-     "tool": "miner-s-lantern",
-     "min_quality": 2,
+     "tool_type": "lantern",
+     "min_tier": 2,
+     "tool_name": "Miner’s Lantern",
      "kind": "lock",
      "label": "tunnel mouth: needs a lantern"
     }

@@ -137,7 +137,15 @@ def road_tile(line, hint, lo=5, hi=7, avoid=()):
     ok = [k for k in range(lo, len(line) - hi) if all(abs(k - a) > 2 for a in avoid)]
     return min(ok, key=lambda k: (abs(line[k][0] - hint[0]) + abs(line[k][1] - hint[1]), k))
 
-def gates_for(specs, line, wnotes):
+REGION_LEVEL = {"NA": 1}      # Maplewold = level 1. Gate rule: min tool tier = region level + 1 (Maplewold: Sturdy), +1 per region level, capped at 4 (Masterwork)
+def tool_tier_name(ttype, tier):
+    """Name of the tier-`tier` tool of a type, read from TOOL_ITEMS in game/includes/tools.php."""
+    import re
+    for t, n, name in re.findall(r"\['(\w+)', (\d), '([^']+)'", open(os.path.join(REPO, "game/includes/tools.php"), encoding="utf-8").read()):
+        if t == ttype and int(n) == tier: return name
+    raise SystemExit(f"no tier {tier} {ttype} tool in tools.php")
+
+def gates_for(specs, line, wnotes, region="NA"):
     """Gate = a wall across the whole section at a road tile, open only at the gate tiles (3 wide, centred on the road). kind 'shortcut' also gets a second,
     longer opening far along the wall (the bypass). Returns (ops, gate records)."""
     ops, out = [], []
@@ -149,7 +157,7 @@ def gates_for(specs, line, wnotes):
         else:
             ops.append(("W", 1, py, W - 2, py)); tiles = [(x, py) for x in range(max(1, px - 1), min(W - 2, px + 1) + 1)]
         ops += [("F", x, y, x, y) for x, y in tiles]
-        rec = dict(tiles=[list(t) for t in tiles], road_index=k, tool=sp["tool"], min_quality=sp.get("q", 1), kind=sp.get("kind", "lock"), label=sp["label"])
+        rec = dict(tiles=[list(t) for t in tiles], road_index=k, tool_type=sp["tool"], min_tier=min(4, REGION_LEVEL[region] + 1), tool_name=tool_tier_name(sp["tool"], min(4, REGION_LEVEL[region] + 1)), kind=sp.get("kind", "lock"), label=sp["label"])
         if rec["kind"] == "shortcut":
             far = sp["bypass"]; byp = [(px, far), (px, far + 1)] if vertical_wall else [(far, py), (far + 1, py)]
             ops += [("F", x, y, x, y) for x, y in byp]; rec["bypass"] = [list(t) for t in byp]

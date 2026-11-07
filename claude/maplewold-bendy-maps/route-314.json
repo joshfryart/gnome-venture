@@ -423,8 +423,9 @@
       ]
      ],
      "road_index": 17,
-     "tool": "hiking-staff",
-     "min_quality": 2,
+     "tool_type": "staff",
+     "min_tier": 2,
+     "tool_name": "Hiking Staff",
      "kind": "shortcut",
      "label": "tidal causeway: a staff for the short way, the long way round is open",
      "bypass": [
