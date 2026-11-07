@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=DM+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: map-table page. Region tabs on top, region map (480x270) with road bands, route board below that unrolls a route's sections. */
+/* Layout: map-table page. Region tabs on top, region map (480x270) with the selected route, route list beside it, and below a board that draws the route's sections tile by tile: today's flat strips or the new bendy sections joined end to end. */
 :root{--bg:#f3efe6;--panel:#fbf8f1;--fg:#2a2620;--muted:#6f675a;--line:#d6cfbf;--road:#fff4d0;--roadline:#7a5a2a;--red:#d32f2f;--ok:#2f6b3f;--chip:#e9e3d3;--pin:#e0d8c4;--font:'Atkinson Hyperlegible',system-ui,sans-serif;--mono:'DM Mono',ui-monospace,monospace}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17150f;--panel:#201d15;--fg:#ece5d3;--muted:#a79e8a;--line:#3a3527;--road:#f1d98f;--roadline:#2a1f0c;--red:#ff6b5e;--ok:#7bc28d;--chip:#2c281c;--pin:#3a3527;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#17150f;--panel:#201d15;--fg:#ece5d3;--muted:#a79e8a;--line:#3a3527;--road:#f1d98f;--roadline:#2a1f0c;--red:#ff6b5e;--ok:#7bc28d;--chip:#2c281c;--pin:#3a3527;color-scheme:dark}
@@ -15,13 +15,14 @@ p{margin:0 0 8px;max-width:68ch}
 .legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:12px 0 16px;font-size:13px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:7px}
 .sw{width:26px;height:12px;display:inline-block}
-.sw.red{border:2px dashed var(--red);border-radius:3px}
 .sw.rd{background:var(--road);border:2px solid var(--roadline);height:6px;border-radius:3px}
 .sw.pin{width:14px;height:14px;background:var(--pin);border:1.5px solid var(--muted);border-radius:3px}
+.sw.rl{height:5px;background:#7a4a1e;border-radius:3px}
+.sw.dot{width:11px;height:11px;border-radius:50%}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px}
 .tabs button,.seg button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--chip);color:var(--fg);padding:6px 11px;border-radius:6px;cursor:pointer;white-space:nowrap}
 .tabs button[aria-selected="true"],.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
-button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+button:focus-visible,input:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px}
 .mapwrap{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px;align-items:start}
 @media (max-width:760px){.mapwrap{grid-template-columns:minmax(0,1fr)}}
@@ -32,24 +33,29 @@ svg{display:block;width:100%;height:auto}
 .rlist small{color:var(--muted);font-family:var(--mono);font-size:11px;white-space:nowrap}
 .board{margin-top:16px}
 .bhead{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:8px}
-.seg{display:flex;gap:6px}
+.ctl{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+label.t{font-size:13px;display:inline-flex;gap:5px;align-items:center;cursor:pointer}
 .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:10px;font-size:13px}
-.facts div{border-top:1px solid var(--line);padding-top:6px}
+.facts div{border-top:1px solid var(--line);padding-top:6px;min-width:0}
 .facts b{display:block;font-family:var(--mono);font-weight:500;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.boardsvg{overflow:auto;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
-.boardsvg svg{min-width:560px;max-height:640px}
+.boardwrap{overflow:auto;border:1px solid var(--line);border-radius:6px;background:var(--bg);max-height:720px}
+canvas{display:block;image-rendering:auto}
+canvas.fit{width:100%;height:auto}
 .lbl{font-family:var(--font);font-size:12px;fill:var(--fg)}
-.mono{font-family:var(--mono);font-size:10px;fill:var(--muted)}
-.redtxt{font-family:var(--mono);font-size:10px;fill:var(--red)}
 .notes{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
 .notes .panel p{font-size:13.5px;margin:0}
 </style>
 <h1>Route Map Layout</h1>
-<p class="lead">Every region map with its roads, and every route's sections unrolled. Today each route plays as a flat 22×7 strip, left to right, whichever way the road points on the region map. Switch the board to "Follows region path" to see the strips turn with the road. Red dashed boxes are the mockup of the extended areas.</p>
+<p class="lead">Every region map with its roads, and every route drawn tile by tile. "Today" is the flat 22×7 strip that always plays left to right. "New design" is the 30×18 sections with a road that wanders and leaves each section on the side the region road points to, joined end to end.</p>
 <div class="legend">
   <span><i class="sw rd"></i>Road on the region map</span>
-  <span><i class="sw red"></i>Extended area mockup (taller and longer)</span>
-  <span><i class="sw pin"></i>Stop placeholder (picture to come)</span>
+  <span><i class="sw rl"></i>Road line on a section</span>
+  <span><i class="sw dot" style="background:#2f7fd6"></i>Start</span>
+  <span><i class="sw dot" style="background:#e8782a"></i>Exit to next section</span>
+  <span><i class="sw dot" style="background:#f0c32e"></i>Find</span>
+  <span><i class="sw dot" style="background:#d3302f"></i>Mini-boss or boss spot</span>
+  <span><i class="sw pin"></i>Stop placeholder</span>
 </div>
 <div class="tabs" id="tabs" role="tablist" aria-label="Regions"></div>
 <div class="mapwrap">
@@ -58,77 +64,88 @@ svg{display:block;width:100%;height:auto}
 </div>
 <div class="panel board">
   <div class="bhead"><h2 id="btitle">Route</h2>
-    <div class="seg" role="group" aria-label="Board mode"><button id="mNow" aria-pressed="false">Now: strips in a row</button><button id="mFol" aria-pressed="true">Follows region path</button></div></div>
-  <div class="boardsvg"><svg id="board" role="img" aria-label="Route sections"></svg></div>
+    <div class="ctl">
+      <div class="seg" role="group" aria-label="Board mode"><button id="mNow" aria-pressed="false">Today: 22×7 strips</button><button id="mNew" aria-pressed="true">New design: 30×18</button></div>
+      <label class="t" for="oRoad"><input type="checkbox" id="oRoad" checked>Road line</label>
+      <label class="t" for="oMark"><input type="checkbox" id="oMark" checked>Finds, landmarks</label>
+      <label class="t" for="oFit"><input type="checkbox" id="oFit" checked>Fit to width</label>
+    </div></div>
+  <div class="boardwrap"><canvas id="board" role="img" aria-label="Route sections drawn tile by tile"></canvas></div>
   <div class="facts" id="facts"></div>
 </div>
 <div class="notes">
-  <div class="panel"><h2>What the sizes mean</h2><p>Now: 22 × 7 tiles a section, 2 to 4 sections a route, and the screen always shows the full 7 rows. Mockup: about 30 × 18 tiles a section (red), so the camera scrolls up and down as well as along.</p></div>
-  <div class="panel"><h2>What "follows the path" means</h2><p>Each section is turned to the heading of the region-map road under it. The first section starts at the stop it leaves and the last one ends at the stop it reaches, so a road heading north-east plays north-east.</p></div>
-  <div class="panel"><h2>Stops</h2><p>Stops show as grey square placeholders with a cross. Swap in the real stop picture when it exists. Boss routes show the boss name on the board.</p></div>
+  <div class="panel"><h2>Same tile size on both views</h2><p>Today a section is 22×7 tiles and the screen shows all 7 rows. The new section is 30×18 tiles, so the camera scrolls up and down as well as along. Both views draw a tile at the same size, so the difference in area is real.</p></div>
+  <div class="panel"><h2>How the new road is made</h2><p>Each section takes its heading from the region road under it, snapped to one of 8 compass directions. The road wanders: never more than 6 tiles straight (one run per section may reach 10). Thickets close in on the inside of the bends, so cutting across the meadow saves at most about a fifth of the walk.</p></div>
+  <div class="panel"><h2>Joins and stops</h2><p>The exit tile of one section sits against the entry tile of the next, on the same row or column. Grey squares are stop placeholders. Landmarks use each route's own names; finds sit out in the landscape, away from the road.</p></div>
 </div>
 <script>
 const DATA=__DATA__;
 const $=id=>document.getElementById(id), NS='http://www.w3.org/2000/svg';
 const el=(t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
-let reg=DATA[0],route=null,mode='fol';
-const SW=220,SH=76,EW=308,EH=198; // strip size on the board; red box = about 30x18 tiles
+let reg=DATA.regions[0],route=null,mode='new';
+const T=16,SIDEV={E:[1,0],W:[-1,0],S:[0,1],N:[0,-1]},PW=30,PH=18;
 function pin(p,x,y,s,label,anchor){const g=el('g',{},p);el('rect',{x:x-s/2,y:y-s/2,width:s,height:s,rx:s*.18,fill:'var(--pin)',stroke:'var(--muted)','stroke-width':s*.07},g);
  el('path',{d:`M${x-s/2} ${y-s/2}L${x+s/2} ${y+s/2}M${x+s/2} ${y-s/2}L${x-s/2} ${y+s/2}`,stroke:'var(--muted)','stroke-width':s*.05,opacity:.7},g);
  if(label){const t=el('text',{x:x,y:y+s/2+s*.45,'text-anchor':anchor||'middle',class:'lbl','font-size':s*.42,'paint-order':'stroke',stroke:'var(--bg)','stroke-width':s*.12},g);t.textContent=label}return g}
-function tabs(){const t=$('tabs');t.innerHTML='';DATA.forEach(r=>{const b=document.createElement('button');b.textContent=r.name;b.setAttribute('role','tab');b.setAttribute('aria-selected',r===reg);b.onclick=()=>{reg=r;route=r.routes[0]||null;draw()};t.appendChild(b)})}
+function tabs(){const t=$('tabs');t.innerHTML='';DATA.regions.forEach(r=>{const b=document.createElement('button');b.textContent=r.name;b.setAttribute('role','tab');b.setAttribute('aria-selected',r===reg);b.onclick=()=>{reg=r;route=r.routes[0]||null;draw()};t.appendChild(b)})}
+const pts=c=>c.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L');
 function drawMap(){const s=$('rmap');s.innerHTML='';el('image',{href:reg.map,x:0,y:0,width:480,height:270},s);el('rect',{x:0,y:0,width:480,height:270,fill:'#000',opacity:.18},s);
- reg.routes.forEach(r=>{const d='M'+curveOf(r).map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L');
-  el('path',{d,fill:'none',stroke:'var(--red)','stroke-width':r===route?26:20,'stroke-dasharray':'5 4','stroke-linecap':'round','stroke-linejoin':'round',opacity:r===route?1:.55},s);});
- reg.routes.forEach(r=>{const d='M'+curveOf(r).map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L');
-  el('path',{d,fill:'none',stroke:'var(--roadline)','stroke-width':r===route?7:5,'stroke-linecap':'round'},s);
-  el('path',{d,fill:'none',stroke:'var(--road)','stroke-width':r===route?4:2.4,'stroke-linecap':'round'},s);
-  const h=el('path',{d,fill:'none',stroke:'transparent','stroke-width':22,style:'cursor:pointer'},s);h.onclick=()=>{route=r;draw()};});
+ reg.routes.forEach(r=>{const d='M'+pts(r.curve);
+  el('path',{d,fill:'none',stroke:'var(--roadline)','stroke-width':r===route?7:5,'stroke-linecap':'round','stroke-linejoin':'round'},s);
+  el('path',{d,fill:'none',stroke:r===route?'var(--red)':'var(--road)','stroke-width':r===route?4:2.4,'stroke-linecap':'round','stroke-linejoin':'round'},s);
+  const h=el('path',{d,fill:'none',stroke:'transparent','stroke-width':22,style:'cursor:pointer'},s);h.onclick=()=>{route=r;draw()}});
  const seen=new Set();[reg.town,...reg.stops].forEach(p=>{const k=p.x+','+p.y;if(seen.has(k))return;seen.add(k);pin(s,p.x,p.y,p===reg.town?16:11,null)});
  const t=el('text',{x:reg.town.x+10,y:reg.town.y-9,class:'lbl','font-size':9,'paint-order':'stroke',stroke:'var(--bg)','stroke-width':3},s);t.textContent=reg.town.name;
  reg.exits.forEach(e=>{const t=el('text',{x:Math.min(440,Math.max(6,e.x-14)),y:Math.min(262,Math.max(10,e.y+(e.y>240?-8:12))),class:'lbl','font-size':8,'paint-order':'stroke',stroke:'var(--bg)','stroke-width':3},s);t.textContent='to '+e.name})}
-function list(){$('rtitle').textContent=reg.name;$('rsub').textContent=reg.routes.length+' routes leave this region\'s stops. Pick one.';const l=$('rlist');l.innerHTML='';
- reg.routes.forEach(r=>{const b=document.createElement('button');b.setAttribute('aria-current',r===route);b.innerHTML='<span>'+r.from+' → '+r.to+'</span><small>'+r.secs.length+' sec</small>';b.onclick=()=>{route=r;draw()};l.appendChild(b)})}
-
-// Smooth curve for a route: Catmull-Rom through the road's own points, so a route leaves a stop the way the road arrives, and side trails bow a little.
-function curveOf(r){if(r._c)return r._c;const a=r.path[0],b=r.path[r.path.length-1];let p0=a,p3=b,found=false;
- for(const rd of reg.roads){const q=rd.pts;for(let j=0;j<q.length-1;j++){const f=q[j][0]===a[0]&&q[j][1]===a[1]&&q[j+1][0]===b[0]&&q[j+1][1]===b[1],rv=q[j][0]===b[0]&&q[j][1]===b[1]&&q[j+1][0]===a[0]&&q[j+1][1]===a[1];
-  if(f){p0=q[j-1]||a;p3=q[j+2]||b;found=true}else if(rv){p0=q[j+2]||a;p3=q[j-1]||b;found=true}}}
- if(!found){const dx=b[0]-a[0],dy=b[1]-a[1],sg=((r.id*7)%2?1:-1),bw=.18;const n=[-dy*bw*sg,dx*bw*sg];p0=[a[0]+n[0]-dx*.2,a[1]+n[1]-dy*.2];p3=[b[0]+n[0]+dx*.2,b[1]+n[1]+dy*.2]}
- const pts=[];const T=40;for(let i=0;i<=T;i++){const t=i/T,t2=t*t,t3=t2*t;const f=k=>.5*((2*a[k])+(-p0[k]+b[k])*t+(2*p0[k]-5*a[k]+4*b[k]-p3[k])*t2+(-p0[k]+3*a[k]-3*b[k]+p3[k])*t3);pts.push([f(0),f(1)])}
- return r._c=pts}
-function arcs(P){const c=[0];for(let i=1;i<P.length;i++)c.push(c[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));return c}
-function pointAt(P,c,u){let i=1;while(i<c.length-1&&c[i]<u)i++;const l=(c[i]-c[i-1])||1,f=Math.max(0,Math.min(1,(u-c[i-1])/l));return[P[i-1][0]+(P[i][0]-P[i-1][0])*f,P[i-1][1]+(P[i][1]-P[i-1][1])*f]}
-function normalAt(P,c,u){const e=3,a=pointAt(P,c,Math.max(0,u-e)),b=pointAt(P,c,Math.min(c[c.length-1],u+e)),d=Math.hypot(b[0]-a[0],b[1]-a[1])||1;return[-(b[1]-a[1])/d,(b[0]-a[0])/d]}
-function heading(a,b){const d=Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI;return d}
-function compass(d){const n=['E','SE','S','SW','W','NW','N','NE'];return n[Math.round(((d%360)+360)%360/45)%8]}
-function board(){const s=$('board');s.innerHTML='';if(!route){$('btitle').textContent='No routes';return}
- const N=route.secs.length;$('btitle').textContent=route.from+' → '+route.to;
- const C0=curveOf(route),c0=arcs(C0),k=(N*EW)/(c0[c0.length-1]||1),o=C0[0];
- const P=mode==='now'?Array.from({length:41},(_,i)=>[i/40*N*EW,0]):C0.map(p=>[(p[0]-o[0])*k,(p[1]-o[1])*k]),c=arcs(P);
- const xs=[],ys=[],secs=[];
- for(let i=0;i<N;i++){const u0=i*EW,u1=(i+1)*EW,m=(u0+u1)/2,L=[],Rr=[];
-  for(let j=0;j<=12;j++){const u=u0+(u1-u0)*j/12,p=pointAt(P,c,u),n=normalAt(P,c,u);L.push([p[0]+n[0]*EH/2,p[1]+n[1]*EH/2]);Rr.push([p[0]-n[0]*EH/2,p[1]-n[1]*EH/2])}
-  const poly=L.concat(Rr.reverse());poly.forEach(p=>{xs.push(p[0]);ys.push(p[1])});
-  const a=pointAt(P,c,u0+(EW-SW)/2),b=pointAt(P,c,u0+(EW+SW)/2),mid=pointAt(P,c,m);
-  secs.push({poly,mid:[(a[0]+b[0])/2,(a[1]+b[1])/2],ang:heading(a,b)})}
- secs.forEach((q,i)=>{
-  el('polygon',{points:q.poly.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' '),fill:'var(--red)','fill-opacity':.07,stroke:'var(--red)','stroke-width':2.5,'stroke-dasharray':'9 6','stroke-linejoin':'round'},s);
-  const fl=Math.abs(q.ang)>90,g=el('g',{transform:`translate(${q.mid[0]} ${q.mid[1]}) rotate(${fl?q.ang+180:q.ang})`},s);
-  el('image',{href:route.secs[i],x:-SW/2,y:-SH/2,width:SW,height:SH,preserveAspectRatio:'none'},g);
-  el('rect',{x:-SW/2,y:-SH/2,width:SW,height:SH,fill:'none',stroke:'var(--fg)','stroke-width':1.2,opacity:.7},g);
-  const t=el('text',{x:-SW/2+4,y:SH/2-5,class:'mono',style:'font-size:9px;fill:#fff;paint-order:stroke;stroke:#000;stroke-width:2.5px'},g);t.textContent='section '+(i+1)+' now 22x7';
-  el('path',{d:fl?`M${-SW/2+26} ${-SH/2+14}h-20m7 -6l-7 6l7 6`:`M${SW/2-26} ${-SH/2+14}h20m-7 -6l7 6l-7 6`,fill:'none',stroke:'#fff','stroke-width':3,'stroke-linecap':'round','stroke-linejoin':'round',style:'filter:drop-shadow(0 0 2px #000)'},g);
-  const lp=q.poly[1],t2=el('text',{x:lp[0]+4,y:lp[1]+(lp[1]<q.mid[1]?14:-6),class:'redtxt'},s);t2.textContent='extended ~30x18'});
- const end=(u,sg)=>{const p=pointAt(P,c,Math.max(0,Math.min(c[c.length-1],u))),q=pointAt(P,c,Math.max(0,Math.min(c[c.length-1],u+sg*8))),d=Math.hypot(q[0]-p[0],q[1]-p[1])||1;return[p[0]-(q[0]-p[0])/d*48,p[1]-(q[1]-p[1])/d*48]};
- const a=end(0,1),b=end(c[c.length-1],-1);pin(s,a[0],a[1],52,route.from,'middle');pin(s,b[0],b[1],52,route.to,'middle');[a,b].forEach(p=>{xs.push(p[0]-70,p[0]+70);ys.push(p[1]-40,p[1]+60)});
- const mg=70,x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
- s.setAttribute('viewBox',`${x0-mg} ${y0-mg} ${x1-x0+2*mg} ${y1-y0+2*mg}`);
-
- const reg0=heading(route.path[0],route.path[route.path.length-1]);
- $('facts').innerHTML=`<div><b>Region path heads</b>${compass(reg0)} (${Math.round((reg0+360)%360)}° on the map)</div><div><b>Route plays today</b>W to E, flat</div><div><b>Land</b>${route.land}</div><div><b>Sections</b>${N}: ${route.feat.filter(Boolean).join(', ')||'plain'}</div>${route.boss?`<div><b>Boss</b>${route.boss}</div>`:''}`}
+function list(){$('rtitle').textContent=reg.name;$('rsub').textContent=reg.routes.length+' routes in this region. Pick one.';const l=$('rlist');l.innerHTML='';
+ reg.routes.forEach(r=>{const b=document.createElement('button');b.setAttribute('aria-current',r===route);b.innerHTML='<span>'+r.from+' → '+r.to+(r.boss?' · '+r.boss:'')+'</span><small>'+r.new.length+' sec</small>';b.onclick=()=>{route=r;draw()};l.appendChild(b)})}
+// ---------- board: tiles on a canvas
+function shade(hex,f){const n=parseInt(hex.slice(1),16),c=k=>Math.max(0,Math.min(255,Math.round(((n>>k)&255)*f)));return`rgb(${c(16)},${c(8)},${c(0)})`}
+const hash=(x,y)=>{let h=(x*374761393+y*668265263)^(x*y*2246822519);h=(h^(h>>>13))*1274126177;return((h^(h>>>16))>>>0)/4294967295};
+function bfs(rows,st,en){const h=rows.length,w=rows[0].length,prev=new Map([[st[0]+','+st[1],null]]),q=[st];
+ while(q.length){const c=q.shift();if(c[0]===en[0]&&c[1]===en[1])break;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const x=c[0]+dx,y=c[1]+dy,k=x+','+y;if(x>=0&&y>=0&&x<w&&y<h&&rows[y][x]!=='#'&&!prev.has(k)){prev.set(k,c);q.push([x,y])}}}
+ const out=[];let c=en;if(!prev.has(en[0]+','+en[1]))return out;while(c){out.push(c);c=prev.get(c[0]+','+c[1])}return out.reverse()}
+function strokePath(g,cells,ox,oy,w,col){g.beginPath();cells.forEach((p,i)=>{const x=(ox+p[0]+.5)*T,y=(oy+p[1]+.5)*T;i?g.lineTo(x,y):g.moveTo(x,y)});g.lineWidth=w;g.strokeStyle=col;g.lineJoin='round';g.lineCap='round';g.stroke()}
+function boardParts(){/* sections as {rows,ox,oy,label,line,tokens,lms,entry,exit} in tile units */
+ if(mode==='now')return route.old.map((rows,i)=>{const w=rows[0].length,st=[0,Math.max(0,rows.findIndex(r=>r[0]!=='#'))],ex=[w-1,rows.findIndex(r=>r[w-1]==='9')];
+   return{rows,ox:i*w,oy:0,label:(i+1)+' · '+w+'×'+rows.length+' · W to E',line:bfs(rows,st,ex),entry:{side:'W',x:0,y:st[1]},exit:{side:'E',x:w-1,y:ex[1]},lms:[]}});
+ return route.new.map((s,i)=>({rows:s.rows,ox:s.ox,oy:s.oy,label:(i+1)+' · '+PW+'×'+PH+' · '+s.heading+' · '+s.entry.side+' to '+s.exit.side,line:s.corners,entry:s.entry,exit:s.exit,lms:s.landmarks}))}
+function board(){const cv=$('board');if(!route){$('btitle').textContent='No routes';return}
+ const N=route.new.length;$('btitle').textContent=route.from+' → '+route.to+(route.boss?' ('+route.boss+' at the end)':'');
+ const P=boardParts(),M=7,LBL=0,art=DATA.artland[route.land],pal=DATA.pal[art],tk=DATA.tok;
+ let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;P.forEach(p=>{x0=Math.min(x0,p.ox);y0=Math.min(y0,p.oy);x1=Math.max(x1,p.ox+p.rows[0].length);y1=Math.max(y1,p.oy+p.rows.length)});
+ const first=P[0],last=P[P.length-1],ox=M-x0,oy=M+LBL-y0;
+ cv.width=Math.ceil((x1-x0+2*M)*T);cv.height=Math.ceil((y1-y0+2*M+LBL)*T);cv.className=$('oFit').checked?'fit':'';
+ const g=cv.getContext('2d');g.fillStyle=getComputedStyle(document.body).backgroundColor;g.fillRect(0,0,cv.width,cv.height);
+ P.forEach(p=>{p.rows.forEach((row,y)=>{for(let x=0;x<row.length;x++){const c=row[x],h=hash(p.ox+x,p.oy+y);const base=c==='#'?pal.wall:c===','?pal.rough:pal.floor;
+   g.fillStyle=shade(base,c==='#'?.9+h*.2:.96+h*.08);g.fillRect((ox+p.ox+x)*T,(oy+p.oy+y)*T,T,T);
+   if(c==='#'){g.fillStyle='rgba(0,0,0,.18)';g.fillRect((ox+p.ox+x)*T,(oy+p.oy+y+1)*T-3,T,3)}}})});
+ if($('oRoad').checked)P.forEach(p=>{strokePath(g,p.line,ox+p.ox,oy+p.oy,T*.52,'rgba(255,255,255,.35)');strokePath(g,p.line,ox+p.ox,oy+p.oy,T*.3,tk.road)});
+ const dot=(x,y,col,r,txt)=>{g.beginPath();g.arc((x+.5)*T,(y+.5)*T,r,0,7);g.fillStyle=col;g.fill();g.lineWidth=1.5;g.strokeStyle='rgba(0,0,0,.55)';g.stroke();if(txt){g.fillStyle='#fff';g.font='700 '+Math.round(r*1.1)+'px DM Mono, monospace';g.textAlign='center';g.textBaseline='middle';g.fillText(txt,(x+.5)*T,(y+.5)*T+1)}};
+ const lab=(t,x,y,al)=>{g.font='500 12px Atkinson Hyperlegible, sans-serif';g.textAlign=al||'center';g.textBaseline='alphabetic';g.lineWidth=3;g.strokeStyle=getComputedStyle(document.body).backgroundColor;g.strokeText(t,x,y);g.fillStyle=getComputedStyle(document.body).color;g.fillText(t,x,y)};
+ P.forEach((p,i)=>{const W=p.rows[0].length,H=p.rows.length;
+  g.setLineDash([6,4]);g.lineWidth=1.5;g.strokeStyle='rgba(255,255,255,.85)';g.strokeRect((ox+p.ox)*T+.75,(oy+p.oy)*T+.75,W*T-1.5,H*T-1.5);g.setLineDash([]);
+  const t=p.label;g.font='500 11px DM Mono, monospace';g.textAlign='left';g.textBaseline='middle';const tw=g.measureText(t).width,lx=(ox+p.ox)*T+4,ly=(oy+p.oy)*T+4;g.fillStyle='rgba(20,18,12,.72)';g.beginPath();g.roundRect(lx,ly,tw+10,17,4);g.fill();g.fillStyle='#fff';g.fillText(t,lx+5,ly+9);
+  if($('oMark').checked){p.rows.forEach((row,y)=>{for(let x=0;x<row.length;x++){const c=row[x];if(c==='F'){const cx=(ox+p.ox+x+.5)*T,cy=(oy+p.oy+y+.5)*T;g.beginPath();g.moveTo(cx,cy-T*.42);g.lineTo(cx+T*.36,cy);g.lineTo(cx,cy+T*.42);g.lineTo(cx-T*.36,cy);g.closePath();g.fillStyle=tk.F;g.fill();g.lineWidth=1.5;g.strokeStyle='rgba(0,0,0,.6)';g.stroke()}
+    else if(c==='E')dot(ox+p.ox+x,oy+p.oy+y,tk.E,T*.46,'E')}});
+   p.lms.forEach(l=>{const x=ox+p.ox+l[0],y=oy+p.oy+l[1];g.fillStyle='#fff';g.strokeStyle='rgba(0,0,0,.65)';g.lineWidth=1.5;g.beginPath();g.roundRect(x*T+2,y*T+2,T-4,T-4,3);g.fill();g.stroke();g.fillStyle='#222';g.font='700 10px DM Mono, monospace';g.textAlign='center';g.textBaseline='middle';g.fillText('L',(x+.5)*T,(y+.5)*T+1);
+    lab(String(l[2]).replace(/^\d+-/,''),(x+.5)*T,(y+1)*T+13)})}
+  if(i<P.length-1){const e=p.exit;dot(ox+p.ox+e.x,oy+p.oy+e.y,tk['9'],T*.4)}});
+ const s0=first.entry,e0=last.exit;dot(ox+first.ox+s0.x,oy+first.oy+s0.y,tk.S,T*.46,'S');dot(ox+last.ox+e0.x,oy+last.oy+e0.y,tk['9'],T*.46);
+ const stopAt=(c,sd,name)=>{const v=SIDEV[sd],sz=T*2.4,cx=(ox+c.ox+c.x+.5+v[0]*3)*T,cy=(oy+c.oy+c.y+.5+v[1]*3)*T;g.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--pin')||'#ddd';g.strokeStyle='#8a8070';g.lineWidth=2;g.beginPath();g.roundRect(cx-sz/2,cy-sz/2,sz,sz,5);g.fill();g.stroke();g.beginPath();g.moveTo(cx-sz/2,cy-sz/2);g.lineTo(cx+sz/2,cy+sz/2);g.moveTo(cx+sz/2,cy-sz/2);g.lineTo(cx-sz/2,cy+sz/2);g.globalAlpha=.5;g.stroke();g.globalAlpha=1;
+  g.beginPath();g.moveTo((ox+c.ox+c.x+.5)*T,(oy+c.oy+c.y+.5)*T);g.lineTo(cx-v[0]*sz/2,cy-v[1]*sz/2);g.lineWidth=T*.3;g.strokeStyle=tk.road;g.stroke();
+  lab(name,cx,cy+sz/2+14)};
+ stopAt({ox:first.ox,oy:first.oy,x:s0.x,y:s0.y},s0.side,route.from);stopAt({ox:last.ox,oy:last.oy,x:e0.x,y:e0.y},e0.side,route.to);
+ // facts
+ const lens=route.new.map(s=>s.corners.reduce((a,p,i,c)=>i?a+Math.abs(p[0]-c[i-1][0])+Math.abs(p[1]-c[i-1][1]):0,0)),oldLen=route.old.length*21;
+ const hd=route.new.map(s=>s.heading).join(', '),sd=route.new.map(s=>s.entry.side+'→'+s.exit.side).join(', ');
+ const nm=[].concat(...route.new.map(s=>s.landmarks.map(l=>String(l[2]).replace(/^\d+-/,''))));
+ $('facts').innerHTML=`<div><b>Today</b>${route.old.length} sections of 22×7, always W to E, about ${oldLen} tiles of road</div><div><b>New design</b>${N} sections of 30×18, headings ${hd}</div><div><b>Sides</b>${sd}</div><div><b>Road length</b>about ${lens.reduce((a,b)=>a+b,0)} tiles (${lens.join(' + ')})</div><div><b>Land</b>${route.land}</div><div><b>Road source</b>${{road:'a real road on the region map',trail:'a drawn side trail',exit:'the road to the region exit'}[route.kind]||route.kind}</div>${route.boss?`<div><b>${route.boss==='boss'?'Boss':'Mini-boss'} spot</b>last section, on the road, 4 steps before the exit</div>`:''}<div><b>Landmarks</b>${nm.join(', ')||'none'}</div>`}
 function draw(){tabs();drawMap();list();board()}
-$('mNow').onclick=()=>{mode='now';$('mNow').setAttribute('aria-pressed',true);$('mFol').setAttribute('aria-pressed',false);board()};
-$('mFol').onclick=()=>{mode='fol';$('mFol').setAttribute('aria-pressed',true);$('mNow').setAttribute('aria-pressed',false);board()};
+function setMode(m){mode=m;$('mNow').setAttribute('aria-pressed',m==='now');$('mNew').setAttribute('aria-pressed',m==='new');board()}
+$('mNow').onclick=()=>setMode('now');$('mNew').onclick=()=>setMode('new');['oRoad','oMark','oFit'].forEach(i=>$(i).onchange=board);
 route=reg.routes[0];draw();
+(document.fonts&&document.fonts.ready||Promise.resolve()).then(board);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>setTimeout(board,50));
+new MutationObserver(()=>board()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 </script>
