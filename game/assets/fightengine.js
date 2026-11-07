@@ -374,6 +374,10 @@
       var h = a.hat; if (!h || h.mode !== 'worn') return;
       hatTo(a, true); h.mode = 'free'; h.rest = 0; h.hold = 0; h.vy = -300; h.vx = -50 * (away || 1); h.vr = -520; h.tvr += 400;
     }
+    function dropHat(a, away) {   // v2.6.07: the hat is already on the ground (an earlier turn): lay it down at once, no flight
+      var h = a.hat; if (!h || h.mode !== 'worn') return;
+      popHat(a, away); h.rest = 1; h.vx = h.vy = h.vr = 0; h.y = 33; h.r = -82; h.tvr = 0; h.tr = 0;
+    }
     function fixHat(a) {   // run the 'fixhat' move: hat hops back on crooked, a pat or two straightens it
       var h = a.hat; if (!h || h.mode === 'worn') return Promise.resolve();
       hatTo(a, false); h.mode = 'fixing'; h.ft = 0; h.x0 = h.x; h.y0 = h.y; h.r0 = h.r;
@@ -504,7 +508,7 @@
     function d_show(drops) { drops.forEach(function (d) { d.el.classList.add('show'); }); }
     function destroy() { dead = true; root.removeEventListener('resize', layout); host.innerHTML = ''; acts = {}; }   // stop the physics loop and the resize hook (call before re-creating on the same host)
     layout(); root.addEventListener('resize', layout); root.requestAnimationFrame(tick);
-    return { destroy: destroy, finish: finish, reward: reward, add: add, play: play, popHat: popHat, fixHat: fixHat, together: together, acts: acts, layout: layout, setSpeed: function (s) { speed = s; }, holdCheer: function (v) { holdCheer = !!v; }, MOVES: MOVES };
+    return { destroy: destroy, finish: finish, reward: reward, add: add, play: play, popHat: popHat, dropHat: dropHat, fixHat: fixHat, together: together, acts: acts, layout: layout, setSpeed: function (s) { speed = s; }, holdCheer: function (v) { holdCheer = !!v; }, MOVES: MOVES };
   }
   /* Data lint: returns a list of problems (empty = fine). Run by tools/fight/smoke.js; catches the mistakes that used to crash animate() at play time. */
   function validate() {

@@ -1,4 +1,4 @@
-# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-07, branch ccr-80ab2af7-rehkvj = 2.6.06, main = 2.6.05)
+# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-07, branch ccr-80ab2af7-rehkvj = 2.6.07, main = 2.6.05)
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md` (the old todo.md log up to 2.5.62 is at the bottom of the archive). Detail lists for art stay in their own files, linked below, but their OPEN items are copied here.
 
@@ -31,6 +31,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Admin upload `uploads/items/<slug>.png` shadows `assets/img/ph/` (reason an item can show old art).
 
 ## 4. CODE: open
+- FIX 2026-11-07 (2.6.07, branch, not phone-checked): Josh: the fallen hat could not be tapped on a phone (menu covers it) and went back on during the next attack, then fell off again. Now the menu has a one-tap 🎩 Hat button (`fsc-hatbtn`, `fight_dock_html()`), and a hat still down from an earlier turn starts on the ground (`dropHat` in `fightengine.js`, called in `fightscene.js`). Test: `tests/fight_scene_trail.sh`.
 - DONE 2026-11-07 (2.6.06, branch, not on main, no slim zip built): crafted satchels (Josh: "Crafting"): items `canvas-satchel` / `patchwork-satchel` (`gather_ensure_satchel_items()`), recipes in `crafts.txt` (Tools, needs a Tool Shed), `gather_satchel_key()` picks the best owned; test `tests/satchel.sh`. Content: 13 happenings, 8 stories, 8 calendar days appended to `data/stop_*.txt`. `stops100` made date-proof (`GV_TEST_NO_CALENDAR`). Josh OK'd 2026-11-07: Flee confirm "tap again" and the yard designer items stay as they are.
 **Trail / Here**
 - DONE 2026-11-06 (2.5.97, not phone-checked): fights on delve floors (v1 and v2) and in a wander off the Trail now play on the map like the Trail (stage over the map, dock, end scenes for win / flee; KO on the result page). Shared helper `fight_map_over()` in `includes/fight_scene.php`, used by `trail_view_html`, `dm_view_html`, `dv2_floor_html`; the simple list view (no map) keeps the stage + dock under it and plays end scenes on a stage of its own. Before this, with fight_scene on by default, a wander off the Trail showed NO fight at all (the stage sat in the hidden `.wanderhide`).

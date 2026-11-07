@@ -34,6 +34,12 @@ chk "the fight menu (Fight / Item / Flee column) sits over the map" "$(grep -q '
 chk "the dock buttons are real forms (not nested in the map form)" "$([ "$(sed -n '/class=\"fsdock fsc\"/,/class=\"fsc-menu\"/p' $TD/here-p.html | grep -o '<form' | wc -l)" -ge 3 ] && echo 1)"
 chk "the old button list is not repeated under the map" "$(grep -q 'class="fightbtns' $TD/here-p.html && echo 0 || echo 1)"
 chk "fight buttons are there" "$(grep -q 'value="attack"' $TD/here-p.html && echo 1)"
+chk "no Hat button in the menu while the hat is on" "$(grep -q 'fsc-hatbtn' $TD/here-p.html && echo 0 || echo 1)"
+php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT id,encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetch(); $e=json_decode($r["encounter"],true); $e["hat"]=1; $p->prepare("UPDATE expeditions SET encounter=? WHERE id=?")->execute([json_encode($e),$r["id"]]);'
+get adventure.php >/dev/null
+chk "a fallen hat adds a one-tap Hat button to the menu (the hat itself can lie under the menu)" "$(sed -n '/class="fsc-menu"/,/<\/div>/p' $TD/here-p.html | grep -q 'fsc-hatbtn' && grep -q 'name="do" value="hat"' $TD/here-p.html && echo 1)"
+php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $r=$p->query("SELECT id,encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetch(); $e=json_decode($r["encounter"],true); $e["hat"]=0; $p->prepare("UPDATE expeditions SET encounter=? WHERE id=?")->execute([json_encode($e),$r["id"]]);'
+get adventure.php >/dev/null
 chk "no inline style or script on the page (CSP)" "$(sed -n '/<main/,/<\/main>/p' $TD/here-p.html | grep -qE '\sstyle=|<script[^>]*>[^<]' && echo 0 || echo 1)"
 echo "== end scene and stale events"
 get adventure.php >/dev/null

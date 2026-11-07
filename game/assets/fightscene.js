@@ -44,12 +44,13 @@
       return;
     }
     lock(true);
+    { var m0 = mine.acts.me; if (D.hat && m0 && m0.hp > 0 && m0.hat && m0.hat.mode === 'worn') mine.dropHat(m0, m0.dir); }   // v2.6.07: the hat is still on the ground from an earlier turn: it starts there instead of being worn through the attack and falling off again
 
     if (list && list.length > 12) mine.setSpeed(Math.min(6, list.length / 6));   // Fight on / Auto-win: about 7 s
     host.addEventListener('click', function () { mine.setSpeed(2); });   // tap to speed up (2x, not a jump to the end)
     (list ? mine.play(list) : mine.together([{ from: 'me', move: 'enter' }, { from: 'foe', move: 'enter' }]))
       .catch(function (e) { if (window.console) console.warn('fightscene play: ' + (e && e.message)); }).then(function () {
-        var m = mine.acts.me;   // hat still on the ground from an earlier turn (a reload, or the flag set by the server): put it down
+        var m = mine.acts.me;   // safety net: the hat should already be lying down (see below), but if the server flagged it during this turn, put it down
         if (D.hat && m && m.hp > 0 && m.hat && m.hat.mode === 'worn') mine.popHat(m, m.dir);
       }).then(function () { mine.setSpeed(reduced ? 40 : 1); if (eng === mine) lock(false); });
   }
@@ -78,6 +79,7 @@
       return;
     }
     var opt = e.target.closest('.fsc-opt'); if (!opt || opt.disabled) return;
+    if (opt.classList.contains('fsc-hatbtn')) return;   // the Hat button is one tap: the form goes at once
     if (!opt.classList.contains('armed')) {   // first tap: read it
       e.preventDefault();
       dock.querySelectorAll('.fsc-opt').forEach(function (b) { if (b !== opt) disarm(b); });

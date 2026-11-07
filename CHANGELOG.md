@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.07
+- **Fallen hat in Trail fights**: (1) the fight menu now has a one-tap 🎩 Hat button while the hat is down, because on a phone the hat can lie under the menu and could not be tapped; (2) after a turn the hat stays on the ground instead of being worn through your attack and then falling off again.
+- Tests: `fight_scene_trail` checks the Hat button; the hat state at the start of a turn was checked in a browser.
+
 ## 2.6.06
 - **Crafted satchels**: a Canvas Satchel and a Patchwork Satchel can be made in the Tool Shed (Tools tab) from gathered coir, cottongrass, pine resin, red ochre and desert glass. The Gather tab shows the best satchel you own (patchwork, then canvas, then the leather one everyone starts with).
 - **More living stops**: 13 new daily happenings (fog, frost, storm aftermath, bake day, berries, spring clean, snow day, lamplit stalls, late ferry, pilgrims, busy mill, fiddler, bee swarm), 8 new stories (the lantern that went out, the wobbly plank, the runaway cheese, the stranger with no name, the apple that would not drop, the singing well, the boat nobody owns, the kite in the tower) and 8 new calendar days (Slow Sunday, Swap day, May Day, Equinox supper, Hearth week, Long days, New Year, Blossom week).

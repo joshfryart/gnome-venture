@@ -79,11 +79,13 @@ function fight_dock_html(array $u, array $exp, array $enc, array $c, string $sid
         '<input type="hidden" name="item" value="' . (int)$sn['id'] . '">');
     $flee = '<form method="post" class="fsc-f">' . csrf_field() . '<input type="hidden" name="do" value="flee"><button class="fsc-opt fsc-flee" data-desc="" data-armtext="Run? Tap again"><span class="o-ic" aria-hidden="true">🏃</span><span class="o-t">Flee</span><span class="o-r">' . $runPct . '%</span></button></form>';
     $top = fn(string $k, string $icon, string $t, bool $off = false) => '<button type="button" class="fsc-top" data-open="' . $k . '"' . ($off ? ' disabled' : '') . '><span class="o-ic" aria-hidden="true">' . $icon . '</span><span class="o-t">' . $t . '</span><span class="o-r" aria-hidden="true">▸</span></button>';
+    // v2.6.07: a fallen hat can lie under the menu, so the menu has its own one-tap Hat button while it is down (posts do=hat like the tap on the hat itself)
+    $hatBtn = !empty($enc['hat']) ? '<form method="post" class="fsc-f">' . csrf_field() . '<input type="hidden" name="do" value="hat"><button class="fsc-opt fsc-hatbtn" data-desc="Put your hat back on."><span class="o-ic" aria-hidden="true">🎩</span><span class="o-t">Hat</span></button></form>' : '';
     return '<div class="fsdockwrap fsd-' . ($side === 'b' ? 'b' : ($side === 'r' ? 'r' : 'l')) . '">' . ($withHat ? fight_hatform_html($enc) : '')
         . '<div class="fsdock fsc" role="group" aria-label="Fight actions">'
         . '<div class="fsc-sub" data-for="fight" data-hint="Tap to read, tap again to do."><div class="fsc-info"></div>' . $fight . '</div>'
         . ($item !== '' ? '<div class="fsc-sub" data-for="item" data-hint="Tap to read, tap again to eat."><div class="fsc-info"></div>' . $item . '</div>' : '')
-        . '<div class="fsc-menu">' . $top('fight', '⚔️', 'Fight') . $top('item', '🎒', 'Item', $item === '') . $flee . '</div>'
+        . '<div class="fsc-menu">' . $top('fight', '⚔️', 'Fight') . $top('item', '🎒', 'Item', $item === '') . $hatBtn . $flee . '</div>'
         . '</div></div>';
 }
 
