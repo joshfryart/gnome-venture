@@ -50,6 +50,7 @@
    "w": 30,
    "h": 18,
    "heading": "NE",
+   "water": [],
    "entry": {
     "side": "W",
     "x": 0,
@@ -308,6 +309,7 @@
    "w": 30,
    "h": 18,
    "heading": "NE",
+   "water": [],
    "entry": {
     "side": "W",
     "x": 0,

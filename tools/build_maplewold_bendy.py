@@ -20,6 +20,7 @@ sys.path.insert(0, HERE)
 from bend_rules import SHORTCUT_AIM, LONG_CAP, WALL_MIN, WALL_MAX, road_ok, walk, reachable, run_lengths
 from gen_bendy_trail_proto import noise_field, quantile, W, H
 from bend_stamps import disc, expand, apply_ops
+from bend_water import stream_ops
 
 PRESET = {"grassland": dict(wall=.15, rough=.14), "forest": dict(wall=.40, rough=.10, tight=True, scale=5), "coast": dict(wall=.17, rough=.13), "tundra": dict(wall=.15, rough=.20)}
 STEP = {"N": (0, -1), "S": (0, 1), "E": (1, 0), "W": (-1, 0)}
@@ -45,31 +46,9 @@ def water_for(rid, i, line, entry, exit_):
     ops, notes, skip_pond = [], [], set()
     for c in sorted(_WCACHE[rid][i], key=lambda c: "dir" not in c):
         if "dir" in c:
-            dx, dy = c["dir"]; i0 = round(min(0.85, max(0.15, c["t"])) * (len(line) - 1))
-            def along(k):      # how much a stream through road tile k would run along the road (1 = parallel)
-                a, b = line[max(0, k - 2)], line[min(len(line) - 1, k + 2)]; L = math.hypot(b[0] - a[0], b[1] - a[1]) or 1
-                return abs((b[0] - a[0]) * dx + (b[1] - a[1]) * dy) / L
-            idx = min((k for k in range(max(4, i0 - 8), min(len(line) - 4, i0 + 9))), key=lambda k: (round(along(k), 1), abs(k - i0)))
-            px, py = line[idx]
             wide = c["name"] in ("hub-river", "mid-outlet", "bridge-brook")
-            rg = random.Random(zlib.crc32(f"{rid}|{i}|{c['name']}".encode())); ph = rg.uniform(0, 6.3)
-            cells, pts = [], []
-            for k in range(-90, 91):
-                s = k * 0.5; off = 1.3 * math.sin(s / 5.0 + ph)
-                x = px + dx * s - dy * off; y = py + dy * s + dx * off; cx, cy = round(x), round(y)
-                if not (1 <= cx <= W - 2 and 1 <= cy <= H - 2): continue
-                if (cx, cy) not in cells: cells.append((cx, cy)); pts.append([cx, cy])
-                if wide:
-                    q = (round(x - dy), round(y + dx))
-                    if q not in cells and 1 <= q[0] <= W - 2 and 1 <= q[1] <= H - 2: cells.append(q)
-            ops.append(("r", px, py, 2))
-            ops += [("w", x, y, 0) for x, y in cells]
-            ops.append(("r", px, py, 1))
-            for fi in (len(pts) // 4,):                       # shallows: a second, rough crossing so the banks are not cut off from each other
-                if pts and abs(pts[fi][0] - px) + abs(pts[fi][1] - py) > 6: ops.append(("r", pts[fi][0], pts[fi][1], 0))
-            fl = ("E" if dx > 0.5 else "W" if dx < -0.5 else "") if abs(dx) > abs(dy) * 0.5 else ""
-            fl = ("S" if dy > 0.5 else "N" if dy < -0.5 else "") + fl
-            notes.append(dict(name=c["name"], flow=fl, pts=pts, cross=[px, py], wide=wide))
+            sops, note, (px, py, dx, dy) = stream_ops(line, c, f"{rid}|{i}", wide)
+            ops += sops; notes.append(note)
             if c["name"] == "pond-brook":      # this brook ends in the middle pond: put the pond at the end of the brook
                 bx, by = round(px + dx * 8), round(py + dy * 8); bx = max(4, min(W - 5, bx)); by = max(4, min(H - 5, by))
                 ops.append(("pond", bx, by, 2)); notes.append(dict(name="pond-mid", pond=[bx, by])); skip_pond.add("pond-mid")

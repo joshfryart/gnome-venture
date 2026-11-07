@@ -55,6 +55,7 @@
    "w": 30,
    "h": 18,
    "heading": "W",
+   "water": [],
    "entry": {
     "side": "E",
     "x": 29,
@@ -253,6 +254,7 @@
    "w": 30,
    "h": 18,
    "heading": "W",
+   "water": [],
    "entry": {
     "side": "E",
     "x": 29,
@@ -460,6 +462,7 @@
    "w": 30,
    "h": 18,
    "heading": "W",
+   "water": [],
    "entry": {
     "side": "E",
     "x": 29,
@@ -679,6 +682,7 @@
    "w": 30,
    "h": 18,
    "heading": "W",
+   "water": [],
    "entry": {
     "side": "E",
     "x": 29,
@@ -915,6 +919,7 @@
    "w": 30,
    "h": 18,
    "heading": "W",
+   "water": [],
    "entry": {
     "side": "E",
     "x": 29,
