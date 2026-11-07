@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate authored Trail maps (22 wide x 7 tall sections) for every route in claude/route-list.md that has no map yet.
+"""Generate authored Trail maps (22 wide x 7 tall sections; the planned bendy 30 x 18 version is tools/gen_bendy_trail_proto.py, see claude/plan-route-map-bends.md) for every route in claude/route-list.md that has no map yet.
 Deterministic: the same route id always gives the same map. Writes one file per region group:
     claude/<region-slug>-trail-maps/<region-slug>_trail_maps.json   ({"routes": [...]}, the shape tools/bake_trail_art.py reads)
 Skips the hand-made Maplewold routes (claude/maplewold-trail-maps/maplewold_trail_maps_22wide.json) unless --all. Then run:

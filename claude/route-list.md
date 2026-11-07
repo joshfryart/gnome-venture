@@ -1,6 +1,6 @@
 # Route list for the authored route maps
 
-Generated from the game's own routes table (a fresh install of the current code). 246 routes, 665 sections in all.
+Generated from the game's own routes table (a fresh install of the current code). 246 routes, 665 sections in all. (2026-11-07: a bendy 30 x 18 version of every route is in `claude/bend-prototype/`; plan in `claude/plan-route-map-bends.md`. Section counts stay as listed.)
 
 Columns: `route id | from -> to | land | sections (= steps, 2 to 5) | min level`. A route is one map; the game reads it backwards for the return walk. `(town)` = a main town, `(village)` = a village or stop, `(haven)` `(wonder)` `(delve)` `(lair)` = a landmark at that end.
 

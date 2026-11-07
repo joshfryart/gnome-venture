@@ -4,6 +4,8 @@ Generated from `claude/trail-landmarks/setpieces.json` (made by `python3 tools/g
 
 Today every one is a **stand-in** (`landmarks_setpieces.py`: lumps and a flag post sized by name). To replace one, draw it in a new `landmarks_<name>.py` under the same slug and delete that slug from the stand-in file (gen2 asserts a name is defined once), then re-bake with `--route=N` for its routes.
 
+**Update 2026-11-07 (route map bends):** the planned 30 x 18 sections (`claude/bend-prototype/`) keep the same set piece slugs and sprites, but landmark tiles move: feet row 3 or more (tall sprites keep their top inside the map), x 3 to 26, 2 to 5 tiles beside the road, never on it. Ground pictures are re-baked for the new road shapes, so sprites that hug the old path need a check. See `claude/plan-route-map-bends.md`.
+
 ## House rules (same as the Maplewold landmarks, see `maplewold_landmarks.json`)
 - Any size, drawn at 64 px a tile; centred on its tile, **bottom edge is the feet line**. The sprite hides the walker if the walker stands behind it, so it sits **off the walk line** (the generator keeps it at least 1 tile from the path, feet row 3 to 5).
 - Hearth Pop v3 look: hard pixels, 5-tone ramps, auto outline, warm and a bit silly, nothing grim. Wide pieces about 130 to 190 px, tall ones up to ~190 px; the end pieces (`end-*`) are the biggest (~200 x 190) because they announce the place.

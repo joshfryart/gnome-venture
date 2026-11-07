@@ -16,7 +16,7 @@ Rule: the road must be bendy, not a straight line all the time. Even where the r
 ## What must change
 1. **Each section needs a direction.** Store entry side and exit side per section (W/E/N/S or an angle bucket). Derive from the region road: the first section leaves the "from" stop the way the road does, the last one arrives at the "to" stop.
 2. **Maps need bends, so the 22 x 7 strips cannot be reused as they are.** A route that heads north-east, or curves, needs a path that turns inside the section: the walkable road line has to enter on one edge and leave on another. Every existing section (665) has its road drawn from the west edge to the east edge, so each needs the road redrawn or re-generated. Generated maps (`tools/gen_trail_maps.py`) can do this. The 16 hand-drawn Maplewold maps (`claude/maplewold-trail-maps/`) need hand edits.
-3. **Corner pieces.** Where a route turns more than about 45 degrees inside one section, use a corner section (entry W, exit N, and so on) instead of bending the straight one.
+3. **Corner pieces. DROPPED (wandering road decided; bring back only if a turn proves too sharp for one section).** Where a route turns more than about 45 degrees inside one section, use a corner section (entry W, exit N, and so on) instead of bending the straight one.
 4. **Matching ends.** Section N's exit tile row/column must equal section N+1's entry, and the first/last sections must meet the stop's own scene. Add a lint step (like `tools/lint_delve_floors.php`) that checks the join tiles line up.
 5. **Landmarks and set pieces.** Objects (`objs`) sit at fixed tile positions; after the road moves they can land on the path or leave it. Re-place or re-check each.
 6. **Ground pictures.** Baked pictures (`trail/ground`, `ART_LAND` stand-ins) are drawn for the current road shape. Re-bake after edits. Do not rebuild under the same version (release rule).
@@ -48,12 +48,22 @@ Rule: the road must be bendy, not a straight line all the time. Even where the r
 - DECIDED: straight-run cap 6 tiles; one longer run up to 10 allowed per section. Lint flags a run over 6, or more than one run over 6.
 - Hand-edit Maplewold first (16 routes), generator for the other 230.
 
-## Order
-1. Pick the shape rule (corners or wandering road).
-2. Update the generator and lint; try on one Maplewold route.
-3. Hand-edit the other Maplewold routes.
-4. Regenerate the other regions, one ring at a time.
-5. Re-bake ground pictures, re-place landmarks, phone check.
+## Order and todo (updated 2026-11-07)
+Decided: square tiles, 8 headings, wandering road in 30 x 18 sections, straight run <= 6 (one up to 10), thickets close in on bends. Master TODO: `claude/todo.md` section 4, "Route map bends".
+DONE
+- Prototype generator, lint, preview, shared rules: `tools/gen_bendy_trail_proto.py`, `tools/lint_trail_bends.py`, `tools/bend_rules.py`, `tools/preview_bend_proto.py`.
+- All 246 routes (665 sections) generated and linted in `claude/bend-prototype/` (PR #6, merged).
+- Both mockup pages rebuilt for the new design (`tools/route_map_mockup/build.py`).
+OPEN, in order
+1. Josh reviews the sample routes and the two mockups; tune look (thicket density, open meadow vs groves, section sizes).
+2. Engine: accept 30 x 18 sections with S and 9 on any edge (`trail_authored_valid`, `trail_tiles.php`, `trail_art.php`); vertical camera clamp (`tm_window_clamped`); tests.
+3. Bake: `tools/bake_trail_art.py` for 30 x 18 and any-edge entry and exit; new ground pictures under a NEW version (release rule); delete `obj/lm-*.png` before re-baking sprites.
+4. Merge the prototype into `tools/gen_trail_maps.py` (shared SETS, captions, `--all`); wire `tools/lint_trail_bends.py` into the tests.
+5. Hand-tune the 16 Maplewold routes (prompt for another AI: `claude/prompt-maplewold-bendy-maps.md`) (first 313 and 315); landmark names and sprites for the new rows.
+6. Data for gates (tool kind and minimum quality) and the extra mini-boss spots (item 11 and 12); check the item system first.
+7. Side trail heading rule in the layout data (item 8); region map art stays in sync (item 9).
+8. Phone check.
+Open choices still: how a vertical section is paced (N and S sections are 18 tall, E and W are 30 wide; a tall 18 x 30 section is an option); diagonal exits alternate sides today.
 
 ## Master map: what it shows and how it is built
 - Data: `tools/map_layout.php` (region layouts: roads, stops, exits) + `game/includes/data/trail_maps.json` (routes, sections) + ground pictures. Routes are matched to regions by their stop pairs, because village names repeat across regions (Maplewold comes out at 22 routes).
@@ -66,4 +76,4 @@ Rule: the road must be bendy, not a straight line all the time. Even where the r
 ## Prototype status (2026-11-07)
 - `tools/gen_bendy_trail_proto.py` + `tools/bend_rules.py` + `tools/lint_trail_bends.py` + `tools/preview_bend_proto.py` make and check bendy 30 x 18 sections. Square tiles, 8 headings, wandering road, runs <= 6 (one up to 10), thickets close in on bends. Game data untouched.
 - All 246 routes (665 sections) generated into `claude/bend-prototype/route-<id>.json/.txt`; lint passes on all. Road source: 57 real roads, 170 side trails, 19 cross-border (stop to region exit).
-- Not done: engine (validator wants `9` on the east edge, 22-wide rows, S on the west edge), ground-picture bake at 30 x 18, tool gates and extra mini-boss spots in the data, sprite art for the many landmark names, hand-tuning of Maplewold.
+- Not done (also in the todo above): engine (validator wants `9` on the east edge, 22-wide rows, S on the west edge), ground-picture bake at 30 x 18, tool gates and extra mini-boss spots in the data, sprite art for the many landmark names, hand-tuning of Maplewold.
