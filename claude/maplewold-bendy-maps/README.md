@@ -34,3 +34,6 @@ Route data, captions, landmark names, entry/exit tiles and sides come from `clau
 
 ## Lint
 `python3 tools/lint_trail_bends.py claude/maplewold-bendy-maps/route-*.json` -> 0 problems for all 16 files.
+
+## Terrain variety (grassland first)
+`tools/build_maplewold_bendy.py` has a stamp library used in the sketches: `pond` (water + rough shore), `marsh` (rough with pools), `grove` (scattered trees), `orchard` (tree grid), `hedgefield` (hedged plot, rough inside, one gap), `drift` (rough ellipse for flowers, snow, dunes), `fence` (posts). Added to the grassland routes 228, 232, 236 and 311; lint 0 problems. Next: coast (dunes, tide pools), tundra (drifts, frozen lakes), forest (logs, clearings).

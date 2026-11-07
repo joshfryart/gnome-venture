@@ -37,28 +37,28 @@ SPECS[315] = [
 
 MAZE = ["##.##.##", "##.##.##", "........", "##.##.##", "##.##.##", "........", "##.##.##"]
 SPECS[228] = [
- dict(road="S5 W3 S6 E3 S6", ops=[("pat",6,2,MAZE), ("r",24,8,3), ("w",26,3,1), ("w",3,14,2)],       # hay-bale maze west, scarecrow field east
+ dict(road="S5 W3 S6 E3 S6", ops=[("drift",25,14,3,2), ("fence",21,2,28,2), ("pat",6,2,MAZE), ("r",24,8,3), ("w",26,3,1), ("w",3,14,2)],       # hay-bale maze west, scarecrow field east
       F=[(3,14),(26,13),(25,2)], L=[(12,6),(22,8)]),
- dict(road="S5 W3 S6 W3 S6", ops=[("W",1,8,13,9), ("W",19,8,28,9), ("R",14,8,18,9), ("w",5,14,3), ("r",5,14,1)],   # ford between two banks, pond and mill
+ dict(road="S5 W3 S6 W3 S6", ops=[("marsh",24,14,3), ("grove",4,3,3), ("fence",20,3,26,3), ("W",1,8,13,9), ("W",19,8,28,9), ("R",14,8,18,9), ("w",5,14,3), ("r",5,14,1)],   # ford between two banks, pond and mill
       F=[(24,13),(4,3),(25,3)], L=[(11,6),(10,13)]),
- dict(road="S6 E3 S5 W1 S6", ops=[("W",3,9,11,9), ("W",19,9,27,9), ("W",3,13,10,13), ("W",20,13,27,13), ("w",9,4,1), ("w",24,4,2)],  # apple tree, hedge-row lane
+ dict(road="S6 E3 S5 W1 S6", ops=[("orchard",3,3,8,7,2), ("pond",25,15,2), ("W",3,9,11,9), ("W",19,9,27,9), ("W",3,13,10,13), ("W",20,13,27,13), ("w",9,4,1), ("w",24,4,2)],  # apple tree, hedge-row lane
       F=[(4,4),(26,15),(5,16)], L=[(10,4),(21,7)]),
 ]
 BERRY = ["#.#.#", "?????", "#.#.#"]
 SPECS[232] = [
- dict(road="E5 N2 E6 S2 E6 N3 E6 S2 E6", ops=[("r",8,10,3), ("r",24,13,2), ("pat",19,11,BERRY), ("pat",22,13,BERRY)],     # beehive meadow, berry patch
+ dict(road="E5 N2 E6 S2 E6 N3 E6 S2 E6", ops=[("hedgefield",2,12,9,16,5), ("grove",26,2,2), ("r",8,10,3), ("r",24,13,2), ("pat",19,11,BERRY), ("pat",22,13,BERRY)],     # beehive meadow, berry patch
       F=[(3,14),(14,2),(26,2)], L=[(8,9),(20,9)]),
- dict(road="E5 S1 E6 S1 E6 N2 E6 S2 E6", ops=[("W",11,1,12,5), ("W",12,6,13,10), ("W",13,11,14,16), ("w",25,13,2)],  # hollow log bridge over a stream, old well
+ dict(road="E5 S1 E6 S1 E6 N2 E6 S2 E6", ops=[("pond",5,14,2), ("orchard",22,2,27,4,2), ("W",11,1,12,5), ("W",12,6,13,10), ("W",13,11,14,16), ("w",25,13,2)],  # hollow log bridge over a stream, old well
       F=[(5,14),(21,2),(27,14)], L=[(10,11),(21,10)]),
- dict(road="E5 N2 E5 S1 E5 N1 E5 S1 E5 N1 E4", ops=[("R",11,2,12,15), ("R",3,12,10,12), ("R",17,3,27,3), ("r",23,12,3), ("r",23,12,1)],  # crossroads, picnic rise
+ dict(road="E5 N2 E5 S1 E5 N1 E5 S1 E5 N1 E4", ops=[("marsh",5,14,3), ("hedgefield",21,14,28,16,24), ("R",11,2,12,15), ("R",3,12,10,12), ("R",17,3,27,3), ("r",23,12,3), ("r",23,12,1)],  # crossroads, picnic rise
       F=[(4,15),(8,3),(27,15)], L=[(14,11),(22,10)]),
 ]
 SPECS[236] = [
- dict(land=dict(wall=.2), road="E6 N2 E6 S2 E6 S2 E6 N2 E5", ops=[("r",9,13,3), ("r",20,13,3), ("r",24,3,3), ("r",5,3,2)],        # wildflower slope, dandelion drift
+ dict(land=dict(wall=.2), road="E6 N2 E6 S2 E6 S2 E6 N2 E5", ops=[("grove",4,3,2), ("fence",21,15,27,15), ("r",9,13,3), ("r",20,13,3), ("r",24,3,3), ("r",5,3,2)],        # wildflower slope, dandelion drift
       F=[(3,14),(14,2),(27,15)], L=[(9,9),(21,5)]),
- dict(road="E5 N2 E6 S1 E6 N2 E6 N1 E6", ops=[("W",13,1,14,6), ("W",14,7,15,12), ("W",15,13,16,16), ("pat",20,11,["#.#.#.#.", "........", "#.#.#.#."])],  # little stone bridge, beanpole garden
+ dict(road="E5 N2 E6 S1 E6 N2 E6 N1 E6", ops=[("pond",5,15,2), ("grove",25,3,2), ("W",13,1,14,6), ("W",14,7,15,12), ("W",15,13,16,16), ("pat",20,11,["#.#.#.#.", "........", "#.#.#.#."])],  # little stone bridge, beanpole garden
       F=[(5,14),(25,3),(8,3)], L=[(13,11),(22,12)]),
- dict(road="E5 S3 E6 S2 E6 S2 E6 S2 E6", ops=[("r",13,6,2), ("W",21,9,22,9), ("w",4,13,2), ("w",26,5,2)],      # windmill on a rise, hay wagon
+ dict(road="E5 S3 E6 S2 E6 S2 E6 S2 E6", ops=[("hedgefield",3,12,10,16,6), ("marsh",25,5,2), ("r",13,6,2), ("W",21,9,22,9), ("w",4,13,2), ("w",26,5,2)],      # windmill on a rise, hay wagon
       F=[(3,3),(24,3),(8,15)], L=[(13,7),(20,10)]),
 ]
 SPECS[304] = [
@@ -105,9 +105,9 @@ SPECS[310] = [
       F=[(3,12),(26,16),(25,3)], L=[(20,10),(10,3)]),
 ]
 SPECS[311] = [
- dict(road="W5 S1 W5 S1 W5 N1 W5 S2 W5 N1 W4", ops=[("w",x,8,0) for x in (10,13,16,19,22,25)] + [("w",x,16,0) for x in (20,22)] + [("w",12,15,1)],   # maple tap row, bucket stacks
+ dict(road="W5 S1 W5 S1 W5 N1 W5 S2 W5 N1 W4", ops=[("pond",5,4,2), ("grove",26,15,2)] + [("w",x,8,0) for x in (10,13,16,19,22,25)] + [("w",x,16,0) for x in (20,22)] + [("w",12,15,1)],   # maple tap row, bucket stacks
       F=[(26,14),(5,4),(14,3)], L=[(22,8),(11,14)]),
- dict(road="W6 N1 W6 S2 W10 S2 W3 S2", ops=[("r",20,6,3), ("w",24,2,1), ("w",2,2,1)],                     # Sugar Shack yard, pancake lane
+ dict(road="W6 N1 W6 S2 W10 S2 W3 S2", ops=[("orchard",22,2,27,4,2), ("marsh",14,15,2), ("r",20,6,3), ("w",24,2,1), ("w",2,2,1)],                     # Sugar Shack yard, pancake lane
       F=[(27,15),(3,3),(14,15)], L=[(20,8),(9,10)]),
 ]
 SPECS[312] = [
