@@ -59,7 +59,7 @@ OPEN, in order
 2. Engine: accept 30 x 18 sections with S and 9 on any edge (`trail_authored_valid`, `trail_tiles.php`, `trail_art.php`); vertical camera clamp (`tm_window_clamped`); tests.
 3. Bake: `tools/bake_trail_art.py` for 30 x 18 and any-edge entry and exit; new ground pictures under a NEW version (release rule); delete `obj/lm-*.png` before re-baking sprites.
 4. Merge the prototype into `tools/gen_trail_maps.py` (shared SETS, captions, `--all`); wire `tools/lint_trail_bends.py` into the tests.
-5. Hand-tune the 16 Maplewold routes (first 313 and 315); landmark names and sprites for the new rows.
+5. Hand-tune the 16 Maplewold routes (prompt for another AI: `claude/prompt-maplewold-bendy-maps.md`) (first 313 and 315); landmark names and sprites for the new rows.
 6. Data for gates (tool kind and minimum quality) and the extra mini-boss spots (item 11 and 12); check the item system first.
 7. Side trail heading rule in the layout data (item 8); region map art stays in sync (item 9).
 8. Phone check.
