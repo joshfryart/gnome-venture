@@ -68,9 +68,9 @@ def build_section(rid, i, spec, land, entry, exit_, first, last_boss, lm_names, 
     on = set(line); near = near_map(line)
     p = dict(PRESET[land]); p.update(spec.get("land", {}))
     rng = random.Random(p.get("seed", zlib.crc32(f"mw|{rid}|{i}".encode())))
-    big, small = noise_field(rng, 8), noise_field(rng, 4)
+    sc = p.get("scale", 8); big, small = noise_field(rng, sc), noise_field(rng, max(2, sc // 2))
     fld = {(x, y): 0.65 * big[y][x] + 0.35 * small[y][x] for y in range(H) for x in range(W)}
-    thin = lambda c: 0.0 if near.get(c, 99) > 2 else -0.16 if near[c] == 2 else -0.30
+    thin = (lambda c: 0.0 if near.get(c, 99) > 1 else -0.30) if p.get("tight") else (lambda c: 0.0 if near.get(c, 99) > 2 else -0.16 if near[c] == 2 else -0.30)
     inner = [(x, y) for y in range(1, H - 1) for x in range(1, W - 1) if (x, y) not in on]
     t_wall = quantile(sorted(fld[c] + thin(c) for c in inner), 1 - p["wall"] * 0.75)
     rv = sorted(fld[c] for c in inner); r_lo, r_hi = quantile(rv, 0.30), quantile(rv, 0.30 + p["rough"] * 0.6)
