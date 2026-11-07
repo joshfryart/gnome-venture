@@ -20,6 +20,7 @@ sys.path.insert(0, HERE)
 from bend_rules import SHORTCUT_AIM, LONG_CAP, WALL_MIN, WALL_MAX, CAP, road_ok, walk, reachable, run_lengths
 from gen_trail_maps import LAND_FEEL, parse
 from bend_stamps import apply_ops
+from bend_water import stream_ops
 VARIETY = False      # --variety: landscape stamps by land + ponds read from the region picture (tools/bend_stamps.py, tools/bend_water.py); written to claude/bend-prototype-v2/
 K = 0.75             # tiles per region unit, for placing ponds    # one table of land feel for both generators; parse() reads claude/route-list.md
 W, H = 30, 18
@@ -181,7 +182,7 @@ def variety_ops(rng, land, near, ponds):
         ops.append(op); centres.append(c)
     return ops
 
-def carve(rng, feel, line, entry, exit_, first, boss_last, n_landmarks, land="", ponds=()):
+def carve(rng, feel, line, entry, exit_, first, boss_last, n_landmarks, land="", ponds=(), cross=(), key=""):
     """Rows, tokens and landmark cells for one section, or None when this seed cannot be made to fit (the caller tries the next one).
     feel = (thicket share, unused, rough share) from LAND_FEEL. Walls thin out beside the road so the road stays readable."""
     wall, _, rough = feel
@@ -203,7 +204,12 @@ def carve(rng, feel, line, entry, exit_, first, boss_last, n_landmarks, land="",
     for c in inner:
         if fld[c] + thin(c) < t_wall: g[c[1]][c[0]] = "," if rough_lo <= fld[c] < rough_hi else "."
     prot = set()
-    if VARIETY: apply_ops(g, prot, variety_ops(rng, land, near, ponds))
+    notes = []
+    if VARIETY:
+        apply_ops(g, prot, variety_ops(rng, land, near, ponds))
+        for c in cross:                       # streams of the region picture that the route crosses here (tools/bend_water.py), cut in after the stamps
+            sops, note, _ = stream_ops(line, c, key); apply_ops(g, set(), sops); notes.append(note)
+        notes += [dict(name="pond", pond=[op[1], op[2]]) for op in ponds]
     prot -= on
     for x, y in line: g[y][x] = "," if rng.random() < rough * 0.5 and (x, y) not in (entry, exit_) else "."
     g[entry[1]][entry[0]] = "S" if first else "."
@@ -245,7 +251,12 @@ def carve(rng, feel, line, entry, exit_, first, boss_last, n_landmarks, land="",
         if len(lms) >= n_landmarks: break
         if all(abs(c[0] - m[0]) + abs(c[1] - m[1]) >= 6 for m in lms): lms.append(c)
     if len(lms) < n_landmarks: return None
-    return ["".join(r) for r in g], toks, lms
+    return ["".join(r) for r in g], toks, lms, notes
+
+def section_cross(path, rcode, n):
+    """Per section: the streams of the region (tools/bend_water.region_streams) that the route's curve crosses."""
+    from bend_water import region_streams, crossings
+    return crossings(sample(path, n * 40), n, region_streams(rcode))
 
 def pond_ops(ponds, line):
     """("pond", cx, cy, r) for the ponds this section owns: ponds = [(pond vector in region units from the road, pond radius)]."""
@@ -269,7 +280,7 @@ def section_ponds(path, rcode, n):
 
 # ---------- a route ----------
 
-def build_section(rid, salt, i, n, head, esd, xsd, prev_cell, feel, boss_last, names, land="", ponds=None):
+def build_section(rid, salt, i, n, head, esd, xsd, prev_cell, feel, boss_last, names, land="", ponds=None, cross=()):
     """One section, trying seeds until a road, landscape and tokens all fit. Raises NoFit."""
     for attempt in range(800):
         rng = random.Random(zlib.crc32(f"gv-bend|{rid}|{salt}|{i}|{attempt}".encode()))
@@ -278,7 +289,7 @@ def build_section(rid, salt, i, n, head, esd, xsd, prev_cell, feel, boss_last, n
         exit_ = edge_cell(xsd, min(0.9, max(0.1, rng.uniform(lean - 0.2, lean + 0.2))))
         line = make_line(rng, entry, exit_, esd, xsd)
         if len(line) < MIN_LINE or not road_ok(line): continue
-        res = carve(rng, feel, line, entry, exit_, i == 0, boss_last, len(names), land, pond_ops(ponds, line))
+        res = carve(rng, feel, line, entry, exit_, i == 0, boss_last, len(names), land, pond_ops(ponds, line), cross, f"{rid}|{i}")
         if res: return entry, exit_, line, res
     raise NoFit(f"section {i + 1}")
 
@@ -290,6 +301,7 @@ def build_route(r, group, end_kind, routes_lm, region=None):
     home, away = group_regions(group)
     path, kind, rcode = region_path(rid, r["from"], r["to"], region or home, away)
     pts = sample(path, n); ponds = section_ponds(path, rcode, n) if VARIETY else [[] for _ in range(n)]
+    cross = section_cross(path, rcode, n) if VARIETY else [[] for _ in range(n)]
     for salt in range(6):                      # if a later section cannot fit the join, start the whole route over with new seeds
         try:
             secs, prev_exit, prev_cell = [], None, None
@@ -297,8 +309,8 @@ def build_route(r, group, end_kind, routes_lm, region=None):
                 head = snap(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1])
                 esd, xsd = sides_for(head, i, prev_exit)
                 names = [lm[2] for lm in (routes_lm[i] if i < len(routes_lm) else [])]
-                entry, exit_, line, (rows, toks, lms) = build_section(rid, salt, i, n, head, esd, xsd, prev_cell, LAND_FEEL[r["land"]], bool(boss) and i == n - 1, names, r["land"], ponds[i])
-                s = dict(r["sections"][i]); s.update(rows=rows, tokens=toks, landmarks=[[x, y, nm, 0] for (x, y), nm in zip(lms, names)], w=W, h=H, heading=head,
+                entry, exit_, line, (rows, toks, lms, wnotes) = build_section(rid, salt, i, n, head, esd, xsd, prev_cell, LAND_FEEL[r["land"]], bool(boss) and i == n - 1, names, r["land"], ponds[i], cross[i])
+                s = dict(r["sections"][i]); s.update(rows=rows, tokens=toks, landmarks=[[x, y, nm, 0] for (x, y), nm in zip(lms, names)], w=W, h=H, heading=head, water=wnotes,
                     entry={"side": esd, "x": entry[0], "y": entry[1]}, exit={"side": xsd, "x": exit_[0], "y": exit_[1]}, line=[list(c) for c in line])
                 secs.append(s); prev_exit, prev_cell = xsd, exit_
             return {"route_id": rid, "from": r["from"], "to": r["to"], "land": r["land"], "w": W, "h": H, "region": rcode, "path_kind": kind, "boss": boss, "sections": secs}

@@ -55,6 +55,7 @@
    "w": 30,
    "h": 18,
    "heading": "S",
+   "water": [],
    "entry": {
     "side": "N",
     "x": 19,
@@ -229,6 +230,7 @@
    "w": 30,
    "h": 18,
    "heading": "S",
+   "water": [],
    "entry": {
     "side": "N",
     "x": 13,
@@ -412,6 +414,7 @@
    "w": 30,
    "h": 18,
    "heading": "S",
+   "water": [],
    "entry": {
     "side": "N",
     "x": 10,
