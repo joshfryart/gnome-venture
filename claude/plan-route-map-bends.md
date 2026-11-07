@@ -43,7 +43,9 @@ Rule: the road must be bendy, not a straight line all the time. Even where the r
 
 ## Open choices
 - Bend by drawing corner sections, or by making sections bigger and letting the road wander inside them.
-- Fixed headings (8 compass directions) or free angles.
+- DECIDED: square tiles stay. Hexagons were considered and deferred (would redo all 665 sections, art, camera, lint, and break joins with delve, lair and town maps). The hex feel can come from the wiggle rule or ground-art texture. A hex trial could be its own later project (pointy-top, one route first).
+- DECIDED: fixed headings, 8 compass directions (fits W/E/N/S entry and exit sides; region road angle snaps to nearest of 8).
+- DECIDED: straight-run cap 6 tiles; one longer run up to 10 allowed per section. Lint flags a run over 6, or more than one run over 6.
 - Hand-edit Maplewold first (16 routes), generator for the other 230.
 
 ## Order
