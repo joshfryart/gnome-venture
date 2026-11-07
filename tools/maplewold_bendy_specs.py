@@ -132,3 +132,18 @@ SPECS[316] = [
  dict(road="W6 N2 W6 S1 W6 N2 W6 N1 W5", ops=[("f",14,5,3), ("r",14,5,1), ("w",21,13,2), ("w",20,12,1), ("w",3,14,3)],   # aurora camp, kettle tree
       F=[(3,13),(26,15),(26,3)], L=[(14,6),(19,12)]),
 ]
+
+# ---- variety pass: coast, tundra and forest pieces from the stamp library (appended to the set-piece ops) ----
+def more(rid, i, *ops): SPECS[rid][i]["ops"] = SPECS[rid][i].get("ops", []) + list(ops)
+more(307,0, ("rockstack",11,3), ("dune",24,11,3,1)); more(307,1, ("tidepool",12,12), ("rockstack",5,13), ("dune",25,5,3,1))
+more(308,0, ("rockstack",8,10), ("tidepool",16,11), ("dune",26,11,3,1)); more(308,1, ("rockstack",25,6), ("dune",5,13,3,1))
+more(314,0, ("rockstack",15,12), ("tidepool",25,12), ("dune",5,13,3,1)); more(314,1, ("rockstack",4,5), ("tidepool",24,6)); more(314,2, ("dune",5,12,3,2), ("tidepool",12,4))
+more(309,0, ("pines",25,15,2)); more(309,1, ("pines",25,3,2), ("pines",5,13,2))
+more(310,0, ("pines",26,3,2), ("icelake",20,15,2)); more(310,1, ("icelake",5,14,3), ("pines",25,14,2))
+more(315,0, ("pines",24,14,2)); more(315,1, ("icelake",25,15,2)); more(315,3, ("pines",4,4,2), ("icelake",26,14,2))
+more(316,0, ("icelake",5,5,2), ("pines",25,14,2)); more(316,1, ("pines",6,13,2), ("icelake",25,4,2))
+more(304,0, ("log",5,12,4), ("clearing",24,13,2)); more(304,1, ("log",20,13,4), ("clearing",8,13,2))
+more(305,0, ("clearing",5,5,2), ("log",24,5,4)); more(305,1, ("log",22,8,4), ("clearing",24,14,2))
+more(306,0, ("log",4,5,4), ("clearing",26,4,2)); more(306,1, ("log",5,6,4), ("clearing",25,14,2))
+more(312,0, ("clearing",5,15,2), ("log",24,12,4)); more(312,1, ("log",22,14,4)); more(312,2, ("clearing",24,4,2), ("log",5,13,4))
+more(313,0, ("clearing",4,4,2)); more(313,1, ("log",21,4,4), ("clearing",25,14,2))

@@ -63,6 +63,24 @@ def expand(op):
                 if ((x - op[1]) / op[3]) ** 2 + ((y - op[2]) / op[4]) ** 2 <= 1.0]
     if k == "fence":     # ("fence", x0, y0, x1, y1): posts every other tile on a straight line
         return [("w", x, y, 0) for y in range(min(op[2], op[4]), max(op[2], op[4]) + 1) for x in range(min(op[1], op[3]), max(op[1], op[3]) + 1) if (x + y) % 2 == 0]
+    if k == "dune":      # ("dune", cx, cy, rx, ry): rough sand ridge with a few tufts on the crest
+        out = expand(("drift",) + tuple(op[1:5])); rg = _r(*op)
+        out += [("w", op[1] + rg.randint(-op[3], op[3]), op[2] + rg.randint(-op[4], op[4]), 0) for _ in range(2)]
+        return out
+    if k == "rockstack": # ("rockstack", cx, cy): a heap of rock with a rough skirt
+        return [("r", op[1], op[2], 2), ("w", op[1], op[2], 1)]
+    if k == "tidepool":  # ("tidepool", cx, cy): a small pool in rough shore
+        return [("r", op[1], op[2], 2), ("w", op[1], op[2], 1)]
+    if k == "icelake":   # ("icelake", cx, cy, r): walkable ice (rough) with two open pools
+        return [("r", op[1], op[2], op[3]), ("w", op[1] - 1, op[2], 0), ("w", op[1] + 1, op[2] + 1, 0)]
+    if k == "pines":     # ("pines", cx, cy, r): snowy ground with dense pines
+        rg = _r(*op); out = [("r", op[1], op[2], op[3])]
+        out += [("w", x, y, 0) for (x, y) in disc(op[1], op[2], op[3]) if rg.random() < 0.5]
+        return out
+    if k == "log":       # ("log", x, y, length): a fallen log with a rough shadow either side
+        return [("R", op[1], op[2] - 1, op[1] + op[3] - 1, op[2] + 1), ("W", op[1], op[2], op[1] + op[3] - 1, op[2])]
+    if k == "clearing":  # ("clearing", cx, cy, r): an open glade with a rough heart
+        return [("f", op[1], op[2], op[3]), ("r", op[1], op[2], max(1, op[3] - 1))]
     return [op]
 
 # ---- water ways from the region map (tools/maplewold_waterways.py): streams cross the road where the region curve crosses them ----
