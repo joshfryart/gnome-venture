@@ -14,7 +14,7 @@ A section sketch (dict in SPECS[route_id][section index]):
   land   overrides of the land preset: dict(wall=.., rough=.., seed=..)
   F      find hints [(x, y), ...] (1 to 3); each snaps to the nearest valid floor tile off the road (>= 3 from it)
   L      landmark hints, one per landmark in file order; each snaps to the nearest plain floor tile 2..5 from the road"""
-import json, os, random, sys, zlib
+import json, math, os, random, sys, zlib
 HERE = os.path.dirname(os.path.abspath(__file__)); REPO = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 from bend_rules import SHORTCUT_AIM, LONG_CAP, WALL_MIN, WALL_MAX, road_ok, walk, reachable, run_lengths
@@ -65,6 +65,47 @@ def expand(op):
         return [("w", x, y, 0) for y in range(min(op[2], op[4]), max(op[2], op[4]) + 1) for x in range(min(op[1], op[3]), max(op[1], op[3]) + 1) if (x + y) % 2 == 0]
     return [op]
 
+# ---- water ways from the region map (tools/maplewold_waterways.py): streams cross the road where the region curve crosses them ----
+K = 0.75   # tiles per region unit
+def water_for(rid, i, line, entry, exit_):
+    """(ops, notes) for section i of route rid. Streams: a meandering water line through the road tile at the crossing, along the stream's own direction (region axes =
+    grid axes), 1 tile wide for brooks, 2 for rivers, rough banks at the ford. Ponds: a pond on the side the pond lies, 6 tiles off the road."""
+    import maplewold_waterways as MW
+    global _WCACHE
+    try: _WCACHE
+    except NameError: _WCACHE = {}
+    if rid not in _WCACHE: _WCACHE[rid] = MW.route_water(rid)
+    ops, notes, skip_pond = [], [], set()
+    for c in sorted(_WCACHE[rid][i], key=lambda c: "dir" not in c):
+        if "dir" in c:
+            idx = round(min(0.85, max(0.15, c["t"])) * (len(line) - 1)); px, py = line[idx]; dx, dy = c["dir"]
+            wide = c["name"] in ("hub-river", "mid-outlet", "bridge-brook")
+            rg = random.Random(zlib.crc32(f"{rid}|{i}|{c['name']}".encode())); ph = rg.uniform(0, 6.3)
+            cells, pts = [], []
+            for k in range(-90, 91):
+                s = k * 0.5; off = 1.3 * math.sin(s / 5.0 + ph)
+                x = px + dx * s - dy * off; y = py + dy * s + dx * off; cx, cy = round(x), round(y)
+                if not (1 <= cx <= W - 2 and 1 <= cy <= H - 2): continue
+                if (cx, cy) not in cells: cells.append((cx, cy)); pts.append([cx, cy])
+                if wide:
+                    q = (round(x - dy), round(y + dx))
+                    if q not in cells and 1 <= q[0] <= W - 2 and 1 <= q[1] <= H - 2: cells.append(q)
+            ops.append(("r", px, py, 2))
+            ops += [("w", x, y, 0) for x, y in cells]
+            ops.append(("r", px, py, 1))
+            fl = ("E" if dx > 0.5 else "W" if dx < -0.5 else "") if abs(dx) > abs(dy) * 0.5 else ""
+            fl = ("S" if dy > 0.5 else "N" if dy < -0.5 else "") + fl
+            notes.append(dict(name=c["name"], flow=fl, pts=pts, cross=[px, py], wide=wide))
+            if c["name"] == "pond-brook":      # this brook ends in the middle pond: put the pond at the end of the brook
+                bx, by = round(px + dx * 8), round(py + dy * 8); bx = max(4, min(W - 5, bx)); by = max(4, min(H - 5, by))
+                ops.append(("pond", bx, by, 2)); notes.append(dict(name="pond-mid", pond=[bx, by])); skip_pond.add("pond-mid")
+        elif c.get("dist", 99) <= 14 and c["name"] != "lake" and c["name"] not in skip_pond:
+            ax, ay = c["at"]; vx, vy = c["near"][0] - ax, c["near"][1] - ay; n = math.hypot(vx, vy) or 1
+            idx = round(min(0.85, max(0.15, c["t"])) * (len(line) - 1)); px, py = line[idx]
+            cx, cy = round(px + vx / n * 7), round(py + vy / n * 7); cx = max(5, min(W - 6, cx)); cy = max(5, min(H - 6, cy))
+            ops.append(("pond", cx, cy, 2)); notes.append(dict(name=c["name"], pond=[cx, cy]))
+    return ops, notes
+
 def apply_ops(g, prot, ops):
     ops = [e for op in ops for e in expand(op)]
     def put(c, ch):
@@ -110,7 +151,7 @@ def build_section(rid, i, spec, land, entry, exit_, first, last_boss, lm_names, 
     g = [["#"] * W for _ in range(H)]
     for c in inner:
         if fld[c] + thin(c) < t_wall: g[c[1]][c[0]] = "," if r_lo <= fld[c] < r_hi else "."
-    prot = set(); apply_ops(g, prot, spec.get("ops", []))
+    wops, wnotes = water_for(rid, i, line, entry, exit_); prot = set(); apply_ops(g, prot, wops + spec.get("ops", []))
     for x, y in line: g[y][x] = "," if (x, y) not in (entry, exit_) and rng.random() < p["rough"] * 0.5 else "."
     prot -= on
     g[entry[1]][entry[0]] = "S" if first else "."; g[exit_[1]][exit_[0]] = "9"
@@ -147,7 +188,7 @@ def build_section(rid, i, spec, land, entry, exit_, first, last_boss, lm_names, 
         c = snap(h, lambda c: c not in on and g[c[1]][c[0]] in ".," and 2 <= near.get(c, 99) <= 5 and 3 <= c[0] <= W - 4 and 3 <= c[1] <= H - 2)
         if c is None: raise SystemExit(f"route {rid} section {i + 1}: no place for landmark {name} near {h}")
         taken.add(c); lms.append([c[0], c[1], name, 0])
-    return ["".join(r) for r in g], toks, lms, line
+    return ["".join(r) for r in g], toks, lms, line, wnotes
 
 def show(sec):
     g = [list(r) for r in sec["rows"]]
@@ -164,8 +205,8 @@ def build(rid, do_show=False):
     for i, s in enumerate(src["sections"]):
         spec = SPECS[rid][i]; t = dict(s); t.update(spec.get("meta", {}))
         entry, exit_ = (s["entry"]["x"], s["entry"]["y"]), (s["exit"]["x"], s["exit"]["y"])
-        rows, toks, lms, line = build_section(rid, i, spec, src["land"], entry, exit_, i == 0, bool(src["boss"]) and i == len(src["sections"]) - 1, [l[2] for l in s["landmarks"]], None)
-        t.update(rows=rows, tokens=toks, landmarks=lms, line=[list(c) for c in line]); out["sections"].append(t)
+        rows, toks, lms, line, wnotes = build_section(rid, i, spec, src["land"], entry, exit_, i == 0, bool(src["boss"]) and i == len(src["sections"]) - 1, [l[2] for l in s["landmarks"]], None)
+        t.update(rows=rows, tokens=toks, landmarks=lms, line=[list(c) for c in line], water=wnotes); out["sections"].append(t)
         if do_show: print(f"route {rid} section {i + 1}: {s['feature']}"); show(t)
     d = os.path.join(REPO, "claude", "maplewold-bendy-maps"); os.makedirs(d, exist_ok=True)
     json.dump(out, open(os.path.join(d, f"route-{rid}.json"), "w"), indent=1, ensure_ascii=False)

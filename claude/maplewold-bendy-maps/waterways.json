@@ -1,0 +1,286 @@
+{
+ "region": "NA",
+ "frame": [
+  480,
+  270
+ ],
+ "note": "Maplewold water ways (region NA, frame 480 x 270). Read from the region picture game/assets/img/scenes/map-NA.png (blue water pixels), then flow",
+ "water": {
+  "lake": {
+   "kind": "drawn",
+   "disc": [
+    428,
+    224,
+    20
+   ]
+  },
+  "pond-west": {
+   "kind": "drawn",
+   "disc": [
+    60,
+    77,
+    6
+   ]
+  },
+  "pond-mid": {
+   "kind": "drawn",
+   "disc": [
+    258,
+    116,
+    6
+   ]
+  },
+  "bridge-brook": {
+   "kind": "drawn+derived",
+   "flows_to": "lake",
+   "pts": [
+    [
+     398,
+     28
+    ],
+    [
+     398,
+     48
+    ],
+    [
+     396,
+     70
+    ],
+    [
+     397,
+     92
+    ],
+    [
+     400,
+     120
+    ],
+    [
+     403,
+     150
+    ],
+    [
+     404,
+     185
+    ],
+    [
+     406,
+     214
+    ],
+    [
+     409,
+     222
+    ]
+   ]
+  },
+  "slant-brook": {
+   "kind": "drawn+derived",
+   "flows_to": "bridge-brook",
+   "pts": [
+    [
+     331,
+     192
+    ],
+    [
+     339,
+     173
+    ],
+    [
+     347,
+     163
+    ],
+    [
+     365,
+     140
+    ],
+    [
+     385,
+     112
+    ],
+    [
+     397,
+     93
+    ]
+   ]
+  },
+  "mid-outlet": {
+   "kind": "derived",
+   "flows_to": "bridge-brook",
+   "pts": [
+    [
+     264,
+     116
+    ],
+    [
+     290,
+     124
+    ],
+    [
+     320,
+     128
+    ],
+    [
+     350,
+     134
+    ],
+    [
+     378,
+     142
+    ],
+    [
+     402,
+     148
+    ]
+   ]
+  },
+  "west-river": {
+   "kind": "derived",
+   "flows_to": "hub-river",
+   "pts": [
+    [
+     60,
+     83
+    ],
+    [
+     85,
+     91
+    ],
+    [
+     112,
+     98
+    ],
+    [
+     140,
+     107
+    ],
+    [
+     160,
+     113
+    ],
+    [
+     176,
+     118
+    ]
+   ]
+  },
+  "south-brook": {
+   "kind": "derived",
+   "flows_to": "hub-river",
+   "pts": [
+    [
+     50,
+     112
+    ],
+    [
+     66,
+     122
+    ],
+    [
+     78,
+     132
+    ],
+    [
+     84,
+     146
+    ],
+    [
+     110,
+     152
+    ],
+    [
+     140,
+     150
+    ],
+    [
+     175,
+     150
+    ]
+   ]
+  },
+  "hub-brook": {
+   "kind": "derived",
+   "flows_to": "hub-river",
+   "pts": [
+    [
+     188,
+     52
+    ],
+    [
+     186,
+     76
+    ],
+    [
+     178,
+     96
+    ],
+    [
+     176,
+     118
+    ]
+   ]
+  },
+  "hub-river": {
+   "kind": "derived",
+   "flows_to": "lake",
+   "pts": [
+    [
+     176,
+     118
+    ],
+    [
+     173,
+     138
+    ],
+    [
+     180,
+     150
+    ],
+    [
+     200,
+     160
+    ],
+    [
+     215,
+     168
+    ],
+    [
+     250,
+     188
+    ],
+    [
+     300,
+     205
+    ],
+    [
+     360,
+     215
+    ],
+    [
+     406,
+     222
+    ]
+   ]
+  },
+  "pond-brook": {
+   "kind": "derived",
+   "flows_to": "mid-outlet",
+   "pts": [
+    [
+     250,
+     84
+    ],
+    [
+     251,
+     100
+    ],
+    [
+     252,
+     108
+    ],
+    [
+     256,
+     112
+    ]
+   ]
+  }
+ }
+}

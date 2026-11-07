@@ -37,3 +37,12 @@ Route data, captions, landmark names, entry/exit tiles and sides come from `clau
 
 ## Terrain variety (grassland first)
 `tools/build_maplewold_bendy.py` has a stamp library used in the sketches: `pond` (water + rough shore), `marsh` (rough with pools), `grove` (scattered trees), `orchard` (tree grid), `hedgefield` (hedged plot, rough inside, one gap), `drift` (rough ellipse for flowers, snow, dunes), `fence` (posts). Added to the grassland routes 228, 232, 236 and 311; lint 0 problems. Next: coast (dunes, tide pools), tundra (drifts, frozen lakes), forest (logs, clearings).
+
+## Water ways (from the region map)
+`tools/maplewold_waterways.py` -> `waterways.json` (region NA, 480 x 270 frame, streams listed upstream to downstream). `tools/build_maplewold_bendy.py` turns every place where a route's region curve crosses water into a stream through the road tile at that point, along the stream's own direction (region axes = grid axes), with a rough ford where the road crosses. Each section stores `water` (name, flow direction, tiles). Pictures with water in blue and a flow arrow: `tools/preview_maplewold_water.py` -> `route-<id>-water.png`.
+- **Read from the picture** (map-NA.png): the lake (bottom right), the two ponds (west, middle), Bridge Brook (comes down from the top edge under the wooden bridge on the Mistmoor road) and a short slanted brook.
+- **Derived by rule** (everything drains to the lake): Hub River runs from the Market area down to the lake; West River (from the west pond), Hub Brook, South Brook and Pond Brook (into the middle pond) feed it; the middle pond has an outlet to Bridge Brook. Invented parts are marked `derived` in the json.
+- **Where it shows:** 228 s2 (West River ford), 232 s2 and 236 s2 (Hub Brook), 304 s2, 306 s2, 307 s1, 312 s1-s2, 313 s2, 315 s3 (Pond Brook into the middle pond), 316 s2, ponds in 305 s2 and 310 s2.
+- **Replaced:** the hand-drawn streams (228 ford, 232 log bridge, 236 stone bridge, 315 frozen stream) are now the derived streams; hand ponds in grassland became marshes (no source on the map).
+- **Not backed by the map:** 313 s1 dam and pond (no water near that road): kept as a spring-fed beaver pond. Bridge Brook and the lake do not reach any of the 16 routes (they lie east of x 330).
+- **Limits:** crossing points are clamped to 15%..85% of a section so streams stay inside it; a stream stops at the section border (the next section does not continue it).
