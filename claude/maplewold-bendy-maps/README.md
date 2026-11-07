@@ -47,4 +47,5 @@ Route data, captions, landmark names, entry/exit tiles and sides come from `clau
 - **Not backed by the map:** 313 s1 dam and pond (no water near that road): kept as a spring-fed beaver pond. Bridge Brook and the lake do not reach any of the 16 routes (they lie east of x 330).
 - **Limits:** crossing points are clamped to 15%..85% of a section so streams stay inside it; a stream stops at the section border (the next section does not continue it).
 - **Crossing tile:** the builder moves each crossing along the road (within 8 tiles) to where the stream meets the road most squarely. Where the stream runs the same way as the road (306 s2 South Brook, 313 s2 South Brook) the road still wades along it for 6 to 11 tiles; that is a ford path, not a mistake.
+- **Shallows:** each stream also gets one rough 1-tile shallow away from the road so the two banks stay connected.
 - **Water is applied after the hand stamps**, so a set piece cannot erase a stream; the shortcut closing may still wall over a stream tile (then it is thicket, not water).

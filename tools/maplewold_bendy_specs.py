@@ -113,7 +113,7 @@ SPECS[311] = [
 SPECS[312] = [
  dict(land=dict(wall=.2), road="W5 N2 W5 S2 W5 N1 W5 S1 W5 N1 W4", ops=[("W",17,12,25,12), ("w",12,3,2)],                   # ring-count log, woodpecker tree
       F=[(27,14),(4,14),(6,2)], L=[(21,10),(12,3)]),
- dict(land=dict(wall=.28), road="W5 S2 W5 N1 W5 S2 W5 S1 W5 N1 W4", ops=[("W",2,5,13,7), ("W",2,12,13,16), ("pat",20,10,["?,,,?", ",...,", ",.#.,", ",...,", "?,,,?"])],   # toadstool ring, bramble corridor
+ dict(land=dict(wall=.28), road="W5 S2 W5 N1 W5 S2 W5 S1 W5 N1 W4", ops=[("W",2,7,13,7), ("W",2,12,13,12), ("pat",20,10,["?,,,?", ",...,", ",.#.,", ",...,", "?,,,?"])],   # toadstool ring, bramble corridor
       F=[(26,14),(16,15),(24,2)], L=[(22,11),(11,11)]),
  dict(road="W5 N1 W5 S2 W5 N2 W5 S1 W5 N2 W4", ops=[("r",16,13,3), ("w",7,4,1), ("w",5,4,1)],               # great stump, squirrel's larder
       F=[(27,14),(25,3),(3,14)], L=[(16,13),(7,5)]),

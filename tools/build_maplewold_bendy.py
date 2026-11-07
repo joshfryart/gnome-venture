@@ -98,6 +98,8 @@ def water_for(rid, i, line, entry, exit_):
             ops.append(("r", px, py, 2))
             ops += [("w", x, y, 0) for x, y in cells]
             ops.append(("r", px, py, 1))
+            for fi in (len(pts) // 4,):                       # shallows: a second, rough crossing so the banks are not cut off from each other
+                if pts and abs(pts[fi][0] - px) + abs(pts[fi][1] - py) > 6: ops.append(("r", pts[fi][0], pts[fi][1], 0))
             fl = ("E" if dx > 0.5 else "W" if dx < -0.5 else "") if abs(dx) > abs(dy) * 0.5 else ""
             fl = ("S" if dy > 0.5 else "N" if dy < -0.5 else "") + fl
             notes.append(dict(name=c["name"], flow=fl, pts=pts, cross=[px, py], wide=wide))
