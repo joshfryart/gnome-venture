@@ -26,6 +26,14 @@ Rule: the road must be bendy, not a straight line all the time. Even where the r
 
 10. **Wiggle rule.** Generator adds seeded gentle wander to the path in every section (cap on straight run length, e.g. no more than about 8 tiles in a row without a turn; exact cap to pick). Wander must keep entry and exit tiles fixed so joins (item 4) still match. Lint flags any section whose path is too straight.
 
+11. **Gated areas (to consider).** Some areas can only be passed with a tool of a given quality (e.g. a better axe to clear a thicket, a rope for a ravine). Questions for the layout:
+    - Where does a gate sit: on a section tile, at a section join, or on a side trail only?
+    - Gate placement must not break the main road. Keep an open route between every stop pair, with the gated path as a shortcut or a side branch, unless the gate is a deliberate lock.
+    - Store per gate: tile(s), tool kind, minimum quality. Lint checks that the tile sits on the path and that a bypass exists where needed.
+    - Bendy road (item 10) and gate tiles must agree: wander must not move the gate off the path.
+    - Show it on the maps: a mark on the route map and on the master map mockup.
+    - No existing tool-quality field found in `game/`, `tools/`, `claude/`; data model and item system need checking first.
+
 ## Open choices
 - Bend by drawing corner sections, or by making sections bigger and letting the road wander inside them.
 - Fixed headings (8 compass directions) or free angles.
