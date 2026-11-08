@@ -218,3 +218,10 @@ Still `?` (need a code read, not a decision): `visit.php:81`, `mentors120.php`, 
 11. **Sleep jumps to 06:00 the next day.** Unused hours are lost, energy refills, day +1. Plus a **nap**: spends a short time (about 2 h, to tune) for partial energy and does not end the day.
 
 Still to define: the time-cost table (which action costs how many minutes), nap numbers, what "tired" costs, whether crops grow by game-days or game-minutes, how this feeds the `hollow_hour()` callers.
+
+### Decisions 12-14 and the audit is now fully sorted (Josh, 2026-11-08)
+12. **Crops, jars, plants grow by game-days only** (N sleeps). Time spent within a day does not change growth.
+13. **Job board** (`jobs.php`): game calendar. Daily offers per sleep, weekly per 7 sleeps, monthly per game month. `job_period_span` uses real midnights and must be rewritten. Rewards may need retuning.
+14. **Puzzle pal spawn** (`puzzle_pals.php:845`): game-day. Note: this makes pal collection faster with sleep. It is a deliberate choice, not a cap.
+
+The `?` list is empty. Every `hollow_date()` call in `game/` has a class. What remains is the second pass on the wrappers `hollow_today/now/hour/dow` (about 40 sites). Under decision 7, `hollow_hour()` and `hollow_dow()` callers must be sorted into personal clock vs real clock.
