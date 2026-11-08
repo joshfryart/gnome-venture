@@ -604,12 +604,13 @@ function gclock_my_weather(?string $region = null): string
 }
 
 /** The little clock pill for the status strip: game time, day number, tired mark. Links to the Rest page. */
-function gclock_pill(array $u): string
+function gclock_pill(array $u, bool $line = false): string
 {
     $s = gclock_state($u);
     $t = sprintf('%02d:%02d', intdiv($s['minute'], 60) % 24, $s['minute'] % 60);
     $carry = max(0, (int)($u['carry_minutes'] ?? 0));
     $title = 'Day ' . $s['day'] . ', ' . $t . ($s['tired'] ? ' (tired: +' . game_surcharge_pct($u) . '% energy)' : '') . ($carry > 0 ? '; ' . round($carry / 60, 1) . ' h of work waits for tomorrow' : '') . '. Open the Rest page to nap or sleep.';
+    if ($line) return '<a class="stl gclkl' . ($s['tired'] ? ' tired' : '') . '" href="' . e(url('hovel.php')) . '" title="' . e($title) . '">🕐 <b>' . $t . '</b> <small>day ' . $s['day'] . '</small>' . ($s['tired'] ? ' 😴' : '') . '</a>';
     return '<span class="st gclk' . ($s['tired'] ? ' tired' : '') . '" title="' . e($title) . '"><a href="' . e(url('hovel.php')) . '">🕐 <b>' . $t . '</b> <small>day ' . $s['day'] . '</small>' . ($s['tired'] ? ' 😴' : '') . '</a></span>';
 }
 

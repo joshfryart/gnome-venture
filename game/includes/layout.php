@@ -371,14 +371,17 @@ function status_strip(array $u): string
     $titleP = $u['title'] ? '<span class="st title">“' . e($u['title']) . '”</span>' : '';
     $hn = hollow_now(hollow_user_region($u));
     $clk = gclock_on() ? gclock_pill($u) : '';   // sleep-days: the gnome's own time of day
+    $clkLine = gclock_on() ? gclock_pill($u, true) : '';   // same, for the phone line
     require_once __DIR__ . '/festival.php';
     $fest = festival_active();
     $h = '<div class="statusstrip"><div class="statusin">'
+        . $clk   // sleep-days: the game clock is the far-left item (before energy, health and level)
         . '<span class="st energy" title="Energy' . ($enl !== '' ? ': ' . e($enl) : '') . '">⚡ <progress class="ebar" aria-label="Energy" max="' . $max . '" value="' . $energy . '"></progress> <b>' . $energy . '</b>/' . $max . ($enl !== '' ? ' <small>' . e(energy_next_text($u)) . '</small>' : '') . '</span>'
-        . $clk . $hpPill . $lvlPill . $rest . $statHot . $titleP
+        . $hpPill . $lvlPill . $rest . $statHot . $titleP
         . '</div>'
         // v1.6.3: phone line, no fold (Joshua: less info): level + small XP bar · season day + weather · festival icon · ready/stat badges
         . '<div class="stfold"><div class="stsum">'
+        . $clkLine
         . '<a class="stl" href="' . e(url('gnome.php?tab=gnome')) . '" title="Gnome level ' . (int)$u['level'] . ': ' . number_format((int)$u['xp']) . '/' . number_format(xp_for_level((int)$u['level'] + 1)) . ' XP">🌱 <b>' . (int)$u['level'] . '</b> '
         . '<progress class="xpbar" aria-label="XP to next level" max="' . max(1, xp_for_level((int)$u['level'] + 1) - xp_for_level((int)$u['level'])) . '" value="' . max(0, min((int)$u['xp'], xp_for_level((int)$u['level'] + 1)) - xp_for_level((int)$u['level'])) . '"></progress></a>'
         . $hpLine

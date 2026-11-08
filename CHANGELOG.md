@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.10
+- **Game clock is the far-left item of the top bar** (and first on the phone line), before energy, health and gnome level: bigger, in a ring, shows the time and day, turns amber when tired, taps through to the Rest page.
+
 ## 2.6.09
 - **Sleep-days is on** (`game_clock_on` now defaults to 1): each gnome has a game clock; energy comes back by sleeping; garden, jars, pots, pal jobs, NPCs and festivals follow game time. The upgrade starts every gnome on today's game day once (`gclock_started`). Set `game_clock_on` to 0 in Admin to turn it off.
 - **Pal jobs run on game time only**: real time no longer moves a pal's trip, delve, garden stay or pot; sleeping and game minutes do (`gclock_freeze_pals`).
