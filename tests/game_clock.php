@@ -585,6 +585,34 @@ ok('planted 12 game days ago: age 12 of 60, 48 left', $lifeT && $lifeT[0] === 12
 cfg(['game_clock_on' => '0', 'life_fruit_days' => '', 'life_end_yield' => '']);
 setu($uid, ['game_day' => 0, 'game_minute' => 360]); gclock_plot_clock(0, true);
 
+echo "== compost bin: daily compost AND the scrap heap, both in one collect\n";
+try {
+setu($uid, ['game_day' => 400, 'game_minute' => 600]); gclock_plot_clock(0, true);
+cfg(['game_clock_on' => '1', 'compost_heap_scraps' => '8', 'compost_heap_max' => '10']);
+$vb = gclock_plot_vnow($pidh);
+q("DELETE FROM garden_buildings WHERE plot_id = ? AND building = 'compost_bin'", [$pidh]);
+q("INSERT INTO garden_buildings (plot_id, building, level, built_at, last_collect, scraps) VALUES (?, 'compost_bin', 1, ?, ?, 17)", [$pidh, gmdate('Y-m-d H:i:s', $vb - 9 * 86400), gmdate('Y-m-d H:i:s', $vb - 2 * 86400 - 60)]);
+$cid = item_id_by_slug('plain-compost');
+$have0 = $cid ? (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $cid]) : 0;
+$row = q_one("SELECT * FROM garden_buildings WHERE plot_id = ? AND building = 'compost_bin'", [$pidh]);
+ok('ready: 2 from the days and 2 from 17 scraps (8 each)', building_ready($row) === 2 && heap_ready($row) === 2);
+[$okc, $mc] = collect_building(urow($uid), $pidh, 'compost_bin');
+$have1 = $cid ? (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $cid]) : 0;
+ok('one collect gives the daily compost and the heap compost together', $okc && $have1 - $have0 === 4, $mc . " ($have0 -> $have1)");
+$row2 = q_one("SELECT * FROM garden_buildings WHERE plot_id = ? AND building = 'compost_bin'", [$pidh]);
+ok('1 scrap left over, daily clock restarted', (int)$row2['scraps'] === 1 && building_ready($row2) === 0);
+$fp = 987654;   // a plot id this request has not asked about yet (building_level is cached per request)
+q("DELETE FROM garden_buildings WHERE plot_id = ?", [$fp]);
+q("INSERT INTO garden_buildings (plot_id, building, level, built_at, last_collect, scraps) VALUES (?, 'compost_bin', 1, ?, ?, 1)", [$fp, now(), now()]);
+$line = heap_add($fp, 7);
+$row3 = q_one("SELECT * FROM garden_buildings WHERE plot_id = ? AND building = 'compost_bin'", [$fp]);
+ok('scraps from harvests still add up under the flag (1 + 7 = 8) and say so', (int)$row3['scraps'] === 8 && heap_ready($row3) === 1 && str_contains($line, 'made another'), $line);
+q("DELETE FROM garden_buildings WHERE plot_id = ?", [$fp]);
+q("DELETE FROM garden_buildings WHERE plot_id = ? AND building = 'compost_bin'", [$pidh]);
+} catch (Throwable $e) { ok('compost block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
+cfg(['game_clock_on' => '0', 'compost_heap_scraps' => '', 'compost_heap_max' => '']);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]); gclock_plot_clock(0, true);
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);
