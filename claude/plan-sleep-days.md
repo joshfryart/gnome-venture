@@ -509,3 +509,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 44 (Josh, 2026-11-08)
 44. **A split action locks the gnome:** no other timed action until it is done. Sleep and nap are still allowed; leftover hours resume at 06:00 and are charged first. Closes Q9 risk 2 follow-ups. Open: rest of Q9 rows (risks 3-6, row numbers).
+
+### Decision 45 (Josh, 2026-11-08)
+45. **Cook pots run 4x longer on the game clock:** tiers 3 / 15 / 45 min become 12 / 60 / 180 game minutes. Admin setting `cook_time_multiplier`, default 4. Closes risk 3. Camp pot (decision 32) uses the same times, ready at wake.
