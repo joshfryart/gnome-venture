@@ -284,3 +284,21 @@ Built from the 23 `spend_energy()` call sites plus the existing timers. A game d
 18. **Cooking is game time (question A).** Cook pots run on the gnome's own clock and finish as game minutes pass. Treks (question B): **ignored for now**, left out of the first build.
 
 Still open: mastery scale and scope (15), where closing hours are stored (17), the late-start rule for actions that are not at a place (a craft at home has no closing hour, so it is always allowed as tired).
+
+### Decision 19: two-tier craft mastery (Josh, 2026-11-08)
+Mastery exists **per recipe and per category**, and the two give **different boons**. The boon types Josh named: time reduction, buffs, bigger amount made, and fewer materials needed (reduced down to a base floor). Replaces the single-scale draft in decision 15.
+
+Draft split to tune (not decided):
+| Tier | Counts | Boons |
+|---|---|---|
+| Per recipe | times that one recipe was made | time -5% per 1,000 (floor -40%); materials -1 unit at milestones, **never below a floor** (e.g. 50% of the base, min 1) |
+| Per category | all crafts in the category | yield bonus (+1 made at milestones, or % chance of a bonus unit); energy cost reduction; unlocks a buff on the product |
+
+Needs: two counters (a per-user per-recipe table and a per-user per-category table), milestone thresholds, and a display of progress on the recipe card.
+
+Risks to watch:
+- **Faucet:** fewer materials plus more yield makes goods cheaper to produce. Floors on both. Check against the NPC shop bucket (section 6) and player market prices.
+- **Grind lock-in:** per-recipe counts at 1,000 per step reward repeating one recipe. Keep per-category the main reward for variety.
+- **Cooking:** cook pots use the same counters (decision 18), so `calling_perk` boons (`cook_time_pct`, `extra_pot`, `extra_dish_pct`) must stack with mastery without double-counting. Decide the stack rule before building.
+
+Open: milestone numbers, the floor, which products get a buff and what it is.
