@@ -467,3 +467,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 30 (Josh, 2026-11-08)
 30. **Villager's house unlocks at friendship level 3.** Free stay. Admin setting `villager_sleep_friend_level`, default 3. Closes open Q2 from decision 23.
+
+### Decision 31 (Josh, 2026-11-08)
+31. **Camping gear: shop price 100 Petals, craft cost about 60 Petals of materials (60% of shop).** One use. Admin setting `camping_gear_price`, default 100. Still open: exact recipe materials (pick from existing items, check data before writing).
