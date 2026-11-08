@@ -225,3 +225,54 @@ Still to define: the time-cost table (which action costs how many minutes), nap 
 14. **Puzzle pal spawn** (`puzzle_pals.php:845`): game-day. Note: this makes pal collection faster with sleep. It is a deliberate choice, not a cap.
 
 The `?` list is empty. Every `hollow_date()` call in `game/` has a class. What remains is the second pass on the wrappers `hollow_today/now/hour/dow` (about 40 sites). Under decision 7, `hollow_hour()` and `hollow_dow()` callers must be sorted into personal clock vs real clock.
+
+## 11. Time-cost table, DRAFT v1 (2026-11-08, not decided)
+
+Built from the 23 `spend_energy()` call sites plus the existing timers. A game day is 06:00 to 22:00 = **960 min**. Every number is a first guess to tune.
+
+**Rule of thumb:** only things that commit the gnome for 10 minutes or more spend time. Taps under that (water, plant, harvest, chat, gift, buy, sell) are free, so the UI is not nagged by clock ticks.
+
+| Action (code) | Energy today | Time (draft) | Note |
+|---|---|---|---|
+| Travel, one trail section (`adventure.php`, `trail_tiles.php`; 1-6 sections per route) | by route | **10 min/section** | your number; a route is 10-60 min |
+| Wander off the path (`explore.php:172`) | 1 | 20 min | |
+| Gather (`gathering.php:182`) | 1 | 15 min | |
+| Garden taps (`garden_logic.php garden_action`) | 0 | free | |
+| Pest pick (`garden_fx.php pest_pick`) | setting | 5 min, free under the rule | |
+| Water another's plot (`social169.php:152`) | setting | 10 min | cap stays real (class C) |
+| Craft, per unit (`crafting.php:260`) | per recipe | 15 min | |
+| Cook pot (`crafting.php:440`) | per recipe | **free to start; the pot finishes after its minutes pass on the gnome's own clock** (tiers 3 / 15 / 45 min today) | see question A |
+| Pantry jar (`pantry.php:174`) | per recipe | free to start; ready after N game-days (decision 12) | |
+| Arrange flowers (`flowers.php:301`) | per bouquet | 20 min | |
+| Seed packet (`flowers.php`) | 0 | 10 min each | |
+| Florist shift (`flowers.php:620`) | per shift | **half day = 8 h** (a full-day shift = 16 h) | your decision 6 |
+| Raise sapling (`trade.php:385`) | setting | 15 min | |
+| Tend a pal or a community plot (`player_jobs.php:270`, `community.php:275`) | 1 | 10 min | |
+| Landmark repair, one work-day (`rebuild.php:440`) | per stage | **half day = 8 h** | |
+| Lair (`landmarks.php:427`) | 2 | 2 h | |
+| Landmark visits (`landmarks.php:304,328`) | 1 | 20 min | |
+| Trek, enter (`trek.php:464,536`) | setting | 2 h | long fights may cost more, see question B |
+| Town stop action (`stops.php:853`) | per action | 15 min | |
+| NPC chat, gift | 0 | free | once per game-day |
+| Pal jobs and delves | n/a | no time; run on game-days | |
+| Minigames (game room, puzzle) | n/a | free; kept outside the clock, real caps | |
+| **Nap** | gives partial energy | **2 h** | to tune |
+| **Sleep** | full refill | jump to 06:00, unused hours lost | decision 11 |
+
+**Tired (after 22:00), draft:** every action's energy cost +50%, shops and NPC stops show "closed/asleep", no hard block.
+
+**Sample day (960 min):** water and tend 5, gather 3 times 45, craft 4 items 60, one trail of 4 sections 40, a 2 h trek 120, cook and chat 10, a repair day 8 h would take half the day by itself. So a full day fits about one big thing plus a few small ones. That matches "commit your gnome".
+
+### Review (my own, before you read)
+- **Good:** the free-under-10-min rule avoids a clock tick on every tap. The big commitments (shift, repair) are 8 h, so only about two fit a day. That is a natural brake on sleep-farming: you cannot do three shifts a day.
+- **Risk 1:** two budgets (energy and time) double the tuning. Easy to end up with one that never binds. Keep an eye on this in the prototype.
+- **Risk 2:** an 8 h repair or shift can't fit if you start at 15:00. Rule needed: allowed past 22:00 as "tired", or blocked until tomorrow?
+- **Risk 3:** a half-day action means your cook pots and any 45 min timers all finish during it. Fine, but it makes cooking nearly free of time. Is that wanted?
+- **Risk 4:** treks and fights are long and interactive. A flat 2 h cost per trek may feel wrong; charge per fight round instead.
+- **Risk 5:** offline gnomes: `last_tick`-style catch-up (pal HP regrow "1 per 6 min", `PJ_EQUIP_XP_MAX` hours) is on the real clock. Those stay real, but the plan should say so.
+- **Risk 6:** every place showing "ready in 3 min" (cook pots, trail) now shows game time on a personal clock. Two clocks on screen; the UI must label which.
+
+### Questions to settle
+- **A.** Cook pots: do they run on the game clock (finish as you spend time) or stay on the real clock?
+- **B.** Treks: flat cost to enter, or time per fight round?
+- **C.** Doing a long action late in the day (Risk 2): allow as tired, or block until tomorrow?
