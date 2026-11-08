@@ -341,5 +341,17 @@ cfg(['game_clock_on' => '0']);
 setu($uid, ['game_day' => 0, 'game_minute' => 360, 'carry_minutes' => 0, 'energy' => 30]);
 ok('flag off: never busy', gclock_busy_minutes($uid) === 0);
 
+echo "== camping gear parts and recipe\n";
+require_once $argv[1] . '/includes/crafting.php';
+ensure_crafts();
+foreach (['canvas-sheet', 'metal-pins', 'camping-pot', 'camping-gear'] as $sl) ok("item $sl exists", (bool)item_id_by_slug($sl));
+$rec = q_one("SELECT * FROM recipes WHERE slug = 'camping-gear'");
+ok('camping-gear recipe made', (bool)$rec && json_decode($rec['ingredients'], true) === ['rope' => 2, 'metal-pins' => 4, 'canvas-sheet' => 1, 'timber-plank' => 2, 'camping-pot' => 1], json_encode($rec));
+ok('parts have recipes', (bool)q_val("SELECT 1 FROM recipes WHERE slug='canvas-sheet'") && (bool)q_val("SELECT 1 FROM recipes WHERE slug='metal-pins'") && (bool)q_val("SELECT 1 FROM recipes WHERE slug='camping-pot'"));
+$cost = 0;
+foreach (json_decode($rec['ingredients'], true) as $sl => $n) $cost += $n * (int)q_val('SELECT base_price FROM items WHERE slug = ?', [$sl]) ;
+ok("craft parts value about 60 (got $cost) and under the 100 shop price", $cost >= 50 && $cost <= 70);
+ok('rerun is safe', ensure_crafts() >= 0 && (int)q_val("SELECT COUNT(*) FROM items WHERE slug='camping-gear'") === 1);
+
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);

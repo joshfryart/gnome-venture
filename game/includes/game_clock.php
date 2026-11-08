@@ -207,10 +207,34 @@ function gclock_setting_int(string $name, int $default): int
 /** The camping gear item id (made on first use; sold and crafted later). */
 function gclock_gear_item_id(): int
 {
-    $id = item_id_by_slug('camping-gear');
-    if ($id) return (int)$id;
-    return (int)db_insert('items', ['name' => 'Camping Gear', 'slug' => 'camping-gear', 'category' => 'misc', 'rarity' => 10, 'base_price' => 100,
-        'description' => 'Rope, pins, canvas and a little pot. Two naps on the road, or one night.', 'edible' => 0, 'tradable' => 1]);
+    gclock_ensure_camping();
+    return (int)item_id_by_slug('camping-gear');
+}
+
+/** Parts of camping gear (decision 50), their base prices chosen so crafting the gear costs about 60 Petals against 100 in a shop (decision 31). */
+const GCLOCK_CAMP_ITEMS = [
+    'canvas-sheet' => ['Canvas Sheet', 'A stiff sheet of waxed canvas. Becomes a tent roof.', 8],
+    'metal-pins' => ['Metal Pins', 'Short iron tent pins, hammered flat at one end.', 1],
+    'camping-pot' => ['Camping Pot', 'A small blackened pot with a bail handle. Fits a fire and a pack.', 8],
+    'camping-gear' => ['Camping Gear', 'Rope, pins, canvas, planks and a little pot. Two naps on the road, or one night.', 100],
+];
+
+/** Make the camping items if missing, and put the gear on sale in the Home & curios (decor) shops. Safe to call often. */
+function gclock_ensure_camping(): void
+{
+    static $done = false;
+    if ($done) return;
+    foreach (GCLOCK_CAMP_ITEMS as $slug => [$name, $desc, $price]) {
+        if (!item_id_by_slug($slug)) db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => 'part', 'rarity' => 20, 'base_price' => $price, 'description' => $desc, 'edible' => 0, 'tradable' => 1]);
+    }
+    $done = true;
+    $gear = (int)item_id_by_slug('camping-gear');
+    if (!$gear) return;
+    $price = gclock_setting_int('camping_gear_price', 100);
+    foreach (q("SELECT id FROM shops WHERE open = 1 AND shop_type = 'decor'")->fetchAll(PDO::FETCH_COLUMN) as $shopId) {
+        if (q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$shopId, $gear])) continue;
+        db_insert('shop_stock', ['shop_id' => $shopId, 'item_id' => $gear, 'price_min' => $price, 'price_max' => $price, 'max_stock' => 3, 'restock_chance' => 40, 'current_stock' => 1, 'current_price' => $price]);
+    }
 }
 
 /**

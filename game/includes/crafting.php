@@ -32,6 +32,7 @@ function ensure_crafts(): int
     pj_ensure_content();       // v2.3.0: the Healing Potion must exist before its recipe
     require_once __DIR__ . '/gathering.php';
     gather_ensure_satchel_items();   // v2.6.06: the satchels must exist before their recipes
+    gclock_ensure_camping();   // sleep-days: canvas, pins, pot and the camping gear itself (items and shop stock) before the crafts file
     $stats = ['items' => 0];
     $added = import_recipes($stats);
     // Recipes made before v0.7.5 have no slug: give them their dish's slug
