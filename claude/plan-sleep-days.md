@@ -464,3 +464,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 29 (Josh, 2026-11-08)
 29. **Bench sleep restores 30% energy, no bad-event chance.** Free. Admin setting `bench_sleep_energy_pct`, default 30. Closes open Q1 from decision 23 (bad-event part dropped).
+
+### Decision 30 (Josh, 2026-11-08)
+30. **Villager's house unlocks at friendship level 3.** Free stay. Admin setting `villager_sleep_friend_level`, default 3. Closes open Q2 from decision 23.
