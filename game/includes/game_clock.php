@@ -16,6 +16,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
         ['users', 'game_day', 'INT NOT NULL DEFAULT 0'], ['users', 'game_minute', 'INT NOT NULL DEFAULT ' . GAME_WAKE_MINUTE],
         ['cook_pots', 'ready_tick', 'INT NULL'],   // game tick (day*1440+minute) a game-clock pot is ready at; NULL = real ready_at
         ['pantry_jars', 'ready_day', 'INT NULL'],   // game_day a game-clock jar is ready on; NULL = real ready_at
+        ['users', 'carry_minutes', 'INT NOT NULL DEFAULT 0'],   // work left at 22:00 that finishes after the next sleep (decisions 43-44)
         ['users', 'camp_naps', 'INT NOT NULL DEFAULT 0'],   // naps taken on the gear now in use (2 per gear)
         ['plot_tiles', 'grow_day', 'INT NULL'],    // the owner's game_day that growth is settled up to
         ['plot_tiles', 'water_day', 'INT NULL'],   // the owner's game_day the bed was last watered on
@@ -105,11 +106,12 @@ function game_sleep(int $uid, int $energyPct = 100): ?array
     if (!$u) return null;
     $max = max_energy($u);
     $new = $energyPct >= 100 ? $max : max((int)$u['energy'], (int)floor($max * max(0, $energyPct) / 100));   // a weak rest never lowers energy
-    $n = q('UPDATE users SET game_day = game_day + 1, game_minute = ?, energy = ? WHERE id = ? AND game_day = ? AND game_minute = ?',
-        [GAME_WAKE_MINUTE, $new, $uid, (int)$u['game_day'], (int)$u['game_minute']])->rowCount();
+    $carry = max(0, (int)($u['carry_minutes'] ?? 0));   // unfinished work resumes first thing in the morning
+    $n = q('UPDATE users SET game_day = game_day + 1, game_minute = ?, carry_minutes = 0, energy = ? WHERE id = ? AND game_day = ? AND game_minute = ?',
+        [GAME_WAKE_MINUTE + $carry, $new, $uid, (int)$u['game_day'], (int)$u['game_minute']])->rowCount();
     if ($n !== 1) return null;
     game_new_day($uid);
-    return ['game_day' => (int)$u['game_day'] + 1, 'game_minute' => GAME_WAKE_MINUTE];
+    return ['game_day' => (int)$u['game_day'] + 1, 'game_minute' => GAME_WAKE_MINUTE + $carry];
 }
 
 /** Nap: spend nap_minutes (default 120) and gain nap_energy_pct (default 40) of max energy; the day does not change (decision 42). */
@@ -385,5 +387,33 @@ function gclock_charge(int $uid, string $key, int $units = 1): void
 {
     if (!gclock_on()) return;
     $m = gclock_time_cost($key) * max(1, $units);
-    if ($m > 0) game_spend($uid, $m);
+    if ($m <= 0) return;
+    if (in_array($key, GCLOCK_SPLIT_KEYS, true)) { gclock_charge_split($uid, $m); return; }
+    game_spend($uid, $m);
+}
+
+/** Long actions that may run past 22:00 and finish after the next sleep (decision 43). */
+const GCLOCK_SPLIT_KEYS = ['shift', 'repair'];
+
+/**
+ * Spend $m minutes; whatever would pass 22:00 is carried to the morning instead (no tired surcharge on it) and the gnome is busy
+ * until they sleep (decision 44). Returns the carried minutes.
+ */
+function gclock_charge_split(int $uid, int $m): int
+{
+    $u = q_one('SELECT game_day, game_minute, carry_minutes FROM users WHERE id = ?', [$uid]);
+    if (!$u) return 0;
+    $now = (int)$u['game_minute'];
+    $today = max(0, GAME_TIRED_MINUTE - $now);          // minutes left before 22:00
+    $spendNow = min($m, $today);
+    $carry = $m - $spendNow;
+    q('UPDATE users SET game_minute = game_minute + ?, carry_minutes = carry_minutes + ? WHERE id = ? AND game_day = ? AND game_minute = ?',
+        [$spendNow, $carry, $uid, (int)$u['game_day'], $now]);
+    return $carry;
+}
+
+/** Minutes of work still waiting for the next sleep (0 = free to act). */
+function gclock_busy_minutes(int $uid): int
+{
+    return gclock_on() ? max(0, (int)q_val('SELECT carry_minutes FROM users WHERE id = ?', [$uid])) : 0;
 }

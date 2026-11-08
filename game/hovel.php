@@ -26,6 +26,7 @@ page_header('Hovel');
   <h1>🛏️ Rest</h1>
   <p><b>Day <?= (int)$s['day'] + 1 ?></b> · <?= e($now['season_emoji'] . ' ' . $now['season_label']) ?> day <?= (int)$now['season_day'] ?> · <?= e($now['weather_emoji'] . ' ' . $now['weather_label']) ?> · <b><?= e($clock) ?></b><?= $s['tired'] ? ' 😴 tired' : '' ?></p>
   <p>Energy <b><?= (int)$u['energy'] ?></b> / <?= max_energy($u) ?></p>
+  <?php if (($busy = gclock_busy_minutes($uid)) > 0): ?><p class="help">🔨 You still have <?= round($busy / 60, 1) ?> h of work to finish. Sleep, and it is done first thing in the morning. Nothing else timed until then.</p><?php endif; ?>
   <?php if ($s['tired']): ?><p class="help">After 22:00 everything costs more energy (+<?= game_surcharge_pct($u) ?>% right now). Sleep to start fresh at 06:00.</p><?php endif; ?>
   <form method="post">
     <?= csrf_field() ?>

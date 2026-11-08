@@ -308,14 +308,38 @@ ok('setting time_gather=0 makes it free', (int)urow($uid)['game_minute'] === 700
 cfg(['time_gather' => '', 'time_shift' => '60']);
 ok('setting overrides default', gclock_time_cost('shift') === 60);
 cfg(['time_shift' => '']);
-setu($uid, ['game_minute' => 1330, 'energy' => 20]);
+setu($uid, ['game_minute' => 1330, 'energy' => 20, 'carry_minutes' => 0]);
 spend_energy($uid, 10, 'shift');
-ok('8 h shift late: tired surcharge on energy (+10%), time runs past midnight', (int)urow($uid)['energy'] === 9 && (int)urow($uid)['game_minute'] === 1810, urow($uid)['energy'] . ' / ' . urow($uid)['game_minute']);
+ok('8 h shift after 22:00: tired surcharge on energy (+10%), whole shift carried', (int)urow($uid)['energy'] === 9 && (int)urow($uid)['game_minute'] === 1330 && (int)urow($uid)['carry_minutes'] === 480, urow($uid)['energy'] . ' / ' . urow($uid)['game_minute']);
 cfg(['game_clock_on' => '0']);
-setu($uid, ['game_minute' => 600, 'energy' => 20]);
+setu($uid, ['game_minute' => 600, 'energy' => 20, 'carry_minutes' => 0]);
 spend_energy($uid, 1, 'gather');
 ok('flag off: no time spent', (int)urow($uid)['game_minute'] === 600);
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+
+echo "== long actions split across days (decisions 43-44)\n";
+cfg(['game_clock_on' => '1']);
+setu($uid, ['game_day' => 0, 'game_minute' => 15 * 60, 'energy' => 30, 'carry_minutes' => 0]);   // 15:00 + 8 h shift: 7 h before 22:00, 1 h carried
+spend_energy($uid, 5, 'shift');
+$x = urow($uid);
+ok('shift at 15:00: clock stops at 22:00, 60 min carried', (int)$x['game_minute'] === 1320 && (int)$x['carry_minutes'] === 60, $x['game_minute'] . '/' . $x['carry_minutes']);
+$threw = false;
+try { spend_energy($uid, 1, 'gather'); } catch (UserError $e) { $threw = true; }
+ok('busy: another timed action refused', $threw && (int)urow($uid)['energy'] === (int)$x['energy']);
+ok('busy: an untimed spend still works', spend_energy($uid, 1) === true);
+ok('busy: nap allowed', game_nap($uid) !== null);
+game_sleep($uid); $x = urow($uid);
+ok('sleep: wakes at 06:00 + carried 60 min = 07:00, carry cleared', (int)$x['game_minute'] === 420 && (int)$x['carry_minutes'] === 0 && (int)$x['game_day'] === 1, $x['game_minute']);
+ok('free again after the sleep', spend_energy($uid, 1, 'gather') === true);
+setu($uid, ['game_day' => 0, 'game_minute' => 600, 'energy' => 30, 'carry_minutes' => 0]);
+spend_energy($uid, 5, 'repair');
+ok('repair at 10:00 (8 h) ends 18:00, nothing carried', (int)urow($uid)['game_minute'] === 1080 && (int)urow($uid)['carry_minutes'] === 0);
+setu($uid, ['game_minute' => 1400, 'carry_minutes' => 0, 'energy' => 30]);
+spend_energy($uid, 5, 'shift');
+ok('started after 22:00: all 8 h carried, clock stays', (int)urow($uid)['game_minute'] === 1400 && (int)urow($uid)['carry_minutes'] === 480);
+cfg(['game_clock_on' => '0']);
+setu($uid, ['game_day' => 0, 'game_minute' => 360, 'carry_minutes' => 0, 'energy' => 30]);
+ok('flag off: never busy', gclock_busy_minutes($uid) === 0);
 
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);
