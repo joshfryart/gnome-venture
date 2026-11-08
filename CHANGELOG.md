@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.27
+- **Admin > Game clocks**: every player's game day, date, time and tired state (sort by day), plus the last 100 actions of each player (page, fields, real time, game time). Admin only; passwords, tokens, emails and message text are never stored. Run Upgrade database for the new `player_actions` table.
+
 ## 2.6.26
 - **A "!" over villagers with a request you can hand in**: on the Here pictures, a villager who has a rest-stop fetch errand or a town favour that you already hold the goods for gets a bobbing yellow ! over their head (and ❗ in the plain picture). Not shown for errands you can't finish yet, or ones already done. Journey and order hand-ins are not marked yet.
 

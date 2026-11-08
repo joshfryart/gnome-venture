@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.6.26');
+define('APP_VERSION', '2.6.27');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -548,6 +548,8 @@ send_security_headers();
 start_secure_session();
 
 $CURRENT_USER = load_current_user();
+require_once __DIR__ . '/action_log.php';
+action_log_boot();   // 2.6.27: last 100 actions per player (admin-only view)
 
 require_once __DIR__ . '/emoji_icons.php';
 ico_start();   // v2.0.23: one output pass swaps emoji for our icons in every HTML page (JSON, downloads, redirects are skipped inside it)

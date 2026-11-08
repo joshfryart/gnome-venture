@@ -12,7 +12,9 @@ const GAME_TIRED_MINUTE = 1320;  // 22:00
 /** Schema pieces for schema.php (same shape as here_schema()). */
 function game_clock_schema(string $PK, string $ID, string $END): array
 {
-    return [[], [], [
+    require_once __DIR__ . '/action_log.php';   // 2.6.27: player_actions table
+    [$alt, $ali] = action_log_schema($PK, $ID, $END);
+    return [$alt, $ali, [
         ['users', 'game_day', 'INT NOT NULL DEFAULT 0'], ['users', 'game_minute', 'INT NOT NULL DEFAULT ' . GAME_WAKE_MINUTE],
         ['cook_pots', 'ready_tick', 'INT NULL'],   // game tick (day*1440+minute) a game-clock pot is ready at; NULL = real ready_at
         ['dry_racks', 'ready_day', 'INT NULL'],     // game_day a drying bundle is ready on; NULL = real ready_at
