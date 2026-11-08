@@ -488,3 +488,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 37 (Josh, 2026-11-08)
 37. **Category-mastery buff bonus applies to food and potions only.** Other categories get yield/energy gains only. Open (rest of Q6): stack rule with `calling_perk` boons, category-mastery thresholds.
+
+### Decision 38 (Josh, 2026-11-08)
+38. **Mastery bonuses add to `calling_perk` boons, total capped at +50%.** Admin setting `mastery_perk_cap_pct`, default 50. Open (rest of Q6): category-mastery thresholds.
