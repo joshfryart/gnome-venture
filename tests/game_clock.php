@@ -117,6 +117,13 @@ if ($plant && $tile) {
     ok('growth capped at grow_minutes*60', (int)$r['growth_seconds'] <= $need);
     $r = gclock_tile_grow(array_merge($t, ['grow_day' => null]), $plant, 10);
     ok('no grow_day yet: starts today, no back-growth', (int)$r['growth_seconds'] === 0 && (int)$r['grow_day'] === 10);
+    $r = gclock_tile_grow(array_merge($t, ['grow_day' => 4, 'water_day' => 6]), $plant, 7);
+    $sp = $need / 3 * soil_speed($t);
+    ok('dry days 4-5 owed, paid when watered day 6 finishes (3 shares)', abs((int)$r['growth_seconds'] - (int)($sp * 3)) <= (int)($sp * 0.6) + 2 && (int)$r['owed_days'] === 0, $r['growth_seconds'] . ' owed ' . $r['owed_days']);
+    $r = gclock_tile_grow(array_merge($t, ['grow_day' => 4, 'water_day' => null]), $plant, 6);
+    ok('still dry: owed 2, no growth', (int)$r['growth_seconds'] === 0 && (int)$r['owed_days'] === 2);
+    $r = gclock_tile_grow(array_merge($t, ['grow_day' => 4, 'water_day' => null]), $plant, 40);
+    ok('owed never above the sleeps needed (3)', (int)$r['owed_days'] === 3);
     cfg(['weather_force' => '']);
 } else { ok('have a plant and a tile to test with', false); }
 } catch (Throwable $e) { ok('growth block ran', false, $e->getMessage() . ' @' . $e->getLine()); }

@@ -16,6 +16,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
         ['users', 'game_day', 'INT NOT NULL DEFAULT 0'], ['users', 'game_minute', 'INT NOT NULL DEFAULT ' . GAME_WAKE_MINUTE],
         ['plot_tiles', 'grow_day', 'INT NULL'],    // the owner's game_day that growth is settled up to
         ['plot_tiles', 'water_day', 'INT NULL'],   // the owner's game_day the bed was last watered on
+        ['plot_tiles', 'owed_days', 'INT NOT NULL DEFAULT 0'],   // dry days not yet grown; paid back when a watered day finishes (decision 54)
     ]];
 }
 
@@ -161,7 +162,9 @@ function gclock_tile_grow(array $t, ?array $p, ?int $today = null): array
     $today ??= gclock_plot_day((int)$t['plot_id']);
     $from = $t['grow_day'] === null || $t['grow_day'] === '' ? $today : (int)$t['grow_day'];
     $need = max(1, (int)$p['grow_minutes'] * 60);
-    $share = $need / gclock_grow_sleeps($p);
+    $sleeps = gclock_grow_sleeps($p);
+    $share = $need / $sleeps;
+    $owed = max(0, (int)($t['owed_days'] ?? 0));
     $gs = (int)$t['growth_seconds'];
     $base = soil_speed($t);
     $slowPest = !empty($t['pest']) ? max(0, min(90, (int)setting('pest_slow_pct'))) / 100 : 0.0;
@@ -170,11 +173,14 @@ function gclock_tile_grow(array $t, ?array $p, ?int $today = null): array
     $n = 0;
     for ($d = $from; $d < $today && $n++ < 60; $d++) {
         $fx = garden_day_fx($t, $p, hollow_date_add($epoch, $d));
-        if ($water !== $d && empty($fx['wet'])) continue;
-        $gs += (int)($share * $base * $fx['speed'] * (1 - $slowPest));
+        if ($water !== $d && empty($fx['wet'])) { $owed = min($owed + 1, $sleeps); continue; }   // a dry day is owed, not lost
+        $days = 1 + $owed;
+        $owed = 0;
+        $gs += (int)($share * $days * $base * $fx['speed'] * (1 - $slowPest));
         if (!empty($fx['nip'])) $t['nipped'] = 1;
     }
     $t['growth_seconds'] = min($gs, $need);
     $t['grow_day'] = $today;
+    $t['owed_days'] = $owed;
     return $t;
 }

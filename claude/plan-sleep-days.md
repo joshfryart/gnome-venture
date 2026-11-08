@@ -539,3 +539,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 - **Step 3 done (flag off):** setting `game_clock_on` (default off) switches `tile_grow()` to `gclock_tile_grow()`. New columns `plot_tiles.grow_day`, `plot_tiles.water_day` (owner's game_day), stamped on plant (both plant paths) and on the main water action; `save_growth` and `growth_sig` carry `grow_day`. `growth_seconds` keeps its scale so ready/percent/harvest code is unchanged. Tests in `tests/game_clock.php` pass; `tests/garden100.sh` still passes with the flag off.
 - **Still to do for garden:** other writers of `last_watered` (`events.php:200`, `player_jobs.php:273`, `hired_help.php:145`, `social169.php:156`) must also set `water_day` (owner's day); `garden_wind_weeds` and `garden_pest_pass` still walk real time; `tile_info` water-left display; admin `weather_force` does not reach a game date in `garden_weather_on`; plant-by-sleeps text in the UI.
+
+### Decision 54 (Josh, 2026-11-08)
+54. **Missed watering carries over.** A dry day (no water, no rain) is *owed*, not lost: `plot_tiles.owed_days` (capped at the crop's sleeps). When a watered or rainy day finishes, that day plus all owed days grow (each at that day's soil speed). So the crop is delayed, never punished. Replaces decision 53's "unwatered days are not made up".

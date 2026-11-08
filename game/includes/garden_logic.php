@@ -613,7 +613,7 @@ function cellar_replant(int $uid, int $cellarId, int $x, int $y): array
     if (!$t || !tile_plantable($t)) return [false, 'Pick an empty, tilled square that’s ready to plant.'];
     db()->beginTransaction();
     if (q('DELETE FROM cellar_plants WHERE id = ?', [$c['id']])->rowCount() !== 1) { db()->rollBack(); return [false, 'Already replanted.']; }
-    if (q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, last_watered = NULL, water_day = NULL, grow_day = ' . GCLOCK_OWNER_DAY_SQL . ', harvests = ?, nipped = 0, pest = NULL, pest_at = NULL, pest_check = NULL WHERE id = ? AND plant_id IS NULL',
+    if (q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, last_watered = NULL, water_day = NULL, owed_days = 0, grow_day = ' . GCLOCK_OWNER_DAY_SQL . ', harvests = ?, nipped = 0, pest = NULL, pest_at = NULL, pest_check = NULL WHERE id = ? AND plant_id IS NULL',
           [$c['plant_id'], gmdate('Y-m-d H:i:s', time() - (int)($c['age_seconds'] ?? 0)), (int)$c['growth_seconds'], now(), (int)($c['harvests'] ?? 0), $t['id']])->rowCount() !== 1) {
         db()->rollBack();
         return [false, 'Something is already growing there.'];
@@ -757,11 +757,11 @@ function save_growth(array $t): void
 {
     q('UPDATE plot_tiles SET growth_seconds = ?, growth_updated_at = ?, mulch = ?, weeds = ?, moisture = ?, bed_score = ?, maint_at = ?,
        checkpoint = ?, neglect_hours = ?, fertility = ?, soil_life = ?, feed_fert = ?, feed_life = ?, feed_hours = ?, feed_at = ?,
-       n = ?, p = ?, k = ?, feed_n = ?, feed_p = ?, feed_k = ?, nipped = ?, grow_day = COALESCE(?, grow_day) WHERE id = ?',
+       n = ?, p = ?, k = ?, feed_n = ?, feed_p = ?, feed_k = ?, nipped = ?, grow_day = COALESCE(?, grow_day), owed_days = COALESCE(?, owed_days) WHERE id = ?',
         [$t['growth_seconds'], $t['growth_updated_at'], $t['mulch'], $t['weeds'], $t['moisture'], $t['bed_score'], $t['maint_at'],
          $t['checkpoint'], $t['neglect_hours'], $t['fertility'], $t['soil_life'],
          (int)$t['feed_fert'], (int)$t['feed_life'], (int)$t['feed_hours'], $t['feed_at'],
-         (int)($t['n'] ?? 50), (int)($t['p'] ?? 50), (int)($t['k'] ?? 50), (int)($t['feed_n'] ?? 0), (int)($t['feed_p'] ?? 0), (int)($t['feed_k'] ?? 0), (int)($t['nipped'] ?? 0), isset($t['grow_day']) ? (int)$t['grow_day'] : null, $t['id']]);
+         (int)($t['n'] ?? 50), (int)($t['p'] ?? 50), (int)($t['k'] ?? 50), (int)($t['feed_n'] ?? 0), (int)($t['feed_p'] ?? 0), (int)($t['feed_k'] ?? 0), (int)($t['nipped'] ?? 0), isset($t['grow_day']) ? (int)$t['grow_day'] : null, isset($t['owed_days']) ? (int)$t['owed_days'] : null, $t['id']]);
 }
 
 /**
@@ -775,6 +775,7 @@ function growth_sig(array $t): array
     foreach (['feed_fert', 'feed_life', 'feed_hours', 'feed_n', 'feed_p', 'feed_k', 'nipped'] as $c) $sig[$c] = (string)(int)($t[$c] ?? 0);
     foreach (['n', 'p', 'k'] as $c) $sig[$c] = (string)(int)($t[$c] ?? 50);
     $sig['grow_day'] = isset($t['grow_day']) ? (string)(int)$t['grow_day'] : '';
+    $sig['owed_days'] = isset($t['owed_days']) ? (string)(int)$t['owed_days'] : '';
     return $sig;
 }
 
@@ -1207,7 +1208,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
             case 'plant':
                 if (!give_item($uid, $itemId, -1)) throw new UserError('You don’t have that seed.');
                 $head = $sapling ? intdiv((int)$np['grow_minutes'] * 60 * (int)setting('sapling_head_start'), 100) : 0;
-                if (q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, last_watered = NULL, water_day = NULL, grow_day = ' . GCLOCK_OWNER_DAY_SQL . ', harvests = 0, nipped = 0, pest = NULL, pest_at = NULL, pest_check = ?
+                if (q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, last_watered = NULL, water_day = NULL, owed_days = 0, grow_day = ' . GCLOCK_OWNER_DAY_SQL . ', harvests = 0, nipped = 0, pest = NULL, pest_at = NULL, pest_check = ?
                        WHERE id = ? AND plant_id IS NULL', [$np['id'], now(), $head, now(), hollow_today(), $t['id']])->rowCount() !== 1) {
                     throw new UserError('Something is already growing here.');
                 }
