@@ -506,3 +506,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 43 (Josh, 2026-11-08)
 43. **Long actions (shift, repair, 8 h) may start late and split across days:** hours left at 22:00 carry to the next morning (after sleep, 06:00). No block, no tired surcharge on the carried part. Closes risk 2. Open: does the carried work need the player to stay put, or can they sleep elsewhere? Is the unfinished action locked (cannot start another) until done?
+
+### Decision 44 (Josh, 2026-11-08)
+44. **A split action locks the gnome:** no other timed action until it is done. Sleep and nap are still allowed; leftover hours resume at 06:00 and are charged first. Closes Q9 risk 2 follow-ups. Open: rest of Q9 rows (risks 3-6, row numbers).
