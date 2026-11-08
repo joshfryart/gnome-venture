@@ -129,6 +129,37 @@ if ($plant && $tile) {
 } else { ok('have a plant and a tile to test with', false); }
 } catch (Throwable $e) { ok('growth block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
 
+echo "== garden leftovers: weather force, tile_info, pest date\n";
+try {
+if ($plant && $tile) {
+    $pid = (int)$pl['id'];
+    $own = (int)$pl['user_id'];
+    setu($own, ['game_day' => 12, 'game_minute' => 600]);
+    gclock_plot_day(0, true);
+    cfg(['game_clock_on' => '0', 'weather_force' => 'storm']);
+    $off = garden_weather_on($pid, hollow_date_add(hollow_season_epoch(), 12));
+    cfg(['game_clock_on' => '1', 'weather_force' => 'storm']);
+    ok('flag on: force reaches the owner game day', garden_weather_on($pid) === 'storm' && garden_weather_on($pid, hollow_date_add(hollow_season_epoch(), 12)) === 'storm');
+    ok('flag on: force does not reach another game day', garden_weather_on($pid, hollow_date_add(hollow_season_epoch(), 13)) === hollow_weather(garden_region_code($pid), hollow_date_add(hollow_season_epoch(), 13)));
+    ok('flag off: game date is not forced (old behaviour)', $off === hollow_weather(garden_region_code($pid), hollow_date_add(hollow_season_epoch(), 12)) || hollow_date_add(hollow_season_epoch(), 12) === hollow_today());
+    cfg(['weather_force' => '', 'rain_waters' => '0']);
+    ok('plot date = epoch + game_day', gclock_plot_date($pid) === hollow_date_add(hollow_season_epoch(), 12));
+    $tt = array_merge($tile, ['plant_id' => $plant['id'], 'growth_seconds' => 0, 'water_day' => 12, 'last_watered' => null, 'pest' => null, 'mulch' => 0]);
+    $i = tile_info($tt, $plant);
+    ok('watered today: not thirsty, wet_left set', !$i['thirsty'] && $i['wet_left'] > 0);
+    $i = tile_info(array_merge($tt, ['water_day' => 11]), $plant);
+    ok('watered yesterday: thirsty', $i['thirsty'] && $i['wet_left'] === 0);
+    $i = tile_info(array_merge($tt, ['water_day' => null]), $plant);
+    ok('never watered: thirsty, time_left in whole days', $i['thirsty'] && $i['time_left'] % 86400 === 0 && $i['time_left'] >= 86400);
+    cfg(['game_clock_on' => '0']);
+    $i = tile_info(array_merge($tt, ['water_day' => 12, 'last_watered' => null]), $plant);
+    ok('flag off: real-time path (no last_watered = thirsty)', $i['thirsty']);
+    setu($own, ['game_day' => 0, 'game_minute' => 360]);
+    gclock_plot_day(0, true);
+}
+} catch (Throwable $e) { ok('garden leftovers block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
+cfg(['game_clock_on' => '0', 'weather_force' => '']);
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);

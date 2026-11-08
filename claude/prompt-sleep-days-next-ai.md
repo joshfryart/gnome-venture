@@ -18,7 +18,7 @@ You are continuing the **sleep-days** build for Gnome Venture (repo `joshfryart/
 - Time costs (`GCLOCK_TIME_DEFAULTS`, section 11 table; arrange 10, sapling 10), long shifts/repairs split across days and lock the gnome until sleep (`carry_minutes`).
 
 ## What is NOT built yet (do in this order, ask Josh only when a choice is really his)
-1. **Garden leftovers:** `garden_wind_weeds` and `garden_pest_pass` in `garden_fx.php` still walk real time; `tile_info` "water left" display; admin `weather_force` does not reach a game date in `garden_weather_on`.
+1. **Garden leftovers: DONE (step 14).** Open: no-till `bed_tick` and `season_chip` still real time.
 2. **Closing hours (decision 41):** per place `open_minute`/`close_minute`, default 06:00-22:00 (360-1320), inns open all night; pass `$closesAt` to `game_can_spend`/`game_spend` for shops, stops, inns. Nothing reads it yet.
 3. **Other personal systems on the game date:** NPC chat and gifts (`friends.php`, `stop_folk.php`), NPC move-on, town calendar, festivals, puzzle pal spawn, free mends, order deadlines, Cat Fish weekly cap (7 sleeps), see plan sections 10 and 12.
 4. **Labels and UI:** "costs N energy" labels need `game_energy_cost()`; the header energy pill still shows regen text; label game time vs real time; a visitor's view of a kitchen (`gardens.php:567`) still reads `ready_at`; reward for a split shift/repair is still paid at the start.

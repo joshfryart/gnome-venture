@@ -794,8 +794,20 @@ function tile_info(array $t, array $p): array
     $progress = min(1, (int)$t['growth_seconds'] / $need);
     $wetUntil = $t['last_watered'] ? ts($t['last_watered']) + water_seconds($t, $p) : 0;
     $ready = $progress >= 1;
-    $fx = gfx_on() ? garden_day_fx($t, $p, hollow_today()) : ['speed' => 1.0, 'wet' => false];   // v1.0.0: today's season and weather
+    $fx = gfx_on() ? garden_day_fx($t, $p, gclock_plot_date((int)$t['plot_id'])) : ['speed' => 1.0, 'wet' => false];   // v1.0.0: today's season and weather
     $rain = !empty($fx['wet']);
+    if (gclock_on()) {   // sleep-days: a bed is wet for the rest of the game day it was watered; the next sleep dries it
+        $today = gclock_plot_day((int)$t['plot_id']);
+        $fresh = ($t['water_day'] ?? null) !== null && ($t['water_day'] ?? '') !== '' && (int)$t['water_day'] >= $today;
+        $sleeps = gclock_grow_sleeps($p);
+        $left = (int)ceil(($need - (int)$t['growth_seconds']) / max(1.0, $need / $sleeps) / max(0.05, soil_speed($t) * $fx['speed'] * garden_pest_factor($t)));
+        return [
+            'ready' => $ready, 'progress' => $progress,
+            'stage' => $ready ? (int)$p['stages'] : min((int)$p['stages'] - 1, 1 + (int)floor($progress * ((int)$p['stages'] - 1))),
+            'thirsty' => !$ready && !$fresh && !$rain, 'wet_left' => ($fresh || $rain) && !$ready ? 86400 : 0,
+            'rain' => $rain && !$ready, 'time_left' => $ready ? 0 : max(1, $left) * 86400,
+        ];
+    }
     $wetLeft = max(0, $wetUntil - time());
     if ($rain && !$ready) $wetLeft = max($wetLeft, garden_next_midnight(time()) - time());   // the rain has it covered until midnight
     return [
@@ -1100,6 +1112,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
             case 'water':
                 if (!$p && $t['method'] !== 'notill') throw new UserError('Nothing to water here.');
                 if (!tool_tier($uid, 'water')) throw new UserError('You need a watering can. Twigg’s Seed Emporium sells them.');
+                if (gclock_on() && $p && !tile_info($t, $p)['thirsty'] && !tile_info($t, $p)['ready']) throw new UserError('Watered for today. It will want water again after you sleep.');
                 if ($t['last_watered'] && time() - ts($t['last_watered']) < 300) throw new UserError('Already well watered.');
                 if ($p && $t['last_watered'] && !tile_info($t, $p)['thirsty'] && tile_info($t, $p)['wet_left'] > water_seconds($t, $p) / 2) {
                     throw new UserError('Still well watered: it won’t need more for about ' . nice_time(tile_info($t, $p)['wet_left'] - (int)(water_seconds($t, $p) / 2)) . '.');
@@ -1218,7 +1231,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                 if (!give_item($uid, $itemId, -1)) throw new UserError('You don’t have that seed.');
                 $head = $sapling ? intdiv((int)$np['grow_minutes'] * 60 * (int)setting('sapling_head_start'), 100) : 0;
                 if (q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, last_watered = NULL, water_day = NULL, owed_days = 0, grow_day = ' . GCLOCK_OWNER_DAY_SQL . ', harvests = 0, nipped = 0, pest = NULL, pest_at = NULL, pest_check = ?
-                       WHERE id = ? AND plant_id IS NULL', [$np['id'], now(), $head, now(), hollow_today(), $t['id']])->rowCount() !== 1) {
+                       WHERE id = ? AND plant_id IS NULL', [$np['id'], now(), $head, now(), gclock_plot_date((int)$t['plot_id']), $t['id']])->rowCount() !== 1) {
                     throw new UserError('Something is already growing here.');
                 }
                 $msgs[] = 'You plant ' . $np['name'] . '. Don’t forget to water it!';

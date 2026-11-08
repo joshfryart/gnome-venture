@@ -35,6 +35,11 @@ function garden_region_code(int $plotId): ?string
 /** The weather in a garden's region on a Hollow date (null = today). */
 function garden_weather_on(int $plotId, ?string $date = null): string
 {
+    if (gclock_on()) {   // sleep-days: "today" is the owner's game date; the admin force reaches that day for every player
+        $today = gclock_plot_date($plotId);
+        $date ??= $today;
+        if ($date === $today && ($f = hollow_weather_forced()) !== '') return $f;
+    }
     return hollow_weather(garden_region_code($plotId), $date);
 }
 
@@ -157,6 +162,11 @@ function garden_wind_weeds(int $plotId, int $ts, int $period): int
     if (!gfx_on()) return $period;
     $boost = max(0, (int)setting('wind_weed_pct'));
     if ($boost <= 0) return $period;
+    if (gclock_on()) {   // sleep-days: hours of real time carry no date, so the owner's current game day decides
+        $gk = $plotId . '|g' . gclock_plot_day($plotId);
+        if (!isset($cache[$gk])) $cache[$gk] = garden_weather_on($plotId) === 'wind';
+        return $cache[$gk] ? max(1, (int)round($period * 100 / (100 + $boost))) : $period;
+    }
     $key = $plotId . '|' . intdiv($ts + 43200, 86400);   // close enough to a day: wind is a mild effect
     if (!isset($cache[$key])) $cache[$key] = garden_weather_on($plotId, hollow_date('Y-m-d', $ts)) === 'wind';
     return $cache[$key] ? max(1, (int)round($period * 100 / (100 + $boost))) : $period;
@@ -177,7 +187,7 @@ function garden_yield_adjust(int $qty, array $t, array $p, array &$msgs): int
     if (!gfx_on() || $qty < 1) return $qty;
     $gh = building_level((int)$t['plot_id'], 'greenhouse') > 0;
     $pct = 0;
-    $in = plant_season_state($p, hollow_today(), $gh) === 'in';
+    $in = plant_season_state($p, gclock_plot_date((int)$t['plot_id']), $gh) === 'in';
     if ($in) $pct += max(0, (int)setting('season_in_yield'));
     $nip = !empty($t['nipped']) && !$gh;
     if ($nip) $pct -= max(0, (int)setting('frost_yield_pct'));
@@ -192,7 +202,7 @@ function garden_yield_adjust(int $qty, array $t, array $p, array &$msgs): int
 function garden_weather_note(int $plotId, array $tiles, array $plants): array
 {
     $w = garden_weather_on($plotId);
-    $now = hollow_now(garden_region_code($plotId));
+    $now = hollow_now(garden_region_code($plotId), null, gclock_on() ? gclock_state(['game_day' => gclock_plot_day($plotId), 'game_minute' => 720]) : null);
     $head = $now['weather_emoji'] . ' ' . $now['weather_label'];
     if (!gfx_on()) return [$head, 'The weather is just for show in this garden today.', 'calm'];
     $gh = building_level($plotId, 'greenhouse') > 0;
@@ -322,7 +332,8 @@ function garden_pest_pass(array $plot, array &$tiles, array $plants): array
     if (setting('pests_on') === '0' || !gfx_on() || !pest_defs()) return $msgs;
     if ((int)$plot['garden_level'] < (int)setting('pest_min_garden_level')) return $msgs;
     $plotId = (int)$plot['id'];
-    $today = hollow_today();
+    $today = gclock_plot_date($plotId);
+    $gOn = gclock_on();
     $days = [hollow_date_add($today, -1), $today];
     // context: yard bonuses, who is beside whom, whether the animals have residents
     $ctx = ['bonus' => yard_bonus_map($plotId), 'comp' => companion_defs(), 'near' => [], 'greenhouse' => building_level($plotId, 'greenhouse') > 0,
@@ -357,7 +368,7 @@ function garden_pest_pass(array $plot, array &$tiles, array $plants): array
             if (!$d) { $t['pest'] = null; $t['pest_at'] = null; $changed = true; }
             else {
                 $age = time() - ts($t['pest_at']);
-                $helper = $age >= $clearH ? pest_counter_here($t, $d, $ctx, $today) : '';
+                $helper = ($gOn ? (string)($t['pest_check'] ?? '') < $today : $age >= $clearH) ? pest_counter_here($t, $d, $ctx, $today) : '';
                 $cold = in_array(garden_weather_on($plotId), ['frost', 'snow'], true) && in_array((string)$t['pest'], ['aphids', 'gnats', 'caterpillars'], true);
                 if ($helper !== '' || $cold) {
                     $cleared[$helper !== '' ? $helper : 'the cold'][$d['name']] = ($cleared[$helper !== '' ? $helper : 'the cold'][$d['name']] ?? 0) + 1;
@@ -367,7 +378,7 @@ function garden_pest_pass(array $plot, array &$tiles, array $plants): array
         }
         // new visitors, one roll a Hollow day
         $last = (string)($t['pest_check'] ?? '');
-        if ($last === '') $last = hollow_date('Y-m-d', ts($t['planted_at']) ?: time());
+        if ($last === '') $last = $gOn && ($t['grow_day'] ?? '') !== '' ? hollow_date_add(hollow_season_epoch(), (int)$t['grow_day']) : hollow_date('Y-m-d', ts($t['planted_at']) ?: time());
         if (empty($t['pest']) && !tile_info($t, $p)['ready']) {
             foreach ($days as $d0) {
                 if ($d0 <= $last || $infested >= $maxInf) continue;
@@ -409,7 +420,7 @@ function pest_pick(int $uid, int $x, int $y): array
     $cost = max(0, (int)setting('pest_pick_energy'));
     // v1.0.0: take the pest off first (a conditional update), so two quick taps can't both spend the energy
     $took = db_tx(function () use ($t, $uid, $cost): bool {
-        if (q('UPDATE plot_tiles SET pest = NULL, pest_at = NULL, pest_check = ? WHERE id = ? AND pest IS NOT NULL', [hollow_today(), $t['id']])->rowCount() !== 1) { db()->rollBack(); return false; }
+        if (q('UPDATE plot_tiles SET pest = NULL, pest_at = NULL, pest_check = ? WHERE id = ? AND pest IS NOT NULL', [gclock_plot_date((int)$t['plot_id']), $t['id']])->rowCount() !== 1) { db()->rollBack(); return false; }
         if ($cost > 0 && !spend_energy($uid, $cost)) { db()->rollBack(); return false; }
         return true;
     });

@@ -149,6 +149,12 @@ function gclock_plot_day(int $plotId, bool $reset = false): int
     return $memo[$plotId] ??= (int)q_val('SELECT u.game_day FROM plots pl JOIN users u ON u.id = pl.user_id WHERE pl.id = ?', [$plotId]);
 }
 
+/** The plot owner's game date 'Y-m-d' (flag on), else the real Hollow date. Weather, pest checks and daily stamps of a garden use this. */
+function gclock_plot_date(int $plotId): string
+{
+    return gclock_on() ? hollow_date_add(hollow_season_epoch(), gclock_plot_day($plotId)) : hollow_today();
+}
+
 /** Sleeps a plant needs, from its grow_minutes band (tiers 1-6: 15/40/90/180/360/720 min). Setting grow_days_by_tier, default 1,2,3,5,7,10. */
 function gclock_grow_sleeps(array $p): int
 {
