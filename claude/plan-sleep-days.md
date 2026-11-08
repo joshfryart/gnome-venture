@@ -479,3 +479,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 34 (Josh, 2026-11-08)
 34. **Tired surcharge grows: +10% energy cost per game hour past 22:00** (inside `spend_energy()`). Admin setting `tired_surcharge_pct_per_hour`, default 10. Closes open Q5. Open: cap? (Draft: none needed, since an action past midnight still ends at 06:00 wrap.)
+
+### Decision 35 (Josh, 2026-11-08)
+35. **Per-recipe mastery tiers at 10 / 50 / 200 crafts.** Admin setting `mastery_tiers` default `10,50,200`. Open (rest of Q6): materials floor per tier, which products get a buff, stack rule with `calling_perk` boons, category-mastery thresholds.
