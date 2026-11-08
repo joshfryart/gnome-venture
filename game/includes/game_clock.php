@@ -579,3 +579,9 @@ function gclock_rack_ready(int $uid): array
     $day = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]);
     return ['((ready_day IS NOT NULL AND ready_day <= ?) OR (ready_day IS NULL AND ready_at <= ?))', [$day, now()]];
 }
+
+/** The gnome's game tick when the flag is on, else null (stored beside real timestamps so each can be read by the right clock). */
+function gclock_tick_or_null(int $uid): ?int
+{
+    return gclock_on() ? gclock_user_tick($uid) : null;
+}

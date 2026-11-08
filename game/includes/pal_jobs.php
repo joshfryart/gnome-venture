@@ -107,8 +107,16 @@ function pj_add_c_xp(int $uid, string $key, int $c): void
 /** Equipped pals earn 1 XP of each kind per hour at home. Settled when the jobs page loads or a pal is sent. */
 function pj_settle_equip(int $uid): void
 {
-    foreach (q("SELECT id, eq_since FROM ppal_found WHERE user_id = ? AND active = 1 AND status = 'home'", [$uid])->fetchAll() as $r) {
-        if (!$r['eq_since']) { q('UPDATE ppal_found SET eq_since = ? WHERE id = ?', [now(), $r['id']]); continue; }
+    $tick = gclock_on() ? gclock_user_tick($uid) : null;
+    foreach (q("SELECT id, eq_since, eq_tick FROM ppal_found WHERE user_id = ? AND active = 1 AND status = 'home'", [$uid])->fetchAll() as $r) {
+        if (!$r['eq_since']) { q('UPDATE ppal_found SET eq_since = ?, eq_tick = ? WHERE id = ?', [now(), $tick, $r['id']]); continue; }
+        if ($tick !== null && ($r['eq_tick'] ?? null) !== null && $r['eq_tick'] !== '') {   // sleep-days: 1 XP per game hour, up to 24 game hours piled up (decision 51)
+            $h = min(PJ_EQUIP_XP_MAX, intdiv(max(0, $tick - (int)$r['eq_tick']), 60));
+            if ($h < 1) continue;
+            q('UPDATE ppal_found SET g_xp = g_xp + ?, a_xp = a_xp + ?, eq_tick = ? WHERE id = ? AND eq_tick = ?', [$h, $h, (int)$r['eq_tick'] + $h * 60, $r['id'], $r['eq_tick']]);
+            continue;
+        }
+        if ($tick !== null && ($r['eq_tick'] ?? null) === null) { q('UPDATE ppal_found SET eq_tick = ? WHERE id = ?', [$tick, $r['id']]); continue; }   // flag just turned on: start counting game time
         $h = min(PJ_EQUIP_XP_MAX, intdiv(time() - ts($r['eq_since']), 3600));
         if ($h < 1) continue;
         q('UPDATE ppal_found SET g_xp = g_xp + ?, a_xp = a_xp + ?, eq_since = ? WHERE id = ? AND eq_since = ?',
@@ -132,7 +140,10 @@ function pj_pals(int $uid): array
         $a = pj_level((int)$r['a_xp']);
         $max = pj_max_hp($pal, $a);
         $hp = (int)$r['hp'] < 0 ? $max : (int)$r['hp'];
-        if ($r['status'] === 'home' && $hp < $max && $r['hp_at']) $hp = min($max, $hp + intdiv(time() - ts($r['hp_at']), 360));
+        if ($r['status'] === 'home' && $hp < $max && $r['hp_at']) {
+            $gt = gclock_on() && ($r['hp_tick'] ?? null) !== null && $r['hp_tick'] !== '' ? gclock_user_tick($uid) : null;
+            $hp = min($max, $hp + ($gt !== null ? intdiv(max(0, $gt - (int)$r['hp_tick']), 6) : intdiv(time() - ts($r['hp_at']), 360)));   // sleep-days: 1 per 6 GAME minutes
+        }
         $out[(string)$r['pal_uid']] = ['uid' => (string)$r['pal_uid'], 'key' => (string)$r['pal_key'], 'pal' => $pal, 'pic' => $pic, 'name' => $pal['name'],
             'g' => pj_level((int)$r['g_xp']), 'a' => $a, 'gxp' => (int)$r['g_xp'], 'axp' => (int)$r['a_xp'], 'c' => pj_level((int)($r['c_xp'] ?? 0)), 'cxp' => (int)($r['c_xp'] ?? 0), 'hp' => max(0, $hp), 'max' => $max,
             'status' => (string)$r['status'], 'active' => (int)$r['active'] === 1];
@@ -228,14 +239,14 @@ function pj_settle(int $uid): void
         if (q("UPDATE ppal_jobs SET state = 'ready' WHERE id = ? AND state = 'active'", [$j['id']])->rowCount() !== 1) continue;
         if ($j['kind'] === 'station' && $j['tool'] === 'passive') pj_passive_finish($uid, (int)$j['id']);
         $r = json_decode((string)$j['result'], true) ?: [];
-        q("UPDATE ppal_found SET status = 'home', hp = ?, hp_at = ? WHERE user_id = ? AND pal_uid = ?", [max(0, (int)($r['hp'] ?? 0)), now(), $uid, $j['pal_uid']]);
+        q("UPDATE ppal_found SET status = 'home', hp = ?, hp_at = ?, hp_tick = ? WHERE user_id = ? AND pal_uid = ?", [max(0, (int)($r['hp'] ?? 0)), now(), gclock_tick_or_null($uid), $uid, $j['pal_uid']]);
     }
 }
 
 /** Send a pal out: claim it (home to away) in one conditional UPDATE, so two tabs cannot send it twice. */
 function pj_claim_pal(int $uid, string $palUid, string $status): bool
 {
-    return q("UPDATE ppal_found SET status = ?, active = 0, eq_since = NULL WHERE user_id = ? AND pal_uid = ? AND status = 'home'", [$status, $uid, $palUid])->rowCount() === 1;
+    return q("UPDATE ppal_found SET status = ?, active = 0, eq_since = NULL, eq_tick = NULL WHERE user_id = ? AND pal_uid = ? AND status = 'home'", [$status, $uid, $palUid])->rowCount() === 1;
 }
 
 /** Common checks for sending. Returns [pal row or null, error text]. */
@@ -509,7 +520,7 @@ function pj_recall(array $u, int $jobId): array
         $r = pj_recall_scale($r, pj_job_frac($j), (int)$j['potions']);
     }
     if (q("UPDATE ppal_jobs SET state = 'ready', ends_at = ?, result = ? WHERE id = ? AND state = 'active'", [now(), json_encode($r), $jobId])->rowCount() !== 1) return [false, 'Already home.'];
-    q("UPDATE ppal_found SET status = 'home', hp = ?, hp_at = ? WHERE user_id = ? AND pal_uid = ?", [max(0, (int)($r['hp'] ?? 0)), now(), $uid, $j['pal_uid']]);
+    q("UPDATE ppal_found SET status = 'home', hp = ?, hp_at = ?, hp_tick = ? WHERE user_id = ? AND pal_uid = ?", [max(0, (int)($r['hp'] ?? 0)), now(), gclock_tick_or_null($uid), $uid, $j['pal_uid']]);
     if ($passive) pj_passive_finish($uid, $jobId, true);
     return [true, $name . ' comes home early. Collect to get what they brought.'];
 }
@@ -1090,7 +1101,7 @@ function pj_heal(array $u, string $palUid, string $slug = PJ_POTION): array
     $id = alchemy_item_id($slug);
     if (!$id || !give_item($uid, $id, -1)) return [false, 'You have no ' . (q_val('SELECT name FROM items WHERE id = ?', [$id]) ?: 'Healing Potion') . '.'];
     $hp = min($p['max'], $p['hp'] + alchemy_pal_heal($slug, $p['max']));
-    q("UPDATE ppal_found SET hp = ?, hp_at = ? WHERE user_id = ? AND pal_uid = ? AND status = 'home'", [$hp, now(), $uid, $palUid]);
+    q("UPDATE ppal_found SET hp = ?, hp_at = ?, hp_tick = ? WHERE user_id = ? AND pal_uid = ? AND status = 'home'", [$hp, now(), gclock_tick_or_null($uid), $uid, $palUid]);
     return [true, $p['name'] . ' feels better (' . $hp . '/' . $p['max'] . ' HP).'];
 }
 

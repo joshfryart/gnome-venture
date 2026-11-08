@@ -281,6 +281,27 @@ ok('seed key costs 10 game minutes', (int)urow($uid)['game_minute'] === 610);
 cfg(['game_clock_on' => '0']);
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 
+echo "== equipped pal XP on the game clock (decision 51)\n";
+require_once $argv[1] . '/includes/pal_jobs.php';
+q('DELETE FROM ppal_found WHERE user_id = ?', [$uid]);
+q("INSERT INTO ppal_found (user_id, pic_id, pal_key, found_at, active, status, eq_since, eq_tick, g_xp, a_xp) VALUES (?, 1, 'testpal', ?, 1, 'home', ?, ?, 0, 0)",
+    [$uid, now(), gmdate('Y-m-d H:i:s', time() - 100 * 3600), 5 * 1440 + 360]);
+setu($uid, ['game_day' => 5, 'game_minute' => 360 + 3 * 60 + 30]);
+cfg(['game_clock_on' => '1']);
+pj_settle_equip($uid);
+ok('3.5 game hours = 3 XP (the 100 real hours do not count)', (int)q_val("SELECT g_xp FROM ppal_found WHERE user_id = ? AND pal_key = 'testpal'", [$uid]) === 3);
+setu($uid, ['game_day' => 9, 'game_minute' => 360]);
+pj_settle_equip($uid);
+ok('days later: capped at 24 game hours (3 + 24)', (int)q_val("SELECT g_xp FROM ppal_found WHERE user_id = ? AND pal_key = 'testpal'", [$uid]) === 27);
+q("UPDATE ppal_found SET eq_tick = NULL, g_xp = 0, eq_since = ? WHERE user_id = ?", [gmdate('Y-m-d H:i:s', time() - 100 * 3600), $uid]);
+pj_settle_equip($uid);
+ok('flag just turned on (no eq_tick): starts counting, no windfall', (int)q_val("SELECT g_xp FROM ppal_found WHERE user_id = ?", [$uid]) === 0 && (int)q_val("SELECT eq_tick FROM ppal_found WHERE user_id = ?", [$uid]) === 9 * 1440 + 360);
+cfg(['game_clock_on' => '0']);
+pj_settle_equip($uid);
+ok('flag off: real hours (capped 24)', (int)q_val("SELECT g_xp FROM ppal_found WHERE user_id = ?", [$uid]) === 24);
+q('DELETE FROM ppal_found WHERE user_id = ?', [$uid]);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);

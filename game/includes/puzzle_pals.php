@@ -101,7 +101,7 @@ function ppal_schema(string $PK, string $ID, string $END): array
     $c = [['users', 'ppal_at', 'DATETIME NULL'], ['users', 'ppal_day', 'VARCHAR(10) NULL'], ['users', 'ppal_count', 'INT NOT NULL DEFAULT 0'], ['users', 'ppal_spawn_day', 'VARCHAR(10) NULL'],
         ['ppal_found', 'pal_uid', 'VARCHAR(16) NULL'], ['ppal_found', 'g_xp', 'INT NOT NULL DEFAULT 0'], ['ppal_found', 'a_xp', 'INT NOT NULL DEFAULT 0'],
         ['ppal_found', 'hp', 'INT NOT NULL DEFAULT -1'], ['ppal_found', 'hp_at', 'DATETIME NULL'], ['ppal_found', 'status', "VARCHAR(8) NOT NULL DEFAULT 'home'"],
-        ['ppal_found', 'eq_since', 'DATETIME NULL'], ['ppal_found', 'c_xp', 'INT NOT NULL DEFAULT 0']];
+        ['ppal_found', 'eq_since', 'DATETIME NULL'], ['ppal_found', 'eq_tick', 'INT NULL'], ['ppal_found', 'hp_tick', 'INT NULL'], ['ppal_found', 'c_xp', 'INT NOT NULL DEFAULT 0']];
     return [$t, $i, $c];
 }
 
@@ -666,14 +666,14 @@ function ppal_set_active(array $u, string $key, bool $on): array
     $name = $key;
     foreach (ppal_releases($uid) as $picId => $at) { $pic = ppal_pic((int)$picId); if ($pic && ($p = ppal_find_pal($pic, $key))) { $name = $p['name']; break; } }
     if (!$on) {
-        q('UPDATE ppal_found SET active = 0, eq_since = NULL WHERE user_id = ? AND pal_key = ?', [$uid, $key]);
+        q('UPDATE ppal_found SET active = 0, eq_since = NULL, eq_tick = NULL WHERE user_id = ? AND pal_key = ?', [$uid, $key]);
         ppal_party_reset();
         return [true, $name . ' goes home to rest.'];
     }
     if ((string)$f['status'] !== 'home') return [false, $name . ' is out on a job.'];
     if ((int)$f['active'] === 1) return [true, $name . ' is already with you.'];
     if ((int)q_val('SELECT COUNT(*) FROM ppal_found WHERE user_id = ? AND active = 1', [$uid]) >= ppal_party_max()) return [false, 'Your party is full (' . ppal_party_max() . '). Send a pal home first.'];
-    q("UPDATE ppal_found SET active = 1, eq_since = ? WHERE user_id = ? AND pal_key = ? AND status = 'home'", [now(), $uid, $key]);
+    q("UPDATE ppal_found SET active = 1, eq_since = ?, eq_tick = ? WHERE user_id = ? AND pal_key = ? AND status = 'home'", [now(), gclock_tick_or_null($uid), $uid, $key]);
     ppal_party_reset();
     return [true, $name . ' comes along with you.'];
 }

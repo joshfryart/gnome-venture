@@ -23,7 +23,7 @@ You are continuing the **sleep-days** build for Gnome Venture (repo `joshfryart/
 3. **Other personal systems: DONE (steps 16-17).** Open: `festival_active()["left"]` real seconds; `arrange_ctx` month; NPC "move on" mood/wants by game day (beyond the schedule hour) not built.
 4. **Labels and UI:** "costs N energy" labels need `game_energy_cost()`; the header energy pill still shows regen text; label game time vs real time; a visitor's view of a kitchen (`gardens.php:567`) still reads `ready_at`; reward for a split shift/repair is still paid at the start.
 5. **Gaps noted in time costs:** actions with 0 energy cost skip the time charge; seed packet and treks not wired; inn nap not offered.
-6. **Equip XP** (`PJ_EQUIP_XP_MAX`, decision 51) is meant to run on the game clock, cap 24 game hours: not done.
+6. **Equip XP + pal HP: DONE (step 21).** Player HP (`health.php`) still real time.
 7. **Final:** one-time start value (`game_day = game_clock_days_from_epoch()` for the existing player), tests that need a `walk.sh` install (`cook.sh`, `craft.sh`, `paljobs.php`, `events.sh`, `help.sh`: they cannot run standalone here, run them before flipping the flag), admin settings page for the new settings, then ask Josh about flipping the flag and the version bump (`APP_VERSION` in `game/includes/bootstrap.php`, currently 2.6.08).
 
 ## Josh
