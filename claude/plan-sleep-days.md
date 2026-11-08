@@ -497,3 +497,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 40 (Josh, 2026-11-08)
 40. **NPC shop sell-bucket (section 6) is kept at the same size**, real-time drain as before. Closes Q7.
+
+### Decision 41 (Josh, 2026-11-08)
+41. **Closing hours live per place in data** (shops, stops, inns): `open_minute` and `close_minute` fields. Blank = default 06:00-22:00 (360-1320). Inns are open all night. Admin settings `default_open_minute` 360, `default_close_minute` 1320. Closes Q8.
