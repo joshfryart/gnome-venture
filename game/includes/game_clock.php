@@ -54,9 +54,9 @@ function game_is_tired(array $u): bool
 function game_surcharge_pct(array $u): int
 {
     $over = gclock_state($u)['minute'] - GAME_TIRED_MINUTE;
-    if ($over <= 0) return 0;
+    if ($over < 0) return 0;
     $per = setting('tired_surcharge_pct_per_hour');
-    return (int)ceil($over / 60) * ($per === '' ? 10 : max(0, (int)$per));
+    return ((int)floor($over / 60) + 1) * ($per === '' ? 10 : max(0, (int)$per));   // 22:00-22:59 = 1 step, 23:00-23:59 = 2 ...
 }
 
 /** Energy cost with the tired surcharge (rounded up, never below the base). */

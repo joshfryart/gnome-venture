@@ -26,8 +26,9 @@ ok('past midnight hour wraps', gclock_state(['game_day' => 0, 'game_minute' => 1
 
 echo "== tired surcharge (+10% per hour past 22:00, decision 34)\n";
 ok('0% before 22:00', game_surcharge_pct(['game_minute' => 1319]) === 0);
-ok('10% in first tired hour', game_surcharge_pct(['game_minute' => 1321]) === 10);
-ok('30% at 00:30 (3rd hour)', game_surcharge_pct(['game_minute' => 1470]) === 30);
+ok('10% in first tired hour', game_surcharge_pct(['game_minute' => 1321]) === 10 && game_surcharge_pct(['game_minute' => 1320]) === 10 && game_surcharge_pct(['game_minute' => 1379]) === 10);
+ok('20% from 23:00', game_surcharge_pct(['game_minute' => 1380]) === 20);
+ok('30% at 00:30 (3rd hour)', game_surcharge_pct(['game_minute' => 1470]) === 30 && game_surcharge_pct(['game_minute' => 1500]) === 40);
 ok('cost 10 -> 11 at +10%', game_energy_cost(['game_minute' => 1330], 10) === 11);
 ok('cost 3 -> 4 (rounds up)', game_energy_cost(['game_minute' => 1330], 3) === 4);
 ok('cost unchanged by day', game_energy_cost(['game_minute' => 600], 5) === 5);
@@ -127,6 +128,23 @@ if ($plant && $tile) {
     cfg(['weather_force' => '']);
 } else { ok('have a plant and a tile to test with', false); }
 } catch (Throwable $e) { ok('growth block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
+
+echo "== energy under the game clock\n";
+cfg(['game_clock_on' => '1']);
+q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);
+$u = urow($uid); refresh_energy($u);
+ok('no regen over two hours', (int)$u['energy'] === 5 && (int)urow($uid)['energy'] === 5);
+ok('current_energy shows no regen', current_energy($u)[0] === 5);
+ok('no next-tick countdown', energy_next_secs($u) === null);
+ok('day spend: 3 costs 3', spend_energy($uid, 3) && (int)urow($uid)['energy'] === 2);
+q('UPDATE users SET energy = 20, game_minute = 1380 WHERE id = ?', [$uid]);   // 23:00 = 2nd tired hour = +20%
+ok('tired spend: 10 costs 12', spend_energy($uid, 10) && (int)urow($uid)['energy'] === 8, (string)urow($uid)['energy']);
+q('UPDATE users SET energy = 11 WHERE id = ?', [$uid]);
+ok('tired spend refused if short (needs 12)', !spend_energy($uid, 10) && (int)urow($uid)['energy'] === 11);
+cfg(['game_clock_on' => '0']);
+q('UPDATE users SET energy = 20, game_minute = 1380 WHERE id = ?', [$uid]);
+ok('flag off: no surcharge', spend_energy($uid, 10) && (int)urow($uid)['energy'] === 10);
+q('UPDATE users SET game_day = 0, game_minute = 360 WHERE id = ?', [$uid]);
 
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);

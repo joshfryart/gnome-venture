@@ -291,6 +291,7 @@ function soil_grade_unlocks(int $uid, int $gradeIndex): array
 
 function refresh_energy(array &$u): void
 {
+    if (gclock_on()) return;   // sleep-days: energy no longer comes back by the minute
     $max = max_energy($u);
     [$amt, $per] = energy_tick();   // v0.9.0: N energy every so many seconds
     $last = ts($u['energy_updated_at']);
@@ -316,6 +317,10 @@ function refresh_energy(array &$u): void
 
 function spend_energy(int $uid, int $n): bool
 {
+    if (gclock_on() && $n > 0) {   // sleep-days: the tired surcharge (+10% per game hour past 22:00) is added here, the one place energy is spent
+        $row = q_one('SELECT game_day, game_minute FROM users WHERE id = ?', [$uid]);
+        if ($row) $n = game_energy_cost($row, $n);
+    }
     return q('UPDATE users SET energy = energy - ? WHERE id = ? AND energy >= ?', [$n, $uid, $n])->rowCount() === 1;
 }
 
