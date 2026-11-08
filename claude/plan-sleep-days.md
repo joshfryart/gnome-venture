@@ -384,7 +384,7 @@ Derived, never stored:
 ### 13.2 Functions (new file `includes/game_clock.php`)
 | Function | Does |
 |---|---|
-| `game_state(array $u): array` | `['day','minute','tick','date','hour','dow','tired']` |
+| `gclock_state(array $u): array` | `['day','minute','tick','date','hour','dow','tired']` |
 | `hollow_game_date(array $u): string` | the `Y-m-d` personal systems pass to `hollow_season/weather/forecast` |
 | `game_can_spend(array $u, int $minutes, ?int $closesAt = null): array` | `[ok, reason, tired_after, surcharge_pct]`. Fails when `$closesAt` is set and `game_minute + $minutes > $closesAt` (decision 17). Never fails for being tired (decision 9) |
 | `game_spend(int $uid, int $minutes, ?int $closesAt = null): array` | atomic: `UPDATE users SET game_minute = game_minute + ? WHERE id = ? AND game_day = ? AND game_minute = ?` (reread on 0 rows, like the other two-tab guards). Returns the new state |
@@ -398,7 +398,7 @@ Derived, never stored:
 
 ### 13.3 Changes to existing code (for the build, not now)
 - `hollow_now(?string $region, ?array $state)`: `null` = real clock (guests, shared pages, admin). A state gives the personal date **and** hour. The current `$ts` argument stays for tests.
-- `hollow_hour()`, `hollow_dow()`: unchanged (real). Personal callers (section 12 P-hour table) take `game_state($u)['hour'/'dow']` instead.
+- `hollow_hour()`, `hollow_dow()`: unchanged (real). Personal callers (section 12 P-hour table) take `gclock_state($u)['hour'/'dow']` instead.
 - Energy: delete regen (`energy_tick`, `refresh_energy`, settings `energy_regen_*`). Keep `max_energy`, food and snacks.
 - Season mode: set `season_mode` to the epoch mode (not `real`). In `real` mode seasons follow calendar months, so a personal date would walk through spring in months of sleeps. In epoch mode `season_length` is in game-days.
 - Closing hours: add `opens`/`closes` (minutes) to shops and stops, or a lookup, so `game_can_spend` has a `$closesAt`. `npc_schedules` already has `start_hour`/`end_hour` for staff.
@@ -526,3 +526,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 49. **Camp pot is allowed on a nap too** (not only a full sleep). Updates decisions 32-33.
 50. **Camping gear recipe: rope, metal pins, canvas sheet, wood, camping pot.** (Camping pot is itself an item; check it exists in data, else it is new content. Quantities to set when building so craft cost is about 60 Petals, below the 100 shop price.)
 51. **Equip XP runs on the game clock, cap 24 game hours** (`PJ_EQUIP_XP_MAX` stays 24, counted in game hours from `eq_since`). All open questions now closed.
+
+### Build log
+- **Step 1 done (2026-11-08):** `game/includes/game_clock.php` (loaded from `bootstrap.php`, columns via `schema.php`), test `tests/game_clock.sh` + `tests/game_clock.php` (all ok). `game_state()` was taken by `games.php`, so the function is **`gclock_state()`**. Nothing calls it yet; no version bump; real clock untouched. Not yet done: one-time start value `game_day = game_clock_days_from_epoch()` for the existing player (needs an upgrade step with the next version bump).

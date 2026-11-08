@@ -1497,5 +1497,7 @@ function schema_statements(string $driver): array
     [$gmt, $gmi, $gmc] = gourmand_schema($PK, $ID, $END);
     require_once __DIR__ . '/here_schema.php';   // graphical navigation: here_layouts + users.start_page
     [$hrt, $hri, $hrc] = here_schema($PK, $ID, $END);
-    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc)];
+    require_once __DIR__ . '/game_clock.php';   // sleep-days: users.game_day + users.game_minute
+    [$gct, $gci, $gcc] = game_clock_schema($PK, $ID, $END);
+    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt, $gct), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri, $gci), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc, $gcc)];
 }
