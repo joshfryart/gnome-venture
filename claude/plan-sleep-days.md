@@ -434,3 +434,13 @@ Checked each claim in section 13 against the repo. Four were wrong or incomplete
 - `HOLLOW_EPOCH_FALLBACK` exists for the epoch.
 
 **Added to 13.6 open list:** the place to sleep (item 3) and whether a nap needs a bed.
+
+### Decision 21: where a gnome can sleep (Josh, 2026-11-08)
+21. Sleep is allowed at: **home** (the hovel), an **inn**, **in town**, or **on the road with camping gear (one use per sleep)**. Replaces the "hovel only" rule in section 2.
+
+Code check: a search for camping, tent, bedroll and inn finds nothing, so **the hovel, inns and camping gear are all new content**. Build list adds:
+- A sleep action on the home page.
+- Inns (a place type with a bed and a closing rule). Open: free, or coins?
+- A camping gear item, consumed on use, sold or crafted somewhere. Open: price, and does it also work as a nap?
+- "In town": taken as a bed or bench in towns. Open: confirm what Josh means and whether it costs anything.
+- Open: the nap rule (does a nap need any of these, or work anywhere?). The earlier draft said anywhere that is not closed.
