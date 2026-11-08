@@ -108,6 +108,7 @@ function game_sleep(int $uid, int $energyPct = 100): ?array
     $n = q('UPDATE users SET game_day = game_day + 1, game_minute = ?, energy = ? WHERE id = ? AND game_day = ? AND game_minute = ?',
         [GAME_WAKE_MINUTE, $new, $uid, (int)$u['game_day'], (int)$u['game_minute']])->rowCount();
     if ($n !== 1) return null;
+    game_new_day($uid);
     return ['game_day' => (int)$u['game_day'] + 1, 'game_minute' => GAME_WAKE_MINUTE];
 }
 
@@ -330,4 +331,33 @@ function gclock_jar_ready(int $uid): array
 {
     $r = q_one('SELECT game_day FROM users WHERE id = ?', [$uid]);
     return ['((ready_day IS NOT NULL AND ready_day <= ?) OR (ready_day IS NULL AND ready_at <= ?))', [(int)($r['game_day'] ?? 0), now()]];
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The one new-day hook (decision 56). Pal jobs keep their real-time code; a sleep moves their clocks forward instead.
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** Called once after every sleep. Only does anything while game_clock_on is 1. */
+function game_new_day(int $uid): void
+{
+    if (!gclock_on()) return;
+    $h = gclock_setting_int('pal_hours_per_sleep', 8);
+    if ($h > 0) gclock_shift_pal_clocks($uid, $h * 3600);
+}
+
+/**
+ * Move a gnome's running pal work $secs closer to done: active jobs get started_at, ends_at and last_tick earlier (so progress,
+ * passive ticks and the end time all jump ahead), and pots a pal tends get their start and ready time earlier.
+ * Pal-tended pots are not on the gnome's tick because a pal's cooking is checked by the real-time job code.
+ */
+function gclock_shift_pal_clocks(int $uid, int $secs): void
+{
+    foreach (q("SELECT id, started_at, ends_at, last_tick FROM ppal_jobs WHERE user_id = ? AND state = 'active'", [$uid])->fetchAll() as $j) {
+        $sh = fn($v) => $v === null || $v === '' ? $v : gmdate('Y-m-d H:i:s', (int)strtotime($v . ' UTC') - $secs);
+        q('UPDATE ppal_jobs SET started_at = ?, ends_at = ?, last_tick = ? WHERE id = ?', [$sh($j['started_at']), $sh($j['ends_at']), $sh($j['last_tick']), $j['id']]);
+    }
+    foreach (q('SELECT id, started_at, ready_at FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND pal_uid IS NOT NULL', [$uid])->fetchAll() as $p) {
+        $sh = fn($v) => $v === null || $v === '' ? $v : gmdate('Y-m-d H:i:s', (int)strtotime($v . ' UTC') - $secs);
+        q('UPDATE cook_pots SET started_at = ?, ready_at = ? WHERE id = ?', [$sh($p['started_at']), $sh($p['ready_at']), $p['id']]);
+    }
 }
