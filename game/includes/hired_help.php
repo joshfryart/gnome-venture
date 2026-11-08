@@ -70,7 +70,7 @@ function helper_slots(int $plotId): int
 function hire_visits(array $hire): array
 {
     $step = max(1, (int)($hire['step_hours'] ?? setting('helper_visit_hours'))) * 3600;   // v2.3.0: a pal on garden duty brings its own step
-    $end = min(time(), ts($hire['ends_at']));
+    $end = min(gclock_hire_now($hire), ts($hire['ends_at']));   // sleep-days: a hired helper keeps the owner's game time
     $out = [];
     for ($v = ts($hire['last_visit']) + $step; $v <= $end && count($out) < 200; $v += $step) $out[] = $v;
     return $out;
@@ -100,8 +100,9 @@ function hire_helper(array $u, int $plotId, int $helperId, int $days): array
         db()->rollBack();
         return [false, $h['name'] . ' asks ' . number_format($cost) . ' ' . setting('currency_name') . ' for ' . $days . ' day' . ($days > 1 ? 's' : '') . '.'];
     }
-    db_insert('garden_hires', ['plot_id' => $plotId, 'user_id' => $uid, 'helper_id' => $helperId, 'started_at' => now(),
-        'ends_at' => gmdate('Y-m-d H:i:s', time() + $days * 86400), 'last_visit' => now(), 'paid' => $cost, 'active' => 1]);
+    $nowT = gclock_plot_now($plotId);   // sleep-days: the contract runs in the owner's game days (the virtual clock); real time with the flag off
+    db_insert('garden_hires', ['plot_id' => $plotId, 'user_id' => $uid, 'helper_id' => $helperId, 'started_at' => gmdate('Y-m-d H:i:s', $nowT),
+        'ends_at' => gmdate('Y-m-d H:i:s', $nowT + $days * 86400), 'last_visit' => gmdate('Y-m-d H:i:s', $nowT), 'paid' => $cost, 'active' => 1]);
     db()->commit();
     return [true, $h['icon'] . ' ' . $h['name'] . ' moves into your Tool Shed for ' . $days . ' day' . ($days > 1 ? 's' : '') . '. They’ll visit every '
         . (int)setting('helper_visit_hours') . ' hours.'];
@@ -113,10 +114,10 @@ function dismiss_helper(array $u, int $plotId, int $hireId = 0): array
     $hire = null;
     foreach (current_hires($plotId) as $hh) if (!$hireId || (int)$hh['id'] === $hireId) $hire = $hh;   // v0.7.99: a chosen helper
     if (!$hire || (int)$hire['user_id'] !== (int)$u['id']) return [false, 'No helper to send home.'];
-    $days = max(0, intdiv(ts($hire['ends_at']) - time(), 86400));
+    $days = max(0, intdiv(ts($hire['ends_at']) - gclock_hire_now($hire), 86400));
     $refund = min((int)$hire['paid'], $days * (int)$hire['wage']);
     db()->beginTransaction();
-    if (q('UPDATE garden_hires SET active = 0, ends_at = ? WHERE id = ? AND active = 1', [now(), $hire['id']])->rowCount() === 1 && $refund > 0) {
+    if (q('UPDATE garden_hires SET active = 0, ends_at = ? WHERE id = ? AND active = 1', [gmdate('Y-m-d H:i:s', gclock_hire_now($hire)), $hire['id']])->rowCount() === 1 && $refund > 0) {
         q('UPDATE users SET coins = coins + ? WHERE id = ?', [$refund, $u['id']]);
     }
     db()->commit();
@@ -127,9 +128,10 @@ function dismiss_helper(array $u, int $plotId, int $hireId = 0): array
  * Called from load_plot for each tile, before normal growth: replay the helper's watering visits.
  * Returns the tile, and counts waterings in $stats.
  */
-function helper_water_tile(array $t, ?array $p, array $visits, array &$stats, ?array &$raw = null): array
+function helper_water_tile(array $t, ?array $p, array $visits, array &$stats, ?array &$raw = null, bool $gameDays = false): array
 {
     if (!$p || !$visits) return $t;
+    if ($gameDays && gclock_on()) return gclock_helper_water_tile($t, $p, $visits, $stats, $raw);
     $lw0 = (string)$t['last_watered'];
     $before = $stats['water'];
     foreach ($visits as $v) {
@@ -160,7 +162,7 @@ function helper_finish(array $hire, array $visits, array $stats): ?string
 {
     if (isset($hire['pj_job'])) return pj_garden_finish($hire, $visits, $stats);   // v2.3.0: a pal tending the garden (pal_jobs.php)
     $last = $visits ? gmdate('Y-m-d H:i:s', end($visits)) : $hire['last_visit'];
-    $ended = ts($hire['ends_at']) <= time();
+    $ended = ts($hire['ends_at']) <= gclock_hire_now($hire);
     q('UPDATE garden_hires SET last_visit = ?, visits = visits + ?, waterings = waterings + ?, weedings = weedings + ?, harvests = harvests + ?, active = ? WHERE id = ?',
         [$last, count($visits), $stats['water'], $stats['weed'], $stats['harvest'], $ended ? 0 : 1, $hire['id']]);
     $did = [];

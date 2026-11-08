@@ -71,7 +71,7 @@ function critter_ctx(int $plotId): array
 function critter_mood_for(array $c, array $k, array $ctx): int
 {
     $eats = trim((string)$k['foods']) !== '';
-    $fedAge = $c['fed_at'] ? time() - ts($c['fed_at']) : PHP_INT_MAX;
+    $fedAge = $c['fed_at'] ? gclock_plot_now((int)$c['plot_id']) - ts($c['fed_at']) : PHP_INT_MAX;   // sleep-days: the owner's game clock
     $mood = !$eats ? 60 : ($fedAge <= 36 * 3600 ? 60 : ($fedAge <= 96 * 3600 ? 45 : 25));
     $raining = in_array($ctx['weather'], ['rain', 'storm'], true);
     foreach (array_filter(array_map('trim', explode(',', (string)$k['likes']))) as $like) {
@@ -102,7 +102,8 @@ function critter_can_write(int $plotId): bool
 
 function critter_tick(array $c, array $k): array
 {
-    $now = time();
+    $now = gclock_plot_now((int)$c['plot_id']);   // sleep-days: the owner's virtual game clock (real time with the flag off)
+    $stampNow = gclock_maint_now((int)$c['plot_id']);
     $news = [];
     $orig = ['kind' => (string)$c['kind'], 'meals' => (int)$c['meals'], 'held' => (int)$c['held'], 'gifts_made' => (int)$c['gifts_made']];
     $plotId = (int)$c['plot_id'];
@@ -112,24 +113,24 @@ function critter_tick(array $c, array $k): array
     // a tadpole that has been fed grows into a frog
     if ($c['kind'] === 'tadpole' && $c['grows_at'] && $now >= ts($c['grows_at']) && $c['fed_at']) {
         $frog = critter_kinds()['frog'] ?? null;
-        if ($frog) { $c['kind'] = 'frog'; $c['grows_at'] = null; $c['gift_at'] = now(); $k = $frog; $news[] = '🐸 ' . $c['name'] . ' the tadpole has grown into a frog!'; }
+        if ($frog) { $c['kind'] = 'frog'; $c['grows_at'] = null; $c['gift_at'] = $stampNow; $k = $frog; $news[] = '🐸 ' . $c['name'] . ' the tadpole has grown into a frog!'; }
     }
     if (trim((string)$k['gift_slug']) !== '' && (int)$k['gift_cap'] > 0) {
         $lv = max(1, building_level($plotId, (string)$c['building']));
         $hrs = max(1.0, (int)$k['gift_hours'] * (100 - 15 * ($lv - 1)) / 100);
         $rate = (int)$c['mood'] < 30 ? max(10, (int)setting('critter_sleepy_pct')) / 100 : 1.0;
         $need = (int)$k['meals_per'];
-        if (!$c['gift_at']) $c['gift_at'] = now();
+        if (!$c['gift_at']) $c['gift_at'] = $stampNow;
         $periods = (int)floor(($now - ts($c['gift_at'])) * $rate / ($hrs * 3600));
         if ($need > 0 && (int)$c['meals'] < $need) {   // nothing to eat: the timer starts when it has food again
-            $c['gift_at'] = now();
+            $c['gift_at'] = $stampNow;
         } elseif ($periods > 0) {
             $room = max(0, (int)$k['gift_cap'] - (int)$c['held']);
             $make = min($periods, $room, $need > 0 ? intdiv((int)$c['meals'], $need) : $periods);
             $c['held'] = (int)$c['held'] + $make;
             $c['meals'] = (int)$c['meals'] - $make * $need;
             $c['gifts_made'] = (int)$c['gifts_made'] + $make;
-            if ($make < $periods || (int)$c['held'] >= (int)$k['gift_cap']) $c['gift_at'] = now();   // idle time never banks
+            if ($make < $periods || (int)$c['held'] >= (int)$k['gift_cap']) $c['gift_at'] = $stampNow;   // idle time never banks
             else $c['gift_at'] = gmdate('Y-m-d H:i:s', ts($c['gift_at']) + (int)round($periods * $hrs * 3600 / $rate));
         }
     }
@@ -221,7 +222,7 @@ function critter_welcome(array $u, int $plotId, string $building, string $name):
             return [false, 'Welcoming a ' . strtolower((string)$k['name']) . ' costs ' . money($cost) . '.'];
         }
         db_insert('garden_critters', ['plot_id' => $plotId, 'building' => $building, 'kind' => $k['slug'], 'name' => $name, 'mood' => 50, 'meals' => 0,
-            'fed_at' => null, 'gift_at' => now(), 'held' => 0, 'born_at' => now(), 'grows_at' => null, 'gifts_made' => 0]);
+            'fed_at' => null, 'gift_at' => gclock_maint_now($plotId), 'held' => 0, 'born_at' => gclock_maint_now($plotId), 'grows_at' => null, 'gifts_made' => 0]);
         if ((int)q_val('SELECT COUNT(*) FROM garden_critters WHERE plot_id = ? AND building = ?', [$plotId, $building]) > critter_homes($plotId, $building)) {   // v1.0.0: counted again inside the transaction
             db()->rollBack();
             return [false, 'Every home is taken. Upgrade the building to make room.'];
@@ -275,7 +276,7 @@ function critter_feed(array $u, int $plotId, string $building): array
             if ($took >= $room) break;
         }
         if ($took > 0) {
-            if (q('UPDATE garden_critters SET meals = meals + ?, fed_at = ? WHERE id = ? AND meals + ? <= ?', [$took, now(), $c['id'], $took, $cap])->rowCount() !== 1) {   // v1.0.0: never past the cap, even with two feeders at once
+            if (q('UPDATE garden_critters SET meals = meals + ?, fed_at = ? WHERE id = ? AND meals + ? <= ?', [$took, gclock_maint_now((int)$c['plot_id']), $c['id'], $took, $cap])->rowCount() !== 1) {   // v1.0.0: never past the cap, even with two feeders at once
                 db()->rollBack();
                 return [false, 'The feeder was just filled. Take a look again.'];
             }
@@ -335,7 +336,7 @@ function critter_hatch(array $u, int $plotId): array
         if (!$iid || !give_item($uid, $iid, -1)) { db()->rollBack(); return [false, 'You need some Frogspawn. Frogs lay it in good weather.']; }
         $name = critter_default_name($tad, $plotId);
         db_insert('garden_critters', ['plot_id' => $plotId, 'building' => 'frog_pond', 'kind' => 'tadpole', 'name' => $name, 'mood' => 50, 'meals' => 0, 'fed_at' => null,
-            'gift_at' => null, 'held' => 0, 'born_at' => now(), 'grows_at' => gmdate('Y-m-d H:i:s', time() + max(1, (int)setting('tadpole_days')) * 86400), 'gifts_made' => 0]);
+            'gift_at' => null, 'held' => 0, 'born_at' => gclock_maint_now($plotId), 'grows_at' => gmdate('Y-m-d H:i:s', gclock_plot_now($plotId) + max(1, (int)setting('tadpole_days')) * 86400), 'gifts_made' => 0]);
         if ((int)q_val('SELECT COUNT(*) FROM garden_critters WHERE plot_id = ? AND building = ?', [$plotId, 'frog_pond']) > critter_homes($plotId, 'frog_pond')) {   // v1.0.0: re-counted inside the transaction
             db()->rollBack();
             return [false, 'The pond is full of friends. Upgrade it to make room.'];
@@ -389,8 +390,9 @@ function critter_gift_line(array $c, array $k, string $unit): string
     $lv = max(1, building_level((int)$c['plot_id'], (string)$c['building']));
     $hrs = max(1.0, (int)$k['gift_hours'] * (100 - 15 * ($lv - 1)) / 100);
     $rate = (int)$c['mood'] < 30 ? max(10, (int)setting('critter_sleepy_pct')) / 100 : 1.0;
-    $gift = $c['gift_at'] ? ts($c['gift_at']) : time();
-    $left = max(60, (int)round($hrs * 3600 / $rate) - (time() - $gift));
+    $nowP = gclock_plot_now((int)$c['plot_id']);
+    $gift = $c['gift_at'] ? ts($c['gift_at']) : $nowP;
+    $left = max(60, (int)round($hrs * 3600 / $rate) - ($nowP - $gift));
     return 'Next ' . $names[$slug] . ' in ~' . ($left >= 3600 ? max(1, (int)round($left / 3600)) . 'h' : max(1, (int)ceil($left / 60)) . 'm');
 }
 
@@ -418,7 +420,7 @@ function critter_panel_html(array $u, array $plot, string $b): string
             if ($eats) $line[] = '🍽️ ' . (int)$c['meals'] . '/' . $cap . ((int)$k['meals_per'] > 0 ? ' · ' . (int)$k['meals_per'] . ' ' . $unitC . ' per gift' : '');   // v1.6.3: feeder against what one gift needs
             if (($gl = critter_gift_line($c, $k, $unitC)) !== '') $line[] = '⏳ ' . $gl;   // v1.6.3
             if ((int)$c['held'] > 0) $line[] = '🎁 ' . (int)$c['held'];
-            if ($c['kind'] === 'tadpole' && $c['grows_at']) $line[] = $c['fed_at'] ? '🌱 growing up in ' . nice_time(max(60, ts($c['grows_at']) - time())) : '🌱 needs a feed to grow';
+            if ($c['kind'] === 'tadpole' && $c['grows_at']) $line[] = $c['fed_at'] ? '🌱 growing up in ' . nice_time(max(60, ts($c['grows_at']) - gclock_plot_now((int)$c['plot_id']))) : '🌱 needs a feed to grow';
             $h .= '<li class="crit ' . e($cls) . '">' . critter_img((string)$c['kind'])
                 . '<span class="critmain"><b>' . eu($c['name']) . '</b> <small class="muted">' . e($k['name']) . '</small>'
                 . ' <span class="mood ' . e($cls) . '" title="' . e($word === 'Sulking' ? 'Works at half speed until it is fed or happier' : ($word === 'Delighted' ? 'Might leave an extra gift' : 'Doing fine')) . '">' . $face . ' ' . e($word) . ($word === 'Sulking' ? ' <small class="muted">half speed</small>' : ($word === 'Delighted' ? ' <small class="muted">extra gift</small>' : '')) . '</span>'

@@ -622,7 +622,7 @@ function cellar_store(int $uid, int $x, int $y): array
         return [false, 'Something changed there. Try again.'];
     }
     db_insert('cellar_plants', ['plot_id' => $plotId, 'user_id' => $uid, 'plant_id' => (int)$p['id'], 'growth_seconds' => $secs, 'stored_at' => now(),
-        'age_seconds' => $t['planted_at'] ? max(0, time() - ts($t['planted_at'])) : 0, 'harvests' => (int)($t['harvests'] ?? 0)]);   // v0.7.61: its age waits in the cellar
+        'age_seconds' => $t['planted_at'] ? max(0, gclock_plot_now($plotId) - ts($t['planted_at'])) : 0, 'harvests' => (int)($t['harvests'] ?? 0)]);   // v0.7.61: its age waits in the cellar
     db()->commit();
     return [true, '🚪 You carefully lift the ' . $p['name'] . ' and tuck it into the root cellar' . ($cost ? ' (' . number_format($cost) . ' ' . setting('currency_name') . ')' : '') . '.'];
 }
@@ -638,7 +638,7 @@ function cellar_replant(int $uid, int $cellarId, int $x, int $y): array
     db()->beginTransaction();
     if (q('DELETE FROM cellar_plants WHERE id = ?', [$c['id']])->rowCount() !== 1) { db()->rollBack(); return [false, 'Already replanted.']; }
     if (q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, last_watered = NULL, water_day = NULL, owed_days = 0, grow_day = ' . GCLOCK_OWNER_DAY_SQL . ', harvests = ?, nipped = 0, pest = NULL, pest_at = NULL, pest_check = NULL WHERE id = ? AND plant_id IS NULL',
-          [$c['plant_id'], gmdate('Y-m-d H:i:s', time() - (int)($c['age_seconds'] ?? 0)), (int)$c['growth_seconds'], now(), (int)($c['harvests'] ?? 0), $t['id']])->rowCount() !== 1) {
+          [$c['plant_id'], gmdate('Y-m-d H:i:s', gclock_plot_now($plotId) - (int)($c['age_seconds'] ?? 0)), (int)$c['growth_seconds'], now(), (int)($c['harvests'] ?? 0), $t['id']])->rowCount() !== 1) {
         db()->rollBack();
         return [false, 'Something is already growing there.'];
     }
@@ -657,7 +657,7 @@ function perennial_life(array $t, array $p): ?array
     $life = (int)setting(in_array($p['kind'], ['tree', 'nut'], true) ? 'life_tree_days' : ($p['kind'] === 'fruit' ? 'life_fruit_days' : 'life_other_days'));
     if (!empty($t['plot_id']) && garden_mods((int)$t['plot_id'])['greenhouse'] >= 3) $life = (int)round($life * 1.25);   // v0.7.96: greenhouse level 3
     $life = max(1, $life);
-    $age = max(0, time() - ts($t['planted_at'])) / 86400;
+    $age = max(0, (!empty($t['plot_id']) ? gclock_plot_now((int)$t['plot_id']) : time()) - ts($t['planted_at'])) / 86400;   // sleep-days: perennials age in game days
     $frac = min(1, $age / $life);
     $pct = (int)round(100 - (100 - (int)setting('life_end_yield')) * $frac);
     return [(int)floor($age), $life, $pct, max(0, (int)ceil($life - $age)), $age >= $life];
@@ -813,7 +813,8 @@ function tile_info(array $t, array $p): array
     $rain = !empty($fx['wet']);
     if (gclock_on()) {   // sleep-days: a bed is wet for the rest of the game day it was watered; the next sleep dries it
         $today = gclock_plot_day((int)$t['plot_id']);
-        $fresh = ($t['water_day'] ?? null) !== null && ($t['water_day'] ?? '') !== '' && (int)$t['water_day'] >= $today;
+        $wd = ($t['water_day'] ?? null) !== null && ($t['water_day'] ?? '') !== '' ? (int)$t['water_day'] : null;
+        $fresh = $wd !== null && ($wd >= $today || ($wd === $today - 1 && ($cp = gclock_water_carry_pct($t, $p)) > 0 && hollow_unit('carry|' . $t['id'] . '|' . $today) * 100 < $cp));   // a barrel's watering can last into today
         $sleeps = gclock_grow_sleeps($p);
         $left = (int)ceil(($need - (int)$t['growth_seconds']) / max(1.0, $need / $sleeps) / max(0.05, soil_speed($t) * $fx['speed'] * garden_pest_factor($t)));
         return [
@@ -920,7 +921,7 @@ function load_plot(int $uid, bool $helperDone = false, ?int $visitPlot = null): 
             $p = $plants[$pid] ??= q_one('SELECT * FROM plants WHERE id = ?', [$pid]);
         }
         $t = annotate_tile($t, $p);
-        foreach ($hires as $k => $hh) if ($hv[$k] && in_array('water', $hs[$k], true)) $t = helper_water_tile($t, $p, $hv[$k], $hst[$k], $raw);
+        foreach ($hires as $k => $hh) if ($hv[$k] && in_array('water', $hs[$k], true)) $t = helper_water_tile($t, $p, $hv[$k], $hst[$k], $raw, empty($hh['pj_job']));
         if ($p || $t['method'] === 'notill' || (int)$t['feed_hours'] > 0) {
             $origSig = growth_sig($t);   // v1.2.2: what the database holds now (helper_water_tile has already saved its own changes)
             $origClock = (string)$t['growth_updated_at'];
@@ -1247,7 +1248,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                 if (!give_item($uid, $itemId, -1)) throw new UserError('You don’t have that seed.');
                 $head = $sapling ? intdiv((int)$np['grow_minutes'] * 60 * (int)setting('sapling_head_start'), 100) : 0;
                 if (q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, last_watered = NULL, water_day = NULL, owed_days = 0, grow_day = ' . GCLOCK_OWNER_DAY_SQL . ', harvests = 0, nipped = 0, pest = NULL, pest_at = NULL, pest_check = ?
-                       WHERE id = ? AND plant_id IS NULL', [$np['id'], now(), $head, now(), gclock_plot_date((int)$t['plot_id']), $t['id']])->rowCount() !== 1) {
+                       WHERE id = ? AND plant_id IS NULL', [$np['id'], gclock_maint_now((int)$t['plot_id']), $head, now(), gclock_plot_date((int)$t['plot_id']), $t['id']])->rowCount() !== 1) {
                     throw new UserError('Something is already growing here.');
                 }
                 $msgs[] = 'You plant ' . $np['name'] . '. Don’t forget to water it!';

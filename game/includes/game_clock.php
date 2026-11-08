@@ -212,10 +212,12 @@ function gclock_tile_grow(array $t, ?array $p, ?int $today = null): array
     $slowPest = !empty($t['pest']) ? max(0, min(90, (int)setting('pest_slow_pct'))) / 100 : 0.0;
     $water = ($t['water_day'] ?? null) === null || ($t['water_day'] ?? '') === '' ? null : (int)$t['water_day'];
     $epoch = hollow_season_epoch();
+    $carryPct = gclock_water_carry_pct($t, $p);
     $n = 0;
     for ($d = $from; $d < $today && $n++ < 60; $d++) {
         $fx = garden_day_fx($t, $p, hollow_date_add($epoch, $d));
-        if ($water !== $d && empty($fx['wet'])) { $owed = min($owed + 1, $sleeps); continue; }   // a dry day is owed, not lost
+        $carried = $water !== null && $water === $d - 1 && $carryPct > 0 && hollow_unit('carry|' . $t['id'] . '|' . $d) * 100 < $carryPct;   // rain barrel, shade and the like make a watering last into the next day
+        if ($water !== $d && !$carried && empty($fx['wet'])) { $owed = min($owed + 1, $sleeps); continue; }   // a dry day is owed, not lost
         $days = 1 + $owed;
         $owed = 0;
         $gs += (int)($share * $days * $base * $fx['speed'] * (1 - $slowPest));
@@ -848,4 +850,62 @@ function gclock_rest_summary(array $before, array $after, int $hpGain = 0): stri
     $bits[] = '⚡ ' . (int)$before['energy'] . ' → ' . (int)$after['energy'] . ' (' . ((int)$after['energy'] >= (int)$before['energy'] ? '+' : '') . ((int)$after['energy'] - (int)$before['energy']) . ')';
     if ($hpGain > 0) $bits[] = '❤️ +' . $hpGain . ' health';
     return implode(' · ', $bits);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Hired helpers (Tool Shed). A normal hire lives on the owner's virtual game clock: contract days are game days, visits come every
+// helper_visit_hours GAME hours, so every sleep brings a full day of visits. A pal on garden duty (pj_job) keeps its pal-job timers.
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** "Now" for a hire: the owner's virtual clock for a normal hire with the flag on, else the real time. */
+function gclock_hire_now(array $hire): int
+{
+    return gclock_on() && empty($hire['pj_job']) && !empty($hire['plot_id']) ? gclock_plot_vnow((int)$hire['plot_id']) : time();
+}
+
+/**
+ * Replay a helper's watering by game day: each game day with a visit, a thirsty bed is watered (water_day = that day) and grows
+ * that day's share; days with no visit stay dry (owed, as for the player). Counts waterings like the real-time version.
+ */
+function gclock_helper_water_tile(array $t, array $p, array $visits, array &$stats, ?array &$raw): array
+{
+    $epoch = (int)strtotime(hollow_season_epoch() . ' 00:00:00 UTC');
+    $today = gclock_plot_day((int)$t['plot_id']);
+    $before = $stats['water'];
+    $days = [];
+    foreach ($visits as $v) $days[intdiv($v - $epoch, 86400)] = true;
+    ksort($days);
+    $lw0 = $t['water_day'] ?? null;
+    foreach (array_keys($days) as $d) {
+        if ($d > $today) break;
+        if (($t['grow_day'] ?? '') !== '' && $t['grow_day'] !== null && $d < (int)$t['grow_day']) continue;   // before the bed was last settled
+        $t = gclock_tile_grow($t, $p, $d);                 // settle the days before this visit
+        if ((int)$t['growth_seconds'] >= (int)$p['grow_minutes'] * 60) break;   // ready: nothing more to water
+        if (($t['water_day'] ?? null) === null || (int)$t['water_day'] < $d) { $t['water_day'] = $d; $stats['water']++; }
+        $t = gclock_tile_grow($t, $p, $d + 1);            // that day, watered
+    }
+    $t = gclock_tile_grow($t, $p, $today);                // and on to today
+    $write = fn() => q('UPDATE plot_tiles SET growth_seconds = ?, grow_day = ?, owed_days = ?, water_day = ?, nipped = ? WHERE id = ?',
+        [$t['growth_seconds'], $t['grow_day'], $t['owed_days'], $t['water_day'] ?? null, (int)($t['nipped'] ?? 0), $t['id']]);
+    if ($raw === null) { $write(); return $t; }
+    if (tile_write_guarded($raw, $write)) {
+        $raw = array_merge($raw, ['growth_seconds' => $t['growth_seconds'], 'grow_day' => $t['grow_day'], 'owed_days' => $t['owed_days'], 'water_day' => $t['water_day'] ?? null]);
+        return $t;
+    }
+    $stats['water'] = $before;
+    return annotate_tile($raw, $p);
+}
+
+/**
+ * Chance (percent) that a watering also covers the NEXT game day. A watering normally lasts its own game day; whatever makes it last
+ * longer in real time (rain barrel levels 25/40/55%, a barrel or shade tree beside the bed, a damp climate) becomes
+ * the chance of a second day. Rolled once per bed and day, the same for everyone who looks.
+ */
+function gclock_water_carry_pct(array $t, ?array $p): int
+{
+    $rain = !empty($t['_rain']) ? [1 => 1.25, 2 => 1.40, 3 => 1.55][min(3, (int)$t['_rain'])] : 1.0;
+    $barrel = !empty($t['_barrel']) ? 1 + (int)setting('yard_barrel_percent') / 100 : 1.0;
+    $shade = !empty($t['_shade']) ? 1 + (int)setting('yard_shade_percent') / 100 : 1.0;
+    $clim = max(0.2, 1 + ((int)($t['_clim']['water'] ?? 0) + ((int)($t['mulch'] ?? 0) <= 0 ? (int)($t['_clim']['water_bare'] ?? 0) : 0)) / 100);
+    return (int)max(0, min(90, round(($rain * $barrel * $shade * $clim - 1) * 100)));
 }

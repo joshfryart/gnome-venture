@@ -894,8 +894,8 @@ $maxLv = fn(string $k): int => 1 + count(BUILDING_UPGRADES[$k] ?? []);
       <span class="hicon"><?= e((string)$hire['icon']) ?></span>
       <div>
         <b><?= e($hire['name']) ?></b> <span class="muted">(<?= e((string)$hire['species']) ?>)</span> is staying in your Tool Shed.
-        <p class="help"><?= e(helper_skill_text($hire)) ?> · visits every <?= (int)setting('helper_visit_hours') ?> hours ·
-          <?= nice_time(max(0, ts($hire['ends_at']) - time())) ?> left</p>
+        <p class="help"><?= e(helper_skill_text($hire)) ?> · visits every <?= (int)setting('helper_visit_hours') ?> <?= gclock_on() ? 'game ' : '' ?>hours ·
+          <?= nice_time(max(0, ts($hire['ends_at']) - gclock_hire_now($hire))) ?> left<?= gclock_on() && empty($hire['pj_job']) ? ' (game time: it counts your days)' : '' ?></p>
         <p class="help">So far: <?= (int)$hire['visits'] ?> visits, watered <?= (int)$hire['waterings'] ?>, weeded <?= (int)$hire['weedings'] ?>, harvested <?= (int)$hire['harvests'] ?>.</p>
         <form method="post" data-confirm="Send <?= e($hire['name']) ?> home? Unused whole days are refunded."><?= csrf_field() ?><input type="hidden" name="do" value="dismiss"><input type="hidden" name="hire_id" value="<?= (int)$hire['id'] ?>">
           <button class="btn small alt">Send home</button></form>

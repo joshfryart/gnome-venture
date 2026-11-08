@@ -479,7 +479,7 @@ function build_building(array $u, int $plotId, string $b): array
         db()->rollBack();
         return [false, "A $name costs " . number_format($cost) . ' ' . setting('currency_name') . '.'];
     }
-    db_insert('garden_buildings', ['plot_id' => $plotId, 'building' => $b, 'built_at' => now(), 'last_collect' => now()]);
+    db_insert('garden_buildings', ['plot_id' => $plotId, 'building' => $b, 'built_at' => gclock_maint_now($plotId), 'last_collect' => gclock_maint_now($plotId)]);
     db()->commit();
     if (critter_is_home($b)) unlock_entries((int)$u['id'], 'critter:' . $b);   // v1.0.0: the animal's Almanac page
     return [true, BUILDINGS[$b][1] . " You build a $name!" . (critter_is_home($b) ? ' Now welcome someone to live there.' : '')];
@@ -488,7 +488,7 @@ function build_building(array $u, int $plotId, string $b): array
 /** How many items a producing building has ready (one a day, holds up to 5). */
 function building_ready(array $row): int
 {
-    $since = time() - ts_gnome($row['last_collect'] ?? $row['built_at']);
+    $since = gclock_plot_now((int)$row['plot_id']) - ts_gnome($row['last_collect'] ?? $row['built_at']);   // sleep-days: one a game day
     $cap = ($row['building'] ?? '') === 'beehive' && (int)($row['level'] ?? 1) >= 2 ? 10 : 5;   // v0.7.95: a level 2 hive holds 10
     return min($cap, intdiv(max(0, $since), 86400));
 }
@@ -518,7 +518,7 @@ function collect_building(array $u, int $plotId, string $b): array
     $got = [];
     if ($n > 0) {
         $last = ts_gnome($row['last_collect']);
-        $newLast = $n >= ($b === 'beehive' && $lv >= 2 ? 10 : 5) ? time() : $last + $n * 86400;
+        $newLast = $n >= ($b === 'beehive' && $lv >= 2 ? 10 : 5) ? gclock_plot_now($plotId) : $last + $n * 86400;
         if (q('UPDATE garden_buildings SET last_collect = ? WHERE id = ? AND last_collect = ?',
                 [gmdate('Y-m-d H:i:s', $newLast), $row['id'], $row['last_collect']])->rowCount() !== 1) {
             db()->rollBack();

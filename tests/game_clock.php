@@ -512,6 +512,79 @@ $sum = gclock_rest_summary(['energy' => 12, 'game_day' => 5, 'game_minute' => 13
 ok('rest summary: day, clock, energy, health', $sum === 'Day 7, 06:00 (+8 h 20 min) · ⚡ 12 → 40 (+28) · ❤️ +9 health', $sum);
 cfg(['game_clock_on' => '0']);
 
+echo "== hired helpers on the owner's game days\n";
+require_once $argv[1] . '/includes/hired_help.php';
+try {
+setu($uid, ['game_day' => 100, 'game_minute' => 600]);
+gclock_plot_clock(0, true);
+cfg(['game_clock_on' => '1', 'rain_waters' => '0', 'weather_force' => '', 'helper_visit_hours' => '4']);
+$pidh = (int)$pl2['id'];
+$epochT = (int)strtotime(hollow_season_epoch() . ' 00:00:00 UTC');
+$vnow = gclock_plot_vnow($pidh);
+ok('hire_visits: every 4 game hours of the owner clock, not real time', count(hire_visits(['plot_id' => $pidh, 'last_visit' => gmdate('Y-m-d H:i:s', $vnow - 24 * 3600), 'ends_at' => gmdate('Y-m-d H:i:s', $vnow + 99999)])) === 6);
+ok('hire_visits stop at the contract end', count(hire_visits(['plot_id' => $pidh, 'last_visit' => gmdate('Y-m-d H:i:s', $vnow - 24 * 3600), 'ends_at' => gmdate('Y-m-d H:i:s', $vnow - 12 * 3600)])) === 3);
+$pl3 = $plant;
+$need = (int)$pl3['grow_minutes'] * 60;
+$tt = array_merge($tl, ['plant_id' => $pl3['id'], 'growth_seconds' => 0, 'grow_day' => 96, 'water_day' => null, 'owed_days' => 0, 'pest' => null, 'plot_id' => $pidh, 'mulch' => 0]);
+$visits = [];
+for ($d = 96; $d <= 99; $d++) $visits[] = $epochT + $d * 86400 + 10 * 3600;   // one visit on each of days 96..99
+$st = ['water' => 0, 'weed' => 0, 'harvest' => 0]; $rawN = null;
+$r = gclock_helper_water_tile($tt, $pl3, $visits, $st, $rawN);
+$share = $need / gclock_grow_sleeps($pl3) * soil_speed($tt);
+ok('a helper that came on 4 days waters 4 times', $st['water'] === 4, (string)$st['water']);
+ok('and the bed grew about 4 shares (capped at ready)', (int)$r['growth_seconds'] >= min($need, (int)($share * 4 * 0.5)) && (int)$r['grow_day'] === 100, $r['growth_seconds'] . ' of ' . $need);
+$st = ['water' => 0, 'weed' => 0, 'harvest' => 0];
+$gap = gclock_helper_water_tile($tt, $pl3, [$epochT + 98 * 86400 + 36000], $st, $rawN);
+ok('a helper who came on one day only waters once; other days stay dry (owed)', $st['water'] === 1 && (int)$gap['growth_seconds'] < (int)$r['growth_seconds'] || (int)$r['growth_seconds'] >= $need);
+} catch (Throwable $e) { ok('helper block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
+cfg(['game_clock_on' => '0', 'helper_visit_hours' => '']);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+gclock_plot_clock(0, true);
+
+echo "== rain barrel: a watering can last into the next day\n";
+try {
+cfg(['game_clock_on' => '1', 'rain_waters' => '0', 'weather_force' => '', 'grow_days_by_tier' => '']);
+$base = array_merge($tl, ['plant_id' => $plant['id'], 'growth_seconds' => 0, 'grow_day' => 4, 'water_day' => 4, 'owed_days' => 0, 'pest' => null, 'plot_id' => $pidh, 'mulch' => 0, '_rain' => 0]);
+ok('no barrel: carry 0%', gclock_water_carry_pct($base, $plant) === 0);
+ok('barrel level 3: carry 55%', gclock_water_carry_pct(array_merge($base, ['_rain' => 3]), $plant) === 55);
+ok('level 1 / 2: 25% / 40%', gclock_water_carry_pct(array_merge($base, ['_rain' => 1]), $plant) === 25 && gclock_water_carry_pct(array_merge($base, ['_rain' => 2]), $plant) === 40);
+$yes = $no = null;
+for ($i = 1; $i < 400 && (!$yes || !$no); $i++) { if (hollow_unit('carry|' . $i . '|5') * 100 < 55) $yes ??= $i; else $no ??= $i; }
+$g0 = (int)gclock_tile_grow(array_merge($base, ['id' => $no, '_rain' => 3]), $plant, 6)['growth_seconds'];
+$g1 = (int)gclock_tile_grow(array_merge($base, ['id' => $yes, '_rain' => 3]), $plant, 6)['growth_seconds'];
+$gnone = (int)gclock_tile_grow(array_merge($base, ['id' => $yes, '_rain' => 0]), $plant, 6)['growth_seconds'];
+ok('a barrel watering that carried grows the second day too', $g1 > $g0 && $g0 === $gnone, "$g1 > $g0 = $gnone");
+ok('the roll is the same each time you look', hollow_unit('carry|' . $yes . '|5') === hollow_unit('carry|' . $yes . '|5'));
+setu($uid, ['game_day' => 5, 'game_minute' => 600]); gclock_plot_clock(0, true);
+$ti = tile_info(array_merge($base, ['id' => $yes, '_rain' => 3, 'water_day' => 4, 'plot_id' => $pidh]), $plant);
+$tn = tile_info(array_merge($base, ['id' => $no, '_rain' => 3, 'water_day' => 4, 'plot_id' => $pidh]), $plant);
+ok('tile_info agrees: carried = not thirsty, not carried = thirsty', !$ti['thirsty'] && $tn['thirsty']);
+} catch (Throwable $e) { ok('barrel block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
+cfg(['game_clock_on' => '0']);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]); gclock_plot_clock(0, true);
+
+echo "== compost bin, beehive and garden animals on the owner's game days\n";
+require_once $argv[1] . '/includes/gardens.php';
+setu($uid, ['game_day' => 200, 'game_minute' => 600]); gclock_plot_clock(0, true);
+cfg(['game_clock_on' => '1']);
+$vn = gclock_plot_vnow($pidh);
+$brow = ['plot_id' => $pidh, 'building' => 'compost_bin', 'level' => 1, 'last_collect' => gmdate('Y-m-d H:i:s', $vn - 3 * 86400 - 60), 'built_at' => gmdate('Y-m-d H:i:s', $vn - 9 * 86400)];
+ok('3 game days since the last collect = 3 ready', building_ready($brow) === 3);
+ok('a real-time stamp from the future waits (none ready)', building_ready(array_merge($brow, ['last_collect' => gmdate('Y-m-d H:i:s', $vn + 7200)])) === 0);
+cfg(['game_clock_on' => '0']);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]); gclock_plot_clock(0, true);
+
+echo "== perennials age in game days\n";
+setu($uid, ['game_day' => 300, 'game_minute' => 600]); gclock_plot_clock(0, true);
+cfg(['game_clock_on' => '1']);
+$per = ['perennial' => 1, 'kind' => 'fruit', 'id' => 1];
+cfg(['life_fruit_days' => '60', 'life_end_yield' => '50']);
+$vn2 = gclock_plot_vnow($pidh);
+$lifeT = perennial_life(['plot_id' => $pidh, 'planted_at' => gmdate('Y-m-d H:i:s', $vn2 - 12 * 86400)], $per);
+ok('planted 12 game days ago: age 12 of 60, 48 left', $lifeT && $lifeT[0] === 12 && $lifeT[1] === 60 && $lifeT[3] === 48, json_encode($lifeT));
+cfg(['game_clock_on' => '0', 'life_fruit_days' => '', 'life_end_yield' => '']);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]); gclock_plot_clock(0, true);
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);
