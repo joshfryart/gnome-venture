@@ -361,3 +361,29 @@ function gclock_shift_pal_clocks(int $uid, int $secs): void
         q('UPDATE cook_pots SET started_at = ?, ready_at = ? WHERE id = ?', [$sh($p['started_at']), $sh($p['ready_at']), $p['id']]);
     }
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Time costs (plan section 11, decision 48). Only actions of 10+ game minutes cost time. Setting time_<key> overrides.
+// ---------------------------------------------------------------------------------------------------------------------
+
+const GCLOCK_TIME_DEFAULTS = [
+    'travel' => 10,        // per trail section
+    'wander' => 20, 'gather' => 15, 'craft' => 15,   // craft is per unit
+    'arrange' => 20, 'seed' => 10, 'shift' => 480, 'sapling' => 15, 'tend' => 10, 'repair' => 480,
+    'lair' => 120, 'landmark' => 20, 'stop' => 15, 'water_other' => 10,
+];
+
+/** Game minutes one unit of an action costs (0 = free). */
+function gclock_time_cost(string $key): int
+{
+    $v = setting('time_' . $key);
+    return $v === '' ? (GCLOCK_TIME_DEFAULTS[$key] ?? 0) : max(0, (int)$v);
+}
+
+/** Spend the game time for an action, after its energy was paid. Does nothing while game_clock_on is 0. Never blocks (being tired never blocks). */
+function gclock_charge(int $uid, string $key, int $units = 1): void
+{
+    if (!gclock_on()) return;
+    $m = gclock_time_cost($key) * max(1, $units);
+    if ($m > 0) game_spend($uid, $m);
+}

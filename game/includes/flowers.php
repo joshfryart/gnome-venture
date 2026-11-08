@@ -298,7 +298,7 @@ function arrange_make(array $u, string $vessel, array $slots): array
             return [false, 'You don’t have all of those flowers any more. Nothing was used.', 0];
         }
     }
-    if ($energy > 0 && !spend_energy($uid, $energy)) {
+    if ($energy > 0 && !spend_energy($uid, $energy, 'arrange')) {
         db()->rollBack();
         return [false, 'You’re too tired to arrange. It takes ⚡' . $energy . '. Nothing was used.', 0];
     }
@@ -617,7 +617,7 @@ function florist_start(array $u, array $shop): array
         db()->rollBack();
         return [false, 'You’ve done all the shifts you can today (' . (int)setting('florist_shifts_day') . '). Come back tomorrow.'];
     }
-    if ($energy > 0 && !spend_energy($uid, $energy)) {
+    if ($energy > 0 && !spend_energy($uid, $energy, 'shift')) {
         db()->rollBack();
         return [false, 'You’re too tired to volunteer. A shift costs ⚡' . $energy . '.'];
     }

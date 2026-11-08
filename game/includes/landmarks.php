@@ -301,7 +301,7 @@ function delve_start(array $u, int $lmId): array
     if (trek_inside($uid)) return [false, 'You’re on a trek. Leave the trek first.'];   // v1.8.0
     if (landmark_done_today($uid, $lmId, 'delve')) return [false, 'You’ve been down there today. The delve needs a day to settle.'];
     if (!landmark_once($uid, $lmId, 'delve')) return [false, 'You’ve been down there today. The delve needs a day to settle.'];   // the claim is the real once-a-day check (two tabs at once)
-    if (!spend_energy($uid, 1)) {
+    if (!spend_energy($uid, 1, 'landmark')) {
         q('DELETE FROM landmark_uses WHERE user_id = ? AND landmark_id = ? AND action = ? AND day = ?', [$uid, $lmId, 'delve', landmark_day()]);
         return [false, 'You need 1 energy to go in.'];
     }
@@ -325,7 +325,7 @@ function delve_next(array $u, array &$exp): void
 {
     if ($exp['encounter'] || (int)$exp['depth'] >= DELVE_ROOMS) return;
     $lantern = tool_tier((int)$u['id'], 'lantern');   // v0.7.30: a lantern lights the way (rooms free, traps easier)
-    if (!$lantern && !spend_energy((int)$u['id'], 1)) {
+    if (!$lantern && !spend_energy((int)$u['id'], 1, 'landmark')) {
         exp_log($exp, '😮‍💨 You’re too tired to go on. Rest, or climb back out.');
         return;
     }
@@ -424,7 +424,7 @@ function lair_start(array $u, int $lmId): array
     if (trek_inside($uid)) return [false, 'You’re on a trek. Leave the trek first.'];   // v1.8.0
     if (landmark_done_today($uid, $lmId, 'lair')) return [false, 'The ' . $boss['name'] . ' won’t come out again today.'];
     if (!landmark_once($uid, $lmId, 'lair')) return [false, 'The ' . $boss['name'] . ' won’t come out again today.'];   // the claim is the real once-a-day check (two tabs at once)
-    if (!spend_energy($uid, 2)) {
+    if (!spend_energy($uid, 2, 'lair')) {
         q('DELETE FROM landmark_uses WHERE user_id = ? AND landmark_id = ? AND action = ? AND day = ?', [$uid, $lmId, 'lair', landmark_day()]);
         return [false, 'You need 2 energy to face the ' . $boss['name'] . '.'];
     }

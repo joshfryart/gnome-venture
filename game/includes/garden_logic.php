@@ -315,13 +315,16 @@ function refresh_energy(array &$u): void
     }
 }
 
-function spend_energy(int $uid, int $n): bool
+/** Spend energy; $timeKey / $units also spend that action's game time (sleep-days, plan section 11) once the energy is paid. */
+function spend_energy(int $uid, int $n, ?string $timeKey = null, int $units = 1): bool
 {
     if (gclock_on() && $n > 0) {   // sleep-days: the tired surcharge (+10% per game hour past 22:00) is added here, the one place energy is spent
         $row = q_one('SELECT game_day, game_minute FROM users WHERE id = ?', [$uid]);
         if ($row) $n = game_energy_cost($row, $n);
     }
-    return q('UPDATE users SET energy = energy - ? WHERE id = ? AND energy >= ?', [$n, $uid, $n])->rowCount() === 1;
+    $ok = q('UPDATE users SET energy = energy - ? WHERE id = ? AND energy >= ?', [$n, $uid, $n])->rowCount() === 1;
+    if ($ok && $timeKey !== null) gclock_charge($uid, $timeKey, $units);
+    return $ok;
 }
 
 /** Best power of a tool type the player owns (0 = none). Tools: {"tool":"till","power":2} */

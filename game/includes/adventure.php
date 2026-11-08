@@ -227,6 +227,7 @@ function start_expedition(array $u, int $routeId): array
     $quick = q('UPDATE users SET ev_quickwalk = 0 WHERE id = ? AND ev_quickwalk = 1', [$u['id']])->rowCount() === 1;   // fireflies (v0.7.31): an instant walk, free roads too (v0.9.1 review)
     if ($quick) $cost = 0;
     if ($cost > 0 && !spend_energy((int)$u['id'], $cost)) return [false, "You need $cost energy for this walk. Rest or eat something first."];
+    gclock_charge((int)$u['id'], 'travel', function_exists('trail_sections') ? max(1, (int)trail_sections($route)) : max(1, (int)$route['steps']));   // sleep-days: game time per trail section
     $gc = gnome_combat($u, true);
     [$min, $max, $scaled] = route_danger($u, $route);
     [$mins, $quickWalk] = route_walk_minutes($u, $route);   // v0.9.7: a road far below you is a quick walk

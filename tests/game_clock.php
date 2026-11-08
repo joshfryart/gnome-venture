@@ -290,5 +290,32 @@ ok('offers are rolled for the game day (different seed per sleep, same day = sam
 cfg(['game_clock_on' => '0']);
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 
+echo "== time costs\n";
+cfg(['game_clock_on' => '1']);
+setu($uid, ['game_day' => 0, 'game_minute' => 600, 'energy' => 20]);
+ok('defaults: gather 15, craft 15, shift 480, travel 10', gclock_time_cost('gather') === 15 && gclock_time_cost('craft') === 15 && gclock_time_cost('shift') === 480 && gclock_time_cost('travel') === 10 && gclock_time_cost('nope') === 0);
+spend_energy($uid, 1, 'gather');
+ok('gather: 1 energy and 15 min', (int)urow($uid)['energy'] === 19 && (int)urow($uid)['game_minute'] === 615);
+spend_energy($uid, 3, 'craft', 3);
+ok('craft x3: 45 min', (int)urow($uid)['game_minute'] === 660);
+spend_energy($uid, 1);
+ok('no key: no time', (int)urow($uid)['game_minute'] === 660);
+gclock_charge($uid, 'travel', 4);
+ok('travel 4 sections: 40 min', (int)urow($uid)['game_minute'] === 700);
+cfg(['time_gather' => '0']);
+spend_energy($uid, 1, 'gather');
+ok('setting time_gather=0 makes it free', (int)urow($uid)['game_minute'] === 700);
+cfg(['time_gather' => '', 'time_shift' => '60']);
+ok('setting overrides default', gclock_time_cost('shift') === 60);
+cfg(['time_shift' => '']);
+setu($uid, ['game_minute' => 1330, 'energy' => 20]);
+spend_energy($uid, 10, 'shift');
+ok('8 h shift late: tired surcharge on energy (+10%), time runs past midnight', (int)urow($uid)['energy'] === 9 && (int)urow($uid)['game_minute'] === 1810, urow($uid)['energy'] . ' / ' . urow($uid)['game_minute']);
+cfg(['game_clock_on' => '0']);
+setu($uid, ['game_minute' => 600, 'energy' => 20]);
+spend_energy($uid, 1, 'gather');
+ok('flag off: no time spent', (int)urow($uid)['game_minute'] === 600);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);

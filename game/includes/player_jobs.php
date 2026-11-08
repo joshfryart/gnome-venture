@@ -267,7 +267,7 @@ function tend_action(array $u, array $job, string $action, int $x, int $y): arra
                 if (!$p || $p['kind'] === 'cover' || !tile_info($t, $p)['ready']) throw new UserError('Nothing ready to harvest there.');
                 break;
         }
-        if (!spend_energy($uid, $cost)) throw new UserError('You’re too tired. Rest a bit and your energy will come back.' . tired_hint($uid));
+        if (!spend_energy($uid, $cost, 'tend')) throw new UserError('You’re too tired. Rest a bit and your energy will come back.' . tired_hint($uid));
         save_growth($t);
         if ($action === 'water') {
             q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, water_day = ' . GCLOCK_OWNER_DAY_SQL . ' WHERE id = ?', [now(), now(), $t['id']]);

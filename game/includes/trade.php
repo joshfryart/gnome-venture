@@ -382,7 +382,7 @@ function raise_sapling(array $u, int $plantId): array
         db()->rollBack();
         return [false, 'You need 1 × ' . $p['seed_name'] . ' to raise a sapling.'];
     }
-    if (!spend_energy($uid, $energy)) {
+    if (!spend_energy($uid, $energy, 'sapling')) {
         db()->rollBack();
         return [false, "You’re too tired. Raising a sapling takes ⚡$energy."];
     }

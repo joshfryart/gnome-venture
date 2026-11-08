@@ -179,7 +179,7 @@ function gather_here(array $u, string $land, string $tool): array
     $least = min(array_map(fn($g) => GATHER_RARITY[$g['rarity']][0] ?? 1, gather_candidates($land, $tool)));
     if ($tier < $least) return [false, 'Your ' . $noun . ' isn’t good enough for anything here. You need a ' . (TOOL_TIERS[$least] ?? 'better') . ' one.'];   // no energy spent
     $gFree = random_int(1, 100) <= calling_perk($u, 'gather_free_pct');   // v0.9.1: Wayfinder II+: sometimes free
-    if (!$gFree && !spend_energy($uid, 1)) return [false, 'You need 1 energy to gather.'];
+    if (!$gFree && !spend_energy($uid, 1, 'gather')) return [false, 'You need 1 energy to gather.'];
     $line = gather_on_walk($u, $land, $tool, true, $found);
     if ($found) gather_reveal_set($found);
     return [true, $line ?? '🧺 You search but find nothing this time.'];

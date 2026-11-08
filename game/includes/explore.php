@@ -169,7 +169,7 @@ function explore_start(array $u): array
     $here = player_node($u);
     if (!on_road((int)$here['id'])) return [false, 'Head back to a road first. You can only wander off from a road.'];
     $free = staff_free($uid);
-    if (!$free && !spend_energy($uid, 1)) return [false, 'You need 1 energy to wander off the path. Rest or eat something first.'];
+    if (!$free && !spend_energy($uid, 1, 'wander')) return [false, 'You need 1 energy to wander off the path. Rest or eat something first.'];
     unset($_SESSION['explore_found'], $_SESSION['explore_back']);
     $_SESSION['wander_step'] = 'off|' . time();   // v2.5.49: the wander card shows the step-off strip once
     $gc = gnome_combat($u, true);
