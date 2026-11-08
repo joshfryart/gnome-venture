@@ -19,7 +19,16 @@ function action_log_schema(string $PK, string $ID, string $END): array
             game_day INT NULL,
             game_minute INT NULL
         )$END",
-    ], ['CREATE INDEX idx_player_actions_user ON player_actions (user_id, id)'], []];
+        "CREATE TABLE IF NOT EXISTS trail_pickups (
+            id $PK,
+            user_id $ID NOT NULL,
+            route_id INT NOT NULL,
+            sec INT NOT NULL,
+            n INT NOT NULL DEFAULT 1,
+            got_at INT NOT NULL,
+            got_tick INT NULL
+        )$END",
+    ], ['CREATE INDEX idx_player_actions_user ON player_actions (user_id, id)', 'CREATE INDEX idx_trail_pickups_user ON trail_pickups (user_id, route_id, sec)'], []];
 }
 
 /** Pages whose posts are never logged (credentials, account, private text). */

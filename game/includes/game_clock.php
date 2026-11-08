@@ -655,6 +655,7 @@ function gclock_settings(): array
         'cook_time_multiplier' => $i('cooking pots take this many times longer on the game clock', 4, 1, 100),
         'job_month_days' => $i('a job-board month is this many sleeps', 28, 7, 120),
         'pal_hours_per_sleep' => $i('pal jobs and pots advance this many hours per sleep', 8, 0, 24),
+        'trail_pickup_tenths' => $i('Trail finds (✨) come back this many tenths of a game day after you took them on that stretch (55 = 5.5 days; 0 = they come back on the next walk)', 55, 0, 3000),
         'npc_away_pct' => $i('chance a villager is away on a given game day (no chat or gift that day), %', 25, 0, 90),
         'default_open_minute' => $i('shops and stops open at this minute of the day (360 = 06:00)', 360, 0, 1439),
         'default_close_minute' => $i('shops and stops close at this minute of the day (1320 = 22:00)', 1320, 1, 1440),

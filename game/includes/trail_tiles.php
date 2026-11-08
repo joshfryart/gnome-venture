@@ -106,6 +106,41 @@ function trail_pal_urls(array $u): array
 }
 
 /** Start the scene of a new walk: section 1, the gnome at the entry. Never breaks the start if it fails. Returns true when made. */
+/**
+ * 2.6.30: finds (✨ 'F') you took on a stretch stay gone for a while: trail_pickup_tenths tenths of a game day (default 5.5 days; real days with the
+ * game clock off). Tokens [[x, y, kind, done]] come back with the first n finds of that stretch already done. Pure read except the table.
+ */
+function trail_pickup_apply(int $uid, int $routeId, int $sec, array $tokens): array
+{
+    try {
+        $v = setting('trail_pickup_tenths');
+        $tenths = $v === '' ? 55 : max(0, (int)$v);
+        if ($tenths <= 0) return $tokens;
+        $r = q_one('SELECT * FROM trail_pickups WHERE user_id = ? AND route_id = ? AND sec = ? ORDER BY id DESC LIMIT 1', [$uid, $routeId, $sec]);
+        if (!$r) return $tokens;
+        $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+        $gone = $u && gclock_on() && $r['got_tick'] !== null
+            ? gclock_state($u)['tick'] - (int)$r['got_tick'] < (int)round($tenths * 144)
+            : time() - (int)$r['got_at'] < (int)round($tenths * 8640);
+        if (!$gone) { q('DELETE FROM trail_pickups WHERE user_id = ? AND route_id = ? AND sec = ?', [$uid, $routeId, $sec]); return $tokens; }
+        $n = (int)$r['n'];
+        foreach ($tokens as $i => $t) if ($t[2] === 'F' && $n > 0) { $tokens[$i][3] = 1; $n--; }
+    } catch (Throwable $e) { /* table missing before Upgrade database: finds come back as before */ }
+    return $tokens;
+}
+
+/** A find was taken on this stretch: remember it (one more for the stretch, clock restarts). */
+function trail_pickup_note(int $uid, int $routeId, int $sec): void
+{
+    try {
+        $old = q_one('SELECT n FROM trail_pickups WHERE user_id = ? AND route_id = ? AND sec = ?', [$uid, $routeId, $sec]);
+        q('DELETE FROM trail_pickups WHERE user_id = ? AND route_id = ? AND sec = ?', [$uid, $routeId, $sec]);
+        $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+        db_insert('trail_pickups', ['user_id' => $uid, 'route_id' => $routeId, 'sec' => $sec, 'n' => 1 + (int)($old['n'] ?? 0), 'got_at' => time(),
+            'got_tick' => $u && gclock_on() ? gclock_state($u)['tick'] : null]);
+    } catch (Throwable $e) {}
+}
+
 function trail_scene_make(int $uid, int $expId, array $route): bool
 {
     try {
@@ -114,7 +149,7 @@ function trail_scene_make(int $uid, int $expId, array $route): bool
         [$map, $tokens] = trail_map_make((int)$route['id'] . '|' . $uid . '|' . $expId . '|0');   // 'sx' keeps the seed stable if the walk is resumed under a new expedition id
         $seen = tm_seen_new($map['w'], $map['h']);
         tm_reveal($seen, $map['w'], $map['h'], $map['entry'][0], $map['entry'][1], 20);
-        $st = ['sec' => 0, 'S' => $S, 'sx' => $expId, 'phase' => 'section', 'tokens' => array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens)];
+        $st = ['sec' => 0, 'S' => $S, 'sx' => $expId, 'phase' => 'section', 'tokens' => trail_pickup_apply($uid, (int)$route['id'], 0, array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens))];
         db_insert('walk_scene', ['user_id' => $uid, 'exp_id' => $expId, 'map_key' => 'trail:' . (int)$route['id'], 'x' => $map['entry'][0], 'y' => $map['entry'][1], 'seen' => $seen, 'state' => json_encode($st), 'updated_at' => now()]);
         return true;
     } catch (Throwable $e) {
@@ -260,6 +295,7 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
     if ($stop === null && $i >= 0 && (int)$sc['st']['tokens'][$i][3] === 0) { $sc['st']['tokens'][$i][3] = 1; $fire = (string)$sc['st']['tokens'][$i][2]; }
     if ($t === '9') $sc['st']['phase'] = 'confirm';
     if (!trail_save($sc)) return [false, 'That already happened. Look again.'];
+    if ($fire === 'F') trail_pickup_note((int)$u['id'], (int)substr((string)$sc['row']['map_key'], 6), (int)$sc['st']['sec']);
     if ($fire !== null) trail_token_event($u, $exp, $fire, (string)($map['art']['boss'] ?? ''));
     $_SESSION['dm_walk'] = ['e' => (int)$exp['id'], 't' => time(), 'p' => $walked];
     return [true, ''];
@@ -294,7 +330,7 @@ function trail_next(array $u, array &$exp): array
     $hist = (array)($sc['st']['hist'] ?? []); $hist[$sec] = $sc['st']['tokens'];   // what was found and fought in the stretch you leave stays so if you walk back
     $revisit = isset($hist[$nsec]);
     $new['st'] = ['sec' => $nsec, 'S' => (int)$sc['st']['S'], 'sx' => (int)($sc['st']['sx'] ?? $exp['id']), 'phase' => 'section', 'stance' => (string)($sc['st']['stance'] ?? ''), 'hist' => $hist,
-        'tokens' => $revisit ? $hist[$nsec] : array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens)];
+        'tokens' => $revisit ? $hist[$nsec] : trail_pickup_apply((int)$exp['user_id'], (int)substr((string)$sc['row']['map_key'], 6), $nsec, array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens))];
     $new['x'] = $map['entry'][0];
     $new['y'] = $map['entry'][1];
     $new['seen'] = $seen;
