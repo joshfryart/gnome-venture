@@ -179,8 +179,8 @@ setu($uid, ['game_day' => 0, 'game_minute' => 1000, 'energy' => 0]);
 ok('villager refused without a friend', okmap($uid)['villager'] === false && gclock_rest($uid, 'villager')[0] === false);
 $npc = (int)q_val('SELECT id FROM npcs WHERE home_location_id = ? LIMIT 1', [$away]);
 if ($npc) {
-    q('INSERT INTO npc_friends (user_id, npc_id, points) VALUES (?, ?, 250)', [$uid, $npc]);
-    ok('villager at friendship index 3 (250 pts) allowed', okmap($uid)['villager'] === true && gclock_rest($uid, 'villager')[0] === true && (int)urow($uid)['game_day'] === 1);
+    q('INSERT INTO npc_friends (user_id, npc_id, points) VALUES (?, ?, 500)', [$uid, $npc]);
+    ok('villager at Best friend (500 pts) allowed', okmap($uid)['villager'] === true && gclock_rest($uid, 'villager')[0] === true && (int)urow($uid)['game_day'] === 1);
     q('DELETE FROM npc_friends WHERE user_id = ?', [$uid]);
 } else { echo "  skip villager-with-friend (no NPC lives in the test village)\n"; }
 // camp

@@ -241,7 +241,7 @@ function gclock_rest_options(array $u): array
     $opt('inn_chores', 'Help around the inn for a bed', 'sleep', ($chore / 60) . ' game hours of chores');
     $opt('bench', 'Sleep on a bench in the park', 'sleep', 'free, only ' . gclock_setting_int('bench_sleep_energy_pct', 30) . '% energy back');
     $opt('bench_nap', 'Nap on a bench (' . $nap . ' h, +' . $napPct . '% energy)', 'nap', 'free');
-    $need = gclock_setting_int('villager_sleep_friend_level', 3);
+    $need = gclock_setting_int('villager_sleep_friend_level', 4);
     $host = null;
     if (function_exists('friend_level')) {
         foreach (q('SELECT n.name, f.points FROM npcs n JOIN npc_friends f ON f.npc_id = n.id AND f.user_id = ? WHERE n.home_location_id = ?', [$uid, (int)$u['location_id']])->fetchAll() as $r) {
