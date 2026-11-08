@@ -105,3 +105,72 @@ Convert running timers by remaining time to the nearest whole number of sleeps, 
 - NPCs: game-day with "move on". Festivals: per-player calendar. Shared: real-time.
 - Market: per-player (not shared), thresholds, leaky bucket, real-time drain, scales with beds, NPC shop only.
 - Food energy: uncapped. Pantry: game-days. Migration: convert by remaining time.
+
+## 10. `hollow_date()` audit, first pass (2026-11-08)
+
+Method: grep of `hollow_date(` plus the enclosing function, judged by name and design sections 3-5. **Not every call was read in context.** `?` = must read before deciding. Counts: 144 calls, 59 files in `game/` (129 calls) + 9 files in `tests/` (15 calls). The earlier "about 59 files" was `game/` only.
+
+Key: **P** personal (switch to the player's game date) · **S** shared (keep real) · **C** cap or anti-abuse stamp (keep real) · **?** read first.
+
+### Wrappers (sorted by their callers, not here)
+`hollow_today()` (`hollow_clock.php:78`), `hollow_now()` (`:288`), `hollow_hour()`, `hollow_dow()` (`functions.php:1052-3`). About 40 more call sites use them: `hollow_clock.php` 11, `garden_fx.php` 6, `npc_life.php` 5, `garden_critters.php` 4, `animals120.php` 4, `world.php`, `place_ui.php`, `here_view.php`, `garden_logic.php`, `friends.php`, `garden.php` 2 each, plus 6 files with 1. **Second audit pass needed.** Note: a game date has no hour. Decide what time of day means for a personal calendar (real hour, or fixed).
+
+### Personal (P)
+| File:function | What |
+|---|---|
+| `garden.php:540-542` picker_html | rain barrel and plot free-water per day |
+| `garden_logic.php` garden_claim_free_water | free water per day |
+| `gardens.php` turn_compost | compost turn per day |
+| `garden_fx.php` garden_grow_gain, garden_wind_weeds, garden_pest_pass | weather per day on a plot; **walks timestamps to dates, so needs a rewrite to game-days, not a swap** |
+| `flowers.php:247` arrange_ctx | season and month |
+| `stop_folk.php` stop_chat_line, stop_chat, stop_gift, stop_errands_expire, stop_errand_givers, stop_errand_offer, stop_errand_accept | once-a-day chat, gift, errands (design section 4) |
+| `friends.php` npc_talk, npc_gift | once-a-day chat and gift |
+| `local.php` local_folk_card, stop_folk_panel | "talked today" |
+| `residential.php:101` door_view | gift once a day |
+| `npc_life.php` npc_birthday_today, teahouse_rumours (279) | NPC calendar |
+| `festival.php` festival_active, festival_next, festival_last, festival_flag_today, festival_find_flag | festivals (section 5) |
+| `catfish.php:501,513` catfish_today, catfish_week | weekly Petal cap becomes game-week = 7 sleeps |
+
+### Shared (S)
+`gourmand.php` (page + all 7 in `includes/gourmand.php`, monthly tour) · `hollow_goals.php` hollow_goal_week, hollow_pulse_build · `fair.php:52` · `contests.php:228-229` · `gotm.php:45` · `yard.php:1100` gotm_month · `market100.php:863` cache key · `race.php:56` · `catfish.php:976` shelter rotation · `profile.php:37`, `book.php:360` (display of real dates) · `admin/livingstops.php`, `admin/xp.php`, `admin/gourmand.php`.
+
+### Cap or stamp (C), stay real
+| File:function | What |
+|---|---|
+| `welcome_back.php` daily_card, daily_tick | daily login |
+| `gnome.php:239` add_xp | daily XP cap |
+| `trek_fight.php` trek_petals_capped, trek_item_allowed, trek_friend_fight_won | Petal and item daily caps (same rule as minigame caps) |
+| `social169.php` water_used, water_html, water, counts | watering other players' plots per day (alt and spam guard) |
+| `pals.php` pal_stamp, pal_stamped_today, pal_gift_sent_today, pal_gift | player-to-player stamps and gifts |
+| `trade.php` saplings_left_today, raise_sapling | daily sapling limit |
+| `admin/treks.php:41` | Petals found today (display of the cap) |
+
+### Needs a read (?)
+| File:function | Question |
+|---|---|
+| `here.php:27`, `town.php:100` | "It's 14:00 in the Hollow, Tuesday" clock line. Real, or personal? |
+| `visit.php:81` | compost turn check on someone else's plot: stamp or garden process? |
+| `mentors120.php:329`, `mentor.php:52` | mentor share per day |
+| `puzzle_pals.php:845` ppal_spawn_refresh | minigame (C) or world (P)? |
+| `flowers.php:19,24` | daily flower count: cap or growth? |
+| `jobs.php:23-25` job_period_key | daily/weekly/monthly job keys: Petal board (C) or pal jobs (P)? |
+| `rebuild.php:432,480` | repair per day |
+| `tools.php:340,426,479`, `shelves.php:61` | free mends per day (lean P) |
+| `quests_view.php:122` | order deadlines in days (lean P) |
+| `events.php:62,68` random_event_roll | random garden events (lean P) |
+| `stop_adopt.php:334,411`, `place_ui.php:320`, `stop_living.php` (9 calls), `stops.php` (7 calls) | town stop perks, meters, threads, happenings (lean P, section 4) |
+| `town.php` town_festival, upcoming_festivals, spot_closed, town_day, `landmarks.php:45` landmark_day | town calendar: shared by town or per player? Ties to festivals |
+| `road_life.php:555,556,675` | road travellers per day (lean P) |
+| `villagers.php:106` | villager panel (lean P) |
+| `first_week.php:61,69` | onboarding by days since start: game-days would let sleep skip it |
+| `social.php:200` | start date of something, unknown |
+| `sinks.php:59,69` curio_week | weekly curio rotation (lean S) |
+| `catfish_pets.php:520`, `npc_life.php:303` | cosmetic line pick, either is fine |
+
+### Tests
+9 files in `tests/` (`trek_*`, `stops100`, `gourmand`, `clock`, `puzzle_pals_map`) use `hollow_date()` to compute expected values. They must follow whichever clock their subject moves to.
+
+### Next
+1. Read the `?` rows, decide, move each into P/S/C.
+2. Second pass: callers of `hollow_today/now/hour/dow`.
+3. Add the player-game-date helper (section 7) and wire P rows one system at a time, garden first.
