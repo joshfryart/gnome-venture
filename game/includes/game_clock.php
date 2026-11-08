@@ -14,6 +14,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
 {
     return [[], [], [
         ['users', 'game_day', 'INT NOT NULL DEFAULT 0'], ['users', 'game_minute', 'INT NOT NULL DEFAULT ' . GAME_WAKE_MINUTE],
+        ['users', 'camp_naps', 'INT NOT NULL DEFAULT 0'],   // naps taken on the gear now in use (2 per gear)
         ['plot_tiles', 'grow_day', 'INT NULL'],    // the owner's game_day that growth is settled up to
         ['plot_tiles', 'water_day', 'INT NULL'],   // the owner's game_day the bed was last watered on
         ['plot_tiles', 'owed_days', 'INT NOT NULL DEFAULT 0'],   // dry days not yet grown; paid back when a watered day finishes (decision 54)
@@ -96,12 +97,14 @@ function game_spend(int $uid, int $minutes, ?int $closesAt = null): ?array
 }
 
 /** Sleep: next day, 06:00, full energy. The caller checks the place (home, inn, town, camp). */
-function game_sleep(int $uid): ?array
+function game_sleep(int $uid, int $energyPct = 100): ?array
 {
     $u = q('SELECT * FROM users WHERE id = ?', [$uid])->fetch();
     if (!$u) return null;
+    $max = max_energy($u);
+    $new = $energyPct >= 100 ? $max : max((int)$u['energy'], (int)floor($max * max(0, $energyPct) / 100));   // a weak rest never lowers energy
     $n = q('UPDATE users SET game_day = game_day + 1, game_minute = ?, energy = ? WHERE id = ? AND game_day = ? AND game_minute = ?',
-        [GAME_WAKE_MINUTE, max_energy($u), $uid, (int)$u['game_day'], (int)$u['game_minute']])->rowCount();
+        [GAME_WAKE_MINUTE, $new, $uid, (int)$u['game_day'], (int)$u['game_minute']])->rowCount();
     if ($n !== 1) return null;
     return ['game_day' => (int)$u['game_day'] + 1, 'game_minute' => GAME_WAKE_MINUTE];
 }
@@ -183,4 +186,108 @@ function gclock_tile_grow(array $t, ?array $p, ?int $today = null): array
     $t['grow_day'] = $today;
     $t['owed_days'] = $owed;
     return $t;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Where a gnome can rest (decisions 21-25, 26-28, 30-33). Settings: inn_fee_petals 110, inn_chore_minutes 240,
+// bench_sleep_energy_pct 30, villager_sleep_friend_level 3 (index in FRIEND_LEVELS), camping_gear_nap_charges 2.
+// ---------------------------------------------------------------------------------------------------------------------
+
+function gclock_setting_int(string $name, int $default): int
+{
+    $v = setting($name);
+    return $v === '' ? $default : (int)$v;
+}
+
+/** The camping gear item id (made on first use; sold and crafted later). */
+function gclock_gear_item_id(): int
+{
+    $id = item_id_by_slug('camping-gear');
+    if ($id) return (int)$id;
+    return (int)db_insert('items', ['name' => 'Camping Gear', 'slug' => 'camping-gear', 'category' => 'misc', 'rarity' => 10, 'base_price' => 100,
+        'description' => 'Rope, pins, canvas and a little pot. Two naps on the road, or one night.', 'edible' => 0, 'tradable' => 1]);
+}
+
+/**
+ * What the gnome can do to rest right now. Each option: ['key','label','kind' => sleep|nap,'cost' => text,'ok' => bool,'why' => text].
+ * Where: 'road' (on a trail), 'home' (in the home village), 'town' (any other village).
+ */
+function gclock_rest_options(array $u): array
+{
+    $uid = (int)$u['id'];
+    $out = [];
+    $opt = function (string $key, string $label, string $kind, string $cost, bool $ok = true, string $why = '') use (&$out) {
+        $out[] = ['key' => $key, 'label' => $label, 'kind' => $kind, 'cost' => $cost, 'ok' => $ok, 'why' => $why];
+    };
+    $nap = gclock_setting_int('nap_minutes', 120) / 60;
+    $napPct = gclock_setting_int('nap_energy_pct', 40);
+    if (function_exists('active_expedition') && active_expedition($uid)) {
+        $gear = gclock_gear_item_id();
+        $have = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $gear]);
+        $why = $have > 0 ? '' : 'You need camping gear.';
+        $opt('camp_sleep', 'Camp for the night', 'sleep', 'uses up your camping gear', $have > 0, $why);
+        $opt('camp_nap', 'Nap at camp (' . $nap . ' h, +' . $napPct . '% energy)', 'nap', $u['camp_naps'] > 0 ? 'last nap on this gear' : '1 of ' . gclock_setting_int('camping_gear_nap_charges', 2) . ' naps on a gear', $have > 0, $why);
+        return $out;
+    }
+    $home = (int)($u['location_id'] ?? 0) === 0 || (int)$u['location_id'] === (int)($u['home_village_id'] ?? 0);
+    if ($home) {
+        $opt('home_sleep', 'Sleep in your hovel', 'sleep', 'free');
+        $opt('home_nap', 'Nap in your hovel (' . $nap . ' h, +' . $napPct . '% energy)', 'nap', 'free');
+        return $out;
+    }
+    $fee = gclock_setting_int('inn_fee_petals', 110);
+    $chore = gclock_setting_int('inn_chore_minutes', 240);
+    $opt('inn_pay', 'Rent a room at the inn', 'sleep', $fee . ' ' . setting('currency_name'), (int)$u['coins'] >= $fee, 'Not enough ' . setting('currency_name') . '.');
+    $opt('inn_chores', 'Help around the inn for a bed', 'sleep', ($chore / 60) . ' game hours of chores');
+    $opt('bench', 'Sleep on a bench in the park', 'sleep', 'free, only ' . gclock_setting_int('bench_sleep_energy_pct', 30) . '% energy back');
+    $opt('bench_nap', 'Nap on a bench (' . $nap . ' h, +' . $napPct . '% energy)', 'nap', 'free');
+    $need = gclock_setting_int('villager_sleep_friend_level', 3);
+    $host = null;
+    if (function_exists('friend_level')) {
+        foreach (q('SELECT n.name, f.points FROM npcs n JOIN npc_friends f ON f.npc_id = n.id AND f.user_id = ? WHERE n.home_location_id = ?', [$uid, (int)$u['location_id']])->fetchAll() as $r) {
+            if (friend_level((int)$r['points'])['index'] >= $need) { $host = $r['name']; break; }
+        }
+    }
+    $opt('villager', $host ? 'Stay with ' . $host : 'Stay with a friendly villager', 'sleep', 'free', $host !== null, 'A villager here must be a ' . (FRIEND_LEVELS[$need][1] ?? 'closer friend') . ' first.');
+    return $out;
+}
+
+/** Do one rest option. Returns [ok, message]. Pays costs; refuses if the option is not on offer. */
+function gclock_rest(int $uid, string $key): array
+{
+    $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+    if (!$u) return [false, 'No such gnome.'];
+    $found = null;
+    foreach (gclock_rest_options($u) as $o) if ($o['key'] === $key) $found = $o;
+    if (!$found) return [false, 'You can’t rest that way here.'];
+    if (!$found['ok']) return [false, $found['why'] ?: 'Not right now.'];
+    switch ($key) {
+        case 'home_sleep': case 'villager':
+            return game_sleep($uid) ? [true, 'You sleep soundly. A new day: energy full.'] : [false, 'Something stirred. Try again.'];
+        case 'home_nap': case 'bench_nap':
+            return game_nap($uid) ? [true, 'You nap a while and feel a little better.'] : [false, 'Something stirred. Try again.'];
+        case 'bench':
+            return game_sleep($uid, gclock_setting_int('bench_sleep_energy_pct', 30)) ? [true, 'A stiff night on the bench. A new day, a little rested.'] : [false, 'Something stirred. Try again.'];
+        case 'inn_pay':
+            $fee = gclock_setting_int('inn_fee_petals', 110);
+            if (q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$fee, $uid, $fee])->rowCount() !== 1) return [false, 'Not enough ' . setting('currency_name') . '.'];
+            if (!game_sleep($uid)) { q('UPDATE users SET coins = coins + ? WHERE id = ?', [$fee, $uid]); return [false, 'Something stirred. Try again.']; }
+            return [true, 'A proper bed. A new day: energy full.'];
+        case 'inn_chores':
+            if (!game_spend($uid, gclock_setting_int('inn_chore_minutes', 240))) return [false, 'Something stirred. Try again.'];
+            return game_sleep($uid) ? [true, 'You swept and stacked all evening, then slept well. A new day: energy full.'] : [false, 'Something stirred. Try again.'];
+        case 'camp_sleep': case 'camp_nap':
+            $gear = gclock_gear_item_id();
+            if (!give_item($uid, $gear, -1)) return [false, 'You need camping gear.'];   // taken now; a nap with a charge left gives it back below
+            if ($key === 'camp_sleep') {
+                q('UPDATE users SET camp_naps = 0 WHERE id = ?', [$uid]);
+                return game_sleep($uid) ? [true, 'You camp under the stars. A new day: energy full.'] : [false, 'Something stirred. Try again.'];
+            }
+            $charges = gclock_setting_int('camping_gear_nap_charges', 2);
+            $used = (int)$u['camp_naps'] + 1;
+            if ($used < $charges) { give_item($uid, $gear, 1); q('UPDATE users SET camp_naps = ? WHERE id = ?', [$used, $uid]); }
+            else q('UPDATE users SET camp_naps = 0 WHERE id = ?', [$uid]);   // the last nap uses the gear up
+            return game_nap($uid) ? [true, 'You nap at camp and feel a little better.'] : [false, 'Something stirred. Try again.'];
+    }
+    return [false, 'Unknown rest.'];
 }

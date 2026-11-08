@@ -146,5 +146,63 @@ q('UPDATE users SET energy = 20, game_minute = 1380 WHERE id = ?', [$uid]);
 ok('flag off: no surcharge', spend_energy($uid, 10) && (int)urow($uid)['energy'] === 10);
 q('UPDATE users SET game_day = 0, game_minute = 360 WHERE id = ?', [$uid]);
 
+echo "== resting places\n";
+require_once $argv[1] . '/includes/adventure.php';
+require_once $argv[1] . '/includes/friends.php';
+cfg(['game_clock_on' => '1', 'inn_fee_petals' => '', 'inn_chore_minutes' => '', 'bench_sleep_energy_pct' => '', 'villager_sleep_friend_level' => '', 'camping_gear_nap_charges' => '']);
+$away = (int)q_val("SELECT id FROM locations WHERE kind='village' AND id <> (SELECT home_village_id FROM users WHERE id = ?) ORDER BY id LIMIT 1", [$uid]);
+function setu(int $uid, array $kv): void { foreach ($kv as $k => $v) q("UPDATE users SET $k = ? WHERE id = ?", [$v, $uid]); }
+function keys(int $uid): array { return array_column(gclock_rest_options(urow($uid)), 'key'); }
+function okmap(int $uid): array { $m = []; foreach (gclock_rest_options(urow($uid)) as $o) $m[$o['key']] = $o['ok']; return $m; }
+$home = (int)urow($uid)['home_village_id'];
+setu($uid, ['location_id' => $home ?: null, 'game_day' => 0, 'game_minute' => 1000, 'energy' => 3]);
+ok('at home: home sleep and nap only', keys($uid) === ['home_sleep', 'home_nap'], implode(',', keys($uid)));
+[$r] = gclock_rest($uid, 'inn_pay');
+ok('home: no inn offered', $r === false);
+setu($uid, ['location_id' => $away, 'coins' => 50, 'game_day' => 0, 'game_minute' => 1000, 'energy' => 3]);
+$k = keys($uid);
+ok('in town: inn, chores, bench, nap, villager', $k === ['inn_pay', 'inn_chores', 'bench', 'bench_nap', 'villager'], implode(',', $k));
+ok('inn needs 110: 50 coins refused', okmap($uid)['inn_pay'] === false && gclock_rest($uid, 'inn_pay')[0] === false && (int)urow($uid)['coins'] === 50);
+setu($uid, ['coins' => 200]);
+[$r] = gclock_rest($uid, 'inn_pay'); $x = urow($uid);
+ok('inn paid: 110 taken, day+1, 06:00, full energy', $r && (int)$x['coins'] === 90 && (int)$x['game_day'] === 1 && (int)$x['game_minute'] === 360 && (int)$x['energy'] === max_energy($x));
+setu($uid, ['game_day' => 0, 'game_minute' => 1000, 'energy' => 3, 'coins' => 5]);
+[$r] = gclock_rest($uid, 'inn_chores'); $x = urow($uid);
+ok('chores: no coins needed, sleeps', $r && (int)$x['coins'] === 5 && (int)$x['game_day'] === 1 && (int)$x['energy'] === max_energy($x));
+setu($uid, ['game_day' => 0, 'game_minute' => 1000, 'energy' => 3]);
+[$r] = gclock_rest($uid, 'bench'); $x = urow($uid);
+ok('bench: day+1 and 30% energy', $r && (int)$x['game_day'] === 1 && (int)$x['energy'] === (int)floor(max_energy($x) * 0.3), (string)$x['energy']);
+setu($uid, ['game_day' => 0, 'game_minute' => 1000, 'energy' => max_energy(urow($uid))]);
+game_sleep($uid, 30);
+ok('weak rest never lowers energy', (int)urow($uid)['energy'] === max_energy(urow($uid)));
+setu($uid, ['game_day' => 0, 'game_minute' => 1000, 'energy' => 0]);
+ok('villager refused without a friend', okmap($uid)['villager'] === false && gclock_rest($uid, 'villager')[0] === false);
+$npc = (int)q_val('SELECT id FROM npcs WHERE home_location_id = ? LIMIT 1', [$away]);
+if ($npc) {
+    q('INSERT INTO npc_friends (user_id, npc_id, points) VALUES (?, ?, 250)', [$uid, $npc]);
+    ok('villager at friendship index 3 (250 pts) allowed', okmap($uid)['villager'] === true && gclock_rest($uid, 'villager')[0] === true && (int)urow($uid)['game_day'] === 1);
+    q('DELETE FROM npc_friends WHERE user_id = ?', [$uid]);
+} else { echo "  skip villager-with-friend (no NPC lives in the test village)\n"; }
+// camp
+$gear = gclock_gear_item_id();
+ok('gear item made', $gear > 0 && item_id_by_slug('camping-gear') == $gear);
+q("INSERT INTO expeditions (user_id, from_id, to_id, route_id, steps_total, step, hp, max_hp, status, started_at, arrive_at) VALUES (?, ?, ?, 1, 4, 1, 10, 10, 'active', ?, ?)", [$uid, $home, $away, now(), now()]);
+setu($uid, ['game_day' => 0, 'game_minute' => 1000, 'energy' => 0, 'camp_naps' => 0]);
+q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $gear]);
+ok('on the road: camp only, no gear = disabled', keys($uid) === ['camp_sleep', 'camp_nap'] && okmap($uid)['camp_sleep'] === false && gclock_rest($uid, 'camp_nap')[0] === false);
+give_item($uid, $gear, 1);
+$qty = fn() => (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $gear]);
+gclock_rest($uid, 'camp_nap');
+ok('first nap keeps the gear (1 of 2)', $qty() === 1 && (int)urow($uid)['camp_naps'] === 1 && (int)urow($uid)['game_day'] === 0);
+gclock_rest($uid, 'camp_nap');
+ok('second nap uses the gear up', $qty() === 0 && (int)urow($uid)['camp_naps'] === 0);
+give_item($uid, $gear, 1);
+gclock_rest($uid, 'camp_nap');
+[$r] = gclock_rest($uid, 'camp_sleep');
+ok('full sleep uses a half-used gear up and resets naps', $r && $qty() === 0 && (int)urow($uid)['camp_naps'] === 0 && (int)urow($uid)['game_day'] === 1);
+q("DELETE FROM expeditions WHERE user_id = ?", [$uid]);
+setu($uid, ['location_id' => $home ?: null, 'game_day' => 0, 'game_minute' => 360]);
+cfg(['game_clock_on' => '0']);
+
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);
