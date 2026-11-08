@@ -29,34 +29,42 @@ $clock = sprintf('%02d:%02d', intdiv($s['minute'], 60) % 24, $s['minute'] % 60);
 $opts = gclock_rest_options($u);
 $now = hollow_now(hollow_user_region($u), null, $s);
 page_header('Hovel');
+$maxE = max_energy($u);
+$sleepOpts = array_values(array_filter($opts, fn($o) => $o['kind'] !== 'nap'));
+$napOpts = array_values(array_filter($opts, fn($o) => $o['kind'] === 'nap'));
+$optHtml = function (array $o) use ($u): string {
+    return '<div class="hov-opt' . ($o['ok'] ? '' : ' off') . '"><button class="btn' . ($o['kind'] === 'nap' ? ' ghost' : '') . '" name="do" value="' . e($o['key']) . '" type="submit"' . ($o['ok'] ? '' : ' disabled') . '>' . e($o['label']) . '</button>'
+        . '<small class="muted">' . e($o['cost']) . ($o['ok'] ? ' · ' . e(gclock_option_effect($u, $o)) : ' · ' . e($o['why'])) . '</small></div>';
+};
 ?>
-<section class="box">
-  <h1>🛏️ Rest</h1>
-  <p><b>Day <?= (int)$s['day'] + 1 ?></b> · <?= e($now['season_emoji'] . ' ' . $now['season_label']) ?> day <?= (int)$now['season_day'] ?> · <?= e($now['weather_emoji'] . ' ' . $now['weather_label']) ?> · <b><?= e($clock) ?></b><?= $s['tired'] ? ' 😴 tired' : '' ?></p>
-  <p>Energy <b><?= (int)$u['energy'] ?></b> / <?= max_energy($u) ?></p>
-  <?php if (($busy = gclock_busy_minutes($uid)) > 0): ?><p class="help">🔨 You still have <?= round($busy / 60, 1) ?> h of work to finish. Sleep, and it is done first thing in the morning. Nothing else timed until then.</p><?php endif; ?>
-  <?php if ($s['tired']): ?><p class="help">After 22:00 everything costs more energy (+<?= game_surcharge_pct($u) ?>% right now). Sleep to start fresh at 06:00.</p><?php endif; ?>
-  <form method="post">
+<section class="box hov">
+  <div class="hov-hero<?= $s['tired'] ? ' tired' : '' ?>">
+    <div class="hov-time" aria-label="Game time"><?= e($clock) ?></div>
+    <div class="hov-day">Day <b><?= (int)$s['day'] ?></b> · <?= e($now['season_emoji'] . ' ' . $now['season_label']) ?> <?= (int)$now['season_day'] ?> · <?= e($now['weather_emoji'] . ' ' . $now['weather_label']) ?><?= $s['tired'] ? ' · 😴 tired' : '' ?></div>
+    <div class="hov-energy">⚡ <progress class="ebar" max="<?= $maxE ?>" value="<?= (int)$u['energy'] ?>" aria-label="Energy"></progress> <b><?= (int)$u['energy'] ?></b>/<?= $maxE ?></div>
+  </div>
+  <?php if (($busy = gclock_busy_minutes($uid)) > 0): ?><p class="help hov-note">🔨 <?= round($busy / 60, 1) ?> h of work still to finish. Sleep, and it is done first thing in the morning.</p><?php endif; ?>
+  <?php if ($s['tired']): ?><p class="help hov-note">After 22:00 everything costs +<?= game_surcharge_pct($u) ?>% energy. Sleep to start fresh at 06:00.</p><?php endif; ?>
+  <form method="post" class="hov-form">
     <?= csrf_field() ?>
     <?php if (in_array('camp_sleep', array_column($opts, 'key'), true)): require_once __DIR__ . '/includes/crafting.php'; $meals = array_filter(craft_recipes($uid, 'cooking'), fn($r) => $r['known'] && $r['can']); ?>
-    <p><label>Camp meal (one pot, ready when you wake): <select name="camp_recipe"><option value="0">none</option><?php foreach ($meals as $m): ?><option value="<?= (int)$m['id'] ?>"><?= e($m['name']) ?></option><?php endforeach; ?></select></label></p>
+    <p class="hov-camp"><label>🏕️ Camp meal, ready when you wake: <select name="camp_recipe"><option value="0">none</option><?php foreach ($meals as $m): ?><option value="<?= (int)$m['id'] ?>"><?= e($m['name']) ?></option><?php endforeach; ?></select></label></p>
     <?php endif; ?>
-    <?php foreach ($opts as $o): ?>
-    <p><button class="btn<?= $o['kind'] === 'nap' ? ' ghost' : '' ?>" name="do" value="<?= e($o['key']) ?>" type="submit"<?= $o['ok'] ? '' : ' disabled' ?>><?= e($o['label']) ?></button>
-      <small class="muted"><?= e($o['cost']) ?><?= $o['ok'] ? ' · ' . e(gclock_option_effect($u, $o)) : ' · ' . e($o['why']) ?></small></p>
-    <?php endforeach; ?>
+    <h2>🌙 Sleep</h2>
+    <?php foreach ($sleepOpts as $o) echo $optHtml($o); ?>
+    <?php if ($napOpts): ?><h2>💤 Nap</h2><?php foreach ($napOpts as $o) echo $optHtml($o); endif; ?>
   </form>
-  <p class="help">Sleep jumps to 06:00, fills your energy and starts the next day. Your garden, jars and pots move on with your days.</p>
+  <p class="help hov-note">Sleep jumps to 06:00, fills your energy and starts the next day. Crops, jars, pots and pal jobs move on with your days.</p>
 </section>
-<section class="box" id="costs">
-  <h2>🕐 What costs what</h2>
-  <p class="help">Energy is one budget and game time is another. Each action tells you both before you click, and after you act a line shows exactly what was spent. After 22:00 every energy cost goes up <?= game_surcharge_pct(['game_day' => 0, 'game_minute' => GAME_TIRED_MINUTE]) ?>% for each hour (you are never locked out). Energy only comes back from sleeping, napping, eating and potions.</p>
+<details class="box hov-costs" id="costs">
+  <summary><h2>🕐 What costs what</h2></summary>
+  <p class="help">Energy and game time are two budgets. Each button shows both, and a line after you act says what was spent. After 22:00 every energy cost goes up <?= game_surcharge_pct(['game_day' => 0, 'game_minute' => GAME_TIRED_MINUTE]) ?>% per hour.</p>
   <div class="tblwrap"><table class="tbl">
     <tr><th>Action</th><th>Energy</th><th>Game time</th></tr>
     <?php foreach (gclock_cost_guide($u) as [$what, $en, $tm]): ?>
     <tr><td><?= e($what) ?></td><td><?= e($en) ?></td><td><?= e($tm) ?></td></tr>
     <?php endforeach; ?>
   </table></div>
-  <p class="help">Waiting timers (crops, jars, pots, pal jobs, mulch, compost) only move when you act or sleep. A sleep from <?= e($clock) ?> skips to 06:00, which is <?= e(gclock_span_text(max(0, 1440 - $s['minute'] + GAME_WAKE_MINUTE))) ?> of game time.</p>
-</section>
+  <p class="help">Waiting timers only move when you act or sleep. A sleep from <?= e($clock) ?> skips to 06:00: <?= e(gclock_span_text(max(0, 1440 - $s['minute'] + GAME_WAKE_MINUTE))) ?> of game time.</p>
+</details>
 <?php page_footer();

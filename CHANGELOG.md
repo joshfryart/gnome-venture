@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.16
+- **Slimmer, centred Hovel page**: a big centred clock with day, season, weather and an energy bar; Sleep and Nap as full-width buttons with one line of effect under each; the "What costs what" table is folded away until opened.
+
 ## 2.6.15
 - **Hovel is in the menu** (You group, first tile, 🛏️ Hovel): sleep, nap and rest places. Shown while sleep-days is on.
 

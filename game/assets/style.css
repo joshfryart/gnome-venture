@@ -7510,3 +7510,20 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 .hdr-pill.hdr-clock { text-decoration: none; color: inherit; font-weight: 700; white-space: nowrap; }
 .hdr-pill.hdr-clock small { font-weight: 400; opacity: .8; }
 .hdr-pill.hdr-clock.tired { color: #f59e0b; }
+
+/* sleep-days: the hovel / rest page */
+.hov { text-align: center; }
+.hov h2 { font-size: 1rem; margin: 14px 0 6px; }
+.hov-hero { padding: 10px 8px 6px; }
+.hov-time { font-size: 3rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.hov-hero.tired .hov-time { color: #f59e0b; }
+.hov-day { margin: 6px 0 8px; opacity: .9; }
+.hov-energy { display: inline-flex; align-items: center; gap: 6px; }
+.hov-note { margin: 8px auto; max-width: 34rem; }
+.hov-opt { display: flex; flex-direction: column; align-items: center; gap: 3px; margin: 8px auto; max-width: 30rem; }
+.hov-opt .btn { width: 100%; }
+.hov-opt.off { opacity: .6; }
+.hov-camp { margin: 8px 0; }
+.hov-costs summary { cursor: pointer; list-style: none; }
+.hov-costs summary h2 { display: inline; font-size: 1.05rem; }
+.hov-costs[open] summary { margin-bottom: 8px; }
