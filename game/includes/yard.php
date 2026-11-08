@@ -657,7 +657,7 @@ function tile_view(array $t, array $plants, bool $owner = true, array $covers = 
         $cls = $t['method'] === 'notill' ? 'notill' : 'tilled';
         $label = $t['method'] === 'notill' ? 'No-till bed' : 'Tilled soil';
         if ($t['method'] !== 'notill' && yard_raining((int)$t['plot_id'])) { $cls .= ' wet'; $label = 'Tilled soil (wet with rain)'; }   // v2.5.49: rain darkens bare tilled soil (tile-tilled-wet.png)
-        if ($owner && ts($t['settle_until']) > time()) $label .= ' (settling)';
+        if ($owner && ts($t['settle_until']) > gclock_plot_now((int)$t['plot_id'])) $label .= ' (settling)';
     }
     if ($t['method'] === 'notill') {
         $cls .= ' nt';

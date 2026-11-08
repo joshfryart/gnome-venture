@@ -633,6 +633,8 @@ function gclock_settings(): array
         'default_close_minute' => $i('shops and stops close at this minute of the day (1320 = 22:00)', 1320, 1, 1440),
         'hp_crop_heal' => ['label' => 'Sleep-days: health from eating a crop: everyday, uncommon or flower, treasure, legendary (four numbers, comma separated)', 'type' => 'text', 'default' => '1,2,3,4'],
         'hp_dish_heal' => ['label' => 'Sleep-days: health from a home-cooked snack, meal, feast (three numbers; bought food gives 1)', 'type' => 'text', 'default' => '2,3,4'],
+        'amend_game_multiplier' => $i('soil improvers (compost etc.) take their listed minutes times this to work in, in game minutes (96 turns 15 minutes into one sleep); the nutrients are released over the same time', 96, 1, 2000),
+        'mulch_game_multiplier' => $i('mulch cover lasts its listed hours times this, in game hours (24 game hours = one sleep; 1 = straw lasts 6 sleeps)', 1, 1, 50),
         'grow_days_by_tier' => ['label' => 'Sleep-days: sleeps a crop needs for growth tiers 1-6 (six numbers, comma separated)', 'type' => 'text', 'default' => '1,2,3,5,7,10'],
     ];
     foreach (GCLOCK_TIME_DEFAULTS as $k => $m) $out['time_' . $k] = $i('game minutes an action costs: ' . $k . ' (0 = free)', $m, 0, 1440);
@@ -695,4 +697,18 @@ function gclock_food_heal(array $item): int
     if ($tier === '' || strncmp((string)$item['slug'], 'bought-', 7) === 0) return 1;
     $d = array_map('intval', array_pad(array_map('trim', explode(',', setting('hp_dish_heal') !== '' ? setting('hp_dish_heal') : '2,3,4')), 3, '3'));
     return max(0, $d[['snack' => 0, 'meal' => 1, 'feast' => 2][$tier] ?? 1]);
+}
+
+/** The owner's "now" in UNIX seconds for a plot: the virtual game clock with the flag, else the real time. For settle_until and similar stamps. */
+function gclock_plot_now(int $plotId): int
+{
+    return gclock_on() && $plotId > 0 ? gclock_plot_vnow($plotId) : time();
+}
+
+/** "about 1 sleep" / "3 sleeps" for a span of game minutes (1440 = one sleep), for labels that used to say minutes. */
+function gclock_sleeps_text(int $minutes): string
+{
+    if ($minutes < 1440) return $minutes . ' game min';
+    $n = (int)ceil($minutes / 1440);
+    return $n . ' sleep' . ($n === 1 ? '' : 's');
 }

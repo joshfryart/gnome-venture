@@ -276,7 +276,8 @@ function amendment_minutes(array $item): int
 {
     $fx = json_decode((string)$item['effects'], true) ?: [];
     $cap = max(1, (int)setting('amend_max_minutes'));   // v0.7.54: nothing takes longer than this (an old "hours" value just means "slow")
-    return max(1, min($cap, (int)($fx['minutes'] ?? (isset($fx['hours']) ? $cap : setting('amend_minutes')))));
+    $m = max(1, min($cap, (int)($fx['minutes'] ?? (isset($fx['hours']) ? $cap : setting('amend_minutes')))));
+    return gclock_on() ? $m * gclock_setting_int('amend_game_multiplier', 96) : $m;   // sleep-days: works in over game time (15 real minutes -> one sleep)
 }
 
 function mulch_text(int $hours): string
@@ -587,7 +588,7 @@ function amend_summary(array $i): string
     if (!empty($fx['life'])) $bits[] = 'Life +' . (int)$fx['life'];
     if (!empty($fx['moisture'])) $bits[] = 'Water-holding +' . (int)$fx['moisture'];
     foreach (['n' => 'N', 'p' => 'P', 'k' => 'K'] as $k => $l) if (!empty($fx[$k])) $bits[] = $l . '+' . (int)$fx[$k];
-    if (empty($fx['mulch']) || !empty($fx['minutes'])) $bits[] = '⏱ ' . amendment_minutes($i) . ' min';
+    if (empty($fx['mulch']) || !empty($fx['minutes'])) $bits[] = '⏱ ' . (gclock_on() ? gclock_sleeps_text(amendment_minutes($i)) : amendment_minutes($i) . ' min');
     return implode(' · ', $bits);
 }
 
@@ -837,7 +838,7 @@ function tile_info(array $t, array $p): array
 /** Can this square take a seed right now? */
 function tile_plantable(array $t): bool
 {
-    return (int)$t['tilled'] === 1 && !$t['plant_id'] && ts($t['settle_until']) <= time();
+    return (int)$t['tilled'] === 1 && !$t['plant_id'] && ts($t['settle_until']) <= gclock_plot_now((int)($t['plot_id'] ?? 0));
 }
 
 function nice_time(int $s): string
@@ -992,7 +993,8 @@ function load_plot(int $uid, bool $helperDone = false, ?int $visitPlot = null): 
 /** Items used for soil: [fertility, life, moisture] boosts from the item's effects. */
 function mulch_value(array $item): int
 {
-    return (int)((json_decode((string)$item['effects'], true) ?: [])['mulch'] ?? 0);
+    $h = (int)((json_decode((string)$item['effects'], true) ?: [])['mulch'] ?? 0);
+    return gclock_on() ? $h * gclock_setting_int('mulch_game_multiplier', 1) : $h;   // sleep-days: hours of cover are game hours (24 per sleep)
 }
 
 function amendment(array $item): array
@@ -1109,7 +1111,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
             case 'plant':
                 if (!(int)$t['tilled']) throw new UserError('Prepare the square first.');
                 if ($p) throw new UserError('Something is already growing here.');
-                if (ts($t['settle_until']) > time()) throw new UserError('This bed is still settling. Ready in ' . nice_time(ts($t['settle_until']) - time()) . '.');
+                if (ts($t['settle_until']) > gclock_plot_now((int)$t['plot_id'])) throw new UserError('This bed is still settling. Ready in ' . nice_time(ts($t['settle_until']) - gclock_plot_now((int)$t['plot_id'])) . '.');
                 $np = q_one('SELECT * FROM plants WHERE seed_item_id = ?', [$itemId]);
                 $sapling = false;
                 if (!$np && $item && $item['category'] === 'sapling') {   // anyone can plant a sapling, known crop or not
@@ -1197,7 +1199,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                 $cardboard = (int)q_val("SELECT id FROM items WHERE slug = 'cardboard-sheet'");
                 if (!give_item($uid, $cardboard, -1) || !give_item($uid, $itemId, -1)) throw new UserError('You’re missing materials.');
                 [$af, $al, $am] = amendment($item);
-                $settle = gmdate('Y-m-d H:i:s', time() + (int)setting('notill_settle_minutes') * 60);
+                $settle = gmdate('Y-m-d H:i:s', gclock_plot_now((int)$t['plot_id']) + (int)setting('notill_settle_minutes') * 60);
                 $head = $t['method'] === 'notill' ? 0 : intdiv(care_stars($t), 2);   // v0.8.7: a cared-for square starts a grade up per 2 stars
                 q('UPDATE plot_tiles SET tilled = 1, method = ?, settle_until = ?, fertility = ?, soil_life = ?, moisture = ?,
                    mulch = ?, weeds = 0, bed_score = ?, maint_at = ?, checkpoint = 0, neglect_hours = 0, care = 0, care_fed = 0 WHERE id = ?',
@@ -1215,7 +1217,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                 q('UPDATE plot_tiles SET moisture = ?, feed_fert = ?, feed_life = ?, feed_hours = ?, feed_at = ?, feed_n = ?, feed_p = ?, feed_k = ?, care_fed = 1 WHERE id = ?',
                     [clamp100($m + $am), max(0, min(100 - $f, $af)), max(0, $al), $mins, gclock_maint_now((int)$t['plot_id']), $pool['n'], $pool['p'], $pool['k'], $t['id']]);
                 $adds = array_filter([$af ? '+' . min(100 - $f, $af) . ' fertility' : '', $al ? '+' . $al . ' soil life' : '', npk_text($pool)]);
-                $msgs[] = 'You work ' . $item['name'] . ' into the soil. Over the next ' . nice_time($mins * 60)
+                $msgs[] = 'You work ' . $item['name'] . ' into the soil. Over the next ' . (gclock_on() ? gclock_sleeps_text($mins) : nice_time($mins * 60))
                     . ' it will add ' . ($adds ? implode(', ', $adds) : 'a little goodness') . '.';
                 break;
             case 'mulch':

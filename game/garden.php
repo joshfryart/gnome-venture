@@ -565,7 +565,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
       <h3 class="sqh">Square <?= (int)$sel['x'] + 1 ?>, <?= (int)$sel['y'] + 1 ?> · <?= $method ?> <a class="backtoyard" href="#yard">⬆ yard</a></h3>
       <?php   // v2.3.100: one status line, a row of chips and ONE "Next:" line; the numbers are behind "Soil details"
           $sumWord = $sel['method'] === 'notill' ? 'No-till bed' : ((int)$sel['tilled'] ? 'Tilled' : 'Wild ground');
-          $sumState = $p ? ($p['kind'] === 'cover' ? 'cover crop growing' : 'growing ' . $p['name']) : (ts($sel['settle_until']) > time() ? 'settling · ready to plant in ' . nice_time(ts($sel['settle_until']) - time()) : (tile_plantable($sel) ? 'ready to plant' : ((int)$sel['tilled'] ? 'ready for soil care' : 'till it first')));
+          $sumState = $p ? ($p['kind'] === 'cover' ? 'cover crop growing' : 'growing ' . $p['name']) : (ts($sel['settle_until']) > gclock_plot_now((int)$sel['plot_id']) ? 'settling · ready to plant in ' . nice_time(ts($sel['settle_until']) - gclock_plot_now((int)$sel['plot_id'])) : (tile_plantable($sel) ? 'ready to plant' : ((int)$sel['tilled'] ? 'ready for soil care' : 'till it first')));
           $fertLow = (int)$sel['fertility'] < 40;
           $chips = [];
           $pNeed = $p ? (string)($p['nutrient'] ?? '') : '';
