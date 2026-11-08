@@ -302,3 +302,60 @@ Risks to watch:
 - **Cooking:** cook pots use the same counters (decision 18), so `calling_perk` boons (`cook_time_pct`, `extra_pot`, `extra_dish_pct`) must stack with mastery without double-counting. Decide the stack rule before building.
 
 Open: milestone numbers, the floor, which products get a buff and what it is.
+
+## 12. Second audit pass: callers of `hollow_today/now/hour/dow` (2026-11-08)
+
+Read from code, with the enclosing function. About 49 call sites in `game/` (plus `tests/garden100.php`, `market100.php`, `clock.php`). Under decision 7 the **date** and the **hour** are both personal, so each call is classed by what it needs:
+- **P-date**: needs the player's game date (season, weather, daily keys).
+- **P-hour**: needs the player's game hour or weekday (NPC schedule, daypart, greeting).
+- **S**: stays real.
+
+### P-date (switch to the player's game date)
+| File:line | What |
+|---|---|
+| `garden.php:427,483` | season chip, in-season seed toggle |
+| `garden_logic.php:785,1209` | `garden_day_fx` speed, planting stamp (`pest_check`) |
+| `garden_fx.php:59,69,180,195,412` | season state, pest check stamps, region weather |
+| `garden_fx.php:325` | pest pass over yesterday and today: **rewrite to game-days** (already flagged) |
+| `place_ui.php:111,650`, `layout.php:369` | header chip, seasons fold, right rail |
+| `garden_critters.php:501,514,535` | garden visitor of the day (`garden_visitors.day`), keyed on the **plot owner's** game date |
+| `animals120.php:174,186,207,255` | same, visitor trades per plot per day |
+
+### P-hour (personal game hour and weekday)
+| File:line | What |
+|---|---|
+| `gnome.php:116` | "Good morning/afternoon/evening" |
+| `here.php:27`, `town.php:100` | "It's 14:00 in the Hollow, Tuesday" (decision 1 note) |
+| `world.php:219-220` staff_on_duty | which NPC works the shop now; ties to **closing hours** (decision 17) |
+| `includes/town.php:229` | spot closed by hour; same tie |
+| `npc_life.php:126-127,181-182,216` | where an NPC is by hour and weekday |
+| `friends.php:93-94`, `today_view.php:59`, `here_view.php:504-505` | NPC position / Today page by hour |
+| `garden_critters.php:461` | frog pond visitor at dusk and night |
+| `gathering.php:267` | gather scene art by hour |
+
+### Inside `hollow_clock.php` (the engine)
+| Line | Result |
+|---|---|
+| 78 `hollow_today($ts)` | keep as the **real** date; add a new `hollow_game_date($user)` for the player |
+| 235-240 `hollow_weather` | checks `$date === $today` to apply `weather_force` (admin override). With a personal date the override would never hit. **Decide:** does admin force apply to everyone's game day, or only to players whose game date is today? |
+| 268 `hollow_daypart($hour)` | takes an hour already; only the default (`hollow_hour()`) must become personal |
+| 287-290 `hollow_now($region, $ts)` | derives date **and** hour from a real timestamp. **Signature change:** it must take a personal state (game date + game minute), not a timestamp |
+| 310 `hollow_forecast`, 324 `hollow_next_season` | personal: forecast from the player's game date; "season day / next season" in **game-days** |
+| 351,358,369 `hollow_line/chip/rail_section` | personal, via `hollow_now` |
+| 389 `upgrade_100_clock` | S (one-time `season_epoch` setup) |
+
+### New findings
+1. **Season length is in real days** (Almanac text: "a set number of real days"). A personal calendar makes it **game-days**; players will see a season pass in N sleeps. Almanac text and `season_length` settings must be retuned.
+2. **`season_epoch` mapping:** the helper maps the player's day counter to a `Y-m-d` from `season_epoch` (plan section 7), so `hollow_season_calc` keeps working unchanged.
+3. **Weather is "same for everyone" by date plus region** (a pure function). It stays a pure function of the personal date, so two players on the same game date see the same weather. Good for visits (crossing calendars).
+4. **`hollow_now` is the main seam.** It is called from the header, the Today page, the right rail, gardens and the seasons fold. One change to its inputs reaches all of them; everything in the P-date and P-hour tables funnels through it.
+5. **Garden visitors** are the one place a wrapper (`hollow_today`) feeds a **database key** per plot. Use the owner's game date, and a visiting player must not make a visitor trade twice by sleeping (the row is the owner's).
+
+### Tests
+`garden100.php` (~60 uses, `garden_day_fx(…, hollow_today())` and pest stamps), `market100.php` (3), `clock.php` (about 8). Tests of the P rows must pass a game date; tests of `hollow_now` need the new signature.
+
+### Audit result
+`hollow_date(`: 144 calls sorted (section 10). Wrapper callers: sorted above. **Audit done.** Next in the build order: define the player game-date and game-clock state (day counter, minute of day), then `hollow_game_date($user)` and the new `hollow_now` signature.
+
+### Question for Josh
+Admin force of weather and season (`weather_force`, `season_force`): apply to every player's game date, or only to players currently on the real date? Draft: every player, since it is a debug tool.
