@@ -521,3 +521,8 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 48 (Josh, 2026-11-08)
 48. **Section 11 time-cost table accepted as drafted** (with decisions 34, 42-47 overriding the tired surcharge, nap, cook, trek, pal regrow rows). Every time is an admin setting, tuned in the prototype. Closes Q9. **All nine open questions are answered.**
+
+### Decisions 49-51 (Josh, 2026-11-08)
+49. **Camp pot is allowed on a nap too** (not only a full sleep). Updates decisions 32-33.
+50. **Camping gear recipe: rope, metal pins, canvas sheet, wood, camping pot.** (Camping pot is itself an item; check it exists in data, else it is new content. Quantities to set when building so craft cost is about 60 Petals, below the 100 shop price.)
+51. **Equip XP runs on the game clock, cap 24 game hours** (`PJ_EQUIP_XP_MAX` stays 24, counted in game hours from `eq_since`). All open questions now closed.
