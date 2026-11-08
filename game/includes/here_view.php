@@ -509,7 +509,7 @@ function here_npcs(array $u, array $node, string $kind): array
             if (in_array($d, schedule_days((string)$r['days']), true) && in_array($h, schedule_hours((int)$r['start_hour'], (int)$r['end_hour']), true)) $out[(int)$r['id']] ??= $r;
         }
     }
-    $list = array_values(array_filter($out, fn($n) => (int)($n['active'] ?? 1) === 1 && !empty($n['slug'])));
+    $list = array_values(array_filter($out, fn($n) => (int)($n['active'] ?? 1) === 1 && !empty($n['slug']) && !gclock_npc_away('n' . (int)$n['id'])));   // 2.6.28: villagers away today are not on the picture
     usort($list, fn($a, $b) => (int)$a['id'] <=> (int)$b['id']);
     return $list;
 }
@@ -551,7 +551,7 @@ function here_sprites(array $u, array $node, array $L, string $kind): array
     $npcs = here_npcs($u, $node, $kind);
     if ((string)$node['kind'] === 'village') {   // v2.5.36: a rest stop's own folk (the Folk tab) stand here too, each opens its panel (chat, gift, errand)
         require_once __DIR__ . '/local.php';
-        foreach (stop_folk_of($node) as $f) $npcs[] = ['stop_folk' => 1, 'id' => (int)$f['id'], 'slug' => 'stopfolk-' . (int)$f['id'], 'name' => (string)$f['name'], 'species' => (string)$f['species']] ;
+        foreach (stop_folk_of($node, true) as $f) $npcs[] = ['stop_folk' => 1, 'id' => (int)$f['id'], 'slug' => 'stopfolk-' . (int)$f['id'], 'name' => (string)$f['name'], 'species' => (string)$f['species']] ;
     }
     $stand = $L['stand'] ?? [];
     $palSlot = null;
@@ -589,23 +589,22 @@ function here_sprites(array $u, array $node, array $L, string $kind): array
     return [$out, $over];
 }
 
-/** A "!" over a villager's head: they have a request you can hand in right now (a rest-stop errand or a town favour that you hold the goods for). */
+/** A "!" over a villager's head: they have a request open to you today (a rest-stop errand not yet taken, or a town favour not yet done). Away villagers have none. */
 function here_quest_ready(array $u, array $node, array $n): bool
 {
     $uid = (int)$u['id'];
-    $have = fn(int $item): int => (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $item]);
     try {
         if (!empty($n['stop_folk'])) {
             require_once __DIR__ . '/stop_folk.php';
-            $folk = q_one('SELECT * FROM npcs WHERE id = ?', [(int)$n['id']]);
+            $folk = q_one('SELECT * FROM stop_folk WHERE id = ?', [(int)$n['id']]);   // 2.6.28: was read from npcs, so rest-stop folk never got a "!"
             $o = $folk ? stop_errand_offer($u, $node, $folk) : null;
-            return $o && !isset($o['taken']) && ($o['kind'] ?? '') === 'fetch' && $have((int)$o['item']['id']) >= (int)$o['qty'];
+            return $o && !isset($o['taken']);
         }
         require_once __DIR__ . '/town_social.php';
         $npc = q_one('SELECT * FROM npcs WHERE id = ?', [(int)$n['id']]);
         if (!$npc) return false;
         $o = favour_offer($uid, $npc, (string)($node['region'] ?? ''));
-        return $o && empty($o['done']) && $have((int)$o['item']['id']) >= (int)$o['qty'];
+        return $o && empty($o['done']);
     } catch (Throwable $e) { return false; }
 }
 

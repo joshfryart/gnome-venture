@@ -64,10 +64,12 @@ function stop_folk_ensure(array $loc): int
 }
 
 /** The villagers at a stop. */
-function stop_folk_of(array $loc): array
+function stop_folk_of(array $loc, bool $presentOnly = false): array
 {
     stop_folk_ensure($loc);
-    return q('SELECT * FROM stop_folk WHERE location_id = ? AND active = 1 ORDER BY slot', [(int)$loc['id']])->fetchAll();
+    $all = q('SELECT * FROM stop_folk WHERE location_id = ? AND active = 1 ORDER BY slot', [(int)$loc['id']])->fetchAll();
+    // 2.6.28: $presentOnly leaves out villagers who are away today (pictures, Villagers tab, panel); errand givers still use the full list so they stay stable
+    return $presentOnly ? array_values(array_filter($all, fn($f) => !gclock_npc_away('s' . (int)$f['id']))) : $all;
 }
 
 /** One of the stop's villagers, picked by a seed (the same seed always gives the same one). */
@@ -232,6 +234,7 @@ function stop_errand_givers(array $loc): array
 function stop_errand_offer(array $u, array $loc, array $folk): ?array
 {
     $uid = (int)$u['id'];
+    if (gclock_npc_away('s' . (int)$folk['id'])) return null;   // 2.6.28: away today: no errand
     $today = gclock_my_date();
     $taken = q_one('SELECT * FROM stop_errands WHERE user_id = ? AND folk_id = ? AND offered_day = ?', [$uid, (int)$folk['id'], $today]);
     if ($taken) return ['taken' => $taken];

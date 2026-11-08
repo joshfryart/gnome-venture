@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.28
+- **Away villagers are really away**: a villager who is away today (visiting family) is no longer drawn on the Here pictures, no longer listed on a rest stop's Villagers tab, and offers no chat, gift, errand or town favour. They are back after you sleep.
+- **"!" fixed and widened**: it now shows over a villager who has a request open to you today (rest-stop errand not yet taken, town favour not yet done), not only when you already hold the goods. Rest-stop villagers never got a "!" before (their record was looked up in the wrong table).
+
 ## 2.6.27
 - **Admin > Game clocks**: every player's game day, date, time and tired state (sort by day), plus the last 100 actions of each player (page, fields, real time, game time). Admin only; passwords, tokens, emails and message text are never stored. Run Upgrade database for the new `player_actions` table.
 

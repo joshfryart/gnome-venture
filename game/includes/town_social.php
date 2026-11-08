@@ -194,6 +194,7 @@ function favour_offer(int $uid, array $npc, string $town): ?array
 {
     require_once __DIR__ . '/friends.php';
     require_once __DIR__ . '/jobs.php';
+    if (gclock_npc_away('n' . (int)$npc['id'])) return null;   // 2.6.28: away today: no favour
     $f = friendship($uid, (int)$npc['id']);
     if (friend_level((int)$f['points'])['index'] < 1) return null;
     $week = job_period_key('weekly');

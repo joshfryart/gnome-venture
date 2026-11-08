@@ -361,7 +361,7 @@ function stop_folk_panel(array $u, array $loc, int $folkId, string $msg = '', bo
 {
     $uid = (int)$u['id'];
     $folk = q_one('SELECT * FROM stop_folk WHERE id = ? AND location_id = ? AND active = 1', [$folkId, (int)$loc['id']]);
-    if (!$folk) return '';
+    if (!$folk || gclock_npc_away('s' . $folkId)) return '';   // 2.6.28: away today: nobody to talk to
     $pts = stop_friend_points($uid, $folkId);
     $lvl = stop_friend_level($pts);
     $today = gclock_my_date();
@@ -451,7 +451,7 @@ function local_panel(array $u, array $loc): string
     if (!in_array($tab, ['do', 'folk', 'stop'], true)) $tab = 'do';
     $GLOBALS['st_tab'] = $tab;
     $deliver = array_filter(stop_errands_active($uid), fn($e) => (int)$e['target_loc'] === (int)$loc['id']);
-    $folk = stop_folk_of($loc);
+    $folk = stop_folk_of($loc, true);   // 2.6.28: villagers who are away today are not listed
     $ready = count($deliver);
     foreach ($folk as $f) {
         $o = stop_errand_offer($u, $loc, $f);
