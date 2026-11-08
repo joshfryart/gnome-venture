@@ -99,6 +99,7 @@ function game_spend(int $uid, int $minutes, ?int $closesAt = null): ?array
     $n = q('UPDATE users SET game_minute = game_minute + ? WHERE id = ? AND game_day = ? AND game_minute = ?',
         [$minutes, $uid, (int)$u['game_day'], (int)$u['game_minute']])->rowCount();
     if ($n !== 1) return null;
+    gclock_plot_clock(0, true);
     return ['game_day' => (int)$u['game_day'], 'game_minute' => (int)$u['game_minute'] + $minutes];
 }
 
@@ -113,6 +114,7 @@ function game_sleep(int $uid, int $energyPct = 100): ?array
     $n = q('UPDATE users SET game_day = game_day + 1, game_minute = ?, carry_minutes = 0, energy = ? WHERE id = ? AND game_day = ? AND game_minute = ?',
         [GAME_WAKE_MINUTE + $carry, $new, $uid, (int)$u['game_day'], (int)$u['game_minute']])->rowCount();
     if ($n !== 1) return null;
+    gclock_plot_clock(0, true);
     game_new_day($uid);
     gclock_heal($u, $energyPct);   // a night's sleep heals as much as it restores energy (a bench heals less)
     return ['game_day' => (int)$u['game_day'] + 1, 'game_minute' => GAME_WAKE_MINUTE + $carry];
@@ -130,6 +132,7 @@ function game_nap(int $uid): ?array
     $n = q('UPDATE users SET game_minute = game_minute + ?, energy = CASE WHEN energy + CAST(? AS INTEGER) > CAST(? AS INTEGER) THEN CAST(? AS INTEGER) ELSE energy + CAST(? AS INTEGER) END WHERE id = ? AND game_day = ? AND game_minute = ?',
         [$mins, $gain, $max, $max, $gain, $uid, (int)$u['game_day'], (int)$u['game_minute']])->rowCount();
     if ($n !== 1) return null;
+    gclock_plot_clock(0, true);
     gclock_heal($u, $pct);
     return ['game_day' => (int)$u['game_day'], 'game_minute' => (int)$u['game_minute'] + $mins];
 }
@@ -149,9 +152,29 @@ function gclock_on(): bool
 /** The plot owner's game_day. Memoised per request; pass $reset after a sleep. */
 function gclock_plot_day(int $plotId, bool $reset = false): int
 {
+    return gclock_plot_clock($plotId, $reset)[0];
+}
+
+/** [game_day, game_minute] of the plot owner. Memoised per request; every clock change (spend, nap, sleep) resets it. */
+function gclock_plot_clock(int $plotId, bool $reset = false): array
+{
     static $memo = [];
-    if ($reset) { $memo = []; return 0; }
-    return $memo[$plotId] ??= (int)q_val('SELECT u.game_day FROM plots pl JOIN users u ON u.id = pl.user_id WHERE pl.id = ?', [$plotId]);
+    if ($reset) { $memo = []; return [0, 0]; }
+    if (!isset($memo[$plotId])) {
+        $r = q_one('SELECT u.game_day, u.game_minute FROM plots pl JOIN users u ON u.id = pl.user_id WHERE pl.id = ?', [$plotId]);
+        $memo[$plotId] = [(int)($r['game_day'] ?? 0), (int)($r['game_minute'] ?? GAME_WAKE_MINUTE)];
+    }
+    return $memo[$plotId];
+}
+
+/**
+ * A "virtual clock" in UNIX seconds for the plot owner: the season epoch plus their game ticks. The no-till upkeep walk (bed_tick) and
+ * its stored maint_at run on this, so the same code works on game time. At the one-time start it is close to the real clock.
+ */
+function gclock_plot_vnow(int $plotId): int
+{
+    [$d, $m] = gclock_plot_clock($plotId);
+    return (int)strtotime(hollow_season_epoch() . ' 00:00:00 UTC') + $d * 86400 + $m * 60;
 }
 
 /** The plot owner's game date 'Y-m-d' (flag on), else the real Hollow date. Weather, pest checks and daily stamps of a garden use this. */
@@ -648,4 +671,10 @@ function gclock_crop_heal(array $item): int
     $band = $tiers ? min(array_map(fn($t) => $rank[$t] ?? 0, $tiers)) : ($plant['kind'] === 'flower' ? 1 : 0);
     if ($band === 2 && (int)($item['rarity'] ?? 0) >= 80) $band = 3;   // a legendary crop
     return max(0, $v[$band]);
+}
+
+/** The value to store in plot_tiles.maint_at "now": the owner's virtual game time with the flag on, else the real time. */
+function gclock_maint_now(int $plotId): string
+{
+    return gclock_on() ? gmdate('Y-m-d H:i:s', gclock_plot_vnow($plotId)) : now();
 }

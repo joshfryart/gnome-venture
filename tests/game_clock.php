@@ -360,6 +360,46 @@ ok('a non-produce item heals nothing', gclock_crop_heal(['category' => 'food', '
 cfg(['game_clock_on' => '0', 'hp_crop_heal' => '']);
 setu($uid, ['hp' => null, 'hp_at' => null, 'game_day' => 0, 'game_minute' => 360, 'location_id' => $origLoc]);
 
+echo "== no-till upkeep (bed_tick) on game time\n";
+try {
+$pl2 = q_one('SELECT * FROM plots WHERE user_id = ? ORDER BY id LIMIT 1', [$uid]);
+$tl = q_one('SELECT * FROM plot_tiles WHERE plot_id = ? ORDER BY id LIMIT 1', [$pl2['id']]);
+setu($uid, ['game_day' => 50, 'game_minute' => 600]);
+gclock_plot_clock(0, true);
+cfg(['game_clock_on' => '1', 'weather_force' => '']);
+$v0 = gclock_plot_vnow((int)$pl2['id']);
+$bed = array_merge($tl, ['method' => 'notill', 'tilled' => 1, 'plant_id' => null, 'mulch' => 100, 'weeds' => 0, 'moisture' => 50, 'bed_score' => 0, 'checkpoint' => 0, 'neglect_hours' => 0, 'maint_at' => gmdate('Y-m-d H:i:s', $v0 - 5 * 3600)]);
+$r = bed_tick($bed, urow($uid));
+ok('5 game hours pass: mulch wears 5', (int)$r['mulch'] === 95, (string)$r['mulch']);
+ok('maint_at moves to the virtual clock', strtotime($r['maint_at'] . ' UTC') === $v0);
+ok('the 20 real hours in between do not count', (int)bed_tick(array_merge($bed, ['maint_at' => gmdate('Y-m-d H:i:s', $v0 - 3600)]), urow($uid))['mulch'] === 99);
+setu($uid, ['game_day' => 51, 'game_minute' => 360]);
+gclock_plot_clock(0, true);
+$r = bed_tick(array_merge($bed, ['maint_at' => gmdate('Y-m-d H:i:s', $v0)]), urow($uid));
+ok('one sleep (22:00 to 06:00) later: 20 game hours passed (10:00 -> 06:00 next day)', (int)$r['mulch'] === 80, (string)$r['mulch']);
+$r = bed_tick(array_merge($bed, ['maint_at' => null]), urow($uid));
+ok('no maint_at yet: stamped with the virtual clock, no ticks', strtotime($r['maint_at'] . ' UTC') === gclock_plot_vnow((int)$pl2['id']) && (int)$r['mulch'] === 100);
+ok('a real-time stamp ahead of the game clock waits (no negative hours)', (int)bed_tick(array_merge($bed, ['maint_at' => gmdate('Y-m-d H:i:s', gclock_plot_vnow((int)$pl2['id']) + 7200)]), urow($uid))['mulch'] === 100);
+cfg(['game_clock_on' => '0']);
+$r = bed_tick(array_merge($bed, ['maint_at' => gmdate('Y-m-d H:i:s', time() - 3 * 3600)]), urow($uid));
+ok('flag off: real hours (3)', (int)$r['mulch'] === 97, (string)$r['mulch']);
+} catch (Throwable $e) { ok('no-till block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+gclock_plot_clock(0, true);
+
+echo "== soil feeding (feed_tick) on game minutes\n";
+setu($uid, ['game_day' => 60, 'game_minute' => 600]);
+gclock_plot_clock(0, true);
+cfg(['game_clock_on' => '1']);
+$vf = gclock_plot_vnow((int)$pl2['id']);
+$ft = array_merge($tl, ['feed_hours' => 100, 'feed_fert' => 10, 'feed_life' => 10, 'feed_n' => 0, 'feed_p' => 0, 'feed_k' => 0, 'fertility' => 20, 'soil_life' => 20, 'n' => 0, 'p' => 0, 'k' => 0, 'feed_at' => gmdate('Y-m-d H:i:s', $vf - 50 * 60)]);
+$fr = feed_tick($ft);
+ok('50 game minutes of a 100-minute feed: half released', (int)$fr['feed_hours'] === 50 && (int)$fr['fertility'] === 25, (string)$fr['feed_hours'] . '/' . $fr['fertility']);
+ok('feed_seconds_left reads the virtual clock', feed_seconds_left($ft) === 50 * 60);
+cfg(['game_clock_on' => '0']);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+gclock_plot_clock(0, true);
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);

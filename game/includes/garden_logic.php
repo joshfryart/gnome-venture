@@ -156,12 +156,14 @@ function checkpoint_name(int $cp): string
 function bed_tick(array $t, array $owner = []): array   // v0.9.1: takes the garden owner's user row (calling + level) instead of the calling name
 {
     if ($t['method'] !== 'notill') return $t;
+    $gOn = gclock_on() && !empty($t['plot_id']);
+    $nowT = $gOn ? gclock_plot_vnow((int)$t['plot_id']) : time();   // sleep-days: the owner's game time as a virtual UNIX clock
     $last = ts($t['maint_at']);
     if (!$last) {
-        $t['maint_at'] = now();
+        $t['maint_at'] = $gOn ? gmdate('Y-m-d H:i:s', $nowT) : now();
         return $t;
     }
-    $hours = min(24 * 90, intdiv(time() - $last, 3600));   // catch up at most 90 days
+    $hours = min(24 * 90, intdiv($nowT - $last, 3600));   // catch up at most 90 days
     if ($hours < 1) return $t;
     $weedSlow = max(1, calling_perk($owner, 'weed_slow', 1));   // v0.9.1: Thornblade tiers: weeds grow 1/N as fast
     $noWeeds = calling_perk($owner, 'no_weeds') > 0;            // v0.9.1: Thornblade master: weeds never grow
@@ -226,8 +228,9 @@ function feed_tick(array $t): array
 {
     $left = (int)($t['feed_hours'] ?? 0);
     if ($left <= 0) return $t;
-    $from = ts($t['feed_at']) ?: time();
-    $h = min($left, intdiv(time() - $from, 60));
+    $nowT = gclock_on() && !empty($t['plot_id']) ? gclock_plot_vnow((int)$t['plot_id']) : time();   // sleep-days: the owner's game minutes
+    $from = ts($t['feed_at']) ?: $nowT;
+    $h = min($left, intdiv($nowT - $from, 60));
     if ($h < 1) return $t;
     if ($h >= $left) {
         $rf = (int)$t['feed_fert'];
@@ -260,7 +263,7 @@ function feed_seconds_left(array $t): int
 {
     $left = (int)($t['feed_hours'] ?? 0);
     if ($left <= 0) return 0;
-    return max(30, ts($t['feed_at']) + $left * 60 - time());
+    return max(30, ts($t['feed_at']) + $left * 60 - (gclock_on() && !empty($t['plot_id']) ? gclock_plot_vnow((int)$t['plot_id']) : time()));
 }
 
 /** How many minutes an amendment takes to work in: from the item's effects, or the game setting. */
@@ -1193,7 +1196,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                 q('UPDATE plot_tiles SET tilled = 1, method = ?, settle_until = ?, fertility = ?, soil_life = ?, moisture = ?,
                    mulch = ?, weeds = 0, bed_score = ?, maint_at = ?, checkpoint = 0, neglect_hours = 0, care = 0, care_fed = 0 WHERE id = ?',
                     ['notill', $settle, clamp100($f + 5 + $af), clamp100($l + 10 + $al), clamp100($m + 20 + $am),
-                     min(MULCH_MAX_HOURS, 48 + mulch_value($item)), $head * GRADE_STEP, now(), $t['id']]);
+                     min(MULCH_MAX_HOURS, 48 + mulch_value($item)), $head * GRADE_STEP, gclock_maint_now((int)$t['plot_id']), $t['id']]);
                 $msgs[] = '🍂 You lay cardboard and ' . $item['name'] . '. The bed will be ready to plant in ' . nice_time((int)setting('notill_settle_minutes') * 60) . '.'
                     . ($head ? ' Your soil care gives it a head start: it begins at grade ' . grade_name($head) . '.' : '');
                 break;
@@ -1204,7 +1207,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                 // Nutrients go into the slow-release pool; any moisture soaks in right away.
                 $pool = npk_pool($t, amendment_npk($item));
                 q('UPDATE plot_tiles SET moisture = ?, feed_fert = ?, feed_life = ?, feed_hours = ?, feed_at = ?, feed_n = ?, feed_p = ?, feed_k = ?, care_fed = 1 WHERE id = ?',
-                    [clamp100($m + $am), max(0, min(100 - $f, $af)), max(0, $al), $mins, now(), $pool['n'], $pool['p'], $pool['k'], $t['id']]);
+                    [clamp100($m + $am), max(0, min(100 - $f, $af)), max(0, $al), $mins, gclock_maint_now((int)$t['plot_id']), $pool['n'], $pool['p'], $pool['k'], $t['id']]);
                 $adds = array_filter([$af ? '+' . min(100 - $f, $af) . ' fertility' : '', $al ? '+' . $al . ' soil life' : '', npk_text($pool)]);
                 $msgs[] = 'You work ' . $item['name'] . ' into the soil. Over the next ' . nice_time($mins * 60)
                     . ' it will add ' . ($adds ? implode(', ', $adds) : 'a little goodness') . '.';
@@ -1219,7 +1222,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                     $pool = npk_pool($t, amendment_npk($item));
                     $feed = (int)$t['feed_hours'] <= 0 && ($af > 0 || $al > 0 || array_sum($pool) > 0);
                     q('UPDATE plot_tiles SET mulch = ?, moisture = ?' . ($feed ? ', feed_fert = ?, feed_life = ?, feed_hours = ?, feed_at = ?, feed_n = ?, feed_p = ?, feed_k = ?' : '') . ' WHERE id = ?',
-                        $feed ? [$newMulch, clamp100($m + $am), max(0, min(100 - $f, $af)), $al, amendment_minutes($item), now(), $pool['n'], $pool['p'], $pool['k'], $t['id']]
+                        $feed ? [$newMulch, clamp100($m + $am), max(0, min(100 - $f, $af)), $al, amendment_minutes($item), gclock_maint_now((int)$t['plot_id']), $pool['n'], $pool['p'], $pool['k'], $t['id']]
                               : [$newMulch, clamp100($m + $am), $t['id']]);
                     $msgs[] = 'You spread ' . $item['name'] . ' over the bed. It holds in moisture' . ($feed ? ' and will slowly feed the soil' : '') . '.';
                 } else {
