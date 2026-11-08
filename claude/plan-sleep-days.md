@@ -417,3 +417,20 @@ Daily caps and stamps (class C), market bucket drain, community goals, contests,
 
 ### 13.7 Tests to write first
 `game_sleep` (day, minute, energy), `game_nap` (day unchanged, partial energy), `game_spend` (two-tab race), `game_can_spend` with a closing time (blocks, allows), tired surcharge on `game_energy_cost`, `game_tick` ordering across a sleep (a cook pot with `ready_tick` finishes), `hollow_game_date` feeding `hollow_season/weather` identically for two players on the same date.
+
+### 13.8 Spec check against the code (2026-11-08) — corrections to 13.1-13.7
+Checked each claim in section 13 against the repo. Four were wrong or incomplete; the rest held.
+
+**Corrections**
+1. **Season mode names.** There is no "epoch mode". `season_mode` is `game` (default: seasons last `season_days`, counted from `season_epoch`) or `real` (calendar months). The default is already `game`, so 13.3 should read: *keep `season_mode=game`; `season_days` becomes game-days.* Only a `real` setting would break.
+2. **Energy cost has one choke point.** `spend_energy(int $uid, int $n)` (`garden_logic.php:317`) is the one function behind all 23 call sites. Apply the tired surcharge **inside it** (SQL can do it: read `game_minute >= 1320` and multiply), not at each site. Display text ("costs 3 energy") is computed by callers before the spend, so those labels need `game_energy_cost($u, $base)` too. That is the part that touches many files.
+3. **There is no "hovel" in the code.** A search for `hovel` finds nothing. The rule "sleep in the hovel" needs a **place to sleep**: a home/hovel page or button, plus a rule for where it shows. Add this to the build list. Open: does it need to be at home only, or at any inn/bed too?
+4. **Removing regen touches more than 13.3 listed:** `refresh_energy()` (called from 29 places), `current_energy($u)` and the regen-countdown pill in `layout.php:290-304` (read `energy_updated_at`), `fresh_start.php:25` and `schema.php:48` (the column), and the `energy_scale` migration in `functions.php` (~1026, one-off, leave). Plan: turn `refresh_energy` into a no-op first, delete callers after.
+
+**Held (verified)**
+- `hollow_date_add()`, `hollow_season_epoch()`, `hollow_season_length()` exist as assumed.
+- `spend_energy` call sites: 23, matches section 11.
+- `npc_schedules` has `start_hour`/`end_hour` (staff hours), so closing hours for staff-run shops have a base.
+- `HOLLOW_EPOCH_FALLBACK` exists for the epoch.
+
+**Added to 13.6 open list:** the place to sleep (item 3) and whether a nap needs a bed.
