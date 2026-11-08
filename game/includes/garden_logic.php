@@ -523,7 +523,7 @@ function garden_claim_free_water(array $u, int $uid, array $tiles, array $plants
     foreach ($tiles as $row) foreach ($row as $t) if ($t['plant_id'] && isset($plants[(int)$t['plant_id']]) && tile_info($t, $plants[(int)$t['plant_id']])['thirsty']) $thirsty++;
     if (!$thirsty) return [false, false];
     $pid = active_plot_id($uid);
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     $free = building_level($pid, 'rain_barrel') >= 3
         && q("UPDATE garden_buildings SET free_day = ? WHERE plot_id = ? AND building = 'rain_barrel' AND (free_day IS NULL OR free_day <> ?)", [$today, $pid, $today])->rowCount() === 1;
     $perk = false;

@@ -132,7 +132,7 @@ function npc_talk(array $u, int $npcId): array
     $npc = q_one('SELECT * FROM npcs WHERE id = ? AND active = 1', [$npcId]);
     if (!$npc || !npc_here($u, $npcId)) return [false, 'They aren’t around right now.'];
     $f = friendship($uid, $npcId);
-    $today = hollow_date('Y-m-d');   // v0.7.85: the Hollow's day (midnight Halifax), like the landmarks and towns
+    $today = gclock_my_date();   // v0.7.85: the Hollow's day (midnight Halifax), like the landmarks and towns
     if ($f['last_talk'] === $today) return [false, $npc['name'] . ' has already had a good chat with you today.'];
     $gain = max(1, 3 + (function_exists('eff_mod') ? eff_mod($u, 'charm') : 0));
     require_once __DIR__ . '/npc_life.php';
@@ -179,7 +179,7 @@ function npc_gift(array $u, int $npcId, int $itemId, bool $door = false): array
     $npc = q_one('SELECT * FROM npcs WHERE id = ? AND active = 1', [$npcId]);
     if (!$npc || (!$door && !npc_here($u, $npcId))) return [false, 'They aren’t around right now.'];
     $f = friendship($uid, $npcId);
-    $today = hollow_date('Y-m-d');   // v0.7.85: the Hollow's day
+    $today = gclock_my_date();   // v0.7.85: the Hollow's day
     if ($f['last_gift'] === $today) return [false, $npc['name'] . ' has already had a present from you today.'];
     $item = q_one('SELECT * FROM items WHERE id = ? AND tradable = 1', [$itemId]);
     if (!$item) return [false, 'Pick something to give.'];

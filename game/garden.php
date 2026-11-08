@@ -537,9 +537,9 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
               return '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="' . $do . '"><button class="btn small"' . ($n ? '' : ' disabled') . '>'
                   . $label . ($n ? ' (' . $n . ') <span class="cost">⚡' . $energy . '</span>' : '') . '</button></form> ';
           }; ?>
-      <?php $freeW = isset($built['rain_barrel']) && (int)$built['rain_barrel']['level'] >= 3 && (string)$built['rain_barrel']['free_day'] !== hollow_date('Y-m-d');   // v0.7.96
+      <?php $freeW = isset($built['rain_barrel']) && (int)$built['rain_barrel']['level'] >= 3 && (string)$built['rain_barrel']['free_day'] !== gclock_my_date();   // v0.7.96
           $perkN = calling_perk($u, 'free_water_all');   // v0.9.1: Bloomcaller master
-          $perkLeft = $perkN > 0 ? max(0, $perkN - ((string)($plot['free_water_day'] ?? '') === hollow_date('Y-m-d') ? (int)$plot['free_water_n'] : 0)) : 0;
+          $perkLeft = $perkN > 0 ? max(0, $perkN - ((string)($plot['free_water_day'] ?? '') === gclock_my_date() ? (int)$plot['free_water_n'] : 0)) : 0;
           if ($perkLeft > 0) $freeW = true; ?>
       <?= $bulk('water_all', $nThirsty ? '💧 Water all thirsty' : '💧 Nothing thirsty', $nThirsty, $freeW ? 0 : action_cost($uid, 'water') * $nThirsty) ?>
       <?php if ($perkLeft > 0): ?><span class="help">💧 Free Water all: <?= $perkLeft ?> left today</span> <?php endif; ?>

@@ -517,3 +517,34 @@ function gclock_closed_reason(array $u, ?array $row, int $minutes = 0, bool $may
     if (!$mayRunLate && $minutes > 0 && $now + $minutes > $close) return 'Too late to start that here: it closes at ' . $fmt($close) . '.';
     return null;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The logged-in gnome's own date / hour / weekday, for personal systems (NPC chat and gifts, stop limits, errands, festivals,
+// NPC schedules). Flag off, or no logged-in gnome (cron, guests of shared pages): the real Hollow clock, exactly as before.
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** gclock_state() of the logged-in gnome, read fresh; null when the flag is off or nobody is logged in. */
+function gclock_me(): ?array
+{
+    if (!gclock_on() || !($cu = current_user()) || empty($cu['id'])) return null;
+    $u = q_one('SELECT game_day, game_minute FROM users WHERE id = ?', [(int)$cu['id']]);
+    return $u ? gclock_state($u) : null;
+}
+
+function gclock_my_date(): string
+{
+    $s = gclock_me();
+    return $s ? $s['date'] : hollow_date('Y-m-d');
+}
+
+function gclock_my_hour(): int
+{
+    $s = gclock_me();
+    return $s ? $s['hour'] : hollow_hour();
+}
+
+function gclock_my_dow(): int
+{
+    $s = gclock_me();
+    return $s ? $s['dow'] : hollow_dow();
+}

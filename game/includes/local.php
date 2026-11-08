@@ -324,7 +324,7 @@ function local_folk_card(array $u, array $loc, array $folk, array $deliver): str
     $uid = (int)$u['id'];
     $pts = stop_friend_points($uid, (int)$folk['id']);
     $lvl = stop_friend_level($pts);
-    $talked = (string)q_val('SELECT last_talk FROM stop_friend WHERE user_id = ? AND folk_id = ?', [$uid, (int)$folk['id']]) === hollow_date('Y-m-d');
+    $talked = (string)q_val('SELECT last_talk FROM stop_friend WHERE user_id = ? AND folk_id = ?', [$uid, (int)$folk['id']]) === gclock_my_date();
     $hearts = str_repeat('💛', $lvl['index']) . str_repeat('🤍', 3 - $lvl['index']);
     // v2.0.77: the button opens the overlay (chat, gift, errand without a reload); without JavaScript it is still the old chat form
     $act = local_form('_chat', '<input type="hidden" name="folk" value="' . (int)$folk['id'] . '"><button class="fbtn" data-folk-stop="' . (int)$folk['id'] . '">💬 ' . ($talked ? 'Chat again' : 'Say hello') . '</button>');
@@ -363,7 +363,7 @@ function stop_folk_panel(array $u, array $loc, int $folkId, string $msg = '', bo
     if (!$folk) return '';
     $pts = stop_friend_points($uid, $folkId);
     $lvl = stop_friend_level($pts);
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     $row = q_one('SELECT last_talk, last_gift FROM stop_friend WHERE user_id = ? AND folk_id = ?', [$uid, $folkId]) ?: ['last_talk' => null, 'last_gift' => null];
     $hearts = str_repeat('💛', $lvl['index']) . str_repeat('🤍', 3 - $lvl['index']);
     $f = fn(string $k, string $inner) => '<form method="post" action="' . e(url('stopfolk.php')) . '" class="vact" data-sform="1">' . csrf_field() . '<input type="hidden" name="folk" value="' . $folkId . '"><input type="hidden" name="do" value="' . e($k) . '">' . $inner . '</form>';

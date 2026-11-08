@@ -46,7 +46,8 @@ function npc_birthday(array $npc): array
 function npc_birthday_today(array $npc): bool
 {
     [$m, $d] = npc_birthday($npc);
-    return (int)hollow_date('n') === $m && (int)hollow_date('j') === $d;
+    $g = gclock_my_date();
+    return (int)substr($g, 5, 2) === $m && (int)substr($g, 8, 2) === $d;
 }
 
 function npc_birthday_text(array $npc): string
@@ -123,8 +124,8 @@ function ensure_npc_lives(): void
 /** NPCs at a town place right now (shopkeepers on their break, plus a traveller on the Green). */
 function npcs_at_spot(array $spot): array
 {
-    $h = hollow_hour();
-    $d = hollow_dow();
+    $h = gclock_my_hour();
+    $d = gclock_my_dow();
     $out = [];
     foreach (q('SELECT n.*, s.days, s.start_hour, s.end_hour FROM npc_schedules s JOIN npcs n ON n.id = s.npc_id
                 WHERE s.spot_id = ? AND n.active = 1', [$spot['id']])->fetchAll() as $r) {
@@ -178,8 +179,8 @@ function npc_now(array $npc): array
         $green = q_one("SELECT * FROM town_spots WHERE region = ? AND kind = 'green' AND active = 1", [$s['town']]);
         return ['what' => 'on the Green in ' . $s['town'], 'town' => $s['town'], 'spot' => $green ?: null];
     }
-    $h = hollow_hour();
-    $d = hollow_dow();
+    $h = gclock_my_hour();
+    $d = gclock_my_dow();
     foreach (q('SELECT s.*, sh.name AS shop_name, sh.location_id AS shop_loc FROM npc_schedules s LEFT JOIN shops sh ON sh.id = s.shop_id WHERE s.npc_id = ?', [$npc['id']])->fetchAll() as $s) {
         if (!in_array($d, schedule_days($s['days']), true) || !in_array($h, schedule_hours((int)$s['start_hour'], (int)$s['end_hour']), true)) continue;
         $loc = $s['shop_id'] ? $s['shop_loc'] : $s['location_id'];
@@ -213,7 +214,7 @@ function npc_home(array $npc): ?array
 /** v0.7.73: the hours (this Hollow day) an NPC is usually home, as text like "9 pm – 6 am". */
 function npc_home_hours(array $npc): string
 {
-    $d = hollow_dow();
+    $d = gclock_my_dow();
     $busy = [];
     foreach (q("SELECT * FROM npc_schedules WHERE npc_id = ? AND activity <> 'resting'", [$npc['id']])->fetchAll() as $s) {
         if (!in_array($d, schedule_days($s['days']), true)) continue;
@@ -276,7 +277,8 @@ function teahouse_rumours(string $town, int $n = 2): array
     foreach (q("SELECT n.* FROM npcs n WHERE n.active = 1 AND n.fav_spot_id IN (SELECT id FROM town_spots WHERE region = ?)", [$town])->fetchAll() as $npc) {
         for ($d = 1; $d <= 7; $d++) {
             [$m, $day] = npc_birthday($npc);
-            if ((int)hollow_date('n', time() + $d * 86400) === $m && (int)hollow_date('j', time() + $d * 86400) === $day) {
+            $gd = hollow_date_add(gclock_my_date(), $d);
+            if ((int)substr($gd, 5, 2) === $m && (int)substr($gd, 8, 2) === $day) {
                 $pool[] = '“Don’t tell ' . $npc['name'] . ', but it’s their birthday ' . ($d === 1 ? 'tomorrow' : 'in ' . $d . ' days') . '. A little present would go a long way.”';
             }
         }
@@ -300,7 +302,7 @@ function teahouse_rumours(string $town, int $n = 2): array
     require_once __DIR__ . '/contests.php';
     $pool[] = '“This week’s Village Show is the ' . SHOW_CROPS[show_crop()][0] . '. My cousin’s been feeding hers for weeks.”';
     if (!$pool) return [];
-    $seed = crc32($town . '|' . hollow_date('Y-m-d H'));
+    $seed = crc32($town . '|' . gclock_my_date() . ' ' . gclock_my_hour());
     $out = [];
     for ($i = 0; $i < min($n, count($pool)); $i++) {
         $k = ($seed + $i * 7919) % count($pool);

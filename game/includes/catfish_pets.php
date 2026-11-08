@@ -317,7 +317,7 @@ function catfish_pet_use(int $uid, int $no, array $opts = [], ?float $roll = nul
         if (!empty($fx['happy_frames'])) $extra['happy'] = true;
         $yarn = 0;
         if (!empty($fx['yarn_odds']) && catfish_pet_yarn_hit((int)$fx['yarn_odds'], $roll ?? random_int(0, 999999) / 1000000)) {
-            $week = catfish_week(); $py = $meta['py'] ?? [];
+            $week = catfish_cap_week(); $py = $meta['py'] ?? [];
             $thisWeek = is_array($py) && ($py['week'] ?? '') === $week ? (int)($py['n'] ?? 0) : 0;
             if ($thisWeek < catfish_pet_cfg('catfish_pet_yarn_week', 1)) { $yarn = 1; $meta['py'] = ['week' => $week, 'n' => $thisWeek + 1]; }
         }

@@ -331,7 +331,7 @@ function stop_adopter_perk(array $u, array $loc): array
     $uid = (int)$u['id'];
     $a = stop_adoption((int)$loc['id']);
     if (!$a || (int)$a['user_id'] !== $uid) return [false, 'This isn’t your stop.'];
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     if (q('UPDATE stop_adoptions SET perk_day = ? WHERE id = ? AND (perk_day IS NULL OR perk_day <> ?)', [$today, $a['id'], $today])->rowCount() !== 1) return [false, 'You’ve already had today’s welcome from the villagers.'];
     $t = (int)$a['tier'];
     $coins = 6 + 8 * $t;
@@ -408,7 +408,7 @@ function stop_adopt_panel(array $u, array $loc, callable $form): string
         } else {
             $h .= '<p class="good"><b>🎉 Every upgrade is built. What a stop!</b></p>';
         }
-        $done = ($a['perk_day'] ?? '') === hollow_date('Y-m-d');
+        $done = ($a['perk_day'] ?? '') === gclock_my_date();
         $h .= $form('_perk', '<button class="btn small alt"' . ($done ? ' disabled' : '') . '>🎁 ' . ($done ? 'Today’s welcome taken' : 'Collect the villagers’ welcome') . '</button>')
             . $form('_release', '<button class="btn small alt" data-confirm="Hand this stop back? Its upgrades stay for everyone.">Let it go</button>');
     }

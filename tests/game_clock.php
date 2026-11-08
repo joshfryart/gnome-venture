@@ -178,6 +178,31 @@ ok('own row close 20:00 closes at 20:00', gclock_closed_reason($cu(1200), ['clos
 cfg(['game_clock_on' => '0']);
 ok('flag off: never closed', gclock_closed_reason($cu(1400), null, 60) === null);
 
+require_once $argv[1] . '/includes/catfish.php'; require_once $argv[1] . '/includes/npc_life.php';
+echo "== personal date helpers (NPC chat, stops, festivals, caps)\n";
+$GLOBALS['CURRENT_USER'] = urow($uid);
+setu($uid, ['game_day' => 40, 'game_minute' => 13 * 60 + 5]);
+cfg(['game_clock_on' => '0']);
+ok('flag off: real date / hour', gclock_my_date() === hollow_date('Y-m-d') && gclock_my_hour() === hollow_hour() && gclock_me() === null);
+ok('flag off: cat cap week is the real ISO week', catfish_cap_week() === catfish_week());
+cfg(['game_clock_on' => '1']);
+ok('flag on: my date = epoch + game_day', gclock_my_date() === hollow_date_add(hollow_season_epoch(), 40));
+ok('flag on: my hour = game hour', gclock_my_hour() === 13);
+ok('flag on: weekday matches the game date', gclock_my_dow() === (int)gmdate('w', hollow_day_number(hollow_date_add(hollow_season_epoch(), 40)) * 86400));
+ok('flag on: cat cap week = game week of 7 sleeps', catfish_cap_week() === 'g5');
+setu($uid, ['game_day' => 41]);
+ok('after one more sleep the date moves, the cat cap week holds', gclock_my_date() === hollow_date_add(hollow_season_epoch(), 41) && catfish_cap_week() === 'g5');
+setu($uid, ['game_day' => 42]);
+ok('a sleep past day 41 starts a new cat cap week', catfish_cap_week() === 'g6');
+$GLOBALS['CURRENT_USER'] = null;
+ok('flag on, nobody logged in: real date', gclock_my_date() === hollow_date('Y-m-d'));
+$GLOBALS['CURRENT_USER'] = urow($uid);
+$w = date_create(gclock_my_date()); $before = npc_birthday_today(['slug' => 'x']);
+ok('npc_birthday_today runs on the game date', is_bool($before));
+cfg(['game_clock_on' => '0']);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+$GLOBALS['CURRENT_USER'] = null;
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);

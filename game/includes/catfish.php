@@ -501,6 +501,13 @@ function catfish_today(?int $ts = null): string
     return hollow_date('Y-m-d', $ts);
 }
 
+/** The key of the week for the Petal and yarn caps: a game week (7 sleeps) with game_clock_on, else the real ISO week. The show stays on catfish_week(). */
+function catfish_cap_week(): string
+{
+    $s = gclock_me();
+    return $s ? 'g' . intdiv($s['day'], 7) : catfish_week();
+}
+
 /** The day before a 'Y-m-d' date (plain calendar arithmetic, so DST cannot skip or repeat a day). */
 function catfish_yesterday(?string $today = null): string
 {
@@ -1370,7 +1377,7 @@ function catfish_claim_petals(int $uid): int
     if (is_array($seen) && count((array)($seen['ms'] ?? [])) >= count(CATFISH_MILESTONES_PETALS)) return 0;   // all paid: no lock, no extra queries
     return catfish_locked($uid, function () use ($uid, $cap) {
         $s = catfish_state($uid); $meta = $s['meta'];
-        $week = catfish_week();
+        $week = catfish_cap_week();
         $paid = ($meta['pw']['week'] ?? '') === $week ? (int)$meta['pw']['paid'] : 0;
         $done = (array)($meta['ms'] ?? []); $total = 0;
         foreach (catfish_milestones_reached($uid, $s) as $key => $hit) {

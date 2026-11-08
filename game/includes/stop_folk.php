@@ -141,7 +141,7 @@ function stop_chat_line(array $u, array $loc, array $folk): string
     if (!$fit) return '“Hello, ' . $u['gnome_name'] . '.”';
     $best = max(array_column($fit, 0));
     $top = array_values(array_filter($fit, fn($f) => $f[0] >= $best - ($best > 0 ? 1 : 0)));
-    $pick = $top[crc32($u['id'] . '|' . $folk['id'] . '|' . hollow_date('Y-m-d') . '|' . $now['dp']) % count($top)][1];
+    $pick = $top[crc32($u['id'] . '|' . $folk['id'] . '|' . gclock_my_date() . '|' . $now['dp']) % count($top)][1];
     return str_replace(['{name}', '{folk}', '{place}'], [(string)($u['gnome_name'] ?: $u['username']), $folk['name'], $loc['name']], $pick);
 }
 
@@ -151,7 +151,7 @@ function stop_chat(array $u, array $loc, int $folkId, ?string $lineText = null):
     $uid = (int)$u['id'];
     $folk = q_one('SELECT * FROM stop_folk WHERE id = ? AND location_id = ? AND active = 1', [$folkId, (int)$loc['id']]);
     if (!$folk) return [false, 'Nobody by that name is here.'];
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     stop_friend_ensure($uid, $folkId);
     $line = npc_icon($folk['species']) . ' ' . $folk['name'] . ': ' . ($lineText ?? stop_chat_line($u, $loc, $folk));
     if (q('UPDATE stop_friend SET last_talk = ?, talks = talks + 1 WHERE user_id = ? AND folk_id = ? AND (last_talk IS NULL OR last_talk <> ?)', [$today, $uid, $folkId, $today])->rowCount() !== 1) {
@@ -181,7 +181,7 @@ function stop_gift(array $u, array $loc, int $folkId, int $itemId): array
     if (!$folk) return [false, 'Nobody by that name is here.'];
     $item = q_one("SELECT * FROM items WHERE id = ? AND tradable = 1 AND category NOT IN ('tool', 'broken')", [$itemId]);
     if (!$item) return [false, 'Pick something to give.'];
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     stop_friend_ensure($uid, $folkId);
     db()->beginTransaction();
     q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // lock, claim today's gift, then take the item
@@ -203,7 +203,7 @@ function stop_gift(array $u, array $loc, int $folkId, int $itemId): array
 /** Tidy errands that ran out of days. */
 function stop_errands_expire(int $uid): void
 {
-    q("UPDATE stop_errands SET status = 'expired' WHERE user_id = ? AND status = 'active' AND expires_day < ?", [$uid, hollow_date('Y-m-d')]);
+    q("UPDATE stop_errands SET status = 'expired' WHERE user_id = ? AND status = 'active' AND expires_day < ?", [$uid, gclock_my_date()]);
 }
 
 function stop_errands_active(int $uid): array
@@ -220,7 +220,7 @@ function stop_errands_active(int $uid): array
 function stop_errand_givers(array $loc): array
 {
     $n = max(0, min(5, (int)setting('stop_errands_offered')));
-    $day = hollow_date('Y-m-d');
+    $day = gclock_my_date();
     $ids = array_map(fn($f) => (int)$f['id'], stop_folk_of($loc));
     usort($ids, fn($a, $b) => crc32('giver|' . $day . '|' . $a) <=> crc32('giver|' . $day . '|' . $b));
     return array_slice($ids, 0, $n);
@@ -230,7 +230,7 @@ function stop_errand_givers(array $loc): array
 function stop_errand_offer(array $u, array $loc, array $folk): ?array
 {
     $uid = (int)$u['id'];
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     $taken = q_one('SELECT * FROM stop_errands WHERE user_id = ? AND folk_id = ? AND offered_day = ?', [$uid, (int)$folk['id'], $today]);
     if ($taken) return ['taken' => $taken];
     if (!in_array((int)$folk['id'], stop_errand_givers($loc), true)) return null;   // v1.3.0: only a couple of villagers have an errand today
@@ -280,7 +280,7 @@ function stop_errand_accept(array $u, array $loc, int $folkId): array
     $o = stop_errand_offer($u, $loc, $folk);
     if (!$o) return [false, $folk['name'] . ' has nothing for you today.'];
     if (isset($o['taken'])) return [false, 'You’ve already helped ' . $folk['name'] . ' today.'];
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     $cur = setting('currency_name');
     if ($o['kind'] === 'fetch') {
         db()->beginTransaction();

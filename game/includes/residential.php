@@ -98,7 +98,7 @@ function door_view(array $u, array $npc, int $page, string $open = ''): string
               'card' => $home ? '' : '<p>💡 No light on. ' . e($met ? (string)$npc['name'] : 'Nobody') . ' is out. They’re usually home ' . e(npc_home_hours($npc)) . '.</p>'];
     $giftable = q("SELECT i.id, i.name, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.qty > 0 AND i.tradable = 1 AND i.category NOT IN ('tool', 'broken') ORDER BY i.name", [$uid])->fetchAll();
     $f = friendship($uid, (int)$npc['id']);
-    $given = $f['last_gift'] === hollow_date('Y-m-d');
+    $given = $f['last_gift'] === gclock_my_date();
     if ($given) $card = '<p class="muted">You already gave ' . e($name) . ' a present today.</p>';
     elseif (!$giftable) $card = '<p class="muted">You have nothing to give.</p>';
     else {

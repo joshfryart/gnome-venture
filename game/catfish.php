@@ -239,7 +239,7 @@ foreach (CATFISH_TITLES as $tk => [, $tc]) if (!in_array($tk, $myTitles, true) &
 <?= catfish_pet_panel_html($uid, $v, $meta) ?>
 <?php
 $reached = catfish_milestones_reached($uid, $st); $done = (array)($meta['ms'] ?? []);
-$week = catfish_week(); $paidWk = ($meta['pw']['week'] ?? '') === $week ? (int)$meta['pw']['paid'] : 0; $capWk = (int)setting('catfish_petal_cap');
+$week = catfish_cap_week(); $paidWk = ($meta['pw']['week'] ?? '') === $week ? (int)$meta['pw']['paid'] : 0; $capWk = (int)setting('catfish_petal_cap');
 if ($capWk > 0): ?>
 <section class="cfpanel box" id="cf-p-ms" data-icon="🌸" data-title="Milestones" data-status="<?= number_format($paidWk) ?> of <?= number_format($capWk) ?>" data-badge="0"><h3>🌸 Milestones · <?= number_format($paidWk) ?> of <?= number_format($capWk) ?> Petals this week</h3>
   <p class="help">Each milestone pays Petals once. At most <?= number_format($capWk) ?> a week, so a milestone that does not fit waits for next week.</p>

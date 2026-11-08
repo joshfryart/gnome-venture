@@ -36,7 +36,7 @@ function stop_meter_get(int $uid, int $locId, string $name): int
 {
     [$n, $d] = stop_prog_get($uid, $locId, 'meter:' . $name);
     $since = (string)($d['d'] ?? '');
-    $age = $since !== '' ? stop_days_between($since, hollow_date('Y-m-d')) : 0;
+    $age = $since !== '' ? stop_days_between($since, gclock_my_date()) : 0;
     return max(0, min(99, $n - STOP_METER_DECAY * $age));
 }
 
@@ -49,10 +49,10 @@ function stop_meter_add(int $uid, int $locId, string $name, int $amt): array
     if ($v >= 100) {
         $filled = $name;
         $v = STOP_METER_AFTER;
-        $until = gmdate('Y-m-d', strtotime(hollow_date('Y-m-d') . ' 12:00:00 UTC +' . (STOP_PERK_DAYS - 1) . ' days'));
+        $until = gmdate('Y-m-d', strtotime(gclock_my_date() . ' 12:00:00 UTC +' . (STOP_PERK_DAYS - 1) . ' days'));
         stop_prog_set($uid, $locId, 'perk:' . $name, 1, ['until' => $until]);
     }
-    stop_prog_set($uid, $locId, 'meter:' . $name, max(0, $v), ['d' => hollow_date('Y-m-d')]);
+    stop_prog_set($uid, $locId, 'meter:' . $name, max(0, $v), ['d' => gclock_my_date()]);
     return [max(0, $v), $filled];
 }
 
@@ -61,7 +61,7 @@ function stop_perks(int $uid, int $locId): array
 {
     if ($uid < 1) return [];
     $out = [];
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     foreach (q("SELECT k, data FROM stop_prog WHERE user_id = ? AND location_id = ? AND k LIKE 'perk:%'", [$uid, $locId])->fetchAll() as $r) {
         $until = (string)(json_decode((string)$r['data'], true)['until'] ?? '');
         if ($until !== '' && $until >= $today) $out[substr((string)$r['k'], 5)] = $until;
@@ -210,7 +210,7 @@ function stop_cal_event(array $loc, string $ymd): ?array
 function stop_cal_next(array $loc, int $count = 3, int $days = 21): array
 {
     $out = [];
-    $d = hollow_date('Y-m-d');
+    $d = gclock_my_date();
     for ($i = 1; $i <= $days && count($out) < $count; $i++) {
         $day = gmdate('Y-m-d', strtotime($d . ' 12:00:00 UTC +' . $i . ' days'));
         if ($ev = stop_cal_event($loc, $day)) $out[] = [$day, $ev];
@@ -244,7 +244,7 @@ function stop_thread_offer(int $uid, array $loc): ?array
     if (!$act) return null;
     $type = stop_type_of($loc);
     $rc = stop_region_code($loc);
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     $fit = [];
     foreach (stop_threads() as $th) {
         $ts = array_map('trim', explode(',', $th['types']));
@@ -270,8 +270,8 @@ function stop_thread_do(array $u, array $loc, string $threadId): array
     $th = stop_threads()[$threadId] ?? null;
     if (!$th) throw new UserError('That story has ended.');
     [$n, $d] = stop_prog_get($uid, (int)$loc['id'], 'thread:' . $threadId);
-    if ($n >= count($th['beats']) || ($d['day'] ?? '') === hollow_date('Y-m-d')) throw new UserError('That is done for today.');
-    stop_prog_set($uid, (int)$loc['id'], 'thread:' . $threadId, $n + 1, ['day' => hollow_date('Y-m-d')]);
+    if ($n >= count($th['beats']) || ($d['day'] ?? '') === gclock_my_date()) throw new UserError('That is done for today.');
+    stop_prog_set($uid, (int)$loc['id'], 'thread:' . $threadId, $n + 1, ['day' => gclock_my_date()]);
     $lines = [$th['icon'] . ' ' . $th['name'] . ': part ' . ($n + 1) . ' of ' . count($th['beats'])];
     if ($n + 1 >= count($th['beats'])) {
         $lines[] = '🎉 The end of “' . $th['name'] . '”!';
@@ -362,7 +362,7 @@ function stop_perk_body(array $u, array $node): string
     }
     $first = array_key_first($meters) ?? array_key_first(STOP_METERS);
     $id = 'pkm' . (int)$node['id'];
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     $scene = stop_art_file(stop_type_of($node));
     $n = count($perks);
     $h = '<div class="pkban' . ($scene === '' ? ' noimg' : '') . '">' . ($scene !== '' ? '<img src="' . e(url('assets/img/scenes/' . $scene)) . '" alt="">' : '')

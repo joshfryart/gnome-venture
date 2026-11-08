@@ -469,7 +469,7 @@ function stop_happening(array $loc, array $now): ?array
 {
     $type = stop_type_of($loc);
     $fit = [];
-    if (!defined('GV_TEST_NO_CALENDAR') && ($ev = stop_cal_event($loc, hollow_date('Y-m-d')))) return $ev;   // GV_TEST_NO_CALENDAR: tests define it so a calendar day does not change what they count on   // v2.5.72: a day on the calendar beats the daily roll
+    if (!defined('GV_TEST_NO_CALENDAR') && ($ev = stop_cal_event($loc, gclock_my_date()))) return $ev;   // GV_TEST_NO_CALENDAR: tests define it so a calendar day does not change what they count on   // v2.5.72: a day on the calendar beats the daily roll
     foreach (stop_happenings() as $hp) {
         if (!empty($hp['cal'])) continue;
         $ts = array_map('trim', explode(',', $hp['types']));
@@ -479,7 +479,7 @@ function stop_happening(array $loc, array $now): ?array
     }
     if (!$fit) return null;
     $total = array_sum(array_column($fit, 'weight'));
-    $roll = crc32('hap|' . hollow_date('Y-m-d') . '|' . ($loc['slug'] ?? $loc['name'] ?? '')) % $total;
+    $roll = crc32('hap|' . gclock_my_date() . '|' . ($loc['slug'] ?? $loc['name'] ?? '')) % $total;
     foreach ($fit as $hp) { if ($roll < $hp['weight']) return $hp; $roll -= $hp['weight']; }
     return $fit[0];
 }
@@ -548,7 +548,7 @@ function stop_pool(array $loc, ?array $now = null, int $uid = 0): array
     $type = stop_type_of($loc);
     $region = stop_region_code($loc);
     $tier = stop_tier((int)$loc['id']);
-    $day = hollow_date('Y-m-d');
+    $day = gclock_my_date();
     $plain = $special = $later = $upgrades = $lockedUp = $answer = [];
     foreach (stop_acts() as $slug => $a) {
         $ts = array_map('trim', explode(',', (string)$a['types']));
@@ -605,7 +605,7 @@ function stop_pool(array $loc, ?array $now = null, int $uid = 0): array
 /** What's been done: [slugs this visit, number today at this stop, number today anywhere, rests today anywhere]. */
 function stop_state(int $uid, int $locId, string $visit): array
 {
-    $day = hollow_date('Y-m-d');
+    $day = gclock_my_date();
     $done = q('SELECT act FROM stop_log WHERE user_id = ? AND location_id = ? AND visit_key = ?', [$uid, $locId, $visit])->fetchAll(PDO::FETCH_COLUMN);
     $here = (int)q_val('SELECT COUNT(*) FROM stop_log WHERE user_id = ? AND location_id = ? AND day = ?', [$uid, $locId, $day]);
     $all = (int)q_val('SELECT COUNT(*) FROM stop_log WHERE user_id = ? AND day = ?', [$uid, $day]);
@@ -830,10 +830,10 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
     if ($kind === 'rest' && $rests >= max(0, (int)setting('stop_rest_daily'))) return [false, 'You’ve rested plenty today. A rest stop can only do so much for tired feet!'];
     $folk = null;
     require_once __DIR__ . '/stop_folk.php';
-    $seed = $uid . '|' . $loc['id'] . '|' . hollow_date('Y-m-d') . '|' . $slug;
+    $seed = $uid . '|' . $loc['id'] . '|' . gclock_my_date() . '|' . $slug;
     $folk = stop_pick_folk($uid, $loc, $seed);
     $energy = max(0, (int)$a['energy']);
-    $day = hollow_date('Y-m-d');
+    $day = gclock_my_date();
     $cur = setting('currency_name');
     $win = (string)$a['win'];
     $lose = (string)$a['lose'];
@@ -1072,7 +1072,7 @@ function stop_snack(array $loc): ?array
 {
     $rows = stop_local_crops($loc);
     if (!$rows) return null;
-    $it = $rows[crc32($loc['slug'] . hollow_date('Y-m-d')) % count($rows)];
+    $it = $rows[crc32($loc['slug'] . gclock_my_date()) % count($rows)];
     return [$it, max(4, (int)ceil((int)$it['base_price'] * 2 * 0.6))];   // two for a bit more than the price of one
 }
 

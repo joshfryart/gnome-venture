@@ -72,7 +72,7 @@ function festival_active(): ?array
     if ($cache !== false) return $cache;
     $cache = null;
     if (setting('festivals_on') !== '1') return null;
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     foreach (festival_defs() as $slug => $def) {
         if (!($w = festival_window($slug)) || $today < $w[0] || $today > $w[1]) continue;
         $days = (int)round((strtotime($w[1] . ' UTC') - strtotime($w[0] . ' UTC')) / 86400) + 1;
@@ -87,7 +87,7 @@ function festival_active(): ?array
 function festival_next(): ?array
 {
     if (setting('festivals_on') !== '1') return null;
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     $best = null;
     foreach (festival_defs() as $slug => $def) {
         if (!($w = festival_window($slug)) || $w[0] <= $today) continue;
@@ -99,7 +99,7 @@ function festival_next(): ?array
 /** The latest festival that has finished, for the "it was lovely" line. */
 function festival_last(): ?array
 {
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     $best = null;
     foreach (festival_defs() as $slug => $def) {
         if (!($w = festival_window($slug)) || $w[1] >= $today) continue;
@@ -160,7 +160,7 @@ function festival_flags(string $slug, int $uid): int
 
 function festival_flag_today(string $slug, int $uid): bool
 {
-    return (bool)q_val('SELECT 1 FROM festival_flags WHERE festival = ? AND user_id = ? AND day = ?', [$slug, $uid, hollow_date('Y-m-d')]);
+    return (bool)q_val('SELECT 1 FROM festival_flags WHERE festival = ? AND user_id = ? AND day = ?', [$slug, $uid, gclock_my_date()]);
 }
 
 /** Find today's flag (one a day), and take any flag reward that has been earned. */
@@ -170,7 +170,7 @@ function festival_find_flag(array $u): array
     if (!$f) return [false, 'There’s no festival on right now.'];
     $uid = (int)$u['id'];
     try {
-        db_insert('festival_flags', ['festival' => $f['slug'], 'user_id' => $uid, 'day' => hollow_date('Y-m-d'), 'at' => now()]);
+        db_insert('festival_flags', ['festival' => $f['slug'], 'user_id' => $uid, 'day' => gclock_my_date(), 'at' => now()]);
     } catch (PDOException $e) {
         return [false, 'You’ve found today’s flag. A new one is hung tomorrow.'];
     }

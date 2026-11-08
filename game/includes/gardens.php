@@ -633,7 +633,7 @@ function turn_compost(array $u, int $plotId): array
     if ((int)$plot['user_id'] === (int)$u['id']) return [false, 'That’s your own compost: every harvest turns it already.'];
     if (!building_level($plotId, 'compost_bin')) return [false, 'There’s no Compost Bin here.'];
     try {
-        db_insert('compost_turns', ['user_id' => (int)$u['id'], 'plot_id' => $plotId, 'day' => hollow_date('Y-m-d'), 'at' => now()]);
+        db_insert('compost_turns', ['user_id' => (int)$u['id'], 'plot_id' => $plotId, 'day' => gclock_my_date(), 'at' => now()]);
     } catch (PDOException $e) {
         return [false, 'You’ve turned this compost today already. It needs a rest.'];
     }
