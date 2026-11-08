@@ -119,7 +119,7 @@ page_header('Together');
           <?= money((int)setting('community_tip')) ?> thanks each.</p>
         <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="end_shift"><button class="btn small alt">End shift</button></form>
       <?php else: ?>
-        <p class="help">Water, weed, plant from the store and harvest into it. Each job takes 1 energy and earns <?= money((int)setting('community_tip')) ?> and 1 XP. You can’t go adventuring while on shift.</p>
+        <p class="help">Water, weed, plant from the store and harvest into it. Each job takes 1 energy<?= e(gclock_cost_tag(null, null, 'tend')) ?> and earns <?= money((int)setting('community_tip')) ?> and 1 XP. You can’t go adventuring while on shift.</p>
         <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="shift">
           <?php foreach (COMMUNITY_SHIFTS as $m): ?><button class="btn small" name="minutes" value="<?= $m ?>"><?= $m ?> min</button> <?php endforeach; ?></form>
       <?php endif; ?>

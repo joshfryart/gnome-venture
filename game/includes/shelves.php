@@ -198,7 +198,7 @@ function sh_craft_entries(array $u, string $tab, array $recipes, array $stations
                 $acts = '<form method="post" action="' . e(url('crafting.php?c=' . $tab)) . '" class="ccbtns p2make">' . csrf_field() . '<input type="hidden" name="recipe_id" value="' . (int)$r['id'] . '">';
                 if ($potsOn && $chunk > 1) for ($n = 1; $n <= min($fit, $chunk); $n++) $acts .= '<button class="btn' . ($n > 1 ? ' alt' : '') . '" name="qty" value="' . $n . '">' . ($n === 1 ? $verb . ' ' : '') . '×' . $n . '</button>';
                 else {
-                    $acts .= '<button class="btn" name="qty" value="1">' . $verb . ' ×1' . ($cost > 0 ? ' <span class="cbcost">⚡' . $cost . '</span>' : '') . '</button>';
+                    $acts .= '<button class="btn" name="qty" value="1">' . $verb . ' ×1' . ($cost > 0 ? ' <span class="cbcost">⚡' . $cost . '</span>' : '') . (gclock_on() ? ' <span class="cbcost">' . e($tab === 'cooking' ? ' · ready in ' . gclock_span_text(gclock_pot_minutes((int)($r['cook_minutes'] ?? 0) * 60)) : trim(gclock_cost_tag(null, null, 'craft'), ' ·')) . '</span>' : '') . '</button>';
                     if ($fit >= 5) $acts .= '<button class="btn alt" name="qty" value="5">×5</button>'; elseif ($fit >= 2) $acts .= '<button class="btn alt" name="qty" value="2">×2</button>';
                     if ($fit >= 3) $acts .= '<button class="btn alt" name="qty" value="all">All ' . $fit . '</button>';
                 }

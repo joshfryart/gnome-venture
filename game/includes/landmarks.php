@@ -680,7 +680,7 @@ function landmark_panel(array $u, array $node): string
             $done = landmark_done_today($uid, $id, 'delve');
             $h .= '<h3>🕳️ A delve <small class="muted">danger level ' . (int)$lm['level'] . '–' . ((int)$lm['level'] + DELVE_ROOMS + 1) . '</small></h3>'
                 . '<p>' . DELVE_ROOMS . ' rooms of creatures, traps and treasure, and a guarded chest at the bottom. Climb out whenever you like with what you’ve found.</p>'
-                . $form('delve', '🕳️ Go in <span class="cost">⚡1' . (tool_tier($uid, 'lantern') ? ', rooms free (🏮)' : ', then 1 a room') . '</span>', '', $done)
+                . $form('delve', '🕳️ Go in <span class="cost">⚡1' . e(gclock_cost_tag(null, null, 'landmark')) . (tool_tier($uid, 'lantern') ? ', rooms free (🏮)' : ', then ⚡1 and ' . (gclock_on() ? gclock_time_cost('landmark') . ' min ' : '') . 'a room') . '</span>', '', $done)
                 . '<p class="help">' . ($done ? '✔️ Explored today. ' : '') . 'Once a day.' . ($cleared ? ' Cleared ' . $cleared . ' time' . ($cleared === 1 ? '' : 's') . '.' : '')
                 . ((int)$lm['level'] > (int)$u['level'] + 4 ? ' ⚠️ Well above your gnome level.' : '') . '</p>';
             $h .= landmark_runs_html($uid, $id);
@@ -692,7 +692,7 @@ function landmark_panel(array $u, array $node): string
             if ($boss) {
                 $h .= '<p><span class="bigfoe">' . creature_pic($boss, 'sm') . '</span> <b>' . e($boss['name']) . '</b> lives here. <small class="muted">Level ' . (int)$boss['level'] . ' · ❤️ ' . (function_exists('creature_hp_percent') ? max(1, (int)round((int)$boss['hp'] * creature_hp_percent($boss + ['size' => 'boss']) / 100)) : (int)$boss['hp']) . '</small></p>'
                     . '<p class="help">' . e((string)$boss['description']) . '</p>'
-                    . $form('lair', '⚔️ Challenge the ' . e($boss['name']) . ' <span class="cost">⚡2</span>', '', $done)
+                    . $form('lair', '⚔️ Challenge the ' . e($boss['name']) . ' <span class="cost">⚡2' . e(gclock_cost_tag(null, null, 'lair')) . '</span>', '', $done)
                     . '<p class="help">' . ($done ? '✔️ It won’t come out again today. ' : '') . 'Once a day. Win for a big hoard; the first win also earns a ribbon and a treasure seed.'
                     . ($cleared ? ' You’ve beaten it ' . $cleared . ' time' . ($cleared === 1 ? '' : 's') . '.' : '')
                     . ((int)$boss['level'] > (int)$u['level'] + 4 ? ' ⚠️ This is a legendary creature, far above your level. Losing costs nothing but pride.' : '') . '</p>';

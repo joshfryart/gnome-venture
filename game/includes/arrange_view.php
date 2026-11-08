@@ -152,7 +152,7 @@ function arrange_view(array $u, string $tab): void
             <label>Spot <?= $sl + 1 ?> <select name="slot[<?= $sl ?>]"><option value="0">(empty)</option><?php foreach ($stock as $f): ?><option value="<?= (int)$f['id'] ?>"><?= e($f['name']) ?> (<?= (int)$f['qty'] ?>)</option><?php endforeach; ?></select></label>
           <?php endforeach; ?>
         </noscript>
-        <div class="arrbtns"><button type="button" class="btn alt small" id="arrclear">Clear</button> <button class="btn" id="arrmake" disabled>💐 Make it · ⚡<?= (int)setting('arrange_energy') ?></button></div>
+        <div class="arrbtns"><button type="button" class="btn alt small" id="arrclear">Clear</button> <button class="btn" id="arrmake" disabled>💐 Make it · ⚡<?= (int)setting('arrange_energy') ?><?= e(gclock_cost_tag(null, null, 'arrange')) ?></button></div>
       </section>
       <section class="box arrside">
         <h2>Score</h2>
@@ -221,7 +221,7 @@ function arrange_view(array $u, string $tab): void
         <tr><td data-l="Flower"><span class="iicon"><?= flower_packet_svg(flower_look((string)$m['slug']), 'md', $m['name']) ?></span> <b><?= e($m['name']) ?></b></td>
           <td data-l="Seeds"><?= (int)$m['seeds'] ?></td>
           <td><form method="post" action="<?= e(url(arrange_url('packets'))) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="packet"><input type="hidden" name="plant_id" value="<?= (int)$m['id'] ?>">
-            <button class="btn small" <?= (int)$m['seeds'] >= $n && $made < $perDay ? '' : 'disabled' ?>>Pack a packet</button></form></td></tr>
+            <button class="btn small" <?= (int)$m['seeds'] >= $n && $made < $perDay ? '' : 'disabled' ?>>Pack a packet<?= e(gclock_cost_tag(null, 0, 'seed')) ?></button></form></td></tr>
       <?php endforeach; ?>
     </table></div>
     <?php endif; ?>

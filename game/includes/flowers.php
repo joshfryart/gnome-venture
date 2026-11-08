@@ -708,7 +708,7 @@ function florist_panel(array $u, array $shop, bool $open): string
                 . '<button class="btn">🎁 Collect your thanks</button></form>';
         }
     } elseif ($open && $left > 0) {
-        $h .= '<form method="post" action="' . e(url('shop.php?id=' . (int)$shop['id'])) . '">' . csrf_field() . '<input type="hidden" name="do" value="flo_start"><button class="btn">🧑‍🌾 Start a shift</button></form>';
+        $h .= '<form method="post" action="' . e(url('shop.php?id=' . (int)$shop['id'])) . '">' . csrf_field() . '<input type="hidden" name="do" value="flo_start"><button class="btn">🧑‍🌾 Start a shift' . e(gclock_cost_tag(current_user(), (int)setting('florist_energy'), 'shift')) . '</button></form>';
     } else {
         $h .= '<p class="muted">' . ($left < 1 ? 'No shifts left today.' : 'Come when the florist is in and you are in town.') . '</p>';
     }

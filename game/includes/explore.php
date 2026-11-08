@@ -213,7 +213,7 @@ function explore_deeper(array $u, array &$exp, int $delta = 1): void
     $land = explore_land($exp);
     $L = LANDSCAPES[$land] ?? ['🌱', 'Wilds'];
     exp_log($exp, $L[0] . ' ' . ($delta > 0 ? 'Deeper' : ($delta === 0 ? 'You roam about' : 'Back toward the road')) . ' (' . $depth . ', ' . strtolower($tier) . '): '
-        . strtolower($L[1]) . ', danger level ' . $exp['level'] . '.' . ($free ? '' : ' (−1⚡)'));   // v0.7.78: show the energy each step costs
+        . strtolower($L[1]) . ', danger level ' . $exp['level'] . '.' . ($free ? '' : ' (−1⚡' . gclock_cost_tag(null, null, 'wander') . ')'));   // v0.7.78: show the energy each step costs
     if ($line = road_line(exp_scene($exp), ['seed' => road_line_seed($exp, $logLen)])) exp_log($exp, '🍃 ' . $line);   // v1.9.3
     // What happens (v0.7.41: fewer fights, more choices): creature 27 · problem 13 · choice 22 · discovery 8–15 · sight · find
     $roll = random_int(1, 100);

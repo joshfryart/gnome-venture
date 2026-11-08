@@ -495,7 +495,7 @@ function repair_box(array $u, array $repair, string $back): string
     $h .= '</ul><p class="help">Each stage pays ' . money($coins) . ' and ' . $xp . ' XP.</p>';
     $h .= $isClear
         ? '<form method="post" class="inline" action="' . e(url('landmark.php')) . '">' . csrf_field() . '<input type="hidden" name="do" value="repair_work">' . $hidden
-            . '<button class="btn small"' . ($workedToday ? ' disabled' : '') . '>' . build_verb_img('clear') . 'Work here today <span class="cost">' . (int)$def['needs'][0][1] . '⚡</span></button></form> '
+            . '<button class="btn small"' . ($workedToday ? ' disabled' : '') . '>' . build_verb_img('clear') . 'Work here today <span class="cost">' . (int)$def['needs'][0][1] . '⚡' . e(gclock_cost_tag(null, null, 'repair')) . '</span></button></form> '
         : '<form method="post" class="inline" action="' . e(url('landmark.php')) . '">' . csrf_field() . '<input type="hidden" name="do" value="repair_hand">' . $hidden
             . '<button class="btn small"' . ($ready ? '' : ' disabled') . '>' . build_verb_img($def['verb']) . 'Hand in stage ' . $stage . '</button></form> ';
     if (!$isClear && $def['verb'] === 'haul') $h .= '<a class="btn small alt" href="' . e(url('inventory.php?tab=craft&c=building')) . '">Craft materials →</a> ';

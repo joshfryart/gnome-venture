@@ -119,7 +119,7 @@ function social169_water_html(array $u, array $plot, array $owner, array $tiles,
     $sub = $n . ' thirsty square' . ($n === 1 ? '' : 's');
     if (!$n) { $dis = ' disabled'; $sub = 'Nothing thirsty'; }
     return '<form method="post">' . csrf_field() . '<input type="hidden" name="g" value="' . $plotId . '"><input type="hidden" name="do" value="water_friend">'
-        . choice_row('💧', 'Water for them', $sub, $cost > 0 ? [$cost . ' ⚡', 'cost'] : ['free', 'free'], $n ? 'primary' : '', 'type="submit"' . $dis)
+        . choice_row('💧', 'Water for them', $sub, gclock_on() ? [trim(gclock_cost_tag($u, $cost, 'water_other'), ' ·'), 'cost'] : ($cost > 0 ? [$cost . ' ⚡', 'cost'] : ['free', 'free']), $n ? 'primary' : '', 'type="submit"' . $dis)
         . '</form>';
 }
 

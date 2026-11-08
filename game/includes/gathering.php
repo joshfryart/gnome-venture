@@ -368,7 +368,7 @@ function gather_scene_html(array $u, string $land, string $action, string $hidde
             . '<span class="vh">' . e($name . ', ' . $tierName . ($on ? ', in use' : '')) . '</span><span class="belt__pips">' . $pips . '</span>';
         // a tool that finds something here is a button: a click gathers with it (same post as its felt card below)
         if (in_array($t, $usableIds, true)) {
-            $inner = '<button type="submit" form="gx-gather-form" class="belt__btn" name="tool" value="' . e($t) . '" title="' . e('Gather with ' . $name . ' · ⚡1') . '">' . $inner . '</button>';
+            $inner = '<button type="submit" form="gx-gather-form" class="belt__btn" name="tool" value="' . e($t) . '" title="' . e('Gather with ' . $name . ' · ⚡1' . gclock_cost_tag(null, null, 'gather')) . '">' . $inner . '</button>';
         }
         $slots['own'] .= '<li class="belt__slot' . ($on ? ' is-active' : '') . '" title="' . e($name . ' · ' . $tierName) . '">' . $inner . '</li>';
     }

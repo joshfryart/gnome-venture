@@ -60,13 +60,14 @@ function local_act_buttons(array $u, array $loc, array $a, bool $locked): string
     $spec = (string)$a['spec'];
     $slug = (string)$a['slug'];
     $f = fn(string $inner) => local_form($slug, $inner);
-    $cost = (int)$a['energy'] > 0 ? ' <span class="cost">⚡' . (int)$a['energy'] . '</span>' : '';
+    $cost = gclock_on() ? ' <span class="cost">' . e(trim(gclock_cost_tag(current_user(), (int)$a['energy'], 'stop'), ' ·')) . '</span>'
+        : ((int)$a['energy'] > 0 ? ' <span class="cost">⚡' . (int)$a['energy'] . '</span>' : '');   // sleep-days: energy (with the tired surcharge) and game time
     $dis = $locked ? ' disabled' : '';
     $folk = stop_folk_of($loc)[0] ?? null;
     switch ($kind) {
         case 'check':   // v1.6.3: each approach is a .choice row (chance on the right); the % chance sits in the badge, the easy/fair/hard word is its tooltip
             $h = '';
-            $en = (int)$a['energy'] > 0 ? ' · ⚡' . (int)$a['energy'] : '';
+            $en = gclock_on() ? gclock_cost_tag(current_user(), (int)$a['energy'], 'stop') : ((int)$a['energy'] > 0 ? ' · ⚡' . (int)$a['energy'] : '');
             foreach (explode(';', $spec) as $i => $o) {
                 $pp = array_map('trim', explode(':', $o, 3));
                 if (count($pp) !== 3 || !isset(GNOME_STATS[$pp[0]])) continue;
@@ -188,7 +189,7 @@ function local_act_meta(array $u, array $loc, array $a, ?array $folk): array
 {
     $kind = (string)$a['kind'];
     $spec = (string)$a['spec'];
-    $m = (int)$a['energy'] > 0 ? ['⚡' . (int)$a['energy']] : [];
+    $m = gclock_on() ? array_values(array_filter(array_map('trim', explode('·', gclock_cost_tag(current_user(), (int)$a['energy'], 'stop'))))) : ((int)$a['energy'] > 0 ? ['⚡' . (int)$a['energy']] : []);
     switch ($kind) {
         case 'check':
             $best = null; $ways = 0; $stat = '';

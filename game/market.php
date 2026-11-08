@@ -188,7 +188,7 @@ page_header('Trading Post');
         <?php foreach ($mastered as $m): ?>
           <tr><td>⭐ <?= e($m['name']) ?></td><td><?= (int)$m['seeds'] ?></td>
             <td><form method="post" action="<?= e(url('market.php?t=saplings')) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="sapling"><input type="hidden" name="plant_id" value="<?= (int)$m['id'] ?>">
-              <button class="btn small" <?= (int)$m['seeds'] > 0 && $left > 0 ? '' : 'disabled' ?>>Raise a sapling</button></form></td></tr>
+              <button class="btn small" <?= (int)$m['seeds'] > 0 && $left > 0 ? '' : 'disabled' ?>>Raise a sapling<?= e(gclock_cost_tag(current_user(), (int)setting('sapling_energy'), 'sapling')) ?></button></form></td></tr>
         <?php endforeach; ?></table>
     <?php endif; ?>
   </div>

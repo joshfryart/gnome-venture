@@ -88,7 +88,7 @@ $make = function (array $r, bool $compact = false) use ($u, $tab, $stations, $no
     $fit = min(craft_fit($r['ings'], $cost, $now), $jarsFree); ?>
     <?php if ($fit >= 1): ?>
       <form method="post" action="<?= e(url('crafting.php?c=' . $tab)) ?>" class="ccbtns p2make"><?= csrf_field() ?><input type="hidden" name="recipe_id" value="<?= (int)$r['id'] ?>">
-        <button class="btn" name="qty" value="1">Make ×1<?php if ($cost > 0): ?> <span class="cbcost">⚡<?= (int)$cost ?></span><?php endif; ?></button>
+        <button class="btn" name="qty" value="1">Make ×1<?php if ($cost > 0): ?> <span class="cbcost">⚡<?= (int)$cost ?></span><?php endif; ?><?php if (gclock_on()): ?> <span class="cbcost">· ready in <?= (int)gclock_jar_days($r) ?> sleep<?= gclock_jar_days($r) === 1 ? '' : 's' ?></span><?php endif; ?></button>
         <?php if ($fit >= 5): ?><button class="btn alt" name="qty" value="5">×5</button><?php elseif ($fit >= 2): ?><button class="btn alt" name="qty" value="2">×2</button><?php endif; ?>
         <?php if ($fit >= 3): ?><button class="btn alt" name="qty" value="all">All <?= $fit ?></button><?php endif; ?>
       </form>
