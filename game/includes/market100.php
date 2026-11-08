@@ -403,7 +403,7 @@ function market_note_harvest(array $u, array $t, array $p, int $added): void
 /** The current round of orders: ['cycle' => n, 'start' => date, 'end' => date, 'len' => days]. */
 function orders_cycle(?string $date = null): array
 {
-    $date = mk_date($date);
+    $date = mk_date($date ?? gclock_my_date());
     $L = max(3, min(28, mk_int('orders_cycle_days', 7)));
     $k = intdiv(hollow_day_number($date), $L);
     $start = hollow_date_add($date, -(hollow_day_number($date) - $k * $L));
@@ -436,7 +436,7 @@ function orders_pools(): array
  */
 function npc_order(array $npc, ?string $date = null): ?array
 {
-    $date = mk_date($date);
+    $date = mk_date($date ?? gclock_my_date());
     $cy = orders_cycle($date);
     $nid = (int)$npc['id'];
     $seed = "ord|$nid|{$cy['cycle']}";

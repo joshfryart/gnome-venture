@@ -203,6 +203,18 @@ cfg(['game_clock_on' => '0']);
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 $GLOBALS['CURRENT_USER'] = null;
 
+echo "== orders follow the game date\n";
+require_once $argv[1] . '/includes/market100.php';
+$GLOBALS['CURRENT_USER'] = urow($uid);
+setu($uid, ['game_day' => 100, 'game_minute' => 600]);
+cfg(['game_clock_on' => '1']);
+$gd = hollow_date_add(hollow_season_epoch(), 100);
+ok('order cycle uses the game date', orders_cycle()['start'] <= $gd && $gd <= orders_cycle()['end'] && orders_cycle() === orders_cycle($gd));
+cfg(['game_clock_on' => '0']);
+ok('flag off: order cycle is the real date', orders_cycle() === orders_cycle(hollow_today()));
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+$GLOBALS['CURRENT_USER'] = null;
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);

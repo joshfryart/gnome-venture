@@ -842,7 +842,7 @@ function ppal_spawn_refresh(array $u, int $extra = 0): int
     $done[$uid] = 1;
     try {
         if (!ppal_map_on() || is_guest($u) || !ppal_ensure()) return 0;
-        $day = hollow_date('Y-m-d');
+        $day = gclock_my_date();
         $prevDay = (string)q_val('SELECT ppal_spawn_day FROM users WHERE id = ?', [$uid]);
         if ($extra <= 0 && $prevDay === $day) return 0;
         $rel = ppal_releases($uid);

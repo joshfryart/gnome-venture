@@ -337,7 +337,7 @@ function tool_use(int $uid, string $type, string $kind = 'use'): ?string
     $day = $kind === 'day';
     $iid = (int)$tool['id'];
     if ($day) {
-        $today = hollow_date('Y-m-d');
+        $today = gclock_my_date();
         $n = q('UPDATE user_items SET wear = wear + 1, wear_day = ? WHERE user_id = ? AND item_id = ? AND qty > 0 AND (wear_day IS NULL OR wear_day <> ?)',
             [$today, $uid, $iid, $today])->rowCount();
     } else {
@@ -423,7 +423,7 @@ function mend_tool(int $uid, int $itemId): array
     if (!$tool || $tool['category'] !== 'tool') return [false, 'That doesn’t need mending.'];
     if (!$broken && (int)$row['wear'] < 1) return [false, 'Your ' . $tool['name'] . ' is in good order.'];
     $cost = tool_mend_cost((int)$tool['base_price']);
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     db()->beginTransaction();
     $allow = tool_free_mends($uid);   // v0.7.96: 1 a day with a Tool Shed, 2 with a level 3 one
     $free = $allow > 0
@@ -476,7 +476,7 @@ function tool_wear_html(int $uid, array $item, int $wear, string $hidden = ''): 
     }
     if ($broken || $wear > 0) {
         $fm = q_one('SELECT free_mend_day, free_mend_n FROM users WHERE id = ?', [$uid]) ?: [];
-        $free = ($allow = tool_free_mends($uid)) > 0 && ((string)($fm['free_mend_day'] ?? '') !== hollow_date('Y-m-d') || (int)($fm['free_mend_n'] ?? 0) < $allow);
+        $free = ($allow = tool_free_mends($uid)) > 0 && ((string)($fm['free_mend_day'] ?? '') !== gclock_my_date() || (int)($fm['free_mend_n'] ?? 0) < $allow);
         $cost = tool_mend_cost((int)$tool['base_price']);
         $label = $free ? '🛠️ Mend free (Tool Shed)' : '🔧 Mend (' . number_format($cost) . ' ' . setting('currency_name') . ')';
         $h .= '<form method="post">' . csrf_field() . '<input type="hidden" name="do" value="mend"><input type="hidden" name="item_id" value="' . (int)$item['id'] . '">'

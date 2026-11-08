@@ -119,7 +119,7 @@ function tasks_requests(array $u, bool $hub): void
 {
     require_once __DIR__ . '/stop_folk.php';
     $errands = stop_errands_active((int)$u['id']);
-    $today = hollow_date('Y-m-d');   // counted like order deadlines: the last day is "1 day left"
+    $today = gclock_my_date();   // counted like order deadlines: the last day is "1 day left"
     foreach ($errands as &$x) $x['days_left'] = max(1, hollow_day_number((string)$x['expires_day']) - hollow_day_number($today) + 1);
     unset($x);
     usort($errands, fn($a, $b) => [$a['days_left'], (int)$a['id']] <=> [$b['days_left'], (int)$b['id']]);
