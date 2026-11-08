@@ -491,3 +491,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 38 (Josh, 2026-11-08)
 38. **Mastery bonuses add to `calling_perk` boons, total capped at +50%.** Admin setting `mastery_perk_cap_pct`, default 50. Open (rest of Q6): category-mastery thresholds.
+
+### Decision 39 (Josh, 2026-11-08)
+39. **Category mastery tiers at 100 / 500 / 2000 total crafts in the category.** Each tier: +5% yield, -5% energy, +5% buff (buff on food and potions only, decision 37). Admin setting `category_mastery_tiers` default `100,500,2000`. Closes Q6. (Per-tier +5% values are my default; change if Josh says.)
