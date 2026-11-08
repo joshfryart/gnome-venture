@@ -512,3 +512,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 45 (Josh, 2026-11-08)
 45. **Cook pots run 4x longer on the game clock:** tiers 3 / 15 / 45 min become 12 / 60 / 180 game minutes. Admin setting `cook_time_multiplier`, default 4. Closes risk 3. Camp pot (decision 32) uses the same times, ready at wake.
+
+### Decision 46 (Josh, 2026-11-08)
+46. **Treks stay out of the first build** (no time cost, unchanged). Closes risk 4; time model for treks decided later.
