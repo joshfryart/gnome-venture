@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.6.21');
+define('APP_VERSION', '2.6.22');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -509,6 +509,11 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
             require_once __DIR__ . '/update_news.php';
             foreach (UPDATE_NEWS as $post) q("UPDATE news SET kind = 'notes' WHERE title = ?", [$post[0]]);
             set_setting('news_kinds_done', '1');
+        });
+        boot_step('news_all_to_notes_2622', function () {   // v2.6.22: every post that exists at upgrade moves to Release notes, once
+            if (setting('news_all_notes_done') !== '') return;
+            q("UPDATE news SET kind = 'notes'");
+            set_setting('news_all_notes_done', '1');
         });
         boot_step('sleep_days_start_2609', function () {   // v2.6.09: sleep-days goes live; every gnome starts on today's game day, once
             if (setting('gclock_started') === '') {

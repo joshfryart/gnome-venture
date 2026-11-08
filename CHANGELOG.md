@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.22
+- **All earlier posts moved to Release notes**: one-time at upgrade, every existing news post goes to the 📝 Release notes tab. The News tab starts empty for new hand-written posts.
+
 ## 2.6.21
 - **Today news card is tabbed**: 📰 News and 📝 Release notes, each showing its latest post with a Read fold and an All → link. Pure CSS tabs.
 
