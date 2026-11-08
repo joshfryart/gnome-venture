@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.21
+- **Today news card is tabbed**: 📰 News and 📝 Release notes, each showing its latest post with a Read fold and an All → link. Pure CSS tabs.
+
 ## 2.6.20
 - **News has two tabs**: 📰 News (hand-written posts) and 📝 Release notes (the per-version update posts). New `news.kind` column; existing version posts are moved to Release notes once at upgrade, and new ones post there. Admin → News has a Tab choice. The Today card links to both.
 

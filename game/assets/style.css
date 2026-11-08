@@ -7528,3 +7528,10 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 .hov-costs summary h2 { display: inline; font-size: 1.05rem; }
 .hov-costs[open] summary { margin-bottom: 8px; }
 .newstabs { display: flex; gap: .5rem; flex-wrap: wrap; margin: .5rem 0; }
+.tntabs .tnradio { position: absolute; opacity: 0; pointer-events: none; }
+.tntabs .tntabbar { display: flex; gap: 6px; margin-bottom: 4px; }
+.tntabs .tntabbar label { cursor: pointer; padding: 4px 10px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--surface); min-height: var(--tap); display: flex; align-items: center; font-weight: 600; }
+.tntabs .tnpane { display: none; }
+#tn_news:checked ~ .tnp_news, #tn_notes:checked ~ .tnp_notes { display: block; }
+#tn_news:checked ~ .tntabbar label[for="tn_news"], #tn_notes:checked ~ .tntabbar label[for="tn_notes"] { background: var(--brand-ink); color: var(--surface); border-color: var(--brand-ink); }
+.tntabs .tnradio:focus-visible ~ .tntabbar label { outline: 2px solid var(--brand-ink); }

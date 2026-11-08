@@ -23,6 +23,7 @@ function today_prepare(array $u, bool $allNews = false): array
     $c = ['u' => $u, 'allNews' => $allNews];
     $c['newsTab'] = $allNews && ($_GET['tab'] ?? '') === 'notes' ? 'notes' : 'news';
     $c['news'] = q('SELECT title, body, created_at FROM news WHERE published = 1 AND kind = ? ORDER BY created_at DESC, id DESC LIMIT ' . ($allNews ? 200 : 5), [$c['newsTab']])->fetchAll();
+    foreach (['news', 'notes'] as $k) $c['card'][$k] = q_one('SELECT title, body, created_at FROM news WHERE published = 1 AND kind = ? ORDER BY created_at DESC, id DESC LIMIT 1', [$k]);   // the Today card: latest of each tab
     $c['freshNews'] = $c['news'] && strtotime($c['news'][0]['created_at'] . ' UTC') > time() - 3 * 86400;
     // Your garden at a glance
     [$c['plot'], $tiles, $plants] = load_plot($uid, true);
@@ -154,11 +155,20 @@ function today_html(array $u, array $c, array $o = []): string
 
     $h = '';
     if (($o['pals'] ?? true)) { require_once __DIR__ . '/puzzle_pals.php'; if (ppal_open() && !is_guest($u)) { require_once __DIR__ . '/pal_jobs.php'; $h .= pj_home_notice_html($u); } }   // v2.3.3: pals back from a trip or delve
-    if (!$allNews && $news) {
-        $n = $news[0];
-        $h .= '<div class="box todaynews" id="news">'
-            . '<p class="tnhead"><span>📰 <b>' . e($n['title']) . '</b>' . ($c['freshNews'] ? ' <span class="tag">new</span>' : '') . ' <small class="muted">' . e(gmdate('M j, Y', strtotime($n['created_at'] . ' UTC'))) . '</small></span> <a href="' . e(url('index.php?news=all#news')) . '">All news →</a> · <a href="' . e(url('index.php?news=all&tab=notes#news')) . '">Release notes →</a></p>'
-            . '<details><summary>Read</summary><div>' . format_text($n['body']) . '</div></details></div>';
+    if (!$allNews && ($c['card']['news'] || $c['card']['notes'])) {   // tabbed card: News | Release notes (pure CSS radio tabs)
+        $first = $c['card']['news'] ? 'news' : 'notes';
+        $h .= '<div class="box todaynews tntabs" id="news">';
+        $panes = '';
+        foreach (['news' => '📰 News', 'notes' => '📝 Release notes'] as $k => $lab) {
+            $h .= '<input type="radio" name="tntab" id="tn_' . $k . '" class="tnradio"' . ($k === $first ? ' checked' : '') . '>';
+            $n = $c['card'][$k];
+            $fresh = $n && strtotime($n['created_at'] . ' UTC') > time() - 3 * 86400;
+            $panes .= '<div class="tnpane tnp_' . $k . '">' . ($n
+                ? '<p class="tnhead"><span><b>' . e($n['title']) . '</b>' . ($fresh ? ' <span class="tag">new</span>' : '') . ' <small class="muted">' . e(gmdate('M j, Y', strtotime($n['created_at'] . ' UTC'))) . '</small></span> <a href="' . e(url('index.php?news=all' . ($k === 'notes' ? '&tab=notes' : '') . '#news')) . '">All →</a></p>'
+                    . '<details><summary>Read</summary><div>' . format_text($n['body']) . '</div></details>'
+                : '<p class="muted">Nothing here yet.</p>') . '</div>';
+        }
+        $h .= '<div class="tntabbar"><label for="tn_news">📰 News</label><label for="tn_notes">📝 Release notes</label></div>' . $panes . '</div>';
     }
     $h .= '<div class="todaycards" id="todaycards"><div class="todaygrid' . ($wide8 ? ' g8' : '') . '">' . $slotHtml;
     foreach ($cards as [$cc, $ct, $cs, $cl, $ch]) {
