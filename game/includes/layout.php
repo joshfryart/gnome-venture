@@ -375,8 +375,8 @@ function status_strip(array $u): string
     require_once __DIR__ . '/festival.php';
     $fest = festival_active();
     $h = '<div class="statusstrip"><div class="statusin">'
-        . $clk   // sleep-days: the game clock is the far-left item (before energy, health and level)
         . '<span class="st energy" title="Energy' . ($enl !== '' ? ': ' . e($enl) : '') . '">⚡ <progress class="ebar" aria-label="Energy" max="' . $max . '" value="' . $energy . '"></progress> <b>' . $energy . '</b>/' . $max . ($enl !== '' ? ' <small>' . e(energy_next_text($u)) . '</small>' : '') . '</span>'
+        . $clk   // sleep-days: the game clock sits right after energy, before health and level
         . $hpPill . $lvlPill . $rest . $statHot . $titleP
         . '</div>'
         // v1.6.3: phone line, no fold (Joshua: less info): level + small XP bar · season day + weather · festival icon · ready/stat badges

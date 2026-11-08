@@ -199,8 +199,9 @@ function sh_craft_entries(array $u, string $tab, array $recipes, array $stations
                 if ($potsOn && $chunk > 1) for ($n = 1; $n <= min($fit, $chunk); $n++) $acts .= '<button class="btn' . ($n > 1 ? ' alt' : '') . '" name="qty" value="' . $n . '">' . ($n === 1 ? $verb . ' ' : '') . '×' . $n . '</button>';
                 else {
                     $acts .= '<button class="btn" name="qty" value="1">' . $verb . ' ×1' . ($cost > 0 ? ' <span class="cbcost">⚡' . $cost . '</span>' : '') . (gclock_on() ? ' <span class="cbcost">' . e($tab === 'cooking' ? ' · ready in ' . gclock_span_text(gclock_pot_minutes((int)($r['cook_minutes'] ?? 0) * 60)) : trim(gclock_cost_tag(null, null, 'craft'), ' ·')) . '</span>' : '') . '</button>';
-                    if ($fit >= 5) $acts .= '<button class="btn alt" name="qty" value="5">×5</button>'; elseif ($fit >= 2) $acts .= '<button class="btn alt" name="qty" value="2">×2</button>';
-                    if ($fit >= 3) $acts .= '<button class="btn alt" name="qty" value="all">All ' . $fit . '</button>';
+                    $tt = fn(int $n): string => gclock_on() && $tab !== 'cooking' ? ' <span class="cbcost">· 🕐 ' . e(gclock_span_text(gclock_time_cost('craft') * $n)) . ' total</span>' : '';   // sleep-days: how long the whole batch takes
+                    if ($fit >= 5) $acts .= '<button class="btn alt" name="qty" value="5">×5' . $tt(5) . '</button>'; elseif ($fit >= 2) $acts .= '<button class="btn alt" name="qty" value="2">×2' . $tt(2) . '</button>';
+                    if ($fit >= 3) $acts .= '<button class="btn alt" name="qty" value="all">All ' . $fit . $tt($fit) . '</button>';
                 }
                 $acts .= '</form>';
             } elseif ($potsOn && $potsFree < 1) $acts = '<p class="ccneed p2note">All pots are busy.</p>';

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.11
+- **Game clock sits right after energy** at the top of the bar (was far left).
+- **Crafting shows the total time** on the ×2, ×5 and All buttons (e.g. "×5 · 🕐 1 h 15 min total"), for non-cooking recipes while sleep-days is on.
+
 ## 2.6.10
 - **Game clock is the far-left item of the top bar** (and first on the phone line), before energy, health and gnome level: bigger, in a ring, shows the time and day, turns amber when tired, taps through to the Rest page.
 
