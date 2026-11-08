@@ -61,7 +61,7 @@ function plant_season_state(array $p, string $date, bool $greenhouse = false): s
 function season_chip(array $p, bool $greenhouse = false): string
 {
     if (!gfx_on()) return '';
-    $st = plant_season_state($p, hollow_today(), $greenhouse);
+    $st = plant_season_state($p, gclock_my_date(), $greenhouse);
     if ($st === 'in') return '<span class="chip chip-in" title="In season: grows faster and gives a little more right now">🌿 in season</span>';
     if ($st === 'off') return '<span class="chip chip-off" title="Off season: grows slower, but it never stops">🍂 off season</span>';
     return '';
@@ -71,7 +71,7 @@ function season_chip(array $p, bool $greenhouse = false): string
 function season_chip_text(array $p, bool $greenhouse = false): string
 {
     if (!gfx_on()) return '';
-    $st = plant_season_state($p, hollow_today(), $greenhouse);
+    $st = plant_season_state($p, gclock_my_date(), $greenhouse);
     return $st === 'in' ? '🌿 in season' : ($st === 'off' ? '🍂 off season' : '');
 }
 

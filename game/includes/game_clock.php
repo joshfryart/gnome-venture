@@ -548,3 +548,10 @@ function gclock_my_dow(): int
     $s = gclock_me();
     return $s ? $s['dow'] : hollow_dow();
 }
+
+/** The weather the logged-in gnome sees now: their own game day (admin force reaches it) with the flag on, else the real weather. */
+function gclock_my_weather(?string $region = null): string
+{
+    if (!gclock_me()) return hollow_weather($region);
+    return hollow_weather_forced() ?: hollow_weather($region, gclock_my_date());
+}

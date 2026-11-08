@@ -244,7 +244,7 @@ function arrange_ctx(array $u): array
         $rid = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [(int)$u['location_id']]);
         if ($rid) $codes[] = (string)q_val('SELECT code FROM regions WHERE id = ?', [$rid]);
     }
-    return ['month' => (int)hollow_date('n'), 'season' => hollow_season_code(), 'regions' => array_values(array_filter(array_unique($codes)))];
+    return ['month' => (int)substr(gclock_my_date(), 5, 2), 'season' => hollow_season_code(), 'regions' => array_values(array_filter(array_unique($codes)))];
 }
 
 // ---------- arranging ----------

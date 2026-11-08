@@ -155,12 +155,12 @@ function hollow_weather_forced(): string
 function hollow_season(?string $date = null): string
 {
     if (($f = hollow_season_forced()) !== '') return $f;
-    return hollow_season_calc(hollow_clock_date($date))[0];
+    return hollow_season_calc(hollow_clock_date($date ?? gclock_my_date()))[0];
 }
 
 function hollow_season_day(?string $date = null): int
 {
-    $date = hollow_clock_date($date);
+    $date = hollow_clock_date($date ?? gclock_my_date());
     if (($f = hollow_season_forced()) !== '') {
         // forced: count days since the calendar's own season changed into the same name, else just the calendar's day
         [$s, $d] = hollow_season_calc($date);
@@ -288,6 +288,7 @@ function hollow_weather_info(string $w, string $daypart = 'day'): array
  */
 function hollow_now(?string $region = null, ?int $ts = null, ?array $state = null): array
 {
+    if ($state === null && $ts === null) $state = gclock_me();   // sleep-days: a logged-in gnome sees their own clock (null when the flag is off)
     $date = $state ? $state['date'] : hollow_today($ts);
     $hour = $state ? (int)$state['hour'] : (int)hollow_date('G', $ts);
     $season = hollow_season($date);
@@ -311,10 +312,10 @@ function hollow_now(?string $region = null, ?int $ts = null, ?array $state = nul
 function hollow_forecast(?string $region = null, int $days = 3): array
 {
     $out = [];
-    $today = hollow_today();
+    $today = gclock_my_date();
     for ($i = 0; $i < max(1, min(14, $days)); $i++) {
         $d = hollow_date_add($today, $i);
-        $w = hollow_weather($region, $d);
+        $w = ($i === 0 && gclock_me() && hollow_weather_forced() !== '') ? hollow_weather_forced() : hollow_weather($region, $d);
         $wi = hollow_weather_info($w, 'day');
         $out[] = ['date' => $d, 'label' => $i === 0 ? 'Today' : ($i === 1 ? 'Tomorrow' : gmdate('l', hollow_day_number($d) * 86400)),
             'season' => hollow_season($d), 'weather' => $w, 'emoji' => $wi['emoji'], 'wlabel' => $wi['label']];
@@ -325,7 +326,7 @@ function hollow_forecast(?string $region = null, int $days = 3): array
 /** Date the next season starts (from the calendar; with season_force on it still shows the calendar's change). */
 function hollow_next_season(): array
 {
-    $today = hollow_today();
+    $today = gclock_my_date();
     [$s, $day, $len] = hollow_season_calc($today);
     $left = $len - $day + 1;   // days until the next one starts
     $start = hollow_date_add($today, $left);

@@ -215,6 +215,23 @@ ok('flag off: order cycle is the real date', orders_cycle() === orders_cycle(hol
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 $GLOBALS['CURRENT_USER'] = null;
 
+echo "== header clock: hollow_now / forecast / season default to the gnome's game day\n";
+$GLOBALS['CURRENT_USER'] = urow($uid);
+setu($uid, ['game_day' => 200, 'game_minute' => 20 * 60]);
+$gd = hollow_date_add(hollow_season_epoch(), 200);
+cfg(['game_clock_on' => '1', 'weather_force' => '']);
+$n = hollow_now('CA');
+ok('flag on: hollow_now() date and hour are the game ones', $n['date'] === $gd && $n['hour'] === 20);
+ok('flag on: forecast starts on the game date', hollow_forecast('CA', 2)[0]['date'] === $gd);
+ok('flag on: hollow_season() default = season of the game date', hollow_season() === hollow_season($gd));
+cfg(['weather_force' => 'fog']);
+ok('flag on: weather force reaches the forecast today and my weather', hollow_forecast('CA', 1)[0]['weather'] === 'fog' && gclock_my_weather('CA') === 'fog');
+cfg(['weather_force' => '', 'game_clock_on' => '0']);
+$n = hollow_now('CA');
+ok('flag off: hollow_now() is the real clock', $n['date'] === hollow_today());
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+$GLOBALS['CURRENT_USER'] = null;
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);

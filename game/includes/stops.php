@@ -405,7 +405,7 @@ function stop_now(array $loc): array
     $rc = stop_region_code($loc);
     $force = setting('stop_daypart_force');
     $dp = isset(HOLLOW_DAYPARTS[$force]) ? $force : hollow_daypart();
-    $now = ['dp' => $dp, 'se' => hollow_season(), 'we' => hollow_weather($rc !== '' ? $rc : null)];
+    $now = ['dp' => $dp, 'se' => hollow_season(), 'we' => gclock_my_weather($rc !== '' ? $rc : null)];
     $now['hp'] = (string)(stop_happening($loc, $now)['id'] ?? '');   // v2.5.72: what is going on here today
     return $now;
 }

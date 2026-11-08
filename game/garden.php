@@ -480,7 +480,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
             if ($pl) $pnames[(int)$t['plant_id']] = (int)$t['plant_id'] . ':' . str_replace([',', ':'], ' ', (string)$pl['name']);
         }
         $plantableSeeds = $seeds; $ghOn = building_level((int)$plot['id'], 'greenhouse') > 0;
-        foreach ($plantableSeeds as &$ps) $ps['_in'] = empty($ps['sapling']) ? plant_season_state($ps, hollow_today(), $ghOn) === 'in' : true;   // v2.4.87: for the in-season toggle
+        foreach ($plantableSeeds as &$ps) $ps['_in'] = empty($ps['sapling']) ? plant_season_state($ps, gclock_my_date(), $ghOn) === 'in' : true;   // v2.4.87: for the in-season toggle
         unset($ps);
           // v0.7.65: anything can be planted; unstudied ones are marked
         $costs = []; foreach (['plant', 'soil', 'mulch', 'till', 'water', 'harvest', 'dig', 'sheet'] as $a) $costs[] = $a . ':' . action_cost($uid, $a); ?>
