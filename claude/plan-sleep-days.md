@@ -174,3 +174,12 @@ Key: **P** personal (switch to the player's game date) · **S** shared (keep rea
 1. Read the `?` rows, decide, move each into P/S/C.
 2. Second pass: callers of `hollow_today/now/hour/dow`.
 3. Add the player-game-date helper (section 7) and wire P rows one system at a time, garden first.
+
+### Decisions on the `?` rows (Josh, 2026-11-08)
+1. **Time of day:** real Halifax hour, shared. Only date, season and weather are personal. `hollow_hour()` and the "It's 14:00 in the Hollow" lines stay real; the weekday word in those lines should come from the player's game date.
+2. **Town calendar** (`town.php` festivals, closed spots, `town_day`, `landmark_day`): per player, same as festivals.
+3. **First-week onboarding** (`first_week.php`): real days.
+4. **Free mends and order deadlines** (`tools.php`, `shelves.php`, `quests_view.php`): game-days. Sleeping can expire an order.
+5. **Town stops** (`stops.php`, `stop_living.php`, `stop_adopt.php`, `place_ui.php`, `road_life.php`, `villagers.php`): game-days, perks and threads included.
+
+Still `?` (need a code read, not a decision): `visit.php:81`, `mentors120.php`, `mentor.php`, `puzzle_pals.php:845`, `flowers.php:19,24`, `jobs.php` period keys, `rebuild.php`, `events.php`, `social.php:200`, `sinks.php` curio_week.
