@@ -585,3 +585,40 @@ function gclock_tick_or_null(int $uid): ?int
 {
     return gclock_on() ? gclock_user_tick($uid) : null;
 }
+
+/** Admin settings for sleep-days, merged into settings_schema(). Every default is what the code already uses when the setting is blank. */
+function gclock_settings(): array
+{
+    $i = fn(string $label, int $d, int $min = 0, int $max = 100000): array => ['label' => 'Sleep-days: ' . $label, 'type' => 'int', 'default' => (string)$d, 'min' => $min, 'max' => $max];
+    $out = [
+        'game_clock_on' => ['label' => 'Sleep-days: ON (each gnome has their own game clock; energy comes back by sleeping; garden, jars, pots, jobs, NPCs and festivals follow it). Do not turn on before the start step is done.', 'type' => 'bool', 'default' => '0'],
+        'nap_minutes' => $i('a nap takes this many game minutes', 120, 10, 480),
+        'nap_energy_pct' => $i('a nap gives this % of max energy', 40, 0, 100),
+        'tired_surcharge_pct_per_hour' => $i('extra energy cost per game hour past 22:00 (%)', 10, 0, 100),
+        'bench_sleep_energy_pct' => $i('a night on a bench gives this % of max energy', 30, 0, 100),
+        'inn_fee_petals' => $i('inn room price (Petals)', 110, 0, 100000),
+        'inn_chore_minutes' => $i('inn chores for a bed take this many game minutes', 240, 0, 960),
+        'villager_sleep_friend_level' => $i('villager lets you sleep over from this friendship level (0 = first, 4 = best)', 4, 0, 6),
+        'camping_gear_nap_charges' => $i('camping gear: naps per gear (a full sleep uses it up)', 2, 1, 10),
+        'camping_gear_price' => $i('camping gear shop price (Petals)', 100, 1, 100000),
+        'cook_time_multiplier' => $i('cooking pots take this many times longer on the game clock', 4, 1, 100),
+        'job_month_days' => $i('a job-board month is this many sleeps', 28, 7, 120),
+        'pal_hours_per_sleep' => $i('pal jobs and pots advance this many hours per sleep', 8, 0, 24),
+        'default_open_minute' => $i('shops and stops open at this minute of the day (360 = 06:00)', 360, 0, 1439),
+        'default_close_minute' => $i('shops and stops close at this minute of the day (1320 = 22:00)', 1320, 1, 1440),
+        'grow_days_by_tier' => ['label' => 'Sleep-days: sleeps a crop needs for growth tiers 1-6 (six numbers, comma separated)', 'type' => 'text', 'default' => '1,2,3,5,7,10'],
+    ];
+    foreach (GCLOCK_TIME_DEFAULTS as $k => $m) $out['time_' . $k] = $i('game minutes an action costs: ' . $k . ' (0 = free)', $m, 0, 1440);
+    return $out;
+}
+
+/**
+ * THE ONE-TIME START (run only when Josh says; nothing calls it). Puts a gnome's game date on today's Hollow date (so festival windows,
+ * stop_log days and seasons line up at the moment the flag is turned on) at 06:00, and clears any carried work.
+ * Returns the number of gnomes changed. Safe to run twice (it sets, it does not add).
+ */
+function gclock_start_all(?string $today = null): int
+{
+    $day = game_clock_days_from_epoch($today);
+    return q('UPDATE users SET game_day = ?, game_minute = ?, carry_minutes = 0, camp_naps = 0', [$day, GAME_WAKE_MINUTE])->rowCount();
+}

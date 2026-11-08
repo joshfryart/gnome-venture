@@ -302,6 +302,16 @@ ok('flag off: real hours (capped 24)', (int)q_val("SELECT g_xp FROM ppal_found W
 q('DELETE FROM ppal_found WHERE user_id = ?', [$uid]);
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 
+echo "== one-time start (not run by the game)\n";
+$before = urow($uid);
+setu($uid, ['game_day' => 3, 'game_minute' => 900, 'carry_minutes' => 60, 'camp_naps' => 1]);
+$n = gclock_start_all('2026-03-01');
+$after = urow($uid);
+ok('start sets game_day to days since epoch, 06:00, no carry', (int)$after['game_day'] === game_clock_days_from_epoch('2026-03-01') && (int)$after['game_minute'] === 360 && (int)$after['carry_minutes'] === 0 && (int)$after['camp_naps'] === 0 && $n >= 1);
+ok('start twice gives the same day', gclock_start_all('2026-03-01') >= 1 && (int)urow($uid)['game_day'] === game_clock_days_from_epoch('2026-03-01'));
+ok('game date after start = the Hollow date it was started on', hollow_game_date(urow($uid)) === '2026-03-01');
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);
