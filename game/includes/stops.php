@@ -851,7 +851,7 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
         if (count($d2) > stop_slots($loc, $uid) || $h2 > max(1, (int)setting('stop_daily_cap')) + stop_perk_bonus($uid, (int)$loc['id']) || ($kind === 'rest' && $r2 > max(0, (int)setting('stop_rest_daily')))) {
             throw new UserError('You’ve done all you can here for now. Come back later!');
         }
-        if ($energy > 0 && !spend_energy($uid, $energy, 'stop')) throw new UserError('You need ' . $energy . ' energy for that.');
+        if (!spend_energy($uid, $energy, 'stop')) throw new UserError('You need ' . $energy . ' energy for that.');
         $GLOBALS['gv_stop_tired'] = $a2 > max(1, (int)setting('stop_daily_total'));   // v1.4.9: past the day's soft limit: half Petals and XP
         $fresh = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
         $lines = [];

@@ -258,7 +258,7 @@ function craft(array &$u, int $recipeId, int|string $want = 1): array
         return (craft_short_text($stock, $energy, $now, $qty) ?: 'Something changed while you were making it.') . ' Nothing was used.';
     };
     db()->beginTransaction();
-    if ($energy > 0 && !spend_energy($uid, $cost, 'craft', $qty)) {
+    if (!spend_energy($uid, $cost, 'craft', $qty)) {
         db()->rollBack();
         return [false, $short()];
     }

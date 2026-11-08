@@ -429,7 +429,7 @@ function repair_work(array $u, int $repairId): array
     if ((int)$u['location_id'] !== (int)$lm['location_id']) return [false, 'You need to be there to work on it.'];
     [, $energy, $days] = $def['needs'][0];
     $energy = (int)$energy;
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     $fresh = q_one('SELECT * FROM users WHERE id = ?', [(int)$u['id']]);
     db()->beginTransaction();
     if (q('UPDATE landmark_repairs SET prog = prog + 1, prog_day = ? WHERE id = ? AND user_id = ? AND stage = ? AND (prog_day IS NULL OR prog_day <> ?) AND done_at IS NULL AND dropped_at IS NULL',
@@ -477,7 +477,7 @@ function repair_box(array $u, array $repair, string $back): string
     $isClear = ($def['needs'][0][0] ?? '') === 'days';
     $st = rebuild_need_rows($u, $def['needs'], (int)$repair['prog']);
     $ready = repair_ready($u, $repair);
-    $today = hollow_date('Y-m-d');
+    $today = gclock_my_date();
     $workedToday = $isClear && (string)($repair['prog_day'] ?? '') === $today;
     [$coins, $xp] = repair_rewards($repair);
     $hidden = '<input type="hidden" name="lm" value="' . (int)$repair['landmark_id'] . '"><input type="hidden" name="repair" value="' . (int)$repair['id'] . '"><input type="hidden" name="back" value="' . e($back) . '">';

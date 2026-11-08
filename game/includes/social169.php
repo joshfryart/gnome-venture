@@ -149,7 +149,7 @@ function social169_water(array $u, int $plotId): array
         q('UPDATE users SET id = id WHERE id = ?', [$me]);   // lock the helper's row: two tabs can't both pass the daily cap
         if (social169_water_used($me) >= $cap) { db()->rollBack(); return [false, 'You’ve helped in ' . $cap . ' gardens today. Tomorrow!']; }
         if (q_val('SELECT 1 FROM garden_waterings WHERE plot_id = ? AND helper_id = ? AND day = ?', [$plotId, $me, $day])) { db()->rollBack(); return [false, 'You’ve watered here today.']; }
-        if ($cost > 0 && !spend_energy($me, $cost, 'water_other')) { db()->rollBack(); return [false, 'Too tired. Rest a little first.']; }
+        if (!spend_energy($me, $cost, 'water_other')) { db()->rollBack(); return [false, 'Too tired. Rest a little first.']; }
         foreach ($thirsty as $t) {
             // a plain conditional write: only if nobody watered that square in between
             save_growth($t);

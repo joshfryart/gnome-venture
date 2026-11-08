@@ -323,6 +323,10 @@ function spend_energy(int $uid, int $n, ?string $timeKey = null, int $units = 1)
         $row = q_one('SELECT game_day, game_minute FROM users WHERE id = ?', [$uid]);
         if ($row) $n = game_energy_cost($row, $n);
     }
+    if ($n <= 0) {   // free of energy, still costs game time (MySQL reports 0 rows for a no-change update, so no UPDATE here)
+        if ($timeKey !== null) gclock_charge($uid, $timeKey, $units);
+        return true;
+    }
     $ok = q('UPDATE users SET energy = energy - ? WHERE id = ? AND energy >= ?', [$n, $uid, $n])->rowCount() === 1;
     if ($ok && $timeKey !== null) gclock_charge($uid, $timeKey, $units);
     return $ok;

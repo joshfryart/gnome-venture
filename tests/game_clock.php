@@ -264,6 +264,23 @@ if ($flo) {
     setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 } else { echo "  skip racks (no flower item)\n"; }
 
+echo "== zero-energy actions still cost game time\n";
+cfg(['game_clock_on' => '1']);
+setu($uid, ['game_day' => 0, 'game_minute' => 600, 'energy' => 5, 'carry_minutes' => 0]);
+ok('spend_energy(0, craft x2) true, 30 min spent, energy untouched', spend_energy($uid, 0, 'craft', 2) && (int)urow($uid)['game_minute'] === 630 && (int)urow($uid)['energy'] === 5);
+ok('spend_energy(0) without a key spends nothing', spend_energy($uid, 0) && (int)urow($uid)['game_minute'] === 630);
+cfg(['game_clock_on' => '0']);
+ok('flag off: spend_energy(0, craft) spends no time', spend_energy($uid, 0, 'craft', 2) && (int)urow($uid)['game_minute'] === 630);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+
+echo "== seed packet time\n";
+setu($uid, ['game_day' => 0, 'game_minute' => 600, 'carry_minutes' => 0]);
+cfg(['game_clock_on' => '1']);
+gclock_charge($uid, 'seed');
+ok('seed key costs 10 game minutes', (int)urow($uid)['game_minute'] === 610);
+cfg(['game_clock_on' => '0']);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);

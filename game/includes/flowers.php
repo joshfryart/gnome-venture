@@ -298,7 +298,7 @@ function arrange_make(array $u, string $vessel, array $slots): array
             return [false, 'You don’t have all of those flowers any more. Nothing was used.', 0];
         }
     }
-    if ($energy > 0 && !spend_energy($uid, $energy, 'arrange')) {
+    if (!spend_energy($uid, $energy, 'arrange')) {
         db()->rollBack();
         return [false, 'You’re too tired to arrange. It takes ⚡' . $energy . '. Nothing was used.', 0];
     }
@@ -563,6 +563,7 @@ function packet_make(array $u, int $plantId): array
     $pid = packet_item($p);
     give_item($uid, $pid, 1);
     flower_daily_add($uid, 'packet');
+    gclock_charge($uid, 'seed');   // sleep-days: 10 game minutes (no-op with the flag off)
     db()->commit();
     return [true, '📦 You pack ' . $n . ' seeds into a ' . $p['name'] . ' Seed Packet' . ($fee ? ' (−' . money($fee) . ')' : '') . '. Sell it, trade it or give it to a friend.'];
 }
@@ -627,7 +628,7 @@ function florist_start(array $u, array $shop): array
         db()->rollBack();
         return [false, 'You’ve done all the shifts you can today (' . (int)setting('florist_shifts_day') . '). Come back tomorrow.'];
     }
-    if ($energy > 0 && !spend_energy($uid, $energy, 'shift')) {
+    if (!spend_energy($uid, $energy, 'shift')) {
         db()->rollBack();
         return [false, 'You’re too tired to volunteer. A shift costs ⚡' . $energy . '.'];
     }
