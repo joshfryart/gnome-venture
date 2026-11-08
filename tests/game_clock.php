@@ -76,5 +76,20 @@ echo "== start value\n";
 ok('days from epoch', game_clock_days_from_epoch('2026-01-15') === 14);
 ok('before epoch -> 0', game_clock_days_from_epoch('2025-12-01') === 0);
 
+echo "== hollow_now with a game state\n";
+cfg(['season_mode' => 'game', 'season_days' => 14, 'season_force' => '', 'weather_force' => '']);
+$st = gclock_state(['game_day' => 14, 'game_minute' => 1380]);
+$n = hollow_now('NA', null, $st);
+ok('date from game clock', $n['date'] === '2026-01-15', $n['date']);
+ok('hour from game clock (23)', $n['hour'] === 23);
+ok('season summer d1', $n['season'] === 'summer' && $n['season_day'] === 1);
+ok('night daypart at 23:00', $n['daypart'] === 'night');
+$st2 = gclock_state(['game_day' => 14, 'game_minute' => 400]);
+ok('same date, same weather for two players', hollow_now('NA', null, $st2)['weather'] === $n['weather']);
+ok('null state = real clock', hollow_now('NA')['date'] === hollow_today());
+cfg(['weather_force' => 'storm']);
+ok('weather force applies to a game date', hollow_now('NA', null, $st)['weather'] === 'storm');
+cfg(['weather_force' => '']);
+
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);

@@ -281,14 +281,18 @@ function hollow_weather_info(string $w, string $daypart = 'day'): array
     return ['emoji' => ($night && $w === 'sun') ? '✨' : $i[0], 'label' => $night ? $i[2] : $i[1], 'blurb' => $i[3]];
 }
 
-/** Everything about this moment (or timestamp $ts) in one array. */
-function hollow_now(?string $region = null, ?int $ts = null): array
+/**
+ * Everything about this moment (or timestamp $ts) in one array.
+ * $state (sleep-days): a gclock_state() array. Date and hour then come from the gnome's own game clock instead of the real one;
+ * the admin weather force still applies to every player. null = the real clock (guests, shared pages, admin).
+ */
+function hollow_now(?string $region = null, ?int $ts = null, ?array $state = null): array
 {
-    $date = hollow_today($ts);
-    $hour = (int)hollow_date('G', $ts);
+    $date = $state ? $state['date'] : hollow_today($ts);
+    $hour = $state ? (int)$state['hour'] : (int)hollow_date('G', $ts);
     $season = hollow_season($date);
     $dp = hollow_daypart($hour);
-    $weather = hollow_weather($region, $date);
+    $weather = ($state && ($f = hollow_weather_forced()) !== '') ? $f : hollow_weather($region, $date);
     $wi = hollow_weather_info($weather, $dp);
     $total = hollow_season_days_total($date);
     $day = hollow_season_day($date);

@@ -529,3 +529,4 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Build log
 - **Step 1 done (2026-11-08):** `game/includes/game_clock.php` (loaded from `bootstrap.php`, columns via `schema.php`), test `tests/game_clock.sh` + `tests/game_clock.php` (all ok). `game_state()` was taken by `games.php`, so the function is **`gclock_state()`**. Nothing calls it yet; no version bump; real clock untouched. Not yet done: one-time start value `game_day = game_clock_days_from_epoch()` for the existing player (needs an upgrade step with the next version bump).
+- **Step 2 done:** `hollow_now(?string $region, ?int $ts, ?array $state)` takes a `gclock_state()` array (third argument; `$ts` kept for tests). Date and hour come from the game clock; the admin weather force applies to every player. `hollow_game_date($u)` was already in step 1. Tests added to `tests/game_clock.php`.
