@@ -130,6 +130,7 @@ function dismiss_helper(array $u, int $plotId, int $hireId = 0): array
 function helper_water_tile(array $t, ?array $p, array $visits, array &$stats, ?array &$raw = null): array
 {
     if (!$p || !$visits) return $t;
+    $lw0 = (string)$t['last_watered'];
     $before = $stats['water'];
     foreach ($visits as $v) {
         if ($v <= (ts($t['growth_updated_at']) ?: ts($t['planted_at']))) continue;   // before planting, or before you last tended it
@@ -142,7 +143,8 @@ function helper_water_tile(array $t, ?array $p, array $visits, array &$stats, ?a
             $stats['water']++;
         }
     }
-    $write = fn() => q('UPDATE plot_tiles SET last_watered = ?, growth_seconds = ?, growth_updated_at = ? WHERE id = ?',
+    $wd = (string)$t['last_watered'] !== $lw0 ? GCLOCK_OWNER_DAY_SQL : 'water_day';   // sleep-days: a helper's watering counts for the owner's current game-day
+    $write = fn() => q('UPDATE plot_tiles SET last_watered = ?, growth_seconds = ?, growth_updated_at = ?, water_day = ' . $wd . ' WHERE id = ?',
         [$t['last_watered'], $t['growth_seconds'], $t['growth_updated_at'], $t['id']]);
     if ($raw === null) { $write(); return $t; }
     if (tile_write_guarded($raw, $write)) {   // v2.4.97: only if nobody changed the square since it was read

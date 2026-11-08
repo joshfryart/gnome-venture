@@ -270,7 +270,7 @@ function tend_action(array $u, array $job, string $action, int $x, int $y): arra
         if (!spend_energy($uid, $cost)) throw new UserError('You’re too tired. Rest a bit and your energy will come back.' . tired_hint($uid));
         save_growth($t);
         if ($action === 'water') {
-            q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ? WHERE id = ?', [now(), now(), $t['id']]);
+            q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, water_day = ' . GCLOCK_OWNER_DAY_SQL . ' WHERE id = ?', [now(), now(), $t['id']]);
             $msgs[] = 'You water ' . $owner['gnome_name'] . '’s ' . $p['name'] . '.';
         } elseif ($action === 'weed') {
             q('UPDATE plot_tiles SET weeds = 0 WHERE id = ?', [$t['id']]);

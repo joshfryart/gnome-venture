@@ -153,7 +153,7 @@ function social169_water(array $u, int $plotId): array
         foreach ($thirsty as $t) {
             // a plain conditional write: only if nobody watered that square in between
             save_growth($t);
-            $n = q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, moisture = ? WHERE id = ? AND (last_watered IS NULL OR last_watered = ?)',
+            $n = q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, moisture = ?, water_day = ' . GCLOCK_OWNER_DAY_SQL . ' WHERE id = ? AND (last_watered IS NULL OR last_watered = ?)',
                 [now(), now(), $t['method'] === 'notill' ? min(100, max((int)$t['moisture'], 20) + 10) : min(60, (int)$t['moisture'] + 4), $t['id'], $t['last_watered']])->rowCount();
             $watered += $n;
         }

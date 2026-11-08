@@ -542,3 +542,4 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 54 (Josh, 2026-11-08)
 54. **Missed watering carries over.** A dry day (no water, no rain) is *owed*, not lost: `plot_tiles.owed_days` (capped at the crop's sleeps). When a watered or rainy day finishes, that day plus all owed days grow (each at that day's soil speed). So the crop is delayed, never punished. Replaces decision 53's "unwatered days are not made up".
+- **Step 3 (part 2):** the four other watering writers now stamp `water_day` with the owner's game_day: `events.php` rain event, `player_jobs.php` pal tend, `social169.php` water another's plot, `hired_help.php` helper visits. Lint ok, `garden100.sh` ok. `events.sh` and `help.sh` could not be run standalone here (need a game dir argument): run them before the flag is turned on. Left for garden: wind weeds and pest pass on game-days, `tile_info` water-left display, admin weather force on a game date.
