@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.25
+- **Perks card updates live on the Here page**: doing something at the stop (Do here, stall) now refreshes the 🏅 Perks card in place (meters, perks, days left), keeping the meter tab you had open. Reply JSON has a new `perks` field.
+
 ## 2.6.24
 - **Shops in the World popover**: the World button on the Here page now offers 🏪 Shops (the Shops tab) beside Open the World page and Villagers.
 

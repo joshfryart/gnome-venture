@@ -149,6 +149,14 @@
       if (res.html) { box.innerHTML = res.html; var r = box.querySelector('.doresult'); if (r && r.scrollIntoView) r.scrollIntoView({ block: 'nearest' }); }
       else { fill(box, res); }
       gvToastsFrom(res);
+      if (res.perks) {   // the Perks card follows what the activity did to the meters (keeps the meter tab you were on)
+        var pk = document.querySelector('#hubpop-perks .hubcard');
+        if (pk) {
+          var on = pk.querySelector('.pkr:checked'), onId = on ? on.id : '';
+          pk.innerHTML = res.perks;
+          var back2 = onId ? pk.querySelector('#' + onId) : null; if (back2) back2.checked = true;
+        }
+      }
       var h = res.hdr;   // the header's energy and coin pills follow what the activity cost or paid
       if (h) {
         var en = document.querySelector('.hdr-energy'), co = document.querySelector('.hdr-coins');

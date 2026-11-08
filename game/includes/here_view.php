@@ -358,7 +358,8 @@ function here_do_reply(array $u, string $slug, string $msg, bool $ok, string $ba
     $isDone = in_array($slug, $done, true);
     $html = in_array((string)$a['kind'], ['buy', 'snack'], true) ? here_stall_row_html($u, $node, $back, $a, $isDone, $msg, $ok) : here_do_block($u, $node, $back, $a, $isDone, $msg, $ok);
     [$hdrE, $hdrMax] = current_energy($u);   // the header pills follow the result (assets/hubscene.js)
-    echo json_encode(['ok' => $ok, 'msg' => $msg, 'html' => $html, 'toasts' => take_toasts(), 'hdr' => ['energy' => (int)$hdrE, 'max' => (int)$hdrMax, 'title' => energy_line($u), 'next' => energy_next_text($u), 'coins' => (int)$u['coins'], 'coins_label' => money((int)$u['coins']), 'coins_text' => number_format((int)$u['coins'])]], JSON_UNESCAPED_SLASHES);
+    require_once __DIR__ . '/stops.php';
+    echo json_encode(['ok' => $ok, 'msg' => $msg, 'html' => $html, 'toasts' => take_toasts(), 'perks' => stop_perk_body($u, $node), 'hdr' => ['energy' => (int)$hdrE, 'max' => (int)$hdrMax, 'title' => energy_line($u), 'next' => energy_next_text($u), 'coins' => (int)$u['coins'], 'coins_label' => money((int)$u['coins']), 'coins_text' => number_format((int)$u['coins'])]], JSON_UNESCAPED_SLASHES);
     exit;
 }
 
