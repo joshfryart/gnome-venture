@@ -318,10 +318,25 @@ function energy_tick(): array
     return [max(1, min(5, (int)setting('energy_regen_amount'))), max(30, min(600, (int)setting('energy_regen_seconds')))];
 }
 
+/** 2.6.31: sleep-days trickle: [energy it stops at, seconds per +1], or null when off (clock off, or cap 0). Sleep still gives the full bar. */
+function energy_trickle(array $u): ?array
+{
+    if (!function_exists('gclock_on') || !gclock_on()) return null;
+    $pct = setting('trickle_energy_cap_pct');
+    $pct = $pct === '' ? 50 : max(0, min(100, (int)$pct));
+    $sec = setting('trickle_energy_seconds');
+    $sec = $sec === '' ? 300 : max(30, min(3600, (int)$sec));
+    if ($pct <= 0) return null;
+    return [intdiv(max_energy($u) * $pct, 100), $sec];
+}
+
 /** "1 energy every minute", "2 energy every 30 seconds". */
 function energy_rate_text(): string
 {
-    if (function_exists('gclock_on') && gclock_on()) return 'full energy back each time you sleep, a part back from a nap';   // sleep-days: no regeneration
+    if (function_exists('gclock_on') && gclock_on()) {   // sleep-days: sleep refills; 2.6.31 a slow trickle up to a cap
+        $pct = setting('trickle_energy_cap_pct'); $pct = $pct === '' ? 50 : (int)$pct;
+        return 'full energy back each time you sleep, a part back from a nap' . ($pct > 0 ? ', and a slow trickle up to ' . min(100, $pct) . '% while you wait' : '');
+    }
     [$n, $sec] = energy_tick();
     $every = $sec === 60 ? 'minute' : ($sec < 60 ? $sec . ' seconds' : rtrim(rtrim(number_format($sec / 60, 1), '0'), '.') . ' minutes');
     return $n . ' energy every ' . $every;

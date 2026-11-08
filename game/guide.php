@@ -61,7 +61,7 @@ $fold = function (string $icon, string $title, bool $open = false): string {
 <?= $fold('⚡', 'Energy and Petals') ?>
   <ul>
     <li>Gardening, walking and gathering cost <b>energy</b>. Most garden jobs cost 1.</li>
-    <li><?= gclock_on() ? 'It refills when you sleep. A nap gives some back.' : 'It refills by itself: ' . e(energy_rate_text()) . '.' ?></li>
+    <li><?= gclock_on() ? 'It refills when you sleep. A nap gives some back. It also trickles back slowly by itself, up to ' . (setting('trickle_energy_cap_pct') === '' ? 50 : (int)setting('trickle_energy_cap_pct')) . '% of your bar.' : 'It refills by itself: ' . e(energy_rate_text()) . '.' ?></li>
     <li>Your max starts at 10 and grows with every Gnome level.</li>
     <li>Out of energy? <a href="<?= e(url('inventory.php')) ?>">Eat something</a>. Cooked food restores much more than raw.</li>
     <li><b>Petals</b> are the money. Sell crops to shops and other gnomes to earn them. Spend them on seeds, land and buildings.</li>

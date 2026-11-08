@@ -668,11 +668,35 @@ $GLOBALS['CURRENT_USER'] = null;
 
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
+cfg(['trickle_energy_cap_pct' => '0']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);
 $u = urow($uid); refresh_energy($u);
-ok('no regen over two hours', (int)$u['energy'] === 5 && (int)urow($uid)['energy'] === 5);
-ok('current_energy shows no regen', current_energy($u)[0] === 5);
-ok('no next-tick countdown', energy_next_secs($u) === null);
+ok('trickle cap 0: no regen over two hours', (int)$u['energy'] === 5 && (int)urow($uid)['energy'] === 5);
+ok('trickle cap 0: current_energy shows no regen', current_energy($u)[0] === 5);
+ok('trickle cap 0: no next-tick countdown', energy_next_secs($u) === null);
+cfg(['trickle_energy_cap_pct' => '100', 'trickle_energy_seconds' => '1800']);   // +1 per 30 min, no cap below max: exact tick maths
+$max = max_energy(urow($uid));
+q('UPDATE users SET energy = 0, energy_updated_at = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);
+$u = urow($uid);
+ok('trickle: display counts 4 ticks in two hours', current_energy($u)[0] === min($max, 4), (string)current_energy($u)[0]);
+refresh_energy($u);
+ok('trickle: stored energy rises by 4', (int)urow($uid)['energy'] === min($max, 4), (string)urow($uid)['energy']);
+cfg(['trickle_energy_cap_pct' => '', 'trickle_energy_seconds' => '']);   // defaults: 50% cap, +1 every 300 s
+$cap = intdiv($max * 50, 100);
+q('UPDATE users SET energy = 0, energy_updated_at = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 172800), $uid]);
+$u = urow($uid); refresh_energy($u);
+ok('trickle: default stops at 50% of max after a long wait', (int)urow($uid)['energy'] === $cap, (string)urow($uid)['energy'] . ' cap ' . $cap . ' max ' . $max);
+q('UPDATE users SET energy = ?, energy_updated_at = ? WHERE id = ?', [$cap, gmdate('Y-m-d H:i:s', time() - 7200), $uid]);
+$u = urow($uid); refresh_energy($u);
+ok('trickle: at the cap nothing more, no countdown', (int)urow($uid)['energy'] === $cap && energy_next_secs(urow($uid)) === null);
+q('UPDATE users SET energy = ?, energy_updated_at = ? WHERE id = ?', [$cap + 3, gmdate('Y-m-d H:i:s', time() - 7200), $uid]);
+$u = urow($uid); refresh_energy($u);
+ok('trickle: never lowers energy above the cap', (int)urow($uid)['energy'] === $cap + 3);
+q('UPDATE users SET energy = 0, energy_updated_at = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 100), $uid]);
+$u = urow($uid); refresh_energy($u);
+ok('trickle: under one interval gives nothing yet', (int)urow($uid)['energy'] === 0 && energy_next_secs($u) > 0 && energy_next_secs($u) <= 300);
+q('UPDATE users SET energy = 5 WHERE id = ?', [$uid]);
+q('UPDATE users SET energy_updated_at = ? WHERE id = ?', [gmdate('Y-m-d H:i:s'), $uid]);
 ok('day spend: 3 costs 3', spend_energy($uid, 3) && (int)urow($uid)['energy'] === 2);
 q('UPDATE users SET energy = 20, game_minute = 1380 WHERE id = ?', [$uid]);   // 23:00 = 2nd tired hour = +20%
 ok('tired spend: 10 costs 12', spend_energy($uid, 10) && (int)urow($uid)['energy'] === 8, (string)urow($uid)['energy']);

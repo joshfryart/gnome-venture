@@ -293,21 +293,32 @@ function current_energy(array $u): array
 {
     $max = max_energy($u);
     $energy = (int)$u['energy'];
-    if (gclock_on()) return [$energy, $max];   // sleep-days: no regeneration
+    $lim = $max;
+    if (gclock_on()) {   // sleep-days (2.6.31): slow trickle up to a cap
+        $t = energy_trickle($u);
+        if (!$t) return [$energy, $max];
+        [$lim, $ePer] = $t; $eAmt = 1;
+    } else {
+        [$eAmt, $ePer] = energy_tick();   // v0.9.0
+    }
     $last = !empty($u['energy_updated_at']) ? (int)strtotime($u['energy_updated_at'] . ' UTC') : 0;
-    [$eAmt, $ePer] = energy_tick();   // v0.9.0
-    if ($last && $energy < $max) $energy = min($max, $energy + intdiv(time() - $last, $ePer) * $eAmt);
+    if ($last && $energy < $lim) $energy = min($lim, $energy + intdiv(time() - $last, $ePer) * $eAmt);
     return [$energy, $max];
 }
 
 /** v0.9.4: seconds until the next energy tick (null when energy is full). */
 function energy_next_secs(array $u): ?int
 {
-    if (gclock_on()) return null;   // sleep-days: no next tick
     [$energy, $max] = current_energy($u);
-    if ($energy >= $max) return null;
+    if (gclock_on()) {   // sleep-days (2.6.31): ticks stop at the trickle cap
+        $t = energy_trickle($u);
+        if (!$t || $energy >= $t[0]) return null;
+        $per = $t[1];
+    } else {
+        if ($energy >= $max) return null;
+        [, $per] = energy_tick();
+    }
     $last = !empty($u['energy_updated_at']) ? (int)strtotime($u['energy_updated_at'] . ' UTC') : 0;
-    [, $per] = energy_tick();
     if (!$last) return $per;
     return $per - ((time() - $last) % $per);
 }
@@ -323,7 +334,8 @@ function energy_line(array $u): string
 {
     $secs = energy_next_secs($u);
     if ($secs === null) return '';
-    [$amt, $per] = energy_tick();
+    if (gclock_on()) { $t = energy_trickle($u); [$amt, $per] = [1, $t ? $t[1] : 300]; }
+    else [$amt, $per] = energy_tick();
     $every = $per === 60 ? 'minute' : ($per < 60 ? $per . ' seconds' : rtrim(rtrim(number_format($per / 60, 1), '0'), '.') . ' minutes');
     return '+' . $amt . ' every ' . $every . ', next in ' . energy_clock($secs);
 }

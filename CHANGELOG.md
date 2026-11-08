@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.31
+- **Energy trickles back by itself again (sleep-days)**: +1 energy every 5 minutes, while you are away or online, up to 50% of your max. Sleep and naps still give the rest, so the Hovel stays useful. The header and status strip show "+1 every 5 minutes, next in m:ss" until the cap. Admin settings (Sleep-days): `trickle_energy_cap_pct` (50; 0 = off) and `trickle_energy_seconds` (300). Never lowers energy that is already above the cap. No database upgrade needed. First load after the update may add up to the cap at once, from the time since your last energy update.
+- **Fix: energy refresh cap**: the SQL that adds regen ticks compared text to a number in SQLite, so the maximum was not applied. Params are now cast to integers.
+- Guide, welcome text and Almanac energy lines mention the trickle. Test: `tests/game_clock.php` (trickle section).
+
 ## 2.6.30
 - **Finds on the Trail take time to come back**: after you walk onto a find (✨) on a stretch of a route, that stretch's finds stay gone for 5.5 game days (real days with the game clock off), also on a new walk of the same route. Admin setting `trail_pickup_tenths` (55 = 5.5 days, 0 = back on the next walk). Run Upgrade database once for the `trail_pickups` table.
 

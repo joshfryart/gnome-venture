@@ -643,6 +643,8 @@ function gclock_settings(): array
     $i = fn(string $label, int $d, int $min = 0, int $max = 100000): array => ['label' => 'Sleep-days: ' . $label, 'type' => 'int', 'default' => (string)$d, 'min' => $min, 'max' => $max];
     $out = [
         'game_clock_on' => ['label' => 'Sleep-days: ON (each gnome has their own game clock; energy comes back by sleeping; garden, jars, pots, jobs, NPCs and festivals follow it). Do not turn on before the start step is done.', 'type' => 'bool', 'default' => '1'],
+        'trickle_energy_cap_pct' => $i('energy slowly comes back by itself (while away or online) up to this % of max; sleep still gives the full bar (0 = no trickle)', 50, 0, 100),
+        'trickle_energy_seconds' => $i('the trickle gives +1 energy every this many real seconds', 300, 30, 3600),
         'nap_minutes' => $i('a nap takes this many game minutes', 120, 10, 480),
         'nap_energy_pct' => $i('a nap gives this % of max energy', 40, 0, 100),
         'tired_surcharge_pct_per_hour' => $i('extra energy cost per game hour past 22:00 (%)', 10, 0, 100),

@@ -301,9 +301,15 @@ function soil_grade_unlocks(int $uid, int $gradeIndex): array
 
 function refresh_energy(array &$u): void
 {
-    if (gclock_on()) return;   // sleep-days: energy no longer comes back by the minute
-    $max = max_energy($u);
-    [$amt, $per] = energy_tick();   // v0.9.0: N energy every so many seconds
+    if (gclock_on()) {   // sleep-days (2.6.31): +1 every trickle_energy_seconds, only up to trickle_energy_cap_pct of max; sleep gives the rest
+        $t = energy_trickle($u);
+        if (!$t) return;
+        [$max, $per] = $t;
+        $amt = 1;
+    } else {
+        $max = max_energy($u);
+        [$amt, $per] = energy_tick();   // v0.9.0: N energy every so many seconds
+    }
     $last = ts($u['energy_updated_at']);
     if ((int)$u['energy'] >= $max || !$last) {
         q('UPDATE users SET energy_updated_at = ? WHERE id = ?', [now(), $u['id']]);
@@ -317,7 +323,7 @@ function refresh_energy(array &$u): void
         $stampStr = gmdate('Y-m-d H:i:s', $stamp);
         // v2.4.97: add the ticks (don't overwrite with a stale total, which would hand back energy spent meanwhile) and only
         // when the stamp is still the one we read, so two tabs can't credit the same ticks twice.
-        $won = q('UPDATE users SET energy = CASE WHEN energy + ? > ? THEN ? ELSE energy + ? END, energy_updated_at = ? WHERE id = ? AND energy_updated_at = ?',
+        $won = q('UPDATE users SET energy = CASE WHEN energy + CAST(? AS INTEGER) > CAST(? AS INTEGER) THEN CAST(? AS INTEGER) ELSE energy + CAST(? AS INTEGER) END, energy_updated_at = ? WHERE id = ? AND energy_updated_at = ?',
             [$ticks * $amt, $max, $max, $ticks * $amt, $stampStr, $u['id'], (string)$u['energy_updated_at']])->rowCount() === 1;
         $row = q_one('SELECT energy, energy_updated_at FROM users WHERE id = ?', [$u['id']]);
         if ($row) { $u['energy'] = (int)$row['energy']; $u['energy_updated_at'] = $row['energy_updated_at']; }
