@@ -52,7 +52,7 @@ function hp_max(array $u): int
 /** Does the health clock run? In a town, and not adventuring. */
 function hp_clock_runs(int $uid, int $locId): bool
 {
-    if (hp_regen_rate() <= 0 || active_expedition($uid)) return false;
+    if (gclock_on() || hp_regen_rate() <= 0 || active_expedition($uid)) return false;   // sleep-days: no timed healing, only rest, sleep, potions and food
     return in_array((string)q_val('SELECT kind FROM locations WHERE id = ?', [$locId]), HP_TOWN_KINDS, true);
 }
 
@@ -113,6 +113,20 @@ function hp_heal_pct(array $u, int $pct): int
     [$hp, $max] = hp_get($u);
     if ($hp >= $max) return 0;
     $new = min($max, $hp + max(1, (int)ceil($max * $pct / 100)));
+    $loc = (int)q_val('SELECT location_id FROM users WHERE id = ?', [$uid]);
+    hp_store($uid, $new, $max, hp_clock_runs($uid, $loc));
+    q("UPDATE expeditions SET hp = CASE WHEN hp + ? > max_hp THEN max_hp ELSE hp + ? END WHERE user_id = ? AND status = 'active' AND hp > 0", [$new - $hp, $new - $hp, $uid]);
+    return $new - $hp;
+}
+
+/** Heal exactly $n health points (a crop). Returns the health gained. */
+function hp_heal_points(array $u, int $n): int
+{
+    if (!hp_on() || $n <= 0) return 0;
+    $uid = (int)$u['id'];
+    [$hp, $max] = hp_get($u);
+    if ($hp >= $max) return 0;
+    $new = min($max, $hp + $n);
     $loc = (int)q_val('SELECT location_id FROM users WHERE id = ?', [$uid]);
     hp_store($uid, $new, $max, hp_clock_runs($uid, $loc));
     q("UPDATE expeditions SET hp = CASE WHEN hp + ? > max_hp THEN max_hp ELSE hp + ? END WHERE user_id = ? AND status = 'active' AND hp > 0", [$new - $hp, $new - $hp, $uid]);
@@ -187,7 +201,7 @@ function hp_card_html(array $u): string
     if ($hp >= $max) return '<div class="ghealth" title="You’re in good shape.">' . $line . '</div>';
     $rate = hp_regen_rate();
     $h = '<details class="ghheal"><summary>Heal</summary><p class="help">' . ($out ? 'You’re out on an adventure: heal up when you’re back. '
-        : ($rate > 0 ? 'You heal ' . $rate . ' a minute while you’re in a town and not adventuring. ' : '')) . 'Resting at a haven, an inn or a hot spring heals more, and so do snacks and Healing Potions.</p>';
+        : ($rate > 0 && !gclock_on() ? 'You heal ' . $rate . ' a minute while you’re in a town and not adventuring. ' : '')) . (gclock_on() ? 'Sleep and naps heal you; food from the garden heals a little. ' : '') . 'Resting at a haven, an inn or a hot spring heals more, and so do snacks and Healing Potions.</p>';
     if (!$out) {
         require_once __DIR__ . '/adventure.php';
         require_once __DIR__ . '/pal_jobs.php';

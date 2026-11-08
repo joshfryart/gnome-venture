@@ -114,6 +114,7 @@ function game_sleep(int $uid, int $energyPct = 100): ?array
         [GAME_WAKE_MINUTE + $carry, $new, $uid, (int)$u['game_day'], (int)$u['game_minute']])->rowCount();
     if ($n !== 1) return null;
     game_new_day($uid);
+    gclock_heal($u, $energyPct);   // a night's sleep heals as much as it restores energy (a bench heals less)
     return ['game_day' => (int)$u['game_day'] + 1, 'game_minute' => GAME_WAKE_MINUTE + $carry];
 }
 
@@ -129,6 +130,7 @@ function game_nap(int $uid): ?array
     $n = q('UPDATE users SET game_minute = game_minute + ?, energy = CASE WHEN energy + CAST(? AS INTEGER) > CAST(? AS INTEGER) THEN CAST(? AS INTEGER) ELSE energy + CAST(? AS INTEGER) END WHERE id = ? AND game_day = ? AND game_minute = ?',
         [$mins, $gain, $max, $max, $gain, $uid, (int)$u['game_day'], (int)$u['game_minute']])->rowCount();
     if ($n !== 1) return null;
+    gclock_heal($u, $pct);
     return ['game_day' => (int)$u['game_day'], 'game_minute' => (int)$u['game_minute'] + $mins];
 }
 
@@ -606,6 +608,7 @@ function gclock_settings(): array
         'pal_hours_per_sleep' => $i('pal jobs and pots advance this many hours per sleep', 8, 0, 24),
         'default_open_minute' => $i('shops and stops open at this minute of the day (360 = 06:00)', 360, 0, 1439),
         'default_close_minute' => $i('shops and stops close at this minute of the day (1320 = 22:00)', 1320, 1, 1440),
+        'hp_crop_heal' => ['label' => 'Sleep-days: health from eating a crop: everyday, uncommon or flower, treasure, legendary (four numbers, comma separated)', 'type' => 'text', 'default' => '1,2,3,4'],
         'grow_days_by_tier' => ['label' => 'Sleep-days: sleeps a crop needs for growth tiers 1-6 (six numbers, comma separated)', 'type' => 'text', 'default' => '1,2,3,5,7,10'],
     ];
     foreach (GCLOCK_TIME_DEFAULTS as $k => $m) $out['time_' . $k] = $i('game minutes an action costs: ' . $k . ' (0 = free)', $m, 0, 1440);
@@ -621,4 +624,28 @@ function gclock_start_all(?string $today = null): int
 {
     $day = game_clock_days_from_epoch($today);
     return q('UPDATE users SET game_day = ?, game_minute = ?, carry_minutes = 0, camp_naps = 0', [$day, GAME_WAKE_MINUTE])->rowCount();
+}
+
+// Health (Josh, 2026-11-08): no timed healing. Sleep and naps heal the same % as the energy they give; potions as before;
+// food from the garden heals a little (hp_crop_heal: everyday, uncommon or flower, treasure, legendary = 1,2,3,4).
+
+/** Heal a gnome by $pct of max health (sleep, nap). No-op when health is off. */
+function gclock_heal(array $u, int $pct): int
+{
+    require_once __DIR__ . '/health.php';
+    return $pct > 0 ? hp_heal_pct($u, min(100, $pct)) : 0;
+}
+
+/** Health a raw crop or find gives when eaten: 0 for anything that is not produce. */
+function gclock_crop_heal(array $item): int
+{
+    if (($item['category'] ?? '') !== 'produce') return 0;
+    $v = array_map('intval', array_pad(array_map('trim', explode(',', setting('hp_crop_heal') !== '' ? setting('hp_crop_heal') : '1,2,3,4')), 4, '1'));
+    $plant = q_one('SELECT id, kind FROM plants WHERE produce_item_id = ?', [(int)$item['id']]);
+    if (!$plant) return max(0, $v[0]);
+    $tiers = q('SELECT tier FROM plant_regions WHERE plant_id = ?', [(int)$plant['id']])->fetchAll(PDO::FETCH_COLUMN);
+    $rank = ['staple' => 0, 'flower' => 1, 'uncommon' => 1, 'treasure' => 2];
+    $band = $tiers ? min(array_map(fn($t) => $rank[$t] ?? 0, $tiers)) : ($plant['kind'] === 'flower' ? 1 : 0);
+    if ($band === 2 && (int)($item['rarity'] ?? 0) >= 80) $band = 3;   // a legendary crop
+    return max(0, $v[$band]);
 }

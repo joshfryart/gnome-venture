@@ -312,6 +312,54 @@ ok('start twice gives the same day', gclock_start_all('2026-03-01') >= 1 && (int
 ok('game date after start = the Hollow date it was started on', hollow_game_date(urow($uid)) === '2026-03-01');
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 
+echo "== health: no timed regen; sleep, nap and crops heal\n";
+require_once $argv[1] . '/includes/health.php';
+require_once $argv[1] . '/includes/gnome.php';
+$origLoc = urow($uid)['location_id'];
+$max = hp_max(urow($uid));
+$loc = (int)q_val("SELECT id FROM locations WHERE kind = 'village' LIMIT 1");
+q("DELETE FROM expeditions WHERE user_id = ?", [$uid]);
+setu($uid, ['location_id' => $loc ?: null, 'game_day' => 0, 'game_minute' => 600, 'hp' => max(1, intdiv($max, 4)), 'hp_at' => gmdate('Y-m-d H:i:s', time() - 7200)]);
+cfg(['game_clock_on' => '0', 'hp_persist' => '1', 'hp_regen_per_minute' => '1']);
+$h0 = hp_get(urow($uid))[0];
+ok('flag off: old timed regen still runs (2 hours in town)', $h0 > intdiv($max, 4));
+setu($uid, ['hp' => max(1, intdiv($max, 4)), 'hp_at' => gmdate('Y-m-d H:i:s', time() - 7200)]);
+cfg(['game_clock_on' => '1']);
+ok('flag on: no timed regen', hp_get(urow($uid))[0] === max(1, intdiv($max, 4)));
+$start = hp_get(urow($uid))[0];
+game_nap($uid);
+$afterNap = hp_get(urow($uid))[0];
+ok('nap heals about 40% of max', $afterNap > $start && $afterNap <= $start + (int)ceil($max * 0.4) + 1, "$start -> $afterNap of $max");
+game_sleep($uid, 30);
+$afterBench = hp_get(urow($uid))[0];
+ok('a 30% sleep heals up to 30% more', $afterBench >= $afterNap, "$afterNap -> $afterBench");
+setu($uid, ['hp' => max(1, intdiv($max, 4)), 'hp_at' => null, 'game_minute' => 600]);
+game_sleep($uid, 100);
+ok('a full sleep heals fully', hp_get(urow($uid))[0] === $max);
+// crops
+$crop = q_one("SELECT i.* FROM items i JOIN plants p ON p.produce_item_id = i.id WHERE i.category = 'produce' AND i.edible = 1 LIMIT 1");
+if ($crop) {
+    ok('a staple-or-higher crop heals 1 to 4', ($h = gclock_crop_heal($crop)) >= 1 && $h <= 4, (string)$h);
+    cfg(['hp_crop_heal' => '2,3,4,5']);
+    $base = gclock_crop_heal($crop);
+    ok('hp_crop_heal setting is read', $base >= 2 && $base <= 5);
+    cfg(['hp_crop_heal' => '']);
+    setu($uid, ['hp' => max(1, intdiv($max, 2))]);
+    $before = hp_get(urow($uid))[0];
+    give_item($uid, (int)$crop['id'], 1);
+    [$ok, $m] = eat_item(urow($uid), (int)$crop['id']);
+    ok('eating the crop heals exactly its amount', $ok && hp_get(urow($uid))[0] === min($max, $before + gclock_crop_heal($crop)), implode(' ', (array)$m));
+    cfg(['game_clock_on' => '0']);
+    setu($uid, ['hp' => max(1, intdiv($max, 2)), 'hp_at' => null]);
+    $before = hp_get(urow($uid))[0];
+    give_item($uid, (int)$crop['id'], 1);
+    eat_item(urow($uid), (int)$crop['id']);
+    ok('flag off: eating a crop does not heal', hp_get(urow($uid))[0] === $before);
+} else { echo "  skip crops (no edible crop in test world)\n"; }
+ok('a non-produce item heals nothing', gclock_crop_heal(['category' => 'food', 'id' => 1]) === 0);
+cfg(['game_clock_on' => '0', 'hp_crop_heal' => '']);
+setu($uid, ['hp' => null, 'hp_at' => null, 'game_day' => 0, 'game_minute' => 360, 'location_id' => $origLoc]);
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);
