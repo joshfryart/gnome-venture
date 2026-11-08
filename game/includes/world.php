@@ -218,6 +218,7 @@ function staff_on_duty(int $shopId): array
 {
     $hour = hollow_hour();
     $day = hollow_dow();
+    if (gclock_on() && ($cu = current_user())) { $gs = gclock_state($cu); $hour = $gs['hour']; $day = $gs['dow']; }   // sleep-days: the shop keeps the gnome's own hours
     $out = [];
     foreach (q("SELECT n.id, n.name, n.slug, n.species, n.personality, s.days, s.start_hour, s.end_hour
                 FROM npc_schedules s JOIN npcs n ON n.id = s.npc_id
@@ -310,10 +311,11 @@ function shop_reachable(array $u, array $shop): bool
 function buy_from_shop(array $u, int $stockId, int $qty): array
 {
     $qty = max(1, min(999, $qty));
-    $s = q_one('SELECT st.*, sh.open, sh.id AS sid, sh.location_id, i.name, i.category AS item_category, i.effects AS item_effects FROM shop_stock st
+    $s = q_one('SELECT st.*, sh.open, sh.open_minute, sh.close_minute, sh.id AS sid, sh.location_id, i.name, i.category AS item_category, i.effects AS item_effects FROM shop_stock st
                 JOIN shops sh ON sh.id = st.shop_id JOIN items i ON i.id = st.item_id WHERE st.id = ?', [$stockId]);
     if (!$s || !(int)$s['open']) return [false, 'That shop is closed.'];
     if (!shop_reachable($u, ['location_id' => $s['location_id']])) return [false, 'You need to be in that town first.'];
+    if ($why = gclock_closed_reason($u, $s)) return [false, $why];
     if (!staff_on_duty((int)$s['sid'])) return [false, 'Nobody is at the counter right now.'];
     // v0.7.85: a guide you've already read can't be bought again (same key shop.php uses)
     $gkey = $s['item_category'] === 'guide' ? (string)((json_decode((string)$s['item_effects'], true) ?: [])['guide'] ?? '') : '';

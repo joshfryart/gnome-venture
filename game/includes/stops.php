@@ -819,6 +819,7 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
     $pool = stop_pool($loc, null, $uid);
     $offered = array_column($pool['offer'], null, 'slug');
     if (!isset($offered[$slug])) return [false, 'That isn’t on offer here right now.'];
+    if ($why = gclock_closed_reason($u, $loc, gclock_time_cost('stop'))) return [false, $why];
     $visit = stop_visit_key($u);
     [$done, $here, $all, $rests] = stop_state($uid, (int)$loc['id'], $visit);
     if (in_array($slug, $done, true)) return [false, 'You’ve done that already on this visit.'];

@@ -160,6 +160,24 @@ if ($plant && $tile) {
 } catch (Throwable $e) { ok('garden leftovers block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
 cfg(['game_clock_on' => '0', 'weather_force' => '']);
 
+echo "== closing hours (decisions 17, 41)\n";
+cfg(['game_clock_on' => '1', 'default_open_minute' => '', 'default_close_minute' => '']);
+$cu = fn(int $min) => ['game_day' => 3, 'game_minute' => $min];
+ok('default hours 06:00-22:00', gclock_place_hours(null) === [360, 1320]);
+ok('row hours win', gclock_place_hours(['open_minute' => 480, 'close_minute' => 1200]) === [480, 1200]);
+cfg(['default_open_minute' => '420', 'default_close_minute' => '1260']);
+ok('setting defaults used when row blank', gclock_place_hours(['open_minute' => null, 'close_minute' => '']) === [420, 1260]);
+cfg(['default_open_minute' => '', 'default_close_minute' => '']);
+ok('open at noon', gclock_closed_reason($cu(720), null, 15) === null);
+ok('before opening: closed', str_contains((string)gclock_closed_reason($cu(300), null, 0), 'opens at 06:00'));
+ok('after closing: closed', str_contains((string)gclock_closed_reason($cu(1320), null, 0), 'Closed for the day'));
+ok('21:50 + 15 min runs past close: refused', str_contains((string)gclock_closed_reason($cu(1310), null, 15), 'closes at 22:00'));
+ok('21:50 + 15 min split action may run late', gclock_closed_reason($cu(1310), null, 480, true) === null);
+ok('zero-minute buy at 21:59 is fine', gclock_closed_reason($cu(1319), null, 0) === null);
+ok('own row close 20:00 closes at 20:00', gclock_closed_reason($cu(1200), ['close_minute' => 1200], 0) !== null);
+cfg(['game_clock_on' => '0']);
+ok('flag off: never closed', gclock_closed_reason($cu(1400), null, 60) === null);
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);

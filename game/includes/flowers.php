@@ -600,6 +600,7 @@ function florist_start(array $u, array $shop): array
     $uid = (int)$u['id'];
     if (($shop['shop_type'] ?? '') !== 'florist') return [false, 'That is not a florist.'];
     if (!shop_reachable($u, $shop)) return [false, 'You need to be in that town to volunteer here.'];
+    if ($why = gclock_closed_reason($u, $shop, 0, true)) return [false, $why];
     $staff = staff_on_duty((int)$shop['id']);
     if (!$staff) return [false, 'Nobody is at the counter right now. Come back when the florist is in.'];
     if (florist_active($uid)) return [false, 'You already have a shift going. Finish it first.'];

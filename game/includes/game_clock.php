@@ -18,6 +18,8 @@ function game_clock_schema(string $PK, string $ID, string $END): array
         ['pantry_jars', 'ready_day', 'INT NULL'],   // game_day a game-clock jar is ready on; NULL = real ready_at
         ['users', 'carry_minutes', 'INT NOT NULL DEFAULT 0'],   // work left at 22:00 that finishes after the next sleep (decisions 43-44)
         ['users', 'camp_naps', 'INT NOT NULL DEFAULT 0'],   // naps taken on the gear now in use (2 per gear)
+        ['shops', 'open_minute', 'INT NULL'], ['shops', 'close_minute', 'INT NULL'],          // closing hours (decision 41); NULL = default_open/close_minute
+        ['locations', 'open_minute', 'INT NULL'], ['locations', 'close_minute', 'INT NULL'],
         ['plot_tiles', 'grow_day', 'INT NULL'],    // the owner's game_day that growth is settled up to
         ['plot_tiles', 'water_day', 'INT NULL'],   // the owner's game_day the bed was last watered on
         ['plot_tiles', 'owed_days', 'INT NOT NULL DEFAULT 0'],   // dry days not yet grown; paid back when a watered day finishes (decision 54)
@@ -480,4 +482,38 @@ function gclock_charge_split(int $uid, int $m): int
 function gclock_busy_minutes(int $uid): int
 {
     return gclock_on() ? max(0, (int)q_val('SELECT carry_minutes FROM users WHERE id = ?', [$uid])) : 0;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Closing hours (decisions 17, 41). A shop or stop row may carry open_minute / close_minute; blank = settings
+// default_open_minute (360 = 06:00) and default_close_minute (1320 = 22:00). Inns are open all night and never call this.
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** [open, close] minutes of the day for a shop / location row (null row = the defaults). */
+function gclock_place_hours(?array $row): array
+{
+    $o = $row['open_minute'] ?? null;
+    $c = $row['close_minute'] ?? null;
+    $do = setting('default_open_minute');
+    $dc = setting('default_close_minute');
+    return [
+        ($o !== null && $o !== '') ? (int)$o : ($do === '' ? GAME_WAKE_MINUTE : (int)$do),
+        ($c !== null && $c !== '') ? (int)$c : ($dc === '' ? GAME_TIRED_MINUTE : (int)$dc),
+    ];
+}
+
+/**
+ * Null when the place is open for an action of $minutes starting now, else a short reason. Flag off = always open.
+ * $mayRunLate (split actions, decision 43): only the start must be inside opening hours.
+ */
+function gclock_closed_reason(array $u, ?array $row, int $minutes = 0, bool $mayRunLate = false): ?string
+{
+    if (!gclock_on()) return null;
+    [$open, $close] = gclock_place_hours($row);
+    $now = gclock_state($u)['minute'];
+    $fmt = fn(int $m): string => sprintf('%02d:%02d', intdiv($m, 60) % 24, $m % 60);
+    if ($now < $open) return 'Closed for now. It opens at ' . $fmt($open) . '.';
+    if ($now >= $close) return 'Closed for the day. Come back after you sleep (it opens at ' . $fmt($open) . ').';
+    if (!$mayRunLate && $minutes > 0 && $now + $minutes > $close) return 'Too late to start that here: it closes at ' . $fmt($close) . '.';
+    return null;
 }
