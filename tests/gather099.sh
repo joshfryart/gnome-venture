@@ -35,11 +35,11 @@ for i in 1 2 3; do
   E0=$(energy); F0=$(finds); W0=$(wear)
   post -d tool=forage -d back=world.php?tab=gather
   chk "try $i energy spent" "$((E0 - $(energy)))" 1
-  chk "try $i finds gained" "$(( $(finds) - F0 ))" 1
+  D=$(( $(finds) - F0 )); chk "try $i finds gained (sleep-days: 2 or 3; else 1)" "$([ "$D" -ge 1 ] && [ "$D" -le 3 ] && echo ok)" ok
   chk "try $i knife wear +1" "$(( $(wear) - W0 ))" 1
 done
 curl -s -c $C -b $C "$BASE/world.php?tab=gather" > $T/w1.html
-grep -q 'You gather 1 ×' $T/w1.html && echo "ok   flash says You gather 1 ×" || echo "FAIL flash lacks 'You gather 1 ×'"
+grep -qE 'You gather [123] ×' $T/w1.html && echo "ok   flash says You gather N ×" || echo "FAIL flash lacks 'You gather N ×'"
 
 echo "== the reveal plays once, then clears"
 yes_ "first view after a gather: banner" "$(grep -c 'class="gx-banner gx-banner--' $T/w1.html | sed 's/^[1-9][0-9]*$/1/')"

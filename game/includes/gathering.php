@@ -119,7 +119,7 @@ function gather_on_walk(array $u, string $land, ?string $tool = null, bool $sure
         if ($roll <= 0) { $pick = $can[$k]; break; }
     }
     $pick ??= reset($can);
-    $qty = 1;
+    $qty = gclock_on() ? random_int(2, 3) : 1;   // sleep-days: 2 or 3 items a find at base tool level (Josh); baskets, Sense and rainbows add on top
     $basket = tool_tier($uid, 'basket');
     if ($basket > 0 && random_int(1, 3) <= min(3, $basket)) $qty++;
     $sense = function_exists('eff_mod') ? eff_mod($u, 'sense') : 0;

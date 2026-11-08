@@ -482,7 +482,7 @@ function gclock_shift_pal_clocks(int $uid, int $secs): void
 
 const GCLOCK_TIME_DEFAULTS = [
     'travel' => 10,        // per trail section
-    'wander' => 20, 'gather' => 15, 'craft' => 15,   // craft is per unit
+    'wander' => 20, 'gather' => 10, 'craft' => 15,   // craft is per unit
     'arrange' => 10, 'seed' => 10, 'shift' => 480, 'sapling' => 10, 'tend' => 10, 'repair' => 480,
     'lair' => 120, 'landmark' => 20, 'stop' => 15, 'water_other' => 10,
 ];

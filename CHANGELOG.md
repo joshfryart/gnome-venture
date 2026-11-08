@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.18
+- **Gathering pays more for the time (sleep-days)**: a gather now takes 10 game minutes (was 15) and finds 2 or 3 items at base tool level (was 1). Baskets, Sense and rainbows still add on top. Admin `time_gather` still overrides the time. With the flag off a find is still 1.
+
 ## 2.6.17
 - **Fix: "Already well watered" on a thirsty bed**: the real-time 5 minute watering guard blocked watering after a sleep if you had watered less than 5 real minutes before. With sleep-days on, the game day alone decides (the Water all thirsty button no longer fails). Test in `game_clock.sh`.
 
