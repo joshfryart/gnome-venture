@@ -1,6 +1,6 @@
 # Prompt for the next AI: sleep-days (paste this to start)
 
-You are continuing the **sleep-days** build for Gnome Venture (repo `joshfryart/gnome-venture`, PHP game in `game/`). The design is finished (decisions 1-57 in the plan). **Thirteen build steps are done and merged to `main`, all behind one setting `game_clock_on` (default off).** With the flag off the game behaves exactly as before. Do not turn the flag on, bump the version or run the one-time start migration unless Josh says so.
+You are continuing the **sleep-days** build for Gnome Venture (repo `joshfryart/gnome-venture`, PHP game in `game/`). The design is finished (decisions 1-57 in the plan). **Thirty build steps are done and merged to `main` (the Step 14-30 lines in the plan list what was added since the first 13; the "not built yet" list below is out of date: see claude/todo.md section 4 OPEN for what is left), all behind one setting `game_clock_on` (default off).** With the flag off the game behaves exactly as before. Do not turn the flag on, bump the version or run the one-time start migration unless Josh says so.
 
 ## Read first, in this order
 1. `claude/plan-sleep-days.md`: sections 1-9 (original rules), 10-13 (audit, time-cost table, wrapper audit, spec), then the **decision log at the end (decisions 1-57) and the "Step N" build log lines. Later text overrides earlier text.**
