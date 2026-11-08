@@ -458,3 +458,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 27 (Josh, 2026-11-08)
 27. **Inn chores take 4 game hours** (240 min), as the alternative to the 110 Petal fee. Admin setting `inn_chore_minutes`, default 240. Open: what the chores are (a short scripted task or a simple tap-through) and whether tired-surcharge energy applies during them.
+
+### Decision 28 (Josh, 2026-11-08)
+28. **Inn chores are a plain timer for the first build:** pay 240 game minutes, then sleep. No scene, no reward. A scripted or choice-based version is later content.
