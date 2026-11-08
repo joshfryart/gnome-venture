@@ -448,3 +448,7 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 ### Decisions 22-23: inn and town sleep (Josh, 2026-11-08)
 22. **Inn:** costs a **small Petal fee**, or the player **helps around the property for x time** instead. So the inn can be paid in Petals or in game minutes (chores). Overrides the 'free inn' draft. Open: the fee, the chore time x, what the chores are (a small timed task that spends game minutes).
 23. **Sleep in town offers all three, player's choice:** a public bench or park (free, weaker rest, small chance of a bad event), a rented room (same as an inn), or staying with a friendly NPC (free, gated by friendship). Open: how weak the bench rest is, the friendship level for a villager's house.
+
+### Decisions 24-25: camping gear and naps (Josh, 2026-11-08)
+24. **Camping gear:** buyable at a shop **or** craftable; crafting is cheaper. One use per sleep, then consumed. Fits the craft mastery system (decision 19). Open: recipe materials, shop price (markup over crafting).
+25. **Naps need a seat or bed.** Allowed at home, an inn, a town bench or park, or camp. Not mid-trail, and not inside a closed place. Overrides the 'anywhere' draft in 13.6. Open: does a nap on the road need camping gear? (Draft: no, a roadside rest stop counts as a seat only where the trail has one.)
