@@ -444,3 +444,7 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 - A camping gear item, consumed on use, sold or crafted somewhere. Open: price, and does it also work as a nap?
 - "In town": taken as a bed or bench in towns. Open: confirm what Josh means and whether it costs anything.
 - Open: the nap rule (does a nap need any of these, or work anywhere?). The earlier draft said anywhere that is not closed.
+
+### Decisions 22-23: inn and town sleep (Josh, 2026-11-08)
+22. **Inn:** costs a **small Petal fee**, or the player **helps around the property for x time** instead. So the inn can be paid in Petals or in game minutes (chores). Overrides the 'free inn' draft. Open: the fee, the chore time x, what the chores are (a small timed task that spends game minutes).
+23. **Sleep in town offers all three, player's choice:** a public bench or park (free, weaker rest, small chance of a bad event), a rented room (same as an inn), or staying with a friendly NPC (free, gated by friendship). Open: how weak the bench rest is, the friendship level for a villager's house.
