@@ -232,6 +232,7 @@ function pj_runs_today(int $uid): int
 function pj_settle(int $uid): void
 {
     if (!ppal_ensure()) return;
+    gclock_freeze_pals($uid);   // sleep-days: pal work waits for sleeps, real time does not move it
     pj_settle_equip($uid);
     foreach (q("SELECT * FROM ppal_jobs WHERE user_id = ? AND state = 'active' AND kind = 'station' AND tool = 'passive'", [$uid])->fetchAll() as $j) pj_passive_tick($uid, $j);
     foreach (q("SELECT * FROM ppal_jobs WHERE user_id = ? AND state = 'active' AND ends_at <= ?", [$uid, now()])->fetchAll() as $j) {
@@ -413,6 +414,8 @@ function pj_garden_hires(int $plotId): array
     $out = [];
     try {
         foreach (q("SELECT * FROM ppal_jobs WHERE plot_id = ? AND kind = 'garden' AND state = 'active'", [$plotId])->fetchAll() as $j) {
+            gclock_freeze_pals((int)$j['user_id']);
+            $j = q_one('SELECT * FROM ppal_jobs WHERE id = ?', [$j['id']]) ?: $j;
             $p = pj_pal((int)$j['user_id'], (string)$j['pal_uid']);
             if (!$p) continue;
             $out[] = ['id' => 0, 'pj_job' => (int)$j['id'], 'user_id' => (int)$j['user_id'], 'last_visit' => $j['last_tick'], 'ends_at' => $j['ends_at'],
@@ -1079,6 +1082,7 @@ function pj_collect(array $u, int $jobId): array
 function pj_home_count(array $u): int
 {
     if (is_guest($u) || !pj_open($u) || !ppal_ensure()) return 0;
+    gclock_freeze_pals((int)$u['id']);
     return (int)q_val("SELECT COUNT(*) FROM ppal_jobs WHERE user_id = ? AND kind IN ('trip','delve') AND (state = 'ready' OR (state = 'active' AND ends_at <= ?))", [(int)$u['id'], now()]);
 }
 

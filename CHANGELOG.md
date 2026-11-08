@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.09
+- **Sleep-days is on** (`game_clock_on` now defaults to 1): each gnome has a game clock; energy comes back by sleeping; garden, jars, pots, pal jobs, NPCs and festivals follow game time. The upgrade starts every gnome on today's game day once (`gclock_started`). Set `game_clock_on` to 0 in Admin to turn it off.
+- **Pal jobs run on game time only**: real time no longer moves a pal's trip, delve, garden stay or pot; sleeping and game minutes do (`gclock_freeze_pals`).
+- Tests: `game_clock.sh` checks the freeze. With the flag on, `cook`, `paljobs`, `garden100` and `catfish` fail on their real-time assumptions (pots x4, growth by sleeps); `catfish` also fails with it off.
+
 ## 2.6.08
 - **Image upload no longer dies with "MySQL server has gone away"**: a long upload (a big zip) outlived the MySQL idle timeout, so the next query failed. `q()` now opens one fresh connection and repeats the query when MySQL reports 2006 / 2013 (not inside a transaction).
 

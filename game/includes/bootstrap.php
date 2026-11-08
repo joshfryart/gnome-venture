@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.6.08');
+define('APP_VERSION', '2.6.09');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -503,6 +503,14 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
         boot_step('living_stops_2572', function () {   // 2.5.72: the living-stops acts (thread, meter answers) join existing installs
             require_once __DIR__ . '/stops.php';
             stops_import_regional();
+        });
+        boot_step('sleep_days_start_2609', function () {   // v2.6.09: sleep-days goes live; every gnome starts on today's game day, once
+            if (setting('gclock_started') === '') {
+                require_once __DIR__ . '/game_clock.php';
+                gclock_start_all();
+                set_setting('game_clock_on', '1');
+                set_setting('gclock_started', gmdate('Y-m-d H:i:s'));
+            }
         });
         boot_step('post_update_news', function () {
             require_once __DIR__ . '/update_news.php';

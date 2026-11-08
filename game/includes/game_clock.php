@@ -18,6 +18,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
         ['dry_racks', 'ready_day', 'INT NULL'],     // game_day a drying bundle is ready on; NULL = real ready_at
         ['pantry_jars', 'ready_day', 'INT NULL'],   // game_day a game-clock jar is ready on; NULL = real ready_at
         ['users', 'carry_minutes', 'INT NOT NULL DEFAULT 0'],   // work left at 22:00 that finishes after the next sleep (decisions 43-44)
+        ['users', 'pal_real_at', 'INT NULL'],   // unix time the pal clocks were last held still (real time must not move pal work)
         ['users', 'camp_naps', 'INT NOT NULL DEFAULT 0'],   // naps taken on the gear now in use (2 per gear)
         ['shops', 'open_minute', 'INT NULL'], ['shops', 'close_minute', 'INT NULL'],          // closing hours (decision 41); NULL = default_open/close_minute
         ['locations', 'open_minute', 'INT NULL'], ['locations', 'close_minute', 'INT NULL'],
@@ -437,8 +438,25 @@ function gclock_jar_ready(int $uid): array
 function game_new_day(int $uid): void
 {
     if (!gclock_on()) return;
+    gclock_freeze_pals($uid);
     $h = gclock_setting_int('pal_hours_per_sleep', 8);
     if ($h > 0) gclock_shift_pal_clocks($uid, $h * 3600);
+}
+
+/**
+ * Pal work runs on game time only (Josh, 2026-11-08): real seconds since the last look are pushed back onto every running job and
+ * pal-tended pot, so only sleeps (and nothing else) bring them closer to done. Cheap, safe to call often. First call only stamps the time.
+ */
+function gclock_freeze_pals(int $uid): void
+{
+    if (!gclock_on()) return;
+    $last = q_val('SELECT pal_real_at FROM users WHERE id = ?', [$uid]);
+    $t = time();
+    if ($last === null || $last === false || $last === '') { q('UPDATE users SET pal_real_at = ? WHERE id = ? AND pal_real_at IS NULL', [$t, $uid]); return; }
+    $d = $t - (int)$last;
+    if ($d < 1) return;
+    if (q('UPDATE users SET pal_real_at = ? WHERE id = ? AND pal_real_at = ?', [$t, $uid, (int)$last])->rowCount() !== 1) return;   // another tab got it
+    gclock_shift_pal_clocks($uid, -$d);
 }
 
 /**
@@ -619,7 +637,7 @@ function gclock_settings(): array
 {
     $i = fn(string $label, int $d, int $min = 0, int $max = 100000): array => ['label' => 'Sleep-days: ' . $label, 'type' => 'int', 'default' => (string)$d, 'min' => $min, 'max' => $max];
     $out = [
-        'game_clock_on' => ['label' => 'Sleep-days: ON (each gnome has their own game clock; energy comes back by sleeping; garden, jars, pots, jobs, NPCs and festivals follow it). Do not turn on before the start step is done.', 'type' => 'bool', 'default' => '0'],
+        'game_clock_on' => ['label' => 'Sleep-days: ON (each gnome has their own game clock; energy comes back by sleeping; garden, jars, pots, jobs, NPCs and festivals follow it). Do not turn on before the start step is done.', 'type' => 'bool', 'default' => '1'],
         'nap_minutes' => $i('a nap takes this many game minutes', 120, 10, 480),
         'nap_energy_pct' => $i('a nap gives this % of max energy', 40, 0, 100),
         'tired_surcharge_pct_per_hour' => $i('extra energy cost per game hour past 22:00 (%)', 10, 0, 100),
