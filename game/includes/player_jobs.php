@@ -173,7 +173,7 @@ function take_player_job(array $u, int $id): array
         db()->rollBack();
         return [false, 'Someone got there first.'];
     }
-    $jid = db_insert('user_jobs', ['user_id' => $uid, 'period' => $period, 'period_key' => job_period_key($period), 'template_id' => null,
+    $jid = db_insert('user_jobs', ['user_id' => $uid, 'period' => $period, 'period_key' => job_board_key($period, $uid), 'template_id' => null,
         'kind' => $pj['kind'] === 'tend' ? 'p_tend' : 'p_deliver', 'title' => pjob_title($pj), 'text' => pjob_text($pj), 'npc' => $pj['poster'],
         'target' => '', 'target_item_id' => $pj['item_id'] ?: null, 'target_name' => (string)($pj['item_name'] ?? ''),
         'qty' => (int)$pj['qty'], 'progress' => 0, 'stages' => 1, 'stages_paid' => 0, 'reward_coins' => (int)$pj['wage'], 'reward_xp' => 0,

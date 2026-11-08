@@ -270,5 +270,25 @@ cfg(['game_clock_on' => '0', 'pal_hours_per_sleep' => '']);
 q('DELETE FROM ppal_jobs WHERE user_id = ?', [$uid]); q('DELETE FROM cook_pots WHERE user_id = ?', [$uid]);
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 
+echo "== job board keys\n";
+require_once $argv[1] . '/includes/jobs.php';
+cfg(['game_clock_on' => '0']);
+ok('flag off: board key = real key', job_board_key('daily', $uid) === job_period_key('daily') && job_board_key('monthly', $uid) === job_period_key('monthly'));
+cfg(['game_clock_on' => '1', 'job_month_days' => '']);
+setu($uid, ['game_day' => 15]);
+ok('daily = one per sleep', job_board_key('daily', $uid) === 'g15');
+ok('weekly = 7 sleeps (15 -> week 2)', job_board_key('weekly', $uid) === 'gw2');
+ok('monthly = 28 sleeps (15 -> 0, 28 -> 1)', job_board_key('monthly', $uid) === 'gm0');
+setu($uid, ['game_day' => 28]);
+ok('monthly rolls at 28', job_board_key('monthly', $uid) === 'gm1' && job_board_key('weekly', $uid) === 'gw4');
+ok('shared keys still real', job_period_key('daily') === hollow_date('Y-m-d') && strpos(job_period_key('daily'), 'g') !== 0);
+setu($uid, ['game_day' => 3]);
+$before = job_offers(urow($uid), 'daily');
+setu($uid, ['game_day' => 4]);
+$after = job_offers(urow($uid), 'daily');
+ok('offers are rolled for the game day (different seed per sleep, same day = same offers)', is_array($before) && is_array($after) && job_offers(urow($uid), 'daily') == $after);
+cfg(['game_clock_on' => '0']);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);

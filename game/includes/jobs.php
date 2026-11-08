@@ -26,6 +26,23 @@ function job_period_key(string $period, ?int $at = null): string
     };
 }
 
+/**
+ * Sleep-days: the Job Board's own period key. With game_clock_on the board follows the gnome's sleeps: a day is one game_day, a week 7 sleeps,
+ * a month job_month_days sleeps (default 28). Keys start with 'g' so they never match a real-time key. Everything else that shares
+ * job_period_key (contests, fair, games, catfish) stays on the real clock.
+ */
+function job_board_key(string $period, int $uid): string
+{
+    if (!gclock_on()) return job_period_key($period);
+    $day = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]);
+    $month = max(7, gclock_setting_int('job_month_days', 28));
+    return match ($period) {
+        'daily' => 'g' . $day,
+        'weekly' => 'gw' . intdiv($day, 7),
+        default => 'gm' . intdiv($day, $month),
+    };
+}
+
 /** v1.2.2: [start, next reset] timestamps of the period we are in; boundaries are local (Hollow) midnights. */
 function job_period_span(string $period, ?int $at = null): array
 {
@@ -175,7 +192,7 @@ function job_from_template(array $tpl, array $ctx, JobRng $rng): ?array
 /** Rerolls used this period (0 or 1). */
 function job_rerolled(int $uid, string $period): bool
 {
-    return (bool)q_val('SELECT 1 FROM job_rerolls WHERE user_id = ? AND period = ? AND period_key = ?', [$uid, $period, job_period_key($period)]);
+    return (bool)q_val('SELECT 1 FROM job_rerolls WHERE user_id = ? AND period = ? AND period_key = ?', [$uid, $period, job_board_key($period, $uid)]);
 }
 
 /** The offers for this player and period: 5 / 5 / 3, all different templates. */
@@ -183,7 +200,7 @@ function job_offers(array $u, string $period): array
 {
     $uid = (int)$u['id'];
     $ctx = job_context($u);
-    $rng = new JobRng($uid . '|' . $period . '|' . job_period_key($period) . '|' . (job_rerolled($uid, $period) ? 'r' : ''));
+    $rng = new JobRng($uid . '|' . $period . '|' . job_board_key($period, (int)$u['id']) . '|' . (job_rerolled($uid, $period) ? 'r' : ''));
     $tpls = q('SELECT * FROM job_templates WHERE period = ? AND active = 1 ORDER BY id', [$period])->fetchAll();
     // shuffle with the seeded random
     for ($i = count($tpls) - 1; $i > 0; $i--) {
@@ -204,10 +221,10 @@ function current_job(int $uid, string $period): ?array
 {
     // NPC jobs end at the reset; player jobs run to their own deadline (settled in player_jobs.php)
     q("UPDATE user_jobs SET status = 'expired' WHERE user_id = ? AND period = ? AND status = 'active' AND period_key <> ? AND player_job_id IS NULL",
-        [$uid, $period, job_period_key($period)]);
+        [$uid, $period, job_board_key($period, $uid)]);
     return q_one("SELECT * FROM user_jobs WHERE user_id = ? AND period = ?
                   AND ((period_key = ? AND status IN ('active', 'done')) OR (player_job_id IS NOT NULL AND status = 'active'))
-                  ORDER BY id DESC LIMIT 1", [$uid, $period, job_period_key($period)]) ?: null;
+                  ORDER BY id DESC LIMIT 1", [$uid, $period, job_board_key($period, $uid)]) ?: null;
 }
 
 /**
@@ -227,10 +244,10 @@ function take_job(array $u, string $period, int $templateId, string $target = ''
     // v0.7.85: giving a job up keeps its row, so taking the same job again in the same period resumes it.
     // Progress and the stages already paid are carried over: a stage is never paid twice.
     $prev = q_one("SELECT progress, stages_paid FROM user_jobs WHERE user_id = ? AND template_id = ? AND period_key = ?
-                   AND status = 'abandoned' AND player_job_id IS NULL ORDER BY id DESC LIMIT 1", [$uid, $templateId, job_period_key($period)]);
+                   AND status = 'abandoned' AND player_job_id IS NULL ORDER BY id DESC LIMIT 1", [$uid, $templateId, job_board_key($period, (int)$u['id'])]);
     $progress = $prev ? (int)$prev['progress'] : ($job['kind'] === 'grade' ? -1 : 0);
     $paid = $prev ? (int)$prev['stages_paid'] : 0;
-    [$rewardItemId, $rewardQty] = resolve_job_reward($job['reward_item'], $uid . '|' . job_period_key($period));
+    [$rewardItemId, $rewardQty] = resolve_job_reward($job['reward_item'], $uid . '|' . job_board_key($period, (int)$u['id']));
     // v1.2.2: lock this gnome, re-check the slot, then insert (two logins could both pass the check above)
     db()->beginTransaction();
     q('UPDATE users SET id = id WHERE id = ?', [$uid]);
@@ -238,7 +255,7 @@ function take_job(array $u, string $period, int $templateId, string $target = ''
         db()->rollBack();
         return [false, 'You already have a ' . strtolower(JOB_PERIODS[$period][0]) . ' job ' . job_period_phrase($period) . '.'];
     }
-    db_insert('user_jobs', ['user_id' => $uid, 'period' => $period, 'period_key' => job_period_key($period), 'template_id' => $job['template_id'],
+    db_insert('user_jobs', ['user_id' => $uid, 'period' => $period, 'period_key' => job_board_key($period, (int)$u['id']), 'template_id' => $job['template_id'],
         'kind' => $job['kind'], 'title' => $job['title'], 'text' => $job['text'], 'npc' => $job['npc'],
         'target' => $job['target'], 'target_item_id' => $job['target_item_id'] ?: null, 'target_name' => $job['target_name'],
         'qty' => $job['qty'], 'progress' => $progress, 'stages' => $job['stages'], 'stages_paid' => $paid,
@@ -293,7 +310,7 @@ function reroll_jobs(int $uid, string $period): array
 {
     if ($period === 'monthly' || !isset(JOB_PERIODS[$period])) return [false, 'Monthly offers can’t be re-rolled.'];
     if (job_rerolled($uid, $period)) return [false, 'You’ve already re-rolled the offers ' . job_period_phrase($period) . '.'];
-    db_insert('job_rerolls', ['user_id' => $uid, 'period' => $period, 'period_key' => job_period_key($period)]);
+    db_insert('job_rerolls', ['user_id' => $uid, 'period' => $period, 'period_key' => job_board_key($period, $uid)]);
     return [true, '🎲 New ' . strtolower(JOB_PERIODS[$period][0]) . ' offers are pinned to the board.'];
 }
 
@@ -321,7 +338,7 @@ function job_event(int $uid, string $kind, string $target, int $n, array $ctx = 
     $in = implode(',', array_fill(0, count($kinds), '?'));
     $jobs = q("SELECT * FROM user_jobs WHERE user_id = ? AND status = 'active' AND kind IN ($in)", array_merge([$uid], $kinds))->fetchAll();
     foreach ($jobs as $job) {
-        if ($job['period_key'] !== job_period_key($job['period'])) continue;   // expired; tidied up on the board
+        if ($job['period_key'] !== job_board_key($job['period'], $uid)) continue;   // expired; tidied up on the board
         if ($job['kind'] === 'harvest_crop' && $job['target'] !== $target) continue;
         $add = $job['kind'] === 'harvest' ? 1 : $n;   // "harvest N crops" counts plants, not produce
         $progress = $job['kind'] === 'grade' ? max((int)$job['progress'], $n) : min((int)$job['qty'], (int)$job['progress'] + $add);
