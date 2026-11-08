@@ -485,3 +485,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 36 (Josh, 2026-11-08)
 36. **Mastery material floor 50% of base.** Per-recipe tiers cut materials: T1 -10%, T2 -25%, T3 -50%, each ingredient min 1. Admin setting `mastery_material_cuts` default `10,25,50`. Open (rest of Q6): which products get a buff, stack rule with `calling_perk` boons, category-mastery thresholds.
+
+### Decision 37 (Josh, 2026-11-08)
+37. **Category-mastery buff bonus applies to food and potions only.** Other categories get yield/energy gains only. Open (rest of Q6): stack rule with `calling_perk` boons, category-mastery thresholds.
