@@ -489,7 +489,7 @@ function eat_item(array $u, int $itemId): array
             $msgs[] = '⚡ +' . $n . ' energy.';
         }
     }
-    if (gclock_on() && ($heal = gclock_crop_heal($item)) > 0) {   // sleep-days: a crop heals a little
+    if (gclock_on() && ($heal = gclock_food_heal($item)) > 0) {   // sleep-days: all food heals a little
         require_once __DIR__ . '/health.php';
         $got = hp_heal_points($u, $heal);
         if ($got > 0) $msgs[] = '❤️ +' . $got . ' health.';

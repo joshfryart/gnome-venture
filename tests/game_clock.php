@@ -356,7 +356,26 @@ if ($crop) {
     eat_item(urow($uid), (int)$crop['id']);
     ok('flag off: eating a crop does not heal', hp_get(urow($uid))[0] === $before);
 } else { echo "  skip crops (no edible crop in test world)\n"; }
-ok('a non-produce item heals nothing', gclock_crop_heal(['category' => 'food', 'id' => 1]) === 0);
+ok('a non-produce item has no crop heal', gclock_crop_heal(['category' => 'food', 'id' => 1]) === 0);
+$dish = q_one("SELECT i.* FROM items i JOIN recipes r ON r.output_item_id = i.id WHERE r.category = 'cooking' AND r.tier = 'meal' AND i.edible = 1 AND i.slug NOT LIKE 'bought-%' LIMIT 1");
+if ($dish) ok('a home-cooked meal heals 3 by default', gclock_food_heal($dish) === 3);
+$snack = q_one("SELECT i.* FROM items i JOIN recipes r ON r.output_item_id = i.id WHERE r.category = 'cooking' AND r.tier = 'snack' AND i.edible = 1 AND i.slug NOT LIKE 'bought-%' LIMIT 1");
+if ($snack) ok('a home-cooked snack heals 2', gclock_food_heal($snack) === 2);
+cfg(['hp_dish_heal' => '5,6,7']);
+if ($dish) ok('hp_dish_heal is read', gclock_food_heal($dish) === 6);
+cfg(['hp_dish_heal' => '']);
+ok('bought food heals 1', gclock_food_heal(['category' => 'food', 'id' => 999999, 'edible' => 1, 'slug' => 'bought-pie']) === 1);
+ok('a potion (supply) heals nothing here', gclock_food_heal(['category' => 'supply', 'edible' => 1, 'id' => 1, 'slug' => 'x']) === 0);
+ok('a rare find heals more than a common one', gclock_food_heal(['category' => 'forage', 'rarity' => 90]) > gclock_food_heal(['category' => 'forage', 'rarity' => 5]));
+if ($dish) {
+    cfg(['game_clock_on' => '1']);
+    setu($uid, ['hp' => max(1, intdiv($max, 2))]);
+    $before = hp_get(urow($uid))[0];
+    give_item($uid, (int)$dish['id'], 1);
+    eat_item(urow($uid), (int)$dish['id']);
+    ok('eating the dish heals it', hp_get(urow($uid))[0] === min($max, $before + 3));
+    cfg(['game_clock_on' => '0']);
+}
 cfg(['game_clock_on' => '0', 'hp_crop_heal' => '']);
 setu($uid, ['hp' => null, 'hp_at' => null, 'game_day' => 0, 'game_minute' => 360, 'location_id' => $origLoc]);
 

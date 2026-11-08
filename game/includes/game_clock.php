@@ -632,6 +632,7 @@ function gclock_settings(): array
         'default_open_minute' => $i('shops and stops open at this minute of the day (360 = 06:00)', 360, 0, 1439),
         'default_close_minute' => $i('shops and stops close at this minute of the day (1320 = 22:00)', 1320, 1, 1440),
         'hp_crop_heal' => ['label' => 'Sleep-days: health from eating a crop: everyday, uncommon or flower, treasure, legendary (four numbers, comma separated)', 'type' => 'text', 'default' => '1,2,3,4'],
+        'hp_dish_heal' => ['label' => 'Sleep-days: health from a home-cooked snack, meal, feast (three numbers; bought food gives 1)', 'type' => 'text', 'default' => '2,3,4'],
         'grow_days_by_tier' => ['label' => 'Sleep-days: sleeps a crop needs for growth tiers 1-6 (six numbers, comma separated)', 'type' => 'text', 'default' => '1,2,3,5,7,10'],
     ];
     foreach (GCLOCK_TIME_DEFAULTS as $k => $m) $out['time_' . $k] = $i('game minutes an action costs: ' . $k . ' (0 = free)', $m, 0, 1440);
@@ -677,4 +678,21 @@ function gclock_crop_heal(array $item): int
 function gclock_maint_now(int $plotId): string
 {
     return gclock_on() ? gmdate('Y-m-d H:i:s', gclock_plot_vnow($plotId)) : now();
+}
+
+/** Health any food gives when eaten (Josh, decision 58): crops 1-4, finds by rarity, home-cooked snack/meal/feast (hp_dish_heal 2,3,4), bought food 1. */
+function gclock_food_heal(array $item): int
+{
+    $cat = (string)($item['category'] ?? '');
+    if ($cat === 'produce') return gclock_crop_heal($item);
+    $v = array_map('intval', array_pad(array_map('trim', explode(',', setting('hp_crop_heal') !== '' ? setting('hp_crop_heal') : '1,2,3,4')), 4, '1'));
+    if ($cat === 'forage') {
+        $r = (int)($item['rarity'] ?? 0);
+        return max(0, $v[$r >= 80 ? 3 : ($r >= 45 ? 2 : ($r >= 20 ? 1 : 0))]);
+    }
+    if ($cat === 'supply' || empty($item['edible'])) return 0;   // potions heal by their own rule
+    $tier = (string)home_dish_tier((int)$item['id']);
+    if ($tier === '' || strncmp((string)$item['slug'], 'bought-', 7) === 0) return 1;
+    $d = array_map('intval', array_pad(array_map('trim', explode(',', setting('hp_dish_heal') !== '' ? setting('hp_dish_heal') : '2,3,4')), 3, '3'));
+    return max(0, $d[['snack' => 0, 'meal' => 1, 'feast' => 2][$tier] ?? 1]);
 }
