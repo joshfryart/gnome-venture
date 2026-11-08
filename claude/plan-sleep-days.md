@@ -470,3 +470,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 31 (Josh, 2026-11-08)
 31. **Camping gear: shop price 100 Petals, craft cost about 60 Petals of materials (60% of shop).** One use. Admin setting `camping_gear_price`, default 100. Still open: exact recipe materials (pick from existing items, check data before writing).
+
+### Decision 32 (Josh, 2026-11-08)
+32. **Camping gear on the road gives a choice: nap (partial) or full sleep.** With gear in use, the player may also **start one cook pot that is ready when they wake** (one pot per camp). Replaces the "rest stop only" draft for road naps; closes open Q4. Open: does a nap use up the gear or only a full sleep? Which recipes can be cooked at camp?
