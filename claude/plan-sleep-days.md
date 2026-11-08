@@ -500,3 +500,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 41 (Josh, 2026-11-08)
 41. **Closing hours live per place in data** (shops, stops, inns): `open_minute` and `close_minute` fields. Blank = default 06:00-22:00 (360-1320). Inns are open all night. Admin settings `default_open_minute` 360, `default_close_minute` 1320. Closes Q8.
+
+### Decision 42 (Josh, 2026-11-08)
+42. **Nap: 2 game hours, restores 40% energy.** Admin settings `nap_minutes` 120, `nap_energy_pct` 40. Tired surcharge in the section 11 draft (+50% flat) is replaced by decision 34 (+10%/hour past 22:00). Open: rest of Q9, row by row.
