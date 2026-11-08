@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.24
+- **Shops in the World popover**: the World button on the Here page now offers 🏪 Shops (the Shops tab) beside Open the World page and Villagers.
+
 ## 2.6.23
 - **Shops tab is shorter on phones**: compact shop cards (name, a one or two line description, one line for who is at the counter, a walk link if you are elsewhere), one column on phones, and the Mossbottom hub shops fold away until opened.
 
