@@ -15,6 +15,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
     return [[], [], [
         ['users', 'game_day', 'INT NOT NULL DEFAULT 0'], ['users', 'game_minute', 'INT NOT NULL DEFAULT ' . GAME_WAKE_MINUTE],
         ['cook_pots', 'ready_tick', 'INT NULL'],   // game tick (day*1440+minute) a game-clock pot is ready at; NULL = real ready_at
+        ['dry_racks', 'ready_day', 'INT NULL'],     // game_day a drying bundle is ready on; NULL = real ready_at
         ['pantry_jars', 'ready_day', 'INT NULL'],   // game_day a game-clock jar is ready on; NULL = real ready_at
         ['users', 'carry_minutes', 'INT NOT NULL DEFAULT 0'],   // work left at 22:00 that finishes after the next sleep (decisions 43-44)
         ['users', 'camp_naps', 'INT NOT NULL DEFAULT 0'],   // naps taken on the gear now in use (2 per gear)
@@ -554,4 +555,27 @@ function gclock_my_weather(?string $region = null): string
 {
     if (!gclock_me()) return hollow_weather($region);
     return hollow_weather_forced() ?: hollow_weather($region, gclock_my_date());
+}
+
+/** The little clock pill for the status strip: game time, day number, tired mark. Links to the Rest page. */
+function gclock_pill(array $u): string
+{
+    $s = gclock_state($u);
+    $t = sprintf('%02d:%02d', intdiv($s['minute'], 60) % 24, $s['minute'] % 60);
+    $carry = max(0, (int)($u['carry_minutes'] ?? 0));
+    $title = 'Day ' . $s['day'] . ', ' . $t . ($s['tired'] ? ' (tired: +' . game_surcharge_pct($u) . '% energy)' : '') . ($carry > 0 ? '; ' . round($carry / 60, 1) . ' h of work waits for tomorrow' : '') . '. Open the Rest page to nap or sleep.';
+    return '<span class="st gclk' . ($s['tired'] ? ' tired' : '') . '" title="' . e($title) . '"><a href="' . e(url('hovel.php')) . '">🕐 <b>' . $t . '</b> <small>day ' . $s['day'] . '</small>' . ($s['tired'] ? ' 😴' : '') . '</a></span>';
+}
+
+// Drying racks: like pantry jars, ready after N sleeps (the real dry_hours read as days, minimum 1).
+function gclock_rack_days(): int
+{
+    return max(1, (int)ceil(max(1, (int)setting('dry_hours')) / 24));
+}
+
+/** SQL + params for "this bundle is ready" (columns of dry_racks, no alias). */
+function gclock_rack_ready(int $uid): array
+{
+    $day = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]);
+    return ['((ready_day IS NOT NULL AND ready_day <= ?) OR (ready_day IS NULL AND ready_at <= ?))', [$day, now()]];
 }

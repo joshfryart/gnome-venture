@@ -232,6 +232,38 @@ ok('flag off: hollow_now() is the real clock', $n['date'] === hollow_today());
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 $GLOBALS['CURRENT_USER'] = null;
 
+echo "== status clock pill and tired hint\n";
+$pu = ['game_day' => 7, 'game_minute' => 13 * 60 + 5, 'carry_minutes' => 0];
+$pill = gclock_pill($pu);
+ok('pill shows 13:05 and day 7, not tired', str_contains($pill, '13:05') && str_contains($pill, 'day 7') && !str_contains($pill, 'tired'));
+$pill = gclock_pill(['game_day' => 7, 'game_minute' => 23 * 60, 'carry_minutes' => 120]);
+ok('pill after 22:00 is marked tired and mentions carried work', str_contains($pill, 'tired') && str_contains($pill, '2 h of work'));
+cfg(['game_clock_on' => '1']);
+ok('flag on: tired hint points to rest', str_contains(tired_hint(urow($uid)), 'Rest page'));
+cfg(['game_clock_on' => '0']);
+ok('flag off: tired hint keeps old text', str_contains(tired_hint(urow($uid)), 'Eat something') && !str_contains(tired_hint(urow($uid)), 'Rest page'));
+
+echo "== drying racks on game-days\n";
+require_once $argv[1] . '/includes/flowers.php';
+$flo = q_one("SELECT id FROM items WHERE category = 'flower' LIMIT 1");
+if ($flo) {
+    q('DELETE FROM dry_racks WHERE user_id = ?', [$uid]);
+    setu($uid, ['game_day' => 10, 'game_minute' => 600]);
+    cfg(['game_clock_on' => '1', 'dry_hours' => '8']);
+    ok('rack days = ceil(dry_hours/24), min 1', gclock_rack_days() === 1);
+    cfg(['dry_hours' => '30']);
+    ok('30 dry hours = 2 sleeps', gclock_rack_days() === 2);
+    q('INSERT INTO dry_racks (user_id, item_id, qty, started_at, ready_at, ready_day) VALUES (?, ?, 1, ?, ?, ?)', [$uid, $flo['id'], now(), gmdate('Y-m-d H:i:s', time() + 99999), 11]);
+    ok('game-day rack not ready on day 10 (ignores real ready_at)', dry_ready_count($uid) === 0 && dry_list($uid)[0]['left'] === 86400);
+    setu($uid, ['game_day' => 11]);
+    ok('ready on day 11 although the real timer is far away', dry_ready_count($uid) === 1 && dry_list($uid)[0]['left'] === 0);
+    q('UPDATE dry_racks SET ready_day = NULL, ready_at = ? WHERE user_id = ?', [gmdate('Y-m-d H:i:s', time() + 99999), $uid]);
+    ok('old rack without ready_day keeps real time', dry_ready_count($uid) === 0);
+    q('DELETE FROM dry_racks WHERE user_id = ?', [$uid]);
+    cfg(['game_clock_on' => '0', 'dry_hours' => '']);
+    setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+} else { echo "  skip racks (no flower item)\n"; }
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);

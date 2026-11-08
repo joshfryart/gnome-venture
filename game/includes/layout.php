@@ -337,6 +337,7 @@ function tired_hint(array|int $u): string
 {
     if (is_int($u)) $u = q_one('SELECT * FROM users WHERE id = ?', [$u]) ?: [];
     if (!$u) return '';
+    if (gclock_on()) return ' Sleep or nap (the Rest page) to get energy back, or eat something from your satchel.';   // sleep-days: no regeneration
     $n = energy_next_text($u);
     return ($n !== '' ? ' ' . $n : '') . ' Eat something from your satchel for energy now.';
 }
@@ -369,11 +370,12 @@ function status_strip(array $u): string
     $statHot = $sp > 0 ? '<span class="st hot"><a href="' . e(url('gnome.php?tab=stats')) . '">✨ ' . $sp . ' stat point' . ($sp === 1 ? '' : 's') . ' to spend</a></span>' : '';
     $titleP = $u['title'] ? '<span class="st title">“' . e($u['title']) . '”</span>' : '';
     $hn = hollow_now(hollow_user_region($u));
+    $clk = gclock_on() ? gclock_pill($u) : '';   // sleep-days: the gnome's own time of day
     require_once __DIR__ . '/festival.php';
     $fest = festival_active();
     $h = '<div class="statusstrip"><div class="statusin">'
         . '<span class="st energy" title="Energy' . ($enl !== '' ? ': ' . e($enl) : '') . '">⚡ <progress class="ebar" aria-label="Energy" max="' . $max . '" value="' . $energy . '"></progress> <b>' . $energy . '</b>/' . $max . ($enl !== '' ? ' <small>' . e(energy_next_text($u)) . '</small>' : '') . '</span>'
-        . $hpPill . $lvlPill . $rest . $statHot . $titleP
+        . $clk . $hpPill . $lvlPill . $rest . $statHot . $titleP
         . '</div>'
         // v1.6.3: phone line, no fold (Joshua: less info): level + small XP bar · season day + weather · festival icon · ready/stat badges
         . '<div class="stfold"><div class="stsum">'

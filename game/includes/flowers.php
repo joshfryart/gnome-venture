@@ -441,15 +441,19 @@ function dry_busy(int $uid): int
 
 function dry_ready_count(int $uid): int
 {
-    return (int)q_val('SELECT COUNT(*) FROM dry_racks WHERE user_id = ? AND collected_at IS NULL AND ready_at <= ?', [$uid, now()]);
+    [$rs, $rp] = gclock_rack_ready($uid);
+    return (int)q_val('SELECT COUNT(*) FROM dry_racks WHERE user_id = ? AND collected_at IS NULL AND ' . $rs, array_merge([$uid], $rp));
 }
 
 /** Bundles on the rack, soonest first, with seconds left. */
 function dry_list(int $uid): array
 {
-    $rows = q('SELECT d.id, d.qty, d.ready_at, i.id AS item_id, i.name, i.slug, i.category, i.effects FROM dry_racks d JOIN items i ON i.id = d.item_id
+    $rows = q('SELECT d.id, d.qty, d.ready_at, d.ready_day, i.id AS item_id, i.name, i.slug, i.category, i.effects FROM dry_racks d JOIN items i ON i.id = d.item_id
                WHERE d.user_id = ? AND d.collected_at IS NULL ORDER BY d.ready_at, d.id', [$uid])->fetchAll();
-    foreach ($rows as &$r) $r['left'] = max(0, (int)strtotime($r['ready_at'] . ' UTC') - time());
+    $gd = gclock_on() ? (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]) : 0;
+    foreach ($rows as &$r) $r['left'] = $r['ready_day'] !== null && $r['ready_day'] !== ''
+        ? max(0, (int)$r['ready_day'] - $gd) * 86400   // game days left, shown as days
+        : max(0, (int)strtotime($r['ready_at'] . ' UTC') - time());
     return $rows;
 }
 
@@ -469,9 +473,14 @@ function dry_start(array $u, int $itemId, int $qty): array
         db()->rollBack();
         return [false, 'You don’t have ' . $qty . ' × ' . $it['name'] . '.'];
     }
-    db_insert('dry_racks', ['user_id' => $uid, 'item_id' => $itemId, 'qty' => $qty, 'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', time() + $secs)]);
+    $row = ['user_id' => $uid, 'item_id' => $itemId, 'qty' => $qty, 'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', time() + $secs)];
+    if (gclock_on()) {   // sleep-days: dries over sleeps
+        $row['ready_day'] = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]) + gclock_rack_days();
+        $secs = gclock_rack_days() * 86400;
+    }
+    db_insert('dry_racks', $row);
     db()->commit();
-    return [true, '🪢 You hang ' . $qty . ' × ' . $it['name'] . ' to dry. Ready in ' . nice_time($secs) . '; come back and collect them.'];
+    return [true, '🪢 You hang ' . $qty . ' × ' . $it['name'] . ' to dry. Ready in ' . (gclock_on() ? gclock_rack_days() . ' sleep' . (gclock_rack_days() === 1 ? '' : 's') : nice_time($secs)) . '; come back and collect them.'];
 }
 
 /** Collect one dry bundle. */
@@ -480,7 +489,7 @@ function dry_collect(array $u, int $rackId): array
     $uid = (int)$u['id'];
     $d = q_one('SELECT * FROM dry_racks WHERE id = ? AND user_id = ? AND collected_at IS NULL', [$rackId, $uid]);
     if (!$d) return [false, 'That bundle has already been taken down.'];
-    if ($d['ready_at'] > now()) return [false, 'Those flowers aren’t dry yet.'];
+    if ($d['ready_day'] !== null && $d['ready_day'] !== '' ? (int)$d['ready_day'] > (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]) : $d['ready_at'] > now()) return [false, 'Those flowers aren’t dry yet.'];
     $cut = q_one('SELECT * FROM items WHERE id = ?', [$d['item_id']]);
     if (!$cut) return [false, 'That flower is gone.'];
     db()->beginTransaction();
@@ -622,7 +631,7 @@ function florist_start(array $u, array $shop): array
         db()->rollBack();
         return [false, 'You’re too tired to volunteer. A shift costs ⚡' . $energy . '.'];
     }
-    db_insert('florist_shifts', ['user_id' => $uid, 'shop_id' => (int)$shop['id'], 'npc_id' => (int)$who['id'], 'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', time() + $secs)]);
+    db_insert('florist_shifts', ['user_id' => $uid, 'shop_id' => (int)$shop['id'], 'npc_id' => (int)$who['id'], 'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', gclock_on() ? time() : time() + $secs)]);   // sleep-days: the game time was already charged (and may carry to tomorrow)
     flower_daily_add($uid, 'shift');
     db()->commit();
     return [true, '🌷 You tie on an apron and start a ' . nice_time($secs) . ' shift with ' . $who['name'] . ($energy ? ' (−' . $energy . ' ⚡)' : '') . '. Collect your thanks when it’s done.'];

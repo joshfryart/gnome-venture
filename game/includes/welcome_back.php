@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require_once __DIR__ . '/crafting.php';   // cook_ready_count
 require_once __DIR__ . '/pantry.php';   // pantry_ready_count
+require_once __DIR__ . '/flowers.php';   // dry_ready_count
 
 /**
  * v1.0.0 wave 3: coming back.
@@ -39,7 +40,7 @@ function welcome_back_summary(array $u): array
     $now = now();
     $potsReady = cook_ready_count($uid);
     $jarsReady = pantry_ready_count($uid);
-    $racksReady = (int)q_val('SELECT COUNT(*) FROM dry_racks WHERE user_id = ? AND collected_at IS NULL AND ready_at <= ?', [$uid, $now]);
+    $racksReady = dry_ready_count($uid);
     $notices = q('SELECT text, created_at FROM notices WHERE user_id = ? AND created_at > ? ORDER BY id DESC LIMIT 8', [$uid, $since])->fetchAll();
     $noticeN = (int)q_val('SELECT COUNT(*) FROM notices WHERE user_id = ? AND created_at > ?', [$uid, $since]);
     $goal = null;
