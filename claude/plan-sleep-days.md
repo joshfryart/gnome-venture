@@ -482,3 +482,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 35 (Josh, 2026-11-08)
 35. **Per-recipe mastery tiers at 10 / 50 / 200 crafts.** Admin setting `mastery_tiers` default `10,50,200`. Open (rest of Q6): materials floor per tier, which products get a buff, stack rule with `calling_perk` boons, category-mastery thresholds.
+
+### Decision 36 (Josh, 2026-11-08)
+36. **Mastery material floor 50% of base.** Per-recipe tiers cut materials: T1 -10%, T2 -25%, T3 -50%, each ingredient min 1. Admin setting `mastery_material_cuts` default `10,25,50`. Open (rest of Q6): which products get a buff, stack rule with `calling_perk` boons, category-mastery thresholds.
