@@ -480,6 +480,7 @@ function gclock_charge(int $uid, string $key, int $units = 1): void
     if (!gclock_on()) return;
     $m = gclock_time_cost($key) * max(1, $units);
     if ($m <= 0) return;
+    gclock_ledger_snap($uid);
     if (in_array($key, GCLOCK_SPLIT_KEYS, true)) { gclock_charge_split($uid, $m); return; }
     game_spend($uid, $m);
 }
@@ -711,4 +712,47 @@ function gclock_sleeps_text(int $minutes): string
     if ($minutes < 1440) return $minutes . ' game min';
     $n = (int)ceil($minutes / 1440);
     return $n . ' sleep' . ($n === 1 ? '' : 's');
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The cost ledger: every energy point and game minute spent during a request is added up and shown to the player once, as
+// "⚡ −3 · 🕐 +15 min (now 14:35)". Nothing is hidden: if it cost something, the page says so.
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** Remember a gnome's energy and clock before this request first changes them. The summary is the difference at the end, so an action that rolls back shows nothing. */
+function gclock_ledger_snap(int $uid): void
+{
+    if (!gclock_on() || isset($GLOBALS['gclock_ledger'][$uid])) return;
+    $r = q_one('SELECT energy, game_day, game_minute, carry_minutes FROM users WHERE id = ?', [$uid]);
+    if ($r) $GLOBALS['gclock_ledger'][$uid] = ['energy' => (int)$r['energy'], 'day' => (int)$r['game_day'], 'tick' => (int)$r['game_day'] * 1440 + (int)$r['game_minute'], 'carry' => (int)$r['carry_minutes']];
+}
+
+/** The one-line summary text for a tally, or '' when nothing was spent. $nowMinute = the clock afterwards. */
+function gclock_cost_line(int $energy, int $minutes, ?int $nowMinute = null, int $carry = 0): string
+{
+    $bits = [];
+    if ($energy > 0) $bits[] = '⚡ −' . $energy . ' energy';
+    if ($minutes > 0) {
+        $h = intdiv($minutes, 60);
+        $span = $h > 0 ? $h . ' h' . ($minutes % 60 ? ' ' . ($minutes % 60) . ' min' : '') : $minutes . ' min';
+        $bits[] = '🕐 +' . $span . ($nowMinute !== null ? ' (now ' . sprintf('%02d:%02d', intdiv($nowMinute, 60) % 24, $nowMinute % 60) . ')' : '');
+    }
+    if ($carry > 0) $bits[] = round($carry / 60, 1) . ' h of it waits for tomorrow';
+    return $bits ? implode(' · ', $bits) : '';
+}
+
+/** Turn what changed during this request into a message for the logged-in gnome and clear it. Safe to call any number of times. */
+function gclock_ledger_flush(): void
+{
+    if (empty($GLOBALS['gclock_ledger']) || !function_exists('current_user')) return;
+    $L = $GLOBALS['gclock_ledger'];
+    $GLOBALS['gclock_ledger'] = [];
+    if (!gclock_on() || !($cu = current_user()) || empty($L[(int)$cu['id']])) return;
+    $s = $L[(int)$cu['id']];
+    $row = q_one('SELECT energy, game_day, game_minute, carry_minutes FROM users WHERE id = ?', [(int)$cu['id']]);
+    if (!$row) return;
+    $minutes = ((int)$row['game_day'] * 1440 + (int)$row['game_minute']) - $s['tick'];
+    $carry = max(0, (int)$row['carry_minutes'] - $s['carry']);
+    $line = gclock_cost_line(max(0, $s['energy'] - (int)$row['energy']), max(0, $minutes) + $carry, (int)$row['game_minute'], $carry);
+    if ($line !== '' && (int)$row['game_day'] === $s['day']) flash($line, 'ok');   // a sleep (day change) has its own message
 }

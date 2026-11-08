@@ -449,6 +449,43 @@ ok('flag off: plot now is the real time', abs(gclock_plot_now($pid2) - time()) <
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 gclock_plot_clock(0, true);
 
+echo "== cost lines: the player is told what an action cost\n";
+ok('line: energy only', gclock_cost_line(3, 0) === '⚡ −3 energy');
+ok('line: minutes with the clock', gclock_cost_line(0, 15, 14 * 60 + 35) === '🕐 +15 min (now 14:35)');
+ok('line: hours and minutes', gclock_cost_line(2, 135, 600) === '⚡ −2 energy · 🕐 +2 h 15 min (now 10:00)');
+ok('line: carried work is named', str_contains(gclock_cost_line(1, 480, 1320, 360), '6 h of it waits for tomorrow'));
+ok('line: nothing spent = nothing shown', gclock_cost_line(0, 0, 600) === '');
+$GLOBALS['CURRENT_USER'] = urow($uid);
+$_SESSION = [];
+cfg(['game_clock_on' => '1']);
+setu($uid, ['game_day' => 5, 'game_minute' => 600, 'energy' => 20, 'carry_minutes' => 0]);
+$GLOBALS['gclock_ledger'] = [];
+spend_energy($uid, 3, 'wander');
+gclock_ledger_flush();
+$fl = $_SESSION['flash'] ?? [];
+ok('spend_energy + time -> one flash with both', count($fl) === 1 && str_contains($fl[0]['msg'], '⚡ −3 energy') && str_contains($fl[0]['msg'], '🕐 +20 min (now 10:20)'), json_encode($fl));
+$_SESSION = [];
+$GLOBALS['gclock_ledger'] = [];
+gclock_ledger_snap($uid);
+q('UPDATE users SET energy = energy - 4, game_minute = game_minute + 30 WHERE id = ?', [$uid]);
+q('UPDATE users SET energy = energy + 4, game_minute = game_minute - 30 WHERE id = ?', [$uid]);   // rolled back
+gclock_ledger_flush();
+ok('an action that undid itself shows no cost', empty($_SESSION['flash']));
+$_SESSION = [];
+$GLOBALS['gclock_ledger'] = [];
+spend_energy($uid, 2, 'shift');
+gclock_ledger_flush();
+ok('a shift started late says the rest waits for tomorrow', str_contains(($_SESSION['flash'][0]['msg'] ?? ''), 'waits for tomorrow') || (int)urow($uid)['carry_minutes'] === 0);
+cfg(['game_clock_on' => '0']);
+$_SESSION = [];
+$GLOBALS['gclock_ledger'] = [];
+spend_energy($uid, 1, 'wander');
+gclock_ledger_flush();
+ok('flag off: no cost line', empty($_SESSION['flash']));
+setu($uid, ['game_day' => 0, 'game_minute' => 360, 'carry_minutes' => 0, 'energy' => 30]);
+$GLOBALS['CURRENT_USER'] = null;
+$_SESSION = [];
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);

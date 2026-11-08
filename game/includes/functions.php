@@ -68,6 +68,7 @@ function url(string $path = ''): string
 
 function redirect(string $path): void
 {
+    gclock_ledger_flush();
     header('Location: ' . url($path));
     exit;
 }
@@ -133,6 +134,7 @@ function take_prizes(): array
 
 function take_flashes(): array
 {
+    gclock_ledger_flush();   // sleep-days: what this page's actions cost in energy and game time
     $f = $_SESSION['flash'] ?? [];
     unset($_SESSION['flash']);
     return $f;

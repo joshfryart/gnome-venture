@@ -337,6 +337,7 @@ function spend_energy(int $uid, int $n, ?string $timeKey = null, int $units = 1)
         if ($timeKey !== null) gclock_charge($uid, $timeKey, $units);
         return true;
     }
+    gclock_ledger_snap($uid);
     $ok = q('UPDATE users SET energy = energy - ? WHERE id = ? AND energy >= ?', [$n, $uid, $n])->rowCount() === 1;
     if ($ok && $timeKey !== null) gclock_charge($uid, $timeKey, $units);
     return $ok;
