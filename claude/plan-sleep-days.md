@@ -461,3 +461,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 28 (Josh, 2026-11-08)
 28. **Inn chores are a plain timer for the first build:** pay 240 game minutes, then sleep. No scene, no reward. A scripted or choice-based version is later content.
+
+### Decision 29 (Josh, 2026-11-08)
+29. **Bench sleep restores 30% energy, no bad-event chance.** Free. Admin setting `bench_sleep_energy_pct`, default 30. Closes open Q1 from decision 23 (bad-event part dropped).
