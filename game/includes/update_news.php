@@ -690,6 +690,14 @@ function post_update_news(string $from): void
         . "[*][b]Every village has its own description[/b] on the World page, and more rest-stop villagers have things to say.\n"
         . "[*][b]Havens[/b] no longer promise goods they do not sell: see what is on the shelf each day.\n"
         . "[*][b]Delves and lairs[/b] now keep a record of every run.[/list]"],
+    '2.6.09' => ['🌙 Update 2.6.09: days now pass when you sleep',
+        "Your gnome now has their own clock, and a day only passes when you sleep.\n\n"
+        . "[list][*][b]Energy[/b] no longer trickles back by the minute. Sleep to fill it up, in your hovel, at an inn, on a bench, at a friend's house, or on the road with camping gear. A nap gives a bit back.\n"
+        . "[*][b]Time is a second budget.[/b] Day runs from 06:00 to 22:00. Longer jobs take game time (travel, shifts, repairs, crafting, rest-stop activities). After 22:00 you get tired and actions cost more energy, but you are never locked out.\n"
+        . "[*][b]Plants, jars, pots and pals[/b] follow your game days. Crops grow when you sleep (water them that day, or let it rain). Pal jobs no longer run while you are away.\n"
+        . "[*][b]Shops and stops[/b] have opening hours, and some villagers are away on some days.\n"
+        . "[*][b]Food heals you[/b]: crops, finds and home-cooked dishes give back health.[/list]\n\n"
+        . "Everyone starts on today's day. Contests, shared goals, visits and the Petal caps stay on the real clock."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
