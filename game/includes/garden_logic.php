@@ -163,6 +163,10 @@ function bed_tick(array $t, array $owner = []): array   // v0.9.1: takes the gar
         $t['maint_at'] = $gOn ? gmdate('Y-m-d H:i:s', $nowT) : now();
         return $t;
     }
+    if ($gOn && $last > $nowT) {   // a real-time stamp from before the flag was turned on: restart the upkeep clock on game time, nothing is lost or owed
+        $t['maint_at'] = gmdate('Y-m-d H:i:s', $nowT);
+        return $t;
+    }
     $hours = min(24 * 90, intdiv($nowT - $last, 3600));   // catch up at most 90 days
     if ($hours < 1) return $t;
     $weedSlow = max(1, calling_perk($owner, 'weed_slow', 1));   // v0.9.1: Thornblade tiers: weeds grow 1/N as fast
@@ -230,6 +234,7 @@ function feed_tick(array $t): array
     if ($left <= 0) return $t;
     $nowT = gclock_on() && !empty($t['plot_id']) ? gclock_plot_vnow((int)$t['plot_id']) : time();   // sleep-days: the owner's game minutes
     $from = ts($t['feed_at']) ?: $nowT;
+    if ($from > $nowT) { $t['feed_at'] = gmdate('Y-m-d H:i:s', $nowT); return $t; }   // stamp from before the flag: restart on game time
     $h = min($left, intdiv($nowT - $from, 60));
     if ($h < 1) return $t;
     if ($h >= $left) {
@@ -277,7 +282,8 @@ function amendment_minutes(array $item): int
 function mulch_text(int $hours): string
 {
     if ($hours <= 0) return 'none — bare soil!';
-    return $hours >= 48 ? (int)floor($hours / 24) . ' days left' : $hours . ' hours left';
+    $g = gclock_on() ? 'game ' : '';   // sleep-days: the cover wears down on game time (24 game hours = one day)
+    return $hours >= 48 ? (int)floor($hours / 24) . ' ' . $g . 'days left' : $hours . ' ' . $g . 'hours left';
 }
 
 /** Almanac pages & milestones for reaching soil grades C, B, A and S for the first time. */
