@@ -11,7 +11,7 @@ if (!gclock_on()) { flash('The hovel is still being built.', 'err'); redirect('g
 if (is_post()) {
     csrf_check();
     $do = (string)($_POST['do'] ?? '');
-    [$ok, $msg] = gclock_rest($uid, (string)($_POST['do'] ?? ''));
+    [$ok, $msg] = gclock_rest($uid, (string)($_POST['do'] ?? ''), (int)($_POST['camp_recipe'] ?? 0));
     gclock_plot_day(0, true);
     flash($msg, $ok ? 'ok' : 'err');
     redirect('hovel.php');
@@ -30,6 +30,9 @@ page_header('Hovel');
   <?php if ($s['tired']): ?><p class="help">After 22:00 everything costs more energy (+<?= game_surcharge_pct($u) ?>% right now). Sleep to start fresh at 06:00.</p><?php endif; ?>
   <form method="post">
     <?= csrf_field() ?>
+    <?php if (in_array('camp_sleep', array_column($opts, 'key'), true)): require_once __DIR__ . '/includes/crafting.php'; $meals = array_filter(craft_recipes($uid, 'cooking'), fn($r) => $r['known'] && $r['can']); ?>
+    <p><label>Camp meal (one pot, ready when you wake): <select name="camp_recipe"><option value="0">none</option><?php foreach ($meals as $m): ?><option value="<?= (int)$m['id'] ?>"><?= e($m['name']) ?></option><?php endforeach; ?></select></label></p>
+    <?php endif; ?>
     <?php foreach ($opts as $o): ?>
     <p><button class="btn<?= $o['kind'] === 'nap' ? ' ghost' : '' ?>" name="do" value="<?= e($o['key']) ?>" type="submit"<?= $o['ok'] ? '' : ' disabled' ?>><?= e($o['label']) ?></button>
       <small class="muted"><?= e($o['cost']) ?><?= $o['ok'] ? '' : ' · ' . e($o['why']) ?></small></p>

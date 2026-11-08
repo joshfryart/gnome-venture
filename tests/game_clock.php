@@ -353,5 +353,40 @@ foreach (json_decode($rec['ingredients'], true) as $sl => $n) $cost += $n * (int
 ok("craft parts value about 60 (got $cost) and under the 100 shop price", $cost >= 50 && $cost <= 70);
 ok('rerun is safe', ensure_crafts() >= 0 && (int)q_val("SELECT COUNT(*) FROM items WHERE slug='camping-gear'") === 1);
 
+echo "== camp meal (decisions 32, 49)\n";
+cfg(['game_clock_on' => '1', 'kitchen_pots' => '1']);
+require_once $argv[1] . '/includes/crafting.php';
+$cr = q_one("SELECT * FROM recipes WHERE category = 'cooking' AND ingredients <> '' ORDER BY id LIMIT 1");
+if ($cr) {
+    q('INSERT OR IGNORE INTO user_recipes (user_id, recipe_id, learned_at) VALUES (?, ?, ?)', [$uid, $cr['id'], now()]);
+    foreach (json_decode($cr['ingredients'], true) as $sl => $n) give_item($uid, item_id_by_slug($sl), $n + 1);
+    q('DELETE FROM cook_pots WHERE user_id = ?', [$uid]);
+    q("INSERT INTO expeditions (user_id, from_id, to_id, route_id, steps_total, step, hp, max_hp, status, started_at, arrive_at) VALUES (?, ?, ?, 1, 4, 1, 10, 10, 'active', ?, ?)", [$uid, $home, $away, now(), now()]);
+    $gear = gclock_gear_item_id();
+    q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $gear]);
+    give_item($uid, $gear, 1);
+    setu($uid, ['game_day' => 0, 'game_minute' => 900, 'energy' => 40, 'camp_naps' => 0, 'carry_minutes' => 0]);
+    [$r, $m] = gclock_rest($uid, 'camp_sleep', 999999);
+    ok('unknown recipe refused, nothing happened', $r === false && (int)urow($uid)['game_day'] === 0 && $qty() === 1);
+    [$r, $m] = gclock_rest($uid, 'camp_sleep', (int)$cr['id']);
+    ok('camp sleep with a meal: slept, gear used up', $r && (int)urow($uid)['game_day'] === 1 && $qty() === 0, $m);
+    ok('one pot made, ready at once on waking', cook_ready_count($uid) === 1 && (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL', [$uid]) === 1, $m);
+    q('DELETE FROM cook_pots WHERE user_id = ?', [$uid]);
+    foreach (json_decode($cr['ingredients'], true) as $sl => $n) give_item($uid, item_id_by_slug($sl), $n + 1);
+    give_item($uid, $gear, 1);
+    setu($uid, ['game_day' => 0, 'game_minute' => 900, 'camp_naps' => 0, 'energy' => 40]);
+    [$r, $m] = gclock_rest($uid, 'camp_nap', (int)$cr['id']);
+    ok('camp nap with a meal: day unchanged, pot ready', $r && (int)urow($uid)['game_day'] === 0 && cook_ready_count($uid) === 1, $m);
+    q('DELETE FROM cook_pots WHERE user_id = ?', [$uid]);
+    foreach (json_decode($cr['ingredients'], true) as $sl => $n) give_item($uid, item_id_by_slug($sl), -(int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, item_id_by_slug($sl)]));
+    give_item($uid, $gear, 1);
+    setu($uid, ['game_day' => 0, 'game_minute' => 900, 'camp_naps' => 0]);
+    [$r, $m] = gclock_rest($uid, 'camp_sleep', (int)$cr['id']);
+    ok('missing ingredients: refused before resting', $r === false && (int)urow($uid)['game_day'] === 0, $m);
+    q("DELETE FROM expeditions WHERE user_id = ?", [$uid]);
+} else { echo "  skip camp meal (no cooking recipe in test world)\n"; }
+cfg(['game_clock_on' => '0']);
+setu($uid, ['location_id' => $home ?: null, 'game_day' => 0, 'game_minute' => 360, 'carry_minutes' => 0]);
+
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);

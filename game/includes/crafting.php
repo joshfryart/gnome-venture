@@ -410,13 +410,13 @@ function cook_time_text(int $secs): string
  * is made here, once per pot, and stored in cook_pots.dishes. Returns [ok, message, info]; info: ids (new pot ids), qty, cost (energy),
  * fee (Petals), clamped.
  */
-function cook_start(array $u, array $r, int|string $want, int $station): array
+function cook_start(array $u, array $r, int|string $want, int $station, bool $camp = false): array
 {
     $uid = (int)$u['id'];
     $tier = (string)($r['tier'] ?: 'meal');
     $pots = cook_pots_on();
     $chunk = cook_chunk($u, $r);
-    $free = $pots ? cook_pot_limit($u) - cook_pots_busy($uid) : 0;
+    $free = $pots ? ($camp ? 1 : cook_pot_limit($u) - cook_pots_busy($uid)) : 0;   // a camp pot is one extra pot, whatever the kitchen holds
     $none = ['ids' => [], 'qty' => 0, 'cost' => 0, 'fee' => 0, 'clamped' => false];
     if ($pots && $free < 1) return [false, 'All your pots are busy. Collect a finished one, or wait for a timer.', $none];
     $energy = craft_energy_cost($u, 'cooking', (int)$r['energy'], $tier);

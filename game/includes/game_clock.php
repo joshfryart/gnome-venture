@@ -282,7 +282,7 @@ function gclock_rest_options(array $u): array
 }
 
 /** Do one rest option. Returns [ok, message]. Pays costs; refuses if the option is not on offer. */
-function gclock_rest(int $uid, string $key): array
+function gclock_rest(int $uid, string $key, int $campRecipe = 0): array
 {
     $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
     if (!$u) return [false, 'No such gnome.'];
@@ -290,6 +290,40 @@ function gclock_rest(int $uid, string $key): array
     foreach (gclock_rest_options($u) as $o) if ($o['key'] === $key) $found = $o;
     if (!$found) return [false, 'You can’t rest that way here.'];
     if (!$found['ok']) return [false, $found['why'] ?: 'Not right now.'];
+    $pre = ['recipe' => null];
+    if ($campRecipe > 0 && str_starts_with($key, 'camp_')) {
+        $pre = gclock_camp_check($u, $campRecipe);   // decision 32/49: one pot at camp, ready when you wake
+        if ($pre['error'] ?? '') return [false, $pre['error']];
+    }
+    $res = gclock_rest_do($uid, $key, $u);
+    if ($res[0] && !empty($pre['recipe'])) $res[1] .= ' ' . gclock_camp_cook($uid, $pre['recipe']);
+    return $res;
+}
+
+/** Check a camp meal before resting: a known cooking recipe, a free pot and the ingredients. Returns ['recipe' => row] or ['error' => text]. */
+function gclock_camp_check(array $u, int $recipeId): array
+{
+    require_once __DIR__ . '/crafting.php';
+    $uid = (int)$u['id'];
+    $r = q_one("SELECT * FROM recipes WHERE id = ? AND category = 'cooking'", [$recipeId]);
+    if (!$r || !q_val('SELECT 1 FROM user_recipes WHERE user_id = ? AND recipe_id = ?', [$uid, $recipeId])) return ['error' => 'You don’t know that camp meal.'];
+    $energy = craft_energy_cost($u, 'cooking', (int)$r['energy'], (string)($r['tier'] ?: 'meal'));
+    if (craft_fit(craft_stock($uid, (string)$r['ingredients']), $energy, (int)$u['energy']) < 1) return ['error' => 'You are missing something for that camp meal (ingredients or energy).'];
+    return ['recipe' => $r];
+}
+
+/** After the rest: start the pot, ready at once (it cooked while you slept). */
+function gclock_camp_cook(int $uid, array $r): string
+{
+    $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+    [$ok, $msg, $info] = cook_start($u, $r, 1, 1, true);
+    if (!$ok) return 'The camp meal did not work out: ' . $msg;
+    foreach ($info['ids'] as $id) q('UPDATE cook_pots SET ready_tick = ?, ready_at = ? WHERE id = ?', [gclock_user_tick($uid), now(), $id]);
+    return '🍲 Your camp meal is ready to collect.';
+}
+
+function gclock_rest_do(int $uid, string $key, array $u): array
+{
     switch ($key) {
         case 'home_sleep': case 'villager':
             return game_sleep($uid) ? [true, 'You sleep soundly. A new day: energy full.'] : [false, 'Something stirred. Try again.'];
