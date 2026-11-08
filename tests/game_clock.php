@@ -627,6 +627,27 @@ ok('flag off: refused silently as before', spend_energy($uid, 99) === false && e
 setu($uid, ['game_day' => 0, 'game_minute' => 360, 'energy' => 30]);
 $GLOBALS['CURRENT_USER'] = null; $_SESSION = [];
 
+echo "== garden animals on the owner's game hours\n";
+try {
+require_once $argv[1] . '/includes/garden_critters.php';
+setu($uid, ['game_day' => 500, 'game_minute' => 600]); gclock_plot_clock(0, true);
+cfg(['game_clock_on' => '1']);
+$GLOBALS['CURRENT_USER'] = urow($uid);
+$vc = gclock_plot_vnow($pidh);
+$kind = ['slug' => 'testcrit', 'foods' => '', 'gift_slug' => 'plain-compost', 'gift_cap' => 3, 'gift_hours' => 12, 'meals_per' => 0, 'name' => 'T', 'likes' => '', 'dislikes' => ''];
+q("DELETE FROM garden_critters WHERE plot_id = ? AND kind = 'testcrit'", [$pidh]);
+$cid2 = db_insert('garden_critters', ['plot_id' => $pidh, 'building' => 'worm_farm', 'kind' => 'testcrit', 'name' => 'Tess', 'mood' => 60, 'meals' => 0,
+    'fed_at' => null, 'gift_at' => gmdate('Y-m-d H:i:s', $vc - 30 * 3600), 'held' => 0, 'born_at' => now(), 'grows_at' => null, 'gifts_made' => 0]);
+$cr = q_one('SELECT * FROM garden_critters WHERE id = ?', [$cid2]);
+$out = critter_tick($cr, $kind);
+ok('30 game hours at 12 h a gift = 2 gifts (real time ignored)', (int)$out['held'] === 2, 'held ' . $out['held']);
+ok('the gift clock moved on in game time', abs(strtotime($out['gift_at'] . ' UTC') - ($vc - 6 * 3600)) <= 60, $out['gift_at']);
+q('DELETE FROM garden_critters WHERE id = ?', [$cid2]);
+} catch (Throwable $e) { ok('critter block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
+cfg(['game_clock_on' => '0']);
+$GLOBALS['CURRENT_USER'] = null;
+setu($uid, ['game_day' => 0, 'game_minute' => 360]); gclock_plot_clock(0, true);
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);
