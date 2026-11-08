@@ -362,3 +362,58 @@ Admin force of weather and season (`weather_force`, `season_force`): apply to ev
 
 ### Decision 20 (Josh, 2026-11-08)
 20. **Admin force of weather and season** (`weather_force`, `season_force`) applies to every player's game date. Josh is the only player right now, so no migration or compatibility concerns for existing players: the build can change data and schemas freely.
+
+## 13. Spec: player game state (DESIGN ONLY, 2026-11-08)
+
+Goal: the one thing every personal system reads. Built from decisions 7-11, 16-18, 20 and the audit (sections 10 and 12). Names are proposals.
+
+### 13.1 Stored state (on `users`)
+| Column | Type | Meaning |
+|---|---|---|
+| `game_day` | INT, default 0 | the day counter. +1 per sleep |
+| `game_minute` | SMALLINT, default 360 | minutes since 00:00 of the current game day. 360 = 06:00 wake. **May exceed 1440** when a long action runs past midnight; the day only rolls on sleep |
+| `energy_updated_at` | existing | no longer used once regen is removed; leave the column |
+
+Derived, never stored:
+- `game_date` = `hollow_date_add(<game epoch>, game_day)`. Epoch = `season_epoch` setting (fallback `HOLLOW_EPOCH_FALLBACK`). Weekday comes from this date, so `hollow_season_calc`, weather, festivals and the weekday-based NPC schedules keep working on a plain `Y-m-d`.
+- `game_tick` = `game_day * 1440 + game_minute`. One monotonic number. **Cook pots and anything on the game clock store `ready_tick`**, and are ready when `game_tick >= ready_tick`. Sleep jumps the tick forward, so pots finish across a sleep. Jars and plants store a day (`ready_day`, `planted_day`), per decision 12.
+- `game_hour` = `intdiv(game_minute, 60) % 24`.
+
+**One-time start (single player, decision 20):** set `game_day` = days from epoch to today so the personal calendar begins where the shared one is now. No other migration.
+
+### 13.2 Functions (new file `includes/game_clock.php`)
+| Function | Does |
+|---|---|
+| `game_state(array $u): array` | `['day','minute','tick','date','hour','dow','tired']` |
+| `hollow_game_date(array $u): string` | the `Y-m-d` personal systems pass to `hollow_season/weather/forecast` |
+| `game_can_spend(array $u, int $minutes, ?int $closesAt = null): array` | `[ok, reason, tired_after, surcharge_pct]`. Fails when `$closesAt` is set and `game_minute + $minutes > $closesAt` (decision 17). Never fails for being tired (decision 9) |
+| `game_spend(int $uid, int $minutes, ?int $closesAt = null): array` | atomic: `UPDATE users SET game_minute = game_minute + ? WHERE id = ? AND game_day = ? AND game_minute = ?` (reread on 0 rows, like the other two-tab guards). Returns the new state |
+| `game_sleep(int $uid): array` | only in the hovel. `game_day + 1`, `game_minute = 360`, `energy = max_energy`. Fires `game_new_day($uid)` |
+| `game_nap(int $uid): array` | `game_spend(nap_minutes)` plus `energy += nap_energy_pct% of max`. Does not change the day |
+| `game_is_tired(array $u): bool` | `game_minute >= 1320` |
+| `game_energy_cost(array $u, int $base): int` | base, +`tired_energy_pct` when tired. **Every energy cost goes through this** (all 23 `spend_energy` sites) |
+| `game_time_cost(string $key): int` | the cost table (section 11) read from settings, so Josh can tune it in admin |
+
+`game_new_day($uid)` is the only hook; daily limits don't need one because they are keyed on `game_date`.
+
+### 13.3 Changes to existing code (for the build, not now)
+- `hollow_now(?string $region, ?array $state)`: `null` = real clock (guests, shared pages, admin). A state gives the personal date **and** hour. The current `$ts` argument stays for tests.
+- `hollow_hour()`, `hollow_dow()`: unchanged (real). Personal callers (section 12 P-hour table) take `game_state($u)['hour'/'dow']` instead.
+- Energy: delete regen (`energy_tick`, `refresh_energy`, settings `energy_regen_*`). Keep `max_energy`, food and snacks.
+- Season mode: set `season_mode` to the epoch mode (not `real`). In `real` mode seasons follow calendar months, so a personal date would walk through spring in months of sleeps. In epoch mode `season_length` is in game-days.
+- Closing hours: add `opens`/`closes` (minutes) to shops and stops, or a lookup, so `game_can_spend` has a `$closesAt`. `npc_schedules` already has `start_hour`/`end_hour` for staff.
+
+### 13.4 Settings (admin, with defaults)
+`game_day_start` 360 · `game_day_end` 1320 · `nap_minutes` 120 · `nap_energy_pct` 50 · `tired_energy_pct` 50 · plus one `time_<action>` per row of section 11.
+
+### 13.5 What stays on the real clock
+Daily caps and stamps (class C), market bucket drain, community goals, contests, Garden of the Month, pal HP regrowth, offline catch-up. **No game time passes while a player is away.** The clock only moves when they act or sleep.
+
+### 13.6 Open before building
+- A long action that passes 06:00 of the next calendar day (for example 8 h shift started at 21:00): allow, with growing tired cost? Draft: allowed, no cap; the tired surcharge is flat.
+- Where can you nap? Draft: anywhere that is not a closed place. Sleep: hovel only.
+- Does `game_spend` advance the clock for failed or cancelled actions? Draft: no, spend only on success.
+- Guests and logged-out pages show the real clock.
+
+### 13.7 Tests to write first
+`game_sleep` (day, minute, energy), `game_nap` (day unchanged, partial energy), `game_spend` (two-tab race), `game_can_spend` with a closing time (blocks, allows), tired surcharge on `game_energy_cost`, `game_tick` ordering across a sleep (a cook pot with `ready_tick` finishes), `hollow_game_date` feeding `hollow_season/weather` identically for two players on the same date.
