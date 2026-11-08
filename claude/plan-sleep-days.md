@@ -555,3 +555,4 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 ### Decision 56 (Josh, 2026-11-08)
 56. **Pal jobs: 1 sleep = 8 job hours** (`pal_hours_per_sleep`, default 8; a 24 h job = 3 sleeps).
 - **Step 8 (new-day hook + pal jobs):** `game_new_day($uid)` runs after every sleep (only with `game_clock_on`). It moves active pal jobs' `started_at`, `ends_at`, `last_tick` and pal-tended pots' `started_at`, `ready_at` back by 8 h, so the old real-time code sees more time passed and no job code was rewritten. **Limit:** real time still counts too, so pals also work while you are away. To make pals wait for sleeps only, the job code would need a frozen clock; ask Josh whether to do that. Tests ok.
+- **Decision 57 (Josh, 2026-11-08):** pals keep real time as well as the sleep boost for now; revisit after playtest.
