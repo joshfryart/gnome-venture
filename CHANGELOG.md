@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.15
+- **Hovel is in the menu** (You group, first tile, 🛏️ Hovel): sleep, nap and rest places. Shown while sleep-days is on.
+
 ## 2.6.14
 - **Game clock in the header bar** (the gap between the title and energy on a phone): time and day, tap to rest, amber when tired. The clock line under it stays.
 

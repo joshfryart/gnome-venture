@@ -551,6 +551,7 @@ function nav_sheet(array $u, string $page): string
     if (ppal_open() && !is_guest($u)) $groups['Hobbies'][] = ['puzzlepals.php', '🧩', 'Puzzle Pals', '', 'puzzlepals'];
     require_once __DIR__ . '/gourmand.php';   // next version: a Gourmand tile once he is open (admins always)
     if (gourmand_open()) array_splice($groups['Out & about'], 3, 0, [['gourmand.php', '🥄', 'Gourmand', '', 'gourmand']]);
+    if (gclock_on()) array_splice($groups['You'], 0, 0, [['hovel.php', '🛏️', 'Hovel', '', 'hovel']]);   // sleep-days: the Rest page (sleep, nap, inn) is a menu tile
     if (tour_active($u) && (int)$u['level'] < 5) array_unshift($groups['You'], ['welcome.php', '🌱', 'Getting started', '', 'start']);   // v1.7.0 menu: only while the tour runs and below level 5
     require_once __DIR__ . '/festival.php';   // v1.0.0: a Festival tile while one runs
     if (festival_active()) array_splice($groups['Together'], 3, 0, [['festival.php', festival_active()['icon'], 'Festival', '', 'festival']]);   // v1.7.0 menu: no 'on' badge (the status line shows the festival)
