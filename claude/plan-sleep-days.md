@@ -359,3 +359,6 @@ Read from code, with the enclosing function. About 49 call sites in `game/` (plu
 
 ### Question for Josh
 Admin force of weather and season (`weather_force`, `season_force`): apply to every player's game date, or only to players currently on the real date? Draft: every player, since it is a debug tool.
+
+### Decision 20 (Josh, 2026-11-08)
+20. **Admin force of weather and season** (`weather_force`, `season_force`) applies to every player's game date. Josh is the only player right now, so no migration or compatibility concerns for existing players: the build can change data and schemas freely.
