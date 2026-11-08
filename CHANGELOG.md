@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.13
+- **How to play, the Almanac and the welcome text match sleep-days**: a new "Sleep, the clock and days" fold (clock, 06:00 to 22:00, sleeping, naps, game-time costs, what follows your days), energy now says it refills by sleeping, watering says crops grow on days, shops close at 22:00, helpers follow your days. `energy_rate_text()` says "full energy back each time you sleep" while the flag is on. With the flag off the old text shows.
+
 ## 2.6.12
 - **New gnome art on the account-creation page**: the Welcome "Who are you?" step showed the old flat gnome; it now shows the 2.5D gnome like the rest of the game. The hat and beard swatches (here and on Customise) recolour it live.
 

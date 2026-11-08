@@ -37,17 +37,31 @@ $fold = function (string $icon, string $title, bool $open = false): string {
   <ol>
     <li><b>Till</b> a square in your <a href="<?= e(url('garden.php')) ?>">Garden</a>.</li>
     <li><b>Plant</b> a seed. Radishes are quick.</li>
-    <li><b>Water</b> it. Plants only grow while watered.</li>
+    <li><b>Water</b> it. Plants only grow on days they are watered (or it rains).<?php if (gclock_on()): ?> A day passes when you <b>sleep</b>.<?php endif; ?></li>
     <li><b>Harvest</b> when it is ready.</li>
     <li><b>Eat, cook or sell</b> what you grew.</li>
   </ol>
   <p>Wren, the naturalist, walks you through the first ten steps. Finish them for a reward.</p>
 </div></details>
 
+<?php if (gclock_on()): ?>
+<?= $fold('🌙', 'Sleep, the clock and days', true) ?>
+  <ul>
+    <li>Your gnome has their own <b>clock</b>, at the top of the screen. The day runs from <b>06:00 to 22:00</b>. After 22:00 you get tired: actions cost more energy, but you are never locked out.</li>
+    <li><b>A day only passes when you sleep.</b> Sleep in your hovel, at an inn, on a park bench (a bit of energy only), at a friend's house, or on the road with camping gear. See the <a href="<?= e(url('hovel.php')) ?>">Rest page</a>.</li>
+    <li>Sleeping refills your energy and health and starts a new day at 06:00. A <b>nap</b> takes 2 hours and gives back some energy. You need a seat or bed.</li>
+    <li>Longer jobs take game time: walking a trail section, wandering, gathering, crafting, rest-stop visits, florist shifts and repairs. Each button shows its time. Crafting several at once shows the total.</li>
+    <li>Crops, cooking pots, pantry jars, helpers and Puzzle Pal jobs all follow <b>your</b> days. They move on when you sleep, not while you are away.</li>
+    <li>Shops and stops have opening hours, and some villagers are away on some days.</li>
+    <li>Contests, shared goals, visits and daily game plays still use real time.</li>
+  </ul>
+</div></details>
+
+<?php endif; ?>
 <?= $fold('⚡', 'Energy and Petals') ?>
   <ul>
     <li>Gardening, walking and gathering cost <b>energy</b>. Most garden jobs cost 1.</li>
-    <li>It refills by itself: <?= e(energy_rate_text()) ?>.</li>
+    <li><?= gclock_on() ? 'It refills when you sleep. A nap gives some back.' : 'It refills by itself: ' . e(energy_rate_text()) . '.' ?></li>
     <li>Your max starts at 10 and grows with every Gnome level.</li>
     <li>Out of energy? <a href="<?= e(url('inventory.php')) ?>">Eat something</a>. Cooked food restores much more than raw.</li>
     <li><b>Petals</b> are the money. Sell crops to shops and other gnomes to earn them. Spend them on seeds, land and buildings.</li>
@@ -75,7 +89,7 @@ $fold = function (string $icon, string $title, bool $open = false): string {
     <li>Open the <a href="<?= e(url('world.php')) ?>">World</a> and follow the roads to the next village. Walking costs energy.</li>
     <li>Rest stops along the road have things to do and folk to meet. Each one has a few visits a day.</li>
     <li>Wander off the path to find things and creatures. Some creatures fight back. Check the odds first and bring a snack.</li>
-    <li>Shopkeepers keep their own hours. Chat and give gifts to make friends.</li>
+    <li>Shopkeepers keep their own hours<?php if (gclock_on()): ?> (most close at 22:00)<?php endif; ?>. Chat and give gifts to make friends.</li>
   </ul>
 </div></details>
 
@@ -98,7 +112,7 @@ $fold = function (string $icon, string $title, bool $open = false): string {
 <?= $fold('🧑‍🌾', 'Helpers') ?>
   <ul>
     <li>Build a Tool Shed and you can <a href="<?= e(url('garden.php?t=help')) ?>">hire a helper</a> for 1, 3 or 7 days. You pay up front.</li>
-    <li>Helpers water, weed or harvest while you are away.</li>
+    <li>Helpers water, weed or harvest while you are away<?php if (gclock_on()): ?> (days pass when you sleep)<?php endif; ?>.</li>
     <li>You earn a little less XP and keep less of the harvest.</li>
     <li>Short on time yourself? Take a tending job for another gnome on the <a href="<?= e(url('jobs.php')) ?>">Job Board</a>.</li>
   </ul>

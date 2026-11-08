@@ -321,6 +321,7 @@ function energy_tick(): array
 /** "1 energy every minute", "2 energy every 30 seconds". */
 function energy_rate_text(): string
 {
+    if (function_exists('gclock_on') && gclock_on()) return 'full energy back each time you sleep, a part back from a nap';   // sleep-days: no regeneration
     [$n, $sec] = energy_tick();
     $every = $sec === 60 ? 'minute' : ($sec < 60 ? $sec . ' seconds' : rtrim(rtrim(number_format($sec / 60, 1), '0'), '.') . ' minutes');
     return $n . ' energy every ' . $every;
