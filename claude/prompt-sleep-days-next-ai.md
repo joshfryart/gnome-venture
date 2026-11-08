@@ -1,38 +1,37 @@
 # Prompt for the next AI: sleep-days (paste this to start)
 
-You are continuing the **sleep-days** system change for Gnome Venture (repo `joshfryart/gnome-venture`, PHP game in `game/`). It is **design-only so far: no code, no data, no version change.** Do not write game code or bump the version unless Josh asks.
+You are continuing the **sleep-days** build for Gnome Venture (repo `joshfryart/gnome-venture`, PHP game in `game/`). The design is finished (decisions 1-57 in the plan). **Thirteen build steps are done and merged to `main`, all behind one setting `game_clock_on` (default off).** With the flag off the game behaves exactly as before. Do not turn the flag on, bump the version or run the one-time start migration unless Josh says so.
 
 ## Read first, in this order
-1. `claude/plan-sleep-days.md`: sections 1-9 (original rules), then 10-13 (audit, time-cost table, wrapper audit, spec and its 13.8 corrections), then the **decision log at the end (decisions 1-28). Later decisions override earlier text.**
-2. `claude/todo.md` sections 3 and 4 (the Sleep-days block).
-3. `claude/handoff.md`, top block.
+1. `claude/plan-sleep-days.md`: sections 1-9 (original rules), 10-13 (audit, time-cost table, wrapper audit, spec), then the **decision log at the end (decisions 1-57) and the "Step N" build log lines. Later text overrides earlier text.**
+2. `game/includes/game_clock.php` (all new clock code: state, spend, sleep, nap, rest places, growth, pots, jars, new-day hook, time costs, camping).
+3. `tests/game_clock.sh` + `tests/game_clock.php`: the test for everything built. Run it after every change: `bash tests/game_clock.sh` (about 1 min; prints `all ok`). Also run `bash tests/garden100.sh` (expects `all ok`).
+4. `claude/todo.md` sections 3-4 and `claude/handoff.md` top block.
 
-## What is decided (short)
-- Each player has a personal game clock: `users.game_day` and `users.game_minute` (day 06:00 to 22:00, tired after 22:00, never locked). Sleep jumps to 06:00, full energy, day +1. Nap = about 2 h, partial energy, needs a seat or bed.
-- Energy and time are separate budgets. Regen by minute is removed. Actions of 10+ minutes spend game minutes (table in plan section 11). Tired surcharge goes inside `spend_energy()`.
-- Personal (game date or clock): garden, pantry jars, cook pots (game clock), pal jobs, job board, puzzle pal spawn, NPC chat and gifts, stops, town calendar, festivals, free mends, order deadlines, Cat Fish weekly cap (game-week = 7 sleeps). Real: caps and stamps, minigame Petals, market bucket drain, shared goals, contests, first-week onboarding.
-- Sleep places: home, inn (110 Petals or 4 h of plain-timer chores), town (bench / rented room / villager's house), road with camping gear (buy or craft, one use).
-- Craft mastery: per recipe (time, materials down to a floor) and per category (yield, energy, buff). Treks are left out of the first build.
-- The audit is done: `hollow_date(` has 144 calls sorted (section 10), wrapper callers sorted (section 12).
+## What is built (all behind `game_clock_on`)
+- Personal clock: `users.game_day`, `game_minute`, `carry_minutes`, `camp_naps`. Functions `gclock_state`, `hollow_game_date`, `game_spend`, `game_sleep($uid, $energyPct)`, `game_nap`, `game_energy_cost`, tired surcharge +10% per game hour from 22:00. Note `game_state()` already existed in `games.php`, so ours is `gclock_state()`.
+- `hollow_now($region, $ts, $state)` takes a game-clock state.
+- Garden growth in sleeps (`gclock_tile_grow`, tiers 1-6 = 1/2/3/5/7/10 sleeps, watered-that-day or rain, dry days are owed and paid back). Columns `plot_tiles.grow_day`, `water_day`, `owed_days`. All 5 watering writers stamp `water_day`.
+- Energy: `refresh_energy` no-op, no regen, `spend_energy($uid, $n, $timeKey, $units)` adds the tired surcharge and charges game time.
+- Rest page `hovel.php`: hovel (home), inn (110 Petals or 240 min chores), bench (30% energy), nap, villager's house (Best friend), camp (camping gear: 2 naps or 1 sleep, plus one camp meal pot ready at wake). Camping gear item, parts and recipes in `data/crafts.txt`, sold in `decor` shops.
+- Cook pots (`cook_pots.ready_tick`, 4x time), pantry jars (`pantry_jars.ready_day`), pal jobs (`game_new_day` moves their clocks 8 h per sleep; real time still counts too), job board (`job_board_key`, week = 7 sleeps, month = 28).
+- Time costs (`GCLOCK_TIME_DEFAULTS`, section 11 table; arrange 10, sapling 10), long shifts/repairs split across days and lock the gnome until sleep (`carry_minutes`).
+
+## What is NOT built yet (do in this order, ask Josh only when a choice is really his)
+1. **Garden leftovers:** `garden_wind_weeds` and `garden_pest_pass` in `garden_fx.php` still walk real time; `tile_info` "water left" display; admin `weather_force` does not reach a game date in `garden_weather_on`.
+2. **Closing hours (decision 41):** per place `open_minute`/`close_minute`, default 06:00-22:00 (360-1320), inns open all night; pass `$closesAt` to `game_can_spend`/`game_spend` for shops, stops, inns. Nothing reads it yet.
+3. **Other personal systems on the game date:** NPC chat and gifts (`friends.php`, `stop_folk.php`), NPC move-on, town calendar, festivals, puzzle pal spawn, free mends, order deadlines, Cat Fish weekly cap (7 sleeps), see plan sections 10 and 12.
+4. **Labels and UI:** "costs N energy" labels need `game_energy_cost()`; the header energy pill still shows regen text; label game time vs real time; a visitor's view of a kitchen (`gardens.php:567`) still reads `ready_at`; reward for a split shift/repair is still paid at the start.
+5. **Gaps noted in time costs:** actions with 0 energy cost skip the time charge; seed packet and treks not wired; inn nap not offered.
+6. **Equip XP** (`PJ_EQUIP_XP_MAX`, decision 51) is meant to run on the game clock, cap 24 game hours: not done.
+7. **Final:** one-time start value (`game_day = game_clock_days_from_epoch()` for the existing player), tests that need a `walk.sh` install (`cook.sh`, `craft.sh`, `paljobs.php`, `events.sh`, `help.sh`: they cannot run standalone here, run them before flipping the flag), admin settings page for the new settings, then ask Josh about flipping the flag and the version bump (`APP_VERSION` in `game/includes/bootstrap.php`, currently 2.6.08).
 
 ## Josh
-Single player right now, so data and schemas can change freely. Prefers short, exact replies (caveman style). **Ask questions one at a time** (use AskUserQuestion with 2 to 4 distinct options, recommended one first). Record each answer in the decision log of the plan, commit and push to the session branch after each.
-
-## Open questions: ALL ANSWERED (decisions 29-48). Only small leftovers: camping gear recipe materials, camp pot on a nap?, equip XP cap clock. Original list kept for reference:
-1. Bench sleep: how weak is the rest (energy %), and is there a small bad-event chance?
-2. Villager's house: which friendship level unlocks it?
-3. Camping gear: recipe materials, shop price (craft must be cheaper).
-4. Road nap: does it need camping gear, or only a trail rest stop?
-5. A long action that runs past midnight: flat tired surcharge, or growing?
-6. Craft mastery numbers: milestones, materials floor, which products get a buff, stack rule with `calling_perk` boons.
-7. With time as a budget, is the NPC shop sell-bucket (plan section 6) still needed, and with what size?
-8. Closing hours: where they live (shops, stops, inns) and the default.
-9. Time-cost table (section 11): review every row with Josh; set the tired surcharge and nap numbers.
-
-## When the questions are done
-Next step is the build, in this order (also in `claude/todo.md`): `includes/game_clock.php` and the two columns; `hollow_now(?string $region, ?array $state)` and `hollow_game_date($u)`; garden growth on game-days behind a flag (default off, rewrite the timestamp walks in `garden_fx.php`); sleep action and hovel page; `refresh_energy()` to a no-op then removal; `spend_energy()` surcharge; pantry, cook pots (`ready_tick`), pal jobs, job board. Write the tests listed in plan section 13.7 first. Ask Josh before starting the build.
+Single player right now, so data and schemas can change freely. Prefers super short caveman replies, exact descriptions. **Ask questions one at a time** with AskUserQuestion (2 to 4 distinct options, recommended first). Record each answer in the decision log of the plan, commit and push to the session branch after each step. He said to continue without asking until an answer is really needed, and to expect pauses for usage: commit small and often so nothing is lost.
 
 ## Rules
-- Work on the designated session branch, commit, push. Merge to `main` only when Josh says so.
-- Check claims against the code before writing them down (section 13.8 found four errors in a spec written from memory).
-- Keep the plan, `claude/todo.md` and `claude/handoff.md` in step: update all three when something is decided.
+- Work on the designated session branch, commit, push. Merge to `main` only when Josh says so (he did at the end of the last session; ask again).
+- Check claims against the code before writing them down (an earlier spec had four errors from memory).
+- Keep the plan, `claude/todo.md` and `claude/handoff.md` in step.
+- Every behaviour change must be behind `gclock_on()` and covered in `tests/game_clock.php` with a flag-off check.
+- Beware of test pitfalls found so far: SQLite compares bound strings to ints as text (use `CAST(? AS INTEGER)`), `tests/game_clock.sh` runs one shared database so reset any user fields you change, and never put `cat >> /dev/null` in a command (it hangs on stdin).
