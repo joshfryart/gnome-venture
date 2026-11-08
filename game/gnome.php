@@ -113,7 +113,7 @@ $radarSvg = function (string $selK = '') use ($u, $gurl): string {   // the stat
 
 $pick = in_array($tab, ['gnome', 'pals'], true) ? $pick : null;   // the pal picker opens from the strip, which shows on MY GNOME and Pals
 page_header($tab === 'today' ? 'Today' : 'My Gnome');
-if (!$tctx) { $hour = hollow_hour(); $tctx['hello'] = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening'); }
+if (!$tctx) { $hour = gclock_my_hour(); $tctx['hello'] = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening'); }
 require_once __DIR__ . '/includes/today_view.php';
 $onGnome = $tab !== 'today';
 ?>

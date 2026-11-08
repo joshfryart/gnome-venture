@@ -55,7 +55,8 @@ const TOWN_FESTIVALS = [
 function town_festival(string $town, ?int $ts = null): ?array
 {
     $f = TOWN_FESTIVALS[$town] ?? null;
-    return $f && (int)hollow_date('j', $ts) === $f[2] ? $f : null;
+    $dom = $ts === null && gclock_me() ? (int)substr(gclock_my_date(), 8, 2) : (int)hollow_date('j', $ts);   // sleep-days: the day of month on the gnome's own date
+    return $f && $dom === $f[2] ? $f : null;
 }
 
 /** The next few festivals across the Hollow: [[town, festival, days away], …]. */
@@ -64,8 +65,9 @@ function upcoming_festivals(int $n = 3): array
     $out = [];
     for ($d = 0; $d < 32 && count($out) < $n; $d++) {
         $ts = time() + $d * 86400;
+        $dom = gclock_me() ? (int)substr(hollow_date_add(gclock_my_date(), $d), 8, 2) : (int)hollow_date('j', $ts);
         foreach (TOWN_FESTIVALS as $town => $f) {
-            if ((int)hollow_date('j', $ts) === $f[2]) $out[] = [$town, $f, $d];
+            if ($dom === $f[2]) $out[] = [$town, $f, $d];
         }
     }
     return array_slice($out, 0, $n);
@@ -221,12 +223,12 @@ function spot_closed(array $s): ?string
 {
     if (trim((string)$s['months']) !== '') {
         $months = array_map('intval', explode(',', (string)$s['months']));
-        if (!in_array((int)hollow_date('n'), $months, true)) {
+        if (!in_array((int)substr(gclock_my_date(), 5, 2), $months, true)) {
             return 'Only open in ' . implode(', ', array_map(fn($m) => date('F', mktime(0, 0, 0, $m, 1)), $months)) . '.';
         }
     }
     if (preg_match('/^(\d{1,2})-(\d{1,2})$/', trim((string)$s['hours']), $m)) {
-        if (!in_array(hollow_hour(), schedule_hours((int)$m[1], (int)$m[2]), true)) {
+        if (!in_array(gclock_my_hour(), schedule_hours((int)$m[1], (int)$m[2]), true)) {
             return 'Open ' . hour_label((int)$m[1]) . ' to ' . hour_label((int)$m[2]) . ' (Hollow time).';
         }
     }

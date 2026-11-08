@@ -632,6 +632,7 @@ function gclock_settings(): array
         'cook_time_multiplier' => $i('cooking pots take this many times longer on the game clock', 4, 1, 100),
         'job_month_days' => $i('a job-board month is this many sleeps', 28, 7, 120),
         'pal_hours_per_sleep' => $i('pal jobs and pots advance this many hours per sleep', 8, 0, 24),
+        'npc_away_pct' => $i('chance a villager is away on a given game day (no chat or gift that day), %', 25, 0, 90),
         'default_open_minute' => $i('shops and stops open at this minute of the day (360 = 06:00)', 360, 0, 1439),
         'default_close_minute' => $i('shops and stops close at this minute of the day (1320 = 22:00)', 1320, 1, 1440),
         'hp_crop_heal' => ['label' => 'Sleep-days: health from eating a crop: everyday, uncommon or flower, treasure, legendary (four numbers, comma separated)', 'type' => 'text', 'default' => '1,2,3,4'],
@@ -909,4 +910,23 @@ function gclock_water_carry_pct(array $t, ?array $p): int
     $shade = !empty($t['_shade']) ? 1 + (int)setting('yard_shade_percent') / 100 : 1.0;
     $clim = max(0.2, 1 + ((int)($t['_clim']['water'] ?? 0) + ((int)($t['mulch'] ?? 0) <= 0 ? (int)($t['_clim']['water_bare'] ?? 0) : 0)) / 100);
     return (int)max(0, min(90, round(($rain * $barrel * $shade * $clim - 1) * 100)));
+}
+
+/** The weekday name ("Monday") on the logged-in gnome's own date (real weekday with the flag off). */
+function gclock_my_weekday(): string
+{
+    return gclock_me() ? gmdate('l', hollow_day_number(gclock_my_date()) * 86400) : hollow_date('l');
+}
+
+/**
+ * "Moving on" (decision on NPCs): with sleep-days a villager is away on some game days, so sleeping fast cannot farm friendship.
+ * Deterministic per villager and date (setting npc_away_pct, default 25%), same for everyone. $key: 'n<id>' town NPC, 's<id>' stop villager.
+ * Always false with the flag off, and never for a gnome who is not logged in.
+ */
+function gclock_npc_away(string $key): bool
+{
+    if (!gclock_me()) return false;
+    $v = setting('npc_away_pct');
+    $pct = $v === '' ? 25 : max(0, min(90, (int)$v));
+    return $pct > 0 && hollow_unit('away|' . $key . '|' . gclock_my_date()) * 100 < $pct;
 }

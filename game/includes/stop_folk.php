@@ -151,6 +151,7 @@ function stop_chat(array $u, array $loc, int $folkId, ?string $lineText = null):
     $uid = (int)$u['id'];
     $folk = q_one('SELECT * FROM stop_folk WHERE id = ? AND location_id = ? AND active = 1', [$folkId, (int)$loc['id']]);
     if (!$folk) return [false, 'Nobody by that name is here.'];
+    if (gclock_npc_away('s' . $folkId)) return [false, $folk['name'] . ' is away today (visiting family). Try again after you sleep.'];
     $today = gclock_my_date();
     stop_friend_ensure($uid, $folkId);
     $line = npc_icon($folk['species']) . ' ' . $folk['name'] . ': ' . ($lineText ?? stop_chat_line($u, $loc, $folk));
@@ -181,6 +182,7 @@ function stop_gift(array $u, array $loc, int $folkId, int $itemId): array
     if (!$folk) return [false, 'Nobody by that name is here.'];
     $item = q_one("SELECT * FROM items WHERE id = ? AND tradable = 1 AND category NOT IN ('tool', 'broken')", [$itemId]);
     if (!$item) return [false, 'Pick something to give.'];
+    if (gclock_npc_away('s' . $folkId)) return [false, $folk['name'] . ' is away today (visiting family). Try again after you sleep.'];
     $today = gclock_my_date();
     stop_friend_ensure($uid, $folkId);
     db()->beginTransaction();

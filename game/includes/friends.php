@@ -90,8 +90,8 @@ function npc_here(array $u, int $npcId): bool
         if ($t['traveller'] === 'gourmand') return true;   // next version: he is there for everyone, at his camp or not
         return can_reach($u, traveller_stop($t)['town']);
     }
-    $hour = hollow_hour();
-    $day = hollow_dow();
+    $hour = gclock_my_hour();
+    $day = gclock_my_dow();
     foreach (q('SELECT s.*, sh.location_id AS shop_loc FROM npc_schedules s LEFT JOIN shops sh ON sh.id = s.shop_id WHERE s.npc_id = ?', [$npcId])->fetchAll() as $s) {
         if (!in_array($day, schedule_days($s['days']), true) || !in_array($hour, schedule_hours((int)$s['start_hour'], (int)$s['end_hour']), true)) continue;
         $loc = $s['shop_id'] ? $s['shop_loc'] : $s['location_id'];
@@ -131,6 +131,7 @@ function npc_talk(array $u, int $npcId): array
     $uid = (int)$u['id'];
     $npc = q_one('SELECT * FROM npcs WHERE id = ? AND active = 1', [$npcId]);
     if (!$npc || !npc_here($u, $npcId)) return [false, 'They aren’t around right now.'];
+    if (gclock_npc_away('n' . $npcId)) return [false, $npc['name'] . ' is away today (visiting family). Try again after you sleep.'];
     $f = friendship($uid, $npcId);
     $today = gclock_my_date();   // v0.7.85: the Hollow's day (midnight Halifax), like the landmarks and towns
     if ($f['last_talk'] === $today) return [false, $npc['name'] . ' has already had a good chat with you today.'];
@@ -178,6 +179,7 @@ function npc_gift(array $u, int $npcId, int $itemId, bool $door = false): array
     $uid = (int)$u['id'];
     $npc = q_one('SELECT * FROM npcs WHERE id = ? AND active = 1', [$npcId]);
     if (!$npc || (!$door && !npc_here($u, $npcId))) return [false, 'They aren’t around right now.'];
+    if (gclock_npc_away('n' . $npcId)) return [false, $npc['name'] . ' is away today (visiting family). Try again after you sleep.'];
     $f = friendship($uid, $npcId);
     $today = gclock_my_date();   // v0.7.85: the Hollow's day
     if ($f['last_gift'] === $today) return [false, $npc['name'] . ' has already had a present from you today.'];

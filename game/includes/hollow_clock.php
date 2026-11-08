@@ -265,7 +265,7 @@ function hollow_daypart_hours(): array
 /** dawn | day | dusk | night for an hour 0-23 (null = the Hollow's hour now). */
 function hollow_daypart(?int $hour = null): string
 {
-    $hour = ((($hour ?? hollow_hour()) % 24) + 24) % 24;
+    $hour = ((($hour ?? gclock_my_hour()) % 24) + 24) % 24;
     [$dawn, $day, $dusk, $night] = hollow_daypart_hours();
     if ($hour >= $night || $hour < $dawn) return 'night';
     if ($hour >= $dusk) return 'dusk';

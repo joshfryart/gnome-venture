@@ -501,8 +501,8 @@ function here_npcs(array $u, array $node, string $kind): array
         foreach (here_town_spots($node) as $spot) foreach (npcs_at_spot($spot) as $n) $out[(int)$n['id']] ??= $n;
     } else {
         // everywhere else: villagers whose plans for this hour (out and about, shopping) are in this region, from one query
-        $h = hollow_hour();
-        $d = hollow_dow();
+        $h = gclock_my_hour();
+        $d = gclock_my_dow();
         foreach (q("SELECT n.*, s.days, s.start_hour, s.end_hour FROM npc_schedules s JOIN npcs n ON n.id = s.npc_id JOIN locations l ON l.id = s.location_id
                     WHERE n.active = 1 AND s.spot_id IS NULL AND s.shop_id IS NULL AND s.activity NOT IN ('working', 'resting') AND l.region = ? AND n.traveller IS NULL", [(string)$node['region']])->fetchAll() as $r) {
             if (in_array($d, schedule_days((string)$r['days']), true) && in_array($h, schedule_hours((int)$r['start_hour'], (int)$r['end_hour']), true)) $out[(int)$r['id']] ??= $r;

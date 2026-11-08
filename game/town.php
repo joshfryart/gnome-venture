@@ -97,7 +97,7 @@ $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
 $uses = town_uses_today($uid);
 $quiz = $_SESSION['town_quiz'] ?? null;
 // v1.4.6: the clock/energy/Petals line is gone from town pages (header and status strip already show them)
-$clock = '🕰️ It’s ' . hour_label(hollow_hour()) . ' in the Hollow, ' . hollow_date('l');
+$clock = '🕰️ It’s ' . hour_label(gclock_my_hour()) . ' in the Hollow, ' . gclock_my_weekday();
 
 // v0.7.48: away from a town, this tab shows the little place you're actually in
 $node = player_node($u);

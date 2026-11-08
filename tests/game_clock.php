@@ -648,6 +648,24 @@ cfg(['game_clock_on' => '0']);
 $GLOBALS['CURRENT_USER'] = null;
 setu($uid, ['game_day' => 0, 'game_minute' => 360]); gclock_plot_clock(0, true);
 
+echo "== villagers are away on some game days\n";
+$GLOBALS['CURRENT_USER'] = urow($uid);
+cfg(['game_clock_on' => '1', 'npc_away_pct' => '']);
+$awayDays = 0; $wk = [];
+for ($d = 0; $d < 200; $d++) { setu($uid, ['game_day' => $d]); if (gclock_npc_away('n7')) $awayDays++; }
+ok('about a quarter of 200 days are away days (default 25%)', $awayDays >= 30 && $awayDays <= 70, (string)$awayDays);
+setu($uid, ['game_day' => 12]);
+ok('same answer twice for the same day', gclock_npc_away('n7') === gclock_npc_away('n7'));
+cfg(['npc_away_pct' => '0']);
+ok('0% = never away', !gclock_npc_away('n7'));
+cfg(['npc_away_pct' => '90']);
+$many = 0; for ($d = 0; $d < 100; $d++) { setu($uid, ['game_day' => $d]); $many += gclock_npc_away('s3') ? 1 : 0; }
+ok('90% = away most days', $many > 70, (string)$many);
+cfg(['npc_away_pct' => '', 'game_clock_on' => '0']);
+ok('flag off: never away', !gclock_npc_away('n7'));
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+$GLOBALS['CURRENT_USER'] = null;
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);

@@ -56,7 +56,7 @@ function today_prepare(array $u, bool $allNews = false): array
     // Wren's tip: the next getting-started page you haven't read yet
     $c['guide'] = q_one("SELECT e.id, e.title, e.chapter FROM encyclopedia_entries e JOIN user_encyclopedia ue ON ue.entry_id = e.id AND ue.user_id = ?
                     WHERE e.chapter = 'General' AND ue.read_at IS NULL ORDER BY e.sort_order, e.id LIMIT 1", [$uid]);
-    $hour = hollow_hour();
+    $hour = gclock_my_hour();
     $c['hello'] = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
     return $c;
 }

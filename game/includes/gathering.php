@@ -264,7 +264,7 @@ function gather_satchel_key(array $u): string
 /** Part of the day for the scene art: 'day' | 'dusk' (dawn and dusk) | 'night', from the Hollow clock. */
 function gather_day_part(?int $hour = null): string
 {
-    $h = $hour ?? (function_exists('hollow_hour') ? hollow_hour() : 12);
+    $h = $hour ?? (function_exists('hollow_hour') ? gclock_my_hour() : 12);
     if ($h >= 7 && $h <= 16) return 'day';
     if ($h >= 17 && $h <= 19) return 'dusk';
     if ($h >= 5 && $h <= 6) return 'dusk';
