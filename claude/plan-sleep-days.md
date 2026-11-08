@@ -455,3 +455,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 26 (Josh, 2026-11-08)
 26. **Inn fee: 110 Petals per night** (the alternative is chores for x time, decision 22). Store it as an admin setting (`inn_fee_petals`, default 110) so it can be tuned. Still open: chore time x, so the chore option is priced fairly against 110 Petals.
+
+### Decision 27 (Josh, 2026-11-08)
+27. **Inn chores take 4 game hours** (240 min), as the alternative to the 110 Petal fee. Admin setting `inn_chore_minutes`, default 240. Open: what the chores are (a short scripted task or a simple tap-through) and whether tired-surcharge energy applies during them.
