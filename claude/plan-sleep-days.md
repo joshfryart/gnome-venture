@@ -461,3 +461,68 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 28 (Josh, 2026-11-08)
 28. **Inn chores are a plain timer for the first build:** pay 240 game minutes, then sleep. No scene, no reward. A scripted or choice-based version is later content.
+
+### Decision 29 (Josh, 2026-11-08)
+29. **Bench sleep restores 30% energy, no bad-event chance.** Free. Admin setting `bench_sleep_energy_pct`, default 30. Closes open Q1 from decision 23 (bad-event part dropped).
+
+### Decision 30 (Josh, 2026-11-08)
+30. **Villager's house unlocks at friendship level 3.** Free stay. Admin setting `villager_sleep_friend_level`, default 3. Closes open Q2 from decision 23.
+
+### Decision 31 (Josh, 2026-11-08)
+31. **Camping gear: shop price 100 Petals, craft cost about 60 Petals of materials (60% of shop).** One use. Admin setting `camping_gear_price`, default 100. Still open: exact recipe materials (pick from existing items, check data before writing).
+
+### Decision 32 (Josh, 2026-11-08)
+32. **Camping gear on the road gives a choice: nap (partial) or full sleep.** With gear in use, the player may also **start one cook pot that is ready when they wake** (one pot per camp). Replaces the "rest stop only" draft for road naps; closes open Q4. Open: does a nap use up the gear or only a full sleep? Which recipes can be cooked at camp?
+
+### Decision 33 (Josh, 2026-11-08)
+33. **Camping gear has 2 charges for naps; a full sleep uses it up.** Gear = 2 naps, or 1 full sleep (full sleep consumes the whole item). Camp pot (decision 32) allowed on full sleep; open whether it is allowed on a nap. Admin setting `camping_gear_nap_charges`, default 2.
+
+### Decision 34 (Josh, 2026-11-08)
+34. **Tired surcharge grows: +10% energy cost per game hour past 22:00** (inside `spend_energy()`). Admin setting `tired_surcharge_pct_per_hour`, default 10. Closes open Q5. Open: cap? (Draft: none needed, since an action past midnight still ends at 06:00 wrap.)
+
+### Decision 35 (Josh, 2026-11-08)
+35. **Per-recipe mastery tiers at 10 / 50 / 200 crafts.** Admin setting `mastery_tiers` default `10,50,200`. Open (rest of Q6): materials floor per tier, which products get a buff, stack rule with `calling_perk` boons, category-mastery thresholds.
+
+### Decision 36 (Josh, 2026-11-08)
+36. **Mastery material floor 50% of base.** Per-recipe tiers cut materials: T1 -10%, T2 -25%, T3 -50%, each ingredient min 1. Admin setting `mastery_material_cuts` default `10,25,50`. Open (rest of Q6): which products get a buff, stack rule with `calling_perk` boons, category-mastery thresholds.
+
+### Decision 37 (Josh, 2026-11-08)
+37. **Category-mastery buff bonus applies to food and potions only.** Other categories get yield/energy gains only. Open (rest of Q6): stack rule with `calling_perk` boons, category-mastery thresholds.
+
+### Decision 38 (Josh, 2026-11-08)
+38. **Mastery bonuses add to `calling_perk` boons, total capped at +50%.** Admin setting `mastery_perk_cap_pct`, default 50. Open (rest of Q6): category-mastery thresholds.
+
+### Decision 39 (Josh, 2026-11-08)
+39. **Category mastery tiers at 100 / 500 / 2000 total crafts in the category.** Each tier: +5% yield, -5% energy, +5% buff (buff on food and potions only, decision 37). Admin setting `category_mastery_tiers` default `100,500,2000`. Closes Q6. (Per-tier +5% values are my default; change if Josh says.)
+
+### Decision 40 (Josh, 2026-11-08)
+40. **NPC shop sell-bucket (section 6) is kept at the same size**, real-time drain as before. Closes Q7.
+
+### Decision 41 (Josh, 2026-11-08)
+41. **Closing hours live per place in data** (shops, stops, inns): `open_minute` and `close_minute` fields. Blank = default 06:00-22:00 (360-1320). Inns are open all night. Admin settings `default_open_minute` 360, `default_close_minute` 1320. Closes Q8.
+
+### Decision 42 (Josh, 2026-11-08)
+42. **Nap: 2 game hours, restores 40% energy.** Admin settings `nap_minutes` 120, `nap_energy_pct` 40. Tired surcharge in the section 11 draft (+50% flat) is replaced by decision 34 (+10%/hour past 22:00). Open: rest of Q9, row by row.
+
+### Decision 43 (Josh, 2026-11-08)
+43. **Long actions (shift, repair, 8 h) may start late and split across days:** hours left at 22:00 carry to the next morning (after sleep, 06:00). No block, no tired surcharge on the carried part. Closes risk 2. Open: does the carried work need the player to stay put, or can they sleep elsewhere? Is the unfinished action locked (cannot start another) until done?
+
+### Decision 44 (Josh, 2026-11-08)
+44. **A split action locks the gnome:** no other timed action until it is done. Sleep and nap are still allowed; leftover hours resume at 06:00 and are charged first. Closes Q9 risk 2 follow-ups. Open: rest of Q9 rows (risks 3-6, row numbers).
+
+### Decision 45 (Josh, 2026-11-08)
+45. **Cook pots run 4x longer on the game clock:** tiers 3 / 15 / 45 min become 12 / 60 / 180 game minutes. Admin setting `cook_time_multiplier`, default 4. Closes risk 3. Camp pot (decision 32) uses the same times, ready at wake.
+
+### Decision 46 (Josh, 2026-11-08)
+46. **Treks stay out of the first build** (no time cost, unchanged). Closes risk 4; time model for treks decided later.
+
+### Decision 47 (Josh, 2026-11-08)
+47. **Pal HP regrow moves to the game clock** (not real). Other offline catch-up (equip XP, `PJ_EQUIP_XP_MAX`) not yet decided. UI must label game vs real timers where both appear. Closes risks 5-6 in part. Open: equip XP cap clock; per-row review of the section 11 table (rows other than nap, cook, trek, long shifts).
+
+### Decision 48 (Josh, 2026-11-08)
+48. **Section 11 time-cost table accepted as drafted** (with decisions 34, 42-47 overriding the tired surcharge, nap, cook, trek, pal regrow rows). Every time is an admin setting, tuned in the prototype. Closes Q9. **All nine open questions are answered.**
+
+### Decisions 49-51 (Josh, 2026-11-08)
+49. **Camp pot is allowed on a nap too** (not only a full sleep). Updates decisions 32-33.
+50. **Camping gear recipe: rope, metal pins, canvas sheet, wood, camping pot.** (Camping pot is itself an item; check it exists in data, else it is new content. Quantities to set when building so craft cost is about 60 Petals, below the 100 shop price.)
+51. **Equip XP runs on the game clock, cap 24 game hours** (`PJ_EQUIP_XP_MAX` stays 24, counted in game hours from `eq_since`). All open questions now closed.

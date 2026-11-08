@@ -18,7 +18,7 @@ You are continuing the **sleep-days** system change for Gnome Venture (repo `jos
 ## Josh
 Single player right now, so data and schemas can change freely. Prefers short, exact replies (caveman style). **Ask questions one at a time** (use AskUserQuestion with 2 to 4 distinct options, recommended one first). Record each answer in the decision log of the plan, commit and push to the session branch after each.
 
-## Open questions to ask (one at a time, in this order)
+## Open questions: ALL ANSWERED (decisions 29-48). Only small leftovers: camping gear recipe materials, camp pot on a nap?, equip XP cap clock. Original list kept for reference:
 1. Bench sleep: how weak is the rest (energy %), and is there a small bad-event chance?
 2. Villager's house: which friendship level unlocks it?
 3. Camping gear: recipe materials, shop price (craft must be cheaper).
