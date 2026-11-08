@@ -117,6 +117,7 @@ function villager_panel(array $u, int $nid, string $msg = '', bool $ok = true): 
         . '<p class="muted">' . e(trim($npc['personality'] . ' ' . strtolower((string)$npc['species']))) . '</p>'
         . '<p>📍 ' . e($now['what']) . (!empty($now['home']) && $now['town'] ? ' in ' . e($now['town']) : '')
         . (!empty($now['spot']) && $now['town'] ? ' · <a href="' . e(url('town.php?' . ($now['town'] === HUB_REGION ? 'hub=1&' : '') . 'spot=' . (int)$now['spot']['id'])) . '">go there</a>' : '') . '</p>';
+    if (!$here && gclock_npc_away('n' . $nid)) $h .= '<p class="help">🧳 ' . e($npc['name']) . ' is away today (visiting family). Try again after you sleep.</p>';
     if ($here) {
         $h .= !empty($now['home']) ? '<p class="help">🚪 You knocked, and ' . e($npc['name']) . ' asks you in.</p>' : '';
         $h .= '<form method="post" action="' . e(url('villagers.php')) . '" class="vact" data-vform="1">' . csrf_field() . '<input type="hidden" name="id" value="' . $nid . '"><input type="hidden" name="do" value="talk">'

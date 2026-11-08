@@ -309,6 +309,7 @@ function gclock_rest_options(array $u): array
     $opt('bench_nap', 'Nap on a bench (' . $nap . ' h, +' . $napPct . '% energy)', 'nap', 'free');
     $need = gclock_setting_int('villager_sleep_friend_level', 4);
     $host = null;
+    require_once __DIR__ . '/friends.php';
     if (function_exists('friend_level')) {
         foreach (q('SELECT n.name, f.points FROM npcs n JOIN npc_friends f ON f.npc_id = n.id AND f.user_id = ? WHERE n.home_location_id = ?', [$uid, (int)$u['location_id']])->fetchAll() as $r) {
             if (friend_level((int)$r['points'])['index'] >= $need) { $host = $r['name']; break; }

@@ -90,6 +90,7 @@ function npc_here(array $u, int $npcId): bool
         if ($t['traveller'] === 'gourmand') return true;   // next version: he is there for everyone, at his camp or not
         return can_reach($u, traveller_stop($t)['town']);
     }
+    if (gclock_npc_away('n' . $npcId)) return false;   // visiting family today
     $hour = gclock_my_hour();
     $day = gclock_my_dow();
     foreach (q('SELECT s.*, sh.location_id AS shop_loc FROM npc_schedules s LEFT JOIN shops sh ON sh.id = s.shop_id WHERE s.npc_id = ?', [$npcId])->fetchAll() as $s) {

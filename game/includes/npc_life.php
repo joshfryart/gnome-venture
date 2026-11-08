@@ -129,7 +129,7 @@ function npcs_at_spot(array $spot): array
     $out = [];
     foreach (q('SELECT n.*, s.days, s.start_hour, s.end_hour FROM npc_schedules s JOIN npcs n ON n.id = s.npc_id
                 WHERE s.spot_id = ? AND n.active = 1', [$spot['id']])->fetchAll() as $r) {
-        if (in_array($d, schedule_days($r['days']), true) && in_array($h, schedule_hours((int)$r['start_hour'], (int)$r['end_hour']), true)) $out[$r['id']] = $r;
+        if (in_array($d, schedule_days($r['days']), true) && in_array($h, schedule_hours((int)$r['start_hour'], (int)$r['end_hour']), true) && !gclock_npc_away('n' . $r['id'])) $out[$r['id']] = $r;
     }
     if ($spot['kind'] === 'green') {
         foreach (q('SELECT * FROM npcs WHERE traveller IS NOT NULL AND active = 1')->fetchAll() as $t) {

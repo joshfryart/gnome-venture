@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.19
+- **Fix: Hovel page crashed** (`FRIEND_LEVELS` undefined in the rest options); the page now loads friends.php first, so "stay with a villager" works too.
+- **Fix: villagers "away today" still shown in town**: away villagers no longer appear at their town spot, and their panel says they are visiting family.
+
 ## 2.6.18
 - **Gathering pays more for the time (sleep-days)**: a gather now takes 10 game minutes (was 15) and finds 2 or 3 items at base tool level (was 1). Baskets, Sense and rainbows still add on top. Admin `time_gather` still overrides the time. With the flag off a find is still 1.
 
