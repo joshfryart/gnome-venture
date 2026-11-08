@@ -32,6 +32,7 @@ db "INSERT INTO news (title, body, published, kind, created_at) VALUES ('Plain n
 get 'index.php?news=all' >/dev/null; grep -q 'Plain news post' $H && echo "news tab: news ok" || echo "news tab: FAIL news"; grep -q 'Release notes' $H && echo "tabs shown" || echo "FAIL tabs"
 get 'index.php?news=all&tab=notes' >/dev/null; grep -q 'Plain news post' $H && echo "FAIL notes shows news" || echo "notes tab: separate ok"
 get gnome.php >/dev/null; grep -q 'tntabbar' $H && grep -q 'Plain news post' $H && echo "today card tabs ok" || echo "FAIL today card tabs"
+get 'world.php?tab=markets' >/dev/null; grep -q 'hubshops' $H && grep -q 'shopcard' $H && echo "markets tab ok" || echo "FAIL markets tab"
 echo "notes rows: $(db "SELECT COUNT(*) FROM news WHERE kind='notes'" | head -1)"
 echo "== hovel page"
 echo "flag off -> $(get hovel.php) (redirect expected 200 after follow? shows gnome page)"; grep -q 'still being built' $H && echo "  off: closed message" || echo "  off: (no message, check)"

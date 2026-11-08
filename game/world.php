@@ -62,12 +62,11 @@ function shop_cards(array $shops, array $u): string
         // v1.2.2: a shop in a town you're not standing in can't be used: no link, and a way to walk there
         $reach = shop_reachable($u, $s);
         $title = $reach ? '<a href="' . e(url('shop.php?id=' . (int)$s['id'])) . '">' . e($s['name']) . '</a>' : e($s['name']);
-        $out .= '<div class="box shopcard"><h3>' . $title . '</h3>'
-            . '<p>' . e($s['description']) . '</p><p class="help">'
-            . ($staff ? 'At the counter: ' . e(implode(', ', array_column($staff, 'name'))) : 'Closed — nobody on shift')
-            . '</p>'
-            . ($reach ? '' : '<p class="help">🚶 <a href="' . e(url('world.php?go=' . (int)$s['loc_id'] . '#gopanel')) . '">Walk to ' . e((string)$s['loc_name']) . '</a> to shop here.</p>')
-            . '</div>';
+        $out .= '<div class="box shopcard' . ($staff ? '' : ' shut') . '"><h3>' . $title . '</h3>'
+            . '<p class="sdesc">' . e($s['description']) . '</p><p class="help sstaff">'
+            . ($staff ? '🟢 ' . e(implode(', ', array_column($staff, 'name'))) : '⚪ Closed, nobody on shift')
+            . ($reach ? '' : ' · <a href="' . e(url('world.php?go=' . (int)$s['loc_id'] . '#gopanel')) . '">🚶 Walk to ' . e((string)$s['loc_name']) . '</a>')
+            . '</p></div>';
     }
     return $out;
 }
@@ -310,8 +309,9 @@ $shops = $locationShops($here);
 echo $shops ? '<div class="shopgrid">' . shop_cards($shops, $u) . '</div>' : '<p class="muted">No shops here yet.</p>';
 ?>
 
-<h2>Mossbottom hub <small class="muted">— reachable from anywhere</small></h2>
-<div class="shopgrid"><?= shop_cards($locationShops(HUB_REGION), $u) ?></div>
+<?php $hubShops = $locationShops(HUB_REGION); ?>
+<details class="fold" id="hubshops"><summary>🏘️ Mossbottom hub <small class="muted">(<?= count($hubShops) ?> shops, reachable from anywhere)</small></summary>
+<div class="shopgrid"><?= shop_cards($hubShops, $u) ?></div></details>
 
 <?php endif; ?>
 <?php page_footer();

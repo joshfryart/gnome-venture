@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.23
+- **Shops tab is shorter on phones**: compact shop cards (name, a one or two line description, one line for who is at the counter, a walk link if you are elsewhere), one column on phones, and the Mossbottom hub shops fold away until opened.
+
 ## 2.6.22
 - **All earlier posts moved to Release notes**: one-time at upgrade, every existing news post goes to the 📝 Release notes tab. The News tab starts empty for new hand-written posts.
 

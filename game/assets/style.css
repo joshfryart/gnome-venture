@@ -7535,3 +7535,13 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 #tn_news:checked ~ .tnp_news, #tn_notes:checked ~ .tnp_notes { display: block; }
 #tn_news:checked ~ .tntabbar label[for="tn_news"], #tn_notes:checked ~ .tntabbar label[for="tn_notes"] { background: var(--brand-ink); color: var(--surface); border-color: var(--brand-ink); }
 .tntabs .tnradio:focus-visible ~ .tntabbar label { outline: 2px solid var(--brand-ink); }
+.shopcard { padding: 8px 12px; }
+.shopcard h3 { margin: 0 0 2px; font-size: 1.05em; }
+.shopcard .sdesc { margin: 0 0 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--ink-2, inherit); }
+.shopcard .sstaff { margin: 0; }
+.shopcard.shut { opacity: .75; }
+@media (max-width: 640px) {
+  .shopgrid { grid-template-columns: 1fr; gap: 6px; }
+  .shopcard { padding: 6px 10px; font-size: 14px; }
+  .shopcard .sdesc { -webkit-line-clamp: 1; }
+}
