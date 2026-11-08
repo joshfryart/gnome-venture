@@ -15,6 +15,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
     return [[], [], [
         ['users', 'game_day', 'INT NOT NULL DEFAULT 0'], ['users', 'game_minute', 'INT NOT NULL DEFAULT ' . GAME_WAKE_MINUTE],
         ['cook_pots', 'ready_tick', 'INT NULL'],   // game tick (day*1440+minute) a game-clock pot is ready at; NULL = real ready_at
+        ['pantry_jars', 'ready_day', 'INT NULL'],   // game_day a game-clock jar is ready on; NULL = real ready_at
         ['users', 'camp_naps', 'INT NOT NULL DEFAULT 0'],   // naps taken on the gear now in use (2 per gear)
         ['plot_tiles', 'grow_day', 'INT NULL'],    // the owner's game_day that growth is settled up to
         ['plot_tiles', 'water_day', 'INT NULL'],   // the owner's game_day the bed was last watered on
@@ -315,4 +316,18 @@ function gclock_pot_minutes(int $secs): int
 function gclock_pot_ready(int $uid): array
 {
     return ['((ready_tick IS NOT NULL AND ready_tick <= ?) OR (ready_tick IS NULL AND ready_at <= ?))', [gclock_user_tick($uid), now()]];
+}
+
+// Pantry jars: ready after N sleeps (decision 12). A jar's real cook_minutes are read as real days: 1 day = 1 sleep.
+
+function gclock_jar_days(array $recipe): int
+{
+    return max(1, (int)ceil(max(0, (int)$recipe['cook_minutes']) / 1440));
+}
+
+/** SQL + params for "this jar is ready" (columns of pantry_jars, no alias). */
+function gclock_jar_ready(int $uid): array
+{
+    $r = q_one('SELECT game_day FROM users WHERE id = ?', [$uid]);
+    return ['((ready_day IS NOT NULL AND ready_day <= ?) OR (ready_day IS NULL AND ready_at <= ?))', [(int)($r['game_day'] ?? 0), now()]];
 }

@@ -225,5 +225,25 @@ ok('pot minutes: 3 min cooks 12, 15 -> 60, 45 -> 180 (x4)', gclock_pot_minutes(1
 q('DELETE FROM cook_pots WHERE user_id = ?', [$uid]);
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 
+echo "== pantry jars on game-days\n";
+require_once $argv[1] . '/includes/pantry.php';
+require_once $argv[1] . '/includes/welcome_back.php';
+setu($uid, ['game_day' => 5, 'game_minute' => 700]);
+q('DELETE FROM pantry_jars WHERE user_id = ?', [$uid]);
+$mj = fn($day, $at) => db_insert('pantry_jars', ['user_id' => $uid, 'recipe_id' => $rid, 'makes' => 1, 'qty' => 1, 'score' => 0, 'started_at' => now(), 'ready_at' => $at, 'ready_day' => $day]);
+$ja = $mj(7, gmdate('Y-m-d H:i:s', time() - 9999));   // real past, 2 sleeps to go: NOT ready
+$jb = $mj(5, gmdate('Y-m-d H:i:s', time() + 9999));   // game day reached: ready
+$jc = $mj(null, gmdate('Y-m-d H:i:s', time() - 5));   // old jar, real: ready
+ok('jar ready count uses ready_day when set', pantry_ready_count($uid) === 2, (string)pantry_ready_count($uid));
+$jl = array_column(pantry_jars_list($uid), 'left', 'id');
+ok('left in whole game days (2 days = 172800 s)', $jl[$ja] === 172800 && $jl[$jb] === 0 && $jl[$jc] === 0, json_encode($jl));
+ok('jar days: 1440 min = 1, 4320 = 3, 100 = 1', gclock_jar_days(['cook_minutes' => 1440]) === 1 && gclock_jar_days(['cook_minutes' => 4320]) === 3 && gclock_jar_days(['cook_minutes' => 100]) === 1);
+ok('collect refused before ready_day', pantry_collect_one(urow($uid), $ja)[0] === false);
+game_sleep($uid); game_sleep($uid);
+ok('two sleeps: jar ready', pantry_ready_count($uid) === 3);
+ok('welcome-back counts them', is_array(welcome_back_summary(urow($uid))));
+q('DELETE FROM pantry_jars WHERE user_id = ?', [$uid]);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);
