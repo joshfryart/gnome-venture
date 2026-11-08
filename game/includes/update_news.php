@@ -708,7 +708,7 @@ function post_update_news(string $from): void
     foreach ($todo as [$title, $body]) {
         $i++;
         if (q_val('SELECT 1 FROM news WHERE title = ?', [$title])) continue;
-        db_insert('news', ['title' => $title, 'body' => $body, 'published' => 1, 'author_id' => null,
+        db_insert('news', ['title' => $title, 'body' => $body, 'published' => 1, 'kind' => 'notes', 'author_id' => null,
             'created_at' => gmdate('Y-m-d H:i:s', time() - ($n - $i) * 60)]);   // a minute apart, newest on top
     }
 }

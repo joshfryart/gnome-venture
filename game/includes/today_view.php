@@ -21,7 +21,8 @@ function today_prepare(array $u, bool $allNews = false): array
     $uid = (int)$u['id'];
     require_once __DIR__ . '/today_social.php'; today_social_prepare($u);   // v1.0.0 wave 3: pays Hollow jar tiers before the page starts
     $c = ['u' => $u, 'allNews' => $allNews];
-    $c['news'] = q('SELECT title, body, created_at FROM news WHERE published = 1 ORDER BY created_at DESC, id DESC LIMIT ' . ($allNews ? 200 : 5))->fetchAll();
+    $c['newsTab'] = $allNews && ($_GET['tab'] ?? '') === 'notes' ? 'notes' : 'news';
+    $c['news'] = q('SELECT title, body, created_at FROM news WHERE published = 1 AND kind = ? ORDER BY created_at DESC, id DESC LIMIT ' . ($allNews ? 200 : 5), [$c['newsTab']])->fetchAll();
     $c['freshNews'] = $c['news'] && strtotime($c['news'][0]['created_at'] . ' UTC') > time() - 3 * 86400;
     // Your garden at a glance
     [$c['plot'], $tiles, $plants] = load_plot($uid, true);
@@ -156,7 +157,7 @@ function today_html(array $u, array $c, array $o = []): string
     if (!$allNews && $news) {
         $n = $news[0];
         $h .= '<div class="box todaynews" id="news">'
-            . '<p class="tnhead"><span>📰 <b>' . e($n['title']) . '</b>' . ($c['freshNews'] ? ' <span class="tag">new</span>' : '') . ' <small class="muted">' . e(gmdate('M j, Y', strtotime($n['created_at'] . ' UTC'))) . '</small></span> <a href="' . e(url('index.php?news=all#news')) . '">All news →</a></p>'
+            . '<p class="tnhead"><span>📰 <b>' . e($n['title']) . '</b>' . ($c['freshNews'] ? ' <span class="tag">new</span>' : '') . ' <small class="muted">' . e(gmdate('M j, Y', strtotime($n['created_at'] . ' UTC'))) . '</small></span> <a href="' . e(url('index.php?news=all#news')) . '">All news →</a> · <a href="' . e(url('index.php?news=all&tab=notes#news')) . '">Release notes →</a></p>'
             . '<details><summary>Read</summary><div>' . format_text($n['body']) . '</div></details></div>';
     }
     $h .= '<div class="todaycards" id="todaycards"><div class="todaygrid' . ($wide8 ? ' g8' : '') . '">' . $slotHtml;
@@ -173,8 +174,10 @@ function today_html(array $u, array $c, array $o = []): string
     }
     if ($allNews) {
         $h .= '<details class="fold todayallnews" id="news" open><summary>📰 News from the Hollow</summary>';
+        $nt = $c['newsTab'];
+        $h .= '<p class="newstabs"><a class="btn' . ($nt === 'news' ? '' : ' ghost') . '" href="' . e(url('index.php?news=all#news')) . '">📰 News</a> <a class="btn' . ($nt === 'notes' ? '' : ' ghost') . '" href="' . e(url('index.php?news=all&tab=notes#news')) . '">📝 Release notes</a></p>';
         foreach ($news as $n) $h .= '<article class="box news"><h3>' . e($n['title']) . '</h3><p class="muted">' . e(gmdate('F j, Y', strtotime($n['created_at'] . ' UTC'))) . '</p><div>' . format_text($n['body']) . '</div></article>';
-        if (!$news) $h .= '<p class="muted">No news yet.</p>';
+        if (!$news) $h .= '<p class="muted">Nothing here yet.</p>';
         $h .= '</details>';
     }
     return $h;

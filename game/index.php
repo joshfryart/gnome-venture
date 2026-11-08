@@ -3,7 +3,8 @@ declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 
 $allNews = isset($_GET['news']);   // v0.7.55: every post, not just the latest few
-$news = q('SELECT title, body, created_at FROM news WHERE published = 1 ORDER BY created_at DESC, id DESC LIMIT ' . ($allNews ? 200 : 5))->fetchAll();
+$newsTab = $allNews && ($_GET['tab'] ?? '') === 'notes' ? 'notes' : 'news';   // two tabs: News and Release notes
+$news = q('SELECT title, body, created_at FROM news WHERE published = 1 AND kind = ? ORDER BY created_at DESC, id DESC LIMIT ' . ($allNews ? 200 : 5), [$newsTab])->fetchAll();
 $freshNews = $news && strtotime($news[0]['created_at'] . ' UTC') > time() - 3 * 86400;
 $u = current_user();
 $today = $u && (int)($u['onboarded'] ?? 1) === 1;   // v0.7.48: a "Today" page for players
@@ -93,6 +94,7 @@ page_header('Home');
 <?php if ($today): /* v1.9.2: news is part of the merged Today page above */ ?>
 <?php else: ?>
 <details class="fold<?= $u ? '' : ' lp-news' ?>" id="news"<?= ($u && !$today) || $allNews || ($u && $freshNews) ? ' open' : '' ?>><summary>📰 News from the Hollow<?= $freshNews ? ' <span class="tag">new</span>' : '' ?></summary>
+<?php if ($allNews): ?><p class="newstabs"><a class="btn<?= $newsTab === 'news' ? '' : ' ghost' ?>" href="<?= e(url('index.php?news=all#news')) ?>">📰 News</a> <a class="btn<?= $newsTab === 'notes' ? '' : ' ghost' ?>" href="<?= e(url('index.php?news=all&tab=notes#news')) ?>">📝 Release notes</a></p><?php endif; ?>
 <?php foreach ($news as $n): ?>
   <article class="box news">
     <h3><?= e($n['title']) ?></h3>
@@ -100,8 +102,8 @@ page_header('Home');
     <div><?= format_text($n['body']) ?></div>
   </article>
 <?php endforeach; ?>
-<?php if (!$news): ?><p class="muted">No news yet.</p><?php endif; ?>
-<?php if (!$allNews && count($news) >= 5): ?><p><a href="<?= e(url('index.php?news=all#news')) ?>">📰 All news →</a></p><?php endif; ?>
+<?php if (!$news): ?><p class="muted">Nothing here yet.</p><?php endif; ?>
+<?php if (!$allNews): ?><p><a href="<?= e(url('index.php?news=all#news')) ?>">📰 All news →</a> · <a href="<?= e(url('index.php?news=all&tab=notes#news')) ?>">📝 Release notes →</a></p><?php endif; ?>
 </details>
 <?php endif; ?>
 <?php page_footer();

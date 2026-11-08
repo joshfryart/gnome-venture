@@ -27,6 +27,11 @@ VID=$(db "SELECT l.id FROM locations l WHERE l.region_id=$RID AND l.kind='villag
 post welcome.php -d do=place -d village_id=$VID >/dev/null
 get 'welcome.php?step=garden' >/dev/null; post welcome.php -d do=finish -d 'garden_name=Test Patch' >/dev/null
 echo "onboarded: $(db "SELECT onboarded FROM users WHERE username='sprout'")"
+echo "== news tabs"
+db "INSERT INTO news (title, body, published, kind, created_at) VALUES ('Plain news post', 'x', 1, 'news', datetime('now'))" >/dev/null
+get 'index.php?news=all' >/dev/null; grep -q 'Plain news post' $H && echo "news tab: news ok" || echo "news tab: FAIL news"; grep -q 'Release notes' $H && echo "tabs shown" || echo "FAIL tabs"
+get 'index.php?news=all&tab=notes' >/dev/null; grep -q 'Plain news post' $H && echo "FAIL notes shows news" || echo "notes tab: separate ok"
+echo "notes rows: $(db "SELECT COUNT(*) FROM news WHERE kind='notes'" | head -1)"
 echo "== hovel page"
 echo "flag off -> $(get hovel.php) (redirect expected 200 after follow? shows gnome page)"; grep -q 'still being built' $H && echo "  off: closed message" || echo "  off: (no message, check)"
 php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("INSERT OR REPLACE INTO settings (name,value) VALUES (\"game_clock_on\",\"1\")");'

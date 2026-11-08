@@ -7527,3 +7527,4 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 .hov-costs summary { cursor: pointer; list-style: none; }
 .hov-costs summary h2 { display: inline; font-size: 1.05rem; }
 .hov-costs[open] summary { margin-bottom: 8px; }
+.newstabs { display: flex; gap: .5rem; flex-wrap: wrap; margin: .5rem 0; }

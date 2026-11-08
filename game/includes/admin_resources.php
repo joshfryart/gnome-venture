@@ -774,12 +774,13 @@ function admin_resources(): array
         ],
         'news' => [
             'table' => 'news', 'label' => 'News', 'title_col' => 'title',
-            'list' => ['id', 'title', 'published', 'created_at'],
+            'list' => ['id', 'title', 'kind', 'published', 'created_at'],
             'search' => ['title'], 'order' => 'created_at DESC',
             'on_create' => ['created_at' => '@now', 'author_id' => '@user'],
             'fields' => [
                 'title' => ['type' => 'text', 'required' => true, 'max' => 150],
                 'body' => ['type' => 'textarea', 'bbcode' => true, 'help' => 'Use the buttons, or type: [b]bold[/b] [i]italic[/i] [u]underline[/u] [h]heading[/h] [center]…[/center] [quote]…[/quote] [list][*]one [*]two[/list] [url=https://…]link[/url] [img]uploads/…[/img]'],
+                'kind' => ['type' => 'select', 'label' => 'Tab', 'options' => ['news' => 'News', 'notes' => 'Release notes']],
                 'published' => ['type' => 'bool'],
             ],
         ],

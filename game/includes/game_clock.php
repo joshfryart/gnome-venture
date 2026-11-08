@@ -19,6 +19,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
         ['pantry_jars', 'ready_day', 'INT NULL'],   // game_day a game-clock jar is ready on; NULL = real ready_at
         ['users', 'carry_minutes', 'INT NOT NULL DEFAULT 0'],   // work left at 22:00 that finishes after the next sleep (decisions 43-44)
         ['users', 'pal_real_at', 'INT NULL'],   // unix time the pal clocks were last held still (real time must not move pal work)
+        ['news', 'kind', "VARCHAR(10) NOT NULL DEFAULT 'news'"],   // 'news' (hand-written) or 'notes' (release notes posted per version)
         ['users', 'camp_naps', 'INT NOT NULL DEFAULT 0'],   // naps taken on the gear now in use (2 per gear)
         ['shops', 'open_minute', 'INT NULL'], ['shops', 'close_minute', 'INT NULL'],          // closing hours (decision 41); NULL = default_open/close_minute
         ['locations', 'open_minute', 'INT NULL'], ['locations', 'close_minute', 'INT NULL'],

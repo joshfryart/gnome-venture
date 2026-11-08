@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.20
+- **News has two tabs**: 📰 News (hand-written posts) and 📝 Release notes (the per-version update posts). New `news.kind` column; existing version posts are moved to Release notes once at upgrade, and new ones post there. Admin → News has a Tab choice. The Today card links to both.
+
 ## 2.6.19
 - **Fix: Hovel page crashed** (`FRIEND_LEVELS` undefined in the rest options); the page now loads friends.php first, so "stay with a villager" works too.
 - **Fix: villagers "away today" still shown in town**: away villagers no longer appear at their town spot, and their panel says they are visiting family.
