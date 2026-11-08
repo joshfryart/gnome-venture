@@ -533,3 +533,9 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 52 (Josh, 2026-11-08)
 52. **Crop growth in sleeps by tier 1-6: 1 / 2 / 3 / 5 / 7 / 10 game-days** (today 15m / 40m / 1.5h / 3h / 6h / 12h). Admin setting `grow_days_by_tier` default `1,2,3,5,7,10`. Open: how watering counts (see build step 3).
+
+### Decision 53 (Josh, 2026-11-08)
+53. **A crop grows on a game-day only if the bed was watered that game-day, or it rained** that day. An unwatered, dry day gives no growth. Each such day adds one sleep's share (`grow_minutes*60 / sleeps`) times soil speed and the day's season/weather multiplier; unwatered days are not made up.
+
+- **Step 3 done (flag off):** setting `game_clock_on` (default off) switches `tile_grow()` to `gclock_tile_grow()`. New columns `plot_tiles.grow_day`, `plot_tiles.water_day` (owner's game_day), stamped on plant (both plant paths) and on the main water action; `save_growth` and `growth_sig` carry `grow_day`. `growth_seconds` keeps its scale so ready/percent/harvest code is unchanged. Tests in `tests/game_clock.php` pass; `tests/garden100.sh` still passes with the flag off.
+- **Still to do for garden:** other writers of `last_watered` (`events.php:200`, `player_jobs.php:273`, `hired_help.php:145`, `social169.php:156`) must also set `water_day` (owner's day); `garden_wind_weeds` and `garden_pest_pass` still walk real time; `tile_info` water-left display; admin `weather_force` does not reach a game date in `garden_weather_on`; plant-by-sleeps text in the UI.

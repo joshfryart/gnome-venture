@@ -12,7 +12,11 @@ const GAME_TIRED_MINUTE = 1320;  // 22:00
 /** Schema pieces for schema.php (same shape as here_schema()). */
 function game_clock_schema(string $PK, string $ID, string $END): array
 {
-    return [[], [], [['users', 'game_day', 'INT NOT NULL DEFAULT 0'], ['users', 'game_minute', 'INT NOT NULL DEFAULT ' . GAME_WAKE_MINUTE]]];
+    return [[], [], [
+        ['users', 'game_day', 'INT NOT NULL DEFAULT 0'], ['users', 'game_minute', 'INT NOT NULL DEFAULT ' . GAME_WAKE_MINUTE],
+        ['plot_tiles', 'grow_day', 'INT NULL'],    // the owner's game_day that growth is settled up to
+        ['plot_tiles', 'water_day', 'INT NULL'],   // the owner's game_day the bed was last watered on
+    ]];
 }
 
 /** Whole days from the season epoch to a 'Y-m-d' (the one-time start value for game_day). */
@@ -114,4 +118,63 @@ function game_nap(int $uid): ?array
         [$mins, $gain, $max, $max, $gain, $uid, (int)$u['game_day'], (int)$u['game_minute']])->rowCount();
     if ($n !== 1) return null;
     return ['game_day' => (int)$u['game_day'], 'game_minute' => (int)$u['game_minute'] + $mins];
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Garden growth on game-days (decisions 12, 52, 53). Behind the setting game_clock_on (default off).
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** SQL for "the game_day of the gnome who owns this tile's plot", for UPDATE plot_tiles ... SET grow_day = (...). */
+const GCLOCK_OWNER_DAY_SQL = '(SELECT u.game_day FROM plots pl JOIN users u ON u.id = pl.user_id WHERE pl.id = plot_tiles.plot_id)';
+
+function gclock_on(): bool
+{
+    return setting('game_clock_on') === '1';
+}
+
+/** The plot owner's game_day. Memoised per request; pass $reset after a sleep. */
+function gclock_plot_day(int $plotId, bool $reset = false): int
+{
+    static $memo = [];
+    if ($reset) { $memo = []; return 0; }
+    return $memo[$plotId] ??= (int)q_val('SELECT u.game_day FROM plots pl JOIN users u ON u.id = pl.user_id WHERE pl.id = ?', [$plotId]);
+}
+
+/** Sleeps a plant needs, from its grow_minutes band (tiers 1-6: 15/40/90/180/360/720 min). Setting grow_days_by_tier, default 1,2,3,5,7,10. */
+function gclock_grow_sleeps(array $p): int
+{
+    $days = array_map('intval', explode(',', setting('grow_days_by_tier') !== '' ? setting('grow_days_by_tier') : '1,2,3,5,7,10'));
+    $days = array_pad($days, 6, end($days) ?: 1);
+    $m = (int)$p['grow_minutes'];
+    $tier = $m <= 20 ? 0 : ($m <= 60 ? 1 : ($m <= 120 ? 2 : ($m <= 240 ? 3 : ($m <= 480 ? 4 : 5))));
+    return max(1, $days[$tier]);
+}
+
+/**
+ * Settle a bed's growth up to its owner's game_day. Each finished game-day counts if the bed was watered that day (water_day) or it rained,
+ * and adds one sleep's share of growth_seconds (grow_minutes*60 / sleeps) times soil speed and that day's season/weather.
+ * growth_seconds keeps its old scale, so everything that reads it (ready, percent, harvest) is unchanged.
+ */
+function gclock_tile_grow(array $t, ?array $p, ?int $today = null): array
+{
+    if (empty($t['plant_id']) || !$p) return $t;
+    $today ??= gclock_plot_day((int)$t['plot_id']);
+    $from = $t['grow_day'] === null || $t['grow_day'] === '' ? $today : (int)$t['grow_day'];
+    $need = max(1, (int)$p['grow_minutes'] * 60);
+    $share = $need / gclock_grow_sleeps($p);
+    $gs = (int)$t['growth_seconds'];
+    $base = soil_speed($t);
+    $slowPest = !empty($t['pest']) ? max(0, min(90, (int)setting('pest_slow_pct'))) / 100 : 0.0;
+    $water = ($t['water_day'] ?? null) === null || ($t['water_day'] ?? '') === '' ? null : (int)$t['water_day'];
+    $epoch = hollow_season_epoch();
+    $n = 0;
+    for ($d = $from; $d < $today && $n++ < 60; $d++) {
+        $fx = garden_day_fx($t, $p, hollow_date_add($epoch, $d));
+        if ($water !== $d && empty($fx['wet'])) continue;
+        $gs += (int)($share * $base * $fx['speed'] * (1 - $slowPest));
+        if (!empty($fx['nip'])) $t['nipped'] = 1;
+    }
+    $t['growth_seconds'] = min($gs, $need);
+    $t['grow_day'] = $today;
+    return $t;
 }

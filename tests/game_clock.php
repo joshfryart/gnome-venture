@@ -91,5 +91,35 @@ cfg(['weather_force' => 'storm']);
 ok('weather force applies to a game date', hollow_now('NA', null, $st)['weather'] === 'storm');
 cfg(['weather_force' => '']);
 
+echo "== garden growth on game-days (decisions 52-53)\n";
+require_once $argv[1] . '/includes/garden_logic.php';
+try {
+$pl = q_one('SELECT * FROM plots WHERE user_id = ? ORDER BY id LIMIT 1', [$uid]);
+$tile = q_one('SELECT * FROM plot_tiles WHERE plot_id = ? ORDER BY id LIMIT 1', [$pl['id']]);
+$plant = q_one('SELECT * FROM plants WHERE grow_minutes = 90 LIMIT 1');
+$plant1 = q_one('SELECT * FROM plants WHERE grow_minutes <= 20 LIMIT 1');
+cfg(['grow_days_by_tier' => '', 'rain_waters' => '0', 'weather_force' => '']);
+ok('tier sleeps 1/2/3/5/7/10', gclock_grow_sleeps(['grow_minutes' => 15]) === 1 && gclock_grow_sleeps(['grow_minutes' => 40]) === 2 && gclock_grow_sleeps(['grow_minutes' => 90]) === 3 && gclock_grow_sleeps(['grow_minutes' => 180]) === 5 && gclock_grow_sleeps(['grow_minutes' => 360]) === 7 && gclock_grow_sleeps(['grow_minutes' => 720]) === 10);
+if ($plant && $tile) {
+    $t = array_merge($tile, ['plant_id' => $plant['id'], 'growth_seconds' => 0, 'grow_day' => 4, 'water_day' => null, 'pest' => null]);
+    $need = (int)$plant['grow_minutes'] * 60;
+    $r = gclock_tile_grow($t, $plant, 4);
+    ok('same day: no growth, grow_day kept', (int)$r['growth_seconds'] === 0 && (int)$r['grow_day'] === 4);
+    $r = gclock_tile_grow($t, $plant, 5);
+    ok('slept but unwatered, no rain: no growth', (int)$r['growth_seconds'] === 0 && (int)$r['grow_day'] === 5);
+    $w = array_merge($t, ['water_day' => 4]);
+    $r = gclock_tile_grow($w, $plant, 5);
+    $one = $need / 3 * soil_speed($w) * garden_day_fx($w, $plant, hollow_date_add(hollow_season_epoch(), 4))['speed'];
+    ok('watered day 4, slept once: one share', abs((int)$r['growth_seconds'] - (int)$one) <= 1, $r['growth_seconds'] . ' vs ' . (int)$one);
+    $r = gclock_tile_grow(array_merge($t, ['water_day' => 9]), $plant, 5);
+    ok('watered on a later day than any slept: no growth', (int)$r['growth_seconds'] === 0);
+    $r = gclock_tile_grow(array_merge($w, ['growth_seconds' => $need - 1]), $plant, 8);
+    ok('growth capped at grow_minutes*60', (int)$r['growth_seconds'] <= $need);
+    $r = gclock_tile_grow(array_merge($t, ['grow_day' => null]), $plant, 10);
+    ok('no grow_day yet: starts today, no back-growth', (int)$r['growth_seconds'] === 0 && (int)$r['grow_day'] === 10);
+    cfg(['weather_force' => '']);
+} else { ok('have a plant and a tile to test with', false); }
+} catch (Throwable $e) { ok('growth block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
+
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);
