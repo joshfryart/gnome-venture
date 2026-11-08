@@ -518,3 +518,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 47 (Josh, 2026-11-08)
 47. **Pal HP regrow moves to the game clock** (not real). Other offline catch-up (equip XP, `PJ_EQUIP_XP_MAX`) not yet decided. UI must label game vs real timers where both appear. Closes risks 5-6 in part. Open: equip XP cap clock; per-row review of the section 11 table (rows other than nap, cook, trek, long shifts).
+
+### Decision 48 (Josh, 2026-11-08)
+48. **Section 11 time-cost table accepted as drafted** (with decisions 34, 42-47 overriding the tired surcharge, nap, cook, trek, pal regrow rows). Every time is an admin setting, tuned in the prototype. Closes Q9. **All nine open questions are answered.**
