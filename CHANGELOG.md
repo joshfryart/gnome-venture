@@ -1,7 +1,9 @@
 # Changelog
 
-## 2.6.29
+## 2.6.30
 - **Finds on the Trail take time to come back**: after you walk onto a find (✨) on a stretch of a route, that stretch's finds stay gone for 5.5 game days (real days with the game clock off), also on a new walk of the same route. Admin setting `trail_pickup_tenths` (55 = 5.5 days, 0 = back on the next walk). Run Upgrade database once for the `trail_pickups` table.
+
+## 2.6.29
 - **"!" only when you can hand in now**: shown over a villager only if you hold the goods for their errand or town favour, or carry a parcel / escort meant for them. Rest-stop villagers now get it too (their record was looked up in the wrong table). Away villagers never show one.
 
 ## 2.6.28

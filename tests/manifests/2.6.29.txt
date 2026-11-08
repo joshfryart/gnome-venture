@@ -10870,7 +10870,7 @@ e9e921169c0b5a43c2576f2b2eb33bfdbd47ccfa  hollow.php
 2d2faea15a268d6a2ff97ec5998d738d83ea51af  hovel.php
 f501a3307e83832e730da850b05286b4bfba1a07  includes/.htaccess
 66e922f1e00c40e97598da9fa4852dffe1ba06ec  includes/account.php
-1ce22c2b85e52b40eb3a9dd28ca62fb2a4ebc76b  includes/action_log.php
+a300565263ce1c683902013f1e7ac93e6d177c1f  includes/action_log.php
 d09a9ffd24e640600f034e664937a125aaf72cc2  includes/admin_helpers.php
 ef362ff11894ddb2a3c016fe3b3c75ff4b8e465b  includes/admin_menu.php
 d1f64aeeaf1c5ccf3a60fe86f43d2f785014be19  includes/admin_puzzle_ui.php
@@ -11021,7 +11021,7 @@ bdffed39e3b06347bee274dc3d8e85bf66d6daff  includes/folk_list.php
 5a0b3a9266ea8e802b5572a9932ca8940788e3f3  includes/fresh_start.php
 4dc56e8eae71246142971aa2b7c5c3e8777e4bf7  includes/friends.php
 f98e8c1ce0d5ca13149bd867d5ca0fe39e0239cc  includes/functions.php
-31f6b4a047107f7971df474ca35e06fd1e96418c  includes/game_clock.php
+4b0d43141575069b5dda41f121bf12dc2e35e391  includes/game_clock.php
 858f431b3a94d67bfb5d97b6cc41dc5de96f11b7  includes/games.php
 92ebef61c2662792be889a95a32fa6a5b1d0a905  includes/garden_critters.php
 6010e678cda189adcf0f12ebed210184177cff0f  includes/garden_fx.php
@@ -11117,7 +11117,7 @@ d8caaceb63ac89c037b9b5286950b69830018e95  includes/town_social.php
 7d8734a96a8759ae15db447e7f1497310125e9dc  includes/townsfolk.php
 cfb2b3dc159febd5cc7bb3622879032f30239cf2  includes/trade.php
 b79fffeda33dd154ba1a7887a85292de7e3a276d  includes/trail_art.php
-f3f6c6be75075b232b7232cb01abbd1824f3c214  includes/trail_tiles.php
+3bef210f38347a5ab3454deb3a680b7749a5973b  includes/trail_tiles.php
 08c1f12de3d67c34458881d45e1c9492bf8807bd  includes/trek.php
 c2516d13a7d4405a65c9716b379801c112e66e19  includes/trek_art.php
 395363732071f5c088d8c0a5363ae0e3974421c8  includes/trek_camp_ui.php
