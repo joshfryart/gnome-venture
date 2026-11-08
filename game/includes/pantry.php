@@ -67,17 +67,21 @@ function pantry_busy(int $uid): int
 /** Jars whose timer has run out and that are waiting to be collected (the nav badge). */
 function pantry_ready_count(int $uid): int
 {
-    return (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND collected_at IS NULL AND ready_at <= ?', [$uid, now()]);
+    [$rs, $rp] = gclock_jar_ready($uid);
+    return (int)q_val('SELECT COUNT(*) FROM pantry_jars WHERE user_id = ? AND collected_at IS NULL AND ' . $rs, array_merge([$uid], $rp));
 }
 
 /** Jars in use, soonest first, with the preserve's name and seconds left (0 = ready). */
 function pantry_jars_list(int $uid): array
 {
-    $rows = q('SELECT j.id, j.qty, j.score, j.ready_at, i.name, i.id AS item_id, r.cook_minutes FROM pantry_jars j
+    $rows = q('SELECT j.id, j.qty, j.score, j.ready_at, j.ready_day, i.name, i.id AS item_id, r.cook_minutes FROM pantry_jars j
                LEFT JOIN recipes r ON r.id = j.recipe_id LEFT JOIN items i ON i.id = r.output_item_id
                WHERE j.user_id = ? AND j.collected_at IS NULL ORDER BY j.ready_at, j.id', [$uid])->fetchAll();
+    $gd = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]);
     foreach ($rows as &$r) {
-        $r['left'] = max(0, (int)strtotime($r['ready_at'] . ' UTC') - time());
+        $r['left'] = $r['ready_day'] !== null && $r['ready_day'] !== ''
+            ? max(0, (int)$r['ready_day'] - $gd) * 86400   // game clock: whole game days left
+            : max(0, (int)strtotime($r['ready_at'] . ' UTC') - time());
         $r['name'] = (string)($r['name'] ?? 'Preserve');
         $r['kind'] = pantry_kind($r);
     }
@@ -183,8 +187,10 @@ function pantry_start(array $u, array $r, int|string $want): array
     }
     $secs = pantry_seconds($r);
     for ($i = 0; $i < $qty; $i++) {
-        db_insert('pantry_jars', ['user_id' => $uid, 'recipe_id' => (int)$r['id'], 'makes' => 1, 'qty' => max(1, (int)$r['output_qty']),
-            'score' => pantry_quality($u, $r), 'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', time() + $secs)]);
+        $row = ['user_id' => $uid, 'recipe_id' => (int)$r['id'], 'makes' => 1, 'qty' => max(1, (int)$r['output_qty']),
+            'score' => pantry_quality($u, $r), 'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', time() + $secs)];
+        if (gclock_on() && $secs > 0) $row['ready_day'] = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]) + gclock_jar_days($r);   // sleep-days: N sleeps
+        db_insert('pantry_jars', $row);
     }
     db()->commit();
     $name = (string)q_val('SELECT name FROM items WHERE id = ?', [$r['output_item_id']]);
@@ -205,7 +211,7 @@ function pantry_collect_one(array $u, int $jarId): array
     $uid = (int)$u['id'];
     $jar = q_one('SELECT * FROM pantry_jars WHERE id = ? AND user_id = ? AND collected_at IS NULL', [$jarId, $uid]);
     if (!$jar) return [false, 'That jar is already empty.', []];
-    if ($jar['ready_at'] > now()) return [false, 'That jar isn’t ready yet.', []];
+    if ($jar['ready_day'] !== null && $jar['ready_day'] !== '' ? (int)$jar['ready_day'] > (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]) : $jar['ready_at'] > now()) return [false, 'That jar isn’t ready yet.', []];
     $r = q_one('SELECT r.*, i.name AS out_name FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.id = ?', [$jar['recipe_id']]);
     db()->beginTransaction();
     if (q('UPDATE pantry_jars SET collected_at = ? WHERE id = ? AND user_id = ? AND collected_at IS NULL', [now(), $jarId, $uid])->rowCount() !== 1) {

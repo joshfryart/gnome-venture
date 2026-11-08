@@ -291,6 +291,7 @@ function soil_grade_unlocks(int $uid, int $gradeIndex): array
 
 function refresh_energy(array &$u): void
 {
+    if (gclock_on()) return;   // sleep-days: energy no longer comes back by the minute
     $max = max_energy($u);
     [$amt, $per] = energy_tick();   // v0.9.0: N energy every so many seconds
     $last = ts($u['energy_updated_at']);
@@ -314,9 +315,17 @@ function refresh_energy(array &$u): void
     }
 }
 
-function spend_energy(int $uid, int $n): bool
+/** Spend energy; $timeKey / $units also spend that action's game time (sleep-days, plan section 11) once the energy is paid. */
+function spend_energy(int $uid, int $n, ?string $timeKey = null, int $units = 1): bool
 {
-    return q('UPDATE users SET energy = energy - ? WHERE id = ? AND energy >= ?', [$n, $uid, $n])->rowCount() === 1;
+    if ($timeKey !== null && gclock_busy_minutes($uid) > 0) throw new UserError('You are still busy with a long job. Sleep, and finish it in the morning (' . round(gclock_busy_minutes($uid) / 60, 1) . ' h left).');
+    if (gclock_on() && $n > 0) {   // sleep-days: the tired surcharge (+10% per game hour past 22:00) is added here, the one place energy is spent
+        $row = q_one('SELECT game_day, game_minute FROM users WHERE id = ?', [$uid]);
+        if ($row) $n = game_energy_cost($row, $n);
+    }
+    $ok = q('UPDATE users SET energy = energy - ? WHERE id = ? AND energy >= ?', [$n, $uid, $n])->rowCount() === 1;
+    if ($ok && $timeKey !== null) gclock_charge($uid, $timeKey, $units);
+    return $ok;
 }
 
 /** Best power of a tool type the player owns (0 = none). Tools: {"tool":"till","power":2} */
@@ -613,7 +622,7 @@ function cellar_replant(int $uid, int $cellarId, int $x, int $y): array
     if (!$t || !tile_plantable($t)) return [false, 'Pick an empty, tilled square that’s ready to plant.'];
     db()->beginTransaction();
     if (q('DELETE FROM cellar_plants WHERE id = ?', [$c['id']])->rowCount() !== 1) { db()->rollBack(); return [false, 'Already replanted.']; }
-    if (q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, last_watered = NULL, harvests = ?, nipped = 0, pest = NULL, pest_at = NULL, pest_check = NULL WHERE id = ? AND plant_id IS NULL',
+    if (q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, last_watered = NULL, water_day = NULL, owed_days = 0, grow_day = ' . GCLOCK_OWNER_DAY_SQL . ', harvests = ?, nipped = 0, pest = NULL, pest_at = NULL, pest_check = NULL WHERE id = ? AND plant_id IS NULL',
           [$c['plant_id'], gmdate('Y-m-d H:i:s', time() - (int)($c['age_seconds'] ?? 0)), (int)$c['growth_seconds'], now(), (int)($c['harvests'] ?? 0), $t['id']])->rowCount() !== 1) {
         db()->rollBack();
         return [false, 'Something is already growing there.'];
@@ -707,6 +716,7 @@ function water_seconds(array $t, array $p): int
 function tile_grow(array $t, ?array $p, ?int $at = null): array
 {
     if (!$t['plant_id'] || !$p) return $t;
+    if (gclock_on()) return gclock_tile_grow($t, $p);   // sleep-days: growth counts finished game-days, not minutes
     $at ??= time();   // a hired helper replays growth up to each of their visits
     $from = ts($t['growth_updated_at']) ?: ts($t['planted_at']);
     if ($from >= $at) return $t;
@@ -756,11 +766,11 @@ function save_growth(array $t): void
 {
     q('UPDATE plot_tiles SET growth_seconds = ?, growth_updated_at = ?, mulch = ?, weeds = ?, moisture = ?, bed_score = ?, maint_at = ?,
        checkpoint = ?, neglect_hours = ?, fertility = ?, soil_life = ?, feed_fert = ?, feed_life = ?, feed_hours = ?, feed_at = ?,
-       n = ?, p = ?, k = ?, feed_n = ?, feed_p = ?, feed_k = ?, nipped = ? WHERE id = ?',
+       n = ?, p = ?, k = ?, feed_n = ?, feed_p = ?, feed_k = ?, nipped = ?, grow_day = COALESCE(?, grow_day), owed_days = COALESCE(?, owed_days) WHERE id = ?',
         [$t['growth_seconds'], $t['growth_updated_at'], $t['mulch'], $t['weeds'], $t['moisture'], $t['bed_score'], $t['maint_at'],
          $t['checkpoint'], $t['neglect_hours'], $t['fertility'], $t['soil_life'],
          (int)$t['feed_fert'], (int)$t['feed_life'], (int)$t['feed_hours'], $t['feed_at'],
-         (int)($t['n'] ?? 50), (int)($t['p'] ?? 50), (int)($t['k'] ?? 50), (int)($t['feed_n'] ?? 0), (int)($t['feed_p'] ?? 0), (int)($t['feed_k'] ?? 0), (int)($t['nipped'] ?? 0), $t['id']]);
+         (int)($t['n'] ?? 50), (int)($t['p'] ?? 50), (int)($t['k'] ?? 50), (int)($t['feed_n'] ?? 0), (int)($t['feed_p'] ?? 0), (int)($t['feed_k'] ?? 0), (int)($t['nipped'] ?? 0), isset($t['grow_day']) ? (int)$t['grow_day'] : null, isset($t['owed_days']) ? (int)$t['owed_days'] : null, $t['id']]);
 }
 
 /**
@@ -773,6 +783,8 @@ function growth_sig(array $t): array
     foreach (['growth_seconds', 'mulch', 'weeds', 'moisture', 'bed_score', 'maint_at', 'checkpoint', 'neglect_hours', 'fertility', 'soil_life', 'feed_at'] as $c) $sig[$c] = (string)($t[$c] ?? '');
     foreach (['feed_fert', 'feed_life', 'feed_hours', 'feed_n', 'feed_p', 'feed_k', 'nipped'] as $c) $sig[$c] = (string)(int)($t[$c] ?? 0);
     foreach (['n', 'p', 'k'] as $c) $sig[$c] = (string)(int)($t[$c] ?? 50);
+    $sig['grow_day'] = isset($t['grow_day']) ? (string)(int)$t['grow_day'] : '';
+    $sig['owed_days'] = isset($t['owed_days']) ? (string)(int)$t['owed_days'] : '';
     return $sig;
 }
 
@@ -1205,7 +1217,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
             case 'plant':
                 if (!give_item($uid, $itemId, -1)) throw new UserError('You don’t have that seed.');
                 $head = $sapling ? intdiv((int)$np['grow_minutes'] * 60 * (int)setting('sapling_head_start'), 100) : 0;
-                if (q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, last_watered = NULL, harvests = 0, nipped = 0, pest = NULL, pest_at = NULL, pest_check = ?
+                if (q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, last_watered = NULL, water_day = NULL, owed_days = 0, grow_day = ' . GCLOCK_OWNER_DAY_SQL . ', harvests = 0, nipped = 0, pest = NULL, pest_at = NULL, pest_check = ?
                        WHERE id = ? AND plant_id IS NULL', [$np['id'], now(), $head, now(), hollow_today(), $t['id']])->rowCount() !== 1) {
                     throw new UserError('Something is already growing here.');
                 }
@@ -1217,7 +1229,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                 // Watering also tops up a no-till bed's moisture.
                 // v0.7.27: tilled ground holds a little more water after each drink too (it used to never change)
                 $newM = $t['method'] === 'notill' ? clamp100(max((int)$t['moisture'], 20) + 10) : min(60, (int)$t['moisture'] + 4);
-                q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, moisture = ? WHERE id = ?', [$p ? now() : null, now(), $newM, $t['id']]);
+                q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, moisture = ?, water_day = ' . GCLOCK_OWNER_DAY_SQL . ' WHERE id = ?', [$p ? now() : null, now(), $newM, $t['id']]);
                 $msgs[] = $p ? 'You water the ' . $p['name'] . '.' : 'You water the bed to keep its soil life happy.';
                 if ($p) job_event($uid, 'water', '', 1);
                 break;

@@ -100,7 +100,7 @@ if ($nRep = count(repair_list($uid))): ?>
     if ($period !== $tab) continue;
     $job = current_job($uid, $period); ?>
   <section class="box jobs" id="<?= $period ?>">
-    <h2><?= $icon ?> <?= e($label) ?> <?php $left = job_period_left($period); ?><small class="muted"><?= $left < 6 * 3600 && $job && $job['status'] !== 'done' ? '⏳ ' : '' ?>ends at Hollow <?= $period === 'daily' ? 'midnight' : ($period === 'weekly' ? 'Sunday midnight' : 'month end') ?> (<?= nice_time($left) ?> left). Progress does not carry over.</small></h2>
+    <h2><?= $icon ?> <?= e($label) ?> <?php $left = job_period_left($period); ?><small class="muted"><?php if (gclock_on()): ?>changes when you sleep (<?= $period === 'daily' ? 'every sleep' : ($period === 'weekly' ? 'every 7 sleeps' : 'every ' . max(7, gclock_setting_int('job_month_days', 28)) . ' sleeps') ?>). Progress does not carry over.<?php else: ?><?= $left < 6 * 3600 && $job && $job['status'] !== 'done' ? '⏳ ' : '' ?>ends at Hollow <?= $period === 'daily' ? 'midnight' : ($period === 'weekly' ? 'Sunday midnight' : 'month end') ?> (<?= nice_time($left) ?> left). Progress does not carry over.<?php endif; ?></small></h2>
     <?php if ($job): $pct = $job['kind'] === 'grade' ? ((int)$job['progress'] >= (int)$job['qty'] ? 100 : max(0, (int)$job['progress']) * 100 / max(1, (int)$job['qty'])) : (int)$job['progress'] * 100 / max(1, (int)$job['qty']); ?>
       <div class="job taken<?= $job['status'] === 'done' ? ' done' : '' ?>">
         <h3><?= e($job['title']) ?> <?= $job['status'] === 'done' ? '<span class="tag">✅ done</span>' : '' ?></h3>

@@ -290,6 +290,7 @@ function current_energy(array $u): array
 {
     $max = max_energy($u);
     $energy = (int)$u['energy'];
+    if (gclock_on()) return [$energy, $max];   // sleep-days: no regeneration
     $last = !empty($u['energy_updated_at']) ? (int)strtotime($u['energy_updated_at'] . ' UTC') : 0;
     [$eAmt, $ePer] = energy_tick();   // v0.9.0
     if ($last && $energy < $max) $energy = min($max, $energy + intdiv(time() - $last, $ePer) * $eAmt);
@@ -299,6 +300,7 @@ function current_energy(array $u): array
 /** v0.9.4: seconds until the next energy tick (null when energy is full). */
 function energy_next_secs(array $u): ?int
 {
+    if (gclock_on()) return null;   // sleep-days: no next tick
     [$energy, $max] = current_energy($u);
     if ($energy >= $max) return null;
     $last = !empty($u['energy_updated_at']) ? (int)strtotime($u['energy_updated_at'] . ' UTC') : 0;

@@ -32,6 +32,7 @@ function ensure_crafts(): int
     pj_ensure_content();       // v2.3.0: the Healing Potion must exist before its recipe
     require_once __DIR__ . '/gathering.php';
     gather_ensure_satchel_items();   // v2.6.06: the satchels must exist before their recipes
+    gclock_ensure_camping();   // sleep-days: canvas, pins, pot and the camping gear itself (items and shop stock) before the crafts file
     $stats = ['items' => 0];
     $added = import_recipes($stats);
     // Recipes made before v0.7.5 have no slug: give them their dish's slug
@@ -257,7 +258,7 @@ function craft(array &$u, int $recipeId, int|string $want = 1): array
         return (craft_short_text($stock, $energy, $now, $qty) ?: 'Something changed while you were making it.') . ' Nothing was used.';
     };
     db()->beginTransaction();
-    if ($energy > 0 && !spend_energy($uid, $cost)) {
+    if ($energy > 0 && !spend_energy($uid, $cost, 'craft', $qty)) {
         db()->rollBack();
         return [false, $short()];
     }
@@ -333,7 +334,8 @@ function cook_pots_busy(int $uid): int
 /** Pots whose timer has run out and that are still waiting to be collected (the nav badge). */
 function cook_ready_count(int $uid): int
 {
-    return (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND pal_uid IS NULL AND ready_at <= ?', [$uid, now()]);
+    [$rs, $rp] = gclock_pot_ready($uid);
+    return (int)q_val('SELECT COUNT(*) FROM cook_pots WHERE user_id = ? AND collected_at IS NULL AND pal_uid IS NULL AND ' . $rs, array_merge([$uid], $rp));
 }
 
 /**
@@ -342,7 +344,7 @@ function cook_ready_count(int $uid): int
  */
 function cook_pots_list(int $uid): array
 {
-    $rows = q('SELECT p.id, p.makes, p.dishes, p.ready_at, p.pal_uid, i.name, i.id AS item_id FROM cook_pots p
+    $rows = q('SELECT p.id, p.makes, p.dishes, p.ready_at, p.ready_tick, p.pal_uid, i.name, i.id AS item_id FROM cook_pots p
                LEFT JOIN recipes r ON r.id = p.recipe_id LEFT JOIN items i ON i.id = r.output_item_id
                WHERE p.user_id = ? AND p.collected_at IS NULL ORDER BY p.id', [$uid])->fetchAll();
     $jobs = [];
@@ -361,7 +363,9 @@ function cook_pots_list(int $uid): array
         return [$pid, $pid > 0 ? (string)q_val('SELECT i.name FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.id = ?', [$pid]) : ''];
     };
     foreach ($rows as &$r) {
-        $r['left'] = max(0, (int)strtotime($r['ready_at'] . ' UTC') - time());
+        $r['left'] = $r['ready_tick'] !== null && $r['ready_tick'] !== ''
+            ? max(0, ((int)$r['ready_tick'] - gclock_user_tick($uid)) * 60)   // game clock: game seconds left
+            : max(0, (int)strtotime($r['ready_at'] . ' UTC') - time());
         $r['name'] = (string)($r['name'] ?? 'Dish');
         if ($r['pal_uid'] && isset($byPal[(string)$r['pal_uid']])) {
             $j = $byPal[(string)$r['pal_uid']]; [$pid, $pn] = $planName($j);
@@ -406,13 +410,13 @@ function cook_time_text(int $secs): string
  * is made here, once per pot, and stored in cook_pots.dishes. Returns [ok, message, info]; info: ids (new pot ids), qty, cost (energy),
  * fee (Petals), clamped.
  */
-function cook_start(array $u, array $r, int|string $want, int $station): array
+function cook_start(array $u, array $r, int|string $want, int $station, bool $camp = false): array
 {
     $uid = (int)$u['id'];
     $tier = (string)($r['tier'] ?: 'meal');
     $pots = cook_pots_on();
     $chunk = cook_chunk($u, $r);
-    $free = $pots ? cook_pot_limit($u) - cook_pots_busy($uid) : 0;
+    $free = $pots ? ($camp ? 1 : cook_pot_limit($u) - cook_pots_busy($uid)) : 0;   // a camp pot is one extra pot, whatever the kitchen holds
     $none = ['ids' => [], 'qty' => 0, 'cost' => 0, 'fee' => 0, 'clamped' => false];
     if ($pots && $free < 1) return [false, 'All your pots are busy. Collect a finished one, or wait for a timer.', $none];
     $energy = craft_energy_cost($u, 'cooking', (int)$r['energy'], $tier);
@@ -462,8 +466,10 @@ function cook_start(array $u, array $r, int|string $want, int $station): array
             $dishes += $makes;
             $extra += $makes;
         }
-        $ids[] = db_insert('cook_pots', ['user_id' => $uid, 'recipe_id' => (int)$r['id'], 'makes' => $makes, 'dishes' => $dishes,
-            'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', time() + $secs), 'score' => $score]);
+        $row = ['user_id' => $uid, 'recipe_id' => (int)$r['id'], 'makes' => $makes, 'dishes' => $dishes,
+            'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', time() + $secs), 'score' => $score];
+        if (gclock_on() && $secs > 0) $row['ready_tick'] = gclock_user_tick($uid) + gclock_pot_minutes($secs);   // sleep-days: the pot cooks on the gnome's own clock
+        $ids[] = db_insert('cook_pots', $row);
     }
     db()->commit();
     $info = ['ids' => $ids, 'qty' => $qty, 'cost' => $cost, 'fee' => $fee, 'clamped' => $clamped];
@@ -486,7 +492,7 @@ function cook_collect_one(array $u, int $potId, bool $byPal = false): array
     $pot = q_one('SELECT * FROM cook_pots WHERE id = ? AND user_id = ? AND collected_at IS NULL', [$potId, $uid]);
     if (!$pot) return [false, 'That pot is already empty.', []];
     if (!$byPal && $pot['pal_uid'] !== null && $pot['pal_uid'] !== '') return [false, 'A pal is tending that pot. They serve it at their next check.', []];
-    if ($pot['ready_at'] > now()) return [false, 'That pot isn’t ready yet.', []];
+    if ($pot['ready_tick'] !== null && $pot['ready_tick'] !== '' ? (int)$pot['ready_tick'] > gclock_user_tick($uid) : $pot['ready_at'] > now()) return [false, 'That pot isn’t ready yet.', []];
     $r = q_one('SELECT r.*, i.name AS out_name FROM recipes r JOIN items i ON i.id = r.output_item_id WHERE r.id = ?', [$pot['recipe_id']]);
     db()->beginTransaction();
     if (q('UPDATE cook_pots SET collected_at = ? WHERE id = ? AND user_id = ? AND collected_at IS NULL', [now(), $potId, $uid])->rowCount() !== 1) {

@@ -173,7 +173,7 @@ function take_player_job(array $u, int $id): array
         db()->rollBack();
         return [false, 'Someone got there first.'];
     }
-    $jid = db_insert('user_jobs', ['user_id' => $uid, 'period' => $period, 'period_key' => job_period_key($period), 'template_id' => null,
+    $jid = db_insert('user_jobs', ['user_id' => $uid, 'period' => $period, 'period_key' => job_board_key($period, $uid), 'template_id' => null,
         'kind' => $pj['kind'] === 'tend' ? 'p_tend' : 'p_deliver', 'title' => pjob_title($pj), 'text' => pjob_text($pj), 'npc' => $pj['poster'],
         'target' => '', 'target_item_id' => $pj['item_id'] ?: null, 'target_name' => (string)($pj['item_name'] ?? ''),
         'qty' => (int)$pj['qty'], 'progress' => 0, 'stages' => 1, 'stages_paid' => 0, 'reward_coins' => (int)$pj['wage'], 'reward_xp' => 0,
@@ -267,10 +267,10 @@ function tend_action(array $u, array $job, string $action, int $x, int $y): arra
                 if (!$p || $p['kind'] === 'cover' || !tile_info($t, $p)['ready']) throw new UserError('Nothing ready to harvest there.');
                 break;
         }
-        if (!spend_energy($uid, $cost)) throw new UserError('You’re too tired. Rest a bit and your energy will come back.' . tired_hint($uid));
+        if (!spend_energy($uid, $cost, 'tend')) throw new UserError('You’re too tired. Rest a bit and your energy will come back.' . tired_hint($uid));
         save_growth($t);
         if ($action === 'water') {
-            q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ? WHERE id = ?', [now(), now(), $t['id']]);
+            q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, water_day = ' . GCLOCK_OWNER_DAY_SQL . ' WHERE id = ?', [now(), now(), $t['id']]);
             $msgs[] = 'You water ' . $owner['gnome_name'] . '’s ' . $p['name'] . '.';
         } elseif ($action === 'weed') {
             q('UPDATE plot_tiles SET weeds = 0 WHERE id = ?', [$t['id']]);

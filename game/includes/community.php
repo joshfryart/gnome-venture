@@ -272,7 +272,7 @@ function community_tend(array $u, string $action, int $bedId, int $seedId = 0): 
             return [false, 'Unknown job.'];
     }
     db()->beginTransaction();
-    if (!spend_energy($uid, 1)) {   // v0.7.27
+    if (!spend_energy($uid, 1, 'tend')) {   // v0.7.27
         db()->rollBack();
         return [false, 'You’re too tired to help right now. Each job takes 1 energy.'];
     }

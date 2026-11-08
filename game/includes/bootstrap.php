@@ -52,6 +52,7 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/inventory.php';   // inventory domain (give_item, unlock_entries, starter/home seeds)
 require_once __DIR__ . '/here_schema.php';   // graphical navigation flag helpers (gnav_on, gnav_start_here)
+require_once __DIR__ . '/game_clock.php';   // sleep-days: personal game clock (not wired to anything yet)
 require_once __DIR__ . '/upgrade100.php';   // v1.0.0: guarded upgrade steps
 require_once __DIR__ . '/social.php';   // v1.0.0 wave 3: settings, tables, the welcome-back note
 require_once __DIR__ . '/market100.php';   // v1.0.0 wave 2b: orders, market day, price drift

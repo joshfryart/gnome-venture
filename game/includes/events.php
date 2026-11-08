@@ -197,7 +197,7 @@ function apply_event_effect(array $u, string $effect): array
             case 'water':
                 require_once __DIR__ . '/garden_logic.php';
                 load_plot($uid);   // bring growth up to date first, so thirsty time isn't counted as growing
-                $n = q("UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ? WHERE plot_id = ? AND plant_id IS NOT NULL",
+                $n = q("UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, water_day = " . GCLOCK_OWNER_DAY_SQL . " WHERE plot_id = ? AND plant_id IS NOT NULL",
                     [now(), now(), active_plot_id($uid)])->rowCount();
                 $lines[] = $n ? '💧 ' . $n . ' plant' . ($n === 1 ? '' : 's') . ' watered' : 'Nothing was planted, but the soil enjoyed it';
                 break;

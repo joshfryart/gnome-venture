@@ -195,6 +195,7 @@ $onGnome = $tab !== 'today';
 <p class="gvback"><a class="gvbacklink" href="<?= e($gurl('gnome')) ?>">← My Gnome</a> <span class="muted">· <?= e($SUBS[$tab][1]) ?></span></p>
 <?php endif; ?>
 <?php if ($tab === 'gnome'): ?>
+<?php if (gclock_on()): ?><p class="help"><a href="<?= e(url('hovel.php')) ?>">🛏️ Your hovel: sleep or nap</a></p><?php endif; ?>
 <?php elseif ($tab === 'pals'):
     $perks = $canParty ? ppal_perks($u) : ['lines' => []]; ?>
     <section class="box">

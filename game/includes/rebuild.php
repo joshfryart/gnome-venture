@@ -437,7 +437,7 @@ function repair_work(array $u, int $repairId): array
         db()->rollBack();
         return [false, 'You’ve already worked here today. Come back tomorrow.'];
     }
-    if (!spend_energy($uid, $energy)) { db()->rollBack(); return [false, 'Working here takes ' . $energy . '⚡.']; }
+    if (!spend_energy($uid, $energy, 'repair')) { db()->rollBack(); return [false, 'Working here takes ' . $energy . '⚡.']; }
     $prog = (int)q_val('SELECT prog FROM landmark_repairs WHERE id = ?', [$repairId]);
     if ($prog < $days) {
         db()->commit();

@@ -149,11 +149,11 @@ function social169_water(array $u, int $plotId): array
         q('UPDATE users SET id = id WHERE id = ?', [$me]);   // lock the helper's row: two tabs can't both pass the daily cap
         if (social169_water_used($me) >= $cap) { db()->rollBack(); return [false, 'You’ve helped in ' . $cap . ' gardens today. Tomorrow!']; }
         if (q_val('SELECT 1 FROM garden_waterings WHERE plot_id = ? AND helper_id = ? AND day = ?', [$plotId, $me, $day])) { db()->rollBack(); return [false, 'You’ve watered here today.']; }
-        if ($cost > 0 && !spend_energy($me, $cost)) { db()->rollBack(); return [false, 'Too tired. Rest a little first.']; }
+        if ($cost > 0 && !spend_energy($me, $cost, 'water_other')) { db()->rollBack(); return [false, 'Too tired. Rest a little first.']; }
         foreach ($thirsty as $t) {
             // a plain conditional write: only if nobody watered that square in between
             save_growth($t);
-            $n = q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, moisture = ? WHERE id = ? AND (last_watered IS NULL OR last_watered = ?)',
+            $n = q('UPDATE plot_tiles SET last_watered = ?, growth_updated_at = ?, moisture = ?, water_day = ' . GCLOCK_OWNER_DAY_SQL . ' WHERE id = ? AND (last_watered IS NULL OR last_watered = ?)',
                 [now(), now(), $t['method'] === 'notill' ? min(100, max((int)$t['moisture'], 20) + 10) : min(60, (int)$t['moisture'] + 4), $t['id'], $t['last_watered']])->rowCount();
             $watered += $n;
         }
