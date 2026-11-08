@@ -503,3 +503,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 42 (Josh, 2026-11-08)
 42. **Nap: 2 game hours, restores 40% energy.** Admin settings `nap_minutes` 120, `nap_energy_pct` 40. Tired surcharge in the section 11 draft (+50% flat) is replaced by decision 34 (+10%/hour past 22:00). Open: rest of Q9, row by row.
+
+### Decision 43 (Josh, 2026-11-08)
+43. **Long actions (shift, repair, 8 h) may start late and split across days:** hours left at 22:00 carry to the next morning (after sleep, 06:00). No block, no tired surcharge on the carried part. Closes risk 2. Open: does the carried work need the player to stay put, or can they sleep elsewhere? Is the unfinished action locked (cannot start another) until done?
