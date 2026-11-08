@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.14
+- **Game clock in the header bar** (the gap between the title and energy on a phone): time and day, tap to rest, amber when tired. The clock line under it stays.
+
 ## 2.6.13
 - **How to play, the Almanac and the welcome text match sleep-days**: a new "Sleep, the clock and days" fold (clock, 06:00 to 22:00, sleeping, naps, game-time costs, what follows your days), energy now says it refills by sleeping, watering says crops grow on days, shops close at 22:00, helpers follow your days. `energy_rate_text()` says "full energy back each time you sleep" while the flag is on. With the flag off the old text shows.
 

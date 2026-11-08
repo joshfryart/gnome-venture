@@ -7505,3 +7505,8 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 .statusin .gclk.tired, .stsum .gclkl.tired { color: #b45309; }
 .stsum .gclkl { font-weight: 700; font-size: 14px; }
 .gclk small, .gclkl small { font-weight: 400; opacity: .75; }
+
+/* sleep-days: the clock in the header (time and day) */
+.hdr-pill.hdr-clock { text-decoration: none; color: inherit; font-weight: 700; white-space: nowrap; }
+.hdr-pill.hdr-clock small { font-weight: 400; opacity: .8; }
+.hdr-pill.hdr-clock.tired { color: #f59e0b; }
