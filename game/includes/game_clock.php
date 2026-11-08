@@ -756,3 +756,96 @@ function gclock_ledger_flush(): void
     $line = gclock_cost_line(max(0, $s['energy'] - (int)$row['energy']), max(0, $minutes) + $carry, (int)$row['game_minute'], $carry);
     if ($line !== '' && (int)$row['game_day'] === $s['day']) flash($line, 'ok');   // a sleep (day change) has its own message
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Telling the player what things cost, BEFORE they click. gclock_cost_guide() is the full list (Rest page); gclock_cost_tag() is
+// the little " · ⚡3 · 🕐15 min" for a button label. Both read the same settings the game charges from, so they cannot drift.
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** "15 min" / "2 h" / "8 h" for game minutes. */
+function gclock_span_text(int $minutes): string
+{
+    if ($minutes <= 0) return 'no time';
+    if ($minutes < 60) return $minutes . ' min';
+    $h = intdiv($minutes, 60);
+    return $h . ' h' . ($minutes % 60 ? ' ' . ($minutes % 60) . ' min' : '');
+}
+
+/**
+ * Button-label tag for an action: energy (with the tired surcharge for this gnome) and game time. '' with the flag off.
+ * $energy 0 = free of energy; null = leave the energy out (its own label says it). $units multiplies the time (crafting).
+ */
+function gclock_cost_tag(?array $u, ?int $energy, string $timeKey = '', int $units = 1): string
+{
+    if (!gclock_on()) return '';
+    $bits = [];
+    if ($energy !== null) {
+        $e = $u ? game_energy_cost($u, $energy) : $energy;
+        $bits[] = $energy > 0 ? '⚡' . $e . ($e !== $energy ? ' (tired)' : '') : 'no energy';
+    }
+    if ($timeKey !== '') {
+        $m = gclock_time_cost($timeKey) * max(1, $units);
+        $bits[] = $m > 0 ? '🕐' . gclock_span_text($m) : 'no game time';
+    }
+    return $bits ? ' · ' . implode(' · ', $bits) : '';
+}
+
+/** Every kind of action with its energy and game-time cost: [[label, energy text, time text], ...]. */
+function gclock_cost_guide(?array $u = null): array
+{
+    $t = fn(string $k, int $units = 1): string => gclock_time_cost($k) > 0 ? gclock_span_text(gclock_time_cost($k) * $units) : 'none';
+    $e = fn(int $n): string => $n > 0 ? (string)($u ? game_energy_cost($u, $n) : $n) : 'none';
+    $nap = gclock_setting_int('nap_minutes', 120);
+    $napPct = gclock_setting_int('nap_energy_pct', 40);
+    return [
+        ['Walk one trail section', 'shown on the walk button', $t('travel') . ' per section'],
+        ['Wander off the path', $e(1), $t('wander')],
+        ['Gather', $e(1), $t('gather')],
+        ['Craft', 'shown on the recipe', $t('craft') . ' per item'],
+        ['Arrange flowers', $e(max(0, (int)setting('arrange_energy'))), $t('arrange')],
+        ['Pack a seed packet', 'none', $t('seed')],
+        ['Florist shift', $e(max(0, (int)setting('florist_energy'))), $t('shift') . ' (anything past 22:00 waits for tomorrow, and you cannot start another timed job until you sleep)'],
+        ['Work on a landmark repair', 'shown on the button', $t('repair') . ' (same rule as a shift)'],
+        ['Visit a landmark', $e(1), $t('landmark')],
+        ['Enter a lair', $e(2), $t('lair')],
+        ['Rest-stop activity', 'shown on the activity', $t('stop')],
+        ['Plant a sapling', 'shown on the button', $t('sapling')],
+        ['Tend (pals, community beds)', 'shown on the button', $t('tend')],
+        ['Water a friend’s plot', 'shown on the button', $t('water_other')],
+        ['Garden taps: till, plant, water, weed, harvest', 'shown on the button', 'none (the crops move on when you sleep)'],
+        ['Nap (needs a seat or bed)', 'gives +' . $napPct . '% energy and health', gclock_span_text($nap)],
+        ['Sleep', 'refills energy and health (a bench gives ' . gclock_setting_int('bench_sleep_energy_pct', 30) . '%)', 'jumps to 06:00 of the next day'],
+    ];
+}
+
+/** What a rest option will do, in plain numbers: "clock 14:05 -> 16:05 · energy 12 -> 28 (+16)". */
+function gclock_option_effect(array $u, array $o): string
+{
+    $s = gclock_state($u);
+    $fmt = fn(int $m): string => sprintf('%02d:%02d', intdiv($m, 60) % 24, $m % 60);
+    $max = max_energy($u);
+    $en = (int)$u['energy'];
+    if (($o['kind'] ?? '') === 'nap') {
+        $mins = gclock_setting_int('nap_minutes', 120);
+        $gain = (int)floor($max * gclock_setting_int('nap_energy_pct', 40) / 100);
+        $new = min($max, $en + $gain);
+        return 'clock ' . $fmt($s['minute']) . ' → ' . $fmt($s['minute'] + $mins) . ' (+' . gclock_span_text($mins) . ') · energy ' . $en . ' → ' . $new . ' (+' . ($new - $en) . ')';
+    }
+    $key = (string)($o['key'] ?? '');
+    $pct = $key === 'bench' ? gclock_setting_int('bench_sleep_energy_pct', 30) : 100;
+    $new = $pct >= 100 ? $max : max($en, (int)floor($max * $pct / 100));
+    $extra = $key === 'inn_chores' ? ' · the chores take ' . gclock_span_text(gclock_setting_int('inn_chore_minutes', 240)) . ' first' : '';
+    return 'clock ' . $fmt($s['minute']) . ' → 06:00 next day (+' . gclock_span_text(1440 - $s['minute'] + GAME_WAKE_MINUTE) . ') · energy ' . $en . ' → ' . $new . ' (+' . ($new - $en) . ')' . $extra;
+}
+
+/** After a rest: "Day 6, 06:00 (+8 h 30 min) · ⚡ 12 → 40 (+28) · ❤️ +9". $before/$after = users rows (energy, game_day, game_minute). */
+function gclock_rest_summary(array $before, array $after, int $hpGain = 0): string
+{
+    $fmt = fn(int $m): string => sprintf('%02d:%02d', intdiv($m, 60) % 24, $m % 60);
+    $spent = ((int)$after['game_day'] * 1440 + (int)$after['game_minute']) - ((int)$before['game_day'] * 1440 + (int)$before['game_minute']);
+    $day = (int)$after['game_day'] !== (int)$before['game_day'] ? 'Day ' . ((int)$after['game_day'] + 1) . ', ' : '';
+    $bits = [$day . $fmt((int)$after['game_minute']) . ' (+' . gclock_span_text(max(0, $spent)) . ')'];
+    $bits[] = '⚡ ' . (int)$before['energy'] . ' → ' . (int)$after['energy'] . ' (' . ((int)$after['energy'] >= (int)$before['energy'] ? '+' : '') . ((int)$after['energy'] - (int)$before['energy']) . ')';
+    if ($hpGain > 0) $bits[] = '❤️ +' . $hpGain . ' health';
+    return implode(' · ', $bits);
+}

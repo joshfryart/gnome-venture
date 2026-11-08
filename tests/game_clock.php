@@ -486,6 +486,32 @@ setu($uid, ['game_day' => 0, 'game_minute' => 360, 'carry_minutes' => 0, 'energy
 $GLOBALS['CURRENT_USER'] = null;
 $_SESSION = [];
 
+echo "== cost guide, tags and rest summaries\n";
+cfg(['game_clock_on' => '1', 'arrange_energy' => '2']);
+$ug = ['game_day' => 0, 'game_minute' => 600, 'energy' => 10, 'location_id' => null];
+ok('tag: energy and time', gclock_cost_tag($ug, 2, 'arrange') === ' · ⚡2 · 🕐10 min');
+ok('tag: tired energy is shown with the surcharge', gclock_cost_tag(['game_day' => 0, 'game_minute' => 1400], 10, 'wander') === ' · ⚡12 (tired) · 🕐20 min', gclock_cost_tag(['game_day' => 0, 'game_minute' => 1400], 10, 'wander'));
+ok('tag: free energy says so', gclock_cost_tag($ug, 0, 'seed') === ' · no energy · 🕐10 min');
+ok('tag: units multiply time (craft x3 = 45 min)', gclock_cost_tag($ug, null, 'craft', 3) === ' · 🕐45 min');
+ok('tag: 8 h shift', gclock_cost_tag($ug, 3, 'shift') === ' · ⚡3 · 🕐8 h');
+cfg(['game_clock_on' => '0']);
+ok('tag: empty with the flag off', gclock_cost_tag($ug, 2, 'arrange') === '');
+cfg(['game_clock_on' => '1']);
+$guide = gclock_cost_guide($ug);
+ok('guide lists every timed action', count($guide) >= 15 && in_array('Florist shift', array_column($guide, 0), true) && in_array('Sleep', array_column($guide, 0), true));
+$byName = array_column($guide, null, 0);
+ok('guide numbers come from the settings', $byName['Arrange flowers'][1] === '2' && $byName['Arrange flowers'][2] === '10 min' && $byName['Nap (needs a seat or bed)'][2] === '2 h');
+cfg(['time_arrange' => '25']);
+ok('changing a time setting changes the guide', gclock_cost_guide($ug)[4][2] === '25 min');
+cfg(['time_arrange' => '']);
+$nap = gclock_option_effect(['game_day' => 0, 'game_minute' => 840, 'energy' => 10] + urow($uid), ['kind' => 'nap', 'key' => 'home_nap']);
+ok('nap effect shows the clock and energy', str_contains($nap, '14:00 → 16:00 (+2 h)') && str_contains($nap, 'energy 10 →'), $nap);
+$sl = gclock_option_effect(['game_day' => 0, 'game_minute' => 1200, 'energy' => 4] + urow($uid), ['kind' => 'sleep', 'key' => 'home_sleep']);
+ok('sleep effect shows 06:00 and the 10 h skipped', str_contains($sl, '20:00 → 06:00 next day (+10 h)'), $sl);
+$sum = gclock_rest_summary(['energy' => 12, 'game_day' => 5, 'game_minute' => 1300], ['energy' => 40, 'game_day' => 6, 'game_minute' => 360], 9);
+ok('rest summary: day, clock, energy, health', $sum === 'Day 7, 06:00 (+8 h 20 min) · ⚡ 12 → 40 (+28) · ❤️ +9 health', $sum);
+cfg(['game_clock_on' => '0']);
+
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);
 q('UPDATE users SET energy = 5, energy_updated_at = ?, game_day = 0, game_minute = 600 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 7200), $uid]);
