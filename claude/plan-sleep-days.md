@@ -452,3 +452,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 ### Decisions 24-25: camping gear and naps (Josh, 2026-11-08)
 24. **Camping gear:** buyable at a shop **or** craftable; crafting is cheaper. One use per sleep, then consumed. Fits the craft mastery system (decision 19). Open: recipe materials, shop price (markup over crafting).
 25. **Naps need a seat or bed.** Allowed at home, an inn, a town bench or park, or camp. Not mid-trail, and not inside a closed place. Overrides the 'anywhere' draft in 13.6. Open: does a nap on the road need camping gear? (Draft: no, a roadside rest stop counts as a seat only where the trail has one.)
+
+### Decision 26 (Josh, 2026-11-08)
+26. **Inn fee: 110 Petals per night** (the alternative is chores for x time, decision 22). Store it as an admin setting (`inn_fee_petals`, default 110) so it can be tuned. Still open: chore time x, so the chore option is priced fairly against 110 Petals.
