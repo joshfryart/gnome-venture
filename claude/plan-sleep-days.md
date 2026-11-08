@@ -276,3 +276,11 @@ Built from the 23 `spend_energy()` call sites plus the existing timers. A game d
 - **A.** Cook pots: do they run on the game clock (finish as you spend time) or stay on the real clock?
 - **B.** Treks: flat cost to enter, or time per fight round?
 - **C.** Doing a long action late in the day (Risk 2): allow as tired, or block until tomorrow?
+
+### Decisions 15-18 on the time-cost table (Josh, 2026-11-08)
+15. **Craft mastery.** The more you craft, the less time it takes. Josh's scale: reductions per thousands crafted. Code check: `crafting.php` has no craft counter or skill today (only `calling_perk` hooks such as `cook_time_pct`, `extra_pot`, `extra_dish_pct`), so this needs a **new per-player craft count**. Draft to tune: count per craft category (not per recipe), -5% time for each 1,000 crafted in it, floor -40%. Open: per recipe or per category; does cooking share it; does it also lower energy.
+16. **Late-day long actions (question C):** allowed after 22:00 (an 8 h action may run past the day's end). The **tired surcharge** (+50% energy, draft) applies and must be **shown before the player confirms**.
+17. **Closing times override 16.** If the action is at a place that closes (a shop, a stop), **no overtime once it is closed**. Needs a closing hour on each shop or stop and a check against the player's clock plus the action's duration.
+18. **Cooking is game time (question A).** Cook pots run on the gnome's own clock and finish as game minutes pass. Treks (question B): **ignored for now**, left out of the first build.
+
+Still open: mastery scale and scope (15), where closing hours are stored (17), the late-start rule for actions that are not at a place (a craft at home has no closing hour, so it is always allowed as tired).
