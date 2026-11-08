@@ -210,3 +210,11 @@ Still `?` (need a code read, not a decision): `visit.php:81`, `mentors120.php`, 
 - Which actions cost time, and how much (travel 10 min per section; shift half or full day)?
 - Time-of-day content (NPC schedules, shop hours, day/night art) all read the personal clock.
 - Money-making cost: with time as a budget, do the sleep brakes (bucket, fewer slots) become less needed?
+
+### Decisions 8-11: the game clock (Josh, 2026-11-08)
+8. **Energy and time are two separate budgets.** Energy limits effort and is refilled by sleep (and food). Time limits the day; actions spend game minutes.
+9. **Day end is a gentle nudge, never a lock.** Past bedtime the gnome is tired (extra energy or time cost; shops and NPCs closed or asleep) but can still act. Sleep is always one tap.
+10. **Day length: 16 waking hours, 06:00 to 22:00.** Wake at 06:00. Tired after 22:00.
+11. **Sleep jumps to 06:00 the next day.** Unused hours are lost, energy refills, day +1. Plus a **nap**: spends a short time (about 2 h, to tune) for partial energy and does not end the day.
+
+Still to define: the time-cost table (which action costs how many minutes), nap numbers, what "tired" costs, whether crops grow by game-days or game-minutes, how this feeds the `hollow_hour()` callers.
