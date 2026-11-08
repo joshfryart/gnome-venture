@@ -183,3 +183,30 @@ Key: **P** personal (switch to the player's game date) · **S** shared (keep rea
 5. **Town stops** (`stops.php`, `stop_living.php`, `stop_adopt.php`, `place_ui.php`, `road_life.php`, `villagers.php`): game-days, perks and threads included.
 
 Still `?` (need a code read, not a decision): `visit.php:81`, `mentors120.php`, `mentor.php`, `puzzle_pals.php:845`, `flowers.php:19,24`, `jobs.php` period keys, `rebuild.php`, `events.php`, `social.php:200`, `sinks.php` curio_week.
+
+### Sort of the code-read rows (2026-11-08)
+| Row | Result | Why |
+|---|---|---|
+| `visit.php:81` compost turn on another's plot | **C** | visitor gives owner +1 scrap, self +3 XP; spam-sleep would farm it |
+| `mentors120.php:329` mentor XP share | **C** | `pmentor_daily_cap`, an XP cap |
+| `mentor.php:52` | **P** | "already chatted today" with a calling mentor, same as `npc_talk` |
+| `rebuild.php:432,480` landmark repair | **P** | one work-day per day, costs energy; sleeping speeds repairs on purpose |
+| `events.php:62,68` random events | **C** | `event_daily_max` cap on per-page-load rolls |
+| `social.php:200` | **S** | one-time setup writes the festival start settings |
+| `sinks.php:59,69` curio_week | **S** | weekly rotation of one shared shop |
+| `flowers.php:19,24` florist shifts, seed packets | **P**, see decision 6 | `florist_shifts_day`, `packets_per_day` |
+| `puzzle_pals.php:845` | **?** open | one pal spawn per day; is it a faucet? |
+| `jobs.php:23-25` job board | **?** open | daily/weekly/monthly offers; period keys are strings, `job_period_span` uses real midnights |
+
+### More decisions (Josh, 2026-11-08)
+6. **Florist shifts and packets:** game-days, but a shift **takes half or a full day** of the player's time. Josh: commit the gnome for x hours or minutes and move the player's game clock up by that amount; do the same for travel (each path section about 10 min). Weigh good and bad per system as it comes up.
+7. **Full per-player game clock (hours and minutes).** Actions and travel spend game minutes. **This supersedes decision 1** (real shared hour): `hollow_hour()` and the "It's 14:00 in the Hollow" line become personal. The shared real clock stays for caps, market bucket drain and shared systems.
+
+### Open design questions from decision 7
+- What happens when the day's hours run out (forced sleep, tired penalty, or locked actions)?
+- Do energy and time both exist (two budgets), or does time replace energy?
+- How long is a game day in game-hours, and what time does the day start after sleep?
+- Does sleep cost time (sleep until morning) or is it a jump?
+- Which actions cost time, and how much (travel 10 min per section; shift half or full day)?
+- Time-of-day content (NPC schedules, shop hours, day/night art) all read the personal clock.
+- Money-making cost: with time as a budget, do the sleep brakes (bucket, fewer slots) become less needed?
