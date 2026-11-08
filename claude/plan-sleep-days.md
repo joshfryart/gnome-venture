@@ -515,3 +515,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 46 (Josh, 2026-11-08)
 46. **Treks stay out of the first build** (no time cost, unchanged). Closes risk 4; time model for treks decided later.
+
+### Decision 47 (Josh, 2026-11-08)
+47. **Pal HP regrow moves to the game clock** (not real). Other offline catch-up (equip XP, `PJ_EQUIP_XP_MAX`) not yet decided. UI must label game vs real timers where both appear. Closes risks 5-6 in part. Open: equip XP cap clock; per-row review of the section 11 table (rows other than nap, cook, trek, long shifts).
