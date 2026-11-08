@@ -14,6 +14,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
 {
     return [[], [], [
         ['users', 'game_day', 'INT NOT NULL DEFAULT 0'], ['users', 'game_minute', 'INT NOT NULL DEFAULT ' . GAME_WAKE_MINUTE],
+        ['cook_pots', 'ready_tick', 'INT NULL'],   // game tick (day*1440+minute) a game-clock pot is ready at; NULL = real ready_at
         ['users', 'camp_naps', 'INT NOT NULL DEFAULT 0'],   // naps taken on the gear now in use (2 per gear)
         ['plot_tiles', 'grow_day', 'INT NULL'],    // the owner's game_day that growth is settled up to
         ['plot_tiles', 'water_day', 'INT NULL'],   // the owner's game_day the bed was last watered on
@@ -290,4 +291,28 @@ function gclock_rest(int $uid, string $key): array
             return game_nap($uid) ? [true, 'You nap at camp and feel a little better.'] : [false, 'Something stirred. Try again.'];
     }
     return [false, 'Unknown rest.'];
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Cook pots on the game clock (decision 45: 4x longer, ready_tick). A pot made under game_clock_on has ready_tick; old pots
+// and pal-tended pots keep ready_at (real time).
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** The gnome's game tick (day*1440 + minute). */
+function gclock_user_tick(int $uid): int
+{
+    $r = q_one('SELECT game_day, game_minute FROM users WHERE id = ?', [$uid]);
+    return $r ? gclock_state($r)['tick'] : 0;
+}
+
+/** Real seconds of cooking -> game minutes (cook_time_multiplier, default 4). */
+function gclock_pot_minutes(int $secs): int
+{
+    return max(1, (int)ceil($secs / 60) * max(1, gclock_setting_int('cook_time_multiplier', 4)));
+}
+
+/** SQL + params for "this pot is ready" (columns of cook_pots, no alias). */
+function gclock_pot_ready(int $uid): array
+{
+    return ['((ready_tick IS NOT NULL AND ready_tick <= ?) OR (ready_tick IS NULL AND ready_at <= ?))', [gclock_user_tick($uid), now()]];
 }

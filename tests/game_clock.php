@@ -204,5 +204,26 @@ q("DELETE FROM expeditions WHERE user_id = ?", [$uid]);
 setu($uid, ['location_id' => $home ?: null, 'game_day' => 0, 'game_minute' => 360]);
 cfg(['game_clock_on' => '0']);
 
+echo "== cook pots on the game clock\n";
+require_once $argv[1] . '/includes/crafting.php';
+$rid = (int)q_val('SELECT id FROM recipes LIMIT 1');
+setu($uid, ['game_day' => 2, 'game_minute' => 600]);
+q('DELETE FROM cook_pots WHERE user_id = ?', [$uid]);
+$mk = fn($tick, $at) => db_insert('cook_pots', ['user_id' => $uid, 'recipe_id' => $rid, 'makes' => 1, 'dishes' => 1, 'started_at' => now(), 'ready_at' => $at, 'ready_tick' => $tick, 'score' => 0]);
+$tick = 2 * 1440 + 600;
+$a = $mk($tick + 60, gmdate('Y-m-d H:i:s', time() - 3600));    // real time long past, game clock not: NOT ready
+$b = $mk($tick, gmdate('Y-m-d H:i:s', time() + 3600));         // game clock reached: ready though real time is not
+$c = $mk(null, gmdate('Y-m-d H:i:s', time() - 5));             // old pot, real: ready
+ok('ready count uses ready_tick when set', cook_ready_count($uid) === 2, (string)cook_ready_count($uid));
+$left = array_column(cook_pots_list($uid), 'left', 'id');
+ok('left in game seconds (60 min = 3600)', $left[$a] === 3600 && $left[$b] === 0 && $left[$c] === 0, json_encode($left));
+$r = cook_collect_one(urow($uid), $a);
+ok('collect refused before ready_tick', $r[0] === false && strpos($r[1], 'ready yet') !== false);
+setu($uid, ['game_minute' => 660]);   // 11:00 = a is ready
+ok('after 60 game minutes it is ready', cook_ready_count($uid) === 3);
+ok('pot minutes: 3 min cooks 12, 15 -> 60, 45 -> 180 (x4)', gclock_pot_minutes(180) === 12 && gclock_pot_minutes(900) === 60 && gclock_pot_minutes(2700) === 180);
+q('DELETE FROM cook_pots WHERE user_id = ?', [$uid]);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);
