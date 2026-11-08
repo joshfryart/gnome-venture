@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.29
+- **"!" only when you can hand in now**: shown over a villager only if you hold the goods for their errand or town favour, or carry a parcel / escort meant for them. Rest-stop villagers now get it too (their record was looked up in the wrong table). Away villagers never show one.
+
 ## 2.6.28
 - **Away villagers are really away**: a villager who is away today (visiting family) is no longer drawn on the Here pictures, no longer listed on a rest stop's Villagers tab, and offers no chat, gift, errand or town favour. They are back after you sleep.
 - **"!" fixed and widened**: it now shows over a villager who has a request open to you today (rest-stop errand not yet taken, town favour not yet done), not only when you already hold the goods. Rest-stop villagers never got a "!" before (their record was looked up in the wrong table).

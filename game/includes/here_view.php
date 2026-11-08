@@ -589,22 +589,25 @@ function here_sprites(array $u, array $node, array $L, string $kind): array
     return [$out, $over];
 }
 
-/** A "!" over a villager's head: they have a request open to you today (a rest-stop errand not yet taken, or a town favour not yet done). Away villagers have none. */
+/** A "!" over a villager's head: you can hand something in to them right now (a fetch errand or town favour whose goods you hold, or a parcel / escort you carry for them). Away villagers have none. */
 function here_quest_ready(array $u, array $node, array $n): bool
 {
     $uid = (int)$u['id'];
+    $have = fn(int $item): int => (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $item]);
     try {
         if (!empty($n['stop_folk'])) {
             require_once __DIR__ . '/stop_folk.php';
+            if (gclock_npc_away('s' . (int)$n['id'])) return false;
+            foreach (stop_errands_active($uid) as $e) if ((int)$e['target_folk_id'] === (int)$n['id'] && (int)$e['target_loc'] === (int)$node['id']) return true;   // a parcel or escort for them
             $folk = q_one('SELECT * FROM stop_folk WHERE id = ?', [(int)$n['id']]);   // 2.6.28: was read from npcs, so rest-stop folk never got a "!"
             $o = $folk ? stop_errand_offer($u, $node, $folk) : null;
-            return $o && !isset($o['taken']);
+            return $o && !isset($o['taken']) && ($o['kind'] ?? '') === 'fetch' && $have((int)$o['item']['id']) >= (int)$o['qty'];
         }
         require_once __DIR__ . '/town_social.php';
         $npc = q_one('SELECT * FROM npcs WHERE id = ?', [(int)$n['id']]);
         if (!$npc) return false;
         $o = favour_offer($uid, $npc, (string)($node['region'] ?? ''));
-        return $o && empty($o['done']);
+        return $o && empty($o['done']) && $have((int)$o['item']['id']) >= (int)$o['qty'];
     } catch (Throwable $e) { return false; }
 }
 
