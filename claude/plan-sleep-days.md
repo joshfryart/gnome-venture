@@ -476,3 +476,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 33 (Josh, 2026-11-08)
 33. **Camping gear has 2 charges for naps; a full sleep uses it up.** Gear = 2 naps, or 1 full sleep (full sleep consumes the whole item). Camp pot (decision 32) allowed on full sleep; open whether it is allowed on a nap. Admin setting `camping_gear_nap_charges`, default 2.
+
+### Decision 34 (Josh, 2026-11-08)
+34. **Tired surcharge grows: +10% energy cost per game hour past 22:00** (inside `spend_energy()`). Admin setting `tired_surcharge_pct_per_hour`, default 10. Closes open Q5. Open: cap? (Draft: none needed, since an action past midnight still ends at 06:00 wrap.)
