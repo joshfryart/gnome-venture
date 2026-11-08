@@ -1,6 +1,6 @@
 # Sleep-days: the game moves forward when the player sleeps (design, 2026-11-07)
 
-Status: **DESIGN ONLY. No code, data or version change.** Decided by Josh in a Q&A brainstorm (2026-11-07). Next step: code audit (section 9), then a prototype of garden growth only.
+Status: **DESIGN ONLY. No code, data or version change.** Decided by Josh in Q&A (2026-11-07, 2026-11-08). The code audit is done (sections 10 and 12). The decision log of the 2026-11-08 session is at the end (decisions 1-28); where it differs from sections 1-9, **the later decisions win** (e.g. personal game clock, sleep places, inn). Next step: build, starting with section 13 and a garden-growth prototype.
 
 ## 1. The change in one paragraph
 
