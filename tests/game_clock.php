@@ -822,6 +822,30 @@ cfg(['game_clock_on' => '0', 'pal_hours_per_sleep' => '']);
 q('DELETE FROM ppal_jobs WHERE user_id = ?', [$uid]); q('DELETE FROM cook_pots WHERE user_id = ?', [$uid]);
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 
+echo "== water right after a sleep (user report: 'Already well watered' on a thirsty bed)\n";
+cfg(['game_clock_on' => '1', 'rain_waters' => '0', 'weather_force' => '']);
+try {
+    $wp = q_one('SELECT * FROM plots WHERE user_id = ? ORDER BY id LIMIT 1', [$uid]);
+    $wt = q_one('SELECT * FROM plot_tiles WHERE plot_id = ? ORDER BY id LIMIT 1', [$wp['id']]);
+    $wpl = q_one('SELECT * FROM plants WHERE grow_minutes = 90 LIMIT 1');
+    if ($wt && $wpl) {
+        $saveT = $wt;
+        q('UPDATE users SET active_plot_id = ?, game_day = 50, game_minute = 360, energy = 50 WHERE id = ?', [$wp['id'], $uid]);
+        q('UPDATE plot_tiles SET plant_id = ?, growth_seconds = 0, last_watered = ?, water_day = 49, grow_day = 49 WHERE id = ?', [$wpl['id'], gmdate('Y-m-d H:i:s', time() - 60), $wt['id']]);
+        [$okW, $mW] = garden_action($uid, 'water', (int)$wt['x'], (int)$wt['y']);
+        ok('watered a minute ago (real) but yesterday (game): the new day lets you water', $okW === true, json_encode($mW));
+        cfg(['game_clock_on' => '0']);
+        q('UPDATE plot_tiles SET last_watered = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 60), $wt['id']]);
+        [$okW2, ] = garden_action($uid, 'water', (int)$wt['x'], (int)$wt['y']);
+        ok('flag off: the 5 minute rule still blocks', $okW2 === false);
+        cfg(['game_clock_on' => '1']);
+        q('UPDATE plot_tiles SET plant_id = ?, growth_seconds = ?, last_watered = ?, water_day = ?, grow_day = ? WHERE id = ?',
+            [$saveT['plant_id'], $saveT['growth_seconds'], $saveT['last_watered'], $saveT['water_day'], $saveT['grow_day'], $wt['id']]);
+    }
+} catch (Throwable $e) { echo "  FAIL water test crashed: " . $e->getMessage() . "\n"; }
+cfg(['game_clock_on' => '0']);
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+
 echo "== job board keys\n";
 require_once $argv[1] . '/includes/jobs.php';
 cfg(['game_clock_on' => '0']);

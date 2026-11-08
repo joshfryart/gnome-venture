@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.17
+- **Fix: "Already well watered" on a thirsty bed**: the real-time 5 minute watering guard blocked watering after a sleep if you had watered less than 5 real minutes before. With sleep-days on, the game day alone decides (the Water all thirsty button no longer fails). Test in `game_clock.sh`.
+
 ## 2.6.16
 - **Slimmer, centred Hovel page**: a big centred clock with day, season, weather and an energy bar; Sleep and Nap as full-width buttons with one line of effect under each; the "What costs what" table is folded away until opened.
 

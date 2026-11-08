@@ -1133,7 +1133,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                 if (!$p && $t['method'] !== 'notill') throw new UserError('Nothing to water here.');
                 if (!tool_tier($uid, 'water')) throw new UserError('You need a watering can. Twigg’s Seed Emporium sells them.');
                 if (gclock_on() && $p && !tile_info($t, $p)['thirsty'] && !tile_info($t, $p)['ready']) throw new UserError('Watered for today. It will want water again after you sleep.');
-                if ($t['last_watered'] && time() - ts($t['last_watered']) < 300) throw new UserError('Already well watered.');
+                if (!gclock_on() && $t['last_watered'] && time() - ts($t['last_watered']) < 300) throw new UserError('Already well watered.');   // sleep-days: the game day decides (checked above); a sleep right after watering must not block the new day
                 if ($p && $t['last_watered'] && !tile_info($t, $p)['thirsty'] && tile_info($t, $p)['wet_left'] > water_seconds($t, $p) / 2) {
                     throw new UserError('Still well watered: it won’t need more for about ' . nice_time(tile_info($t, $p)['wet_left'] - (int)(water_seconds($t, $p) / 2)) . '.');
                 }
