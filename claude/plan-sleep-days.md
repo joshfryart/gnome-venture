@@ -494,3 +494,6 @@ Code check: a search for camping, tent, bedroll and inn finds nothing, so **the 
 
 ### Decision 39 (Josh, 2026-11-08)
 39. **Category mastery tiers at 100 / 500 / 2000 total crafts in the category.** Each tier: +5% yield, -5% energy, +5% buff (buff on food and potions only, decision 37). Admin setting `category_mastery_tiers` default `100,500,2000`. Closes Q6. (Per-tier +5% values are my default; change if Josh says.)
+
+### Decision 40 (Josh, 2026-11-08)
+40. **NPC shop sell-bucket (section 6) is kept at the same size**, real-time drain as before. Closes Q7.
