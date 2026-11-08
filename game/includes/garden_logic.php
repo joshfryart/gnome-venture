@@ -339,6 +339,9 @@ function spend_energy(int $uid, int $n, ?string $timeKey = null, int $units = 1)
     }
     gclock_ledger_snap($uid);
     $ok = q('UPDATE users SET energy = energy - ? WHERE id = ? AND energy >= ?', [$n, $uid, $n])->rowCount() === 1;
+    if (!$ok && gclock_on() && ($cu = current_user()) && (int)$cu['id'] === $uid) {   // sleep-days: say the real price (it can be higher than the label after 22:00)
+        flash('😴 Not enough energy: that costs ⚡' . $n . ' right now and you have ⚡' . (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]) . '. Sleep, nap or eat to get it back.', 'err');
+    }
     if ($ok && $timeKey !== null) gclock_charge($uid, $timeKey, $units);
     return $ok;
 }

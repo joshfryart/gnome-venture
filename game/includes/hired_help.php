@@ -128,10 +128,10 @@ function dismiss_helper(array $u, int $plotId, int $hireId = 0): array
  * Called from load_plot for each tile, before normal growth: replay the helper's watering visits.
  * Returns the tile, and counts waterings in $stats.
  */
-function helper_water_tile(array $t, ?array $p, array $visits, array &$stats, ?array &$raw = null, bool $gameDays = false): array
+function helper_water_tile(array $t, ?array $p, array $visits, array &$stats, ?array &$raw = null, bool $virtual = true): array
 {
     if (!$p || !$visits) return $t;
-    if ($gameDays && gclock_on()) return gclock_helper_water_tile($t, $p, $visits, $stats, $raw);
+    if (gclock_on()) return gclock_helper_water_tile($t, $p, $visits, $stats, $raw, $virtual);
     $lw0 = (string)$t['last_watered'];
     $before = $stats['water'];
     foreach ($visits as $v) {

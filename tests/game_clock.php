@@ -534,6 +534,9 @@ $share = $need / gclock_grow_sleeps($pl3) * soil_speed($tt);
 ok('a helper that came on 4 days waters 4 times', $st['water'] === 4, (string)$st['water']);
 ok('and the bed grew about 4 shares (capped at ready)', (int)$r['growth_seconds'] >= min($need, (int)($share * 4 * 0.5)) && (int)$r['grow_day'] === 100, $r['growth_seconds'] . ' of ' . $need);
 $st = ['water' => 0, 'weed' => 0, 'harvest' => 0];
+$pal = gclock_helper_water_tile($tt, $pl3, [1, 2, 3], $st, $rawN, false);
+ok('a pal on duty with 3 visits waters the latest 3 game days (100, 99, 98)', $st['water'] >= 3 && (int)$pal['grow_day'] === 100, (string)$st['water']);
+$st = ['water' => 0, 'weed' => 0, 'harvest' => 0];
 $gap = gclock_helper_water_tile($tt, $pl3, [$epochT + 98 * 86400 + 36000], $st, $rawN);
 ok('a helper who came on one day only waters once; other days stay dry (owed)', $st['water'] === 1 && (int)$gap['growth_seconds'] < (int)$r['growth_seconds'] || (int)$r['growth_seconds'] >= $need);
 } catch (Throwable $e) { ok('helper block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
@@ -612,6 +615,17 @@ q("DELETE FROM garden_buildings WHERE plot_id = ? AND building = 'compost_bin'",
 } catch (Throwable $e) { ok('compost block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
 cfg(['game_clock_on' => '0', 'compost_heap_scraps' => '', 'compost_heap_max' => '']);
 setu($uid, ['game_day' => 0, 'game_minute' => 360]); gclock_plot_clock(0, true);
+
+echo "== a refused spend names the real price\n";
+$GLOBALS['CURRENT_USER'] = urow($uid); $_SESSION = [];
+cfg(['game_clock_on' => '1']);
+setu($uid, ['game_day' => 0, 'game_minute' => 1380, 'energy' => 5, 'carry_minutes' => 0]);   // 23:00 = +20%
+ok('refused at 5 energy for a base 5 (really 6)', spend_energy($uid, 5) === false && (int)urow($uid)['energy'] === 5);
+ok('the message says 6 and 5', str_contains(($_SESSION['flash'][0]['msg'] ?? ''), 'costs ⚡6') && str_contains($_SESSION['flash'][0]['msg'], 'you have ⚡5'), json_encode($_SESSION['flash'] ?? []));
+cfg(['game_clock_on' => '0']); $_SESSION = [];
+ok('flag off: refused silently as before', spend_energy($uid, 99) === false && empty($_SESSION['flash']));
+setu($uid, ['game_day' => 0, 'game_minute' => 360, 'energy' => 30]);
+$GLOBALS['CURRENT_USER'] = null; $_SESSION = [];
 
 echo "== energy under the game clock\n";
 cfg(['game_clock_on' => '1']);

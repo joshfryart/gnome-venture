@@ -77,6 +77,7 @@ function validate_input(array $fields, string $table, int $id): array
             case 'int':
             case 'hour':
                 if ($raw === '') {
+                    if (!empty($def['nullable'])) { $row[$name] = null; break; }   // sleep-days: blank = NULL = "use the default"
                     if ($req) { $errors[] = "$label is required."; break; }
                     $raw = (string)($def['default'] ?? 0);
                 }

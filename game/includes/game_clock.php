@@ -867,13 +867,14 @@ function gclock_hire_now(array $hire): int
  * Replay a helper's watering by game day: each game day with a visit, a thirsty bed is watered (water_day = that day) and grows
  * that day's share; days with no visit stay dry (owed, as for the player). Counts waterings like the real-time version.
  */
-function gclock_helper_water_tile(array $t, array $p, array $visits, array &$stats, ?array &$raw): array
+function gclock_helper_water_tile(array $t, array $p, array $visits, array &$stats, ?array &$raw, bool $virtual = true): array
 {
     $epoch = (int)strtotime(hollow_season_epoch() . ' 00:00:00 UTC');
     $today = gclock_plot_day((int)$t['plot_id']);
     $before = $stats['water'];
     $days = [];
-    foreach ($visits as $v) $days[intdiv($v - $epoch, 86400)] = true;
+    if ($virtual) foreach ($visits as $v) $days[intdiv($v - $epoch, 86400)] = true;
+    else for ($i = 0; $i < count($visits) && $i < 60; $i++) $days[$today - $i] = true;   // a pal on garden duty: its pal-job timers give a number of visits, each waters one game day, latest first
     ksort($days);
     $lw0 = $t['water_day'] ?? null;
     foreach (array_keys($days) as $d) {
@@ -882,7 +883,7 @@ function gclock_helper_water_tile(array $t, array $p, array $visits, array &$sta
         $t = gclock_tile_grow($t, $p, $d);                 // settle the days before this visit
         if ((int)$t['growth_seconds'] >= (int)$p['grow_minutes'] * 60) break;   // ready: nothing more to water
         if (($t['water_day'] ?? null) === null || (int)$t['water_day'] < $d) { $t['water_day'] = $d; $stats['water']++; }
-        $t = gclock_tile_grow($t, $p, $d + 1);            // that day, watered
+        if ($d < $today) $t = gclock_tile_grow($t, $p, $d + 1);   // that day, watered (today is not finished yet)
     }
     $t = gclock_tile_grow($t, $p, $today);                // and on to today
     $write = fn() => q('UPDATE plot_tiles SET growth_seconds = ?, grow_day = ?, owed_days = ?, water_day = ?, nipped = ? WHERE id = ?',
