@@ -76,6 +76,7 @@ function hub_sprite(array $s, array $L): string
         $r = max(10, intdiv($w, 2));
         $g .= '<circle class="fb" cx="' . $x . '" cy="' . ($y - $r) . '" r="' . $r . '"/><text class="emo" x="' . $x . '" y="' . ($y - $r + (int)round($r * 0.45)) . '" text-anchor="middle" font-size="' . (int)round($r * 1.3) . '" aria-hidden="true">' . e((string)($s['emoji'] ?? '🙂')) . '</text>';
     }
+    if (!empty($s['quest'])) $g .= '<text class="mark" x="' . ($x - intdiv($w, 3)) . '" y="' . ($y - $h + 8) . '" font-size="12" aria-hidden="true">❗</text>';
     if (($s['mark'] ?? '') !== '') $g .= '<text class="mark" x="' . ($x + intdiv($w, 3)) . '" y="' . ($y - $h + 8) . '" font-size="12" aria-hidden="true">' . e((string)$s['mark']) . '</text>';
     $hit = '<rect class="hit" x="' . ($x - max(22, intdiv($w, 2))) . '" y="' . ($y - max(44, $h)) . '" width="' . (2 * max(22, intdiv($w, 2))) . '" height="' . max(44, $h) . '"/>';
     if ($href === '') return '<g class="hsp" data-z="' . $p['z'] . '">' . $g . '</g>';
@@ -168,6 +169,7 @@ function hub_sprite_chrome(array $s, array $L): string
             $g .= '<path class="spark" d="M' . $sx . ' ' . ($sy - 4) . 'L' . ($sx + 1) . ' ' . ($sy - 1) . 'L' . ($sx + 4) . ' ' . $sy . 'L' . ($sx + 1) . ' ' . ($sy + 1) . 'L' . $sx . ' ' . ($sy + 4) . 'L' . ($sx - 1) . ' ' . ($sy + 1) . 'L' . ($sx - 4) . ' ' . $sy . 'L' . ($sx - 1) . ' ' . ($sy - 1) . 'Z"/>';
         }
     }
+    if (!empty($s['quest'])) $g .= '<text class="mark" x="' . ($x - intdiv($w, 3)) . '" y="' . ($y - $h + 8) . '" font-size="10" aria-hidden="true">❗</text>';
     if (($s['mark'] ?? '') !== '') $g .= '<text class="mark" x="' . ($x + intdiv($w, 3)) . '" y="' . ($y - $h + 8) . '" font-size="10" aria-hidden="true">' . e((string)$s['mark']) . '</text>';
     $hw = max(22, intdiv($w, 2));
     $hit = '<rect class="hit" x="' . ($x - $hw) . '" y="' . ($y - max(44, $h)) . '" width="' . (2 * $hw) . '" height="' . max(44, $h) . '"/>';
@@ -226,7 +228,7 @@ function hub_street(array $sprites): string
         $w = (int)($s['w'] ?? 64); $h = (int)($s['h'] ?? 96);
         $fw = (int)($s['fw'] ?? $w); $fh = (int)($s['fh'] ?? $h);
         $img = ((string)($s['src'] ?? '') !== '') ? '<svg class="stp" viewBox="0 0 ' . $fw . ' ' . $fh . '" width="' . $w . '" height="' . $h . '" aria-hidden="true" overflow="hidden"><image href="' . e((string)$s['src']) . '" x="0" y="0" width="' . ($fw * max(1, (int)($s['frames'] ?? 1))) . '" height="' . $fh . '" image-rendering="pixelated"/></svg>' : '<span class="stp stemo" aria-hidden="true">' . e((string)($s['emoji'] ?? '🙂')) . '</span>';
-        $o .= '<li><a class="hubst" id="sp-' . $id . '" href="' . e((string)$s['href']) . '"' . (($s['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '" aria-haspopup="dialog"' : '') . '>' . $img . '<span class="stn">' . e(hub_pill_text((string)($s['name'] ?? ''))) . ((string)($s['mark'] ?? '') !== '' ? ' ' . e((string)$s['mark']) : '') . '</span></a></li>';
+        $o .= '<li><a class="hubst' . (!empty($s['quest']) ? ' hasq' : '') . '" id="sp-' . $id . '" href="' . e((string)$s['href']) . '"' . (($s['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '" aria-haspopup="dialog"' : '') . '>' . (!empty($s['quest']) ? '<span class="stq" title="Has a request you can hand in" aria-label="Has a request you can hand in">!</span>' : '') . $img . '<span class="stn">' . e(hub_pill_text((string)($s['name'] ?? ''))) . ((string)($s['mark'] ?? '') !== '' ? ' ' . e((string)$s['mark']) : '') . '</span></a></li>';
     }
     return $o === '' ? '' : '<ul class="hubstreet" aria-label="People here">' . $o . '</ul>';
 }

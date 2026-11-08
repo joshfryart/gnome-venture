@@ -577,16 +577,36 @@ function here_sprites(array $u, array $node, array $L, string $kind): array
                 $sl = strtolower($n['species']);
                 foreach (['mouse', 'bee', 'hedgehog', 'snail', 'frog', 'beetle', 'butterfly', 'cricket', 'ladybird'] as $k) if ($sp['src'] === '' && str_contains($sl, $k) && is_file(APP_ROOT . '/assets/img/ico/ico-' . $k . '.png')) $sp['src'] = url('assets/img/ico/ico-' . $k . '.png');
             }
-            $out[] = ['id' => 'f' . (int)$n['id'], 'x' => (int)$slot['x'], 'y' => (int)$slot['y'], 'name' => $n['name'], 'href' => url('town.php?t=folk'), 'mark' => '',
+            $out[] = ['id' => 'f' . (int)$n['id'], 'x' => (int)$slot['x'], 'y' => (int)$slot['y'], 'name' => $n['name'], 'href' => url('town.php?t=folk'), 'mark' => '', 'quest' => here_quest_ready($u, $node, $n),
                       'card' => here_lazy_card(url('stopfolk.php?folk=' . (int)$n['id']), url('stopfolk.php'), '', '')] + $sp;
             continue;
         }
         $sp = here_sprite($n);
         $out[] = ['id' => 'n' . (int)$n['id'], 'x' => (int)$slot['x'], 'y' => (int)$slot['y'], 'name' => (string)$n['name'], 'href' => url('villagers.php?id=' . (int)$n['id']),
-                  'mark' => npc_birthday_today($n) ? '🎂' : '',
+                  'mark' => npc_birthday_today($n) ? '🎂' : '', 'quest' => here_quest_ready($u, $node, $n),
                   'card' => here_npc_card((int)$n['id'])] + $sp;
     }
     return [$out, $over];
+}
+
+/** A "!" over a villager's head: they have a request you can hand in right now (a rest-stop errand or a town favour that you hold the goods for). */
+function here_quest_ready(array $u, array $node, array $n): bool
+{
+    $uid = (int)$u['id'];
+    $have = fn(int $item): int => (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $item]);
+    try {
+        if (!empty($n['stop_folk'])) {
+            require_once __DIR__ . '/stop_folk.php';
+            $folk = q_one('SELECT * FROM npcs WHERE id = ?', [(int)$n['id']]);
+            $o = $folk ? stop_errand_offer($u, $node, $folk) : null;
+            return $o && !isset($o['taken']) && ($o['kind'] ?? '') === 'fetch' && $have((int)$o['item']['id']) >= (int)$o['qty'];
+        }
+        require_once __DIR__ . '/town_social.php';
+        $npc = q_one('SELECT * FROM npcs WHERE id = ?', [(int)$n['id']]);
+        if (!$npc) return false;
+        $o = favour_offer($uid, $npc, (string)($node['region'] ?? ''));
+        return $o && empty($o['done']) && $have((int)$o['item']['id']) >= (int)$o['qty'];
+    } catch (Throwable $e) { return false; }
 }
 
 /** The whole picture block for the page. */

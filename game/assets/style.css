@@ -7545,3 +7545,7 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
   .shopcard { padding: 6px 10px; font-size: 14px; }
   .shopcard .sdesc { -webkit-line-clamp: 1; }
 }
+.hubst { position: relative; }
+.hubst .stq { position: absolute; top: -4px; left: 50%; transform: translateX(-50%); z-index: 2; background: #f2c200; color: #3a2a00; border: 2px solid #3a2a00; border-radius: 50%; width: 22px; height: 22px; line-height: 18px; text-align: center; font-weight: 900; font-size: 15px; box-shadow: 0 1px 3px rgba(0,0,0,.5); animation: stqbob 1.4s ease-in-out infinite; }
+@keyframes stqbob { 50% { transform: translateX(-50%) translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .hubst .stq { animation: none; } }
