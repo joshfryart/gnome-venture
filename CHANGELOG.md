@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.12
+- **New gnome art on the account-creation page**: the Welcome "Who are you?" step showed the old flat gnome; it now shows the 2.5D gnome like the rest of the game. The hat and beard swatches (here and on Customise) recolour it live.
+
 ## 2.6.11
 - **Game clock sits right after energy** at the top of the bar (was far left).
 - **Crafting shows the total time** on the ×2, ×5 and All buttons (e.g. "×5 · 🕐 1 h 15 min total"), for non-cooking recipes while sleep-days is on.

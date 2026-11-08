@@ -159,7 +159,7 @@ page_header('Welcome to the Hollow');
     <?= csrf_field() ?><input type="hidden" name="do" value="gnome">
     <div class="wstage">
       <img class="pxl wstagebg" src="<?= e(url('assets/img/welcome/stage-backdrop.png')) ?>" width="380" height="230" alt="">
-      <div class="wgnome"><?= gnome_avatar($preview, 160) ?></div>
+      <div class="wgnome"><?php require_once __DIR__ . '/includes/gnome25.php'; ?><?= gnome25_avatar($preview, 160) ?: gnome_avatar($preview, 160) ?></div>
     </div>
     <input class="wname" name="gnome_name" value="<?= e($wf['name']) ?>" required maxlength="24" placeholder="Your gnome’s name, e.g. Bramble Puddlefoot" aria-label="Your gnome’s name" autocomplete="off">
     <fieldset class="wrow"><legend class="sr">Hat colour</legend>

@@ -78,6 +78,15 @@ document.addEventListener('change', function (ev) {
   var form = input.closest ? input.closest('[data-gnome-preview]') : null;
   if (!form || !input.getAttribute('data-part')) return;
   var part = input.getAttribute('data-part');
+  /* v2.6.12: the 2.5D gnome is one picture made by gnome_sprite.php (h = hat, b = beard colour): point it at the new colour */
+  var hex = String(input.value).replace(/^#/, '').toLowerCase();
+  if (/^[0-9a-f]{6}$/.test(hex) && (part === 'hat' || part === 'beard')) {
+    form.querySelectorAll('svg.gnome25 image').forEach(function (im) {
+      var k = part === 'hat' ? 'h' : 'b', u = im.getAttribute('href') || '';
+      var re = new RegExp('([?&])' + k + '=[0-9a-fA-F]*');
+      im.setAttribute('href', re.test(u) ? u.replace(re, '$1' + k + '=' + hex) : u + (u.indexOf('?') < 0 ? '?' : '&') + k + '=' + hex);
+    });
+  }
   form.querySelectorAll('svg.gnomeart [data-part="' + part + '"]').forEach(function (el) {
     el.setAttribute('fill', input.value);
     /* v2.0.31: pixel gnome layers are <image>s tinted by an SVG filter (see pixel_tint_filter() in includes/pixel_art.php): point them at a tint-<hex> filter, adding it if new */
