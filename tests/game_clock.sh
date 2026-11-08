@@ -33,6 +33,7 @@ php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("INSERT OR REPLA
 get hovel.php >/dev/null; grep -q 'Sleep until morning' $H && echo "  on: hovel shows" || { echo "  FAIL hovel missing"; }
 post hovel.php -d do=nap >/dev/null; echo "  after nap: $(db "SELECT game_day, game_minute FROM users WHERE username='sprout'")"
 get hovel.php >/dev/null; post hovel.php -d do=sleep >/dev/null; echo "  after sleep: $(db "SELECT game_day, game_minute FROM users WHERE username='sprout'")"
+php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("UPDATE users SET game_day=0, game_minute=360"); $p->exec("DELETE FROM settings WHERE name=\"game_clock_on\"");'
 echo "== game clock (tests/game_clock.php)"
 php -d display_errors=1 -d error_reporting=-1 "$HERE/game_clock.php" "$GAME" 2>&1; RC=$?
 echo "== php errors"
