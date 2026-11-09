@@ -19,6 +19,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
         ['cook_pots', 'ready_tick', 'INT NULL'],   // game tick (day*1440+minute) a game-clock pot is ready at; NULL = real ready_at
         ['dry_racks', 'ready_day', 'INT NULL'],     // game_day a drying bundle is ready on; NULL = real ready_at
         ['pantry_jars', 'ready_day', 'INT NULL'],   // game_day a game-clock jar is ready on; NULL = real ready_at
+        ['player_jobs', 'ends_day', 'INT NULL'],    // tend job deadline as the garden owner's game_day; NULL = real ends_at
         ['users', 'carry_minutes', 'INT NOT NULL DEFAULT 0'],   // work left at 22:00 that finishes after the next sleep (decisions 43-44)
         ['users', 'pal_real_at', 'INT NULL'],   // unix time the pal clocks were last held still (real time must not move pal work)
         ['news', 'kind', "VARCHAR(10) NOT NULL DEFAULT 'news'"],   // 'news' (hand-written) or 'notes' (release notes posted per version)

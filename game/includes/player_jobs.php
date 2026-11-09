@@ -30,6 +30,18 @@ function settle_player_jobs(): void
     foreach (q("SELECT * FROM player_jobs WHERE (status = 'open' AND expires_at < ?) OR (status = 'taken' AND ends_at < ?)", [now(), now()])->fetchAll() as $pj) {
         pjob_close($pj, $pj['status'] === 'open' ? 'expired' : ((int)$pj['progress'] >= (int)$pj['qty'] ? 'done' : 'expired'));
     }
+    // Sleep-days: a tend job runs on the garden owner's game days (its real ends_at is only a backstop)
+    foreach (q("SELECT pj.* FROM player_jobs pj JOIN users u ON u.id = pj.poster_id
+                WHERE pj.status = 'taken' AND pj.ends_day IS NOT NULL AND u.game_day >= pj.ends_day")->fetchAll() as $pj) {
+        pjob_close($pj, (int)$pj['progress'] >= (int)$pj['qty'] ? 'done' : 'expired');
+    }
+}
+
+/** Tend job on the owner's game clock: "Day 5 of 7" style text, or null when it runs on real time. */
+function pjob_days_left(array $pj): ?int
+{
+    if (!isset($pj['ends_day']) || $pj['ends_day'] === null) return null;
+    return max(0, (int)$pj['ends_day'] - (int)q_val('SELECT game_day FROM users WHERE id = ?', [$pj['poster_id']]));
 }
 
 /** Close a posting: refund what's left in escrow to the poster, and close the taker's job card. */
@@ -163,13 +175,19 @@ function take_player_job(array $u, int $id): array
         return [false, 'You’ve already worked for ' . $pj['poster'] . ' this week. Give someone else a turn.'];
     }
     $ends = gmdate('Y-m-d H:i:s', time() + (int)$pj['days'] * 86400);
+    $endsDay = null;
+    if (gclock_on() && $pj['kind'] === 'tend') {
+        // the garden only moves when its owner sleeps, so the job lasts N of the owner's sleeps; real time is a 7-day backstop
+        $endsDay = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$pj['poster_id']]) + (int)$pj['days'];
+        $ends = gmdate('Y-m-d H:i:s', time() + ((int)$pj['days'] + 7) * 86400);
+    }
     db()->beginTransaction();
     q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // v1.2.2: lock, then re-check the slot
     if (current_job($uid, $period) || ($pj['kind'] === 'tend' && active_tend_job($uid))) {
         db()->rollBack();
         return [false, 'You already have a ' . strtolower(JOB_PERIODS[$period][0]) . ' job ' . job_period_phrase($period) . '.'];
     }
-    if (q("UPDATE player_jobs SET status = 'taken', taker_id = ?, taken_at = ?, ends_at = ? WHERE id = ? AND status = 'open'", [$uid, now(), $ends, $id])->rowCount() !== 1) {
+    if (q("UPDATE player_jobs SET status = 'taken', taker_id = ?, taken_at = ?, ends_at = ?, ends_day = ? WHERE id = ? AND status = 'open'", [$uid, now(), $ends, $endsDay, $id])->rowCount() !== 1) {
         db()->rollBack();
         return [false, 'Someone got there first.'];
     }

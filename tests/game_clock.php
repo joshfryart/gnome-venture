@@ -887,6 +887,19 @@ $before = job_offers(urow($uid), 'daily');
 setu($uid, ['game_day' => 4]);
 $after = job_offers(urow($uid), 'daily');
 ok('offers are rolled for the game day (different seed per sleep, same day = same offers)', is_array($before) && is_array($after) && job_offers(urow($uid), 'daily') == $after);
+
+echo "== player tend job deadline on the owner's game days\n";
+require_once $argv[1] . '/includes/player_jobs.php';
+setu($uid, ['game_day' => 10]);
+$pjId = db_insert('player_jobs', ['poster_id' => $uid, 'kind' => 'tend', 'qty' => 6, 'days' => 1, 'wage' => 100, 'escrow' => 100, 'status' => 'taken',
+    'posted_at' => now(), 'expires_at' => gmdate('Y-m-d H:i:s', time() + 86400), 'taken_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + 8 * 86400), 'ends_day' => 11]);
+settle_player_jobs();
+ok('tend job still taken on the owner day 10 (deadline day 11)', q_val('SELECT status FROM player_jobs WHERE id = ?', [$pjId]) === 'taken');
+ok('days left = 1 sleep', pjob_days_left(q_one('SELECT * FROM player_jobs WHERE id = ?', [$pjId])) === 1);
+setu($uid, ['game_day' => 11]);
+settle_player_jobs();
+ok('tend job expires once the owner has slept (day 11), unfinished', q_val('SELECT status FROM player_jobs WHERE id = ?', [$pjId]) === 'expired');
+ok('escrow refunded to poster', (int)q_val('SELECT escrow FROM player_jobs WHERE id = ?', [$pjId]) === 0);
 cfg(['game_clock_on' => '0']);
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 
