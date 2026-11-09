@@ -698,6 +698,11 @@ function post_update_news(string $from): void
         . "[*][b]Shops and stops[/b] have opening hours, and some villagers are away on some days.\n"
         . "[*][b]Food heals you[/b]: crops, finds and home-cooked dishes give back health.[/list]\n\n"
         . "Everyone starts on today's day. Contests, shared goals, visits and the Petal caps stay on the real clock."],
+    '2.6.32' => ['🍴 Update 2.6.32: food perks, a calling nudge, and a shorter road',
+        "[list][*][b]Foodie rank[/b]: every 10 different foods you taste is a rank. Each rank gives +1 max energy and makes meal boosts last 2% longer.\n"
+        . "[*][b]Food mastery[/b]: eat or harvest the same food 500, 1000, 1650 and 2000 times and it earns a star step (Familiar, Favourite, Beloved, Signature). Each step makes that food's boosts stronger and longer, and gives more energy. See it all on My Gnome > Foods.\n"
+        . "[*][b]Calling[/b]: a yellow ! shows on the Calling tile on My Gnome once you can choose a calling and have not yet.\n"
+        . "[*][b]Clovercove[/b] is now the last stop on the road out of the Maplewold towards Blossomreach. The Maplewold's only ways out are Windburrow (to Mistmoor) and Poppynook (to Maizehollow).[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
