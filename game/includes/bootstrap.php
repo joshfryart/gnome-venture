@@ -38,6 +38,15 @@ function game_error_page(): void
 }
 set_exception_handler(function (Throwable $e) {
     try { if (function_exists('db') && isset($GLOBALS['CONFIG']) && db()->inTransaction()) db()->rollBack(); } catch (Throwable $e2) {}   // v1.0.0: never leave a half-done transaction behind
+    // A UserError is a rule talking to the player ("still busy with a long job"), not a fault: show it as a flash and go
+    // back to the page, instead of logging it and showing the Oops page.
+    if ($e instanceof UserError && PHP_SAPI !== 'cli' && !headers_sent() && function_exists('flash') && function_exists('redirect')) {
+        try {
+            flash($e->getMessage(), 'err');
+            $page = basename((string)strtok((string)($_SERVER['REQUEST_URI'] ?? ''), '?'));
+            redirect(safe_back(preg_match('~^[a-z0-9_-]+\.php$~', $page) ? $page : 'index.php'));
+        } catch (Throwable $e3) {}
+    }
     game_error_log(get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() . "\n" . $e->getTraceAsString());
     game_error_page();
 });
