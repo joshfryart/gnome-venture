@@ -10887,7 +10887,7 @@ d1f64aeeaf1c5ccf3a60fe86f43d2f785014be19  includes/admin_puzzle_ui.php
 329e7d0864e13be519c6d2b9870b4ed3da47d3bf  includes/bootstrap.php
 bbac817fc82c639f9044f000b406d1b4a6afdf6c  includes/breeding110.php
 88577080e8893717f6a3e3b1b9407cde6b4bc670  includes/calling_quests.php
-ebec686c7270cb4e38d7d44e2ec21d216c029da9  includes/calling_view.php
+838dafc8cf1519f8076cc1d32ece62e88f007243  includes/calling_view.php
 d2e6584ad753f0e06e8082114de9a044e4677dd6  includes/catalog.php
 27a01b5ef4e80ae675506ed9d7a809b23abcb075  includes/catfish.php
 3cadc6292c7c87505921087f06427a2e53cdd63b  includes/catfish_pets.php
@@ -11134,7 +11134,7 @@ ac6c7937eb940f68a7ec457616732a25a391ce54  includes/trek_oldcamp.php
 abc26d37b0ad73eaf63208d3e16306e9af794671  includes/trek_scene.php
 db7f55f68c398a056a09379e4b4582391db40c76  includes/trek_stage.php
 ef431b9a8182ac6ba5b23e20e70af68dcaa71763  includes/trek_textpass.php
-041df2492830295801f2f82188f256edac444186  includes/update_news.php
+a15a4b6b88e93f23e5cb99d350a3b4114a5d627a  includes/update_news.php
 ffb1317d8e27c559248c535edc491f31fa06e4a7  includes/updater.php
 3242d42e92eddcfc5424f4df0e43eccbfb25a27c  includes/upgrade100.php
 f5e3d0e119e030ea4a5b4ddb41876d4912077817  includes/upgrade110.php
@@ -11163,7 +11163,7 @@ cf4562c9ee84ddcfbd4453b5e936ff8c0304e7eb  market.php
 d7d0390d0a39de9b820e2ec2c706d04b414ea08a  marketday.php
 50508ef43d09a7c32f4c3100b6cca8cff14018ec  marrow.php
 54f29b49a48ac896498057e223c3a76934247cbc  memory.php
-de589c6e44e7b395f41c4404e7660ebdd5ba1ed7  mentor.php
+883f500a818814455b616ffff00451ff20fde2c9  mentor.php
 7ff69b5e34ec3a79f3d1a2fda9d437346ec4eeb0  modtools.php
 6926f89be89395483868ffc5795c8af5e7e3bf3a  mushroom.php
 fa42c6b99540e775281995dab5b9504430e4431e  page.php

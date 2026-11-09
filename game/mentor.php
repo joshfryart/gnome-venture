@@ -29,6 +29,13 @@ if (is_post()) {
         [$ok, $msg] = [false, $npc['name'] . ' only teaches their own calling’s chapters, and only to gnomes of that calling.'];
     } elseif ($do === 'trip') {   // next version: the free trip here, only to take on a chapter not started yet (calling_mentor_trip_check has the rules)
         [$ok, $msg] = calling_mentor_trip($u, $ch);
+    } elseif ($do === 'trip_start') {   // 2.6.34: the free trip and taking the chapter on in one tap, from the calling page
+        [$ok, $msg] = calling_mentor_trip($u, $ch);
+        if ($ok) {
+            $u2 = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+            [$ok2, $msg2] = $u2 && npc_here($u2, $nid) ? calling_start($u2, $ch) : [false, $npc['name'] . ' isn’t here right now.'];
+            $msg .= ' ' . $msg2; $ok = $ok2;
+        }
     } elseif (!npc_here($u, $nid)) {
         [$ok, $msg] = [false, $npc['name'] . ' isn’t here. Walk to ' . (calling_mentor_where($npc)) . '.'];
     } else {

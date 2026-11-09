@@ -700,6 +700,7 @@ function post_update_news(string $from): void
         . "Everyone starts on today's day. Contests, shared goals, visits and the Petal caps stay on the real clock."],
     '2.6.34' => ['📜 Update 2.6.34: find your calling mentor on the town map',
         "[list][*][b]Mentor button[/b]: every town's picture now has a Mentor button that takes you straight to that town's mentor lodge.\n"
+        . "[*][b]Take it from My Gnome[/b]: if your mentor is in another town, the Calling tab has a new button that makes the free trip and takes the chapter on in one go.\n"
         . "[*][b]Mentors on the street[/b]: the mentor now stands on the town picture instead of hiding in the \"more villagers\" list.[/list]"],
     '2.6.33' => ['🌱 Update 2.6.33: tending a garden follows its owner’s sleeps',
         "[list][*][b]Tend jobs[/b] now last 1, 3 or 7 of the owner's sleeps instead of real days, so they don't run out while the owner is away.\n"
