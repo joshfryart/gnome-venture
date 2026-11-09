@@ -11022,7 +11022,7 @@ bdffed39e3b06347bee274dc3d8e85bf66d6daff  includes/folk_list.php
 120df34d4148830b786912134d01400c621f25af  includes/fresh_start.php
 4dc56e8eae71246142971aa2b7c5c3e8777e4bf7  includes/friends.php
 4d9afea795b4f92bdd4d2ea1d9f7eb49fe8248d2  includes/functions.php
-835a6556d4918c3248b52db3f189659e8c2945da  includes/game_clock.php
+3d7087d7f167a6e8a5fc690f275baf58666f24f6  includes/game_clock.php
 858f431b3a94d67bfb5d97b6cc41dc5de96f11b7  includes/games.php
 92ebef61c2662792be889a95a32fa6a5b1d0a905  includes/garden_critters.php
 6010e678cda189adcf0f12ebed210184177cff0f  includes/garden_fx.php
@@ -11134,7 +11134,7 @@ ac6c7937eb940f68a7ec457616732a25a391ce54  includes/trek_oldcamp.php
 abc26d37b0ad73eaf63208d3e16306e9af794671  includes/trek_scene.php
 db7f55f68c398a056a09379e4b4582391db40c76  includes/trek_stage.php
 ef431b9a8182ac6ba5b23e20e70af68dcaa71763  includes/trek_textpass.php
-a15a4b6b88e93f23e5cb99d350a3b4114a5d627a  includes/update_news.php
+f9000a64061d73aa480c163e0e99e60b4199556b  includes/update_news.php
 ffb1317d8e27c559248c535edc491f31fa06e4a7  includes/updater.php
 3242d42e92eddcfc5424f4df0e43eccbfb25a27c  includes/upgrade100.php
 f5e3d0e119e030ea4a5b4ddb41876d4912077817  includes/upgrade110.php

@@ -957,6 +957,15 @@ function gclock_my_weekday(): string
 function gclock_npc_away(string $key): bool
 {
     if (!gclock_me()) return false;
+    if ($key !== '' && $key[0] === 'n') {   // 2.6.34: calling mentors never go visiting family (they hold the chapters)
+        static $mentorIds = null;
+        if ($mentorIds === null) {
+            require_once __DIR__ . '/calling_quests.php';
+            $slugs = array_column(CALLING_MENTORS, 1);
+            $mentorIds = array_map('intval', q('SELECT id FROM npcs WHERE slug IN (' . implode(',', array_fill(0, count($slugs), '?')) . ')', $slugs)->fetchAll(PDO::FETCH_COLUMN));
+        }
+        if (in_array((int)substr($key, 1), $mentorIds, true)) return false;
+    }
     $v = setting('npc_away_pct');
     $pct = $v === '' ? 25 : max(0, min(90, (int)$v));
     return $pct > 0 && hollow_unit('away|' . $key . '|' . gclock_my_date()) * 100 < $pct;
