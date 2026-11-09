@@ -33,8 +33,42 @@ function settle_player_jobs(): void
     // Sleep-days: a tend job runs on the garden owner's game days (its real ends_at is only a backstop)
     foreach (q("SELECT pj.* FROM player_jobs pj JOIN users u ON u.id = pj.poster_id
                 WHERE pj.status = 'taken' AND pj.ends_day IS NOT NULL AND u.game_day >= pj.ends_day")->fetchAll() as $pj) {
-        pjob_close($pj, (int)$pj['progress'] >= (int)$pj['qty'] ? 'done' : 'expired');
+        pjob_replay_days($pj);   // the last days of the contract are tended before it closes
+        $pj = q_one('SELECT * FROM player_jobs WHERE id = ?', [$pj['id']]);
+        if ($pj && $pj['status'] === 'taken') pjob_close($pj, (int)$pj['progress'] >= (int)$pj['qty'] ? 'done' : 'expired');
     }
+}
+
+/**
+ * Sleep-days: the taker tends the garden on every game day of the owner's contract, not only when they open the tend page.
+ * For each owner game day since the last replay (tend_day, capped at ends_day) one visit waters every thirsty bed that day, like a
+ * hired helper (gclock_helper_water_tile). Each watering counts as one job done, paid pro rata through pjob_progress.
+ * Weeding and harvesting still need the taker's own hands. Returns the number of waterings.
+ */
+function pjob_replay_days(array $pj): int
+{
+    if (!gclock_on() || $pj['kind'] !== 'tend' || !isset($pj['ends_day']) || $pj['ends_day'] === null || $pj['status'] !== 'taken') return 0;
+    $today = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$pj['poster_id']]);
+    if ($pj['tend_day'] === null) return 0;
+    $from = (int)$pj['tend_day'];
+    $to = min($today, (int)$pj['ends_day']);
+    if ($to <= $from) return 0;
+    // claim the days first so two tabs cannot pay the same days twice
+    if (q("UPDATE player_jobs SET tend_day = ? WHERE id = ? AND status = 'taken' AND tend_day = ?", [$to, $pj['id'], $from])->rowCount() !== 1) return 0;
+    $epoch = (int)strtotime(hollow_season_epoch() . ' 00:00:00 UTC');
+    $visits = [];
+    for ($d = $from + 1; $d <= $to && count($visits) < 30; $d++) $visits[] = $epoch + $d * 86400 + 43200;
+    $stats = ['water' => 0, 'weed' => 0, 'harvest' => 0];
+    foreach (q('SELECT * FROM plot_tiles WHERE plot_id = ? AND plant_id IS NOT NULL', [$pj['plot_id']])->fetchAll() as $raw) {
+        $p = q_one('SELECT * FROM plants WHERE id = ?', [$raw['plant_id']]);
+        if (!$p || $p['kind'] === 'cover') continue;
+        gclock_helper_water_tile(annotate_tile($raw, $p), $p, $visits, $stats, $raw);
+    }
+    if ($stats['water'] > 0) {
+        $msg = pjob_progress((int)$pj['taker_id'], ['id' => $pj['id']], $stats['water']);
+        notify((int)$pj['taker_id'], '🌱 You watered ' . $stats['water'] . ' time' . ($stats['water'] > 1 ? 's' : '') . ' in the garden you tend' . ($msg ? ' ' . $msg : '') . '.');
+    }
+    return $stats['water'];
 }
 
 /** Tend job on the owner's game clock: "Day 5 of 7" style text, or null when it runs on real time. */
@@ -178,7 +212,8 @@ function take_player_job(array $u, int $id): array
     $endsDay = null;
     if (gclock_on() && $pj['kind'] === 'tend') {
         // the garden only moves when its owner sleeps, so the job lasts N of the owner's sleeps; real time is a 7-day backstop
-        $endsDay = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$pj['poster_id']]) + (int)$pj['days'];
+        $ownerDay = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$pj['poster_id']]);
+        $endsDay = $ownerDay + (int)$pj['days'];
         $ends = gmdate('Y-m-d H:i:s', time() + ((int)$pj['days'] + 7) * 86400);
     }
     db()->beginTransaction();
@@ -187,7 +222,7 @@ function take_player_job(array $u, int $id): array
         db()->rollBack();
         return [false, 'You already have a ' . strtolower(JOB_PERIODS[$period][0]) . ' job ' . job_period_phrase($period) . '.'];
     }
-    if (q("UPDATE player_jobs SET status = 'taken', taker_id = ?, taken_at = ?, ends_at = ?, ends_day = ? WHERE id = ? AND status = 'open'", [$uid, now(), $ends, $endsDay, $id])->rowCount() !== 1) {
+    if (q("UPDATE player_jobs SET status = 'taken', taker_id = ?, taken_at = ?, ends_at = ?, ends_day = ?, tend_day = ? WHERE id = ? AND status = 'open'", [$uid, now(), $ends, $endsDay, $endsDay === null ? null : $ownerDay, $id])->rowCount() !== 1) {
         db()->rollBack();
         return [false, 'Someone got there first.'];
     }

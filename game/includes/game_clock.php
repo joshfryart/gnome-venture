@@ -19,6 +19,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
         ['cook_pots', 'ready_tick', 'INT NULL'],   // game tick (day*1440+minute) a game-clock pot is ready at; NULL = real ready_at
         ['dry_racks', 'ready_day', 'INT NULL'],     // game_day a drying bundle is ready on; NULL = real ready_at
         ['pantry_jars', 'ready_day', 'INT NULL'],   // game_day a game-clock jar is ready on; NULL = real ready_at
+        ['player_jobs', 'tend_day', 'INT NULL'],    // last owner game_day whose tending was replayed and paid
         ['player_jobs', 'ends_day', 'INT NULL'],    // tend job deadline as the garden owner's game_day; NULL = real ends_at
         ['users', 'carry_minutes', 'INT NOT NULL DEFAULT 0'],   // work left at 22:00 that finishes after the next sleep (decisions 43-44)
         ['users', 'pal_real_at', 'INT NULL'],   // unix time the pal clocks were last held still (real time must not move pal work)
@@ -446,6 +447,9 @@ function game_new_day(int $uid): void
     gclock_freeze_pals($uid);
     $h = gclock_setting_int('pal_hours_per_sleep', 8);
     if ($h > 0) gclock_shift_pal_clocks($uid, $h * 3600);
+    // a helper tending this gnome's garden through a player job works the new day (paid pro rata)
+    require_once __DIR__ . '/player_jobs.php';
+    foreach (q("SELECT * FROM player_jobs WHERE poster_id = ? AND kind = 'tend' AND status = 'taken' AND ends_day IS NOT NULL", [$uid])->fetchAll() as $pj) pjob_replay_days($pj);
 }
 
 /**

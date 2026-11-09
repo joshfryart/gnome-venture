@@ -900,6 +900,30 @@ setu($uid, ['game_day' => 11]);
 settle_player_jobs();
 ok('tend job expires once the owner has slept (day 11), unfinished', q_val('SELECT status FROM player_jobs WHERE id = ?', [$pjId]) === 'expired');
 ok('escrow refunded to poster', (int)q_val('SELECT escrow FROM player_jobs WHERE id = ?', [$pjId]) === 0);
+
+echo "== tend job replay: the taker tends every owner game day\n";
+try {
+    $takerId = (int)q_val("SELECT id FROM users WHERE username='admin'");
+    cfg(['rain_waters' => '0', 'weather_force' => '']);
+    setu($uid, ['game_day' => 20, 'game_minute' => 600]);
+    gclock_plot_clock(0, true);
+    $tileId = (int)q_val('SELECT id FROM plot_tiles WHERE plot_id = ? ORDER BY id LIMIT 1', [$pl2['id']]);
+    q('UPDATE plot_tiles SET plant_id = ?, growth_seconds = 0, grow_day = 20, water_day = NULL, owed_days = 0, pest = NULL, last_watered = NULL WHERE id = ?', [$plant['id'], $tileId]);
+    $coins0 = (int)q_val('SELECT coins FROM users WHERE id = ?', [$takerId]);
+    $rj = db_insert('player_jobs', ['poster_id' => $uid, 'kind' => 'tend', 'plot_id' => (int)$pl2['id'], 'qty' => 6, 'days' => 3, 'wage' => 120, 'escrow' => 120, 'status' => 'taken',
+        'taker_id' => $takerId, 'posted_at' => now(), 'expires_at' => gmdate('Y-m-d H:i:s', time() + 86400), 'taken_at' => now(),
+        'ends_at' => gmdate('Y-m-d H:i:s', time() + 9 * 86400), 'ends_day' => 23, 'tend_day' => 20]);
+    $row = fn() => q_one('SELECT * FROM player_jobs WHERE id = ?', [$rj]);
+    ok('same game day: nothing to replay', pjob_replay_days($row()) === 0);
+    setu($uid, ['game_day' => 22]);
+    gclock_plot_clock(0, true);
+    $n = pjob_replay_days($row());
+    ok('owner slept twice: the bed is watered on days 21 and 22', $n === 2, (string)$n);
+    ok('progress 2 of 6, paid 40 of 120 (pro rata)', (int)$row()['progress'] === 2 && (int)$row()['paid'] === 40, $row()['progress'] . '/' . $row()['paid']);
+    ok('taker got the 40 Petals', (int)q_val('SELECT coins FROM users WHERE id = ?', [$takerId]) === $coins0 + 40);
+    ok('days are claimed once: a second call pays nothing', pjob_replay_days($row()) === 0 && (int)$row()['paid'] === 40);
+    ok('tend_day moved to 22', (int)$row()['tend_day'] === 22);
+} catch (Throwable $e) { ok('tend replay block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
 cfg(['game_clock_on' => '0']);
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
 

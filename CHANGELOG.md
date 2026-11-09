@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.33
+- **Player tend jobs run on the garden owner's sleeps (sleep-days)**: a "Tend my garden" job lasts N of the owner's sleeps (1, 3 or 7), not real days, so it no longer runs out while the owner is away. The Tending page says "N sleeps". The real-time deadline stays only as a 7-day backstop.
+- **The taker tends on every owner day**: each time the owner sleeps, the person tending waters every thirsty bed for that day, like a hired helper. Each watering counts as one job done and pays its share of the wage (pro rata, from escrow); the taker gets a notice. Days are also caught up when the taker opens the Tending page and when the job ends. Weeding and harvesting still need the taker's own hands (those still cost energy and time).
+- Deliver jobs, listing expiry and "one job per poster per week" stay on real time.
+- Run Upgrade database once (new columns `player_jobs.ends_day` and `tend_day`). Tests: `tests/game_clock.php` (tend job sections).
+
 ## 2.6.32
 - **"!" on the Calling tile**: on My Gnome, the Calling tile shows a yellow ! once you reach the calling level and have not chosen one. It opens the Calling tab.
 - **Foodie rank**: every 10 different foods tasted (admin `food_unique_every`) is one rank: +1 max energy and meal buffs last 2% longer, per rank. Shown on the Foods tab.

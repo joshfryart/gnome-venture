@@ -7,6 +7,7 @@ $u = require_login();
 $uid = (int)$u['id'];
 settle_player_jobs();
 $job = active_tend_job($uid);
+if ($job) { pjob_replay_days(q_one('SELECT * FROM player_jobs WHERE id = ?', [$job['pj_id']])); $job = active_tend_job($uid); }
 
 if (is_post()) {
     csrf_check();

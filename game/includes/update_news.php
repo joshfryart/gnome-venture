@@ -698,6 +698,9 @@ function post_update_news(string $from): void
         . "[*][b]Shops and stops[/b] have opening hours, and some villagers are away on some days.\n"
         . "[*][b]Food heals you[/b]: crops, finds and home-cooked dishes give back health.[/list]\n\n"
         . "Everyone starts on today's day. Contests, shared goals, visits and the Petal caps stay on the real clock."],
+    '2.6.33' => ['🌱 Update 2.6.33: tending a garden follows its owner’s sleeps',
+        "[list][*][b]Tend jobs[/b] now last 1, 3 or 7 of the owner's sleeps instead of real days, so they don't run out while the owner is away.\n"
+        . "[*][b]Automatic watering[/b]: each time the owner sleeps, the gnome tending their garden waters every thirsty bed for that day. Each watering counts as one job done and pays part of the wage. Weeding and harvesting are still done by hand.[/list]"],
     '2.6.32' => ['🍴 Update 2.6.32: food perks, a calling nudge, and a shorter road',
         "[list][*][b]Foodie rank[/b]: every 10 different foods you taste is a rank. Each rank gives +1 max energy and makes meal boosts last 2% longer.\n"
         . "[*][b]Food mastery[/b]: eat or harvest the same food 500, 1000, 1650 and 2000 times and it earns a star step (Familiar, Favourite, Beloved, Signature). Each step makes that food's boosts stronger and longer, and gives more energy. See it all on My Gnome > Foods.\n"
