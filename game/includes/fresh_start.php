@@ -42,7 +42,7 @@ function fresh_start_columns(): array
 const FRESH_USER_TABLES = [
     'user_items' => 'user_id', 'user_recipes' => 'user_id', 'user_encyclopedia' => 'user_id', 'user_milestones' => 'user_id',
     'user_plant_knowledge' => 'user_id', 'user_guides' => 'user_id', 'user_quests' => 'user_id', 'user_jobs' => 'user_id',
-    'user_calling_chapters' => 'user_id', 'user_calling_tasks' => 'user_id', 'user_food_bonus' => 'user_id', 'user_tasted' => 'user_id',
+    'user_calling_chapters' => 'user_id', 'user_calling_tasks' => 'user_id', 'user_food_bonus' => 'user_id', 'user_food_mastery' => 'user_id', 'user_tasted' => 'user_id',
     'user_npc_met' => 'user_id', 'npc_friends' => 'user_id', 'npc_favours' => 'user_id', 'expeditions' => 'user_id', 'walk_scene' => 'user_id',
     'region_visits' => 'user_id', 'landmark_clears' => 'user_id', 'landmark_runs' => 'user_id', 'landmark_uses' => 'user_id', 'landmark_repairs' => 'user_id', 'road_journal' => 'user_id',
     'landmark_rebuilds' => 'user_id', 'xp_log' => 'user_id', 'game_scores' => 'user_id', 'game_state' => 'user_id',

@@ -313,7 +313,7 @@ function myc_region_data(array $u, int $regionId, int $selId): ?array
             if (!$loc) continue;
             [$px, $py] = map_bez([200.0, 150.0], $ctl, $E, $n > 2 ? 0.3 + 0.7 * ($i - 1) / ($n - 2) : 1.0);
             $onRoad[$nodes[$i]] = true;
-            $far_ = $i === $n - 1;
+            $far_ = $i === $n - 1 && $loc['kind'] === 'market';
             $items[$nodes[$i]] = ['id' => $nodes[$i], 'x' => $px, 'y' => $py, 'loc' => $loc, 'type' => $far_ ? 'far' : 'stop', 'k' => 'village', 'ang' => $ang,
                 'farname' => (string)($far['gnomish_name'] ?? $loc['region']), 'seen' => $far_ || place_known($uid, $loc), 'ruin' => false];
             $list[] = $nodes[$i];
@@ -1070,7 +1070,7 @@ function myc_world_svg(array $u, ?int $sel = null): string
         if ($rid) $folk[$rid][] = $nm;
     }
     $edges = [];
-    foreach (q('SELECT l1.region_id AS a, l2.region_id AS b FROM roads r JOIN locations l1 ON l1.id = r.a_town JOIN locations l2 ON l2.id = r.b_town')->fetchAll() as $e_) {
+    foreach (q('SELECT l1.region_id AS a, l2.region_id AS b FROM roads r JOIN locations l1 ON l1.id = r.a_town JOIN locations l2 ON l2.id = r.b_town AND l2.kind = \'market\'')->fetchAll() as $e_) {
         $a = (int)$e_['a']; $b = (int)$e_['b'];
         if ($a && $b && $a !== $b && isset($rows[$a], $rows[$b])) $edges[min($a, $b) . '-' . max($a, $b)] = [min($a, $b), max($a, $b)];
     }

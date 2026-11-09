@@ -545,6 +545,13 @@ function settings_schema(): array
         'stat_points_per_level' => ['label' => 'Stats: points earned per gnome level', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 10],
         'stat_max'           => ['label' => 'Stats: highest any can go', 'type' => 'int', 'default' => '30', 'min' => 10, 'max' => 100],
         'food_perm_cap'      => ['label' => 'Stats: max permanent bonus per stat from eating rare crops', 'type' => 'int', 'default' => '5', 'min' => 0, 'max' => 50],
+        'food_unique_every'  => ['label' => 'Foods: different foods tasted for each Foodie rank', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 1000],   // 2.6.32
+        'food_rank_energy'   => ['label' => 'Foods: max energy per Foodie rank', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 20],
+        'food_rank_buff_pct' => ['label' => 'Foods: % longer meal buffs per Foodie rank', 'type' => 'int', 'default' => '2', 'min' => 0, 'max' => 50],
+        'food_mastery_marks' => ['label' => 'Foods: counts (eaten + harvested of one food) for mastery 1 to 4, comma list', 'type' => 'text', 'default' => '500,1000,1650,2000'],
+        'food_mastery_stat_pct' => ['label' => 'Foods: % stronger meal boost per mastery step', 'type' => 'int', 'default' => '10', 'min' => 0, 'max' => 200],
+        'food_mastery_time_pct' => ['label' => 'Foods: % longer meal boost per mastery step', 'type' => 'int', 'default' => '15', 'min' => 0, 'max' => 200],
+        'food_mastery_energy_pct' => ['label' => 'Foods: % more energy per mastery step', 'type' => 'int', 'default' => '10', 'min' => 0, 'max' => 200],
         'calling_level'      => ['label' => 'Calling: gnome level to choose a calling', 'type' => 'int', 'default' => '5', 'min' => 1, 'max' => 100],
         'calling_change_cost' => ['label' => 'Calling: Petals for the first change (doubles each time)', 'type' => 'int', 'default' => '500', 'min' => 0, 'max' => 1000000],   // v0.9.1a
         'calling_tier2_level' => ['label' => 'Calling: gnome level for calling tier II (Journeyman)', 'type' => 'int', 'default' => '15', 'min' => 1, 'max' => 100],   // v0.9.1

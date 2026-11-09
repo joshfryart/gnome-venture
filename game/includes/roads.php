@@ -16,6 +16,8 @@ const ROAD_PAIRS = [
     ['NWE', 'SE'], ['NWE', 'EE'], ['SE', 'MENA'], ['EE', 'CSA'], ['MENA', 'WCA'], ['MENA', 'CSA'],
     ['WCA', 'ESA'], ['ESA', 'CSA'], ['CSA', 'EA'], ['CSA', 'SEA'], ['EA', 'SEA'], ['SEA', 'OC'],
 ];
+// Roads that stop at their last village instead of reaching the far town (2.6.32: Clovercove is the end of the Maplewold road to Blossomreach).
+const ROAD_DEAD_ENDS = [['NA', 'EA']];
 const ROAD_STEPS = 3;   // spaces on each stretch of road
 
 const ROADS_ALMANAC = "🛣️ [b]Roads[/b] run between the towns of neighbouring regions. Each road passes three villages, "
@@ -39,6 +41,7 @@ function ensure_roads(): void
 {
     if (!q_val("SELECT 1 FROM locations WHERE kind = 'market'")) return;   // world not imported yet
     if (setting('world_layout') !== 'roads') lay_roads();
+    cut_dead_end_roads();
     link_hidden_places();
     // The Almanac's travel page: the old "Zones & landmarks" page becomes "Roads and the wilds"
     $old = q_val("SELECT id FROM encyclopedia_entries WHERE chapter = 'General' AND title IN ('Zones & landmarks', 'Roads and the wilds') ORDER BY id LIMIT 1");
@@ -81,7 +84,9 @@ function lay_roads(): void
         $v1 = $take($a);
         $v2 = count($free[$a]) >= count($free[$b]) ? $take($a) : $take($b);
         $v3 = $take($b);
-        $nodes = array_values(array_filter([$ta, $v1, $v2, $v3, $tb]));
+        $deadEnd = in_array([$a, $b], ROAD_DEAD_ENDS, true);
+        $nodes = array_values(array_filter([$ta, $v1, $v2, $v3, $deadEnd ? 0 : $tb]));
+        if ($deadEnd) $tb = (int)end($nodes);
         $name = $byCode[$a]['gnomish_name'] . ' – ' . $byCode[$b]['gnomish_name'];
         $roadId = db_insert('roads', ['name' => $name, 'a_town' => $ta, 'b_town' => $tb, 'nodes' => json_encode($nodes)]);
         for ($i = 1; $i < count($nodes); $i++) {
@@ -182,4 +187,29 @@ function upgrade_097_roads(): void
     require_once __DIR__ . '/adventure_data.php';
     $stats = ['items' => 0, 'pages' => 0];
     import_creatures_txt($stats);
+}
+
+
+/** 2.6.32: roads in ROAD_DEAD_ENDS stop at their last village. Drops the final leg into the far town from worlds laid before. Safe to repeat. */
+function cut_dead_end_roads(): void
+{
+    if (setting('road_deadends_cut') === '1') return;
+    foreach (ROAD_DEAD_ENDS as [$a, $b]) {
+        $ra = (int)q_val('SELECT id FROM regions WHERE code = ?', [$a]);
+        $rb = (int)q_val('SELECT id FROM regions WHERE code = ?', [$b]);
+        if (!$ra || !$rb) continue;
+        foreach (q('SELECT * FROM roads')->fetchAll() as $rd) {
+            $nodes = array_map('intval', json_decode((string)$rd['nodes'], true) ?: []);
+            if (count($nodes) < 3) continue;
+            $first = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [$nodes[0]]);
+            $lastLoc = q_one('SELECT region_id, kind FROM locations WHERE id = ?', [end($nodes)]);
+            if ($first !== $ra || !$lastLoc || (int)$lastLoc['region_id'] !== $rb || $lastLoc['kind'] !== 'market') continue;
+            $far = array_pop($nodes);
+            $end = (int)end($nodes);
+            q('DELETE FROM routes WHERE kind = ? AND ((a_id = ? AND b_id = ?) OR (a_id = ? AND b_id = ?))', ['road', $end, $far, $far, $end]);
+            q('UPDATE roads SET nodes = ?, b_town = ? WHERE id = ?', [json_encode($nodes), $end, $rd['id']]);
+        }
+    }
+    set_setting('road_deadends_cut', '1');
+    setting('__reload__');
 }

@@ -189,7 +189,7 @@ $onGnome = $tab !== 'today';
         : (calling_offered($u) ? '<small class="gvsub">Not started</small>' : '')]; ?>
 <h2 class="gvhead">Your gnome</h2>
 <nav class="gvtiles" aria-label="Your gnome">
-  <?php foreach ($SUBS as $tk => [$ti, $tl]): ?><a href="<?= e($gurl($tk)) ?>"><span class="gvti" aria-hidden="true"><?= $tk === 'calling' ? ph_or_emoji('hat-' . (string)$u['calling'], '🎩', 24) : $ti ?></span><span class="gvtl"><?= e($tileTxt[$tk]) ?></span><?= $tileSub[$tk] ?? '' ?><?= $tk === 'stats' && $pts > 0 ? '<b class="gvbadge" aria-label="' . $pts . ' stat point' . ($pts === 1 ? '' : 's') . ' to spend">' . $pts . '</b>' : '' ?></a><?php endforeach; ?>
+  <?php foreach ($SUBS as $tk => [$ti, $tl]): ?><a href="<?= e($gurl($tk)) ?>"><span class="gvti" aria-hidden="true"><?= $tk === 'calling' ? ph_or_emoji('hat-' . (string)$u['calling'], '🎩', 24) : $ti ?></span><span class="gvtl"><?= e($tileTxt[$tk]) ?></span><?= $tileSub[$tk] ?? '' ?><?= $tk === 'calling' && !$u['calling'] && (int)$u['level'] >= $callingLevel ? '<b class="gvbadge" aria-label="Choose your calling">!</b>' : '' ?><?= $tk === 'stats' && $pts > 0 ? '<b class="gvbadge" aria-label="' . $pts . ' stat point' . ($pts === 1 ? '' : 's') . ' to spend">' . $pts . '</b>' : '' ?></a><?php endforeach; ?>
 </nav>
 <?php else: ?>
 <p class="gvback"><a class="gvbacklink" href="<?= e($gurl('gnome')) ?>">← My Gnome</a> <span class="muted">· <?= e($SUBS[$tab][1]) ?></span></p>
@@ -261,9 +261,15 @@ $onGnome = $tab !== 'today';
     foreach (q('SELECT item_id FROM user_tasted WHERE user_id = ?', [$uid])->fetchAll(PDO::FETCH_COLUMN) as $iid) $tasted[(int)$iid] = 1;
     $courses = [];
     foreach (q('SELECT id, name, category FROM items WHERE edible = 1 ORDER BY category, name')->fetchAll() as $it) $courses[(string)$it['category']][] = $it;
-    $edibleTotal = array_sum(array_map('count', $courses)); ?>
+    $edibleTotal = array_sum(array_map('count', $courses));
+    require_once __DIR__ . '/includes/food_mastery.php';   // 2.6.32: Foodie rank and mastery
+    $fMast = [];
+    foreach (q('SELECT item_id, eaten, grown FROM user_food_mastery WHERE user_id = ?', [$uid])->fetchAll() as $r) $fMast[(int)$r['item_id']] = (int)$r['eaten'] + (int)$r['grown'];
+    $fRank = food_rank($uid); $fEvery = max(1, (int)setting('food_unique_every')); $fMarks = food_marks(); ?>
     <section class="box">
       <div class="palhead"><h2>🍴 Foods you’ve tasted</h2><span class="muted"><b><?= count($tasted) ?></b> of <?= $edibleTotal ?></span></div>
+      <p class="help">🍴 <b>Foodie rank <?= $fRank ?></b>: +<?= food_rank_energy($uid) ?> max energy, meal boosts <?= food_rank_buff_pct($uid) ?>% longer. Next rank at <?= ($fRank + 1) * $fEvery ?> different foods (<?= count($tasted) ?> so far).<br>
+        🏅 Eat or harvest one food <?= e(implode(', ', $fMarks)) ?> times and it gets a mastery step: stronger, longer boosts and more energy from that food.</p>
       <p><a class="btn small<?= $showUn ? '' : ' ghost' ?>" href="<?= e($gurl('foods', $showUn ? [] : ['un' => 1])) ?>" aria-pressed="<?= $showUn ? 'true' : 'false' ?>">Show not tasted yet</a></p>
       <div class="menucard">
         <p class="mtitle">The Wandering Gnome</p>
@@ -274,7 +280,7 @@ $onGnome = $tab !== 'today';
             if (!$have && !$showUn) continue; ?>
           <div class="course"><?= e(ucfirst(str_replace('_', ' ', $cat))) ?> <small><?= $have ?>/<?= count($dishes) ?></small></div>
           <?php foreach ($dishes as $d): $got = isset($tasted[(int)$d['id']]); if (!$got && !$showUn) continue; ?>
-            <div class="dish<?= $got ? '' : ' un' ?>"><span class="chk" aria-hidden="true"><?= $got ? '✔' : '·' ?></span> <span><?= e($d['name']) ?></span><span class="lead" aria-hidden="true"></span><small><?= $got ? 'tasted' : 'not tasted yet' ?></small></div>
+            <div class="dish<?= $got ? '' : ' un' ?>"><span class="chk" aria-hidden="true"><?= $got ? '✔' : '·' ?></span> <span><?= e($d['name']) ?></span><span class="lead" aria-hidden="true"></span><small><?php $mc = $fMast[(int)$d['id']] ?? 0; $mt = food_mastery_tier($mc); ?><?= $got ? ($mt ? str_repeat('★', $mt) . ' ' . e(food_mastery_name($mt)) . ' · ' : '') . ($mc ? $mc . ' ×' : 'tasted') : 'not tasted yet' ?></small></div>
           <?php endforeach; ?>
         <?php endforeach; ?>
         <?php if (!$tasted && !$showUn): ?><p class="muted">Nothing tasted yet. Eat or drink something from your <a href="<?= e(url('inventory.php?cat=food')) ?>">satchel</a>.</p><?php endif; ?>

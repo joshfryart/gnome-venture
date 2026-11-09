@@ -1440,9 +1440,12 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
         if ($p['produce_item_id'] && $qty > 0) {
             $kept = $helper !== null ? max(1, (int)floor($qty * (100 - (int)setting('helper_cut_percent')) / 100)) : $qty;
             give_item($uid, (int)$p['produce_item_id'], $kept);
+            require_once __DIR__ . '/food_mastery.php';
+            $mastUp = food_mastery_up_line((string)q_val('SELECT name FROM items WHERE id = ?', [$p['produce_item_id']]), food_mastery_add($uid, (int)$p['produce_item_id'], 'grown', $kept));   // 2.6.32: crop mastery
             market_note_harvest($u, $t, $p, $kept);   // v1.0.0 wave 2b: the crop's quality (its Harvest Fair score) joins the stack, for orders
             if ($cutTo && $qty > $kept) give_item($cutTo, (int)$p['produce_item_id'], $qty - $kept);   // a player helper's share
             $pname = q_val('SELECT name FROM items WHERE id = ?', [$p['produce_item_id']]);
+            if ($mastUp !== '') $msgs[] = $mastUp;
             array_unshift($msgs, $helper !== null ? "$helper harvests $qty × $pname and keeps " . ($qty - $kept) . ' as pay.'
                                                   : 'You harvest ' . $qty . ' × ' . $pname . '.');
             job_event($uid, 'harvest', (string)$p['slug'], $kept, ['kind' => (string)$p['kind'], 'plant' => (string)$p['slug'], 'bedgrade' => $notill ? $g : -1, 'helper' => $helper !== null]);   // v0.9.4 N8: plant kind and bed grade (a hired or player helper's harvest doesn't count)

@@ -86,7 +86,7 @@ function region_layout_build(string $code): ?array
             $loc = q_one('SELECT id, name, slug, kind, landscape, region FROM locations WHERE id = ?', [$nodes[$i]]);
             if (!$loc) continue;
             [$px, $py] = map_bez($C, $ctl, $E, $n > 2 && $i < $n - 1 ? 0.25 + 0.55 * ($i - 1) / max(1, $n - 3) : 1.0);
-            $isFar = $i === $n - 1;
+            $isFar = $i === $n - 1 && ($loc['kind'] ?? '') === 'market';
             $items[$nodes[$i]] = ['type' => $isFar ? 'far' : 'stop', 'kind' => $isFar ? 'exit' : 'village', 'x' => $px, 'y' => $py, 'road' => $ri, 'idx' => $i, 'ang' => $ang, 'loc' => $loc,
                 'far' => $isFar ? (string)($far['code'] ?? '') : '', 'farname' => $isFar ? (string)($far['gnomish_name'] ?? $loc['region']) : ''];
             $list[] = $nodes[$i];
@@ -96,8 +96,11 @@ function region_layout_build(string $code): ?array
 
     // 2) every off-road place (found or not) beside the stop its first side path leaves from, fanned either side of the road
     $onRoad = rl_on_road();
+    // 2.6.32: places that hang off a stop of this town's roads count even when their own region differs (a dead-end road runs on into another region's villages)
+    $stopIds = array_map('intval', array_keys($items));
+    $stopIn = $stopIds ? implode(',', $stopIds) : '0';
     $off = q("SELECT l.id, l.name, l.slug, l.kind, l.landscape, l.region, (SELECT kind FROM landmarks WHERE location_id = l.id ORDER BY id LIMIT 1) AS lmkind
-        FROM locations l WHERE l.region_id = ? AND l.kind NOT IN ('market', 'hub') ORDER BY l.id", [$regionId])->fetchAll();
+        FROM locations l WHERE (l.region_id = ? OR l.id IN (SELECT b_id FROM routes WHERE kind = 'side' AND a_id IN ($stopIn))) AND l.kind NOT IN ('market', 'hub') ORDER BY l.id", [$regionId])->fetchAll();
     $offIds = [];
     foreach ($off as $l) if (!isset($onRoad[(int)$l['id']]) && !isset($items[(int)$l['id']])) $offIds[(int)$l['id']] = $l;
     $anchorOf = [];

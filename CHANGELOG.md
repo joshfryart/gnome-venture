@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.6.32
+- **"!" on the Calling tile**: on My Gnome, the Calling tile shows a yellow ! once you reach the calling level and have not chosen one. It opens the Calling tab.
+- **Foodie rank**: every 10 different foods tasted (admin `food_unique_every`) is one rank: +1 max energy and meal buffs last 2% longer, per rank. Shown on the Foods tab.
+- **Food mastery**: every food or crop is counted per gnome (times eaten plus harvested). At 500, 1000, 1650 and 2000 (admin `food_mastery_marks`) it gains a mastery step: Familiar, Favourite, Beloved, Signature. Each step makes that food's meal boosts 10% stronger (at least +1), last 15% longer, and give 10% more energy. The Foods tab shows stars and the count; harvest and eat messages announce a new step. Run Upgrade database once for the `user_food_mastery` table. Test: `tests/food_mastery.php`.
+- **Clovercove ends the Maplewold to Blossomreach road**: the road stops at Clovercove and no longer reaches Blossomreach Market (route 239 is removed on the first load, `ROAD_DEAD_ENDS` in `roads.php`; new worlds are laid that way). The Maplewold map's only exits are now Windburrow (to Mistmoor) and Poppynook (to Maizehollow). Honeythorpe's and Clovercove's side places still show on the Maplewold map. The world map no longer draws a Maplewold to Blossomreach line.
+- Design notes for account-wide stop perks that last 7 game days: `docs/stop-perk-ideas.md` (not built yet).
+
 ## 2.6.31
 - **Energy trickles back by itself again (sleep-days)**: +1 energy every 5 minutes, while you are away or online, up to 50% of your max. Sleep and naps still give the rest, so the Hovel stays useful. The header and status strip show "+1 every 5 minutes, next in m:ss" until the cap. Admin settings (Sleep-days): `trickle_energy_cap_pct` (50; 0 = off) and `trickle_energy_seconds` (300). Never lowers energy that is already above the cap. No database upgrade needed. First load after the update may add up to the cap at once, from the time since your last energy update.
 - **Fix: energy refresh cap**: the SQL that adds regen ticks compared text to a number in SQLite, so the maximum was not applied. Params are now cast to integers.

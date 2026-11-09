@@ -200,7 +200,8 @@ function max_energy(array $u): int
 {
     // v0.7.23: 10 at level 1, +5 a level (settings), +1 per Hardiness modifier point
     $lvl = max(1, (int)($u['level'] ?? 1));
-    return max(5, (int)setting('max_energy') + (int)setting('energy_per_level') * ($lvl - 1) + eff_mod($u, 'hardiness'));
+    require_once __DIR__ . '/food_mastery.php';
+    return max(5, (int)setting('max_energy') + (int)setting('energy_per_level') * ($lvl - 1) + eff_mod($u, 'hardiness') + food_rank_energy((int)($u['id'] ?? 0)));   // 2.6.32: Foodie rank
 }
 
 function food_bonus(int $uid): array
@@ -354,7 +355,8 @@ function choose_calling(array $u, string $calling): array
 /** v0.9.1a: how long a meal buff lasts for this gnome: base minutes x Brewroot buff_pct (v0.9.1) x kitchen level (v0.7.96). */
 function buff_minutes(array $u, int $base): int
 {
-    $minutes = (int)round($base * (100 + calling_perk($u, 'buff_pct')) / 100);
+    require_once __DIR__ . '/food_mastery.php';
+    $minutes = (int)round($base * (100 + calling_perk($u, 'buff_pct') + food_rank_buff_pct((int)($u['id'] ?? 0))) / 100);
     require_once __DIR__ . '/gardens.php';
     $pct = user_building_bonus((int)$u['id'], 'kitchen')['buff_pct'];   // v0.9.5: best kitchen +25% / +50%, other gardens' kitchens add a little (stacking)
     if ($pct > 0) $minutes = (int)round($minutes * (100 + $pct) / 100);
@@ -406,6 +408,14 @@ function eat_item(array $u, int $itemId): array
     }
     $firstTaste = !q_val('SELECT 1 FROM user_tasted WHERE user_id = ? AND item_id = ?', [$uid, $itemId]);
     if ($firstTaste) db_insert('user_tasted', ['user_id' => $uid, 'item_id' => $itemId, 'tasted_at' => now()]);   // v0.7.61 drinks count too
+    // 2.6.32: Foodie rank (different foods) and mastery of this food (times eaten + harvested)
+    require_once __DIR__ . '/food_mastery.php';
+    $rankBefore = food_rank($uid);
+    if ($firstTaste) food_rank($uid, true);
+    $mast = food_mastery_add($uid, $itemId, 'eaten', 1);
+    $fx = food_mastery_boost($fx, $mast[1]);
+    $mastLine = food_mastery_up_line((string)$item['name'], $mast);
+    $rankLine = $firstTaste && food_rank($uid) > $rankBefore ? '🍴 Foodie rank ' . food_rank($uid) . '! Max energy +' . (int)setting('food_rank_energy') . ' and meal boosts last ' . food_rank_buff_pct($uid) . '% longer.' : '';
     if (!empty($fx['tea'])) {   // a take-away teahouse drink (v0.7.37): the town boost, not a meal
         require_once __DIR__ . '/events.php';
         $lines = apply_event_effect(q_one('SELECT * FROM users WHERE id = ?', [$uid]), (string)$fx['tea']);
@@ -500,6 +510,8 @@ function eat_item(array $u, int $itemId): array
         give_item($uid, $scrapId, $scraps);
         $msgs[] = '♻️ +' . $scraps . ' Food Scrap' . ($scraps === 1 ? '' : 's') . '.';
     }
+    if ($mastLine !== '') $msgs[] = $mastLine;
+    if ($rankLine !== '') $msgs[] = $rankLine;
     db()->commit();
     require_once __DIR__ . '/jobs.php';
     job_event($uid, 'eat', (string)$item['slug'], 1, ['homecooked' => $homeCooked, 'tier' => $dishTier]);   // v0.9.4: quests count Meal/Feast home-cooked only
