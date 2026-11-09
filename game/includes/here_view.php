@@ -237,15 +237,15 @@ function here_mentor_of(array $node): ?array
     if (($node['kind'] ?? '') === 'hub' || (int)($node['region_id'] ?? 0) <= 0) return null;
     require_once __DIR__ . '/calling_quests.php';
     $code = (string)q_val('SELECT code FROM regions WHERE id = ?', [(int)$node['region_id']]);
-    foreach (CALLING_MENTORS as $calling => $m) if ($m[5] === $code) return ['calling' => $calling, 'name' => $m[0], 'slug' => $m[1], 'lodge' => $m[8], 'icon' => $m[7]];
+    foreach (CALLING_MENTORS as $calling => $m) if ($m[5] === $code) return ['calling' => $calling, 'name' => $m[0], 'slug' => $m[1], 'lodge' => $m[8], 'icon' => $m[7], 'spot' => (int)q_val('SELECT id FROM town_spots WHERE slug = ? AND active = 1', [$m[6]])];
     return null;
 }
 
-/** A round "Mentor" button in the picture page's nav for towns whose map has no slot for the mentor's lodge. */
+/** A round "Mentor" button in the picture page's nav, linking to the mentor's lodge spot (its page has the Talk link and the chapters). */
 function here_mentor_nav(array $node): array
 {
     $m = here_mentor_of($node);
-    return $m ? [['id' => 'mentor', 'label' => 'Mentor', 'icon' => 'ico-scroll.png', 'href' => url('mentor.php?m=' . $m['slug'])]] : [];
+    return $m ? [['id' => 'mentor', 'label' => 'Mentor', 'icon' => 'ico-scroll.png', 'href' => $m['spot'] ? url('town.php?spot=' . $m['spot']) : url('mentor.php?m=' . $m['slug'])]] : [];
 }
 
 /** Town spots of the node's region, by kind (green, teahouse, board, library). */

@@ -11040,7 +11040,7 @@ e8105f613ab86461bed4c23973fcdd65fa3baa14  includes/guest.php
 f2a8d420bb70abd9ccc45b17cc8675f47b1707cb  includes/health.php
 d34a29476889b2ec64d5b0c04e9baa2d502115ea  includes/here_layout.php
 bfb6bf95e4a08887c4616acaeeee16ecbb5b18bc  includes/here_schema.php
-7e7dbd3144586bcbb676af07058f3496212207e6  includes/here_view.php
+b4fa6e2074d0d10ecf7852b276246413f1ef3516  includes/here_view.php
 3c3baccd1dc972ca093e50d27e0abb810e3df714  includes/hired_help.php
 b62ae0134fff86af4481d675376f818f3a8eb053  includes/hollow_clock.php
 9034e40c739ef7c541693db3d48bc18b2f0753d9  includes/hollow_goals.php
@@ -11134,7 +11134,7 @@ ac6c7937eb940f68a7ec457616732a25a391ce54  includes/trek_oldcamp.php
 abc26d37b0ad73eaf63208d3e16306e9af794671  includes/trek_scene.php
 db7f55f68c398a056a09379e4b4582391db40c76  includes/trek_stage.php
 ef431b9a8182ac6ba5b23e20e70af68dcaa71763  includes/trek_textpass.php
-271924c82048af50774476ba934853790eba1a24  includes/update_news.php
+041df2492830295801f2f82188f256edac444186  includes/update_news.php
 ffb1317d8e27c559248c535edc491f31fa06e4a7  includes/updater.php
 3242d42e92eddcfc5424f4df0e43eccbfb25a27c  includes/upgrade100.php
 f5e3d0e119e030ea4a5b4ddb41876d4912077817  includes/upgrade110.php

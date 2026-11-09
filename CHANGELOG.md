@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2.6.34
-- **Calling mentor button on town maps**: the new town pictures have no slot for the mentor's lodge (Marigold Stall, Root Cellar, Old Watchtower and so on), so each town's picture page now has a round **Mentor** button in the nav that opens that town's calling mentor.
+- **Calling mentor button on town maps**: the new town pictures have no slot for the mentor's lodge (Marigold Stall, Root Cellar, Old Watchtower and so on), so each town's picture page now has a round **Mentor** button in the nav that opens the mentor's lodge page in that town, where you talk to them and take chapters.
 - **Mentors on the street**: a town's calling mentor now takes the first street slot on the picture, instead of landing in "+N more villagers".
 
 ## 2.6.33
