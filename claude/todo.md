@@ -1,4 +1,4 @@
-# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-09, main = 2.6.33)
+# Gnome Venture: MASTER TO-DO (one file; updated 2026-11-09, main = 2.6.34)
 
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md` (the old todo.md log up to 2.5.62 is at the bottom of the archive). Detail lists for art stay in their own files, linked below, but their OPEN items are copied here.
 

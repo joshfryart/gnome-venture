@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.34
+- **Calling mentor button on town maps**: the new town pictures have no slot for the mentor's lodge (Marigold Stall, Root Cellar, Old Watchtower and so on), so each town's picture page now has a round **Mentor** button in the nav that opens that town's calling mentor.
+- **Mentors on the street**: a town's calling mentor now takes the first street slot on the picture, instead of landing in "+N more villagers".
+
 ## 2.6.33
 - **Player tend jobs run on the garden owner's sleeps (sleep-days)**: a "Tend my garden" job lasts N of the owner's sleeps (1, 3 or 7), not real days, so it no longer runs out while the owner is away. The Tending page says "N sleeps". The real-time deadline stays only as a 7-day backstop.
 - **The taker tends on every owner day**: each time the owner sleeps, the person tending waters every thirsty bed for that day, like a hired helper. Each watering counts as one job done and pays its share of the wage (pro rata, from escrow); the taker gets a notice. Days are also caught up when the taker opens the Tending page and when the job ends. Weeding and harvesting still need the taker's own hands (those still cost energy and time).

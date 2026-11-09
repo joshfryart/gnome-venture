@@ -698,6 +698,9 @@ function post_update_news(string $from): void
         . "[*][b]Shops and stops[/b] have opening hours, and some villagers are away on some days.\n"
         . "[*][b]Food heals you[/b]: crops, finds and home-cooked dishes give back health.[/list]\n\n"
         . "Everyone starts on today's day. Contests, shared goals, visits and the Petal caps stay on the real clock."],
+    '2.6.34' => ['📜 Update 2.6.34: find your calling mentor on the town map',
+        "[list][*][b]Mentor button[/b]: every town's picture now has a Mentor button that takes you straight to that town's calling mentor.\n"
+        . "[*][b]Mentors on the street[/b]: the mentor now stands on the town picture instead of hiding in the \"more villagers\" list.[/list]"],
     '2.6.33' => ['🌱 Update 2.6.33: tending a garden follows its owner’s sleeps',
         "[list][*][b]Tend jobs[/b] now last 1, 3 or 7 of the owner's sleeps instead of real days, so they don't run out while the owner is away.\n"
         . "[*][b]Automatic watering[/b]: each time the owner sleeps, the gnome tending their garden waters every thirsty bed for that day. Each watering counts as one job done and pays part of the wage. Weeding and harvesting are still done by hand.[/list]"],
