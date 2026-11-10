@@ -244,7 +244,8 @@ plaster(362, UT, 471, UF, { "#b4ba94", "#c8cca6", "#d8dab6" }, 4)
 R(8, 108, 115, UF, TIMB[4]); R(8, 108, 115, 108, TIMB[2]); R(8, 109, 115, 109, TIMB[5])
 R(362, 108, 471, UF, TIMB[4]); R(362, 108, 471, 108, TIMB[2]); R(362, 109, 471, 109, TIMB[5])
 stonewall(8, LT, 153, LF, STONE, 4, 5, 9, 18)
-planks(166, LT, 313, LF, TIMB, { w = 11, base = 5, vert = false, seed = 6 })
+local SLATE = {"#2e2a3a","#444a5a","#59636e","#6e7c82","#84938f","#9aa89e"}
+planks(166, LT, 313, LF, SLATE, { w = 11, base = 5, vert = false, seed = 6 })
 plaster(326, LT, 471, LF, { "#d6b29a", "#e6c6aa", "#f0d6ba" }, 6)
 planks(326, 194, 471, LF, OAK, { w = 8, base = 4, seed = 8 })
 R(326, 191, 471, 193, TIMB[4]); R(326, 191, 471, 191, TIMB[6]); R(326, 193, 471, 193, INK)
@@ -603,48 +604,48 @@ bottle(38, 227, 9, 14, TEAL); flask(131, 227, 6, VIOLET)
 
 ---------------------------------------------------------------- 6 BUILDING yard corner (lower bay 2)
 -- leaning beams
-dk(186, 144, 203, 200, .2)
-poly({ { 184, 142 }, { 190, 142 }, { 187, 206 }, { 181, 206 } }, function(x, y) return (x + y // 16) % 6 < 2 and OAK[6] or OAK[5] end)
-poly({ { 193, 148 }, { 199, 148 }, { 198, 206 }, { 192, 206 } }, function(x, y) return x % 6 < 3 and TIMB[6] or TIMB[5] end)
+dk(186, 142, 208, 190, .2)
+poly({ { 183, 139 }, { 192, 139 }, { 189, 200 }, { 180, 200 } }, function(x, y) return (x + y // 16) % 7 < 2 and OAK[6] or OAK[5] end)
+poly({ { 195, 145 }, { 203, 145 }, { 202, 200 }, { 194, 200 } }, function(x, y) return x % 7 < 3 and TIMB[6] or TIMB[5] end)
 -- rope coil on a peg
-dk(207, 152, 229, 178, .2)
-blob(203, 149, 225, 175, function(x, y)
-    local a = ((x - 214) / 10.5) ^ 2 + ((y - 162) / 12.5) ^ 2; local b = ((x - 214) / 4.5) ^ 2 + ((y - 162) / 6.5) ^ 2
+dk(211, 152, 236, 182, .2)
+blob(207, 147, 233, 177, function(x, y)
+    local a = ((x - 220) / 12.5) ^ 2 + ((y - 162) / 14.5) ^ 2; local b = ((x - 220) / 5) ^ 2 + ((y - 162) / 7) ^ 2
     return a <= 1 and b > 1 end,
-  function(x, y) local s = ((x + y) // 2) % 2 == 0; if x + y > 386 then return s and DIRT[3] or DIRT[4] end; return s and DIRT[5] or DIRT[6] end, DIRT[1])
-box(211, 145, 217, 151, TIMB, 6, { lit = 1 })
-R(219, 172, 222, 188, DIRT[1]); R(220, 172, 221, 187, DIRT[5]); for y = 173, 187, 3 do P(220, y, DIRT[3]) end
-R(218, 188, 223, 191, DIRT[1]); R(219, 189, 222, 190, DIRT[6])
+  function(x, y) local s = ((x + y) // 2) % 2 == 0; if x + y > 392 then return s and DIRT[3] or DIRT[4] end; return s and DIRT[5] or DIRT[6] end, DIRT[1])
+box(217, 143, 223, 149, TIMB, 6, { lit = 1 })
+R(226, 174, 229, 181, DIRT[1]); R(227, 174, 228, 180, DIRT[5]); for y = 175, 180, 3 do P(227, y, DIRT[3]) end
 -- building plan pinned to the wall (no letters, just a tiny house sketch)
-dk(264, 152, 292, 173, .2)
-box(262, 149, 290, 171, CREAM, 5, { ink = OAK[2], lit = 0, shade = 0 })
-line(269, 159, 276, 153, SBLUE[3]); line(276, 153, 283, 159, SBLUE[3]); R(269, 159, 269, 167, SBLUE[3]); R(283, 159, 283, 167, SBLUE[3])
-R(269, 167, 283, 167, SBLUE[3]); R(275, 162, 277, 167, SBLUE[4]); R(265, 169, 287, 169, CREAM[3])
-R(264, 150, 265, 151, BARN[5]); R(287, 150, 288, 151, BARN[5])
+dk(250, 152, 276, 173, .2)
+box(248, 149, 274, 171, CREAM, 5, { ink = OAK[2], lit = 0, shade = 0 })
+line(254, 159, 261, 153, SBLUE[3]); line(261, 153, 268, 159, SBLUE[3]); R(254, 159, 254, 167, SBLUE[3]); R(268, 159, 268, 167, SBLUE[3])
+R(254, 167, 268, 167, SBLUE[3]); R(260, 162, 262, 167, SBLUE[4]); R(251, 169, 271, 169, CREAM[3])
+R(250, 150, 251, 151, BARN[5]); R(271, 150, 272, 151, BARN[5])
 -- timber stack
-shadow(206, 227, 34, 3); shadow(250, 229, 16, 2); shadow(285, 227, 24, 3)
+shadow(208, 227, 36, 3); shadow(254, 229, 18, 2); shadow(288, 227, 22, 3)
 for i = 0, 4 do
-  local y1 = 226 - i * 7; local y0 = y1 - 7
-  local x0 = 178 + (i % 2) * 3 + (i >= 3 and 5 or 0)
-  local x1 = 232 - ((i + 1) % 2) * 4 - (i >= 3 and 9 or 0)
-  box(x0, y0, x1, y1, OAK, (i % 2 == 0) and 5 or 4, { lit = 1, shade = 1 })
-  grain(x0 + 2, y0 + 3, x1 - 9, y1 - 2, OAK[(i % 2 == 0) and 4 or 3], false, 50 + i, .84)
-  box(x1 - 7, y0, x1, y1, OAK, 6, { lit = 1, shade = 0 }); R(x1 - 5, y0 + 3, x1 - 2, y0 + 4, OAK[4]); R(x1 - 4, y0 + 3, x1 - 3, y0 + 4, OAK[3])
+  local y1 = 226 - i * 9; local y0 = y1 - 9
+  local x0 = 177 + (i % 2) * 4 + (i >= 3 and 5 or 0)
+  local x1 = 238 - ((i + 1) % 2) * 5 - (i >= 3 and 10 or 0)
+  box(x0, y0, x1, y1, OAK, (i % 2 == 0) and 5 or 4, { lit = 1, shade = 2 })
+  grain(x0 + 2, y0 + 3, x1 - 11, y1 - 3, OAK[(i % 2 == 0) and 4 or 3], false, 50 + i, .82)
+  box(x1 - 9, y0, x1, y1, OAK, 6, { lit = 1, shade = 0 }); R(x1 - 7, y0 + 3, x1 - 2, y0 + 6, OAK[5]); R(x1 - 6, y0 + 4, x1 - 3, y0 + 5, OAK[3])
 end
 -- bricks
-local bricks = { { 236, 0 }, { 246, 0 }, { 256, 0 }, { 241, 1 }, { 251, 1 }, { 236, 2 }, { 246, 2 }, { 241, 3 } }
+local bricks = { { 240, 0 }, { 251, 0 }, { 245, 1 }, { 256, 1 }, { 240, 2 }, { 251, 2 }, { 245, 3 } }
 for bi, b in ipairs(bricks) do
-  local y0 = 225 - b[2] * 4
-  box(b[1], y0, b[1] + 10, y0 + 4, BARN, (bi % 3 == 0) and 4 or 5, { lit = 1, shade = 1 })
+  local y0 = 223 - b[2] * 5
+  box(b[1], y0, b[1] + 11, y0 + 5, BARN, (bi % 3 == 0) and 4 or 5, { lit = 1, shade = 1 })
 end
 -- stone blocks
 local function sblock(x0, y0, x1, y1, s)
   box(x0, y0, x1, y1, STONE, 5, { lit = 2, shade = 2 })
   for y = y0 + 4, y1 - 3 do for x = x0 + 3, x1 - 3 do if hash(x // 2, y // 2, s) > .86 then P(x, y, STONE[4]) end end end
 end
-sblock(270, 209, 287, 226, 61); sblock(287, 209, 304, 226, 62); sblock(277, 192, 297, 209, 63)
--- mason's mallet on the top block
-box(281, 184, 293, 192, TIMB, 5, { lit = 1, shade = 2 }); R(285, 176, 289, 184, INK); R(286, 177, 288, 184, TIMB[6]); R(288, 177, 288, 184, TIMB[4])
+sblock(271, 207, 288, 226, 61); sblock(288, 207, 305, 226, 62); sblock(278, 188, 298, 207, 63)
+-- mason's mallet lying on the top block
+R(288, 182, 302, 186, INK); R(289, 183, 301, 185, TIMB[6]); R(289, 185, 301, 185, TIMB[4])
+box(280, 178, 289, 188, TIMB, 5, { lit = 1, shade = 2 })
 lantern(240, LT, 6)
 
 ---------------------------------------------------------------- 7 DECOR loom + paint table (lower bay 3)
@@ -666,38 +667,40 @@ box(341, 173, 384, 178, TIMB, 6, { lit = 1, shade = 1 })
 box(341, 212, 384, 218, TIMB, 4, { lit = 1, shade = 1 }); R(346, 213, 379, 216, ROSE[4]); R(346, 213, 379, 213, ROSE[5])
 box(334, 143, 391, 151, TIMB, 5, { lit = 1, shade = 2 })
 mushcarve(362, 148); for _, px in ipairs{ 339, 385 } do R(px, 146, px + 1, 147, TIMB[2]); P(px, 146, TIMB[6]) end
--- shelf with bolts of cloth
-dk(406, 146, 452, 168, .2)
-local bolt = { { VIOLET, 17 }, { ROSE, 15 }, { TEAL, 18 }, { GOLD, 14 }, { GREEN, 16 } }
-for i, b in ipairs(bolt) do
-  local x = 405 + (i - 1) * 9; local ramp, h = b[1], b[2]
-  box(x, 160 - h, x + 7, 159, ramp, 4, { lit = 0, shade = 1, ink = ramp[1] })
-  for y = 160 - h + 4, 157, 4 do R(x + 2, y, x + 5, y, ramp[6]) end
-  R(x + 1, 160 - h + 1, x + 6, 160 - h + 2, ramp[6]); R(x + 3, 160 - h + 1, x + 4, 160 - h + 1, ramp[3])
+-- shelf with bolts of cloth (rolls with a spiral end)
+local function roll(x0, y0, x1, y1, ramp, pat)
+  box(x0 + 3, y0, x1, y1, ramp, 4, { lit = 1, shade = 2, ink = ramp[1] })
+  for x = x0 + 9, x1 - 3, 5 do
+    if pat == 1 then R(x, y0 + 2, x + 1, y1 - 3, ramp[6]) else R(x, y0 + 3, x + 1, y0 + 4, ramp[6]); R(x + 2, y1 - 4, x + 3, y1 - 3, ramp[6]) end
+  end
+  local cy = (y0 + y1) / 2
+  ell(x0 + 3.5, cy, 3.5, (y1 - y0) / 2, { ramp[1], ramp[5], ramp[6], ramp[6], ramp[6], ramp[6] }, { ink = ramp[1] })
+  R(x0 + 3, floor(cy) - 1, x0 + 4, floor(cy) + 1, ramp[2])
 end
-box(402, 160, 451, 163, OAK, 5, { lit = 1, shade = 0 })
-poly({ { 406, 164 }, { 411, 164 }, { 406, 170 } }, TIMB[4]); poly({ { 442, 164 }, { 447, 164 }, { 447, 170 } }, TIMB[4])
+dk(406, 144, 454, 170, .2)
+roll(403, 150, 426, 159, VIOLET, 1); roll(427, 150, 450, 159, GOLD, 2); roll(414, 141, 438, 150, TEAL, 2)
+-- a length of cloth hanging off the shelf end
+box(440, 159, 450, 176, ROSE, 4, { lit = 0, shade = 1, ink = ROSE[1] })
+for y = 162, 174, 4 do R(442, y, 448, y, ROSE[6]) end
+for x = 440, 450 do if x % 4 < 2 then P(x, 177, ROSE[1]); P(x, 176, ROSE[4]) end end
+box(402, 160, 439, 163, OAK, 5, { lit = 1, shade = 0 })
+poly({ { 406, 164 }, { 411, 164 }, { 406, 170 } }, TIMB[4]); poly({ { 430, 164 }, { 435, 164 }, { 435, 170 } }, TIMB[4])
 lantern(396, LT, 6)
 -- table, rolls under it
 shadow(432, 227, 34, 3); shadow(362, 228, 32, 2)
 dk(411, 197, 453, 222, .2)
-local function roll(x0, y0, x1, y1, ramp)
-  box(x0, y0, x1, y1, ramp, 4, { lit = 1, shade = 2, ink = ramp[1] })
-  for x = x0 + 4, x1 - 9, 5 do R(x, y0 + 2, x + 1, y1 - 3, ramp[5]) end
-  box(x1 - 7, y0, x1, y1, ramp, 5, { lit = 0, shade = 0, ink = ramp[1] }); R(x1 - 5, y0 + 2, x1 - 2, y1 - 2, ramp[6]); R(x1 - 4, y0 + 3, x1 - 3, y1 - 3, ramp[2])
-end
-roll(413, 218, 451, 226, VIOLET); roll(416, 209, 449, 217, ROSE); roll(421, 200, 445, 208, TEAL)
+roll(412, 217, 452, 226, PINK, 1); roll(416, 208, 449, 217, SBLUE, 2); roll(421, 199, 446, 208, GREEN, 1)
 box(400, 190, 464, 196, OAK, 5, { lit = 1, shade = 2 }); grain(402, 192, 462, 193, OAK[4], false, 71, .85)
 box(404, 196, 410, 226, OAK, 4, { lit = 0, shade = 1 }); box(454, 196, 460, 226, OAK, 4, { lit = 0, shade = 1 })
 local function ppot(x, ramp)
-  box(x, 181, x + 9, 190, IRON, 5, { lit = 0, shade = 1 })
-  R(x + 1, 181, x + 8, 183, ramp[5]); R(x + 1, 181, x + 8, 181, ramp[6]); R(x, 181, x, 183, ramp[2]); R(x + 9, 181, x + 9, 183, ramp[2])
-  R(x + 2, 184, x + 3, 187, ramp[5]); R(x + 6, 184, x + 6, 185, ramp[5])
+  box(x, 179, x + 10, 190, ramp, 4, { lit = 0, shade = 2, ink = ramp[1] })
+  R(x, 179, x + 10, 181, ramp[1]); R(x + 1, 180, x + 9, 180, ramp[6])
+  R(x + 2, 182, x + 3, 187, ramp[6]); R(x + 6, 182, x + 7, 184, ramp[6])
 end
-ppot(403, BARN); ppot(414, TEAL); ppot(425, GOLD)
+ppot(402, BARN); ppot(414, TEAL); ppot(426, GOLD)
 -- brushes in the third pot
-R(428, 171, 430, 181, INK); R(429, 172, 429, 180, TIMB[6]); R(428, 168, 430, 171, PINK[4]); R(428, 168, 430, 168, PINK[2])
-line(433, 180, 436, 170, INK); line(432, 180, 435, 170, TIMB[6]); R(435, 167, 437, 170, SBLUE[5])
+R(428, 168, 430, 179, INK); R(429, 169, 429, 178, TIMB[6]); R(427, 164, 431, 168, INK); R(428, 165, 430, 167, PINK[4])
+line(435, 178, 438, 168, INK); line(434, 178, 437, 168, TIMB[6]); line(433, 178, 436, 168, INK); R(435, 163, 439, 167, INK); R(436, 164, 438, 166, SBLUE[5])
 -- half-painted toadstool ornament (quirk)
 box(448, 180, 456, 190, CREAM, 5, { lit = 0, shade = 1 })
 blob(441, 171, 463, 181, function(x, y) return ((x - 452) / 11) ^ 2 + ((y - 181) / 10) ^ 2 <= 1 and y <= 181 end,
@@ -791,8 +794,8 @@ for y = 0, H - 1 do for x = 0, W - 1 do
     if L >= .72 then c = mix(c, "#ffd884", .24)
     elseif L >= .5 then c = mix(c, "#ffd884", .12)
     elseif L >= .3 then
-    elseif L >= .15 then c = mix(c, "#3a2248", .2)
-    else c = mix(c, "#3a2248", .36) end
+    elseif L >= .15 then c = mix(c, "#3a2248", .24)
+    else c = mix(c, "#3a2248", .42) end
     buf[k] = c
   end
 end end

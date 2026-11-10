@@ -1,0 +1,24 @@
+{"w":480,"h":270,
+ "spots":[
+  {"k":"pantry","name":"Pantry","x":64,"y":70,"box":[20,30,108,111]},
+  {"k":"cooking","name":"Cooking","x":180,"y":62,"box":[131,10,228,111]},
+  {"k":"tools","name":"Tools","x":297,"y":70,"box":[251,29,343,111]},
+  {"k":"garden","name":"Garden","x":417,"y":65,"box":[369,18,465,111]},
+  {"k":"potions","name":"Potions","x":82,"y":185,"box":[19,140,143,229]},
+  {"k":"building","name":"Building","x":241,"y":184,"box":[176,139,306,229]},
+  {"k":"decor","name":"Decor","x":398,"y":184,"box":[333,141,464,227]}
+ ],
+ "anim":[
+  {"k":"cooking","for":"cooking","fx":"flicker","x":160,"y":78,"w":42,"h":28},
+  {"k":"cooking2","for":"cooking","fx":"bob","x":168,"y":60,"w":26,"h":18},
+  {"k":"pantry","for":"pantry","fx":"twinkle","x":24,"y":38,"w":72,"h":62},
+  {"k":"tools","for":"tools","fx":"bob","x":300,"y":44,"w":26,"h":30},
+  {"k":"tools2","for":"tools","fx":"twinkle","x":284,"y":62,"w":44,"h":18},
+  {"k":"garden","for":"garden","fx":"sway","x":414,"y":34,"w":26,"h":33},
+  {"k":"potions","for":"potions","fx":"bob","x":64,"y":136,"w":46,"h":34},
+  {"k":"potions2","for":"potions","fx":"pulse","x":54,"y":167,"w":65,"h":10},
+  {"k":"building","for":"building","fx":"bob","x":243,"y":190,"w":22,"h":18},
+  {"k":"building2","for":"building","fx":"twinkle","x":268,"y":166,"w":40,"h":22},
+  {"k":"decor","for":"decor","fx":"drift","x":354,"y":178,"w":16,"h":6},
+  {"k":"decor2","for":"decor","fx":"twinkle","x":400,"y":166,"w":64,"h":18}
+ ]}
