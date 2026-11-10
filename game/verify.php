@@ -8,7 +8,7 @@ page_header('Confirm email');
 <div class="box narrow">
   <?php if ($ok): ?>
     <h2>Email confirmed</h2>
-    <p>Thank you. <a href="<?= e(url('garden.php')) ?>">Back to the garden</a></p>
+    <p>Thank you. <a href="<?= e(url(current_user() ? 'garden.php' : 'login.php')) ?>"><?= current_user() ? 'Back to the garden' : 'Log in' ?></a></p>
   <?php else: ?>
     <h2>That link has expired</h2>
     <p>Log in and press “Resend” on the <a href="<?= e(url('account.php')) ?>">Account</a> page for a new one.</p>

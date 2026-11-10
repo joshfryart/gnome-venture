@@ -38,7 +38,6 @@ page_header('Guess the Weight');
 <?php if (game_tab() === 'rules'):   // v1.4.1
     $cp = (int)setting('marrow_close_prize');
     echo game_rules_html([
-        ((int)setting('games_energy_cap') > 0 ? ['⚡', 'Energy.', 'Each guess gives you +1 energy' . ((int)setting('games_energy_cap') >= 100 ? '.' : ' (up to ' . (int)setting('games_energy_cap') . ' a day from games).')] : null),   // v1.4.7
         ['🎯', 'Goal.', 'Old Moss puts something enormous on the scales each day. Guess its weight to the nearest 0.1 kg.'],
         ['🔍', 'Clues.', 'You see the crop, roughly how wide it is and how plump. It weighs between 8 and 40 kg.'],
         ['💰', 'Jackpot.', 'Only an exact guess wins it, shared if more than one gnome is exact. Now ' . money(marrow_pot()) . '.'],

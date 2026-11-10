@@ -278,12 +278,12 @@ function page_area(string $page): string
     if ($map === null) {
         $map = [];
         $groups = [
-            'garden' => 'garden tend yard spit worms',
-            'world' => 'seasons world town here residential door adventure visit landmark journey gather carve explore destination maps passport',
+            'garden' => 'garden tend yard',
+            'world' => 'seasons world town here residential door adventure visit landmark journey gather explore destination maps passport',
             'kitchen' => 'kitchen crafting workshop',
-            'book' => 'book guide memory marrow',
-            'market' => 'market shop inventory fair jobs',
-            'community' => 'treehouse palyard community letters profile folk friends show gotm race games puzzles gifsaw jigsaw puzzlepals paljobs rainbarrel gnomebeds event hollow pals festival firstweek back daily',
+            'book' => 'book guide',
+            'market' => 'market marketday shop inventory fair jobs',
+            'community' => 'treehouse palyard community letters profile folk friends show gotm race games spit worms marrow carve pest memory puzzles gifsaw jigsaw puzzlepals paljobs rainbarrel gnomebeds event hollow pals festival firstweek back daily',
         ];
         foreach ($groups as $area => $pages) foreach (explode(' ', $pages) as $p) $map[$p . '.php'] = $area;
     }
