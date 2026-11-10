@@ -251,6 +251,9 @@ return function(L)
       g:stroke({ { la, lb }, { la - 0.8, lb - 1.6 } }, P.moss.shade)
     end
 
+    if QK.moss then for i, a in ipairs({ -0.35, 0.2, 0.62 }) do   -- lichen on the back
+      local m = g:E(k.bx + k.brx * a, k.by + k.bry * 0.85 + (k.hump or 0) * (a > 0.1 and 0.6 or 0), 3 - i * 0.3, 1.6); m:clip(body)
+      g:form(m, P.moss, { frac = 0.3, off = 1, inner = false }) g:toplight(m, P.moss, 1) end end
     if QK.clam then   -- a scallop shell clutched to its chest: a fan with ribs
       local ca, cb = k.bx + k.brx * 0.5, k.by - k.bry * 0.15
       local fan = g:E(ca, cb, 4.2, 3.6); fan:cut(g:R(ca - 6, cb - 6, ca + 6, cb - 1.4))
@@ -322,7 +325,7 @@ return function(L)
         local m = g:Limb({ { ax, hy + hry * 0.6 }, { ax + d * 2.4, hy + hry + 5 }, { ax + d * 4.6, hy + hry + 11.5 } }, 2.4, 1.3)
         m:add(g:Limb({ { ax + d * 1.6, hy + hry + 3.4 }, { ax + d * 6.4, hy + hry + 5.6 } }, 1.8, 1.1)) m:add(g:Limb({ { ax + d * 3.2, hy + hry + 7.6 }, { ax - d * 0.6, hy + hry + 11 } }, 1.7, 1.0))
         g:form(m, r, { frac = 0.3, off = 1 })
-        if QK.moss and s == 1 then g:over(g:E(ax + d * 6, hy + hry + 6, 1.8, 1.2), P.moss.base, r.base, r.shade, r.hi) g:put(ax + d * 6, hy + hry + 5, P.moss.shade) end   -- moss hangs from one tine
+        if QK.moss and s == 1 then for i = 0, 2 do g:fill(g:E(ax + d * (3.6 + i * 1.7), hy + hry + 5 + i * 1.4, 1.9, 1.3), i == 1 and P.moss.base or P.moss.shade) end g:dots({ { ax + d * 5.3, hy + hry + 6.6 } }, P.moss.hi) g:stroke({ { ax + d * 4, hy + hry + 4.6 }, { ax + d * 4, hy + hry + 2.4 } }, P.moss.shade) end   -- moss hangs from one tine
       end
     end
     if kd == "bear" and k.jowl and big then   -- a beard of fur under the jaw
@@ -390,37 +393,107 @@ return function(L)
     if k.mantle then local cap = g:E(hx - 1, hy + hry * 0.8, hrx * 1.0, hry * 0.5); cap:clip(head); g:over(cap, A.base, B.base, B.hi) g:over(cap, A.shade, B.shade) end
     if f.stripes and kd == "feline" then for i = 0, 2 do g:mark({ { hx - hrx * 0.5 + i * 2.2, hy + hry - 0.4 }, { hx - hrx * 0.4 + i * 2.2, hy + hry * 0.45 } }, DARK, B.base, B.shade, B.hi) end g:mark({ { hx - hrx + 0.6, hy - 0.5 }, { hx - hrx * 0.5, hy - 1.2 } }, DARK, B.base, B.shade) end
     if f.spots and kd == "feline" then g:dots({ { hx - hrx * 0.5, hy + hry * 0.6 }, { hx - hrx * 0.1, hy + hry * 0.8 }, { hx - hrx * 0.7, hy - 0.5 } }, A.shade == B.shade and DARK or A.shade) end
-    if f.tusks then   -- a curved tusk up from the lower jaw; the far one is a broken stump (a bigger, clearer stub than before)
-      local ta, tb = tipx - 3.6, sy - k.snh + 0.6
-      local tk2 = g:Limb({ { ta, tb }, { ta + 1.6, tb + 1.8 }, { ta + 1.9, tb + 4.6 } }, 2.0, 0.9)
-      local st = g:R(ta + 2.6, tb + 1.6, ta + 3.8, tb - 0.2)
-      g:fill(st, CREAM.base) g:put(ta + 2.6, tb + 1.6, CREAM.hi) g:put(ta + 3.8, tb + 1.6, CREAM.shade) g:put(ta + 3.2, tb + 1.6, CREAM.deep)
+    if k.grin then   -- a monkey's wide grin and heavy brow
+      g:stroke({ { tipx - 2.2, sy - k.snh + 0.2 }, { hx + hrx * 0.3, sy - k.snh - 0.6 }, { hx + hrx * 0.1, sy - k.snh + 0.4 } }, DARK)
+      g:stroke({ { hx + hrx * 0.1, hy + hry * 0.5 }, { hx + hrx * 0.5, hy + hry * 0.62 }, { hx + hrx * 0.95, hy + hry * 0.3 } }, DARK)
+    end
+    if k.incisor then   -- a beaver's two big orange teeth
+      local ta = tipx - 1.6
+      g:fill(g:R(ta - 1.6, sy - k.snh + 0.9, ta + 0.3, sy - k.snh - 2.6), P.gold.hi) g:fill(g:R(ta - 1.6, sy - k.snh - 2.2, ta + 0.3, sy - k.snh - 2.8), P.gold.shade) g:put(ta - 1.6, sy - k.snh + 0.4, P.cream)
+    end
+    if f.tusks then   -- a curved tusk up from the lower jaw; the far one is a clearly broken stump
+      local ta, tb = tipx - 3.8, sy - k.snh + 0.8
+      local st = g:R(ta + 3.4, tb + 1.2, ta + 5.4, tb - 1.8)
+      g:fill(st, CREAM.base) g:mark({ { ta + 3.4, tb + 1.2 }, { ta + 5.4, tb + 1.2 } }, CREAM.hi, CREAM.base)
+      g:fill(g:R(ta + 3.4, tb - 1.8, ta + 5.4, tb - 1.2), CREAM.shade) g:put(ta + 4.4, tb - 1.4, CREAM.deep) g:put(ta + 3.4, tb - 1.8, CREAM.deep) g:put(ta + 5.4, tb - 1.2, CREAM.deep)   -- the jagged break
+      local tk2 = g:Limb({ { ta, tb }, { ta + 1.8, tb + 2.4 }, { ta + 2.2, tb + 6 } }, 2.2, 0.9)
       g:fill(tk2, P.cream) tk2:each(function(x, y) if not tk2:has(x + 1, y) then c:put(x, y, CREAM.shade) end end)
     end
-    if QK.tooth then g:fill(g:R(tipx - 3.4, sy - k.snh + 0.4, tipx - 2.8, sy - k.snh - 1.0), P.cream) end                         -- one snaggle tooth
-    if QK.flower then   -- a daisy tucked behind its ear
-      local fa, fb = hx - hrx * 0.75, hy + hry * 0.78
-      for _, d in ipairs({ { -1.2, 0 }, { 1.2, 0 }, { 0, 1.2 }, { 0, -1.2 } }) do g:put(fa + d[1], fb + d[2], P.cream) end g:put(fa, fb, P.gold.base)
+    if QK.tooth then   -- one huge buck tooth over the lip
+      local ta = tipx - 2.2
+      g:fill(g:R(ta - 1.2, sy - k.snh + 1.2, ta + 1.4, sy - k.snh - 4.2), P.cream) g:fill(g:R(ta + 0.6, sy - k.snh + 1.2, ta + 1.4, sy - k.snh - 4.2), CREAM.shade) g:put(ta - 1.2, sy - k.snh - 4.2, CREAM.shade)
+      g:mark({ { ta - 0.2, sy - k.snh + 0.6 }, { ta - 0.2, sy - k.snh - 3 } }, CREAM.base, P.cream)
+    end
+    if QK.fang then   -- a long fang hanging over the lip
+      local ta = tipx - 3
+      g:fill(g:P({ { ta - 0.8, sy - k.snh + 0.8 }, { ta + 0.9, sy - k.snh + 0.8 }, { ta + 0.1, sy - k.snh - 3.4 } }), P.cream) g:put(ta + 0.6, sy - k.snh - 1, CREAM.shade)
+    end
+    if QK.flower then   -- a thistle bloom on the crown: a green bulb under a burst of pink
+      local fa, fb = hx - hrx * 0.1, hy + hry + 1.2
+      g:stroke({ { fa, fb - 1 }, { fa, fb + 1 } }, P.moss.base, 2)
+      local bl = g:E(fa, fb + 2.2, 2.2, 1.9); g:form(bl, P.moss, { frac = 0.34, off = 1 }) g:under(bl, P.moss.deep)
+      for i = -3, 3 do g:stroke({ { fa + i * 0.45, fb + 3.2 }, { fa + i * 0.95, fb + 6 - math.abs(i) * 0.4 } }, i % 2 == 0 and PT.base or PT.hi) end
+      g:dots({ { fa, fb + 6.3 }, { fa - 1.2, fb + 5.6 } }, PT.hi)
     elseif QK.sprig then   -- a sprig of grass in the corner of its mouth
       g:stroke({ { hx + hrx * 0.8, sy - k.snh + 0.4 }, { hx + hrx * 0.8 + 3.2, sy - k.snh - 2.6 } }, P.moss.shade) g:put(hx + hrx * 0.8 + 3.6, sy - k.snh - 2.2, P.moss.base)
-    elseif QK.ring then    -- a gold ring in its ear
-      local ex, eb = hx - hrx * 0.42 - 2.2, hy + hry * 0.62 + 3
-      g:stroke({ { ex - 0.8, eb }, { ex - 1.6, eb - 0.8 }, { ex - 0.8, eb - 1.6 } }, P.gold.base) g:put(ex - 1.6, eb - 0.8, P.gold.hi)
-    elseif QK.scarf then   -- a little neckerchief
-      local na, nb = hx - hrx * 0.62, hy - hry * 0.78
-      local m = g:P({ { na - 2.6, nb + 1.6 }, { na + 4.4, nb - 0.4 }, { na + 0.6, nb - 4.6 } }); g:form(m, P.ember, { frac = 0.3, off = 1 }) g:put(na + 0.4, nb - 0.4, P.gold.base)
-    elseif QK.bell then    -- a bell on a collar
-      local na, nb = hx - hrx * 0.3, hy - hry * 0.95
-      g:stroke({ { na - 3, nb + 1.6 }, { na + 2.6, nb } }, P.ember.shade, 1) local m = g:E(na, nb - 1.2, 1.5, 1.5); g:form(m, P.gold, { frac = 0.34, off = 1 }) g:put(na, nb - 2.2, P.gold.deep)
+    elseif QK.ring then    -- a big gold hoop through the ear
+      local ex, eb = hx - hrx * 0.42 - 1.4, hy + hry * 0.62 + 1.2
+      local rg = g:E(ex - 1.6, eb - 0.4, 2.1, 2.1); rg:cut(g:E(ex - 1.6, eb - 0.4, 1.0, 1.0))
+      g:fill(rg, P.gold.base) rg:each(function(x, y) if not rg:has(x + 1, y + 1) then c:put(x, y, P.gold.shade) end end) g:put(ex - 3, eb + 0.8, P.gold.hi)
+    elseif QK.scarf then   -- a neckerchief around the throat, its two tails blowing back
+      local na, nb = hx - hrx * 0.5, hy - hry * 0.7
+      local m = g:Limb({ { na + 3, nb + 1.4 }, { na - 1.6, nb - 0.6 } }, 3.2, 3.8)
+      g:form(m, P.ember, { frac = 0.3, off = 1 }) g:under(m, P.ember.deep)
+      local t1 = g:P({ { na - 1.2, nb + 0.8 }, { na - 8, nb + 3.6 }, { na - 6.6, nb + 0.8 }, { na - 1.2, nb - 1.6 } }); g:form(t1, P.ember, { frac = 0.4, off = 1 }) g:under(t1, P.ember.deep)
+      g:mark({ { na + 2, nb + 1.6 }, { na - 5, nb + 2.2 } }, P.gold.base, P.ember.base, P.ember.shade, P.ember.hi) g:mark({ { na + 2, nb + 0.2 }, { na - 4, nb + 0.5 } }, P.gold.base, P.ember.base, P.ember.shade, P.ember.hi)
+    elseif QK.bell then    -- a collar with a big brass bell
+      local na, nb = hx - hrx * 0.2, hy - hry * 0.95
+      local cl = g:Limb({ { na - 4.4, nb + 2.8 }, { na + 3, nb + 0.6 } }, 1.8, 1.8); g:form(cl, P.ember, { frac = 0.3, off = 1 })
+      local bl = g:E(na + 1.2, nb - 1.6, 2.4, 2.4); g:form(bl, P.gold, { frac = 0.34, off = 1 }) g:under(bl, P.gold.deep) g:put(na + 1.2, nb - 3.6, P.gold.hi) g:put(na + 0.2, nb - 3.8, P.cream)
+      g:fill(g:R(na + 0.2, nb - 2.6, na + 2.2, nb - 2.2), P.gold.deep)
     elseif QK.bow then     -- a bow on one ear
       local fa, fb = hx - hrx * 0.5, hy + hry * 0.95
       g:fill(g:P({ { fa - 2.4, fb + 1.6 }, { fa - 2.4, fb - 1.4 }, { fa, fb } }), PT.base) g:fill(g:P({ { fa + 2.6, fb + 1.6 }, { fa + 2.6, fb - 1.4 }, { fa, fb } }), PT.base) g:put(fa, fb, PT.deep)
-    elseif QK.feather then -- a feather stuck in its fur behind the ear
-      local fa, fb = hx - hrx * 0.9, hy + hry * 0.5
-      local m = g:Limb({ { fa, fb }, { fa - 2.2, fb + 5.6 } }, 1.2, 2.2); g:form(m, P.sky, { frac = 0.4, off = 1 }) g:stroke({ { fa, fb }, { fa - 2.0, fb + 5.2 } }, P.sky.deep)
-    elseif QK.snack then   -- it carries a snack in its mouth
-      local sa, sb = tipx - 0.6, sy - k.snh - 0.4
-      local m = g:E(sa, sb, 2.2, 1.6); g:form(m, P.ember, { frac = 0.34, off = 1 }) g:put(sa - 0.8, sb + 0.8, P.ember.hi) g:stroke({ { sa, sb + 1.6 }, { sa + 0.8, sb + 2.6 } }, P.moss.shade)
+    elseif QK.feather then -- a long feather stuck in its fur behind the ear
+      local fa, fb = hx - hrx * 0.7, hy + hry * 0.6
+      local m = g:Limb({ { fa, fb }, { fa - 3.4, fb + 4 }, { fa - 6.4, fb + 7.6 } }, 1.4, 3.2); g:form(m, P.sky, { frac = 0.4, off = 1 }) g:under(m, P.sky.deep)
+      g:stroke({ { fa, fb }, { fa - 6, fb + 7 } }, P.sky.deep) g:mark({ { fa - 2, fb + 3.2 }, { fa - 3.8, fb + 3.6 } }, P.cream, P.sky.base, P.sky.hi)
+    elseif QK.snack then   -- a banana in its mouth
+      local sa, sb = tipx - 0.4, sy - k.snh + 0.4
+      local m = g:Limb({ { sa - 2.4, sb + 1.6 }, { sa + 0.8, sb - 0.6 }, { sa + 4, sb + 0.2 }, { sa + 5.4, sb + 3 } }, 2.4, 2.0)
+      g:form(m, L.R.butter, { frac = 0.35, off = 1 }) g:under(m, P.gold.shade)
+      g:put(sa + 5.6, sb + 3.6, P.gold.deep) g:put(sa - 2.8, sb + 2, L.R.bark.base)
+    elseif QK.fish then    -- a fish held in its jaws
+      local sa, sb = tipx - 0.6, sy - k.snh - 0.2
+      local m = g:E(sa + 3.4, sb - 0.4, 4.2, 1.9); g:form(m, P.sky, { frac = 0.34, off = 1 }) g:under(m, P.sky.deep)
+      local tl = g:P({ { sa + 6.8, sb - 0.4 }, { sa + 10, sb + 2 }, { sa + 10, sb - 2.8 } }); g:form(tl, P.sky, { frac = 0.4, off = 1 })
+      g:put(sa + 1.6, sb, P.ink) g:mark({ { sa + 3.6, sb + 0.6 }, { sa + 5, sb - 0.6 } }, P.sky.shade, P.sky.base) g:dots({ { sa + 2.6, sb + 0.9 } }, P.cream)
+    elseif QK.bone then    -- a bone in its mouth
+      local sa, sb = tipx - 0.8, sy - k.snh + 0.2
+      g:fill(g:R(sa - 2, sb - 0.7, sa + 5.4, sb + 0.7), P.cream)
+      for _, e in ipairs({ { sa - 2.4, 1 }, { sa + 5.8, 1 } }) do g:fill(g:E(e[1], sb + 1.0, 1.5, 1.3), P.cream) g:fill(g:E(e[1], sb - 1.0, 1.5, 1.3), P.cream) end
+      g:mark({ { sa - 2, sb - 0.3 }, { sa + 5.6, sb - 0.3 } }, CREAM.shade, P.cream) g:dots({ { sa + 1, sb + 0.2 } }, CREAM.shade)
+    elseif QK.honey then   -- honey dripping from its muzzle, with a bee on its nose
+      local sa, sb = tipx - 2.6, sy - k.snh
+      local m = g:E(sa, sb - 0.2, 2.6, 1.6); g:form(m, L.R.butter, { frac = 0.34, off = 1 })
+      for _, d in ipairs({ { -1.4, 3.6 }, { 0.8, 2.4 }, { 2, 4.6 } }) do g:fill(g:R(sa + d[1] - 0.4, sb - 0.4, sa + d[1] + 0.4, sb - d[2]), P.gold.base) g:put(sa + d[1], sb - d[2] - 0.8, P.gold.hi) end
+      local bx, by = g:x(tipx - 1), g:y(sy + k.snh + 1.6)
+      c:put(bx, by, P.gold.base) c:put(bx + 1, by, P.ink) c:put(bx + 2, by, P.gold.base) c:put(bx + 1, by - 1, P.sky.hi) c:put(bx, by - 1, P.sky.hi)
+    elseif QK.icicles then -- icicles hanging from its chin and jaw
+      for i, a in ipairs({ -3.4, -1, 1.6, 4 }) do local ya = hy - hry * 0.75 + (i % 2) * 0.3
+        g:fill(g:P({ { hx + a - 0.9, ya }, { hx + a + 0.9, ya }, { hx + a, ya - 2.6 - (i % 3) * 1.2 } }), P.sky.hi) g:put(hx + a - 0.5, ya - 0.4, P.cream) end
+    elseif QK.pencil then  -- a pencil behind the ear
+      local pa, pb = hx - hrx * 0.5, hy + hry * 0.86
+      local pm = g:Ln({ { pa, pb }, { pa - 5.4, pb + 3.6 } }, 1.5); g:fill(pm, P.gold.base) g:mark({ { pa, pb + 0.5 }, { pa - 5, pb + 3.8 } }, P.gold.hi, P.gold.base)
+      g:fill(g:E(pa + 0.8, pb - 0.2, 1.1, 1.0), P.ink) g:fill(g:E(pa - 5.6, pb + 3.8, 1.1, 1.0), PT.base)
+    elseif QK.ants then    -- three ants marching along the snout
+      for i = 0, 2 do local ax, ay = g:x(hx + hrx * 0.7 + i * 3.4), g:y(sy + k.snh + 0.3) - 1 - (i % 2)
+        c:put(ax, ay, P.ink) c:put(ax + 1, ay, P.ink) c:put(ax + 2, ay, P.ink) c:put(ax + 1, ay - 1, P.ink) c:put(ax - 1, ay + 1, P.ink) c:put(ax + 3, ay + 1, P.ink) c:put(ax + 2, ay - 1, P.ember.base) end
+    elseif QK.beanie then  -- a woolly bobble hat pulled down over the crown
+      local ba, bb = hx - hrx * 0.1, hy + hry * 0.62
+      local cap = g:E(ba, bb, hrx * 0.98, 4.2); cap:cut(g:R(ba - hrx - 1, bb - 5, ba + hrx + 1, bb - 1.6)); g:form(cap, P.ember, { frac = 0.3, off = 1 }) g:under(cap, P.ember.deep)
+      g:fill(g:R(ba - hrx * 0.95, bb - 1.6, ba + hrx * 0.95, bb - 0.2), CREAM.base) g:mark({ { ba - hrx * 0.9, bb - 0.8 }, { ba + hrx * 0.9, bb - 0.8 } }, CREAM.shade, CREAM.base)
+      for i = -2, 2 do g:mark({ { ba + i * 2.4, bb + 0.4 }, { ba + i * 2.4 + 0.5, bb + 3.2 } }, P.ember.shade, P.ember.base, P.ember.hi) end
+      local pom = g:E(ba, bb + 4.6, 2.3, 2.3); g:fill(pom, P.cream) g:over(pom, CREAM.shade, P.cream) g:put(ba - 0.8, bb + 5.4, P.cream)
+    elseif QK.ranger then  -- a flat-brimmed ranger hat between the ears
+      local ba, bb = hx - hrx * 0.1, hy + hry * 0.92
+      local brim = g:E(ba, bb, hrx * 1.05, 1.5); g:form(brim, L.R.tan, { frac = 0.3, off = 1 }) g:under(brim, L.R.tan.deep)
+      local cr = g:RR(ba - hrx * 0.55, bb + 0.6, ba + hrx * 0.55, bb + 3.8, 1.2); g:form(cr, L.R.tan, { frac = 0.3, off = 1 }) g:under(cr, L.R.tan.deep)
+      g:fill(g:R(ba - hrx * 0.55, bb + 0.8, ba + hrx * 0.55, bb + 1.8), P.ember.base) g:mark({ { ba - hrx * 0.5, bb + 1 }, { ba + hrx * 0.4, bb + 1 } }, P.ember.shade, P.ember.base)
+    elseif QK.butterfly then -- a butterfly settled between its ears
+      local ba, bb = hx + hrx * 0.2, hy + hry + 2.6
+      for _, s2 in ipairs({ -1, 1 }) do local w = g:E(ba + s2 * 1.9, bb + 0.9, 2.1, 1.9); g:form(w, PT, { frac = 0.3, off = 1 }) g:under(w, PT.deep) g:put(ba + s2 * 2.2, bb + 1.2, P.cream) end
+      g:fill(g:R(ba - 0.3, bb - 0.8, ba + 0.3, bb + 2), P.ink) g:stroke({ { ba, bb + 2 }, { ba - 1.2, bb + 3.6 } }, P.ink) g:stroke({ { ba, bb + 2 }, { ba + 1.2, bb + 3.6 } }, P.ink)
     end
     if kd ~= "bear" or not big then g:dots({ { hx + hrx * 0.42, hy - hry * 0.42 }, { hx + hrx * 0.42 + 0.9, hy - hry * 0.42 } }, PT.base) end   -- cheek
 
@@ -430,7 +503,10 @@ return function(L)
     if k.brow ~= false and (kd == "bear" or kd == "canid" or kd == "ungulate") and big then
       g:stroke({ { ea - 2.2, eb + 2.0 }, { ea - 0.6, eb + 2.9 }, { ea + 1.2, eb + 2.4 }, { ea + 2.6, eb + 1.2 } }, k.mask and A.deep or B.deep)   -- a grumpy brow
     end
-    if QK.eyescar then g:stroke({ { ea + 0.4, eb + 4.2 }, { ea - 0.6, eb - 3.2 } }, PT.shade) end
+    if QK.eyescar then   -- a long pink scar through the brow and down the cheek, with stitches
+      g:stroke({ { ea + 1.4, eb + 5.4 }, { ea + 0.4, eb + 1 }, { ea - 1.2, eb - 4.4 } }, PT.base)
+      for i = 0, 3 do g:put(ea + 1.6 - i * 0.9 - 0.9, eb + 4 - i * 2.4, PT.deep) g:put(ea + 0.6 - i * 0.9 + 0.6, eb + 4 - i * 2.4, PT.deep) end
+    end
     if q.puff then   -- it snorts: two round puffs from the nostrils (hidden until a pose shows them)
       g:T("puff") local m = g:E(tipx + 5, sy + 0.8, 1.5, 1.5); g:fill(m, P.stone.hi) g:put(tipx + 5.6, sy + 0.2, P.stone.base) g:put(tipx + 4.4, sy + 1.4, P.cream)
       g:fill(g:E(tipx + 8.6, sy + 4, 0.8, 0.8), P.stone.hi)
