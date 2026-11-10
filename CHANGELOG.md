@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.6.33
+- **Stop perks are yours now**: filling a stop meter (Repairs, Larder, Cheer) gives the player a perk that works everywhere for 7 game days (admin `perk_days`), not "one more thing" at that stop (that bonus is retired). Same perk again refreshes it; at most 3 run (`perk_max`), a 4th drops the one ending soonest. Which perk is picked from the meter's pool by player, stop and game day, preferring one not already running (choosing from two is not built yet).
+  - Repairs: 🥾 Light Feet (road walks cost 1 less energy), 🦴 Good Bones (healing +25%).
+  - Larder: 🧂 Seasoned (home-cooked dishes +20% energy), 🌱 Green Thumb (10% chance of one extra per harvest), 🥪 Packed Lunch (meal boosts +25% longer), 🍲 Slow Simmer (pots 20% faster).
+  - Cheer: 👟 Spring in Step (walking 15% faster), 😊 Bright Mood (+10% XP), 🗣️ Silver Tongue (shops 5% cheaper).
+  - Shown in the header effects list and the stop Perks card ("Your perks"). Every number is an admin setting (`perk_*`). Run Upgrade database once for the `player_perks` table. Test: `tests/player_perks.php`. Not built from the notes: Steady Hands, Mender's Luck, Sharp Tools, Full Pockets, Good Company, Sound Sleep, pick-one-of-two, Well Travelled combo.
+
 ## 2.6.32
 - **"!" on the Calling tile**: on My Gnome, the Calling tile shows a yellow ! once you reach the calling level and have not chosen one. It opens the Calling tab.
 - **Foodie rank**: every 10 different foods tasted (admin `food_unique_every`) is one rank: +1 max energy and meal buffs last 2% longer, per rank. Shown on the Foods tab.

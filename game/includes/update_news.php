@@ -703,6 +703,12 @@ function post_update_news(string $from): void
         . "[*][b]Food mastery[/b]: eat or harvest the same food 500, 1000, 1650 and 2000 times and it earns a star step (Familiar, Favourite, Beloved, Signature). Each step makes that food's boosts stronger and longer, and gives more energy. See it all on My Gnome > Foods.\n"
         . "[*][b]Calling[/b]: a yellow ! shows on the Calling tile on My Gnome once you can choose a calling and have not yet.\n"
         . "[*][b]Clovercove[/b] is now the last stop on the road out of the Maplewold towards Blossomreach. The Maplewold's only ways out are Windburrow (to Mistmoor) and Poppynook (to Maizehollow).[/list]"],
+    '2.6.33' => ['🌟 Update 2.6.33: stop perks you can use anywhere',
+        "Fill a stop's Repairs, Larder or Cheer bar and you now earn a [b]perk for yourself[/b] that works everywhere for 7 days, instead of an extra turn at that one stop.\n\n"
+        . "[list][*][b]Repairs[/b]: Light Feet (cheaper road walks), Good Bones (more healing).\n"
+        . "[*][b]Larder[/b]: Seasoned (more energy from home-cooked food), Green Thumb (a chance of an extra harvest), Packed Lunch (longer meal boosts), Slow Simmer (faster pots).\n"
+        . "[*][b]Cheer[/b]: Spring in Step (faster walking), Bright Mood (more XP), Silver Tongue (cheaper shops).[/list]\n\n"
+        . "Up to 3 run at once. Earning the same one again refreshes it. See them in your effects list and on the stop's Perks card."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

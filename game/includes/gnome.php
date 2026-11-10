@@ -155,6 +155,10 @@ function active_effects(array $u): array
     if (!empty($u['town_stat']) && isset(GNOME_STATS[$u['town_stat']]) && $left($u['town_until'] ?? null) > 0) $out[] = ['🏘️', 'Town outing', $stats([$u['town_stat'] => $u['town_amt']]), $left($u['town_until'])];
     if ($left($u['ev_gather_until'] ?? null) > 0) $out[] = ['🌈', 'Rainbow', 'Double gathering', $left($u['ev_gather_until'])];
     if ($left($u['ev_sale_until'] ?? null) > 0) $out[] = ['🐓', 'Shop sale', '20% off in every shop', $left($u['ev_sale_until'])];
+    if (!empty($u['id'])) {   // 2.6.33: stop perks
+        require_once __DIR__ . '/player_perks.php';
+        $out = array_merge($out, player_perk_effects((int)$u['id']));
+    }
     usort($out, fn($a, $b) => $b[3] <=> $a[3]);
     return $out;
 }
@@ -230,6 +234,10 @@ function garden_xp_for_level(int $level): int
 function add_xp(int $uid, int $n, string $source = ''): ?int
 {
     $earned = $n;   // v1.2.0: player mentors: what the gnome earned before any newcomer bonus
+    if ($n > 0) {   // 2.6.33: Bright Mood perk
+        require_once __DIR__ . '/player_perks.php';
+        if (($bm = player_perk_pct($uid, 'bright_mood', 'perk_bright_mood')) > 0) $n += max(1, (int)round($n * $bm / 100));
+    }
     if ($n > 0) {
         require_once __DIR__ . '/mentors120.php';
         $n += mentors120_xp_bonus($uid, $n, $source !== '' ? $source : (string)(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'] ?? 'other'));
@@ -356,7 +364,8 @@ function choose_calling(array $u, string $calling): array
 function buff_minutes(array $u, int $base): int
 {
     require_once __DIR__ . '/food_mastery.php';
-    $minutes = (int)round($base * (100 + calling_perk($u, 'buff_pct') + food_rank_buff_pct((int)($u['id'] ?? 0))) / 100);
+    require_once __DIR__ . '/player_perks.php';
+    $minutes = (int)round($base * (100 + calling_perk($u, 'buff_pct') + food_rank_buff_pct((int)($u['id'] ?? 0)) + player_perk_pct((int)($u['id'] ?? 0), 'packed_lunch', 'perk_packed_lunch')) / 100);
     require_once __DIR__ . '/gardens.php';
     $pct = user_building_bonus((int)$u['id'], 'kitchen')['buff_pct'];   // v0.9.5: best kitchen +25% / +50%, other gardens' kitchens add a little (stacking)
     if ($pct > 0) $minutes = (int)round($minutes * (100 + $pct) / 100);
@@ -492,6 +501,8 @@ function eat_item(array $u, int $itemId): array
             $max = max_energy($u);
             $n = (int)$fx['energy'];
             if ($homeCooked) $n = dish_energy($n);   // v0.9.4: the 1.5x seed-to-plate knob (home-cooked only)
+            require_once __DIR__ . '/player_perks.php';
+            if ($homeCooked && ($sn = player_perk_pct($uid, 'seasoned', 'perk_seasoned')) > 0) $n += max(1, (int)round($n * $sn / 100));   // 2.6.33
             $pct = ($item['category'] === 'food' && strncmp((string)$item['slug'], 'bought-', 7) !== 0) ? calling_perk($u, 'meal_energy_pct') : 0;   // v0.9.1 (v0.9.4: a percent, not +1): home-cooked meals only
             if ($pct > 0) $n += max(1, (int)round($n * $pct / 100));
             // whole numbers written into the SQL so the comparison is numeric (SQLite compares bound values as text)

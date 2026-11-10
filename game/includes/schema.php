@@ -407,6 +407,16 @@ function schema_statements(string $driver): array
         UNIQUE (user_id, item_id)
     )$END";
 
+    $t[] = "CREATE TABLE IF NOT EXISTS player_perks (
+        id $PK,
+        user_id $ID NOT NULL,
+        perk_key VARCHAR(30) NOT NULL,
+        meter VARCHAR(12) NOT NULL DEFAULT '',
+        until VARCHAR(10) NOT NULL,
+        from_location_id $ID NULL,
+        UNIQUE (user_id, perk_key)
+    )$END";
+
     $t[] = "CREATE TABLE IF NOT EXISTS user_food_mastery (
         id $PK,
         user_id $ID NOT NULL,
