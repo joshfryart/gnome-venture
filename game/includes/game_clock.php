@@ -27,6 +27,7 @@ function game_clock_schema(string $PK, string $ID, string $END): array
         ['users', 'camp_naps', 'INT NOT NULL DEFAULT 0'],   // naps taken on the gear now in use (2 per gear)
         ['shops', 'open_minute', 'INT NULL'], ['shops', 'close_minute', 'INT NULL'],          // closing hours (decision 41); NULL = default_open/close_minute
         ['locations', 'open_minute', 'INT NULL'], ['locations', 'close_minute', 'INT NULL'],
+        ['landmark_repairs', 'settle_day', 'INT NULL'],   // game_day a finished repair stage was worked on while carried work was pending; it pays after the next sleep
         ['plot_tiles', 'grow_day', 'INT NULL'],    // the owner's game_day that growth is settled up to
         ['plot_tiles', 'water_day', 'INT NULL'],   // the owner's game_day the bed was last watered on
         ['plot_tiles', 'owed_days', 'INT NOT NULL DEFAULT 0'],   // dry days not yet grown; paid back when a watered day finishes (decision 54)

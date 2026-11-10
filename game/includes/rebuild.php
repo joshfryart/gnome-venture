@@ -361,7 +361,7 @@ function repair_advance(array $fresh, array $r, array $lm, int $stage, array $de
 {
     require_once __DIR__ . '/gnome.php';   // add_xp
     $uid = (int)$fresh['id'];
-    if (q('UPDATE landmark_repairs SET stage = stage + 1, prog = 0 WHERE id = ? AND user_id = ? AND stage = ? AND done_at IS NULL AND dropped_at IS NULL', [(int)$r['id'], $uid, $stage - 1])->rowCount() !== 1) {
+    if (q('UPDATE landmark_repairs SET stage = stage + 1, prog = 0, settle_day = NULL WHERE id = ? AND user_id = ? AND stage = ? AND done_at IS NULL AND dropped_at IS NULL', [(int)$r['id'], $uid, $stage - 1])->rowCount() !== 1) {
         return [false, 'That stage is already done.'];
     }
     [$coins, $xp] = repair_rewards($lm);
@@ -375,10 +375,33 @@ function repair_advance(array $fresh, array $r, array $lm, int $stage, array $de
     return [true, $msg];
 }
 
+/**
+ * Sleep-days: a "work here" day that carried past 22:00 leaves the gnome busy until they sleep. The stage's pay waits for that
+ * (settle_day); after the next sleep this finishes the stage. Cheap; called before repairs are read or worked.
+ */
+function repair_settle(int $uid): void
+{
+    if (!gclock_on()) return;
+    $day = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]);
+    foreach (q('SELECT * FROM landmark_repairs WHERE user_id = ? AND settle_day IS NOT NULL AND settle_day < ? AND done_at IS NULL AND dropped_at IS NULL', [$uid, $day])->fetchAll() as $r) {
+        $lm = q_one('SELECT * FROM landmarks WHERE id = ?', [$r['landmark_id']]);
+        if (!$lm) continue;
+        [$stage, $def] = repair_current($r + ['name' => $lm['name']]);
+        if (!$def || ($def['needs'][0][0] ?? '') !== 'days') { q('UPDATE landmark_repairs SET settle_day = NULL WHERE id = ?', [$r['id']]); continue; }
+        $fresh = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+        db()->beginTransaction();
+        [$ok, $msg] = repair_advance($fresh, $r, $lm, $stage, $def);
+        if (!$ok) { db()->rollBack(); continue; }
+        db()->commit();
+        notify($uid, '🪓 ' . $msg);
+    }
+}
+
 /** Hand in the next stage of a repair. Returns [ok, message]. */
 function repair_hand(array $u, int $repairId): array
 {
     $uid = (int)$u['id'];
+    repair_settle($uid);
     $r = q_one('SELECT * FROM landmark_repairs WHERE id = ? AND user_id = ? AND done_at IS NULL AND dropped_at IS NULL', [$repairId, $uid]);
     if (!$r) return [false, 'That repair is finished or gone.'];
     $lm = q_one('SELECT * FROM landmarks WHERE id = ?', [$r['landmark_id']]);
@@ -420,6 +443,7 @@ function repair_hand(array $u, int $repairId): array
 function repair_work(array $u, int $repairId): array
 {
     $uid = (int)$u['id'];
+    repair_settle($uid);
     $r = q_one('SELECT * FROM landmark_repairs WHERE id = ? AND user_id = ? AND done_at IS NULL AND dropped_at IS NULL', [$repairId, $uid]);
     if (!$r) return [false, 'That repair is finished or gone.'];
     $lm = q_one('SELECT * FROM landmarks WHERE id = ?', [$r['landmark_id']]);
@@ -444,6 +468,11 @@ function repair_work(array $u, int $repairId): array
         db()->commit();
         return [true, '🪓 A good day’s work: ' . $prog . ' of ' . $days . ' days done on “' . $def['name'] . '”. Come back tomorrow.'];
     }
+    if (gclock_busy_minutes($uid) > 0) {   // the last day's work runs past 22:00: the stage pays once it is finished, after the next sleep
+        q('UPDATE landmark_repairs SET settle_day = ? WHERE id = ?', [(int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]), $repairId]);
+        db()->commit();
+        return [true, '🪓 The last day’s work on “' . $def['name'] . '” runs into the night. Sleep, and the stage is done (' . money(repair_rewards($lm)[0]) . ' and ' . repair_rewards($lm)[1] . ' XP then).'];
+    }
     [$ok, $msg] = repair_advance($fresh, $r, $lm, $stage, $def);
     if (!$ok) { db()->rollBack(); return [false, $msg]; }
     db()->commit();
@@ -463,6 +492,7 @@ function repair_drop(array $u, int $repairId): array
 /** This gnome's unfinished repairs, oldest first (including ones others have already made safe: this gnome can still finish). */
 function repair_list(int $uid): array
 {
+    repair_settle($uid);
     return q('SELECT r.id, r.landmark_id, r.stage, r.plan, r.prog, r.prog_day, r.started_at, m.name, m.kind, m.region_id, m.location_id, l.slug AS loc_slug, l.name AS loc_name
               FROM landmark_repairs r JOIN landmarks m ON m.id = r.landmark_id JOIN locations l ON l.id = m.location_id
               WHERE r.user_id = ? AND r.done_at IS NULL AND r.dropped_at IS NULL ORDER BY r.started_at, r.id', [$uid])->fetchAll();

@@ -65,7 +65,7 @@ function festival_window(string $slug): ?array
     return [$a, $b];
 }
 
-/** The festival on today, or null: def + slug, starts, ends, day (1-based), days, left (seconds to the end of the last day). */
+/** The festival on today, or null: def + slug, starts, ends, day (1-based), days, left (seconds to the end of the last day), left_days (whole days after today). */
 function festival_active(): ?array
 {
     static $cache = false;
@@ -78,6 +78,7 @@ function festival_active(): ?array
         $days = (int)round((strtotime($w[1] . ' UTC') - strtotime($w[0] . ' UTC')) / 86400) + 1;
         $cache = $def + ['slug' => $slug, 'starts' => $w[0], 'ends' => $w[1], 'days' => $days,
             'day' => (int)round((strtotime($today . ' UTC') - strtotime($w[0] . ' UTC')) / 86400) + 1, 'left' => festival_end_ts($w[1]) - time()];
+        $cache['left_days'] = max(0, $days - $cache['day']);   // game days after today (the player's own calendar)
         return $cache;
     }
     return null;
@@ -261,8 +262,9 @@ function festival_bar_html(bool $full = true): string
 }
 
 /** Words for a span of seconds ("2 days", "5 hours"). */
-function festival_left_text(int $s): string
+function festival_left_text(int $s, ?int $gameDays = null): string
 {
+    if ($gameDays !== null) return $gameDays <= 0 ? 'last day' : $gameDays . ' game day' . ($gameDays === 1 ? '' : 's');   // sleep-days: counted on the player's own calendar
     if ($s >= 86400) { $d = (int)ceil($s / 86400); return $d . ' day' . ($d === 1 ? '' : 's'); }
     if ($s >= 3600) { $h = (int)floor($s / 3600); return $h . ' hour' . ($h === 1 ? '' : 's'); }
     return 'less than an hour';

@@ -30,7 +30,7 @@ page_header($f ? $f['name'] : 'Festivals');
     $stalls = festival_stalls($f, $uid); ?>
 <div class="box festhero">
   <h1><?= e($f['icon'] . ' ' . $f['name']) ?></h1>
-  <p class="festdates">Day <?= (int)$f['day'] ?> of <?= (int)$f['days'] ?> · <?= e(festival_left_text((int)$f['left'])) ?> left<?= $season ? ' · ' . e($season) : '' ?></p>
+  <p class="festdates">Day <?= (int)$f['day'] ?> of <?= (int)$f['days'] ?> · <?= e(festival_left_text((int)$f['left'], gclock_on() ? (int)$f['left_days'] : null)) ?><?= gclock_on() && (int)$f['left_days'] <= 0 ? '' : ' left' ?><?= $season ? ' · ' . e($season) : '' ?></p>
   <p><?= e($f['blurb']) ?></p>
 </div>
 

@@ -919,10 +919,16 @@ try {
     gclock_plot_clock(0, true);
     $n = pjob_replay_days($row());
     ok('owner slept twice: the bed is watered on days 21 and 22', $n === 2, (string)$n);
-    ok('progress 2 of 6, paid 40 of 120 (pro rata)', (int)$row()['progress'] === 2 && (int)$row()['paid'] === 40, $row()['progress'] . '/' . $row()['paid']);
-    ok('taker got the 40 Petals', (int)q_val('SELECT coins FROM users WHERE id = ?', [$takerId]) === $coins0 + 40);
-    ok('days are claimed once: a second call pays nothing', pjob_replay_days($row()) === 0 && (int)$row()['paid'] === 40);
+    $perDay = 2;   // qty 6 over 3 days
+    ok('2 days tended: paid per day (flat), 2 x actions-per-day of 6, pro rata', (int)$row()['progress'] === 2 * $perDay && (int)$row()['paid'] === intdiv(120 * 2 * $perDay, 6), $row()['progress'] . '/' . $row()['paid']);
+    ok('taker got the pay', (int)q_val('SELECT coins FROM users WHERE id = ?', [$takerId]) === $coins0 + (int)$row()['paid']);
+    $paid = (int)$row()['paid'];
+    ok('days are claimed once: a second call pays nothing', pjob_replay_days($row()) === 0 && (int)$row()['paid'] === $paid);
     ok('tend_day moved to 22', (int)$row()['tend_day'] === 22);
+    q('UPDATE plot_tiles SET water_day = 23, last_watered = ? WHERE id = ?', [now(), $tileId]);   // bed already wet: day 23 still pays
+    setu($uid, ['game_day' => 23]);
+    pjob_replay_days($row());
+    ok('a wet bed day still pays (per day, not per watering)', $row() === null || (int)$row()['paid'] > $paid || $row()['status'] !== 'taken', $row() ? (string)$row()['paid'] : 'closed');
 } catch (Throwable $e) { ok('tend replay block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
 cfg(['game_clock_on' => '0']);
 setu($uid, ['game_day' => 0, 'game_minute' => 360]);
@@ -975,6 +981,28 @@ setu($uid, ['game_minute' => 1400, 'carry_minutes' => 0, 'energy' => 30]);
 spend_energy($uid, 5, 'shift');
 ok('started after 22:00: all 8 h carried, clock stays', (int)urow($uid)['game_minute'] === 1400 && (int)urow($uid)['carry_minutes'] === 480);
 cfg(['game_clock_on' => '0']);
+echo "== repair stage pay waits for carried work (settle_day)\n";
+try {
+    require_once $argv[1] . '/includes/rebuild.php';
+    $lmRow = null; $dayStage = null;
+    foreach (q('SELECT * FROM landmarks ORDER BY id LIMIT 400')->fetchAll() as $cand) {
+        $t = ['id' => 0, 'plan' => 'v1', 'stage' => 0, 'prog' => 0, 'landmark_id' => $cand['id'], 'name' => $cand['name']];
+        [$sn, $sd] = repair_current($t);
+        if ($sd && ($sd['needs'][0][0] ?? '') === 'days') { $lmRow = $cand; $dayStage = $sd; break; }
+    }
+    ok('found a landmark whose first stage is a work-days stage', $lmRow !== null);
+    if ($lmRow) {
+        cfg(['game_clock_on' => '1']);
+        setu($uid, ['game_day' => 5, 'game_minute' => 600, 'carry_minutes' => 480, 'energy' => 30, 'coins' => 0]);
+        $rid = db_insert('landmark_repairs', ['user_id' => $uid, 'landmark_id' => (int)$lmRow['id'], 'stage' => 0, 'plan' => 'v1', 'prog' => (int)$dayStage['needs'][0][2], 'prog_day' => 'x', 'settle_day' => 5, 'started_at' => now()]);
+        repair_settle($uid);
+        ok('same game day: stage not paid yet', (int)q_val('SELECT stage FROM landmark_repairs WHERE id = ?', [$rid]) === 0 && (int)urow($uid)['coins'] === 0);
+        setu($uid, ['game_day' => 6, 'carry_minutes' => 0]);
+        repair_settle($uid);
+        ok('after the sleep: stage done and paid', (int)q_val('SELECT stage FROM landmark_repairs WHERE id = ?', [$rid]) === 1 && (int)urow($uid)['coins'] > 0 && q_val('SELECT settle_day FROM landmark_repairs WHERE id = ?', [$rid]) === null);
+        q('DELETE FROM landmark_repairs WHERE id = ?', [$rid]);
+    }
+} catch (Throwable $e) { ok('repair settle block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
 setu($uid, ['game_day' => 0, 'game_minute' => 360, 'carry_minutes' => 0, 'energy' => 30]);
 ok('flag off: never busy', gclock_busy_minutes($uid) === 0);
 

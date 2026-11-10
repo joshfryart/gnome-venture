@@ -42,8 +42,8 @@ function settle_player_jobs(): void
 /**
  * Sleep-days: the taker tends the garden on every game day of the owner's contract, not only when they open the tend page.
  * For each owner game day since the last replay (tend_day, capped at ends_day) one visit waters every thirsty bed that day, like a
- * hired helper (gclock_helper_water_tile). Each watering counts as one job done, paid pro rata through pjob_progress.
- * Weeding and harvesting still need the taker's own hands. Returns the number of waterings.
+ * hired helper (gclock_helper_water_tile). Pay is per day tended (a day's share of the actions, pro rata through pjob_progress),
+ * whether or not a bed was thirsty. Weeding and harvesting still need the taker's own hands. Returns the number of waterings.
  */
 function pjob_replay_days(array $pj): int
 {
@@ -64,10 +64,11 @@ function pjob_replay_days(array $pj): int
         if (!$p || $p['kind'] === 'cover') continue;
         gclock_helper_water_tile(annotate_tile($raw, $p), $p, $visits, $stats, $raw);
     }
-    if ($stats['water'] > 0) {
-        $msg = pjob_progress((int)$pj['taker_id'], ['id' => $pj['id']], $stats['water']);
-        notify((int)$pj['taker_id'], '🌱 You watered ' . $stats['water'] . ' time' . ($stats['water'] > 1 ? 's' : '') . ' in the garden you tend' . ($msg ? ' ' . $msg : '') . '.');
-    }
+    // Josh 2026-11-10: pay per owner day tended (flat), whether or not a bed was thirsty
+    $daysTended = $to - $from;
+    $msg = pjob_progress((int)$pj['taker_id'], ['id' => $pj['id']], $daysTended * max(1, intdiv((int)$pj['qty'], max(1, (int)$pj['days']))));
+    notify((int)$pj['taker_id'], '🌱 You tended the garden for ' . $daysTended . ' day' . ($daysTended > 1 ? 's' : '')
+        . ($stats['water'] > 0 ? ' and watered ' . $stats['water'] . ' time' . ($stats['water'] > 1 ? 's' : '') : '') . ($msg ? ' ' . $msg : '') . '.');
     return $stats['water'];
 }
 
