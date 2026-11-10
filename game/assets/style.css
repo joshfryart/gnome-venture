@@ -1156,6 +1156,7 @@ form.yo { margin: 0; padding: 0; }
 .d-lavender-border .rl { stroke: #5c8a4a; } .d-lavender-border .pk { stroke: #7a6fae; } .d-lavender-border .po { fill: #7a6fae; stroke: #5c4f8e; }
 .yo.fi { overflow: visible; background: none !important; box-shadow: none !important; }
 .yimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.yimg[src$=".png"] { image-rendering: pixelated; }
 .fi.ra90 .yimg, .fi:not(.fj).r90 .yimg { transform: rotate(90deg); } .fi.ra180 .yimg, .fi:not(.fj).r180 .yimg { transform: rotate(180deg); } .fi.ra270 .yimg, .fi:not(.fj).r270 .yimg { transform: rotate(270deg); }
 .yard.showgrid { background-image: linear-gradient(rgba(0, 0, 0, .38) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, .38) 1px, transparent 1px); }
 

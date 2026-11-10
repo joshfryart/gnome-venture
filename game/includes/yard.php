@@ -413,7 +413,7 @@ function yard_decor_image(string $slug, string $raw): string
     if (($img = yard_image($raw)) !== '') return $img;
     require_once __DIR__ . '/items.php';
     if ($slug === 'stepping-stones' && art_path('assets/img/paths/stones.png') !== '') return 'assets/img/paths/stones.png';   // v2.5.43: loose stones with the ground showing round them
-    if (ph_path($slug . '-straight') !== '') return 'assets/img/ph/' . $slug . '-{shape}.svg';
+    if (($ph = ph_path($slug . '-straight')) !== '') return 'assets/img/ph/' . $slug . '-{shape}.' . (str_ends_with($ph, '.png') ? 'png' : 'svg');   // the pixel PNG set wins over the old SVG
     return ph_path($slug);
 }
 
