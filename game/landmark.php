@@ -26,6 +26,7 @@ if (!str_starts_with($do, 'repair_') && ($lmRow = q_one('SELECT * FROM landmarks
     redirect('world.php');
 }
 $repair = (int)($_POST['repair'] ?? 0);
+try {
 [$ok, $msg] = match ($do) {
     'rest', 'stay' => haven_act($u, $lm, $do),
     'buy' => haven_act($u, $lm, 'buy', (int)($_POST['item_id'] ?? 0)),
@@ -38,6 +39,10 @@ $repair = (int)($_POST['repair'] ?? 0);
     'repair_drop' => repair_drop($u, $repair),
     default => [false, 'Unknown action.'],
 };
+} catch (UserError $e) {   // e.g. "still busy with a long job": say so instead of an error page
+    if (db()->inTransaction()) db()->rollBack();
+    [$ok, $msg] = [false, $e->getMessage()];
+}
 flash($msg, $ok ? 'ok' : 'err');
 // v0.7.77: repairs go back to wherever the gnome was (town square, quests tab or the world map), only to our own pages
 $back = (string)($_POST['back'] ?? '');

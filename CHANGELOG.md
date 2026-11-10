@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.35
+- **Fix: "Work here today" (repairs) and Gather gave an error page or no message when you were busy**: after a long job (hours carried past 22:00, waiting for sleep) any energy spend throws "You are still busy with a long job". `landmark.php` and `gather.php` now catch it and show the message; `repair_work()` checks the busy state before it writes anything.
+- **No foraging in a ruin**: Gather at a haven, wonder or delve you have not made safe is refused ("in ruins, make it safe before you gather here"), as the place panel already says.
 ## 2.6.34
 - **Calling mentor button on town maps**: the new town pictures have no slot for the mentor's lodge (Marigold Stall, Root Cellar, Old Watchtower and so on), so each town's picture page now has a round **Mentor** button in the nav that opens the mentor's lodge page in that town, where you talk to them and take chapters.
 - **Take a chapter from the calling page**: when the mentor is in another town, My Gnome > Calling now has **Travel and take on this chapter** (free trip, then the chapter starts) beside the plain free trip.
