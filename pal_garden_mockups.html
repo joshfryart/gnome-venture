@@ -47,17 +47,66 @@ h1{font-size:20px;margin:0 0 4px}.intro{color:var(--mut);margin:0 0 18px;max-wid
 .curve{display:block;width:100%;height:auto}
 .note{font-size:12px;color:var(--mut);margin:6px 0 0}
 .tag{font-size:11px;background:#e8b923;color:#2a1a10;font-weight:800;padding:0 6px;border-radius:8px}
+
+.tabs a{font-size:13px;padding:8px 2px}
+.sec{display:flex;align-items:center;gap:6px;font-weight:800;margin:10px 0 4px;font-size:.95rem}
+.sec .bang{width:16px;height:16px;font-size:10px}
+.li{display:flex;align-items:center;gap:8px;padding:6px 8px;border:2px solid var(--line);background:var(--card2);margin:0 0 5px;font-size:13px}
+.li.need{border-color:var(--gold)}.li .ic{font-size:18px;width:24px;text-align:center}.li .b{flex:1;line-height:1.25}.li small{display:block;color:var(--mut)}.li .go{color:var(--gold);font-weight:700}
+details{border:2px solid var(--line);background:var(--card);padding:6px 10px;margin:8px 0 0}summary{font-weight:700;color:var(--mut)}
 </style></head><body>
 <h1>Pal garden crew: mockups</h1>
 <p class="intro">Draft for Josh. Phone width. Everything below is a proposal: names, numbers and wording can change. Pals do their garden work <b>while you sleep</b>, you read the result in the Hovel. Slots: Water, Weed, Pests, Harvest, Plant, for every garden, all open from the start.</p>
 
 <div class="grid">
 
-<!-- 1 -->
-<div class="fig"><p class="cap">1. Hovel: new “Pal Jobs” tab (after waking)</p><p class="why">After a night's sleep the Hovel opens on Pal Jobs when pals worked, otherwise on Tasks. The tab badge counts things that need you (tired pal, out of seeds).</p>
+<!-- A -->
+<div class="fig"><p class="cap">A. Hovel: new “Today” overview (opens after sleeping)</p><p class="why">Everything that changed since you slept. Sections that need you (!) come first; each line links to the place that handles it.</p>
 <div class="ph"><h1>🛏️ Hovel</h1>
 <div class="hero"><b class="t">06:00</b><div class="m">Day <b>15</b><br>🌸 Spring 16 · ☀️ Sunny</div><div>⚡ 10/10</div></div>
-<div class="tabs"><a>🛏️ Sleep</a><a>📋 Tasks <small>2</small></a><a class="on">🧩 Pals <small>2</small></a><a>🕐 Costs</a></div>
+<div class="tabs"><a class="on">🌅 Today <small>4</small></a><a>🛏️ Sleep</a><a>📋 Tasks</a><a>🧩 Pals</a><a>🕐 Costs</a></div>
+<div class="sec">Needs you <span class="bang">!</span></div>
+<div class="li need"><span class="ic">🌱</span><div class="b"><b>9 crops ripe</b><small>Test Patch · Moss picked 7, 2 left (full satchel?)</small></div><span class="go">→</span></div>
+<div class="li need"><span class="ic">🧩</span><div class="b"><b>Pip is tired of Pests</b><small>Day 14 · working at 60%</small></div><span class="go">→</span></div>
+<div class="li need"><span class="ic">📋</span><div class="b"><b>New daily job</b><small>Weekly job ends in 2 days</small></div><span class="go">→</span></div>
+<div class="li need"><span class="ic">💬</span><div class="b"><b>Reply from the game keeper</b></div><span class="go">→</span></div>
+<div class="sec">Overnight</div>
+<div class="li"><span class="ic">🌧️</span><div class="b"><b>Rain watered 6 squares</b><small>Frost took 1 tomato · 2 new pests</small></div></div>
+<div class="li"><span class="ic">🧩</span><div class="b"><b>Garden crew</b><small>Watered 14 · weeded 5 · cleared 2 pests · replanted 7</small></div><span class="go">Pals →</span></div>
+<div class="li"><span class="ic">🍳</span><div class="b"><b>Cooking pot done</b><small>Berry pie ×2 · Pantry jar: pickles ready</small></div><span class="go">→</span></div>
+<div class="li"><span class="ic">🌲</span><div class="b"><b>Fern is back from Oakwood</b><small>Trip ready to collect</small></div><span class="go">→</span></div>
+<div class="sec">In the village</div>
+<div class="li"><span class="ic">🎂</span><div class="b"><b>Maple Mayor’s birthday</b><small>Acquaintance</small></div></div>
+<div class="li"><span class="ic">🚶</span><div class="b"><b>Away today:</b> Old Rowan, Bucket Plink<small><b>Back:</b> Hazel the baker · 2 people you haven’t met are away</small></div></div>
+<div class="li"><span class="ic">🛒</span><div class="b"><b>Market day today</b><small>Stalls open 08:00 to 18:00</small></div></div>
+<details><summary>Earlier: Day 14 · Day 13</summary><p class="note">The last 3 reports are kept.</p></details>
+</div></div>
+
+<!-- B -->
+<div class="fig"><p class="cap">B. Today: quiet morning (nothing needs you)</p><p class="why">After a nap, or a sleep where little happened. No ! section.</p>
+<div class="ph"><h1>🛏️ Hovel</h1>
+<div class="tabs"><a class="on">🌅 Today</a><a>🛏️ Sleep</a><a>📋 Tasks</a><a>🧩 Pals</a><a>🕐 Costs</a></div>
+<div class="sec">Overnight</div>
+<div class="li"><span class="ic">☀️</span><div class="b"><b>Sunny, 18°</b><small>Crops grew. Nothing ripe yet.</small></div></div>
+<div class="li"><span class="ic">🧩</span><div class="b"><b>Garden crew</b><small>All 5 slots worked. No problems.</small></div></div>
+<div class="sec">In the village</div>
+<div class="li"><span class="ic">🚶</span><div class="b"><b>Everyone you know is about.</b></div></div>
+<p style="text-align:center"><a class="btn">Go to sleep 🌙</a></p>
+</div></div>
+
+<!-- C -->
+<div class="fig"><p class="cap">C. Pal picker: a pal resting at home</p><p class="why">A pal taken off a job rests one game day. Unassignable until you sleep, then free.</p>
+<div class="ph"><div class="modal"><div class="mh"><span>🌰 Plant · Test Patch</span><span>✕</span></div><div class="mb">
+<b class="sm">Pal</b>
+<div class="palpick"><div class="pp sel"><div class="pal">🧩</div>Dot<br><span class="muted">free</span></div><div class="pp" style="opacity:.55"><div class="pal">😴</div>Pip<br><span class="muted">resting until tomorrow</span></div><div class="pp" style="opacity:.55"><div class="pal">🧩</div>Moss<br><span class="muted">Harvest</span></div></div>
+<p class="note">Pip was recalled today and rests at home until you sleep. Resting clears the tiredness.</p>
+</div></div></div></div>
+
+<!-- 1 -->
+<div class="fig"><p class="cap">1. Hovel: new “Pal Jobs” tab (after waking)</p><p class="why">After a night's sleep the Hovel now opens on Today (screens A and B). Pals is one tab away. The tab badge counts things that need you (tired pal, out of seeds).</p>
+<div class="ph"><h1>🛏️ Hovel</h1>
+<div class="hero"><b class="t">06:00</b><div class="m">Day <b>15</b><br>🌸 Spring 16 · ☀️ Sunny</div><div>⚡ 10/10</div></div>
+<div class="tabs"><a>🌅 Today</a><a>🛏️ Sleep</a><a>📋 Tasks <small>2</small></a><a class="on">🧩 Pals <small>2</small></a><a>🕐 Costs</a></div>
 <div class="flash">You sleep soundly. A new day: energy full. Day 15.</div>
 <div class="box"><h2>🌱 Test Patch <span class="muted sm">while you slept</span></h2>
 <div class="row"><span class="pal">🧩</span><div class="b"><b>Bramble · Water</b><small>Watered 14 squares (rain did 6)</small></div><span class="pill ok">100%</span></div>
@@ -72,7 +121,7 @@ h1{font-size:20px;margin:0 0 4px}.intro{color:var(--mut);margin:0 0 18px;max-wid
 <!-- 2 -->
 <div class="fig"><p class="cap">2. Hovel: Pal Jobs tab, no pals set</p><p class="why">Empty state points at the crew screen.</p>
 <div class="ph"><h1>🛏️ Hovel</h1>
-<div class="tabs"><a>🛏️ Sleep</a><a>📋 Tasks</a><a class="on">🧩 Pals</a><a>🕐 Costs</a></div>
+<div class="tabs"><a>🌅 Today</a><a>🛏️ Sleep</a><a>📋 Tasks</a><a class="on">🧩 Pals</a><a>🕐 Costs</a></div>
 <div class="box" style="text-align:center"><p>No pals are working your garden.</p><p class="muted sm">Put a pal on Water, Weed, Pests, Harvest or Plant. They work every night while you sleep.</p><p><a class="btn">Set up the crew →</a></p></div>
 </div></div>
 
