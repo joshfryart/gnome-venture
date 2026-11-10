@@ -141,3 +141,28 @@ def rich_for(rid, i, route):
     if r.get("auto", True):
         L, Rg = auto(rid, i, route["land"], route["sections"][i]); r["looks"] = L + list(r.get("looks", [])); r["rough"] = list(r.get("rough", [])) + Rg
     return r
+
+# ---- pass 2: more themed bits per section (hints, snapped to free tiles by the renderer) ----
+def more_props(rid, i, *props): RICH[rid][i]["props"] = RICH[rid][i]["props"] + list(props)
+more_props(232, 0, ("skep", 7, 11), ("picnic", 15, 12), ("ladder", 21, 10), ("crate", 24, 12), ("goat", 5, 14)); more_props(232, 1, ("rowboat", 5, 14), ("jetty", 6, 14), ("sacks", 21, 12), ("pumpkins", 12, 13), ("wheelbarrow", 25, 6))
+more_props(232, 2, ("crate", 12, 9), ("sacks", 15, 12), ("hen", 22, 14), ("hen", 24, 13), ("goat", 6, 15), ("skep", 26, 12))
+more_props(236, 0, ("picnic", 20, 12), ("skep", 5, 5), ("skep", 7, 4), ("wheelbarrow", 10, 14), ("goat", 22, 4)); more_props(236, 1, ("sacks", 26, 10), ("ladder", 24, 4), ("rowboat", 5, 15), ("picnic", 9, 4))
+more_props(236, 2, ("ladder", 12, 6), ("bench", 15, 9), ("pumpkins", 5, 14), ("pumpkins", 8, 14), ("basket", 6, 13), ("crows", 7, 15), ("duck", 25, 5))
+more_props(311, 0, ("campfire", 13, 12), ("bench", 15, 13), ("wheelbarrow", 20, 10), ("crate", 23, 14), ("duck", 5, 4)); more_props(311, 1, ("campfire", 21, 10), ("sled", 24, 8), ("sacks", 17, 8), ("skep", 12, 4), ("duck", 14, 15), ("goat", 5, 13))
+more_props(304, 0, ("campfire", 23, 13), ("bench", 25, 12), ("basket", 8, 13), ("crate", 20, 10)); more_props(304, 1, ("picnic", 8, 13), ("lantern", 11, 8), ("owl", 14, 5), ("sacks", 24, 14))
+more_props(305, 0, ("picnic", 5, 5), ("basket", 6, 6), ("lantern", 17, 9), ("lantern", 17, 5), ("squirrel", 11, 12)); more_props(305, 1, ("rowboat", 17, 12), ("duck", 18, 13), ("bench", 14, 12), ("lantern", 9, 12), ("campfire", 24, 14))
+more_props(306, 0, ("campfire", 26, 4), ("bench", 25, 6), ("basket", 19, 12), ("crate", 11, 8)); more_props(306, 1, ("campfire", 25, 14), ("picnic", 13, 9), ("squirrel", 15, 10), ("owl", 22, 9))
+more_props(312, 0, ("campfire", 5, 15), ("bench", 7, 14), ("lantern", 13, 6), ("crate", 23, 13)); more_props(312, 1, ("picnic", 22, 14), ("squirrel", 21, 9), ("owl", 12, 9), ("crate", 5, 10))
+more_props(312, 2, ("campfire", 24, 4), ("bench", 22, 5), ("pitchfork", 18, 13), ("basket", 14, 12))
+more_props(313, 0, ("rowboat", 19, 14), ("duck", 17, 2), ("duck", 21, 4), ("lantern", 12, 8), ("campfire", 4, 4)); more_props(313, 1, ("duck", 8, 2), ("campfire", 25, 14), ("bench", 23, 13), ("crate", 13, 13))
+more_props(313, 2, ("sacks", 16, 10), ("pitchfork", 17, 9), ("campfire", 10, 8), ("bench", 12, 8), ("owl", 22, 11))
+more_props(307, 0, ("campfire", 22, 10), ("bench", 24, 10), ("bucket", 10, 12), ("crate", 14, 10), ("lantern", 11, 5)); more_props(307, 1, ("picnic", 13, 8), ("campfire", 25, 6), ("driftlog", 26, 7), ("crate", 9, 13), ("lantern", 20, 9))
+more_props(308, 0, ("campfire", 25, 10), ("bench", 27, 9), ("bucket", 15, 11), ("crate", 21, 11), ("lantern", 9, 8)); more_props(308, 1, ("picnic", 6, 12), ("campfire", 25, 7), ("basket", 21, 8), ("lantern", 12, 9))
+more_props(314, 0, ("campfire", 5, 12), ("bench", 16, 11), ("bucket", 20, 11), ("crate", 26, 13), ("lantern", 9, 9)); more_props(314, 1, ("bucket", 5, 8), ("crate", 23, 7), ("basket", 25, 5), ("campfire", 4, 4), ("crab", 12, 10))
+more_props(314, 2, ("campfire", 5, 11), ("bench", 7, 12), ("crate", 23, 10), ("bucket", 12, 4), ("lobsterpot", 8, 13))
+more_props(309, 0, ("campfire", 15, 13), ("bench", 17, 14), ("crate", 24, 5), ("lantern", 20, 11), ("tent", 25, 14)); more_props(309, 1, ("campfire", 10, 4), ("tent", 8, 4), ("crate", 24, 10), ("lantern", 21, 12), ("hare", 5, 12))
+more_props(310, 0, ("campfire", 22, 14), ("tent", 24, 13), ("crate", 19, 6), ("bucket", 21, 15), ("snowyowl", 26, 4)); more_props(310, 1, ("campfire", 25, 15), ("bench", 23, 11), ("crate", 8, 4), ("lantern", 12, 4), ("arcticfox", 6, 12))
+more_props(315, 0, ("campfire", 24, 13), ("sled", 9, 12), ("crate", 5, 12), ("snowyowl", 14, 3)); more_props(315, 1, ("tent", 22, 12), ("sled", 16, 3), ("lantern", 21, 14), ("hare", 4, 13))
+more_props(315, 2, ("campfire", 5, 13), ("crate", 23, 4), ("lantern", 16, 12), ("hare", 22, 15)); more_props(315, 3, ("campfire", 5, 13), ("tent", 4, 12), ("sled", 15, 14), ("lamp", 12, 7), ("crate", 26, 4))
+more_props(315, 4, ("crate", 17, 12), ("sled", 5, 13), ("campfire", 13, 13), ("hare", 9, 5))
+more_props(316, 0, ("campfire", 11, 9), ("sled", 24, 8), ("crate", 8, 8), ("tent", 25, 13)); more_props(316, 1, ("sled", 10, 5), ("sacks", 17, 5), ("snowyowl", 20, 11), ("hare", 5, 12), ("bench", 16, 6))

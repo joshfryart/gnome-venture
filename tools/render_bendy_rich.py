@@ -603,12 +603,12 @@ def biglog(seed, west=True, east=True):
     G.outline(cv); return cv.im
 def sticks(seed):
     rnd = random.Random(f"sx{seed}"); cv = G.Cv(64, 96); W = R5("wood"); L = RAMP["litter"]
-    G.lump(cv, 32, 76, 31, 15, [L[0], L[1], L[1], L[2], L[3]], rnd, .2)
-    for _ in range(26):
-        x, y = rnd.randrange(2, 50), rnd.randrange(64, 90); n = rnd.randint(9, 22); sl = rnd.choice((-.5, -.25, 0, .25, .5)); c = rnd.choice((W[0], W[1], W[1], RAMP["sand"][1]))
+    G.lump(cv, 32, 64, 31, 28, [L[0], L[1], L[1], L[2], L[3]], rnd, .2)
+    for _ in range(44):
+        x, y = rnd.randrange(2, 50), rnd.randrange(40, 90); n = rnd.randint(9, 22); sl = rnd.choice((-.5, -.25, 0, .25, .5)); c = rnd.choice((W[0], W[1], W[1], RAMP["sand"][1]))
         for k in range(n):
             if cv.get(x + k, int(y + k * sl))[3]: cv.put(x + k, int(y + k * sl), c); cv.put(x + k, int(y + k * sl) + 1, W[4])
-    for _ in range(5): cv.put(rnd.randrange(8, 56), rnd.randrange(62, 70), RAMP["moss"][1])
+    for _ in range(8): cv.put(rnd.randrange(8, 56), rnd.randrange(40, 60), RAMP["moss"][1])
     G.outline(cv); return cv.im
 def bigshroom(seed):
     rnd = random.Random(f"bs{seed}"); cv = G.Cv(64, 96); E = R5("ember"); S = R5("sand")
@@ -1031,8 +1031,54 @@ PROPS.update({"skep": skep, "picnic": picnic, "bucket": bucket, "owl": owl, "sno
               "lobsterpot": lobsterpot, "sled": sled, "campfire": campfire, "tent": tent, "fox": fox, "arcticfox": lambda s: fox(100 + s), "hare": lambda s: rabbit(0), "crab": crab,
               "driftlog": lambda s: recolor(log(s).copy(), R5("wood"), R5("sand"))})
 TALL = TALL + ("lamp", "tent"); AFLOAT = AFLOAT + ("beaver",)
-AMBIENT = {"grassland": ("rabbit", "hen", "log", "stump", "rabbit", "basket"), "forest": ("log", "stump", "squirrel", "owl", "fox", "squirrel", "log"),
-           "coast": ("gull", "gull", "lobsterpot", "driftlog", "crab", "crab", "gull"), "tundra": ("hare", "arcticfox", "snowyowl", "hare", "sled", "stump")}
+def dryreeds(seed): return recolor(reeds(seed).copy(), RAMP["moss"], [RAMP["sand"][0], RAMP["sand"][1], RAMP["sand"][2], RAMP["sand"][3]])
+def milestone(seed):
+    rnd = random.Random(f"ms{seed}"); cv = G.Cv(64, 64); St = R5("stone")
+    for y in range(34, 55):
+        for x in range(26, 38):
+            if y < 37 and (x < 26 + (37 - y) or x > 37 - (37 - y)): continue
+            u = (x - 26) / 11; t = 0 if u < .2 else 1 if u < .45 else 2 if u < .8 else 3
+            cv.put(x, y, St[4] if y > 52 else St[t])
+    for x in range(29, 35): cv.put(x, 41 + seed % 2, St[4]); cv.put(x, 45 + seed % 2, St[4]) if x % 2 else None
+    for x in range(27, 33): cv.put(x, 34 + (x > 29), RAMP["moss"][1]) if seed % 3 else None
+    G.clump(cv, 24, 56, 3, 4, 7, RAMP["moss"] if seed % 2 else RAMP["sand"], rnd, 2)
+    G.outline(cv); return cv.im
+def icefisher(seed):
+    cv = G.Cv(64, 80); Se = RAMP["sea"]; W = R5("wood")
+    for y in range(52, 62):
+        for x in range(14, 34):
+            d = ((x - 24) / 10) ** 2 + ((y - 57) / 5) ** 2
+            if d <= 1: cv.put(x, y, Se[3] if y < 55 else Se[2])
+            elif d <= 1.4: cv.put(x, y, CREAM)
+    for y in range(50, 62):
+        for x in (40, 50): cv.put(x, y, W[2]); cv.put(x + 1, y, W[4])
+    for y in range(46, 51):
+        for x in range(37, 55): cv.put(x, y, W[0] if y == 46 else W[1] if y < 49 else W[3])
+    for k in range(26): cv.put(46 - k * 20 // 26, 44 - k, W[1]); cv.put(47 - k * 20 // 26, 44 - k, W[3])
+    for y in range(19, 56): cv.put(25, y, RAMP["stone"][0]) if y % 2 else None
+    for dx in range(4):
+        for dy in range(3): cv.put(54 + dx, 58 + dy, RAMP["stone"][1 + (dx > 1)])   # a fish on the ice
+    cv.put(58, 59, RAMP["stone"][2]); cv.put(59, 58, RAMP["stone"][1]); cv.put(59, 60, RAMP["stone"][1])
+    G.outline(cv); return cv.im
+def sc_ripple(seed):
+    rnd = random.Random(f"rp{seed}"); cv = G.Cv(64, 80); Se = RAMP["sea"]; cx, cy = rnd.randrange(20, 44), rnd.randrange(38, 62)
+    for a in range(0, 360, 12):
+        for rx, ry in ((9, 4), (15, 7)):
+            if (a // 12 + rx) % 3: cv.put(cx + int(rx * math.cos(math.radians(a))), cy + int(ry * math.sin(math.radians(a))), Se[0])
+    if seed % 2:
+        for dx in range(6): cv.put(cx - 3 + dx, cy, Se[3]); cv.put(cx - 2 + dx % 4, cy - 1, Se[3])
+        cv.put(cx + 4, cy - 1, Se[3]); cv.put(cx + 4, cy + 1, Se[3])
+    return cv.im
+def sc_firefly(seed):
+    rnd = random.Random(f"ff{seed}"); cv = G.Cv(64, 80); Gd = RAMP["gold"]
+    for _ in range(2 + seed % 3):
+        x, y = rnd.randrange(8, 56), rnd.randrange(10, 60)
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)): cv.put(x + dx, y + dy, Gd[1])
+        cv.put(x, y, CREAM)
+    return cv.im
+PROPS["milestone"] = milestone
+AMBIENT = {"grassland": ("rabbit", "hen", "log", "stump", "rabbit", "basket", "crows", "pumpkins", "fox"), "forest": ("log", "stump", "squirrel", "owl", "fox", "squirrel", "log", "rabbit", "stump", "basket"),
+           "coast": ("gull", "gull", "lobsterpot", "driftlog", "crab", "crab", "gull", "bucket", "driftlog", "gull"), "tundra": ("hare", "arcticfox", "snowyowl", "hare", "sled", "stump", "hare", "log", "lantern")}
 
 _cache = {}
 def spr(fn, *a):
@@ -1061,7 +1107,7 @@ def paint_water(bp, tw, th, wet, ford, corners, land, seed, holes=()):
         for py in range(max(0, PAD + cy * T), min(th, PAD + cy * T + T)):
             for px in range(max(0, cx * T), min(tw, cx * T + T)):
                 wx = px + (n1(px, py) - .5) * 26 + (n3(px, py) - .5) * 9; wy = py - PAD + (n2(px, py) - .5) * 26 + (n4(px, py) - .5) * 9
-                c = (int(wx // T), int(wy // T))
+                c = (min(max(int(wx // T), 0), tw // T - 1), min(max(int(wy // T), 0), (th - PAD) // T - 1))
                 if c in wet: m[(px, py)] = c
                 else:
                     for qx, qy, qc in corners:
@@ -1074,13 +1120,31 @@ def paint_water(bp, tw, th, wet, ford, corners, land, seed, holes=()):
         elif not (w(0, 2) and w(2, 0)): col = foam
         elif not (w(0, 6) and w(6, 0) and w(0, -7) and w(-6, 0)): col = foam if (px + py) % 2 else Se[1]
         elif c in ford: col = G.lighter(t)
-        elif c in deep and nd(px, py) > .42: col = G.darker(t, 1)
+        elif all(w(a, b) for a, b in ((38, 0), (-38, 0), (0, 38), (0, -38), (27, 27), (-27, 27), (27, -27), (-27, -27))): col = G.darker(t, 1)
+        elif (px + py) % 2 and all(w(a, b) for a, b in ((27, 0), (-27, 0), (0, 27), (0, -27))): col = G.darker(t, 1)
         else: col = t
         bp[px, py] = col
     for px, py in land_px:   # mud and pebble rim on the land side
         d = 1 if any((px + a, py + b) in m for a, b in ((0, 1), (1, 0), (0, -1), (-1, 0), (0, 2), (2, 0))) else 2 if any((px + a, py + b) in m for a, b in ((0, 4), (4, 0), (0, -3), (-3, 0), (3, 3))) else 0
         if d == 1: bp[px, py] = RAMP["litter"][1] if n3(px, py) > .3 else RAMP["sand"][2]
-        elif d == 2 and n3(px, py) > .45: bp[px, py] = RAMP["sand"][1] if (px * 3 + py) % 7 else RAMP["stone"][0]
+        elif d == 2 and (land == "coast" or n3(px, py) > .45): bp[px, py] = RAMP["sand"][2 if land == "coast" else 1] if (px * 3 + py) % 7 else RAMP["stone"][0]
+        elif land == "coast" and any((px + a, py + b) in m for a, b in ((0, 9), (9, 0), (0, -9), (-9, 0), (6, 6), (-6, -6))) and ((px + py) % 2 or n3(px, py) > .5): bp[px, py] = RAMP["sand"][2]
+
+def paint_rough(bp, tw, th, rough, skip, land, seed):
+    """Rough ground as wandering patches instead of squares: the rough cells pushed around by noise, with a lit rim up-left and a shade rim down-right."""
+    rnd = random.Random(f"ro{seed}"); n1, n2, n3, n4 = (G.wnoise(rnd, tw, th + T, c) for c in (24, 24, 7, 7)); nv = G.wnoise(rnd, tw, th + T, 44)
+    tex = [G.ground(land, "rough", k).load() for k in (0, 1)]; m = set()
+    for cx, cy in {(x + dx, y + dy) for x, y in rough for dx in (-1, 0, 1) for dy in (-1, 0, 1)}:
+        if (cx, cy) in skip: continue
+        for py in range(max(0, PAD + cy * T), min(th, PAD + cy * T + T)):
+            for px in range(max(0, cx * T), min(tw, cx * T + T)):
+                wx = px + (n1(px, py) - .5) * 34 + (n3(px, py) - .5) * 11; wy = py - PAD + (n2(px, py) - .5) * 34 + (n4(px, py) - .5) * 11
+                if (int(wx // T), int(wy // T)) in rough: m.add((px, py))
+    for px, py in m:
+        t = tex[int(nv(px, py) * 3.9) % 2][px % T, py % T]
+        if (px, py + 1) not in m or (px + 1, py) not in m: t = G.darker(t, 1)
+        elif (px, py - 1) not in m or (px - 1, py) not in m: t = G.lighter(t)
+        bp[px, py] = t
 
 def paint(route, si, rich, cache_dir=None, walker=True):
     s = route["sections"][si]; rows = s["rows"]; W, Hh = len(rows[0]), len(rows); rid = route["route_id"]; land = route["land"]; seed = rid * 10 + si
@@ -1105,7 +1169,7 @@ def paint(route, si, rich, cache_dir=None, walker=True):
     icefloor = {(x, y) for y in range(Hh) for x in range(W) if rows[y][x] == "," and rough_of(x, y) == "ice"}
     pond = {c for c, k in look.items() if k in WET}; sea = {c for c, k in look.items() if k == "sea"}; holes = {c for c, k in look.items() if k == "icehole"}
     wet = water | pond | ford | icefloor
-    ln = lownoise(seed)
+    ln = lownoise(seed); ln2 = lownoise(seed + 7, 4)
     def default_look(x, y):
         h = crc("lk", x, y, seed) % 100; border = not inner(x, y)
         opens = sum(walk(x + dx, y + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
@@ -1141,9 +1205,9 @@ def paint(route, si, rich, cache_dir=None, walker=True):
         t = ""
         for x, c in enumerate(row):
             if (x, y) in wet: t += "f"
-            elif c == "#": t += "f" if look.get((x, y)) in BARE or (land == "coast" and not inner(x, y)) else "u"
+            elif c == "#": t += "f" if look.get((x, y)) in BARE or land == "coast" else "u"
             elif (x, y) in on: t += "p"
-            else: t += "r" if c == "," else "f"
+            else: t += "f"
         types.append(t)
     key = f"{crc(land, seed, *types):08x}"; cf = os.path.join(cache_dir, f"ter-{key}.png") if cache_dir else None
     if cf and os.path.exists(cf): ter = Image.open(cf).convert("RGBA")
@@ -1152,6 +1216,8 @@ def paint(route, si, rich, cache_dir=None, walker=True):
         if cf: ter.save(cf)
     tw, th = W * T, Hh * T + PAD
     base = Image.new("RGBA", (tw, th)); base.paste(ter.crop((0, T - PAD, tw, T - PAD + th)), (0, 0)); bp = base.load()
+    rough_cells = {(x, y) for y in range(Hh) for x in range(W) if rows[y][x] == "," and (x, y) not in on and (x, y) not in wet}
+    if rough_cells: paint_rough(bp, tw, th, rough_cells, on | {(x, y) for y in range(Hh) for x in range(W) if rows[y][x] == "#" and look.get((x, y)) not in BARE}, land, seed)
     if wet: paint_water(bp, tw, th, wet, ford | icefloor, corners, land, seed)
     items = []   # (depth, x, image, ox, oy)
     def shadow(cx, cy, big=True):
@@ -1179,9 +1245,9 @@ def paint(route, si, rich, cache_dir=None, walker=True):
         while hit is not None and hit != (tx, ty): trod.add(hit); hit = prev[hit]
     fences = {c for c, k in look.items() if k == "fence"}; logs = {c for c, k in look.items() if k == "biglog"}
     zone = lambda x, y: next((r[0] for r in rich.get("floor", []) if in_rect(x, y, r)), None)
-    if land != "coast":
-        for x in range(W - 1):   # a second row of crowns behind the top edge, for depth
-            if rows[0][x] == "#" and rows[0][x + 1] == "#" and (x, 0) not in wet and (x + 1, 0) not in wet: items.append((-.5, x, tree_im(x, -1), x * T + 32, PAD - 62))
+    for x in range(W - 1):   # a second row of crowns (dunes on the coast) behind the top edge, for depth
+        if rows[0][x] == "#" and rows[0][x + 1] == "#" and (x, 0) not in wet and (x + 1, 0) not in wet:
+            items.append((-.5, x, spr(dunetuft, crc("td", x, seed) % 8) if land == "coast" and crc("td", x, seed) % 3 else tree_im(x, -1), x * T + 32, PAD - 62))
     for y in range(Hh):
         for x in range(W):
             h = crc("o", x, y, seed); hh = h % 100
@@ -1190,16 +1256,19 @@ def paint(route, si, rich, cache_dir=None, walker=True):
                 if (x, y) in holes: add_ov(x, y, spr(sc_icehole, h % 6), .03)
                 elif (x, y) in ford: add_ov(x, y, spr(sc_stones, h % 6), .05)
                 elif (x, y) in icefloor or land == "tundra":
-                    if hh < 40: add_ov(x, y, spr(sc_crack, h % 8), .02)
+                    if land_nb and hh < 20 and (x, y) not in icefloor: add_obj(x, y, spr(dryreeds, h % 5), sh=False, jy=-6 - h % 9)
+                    elif hh < 40: add_ov(x, y, spr(sc_crack, h % 8), .02)
                     elif hh < 55: add_ov(x, y, spr(sc_sparkle, h % 8), .02)
                 elif (x, y) in sea:
                     if hh < 16: add_ov(x, y, spr(sc_flow, True, h % 6), .02)
                     elif hh < 19 and inner(x, y): add_ov(x, y, spr(sc_rock, h % 5), .1)
                     elif hh < 21 and inner(x, y) and not land_nb: add_ov(x, y, spr(gull, h % 4), .2)
+                    elif hh < 27 and not land_nb: add_ov(x, y, spr(sc_ripple, h % 6), .03)
                 elif not green:
                     if hh < 25: add_ov(x, y, spr(sc_shells, h % 9), .02)
                     elif hh < 40: add_ov(x, y, spr(sc_rock, h % 5), .1)
                 elif (x, y) in pond and hh < 30: add_ov(x, y, spr(sc_lily, h % 10), .1)
+                elif (x, y) in pond and not land_nb and hh < 42: add_ov(x, y, spr(sc_ripple, h % 6), .03)
                 elif land_nb and hh < 46: add_obj(x, y, spr(reeds, h % 5), sh=False, jy=-6 - h % 9)
                 elif (x, y) in water and hh < 58: add_ov(x, y, spr(sc_rock, h % 5), .1)
                 elif (x, y) in water and hh < 70: add_ov(x, y, spr(sc_lily, h % 10), .1)
@@ -1207,7 +1276,6 @@ def paint(route, si, rich, cache_dir=None, walker=True):
                 continue
             if rows[y][x] == "#":
                 k = look.get((x, y)) or default_look(x, y); jit = (crc("j", x, y, seed) % 11) - 5; jy = (crc("jy", x, y, seed) % 9) - 4
-                if land == "coast" and not inner(x, y): jit = jy = 0
                 if k == "fence": add_obj(x, y, spr(fence, h % 6, (x, y - 1) in fences, h % 3 == 0), sh=False); shadow(x * T + 34, PAD + y * T + T - 4, False)
                 elif k == "biglog": add_obj(x, y, spr(biglog, h % 6, (x - 1, y) in logs, (x + 1, y) in logs))
                 elif k == "hedge": add_obj(x, y, spr(G.hedge, h % 3))
@@ -1230,15 +1298,23 @@ def paint(route, si, rich, cache_dir=None, walker=True):
             nb = [look.get((x + dx, y + dy)) or ("wall" if wall(x + dx, y + dy) else None) for dx in (-1, 0, 1) for dy in (-1, 0, 1)]
             r = h % 1000; road = any((x + dx, y + dy) in on for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
             shore = any((x + dx, y + dy) in wet for dx in (-1, 0, 1) for dy in (-1, 0, 1))
-            if land == "coast":
+            mead = ln2(x, y); drift = mead > .6; bare = mead < .36; kc = int(mead * 37) % 12
+            if any(max(abs(x - lx), abs(y - ly)) <= 2 for (lx, ly), _, _ in lms) and r < 620:   # a little garden round every landmark
+                kit = {"grassland": (sc_flowers, sc_tuft, sc_flowers), "forest": (sc_fern, sc_mushroom, sc_flowers), "coast": (sc_shells, sc_pebbles, sc_tuft), "tundra": (sc_drygrass, sc_sparkle, sc_pebbles)}[land]
+                add_ov(x, y, spr(kit[r % 3], kc if kit[r % 3] is sc_flowers else h % 6), .2)
+            elif land == "coast":
                 if shore and r < 300: add_ov(x, y, spr(ROUGH["kelp"], h % 6), .05)
                 elif shore and r < 520: add_ov(x, y, spr(sc_shells, h % 12), .1)
+                elif drift and r < 600: add_ov(x, y, spr(ROUGH["dunegrass"] if r < 330 else sc_tuft, h % 6), .2)
+                elif bare and r < 420: add_ov(x, y, spr(ROUGH["shells"] if r < 140 else sc_shells, h % 6), .1)
                 elif r < 150: add_ov(x, y, spr(sc_shells, h % 12), .1)
                 elif r < 270: add_ov(x, y, spr(sc_pebbles, h % 6), .1)
                 elif r < 340: add_ov(x, y, spr(sc_tuft, h % 6), .2)
                 elif r < 356: add_ov(x, y, spr(crab, h % 4), .3)
             elif land == "tundra":
                 if "snowman" in nb and r < 400: add_ov(x, y, spr(ROUGH["tracks"], h % 3 * 2), .05)
+                elif drift and r < 620: add_ov(x, y, spr(ROUGH["snowdrift"], h % 6), .1)
+                elif bare and r < 380: add_ov(x, y, spr(sc_drygrass, h % 6), .2)
                 elif r < 130: add_ov(x, y, spr(sc_drygrass, h % 6), .2)
                 elif r < 240: add_ov(x, y, spr(sc_sparkle, h % 8), .05)
                 elif r < 310: add_ov(x, y, spr(sc_pebbles, h % 6), .1)
@@ -1254,11 +1330,16 @@ def paint(route, si, rich, cache_dir=None, walker=True):
             elif road and r < 300: add_ov(x, y, spr(sc_pebbles, h % 6), .1)
             elif road and r < 520: add_ov(x, y, spr(sc_tuft, h % 6), .2)
             elif land == "forest":
-                if r < 200: add_ov(x, y, spr(sc_fern, h % 6), .25)
+                if drift and r < 640: add_ov(x, y, spr(ROUGH["flowers"] if r < 300 else sc_flowers, 2 if r < 300 else 2 + kc % 2 * 6), .2)
+                elif bare and r < 520: add_ov(x, y, spr(ROUGH["ferns"] if r < 220 else sc_fern, h % 6), .25)
+                elif r < 60: add_ov(x, y, spr(sc_firefly, h % 6), .9)
+                elif r < 200: add_ov(x, y, spr(sc_fern, h % 6), .25)
                 elif r < 330: add_ov(x, y, spr(sc_leaves, h % 6), .1)
                 elif r < 400: add_ov(x, y, spr(sc_mushroom, h % 6), .2)
                 elif r < 460: add_ov(x, y, spr(sc_flowers, 2 + h % 2 * 6), .2)
                 elif r < 490: add_ov(x, y, spr(sc_butterfly, h % 40), .9)
+            elif drift and r < 700: add_ov(x, y, spr(ROUGH["flowers"] if r < 380 else sc_flowers, kc % 6 if r < 380 else kc), .2)
+            elif bare and r < 480: add_ov(x, y, spr(ROUGH["grass"] if r < 160 else sc_tuft, h % 6), .2)
             elif r < 170: add_ov(x, y, spr(sc_flowers, h % 12), .2)
             elif r < 300: add_ov(x, y, spr(sc_tuft, h % 6), .2)
             elif r < 350: add_ov(x, y, spr(sc_pebbles, h % 6), .1)
@@ -1273,6 +1354,13 @@ def paint(route, si, rich, cache_dir=None, walker=True):
     if rich.get("ambient", True):
         rnd = random.Random(f"amb{seed}"); cells = [(x, y) for y in range(2, Hh - 2) for x in range(2, W - 2) if free(x, y, False) and rows[y][x] == "." and not any((x + dx, y + dy) in on for dx in (-1, 0, 1) for dy in (-1, 0, 1))]
         rnd.shuffle(cells); props += [(k, c[0], c[1]) for k, c in zip(AMBIENT[land], cells)]
+        for k in range(7, len(line) - 5, 9):   # a milestone beside the road now and then
+            (ax, ay), (bx, by) = line[k - 1], line[k + 1]; px, py = line[k]; side = (0, -1) if ay == by else (1, 0)
+            props.append(("milestone", px + side[0], py + side[1]))
+        if icefloor and land == "tundra":
+            cx = sum(c[0] for c in icefloor) / len(icefloor); cy = sum(c[1] for c in icefloor) / len(icefloor)
+            fx, fy = min((c for c in icefloor if c not in on), key=lambda c: (c[0] - cx) ** 2 + (c[1] - cy) ** 2, default=(None, None))
+            if fx is not None: add_ov(fx, fy, spr(icefisher, seed % 4), .4)
     for kind, x, y in props:
         c = snap(x, y, kind in AFLOAT)
         if c is None: continue
