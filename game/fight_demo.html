@@ -2,9 +2,12 @@
 <link rel="stylesheet" href="assets/fightengine.css">
 <style>:root{--card:#3b2a1e;--line:#6b4f35;--tx:#e9d7a8;--gold:#d9b04a;--red:#e0566e;--grn:#2fae62}*{box-sizing:border-box}body{margin:0;background:#150d08;color:var(--tx);font:15px/1.4 system-ui,sans-serif;padding:16px}main{max-width:420px;margin:0 auto}
 .btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}button,select{font:inherit;font-weight:700;color:var(--gold);background:var(--card);border:1px solid var(--gold);border-radius:8px;padding:10px 6px}select{width:100%}label{font-size:13px}</style></head><body><main>
-<h1 style="font-size:18px;margin:0 0 8px">Fight engine, rough pass</h1>
+<h1 style="font-size:18px;margin:0 0 8px">Fight engine demo</h1>
 <div id="stage"></div>
-<div class="btns"><button id="pl">Gnome Pluck</button><button id="gd">Guard</button><button id="fl">Flee</button></div>
-<select id="cr"><option>wild-boar</option><option>bramble-wolf</option><option>black-bear</option><option>bullfrog</option><option>cliff-ram</option><option>dune-scorpion</option><option>shore-crab</option></select>
+<div class="btns"><button id="pl" data-act="pluck">Gnome Pluck</button><button id="gd" data-act="guard">Guard</button><button id="fl" data-act="flee">Flee</button>
+<button data-act="attack">Attack</button><button data-act="snack">Snack</button><button data-act="foe">Foe hits</button>
+<button data-act="miss">Foe misses</button><button data-act="hat">Hat off</button><button data-act="win">Win</button>
+<button data-act="lose">Lose</button><button data-fid="beardstroke">Fidget: beard</button><button data-fid="stretch">Fidget: stretch</button></div>
+<select id="cr"></select>
 <p><label><input type="checkbox" id="slow"> slow motion x0.3</label></p>
-<script src="assets/fightengine.js"></script><script src="assets/fightdemo.js"></script></main></body></html>
+<script src="assets/fightrigs.js"></script><script src="assets/fightarch.js"></script><script src="assets/fightengine.js"></script><script src="assets/fightdemo.js"></script></main></body></html>

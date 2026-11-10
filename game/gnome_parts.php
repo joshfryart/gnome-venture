@@ -1,10 +1,9 @@
 <?php
 declare(strict_types=1);
-/** The player's gnome as fight-engine rig parts (see includes/gnome_rig.php): ?p=torso|legB|legF|arm|hat|tip&h=hat&b=beard&s=scarf (6-digit hex, no #). All parts of a colour set are cut once and cached under data/gnome25/parts/. */
+/** The player's gnome as the fight engine's rig sheet (see includes/gnome_rig.php): ?p=sheet&h=hat&b=beard&s=scarf (6-digit hex, no #). The sheet of a colour set is cut once and cached under data/gnome25/parts/. */
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/gnome_rig.php';
-$part = (string)($_GET['p'] ?? '');
-if (!in_array($part, GNOME_RIG_PARTS, true)) { http_response_code(400); exit; }
+if ((string)($_GET['p'] ?? '') !== 'sheet') { http_response_code(400); exit; }
 $cols = [];
 foreach (['h' => 'hat', 'b' => 'beard', 's' => 'scarf'] as $k => $role) {
     $v = (string)($_GET[$k] ?? '');
@@ -14,15 +13,13 @@ foreach (['h' => 'hat', 'b' => 'beard', 's' => 'scarf'] as $k => $role) {
     }
 }
 $dir = APP_ROOT . '/data/gnome25/parts/' . implode('-', array_map(fn($r) => ltrim($cols[$r] ?? 'x', '#'), ['hat', 'beard', 'scarf']));
-$file = $dir . '/' . $part . '.png';
+$file = $dir . '/sheet2.png';   // sheet2: the layout with head, beard, scarf and elbows (bump when GNOME_RIG_PARTS changes)
 $png = is_file($file) ? (string)file_get_contents($file) : '';
 if ($png === '') {
-    if (!is_file(APP_ROOT . '/assets/img/gnome25/side-hat.png')) { http_response_code(404); exit; }   // art missing: the caller falls back to the default parts
-    $set = gnome_rig_png($cols);
-    if (!isset($set[$part])) { http_response_code(404); exit; }
+    if (!is_file(APP_ROOT . '/assets/img/gnome25/side-hat.png')) { http_response_code(404); exit; }   // art missing: the caller falls back to the default sheet
+    $png = gnome_rig_sheet($cols);
     if (!is_dir($dir)) @mkdir($dir, 0775, true);
-    if (is_dir($dir) && is_writable($dir)) foreach ($set as $n => $b) @file_put_contents($dir . '/' . $n . '.png', $b);
-    $png = $set[$part];
+    if (is_dir($dir) && is_writable($dir)) @file_put_contents($file, $png);
 }
 header('Content-Type: image/png');
 header('Cache-Control: public, max-age=31536000, immutable');

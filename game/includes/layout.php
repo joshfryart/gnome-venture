@@ -98,8 +98,8 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* v2.0.6: assets/tilemap.js (walk the token on a delve or lair map) */ ?>
 <?php if (!$admin && !$onboarding && $tourStep > 0): ?><script src="<?= e(url('assets/tour.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v2.4.97: Wren's tour bubble and rings */ ?>
-<?php if (!$admin && $page === 'adventure.php' && function_exists('fight_scene_on') && fight_scene_on()): ?><script src="<?= e(url('assets/fightengine.js?v=' . APP_VERSION)) ?>" defer></script><script src="<?= e(url('assets/fightscene.js?v=' . APP_VERSION)) ?>" defer></script>
-<?php endif; /* fight_scene: engine + adapter load with the page, so a fight that starts after an in-place swap has them */ ?>
+<?php if (!$admin && $page === 'adventure.php' && function_exists('fight_scene_on') && fight_scene_on()): ?><script src="<?= e(url('assets/fightrigs.js?v=' . APP_VERSION)) ?>" defer></script><script src="<?= e(url('assets/fightarch.js?v=' . APP_VERSION)) ?>" defer></script><script src="<?= e(url('assets/fightengine.js?v=' . APP_VERSION)) ?>" defer></script><script src="<?= e(url('assets/fightscene.js?v=' . APP_VERSION)) ?>" defer></script>
+<?php endif; /* fight_scene: creature rigs (generated), archetype motion, engine + adapter load with the page, so a fight that starts after an in-place swap has them */ ?>
 <?php if (!$admin && $u && !$onboarding): ?><script src="<?= e(url('assets/fighton.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.0: Fight on replay, for the fight card and the walk bar */ ?>
 <?php if (!$admin && $u && !$onboarding): ?><script src="<?= e(url('assets/chest.js?v=' . APP_VERSION)) ?>" defer></script>

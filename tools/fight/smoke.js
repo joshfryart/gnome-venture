@@ -1,8 +1,9 @@
 // Fight engine smoke test. Usage: node tools/fight/smoke.js   (needs playwright + chromium; exits 1 on any failure)
-// Checks: data lint, every creature plays every scenario with no page errors, no NaN transforms, hat ends worn with no ghost frame, reduced-motion path finishes.
+// Checks: data lint (moves, poses, every creature's bones), every creature plays every scenario with no page errors, no NaN transforms, hat ends worn with no ghost frame, reduced-motion path finishes.
 const { chromium } = require('playwright'), path = require('path');
 const URL = 'file://' + path.resolve(__dirname, '../../game/fight_demo.html');
-const CREATURES = ['wild-boar', 'bramble-wolf', 'black-bear', 'bullfrog', 'cliff-ram', 'dune-scorpion', 'shore-crab'];
+// a few creatures of different build get every scenario; EVERY rigged creature gets a quick fight (mounts, attacks, is hit, falls) further down
+const CREATURES = ['wild-boar', 'grey-heron', 'giant-centipede', 'bullfrog'];
 // hat = what the gnome's hat should be at the end (worn, or free = on the ground)
 const SCEN = {
   'pluck+hit': { hat: 'worn', list: [{ from: 'me', to: 'foe', move: 'pluck', dmg: 3 }, { from: 'foe', to: 'me', dmg: 2 }] },
@@ -56,6 +57,25 @@ let fails = 0; const fail = m => { fails++; console.log('FAIL', m); };
     }
     console.log('ok', slug);
   }
+  // every rigged creature: its sheet loads, it enters, attacks, takes a hit and is knocked out without an error or a NaN; fidgets play on both sides
+  const all = await p.evaluate(() => Object.keys(FightEngine.DATA.rigs));
+  for (const slug of all) {
+    await p.selectOption('#cr', slug); await p.waitForTimeout(250);
+    const r = await p.evaluate(async (slug) => {
+      const e = feDemo(); e.setSpeed(12);
+      const img = await new Promise(res => { const i = new Image(); i.onload = () => res(i.naturalWidth); i.onerror = () => res(0); i.src = 'assets/img/fight/rig-' + slug + '.png'; });
+      const rig = e.acts.foe.rig; (rig.fidgets || []).forEach(n => e.fidget('foe', n));
+      await e.play([{ from: 'foe', to: 'me', dmg: 1 }, { from: 'me', to: 'foe', move: 'attack', dmg: 2 }, { from: 'me', to: 'foe', move: 'pluck', dmg: 99 }]);
+      const nan = [...document.querySelectorAll('.fe-act *')].some(n => /NaN/.test(n.style.transform + n.style.cssText));
+      return { kind: rig.kind, cols: rig.cols ? rig.cols.length : 0, img, fw: rig.fw, nan, hp: e.acts.foe.hp };
+    }, slug);
+    if (r.kind !== 'parts') fail(slug + ': not a part rig');
+    if (!r.img || r.img !== r.cols * r.fw) fail(slug + ': sheet is ' + r.img + ' px wide, want ' + r.cols + ' x ' + r.fw);
+    if (r.nan) fail(slug + ': NaN in a transform');
+    if (r.hp !== 0) fail(slug + ': not knocked out');
+  }
+  console.log('ok all', all.length, 'rigs');
+  await p.evaluate(() => { feDemo().fidget('me', 'stretch'); });
   await p.context().close();
   const q = await open({ reducedMotion: 'reduce' });
   const t = await q.evaluate(async () => { const t0 = performance.now(); await feDemo().play([{ from: 'me', to: 'foe', move: 'pluck', dmg: 99 }]); return performance.now() - t0; });

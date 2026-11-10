@@ -37,7 +37,7 @@
       [0, {}], [160, { sx: 1.1, sy: .86 }, E.out], [330, { dx: -.3, y: -1.5, r: -14, sx: .94, sy: 1.08 }, E.out], [470, { x: 1, y: -.25, r: 22, sx: .9, sy: 1.12 }, E['in']], [530, { x: .96, y: -.5, r: -6, sx: 1.1, sy: .9 }, E.out],
       [720, { x: .4, y: -1.1, r: -12 }, E.io], [880, { sx: 1.08, sy: .9 }, E['in']], [950, {}, E.out]] },
     strike: { dur: 900, atk: 1, hit: 430, pose: 'strike', fx: 'pow', keys: [   // snakes and worms: coil back (long hold), whip out and back: the body stretches, it does not travel
-      [0, {}], [220, { dx: -.25, sx: .86, sy: 1.12 }, E.out], [370, { dx: -.3, sx: .82, sy: 1.16 }], [430, { x: 1, sx: 1.3, sy: .86 }, E['in']], [490, { x: .98, sx: 1.18, sy: .9 }, E.out], [640, { x: .3, sx: .92, sy: 1.06 }, E.io], [780, { sx: 1.05, sy: .96 }, E.io], [900, {}, E.io]] },
+      [0, {}], [220, { dx: -.25, sx: .92, sy: 1.06 }, E.out], [370, { dx: -.3, sx: .9, sy: 1.08 }], [430, { x: 1, sx: 1.16, sy: .92 }, E['in']], [490, { x: .98, sx: 1.1, sy: .94 }, E.out], [640, { x: .3, sx: .96, sy: 1.03 }, E.io], [780, { sx: 1.05, sy: .96 }, E.io], [900, {}, E.io]] },
     smash: { dur: 1150, atk: 1, hit: 640, pose: 'smash', fx: 'pow', dust: [600, 760], keys: [   // golems and the like: two heavy steps, a long overhead wind-up, the ground shakes
       [0, {}], [200, { x: .3, y: -.06, r: 3 }, E.io], [400, { x: .7, y: -.06, r: -3 }, E.io], [540, { x: .78, y: -.12, r: -9, sy: 1.08, sx: .96 }, E.out], [640, { x: .9, r: 12, sy: .86, sx: 1.14 }, E['in']], [740, { x: .9, sy: .92, sx: 1.08, r: 6 }, E.out],
       [900, { x: .5, r: -2 }, E.io], [1150, {}, E.io]] },

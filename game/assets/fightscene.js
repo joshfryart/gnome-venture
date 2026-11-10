@@ -17,13 +17,13 @@
         speed: reduced ? 40 : 1, flat: !!D.over, scale: D.over ? .62 : 1, cols: D.over ? D.over.cols : undefined, rows: D.over ? D.over.rows : undefined,
         onHatTap: function () { var f = document.querySelector('form.hatform'); if (f) { if (f.requestSubmit) f.requestSubmit(); else f.submit(); } }   // the server heals once (do=hat)
       });
-      eng.add('me', { rig: 'gnome', parts: D.parts, col: D.over ? D.over.mx : 2, row: D.over ? D.over.my : undefined, side: 'me', name: D.me.name, hp: D.me.hp, max: D.me.max });
+      var ver = D.v ? '?v=' + D.v : '';
+      eng.add('me', { rig: 'gnome', sheet: D.sheet || D.base + '/rig-gnome.png' + ver, col: D.over ? D.over.mx : 2, row: D.over ? D.over.my : undefined, side: 'me', name: D.me.name, hp: D.me.hp, max: D.me.max });
       if (D.event) {   // an event / riddle / skill check: no fight, no health, the prop stands where the foe would
         eng.add('foe', { emoji: D.event, size: 2, col: D.over ? D.over.fx : 8, row: D.over ? D.over.my : undefined, flip: true });
       } else {
       var foe = { rig: D.slug, img: D.mini, col: D.over ? D.over.fx : 8, row: D.over ? D.over.my : undefined, flip: true, side: 'foe', name: D.foe.name, hp: D.foe.hp, max: D.foe.max };
-      var rig = FightEngine.CRIT && FightEngine.CRIT[D.slug];
-      if (rig) { foe.parts = {}; rig.parts.forEach(function (p) { foe.parts[p.img] = D.base + '/rig-' + D.slug + '-' + p.img + '.png'; }); }
+      if (FightEngine.hasRig(D.slug)) foe.sheet = D.base + '/rig-' + D.slug + '.png' + ver;   // a rigged creature: one sheet of parts (assets/fightrigs.js); otherwise the still mini
       eng.add('foe', foe);
       }
       (D.pals || []).slice(0, 3).forEach(function (pl, i) {   // the Puzzle Pals taken along stand behind the gnome (no health bar, they only keep it company)

@@ -1,0 +1,119 @@
+<title>Gnome Venture Rig Showcase</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: one column, the live fight stage first, then the body types as a grid of small live stages, then how a rig is put together. The game's own dark look, by choice (single theme). */
+:root{color-scheme:dark;--bg:#150d08;--panel:#241810;--card:#3b2a1e;--line:#6b4f35;--tx:#e9d7a8;--dim:#b39a72;--gold:#d9b04a;--red:#e0566e;--grn:#2fae62;
+  --display:'Pixelify Sans',ui-monospace,Menlo,monospace;--body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font:15px/1.5 var(--body);padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2{font-family:var(--display);font-weight:700;color:var(--gold);margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:30px}h2{font-size:21px}
+p{margin:0;max-width:65ch}.dim{color:var(--dim)}
+section{display:flex;flex-direction:column;gap:12px;min-width:0}
+.play{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:760px){.play{grid-template-columns:minmax(0,1fr)}}
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.grp{display:flex;flex-direction:column;gap:6px}
+.grp>b{font:500 12px var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+button,select{font:600 13px var(--body);color:var(--gold);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:8px 10px;cursor:pointer;min-height:36px}
+button:hover{border-color:var(--gold)}button:focus-visible,select:focus-visible{outline:2px solid var(--tx);outline-offset:2px}
+select{width:100%}
+label{font-size:13px;display:flex;gap:6px;align-items:center}
+.facts{display:flex;flex-wrap:wrap;gap:8px 22px;font:500 14px var(--display);color:var(--dim)}.facts b{color:var(--tx);font-variant-numeric:tabular-nums}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tile .fe-stage{border:0;padding:4px;background:none}
+.tile h3{margin:0;font:700 14px var(--display);color:var(--tx)}.tile small{color:var(--dim);font-size:12px}
+.tile .row button{flex:1;padding:6px 4px;min-height:32px;font-size:12px}
+.sheet{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px}
+.sheet img{image-rendering:pixelated;display:block;max-width:none;height:192px}
+.pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:4px;align-items:center;font-size:12px;color:var(--dim)}
+.pair div{display:flex;gap:6px;align-items:flex-end}.pair img{image-rendering:pixelated;width:72px;height:auto}
+ul{margin:0;padding-left:20px;max-width:70ch;display:flex;flex-direction:column;gap:4px}
+@media (prefers-reduced-motion:reduce){.note-rm{display:block}}.note-rm{display:none;color:var(--red)}
+</style>
+<main>
+<section>
+  <h1>Gnome Venture Rig Showcase</h1>
+  <p>The gnome has a new skeleton and a full motion pass, and every creature in the game now has bones. Pick a foe, press the moves, and leave it alone for a few seconds to see them fidget.</p>
+  <div class="facts"><span><b id="n-rigs">0</b> creatures rigged</span><span><b id="n-arch">0</b> body types</span><span><b id="n-skel">0</b> skeletons</span><span><b>1</b> picture per creature</span></div>
+  <p class="note-rm">Your device asks for reduced motion, so moves jump to their end and fidgets are off.</p>
+</section>
+<section class="play">
+  <div id="stage"></div>
+  <div class="side">
+    <div class="grp"><b>Foe</b><select id="cr" aria-label="Foe"></select><label><input type="checkbox" id="slow"> Slow motion (x0.3)</label></div>
+    <div class="grp"><b>Gnome moves</b><div class="row"><button id="pl" data-act="pluck">Gnome Pluck</button><button data-act="attack">Attack</button><button id="gd" data-act="guard">Guard</button><button data-act="snack">Snack</button><button id="fl" data-act="flee">Flee</button></div></div>
+    <div class="grp"><b>Foe moves</b><div class="row"><button data-act="foe">Foe hits</button><button data-act="miss">Foe misses</button><button data-act="hat">Knock the hat off</button></div></div>
+    <div class="grp"><b>Endings</b><div class="row"><button data-act="win">Win</button><button data-act="lose">Lose</button></div></div>
+    <div class="grp"><b>Gnome fidgets (he does these by himself while waiting)</b><div class="row"><button data-fid="beardstroke">Stroke beard</button><button data-fid="lookback">Look about</button><button data-fid="toetap">Tap toe</button><button data-fid="hattug">Tug hat</button><button data-fid="stretch">Stretch</button></div></div>
+  </div>
+</section>
+<section>
+  <h2>Body types</h2>
+  <p class="dim">One example of each. They breathe, blink and fidget unprompted. Fight sends it to the stage above.</p>
+  <div class="tiles" id="tiles"></div>
+</section>
+<section>
+  <h2>How a rig is put together</h2>
+  <p class="dim">The sheet of the foe on the stage. Top row: each part, painted whole, even where another part covers it. Bottom row: its outline. The engine draws all outlines behind all paint, so a creature keeps one clean outline however its parts move.</p>
+  <div class="sheet"><img id="sheet" alt="Sheet of rig parts for the chosen creature"></div>
+  <p class="dim" id="bones"></p>
+</section>
+<section id="artpass" hidden>
+  <h2>Creature art pass</h2>
+  <p class="dim">Before, then after. Legs taper and stand on paws, faces get a muzzle, birds get feet and flight feathers, snakes thin to a pointed tail, claws are real pincers.</p>
+  <div class="pairs" id="pairs"></div>
+</section>
+<section>
+  <h2>What changed for the gnome</h2>
+  <ul>
+    <li>New bones: head, beard, scarf, eyelid, and elbows on both arms. Before, head, beard and body were one piece and the arm was a stick.</li>
+    <li>Beard and scarf are springs, like the hat. They trail every lunge and settle afterwards with no extra animation written.</li>
+    <li>The head moves a beat after the body and the forearm a beat after the upper arm, so swings whip.</li>
+    <li>After a Pluck or an Attack he hops back and lands with a squash. He used to slide.</li>
+    <li>He blinks, breathes, and has five fidgets.</li>
+    <li>Guard is now forearms up with the chin tucked. Snack is hand to mouth with three chews.</li>
+  </ul>
+</section>
+</main>
+<script>
+window.feGallery = function (groups, foeOf) {
+  var picks = ['red-fox', 'wild-boar', 'old-bramblehorn', 'frost-hare', 'great-hawk', 'grey-heron', 'ant-scouts', 'giant-bumblebee', 'dusk-moth', 'giant-centipede', 'reef-leviathan', 'garden-snail', 'dune-scorpion', 'bullfrog', 'orb-spider', 'moss-golem', 'will-o-wisp', 'deep-octopus', 'crew-wren'];
+  var NAMES = { quad: 'Four legs', bird: 'Bird', bug: 'Bug', worm: 'Worm', snake: 'Snake', snail: 'Snail', crab: 'Crab', frog: 'Frog', spider: 'Spider', golem: 'Golem', wisp: 'Wisp', octo: 'Octopus', folk: 'Two legs (crew)' };
+  var D = FightEngine.DATA, tiles = document.getElementById('tiles');
+  document.getElementById('n-rigs').textContent = Object.keys(D.rigs).length;
+  document.getElementById('n-skel').textContent = Object.keys(D.skel).length;
+  document.getElementById('n-arch').textContent = Object.keys(NAMES).length;
+  picks.forEach(function (slug) {
+    var d = D.rigs[slug]; if (!d) return;
+    var key = d[0], arch = key.split('.')[0].replace(/\d+$/, ''), kind = key.split('.')[1], t = document.createElement('div'); t.className = 'tile';
+    t.innerHTML = '<div></div><h3></h3><small></small><div class="row"><button type="button">Attack</button><button type="button">Hit</button><button type="button">Fidget</button><button type="button">Fight</button></div>';
+    t.children[1].textContent = slug.replace(/-/g, ' ');
+    t.children[2].textContent = NAMES[arch] + (kind ? ', ' + kind : '') + ' · ' + d[4].split(',').length + ' parts';
+    tiles.appendChild(t);
+    var eng = FightEngine.create(t.children[0], { cols: 5, rows: 3 }), o = foeOf(slug), n = 0;
+    o.col = 2; o.flip = false; o.side = null; o.hp = 9999; eng.add('foe', o);
+    var b = t.querySelectorAll('button'), rig = eng.acts.foe.rig;
+    b[0].onclick = function () { eng.play([{ from: 'foe', move: rig.attack }]); };
+    b[1].onclick = function () { eng.play([{ from: 'foe', move: 'hurt', dmg: 1 }]); };
+    b[2].onclick = function () { var l = rig.fidgets || []; if (l.length) eng.fidget('foe', l[n++ % l.length]); };
+    b[3].setAttribute('data-foe', slug);
+  });
+  function sheet() {
+    var slug = document.getElementById('cr').value, d = D.rigs[slug]; if (!d) return;
+    document.getElementById('sheet').src = foeOf(slug).sheet;
+    document.getElementById('bones').textContent = slug.replace(/-/g, ' ') + ': skeleton "' + d[0] + '", parts back to front: ' + d[4].split(',').join(', ') + '.';
+  }
+  document.getElementById('cr').addEventListener('change', sheet); document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('[data-foe]')) setTimeout(sheet, 0); }); sheet();
+  var B = window.FE_BEFORE || {}, keys = Object.keys(B);
+  if (keys.length) {
+    document.getElementById('artpass').hidden = false;
+    keys.forEach(function (slug) { var p = document.createElement('div'); p.className = 'pair'; p.innerHTML = '<div><img alt="before"><img alt="after"></div><span></span>'; p.querySelectorAll('img')[0].src = B[slug][0]; p.querySelectorAll('img')[1].src = B[slug][1]; p.lastChild.textContent = slug.replace(/-/g, ' '); document.getElementById('pairs').appendChild(p); });
+  }
+};
+</script>

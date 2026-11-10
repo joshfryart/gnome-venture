@@ -58,3 +58,12 @@ Still open: creature part rigs (all creatures are still pedestal pictures), hit/
 - **Fluidity:** per-part lag (far arm 20 ms, near arm 35 ms) for overlap, hat/tip follow-through from physics, hit-stop pauses limb poses too, crit pushes the camera in.
 - Held end poses (`keep`) are committed to plain style when finished.
 - Still open: creature part rigs, tinted gnome parts, arm redraw in Aseprite/Lua, wiring into `adventure.php`. Ideas for more quirk: beard sway as a third spring, scarf tail, idle fidgets (hat tip, beard stroke), blink.
+
+## Update: richness and polish pass, rigs for every creature (2026-11-10)
+- **Gnome**: new bones (head, beard, scarf, eyelid, elbows), beard and scarf are springs, head and forearm trail the body (overlap), hop back and squash after Pluck / Attack, blink, 5 fidgets (beard stroke, look about, toe tap, hat tug, stretch), new guard (forearms up) and snack (hand to mouth).
+- **Engine**: bone tree, ONE sheet per actor (paint row + ink row, ink always behind paint = one outline), generic springs, pose scale and opacity, blink and fidget timers, new moves `peck, swoop, strike, smash`. `FightEngine.hasRig(slug)`; `add(id, {sheet})`.
+- **Creatures**: all 117 enemies + 7 crew rigged from the mini archetype code (not cut from pictures): `tools/fight/rig_minis.lua` -> `assets/img/fight/rig-<slug>.png` + `assets/fightrigs.js`. Motion per body type in `assets/fightarch.js`. The 7 hand-cut rigs and `tools/creature_rig_parts.py` are gone.
+- **Game**: `fight_scene.php` sends `sheet` (the player's colours) and `v`; `layout.php` loads `fightrigs.js`, `fightarch.js` before the engine.
+- **Art pass on the creature archetypes** (one, light): tapered legs with paws and a hock on the back legs, pale muzzle, bird feet and flight feathers, snakes thin to a pointed tail, two-finger pincers, golem wrists and toe caps, frog nostrils. Minis regenerated from the same code.
+- Details and recipes: `claude/animating-2-5d-sprites.md` section 2b.
+- Still open: phone performance not profiled (a boss worm = about 30 animated layers); reduced motion still "jump to the end"; folk (villager) rigs exist only for the 7 crew; no creature has more than one attack; Josh has not seen it on his phone.

@@ -1,6 +1,7 @@
 # Animating 2.5D sprites (Gnome Venture fight engine)
 
-For anyone adding a creature, a move, or a quirk. Engine: `game/assets/fightengine.js` + `.css`. Demo: `game/fight_demo.html`. Plan and history: `claude/fight-anim-engine.md`.
+For anyone adding a creature, a move, or a quirk. Engine: `game/assets/fightengine.js` + `.css`. Creature bones (generated): `game/assets/fightrigs.js`. Creature motion per body type: `game/assets/fightarch.js`. Demo: `game/fight_demo.html`. Plan and history: `claude/fight-anim-engine.md`.
+**Sections 2, 4 (new creature) and 6 were rewritten 2026-11-10 for the bone-tree rigs; read section 2b first.**
 
 ## 1. What this is
 - A fight is a **list of events** rolled by PHP (`{from, to, move, dmg, miss, crit, pop}`). The engine only **plays it back**. No game logic in the animation.
@@ -16,6 +17,18 @@ For anyone adding a creature, a move, or a quirk. Engine: `game/assets/fightengi
 5. **Physics** (rAF loop): springs on `hat` and `tip`, driven by how the head moves. Free-flight when the hat is knocked off.
 6. **Events** in, promise out: `play(list)`, `together(list)`.
 7. **Review** with contact sheets and a GIF (section 7), **gate** with `smoke.js`.
+
+## 2b. Rigs since 2026-11-10 (this replaces the part lists above)
+- **One sheet per actor**: a PNG with one column per part, row 0 = paint, row 1 = ink (the outline). The engine builds the bone tree twice, all ink behind all paint, so a figure keeps ONE outline however its parts move, and every part is painted whole (no holes when a head turns).
+- **Bone tree**: a part may hang from a `parent` (it then moves with it) and may be `under` it (drawn behind the parent's picture). A part with no parent stands on its own (boots, a frog's feet): leaning the body never lifts them.
+- **Gnome** (`RIGS.gnome`): legB, legF | body > scarf, armB > foreB, head > (beard, lid, hat > tip), armF > foreF. Sheet cut by `game/includes/gnome_rig.php` (`gnome_rig_sheet`), served per player by `gnome_parts.php?p=sheet`, default colours in `assets/img/fight/rig-gnome.png` (`php tools/gnome_rig_parts.php`).
+- **Creatures**: NOT cut from pictures. `tools/fight/rig_minis.lua` runs the SAME archetype code that draws the minis (`opus-test-run/scripts/minis/lib.lua`) with every drawing call tagged (`T(g, "head")`), one canvas per tag, and writes `rig-<slug>.png` plus `fightrigs.js` (`FE_RIGS`: bones per archetype in figure units, one row per creature). 124 creatures, 13 body types: quad (canid, feline, rodent, bear, ungulate, hare), bird, bug (ant, beetle, plain, moth, wasp), worm, snake, snail, crab, frog, spider, golem, wisp, octo, folk (the crew).
+- **Motion per body type** (`fightarch.js`, `FE_ARCH`): poses `idle, run, hit, dodge, ko, blink`, one pose per attack move it uses (`charge, pounce, hop, slam, peck, swoop, strike, smash`), fidgets, springs. Helpers there: `t([ms, r, {x,y,sx,sy}, ease], ...)` writes a track, `wave(dur, amp, phase, {prop, base, lift})` a looping sine (gaits, wing beats, crawling), `each(ids, fn)` the same track for many bones.
+- **Springs** (`spring: {k, d, g, w, max, dir}` on a part): the part swings from how its bone moves on screen. Beard, scarf, tails, feelers, eye stalks, tentacles, worm segments. Never key follow-through by hand.
+- **Life**: every part rig blinks (pose `blink`) and plays its `fidgets` in turn when nothing else runs. A move cancels a fidget.
+- **Pose keys** can also carry `sx, sy` (scale, e.g. a blink, a frog's squash, a wing fold) and `o` (opacity, the gnome's eyelid). x/y are figure units (multiplied by the creature's scale).
+- **New creature**: add its row to `opus-test-run/scripts/minis/enemies.lua` (an existing archetype) and run the rig tool: it moves at once. **New body type**: write `A.<arch>` in lib.lua with `T(g, ...)` tags, its bones in `L.skel`, its motion in `fightarch.js`.
+- Rebuild: `GV_ROOT=$PWD/ RIG=1 aseprite -b --script tools/fight/rig_minis.lua` (Aseprite: `aseprite-source/*.AppImage --appimage-extract`, then `squashfs-root/AppRun`). The mini scripts still draw the minis exactly as before when run without `RIG`.
 
 ## 3. Conventions (get these wrong and everything mirrors)
 - Art faces **right**. The engine mirrors with `scaleX(-1)` for the left side. Draw one facing only.
@@ -59,8 +72,10 @@ For anyone adding a creature, a move, or a quirk. Engine: `game/assets/fightengi
 | `node tools/fight/smoke.js` | Gate. Data lint (`FightEngine.validate()`), 6 creatures x 7 scenarios, no page errors, no NaN transforms, hat ends worn with no ghost frame, KO leaves hat down, reduced-motion path fast. Run before every commit that touches the engine. |
 | `node tools/fight/sheet.js '<events>' 8 250 out.png [slug] [me\|foe]` | Contact sheet of one actor over time, slow motion, 3x pixels. Review a move by looking at one image. |
 | `node tools/fight/gif.js out.gif ['<events>'] [slug] [width]` | Crisp, tightly cropped GIF (renders wide, no upscaling). Needs ffmpeg. |
-| `python3 tools/fight/build_demo.py out.html` | One self-contained HTML (css, js, images inlined) to share or publish as an artifact. |
-| `php tools/gnome_rig_parts.php` | Re-cut the gnome parts. |
+| `python3 tools/fight/build_demo.py out.html [--showcase [old-minis-dir]]` | One self-contained HTML (css, js, sheets inlined) to share or publish as an artifact. `--showcase`: stage + one live tile per body type + sheet viewer (`tools/fight/showcase.html`). |
+| `php tools/gnome_rig_parts.php` | Re-cut the gnome sheet. |
+| `GV_ROOT=$PWD/ RIG=1 aseprite -b --script tools/fight/rig_minis.lua` | Rebuild every creature sheet and `fightrigs.js`. |
+| `node tools/fight/sheet.js fidget:<name>` / `idle` | Sheet of a fidget or of standing still (same other arguments). |
 Playwright and ffmpeg are in the cloud container. `Math.random` is pinned in the tools so frames repeat.
 
 ## 8. Review checklist (look at a sheet, tick each)

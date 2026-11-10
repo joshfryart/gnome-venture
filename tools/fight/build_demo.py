@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
-"""Inline the fight demo (css, js, every image it uses) into ONE html file to share as an artifact / attach.
-   python3 tools/fight/build_demo.py out.html"""
+"""One self-contained HTML file of the fight engine (css, js, every rig sheet inlined), to share or publish as an artifact.
+   python3 tools/fight/build_demo.py out.html                      the plain demo (game/fight_demo.html)
+   python3 tools/fight/build_demo.py out.html --showcase [dir]     the showcase page (tools/fight/showcase.html: stage, body types, sheet viewer);
+                                                                   dir = old mini-<slug>.png files to show before/after beside the current minis"""
 import base64, re, sys, pathlib
-G = pathlib.Path(__file__).resolve().parents[2] / 'game'
-def uri(p): return 'data:image/png;base64,' + base64.b64encode((G / p).read_bytes()).decode()
-html = (G / 'fight_demo.html').read_text()
+T = pathlib.Path(__file__).resolve().parent; G = T.parents[1] / 'game'
+def uri(p): return 'data:image/png;base64,' + base64.b64encode(pathlib.Path(p).read_bytes()).decode()
+show = '--showcase' in sys.argv
+imgs = {'assets/img/fight/' + f.name: uri(f) for f in sorted((G / 'assets/img/fight').glob('rig-*.png'))}
+js = 'window.FE_IMG={' + ','.join('"%s":"%s"' % kv for kv in imgs.items()) + '};'
+if show and len(sys.argv) > 3:
+    js += 'window.FE_BEFORE={' + ','.join('"%s":["%s","%s"]' % (f.stem[5:], uri(f), uri(G / 'assets/img/mini' / f.name)) for f in sorted(pathlib.Path(sys.argv[3]).glob('mini-*.png'))) + '};'
 css = (G / 'assets/fightengine.css').read_text()
-eng = (G / 'assets/fightengine.js').read_text()
-demo = (G / 'assets/fightdemo.js').read_text()
-demo = re.sub(r"'(assets/img/fight/[^']+\.png)'", lambda m: "'" + uri(m.group(1)) + "'", demo)   # gnome parts
-# creature minis are built by string concat ('assets/img/mini/mini-' + slug + '.png'): swap for a lookup table
-slugs = re.findall(r'<option>([^<]+)</option>', html)
-table = '{' + ','.join("'%s':'%s'" % (s, uri('assets/img/mini/mini-%s.png' % s)) for s in slugs) + '}'
-demo = demo.replace("'assets/img/mini/mini-' + slug + '.png'", 'MINI[slug]').replace('(function () {', 'var MINI = ' + table + ';\n(function () {', 1)
-html = html.replace('<link rel="stylesheet" href="assets/fightengine.css">', '<style>' + css + '</style>')
-html = html.replace('<script src="assets/fightengine.js"></script><script src="assets/fightdemo.js"></script>', '<script>' + eng + '</script><script>' + demo + '</script>')
+code = ''.join('<script>' + (G / 'assets' / n).read_text() + '</script>' for n in ['fightrigs.js', 'fightarch.js', 'fightengine.js', 'fightdemo.js'])
+if show:
+    html = (T / 'showcase.html').read_text()
+    html = html.replace('<style>', '<style>' + css, 1).replace('</main>\n<script>', '</main>\n<script>' + js + '</script><script>', 1) + code
+else:
+    html = (G / 'fight_demo.html').read_text()
+    html = html.replace('<link rel="stylesheet" href="assets/fightengine.css">', '<style>' + css + '</style>')
+    html, n = re.subn(r'(<script src="assets/fight\w+\.js"></script>)+', lambda m: '<script>' + js + '</script>' + code, html)
+    assert n == 1
 pathlib.Path(sys.argv[1]).write_text(html); print(sys.argv[1], len(html) // 1024, 'KB')

@@ -37,7 +37,7 @@ function fight_scene_html(array $u, array $exp, array $enc, array $c, ?array $ov
         'foe' => ['name' => (string)$c['name'], 'hp' => $take ? (int)$take['start']['foe']['hp'] : $foeHp, 'max' => (int)$enc['max']],
         'events' => $take ? $take['ev'] : [],
         'end' => ['me' => $meHp, 'foe' => $foeHp],
-        'parts' => gnome_rig_urls($u),
+        'sheet' => gnome_rig_url($u), 'v' => APP_VERSION,
         'base' => url('assets/img/fight'),
         'mini' => $slug !== '' && is_file(APP_ROOT . '/assets/img/mini/mini-' . $slug . '.png') ? url('assets/img/mini/mini-' . $slug . '.png') : '',
         'over' => $over,
@@ -57,7 +57,7 @@ function fight_event_html(array $u, array $enc): string
     $icon = '❓';
     if (($enc['type'] ?? '') === 'choice' && ($ch = road_event_get($enc))) $icon = (string)($ch['icon'] ?? '❓');
     $data = ['event' => $icon, 'slug' => '', 'me' => ['name' => gnome_name($u), 'hp' => 1, 'max' => 1], 'foe' => ['name' => '', 'hp' => 1, 'max' => 1], 'events' => [],
-        'parts' => gnome_rig_urls($u), 'base' => url('assets/img/fight'), 'mini' => '', 'over' => null, 'pals' => fight_scene_pals($u), 'hat' => 0, 'land' => ''];
+        'sheet' => gnome_rig_url($u), 'v' => APP_VERSION, 'base' => url('assets/img/fight'), 'mini' => '', 'over' => null, 'pals' => fight_scene_pals($u), 'hat' => 0, 'land' => ''];
     return '<div class="fightscene" id="fightscene" data-fight="' . e((string)json_encode($data, JSON_UNESCAPED_UNICODE)) . '" role="img" aria-label="' . e(gnome_name($u) . ' meets something on the road') . '"></div>';
 }
 
@@ -155,7 +155,7 @@ function fight_finale_html(array $u, array $exp, ?array $over): string
         'me' => ['name' => gnome_name($u), 'hp' => (int)$take['start']['me']['hp'], 'max' => (int)$take['start']['me']['max']],
         'foe' => ['name' => (string)($take['start']['foe']['name'] ?? ''), 'hp' => (int)$take['start']['foe']['hp'], 'max' => (int)$take['start']['foe']['max']],
         'events' => $take['ev'], 'end' => ['me' => (int)$take['end']['me']['hp'], 'foe' => (int)$take['end']['foe']['hp']],
-        'parts' => gnome_rig_urls($u), 'base' => url('assets/img/fight'),
+        'sheet' => gnome_rig_url($u), 'v' => APP_VERSION, 'base' => url('assets/img/fight'),
         'mini' => $slug !== '' && is_file(APP_ROOT . '/assets/img/mini/mini-' . $slug . '.png') ? url('assets/img/mini/mini-' . $slug . '.png') : '',
         'over' => $over, 'pals' => fight_scene_pals($u), 'hat' => 0, 'finale' => 1,
         'reward' => in_array((string)($last['end'] ?? ''), ['win', 'peace'], true) ? ['kind' => (string)$last['end'], 'xp' => (int)($last['xp'] ?? 0), 'lvl' => (int)($last['lvl'] ?? 0), 'loot' => $loot] : null,   // a run or a knock-out has nothing to collect: the scene is just the last moves
