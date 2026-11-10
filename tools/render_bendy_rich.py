@@ -1516,13 +1516,20 @@ def render_one(job):
     im = paint(route, si, rich_for(rid, si, route), cache); p = os.path.join(d, f"route-{rid}-s{si + 1}.png")
     im.convert("RGB").quantize(256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(p, optimize=True); return p
 
-def contact(rid, out, dest):
+def contact(rid, out, dest, div=3):
     """All sections of a route side by side at 1/3 size (for a quick look)."""
     import glob
     ims = [Image.open(f).convert("RGB") for f in sorted(glob.glob(os.path.join(out, f"route-{rid}-s*.png")))]
-    w, h = ims[0].width // 3, ims[0].height // 3; sh = Image.new("RGB", (len(ims) * (w + 6), h), (20, 20, 24))
+    w, h = ims[0].width // div, ims[0].height // div; sh = Image.new("RGB", (len(ims) * (w + 6), h), (20, 20, 24))
     for i, im in enumerate(ims): sh.paste(im.resize((w, h), Image.LANCZOS), (i * (w + 6), 0))
-    sh.save(dest); return dest
+    sh.save(dest, quality=72) if dest.endswith(".jpg") else sh.save(dest)
+    return dest
+
+def overviews(ids):
+    """Small JPG per route (all sections side by side) in <source folder>/rich-overview/. The full-size PNGs must exist."""
+    for rid in ids:
+        d = os.path.dirname(src_of(rid)); o = os.path.join(d, "rich-overview"); os.makedirs(o, exist_ok=True)
+        print(contact(rid, os.path.join(d, "rich"), os.path.join(o, f"route-{rid}.jpg"), 4), flush=True)
 
 def sheet(path):
     cells = [haybale(i) for i in range(4)] + [fence(0), fence(1, True), fence(3, False, True), appletree(0), appletree(1), reeds(0), signpost(0)] + \
@@ -1538,7 +1545,9 @@ def main():
     if "--sheet" in args: return sheet(os.path.join(out or os.path.join(REPO, "claude", "maplewold-bendy-maps", "rich"), "decor-sheet.png"))
     import glob
     from multiprocessing import Pool
+    mw = {int(os.path.basename(f)[6:-5]) for f in glob.glob(os.path.join(REPO, 'claude', 'maplewold-bendy-maps', 'route-*.json')) if os.path.basename(f)[6:-5].isdigit()}
     ids = [int(a) for a in args if a.isdigit()] or sorted(int(os.path.basename(f)[6:-5]) for f in glob.glob(os.path.join(REPO, "claude", "maplewold-bendy-maps" if "--all" not in args else "bend-prototype-v2", "route-*.json")))
+    if "--overview" in args: return overviews([i for i in ids if i not in mw] if "--all" in args else ids)
     only = [int(a[1:]) - 1 for a in args if a.startswith("s") and a[1:].isdigit()]; jobs = []
     for rid in ids:
         n = len(json.load(open(src_of(rid)))["sections"])
