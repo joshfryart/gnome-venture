@@ -179,7 +179,7 @@ function sh_craft_entries(array $u, string $tab, array $recipes, array $stations
         $tier = $tab === 'cooking' ? (string)($r['tier'] ?: 'meal') : '';
         $item = $outItems[(int)$r['output_item_id']] ?? null;
         $shortN = array_sum(array_map(fn($i) => max(0, (int)$i['qty'] - (int)$i['have']), $r['ings']));
-        $cost = craft_energy_cost($u, $tab, (int)$r['energy'], $tier);
+        $cost = craft_energy_cost($u, $tab, (int)$r['energy'], $tier, (string)($r['slug'] ?? ''));
         $fee = $tier === 'feast' ? max(0, (int)setting('feast_petal_fee')) : 0;
         $chunk = $tab === 'cooking' ? cook_chunk($u, $r) : max(1, (int)$r['batch_max']);
         $secs = $tier ? cook_seconds($u, $r) : 0;

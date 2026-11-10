@@ -172,11 +172,12 @@ function craft_stock(int $uid, string $json): array
 }
 
 /** v0.9.1: the energy one make costs this gnome. Used by craft(), craft_fit and the card. v0.9.4: by dish tier (setting cook_energy_tiers); Brewroot no longer cooks free. */
-function craft_energy_cost(array $u, string $cat, int $energy, string $tier = ''): int
+function craft_energy_cost(array $u, string $cat, int $energy, string $tier = '', string $slug = ''): int
 {
     if ($cat === 'cooking' && $tier !== '') {   // v0.9.4: cooking energy by tier: snack 0, meal 1, feast 2 (setting cook_energy_tiers)
         require_once __DIR__ . '/catalog.php';
         $energy = tier_setting('cook_energy_tiers', [0, 1, 2])[$tier] ?? $energy;
+        if ($tier === 'snack' && str_contains($slug, 'jam')) $energy = max(1, $energy);   // Josh 2026-11-10: a jam is a snack that costs 1 energy
     }
     return $energy;
 }
@@ -420,7 +421,7 @@ function cook_start(array $u, array $r, int|string $want, int $station, bool $ca
     $free = $pots ? ($camp ? 1 : cook_pot_limit($u) - cook_pots_busy($uid)) : 0;   // a camp pot is one extra pot, whatever the kitchen holds
     $none = ['ids' => [], 'qty' => 0, 'cost' => 0, 'fee' => 0, 'clamped' => false];
     if ($pots && $free < 1) return [false, 'All your pots are busy. Collect a finished one, or wait for a timer.', $none];
-    $energy = craft_energy_cost($u, 'cooking', (int)$r['energy'], $tier);
+    $energy = craft_energy_cost($u, 'cooking', (int)$r['energy'], $tier, (string)($r['slug'] ?? ''));
     $feeEach = $tier === 'feast' ? max(0, (int)setting('feast_petal_fee')) : 0;
     $stock = craft_stock($uid, (string)$r['ingredients']);
     $haveE = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
