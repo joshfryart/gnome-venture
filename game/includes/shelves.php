@@ -221,7 +221,7 @@ function sh_craft_entries(array $u, string $tab, array $recipes, array $stations
         $head = '<div class="shdh"><span class="p2big" aria-hidden="true">' . $pic . '</span><span class="p2dt"><b class="p2name">' . ($known ? e((string)$r['name']) : '???') . '</b>'
               . '<span class="p2tags">' . ($tw ? '<span class="tag">' . $tw[0] . ' ' . e($tw[1]) . '</span>' : '<span class="tag">' . CRAFT_CATEGORIES[$tab][1] . ' ' . e(strtolower(CRAFT_CATEGORIES[$tab][0])) . '</span>')
               . (!empty($r['new']) ? ' <span class="tag">new!</span>' : '') . '</span>'
-              . '<small class="p2sub">' . ($known ? ($tab === 'cooking' ? e(buff_text($r['effects'], $u, true)) : 'Makes ' . (int)$r['output_qty'] . ' × ' . e((string)$r['out_name']) . (($ff = item_food_line((string)$r['effects'], $u, true)) !== '' ? ' · ' . e($ff) : '')) : 'Not discovered yet') . '</small></span>';
+              . '<small class="p2sub">' . ($known ? ($tab === 'cooking' ? e(buff_text($r['effects'], $u, true, (int)$r['output_item_id'])) : 'Makes ' . (int)$r['output_qty'] . ' × ' . e((string)$r['out_name']) . (($ff = item_food_line((string)$r['effects'], $u, true, (int)$r['output_item_id'])) !== '' ? ' · ' . e($ff) : '')) : 'Not discovered yet') . '</small></span>';
         if ($known) {
             $when = ($cost ? '⚡<b>' . $cost . '</b> each' : 'No energy') . ($fee ? ' · ' . money($fee) . ' each' : '') . ($timeTxt ? ' · ⏱ <b>' . e($timeTxt) . '</b>' : '')
                   . ($potsOn ? ' <span class="muted">· ' . ($potsFree > 0 ? $potsFree . ' pot' . ($potsFree === 1 ? '' : 's') . ' free' : 'no free pot right now') . ($chunk > 1 ? ', up to ' . $chunk . ' in one pot' : '') . '</span>' : '');
@@ -247,7 +247,7 @@ function sh_craft_entries(array $u, string $tab, array $recipes, array $stations
             'id' => (int)$r['id'], 'item' => $known ? $item : null, 'name' => $known ? (string)$r['name'] : '???', 'count' => null, 'status' => $status,
             'group' => $status === 'ok' ? 'ready' : ($status === 'unk' ? 'unk' : ($shortN <= 2 ? 'close' : 'far')),
             'flag' => !empty($r['new']) ? 'New' : '', 'small' => e($small), 'head' => $head, 'panel' => $body . '<div class="p2acts shacts">' . $acts . '</div>',
-            'acts' => $acts, 'why' => $why, 'food' => $known ? item_food_line((string)$r['effects'], $u, true) : '', 'desc' => $known ? (string)($r['description'] ?? '') : '',
+            'acts' => $acts, 'why' => $why, 'food' => $known ? item_food_line((string)$r['effects'], $u, true, (int)$r['output_item_id']) : '', 'desc' => $known ? (string)($r['description'] ?? '') : '',
             'found' => $known ? '' : count(array_filter($r['ings'], fn($i) => $i['seen'])) . ' of ' . count($r['ings']) . ' ingredients found',
             'quick' => null, 'hay' => $known ? $r['name'] . ' ' . implode(' ', array_column($r['ings'], 'name')) : '', 'short' => $shortN, 'ings' => $r['ings'], 'icons' => $icons,
         ];

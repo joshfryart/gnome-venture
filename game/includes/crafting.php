@@ -575,13 +575,13 @@ function cook_collect_msg(array $infos, string $verb, string $spent = ''): strin
 
 /** Short text for a food's energy and buff: "⚡+4 (🛡️ Hardiness +3 for 6 h)". v0.9.1a: buff in brackets, time adjusted for $u when given. */
 /** v2.4.0: the one food line every surface shows: "⚡+12 energy · ✨ ..." (or '' if the item gives neither). $homeCooked = dishes at cook_energy_percent (the Brewroot perk stays hidden). */
-function item_food_line(?string $effects, ?array $u = null, bool $homeCooked = false): string
+function item_food_line(?string $effects, ?array $u = null, bool $homeCooked = false, int $itemId = 0): string
 {
-    $t = buff_text($effects, $u, $homeCooked);
+    $t = buff_text($effects, $u, $homeCooked, $itemId);
     return $t === '' ? '' : $t;
 }
 
-function buff_text(?string $effects, ?array $u = null, bool $homeCooked = false): string
+function buff_text(?string $effects, ?array $u = null, bool $homeCooked = false, int $itemId = 0): string
 {
     $fx = json_decode((string)$effects, true) ?: [];
     $parts = [];
@@ -591,7 +591,7 @@ function buff_text(?string $effects, ?array $u = null, bool $homeCooked = false)
     $t = implode(', ', $parts);
     if ($t !== '' && isset($fx['temp']['minutes'])) {
         $m = (int)$fx['temp']['minutes'];
-        $t .= ' for ' . nice_minutes($u ? buff_minutes($u, $m) : $m);
+        $t .= ' for ' . nice_minutes($u ? buff_minutes($u, $m, $itemId) : $m);
     }
     if ($t !== '') $t = '(' . $t . ')';
     if (!empty($fx['energy'])) $t = '⚡+' . ($homeCooked ? dish_energy((int)$fx['energy']) : (int)$fx['energy']) . ($t !== '' ? ' ' . $t : '');   // v0.9.4: dishes show what you get at cook_energy_percent

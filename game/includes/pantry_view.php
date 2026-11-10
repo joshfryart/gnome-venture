@@ -138,7 +138,7 @@ foreach ($recipes as $r) {
     $canNow = $r['known'] && str_contains($acts, 'p2make');
     $popSlug[(int)$r['id']] = (string)($r['slug'] ?? '');
     $popAll[] = ['id' => (int)$r['id'], 'name' => (string)$r['name'], 'status' => !$r['known'] ? 'unk' : ($canNow ? 'ok' : 'miss'),
-        'item' => $outItems[(int)$r['output_item_id']] ?? null, 'food' => $r['known'] ? item_food_line((string)$r['effects'], $u, false) : '', 'desc' => $r['known'] ? (string)($r['description'] ?? '') : '',
+        'item' => $outItems[(int)$r['output_item_id']] ?? null, 'food' => $r['known'] ? item_food_line((string)$r['effects'], $u, false, (int)$r['output_item_id']) : '', 'desc' => $r['known'] ? (string)($r['description'] ?? '') : '',
         'acts' => $acts, 'why' => $r['known'] && !$canNow ? ($r['can'] ? trim(html_entity_decode(strip_tags($acts))) : implode(', ', array_map(fn($i) => $i['name'] . ' ' . (int)$i['have'] . '/' . (int)$i['qty'], array_filter($r['ings'], fn($i) => $i['have'] < $i['qty'])))) : '',
         'found' => count(array_filter($r['ings'], fn($i) => $i['seen'])) . ' of ' . count($r['ings']) . ' ingredients found'];
 }
@@ -223,7 +223,7 @@ echo craft_pop_html($tab, $popAll, $popSlug); ?>
         <span class="p2big"><?= $sel['known'] ? $pic((int)$sel['output_item_id'], 'lg') : '❔' ?></span>
         <span class="p2dt"><b class="p2name"><?= $sel['known'] ? e($sel['name']) : '???' ?></b>
           <span class="p2tags"><span class="tag">🫙 preserve</span> <span class="tag"><?= e(P2_KINDS[$sk][0]) ?></span></span>
-          <?php if ($sel['known']): ?><small class="p2sub">Makes <?= (int)$sel['output_qty'] ?> jars · <?= e(buff_text($sel['effects'], $u, true)) ?></small><?php endif; ?></span>
+          <?php if ($sel['known']): ?><small class="p2sub">Makes <?= (int)$sel['output_qty'] ?> jars · <?= e(buff_text($sel['effects'], $u, true, (int)$sel['output_item_id'])) ?></small><?php endif; ?></span>
         <span class="p2grab" aria-hidden="true"></span><span class="p2chev" aria-hidden="true">▾</span>
       </summary>
       <?php if ($sel['known']): ?><p class="p2fit"><?= $when($sel) ?></p><?php endif; ?>

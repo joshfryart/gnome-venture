@@ -5,8 +5,7 @@ declare(strict_types=1);
 // Per recipe: user_recipes.made counts every make. Tiers at mastery_tiers (default 10,50,200): materials -10 / -25 / -50% (mastery_material_cuts),
 // each ingredient never below 1 and never below 50% of the base.
 // Per category: all makes of every recipe in the category. Tiers at category_mastery_tiers (default 100,500,2000), each tier:
-// +5% yield (mastery_yield_pct), -5% energy (mastery_energy_pct). The +5% buff on food and potions (mastery_buff_pct) is stored as a setting
-// but is NOT applied yet (buffs are worked out when the dish is eaten).
+// +5% yield (mastery_yield_pct), -5% energy (mastery_energy_pct), and on food and potions +5% buff time (mastery_buff_pct, see buff_minutes()).
 // Bonuses are fixed by these caps (materials -50%, energy -15%, yield +15% at the defaults), so they cannot stack past the cap with calling_perk boons.
 
 function craft_mastery_list(string $setting, array $default): array
@@ -84,4 +83,25 @@ function craft_mastery_line(int $uid, array $r): string
     $next = $marks[$t] ?? null;
     $cut = craft_mastery_cut_pct($t);
     return 'Made ' . $made . ' times' . ($cut > 0 ? ' · materials −' . $cut . '%' : '') . ($next !== null ? ' · next lighter materials at ' . $next : ' · fully mastered');
+}
+
+/** The mastery category of a food or potion item (the recipe that makes it): cooking, pantry or potions; '' for anything else. */
+function craft_mastery_item_category(int $itemId): string
+{
+    static $cache = [];
+    if ($itemId < 1) return '';
+    if (!array_key_exists($itemId, $cache)) {
+        $c = q_val("SELECT category FROM recipes WHERE output_item_id = ? AND category IN ('cooking', 'pantry', 'potions') ORDER BY id LIMIT 1", [$itemId]);
+        $cache[$itemId] = $c === false || $c === null ? '' : (string)$c;
+    }
+    return $cache[$itemId];
+}
+
+/** Percent added to a meal or potion buff's time from category mastery (+5% a tier, food and potions only). */
+function craft_mastery_buff_pct(int $uid, int $itemId): int
+{
+    $cat = craft_mastery_item_category($itemId);
+    if ($cat === '' || $uid < 1) return 0;
+    $per = max(0, (int)(setting('mastery_buff_pct') !== '' ? setting('mastery_buff_pct') : 5));
+    return min(50, $per * craft_mastery_category_tier($uid, $cat));
 }

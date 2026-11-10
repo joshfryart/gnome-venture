@@ -361,11 +361,12 @@ function choose_calling(array $u, string $calling): array
 }
 
 /** v0.9.1a: how long a meal buff lasts for this gnome: base minutes x Brewroot buff_pct (v0.9.1) x kitchen level (v0.7.96). */
-function buff_minutes(array $u, int $base): int
+function buff_minutes(array $u, int $base, int $itemId = 0): int
 {
     require_once __DIR__ . '/food_mastery.php';
+    require_once __DIR__ . '/craft_mastery.php';
     require_once __DIR__ . '/player_perks.php';
-    $minutes = (int)round($base * (100 + calling_perk($u, 'buff_pct') + food_rank_buff_pct((int)($u['id'] ?? 0)) + player_perk_pct((int)($u['id'] ?? 0), 'packed_lunch', 'perk_packed_lunch')) / 100);
+    $minutes = (int)round($base * (100 + calling_perk($u, 'buff_pct') + food_rank_buff_pct((int)($u['id'] ?? 0)) + player_perk_pct((int)($u['id'] ?? 0), 'packed_lunch', 'perk_packed_lunch') + craft_mastery_buff_pct((int)($u['id'] ?? 0), $itemId)) / 100);   // + craft mastery (food and potions)
     require_once __DIR__ . '/gardens.php';
     $pct = user_building_bonus((int)$u['id'], 'kitchen')['buff_pct'];   // v0.9.5: best kitchen +25% / +50%, other gardens' kitchens add a little (stacking)
     if ($pct > 0) $minutes = (int)round($minutes * (100 + $pct) / 100);
@@ -461,7 +462,7 @@ function eat_item(array $u, int $itemId): array
 
     // Temporary meal buff (replaces the previous one)
     if (!empty($fx['temp']) && is_array($fx['temp'])) {
-        $minutes = buff_minutes($u, (int)($fx['temp']['minutes'] ?? 60));   // v0.9.1a: shared with buff_text()
+        $minutes = buff_minutes($u, (int)($fx['temp']['minutes'] ?? 60), (int)$item['id']);   // v0.9.1a: shared with buff_text()
         $buff = [];
         foreach ($fx['temp'] as $stat => $n) {
             if (isset(GNOME_STATS[$stat])) $buff[$stat] = (int)$n;

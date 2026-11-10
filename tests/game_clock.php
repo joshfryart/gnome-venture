@@ -1032,6 +1032,18 @@ try {
     ok('category tier 1: yield for 100 units is 105', craft_mastery_yield($uidM, $cat, 100) === 105);
     q('UPDATE user_recipes SET made = 0 WHERE user_id = ? AND recipe_id = ?', [$uidM, $rid]);
     ok('no makes: nothing changes (yield 100 -> 100, energy 20 -> 20)', craft_mastery_yield($uidM, $cat, 100) === 100 && craft_mastery_energy($uidM, $cat, 20) === 20);
+    $foodItem = (int)q_val("SELECT output_item_id FROM recipes WHERE category = 'cooking' ORDER BY id LIMIT 1");
+    ok('a cooked dish counts as a mastery food category; a plain item does not', craft_mastery_item_category($foodItem) === 'cooking' && craft_mastery_item_category(0) === '');
+    $uB = urow($uidM);
+    q('UPDATE user_recipes SET made = 0 WHERE user_id = ?', [$uidM]);
+    $b0 = buff_minutes($uB, 60, $foodItem);
+    $cookRid = (int)q_val("SELECT id FROM recipes WHERE category = 'cooking' ORDER BY id LIMIT 1");
+    q('DELETE FROM user_recipes WHERE user_id = ? AND recipe_id = ?', [$uidM, $cookRid]);
+    db_insert('user_recipes', ['user_id' => $uidM, 'recipe_id' => $cookRid, 'learned_at' => now(), 'made' => 100]);
+    $b1 = buff_minutes($uB, 60, $foodItem);
+    ok('category tier 1 in cooking: meal buff lasts +5% longer (' . $b0 . ' -> ' . $b1 . ')', $b1 > $b0);
+    ok('same tier, no item: no mastery buff', buff_minutes($uB, 60) === $b0);
+    q('UPDATE user_recipes SET made = 0 WHERE user_id = ?', [$uidM]);
     ok('card line says the count', str_contains(craft_mastery_line($uidM, ['id' => $rid]), 'Made 0 times'));
 } catch (Throwable $e) { ok('craft mastery block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
 

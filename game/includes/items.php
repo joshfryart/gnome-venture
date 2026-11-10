@@ -106,7 +106,7 @@ function item_facts(array $i, array $L): array
     }
     if ($i['category'] === 'tool' && ($wf = tool_wear_fact($i)) !== '') $f[] = e($wf);   // v0.7.86
     if ($i['category'] === 'broken') $f[] = e('💥 Broken. Mend it in your Satchel to use it again.');   // v0.7.86
-    if ((int)($i['edible'] ?? 0) && function_exists('buff_text') && ($b = buff_text((string)$i['effects'], current_user(), home_dish_tier((int)($i['id'] ?? 0)) !== '')) !== '') $f[] = e('😋 Eating it: ' . $b . '.');
+    if ((int)($i['edible'] ?? 0) && function_exists('buff_text') && ($b = buff_text((string)$i['effects'], current_user(), home_dish_tier((int)($i['id'] ?? 0)) !== '', (int)($i['id'] ?? 0))) !== '') $f[] = e('😋 Eating it: ' . $b . '.');
     if ((int)($i['edible'] ?? 0) && in_array($i['category'], ['produce', 'forage'], true) && empty($fx['energy'])) $f[] = e('⚡ Raw, it restores no energy. Cook it into a dish.');   // v0.7.86, v0.9.4
     if (!empty($fx['perm'])) {
         $pp = [];
