@@ -336,7 +336,8 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
     $path = tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc, $tx, $ty, $shut));
     if (!$path && $shut && ($open = tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc, $tx, $ty))) && ($why = trail_gate_message($shut, $open)) !== null) return [false, $why];   // only a tool gate is in the way: say which
     if (!$path) {   // v2.6.40: a fixed fight (E, M) sits in the only way: say so instead of 'no way'
-        $sc2 = $sc; foreach ($sc2['st']['tokens'] as $ti => $tk) if (in_array($tk[2], ['E', 'M'], true)) $sc2['st']['tokens'][$ti][3] = 1;
+        $easyMini = exp_easy_cap($u, $exp) > 0;   // an easy road turns an extra mini-boss into a find, so it blocks nothing
+        $sc2 = $sc; foreach ($sc2['st']['tokens'] as $ti => $tk) if ($tk[2] === 'E' || ($tk[2] === 'M' && !$easyMini)) $sc2['st']['tokens'][$ti][3] = 1;
         if (tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc2, $tx, $ty, $shut))) return [false, '⚔️ A fight waits in the way. Walk to the ⚔️ spot first.'];
         return [false, 'There is no way there from here.'];
     }
@@ -483,9 +484,11 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     $land = (string)(exp_scene($exp)['land'] ?? 'forest');
     $phase = (string)$sc['st']['phase'];
     $tokens = [];
+    $easyMini = exp_easy_cap($u, $exp) > 0;   // an easy road never meets an extra mini-boss (it gives a find), so draw it as a find
     foreach ($sc['st']['tokens'] as [$tx, $ty, $k, $done]) {
         if ($tx === $sc['x'] && $ty === $sc['y']) continue;
-        $tokens[] = [$tx, $ty, $k === 'E' || $k === 'M' ? '⚔️' : '✨', $k === 'E' || $k === 'M' ? 'ember' : 'gold', (bool)$done];
+        $fight = $k === 'E' || ($k === 'M' && !$easyMini);
+        $tokens[] = [$tx, $ty, $fight ? '⚔️' : '✨', $fight ? 'ember' : 'gold', (bool)$done];
     }
     [$ex, $ey] = $map['spots']['9'];
     if ($ex !== $sc['x'] || $ey !== $sc['y']) $tokens[] = [$ex, $ey, '🚪', 'gold', false];
@@ -543,7 +546,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         else {
             $cls .= $tap ? ' reach' : '';
             $tk = trail_token_at($sc, $x, $y);
-            if ($tk >= 0) { $done = (int)$sc['st']['tokens'][$tk][3]; $cls .= ' spot' . ($done ? ' done' : ''); $label = in_array($sc['st']['tokens'][$tk][2], ['E', 'M'], true) ? ($done ? 'Fight, done' : 'A fight waits here') : ($done ? 'Find, done' : 'Something to find'); }
+            if ($tk >= 0) { $done = (int)$sc['st']['tokens'][$tk][3]; $cls .= ' spot' . ($done ? ' done' : ''); $label = ($sc['st']['tokens'][$tk][2] === 'E' || ($sc['st']['tokens'][$tk][2] === 'M' && !$easyMini)) ? ($done ? 'Fight, done' : 'A fight waits here') : ($done ? 'Find, done' : 'Something to find'); }
             elseif ($t === '9') { $cls .= ' spot'; $label = 'The way on'; }
             elseif ($t === 'S') $label = (int)$sc['st']['sec'] > 0 ? 'The way back' : 'Where this stretch begins';
         }
@@ -558,7 +561,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'
         . '<div class="tmgrid">' . $btn . '</div>' . $fightOver_html . '</div></div></div></form>' . $fightDock
         . ($art && !empty($map['art']['caption']) ? '<p class="tmcap">' . e((string)$map['art']['caption']) . '</p>' : '')
-        . '<p class="tmlegend" aria-hidden="true">' . (!empty($map['art']['boss']) || !empty($map['art']['extra_minibosses']) ? '<span>⚔️ A fight waits</span>' : '') . '<span>✨ A find</span><span>🚪 The way on</span></p></div>';
+        . '<p class="tmlegend" aria-hidden="true">' . (!empty($map['art']['boss']) || (!empty($map['art']['extra_minibosses']) && !$easyMini) ? '<span>⚔️ A fight waits</span>' : '') . '<span>✨ A find</span><span>🚪 The way on</span></p></div>';
     return $out;
 }
 

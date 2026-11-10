@@ -382,7 +382,7 @@ function hollow_rail_section(?string $region = null): string
 }
 
 const HOLLOW_ALMANAC = [
-    'Seasons & weather' => [35, "🌦️ The Hollow keeps a calendar. [b]Spring, summer, autumn and winter[/b] each last a set number of real days, then the next one begins, round and round. Every gnome sees the same season and the same weather.\n\nEach day has its own weather (sunny, cloudy, rain, storm, frost, heat, wind, fog or snow) and it stays the same all day, wherever you refresh. Different regions lean different ways: rain in the Rainy lands, heat in the dry ones. The day itself runs through [b]dawn, day, dusk and night[/b], just like the folk of the Hollow.\n\nThe header strip shows the season, the weather and the time of day. Open the [b]Seasons & weather[/b] page from it to see the forecast for the next two days. Look out for the changes: seasons and weather will matter more and more as the Hollow wakes up."],
+    'Seasons & weather' => [35, "🌦️ The Hollow keeps a calendar. [b]Spring, summer, autumn and winter[/b] each last a set number of game days (14 to start with), then the next one begins, round and round. Seasons and weather follow your own game days, so they move on when you sleep.\n\nEach day has its own weather (sunny, cloudy, rain, storm, frost, heat, wind, fog or snow) and it stays the same all day, wherever you refresh. Different regions lean different ways: rain in the Rainy lands, heat in the dry ones. The day itself runs through [b]dawn, day, dusk and night[/b], just like the folk of the Hollow.\n\nThe header strip shows the season, the weather and the time of day. Open the [b]Seasons & weather[/b] page from it to see the forecast for the next two days."],
 ];
 
 /**

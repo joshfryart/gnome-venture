@@ -192,7 +192,7 @@ const ALMANAC_HOWTO = [
     'Energy & food' => ['Getting started', 25,
         "⚡ [b]Energy[/b] is spent when you till, plant, water, harvest, walk and gather. It comes back when you sleep (a nap gives some back; see [b]Sleeping and the game day[/b] and [b]Resting away from home[/b]), and eating brings it back at once.\n\n"
         . "[b]Raw food[/b]: a raw crop or forage find gives 1 energy (2 for filling roots, beans and grains). Herbs, spices and flowers give none. Eating one also leaves a ♻️ Food Scrap.\n"
-        . "[b]Snacks[/b] (teas, jams, toasts, salads) cook in minutes and cost no energy. [b]Meals[/b] cost 1 energy to cook. [b]Feasts[/b] need a Kitchen III and cost 2. Home-cooked dishes give far more energy than raw food, and their buffs last for hours.\n"
+        . "[b]Snacks[/b] (teas, toasts, salads) cook in minutes and cost no energy. [b]Jam[/b] is a snack that costs 1 energy. [b]Meals[/b] cost 1 energy to cook. [b]Feasts[/b] need a Kitchen III and cost 2. Home-cooked dishes give far more energy than raw food, and their buffs last for hours.\n"
         . "[b]Shop-bought[/b] dishes give only a little energy.\n\n"
         . "Out of energy? Eat a crop from your satchel, play a game, or cook once you have a Kitchen."],
     'Food scraps & compost' => ['Getting started', 26,

@@ -30,9 +30,11 @@ const ALMANAC_2644_FIXES = [
     'Pests & companions' => [["\n- A hired helper who weeds will pick pests off as well.", ""]],
     'Pantry' => [["[b]Real days:[/b] the timers run in real time, jam 1 day, chutney 2, pickles 3, kimchi 5, sauerkraut 7 and cordials 14, even while you are away.", "[b]Sleeps:[/b] the timers count your sleeps (game days): jam 1, chutney 2, pickles 3, kimchi 5, sauerkraut 7 and cordials 14."]],
     'Pots' => [["snacks about 3 minutes, meals 15, feasts 45", "snacks about 3 game minutes, meals 15, feasts 45"]],
-    'Energy & food' => [["It comes back when you sleep (a nap gives some back)", "It comes back when you sleep (a nap gives some back; see [b]Sleeping and the game day[/b] and [b]Resting away from home[/b])"]],
+    'Energy & food' => [["[b]Snacks[/b] (teas, jams, toasts, salads) cook in minutes and cost no energy.", "[b]Snacks[/b] (teas, toasts, salads) cook in minutes and cost no energy. [b]Jam[/b] is a snack that costs 1 energy."], ["It comes back when you sleep (a nap gives some back)", "It comes back when you sleep (a nap gives some back; see [b]Sleeping and the game day[/b] and [b]Resting away from home[/b])"]],
     'Dried flowers' => [["each takes a real day, even while you are away", "each takes one sleep"]],
     'Town squares' => [["The Hollow keeps its own clock, shown at the top of the town page.", "Your gnome’s game clock is shown at the top of the town page, and places close by it."]],
+    'Seasons & weather' => [["each last a set number of real days, then the next one begins, round and round. Every gnome sees the same season and the same weather.", "each last a set number of game days (14 to start with), then the next one begins, round and round. Seasons and weather follow your own game days, so they move on when you sleep."], [" Look out for the changes: seasons and weather will matter more and more as the Hollow wakes up.", ""]],
+    'Seasons in the garden' => [["Each season in the Hollow lasts a few real days (see the Seasons & weather page)", "Each season lasts a set number of game days, so it moves on when you sleep (see the Seasons & weather page)"]],
     'The florists' => [["it costs 3 energy and a real half hour", "it costs 3 energy and half an hour of game time"]],
     'The Job Board' => [["A new one after each daily reset.", "A new one after each sleep."]],
 ];
@@ -50,7 +52,7 @@ const ALMANAC_2644_GLOBAL = [
 function ensure_almanac_pages_2644(): void
 {
     if (setting('almanac2644') !== '1') ensure_almanac_new_pages_2644();
-    if (setting('almanac2644fix') !== '1') {
+    if (setting('almanac2644fix') !== '2') {
         foreach (ALMANAC_2644_FIXES as $title => $pairs) {
             $row = q_one("SELECT id, body FROM encyclopedia_entries WHERE chapter = 'General' AND title = ?", [$title]);
             if (!$row) continue;
@@ -60,7 +62,7 @@ function ensure_almanac_pages_2644(): void
             q('UPDATE encyclopedia_entries SET body = ? WHERE id = ?', [$body, $row['id']]);
             q('UPDATE user_encyclopedia SET read_at = NULL WHERE entry_id = ?', [$row['id']]);   // shows as new again
         }
-        set_setting('almanac2644fix', '1');
+        set_setting('almanac2644fix', '2');
     }
     if (setting('almanac2644fix2') !== '1') {
         foreach (q('SELECT id, body FROM encyclopedia_entries')->fetchAll() as $row) {
