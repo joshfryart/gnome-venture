@@ -109,7 +109,7 @@ if (is_post()) {
         flash('Hired helpers have gone home. Your pals do the garden work now: see the Crew tab.', 'err');   // v2.6.40
     } elseif ($do === 'crew_seeds' || $do === 'crew_skip') {
         require_once __DIR__ . '/includes/pal_crew.php';
-        [$ok, $msg] = $do === 'crew_seeds' ? pcrew_set_seeds($u, active_plot_id($uid), (array)($_POST['seeds'] ?? [])) : pcrew_set_skip($u, active_plot_id($uid), (array)($_POST['skip'] ?? []));
+        [$ok, $msg] = $do === 'crew_seeds' ? pcrew_set_seeds($u, active_plot_id($uid), (array)($_POST['seeds'] ?? [])) : pcrew_set_skip($u, (int)($_POST['plot'] ?? 0) ?: active_plot_id($uid), (array)($_POST['skip'] ?? []), (array)($_POST['work'] ?? []));
         flash($msg, $ok ? 'ok' : 'err');
     } elseif ($do === 'crew_assign' || $do === 'crew_recall') {
         require_once __DIR__ . '/includes/pal_crew.php';
@@ -931,14 +931,33 @@ $maxLv = fn(string $k): int => 1 + count(BUILDING_UPGRADES[$k] ?? []);
           <form method="post" class="inline" data-confirm="Call <?= e($sp['name'] ?? 'the pal') ?> home? They rest until you sleep."><?= csrf_field() ?><input type="hidden" name="do" value="crew_recall"><input type="hidden" name="role" value="<?= e($rk) ?>"><input type="hidden" name="t" value="help">
             <button class="btn small alt">Call home</button></form>
           <?php if ($rk === 'plant'):
-              $ticked = array_values(array_filter(array_map('intval', explode(',', (string)($s['seeds'] ?? ''))))); $skipIds = array_map('intval', q('SELECT tile_id FROM garden_pal_memory WHERE skip = 1 AND tile_id IN (SELECT id FROM plot_tiles WHERE plot_id = ?)', [$plot['id']])->fetchAll(PDO::FETCH_COLUMN)); ?>
+              $ticked = array_values(array_filter(array_map('intval', explode(',', (string)($s['seeds'] ?? ''))))); ?>
             <details class="crewpick"><summary class="btn small alt">Seeds and beds</summary>
               <p class="help">A bed gets the seed it last had. If it has none, the pal uses a ticked seed.</p>
               <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="crew_seeds"><input type="hidden" name="t" value="help"><?= $seedGrid($ticked) ?><button class="btn small">Save seeds</button></form>
-              <p class="help">Beds to leave alone (hands off):</p>
-              <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="crew_skip"><input type="hidden" name="t" value="help"><div class="crewbeds">
-                <?php foreach ($tiles as $trow) foreach ($trow as $tt): ?><label class="crewbed"><input type="checkbox" name="skip[]" value="<?= (int)$tt['id'] ?>"<?= in_array((int)$tt['id'], $skipIds, true) ? ' checked' : '' ?>><span><?= (int)$tt['x'] + 1 ?>,<?= (int)$tt['y'] + 1 ?></span></label><?php endforeach; ?>
-              </div><button class="btn small">Save hands-off beds</button></form>
+              <p class="help">Pick beds for the Plant pal: ✓ work this bed, ✗ leave it alone. If any bed has a ✓, the pal plants only the ✓ beds. Beds with neither are planted as usual (unless some beds have a ✓).</p>
+              <?php $myPlots = q('SELECT id, garden_name FROM plots WHERE user_id = ? ORDER BY id', [$uid])->fetchAll(); $tabKey = 'cb' . (int)$s['id']; ?>
+              <div class="crewtabs">
+              <?php foreach ($myPlots as $mi => $mp): $mpid = (int)$mp['id']; ?>
+                <input type="radio" class="crewtabr" name="<?= $tabKey ?>" id="<?= $tabKey ?>-<?= $mpid ?>"<?= $mpid === (int)$plot['id'] ? ' checked' : '' ?>>
+              <?php endforeach; ?>
+                <div class="crewtabbar" role="tablist">
+                <?php foreach ($myPlots as $mp): ?><label for="<?= $tabKey ?>-<?= (int)$mp['id'] ?>" role="tab"><?= e((string)($mp['garden_name'] ?: 'Garden ' . $mp['id'])) ?></label><?php endforeach; ?>
+                </div>
+              <?php foreach ($myPlots as $mp): $mpid = (int)$mp['id'];
+                  $mt = q('SELECT id, x, y FROM plot_tiles WHERE plot_id = ? ORDER BY y, x', [$mpid])->fetchAll();
+                  $mm = []; foreach (q('SELECT m.tile_id, m.skip FROM garden_pal_memory m JOIN plot_tiles t ON t.id = m.tile_id WHERE t.plot_id = ? AND m.skip > 0', [$mpid])->fetchAll() as $r) $mm[(int)$r['tile_id']] = (int)$r['skip'];
+                  $cols = 0; foreach ($mt as $tt) $cols = max($cols, (int)$tt['x'] + 1); ?>
+                <form method="post" class="crewtabp crewtabp-<?= $mpid ?>" data-tabfor="<?= $tabKey ?>-<?= $mpid ?>"><?= csrf_field() ?><input type="hidden" name="do" value="crew_skip"><input type="hidden" name="t" value="help"><input type="hidden" name="plot" value="<?= $mpid ?>">
+                  <div class="crewbeds3" data-bedcols="<?= $cols ?>"><?php foreach ($mt as $tt): $tid = (int)$tt['id']; $st = $mm[$tid] ?? 0; ?>
+                    <span class="bed3" data-x="<?= (int)$tt['x'] + 1 ?>" data-y="<?= (int)$tt['y'] + 1 ?>"><small><?= (int)$tt['x'] + 1 ?>,<?= (int)$tt['y'] + 1 ?></small>
+                      <label class="bok" title="Work this bed"><input type="checkbox" name="work[]" value="<?= $tid ?>"<?= $st === 2 ? ' checked' : '' ?> data-bed3="work"><span>✓<span class="vh"> work bed <?= (int)$tt['x'] + 1 ?>,<?= (int)$tt['y'] + 1 ?></span></span></label>
+                      <label class="bno" title="Leave this bed alone"><input type="checkbox" name="skip[]" value="<?= $tid ?>"<?= $st === 1 ? ' checked' : '' ?> data-bed3="skip"><span>✗<span class="vh"> avoid bed <?= (int)$tt['x'] + 1 ?>,<?= (int)$tt['y'] + 1 ?></span></span></label></span>
+                  <?php endforeach; ?></div>
+                  <button class="btn small">Save beds</button>
+                </form>
+              <?php endforeach; ?>
+              </div>
             </details>
           <?php endif; ?>
         <?php elseif (!$ropen): ?>

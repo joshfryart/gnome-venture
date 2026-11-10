@@ -393,6 +393,14 @@ function pj_garden_step(int $g): int
     return max(1, (int)setting('helper_visit_hours') - intdiv($g, 4));
 }
 
+/** Pal jobs page, garden post while sleep-days is on: puts the pal on a crew slot (role + 1/3/7 sleeps or full time from the form). */
+function pj_crew_send_post(array $u, string $palUid, int $plotId, bool $unequip): array
+{
+    require_once __DIR__ . '/pal_crew.php';
+    $m = (string)($_POST['days'] ?? '');
+    return pcrew_assign($u, $plotId, (string)($_POST['role'] ?? ''), $palUid, $m === 'full' ? 'full' : 'timed', (int)$m, $unequip);
+}
+
 function pj_garden_send(array $u, string $palUid, int $plotId, int $days, bool $unequip = false): array
 {
     $uid = (int)$u['id'];

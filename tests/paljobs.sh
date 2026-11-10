@@ -89,6 +89,7 @@ PALS=$(db "SELECT pal_uid FROM ppal_found WHERE user_id=$SID AND status='home' O
 P1=$(echo "$PALS" | sed -n 1p); P2=$(echo "$PALS" | sed -n 2p); P3=$(echo "$PALS" | sed -n 3p)
 get paljobs.php >/dev/null
 chk "two pals to one garden: both refused (garden stays are retired, crew replaces them)" "$(post paljobs.php -d do=send_garden -d "pals[]=$P1" -d "pals[]=$P2" -d plot=$PLOT -d days=1 >/dev/null; db "SELECT COUNT(*) FROM ppal_jobs WHERE kind='garden' AND state='active'")" 0
+chk "pal jobs page: garden post puts a pal on a crew slot, full time" "$(get paljobs.php >/dev/null; post paljobs.php -d do=send_garden -d "pal=$P1" -d plot=$PLOT -d role=water -d days=full >/dev/null; db "SELECT mode FROM garden_pal_slots WHERE role='water' AND plot_id=$PLOT")" full
 dbx "DELETE FROM ppal_jobs"; dbx "UPDATE ppal_found SET status='home'"
 for PX in $P1 $P2; do
 dbx "UPDATE ppal_found SET status='trip' WHERE pal_uid='$PX'"

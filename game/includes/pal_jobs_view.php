@@ -88,7 +88,7 @@ $anyReady = (bool)array_filter($jobs, fn($j) => $j['state'] === 'ready');
 
 // the board: [icon, title, length, what it does, what it pays, skill key, skill label, the small print]
 $posts = [
-    'garden' => ['🪴', 'Tend a garden', '1, 3 or 7 days', 'Waters, weeds and harvests while you are away. Works after your hired help, on whatever is still undone.', 'Pays Gardening XP', 'g', '🪴 Gardening', 'Higher Gardening: more visits and extra crops.'],
+    'garden' => ['🪴', 'Tend a garden', gclock_on() ? '1, 3 or 7 sleeps, or full time' : '1, 3 or 7 days', gclock_on() ? 'Pick a job (water, weed, pests, harvest, plant). The pal works while you sleep.' : 'Waters, weeds and harvests while you are away. Works after your hired help, on whatever is still undone.', 'Pays Gardening XP', 'g', '🪴 Gardening', 'Higher Gardening: more visits and extra crops.'],
     'trip' => ['🧺', 'Gathering trip', '1, 3 or 8 hours', 'Pick a land and a tool. The pal brings back what it finds.', 'Pays finds and Adventuring XP', 'a', '🧭 Adventuring', 'Higher Adventuring: more finds, more rares. Unused potions come back.'],
     'station' => ['🍳', 'Man a station', '1, 3 or 8 hours', 'A pal works one object of a crafting area (Stove, Workbench...): it makes everything that object makes, or recipes you pick (up to 5). No energy, but slower than you: one make per 60 minutes, faster as its Crafting skill grows. Cooking is passive: the pal holds one of your pots (you cannot use it meanwhile) and checks it every 10 minutes, cooking one batch at a time from your satchel. Pick the dish on the pot in your Kitchen.', 'Ingredients taken now (other stations); XP split: half to you, half to the pal', 'c', '🍳 Crafting', 'Other stations: one pal each. Cooking: one pal per free pot. Only recipes you know.'],
     'delve' => ['🕳️', 'Re-run a cleared delve', 'Once a day per delve', 'Five rooms against the delve’s level. The chest pays about 60% of a real clear.', 'No first-clear bonus', 'a', '🧭 Adventuring', 'Risky below Adventuring ' . PJ_DELVE_SAFE . ': pack potions. Unused potions come back.'],
@@ -296,7 +296,12 @@ function pjv_post(array $c, string $kind): string
           <div class="pjopts">
             <?php if ($kind === 'garden'): ?>
             <div class="pjfield"><label for="pjplot">Garden</label><select id="pjplot" name="plot"><?php foreach ($plotName as $id => $nm): ?><option value="<?= $id ?>"><?= e($nm) ?></option><?php endforeach; ?></select></div>
+            <?php if (gclock_on()): require_once __DIR__ . '/pal_crew.php'; ?>
+            <div class="pjfield"><label for="pjrole">Job</label><select id="pjrole" name="role"><?php foreach (PCREW_ROLES as $rk => $rv): if (!$rv[3]) continue; ?><option value="<?= e($rk) ?>"><?= $rv[0] ?> <?= e($rv[1]) ?></option><?php endforeach; ?></select></div>
+            <fieldset class="pjfield pjseg"><legend>For</legend><div class="pjsegs"><?php foreach (PCREW_NIGHTS as $n): ?><label><input type="radio" name="days" value="<?= $n ?>"<?= $n === 3 ? ' checked' : '' ?>><span><?= $n ?> sleep<?= $n > 1 ? 's' : '' ?></span></label><?php endforeach; ?><label><input type="radio" name="days" value="full"><span>Full time</span></label></div></fieldset>
+            <?php else: ?>
             <?= $seg('days', 'For', PJ_GARDEN_DAYS, 3, fn($d) => $d . ' day' . ($d > 1 ? 's' : '')) ?>
+            <?php endif; ?>
             <?php elseif ($kind === 'trip'): ?>
             <div class="pjfield"><label for="pjland">Where (default)</label><select id="pjland" name="land" data-pj-gland><?= $landOpts() ?></select></div>
             <div class="pjfield"><label for="pjtool">Tool</label><select id="pjtool" name="tool" data-pj-gtool><?= $toolOpts($firstLand) ?></select></div>

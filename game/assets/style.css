@@ -7540,7 +7540,10 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 .hov-opt small { font-size: .78rem; }
 .hov-opt.off { opacity: .6; }
 .hov-camp { margin: 4px 0 8px; }
-.hov-tl { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; text-align: left; }
+.hov-tl { list-style: none; margin: 8px 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; text-align: left; }
+.hov-t { min-width: 0; }
+.hov-pals .hov-tb small { white-space: normal; overflow: visible; }
+.hov-pals .hov-tr { align-self: center; }
 .hov-t a { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 10px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; }
 .hov-t a:hover, .hov-t a:focus-visible { border-color: var(--focus); }
 .hov-t.done a { opacity: .7; }
@@ -7634,3 +7637,30 @@ dialog.hubpop .wsfrag .shhead + * , dialog.hubpop .wsfrag .box { margin-top: 6px
 .satchelpick__row { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0; }
 .satchelpick__btn { display: inline-flex; align-items: center; gap: .3rem; }
 .satchelpick__btn.on { outline: 2px solid currentColor; outline-offset: 1px; }
+
+/* garden crew: bed picker with a tab per garden; check = work, x = avoid */
+.crewtabr { position: absolute; opacity: 0; pointer-events: none; }
+.crewtabbar { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+.crewtabbar label { cursor: pointer; padding: 4px 10px; border: 1px solid var(--line-2, var(--line)); background: var(--surface); min-height: var(--tap, 40px); display: flex; align-items: center; font-weight: 600; }
+.crewtabp { display: none; }
+.crewbeds3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(2.3rem, 1fr)); gap: 3px; margin: 6px 0; }
+.bed3 { display: flex; flex-direction: column; align-items: stretch; border: 1px solid var(--line); background: var(--surface); min-width: 0; }
+.bed3 small { text-align: center; font-size: .6rem; opacity: .75; line-height: 1.3; }
+.bed3 label { display: block; cursor: pointer; }
+.bed3 input { position: absolute; opacity: 0; pointer-events: none; }
+.bed3 label span { display: block; text-align: center; min-height: 22px; line-height: 22px; font-weight: 800; opacity: .4; }
+.bed3 .bok input:checked + span { opacity: 1; background: #2e8b3a; color: #fff; }
+.bed3 .bno input:checked + span { opacity: 1; background: #b3402d; color: #fff; }
+.bed3 input:focus-visible + span { outline: 2px solid var(--focus, currentColor); }
+.crewtabs:has(input.crewtabr:nth-of-type(1):checked) > .crewtabp:nth-of-type(1),
+.crewtabs:has(input.crewtabr:nth-of-type(2):checked) > .crewtabp:nth-of-type(2),
+.crewtabs:has(input.crewtabr:nth-of-type(3):checked) > .crewtabp:nth-of-type(3),
+.crewtabs:has(input.crewtabr:nth-of-type(4):checked) > .crewtabp:nth-of-type(4),
+.crewtabs:has(input.crewtabr:nth-of-type(5):checked) > .crewtabp:nth-of-type(5),
+.crewtabs:has(input.crewtabr:nth-of-type(6):checked) > .crewtabp:nth-of-type(6) { display: block; }
+.crewtabs:has(input.crewtabr:nth-of-type(1):checked) .crewtabbar label:nth-child(1) { background: var(--brand-ink); color: var(--surface); }
+.crewtabs:has(input.crewtabr:nth-of-type(2):checked) .crewtabbar label:nth-child(2) { background: var(--brand-ink); color: var(--surface); }
+.crewtabs:has(input.crewtabr:nth-of-type(3):checked) .crewtabbar label:nth-child(3) { background: var(--brand-ink); color: var(--surface); }
+.crewtabs:has(input.crewtabr:nth-of-type(4):checked) .crewtabbar label:nth-child(4) { background: var(--brand-ink); color: var(--surface); }
+.crewtabs:has(input.crewtabr:nth-of-type(5):checked) .crewtabbar label:nth-child(5) { background: var(--brand-ink); color: var(--surface); }
+.crewtabs:has(input.crewtabr:nth-of-type(6):checked) .crewtabbar label:nth-child(6) { background: var(--brand-ink); color: var(--surface); }

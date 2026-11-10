@@ -2267,3 +2267,12 @@ function gvShelves() {
   });
 }
 gvShelves();
+
+/* garden crew bed picker: a bed is either "work" or "avoid", never both */
+document.addEventListener('change', function (e) {
+  var t = e.target;
+  if (!t || !t.matches || !t.matches('input[data-bed3]') || !t.checked) return;
+  var other = t.getAttribute('data-bed3') === 'work' ? 'skip' : 'work';
+  var o = t.closest('.bed3') && t.closest('.bed3').querySelector('input[data-bed3="' + other + '"]');
+  if (o) o.checked = false;
+});

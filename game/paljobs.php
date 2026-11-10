@@ -37,7 +37,7 @@ if (is_post()) {
         $pick = fn(string $pu, string $k, $dflt) => (is_array($ov[$pu] ?? null) && is_string($ov[$pu][$k] ?? null) && $ov[$pu][$k] !== '') ? $ov[$pu][$k] : $dflt;
         foreach ($picked as $pu) {
             $one = match ($do) {
-                'send_garden' => gclock_on() ? [false, 'Garden pals work from the Crew tab in your garden now (Garden > Crew).'] : pj_garden_send($u, $pu, (int)$pick($pu, 'plot', $_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
+                'send_garden' => gclock_on() ? pj_crew_send_post($u, $pu, (int)$pick($pu, 'plot', $_POST['plot'] ?? 0), $unq) : pj_garden_send($u, $pu, (int)$pick($pu, 'plot', $_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
                 'send_trip' => pj_trip_send($u, $pu, (string)$pick($pu, 'land', $_POST['land'] ?? ''), (string)$pick($pu, 'tool', $_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck']), $potMore),
                 'send_station' => (function () use ($u, $pu, $unq, $pick): array { [$ar, $ob] = array_pad(explode(':', (string)$pick($pu, 'station', $_POST['station'] ?? ''), 2), 2, ''); return pj_station_send($u, $pu, $ar, $ob, (string)($_POST['mode'] ?? 'all'), (array)($_POST['recipes'] ?? []), (int)($_POST['hours'] ?? 0), $unq); })(),
                 default => pj_delve_send($u, $pu, (int)$pick($pu, 'delve', $_POST['delve'] ?? 0), $pots, $unq, $potMore),
@@ -87,7 +87,7 @@ if (is_post()) {
         redirect($backTo);
     }
     $res = match ($do) {
-        'send_garden' => pj_garden_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (int)($_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
+        'send_garden' => gclock_on() ? pj_crew_send_post($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (int)($_POST['plot'] ?? 0), $unq) : pj_garden_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (int)($_POST['plot'] ?? 0), (int)($_POST['days'] ?? 0), $unq),
         'send_trip' => pj_trip_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (string)($_POST['land'] ?? ''), (string)($_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck']), $potMore),
         'send_delve' => pj_delve_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (int)($_POST['delve'] ?? 0), $pots, $unq, $potMore),
         'recall' => pj_recall($u, (int)($_POST['job'] ?? 0)),

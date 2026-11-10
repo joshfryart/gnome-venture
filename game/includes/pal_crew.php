@@ -205,6 +205,7 @@ function pcrew_work_plot(array $owner, array $plot, array $roles, int $D): array
     $plantDate = hollow_date_add(hollow_season_epoch(), $D - 1);
     $mem = [];
     foreach (q('SELECT m.* FROM garden_pal_memory m JOIN plot_tiles t ON t.id = m.tile_id WHERE t.plot_id = ?', [$plot['id']])->fetchAll() as $m) $mem[(int)$m['tile_id']] = $m;
+    $workOnly = (bool)array_filter($mem, fn($m) => (int)($m['skip'] ?? 0) === 2);   // any bed ticked to work: the Plant pal plants only those
     foreach (q('SELECT * FROM plot_tiles WHERE plot_id = ? ORDER BY y, x', [$plot['id']])->fetchAll() as $raw) {
         $p = null;
         if ($raw['plant_id']) { $pid = (int)$raw['plant_id']; $p = $plants[$pid] ??= q_one('SELECT * FROM plants WHERE id = ?', [$pid]); }
@@ -242,7 +243,7 @@ function pcrew_work_plot(array $owner, array $plot, array $roles, int $D): array
         // plant: an empty, prepared bed gets the same seed back, or one of the ticked seeds
         $hadCrop = (int)($mem[(int)$fresh['id']]['plant_id'] ?? 0) > 0;
         $needTill = (int)$fresh['tilled'] !== 1;   // a harvested bed goes back to bare ground: the pal tills it again, but only a bed that grew something before
-        if (!$fresh['plant_id'] && $works('plant', (int)$fresh['id']) && ((int)$fresh['tilled'] === 1 || ($needTill && $hadCrop && ($fresh['method'] ?? '') !== 'notill')) && empty($mem[(int)$fresh['id']]['skip'])
+        if (!$fresh['plant_id'] && $works('plant', (int)$fresh['id']) && ((int)$fresh['tilled'] === 1 || ($needTill && $hadCrop && ($fresh['method'] ?? '') !== 'notill')) && (int)($mem[(int)$fresh['id']]['skip'] ?? 0) !== 1 && (!$workOnly || (int)($mem[(int)$fresh['id']]['skip'] ?? 0) === 2)
             && ts((string)$fresh['settle_until']) <= gclock_plot_now((int)$plot['id'])) {
             [$sid, $np, $why] = pcrew_pick_seed($owner, $fresh, $mem[(int)$fresh['id']] ?? null, $chosen, $stock, $plantDate);
             if ($np && $needTill) {   // the same effects as the Till action (no tool, no energy)
@@ -341,21 +342,25 @@ function pcrew_set_seeds(array $u, int $plotId, array $ids): array
     return [true, $clean ? 'The Plant pal will use ' . count($clean) . ' kind' . (count($clean) > 1 ? 's' : '') . ' of seed when a bed has no memory of its own.' : 'The Plant pal will only put back the same seed.'];
 }
 
-/** Beds the Plant pal must leave alone. $tileIds = every bed to leave empty / untouched in this garden. */
-function pcrew_set_skip(array $u, int $plotId, array $tileIds): array
+/** Beds for the Plant pal in one garden: $avoidIds = leave alone (skip 1), $workIds = work only these when any is set (skip 2). Avoid wins a clash. */
+function pcrew_set_skip(array $u, int $plotId, array $avoidIds, array $workIds = []): array
 {
     $uid = (int)$u['id'];
     pcrew_boot();
     if (!q_val('SELECT 1 FROM plots WHERE id = ? AND user_id = ?', [$plotId, $uid])) return [false, 'That is not your garden.'];
     $mine = array_map('intval', q('SELECT id FROM plot_tiles WHERE plot_id = ?', [$plotId])->fetchAll(PDO::FETCH_COLUMN));
-    $want = array_values(array_intersect($mine, array_map('intval', $tileIds)));
+    $avoid = array_values(array_intersect($mine, array_map('intval', $avoidIds)));
+    $work = array_values(array_diff(array_intersect($mine, array_map('intval', $workIds)), $avoid));
     foreach ($mine as $tid) {
-        $skip = in_array($tid, $want, true) ? 1 : 0;
+        $skip = in_array($tid, $avoid, true) ? 1 : (in_array($tid, $work, true) ? 2 : 0);
         if (q('UPDATE garden_pal_memory SET skip = ? WHERE tile_id = ?', [$skip, $tid])->rowCount() < 1 && $skip) {
-            try { db_insert('garden_pal_memory', ['tile_id' => $tid, 'plant_id' => 0, 'skip' => 1]); } catch (Throwable $e) {}
+            try { db_insert('garden_pal_memory', ['tile_id' => $tid, 'plant_id' => 0, 'skip' => $skip]); } catch (Throwable $e) {}
         }
     }
-    return [true, count($want) ? count($want) . ' bed' . (count($want) > 1 ? 's' : '') . ' marked hands off for the Plant pal.' : 'No beds are hands off now.'];
+    $m = [];
+    if ($work) $m[] = count($work) . ' bed' . (count($work) > 1 ? 's' : '') . ' to work (only these are planted)';
+    if ($avoid) $m[] = count($avoid) . ' bed' . (count($avoid) > 1 ? 's' : '') . ' left alone';
+    return [true, $m ? 'Plant pal: ' . implode(', ', $m) . '.' : 'The Plant pal works every bed again.'];
 }
 
 /** Pick the seed for one empty bed: [item id, plant row, why-not text]. */

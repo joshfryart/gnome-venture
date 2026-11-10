@@ -179,6 +179,9 @@ $u = urow($uid);
 ok('seeds can be changed while the pal works', $sk === true);
 [$sk2] = pcrew_set_skip($u, $plot, []);
 ok('hands-off beds can be cleared', $sk2 === true && !(int)q_val('SELECT skip FROM garden_pal_memory WHERE tile_id = ?', [$tC]));
+[$sk3] = pcrew_set_skip($u, $plot, [$tC, $tA], [$tA, $tB]);
+ok('bed picker: avoid = 1, work = 2, avoid wins a clash', $sk3 === true && (int)q_val('SELECT skip FROM garden_pal_memory WHERE tile_id = ?', [$tC]) === 1 && (int)q_val('SELECT skip FROM garden_pal_memory WHERE tile_id = ?', [$tA]) === 1 && (int)q_val('SELECT skip FROM garden_pal_memory WHERE tile_id = ?', [$tB]) === 2);
+pcrew_set_skip($u, $plot, []);
 
 echo "== tiredness (7 fresh nights, 60% on night 14, then 50%) and the Today data\n";
 ok('nights 1-7 at full speed', pcrew_eff(1) === 1.0 && pcrew_eff(7) === 1.0);
