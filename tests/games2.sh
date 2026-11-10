@@ -15,6 +15,7 @@ echo "$PAIRS" | head -7 | while read a b; do gp memory.php -d do=flip -d card=$a
 echo "-- flip a matched card:"; A1=$(echo "$PAIRS" | head -1 | cut -d' ' -f1); gp memory.php -d do=flip -d card=$A1
 L=$(echo "$PAIRS" | tail -1); gp memory.php -d do=flip -d card=${L% *} >/dev/null; gp memory.php -d do=flip -d card=${L#* }
 echo "coins $C0 -> $(db "SELECT coins FROM users WHERE id=$UID_")"
+C0B=$(db "SELECT coins FROM users WHERE id=$UID_"); [ "$C0B" -gt "$C0" ] && echo "ok   memory payout: a perfect easy game pays coins ($C0 -> $C0B)" || echo "FAIL memory payout: perfect easy game paid nothing ($C0 -> $C0B)"
 echo "== memory: hard with a miss"; gp memory.php -d do=start -d mode=hard >/dev/null
 P2=$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $s=json_decode($p->query("SELECT state FROM game_state WHERE game=\"memory\"")->fetchColumn(),true); $c=$s["cards"]; for($j=1;$j<36;$j++) if($c[$j]!==$c[0]) { echo "0 $j"; break; }')
 gp memory.php -d do=flip -d card=${P2% *} >/dev/null; gp memory.php -d do=flip -d card=${P2#* } >/dev/null; echo "after miss, shown cards up: $(grep -c 'card up' /tmp/g.html) miss-class: $(grep -c ' miss' /tmp/g.html)"
@@ -22,7 +23,8 @@ gp memory.php -d do=quit; gp memory.php -d do=start -d mode=easy >/dev/null; gp 
 echo "== race"; gp race.php -d snail=9 -d amount=10; gp race.php -d snail=0 -d amount=999; C1=$(db "SELECT coins FROM users WHERE id=$UID_")
 gp race.php -d snail=4 -d amount=20; gp race.php -d snail=1 -d amount=20; echo "coins $C1 -> $(db "SELECT coins FROM users WHERE id=$UID_")"
 echo "-- pretend the race has run"; dbx "UPDATE snail_bets SET race='$(date -u +%Y%m%d%H)'"; RACE=$(db "SELECT race FROM snail_bets LIMIT 1")
-curl -s -b $C $BASE/race.php > /tmp/g.html; db "SELECT 'bet paid='||paid||' winnings='||winnings FROM snail_bets"; grep -oE '📬[^<]*' /tmp/g.html | head -2
+curl -s -b $C $BASE/race.php > /tmp/g.html; db "SELECT 'bet paid='||paid||' winnings='||winnings FROM snail_bets"; [ "$(db "SELECT COUNT(*) FROM snail_bets WHERE paid=1")" -ge 1 ] && echo "ok   race bets paid out once the race has run" || echo "FAIL race bets not paid after the race ran"
+grep -oE '📬[^<]*' /tmp/g.html | head -2
 grep -oE '<li class="snail-[a-z]+">[^<]*' /tmp/g.html | head -1
 curl -s -b $C $BASE/games.php > /tmp/g.html; echo "hub cards: $(grep -c '<a class="gtile' /tmp/g.html)"   # v0.8.2: the hub has tabs (games / contests; v2.0.67: the tool-game Practice tab is gone); one gtile per game on the games tab
 curl -s -b $C "$BASE/games.php?tab=contests" > /tmp/g.html; echo "contest cards: $(grep -c 'class="box ccard' /tmp/g.html)"

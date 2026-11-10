@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.50
+- **Pal Jobs page** (phone): Garden crew rows no longer overlap; each is a name and role line over a garden and mode line, with one "About the crew" link.
+- **Trail**: a gate you can already open shows a green 🔓 on its middle tile (legend "Open gate" only when one is drawn).
+- **Tests**: `animals140` passes with sleep-days on, `games2` has payout checks, `walk` waits for its server, `folkoverlay` no longer skips.
+
 ## 2.6.49
 - **Hovel > Pals** list fits on a phone (cards no longer run off the right edge; text wraps).
 - **Pal Jobs > Tend a garden** (sleep-days on): pick a job (Water, Weed, Pests, Harvest, Plant) and 1, 3, 7 sleeps or **Full time**; the pal goes onto the garden crew slot.

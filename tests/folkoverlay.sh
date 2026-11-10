@@ -13,6 +13,7 @@ db() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); foreach($p->query(
 dbx() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec($argv[1]);' "$1"; }
 C=/tmp/fo-ck; rm -f $C; curl -s -c $C -b $C $BASE/login.php > /tmp/fo.html; curl -s -c $C -b $C -X POST $BASE/login.php --data-urlencode "csrf=$(csrf /tmp/fo.html)" -d username=sprout -d 'password=TestPass123!' -o /dev/null
 SID=$(db "SELECT id FROM users WHERE username='sprout'" | tr -d ' ')
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('npc_away_pct','0')"   # pinned: villagers visit family on ~25% of game days (by date), which made chat/gift/row checks fail on those days
 VIL=$(db "SELECT l.id FROM locations l JOIN routes r ON (r.a_id=l.id OR r.b_id=l.id) WHERE l.kind='village' AND r.kind='road' ORDER BY l.id LIMIT 1" | tr -d ' ')
 dbx "UPDATE users SET location_id=$VIL, level=5, energy=40, tour_step=0 WHERE id=$SID"; dbx "UPDATE expeditions SET status='done' WHERE user_id=$SID"
 page() { curl -s -b $C -c $C "$BASE/$1" > /tmp/fo.html; }
@@ -58,11 +59,14 @@ chk "a villager of another stop is refused" "$(fetchj "stopfolk.php?folk=$OTHER"
 echo "== townsfolk rows (main stop)"
 HUBQ=$(db "SELECT l.id FROM locations l WHERE l.kind IN ('market','hub') ORDER BY l.id LIMIT 1" | tr -d ' ')
 dbx "UPDATE users SET location_id=$HUBQ WHERE id=$SID"
+# Deterministic: put one villager on a spot of this town round the clock (otherwise the 'Out and about' list depends on the hour and the day, and is often empty)
+SPOT=$(db "SELECT id FROM town_spots WHERE active=1 AND region=(SELECT gnomish_name FROM regions WHERE id=(SELECT region_id FROM locations WHERE id=$HUBQ)) ORDER BY id LIMIT 1" | tr -d ' ')
+NPC1=$(db "SELECT id FROM npcs WHERE active=1 AND traveller IS NULL ORDER BY id LIMIT 1" | tr -d ' ')
+if [ -n "$SPOT" ] && [ -n "$NPC1" ]; then dbx "DELETE FROM npc_schedules WHERE npc_id=$NPC1"; dbx "INSERT INTO npc_schedules (npc_id, location_id, activity, days, start_hour, end_hour, spot_id) VALUES ($NPC1, NULL, 'wandering', 'all', 0, 0, $SPOT)"; fi
 page 'town.php?view=villagers'
 chk "town villagers view has the overlay mount" "$(grep -q 'id="folkov"' /tmp/fo.html && echo 1)"
-if grep -q 'data-folk-npc' /tmp/fo.html; then
-  chk "Chat is a link to the villager page AND opens the overlay" "$(grep -q '<a class="fbtn" href="[^"]*villagers.php?id=[0-9]*" data-folk-npc=' /tmp/fo.html && echo 1)"
-else echo "  note: nobody is out and about in this town right now (rows not checked)"; fi
+# Not skipped any more: the 'At home' rows also carry data-folk-npc (no Chat button), so 'any data-folk-npc' was not the same as 'someone is out'. A villager is placed above, so the Chat row must exist.
+chk "Chat is a link to the villager page AND opens the overlay" "$(grep -q '<a class="fbtn" href="[^"]*villagers.php?id=[0-9]*" data-folk-npc=' /tmp/fo.html && echo 1)"
 NID=$(db "SELECT id FROM npcs WHERE active=1 LIMIT 1" | tr -d ' ')
 chk "villagers.php still answers the panel in JSON" "$(fetchj "villagers.php?id=$NID" | grep -qE '"ok":(true|false)' && echo 1)"
 
