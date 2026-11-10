@@ -32,6 +32,25 @@ return function(L)
     local PALE = (not claimed and isPale and lum(A) > lum(B) + 12) and A or L.lighter(B)       -- belly, chest, tail tip
     local big = g.u >= 1.4
     local hoof = kd == "ungulate" or k.hoof
+    local QK = {}                                                  -- the quirks of this creature as a set (q.quirk is a name or a list of names)
+    if type(q.quirk) == "table" then for _, n in ipairs(q.quirk) do QK[n] = true end elseif q.quirk then QK[q.quirk] = true end
+    local furry = kd ~= "ungulate" and not k.smooth
+    local SOCK = k.socks and (type(k.socks) == "string" and L.R[k.socks] or PALE) or nil
+    -- fur points along the top (and belly) edge of a mask, so the silhouette is not a smooth egg
+    local function furEdge(m, r, o)
+      o = o or {}
+      local x0, y0, x1, y1 = m:bbox(); if not x0 then return end
+      local step = o.step or 3
+      for x = x0 + 1, x1 - 1 do
+        if (x + floor(g:rnd(x, 9) * 2)) % step == 0 then
+          for y = y0, y1 do if m:has(x, y) then
+            if o.top ~= false and not m:has(x, y - 1) and not c:get(x, y - 1) then
+              c:put(x, y - 1, r.base) if big and g:rnd(x, 4) > 0.45 and not c:get(x, y - 2) then c:put(x, y - 2, r.hi) end
+            end break end end
+          if o.bottom then for y = y1, y0, -1 do if m:has(x, y) then if not m:has(x, y + 1) and not c:get(x, y + 1) and g:rnd(x, 5) > 0.35 then c:put(x, y + 1, r.shade) end break end end end
+        end
+      end
+    end
     g:shadow(k.bx + 2, k.brx + 7)
 
     ------------------------------------------------------------------ legs
