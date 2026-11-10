@@ -102,7 +102,12 @@ local function boar()
   dots(c, { { 58, 30 }, { 59, 29 }, { 60, 29 }, { 61, 30 }, { 62, 31 } }, W.deep)   -- a grumpy brow
   dots(c, { { 59, 35 }, { 60, 35 }, { 61, 35 } }, W.shade)                      -- a bag under the eye
   c:put(61, 39, PT.base) c:put(62, 39, PT.base)                                -- cheek
-  c:fillMask(c:poly{ { 30, 19 }, { 36, 17 }, { 34, 22 } }, M.base); c:put(31, 19, M.hi) c:put(34, 20, M.shade) c:put(33, 21, M.shade)   -- quirk: a leaf caught in the bristles
+  -- quirk: a leaf caught in the bristles: a real leaf shape, stalk down in the fur, midrib, lit upper edge
+  local leaf = c:poly{ { 30, 20 }, { 31, 15 }, { 35, 11 }, { 41, 10 }, { 40, 15 }, { 36, 19 } }
+  form(c, leaf, M, { frac = 0.3, off = 2 }) under(c, leaf, M.deep)
+  dots(c, { { 32, 19 }, { 33, 18 }, { 34, 17 }, { 35, 16 }, { 36, 15 }, { 37, 14 }, { 38, 13 }, { 39, 12 } }, M.deep)   -- midrib
+  dots(c, { { 33, 15 }, { 34, 14 }, { 35, 13 }, { 36, 12 } }, M.hi) dots(c, { { 36, 17 }, { 38, 15 } }, M.shade)
+  dots(c, { { 30, 21 }, { 29, 22 }, { 29, 23 } }, M.shade)                        -- stalk
   -- quirk: a sticking plaster on its rump (two crossed strips)
   for i = 0, 4 do inside(c, 20 + i, 33 + i, CREAM.hi, W.base, W.shade, W.hi) inside(c, 21 + i, 33 + i, CREAM.base, W.base, W.shade, W.hi) inside(c, 24 - i, 33 + i, CREAM.hi, W.base, W.shade, W.hi) inside(c, 25 - i, 33 + i, CREAM.base, W.base, W.shade, W.hi) end
   c:put(22, 35, CREAM.deep) c:put(23, 35, CREAM.deep)
@@ -187,8 +192,14 @@ local function hawk()
   c:put(62, 25, G.base) c:put(65, 26, G.base) c:put(62, 26, G.base)             -- a yellow iris
   dots(c, { { 60, 22 }, { 61, 22 }, { 62, 23 }, { 63, 23 }, { 64, 24 }, { 65, 24 }, { 66, 25 } }, W.deep)   -- the hawk's glare
   form(c, c:rect(52, 78, 54, 80), P.ember, { noshade = true }) c:put(52, 78, P.ember.hi) c:put(55, 79, P.ember.shade)   -- quirk: a red ring on one leg
-  -- quirk: it is moulting: one small feather drifts down behind it
-  local lf = c:ellipse(15, 36, 3, 1.5); c:fillMask(lf, W.base) c:put(12, 36, CREAM.base) c:put(13, 36, CREAM.base) c:put(13, 35, CREAM.base) c:put(16, 36, W.shade) c:put(17, 36, W.shade) c:put(19, 37, W.deep)
+  -- quirk: it is moulting: one feather drifts down behind it. A real feather: curved vane, pale quill, a split in the barbs, the tail's dark bar and pale tip
+  local vane = c:poly{ { 7, 31 }, { 11, 27 }, { 18, 27 }, { 23, 30 }, { 25, 34 }, { 20, 36 }, { 12, 35 } }
+  vane:cut(c:poly{ { 15, 37 }, { 17, 33 }, { 18, 37 } })
+  form(c, vane, DK, { frac = 0.25, off = 1 }) under(c, vane, W.deep)
+  vane:each(function(x, y) if x <= 9 then c:put(x, y, CREAM.base) elseif x <= 11 then c:put(x, y, W.deep) end end)
+  dots(c, { { 10, 31 }, { 11, 31 }, { 12, 31 }, { 13, 31 }, { 14, 31 }, { 15, 32 }, { 16, 32 }, { 17, 32 }, { 18, 32 }, { 19, 33 }, { 20, 33 }, { 21, 33 }, { 22, 34 }, { 23, 34 } }, CREAM.base)   -- quill
+  dots(c, { { 25, 35 }, { 26, 35 }, { 27, 36 }, { 28, 36 } }, CREAM.base)        -- bare end of the quill
+  dots(c, { { 13, 29 }, { 16, 29 }, { 19, 30 }, { 14, 33 }, { 20, 35 } }, W.base)   -- barbs
   c:finish()
   return c
 end
