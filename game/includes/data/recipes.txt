@@ -146,7 +146,7 @@ basil-pesto|Basil Pesto|basil:3,garlic:1,almond:1|lore:1|720|5|Green, garlicky a
 coriander-chutney|Coriander Chutney|coriander:3,chili-pepper:1,lime:1|sense:1|720|5|Bright green and fiery, with lime to cut it. Smears onto everything.|preserve|2880|3
 olive-tapenade|Olive Tapenade|olive:4,caper:1,garlic:1|sense:1|720|5|Salty, dark and savoury. A thin smear is plenty.|preserve|2880|3
 tomato-passata|Tomato Passata|tomato:6||0|5|Smooth sieved tomato, ready for any winter sauce.|preserve|2880|3
-pickled-onions|Pickled Onions|onion:4||0|4|Sharp white onions in tangy brine. A pub lunch is incomplete without.|preserve|4320|3
+pickled-onions|Pickled Onions|onion:4||0|4|Sharp white onions in tangy brine. A pub lunch is incomplete without them.|preserve|4320|3
 pickled-carrots|Pickled Carrots|carrot:4,dill:1|nimble:1|720|4|Orange batons, crisp and sweet-sour, with a sprig of dill.|preserve|4320|3
 pickled-turnips|Pickled Turnips|turnip:4,beet:1|hardiness:1|720|4|Bright pink from a slice of beet. Crunchy and a little surprising.|preserve|4320|3
 pickled-okra|Pickled Okra|okra:5,dill:1,garlic:1|grit:1|720|4|Small green pods in garlicky brine. Less slimy than you fear.|preserve|4320|3

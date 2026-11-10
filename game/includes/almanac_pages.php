@@ -107,8 +107,66 @@ const ALMANAC_2646_PAGES = [
         "[b]Entering:[/b] one garden per gnome each month, with a curb appeal of at least 10, and your gardens must be open to visitors (Account page). New gnomes wait a few days first.\n\n[b]Voting:[/b] 3 votes a month, one per garden, never your own, from gnome level 3.\n\n[b]Prizes:[/b] the top three win 1,500, 800 and 400 Petals and a ribbon. Every other entry with at least one vote gets 50 Petals. A tie goes to the higher curb appeal.\n\n[b]Time:[/b] the month is the real calendar month of the Hollow, the same for everyone: it does not move when you sleep. Results come when it ends. All these numbers are set by the game keeper and may change."],
 ];
 
+
+/**
+ * v2.6.46 data fixes, once per world (marker almanac2646fix). Only exact old text is replaced, so an admin-edited page is left alone.
+ * Items / entries to fix: a truncated sentence (Pickled Onions), the Coir Chips page (it was a copy of the Wood Chips page),
+ * soil improver times (they work in over game time: listed minutes x amend_game_multiplier 96 = game hours), Silverfin's cause
+ * (the blight, as her own trek page says) and bare "Boss lair." landmark pages (now name the keeper and its level).
+ */
+const ALMANAC_2646_TEXT = [
+    // [old text, new text]
+    ['A pub lunch is incomplete without.', 'A pub lunch is incomplete without them.'],
+    ['The weeping clay made her hungry for words, and she has eaten half the Library.', 'The blight made her hungry for words, and she has eaten half the Library.'],
+];
+/** Soil improvers: listed real minutes x 96 = game minutes (amend_game_multiplier default). Applied only to text about soil nutrients. */
+const ALMANAC_2646_AMEND = [
+    ['The slowest, 15 minutes:', 'The slowest, about 24 game hours:'],
+    [' within 3 minutes', ' within about 5 game hours'],
+    [' over 5 minutes', ' over about 8 game hours'],
+    [' over 10 minutes', ' over about 16 game hours'],
+    [' over 15 minutes', ' over about 24 game hours'],
+];
+
+function ensure_almanac_fixes_2646(): void
+{
+    if (setting('almanac2646fix') === '1') return;
+    $soil = '/fertility|nitrogen|phosphorus|potassium|soil life/';
+    foreach (q('SELECT id, body FROM encyclopedia_entries')->fetchAll() as $row) {
+        $old = (string)$row['body'];
+        $body = $old;
+        foreach (ALMANAC_2646_TEXT as [$a, $b]) $body = str_replace($a, $b, $body);
+        if (preg_match($soil, $body)) foreach (ALMANAC_2646_AMEND as [$a, $b]) $body = str_replace($a, $b, $body);
+        if ($body !== $old) q('UPDATE encyclopedia_entries SET body = ? WHERE id = ?', [$body, $row['id']]);
+    }
+    foreach (q('SELECT id, description FROM items')->fetchAll() as $row) {
+        $old = (string)$row['description'];
+        $d = $old;
+        foreach (ALMANAC_2646_TEXT as [$a, $b]) $d = str_replace($a, $b, $d);
+        if (preg_match($soil, $d)) foreach (ALMANAC_2646_AMEND as [$a, $b]) $d = str_replace($a, $b, $d);
+        if ($d !== $old) q('UPDATE items SET description = ? WHERE id = ?', [$d, $row['id']]);
+    }
+    foreach (q("SELECT id, description FROM creatures WHERE description LIKE '%weeping clay made her hungry%'")->fetchAll() as $row) {
+        q('UPDATE creatures SET description = ? WHERE id = ?', [str_replace(ALMANAC_2646_TEXT[1][0], ALMANAC_2646_TEXT[1][1], (string)$row['description']), $row['id']]);
+    }
+    // Coir Chips made the same item as Wood Chips and read exactly like it: say what it is
+    $coir = q_one("SELECT id, body FROM encyclopedia_entries WHERE chapter = 'Recipes' AND title = 'Coir Chips'");
+    if ($coir && str_starts_with((string)$coir['body'], 'Covers a bed for 10 days.')) {
+        q('UPDATE encyclopedia_entries SET body = ? WHERE id = ?', ['Coir Fibre cut up into Wood Chips, for when you have no logs. ' . $coir['body'], $coir['id']]);
+    }
+    // Lair pages: name the keeper and its level (read from the keeper's own creature row, so it is always the real fight)
+    foreach (q("SELECT id, body, unlock_key FROM encyclopedia_entries WHERE chapter = 'Landmarks' AND unlock_key LIKE 'landmark:%' AND body LIKE '%Boss lair.%'")->fetchAll() as $row) {
+        if (str_contains((string)$row['body'], '[b]Keeper:[/b]')) continue;
+        $c = q_one('SELECT name, level FROM creatures WHERE slug = ?', ['boss-' . substr((string)$row['unlock_key'], 9)]);
+        if (!$c) continue;
+        q('UPDATE encyclopedia_entries SET body = ? WHERE id = ?', [rtrim((string)$row['body']) . "\n[b]Keeper:[/b] " . $c['name'] . ', level ' . (int)$c['level'] . '. You meet it only inside the lair.', $row['id']]);
+    }
+    set_setting('almanac2646fix', '1');
+}
+
 function ensure_almanac_pages_2646(): void
 {
+    ensure_almanac_fixes_2646();
     if (setting('almanac2646') === '1') return;
     foreach (ALMANAC_2646_PAGES as $title => [$category, $sort, $key, $hint, $body]) {
         if (q_val("SELECT 1 FROM encyclopedia_entries WHERE chapter = 'General' AND title = ?", [$title])) continue;

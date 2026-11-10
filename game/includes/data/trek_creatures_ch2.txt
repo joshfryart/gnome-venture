@@ -8,4 +8,4 @@ page-silverfish|Page Silverfish|small|trek|18|Silverfish Scales:50|A silver nibb
 mud-crayfish|Mud Crayfish|medium|trek|18|Wet Clay:40,Crayfish Claw:30|A crayfish the colour of a flowerpot, snapping at anything that moves in its puddle.
 spadefoot-toad|Spadefoot Toad|medium|trek|19|Toad Slime:45|A fat toad with a spade on each hind foot, digging out of the wall wearing a coat of clay.
 claybound-millipede|Claybound Millipede|large|trek|20|Millipede Plate:40|A long, slow millipede in a clay shell that rattles as it goes. It is a patrol of one.
-silverfin|Silverfin the Page-Eater|boss|trek|22||A silverfish grown as long as a gnome, silver and shy. The weeping clay made her hungry for words, and she has eaten half the Library.
+silverfin|Silverfin the Page-Eater|boss|trek|22||A silverfish grown as long as a gnome, silver and shy. The blight made her hungry for words, and she has eaten half the Library.

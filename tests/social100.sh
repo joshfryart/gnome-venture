@@ -224,8 +224,8 @@ ok "dates set by the upgrade" "$(db "SELECT COUNT(*) FROM settings WHERE name IN
 if [ "$(db "SELECT COALESCE((SELECT value FROM settings WHERE name='game_clock_on'),'1')")" != "0" ]; then
   dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('season_epoch','$(date -d "$(TZ=America/Halifax date +%F) - $(db "SELECT game_day FROM users WHERE id=$SID") days" +%F)')"
 fi
-get $A 'community.php?t=jar' >/dev/null   # any page that lists the jars makes the festival jar; festival.php itself only reads it
-get $A festival.php >/dev/null; has "festival page" $H 'Opening Day'; has "stalls" $H 'The stalls'; has "festival jar" $H 'The festival jar'
+dbx "DELETE FROM hollow_goals WHERE festival IS NOT NULL AND festival <> ''"   # the festival page must make its own jar on a first visit
+get $A festival.php >/dev/null; has "festival page" $H 'Opening Day'; has "stalls" $H 'The stalls'; has "festival jar (made by festival.php itself on a first visit)" $H 'The festival jar'; ok "festival jar row exists after the first visit" "$(db "SELECT COUNT(*) FROM hollow_goals WHERE festival='opening_day' OR period_key LIKE 'fest:%'")" 1
 get $A 'gnome.php' >/dev/null; has "bunting strip" $H 'class="festbar"'
 ok "festival jar made" "$(db "SELECT COUNT(*) FROM hollow_goals WHERE festival='opening_day'")" 1
 get $A festival.php >/dev/null; post $A festival.php -d do=flag >/dev/null

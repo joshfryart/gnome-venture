@@ -20,6 +20,7 @@ if (is_post()) {
 }
 hollow_goal_settle_flash($uid);
 $f = festival_active();
+if ($f && hollow_goals_on()) festival_ensure_goals();   // the jar is made on the first look, whichever page that is (idempotent)
 $next = $f ? null : festival_next();
 $last = $f ? null : festival_last();
 $season = festival_season_line();
