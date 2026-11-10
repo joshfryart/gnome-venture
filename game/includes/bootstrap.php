@@ -38,6 +38,22 @@ function game_error_page(): void
 }
 set_exception_handler(function (Throwable $e) {
     try { if (function_exists('db') && isset($GLOBALS['CONFIG']) && db()->inTransaction()) db()->rollBack(); } catch (Throwable $e2) {}   // v1.0.0: never leave a half-done transaction behind
+    // A UserError nobody caught (a plain refusal such as "still busy with a long job") is not a crash: say it and go back.
+    if ($e instanceof UserError && PHP_SAPI !== 'cli' && !headers_sent()) {
+        $ajax = (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') !== '') || stripos((string)($_SERVER['HTTP_ACCEPT'] ?? ''), 'application/json') !== false;
+        if ($ajax) {
+            header('Content-Type: application/json');
+            echo json_encode(['ok' => false, 'message' => $e->getMessage()]);
+            return;
+        }
+        if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && session_status() === PHP_SESSION_ACTIVE && function_exists('flash')) {
+            flash($e->getMessage(), 'err');
+            header('Location: ' . (string)($_SERVER['REQUEST_URI'] ?? '/'));   // back to the same page as a GET (no resubmit)
+            return;
+        }
+        echo '<!doctype html><meta charset="utf-8"><title>Not now</title><body><p>' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '</p><p><a href="javascript:history.back()">Back</a></p></body>';
+        return;
+    }
     game_error_log(get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() . "\n" . $e->getTraceAsString());
     game_error_page();
 });
