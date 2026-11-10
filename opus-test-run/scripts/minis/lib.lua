@@ -166,8 +166,14 @@ function A.quad(c, g)
   local k = QK[f.kind or "bear"]
   -- far-side legs first (darker), then near legs
   local LEG = { [-9] = "legBF", [7] = "legFF", [-13] = "legBN", [11] = "legFN" }
-  for _, lx in ipairs({ -9, 7 }) do T(g, LEG[lx]); part(c, Rc(c, g, lx - 2, k.legh, lx + 2, 0), D, { gloss = false, flat = true }) end
-  for _, lx in ipairs({ -13, 11 }) do T(g, LEG[lx]); part(c, Rc(c, g, lx - 2, k.legh, lx + 2, 0), B, { gloss = false, flat = true }) end
+  -- art pass 2026-11: a leg is wide at the hip and narrow at the ankle, the back legs bend at the hock, and each stands on a paw that points forward (hooves keep a straight foot)
+  local function legm(lx)
+    local h = k.legh
+    local m = Poly(c, g, lx < 0 and { { lx - 3, h + 2 }, { lx + 3, h + 2 }, { lx + 1, h * 0.5 }, { lx + 2.4, 2 }, { lx - 1.4, 2 }, { lx - 2.6, h * 0.5 } } or { { lx - 2.6, h + 2 }, { lx + 3, h + 2 }, { lx + 2.2, 2 }, { lx - 1.4, 2 } })
+    return m:add(f.kind == "ungulate" and Rc(c, g, lx - 2, 2, lx + 2, 0) or E(c, g, lx + 0.8, 1.5, 3, 1.5))
+  end
+  for _, lx in ipairs({ -9, 7 }) do T(g, LEG[lx]); part(c, legm(lx), D, { gloss = false, flat = true }) end
+  for _, lx in ipairs({ -13, 11 }) do T(g, LEG[lx]); part(c, legm(lx), B, { gloss = false, flat = true }) end
   if f.kind == "ungulate" then for _, lx in ipairs({ -13, 11, -9, 7 }) do T(g, LEG[lx]); part(c, Rc(c, g, lx - 2, 2, lx + 2, 0), L.flat("#4a2c1a"), { gloss = false, flat = true }) end end
   -- tail
   T(g, "tail")
@@ -192,6 +198,7 @@ function A.quad(c, g)
   elseif f.horns then for s = 0, 1 do local ax = k.hx - 5 + s * 9; Horn(c, g, { { ax, k.hy + 5 }, { ax + (s == 0 and -6 or 6), k.hy + 11 }, { ax + (s == 0 and -4 or 4), k.hy + 17 } }, 3, Ac) end end
   part(c, E(c, g, k.hx, k.hy, k.hrx, k.hry), B, BODY)                                       -- big head
   if f.snout or f.kind == "canid" then part(c, E(c, g, k.hx + 9, k.hy - 3, k.sn, 3), B, OP) end
+  if not f.snout and f.kind ~= "canid" and f.kind ~= "ungulate" then c:fill(E(c, g, k.hx + 5.5, k.hy - 3.5, 3.5, 2.5), B.gloss) end   -- art pass: a pale muzzle under the nose
   part(c, E(c, g, k.hx + 9 + (f.snout and 3 or 0), k.hy - 2, 2, 2), L.flat(f.nose or "#e46a9b"), { gloss = false, flat = true })   -- nose
   if f.antlers then for _, d in ipairs({ { 8, -4 }, { 15, 4 } }) do Horn(c, g, { { d[1], k.hy + 6 }, { d[1] + d[2], k.hy + 15 }, { d[1] + d[2] * 1.6, k.hy + 21 } }, 2.5, Ac); Horn(c, g, { { d[1] + d[2] * 0.7, k.hy + 11 }, { d[1] + d[2] * 2.6, k.hy + 14 } }, 2.5, Ac) end end
   if f.tusks then part(c, Poly(c, g, { { k.hx + 5, k.hy - 5 }, { k.hx + 13, k.hy - 12 }, { k.hx + 9, k.hy - 5 } }), Ac, OP) end
@@ -201,12 +208,14 @@ end
 function A.bird(c, g)
   local B, Ac, f = g.B, g.A, g.feat or {}
   local lift = f.longlegs and 9 or 0
-  if f.longlegs then T(g, "legB"); Limb(c, g, { { -1, 9 + lift }, { -1, 4 }, { -2, 0 } }); T(g, "legF"); Limb(c, g, { { 6, 9 + lift }, { 7, 4 }, { 8, 0 } })
-  else T(g, "legB"); Limb(c, g, { { -1, 9 }, { -1, 4 }, { -2, 0 } }); T(g, "legF"); Limb(c, g, { { 6, 9 }, { 7, 4 }, { 8, 0 } }) end
+  -- art pass 2026-11: each leg ends in a foot (toes forward, a spur back)
+  if f.longlegs then T(g, "legB"); Limb(c, g, { { -1, 9 + lift }, { -1, 4 }, { -2, 0 }, { 2, 0 } }); T(g, "legF"); Limb(c, g, { { 6, 9 + lift }, { 7, 4 }, { 8, 0 }, { 12, 0 } })
+  else T(g, "legB"); Limb(c, g, { { -1, 9 }, { -1, 4 }, { -2, 0 }, { 2, 0 } }); T(g, "legF"); Limb(c, g, { { 6, 9 }, { 7, 4 }, { 8, 0 }, { 12, 0 } }) end
   T(g, "tail"); part(c, Poly(c, g, { { -11, 17 + lift }, { -24, 24 + lift }, { -19, 15 + lift } }), Ac, OP); part(c, Poly(c, g, { { -11, 15 + lift }, { -25, 17 + lift }, { -19, 9 + lift } }), Ac, OP)
   local brx, bry = f.longlegs and 11 or 13, f.longlegs and 8 or 11
   T(g, "body"); part(c, E(c, g, 0, 17 + lift, brx, bry), B, BODY)
-  T(g, "wing"); part(c, E(c, g, -3, 16 + lift, brx - 5, bry - 4), Ac, OP)
+  T(g, "wing"); part(c, Poly(c, g, { { -7, 19 + lift }, { -15, 14 + lift }, { -8, 13 + lift } }), Ac, OP); part(c, Poly(c, g, { { -6, 15 + lift }, { -14, 9 + lift }, { -4, 10 + lift } }), Ac, OP)   -- art pass: two flight feathers behind the folded wing
+  part(c, E(c, g, -3, 16 + lift, brx - 5, bry - 4), Ac, OP)
   if f.longlegs then T(g, "neck"); part(c, Poly(c, g, { { 5, 20 + lift }, { 10, 20 + lift }, { 12, 36 + lift }, { 7, 36 + lift } }), B, OP) end   -- long neck
   local hy = (f.longlegs and 38 or 27) + lift * (f.longlegs and 0 or 1)
   T(g, "head"); part(c, E(c, g, f.longlegs and 10 or 9, hy, f.longlegs and 6 or 9, f.longlegs and 5 or 8), B, BODY)
@@ -220,7 +229,9 @@ end
 function A.snake(c, g)
   local B, Ac, f = g.B, g.A, g.feat or {}
   local pts = { { -18, 5 }, { -12, 7 }, { -4, 5 }, { 4, 8 }, { 10, 12 }, { 13, 19 } }
-  for i = 1, #pts do local p = pts[i]; T(g, "s" .. i); part(c, E(c, g, p[1], p[2], 5.5, 5), (i % 2 == 0 and f.band) and Ac or B, { gloss = false, cres = 2, deep = 0 }) end
+  local taper = { 3.6, 4.3, 4.9, 5.3, 5.5, 5.5 }   -- art pass 2026-11: the body thins toward a pointed tail
+  T(g, "s1"); part(c, Poly(c, g, { { -20, 8 }, { -23.5, 3.5 }, { -19, 2.5 } }), B, OP)
+  for i = 1, #pts do local p = pts[i]; T(g, "s" .. i); part(c, E(c, g, p[1], p[2] - (5 - taper[i] * 0.9), taper[i], taper[i] * 0.9), (i % 2 == 0 and f.band) and Ac or B, { gloss = false, cres = 2, deep = 0 }) end
   if f.band then for i = 1, #pts - 1 do local p = pts[i]; T(g, "s" .. i); local x, y = P(g, p[1], p[2] + 3); c:px(rd(x), rd(y), "#2a1a10"); c:px(rd(x) + 1, rd(y) + 1, "#2a1a10") end end
   T(g, "head"); part(c, E(c, g, 14, 26, 9, 8), B, BODY)
   if f.hood then T(g, "hood"); part(c, E(c, g, 10, 26, 12, 9), Ac, OP); T(g, "head"); part(c, E(c, g, 14, 26, 9, 8), B, BODY) end
@@ -237,6 +248,7 @@ function A.crab(c, g)
   T(g, "eyeL"); eye(c, g, -8, 29); T(g, "eyeR"); eye(c, g, 8, 29)
   for s = -1, 1, 2 do                                                                    -- big claws
     T(g, s < 0 and "clawL" or "clawR"); part(c, E(c, g, s * 20, 19, 7, 6), Ac or B, { gloss = false, cres = 3, deep = 0 })
+    part(c, E(c, g, s * 22.5, 24, 4, 3), Ac or B, { gloss = false, cres = 2, deep = 0 })   -- art pass 2026-11: the upper finger of the pincer
     local x, y = P(g, s * 24, 21); c:fill(c:rect(rd(x) - 1, rd(y) - 5, rd(x) + 1, rd(y) - 1), "#2a1a10")
   end
   T(g, "body"); smile(c, g, 0, 8)
@@ -252,6 +264,7 @@ function A.frog(c, g)
   if f.spots then dots(c, g, { { -12, 12 }, { -6, 16 }, { 4, 17 }, { 12, 12 }, { 0, 8 } }, f.spotcol or "#2a1a10") end
   if g.big then local x, y = P(g, 0, 8); c:paint({ "u.....u", ".uuuuu." }, rd(x) - 3, rd(y), { u = "umber" }) end
   if f.belly then part(c, E(c, g, 2, 7, 10, 5), Ac, { gloss = false, flat = true }) end
+  dots(c, g, { { -2, 17 }, { 3, 17 } }, "#2a1a10")   -- art pass 2026-11: nostrils
 end
 function A.spider(c, g)
   local B, Ac, f = g.B, g.A, g.feat or {}
@@ -267,6 +280,8 @@ function A.golem(c, g)
   T(g, "body"); part(c, c:rrect(rd(P(g, -13, 0)), rd(select(2, P(g, 0, 26))), rd(P(g, 13, 0)), rd(select(2, P(g, 0, 8))), 3), B, BODY)
   T(g, "armL"); part(c, c:rrect(rd(P(g, -19, 0)), rd(select(2, P(g, 0, 26))), rd(P(g, -13, 0)), rd(select(2, P(g, 0, 11))), 2), B, OP); T(g, "armR"); part(c, c:rrect(rd(P(g, 13, 0)), rd(select(2, P(g, 0, 26))), rd(P(g, 19, 0)), rd(select(2, P(g, 0, 11))), 2), B, OP)
   T(g, "head"); part(c, c:rrect(rd(P(g, -10, 0)), rd(select(2, P(g, 0, 40))), rd(P(g, 10, 0)), rd(select(2, P(g, 0, 26))), 3), B, BODY)
+  T(g, "armL"); c:fill(Rc(c, g, -19, 15, -13, 15), "#4a2c1a"); T(g, "armR"); c:fill(Rc(c, g, 13, 15, 19, 15), "#4a2c1a")   -- art pass 2026-11: a wrist line makes the arm end in a fist, a line across each foot makes a toe cap
+  T(g, "legL"); c:fill(Rc(c, g, -11, 3, -2, 3), "#4a2c1a"); T(g, "legR"); c:fill(Rc(c, g, 2, 3, 11, 3), "#4a2c1a")
   T(g, "body"); local rx_, ry_ = P(g, 0, 18); c:fill(c:rect(rd(rx_) - 3, rd(ry_), rd(rx_) + 3, rd(ry_)), "#f5cf6a"); c:fill(c:rect(rd(rx_), rd(ry_) - 3, rd(rx_), rd(ry_) + 3), "#f5cf6a")
   if f.moss then T(g, "head"); part(c, E(c, g, -4, 38, 7, 3), Ac, OP); T(g, "body"); part(c, E(c, g, 8, 18, 4, 3), Ac, OP) end
   T(g, "head")
