@@ -7613,3 +7613,15 @@ dialog.hubpop .wsfrag .shhead + * , dialog.hubpop .wsfrag .box { margin-top: 6px
 .crewbeds { display: grid; grid-template-columns: repeat(auto-fill, minmax(4rem, 1fr)); gap: 4px; margin: 6px 0; }
 .crewbed { display: flex; align-items: center; gap: 4px; padding: 2px 6px; border: 1px solid var(--line); font-size: .8rem; }
 .crewmode input, .crewpals input, .crewseed input, .crewbed input { width: 16px; height: 16px; flex: none; }
+
+.hov-sec { display: flex; align-items: center; gap: 6px; justify-content: flex-start; font-size: .95rem; margin: 10px 0 4px; }
+.hov-t.need a { border-color: #e8b923; }
+.hov-tiv { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 10px; border: 2px solid var(--line); background: var(--surface); }
+.hov-ti { position: relative; }
+.hov-ti .bang, .crewtired .bang { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: #e8b923; color: #2a1a10; font-weight: 900; font-size: 11px; border: 2px solid #fff; }
+.hov-ti .bang { position: absolute; top: -6px; right: -8px; }
+.crewtired { margin: 4px 0; font-size: .85rem; }
+.hov-earlier { text-align: left; margin: 8px 0; }
+.hov-earlier summary { cursor: pointer; color: var(--muted); }
+.hov-today .hov-tb small { white-space: normal; overflow: visible; }
+.hov-today .hov-tiv { box-sizing: border-box; }

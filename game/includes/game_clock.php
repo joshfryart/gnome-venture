@@ -448,6 +448,7 @@ function game_new_day(int $uid): void
     $h = gclock_setting_int('pal_hours_per_sleep', 8);
     if ($h > 0) gclock_shift_pal_clocks($uid, $h * 3600);
     require_once __DIR__ . '/pal_crew.php';
+    pcrew_save_report($uid, (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]), ['slept' => true]);   // v2.6.40: the Hovel Today tab opens on this
     pcrew_night($uid);   // v2.6.40: the garden crew works the night (water, weed, pests, harvest)
     // a helper tending this gnome's garden through a player job works the new day (paid pro rata)
     require_once __DIR__ . '/player_jobs.php';

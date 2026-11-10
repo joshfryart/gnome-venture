@@ -4,6 +4,7 @@ $_SERVER['SCRIPT_NAME'] = '/index.php';
 require $argv[1] . '/includes/bootstrap.php';
 require_once APP_ROOT . '/includes/pal_jobs.php';
 require_once APP_ROOT . '/includes/pal_crew.php';
+require_once APP_ROOT . '/includes/today.php';
 require_once APP_ROOT . '/includes/garden_logic.php';
 $fails = 0;
 function ok(string $what, bool $cond, string $extra = ''): void { global $fails; echo ($cond ? '  ok   ' : '  FAIL ') . $what . ($cond ? '' : "  $extra") . "\n"; if (!$cond) $fails++; }
@@ -178,6 +179,32 @@ $u = urow($uid);
 ok('seeds can be changed while the pal works', $sk === true);
 [$sk2] = pcrew_set_skip($u, $plot, []);
 ok('hands-off beds can be cleared', $sk2 === true && !(int)q_val('SELECT skip FROM garden_pal_memory WHERE tile_id = ?', [$tC]));
+
+echo "== tiredness (7 fresh nights, 60% on night 14, then 50%) and the Today data\n";
+ok('nights 1-7 at full speed', pcrew_eff(1) === 1.0 && pcrew_eff(7) === 1.0);
+ok('night 10 is between', pcrew_eff(10) > 0.6 && pcrew_eff(10) < 1.0, (string)pcrew_eff(10));
+ok('night 14 at 60%, later at 50%', pcrew_eff(14) === 0.6 && pcrew_eff(15) === 0.5 && pcrew_eff(40) === 0.5);
+ok('full time slot is tired from night 14', pcrew_tired(['mode' => 'full', 'done' => 13]) && !pcrew_tired(['mode' => 'full', 'done' => 12]) && !pcrew_tired(['mode' => 'timed', 'done' => 13]));
+q('DELETE FROM garden_pal_slots WHERE plot_id = ?', [$plot]); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]); q('DELETE FROM garden_pal_rest WHERE user_id = ?', [$uid]);
+$u = urow($uid);
+pcrew_assign($u, $plot, 'water', $p0, 'full', 0);
+q('UPDATE garden_pal_slots SET done = 13 WHERE plot_id = ? AND role = ?', [$plot, 'water']);
+$today = today_data(urow($uid));
+ok('Today lists the tired pal under "Needs you"', (bool)array_filter($today['need'], fn($n) => str_contains($n[1], 'tired of Water')), json_encode($today['need']));
+ok('Today has the weather today and tomorrow', (bool)array_filter($today['night'], fn($n) => str_contains($n[2], 'Tomorrow')), json_encode($today['night']));
+// a tired pal skips some beds: with 20 planted beds at 50% about half are watered (same beds every time it is asked)
+$extra = [];
+for ($i = 0; $i < 24; $i++) { $extra[] = db_insert('plot_tiles', ['plot_id' => $plot, 'user_id' => $uid, 'x' => 20 + $i, 'y' => 20, 'tilled' => 1]); }
+foreach ($extra as $id) plantTile($id, $plant, 0);
+q('UPDATE garden_pal_slots SET done = 20 WHERE plot_id = ? AND role = ?', [$plot, 'water']);
+$dayN = (int)urow($uid)['game_day'];
+game_sleep($uid);
+$watered = (int)q_val('SELECT COUNT(*) FROM plot_tiles WHERE plot_id = ? AND y = 20 AND water_day IS NOT NULL', [$plot]);
+ok('a tired pal waters only some beds (' . $watered . ' of 24)', $watered > 4 && $watered < 20, (string)$watered);
+$rep = pcrew_latest_report($uid);
+ok('report notes the efficiency and tiredness', ($rep[1]['crew'][0]['eff'] ?? 0) === 50 && !empty($rep[1]['crew'][0]['tired']), json_encode($rep[1]['crew'][0] ?? []));
+ok('every sleep leaves a report row for the Today tab', pcrew_latest_report($uid)[0] === (int)urow($uid)['game_day']);
+foreach ($extra as $id) q('DELETE FROM plot_tiles WHERE id = ?', [$id]);
 
 echo "== hired helpers retire with a refund\n";
 q("INSERT INTO helpers (name, species, icon, bio, skills, wage, active) VALUES ('Testy', 'mole', '🦔', 'x', 'water,weed,harvest', 20, 1)");

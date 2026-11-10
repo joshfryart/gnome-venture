@@ -147,7 +147,7 @@ function pjv_ledger(array $c): string
     <section class="box pjpanel pjcrew" aria-labelledby="pjcrewh">
       <header class="pjpanelhd"><h2 id="pjcrewh">🌱 Garden crew</h2><small class="muted">working while you sleep</small></header>
       <?php foreach ($crewRows as $cr): $cp = pj_pal((int)$cr['user_id'], (string)$cr['pal_uid']); ?>
-        <p class="pjrow"><?= PCREW_ROLES[$cr['role']][0] ?? '🧩' ?> <b><?= e($cp['name'] ?? 'A pal') ?></b> · <?= e(PCREW_ROLES[$cr['role']][1] ?? $cr['role']) ?> <span class="muted">· <?= e((string)($cr['plot_name'] ?? 'Garden')) ?> · <?= $cr['mode'] === 'full' ? 'full time' : 'sleep ' . min((int)$cr['nights'], (int)$cr['done'] + 1) . ' of ' . (int)$cr['nights'] ?></span>
+        <p class="pjrow"><?= PCREW_ROLES[$cr['role']][0] ?? '🧩' ?> <b><?= e($cp['name'] ?? 'A pal') ?></b><?= pcrew_tired($cr) ? ' <span class="bang" title="Wants a change">!</span>' : '' ?> · <?= e(PCREW_ROLES[$cr['role']][1] ?? $cr['role']) ?> <span class="muted">· <?= e((string)($cr['plot_name'] ?? 'Garden')) ?> · <?= $cr['mode'] === 'full' ? 'full time' : 'sleep ' . min((int)$cr['nights'], (int)$cr['done'] + 1) . ' of ' . (int)$cr['nights'] ?></span>
           <a class="btn small alt" href="<?= e(url('garden.php?t=help')) ?>">Garden crew</a></p>
       <?php endforeach; ?>
     </section>

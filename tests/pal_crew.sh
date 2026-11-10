@@ -35,6 +35,8 @@ echo "== pages"
 dbx "UPDATE users SET level = 10 WHERE username='sprout'"
 chk "garden crew tab" "$(get 'garden.php?t=help')" 200
 grep -q 'Garden crew' $H && echo "  ok   crew panel shows" || { echo "  FAIL crew panel"; FAILS=$((FAILS+1)); }
+chk "hovel today tab" "$(get 'hovel.php?t=today')" 200
+grep -q 'hov-today' $H && echo "  ok   today tab shows" || { echo "  FAIL today tab"; FAILS=$((FAILS+1)); }
 chk "hovel pals tab" "$(get 'hovel.php?t=pals')" 200
 grep -q 'hov-pals' $H && echo "  ok   pals tab shows" || { echo "  FAIL pals tab"; FAILS=$((FAILS+1)); }
 chk "paljobs page" "$(get paljobs.php)" 200

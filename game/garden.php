@@ -926,7 +926,8 @@ $maxLv = fn(string $k): int => 1 + count(BUILDING_UPGRADES[$k] ?? []);
       <div class="crewb">
         <b><?= e($rl) ?></b>
         <?php if ($s): ?>
-          <small class="muted"><?= e($sp['name'] ?? 'A pal') ?> · <?= $s['mode'] === 'full' ? 'full time · night ' . ((int)$s['done'] + 1) : 'sleep ' . min((int)$s['nights'], (int)$s['done'] + 1) . ' of ' . (int)$s['nights'] ?></small>
+          <small class="muted"><?= e($sp['name'] ?? 'A pal') ?> · <?= $s['mode'] === 'full' ? 'full time · night ' . ((int)$s['done'] + 1) . ((int)$s['done'] + 1 > PCREW_FRESH_NIGHTS ? ' · ' . round(pcrew_eff((int)$s['done'] + 1) * 100) . '%' : '') : 'sleep ' . min((int)$s['nights'], (int)$s['done'] + 1) . ' of ' . (int)$s['nights'] ?></small>
+          <?php if (pcrew_tired($s)): ?><p class="crewtired"><span class="bang">!</span> <?= e($sp['name'] ?? 'The pal') ?> is tired of this job and works slower. Call them home for a rest day, then give them something else.</p><?php endif; ?>
           <form method="post" class="inline" data-confirm="Call <?= e($sp['name'] ?? 'the pal') ?> home? They rest until you sleep."><?= csrf_field() ?><input type="hidden" name="do" value="crew_recall"><input type="hidden" name="role" value="<?= e($rk) ?>"><input type="hidden" name="t" value="help">
             <button class="btn small alt">Call home</button></form>
           <?php if ($rk === 'plant'):
