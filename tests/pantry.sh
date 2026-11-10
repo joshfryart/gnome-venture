@@ -29,7 +29,7 @@ dbx "DELETE FROM garden_buildings WHERE plot_id=$P"; dbx "DELETE FROM pantry_jar
 GP=garden.php; PT="inventory.php?tab=craft&c=pantry"
 jars() { db "SELECT COUNT(*) FROM pantry_jars WHERE user_id=$UID_ AND collected_at IS NULL"; }
 makeit() { post crafting.php "$PT" -d recipe_id=$(db "SELECT id FROM recipes WHERE slug='$1'") -d qty=$2; }
-readyall() { dbx "UPDATE pantry_jars SET ready_at=datetime('now','-1 minute') WHERE collected_at IS NULL"; }
+readyall() { dbx "UPDATE pantry_jars SET ready_at=datetime('now','-1 minute'), ready_day=CASE WHEN ready_day IS NULL THEN NULL ELSE 0 END WHERE collected_at IS NULL"; }
 stock() { for s in $(db "SELECT key FROM recipes, json_each(recipes.ingredients) WHERE recipes.slug='$1'"); do give $s ${2:-60}; done; }
 eat() { post inventory.php inventory.php -d do=eat -d item_id=$(db "SELECT id FROM items WHERE slug='$1'"); }
 
@@ -80,10 +80,11 @@ echo "== lazy timers: nothing before the time, collect after"
 m=$(post crafting.php "$PT" -d do=jar_collect_all); has "No jar is ready" "$m" "collect all: nothing ready"
 J1=$(db "SELECT id FROM pantry_jars WHERE collected_at IS NULL ORDER BY id LIMIT 1")
 m=$(post crafting.php "$PT" -d do=jar_collect -d jar_id=$J1); has "ready yet" "$m" "single collect early refused"; chk "jar kept" "$(jars)" 5
-dbx "UPDATE pantry_jars SET ready_at=datetime('now','-1 minute') WHERE recipe_id=(SELECT id FROM recipes WHERE slug='strawberry-jam')"
+dbx "UPDATE pantry_jars SET ready_at=datetime('now','-1 minute'), ready_day=CASE WHEN ready_day IS NULL THEN NULL ELSE 0 END WHERE recipe_id=(SELECT id FROM recipes WHERE slug='strawberry-jam')"
 page "garden.php?t=bld"; has "🫙 3 ready" "$(grep -o '🫙 [0-9]* ready' /tmp/pk.html | head -1)" "status strip: 3 jars ready"
 JB=$(db "SELECT id FROM user_jobs LIMIT 1"); dbx "DELETE FROM user_jobs WHERE user_id=$UID_"
 JK=$(TZ=America/Halifax date +%F)   # v1.4.0: days turn over at Hollow midnight (1.2.2)
+[ "$(db "SELECT value FROM settings WHERE name='game_clock_on'")" = "0" ] || JK="g$(db "SELECT game_day FROM users WHERE id=$UID_")"   # sleep-days: the board's daily key is the gnome's game day
 dbx "INSERT INTO user_jobs (user_id,period,period_key,kind,title,text,qty,progress,status,taken_at) VALUES ($UID_,'daily','$JK','cook','Cook','Cook 5 meals',5,0,'active',datetime('now')),($UID_,'daily','$JK','craft','Craft','Craft 5 things',5,0,'active',datetime('now'))"
 CH=$(db "SELECT id FROM calling_chapters WHERE slug='brewroot-1'"); dbx "UPDATE users SET calling='brewroot', calling_chapter=$CH WHERE id=$UID_"
 dbx "INSERT OR IGNORE INTO user_calling_tasks (user_id,task_id,progress) SELECT $UID_, id, 0 FROM calling_tasks WHERE chapter_id=$CH"
@@ -132,6 +133,7 @@ TW=$(db "SELECT id FROM shops WHERE slug='twigg-s-seed-emporium'")
 NID=$(php "$HERE/pantry.php" "$GAME" npc 2>/dev/null | tail -1)
 dbx "INSERT INTO npc_schedules (npc_id,location_id,shop_id,activity,start_hour,end_hour,days) SELECT $NID, id, NULL, 'working', 0, 24, 'all' FROM locations WHERE kind='hub' ORDER BY id LIMIT 1"
 dbx "DELETE FROM npc_friends WHERE user_id=$UID_"
+dbx "INSERT OR REPLACE INTO settings (name, value) VALUES ('npc_away_pct', '0')"   # sleep-days: villagers are sometimes away; this one must be in
 np() { curl -s -c $C -b $C "$BASE/villagers.php?id=$NID" > /tmp/pk0.html; curl -s -c $C -b $C -X POST "$BASE/folk.php?id=$NID" --data-urlencode "csrf=$(csrf /tmp/pk0.html)" "$@" -o /dev/null; curl -s -c $C -b $C "$BASE/villagers.php?id=$NID" > /tmp/pk.html; grep -oE '<li class="ml (ok|err)[^"]*">.*</li>' /tmp/pk.html | head -1 | sed -E 's/<small class="mlwhen">.*//; s/<li class="ml //; s/<[^>]*>//g'; }   # whole message, tags stripped (messages can hold <b> now)
 echo "npc $NID: $(db "SELECT name FROM npcs WHERE id=$NID")"
 give dill-pickles 2

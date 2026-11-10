@@ -166,7 +166,7 @@ ok('ribbon label reads Preserves', fair_cat_label('preserve') === 'Preserves');
 echo "== jobs and callings: a preserve is a craft, never a meal\n";
 require_once $argv[1] . '/includes/jobs.php';
 q('DELETE FROM user_jobs WHERE user_id = ?', [$uid]);
-$jk = job_period_key('daily');
+$jk = job_board_key('daily', $uid);   // sleep-days: the board's key is the game day (the real date with the flag off)
 foreach (['cook', 'craft'] as $k) {
     db_insert('user_jobs', ['user_id' => $uid, 'period' => 'daily', 'period_key' => $jk, 'kind' => $k, 'title' => $k, 'text' => $k, 'qty' => 9, 'progress' => 0, 'status' => 'active', 'taken_at' => now()]);
 }
