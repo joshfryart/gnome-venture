@@ -70,7 +70,7 @@ return function(L)
       if k.feathered then for b = 2, k.legt, 1.6 do g:inside(la - 1.2, b, CH.shade, CH.base) g:inside(la + 1, b - 0.8, CH.shade, CH.base) end end   -- leg feathers
       if not k.feathered then for b = 2.6, k.legt - 1, 1.5 do g:mark({ { la - w / 2 - (k.neck and 0.6 or 0), b }, { la + w / 2, b } }, r.shade, r.base) end end                 -- scaly shins
       if k.neck then g:fill(g:E(la - 1.2, k.legt * 0.52, w * 0.75, w * 0.75), r.base) g:put(la - 1.2, k.legt * 0.52, r.shade) end                  -- knee knob
-      if base == "bat" then g:stroke({ { la - 0.6, 0.5 }, { la + 1.6, 0.5 } }, r.deep)
+      if base == "bat" then g:stroke({ { la - 0.8, 0.6 }, { la + 1.8, 0.6 } }, r.deep) g:dots({ { la + 2.2, 1 }, { la + 2.6, 1.8 } }, P.cream)
       else
         local ft = g:Ln({ { la - 1.4, 0.75 }, { la + 4.0, 0.75 } }, 1.0); g:form(ft, r, { noshade = true })
         local y = g.gy
@@ -95,7 +95,7 @@ return function(L)
     end end
     g:fur(body, B, k.shaggy or 0.8)
     if k.shaggy then for i = 0, 7 do local a = k.bx - k.brx * 0.9 + i * 1.7; g:dots({ { a, k.by - k.bry * 0.85 - (i % 2) * 0.9 }, { a + 0.6, k.by - k.bry * 0.85 - 1.8 - (i % 2) } }, B.deep) end end   -- hair-like feathers
-    if k.flecks then for i = 1, 14 do local a, b = k.bx - k.brx * 0.8 + g:rnd(i, 3) * k.brx * 1.2, k.by - k.bry * 0.5 + g:rnd(i, 4) * k.bry * 1.3; g:inside(a, b, k.flecks, B.base, B.shade, CH.base) g:inside(a + 0.9, b - 0.9, k.flecks, B.base, B.shade, CH.base) end end   -- a few dark winter flecks
+    if k.flecks then for i = 1, 14 do local a, b = k.bx - k.brx * 0.8 + g:rnd(i, 3) * k.brx * 1.2, k.by - k.bry * 0.5 + g:rnd(i, 4) * k.bry * 1.3; g:inside(a, b, P.stone.base, B.base, B.shade, CH.base) g:inside(a + 0.9, b - 0.9, P.stone.base, B.base, B.shade, CH.base) end end   -- a few dark winter flecks
     if q.quirk == "snow" then for a = k.bx - k.brx * 0.6, k.sx + k.srx * 0.2, 0.5 do local x = g:x(a); for yy = g:y(k.sy + k.sry + 2), g:y(k.by) do if body:has(x, yy) then if g:rnd(x, 2) > 0.3 then c:put(x, yy, P.cream) end break end end end end
     leg("legF", k.legF, false)
     if k.thighs then   -- feathered thighs with a ragged hem
@@ -170,6 +170,7 @@ return function(L)
         local inn = m:shrink(big and 2 or 1); inn:each(function(x, y) L.inside(c, x, y, i == 1 and PT.shade or PT.base, HD.base, HD.shade, L.darker(HD).base, L.darker(HD).shade) end)
         g:mark({ { hx + d[1], hy + hry * 0.8 }, { hx + d[1] + d[2] * 0.8 + 0.8, hy + hry + 4.4 } }, PT.shade, PT.base)
       end
+    end
     if f.crest and base ~= "long" and not k.bald then   -- a crest of three swept-back feathers behind the crown (the hawk's middle one is its own kinked part)
       local cl = big and 1 or 0.8
       for i, t in ipairs({ { -0.85, 0.2, 148, 6.2 }, { -0.55, 0.62, 128, 7.4 }, { -0.12, 0.88, 108, 6.8 } }) do
@@ -210,7 +211,11 @@ return function(L)
         g:mark({ { ba + 0.4, bb - 0.6 }, { ba + 2.6, bb - 1.2 } }, BK.deep, BK.base, BK.shade, BK.hi) g:put(ba + 0.6, bb + 0.9, BK.deep)   -- gape, nostril
         g:dots({ { ba + 4.0, bb - 3.4 }, { ba + 4.4, bb - 2.6 } }, W.deep)                                              -- dark hook
       end
-    elseif k.beak == "crow" then   -- a heavy beak with bristles at the base\n      local m = g:P({ { ba - 1.6, bb + 2.6 }, { ba + 5.4, bb + 0.6 }, { ba + 7.2, bb - 1.4 }, { ba + 5.4, bb - 2.2 }, { ba - 1.6, bb - 2.8 } })\n      g:form(m, BK, { frac = 0.3, off = 1, pop = { { ba + 1, bb + 1.4 } } }) g:under(m, BK.shade) g:mark({ { ba, bb - 0.4 }, { ba + 5, bb - 0.6 } }, BK.deep, BK.base, BK.shade)\n      g:dots({ { ba - 0.6, bb + 1.8 }, { ba - 0.4, bb + 0.6 }, { ba - 1.2, bb - 0.8 } }, P.ink)\n    elseif k.beak == "cone" then
+    elseif k.beak == "crow" then   -- a heavy beak with bristles at the base
+      local m = g:P({ { ba - 1.6, bb + 2.6 }, { ba + 5.4, bb + 0.6 }, { ba + 7.2, bb - 1.4 }, { ba + 5.4, bb - 2.2 }, { ba - 1.6, bb - 2.8 } })
+      g:form(m, BK, { frac = 0.3, off = 1, pop = { { ba + 1, bb + 1.4 } } }) g:under(m, BK.shade) g:mark({ { ba, bb - 0.4 }, { ba + 5, bb - 0.6 } }, BK.deep, BK.base, BK.shade)
+      g:dots({ { ba - 0.6, bb + 1.8 }, { ba - 0.4, bb + 0.6 }, { ba - 1.2, bb - 0.8 } }, P.ink)
+    elseif k.beak == "cone" then
       local m = g:P({ { ba - 1, bb + 2.0 }, { ba + 5.2, bb - 0.2 }, { ba + 5.0, bb - 1.0 }, { ba - 1, bb - 2.0 } })
       g:form(m, BK, { frac = 0.3, off = 1 }) g:under(m, BK.shade) g:mark({ { ba, bb - 0.6 }, { ba + 4, bb - 0.7 } }, BK.deep, BK.base, BK.shade)
     elseif k.beak == "gull" then
@@ -261,8 +266,31 @@ return function(L)
     g:T("eyes") g:eye(ea, eb)
     local ex, ey = g:x(ea) - 2, g:y(eb) - 2
     if base == "raptor" or base == "owl" or lk.iris then local ir = L.ramp(lk.iris or "gold").base; c:put(ex, ey + 1, ir) c:put(ex + 3, ey + 2, ir) c:put(ex, ey + 2, ir) end   -- a yellow iris
-    if q.quirk == "monocle" then for _, d in ipairs({ { -1, 0 }, { -1, 1 }, { -1, 2 }, { -1, 3 }, { 4, 0 }, { 4, 1 }, { 4, 2 }, { 4, 3 }, { 0, -1 }, { 1, -1 }, { 2, -1 }, { 3, -1 }, { 0, 4 }, { 1, 4 }, { 2, 4 }, { 3, 4 } }) do c:put(ex + d[1], ey + d[2], G.base) end c:put(ex - 1, ey + 5, G.shade) c:put(ex - 2, ey + 6, G.shade) c:put(ex - 2, ey + 7, G.shade) end
+    if q.quirk == "monocle" then   -- a round gold-rimmed lens over the eye
+      local cx, cy = ex + 1.5, ey + 1.5
+      for dy = -5, 5 do for dx = -5, 5 do
+        local d = math.sqrt(dx * dx + dy * dy)
+        if d >= 3.3 and d <= 4.3 then c:put(floor(cx + dx + 0.5), floor(cy + dy + 0.5), (dx + dy > 2) and G.shade or ((dx + dy < -3) and G.hi or G.base)) end
+      end end
+    end
     g:T("head")
+    if q.quirk == "monocle" then   -- its chain, hanging down over the chest
+      for i = 0, 8 do g:dots({ { ea - 1.5 - i * 0.55, eb - 3.6 - i * 1.3 } }, i % 2 == 0 and G.base or G.shade) end
+    end
+    if k.eyering then local ex0, ey0 = g:x(ea) - 2, g:y(eb) - 2; for _, d in ipairs({ { -1, 1 }, { -1, 2 }, { 4, 1 }, { 4, 2 }, { 1, 4 }, { 2, 4 } }) do L.inside(c, ex0 + d[1], ey0 + d[2], L.ramp(k.eyering).base, HD.base, HD.shade, HD.hi, CH.base) end end
+    if k.plumes then   -- long plumes trailing from the back of the head
+      for i, p in ipairs({ { 0.3, 0.1, -12, -2.6 }, { 0.1, 0.5, -11, 0.6 } }) do
+        local m = g:Limb({ { hx - hrx * (0.6 + p[1]), hy + hry * p[2] }, { hx - hrx * 0.9 + p[3] * 0.5, hy + hry * p[2] + p[4] * 0.2 }, { hx - hrx * 0.9 + p[3], hy + hry * p[2] + p[4] } }, 2.0, 0.6)
+        g:form(m, i == 1 and L.R.ink or L.darker(HD), { frac = 0.3, off = 1 })
+      end
+    end
+    if k.comb then   -- a red comb over the eye
+      g:fill(g:E(ea + 0.4, eb + 3.6, 2.8, 1.1), P.ember.base) g:dots({ { ea - 1.2, eb + 3.4 }, { ea + 0.6, eb + 4.5 } }, P.ember.hi) g:dots({ { ea + 1.8, eb + 2.8 } }, P.ember.shade)
+    end
+    if k.nape then   -- a little tuft of feathers on the nape
+      feather(hx - hrx * 0.7, hy + hry * 0.5, 148, 5.4, 2.4, HD, CH.base, false) feather(hx - hrx * 0.45, hy + hry * 0.8, 128, 5.2, 2.4, HD, CH.base, false)
+    end
+    if k.wrinkle then g:dots({ { hx - hrx * 0.8, hy - hry * 0.9 }, { hx - hrx * 0.2, hy - hry * 1.05 }, { hx - hrx * 0.6, hy - hry * 1.2 }, { hx - hrx * 0.2, hy - hry * 1.5 } }, HD.deep) end   -- wrinkled bare skin
     if base == "raptor" then g:stroke({ { ea - 3.2, eb + 2.6 }, { ea - 0.6, eb + 2.2 }, { ea + 2.6, eb + 0.6 } }, HD.deep) end   -- the raptor's glare
     return {
       { "body", false, k.bx, k.by }, { "tail", "body", ta + 1.5, tb + 0.5, true }, { "legB", "body", k.legB, k.legt, true }, { "legF", "body", k.legF, k.legt }, { "thighs", "body", (k.legB + k.legF) / 2 + 1, k.legt },

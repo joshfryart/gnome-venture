@@ -58,26 +58,50 @@ return function(L)
       g:T(id)
       local h, w = k.legh, k.legw
       local m
-      if back and kd ~= "bear" and kd ~= "rodent" then   -- a bent back leg: thigh, hock, shank
-        m = g:Limb({ { lx, h + 2 }, { lx - 1.6, h * 0.5 }, { lx + 0.2, 1.8 } }, w + 2.2, w * 0.62)
-      else
-        m = g:Limb({ { lx, h + 2 }, { lx + 0.3, 1.8 } }, w + (back and 1 or 0), w * 0.78)
+      local lw = hoof and 0.74 or 1                                   -- hoofed legs are slim below the knee
+      if back and not (kd == "bear" or kd == "rodent") then          -- a bent hind leg: thigh forward to the stifle, shin back to the hock, then the foot
+        m = g:Limb({ { lx + 0.6, h + 3 }, { lx + 1.9, h * 0.62 } }, w + 3.2, w + 0.8)
+        m:add(g:Limb({ { lx + 1.9, h * 0.62 }, { lx - 1.5, h * 0.36 } }, (w + 0.6) * lw, w * 0.7 * lw))
+        m:add(g:Limb({ { lx - 1.5, h * 0.36 }, { lx - 0.1, 2.2 } }, w * 0.7 * lw, w * 0.56 * lw))
+        m:add(g:E(lx - 1.7, h * 0.37, w * 0.42 * lw + 0.7, 1.3))      -- the hock
+      elseif back then                                               -- plantigrade: a fat thigh and a long flat foot
+        m = g:Limb({ { lx + 0.5, h + 3 }, { lx - 0.2, 2.2 } }, w + 3.0, w * 0.9)
+      else                                                           -- a foreleg: shoulder, elbow, a slimmer forearm, wrist
+        m = g:Limb({ { lx, h + 2.5 }, { lx + 0.1, h * 0.52 } }, w + 1.8, (w * 0.88) * lw)
+        m:add(g:Limb({ { lx + 0.1, h * 0.52 }, { lx + 0.3, 2.4 } }, w * 0.86 * lw, w * 0.6 * lw))
+        m:add(g:E(lx + 0.1, h * 0.52, w * 0.5 * lw + 0.6, 1.2))        -- the knee
       end
       local ft
-      if hoof then ft = g:R(lx - w * 0.42, 2.2, lx + w * 0.42 + 0.6, 0) else ft = g:E(lx + 1.0, 1.25, w * 0.5 + 0.9, 1.35) end
+      if hoof then
+        ft = g:R(lx - w * 0.5, 2.7, lx + w * 0.55 + 0.7, 0); ft:add(g:E(lx + 0.1, 3.5, w * 0.44, 1.4))        -- hoof with a fetlock
+      elseif kd == "bear" or kd == "rodent" or k.digger then ft = g:E(lx + 1.5, 1.4, w * 0.62 + 1.6, 1.5)
+      else ft = g:E(lx + 1.1, 1.3, w * 0.5 + 1.0, 1.4) end
+      if kd == "hare" and back then ft = g:E(lx + 2.2, 1.2, w * 0.5 + 3.2, 1.3) end                           -- a long hare foot
       m:add(ft)
       g:form(m, r, { frac = 0.34, off = 1 })
+      if furry and not k.digger then g:fur(m, r, 0.9) end
+      g:toplight(m, r, 1)
+      if SOCK and (near or true) then   -- darker (or paler) lower legs
+        local rr = near and SOCK or L.darker(SOCK)
+        local ycut = g:y(h * 0.42)
+        m:each(function(x, y) if y >= ycut then L.inside(c, x, y, rr.base, r.base) L.inside(c, x, y, rr.shade, r.shade) L.inside(c, x, y, rr.hi, r.hi) end end)
+      end
       if hoof then
-        g:fill(ft, DARK); g:put(lx - w * 0.3, 2.0, W.shade)                                        -- a cloven hoof with a dull shine
+        g:fill(ft, DARK); g:put(lx - w * 0.3, 2.3, W.shade) g:put(lx + w * 0.2, 2.3, W.shade)           -- a cloven hoof with a dull shine
       else
         g:under(ft, r.deep)
-        g:put(lx + 0.6, 0.6, r.deep) g:put(lx + 2.0, 0.6, r.deep)                                    -- toes
-        if k.digger and not back then g:stroke({ { lx + 1.6, 1.4 }, { lx + 3.6, 0.4 } }, P.cream) g:stroke({ { lx + 0.4, 0.9 }, { lx + 2.6, 0.1 } }, P.cream) end   -- digging claws
+        g:put(lx + 0.4, 0.6, r.deep) g:put(lx + 1.9, 0.6, r.deep) g:put(lx + 3.1, 0.6, r.deep)           -- toes
+        if k.digger and not back then   -- big spade claws
+          for i = 0, 2 do g:stroke({ { lx + 2 + i * 0.9, 1.6 - i * 0.5 }, { lx + 5 + i * 0.9, 0.5 - i * 0.2 } }, P.cream) end
+        elseif kd == "bear" or kd == "badger" or k.claws then
+          for i = 0, 1 do g:stroke({ { lx + 2.6 + i * 1.6, 1.2 }, { lx + 4.2 + i * 1.6, 0.4 } }, CREAM.base) end
+        end
+        if k.fingers and not back then g:mark({ { lx + 1.4, 2.2 }, { lx + 1.4, 0.6 } }, r.deep, r.base, r.shade) g:mark({ { lx + 2.8, 2.2 }, { lx + 2.8, 0.6 } }, r.deep, r.base, r.shade) end
       end
-      g:mark({ { lx - w * 0.5, h * 0.52 }, { lx + w * 0.5, h * 0.52 } }, r.shade, r.base)             -- knee crease
+      if kd ~= "ungulate" then g:mark({ { lx - w * 0.5, h * 0.52 }, { lx + w * 0.5, h * 0.52 } }, r.shade, r.base) end   -- knee crease
       if f.stripes and kd == "feline" then for i = 0, 1 do g:mark({ { lx - w * 0.5, h * (0.75 - i * 0.35) }, { lx + w * 0.2, h * (0.75 - i * 0.35) - 0.7 } }, DARK, r.base, r.shade) end end
-      if near and q.quirk == "mud" then for i = 1, 4 do g:inside(lx - 1 + g:rnd(i, lx) * 2.5, 2.4 + g:rnd(lx, i) * 2.6, W.deep, r.base, r.shade) end end
-      if near and not back and q.quirk == "sock" then m:each(function(x, y) if y > g:y(h * 0.42) and c:get(x, y) ~= DARK then L.inside(c, x, y, CREAM.base, r.base) L.inside(c, x, y, CREAM.shade, r.shade) end end) end
+      if near and QK.mud then for i = 1, 5 do g:over(g:E(lx - 1 + g:rnd(i, lx) * 3, 2.4 + g:rnd(lx, i) * 3, 1.0, 0.8), W.deep, r.base, r.shade) end end
+      if near and not back and QK.sock then m:each(function(x, y) if y > g:y(h * 0.5) then L.inside(c, x, y, CREAM.base, r.base) L.inside(c, x, y, CREAM.shade, r.shade) L.inside(c, x, y, CREAM.hi, r.hi) end end) end
     end
     local backA, frontA = k.bx - k.brx * 0.74, k.bx + k.brx * 0.62
     leg("legBF", backA + 3.6, D, true) leg("legFF", frontA + 3.4, D, false)
@@ -125,9 +149,15 @@ return function(L)
     ------------------------------------------------------------------ body
     g:T("body")
     local body = g:E(k.bx, k.by, k.brx, k.bry)
-    body:add(g:E(k.bx - k.brx * 0.6, k.by - 0.4, k.brx * 0.47, k.bry * 0.92))                       -- haunch
+    body:add(g:E(k.bx - k.brx * 0.6, k.by - 0.4 - (k.drop or 0), k.brx * 0.47, k.bry * 0.92))        -- haunch
     body:add(g:E(k.bx + k.brx * 0.56, k.by + 0.9, k.brx * 0.52, k.bry * (kd == "bear" and 1.02 or 0.96)))   -- shoulder
     if kd == "hare" or kd == "rodent" then body:add(g:E(k.bx - k.brx * 0.5, k.by + 1.2, k.brx * 0.6, k.bry * 0.95)) end   -- a round rump
+    if k.chest ~= false and (kd == "canid" or kd == "ungulate" or kd == "feline") then body:add(g:E(k.bx + k.brx * 0.62, k.by - k.bry * 0.34, k.brx * 0.36, k.bry * 1.0)) end   -- a deep chest
+    if (k.hump or 0) > 0 then body:add(g:E(k.bx + k.brx * 0.42, k.by + k.bry * 0.45 + k.hump, k.brx * 0.42, k.bry * 0.85)) end                                         -- withers / shoulder hump
+    if k.arch then body:add(g:E(k.bx - k.brx * 0.12, k.by + k.bry * 0.5 + k.arch, k.brx * 0.7, k.bry * 0.9)) end                                                        -- an arched, hunched back
+    if k.wool then   -- a woolly coat: round locks all around the outline
+      for th = 0.1, 6.2, 0.55 do local sn = sin(th); if sn > -0.55 then body:add(g:E(k.bx + k.brx * 0.94 * cos(th), k.by + 0.5 + k.bry * 0.98 * sn, 2.5, 2.5)) end end
+    end
     if k.tuck then body:cut(g:E(k.bx - k.brx * 0.08, k.by - k.bry - 1.6, k.brx * 0.42, 2.6)) end                           -- the belly tucks up toward the hips
     if k.neck then body:add(g:Limb({ { k.bx + k.brx * 0.62, k.by + k.bry * 0.2 }, { k.hx - k.hrx * 0.35, k.hy - k.hry * 0.3 } }, k.bry * 1.7, k.hry * 1.45)) end   -- neck
     g:form(body, B, { frac = 0.3, offu = 2.7, pop = { { k.bx - k.brx * 0.95, k.by + k.bry * 0.55 }, { k.bx + k.brx * 0.42, k.by + k.bry * 0.98 } } })
@@ -146,7 +176,7 @@ return function(L)
       local sd = g:Ln({ { k.bx - k.brx * 0.9, k.by + 1 }, { k.bx, k.by + 2.4 }, { k.bx + k.brx * 0.8, k.by + 1.6 } }, 1.6); sd:clip(body)
       g:over(sd, A.base, B.base, B.hi) g:over(sd, A.shade, B.shade)
     end
-    g:fur(body, B, big and 1.0 or 0.7)
+    if furry then g:fur(body, B, big and 1.5 or 1.1) furEdge(body, B, { bottom = true, step = k.wool and 4 or 3 }) end
     if f.stripes and kd == "feline" then g:stripes(body, DARK, { len = g:px(k.bry * 1.05), gap = g:px(3.6) }) end
     if f.stripes and k.mask then for i = 0, 2 do g:over(g:Ln({ { k.bx - 8 + i * 5, k.by + k.bry }, { k.bx - 7 + i * 5, k.by + k.bry * 0.3 } }, 1.2), A.base, B.base, B.hi) end end
     if f.spots then
@@ -168,25 +198,51 @@ return function(L)
       end
     end
     if kd == "bear" and big then for a = k.bx - 8, k.bx + 8, 3.4 do g:put(a, k.by - k.bry - 0.2, B.deep) g:put(a + 0.7, k.by - k.bry - 0.9, B.deep) end end   -- shaggy belly fringe
+    if k.dstripe then   -- a dark stripe down the back (lemming)
+      local sd = g:Ln({ { k.bx - k.brx * 0.9, k.by + k.bry * 0.7 }, { k.bx, k.by + k.bry * 0.95 }, { k.bx + k.brx * 0.7, k.by + k.bry * 0.9 } }, 1.6); sd:clip(body)
+      g:over(sd, DARK, B.base, B.hi, B.shade)
+    end
+    if k.flankband then   -- wolverine: a pale band from the shoulder, curving down the flank to the rump
+      local sd = g:Ln({ { k.bx + k.brx * 0.5, k.by + k.bry * 0.75 }, { k.bx, k.by + k.bry * 0.2 }, { k.bx - k.brx * 0.7, k.by + k.bry * 0.05 }, { k.bx - k.brx * 0.95, k.by + k.bry * 0.5 } }, 2.2); sd:clip(body)
+      g:over(sd, A.base, B.base, B.hi) g:over(sd, A.shade, B.shade, B.deep)
+    end
+    if k.shoulderstripe then   -- anteater: a black diagonal band edged in white, from the shoulder back and down
+      local sd = g:Ln({ { k.bx + k.brx * 0.6, k.by + k.bry * 1.1 }, { k.bx + k.brx * 0.1, k.by - k.bry * 0.2 } }, 2.4); sd:clip(body)
+      local ed = g:Ln({ { k.bx + k.brx * 0.6 - 1.8, k.by + k.bry * 1.1 }, { k.bx + k.brx * 0.1 - 1.8, k.by - k.bry * 0.2 } }, 1.0); ed:clip(body)
+      g:over(sd, L.R.ink.shade, B.base, B.shade, B.hi) g:over(ed, P.cream, B.base, B.shade, B.hi)
+    end
+    if k.skirt then   -- yak: long hair hanging in points below the belly
+      for a = k.bx - k.brx * 0.7, k.bx + k.brx * 0.62, 2.3 do
+        local i = floor((a - k.bx) / 2.3); local hh = 4.2 + (i % 3) * 1.4
+        local m = g:P({ { a - 1.3, k.by - k.bry + 1.2 }, { a + 1.3, k.by - k.bry + 1.2 }, { a + 0.2 * (i % 2 - .5), k.by - k.bry - hh } })
+        g:form(m, B, { frac = 0.4, off = 1, inner = false }) g:mark({ { a, k.by - k.bry }, { a, k.by - k.bry - hh + 1 } }, B.deep, B.base, B.shade)
+      end
+    end
     -- quirks painted on the body
     local QC = { B.base, B.shade, B.hi, B.deep }
-    if q.quirk == "plaster" then   -- a sticking plaster on the rump (two crossed strips)
+    if QK.plaster then   -- a sticking plaster on the rump (two crossed strips)
       local pa, pb = k.bx - k.brx * 0.72, k.by + k.bry * 0.25
-      g:over(g:Ln({ { pa - 2, pb + 2 }, { pa + 2, pb - 2 } }, 1.4), CREAM.hi, table.unpack(QC)) g:over(g:Ln({ { pa - 2, pb - 2 }, { pa + 2, pb + 2 } }, 1.4), CREAM.base, table.unpack(QC)) g:put(pa, pb, CREAM.deep)
-    elseif q.quirk == "scar" then  -- an old scar on the flank
+      g:over(g:Ln({ { pa - 3, pb + 3 }, { pa + 3, pb - 3 } }, 2.0), CREAM.hi, table.unpack(QC)) g:over(g:Ln({ { pa - 3, pb - 3 }, { pa + 3, pb + 3 } }, 2.0), CREAM.base, table.unpack(QC)) g:over(g:E(pa, pb, 1.5, 1.5), CREAM.shade, table.unpack(QC), CREAM.hi, CREAM.base) g:dots({ { pa, pb } }, CREAM.deep)
+    elseif QK.scar then  -- an old scar on the flank
       local pa, pb = k.bx + 1, k.by + 1
-      g:mark({ { pa - 2.5, pb + 2.5 }, { pa + 2.5, pb - 2 } }, PT.shade, table.unpack(QC)) for i = -1, 1 do g:mark({ { pa + i * 1.7 - 0.8, pb - i * 1.5 - 0.8 }, { pa + i * 1.7 + 0.8, pb - i * 1.5 + 0.8 } }, B.deep, table.unpack(QC)) end
-    elseif q.quirk == "burr" then  -- burrs stuck in its coat
-      for i, d in ipairs({ { -7, 3 }, { -1, -2 }, { 5, 2.5 } }) do local m = g:E(k.bx + d[1], k.by + d[2], 1.2, 1.2); g:over(m, L.R.lime.shade, table.unpack(QC)) g:inside(k.bx + d[1] - 0.5, k.by + d[2] + 0.5, L.R.lime.base, L.R.lime.shade) end
-    elseif q.quirk == "snow" then  -- snow settled on its back
+      for i = -1, 1 do   -- three parallel claw slashes, pink and raw with dark stitches across
+        g:over(g:Ln({ { pa - 3.6 + i * 2.2, pb + 4 }, { pa + 1.8 + i * 2.2, pb - 4 } }, 1.2), PT.base, table.unpack(QC)) g:mark({ { pa - 3.4 + i * 2.2, pb + 3 }, { pa + 1.6 + i * 2.2, pb - 3.2 } }, PT.shade, PT.base)
+      end
+    elseif QK.burr then  -- burrs stuck in its coat
+      for i, d in ipairs({ { -7, 3 }, { -1, -2 }, { 5, 2.5 }, { 8, -1 } }) do
+        local bxp, byp = g:x(k.bx + d[1]), g:y(k.by + d[2]); local m = HP.ellipse(bxp, byp, 2.6, 2.6)
+        c:fillMask(m, L.R.lime.shade) c:put(bxp - 1, byp - 1, L.R.lime.base) c:put(bxp, byp - 1, L.R.lime.base) c:put(bxp - 1, byp, L.R.lime.hi)
+        for _, p in ipairs({ { -3, 0 }, { 3, 0 }, { 0, -3 }, { 0, 3 }, { -2, -2 }, { 2, 2 }, { 2, -2 }, { -2, 2 } }) do c:put(bxp + p[1], byp + p[2], L.R.lime.deep) end   -- the hooked spines
+      end
+    elseif QK.snow then  -- snow settled on its back
       for a = k.bx - k.brx * 0.8, k.bx + k.brx * 0.7, 0.6 do local x = g:x(a); for yy = g:y(k.by + k.bry * 1.6), g:y(k.by) do if body:has(x, yy) then if g:rnd(x, 3) > 0.25 then c:put(x, yy, P.cream) if g:rnd(x, 4) > 0.5 then L.inside(c, x, yy + 1, P.sky.hi, table.unpack(QC)) end end break end end end
-    elseif q.quirk == "freckles" then
+    elseif QK.freckles then
       for i = 1, 6 do g:inside(k.bx - 9 + g:rnd(i, 1) * 6, k.by + g:rnd(i, 2) * 4, B.deep, B.base) end
-    elseif q.quirk == "patch" then -- one flank patch of another colour, heart-shaped
+    elseif QK.patch then -- one flank patch of another colour, heart-shaped
       local pa, pb = k.bx - 4, k.by + 1.5
       local m = g:E(pa - 1.1, pb + 0.8, 1.5, 1.4); m:add(g:E(pa + 1.1, pb + 0.8, 1.5, 1.4)) m:add(g:P({ { pa - 2.6, pb + 0.4 }, { pa + 2.6, pb + 0.4 }, { pa, pb - 2.8 } })) g:over(m, PALE.base, table.unpack(QC))
     end
-    if q.quirk == "leaf" then   -- a leaf caught on its back: stalk down in the fur, midrib, lit upper edge
+    if QK.leaf then   -- a leaf caught on its back: stalk down in the fur, midrib, lit upper edge
       g:T("leaf") local la, lb = k.bx - k.brx * 0.35, k.by + k.bry * 0.78
       local leaf = g:P({ { la, lb }, { la + 0.6, lb + 3.4 }, { la + 3.4, lb + 6 }, { la + 7.4, lb + 6.6 }, { la + 6.6, lb + 3.4 }, { la + 4, lb + 0.8 } })
       g:form(leaf, P.moss, { frac = 0.3 }) g:under(leaf, P.moss.deep)
@@ -221,7 +277,7 @@ return function(L)
       elseif k.ears == "leaf" then m = g:P({ { ex - 1, eb - 2.4 }, { ex - 7, eb + 1.2 }, { ex - 5.6, eb - 1.6 }, { ex - 1, eb - 4.6 } })
       elseif k.ears == "long" then m = g:Limb({ { ex + 0.6, eb }, { ex - 0.8, eb + 7 }, { ex - 2.2 - (far and -3.4 or 0), eb + 13.5 } }, 3.4, 2.4)
       else return end
-      if q.quirk == "notch" and not far then m:cut(g:P({ { ex - 3.4, eb + 3.2 }, { ex - 0.4, eb + 3.8 }, { ex - 3.2, eb + 5.4 } })) end   -- a notch bitten out of its ear
+      if QK.notch and not far then m:cut(g:P({ { ex - 3.4, eb + 3.2 }, { ex - 0.4, eb + 3.8 }, { ex - 3.2, eb + 5.4 } })) end   -- a notch bitten out of its ear
       g:form(m, r, { frac = 0.3, off = 1 })
       if (not far and k.ears ~= "round") or k.ears == "long" then earInner(m, r) elseif not far then local ix, iy = g:x(ex - 0.6), g:y(eb + 2.0); L.inside(c, ix, iy, PT.shade, r.base, r.shade) L.inside(c, ix + 1, iy, PT.shade, r.base, r.shade) if big then L.inside(c, ix, iy + 1, PT.shade, r.base, r.shade) L.inside(c, ix + 1, iy + 1, PT.shade, r.base, r.shade) end end
       if k.ears == "tuft" then g:stroke({ { ex - 1.6, eb + 5.2 }, { ex - 2.6, eb + 8.4 } }, DARK) end                                     -- a lynx's ear tuft
@@ -247,7 +303,7 @@ return function(L)
         local m = g:Limb({ { ax, hy + hry * 0.6 }, { ax + d * 2.4, hy + hry + 5 }, { ax + d * 4.6, hy + hry + 11.5 } }, 2.4, 1.3)
         m:add(g:Limb({ { ax + d * 1.6, hy + hry + 3.4 }, { ax + d * 6.4, hy + hry + 5.6 } }, 1.8, 1.1)) m:add(g:Limb({ { ax + d * 3.2, hy + hry + 7.6 }, { ax - d * 0.6, hy + hry + 11 } }, 1.7, 1.0))
         g:form(m, r, { frac = 0.3, off = 1 })
-        if q.quirk == "moss" and s == 1 then g:over(g:E(ax + d * 6, hy + hry + 6, 1.8, 1.2), P.moss.base, r.base, r.shade, r.hi) g:put(ax + d * 6, hy + hry + 5, P.moss.shade) end   -- moss hangs from one tine
+        if QK.moss and s == 1 then g:over(g:E(ax + d * 6, hy + hry + 6, 1.8, 1.2), P.moss.base, r.base, r.shade, r.hi) g:put(ax + d * 6, hy + hry + 5, P.moss.shade) end   -- moss hangs from one tine
       end
     end
     if kd == "bear" and k.jowl and big then   -- a beard of fur under the jaw
@@ -299,28 +355,28 @@ return function(L)
       g:fill(st, CREAM.base) g:put(ta + 2.6, tb + 1.6, CREAM.hi) g:put(ta + 3.8, tb + 1.6, CREAM.shade) g:put(ta + 3.2, tb + 1.6, CREAM.deep)
       g:fill(tk2, P.cream) tk2:each(function(x, y) if not tk2:has(x + 1, y) then c:put(x, y, CREAM.shade) end end)
     end
-    if q.quirk == "tooth" then g:fill(g:R(tipx - 3.4, sy - k.snh + 0.4, tipx - 2.8, sy - k.snh - 1.0), P.cream) end                         -- one snaggle tooth
-    if q.quirk == "flower" then   -- a daisy tucked behind its ear
+    if QK.tooth then g:fill(g:R(tipx - 3.4, sy - k.snh + 0.4, tipx - 2.8, sy - k.snh - 1.0), P.cream) end                         -- one snaggle tooth
+    if QK.flower then   -- a daisy tucked behind its ear
       local fa, fb = hx - hrx * 0.75, hy + hry * 0.78
       for _, d in ipairs({ { -1.2, 0 }, { 1.2, 0 }, { 0, 1.2 }, { 0, -1.2 } }) do g:put(fa + d[1], fb + d[2], P.cream) end g:put(fa, fb, P.gold.base)
-    elseif q.quirk == "sprig" then   -- a sprig of grass in the corner of its mouth
+    elseif QK.sprig then   -- a sprig of grass in the corner of its mouth
       g:stroke({ { hx + hrx * 0.8, sy - k.snh + 0.4 }, { hx + hrx * 0.8 + 3.2, sy - k.snh - 2.6 } }, P.moss.shade) g:put(hx + hrx * 0.8 + 3.6, sy - k.snh - 2.2, P.moss.base)
-    elseif q.quirk == "ring" then    -- a gold ring in its ear
+    elseif QK.ring then    -- a gold ring in its ear
       local ex, eb = hx - hrx * 0.42 - 2.2, hy + hry * 0.62 + 3
       g:stroke({ { ex - 0.8, eb }, { ex - 1.6, eb - 0.8 }, { ex - 0.8, eb - 1.6 } }, P.gold.base) g:put(ex - 1.6, eb - 0.8, P.gold.hi)
-    elseif q.quirk == "scarf" then   -- a little neckerchief
+    elseif QK.scarf then   -- a little neckerchief
       local na, nb = hx - hrx * 0.62, hy - hry * 0.78
       local m = g:P({ { na - 2.6, nb + 1.6 }, { na + 4.4, nb - 0.4 }, { na + 0.6, nb - 4.6 } }); g:form(m, P.ember, { frac = 0.3, off = 1 }) g:put(na + 0.4, nb - 0.4, P.gold.base)
-    elseif q.quirk == "bell" then    -- a bell on a collar
+    elseif QK.bell then    -- a bell on a collar
       local na, nb = hx - hrx * 0.3, hy - hry * 0.95
       g:stroke({ { na - 3, nb + 1.6 }, { na + 2.6, nb } }, P.ember.shade, 1) local m = g:E(na, nb - 1.2, 1.5, 1.5); g:form(m, P.gold, { frac = 0.34, off = 1 }) g:put(na, nb - 2.2, P.gold.deep)
-    elseif q.quirk == "bow" then     -- a bow on one ear
+    elseif QK.bow then     -- a bow on one ear
       local fa, fb = hx - hrx * 0.5, hy + hry * 0.95
       g:fill(g:P({ { fa - 2.4, fb + 1.6 }, { fa - 2.4, fb - 1.4 }, { fa, fb } }), PT.base) g:fill(g:P({ { fa + 2.6, fb + 1.6 }, { fa + 2.6, fb - 1.4 }, { fa, fb } }), PT.base) g:put(fa, fb, PT.deep)
-    elseif q.quirk == "feather" then -- a feather stuck in its fur behind the ear
+    elseif QK.feather then -- a feather stuck in its fur behind the ear
       local fa, fb = hx - hrx * 0.9, hy + hry * 0.5
       local m = g:Limb({ { fa, fb }, { fa - 2.2, fb + 5.6 } }, 1.2, 2.2); g:form(m, P.sky, { frac = 0.4, off = 1 }) g:stroke({ { fa, fb }, { fa - 2.0, fb + 5.2 } }, P.sky.deep)
-    elseif q.quirk == "snack" then   -- it carries a snack in its mouth
+    elseif QK.snack then   -- it carries a snack in its mouth
       local sa, sb = tipx - 0.6, sy - k.snh - 0.4
       local m = g:E(sa, sb, 2.2, 1.6); g:form(m, P.ember, { frac = 0.34, off = 1 }) g:put(sa - 0.8, sb + 0.8, P.ember.hi) g:stroke({ { sa, sb + 1.6 }, { sa + 0.8, sb + 2.6 } }, P.moss.shade)
     end
@@ -332,7 +388,7 @@ return function(L)
     if k.brow ~= false and (kd == "bear" or kd == "canid" or kd == "ungulate") and big then
       g:stroke({ { ea - 2.2, eb + 2.0 }, { ea - 0.6, eb + 2.9 }, { ea + 1.2, eb + 2.4 }, { ea + 2.6, eb + 1.2 } }, k.mask and A.deep or B.deep)   -- a grumpy brow
     end
-    if q.quirk == "eyescar" then g:stroke({ { ea + 0.4, eb + 4.2 }, { ea - 0.6, eb - 3.2 } }, PT.shade) end
+    if QK.eyescar then g:stroke({ { ea + 0.4, eb + 4.2 }, { ea - 0.6, eb - 3.2 } }, PT.shade) end
     if q.puff then   -- it snorts: two round puffs from the nostrils (hidden until a pose shows them)
       g:T("puff") local m = g:E(tipx + 5, sy + 0.8, 1.5, 1.5); g:fill(m, P.stone.hi) g:put(tipx + 5.6, sy + 0.2, P.stone.base) g:put(tipx + 4.4, sy + 1.4, P.cream)
       g:fill(g:E(tipx + 8.6, sy + 4, 0.8, 0.8), P.stone.hi)
