@@ -234,12 +234,13 @@ do
         local bw = 70 + row * 8
         local off = floor(hash(row, 1, 31) * bw)
         local k = (x + off) // bw; local px = (x + off) % bw
-        local tone = 4 + ((hash(k, row, 11) > .6) and 1 or 0) - ((hash(k, row, 12) > .72) and 1 or 0)
-        local col = OAK[tone]
-        if rp == 0 or px == 0 then col = OAK[2]
-        elseif rp == 1 then col = OAK[min(6, tone + 1)]
-        elseif hash(x // 9, yy, 14 + row) > .9 then col = OAK[tone - 1]
-        elseif (px == 3 or px == bw - 3) and (rp == 3 or rp == hh - 3) then col = OAK[2] end
+        local FT = { "#a06e4c", "#aa7650", "#b27e56" }
+        local tone = 2 + ((hash(k, row, 11) > .62) and 1 or 0) - ((hash(k, row, 12) > .7) and 1 or 0)
+        local col = FT[tone]
+        if rp == 0 then col = "#80543e"
+        elseif px == 0 then col = "#8a5c44"
+        elseif rp == 1 then col = "#bc8a60"
+        elseif hash(x // 12, yy, 14 + row) > .965 then col = "#96664a" end
         P(x, yy, col)
       end
     end
@@ -634,15 +635,13 @@ do
   -- tool board
   box(262, 94, 338, 126, OAK, 5, { lit = 1, shade = 1 })
   for y = 95, 125 do for x = 263, 337 do if (x - 263) % 19 == 18 then P(x, y, OAK[3]) end end end
-  -- saw
-  local bl = mpoly({ {277, 98}, {299, 100}, {299, 104}, {277, 107} }); mrim(bl)
-  mfill(bl, function(x, y) return y <= 99 and IRON[6] or (y <= 102 and IRON[5] or IRON[4]) end)
-  for x = 278, 298, 2 do P(x, 108 - floor((x - 277) / 8), INK) end
-  local sh = mrr(265, 96, 277, 109, 2); obj(sh, BARN, { base = 4, lit = 2, shade = 2 }); R(269, 100, 273, 105, INK); R(270, 101, 272, 104, OAK[4])
-  P(275, 99, GOLD[5]); P(275, 106, GOLD[5])
-  -- hammer
-  R(307, 99, 310, 123, INK); R(308, 104, 309, 122, PINE[5]); R(308, 104, 308, 122, PINE[6])
-  local hh = mrect(302, 97, 316, 103); obj(hh, IRON, { base = 4, lit = 2, shade = 1 }); R(302, 99, 303, 103, IRON[2])
+  -- saw (big, across the board)
+  local bl = mpoly({ {277, 97}, {314, 100}, {314, 105}, {277, 110} }); mrim(bl)
+  mfill(bl, function(x, y) return y <= 99 and IRON[6] or (y <= 103 and IRON[5] or IRON[4]) end)
+  R(281, 100, 306, 100, "#e2e2ec")
+  for x = 278, 313, 3 do local ty = 111 - floor((x - 277) * 5 / 37); P(x, ty, INK); P(x + 1, ty, INK); P(x, ty - 1, IRON[3]) end
+  local sh = mrr(264, 95, 277, 111, 2); obj(sh, BARN, { base = 4, lit = 2, shade = 2 }); R(268, 100, 273, 106, INK); R(269, 101, 272, 105, OAK[4])
+  P(275, 98, GOLD[5]); P(275, 108, GOLD[5])
   -- legs, lower shelf, drawer
   box(260, 137, 268, 157, OAK, 3, { lit = 0, shade = 1 }); box(332, 137, 340, 157, OAK, 3, { lit = 0, shade = 1 })
   box(269, 147, 331, 150, OAK, 3, { lit = 1, shade = 1 })
@@ -664,11 +663,11 @@ do
   R(267, 114, 269, 119, IRON[1])
   R(277, 114, 284, 116, INK); R(277, 115, 283, 115, IRON[6])
   R(284, 108, 286, 124, INK); R(285, 109, 285, 123, IRON[5]); local k1 = mell(285, 108, 2, 2); mrim(k1); mfill(k1, IRON[6]); local k2 = mell(285, 124, 2, 2); mrim(k2); mfill(k2, IRON[4])
-  -- plane + shavings
-  local pln = mpoly({ {290, 127}, {290, 122}, {294, 120}, {306, 120}, {309, 123}, {309, 127} }); mrim(pln)
-  mfill(pln, function(x, y) return y <= 121 and OAK[6] or (y >= 126 and IRON[5] or OAK[4]) end)
-  R(297, 116, 300, 120, INK); R(298, 117, 299, 120, OAK[5])
-  for _, s in ipairs{ {311, 125}, {338, 126} } do R(s[1], s[2], s[1] + 2, s[2] + 1, PINE[6]); P(s[1] + 1, s[2] + 1, PINE[4]); P(s[1] + 3, s[2] + 2, INK) end
+  -- hammer lying on the bench + shavings
+  for x = 289, 311 do tint(x, 128, SHADE, .35) end
+  R(289, 122, 305, 126, INK); R(290, 123, 304, 125, PINE[5]); R(290, 123, 304, 123, PINE[6])
+  local hh = mrect(304, 116, 310, 127); obj(hh, IRON, { base = 4, lit = 2, shade = 2 }); R(305, 117, 305, 124, IRON[6])
+  for _, s in ipairs{ {338, 126} } do R(s[1], s[2], s[1] + 2, s[2] + 1, PINE[6]); P(s[1] + 1, s[2] + 1, PINE[4]); P(s[1] + 3, s[2] + 2, INK) end
   -- QUIRK: half-built birdhouse
   local bh = mrect(316, 114, 332, 127); obj(bh, PINE, { base = 4, lit = 1, shade = 1 })
   local eh = mell(324, 120, 3, 3); mrim(eh, OAK[3]); mfill(eh, "#46293a")
@@ -686,7 +685,7 @@ end
 
 ---------------------------------------------------------------- 4 GARDEN  box 358,66..440,158
 do
-  shadow(399, 160, 42, 3)
+  shadow(399, 159, 42, 2)
   for y = 126, 157 do for x = 364, 434 do tint(x, y, SHADE, .5) end end
   -- uprights + upper shelf
   box(362, 78, 365, 117, OAK, 4, { lit = 0, shade = 0 }); box(433, 78, 436, 117, OAK, 3, { lit = 0, shade = 0 })
@@ -888,47 +887,46 @@ do
   local tb = mpoly({ {300, 226}, {310, 219}, {312, 222}, {304, 227} }); mrim(tb); mfill(tb, function(x, y) return y < 223 and IRON[6] or IRON[4] end)
 end
 
----------------------------------------------------------------- 7 DECOR: loom  box 344,172..446,229
+---------------------------------------------------------------- 7 DECOR: upright floor loom + yarn basket  box 343,170..431,229
 do
-  shadow(402, 228, 46, 3)
+  for y = 228, 229 do for x = 344, 430 do if (x < 408 or x > 409) then tint(x, y, SHADE, .38) end end end
   -- see-through dark behind the warp
-  for y = 177, 222 do for x = 368, 436 do tint(x, y, SHADE, .45) end end
+  for y = 179, 222 do for x = 355, 395 do tint(x, y, SHADE, .5) end end
   -- warp roll
-  local wr = mrect(368, 178, 436, 183); mrim(wr); mfill(wr, function(x, y) return (x % 2 == 0) and CREAM[6] or (y > 181 and CREAM[3] or CREAM[4]) end)
+  local wr = mrect(355, 180, 395, 185); mrim(wr); mfill(wr, function(x, y) return (x % 2 == 0) and CREAM[6] or (y > 183 and CREAM[3] or CREAM[4]) end)
   -- warp threads
-  for y = 184, 199 do for x = 370, 434, 2 do P(x, y, y < 186 and CREAM[4] or CREAM[6]) end end
+  for y = 186, 201 do for x = 357, 393, 2 do P(x, y, y < 188 and CREAM[4] or CREAM[6]) end end
   -- heddle bar
-  local hb = mrect(366, 188, 438, 190); mrim(hb); mfill(hb, function(x, y) return y == 188 and OAK[6] or OAK[4] end)
+  local hb = mrect(353, 190, 397, 192); mrim(hb); mfill(hb, function(x, y) return y == 190 and OAK[6] or OAK[4] end)
   -- woven cloth
-  local cl = mrect(369, 200, 435, 217); mrim(cl)
+  local cl = mrect(356, 202, 394, 219); mrim(cl)
   local stripes = { ROSE, ROSE, CREAM, TEAL, TEAL, GOLD, ROSE, ROSE, CREAM, VIOLET, VIOLET, GOLD, TEAL, TEAL, CREAM, ROSE, ROSE, ROSE }
   mfill(cl, function(x, y)
-    local ramp = stripes[y - 199]
+    local ramp = stripes[y - 201]
     local b = (ramp == CREAM) and 5 or 4
     local col = ramp[((x + y) % 2 == 0) and b or b + 1]
-    if (y - 200) % 9 == 4 and ((x - 369) % 8 < 2) then col = ramp[6] end
-    if x <= 370 then col = ramp[min(6, b + 2)] end
-    if x >= 434 then col = ramp[b - 1] end
+    if (y - 202) % 9 == 4 and ((x - 356) % 8 < 2) then col = ramp[6] end
+    if x <= 357 then col = ramp[min(6, b + 2)] end
+    if x >= 393 then col = ramp[b - 1] end
     return col
   end)
   -- beater at the fell
-  local be = mrect(366, 196, 438, 199); mrim(be); mfill(be, function(x, y) return y == 196 and PINE[6] or (y == 199 and PINE[3] or PINE[4]) end)
-  -- cloth beam + treadles
-  local cb = mrect(366, 218, 438, 222); mrim(cb); mfill(cb, function(x, y) return y == 218 and TIMB[6] or (y == 222 and TIMB[3] or TIMB[4]) end)
-  box(384, 224, 398, 226, TIMB, 3, { lit = 1, shade = 0 }); box(406, 224, 420, 226, TIMB, 3, { lit = 1, shade = 0 })
+  local be = mrect(353, 198, 397, 201); mrim(be); mfill(be, function(x, y) return y == 198 and PINE[6] or (y == 201 and PINE[3] or PINE[4]) end)
+  -- cloth beam
+  local cb = mrect(353, 220, 397, 223); mrim(cb); mfill(cb, function(x, y) return y == 220 and TIMB[6] or (y == 223 and TIMB[3] or TIMB[4]) end)
   -- frame
   local function upr(x0)
-    local m = mrect(x0, 170, x0 + 7, 224); mrim(m); woodV(x0, 170, x0 + 7, 224, TIMB, 5, x0)
-    local ft = mrr(x0 - 2, 224, x0 + 9, 228, 1); mrim(ft); mfill(ft, function(x, y) return y == 224 and TIMB[5] or TIMB[3] end)
-    R(x0 + 2, 181, x0 + 5, 182, INK); R(x0 + 3, 181, x0 + 4, 181, GOLD[4]); R(x0 + 2, 219, x0 + 5, 220, INK); R(x0 + 3, 219, x0 + 4, 219, GOLD[4])
+    local m = mrect(x0, 173, x0 + 6, 223); mrim(m); woodV(x0, 173, x0 + 6, 223, TIMB, 5, x0)
+    local ft = mrr(x0 - 3, 222, x0 + 9, 227, 1); mrim(ft); mfill(ft, function(x, y) return y == 222 and TIMB[6] or (y >= 226 and TIMB[3] or TIMB[4]) end)
+    R(x0 + 2, 187, x0 + 4, 188, INK); R(x0 + 2, 187, x0 + 3, 187, GOLD[4]); R(x0 + 2, 210, x0 + 4, 211, INK); R(x0 + 2, 210, x0 + 3, 210, GOLD[4])
   end
-  upr(360); upr(437)
-  local tbm = mrect(358, 169, 446, 176); mrim(tbm); woodH(358, 169, 446, 176, TIMB, 5, 91); R(358, 169, 446, 169, TIMB[6]); R(358, 170, 446, 170, TIMB[6])
-  -- draped finished scarf over the left of the top beam (QUIRK: tassels)
-  local sc = mrect(374, 168, 386, 190); mrim(sc)
-  mfill(sc, function(x, y) local ramp = ((y - 168) // 4 % 2 == 0) and GOLD or TEAL; return ramp[(x <= 376) and 6 or ((x >= 385) and 3 or (((x + y) % 2 == 0) and 4 or 5))] end)
-  for x = 374, 386, 2 do P(x, 191, GOLD[5]); P(x, 192, GOLD[3]) end
-  -- yarn balls
+  upr(348); upr(396)
+  local tbm = mrect(345, 172, 405, 178); mrim(tbm); woodH(345, 172, 405, 178, TIMB, 5, 91); R(345, 172, 405, 173, TIMB[6])
+  -- draped finished scarf over the top beam (QUIRK: tassels)
+  local sc = mrect(360, 172, 371, 191); mrim(sc)
+  mfill(sc, function(x, y) local ramp = ((y - 171) // 4 % 2 == 0) and GOLD or TEAL; return ramp[(x <= 362) and 6 or ((x >= 370) and 3 or (((x + y) % 2 == 0) and 4 or 5))] end)
+  for x = 360, 371, 2 do P(x, 193, GOLD[5]); P(x, 194, GOLD[3]) end
+  -- yarn basket
   local function yarn(cx, cy, r, ramp)
     local m = mell(cx, cy, r, r); mrim(m)
     mfill(m, function(x, y)
@@ -938,9 +936,16 @@ do
       return col
     end)
   end
-  shadow(350, 229, 8, 2)
-  yarn(351, 222, 6, ROSE); yarn(346, 225, 3, TEAL)
-  line(357, 226, 361, 229, ROSE[4], 1)
+  yarn(416, 210, 5, ROSE); yarn(425, 211, 4, TEAL); yarn(420, 206, 4, GOLD)
+  local bk = mpoly({ {410, 213}, {430, 213}, {428, 227}, {412, 227} }); mrim(bk)
+  mfill(bk, function(x, y)
+    local col = (((x // 3) + (y // 2)) % 2 == 0) and DIRT[5] or DIRT[4]
+    if x <= 412 then col = DIRT[6] elseif x >= 427 then col = DIRT[3] end
+    if y >= 226 then col = DIRT[3] end
+    return col
+  end)
+  R(409, 212, 431, 214, INK); R(410, 213, 430, 213, DIRT[6])
+  line(410, 222, 406, 226, ROSE[4], 1)
 end
 
 ---------------------------------------------------------------- foreground props (bottom-left, in cool shade)
@@ -989,7 +994,7 @@ for y = 0, H - 1 do for x = 0, W - 1 do
       if x > 356 and y < 28 then a = a + .06 end
     else                 -- floor: pooled light, cool violet toward the front corners
       local dd = sqrt(((x - 250) / 300) ^ 2 + ((y - 150) / 135) ^ 2)
-      if dd > 1.0 then a = .3 elseif dd > .8 then a = .2 elseif dd > .6 then a = .1 end
+      if dd > 1.0 then a = .2 elseif dd > .8 then a = .12 elseif dd > .6 then a = .06 end
       if hd < 1 then a = max(0, a - .1) end
     end
     if a > 0 then base[k] = mix(base[k], SHADE, a) end
@@ -1050,15 +1055,14 @@ layer("pantry", "pantry", "twinkle", function()
   star(161, 74, "#fff8dc", true); star(204, 70, "#fff8dc"); star(176, 76, "#fff8dc"); star(160, 99, "#fff8dc"); star(205, 98, "#fff8dc", true)
   star(191, 101, "#fff8dc"); star(177, 127, "#fff8dc", true); star(190, 123, "#fff8dc"); star(218, 102, "#fff8dc"); star(213, 127, "#fff8dc")
 end)
--- tools: a mallet tapping the birdhouse roof (bob) + impact sparks (twinkle)
-layer("tools", "tools", "bob", function()
-  line(300, 84, 308, 94, INK, 4); line(301, 85, 309, 95, PINE[5], 2)
-  local hd = mpoly({ {318, 92}, {308, 88}, {304, 97}, {314, 101} }); mrim(hd)
-  mfill(hd, function(x, y) return (y - 88) < (318 - x) * .1 + 4 and PINE[6] or ((y > 97) and PINE[3] or PINE[4]) end)
+-- tools: sparks and glints at the vice and saw (twinkle) + sawdust puff and chips hopping off the bench (bob)
+layer("tools", "tools", "twinkle", function()
+  star(268, 107, "#fff0a8", true); star(280, 111, "#fbc44c"); star(259, 115, "#fff8dc"); star(295, 101, "#fff8dc", true); star(309, 113, "#fff0a8")
+  R(274, 104, 275, 104, "#fbc44c"); R(263, 109, 264, 109, "#fbc44c")
 end)
-layer("tools2", "tools", "twinkle", function()
-  star(319, 103, "#fff0a8", true); star(337, 110, "#fff0a8"); star(311, 110, "#fbc44c"); star(329, 103, "#fff8dc")
-  R(308, 106, 309, 106, PINE[6]); R(339, 104, 340, 104, PINE[6]); R(332, 99, 333, 99, PINE[6])
+layer("tools2", "tools", "bob", function()
+  puff(296, 115, 4); puff(290, 111, 2)
+  R(300, 108, 302, 109, PINE[6]); P(303, 110, INK); R(285, 116, 286, 117, PINE[6]); R(306, 111, 307, 111, PINE[5])
 end)
 -- garden: a tall sprout with a bud nodding in the seed tray (sway) + drips from the can (bob)
 layer("garden", "garden", "sway", function()
@@ -1095,14 +1099,14 @@ end)
 layer("building2", "building", "twinkle", function()
   star(245, 221, "#fff8dc", true); star(303, 222, "#fff8dc"); star(240, 235, "#fff8dc"); star(318, 233, "#fff0a8"); star(277, 205, "#fff8dc")
 end)
--- decor: the shuttle sliding along the fell (drift) + sparkles on the cloth (twinkle)
+-- decor: the shuttle sliding along the fell (drift) + sparkles on the cloth and yarn (twinkle)
 layer("decor", "decor", "drift", function()
-  local sh = mpoly({ {393, 202}, {397, 200}, {409, 200}, {413, 202}, {409, 204}, {397, 204} }); mrim(sh)
-  mfill(sh, function(x, y) return y <= 201 and PINE[6] or (y >= 204 and PINE[3] or PINE[5]) end)
-  R(399, 202, 407, 202, BARN[4]); R(400, 201, 406, 201, BARN[5])
+  local sh = mpoly({ {367, 205}, {370, 203}, {380, 203}, {383, 205}, {380, 207}, {370, 207} }); mrim(sh)
+  mfill(sh, function(x, y) return y <= 204 and PINE[6] or (y >= 207 and PINE[3] or PINE[5]) end)
+  R(371, 205, 379, 205, BARN[4]); R(372, 204, 378, 204, BARN[5])
 end)
 layer("decor2", "decor", "twinkle", function()
-  star(378, 208, "#fff8dc"); star(426, 212, "#fff8dc", true); star(352, 216, "#fff8dc"); star(410, 213, "#fff0a8"); star(380, 176, "#fff8dc")
+  star(362, 212, "#fff8dc"); star(388, 214, "#fff8dc", true); star(421, 204, "#fff8dc"); star(377, 211, "#fff0a8"); star(366, 177, "#fff8dc")
 end)
 
 ---------------------------------------------------------------- layout.json
@@ -1113,7 +1117,7 @@ local spots = {
   { "garden", "Garden", 399, 112, 357, 65, 441, 158 },
   { "potions", "Potions", 141, 212, 93, 172, 190, 248 },
   { "building", "Building", 284, 225, 237, 199, 331, 249 },
-  { "decor", "Decor", 396, 199, 342, 167, 448, 229 },
+  { "decor", "Decor", 387, 200, 343, 171, 432, 229 },
 }
 local parts = {}
 for _, s in ipairs(spots) do

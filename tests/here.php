@@ -514,6 +514,11 @@ if ($withDb) {
     $ws = workshop_view($u);
     ok('workshop: one hotspot per crafting section', preg_match_all('/id="hs-(?!routes|world|ft")/', $ws) === count(CRAFT_CATEGORIES), (string)preg_match_all('/id="hs-(?!routes|world|ft")/', $ws));
     ok('workshop: each card links into the existing crafting page', substr_count($ws, 'inventory.php?tab=craft&amp;c=') >= count(CRAFT_CATEGORIES));
+    $wsL = here_layouts_shipped()['workshop'];
+    ok('workshop: shipped layout is clean, 7 boxed spots, every ready layer names its section and has its picture', !here_lint_layout($wsL) && count($wsL['spots']) === 7
+        && count(array_filter($wsL['spots'], fn($sp) => isset($sp['box']))) === 7 && count($wsL['anim'] ?? []) >= 7
+        && !array_filter($wsL['anim'], fn($an) => !isset(CRAFT_CATEGORIES[$an['for'] ?? '']) || !is_file(APP_ROOT . '/assets/img/scenes/craft-anim-' . $an['k'] . '.png')), json_encode(here_lint_layout($wsL)));
+    ok('workshop: no ready layer plays in a section without a "!"', substr_count($ws, 'class="hanim') === 0 || substr_count($ws, 'class="bang"') > 0);
     ok('workshop: CSP safe, text twin there', !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $ws) && str_contains($ws, 'hubtwin'));
     $th = treehouse_view($u);
     ok('treehouse: the three game rooms are there', substr_count($th, 'id="hs-parlour"') + substr_count($th, 'id="hs-loft"') + substr_count($th, 'id="hs-cellar"') === 3);
@@ -584,6 +589,12 @@ if ($withDb) {
     $svgA = hub_scene('treehouse', [], [], ['layout' => ['anim' => [['k' => 't1', 'fx' => 'bob', 'speed' => 'slow', 'x' => 10, 'y' => 10, 'w' => 8, 'h' => 8]]] + $LA, 'art' => 'tree', 'chrome' => true]);
     ok('an animation layer with a picture is a class-only group (fx-bob spd-slow, no style attribute)', str_contains($svgA, 'class="hanim fx-bob spd-slow"') && !preg_match('/<g class="hanim[^>]*style=/', $svgA));
     ok('trophy layer file is found by name', count(here_layers_present($LA, 'trophies', 'tree', 'treehouse')) === 1);
+    // 2.6.41: a layer with 'for' => hotspot id plays only while that hotspot has its "!"
+    $LF = ['anim' => [['k' => 't1', 'for' => 'rm', 'fx' => 'bob', 'x' => 10, 'y' => 10, 'w' => 8, 'h' => 8]]] + $LA;
+    $hsF = fn(string $mark) => [['id' => 'rm', 'x' => 100, 'y' => 100, 'label' => 'Room', 'href' => '#', 'mark' => $mark]];
+    ok('a layer tied to a hotspot is not drawn without its "!"', !str_contains(hub_scene('treehouse', $hsF(''), [], ['layout' => $LF, 'art' => 'tree']), 'class="hanim'));
+    ok('and is drawn while the hotspot has its "!"', str_contains(hub_scene('treehouse', $hsF('!'), [], ['layout' => $LF, 'art' => 'tree']), 'class="hanim fx-bob"'));
+    ok('a layer tied to another hotspot stays off', !str_contains(hub_scene('treehouse', [['id' => 'other', 'x' => 100, 'y' => 100, 'label' => 'O', 'href' => '#', 'mark' => '!']], [], ['layout' => $LF, 'art' => 'tree']), 'class="hanim'));
     foreach ($tmp as $f) @unlink($f);
     foreach ($realArt as $rf) if (is_file($rf . '.keep')) { @unlink($rf); rename($rf . '.keep', $rf); }
     $pj = array_values(pj_pals($uid));

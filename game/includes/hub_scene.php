@@ -46,6 +46,7 @@ function hub_hotspot(array $h, array $L): string
     else $a .= '<text class="emo" x="' . $x . '" y="' . ($y + (int)round($s * 0.45)) . '" text-anchor="middle" font-size="' . (int)round($s * 1.3) . '" aria-hidden="true">' . e((string)($h['emoji'] ?? '📍')) . '</text>';
     if (($h['mark'] ?? '') !== '') {   // a "!" badge: something to do here (top right of the spot)
         $bx = $x + $r - 10; $by = $y - $r + 10;
+        if (is_array($h['box'] ?? null) && count($h['box']) === 4) { $bx = min((int)$L['w'] - 13, (int)$h['box'][2] - 4); $by = max(13, (int)$h['box'][1] + 4); }   // 2.6.41: a spot with a painted box wears its badge on the box's top right corner, off the thing itself
         $a .= '<g class="bang" aria-hidden="true"><circle cx="' . $bx . '" cy="' . $by . '" r="11"/><text x="' . $bx . '" y="' . ($by + 5) . '" text-anchor="middle" font-size="15">' . e((string)$h['mark']) . '</text></g>';
     }
     return $a . '</a>';
@@ -269,7 +270,10 @@ function hub_scene(string $key, array $hotspots, array $sprites, array $opts): s
     }
     $svg .= '<rect class="hub-tint" x="0" y="0" width="' . $W . '" height="' . $H . '" fill="#0b1226" opacity="0" aria-hidden="true"/>';
     $anim = '';   // animation layers (optional pictures; CSS classes only, still under prefers-reduced-motion)
+    $marked = [];   // 2.6.41: hotspots with a "!" (something to do there)
+    foreach ($hotspots as $h) if (($h['mark'] ?? '') !== '') $marked[(string)($h['id'] ?? '')] = true;
     foreach (here_layers_present($L, 'anim', $art, $key) as $a) {
+        if (($a['for'] ?? '') !== '' && !isset($marked[(string)$a['for']])) continue;   // a layer with 'for' => a hotspot id plays only while that hotspot has its "!"
         $fx = isset(HERE_ANIM_FX[$a['fx'] ?? '']) ? (string)$a['fx'] : 'sway';
         $sp = in_array($a['speed'] ?? '', ['slow', 'fast'], true) ? ' spd-' . $a['speed'] : '';
         $anim .= '<g class="hanim fx-' . $fx . $sp . '" data-anim="' . e(hub_id((string)$a['k'])) . '" aria-hidden="true"><image class="pix" href="' . e((string)$a['src']) . '" x="' . (int)$a['x'] . '" y="' . (int)$a['y'] . '" width="' . (int)$a['w'] . '" height="' . (int)$a['h'] . '" image-rendering="pixelated"/></g>';
