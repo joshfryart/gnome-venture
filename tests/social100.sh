@@ -83,6 +83,7 @@ ok "jar sized for at least 4 gnomes" "$(db "SELECT target >= 4 FROM hollow_goals
 dbx "UPDATE hollow_goals SET kind='any', filter='', target=40 WHERE id=$GID"
 get $A 'garden.php?sel=0-0' >/dev/null; post $A garden.php -d do=till -d x=0 -d y=0 >/dev/null
 RAD=$(db "SELECT id FROM items WHERE slug='radish-seed'"); get $A 'garden.php?sel=0-0' >/dev/null; post $A garden.php -d do=plant -d x=0 -d y=0 -d item_id=$RAD >/dev/null
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('rain_waters','0')"; dbx "UPDATE users SET game_day = game_day + 1 WHERE id=$SID"   # sleep-days: planting already waters the bed for today, so sleep a night and the bed is thirsty again
 get $A 'garden.php?sel=0-0' >/dev/null; post $A garden.php -d do=water -d x=0 -d y=0 >/dev/null
 gt "a real action filled the jar" "$(db "SELECT COALESCE(SUM(amount),0) FROM hollow_goal_contrib WHERE goal_id=$GID")" 0   # v1.0.1: shares are summed into the jar at most once a minute
 dbx "INSERT OR IGNORE INTO settings (name, value) VALUES ('goal_rollup_at', '0')"; dbx "UPDATE settings SET value='9999999999' WHERE name='goal_rollup_at'"   # hold the roll-up so the hand-set totals below stand
@@ -219,6 +220,11 @@ hasnt "no streak words" $H 'streak'
 
 echo "== 6. Opening Day festival framework"
 ok "dates set by the upgrade" "$(db "SELECT COUNT(*) FROM settings WHERE name IN ('fest_opening_day_start','fest_opening_day_end') AND value <> ''")" 2
+# sleep-days: festivals follow each gnome's own game date; line the season epoch up so sprout's game date is today's Hollow date
+if [ "$(db "SELECT COALESCE((SELECT value FROM settings WHERE name='game_clock_on'),'1')")" != "0" ]; then
+  dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('season_epoch','$(date -d "$(TZ=America/Halifax date +%F) - $(db "SELECT game_day FROM users WHERE id=$SID") days" +%F)')"
+fi
+get $A 'community.php?t=jar' >/dev/null   # any page that lists the jars makes the festival jar; festival.php itself only reads it
 get $A festival.php >/dev/null; has "festival page" $H 'Opening Day'; has "stalls" $H 'The stalls'; has "festival jar" $H 'The festival jar'
 get $A 'gnome.php' >/dev/null; has "bunting strip" $H 'class="festbar"'
 ok "festival jar made" "$(db "SELECT COUNT(*) FROM hollow_goals WHERE festival='opening_day'")" 1

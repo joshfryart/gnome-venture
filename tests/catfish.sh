@@ -488,6 +488,9 @@ cfpost -d do=scarfset -d key=blue >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profi
 cfpost -d do=scarfset -d key=nonsense >/dev/null; ok "unknown scarf colour refused: still blue" "$(mget scarf)" blue
 cfpost -d do=scarfset -d key= >/dev/null; PRF=$(curl -s -b $W/p "$BASE/profile.php?id=$UID_"); ok "scarf off: gone from the profile" "$(echo "$PRF" | grep -c 'data-part="scarf"')" 0
 cfpost -d do=bunting >/dev/null; ok "bunting with no festival: refused, no Yarn spent" "$(mget ys)" 12
+# sleep-days: festivals follow the gnome's own game date, so line the season epoch up to make the game date today's Halifax date
+GCLK=$(dbv "SELECT value FROM settings WHERE name='game_clock_on'"); GD=$(dbv "SELECT game_day FROM users WHERE id=$UID_")
+[ "$GCLK" = "0" ] || setg season_epoch "$(date -d "$TD - ${GD:-0} days" +%F)"
 setg festivals_on 1; setg fest_opening_day_start "$TD"; setg fest_opening_day_end "$TM"
 curl -s -b $W/p $BASE/festival.php >/dev/null   # the page makes the jar
 jar() { dbv "SELECT COALESCE(SUM(amount),0) FROM hollow_goal_contrib WHERE user_id=$UID_ AND goal_id=(SELECT id FROM hollow_goals WHERE festival='opening_day')"; }
@@ -1006,13 +1009,15 @@ cfpost -d do=reroll -d slot=0 >/dev/null
 ok "reroll on a new day: an old day's 3/3/3 is dropped, today's count starts at 1 (1 Yarn spent)" "$(mshowv roll.day)/$(mget roll.n.0)/$(mget roll.n.1)/$(mget ys)" "$TODAY/1/0/1"
 # the Petal cap is per week: a full cap from an old week does not block this week
 setg catfish_petal_cap 30
-mset '$m["ms"]=[]; $m["pw"]=["week"=>"'$WEEK'","paid"=>30];'; dbx "UPDATE users SET coins=0 WHERE id=$UID_"
+# sleep-days: the Petal cap week is a game week (7 sleeps, key g<n>), not the ISO week
+CAPWEEK=$WEEK; [ "$GCLK" = "0" ] || CAPWEEK="g$(( $(dbv "SELECT game_day FROM users WHERE id=$UID_") / 7 ))"
+mset '$m["ms"]=[]; $m["pw"]=["week"=>"'$CAPWEEK'","paid"=>30];'; dbx "UPDATE users SET coins=0 WHERE id=$UID_"
 curl -s -b $W/p $BASE/catfish.php -o /dev/null
 ok "petal cap: this week's cap already used (30 of 30): nothing paid" "$(dbv "SELECT coins FROM users WHERE id=$UID_")" 0
 mset '$m["ms"]=[]; $m["pw"]=["week"=>"2000-W01","paid"=>30];'
 curl -s -b $W/p $BASE/catfish.php -o /dev/null
 PC=$(dbv "SELECT coins FROM users WHERE id=$UID_")
-ok "petal cap: an old week's full cap is forgotten: this week pays again (1..30), pw.week is this week, pw.paid is what was paid" "$([ "$PC" -ge 1 ] && [ "$PC" -le 30 ] && echo y)/$(mshowv pw.week)/$(mget pw.paid)" "y/$WEEK/$PC"
+ok "petal cap: an old week's full cap is forgotten: this week pays again (1..30), pw.week is this week, pw.paid is what was paid" "$([ "$PC" -ge 1 ] && [ "$PC" -le 30 ] && echo y)/$(mshowv pw.week)/$(mget pw.paid)" "y/$CAPWEEK/$PC"
 setg catfish_petal_cap 100
 # the Dreamy bonus (+10% Yarn) counts only for a cat that was active for the whole run (meta.rc): 389500 run Kibble = 9 Yarn, 10 when Dreamy counts
 ny() { cfreset; cfapi -d do=tick | jp view.nap_yarn; }
