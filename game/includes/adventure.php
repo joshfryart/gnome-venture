@@ -260,7 +260,7 @@ function start_expedition(array $u, int $routeId): array
         if ($cost > 0) q('UPDATE users SET energy = energy + ? WHERE id = ?', [$cost, $u['id']]);
         return [false, 'You’re already on the road.'];
     }
-    if ($trail && trail_scene_make((int)$u['id'], $newExp, $route)) q('UPDATE expeditions SET steps_total = ?, arrive_at = ? WHERE id = ?', [trail_sections($route), now(), $newExp]);   // 2d: sections instead of steps and minutes
+    if ($trail && trail_scene_make((int)$u['id'], $newExp, $route, (int)$route['b_id'] === (int)$here['id'] && (int)$route['a_id'] !== (int)$here['id'])) q('UPDATE expeditions SET steps_total = ?, arrive_at = ? WHERE id = ?', [trail_sections($route), now(), $newExp]);   // 2d: sections instead of steps and minutes
     return [true, '🍄 You step onto the mycelium. ' . ($quickWalk && !$quick ? '💨 Quick walk. ' : '') . ($cost ? '(−' . $cost . ' energy)' : ($roadFree ? '🧭 A Wayfinder knows the road: no energy used.' : '🦯 Your staff makes light work of it: no energy used.'))
         . ($staffWear ? ' ' . $staffWear : '')];
 }
