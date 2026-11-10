@@ -61,6 +61,7 @@ function unlock_reason(string $key): string
         'gather' => 'you gathered it',
         'soil' => 'your soil grade',
         'yard', 'gotm' => 'your yard',
+        'flowers' => 'you arranged flowers',
         'pots' => 'you collected a pot',
         'pantry' => 'you added a Pantry',
         default => '',

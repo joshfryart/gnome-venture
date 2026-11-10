@@ -1118,6 +1118,7 @@ function gotm_enter(array $u, int $plotId): array
     } catch (PDOException $e) {
         return [false, 'That garden is already entered.'];
     }
+    require_once __DIR__ . '/almanac_pages.php'; almanac_unlock_2646((int)$u['id'], 'gotm');   // v2.6.46: the Garden of the Month rules page
     return [true, '🏆 ' . ($plot['garden_name'] ?: 'Your garden') . ' is entered for Garden of the Month!'];
 }
 

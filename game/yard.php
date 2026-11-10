@@ -8,6 +8,7 @@ $u = require_login();
 $uid = (int)$u['id'];
 $plotId = active_plot_id($uid);
 if (!$plotId) redirect('garden.php');
+require_once __DIR__ . '/includes/almanac_pages.php'; almanac_unlock_2646($uid, 'yard');   // v2.6.46: the Yard size and undo page
 
 if (is_post()) {
     csrf_check();

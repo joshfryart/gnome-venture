@@ -89,6 +89,7 @@ function arrange_post(array $u): void
 function arrange_view(array $u, string $tab): void
 {
     $uid = (int)$u['id'];
+    require_once __DIR__ . '/almanac_pages.php'; almanac_unlock_2646($uid, 'flowers');   // v2.6.46: the Flowers at a glance page
     $dryReady = dry_ready_count($uid);
     ?>
 <nav class="chips arrtabs" aria-label="Arranging">

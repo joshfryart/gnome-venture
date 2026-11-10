@@ -92,3 +92,36 @@ function ensure_almanac_new_pages_2644(): void
     }
     set_setting('almanac2644', '1');
 }
+
+/**
+ * v2.6.46: three Almanac pages that unlock on first use (keys `flowers`, `yard`, `gotm`; the code had been asking for those keys
+ * with no page behind them). The older start-keyed pages (Arranging flowers, Dried flowers, Designing your yard, Curb appeal
+ * and Garden of the Month) stay; these hold the exact numbers. Added once per world, by title.
+ */
+const ALMANAC_2646_PAGES = [
+    'Flowers at a glance' => ['Garden life', 67, 'flowers', 'Open Satchel > Arrange.',
+        "A quick sheet for your flower work; the full pages are [b]Arranging flowers[/b], [b]Dried flowers[/b], [b]Seed packets[/b] and [b]The florists[/b].\n\n💐 [b]Arrange:[/b] Satchel > Arrange. An arrangement needs at least 3 stems and costs 2 energy (the game keeper can change both). It is a one-off item you can sell, give or enter in the weekly Arrangements show.\n🏅 [b]The show:[/b] the top three win 800, 400 and 200 Petals, and every other entry gets 25.\n🪢 [b]Drying:[/b] up to 4 bundles of up to 6 stems at once. Drying follows your sleeps, so a bundle is ready after you sleep, not while the real clock ticks.\n🌷 [b]Florists:[/b] a volunteer shift costs energy and half an hour of game time, and pays in cut flowers."],
+    'Yard size and undo' => ['Garden life', 68, 'yard', 'Open ✏️ Design yard on your garden page.',
+        "[b]Bigger yard:[/b] in the designer you can add a column or a row to your yard. The first costs 400 Petals, and each one you have already bought adds 400 to the price (so the next costs 800, then 1,200). You can add up to 6 columns and 6 rows to a garden, and a yard is never more than 40 squares on a side.\n\n[b]Undo:[/b] every Save remembers how the yard was just before. [b]Undo[/b] brings back the last one, and the last 10 saves are kept.\n\n[b]Curb appeal[/b] counts decorations (the same kind counts up to four times), +2 for each kind of decoration, buildings, up to 20 for flowers in bloom, and a little for garden animals and a frog pond. Its words: under 5 Plain, under 15 Tidy, under 30 Charming, under 55 Delightful, under 90 Enchanting, then Legendary."],
+    'Garden of the Month rules' => ['Garden life', 69, 'gotm', 'Enter a garden for Garden of the Month.',
+        "[b]Entering:[/b] one garden per gnome each month, with a curb appeal of at least 10, and your gardens must be open to visitors (Account page). New gnomes wait a few days first.\n\n[b]Voting:[/b] 3 votes a month, one per garden, never your own, from gnome level 3.\n\n[b]Prizes:[/b] the top three win 1,500, 800 and 400 Petals and a ribbon. Every other entry with at least one vote gets 50 Petals. A tie goes to the higher curb appeal.\n\n[b]Time:[/b] the month is the real calendar month of the Hollow, the same for everyone: it does not move when you sleep. Results come when it ends. All these numbers are set by the game keeper and may change."],
+];
+
+function ensure_almanac_pages_2646(): void
+{
+    if (setting('almanac2646') === '1') return;
+    foreach (ALMANAC_2646_PAGES as $title => [$category, $sort, $key, $hint, $body]) {
+        if (q_val("SELECT 1 FROM encyclopedia_entries WHERE chapter = 'General' AND title = ?", [$title])) continue;
+        try {
+            db_insert('encyclopedia_entries', ['chapter' => 'General', 'category' => $category, 'title' => $title, 'body' => $body, 'unlock_key' => $key, 'hint' => $hint, 'sort_order' => $sort]);
+        } catch (PDOException $e) { continue; }   // made at the same moment
+    }
+    set_setting('almanac2646', '1');
+}
+
+/** Make sure the page exists, then unlock it (the first-use hooks may run before anyone opened the Almanac). */
+function almanac_unlock_2646(int $uid, string $key): void
+{
+    ensure_almanac_pages_2646();
+    unlock_entries($uid, $key);
+}
