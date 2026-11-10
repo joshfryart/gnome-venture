@@ -754,6 +754,11 @@ function post_update_news(string $from): void
         . "[*][b]Contests[/b]: Garden of the Month and the pumpkin carving are judged more fairly, and carving votes follow the same rules as garden votes.\n"
         . "[*][b]Rain Barrel and Gnome Beds[/b]: the daily board shows your first solve of the day.\n"
         . "[*][b]Buttons[/b]: pressing the same button again right after the page reloads now always counts.[/list]"],
+    '2.6.44' => ['📖 Update 2.6.44: a fuller Almanac',
+        "[list][*][b]New Almanac pages[/b]: sleeping and the game day, resting at inns, benches and camp, your garden crew, Messages, the workshop badges, walking the Trail back, and Puzzle Pals.\n"
+        . "[*][b]Older pages brought up to date[/b]: seasons and timers now count your sleeps, and the retired hired helpers are gone from the text.\n"
+        . "[*][b]Trail[/b]: on an easy road a spot that gives a find no longer looks like a fight.\n"
+        . "[*][b]Cooking[/b]: Wild Berry Jam costs 1 energy.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

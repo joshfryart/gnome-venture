@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.6.44
+- **Almanac: 7 new pages** (`includes/almanac_pages.php`, added once when anyone opens the Almanac, unlocked for everyone who has the starter pages): Sleeping and the game day, Resting away from home (inn, bench, villager, camping gear), Garden crew and the Hovel, Messages from the game keeper, The workshop and its badges, Walking the Trail both ways, Puzzle Pals.
+- **Almanac: stale pages fixed** (source and existing worlds, once): Hired help (retired), Pests & companions (no hired helper), Pantry (timers count sleeps), Pots (3/4/5 pots, game minutes), Energy & food (sleep, inns, camp; jam is a 1-energy snack), Dried flowers (one sleep), The florists (game time), Town squares (game clock), The Job Board (after each sleep), Seasons & weather and Seasons in the garden (game days, per gnome), Roads and the wilds (wild country from step 7), Garden crew work order, Puzzle Pals party size, birds eat caterpillars not slugs.
+- **Almanac: text errors fixed** from a full entry review: "butterflys" (27 plants), doubled parentheses in Native-to lines, "A island" (10 villages), empty "Can drop: ." on 7 legendary creatures, the pilaf's almonds. Open design items are in `claude/todo.md`.
+- **Almanac: dead unlock calls removed** (`npc:`, `flowers`, `yard`, `gotm`: no page had those keys).
+- **Trail**: on an easy road an extra mini-boss spot gave a find but was drawn as a fight (⚔️, "A fight waits"). It is now drawn as a find and no longer says a fight waits (`trail_view_html`, `trail_go`).
+- **Jam**: a snack-tier jam (Wild Berry Jam) costs 1 energy to cook (`craft_energy_cost`).
+- **Florist shop page**: "real minutes" is now "game minutes". Admin season-length label now says game days.
+
 ## 2.6.43
 - **Trade**: a negative Petal amount in an offer is clamped before the "offer something / ask for something" checks, so `want_coins=-1` can no longer make a free transfer (`includes/trade.php`).
 - **Garden of the Month and carving settle**: an entry settled late (its gnome was in a time-out) ranks after the ones already placed instead of #1 (`includes/yard.php`, `includes/contests.php`). A 0-vote carving outside the top three gets no thanks Petals.
