@@ -698,6 +698,9 @@ function post_update_news(string $from): void
         . "[*][b]Shops and stops[/b] have opening hours, and some villagers are away on some days.\n"
         . "[*][b]Food heals you[/b]: crops, finds and home-cooked dishes give back health.[/list]\n\n"
         . "Everyone starts on today's day. Contests, shared goals, visits and the Petal caps stay on the real clock."],
+    '2.6.35' => ['🔨 Update 2.6.35: repairs and gathering when you are busy',
+        "[list][*][b]Clear stages tell you why[/b]: if a long job still has you busy, \"Work here today\" and Gather now say so (sleep to finish it) instead of showing an error page or nothing.\n"
+        . "[*][b]No foraging in ruins[/b]: you cannot gather in a place you have not made safe yet.[/list]"],
     '2.6.34' => ['📜 Update 2.6.34: find your calling mentor on the town map',
         "[list][*][b]Mentor button[/b]: every town's picture now has a Mentor button that takes you straight to that town's mentor lodge.\n"
         . "[*][b]Take it from My Gnome[/b]: if your mentor is in another town, the Calling tab has a new button that makes the free trip and takes the chapter on in one go.\n"
