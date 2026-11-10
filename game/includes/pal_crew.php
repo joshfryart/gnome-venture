@@ -210,9 +210,14 @@ function pcrew_work_plot(array $owner, array $plot, array $roles, int $D): array
         if ($raw['plant_id']) { $pid = (int)$raw['plant_id']; $p = $plants[$pid] ??= q_one('SELECT * FROM plants WHERE id = ?', [$pid]); }
         if ($p && (int)($mem[(int)$raw['id']]['plant_id'] ?? 0) !== (int)$p['id']) { pcrew_remember((int)$raw['id'], (int)$p['id']); $mem[(int)$raw['id']] = ['plant_id' => (int)$p['id'], 'skip' => (int)($mem[(int)$raw['id']]['skip'] ?? 0)]; }   // learn what grows here
         $t = annotate_tile($raw, $p);
+        $settled = $D - 1;
         if ($p) {
-            $t = gclock_tile_grow($t, $p, $D - 1);   // settle every finished day up to the day before the one that just ended
-            $t = array_merge($t, ['grow_day' => $D - 1]);
+            // A bed watered by hand (or rained on) for the day that just ended has grown through it: count that day before looking for ripe crops.
+            // A dry bed is settled one day less, so the Water pal (water step below) can still water it for that day.
+            $wetFx = gfx_on() ? garden_day_fx($t, $p, hollow_date_add(hollow_season_epoch(), $D - 1)) : ['wet' => false];
+            if ((string)($t['water_day'] ?? '') === (string)($D - 1) || !empty($wetFx['wet'])) $settled = $D;
+            $t = gclock_tile_grow($t, $p, $settled);
+            $t = array_merge($t, ['grow_day' => $settled]);
         }
         $touched = false;
         if ($works('pests', (int)$t['id']) && !empty($t['pest'])) { q('UPDATE plot_tiles SET pest = NULL, pest_at = NULL WHERE id = ?', [$t['id']]); $t['pest'] = null; $out['pests']++; }
@@ -235,9 +240,18 @@ function pcrew_work_plot(array $owner, array $plot, array $roles, int $D): array
         $fresh = q_one('SELECT * FROM plot_tiles WHERE id = ?', [$t['id']]);
         if (!$fresh) continue;
         // plant: an empty, prepared bed gets the same seed back, or one of the ticked seeds
-        if (!$fresh['plant_id'] && $works('plant', (int)$fresh['id']) && (int)$fresh['tilled'] === 1 && empty($mem[(int)$fresh['id']]['skip'])
+        $hadCrop = (int)($mem[(int)$fresh['id']]['plant_id'] ?? 0) > 0;
+        $needTill = (int)$fresh['tilled'] !== 1;   // a harvested bed goes back to bare ground: the pal tills it again, but only a bed that grew something before
+        if (!$fresh['plant_id'] && $works('plant', (int)$fresh['id']) && ((int)$fresh['tilled'] === 1 || ($needTill && $hadCrop && ($fresh['method'] ?? '') !== 'notill')) && empty($mem[(int)$fresh['id']]['skip'])
             && ts((string)$fresh['settle_until']) <= gclock_plot_now((int)$plot['id'])) {
             [$sid, $np, $why] = pcrew_pick_seed($owner, $fresh, $mem[(int)$fresh['id']] ?? null, $chosen, $stock, $plantDate);
+            if ($np && $needTill) {   // the same effects as the Till action (no tool, no energy)
+                $ft = annotate_tile($fresh, null);
+                $care = care_points($ft);
+                q('UPDATE plot_tiles SET tilled = 1, method = ?, settle_until = NULL, fertility = ?, soil_life = ?, moisture = ?, mulch = 0, weeds = 0, bed_score = 0, maint_at = NULL, checkpoint = 0, neglect_hours = 0, care = ?, care_at = ? WHERE id = ?',
+                    ['till', clamp100((int)$fresh['fertility'] + 5), clamp100((int)$fresh['soil_life'] - care_till_damage($ft)), clamp100((int)$fresh['moisture'] - 10), $care, now(), $fresh['id']]);
+                $fresh = q_one('SELECT * FROM plot_tiles WHERE id = ?', [$fresh['id']]);
+            }
             if ($np && give_item($uid, $sid, -1)) {
                 $stock[$sid]--;
                 $upd = q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = 0, growth_updated_at = ?, last_watered = NULL, water_day = NULL, owed_days = 0, grow_day = ?, harvests = 0, nipped = 0, pest = NULL, pest_at = NULL
@@ -359,7 +373,7 @@ function pcrew_pick_seed(array $owner, array $tile, ?array $mem, array $chosen, 
         if ((int)$tile['fertility'] < (int)$pl['min_soil']) { $why = $why ?: strtolower($pl['name']) . ' needs richer soil'; continue; }
         return [$sid, $pl, ''];
     }
-    return [0, null, $why ?: 'no seed to use'];
+    return [0, null, $why ?: ($chosen ? 'no seed to use' : 'no seed remembered here and none ticked (tick seeds in Seeds and beds)')];
 }
 
 function pcrew_save_report(int $uid, int $day, array $data): void

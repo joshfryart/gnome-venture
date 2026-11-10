@@ -206,6 +206,35 @@ ok('report notes the efficiency and tiredness', ($rep[1]['crew'][0]['eff'] ?? 0)
 ok('every sleep leaves a report row for the Today tab', pcrew_latest_report($uid)[0] === (int)urow($uid)['game_day']);
 foreach ($extra as $id) q('DELETE FROM plot_tiles WHERE id = ?', [$id]);
 
+echo "== harvest + plant without a Water pal (crop that ripens on the day it was watered by hand)\n";
+q('DELETE FROM garden_pal_slots WHERE plot_id = ?', [$plot]); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]); q('DELETE FROM garden_pal_rest WHERE user_id = ?', [$uid]);
+$u = urow($uid);
+pcrew_assign($u, $plot, 'harvest', $p0, 'full', 0); pcrew_assign($u, $plot, 'plant', $p1, 'full', 0);
+$X = (int)urow($uid)['game_day'];
+foreach ($extra ?? [] as $id) q('DELETE FROM plot_tiles WHERE id = ?', [$id]);
+foreach ($tiles as $id) q('UPDATE plot_tiles SET plant_id = NULL, planted_at = NULL, growth_seconds = 0, tilled = 1, settle_until = NULL, fertility = 90, water_day = NULL, pest = NULL, weeds = 0 WHERE id = ?', [$id]);
+q('DELETE FROM garden_pal_memory WHERE tile_id IN (' . implode(',', $tiles) . ')');
+[$hA, $hB] = $tiles;
+// bed A: watered by hand today and one day short of ripe: it ripens with today's growth. Bed B: empty, last crop remembered, seeds in the satchel.
+q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = 0, growth_updated_at = ?, grow_day = ?, water_day = ?, owed_days = 0 WHERE id = ?', [$plant['id'], now(), now(), $X - 20, null, $hA]);
+$sleepsNeeded = gclock_grow_sleeps($plant);
+q('UPDATE plot_tiles SET growth_seconds = ?, grow_day = ?, water_day = ? WHERE id = ?', [(int)($need - $need / $sleepsNeeded / 2), $X, $X, $hA]);
+pcrew_remember($hB, (int)$plant['id']);
+q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $plant['seed_item_id']]); give_item($uid, (int)$plant['seed_item_id'], 3);
+$cropsBefore = (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $plant['produce_item_id']]);
+game_sleep($uid);
+$cropsAfter = (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $plant['produce_item_id']]);
+ok('the crop that ripened with the day just ended is picked the same night', $cropsAfter > $cropsBefore, "$cropsBefore -> $cropsAfter " . json_encode($t($hA)));
+ok('and the emptied bed is replanted the same night (a new crop, growth restarted)', !empty($t($hA)['plant_id']) && (int)$t($hA)['growth_seconds'] === 0, json_encode($t($hA)));
+ok('the other empty bed (remembered crop) is planted too', !empty($t($hB)['plant_id']));
+$pr = array_values(array_filter((pcrew_latest_report($uid)[1]['crew'] ?? []), fn($c) => $c['role'] === 'plant'))[0] ?? [];
+ok('report: two beds planted (the remembered bed and the one just picked)', ($pr['n'] ?? 0) === 2, json_encode($pr));
+// a bed with no memory and no ticked seeds explains itself
+q('UPDATE plot_tiles SET plant_id = NULL WHERE id = ?', [$hB]); q('DELETE FROM garden_pal_memory WHERE tile_id = ?', [$hB]);
+game_sleep($uid);
+$pr = array_values(array_filter((pcrew_latest_report($uid)[1]['crew'] ?? []), fn($c) => $c['role'] === 'plant'))[0] ?? [];
+ok('no memory, nothing ticked: the report tells you to tick seeds', str_contains((string)($pr['warn'] ?? ''), 'tick'), json_encode($pr));
+
 echo "== hired helpers retire with a refund\n";
 q("INSERT INTO helpers (name, species, icon, bio, skills, wage, active) VALUES ('Testy', 'mole', '🦔', 'x', 'water,weed,harvest', 20, 1)");
 $hid = (int)q_val("SELECT id FROM helpers WHERE name = 'Testy'");

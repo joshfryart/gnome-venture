@@ -11412,7 +11412,7 @@ e4c1a9e8ea5d9124b219ab59cf6f461ff10f8b82  includes/mushroom.php
 8f2cd2c4f5a6dc0e961846e88ce7beb32d7369b9  includes/npc_life.php
 4d636ac5cec74837372f0e7dda997ca14f6a6157  includes/nutrients.php
 6a7f86d46f97e76ca209a89fb55d2fee2a2fa564  includes/onboard.php
-ef8c1260fb8a28124d62ef6e5715251bd35dbb90  includes/pal_crew.php
+8ed32e82dad2543966979137231c38d601c9b9c2  includes/pal_crew.php
 219780b9b2e8eb3dfa203648111869ba8632e70e  includes/pal_jobs.php
 9c8e01402d70cd080bb13f23d97b322597b4f11f  includes/pal_jobs_view.php
 2a8927357c230227549f252e2cc341db4d7fb294  includes/pals.php
