@@ -1,6 +1,7 @@
 -- frog: frogs and toads, FRONT view (faces the viewer). Parts: footL, footR (the folded back legs), body, eyeL, eyeR (+ fly).
 -- Spec features: belly (pale belly in the accent colour), spots (+ spotcol), toad = slug has "toad" (flatter, warty, no shine).
--- Quirks (quirks.lua): fly = a fly sits between the eyes and both eyes roll to it; tongue = the tip of the tongue is out; lily = a lily pad scrap on its head.
+-- Quirks (quirks/frog.lua): fly = a fly sits between the eyes and both eyes roll to it; tongue = the tip of the tongue is out; lily = a lily pad scrap with a bud on its head; flower = a tiny flower on its head; worm = a worm dangles from its mouth.
+-- Per animal: bullfrog has eardrums, mire toad brow ridges and glands, poison dart frog gloss and round toe discs, spadefoot vertical pupils and foot spades.
 return function(L)
   local P = L.P
   local sqrt, max = math.sqrt, math.max
@@ -8,6 +9,7 @@ return function(L)
   return function(g)
     local c, f, q, B, A = g.c, g.f, g.q, g.B, g.A
     local toad = g.s.slug:find("toad") ~= nil
+    local dart, mire, spade = g.s.slug:find("dart") ~= nil, g.s.slug:find("mire") ~= nil, g.s.slug:find("spadefoot") ~= nil
     local bw, bh = toad and 16 or 15, toad and 10 or 11.2          -- body half-width and half-height
     local ey = toad and 20 or 22.5                                 -- height of the eye bumps
     g:shadow(0, 18.5)
@@ -19,6 +21,10 @@ return function(L)
       local ft = g:E(s * 15.8, 1.9, 5.8, 2.1)
       g:form(ft, B, { frac = 0.3, off = 1 }) g:under(ft, B.deep)
       for i = -1, 1 do g:put(s * 15.8 + i * 3.3, 2.5, B.deep) g:put(s * 15.8 + i * 3.3 - 1.7, 2.5, B.hi) end
+      if spade then   -- the horny digging spade on the inner edge of each foot
+        local sp = g:E(s * 10.6, 2.2, 1.7, 1.7); g:form(sp, L.R.bark, { frac = 0.4, off = 1 }) g:put(s * 10.6 - 0.6, 2.8, P.cream)
+      end
+      if dart then for i = -1, 1 do g:dots({ { s * 15.8 + i * 3.3 + 0.5, 1.4 } }, A.base) end end   -- round sticky toe discs
     end
     g:T("body")
     local body = g:E(0, 11.7, bw, bh)
@@ -41,6 +47,8 @@ return function(L)
       local px, py = g:x(ea), g:y(ey - 0.4)
       if q.fly then   -- both eyes have rolled inward and up, at the fly
         c:fillMask(rect(px - s * 2 - 1, py - 2, px - s * 2, py), P.ink) c:put(px - s * 2 - (s > 0 and 0 or 1), py - 2, P.cream)
+      elseif spade then   -- a tall slit pupil
+        c:fillMask(rect(px - 1, py - 3, px, py + 1), P.ink) c:put(px - 1, py - 3, P.cream)
       else            -- a wide slit pupil
         c:fillMask(rect(px - 2, py - 1, px + 1, py), P.ink) c:put(px - 2, py - 1, P.cream)
       end
@@ -79,6 +87,38 @@ return function(L)
       c:put(tx - 1, g.gy - 1, B.deep) c:put(tx + 1, g.gy - 1, B.deep) c:put(tx - 3, g.gy - 2, B.hi) c:put(tx, g.gy - 2, B.hi) c:put(tx + 3, g.gy - 2, B.hi)
     end
     if not toad then g:put(-5, 21.7, P.cream) g:put(-4.2, 13.3, P.sky.hi) end                        -- wet shine
+    if not toad and not dart then   -- the round eardrum behind each eye
+      for _, s in ipairs({ -1, 1 }) do
+        local tm = g:E(s * 13, 15.6, 2.5, 2.5); g:over(tm, B.hi, B.base, B.shade) tm:each(function(x, y) if not tm:has(x + 1, y + 1) then L.inside(c, x, y, B.shade, B.hi, B.base) end end)
+        g:inside(s * 13, 15.6, B.deep, B.hi, B.base)
+      end
+    end
+    if mire then   -- heavy brow ridges and big warty glands behind the eyes
+      for _, s in ipairs({ -1, 1 }) do
+        local gl = g:E(s * 12.6, 16.8, 3.6, 2.4); g:over(gl, B.shade, B.base, B.hi, B.shade) gl:each(function(x, y) if not gl:has(x - 1, y - 1) then L.inside(c, x, y, B.hi, B.shade, B.base) end end)
+        for i = 0, 2 do g:dots({ { s * (11.4 + i * 1.2), 16.4 + (i % 2) * 0.8 } }, B.deep) end
+        g:stroke({ { s * 3.4, 21 }, { s * 8, 21.6 }, { s * 12.6, 20 } }, B.deep)
+      end
+    end
+    if dart then   -- glossy skin: bright streaks, bright dots on the belly edge
+      g:dots({ { -6, 19.2 }, { -5, 19.8 }, { -3.8, 20 }, { 6, 18.6 } }, P.cream) g:dots({ { -10, 14 }, { -9, 15 }, { 8, 10 } }, P.sky.hi)
+    end
+    if q.lily then   -- a scrap of lily pad on its head, with a pink bud
+      local lp = g:E(0, 22.6, 4.2, 1.9); lp:cut(g:P({ { 0, 22.6 }, { 4.6, 24.4 }, { 4.6, 21.2 } }))
+      g:form(lp, P.moss, { frac = 0.34, off = 1 }) g:under(lp, P.moss.deep) g:mark({ { -3, 22.4 }, { 0, 22.6 } }, P.moss.deep, P.moss.base, P.moss.shade)
+      g:fill(g:E(-1.4, 24.4, 1.2, 1.2), P.petal.base) g:dots({ { -1.4, 25.4 } }, P.petal.hi)
+    end
+    if q.flower then   -- a tiny flower from the rainforest, tucked on its head
+      g:dots({ { 0.2, 22.4 }, { 0.2, 23.4 } }, P.moss.base)
+      local fx, fy = g:x(0.2), g:y(25)
+      for _, d in ipairs({ { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } }) do c:put(fx + d[1] * 2, fy + d[2] * 2, P.petal.base) c:put(fx + d[1], fy + d[2], P.petal.base) end
+      c:put(fx, fy, P.gold.base)
+    end
+    if q.worm then   -- a worm dangling from the corner of its mouth
+      local w = g:Ln1({ { 5.5, 14.2 }, { 7.6, 10.8 }, { 5.8, 7.6 }, { 7.8, 4.6 } }, 2)
+      g:fill(w, P.petal.base) w:each(function(x, y) if not w:has(x + 1, y + 1) then c:put(x, y, P.petal.shade) end end)
+      g:dots({ { 7, 11.6 }, { 6.4, 8.4 } }, P.petal.hi) g:dots({ { 6.4, 9.6 }, { 7.2, 6 } }, P.petal.deep)
+    end
     if q.fly then   -- the fly: on the frog's head, between its eyes
       g:T("fly") local x, y = g:x(0), g:y(bh + 11.7 + 2.5)
       c:fillMask(rect(x - 1, y, x, y + 1), P.ink) c:put(x - 2, y - 1, P.sky.base) c:put(x + 1, y - 1, P.sky.base) c:put(x - 3, y - 2, P.sky.base) c:put(x + 2, y - 2, P.sky.base) c:put(x - 1, y, P.ember.base)

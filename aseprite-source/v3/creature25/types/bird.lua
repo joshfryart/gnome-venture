@@ -173,8 +173,8 @@ return function(L)
     end
     if f.crest and base ~= "long" and not k.bald then   -- a crest of three swept-back feathers behind the crown (the hawk's middle one is its own kinked part)
       local cl = big and 1 or 0.8
-      for i, t in ipairs({ { -0.85, 0.2, 148, 6.2 }, { -0.55, 0.62, 128, 7.4 }, { -0.12, 0.88, 108, 6.8 } }) do
-        feather(hx + hrx * t[1], hy + hry * t[2], t[3], t[4] * cl, 2.7, i == 1 and L.darker(HD) or HD, CH.base, false)
+      for i, t in ipairs({ { -0.8, 0.3, 152, 5.2 }, { -0.5, 0.65, 140, 5.8 }, { -0.2, 0.88, 128, 5.4 } }) do
+        feather(hx + hrx * t[1], hy + hry * t[2], t[3], t[4] * cl, 3.0, i == 1 and L.darker(HD) or HD, CH.base, false)
       end
     end
     if k.bald then   -- a vulture's ruff of pale down round the base of the bare neck
@@ -252,14 +252,11 @@ return function(L)
     if q.quirk == "kink" then   -- the middle crest feather is kinked: a stem straight up, then it flops over backwards in a sharp bend, pale tip
       g:T("crest")
       local ka, kb = hx - hrx * 0.45, hy + hry * 0.7
-      local m = g:Limb({ { ka, kb }, { ka + 0.2, kb + 5.4 } }, 2.6, 2.2)
-      local seg = g:P({ { ka + 1.4, kb + 6.4 }, { ka - 1.6, kb + 6.8 }, { ka - 5.4, kb + 6 }, { ka - 8.4, kb + 3.4 }, { ka - 8.6, kb + 2.4 }, { ka - 5.6, kb + 3.6 }, { ka - 1.8, kb + 3.8 }, { ka + 1.2, kb + 3.8 } })
-      m:add(seg)
+      local m = g:Limb({ { ka, kb }, { ka + 0.3, kb + 4.8 }, { ka - 1.4, kb + 6.4 }, { ka - 4, kb + 6.4 }, { ka - 6.6, kb + 4.4 } }, 2.4, 1.0)
       g:form(m, HD, { frac = 0.3, off = 1 }) g:under(m, HD.deep)
-      local xt = g:x(ka - 5.2); m:each(function(x, y) if x <= xt and y > g:y(kb + 5) then c:put(x, y, CH.base) end end)                -- pale tip
-      g:mark({ { ka + 0.2, kb + 0.6 }, { ka + 0.2, kb + 5.4 }, { ka - 2, kb + 5.2 }, { ka - 6, kb + 4 } }, HD.shade, HD.base, HD.hi, CH.base)   -- the shaft follows the bend
-      g:dots({ { ka + 1.2, kb + 2.2 }, { ka + 1.2, kb + 4 }, { ka - 3, kb + 6.4 } }, HD.deep)                                             -- barbs
-      g:dots({ { ka + 1.4, kb + 5.4 } }, HD.deep)
+      local xt = g:x(ka - 4.4); m:each(function(x, y) if x <= xt then c:put(x, y, CH.base) end end)                                  -- pale tip
+      g:mark({ { ka + 0.2, kb + 0.6 }, { ka + 0.3, kb + 4.8 }, { ka - 1.4, kb + 6.4 }, { ka - 4, kb + 6.4 } }, HD.shade, HD.base, HD.hi)   -- the shaft follows the bend
+      g:dots({ { ka + 1.2, kb + 2.2 }, { ka + 1.2, kb + 4 } }, HD.deep)                                                               -- barbs
     end
 
     ------------------------------------------------------------------ eyes

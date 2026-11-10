@@ -361,7 +361,8 @@
   A.folk = { attack: 'charge', poses: FOLK, fidgets: ['wave', 'bounce'] };
 
   /* quirk parts (a creature may have one whatever its body type): springs by part id, and parts that stay hidden until a pose shows them */
-  A.extra = { leaf: { k: 70, d: 3.5, g: .22, w: .7, max: 55, dir: [.5, -1] }, crest: { k: 90, d: 4, g: .2, w: .5, max: 50, dir: [.2, -1] } };
+  A.extra = { leaf: { k: 70, d: 3.5, g: .22, w: .7, max: 55, dir: [.5, -1] }, crest: { k: 90, d: 4, g: .2, w: .5, max: 50, dir: [.2, -1] },
+    ball: { k: 120, d: 6, g: .1, w: .3, max: 25, dir: [0, -1] }, cloud: { k: 40, d: 2.5, g: .25, w: .8, max: 40, dir: [0, -1] } };   // the dung beetle's ball, the gnats round the gnat cloud
   A.hide = { puff: 1 };
   function ext(base, more) { var o = {}, k; for (k in base) o[k] = base[k]; for (k in more) o[k] = more[k]; return o; }
   function add(pose, tracks) { return ext(pose, { tracks: ext(pose.tracks, tracks) }); }   // the same pose plus tracks for the quirk parts

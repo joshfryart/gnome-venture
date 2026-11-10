@@ -145,9 +145,8 @@ return function(L)
     solid(g, hd, B, { frac = .3, offu = 3, pop = { { 7, 22 } } })
     g:mark({ { 6, 15 }, { 8.5, 13 } }, B.shade, B.base)
     cheek(g, 15.6, 14.4)
-    local function mand(sg, r)                                                                  -- one jaw: a curved horn, the two meet at the tips
-      local y0 = 14.5 + sg * 1.2
-      local m = g:Ln({ { 17, y0 }, { 21.5, 14.5 + sg * 3.4 }, { 26, 14.6 + sg * .4 } }, 1.7)
+    local function mand(sg, r)                                                                  -- one sickle jaw; the two tips meet in front
+      local m = g:Ln({ { 17, 14.5 + sg * 1.6 }, { 22, 14.5 + sg * 3.6 }, { 26, 14.4 + sg * .3 } }, 1.3)
       g:form(m, r, { frac = .4, off = 1, inner = false })
     end
     mand(1, jaw); mand(-1, L.darker(jaw))
@@ -304,18 +303,18 @@ return function(L)
     end
     if dung then for i = 0, 3 do g:put(hx + 6, hy - .5 - i * 1.9, B.deep) end end
     if ember then   -- a big curved rhino horn
-      local hm = g:Ln({ { 17.2, 13.8 }, { 20.6, 17.6 } }, 3.4); hm:add(g:Ln({ { 20.6, 17.6 }, { 22.8, 22 } }, 2.6)); hm:add(g:Ln({ { 22.8, 22 }, { 22.6, 26.4 } }, 1.6))
+      local hm = g:Ln({ { 17.2, 13.8 }, { 20.6, 17.6 } }, 2.8); hm:add(g:Ln({ { 20.6, 17.6 }, { 22.8, 22 } }, 2.2)); hm:add(g:Ln({ { 22.8, 22 }, { 22.6, 26.4 } }, 1.5))
       g:form(hm, A, { frac = .35, off = 1, pop = { { 19.5, 16.2 } }, inner = false }); g:over(hm:edge(), A.shade, A.base)
     end
     if stag then   -- antler jaws: near jaw bright, far jaw darker, each with teeth
-      local function jawm(dy, r)
-        local m = g:Ln({ { 19.5, 14 + dy }, { 26, 14.5 + dy }, { 30.5, 19.5 + dy } }, 2.4); m:add(g:Ln({ { 30.5, 19.5 + dy }, { 31, 25 + dy } }, 1.6))
-        m:add(g:P({ { 24.5, 15.2 + dy }, { 25.5, 18.4 + dy }, { 27.8, 16.4 + dy } }))
-        if q.chipped and dy > 0 then m:cut(g:P({ { 27, 23 }, { 34, 23 }, { 34, 29 }, { 27, 29 } })) end
+      local function jawm(pts, r, up)
+        local m = g:Ln({ pts[1], pts[2], pts[3] }, 2.5); m:add(g:Ln({ pts[3], pts[4] }, 1.6))
+        if up then m:add(g:P({ { 24, 15.4 }, { 25.4, 18.8 }, { 27.6, 17.2 } })) end
+        if q.chipped and up then m:cut(g:P({ { 27, 25 }, { 34, 25 }, { 34, 31 }, { 27, 31 } })) end
         g:form(m, r, { frac = .35, off = 1, inner = false }); return m
       end
-      local far = jawm(-4.2, L.darker(A)); local near = jawm(0, A)
-      g:over(near:edge(), A.shade, A.base) g:dots({ { 22.5, 14.2 }, { 28.4, 17.6 } }, A.hi)
+      local far = jawm({ { 19.5, 10.5 }, { 26, 9.6 }, { 31, 11.2 }, { 34.5, 15 } }, L.darker(A)); local near = jawm({ { 19.5, 14 }, { 25, 16 }, { 29, 21.5 }, { 29.5, 27 } }, A, true)
+      g:over(near:edge(), A.shade, A.base) g:dots({ { 22.5, 15.4 }, { 27.4, 20.2 } }, A.hi)
     end
     if bell then g:dots({ { 11, 15.5 }, { 14, 16.6 } }, B.hi) end
     if not (weevil or dung) then g:dots({ { hx + 4, hy - 3.6 }, { hx + 5, hy - 3.6 } }, B.deep) end    -- mouth corner
@@ -483,18 +482,18 @@ return function(L)
       g:shadow(-6, 26)
       local hl = { w0 = 6, w1 = 1.8, fo = 1.5, extra = function(m, near, dx, r, fb)
         if near then for i = 1, 4 do g:put(-18.5 + dx, 4 + i * 4, P.ink) end end end }   -- spines up the shin
-      leg(g, "leg1", { -9, 12 }, { -20.5, 25.5 }, -15, hl)
+      leg(g, "leg1", { -9, 12 }, { -21, 20.5 }, -15, hl)
       leg(g, "leg2", { -0.5, 10 }, { 2.5, 6.5 }, 4, { w0 = 2.2, w1 = 1.5 }); leg(g, "leg3", { 7, 10 }, { 12, 7 }, 13.5, { w0 = 2.2, w1 = 1.5 })
       local WR = L.lighter(A)
-      for _, w in ipairs({ { "wingB", -11, 28.5, 11, 3.9, 168, L.darker(A) }, { "wingF", -8, 27, 11.5, 4.4, 160, A } }) do
+      for _, w in ipairs({ { "wingB", -10, 26.5, 10, 3.4, 172, L.darker(A) }, { "wingF", -8, 25.5, 10.5, 3.8, 166, A } }) do
         g:T(w[1])
         local m = tilted(g, w[2], w[3], w[4], w[5], w[6])
         solid(g, m, w[7], { frac = .3, off = 1, pop = { { w[2] + 3, w[3] + 2 } } })
         local r = w[7]
         for i = -1, 1 do g:mark({ { w[2] + 8, w[3] - 1 + i }, { w[2] - 9, w[3] + 2 + i * 2 } }, r.deep, r.base, r.shade, r.hi) end
         if w[1] == "wingF" then
-          g:mark({ { -12, 24.4 }, { -12, 29 } }, r.deep, r.base, r.shade) g:mark({ { -8, 24.4 }, { -8.5, 29.6 } }, r.deep, r.base, r.shade) g:mark({ { -4, 25 }, { -4.5, 29.2 } }, r.deep, r.base, r.shade)
-          if q.note then local x, y = g:x(-14), g:y(31.4)   -- a music note it has just drummed
+          g:mark({ { -12, 24 }, { -12, 28.6 } }, r.deep, r.base, r.shade) g:mark({ { -8, 24 }, { -8.5, 28.8 } }, r.deep, r.base, r.shade)
+          if q.note then local x, y = g:x(-14), g:y(32)   -- a music note it has just drummed
             for _, p in ipairs({ { 0, 3 }, { 1, 3 }, { 0, 4 }, { 1, 4 }, { 2, 0 }, { 2, 1 }, { 2, 2 }, { 2, 3 }, { 3, 0 }, { 4, 1 } }) do c:put(x + p[1], y + p[2] - 5, P.cream) end
             c:put(x, y - 1, P.gold.base) end
         end
@@ -543,7 +542,7 @@ return function(L)
     local slug = g.s.slug
     local gnat, dusk, dim, blight = slug == "gnat-cloud", slug == "dusk-moth", slug == "dimwing-moth", slug == "blight-mother"
     g:shadow(-3, gnat and 22 or 20)
-    local lw = gnat and { w0 = 1.3, w1 = 1, fo = 2 } or { w0 = 1.9, w1 = 1.3, fo = 2.5 }
+    local lw = gnat and { w0 = 1.3, w1 = 1, fo = 2 } or (blight and { w0 = 1.2, w1 = .9, fo = 3.5 } or { w0 = 1.9, w1 = 1.3, fo = 2.5 })
     if gnat then
       leg(g, "leg1", { -3, 13.5 }, { -9, 10 }, -10.5, lw); leg(g, "leg2", { 3, 13.5 }, { 9, 10 }, 10.5, lw)
     else
@@ -573,7 +572,8 @@ return function(L)
       local a, b = wingPoint(fca, fcb, fth, fra, frb, 20, .5)
       local cr = g:E(a, b, 3.4, 3.4); cr:cut(g:E(a + 1.6, b + .9, 3, 3)); g:fill(cr, P.cream); g:over(cr:edge(), A.hi, P.cream)
     elseif blight then
-      for i, t in ipairs({ { 15, .5, 3.4 }, { -35, .62, 2.4 }, { 55, .7, 2 } }) do local a, b = wingPoint(fca, fcb, fth, fra, frb, t[1], t[2]); eyespot(g, a, b, A, t[3]) end
+      local a, b = wingPoint(fca, fcb, fth, fra, frb, 12, .5); eyespot(g, a, b, A, 3.4)
+      for _, t in ipairs({ { -40, .6 }, { 50, .7 }, { -15, .8 } }) do local a2, b2 = wingPoint(fca, fcb, fth, fra, frb, t[1], t[2]); g:fill(g:E(a2, b2, 1.1, 1.1), P.cream) end
     elseif not gnat then local a, b = wingPoint(fca, fcb, fth, fra, frb, 10, .55); eyespot(g, a, b, A, 3) end
     g:T("wingH")
     local hra, hrb = gnat and 4 or 10.5, gnat and 1.8 or 6.5
@@ -583,23 +583,22 @@ return function(L)
       mH:cut(g:E(hca - 4.5, hcb - 4, 3.6, 3)); mH:cut(g:P({ { hca - 8, hcb + 3.5 }, { hca - 2, hcb + 3 }, { hca - 5, hcb + 1 } }))
     end
     wingFinish(g, mH, gnat and bA or hA, { -3, 16 }, hca, hcb, hth, hra, hrb, { 155, 185, 215 })
-    if blight then local a, b = wingPoint(hca, hcb, hth, hra, hrb, 200, .5); eyespot(g, a, b, hA, 2.6) end
     -- fuzzy body
     g:T("body")
     local body = g:E(-3, 14.6, gnat and 9.5 or 9.5, gnat and 4.2 or 7.3); body:add(g:E(-10.5, 13.6, gnat and 6 or 5, gnat and 3 or 4.2))
     solid(g, body, B, { frac = .3, offu = 3, pop = { { -7, gnat and 17.5 or 19.5 } } })
-    if not gnat then g:fur(body, B, 2.6, B.deep) end
+    if not gnat then g:fur(body, B, 0.8) end
     for a = -3, -14, -3.2 do g:mark({ { a, gnat and 17.8 or 20 }, { a - .6, gnat and 12 or 9 } }, B.shade, B.base) end
-    local ruff = g:E(3, 14.3, gnat and 2.8 or 3.6, gnat and 3.8 or 5.2); g:form(ruff, L.lighter(B), { frac = .3, off = 1, inner = true }); g:fur(ruff, L.lighter(B), 3)
+    local ruff = g:E(3, 14.3, gnat and 2.8 or 3.6, gnat and 3.8 or 5.2); g:form(ruff, L.lighter(B), { frac = .3, off = 1, inner = true }); g:fur(ruff, L.lighter(B), 1)
     g:dots({ { 1.5, 17.6 }, { 4, 16.4 }, { 2.4, 13 } }, L.lighter(B).hi)
-    if blight then for i = 1, 5 do local a, b = -12 + i * 2.6, 12 + g:rnd(i, 3) * 6; g:inside(a, b, A.base, B.base, B.shade) g:inside(a + .8, b, A.base, B.base, B.shade) end end
+    
     -- head
     g:T("head")
     local hr = gnat and 4.6 or 6.5
     local hd = g:E(8.5, gnat and 16 or 17.5, hr, hr)
     solid(g, hd, B, { frac = .3, offu = 3, pop = { { 5.5, (gnat and 16 or 17.5) + hr - 1.8 } } })
     local hy = gnat and 16 or 17.5
-    g:fur(g:E(8.5, hy, hr, hr), B, 2, B.deep)
+    g:fur(g:E(8.5, hy, hr, hr), B, 0.7)
     cheek(g, 12.2, hy - 3.2)
     g:stroke({ { 14, hy - 2.6 }, { 16, hy - 3.8 }, { 15.8, hy - 5.8 } }, L.R.cream.shade)    -- a curled tongue
     if blight then   -- two big curving horns
@@ -626,10 +625,10 @@ return function(L)
     local slug = g.s.slug
     local bee, thrum = slug == "giant-bumblebee", slug == "old-thrum"
     g:shadow(-5, 22)
-    local lo = bee and { w0 = 2.9, w1 = 2 } or { w0 = 2.2, w1 = 1.5 }
+    local lo = bee and { w0 = 2.4, w1 = 1.6, near = L.R.bark, far = L.darker(L.R.bark) } or { w0 = 1.8, w1 = 1.2, near = L.R.bark, far = L.darker(L.R.bark) }
     local lo1 = lo
     if bee then   -- a gold pollen ball on the hind leg
-      lo1 = { w0 = 2.9, w1 = 2, extra = function(m, near, dx) if near then
+      lo1 = { w0 = 2.4, w1 = 1.6, near = L.R.bark, far = L.darker(L.R.bark), extra = function(m, near, dx) if near then
         local b = g:E(-8.6 + dx, 6.2, 2.9, 2.9); g:form(b, P.gold, { frac = .35, off = 1, inner = false, pop = { { -9.6, 8 } } }) end end }
     end
     leg(g, "leg1", { -2, 10.5 }, { -7.5, 7.5 }, -9.5, lo1); leg(g, "leg2", { 3, 10.5 }, { 5.5, 7 }, 7, lo); leg(g, "leg3", { 7.5, 10.5 }, { 12, 7.5 }, 13.5, lo)
@@ -652,7 +651,7 @@ return function(L)
     local st = bee and g:P({ { -22, 12.4 }, { -26.5, 10.6 }, { -22, 10 } }) or g:P({ { -24.5, 13.8 }, { -30, 9.6 }, { -23.5, 11 } })
     ab:add(st)
     solid(g, ab, B, { frac = .3, offu = 3, pop = { { -12, 21 }, { -13, 20.6 } } })
-    if bee then g:fur(ab, B, 2.2, B.deep) end
+    if bee then g:fur(ab, B, 0.8) end
     if f.stripes then
       local bands = bee and { { -10, -5.5 }, { -19, -15 } } or { { -10, -8 }, { -14.6, -12.6 }, { -19.2, -17.2 } }
       for _, bd in ipairs(bands) do local bm = g:R(bd[1], 0, bd[2], 40); bm:clip(ab); band(g, bm, B, STR) end
@@ -665,7 +664,7 @@ return function(L)
     local th2m = bee and g:E(3, 17, 8.2, 7.6) or g:E(3, 16.5, 6.4, 6.1)
     if thrum then th2m = g:E(3, 16.8, 7.2, 6.8) end
     solid(g, th2m, B, { frac = .3, offu = 3, pop = { { -1, 21 }, { 0, 21.6 } } })
-    if bee then g:fur(th2m, B, 2.8, B.deep) end
+    if bee then g:fur(th2m, B, 0.8) end
     if f.stripes then local bm = g:R(-.4, 0, 1.2, 40); bm:clip(th2m); band(g, bm, B, STR) end
     g:mark({ { 7.5, 11.5 }, { 7, 15.5 } }, B.shade, B.base)
     -- head
@@ -680,7 +679,7 @@ return function(L)
       end
     end
     solid(g, hd, B, { frac = .3, offu = 3, pop = { { hx - 4.5, hy + ry - 2 } } })
-    if bee then g:fur(g:E(hx, hy, rx, ry), B, 2, B.deep) end
+    if bee then g:fur(g:E(hx, hy, rx, ry), B, 0.7) end
     local jw = g:Ln({ { hx + 5, hy - 4.4 }, { hx + 8.6, hy - 5.8 }, { hx + 7.6, hy - 2 } }, 1.5); g:form(jw, thrum and A or L.R.bark, { frac = .4, off = 1, inner = false })
     cheek(g, hx + 2.3, hy - 3.8)
     if q.scar then g:mark({ { hx - 3, hy + ry + 1 }, { hx + 1, hy + 1 }, { hx + 5.8, hy - 4.5 } }, L.R.cream.base, B.base, B.shade, B.hi); g:mark({ { hx - .5, hy + 3 }, { hx + 1.2, hy + 2.2 } }, L.R.cream.shade, B.base, B.shade, B.hi) g:mark({ { hx + 2.4, hy - .6 }, { hx + 4, hy - 1.8 } }, L.R.cream.shade, B.base, B.shade, B.hi) end

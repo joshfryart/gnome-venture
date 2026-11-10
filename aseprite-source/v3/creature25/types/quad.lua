@@ -220,6 +220,7 @@ return function(L)
     end
     -- quirks painted on the body
     local QC = { B.base, B.shade, B.hi, B.deep }
+    local GOLDC = P.gold.base
     if QK.plaster then   -- a sticking plaster on the rump (two crossed strips)
       local pa, pb = k.bx - k.brx * 0.72, k.by + k.bry * 0.25
       g:over(g:Ln({ { pa - 3, pb + 3 }, { pa + 3, pb - 3 } }, 2.0), CREAM.hi, table.unpack(QC)) g:over(g:Ln({ { pa - 3, pb - 3 }, { pa + 3, pb + 3 } }, 2.0), CREAM.base, table.unpack(QC)) g:over(g:E(pa, pb, 1.5, 1.5), CREAM.shade, table.unpack(QC), CREAM.hi, CREAM.base) g:dots({ { pa, pb } }, CREAM.deep)
@@ -250,6 +251,22 @@ return function(L)
       g:stroke({ { la, lb }, { la - 0.8, lb - 1.6 } }, P.moss.shade)
     end
 
+    if QK.clam then   -- a scallop shell clutched to its chest: a fan with ribs
+      local ca, cb = k.bx + k.brx * 0.5, k.by - k.bry * 0.15
+      local fan = g:E(ca, cb, 4.2, 3.6); fan:cut(g:R(ca - 6, cb - 6, ca + 6, cb - 1.4))
+      g:form(fan, PT, { frac = 0.3, off = 1, inner = false }) g:under(fan, PT.deep)
+      for i = -2, 2 do g:mark({ { ca + i * 0.5, cb - 1.2 }, { ca + i * 1.5, cb + 3 } }, PT.shade, PT.base, PT.hi) end
+      g:fill(g:R(ca - 1.8, cb - 2.2, ca + 1.8, cb - 1.2), PT.deep)
+    end
+    if QK.rosette then   -- a prize rosette pinned to the wool, two ribbon tails
+      local ra, rb = k.bx + k.brx * 0.1, k.by + k.bry * 0.1
+      g:fill(g:P({ { ra - 1, rb }, { ra - 3.4, rb - 5.4 }, { ra - 1.4, rb - 4.6 }, { ra, rb - 6 } }), P.sky.base) g:fill(g:P({ { ra + 1, rb }, { ra + 0.4, rb - 6 }, { ra + 2, rb - 4.6 }, { ra + 3.6, rb - 5.4 } }), P.sky.shade)
+      local rs = g:E(ra, rb, 3.2, 3.2); g:form(rs, P.ember, { frac = 0.3, off = 1 }) g:under(rs, P.ember.deep)
+      g:fill(g:E(ra, rb, 1.3, 1.3), GOLDC) g:put(ra - 0.6, rb + 0.6, P.cream)
+      for a = 0, 5 do local t = a * pi / 3; g:put(ra + cos(t) * 2.8, rb + sin(t) * 2.8, P.ember.hi) end
+    end
+    if QK.mud then for i = 1, 4 do local m = g:E(k.bx - 6 + i * 3.2 + g:rnd(i, 3), k.by + k.bry * 0.55 + g:rnd(i, 4) * 2, 1.7, 1.2); m:clip(body); g:over(m, W.deep, B.base, B.shade, B.hi) g:over(g:E(k.bx - 6.4 + i * 3.2, k.by + k.bry * 0.55 + 0.6, 0.7, 0.5), W.base, W.deep) end end
+
     ------------------------------------------------------------------ near legs
     leg("legBN", backA, B, true, true) leg("legFN", frontA, B, false, true)
 
@@ -266,24 +283,26 @@ return function(L)
     g:T("head")
     local sy = hy - hry * 0.32                                  -- the snout's centre line
     local tipx = hx + hrx + k.sn
-    local earR = B
+    local earR = k.earink and L.R.ink or B
     local function earInner(m, r) local i = m:shrink(big and 2 or 1); i:each(function(x, y) L.inside(c, x, y, PT.shade, r.base, r.shade) end) end
     local function ear(dx, r, far)
       local ex, eb = hx - hrx * 0.42 + dx, hy + hry * 0.62
       local m
-      if k.ears == "point" then m = g:P({ { ex - 2.6, eb }, { ex - 1.2, eb + 8.2 }, { ex + 3.4, eb + 0.6 } })
-      elseif k.ears == "cat" or k.ears == "tuft" then m = g:P({ { ex - 2.8, eb }, { ex - 1.6, eb + 5.4 }, { ex + 3.0, eb + 0.8 } })
+      local es = k.earsz or 1
+      if k.ears == "point" then m = g:P({ { ex - 2.6 * es, eb }, { ex - 1.2 * es, eb + 8.2 * es }, { ex + 3.4 * es, eb + 0.6 } })
+      elseif k.ears == "cat" or k.ears == "tuft" then m = g:P({ { ex - 2.8 * es, eb }, { ex - 1.6 * es, eb + 5.4 * es }, { ex + 3.0 * es, eb + 0.8 } })
       elseif k.ears == "round" then m = g:E(ex - 0.6, eb + 2.2 + ((k.earr or 2.9) - 2.9), k.earr or 2.9, k.earr or 2.9)
       elseif k.ears == "leaf" then m = g:P({ { ex - 1, eb - 2.4 }, { ex - 7, eb + 1.2 }, { ex - 5.6, eb - 1.6 }, { ex - 1, eb - 4.6 } })
       elseif k.ears == "long" then m = g:Limb({ { ex + 0.6, eb }, { ex - 0.8, eb + 7 }, { ex - 2.2 - (far and -3.4 or 0), eb + 13.5 } }, 3.4, 2.4)
       else return end
-      if QK.notch and not far then m:cut(g:P({ { ex - 3.4, eb + 3.2 }, { ex - 0.4, eb + 3.8 }, { ex - 3.2, eb + 5.4 } })) end   -- a notch bitten out of its ear
+      if QK.notch and not far and k.ears == "round" then m:cut(g:E(ex - 0.6 + (k.earr or 2.9) * 0.55, eb + 2.2 + (k.earr or 2.9) * 0.55, 1.5, 1.5)) end
+      if QK.notch and not far and k.ears ~= "round" then m:cut(g:P({ { ex - 3.4, eb + 3.2 }, { ex - 0.4, eb + 3.8 }, { ex - 3.2, eb + 5.4 } })) end   -- a notch bitten out of its ear
       g:form(m, r, { frac = 0.3, off = 1 })
       if (not far and k.ears ~= "round") or k.ears == "long" then earInner(m, r) elseif not far then local ix, iy = g:x(ex - 0.6), g:y(eb + 2.0); L.inside(c, ix, iy, PT.shade, r.base, r.shade) L.inside(c, ix + 1, iy, PT.shade, r.base, r.shade) if big then L.inside(c, ix, iy + 1, PT.shade, r.base, r.shade) L.inside(c, ix + 1, iy + 1, PT.shade, r.base, r.shade) end end
       if k.ears == "tuft" then g:stroke({ { ex - 1.6, eb + 5.2 }, { ex - 2.6, eb + 8.4 } }, DARK) end                                     -- a lynx's ear tuft
       if k.ears == "long" and not far then g:mark({ { ex - 2.2, eb + 13.5 }, { ex - 1.4, eb + 11 } }, DARK, r.base, r.shade, PT.shade) end   -- black ear tip
     end
-    if not f.nohear then ear(big and 4.6 or 4.2, D, true) end
+    if not f.nohear then ear(big and 4.6 or 4.2, k.earink and L.darker(L.R.ink) or D, true) end
     -- horns and antlers grow from behind the brow
     if f.horns == "curl" then        -- a ram's horn: a thick ridged curl beside the head
       local ca, cb = hx - 2.6, hy + 1.8
@@ -312,19 +331,42 @@ return function(L)
     local head = g:E(hx, hy, hrx, hry)
     g:form(head, B, { frac = 0.3, offu = 2.7, pop = { { hx - hrx * 0.55, hy + hry * 0.62 } } }) g:under(head, B.deep)
     g:tuft(hx - hrx * 0.62, hy - hry * 0.1, B) g:tuft(hx - hrx * 0.2, hy - hry * 0.55, B)
-    if not f.nohear then ear(0, B, false) end
+    if furry then furEdge(head, B, { step = 4 }) end
+    if k.facec then   -- a pale face (badger, otter), with an optional dark band through the eye
+      local FC = (k.facec == "A") and A or PALE
+      g:over(head, FC.base, B.base, B.hi) g:over(head, FC.shade, B.shade) g:over(head, FC.hi, B.hi)
+      if k.band then
+        local bd = g:Ln({ { hx - hrx * 0.9, hy + hry * 0.55 }, { hx + hrx * 0.1, hy + hry * 0.2 }, { hx + hrx * 1.2, hy - hry * 0.1 } }, 2.6); bd:clip(head)
+        g:over(bd, L.R.ink.shade, FC.base, FC.shade, FC.hi)
+      end
+    end
+    if k.ruff then   -- cheek fur: two points sweeping back and down from the jaw
+      local RF = (k.ruff == "A") and A or (k.ruff == "B" and B or PALE)
+      for i = 0, 1 do
+        local m = g:P({ { hx + hrx * (0.35 - i * 0.3), hy - hry * (0.3 + i * 0.15) }, { hx - hrx * (1.2 - i * 0.2), hy - hry * (1.15 + i * 0.2) }, { hx - hrx * (0.55 - i * 0.3), hy - hry * 0.1 } })
+        g:form(m, i == 0 and RF or L.lighter(RF), { frac = 0.3, off = 1, inner = false }) g:under(m, RF.deep)
+      end
+    end
+    if k.crest then   -- a row of small thorns over the brow (thistle beast)
+      for i = 0, 3 do
+        local a = hx - hrx * 0.7 + i * 1.9; local m = g:P({ { a - 1.2, hy + hry * 0.9 }, { a + 1.2, hy + hry * 0.9 }, { a - 0.2, hy + hry + 3.4 + (i % 2) } })
+        g:form(m, A, { frac = 0.4, off = 1, inner = false })
+      end
+    end
+    if not f.nohear then ear(0, earR, false) end
     -- snout / muzzle
     local snout
     if kd == "canid" or k.wedge then
       snout = g:P({ { hx + hrx * 0.25, sy + k.snh + 0.9 }, { tipx - 1.2, sy + 1.0 }, { tipx + 0.2, sy - 0.4 }, { tipx - 0.8, sy - k.snh + 0.5 }, { hx + hrx * 0.25, sy - k.snh - 0.9 } })
     elseif k.sn >= 4.5 then
       snout = g:RR(hx + hrx * 0.3, sy + k.snh, tipx, sy - k.snh, 1.6)
-      if f.snout and k.sn >= 8 then snout = g:P({ { hx + hrx * 0.3, sy + k.snh }, { tipx, sy + 0.2 }, { tipx + 0.4, sy - 1.5 }, { tipx - 1, sy - k.snh + 0.6 }, { hx + hrx * 0.3, sy - k.snh } }) end   -- a long tapering snout
+      if f.snout and k.sn >= 8 then snout = g:P({ { hx + hrx * 0.3, sy + k.snh + 0.6 }, { tipx, sy - 1.2 }, { tipx + 0.4, sy - 2.8 }, { tipx - 1, sy - k.snh - 0.2 }, { hx + hrx * 0.3, sy - k.snh + 0.8 } }) sy = sy - 1.4 end   -- a long tapering snout, drooping at the tip
     else
       snout = g:E(hx + hrx * 0.6, sy - 0.5, k.sn + 0.8, k.snh); tipx = hx + hrx * 0.6 + k.sn + 0.8
     end
     local SN = (kd == "feline" or kd == "rodent" or kd == "hare" or (kd == "canid" and not claimed)) and (claimed and L.lighter(B) or PALE) or B
     if k.blaze then SN = A end
+    if k.snoutc then SN = (k.snoutc == "A") and A or L.R[k.snoutc] end
     g:form(snout, SN, { frac = 0.22, off = 1, inner = false }) g:under(snout, SN.deep == B.deep and B.deep or SN.shade)
     if kd == "bear" and k.sn >= 4.5 then g:mark({ { hx + hrx * 0.55, sy + k.snh - 0.6 }, { hx + hrx * 0.55 + 0.8, sy + k.snh - 1.4 } }, B.shade, B.base) g:mark({ { hx + hrx * 0.55 + 2, sy + k.snh - 0.6 }, { hx + hrx * 0.55 + 2.8, sy + k.snh - 1.4 } }, B.shade, B.base) end   -- wrinkles over the snout
     local NOSE = (k.nose == "pink") and PT or L.R.ink
