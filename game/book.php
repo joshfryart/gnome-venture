@@ -7,6 +7,7 @@ require_once __DIR__ . '/includes/world.php';
 require_once __DIR__ . '/includes/catalog.php';
 require_once __DIR__ . '/includes/glossary.php';
 $u = require_login();
+require_once __DIR__ . '/includes/almanac_pages.php'; ensure_almanac_pages_2644();   // v2.6.44: the sleep-days, crew, Messages pages (once)
 require_once __DIR__ . '/includes/garden_logic.php';   // v0.9.1: unstudied_slow_pct()
 $uid = (int)$u['id'];
 require_once __DIR__ . '/includes/breeding110.php'; breeding110_boot();   // v1.1.0: imports the hybrids once on an upgraded world
