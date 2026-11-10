@@ -429,6 +429,7 @@ function repair_work(array $u, int $repairId): array
     if ((int)$u['location_id'] !== (int)$lm['location_id']) return [false, 'You need to be there to work on it.'];
     [, $energy, $days] = $def['needs'][0];
     $energy = (int)$energy;
+    if (($busy = gclock_busy_minutes($uid)) > 0) return [false, 'You are still busy with a long job. Sleep, and finish it in the morning (' . round($busy / 60, 1) . ' h left).'];   // before anything is written
     $today = gclock_my_date();
     $fresh = q_one('SELECT * FROM users WHERE id = ?', [(int)$u['id']]);
     db()->beginTransaction();
