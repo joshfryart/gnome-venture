@@ -165,9 +165,10 @@
         { id: 'armF', img: 'armU', parent: 'body', px: [33, 48], lag: 35, ink: false }, { id: 'foreF', img: 'armL', parent: 'armF', px: [33, 56], lag: 55, ink: false }] },
     creature: { kind: 'still', w: 2.3, h: 2.3, attack: 'charge' }
   };
-  /* Creature rigs: bones and sheets are GENERATED from the mini archetypes (assets/fightrigs.js, tools/fight/rig_minis.lua); the motion of each archetype is in assets/fightarch.js.
+  /* Creature rigs: bones and sheets are GENERATED, one skeleton per creature (assets/fightrigs.js, aseprite-source/v3/creature25/gen.lua); the motion of each body type is in assets/fightarch.js
+   * (a rig row names its motion set in its 6th field; FE_ARCH.extra = springs for quirk parts any creature may have, FE_ARCH.hide = parts hidden until a pose shows them).
    * A creature with no row there is a single still picture. */
-  var DATA = root.FE_RIGS || { skel: {}, rigs: {} }, ARCH = root.FE_ARCH || {}, PXC = 2.3 / 80, rigCache = {};   // PXC: board cells per frame px
+  var DATA = root.FE_RIGS || { skel: {}, rigs: {} }, ARCH = root.FE_ARCH || {}, PXC = 1 / 32, rigCache = {};   // PXC: board cells per frame px (the gnome's scale: 64 px = 2 cells)
   function archOf(key) { return ARCH[key] || ARCH[key.split('.')[0].replace(/\d+$/, '')] || {}; }
   function pick(map, id) { if (!map) return null; if (map[id]) return map[id]; for (var k in map) if (k.indexOf('*') >= 0 && new RegExp('^' + k.replace(/\*/g, '.*') + '$').test(id)) return map[k]; return null; }
   function rigFor(id, sheet) {
@@ -175,9 +176,9 @@
     var d = DATA.rigs[id];
     if (!d || !sheet) { var st = Object.assign({}, RIGS.creature); if (d) st.w = st.h = Math.max(d[1], d[2]) * PXC; return st; }
     if (rigCache[id]) return rigCache[id];
-    var sk = DATA.skel[d[0]], A = archOf(d[0]), over = (ARCH.slug || {})[id] || {}, ids = d[4].split(','), u = d[3], cx = (d[1] - 1) / 2, by = d[2] - 5, z = (over.size || A.size || 1) * PXC;
-    var parts = ids.map(function (pid) { var j = sk[pid]; return { id: pid, px: [cx + j[1] * u + .5, by - j[2] * u + .5], parent: j[0] || null, under: j[3], ink: pid !== 'eyes', spring: pick(A.springs, pid), dim: (A.dim || {})[pid], lag: (A.lag || {})[pid], hide: (A.hide || {})[pid] }; });
-    return rigCache[id] = { kind: 'parts', arch: d[0], cols: ids, fw: d[1], fh: d[2], u: u, w: d[1] * z, h: d[2] * z, parts: parts, poses: A.poses || {}, attack: over.attack || A.attack || 'charge', fidgets: A.fidgets };
+    var sk = DATA.skel[d[0]], A = archOf(d[5] || d[0]), over = (ARCH.slug || {})[id] || {}, ids = d[4].split(','), u = d[3], cx = (d[1] - 1) / 2, by = d[2] - 5, z = (over.size || A.size || 1) * PXC;
+    var parts = ids.map(function (pid) { var j = sk[pid]; return { id: pid, px: [cx + j[1] * u + .5, by - j[2] * u + .5], parent: j[0] || null, under: j[3], ink: pid !== 'eyes', spring: pick(A.springs, pid) || pick(ARCH.extra, pid), dim: (A.dim || {})[pid], lag: (A.lag || {})[pid], hide: (A.hide || ARCH.hide || {})[pid] }; });
+    return rigCache[id] = { kind: 'parts', arch: d[5] || d[0], cols: ids, fw: d[1], fh: d[2], u: u, w: d[1] * z, h: d[2] * z, parts: parts, poses: A.poses || {}, attack: over.attack || A.attack || 'charge', fidgets: A.fidgets };
   }
   function kfs(move, a, reach, c) {   // MOVES entry -> Web Animations keyframes for actor a
     var out = [], k = move.keys;
@@ -598,18 +599,18 @@
     var archPose = {}, seen = {}, anyBone = {};   // an archetype's pose set is shared by its kinds, so a track may name a bone only some of them have
     Object.keys(DATA.skel).forEach(function (k) { Object.keys(DATA.skel[k]).forEach(function (b) { anyBone[b] = 1; }); });
     Object.keys(DATA.rigs).forEach(function (slug) {   // every creature: bones known, parents drawn, its attack exists; its archetype's poses only name bones of that archetype
-      var d = DATA.rigs[slug], sk = DATA.skel[d[0]], ids = d[4].split(','), A = archOf(d[0]), w = 'rig ' + slug;
+      var d = DATA.rigs[slug], sk = DATA.skel[d[0]], ids = d[4].split(','), ak = d[5] || d[0], A = archOf(ak), w = 'rig ' + slug;
       if (!sk) { bad.push(w + ': no skeleton ' + d[0]); return; }
       ids.forEach(function (id) { if (!sk[id]) bad.push(w + ': no bone ' + id); else if (sk[id][0] && ids.indexOf(sk[id][0]) < 0) bad.push(w + ': ' + id + ' hangs from ' + sk[id][0] + ', which is not drawn'); });
       var atk = ((ARCH.slug || {})[slug] || {}).attack || A.attack || 'charge';
       if (!MOVES[atk]) bad.push(w + ': no move ' + atk);
-      if (seen[d[0]]) return; seen[d[0]] = 1;
-      if (!A.poses) { bad.push('arch ' + d[0] + ': no poses'); return; }
+      if (seen[ak]) return; seen[ak] = 1;
+      if (!A.poses) { bad.push('arch ' + ak + ': no poses'); return; }
       Object.keys(A.poses).forEach(function (pn) {
         archPose[pn] = 1; var P = A.poses[pn];
-        Object.keys(P.tracks).forEach(function (part) { if (!anyBone[part]) bad.push('arch ' + d[0] + ' pose ' + pn + ': unknown part ' + part); times(P.tracks[part], P.dur, 'arch ' + d[0] + '.' + pn + '.' + part); });
+        Object.keys(P.tracks).forEach(function (part) { if (!anyBone[part]) bad.push('arch ' + ak + ' pose ' + pn + ': unknown part ' + part); times(P.tracks[part], P.dur, 'arch ' + ak + '.' + pn + '.' + part); });
       });
-      (A.fidgets || []).forEach(function (n) { if (!A.poses[n]) bad.push('arch ' + d[0] + ': no fidget pose ' + n); });
+      (A.fidgets || []).forEach(function (n) { if (!A.poses[n]) bad.push('arch ' + ak + ': no fidget pose ' + n); });
     });
     Object.keys(MOVES).forEach(function (n) {
       var m = MOVES[n], w = 'MOVES.' + n; times(m.keys, m.dur, w);

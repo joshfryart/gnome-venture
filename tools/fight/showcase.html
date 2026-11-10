@@ -91,7 +91,7 @@ window.feGallery = function (groups, foeOf) {
   document.getElementById('n-arch').textContent = Object.keys(NAMES).length;
   picks.forEach(function (slug) {
     var d = D.rigs[slug]; if (!d) return;
-    var key = d[0], arch = key.split('.')[0].replace(/\d+$/, ''), kind = key.split('.')[1], t = document.createElement('div'); t.className = 'tile';
+    var key = d[5] || d[0], arch = key.split('.')[0].replace(/\d+$/, ''), kind = key.split('.')[1], t = document.createElement('div'); t.className = 'tile';
     t.innerHTML = '<div></div><h3></h3><small></small><div class="row"><button type="button">Attack</button><button type="button">Hit</button><button type="button">Fidget</button><button type="button">Fight</button></div>';
     t.children[1].textContent = slug.replace(/-/g, ' ');
     t.children[2].textContent = NAMES[arch] + (kind ? ', ' + kind : '') + ' · ' + d[4].split(',').length + ' parts';

@@ -85,4 +85,5 @@ local T = {}
 for _, n in ipairs(N) do if not RIG and (not only or want[n[1]]) then L.mini(spec(n, "npc-" .. n[1]), "mini") end end
 for key, slug in pairs(CREW) do if not only or want[key] then for _, n in ipairs(N) do if n[1] == slug then local s = spec(n, "crew-" .. key); T[#T + 1] = s; if not RIG then L.mini(s, "mini") end end end end end
 table.sort(T, function(a, b) return a.slug < b.slug end)
+if RIG and (os.getenv("C25NPC") or "") ~= "" then for _, n in ipairs(N) do T[#T + 1] = spec(n, "npc-" .. n[1]) end end   -- the 2.5D generator (aseprite-source/v3/creature25/gen.lua) also draws every villager's still
 return T

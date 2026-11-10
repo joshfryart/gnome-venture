@@ -1,0 +1,17 @@
+return {
+  ["grass-snake"] = { flower = true },
+  ["emerald-python"] = { ring = true },
+  ["dust-sidewinder"] = { rattle = true },
+  ["sand-viper-matriarch"] = { pearls = true },
+  ["sun-lizard"] = { shades = true },
+  ["spice-monitor"] = { pepper = true },
+  ["desert-gila-dragon"] = { scar = true },
+  ["cistern-newt"] = { moss = true },
+  ["delta-gharial"] = { bird = true },
+  ["bog-pike"] = { hook = true },
+  ["stone-loach"] = { worm = true },
+  ["reef-eel-lord"] = { crown = true },
+  ["silverfin"] = { monocle = true },
+  ["reef-leviathan"] = { barnacles = true },
+  ["dune-wyrm"] = { bone = true },
+}
