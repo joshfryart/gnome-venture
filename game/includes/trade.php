@@ -138,6 +138,8 @@ function trade_text(array $lines, int $coins): string
 function make_offer(array $u, int $toId, array $give, int $giveCoins, array $want, int $wantCoins, string $note): array
 {
     $uid = (int)$u['id'];
+    $giveCoins = max(0, $giveCoins);   // clamped before the "offer something / ask for something" checks: a negative amount must not count as something
+    $wantCoins = max(0, $wantCoins);
     if ($why = trade_allowed($u)) return [false, $why];
     $r = q_one('SELECT * FROM users u WHERE u.id = ? AND u.id <> ? AND ' . gnome_in_play_sql('u'), [$toId, $uid]);   // v0.7.85: not during a time-out
     if (!$r || q_val('SELECT 1 FROM player_blocks WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?)', [$uid, $toId, $toId, $uid])) return [false, 'No gnome by that name.'];   // v1.0.0: blocks both ways
@@ -155,8 +157,6 @@ function make_offer(array $u, int $toId, array $give, int $giveCoins, array $wan
     foreach (array_keys($give) as $id) {   // v0.7.86: a worn tool has to be mended before it's offered
         if ($block = tool_trade_block($uid, (int)$id)) return [false, $block];
     }
-    $giveCoins = max(0, $giveCoins);
-    $wantCoins = max(0, $wantCoins);
     db()->beginTransaction();
     // Your side is held until the offer is answered
     foreach ($give as $id => $n) {

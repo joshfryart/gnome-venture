@@ -13,7 +13,7 @@ function post(fields,cb){
   var q='csrf='+encodeURIComponent(D.csrf), k;
   for(k in fields) q+='&'+k+'='+encodeURIComponent(fields[k]);
   fetch(D.api,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:q})
-    .then(function(r){ return r.json(); }).then(cb).catch(function(){ cb({ok:false,error:'Couldn’t reach the garden. Try again.'}); });
+    .then(function(r){ return r.json(); }).then(cb,function(){ cb({ok:false,error:'Couldn’t reach the garden. Try again.'}); });   // second argument, not .catch: an error inside cb must not call cb again
 }
 function say(t,err){ $('rbmsg').textContent=t||''; var o=$('rboops'); if(o) o.hidden=!(err&&t); }   // v2.0.74: Jeff looks sheepish next to an error
 function wet(){   // flood from the barrel through mutually open sides

@@ -910,8 +910,16 @@ function ppal_spawn_collect(array $u, int $locId): array
     $uid = (int)$u['id'];
     $sp = ppal_map_spawns($u)[$locId] ?? null;
     if (!$sp) return [false, 'There is no Puzzle Pal waiting here.'];
+    // The spawn row is the claim: it goes first, and only the request that removed it collects (two at once would both train the pal).
+    $own = !db()->inTransaction();
+    if ($own) db()->beginTransaction();
+    if (q('DELETE FROM ppal_spawns WHERE user_id = ? AND pal_key = ?', [$uid, $sp['pal']['key']])->rowCount() !== 1) {
+        if ($own) db()->rollBack();
+        return [false, 'There is no Puzzle Pal waiting here.'];
+    }
     $r = ppal_claim($u, $sp['pal']['key'], (int)$sp['pic']['id']);
-    if ($r[0]) { q('DELETE FROM ppal_spawns WHERE user_id = ? AND pal_key = ?', [$uid, $sp['pal']['key']]); ppal_spawns_reset(); }
+    if ($own) { if ($r[0]) db()->commit(); else db()->rollBack(); }   // a refused claim leaves the pal waiting
+    if ($r[0]) ppal_spawns_reset();
     return $r;
 }
 

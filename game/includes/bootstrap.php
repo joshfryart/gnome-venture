@@ -83,7 +83,8 @@ function boot_step(string $name, callable $fn): void
 // New version uploaded? Add any new tables/columns before anything reads them.
 // (Same as pressing "Upgrade database"; never removes or changes existing data.)
 // v1.0.0: one request upgrades at a time (a lock file); the others wait a little, then find it done and carry on.
-if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__reload__') === '' && setting('db_version') !== APP_VERSION) {
+// boot_retry_after: after an upgrade that could not finish, the chain waits a minute before the next try instead of re-running on every page load.
+if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <= time() && upgrade_lock(25000) && setting('__reload__') === '' && setting('db_version') !== APP_VERSION) {
     @set_time_limit(600);
     @ignore_user_abort(true);
     try {
@@ -531,11 +532,17 @@ if (setting('db_version') !== APP_VERSION && upgrade_lock(25000) && setting('__r
         $bootFailed = array_values(array_unique($GLOBALS['gv_boot_failed'] ?? []));
         if ($bootFailed) set_setting('boot_failed_steps', APP_VERSION . ': ' . implode(', ', $bootFailed));
         elseif (setting('boot_failed_steps') !== '') q('DELETE FROM settings WHERE name = ?', ['boot_failed_steps']);
-        if (empty($GLOBALS['gv_migrate_errors'])) set_setting('db_version', APP_VERSION);   // a table/column that would not be made (see the error log) keeps the upgrade coming back until it is fixed
+        if (empty($GLOBALS['gv_migrate_errors'])) {
+            set_setting('db_version', APP_VERSION);
+            if (setting('boot_retry_after') !== '') q('DELETE FROM settings WHERE name = ?', ['boot_retry_after']);
+        } else {
+            set_setting('boot_retry_after', (string)(time() + 60));   // a table/column that would not be made (see the error log) keeps the upgrade coming back until it is fixed, once a minute
+        }
         setting('__reload__');
     } catch (Throwable $e) {
         try { if (db()->inTransaction()) db()->rollBack(); } catch (Throwable $e2) {}
-        error_log('Auto-upgrade: ' . $e->getMessage());   // the next page load tries again; db_version only moves when everything else went through
+        error_log('Auto-upgrade: ' . $e->getMessage());   // tried again in a minute; db_version only moves when everything else went through
+        try { set_setting('boot_retry_after', (string)(time() + 60)); } catch (Throwable $e2) {}
         if (function_exists('game_error_log')) game_error_log('Auto-upgrade failed: ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . basename($e->getFile()) . ':' . $e->getLine());
     }
 }

@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased (code review fixes, no version bump yet)
+- **Trade**: a negative Petal amount in an offer is clamped before the "offer something / ask for something" checks, so `want_coins=-1` can no longer make a free transfer (`includes/trade.php`).
+- **Garden of the Month and carving settle**: an entry settled late (its gnome was in a time-out) ranks after the ones already placed instead of #1 (`includes/yard.php`, `includes/contests.php`). A 0-vote carving outside the top three gets no thanks Petals.
+- **Carving vote**: the same guards as Garden of the Month voting (level, account age, fresh-gnome hold, same sign-up address).
+- **Delves**: running from the chest's guardian ends the delve; the chest only opens after a win (`includes/adventure.php`).
+- **Tile walks**: the old `continue` / `arrive` step buttons are refused on a tile walk (`adventure.php`).
+- **Lairs**: a win is read from a flag set by `win_fight()`, not only from the last 8 log lines.
+- **Adventure page**: a `UserError` (for example "still busy with a long job") shows as a message instead of the error page.
+- **Community garden**: hanging up a shift early no longer resets the per-shift job count, and the cap is checked in the UPDATE (`includes/community.php`).
+- **Puzzle Pals**: collecting a waiting pal removes the spawn row first, in one transaction, so two requests cannot both train the pal.
+- **Daily Rain Barrel / Gnome Beds**: the board and the rank use each gnome's first solve of the day (`puzzle_wins`), not the fastest replay.
+- **Double-tap guard**: every drawn form carries its own `_n` value, so the 2-second "sent twice" check only catches the very same form; pressing the same button again on the reloaded page goes through.
+- **Gather form (site.js)**: once the server has answered, the form is never sent a second time; a failed swap reloads the page.
+- **Rain Barrel / Gnome Beds (JS)**: an error inside the reply handler no longer calls it twice.
+- **Auto-upgrade**: after an upgrade that could not finish, the chain waits a minute before the next try instead of running on every page load (`boot_retry_after`).
+- **Security**: `gnome_sprite.php` / `gnome_parts.php` limit new colour sets per address (120 in 10 minutes) and stop keeping files past 4000 entries; update backups get a random suffix in their names; login adds a cap of 20 wrong tries per account across all addresses; deleting an account blanks its feedback notes and replies.
+- Not changed, on purpose: guests may still play Rain Barrel / Gnome Beds (tested in `tests/guest.sh`); Jigsaw / GIFsaw finishes stay client-reported (the solution is the picture itself, so a server check cannot prove a solve); a put-away walk still lives in the session; the different "once a day" clocks.
+
 ## 2.6.42
 - **Every creature redrawn and animated in the fight**: all 117 creatures and the 7 Trek crew are drawn in the gnome's 2.5D style (Hearth Pop palette, one 1 px outline, a ground shadow, no pedestal) and each is built from parts that move: legs, tails, wings, heads, feelers, claws, tentacles. They breathe, blink and fidget while waiting, and each body type has its own attack, hit, dodge, run and knock-out. Many now read as the animal they are (turtles, lizards, fish, the scorpion, the bat). Each has one small quirk.
   - Art: `aseprite-source/v3/creature25/gen.lua` draws each creature from the spec tables (`opus-test-run/scripts/minis/enemies.lua`, `villagers.lua`): one file per body type in `types/` (quad, bird, frog, bug, worm, snake, snail, crab, spider, golem, wisp, octo, folk), quirks per creature in `quirks/`, shared painters in `c25lib.lua`. Output: `assets/img/fight/rig-<slug>.png` (one column per part, row 0 paint, row 1 ink), `assets/img/mini/mini-<slug>.png` (the same parts put together) and `assets/fightrigs.js` (one skeleton per creature). `tools/fight/rig_minis.lua` is superseded.

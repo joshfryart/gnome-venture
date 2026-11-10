@@ -231,7 +231,10 @@ function community_start_shift(array $u, int $minutes): array
     if (!in_array($minutes, COMMUNITY_SHIFTS, true)) return [false, 'Pick a shift length.'];
     if (community_on_shift($u)) return [false, 'You’re already on shift.'];
     if (q_val("SELECT 1 FROM expeditions WHERE user_id = ? AND status = 'active'", [$uid])) return [false, 'Finish your walk first.'];
-    q('UPDATE users SET community_shift_until = ?, shift_actions = 0 WHERE id = ?', [gmdate('Y-m-d H:i:s', time() + $minutes * 60), $uid]);
+    // The job count starts again only after a shift that ran its time. A shift hung up early (community_shift_until = NULL) keeps its count,
+    // so ending and starting again is no way round the per-shift cap.
+    $keep = ($u['community_shift_until'] ?? null) === null;
+    q('UPDATE users SET community_shift_until = ?' . ($keep ? '' : ', shift_actions = 0') . ' WHERE id = ?', [gmdate('Y-m-d H:i:s', time() + $minutes * 60), $uid]);
     return [true, '🧑‍🌾 You pull on your gardening gloves. Thanks for helping! You can’t go adventuring until your shift ends (' . $minutes . ' min).'];
 }
 
@@ -308,7 +311,10 @@ function community_tend(array $u, string $action, int $bedId, int $seedId = 0): 
         return [false, 'Someone else just tended that bed. Try again.'];
     }
     $tip = (int)setting('community_tip');
-    q('UPDATE users SET coins = coins + ?, shift_actions = shift_actions + 1 WHERE id = ?', [$tip, $uid]);
+    if (q('UPDATE users SET coins = coins + ?, shift_actions = shift_actions + 1 WHERE id = ? AND shift_actions < ?', [$tip, $uid, (int)setting('community_shift_cap')])->rowCount() !== 1) {
+        db()->rollBack();   // the cap was reached by another request since this page was read
+        return [false, 'You’ve done plenty this shift. Have a rest!'];
+    }
     add_xp($uid, 1);
     community_log($uid, $action);
     db()->commit();

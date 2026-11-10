@@ -273,8 +273,9 @@ function update_install(array $admin, string $password, bool $allowOlder): array
     $pre = $bdir . '/preimage-' . $stamp . '-' . bin2hex(random_bytes(3));
     try {
         try {
-            update_backup_db($bdir . '/db-v' . APP_VERSION . '-' . $stamp . '.sql');
-            update_backup_files($bdir . '/files-v' . APP_VERSION . '-' . $stamp . '.zip');
+            $rnd = '-' . bin2hex(random_bytes(6));   // the name can't be guessed from the version and the time (the dump holds password hashes; on a server that ignores .htaccess the folder is not shut)
+            update_backup_db($bdir . '/db-v' . APP_VERSION . '-' . $stamp . $rnd . '.sql');
+            update_backup_files($bdir . '/files-v' . APP_VERSION . '-' . $stamp . $rnd . '.zip');
         } catch (Throwable $e) {
             return [false, 'The backup failed, so nothing was changed: ' . $e->getMessage()];
         }
@@ -307,7 +308,7 @@ function update_install(array $admin, string $password, bool $allowOlder): array
 function update_restore(array $admin, string $password, string $name): array
 {
     if (!password_verify($password, (string)q_val('SELECT password_hash FROM users WHERE id = ?', [$admin['id']]))) return [false, 'That password isn’t right.'];
-    if (!preg_match('/^files-v[0-9.]+-\d{8}-\d{6}\.zip$/', $name) || !is_file(update_dir('backups') . '/' . $name)) return [false, 'That backup isn’t there.'];
+    if (!preg_match('/^files-v[0-9.]+-\d{8}-\d{6}(?:-[0-9a-f]{12})?\.zip$/', $name) || !is_file(update_dir('backups') . '/' . $name)) return [false, 'That backup isn’t there.'];
     $path = update_dir('backups') . '/' . $name;
     $info = update_inspect($path);
     if (isset($info['error'])) return [false, $info['error']];
@@ -326,7 +327,7 @@ function update_backups(): array
 {
     $out = [];
     foreach (scandir(update_dir('backups')) ?: [] as $f) {
-        if (preg_match('/^(db|files)-v([0-9.]+)-(\d{8}-\d{6})\.(sql|zip)$/', $f, $m)) {
+        if (preg_match('/^(db|files)-v([0-9.]+)-(\d{8}-\d{6})(?:-[0-9a-f]{12})?\.(sql|zip)$/', $f, $m)) {
             $out[] = ['name' => $f, 'kind' => $m[1], 'version' => $m[2], 'size' => filesize(update_dir('backups') . '/' . $f), 'when' => $m[3]];
         }
     }

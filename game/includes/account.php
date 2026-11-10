@@ -226,6 +226,10 @@ function delete_account(array $u, string $pass, string $confirm): array
     try { q('UPDATE garden_critters SET name = kind WHERE plot_id IN (SELECT id FROM plots WHERE user_id = ?)', [$uid]); } catch (Throwable $e) {}
     q("UPDATE reports SET snapshot = '[removed]', details = '[removed]' WHERE target_id = ? OR reporter_id = ?", [$uid, $uid]);
     try { q("UPDATE user_jobs SET npc = 'A gnome', text = '[removed]' WHERE player_job_id IN (SELECT id FROM player_jobs WHERE poster_id = ?)", [$uid]); } catch (Throwable $e) {}
+    try {   // the notes this gnome sent from the menu and their replies in those threads (the privacy page: deleting removes what identifies you)
+        q("UPDATE feedback SET body = '[removed]' WHERE user_id = ?", [$uid]);
+        q("UPDATE feedback_replies SET body = '[removed]' WHERE user_id = ? AND from_admin = 0", [$uid]);
+    } catch (Throwable $e) {}
     q('DELETE FROM password_resets WHERE user_id = ?', [$uid]);
     q('DELETE FROM game_state WHERE user_id = ?', [$uid]);
     q('UPDATE gifts SET note = NULL WHERE from_id = ? OR to_id = ?', [$uid, $uid]);

@@ -705,6 +705,10 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
                     exp_log($exp, '🏃 You slip away from the ' . $c['name'] . '.');
                     fight_ev(['from' => 'me', 'move' => 'flee']); fight_ev(['end' => 'flee']);
                     $exp['encounter'] = null;
+                    if (($exp['kind'] ?? 'walk') === 'delve' && (int)$exp['depth'] >= ((int)($exp['steps_total'] ?? 0) ?: DELVE_ROOMS)) {   // running from the chest's guardian ends the delve: the chest is only for a win (as a lair getaway)
+                        $exp['status'] = 'done';
+                        exp_log($exp, '🪜 You climb back out. The chest stays guarded.');
+                    }
                     return true;
                 }
                 exp_log($exp, '🏃 You try to run, but the ' . $c['name'] . ' cuts you off!');
@@ -924,6 +928,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
 
 function win_fight(array $u, array &$exp, array $c, bool $peaceful): void
 {
+    $exp['_won'] = true;   // this request won a fight (not saved): the lair check in adventure.php reads it instead of counting on the log
     $uid = (int)$u['id'];
     $ps = ppal_boons_on() ? ppal_skills($u) : [];   // v2.3.8: Boons spoils (drop chance) and lesson (Fighting XP); [] with no pals along
     $xp = $peaceful ? intdiv((int)$c['xp'], 2) : (int)$c['xp'];

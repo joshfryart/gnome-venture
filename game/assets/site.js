@@ -727,6 +727,7 @@ gvAdvFold();
     if (sub && sub.name && !fd.has(sub.name)) fd.append(sub.name, sub.value);
     var box = form.closest('section.gx');
     if (box) box.classList.add('sending');
+    var answered = false;
     var fallback = function () {
       busy = false;
       form.setAttribute('data-noajax', '1');
@@ -735,7 +736,9 @@ gvAdvFold();
     fetch(new URL(form.getAttribute('action') || location.href, location.href).href,
       { method: 'POST', body: new URLSearchParams(fd), credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } })
       .then(function (r) {
-        if (!r.ok || new URL(r.url).pathname !== location.pathname) throw new Error('page');
+        answered = true;   // the server has the form: from here on it is never sent a second time
+        if (r.ok && new URL(r.url).pathname !== location.pathname) { location.assign(r.url); return new Promise(function () {}); }
+        if (!r.ok) throw new Error('page');
         return r.text();
       })
       .then(function (html) {
@@ -754,7 +757,7 @@ gvAdvFold();
         if (window.gvRailFit) window.gvRailFit();
         gvPageToasts();
       })
-      .catch(fallback);
+      .catch(function () { if (answered) location.reload(); else fallback(); });   // answered: show the page as it now is; not answered (no network): send the form the plain way
   }, true);
 })();
 

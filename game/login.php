@@ -15,7 +15,7 @@ if (is_post()) {
     $password = (string)($_POST['password'] ?? '');
     $key = 'login:' . strtolower($username);
 
-    if (rate_limited($key, 5, 15) || rate_limited('login:*', 30, 15)) {
+    if (rate_limited($key, 5, 15) || rate_limited('login:*', 30, 15) || rate_limited_all($key, 20, 15)) {   // the last one: 20 wrong tries on one account from any mix of addresses
         $error = 'Too many tries. Wait 15 minutes and try again.';
     } else {
         $u = q_one('SELECT * FROM users WHERE username = ?', [$username]);

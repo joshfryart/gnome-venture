@@ -156,6 +156,10 @@ function carve_vote(array $u, int $carvingId): array
     $c = q_one('SELECT c.* FROM carvings c JOIN users u ON u.id = c.user_id WHERE c.id = ? AND c.year = ? AND ' . gnome_in_play_sql('u'), [$carvingId, carving_year()]);
     if (!$c) return [false, 'That carving isn’t on show.'];
     if ((int)$c['user_id'] === $uid) return [false, 'No voting for your own pumpkin!'];
+    require_once __DIR__ . '/yard.php';   // the same alt-account guards as Garden of the Month voting (v1.2.2)
+    if ($why = gotm_vote_block($u)) return [false, $why];
+    require_once __DIR__ . '/mentors120.php';
+    if (mentors120_same_origin($uid, (int)$c['user_id'])) return [false, 'You can’t vote for that carving.'];
     try {
         db_insert('carving_votes', ['user_id' => $uid, 'carving_id' => $carvingId, 'voted_at' => now()]);
     } catch (PDOException $e) {
@@ -172,16 +176,16 @@ function settle_carving(): void
     foreach (q('SELECT DISTINCT year FROM carvings WHERE placed IS NULL')->fetchAll(PDO::FETCH_COLUMN) as $y) {
         if ((int)$y === $year && (carving_open() || (int)gmdate('n') < (int)setting('carving_month'))) continue;   // still running
         require_once __DIR__ . '/trade.php';
-        $rank = 0;
+        $rank = (int)q_val('SELECT COALESCE(MAX(placed), 0) FROM carvings WHERE year = ?', [$y]);   // a carving settled late (its gnome was in a time-out) ranks after the ones already placed, never #1
         // v0.7.85: gnomes in a time-out don't place or get prizes (their carving waits until they're back)
         foreach (q('SELECT c.* FROM carvings c JOIN users u ON u.id = c.user_id WHERE c.year = ? AND c.placed IS NULL AND ' . gnome_in_play_sql('u')
                    . ' ORDER BY c.votes DESC, c.carved_at', [$y])->fetchAll() as $c) {
             $rank++;
             if (q('UPDATE carvings SET placed = ? WHERE id = ? AND placed IS NULL', [$rank, $c['id']])->rowCount() !== 1) continue;
-            $coins = [1 => 1500, 2 => 800, 3 => 400][$rank] ?? 50;
+            $coins = [1 => 1500, 2 => 800, 3 => 400][$rank] ?? ((int)$c['votes'] > 0 ? 50 : 0);   // no thanks Petals for a 0-vote carving (as Garden of the Month, v1.2.2)
             q('UPDATE users SET coins = coins + ?' . ($rank <= 3 ? ', ribbons = ribbons + 1' : '') . ' WHERE id = ?', [$coins, $c['user_id']]);
             add_xp((int)$c['user_id'], [1 => 30, 2 => 20, 3 => 10][$rank] ?? 5);
-            notify((int)$c['user_id'], '🎃 Your carving “' . $c['title'] . '” came #' . $rank . ' with ' . (int)$c['votes'] . ' votes. Prize: ' . money($coins) . '.');
+            notify((int)$c['user_id'], '🎃 Your carving “' . $c['title'] . '” came #' . $rank . ' with ' . (int)$c['votes'] . ' votes.' . ($coins ? ' Prize: ' . money($coins) . '.' : ''));
         }
     }
 }

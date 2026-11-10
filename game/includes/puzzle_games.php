@@ -394,9 +394,10 @@ function pz_run_finish(array $u, array $run, int $minMs, string $winText): array
             $msg .= ' Daily reward: ' . ($pet > 0 ? money($pet) : 'a pat on the back') . $en . '.';
             $extra['reward'] = $pet;
         } else {
-            $msg .= $ms <= $best ? ' A new best for today!' : ' Your best today is ' . puzzle_ms_text($best) . '.';
+            $msg .= ($ms <= $best ? ' A new best for today!' : ' Your best today is ' . puzzle_ms_text($best) . '.') . ' The board keeps your first solve.';
         }
-        $extra['rank'] = 1 + (int)q_val("SELECT COUNT(*) FROM (SELECT user_id, MIN(ms) AS b FROM puzzle_runs WHERE game = ? AND day = ? AND mode = 'daily' AND status = 'done' GROUP BY user_id) x WHERE x.b < ?", [$game, $run['day'], $best]);
+        $boardMs = (int)q_val('SELECT ms FROM puzzle_wins WHERE game = ? AND day = ? AND user_id = ?', [$game, $run['day'], $uid]);   // the first solve of the day is the one that ranks
+        $extra['rank'] = 1 + (int)q_val('SELECT COUNT(*) FROM puzzle_wins WHERE game = ? AND day = ? AND ms < ?', [$game, $run['day'], $boardMs]);
     } else {
         $msg .= ' Practice pays nothing but it’s good for you.';
     }
@@ -483,8 +484,9 @@ function pz_beds_finish(array $u, string $token, array $g): array
 function pz_daily_board(string $game, int $limit = 10): array
 {
     if (!pzgames_ensure()) return [];
-    return q("SELECT r.user_id, COALESCE(u.gnome_name, u.username) AS name, MIN(r.ms) AS best FROM puzzle_runs r JOIN users u ON u.id = r.user_id
-              WHERE r.game = ? AND r.day = ? AND r.mode = 'daily' AND r.status = 'done' AND " . gnome_in_play_sql('u') . " GROUP BY r.user_id, u.gnome_name, u.username ORDER BY best LIMIT " . max(1, $limit), [$game, game_day()])->fetchAll();
+    // The board shows each gnome's FIRST solve of the day (puzzle_wins): the daily puzzle is the same on every start, so a replay of a known answer must not count.
+    return q("SELECT w.user_id, COALESCE(u.gnome_name, u.username) AS name, w.ms AS best FROM puzzle_wins w JOIN users u ON u.id = w.user_id
+              WHERE w.game = ? AND w.day = ? AND " . gnome_in_play_sql('u') . " ORDER BY w.ms, w.created_at LIMIT " . max(1, $limit), [$game, game_day()])->fetchAll();
 }
 
 /** How many daily puzzles of this game the gnome has solved, ever (not days in a row: the game promises no streaks). */

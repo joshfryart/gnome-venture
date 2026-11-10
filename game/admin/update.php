@@ -48,7 +48,7 @@ if (is_post()) {
     if ($do === 'download') {
         $name = (string)($_POST['name'] ?? '');
         $path = update_dir('backups') . '/' . $name;
-        if (preg_match('/^(db|files)-v[0-9.]+-\d{8}-\d{6}\.(sql|zip)$/', $name) && is_file($path)) {
+        if (preg_match('/^(db|files)-v[0-9.]+-\d{8}-\d{6}(?:-[0-9a-f]{12})?\.(sql|zip)$/', $name) && is_file($path)) {
             admin_log('backup_download', $name, '');
             header('Content-Type: ' . (str_ends_with($name, '.zip') ? 'application/zip' : 'application/sql'));
             header('Content-Disposition: attachment; filename="' . $name . '"');

@@ -18,6 +18,7 @@ if (!is_post() && isset($_GET['view']) && in_array($_GET['view'], ['list', 'map'
 
 if (is_post()) {
     csrf_check();
+    try {   // UserError (e.g. spend_energy(): "still busy with a long job") becomes a message, not the error page. The block below keeps its indent.
     refresh_energy($u);
     $do = (string)($_POST['do'] ?? '');
     if ($do === 'start') {
@@ -136,16 +137,16 @@ if (is_post()) {
             else { $tok = false; $tmsg = 'Not there yet.'; }
             if (!$tok && $tmsg !== '') flash($tmsg, 'err');
             elseif ($tok && in_array($do, ['trail_back', 'trail_wander', 'trail_stance'], true)) flash($tmsg, 'ok');
-        } elseif ($do === 'continue' && (int)$exp['step'] < (int)$exp['steps_total']) {
+        } elseif ($do === 'continue' && (int)$exp['step'] < (int)$exp['steps_total'] && !(($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp))) {   // a tile walk is only walked on its map (trail_go ...), never by the old step button
             next_step($u, $exp);
-        } elseif ($do === 'arrive' && (int)$exp['step'] >= (int)$exp['steps_total'] && ts($exp['arrive_at']) <= time()) {
+        } elseif ($do === 'arrive' && (int)$exp['step'] >= (int)$exp['steps_total'] && ts($exp['arrive_at']) <= time() && !(($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp))) {
             arrive($u, $exp);
             $arrivedAt = (int)$exp['to_id'];
         }
         // A lair fight is over when the boss is gone: a win (defeated or befriended) or a getaway (v0.7.26)
         if (($exp['kind'] ?? '') === 'lair' && $exp['status'] === 'active' && !$exp['encounter'] && (int)$exp['depth'] >= 1) {   // v2.0.6: depth 0 = the boss has not risen yet
             $recent = array_slice(json_decode((string)$exp['log'], true) ?: [], -8);
-            if (preg_grep('/ is (defeated|befriended)!/u', $recent)) lair_victory($u, $exp);
+            if (!empty($exp['_won']) || preg_grep('/ is (defeated|befriended)!/u', $recent)) lair_victory($u, $exp);   // _won: set by win_fight (a long run of level-up and drop lines could push the "defeated" line out of the last 8)
             else { $exp['status'] = 'done'; exp_log($exp, '🏃 You escape the lair in one piece.'); }
         }
         save_exp($exp);
@@ -168,6 +169,11 @@ if (is_post()) {
         redirect(gnav_on() && $kind !== '' ? 'here.php' : ($kind === 'hub' ? 'town.php?hub=1' : ($kind ? 'town.php' : 'world.php')));   // arrived: the Here page of the place
     }
     redirect(safe_back('adventure.php'));
+    } catch (UserError $e) {
+        if (db()->inTransaction()) db()->rollBack();
+        flash($e->getMessage(), 'err');
+        redirect(safe_back('adventure.php'));
+    }
 }
 if (!$exp && trail_resume_offer($u)) { [$rok, $rmsg] = trail_resume($u); flash($rmsg, $rok ? 'ok' : 'err'); redirect('adventure.php'); }   // the wander is over: back to the Trail, no page to click through
 refresh_energy($u);   // v2.3.94: a GET showed the energy from the last POST ("too tired" after a rest)

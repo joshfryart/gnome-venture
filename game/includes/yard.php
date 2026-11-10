@@ -1172,7 +1172,7 @@ function settle_gotm(): void
     require_once __DIR__ . '/trade.php';
     $prizes = array_map('intval', explode(',', setting('gotm_prizes') . ',,'));
     foreach ($months as $m) {
-        $rank = 0;
+        $rank = (int)q_val('SELECT COALESCE(MAX(placed), 0) FROM gotm_entries WHERE month = ?', [$m]);   // an entry settled late (its gnome was in a time-out) ranks after the ones already placed, never #1
         // v0.7.85: gnomes in a time-out are left out of the ranking (their entry stays open until they're back)
         foreach (q('SELECT e.* FROM gotm_entries e JOIN users u ON u.id = e.user_id WHERE e.month = ? AND e.placed IS NULL AND ' . gnome_in_play_sql('u')
                    . ' ORDER BY e.votes DESC, e.appeal DESC, e.entered_at', [$m])->fetchAll() as $e) {

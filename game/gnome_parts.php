@@ -17,9 +17,12 @@ $file = $dir . '/sheet2.png';   // sheet2: the layout with head, beard, scarf an
 $png = is_file($file) ? (string)file_get_contents($file) : '';
 if ($png === '') {
     if (!is_file(APP_ROOT . '/assets/img/gnome25/side-hat.png')) { http_response_code(404); exit; }   // art missing: the caller falls back to the default sheet
+    if (!sprite_miss_ok()) { http_response_code(429); exit; }   // too many new colour sets from this address
     $png = gnome_rig_sheet($cols);
-    if (!is_dir($dir)) @mkdir($dir, 0775, true);
-    if (is_dir($dir) && is_writable($dir)) @file_put_contents($file, $png);
+    if (sprite_cache_room(dirname($dir))) {
+        if (!is_dir($dir)) @mkdir($dir, 0775, true);
+        if (is_dir($dir) && is_writable($dir)) @file_put_contents($file, $png);
+    }
 }
 header('Content-Type: image/png');
 header('Cache-Control: public, max-age=31536000, immutable');

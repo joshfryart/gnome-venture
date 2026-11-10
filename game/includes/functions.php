@@ -236,7 +236,9 @@ function csrf_token(): string
 
 function csrf_field(): string
 {
-    return '<input type="hidden" name="csrf" value="' . e(csrf_token()) . '">';
+    // _n: a fresh value for every form drawn. csrf_check() treats the same body twice within 2 seconds as a double tap; with _n in the body
+    // only the very same drawn form counts, so pressing "Buy 1" again on the reloaded page goes through.
+    return '<input type="hidden" name="csrf" value="' . e(csrf_token()) . '"><input type="hidden" name="_n" value="' . bin2hex(random_bytes(4)) . '">';
 }
 
 /** Call at the top of every POST handler. Stops the request if the token is wrong. */
@@ -302,6 +304,30 @@ function record_attempt(string $key): void
     if (random_int(1, 50) === 1) {
         q('DELETE FROM login_attempts WHERE attempted_at < ?', [gmdate('Y-m-d H:i:s', time() - 86400)]);
     }
+}
+
+/** As rate_limited(), but counted over every address: a cap per account (or per target), so many addresses cannot each take their own tries. */
+function rate_limited_all(string $key, int $max, int $windowMinutes): bool
+{
+    $since = gmdate('Y-m-d H:i:s', time() - $windowMinutes * 60);
+    return (int)q_val('SELECT COUNT(*) FROM login_attempts WHERE username = ? AND attempted_at > ?', [$key, $since]) >= $max;
+}
+
+/**
+ * The public sprite pages (gnome_sprite.php, gnome_parts.php) make and keep one picture per colour set, and anyone can ask for any colours.
+ * sprite_miss_ok(): false once this address has had 120 new pictures made in 10 minutes. sprite_cache_room(): false once the folder holds
+ * $max entries (the picture is still sent, only not kept), so made-up colours cannot fill the disk.
+ */
+function sprite_miss_ok(): bool
+{
+    if (rate_limited('sprite', 120, 10)) return false;
+    record_attempt('sprite');
+    return true;
+}
+function sprite_cache_room(string $dir, int $max = 4000): bool
+{
+    $n = is_dir($dir) ? @scandir($dir) : [];
+    return count($n ?: []) < $max + 2;   // + 2: the . and .. entries
 }
 
 function clear_attempts(string $key): void
