@@ -13,6 +13,8 @@ cells (the picture frame) are never touched, and frame 1 is always the static pi
 
 Effects: gnome breath (upper body stretches 1 cell), cloud drift, flame tip flicker, drifting glints /
 ripples / birds (small specks on a uniform background), twinkling plus-sparkles and stars, fallback glint.
+Extras, only when none of those (and no gnome) were found: water dash shimmer, loose cloud drift, foliage tip sway,
+lone flakes / bubbles / stars; then the fallback glint.
 Tear guards: a moving object must sit on a uniform background (per-row equal colour either side, or a
 uniform 8-ring), otherwise it stays still.
 """
@@ -612,6 +614,225 @@ def add_glint(sc):
     return len(cand)
 
 
+# ------------------------------------------------------------------ extras: only for scenes that would otherwise get the
+# glint fallback (no breath / cloud / flame / weather / specks found).  Same rules: moved cells only, no new colours.
+def is_foliage(v):
+    h, s, vv = hsv(v)
+    return 0.17 <= h <= 0.5 and s >= 0.25 and 0.2 <= vv
+
+
+def add_water(sc):
+    """water shimmer: 1-cell-tall highlight / ripple dashes (2-10 cells) lying on one uniform water colour slide 1 cell
+    left and right.  The run and 2 cells either side must be water, and the rows above and below the run too."""
+    g = sc.g
+    runs = []
+    for col, comp in small_comps(g, 10):
+        x0, y0, x1, y1 = bbox(comp)
+        if y1 != y0 or x1 - x0 + 1 < 2 or not (inside(y0, x0 - 2, 1) and inside(y0, x1 + 2, 1)):
+            continue
+        if sc.protect[y0, x0 - 2:x1 + 3].any():
+            continue
+        bg = int(g[y0, x0 - 1])
+        if bg == 0 or bg in DARK_OUTLINE or bg in GNOME:
+            continue
+        side = [int(g[y0, x]) for x in (x0 - 2, x0 - 1, x1 + 1, x1 + 2)]
+        nbr = [int(g[y, x]) for y in (y0 - 1, y0 + 1) for x in range(x0 - 1, x1 + 2)]
+        if any(v != bg for v in side) or sum(v == bg for v in nbr) < 0.5 * len(nbr):
+            continue  # same row: water both sides; rows above / below: mostly water (a dash on open water, not a stripe)
+        hb, sb, _ = hsv(bg)
+        if not (0.45 <= hb <= 0.68 and sb >= 0.35):
+            continue  # blue / teal water only
+        if abs(lum(col) - lum(bg)) < 0.08:
+            continue
+        runs.append((y0, x0, x1, col, bg))
+    if len(runs) < 2:
+        return 0
+    sc.rng.shuffle(runs)
+    runs = runs[:16]
+    for (y, x0, x1, col, bg) in runs:
+        sc.protect[y, x0 - 1:x1 + 2] = True
+    pat = [[0, 1, 1, 0, -1, -1], [0, -1, -1, 0, 1, 1], [0, 0, 1, 1, 0, 0]]
+
+    def fn(f, i):
+        for k, (y, x0, x1, col, bg) in enumerate(runs):
+            d = pat[k % 3][i]
+            if d > 0:
+                f[y, x0] = bg
+                f[y, x1 + 1] = col
+            elif d < 0:
+                f[y, x1] = bg
+                f[y, x0 - 1] = col
+    sc.effects.append(("water", fn))
+    return len(runs)
+
+
+def add_soft_clouds(sc):
+    """clouds the strict add_clouds() skipped (sky bands either side differ, or the cloud rests on a hill line) drift
+    1 cell, row by row: each row's run must be contiguous with no outline within 2 cells either side; the vacated cell takes
+    the colour of the side it leaves (banded skies stay banded)."""
+    g = sc.g
+    prepared = []
+    for comp in components(g, lambda v: lum(v) > 0.88 and hsv(v)[1] < 0.3, conn8=False):
+        x0, y0, x1, y1 = bbox(comp)
+        if x1 - x0 + 1 < 6 or y1 - y0 + 1 > 8 or y0 > 26 or len(comp) < 8:
+            continue
+        if not (inside(y0, x0 - 2) and inside(y1, x1 + 2)) or sc.protect[y0:y1 + 1, x0 - 1:x1 + 2].any():
+            continue
+        rows = {}
+        ok = True
+        for (y, x) in comp:
+            rows.setdefault(y, []).append(x)
+        out = {}
+        for y, xs in rows.items():
+            lx, rx = min(xs), max(xs)
+            if rx - lx + 1 != len(xs):
+                ok = False
+                break
+            L, L2, R, R2 = int(g[y, lx - 1]), int(g[y, lx - 2]), int(g[y, rx + 1]), int(g[y, rx + 2])
+            if 0 in (L, R) or {L, R, L2, R2} & DARK_OUTLINE:
+                ok = False
+                break
+            out[y] = (lx, rx, L, R, [int(v) for v in g[y, lx:rx + 1]])
+        # mostly sky around it (a cloud may rest on a hill line, but not sit inside an object)
+        if ok and sum(lum(v[2]) > 0.75 and lum(v[3]) > 0.75 for v in out.values()) < 0.6 * len(out):
+            ok = False
+        # rows directly above and below the cloud must be sky too (no snow caps / roofs glued on)
+        if ok:
+            for y in (y0 - 1, y1 + 1):
+                if any(int(g[y, x]) in DARK_OUTLINE for x in range(x0, x1 + 1)):
+                    ok = False
+        if ok:
+            prepared.append(out)
+            sc.protect_box(x0 - 2, y0 - 1, x1 + 2, y1 + 1)
+    if not prepared:
+        return 0
+    patt = [0, 0, 1, 1, 1, 0]
+
+    def fn(f, i):
+        if not patt[i]:
+            return
+        for k, rows in enumerate(prepared):
+            d = 1 if k % 2 == 0 else -1
+            for y, (lx, rx, lb, rb, vals) in rows.items():
+                f[y, lx if d > 0 else rx] = lb if d > 0 else rb
+                for j, v in enumerate(vals):
+                    f[y, lx + j + d] = v
+    sc.effects.append(("cloud2", fn))
+    return len(prepared)
+
+
+def add_sway(sc):
+    """foliage sway: the top rows of a tree crown (green, or snow over green) standing against the sky lean 1 cell.
+    A crown row only moves when its run is contiguous and flanked by the same background colour 2 cells deep on both
+    sides; at most 3 rows and never more than 40% of the crown, so the trunk and lower boughs stay put."""
+    g = sc.g
+    prepared = []
+    for comp in components(g, lambda v: is_foliage(v) or (lum(v) > 0.85 and hsv(v)[1] < 0.2) or v in DARK_OUTLINE, conn8=False):
+        if not any(is_foliage(int(g[c])) for c in comp):
+            continue
+        x0, y0, _, y1 = bbox(comp)
+        h = y1 - y0 + 1
+        if h < 5 or len(comp) < 12 or len(comp) > 500 or not inside(y0 - 1, x0, 0):
+            continue
+        rows = {}
+        for (y, x) in comp:
+            rows.setdefault(y, []).append(x)
+        lean = []
+        for y in range(y0, y0 + min(3, max(1, int(h * 0.4)))):
+            xs = rows.get(y, [])
+            if not xs:
+                break
+            lx, rx = min(xs), max(xs)
+            if rx - lx + 1 != len(xs) or not (inside(y, lx - 2) and inside(y, rx + 2)):
+                break
+            L, L2, R, R2 = int(g[y, lx - 1]), int(g[y, lx - 2]), int(g[y, rx + 1]), int(g[y, rx + 2])
+            if not (L == L2 == R == R2) or L == 0 or L in DARK_OUTLINE or is_foliage(L):
+                break
+            if sc.protect[y, lx - 1:rx + 2].any():
+                break
+            lean.append((y, lx, rx, L, [int(v) for v in g[y, lx:rx + 1]]))
+        if len(lean) < 2:
+            continue
+        # cells right above the tip must be background as well
+        ty, tlx, trx, tbg, _ = lean[0]
+        if any(int(g[ty - 1, x]) != tbg for x in range(tlx - 1, trx + 2)):
+            continue
+        prepared.append(lean)
+        for (y, lx, rx, bg, vals) in lean:
+            sc.protect[y, lx - 1:rx + 2] = True
+    if not prepared:
+        return 0
+    patt = [[0, 0, 1, 1, 0, 0], [0, 0, 0, 1, 1, 0]]
+
+    def fn(f, i):
+        for k, lean in enumerate(prepared):
+            if not patt[k % 2][i]:
+                continue
+            d = 1 if k % 2 == 0 else -1
+            for j, (y, lx, rx, bg, vals) in enumerate(lean):
+                if j == len(lean) - 1 and len(lean) > 2:
+                    continue  # the lowest leaning row stays: a bend, not a shear
+                for x in range(lx, rx + 1):
+                    f[y, x] = bg
+                for m, v in enumerate(vals):
+                    f[y, lx + m + d] = v
+    sc.effects.append(("sway", fn))
+    return len(prepared)
+
+
+def add_flakes(sc):
+    """sparse snow / stars / bubbles: single pale cells whose 8 neighbours are one background colour.  On a dark
+    background they twinkle (hide for 2 frames); on blue-green water they rise 1 cell; on any other light background
+    they fall 1 cell.  The cell moved into is always a ring cell, so it is that same background."""
+    g = sc.g
+    fall, star = [], []
+    for col, comp in small_comps(g, 1):
+        (y, x), = comp
+        if not inside(y, x, 1) or sc.protect[y - 1:y + 2, x - 1:x + 2].any():
+            continue
+        ring = {int(g[p]) for p in ring_cells(comp)}
+        if len(ring) != 1:
+            continue
+        bg = ring.pop()
+        if bg == 0 or bg in DARK_OUTLINE or lum(col) < 0.6 or hsv(col)[1] > 0.35 or lum(col) - lum(bg) < 0.03:
+            continue
+        hb, sb, _ = hsv(bg)
+        if lum(bg) < 0.35:
+            star.append((y, x, col, bg))
+        elif 0.45 <= hb <= 0.6 and sb >= 0.3:
+            fall.append((y, x, col, bg, -1))  # bubble in water
+        else:
+            fall.append((y, x, col, bg, 1))
+    if len(fall) < 2:
+        fall = []
+    if len(star) < 2:
+        star = []
+    if not (fall or star):
+        return 0
+    sc.rng.shuffle(fall)
+    sc.rng.shuffle(star)
+    fall, star = fall[:24], star[:10]
+    for (y, x, col, bg, *d) in fall + star:
+        sc.protect[y, x] = True
+        sc.protect[y + (d[0] if d else 0), x] = True
+    fp = [[0, 1, 1, 0, 0, 0], [0, 0, 0, 1, 1, 0], [0, 0, 1, 1, 1, 0]]
+    tw = [[1, 1, 0, 0, 1, 1], [1, 1, 1, 1, 0, 0], [1, 0, 0, 1, 1, 1]]
+
+    def fn(f, i):
+        for k, (y, x, col, bg, d) in enumerate(fall):
+            if fp[k % 3][i]:
+                f[y, x] = bg
+                f[y + d, x] = col
+        for k, (y, x, col, bg) in enumerate(star):
+            if not tw[k % 3][i]:
+                f[y, x] = bg
+    sc.effects.append(("flakes", fn))
+    return len(fall) + len(star)
+
+
+EXTRAS = ("water", "cloud2", "sway", "flakes")
+
+
 def build(slug, pixels, cells, report):
     sc = Scene(slug, cells)
     info = {}
@@ -622,7 +843,13 @@ def build(slug, pixels, cells, report):
     info["specks"] = add_specks(sc)
     n_nongnome = info["cloud"] + info["flame"] + info["specks"] + info["weather"]
     if n_nongnome == 0 and info["breath"] == 0:
-        info["glint"] = add_glint(sc)
+        # former glint-only scenes: try water / soft clouds / foliage sway / flakes before the glint fallback
+        for k, fn in (("water", add_water), ("cloud2", add_soft_clouds), ("sway", add_sway), ("flakes", add_flakes)):
+            n = fn(sc)
+            if n:
+                info[k] = n
+        if not any(info.get(k) for k in EXTRAS):
+            info["glint"] = add_glint(sc)
     elif n_nongnome == 0:
         info["glint"] = add_glint(sc)
     frames = []
@@ -680,7 +907,7 @@ def main():
         pixels, cells = load_cells(p)
         frames, info = build(slug, pixels, cells, None)
         save_strip(frames, os.path.join(ACTS, "act-%s-anim.png" % slug))
-        main_eff = sum(info.get(k, 0) for k in ("breath", "cloud", "flame", "specks", "weather"))
+        main_eff = sum(info.get(k, 0) for k in ("breath", "cloud", "flame", "specks", "weather") + EXTRAS)
         key = "animated" if main_eff else ("fallback" if info.get("glint") else "static_only")
         stats[key] += 1
         log.append((slug, info))
