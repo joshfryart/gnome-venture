@@ -162,7 +162,7 @@ function pantry_start(array $u, array $r, int|string $want): array
     $free = pantry_free($uid, $kind);
     if ($free < 1) return [false, 'All ' . $limit . ' jars in the ' . PANTRY_KINDS[$kind][0] . ' room are full. Collect a finished one, or wait for a timer (the other rooms are separate).'];
     $energy = max(0, (int)$r['energy']);
-    $stock = craft_stock($uid, (string)$r['ingredients']);
+    $stock = craft_stock($uid, (string)$r['ingredients'], (int)$r['id']);
     $haveE = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
     $fit = min(craft_fit($stock, $energy, $haveE), $free);
     if ($fit < 1) return [false, craft_short_text($stock, $energy, $haveE, 1) ?: 'You’re missing some ingredients.'];
@@ -170,7 +170,7 @@ function pantry_start(array $u, array $r, int|string $want): array
     $clamped = $want !== 'all' && (int)$want > $fit;
     $cost = $energy * $qty;
     $short = function () use ($uid, $energy, $qty, $r): string {
-        $stock = craft_stock($uid, (string)$r['ingredients']);
+        $stock = craft_stock($uid, (string)$r['ingredients'], (int)$r['id']);
         $haveE = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
         return (craft_short_text($stock, $energy, $haveE, $qty) ?: 'Something changed while you were preserving.') . ' Nothing was used.';
     };

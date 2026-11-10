@@ -1006,6 +1006,35 @@ try {
 setu($uid, ['game_day' => 0, 'game_minute' => 360, 'carry_minutes' => 0, 'energy' => 30]);
 ok('flag off: never busy', gclock_busy_minutes($uid) === 0);
 
+echo "== craft mastery\n";
+try {
+    require_once $argv[1] . '/includes/craft_mastery.php';
+    $uidM = $uid;
+    ok('recipe tiers 10/50/200: 9 -> 0, 10 -> 1, 50 -> 2, 200 -> 3', craft_mastery_tier_of(9, [10, 50, 200]) === 0 && craft_mastery_tier_of(10, [10, 50, 200]) === 1 && craft_mastery_tier_of(50, [10, 50, 200]) === 2 && craft_mastery_tier_of(200, [10, 50, 200]) === 3);
+    ok('materials: 10 -> 9, 10 -> 8 (T2 -25% rounds up), 10 -> 5 (T3 -50%)', craft_mastery_qty(10, 1) === 9 && craft_mastery_qty(10, 2) === 8 && craft_mastery_qty(10, 3) === 5);
+    ok('materials never below 1 and never below half: 1 stays 1, 3 -> 2', craft_mastery_qty(1, 3) === 1 && craft_mastery_qty(3, 3) === 2);
+    $rid = (int)q_val("SELECT id FROM recipes WHERE category = 'tools' ORDER BY id LIMIT 1");
+    $cat = 'tools';
+    q('DELETE FROM user_recipes WHERE user_id = ? AND recipe_id = ?', [$uidM, $rid]);
+    db_insert('user_recipes', ['user_id' => $uidM, 'recipe_id' => $rid, 'learned_at' => now(), 'made' => 50]);
+    ok('50 makes of a recipe = tier 2', craft_mastery_recipe_tier($uidM, $rid) === 2);
+    $rj = (string)q_val('SELECT ingredients FROM recipes WHERE id = ?', [$rid]);
+    $base = array_map('intval', json_decode($rj, true));
+    $st = craft_stock($uidM, $rj, $rid);
+    $ok2 = true; foreach ($st as $slug => $row) if ($row['qty'] !== craft_mastery_qty(max(1, $base[$slug]), 2)) $ok2 = false;
+    ok('craft_stock gives the mastered quantities', $ok2);
+    $st0 = craft_stock($uidM, $rj);
+    $ok3 = true; foreach ($st0 as $slug => $row) if ($row['qty'] !== max(1, $base[$slug])) $ok3 = false;
+    ok('craft_stock without a recipe id: base quantities', $ok3);
+    q('UPDATE user_recipes SET made = 100 WHERE user_id = ? AND recipe_id = ?', [$uidM, $rid]);
+    ok('category count adds the recipe makes', craft_mastery_category_count($uidM, $cat) >= 100 && craft_mastery_category_tier($uidM, $cat) >= 1);
+    ok('category tier 1: energy 10 -> 10 x 95% = 10 (round), 20 -> 19; 0 stays 0, 1 stays 1', craft_mastery_energy($uidM, $cat, 20) === 19 && craft_mastery_energy($uidM, $cat, 0) === 0 && craft_mastery_energy($uidM, $cat, 1) === 1);
+    ok('category tier 1: yield for 100 units is 105', craft_mastery_yield($uidM, $cat, 100) === 105);
+    q('UPDATE user_recipes SET made = 0 WHERE user_id = ? AND recipe_id = ?', [$uidM, $rid]);
+    ok('no makes: nothing changes (yield 100 -> 100, energy 20 -> 20)', craft_mastery_yield($uidM, $cat, 100) === 100 && craft_mastery_energy($uidM, $cat, 20) === 20);
+    ok('card line says the count', str_contains(craft_mastery_line($uidM, ['id' => $rid]), 'Made 0 times'));
+} catch (Throwable $e) { ok('craft mastery block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
+
 echo "== camping gear parts and recipe\n";
 require_once $argv[1] . '/includes/crafting.php';
 ensure_crafts();

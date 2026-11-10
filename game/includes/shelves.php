@@ -227,7 +227,8 @@ function sh_craft_entries(array $u, string $tab, array $recipes, array $stations
                   . ($potsOn ? ' <span class="muted">· ' . ($potsFree > 0 ? $potsFree . ' pot' . ($potsFree === 1 ? '' : 's') . ' free' : 'no free pot right now') . ($chunk > 1 ? ', up to ' . $chunk . ' in one pot' : '') . '</span>' : '');
             $have = ''; $need = '';
             foreach ($r['ings'] as $i) { $li = sh_ing_line($i, $icons); if ((int)$i['have'] >= (int)$i['qty']) $have .= $li; else $need .= $li; }
-            $body = '<p class="p2fit">' . $when . '</p><div class="shhn">'
+            require_once __DIR__ . '/craft_mastery.php';
+            $body = '<p class="p2fit">' . $when . '</p><p class="muted p2mastery">' . e(craft_mastery_line((int)$u['id'], $r)) . '</p><div class="shhn">'
                   . '<div class="shhave"><h4>✔ You have</h4>' . ($have !== '' ? '<ul class="p2ingcmp">' . $have . '</ul>' : '<p class="muted">Nothing yet.</p>') . '</div>'
                   . '<div class="shneed"><h4>✖ Still need</h4>' . ($need !== '' ? '<ul class="p2ingcmp">' . $need . '</ul>' : '<p class="muted">Nothing: ready to go.</p>') . '</div></div>';
         } else {   // not found yet: the ingredient squares say which ones you have found

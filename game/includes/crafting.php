@@ -119,12 +119,18 @@ function craft_recipes(int $uid, ?string $category = null): array
     foreach (array_chunk(array_keys($want), 400) as $part) {
         foreach (q('SELECT slug, name FROM items WHERE slug IN (' . implode(',', array_fill(0, count($part), '?')) . ')', $part)->fetchAll() as $it) $names[(string)$it['slug']] = (string)$it['name'];
     }
+    require_once __DIR__ . '/craft_mastery.php';
+    $madeBy = [];   // mastery: makes per recipe in one query
+    foreach (q('SELECT recipe_id, made FROM user_recipes WHERE user_id = ?', [$uid])->fetchAll() as $mr) $madeBy[(int)$mr['recipe_id']] = (int)$mr['made'];
+    $marks = craft_mastery_list('mastery_tiers', [10, 50, 200]);
     $out = [];
     foreach ($rows as $r) {
+        $mt = craft_mastery_tier_of($madeBy[(int)$r['id']] ?? 0, $marks);
         $ings = [];
         $all = true;
         $can = true;
         foreach (json_decode((string)$r['ingredients'], true) ?: [] as $slug => $qty) {
+            $qty = craft_mastery_qty((int)$qty, $mt);   // lighter materials at mastery tiers
             $names[$slug] ??= (string)$slug;
             $h = $have[$slug] ?? 0;
             $all = $all && isset($seen[$slug]);
@@ -150,8 +156,10 @@ function craft_recipes(int $uid, ?string $category = null): array
  * v0.7.88: the stock a recipe's ingredients need, read fresh for one gnome:
  * [slug => ['id', 'name', 'qty' (per make), 'have']]. Ingredients the gnome has never seen have have = 0.
  */
-function craft_stock(int $uid, string $json): array
+function craft_stock(int $uid, string $json, int $recipeId = 0): array
 {
+    require_once __DIR__ . '/craft_mastery.php';
+    $mt = craft_mastery_recipe_tier($uid, $recipeId);   // mastery: lighter materials, never below 1 or half the base
     $need = json_decode($json, true) ?: [];
     if (!$need) return [];
     $slugs = array_map('strval', array_keys($need));
@@ -166,7 +174,7 @@ function craft_stock(int $uid, string $json): array
     foreach ($need as $slug => $qty) {
         $row = $by[(string)$slug] ?? null;
         $stock[(string)$slug] = ['id' => (int)($row['id'] ?? 0), 'name' => (string)($row['name'] ?? $slug),
-            'qty' => max(1, (int)$qty), 'have' => (int)($row['have'] ?? 0)];
+            'qty' => craft_mastery_qty(max(1, (int)$qty), $mt), 'have' => (int)($row['have'] ?? 0)];
     }
     return $stock;
 }
@@ -179,7 +187,8 @@ function craft_energy_cost(array $u, string $cat, int $energy, string $tier = ''
         $energy = tier_setting('cook_energy_tiers', [0, 1, 2])[$tier] ?? $energy;
         if ($tier === 'snack' && str_contains($slug, 'jam')) $energy = max(1, $energy);   // Josh 2026-11-10: a jam is a snack that costs 1 energy
     }
-    return $energy;
+    require_once __DIR__ . '/craft_mastery.php';
+    return craft_mastery_energy((int)($u['id'] ?? 0), $cat, $energy);   // category mastery: -5% energy a tier
 }
 
 /** v0.7.88: how many makes the stock and the energy allow: the smallest of stock ÷ need and energy ÷ cost (0 = no limit on energy). */
@@ -245,7 +254,7 @@ function craft(array &$u, int $recipeId, int|string $want = 1): array
         return [true, cook_collect_msg($done, 'Made', $cost) . ($info['clamped'] ? ' Only ' . $info['qty'] . ' fit your stock, energy and pots.' : '')];
     }
     $energy = craft_energy_cost($u, $cat, (int)$r['energy']);
-    $stock = craft_stock($uid, (string)$r['ingredients']);
+    $stock = craft_stock($uid, (string)$r['ingredients'], (int)$r['id']);
     $now = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
     $fit = craft_fit($stock, $energy, $now);
     if ($fit < 1) return [false, craft_short_text($stock, $energy, $now, 1) ?: 'You’re missing some ingredients.'];
@@ -254,7 +263,7 @@ function craft(array &$u, int $recipeId, int|string $want = 1): array
     $cost = $energy * $qty;
     // After a rollback: say what is missing now, so the gnome knows what to gather
     $short = function () use ($uid, $r, $energy, $qty): string {
-        $stock = craft_stock($uid, (string)$r['ingredients']);
+        $stock = craft_stock($uid, (string)$r['ingredients'], (int)$r['id']);
         $now = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
         return (craft_short_text($stock, $energy, $now, $qty) ?: 'Something changed while you were making it.') . ' Nothing was used.';
     };
@@ -269,7 +278,8 @@ function craft(array &$u, int $recipeId, int|string $want = 1): array
             return [false, $short()];
         }
     }
-    $made = (int)$r['output_qty'] * $qty;
+    require_once __DIR__ . '/craft_mastery.php';
+    $made = craft_mastery_yield($uid, $cat, (int)$r['output_qty'] * $qty);   // category mastery: +5% yield a tier
     give_item($uid, (int)$r['output_item_id'], $made);
     q('UPDATE user_recipes SET made = made + ? WHERE user_id = ? AND recipe_id = ?', [$qty, $uid, $recipeId]);
     require_once __DIR__ . '/jobs.php';
@@ -423,7 +433,7 @@ function cook_start(array $u, array $r, int|string $want, int $station, bool $ca
     if ($pots && $free < 1) return [false, 'All your pots are busy. Collect a finished one, or wait for a timer.', $none];
     $energy = craft_energy_cost($u, 'cooking', (int)$r['energy'], $tier, (string)($r['slug'] ?? ''));
     $feeEach = $tier === 'feast' ? max(0, (int)setting('feast_petal_fee')) : 0;
-    $stock = craft_stock($uid, (string)$r['ingredients']);
+    $stock = craft_stock($uid, (string)$r['ingredients'], (int)$r['id']);
     $haveE = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
     $coins = (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]);
     $fit = craft_fit($stock, $energy, $haveE);
@@ -436,7 +446,7 @@ function cook_start(array $u, array $r, int|string $want, int $station, bool $ca
     $cost = $energy * $qty;
     $fee = $feeEach * $qty;
     $short = function () use ($uid, $r, $energy, $qty, $feeEach, $feeText): string {
-        $stock = craft_stock($uid, (string)$r['ingredients']);
+        $stock = craft_stock($uid, (string)$r['ingredients'], (int)$r['id']);
         $haveE = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
         return (craft_short_text($stock, $energy, $haveE, $qty) ?: ($feeEach > 0 ? $feeText : 'Something changed while you were cooking.')) . ' Nothing was used.';
     };
