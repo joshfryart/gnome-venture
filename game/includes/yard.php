@@ -907,7 +907,6 @@ function yard_save(array $u, int $plotId, string $json): array
     }
     $appeal = yard_appeal($plotId);
     q('UPDATE plots SET appeal = ? WHERE id = ?', [$appeal, $plotId]);
-    unlock_entries($uid, 'yard');
     if ($before !== yard_snapshot($plotId)) yard_history_push($plotId, $before);   // v0.9.5: undo remembers what it looked like
     $bits = array_filter([count($new) ? count($new) . ' placed' : '', count($away) ? count($away) . ' put away' : '',
         count($tileMoves) ? count($tileMoves) . ' bed square' . (count($tileMoves) === 1 ? '' : 's') . ' moved' : '']);
@@ -1182,7 +1181,6 @@ function settle_gotm(): void
             $coins = $rank <= 3 ? max(0, $prizes[$rank - 1] ?? 0) : ((int)$e['votes'] > 0 ? (int)setting('gotm_thanks') : 0);   // v1.2.2: no thanks Petals for a 0-vote entry
             q('UPDATE users SET coins = coins + ?' . ($rank <= 3 ? ', ribbons = ribbons + 1' : '') . ' WHERE id = ?', [$coins, $e['user_id']]);
             add_xp((int)$e['user_id'], [1 => 30, 2 => 20, 3 => 10][$rank] ?? 5);
-            if ($rank <= 3) unlock_entries((int)$e['user_id'], 'gotm');
             notify((int)$e['user_id'], ($rank <= 3 ? '🏆' : '🌼') . ' Garden of the Month (' . $m . '): your garden came #' . $rank . ' with ' . (int)$e['votes']
                 . ' vote' . ((int)$e['votes'] === 1 ? '' : 's') . '. ' . ($coins ? 'Prize: ' . money($coins) . '.' : '') . ($rank <= 3 ? ' You win a ribbon!' : ''));
         }

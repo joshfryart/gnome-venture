@@ -190,7 +190,7 @@ const ALMANAC_HOWTO = [
         . "The coloured level badge shows the danger: green is fine, amber is a bit above you, red is well above. Losing never costs items: you wake up back where you started.\n\n"
         . "🏚️ [b]Ruins[/b]: some havens, wonders and delves have fallen into ruin, and nobody can use them until they’re made safe. Each gnome makes a ruin safe for themselves: clearing their own path in, shoring up their own corner and earning the keeper’s trust. Any gnome of level 3 or more can take on the repair at the place itself (up to three at a time). Bring building materials (Crafting → Building), home-cooked meals and a few uncommon or rare finds, one stage at a time. Each stage pays Petals and XP. Once you’ve made a place safe, it’s open to you, and it stays a little better for you: a fuller pantry, a warmer fire, an easier puzzle and a fuller chest. The first gnome to finish is its Founder, and is named first on the plaque with everyone else who made it safe. Your repairs are listed at the top of the Job Board and on Tasks → Journey, and stages can be handed in from either."],
     'Energy & food' => ['Getting started', 25,
-        "⚡ [b]Energy[/b] is spent when you till, plant, water, harvest, walk and gather. It comes back when you sleep (a nap gives some back), and eating brings it back at once.\n\n"
+        "⚡ [b]Energy[/b] is spent when you till, plant, water, harvest, walk and gather. It comes back when you sleep (a nap gives some back; see [b]Sleeping and the game day[/b] and [b]Resting away from home[/b]), and eating brings it back at once.\n\n"
         . "[b]Raw food[/b]: a raw crop or forage find gives 1 energy (2 for filling roots, beans and grains). Herbs, spices and flowers give none. Eating one also leaves a ♻️ Food Scrap.\n"
         . "[b]Snacks[/b] (teas, jams, toasts, salads) cook in minutes and cost no energy. [b]Meals[/b] cost 1 energy to cook. [b]Feasts[/b] need a Kitchen III and cost 2. Home-cooked dishes give far more energy than raw food, and their buffs last for hours.\n"
         . "[b]Shop-bought[/b] dishes give only a little energy.\n\n"
@@ -203,7 +203,7 @@ const ALMANAC_HOWTO = [
     'Pots' => ['Getting started', 27,
         "🍳 Cooking happens in [b]pots[/b] on your Kitchen’s stove. Start a dish from Satchel → Crafting → Cooking; it goes in a free pot and cooks while you do other things. Come back and press [b]Collect[/b].\n\n"
         . "[b]How many pots:[/b] 2 with a Kitchen I, 3 with a Kitchen II, 4 with a Kitchen III (Brewroot masters and extra Kitchens add more). A pot stays busy until you collect it, even when the dish is done.\n"
-        . "[b]How long:[/b] snacks about 3 minutes, meals 15, feasts 45 (each recipe can differ: the recipe page tells you). Brewroot callings cook faster.\n"
+        . "[b]How long:[/b] snacks about 3 game minutes, meals 15, feasts 45 (each recipe can differ: the recipe page tells you). Brewroot callings cook faster.\n"
         . "[b]Batches:[/b] a pot makes one dish, but snacks cook up to 5 at a time in one pot.\n"
         . "[b]Collecting:[/b] gives the dishes, cooking XP, a little garden XP for your Kitchen, and ♻️ Food Scraps from the peelings (1 for every 3 ingredients). The first time you make a dish its recipe page joins your Almanac.\n\n"
         . "Tip: put the long feasts on before you head out and the snacks on while you tend the garden.", 'pots'],
@@ -216,7 +216,7 @@ const ALMANAC_HOWTO = [
     'Pantry' => ['Getting started', 29,
         "🫙 The [b]Pantry[/b] is an add-on for a Kitchen, not a building of its own. Open 🏠 Garden buildings, tap your Kitchen and press [b]Add a Pantry[/b] (Petals and a few Timber Planks). Your jars live in Satchel → Crafting → [b]Pantry[/b].\n\n"
         . "[b]Jars:[/b] you start with 5. One jar holds one batch, and a batch gives 3 or 4 jars of jam, pickles or cordial. A jar stays busy until you collect it, even when the preserve is done. A Kitchen III with a Pantry gives 2 more jars, and a Pantry in each of your other gardens adds 1 more (up to 3 more).\n"
-        . "[b]Real days:[/b] the timers run in real time, jam 1 day, chutney 2, pickles 3, kimchi 5, sauerkraut 7 and cordials 14, even while you are away. Nothing spoils: a finished jar waits until you come back.\n"
+        . "[b]Sleeps:[/b] the timers count your sleeps (game days): jam 1, chutney 2, pickles 3, kimchi 5, sauerkraut 7 and cordials 14. Nothing spoils: a finished jar waits until you come back.\n"
         . "[b]Energy:[/b] a batch costs 1 energy to start, and every preserve restores energy when eaten, like a meal. Some also give a small, long buff (12 to 24 hours). Like any meal buff, a new one replaces the old one.\n\n"
         . "Tip: start the slow cordials first and the quick jams when you have spare crops. The page [b]Preserves[/b] has the prices and the Harvest Fair.", 'pantry'],
     'Preserves' => ['Getting started', 30,

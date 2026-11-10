@@ -192,7 +192,7 @@ function ensure_towns(): void
                 . "rest on the Green, have a drink at the teahouse, read the local history at the library, and visit the places "
                 . "you’ll only find in that region, like the Standing Stones of Mistmoor or the Koi Pond of Blossomreach.\n\n"
                 . "Most things can be done once or a few times a day. Some places only open at certain hours, or in certain months. "
-                . "The Hollow keeps its own clock, shown at the top of the town page.",
+                . "Your gnome’s game clock is shown at the top of the town page, and places close by it.",
             'unlock_key' => 'start', 'hint' => '', 'sort_order' => 10]);
         foreach (q("SELECT DISTINCT ue.user_id FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id = ue.entry_id WHERE e.unlock_key = 'start'")->fetchAll(PDO::FETCH_COLUMN) as $uid) {
             if (!q_val('SELECT 1 FROM user_encyclopedia WHERE user_id = ? AND entry_id = ?', [$uid, $eid])) {

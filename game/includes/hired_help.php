@@ -30,11 +30,7 @@ function ensure_helpers(): int
     }
     if (!q_val("SELECT 1 FROM encyclopedia_entries WHERE title = 'Hired help' AND chapter = 'General'")) {
         $eid = db_insert('encyclopedia_entries', ['chapter' => 'General', 'category' => 'Getting started', 'title' => 'Hired help',
-            'body' => "Going adventuring? A garden with a [b]Tool Shed[/b] can give a helper somewhere to stay.\n\n"
-                . "Hire one on the garden page for 1, 3 or 7 days, paid up front. They visit every few hours and do the jobs they know: "
-                . "💧 watering, 🌿 weeding no-till beds, 🧺 harvesting.\n\n"
-                . "Helpers keep a share of what they harvest as their pay, and you learn less from a harvest you didn’t pick yourself, "
-                . "so you get less XP. Send a helper home early and you get back the whole days you didn’t use.",
+            'body' => "Hired helpers have retired. Your Puzzle Pals tend the garden now, while you sleep: see [b]Garden crew and the Hovel[/b].",
             'unlock_key' => 'start', 'hint' => '', 'sort_order' => 3]);
         foreach (q("SELECT DISTINCT ue.user_id FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id = ue.entry_id WHERE e.unlock_key = 'start'")->fetchAll(PDO::FETCH_COLUMN) as $uid) {
             db_insert('user_encyclopedia', ['user_id' => $uid, 'entry_id' => $eid, 'unlocked_at' => now()]);

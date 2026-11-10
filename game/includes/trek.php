@@ -1096,7 +1096,6 @@ function trek_recruit_crew(array &$run, array $u, string $crewKey): bool
     if ((int)$npc['id'] > 0) {   // mentors are normal npcs rows: friendship works the same
         $have = (int)friendship((int)$u['id'], (int)$npc['id'])['points'];
         if ($have < 20) friend_add((int)$u['id'], (int)$npc['id'], 20 - $have);
-        unlock_entries((int)$u['id'], 'npc:' . $npc['slug']);
     }
     return $placed;
 }

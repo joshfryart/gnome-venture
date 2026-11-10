@@ -81,9 +81,6 @@ if (is_post()) {
 
 shop_restock($sid);
 $staff = staff_on_duty($sid);
-foreach ($staff as $n) {
-    unlock_entries((int)$u['id'], 'npc:' . $n['slug']);   // meeting someone can fill in their Almanac page
-}
 require_once __DIR__ . '/includes/folk_list.php';
 npc_meet((int)$u['id'], array_column($staff, 'id'));   // v0.7.69: you've met whoever is at the counter
 $known = known_plants($u);

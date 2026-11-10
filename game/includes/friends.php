@@ -170,7 +170,6 @@ function npc_talk(array $u, int $npcId): array
     }
     $after = friend_level($new);
     if ($after['index'] > $before['index']) $msg .= ' 💛 You and ' . $npc['name'] . ' are now: ' . $after['name'] . '!';
-    unlock_entries($uid, 'npc:' . $npc['slug']);
     calling_event($uid, 'talk', (string)$npc['slug'], 1, ['npc' => (string)$npc['slug']]);   // v0.9.4 N7
     return [true, $msg];
 }

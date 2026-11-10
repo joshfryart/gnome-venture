@@ -83,7 +83,7 @@ function ensure_jobs(): int
     if (!q_val("SELECT 1 FROM encyclopedia_entries WHERE title = 'The Job Board' AND chapter = 'General'")) {
         $eid = db_insert('encyclopedia_entries', ['chapter' => 'General', 'category' => 'Getting started', 'title' => 'The Job Board',
             'body' => "Gnomes all over the Hollow need a hand. The [b]Job Board[/b] has fresh work every day.\n\n"
-                . "☀️ [b]Daily:[/b] pick one of five small jobs. A new one after each daily reset.\n"
+                . "☀️ [b]Daily:[/b] pick one of five small jobs. A new one after each sleep.\n"
                 . "📅 [b]Weekly:[/b] one of five bigger jobs a week, with better rewards.\n"
                 . "🌕 [b]Monthly:[/b] one of three big projects a month. They pay at every stage, with something rare at the end.\n\n"
                 . "You can hold one of each at a time. Don’t like the offers? Re-roll the daily and weekly offers once each period. "

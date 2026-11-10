@@ -24,9 +24,37 @@ const ALMANAC_2644_PAGES = [
         "Puzzle Pals are small friends you meet by solving the puzzle games. A pal waiting at the place where you stand shows among the villagers on the Here page: tap it to say hello.\n\n[b]Take along:[/b] up to three pals can travel with you. They stand beside your gnome on Trail maps and behind you in a fight, where they can act: some strike or sap a foe, patch you up, or shield you.\n\n[b]Pal Jobs:[/b] send a free pal on a trip, a delve, a garden stay or a pot. Pal jobs run on game time, so they move when you sleep."],
 ];
 
+/** Stale wording fixed in worlds that already hold the old pages: title => [[old text, new text], ...]. A page that no longer holds the old text is left alone. */
+const ALMANAC_2644_FIXES = [
+    'Hired help' => [["Going adventuring? A garden with a [b]Tool Shed[/b] can give a helper somewhere to stay.\n\nHire one on the garden page for 1, 3 or 7 days, paid up front. They visit every few hours and do the jobs they know: 💧 watering, 🌿 weeding no-till beds, 🧺 harvesting.\n\nHelpers keep a share of what they harvest as their pay, and you learn less from a harvest you didn’t pick yourself, so you get less XP. Send a helper home early and you get back the whole days you didn’t use.", "Hired helpers have retired. Your Puzzle Pals tend the garden now, while you sleep: see [b]Garden crew and the Hovel[/b]."]],
+    'Pests & companions' => [["\n- A hired helper who weeds will pick pests off as well.", ""]],
+    'Pantry' => [["[b]Real days:[/b] the timers run in real time, jam 1 day, chutney 2, pickles 3, kimchi 5, sauerkraut 7 and cordials 14, even while you are away.", "[b]Sleeps:[/b] the timers count your sleeps (game days): jam 1, chutney 2, pickles 3, kimchi 5, sauerkraut 7 and cordials 14."]],
+    'Pots' => [["snacks about 3 minutes, meals 15, feasts 45", "snacks about 3 game minutes, meals 15, feasts 45"]],
+    'Energy & food' => [["It comes back when you sleep (a nap gives some back)", "It comes back when you sleep (a nap gives some back; see [b]Sleeping and the game day[/b] and [b]Resting away from home[/b])"]],
+    'Dried flowers' => [["each takes a real day, even while you are away", "each takes one sleep"]],
+    'Town squares' => [["The Hollow keeps its own clock, shown at the top of the town page.", "Your gnome’s game clock is shown at the top of the town page, and places close by it."]],
+    'The Job Board' => [["A new one after each daily reset.", "A new one after each sleep."]],
+];
+
 function ensure_almanac_pages_2644(): void
 {
-    if (setting('almanac2644') === '1') return;   // once per world; opening the Almanac runs it (also on a fresh install)
+    if (setting('almanac2644') !== '1') ensure_almanac_new_pages_2644();
+    if (setting('almanac2644fix') !== '1') {
+        foreach (ALMANAC_2644_FIXES as $title => $pairs) {
+            $row = q_one("SELECT id, body FROM encyclopedia_entries WHERE chapter = 'General' AND title = ?", [$title]);
+            if (!$row) continue;
+            $body = (string)$row['body'];
+            foreach ($pairs as [$old, $new]) $body = str_replace($old, $new, $body);
+            if ($body === (string)$row['body']) continue;
+            q('UPDATE encyclopedia_entries SET body = ? WHERE id = ?', [$body, $row['id']]);
+            q('UPDATE user_encyclopedia SET read_at = NULL WHERE entry_id = ?', [$row['id']]);   // shows as new again
+        }
+        set_setting('almanac2644fix', '1');
+    }
+}
+
+function ensure_almanac_new_pages_2644(): void
+{
     foreach (ALMANAC_2644_PAGES as $title => [$category, $sort, $body]) {
         if (q_val("SELECT 1 FROM encyclopedia_entries WHERE chapter = 'General' AND title = ?", [$title])) continue;
         try {

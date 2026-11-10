@@ -310,7 +310,6 @@ function arrange_make(array $u, string $vessel, array $slots): array
         'effects' => json_encode(['arrangement' => $comp + ['score' => $score['total'], 'dried' => $dryCount]])]);
     give_item($uid, $itemId, 1);
     [$xp] = add_action_xp($uid, 3 + intdiv($score['total'], 25), 'Arranging', (int)$u['level']);
-    unlock_entries($uid, 'flowers');
     db()->commit();
     return [true, '💐 You make “' . $name . '”: ' . $score['word'] . ', ' . $score['total'] . '/100' . ($energy ? ' (−' . $energy . ' ⚡' : ' (') . '+' . $xp . ' XP). It’s in your Satchel.', $itemId];
 }
@@ -499,7 +498,6 @@ function dry_collect(array $u, int $rackId): array
     }
     $did = dried_item($cut);
     give_item($uid, $did, (int)$d['qty']);
-    unlock_entries($uid, 'flowers');
     db()->commit();
     return [true, '🌾 ' . (int)$d['qty'] . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$did]) . ' collected. They will never wilt.'];
 }
@@ -685,7 +683,6 @@ function florist_collect(array $u, int $shiftId): array
     $fr = max(0, (int)setting('florist_friend'));
     $npc = (int)$s['npc_id'] ? q_one('SELECT id, name FROM npcs WHERE id = ?', [(int)$s['npc_id']]) : null;
     if ($npc && $fr > 0) friend_add($uid, (int)$npc['id'], $fr);
-    unlock_entries($uid, 'flowers');
     db()->commit();
     return [true, '🌷 Shift done! ' . ($npc ? $npc['name'] . ' gives you ' : 'You get ') . ($names ? implode(', ', $names) : 'a warm thank-you') . ' (+' . $xp . ' XP' . ($npc && $fr ? ', +' . $fr . ' friendship' : '') . ').'];
 }
@@ -732,7 +729,7 @@ const FLOWERS_ALMANAC = [
     'Arranging flowers' => [31, "💐 [b]Arranging[/b] turns cut and dried flowers into a one-off [b]Arrangement[/b]. Open Satchel → Arrange, pick a vessel (a glass jar holds 5 stems, a vase 7, a wicker basket 9), tap a flower and then a spot, and watch it fill. Press [b]Make it[/b] when you like it. It costs a little energy and uses up the stems.\n\n"
         . "[b]The score[/b] (0 to 100) comes from: [b]Colour[/b] (flowers that sit together on the colour wheel: tone on tone, neighbours, opposites or a triad), [b]Variety[/b] (three kinds is best), [b]Rarity[/b], the [b]Focal flower[/b] (your rarest, alone, in the top centre), [b]Balance[/b] (left against right), and a little for flowers in [b]Season[/b] and [b]Local[/b] ones grown where you are. The same stems in the same places always score the same.\n\n"
         . "[b]What for:[/b] an arrangement sells for more than its stems would, makes a loved present for folk (better than a single flower) and can go in the weekly [b]Arrangements show[/b], where the top three win Petals and a ribbon. A show entry stays at the show."],
-    'Dried flowers' => [32, "🌾 Hang cut flowers upside down and they dry into everlastings. In Satchel → Arrange → [b]Drying rack[/b], pick a flower and how many (up to 6 in a bundle). You have 4 bundles at once, and each takes a real day, even while you are away.\n\nDried flowers [b]never wilt[/b], sell for a bit more than the fresh ones, and look faded and papery in an arrangement. They count as in season all year, and an arrangement made only of dried flowers is called [b]Everlasting[/b]."],
+    'Dried flowers' => [32, "🌾 Hang cut flowers upside down and they dry into everlastings. In Satchel → Arrange → [b]Drying rack[/b], pick a flower and how many (up to 6 in a bundle). You have 4 bundles at once, and each takes one sleep.\n\nDried flowers [b]never wilt[/b], sell for a bit more than the fresh ones, and look faded and papery in an arrangement. They count as in season all year, and an arrangement made only of dried flowers is called [b]Everlasting[/b]."],
     'Seed packets' => [33, "📦 Once you have [b]mastered[/b] a flower (full knowledge from growing it), you can pack its seeds. In Satchel → Arrange → [b]Seed packets[/b], 3 of its seeds and a few Petals for the paper make a packet you can sell, trade or give away. Whoever opens it gets the 3 seeds. You can pack up to 5 a day."],
     'The florists' => [34, "🌷 [b]Florists[/b] sell cut flowers and let gnomes volunteer. There is one at Mossbottom Market (open to everyone) and one in Blossomreach. Their staff work in shifts round the clock.\n\n[b]Volunteer for 30 minutes[/b] on the florist's shop page: it costs 3 energy and a real half hour. You get a little XP, the florist's friendship and a bundle of 3 to 5 cut flowers, usually common ones. You can do 3 shifts a day, one at a time."],
 ];

@@ -680,7 +680,6 @@ function road_traveller_chat(array $u, int $npcId, string $line): string
     $new = friend_add($uid, $npcId, $gain, ['talks' => (int)$f['talks'] + 1]);
     $xp = (int)setting('friend_chat_xp');
     if ($xp > 0) add_xp($uid, $xp, 'Chatting with folk');
-    unlock_entries($uid, 'npc:' . $npc['slug']);
     calling_event($uid, 'talk', (string)$npc['slug'], 1, ['npc' => (string)$npc['slug']]);
     $after = friend_level($new);
     return $head . ' (+' . $gain . ' friendship' . ($xp > 0 ? ', +' . $xp . ' XP' : '') . ')' . ($after['index'] > $before['index'] ? ' 💛 You and ' . $npc['name'] . ' are now: ' . $after['name'] . '!' : '');
