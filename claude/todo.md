@@ -32,6 +32,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - Release recipe: bump `APP_VERSION` in `game/includes/bootstrap.php`, CHANGELOG top entry = same, `tools/check_versions.sh`, `bash tests/build_update.sh <v> <two-back> releases`, art zip `upload-zips/gnome-venture-images-v3-<v>.zip`. Never rebuild a zip under the same version. Push main only on Josh's word.
 
 ## 2. JOSH: phone checks
+- DONE 2026-11-10 (Josh said): tool gates work, Trail phone walk done, yard checked (cover redraw, satchel picker). Treat as PASSED.
 - DONE 2026-11-10 (Josh said done): 2.6.45 checks (phone touch grab zone, live site, MySQL), 2.6.44 zip upload, 2.6.07 stage events / riddles phone check, pal garden crew phases 1-4 (treat as built and passed).
 - DONE 2026-11-10: Josh said phone checks done and live is good. Treat ALL phone checks through 2.6.43 as PASSED, including 2.6.07 stage events / riddles.
 - DONE 2026-11-07: Josh said "All my checks ok". Treat everything listed here before 2.6.07 as PASSED: 2.5.97 to 2.6.06 (delve/wander fights, flee/KO, pal skills, 2x speed-up, walk back, Extras tab, toast fixes, Hat button).
