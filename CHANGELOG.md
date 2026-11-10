@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.6.37
+- **Messages (player and admin)**: Admin > Feedback is now **Admin > Messages**. Each player note is a conversation: reply under it, mark "No reply needed", delete it, or **Write to a player** first (by username). Tabs: Waiting for you / All messages. A reply marks the note dealt with; if the player answers it comes back as new.
+- **Together > Messages tab (first tab)**: the player sees their notes and your replies as bubbles and can answer. A yellow **!** in a circle shows on the Together menu tile, the phone More / Menu button and the Messages tab while a reply is unread; opening the tab clears it (asked fresh on every page). Together opens on Messages when a reply is waiting, otherwise on the Community garden. "Send feedback" lands in Messages after sending. The player also gets a notice line.
+  - New table `feedback_replies`, new columns `feedback.user_unread`, `feedback.last_at`. The pages add them by themselves on first use (or press Upgrade database). New setting `feedback_replies_per_day` (20). Code: `includes/messages.php`.
+- **Tools & backups badge**: no longer always a green "ok". It shows "⚠ N errors" in red while `data/error-log.txt` has entries (plus failed upgrade steps as before). The Dashboard shows a red line linking to the log, and the admin side menu has a Tools tile with the count. Clear the log on Tools to go back to "ok".
+- **Page code (Admin > Content & text)**: pick any game file (pages, admin pages, includes, data files, CSS/JS) to read its code, or edit it. Saving needs the admin password, refuses PHP with a syntax error or broken JSON, refuses if the file changed since it was opened, and keeps the last 10 old versions in `data/code-backups/` with a "Put back" button. `config.php`, `data/` and `uploads/` can never be opened. A game update overwrites edited files. Code: `admin/code.php`, `includes/code_edit.php`.
+- **Dashboard**: the Shop staffing table is gone (it is still on each shop's edit page).
+- Test: `tests/messages.php`.
+
 ## 2.6.36
 - **Town daily limits follow your game day**: "Join the dance" at the Plaza of the Bells, every other place action with a daily limit, and the festival treat used the real day, so they came back at real midnight while the Plaza's hours already ran on game time. They now come back after you sleep into a new game day (real day if the game clock is off). The audit of what is still real-time is in `docs/game-time-audit.md`.
 - **Stop perks are yours now**: filling a stop meter (Repairs, Larder, Cheer) gives the player a perk that works everywhere for 7 game days (admin `perk_days`), not "one more thing" at that stop (that bonus is retired). Same perk again refreshes it; at most 3 run (`perk_max`), a 4th drops the one ending soonest. Which perk is picked from the meter's pool by player, stop and game day, preferring one not already running (choosing from two is not built yet).

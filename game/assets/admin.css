@@ -97,3 +97,9 @@ body.admin .side .navtile .ntl { white-space: normal; overflow: visible; text-ov
 .heretab { border-collapse: collapse; margin: 0 0 12px; } .heretab th, .heretab td { padding: 3px 8px; text-align: left; } .heretab input[type=number] { width: 5.5em; }
 .hg-exits { color: #d33; } .hg-spots { color: #36c; } .hg-stand { color: #2a2; } .hg-houses { color: #c80; }
 .hg-pals { color: #a3a; }
+
+/* v2.6.37: Page code */
+.codepick select { max-width: 100%; }
+.codesrc, .codeview { display: block; width: 100%; max-width: none; box-sizing: border-box; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; line-height: 1.45; tab-size: 4; white-space: pre; overflow: auto; }
+.codesrc { min-height: 60vh; resize: vertical; }
+.codeview { max-height: 70vh; }

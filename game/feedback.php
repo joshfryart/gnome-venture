@@ -22,13 +22,12 @@ if (is_post()) {
         flash('Please keep it under 1,000 letters.', 'err');
     } else {
         db_insert('feedback', ['user_id' => $uid, 'page' => $from, 'body' => $body, 'created_at' => now()]);
-        flash('💬 Thank you! Your note is on its way.');
-        redirect('feedback.php?sent=1' . ($from !== '' ? '&from=' . urlencode($from) : ''));
+        flash('💬 Thank you! Your note is on its way. Replies arrive here, in Together → Messages.');
+        redirect('community.php?t=msgs');   // v2.6.37: the note and any reply live in Messages
     }
     redirect('feedback.php' . ($from !== '' ? '?from=' . urlencode($from) : ''));
 }
 
-$mine = q('SELECT body, page, status, created_at FROM feedback WHERE user_id = ? ORDER BY id DESC LIMIT 5', [$uid])->fetchAll();
 page_header('Send feedback');
 ?>
 <h1>💬 Send feedback</h1>
@@ -46,12 +45,5 @@ page_header('Send feedback');
 <?php else: ?>
 <div class="box"><p>That’s all the notes for today. Thank you! You can send more tomorrow.</p></div>
 <?php endif; ?>
-<?php if ($mine): ?>
-<details class="fold"><summary>📮 Notes you’ve sent</summary>
-  <?php foreach ($mine as $m): ?>
-    <div class="box"><p class="muted"><?= e(gmdate('M j', ts($m['created_at']))) ?><?= $m['page'] !== '' ? ' · ' . e($m['page']) : '' ?> · <?= $m['status'] === 'done' ? '✅ read' : '📬 sent' ?></p>
-      <p><?= nl2br(eu($m['body'])) ?></p></div>
-  <?php endforeach; ?>
-</details>
-<?php endif; ?>
+<p><a href="<?= e(url('community.php?t=msgs')) ?>">📮 Your notes and replies are in Together → Messages</a></p>
 <?php page_footer();

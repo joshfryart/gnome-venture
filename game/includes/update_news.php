@@ -720,7 +720,10 @@ function post_update_news(string $from): void
         . "[*][b]Larder[/b]: Seasoned (more energy from home-cooked food), Green Thumb (a chance of an extra harvest), Packed Lunch (longer meal boosts), Slow Simmer (faster pots).\n"
         . "[*][b]Cheer[/b]: Spring in Step (faster walking), Bright Mood (more XP), Silver Tongue (cheaper shops).[/list]\n\n"
         . "Up to 3 run at once. Earning the same one again refreshes it. See them in your effects list and on the stop's Perks card.\n\n"
-        . "Also: the daily limits on things to do in towns (like the Plaza of the Bells dance) now come back when you sleep into a new day, to match the town opening hours."],
+        . "Also: the daily limits on things to do in towns (like the Plaza of the Bells dance) now come back when you sleep into a new day, to match the town opening hours."],    '2.6.37' => ['💬 Update 2.6.37: messages with the game keeper',
+        "[list][*][b]Messages[/b]: the Together page has a new first tab, Messages. Notes you send with \"Send feedback\" show there, and so do the replies.\n"
+        . "[*][b]A yellow ![/b] on the Together menu tile and the Messages tab means a reply is waiting for you.\n"
+        . "[*][b]Write back[/b]: you can answer a reply right under it.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

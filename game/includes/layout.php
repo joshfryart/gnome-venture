@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/messages.php';   // v2.6.37: msg_unread() for the menu's yellow !
 
 require_once __DIR__ . '/gnome.php';
 require_once __DIR__ . '/tour.php';
@@ -112,7 +113,7 @@ function page_header(string $title, bool $admin = false): void
 <header class="banner"><div class="bannerin">
   <a class="logo" href="<?= e(url($admin ? 'admin/index.php' : 'index.php')) ?>"><?= e($site) ?><?= $admin ? ' <small>Admin</small>' : '' ?></a>
   <span class="tagline"><?= e(setting('site_tagline')) ?></span>
-  <button type="button" class="menubtn" aria-controls="sidenav" aria-expanded="false" aria-label="Open menu"><span aria-hidden="true">☰</span> Menu</button>
+  <button type="button" class="menubtn" aria-controls="sidenav" aria-expanded="false" aria-label="Open menu"><span aria-hidden="true">☰</span> Menu<?php if (!$admin && $u && !$onboarding && msg_unread((int)$u['id'])): ?><b class="bang" role="img" aria-label="New message">!</b><?php endif;   // v2.6.37 ?></button>
   <?php if ($u): ?>
     <div class="userbar">
 <?php if (!$admin && !$onboarding): [$hdrE, $hdrMax] = current_energy($u); ?>
@@ -430,7 +431,7 @@ function page_footer(): void
 <nav class="bottombar" aria-label="Quick links">
   <?php $rdy = (int)($_SESSION['nav_badges']['garden'] ?? 0);   // v1.0.0.1: the menu's "ready" badge, now on the bar's Garden
   foreach ($tabs as [$f, $i, $l]): ?><a href="<?= e(url($f)) ?>"<?= $page === $f || ($f === 'here.php' && ($page === 'town.php' || (gnav_on() && $page === 'adventure.php'))) ? ' class="on" aria-current="page"' : '' ?>><span aria-hidden="true"><?= $i ?></span><?= $l ?><?php if ($f === 'garden.php' && $rdy): ?><b class="barpip" aria-label="<?= $rdy ?> ready"><?= $rdy ?></b><?php endif; ?><?php if ($f === 'jobs.php' && ($jr = (int)($_SESSION['nav_badges']['jobs'] ?? 0))): ?><b class="barpip" aria-label="<?= $jr ?> ready"><?= $jr ?></b><?php endif; ?></a><?php endforeach; ?>
-  <button type="button" class="menubtn more" aria-controls="sidenav" aria-expanded="false"><span aria-hidden="true">☰</span>More</button>
+  <button type="button" class="menubtn more" aria-controls="sidenav" aria-expanded="false"><span aria-hidden="true">☰</span>More<?php if (msg_unread((int)$u['id'])): ?><b class="barpip bang" role="img" aria-label="New message">!</b><?php endif;   // v2.6.37 ?></button>
 </nav>
 <?php endif; ?>
 <footer>&copy; <?= gmdate('Y') ?> <?= e(setting('site_name')) ?> · v<?= e(APP_VERSION) ?> · <a href="<?= e(url('guide.php')) ?>">How to play</a> · <a href="<?= e(url('page.php?p=rules')) ?>">Rules</a> · <a href="<?= e(url('page.php?p=privacy')) ?>">Privacy</a><?php if (preg_match('~^https://~i', setting('vote_url'))) echo ' · <a href="' . e(setting('vote_url')) . '" target="_blank" rel="noopener">Vote for us</a>'; ?><?php if (!$u || $inAdmin) echo ' ' . theme_toggle('th-foot');   // v1.6.5: logged-out pages and admin get the switch here (players have it in the menu) ?></footer>
@@ -539,6 +540,7 @@ function nav_sheet(array $u, string $page): string
         }
         $_SESSION['nav_badges'] = $b;
     }
+    require_once __DIR__ . '/messages.php';   // v2.6.37: a reply from the game keeper puts a yellow ! on Together (asked fresh on every page, not with the 60 s badges)
     $tile = function (string $file, string $icon, string $label, string $badge = '', string $slug = '') use ($page): string {
         $cur = $page . (isset($_GET['tab']) && $_GET['tab'] === 'craft' ? '?tab=craft' : '');
         if ($page === 'folk.php') $cur = 'villagers.php';   // v2.0.39: villagers have their own page   // v1.7.0 menu: Games and Jobs & quests light up on all their tabs
@@ -547,7 +549,7 @@ function nav_sheet(array $u, string $page): string
         $on = $cur === $file;
         $bar = in_array($file, ['garden.php', 'world.php', 'inventory.php', 'town.php', 'jobs.php'], true);   // v1.0.0.1: already in the phone's bottom bar, so the phone sheet skips it
         return '<a class="navtile' . ($on ? ' on' : '') . ($bar ? ' inbar' : '') . '" href="' . e(url($file)) . '"' . ($on ? ' aria-current="page"' : '') . '><span class="nti">' . ($slug !== '' ? nav_icon($slug, $icon, 20) : e($icon)) . '</span>'
-            . '<span class="ntl">' . e($label) . '</span>' . ($badge !== '' ? '<span class="ntb">' . e($badge) . '</span>' : '') . '</a>';   // menu icons: nav-{slug} art, else placeholder, else emoji
+            . '<span class="ntl">' . e($label) . '</span>' . ($badge === '!' ? '<span class="ntb bang" role="img" aria-label="New message">!</span>' : ($badge !== '' ? '<span class="ntb">' . e($badge) . '</span>' : '')) . '</a>';   // menu icons: nav-{slug} art, else placeholder, else emoji
     };
     // menu icons: [file, emoji, label, badge, icon slug]. Account sits under the groups; Games moved into Out & about.
     $trekNav = (int)($u['level'] ?? 0) >= (int)setting('trek_level') && (setting('trek_open') === '1' || ($u['role'] ?? '') === 'admin');   // v1.8.0: Treks tile once the gnome may go (admins always)
@@ -557,7 +559,7 @@ function nav_sheet(array $u, string $page): string
             [gnav_on() && setting('gnav_tree') === '1' ? 'treehouse.php' : 'games.php', '🎲', 'Games', $b['games'] ? $b['games'] . ($b['fair'] ? ' · 🏆' : ' to play') : ($b['fair'] ? '🏆 fair' : ''), 'games']],
         'Out & about' => [['world.php', '🌍', 'World', '', 'world'], [gnav_on() ? 'here.php' : 'town.php', '📍', 'Here', '', 'town'], ['villagers.php', '👥', 'Villagers', '', 'villagers']]
             + ($trekNav ? [99 => ['trek.php', '🥾', 'Treks', '', 'treks']] : []),   // v1.7.0 menu: Contests is a tab on Games; v1.8.0 Treks (level + open setting, admins always)
-        'Together' => [['market.php', '🤝', 'Trading', '', 'trading'], ['community.php', '🌻', 'Together', '', 'together'], ['jobs.php', '📋', 'Tasks', !empty($b['jobs']) ? $b['jobs'] . ' ready' : '', 'tasks'], ['pals.php', '👫', 'Friends', $b['pals'] ?? '', 'friends']],
+        'Together' => [['market.php', '🤝', 'Trading', '', 'trading'], ['community.php', '🌻', 'Together', msg_unread($uid) ? '!' : '', 'together'], ['jobs.php', '📋', 'Tasks', !empty($b['jobs']) ? $b['jobs'] . ' ready' : '', 'tasks'], ['pals.php', '👫', 'Friends', $b['pals'] ?? '', 'friends']],
     ];
     require_once __DIR__ . '/catfish.php'; require_once __DIR__ . '/puzzle_pals.php';   // Hobbies: Puzzle Pals tile once open, after Games (Cat Fish and Puzzles are tiles on the Games page)
     if (ppal_open() && !is_guest($u)) $groups['Hobbies'][] = ['puzzlepals.php', '🧩', 'Puzzle Pals', '', 'puzzlepals'];

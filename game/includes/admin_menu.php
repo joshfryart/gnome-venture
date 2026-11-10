@@ -12,13 +12,13 @@ function admin_menu_def(): array
         ['system', '⚙️', 'Update, settings & system', [   // v1.6.4.2: first section, Update first (Joshua)
             ['update.php', '⬆️', 'Update the game', 'Upload a new version, check and install it', 'ver'],
             ['settings.php', '⚙️', 'Game settings', 'Site name, rules, limits, maintenance mode', 'maint'],
-            ['tools.php', '🧰', 'Tools & backups', 'Backups, error log, mail log, repair tools', 'boot'],
+            ['tools.php', '🧰', 'Tools & backups', 'Backups, error log, mail log, repair tools', 'boot'],   // badge: ok, or N errors (error log) / failed upgrade steps
             ['log.php', '🗒️', 'Admin log', 'Everything admins have done', ''],
         ]],
         ['players', '👤', 'Players', [
+            ['feedback.php', '💬', 'Messages', 'Player notes and bug reports, and your replies', 'fb'],   // v2.6.37: was Feedback; first, it is the daily job
             ['r:users', '👤', null, 'Accounts, roles, coins, stats, bans', 't:users'],
             ['grant.php', '🎁', 'Give / take items', 'Hand a player items or coins, or take them back', ''],
-            ['feedback.php', '💬', 'Feedback', 'Notes and bug reports from players', 'fb'],
             ['mentors.php', '🎓', 'Mentors', 'Who guides new gnomes, and their pairings', ''],
             ['r:npc_friends', '🤝', null, 'How well each player knows each NPC', 't:npc_friends'],
             ['r:gotm_entries', '🏆', null, 'Garden of the Month entries and winners', 't:gotm_entries'],
@@ -96,6 +96,7 @@ function admin_menu_def(): array
         ['content', '📝', 'Content & text', [
             ['texts.php', '📝', 'Page text', 'Edit the wording of game pages', ''],
             ['road_text.php', '🛣️', 'Road text', 'Edit road lines, scenes, wonder and delve wording', ''],
+            ['code.php', '🧑‍💻', 'Page code', 'See or edit the code of a game page', ''],   // v2.6.37
             ['r:encyclopedia_entries', '📚', null, 'The Almanac’s pages', 't:encyclopedia_entries'],
             ['r:news', '📰', null, 'News posts on the front page', 't:news'],
             ['r:pages', '📄', null, 'Rules, About and other site pages', 't:pages'],
@@ -145,6 +146,17 @@ function admin_crumbs(string $key, string $leaf = ''): void
     echo '</nav>';
 }
 
+/** v2.6.37: entries in data/error-log.txt (each starts "[2026-01-02 03:04:05 UTC]"). Reads the last 200 KB at most; 0 = empty or missing.
+ *  The log is emptied with "Clear the log" on Tools, so anything in it is something not looked at yet. */
+function admin_error_count(): int
+{
+    $f = APP_ROOT . '/data/error-log.txt';
+    $size = is_file($f) ? (int)@filesize($f) : 0;
+    if ($size <= 0) return 0;
+    $tail = (string)@file_get_contents($f, false, null, max(0, $size - 200000));
+    return max(1, (int)preg_match_all('/^\[\d{4}-\d\d-\d\d \d\d:\d\d:\d\d UTC\]/m', $tail));
+}
+
 /** Cheap counts for the badges: ['key' => [text, class]]. Anything that fails just shows no badge. */
 function admin_menu_badges(): array
 {
@@ -165,7 +177,11 @@ function admin_menu_badges(): array
     if ($n !== null) $b['img'] = $n > 0 ? [number_format($n) . ' missing', 'poor'] : ['all in', 'good'];
     $boot = (string)$try(fn() => setting('boot_failed_steps'));
     $up = $try(fn() => count(upgrade_100_failed())) ?? 0;
-    $b['boot'] = ($boot !== '' || $up) ? [($up + ($boot !== '' ? 1 : 0)) . ' failed', 'poor'] : ['ok', 'good'];
+    $errs = admin_error_count();   // v2.6.37: the badge said "ok" with a full error log
+    $bits = [];
+    if ($errs) $bits[] = $errs . ' error' . ($errs === 1 ? '' : 's');
+    if ($boot !== '' || $up) $bits[] = ($up + ($boot !== '' ? 1 : 0)) . ' failed';
+    $b['boot'] = $bits ? ['⚠ ' . implode(', ', $bits), 'poor'] : ['ok', 'good'];
     $b['ver'] = ['v' . APP_VERSION, ''];
     $b['maint'] = $try(fn() => setting('maintenance_mode')) === '1' ? ['maintenance', 'poor'] : ['', ''];
     return $b;
@@ -203,6 +219,7 @@ function admin_nav_sheet(): string
     $here = basename((string)($_SERVER['SCRIPT_NAME'] ?? '')) . (isset($_GET['r']) ? '?r=' . (string)$_GET['r'] : '');
     $fbNew = 0;
     try { $fbNew = (int)q_val("SELECT COUNT(*) FROM feedback WHERE status = 'new'"); } catch (Throwable $e) {}
+    $errs = admin_error_count();
     $tile = function (string $href, string $key, string $icon, string $label, string $badge = '') use ($here): string {
         $mine = $key === $here || ($key !== '' && 'crud.php?r=' . substr($key, 2) === $here && str_starts_with($key, 'r:'));
         return '<a class="navtile' . ($mine ? ' on' : '') . '" href="' . e($href) . '"' . ($mine ? ' aria-current="page"' : '') . '><span class="nti">' . $icon . '</span><span class="ntl">' . e($label) . '</span>'
@@ -213,7 +230,8 @@ function admin_nav_sheet(): string
         . $tile(url('admin/index.php'), 'index.php', '🏠', 'Dashboard')
         . $tile(url('admin/update.php'), 'update.php', '⬆️', 'Update')
         . $tile(url('admin/settings.php'), 'settings.php', '⚙️', 'Settings')
-        . $tile(url('admin/feedback.php'), 'feedback.php', '💬', 'Feedback', $fbNew ? $fbNew . ' new' : '')
+        . $tile(url('admin/feedback.php'), 'feedback.php', '💬', 'Messages', $fbNew ? $fbNew . ' new' : '')
+        . $tile(url('admin/tools.php#errors'), 'tools.php', '🧰', 'Tools', $errs ? $errs . ' error' . ($errs === 1 ? '' : 's') : '')   // v2.6.37
         . $tile(url('admin/images.php'), 'images.php', '🖼️', 'Images')
         . $tile(url('index.php'), '', '🌱', 'Back to game')
         . '</div>';

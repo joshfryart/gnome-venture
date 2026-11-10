@@ -6,6 +6,7 @@ require_once __DIR__ . '/includes/community.php';
 require_once __DIR__ . '/includes/catalog.php';
 require_once __DIR__ . '/includes/hollow_goals.php';
 require_once __DIR__ . '/includes/festival.php';
+require_once __DIR__ . '/includes/messages.php';   // v2.6.37: Messages tab
 social_boot();
 $u = require_login();
 $uid = (int)$u['id'];
@@ -14,6 +15,13 @@ if (is_post()) {
     csrf_check();
     refresh_energy($u);
     $do = (string)($_POST['do'] ?? '');
+    if ($do === 'msg_reply') {   // v2.6.37: answer the game keeper
+        msg_boot();
+        $tid = (int)($_POST['id'] ?? 0);
+        [$ok, $msg] = msg_player_reply($u, $tid, (string)($_POST['body'] ?? ''));
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect('community.php?t=msgs#m' . $tid);
+    }
     [$ok, $msg] = match ($do) {
         'take_store' => community_take($u, 'store', (int)($_POST['item_id'] ?? 0)),
         'take_bed' => community_take($u, 'bed', (int)($_POST['bed'] ?? 0)),
@@ -30,7 +38,8 @@ if (is_post()) {
     redirect('community.php?t=garden');
 }
 
-$t = in_array($_GET['t'] ?? '', ['garden', 'jar', 'about'], true) ? (string)$_GET['t'] : 'garden';
+$msgNew = msg_unread($uid);
+$t = in_array($_GET['t'] ?? '', ['msgs', 'garden', 'jar', 'about'], true) ? (string)$_GET['t'] : ($msgNew ? 'msgs' : 'garden');   // v2.6.37: a waiting reply opens Messages
 $tl = fn(string $k) => e(url('community.php?t=' . $k));
 if ($t === 'garden') {
 $beds = community_beds();
@@ -45,6 +54,14 @@ $helpers = q("SELECT COALESCE(us.gnome_name, us.username) AS name, COUNT(*) AS n
 $ripe = array_filter($beds, fn($b) => cbed_ripe($b, $b['_p']));
 $n = community_size();
 }
+if ($t === 'msgs') {
+    msg_boot();
+    $threads = msg_threads_for($uid);
+    $threadReplies = msg_replies(array_column($threads, 'id'));
+    $fresh = array_flip(array_column(array_filter($threads, fn($x) => (int)$x['user_unread'] === 1), 'id'));   // shown as "new" this once
+    if ($msgNew) msg_mark_seen($uid);
+    $repliesLeft = msg_replies_left($uid);
+}
 if ($t === 'jar') {
     hollow_goal_settle_flash($uid);
     $goals = hollow_goals_active();
@@ -55,12 +72,32 @@ page_header('Together');
 ?>
 <h1>🤝 Together</h1>
 <nav class="tabs">
+  <a class="<?= $t === 'msgs' ? 'on' : '' ?>" href="<?= $tl('msgs') ?>">💬 Messages<?= $msgNew && $t !== 'msgs' ? ' ' . msg_bang() : '' ?></a>
   <a class="<?= $t === 'garden' ? 'on' : '' ?>" href="<?= $tl('garden') ?>">🏡 Community garden</a>
   <a class="<?= $t === 'jar' ? 'on' : '' ?>" href="<?= $tl('jar') ?>">🫙 Hollow jar</a>
   <a class="<?= $t === 'about' ? 'on' : '' ?>" href="<?= $tl('about') ?>">💓 Who’s about</a>
 </nav>
 
-<?php if ($t === 'garden'): ?>
+<?php if ($t === 'msgs'): ?>
+<h2>💬 Messages</h2>
+<p class="help">Notes between you and the person who makes the game. Found a bug, got stuck, or have an idea? Write a note; replies show up here, with a yellow <b>!</b> on the menu.</p>
+<p><a class="btn small" href="<?= e(url('feedback.php?from=community.php')) ?>">✏️ Write a new note</a></p>
+<?php if (!$threads): ?><div class="box"><p class="muted">No messages yet.</p></div><?php endif; ?>
+<?php foreach ($threads as $th): $tid = (int)$th['id']; ?>
+  <section class="box msgthread" id="m<?= $tid ?>">
+    <?php if (isset($fresh[$tid])): ?><p><span class="tag">new reply</span></p><?php endif; ?>
+    <?= msg_thread_html($th, $threadReplies[$tid] ?? [], false) ?>
+    <?php if ($repliesLeft > 0): ?>
+    <form method="post" class="form"><?= csrf_field() ?><input type="hidden" name="do" value="msg_reply"><input type="hidden" name="id" value="<?= $tid ?>">
+      <textarea aria-label="Your reply" name="body" rows="2" maxlength="<?= MSG_MAX ?>" placeholder="Write a reply…" required></textarea>
+      <p><button class="btn small">Reply</button></p>
+    </form>
+    <?php endif; ?>
+  </section>
+<?php endforeach; ?>
+<?php if ($threads && $repliesLeft <= 0): ?><p class="muted">That’s all the replies for today. You can send more tomorrow.</p><?php endif; ?>
+
+<?php elseif ($t === 'garden'): ?>
 <h2>🏡 The Community Garden</h2>
 <p class="help">Everyone’s garden, in the middle of Mossbottom, kept going by gnomes: everything here was donated or grown by someone.
   Donate seeds, volunteer for a tending shift, and if you’re short of Petals, take one small thing a day. You’ve helped <?= (int)$u['community_rep'] ?> times.</p>

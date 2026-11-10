@@ -7549,3 +7549,16 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 .hubst .stq { position: absolute; top: -4px; left: 50%; transform: translateX(-50%); z-index: 2; background: #f2c200; color: #3a2a00; border: 2px solid #3a2a00; border-radius: 50%; width: 22px; height: 22px; line-height: 18px; text-align: center; font-weight: 900; font-size: 15px; box-shadow: 0 1px 3px rgba(0,0,0,.5); animation: stqbob 1.4s ease-in-out infinite; }
 @keyframes stqbob { 50% { transform: translateX(-50%) translateY(-3px); } }
 @media (prefers-reduced-motion: reduce) { .hubst .stq { animation: none; } }
+/* v2.6.37 messages: the yellow "!" (menu tile, Together tab, phone More button) and the message bubbles */
+.bang, .side .ntb.bang, .side a.navtile .ntb.bang, .bottombar .barpip.bang { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 20px; min-width: 20px; height: 20px; padding: 0; border-radius: 50%; background: #f2c200; color: #3a2a00; border: 2px solid #3a2a00; box-shadow: none; font-size: 13px; font-weight: 800; line-height: 1; max-width: none; overflow: visible; }
+.tabs a .bang { position: absolute; top: -4px; right: -2px; z-index: 1; width: 18px; min-width: 18px; height: 18px; font-size: 12px; }
+.menubtn { position: relative; }
+header .menubtn .bang { position: absolute; top: 2px; right: 2px; width: 18px; min-width: 18px; height: 18px; font-size: 12px; }
+.msgs { display: grid; gap: 8px; margin: 0 0 10px; }
+.msg { max-width: 92%; padding: 8px 12px; border: 1px solid var(--line); background: var(--surface-2); justify-self: start; overflow-wrap: anywhere; }
+.msg p { margin: 2px 0 0; }
+.msg small { display: block; font-size: 12px; }
+.msg.me { justify-self: end; background: var(--brand-soft); border-color: var(--brand-line, var(--line)); }
+.msg.av.me { justify-self: start; background: var(--surface-2); border-color: var(--line); }   /* admin view: the player on the left, the admin's replies on the right */
+.msg.av.them { justify-self: end; background: var(--brand-soft); border-color: var(--brand-line, var(--line)); }
+.msgthread textarea, body.admin .msgs + form textarea { width: 100%; max-width: none; box-sizing: border-box; }
