@@ -80,5 +80,9 @@ local function spec(n, name)
   for k, v in pairs(n[7]) do f[k] = v end
   return { slug = name, size = "party", arch = "folk", col = n[3], feat = f, base = "moss" }
 end
-for _, n in ipairs(N) do if not only or want[n[1]] then L.mini(spec(n, "npc-" .. n[1]), "mini") end end
-for key, slug in pairs(CREW) do if not only or want[key] then for _, n in ipairs(N) do if n[1] == slug then L.mini(spec(n, "crew-" .. key), "mini") end end end end
+local RIG = os.getenv("RIG")   -- RIG=1: only hand the crew specs to tools/fight/rig_minis.lua
+local T = {}
+for _, n in ipairs(N) do if not RIG and (not only or want[n[1]]) then L.mini(spec(n, "npc-" .. n[1]), "mini") end end
+for key, slug in pairs(CREW) do if not only or want[key] then for _, n in ipairs(N) do if n[1] == slug then local s = spec(n, "crew-" .. key); T[#T + 1] = s; if not RIG then L.mini(s, "mini") end end end end end
+table.sort(T, function(a, b) return a.slug < b.slug end)
+return T

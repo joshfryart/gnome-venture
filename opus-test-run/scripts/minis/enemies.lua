@@ -129,4 +129,5 @@ local T = {
 }
 local only = os.getenv("ONLY"); local want = {}
 if only then for k in only:gmatch("[^,]+") do want[k] = true end end
-for _, s in ipairs(T) do if not only or want[s.slug] then L.mini(s, "mini") end end
+if not os.getenv("RIG") then for _, s in ipairs(T) do if not only or want[s.slug] then L.mini(s, "mini") end end end   -- RIG=1: only hand the list to tools/fight/rig_minis.lua
+return T

@@ -21,6 +21,8 @@ L.OP = OP
 local BODY = { gloss = true, cres = 3, deep = 0 }
 local function part(c, m, r, o) c:part(m, r, o or OP) end
 L.part = part
+-- rig tags: T(g, "head") names the rig part that the following drawing belongs to. A no-op for the minis; the rig builder (L.rig) swaps the canvas state per tag.
+local function T(g, n) if g.tag then g.tag(n) end end
 
 -- coordinate helper: figure space (a to the right, b up from the feet) -> canvas
 local function P(g, a, b) return g.cx + a * g.u, g.by - b * g.u end
@@ -67,47 +69,48 @@ local A = {}
 function A.bug(c, g)
   local B, Ac, D, f = g.B, g.A, g.D, g.feat or {}
   local kind = f.kind or ((f.shell and "beetle") or ((f.stripes and f.wings) and "wasp") or (f.wings and "moth") or "plain")
-  local function legs(xs, y0) for _, l in ipairs(xs) do Limb(c, g, { { l[1], y0 }, { l[2], 5 }, { l[3], 0 } }) end end
+  local function legs(xs, y0) for i, l in ipairs(xs) do T(g, "leg" .. i); Limb(c, g, { { l[1], y0 }, { l[2], 5 }, { l[3], 0 } }) end end
   if kind == "ant" then
     legs({ { -4, -9, -11 }, { 0, 0, 1 }, { 4, 9, 11 } }, 11)
-    part(c, E(c, g, -13, 13, 9, 7), B, BODY); part(c, E(c, g, -1, 14, 5, 5), B, BODY); part(c, E(c, g, 11, 17, 8, 7), B, BODY)
-    c:fill(c:rect(rd(P(g, -5, 0)), rd(select(2, P(g, 0, 13))), rd(P(g, -4, 0)), rd(select(2, P(g, 0, 14)))), "#4a2c1a")
-    eye(c, g, 9, 19); eye(c, g, 14, 19); smile(c, g, 11, 13)
-    Limb(c, g, { { 9, 23 }, { 6, 28 }, { 3, 29 } }); Limb(c, g, { { 13, 23 }, { 16, 28 }, { 19, 29 } })
-    if f.pincers then part(c, Poly(c, g, { { 17, 16 }, { 23, 14 }, { 18, 12 } }), Ac, OP) end
+    T(g, "abdo"); part(c, E(c, g, -13, 13, 9, 7), B, BODY); T(g, "body"); part(c, E(c, g, -1, 14, 5, 5), B, BODY); T(g, "head"); part(c, E(c, g, 11, 17, 8, 7), B, BODY)
+    T(g, "body"); c:fill(c:rect(rd(P(g, -5, 0)), rd(select(2, P(g, 0, 13))), rd(P(g, -4, 0)), rd(select(2, P(g, 0, 14)))), "#4a2c1a")
+    T(g, "eyes"); eye(c, g, 9, 19); eye(c, g, 14, 19); T(g, "head"); smile(c, g, 11, 13)
+    T(g, "antL"); Limb(c, g, { { 9, 23 }, { 6, 28 }, { 3, 29 } }); T(g, "antR"); Limb(c, g, { { 13, 23 }, { 16, 28 }, { 19, 29 } })
+    if f.pincers then T(g, "head"); part(c, Poly(c, g, { { 17, 16 }, { 23, 14 }, { 18, 12 } }), Ac, OP) end
     return
   end
   if kind == "moth" then
     legs({ { -2, -4, -5 }, { 4, 6, 7 } }, 10)
-    part(c, Poly(c, g, { { 0, 18 }, { 2, 32 }, { 14, 30 }, { 10, 18 } }), D, OP)                                   -- far wings, darker
-    part(c, Poly(c, g, { { -2, 16 }, { -20, 33 }, { -26, 22 }, { -22, 12 }, { -12, 8 } }), Ac, OP)                 -- forewing, scalloped edge
-    part(c, Poly(c, g, { { -2, 14 }, { -24, 12 }, { -18, 4 }, { -6, 6 } }), Ac, OP)                                 -- hindwing
-    local x, y = P(g, -16, 20); c:fill(c:ellipse(rd(x), rd(y), math.max(1, rd(3 * g.u)), math.max(1, rd(3 * g.u))), "#fff3c8"); c:fill(c:ellipse(rd(x), rd(y), math.max(1, rd(1.5 * g.u)), math.max(1, rd(1.5 * g.u))), "#2a1a10")
-    part(c, E(c, g, -3, 14, 9, 7), B, BODY); part(c, E(c, g, 8, 18, 7, 7), B, BODY)
-    eye(c, g, 6, 19); eye(c, g, 11, 19); smile(c, g, 8, 13)
-    Limb(c, g, { { 6, 24 }, { 3, 32 } }); Limb(c, g, { { 11, 24 }, { 15, 32 } })
+    T(g, "wingB"); part(c, Poly(c, g, { { 0, 18 }, { 2, 32 }, { 14, 30 }, { 10, 18 } }), D, OP)                                   -- far wings, darker
+    T(g, "wingF"); part(c, Poly(c, g, { { -2, 16 }, { -20, 33 }, { -26, 22 }, { -22, 12 }, { -12, 8 } }), Ac, OP)                 -- forewing, scalloped edge
+    T(g, "wingH"); part(c, Poly(c, g, { { -2, 14 }, { -24, 12 }, { -18, 4 }, { -6, 6 } }), Ac, OP)                                 -- hindwing
+    T(g, "wingF"); local x, y = P(g, -16, 20); c:fill(c:ellipse(rd(x), rd(y), math.max(1, rd(3 * g.u)), math.max(1, rd(3 * g.u))), "#fff3c8"); c:fill(c:ellipse(rd(x), rd(y), math.max(1, rd(1.5 * g.u)), math.max(1, rd(1.5 * g.u))), "#2a1a10")
+    T(g, "body"); part(c, E(c, g, -3, 14, 9, 7), B, BODY); T(g, "head"); part(c, E(c, g, 8, 18, 7, 7), B, BODY)
+    T(g, "eyes"); eye(c, g, 6, 19); eye(c, g, 11, 19); T(g, "head"); smile(c, g, 8, 13)
+    T(g, "antL"); Limb(c, g, { { 6, 24 }, { 3, 32 } }); T(g, "antR"); Limb(c, g, { { 11, 24 }, { 15, 32 } })
     return
   end
   if kind == "wasp" then
     legs({ { -2, -4, -5 }, { 3, 4, 5 }, { 7, 9, 10 } }, 10)
-    part(c, E(c, g, -9, 25, 9, 7), Ac, OP); part(c, E(c, g, -2, 27, 8, 6), Ac, OP)           -- wings up
-    part(c, Poly(c, g, { { -24, 12 }, { -12, 6 }, { 0, 10 }, { 0, 20 }, { -12, 22 } }), B, BODY)   -- tapered abdomen with a stinger point
+    T(g, "wingB"); part(c, E(c, g, -9, 25, 9, 7), Ac, OP); T(g, "wingF"); part(c, E(c, g, -2, 27, 8, 6), Ac, OP)           -- wings up
+    T(g, "abdo"); part(c, Poly(c, g, { { -24, 12 }, { -12, 6 }, { 0, 10 }, { 0, 20 }, { -12, 22 } }), B, BODY)   -- tapered abdomen with a stinger point
     for i = 0, 2 do local x, y = P(g, -18 + i * 6, 0); c:fill(c:rect(rd(x), rd(select(2, P(g, 0, 21))), rd(x) + 1, rd(select(2, P(g, 0, 8)))), "#2a1a10") end
-    part(c, E(c, g, 3, 16, 6, 6), B, BODY); part(c, E(c, g, 11, 17, 7, 7), B, BODY)
-    eye(c, g, 9, 19); eye(c, g, 14, 19); smile(c, g, 11, 13)
-    Limb(c, g, { { 9, 23 }, { 7, 29 } }); Limb(c, g, { { 14, 23 }, { 17, 29 } })
+    T(g, "body"); part(c, E(c, g, 3, 16, 6, 6), B, BODY); T(g, "head"); part(c, E(c, g, 11, 17, 7, 7), B, BODY)
+    T(g, "eyes"); eye(c, g, 9, 19); eye(c, g, 14, 19); T(g, "head"); smile(c, g, 11, 13)
+    T(g, "antL"); Limb(c, g, { { 9, 23 }, { 7, 29 } }); T(g, "antR"); Limb(c, g, { { 14, 23 }, { 17, 29 } })
     return
   end
   -- beetle / plain
   legs({ { -8, -11, -13 }, { 0, 0, 1 }, { 8, 11, 13 } }, 9)
-  if f.wings then part(c, E(c, g, -12, 24, 8, 6), Ac, OP); part(c, E(c, g, -5, 25, 7, 6), Ac, OP) end
+  if f.wings then T(g, "wingB"); part(c, E(c, g, -12, 24, 8, 6), Ac, OP); T(g, "wingF"); part(c, E(c, g, -5, 25, 7, 6), Ac, OP) end
+  T(g, "body")
   if kind == "beetle" then
     part(c, E(c, g, -4, 14, 15, 11), B, BODY)                                              -- domed shell
     part(c, E(c, g, -5, 15, 9, 6), Ac, OP)
     local x0, y0 = P(g, -4, 25); c:fill(c:rect(rd(x0), rd(y0), rd(x0), rd(select(2, P(g, 0, 5)))), "#2a1a10")   -- wing-case seam
     if f.spots then dots(c, g, { { -11, 17 }, { -9, 10 }, { 3, 18 }, { 4, 10 } }, "#2a1a10") end
-    part(c, E(c, g, 13, 11, 7, 6), B, BODY)
-    eye(c, g, 11, 13); eye(c, g, 16, 13); smile(c, g, 13, 7)
+    T(g, "head"); part(c, E(c, g, 13, 11, 7, 6), B, BODY)
+    T(g, "eyes"); eye(c, g, 11, 13); eye(c, g, 16, 13); T(g, "head"); smile(c, g, 13, 7)
     if f.horns then part(c, Poly(c, g, { { 17, 12 }, { 27, 15 }, { 22, 10 } }), Ac, OP); part(c, Poly(c, g, { { 17, 8 }, { 27, 5 }, { 21, 11 } }), Ac, OP)
     elseif f.pincers then part(c, Poly(c, g, { { 17, 12 }, { 24, 13 }, { 18, 9 } }), Ac, OP) end
     if f.snout then part(c, E(c, g, 21, 9, 6, 2), B, OP) end
@@ -115,39 +118,39 @@ function A.bug(c, g)
     part(c, E(c, g, -6, 15, 14, 10), B, BODY)
     if f.stripes then for i = -2, 1 do local x, y = P(g, -6 + i * 5, 15); c:fill(c:rect(rd(x), rd(y - 8 * g.u), rd(x) + 1, rd(y + 6 * g.u)), "#4a2c1a") end end
     if f.spots then dots(c, g, { { -10, 20 }, { -4, 22 }, { -2, 12 }, { -12, 14 } }, "#2a1a10") end
-    part(c, E(c, g, 10, 17, 9, 8), B, BODY)
-    eye(c, g, 8, 19); eye(c, g, 14, 19); smile(c, g, 11, 12)
+    T(g, "head"); part(c, E(c, g, 10, 17, 9, 8), B, BODY)
+    T(g, "eyes"); eye(c, g, 8, 19); eye(c, g, 14, 19); T(g, "head"); smile(c, g, 11, 12)
     if f.pincers then part(c, Poly(c, g, { { 17, 14 }, { 25, 13 }, { 19, 10 } }), Ac, OP); part(c, Poly(c, g, { { 17, 12 }, { 25, 8 }, { 19, 8 } }), Ac, OP) end
-    Limb(c, g, { { 8, 24 }, { 5, 31 } }); Limb(c, g, { { 13, 24 }, { 16, 31 } })
-    part(c, Rc(c, g, 3, 31, 6, 34), GV.R.leg, { flat = true, gloss = false }); part(c, Rc(c, g, 15, 31, 18, 34), GV.R.leg, { flat = true, gloss = false })
+    T(g, "antL"); Limb(c, g, { { 8, 24 }, { 5, 31 } }); T(g, "antR"); Limb(c, g, { { 13, 24 }, { 16, 31 } })
+    T(g, "antL"); part(c, Rc(c, g, 3, 31, 6, 34), GV.R.leg, { flat = true, gloss = false }); T(g, "antR"); part(c, Rc(c, g, 15, 31, 18, 34), GV.R.leg, { flat = true, gloss = false })
   end
-  if kind == "beetle" then Limb(c, g, { { 11, 17 }, { 8, 24 } }); Limb(c, g, { { 16, 17 }, { 19, 24 } }); part(c, Rc(c, g, 6, 24, 9, 27), GV.R.leg, { flat = true, gloss = false }); part(c, Rc(c, g, 18, 24, 21, 27), GV.R.leg, { flat = true, gloss = false }) end
+  if kind == "beetle" then T(g, "antL"); Limb(c, g, { { 11, 17 }, { 8, 24 } }); T(g, "antR"); Limb(c, g, { { 16, 17 }, { 19, 24 } }); T(g, "antL"); part(c, Rc(c, g, 6, 24, 9, 27), GV.R.leg, { flat = true, gloss = false }); T(g, "antR"); part(c, Rc(c, g, 18, 24, 21, 27), GV.R.leg, { flat = true, gloss = false }) end
 end
 function A.worm(c, g)
   local B, Ac, f = g.B, g.A, g.feat or {}
   local n = f.segs or 5
   for i = n, 1, -1 do
     local t = (i - 1) / (n - 1); local a = -16 + t * 28; local b = 6 + math.sin(t * math.pi) * 8 + t * 6
-    part(c, E(c, g, a, b, 6.5 - (1 - t) * 1.5, 5.5), (i % 2 == 0 and f.band) and Ac or B, { gloss = false, cres = 2, deep = 0 })
+    T(g, "s" .. (n - i + 1)); part(c, E(c, g, a, b, 6.5 - (1 - t) * 1.5, 5.5), (i % 2 == 0 and f.band) and Ac or B, { gloss = false, cres = 2, deep = 0 })
     if f.spots and i % 2 == 1 then local x, y = P(g, a, b + 2); c:px(rd(x), rd(y), "#2a1a10") end
-    if f.legs then Limb(c, g, { { a, b - 4 }, { a - 1, 0 } }) end
+    if f.legs then T(g, "l" .. (n - i + 1)); Limb(c, g, { { a, b - 4 }, { a - 1, 0 } }) end
   end
-  part(c, E(c, g, 14, 17, 9, 8), B, BODY)
-  eye(c, g, 12, 19); eye(c, g, 18, 19); smile(c, g, 15, 13)
-  if f.glow then local x, y = P(g, -16, 12); c:fill(c:ellipse(rd(x), rd(y), 2, 2), "#f5cf6a") end
-  if f.horns then part(c, Poly(c, g, { { 12, 24 }, { 10, 32 }, { 15, 25 } }), Ac, OP) end
+  T(g, "head"); part(c, E(c, g, 14, 17, 9, 8), B, BODY)
+  T(g, "eyes"); eye(c, g, 12, 19); eye(c, g, 18, 19); T(g, "head"); smile(c, g, 15, 13)
+  if f.glow then T(g, "s" .. n); local x, y = P(g, -16, 12); c:fill(c:ellipse(rd(x), rd(y), 2, 2), "#f5cf6a") end
+  if f.horns then T(g, "head"); part(c, Poly(c, g, { { 12, 24 }, { 10, 32 }, { 15, 25 } }), Ac, OP) end
 end
 function A.snail(c, g)
   local B, Ac, f = g.B, g.A, g.feat or {}
-  part(c, E(c, g, 4, 6, 17, 6), B, BODY)              -- foot/body
-  part(c, E(c, g, -7, 17, 12, 12), Ac, { gloss = false, cres = 4, deep = 0 })          -- shell
+  T(g, "body"); part(c, E(c, g, 4, 6, 17, 6), B, BODY)              -- foot/body
+  T(g, "shell"); part(c, E(c, g, -7, 17, 12, 12), Ac, { gloss = false, cres = 4, deep = 0 })          -- shell
   part(c, E(c, g, -7, 17, 6, 6), Ac, { gloss = false, flat = true })
   local x, y = P(g, -7, 17); c:fill(c:rect(rd(x) - 1, rd(y) - 1, rd(x) + 1, rd(y) + 1), "#4a2c1a")
-  part(c, E(c, g, 14, 12, 8, 8), B, BODY)
-  eye(c, g, 12, 14); eye(c, g, 17, 14); smile(c, g, 14, 8)
-  Limb(c, g, { { 13, 18 }, { 11, 26 } }); Limb(c, g, { { 17, 18 }, { 20, 26 } })
-  part(c, Rc(c, g, 9, 26, 12, 29), GV.R.leg, { flat = true, gloss = false }); part(c, Rc(c, g, 19, 26, 22, 29), GV.R.leg, { flat = true, gloss = false })
-  if f.spots then dots(c, g, { { 0, 6 }, { 6, 5 }, { -3, 7 } }, "#2a1a10") end
+  T(g, "head"); part(c, E(c, g, 14, 12, 8, 8), B, BODY)
+  T(g, "eyes"); eye(c, g, 12, 14); eye(c, g, 17, 14); T(g, "head"); smile(c, g, 14, 8)
+  T(g, "antL"); Limb(c, g, { { 13, 18 }, { 11, 26 } }); T(g, "antR"); Limb(c, g, { { 17, 18 }, { 20, 26 } })
+  T(g, "antL"); part(c, Rc(c, g, 9, 26, 12, 29), GV.R.leg, { flat = true, gloss = false }); T(g, "antR"); part(c, Rc(c, g, 19, 26, 22, 29), GV.R.leg, { flat = true, gloss = false })
+  if f.spots then T(g, "body"); dots(c, g, { { 0, 6 }, { 6, 5 }, { -3, 7 } }, "#2a1a10") end
 end
 -- quad kinds: canid (slim, long snout, tall ears, plume tail), feline (round head, whiskers, long tail), rodent (round ears, thin tail), bear (bulky, short legs, round ears), ungulate (horns, hooves), hare (long ears)
 local QK = {
@@ -162,20 +165,23 @@ function A.quad(c, g)
   local B, Ac, D, f = g.B, g.A, g.D, g.feat or {}
   local k = QK[f.kind or "bear"]
   -- far-side legs first (darker), then near legs
-  for _, lx in ipairs({ -9, 7 }) do part(c, Rc(c, g, lx - 2, k.legh, lx + 2, 0), D, { gloss = false, flat = true }) end
-  for _, lx in ipairs({ -13, 11 }) do part(c, Rc(c, g, lx - 2, k.legh, lx + 2, 0), B, { gloss = false, flat = true }) end
-  if f.kind == "ungulate" then for _, lx in ipairs({ -13, 11, -9, 7 }) do part(c, Rc(c, g, lx - 2, 2, lx + 2, 0), L.flat("#4a2c1a"), { gloss = false, flat = true }) end end
+  local LEG = { [-9] = "legBF", [7] = "legFF", [-13] = "legBN", [11] = "legFN" }
+  for _, lx in ipairs({ -9, 7 }) do T(g, LEG[lx]); part(c, Rc(c, g, lx - 2, k.legh, lx + 2, 0), D, { gloss = false, flat = true }) end
+  for _, lx in ipairs({ -13, 11 }) do T(g, LEG[lx]); part(c, Rc(c, g, lx - 2, k.legh, lx + 2, 0), B, { gloss = false, flat = true }) end
+  if f.kind == "ungulate" then for _, lx in ipairs({ -13, 11, -9, 7 }) do T(g, LEG[lx]); part(c, Rc(c, g, lx - 2, 2, lx + 2, 0), L.flat("#4a2c1a"), { gloss = false, flat = true }) end end
   -- tail
+  T(g, "tail")
   if f.kind == "canid" then part(c, Poly(c, g, { { -15, 17 }, { -27, 29 }, { -24, 17 }, { -26, 12 }, { -15, 13 } }), Ac, OP)
   elseif f.kind == "feline" or f.kind == "rodent" then Limb(c, g, { { -15, 15 }, { -22, 17 }, { -25, 24 }, { -22, 29 } }); if f.kind == "feline" then part(c, Rc(c, g, -24, 28, -21, 31), Ac, { gloss = false, flat = true }) end
   elseif f.tail then part(c, Poly(c, g, { { -17, 18 }, { -26, 22 }, { -22, 14 } }), Ac, OP) else part(c, Poly(c, g, { { -16, 16 }, { -22, 20 }, { -20, 13 } }), B, OP) end
-  part(c, E(c, g, k.bx, k.by, k.brx, k.bry), B, BODY)
+  T(g, "body"); part(c, E(c, g, k.bx, k.by, k.brx, k.bry), B, BODY)
   if f.kind == "rodent" or f.kind == "hare" then part(c, E(c, g, k.bx + 2, k.by - 3, k.brx - 5, k.bry - 4), Ac, { gloss = false, flat = true }) end   -- pale belly
   if f.stripes then for i = -2, 1 do local x, y = P(g, k.bx + i * 5, k.by); c:fill(c:rect(rd(x), rd(y - k.bry * g.u), rd(x) + 1, rd(y - (k.bry - 4) * g.u)), "#4a2c1a") end end
   if f.spots then dots(c, g, { { -8, k.by + 4 }, { -2, k.by + 6 }, { 4, k.by + 3 }, { -6, k.by - 2 } }, "#2a1a10") end
-  if f.mane then part(c, E(c, g, k.hx - 3, k.hy, 11, 11), Ac, OP) end
+  if f.mane then T(g, "mane"); part(c, E(c, g, k.hx - 3, k.hy, 11, 11), Ac, OP); T(g, "body") end
   if f.spikes then for i = 0, 3 do part(c, Poly(c, g, { { -12 + i * 6, k.by + 8 }, { -10 + i * 6, k.by + 16 }, { -8 + i * 6, k.by + 8 } }), Ac, OP) end end
   -- ears (behind the head)
+  T(g, "head")
   if f.kind == "canid" then part(c, Poly(c, g, { { 6, k.hy + 5 }, { 7, k.hy + 14 }, { 12, k.hy + 6 } }), B, OP); part(c, Poly(c, g, { { 12, k.hy + 6 }, { 17, k.hy + 14 }, { 17, k.hy + 4 } }), B, OP)
   elseif f.kind == "hare" then part(c, E(c, g, 7, k.hy + 14, 3, 9), B, OP); part(c, E(c, g, 14, k.hy + 14, 3, 9), B, OP); part(c, E(c, g, 7, k.hy + 14, 1, 6), Ac, { gloss = false, flat = true })
   elseif f.horns or f.antlers or f.nohear then
@@ -190,113 +196,117 @@ function A.quad(c, g)
   if f.antlers then for _, d in ipairs({ { 8, -4 }, { 15, 4 } }) do Horn(c, g, { { d[1], k.hy + 6 }, { d[1] + d[2], k.hy + 15 }, { d[1] + d[2] * 1.6, k.hy + 21 } }, 2.5, Ac); Horn(c, g, { { d[1] + d[2] * 0.7, k.hy + 11 }, { d[1] + d[2] * 2.6, k.hy + 14 } }, 2.5, Ac) end end
   if f.tusks then part(c, Poly(c, g, { { k.hx + 5, k.hy - 5 }, { k.hx + 13, k.hy - 12 }, { k.hx + 9, k.hy - 5 } }), Ac, OP) end
   if f.kind == "feline" then local x, y = P(g, k.hx + 8, k.hy - 3); c:fill(c:rect(rd(x), rd(y), rd(x) + 3, rd(y)), "#2a1a10"); c:fill(c:rect(rd(x), rd(y) + 2, rd(x) + 3, rd(y) + 2), "#2a1a10") end
-  eye(c, g, k.hx - 2, k.hy + 1); eye(c, g, k.hx + 5, k.hy + 1); smile(c, g, k.hx + 3, k.hy - 6)
+  T(g, "eyes"); eye(c, g, k.hx - 2, k.hy + 1); eye(c, g, k.hx + 5, k.hy + 1); T(g, "head"); smile(c, g, k.hx + 3, k.hy - 6)
 end
 function A.bird(c, g)
   local B, Ac, f = g.B, g.A, g.feat or {}
   local lift = f.longlegs and 9 or 0
-  if f.longlegs then Limb(c, g, { { -1, 9 + lift }, { -1, 4 }, { -2, 0 } }); Limb(c, g, { { 6, 9 + lift }, { 7, 4 }, { 8, 0 } })
-  else Limb(c, g, { { -1, 9 }, { -1, 4 }, { -2, 0 } }); Limb(c, g, { { 6, 9 }, { 7, 4 }, { 8, 0 } }) end
-  part(c, Poly(c, g, { { -11, 17 + lift }, { -24, 24 + lift }, { -19, 15 + lift } }), Ac, OP); part(c, Poly(c, g, { { -11, 15 + lift }, { -25, 17 + lift }, { -19, 9 + lift } }), Ac, OP)
+  if f.longlegs then T(g, "legB"); Limb(c, g, { { -1, 9 + lift }, { -1, 4 }, { -2, 0 } }); T(g, "legF"); Limb(c, g, { { 6, 9 + lift }, { 7, 4 }, { 8, 0 } })
+  else T(g, "legB"); Limb(c, g, { { -1, 9 }, { -1, 4 }, { -2, 0 } }); T(g, "legF"); Limb(c, g, { { 6, 9 }, { 7, 4 }, { 8, 0 } }) end
+  T(g, "tail"); part(c, Poly(c, g, { { -11, 17 + lift }, { -24, 24 + lift }, { -19, 15 + lift } }), Ac, OP); part(c, Poly(c, g, { { -11, 15 + lift }, { -25, 17 + lift }, { -19, 9 + lift } }), Ac, OP)
   local brx, bry = f.longlegs and 11 or 13, f.longlegs and 8 or 11
-  part(c, E(c, g, 0, 17 + lift, brx, bry), B, BODY)
-  part(c, E(c, g, -3, 16 + lift, brx - 5, bry - 4), Ac, OP)
-  if f.longlegs then part(c, Poly(c, g, { { 5, 20 + lift }, { 10, 20 + lift }, { 12, 36 + lift }, { 7, 36 + lift } }), B, OP) end   -- long neck
+  T(g, "body"); part(c, E(c, g, 0, 17 + lift, brx, bry), B, BODY)
+  T(g, "wing"); part(c, E(c, g, -3, 16 + lift, brx - 5, bry - 4), Ac, OP)
+  if f.longlegs then T(g, "neck"); part(c, Poly(c, g, { { 5, 20 + lift }, { 10, 20 + lift }, { 12, 36 + lift }, { 7, 36 + lift } }), B, OP) end   -- long neck
   local hy = (f.longlegs and 38 or 27) + lift * (f.longlegs and 0 or 1)
-  part(c, E(c, g, f.longlegs and 10 or 9, hy, f.longlegs and 6 or 9, f.longlegs and 5 or 8), B, BODY)
+  T(g, "head"); part(c, E(c, g, f.longlegs and 10 or 9, hy, f.longlegs and 6 or 9, f.longlegs and 5 or 8), B, BODY)
   local bk = f.beak or GV.R.gold
   if f.bigbeak then part(c, Poly(c, g, { { 17, hy + 2 }, { 30, hy - 6 }, { 17, hy - 5 } }), Ac, { gloss = false, flat = true })
   else part(c, Poly(c, g, { { f.longlegs and 15 or 17, hy + 1 }, { f.longlegs and 25 or 24, hy - 2 }, { f.longlegs and 15 or 17, hy - 4 } }), bk, { gloss = false, flat = true }) end
   if f.crest then for i = 0, 2 do part(c, Poly(c, g, { { 3 + i * 4, hy + 6 }, { 5 + i * 4, hy + 13 }, { 8 + i * 4, hy + 6 } }), Ac, OP) end end
   if f.ears then part(c, Poly(c, g, { { 3, hy + 6 }, { 2, hy + 14 }, { 8, hy + 7 } }), B, OP); part(c, Poly(c, g, { { 11, hy + 7 }, { 16, hy + 14 }, { 15, hy + 5 } }), B, OP) end
-  eye(c, g, f.longlegs and 7 or 7, hy + 2); eye(c, g, f.longlegs and 12 or 13, hy + 2)
+  T(g, "eyes"); eye(c, g, f.longlegs and 7 or 7, hy + 2); eye(c, g, f.longlegs and 12 or 13, hy + 2)
 end
 function A.snake(c, g)
   local B, Ac, f = g.B, g.A, g.feat or {}
   local pts = { { -18, 5 }, { -12, 7 }, { -4, 5 }, { 4, 8 }, { 10, 12 }, { 13, 19 } }
-  for i = 1, #pts do local p = pts[i]; part(c, E(c, g, p[1], p[2], 5.5, 5), (i % 2 == 0 and f.band) and Ac or B, { gloss = false, cres = 2, deep = 0 }) end
-  if f.band then for i = 1, #pts - 1 do local p = pts[i]; local x, y = P(g, p[1], p[2] + 3); c:px(rd(x), rd(y), "#2a1a10"); c:px(rd(x) + 1, rd(y) + 1, "#2a1a10") end end
-  part(c, E(c, g, 14, 26, 9, 8), B, BODY)
-  if f.hood then part(c, E(c, g, 10, 26, 12, 9), Ac, OP); part(c, E(c, g, 14, 26, 9, 8), B, BODY) end
-  eye(c, g, 11, 28); eye(c, g, 17, 28); smile(c, g, 14, 22)
+  for i = 1, #pts do local p = pts[i]; T(g, "s" .. i); part(c, E(c, g, p[1], p[2], 5.5, 5), (i % 2 == 0 and f.band) and Ac or B, { gloss = false, cres = 2, deep = 0 }) end
+  if f.band then for i = 1, #pts - 1 do local p = pts[i]; T(g, "s" .. i); local x, y = P(g, p[1], p[2] + 3); c:px(rd(x), rd(y), "#2a1a10"); c:px(rd(x) + 1, rd(y) + 1, "#2a1a10") end end
+  T(g, "head"); part(c, E(c, g, 14, 26, 9, 8), B, BODY)
+  if f.hood then T(g, "hood"); part(c, E(c, g, 10, 26, 12, 9), Ac, OP); T(g, "head"); part(c, E(c, g, 14, 26, 9, 8), B, BODY) end
+  T(g, "eyes"); eye(c, g, 11, 28); eye(c, g, 17, 28); T(g, "head"); smile(c, g, 14, 22)
   if f.snout then part(c, E(c, g, 21, 24, 7, 3), B, OP) end
-  if f.spots then dots(c, g, { { -12, 9 }, { -4, 8 }, { 4, 11 } }, "#2a1a10") end
+  if f.spots then T(g, "s2"); dots(c, g, { { -12, 9 } }, "#2a1a10"); T(g, "s3"); dots(c, g, { { -4, 8 } }, "#2a1a10"); T(g, "s4"); dots(c, g, { { 4, 11 } }, "#2a1a10") end
 end
 function A.crab(c, g)
   local B, Ac, f = g.B, g.A, g.feat or {}
-  for _, l in ipairs({ -12, -6, 6, 12 }) do Limb(c, g, { { l, 9 }, { l + (l < 0 and -5 or 5), 5 }, { l + (l < 0 and -6 or 6), 0 } }) end
-  part(c, E(c, g, 0, 13, 18, 9), B, BODY)
-  if f.shell then part(c, E(c, g, -6, 19, 12, 10), Ac, { gloss = false, cres = 3, deep = 0 }) end
-  Limb(c, g, { { -6, 20 }, { -8, 27 } }); Limb(c, g, { { 6, 20 }, { 8, 27 } })
-  eye(c, g, -8, 29); eye(c, g, 8, 29)
+  for i, l in ipairs({ -12, -6, 6, 12 }) do T(g, "leg" .. i); Limb(c, g, { { l, 9 }, { l + (l < 0 and -5 or 5), 5 }, { l + (l < 0 and -6 or 6), 0 } }) end
+  T(g, "body"); part(c, E(c, g, 0, 13, 18, 9), B, BODY)
+  if f.shell then T(g, "shell"); part(c, E(c, g, -6, 19, 12, 10), Ac, { gloss = false, cres = 3, deep = 0 }) end
+  T(g, "eyeL"); Limb(c, g, { { -6, 20 }, { -8, 27 } }); T(g, "eyeR"); Limb(c, g, { { 6, 20 }, { 8, 27 } })
+  T(g, "eyeL"); eye(c, g, -8, 29); T(g, "eyeR"); eye(c, g, 8, 29)
   for s = -1, 1, 2 do                                                                    -- big claws
-    part(c, E(c, g, s * 20, 19, 7, 6), Ac or B, { gloss = false, cres = 3, deep = 0 })
+    T(g, s < 0 and "clawL" or "clawR"); part(c, E(c, g, s * 20, 19, 7, 6), Ac or B, { gloss = false, cres = 3, deep = 0 })
     local x, y = P(g, s * 24, 21); c:fill(c:rect(rd(x) - 1, rd(y) - 5, rd(x) + 1, rd(y) - 1), "#2a1a10")
   end
-  smile(c, g, 0, 8)
-  if f.tail then Limb(c, g, { { -12, 16 }, { -20, 24 }, { -16, 32 } }); part(c, Poly(c, g, { { -18, 32 }, { -14, 32 }, { -16, 37 } }), Ac, OP) end
+  T(g, "body"); smile(c, g, 0, 8)
+  if f.tail then T(g, "tail"); Limb(c, g, { { -12, 16 }, { -20, 24 }, { -16, 32 } }); part(c, Poly(c, g, { { -18, 32 }, { -14, 32 }, { -16, 37 } }), Ac, OP) end
 end
 function A.frog(c, g)
   local B, Ac, f = g.B, g.A, g.feat or {}
-  part(c, E(c, g, -9, 4, 6, 4), B, { gloss = false, flat = true }); part(c, E(c, g, 10, 4, 6, 4), B, { gloss = false, flat = true })
-  part(c, E(c, g, 0, 12, 17, 11), B, BODY)
-  part(c, E(c, g, -7, 23, 6, 5), B, OP); part(c, E(c, g, 7, 23, 6, 5), B, OP)         -- eye bumps
-  eye(c, g, -7, 24); eye(c, g, 7, 24)
+  T(g, "footL"); part(c, E(c, g, -9, 4, 6, 4), B, { gloss = false, flat = true }); T(g, "footR"); part(c, E(c, g, 10, 4, 6, 4), B, { gloss = false, flat = true })
+  T(g, "body"); part(c, E(c, g, 0, 12, 17, 11), B, BODY)
+  T(g, "eyeL"); part(c, E(c, g, -7, 23, 6, 5), B, OP); T(g, "eyeR"); part(c, E(c, g, 7, 23, 6, 5), B, OP)         -- eye bumps
+  T(g, "eyeL"); eye(c, g, -7, 24); T(g, "eyeR"); eye(c, g, 7, 24)
+  T(g, "body")
   if f.spots then dots(c, g, { { -12, 12 }, { -6, 16 }, { 4, 17 }, { 12, 12 }, { 0, 8 } }, f.spotcol or "#2a1a10") end
   if g.big then local x, y = P(g, 0, 8); c:paint({ "u.....u", ".uuuuu." }, rd(x) - 3, rd(y), { u = "umber" }) end
   if f.belly then part(c, E(c, g, 2, 7, 10, 5), Ac, { gloss = false, flat = true }) end
 end
 function A.spider(c, g)
   local B, Ac, f = g.B, g.A, g.feat or {}
-  for i, a in ipairs({ -14, -8, 8, 14 }) do Limb(c, g, { { a / 2, 14 }, { a, 22 }, { a * 1.3, 4 }, { a * 1.4, 0 } }) end
-  part(c, E(c, g, -6, 14, 12, 9), B, BODY)
+  for i, a in ipairs({ -14, -8, 8, 14 }) do T(g, "leg" .. i); Limb(c, g, { { a / 2, 14 }, { a, 22 }, { a * 1.3, 4 }, { a * 1.4, 0 } }) end
+  T(g, "body"); part(c, E(c, g, -6, 14, 12, 9), B, BODY)
   if f.spots then dots(c, g, { { -8, 18 }, { -3, 16 } }, "#2a1a10") end
-  part(c, E(c, g, 9, 17, 8, 7), B, BODY)
-  eye(c, g, 7, 19); eye(c, g, 13, 19); smile(c, g, 10, 13)
+  T(g, "head"); part(c, E(c, g, 9, 17, 8, 7), B, BODY)
+  T(g, "eyes"); eye(c, g, 7, 19); eye(c, g, 13, 19); T(g, "head"); smile(c, g, 10, 13)
 end
 function A.golem(c, g)
   local B, Ac, f = g.B, g.A, g.feat or {}
-  part(c, Rc(c, g, -11, 8, -2, 0), B, { gloss = false, flat = true }); part(c, Rc(c, g, 2, 8, 11, 0), B, { gloss = false, flat = true })
-  part(c, c:rrect(rd(P(g, -13, 0)), rd(select(2, P(g, 0, 26))), rd(P(g, 13, 0)), rd(select(2, P(g, 0, 8))), 3), B, BODY)
-  part(c, c:rrect(rd(P(g, -19, 0)), rd(select(2, P(g, 0, 26))), rd(P(g, -13, 0)), rd(select(2, P(g, 0, 11))), 2), B, OP); part(c, c:rrect(rd(P(g, 13, 0)), rd(select(2, P(g, 0, 26))), rd(P(g, 19, 0)), rd(select(2, P(g, 0, 11))), 2), B, OP)
-  part(c, c:rrect(rd(P(g, -10, 0)), rd(select(2, P(g, 0, 40))), rd(P(g, 10, 0)), rd(select(2, P(g, 0, 26))), 3), B, BODY)
-  local rx_, ry_ = P(g, 0, 18); c:fill(c:rect(rd(rx_) - 3, rd(ry_), rd(rx_) + 3, rd(ry_)), "#f5cf6a"); c:fill(c:rect(rd(rx_), rd(ry_) - 3, rd(rx_), rd(ry_) + 3), "#f5cf6a")
-  if f.moss then part(c, E(c, g, -4, 38, 7, 3), Ac, OP); part(c, E(c, g, 8, 18, 4, 3), Ac, OP) end
+  T(g, "legL"); part(c, Rc(c, g, -11, 8, -2, 0), B, { gloss = false, flat = true }); T(g, "legR"); part(c, Rc(c, g, 2, 8, 11, 0), B, { gloss = false, flat = true })
+  T(g, "body"); part(c, c:rrect(rd(P(g, -13, 0)), rd(select(2, P(g, 0, 26))), rd(P(g, 13, 0)), rd(select(2, P(g, 0, 8))), 3), B, BODY)
+  T(g, "armL"); part(c, c:rrect(rd(P(g, -19, 0)), rd(select(2, P(g, 0, 26))), rd(P(g, -13, 0)), rd(select(2, P(g, 0, 11))), 2), B, OP); T(g, "armR"); part(c, c:rrect(rd(P(g, 13, 0)), rd(select(2, P(g, 0, 26))), rd(P(g, 19, 0)), rd(select(2, P(g, 0, 11))), 2), B, OP)
+  T(g, "head"); part(c, c:rrect(rd(P(g, -10, 0)), rd(select(2, P(g, 0, 40))), rd(P(g, 10, 0)), rd(select(2, P(g, 0, 26))), 3), B, BODY)
+  T(g, "body"); local rx_, ry_ = P(g, 0, 18); c:fill(c:rect(rd(rx_) - 3, rd(ry_), rd(rx_) + 3, rd(ry_)), "#f5cf6a"); c:fill(c:rect(rd(rx_), rd(ry_) - 3, rd(rx_), rd(ry_) + 3), "#f5cf6a")
+  if f.moss then T(g, "head"); part(c, E(c, g, -4, 38, 7, 3), Ac, OP); T(g, "body"); part(c, E(c, g, 8, 18, 4, 3), Ac, OP) end
+  T(g, "head")
   if f.crack then local x, y = P(g, 1, 36); c:fill(c:rect(rd(x), rd(y) - 6, rd(x), rd(y)), "#2a1a10"); c:fill(c:rect(rd(x), rd(y), rd(x) + 2, rd(y) + 3), "#2a1a10") end
   c:fill(Rc(c, g, -8, 36, 8, 36), "#2a1a10"); c:fill(Rc(c, g, -8, 36, 8, 36), "#4a2c1a")
-  eye(c, g, -4, 33); eye(c, g, 5, 33)
+  T(g, "eyes"); eye(c, g, -4, 33); eye(c, g, 5, 33)
+  T(g, "head")
   if f.crystal then part(c, Poly(c, g, { { -8, 40 }, { -6, 47 }, { -3, 40 } }), Ac, OP); part(c, Poly(c, g, { { 3, 40 }, { 6, 49 }, { 9, 40 } }), Ac, OP) end
 end
 function A.wisp(c, g)
   local B, Ac = g.B, g.A
-  part(c, Poly(c, g, { { -12, 6 }, { -14, 16 }, { -10, 26 }, { -6, 34 }, { -3, 42 }, { 0, 34 }, { 3, 44 }, { 6, 33 }, { 11, 25 }, { 14, 15 }, { 12, 6 } }), B, BODY)
-  part(c, E(c, g, 0, 17, 10, 10), Ac, { gloss = false, flat = true })
-  part(c, E(c, g, 0, 8, 12, 4), B, OP)
-  eye(c, g, -4, 19); eye(c, g, 4, 19); smile(c, g, 0, 12)
+  T(g, "body"); part(c, Poly(c, g, { { -12, 6 }, { -14, 16 }, { -10, 26 }, { -6, 34 }, { -3, 42 }, { 0, 34 }, { 3, 44 }, { 6, 33 }, { 11, 25 }, { 14, 15 }, { 12, 6 } }), B, BODY)
+  T(g, "core"); part(c, E(c, g, 0, 17, 10, 10), Ac, { gloss = false, flat = true })
+  T(g, "base"); part(c, E(c, g, 0, 8, 12, 4), B, OP)
+  T(g, "eyes"); eye(c, g, -4, 19); eye(c, g, 4, 19); T(g, "core"); smile(c, g, 0, 12)
 end
 function A.octo(c, g)
   local B, Ac = g.B, g.A
-  for i = -3, 3 do local a = i * 4.6; Limb(c, g, { { a * 0.6, 12 }, { a, 6 }, { a * 1.3 + (i % 2 == 0 and 3 or -3), 1 } }) end
-  part(c, E(c, g, 0, 24, 14, 14), B, BODY)
+  for i = -3, 3 do local a = i * 4.6; T(g, "t" .. (i + 4)); Limb(c, g, { { a * 0.6, 12 }, { a, 6 }, { a * 1.3 + (i % 2 == 0 and 3 or -3), 1 } }) end
+  T(g, "body"); part(c, E(c, g, 0, 24, 14, 14), B, BODY)
   if g.feat and g.feat.spots then dots(c, g, { { -6, 34 }, { 0, 36 }, { 6, 33 } }, "#f5cf6a") end
-  eye(c, g, -6, 22); eye(c, g, 6, 22); smile(c, g, 0, 15)
+  T(g, "eyes"); eye(c, g, -6, 22); eye(c, g, 6, 22); T(g, "body"); smile(c, g, 0, 15)
 end
 -- folk: chibi villager / crew. g.feat = { species, face (hex), hat ("none"|"cap"|"point"|"straw"|"hood"), hatc, cloth (hex), cloth2 }
 function A.folk(c, g)
   local f = g.feat or {}
   local face = L.flat(f.face or "#d9a660"); local cloth = L.flat(f.cloth or "#e8a317"); local hat = L.flat(f.hatc or "#dd3a2a")
   -- boots, body, arms
-  part(c, E(c, g, -5, 2, 4, 2), L.flat("#8a4f2a"), { gloss = false, flat = true }); part(c, E(c, g, 6, 2, 4, 2), L.flat("#8a4f2a"), { gloss = false, flat = true })
-  part(c, Poly(c, g, { { -9, 3 }, { -11, 17 }, { 11, 17 }, { 10, 3 } }), cloth, { gloss = false, cres = 3, deep = 0 })
+  T(g, "footL"); part(c, E(c, g, -5, 2, 4, 2), L.flat("#8a4f2a"), { gloss = false, flat = true }); T(g, "footR"); part(c, E(c, g, 6, 2, 4, 2), L.flat("#8a4f2a"), { gloss = false, flat = true })
+  T(g, "body"); part(c, Poly(c, g, { { -9, 3 }, { -11, 17 }, { 11, 17 }, { 10, 3 } }), cloth, { gloss = false, cres = 3, deep = 0 })
   if f.apron then c:fill(Poly(c, g, { { -5, 4 }, { -6, 15 }, { 6, 15 }, { 5, 4 } }), "#f2e4c0"); c:fill(Rc(c, g, -4, 9, 4, 9), "#d8c49a") end
   c:seam({ { P(g, 0, 16) }, { P(g, 0, 5) } }, {})
-  Limb(c, g, { { -10, 15 }, { -14, 9 } }); Limb(c, g, { { 11, 15 }, { 15, 10 } })
-  do local hx, hy = P(g, -14, 8); c:fill(c:rect(rd(hx) - 1, rd(hy), rd(hx) + 1, rd(hy) + 1), f.face or "#d9a660"); hx, hy = P(g, 15, 9); c:fill(c:rect(rd(hx) - 1, rd(hy), rd(hx) + 1, rd(hy) + 1), f.face or "#d9a660") end
+  T(g, "armL"); Limb(c, g, { { -10, 15 }, { -14, 9 } }); T(g, "armR"); Limb(c, g, { { 11, 15 }, { 15, 10 } })
+  do T(g, "armL"); local hx, hy = P(g, -14, 8); c:fill(c:rect(rd(hx) - 1, rd(hy), rd(hx) + 1, rd(hy) + 1), f.face or "#d9a660"); T(g, "armR"); hx, hy = P(g, 15, 9); c:fill(c:rect(rd(hx) - 1, rd(hy), rd(hx) + 1, rd(hy) + 1), f.face or "#d9a660") end
   -- species ears / wings / shell behind the head
   local sp = f.species or "mouse"
-  if sp == "butterfly" or sp == "moth" or sp == "dragonfly" then part(c, E(c, g, -12, 28, 8, 9), L.flat(f.wing or "#f6b8cf"), OP); part(c, E(c, g, 14, 28, 6, 8), L.flat(f.wing or "#f6b8cf"), OP) end
-  if sp == "snail" then part(c, E(c, g, -9, 26, 8, 8), L.flat(f.shell or "#c9a96e"), { gloss = false, cres = 3, deep = 0 }) end
-  if sp == "tortoise" then part(c, E(c, g, -4, 24, 10, 9), L.flat(f.shell or "#9a6b3f"), { gloss = false, cres = 3, deep = 0 }) end
+  if sp == "butterfly" or sp == "moth" or sp == "dragonfly" then T(g, "wingL"); part(c, E(c, g, -12, 28, 8, 9), L.flat(f.wing or "#f6b8cf"), OP); T(g, "wingR"); part(c, E(c, g, 14, 28, 6, 8), L.flat(f.wing or "#f6b8cf"), OP) end
+  if sp == "snail" then T(g, "back"); part(c, E(c, g, -9, 26, 8, 8), L.flat(f.shell or "#c9a96e"), { gloss = false, cres = 3, deep = 0 }) end
+  if sp == "tortoise" then T(g, "back"); part(c, E(c, g, -4, 24, 10, 9), L.flat(f.shell or "#9a6b3f"), { gloss = false, cres = 3, deep = 0 }) end
+  T(g, "head")
   if sp == "hare" then part(c, E(c, g, -5, 40, 3, 9), face, OP); part(c, E(c, g, 6, 40, 3, 9), face, OP) end
   if sp == "mouse" or sp == "bat" or sp == "mole" then part(c, E(c, g, -9, 30, 4, 4), face, OP); part(c, E(c, g, 10, 30, 4, 4), face, OP) end
   if sp == "bat" then part(c, Poly(c, g, { { -10, 34 }, { -14, 44 }, { -4, 36 } }), face, OP); part(c, Poly(c, g, { { 9, 36 }, { 14, 44 }, { 12, 33 } }), face, OP) end
@@ -309,10 +319,11 @@ function A.folk(c, g)
     Limb(c, g, { { -3, 35 }, { -6, 42 } }); Limb(c, g, { { 6, 35 }, { 9, 42 } }); part(c, Rc(c, g, -8, 42, -5, 45), GV.R.leg, { flat = true, gloss = false }); part(c, Rc(c, g, 8, 42, 11, 45), GV.R.leg, { flat = true, gloss = false }) end
   if sp == "frog" then part(c, E(c, g, -6, 36, 4, 3), face, OP); part(c, E(c, g, 8, 36, 4, 3), face, OP) end
   if sp == "wren" then part(c, Poly(c, g, { { 11, 28 }, { 17, 26 }, { 11, 24 } }), GV.R.gold, { gloss = false, flat = true }) end
-  eye(c, g, -3, 28); eye(c, g, 6, 28); if sp ~= "wren" then smile(c, g, 2, 21) end
+  T(g, "eyes"); eye(c, g, -3, 28); eye(c, g, 6, 28); T(g, "head"); if sp ~= "wren" then smile(c, g, 2, 21) end
   if sp == "mole" or sp == "mouse" or sp == "hare" or sp == "hedgehog" then local nx, ny = P(g, 9, 24); c:px(rd(nx), rd(ny), "#e46a9b"); c:px(rd(nx) + 1, rd(ny), "#e46a9b") end
   -- hat
   local h = f.hat or "cap"
+  T(g, "hat")
   if h == "point" then part(c, Poly(c, g, { { -9, 34 }, { 1, 50 }, { 11, 34 } }), hat, { gloss = false, cres = 3, deep = 0 }); part(c, Rc(c, g, -11, 33, 13, 35), hat, { gloss = false, flat = true })
   elseif h == "straw" then part(c, E(c, g, 1, 35, 13, 3), L.flat("#f5cf6a"), OP); part(c, E(c, g, 1, 38, 7, 4), L.flat("#f5cf6a"), OP)
   elseif h == "cap" then part(c, E(c, g, 1, 36, 10, 5):cut(c:rect(0, rd(select(2, P(g, 0, 33))), 200, 200)), hat, { gloss = false, cres = 3, deep = 0 })
@@ -325,18 +336,15 @@ L.P, L.E, L.Rc, L.Poly = P, E, Rc, Poly
 -- build one miniature. s = { slug, size = small|medium|large|boss|party, arch, col, acc, base = ramp hex pair, kind = "enemy"|"party"|"boss", feat = {...} }
 local SIZES = { small = { 56, 64, 16, 1.0 }, medium = { 56, 64, 16, 1.2 }, large = { 80, 80, 20, 1.55 }, boss = { 112, 112, 24, 2.3 }, party = { 64, 80, 20, 1.5 } }
 local BASES = { soil = { "#9a6b3f", "#7a4a1f" }, stone = { "#8b8f96", "#5b6470" }, sand = { "#f5cf6a", "#c9a96e" }, snow = { "#f1ece0", "#c8ecdc" }, clay = { "#a8582f", "#7a4a1f" }, water = { "#3f8fb0", "#25637d" }, moss = { "#7ab55c", "#4f9a45" }, dusk = { "#7a5cc0", "#4e3a8a" } }
-function L.mini(s, folder)
-  local sz = SIZES[s.size]; local w, h, cap, u = sz[1], sz[2], sz[3], sz[4]
-  local c = X.canvas{ mode = "sticker", w = w, h = h }
-  X.layer(c, "objects")
+-- size, base and scale of one miniature: w, h, cap, cx, by (feet row), mkg(u, big) -> g, uu (the fitted scale), kind, bs
+function L.fit(s)
+  local sz = SIZES[s.size]; local w, h, cap = sz[1], sz[2], sz[3]
   local bs = BASES[s.base or "soil"]
   local kind = s.kind or (s.size == "boss" and "boss" or (s.size == "party" and "party" or "enemy"))
-  local cx, by = L.base(c, w, h, kind, L.flat(bs[1], bs[2]), s.base or "soil")
-  local FIT0 = { bug = { 26, 34 }, worm = { 24, 30 }, snail = { 24, 31 }, quad = { 28, 38 }, bird = { 25, 42 }, snake = { 27, 36 }, crab = { 29, 38 }, frog = { 19, 29 }, spider = { 21, 29 }, golem = { 25, 50 }, wisp = { 14, 41 }, octo = { 19, 39 }, folk = { 23, 51 } }
+  local c0 = X.canvas{ mode = "sticker", w = w, h = h }
+  local cx, by = L.base(c0, w, h, kind, L.flat(bs[1], bs[2]), s.base or "soil")
   -- measure the figure at u = 1 on a scratch canvas (base drawn first), then scale it to fill the free canvas
   local function mkg(uu, big) return { cx = cx, by = by, u = uu, B = L.lit(s.col, s.shade), A = L.flat(s.acc or s.col, s.accshade), D = (function() local sh = X.ramp(s.col).shade; return X.ramp(sh, { shade = sh, deep = sh, bounce = sh, rim = sh, gloss = sh, dot = sh }) end)(), big = big, feat = s.feat or {} } end
-  local c0 = X.canvas{ mode = "sticker", w = w, h = h }
-  L.base(c0, w, h, kind, L.flat(bs[1], bs[2]), s.base or "soil")
   local before = {}; for k2, v in pairs(c0.pix) do before[k2] = v end
   A[s.arch](c0, mkg(1, false))
   local minx, maxx, miny = 1e9, -1e9, 1e9
@@ -345,9 +353,143 @@ function L.mini(s, folder)
   local fill = (s.size == "small") and 0.94 or 1.0
   local uu = math.min((cx - m) / math.max(1, cx - minx), (w - 1 - m - cx) / math.max(1, maxx - cx), (by - m) / math.max(1, by - miny)) * fill * (s.scale or 1)
   uu = math.max(0.8, math.min(uu, 4))
-  local g = mkg(uu, uu >= 1.15)
-  A[s.arch](c, g)
+  return w, h, cap, cx, by, mkg, uu, kind, bs
+end
+function L.mini(s, folder)
+  local w, h, cap, cx, by, mkg, uu, kind, bs = L.fit(s)
+  local c = X.canvas{ mode = "sticker", w = w, h = h }
+  X.layer(c, "objects")
+  L.base(c, w, h, kind, L.flat(bs[1], bs[2]), s.base or "soil")
+  A[s.arch](c, mkg(uu, uu >= 1.15))
   X.save(c, "mini-" .. s.slug, folder or "mini", { w = w, h = h, cap = cap })
   return c
+end
+
+-- ===== rigs for the fight engine (tools/fight/rig_minis.lua) =====
+-- Skeleton of an archetype: key (shared by every creature with the same bones) and { {id, parent|false, a, b, under}, ... } in figure space
+-- (a right, b up from the feet). parent false = a root. under = drawn behind its parent's own picture. The pivot is the joint the part turns about.
+function L.skel(s)
+  local f, ar = s.feat or {}, s.arch
+  local S = {}; local function J(id, parent, a, b, under) S[#S + 1] = { id, parent or false, a, b, under and 1 or 0 } end
+  local key = ar
+  if ar == "quad" then
+    local kd = f.kind or "bear"; local k = QK[kd]; key = "quad." .. kd
+    J("body", nil, k.bx, k.by)
+    J("legBF", "body", -9, k.legh - 1, true); J("legFF", "body", 7, k.legh - 1, true); J("legBN", "body", -13, k.legh - 1, true); J("legFN", "body", 11, k.legh - 1, true)
+    J("tail", "body", (kd == "canid" or kd == "feline" or kd == "rodent") and -15 or -16, 15, true)
+    J("head", "body", k.hx - 5, k.hy - 4); J("mane", "head", k.hx - 3, k.hy, true); J("eyes", "head", k.hx + 1.5, k.hy + 1)
+  elseif ar == "bird" then
+    local lift = f.longlegs and 9 or 0; local hy = f.longlegs and 38 or 27; key = f.longlegs and "bird.long" or "bird"
+    J("body", nil, 0, 17 + lift)
+    J("legB", "body", -1, 9 + lift, true); J("legF", "body", 6, 9 + lift, true); J("tail", "body", -11, 16 + lift, true)
+    J("wing", "body", 3, 21 + lift)
+    if f.longlegs then J("neck", "body", 7.5, 21 + lift); J("head", "neck", 9.5, 35) else J("head", "body", 5, hy - 5) end
+    J("eyes", "head", 10, hy + 2)
+  elseif ar == "bug" then
+    local kind = f.kind or ((f.shell and "beetle") or ((f.stripes and f.wings) and "wasp") or (f.wings and "moth") or "plain"); key = "bug." .. kind
+    if kind == "ant" then
+      J("body", nil, -1, 14); J("leg1", "body", -4, 11, true); J("leg2", "body", 0, 11, true); J("leg3", "body", 4, 11, true); J("abdo", "body", -5, 14, true)
+      J("head", "body", 5, 15); J("eyes", "head", 11.5, 19); J("antL", "head", 9, 23); J("antR", "head", 13, 23)
+    elseif kind == "moth" then
+      J("body", nil, -3, 14); J("leg1", "body", -2, 10, true); J("leg2", "body", 4, 10, true)
+      J("wingB", "body", 5, 18, true); J("wingF", "body", -2, 16, true); J("wingH", "body", -2, 14, true)
+      J("head", "body", 3, 16); J("eyes", "head", 8.5, 19); J("antL", "head", 6, 24); J("antR", "head", 11, 24)
+    elseif kind == "wasp" then
+      J("body", nil, 3, 16); J("leg1", "body", -2, 10, true); J("leg2", "body", 3, 10, true); J("leg3", "body", 7, 10, true)
+      J("wingB", "body", -4, 20, true); J("wingF", "body", 1, 22, true); J("abdo", "body", 0, 15, true)
+      J("head", "body", 7, 17); J("eyes", "head", 11.5, 19); J("antL", "head", 9, 23); J("antR", "head", 14, 23)
+    else
+      local hd = kind == "beetle"
+      J("body", nil, hd and -4 or -6, hd and 14 or 15); J("leg1", "body", -8, 9, true); J("leg2", "body", 0, 9, true); J("leg3", "body", 8, 9, true)
+      J("wingB", "body", -8, 20, true); J("wingF", "body", -2, 21, true)
+      if hd then J("head", "body", 8, 12); J("eyes", "head", 13.5, 13); J("antL", "head", 11, 17); J("antR", "head", 16, 17)
+      else J("head", "body", 4, 16); J("eyes", "head", 11, 19); J("antL", "head", 8, 24); J("antR", "head", 13, 24) end
+    end
+  elseif ar == "worm" then
+    local n = f.segs or 5; key = "worm" .. n
+    local function pos(k) local t = (n - k) / (n - 1); return -16 + t * 28, 6 + math.sin(t * math.pi) * 8 + t * 6 end
+    for k = 1, n do
+      local a, b = pos(k)
+      if k == 1 then J("s1", nil, a, b) else local pa, pb = pos(k - 1); J("s" .. k, "s" .. (k - 1), (a + pa) / 2, (b + pb) / 2) end
+      J("l" .. k, "s" .. k, a, b - 4)
+    end
+    J("head", "s1", 10, 14); J("eyes", "head", 15, 19)
+  elseif ar == "snail" then
+    J("body", nil, 4, 4); J("shell", "body", -7, 8); J("head", "body", 10, 8); J("eyes", "head", 14.5, 14); J("antL", "head", 13, 18); J("antR", "head", 17, 18)
+  elseif ar == "snake" then
+    local pts = { { -18, 5 }, { -12, 7 }, { -4, 5 }, { 4, 8 }, { 10, 12 }, { 13, 19 } }
+    for i = 1, #pts do
+      if i == 1 then J("s1", nil, pts[1][1], pts[1][2]) else J("s" .. i, "s" .. (i - 1), (pts[i][1] + pts[i - 1][1]) / 2, (pts[i][2] + pts[i - 1][2]) / 2) end
+    end
+    J("head", "s6", 13, 21); J("hood", "head", 10, 26, true); J("eyes", "head", 14, 28)
+  elseif ar == "crab" then
+    J("body", nil, 0, 11)
+    for i, l in ipairs({ -12, -6, 6, 12 }) do J("leg" .. i, "body", l, 9, true) end
+    J("shell", "body", -6, 12); J("eyeL", "body", -6, 20); J("eyeR", "body", 6, 20); J("clawL", "body", -14, 17); J("clawR", "body", 14, 17); J("tail", "body", -12, 16)
+  elseif ar == "frog" then
+    J("footL", nil, -9, 2); J("footR", nil, 10, 2); J("body", nil, 0, 3); J("eyeL", "body", -7, 20); J("eyeR", "body", 7, 20)
+  elseif ar == "spider" then
+    J("body", nil, -6, 14)
+    for i, a in ipairs({ -14, -8, 8, 14 }) do J("leg" .. i, "body", a / 2, 14, true) end
+    J("head", "body", 3, 16); J("eyes", "head", 10, 19)
+  elseif ar == "golem" then
+    J("legL", nil, -6.5, 8); J("legR", nil, 6.5, 8); J("body", nil, 0, 9); J("armL", "body", -16, 24); J("armR", "body", 16, 24); J("head", "body", 0, 26); J("eyes", "head", 0.5, 33)
+  elseif ar == "wisp" then
+    J("body", nil, 0, 6); J("core", "body", 0, 17); J("base", nil, 0, 8); J("eyes", "core", 0, 19)
+  elseif ar == "octo" then
+    J("body", nil, 0, 18)
+    for i = -3, 3 do J("t" .. (i + 4), "body", i * 4.6 * 0.6, 12, true) end
+    J("eyes", "body", 0, 22)
+  elseif ar == "folk" then
+    J("footL", nil, -5, 2); J("footR", nil, 6, 2); J("body", nil, 0, 4); J("armL", "body", -10, 15); J("armR", "body", 11, 15)
+    J("wingL", "body", -6, 26); J("wingR", "body", 9, 26); J("back", "body", -5, 20)
+    J("head", "body", 1, 18); J("eyes", "head", 1.5, 28); J("hat", "head", 1, 34)
+  end
+  return key, S
+end
+local NOINK = { eyes = true }
+-- L.rig(s, dir): draws the figure with no base, one canvas state per tag, and saves the atlas rig-<slug>.png: one column per part (back to front),
+-- row 0 = the part's paint plus a 1 px contour ring, row 1 = its ink (outline and black border; the engine draws every ink behind every paint, so the figure keeps ONE outline however the parts move).
+-- Frame = w x (by + 5): the feet stand 4 px above the bottom edge. Returns { key, fw, fh, u, ids }.
+function L.rig(s, dir)
+  local w, h, cap, cx, by, mkg, uu = L.fit(s)
+  local fh = by + 5
+  local c = X.canvas{ mode = "sticker", w = w, h = h }
+  local order, st = {}, {}
+  local g = mkg(uu, uu >= 1.15)
+  local stray = {}; c.pix = stray
+  g.tag = function(n)
+    if not st[n] then st[n] = { pix = {}, own = {}, shd = {}, parts = {}, grounds = {}, sil = c:mask(), gl = c:mask() }; order[#order + 1] = n end
+    local t = st[n]; c.pix, c.own, c.shd, c.parts, c.grounds, c.sil, c.gl = t.pix, t.own, t.shd, t.parts, t.grounds, t.sil, t.gl
+  end
+  A[s.arch](c, g)
+  assert(next(stray) == nil, "rig: " .. s.slug .. " draws before its first tag")
+  local key, S = L.skel(s); local known = {}
+  for _, j in ipairs(S) do known[j[1]] = true end
+  for _, n in ipairs(order) do assert(known[n], "rig: " .. s.slug .. " has no bone for part " .. n) end
+  local pc = app.pixelColor
+  local img = Image(w * #order, fh * 2, ColorMode.RGB); img:clear(pc.rgba(0, 0, 0, 0))
+  local function put(i, row, k2, hex)
+    local x, y = c:xy(k2)
+    if c:inside(x, y) and y < fh then local r, gg, b = tonumber(hex:sub(2, 3), 16), tonumber(hex:sub(4, 5), 16), tonumber(hex:sub(6, 7), 16); img:putPixel((i - 1) * w + x, row * fh + y, pc.rgba(r, gg, b, 255)) end
+  end
+  for i, n in ipairs(order) do
+    local t = st[n]; g.tag(n)
+    local fill = {}; for k2, v in pairs(t.pix) do fill[k2] = v end
+    if not NOINK[n] then
+      c.done = nil; c:finish()
+      for k2, v in pairs(t.pix) do
+        if not fill[k2] then
+          local x, y = c:xy(k2)
+          local ring = v ~= "#000000" and (fill[c:key(x + 1, y)] or fill[c:key(x - 1, y)] or fill[c:key(x, y + 1)] or fill[c:key(x, y - 1)])
+          put(i, ring and 0 or 1, k2, v)
+        end
+      end
+    end
+    for k2, v in pairs(fill) do put(i, 0, k2, v) end
+  end
+  local spr = Sprite(img.width, img.height, ColorMode.RGB); spr.cels[1].image = img
+  app.fs.makeAllDirectories(dir); spr:saveCopyAs(dir .. "rig-" .. s.slug .. ".png"); spr:close()
+  return { key = key, skel = S, fw = w, fh = fh, u = uu, ids = order }
 end
 return L

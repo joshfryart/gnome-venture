@@ -103,3 +103,4 @@ body.fs-hold .tmgrid,body.fs-hold .trailfoot{pointer-events:none}
 
 /* the fight stage draws the gnome: the map's own marker (a default gnome, red hat) must not peek out from behind the smaller one */
 .tilemap.tm-fight .tmme{display:none}
+.fe-mk{position:absolute;width:0;height:0;pointer-events:none}

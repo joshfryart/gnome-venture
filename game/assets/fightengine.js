@@ -10,26 +10,37 @@
   'use strict';
   var E = { out: 'cubic-bezier(.2,.7,.3,1)', 'in': 'cubic-bezier(.6,0,.9,.4)', io: 'ease-in-out' };
   var MOVES = {
-    pluck: { dur: 860, hit: 440, fx: 'pow', swoosh: 415, dust: [250, 430], pose: 'pluck', keys: [      // gnome, bare-handed: Gnome Pluck (wind up, run in, swing the arm)
+    pluck: { dur: 940, atk: 1, hit: 440, fx: 'pow', swoosh: 415, dust: [250, 430], pose: 'pluck', keys: [      // gnome, bare-handed: Gnome Pluck (wind up, run in, swing the arm)
       [0, {}], [160, { dx: -.15, sx: 1.06, sy: .92, r: -8 }, E.out], [240, { dx: -.2, sx: 1.08, sy: .9, r: -10 }, E.io],
       [420, { x: .97, y: -.12, sx: .92, sy: 1.1, r: 12 }, E['in']], [470, { x: 1, sx: 1.14, sy: .88, r: 5 }, E.out],
-      [660, { x: .95 }, E.out], [860, {}, E.io]] },
-    attack: { dur: 660, hit: 330, fx: 'pow', swoosh: 305, dust: [150, 330], pose: 'attack', keys: [      // gnome, plain Attack: a quick step in and one swing (Pluck stays the long ability swing)
+      [660, { x: .95 }, E.out], [760, { x: .5, y: -.42, r: -7, sx: .95, sy: 1.06 }, E.out], [860, { sx: 1.1, sy: .9, dx: -.04 }, E['in']], [940, {}, E.out]] },
+    attack: { dur: 740, atk: 1, hit: 330, fx: 'pow', swoosh: 305, dust: [150, 330], pose: 'attack', keys: [      // gnome, plain Attack: a quick step in and one swing (Pluck stays the long ability swing)
       [0, {}], [120, { dx: -.12, sx: 1.05, sy: .93, r: -6 }, E.out], [310, { x: .97, y: -.08, sx: .94, sy: 1.08, r: 10 }, E['in']], [350, { x: 1, sx: 1.12, sy: .9, r: 4 }, E.out],
-      [500, { x: .96 }, E.out], [660, {}, E.io]] },
+      [500, { x: .96 }, E.out], [590, { x: .5, y: -.34, r: -6, sx: .95, sy: 1.06 }, E.out], [670, { sx: 1.09, sy: .91, dx: -.04 }, E['in']], [740, {}, E.out]] },
     snack: { dur: 1000, pose: 'snack', keys: [[0, {}], [200, { sx: 1.04, sy: .96 }, E.out], [420, { y: -.06 }, E.io], [560, { sy: .97 }, E.io], [700, { y: -.06 }, E.io], [1000, {}, E.io]] },
-    charge: { dur: 900, hit: 430, pose: 'charge', fx: 'pow', keys: [
+    charge: { dur: 900, atk: 1, hit: 430, pose: 'charge', fx: 'pow', keys: [
       [0, {}], [200, { dx: -.25, sx: 1.1, sy: .9, r: -4 }, E.out], [260, { dx: -.25, y: -.08 }], [320, { dx: -.25 }],
       [430, { x: 1, sx: 1.12, sy: .92, r: 6 }, E['in']], [480, { x: 1, sx: .85, sy: 1.1 }, E.out], [700, { x: .7 }, E.out], [900, {}, E.io]] },
-    pounce: { dur: 850, hit: 410, pose: 'pounce', fx: 'pow', keys: [
+    pounce: { dur: 850, atk: 1, hit: 410, pose: 'pounce', fx: 'pow', keys: [
       [0, {}], [220, { dx: -.1, sx: 1.15, sy: .78 }, E.out], [330, { x: .5, y: -1.1, sx: .9, sy: 1.15, r: -10 }, E.out],
       [410, { x: 1, y: -.2, sx: 1.1, sy: .9, r: 10 }, E['in']], [470, { x: 1, sx: 1.12, sy: .85 }, E.out], [850, {}, E.io]] },
-    hop: { dur: 800, hit: 360, pose: 'hop', fx: 'pow', keys: [
+    hop: { dur: 800, atk: 1, hit: 360, pose: 'hop', fx: 'pow', keys: [
       [0, {}], [120, { sx: 1.12, sy: .85 }, E.out], [220, { x: .45, y: -.5, sy: 1.1, sx: .94 }, E.out], [300, { x: .5, sx: 1.1, sy: .88 }, E['in']],
       [360, { x: 1, y: -.45, sx: .9, sy: 1.12 }, E.out], [440, { x: 1, sx: 1.12, sy: .85 }, E['in']], [800, {}, E.io]] },
-    slam: { dur: 1100, hit: 620, pose: 'slam', fx: 'pow', keys: [
+    slam: { dur: 1100, atk: 1, hit: 620, pose: 'slam', fx: 'pow', keys: [
       [0, {}], [300, { y: -.3, sy: 1.2, sx: .92, r: -8 }, E.out], [480, { y: -.3, sy: 1.22, sx: .9, r: -10 }], [620, { x: .85, y: .05, sy: .8, sx: 1.2, r: 10 }, E['in']],
       [720, { x: .85, sy: .86, sx: 1.14 }, E.out], [1100, {}, E.io]] },
+    peck: { dur: 820, atk: 1, hit: 400, pose: 'peck', fx: 'pow', dust: [120, 300], keys: [   // birds: two quick hops in, a stab with the beak, flutter back
+      [0, {}], [90, { sx: 1.08, sy: .9 }, E.out], [200, { x: .45, y: -.35, sx: .95, sy: 1.06 }, E.out], [280, { x: .7, sx: 1.08, sy: .92 }, E['in']], [370, { x: .95, y: -.2, r: 8 }, E.out], [410, { x: 1, r: 16, sx: 1.1, sy: .92 }, E['in']],
+      [520, { x: .9, r: -6 }, E.out], [680, { x: .35, y: -.5, r: -8 }, E.out], [760, { sx: 1.08, sy: .9 }, E['in']], [820, {}, E.out]] },
+    swoop: { dur: 950, atk: 1, hit: 470, pose: 'swoop', fx: 'pow', keys: [   // flyers: lift off, dive along an arc, pull out
+      [0, {}], [160, { sx: 1.1, sy: .86 }, E.out], [330, { dx: -.3, y: -1.5, r: -14, sx: .94, sy: 1.08 }, E.out], [470, { x: 1, y: -.25, r: 22, sx: .9, sy: 1.12 }, E['in']], [530, { x: .96, y: -.5, r: -6, sx: 1.1, sy: .9 }, E.out],
+      [720, { x: .4, y: -1.1, r: -12 }, E.io], [880, { sx: 1.08, sy: .9 }, E['in']], [950, {}, E.out]] },
+    strike: { dur: 900, atk: 1, hit: 430, pose: 'strike', fx: 'pow', keys: [   // snakes and worms: coil back (long hold), whip out and back: the body stretches, it does not travel
+      [0, {}], [220, { dx: -.25, sx: .86, sy: 1.12 }, E.out], [370, { dx: -.3, sx: .82, sy: 1.16 }], [430, { x: 1, sx: 1.3, sy: .86 }, E['in']], [490, { x: .98, sx: 1.18, sy: .9 }, E.out], [640, { x: .3, sx: .92, sy: 1.06 }, E.io], [780, { sx: 1.05, sy: .96 }, E.io], [900, {}, E.io]] },
+    smash: { dur: 1150, atk: 1, hit: 640, pose: 'smash', fx: 'pow', dust: [600, 760], keys: [   // golems and the like: two heavy steps, a long overhead wind-up, the ground shakes
+      [0, {}], [200, { x: .3, y: -.06, r: 3 }, E.io], [400, { x: .7, y: -.06, r: -3 }, E.io], [540, { x: .78, y: -.12, r: -9, sy: 1.08, sx: .96 }, E.out], [640, { x: .9, r: 12, sy: .86, sx: 1.14 }, E['in']], [740, { x: .9, sy: .92, sx: 1.08, r: 6 }, E.out],
+      [900, { x: .5, r: -2 }, E.io], [1150, {}, E.io]] },
     hit: { dur: 380, pose: 'hit', keys: [[0, {}], [60, { dx: -.18, sx: .9, sy: 1.1, b: 2.2, r: -8 }, E.out], [160, { dx: -.1, sx: 1.06, sy: .94, b: 1.3, r: 3 }], [380, {}, E.io]] },
     dodge: { dur: 520, pose: 'dodge', keys: [[0, {}], [120, { y: -.5, dx: -.3, sy: 1.1, sx: .92 }, E.out], [300, { dx: -.25, sx: 1.08, sy: .9 }, E['in']], [520, {}, E.io]] },
     ko: { dur: 900, keep: 1, pose: 'ko', keys: [[0, {}], [120, { dx: -.2, b: 2, r: -10 }, E.out], [500, { dx: -.5, y: .15, r: -60 }, E['in']], [900, { dx: -.6, y: .35, r: -90, o: 0 }, E.out]] },
@@ -41,122 +52,132 @@
     fixhat: { dur: 1500, pose: 'fixhat', keys: [[0, {}], [600, { sy: .96, sx: 1.03 }, E.io], [800, {}], [1500, {}, E.io]] },
     idle: { dur: 1600, keys: [[0, {}], [800, { y: -.04, sy: 1.02, sx: .99 }, E.io], [1600, {}, E.io]] }
   };
-  /* Limb poses for part rigs: per part [ms, {r deg (clockwise +), x px, y px}, ease-in-to-next]. Positive r = limb swings BACK (the gnome faces right); forward = negative.
-   * Parts: arms hang from the shoulder, legs from the hip, torso (hat, head, beard, body) from the hips. px are gnome-frame pixels (64x80). */
+  /* Limb poses for the gnome: per part [ms, {r deg (clockwise +), x px, y px, sx, sy, o}, ease-in-to-next]. The gnome faces right, so for a hanging limb positive r swings it BACK, negative forward.
+   * Bones: legs stand alone; body (tunic) turns at the hips and carries scarf, arms and head; armF/armB turn at the shoulder and carry foreF/foreB (the elbow only bends forward: r from 0 to -140);
+   * head turns at the neck (positive r = nod down, negative = chin up) and carries beard, eyelid and hat. Beard, scarf, hat and curl are springs: never key them, they follow.
+   * Timing rules used below: the body leads, the head counters it a beat later, the forearm trails the upper arm (overlap), every big action ends in a small overshoot before it settles. */
   var POSES = {
-    idle: { dur: 1600, loops: Infinity, tracks: { torso: [[0, {}], [800, { y: -1 }, E.io], [1600, {}, E.io]], armF: [[0, {}], [800, { r: 3 }, E.io], [1600, {}, E.io]], armB: [[0, {}], [800, { r: -3 }, E.io], [1600, {}, E.io]] } },
-    run: { dur: 480, loops: Infinity, tracks: {
-      torso: [[0, { r: 7 }], [120, { r: 7, y: -2 }], [240, { r: 7 }], [360, { r: 7, y: -2 }], [480, { r: 7 }]],
-      legF: [[0, { r: -38 }], [120, { r: 0, y: -3 }], [240, { r: 38 }], [360, { r: 0, y: -3 }], [480, { r: -38 }]],
-      legB: [[0, { r: 38 }], [120, { r: 0, y: -3 }], [240, { r: -38 }], [360, { r: 0, y: -3 }], [480, { r: 38 }]],
-      armF: [[0, { r: 50 }], [240, { r: -50 }, E.io], [480, { r: 50 }, E.io]], armB: [[0, { r: -50 }], [240, { r: 50 }, E.io], [480, { r: -50 }, E.io]] } },
-    pluck: { dur: 860, tracks: {
-      torso: [[0, {}], [45, { r: -5 }], [90, { r: 4 }], [135, { r: -7 }], [180, { r: 3 }], [210, { r: -10 }], [240, { r: -12 }], [330, { r: 6, y: -1 }], [420, { r: 10 }], [470, { r: 13 }, E.out], [660, { r: 6 }], [860, {}, E.io]],
-      armF: [[0, {}], [160, { r: 115 }, E.out], [240, { r: 128 }], [330, { r: 120 }], [420, { r: 112 }], [445, { r: -70 }, E['in']], [500, { r: -105 }, E.out], [660, { r: -60 }], [860, {}, E.io]],
-      armB: [[0, {}], [160, { r: -30 }], [240, { r: -45 }], [330, { r: 50 }], [420, { r: -40 }], [470, { r: -70 }], [860, {}, E.io]],
-      legF: [[0, {}], [45, { r: 10 }], [90, { r: -10 }], [135, { r: 12 }], [180, { r: -9 }], [240, { r: -10 }], [285, { r: -38 }], [330, { r: 0, y: -3 }], [375, { r: 38 }], [420, { r: -25 }], [470, { r: -15 }], [860, {}, E.io]],
-      legB: [[0, {}], [45, { r: -10 }], [90, { r: 10 }], [135, { r: -12 }], [180, { r: 9 }], [240, { r: 10 }], [285, { r: 38 }], [330, { r: 0, y: -3 }], [375, { r: -38 }], [420, { r: 25 }], [470, { r: 15 }], [860, {}, E.io]] } },
-    attack: { dur: 660, tracks: {
-      torso: [[0, {}], [120, { r: -8 }, E.out], [250, { r: -10 }], [330, { r: 12 }, E.out], [500, { r: 5 }], [660, {}, E.io]],
-      armF: [[0, {}], [120, { r: 100 }, E.out], [250, { r: 118 }], [320, { r: -60 }, E['in']], [380, { r: -100 }, E.out], [520, { r: -50 }], [660, {}, E.io]],
-      armB: [[0, {}], [120, { r: -25 }], [330, { r: -55 }], [660, {}, E.io]],
-      legF: [[0, {}], [120, { r: -25 }, E.out], [220, { r: 25 }], [330, { r: -18 }], [660, {}, E.io]],
-      legB: [[0, {}], [120, { r: 25 }, E.out], [220, { r: -25 }], [330, { r: 18 }], [660, {}, E.io]] } },
-    snack: { dur: 1000, tracks: {
-      torso: [[0, {}], [200, { r: -3 }, E.out], [560, { r: 2 }, E.io], [1000, {}, E.io]],
-      armF: [[0, {}], [220, { r: -125 }, E.out], [380, { r: -145 }], [480, { r: -118 }], [580, { r: -145 }], [680, { r: -118 }], [800, { r: -140 }], [1000, {}, E.io]],
-      armB: [[0, {}], [220, { r: -20 }], [1000, {}, E.io]] } },
-    hit: { dur: 380, tracks: { torso: [[0, {}], [60, { r: -14 }, E.out], [380, {}, E.io]], armF: [[0, {}], [60, { r: 75 }, E.out], [200, { r: 25 }], [380, {}, E.io]], armB: [[0, {}], [60, { r: -65 }, E.out], [200, { r: -20 }], [380, {}, E.io]], legF: [[0, {}], [60, { r: -14 }, E.out], [380, {}, E.io]], legB: [[0, {}], [60, { r: 10 }, E.out], [380, {}, E.io]] } },
-    dodge: { dur: 520, tracks: { torso: [[0, {}], [120, { r: 8 }, E.out], [300, { r: -4 }], [520, {}, E.io]], armF: [[0, {}], [120, { r: -50 }, E.out], [300, { r: 20 }], [520, {}, E.io]], armB: [[0, {}], [120, { r: 40 }, E.out], [520, {}, E.io]], legF: [[0, {}], [120, { r: -35, y: -4 }, E.out], [300, { r: 10 }], [520, {}, E.io]], legB: [[0, {}], [120, { r: -25, y: -4 }, E.out], [300, { r: 5 }], [520, {}, E.io]] } },
-    ko: { dur: 900, keep: 1, tracks: { torso: [[0, {}], [120, { r: -10 }, E.out], [500, { r: -12 }], [900, { r: -6 }, E.out]], armF: [[0, {}], [120, { r: 70 }, E.out], [500, { r: 135 }], [900, { r: 150 }, E.out]], armB: [[0, {}], [120, { r: -70 }, E.out], [500, { r: -120 }], [900, { r: -135 }, E.out]], legF: [[0, {}], [500, { r: -25 }], [900, { r: -40 }, E.out]], legB: [[0, {}], [500, { r: 20 }], [900, { r: 35 }, E.out]] } },
-    cheer: { dur: 1000, tracks: { torso: [[0, {}], [300, { r: -6 }, E.out], [620, { r: 5 }], [1000, {}, E.io]], armF: [[0, {}], [220, { r: -150 }, E.out], [330, { r: -168 }], [450, { r: -150 }], [620, { r: -170 }], [1000, {}, E.io]], armB: [[0, {}], [300, { r: -40 }], [620, { r: -55 }], [1000, {}, E.io]], legF: [[0, {}], [300, { r: -18 }], [620, { r: -14 }], [1000, {}, E.io]], legB: [[0, {}], [300, { r: 18 }], [620, { r: 14 }], [1000, {}, E.io]] } },
-    fixhat: { dur: 1500, tracks: { torso: [[0, {}], [500, { r: -4 }, E.io], [900, { r: 3 }], [1500, {}, E.io]], armF: [[0, {}], [450, {}], [680, { r: -155 }, E.out], [830, { r: -170 }], [930, { r: -150 }], [1030, { r: -170 }], [1500, {}, E.io]], armB: [[0, {}], [500, { r: 30 }], [1500, {}, E.io]], legF: [[0, {}], [1500, {}]], legB: [[0, {}], [1500, {}]] } },
-    walk: { dur: 720, loops: Infinity, tracks: { torso: [[0, { r: 3 }], [180, { r: 3, y: -1 }], [360, { r: 3 }], [540, { r: 3, y: -1 }], [720, { r: 3 }]], legF: [[0, { r: -22 }], [360, { r: 22 }, E.io], [720, { r: -22 }, E.io]], legB: [[0, { r: 22 }], [360, { r: -22 }, E.io], [720, { r: 22 }, E.io]], armF: [[0, { r: 28 }], [360, { r: -28 }, E.io], [720, { r: 28 }, E.io]], armB: [[0, { r: -28 }], [360, { r: 28 }, E.io], [720, { r: -28 }, E.io]] } },
-    guard: { dur: 300, keep: 1, tracks: { torso: [[0, {}], [300, { r: -4 }, E.out]], armF: [[0, {}], [300, { r: -95 }, E.out]], armB: [[0, {}], [300, { r: -80 }, E.out]] } }
+    idle: { dur: 1600, loops: Infinity, tracks: {   // breathing: chest lifts, head settles a beat later, hands drift
+      body: [[0, {}], [800, { y: -1, r: .6 }, E.io], [1600, {}, E.io]], head: [[0, { r: -1 }], [950, { r: 2, y: .4 }, E.io], [1600, { r: -1 }, E.io]],
+      armF: [[0, { r: 2 }], [800, { r: 6 }, E.io], [1600, { r: 2 }, E.io]], foreF: [[0, { r: -6 }], [950, { r: -13 }, E.io], [1600, { r: -6 }, E.io]],
+      armB: [[0, { r: -2 }], [800, { r: -6 }, E.io], [1600, { r: -2 }, E.io]], foreB: [[0, { r: -8 }], [950, { r: -3 }, E.io], [1600, { r: -8 }, E.io]] } },
+    blink: { dur: 170, tracks: { lid: [[0, { o: 0 }], [30, { o: 1 }], [130, { o: 1 }], [170, { o: 0 }]] } },
+    run: { dur: 480, loops: Infinity, tracks: {   // leaning sprint: elbows bent, head held level against the lean
+      body: [[0, { r: 9 }], [120, { r: 10, y: -2 }], [240, { r: 9 }], [360, { r: 10, y: -2 }], [480, { r: 9 }]],
+      head: [[0, { r: -7 }], [120, { r: -4, y: .5 }], [240, { r: -7 }], [360, { r: -4, y: .5 }], [480, { r: -7 }]],
+      legF: [[0, { r: -40 }], [120, { r: 0, y: -3 }], [240, { r: 40 }], [360, { r: 0, y: -3 }], [480, { r: -40 }]],
+      legB: [[0, { r: 40 }], [120, { r: 0, y: -3 }], [240, { r: -40 }], [360, { r: 0, y: -3 }], [480, { r: 40 }]],
+      armF: [[0, { r: 55 }], [240, { r: -55 }, E.io], [480, { r: 55 }, E.io]], foreF: [[0, { r: -60 }], [240, { r: -95 }, E.io], [480, { r: -60 }, E.io]],
+      armB: [[0, { r: -55 }], [240, { r: 55 }, E.io], [480, { r: -55 }, E.io]], foreB: [[0, { r: -95 }], [240, { r: -60 }, E.io], [480, { r: -95 }, E.io]] } },
+    walk: { dur: 720, loops: Infinity, tracks: {
+      body: [[0, { r: 3 }], [180, { r: 4, y: -1 }], [360, { r: 3 }], [540, { r: 4, y: -1 }], [720, { r: 3 }]], head: [[0, { r: -2 }], [180, { r: 1 }], [360, { r: -2 }], [540, { r: 1 }], [720, { r: -2 }]],
+      legF: [[0, { r: -22 }], [360, { r: 22 }, E.io], [720, { r: -22 }, E.io]], legB: [[0, { r: 22 }], [360, { r: -22 }, E.io], [720, { r: 22 }, E.io]],
+      armF: [[0, { r: 28 }], [360, { r: -28 }, E.io], [720, { r: 28 }, E.io]], foreF: [[0, { r: -10 }], [360, { r: -35 }, E.io], [720, { r: -10 }, E.io]],
+      armB: [[0, { r: -28 }], [360, { r: 28 }, E.io], [720, { r: -28 }, E.io]], foreB: [[0, { r: -35 }], [360, { r: -10 }, E.io], [720, { r: -35 }, E.io]] } },
+    pluck: { dur: 940, tracks: {   // shimmy and wind up (0-240), rush (240-420), whip (420-470): shoulder first, forearm snaps through a beat later; then a hop back (660-860) and a settle
+      body: [[0, {}], [45, { r: -5 }], [90, { r: 4 }], [135, { r: -7 }], [180, { r: 3 }], [210, { r: -10 }], [240, { r: -13 }], [330, { r: 6, y: -1 }], [420, { r: 10 }], [470, { r: 14 }, E.out], [560, { r: 8 }], [660, { r: 4 }], [760, { r: -8 }, E.out], [860, { r: 5 }, E['in']], [940, {}, E.io]],
+      head: [[0, {}], [70, { r: 6 }], [160, { r: -9 }, E.out], [240, { r: -15 }], [330, { r: -2 }], [420, { r: -10 }], [470, { r: 15 }, E.out], [560, { r: -5 }, E.io], [660, { r: 3 }], [760, { r: 9 }], [860, { r: -6 }], [940, {}, E.io]],
+      armF: [[0, {}], [160, { r: 112 }, E.out], [240, { r: 136 }], [330, { r: 126 }], [420, { r: 114 }], [445, { r: -64 }, E['in']], [500, { r: -112 }, E.out], [600, { r: -84 }], [660, { r: -55 }], [760, { r: -30 }], [860, { r: 12 }], [940, {}, E.io]],
+      foreF: [[0, {}], [160, { r: -92 }, E.out], [240, { r: -122 }], [420, { r: -112 }], [445, { r: -70 }], [480, { r: -4 }, E['in']], [560, { r: -24 }, E.out], [660, { r: -40 }], [860, { r: -18 }], [940, {}, E.io]],
+      armB: [[0, {}], [160, { r: -32 }], [240, { r: -50 }], [330, { r: 48 }], [420, { r: -42 }], [470, { r: 72 }, E.out], [660, { r: 30 }], [760, { r: -40 }], [860, { r: 10 }], [940, {}, E.io]],
+      foreB: [[0, {}], [240, { r: -70 }], [330, { r: -80 }], [470, { r: -15 }], [760, { r: -60 }], [940, {}, E.io]],
+      legF: [[0, {}], [45, { r: 10 }], [90, { r: -10 }], [135, { r: 12 }], [180, { r: -9 }], [240, { r: -10 }], [285, { r: -40 }], [330, { r: 0, y: -3 }], [375, { r: 40 }], [420, { r: -25 }], [470, { r: -15 }], [660, { r: -8 }], [760, { r: 30, y: -3 }, E.out], [860, { r: -6 }], [940, {}, E.io]],
+      legB: [[0, {}], [45, { r: -10 }], [90, { r: 10 }], [135, { r: -12 }], [180, { r: 9 }], [240, { r: 10 }], [285, { r: 40 }], [330, { r: 0, y: -3 }], [375, { r: -40 }], [420, { r: 25 }], [470, { r: 15 }], [660, { r: 8 }], [760, { r: 42, y: -4 }, E.out], [860, { r: 6 }], [940, {}, E.io]] } },
+    attack: { dur: 740, tracks: {   // quick step in, one swing, hop back
+      body: [[0, {}], [120, { r: -8 }, E.out], [250, { r: -11 }], [330, { r: 13 }, E.out], [500, { r: 5 }], [590, { r: -7 }, E.out], [670, { r: 4 }, E['in']], [740, {}, E.io]],
+      head: [[0, {}], [120, { r: -6 }, E.out], [250, { r: -12 }], [345, { r: 14 }, E.out], [430, { r: -4 }], [500, { r: 2 }], [590, { r: 8 }], [670, { r: -5 }], [740, {}, E.io]],
+      armF: [[0, {}], [120, { r: 98 }, E.out], [250, { r: 120 }], [320, { r: -58 }, E['in']], [380, { r: -104 }, E.out], [500, { r: -55 }], [590, { r: -25 }], [670, { r: 10 }], [740, {}, E.io]],
+      foreF: [[0, {}], [120, { r: -85 }, E.out], [250, { r: -112 }], [320, { r: -75 }], [355, { r: -4 }, E['in']], [430, { r: -22 }, E.out], [590, { r: -35 }], [740, {}, E.io]],
+      armB: [[0, {}], [120, { r: -25 }], [250, { r: -40 }], [345, { r: 62 }, E.out], [500, { r: 25 }], [590, { r: -35 }], [740, {}, E.io]], foreB: [[0, {}], [250, { r: -60 }], [345, { r: -15 }], [590, { r: -55 }], [740, {}, E.io]],
+      legF: [[0, {}], [120, { r: -25 }, E.out], [220, { r: 25 }], [330, { r: -18 }], [500, { r: -8 }], [590, { r: 28, y: -3 }, E.out], [670, { r: -5 }], [740, {}, E.io]],
+      legB: [[0, {}], [120, { r: 25 }, E.out], [220, { r: -25 }], [330, { r: 18 }], [500, { r: 8 }], [590, { r: 40, y: -4 }, E.out], [670, { r: 5 }], [740, {}, E.io]] } },
+    snack: { dur: 1000, tracks: {   // hand to mouth, three munches (the head does the chewing), a satisfied settle
+      body: [[0, {}], [200, { r: -3 }, E.out], [560, { r: 2 }, E.io], [1000, {}, E.io]],
+      head: [[0, {}], [220, { r: 7 }, E.out], [380, { r: -3 }], [460, { r: 5 }], [540, { r: -3 }], [620, { r: 5 }], [700, { r: -3 }], [800, { r: -9 }, E.out], [1000, {}, E.io]],
+      armF: [[0, {}], [220, { r: -58 }, E.out], [800, { r: -52 }], [1000, {}, E.io]], foreF: [[0, {}], [220, { r: -118 }, E.out], [380, { r: -126 }], [460, { r: -112 }], [540, { r: -126 }], [620, { r: -112 }], [700, { r: -126 }], [800, { r: -90 }], [1000, {}, E.io]],
+      armB: [[0, {}], [220, { r: -18 }], [1000, {}, E.io]], foreB: [[0, {}], [220, { r: -40 }], [1000, {}, E.io]] } },
+    hit: { dur: 380, tracks: {   // the body goes back, the head whips after it, arms fly, then a head-shake settle
+      body: [[0, {}], [60, { r: -15 }, E.out], [220, { r: 3 }, E.io], [380, {}, E.io]], head: [[0, {}], [50, { r: 10 }], [110, { r: -24 }, E.out], [230, { r: 9 }, E.io], [310, { r: -4 }], [380, {}, E.io]],
+      armF: [[0, {}], [60, { r: 78 }, E.out], [200, { r: 25 }], [380, {}, E.io]], foreF: [[0, {}], [90, { r: -70 }, E.out], [240, { r: -20 }], [380, {}, E.io]],
+      armB: [[0, {}], [60, { r: -68 }, E.out], [200, { r: -20 }], [380, {}, E.io]], foreB: [[0, {}], [90, { r: -85 }, E.out], [380, {}, E.io]],
+      legF: [[0, {}], [60, { r: -16 }, E.out], [380, {}, E.io]], legB: [[0, {}], [60, { r: 12 }, E.out], [380, {}, E.io]] } },
+    dodge: { dur: 520, tracks: {   // knees up, arms out for balance, lands and wobbles
+      body: [[0, {}], [120, { r: 9 }, E.out], [300, { r: -6 }], [420, { r: 3 }], [520, {}, E.io]], head: [[0, {}], [120, { r: -12 }, E.out], [300, { r: 10 }], [420, { r: -4 }], [520, {}, E.io]],
+      armF: [[0, {}], [120, { r: -75 }, E.out], [300, { r: 25 }], [520, {}, E.io]], foreF: [[0, {}], [120, { r: -30 }], [300, { r: -50 }], [520, {}, E.io]],
+      armB: [[0, {}], [120, { r: 70 }, E.out], [300, { r: -20 }], [520, {}, E.io]], foreB: [[0, {}], [120, { r: -30 }], [520, {}, E.io]],
+      legF: [[0, {}], [120, { r: -42, y: -5 }, E.out], [300, { r: 10 }], [520, {}, E.io]], legB: [[0, {}], [120, { r: -28, y: -5 }, E.out], [300, { r: 5 }], [520, {}, E.io]] } },
+    ko: { dur: 900, keep: 1, tracks: {   // arms flop, legs buckle, the head lolls back last; one boot keeps twitching in the air
+      body: [[0, {}], [120, { r: -10 }, E.out], [500, { r: -12 }], [900, { r: -6 }, E.out]], head: [[0, {}], [120, { r: 14 }], [500, { r: -20 }, E.out], [760, { r: -34 }], [900, { r: -28 }, E.out]],
+      armF: [[0, {}], [120, { r: 70 }, E.out], [500, { r: 135 }], [900, { r: 150 }, E.out]], foreF: [[0, {}], [300, { r: -60 }], [700, { r: -10 }], [900, { r: -25 }]],
+      armB: [[0, {}], [120, { r: -70 }, E.out], [500, { r: -120 }], [900, { r: -135 }, E.out]], foreB: [[0, {}], [300, { r: -70 }], [900, { r: -30 }]],
+      legF: [[0, {}], [500, { r: -25 }], [700, { r: -52 }], [800, { r: -34 }], [900, { r: -42 }, E.out]], legB: [[0, {}], [500, { r: 20 }], [900, { r: 35 }, E.out]] } },
+    cheer: { dur: 1000, tracks: {   // two hops: fist pump on the first, both arms on the second, heels kick
+      body: [[0, {}], [140, { r: 4 }], [300, { r: -7 }, E.out], [450, { r: 3 }], [620, { r: -6 }], [780, { r: 3 }], [1000, {}, E.io]], head: [[0, {}], [140, { r: 8 }], [300, { r: -14 }, E.out], [450, { r: 6 }], [620, { r: -16 }, E.out], [780, { r: 6 }], [1000, {}, E.io]],
+      armF: [[0, {}], [140, { r: 30 }], [300, { r: -158 }, E.out], [450, { r: -120 }], [620, { r: -172 }, E.out], [780, { r: -90 }], [1000, {}, E.io]], foreF: [[0, {}], [140, { r: -90 }], [300, { r: -10 }, E.out], [450, { r: -70 }], [620, { r: -5 }, E.out], [1000, {}, E.io]],
+      armB: [[0, {}], [300, { r: -40 }], [450, { r: -30 }], [620, { r: -165 }, E.out], [780, { r: -80 }], [1000, {}, E.io]], foreB: [[0, {}], [300, { r: -80 }], [620, { r: -8 }, E.out], [1000, {}, E.io]],
+      legF: [[0, {}], [300, { r: -20, y: -1 }], [450, { r: 0 }], [620, { r: 34, y: -3 }, E.out], [780, { r: 0 }], [1000, {}, E.io]], legB: [[0, {}], [300, { r: 20, y: -1 }], [450, { r: 0 }], [620, { r: 44, y: -4 }, E.out], [780, { r: 0 }], [1000, {}, E.io]] } },
+    fixhat: { dur: 1500, tracks: {   // watches it land (chin up), ducks under it, pats it down twice
+      body: [[0, {}], [500, { r: -4 }, E.io], [900, { r: 3 }], [1500, {}, E.io]], head: [[0, {}], [350, { r: -14 }, E.out], [620, { r: 9 }, E['in']], [830, { r: 4 }], [930, { r: 8 }], [1030, { r: 3 }], [1500, {}, E.io]],
+      armF: [[0, {}], [450, {}], [680, { r: -150 }, E.out], [830, { r: -160 }], [930, { r: -146 }], [1030, { r: -160 }], [1500, {}, E.io]], foreF: [[0, {}], [450, {}], [680, { r: -48 }, E.out], [830, { r: -30 }], [930, { r: -58 }], [1030, { r: -30 }], [1500, {}, E.io]],
+      armB: [[0, {}], [500, { r: 30 }], [1500, {}, E.io]], foreB: [[0, {}], [500, { r: -40 }], [1500, {}, E.io]], legF: [[0, {}], [1500, {}]], legB: [[0, {}], [1500, {}]] } },
+    guard: { dur: 300, keep: 1, tracks: {   // forearms up in front of the face, chin tucked behind them
+      body: [[0, {}], [300, { r: -5 }, E.out]], head: [[0, {}], [300, { r: 9, y: 1 }, E.out]],
+      armF: [[0, {}], [300, { r: -62 }, E.out]], foreF: [[0, {}], [300, { r: -112 }, E.out]], armB: [[0, {}], [300, { r: -48 }, E.out]], foreB: [[0, {}], [300, { r: -118 }, E.out]],
+      legF: [[0, {}], [300, { r: -12 }, E.out]], legB: [[0, {}], [300, { r: 12 }, E.out]] } },
+    // fidgets: played now and then while he waits (RIGS.gnome.fidgets). Short, and any move cancels them.
+    beardstroke: { dur: 1500, tracks: {
+      head: [[0, {}], [300, { r: 6 }, E.io], [1150, { r: 5 }], [1500, {}, E.io]], body: [[0, {}], [300, { r: 2 }, E.io], [1150, { r: 2 }], [1500, {}, E.io]],
+      armF: [[0, {}], [300, { r: -38 }, E.out], [1150, { r: -34 }], [1500, {}, E.io]], foreF: [[0, {}], [300, { r: -122 }, E.out], [520, { r: -92 }, E.io], [720, { r: -124 }, E.io], [940, { r: -92 }, E.io], [1150, { r: -118 }, E.io], [1500, {}, E.io]] } },
+    lookback: { dur: 1700, tracks: {   // something up there? no. down there? no.
+      head: [[0, {}], [260, { r: -20 }, E.out], [700, { r: -22 }], [900, { r: 13 }, E.io], [1300, { r: 12 }], [1700, {}, E.io]], body: [[0, {}], [260, { r: -4 }, E.out], [700, { r: -4 }], [900, { r: 3 }, E.io], [1300, { r: 3 }], [1700, {}, E.io]],
+      armF: [[0, {}], [260, { r: 14 }], [900, { r: -10 }], [1700, {}, E.io]], armB: [[0, {}], [260, { r: -14 }], [900, { r: 10 }], [1700, {}, E.io]] } },
+    toetap: { dur: 1500, tracks: {   // hands on hips, one boot taps
+      armF: [[0, {}], [250, { r: 34 }, E.out], [1250, { r: 34 }], [1500, {}, E.io]], foreF: [[0, {}], [250, { r: -108 }, E.out], [1250, { r: -108 }], [1500, {}, E.io]],
+      armB: [[0, {}], [250, { r: 30 }, E.out], [1250, { r: 30 }], [1500, {}, E.io]], foreB: [[0, {}], [250, { r: -104 }, E.out], [1250, { r: -104 }], [1500, {}, E.io]],
+      head: [[0, {}], [250, { r: 5 }], [1250, { r: 5 }], [1500, {}, E.io]],
+      legF: [[0, {}], [300, {}], [400, { r: -22 }, E.out], [500, {}, E['in']], [600, { r: -22 }, E.out], [700, {}, E['in']], [800, { r: -22 }, E.out], [900, {}, E['in']], [1000, { r: -22 }, E.out], [1100, {}, E['in']], [1500, {}]] } },
+    hattug: { dur: 1300, hat: 1, tracks: {   // a tug on the brim
+      armF: [[0, {}], [320, { r: -146 }, E.out], [900, { r: -150 }], [1300, {}, E.io]], foreF: [[0, {}], [320, { r: -52 }, E.out], [520, { r: -30 }], [640, { r: -56 }], [760, { r: -30 }], [900, { r: -50 }], [1300, {}, E.io]],
+      head: [[0, {}], [320, { r: -5 }], [520, { r: 8 }, E.out], [640, { r: 2 }], [760, { r: 9 }, E.out], [900, { r: 2 }], [1300, {}, E.io]] } },
+    stretch: { dur: 1900, tracks: {   // arms up, a long lean back, a yawn, flop
+      body: [[0, {}], [500, { r: -9, sy: 1.05 }, E.io], [1100, { r: -11, sy: 1.06 }], [1450, { r: 5, sy: .97 }, E['in']], [1900, {}, E.io]], head: [[0, {}], [500, { r: -16 }, E.io], [1100, { r: -22 }], [1450, { r: 12 }, E['in']], [1900, {}, E.io]],
+      armF: [[0, {}], [500, { r: -168 }, E.io], [1100, { r: -176 }], [1450, { r: 20 }, E['in']], [1650, { r: -8 }], [1900, {}, E.io]], foreF: [[0, {}], [300, { r: -90 }], [500, { r: -12 }], [1100, { r: -4 }], [1450, { r: -30 }], [1900, {}, E.io]],
+      armB: [[0, {}], [500, { r: -160 }, E.io], [1100, { r: -170 }], [1450, { r: 16 }, E['in']], [1650, { r: -6 }], [1900, {}, E.io]], foreB: [[0, {}], [300, { r: -90 }], [500, { r: -14 }], [1100, { r: -6 }], [1450, { r: -30 }], [1900, {}, E.io]] } }
   };
-  /* A rig = how to draw and size an actor. strip: sheet of equal frames (gnome25, 8 of 64x80). still: one picture (mini art, faces right).
-   * Later: per-creature 'sheet' rigs with clips, same shape as the gnome. w/h are in board cells. */
+  /* A rig = how to draw and size an actor. parts: a SHEET (one column per part, row 0 paint, row 1 ink) and a bone tree. still: one picture (mini art, faces right). w/h are in board cells.
+   * Part: id, img (sheet column name; default = id), px = pivot (frame px), parent (bone it hangs from; none = stands on its own), under (drawn behind its parent's picture),
+   * ink:false (no outline of its own), dim (brightness, far limbs), lag (ms, drag), ox (x shift, frame px), hide (shown only by a pose, e.g. the eyelid),
+   * phys (the hat: its own physics), spring {k stiffness, d damping, g how hard the bone's acceleration swings it, w how hard its speed drags it, max deg, dir rest direction [x, y] from the pivot, y down}. */
   var RIGS = {
-    // parts rig: cut by tools/gnome_rig_parts.php. id = limb name, img = file key, px = pivot, ox = x shift, dim = brightness (the far arm).
-    gnome: { kind: 'parts', w: 2, h: 2.5, attack: 'pluck', unarmed: 1, parts: [
-      { id: 'armB', img: 'arm', px: [33, 48], ox: 4, dim: .72, lag: 20 }, { id: 'legB', img: 'legB', px: [28, 63], dim: .82 }, { id: 'torso', img: 'torso', px: [32, 64] },
-      { id: 'legF', img: 'legF', px: [36, 63] }, { id: 'armF', img: 'arm', px: [33, 48], lag: 35 },
-      { id: 'hat', img: 'hat', px: [32, 37], phys: 1 }, { id: 'tip', img: 'tip', px: [28, 11], phys: 1, parent: 'hat' }], lingers: 1, hat: 1 },
+    // the gnome: sheet cut by includes/gnome_rig.php (tools/gnome_rig_parts.php writes the default colours). Legs stand on their own so a lean never lifts the boots.
+    gnome: { kind: 'parts', w: 2, h: 2.5, fw: 64, fh: 80, attack: 'pluck', unarmed: 1, lingers: 1, hat: 1,
+      cols: ['legB', 'legF', 'body', 'scarf', 'armU', 'armL', 'head', 'beard', 'lid', 'hat', 'tip'],
+      fidgets: ['beardstroke', 'lookback', 'toetap', 'hattug', 'stretch'],
+      parts: [
+        { id: 'legB', px: [28, 64], dim: .82 }, { id: 'legF', px: [36, 64] },
+        { id: 'body', px: [32, 63] },
+        { id: 'scarf', parent: 'body', under: 1, px: [29, 46], spring: { k: 110, d: 7, g: .12, w: .5, max: 55, dir: [-.8, .6] } },
+        { id: 'armB', img: 'armU', parent: 'body', under: 1, px: [33, 48], ox: 4, dim: .72, lag: 20, ink: false }, { id: 'foreB', img: 'armL', parent: 'armB', px: [33, 56], dim: .72, lag: 30, ink: false },
+        { id: 'head', parent: 'body', px: [33, 46], lag: 15 },
+        { id: 'beard', parent: 'head', px: [33, 44], spring: { k: 150, d: 9, g: .1, w: .35, max: 40, dir: [-.25, 1] } },
+        { id: 'lid', parent: 'head', px: [38, 39], ink: false, hide: 1 },
+        { id: 'hat', parent: 'head', px: [32, 37], phys: 1 }, { id: 'tip', px: [28, 11], phys: 1, parent: 'hat' },
+        { id: 'armF', img: 'armU', parent: 'body', px: [33, 48], lag: 35, ink: false }, { id: 'foreF', img: 'armL', parent: 'armF', px: [33, 56], lag: 55, ink: false }] },
     creature: { kind: 'still', w: 2.3, h: 2.3, attack: 'charge' }
   };
-  /* Creature part rigs: 80x80 parts cut by tools/creature_rig_parts.py (pedestal dropped, feet on the bottom row). Quadruped poses are shared; a creature without an entry here is still a single picture. */
-  var QUAD = {
-    idle: { dur: 1600, loops: Infinity, tracks: { tail: [[0, {}], [800, { r: 6 }, E.io], [1600, {}, E.io]], head: [[0, {}], [800, { r: 3, y: .5 }, E.io], [1600, {}, E.io]], legF: [[0, {}], [1600, {}]], legB: [[0, {}], [1600, {}]] } },
-    run: { dur: 420, loops: Infinity, tracks: { tail: [[0, { r: -10 }], [210, { r: 10 }, E.io], [420, { r: -10 }, E.io]],
-      legF: [[0, { r: -35 }], [210, { r: 35 }, E.io], [420, { r: -35 }, E.io]], legB: [[0, { r: 30 }], [210, { r: -30 }, E.io], [420, { r: 30 }, E.io]],
-      body: [[0, {}], [105, { y: -2 }], [210, {}], [315, { y: -2 }], [420, {}]], head: [[0, { r: -4 }], [210, { r: 4 }, E.io], [420, { r: -4 }, E.io]] } },
-    charge: { dur: 900, tracks: { tail: [[0, {}], [200, { r: 10 }, E.out], [430, { r: -15 }, E['in']], [900, {}, E.io]],
-      head: [[0, {}], [200, { r: 24 }, E.out], [320, { r: 28 }], [430, { r: 10 }, E['in']], [480, { r: -8 }, E.out], [900, {}, E.io]],
-      legF: [[0, {}], [110, { r: 42 }, E.out], [170, { r: -8 }], [230, { r: 42 }], [290, { r: -8 }], [430, { r: -38 }, E['in']], [560, { r: 20 }], [900, {}, E.io]],
-      legB: [[0, {}], [200, { r: -12 }, E.out], [430, { r: 36 }, E['in']], [560, { r: -14 }], [900, {}, E.io]],
-      body: [[0, {}], [200, { r: -5 }, E.out], [430, { r: 5 }, E['in']], [480, { r: 2 }], [900, {}, E.io]] } },
-    hit: { dur: 380, tracks: { tail: [[0, {}], [60, { r: 20 }, E.out], [380, {}, E.io]], head: [[0, {}], [60, { r: -24 }, E.out], [380, {}, E.io]], legF: [[0, {}], [60, { r: 18 }, E.out], [380, {}, E.io]], legB: [[0, {}], [60, { r: -14 }, E.out], [380, {}, E.io]], body: [[0, {}], [60, { r: -5 }, E.out], [380, {}, E.io]] } },
-    dodge: { dur: 520, tracks: { head: [[0, {}], [120, { r: -12 }, E.out], [520, {}, E.io]], legF: [[0, {}], [120, { r: 32, y: -3 }, E.out], [300, { r: 8 }], [520, {}, E.io]], legB: [[0, {}], [120, { r: -28, y: -3 }, E.out], [300, { r: -6 }], [520, {}, E.io]] } },
-    pounce: { dur: 850, tracks: {
-      head: [[0, {}], [220, { r: 20 }, E.out], [330, { r: -10 }], [410, { r: 15 }, E['in']], [470, { r: 5 }], [850, {}, E.io]],
-      legF: [[0, {}], [220, { r: 30 }, E.out], [330, { r: -60 }, E.out], [410, { r: -45 }], [470, { r: 10 }], [850, {}, E.io]],
-      legB: [[0, {}], [220, { r: -15 }, E.out], [330, { r: 50 }, E.out], [410, { r: 40 }], [470, { r: -5 }], [850, {}, E.io]],
-      body: [[0, {}], [220, { r: -6 }, E.out], [330, { r: 8 }], [410, { r: 6 }], [850, {}, E.io]],
-      tail: [[0, {}], [220, { r: -15 }, E.out], [330, { r: 25 }], [410, { r: 10 }], [850, {}, E.io]] } },
-    slam: { dur: 1100, tracks: {
-      head: [[0, {}], [300, { r: -20 }, E.out], [480, { r: -24 }], [620, { r: 30 }, E['in']], [720, { r: 20 }], [1100, {}, E.io]],
-      legF: [[0, {}], [300, { r: -80 }, E.out], [480, { r: -95 }], [620, { r: 20 }, E['in']], [720, { r: 10 }], [1100, {}, E.io]],
-      legB: [[0, {}], [300, { r: 20 }, E.out], [480, { r: 25 }], [620, { r: -5 }, E['in']], [1100, {}, E.io]],
-      body: [[0, {}], [300, { r: -10 }, E.out], [480, { r: -12 }], [620, { r: 8 }, E['in']], [720, { r: 4 }], [1100, {}, E.io]] } },
-    ko: { dur: 900, keep: 1, tracks: { tail: [[0, {}], [500, { r: 30 }], [900, { r: 40 }, E.out]], head: [[0, {}], [120, { r: -20 }, E.out], [500, { r: -30 }], [900, { r: -38 }, E.out]], legF: [[0, {}], [120, { r: 20 }, E.out], [500, { r: -70 }], [900, { r: -80 }, E.out]], legB: [[0, {}], [120, { r: -20 }, E.out], [500, { r: 60 }], [900, { r: 70 }, E.out]], body: [[0, {}], [900, {}]] } }
-  };
-  /* Front-facing toys (scorpion, frog): claws, tail and eyes move on a static base. Positive r on the LEFT claw lifts it; on the RIGHT claw, negative lifts. */
-  var SCORP = {
-    idle: { dur: 1600, loops: Infinity, tracks: { tail: [[0, {}], [800, { r: 5 }, E.io], [1600, {}, E.io]], clawL: [[0, {}], [800, { r: 4 }, E.io], [1600, {}, E.io]], clawR: [[0, {}], [800, { r: -4 }, E.io], [1600, {}, E.io]] } },
-    run: { dur: 420, loops: Infinity, tracks: { clawL: [[0, { r: 10 }], [210, { r: -10 }, E.io], [420, { r: 10 }, E.io]], clawR: [[0, { r: 10 }], [210, { r: -10 }, E.io], [420, { r: 10 }, E.io]], tail: [[0, { r: -8 }], [210, { r: 8 }, E.io], [420, { r: -8 }, E.io]], body: [[0, {}], [105, { y: -2 }], [210, {}], [315, { y: -2 }], [420, {}]] } },
-    pounce: { dur: 850, tracks: {
-      clawL: [[0, {}], [220, { r: 35 }, E.out], [330, { r: 40 }], [410, { r: -22 }, E['in']], [470, { r: -28 }, E.out], [850, {}, E.io]],
-      clawR: [[0, {}], [220, { r: -35 }, E.out], [330, { r: -40 }], [410, { r: 22 }, E['in']], [470, { r: 28 }, E.out], [850, {}, E.io]],
-      tail: [[0, {}], [220, { r: -25 }, E.out], [330, { r: -30 }], [410, { r: 20 }, E['in']], [850, {}, E.io]], body: [[0, {}], [220, { r: -3 }, E.out], [410, { r: 3 }, E['in']], [850, {}, E.io]] } },
-    hit: { dur: 380, tracks: { clawL: [[0, {}], [60, { r: -18 }, E.out], [380, {}, E.io]], clawR: [[0, {}], [60, { r: 18 }, E.out], [380, {}, E.io]], tail: [[0, {}], [60, { r: 25 }, E.out], [380, {}, E.io]] } },
-    dodge: { dur: 520, tracks: { clawL: [[0, {}], [120, { r: 30 }, E.out], [520, {}, E.io]], clawR: [[0, {}], [120, { r: -30 }, E.out], [520, {}, E.io]], tail: [[0, {}], [120, { r: -20 }, E.out], [520, {}, E.io]] } },
-    ko: { dur: 900, keep: 1, tracks: { clawL: [[0, {}], [500, { r: -45 }], [900, { r: -55 }, E.out]], clawR: [[0, {}], [500, { r: 45 }], [900, { r: 55 }, E.out]], tail: [[0, {}], [500, { r: 35 }], [900, { r: 45 }, E.out]] } }
-  };
-  var FROG = {
-    idle: { dur: 1600, loops: Infinity, tracks: { eyeL: [[0, {}], [800, { y: -.6 }, E.io], [1600, {}, E.io]], eyeR: [[0, {}], [800, { y: -.6 }, E.io], [1600, {}, E.io]] } },
-    run: { dur: 420, loops: Infinity, tracks: { eyeL: [[0, {}], [210, { y: -2 }, E.io], [420, {}, E.io]], eyeR: [[0, {}], [210, { y: -2 }, E.io], [420, {}, E.io]] } },
-    hop: { dur: 800, tracks: {
-      eyeL: [[0, {}], [120, { y: 2 }, E.out], [220, { y: -3 }, E.out], [360, { y: -2 }], [440, { y: 2 }, E['in']], [800, {}, E.io]],
-      eyeR: [[0, {}], [120, { y: 2 }, E.out], [220, { y: -3 }, E.out], [360, { y: -2 }], [440, { y: 2 }, E['in']], [800, {}, E.io]] } },
-    hit: { dur: 380, tracks: { eyeL: [[0, {}], [60, { r: -14, y: 2 }, E.out], [380, {}, E.io]], eyeR: [[0, {}], [60, { r: 14, y: 2 }, E.out], [380, {}, E.io]] } },
-    dodge: { dur: 520, tracks: { eyeL: [[0, {}], [120, { y: -3 }, E.out], [520, {}, E.io]], eyeR: [[0, {}], [120, { y: -3 }, E.out], [520, {}, E.io]] } },
-    ko: { dur: 900, keep: 1, tracks: { eyeL: [[0, {}], [500, { r: 30, y: 2 }], [900, { r: 40, y: 3 }, E.out]], eyeR: [[0, {}], [500, { r: -30, y: 2 }], [900, { r: -40, y: 3 }, E.out]] } }
-  };
-  var CRIT = {
-    'wild-boar': { kind: 'parts', w: 2.3, h: 2.3, fw: 80, fh: 80, poses: QUAD, parts: [
-      { id: 'legB', img: 'legB', px: [20, 68], dim: .85 }, { id: 'legF', img: 'legF', px: [56, 68] }, { id: 'body', img: 'body', px: [30, 67] }, { id: 'head', img: 'head', px: [48, 59] }] },
-    'bramble-wolf': { kind: 'parts', w: 2.3, h: 2.3, fw: 80, fh: 80, poses: QUAD, parts: [
-      { id: 'tail', img: 'tail', px: [20, 59] }, { id: 'legB', img: 'legB', px: [26, 68], dim: .85 }, { id: 'legF', img: 'legF', px: [51, 68] }, { id: 'body', img: 'body', px: [34, 67] }, { id: 'head', img: 'head', px: [48, 57] }] },
-    'black-bear': { kind: 'parts', w: 2.3, h: 2.3, fw: 80, fh: 80, poses: QUAD, parts: [
-      { id: 'legB', img: 'legB', px: [23, 68], dim: .85 }, { id: 'legF', img: 'legF', px: [55, 68] }, { id: 'body', img: 'body', px: [30, 67] }, { id: 'head', img: 'head', px: [46, 59] }] },
-    'cliff-ram': { kind: 'parts', w: 2.3, h: 2.3, fw: 80, fh: 80, poses: QUAD, parts: [
-      { id: 'tail', img: 'tail', px: [14, 57] }, { id: 'legB', img: 'legB', px: [23, 63], dim: .85 }, { id: 'legF', img: 'legF', px: [55, 63] }, { id: 'body', img: 'body', px: [32, 65] }, { id: 'head', img: 'head', px: [50, 55] }] },
-    'dune-scorpion': { kind: 'parts', w: 2.2, h: 2.2, fw: 56, fh: 64, poses: SCORP, parts: [
-      { id: 'base', img: 'base', px: [28, 50] }, { id: 'tail', img: 'tail', px: [15, 30] }, { id: 'body', img: 'body', px: [28, 40] }, { id: 'clawL', img: 'clawL', px: [17, 35] }, { id: 'clawR', img: 'clawR', px: [39, 35] }] },
-    'shore-crab': { kind: 'parts', w: 1.9, h: 1.9, fw: 56, fh: 64, poses: SCORP, parts: [
-      { id: 'base', img: 'base', px: [28, 52] }, { id: 'body', img: 'body', px: [28, 40] }, { id: 'clawL', img: 'clawL', px: [17, 36] }, { id: 'clawR', img: 'clawR', px: [39, 36] }] },
-    'bullfrog': { kind: 'parts', w: 1.8, h: 1.8, fw: 56, fh: 64, poses: FROG, parts: [
-      { id: 'base', img: 'base', px: [28, 55] }, { id: 'body', img: 'body', px: [28, 45] }, { id: 'eyeL', img: 'eyeL', px: [18, 24] }, { id: 'eyeR', img: 'eyeR', px: [38, 24] }] }
-  };
-  var ATTACK = { 'wild-boar': 'charge', 'bramble-wolf': 'pounce', 'bullfrog': 'hop', 'black-bear': 'slam', 'cliff-ram': 'charge', 'dune-scorpion': 'pounce', 'shore-crab': 'pounce' };
-  var SIZE = { 'black-bear': 2.8, 'bullfrog': 1.8, 'dune-scorpion': 2.2, 'shore-crab': 1.9 };
-
-  function rigFor(id) {
+  /* Creature rigs: bones and sheets are GENERATED from the mini archetypes (assets/fightrigs.js, tools/fight/rig_minis.lua); the motion of each archetype is in assets/fightarch.js.
+   * A creature with no row there is a single still picture. */
+  var DATA = root.FE_RIGS || { skel: {}, rigs: {} }, ARCH = root.FE_ARCH || {}, PXC = 2.3 / 80, rigCache = {};   // PXC: board cells per frame px
+  function archOf(key) { return ARCH[key] || ARCH[key.split('.')[0].replace(/\d+$/, '')] || {}; }
+  function pick(map, id) { if (!map) return null; if (map[id]) return map[id]; for (var k in map) if (k.indexOf('*') >= 0 && new RegExp('^' + k.replace(/\*/g, '.*') + '$').test(id)) return map[k]; return null; }
+  function rigFor(id, sheet) {
     if (id === 'gnome') return RIGS.gnome;
-    var r = Object.assign({}, CRIT[id] || RIGS.creature);
-    r.attack = ATTACK[id] || r.attack;
-    if (SIZE[id]) r.w = r.h = SIZE[id];
-    return r;
+    var d = DATA.rigs[id];
+    if (!d || !sheet) { var st = Object.assign({}, RIGS.creature); if (d) st.w = st.h = Math.max(d[1], d[2]) * PXC; return st; }
+    if (rigCache[id]) return rigCache[id];
+    var sk = DATA.skel[d[0]], A = archOf(d[0]), over = (ARCH.slug || {})[id] || {}, ids = d[4].split(','), u = d[3], cx = (d[1] - 1) / 2, by = d[2] - 5, z = (over.size || A.size || 1) * PXC;
+    var parts = ids.map(function (pid) { var j = sk[pid]; return { id: pid, px: [cx + j[1] * u + .5, by - j[2] * u + .5], parent: j[0] || null, under: j[3], ink: pid !== 'eyes', spring: pick(A.springs, pid), dim: (A.dim || {})[pid], lag: (A.lag || {})[pid] }; });
+    return rigCache[id] = { kind: 'parts', arch: d[0], cols: ids, fw: d[1], fh: d[2], u: u, w: d[1] * z, h: d[2] * z, parts: parts, poses: A.poses || {}, attack: over.attack || A.attack || 'charge', fidgets: A.fidgets };
   }
   function kfs(move, a, reach, c) {   // MOVES entry -> Web Animations keyframes for actor a
     var out = [], k = move.keys;
@@ -213,6 +234,7 @@
     }
     function run(a, name, target) {   // play MOVES[name] on actor a; reach = cells to the target
       var m = MOVES[name], reach = 0;
+      (a.fid || []).forEach(function (x) { x.cancel(); }); a.fid = null; a.nextFid = root.performance.now() + 4000 / sp();
       if (target) reach = Math.max(0, Math.abs(target.col - a.col) - 1.0 * sc * (a.rig.w + target.rig.w) / 2);
       var k = kfs(m, a, reach, c), dur = m.dur / sp();
       var o = { duration: dur, fill: m.keep ? 'forwards' : 'none' };
@@ -232,16 +254,21 @@
       live.add(anim); anim.finished.then(function () { live.delete(anim); }, function () { live.delete(anim); });
       return anim;
     }
-    function poseOf(a, name) { return (a.rig.poses && a.rig.poses[name]) || POSES[name]; }   // a rig may bring its own poses (creatures)
-    function poseRun(a, P, delay) {   // limb animation for a part rig; returns the animations
-      var out = [], k = a.rig.w * sc * c / (a.rig.fw || 64);
+    function poseOf(a, name) {   // the gnome's poses, or the creature's archetype poses ('atk' stands in for whichever attack move it uses)
+      if (a.rig === RIGS.gnome) return POSES[name];
+      var P = a.rig.poses; return P ? (P[name] || (MOVES[name] && MOVES[name].atk ? P.atk : null)) : null;
+    }
+    function poseRun(a, P, delay) {   // limb animation for a part rig; returns the animations. Keys: r deg, x/y (frame px, times the rig's scale u), sx/sy scale, o opacity
+      var out = [], k = a.rig.w * sc * c / a.rig.fw * (a.rig.u || 1);
       a.rig.parts.forEach(function (pt) {
-        var tr = P.tracks[pt.id]; if (!tr) return;
+        var tr = P.tracks[pt.id]; if (!tr || !a.pel[pt.id]) return;
+        var fade = tr.some(function (q) { return q[1].o != null; });
         var f = tr.map(function (q, i) {
-          var s = q[1];
-          return { offset: q[0] / (P.len || P.dur), transform: 'translate(' + (((s.x || 0) + (pt.ox || 0)) * k) + 'px,' + ((s.y || 0) * k) + 'px) rotate(' + (s.r || 0) + 'deg)', easing: tr[i + 1] && tr[i + 1][2] ? tr[i + 1][2] : 'linear' };
+          var s = q[1], o = { offset: q[0] / (P.len || P.dur), transform: 'translate(' + ((s.x || 0) * k) + 'px,' + ((s.y || 0) * k) + 'px) rotate(' + (s.r || 0) + 'deg) scale(' + (s.sx == null ? 1 : s.sx) + ',' + (s.sy == null ? 1 : s.sy) + ')', easing: tr[i + 1] && tr[i + 1][2] ? tr[i + 1][2] : 'linear' };
+          if (fade) o.opacity = s.o == null ? 1 : s.o;
+          return o;
         });
-        out.push(a.pel[pt.id].animate(f, { duration: P.dur / sp(), delay: ((delay || 0) + (pt.lag || 0)) / sp(), iterations: P.loops || 1, fill: P.keep ? 'forwards' : 'none' }));
+        a.pel[pt.id].forEach(function (e) { out.push(e.animate(f, { duration: P.dur / sp(), delay: ((delay || 0) + (pt.lag || 0)) / sp(), iterations: P.loops || 1, fill: P.keep ? 'forwards' : 'none' })); });
       });
       return out;
     }
@@ -271,38 +298,50 @@
     function setHp(a, hp) { a.hp = Math.max(0, hp); if (a.bar) { a.bar.style.width = (100 * a.hp / a.max) + '%'; a.num.textContent = a.hp + '/' + a.max; } }
 
     function add(id, d) {
-      var rig = rigFor(d.rig || id); if (d.size) rig = Object.assign({}, rig, { w: d.size, h: d.size });   // d.size: a small still picture (a pal beside the gnome)
-      var a = { id: id, rig: rig, col: d.col, row: d.row == null ? rows >> 1 : d.row, dir: d.dir || 1, hp: d.hp || 10, max: d.max || d.hp || 10, flip: d.flip };
+      var rig = rigFor(d.rig || id, d.sheet); if (d.size) rig = Object.assign({}, rig, { w: d.size, h: d.size });   // d.size: a small still picture (a pal beside the gnome)
+      var a = { id: id, rig: rig, col: d.col, row: d.row == null ? rows >> 1 : d.row, dir: d.dir || 1, hp: d.hp || 10, max: d.max || d.hp || 10, flip: d.flip, springs: [], nextBlink: 0, nextFid: 0, fidN: 0 };
       var el = document.createElement('div'); el.className = 'fe-act';
       var body = document.createElement('div'); body.className = 'fe-body';
       var spr = document.createElement('i'); spr.className = 'fe-spr'; spr.style.transform = 'scaleX(' + (d.flip ? -1 : 1) + ')';
       var pel = {}, phys = {};
-      if (rig.kind === 'parts') rig.parts.forEach(function (pt) {   // one stacked, pivoted layer per limb
-        var q = document.createElement('i'); q.className = 'fe-part'; q.style.backgroundImage = 'url("' + d.parts[pt.img] + '")';
-        var org = (pt.px[0] / (rig.fw || 64) * 100) + '% ' + (pt.px[1] / (rig.fh || 80) * 100) + '%'; q.style.transformOrigin = org; if (pt.dim) q.style.filter = 'brightness(' + pt.dim + ')';
-        var host = pt.parent ? pel[pt.parent] : spr;
-        if (pt.phys) { var w = document.createElement('i'); w.className = 'fe-part'; w.style.transformOrigin = org; w.appendChild(q); host.appendChild(w); phys[pt.id] = w; }   // w: the physics layer (set by the loop), q: scripted poses
-        else host.appendChild(q);
-        pel[pt.id] = q;
+      function mk(cls) { var e = document.createElement('i'); e.className = cls; return e; }
+      if (rig.kind === 'parts') [1, 0].forEach(function (row) {   // two copies of the bone tree: every ink (row 1) behind every paint (row 0), so the figure keeps ONE outline however the parts move
+        var layer = mk('fe-part'), joint = {}, n = rig.cols.length; spr.appendChild(layer);
+        rig.parts.forEach(function (pt) {
+          if (row && pt.ink === false) return;
+          var org = (pt.px[0] / rig.fw * 100) + '% ' + (pt.px[1] / rig.fh * 100) + '%', j = mk('fe-part'), pic = mk('fe-part'), top = j, col = rig.cols.indexOf(pt.img || pt.id);
+          pic.style.backgroundImage = 'url("' + d.sheet + '")'; pic.style.backgroundSize = (n * 100) + '% 200%'; pic.style.backgroundPosition = (n > 1 ? col / (n - 1) * 100 : 0) + '% ' + (row * 100) + '%';
+          if (!row && pt.dim) pic.style.filter = 'brightness(' + pt.dim + ')';
+          j.style.transformOrigin = org; if (pt.ox) j.style.translate = (pt.ox / rig.fw * 100) + '% 0'; if (pt.hide) j.style.opacity = 0;
+          j.appendChild(pic); j._pic = pic;
+          var host = pt.parent && joint[pt.parent] ? joint[pt.parent] : layer;
+          if (pt.phys || pt.spring) {   // top: the physics layer (set by the loop each frame); j: scripted poses
+            top = mk('fe-part'); top.style.transformOrigin = org; top.appendChild(j); (phys[pt.id] = phys[pt.id] || []).push(top);
+            if (pt.spring && !row) { var m = mk('fe-mk'); m.style.left = (pt.px[0] / rig.fw * 100) + '%'; m.style.top = (pt.px[1] / rig.fh * 100) + '%'; host.appendChild(m); a.springs.push({ id: pt.id, cfg: pt.spring, mk: m, r: 0, vr: 0, p: null, v: [0, 0], warm: 0 }); }
+          }
+          top._home = host;
+          if (pt.under && host !== layer) host.insertBefore(top, host._pic); else host.appendChild(top);
+          joint[pt.id] = j; (pel[pt.id] = pel[pt.id] || []).push(j);
+        });
       }); else if (d.emoji) { spr.className += ' fe-emo'; spr.textContent = d.emoji; a.emoji = 1; }   // a prop that is not a creature (an event or a riddle): one big emoji standing opposite the gnome
       else spr.style.backgroundImage = 'url("' + d.img + '")';
       body.appendChild(spr); el.appendChild(body);
       var sh = document.createElement('div'); sh.className = 'fe-sh';
       board.appendChild(sh); actorsEl.appendChild(el);
-      a.el = el; a.body = body; a.spr = spr; a.sh = sh; a.pel = pel; a.phys = phys; if (rig.hat) a.hat = { mode: 'worn', x: 0, y: 0, vx: 0, vy: 0, r: 0, vr: 0, tr: 0, tvr: 0, hold: 0, px: null, pvx: 0, pvy: 0, warm: 0 };
+      a.el = el; a.body = body; a.spr = spr; a.sh = sh; a.pel = pel; a.phys = phys; a.springs.forEach(function (q) { q.els = phys[q.id]; }); if (rig.hat) a.hat = { mode: 'worn', x: 0, y: 0, vx: 0, vy: 0, r: 0, vr: 0, tr: 0, tvr: 0, hold: 0, px: null, pvx: 0, pvy: 0, warm: 0 };
       if (d.side) {
         var hb = document.createElement('div'); hb.className = 'fe-hb ' + d.side;
         hb.innerHTML = '<b></b> <span></span><div class="fe-hp"><i></i></div>';
         hb.children[0].textContent = d.name || id; hud.appendChild(hb); a.hb = hb; a.num = hb.children[1]; a.bar = hb.children[2].children[0];
       }
       acts[id] = a; place(a); setHp(a, a.hp);
-      if (rig.kind === 'parts') a.idleParts = poseRun(a, poseOf(a, 'idle'), -Math.random() * 1600);
+      var ip = rig.kind === 'parts' ? poseOf(a, 'idle') : null; if (ip) a.idleParts = poseRun(a, ip, -Math.random() * ip.dur);
       a.idle = body.animate(kfs(MOVES.idle, a, 0, c).map(function (f) { return { offset: f.offset, transform: f.transform, easing: f.easing }; }), { duration: 1600, iterations: Infinity, delay: -Math.random() * 1600 });
       return a;
     }
     /* Hat physics (rAF): the hat and its curl are springs driven by how the head moves, so every lunge, hit and hop gives follow-through for free.
      * worn = springs; free = flies off (hit hard), bounces, lies on the ground; fixing = the gnome puts it back, crooked, then straightens it. Units: gnome-frame px. */
-    function headPos(a) { var r = a.pel.torso.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height * .2]; }
+    function headPos(a) { var r = a.pel.head[0].getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height * .2]; }
     function stepHat(a, dt) {
       var h = a.hat, k = a.rig.w * sc * c / 64, f = a.flip ? -1 : 1, p = headPos(a), ax = 0, ay = 0, n = 2, i, prevVr = h.vr;
       if (h.px && dt > 0) {
@@ -330,31 +369,60 @@
       }
       var acc = dt > 0 ? (h.vr - prevVr) / dt : 0;
       h.tvr += (-320 * h.tr - 9 * h.tvr - .45 * acc - .05 * ax) * dt; h.tr = Math.max(-60, Math.min(60, h.tr + h.tvr * dt));
-      a.phys.hat.style.transform = 'translate(' + (h.x * k) + 'px,' + (h.y * k) + 'px) rotate(' + h.r + 'deg)';
-      a.phys.tip.style.transform = 'rotate(' + h.tr + 'deg)';
+      setT(a.phys.hat, 'translate(' + (h.x * k) + 'px,' + (h.y * k) + 'px) rotate(' + h.r + 'deg)');
+      setT(a.phys.tip, 'rotate(' + h.tr + 'deg)');
       tapStep(a);
     }
     var last = 0;
     function tick(now) {
       if (dead) return;
       var dt = Math.min(.08, Math.min(.033, (now - (last || now)) / 1000) * sp()); last = now;   // capped: at skip speed (x40) a huge step would blow the hat springs up
-      Object.keys(acts).forEach(function (k) { if (acts[k].hat) stepHat(acts[k], dt); });
+      Object.keys(acts).forEach(function (k) { var a = acts[k]; if (a.hat) stepHat(a, dt); if (a.springs.length) stepSprings(a, dt); life(a, now); });
       root.requestAnimationFrame(tick);
     }
-    function hatTo(a, world) {   // move the hat layer between the gnome (worn) and a fixed ghost frame (fallen), keeping it where it is on screen
-      var w = a.phys.hat, h = a.hat, k = a.rig.w * sc * c / 64, f = a.flip ? -1 : 1, b = w.getBoundingClientRect(), b0 = [b.left + b.width / 2, b.top + b.height / 2];
+    function setT(list, t) { for (var i = 0; i < list.length; i++) list[i].style.transform = t; }
+    function hatTo(a, world) {   // move the hat layers (ink and paint) between the gnome's head (worn) and a fixed ghost frame (fallen), keeping the hat where it is on screen
+      var ws = a.phys.hat, w = ws[ws.length - 1], h = a.hat, k = a.rig.w * sc * c / 64, f = a.flip ? -1 : 1, b = w.getBoundingClientRect(), b0 = [b.left + b.width / 2, b.top + b.height / 2];
       if (world) {
         if (!a.ghost) {
           var g = a.el.cloneNode(false), gb = a.body.cloneNode(false), gs = a.spr.cloneNode(false);
           gb.appendChild(gs); g.appendChild(gb); actorsEl.appendChild(g); a.ghost = g; a.gspr = gs;
         }
-        a.gspr.appendChild(w);
+        ws.forEach(function (x) { a.gspr.appendChild(x); });
         if (!a.mark) { a.mark = document.createElement('i'); a.mark.className = 'fe-hatmark'; w.appendChild(a.mark); }   // a point on the hat's brim: where the tap target goes
       } else {
-        dropTap(a); a.spr.appendChild(w); if (a.ghost) { a.ghost.remove(); a.ghost = a.gspr = null; }
+        dropTap(a); ws.forEach(function (x) { x._home.appendChild(x); }); if (a.ghost) { a.ghost.remove(); a.ghost = a.gspr = null; }
       }
-      w.style.transform = 'translate(' + (h.x * k) + 'px,' + (h.y * k) + 'px) rotate(' + h.r + 'deg)';
+      setT(ws, 'translate(' + (h.x * k) + 'px,' + (h.y * k) + 'px) rotate(' + h.r + 'deg)');
       b = w.getBoundingClientRect(); h.x -= (b.left + b.width / 2 - b0[0]) * f / k; h.y -= (b.top + b.height / 2 - b0[1]) / k;
+    }
+    /* Springs: any part with a spring (beard, scarf, tails, ears, feelers, the segments of a worm) swings from how its bone moves on screen, so every lunge, hop and hit
+     * gives follow-through for free. Acceleration whips it (g), speed drags it (w), the spring pulls it back (k) and damps it (d). Units: frame px and degrees. */
+    function stepSprings(a, dt) {
+      var k = a.rig.w * sc * c / a.rig.fw, f = a.flip ? -1 : 1, fast = sp() > 4, i, s, r, vx, vy, ax, ay, cf, d, tq, n;
+      for (i = 0; i < a.springs.length; i++) { s = a.springs[i]; r = s.mk.getBoundingClientRect(); s.q = [r.left, r.top]; }   // read everything first, then write
+      for (i = 0; i < a.springs.length; i++) {
+        s = a.springs[i]; vx = vy = ax = ay = 0;
+        if (s.p && dt > 0) {
+          vx = (s.q[0] - s.p[0]) / dt / k * f; vy = (s.q[1] - s.p[1]) / dt / k;
+          if (s.warm > 1 && !fast) { ax = Math.max(-9000, Math.min(9000, (vx - s.v[0]) / dt)); ay = Math.max(-9000, Math.min(9000, (vy - s.v[1]) / dt)); }
+          s.v = [vx, vy]; s.warm++; if (fast) vx = vy = 0;
+        }
+        s.p = s.q; cf = s.cfg; d = cf.dir || [0, 1];
+        tq = cf.g * (ax * d[1] - ay * d[0]) + (cf.w || 0) * (Math.max(-400, Math.min(400, vx)) * d[1] - Math.max(-400, Math.min(400, vy)) * d[0]);
+        for (n = 0; n < 2; n++) { s.vr += (-cf.k * s.r - cf.d * s.vr + tq) * dt / 2; s.r = Math.max(-(cf.max || 40), Math.min(cf.max || 40, s.r + s.vr * dt / 2)); }
+        setT(s.els, 'rotate(' + s.r + 'deg)');
+      }
+    }
+    /* Life while standing: a blink every few seconds, and now and then a fidget (rig.fidgets, in turn) when nothing else is playing. */
+    function life(a, now) {
+      if (reduce || a.hp <= 0 || a.gone || a.rig.kind !== 'parts') return;
+      if (now > a.nextBlink) { var first = !a.nextBlink; a.nextBlink = now + (1800 + Math.random() * 3600) / sp(); var B = poseOf(a, 'blink'); if (B && !first) poseRun(a, B); }
+      if (!a.nextFid) a.nextFid = now + (2500 + Math.random() * 4000) / sp();
+      if (busy || (a.held && a.held.length) || now < a.nextFid) return;
+      a.nextFid = now + (4500 + Math.random() * 5000) / sp();
+      var l = a.rig.fidgets, P = l && l.length ? poseOf(a, l[a.fidN++ % l.length]) : null;
+      if (P && !(P.hat && a.hat && a.hat.mode !== 'worn')) a.fid = poseRun(a, P);
     }
     /* Tap the fallen hat (between turns) to put it back on: the host decides what that is worth (opts.onHatTap(id) -> ask the server); with no callback the engine plays a local +5 heal. */
     function dropTap(a) { if (a.tap) { a.tap.remove(); a.tap = null; } }
@@ -420,7 +488,7 @@
       if (ev.move === 'stumble') { pop(a, 'trips!', 'miss'); return run(a, 'dodge').finished; }
       if (ev.move === 'charm' || ev.move === 'dazed' || ev.move === 'note') { pop(a, ev.text || (ev.move === 'charm' ? (ev.ok === false ? 'no charm' : 'charmed!') : ev.move === 'dazed' ? 'dazed' : '...'), ev.move === 'charm' && ev.ok !== false ? 'heal' : 'miss'); return sleep(350); }
             if (ev.move === 'guard') { var g = document.createElement('div'); g.className = 'fe-guard'; a.body.appendChild(g); a.guardEl = g; return run(a, 'guard').finished; }
-      if (ev.move === 'flee') { if (a.guardEl) { a.guardEl.remove(); a.guardEl = null; } (a.held || []).forEach(function (x) { x.cancel(); }); a.held = []; stopIdle(a); a.sh.style.opacity = 0; return run(a, 'flee').finished; }
+      if (ev.move === 'flee') { if (a.guardEl) { a.guardEl.remove(); a.guardEl = null; } (a.held || []).forEach(function (x) { x.cancel(); }); a.held = []; stopIdle(a); a.gone = 1; a.sh.style.opacity = 0; return run(a, 'flee').finished; }
       var name = ev.move || a.rig.attack, m = MOVES[name], atk = run(a, name, tg);
       if (m.swoosh) sleep(m.swoosh).then(function () { swoosh(a); });
       if (!tg) return atk.finished;
@@ -510,15 +578,12 @@
     function d_show(drops) { drops.forEach(function (d) { d.el.classList.add('show'); }); }
     function destroy() { dead = true; root.removeEventListener('resize', layout); host.innerHTML = ''; acts = {}; }   // stop the physics loop and the resize hook (call before re-creating on the same host)
     layout(); root.addEventListener('resize', layout); root.requestAnimationFrame(tick);
-    return { destroy: destroy, finish: finish, reward: reward, add: add, play: play, popHat: popHat, dropHat: dropHat, fixHat: fixHat, together: together, acts: acts, layout: layout, setSpeed: function (s) { speed = s; }, holdCheer: function (v) { holdCheer = !!v; }, MOVES: MOVES };
+    function fidget(id, name) { var a = acts[id], P = a && poseOf(a, name); if (!P || busy) return; (a.fid || []).forEach(function (x) { x.cancel(); }); a.fid = poseRun(a, P); a.nextFid = root.performance.now() + (P.dur + 3000) / sp(); }   // play one fidget now (demo, tests)
+    return { destroy: destroy, fidget: fidget, pose: function (id, name) { var a = acts[id], P = a && poseOf(a, name); return P ? poseRun(a, P) : []; }, finish: finish, reward: reward, add: add, play: play, popHat: popHat, dropHat: dropHat, fixHat: fixHat, together: together, acts: acts, layout: layout, setSpeed: function (s) { speed = s; }, holdCheer: function (v) { holdCheer = !!v; }, MOVES: MOVES };
   }
   /* Data lint: returns a list of problems (empty = fine). Run by tools/fight/smoke.js; catches the mistakes that used to crash animate() at play time. */
   function validate() {
     var bad = [], partIds = RIGS.gnome.parts.map(function (p) { return p.id; });
-    Object.keys(CRIT).forEach(function (n) {
-      var ids = []; Object.keys(CRIT).forEach(function (q) { CRIT[q].parts.forEach(function (p) { ids.push(p.id); }); });   // shared pose sets: a track may name any creature part
-      Object.keys(CRIT[n].poses).forEach(function (pn) { var p = CRIT[n].poses[pn]; Object.keys(p.tracks).forEach(function (part) { if (ids.indexOf(part) < 0) bad.push('CRIT.' + n + ' pose ' + pn + ': unknown part ' + part); times(p.tracks[part], p.dur, 'CRIT.' + n + '.' + pn + '.' + part); }); });
-    });
     function times(list, dur, where) {
       list.forEach(function (k, i) {
         if (typeof k[0] !== 'number') bad.push(where + ': key ' + i + ' has no time');
@@ -526,10 +591,28 @@
         if (i && k[0] < list[i - 1][0]) bad.push(where + ': times go backwards at ' + k[0]);
       });
     }
+    RIGS.gnome.parts.forEach(function (p) { if (RIGS.gnome.cols.indexOf(p.img || p.id) < 0) bad.push('RIGS.gnome: no sheet column for ' + p.id); if (p.parent && partIds.indexOf(p.parent) < 0) bad.push('RIGS.gnome: ' + p.id + ' hangs from unknown ' + p.parent); });
+    (RIGS.gnome.fidgets || []).forEach(function (n) { if (!POSES[n]) bad.push('RIGS.gnome: no fidget pose ' + n); });
+    var archPose = {}, seen = {}, anyBone = {};   // an archetype's pose set is shared by its kinds, so a track may name a bone only some of them have
+    Object.keys(DATA.skel).forEach(function (k) { Object.keys(DATA.skel[k]).forEach(function (b) { anyBone[b] = 1; }); });
+    Object.keys(DATA.rigs).forEach(function (slug) {   // every creature: bones known, parents drawn, its attack exists; its archetype's poses only name bones of that archetype
+      var d = DATA.rigs[slug], sk = DATA.skel[d[0]], ids = d[4].split(','), A = archOf(d[0]), w = 'rig ' + slug;
+      if (!sk) { bad.push(w + ': no skeleton ' + d[0]); return; }
+      ids.forEach(function (id) { if (!sk[id]) bad.push(w + ': no bone ' + id); else if (sk[id][0] && ids.indexOf(sk[id][0]) < 0) bad.push(w + ': ' + id + ' hangs from ' + sk[id][0] + ', which is not drawn'); });
+      var atk = ((ARCH.slug || {})[slug] || {}).attack || A.attack || 'charge';
+      if (!MOVES[atk]) bad.push(w + ': no move ' + atk);
+      if (seen[d[0]]) return; seen[d[0]] = 1;
+      if (!A.poses) { bad.push('arch ' + d[0] + ': no poses'); return; }
+      Object.keys(A.poses).forEach(function (pn) {
+        archPose[pn] = 1; var P = A.poses[pn];
+        Object.keys(P.tracks).forEach(function (part) { if (!anyBone[part]) bad.push('arch ' + d[0] + ' pose ' + pn + ': unknown part ' + part); times(P.tracks[part], P.dur, 'arch ' + d[0] + '.' + pn + '.' + part); });
+      });
+      (A.fidgets || []).forEach(function (n) { if (!A.poses[n]) bad.push('arch ' + d[0] + ': no fidget pose ' + n); });
+    });
     Object.keys(MOVES).forEach(function (n) {
       var m = MOVES[n], w = 'MOVES.' + n; times(m.keys, m.dur, w);
       if (m.hit > m.dur) bad.push(w + ': hit past dur');
-      var known = function (n) { return POSES[n] || Object.keys(CRIT).some(function (q) { return CRIT[q].poses[n]; }); };   // gnome poses or any creature pose set
+      var known = function (q) { return POSES[q] || archPose[q] || m.atk; };
       if (m.pose && typeof m.pose === 'string' && !known(m.pose)) bad.push(w + ': unknown pose ' + m.pose);
       if (m.pose && m.pose.use && !known(m.pose.use)) bad.push(w + ': unknown pose.use ' + m.pose.use);
       if (m.keys[m.keys.length - 1][0] !== m.dur) bad.push(w + ': last key is not at dur (the move would snap)');
@@ -540,8 +623,7 @@
         times(p.tracks[part], p.dur, 'POSES.' + n + '.' + part);
       });
     });
-    Object.keys(ATTACK).forEach(function (s) { if (!MOVES[ATTACK[s]]) bad.push('ATTACK.' + s + ': no move ' + ATTACK[s]); });
     return bad;
   }
-  root.FightEngine = { validate: validate, CRIT: CRIT, create: create, MOVES: MOVES, POSES: POSES, RIGS: RIGS, ATTACK: ATTACK };
+  root.FightEngine = { validate: validate, create: create, MOVES: MOVES, POSES: POSES, RIGS: RIGS, DATA: DATA, ARCH: ARCH, hasRig: function (slug) { return !!DATA.rigs[slug]; } };
 })(window);
