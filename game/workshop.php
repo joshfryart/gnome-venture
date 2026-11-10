@@ -15,6 +15,7 @@ if (isset($_GET['frag'])) {   // one crafting section as html for the popover (a
     header('Content-Type: application/json; charset=utf-8');
     $key = (string)$_GET['frag'];
     if (!isset(CRAFT_CATEGORIES[$key])) { http_response_code(404); echo json_encode(['ok' => false, 'html' => '']); exit; }
+    $GLOBALS['craft_in_popover'] = true;   // no area strip / big picture / nested dialogs inside the popover
     $_GET['tab'] = 'craft';
     $_GET['c'] = $key;
     refresh_energy($u);

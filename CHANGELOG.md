@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- **Workshop picture**: a green **!** now sits on each crafting section with something to do (recipes ready to make, pantry jars done). Section popovers no longer repeat the page's area strip and big picture; they are a wide, left-aligned, scrolling sheet (the old 420 px cap squeezed them). Files: `hub_scene.php`, `hub_pages.php`, `craft_map.php`, `workshop.php`, `style.css`.
+
 ## 2.6.37
 - **Messages (player and admin)**: Admin > Feedback is now **Admin > Messages**. Each player note is a conversation: reply under it, mark "No reply needed", delete it, or **Write to a player** first (by username). Tabs: Waiting for you / All messages. A reply marks the note dealt with; if the player answers it comes back as new.
 - **Together > Messages tab (first tab)**: the player sees their notes and your replies as bubbles and can answer. A yellow **!** in a circle shows on the Together menu tile, the phone More / Menu button and the Messages tab while a reply is unread; opening the tab clears it (asked fresh on every page). Together opens on Messages when a reply is waiting, otherwise on the Community garden. "Send feedback" lands in Messages after sending. The player also gets a notice line.

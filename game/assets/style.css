@@ -7076,7 +7076,7 @@ body.tourbub #wrentour.tour-on::after { content: ""; position: absolute; left: 2
 .hubsvg .hs, .hubsvg .hsp { cursor: pointer; outline: none; }
 .hubsvg .hs .hit { fill: transparent; }
 .hubsvg .hs .ring { fill: rgba(255, 243, 200, .55); stroke: var(--line-2); stroke-width: 2; }
-.hubsvg .hs.ghost > :not(.hit):not(title) { display: none; }   /* workshop spots are invisible tap areas (no round icons on the picture) */
+.hubsvg .hs.ghost > :not(.hit):not(title):not(.bang) { display: none; }   /* workshop spots are invisible tap areas (no round icons on the picture) */
 .hubsvg .hs.ghost:focus-visible .hit { stroke: var(--focus); stroke-width: 2; }
 .hubsvg .hs:hover .ring, .hubsvg .hs:focus-visible .ring, .hubchip.lit { stroke: var(--focus); stroke-width: 3; }
 .hubsvg .hs.goal .ring { stroke: var(--brand-fill); stroke-width: 3; animation: hubpulse 1.4s ease-in-out infinite; }
@@ -7562,3 +7562,16 @@ header .menubtn .bang { position: absolute; top: 2px; right: 2px; width: 18px; m
 .msg.av.me { justify-self: start; background: var(--surface-2); border-color: var(--line); }   /* admin view: the player on the left, the admin's replies on the right */
 .msg.av.them { justify-self: end; background: var(--brand-soft); border-color: var(--brand-line, var(--line)); }
 .msgthread textarea, body.admin .msgs + form textarea { width: 100%; max-width: none; box-sizing: border-box; }
+
+/* Workshop: "!" badge on sections with something to do; popover is a proper wide, scrolling sheet */
+.hubsvg .bang { pointer-events: none; }
+.hubsvg .bang circle { fill: #2e8b3a; stroke: #fff; stroke-width: 2; }
+.hubsvg .bang text { fill: #fff; font-weight: 800; font-family: var(--font, sans-serif); }
+@media (prefers-reduced-motion: no-preference) { .hubsvg .bang { animation: bangbob 1.4s ease-in-out infinite; } }
+@keyframes bangbob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+dialog.hubpop:has(.wsfrag) .pickbox { width: min(720px, 100%); max-width: 720px; max-height: calc(100dvh - 16px); }
+dialog.hubpop:has(.wsfrag) .hubcard { flex: 1 1 auto; min-height: 0; overflow-y: auto; text-align: left; }
+dialog.hubpop:has(.wsfrag) .hubcard > p { text-align: left; }
+dialog.hubpop .wsfrag { text-align: left; }
+dialog.hubpop .wsfrag .p2title { font-size: 1.1rem; margin: 4px 0; }
+dialog.hubpop .wsfrag .shhead + * , dialog.hubpop .wsfrag .box { margin-top: 6px; }

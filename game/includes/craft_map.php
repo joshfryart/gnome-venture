@@ -110,6 +110,7 @@ function craft_map_landing(array $u): void
 /** Inside an area: "All areas", the picture strip and the scene with tappable objects. $tab = the open area. */
 function craft_area_header(string $tab, array $canBy = []): void
 {
+    if (!empty($GLOBALS['craft_in_popover'])) return;   // the workshop popover is already one area
     $scenes = craft_scenes();
     $sc = $scenes[$tab] ?? null;
     $qs = fn(string $to) => 'inventory.php?tab=craft&c=' . $tab . '&' . $to . '#shelves';
@@ -141,6 +142,7 @@ function craft_area_header(string $tab, array $canBy = []): void
  */
 function craft_pop_html(string $tab, array $all, array $slugOf): string
 {
+    if (!empty($GLOBALS['craft_in_popover'])) return '';
     $h = '';
     foreach (craft_scenes()[$tab]['hot'] ?? [] as [$id, $label, , , , , $to]) {
         if (!is_array($to)) continue;

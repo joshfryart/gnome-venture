@@ -11,7 +11,7 @@ declare(strict_types=1);
  * pass 'open' => id to show that card). With assets/hubscene.js a tap opens the card as a <dialog>. Actions never happen from the
  * picture: a card holds the POST form with its CSRF field. Art is optional: no PNG = a drawn sky and ground. Every scene has a text twin.
  *
- * Hotspot: ['id', 'x', 'y', 'label', 'href', 'icon' => img path|'' , 'emoji', 'cls' => 'goal'|'locked'|'ruin'|'', 'r' => 26, 'chip' => text, 'card' => html|'']
+ * Hotspot: ['id', 'x', 'y', 'label', 'href', 'mark' => '!' (badge: something to do), 'icon' => img path|'' , 'emoji', 'cls' => 'goal'|'locked'|'ruin'|'', 'r' => 26, 'chip' => text, 'card' => html|'']
  * Sprite:  ['id', 'x' (feet), 'y' (feet), 'w', 'h' (natural px), 'src' => img path|'', 'emoji', 'name', 'href' => ''|link, 'card' => html|'', 'mark' => emoji]
  * Options: layout (array, required), alt, open (hotspot/sprite id), twin (bool, default true), more (['label' =>, 'href' =>] "+N more" chip),
  *          debug (bool, admin only: numbered dots on every slot), art (kind of picture file: default 'here'), title (heading for the twin)
@@ -44,6 +44,10 @@ function hub_hotspot(array $h, array $L): string
         . '<circle class="ring" cx="' . $x . '" cy="' . $y . '" r="' . ($r - 6) . '"/>';
     if ($icon !== '') $a .= '<image class="pix" href="' . e($icon) . '" x="' . ($x - $s) . '" y="' . ($y - $s) . '" width="' . ($s * 2) . '" height="' . ($s * 2) . '" image-rendering="pixelated"/>';
     else $a .= '<text class="emo" x="' . $x . '" y="' . ($y + (int)round($s * 0.45)) . '" text-anchor="middle" font-size="' . (int)round($s * 1.3) . '" aria-hidden="true">' . e((string)($h['emoji'] ?? '📍')) . '</text>';
+    if (($h['mark'] ?? '') !== '') {   // a "!" badge: something to do here (top right of the spot)
+        $bx = $x + $r - 10; $by = $y - $r + 10;
+        $a .= '<g class="bang" aria-hidden="true"><circle cx="' . $bx . '" cy="' . $by . '" r="11"/><text x="' . $bx . '" y="' . ($by + 5) . '" text-anchor="middle" font-size="15">' . e((string)$h['mark']) . '</text></g>';
+    }
     return $a . '</a>';
 }
 
