@@ -109,6 +109,13 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - How-to-play "Folk & friendship": DONE/stale (checked 2026-11-07: the title has been "Folk & friendship" since the page was added in 88e8b80c, so there is nothing to migrate).
 **Never run on this line:** MySQL `upgrade_check.sh`, full CI list, a real phone. Untested on MySQL: `trek_ms` table, `trek_flag_set` duplicate-insert catch.
 
+**Almanac review (2026-11-10, fresh SQLite install, 1,275 entries; text edits go in Admin > Texts or seed/upgrade code)**
+- STALE text: "Hired help" page (helpers retired in 2.6.40; delete or rewrite as the pal garden crew); "Pests & companions" lines on hired helpers; "Pantry": "Real days: timers run in real time" (jars follow sleeps now); "Pots": minutes only (check against game-time); "Energy & food": nothing on hovel / inn / camp / tired; "The florists": "a real half hour" and "Job Board" daily reset (check if still real time); "Town squares" "Hollow keeps its own clock" (now personal game clock).
+- MISSING pages: sleep-days (hovel, nap, inn, camping, tired after 22:00, game date), Pal garden crew (Water/Weed/Pests/Harvest/Plant slots, tiredness), Messages (2.6.37), Workshop picture ! (2.6.39), Trail walk back / reverse (2.6.41), Pals / Puzzle Pals, perks/stops, creatures redrawn have no text change needed.
+- DEAD unlocks (code calls `unlock_entries` but no entry has the key): `npc:<slug>` (81 NPCs, 6 call sites: shop.php, trek.php, road_life.php, friends.php), `flowers` (flowers.php x3), `yard` (yard.php), `gotm` (yard.php). Either add the pages or drop the calls.
+- No page for the 15 market landmarks (14 region markets + `mossbottom-market`); `world.php` unlocks `landmark:<slug>` for them. OK if on purpose.
+- OK: every plant (388), recipe (323), village (146), creature (137) has a page and no page is orphaned; 14 region + 4 soil + pages/percent milestones all match.
+
 ## 5. ART: open
 **New-region Trail routes (2.5.90)**
 - Draw the 137 shared set pieces listed in `claude/trail-setpiece-art-notes.md` (stand-ins in `claude/tile-art-v3-proposal/landmarks_setpieces.py`; replace one by adding a `landmarks_<name>.py` with the same slug and deleting it from the stand-in file, then re-bake `--route=N`).
