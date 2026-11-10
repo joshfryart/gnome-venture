@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.48
+- **Popover scenes**: 9 activity pictures redrawn in the 2.5D Hearth Pop style with new 6-frame loops: night fishing, snow monkeys, rift cichlids, toboggan, ice paddles, politest bow (the two gnomes now bow), snowy lanterns, frost pots, bathers' hats. Drawn at 1x, so sharper than the other acts. Art only, no code or DB change.
+
 ## 2.6.47
 - **Build plans**: six clear-stage texts reworded so "a little each day" is not everywhere; review items closed (`claude/build-plans-review.md`).
 - **Fight end scene**: messages (Milestone box, Almanac pages, level-ups) also wait while the end scene is about to start, not only while it plays (`gvShowToasts` in `site.js`; 25 s cap).
