@@ -161,7 +161,8 @@ function pantry_start(array $u, array $r, int|string $want): array
     $kind = pantry_kind($r);
     $free = pantry_free($uid, $kind);
     if ($free < 1) return [false, 'All ' . $limit . ' jars in the ' . PANTRY_KINDS[$kind][0] . ' room are full. Collect a finished one, or wait for a timer (the other rooms are separate).'];
-    $energy = max(0, (int)$r['energy']);
+    require_once __DIR__ . '/craft_mastery.php';
+    $energy = craft_mastery_energy($uid, 'pantry', max(0, (int)$r['energy']));   // category mastery: -5% energy a tier
     $stock = craft_stock($uid, (string)$r['ingredients'], (int)$r['id']);
     $haveE = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
     $fit = min(craft_fit($stock, $energy, $haveE), $free);
@@ -187,7 +188,7 @@ function pantry_start(array $u, array $r, int|string $want): array
     }
     $secs = pantry_seconds($r);
     for ($i = 0; $i < $qty; $i++) {
-        $row = ['user_id' => $uid, 'recipe_id' => (int)$r['id'], 'makes' => 1, 'qty' => max(1, (int)$r['output_qty']),
+        $row = ['user_id' => $uid, 'recipe_id' => (int)$r['id'], 'makes' => 1, 'qty' => max(1, craft_mastery_yield($uid, 'pantry', (int)$r['output_qty'])),
             'score' => pantry_quality($u, $r), 'started_at' => now(), 'ready_at' => gmdate('Y-m-d H:i:s', time() + $secs)];
         if (gclock_on() && $secs > 0) $row['ready_day'] = (int)q_val('SELECT game_day FROM users WHERE id = ?', [$uid]) + gclock_jar_days($r);   // sleep-days: N sleeps
         db_insert('pantry_jars', $row);

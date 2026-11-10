@@ -352,7 +352,7 @@ function gclock_camp_check(array $u, int $recipeId): array
     $r = q_one("SELECT * FROM recipes WHERE id = ? AND category = 'cooking'", [$recipeId]);
     if (!$r || !q_val('SELECT 1 FROM user_recipes WHERE user_id = ? AND recipe_id = ?', [$uid, $recipeId])) return ['error' => 'You don’t know that camp meal.'];
     $energy = craft_energy_cost($u, 'cooking', (int)$r['energy'], (string)($r['tier'] ?: 'meal'), (string)($r['slug'] ?? ''));
-    if (craft_fit(craft_stock($uid, (string)$r['ingredients']), $energy, (int)$u['energy']) < 1) return ['error' => 'You are missing something for that camp meal (ingredients or energy).'];
+    if (craft_fit(craft_stock($uid, (string)$r['ingredients'], (int)$r['id']), $energy, (int)$u['energy']) < 1) return ['error' => 'You are missing something for that camp meal (ingredients or energy).'];
     return ['recipe' => $r];
 }
 

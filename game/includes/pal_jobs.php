@@ -722,7 +722,7 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
     }
     if ($makes < 1) {
         $r0 = $plan[0];
-        $stock = craft_stock($uid, (string)$r0['ingredients']);
+        $stock = craft_stock($uid, (string)$r0['ingredients'], (int)$r0['id']);
         return [false, (craft_short_text($stock, 0, 999, 1) ?: 'Nothing in the plan can be made right now.') . ' Nothing was used.'];
     }
     db()->beginTransaction();
@@ -765,7 +765,7 @@ function pj_passive_step(array $u, array $j, array &$r, int $t): void
     $rec = $rid > 0 ? q_one('SELECT r.* FROM recipes r JOIN user_recipes ur ON ur.recipe_id = r.id AND ur.user_id = ? WHERE r.id = ?', [$uid, $rid]) : null;
     if (!$rec) { $r['skipped'] = (int)($r['skipped'] ?? 0) + 1; return; }
     if (str_starts_with((string)$rec['slug'], 'feast-') && !user_building_bonus($uid, 'kitchen')['feasts']) { $r['skipped'] = (int)($r['skipped'] ?? 0) + 1; return; }
-    $stock = craft_stock($uid, (string)$rec['ingredients']);
+    $stock = craft_stock($uid, (string)$rec['ingredients'], (int)$rec['id']);
     if (craft_fit($stock, 0, 0) < 1) { $r['skipped'] = (int)($r['skipped'] ?? 0) + 1; return; }
     require_once __DIR__ . '/gourmand.php';
     $pal = pj_pal($uid, (string)$j['pal_uid']);

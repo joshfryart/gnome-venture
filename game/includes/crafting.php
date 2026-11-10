@@ -473,7 +473,8 @@ function cook_start(array $u, array $r, int|string $want, int $station, bool $ca
     $extra = 0;
     for ($left = $qty; $left > 0; $left -= $chunk) {
         $makes = min($chunk, $left);
-        $dishes = (int)$r['output_qty'] * $makes;
+        require_once __DIR__ . '/craft_mastery.php';
+        $dishes = craft_mastery_yield($uid, 'cooking', (int)$r['output_qty'] * $makes);   // category mastery: +5% dishes a tier
         if ($luck > 0 && random_int(1, 100) <= $luck) {   // v0.9.1/0.9.4: one roll per pot; a hit is +1 dish per make in that pot
             $dishes += $makes;
             $extra += $makes;
