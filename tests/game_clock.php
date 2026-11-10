@@ -901,6 +901,28 @@ settle_player_jobs();
 ok('tend job expires once the owner has slept (day 11), unfinished', q_val('SELECT status FROM player_jobs WHERE id = ?', [$pjId]) === 'expired');
 ok('escrow refunded to poster', (int)q_val('SELECT escrow FROM player_jobs WHERE id = ?', [$pjId]) === 0);
 
+echo "== deliver job deadline on the taker's sleeps\n";
+try {
+    $tk = (int)q_val("SELECT id FROM users WHERE username='admin'");
+    cfg(['game_clock_on' => '1']);
+    setu($tk, ['game_day' => 40]);
+    setu($uid, ['game_day' => 5]);   // the poster's clock must not matter
+    $dj = db_insert('player_jobs', ['poster_id' => $uid, 'kind' => 'deliver', 'qty' => 4, 'days' => 1, 'wage' => 80, 'escrow' => 80, 'status' => 'taken', 'taker_id' => $tk,
+        'posted_at' => now(), 'expires_at' => gmdate('Y-m-d H:i:s', time() + 86400), 'taken_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + 8 * 86400), 'ends_day' => 41]);
+    $djRow = fn() => q_one('SELECT * FROM player_jobs WHERE id = ?', [$dj]);
+    ok('1 sleep left on the taker clock', pjob_days_left($djRow()) === 1);
+    settle_player_jobs();
+    ok('still taken on the taker day 40', $djRow()['status'] === 'taken');
+    setu($tk, ['game_day' => 41]);
+    settle_player_jobs();
+    ok('expired once the taker has slept, unfinished; escrow back to the poster', $djRow()['status'] === 'expired' && (int)$djRow()['escrow'] === 0);
+    ok('text says sleeps with the flag on', str_contains(pjob_text(['kind' => 'deliver', 'poster' => 'X', 'qty' => 4, 'item_name' => 'Y', 'days' => 7, 'note' => null]), '7 sleeps'));
+    cfg(['game_clock_on' => '0']);
+    ok('text says a week with the flag off', str_contains(pjob_text(['kind' => 'deliver', 'poster' => 'X', 'qty' => 4, 'item_name' => 'Y', 'days' => 7, 'note' => null]), 'a week'));
+    cfg(['game_clock_on' => '1']);
+} catch (Throwable $e) { ok('deliver deadline block ran', false, $e->getMessage() . ' @' . $e->getLine()); }
+setu($uid, ['game_day' => 0, 'game_minute' => 360]);
+
 echo "== tend job replay: the taker tends every owner game day\n";
 try {
     $takerId = (int)q_val("SELECT id FROM users WHERE username='admin'");
