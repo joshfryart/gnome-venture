@@ -125,27 +125,18 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - OK: every plant (388), recipe (323), village (146), creature (137) has a page and no page is orphaned; 14 region + 4 soil + pages/percent milestones all match.
 
 ## 5. ART: open
-**New-region Trail routes (2.5.90)**
-- Draw the 137 shared set pieces listed in `claude/trail-setpiece-art-notes.md` (stand-ins in `claude/tile-art-v3-proposal/landmarks_setpieces.py`; replace one by adding a `landmarks_<name>.py` with the same slug and deleting it from the stand-in file, then re-bake `--route=N`).
-- Own ground art for desert, island, mountain, rainforest and wetland (borrowing coast / forest / tundra via `ART_LAND`).
-**Route map bends (art side)**
-- New 30 x 18 sections got new baked ground pictures in 2.6.40 (624 pictures; old 665 deleted, Maplewold's 41 left out of the zips: check they exist) landmark rows still to review; landmark names and sprites stay, positions change (feet row 3 or more, 2 to 5 tiles beside the road). Ground art for desert, island, mountain, rainforest and wetland is still borrowed (`ART_LAND`).
-**Trail landmarks (2.5.66 nits)**
-- Wall trees overdraw sprite edges; tall 304/313 sprites hide a step of the walk; small details hard to read; 315 den feathers faint; 312 larder squirrel belly reads as shield; 311 syrup muddy.
-- Rule: delete `obj/lm-*.png` before re-baking after editing sprites.
-**Weak spots (re-check on the phone first; 2.5.63 to 2.5.65 redrew many)**
-- Items still pink-bordered in `aseprite-source/v3/rollout/weak.txt` (46 of 179 left); `map-world` props; check gather flourishes on satchel backdrop; rainforest monstera/orchids, grassland windmill base, island palm crowns/coconuts, desert/island sand blotchy.
-- Towns: coralscatter dome + tea house; monsoontangle deck/boats; thornacre arch; blossomreach parasol.
-- Gnome rig eye contrast is fixed (2.5.64); seasons + hammer nav icons still roughest.
-**Not drawn yet**
-- P7: homes (6), tiers, village pictures, craftmap 14, 1,667 acts, landing `shot-*` (824x1120), `map/` 16px tiles.
-- Animation layers `<art>-anim-*.png`, `wander-step-back.png`, workshop/street/door animation, season variants.
-- Here scenes (~45 templates), residential street styles + houses, 6 door arts + per-villager doors, villager 2.5D sprites (69 minis redrawn in 2.6.42; full-size sprites not) (RULE: no human villagers), treehouse cutaway + dressing, pal sprites + Pal Yard, trail event icons 32x32. Plan: `claude/plan-graphical-nav.md`, `claude/todo-art-v3.md`.
-- Stop looks for 11 more types (only market done and desert/adobe looks).
-- Animal homes pre-v3; hand-polish procedural yard pieces (`tools/bake_*_art.py`); AI-1 paused: P1 weak items (46 left), P2 flower heads 19, P3 odd-size UI 41 (`claude/handoff-ai1-art.md`).
-- Variety: before/after pictures for 9 pilot places; progress picture; stop header picture per adopt tier (`claude/todo-art-variety.md`).
-- Cat Fish lane E (pet shops open, unblocked): 55 `cf-pet-<key>.png`, 11 banners `banner-<code>-pets`, 11 shopkeeper busts, `pet_slots` in `room-layout.json`, event props. Lane F: moving side-cat nap/bored, eye pixels on catch/nap frames (`claude/todo-art-catfish.md`).
-- Method for AI art: `aseprite-source/v3/HANDOFF.md`, `ROLLOUT-STATE.md`; single Opus-medium pass per scene (see `claude/todo-art-v3.md` METHOD).
+Audited 2026-11-10 against the real files: `claude/art-audit.md` (table, evidence). Most of the old list was already drawn.
+- DONE (moved out, see the audit): Here scenes (46), residential streets + homes, 6 shared doors, 81 villager sprites, treehouse + dressing, Pal Yard picture, Cat Fish lane E (pet shops, art installed 2026-10-30), weak items (4 of 179 left), Maplewold landmarks, own ground art for desert / mountain / rainforest / wetland (island borrows coast on purpose), homes, tiers, craftmap, acts (1,667 + 829 anim), landing shots, craft-anim layers.
+**Open for real**
+- 137 shared set pieces are all stand-ins (a lump and a flag): `claude/trail-setpiece-art-notes.md`; replace by adding `landmarks_<name>.py` with the same slug and re-bake `--route=N` (delete `obj/lm-*.png` first).
+- Pal sprites (perch + yard size) for the Puzzle Pals: no `assets/img/pals/`, the game falls back to the puzzle GIF still (`hub_pages.php` `treehouse_pal_pic`).
+- Trail event / hotspot icons 32x32.
+- Stop looks: maplewold-style looks for the 11 other stop types (only market done) and styles for EA, SA, SEA, WCA, CB, SE, OC (`stop_looks.php` maps just maplewold and adobe; fallback works today).
+- Animation: `wander-step-back.png`, street / door animation, scene season variants. Cat Fish lane F (moving side-cat, eye pixels on catch / nap), optional.
+- Variety: before / after pictures for 9 pilot places, progress picture, stop header per adopt tier (`claude/todo-art-variety.md`).
+- The last 4 weak items (ginseng, stone-wall-end, tomato, stuffed-peppers-goat); 2.5.66 landmark nits (wall trees overdraw, faint 315 den feathers, 312 larder squirrel belly, 311 syrup muddy).
+- Optional, Josh's call: per-villager doors, per-village pictures (only 2 exist), animal homes pre-v3 and procedural yard pieces polish, town repaints (coralscatter dome + tea house, monsoontangle, thornacre arch, blossomreach parasol), `map/` 16px tiles (unclear what the plan meant), island own ground, more than 3 street styles.
+- Rules kept: delete `obj/lm-*.png` before re-baking after editing sprites; method for AI art in `aseprite-source/v3/HANDOFF.md`, `ROLLOUT-STATE.md`, `claude/todo-art-v3.md` METHOD.
 
 ## 6. WATCH / SMALL
 - `folkoverlay` suite: PASSED on 2026-11-07 (run alone via `tests/ci_suites.sh`); the failure was intermittent, probably when no villager is out in town (the check is skipped then). It failed before with: "Chat is a link to the villager page AND opens the overlay" (town villagers view). Also fails on commit 6cd6259e, so not from 2.6.x work; not investigated.
