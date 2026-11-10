@@ -431,6 +431,16 @@
      25,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 13,
+     "y": 13,
+     "road_index": 17,
+     "creature": "jungle-tiger",
+     "level": 26,
+     "label": "the owl-watch bough: Jungle Tiger"
+    }
    ]
   },
   {

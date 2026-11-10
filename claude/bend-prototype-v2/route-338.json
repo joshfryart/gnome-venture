@@ -445,6 +445,16 @@
      19,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 17,
+     "y": 7,
+     "road_index": 14,
+     "creature": "moss-golem",
+     "level": 20,
+     "label": "the lantern fruit: Moss Golem"
+    }
    ]
   },
   {

@@ -483,6 +483,16 @@
      29,
      9
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 15,
+     "y": 9,
+     "road_index": 21,
+     "creature": "mischief-monkey",
+     "level": 15,
+     "label": "the parrot perch: Mischief Monkey"
+    }
    ]
   }
  ]

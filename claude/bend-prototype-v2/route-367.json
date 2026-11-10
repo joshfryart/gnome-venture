@@ -378,6 +378,16 @@
      10,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 18,
+     "y": 16,
+     "road_index": 13,
+     "creature": "moss-golem",
+     "level": 20,
+     "label": "the eagle's rest: Moss Golem"
+    }
    ]
   }
  ]

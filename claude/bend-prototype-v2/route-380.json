@@ -448,6 +448,16 @@
      4,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 14,
+     "y": 16,
+     "road_index": 18,
+     "creature": "beaver-foreman",
+     "level": 22,
+     "label": "the owl-watch bough: Beaver Foreman"
+    }
    ]
   }
  ]

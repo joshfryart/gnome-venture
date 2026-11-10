@@ -579,6 +579,16 @@
      10,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 9,
+     "y": 8,
+     "road_index": 12,
+     "creature": "mangrove-crab-king",
+     "level": 30,
+     "label": "the driftwood arch: Mangrove Crab King"
+    }
    ]
   }
  ]

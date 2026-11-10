@@ -423,6 +423,16 @@
      7,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 18,
+     "y": 16,
+     "road_index": 16,
+     "creature": "desert-tortoise",
+     "level": 24,
+     "label": "the salt flat: Desert Tortoise"
+    }
    ]
   }
  ]

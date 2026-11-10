@@ -482,6 +482,16 @@
      29,
      10
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 16,
+     "y": 7,
+     "road_index": 23,
+     "creature": "grass-snake",
+     "level": 14,
+     "label": "the lonely scarecrow: Grass Snake"
+    }
    ]
   },
   {

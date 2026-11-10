@@ -506,6 +506,16 @@
      19,
      0
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 14,
+     "y": 7,
+     "road_index": 12,
+     "creature": "moss-golem",
+     "level": 20,
+     "label": "the rain-drum leaf: Moss Golem"
+    }
    ]
   },
   {

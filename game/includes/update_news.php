@@ -728,6 +728,19 @@ function post_update_news(string $from): void
         "[list][*][b]Workshop[/b]: a green ! now shows on each crafting section with something to make or collect. The section cards are wider and scroll properly.\n"
         . "[*][b]Make ×2, ×5 and All[/b] in the workshop cards now make that many, and the picture updates after you make or collect something.\n"
         . "[*][b]Delves[/b]: the route menu looks nicer and stays on screen after each floor. The rooms you took are ticked, the ones you passed are greyed out.[/list]"],
+    '2.6.38' => ['🗺️ Update 2.6.38: winding trails in the Maplewold',
+        "[list][*][b]New trail maps[/b]: the roads of the Maplewold now wind through bigger maps with rivers, ponds, fields and little things to spot along the way.\n"
+        . "[*][b]Fishing[/b]: stand beside water on a trail and a 🎣 Fish button appears under the map. You need a fishing rod.\n"
+        . "[*][b]Gates[/b]: a few spots on the harder roads need a tool to pass (a lantern, a walking staff or a pick).[/list]"],
+    '2.6.39.1' => ['🗺️ Update 2.6.39.1: winding trails everywhere',
+        "[list][*][b]Every trail[/b] now winds through a big painted map: deserts, mountains, wetlands, rainforests, islands, coasts and the frozen north all look like themselves.\n"
+        . "[*][b]Fishing[/b] works on every trail with water: stand on or beside it and tap 🎣 Fish.[/list]"],
+    '2.6.40' => ['⚔️ Update 2.6.40: guardians, gates and garden crews',
+        "[list][*][b]Guardians[/b]: some trails now have a big creature waiting on the road (look for the ⚔️ on the map).\n"
+        . "[*][b]Gates[/b]: more trails have a spot that needs a tool, a lantern, a pick, an axe or a walking staff, to pass or to take a short cut.\n"
+        . "[*][b]Pine slope[/b] on route 315 now only needs a Walking Stick.\n"
+        . "[*][b]Garden crew[/b]: put your pals to work in every garden (Garden > Crew): Water, Weed, Pests, Harvest and Plant. They work while you sleep, for 1, 3 or 7 sleeps or full time. After about two weeks on one job a pal gets tired and works slower, so give them a change.\n"
+        . "[*][b]Hovel[/b]: new Today tab (what changed overnight, tomorrow's weather, who is away) and a Pals tab. Hired helpers have gone home and their wages are refunded.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

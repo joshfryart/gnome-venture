@@ -523,6 +523,16 @@
      13,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 17,
+     "y": 9,
+     "road_index": 14,
+     "creature": "moss-golem",
+     "level": 20,
+     "label": "the goat ledge: Moss Golem"
+    }
    ]
   }
  ]

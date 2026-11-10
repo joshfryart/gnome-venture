@@ -495,6 +495,16 @@
      0,
      9
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 13,
+     "y": 11,
+     "road_index": 23,
+     "creature": "salt-sea-lion",
+     "level": 25,
+     "label": "the bottle post: Salt Sea Lion"
+    }
    ]
   },
   {

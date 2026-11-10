@@ -696,6 +696,16 @@
      29,
      11
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 15,
+     "y": 9,
+     "road_index": 19,
+     "creature": "fern-cassowary",
+     "level": 36,
+     "label": "the hush before Stone Head Watchers: Fern Cassowary"
+    }
    ]
   }
  ]

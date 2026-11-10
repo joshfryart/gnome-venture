@@ -720,6 +720,16 @@
      29,
      12
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 28,
+     "y": 9,
+     "road_index": 14,
+     "creature": "prairie-bison",
+     "level": 26,
+     "label": "the hush before The Silk Road Caravanserai: Prairie Bison"
+    }
    ]
   }
  ]

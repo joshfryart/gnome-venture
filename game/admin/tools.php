@@ -172,9 +172,9 @@ page_header('Tools', true);
   ?>
   <p class="help">Version <b><?= e(APP_VERSION) ?></b>. Tile walks: gnav_on <b><?= e((string)setting('gnav_on')) ?></b>, gnav_tiles <b><?= e((string)setting('gnav_tiles')) ?></b>.
     trail_maps.json: <?= is_file($tmFile) ? e(number_format((int)filesize($tmFile))) . ' bytes, saved ' . e(gmdate('Y-m-d H:i', (int)filemtime($tmFile))) . ' UTC, ' . (is_array($tmJson) ? 'reads fine' : '<b>does NOT read (' . e(json_last_error_msg()) . ')</b>') : '<b>missing</b>' ?>.
-    Authored routes the game loads: <b><?= count($tmAll) ?></b> (a full 2.5.90 has 246). Ground pictures on disk: <b><?= count($tmGround) ?></b> (a full 2.5.90 has 666 or more).</p>
+    Authored routes the game loads: <b><?= count($tmAll) ?></b> (a full 2.5.90 has 246). Ground pictures on disk: <b><?= count($tmGround) ?></b> (a full 2.6.40 has 665, all of the <code>-r</code> kind).</p>
   <table class="list"><tr><th>Route</th><th>Authored?</th><th>Sections</th><th>Ground pictures present</th></tr>
-  <?php foreach ([228 => 'Maplewold Market to Poppyburrow', 256 => 'Mistmoor Market to Larkden', 238 => 'Honeythorpe to Clovercove', 444 => 'Clovercove to The Thousand Gates'] as $rid => $nm): $r = $tmAll[(string)$rid] ?? null; $n = $r ? count($r['sections']) : 0; $have = 0; for ($i = 1; $i <= $n; $i++) if (is_file(APP_ROOT . '/assets/img/trail/ground/' . $rid . '-' . $i . '.png')) $have++; ?>
+  <?php foreach ([228 => 'Maplewold Market to Poppyburrow', 256 => 'Mistmoor Market to Larkden', 238 => 'Honeythorpe to Clovercove', 444 => 'Clovercove to The Thousand Gates'] as $rid => $nm): $r = $tmAll[(string)$rid] ?? null; $n = $r ? count($r['sections']) : 0; $have = 0; for ($i = 1; $i <= $n; $i++) if (trail_ground_file($rid, $i, null, trail_art_sfx($r['sections'][$i - 1])) !== null) $have++; ?>
     <tr><td><?= $rid ?> <?= e($nm) ?></td><td><?= $r ? 'yes' : '<b>NO</b>' ?></td><td><?= $n ?></td><td><?= $have ?> of <?= $n ?></td></tr>
   <?php endforeach; ?></table>
 </div>

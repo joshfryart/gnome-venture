@@ -445,6 +445,16 @@
      23,
      0
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 13,
+     "y": 1,
+     "road_index": 15,
+     "creature": "moss-golem",
+     "level": 20,
+     "label": "the rope bridge: Moss Golem"
+    }
    ]
   }
  ]

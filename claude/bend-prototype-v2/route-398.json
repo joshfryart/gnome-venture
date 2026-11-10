@@ -467,6 +467,16 @@
      29,
      6
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 16,
+     "y": 5,
+     "road_index": 22,
+     "creature": "giant-bumblebee",
+     "level": 23,
+     "label": "the old milestone: Giant Bumblebee"
+    }
    ]
   },
   {

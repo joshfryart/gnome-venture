@@ -449,6 +449,16 @@
      0,
      10
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 14,
+     "y": 8,
+     "road_index": 19,
+     "creature": "desert-camel",
+     "level": 27,
+     "label": "the shade awning: Dunegrass Camel"
+    }
    ]
   }
  ]

@@ -489,6 +489,16 @@
      29,
      7
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 15,
+     "y": 9,
+     "road_index": 20,
+     "creature": "prairie-bison",
+     "level": 26,
+     "label": "the clover patch: Prairie Bison"
+    }
    ]
   },
   {

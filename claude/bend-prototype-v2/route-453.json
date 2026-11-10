@@ -572,6 +572,16 @@
      0,
      10
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 15,
+     "y": 8,
+     "road_index": 21,
+     "creature": "jungle-tiger",
+     "level": 26,
+     "label": "the parrot perch: Jungle Tiger"
+    }
    ]
   }
  ]

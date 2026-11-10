@@ -449,6 +449,16 @@
      19,
      0
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 11,
+     "y": 3,
+     "road_index": 16,
+     "creature": "honey-badger-brute",
+     "level": 32,
+     "label": "the picnic knoll: Honey Badger Brute"
+    }
    ]
   },
   {

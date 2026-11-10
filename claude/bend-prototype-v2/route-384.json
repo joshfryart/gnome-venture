@@ -412,6 +412,16 @@
      18,
      0
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 9,
+     "y": 4,
+     "road_index": 15,
+     "creature": "cliff-ram",
+     "level": 21,
+     "label": "the goat ledge: Cliff Ram"
+    }
    ]
   }
  ]

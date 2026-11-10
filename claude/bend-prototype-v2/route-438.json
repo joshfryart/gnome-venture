@@ -334,6 +334,16 @@
      20,
      0
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 14,
+     "y": 7,
+     "road_index": 14,
+     "creature": "jungle-tiger",
+     "level": 26,
+     "label": "the fern tunnel: Jungle Tiger"
+    }
    ]
   }
  ]

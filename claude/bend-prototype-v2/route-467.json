@@ -599,6 +599,16 @@
      0,
      8
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 18,
+     "y": 8,
+     "road_index": 20,
+     "creature": "honey-badger-brute",
+     "level": 32,
+     "label": "the well and its rope: Honey Badger Brute"
+    }
    ]
   }
  ]

@@ -443,6 +443,16 @@
      18,
      0
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 16,
+     "y": 8,
+     "road_index": 17,
+     "creature": "raccoon",
+     "level": 16,
+     "label": "the mushroom ring: Raccoon"
+    }
    ]
   }
  ]

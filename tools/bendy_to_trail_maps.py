@@ -2,11 +2,13 @@
 """Turns bendy route files (claude/maplewold-bendy-maps/route-*.json) into the game's authored-map shape ({"v":1,"routes":{id:{land, art, from, to, boss, sections}}},
 the same as game/includes/data/trail_maps.json) with the v2.7 fields: per section 'entry' {side, x, y} (sections after the first have no S in their rows), 'gates',
 'extra_minibosses', 'water'. Landmarks become objs [x, y, 'lm-<name>', 0].
-Usage: python3 tools/bendy_to_trail_maps.py [out.json] [route-files...]    default out: claude/maplewold-bendy-maps/trail_maps_maplewold_30x18.json (NOT game data:
-the game has no ground pictures for 30 x 18 sections yet; copy to game/includes/data/trail_maps/ after the bake)."""
+Usage: python3 tools/bendy_to_trail_maps.py [out.json] [route-files...]    default out: claude/maplewold-bendy-maps/trail_maps_maplewold_30x18.json (staging, NOT game data;
+tools/bake_trail_rich.py calls convert() and installs the result). Source file of a route: render_bendy_rich.src_of(id) (hand-tuned Maplewold, else claude/bend-prototype-v2)."""
 import glob, json, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); REPO = os.path.dirname(HERE)
-ART = {"grassland": "grassland", "forest": "forest", "coast": "coast", "tundra": "tundra"}
+# "art" = the land whose small find sprites / old tile look the game borrows (only four lands have them); the ground pictures themselves are painted per land by the rich painter
+ART = {"grassland": "grassland", "forest": "forest", "coast": "coast", "tundra": "tundra",
+       "desert": "coast", "island": "coast", "mountain": "tundra", "rainforest": "forest", "wetland": "forest"}
 def convert(files):
     routes = {}
     for f in files:

@@ -583,6 +583,16 @@
      29,
      13
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 22,
+     "y": 8,
+     "road_index": 13,
+     "creature": "red-fox",
+     "level": 16,
+     "label": "the bramble gap: Red Fox"
+    }
    ]
   }
  ]

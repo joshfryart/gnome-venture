@@ -884,6 +884,30 @@
      29,
      8
     ]
+   ],
+   "gates": [
+    {
+     "tiles": [
+      [
+       14,
+       8
+      ],
+      [
+       14,
+       9
+      ],
+      [
+       14,
+       10
+      ]
+     ],
+     "road_index": 18,
+     "tool_type": "pick",
+     "min_tier": 3,
+     "tool_name": "Fine Rock Hammer",
+     "kind": "lock",
+     "label": "rockfall: needs a pick to clear the rocks"
+    }
    ]
   }
  ]

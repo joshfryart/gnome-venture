@@ -739,6 +739,16 @@
      9,
      0
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 18,
+     "y": 4,
+     "road_index": 16,
+     "creature": "fern-cassowary",
+     "level": 36,
+     "label": "the hush before Gorilla Glade: Fern Cassowary"
+    }
    ]
   }
  ]

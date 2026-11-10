@@ -76,6 +76,33 @@ function trail_authored_valid($r): bool
 }
 
 /**
+ * v2.7: the water tiles of an authored section, ["x,y" => true]: 'wet' (rows of 0/1 written by tools/bake_trail_rich.py: streams, fords, ponds, sea, ice)
+ * or, without it, the stream tiles of 'water' (pts). Empty for a section without water.
+ */
+function trail_water_tiles(array $art): array
+{
+    $out = [];
+    if (!empty($art['wet']) && is_array($art['wet'])) {
+        foreach ($art['wet'] as $y => $row) {
+            if (!is_string($row)) continue;
+            for ($x = 0, $n = strlen($row); $x < $n; $x++) if ($row[$x] === '1') $out[$x . ',' . (int)$y] = true;
+        }
+        return $out;
+    }
+    foreach ((array)($art['water'] ?? []) as $wv) foreach ((array)($wv['pts'] ?? []) as $pt) if (is_array($pt) && count($pt) >= 2) $out[(int)$pt[0] . ',' . (int)$pt[1]] = true;
+    return $out;
+}
+
+/** Is tile x, y water or right beside water (the 8 tiles round it)? This is where the gnome can fish. */
+function trail_water_near(array $art, int $x, int $y): bool
+{
+    $wet = trail_water_tiles($art);
+    if (!$wet) return false;
+    for ($dy = -1; $dy <= 1; $dy++) for ($dx = -1; $dx <= 1; $dx++) if (isset($wet[($x + $dx) . ',' . ($y + $dy)])) return true;
+    return false;
+}
+
+/**
  * The gates of a section that are shut for this walker, ["x,y" => gate]. $tierOf(type) = the tier of the best tool of that type the gnome owns (0 = none).
  * A gate is shut while the best tool of its type is below min_tier. Pure; trail_gate() closes these tiles for the walk.
  */
@@ -128,7 +155,7 @@ function trail_authored_section(int $routeId, int $sec): ?array
 
 /**
  * The map of an authored section and its tokens, in the shape trail_map_make() returns: [map, [[x, y, 'E'|'F']]].
- * E and F in the rows are floor with a token on it; an E is kept only when the section has a fixed boss/miniboss.
+ * E and F in the rows are floor with a token on it; an E is kept only when the section has a fixed boss/miniboss. v2.6.40: each 'extra_minibosses' entry adds an 'M' token.
  */
 function trail_map_authored(array $art): array
 {
@@ -146,6 +173,9 @@ function trail_map_authored(array $art): array
             if ($c === 'E' || $c === 'F') $row[$x] = '.';
         }
         $rows[] = $row;
+    }
+    foreach ((array)($art['extra_minibosses'] ?? []) as $mb) {   // v2.6.40: a fixed mini-boss in the middle of a section: token 'M' (the creature is looked up again by trail_extra_mini when it fires)
+        if (is_array($mb) && isset($mb['x'], $mb['y'], $mb['creature']) && in_array($rows[(int)$mb['y']][(int)$mb['x']] ?? '#', ['.', ','], true)) $tokens[] = [(int)$mb['x'], (int)$mb['y'], 'M'];
     }
     $map = tm_parse($rows);
     $map['art'] = $art;
@@ -196,25 +226,33 @@ function trail_art_url(string $rel): string
  * v2.5.92: where a section's baked ground picture is. An Admin > Images upload (uploads/trail/ground/<route>-<section>.png) wins over the one that ships
  * in assets/img/trail/ground/. Returns the file path, or null when neither exists. $root = the game folder (a parameter only for the tests).
  */
-function trail_ground_file(int $route, int $sec1, ?string $root = null): ?string
+function trail_ground_file(int $route, int $sec1, ?string $root = null, string $sfx = ''): ?string
 {
     $root ??= dirname(__DIR__);
-    foreach (['uploads/trail/ground/', 'assets/img/trail/ground/'] as $d) if (is_file($root . '/' . $d . $route . '-' . $sec1 . '.png')) return $root . '/' . $d . $route . '-' . $sec1 . '.png';
+    $sfx = $sfx === '-r' ? '-r' : '';   // v2.6.38: the 30 x 18 pictures of the rich bake are <route>-<section>-r.png
+    foreach (['uploads/trail/ground/', 'assets/img/trail/ground/'] as $d) if (is_file($root . '/' . $d . $route . '-' . $sec1 . $sfx . '.png')) return $root . '/' . $d . $route . '-' . $sec1 . $sfx . '.png';
     return null;
 }
 
 /** The URL of that picture (uploaded ones live under uploads/, shipped ones under assets/img/trail/). */
-function trail_ground_url(int $route, int $sec1): string
+function trail_ground_url(int $route, int $sec1, string $sfx = ''): string
 {
-    $f = trail_ground_file($route, $sec1);
-    if ($f !== null && str_contains($f, '/uploads/')) return function_exists('url') ? url('uploads/trail/ground/' . $route . '-' . $sec1 . '.png') : 'uploads/trail/ground/' . $route . '-' . $sec1 . '.png';
-    return trail_art_url('ground/' . $route . '-' . $sec1 . '.png');
+    $sfx = $sfx === '-r' ? '-r' : '';
+    $f = trail_ground_file($route, $sec1, null, $sfx);
+    if ($f !== null && str_contains($f, '/uploads/')) return function_exists('url') ? url('uploads/trail/ground/' . $route . '-' . $sec1 . $sfx . '.png') : 'uploads/trail/ground/' . $route . '-' . $sec1 . $sfx . '.png';
+    return trail_art_url('ground/' . $route . '-' . $sec1 . $sfx . '.png');
+}
+
+/** v2.6.38: '-r' for a section of the rich 30 x 18 bake (its 'pic' is 'r'), else ''. */
+function trail_art_sfx(array $art): string
+{
+    return ($art['pic'] ?? '') === 'r' ? '-r' : '';
 }
 
 /** Is the baked ground picture of this section on disk? (If not, the section is drawn the old way.) */
 function trail_art_ready(array $art): bool
 {
-    return trail_ground_file((int)$art['route'], (int)$art['sec'] + 1) !== null;
+    return trail_ground_file((int)$art['route'], (int)$art['sec'] + 1, null, trail_art_sfx($art)) !== null;
 }
 
 /**
@@ -224,7 +262,7 @@ function trail_art_ready(array $art): bool
 function trail_art_edge_colour(array $art): string
 {
     static $memo = [];
-    $f = trail_ground_file((int)$art['route'], (int)$art['sec'] + 1) ?? '';
+    $f = trail_ground_file((int)$art['route'], (int)$art['sec'] + 1, null, trail_art_sfx($art)) ?? '';
     if (isset($memo[$f])) return $memo[$f];
     $c = '';
     if (function_exists('imagecreatefrompng') && is_file($f) && ($im = @imagecreatefrompng($f))) {
@@ -263,7 +301,7 @@ function trail_art_svg(array $map, array $state): string
     $o .= '<defs><linearGradient id="tmfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' . $under . '" stop-opacity="0"/><stop offset="1" stop-color="' . $under . '" stop-opacity="1"/></linearGradient>'
         . '<linearGradient id="tmfadex" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="' . $under . '" stop-opacity="1"/><stop offset="1" stop-color="' . $under . '" stop-opacity="0"/></linearGradient></defs>';
     $o .= '<rect width="' . $W . '" height="' . $H . '" fill="' . $under . '"/>';
-    $o .= '<image href="' . e(trail_ground_url((int)$art['route'], (int)$art['sec'] + 1)) . '" x="' . $n(-$x0 * $C) . '" y="' . $n(-$y0 * $C - TRAIL_ART_PAD * $k)
+    $o .= '<image href="' . e(trail_ground_url((int)$art['route'], (int)$art['sec'] + 1, trail_art_sfx($art))) . '" x="' . $n(-$x0 * $C) . '" y="' . $n(-$y0 * $C - TRAIL_ART_PAD * $k)
         . '" width="' . $n($map['w'] * $C) . '" height="' . $n(($map['h'] * TRAIL_ART_PX + TRAIL_ART_PAD) * $k) . '"/>';
     // v2.5.49: the picture stops at the last row with a hard line; the ground fades into shade over the bottom half tile (and the left edge), so the map does not end on a ruler
     $by = ($map['h'] - $y0) * $C;
@@ -281,17 +319,19 @@ function trail_art_svg(array $map, array $state): string
     }
     $items = [];   // [feet row, column, markup]
     $in = fn(float $x, float $y, float $w, float $h): bool => $x + $w > 0 && $y + $h > 0 && $x < $W && $y < $H;
-    foreach ($art['objs'] as [$ox, $oy, $key, $jit]) {
+    foreach ($art['objs'] as $ob) {
+        [$ox, $oy, $key, $jit] = $ob;
+        $jy = (int)($ob[4] ?? 0);   // v2.7: an optional 5th value = the sprite's shift down in picture pixels (tools/bake_trail_rich.py), also its place in the depth order
         [$bw, $bh] = trail_art_obj_size($key);
         if ($bw === 64 && $bh === 96) {   // trees, hedges, rocks: one 64 x 96 frame, feet near the bottom of the tile
             $X = ($ox - $x0) * $C + $jit * $k;
-            $Y = (($oy - $y0) * TRAIL_ART_PX - 29) * $k;
+            $Y = (($oy - $y0) * TRAIL_ART_PX - 29 + $jy) * $k;
         } else {   // v2.5.63: landmarks (lm-*) are any size: centred on their tile, bottom edge = feet, a little above the tile's lower edge
             $X = ($ox - $x0) * $C + (32 - $bw / 2 + $jit) * $k;
             $Y = (($oy - $y0) * TRAIL_ART_PX + 62 - $bh) * $k;
         }
         if (!$in($X, $Y, $bw * $k, $bh * $k)) continue;
-        $items[] = [$oy + .5, $ox, '<image href="' . e(trail_art_url('obj/' . $key . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $n($bw * $k) . '" height="' . $n($bh * $k) . '"/>'];
+        $items[] = [$oy + .5 + $jy / TRAIL_ART_PX, $ox, '<image href="' . e(trail_art_url('obj/' . $key . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $n($bw * $k) . '" height="' . $n($bh * $k) . '"/>'];
     }
     $marks = '';
     foreach ($state['tokens'] ?? [] as $tk) {

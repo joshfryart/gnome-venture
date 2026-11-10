@@ -484,6 +484,16 @@
      29,
      10
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 14,
+     "y": 10,
+     "road_index": 24,
+     "creature": "tide-crab-knight",
+     "level": 19,
+     "label": "the lighthouse shadow: Tide Crab Knight"
+    }
    ]
   },
   {

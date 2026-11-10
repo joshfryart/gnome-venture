@@ -52,6 +52,79 @@ ok('a fixed fight only on the last section of 313 (miniboss) and 315 (boss)', $b
 ok('some section leaves on a north or south edge (a bend off the east-west line)', (function () use ($all, $art) { foreach ($all as $rid => $r) foreach ($r['sections'] as $si => $_) { $m = trail_map_authored($art((string)$rid, $si))[0]; $e = $m['spots']['9']; if ($e[1] === 0 || $e[1] === 17) return true; } return false; })());
 ok('a section without an S in its rows gets its entry from "entry" (313 section 2)', trail_map_authored($art('313', 1))[0]['t'][10][0] === 'S');
 
+echo "== the other regions (not Maplewold): every route of the game outside the 16 hand-tuned ones is bendy 30 x 18\n";
+// Data dir: argv[2] = a folder holding trail_maps/*.json (default game/includes/data); the old 22 x 7 file data/trail_maps.json is the reference for boss, land and section count.
+$ddir = $argv[2] ?? $game . '/includes/data';
+$oth = trail_authored_load($ddir);
+foreach (array_keys($all) as $k) unset($oth[$k]);
+$old = json_decode((string)@file_get_contents($game . '/includes/data/trail_maps.json'), true)['routes'] ?? [];
+$bad = []; $osecs = 0; $oE = []; $prevPic = 0;
+foreach ($oth as $rid => $r) {
+    if (!isset($old[$rid])) $bad[] = "$rid not in the old file";
+    else {
+        if (count($old[$rid]['sections']) !== count($r['sections'])) $bad[] = "$rid section count";
+        if ((string)($old[$rid]['boss'] ?? '') !== (string)($r['boss'] ?? '')) $bad[] = "$rid boss";
+        if ((string)$old[$rid]['land'] !== (string)$r['land']) $bad[] = "$rid land";
+    }
+    $prev = null;
+    foreach ($r['sections'] as $si => $s) {
+        $osecs++;
+        $a = $s + ['land' => (string)$r['land'], 'art' => (string)($r['art'] ?? ''), 'route' => (int)$rid, 'sec' => $si, 'boss' => ($si === count($r['sections']) - 1) ? (string)$r['boss'] : ''];
+        [$m, $t] = trail_map_authored($a); $en = $m['entry']; $ex = $m['spots']['9'] ?? null;
+        if ($m['w'] !== 30 || $m['h'] !== 18) { $bad[] = "$rid#$si size"; continue; }
+        if (!$en || !$ex) { $bad[] = "$rid#$si entry/exit"; continue; }
+        if (($s['pic'] ?? '') !== 'r') $bad[] = "$rid#$si pic";
+        if (($si === 0) !== (strpos(implode('', $s['rows']), 'S') !== false)) $bad[] = "$rid#$si S";
+        $reach = tm_reach($m, $en[0], $en[1]);
+        if (!isset($reach[$ex[1] * $m['w'] + $ex[0]])) $bad[] = "$rid#$si exit unreachable";
+        foreach ($t as [$x, $y, $k]) { if (!isset($reach[$y * $m['w'] + $x])) $bad[] = "$rid#$si token unreachable"; if ($k === 'E') $oE[] = "$rid#$si"; }
+        foreach ($s['objs'] ?? [] as $o) if (!is_array($o) || count($o) < 4 || !is_string($o[2])) $bad[] = "$rid#$si obj shape";
+        if ($prev) {
+            $side = $prev[0] === 29 ? 'E' : ($prev[0] === 0 ? 'W' : ($prev[1] === 0 ? 'N' : 'S'));
+            $eside = $en[0] === 0 ? 'W' : ($en[0] === 29 ? 'E' : ($en[1] === 0 ? 'N' : 'S'));
+            $same = in_array($side, ['E', 'W'], true) ? $en[1] === $prev[1] : $en[0] === $prev[0];
+            if (!$same || ['E' => 'W', 'W' => 'E', 'N' => 'S', 'S' => 'N'][$side] !== $eside) $bad[] = "$rid#$si join";
+        }
+        $prev = $ex;
+    }
+}
+ok('230 other routes, 624 sections', count($oth) === 230 && $osecs === 624, count($oth) . ' routes, ' . $osecs . ' sections');
+ok('same boss, land and section count as the old file; 30 x 18; entry and exit on edges; reachable; S only in section 1; joins line up; pic r', !$bad, implode('; ', array_slice($bad, 0, 12)));
+$oEbad = array_filter($oE, function ($x) use ($oth) { [$rid, $si] = explode('#', $x); return (int)$si !== count($oth[$rid]['sections']) - 1 || ($oth[$rid]['boss'] ?? '') === ''; });
+ok('a fixed fight (E) only on the last section of a route that has a boss or miniboss', !$oEbad, implode(',', array_slice($oEbad, 0, 10)));
+$bossRoutes = count(array_filter($oth, fn($r) => ($r['boss'] ?? '') !== ''));
+ok('every boss/miniboss route has its E', count($oE) === $bossRoutes, count($oE) . ' E, ' . $bossRoutes . ' routes');
+
+// v2.6.40: gates and extra mini-bosses of the other regions (tools/add_trail_extras.py)
+$sc0 = ['st' => ['tokens' => []]]; $gN = 0; $gB = []; $mN = 0; $mB = []; $slugs = [];
+foreach (file($game . '/includes/data/creatures.txt') as $ln) if ($ln !== '' && $ln[0] !== '#' && str_contains($ln, '|')) { $f = explode('|', $ln); $slugs[$f[0]] = [$f[2], (int)$f[4]]; }
+foreach ($oth as $rid => $r) foreach ($r['sections'] as $si => $s) {
+    $a = $s + ['land' => (string)$r['land'], 'art' => (string)($r['art'] ?? ''), 'route' => (int)$rid, 'sec' => $si, 'boss' => ($si === count($r['sections']) - 1) ? (string)$r['boss'] : ''];
+    [$m, $t] = trail_map_authored($a); $en = $m['entry']; $ex = $m['spots']['9'];
+    foreach ($s['gates'] ?? [] as $gt) {
+        $gN++;
+        $shut = trail_gates_closed($a, fn(string $type): int => 0); $open = trail_gates_closed($a, fn(string $type): int => (int)$gt['min_tier']);
+        $pC = tm_path($m, $en[0], $en[1], $ex[0], $ex[1], trail_gate($sc0, $ex[0], $ex[1], $shut)); $pO = tm_path($m, $en[0], $en[1], $ex[0], $ex[1], trail_gate($sc0, $ex[0], $ex[1], $open));
+        if ($open || !$pO) $gB[] = "$rid#$si does not open with the tool";
+        if ((int)$gt['min_tier'] > 3 || (int)$gt['min_tier'] < 1) $gB[] = "$rid#$si tier";
+        if ($gt['kind'] === 'lock' && $pC) $gB[] = "$rid#$si lock can be walked around";
+        if ($gt['kind'] === 'shortcut' && (!$pC || count($pC) < count($pO) + 6)) $gB[] = "$rid#$si shortcut way round";
+    }
+    $ms = array_values(array_filter($t, fn($x) => $x[2] === 'M'));
+    if (count($ms) !== count($s['extra_minibosses'] ?? [])) $mB[] = "$rid#$si M tokens";
+    foreach ($s['extra_minibosses'] ?? [] as $mb) {
+        $mN++;
+        if (!isset($slugs[$mb['creature']]) || $slugs[$mb['creature']][0] !== 'large' || $slugs[$mb['creature']][1] !== (int)$mb['level']) $mB[] = "$rid#$si creature";
+        if (trail_extra_mini($a, (int)$mb['x'], (int)$mb['y']) === null) $mB[] = "$rid#$si lookup";
+        $reach = tm_reach($m, $en[0], $en[1]); if (!isset($reach[$mb['y'] * $m['w'] + $mb['x']])) $mB[] = "$rid#$si unreachable";
+    }
+}
+ok('gates in the other regions: a lock stops a walker without the tool and opens with it, a shortcut leaves the long way round, tier 1 to 3', $gN > 30 && !$gB, "$gN gates: " . implode('; ', array_slice($gB, 0, 8)));
+ok('extra mini-bosses in the other regions: one M token each, a large creature of that level, reachable', $mN > 30 && !$mB, "$mN: " . implode('; ', array_slice($mB, 0, 8)));
+$wetN = 0; $wetBad = 0;
+foreach ($oth as $r) foreach ($r['sections'] as $s) { if (empty($s['wet'])) continue; $wetN++; if (count($s['wet']) !== 18) $wetBad++; foreach ($s['wet'] as $row) if (!is_string($row) || strlen($row) !== 30 || !preg_match('/^[01]+$/', $row)) $wetBad++; }
+ok('sections with water carry a 30 x 18 wet grid (fishing beside water)', $wetN > 100 && !$wetBad, "$wetN sections, $wetBad bad");
+
 echo "== validator\n";
 $row = fn(string $a) => str_pad($a, 8, '#');
 $mk = fn(array $rows, array $extra = []) => ['land' => 'forest', 'sections' => [['rows' => $rows] + $extra]];
@@ -112,6 +185,35 @@ ok('revealing in the far corner works', tm_seen_get($seen, 30, 18, 29, 17) && tm
 $a = $art('315', 4); [$m, $t] = trail_map_authored($a);
 $svg = trail_art_svg($m, ['px' => 3, 'py' => 8, 'x0' => 0, 'y0' => 4, 'cols' => 9, 'rows' => 9, 'tokens' => []]);
 ok('a 30 x 18 section draws', str_contains($svg, '<svg') && str_contains($svg, '</svg>'));
+echo "== fishing beside water\n";
+$w = ['rows' => ['.....', '.....', '.....'], 'wet' => ['00000', '00010', '00000']];
+ok('on the water tile', trail_water_near($w, 3, 1));
+ok('diagonally beside it', trail_water_near($w, 2, 0) && trail_water_near($w, 4, 2));
+ok('two tiles away is too far', !trail_water_near($w, 1, 1) && !trail_water_near($w, 0, 0));
+ok('a section without water has no fishing', !trail_water_near(['rows' => ['...']], 1, 0));
+ok('stream points count when there is no wet grid', trail_water_near(['water' => [['pts' => [[5, 5], [6, 5]]]]], 7, 6) && !trail_water_near(['water' => [['pts' => [[5, 5]]]]], 7, 5));
+ok('a pond given only by its centre gives no tiles', trail_water_tiles(['water' => [['pond' => [4, 4]]]]) === []);
+$sc = ['x' => 2, 'y' => 1, 'st' => ['phase' => 'section'], 'map' => ['art' => $w]];
+ok('the Fish button shows beside water', trail_fish_here($sc));
+ok('not two tiles away', !trail_fish_here(['x' => 0] + $sc));
+ok('not on a made-up (unauthored) section', !trail_fish_here(['map' => []] + $sc) && !trail_fish_here(null));
+$bake = dirname($game) . '/claude/maplewold-bendy-maps/bake/trail_maps_maplewold_30x18.json';
+if (is_file($bake)) {
+    $bj = json_decode((string)file_get_contents($bake), true)['routes'];
+    $n = 0; $shape = true; $walkBy = 0;
+    foreach ($bj as $rid => $r) foreach ($r['sections'] as $s) {
+        if (empty($s['wet'])) continue;
+        $n++;
+        if (count($s['wet']) !== count($s['rows'])) $shape = false;
+        foreach ($s['wet'] as $y => $row) if (strlen($row) !== strlen($s['rows'][$y]) || !preg_match('/^[01]+$/', $row)) $shape = false;
+        $hit = false;
+        foreach ($s['rows'] as $y => $row) for ($x = 0; $x < strlen($row); $x++) if ($row[$x] !== '#' && trail_water_near($s, $x, $y)) $hit = true;
+        if ($hit) $walkBy++;
+    }
+    ok('the bake marks water tiles in some sections, in the shape of the rows', $n > 10 && $shape, "$n sections");
+    ok('nearly every section with water has a walkable tile to fish from (a pool shut in by thicket has none)', $walkBy >= $n - 2, "$walkBy of $n");
+    ok('228 section 2 (West River): fishing at the ford', trail_water_near($bj['228']['sections'][1], 12, 7));
+}
 array_map('unlink', glob($tmp . '/trail_maps/*')); @rmdir($tmp . '/trail_maps'); @rmdir($tmp);
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);

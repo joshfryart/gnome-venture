@@ -503,6 +503,16 @@
      0,
      11
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 15,
+     "y": 10,
+     "road_index": 24,
+     "creature": "red-fox",
+     "level": 16,
+     "label": "the stone hut: Red Fox"
+    }
    ]
   }
  ]

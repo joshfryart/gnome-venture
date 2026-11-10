@@ -750,6 +750,16 @@
      29,
      4
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 14,
+     "y": 6,
+     "road_index": 21,
+     "creature": "prairie-bison",
+     "level": 26,
+     "label": "the shepherd's wall: Prairie Bison"
+    }
    ]
   }
  ]

@@ -150,7 +150,7 @@ more(313,0, ("clearing",4,4,2)); more(313,1, ("log",21,4,4), ("clearing",25,14,2
 
 # ---- gates (tool, minimum quality, lock or shortcut) and extra mini-boss spots (plan items 11 and 12) ----
 SPECS[313][2]["gates"] = [dict(at=(20,11), tool="lantern", label="tunnel mouth: needs a lantern")]
-SPECS[315][1]["gates"] = [dict(at=(12,6), tool="axe", label="pine slope: needs an axe to cut steps")]
+SPECS[315][1]["gates"] = [dict(at=(12,6), tool="staff", tier=1, label="pine slope: needs a staff to climb the steep steps")]
 SPECS[315][2]["gates"] = [dict(at=(15,8), tool="pick", label="icicle bridge: needs a pick to clear the icicles")]
 SPECS[314][1]["gates"] = [dict(at=(14,5), tool="staff", kind="shortcut", bypass=10, label="tidal causeway: a staff for the short way, the long way round is open")]
 SPECS[312][2]["mini"] = [dict(at=(16,10), slug="bramble-wolf", level=22, label="great stump: Bramble Wolf")]

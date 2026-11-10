@@ -435,6 +435,16 @@
      24,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 13,
+     "y": 13,
+     "road_index": 15,
+     "creature": "grass-snake",
+     "level": 14,
+     "label": "the bramble gap: Grass Snake"
+    }
    ]
   },
   {

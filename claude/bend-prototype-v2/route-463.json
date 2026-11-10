@@ -463,6 +463,16 @@
      29,
      7
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 16,
+     "y": 6,
+     "road_index": 21,
+     "creature": "fern-cassowary",
+     "level": 36,
+     "label": "the lantern branch: Fern Cassowary"
+    }
    ]
   }
  ]

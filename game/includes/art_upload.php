@@ -8,7 +8,8 @@ declare(strict_types=1);
  *   {building}-{level}.png    building at a level   -> uploads/buildings/{building}-{level}.png
  *   {building}-{skin}.png     building looks   -> uploads/skins/{building}-{skin}.png
  *   nav-{slug}.png            menu icons (see NAV_ICONS) -> uploads/nav/{slug}.png
- *   {route}-{section}.png     Trail ground pictures (route id and section number, e.g. 256-1.png) -> uploads/trail/ground/{route}-{section}.png (v2.5.92)
+ *   {route}-{section}.png     Trail ground pictures (route id and section number, e.g. 256-1.png) -> uploads/trail/ground/{route}-{section}.png (v2.5.92);
+ *                             {route}-{section}-r.png = the 30 x 18 picture of a bendy section (v2.6.38)
  *   {slug}-{shape}.png        fence/wall/hedge pieces (end straight corner tee cross gate) -> uploads/yard/{slug}-{shape}.png
  * Names never come from the upload itself, only from a matched slug, so nothing can be written outside those folders.
  */
@@ -32,7 +33,7 @@ function art_match(string $name): ?array
     if (str_starts_with($base, 'npc-') && ($id = q_val('SELECT id FROM npcs WHERE slug = ?', [substr($base, 4)]))) {
         return ['kind' => 'npc', 'dest' => 'uploads/npcs/' . substr($base, 4) . '.png', 'set' => ['npcs', (int)$id], 'label' => 'NPC ' . substr($base, 4)];
     }
-    if (preg_match('/^(\d{1,4})-(\d)$/', $base, $m) && trail_authored_section((int)$m[1], (int)$m[2] - 1)) {   // v2.5.92: a Trail section's ground picture
+    if (preg_match('/^(\d{1,4})-(\d)(-r)?$/', $base, $m) && trail_authored_section((int)$m[1], (int)$m[2] - 1)) {   // -r: a 30 x 18 picture (v2.6.38)   // v2.5.92: a Trail section's ground picture
         return ['kind' => 'trail', 'dest' => 'uploads/trail/ground/' . $base . '.png', 'set' => null, 'label' => 'trail ground, route ' . $m[1] . ' section ' . $m[2]];
     }
     if ($id = q_val('SELECT id FROM items WHERE slug = ?', [$base])) {

@@ -446,6 +446,16 @@
      29,
      8
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 15,
+     "y": 9,
+     "road_index": 19,
+     "creature": "moss-golem",
+     "level": 20,
+     "label": "the stone hut: Moss Golem"
+    }
    ]
   }
  ]

@@ -862,6 +862,16 @@
      29,
      9
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 15,
+     "y": 13,
+     "road_index": 23,
+     "creature": "honey-badger-brute",
+     "level": 32,
+     "label": "the daisy ring: Honey Badger Brute"
+    }
    ]
   }
  ]

@@ -427,6 +427,16 @@
      21,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 12,
+     "y": 14,
+     "road_index": 18,
+     "creature": "reef-eel-lord",
+     "level": 34,
+     "label": "the shell-heap: Reef Eel Lord"
+    }
    ]
   }
  ]

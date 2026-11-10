@@ -555,6 +555,16 @@
      4,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 14,
+     "y": 16,
+     "road_index": 19,
+     "creature": "honey-badger-brute",
+     "level": 32,
+     "label": "the sun-bleached bones: Honey Badger Brute"
+    }
    ]
   }
  ]
