@@ -49,7 +49,7 @@ Edit `claude/build-plans-base.txt`, then run `python3 tools/scale_build_plans.py
 | 9 Sky City Ruins 2 | `building-stone` x12 + `rope` x4 (was 2 masterwork barrows). |
 | 11 scaling | Costs scale with region level: item / meal / fine counts x (1 + (L-1)/40), rounded, min 1; coins + 5 per level above 1; tools handed in (lanterns, trugs, baskets, creel, net, camping gear) and clear stages untouched. Maplewold (L1) unchanged. Example: 4 Rope + 250 Petals at L1 = 7 Rope + 420 Petals at L35. Average items per plan after scaling: 22 at L1, about 30 at L12 to L17, about 38 at L32 to L35. Largest single ask: 15 Dressed Stone (Sky City Ruins 2). |
 | 12 monastery | Lemon Grove Monastery 1, 3, 4: "the cloister gnomes"; "picked by Sunday" is now "before the next full moon". |
-Still open (not asked): 10 (tools used up, no line on the card), 13 repeated titles, 14 repeated phrase, 15, 17.
+DONE 2026-11-10 (Josh: go): 10 (card already says tools are used up), 13 (no repeated titles left), 15, 17 were already in; 14 done: 6 of the clear-stage texts reworded, 8 still use "each day" (fine). Open list: none.
 Notes: a repair already in progress keeps its stage number but hands in the new needs for its current stage. `tests/buildplans.sh` passes; `tests/rebuild.sh` cannot run here (no ruins in the test DB).
 
 ## Not found

@@ -13,7 +13,7 @@ P|Market of a Thousand Chilies|1|haul|Mend the awnings|item:rope:3,item:timber-p
 P|Market of a Thousand Chilies|2|gather|Fill the spice sacks|item:chili-pepper:6,item:cacao:3|Not one sack on the shelf has anything in it. Fill them, and the smell alone will bring the crowds back.
 P|Market of a Thousand Chilies|3|feed|Feed the stallholders|item:hot-cocoa:3,item:cornbread:3|A market runs on cocoa and cornbread. Hungry stallholders will not haggle.
 P|Market of a Thousand Chilies|4|light|Hang the lantern strings|item:beeswax:2,coins:250|Dusk is the best hour for a market, if there is something to see by.
-P|The Stepped Seed Temple|1|clear|Clear the terraces|days:3:3|Roots and vines have crept over every step. Work a little each day and the old gnome stones show through.
+P|The Stepped Seed Temple|1|clear|Clear the terraces|days:3:3|Roots and vines have crept over every step. Take one terrace per day and the old gnome stones show through.
 P|The Stepped Seed Temple|2|haul|Reset the steps|item:building-stone:8|Whole steps have slid down the hill. Dressed stone, set back where they belong.
 P|The Stepped Seed Temple|3|gather|Colour the carvings|item:red-ochre:3,item:laterite-clay:3|The riddles carved in the stone were once painted red. The keeper wants the old colours back.
 P|The Stepped Seed Temple|4|feed|A feast for the keepers|item:feast-maizehollow-mole:1|The temple keepers have not had a proper feast since the roof fell in.
@@ -136,7 +136,7 @@ P|Painted Egg House|1|gather|Collect the eggs|item:hen-egg:6,item:red-ochre:3|Ev
 P|Painted Egg House|2|haul|Patch the shutters|item:timber-plank:4,item:rope:3|The shutters are carved with tulips and hang by one hinge. The wind has been reading the house’s mail.
 P|Painted Egg House|3|feed|Feed the painters|item:pickled-eggs:3,item:devilled-eggs:3|Painters who work on eggs all day get hungry for them. It is a little awkward, but nobody says so.
 P|Painted Egg House|4|light|Light the stove corner|item:beeswax:3,coins:200|A warm stove and a row of candles, and the whole cottage glows like a jewel box.
-P|The Amber Woods|1|clear|Clear the leaf drifts|days:3:3|Years of leaves lie over the paths. Sweep a little each day and the amber starts to wink at you from the dirt.
+P|The Amber Woods|1|clear|Clear the leaf drifts|days:3:3|Years of leaves lie over the paths. Sweep another drift every morning and the amber starts to wink at you from the dirt.
 P|The Amber Woods|2|gather|Gather pine resin|item:pine-resin:5,item:acorn-cap:4|Fresh resin is how the old gnomes found their way to the good amber. It is sticky work and very rewarding.
 P|The Amber Woods|3|feed|Feed the root-diggers|item:potato-leek-soup:3,item:herb-flatbread:3|Careful digging needs steady hands, and steady hands need soup.
 P|The Amber Woods|4|light|Hang the glow jars|item:firefly-glow:4,coins:250|Amber glows best in lamplight. A tiny seed inside one stone is sleeping, and nobody wants to wake it rudely.
@@ -182,7 +182,7 @@ P|Gorilla Glade|1|feed|Prepare a polite gift|item:tropical-fruit-bowl:2,item:coc
 P|Gorilla Glade|2|gather|Gather forest fruit|item:banana:4,item:plantain:4|The glade is full of ripe fruit, and a few of the big folk are watching you gather it. Be polite.
 P|Gorilla Glade|3|haul|Build the viewing hide|item:timber-plank:4,item:rope:3|A little hide of leaves and timber lets you sit close without being in the way. The gorillas nod, which counts.
 P|Gorilla Glade|4|clear|Sit with the troop|days:3:2|Spend a few quiet days beside them. By the end, the biggest one lets you share his fruit.
-P|The Canopy Bridges|1|clear|Clear the trunk paths|days:3:3|Vines have swallowed the climbing paths. Hack them back a little each day before you try the first bridge.
+P|The Canopy Bridges|1|clear|Clear the trunk paths|days:3:3|Vines have swallowed the climbing paths. Hack them back day by day before you try the first bridge.
 P|The Canopy Bridges|2|haul|Weave the new ropes|item:rope:6,item:timber-plank:4|Old bridges sway like a wet noodle. Good ropes and new planks make it feel like a street in the sky.
 P|The Canopy Bridges|3|light|Hang the guide lanterns|item:glowcap-lantern:2,item:tin-lantern:2|A bridge at night needs some light, or a gnome walks straight off the end. Hang a lamp at each post.
 P|The Canopy Bridges|4|gather|Gather the high fruit|item:kola:4,item:giant-seed-pod:3|At last the high branches are in reach, full of kola and strange pods. Pick what you can carry.
@@ -201,7 +201,7 @@ P|The Great Migration|3|clear|Follow the herds|days:4:3|Walk beside the great ri
 P|The Great Migration|4|feed|Feed the trackers|item:mackerel-rice:3,item:rice-and-beans:3|Trackers get hungry in a hurry. Hot food at the end of a day of dust beats any adventure.
 P|Flamingo Shallows|1|haul|Lay the stepping planks|item:timber-plank:4,item:rope:3|The lake is pink and the mud is sticky. Planks laid out in a line keep your boots on.
 P|Flamingo Shallows|2|gather|Gather flamingo feathers|item:pretty-feather:5,item:cattail-root:3|Feathers drift down like pink snow. Gather them for the crafters, with cattail root from the reeds to trade.
-P|Flamingo Shallows|3|clear|Clear the reed beds|days:3:3|Thick reeds choke the shore. Clear a little each day so the flamingos have a proper stage.
+P|Flamingo Shallows|3|clear|Clear the reed beds|days:3:3|Thick reeds choke the shore. Clear one patch per day so the flamingos have a proper stage.
 P|Flamingo Shallows|4|light|Hang the sunset lamps|item:glowcap-lantern:2,coins:300|At sunset the whole lake turns to rose gold. A few lamps and the show goes on after dark.
 P|Fynbos Fire Trails|1|clear|Clear the burnt scrub|days:3:3|The trails are scorched and bristling with stubble. A few days of raking and you can walk it in comfort.
 P|Fynbos Fire Trails|2|gather|Gather the hardy shrubs|item:rooibos:5,item:thistle-spines:4|Fynbos grows back stronger than before. Gather rooibos and spines from the fresh green growth.
@@ -230,7 +230,7 @@ P|Snowleopard Ledges|3|clear|Clear the rock falls|days:3:4|Loose stones lie acro
 P|Snowleopard Ledges|4|feed|Feed the spotters|meal:3,item:goat-cheese:3|Spotters lie still for hours waiting for a flick of a tail. They will do it for a hot meal and a bit of cheese.
 # ------------------------------------------------------------ East Asia (EA)
 P|Cherry Blossom Teahouse|1|haul|Reroof the teahouse|item:timber-plank:5,item:rope:3|The roof has more petals than tiles. A fresh row of planks and the rain can finally be a guest rather than a resident.
-P|Cherry Blossom Teahouse|2|clear|Sweep the petal path|days:2:2|Pink drifts hide the stepping stones. Sweep a little each day and try not to look too long at the falling blossoms.
+P|Cherry Blossom Teahouse|2|clear|Sweep the petal path|days:2:2|Pink drifts hide the stepping stones. Sweep on different days and try not to look too long at the falling blossoms.
 P|Cherry Blossom Teahouse|3|gather|Gather the tea things|item:tea:4,item:cut-sakura:4|A teahouse needs good leaves and a vase of blossom on the table. The rest is just sitting still.
 P|Cherry Blossom Teahouse|4|feed|Serve the first tea|item:mint-tea:3,item:custard-tart:3|The first pot is always for the neighbours. Tea, little tarts, and a long sigh of contentment.
 P|The Thousand Gates|1|clear|Clear the stairway|days:3:3|Moss has swallowed the stairs under a thousand red gates. Clear a few steps each day, and count them if you like.
@@ -288,6 +288,6 @@ P|Stone Head Watchers|2|haul|Roll the fallen heads|item:rope:5,item:building-sto
 P|Stone Head Watchers|3|feed|Feed the stone crew|meal:3,item:roasted-roots:3|Heavy work, and a heavier lunch. Roasted roots are a stone gnome’s favourite.
 P|Stone Head Watchers|4|gather|Gather the offerings|item:cut-tiare:3,item:coconut:4|A flower, a coconut and a quiet word for each watcher. They have heard it all before, but they like it.
 P|The Red Rock Songlines|1|gather|Gather the ochre|item:red-ochre:5,item:desert-glass:2|Red ochre for the painting, and a bright bit of glass for the elder to hold up to the sun.
-P|The Red Rock Songlines|2|clear|Clear the walking track|days:3:3|The old track between the rocks is lost in spinifex. Clear it a little each day, and the songs begin to find their way.
+P|The Red Rock Songlines|2|clear|Clear the walking track|days:3:3|The old track between the rocks is lost in spinifex. Clear a stretch every day, and the songs begin to find their way.
 P|The Red Rock Songlines|3|feed|Feed the walkers|meal:3,item:mesquite-flatbread:3|Walking a songline is hungry work, and a good song needs a full belly. Flatbread and a hot meal, shared round the fire.
 P|The Red Rock Songlines|4|light|Light the camp fires|item:old-campfire-ash:2,coins:200|A circle of small fires and a sky full of stars. The songs go on until the last ember falls asleep.
