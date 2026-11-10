@@ -24,7 +24,7 @@ Method: counts under `game/assets/img`, sha256 duplicates (none in `scenes/`), `
 | P7: homes, tiers | DONE | `home-*` x6; `stoptiers/` 48 + `camp-1..4` tiers | - |
 | P7: village pictures | MISSING (optional) | `villages/` holds 2 files (honeybrook, poppyburrow); villages use `here-village.png` | per-village pictures, only if wanted |
 | P7: craftmap 14 | DONE | `craftmap/` 14 files; replaced by the workshop picture (2.6.41) | - |
-| P7: acts 1,667 | DONE (stills + anim) | `acts/` 1,667 files, 829 are `*-anim*` | "redraw after models are final" is a later polish |
+| P7: acts 1,667 | DONE (stills + anim) | `acts/` 1,667 files, 829 are `*-anim*` | "redraw after models are final" is a later polish; 9 popover scenes redrawn in v3 2.5D with hand strips 2026-11-10 (`aseprite-source/v3/acts/`), NOT phone-checked |
 | P7: landing `shot-*` | DONE | `landing/` 26 files incl. 12 `shot-*` (light/dark pairs) | - |
 | P7: `map/` 16px tiles | MISSING / unverified | `map/` holds 11 felt/hoop/pin pieces, `ph/tile-*` 24 path tiles | check what the plan meant |
 | Animation layers (`<art>-anim-*`, workshop/street/door, seasons) | PARTIAL | `craft-anim-*` x13 live; acts have 829 anim files; no `wander-step-back.png`; no season variants of scenes | `wander-step-back`, street/door animation, scene season variants |

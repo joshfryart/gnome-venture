@@ -893,6 +893,8 @@ def main():
     if "--only" in args:
         only = set(args[args.index("--only") + 1].split(","))
     pilots = {os.path.basename(p)[4:-len("-anim.aseprite")] for p in glob.glob(os.path.join(PILOT, "act-*-anim.aseprite"))}
+    # v3 redrawn scenes (aseprite-source/v3/acts/<slug>/) have their own hand-made strips: never overwrite them
+    pilots |= {os.path.basename(os.path.dirname(p)) for p in glob.glob(os.path.join(REPO, "aseprite-source", "v3", "acts", "*", "act-*-anim.png"))}
     stats = {"animated": 0, "fallback": 0, "static_only": 0}
     log = []
     for p in sorted(glob.glob(os.path.join(ACTS, "act-*.png"))):
