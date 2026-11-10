@@ -392,7 +392,8 @@ function cook_seconds(array $u, array $r): int
     require_once __DIR__ . '/catalog.php';
     $min = (int)$r['cook_minutes'];
     if ($min <= 0) $min = tier_setting('cook_minutes_tiers', [3, 15, 45])[(string)($r['tier'] ?: 'meal')] ?? 0;
-    $pct = min(100, max(0, calling_perk($u, 'cook_time_pct')));
+    require_once __DIR__ . '/player_perks.php';
+    $pct = min(100, max(0, calling_perk($u, 'cook_time_pct') + player_perk_pct((int)($u['id'] ?? 0), 'slow_simmer', 'perk_slow_simmer')));   // 2.6.33
     return (int)round($min * 60 * (100 - $pct) / 100);
 }
 

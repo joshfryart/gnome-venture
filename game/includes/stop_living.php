@@ -72,7 +72,7 @@ function stop_perks(int $uid, int $locId): array
 /** Each running perk is one more thing per visit and one more turn a day at that stop (they stack). */
 function stop_perk_bonus(int $uid, int $locId): int
 {
-    return count(stop_perks($uid, $locId));
+    return 0;   // 2.6.33: perks are the player's now (player_perks.php); the old "one more thing here" bonus is retired
 }
 
 // ---------------------------------------------------------------- familiarity
@@ -147,7 +147,11 @@ function stop_living_after(array $u, array $loc, array $a): array
         if ($amt > 0 && $fest) $amt *= 2;
         [$v, $filled] = stop_meter_add($uid, $lid, $m, $amt);
         $lines[] = STOP_METERS[$m][0] . ' ' . STOP_METERS[$m][1] . ' ' . ($amt >= 0 ? '+' : '') . $amt;
-        if ($filled !== '') $lines[] = '🌟 ' . STOP_METERS[$filled][1] . ' is full! ' . $loc['name'] . ' gives you one more thing to do for ' . STOP_PERK_DAYS . ' days';
+        if ($filled !== '') {   // 2.6.33: the perk goes to the player and works everywhere
+            require_once __DIR__ . '/player_perks.php';
+            $lines[] = '🌟 ' . STOP_METERS[$filled][1] . ' is full at ' . $loc['name'] . '!';
+            if ($pl = player_perk_line(player_perk_grant($uid, $lid, $filled))) $lines[] = $pl;
+        }
     }
     return $lines;
 }
@@ -294,7 +298,7 @@ function stop_meters_html(int $uid, int $locId): string
     }
     $h .= '</ul>';
     foreach (stop_perks($uid, $locId) as $m => $until) {
-        $h .= '<p class="st-perk">🌟 <b>' . e(STOP_METERS[$m][1]) . ' is full</b> · one more thing to do here until ' . e(date('j M', strtotime($until))) . '</p>';
+        $h .= '<p class="st-perk">🌟 <b>' . e(STOP_METERS[$m][1]) . ' was full here</b> · your perk works everywhere until ' . e(date('j M', strtotime($until))) . '</p>';
     }
     return $h;
 }
@@ -375,10 +379,12 @@ function stop_perk_body(array $u, array $node): string
             $pips = '';
             for ($i = 1; $i <= STOP_PERK_DAYS; $i++) $pips .= '<i class="' . ($i <= $left ? 'on' : '') . '"></i>';
             $h .= '<div class="pkperk"><span class="pkbadge">' . stop_pix(STOP_METER_ICO[$m] ?? 'star', STOP_METERS[$m][0]) . '</span><div class="pkpt"><b>' . e(STOP_METERS[$m][1]) . ' is full!</b>'
-                . '<span class="pkfx">' . stop_pix('star', '⭐') . ' one more thing per visit</span><span class="pkfx">' . stop_pix('sparkle', '✨') . ' one more turn a day</span></div>'
+                . '<span class="pkfx">' . stop_pix('star', '⭐') . ' a perk for you, everywhere</span></div>'
                 . '<div class="pkleft">' . stop_pix('hourglass', '⏳') . '<span class="pkpips">' . $pips . '</span><small>' . $left . ' day' . ($left === 1 ? '' : 's') . ' left</small></div></div>';
         }
     } else $h .= '<div class="pkempty">' . stop_pix('medal-silver', '🏅', 'off') . '<span>No perks yet. Fill a bar to earn one.</span></div>';
+    require_once __DIR__ . '/player_perks.php';
+    $h .= player_perks_html((int)$u['id']);   // 2.6.33: your running perks, account-wide
     $h .= '<h4>Meters</h4><div class="pkc">';
     foreach (STOP_METERS as $k => $m) $h .= '<input type="radio" class="pkr" name="' . $id . '" id="' . $id . $k . '"' . ($k === $first ? ' checked' : '') . '>';
     $h .= '<div class="pktiles">';

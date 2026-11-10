@@ -698,6 +698,9 @@ function post_update_news(string $from): void
         . "[*][b]Shops and stops[/b] have opening hours, and some villagers are away on some days.\n"
         . "[*][b]Food heals you[/b]: crops, finds and home-cooked dishes give back health.[/list]\n\n"
         . "Everyone starts on today's day. Contests, shared goals, visits and the Petal caps stay on the real clock."],
+    '2.6.35' => ['🔨 Update 2.6.35: repairs and gathering when you are busy',
+        "[list][*][b]Clear stages tell you why[/b]: if a long job still has you busy, \"Work here today\" and Gather now say so (sleep to finish it) instead of showing an error page or nothing.\n"
+        . "[*][b]No foraging in ruins[/b]: you cannot gather in a place you have not made safe yet.[/list]"],
     '2.6.34' => ['📜 Update 2.6.34: find your calling mentor on the town map',
         "[list][*][b]Mentor button[/b]: every town's picture now has a Mentor button that takes you straight to that town's mentor lodge.\n"
         . "[*][b]Take it from My Gnome[/b]: if your mentor is in another town, the Calling tab has a new button that makes the free trip and takes the chapter on in one go.\n"
@@ -711,6 +714,16 @@ function post_update_news(string $from): void
         . "[*][b]Food mastery[/b]: eat or harvest the same food 500, 1000, 1650 and 2000 times and it earns a star step (Familiar, Favourite, Beloved, Signature). Each step makes that food's boosts stronger and longer, and gives more energy. See it all on My Gnome > Foods.\n"
         . "[*][b]Calling[/b]: a yellow ! shows on the Calling tile on My Gnome once you can choose a calling and have not yet.\n"
         . "[*][b]Clovercove[/b] is now the last stop on the road out of the Maplewold towards Blossomreach. The Maplewold's only ways out are Windburrow (to Mistmoor) and Poppynook (to Maizehollow).[/list]"],
+    '2.6.36' => ['🌟 Update 2.6.36: stop perks you can use anywhere',
+        "Fill a stop's Repairs, Larder or Cheer bar and you now earn a [b]perk for yourself[/b] that works everywhere for 7 days, instead of an extra turn at that one stop.\n\n"
+        . "[list][*][b]Repairs[/b]: Light Feet (cheaper road walks), Good Bones (more healing).\n"
+        . "[*][b]Larder[/b]: Seasoned (more energy from home-cooked food), Green Thumb (a chance of an extra harvest), Packed Lunch (longer meal boosts), Slow Simmer (faster pots).\n"
+        . "[*][b]Cheer[/b]: Spring in Step (faster walking), Bright Mood (more XP), Silver Tongue (cheaper shops).[/list]\n\n"
+        . "Up to 3 run at once. Earning the same one again refreshes it. See them in your effects list and on the stop's Perks card.\n\n"
+        . "Also: the daily limits on things to do in towns (like the Plaza of the Bells dance) now come back when you sleep into a new day, to match the town opening hours."],    '2.6.37' => ['💬 Update 2.6.37: messages with the game keeper',
+        "[list][*][b]Messages[/b]: the Together page has a new first tab, Messages. Notes you send with \"Send feedback\" show there, and so do the replies.\n"
+        . "[*][b]A yellow ![/b] on the Together menu tile and the Messages tab means a reply is waiting for you.\n"
+        . "[*][b]Write back[/b]: you can answer a reply right under it.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

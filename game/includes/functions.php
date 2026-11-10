@@ -484,7 +484,8 @@ function settings_schema(): array
         'care_min_life'      => ['label' => 'Soil care: soil life needed at harvest to earn a point', 'type' => 'int', 'default' => '25', 'min' => 0, 'max' => 100],
         'care_decay_days'    => ['label' => 'Soil care: wild ground loses a star every N days', 'type' => 'int', 'default' => '7', 'min' => 1, 'max' => 365],
         'fair_min_entries'   => ['label' => 'Harvest Fair: gnomes needed in a class for full prizes (fewer = half), and in the fair for Best in Show', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 50],
-        'feedback_per_day'   => ['label' => 'Feedback: notes a player can send per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 20],
+        'feedback_per_day'   => ['label' => 'Messages: new notes a player can send per day', 'type' => 'int', 'default' => '3', 'min' => 0, 'max' => 20],
+        'feedback_replies_per_day' => ['label' => 'Messages: replies a player can send per day (under notes they already sent)', 'type' => 'int', 'default' => '20', 'min' => 0, 'max' => 200],
         'letters_per_day'    => ['label' => 'Lost Letters: letters per day', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 5],
         'fair_prize_1'       => ['label' => 'Harvest Fair: 1st place Petals (each class)', 'type' => 'int', 'default' => '600', 'min' => 0, 'max' => 100000],
         'fair_prize_2'       => ['label' => 'Harvest Fair: 2nd place Petals (each class)', 'type' => 'int', 'default' => '300', 'min' => 0, 'max' => 100000],
@@ -552,6 +553,17 @@ function settings_schema(): array
         'food_mastery_stat_pct' => ['label' => 'Foods: % stronger meal boost per mastery step', 'type' => 'int', 'default' => '10', 'min' => 0, 'max' => 200],
         'food_mastery_time_pct' => ['label' => 'Foods: % longer meal boost per mastery step', 'type' => 'int', 'default' => '15', 'min' => 0, 'max' => 200],
         'food_mastery_energy_pct' => ['label' => 'Foods: % more energy per mastery step', 'type' => 'int', 'default' => '10', 'min' => 0, 'max' => 200],
+        'perk_days'          => ['label' => 'Perks: game days a stop perk lasts', 'type' => 'int', 'default' => '7', 'min' => 1, 'max' => 60],   // 2.6.33
+        'perk_max'           => ['label' => 'Perks: most stop perks running at once', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 9],
+        'perk_light_feet'    => ['label' => 'Perks: Light Feet, energy off a road walk', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 5],
+        'perk_good_bones'    => ['label' => 'Perks: Good Bones, % more healing', 'type' => 'int', 'default' => '25', 'min' => 0, 'max' => 200],
+        'perk_seasoned'      => ['label' => 'Perks: Seasoned, % more energy from home-cooked dishes', 'type' => 'int', 'default' => '20', 'min' => 0, 'max' => 200],
+        'perk_green_thumb'   => ['label' => 'Perks: Green Thumb, % chance of one extra per harvest', 'type' => 'int', 'default' => '10', 'min' => 0, 'max' => 100],
+        'perk_packed_lunch'  => ['label' => 'Perks: Packed Lunch, % longer meal boosts', 'type' => 'int', 'default' => '25', 'min' => 0, 'max' => 200],
+        'perk_slow_simmer'   => ['label' => 'Perks: Slow Simmer, % less cooking time', 'type' => 'int', 'default' => '20', 'min' => 0, 'max' => 90],
+        'perk_spring_step'   => ['label' => 'Perks: Spring in Step, % less walking time', 'type' => 'int', 'default' => '15', 'min' => 0, 'max' => 90],
+        'perk_bright_mood'   => ['label' => 'Perks: Bright Mood, % more XP', 'type' => 'int', 'default' => '10', 'min' => 0, 'max' => 200],
+        'perk_silver_tongue' => ['label' => 'Perks: Silver Tongue, % off shop prices', 'type' => 'int', 'default' => '5', 'min' => 0, 'max' => 50],
         'calling_level'      => ['label' => 'Calling: gnome level to choose a calling', 'type' => 'int', 'default' => '5', 'min' => 1, 'max' => 100],
         'calling_change_cost' => ['label' => 'Calling: Petals for the first change (doubles each time)', 'type' => 'int', 'default' => '500', 'min' => 0, 'max' => 1000000],   // v0.9.1a
         'calling_tier2_level' => ['label' => 'Calling: gnome level for calling tier II (Journeyman)', 'type' => 'int', 'default' => '15', 'min' => 1, 'max' => 100],   // v0.9.1

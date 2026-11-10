@@ -83,11 +83,11 @@ function festival_treat(array $u, string $town): array
     // A town_uses slot of its own. v0.7.61: a big positive number (it was negative, which MySQL's unsigned
     // column refused, so everyone was told they'd already had their treat).
     $key = 2000000000 + (int)array_search($town, array_keys(TOWN_FESTIVALS), true);
-    if (q_val('SELECT 1 FROM town_uses WHERE user_id = ? AND action_id = ? AND day = ?', [$uid, $key, town_day()])) {
+    if (q_val('SELECT 1 FROM town_uses WHERE user_id = ? AND action_id = ? AND day = ?', [$uid, $key, town_use_day()])) {
         return [false, 'You’ve had your festival treat today. Enjoy the rest of the party!'];
     }
     try {
-        db_insert('town_uses', ['user_id' => $uid, 'action_id' => $key, 'day' => town_day(), 'uses' => 1]);
+        db_insert('town_uses', ['user_id' => $uid, 'action_id' => $key, 'day' => town_use_day(), 'uses' => 1]);
     } catch (PDOException $e) {
         return [false, 'You’ve had your festival treat today. Enjoy the rest of the party!'];
     }
@@ -240,11 +240,17 @@ function town_day(): string
     return hollow_date('Y-m-d');
 }
 
+/** 2.6.36: the day a gnome's daily uses (actions, festival treats) count by: their own game day (the real Hollow day when the game clock is off). */
+function town_use_day(): string
+{
+    return gclock_my_date();
+}
+
 /** Uses of each action today: [action_id => uses]. */
 function town_uses_today(int $uid): array
 {
     $out = [];
-    foreach (q('SELECT action_id, uses FROM town_uses WHERE user_id = ? AND day = ?', [$uid, town_day()])->fetchAll() as $r) $out[(int)$r['action_id']] = (int)$r['uses'];
+    foreach (q('SELECT action_id, uses FROM town_uses WHERE user_id = ? AND day = ?', [$uid, town_use_day()])->fetchAll() as $r) $out[(int)$r['action_id']] = (int)$r['uses'];
     return $out;
 }
 
@@ -289,7 +295,7 @@ function town_chance(array $u, array $a): int
 function town_claim_use(int $uid, array $a): bool
 {
     if ((int)$a['daily'] <= 0) return true;   // as often as you like
-    $day = town_day();
+    $day = town_use_day();
     $row = q_one('SELECT id FROM town_uses WHERE user_id = ? AND action_id = ? AND day = ?', [$uid, $a['id'], $day]);
     if (!$row) {
         try {

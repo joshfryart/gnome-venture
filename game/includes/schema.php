@@ -407,6 +407,16 @@ function schema_statements(string $driver): array
         UNIQUE (user_id, item_id)
     )$END";
 
+    $t[] = "CREATE TABLE IF NOT EXISTS player_perks (
+        id $PK,
+        user_id $ID NOT NULL,
+        perk_key VARCHAR(30) NOT NULL,
+        meter VARCHAR(12) NOT NULL DEFAULT '',
+        until VARCHAR(10) NOT NULL,
+        from_location_id $ID NULL,
+        UNIQUE (user_id, perk_key)
+    )$END";
+
     $t[] = "CREATE TABLE IF NOT EXISTS user_food_mastery (
         id $PK,
         user_id $ID NOT NULL,
@@ -1030,6 +1040,15 @@ function schema_statements(string $driver): array
         created_at DATETIME NOT NULL
     )$END";   // v0.8.6: notes players send from the menu (Admin → Feedback)
 
+    $t[] = "CREATE TABLE IF NOT EXISTS feedback_replies (
+        id $PK,
+        feedback_id $ID NOT NULL,
+        user_id $ID NOT NULL,
+        from_admin TINYINT NOT NULL DEFAULT 0,
+        body VARCHAR(2000) NOT NULL,
+        created_at DATETIME NOT NULL
+    )$END";   // v2.6.37: messages: replies under a feedback note, from the admin (from_admin = 1) or the player
+
     $t[] = "CREATE TABLE IF NOT EXISTS site_texts (
         skey VARCHAR(60) NOT NULL PRIMARY KEY,
         body TEXT NOT NULL,
@@ -1280,6 +1299,8 @@ function schema_statements(string $driver): array
         'CREATE INDEX idx_routes_b ON routes (b_id)',
         'CREATE INDEX idx_drops_creature ON creature_drops (creature_id)',
         'CREATE INDEX idx_exped_user ON expeditions (user_id, status)',
+        'CREATE INDEX idx_fbr_fb ON feedback_replies (feedback_id)',   // v2.6.37
+        'CREATE INDEX idx_feedback_user ON feedback (user_id)',
         'CREATE INDEX idx_loc_region ON locations (region_id)',
         'CREATE INDEX idx_loc_zone ON locations (zone_id)',
         'CREATE INDEX idx_plants_region ON plants (region_code)',
@@ -1330,6 +1351,8 @@ function schema_statements(string $driver): array
     // Columns added after v0.7.0 (fresh install). Older installs get them via "Upgrade database".
     $c = [
         ['users', 'gnome_name', 'VARCHAR(30) NULL'],
+        ['feedback', 'user_unread', 'TINYINT NOT NULL DEFAULT 0'],     // v2.6.37 messages: 1 = an admin reply the player has not opened yet
+        ['feedback', 'last_at', 'DATETIME NULL'],                      // v2.6.37 messages: time of the newest message in the thread
         ['cook_pots', 'pal_uid', 'VARCHAR(16) NULL'],                  // pal passive cooking: the pal tending this pot (NULL = the gnome's own pot)
         ['users', 'theme', "VARCHAR(8) NOT NULL DEFAULT 'dark'"],      // v1.6.5: dark / light / auto
         ['users', 'hp', 'INT NULL'],                                   // v2.3.5: the gnome's health (NULL = full), see includes/health.php

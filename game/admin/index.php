@@ -76,9 +76,12 @@ page_header('Dashboard', true);
   <div class="flash err">Security: delete <code>install.php</code> from your server.</div>
 <?php endif; ?>
 
+<?php $errN = admin_error_count(); if ($errN): ?>
+  <div class="flash err">⚠️ The error log has <?= $errN ?> entr<?= $errN === 1 ? 'y' : 'ies' ?>. <a href="<?= e(url('admin/tools.php#errors')) ?>">Look</a></div>
+<?php endif;   // v2.6.37 ?>
 <?php $fbNew = (int)q_val("SELECT COUNT(*) FROM feedback WHERE status = 'new'"); if ($fbNew): ?>
-  <div class="flash ok">💬 <?= $fbNew ?> new feedback note<?= $fbNew === 1 ? '' : 's' ?> from players. <a href="<?= e(url('admin/feedback.php')) ?>">Read</a></div>
-<?php endif;   // v0.8.6 ?>
+  <div class="flash ok">💬 <?= $fbNew ?> message<?= $fbNew === 1 ? '' : 's' ?> from players waiting for you. <a href="<?= e(url('admin/feedback.php')) ?>">Read and reply</a></div>
+<?php endif;   // v0.8.6; v2.6.37: messages ?>
 <?php admin_menu_render();   // v1.6.3: sections of .choice rows ?>
 <h2>At a glance</h2>
 <div class="stats">
@@ -99,19 +102,6 @@ page_header('Dashboard', true);
 <div class="box">
   <h3>Art</h3>
   <p><?= $artH ?> of <?= $artT ?> pictures in. <a href="<?= e(url('admin/images.php#missing')) ?>">Missing art and upload →</a></p>
-</div>
-
-<div class="box">
-  <h3>Shop staffing</h3>
-  <table class="grid">
-    <tr><th>Shop</th><th>Status</th><th>Unstaffed hours / week</th><th></th></tr>
-    <?php foreach (q('SELECT id, name, open FROM shops ORDER BY name')->fetchAll() as $s):
-        $gaps = coverage_gaps(shop_coverage((int)$s['id'])); ?>
-      <tr><td><?= e($s['name']) ?></td><td><?= (int)$s['open'] ? 'Open' : '<span class="muted">Closed</span>' ?></td>
-        <td><?= $gaps ? '<span class="bad">' . $gaps . '</span>' : '<span class="good">0 ✔</span>' ?></td>
-        <td><a href="<?= e(url('admin/crud.php?r=shops&action=edit&id=' . (int)$s['id'])) ?>">View</a></td></tr>
-    <?php endforeach; ?>
-  </table>
 </div>
 
 <div class="box">

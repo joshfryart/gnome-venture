@@ -345,6 +345,8 @@ function shop_price(array $u, int $price, int $shopId, int $itemId = 0): int
     $d = friend_discount((int)$u['id'], $shopId);
     $sale = q_val('SELECT ev_sale_until FROM users WHERE id = ?', [$u['id']]);
     if ($sale && strtotime($sale . ' UTC') > time()) $d += 20;   // the weather vane (v0.7.31)
+    require_once __DIR__ . '/player_perks.php';
+    $d += player_perk_pct((int)$u['id'], 'silver_tongue', 'perk_silver_tongue');   // 2.6.33
     $p = $d ? max(1, (int)round($p * (100 - min(60, $d)) / 100)) : $p;
     return $itemId > 0 ? max(1, (int)round($p * market_buy_mult($itemId))) : $p;   // v1.0.0: seasonal seeds and crops cost a little less in season
 }

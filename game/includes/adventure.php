@@ -187,6 +187,11 @@ function route_danger(array $u, array $route): array
 function route_walk_minutes(array $u, array $route): array
 {
     $mins = (int)$route['minutes'];
+    if ($mins > 0 && !empty($u['id'])) {   // 2.6.33: Spring in Step perk
+        require_once __DIR__ . '/player_perks.php';
+        $sp = player_perk_pct((int)$u['id'], 'spring_step', 'perk_spring_step');
+        if ($sp > 0) $mins = max(1, (int)round($mins * (100 - $sp) / 100));
+    }
     $pct = (int)setting('low_road_time_pct');
     if ($mins <= 0 || $pct >= 100) return [$mins, false];
     [, $hi] = route_danger($u, $route);
@@ -197,7 +202,12 @@ function route_walk_minutes(array $u, array $route): array
 function route_energy(array $u, array $route): int
 {
     if (($route['kind'] ?? 'road') === 'road' && calling_perk($u, 'free_walks') > 0) return 0;   // v0.9.1: Master Wayfinders walk roads for free (the old halving is gone)
-    return max(1, intdiv((int)$route['steps'], 3));   // v0.7.23 scale: 1 for a short walk, 2 for a long one
+    $cost = max(1, intdiv((int)$route['steps'], 3));   // v0.7.23 scale: 1 for a short walk, 2 for a long one
+    if (($route['kind'] ?? 'road') === 'road' && !empty($u['id'])) {   // 2.6.33: Light Feet perk
+        require_once __DIR__ . '/player_perks.php';
+        $cost = max(0, $cost - player_perk_pct((int)$u['id'], 'light_feet', 'perk_light_feet'));
+    }
+    return $cost;
 }
 
 function start_expedition(array $u, int $routeId): array

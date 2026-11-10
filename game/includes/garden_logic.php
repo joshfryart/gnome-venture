@@ -1438,6 +1438,8 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
             if ($full > $qty) $msgs[] = '📕 Unstudied: you’d have harvested ' . $full . ' with ' . (plant_home_name((int)$p['id']) ?: 'its region') . ' studied.';
         }   // v0.7.64: regrowths give a bit less than the first crop
         if ($p['produce_item_id'] && $qty > 0) {
+            require_once __DIR__ . '/player_perks.php';
+            if ($qty > 0 && ($gt = player_perk_pct($uid, 'green_thumb', 'perk_green_thumb')) > 0 && mt_rand(1, 100) <= $gt) { $qty++; $msgs[] = '🌱 Green Thumb: one extra!'; }   // 2.6.33
             $kept = $helper !== null ? max(1, (int)floor($qty * (100 - (int)setting('helper_cut_percent')) / 100)) : $qty;
             give_item($uid, (int)$p['produce_item_id'], $kept);
             require_once __DIR__ . '/food_mastery.php';
