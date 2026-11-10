@@ -45,7 +45,7 @@
     var outs = form.querySelectorAll('output');
     var how = game.querySelector('.spithow');
     var cv = document.createElement('canvas');
-    cv.width = W; cv.height = H; cv.className = 'spitcv';
+    cv.width = W * 2; cv.height = H * 2; cv.className = 'spitcv';
     cv.setAttribute('role', 'img');
     cv.setAttribute('aria-label', 'Seed spitting field. Drag back from anywhere like a slingshot and let go, or use the angle and power sliders below.');
     game.insertBefore(cv, form);
@@ -69,13 +69,11 @@
       if (m) { var n = parseInt(m[1], 16); dark = (0.3 * (n >> 16) + 0.59 * ((n >> 8) & 255) + 0.11 * (n & 255)) < 110; }
       pal = { dark: dark, ink: g('--ink', '#1f2a1c'), muted: g('--muted', '#5f6a5a'), brand: g('--brand', '#2f6f3e'), accent: g('--accent', '#b8862b'),
         line: g('--line-2', '#c6c1ad'), danger: g('--danger', '#a7332a'),
-        sky0: dark ? '#14233a' : '#cfe6f7', sky1: dark ? '#22403a' : '#eef6e6', hill: dark ? '#1f3a2a' : '#b9d6a0',
+        sky0: dark ? '#14233a' : '#cfe6f7', sky1: dark ? '#22403a' : '#eef6e6', hill: dark ? '#1f3a2a' : '#b9d6a0', hill2: dark ? '#1a2f33' : '#cfe3c2', cloud: dark ? '#2f4a63' : '#ffffff',
         ground: dark ? '#4a3a26' : '#8a6a42', grass: dark ? '#2f6a3c' : '#6fae4a', seed: dark ? '#f1e6c8' : '#2b2118' };
       palAt = now;
       return pal;
     }
-    function px(cm) { return X0 + cm * PXCM; }
-    function py(cm) { return GY - cm * PXCM; }
 
     function sync(fromSliders) {
       angle = Math.round(clamp(angle, P.amin, P.amax)); power = Math.round(clamp(power, 0, 100));
@@ -87,106 +85,202 @@
     angS.addEventListener('input', function () { if (state !== 'ready') return; angle = +angS.value; power = +powS.value; sync(true); });
     powS.addEventListener('input', function () { if (state !== 'ready') return; angle = +angS.value; power = +powS.value; sync(true); });
 
-    /* ---- drawing ---- */
-    function drawWind(c, t) {
+    /* ---- drawing (v2.6.45: stitched-toy pixel look, drawn at 2x so one art pixel is 2 device pixels) ---- */
+    var cam = 0, parts = [], seenBounce = {}, landAt = 0, kickAt = 0;
+    var CLOUDS = [[20, 26, 5], [150, 14, 7], [260, 38, 4], [340, 20, 6]];
+    var RATE = 45;   // path points per second (the path has one every 1/30 s of flight, so this plays it a bit fast and snappy)
+    function sx(cm) { return Math.round(X0 + cm * PXCM - cam); }
+    function px(cm) { return X0 + cm * PXCM - cam; }
+    function py(cm) { return GY - cm * PXCM; }
+    function sn(v) { return Math.round(v); }
+    function pxText(c, s, x, y, col, size, align) {
+      c.font = 'bold ' + size + 'px system-ui, sans-serif'; c.textAlign = align || 'left';
+      c.fillStyle = 'rgba(42,26,16,.55)'; c.fillText(s, x + 1, y + 1);
+      c.fillStyle = col; c.fillText(s, x, y);
+    }
+    function puff(wx, y, n, col, up) {
+      for (var i = 0; i < n; i++) parts.push({ x: wx, y: y, vx: (Math.random() - 0.5) * 60, vy: -(up ? 30 : 10) - Math.random() * 40, life: 0, max: 380 + Math.random() * 260, col: col, s: 2 + (Math.random() < 0.4 ? 2 : 0) });
+    }
+    function drawParts(c, dt) {
+      for (var i = parts.length - 1; i >= 0; i--) {
+        var p = parts[i]; p.life += dt * 1000;
+        if (p.life >= p.max) { parts.splice(i, 1); continue; }
+        p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 110 * dt;
+        c.globalAlpha = 1 - p.life / p.max; c.fillStyle = p.col;
+        c.fillRect(sn(p.x - cam), sn(p.y), p.s, p.s);
+      }
+      c.globalAlpha = 1;
+    }
+    function drawWind(c, t, k) {
       var fx = W - 46, fy = 58, len = 6 + 34 * Math.min(1, Math.abs(wind) / wmax), dir = wind >= 0 ? 1 : -1;
-      c.strokeStyle = c.fillStyle = c.__ink;
-      c.lineWidth = 2; c.beginPath(); c.moveTo(fx, fy + 30); c.lineTo(fx, fy - 6); c.stroke();
-      if (wind === 0) { c.fillStyle = c.__muted; c.font = '11px system-ui, sans-serif'; c.fillText('calm', fx - 10, fy + 44); return; }
-      c.fillStyle = gust ? c.__accent : c.__brand;
-      c.beginPath(); c.moveTo(fx, fy - 6);
+      c.fillStyle = k.ink; c.fillRect(fx - 1, fy - 6, 2, 36); c.fillRect(fx - 3, fy + 28, 6, 2);
+      if (wind === 0) { pxText(c, 'calm', fx, fy + 44, k.muted, 11, 'center'); return; }
       var seg = 6, amp = 3 + 3 * Math.min(1, Math.abs(wind) / wmax);
-      for (var i = 1; i <= seg; i++) c.lineTo(fx + dir * len * i / seg, fy - 6 + amp * Math.sin(t / 160 - i * 0.9) * (i / seg) + 2 * i / seg);
-      for (var j = seg; j >= 1; j--) c.lineTo(fx + dir * len * j / seg, fy + 8 + amp * Math.sin(t / 160 - j * 0.9) * (j / seg) - 3 * j / seg + 2);
-      c.lineTo(fx, fy + 8); c.closePath(); c.fill();
-      // little wind streaks drifting with the wind
-      c.strokeStyle = c.__muted; c.globalAlpha = 0.45; c.lineWidth = 1.5;
+      c.fillStyle = gust ? k.accent : k.brand;
+      for (var i = 0; i < seg; i++) {   // the windsock: stepped bands that ripple
+        var bx = fx + dir * len * i / seg, bw = Math.max(2, Math.round(len / seg)), oy = Math.round(amp * Math.sin(t / 160 - i * 0.9) * (i / seg));
+        c.fillRect(dir > 0 ? sn(bx) : sn(bx - bw), fy - 6 + oy + i, bw, 14 - i);
+        if (i % 2) { c.fillStyle = k.ink; c.fillRect(dir > 0 ? sn(bx) : sn(bx - bw), fy - 6 + oy + i, 1, 14 - i); c.fillStyle = gust ? k.accent : k.brand; }
+      }
+      c.fillStyle = k.muted; c.globalAlpha = 0.5;   // drifting streaks
       for (var s = 0; s < 6; s++) {
         var sp = (Math.abs(wind) / wmax) * 0.06 + 0.02, xx = ((s * 83 + t * sp * dir) % W + W) % W, yy = 24 + (s * 37) % 110;
-        c.beginPath(); c.moveTo(xx, yy); c.lineTo(xx + dir * (10 + 14 * Math.abs(wind) / wmax), yy); c.stroke();
+        c.fillRect(sn(xx), yy, sn(8 + 12 * Math.abs(wind) / wmax), 1);
       }
       c.globalAlpha = 1;
-      c.fillStyle = c.__muted; c.font = '11px system-ui, sans-serif';
-      c.fillText(Math.abs(wind) + ' cm/s', fx - 22, fy + 44);
+      pxText(c, Math.abs(wind) + ' cm/s', fx, fy + 44, k.muted, 11, 'center');
     }
-    function guide(c) {
+    function guide(c, k) {
       var p = sim(P, angle, power, wind, grit, nim, true).pts, n = Math.min(p.length, 8 + 5 * nim);
-      c.fillStyle = c.__ink;
-      for (var i = 1; i < n; i++) { c.globalAlpha = 0.85 - 0.6 * i / n; c.beginPath(); c.arc(px(p[i][0]), py(p[i][1]) - 0, 2.2, 0, 7); c.fill(); }
+      for (var i = 1; i < n; i++) {
+        c.globalAlpha = 0.9 - 0.65 * i / n; c.fillStyle = k.ink;
+        c.fillRect(sn(px(p[i][0])) - 1, sn(py(p[i][1])) - 1, 3, 3);
+        c.fillStyle = k.accent; c.fillRect(sn(px(p[i][0])), sn(py(p[i][1])), 1, 1);
+      }
       c.globalAlpha = 1;
     }
-    function draw(t) {
+    function gnomePose(t) {   // [lean radians, squash x, squash y]: winds back while you pull, springs forward on release
+      if (kickAt) {
+        var e = (t - kickAt) / 380;
+        if (e < 1) { var s = Math.sin(e * Math.PI * 2.2) * (1 - e); return [0.22 * s, 1 - 0.1 * s, 1 + 0.16 * s]; }
+      }
+      if (drag && drag.len) { var f = drag.len / MAXPULL; return [-0.32 * f, 1 + 0.08 * f, 1 - 0.14 * f]; }
+      return [0.02 * Math.sin(t / 700), 1, 1 + 0.015 * Math.sin(t / 350)];   // idle: a slow breath
+    }
+    function drawGnome(c, t, k) {
+      var gi = gnomeIco(), ps = gnomePose(t), gx = sn(X0 - 17 - cam), gy = GY + 2;
+      c.fillStyle = 'rgba(42,26,16,.28)'; c.fillRect(gx - 12, GY, 24, 3);   // its shadow
+      c.save(); c.translate(gx, gy); c.rotate(ps[0]); c.scale(ps[1], ps[2]);
+      if (gi) { try { c.drawImage(gi, -17, -34, 34, 34); } catch (e) { c.font = '34px system-ui, "Apple Color Emoji", sans-serif'; c.textAlign = 'center'; c.fillText('🧑‍🌾', 0, 0); } }
+      else { c.font = '34px system-ui, "Apple Color Emoji", sans-serif'; c.textAlign = 'center'; c.fillText('🧑‍🌾', 0, 0); }
+      c.restore(); c.textAlign = 'left';
+    }
+    function draw(t, dt) {
       var c = ctx, k = colors();
-      c.__ink = k.ink; c.__muted = k.muted; c.__brand = k.brand; c.__accent = k.accent;
+      c.setTransform(2, 0, 0, 2, 0, 0); c.globalAlpha = 1; c.setLineDash([]); c.imageSmoothingEnabled = false; c.textBaseline = 'alphabetic';
       var gr = c.createLinearGradient(0, 0, 0, GY); gr.addColorStop(0, k.sky0); gr.addColorStop(1, k.sky1);
       c.fillStyle = gr; c.fillRect(0, 0, W, H);
-      c.fillStyle = k.hill; c.beginPath(); c.moveTo(0, GY);
-      for (var x = 0; x <= W; x += 20) c.lineTo(x, GY - 26 - 14 * Math.sin(x / 55) - 8 * Math.sin(x / 23));
-      c.lineTo(W, GY); c.closePath(); c.fill();
-      c.fillStyle = k.ground; c.fillRect(0, GY, W, H - GY);
-      c.fillStyle = k.grass; c.fillRect(0, GY, W, 6);
-      // distance ticks and the prize lines
-      c.font = '10px system-ui, sans-serif'; c.textAlign = 'center';
-      for (var d = 10; d <= 90; d += 10) {
-        var prize = d === 30 || d === 60, X = px(d);
-        if (X > W - 4) break;
-        c.strokeStyle = k.line; c.lineWidth = 1; c.beginPath(); c.moveTo(X, GY); c.lineTo(X, GY + 6); c.stroke();
-        c.fillStyle = k.ink; c.globalAlpha = 0.8; c.fillText(String(d), X, GY + 17); c.globalAlpha = 1;
-        if (prize) { c.setLineDash([3, 4]); c.strokeStyle = k.accent; c.beginPath(); c.moveTo(X, GY); c.lineTo(X, GY - 70); c.stroke(); c.setLineDash([]); }
+      // clouds (slow parallax, blown by the wind)
+      c.fillStyle = k.cloud;
+      for (var ci = 0; ci < CLOUDS.length; ci++) {
+        var cl = CLOUDS[ci], cx = ((cl[0] - cam * 0.12 + t * 0.004 * (wind >= 0 ? 1 : -1) * (1 + Math.abs(wind) / wmax)) % (W + 80) + W + 80) % (W + 80) - 40, w = cl[2] * 6;
+        c.fillRect(sn(cx), cl[1], w, 6); c.fillRect(sn(cx) + 6, cl[1] - 4, w - 12, 4); c.fillRect(sn(cx) + 3, cl[1] + 6, w - 6, 3);
       }
-      c.setLineDash([3, 4]); c.strokeStyle = k.accent; c.beginPath(); c.moveTo(px(45), GY); c.lineTo(px(45), GY - 70); c.stroke(); c.setLineDash([]);
-      c.fillStyle = k.accent; c.font = 'bold 10px system-ui, sans-serif';
-      c.fillText('30', px(30), GY - 73); c.fillText('45', px(45), GY - 73); c.fillText('60', px(60), GY - 73);
-      c.fillStyle = k.muted; c.font = '10px system-ui, sans-serif'; c.fillText('cm', W - 12, GY + 17);
-      c.textAlign = 'left';
-      drawWind(c, t);
-      // the gnome
-      c.font = '34px system-ui, "Apple Color Emoji", "Segoe UI Emoji", sans-serif'; c.textBaseline = 'alphabetic';
-      var gi = gnomeIco();
-      if (gi) { try { c.drawImage(gi, X0 - 34, GY - 32, 34, 34); } catch (e) { c.fillText('🧑‍🌾', X0 - 34, GY + 2); } } else c.fillText('🧑‍🌾', X0 - 34, GY + 2);
+      // two stepped hill layers
+      for (var layer = 0; layer < 2; layer++) {
+        c.fillStyle = layer ? k.hill : k.hill2; var par = layer ? 0.3 : 0.15, base = layer ? 26 : 44;
+        for (var x = 0; x < W; x += 4) {
+          var wx = x + cam * par, h = sn(base + (layer ? 14 : 10) * Math.sin(wx / (layer ? 55 : 80)) + 6 * Math.sin(wx / 23));
+          c.fillRect(x, GY - h, 4, h);
+        }
+      }
+      c.fillStyle = k.ground; c.fillRect(0, GY, W, H - GY);
+      c.fillStyle = k.grass; c.fillRect(0, GY, W, 5);
+      c.fillStyle = k.ink; c.globalAlpha = 0.35; c.fillRect(0, GY + 5, W, 1); c.globalAlpha = 1;
+      var lean = wind === 0 ? 0 : (wind > 0 ? 1 : -1) * Math.min(2, Math.round(Math.abs(wind) / wmax * 3));
+      c.fillStyle = k.grass;
+      for (var gxp = -((cam | 0) % 10); gxp < W; gxp += 10) {   // grass tufts that lean with the wind
+        var tw = Math.round(1 + 1.2 * Math.sin(t / 380 + (gxp + cam) * 0.7));
+        c.fillRect(gxp, GY - 3, 2, 3); c.fillRect(gxp + lean + tw, GY - 5, 2, 2);
+      }
+      // distance ticks and the prize stakes
+      c.font = '10px system-ui, sans-serif'; c.textAlign = 'center';
+      var d0 = Math.max(10, Math.floor(cam / PXCM / 10) * 10);
+      for (var d = d0; d <= d0 + 100; d += 10) {
+        var X = sx(d); if (X < 0) continue; if (X > W - 14) break;
+        c.fillStyle = k.line; c.fillRect(X, GY + 5, 1, 4);
+        c.fillStyle = k.ink; c.globalAlpha = 0.8; c.fillText(String(d), X, GY + 19); c.globalAlpha = 1;
+      }
+      var PR = [30, 45, 60], got = fly && landAt ? fly.mm / 10 : -1;
+      for (var pi = 0; pi < 3; pi++) {
+        var PX = sx(PR[pi]); if (PX < -8 || PX > W + 8) continue;
+        var hit = got >= PR[pi];
+        for (var yy = GY - 4; yy > GY - 66; yy -= 8) { c.fillStyle = k.accent; c.globalAlpha = hit ? 1 : 0.7; c.fillRect(PX, yy, 2, 4); }
+        c.globalAlpha = 1; c.fillStyle = hit ? k.accent : k.ink; c.fillRect(PX - 4, GY - 70, 10, 5);   // a little pennant
+        c.fillStyle = hit ? k.ink : k.accent; c.fillRect(PX - 3, GY - 69, 8, 3);
+        pxText(c, String(PR[pi]), PX + 1, GY - 74, k.accent, 10, 'center');
+      }
+      c.fillStyle = k.muted; c.font = '10px system-ui, sans-serif'; c.textAlign = 'right'; c.fillText('cm', W - 4, GY + 19); c.textAlign = 'left';
+      drawWind(c, t, k);
+      drawGnome(c, t, k);
       if (state === 'ready') {
-        guide(c);
+        guide(c, k);
         if (drag) {
-          c.strokeStyle = k.danger; c.lineWidth = 3; c.lineCap = 'round';
-          c.beginPath(); c.moveTo(drag.sx, drag.sy); c.lineTo(drag.cx, drag.cy); c.stroke();
-          c.fillStyle = k.danger; c.beginPath(); c.arc(drag.cx, drag.cy, 6, 0, 7); c.fill();
-          c.fillStyle = k.ink; c.font = 'bold 12px system-ui, sans-serif';
-          c.fillText(angle + '° · ' + power + '%', clamp(drag.cx + 10, 4, W - 80), clamp(drag.cy - 10, 14, H - 4));
+          c.setLineDash([4, 3]); c.strokeStyle = k.accent; c.lineWidth = 2;   // the sling is gold thread
+          c.beginPath(); c.moveTo(sn(drag.sx), sn(drag.sy)); c.lineTo(sn(drag.cx), sn(drag.cy)); c.stroke(); c.setLineDash([]);
+          c.fillStyle = k.ink; c.fillRect(sn(drag.cx) - 4, sn(drag.cy) - 4, 8, 8); c.fillStyle = k.danger; c.fillRect(sn(drag.cx) - 3, sn(drag.cy) - 3, 6, 6);
+          // power pips over the gnome
+          var gx0 = 6, on = Math.round(power / 10);
+          for (var pp = 0; pp < 10; pp++) { c.fillStyle = k.ink; c.fillRect(gx0 + pp * 5, GY - 50, 5, 6); c.fillStyle = pp < on ? (pp > 7 ? k.danger : k.accent) : k.line; c.fillRect(gx0 + pp * 5 + 1, GY - 49, 3, 4); }
+          pxText(c, angle + '°  ' + power + '%', clamp(drag.cx + 10, 4, W - 80), clamp(drag.cy - 10, 14, H - 4), k.ink, 12);
         } else {
-          c.fillStyle = k.muted; c.font = '12px system-ui, sans-serif';
-          c.fillText('← drag back, then let go', 70, 30);
+          pxText(c, '← drag back, then let go', 70, 30, k.muted, 12);
         }
       }
       if (fly) {
-        var el = (t - fly.t0) / 1000, idx = el * 60, pts = fly.pts, n = pts.length, cur;
-        c.fillStyle = k.ink;
+        var el = (t - fly.t0) / 1000, idx = Math.max(0, el * RATE), pts = fly.pts, n = pts.length, cur, i2;
         var upto = Math.min(n - 1, Math.floor(idx));
-        for (var i = 0; i <= upto; i += 1) { c.globalAlpha = 0.35; c.beginPath(); c.arc(px(pts[i][0]), py(pts[i][1]), 1.6, 0, 7); c.fill(); }
+        for (i2 = fly.seen + 1; i2 <= upto; i2++) {   // bounces and the landing kick up dust
+          var pt = pts[i2], prev = pts[i2 - 1], nxt = pts[i2 + 1];
+          if (i2 === n - 1 || (pt[1] < 3 && prev && prev[1] > pt[1] && nxt && nxt[1] > pt[1])) puff(X0 + pt[0] * PXCM, GY - 1, i2 === n - 1 ? 12 : 7, i2 % 2 ? k.ground : k.grass, true);
+        }
+        fly.seen = Math.max(fly.seen, upto);
+        c.fillStyle = k.ink; c.globalAlpha = 0.22;
+        for (i2 = 0; i2 <= upto; i2++) c.fillRect(sn(px(pts[i2][0])), sn(py(pts[i2][1])), 2, 2);
         c.globalAlpha = 1;
         if (idx >= n - 1) cur = pts[n - 1];
         else { var f = idx - Math.floor(idx), a = pts[Math.floor(idx)], b = pts[Math.floor(idx) + 1]; cur = [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]; }
-        // the seed
-        c.save(); c.translate(px(cur[0]), py(cur[1]) - 3); c.rotate(el * 14); c.fillStyle = k.seed;
-        c.beginPath(); c.ellipse(0, 0, 4.5, 2.6, 0, 0, 7); c.fill(); c.restore();
+        for (i2 = 1; i2 <= 9; i2++) {   // a bright comet tail
+          var tp = pts[Math.max(0, Math.floor(idx) - i2)];
+          if (!tp || idx >= n - 1) break;
+          c.globalAlpha = 0.6 * (1 - i2 / 10); c.fillStyle = k.accent; c.fillRect(sn(px(tp[0])), sn(py(tp[1])), 3, 3);
+        }
+        c.globalAlpha = 1;
+        // follow camera: keeps the seed about 60% across so long spits never leave the field
+        var want = Math.max(0, X0 + cur[0] * PXCM - W * 0.6);
+        cam += (want - cam) * Math.min(1, 6 * dt);
+        // shadow on the grass, smaller the higher the seed is
+        var sh = Math.max(2, Math.round(10 / (1 + cur[1] / 25)));
+        c.fillStyle = 'rgba(42,26,16,.35)'; c.fillRect(sn(px(cur[0])) - (sh >> 1), GY + 1, sh, 2);
+        // the seed: dark with a cream edge, tumbling
+        c.save(); c.translate(sn(px(cur[0])), sn(py(cur[1])) - 3); c.rotate(el * 14);
+        c.fillStyle = '#f6efd8'; c.fillRect(-4, -3, 8, 6); c.fillStyle = '#2b2118'; c.fillRect(-3, -2, 6, 4); c.fillStyle = '#7a5a30'; c.fillRect(-2, -2, 2, 1);
+        c.restore();
         var shown = idx >= n - 1 ? fly.mm / 10 : Math.max(0, cur[0]);
-        c.fillStyle = k.ink; c.font = 'bold 20px system-ui, sans-serif';
-        c.fillText(shown.toFixed(1) + ' cm', 14, 30);
+        var pop = landAt ? Math.max(0, 1 - (t - landAt) / 260) : 0;
+        pxText(c, shown.toFixed(1) + ' cm', 14, 30 + Math.round(pop * -4), pop ? k.accent : k.ink, 20 + Math.round(pop * 6));
         if (idx >= n - 1) {
-          c.fillStyle = k.accent; c.beginPath(); c.moveTo(px(fly.mm / 10), GY); c.lineTo(px(fly.mm / 10), GY - 26); c.lineTo(px(fly.mm / 10) + 12, GY - 21); c.lineTo(px(fly.mm / 10), GY - 16); c.closePath(); c.fill();
-          c.strokeStyle = k.ink; c.lineWidth = 2; c.beginPath(); c.moveTo(px(fly.mm / 10), GY); c.lineTo(px(fly.mm / 10), GY - 26); c.stroke();
+          if (!landAt) { landAt = t; }
+          var fxp = sx(fly.mm / 10), ft = (t - landAt) / 1000, drop = Math.max(0, 1 - ft / 0.22) * 36, bnc = ft > 0.22 && ft < 0.4 ? Math.round(Math.sin((ft - 0.22) / 0.18 * Math.PI) * 4) : 0;
+          var ry = GY - 28 - Math.round(drop) - bnc;
+          c.fillStyle = k.ink; c.fillRect(fxp, ry, 2, 28 + bnc + Math.round(drop)); c.fillRect(fxp, ry, 14, 10);   // flag pole + banner
+          c.fillStyle = k.accent; c.fillRect(fxp + 2, ry + 2, 10, 6);
+          c.fillStyle = k.ink; c.globalAlpha = Math.max(0, 0.6 - ft * 1.2);   // a ring of dust
+          var rr = Math.round(ft * 60); c.fillRect(fxp - rr, GY + 2, 4, 1); c.fillRect(fxp + rr, GY + 2, 4, 1); c.globalAlpha = 1;
+          var prize = got >= 60 ? 60 : got >= 45 ? 45 : got >= 30 ? 30 : 0;
+          if (prize && ft > 0.25) {   // twinkling stars and a label for the best line passed
+            for (var sp = 0; sp < 6; sp++) {
+              var ang = sp * 1.05 + ft * 2, rad = 14 + 10 * Math.sin(ft * 5 + sp), stx = fxp + 7 + Math.round(Math.cos(ang) * rad), sty = ry - 6 + Math.round(Math.sin(ang) * rad * 0.7), sz = (Math.floor(ft * 8 + sp) % 2) ? 3 : 1;
+              c.fillStyle = k.accent; c.fillRect(stx - sz, sty, 2 * sz + 1, 1); c.fillRect(stx, sty - sz, 1, 2 * sz + 1);
+            }
+            pxText(c, '★ ' + prize + ' cm prize!', 14, 52, k.accent, 14);
+          }
         }
       }
+      drawParts(c, dt || 0.016);
     }
 
     /* ---- the loop ---- */
     var reduce = !!rmq.matches;
+    var lastTs = 0;
     function frame(ts) {
       if (!game.isConnected) return;
-      draw(ts);
-      if (fly && ts - fly.t0 >= fly.end && !fly.sent) { fly.sent = true; setTimeout(send, reduce ? 100 : 200); }
+      var dt = lastTs ? Math.min(0.05, (ts - lastTs) / 1000) : 0.016; lastTs = ts;
+      draw(ts, dt);
+      if (fly && ts - fly.t0 >= fly.end && !fly.sent) { fly.sent = true; setTimeout(send, reduce ? 100 : 250); }
       if (!reduce || state === 'fly' || drag) RAF(frame);
     }
-    function redraw() { if (reduce && state === 'ready' && !drag) draw(performance.now()); }
+    function redraw() { if (reduce && state === 'ready' && !drag) draw(performance.now(), 0.016); }
     RAF(frame);
     if (reduce) { angS.addEventListener('input', redraw); powS.addEventListener('input', redraw); }
 
@@ -234,8 +328,9 @@
       angS.value = angle; powS.value = power; sync(true);
       var r = sim(P, angle, power, wind, grit, nim, true);
       var n = r.pts.length;
-      fly = { pts: r.pts, mm: r.mm, t0: performance.now(), end: reduce ? 1 : (n / 60) * 1000 + 100, sent: false };
-      if (reduce) draw(performance.now() + 5);
+      kickAt = performance.now(); puff(X0, GY - 22, 6, '#f6efd8', false);   // a puff from the gnome's cheeks
+      fly = { pts: r.pts, mm: r.mm, t0: reduce ? performance.now() - 60000 : performance.now(), end: reduce ? 1 : (n / RATE) * 1000 + 800, sent: false, seen: 0 };   // 800 ms hold so the landing and prize show before the page updates
+      if (reduce) { cam = Math.max(0, X0 + r.mm / 10 * PXCM - W * 0.6); draw(performance.now() + 5, 0.016); }
       RAF(frame);
       setTimeout(function () { if (state === 'fly' && fly && !fly.sent) { fly.sent = true; send(); } }, fly.end + 2500);   // v1.4.1: watchdog if frames stall
     }
