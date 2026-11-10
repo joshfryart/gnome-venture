@@ -5,7 +5,7 @@
   var GNOME = (/[?&]sheet=([\w\/.-]+)/.exec(location.search) || [])[1] || 'assets/img/fight/rig-gnome.png';
   var $ = function (id) { return document.getElementById(id); };
   if (/[?&]wide=1/.test(location.search)) document.querySelector('main').style.maxWidth = 'none';   // tools: a big stage to look at closely
-  var eng, busy = false, slug = (/[?&]foe=([\w-]+)/.exec(location.search) || [])[1] || 'wild-boar';
+  var eng, busy = false, slug = (/[?&]foe=([\w-]+)/.exec(location.search) || [])[1] || (FightEngine.DATA.rigs['wild-boar'] ? 'wild-boar' : Object.keys(FightEngine.DATA.rigs)[0]);
   var rigs = FightEngine.DATA.rigs, sel = $('cr'), groups = {};
   Object.keys(rigs).sort().forEach(function (s) { var a = rigs[s][0]; (groups[a] = groups[a] || []).push(s); });
   Object.keys(groups).sort().forEach(function (a) {
@@ -14,7 +14,7 @@
     sel.appendChild(g);
   });
   sel.value = slug;
-  function foeOf(s) { return { rig: s, sheet: pic('assets/img/fight/rig-' + s + '.png'), img: pic('assets/img/mini/mini-' + s + '.png'), col: 8, flip: true, side: 'foe', name: s.replace(/-/g, ' '), hp: 12 }; }
+  function foeOf(s) { return { rig: s, sheet: pic('assets/img/fight/rig-' + s + '.png'), img: pic('assets/img/mini/mini-' + s + '.png'), col: 8, flip: true, side: 'foe', name: s.replace(/^c25-/, '').replace(/-/g, ' '), hp: 12 }; }
   function mount() {
     if (eng) eng.destroy();
     eng = FightEngine.create($('stage'), { speed: $('slow').checked ? .3 : 1, onHatTap: function (id) { go([{ from: id, move: 'fixhat', heal: 5 }]); } });

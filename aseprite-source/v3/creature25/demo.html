@@ -1,0 +1,91 @@
+<title>Creature Style Rigs</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: one column. Three large live tiles first (the creatures standing, breathing, fidgeting, with buttons), then the fight stage against the gnome. The game's dark look, single theme by choice. */
+:root{color-scheme:dark;--bg:#150d08;--panel:#241810;--card:#3b2a1e;--line:#6b4f35;--tx:#e9d7a8;--dim:#b39a72;--gold:#d9b04a;--red:#e0566e;--grn:#2fae62;
+  --display:'Pixelify Sans',ui-monospace,Menlo,monospace;--body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font:15px/1.5 var(--body);padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+h1,h2,h3{font-family:var(--display);font-weight:700;color:var(--gold);margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:28px}h2{font-size:20px}h3{font-size:16px;color:var(--tx)}
+p{margin:0;max-width:65ch}.dim{color:var(--dim)}
+section{display:flex;flex-direction:column;gap:12px;min-width:0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.tile .fe-stage{border:0;padding:4px;background:none}
+.tile ul{margin:0;padding-left:18px;font-size:13px;color:var(--dim);display:flex;flex-direction:column;gap:2px}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+.tile .row button{flex:1 1 30%}
+button,select{font:600 13px var(--body);color:var(--gold);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:8px 10px;cursor:pointer;min-height:36px}
+button:hover{border-color:var(--gold)}button:focus-visible,select:focus-visible{outline:2px solid var(--tx);outline-offset:2px}
+select{width:100%}label{font-size:13px;display:flex;gap:6px;align-items:center}
+.play{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:760px){.play{grid-template-columns:minmax(0,1fr)}}
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.grp{display:flex;flex-direction:column;gap:6px}.grp>b{font:500 12px var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.sheet{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px}.sheet img{image-rendering:pixelated;display:block;max-width:none;height:232px}
+.note-rm{display:none;color:var(--red)}@media (prefers-reduced-motion:reduce){.note-rm{display:block}}
+</style>
+<main>
+<section>
+  <h1>Creature Style Rigs</h1>
+  <p>The three new-style creatures, cut into parts and moving on the fight engine. Leave them alone and they breathe, blink and fidget. Still a proposal: none of this is in the game.</p>
+  <p class="note-rm">Your device asks for reduced motion, so moves jump to their end and fidgets are off.</p>
+</section>
+<section><div class="tiles" id="tiles"></div></section>
+<section>
+  <h2>In a fight</h2>
+  <div class="play">
+    <div id="stage"></div>
+    <div class="side">
+      <div class="grp"><b>Foe</b><select id="cr" aria-label="Foe"></select><label><input type="checkbox" id="slow"> Slow motion (x0.3)</label></div>
+      <div class="grp"><b>Gnome</b><div class="row"><button data-act="pluck">Gnome Pluck</button><button data-act="attack">Attack</button><button data-act="guard">Guard</button><button data-act="flee">Flee</button></div></div>
+      <div class="grp"><b>Foe</b><div class="row"><button data-act="foe">Foe hits</button><button data-act="miss">Foe misses</button></div></div>
+      <div class="grp"><b>Endings</b><div class="row"><button data-act="win">Win</button><button data-act="lose">Lose</button></div></div>
+    </div>
+  </div>
+</section>
+<section>
+  <h2>The parts</h2>
+  <p class="dim">The sheet of the foe on the stage. Top row: each part painted whole. Bottom row: its 1-pixel outline, drawn behind all paint so the outline stays single while parts move.</p>
+  <div class="sheet"><img id="sheet" alt="Sheet of rig parts for the chosen creature"></div>
+  <p class="dim" id="bones"></p>
+</section>
+</main>
+<!--JS-->
+<script>
+window.feGallery = function (groups, foeOf) {
+  var INFO = {
+    'c25-boar': ['Wild boar', ['The leaf is a spring: it whips when he moves', 'He snorts before a charge, when hit, and as a fidget', 'Paws the ground, sniffs, scratches']],
+    'c25-hawk': ['Great hawk', ['The kinked crest feather is a spring', 'Swoops: beats up, folds, dives talons first', 'Looks about, preens, stretches a wing']],
+    'c25-frog': ['Bullfrog', ['The fly buzzes between his eyes', 'It takes off when he hops or is hit, then lands again', 'Fidget: he snaps at the fly and misses']]
+  };
+  var D = FightEngine.DATA, tiles = document.getElementById('tiles');
+  Object.keys(INFO).forEach(function (slug) {
+    var t = document.createElement('div'); t.className = 'tile';
+    t.innerHTML = '<div></div><h3></h3><ul></ul><div class="row"><button type="button">Attack</button><button type="button">Hit</button><button type="button">Fidget</button><button type="button">Run</button><button type="button">Knock out</button><button type="button">Fight</button></div>';
+    t.children[1].textContent = INFO[slug][0];
+    INFO[slug][1].forEach(function (s) { var li = document.createElement('li'); li.textContent = s; t.children[2].appendChild(li); });
+    tiles.appendChild(t);
+    var host = t.children[0], eng, n = 0, down = false;
+    function mount() { if (eng) eng.destroy(); eng = FightEngine.create(host, { cols: 5, rows: 3 }); var o = foeOf(slug); o.col = 2; o.flip = false; o.side = null; o.hp = 9999; eng.add('foe', o); down = false; }
+    mount();
+    var b = t.querySelectorAll('button');
+    function up() { if (down) mount(); return eng.acts.foe.rig; }
+    b[0].onclick = function () { var r = up(); eng.play([{ from: 'foe', move: r.attack }]); };
+    b[1].onclick = function () { up(); eng.play([{ from: 'foe', move: 'hurt', dmg: 1 }]); };
+    b[2].onclick = function () { var l = up().fidgets || []; if (l.length) eng.fidget('foe', l[n++ % l.length]); };
+    b[3].onclick = function () { up(); var a = eng.pose('foe', 'run'); setTimeout(function () { a.forEach(function (x) { x.cancel(); }); }, 1600); };
+    b[4].onclick = function () { if (down) { mount(); b[4].textContent = 'Knock out'; return; } eng.play([{ from: 'foe', move: 'hurt', dmg: 99999 }]); down = true; b[4].textContent = 'Stand up'; };
+    b[5].setAttribute('data-foe', slug);
+  });
+  function sheet() {
+    var slug = document.getElementById('cr').value, d = D.rigs[slug]; if (!d) return;
+    document.getElementById('sheet').src = foeOf(slug).sheet;
+    document.getElementById('bones').textContent = d[4].split(',').length + ' parts, back to front: ' + d[4].split(',').join(', ') + '.';
+  }
+  document.getElementById('cr').addEventListener('change', sheet); document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('[data-foe]')) setTimeout(sheet, 0); }); sheet();
+};
+</script>

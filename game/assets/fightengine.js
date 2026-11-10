@@ -176,7 +176,7 @@
     if (!d || !sheet) { var st = Object.assign({}, RIGS.creature); if (d) st.w = st.h = Math.max(d[1], d[2]) * PXC; return st; }
     if (rigCache[id]) return rigCache[id];
     var sk = DATA.skel[d[0]], A = archOf(d[0]), over = (ARCH.slug || {})[id] || {}, ids = d[4].split(','), u = d[3], cx = (d[1] - 1) / 2, by = d[2] - 5, z = (over.size || A.size || 1) * PXC;
-    var parts = ids.map(function (pid) { var j = sk[pid]; return { id: pid, px: [cx + j[1] * u + .5, by - j[2] * u + .5], parent: j[0] || null, under: j[3], ink: pid !== 'eyes', spring: pick(A.springs, pid), dim: (A.dim || {})[pid], lag: (A.lag || {})[pid] }; });
+    var parts = ids.map(function (pid) { var j = sk[pid]; return { id: pid, px: [cx + j[1] * u + .5, by - j[2] * u + .5], parent: j[0] || null, under: j[3], ink: pid !== 'eyes', spring: pick(A.springs, pid), dim: (A.dim || {})[pid], lag: (A.lag || {})[pid], hide: (A.hide || {})[pid] }; });
     return rigCache[id] = { kind: 'parts', arch: d[0], cols: ids, fw: d[1], fh: d[2], u: u, w: d[1] * z, h: d[2] * z, parts: parts, poses: A.poses || {}, attack: over.attack || A.attack || 'charge', fidgets: A.fidgets };
   }
   function kfs(move, a, reach, c) {   // MOVES entry -> Web Animations keyframes for actor a
@@ -209,6 +209,7 @@
     function sp() { return reduce ? 40 : speed; }
     function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms / sp()); }); }
     function layout() {
+      lastW = host.clientWidth;
       var w = host.clientWidth - (opts.flat ? 0 : 16); c = opts.flat ? w / cols - 1 : (w - (cols - 1)) / cols;
       board.style.width = w + 'px'; view.style.paddingTop = opts.flat ? '0px' : (.5 * c) + 'px';
       Object.keys(acts).forEach(function (k) { place(acts[k]); });
@@ -576,8 +577,9 @@
         }).then(function () { if (rw.lvl) { pop(me, 'LEVEL UP!', 'xp'); return sleep(900); } return sleep(250); });
     }
     function d_show(drops) { drops.forEach(function (d) { d.el.classList.add('show'); }); }
-    function destroy() { dead = true; root.removeEventListener('resize', layout); host.innerHTML = ''; acts = {}; }   // stop the physics loop and the resize hook (call before re-creating on the same host)
-    layout(); root.addEventListener('resize', layout); root.requestAnimationFrame(tick);
+    var ro = root.ResizeObserver ? new root.ResizeObserver(function () { if (!dead && host.clientWidth !== lastW) layout(); }) : null, lastW = 0;   // the stage itself can change width with no window resize (a grid settling, a panel opening)
+    function destroy() { dead = true; if (ro) ro.disconnect(); root.removeEventListener('resize', layout); host.innerHTML = ''; acts = {}; }   // stop the physics loop and the resize hook (call before re-creating on the same host)
+    layout(); root.addEventListener('resize', layout); if (ro) ro.observe(host); root.requestAnimationFrame(tick);
     function fidget(id, name) { var a = acts[id], P = a && poseOf(a, name); if (!P || busy) return; (a.fid || []).forEach(function (x) { x.cancel(); }); a.fid = poseRun(a, P); a.nextFid = root.performance.now() + (P.dur + 3000) / sp(); }   // play one fidget now (demo, tests)
     return { destroy: destroy, fidget: fidget, pose: function (id, name) { var a = acts[id], P = a && poseOf(a, name); return P ? poseRun(a, P) : []; }, finish: finish, reward: reward, add: add, play: play, popHat: popHat, dropHat: dropHat, fixHat: fixHat, together: together, acts: acts, layout: layout, setSpeed: function (s) { speed = s; }, holdCheer: function (v) { holdCheer = !!v; }, MOVES: MOVES };
   }

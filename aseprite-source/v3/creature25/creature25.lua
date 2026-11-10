@@ -41,6 +41,10 @@ local function dots(c, list, hex) for _, q in ipairs(list) do c:put(q[1], q[2], 
 local function darker(r) return { hi = r.base, base = r.shade, shade = r.deep, deep = r.deep } end   -- the far side of a pair (legs, wings)
 local CREAM = { hi = P.cream, base = "#ffe0bd", shade = "#f0b98d", deep = "#c98462" }
 local W, G, M, PT = P.wood, P.gold, P.moss, P.petal
+-- Rig tags: T(c, "head") names the rig part the following drawing belongs to (a no-op for the stills). With --script-param rig=1 every tag gets its own
+-- canvas state, so each part is painted whole, and the parts are written as one sheet per creature (a column per part, row 0 paint, row 1 its 1 px ink):
+-- the fight engine's format (game/assets/fightengine.js). Each creature returns its canvas, the row its feet stand on, and its bones {id, parent, pivot x, pivot y, under}.
+local T = function() end
 
 -- small painters for the richness pass. `inside` = only repaint a pixel that already holds one of the given colours (never the outline, never another part)
 local function inside(c, x, y, hex, ...) local v = c:get(x, y); for _, h in ipairs({ ... }) do if v == h:lower() then c:put(x, y, hex) return true end end end
@@ -55,7 +59,7 @@ end
 -- WILD BOAR (88x64, feet on y = 56) ------------------------------------------------------------------
 local function boar()
   local c = HP.canvas{ w = 88, h = 64, name = "boar" }
-  c:groundShadow(40, 56.5, 25, 3.5)
+  T(c, "_sh") c:groundShadow(40, 56.5, 25, 3.5)
   local function leg(x, r, top, mud)
     local m = c:poly{ { x - 1, top }, { x + 7, top }, { x + 6, 53 }, { x, 53 } }
     form(c, m, r, { frac = 0.34, off = 1 })
@@ -63,11 +67,11 @@ local function boar()
     c:fillMask(c:rect(x - 1, 53, x + 6, 55), P.wood.deep) c:put(x + 2, 55, P.ink) c:put(x, 53, W.shade) c:put(x + 1, 53, W.shade)   -- cloven hoof with a dull shine
     if mud then dots(c, { { x + 1, 50 }, { x + 4, 51 }, { x + 2, 52 }, { x + 5, 49 } }, W.deep) end   -- mud up the shins
   end
-  leg(27, darker(W), 42) leg(53, darker(W), 42)                                -- far legs
-  local tail = c:line({ { 17, 33 }, { 13, 31 }, { 11, 27 }, { 13, 24 } }, 2)   -- thin tail, curled up, a dark tuft
+  T(c, "legBF") leg(27, darker(W), 42) T(c, "legFF") leg(53, darker(W), 42)                                -- far legs
+  T(c, "tail") local tail = c:line({ { 17, 33 }, { 13, 31 }, { 11, 27 }, { 13, 24 } }, 2)   -- thin tail, curled up, a dark tuft
   form(c, tail, W, { noshade = true })
   c:fillMask(c:ellipse(14, 22.5, 2, 2), W.deep) c:put(13, 22, W.shade)
-  local body = c:ellipse(37, 37, 21, 12.5)
+  T(c, "body") local body = c:ellipse(37, 37, 21, 12.5)
   body:add(c:ellipse(23, 38, 9, 11)) body:add(c:ellipse(49, 35, 11, 12.5))     -- haunch, heavy shoulder hump
   form(c, body, W, { frac = 0.3, off = 4, pop = { { 22, 29 }, { 23, 29 }, { 22, 30 }, { 44, 25 }, { 45, 25 } } })
   under(c, body, W.deep) belly(c, body, W, 3) toplight(c, body, W, 18, 54, 2)
@@ -78,8 +82,8 @@ local function boar()
     form(c, c:poly{ { x - 2, y + 1 }, { x + 3, y + 1 }, { x - 1, y - h } }, darker(W), { noshade = true }) c:put(x - 1, y - h + 1, W.base)
   end
   dots(c, { { 26, 45 }, { 27, 46 }, { 33, 47 }, { 34, 48 }, { 40, 47 }, { 41, 48 }, { 44, 46 } }, W.deep)   -- shaggy belly fringe
-  leg(19, W, 43, true) leg(46, W, 43, true)                                    -- near legs
-  local jowl = c:poly{ { 52, 43 }, { 64, 44 }, { 58, 50 } }                     -- a beard of fur under the jaw
+  T(c, "legBN") leg(19, W, 43, true) T(c, "legFN") leg(46, W, 43, true)                                    -- near legs
+  T(c, "head") local jowl = c:poly{ { 52, 43 }, { 64, 44 }, { 58, 50 } }                     -- a beard of fur under the jaw
   form(c, jowl, W, { frac = 0.4, off = 1 }) under(c, jowl, W.deep)
   local head = c:ellipse(58, 36, 10.5, 10)
   form(c, head, W, { frac = 0.3, off = 4, pop = { { 52, 29 }, { 53, 29 }, { 52, 30 } } })
@@ -98,30 +102,30 @@ local function boar()
   dots(c, { { 67, 46 }, { 68, 45 }, { 68, 44 }, { 69, 43 }, { 69, 42 }, { 69, 41 }, { 68, 46 }, { 69, 45 }, { 69, 44 }, { 70, 43 } }, P.cream)   -- tusk
   dots(c, { { 69, 46 }, { 70, 45 }, { 70, 44 } }, CREAM.shade)
   dots(c, { { 71, 46 }, { 72, 45 } }, CREAM.base)                               -- quirk: the far tusk is a broken stump
-  eye(c, 59, 31)
+  T(c, "eyes") eye(c, 59, 31) T(c, "head")
   dots(c, { { 58, 30 }, { 59, 29 }, { 60, 29 }, { 61, 30 }, { 62, 31 } }, W.deep)   -- a grumpy brow
   dots(c, { { 59, 35 }, { 60, 35 }, { 61, 35 } }, W.shade)                      -- a bag under the eye
   c:put(61, 39, PT.base) c:put(62, 39, PT.base)                                -- cheek
   -- quirk: a leaf caught in the bristles: a real leaf shape, stalk down in the fur, midrib, lit upper edge
-  local leaf = c:poly{ { 30, 20 }, { 31, 15 }, { 35, 11 }, { 41, 10 }, { 40, 15 }, { 36, 19 } }
+  T(c, "leaf") local leaf = c:poly{ { 30, 20 }, { 31, 15 }, { 35, 11 }, { 41, 10 }, { 40, 15 }, { 36, 19 } }
   form(c, leaf, M, { frac = 0.3, off = 2 }) under(c, leaf, M.deep)
   dots(c, { { 32, 19 }, { 33, 18 }, { 34, 17 }, { 35, 16 }, { 36, 15 }, { 37, 14 }, { 38, 13 }, { 39, 12 } }, M.deep)   -- midrib
   dots(c, { { 33, 15 }, { 34, 14 }, { 35, 13 }, { 36, 12 } }, M.hi) dots(c, { { 36, 17 }, { 38, 15 } }, M.shade)
   dots(c, { { 30, 21 }, { 29, 22 }, { 29, 23 } }, M.shade)                        -- stalk
   -- quirk: a sticking plaster on its rump (two crossed strips)
-  for i = 0, 4 do inside(c, 20 + i, 33 + i, CREAM.hi, W.base, W.shade, W.hi) inside(c, 21 + i, 33 + i, CREAM.base, W.base, W.shade, W.hi) inside(c, 24 - i, 33 + i, CREAM.hi, W.base, W.shade, W.hi) inside(c, 25 - i, 33 + i, CREAM.base, W.base, W.shade, W.hi) end
+  T(c, "body") for i = 0, 4 do inside(c, 20 + i, 33 + i, CREAM.hi, W.base, W.shade, W.hi) inside(c, 21 + i, 33 + i, CREAM.base, W.base, W.shade, W.hi) inside(c, 24 - i, 33 + i, CREAM.hi, W.base, W.shade, W.hi) inside(c, 25 - i, 33 + i, CREAM.base, W.base, W.shade, W.hi) end
   c:put(22, 35, CREAM.deep) c:put(23, 35, CREAM.deep)
   -- quirk: it snorts: two round puffs from the nostrils
-  c:fillMask(c:ellipse(80, 38, 2, 2), P.stone.hi) c:put(81, 39, P.stone.base) c:put(80, 39, P.stone.base) c:put(79, 37, P.cream)
+  T(c, "puff") c:fillMask(c:ellipse(80, 38, 2, 2), P.stone.hi) c:put(81, 39, P.stone.base) c:put(80, 39, P.stone.base) c:put(79, 37, P.cream)
   c:fillMask(c:rect(84, 33, 85, 34), P.stone.hi) c:put(85, 34, P.stone.base)
-  c:finish()
-  return c
+  return c, 56, { { "body", false, 37, 40 }, { "legBF", "body", 30, 43, 1 }, { "legFF", "body", 56, 43, 1 }, { "tail", "body", 17, 33, 1 }, { "legBN", "body", 22, 44 }, { "legFN", "body", 49, 44 },
+    { "head", "body", 52, 38 }, { "eyes", "head", 61, 33 }, { "leaf", "body", 30, 22 }, { "puff", "head", 76, 38 } }
 end
 
 -- GREAT HAWK (96x96, feet on y = 88) ------------------------------------------------------------------
 local function hawk()
   local c = HP.canvas{ w = 96, h = 96, name = "hawk" }
-  c:groundShadow(46, 88.5, 24, 4)
+  T(c, "_sh") c:groundShadow(46, 88.5, 24, 4)
   local DK = darker(W)
   local function feather(bx, by, ang, len, wid, r, tipc)   -- a long feather from (bx, by): banded near a pale tip
     local a = math.rad(ang); local dx, dy = math.cos(a), math.sin(a); local nx, ny = -dy, dx
@@ -133,15 +137,15 @@ local function hawk()
       if t > 0.97 then c:put(x, y, tipc or CREAM.base) elseif t > 0.82 then c:put(x, y, W.deep) elseif t > 0.56 and t < 0.64 then inside(c, x, y, W.base, r.base, r.shade) end end)
     return m
   end
-  feather(30, 62, 197, 22, 7, DK) feather(30, 64, 182, 24, 7, DK) feather(30, 66, 167, 23, 7, DK) feather(31, 68, 152, 20, 7, DK)   -- tail fan
+  T(c, "tail") feather(30, 62, 197, 22, 7, DK) feather(30, 64, 182, 24, 7, DK) feather(30, 66, 167, 23, 7, DK) feather(31, 68, 152, 20, 7, DK)   -- tail fan
   local function legf(x)
     form(c, c:rect(x, 70, x + 2, 85), G, { frac = 0.34, off = 1 })
     for y = 73, 84, 3 do c:put(x, y, G.shade) c:put(x + 1, y, G.shade) end                 -- scaly shins
     form(c, c:line({ { x - 1, 86 }, { x + 8, 86 } }, 2), G, { noshade = true })
     dots(c, { { x + 9, 87 }, { x + 10, 88 }, { x + 5, 87 }, { x + 5, 88 }, { x - 2, 87 }, { x - 3, 88 }, { x + 2, 88 } }, P.ink)   -- talons
   end
-  legf(40)
-  local body = c:ellipse(46, 54, 19, 21)
+  T(c, "legB") legf(40)
+  T(c, "body") local body = c:ellipse(46, 54, 19, 21)
   body:add(c:ellipse(52, 44, 13, 14))
   form(c, body, W, { frac = 0.3, off = 4, pop = { { 34, 40 }, { 35, 40 }, { 34, 41 } } })
   under(c, body, W.deep)
@@ -151,14 +155,15 @@ local function hawk()
     local x, y = 48 + i * 5 + (row % 2) * 2, 46 + row * 4
     if chest:has(x, y) and chest:has(x + 2, y + 1) and (row > 0 or i == 1) then c:put(x, y, W.base) c:put(x + 1, y + 1, W.shade) c:put(x + 2, y, W.base) end
   end end
-  legf(52)
+  T(c, "legF") legf(52)
+  T(c, "thighs")
   for _, t in ipairs({ { 42, W }, { 54, CREAM } }) do   -- feathered thighs with a ragged hem
     local m = c:ellipse(t[1], 70, 5, 4.5)
     for i = -1, 1 do m:add(c:poly{ { t[1] + i * 3 - 2, 73 }, { t[1] + i * 3 + 2, 73 }, { t[1] + i * 3, 77 } }) end
     form(c, m, t[2], { frac = 0.3, off = 1, inner = false }) under(c, m, t[2].deep)
   end
   -- wing: three long primaries under a shoulder of covert rows
-  feather(36, 62, 118, 20, 6, DK, W.base) feather(33, 60, 108, 20, 6, DK, W.base) feather(31, 58, 98, 17, 6, DK, W.base)
+  T(c, "wing") feather(36, 62, 118, 20, 6, DK, W.base) feather(33, 60, 108, 20, 6, DK, W.base) feather(31, 58, 98, 17, 6, DK, W.base)
   local wing = c:ellipse(37, 54, 11, 16)
   form(c, wing, DK, { frac = 0.22, off = 2, pop = { { 30, 43 }, { 31, 43 }, { 33, 41 }, { 34, 41 } } })
   under(c, wing, W.deep)
@@ -169,7 +174,7 @@ local function hawk()
       inside(c, x + 1, y + 2, W.base, DK.base) inside(c, x + 2, y + 2, W.base, DK.base)
     end
   end end
-  local head = c:ellipse(60, 28, 11.5, 10.5)
+  T(c, "head") local head = c:ellipse(60, 28, 11.5, 10.5)
   form(c, head, W, { frac = 0.3, off = 4, pop = { { 53, 21 }, { 54, 21 }, { 53, 22 } } })
   head:each(function(x, y) if y < 23 then inside(c, x, y, DK.base, W.base) end end)                -- a dark cap
   dots(c, { { 50, 28 }, { 51, 28 }, { 52, 27 }, { 53, 27 }, { 54, 27 }, { 55, 26 }, { 56, 26 }, { 57, 26 }, { 58, 26 }, { 59, 26 } }, W.deep)   -- eye stripe
@@ -180,35 +185,35 @@ local function hawk()
     form(c, m, W, { frac = 0.3, off = 1 })
     m:each(function(x, y) if y < t[4] + 4 then c:put(x, y, CREAM.base) end end)   -- pale tips
   end
-  local bent = c:line({ { 55, 19 }, { 54, 13 } }, 3); bent:add(c:line({ { 54, 13 }, { 59, 10 } }, 2))   -- quirk: the middle crest feather is kinked over
+  T(c, "crest") local bent = c:line({ { 55, 19 }, { 54, 13 } }, 3); bent:add(c:line({ { 54, 13 }, { 59, 10 } }, 2))   -- quirk: the middle crest feather is kinked over
   form(c, bent, W, { frac = 0.3, off = 1 }) bent:each(function(x, y) if x > 56 then c:put(x, y, CREAM.base) end end)
-  local beak = c:poly{ { 69, 25 }, { 79, 29 }, { 80, 33 }, { 77, 38 }, { 75, 34 }, { 69, 34 } }
+  T(c, "head") local beak = c:poly{ { 69, 25 }, { 79, 29 }, { 80, 33 }, { 77, 38 }, { 75, 34 }, { 69, 34 } }
   form(c, beak, G, { frac = 0.3, off = 1, pop = { { 72, 27 }, { 73, 27 } } })
   under(c, beak, G.shade)
   for y = 25, 34 do inside(c, 69, y, G.hi, G.base, G.shade) inside(c, 70, y, G.hi, G.base) end   -- cere: the pale base of the beak
   dots(c, { { 71, 31 }, { 72, 31 }, { 73, 32 }, { 74, 32 }, { 75, 33 } }, G.deep) c:put(72, 28, G.deep)   -- gape, nostril
   dots(c, { { 77, 36 }, { 77, 37 }, { 78, 35 }, { 76, 35 } }, W.deep)             -- dark hook
-  eye(c, 62, 24)
-  c:put(62, 25, G.base) c:put(65, 26, G.base) c:put(62, 26, G.base)             -- a yellow iris
+  T(c, "eyes") eye(c, 62, 24)
+  c:put(62, 25, G.base) c:put(65, 26, G.base) c:put(62, 26, G.base) T(c, "head")             -- a yellow iris
   dots(c, { { 60, 22 }, { 61, 22 }, { 62, 23 }, { 63, 23 }, { 64, 24 }, { 65, 24 }, { 66, 25 } }, W.deep)   -- the hawk's glare
-  form(c, c:rect(52, 78, 54, 80), P.ember, { noshade = true }) c:put(52, 78, P.ember.hi) c:put(55, 79, P.ember.shade)   -- quirk: a red ring on one leg
-  c:finish()
-  return c
+  T(c, "legF") form(c, c:rect(52, 78, 54, 80), P.ember, { noshade = true }) c:put(52, 78, P.ember.hi) c:put(55, 79, P.ember.shade)   -- quirk: a red ring on one leg
+  return c, 88, { { "body", false, 46, 54 }, { "tail", "body", 31, 64, 1 }, { "legB", "body", 41, 70, 1 }, { "legF", "body", 53, 70 }, { "thighs", "body", 48, 70 }, { "wing", "body", 41, 42 },
+    { "head", "body", 55, 37 }, { "crest", "head", 55, 19 }, { "eyes", "head", 64, 26 } }
 end
 
 -- BULLFROG (64x56, sits on y = 49, faces the viewer) --------------------------------------------------
 local function frog()
   local c = HP.canvas{ w = 64, h = 56, name = "frog" }
-  c:groundShadow(32, 49.5, 22, 3.5)
+  T(c, "_sh") c:groundShadow(32, 49.5, 22, 3.5)
   for _, s in ipairs({ -1, 1 }) do   -- folded back legs with dark bars, wide webbed feet with toe pads
-    local m = c:ellipse(32 + s * 17, 41, 7, 7)
+    T(c, s < 0 and "footL" or "footR") local m = c:ellipse(32 + s * 17, 41, 7, 7)
     form(c, m, M, { frac = s > 0 and 0.4 or 0.15, off = 2 }) under(c, m, M.deep)
     for i = 0, 2 do for j = 0, 2 do inside(c, 32 + s * (14 + i * 3) + j * (s > 0 and 1 or -1), 37 + i * 2 + j, M.deep, M.base, M.shade) end end
     local f = c:ellipse(32 + s * 19, 47, 7, 2.5)
     form(c, f, M, { frac = 0.3, off = 1 }) under(c, f, M.deep)
     for i = -1, 1 do c:put(32 + s * 19 + i * 4, 46, M.deep) c:put(32 + s * 19 + i * 4 - 2, 46, M.hi) end
   end
-  local body = c:ellipse(32, 35, 18, 13.5)
+  T(c, "body") local body = c:ellipse(32, 35, 18, 13.5)
   form(c, body, M, { frac = 0.28, off = 4, pop = { { 20, 27 }, { 21, 27 }, { 20, 28 } } })
   under(c, body, M.deep) toplight(c, body, M, 22, 42, 1)
   local bel = c:ellipse(32, 42, 12, 7.5); bel:clip(body)
@@ -216,7 +221,7 @@ local function frog()
   dots(c, { { 27, 40 }, { 31, 43 }, { 35, 41 }, { 29, 46 }, { 36, 45 } }, CREAM.shade)               -- speckled belly
   for x = 24, 40 do if bel:has(x, 37) and x % 2 == 0 then c:put(x, 37, CREAM.shade) end end          -- the fold of the throat
   for _, s in ipairs({ -1, 1 }) do
-    local cx = 32 + s * 10
+    T(c, s < 0 and "eyeL" or "eyeR") local cx = 32 + s * 10
     local b = c:ellipse(cx, 22, 6.5, 6.5)   -- eye bumps
     form(c, b, M, { frac = s > 0 and 0.3 or 0.12, off = 2, pop = s < 0 and { { 18, 18 }, { 19, 18 } } or nil })
     local w = c:ellipse(cx, 22.5, 3.5, 3.5); c:fillMask(w, G.base)                                    -- a golden eye
@@ -225,6 +230,7 @@ local function frog()
     c:fillMask(c:rect(cx - s * 2 - 1, 21, cx - s * 2, 23), P.ink) c:put(cx - s * 2 - (s > 0 and 0 or 1), 21, P.cream)
     c:put(cx + s * 2, 24, G.hi)
   end
+  T(c, "body")
   for x = 17, 47 do local y = floor(33.5 + 2.2 * sqrt(max(0, 1 - ((x - 32) / 15.5) ^ 2)) - 1.5 + 0.5); c:put(x, y, M.deep) end   -- a very wide mouth
   c:put(16, 32, M.deep) c:put(48, 32, M.deep) c:put(15, 31, M.deep) c:put(49, 31, M.deep)
   dots(c, { { 40, 35 }, { 41, 35 }, { 40, 36 }, { 41, 36 }, { 41, 37 } }, PT.base) c:put(40, 37, PT.shade) c:put(41, 38, PT.shade)   -- quirk: the tip of its tongue is already out
@@ -242,9 +248,38 @@ local function frog()
   end
   c:put(26, 23, P.cream) c:put(27, 33, P.sky.hi)                                                    -- wet shine
   -- the fly: on the frog's head, between its eyes
-  dots(c, { { 31, 19 }, { 32, 19 }, { 32, 20 }, { 31, 20 } }, P.ink) dots(c, { { 30, 18 }, { 33, 18 }, { 29, 17 }, { 34, 17 } }, P.sky.base) c:put(31, 19, P.ember.base)
-  c:finish()
-  return c
+  T(c, "fly") dots(c, { { 31, 19 }, { 32, 19 }, { 32, 20 }, { 31, 20 } }, P.ink) dots(c, { { 30, 18 }, { 33, 18 }, { 29, 17 }, { 34, 17 } }, P.sky.base) c:put(31, 19, P.ember.base)
+  return c, 49, { { "footL", false, 15, 43 }, { "footR", false, 49, 43 }, { "body", false, 32, 48 }, { "eyeL", "body", 22, 27 }, { "eyeR", "body", 42, 27 }, { "fly", "body", 32, 20 } }
 end
 
-for _, f in ipairs({ boar, hawk, frog }) do local c = f(); c:save{ png = out .. "c25-" .. c.name .. ".png", aseprite = out .. "c25-" .. c.name .. ".aseprite" } print(c.name, c.w .. "x" .. c.h) end
+if not app.params.rig then   -- the stills
+  for _, f in ipairs({ boar, hawk, frog }) do local c = f(); c:finish(); c:save{ png = out .. "c25-" .. c.name .. ".png", aseprite = out .. "c25-" .. c.name .. ".aseprite" } print(c.name, c.w .. "x" .. c.h) end
+  return
+end
+-- the rigs: rig-c25-<name>.png and creature25-rigs.js (bones for the fight engine; motion comes from the creature's body type, extras in creature25-arch.js)
+local KEY = { boar = "quad.boar25", hawk = "bird25", frog = "frog25" }
+local js = { "/* GENERATED by aseprite-source/v3/creature25/creature25.lua (rig=1): do not edit. */", "(function(){var R=window.FE_RIGS;" }
+for _, f in ipairs({ boar, hawk, frog }) do
+  local st, order, cur = {}, {}, nil
+  T = function(c, n) if not st[n] then st[n] = { pix = {}, own = {} }; order[#order + 1] = n end c.pix, c.own = st[n].pix, st[n].own end
+  local c, ground, bones = f()
+  local ids = {}; for _, n in ipairs(order) do if n ~= "_sh" then ids[#ids + 1] = n end end
+  local fh = ground + 2
+  local img = Image(c.w * #ids, fh * 2, ColorMode.RGB); img:clear(app.pixelColor.rgba(0, 0, 0, 0))
+  local function put(i, row, k, hex) local x, y = k % c.w, k // c.w; if y < fh then img:putPixel((i - 1) * c.w + x, row * fh + y, app.pixelColor.rgba(tonumber(hex:sub(2, 3), 16), tonumber(hex:sub(4, 5), 16), tonumber(hex:sub(6, 7), 16), 255)) end end
+  for i, n in ipairs(ids) do
+    local paint = {}; for k, v in pairs(st[n].pix) do paint[k] = v end
+    c.pix, c.own = st[n].pix, st[n].own
+    if n ~= "eyes" then c:finish() end
+    for k, v in pairs(st[n].pix) do put(i, paint[k] and 0 or 1, k, v) end
+  end
+  local spr = Sprite(img.width, img.height, ColorMode.RGB); spr.cels[1].image = img; spr:saveCopyAs(out .. "rig-c25-" .. c.name .. ".png"); spr:close()
+  local sk, cx, by, have = {}, (c.w - 1) / 2, fh - 5, {}
+  for _, n in ipairs(ids) do have[n] = true end
+  for _, b in ipairs(bones) do assert(have[b[1]], c.name .. ": bone without a part: " .. b[1]); have[b[1]] = nil; sk[#sk + 1] = string.format('%s:[%s,%s,%s,%d]', b[1], b[2] and ('"' .. b[2] .. '"') or "0", b[3] - cx, by - b[4], b[5] or 0) end
+  assert(next(have) == nil, c.name .. ": part without a bone: " .. tostring(next(have)))
+  js[#js + 1] = string.format('R.skel["%s"]={%s};R.rigs["c25-%s"]=["%s",%d,%d,1,"%s"];', KEY[c.name], table.concat(sk, ","), c.name, KEY[c.name], c.w, fh, table.concat(ids, ","))
+  print(c.name, #ids .. " parts", c.w .. "x" .. fh)
+end
+js[#js + 1] = "})();"
+local fo = assert(io.open(out .. "creature25-rigs.js", "w")); fo:write(table.concat(js, "\n") .. "\n"); fo:close()
