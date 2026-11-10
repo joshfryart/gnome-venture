@@ -763,6 +763,11 @@ function post_update_news(string $from): void
         "[list][*][b]Seed Spitting[/b]: your own gnome now winds up, puffs its cheeks and spits, then cheers or slumps when the seed lands. The camera follows long spits and prize lines light up.\n"
         . "[*][b]Phones[/b]: you can scroll past the field again; drag from its left half to aim.\n"
         . "[*][b]Games[/b]: the game pages share one colour theme, and Guess the Weight no longer lists energy twice.[/list]"],
+    '2.6.46' => ['🛠️ Update 2.6.46: craft mastery and tidy-ups',
+        "[list][*][b]Craft mastery[/b]: the more you make a recipe, the less it costs in materials; the more you make in a kind of craft, the more it yields, the less energy it takes and the longer its meal buffs last. Your pals' makes count too.\n"
+        . "[*][b]Sleeping[/b]: festivals show game days left, long repairs pay after you sleep, tending and delivery jobs follow sleeps.\n"
+        . "[*][b]Trail[/b]: shut gates show a lock and what they need.\n"
+        . "[*][b]Gather tab[/b]: pick which satchel to carry. [b]Yard[/b]: cover squares update as you move beds.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
