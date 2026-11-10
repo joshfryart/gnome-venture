@@ -745,6 +745,10 @@ function post_update_news(string $from): void
         "[list][*][b]Front page[/b]: visitors get a new welcome and a How to play made of little living scenes from the game.\n"
         . "[*][b]Workshop[/b]: the picture is redrawn, bigger and brighter. A section with something ready now moves a little: the fire jumps, the cauldron bubbles, sparks fly at the tool bench.\n"
         . "[*][b]Trails[/b]: walking a road the other way, you now start at the end you came in from and pass the stretches in the opposite order.[/list]"],
+    '2.6.42' => ['🐗 Update 2.6.42: every creature redrawn, and they move',
+        "[list][*][b]Creatures[/b]: every creature you can meet is redrawn and now moves in a fight: legs, tails, wings and feelers. They breathe, blink and fidget while they wait. Look for the one odd thing each of them has.\n"
+        . "[*][b]Your gnome[/b]: the beard and scarf swing, the gnome blinks and hops back after a hit.\n"
+        . "[*][b]Villagers[/b]: everyone in the villages and your Trek crew have new pictures too.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
