@@ -23,6 +23,11 @@ return function(L)
     local GOLD = P.gold
     local insect = ({ bee = 1, beetle = 1, ladybird = 1, butterfly = 1, grasshopper = 1, dragonfly = 1, moth = 1 })[sp]
     g:shadow(0, 11)
+    local v = math.floor(g:rnd(5, 5) * 3)            -- a per-villager variant 0..2 (face markings, ears, wing pattern), so villagers of one species differ
+    local WGC = rp(f.wing or "#a9d6ea", "#a9d6ea")
+    local function lum(r) local h = r.base; return tonumber(h:sub(2, 3), 16) * 0.3 + tonumber(h:sub(4, 5), 16) * 0.59 + tonumber(h:sub(6, 7), 16) * 0.11 end
+    local crew = g.s.slug:find("^crew%-") ~= nil                  -- the crew keep their approved look exactly
+    local LINE = (not crew and lum(B) > 190) and L.R.ink.shade or B.deep          -- the colour of mouths and creases (dark enough on pale faces)
 
     ---------------------------------------------------------------- behind the body: wings, shell, tail
     local hasBack, hasWings = false, false
@@ -33,7 +38,7 @@ return function(L)
     if sp == "snail" or sp == "tortoise" then   -- the shell on its back, sticking out at the left and over the shoulder
       hasBack = true; g:T("back")
       local S = rp(f.shell, "#9a6b3f")
-      local sh = (sp == "snail") and g:E(-7.5, 20, 9, 9) or g:E(-3, 21, 11.5, 9.5)
+      local sh = (sp == "snail") and g:E(-7.5, 20, 9, 9) or g:E(-1.2, 20.5, 12.4, 10)
       g:form(sh, S, { frac = 0.3, offu = 2.5, pop = { { -10, 25 } } }) g:under(sh, S.deep) g:toplight(sh, S, 1)
       if sp == "snail" then   -- the spiral: two rings and a curl in the middle
         local cx, cy = -7.5, 20
@@ -43,9 +48,11 @@ return function(L)
         end
         g:dots({ { cx + 0.4, cy - 0.3 }, { cx + 1.4, cy - 0.3 }, { cx + 1.4, cy + 0.7 } }, S.deep)
         g:dots({ { cx - 5, cy + 3 }, { cx - 3.5, cy + 5.4 } }, S.hi)
-      else                    -- tortoise: scutes
-        for _, a in ipairs({ -7, -3, 1, 5 }) do g:mark({ { a, 14 }, { a + 1.5, 28 } }, S.deep, S.base, S.shade, S.hi) end
-        g:mark({ { -12, 21 }, { 7, 21 } }, S.deep, S.base, S.shade, S.hi)
+      else                    -- tortoise: a dome of hexagonal scutes and a darker rim
+        for _, a in ipairs({ -8, -4.4, -1.2, 2, 5.6 }) do g:mark({ { a, 12 }, { a + 0.4, 29 } }, S.deep, S.base, S.shade, S.hi) end
+        g:mark({ { -12, 18 }, { -6, 20 }, { 0, 19 }, { 6, 20.4 }, { 11, 18.4 } }, S.deep, S.base, S.shade, S.hi)
+        g:mark({ { -11, 24.4 }, { -5, 25.6 }, { 1, 25 }, { 7, 25.8 } }, S.deep, S.base, S.shade, S.hi)
+        g:fill(g:R(-12.2, 11.2, 10.2, 12.4), S.deep) g:dots({ { -9, 21.5 }, { 2.5, 27 }, { 8.2, 22 } }, S.hi)
       end
     elseif sp == "wren" then   -- a small cocked tail behind the back
       hasBack = true; g:T("back")
@@ -61,6 +68,7 @@ return function(L)
         local m = big and g:E(s * 11, 22.5, 7.2, 9.2) or g:Limb({ { s * 6, 14 }, { s * 11.5, 21 }, { s * 13, 27 } }, 5.8, 4.6)
         g:form(m, WG, { frac = 0.25, off = 1 }) g:toplight(m, WG, 1)
         local x0, y0, x1, y1 = m:bbox()
+        if v == 2 then g:mark({ { s * 7, 15 }, { s * 13.4, 20 }, { s * 14, 27 } }, WG.deep, WG.base, WG.shade, WG.hi) end
         g:mark(big and { { s * 6, 20 }, { s * 13, 26 } } or { { s * 7, 15.5 }, { s * 12.4, 24 } }, WG.shade, WG.base, WG.hi)
         if big then g:mark({ { s * 6.5, 26 }, { s * 11.5, 29 } }, WG.shade, WG.base, WG.hi) g:dots({ { s * 11, 20 }, { s * 12, 24 } }, P.cream) end
       end)
@@ -201,13 +209,11 @@ return function(L)
     elseif sp == "hare" then
       for _, s in ipairs({ -1, 1 }) do ear(s, 4.2, 38.5, 2.5, 8, L.R.blush, 2.2) end
     elseif sp == "mouse" then
-      for _, s in ipairs({ -1, 1 }) do local m = g:E(s * 9, 30, 4.4, 4.4); g:form(m, B, { frac = 0.3, off = 1 }); g:under(m, B.deep); local im = g:E(s * 9, 30, 2.5, 2.5); g:fill(im, L.R.blush.base) end
+      for _, s in ipairs({ -1, 1 }) do local er = (v == 1) and 5.0 or 4.4; local m = g:E(s * 9, 30.4, er, er); g:form(m, B, { frac = 0.3, off = 1 }); g:under(m, B.deep); local im = g:E(s * 9, 30.4, er - 1.7, er - 1.7); g:fill(im, L.R.blush.base) end
     elseif sp == "mole" then
       for _, s in ipairs({ -1, 1 }) do local m = g:E(s * 9.8, 29.5, 2.6, 2.6); g:form(m, B, { frac = 0.3, off = 1 }); g:under(m, B.deep) end
     elseif sp == "bat" then
       for _, s in ipairs({ -1, 1 }) do ear(s, 7, 35, 2.8, 6, L.R.blush, 2.4) end
-    elseif sp == "frog" then
-      for _, s in ipairs({ -1, 1 }) do local m = g:E(s * 6, 31, 3.8, 3.4); g:form(m, B, { frac = 0.3, off = 1 }); g:under(m, B.deep) end
     end
     -- antennae (insects): a thin curved stalk and a ball at the tip
     local function antenna(s, tipx, tipy, col)
@@ -222,7 +228,7 @@ return function(L)
     if sp == "wren" or sp == "hare" then head:add(g:E(0, hy - 1, 10.4, 8.8)) end
     g:form(head, B, { frac = 0.28, offu = 2.5, pop = { { -6.5, 29.5 } } })
     g:under(head, B.deep) g:toplight(head, B, 1)
-    if sp == "hedgehog" or sp == "hare" or sp == "mole" or sp == "mouse" or sp == "wren" then g:fur(head, B, 0.5) end
+    if sp == "hedgehog" or sp == "hare" or sp == "mole" or sp == "mouse" or sp == "wren" or sp == "bat" or sp == "butterfly" or sp == "moth" then g:fur(head, B, 0.5) end
     if sp == "beetle" or sp == "ladybird" then   -- the glossy shield of an insect's head
       g:mark({ { -7.5, 29 }, { -3.5, 31.2 } }, B.hi, B.base, B.shade) g:dots({ { -8.4, 27.6 }, { -6, 30.2 } }, P.cream)
     end
@@ -233,18 +239,51 @@ return function(L)
     if sp == "wren" or sp == "hare" or sp == "hedgehog" or sp == "mouse" then   -- a paler muzzle / cheeks
       local mz = g:E(0, 19.6, 5.6, 3.6); mz:clip(head); g:form(mz, L.lighter(B), { frac = 0.25, off = 1, inner = false })
     end
+    if sp == "mouse" and v == 2 then for i, a in ipairs({ -1.6, 0, 1.6 }) do g:mark({ { a, 32 }, { a + (i - 2) * 1.2, 35 } }, B.base, B.shade) g:put(a + (i - 2) * 1.2, 35, B.hi) end end
     if sp == "wren" then
       for _, s in ipairs({ -1, 1 }) do g:dots({ { s * 4.6, 27.4 }, { s * 4.6 - s * 1.2, 27.4 } }, P.cream) end   -- pale eyebrow stripes
       for i, a in ipairs({ -2, 0, 2 }) do g:mark({ { a, 31.2 }, { a + (i - 2) * 0.8, 33.8 } }, B.hi, B.base, B.shade) end   -- the crest
     end
+    -- eye patches: a paler socket round each eye so the eyes never vanish on a dark or green face; frogs get big bulging eye bumps
+    local ex, ey = 4.6, 24
+    if sp == "frog" then ex, ey = 5.2, 29 end
+    local pr
+    if (sp == "beetle" and not crew) or sp == "dragonfly" or sp == "grasshopper" or sp == "frog" then pr = L.lighter(B) elseif sp == "ladybird" then pr = L.R.cream end
+    if pr then
+      local rx, ry = 3.7, 3.6
+      if sp == "dragonfly" then rx, ry = 4.6, 4.6 elseif sp == "frog" then rx, ry = 4.5, 4.3 end
+      for _, s in ipairs({ -1, 1 }) do
+        local pm = g:E(s * ex, ey, rx, ry); g:form(pm, pr, { frac = 0.28, off = 1, inner = false }) g:under(pm, pr.deep)
+        if sp == "frog" then g:mark({ { s * ex - 3, ey + 4 }, { s * ex + 3, ey + 4 } }, B.shade, pr.base, pr.shade) end
+      end
+    end
     -- the carved features per species: nose, mouth, whiskers, cheeks
     local mx = g:x(0)
+    if sp == "frog" then   -- a very wide mouth, a pale throat, nostrils, and a variant marking
+      local th = g:E(0, 17.4, 6.4, 2.8); th:clip(head); g:over(th, L.lighter(B).base, B.base, B.shade, B.hi) g:over(th, L.lighter(B).shade, B.shade)
+      g:stroke({ { -8.6, 20.6 }, { -6, 18.6 }, { -2, 17.6 }, { 2, 17.6 }, { 6, 18.6 }, { 8.6, 20.6 } }, LINE)
+      g:dots({ { -1.5, 23.2 }, { 1.5, 23.2 } }, LINE)
+      if v == 1 then g:dots({ { -3, 31.5 }, { 1.5, 32.4 }, { 3.4, 30.6 }, { -0.6, 30.2 } }, B.shade) g:dots({ { -3, 30.9 }, { 1.5, 31.8 } }, B.hi)
+      elseif v == 2 then g:mark({ { 0, 33 }, { 0, 25.5 } }, L.lighter(B).base, B.base, B.shade, B.hi) end
+    elseif sp == "grasshopper" then   -- a ridged forehead, cheek grooves
+      g:mark({ { -2.4, 31.8 }, { 0, 28.6 }, { 2.4, 31.8 } }, B.shade, B.base, B.hi)
+      if v == 1 then g:mark({ { 0, 33 }, { 0, 29.4 } }, B.deep, B.base, B.shade, B.hi) elseif v == 2 then for _, s in ipairs({ -1, 1 }) do g:mark({ { s * 8, 25 }, { s * 6.4, 17.6 } }, B.deep, B.base, B.shade) end end
+      g:mark({ { -4, 19 }, { -4.6, 16.4 } }, B.shade, B.base) g:mark({ { 4, 19 }, { 4.6, 16.4 } }, B.shade, B.base)
+    elseif sp == "dragonfly" then g:dots({ { -5.6, 27.6 }, { 3.6, 27.6 } }, P.cream)
+    elseif sp == "butterfly" or sp == "moth" then   -- fluffy cheeks and a fur collar
+      for _, s in ipairs({ -1, 1 }) do g:dots({ { s * 6, 19.4 }, { s * 7, 20.6 }, { s * 8, 22 } }, B.shade) g:dots({ { s * 3.4, 29 }, { s * 5.6, 30 } }, WGC.base) end
+    elseif sp == "ladybird" then g:dots({ { -1, 31 }, { 0, 31 }, { 1, 31 }, { 0, 30 } }, P.ink)
+    elseif sp == "tortoise" then   -- heavy brow ridges and wrinkles
+      for _, s in ipairs({ -1, 1 }) do g:stroke({ { s * 2, 27.6 }, { s * 4.6, 27.4 }, { s * 7.4, 26.2 } }, B.deep) end
+      g:mark({ { -8, 15.8 }, { -5, 15 } }, B.shade, B.base) g:mark({ { 8, 15.8 }, { 5, 15 } }, B.shade, B.base)
+      g:dots({ { -8, 22 }, { 8, 23 } }, B.shade)
+    end
     if sp == "mole" then   -- a big pink star nose
       local nz = g:E(0, 20, 3.4, 2.5); g:form(nz, P.petal, { frac = 0.3, off = 1 }); g:under(nz, P.petal.deep)
       for i = -3, 3 do c:put(mx + i, g:y(20) - 3 - (math.abs(i) == 3 and 0 or 1), P.petal.hi) end
       c:put(mx - 1, g:y(20), P.petal.deep) c:put(mx + 1, g:y(20), P.petal.deep) c:put(mx - 2, g:y(20) - 1, P.cream)
     elseif sp == "hare" or sp == "mouse" then
-      local nz = g:E(0, 21.1, 1.5, 1.1); g:fill(nz, P.petal.base) g:dots({ { 0, 21.1 } }, P.petal.deep) c:put(mx - 1, g:y(21.1) - 1, P.cream)
+      local nz = g:E(0, 21.1, (sp == "mouse") and 1.9 or 1.5, 1.3); g:fill(nz, P.petal.base) g:dots({ { 0, 21.1 } }, P.petal.deep) c:put(mx - 1, g:y(21.1) - 1, P.cream)
       for _, s in ipairs({ -1, 1 }) do g:stroke({ { s * 3, 19.8 }, { s * 9.8, 20.6 } }, B.deep) g:stroke({ { s * 3, 18.8 }, { s * 9.2, 18.2 } }, B.deep) end   -- whiskers
       if sp == "hare" then c:put(mx, g:y(17.6), P.cream) c:put(mx + 1, g:y(17.6), P.cream) c:put(mx, g:y(17.6) + 1, L.R.white.shade) end          -- a buck tooth
     elseif sp == "hedgehog" then
@@ -254,15 +293,15 @@ return function(L)
         local m = g:P({ { a - 1.7, 31 }, { a + 1.7, 31 }, { a + 0.4 * (i - 3), 28.4 - (i % 2) * 0.8 } }); m:clip(head); g:over(m, S.base, B.base, B.shade, B.hi) end
     elseif sp == "wren" then   -- a small gold beak
       local bk = g:P({ { -2, 21.8 }, { 2, 21.8 }, { 0, 17.8 } }); g:form(bk, GOLD, { frac = 0.4, off = 1, inner = false }); g:under(bk, GOLD.deep)
-    elseif sp == "beetle" then   -- two little mandibles
+    elseif sp == "beetle" or sp == "grasshopper" then   -- two little mandibles
       for _, s in ipairs({ -1, 1 }) do g:stroke({ { s * 1.4, 17.8 }, { s * 3.6, 16.4 }, { s * 4.2, 18.4 } }, L.R.cream.base) g:put(s * 4.2, 18.8, L.R.cream.shade) end
     elseif sp == "frog" then g:stroke({ { -6, 18.6 }, { 0, 17.2 }, { 6, 18.6 } }, B.deep)
     elseif sp == "tortoise" then
-      local bk = g:P({ { -2.6, 19.8 }, { 2.6, 19.8 }, { 0, 17.4 } }); g:form(bk, L.R.sand, { frac = 0.4, off = 1, inner = false })
+      local bk = g:P({ { -3.4, 20.6 }, { 3.4, 20.6 }, { 0, 16.8 } }); g:form(bk, L.R.sand, { frac = 0.4, off = 1, inner = false }) g:under(bk, L.R.sand.deep) g:dots({ { -1, 19.6 }, { 1, 19.6 } }, L.R.sand.deep)
     end
-    if sp ~= "beetle" and sp ~= "frog" and sp ~= "wren" then   -- a small smile under the nose
+    if sp ~= "beetle" and sp ~= "frog" and sp ~= "wren" and sp ~= "tortoise" and sp ~= "grasshopper" then   -- a small smile under the nose
       local sy = g:y((sp == "hedgehog" or sp == "hare" or sp == "mole" or sp == "mouse") and 17.8 or 18.4)
-      for _, p in ipairs({ { -2, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 }, { 2, 0 } }) do c:put(mx + p[1], sy + p[2], B.deep) end
+      for _, p in ipairs({ { -2, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 }, { 2, 0 } }) do c:put(mx + p[1], sy + p[2], LINE) end
     end
     if sp == "snail" then   -- eye stalks with a dot on each tip, sprouting between hat and ear
       for _, s in ipairs({ -1, 1 }) do
@@ -277,7 +316,7 @@ return function(L)
       g:form(fe, L.R.white, { frac = 0.35, off = 1 }) g:under(fe, L.R.white.shade) g:mark({ { -8.4, 30 }, { -12, 39 } }, L.R.white.shade, L.R.white.base, L.R.white.hi)
     end
     g:T("eyes")
-    g:eye(-4.6, 24) g:eye(4.6, 24)
+    g:eye(-ex, ey) g:eye(ex, ey)
     g:T("head")
 
     ---------------------------------------------------------------- hat (pivot at the crown)

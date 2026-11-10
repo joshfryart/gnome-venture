@@ -10,7 +10,7 @@ Josh answered: yes to the style, all 124, replace the minis too, fix the weak sp
 - Engine: `fightrigs.js` has one skeleton per creature; a rig row's 6th field names its motion set in `fightarch.js`. `PXC` is the gnome's pixel scale (1/32). `FE_ARCH.extra` = springs for quirk parts (leaf, crest, ball, cloud), `FE_ARCH.hide` = parts hidden until a pose shows them (puff).
 - The three weak spots: hawk tail feathers are separate feathers, the kinked crest feather is a bent feather, the boar's broken far tusk is a clear stump.
 - Both gates pass (smoke: all 124 rigs; fight_scene.sh).
-- Not done / open: the 69 villager minis (`mini-npc-*`) are still the old pedestal style; the crew routine can draw them (`C25NPC=1` in the environment), ask Josh. Motion was only spot-checked (fox, hawk, wyrm, stag beetle attack). Pivots of bug, snake, folk and crab-tail parts moved from the old rigs: watch those in motion. Phone performance still unmeasured. Aphid swarm still a single picture.
+- Not done / open: (done later the same day: Josh said yes, the 69 villager minis `mini-npc-*` are drawn by the crew routine; ALWAYS run the generator with `C25NPC=1` in the environment so they are regenerated too.) Village pages with the new villager stills were not looked at in a browser. Motion was only spot-checked (fox, hawk, wyrm, stag beetle attack). Pivots of bug, snake, folk and crab-tail parts moved from the old rigs: watch those in motion. Phone performance still unmeasured. Aphid swarm still a single picture.
 
 ## Where things stood before the roll-out
 Branch `claude/adoring-edison-eb86cu` (pushed, no PR, not merged, no version bump, no release zip). Do not push to main or open a PR unless Josh says so.
