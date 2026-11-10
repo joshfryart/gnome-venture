@@ -2,7 +2,17 @@
 
 You are taking over the fight animation and creature art work on Gnome Venture (PHP game, repo `joshfryart/gnome-venture`). Owner: Josh. He tests on his phone and sends screenshots with red circles. A circle with no words means "this looks wrong": ask or fix, do not guess silently. Replies to him: short, exact, no filler.
 
-## Where things stand
+## UPDATE 2026-11-10 (later): roll-out done on branch `ccr-d4648fa0-jxttq0`, waiting for Josh's review
+Josh answered: yes to the style, all 124, replace the minis too, fix the weak spots first. Done since:
+- Generator: `aseprite-source/v3/creature25/gen.lua` (+ `c25lib.lua`, one body type per file in `types/`, one quirk per creature in `quirks/`). It reads the same spec tables and writes, per creature, `game/assets/img/fight/rig-<slug>.png`, `game/assets/img/mini/mini-<slug>.png` (the same parts put together on a ground shadow, no pedestal) and `game/assets/fightrigs.js`.
+  Run: `GV_ROOT=$PWD/ RIG=1 <AppRun> -b --script-param game=1 --script aseprite-source/v3/creature25/gen.lua` (`--script-param out=<dir>/` instead of `game=1` for a scratch folder, `--script-param only=a,b` to limit). Review stills: `python3 aseprite-source/v3/creature25/sheet.py <dir> out.png 4`.
+- `tools/fight/rig_minis.lua` and the old mini archetype code no longer feed the game. Do not run them over the game folders.
+- Engine: `fightrigs.js` has one skeleton per creature; a rig row's 6th field names its motion set in `fightarch.js`. `PXC` is the gnome's pixel scale (1/32). `FE_ARCH.extra` = springs for quirk parts (leaf, crest, ball, cloud), `FE_ARCH.hide` = parts hidden until a pose shows them (puff).
+- The three weak spots: hawk tail feathers are separate feathers, the kinked crest feather is a bent feather, the boar's broken far tusk is a clear stump.
+- Both gates pass (smoke: all 124 rigs; fight_scene.sh).
+- Not done / open: the 69 villager minis (`mini-npc-*`) are still the old pedestal style; the crew routine can draw them (`C25NPC=1` in the environment), ask Josh. Motion was only spot-checked (fox, hawk, wyrm, stag beetle attack). Pivots of bug, snake, folk and crab-tail parts moved from the old rigs: watch those in motion. Phone performance still unmeasured. Aphid swarm still a single picture.
+
+## Where things stood before the roll-out
 Branch `claude/adoring-edison-eb86cu` (pushed, no PR, not merged, no version bump, no release zip). Do not push to main or open a PR unless Josh says so.
 
 **Done and in the game code on this branch**

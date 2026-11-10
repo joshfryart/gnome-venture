@@ -1,3 +1,4 @@
+-- SUPERSEDED 2026-11-10: the game's rigs and minis now come from aseprite-source/v3/creature25/gen.lua (2.5D style, one skeleton per creature). Kept for reference; do not run it over the game folders.
 -- Builds the fight-engine rigs for every creature miniature, from the same archetype code that draws the minis (opus-test-run/scripts/minis/lib.lua).
 --   GV_ROOT=$PWD/ RIG=1 aseprite -b --script tools/fight/rig_minis.lua      (ONLY=slug,slug to limit; the data file is then not written)
 -- Writes game/assets/img/fight/rig-<slug>.png (atlas: one column per part, row 0 paint, row 1 ink) and game/assets/fightrigs.js
