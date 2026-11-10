@@ -818,6 +818,7 @@ cfg(['game_clock_on' => '0']);
 game_sleep($uid);
 ok('flag off: sleep moves no pal clocks', q_val('SELECT ends_at FROM ppal_jobs WHERE id = ?', [$jid]) === $fmt($t0 + 86400));
 cfg(['game_clock_on' => '1', 'pal_hours_per_sleep' => '']);
+q('UPDATE users SET pal_real_at = NULL WHERE id = ?', [$uid]);
 game_sleep($uid);
 $j = q_one('SELECT * FROM ppal_jobs WHERE id = ?', [$jid]);
 ok('active job: start, end, last tick 8 h earlier', $j['started_at'] === $fmt($t0 - 28800) && $j['ends_at'] === $fmt($t0 + 86400 - 28800) && $j['last_tick'] === $fmt($t0 - 28800), json_encode($j));
@@ -825,6 +826,7 @@ ok('finished (ready) job untouched', q_val('SELECT ends_at FROM ppal_jobs WHERE 
 ok('pal-tended pot 8 h closer', q_val('SELECT ready_at FROM cook_pots WHERE id = ?', [$pid]) === $fmt($t0 + 3600 - 28800));
 ok('own pot (game tick) untouched', q_val('SELECT ready_at FROM cook_pots WHERE id = ?', [$ownpot]) === $fmt($t0 + 3600));
 cfg(['pal_hours_per_sleep' => '24']);
+q('UPDATE users SET pal_real_at = NULL WHERE id = ?', [$uid]);   // real seconds between the two sleeps would be pushed onto the job (flaky on a second boundary)
 game_sleep($uid);
 ok('setting pal_hours_per_sleep = 24', q_val('SELECT ends_at FROM ppal_jobs WHERE id = ?', [$jid]) === $fmt($t0 + 86400 - 28800 - 86400));
 echo "== pal work: real time does not count (game time only)\n";

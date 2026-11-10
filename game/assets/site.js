@@ -1630,13 +1630,19 @@ function gvCapToasts(nodes) {
    errors stay until tapped (✕). Computers: as before. Always role status (ok) or alert (error). */
 function gvShowToasts(nodes) {
   if (!nodes.length) return;
-  /* v2.6.05: while a fight's end scene plays on the map (body.fs-hold), the messages wait for it to finish instead of covering it (they are in Messages meanwhile) */
-  if (document.body.classList.contains('fs-hold') || document.body.classList.contains('fo-playing')) {
-    var mo = new MutationObserver(function () {
-      if (document.body.classList.contains('fs-hold') || document.body.classList.contains('fo-playing')) return;
-      mo.disconnect(); gvShowToasts(nodes);
-    });
-    mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  /* v2.6.05: while a fight's end scene plays on the map (body.fs-hold), the messages wait for it to finish instead of covering it (they are in Messages meanwhile).
+     v2.6.47: also while the end scene is still waiting to start (fightscene.js sets fs-hold a moment after the page loads, so messages used to pop up first); polled, with a 25 s cap in case the scene never runs */
+  var gvHold = function () {
+    var f = document.getElementById('fightscene'), pend = false;
+    try { pend = !!f && !f.classList.contains('fs-done') && /"finale":\s*1/.test(f.getAttribute('data-fight') || ''); } catch (e) { }
+    return document.body.classList.contains('fs-hold') || document.body.classList.contains('fo-playing') || pend;
+  };
+  if (gvHold()) {
+    var waited = 0, iv = setInterval(function () {
+      waited += 250;
+      if (gvHold() && waited < 25000) return;
+      clearInterval(iv); gvShowToasts(nodes);
+    }, 250);
     return;
   }
   var phone = window.innerWidth <= 720;

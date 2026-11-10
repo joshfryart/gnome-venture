@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.47
+- **Build plans**: six clear-stage texts reworded so "a little each day" is not everywhere; review items closed (`claude/build-plans-review.md`).
+- **Fight end scene**: messages (Milestone box, Almanac pages, level-ups) also wait while the end scene is about to start, not only while it plays (`gvShowToasts` in `site.js`; 25 s cap).
+- **Tests**: `game_clock.php` pal-hours check no longer flaky (real seconds between two sleeps were added to the job).
+
 ## 2.6.46
 - **Craft mastery** (`includes/craft_mastery.php`): per recipe, 10 / 50 / 200 makes cut the materials by 10 / 25 / 50% (each ingredient at least 1); per category, 100 / 500 / 2000 makes give +5% yield and -5% energy a tier, and +5% buff time on food, jars and potions. Applies to crafting, cooking pots, pantry jars, camp meals and pal jobs (pal makes count too). Recipe cards show the cut quantities and "Made N times". Settings `mastery_*` in Admin. Not built: nothing for tools' wear or the NPC shop bucket.
 - **Sleep-days leftovers (Josh)**: the festival page counts game days left; a repair whose last day runs past 22:00 pays after the next sleep (`landmark_repairs.settle_day`); a tend job pays per owner day tended; a deliver job's deadline is the taker's sleeps (1 or 7). An uncaught `UserError` (for example "still busy with a long job") is shown as a message instead of the 500 page.
