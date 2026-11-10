@@ -65,3 +65,4 @@ vendor/
 # Dev mail log and other runtime text files (may hold reset/verify links)
 game/data/*.txt
 __pycache__/
+claude/bend-prototype-v2/rich/

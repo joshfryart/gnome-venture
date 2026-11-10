@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Rich (environment) picture of a hand-tuned Maplewold bendy route, painted with the game's own tile art (claude/tile-art-v3-proposal/gen2.py)
 plus the decor sprites below. Mockup only: reads claude/maplewold-bendy-maps/route-<id>.json and tools/maplewold_rich_specs.py, changes no data.
-Run:  python3 -I tools/render_bendy_rich.py [ids ...] [s2] [--sheet] [--out DIR] [--cache DIR]      (no id = all 16 routes; s2 = only section 2)
+Run:  python3 -I tools/render_bendy_rich.py [ids ...] [s2] [--sheet] [--out DIR] [--cache DIR]      (no id = the 16 Maplewold routes; --all = all 246; s2 = only section 2)
+      Maplewold routes come from claude/maplewold-bendy-maps (hand-tuned), the others from claude/bend-prototype-v2 (generated); pictures go to <that folder>/rich/
 Out:  claude/maplewold-bendy-maps/rich/route-<id>-s<n>.png  (one picture per section, 64 px tiles);  --sheet = decor sprite sheet only."""
 import json, math, os, random, sys, zlib
 HERE = os.path.dirname(os.path.abspath(__file__)); REPO = os.path.dirname(HERE)
@@ -1077,8 +1078,91 @@ def sc_firefly(seed):
         cv.put(x, y, CREAM)
     return cv.im
 PROPS["milestone"] = milestone
+def sandrock(seed): return recolor(G.boulder(seed % 5), R5("stone"), [RAMP["sand"][0], RAMP["sand"][1], RAMP["sand"][2], RAMP["litter"][1], RAMP["litter"][2]])
+def drybush(seed): return recolor(G.bush(seed % 4).copy(), R5("moss"), [RAMP["sand"][0], RAMP["sand"][1], RAMP["sand"][2], RAMP["litter"][1], RAMP["litter"][2]])
+def drydune(seed): return recolor(dunetuft(seed).copy(), RAMP["moss"], [RAMP["sand"][1], RAMP["sand"][2], RAMP["litter"][1], RAMP["litter"][2]])
+def cactus(seed):
+    rnd = random.Random(f"ca{seed}"); cv = G.Cv(64, 96); P = R5("pine"); top = 34 + seed % 3 * 6
+    def col(x0, x1, y0, y1):
+        for y in range(y0, y1):
+            for x in range(x0, x1):
+                if y < y0 + 3 and (x < x0 + (y0 + 3 - y) or x >= x1 - (y0 + 3 - y)): continue
+                u = (x - x0) / max(1, x1 - x0 - 1); cv.put(x, y, P[0] if u < .15 else P[1] if u < .4 else P[2] if u < .75 else P[3])
+                if (x - x0) % 4 == 2 and y % 5 == 0: cv.put(x, y, CREAM)
+    col(25, 39, top, 91)
+    if seed % 4 != 3: col(10, 19, 56, 72); col(10, 27, 66, 74)
+    if seed % 2: col(45, 54, 48, 66); col(37, 54, 60, 68)
+    if seed % 3 == 0:
+        for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, -1), (0, 1)): cv.put(32 + dx, top - 2 + dy, RAMP["petal"][1] if dx or dy else RAMP["gold"][0])
+    G.outline(cv); return cv.im
+def palm(seed):
+    rnd = random.Random(f"pm{seed}"); cv = G.Cv(64, 96); W = R5("wood"); L = R5("leaf"); lean = (seed % 3 - 1) * 6
+    for y in range(36, 91):
+        cx = 32 + int(lean * (90 - y) / 54)
+        for x in range(cx - 3, cx + 4):
+            u = (x - cx + 3) / 6; cv.put(x, y, W[1] if u < .3 else W[2] if u < .7 else W[3])
+        if y % 5 == 0:
+            for x in range(cx - 3, cx + 4): cv.put(x, y, W[4])
+    tx, ty = 32 + lean, 36
+    for ang in (-160, -130, -100, -75, -45, -15, 15, 195):
+        for k in range(26):
+            a = math.radians(ang); px = tx + k * math.cos(a) * .95; py = ty + k * math.sin(a) * .6 + (k / 9) ** 2 * 1.6
+            w = max(1, 4 - abs(k - 10) // 4)
+            for j in range(-w, w + 1): cv.put(int(px), int(py) + j, L[1] if j < 0 else L[2] if j < w else L[4])
+            if k % 3 == 0: cv.put(int(px), int(py) - w, L[0])
+    for dx, dy in ((-3, 3), (2, 4), (0, 6)):
+        for a in range(3):
+            for b in range(3): cv.put(tx + dx + a, ty + dy + b, W[2] if a + b < 3 else W[4])
+    G.outline(cv); return cv.im
+def skull(seed):
+    cv = G.Cv(64, 64)
+    for k in range(18): cv.put(18 + k, 50 - k // 6, CREAM); cv.put(18 + k, 51 - k // 6, RAMP["sand"][2])
+    for dx in range(-1, 2):
+        for dy in range(-1, 2): cv.put(17 + dx, 50 + dy, CREAM); cv.put(37 + dx, 47 + dy, CREAM)
+    G.lump(cv, 42, 40, 6, 5, [CREAM, CREAM, RAMP["sand"][0], RAMP["sand"][1], RAMP["sand"][2]], random.Random(seed), 0)
+    cv.put(40, 40, INK); cv.put(41, 40, INK); cv.put(44, 40, INK); cv.put(45, 40, INK); cv.put(42, 43, INK)
+    for k in range(6): cv.put(38 - k, 36 - k // 2, CREAM); cv.put(46 + k, 36 - k // 2, CREAM)
+    G.outline(cv); return cv.im
+def pots(seed):
+    rnd = random.Random(f"pt2{seed}"); cv = G.Cv(64, 64); E = [RAMP["ember"][0], RAMP["gold"][2], RAMP["ember"][1], RAMP["ember"][2], RAMP["ember"][3]]
+    for cx, cy, rx, ry in ((24, 44, 9, 10), (41, 47, 7, 7)):
+        G.lump(cv, cx, cy, rx, ry, E, rnd, .05)
+        for x in range(cx - 4, cx + 5): cv.put(x, cy - ry - 1, E[1]); cv.put(x, cy - ry, E[4]) if abs(x - cx) < 3 else None
+        for x in range(cx - rx + 2, cx + rx - 1): cv.put(x, cy, CREAM) if x % 3 else None
+    G.outline(cv); return cv.im
+def parrot(seed):
+    rnd = random.Random(f"pa{seed}"); cv = G.Cv(64, 64); E = R5("ember") if seed % 2 else R5("sea")
+    for k in range(10): cv.put(22 - k // 2, 46 + k, RAMP["gold"][1]); cv.put(23 - k // 2, 46 + k, RAMP["sea"][2] if seed % 2 else RAMP["ember"][1])
+    G.lump(cv, 28, 42, 6, 8, E, rnd, 0); G.lump(cv, 31, 32, 5, 5, E, rnd, 0)
+    for k in range(6): cv.put(24 + k // 3, 40 + k, RAMP["gold"][1]); cv.put(25 + k // 3, 41 + k, RAMP["sea"][2])
+    cv.put(32, 31, CREAM); cv.put(33, 31, INK); cv.put(36, 32, RAMP["gold"][0]); cv.put(36, 33, RAMP["gold"][2]); cv.put(37, 34, INK)
+    cv.put(27, 51, RAMP["stone"][2]); cv.put(30, 51, RAMP["stone"][2])
+    G.outline(cv); return cv.im
+def ov_ripples(seed):
+    rnd = random.Random(f"rpl{seed}"); cv = G.Cv(64, 80); S = RAMP["sand"]
+    for i in range(6):
+        y = 24 + i * 9 + rnd.randint(-2, 2); x0 = rnd.randrange(0, 14)
+        for x in range(x0, x0 + rnd.randint(34, 50)):
+            yy = y + int(2 * math.sin(x / 6 + seed + i)); cv.put(x, yy, S[0]); cv.put(x, yy + 1, S[2])
+    return cv.im
+def sc_bones(seed):
+    rnd = random.Random(f"bn{seed}"); cv = G.Cv(64, 80)
+    for _ in range(1 + seed % 2):
+        x, y = rnd.randrange(10, 44), rnd.randrange(34, 70)
+        for k in range(9): cv.put(x + k, y + k // 4, CREAM); cv.put(x + k, y + 1 + k // 4, RAMP["sand"][2])
+        for dx, dy in ((-1, -1), (-1, 1), (9, 1), (9, 3)): cv.put(x + dx, y + dy, CREAM)
+    return cv.im
+LOOKS.update({"cactus": cactus, "palm": palm, "sandrock": sandrock, "drybush": drybush, "drydune": drydune})
+BARE = BARE + ("cactus", "palm", "sandrock", "drybush", "drydune")
+ROUGH["ripples"] = ov_ripples
+PROPS.update({"skull": skull, "pots": pots, "parrot": parrot})
+ART = {"grassland": "grassland", "forest": "forest", "coast": "coast", "tundra": "tundra", "desert": "coast", "island": "coast", "mountain": "tundra", "rainforest": "forest", "wetland": "forest"}
+ROUGH_DEFAULT.update({"desert": "ripples", "island": "shells", "mountain": "snowdrift", "rainforest": "ferns", "wetland": "marsh"})
 AMBIENT = {"grassland": ("rabbit", "hen", "log", "stump", "rabbit", "basket", "crows", "pumpkins", "fox"), "forest": ("log", "stump", "squirrel", "owl", "fox", "squirrel", "log", "rabbit", "stump", "basket"),
-           "coast": ("gull", "gull", "lobsterpot", "driftlog", "crab", "crab", "gull", "bucket", "driftlog", "gull"), "tundra": ("hare", "arcticfox", "snowyowl", "hare", "sled", "stump", "hare", "log", "lantern")}
+           "coast": ("gull", "gull", "lobsterpot", "driftlog", "crab", "crab", "gull", "bucket", "driftlog", "gull"), "tundra": ("hare", "arcticfox", "snowyowl", "hare", "sled", "stump", "hare", "log", "lantern"),
+           "desert": ("skull", "pots", "crows", "skull", "campfire", "tent", "crate", "pots", "driftlog"), "island": ("crab", "gull", "driftlog", "parrot", "crab", "basket", "lobsterpot", "gull", "bucket"),
+           "mountain": ("goat", "hare", "snowyowl", "goat", "campfire", "tent", "sled", "stump", "crate"), "rainforest": ("parrot", "parrot", "log", "stump", "basket", "lantern", "squirrel", "parrot", "fox", "log"),
+           "wetland": ("duck", "duck", "log", "stump", "rowboat", "gull", "rabbit", "duck", "lantern", "basket")}
 
 _cache = {}
 def spr(fn, *a):
@@ -1147,7 +1231,7 @@ def paint_rough(bp, tw, th, rough, skip, land, seed):
         bp[px, py] = t
 
 def paint(route, si, rich, cache_dir=None, walker=True):
-    s = route["sections"][si]; rows = s["rows"]; W, Hh = len(rows[0]), len(rows); rid = route["route_id"]; land = route["land"]; seed = rid * 10 + si
+    s = route["sections"][si]; rows = s["rows"]; W, Hh = len(rows[0]), len(rows); rid = route["route_id"]; land0 = route["land"]; land = ART[land0]; seed = rid * 10 + si
     green = land in ("grassland", "forest")
     wall = lambda x, y: 0 <= x < W and 0 <= y < Hh and rows[y][x] == "#"
     walk = lambda x, y: 0 <= x < W and 0 <= y < Hh and rows[y][x] != "#"
@@ -1165,7 +1249,7 @@ def paint(route, si, rich, cache_dir=None, walker=True):
         for y in range(r[2], r[4] + 1):
             for x in range(r[1], r[3] + 1):
                 if wall(x, y) and (x, y) not in water and (r[0] == "sea" or inner(x, y)): look[(x, y)] = r[0]
-    rough_of = lambda x, y: next((r[0] for r in rich.get("rough", []) if in_rect(x, y, r)), ROUGH_DEFAULT[land])
+    rough_of = lambda x, y: next((r[0] for r in rich.get("rough", []) if in_rect(x, y, r)), ROUGH_DEFAULT[land0])
     icefloor = {(x, y) for y in range(Hh) for x in range(W) if rows[y][x] == "," and rough_of(x, y) == "ice"}
     pond = {c for c, k in look.items() if k in WET}; sea = {c for c, k in look.items() if k == "sea"}; holes = {c for c, k in look.items() if k == "icehole"}
     wet = water | pond | ford | icefloor
@@ -1175,6 +1259,27 @@ def paint(route, si, rich, cache_dir=None, walker=True):
         opens = sum(walk(x + dx, y + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
         alone = not any(wall(x + dx, y + dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1) if (dx, dy) != (0, 0))
         near_wet = any((x + dx, y + dy) in wet for dx in (-1, 0, 1) for dy in (-1, 0, 1)); v = ln(x, y)
+        if land0 == "desert":
+            if alone: return "sandrock" if h < 35 else "cactus" if h < 75 else "drybush"
+            if border: return "sandrock" if v > .5 else "drydune" if h < 60 else "cactus"
+            if opens == 0: return "sandrock"
+            return "sandrock" if h < 42 else "cactus" if h < 68 else "drybush" if h < 84 else "drydune"
+        if land0 == "island":
+            if alone: return "palm" if h < 60 else "boulder" if h < 80 else "dunetuft"
+            if border: return "palm" if v > .42 else "dunetuft" if h < 50 else "boulder"
+            if opens == 0: return "palm" if h < 75 else "boulder"
+            return "palm" if h < 50 else "boulder" if h < 70 else "dunetuft" if h < 90 else "driftwood"
+        if land0 == "wetland":
+            if alone: return "reeds" if h < 45 else "bush" if h < 75 else "tree"
+            if near_wet and opens: return "reeds"
+            if border: return "reeds" if opens and h < 25 else "tree"
+            if opens == 0: return "tree"
+            return "reeds" if h < 32 else "bush" if v > .6 else "tree"
+        if land0 == "rainforest":
+            if alone: return "palm" if h < 30 else "bigshroom" if h < 38 else "bush" if h < 60 else "tree"
+            if near_wet and opens and h < 35: return "reeds"
+            if border or opens == 0: return "palm" if h < 18 else "tree"
+            return "bush" if v > .6 else "palm" if h < 22 else "tree"
         if land == "coast":
             if alone: return "boulder" if h < 50 else "driftwood" if h < 75 else "dunetuft"
             if border: return "boulder" if v > .52 else "dunetuft"
@@ -1194,7 +1299,11 @@ def paint(route, si, rich, cache_dir=None, walker=True):
     def tree_im(x, y):
         h = crc("tc", x, y, seed); c = h % 100; v = (h // 100) % 8
         if land == "tundra": return spr(G.pine, v % 6)
+        if land0 == "desert": return spr(sandrock, v % 5) if c < 60 else spr(cactus, v)
+        if land0 == "island": return spr(palm, v)
         if land == "coast": return spr(G.boulder, v % 5)
+        if land0 == "rainforest": return spr(G.tree, v, "pine" if c < 30 else "moss" if c < 65 else "leaf") if c < 88 else spr(palm, v)
+        if land0 == "wetland": return spr(G.tree, v, "moss" if c < 60 else "pine" if c < 75 else "leaf")
         if style == "birch": return spr(birch, v) if c < 85 else spr(G.tree, v, "pine")
         if style == "maple": return spr(G.tree, v, "gold" if c < 28 else "ember" if c < 52 else "leaf" if c < 85 else "moss")
         if land == "forest": return spr(G.tree, v, "pine" if c < 32 else "moss" if c < 47 else "gold" if c < 50 else "ember" if c < 52 else "leaf")
@@ -1247,7 +1356,7 @@ def paint(route, si, rich, cache_dir=None, walker=True):
     zone = lambda x, y: next((r[0] for r in rich.get("floor", []) if in_rect(x, y, r)), None)
     for x in range(W - 1):   # a second row of crowns (dunes on the coast) behind the top edge, for depth
         if rows[0][x] == "#" and rows[0][x + 1] == "#" and (x, 0) not in wet and (x + 1, 0) not in wet:
-            items.append((-.5, x, spr(dunetuft, crc("td", x, seed) % 8) if land == "coast" and crc("td", x, seed) % 3 else tree_im(x, -1), x * T + 32, PAD - 62))
+            items.append((-.5, x, spr(drydune if land0 == "desert" else dunetuft, crc("td", x, seed) % 8) if land == "coast" and land0 != "island" and crc("td", x, seed) % 3 else tree_im(x, -1), x * T + 32, PAD - 62))
     for y in range(Hh):
         for x in range(W):
             h = crc("o", x, y, seed); hh = h % 100
@@ -1267,7 +1376,7 @@ def paint(route, si, rich, cache_dir=None, walker=True):
                 elif not green:
                     if hh < 25: add_ov(x, y, spr(sc_shells, h % 9), .02)
                     elif hh < 40: add_ov(x, y, spr(sc_rock, h % 5), .1)
-                elif (x, y) in pond and hh < 30: add_ov(x, y, spr(sc_lily, h % 10), .1)
+                elif (x, y) in pond and hh < (55 if land0 == "wetland" else 30): add_ov(x, y, spr(sc_lily, h % 10), .1)
                 elif (x, y) in pond and not land_nb and hh < 42: add_ov(x, y, spr(sc_ripple, h % 6), .03)
                 elif land_nb and hh < 46: add_obj(x, y, spr(reeds, h % 5), sh=False, jy=-6 - h % 9)
                 elif (x, y) in water and hh < 58: add_ov(x, y, spr(sc_rock, h % 5), .1)
@@ -1302,6 +1411,12 @@ def paint(route, si, rich, cache_dir=None, walker=True):
             if any(max(abs(x - lx), abs(y - ly)) <= 2 for (lx, ly), _, _ in lms) and r < 620:   # a little garden round every landmark
                 kit = {"grassland": (sc_flowers, sc_tuft, sc_flowers), "forest": (sc_fern, sc_mushroom, sc_flowers), "coast": (sc_shells, sc_pebbles, sc_tuft), "tundra": (sc_drygrass, sc_sparkle, sc_pebbles)}[land]
                 add_ov(x, y, spr(kit[r % 3], kc if kit[r % 3] is sc_flowers else h % 6), .2)
+            elif land0 == "desert":
+                if drift and r < 560: add_ov(x, y, spr(ROUGH["ripples"], h % 6), .05)
+                elif r < 110: add_ov(x, y, spr(sc_drygrass, h % 6), .2)
+                elif r < 230: add_ov(x, y, spr(sc_pebbles, h % 6), .1)
+                elif r < 275: add_ov(x, y, spr(sc_bones, h % 6), .1)
+                elif r < 400: add_ov(x, y, spr(ROUGH["ripples"], h % 6), .05)
             elif land == "coast":
                 if shore and r < 300: add_ov(x, y, spr(ROUGH["kelp"], h % 6), .05)
                 elif shore and r < 520: add_ov(x, y, spr(sc_shells, h % 12), .1)
@@ -1353,7 +1468,7 @@ def paint(route, si, rich, cache_dir=None, walker=True):
     props = list(rich.get("props", []))
     if rich.get("ambient", True):
         rnd = random.Random(f"amb{seed}"); cells = [(x, y) for y in range(2, Hh - 2) for x in range(2, W - 2) if free(x, y, False) and rows[y][x] == "." and not any((x + dx, y + dy) in on for dx in (-1, 0, 1) for dy in (-1, 0, 1))]
-        rnd.shuffle(cells); props += [(k, c[0], c[1]) for k, c in zip(AMBIENT[land], cells)]
+        rnd.shuffle(cells); props += [(k, c[0], c[1]) for k, c in zip(AMBIENT[land0], cells)]
         for k in range(7, len(line) - 5, 9):   # a milestone beside the road now and then
             (ax, ay), (bx, by) = line[k - 1], line[k + 1]; px, py = line[k]; side = (0, -1) if ay == by else (1, 0)
             props.append(("milestone", px + side[0], py + side[1]))
@@ -1388,11 +1503,17 @@ def paint(route, si, rich, cache_dir=None, walker=True):
         if cl.width > 0 and cl.height > 0: base.alpha_composite(cl, (max(ox, 0), max(oy, 0)))
     return base
 
+def src_of(rid):
+    """The hand-tuned Maplewold file if there is one, else the generated one (claude/bend-prototype-v2)."""
+    p = os.path.join(REPO, "claude", "maplewold-bendy-maps", f"route-{rid}.json")
+    return p if os.path.exists(p) else os.path.join(REPO, "claude", "bend-prototype-v2", f"route-{rid}.json")
+
 def render_one(job):
     rid, si, out, cache = job
     from maplewold_rich_specs import rich_for
-    route = json.load(open(os.path.join(REPO, "claude", "maplewold-bendy-maps", f"route-{rid}.json")))
-    im = paint(route, si, rich_for(rid, si, route), cache); p = os.path.join(out, f"route-{rid}-s{si + 1}.png")
+    route = json.load(open(src_of(rid)))
+    d = out or os.path.join(os.path.dirname(src_of(rid)), "rich"); os.makedirs(d, exist_ok=True)
+    im = paint(route, si, rich_for(rid, si, route), cache); p = os.path.join(d, f"route-{rid}-s{si + 1}.png")
     im.convert("RGB").quantize(256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(p, optimize=True); return p
 
 def contact(rid, out, dest):
@@ -1411,17 +1532,16 @@ def sheet(path):
     im = im.resize((im.width * 2, im.height * 2), Image.NEAREST); im.save(path); print(path)
 
 def main():
-    args = sys.argv[1:]; out = os.path.join(REPO, "claude", "maplewold-bendy-maps", "rich"); cache = None
-    if "--out" in args: out = args[args.index("--out") + 1]
+    args = sys.argv[1:]; out = None; cache = None
+    if "--out" in args: out = args[args.index("--out") + 1]; os.makedirs(out, exist_ok=True)
     if "--cache" in args: cache = args[args.index("--cache") + 1]; os.makedirs(cache, exist_ok=True)
-    os.makedirs(out, exist_ok=True)
-    if "--sheet" in args: return sheet(os.path.join(out, "decor-sheet.png"))
+    if "--sheet" in args: return sheet(os.path.join(out or os.path.join(REPO, "claude", "maplewold-bendy-maps", "rich"), "decor-sheet.png"))
     import glob
     from multiprocessing import Pool
-    ids = [int(a) for a in args if a.isdigit()] or sorted(int(os.path.basename(f)[6:9]) for f in glob.glob(os.path.join(REPO, "claude", "maplewold-bendy-maps", "route-???.json")))
+    ids = [int(a) for a in args if a.isdigit()] or sorted(int(os.path.basename(f)[6:-5]) for f in glob.glob(os.path.join(REPO, "claude", "maplewold-bendy-maps" if "--all" not in args else "bend-prototype-v2", "route-*.json")))
     only = [int(a[1:]) - 1 for a in args if a.startswith("s") and a[1:].isdigit()]; jobs = []
     for rid in ids:
-        n = len(json.load(open(os.path.join(REPO, "claude", "maplewold-bendy-maps", f"route-{rid}.json")))["sections"])
+        n = len(json.load(open(src_of(rid)))["sections"])
         jobs += [(rid, si, out, cache) for si in range(n) if not only or si in only]
     with Pool(min(8, os.cpu_count() or 2)) as pool:
         for p in pool.imap_unordered(render_one, jobs): print(p, flush=True)

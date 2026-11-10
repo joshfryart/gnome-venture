@@ -135,11 +135,74 @@ def auto(rid, i, land, section):
         if "pond" in wv: L.append(("pond",) + bb(wv["pond"][0], wv["pond"][1], 2)); Rg.append((soft,) + bb(wv["pond"][0], wv["pond"][1], 3))
     return L, Rg
 
+ROUGH_KINDS = {"grassland": ("grass", "flowers", "clover", "grass", "wheat", "flowers"), "forest": ("ferns", "leaves", "toadstools", "flowers", "ferns"), "coast": ("pebbles", "shells", "dunegrass", "kelp"),
+               "tundra": ("snowdrift", "tracks", "snowdrift"), "desert": ("ripples", "pebbles", "ripples", "dunegrass"), "island": ("shells", "dunegrass", "flowers", "pebbles"),
+               "mountain": ("snowdrift", "pebbles", "snowdrift", "tracks"), "rainforest": ("ferns", "flowers", "toadstools", "leaves", "glowcaps"), "wetland": ("marsh", "marsh", "grass", "flowers", "marsh")}
+def infer(route, i):
+    """Dressing for a GENERATED section (no hand sketch, the stamps are not stored): read the tiles. Lone thicket cells on a grid = an orchard (grassland), lone cells in rough
+    ground = pools (ice holes in the cold lands, with ice round them), a 4-long bar between rough = a fallen log, a hedged plot = hedges and ploughed ground,
+    one rough kind per rough patch, a sea along a free edge on coast and island, ponds from the section's water."""
+    import zlib
+    s = route["sections"][i]; rows = s["rows"]; W, H = len(rows[0]), len(rows); land = route["land"]; rid = route["route_id"]
+    at = lambda x, y: rows[y][x] if 0 <= x < W and 0 <= y < H else "#"
+    wall = lambda x, y: at(x, y) == "#"; inner = lambda x, y: 1 <= x <= W - 2 and 1 <= y <= H - 2
+    cold = land in ("tundra", "mountain"); sandy = land in ("coast", "island", "desert")
+    L, Rg = [], []; one = lambda k, x, y: L.append((k, x, y, x, y))
+    lone = {(x, y) for y in range(1, H - 1) for x in range(1, W - 1) if wall(x, y) and not any(wall(x + dx, y + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
+    for (x, y) in sorted(lone):
+        nr = sum(at(x + dx, y + dy) == "," for dx in (-1, 0, 1) for dy in (-1, 0, 1))
+        if nr >= 5:
+            one("icehole" if cold else "pond", x, y)
+            if cold: Rg.append(("ice", x - 2, y - 2, x + 2, y + 2))
+            elif land in ("grassland", "forest", "rainforest", "wetland"): Rg.append(("marsh", x - 1, y - 1, x + 1, y + 1))
+            elif land != "desert": Rg.append(("shells", x - 1, y - 1, x + 1, y + 1))
+        elif land == "grassland" and any((x + dx, y + dy) in lone for dx, dy in ((2, 0), (-2, 0), (0, 2), (0, -2))): one("apple", x, y)
+    if land in ("forest", "rainforest"):
+        for y in range(2, H - 2):
+            for x in range(1, W - 4):
+                if all(wall(x + k, y) for k in range(4)) and not wall(x - 1, y) and not wall(x + 4, y) and sum(at(x + k, y + d) == "," for k in range(4) for d in (-1, 1)) >= 6:
+                    L.append(("biglog", x, y, x + 3, y)); Rg.append(("leaves", x, y - 1, x + 3, y + 1))
+    if land == "grassland":      # hedged plots: a thicket ring of 8 x 5 with rough inside
+        for y in range(1, H - 5):
+            for x in range(1, W - 8):
+                if all(wall(x + k, y) for k in range(8)) and all(wall(x, y + k) and wall(x + 7, y + k) for k in range(5)) and sum(at(x + a, y + b) == "," for a in range(1, 7) for b in range(1, 4)) >= 12:
+                    L += [("hedge", x, y, x + 7, y), ("hedge", x, y + 4, x + 7, y + 4), ("hedge", x, y, x, y + 4), ("hedge", x + 7, y, x + 7, y + 4)]; Rg.append(("ploughed", x + 1, y + 1, x + 6, y + 3))
+    for wv in s.get("water", []):
+        if "pond" in wv:
+            cx, cy = wv["pond"]; L.append(("pond", cx - 3, cy - 3, cx + 3, cy + 3))
+            if not sandy and not cold: Rg.append(("marsh", cx - 4, cy - 4, cx + 4, cy + 4))
+    if land in ("coast", "island"):   # the sea: the border of one edge without a door, and the thicket joined to it up to 3 tiles in
+        used = {s["entry"]["side"], s["exit"]["side"]}; side = next((d for d in "SNEW" if d not in used), None)
+        if side:
+            depth = lambda x, y: {"S": H - 1 - y, "N": y, "E": W - 1 - x, "W": x}[side]
+            sea = {(x, y) for y in range(H) for x in range(W) if depth(x, y) == 0}; grow = True
+            while grow:
+                grow = False
+                for y in range(H):
+                    for x in range(W):
+                        if (x, y) not in sea and wall(x, y) and depth(x, y) <= 3 and any((x + dx, y + dy) in sea for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))): sea.add((x, y)); grow = True
+            L += [("sea", x, y, x, y) for (x, y) in sorted(sea)]
+    # one rough kind per rough patch
+    kinds = ROUGH_KINDS[land]; seen = set(); extra = []
+    for y in range(H):
+        for x in range(W):
+            if at(x, y) != "," or (x, y) in seen: continue
+            comp, stk = [], [(x, y)]; seen.add((x, y))
+            while stk:
+                c = stk.pop(); comp.append(c)
+                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    n = (c[0] + dx, c[1] + dy)
+                    if n not in seen and at(*n) == ",": seen.add(n); stk.append(n)
+            k = kinds[zlib.crc32(f"{rid}|{i}|{x}|{y}".encode()) % len(kinds)]
+            if k == "wheat" and len(comp) < 6: k = "grass"
+            extra += [(k, cx, cy, cx, cy) for cx, cy in comp]
+    return L, Rg + extra
+
 def rich_for(rid, i, route):
     """The full dressing of a section: the hand sketch in RICH on top of the derived looks."""
     r = dict(RICH.get(rid, [{}] * 9)[i])
     if r.get("auto", True):
-        L, Rg = auto(rid, i, route["land"], route["sections"][i]); r["looks"] = L + list(r.get("looks", [])); r["rough"] = list(r.get("rough", [])) + Rg
+        L, Rg = auto(rid, i, route["land"], route["sections"][i]) if rid in RICH else infer(route, i); r["looks"] = L + list(r.get("looks", [])); r["rough"] = list(r.get("rough", [])) + Rg
     return r
 
 # ---- pass 2: more themed bits per section (hints, snapped to free tiles by the renderer) ----
