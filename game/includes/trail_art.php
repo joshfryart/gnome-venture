@@ -76,6 +76,33 @@ function trail_authored_valid($r): bool
 }
 
 /**
+ * v2.7: the water tiles of an authored section, ["x,y" => true]: 'wet' (rows of 0/1 written by tools/bake_trail_rich.py: streams, fords, ponds, sea, ice)
+ * or, without it, the stream tiles of 'water' (pts). Empty for a section without water.
+ */
+function trail_water_tiles(array $art): array
+{
+    $out = [];
+    if (!empty($art['wet']) && is_array($art['wet'])) {
+        foreach ($art['wet'] as $y => $row) {
+            if (!is_string($row)) continue;
+            for ($x = 0, $n = strlen($row); $x < $n; $x++) if ($row[$x] === '1') $out[$x . ',' . (int)$y] = true;
+        }
+        return $out;
+    }
+    foreach ((array)($art['water'] ?? []) as $wv) foreach ((array)($wv['pts'] ?? []) as $pt) if (is_array($pt) && count($pt) >= 2) $out[(int)$pt[0] . ',' . (int)$pt[1]] = true;
+    return $out;
+}
+
+/** Is tile x, y water or right beside water (the 8 tiles round it)? This is where the gnome can fish. */
+function trail_water_near(array $art, int $x, int $y): bool
+{
+    $wet = trail_water_tiles($art);
+    if (!$wet) return false;
+    for ($dy = -1; $dy <= 1; $dy++) for ($dx = -1; $dx <= 1; $dx++) if (isset($wet[($x + $dx) . ',' . ($y + $dy)])) return true;
+    return false;
+}
+
+/**
  * The gates of a section that are shut for this walker, ["x,y" => gate]. $tierOf(type) = the tier of the best tool of that type the gnome owns (0 = none).
  * A gate is shut while the best tool of its type is below min_tier. Pure; trail_gate() closes these tiles for the walk.
  */

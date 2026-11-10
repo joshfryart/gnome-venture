@@ -322,6 +322,7 @@ elseif ($exp && !$trailSc && !$fsc && !($overMap && !$hasMap)) { echo adventure_
 <?php $tLand0 = (string)(exp_scene($exp)['land'] ?? 'grassland'); ?><div class="trailui">
   <div class="trailfoot">
     <a class="btn" data-pop="hubpop-tgather" href="<?= e(url('adventure.php?g=1')) ?>">🧺 Gather here</a>
+    <?php if (empty($exp['encounter']) && trail_fish_here($trailSc)): /* v2.7: on or beside water the rod gets its own button */ ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="gather"><input type="hidden" name="tool" value="rod"><button class="btn trailfish">🎣 Fish <small>⚡1</small></button></form><?php endif; ?>
     <?php if (on_road((int)$exp['from_id'])): ?><a class="btn alt" data-pop="hubpop-twander" href="<?= e(url('adventure.php?w=1')) ?>">🌿 Wander off <small>⚡1</small></a><?php endif; ?>
     <?php $stance = (string)($trailSc['st']['stance'] ?? ''); foreach (empty($exp['encounter']) ? ['sneak' => '🤫 Sneak', 'hunt' => '🏹 Hunt'] : [] as $sm => $sl): ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_stance"><input type="hidden" name="mode" value="<?= $sm ?>"><button class="btn<?= $stance === $sm ? '' : ' alt' ?>" aria-pressed="<?= $stance === $sm ? 'true' : 'false' ?>"><?= $sl ?></button></form><?php endforeach; ?>
     <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="trail_back"><button class="btn alt">↩️ Turn back</button></form>

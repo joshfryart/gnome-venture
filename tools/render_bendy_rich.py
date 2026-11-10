@@ -1341,7 +1341,7 @@ def paint_rough(bp, tw, th, rough, skip, land, seed):
         bp[px, py] = t
 
 def paint(route, si, rich, cache_dir=None, walker=True, split=False):
-    """The painted section. split=True (the bake): returns (ground picture with every flat thing in it, objs [[x, y, key, jit, jy]], {key: sprite}) in the game's shape:
+    """The painted section. split=True (the bake): returns (ground picture with every flat thing in it, objs [[x, y, key, jit, jy]], {key: sprite}, set of water tiles) in the game's shape:
     raised things stay separate so the game can draw the walker between them; finds, the boss mark and mini-boss marks are left to the game."""
     s = route["sections"][si]; rows = s["rows"]; W, Hh = len(rows[0]), len(rows); rid = route["route_id"]; land0 = route["land"]; land = ART[land0]; seed = rid * 10 + si; gland = land0 if land0 in OWN else land
     green = land in ("grassland", "forest")
@@ -1636,7 +1636,7 @@ def paint(route, si, rich, cache_dir=None, walker=True, split=False):
             sprites[key] = im; continue
         cl = im.crop((max(0, -ox), max(0, -oy), min(im.width, tw - ox), min(im.height, th - oy)))
         if cl.width > 0 and cl.height > 0: base.alpha_composite(cl, (max(ox, 0), max(oy, 0)))
-    return (base, objs, sprites) if split else base
+    return (base, objs, sprites, wet) if split else base
 
 def src_of(rid):
     """The hand-tuned Maplewold file if there is one, else the generated one (claude/bend-prototype-v2)."""

@@ -112,6 +112,35 @@ ok('revealing in the far corner works', tm_seen_get($seen, 30, 18, 29, 17) && tm
 $a = $art('315', 4); [$m, $t] = trail_map_authored($a);
 $svg = trail_art_svg($m, ['px' => 3, 'py' => 8, 'x0' => 0, 'y0' => 4, 'cols' => 9, 'rows' => 9, 'tokens' => []]);
 ok('a 30 x 18 section draws', str_contains($svg, '<svg') && str_contains($svg, '</svg>'));
+echo "== fishing beside water\n";
+$w = ['rows' => ['.....', '.....', '.....'], 'wet' => ['00000', '00010', '00000']];
+ok('on the water tile', trail_water_near($w, 3, 1));
+ok('diagonally beside it', trail_water_near($w, 2, 0) && trail_water_near($w, 4, 2));
+ok('two tiles away is too far', !trail_water_near($w, 1, 1) && !trail_water_near($w, 0, 0));
+ok('a section without water has no fishing', !trail_water_near(['rows' => ['...']], 1, 0));
+ok('stream points count when there is no wet grid', trail_water_near(['water' => [['pts' => [[5, 5], [6, 5]]]]], 7, 6) && !trail_water_near(['water' => [['pts' => [[5, 5]]]]], 7, 5));
+ok('a pond given only by its centre gives no tiles', trail_water_tiles(['water' => [['pond' => [4, 4]]]]) === []);
+$sc = ['x' => 2, 'y' => 1, 'st' => ['phase' => 'section'], 'map' => ['art' => $w]];
+ok('the Fish button shows beside water', trail_fish_here($sc));
+ok('not two tiles away', !trail_fish_here(['x' => 0] + $sc));
+ok('not on a made-up (unauthored) section', !trail_fish_here(['map' => []] + $sc) && !trail_fish_here(null));
+$bake = dirname($game) . '/claude/maplewold-bendy-maps/bake/trail_maps_maplewold_30x18.json';
+if (is_file($bake)) {
+    $bj = json_decode((string)file_get_contents($bake), true)['routes'];
+    $n = 0; $shape = true; $walkBy = 0;
+    foreach ($bj as $rid => $r) foreach ($r['sections'] as $s) {
+        if (empty($s['wet'])) continue;
+        $n++;
+        if (count($s['wet']) !== count($s['rows'])) $shape = false;
+        foreach ($s['wet'] as $y => $row) if (strlen($row) !== strlen($s['rows'][$y]) || !preg_match('/^[01]+$/', $row)) $shape = false;
+        $hit = false;
+        foreach ($s['rows'] as $y => $row) for ($x = 0; $x < strlen($row); $x++) if ($row[$x] !== '#' && trail_water_near($s, $x, $y)) $hit = true;
+        if ($hit) $walkBy++;
+    }
+    ok('the bake marks water tiles in some sections, in the shape of the rows', $n > 10 && $shape, "$n sections");
+    ok('nearly every section with water has a walkable tile to fish from (a pool shut in by thicket has none)', $walkBy >= $n - 2, "$walkBy of $n");
+    ok('228 section 2 (West River): fishing at the ford', trail_water_near($bj['228']['sections'][1], 12, 7));
+}
 array_map('unlink', glob($tmp . '/trail_maps/*')); @rmdir($tmp . '/trail_maps'); @rmdir($tmp);
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);

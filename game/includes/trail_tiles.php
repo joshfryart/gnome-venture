@@ -507,9 +507,17 @@ function trail_gather(array $u, array &$exp, string $tool): array
     if ($exp['encounter']) return [false, 'Deal with what is in front of you first.'];
     require_once __DIR__ . '/gathering.php';
     $land = (string)(exp_scene($exp)['land'] ?? 'grassland');
+    if ($tool === 'rod' && !gather_candidates($land, 'rod') && trail_fish_here(trail_scene($exp))) $land = 'wetland';   // v2.7: by the water in a land without fish of its own: river fish
     [$ok, $line] = gather_here($u, $land, $tool);
     exp_log($exp, $line);
     return [$ok, ''];
+}
+
+/** v2.7: does the gnome stand on or beside water in this section (an authored section with water tiles)? Then the Fish button shows under the map. */
+function trail_fish_here(?array $sc): bool
+{
+    $art = $sc['map']['art'] ?? null;
+    return is_array($art) && ($sc['st']['phase'] ?? '') === 'section' && trail_water_near($art, (int)$sc['x'], (int)$sc['y']);
 }
 
 /**

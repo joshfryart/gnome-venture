@@ -4,6 +4,7 @@ Per section: ground/<route>-<section>.png (terrain, water, rough, shadows and ev
 [x, y, key, jit, jy] (64 x 96 sprites 'x-<name>-<args>', landmarks 'lm-<name>' in their own size), and obj/<key>.png once per key.
 The game draws the raised things and the walker in depth order (includes/trail_art.php; jy = the sprite's shift down in picture pixels).
 Finds, the boss mark and mini-boss marks are NOT in the pictures: the game draws those.
+Per section 'wet' = rows of 0/1, the water tiles of the picture (streams, fords, ponds, sea, ice); the game offers fishing on and beside them.
 Output (staging, NOT the game): claude/maplewold-bendy-maps/bake/{ground,obj}/ and bake/trail_maps_maplewold_30x18.json (the authored-map file with objs).
 Usage: python3 -I tools/bake_trail_rich.py [route ids ...] [--proof]     no id = the 16 Maplewold routes; --proof also writes bake/proof/<route>-<section>.png,
 the section put together the way the game does it (to compare with rich/route-<id>-s<n>.png).
@@ -20,7 +21,7 @@ def job(a):
     from maplewold_rich_specs import rich_for
     from PIL import Image
     route = json.load(open(R.src_of(rid)))
-    base, objs, sprites = R.paint(route, si, rich_for(rid, si, route), None, walker=False, split=True)
+    base, objs, sprites, wet = R.paint(route, si, rich_for(rid, si, route), None, walker=False, split=True)
     base.convert("RGB").quantize(256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(os.path.join(OUT, "ground", f"{rid}-{si + 1}.png"), optimize=True)
     for k, im in sprites.items():
         f = os.path.join(OUT, "obj", k + ".png")
@@ -33,7 +34,8 @@ def job(a):
             cl = im.crop((max(0, -x), max(0, -y), min(im.width, pic.width - x), min(im.height, pic.height - y)))
             if cl.width > 0 and cl.height > 0: pic.alpha_composite(cl, (max(x, 0), max(y, 0)))
         pic.convert("RGB").save(os.path.join(OUT, "proof", f"{rid}-{si + 1}.png"))
-    return rid, si, objs
+    W, H = len(route['sections'][si]['rows'][0]), len(route['sections'][si]['rows'])
+    return rid, si, objs, [''.join('1' if (x, y) in wet else '0' for x in range(W)) for y in range(H)]
 
 def main():
     import bendy_to_trail_maps as B
@@ -44,8 +46,10 @@ def main():
     data = B.convert([os.path.join(REPO, "claude", "maplewold-bendy-maps", f"route-{i}.json") for i in ids])
     jobs = [(rid, si, proof) for rid in ids for si in range(len(data["routes"][str(rid)]["sections"]))]
     with Pool(min(8, os.cpu_count() or 2)) as pool:
-        for rid, si, objs in pool.imap_unordered(job, jobs):
-            data["routes"][str(rid)]["sections"][si]["objs"] = objs; print("baked", rid, si + 1, len(objs), "objs", flush=True)
+        for rid, si, objs, wet in pool.imap_unordered(job, jobs):
+            sec = data["routes"][str(rid)]["sections"][si]; sec["objs"] = objs
+            if any("1" in r for r in wet): sec["wet"] = wet   # every water tile in the picture (streams, fords, ponds, sea, ice): the game offers fishing beside them
+            print("baked", rid, si + 1, len(objs), "objs", flush=True)
     dest = os.path.join(OUT, "trail_maps_maplewold_30x18.json")
     if len(ids) < 16 and os.path.exists(dest):   # a partial bake keeps the other routes
         old = json.load(open(dest)); old["routes"].update(data["routes"]); data = old
