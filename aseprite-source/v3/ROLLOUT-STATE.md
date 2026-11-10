@@ -67,4 +67,4 @@ Weak seeds: thyme, teff, tibetan-gentian, turnip, vanilla, vandaenopsis, wasabi,
 Weak others: tomatillo, tomato, white-pelt, wasp-stinger, wind-harp, wing-dust, wing-scale-lantern, wind-chime, yogurt, yuzu, tortoise-scute, triticale, tide-shell, tide-bucket, tile-bark-path, titan-claw, thorn-fang, tool_shed-lantern/-1/-mossy, wild-rice, wild-strawberries, wattle-fence corner/end (charms barely visible).
 
 ## Review rule (2026-11-04)
-Weak images get a bright pink (#ff2bd6) 2 px border in the live/wired copy only (see HANDOFF.md). Weak list file `rollout/weak.txt` + `pinkify.py` still to write.
+Weak images get a bright pink (#ff2bd6) 2 px border in the live/wired copy only (see HANDOFF.md). Weak list `rollout/weak.txt` and the border step in `rollout/export_game.py` are done (2.4.98).
