@@ -523,7 +523,9 @@ function repair_box(array $u, array $repair, string $back): string
     foreach ($st as [$lbl, $need, $have]) {
         $h .= '<li class="' . ($have >= $need ? 'good' : 'bad') . '">' . $need . ' ' . e((string)$lbl) . ' <small class="muted">(' . ($isClear ? 'done so far: ' : 'you have ') . number_format($have) . ')</small></li>';
     }
-    $h .= '</ul><p class="help">Each stage pays ' . money($coins) . ' and ' . $xp . ' XP.</p>';
+    $usesTools = false;   // build plans can ask for tools (lanterns, trugs, baskets): they are handed in for good
+    foreach ($def['needs'] as $nd) if (($nd[0] ?? '') === 'item' && (string)q_val('SELECT category FROM items WHERE slug = ?', [(string)$nd[1]]) === 'tool') $usesTools = true;
+    $h .= '</ul>' . ($usesTools ? '<p class="help">🔧 Tools you hand in are used up.</p>' : '') . '<p class="help">Each stage pays ' . money($coins) . ' and ' . $xp . ' XP.</p>';
     $h .= $isClear
         ? '<form method="post" class="inline" action="' . e(url('landmark.php')) . '">' . csrf_field() . '<input type="hidden" name="do" value="repair_work">' . $hidden
             . '<button class="btn small"' . ($workedToday ? ' disabled' : '') . '>' . build_verb_img('clear') . 'Work here today <span class="cost">' . (int)$def['needs'][0][1] . '⚡' . e(gclock_cost_tag(null, null, 'repair')) . '</span></button></form> '

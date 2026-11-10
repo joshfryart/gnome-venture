@@ -35,7 +35,7 @@ P|Driftwood Tavern|3|feed|Stock the kitchen|item:tropical-fruit-bowl:4,item:coco
 P|Driftwood Tavern|4|light|Hang the glass lanterns|item:beeswax:2,coins:285|Soft light on the water. The band tunes up.
 P|Sunken Gnome Galleon|1|gather|Scrape the barnacles|item:spiral-shell:5,item:sea-salt:5|Crusty with barnacles and coral. Scrape, scour, and bring the shells for the diving bell’s weights.
 P|Sunken Gnome Galleon|2|haul|Raise a new mast|item:timber-plank:7,item:rope:5|The old mast is long gone. A new one gives the divers something to tie to.
-P|Sunken Gnome Galleon|3|clear|Dive and clear the hold|days:3:3|Sand, silt and a very surprised crab. Clear the hold a little each day.
+P|Sunken Gnome Galleon|3|clear|Dive and clear the hold|days:3:3|Sand, silt and a very surprised crab. Clear the hold one bucket at a time.
 P|Sunken Gnome Galleon|4|gather|Salvage the seed chests|fine:2,coins:335|Treasure that was meant for a garden. Bring something fine to trade for the lock-keeper’s blessing.
 P|The Singing Waterfall|1|clear|Clear the climbing path|days:2:3|The path behind the falls is slick with moss. Cut it back, a bit each day.
 P|The Singing Waterfall|2|haul|Fix the steps|item:rope:5,item:building-stone:5|Stone steps and a rope rail, so a gnome can climb behind the falls without a bath.
@@ -141,7 +141,7 @@ P|Painted Egg House|3|feed|Feed the painters|item:pickled-eggs:4,item:devilled-e
 P|Painted Egg House|4|light|Light the stove corner|item:beeswax:4,coins:265|A warm stove and a row of candles, and the whole cottage glows like a jewel box.
 P|The Amber Woods|1|clear|Clear the leaf drifts|days:3:3|Years of leaves lie over the paths. Sweep a little each day and the amber starts to wink at you from the dirt.
 P|The Amber Woods|2|gather|Gather pine resin|item:pine-resin:7,item:acorn-cap:5|Fresh resin is how the old gnomes found their way to the good amber. It is sticky work and very rewarding.
-P|The Amber Woods|3|feed|Feed the diggers|item:potato-leek-soup:4,item:herb-flatbread:4|Careful digging needs steady hands, and steady hands need soup.
+P|The Amber Woods|3|feed|Feed the root-diggers|item:potato-leek-soup:4,item:herb-flatbread:4|Careful digging needs steady hands, and steady hands need soup.
 P|The Amber Woods|4|light|Hang the glow jars|item:firefly-glow:5,coins:315|Amber glows best in lamplight. A tiny seed inside one stone is sleeping, and nobody wants to wake it rudely.
 P|Stork Chimney Village|1|haul|Rebuild the chimney tops|item:building-stone:7,item:timber-plank:4|Storks need a flat, sturdy chimney to nest on. Half the village chimneys have gone a bit wobbly.
 P|Stork Chimney Village|2|gather|Gather nest straw|item:cattail-fluff:5,item:hen-feather:5|A soft nest is a stork’s first welcome. Bring fluff and feathers and the storks will bring the post.
@@ -170,7 +170,7 @@ P|The Oasis That Moves|3|feed|Feed the caravan|item:desert-sage-tea:4,item:mesqu
 P|The Oasis That Moves|4|clear|Follow the water|days:3:4|Walk the sand a few days and learn where it heads next. Wherever the water goes, the gnomes will follow.
 P|Rose-red Canyon City|1|haul|Rig the cliff ladders|item:rope:7,item:timber-plank:7|The carved city sits high on the canyon wall. A few sturdy ladders turn a daring climb into an ordinary one.
 P|Rose-red Canyon City|2|light|Light the carved halls|item:tin-lantern:2,item:tallow-wax:4|Deep rooms with no windows. Bring lanterns, and the red stone glows like the inside of a rose.
-P|Rose-red Canyon City|3|clear|Clear the sand drifts|days:4:3|Centuries of sand fill the street stairs. Dig a little each day and the old gnome stairs come back.
+P|Rose-red Canyon City|3|clear|Clear the sand drifts|days:4:3|Centuries of sand fill the street stairs. Dig out a few steps a day and the old gnome stairs come back.
 P|Rose-red Canyon City|4|feed|Feed the cliff crew|item:shakshuka:4,item:stuffed-peppers-goat:4|Climbing all day gives gnomes appetites like camels. Shakshuka in the shade is the best reward there is.
 # ------------------------------------------------------------ West & Central Africa (WCA)
 P|Drum Circle Market|1|haul|Stretch the drum skins|item:drum-skin:3,item:rope:5|A drum circle with slack skins sounds like a bag of cats. Pull them tight and let the rhythm start.
@@ -179,7 +179,7 @@ P|Drum Circle Market|3|feed|Feed the drummers|item:rice-and-beans:7,item:peanut-
 P|Drum Circle Market|4|light|Light the evening fires|item:tallow-wax:5,coins:390|Fire in the middle, drums all round, and a market that can finally stay open late.
 P|Mud Mosque Library|1|gather|Bind the old scrolls|item:silk-thread:3,item:cottongrass:7|Some scrolls are crumbling after four hundred years. Bind them gently with silk thread, and wrap them in soft grass.
 P|Mud Mosque Library|2|haul|Re-plaster the walls|item:river-clay:9,item:timber-plank:5|Mud walls need fresh mud every rainy season. Pack in the clay and keep the wise old scrolls dry.
-P|Mud Mosque Library|3|clear|Dust the reading rooms|days:3:2|Dust has settled on every shelf. Dust a little each day, and the old farming wisdom comes out of hiding.
+P|Mud Mosque Library|3|clear|Dust the reading rooms|days:3:2|Dust has settled on every shelf. Dust a shelf or two every day, and the old farming wisdom comes out of hiding.
 P|Mud Mosque Library|4|light|Light the reading lamps|item:glowcap-lantern:2,item:beeswax:3|Scrolls and open flames never mix, so use glow lanterns. The librarian is nervous anyway.
 P|Gorilla Glade|1|feed|Prepare a polite gift|item:tropical-fruit-bowl:3,item:coconut-curry:3|Gorillas never take gifts rudely, and neither do gnomes. A nice dish says you came in peace.
 P|Gorilla Glade|2|gather|Gather forest fruit|item:banana:7,item:plantain:7|The glade is full of ripe fruit, and a few of the big folk are watching you gather it. Be polite.
@@ -199,7 +199,7 @@ P|Coffee Ceremony Hut|2|feed|Serve the first cup|item:herb-flatbread:5,item:goat
 P|Coffee Ceremony Hut|3|haul|Mend the thatch|item:cattail-fluff:7,item:rope:5|The thatched roof has holes where the stars look in. Close them up so the blessings stay in.
 P|Coffee Ceremony Hut|4|light|Light the charcoal and incense|item:beeswax:4,item:pine-resin:5|Roast, grind, and pour three times. By the third cup, you may feel quite blessed.
 P|The Great Migration|1|gather|Gather trail supplies|item:camping-gear:2,item:sorghum:7|Follow the herds and you need to move light. Camping gear and a pouch of grain are all a clever gnome needs.
-P|The Great Migration|2|haul|Build the lookout|item:timber-plank:9,item:rope:7|A high lookout above the plain, where you can watch a thousand hooves go past without being stepped on.
+P|The Great Migration|2|haul|Raise the lookout|item:timber-plank:9,item:rope:7|A high lookout above the plain, where you can watch a thousand hooves go past without being stepped on.
 P|The Great Migration|3|clear|Follow the herds|days:4:3|Walk beside the great river of horns and dust for a few days. Lucky finds fall out of the dust behind them.
 P|The Great Migration|4|feed|Feed the trackers|item:mackerel-rice:5,item:rice-and-beans:5|Trackers get hungry in a hurry. Hot food at the end of a day of dust beats any adventure.
 P|Flamingo Shallows|1|haul|Lay the stepping planks|item:timber-plank:7,item:rope:5|The lake is pink and the mud is sticky. Planks laid out in a line keep your boots on.
@@ -215,17 +215,17 @@ P|Floating Flower Market|1|haul|Patch the flower boats|item:timber-plank:6,item:
 P|Floating Flower Market|2|gather|Gather the first blooms|item:cut-sacred-lotus:5,item:cut-marigold:6|A market with no flowers is just a very wet street. Bring lotus and marigolds and watch the stalls bloom.
 P|Floating Flower Market|3|feed|Feed the boat gnomes|item:mint-tea:5,item:lentil-dal:3|The paddlers have been poling since dawn. Tea and dal, passed gently from boat to boat.
 P|Floating Flower Market|4|light|Float the evening lamps|item:beeswax:5,coins:310|At dusk each boat gets a little lamp, and the whole market glitters on the water like a spilled jewel box.
-P|The Silk Road Caravanserai|1|clear|Sweep out the courtyard|days:3:3|Centuries of sand and camel footprints fill the yard. Sweep a little each day and the old flagstones come back.
+P|The Silk Road Caravanserai|1|clear|Sweep out the courtyard|days:3:3|Centuries of sand and camel footprints fill the yard. Sweep a few more flagstones each morning and the yard comes back.
 P|The Silk Road Caravanserai|2|haul|Fix the stable gates|item:timber-plank:8,item:rope:6|The camels have been politely walking through the gap. A gate would be a nice surprise for them.
-P|The Silk Road Caravanserai|3|feed|Feed the caravan|meal:5,item:herb-flatbread:5|Travellers arrive tired and hungry and very opinionated about bread. Give them plenty.
+P|The Silk Road Caravanserai|3|feed|Feed the travellers|meal:5,item:herb-flatbread:5|Travellers arrive tired and hungry and very opinionated about bread. Give them plenty.
 P|The Silk Road Caravanserai|4|light|Light the beacon lamp|item:tin-lantern:2,coins:360|One bright lamp on the roof tells every lost trader that there is a bed and a bowl of soup ahead.
-P|Tea Garden Slopes|1|clear|Clear the terraces|days:3:3|The tea bushes are lost under brambles and the steps have vanished. Clear a patch each day and the green rows appear.
+P|Tea Garden Slopes|1|clear|Clear the tea rows|days:3:3|The tea bushes are lost under brambles and the steps have vanished. Clear a patch each day and the green rows appear.
 P|Tea Garden Slopes|2|gather|Pick the first flush|item:tea:9,item:woven-basket:2|The tips are the sweetest part of the bush. Pick gently, pluck two leaves and a bud, and try not to nibble.
 P|Tea Garden Slopes|3|haul|Build the drying racks|item:timber-plank:6,item:wattle-fence:3|Tea needs somewhere to wilt in the sun. Racks, a little shade, and patience.
 P|Tea Garden Slopes|4|feed|Feed the pickers|item:mint-tea:5,item:goat-milk-porridge:5|Hot porridge on a cold hillside. The pickers promise to work twice as hard, or at least twice as cheerfully.
 P|Prayer-flag Pass|1|haul|Raise the flag poles|item:pine-log:6,item:rope:6|The old poles have blown over, so the flags lie in the snow looking embarrassed. Stand them up again.
-P|Prayer-flag Pass|2|clear|Dig out the path|days:4:3|The wind has stacked drifts across the trail. Shovel a little each day and the pass opens up.
-P|Prayer-flag Pass|3|gather|Gather the dye plants|item:saffron:5,item:cut-marigold:5,item:silk-thread:3|Blue, white, red, green and yellow, and not one of them in stock. Gather the colours and the flags can be mended.
+P|Prayer-flag Pass|2|clear|Dig out the path|days:4:3|The wind has stacked drifts across the trail. Shovel one drift at a time and the pass opens up.
+P|Prayer-flag Pass|3|gather|Gather the dyes and thread|item:saffron:5,item:cut-marigold:5,item:silk-thread:3|Blue, white, red, green and yellow, and not one of them in stock. Gather the colours and the flags can be mended.
 P|Prayer-flag Pass|4|light|Light the butter lamps|item:tallow-wax:6,coins:310|Little lamps along the pass flicker like stars that came down for a rest. Hikers cheer when they see them.
 P|Snowleopard Ledges|1|gather|Gather the warm furs|item:frost-fur:5,item:goat-hair:5|The ledges are cold enough to freeze a beard. Bring something fluffy for the watchers.
 P|Snowleopard Ledges|2|haul|Cut the ledge steps|item:building-stone:8,item:rope:5|A rope railing and a few stone steps make the climb possible for gnomes with short legs.
@@ -244,13 +244,13 @@ P|Pearl Diver Cove|1|gather|Gather the diving gear|item:diver-s-creel:2,item:rop
 P|Pearl Diver Cove|2|haul|Mend the jetty|item:timber-plank:7,item:rope:6|The old jetty creaks like a grumpy tortoise. New boards and a good knot will cure it.
 P|Pearl Diver Cove|3|feed|Feed the divers|item:mackerel-rice:4,item:mussel-broth:3|Cold water makes hungry gnomes. Rice and broth warm up a diver faster than any blanket.
 P|Pearl Diver Cove|4|light|Light the harbour lamp|item:tin-lantern:2,coins:345|A lamp on the point guides the little boats home, and every pearl with them.
-P|Panda Bamboo Grove|1|clear|Thin the bamboo|days:3:3|The stalks have grown into a green wall. Thin it out a little each day and the pandas will have room to nap.
+P|Panda Bamboo Grove|1|clear|Thin the bamboo|days:3:3|The stalks have grown into a green wall. Thin it out stalk by stalk and the pandas will have room to nap.
 P|Panda Bamboo Grove|2|gather|Gather fresh shoots|item:bamboo-shoot:9,item:woven-basket:2|A panda eats more bamboo before breakfast than a gnome eats in a year. Bring baskets, and lots of them.
 P|Panda Bamboo Grove|3|feed|Feed the keepers|meal:4,item:egg-fried-rice:3|The grove keepers have been counting bamboo since sunrise. A warm meal, and they will count it again, happily.
 P|Panda Bamboo Grove|4|haul|Build the viewing hut|item:timber-plank:6,item:wattle-fence:4|A little hut, a little rail, and a very good view of a very round bear eating lunch.
 P|The Long Wall Walk|1|haul|Rebuild the parapet|item:building-stone:9,item:rope:4|The watchtowers have lost a few teeth. Stack the stones back where they belong, and mind your toes.
 P|The Long Wall Walk|2|gather|Gather the signal fuel|item:pine-resin:4,item:flint:4|The old beacons burned smoke by day and fire by night. Bring something to burn, and something to light it with.
-P|The Long Wall Walk|3|clear|Clear the walkway|days:4:4|Grass has grown thick along the top of the wall. A long wall means a long job, a little each day.
+P|The Long Wall Walk|3|clear|Clear the walkway|days:4:4|Grass has grown thick along the top of the wall. A long wall means a long job, one stretch at a time.
 P|The Long Wall Walk|4|light|Light the first beacon|item:beeswax:4,coins:395|When the first beacon is lit, the next one answers, and the one after that, all the way to the horizon.
 # ------------------------------------------------------------ Southeast Asia (SEA)
 P|Floating Market|1|haul|Float the boat stalls|item:timber-plank:7,item:rope:5|A market on water needs boats that stay on top of it. Patch them up and send them out in rows.
@@ -265,20 +265,20 @@ P|Volcano Spice Gardens|1|clear|Clear the ash|days:3:3|A grumble from the mounta
 P|Volcano Spice Gardens|2|gather|Gather the spices|item:nutmeg:7,item:clove:7,item:black-pepper:5|Volcano soil makes the best spice in the world. Gather nutmeg, clove and pepper, and sneeze twice.
 P|Volcano Spice Gardens|3|haul|Terrace the slopes|item:building-stone:8,item:timber-plank:5|Stone steps for the spice trees to grow on, with the volcano rumbling approval from the top.
 P|Volcano Spice Gardens|4|feed|Feed the harvesters|meal:5,item:shakshuka:3|Spicy food for the spice gnomes. They say it is the only kind worth eating.
-P|Root-wrapped Temple|1|clear|Clear the creepers|days:3:3|The roots hug every wall like grandparents at a reunion. Loosen them gently, a little each day.
+P|Root-wrapped Temple|1|clear|Clear the creepers|days:3:3|The roots hug every wall like grandparents at a reunion. Loosen them gently, one wall at a time.
 P|Root-wrapped Temple|2|haul|Prop the old arches|item:timber-plank:8,item:rope:7|A few good props and a very careful gnome will keep the arches up for another few centuries.
 P|Root-wrapped Temple|3|gather|Gather the temple offerings|item:cut-frangipani:7,item:cut-champak:5|Sweet blossoms for the temple steps. The monkeys have been eyeing them, so be quick.
 P|Root-wrapped Temple|4|light|Light the incense lamps|item:beeswax:5,coins:375|Lamps and a little incense, and the old stones glow golden among the roots.
 P|Firefly Caves|1|haul|Lay the cave planks|item:timber-plank:8,item:rope:5|The cave floor is wet and slippery, and the fireflies do not appreciate a splash. Lay planks and they will stay calm.
-P|Firefly Caves|2|clear|Clear the passage|days:3:3|Fallen stones and drifts of mud fill the narrow way in. Work a little each day, and mind the bats.
-P|Firefly Caves|3|light|Rest the lanterns|item:glowcap-lantern:2,coins:325|Not to outshine the fireflies, only to see where to put your feet. Keep the lanterns low and quiet.
+P|Firefly Caves|2|clear|Clear the passage|days:3:3|Fallen stones and drifts of mud fill the narrow way in. Chip away at it day by day, and mind the bats.
+P|Firefly Caves|3|light|Set the lanterns low|item:glowcap-lantern:2,coins:325|Not to outshine the fireflies, only to see where to put your feet. Keep the lanterns low and quiet.
 P|Firefly Caves|4|feed|Feed the cave guides|meal:3,item:coconut-curry:3|Cave guides live on rice and gossip. Bring the rice, and they will supply the gossip.
 # ------------------------------------------------------------ Oceania (OC)
 P|Kava Circle|1|haul|Carve the kava bowl|item:palm-trunk:6,item:coir-fibre:6|A big wooden bowl in the middle, and a circle of mats around it. The carving takes a long time, and quite a lot of chat.
 P|Kava Circle|2|gather|Gather the kava root|item:kava:9,item:pandanus:6|The best kava roots are pounded, wrapped and passed around like a secret. Bring plenty.
 P|Kava Circle|3|feed|Feed the circle|item:taro:6,item:sweet-potato:6|After the kava comes the food. A circle of gnomes passes around a bowl with great seriousness.
 P|Kava Circle|4|light|Light the evening fire|item:beeswax:4,coins:370|A small fire in the middle of the circle, and a long slow evening of stories under the stars.
-P|Glowworm Grotto|1|clear|Clear the cave mouth|days:3:3|The way into the grotto is knotted with ferns and fallen stones. Clear a little each day, and hush.
+P|Glowworm Grotto|1|clear|Clear the grotto entrance|days:3:3|The way into the grotto is knotted with ferns and fallen stones. Clear a little each day, and hush.
 P|Glowworm Grotto|2|haul|Lay the boardwalk|item:timber-plank:9,item:rope:7|A little boardwalk keeps the glowworms dry and the visitors upright. Everyone wins.
 P|Glowworm Grotto|3|gather|Gather the glow silk|item:glow-silk:6,item:glowing-bead:6|The glowworms drop strings of bright beads, and a sharp-eyed gnome can collect them without a single worm minding.
 P|Glowworm Grotto|4|light|Hang the guide lights|item:glowcap-lantern:2,coins:420|Just enough light to find the path, and just little enough to leave the stars on the ceiling alone.
@@ -286,7 +286,7 @@ P|Starpath Canoe|1|haul|Carve the hull|item:palm-trunk:7,item:coir-fibre:7|Navig
 P|Starpath Canoe|2|gather|Gather the star stones|item:tide-shell:7,item:cowrie-shell:6|Shells and stones mark each star on the sea chart. Gather a full set, and do not sneeze on them.
 P|Starpath Canoe|3|light|Light the night torch|item:beeswax:6,coins:420|One steady torch at the stern for the navigator to read the sky by, and the sea by, and the first mate by.
 P|Starpath Canoe|4|feed|Feed the voyage crew|meal:7,item:fishermans-stew:6|A voyage by the stars takes a lot of stew. Pack plenty for the crew, and a little extra for the navigator.
-P|Stone Head Watchers|1|clear|Clear the grass|days:3:3|The big stone faces are buried to the chin in grass. Clear a little each day and they will thank you with a look.
+P|Stone Head Watchers|1|clear|Clear the grass|days:3:3|The big stone faces are buried to the chin in grass. Clear a face or two a day and they will thank you with a look.
 P|Stone Head Watchers|2|haul|Roll the fallen heads|item:rope:9,item:building-stone:7|One of the watchers has fallen over and is facing the wrong way. Ropes, patience, and a lot of gnomes.
 P|Stone Head Watchers|3|feed|Feed the stone crew|meal:6,item:roasted-roots:6|Heavy work, and a heavier lunch. Roasted roots are a stone gnome’s favourite.
 P|Stone Head Watchers|4|gather|Gather the offerings|item:cut-tiare:6,item:coconut:7|A flower, a coconut and a quiet word for each watcher. They have heard it all before, but they like it.
