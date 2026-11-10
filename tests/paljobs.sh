@@ -59,7 +59,7 @@ get paljobs.php >/dev/null
 PLOT=$(db "SELECT id FROM plots LIMIT 1")
 chk "POST send_garden redirects" "$(post paljobs.php -d do=send_garden -d pal=$PAL -d plot=$PLOT -d days=1)" 302
 chk "garden job via the page is refused (crew replaces it, v2.6.40)" "$(db "SELECT COUNT(*) FROM ppal_jobs WHERE kind='garden' AND state='active'")" 0
-chk "a bad hash is refused (no job)" "$(get paljobs.php >/dev/null; post paljobs.php -d do=send_garden -d pal=ffffffffffffffff -d plot=$PLOT -d days=1 >/dev/null; db "SELECT COUNT(*) FROM ppal_jobs")" 1
+chk "a bad hash is refused (no job)" "$(get paljobs.php >/dev/null; post paljobs.php -d do=send_garden -d pal=ffffffffffffffff -d plot=$PLOT -d days=1 >/dev/null; db "SELECT COUNT(*) FROM ppal_jobs")" 0
 chk "POST without csrf is refused" "$(curl -s -c $C -b $C -X POST "$BASE/paljobs.php" -d do=recall -d job=1 -o /dev/null -w "%{http_code}")" 400
 echo "== v2.3.3: pals home with loot (home page: TODAY and MY GNOME tabs) + Collect receipt"
 SID=$(db "SELECT id FROM users WHERE username='sprout'")
@@ -88,9 +88,7 @@ dbx "DELETE FROM ppal_jobs"; dbx "UPDATE ppal_found SET status='home', hp=20"
 PALS=$(db "SELECT pal_uid FROM ppal_found WHERE user_id=$SID AND status='home' ORDER BY id LIMIT 3")
 P1=$(echo "$PALS" | sed -n 1p); P2=$(echo "$PALS" | sed -n 2p); P3=$(echo "$PALS" | sed -n 3p)
 get paljobs.php >/dev/null
-chk "two pals to one garden: one goes, the second is refused (one gardener per garden)" "$(post paljobs.php -d do=send_garden -d "pals[]=$P1" -d "pals[]=$P2" -d plot=$PLOT -d days=1 >/dev/null; db "SELECT COUNT(*) FROM ppal_jobs WHERE kind='garden' AND state='active'")" 1
-get paljobs.php >/dev/null
-chk "result line says how many went" "$(grep -c '1 of 2 pals sent' $H | awk '{print ($1>0)?"yes":"no"}')" yes
+chk "two pals to one garden: both refused (garden stays are retired, crew replaces them)" "$(post paljobs.php -d do=send_garden -d "pals[]=$P1" -d "pals[]=$P2" -d plot=$PLOT -d days=1 >/dev/null; db "SELECT COUNT(*) FROM ppal_jobs WHERE kind='garden' AND state='active'")" 0
 dbx "DELETE FROM ppal_jobs"; dbx "UPDATE ppal_found SET status='home'"
 for PX in $P1 $P2; do
 dbx "UPDATE ppal_found SET status='trip' WHERE pal_uid='$PX'"
