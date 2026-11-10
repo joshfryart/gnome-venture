@@ -475,6 +475,7 @@ function pj_recall_scale(array $r, float $frac, int $potions): array
     foreach ($r['items'] ?? [] as [$iid, $qty, $name]) if (($q = (int)floor((int)$qty * $keep)) > 0) $items[] = [$iid, $q, $name];
     $r['items'] = $items;
     foreach (['makes', 'xp_base'] as $k) if (isset($r[$k])) $r[$k] = (int)floor((int)$r[$k] * $keep);
+    if (!empty($r['recipes'])) foreach ($r['recipes'] as $rid => $n) { $r['recipes'][$rid] = (int)floor((int)$n * $keep); }   // mastery counts follow the makes that came home
     $r['rounds'] = (int)floor((int)($r['rounds'] ?? 0) * $frac);
     if (!empty($r['pack'])) {   // v2.5.49: a pack with stronger tiers: scale each tier's drinks, the rest come back per tier
         $pu = []; $pb = [];
@@ -721,6 +722,7 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
     $rng = pj_rng(bin2hex(random_bytes(6)));
     $made = []; $takes = []; $makes = 0; $stopped = '';
     $outItem = [];
+    $recipeMakes = [];   // recipe id => makes, counted into the owner's craft mastery when the shift is collected
     for ($guard = 0; $makes < $cap && $guard < 200; $guard++) {
         $did = false;
         foreach ($plan as $r) {
@@ -734,6 +736,7 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
             $n = pj_make_units($uid, $area, (int)$r['output_qty'], $c, $rng);   // category mastery yield + the pal's extra chance
             $made[(int)$r['output_item_id']] = ($made[(int)$r['output_item_id']] ?? 0) + $n;
             $outItem[(int)$r['output_item_id']] = (string)$r['out_name'];
+            $recipeMakes[(int)$r['id']] = ($recipeMakes[(int)$r['id']] ?? 0) + 1;
             $makes++; $did = true;
             $xpBase = ($area === 'tools' ? 15 : 5);
             $xpTotal = ($xpTotal ?? 0) + $xpBase;
@@ -757,12 +760,23 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
     $stopTxt = $makes < $cap ? 'Stopped after ' . $makes . ': out of ingredients for the rest.' : '';
     db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'station', 'target' => $target, 'plot_id' => null, 'day' => landmark_day(),
         'started_at' => now(), 'ends_at' => gmdate('Y-m-d H:i:s', time() + $hours * 3600), 'last_tick' => now(), 'potions' => 0, 'state' => 'active',
-        'result' => json_encode(['items' => $items, 'makes' => $makes, 'hp' => (int)$p['hp'], 'rounds' => 0, 'xp_base' => (int)($xpTotal ?? 0), 'area' => $area, 'obj' => $o['label'], 'stop' => $stopTxt])]);
+        'result' => json_encode(['items' => $items, 'makes' => $makes, 'recipes' => $recipeMakes, 'hp' => (int)$p['hp'], 'rounds' => 0, 'xp_base' => (int)($xpTotal ?? 0), 'area' => $area, 'obj' => $o['label'], 'stop' => $stopTxt])]);
     db()->commit();
     return [true, $p['name'] . ' takes the ' . $o['label'] . ' for ' . $hours . ' h: ' . $makes . ' make' . ($makes === 1 ? '' : 's') . ', no energy used.' . ($stopTxt !== '' ? ' ' . $stopTxt : '')];
 }
 
 // ---------------- passive cooking: a pal tends one pot ----------------
+
+/**
+ * Craft mastery: a pal's finished makes count for the owner like their own (user_recipes.made, same column crafting.php raises).
+ * Only recipes the owner knows (a row exists). Called once per shift, from the collect that flips the job ready -> done.
+ */
+function pj_count_makes(int $uid, array $recipes): void
+{
+    foreach ($recipes as $rid => $n) {
+        if ((int)$n > 0) q('UPDATE user_recipes SET made = made + ? WHERE user_id = ? AND recipe_id = ?', [(int)$n, $uid, (int)$rid]);
+    }
+}
 
 /** Unix time of a stored UTC datetime. */
 function pj_ts(string $d): int { return (int)strtotime($d . ' UTC'); }
@@ -1082,6 +1096,7 @@ function pj_collect(array $u, int $jobId): array
     elseif ($back) give_item($uid, pj_potion_id(), $back);
     $tot['used'] = $used; $tot['back'] = $back;
     if ($used || $back) $lines[] = '🧪 ' . ($used ? 'Drank ' . $used . ' potion' . ($used > 1 ? 's' : '') : '') . ($used && $back ? ', ' : '') . ($back ? $back . ' back in your satchel' : '') . '.';
+    if ($isStation && !empty($r['recipes'])) pj_count_makes($uid, (array)$r['recipes']);   // craft mastery: the pal's makes count for the owner
     if ($isStation && $p) {   // v2.4.61: the XP of those makes is split: half to the gnome (Crafting XP), half to the pal's Crafting skill
         $base = (int)($r['xp_base'] ?? 0); $palXp = intdiv($base, 2); $gnomeXp = $base - $palXp;
         if ($gnomeXp > 0) { [$gx] = add_action_xp($uid, $gnomeXp, 'Crafting', (int)$u['level']); $tot['cxp'] += $gx; $lines[] = '⭐ +' . $gx . ' Crafting XP for you'; }

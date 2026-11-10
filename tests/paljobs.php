@@ -506,6 +506,34 @@ ok('category mastery adds on top (100 -> 110, no pal extra)', pj_make_units($uid
 ok('capped at double the output (1 + pal extra + mastery never above 2)', pj_make_units($uid, 'cooking', 1, 10, $zero) <= 2);
 q('UPDATE user_recipes SET made = 0 WHERE user_id = ?', [$uid]);
 
+echo "== pal makes count toward the owner's craft mastery\n";
+q('DELETE FROM ppal_jobs'); q('DELETE FROM cook_pots'); q("UPDATE ppal_found SET status = 'home', hp = 30, active = 0");
+$grec = q_one("SELECT * FROM recipes WHERE category = 'garden' ORDER BY id LIMIT 1");
+q('DELETE FROM user_recipes WHERE user_id = ? AND recipe_id = ?', [$uid, (int)$grec['id']]);
+db_insert('user_recipes', ['user_id' => $uid, 'recipe_id' => (int)$grec['id'], 'learned_at' => now(), 'made' => 3]);
+$madeOf = fn(int $rid): int => (int)q_val('SELECT made FROM user_recipes WHERE user_id = ? AND recipe_id = ?', [$uid, $rid]);
+pj_count_makes($uid, [(int)$grec['id'] => 4, 999999 => 5]);
+ok('pj_count_makes adds the makes to a known recipe (3 -> 7) and ignores a recipe the owner lacks', $madeOf((int)$grec['id']) === 7 && (int)q_val('SELECT COUNT(*) FROM user_recipes WHERE user_id = ? AND recipe_id = 999999', [$uid]) === 0);
+pj_count_makes($uid, [(int)$grec['id'] => 0]);
+ok('zero makes add nothing', $madeOf((int)$grec['id']) === 7);
+$rs = pj_recall_scale(['items' => [], 'rounds' => 0, 'makes' => 8, 'recipes' => [(int)$grec['id'] => 8, 77 => 3]], 1.0, 0);
+ok('a recalled shift keeps half the counted makes (8 -> 4, 3 -> 1)', $rs['recipes'][(int)$grec['id']] === 4 && $rs['recipes'][77] === 1, json_encode($rs['recipes']));
+$sjob = db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $sp1, 'kind' => 'station', 'target' => 'garden:compost', 'plot_id' => null, 'day' => landmark_day(), 'tool' => null,
+    'started_at' => now(), 'ends_at' => now(), 'last_tick' => now(), 'potions' => 0, 'state' => 'ready',
+    'result' => json_encode(['items' => [], 'makes' => 5, 'recipes' => [(int)$grec['id'] => 5], 'hp' => 30, 'rounds' => 0, 'xp_base' => 0, 'area' => 'garden', 'obj' => 'Compost bin', 'stop' => ''])]);
+[$sok] = pj_collect($u, $sjob);
+ok('collecting the shift counts its 5 makes for the owner (7 -> 12)', $sok === true && $madeOf((int)$grec['id']) === 12, (string)$madeOf((int)$grec['id']));
+[$sok2] = pj_collect($u, $sjob);
+ok('a second collect counts nothing more', $sok2 === false && $madeOf((int)$grec['id']) === 12);
+// passive pots: cook_collect_one already raises made for a pal's pot
+q('DELETE FROM user_recipes WHERE user_id = ? AND recipe_id = ?', [$uid, (int)$mrec['id']]);
+db_insert('user_recipes', ['user_id' => $uid, 'recipe_id' => (int)$mrec['id'], 'learned_at' => now(), 'made' => 0]);
+$ppot = db_insert('cook_pots', ['user_id' => $uid, 'recipe_id' => (int)$mrec['id'], 'makes' => 1, 'dishes' => 2, 'started_at' => gmdate('Y-m-d H:i:s', time() - 3600), 'ready_at' => gmdate('Y-m-d H:i:s', time() - 60), 'score' => 0, 'pal_uid' => (string)$sp1]);
+if (gclock_on()) q('UPDATE cook_pots SET ready_tick = 0 WHERE id = ?', [$ppot]);
+[$pok] = cook_collect_one($u, $ppot, true);
+ok('a pal-served pot counts one make for the owner', $pok && $madeOf((int)$mrec['id']) === 1, (string)$madeOf((int)$mrec['id']));
+q('DELETE FROM cook_pots'); q('DELETE FROM ppal_jobs');
+
 echo "== v2.4.70: calling pals home early\n";
 q('DELETE FROM ppal_jobs'); q('DELETE FROM cook_pots'); q("UPDATE ppal_found SET status = 'home', hp = 30, active = 0");
 $iid0 = (int)q_val("SELECT id FROM items ORDER BY id LIMIT 1");
