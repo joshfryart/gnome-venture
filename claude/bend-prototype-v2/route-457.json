@@ -682,6 +682,16 @@
      0,
      10
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 13,
+     "y": 14,
+     "road_index": 19,
+     "creature": "mangrove-crab-king",
+     "level": 30,
+     "label": "the hush before Volcano Spice Gardens: Mangrove Crab King"
+    }
    ]
   }
  ]

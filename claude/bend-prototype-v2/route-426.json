@@ -427,6 +427,16 @@
      21,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 12,
+     "y": 12,
+     "road_index": 15,
+     "creature": "mangrove-crab-king",
+     "level": 30,
+     "label": "the stilt-house: Mangrove Crab King"
+    }
    ]
   },
   {

@@ -95,6 +95,32 @@ ok('a fixed fight (E) only on the last section of a route that has a boss or min
 $bossRoutes = count(array_filter($oth, fn($r) => ($r['boss'] ?? '') !== ''));
 ok('every boss/miniboss route has its E', count($oE) === $bossRoutes, count($oE) . ' E, ' . $bossRoutes . ' routes');
 
+// v2.6.40: gates and extra mini-bosses of the other regions (tools/add_trail_extras.py)
+$sc0 = ['st' => ['tokens' => []]]; $gN = 0; $gB = []; $mN = 0; $mB = []; $slugs = [];
+foreach (file($game . '/includes/data/creatures.txt') as $ln) if ($ln !== '' && $ln[0] !== '#' && str_contains($ln, '|')) { $f = explode('|', $ln); $slugs[$f[0]] = [$f[2], (int)$f[4]]; }
+foreach ($oth as $rid => $r) foreach ($r['sections'] as $si => $s) {
+    $a = $s + ['land' => (string)$r['land'], 'art' => (string)($r['art'] ?? ''), 'route' => (int)$rid, 'sec' => $si, 'boss' => ($si === count($r['sections']) - 1) ? (string)$r['boss'] : ''];
+    [$m, $t] = trail_map_authored($a); $en = $m['entry']; $ex = $m['spots']['9'];
+    foreach ($s['gates'] ?? [] as $gt) {
+        $gN++;
+        $shut = trail_gates_closed($a, fn(string $type): int => 0); $open = trail_gates_closed($a, fn(string $type): int => (int)$gt['min_tier']);
+        $pC = tm_path($m, $en[0], $en[1], $ex[0], $ex[1], trail_gate($sc0, $ex[0], $ex[1], $shut)); $pO = tm_path($m, $en[0], $en[1], $ex[0], $ex[1], trail_gate($sc0, $ex[0], $ex[1], $open));
+        if ($open || !$pO) $gB[] = "$rid#$si does not open with the tool";
+        if ((int)$gt['min_tier'] > 3 || (int)$gt['min_tier'] < 1) $gB[] = "$rid#$si tier";
+        if ($gt['kind'] === 'lock' && $pC) $gB[] = "$rid#$si lock can be walked around";
+        if ($gt['kind'] === 'shortcut' && (!$pC || count($pC) < count($pO) + 6)) $gB[] = "$rid#$si shortcut way round";
+    }
+    $ms = array_values(array_filter($t, fn($x) => $x[2] === 'M'));
+    if (count($ms) !== count($s['extra_minibosses'] ?? [])) $mB[] = "$rid#$si M tokens";
+    foreach ($s['extra_minibosses'] ?? [] as $mb) {
+        $mN++;
+        if (!isset($slugs[$mb['creature']]) || $slugs[$mb['creature']][0] !== 'large' || $slugs[$mb['creature']][1] !== (int)$mb['level']) $mB[] = "$rid#$si creature";
+        if (trail_extra_mini($a, (int)$mb['x'], (int)$mb['y']) === null) $mB[] = "$rid#$si lookup";
+        $reach = tm_reach($m, $en[0], $en[1]); if (!isset($reach[$mb['y'] * $m['w'] + $mb['x']])) $mB[] = "$rid#$si unreachable";
+    }
+}
+ok('gates in the other regions: a lock stops a walker without the tool and opens with it, a shortcut leaves the long way round, tier 1 to 3', $gN > 30 && !$gB, "$gN gates: " . implode('; ', array_slice($gB, 0, 8)));
+ok('extra mini-bosses in the other regions: one M token each, a large creature of that level, reachable', $mN > 30 && !$mB, "$mN: " . implode('; ', array_slice($mB, 0, 8)));
 $wetN = 0; $wetBad = 0;
 foreach ($oth as $r) foreach ($r['sections'] as $s) { if (empty($s['wet'])) continue; $wetN++; if (count($s['wet']) !== 18) $wetBad++; foreach ($s['wet'] as $row) if (!is_string($row) || strlen($row) !== 30 || !preg_match('/^[01]+$/', $row)) $wetBad++; }
 ok('sections with water carry a 30 x 18 wet grid (fishing beside water)', $wetN > 100 && !$wetBad, "$wetN sections, $wetBad bad");

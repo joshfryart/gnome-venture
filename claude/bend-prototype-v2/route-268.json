@@ -632,6 +632,16 @@
      29,
      13
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 27,
+     "y": 6,
+     "road_index": 15,
+     "creature": "wild-boar",
+     "level": 21,
+     "label": "the sleepy windmill: Wild Boar"
+    }
    ]
   }
  ]

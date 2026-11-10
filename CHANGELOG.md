@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.6.40
+- **Extra mini-bosses are read by the engine**: a section's `extra_minibosses` entry becomes an `M` token (⚔️ on the map); walking onto it starts that fight (creature by slug, raised to its level; an easy road gets a find instead). If a fight sits in the only way, tapping beyond it says so (`⚔️ A fight waits in the way`). `trail_extra_mini()`, `trail_extra_mini_creature()`.
+- **Gates and extra mini-bosses in the other 13 regions** (`tools/add_trail_extras.py`, data in `claude/bend-prototype-v2`): a tool lock before the fight on the last section of 24 delve / lair routes (327 and 448 got none), one short-cut gate per region (the short way needs the tool, the long way round is open) and about 52 extra mini-bosses (a large creature of the route's land). Gate tier = region rank + 1, capped at **3 (Fine)**: the gathering tools have no tier 4, so a tier 4 gate could never open (Maplewold 2, every later region 3). 38 routes got new ground pictures (a gate wall changes the picture); data-only changes for the rest.
+- **315 pine slope gate needs a Walking Stick (tier 1)** instead of the Hiking Staff (Josh).
+- The 665 old 22 x 7 ground pictures (`assets/img/trail/ground/<route>-<section>.png`) are deleted: no route uses them. `trail_maps.json` stays as the reference for the old tests.
+- Tests: new `tests/trail_mini.php` / `.sh` (in CI), the other-region block of `tests/trail_bendy.php` checks gates and mini-bosses.
+
 ## 2.6.39
 - **Bendy 30 x 18 Trail maps for the other 230 routes (624 sections)**, same rich look as the Maplewold in 2.6.38: winding road, entry and exit on any edge, painted ground with water and decor, raised sprites. All 246 routes now use them. Own ground art for mountain, wetland, desert and rainforest (island still uses the coast art).
   - Data: one file per region in `includes/data/trail_maps/<region>_30x18.json` (`ca cb csa ea ee esa mena na nwe oc sa se sea wca`; `na` = the 3 routes of region NA outside the hand-tuned Maplewold 16). Made by `tools/bake_trail_rich.py --all` (route files: `claude/bend-prototype-v2`, linted). `tools/bendy_to_trail_maps.py` `ART` knows all nine lands (art field: desert, island -> coast, mountain -> tundra, rainforest, wetland -> forest).

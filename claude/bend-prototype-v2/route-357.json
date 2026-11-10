@@ -351,6 +351,16 @@
      12,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 13,
+     "y": 7,
+     "road_index": 13,
+     "creature": "red-fox",
+     "level": 16,
+     "label": "the lone fir: Red Fox"
+    }
    ]
   }
  ]

@@ -9,6 +9,7 @@ Output (staging, NOT the game): the 16 hand-tuned Maplewold routes (region "MW")
 {ground,obj}/ and one authored-map file per region <name>_30x18.json (Maplewold: trail_maps_maplewold_30x18.json). Source file of a route: render_bendy_rich.src_of().
 Usage: python3 -I tools/bake_trail_rich.py [route ids ... | --region CODE ... | --all] [--proof] [--jobs N]     no id = the 16 Maplewold routes; --proof also writes proof/<route>-<section>.png,
 the section put together the way the game does it (to compare with rich/route-<id>-s<n>.png).
+--patch-extras copies gates / extra_minibosses of unchanged-row routes into the staged map files (no re-bake).
 --install [--all | --region CODE] copies the staged bake into the game (a release step): ground/ and obj/ into game/assets/img/trail/, the json(s) to game/includes/data/trail_maps/<name>_30x18.json.
 Bake once per version: a re-bake is not bit-for-bit the same."""
 import glob, json, os, sys
@@ -57,6 +58,21 @@ def main():
     args = sys.argv[1:]; proof = "--proof" in args
     regions = [args[i + 1].upper() for i, a in enumerate(args) if a == "--region"]
     jobsn = next((int(args[i + 1]) for i, a in enumerate(args) if a == "--jobs"), 0)
+    if "--patch-extras" in args:   # data-only change (gates / extra_minibosses added to a route whose rows did not change): copy those fields into the staged map files, no re-bake
+        n = 0
+        for reg in sorted({region_of(i) for i in all_ids()} - {"MW"}):
+            dest = os.path.join(out_of(reg), map_name(reg) + "_30x18.json"); d = json.load(open(dest))
+            fresh = B.convert([R.src_of(int(k)) for k in d["routes"]])
+            for k, r in d["routes"].items():
+                for si, sec in enumerate(r["sections"]):
+                    f = fresh["routes"][k]["sections"][si]
+                    assert f["rows"] == sec["rows"], f"route {k} section {si + 1}: rows changed, re-bake it"
+                    for fld in ("gates", "extra_minibosses"):
+                        if f.get(fld) != sec.get(fld): n += 1
+                        if f.get(fld): sec[fld] = f[fld]
+                        else: sec.pop(fld, None)
+            json.dump(d, open(dest, "w"), separators=(",", ":"), ensure_ascii=False)
+        print("patched", n, "fields"); return
     if "--install" in args:
         import shutil
         regs = regions or (sorted({region_of(i) for i in all_ids()}) if "--all" in args else ["MW"])

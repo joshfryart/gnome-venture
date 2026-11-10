@@ -422,6 +422,16 @@
      23,
      0
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 14,
+     "y": 3,
+     "road_index": 17,
+     "creature": "cloud-leopard",
+     "level": 28,
+     "label": "the waterfall mist: Cloud Leopard"
+    }
    ]
   }
  ]

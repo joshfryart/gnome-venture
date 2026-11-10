@@ -406,6 +406,16 @@
      19,
      0
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 7,
+     "y": 2,
+     "road_index": 16,
+     "creature": "giant-bumblebee",
+     "level": 23,
+     "label": "the lonely scarecrow: Giant Bumblebee"
+    }
    ]
   }
  ]

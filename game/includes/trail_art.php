@@ -155,7 +155,7 @@ function trail_authored_section(int $routeId, int $sec): ?array
 
 /**
  * The map of an authored section and its tokens, in the shape trail_map_make() returns: [map, [[x, y, 'E'|'F']]].
- * E and F in the rows are floor with a token on it; an E is kept only when the section has a fixed boss/miniboss.
+ * E and F in the rows are floor with a token on it; an E is kept only when the section has a fixed boss/miniboss. v2.6.40: each 'extra_minibosses' entry adds an 'M' token.
  */
 function trail_map_authored(array $art): array
 {
@@ -173,6 +173,9 @@ function trail_map_authored(array $art): array
             if ($c === 'E' || $c === 'F') $row[$x] = '.';
         }
         $rows[] = $row;
+    }
+    foreach ((array)($art['extra_minibosses'] ?? []) as $mb) {   // v2.6.40: a fixed mini-boss in the middle of a section: token 'M' (the creature is looked up again by trail_extra_mini when it fires)
+        if (is_array($mb) && isset($mb['x'], $mb['y'], $mb['creature']) && in_array($rows[(int)$mb['y']][(int)$mb['x']] ?? '#', ['.', ','], true)) $tokens[] = [(int)$mb['x'], (int)$mb['y'], 'M'];
     }
     $map = tm_parse($rows);
     $map['art'] = $art;

@@ -391,6 +391,16 @@
      11,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 7,
+     "y": 10,
+     "road_index": 18,
+     "creature": "desert-gila-dragon",
+     "level": 20,
+     "label": "the sun-bleached bones: Gila Dragon"
+    }
    ]
   }
  ]

@@ -464,6 +464,16 @@
      4,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 16,
+     "y": 13,
+     "road_index": 20,
+     "creature": "clam-lurker",
+     "level": 23,
+     "label": "the shell-heap: Clam Lurker"
+    }
    ]
   },
   {

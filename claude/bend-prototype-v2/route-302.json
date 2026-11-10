@@ -442,6 +442,16 @@
      22,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 11,
+     "y": 10,
+     "road_index": 18,
+     "creature": "deep-octopus",
+     "level": 37,
+     "label": "the bottle post: Deep Octopus"
+    }
    ]
   },
   {

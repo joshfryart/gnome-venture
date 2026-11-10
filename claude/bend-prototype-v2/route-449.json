@@ -548,6 +548,16 @@
      23,
      0
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 13,
+     "y": 4,
+     "road_index": 14,
+     "creature": "mangrove-crab-king",
+     "level": 30,
+     "label": "the kelp-line: Mangrove Crab King"
+    }
    ]
   }
  ]

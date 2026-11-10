@@ -439,6 +439,16 @@
      19,
      0
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 10,
+     "y": 4,
+     "road_index": 15,
+     "creature": "mire-toad",
+     "level": 18,
+     "label": "the willow curtain: Mire Toad"
+    }
    ]
   }
  ]

@@ -373,6 +373,16 @@
      13,
      17
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 15,
+     "y": 10,
+     "road_index": 15,
+     "creature": "tide-crab-knight",
+     "level": 19,
+     "label": "the lagoon edge: Tide Crab Knight"
+    }
    ]
   },
   {

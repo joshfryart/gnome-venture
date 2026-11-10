@@ -548,6 +548,16 @@
      0,
      7
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 17,
+     "y": 6,
+     "road_index": 22,
+     "creature": "tide-crab-knight",
+     "level": 19,
+     "label": "the reef shallows: Tide Crab Knight"
+    }
    ]
   },
   {

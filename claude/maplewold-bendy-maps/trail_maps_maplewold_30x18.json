@@ -2999,8 +2999,8 @@
        ],
        "road_index": 16,
        "tool_type": "staff",
-       "min_tier": 2,
-       "tool_name": "Hiking Staff",
+       "min_tier": 1,
+       "tool_name": "Walking Stick",
        "kind": "lock",
        "label": "pine slope: needs a staff to climb the steep steps"
       }

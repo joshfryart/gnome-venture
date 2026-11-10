@@ -556,6 +556,16 @@
      0,
      9
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 15,
+     "y": 5,
+     "road_index": 20,
+     "creature": "tide-crab-knight",
+     "level": 19,
+     "label": "the sandbar causeway: Tide Crab Knight"
+    }
    ]
   }
  ]

@@ -214,16 +214,34 @@ function trail_pick_fixed(array $scene, int $cap, string $boss): ?array
     return pick_creature($land, $level, $boss === 'boss', false, $cap);
 }
 
+/** v2.6.40: the 'extra_minibosses' entry of an authored section standing on this tile, or null. */
+function trail_extra_mini(array $art, int $x, int $y): ?array
+{
+    foreach ((array)($art['extra_minibosses'] ?? []) as $mb) if (is_array($mb) && (int)($mb['x'] ?? -1) === $x && (int)($mb['y'] ?? -1) === $y && !empty($mb['creature'])) return $mb;
+    return null;
+}
+
+/** v2.6.40: the creature row of an extra mini-boss ($mb['creature'] = slug, $mb['level']), raised to its level, or null when the creature is missing. */
+function trail_extra_mini_creature(array $mb): ?array
+{
+    foreach (road_rows('creatures') as $c) if ((string)($c['slug'] ?? '') === (string)$mb['creature']) {
+        return (int)$c['level'] < (int)($mb['level'] ?? 0) ? scale_creature($c, (int)$mb['level']) : $c;
+    }
+    return null;
+}
+
 /**
  * What waits on a tile: a fight (a random encounter 'R' rolled on the walk, or the fixed boss spot 'E'; a find when no creature fits here)
  * or a find ('F'). Random fights never bring a boss.
  */
-function trail_token_event(array $u, array &$exp, string $kind, string $boss = ''): void
+function trail_token_event(array $u, array &$exp, string $kind, string $boss = '', ?array $mini = null): void
 {
     $scene = exp_scene($exp);
-    if ($kind === 'E' || $kind === 'R') {
+    if ($kind === 'E' || $kind === 'R' || $kind === 'M') {
         $cap = exp_easy_cap($u, $exp);
-        $c = $kind === 'E' ? trail_pick_fixed($scene, $cap, $boss) : pick_creature($scene['land'], $scene['level'], false, false, $cap);
+        $c = $kind === 'E' ? trail_pick_fixed($scene, $cap, $boss)
+            : ($kind === 'M' ? ($cap > 0 || !$mini ? null : trail_extra_mini_creature($mini))   // an easy road never meets it: a find instead
+            : pick_creature($scene['land'], $scene['level'], false, false, $cap));
         if ($c) {
             $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => !empty($c['_scaled']) ? (int)$c['level'] : 0, 'sp' => (int)($c['_pct'] ?? 100), 'hpp' => (int)($c['_hpp'] ?? 100),
                 'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);
@@ -280,7 +298,11 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
     $shut = function_exists('tool_tier') && !empty($map['art']['gates']) ? trail_gates_closed($map['art'], fn(string $type): int => tool_tier((int)$u['id'], $type)) : [];
     $path = tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc, $tx, $ty, $shut));
     if (!$path && $shut && ($open = tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc, $tx, $ty))) && ($why = trail_gate_message($shut, $open)) !== null) return [false, $why];   // only a tool gate is in the way: say which
-    if (!$path) return [false, 'There is no way there from here.'];
+    if (!$path) {   // v2.6.40: a fixed fight (E, M) sits in the only way: say so instead of 'no way'
+        $sc2 = $sc; foreach ($sc2['st']['tokens'] as $ti => $tk) if (in_array($tk[2], ['E', 'M'], true)) $sc2['st']['tokens'][$ti][3] = 1;
+        if (tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc2, $tx, $ty, $shut))) return [false, '⚔️ A fight waits in the way. Walk to the ⚔️ spot first.'];
+        return [false, 'There is no way there from here.'];
+    }
     [$stop, $sc['st']['quiet'], $sc['st']['fights']] = trail_encounter_index($map, $path, (int)($sc['st']['quiet'] ?? 0), (int)($sc['st']['fights'] ?? 0), null, (string)($sc['st']['stance'] ?? ''));
     if ($stop !== null) {   // something rustles: the walk stops on that tile and a random fight starts
         $path = array_slice($path, 0, $stop + 1);
@@ -296,7 +318,7 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
     if ($t === '9') $sc['st']['phase'] = 'confirm';
     if (!trail_save($sc)) return [false, 'That already happened. Look again.'];
     if ($fire === 'F') trail_pickup_note((int)$u['id'], (int)substr((string)$sc['row']['map_key'], 6), (int)$sc['st']['sec']);
-    if ($fire !== null) trail_token_event($u, $exp, $fire, (string)($map['art']['boss'] ?? ''));
+    if ($fire !== null) trail_token_event($u, $exp, $fire, (string)($map['art']['boss'] ?? ''), $fire === 'M' ? trail_extra_mini($map['art'] ?? [], $tx, $ty) : null);
     $_SESSION['dm_walk'] = ['e' => (int)$exp['id'], 't' => time(), 'p' => $walked];
     return [true, ''];
 }
@@ -423,7 +445,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     $tokens = [];
     foreach ($sc['st']['tokens'] as [$tx, $ty, $k, $done]) {
         if ($tx === $sc['x'] && $ty === $sc['y']) continue;
-        $tokens[] = [$tx, $ty, $k === 'E' ? '⚔️' : '✨', $k === 'E' ? 'ember' : 'gold', (bool)$done];
+        $tokens[] = [$tx, $ty, $k === 'E' || $k === 'M' ? '⚔️' : '✨', $k === 'E' || $k === 'M' ? 'ember' : 'gold', (bool)$done];
     }
     [$ex, $ey] = $map['spots']['9'];
     if ($ex !== $sc['x'] || $ey !== $sc['y']) $tokens[] = [$ex, $ey, '🚪', 'gold', false];
@@ -481,7 +503,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         else {
             $cls .= $tap ? ' reach' : '';
             $tk = trail_token_at($sc, $x, $y);
-            if ($tk >= 0) { $done = (int)$sc['st']['tokens'][$tk][3]; $cls .= ' spot' . ($done ? ' done' : ''); $label = $sc['st']['tokens'][$tk][2] === 'E' ? ($done ? 'Fight, done' : 'A fight waits here') : ($done ? 'Find, done' : 'Something to find'); }
+            if ($tk >= 0) { $done = (int)$sc['st']['tokens'][$tk][3]; $cls .= ' spot' . ($done ? ' done' : ''); $label = in_array($sc['st']['tokens'][$tk][2], ['E', 'M'], true) ? ($done ? 'Fight, done' : 'A fight waits here') : ($done ? 'Find, done' : 'Something to find'); }
             elseif ($t === '9') { $cls .= ' spot'; $label = 'The way on'; }
             elseif ($t === 'S') $label = (int)$sc['st']['sec'] > 0 ? 'The way back' : 'Where this stretch begins';
         }
@@ -496,7 +518,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'
         . '<div class="tmgrid">' . $btn . '</div>' . $fightOver_html . '</div></div></div></form>' . $fightDock
         . ($art && !empty($map['art']['caption']) ? '<p class="tmcap">' . e((string)$map['art']['caption']) . '</p>' : '')
-        . '<p class="tmlegend" aria-hidden="true">' . (!empty($map['art']['boss']) ? '<span>⚔️ A fight waits</span>' : '') . '<span>✨ A find</span><span>🚪 The way on</span></p></div>';
+        . '<p class="tmlegend" aria-hidden="true">' . (!empty($map['art']['boss']) || !empty($map['art']['extra_minibosses']) ? '<span>⚔️ A fight waits</span>' : '') . '<span>✨ A find</span><span>🚪 The way on</span></p></div>';
     return $out;
 }
 

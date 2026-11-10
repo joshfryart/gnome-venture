@@ -421,6 +421,16 @@
      18,
      0
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 10,
+     "y": 2,
+     "road_index": 17,
+     "creature": "thunder-yak",
+     "level": 33,
+     "label": "the rope bridge: Thunder Yak"
+    }
    ]
   }
  ]

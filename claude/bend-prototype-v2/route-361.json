@@ -493,6 +493,16 @@
      17,
      0
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 14,
+     "y": 10,
+     "road_index": 14,
+     "creature": "raccoon",
+     "level": 16,
+     "label": "the hush before Fairy-ring Clearing: Raccoon"
+    }
    ]
   }
  ]

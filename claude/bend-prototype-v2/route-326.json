@@ -448,6 +448,16 @@
      29,
      6
     ]
+   ],
+   "extra_minibosses": [
+    {
+     "x": 15,
+     "y": 9,
+     "road_index": 19,
+     "creature": "grass-snake",
+     "level": 14,
+     "label": "the trader's tent poles: Grass Snake"
+    }
    ]
   },
   {
