@@ -724,6 +724,10 @@ function post_update_news(string $from): void
         "[list][*][b]Messages[/b]: the Together page has a new first tab, Messages. Notes you send with \"Send feedback\" show there, and so do the replies.\n"
         . "[*][b]A yellow ![/b] on the Together menu tile and the Messages tab means a reply is waiting for you.\n"
         . "[*][b]Write back[/b]: you can answer a reply right under it.[/list]"],
+    '2.6.38' => ['🗺️ Update 2.6.38: winding trails in the Maplewold',
+        "[list][*][b]New trail maps[/b]: the roads of the Maplewold now wind through bigger maps with rivers, ponds, fields and little things to spot along the way.\n"
+        . "[*][b]Fishing[/b]: stand beside water on a trail and a 🎣 Fish button appears under the map. You need a fishing rod.\n"
+        . "[*][b]Gates[/b]: a few spots on the harder roads need a tool to pass (a lantern, a walking staff or a pick).[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

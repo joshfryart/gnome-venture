@@ -20,17 +20,19 @@ foreach ($all as $rid => $r) {
         [$m, $t] = trail_map_authored($art);
         $reach = tm_reach($m, $m['entry'][0], $m['entry'][1]);
         $exit = $m['spots']['9'] ?? null;
-        if ($m['h'] !== 7 || $m["w"] !== ($w0 = $si === 0 ? $m["w"] : $w0) || $m["w"] < 11 || !$m['entry'] || !$exit || $m['entry'][0] !== 0 || $exit[0] !== $m['w'] - 1 || !isset($reach[$exit[1] * $m['w'] + $exit[0]])) $bad[] = "$rid#$si layout";
+        $bendy = isset($art['entry']);   // v2.6.38: the 30 x 18 sections (entry and exit on any edge) have their own test, tests/trail_bendy.php
+        if ($bendy) { if ($m['h'] !== 18 || $m['w'] !== 30 || !$m['entry'] || !$exit || !isset($reach[$exit[1] * $m['w'] + $exit[0]]) || ($art['pic'] ?? '') !== 'r') $bad[] = "$rid#$si bendy layout"; }
+        elseif ($m['h'] !== 7 || $m["w"] !== ($w0 = $si === 0 ? $m["w"] : $w0) || $m["w"] < 11 || !$m['entry'] || !$exit || $m['entry'][0] !== 0 || $exit[0] !== $m['w'] - 1 || !isset($reach[$exit[1] * $m['w'] + $exit[0]])) $bad[] = "$rid#$si layout";
         foreach ($t as [$x, $y, $k]) {
             if (!isset($reach[$y * $m['w'] + $x])) $bad[] = "$rid#$si token $x,$y unreachable";
             if ($k === 'E') $bossRoutes[$rid . '#' . $si] = $art['boss'];
         }
         if (!trail_art_ready($art)) $badFiles[] = "$rid#$si";
-        if ($si > 0) { $prev = trail_map_authored(trail_authored_section((int)$rid, $si - 1))[0]; if ($m['entry'][1] !== $prev['spots']['9'][1]) $bad[] = "$rid#$si entry row != previous exit row"; }
+        if ($si > 0 && !$bendy) { $prev = trail_map_authored(trail_authored_section((int)$rid, $si - 1))[0]; if ($m['entry'][1] !== $prev['spots']['9'][1]) $bad[] = "$rid#$si entry row != previous exit row"; }
     }
 }
 ok('at least the 41 Maplewold sections', $secs >= 41, (string)$secs);
-ok('every section: 7 rows, one width per route, entry on the left edge, exit on the right, exit reachable, tokens reachable, entry row = previous exit row', !$bad, implode('; ', $bad));
+ok('every section (old ones: 7 rows; bendy ones: 30 x 18 with their -r picture), one width per route, entry on the left edge, exit on the right, exit reachable, tokens reachable, entry row = previous exit row', !$bad, implode('; ', $bad));
 ok('every section has its baked ground picture', !$badFiles, implode(', ', $badFiles));
 // Fixed fights: exactly one E per delve/lair route, on its LAST section, kind from the route list ((delve) = miniboss, (lair) = boss); none anywhere else.
 $want = [];
@@ -121,11 +123,24 @@ $hits = 0; $runs = 20000;
 for ($n = 0; $n < $runs; $n++) { [$i] = trail_encounter_index($flat, $path, 0, 0, null, '', 3.0); $hits += $i === null ? 0 : 1; }
 ok('3 rolled tiles of floor at 3% bring a fight about 1 time in 11 (rolled for real)', $hits / $runs > .065 && $hits / $runs < .11, (string)round($hits / $runs, 3));
 
+echo "== a bendy section installed in the game (v2.6.38)\n";
+$b = trail_authored_section(228, 1);
+[$bm] = trail_map_authored($b);
+$bs = trail_art_svg($bm, ['px' => (int)$bm['entry'][0], 'py' => (int)$bm['entry'][1], 'x0' => 0, 'y0' => 0, 'cols' => 30, 'rows' => 18, 'tokens' => []]);
+ok('228 section 2 is 30 x 18 and its picture 228-2-r.png is on disk', $bm['w'] === 30 && $bm['h'] === 18 && trail_art_ready($b) && str_contains($bs, 'ground/228-2-r.png'));
+$missing = [];
+foreach (trail_authored_all() as $rid => $r) foreach ($r['sections'] as $s) foreach ($s['objs'] ?? [] as $o) if (!is_file($game . '/assets/img/trail/obj/' . $o[2] . '.png')) $missing[$o[2]] = 1;
+ok('every raised sprite named in the maps is on disk', !$missing, implode(' ', array_slice(array_keys($missing), 0, 8)));
+$jy = null; foreach ($b['objs'] as $o) if (($o[4] ?? 0) !== 0 && str_starts_with($o[2], 'x-')) { $jy = $o; break; }
+ok('a sprite with a shift down (5th value) is drawn that many picture pixels lower', $jy && str_contains($bs, 'y="' . tm_n(($jy[1] * TRAIL_ART_PX - 29 + $jy[4]) * (TM_UNIT / TRAIL_ART_PX)) . '"'), json_encode($jy));
+ok('the old 22 x 7 picture name is used for a section without pic r', trail_art_sfx(['pic' => 'x']) === '' && trail_art_sfx($b) === '-r');
+ok('228 section 2 has water to fish by', trail_water_near($b, 12, 7) && !trail_water_near(trail_authored_section(228, 0), 5, 5));
+
 echo "== the picture\n";
-$art = trail_authored_section(304, 0);
+$art = trail_authored_section(260, 0);   // a 22 x 7 route (the Maplewold ones are 30 x 18 since v2.6.38)
 [$m] = trail_map_authored($art);
 $svg = trail_art_svg($m, ['px' => 3, 'py' => 2, 'x0' => -1, 'y0' => -1, 'cols' => 9, 'rows' => 9, 'tokens' => [[6, 2, '✨', 'gold', false], [5, 3, '🚪', 'gold', false]], 'walk' => ['p' => [[2, 2], [3, 2]]]]);
-ok('ground picture, walker, a find, an exit mark, footprints', str_contains($svg, 'ground/304-1.png') && str_contains($svg, 'class="tmme"') && str_contains($svg, 'find-forest.png') && str_contains($svg, '#e02020') && str_contains($svg, 'tmft'));
+ok('ground picture, walker, a find, an exit mark, footprints', str_contains($svg, 'ground/260-1.png') && str_contains($svg, 'class="tmme"') && str_contains($svg, 'find-forest.png') && str_contains($svg, '#e02020') && str_contains($svg, 'tmft'));
 ok('the find turns into its searched sprite when done', str_contains(trail_art_svg($m, ['px' => 3, 'py' => 2, 'x0' => -1, 'y0' => -1, 'cols' => 9, 'rows' => 9, 'tokens' => [[6, 2, '✨', 'gold', true]]]), 'find-forest-done.png'));
 $win = ['px' => 3, 'py' => 2, 'x0' => -1, 'y0' => -1, 'cols' => 9, 'rows' => 9, 'tokens' => []];
 $svg2 = trail_art_svg($m, $win);

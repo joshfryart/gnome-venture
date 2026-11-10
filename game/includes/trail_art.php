@@ -223,25 +223,33 @@ function trail_art_url(string $rel): string
  * v2.5.92: where a section's baked ground picture is. An Admin > Images upload (uploads/trail/ground/<route>-<section>.png) wins over the one that ships
  * in assets/img/trail/ground/. Returns the file path, or null when neither exists. $root = the game folder (a parameter only for the tests).
  */
-function trail_ground_file(int $route, int $sec1, ?string $root = null): ?string
+function trail_ground_file(int $route, int $sec1, ?string $root = null, string $sfx = ''): ?string
 {
     $root ??= dirname(__DIR__);
-    foreach (['uploads/trail/ground/', 'assets/img/trail/ground/'] as $d) if (is_file($root . '/' . $d . $route . '-' . $sec1 . '.png')) return $root . '/' . $d . $route . '-' . $sec1 . '.png';
+    $sfx = $sfx === '-r' ? '-r' : '';   // v2.6.38: the 30 x 18 pictures of the rich bake are <route>-<section>-r.png
+    foreach (['uploads/trail/ground/', 'assets/img/trail/ground/'] as $d) if (is_file($root . '/' . $d . $route . '-' . $sec1 . $sfx . '.png')) return $root . '/' . $d . $route . '-' . $sec1 . $sfx . '.png';
     return null;
 }
 
 /** The URL of that picture (uploaded ones live under uploads/, shipped ones under assets/img/trail/). */
-function trail_ground_url(int $route, int $sec1): string
+function trail_ground_url(int $route, int $sec1, string $sfx = ''): string
 {
-    $f = trail_ground_file($route, $sec1);
-    if ($f !== null && str_contains($f, '/uploads/')) return function_exists('url') ? url('uploads/trail/ground/' . $route . '-' . $sec1 . '.png') : 'uploads/trail/ground/' . $route . '-' . $sec1 . '.png';
-    return trail_art_url('ground/' . $route . '-' . $sec1 . '.png');
+    $sfx = $sfx === '-r' ? '-r' : '';
+    $f = trail_ground_file($route, $sec1, null, $sfx);
+    if ($f !== null && str_contains($f, '/uploads/')) return function_exists('url') ? url('uploads/trail/ground/' . $route . '-' . $sec1 . $sfx . '.png') : 'uploads/trail/ground/' . $route . '-' . $sec1 . $sfx . '.png';
+    return trail_art_url('ground/' . $route . '-' . $sec1 . $sfx . '.png');
+}
+
+/** v2.6.38: '-r' for a section of the rich 30 x 18 bake (its 'pic' is 'r'), else ''. */
+function trail_art_sfx(array $art): string
+{
+    return ($art['pic'] ?? '') === 'r' ? '-r' : '';
 }
 
 /** Is the baked ground picture of this section on disk? (If not, the section is drawn the old way.) */
 function trail_art_ready(array $art): bool
 {
-    return trail_ground_file((int)$art['route'], (int)$art['sec'] + 1) !== null;
+    return trail_ground_file((int)$art['route'], (int)$art['sec'] + 1, null, trail_art_sfx($art)) !== null;
 }
 
 /**
@@ -251,7 +259,7 @@ function trail_art_ready(array $art): bool
 function trail_art_edge_colour(array $art): string
 {
     static $memo = [];
-    $f = trail_ground_file((int)$art['route'], (int)$art['sec'] + 1) ?? '';
+    $f = trail_ground_file((int)$art['route'], (int)$art['sec'] + 1, null, trail_art_sfx($art)) ?? '';
     if (isset($memo[$f])) return $memo[$f];
     $c = '';
     if (function_exists('imagecreatefrompng') && is_file($f) && ($im = @imagecreatefrompng($f))) {
@@ -290,7 +298,7 @@ function trail_art_svg(array $map, array $state): string
     $o .= '<defs><linearGradient id="tmfade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' . $under . '" stop-opacity="0"/><stop offset="1" stop-color="' . $under . '" stop-opacity="1"/></linearGradient>'
         . '<linearGradient id="tmfadex" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="' . $under . '" stop-opacity="1"/><stop offset="1" stop-color="' . $under . '" stop-opacity="0"/></linearGradient></defs>';
     $o .= '<rect width="' . $W . '" height="' . $H . '" fill="' . $under . '"/>';
-    $o .= '<image href="' . e(trail_ground_url((int)$art['route'], (int)$art['sec'] + 1)) . '" x="' . $n(-$x0 * $C) . '" y="' . $n(-$y0 * $C - TRAIL_ART_PAD * $k)
+    $o .= '<image href="' . e(trail_ground_url((int)$art['route'], (int)$art['sec'] + 1, trail_art_sfx($art))) . '" x="' . $n(-$x0 * $C) . '" y="' . $n(-$y0 * $C - TRAIL_ART_PAD * $k)
         . '" width="' . $n($map['w'] * $C) . '" height="' . $n(($map['h'] * TRAIL_ART_PX + TRAIL_ART_PAD) * $k) . '"/>';
     // v2.5.49: the picture stops at the last row with a hard line; the ground fades into shade over the bottom half tile (and the left edge), so the map does not end on a ruler
     $by = ($map['h'] - $y0) * $C;

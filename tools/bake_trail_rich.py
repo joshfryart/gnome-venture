@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Bake bendy 30 x 18 routes with the RICH painter (tools/render_bendy_rich.py) into the game's art shape.
-Per section: ground/<route>-<section>.png (terrain, water, rough, shadows and every flat decor thing), a list of raised things
+Per section: ground/<route>-<section>-r.png (terrain, water, rough, shadows and every flat decor thing), a list of raised things
 [x, y, key, jit, jy] (64 x 96 sprites 'x-<name>-<args>', landmarks 'lm-<name>' in their own size), and obj/<key>.png once per key.
 The game draws the raised things and the walker in depth order (includes/trail_art.php; jy = the sprite's shift down in picture pixels).
 Finds, the boss mark and mini-boss marks are NOT in the pictures: the game draws those.
@@ -8,7 +8,8 @@ Per section 'wet' = rows of 0/1, the water tiles of the picture (streams, fords,
 Output (staging, NOT the game): claude/maplewold-bendy-maps/bake/{ground,obj}/ and bake/trail_maps_maplewold_30x18.json (the authored-map file with objs).
 Usage: python3 -I tools/bake_trail_rich.py [route ids ...] [--proof]     no id = the 16 Maplewold routes; --proof also writes bake/proof/<route>-<section>.png,
 the section put together the way the game does it (to compare with rich/route-<id>-s<n>.png).
-Install (a release step, new art version): copy ground/ and obj/ into game/assets/img/trail/ and the json into game/includes/data/trail_maps/."""
+--install copies the staged bake into the game (a release step): ground/ and obj/ into game/assets/img/trail/, the json to game/includes/data/trail_maps/maplewold_30x18.json.
+Bake once per version: a re-bake is not bit-for-bit the same."""
 import glob, json, os, sys
 from multiprocessing import Pool
 HERE = os.path.dirname(os.path.abspath(__file__)); REPO = os.path.dirname(HERE); sys.path.insert(0, HERE)
@@ -22,7 +23,7 @@ def job(a):
     from PIL import Image
     route = json.load(open(R.src_of(rid)))
     base, objs, sprites, wet = R.paint(route, si, rich_for(rid, si, route), None, walker=False, split=True)
-    base.convert("RGB").quantize(256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(os.path.join(OUT, "ground", f"{rid}-{si + 1}.png"), optimize=True)
+    base.convert("RGB").quantize(256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(os.path.join(OUT, "ground", f"{rid}-{si + 1}-r.png"), optimize=True)
     for k, im in sprites.items():
         f = os.path.join(OUT, "obj", k + ".png")
         if not os.path.exists(f): im.save(f, optimize=True)
@@ -40,6 +41,13 @@ def job(a):
 def main():
     import bendy_to_trail_maps as B
     args = sys.argv[1:]; proof = "--proof" in args
+    if "--install" in args:
+        import shutil
+        for d in ("ground", "obj"):
+            for f in sorted(os.listdir(os.path.join(OUT, d))): shutil.copy2(os.path.join(OUT, d, f), os.path.join(REPO, "game", "assets", "img", "trail", d, f))
+        os.makedirs(os.path.join(REPO, "game", "includes", "data", "trail_maps"), exist_ok=True)
+        shutil.copy2(os.path.join(OUT, "trail_maps_maplewold_30x18.json"), os.path.join(REPO, "game", "includes", "data", "trail_maps", "maplewold_30x18.json"))
+        print("installed", len(os.listdir(os.path.join(OUT, "ground"))), "ground pictures,", len(os.listdir(os.path.join(OUT, "obj"))), "sprites and the map file"); return
     files = sorted(glob.glob(os.path.join(REPO, "claude", "maplewold-bendy-maps", "route-*.json")))
     ids = [int(a) for a in args if a.isdigit()] or [int(os.path.basename(f)[6:-5]) for f in files if os.path.basename(f)[6:-5].isdigit()]
     for d in ("ground", "obj") + (("proof",) if proof else ()): os.makedirs(os.path.join(OUT, d), exist_ok=True)
@@ -47,7 +55,7 @@ def main():
     jobs = [(rid, si, proof) for rid in ids for si in range(len(data["routes"][str(rid)]["sections"]))]
     with Pool(min(8, os.cpu_count() or 2)) as pool:
         for rid, si, objs, wet in pool.imap_unordered(job, jobs):
-            sec = data["routes"][str(rid)]["sections"][si]; sec["objs"] = objs
+            sec = data["routes"][str(rid)]["sections"][si]; sec["objs"] = objs; sec["pic"] = "r"   # pic r: the ground picture is <route>-<section>-r.png (the old 22 x 7 pictures keep their names)
             if any("1" in r for r in wet): sec["wet"] = wet   # every water tile in the picture (streams, fords, ponds, sea, ice): the game offers fishing beside them
             print("baked", rid, si + 1, len(objs), "objs", flush=True)
     dest = os.path.join(OUT, "trail_maps_maplewold_30x18.json")

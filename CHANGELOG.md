@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.6.38
+- **Bendy Trail maps for the 16 Maplewold routes (41 sections)**: the Trail sections of routes 228, 232, 236 and 304 to 316 are now 30 x 18 tiles with a winding road, entry and exit on any edge, and the new rich look (painted ground with water, fields and decor; trees, rocks, fences and landmarks as raised sprites the gnome walks behind). All other routes keep their 22 x 7 maps.
+  - Data: `includes/data/trail_maps/maplewold_30x18.json` (overrides those routes in `trail_maps.json`). Sprites: 348 files in `assets/img/trail/obj/` (`x-*.png`, in the update zip).
+  - **Ground pictures are NOT in the update zip** (16 MB). Upload the 3 zips `upload-zips/gnome-venture-trail-ground-r-partNof3.zip` through **Admin > Images** (files `<route>-<section>-r.png`, saved to `uploads/trail/ground/`). Until then these 41 sections show the plain tile look. The old 22 x 7 pictures keep their names and are not used by these routes any more.
+- **Tool gates** on four Maplewold sections: a gate tile on the road stays shut until the gnome carries a tool of the right type and tier 2 or better: 313 section 3 tunnel mouth (lantern), 315 section 2 pine slope (walking staff), 315 section 3 icicle bridge (pick); 314 section 2 causeway (staff) is a shortcut, the long way round is open.
+- **Fishing by the water**: standing on or beside a water tile (stream, ford, pond, sea, ice) a **🎣 Fish ⚡1** button appears in the row under the Trail map; it goes away when the gnome walks off. Needs a fishing rod, same catch as Gather here. Gather here itself is unchanged.
+- Engine: raised sprites may carry a 5th value (shift down in pixels); `trail_water_near()`, `trail_fish_here()`, `trail_art_sfx()`; Admin > Images accepts `<route>-<section>-r.png`; Admin > Tools "Trail maps check" counts the right picture per section.
+- Not in this release: extra mini-boss spots (in the data, not read yet). A walk already under way on one of these routes keeps its old map until it ends.
+- Tests: `tests/trail_bendy.php`, `tests/trail_authored.php`. Tools: `tools/render_bendy_rich.py`, `tools/bake_trail_rich.py`.
+
 ## 2.6.37
 - **Messages (player and admin)**: Admin > Feedback is now **Admin > Messages**. Each player note is a conversation: reply under it, mark "No reply needed", delete it, or **Write to a player** first (by username). Tabs: Waiting for you / All messages. A reply marks the note dealt with; if the player answers it comes back as new.
 - **Together > Messages tab (first tab)**: the player sees their notes and your replies as bubbles and can answer. A yellow **!** in a circle shows on the Together menu tile, the phone More / Menu button and the Messages tab while a reply is unread; opening the tab clears it (asked fresh on every page). Together opens on Messages when a reply is waiting, otherwise on the Community garden. "Send feedback" lands in Messages after sending. The player also gets a notice line.
