@@ -11144,7 +11144,8 @@ fb844f1401e1e83d35175f3b356305d016fd1e8c  assets/img/wonders/wonder-the-sky-city
 8aa33b92b1f2555dc6613eadbf5feb684f52e29f  assets/img/wonders/wonder-the-thousand-gates.png
 3f2b7b760c6dabadade428a8118bbd19c4ea7397  assets/img/wonders/wonder-thousand-rings-stump.png
 13b7ef9a56881d7b0445a5bd21c2e21dd2dd1172  assets/img/wonders/wonder-volcano-spice-gardens.png
-791e884c1d43e61649ad551cdd12a77415fbee5c  assets/landing.css
+df589d663c9773eb33ec226c288ced857ef1ee17  assets/landing.css
+61cb2e5c9563dbe10458ec26d64ed7484a254138  assets/landing.js
 11066b6bd6e5cb64560c46d6bb4157643db3baa1  assets/letters.js
 0c6ffac5dc0e44b479fcf23c4502f21b16ffbef3  assets/marrow.js
 94311c4c942a0b4baea2a35bcd8cdcfe910e3c0d  assets/memory.js
@@ -11409,8 +11410,9 @@ e73c0cf1d5da5a7db36d42b08ca0ec66d655e560  includes/jigsaw.php
 9a2e6bb7f162ae517c6cdda0a5fb4a134c5335d2  includes/jobs.php
 da2d4be912c09716c38bd4d973ef05b77610cd7a  includes/journey.php
 b6763f9cbef5b961ac723c50de2b6a5ee926cfc5  includes/journey_view.php
+4690c7c7faddb6533bd4fc4e2a77529e3e00fd3e  includes/landing_view.php
 131f6c43214e97a2684ff8bbe7da440dc2ba8902  includes/landmarks.php
-5786aec8664b5f535fc54394fc4d558092328592  includes/layout.php
+16efd1445daef0462f4a77657070e29e03d02498  includes/layout.php
 196ea1dc20099b1e874c35d22225721ab13e1864  includes/letters.php
 84c88c8208f0fa355aabbac0c2f4fe70ce852f02  includes/local.php
 75a0b718bc8971194746e46f7fc0ef5747c794a9  includes/logrotate.php
@@ -11457,7 +11459,7 @@ f79b57b22f046a5200a0d00c06d5694218cfe2b0  includes/scene.php
 85f37a4f7ed309dfc8827176dfc7012b419f71aa  includes/shelves.php
 477ae1eee2bdd414a092a0f6b02b328f36383de1  includes/shop_tiles.php
 1dba0f71098068edf486febca750ebaee2b2ecc8  includes/sinks.php
-d370553c73ac0d2368a89aeab24677ed0aada70c  includes/site_text.php
+3d6910b5e4ae11a25b34daa8f21366423cd1e604  includes/site_text.php
 b4247717e784ea3859a4c7414b1e0624d5142df2  includes/social.php
 bfdf0fadcdc3c30782ec67405629fb4813e3cdf2  includes/social169.php
 2544ef0ff0a00c85454a33b68de20208debfd9a5  includes/spot_card.php
@@ -11494,7 +11496,7 @@ ac6c7937eb940f68a7ec457616732a25a391ce54  includes/trek_oldcamp.php
 abc26d37b0ad73eaf63208d3e16306e9af794671  includes/trek_scene.php
 db7f55f68c398a056a09379e4b4582391db40c76  includes/trek_stage.php
 ef431b9a8182ac6ba5b23e20e70af68dcaa71763  includes/trek_textpass.php
-f8a5839db7dd1b9921c0369f9208bf7e711b8ce4  includes/update_news.php
+8d5afac8a07ea81b80e0ec2109c4dc37df1f0877  includes/update_news.php
 ffb1317d8e27c559248c535edc491f31fa06e4a7  includes/updater.php
 3242d42e92eddcfc5424f4df0e43eccbfb25a27c  includes/upgrade100.php
 f5e3d0e119e030ea4a5b4ddb41876d4912077817  includes/upgrade110.php
@@ -11508,7 +11510,7 @@ eb5fdc82a19422ed6f2e1d822e0f01465cd73357  includes/upgrade193.php
 8128400fa3d69247ce3e9a97fdfc81db30a14041  includes/welcome_back.php
 9241135943695e674d18b67c8109874a5299f81a  includes/world.php
 7900bfc3463212b7d844ace97c1164b0d567cabf  includes/yard.php
-1f77dd2d83241b2dbefbdf47e90e2c041b8dbbd5  index.php
+6ba6916a0f05351cb2c154f82680f151c5d90283  index.php
 3c2e95862654eb847d610a0dfdd6e96fc6c4c9e7  inventory.php
 440cedfac17fbefa5d3a84537ab235253958b7ed  jigsaw.php
 3e1df1e62715347703a72800dd45257487e48ecc  jobs.php
