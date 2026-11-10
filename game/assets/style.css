@@ -2263,6 +2263,9 @@ select.snackpick option { background: var(--surface, #fff3c8); color: var(--ink)
 .spitform .btn { justify-self: center; min-width: 160px; }
 .spitform.flying { opacity: .5; pointer-events: none; }
 .spitgame.js .spithow { text-align: center; }
+.spitwrap { position: relative; max-width: 440px; margin: 6px auto; }
+.spitwrap .spitcv { margin: 0 auto; touch-action: pan-y; }
+.spitgrab { position: absolute; left: 0; top: 0; width: 60%; height: 100%; touch-action: none; cursor: crosshair; -webkit-tap-highlight-color: transparent; }
 
 /* --- Worm Hunting (assets/worms.js) --- */
 .digboard .soil { background-color: #8a5a35;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/garden_logic.php';
 require_once __DIR__ . '/includes/games.php';
+require_once __DIR__ . '/includes/gnome_rig.php';
 $u = require_login();
 $uid = (int)$u['id'];
 if (is_post()) {
@@ -44,7 +45,8 @@ endif; ?>
 <div class="box spitbox">
 <?php if ($s): $w = (int)$s['wind']; ?>
   <div class="spitgame" data-wind="<?= $w ?>" data-gust="<?= !empty($s['gust']) ? 1 : 0 ?>" data-grit="<?= (int)$s['grit'] ?>" data-nim="<?= (int)$s['nim'] ?>"
-       data-phys="<?= e(json_encode($P)) ?>" data-wmax="<?= max(1, (int)round((int)setting('spit_wind_max') * 1.5)) ?>">
+       data-phys="<?= e(json_encode($P)) ?>" data-minms="<?= max(0, (int)setting('spit_min_ms')) ?>"
+       data-sheet="<?= e(gnome_rig_url($u) ?: url('assets/img/fight/rig-gnome.png')) ?>" data-sheet0="<?= e(url('assets/img/fight/rig-gnome.png')) ?>" data-wmax="<?= max(1, (int)round((int)setting('spit_wind_max') * 1.5)) ?>">
     <p class="spitwind"><b>💨 Wind:</b> <?= $w === 0 ? 'calm' : abs($w) . ' cm/s ' . ($w > 0 ? 'blowing towards the melon →' : '← blowing against you') ?><?= !empty($s['gust']) ? ' · a lucky gust!' : '' ?></p>
     <form method="post" class="spitform"><?= csrf_field() ?><input type="hidden" name="do" value="fire"><input type="hidden" name="tok" value="<?= e((string)$s['tok']) ?>">
       <label>Angle <input type="range" name="angle" min="<?= $P['amin'] ?>" max="<?= $P['amax'] ?>" value="40"> <output>40°</output></label>
