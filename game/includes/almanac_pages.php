@@ -33,6 +33,7 @@ const ALMANAC_2644_FIXES = [
     'Energy & food' => [["It comes back when you sleep (a nap gives some back)", "It comes back when you sleep (a nap gives some back; see [b]Sleeping and the game day[/b] and [b]Resting away from home[/b])"]],
     'Dried flowers' => [["each takes a real day, even while you are away", "each takes one sleep"]],
     'Town squares' => [["The Hollow keeps its own clock, shown at the top of the town page.", "Your gnome’s game clock is shown at the top of the town page, and places close by it."]],
+    'The florists' => [["it costs 3 energy and a real half hour", "it costs 3 energy and half an hour of game time"]],
     'The Job Board' => [["A new one after each daily reset.", "A new one after each sleep."]],
 ];
 

@@ -695,7 +695,7 @@ function florist_panel(array $u, array $shop, bool $open): string
     $left = florist_shifts_left($uid);
     $mins = max(1, (int)setting('florist_minutes'));
     $h = '<section class="box florist" id="volunteer"><h2>🌷 Volunteer for ' . $mins . ' minutes</h2>'
-        . '<p class="help">Lend a hand at the counter: tie bunches, sweep petals, water the buckets. It takes ' . $mins . ' real minutes and ⚡' . (int)setting('florist_energy')
+        . '<p class="help">Lend a hand at the counter: tie bunches, sweep petals, water the buckets. It takes ' . $mins . ' game minutes and ⚡' . (int)setting('florist_energy')
         . '. You earn XP, the florist’s friendship and a small bundle of cut flowers for arranging. ' . $left . ' shift' . ($left === 1 ? '' : 's') . ' left today.</p>';
     $act_here = $act && (int)$act['shop_id'] === (int)$shop['id'];
     if ($act) {
@@ -731,7 +731,7 @@ const FLOWERS_ALMANAC = [
         . "[b]What for:[/b] an arrangement sells for more than its stems would, makes a loved present for folk (better than a single flower) and can go in the weekly [b]Arrangements show[/b], where the top three win Petals and a ribbon. A show entry stays at the show."],
     'Dried flowers' => [32, "🌾 Hang cut flowers upside down and they dry into everlastings. In Satchel → Arrange → [b]Drying rack[/b], pick a flower and how many (up to 6 in a bundle). You have 4 bundles at once, and each takes one sleep.\n\nDried flowers [b]never wilt[/b], sell for a bit more than the fresh ones, and look faded and papery in an arrangement. They count as in season all year, and an arrangement made only of dried flowers is called [b]Everlasting[/b]."],
     'Seed packets' => [33, "📦 Once you have [b]mastered[/b] a flower (full knowledge from growing it), you can pack its seeds. In Satchel → Arrange → [b]Seed packets[/b], 3 of its seeds and a few Petals for the paper make a packet you can sell, trade or give away. Whoever opens it gets the 3 seeds. You can pack up to 5 a day."],
-    'The florists' => [34, "🌷 [b]Florists[/b] sell cut flowers and let gnomes volunteer. There is one at Mossbottom Market (open to everyone) and one in Blossomreach. Their staff work in shifts round the clock.\n\n[b]Volunteer for 30 minutes[/b] on the florist's shop page: it costs 3 energy and a real half hour. You get a little XP, the florist's friendship and a bundle of 3 to 5 cut flowers, usually common ones. You can do 3 shifts a day, one at a time."],
+    'The florists' => [34, "🌷 [b]Florists[/b] sell cut flowers and let gnomes volunteer. There is one at Mossbottom Market (open to everyone) and one in Blossomreach. Their staff work in shifts round the clock.\n\n[b]Volunteer for 30 minutes[/b] on the florist's shop page: it costs 3 energy and half an hour of game time. You get a little XP, the florist's friendship and a bundle of 3 to 5 cut flowers, usually common ones. You can do 3 shifts a day, one at a time."],
 ];
 
 /** Make the florist shops, their staff and stock, and the Almanac pages. Idempotent. Run by upgrade_099_flowers(). */
