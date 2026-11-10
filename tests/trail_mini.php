@@ -70,11 +70,16 @@ $html = trail_view_html($u, $exp, $sc, false);
 ok('a shut gate is drawn with the 🔒 mark', str_contains($html, '🔒') && str_contains($html, 'tmgatemark'), '');
 ok('the gate says what it needs (Miner’s Lantern)', str_contains($html, 'Blocked: ') && str_contains($html, 'Lantern'), '');
 ok('the legend names the lock', str_contains($html, 'Needs a tool'), '');
+ok('a shut gate shows no open mark or open legend', !str_contains($html, 'tmgateopen') && !str_contains($html, 'Open gate') && !str_contains($html, 'Open: '), '');
 $lan = (int)q_val("SELECT id FROM items WHERE effects LIKE '%\"tool\":\"lantern\"%' AND effects LIKE '%\"tier\":2%' ORDER BY id LIMIT 1");
 if ($lan) {
     give_item((int)$u['id'], $lan, 1); $tc = [];
     $html2 = trail_view_html($u, $exp, $sc, false);
     ok('with the lantern the lock is gone', !str_contains($html2, '🔒') && !str_contains($html2, 'Needs a tool'), '');
+    ok('with the lantern the gate shows the open mark', str_contains($html2, 'tmgateopen') && str_contains($html2, '🔓'), '');
+    ok('the open gate tile is labelled Open: <tool> gate', (bool)preg_match('~aria-label="Open: [^"]+ gate"~', $html2), '');
+    ok('the legend names the open gate', str_contains($html2, 'Open gate'), '');
+    ok('the open mark uses no inline style', !str_contains($html2, 'style='), '');
 } else ok('found a tier 2 lantern item', false);
 // route 228 stays free of fights
 ok('route 228 has no M token anywhere', (function () { foreach (trail_authored_all()['228']['sections'] as $s) if (!empty($s['extra_minibosses'])) return false; return true; })());

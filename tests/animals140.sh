@@ -19,6 +19,7 @@ hasnot() { if grep -q -- "$2" $H; then echo "FAIL $1 (found '$2')"; else echo "o
 PHPB() { php -r '$_SERVER["SCRIPT_NAME"]="/gnome.php"; require "'$GAME'/includes/bootstrap.php"; require_once "'$GAME'/includes/gardens.php"; require_once "'$GAME'/includes/yard.php"; require_once "'$GAME'/includes/garden_logic.php"; require_once "'$GAME'/includes/animals140.php"; '"$1" 2>&1 | tail -3; }
 page login.php; curl -s -c $C -b $C -X POST $BASE/login.php --data-urlencode "csrf=$(csrf $H)" -d username=sprout -d 'password=TestPass123!' -o /dev/null
 UID_=$(db "SELECT id FROM users WHERE username='sprout'")
+old30() { PHPB 'echo gmdate("Y-m-d H:i:s", gclock_plot_now('$P') - 30*86400);'; }   # 30 days ago on the plot's own clock (game time with the flag on, real time off)
 dbx "UPDATE users SET tour_step=0, coins=1000000, level=30, energy=60, energy_updated_at=datetime('now') WHERE id=$UID_"
 P=$(db "SELECT id FROM plots WHERE user_id=$UID_ LIMIT 1")
 dbx "UPDATE plots SET garden_level=12 WHERE id=$P"
@@ -71,7 +72,7 @@ welcome() { post garden.php "garden.php?bld=$1" -d do=critter_welcome -d buildin
 welcome butterfly_bush Flutter; welcome butterfly_bush Dapple; welcome butterfly_bush Third
 chk "2 butterflies (level I holds 2)" "$(db "SELECT group_concat(name) FROM (SELECT name FROM garden_critters WHERE plot_id=$P AND kind='butterfly' ORDER BY id)")" "Flutter,Dapple"
 page "garden.php?bld=butterfly_bush"; hasnot "no Feed button for butterflies" 'value="critter_feed"'; has "stem hint on the panel" "extra stem"
-dbx "UPDATE garden_critters SET gift_at=datetime('now','-30 days') WHERE plot_id=$P"
+dbx "UPDATE garden_critters SET gift_at='$(old30)' WHERE plot_id=$P"
 page "garden.php?bld=butterfly_bush"
 chk "wing scales waiting (cap 3 each, 30 days = 3)" "$(db "SELECT held FROM garden_critters WHERE plot_id=$P AND name='Flutter'")" 3
 post garden.php "garden.php?bld=butterfly_bush" -d do=collect -d building=butterfly_bush
@@ -164,7 +165,7 @@ give food-scrap 10; give lettuce 0
 post garden.php "garden.php?bld=snail_jar" -d do=critter_feed -d building=snail_jar
 chk "snail ate scraps (cap 6)" "$(db "SELECT meals FROM garden_critters WHERE plot_id=$P AND kind='snail'")" 6
 chk "scraps used" "$(qty food-scrap)" 4
-dbx "UPDATE garden_critters SET gift_at=datetime('now','-30 days') WHERE plot_id=$P AND kind='snail'"
+dbx "UPDATE garden_critters SET gift_at='$(old30)' WHERE plot_id=$P AND kind='snail'"
 page "garden.php?bld=snail_jar"
 chk "glaze waiting (6 meals / 2 = 3, cap 3)" "$(db "SELECT held FROM garden_critters WHERE plot_id=$P AND kind='snail'")" 3
 post garden.php "garden.php?bld=snail_jar" -d do=collect -d building=snail_jar

@@ -5,7 +5,8 @@ GAME=$1; PORT=$2; ROUTER=$3
 BASE=http://127.0.0.1:$PORT
 TD="${TMPDIR:-/tmp}"   # scratch files (cookies, pages, php log): honour TMPDIR so parallel runs do not clobber each other
 php -d session.save_path=/tmp -S 127.0.0.1:$PORT -t $GAME $ROUTER >$TD/walk-php.log 2>&1 &
-PID=$!; sleep 1
+PID=$!
+for _ in $(seq 1 50); do curl -s -o /dev/null "$BASE/install.php" && break; sleep 0.2; done   # wait until the server answers (a fixed sleep 1 lost the race on a busy box)
 trap "kill $PID 2>/dev/null" EXIT
 C=$TD/walk-ck; rm -f $C
 csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }

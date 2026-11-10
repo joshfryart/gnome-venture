@@ -351,6 +351,9 @@ function trail_art_svg(array $map, array $state): string
         } elseif ($icon === '🔒') {   // v2.6.46: a shut tool gate: amber-outlined tile with a lock
             $marks .= '<g class="tmgatemark"><rect x="' . ($X + 2) . '" y="' . ($Y + 2) . '" width="' . ($C - 4) . '" height="' . ($C - 4) . '" fill="rgba(60,40,10,.55)" stroke="#e8a21c" stroke-width="2.5" stroke-dasharray="6 3"/>'
                 . '<text x="' . ($X + $C / 2) . '" y="' . $n($Y + $C / 2 + 6) . '" font-size="17" text-anchor="middle">' . e($icon) . '</text></g>';
+        } elseif ($icon === '🔓') {   // an open tool gate: a small green-outlined tile with an open lock (no inline styles; attributes only)
+            $marks .= '<g class="tmgateopen"><rect x="' . ($X + 2) . '" y="' . ($Y + 2) . '" width="' . ($C - 4) . '" height="' . ($C - 4) . '" fill="rgba(20,60,20,.25)" stroke="#6bbf59" stroke-width="2" stroke-dasharray="2 4"/>'
+                . '<text x="' . ($X + $C / 2) . '" y="' . $n($Y + $C / 2 + 5) . '" font-size="14" text-anchor="middle">' . e($icon) . '</text></g>';
         } else {   // the way on and the fixed fight: red-outlined placeholder tiles until their art is drawn
             $marks .= '<g' . ($done ? ' opacity=".5"' : '') . '><rect x="' . ($X + 2) . '" y="' . ($Y + 2) . '" width="' . ($C - 4) . '" height="' . ($C - 4) . '" fill="rgba(255,255,255,.18)" stroke="#e02020" stroke-width="2.5"/>'
                 . '<text x="' . ($X + $C / 2) . '" y="' . $n($Y + $C / 2 + 6) . '" font-size="17" text-anchor="middle">' . e($icon) . '</text></g>';
