@@ -12,11 +12,11 @@ return function(L)
   local floor, max, min, sin, cos, pi = math.floor, math.max, math.min, math.sin, math.cos, math.pi
   -- proportions per kind, in figure units: body centre and radii, leg height and width, head centre and radii, snout length and half-height
   local K = {
-    canid    = { bx = -2, by = 16.0, brx = 12.5, bry = 6.4, legh = 11.5, legw = 4.0, hx = 14.0, hy = 23.0, hrx = 6.8, hry = 6.4, sn = 5.6, snh = 2.5, neck = true, tuck = true, tail = "brush", ears = "point", nose = "dark" },
+    canid    = { bx = -2, by = 16.0, brx = 12.5, bry = 6.4, legh = 11.5, legw = 3.3, hx = 14.0, hy = 23.0, hrx = 6.8, hry = 6.4, sn = 5.6, snh = 2.5, neck = true, tuck = true, tail = "brush", ears = "point", nose = "dark" },
     feline   = { bx = -2, by = 14.0, brx = 14.0, bry = 6.4, legh = 9.6, legw = 4.4, hx = 14.5, hy = 20.0, hrx = 7.6, hry = 7.0, sn = 2.2, snh = 2.3, neck = true, tuck = true, tail = "long", ears = "cat", nose = "pink" },
     rodent   = { bx = -2, by = 11.0, brx = 11.0, bry = 7.8, legh = 6.0, legw = 4.2, hx = 11.0, hy = 15.0, hrx = 7.4, hry = 6.8, sn = 2.6, snh = 2.4, tail = "thin", ears = "round", nose = "pink" },
     bear     = { bx = -2, by = 13.5, brx = 14.0, bry = 8.4, legh = 8.6, legw = 5.6, hx = 12.5, hy = 14.5, hrx = 7.2, hry = 6.8, sn = 5.0, snh = 3.2, tail = "stub", ears = "round", nose = "dark" },
-    ungulate = { bx = -2, by = 17.5, brx = 13.5, bry = 7.8, legh = 12.5, legw = 4.0, hx = 14.5, hy = 24.0, hrx = 6.4, hry = 6.6, sn = 5.2, snh = 3.2, neck = true, tail = "stub", ears = "leaf", nose = "dark" },
+    ungulate = { bx = -2, by = 17.5, brx = 13.5, bry = 7.8, legh = 12.5, legw = 3.6, hx = 14.5, hy = 24.0, hrx = 6.4, hry = 6.6, sn = 5.2, snh = 3.2, neck = true, tail = "stub", ears = "leaf", nose = "dark" },
     hare     = { bx = -3, by = 11.0, brx = 10.5, bry = 8.4, legh = 6.0, legw = 4.4, hx = 9.5, hy = 17.0, hrx = 6.4, hry = 6.2, sn = 2.4, snh = 2.5, tail = "pom", ears = "long", nose = "pink" },
   }
   return function(g)
@@ -60,7 +60,7 @@ return function(L)
       local m
       local lw = hoof and 0.74 or 1                                   -- hoofed legs are slim below the knee
       if back and not (kd == "bear" or kd == "rodent") then          -- a bent hind leg: thigh forward to the stifle, shin back to the hock, then the foot
-        m = g:Limb({ { lx + 0.6, h + 3 }, { lx + 1.9, h * 0.62 } }, w + 3.2, w + 0.8)
+        m = g:Limb({ { lx + 0.6, h + 3 }, { lx + 1.9, h * 0.62 } }, w + 2.4, w + 0.6)
         m:add(g:Limb({ { lx + 1.9, h * 0.62 }, { lx - 1.5, h * 0.36 } }, (w + 0.6) * lw, w * 0.7 * lw))
         m:add(g:Limb({ { lx - 1.5, h * 0.36 }, { lx - 0.1, 2.2 } }, w * 0.7 * lw, w * 0.56 * lw))
         m:add(g:E(lx - 1.7, h * 0.37, w * 0.42 * lw + 0.7, 1.3))      -- the hock
