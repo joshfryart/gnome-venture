@@ -749,6 +749,11 @@ function post_update_news(string $from): void
         "[list][*][b]Creatures[/b]: every creature you can meet is redrawn and now moves in a fight: legs, tails, wings and feelers. They breathe, blink and fidget while they wait. Look for the one odd thing each of them has.\n"
         . "[*][b]Your gnome[/b]: the beard and scarf swing, the gnome blinks and hops back after a hit.\n"
         . "[*][b]Villagers[/b]: everyone in the villages and your Trek crew have new pictures too.[/list]"],
+    '2.6.43' => ['🔧 Update 2.6.43: fixes',
+        "[list][*][b]Delves[/b]: running from the chest's guardian now ends the delve. The chest opens only after a win.\n"
+        . "[*][b]Contests[/b]: Garden of the Month and the pumpkin carving are judged more fairly, and carving votes follow the same rules as garden votes.\n"
+        . "[*][b]Rain Barrel and Gnome Beds[/b]: the daily board shows your first solve of the day.\n"
+        . "[*][b]Buttons[/b]: pressing the same button again right after the page reloads now always counts.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

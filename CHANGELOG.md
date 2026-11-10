@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (code review fixes, no version bump yet)
+## 2.6.43
 - **Trade**: a negative Petal amount in an offer is clamped before the "offer something / ask for something" checks, so `want_coins=-1` can no longer make a free transfer (`includes/trade.php`).
 - **Garden of the Month and carving settle**: an entry settled late (its gnome was in a time-out) ranks after the ones already placed instead of #1 (`includes/yard.php`, `includes/contests.php`). A 0-vote carving outside the top three gets no thanks Petals.
 - **Carving vote**: the same guards as Garden of the Month voting (level, account age, fresh-gnome hold, same sign-up address).
