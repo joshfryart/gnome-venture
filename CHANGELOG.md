@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.51
+- **Wattle fence**: all pieces (end, straight, corner, tee, cross, gate, icon) redrawn as one woven top-down set (`tools/gen_wattle_art.py`). The yard now shows the pixel PNG placeholder set when it exists (was always the old SVG), scaled crisp.
+- **Pal Jobs**: collecting one pal's trip or delve plays the chest animation, like Collect all.
+
 ## 2.6.50
 - **Pal Jobs page** (phone): Garden crew rows no longer overlap; each is a name and role line over a garden and mode line, with one "About the crew" link.
 - **Trail**: a gate you can already open shows a green 🔓 on its middle tile (legend "Open gate" only when one is drawn).
