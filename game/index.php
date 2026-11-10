@@ -23,6 +23,7 @@ if (!$u) {   // v0.8.8: what search engines and link previews see
     require_once __DIR__ . '/includes/puzzles.php';   // v2.0.69: the front page lets visitors play a GIFsaw (no login, no rewards)
     $pzFront = setting('puzzles_front') !== '0' && ($pzFrontList = array_slice(array_map('puzzle_js_row', puzzle_pics()), 0, 3)) !== [];
     if ($pzFront) $GLOBALS['gv_front_demo'] = true;   // layout.php then loads assets/puzzles.css + puzzles.js
+    require_once __DIR__ . '/includes/landing_view.php'; $GLOBALS['gv_landing'] = true;   // 2.6.41: the landing card and How to play (layout.php then loads assets/landing.js)
 }
 page_header('Home');
 ?>
@@ -34,32 +35,7 @@ page_header('Home');
 <?php elseif (!$u): ?>
 <?php // v0.8.6: a front page that says what the game is, for visitors who've never played ?>
 <section class="lp"><?php // v1.6.3: short, phone-first front page. v2.0.29: Hearthlight look. v2.0.73: Jeff the Puzzler shows visitors around with screenshots of the current game (tests/shots.sh) ?>
-  <div class="lp-hero lp-jeff">
-    <?= puzzle_cast('jeff-host', 'Jeff the Puzzler', 'lp-jeffface') ?>
-    <p class="lp-bubble"><b>Jeff:</b> “<?= e(stext('home.jeff')) ?>”</p>
-    <h1><?= e(setting('site_name')) ?><?= is_admin() ? ' <a class="small" href="' . e(url('admin/texts.php?page=' . urlencode('Front page'))) . '">✏️ Edit</a>' : '' ?></h1>
-    <p class="lp-pitch"><?= e(stext('home.headline')) ?></p>
-    <p class="lp-sub">A free, cosy garden game about gnomes.</p>
-    <div class="lp-cta">
-      <a class="btn lp-big" href="<?= e(url('register.php')) ?>"><?= e(stext('home.button')) ?></a>
-      <a class="btn ghost lp-big" href="#tour"><?= e(stext('home.tourbtn')) ?></a>
-      <?php if (setting('guest_open') === '1'): ?><a class="btn ghost lp-big" href="<?= e(url('guest.php')) ?>"><?= e(stext('home.guestbtn')) ?></a><?php endif; ?>
-      <a class="lp-login" href="<?= e(url('login.php')) ?>">Already a gnome? <b>Log in</b></a>
-    </div>
-    <p class="lp-small"><?= e(stext('home.small')) ?></p>
-  </div>
-  <h2 class="lp-h2" id="tour">The tour</h2>
-  <ol class="lp-stops">
-    <?php $tourPose = [1 => 'jeff-point', 2 => 'jeff-point', 3 => 'jeff-point', 4 => 'jeff-point', 5 => 'jeff-cheer', 6 => 'jeff-think']; $tourKey = [1 => 'garden', 2 => 'satchel', 3 => 'world', 4 => 'town', 5 => 'games', 6 => 'almanac'];
-    foreach ($tourKey as $n => $shot): [$ttl, $say] = array_pad(explode("\n", stext('home.tour.' . $n), 2), 2, ''); ?>
-    <li class="lp-stop">
-      <p class="lp-step">Stop <?= $n ?> of 6</p>
-      <h3><?= e($ttl) ?></h3>
-      <div class="lp-frame"><img class="lt" src="<?= e(url('assets/img/landing/shot-' . $shot . '.png?v=' . APP_VERSION)) ?>" alt="<?= e(trim(preg_replace('/^\P{L}+/u', '', $ttl))) ?> in the game" width="412" height="560" loading="lazy"><img class="dk" src="<?= e(url('assets/img/landing/shot-' . $shot . '-dark.png?v=' . APP_VERSION)) ?>" alt="" width="412" height="560" loading="lazy"></div>
-      <div class="lp-say"><?= puzzle_cast($tourPose[$n] ?? 'jeff-host', 'Jeff', 'lp-sayface') ?><p class="lp-bubble"><?= e($say) ?></p></div>
-    </li>
-    <?php endforeach; ?>
-  </ol>
+  <?= landing_html() /* 2.6.41: the landing card and How to play (includes/landing_view.php); Jeff's screenshot tour is retired */ ?>
   <?php if ($pzFront): $t = null; $pzDemo = true; ?>
   <h2 class="lp-h2" id="try">Try a puzzle</h2>
   <div class="lp-say lp-sayrow"><?= puzzle_cast('jeff-cheer', 'Jeff', 'lp-sayface') ?><p class="lp-bubble"><?= e(stext('home.try')) ?></p></div>

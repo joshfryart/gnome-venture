@@ -63,6 +63,8 @@ function page_header(string $title, bool $admin = false): void
 <?= seo_head($title, $admin) ?><link rel="stylesheet" href="<?= e(url('assets/style.css?v=' . APP_VERSION)) ?>"><?php if (!$admin && $page === 'adventure.php' && function_exists('fight_scene_on') && fight_scene_on()): ?><link rel="stylesheet" href="<?= e(url('assets/fightengine.css?v=' . APP_VERSION)) ?>"><?php endif; /* fight_scene: the animated fight stage */ ?>
 <?php if (!$admin && !$u && in_array($page, ['index.php', 'guide.php'], true)): ?><link rel="stylesheet" href="<?= e(url('assets/landing.css?v=' . APP_VERSION)) ?>">
 <?php endif; /* v1.6.3: landing.css only on the logged-out front page and How to play */ ?>
+<?php if (!$admin && !$u && !empty($GLOBALS['gv_landing'])): ?><script src="<?= e(url('assets/landing.js?v=' . APP_VERSION)) ?>" defer></script>
+<?php endif; /* 2.6.41: the living scenes of the logged-out front page */ ?>
 <?php if ($admin): ?><link rel="stylesheet" href="<?= e(url('assets/admin.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/admin.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* v1.6.3: admin look and menu, admin pages only */ ?>
 <script src="<?= e(url('assets/early.js?v=' . APP_VERSION)) ?>"></script>
 <script src="<?= e(url('assets/site.js?v=' . APP_VERSION)) ?>" defer></script>
