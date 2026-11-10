@@ -34,5 +34,23 @@ File: `game/includes/data/build_plans.txt`. Reviewed by a mechanical pass (lint,
 | 16 | Verb vs needs (OK, noted) | Pink River Dolphin Pools 2 and Kava Circle 3 use `feed` with raw fish / raw roots; Northern Lights Sauna 1 uses `light` with logs and ash. These read fine on the card. | None. |
 | 17 | Titles | "Rest the lanterns" (Firefly Caves 3) is odd; "Collect the frost glitter" fine. | "Set the lanterns low". |
 
+## FIXED 2026-11-10 (Josh approved calls 1 to 9, 11, 12)
+Edit `claude/build-plans-base.txt`, then run `python3 tools/scale_build_plans.py`: it writes `game/includes/data/build_plans.txt` (do not hand-edit that file).
+| Call | What changed |
+|---|---|
+| 1 camp-kit | Aurora Camp 1, The Oasis That Moves 1, The Great Migration 1 now hand in `camping-gear` x2 (craftable); stage texts say "camping gear". |
+| 2 overdue-book | Mud Mosque Library 1 is "Bind the old scrolls": `silk-thread` x2 + `cottongrass` x4; text reworded (crumbling, not overdue). |
+| 3 Beaverdam Tunnels 2 | `river-clay` x5 + `birch-log` x3 (Maplewold has both). |
+| 4 Pink River Dolphin Pools | 1: `fiddleheads` x3 (rainforest) instead of cattail-fluff; 2: `rainbow-fish` x4 (rainforest river) instead of perch. |
+| 5 Standing Stones 4 | `meadowsweet` x3 + `cottongrass` x4 (no edelweiss). |
+| 6 Olive Press Piazza 1 | `pine-log` x3 (SE mountain) instead of oak-log. |
+| 7 Pearl Diver Cove 1 | `rope` x3 (craftable) instead of coir-fibre. |
+| 8 Flamingo Shallows 2 | `cattail-root` x3 (ESA wetland); text now says cattail root from the reeds. |
+| 9 Sky City Ruins 2 | `building-stone` x12 + `rope` x4 (was 2 masterwork barrows). |
+| 11 scaling | Costs scale with region level: item / meal / fine counts x (1 + (L-1)/40), rounded, min 1; coins + 5 per level above 1; tools handed in (lanterns, trugs, baskets, creel, net, camping gear) and clear stages untouched. Maplewold (L1) unchanged. Example: 4 Rope + 250 Petals at L1 = 7 Rope + 420 Petals at L35. Average items per plan after scaling: 22 at L1, about 30 at L12 to L17, about 38 at L32 to L35. Largest single ask: 15 Dressed Stone (Sky City Ruins 2). |
+| 12 monastery | Lemon Grove Monastery 1, 3, 4: "the cloister gnomes"; "picked by Sunday" is now "before the next full moon". |
+Still open (not asked): 10 (tools used up, no line on the card), 13 repeated titles, 14 repeated phrase, 15, 17.
+Notes: a repair already in progress keeps its stage number but hands in the new needs for its current stage. `tests/buildplans.sh` passes; `tests/rebuild.sh` cannot run here (no ruins in the test DB).
+
 ## Not found
 No `real days` / `hired helper` wording, no `|` inside text, no straight apostrophes in text, no doubled words, no missing end punctuation, no plan with fewer than four stages. Tone is consistent across places.
