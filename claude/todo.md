@@ -3,7 +3,7 @@
 Rules: add new items here only. Tick or delete when done. History lives in `CHANGELOG.md` and `claude/todo-archive.md` (the old todo.md log up to 2.5.62 is at the bottom of the archive). Detail lists for art stay in their own files, linked below, but their OPEN items are copied here.
 
 ## 1. STATE
-- 2.6.44 (2026-11-10, on main, zip built, not yet live): Almanac pass (7 new pages, stale + wrong text fixed, dead unlocks removed), easy-road extra mini-boss drawn as a find, snack-tier jam costs 1 energy. See CHANGELOG 2.6.44.
+- 2.6.44 (2026-11-10, on main, zip built and sent to Josh, not yet uploaded; CI list: 70 pass, same 16 known fails, no new): Almanac pass (7 new pages, stale + wrong text fixed, dead unlocks removed), easy-road extra mini-boss drawn as a find, snack-tier jam costs 1 energy. See CHANGELOG 2.6.44.
 - 2.6.43 (2026-11-10, code review fixes, on main, live): trade negative-amount free transfer closed; Garden of the Month / carving late settle; carving vote guards; delve flee ends delve; community garden shift cap; pal collect transaction; daily puzzles use first solve; double-tap guard per form; auto-upgrade retry wait; sprite / login / account-delete hardening. Details in `CHANGELOG.md`.
 - 2.6.42 (2026-11-10, on main, live): all creatures (117) + 7 crew redrawn in 2.5D and rigged, 69 villager minis redrawn.
 - 2.6.41 (2026-11-10, on main, live): Trail walk from a route's b end runs in reverse; 2.6.40 garden crew + Trail maps merged.
