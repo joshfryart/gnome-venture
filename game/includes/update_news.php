@@ -728,6 +728,9 @@ function post_update_news(string $from): void
         "[list][*][b]New trail maps[/b]: the roads of the Maplewold now wind through bigger maps with rivers, ponds, fields and little things to spot along the way.\n"
         . "[*][b]Fishing[/b]: stand beside water on a trail and a 🎣 Fish button appears under the map. You need a fishing rod.\n"
         . "[*][b]Gates[/b]: a few spots on the harder roads need a tool to pass (a lantern, a walking staff or a pick).[/list]"],
+    '2.6.39' => ['🗺️ Update 2.6.39: winding trails everywhere',
+        "[list][*][b]Every trail[/b] now winds through a big painted map: deserts, mountains, wetlands, rainforests, islands, coasts and the frozen north all look like themselves.\n"
+        . "[*][b]Fishing[/b] works on every trail with water: stand on or beside it and tap 🎣 Fish.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

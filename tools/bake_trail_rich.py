@@ -5,19 +5,29 @@ Per section: ground/<route>-<section>-r.png (terrain, water, rough, shadows and 
 The game draws the raised things and the walker in depth order (includes/trail_art.php; jy = the sprite's shift down in picture pixels).
 Finds, the boss mark and mini-boss marks are NOT in the pictures: the game draws those.
 Per section 'wet' = rows of 0/1, the water tiles of the picture (streams, fords, ponds, sea, ice); the game offers fishing on and beside them.
-Output (staging, NOT the game): claude/maplewold-bendy-maps/bake/{ground,obj}/ and bake/trail_maps_maplewold_30x18.json (the authored-map file with objs).
-Usage: python3 -I tools/bake_trail_rich.py [route ids ...] [--proof]     no id = the 16 Maplewold routes; --proof also writes bake/proof/<route>-<section>.png,
+Output (staging, NOT the game): the 16 hand-tuned Maplewold routes (region "MW") -> claude/maplewold-bendy-maps/bake/, every other region (NA = the 3 other routes of the Maplewold region) -> claude/trail-rich-bake/ (git-ignored); in each
+{ground,obj}/ and one authored-map file per region <name>_30x18.json (Maplewold: trail_maps_maplewold_30x18.json). Source file of a route: render_bendy_rich.src_of().
+Usage: python3 -I tools/bake_trail_rich.py [route ids ... | --region CODE ... | --all] [--proof] [--jobs N]     no id = the 16 Maplewold routes; --proof also writes proof/<route>-<section>.png,
 the section put together the way the game does it (to compare with rich/route-<id>-s<n>.png).
---install copies the staged bake into the game (a release step): ground/ and obj/ into game/assets/img/trail/, the json to game/includes/data/trail_maps/maplewold_30x18.json.
+--install [--all | --region CODE] copies the staged bake into the game (a release step): ground/ and obj/ into game/assets/img/trail/, the json(s) to game/includes/data/trail_maps/<name>_30x18.json.
 Bake once per version: a re-bake is not bit-for-bit the same."""
 import glob, json, os, sys
 from multiprocessing import Pool
 HERE = os.path.dirname(os.path.abspath(__file__)); REPO = os.path.dirname(HERE); sys.path.insert(0, HERE)
-OUT = os.path.join(REPO, "claude", "maplewold-bendy-maps", "bake")
+OUT_NA = os.path.join(REPO, "claude", "maplewold-bendy-maps", "bake")
+OUT_REST = os.path.join(REPO, "claude", "trail-rich-bake")
 T, PAD = 64, 40
+def out_of(region): return OUT_NA if region == "MW" else OUT_REST
+def map_name(region): return "maplewold" if region == "MW" else region.lower()
+def region_of(rid):
+    """'MW' = the 16 hand-tuned Maplewold routes (claude/maplewold-bendy-maps); otherwise the region code of the generated route (NA also has 3 generated routes: file na_30x18.json)."""
+    import render_bendy_rich as R
+    p = R.src_of(rid)
+    return "MW" if "maplewold-bendy-maps" in p else json.load(open(p))["region"]
 
 def job(a):
     rid, si, proof = a
+    OUT = out_of(region_of(rid))
     import render_bendy_rich as R
     from maplewold_rich_specs import rich_for
     from PIL import Image
@@ -38,30 +48,49 @@ def job(a):
     W, H = len(route['sections'][si]['rows'][0]), len(route['sections'][si]['rows'])
     return rid, si, objs, [''.join('1' if (x, y) in wet else '0' for x in range(W)) for y in range(H)]
 
+def all_ids():
+    import render_bendy_rich as R
+    return sorted(int(os.path.basename(f)[6:-5]) for f in glob.glob(os.path.join(REPO, "claude", "bend-prototype-v2", "route-*.json")) if os.path.basename(f)[6:-5].isdigit())
+
 def main():
-    import bendy_to_trail_maps as B
+    import bendy_to_trail_maps as B, render_bendy_rich as R
     args = sys.argv[1:]; proof = "--proof" in args
+    regions = [args[i + 1].upper() for i, a in enumerate(args) if a == "--region"]
+    jobsn = next((int(args[i + 1]) for i, a in enumerate(args) if a == "--jobs"), 0)
     if "--install" in args:
         import shutil
-        for d in ("ground", "obj"):
-            for f in sorted(os.listdir(os.path.join(OUT, d))): shutil.copy2(os.path.join(OUT, d, f), os.path.join(REPO, "game", "assets", "img", "trail", d, f))
+        regs = regions or (sorted({region_of(i) for i in all_ids()}) if "--all" in args else ["MW"])
+        for out in sorted({out_of(r) for r in regs}):   # the staged folder is shared by all non-Maplewold regions: copy each once
+            for d in ("ground", "obj"):
+                os.makedirs(os.path.join(REPO, "game", "assets", "img", "trail", d), exist_ok=True)
+                for f in sorted(os.listdir(os.path.join(out, d))): shutil.copy2(os.path.join(out, d, f), os.path.join(REPO, "game", "assets", "img", "trail", d, f))
         os.makedirs(os.path.join(REPO, "game", "includes", "data", "trail_maps"), exist_ok=True)
-        shutil.copy2(os.path.join(OUT, "trail_maps_maplewold_30x18.json"), os.path.join(REPO, "game", "includes", "data", "trail_maps", "maplewold_30x18.json"))
-        print("installed", len(os.listdir(os.path.join(OUT, "ground"))), "ground pictures,", len(os.listdir(os.path.join(OUT, "obj"))), "sprites and the map file"); return
-    files = sorted(glob.glob(os.path.join(REPO, "claude", "maplewold-bendy-maps", "route-*.json")))
-    ids = [int(a) for a in args if a.isdigit()] or [int(os.path.basename(f)[6:-5]) for f in files if os.path.basename(f)[6:-5].isdigit()]
-    for d in ("ground", "obj") + (("proof",) if proof else ()): os.makedirs(os.path.join(OUT, d), exist_ok=True)
-    data = B.convert([os.path.join(REPO, "claude", "maplewold-bendy-maps", f"route-{i}.json") for i in ids])
+        for reg in regs:
+            src = os.path.join(out_of(reg), "trail_maps_maplewold_30x18.json" if reg == "MW" else map_name(reg) + "_30x18.json")
+            shutil.copy2(src, os.path.join(REPO, "game", "includes", "data", "trail_maps", map_name(reg) + "_30x18.json")); print("map file", map_name(reg))
+        print("installed ground pictures and sprites from", sorted({out_of(r) for r in regs})); return
+    if "--all" in args: ids = all_ids()
+    else:
+        ids = [int(a) for i, a in enumerate(args) if a.isdigit() and (i == 0 or args[i - 1] not in ("--jobs", "--region"))]
+        if regions: ids += [i for i in all_ids() if region_of(i) in regions]
+        if not ids: ids = [i for i in all_ids() if region_of(i) == "MW"]
+    ids = sorted(set(ids))
+    for reg in {region_of(i) for i in ids}:
+        for d in ("ground", "obj") + (("proof",) if proof else ()): os.makedirs(os.path.join(out_of(reg), d), exist_ok=True)
+    data = B.convert([R.src_of(i) for i in ids])
     jobs = [(rid, si, proof) for rid in ids for si in range(len(data["routes"][str(rid)]["sections"]))]
-    with Pool(min(8, os.cpu_count() or 2)) as pool:
-        for rid, si, objs, wet in pool.imap_unordered(job, jobs):
+    with Pool(jobsn or min(8, os.cpu_count() or 2)) as pool:
+        for rid, si, objs, wet in pool.imap_unordered(job, jobs, chunksize=1):
             sec = data["routes"][str(rid)]["sections"][si]; sec["objs"] = objs; sec["pic"] = "r"   # pic r: the ground picture is <route>-<section>-r.png (the old 22 x 7 pictures keep their names)
             if any("1" in r for r in wet): sec["wet"] = wet   # every water tile in the picture (streams, fords, ponds, sea, ice): the game offers fishing beside them
             print("baked", rid, si + 1, len(objs), "objs", flush=True)
-    dest = os.path.join(OUT, "trail_maps_maplewold_30x18.json")
-    if len(ids) < 16 and os.path.exists(dest):   # a partial bake keeps the other routes
-        old = json.load(open(dest)); old["routes"].update(data["routes"]); data = old
-    json.dump(data, open(dest, "w"), separators=(",", ":"), ensure_ascii=False)
-    print("sections:", len(jobs), "sprites:", len(os.listdir(os.path.join(OUT, "obj"))), "->", dest)
+    for reg in sorted({region_of(i) for i in ids}):
+        mine = {k: v for k, v in data["routes"].items() if region_of(int(k)) == reg}
+        dest = os.path.join(out_of(reg), "trail_maps_maplewold_30x18.json" if reg == "MW" else map_name(reg) + "_30x18.json")
+        d = {"v": 1, "routes": mine}
+        if os.path.exists(dest):   # a partial bake keeps the other routes of the region
+            old = json.load(open(dest)); old["routes"].update(mine); d = old
+        json.dump(d, open(dest, "w"), separators=(",", ":"), ensure_ascii=False); print(reg, len(d["routes"]), "routes ->", dest)
+    print("sections:", len(jobs))
 
 if __name__ == "__main__": main()

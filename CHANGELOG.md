@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.39
+- **Bendy 30 x 18 Trail maps for the other 230 routes (624 sections)**, same rich look as the Maplewold in 2.6.38: winding road, entry and exit on any edge, painted ground with water and decor, raised sprites. All 246 routes now use them. Own ground art for mountain, wetland, desert and rainforest (island still uses the coast art).
+  - Data: one file per region in `includes/data/trail_maps/<region>_30x18.json` (`ca cb csa ea ee esa mena na nwe oc sa se sea wca`; `na` = the 3 routes of region NA outside the hand-tuned Maplewold 16). Made by `tools/bake_trail_rich.py --all` (route files: `claude/bend-prototype-v2`, linted). `tools/bendy_to_trail_maps.py` `ART` knows all nine lands (art field: desert, island -> coast, mountain -> tundra, rainforest, wetland -> forest).
+  - Sprites: 60 new files in `assets/img/trail/obj/` (in the update zip). **Ground pictures are NOT in the update zip** (about 240 MB): upload the zips `upload-zips/gnome-venture-trail-ground-r2-partNofM.zip` through **Admin > Images** (files `<route>-<section>-r.png`). A section without its picture shows the plain tile look until then.
+  - Fishing by the water, gates and the Maplewold maps are unchanged. Fixed fights (E) and boss/miniboss kinds are as in the old maps. Extra mini-bosses and gates outside the Maplewold are not built yet.
+
 ## 2.6.38
 - **Bendy Trail maps for the 16 Maplewold routes (41 sections)**: the Trail sections of routes 228, 232, 236 and 304 to 316 are now 30 x 18 tiles with a winding road, entry and exit on any edge, and the new rich look (painted ground with water, fields and decor; trees, rocks, fences and landmarks as raised sprites the gnome walks behind). All other routes keep their 22 x 7 maps.
   - Data: `includes/data/trail_maps/maplewold_30x18.json` (overrides those routes in `trail_maps.json`). Sprites: 348 files in `assets/img/trail/obj/` (`x-*.png`, in the update zip).

@@ -25,3 +25,6 @@ Plan and decisions: `claude/plan-route-map-bends.md`, `claude/todo.md` ("Route m
 
 ## Rules to keep
 Square tiles, 8 headings, road runs <= 6 (one <= 10 per section), no shortcut under 80%, thicket 12 to 45%, `E` only on the last section of 313 and 315 (on the road, 4 steps before the exit), no new tile characters. Do not edit `tools/bend_rules.py` or the lints to make a map pass. Owner rules: terse replies; push main only on Josh's word.
+
+## 2.6.39 (2026-11-10): all routes baked
+All 246 routes are in the game as 30 x 18 rich maps. Remaining from 'Next, in order': engine reads `extra_minibosses`; visible gate mark on the tile picture; gates and extra mini-bosses for the other regions (tier = region level + 1, cap 4; ask Josh); region-map art sync; real phone check. See `claude/todo.md` (2.6.39).

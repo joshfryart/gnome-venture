@@ -67,3 +67,4 @@ game/data/*.txt
 __pycache__/
 claude/bend-prototype-v2/rich/
 claude/maplewold-bendy-maps/bake/proof/
+claude/trail-rich-bake/

@@ -31,7 +31,7 @@ foreach ($all as $rid => $r) {
         if ($si > 0 && !$bendy) { $prev = trail_map_authored(trail_authored_section((int)$rid, $si - 1))[0]; if ($m['entry'][1] !== $prev['spots']['9'][1]) $bad[] = "$rid#$si entry row != previous exit row"; }
     }
 }
-ok('at least the 41 Maplewold sections', $secs >= 41, (string)$secs);
+ok('all 246 routes are authored: 665 sections (41 Maplewold hand-tuned + 624 others; v2.6.39)', count($all) === 246 && $secs === 665, count($all) . ' routes, ' . $secs . ' sections');
 ok('every section (old ones: 7 rows; bendy ones: 30 x 18 with their -r picture), one width per route, entry on the left edge, exit on the right, exit reachable, tokens reachable, entry row = previous exit row', !$bad, implode('; ', $bad));
 ok('every section has its baked ground picture', !$badFiles, implode(', ', $badFiles));
 // Fixed fights: exactly one E per delve/lair route, on its LAST section, kind from the route list ((delve) = miniboss, (lair) = boss); none anywhere else.
@@ -137,7 +137,13 @@ ok('the old 22 x 7 picture name is used for a section without pic r', trail_art_
 ok('228 section 2 has water to fish by', trail_water_near($b, 12, 7) && !trail_water_near(trail_authored_section(228, 0), 5, 5));
 
 echo "== the picture\n";
-$art = trail_authored_section(260, 0);   // a 22 x 7 route (the Maplewold ones are 30 x 18 since v2.6.38)
+// v2.6.39: every route is 30 x 18 now, so the old 22 x 7 path is tested on route 260 as the OLD file data/trail_maps.json still holds it (loaded alone from a scratch folder).
+$oldDir = sys_get_temp_dir() . '/trail-old22-' . getmypid(); @mkdir($oldDir);
+copy($game . '/includes/data/trail_maps.json', $oldDir . '/trail_maps.json');
+$oldR = trail_authored_load($oldDir)['260'] ?? null;
+@unlink($oldDir . '/trail_maps.json'); @rmdir($oldDir);
+ok('the old 22 x 7 file still has route 260 (the reference for the old picture path)', $oldR !== null && strlen($oldR['sections'][0]['rows'][0]) === 22 && count($oldR['sections'][0]['rows']) === 7);
+$art = $oldR['sections'][0] + ['land' => (string)$oldR['land'], 'art' => (string)($oldR['art'] ?? ''), 'route' => 260, 'sec' => 0, 'boss' => ''];
 [$m] = trail_map_authored($art);
 $svg = trail_art_svg($m, ['px' => 3, 'py' => 2, 'x0' => -1, 'y0' => -1, 'cols' => 9, 'rows' => 9, 'tokens' => [[6, 2, '✨', 'gold', false], [5, 3, '🚪', 'gold', false]], 'walk' => ['p' => [[2, 2], [3, 2]]]]);
 ok('ground picture, walker, a find, an exit mark, footprints', str_contains($svg, 'ground/260-1.png') && str_contains($svg, 'class="tmme"') && str_contains($svg, 'find-forest.png') && str_contains($svg, '#e02020') && str_contains($svg, 'tmft'));
