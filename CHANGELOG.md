@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2.6.36
+- **Town daily limits follow your game day**: "Join the dance" at the Plaza of the Bells, every other place action with a daily limit, and the festival treat used the real day, so they came back at real midnight while the Plaza's hours already ran on game time. They now come back after you sleep into a new game day (real day if the game clock is off). The audit of what is still real-time is in `docs/game-time-audit.md`.
 - **Stop perks are yours now**: filling a stop meter (Repairs, Larder, Cheer) gives the player a perk that works everywhere for 7 game days (admin `perk_days`), not "one more thing" at that stop (that bonus is retired). Same perk again refreshes it; at most 3 run (`perk_max`), a 4th drops the one ending soonest. Which perk is picked from the meter's pool by player, stop and game day, preferring one not already running (choosing from two is not built yet).
   - Repairs: 🥾 Light Feet (road walks cost 1 less energy), 🦴 Good Bones (healing +25%).
   - Larder: 🧂 Seasoned (home-cooked dishes +20% energy), 🌱 Green Thumb (10% chance of one extra per harvest), 🥪 Packed Lunch (meal boosts +25% longer), 🍲 Slow Simmer (pots 20% faster).

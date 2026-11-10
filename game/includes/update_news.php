@@ -719,7 +719,8 @@ function post_update_news(string $from): void
         . "[list][*][b]Repairs[/b]: Light Feet (cheaper road walks), Good Bones (more healing).\n"
         . "[*][b]Larder[/b]: Seasoned (more energy from home-cooked food), Green Thumb (a chance of an extra harvest), Packed Lunch (longer meal boosts), Slow Simmer (faster pots).\n"
         . "[*][b]Cheer[/b]: Spring in Step (faster walking), Bright Mood (more XP), Silver Tongue (cheaper shops).[/list]\n\n"
-        . "Up to 3 run at once. Earning the same one again refreshes it. See them in your effects list and on the stop's Perks card."],
+        . "Up to 3 run at once. Earning the same one again refreshes it. See them in your effects list and on the stop's Perks card.\n\n"
+        . "Also: the daily limits on things to do in towns (like the Plaza of the Bells dance) now come back when you sleep into a new day, to match the town opening hours."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
