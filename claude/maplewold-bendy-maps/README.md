@@ -56,7 +56,7 @@ More stamps in the library: `dune`, `rockstack`, `tidepool` (coast), `icelake`, 
 ## Gates (data only: no new tile character, ground tiles are unchanged)
 Per section field `gates`: `tiles` (3 tiles across the chokepoint, centred on the road), `road_index`, `tool_type` (adventure tool type from `game/includes/tools.php`), `min_tier` (1 Worn, 2 Sturdy, 3 Fine, 4 Masterwork), `tool_name` (the tool of that type and tier), `kind`, `label`. The builder walls the whole section across the road at that tile, open only at the gate tiles. The best tool of a type in the satchel is used, so a gate needs any tool of that type at `min_tier` or higher.
 - **Rank rule (decided):** `min_tier` = region level + 1, +1 per region level, capped at 4. Maplewold is level 1, so every gate here needs tier 2 (Sturdy). Next regions: tier 3 (Fine), then 4 (Masterwork).
-- **Locks** (blocking the tiles cuts entry from exit): 313 s3 tunnel mouth, `lantern` tier 2 (Miner’s Lantern); 315 s2 pine slope, `axe` tier 2 (Woodcutter’s Axe; a Rope is a building item, not a tool type, so it became an axe to cut steps); 315 s3 icicle bridge, `pick` tier 2 (Prospector’s Pick). All lie before the boss/mini-boss `E`.
+- **Locks** (blocking the tiles cuts entry from exit): 313 s3 tunnel mouth, `lantern` tier 2 (Miner’s Lantern); 315 s2 pine slope, `staff` tier 2 (Hiking Staff; Josh 2026-11-10: walking staff instead of a rope); 315 s3 icicle bridge, `pick` tier 2 (Prospector’s Pick). All lie before the boss/mini-boss `E`.
 - **Shortcut (decided):** 314 s2 tidal causeway, `staff` tier 2 (Hiking Staff); a second opening 5 tiles away (`bypass`) gives the long way round (at least 6 steps longer).
 
 ## Extra mini-boss spots (data only, not `E`)

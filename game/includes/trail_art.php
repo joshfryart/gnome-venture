@@ -281,17 +281,19 @@ function trail_art_svg(array $map, array $state): string
     }
     $items = [];   // [feet row, column, markup]
     $in = fn(float $x, float $y, float $w, float $h): bool => $x + $w > 0 && $y + $h > 0 && $x < $W && $y < $H;
-    foreach ($art['objs'] as [$ox, $oy, $key, $jit]) {
+    foreach ($art['objs'] as $ob) {
+        [$ox, $oy, $key, $jit] = $ob;
+        $jy = (int)($ob[4] ?? 0);   // v2.7: an optional 5th value = the sprite's shift down in picture pixels (tools/bake_trail_rich.py), also its place in the depth order
         [$bw, $bh] = trail_art_obj_size($key);
         if ($bw === 64 && $bh === 96) {   // trees, hedges, rocks: one 64 x 96 frame, feet near the bottom of the tile
             $X = ($ox - $x0) * $C + $jit * $k;
-            $Y = (($oy - $y0) * TRAIL_ART_PX - 29) * $k;
+            $Y = (($oy - $y0) * TRAIL_ART_PX - 29 + $jy) * $k;
         } else {   // v2.5.63: landmarks (lm-*) are any size: centred on their tile, bottom edge = feet, a little above the tile's lower edge
             $X = ($ox - $x0) * $C + (32 - $bw / 2 + $jit) * $k;
             $Y = (($oy - $y0) * TRAIL_ART_PX + 62 - $bh) * $k;
         }
         if (!$in($X, $Y, $bw * $k, $bh * $k)) continue;
-        $items[] = [$oy + .5, $ox, '<image href="' . e(trail_art_url('obj/' . $key . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $n($bw * $k) . '" height="' . $n($bh * $k) . '"/>'];
+        $items[] = [$oy + .5 + $jy / TRAIL_ART_PX, $ox, '<image href="' . e(trail_art_url('obj/' . $key . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $n($bw * $k) . '" height="' . $n($bh * $k) . '"/>'];
     }
     $marks = '';
     foreach ($state['tokens'] ?? [] as $tk) {

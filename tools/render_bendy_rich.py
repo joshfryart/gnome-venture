@@ -1273,10 +1273,11 @@ LOOKS.update({"crag": crag, "sandrock": sandrock})
 ART["mountain"] = "forest"; ROUGH_DEFAULT["mountain"] = "gravel"
 AMBIENT["mountain"] = ("goat", "hare", "snowyowl", "goat", "campfire", "tent", "log", "stump", "crate")
 
-_cache = {}
+_cache = {}; _names = {}   # _names: id(sprite) -> file key of a raised sprite (for the bake)
 def spr(fn, *a):
     k = (fn.__name__,) + a
-    if k not in _cache: _cache[k] = fn(*a)
+    if k not in _cache:
+        _cache[k] = fn(*a); _names[id(_cache[k])] = "x-" + "-".join(str(int(v) if isinstance(v, bool) else v).lower() for v in k)
     return _cache[k]
 
 # ---------------------------------------------------------------- one section
@@ -1339,7 +1340,9 @@ def paint_rough(bp, tw, th, rough, skip, land, seed):
         elif (px, py - 1) not in m or (px - 1, py) not in m: t = G.lighter(t)
         bp[px, py] = t
 
-def paint(route, si, rich, cache_dir=None, walker=True):
+def paint(route, si, rich, cache_dir=None, walker=True, split=False):
+    """The painted section. split=True (the bake): returns (ground picture with every flat thing in it, objs [[x, y, key, jit, jy]], {key: sprite}) in the game's shape:
+    raised things stay separate so the game can draw the walker between them; finds, the boss mark and mini-boss marks are left to the game."""
     s = route["sections"][si]; rows = s["rows"]; W, Hh = len(rows[0]), len(rows); rid = route["route_id"]; land0 = route["land"]; land = ART[land0]; seed = rid * 10 + si; gland = land0 if land0 in OWN else land
     green = land in ("grassland", "forest")
     wall = lambda x, y: 0 <= x < W and 0 <= y < Hh and rows[y][x] == "#"
@@ -1449,7 +1452,7 @@ def paint(route, si, rich, cache_dir=None, walker=True):
         if big: G.ell(bp, cx + 12, cy + 1, 14, 4, 1, tw, th)
     def add_obj(x, y, im, jit=0, sh=True, depth=.5, jy=0):   # 64 x 96 raised thing standing on tile x, y
         if sh: shadow(x * T + jit + 32, PAD + y * T + T - 4 + jy)
-        items.append((y + depth + jy / 64, x, im, x * T + jit, PAD + y * T + T - 93 + jy))
+        items.append((y + depth + jy / 64, x, im, x * T + jit, PAD + y * T + T - 93 + jy, ("obj", x, y, jit, jy)))
     def add_ov(x, y, im, depth=.3):                      # 64 x 80 or 64 x 64 overlay on tile x, y
         items.append((y + depth, x, im, x * T, PAD + y * T + T - im.height))
     at = rich.get("lm_at", {}); lms = [(at.get(l[2], (l[0], l[1])), l[2], l[3]) for l in s.get("landmarks", [])]
@@ -1608,21 +1611,32 @@ def paint(route, si, rich, cache_dir=None, walker=True):
     for gt in s.get("gates", []):
         for gx, gy in gt["tiles"]:
             if (gx, gy) not in on: add_obj(gx, gy, spr(gatepost, 0), sh=False); shadow(gx * T + 34, PAD + gy * T + T - 4, False)
-    for mb in s.get("extra_minibosses", []): add_ov(mb["x"], mb["y"], spr(sc_paw, 0), .02)
+    for mb in s.get("extra_minibosses", []):
+        if not split: add_ov(mb["x"], mb["y"], spr(sc_paw, 0), .02)
     for (x, y), name, jit in lms:
         im = G.landmark(name if name in G.LANDMARKS else f"{rid}-{name}"); cx, cy = x * T + 32 + jit, PAD + y * T + 60
         if (x, y) not in wet: G.ell(bp, cx + 4, cy, int(im.width * .36), 7, 1, tw, th); G.ell(bp, cx + 8, cy + 1, int(im.width * .24), 4, 1, tw, th)
-        items.append((y + .6, x, im, cx - im.width // 2, PAD + y * T + 62 - im.height))
+        items.append((y + .6, x, im, cx - im.width // 2, PAD + y * T + 62 - im.height, ("lm", x, y, name if name in G.LANDMARKS else f"{rid}-{name}", jit)))
     for x, y, c in s.get("tokens", []):
+        if split: continue
         if c == "F": items.append((y + .45, x, G.find_spot(land), x * T, PAD + y * T))
         elif c == "E": add_obj(x, y, spr(pennant, 0), sh=False, depth=.2)
     if walker:
         gx, gy = line[min(3, len(line) - 1)]; gn = Image.open(os.path.join(REPO, "game/assets/img/trail/gnome.png")).convert("RGBA")
         shadow(gx * T + 30, PAD + gy * T + 46, False); items.append((gy + .5, gx, gn, gx * T, PAD + gy * T + 46 - 70))
-    for _, _, im, ox, oy in sorted(items, key=lambda a: (a[0], a[1])):
+    objs, sprites = [], {}
+    for it in sorted(items, key=lambda a: (a[0], a[1])):
+        im, ox, oy = it[2], it[3], it[4]
+        if split and len(it) > 5:
+            tag = it[5]
+            if tag[0] == "obj":
+                if im.size != (64, 96): raise SystemExit(f"raised sprite {_names.get(id(im))} is {im.size}, not 64 x 96")
+                key = _names[id(im)]; objs.append([tag[1], tag[2], key, tag[3], tag[4]])
+            else: key = "lm-" + tag[3]; objs.append([tag[1], tag[2], key, tag[4]])
+            sprites[key] = im; continue
         cl = im.crop((max(0, -ox), max(0, -oy), min(im.width, tw - ox), min(im.height, th - oy)))
         if cl.width > 0 and cl.height > 0: base.alpha_composite(cl, (max(ox, 0), max(oy, 0)))
-    return base
+    return (base, objs, sprites) if split else base
 
 def src_of(rid):
     """The hand-tuned Maplewold file if there is one, else the generated one (claude/bend-prototype-v2)."""
