@@ -492,7 +492,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     }
     [$ex, $ey] = $map['spots']['9'];
     if ($ex !== $sc['x'] || $ey !== $sc['y']) $tokens[] = [$ex, $ey, '🚪', 'gold', false];
-    // v2.6.46: a tool gate that is still shut for this gnome gets a 🔒 mark on its middle tile, and every tile of it says what it needs
+    // 2026-11-10: a tool gate that is still shut for this gnome gets a 🔒 mark on its middle tile, and every tile of it says what it needs
     $shut = function_exists('tool_tier') && !empty($map['art']['gates']) ? trail_gates_closed($map['art'], fn(string $type): int => tool_tier((int)$u['id'], $type)) : [];
     $shutSeen = [];
     foreach ($shut as $gk => $g) {
