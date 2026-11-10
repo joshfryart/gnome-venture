@@ -137,7 +137,7 @@ def auto(rid, i, land, section):
 
 ROUGH_KINDS = {"grassland": ("grass", "flowers", "clover", "grass", "wheat", "flowers"), "forest": ("ferns", "leaves", "toadstools", "flowers", "ferns"), "coast": ("pebbles", "shells", "dunegrass", "kelp"),
                "tundra": ("snowdrift", "tracks", "snowdrift"), "desert": ("ripples", "pebbles", "ripples", "dunegrass"), "island": ("shells", "dunegrass", "flowers", "pebbles"),
-               "mountain": ("snowdrift", "pebbles", "snowdrift", "tracks"), "rainforest": ("ferns", "flowers", "toadstools", "leaves", "glowcaps"), "wetland": ("marsh", "marsh", "grass", "flowers", "marsh")}
+               "mountain": ("gravel", "pebbles", "grass", "flowers", "gravel"), "rainforest": ("ferns", "flowers", "toadstools", "leaves", "glowcaps"), "wetland": ("marsh", "marsh", "grass", "flowers", "marsh")}
 def infer(route, i):
     """Dressing for a GENERATED section (no hand sketch, the stamps are not stored): read the tiles. Lone thicket cells on a grid = an orchard (grassland), lone cells in rough
     ground = pools (ice holes in the cold lands, with ice round them), a 4-long bar between rough = a fallen log, a hedged plot = hedges and ploughed ground,
@@ -146,7 +146,7 @@ def infer(route, i):
     s = route["sections"][i]; rows = s["rows"]; W, H = len(rows[0]), len(rows); land = route["land"]; rid = route["route_id"]
     at = lambda x, y: rows[y][x] if 0 <= x < W and 0 <= y < H else "#"
     wall = lambda x, y: at(x, y) == "#"; inner = lambda x, y: 1 <= x <= W - 2 and 1 <= y <= H - 2
-    cold = land in ("tundra", "mountain"); sandy = land in ("coast", "island", "desert")
+    cold = land == "tundra"; sandy = land in ("coast", "island", "desert")
     L, Rg = [], []; one = lambda k, x, y: L.append((k, x, y, x, y))
     lone = {(x, y) for y in range(1, H - 1) for x in range(1, W - 1) if wall(x, y) and not any(wall(x + dx, y + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
     for (x, y) in sorted(lone):
@@ -155,7 +155,7 @@ def infer(route, i):
             one("icehole" if cold else "pond", x, y)
             if cold: Rg.append(("ice", x - 2, y - 2, x + 2, y + 2))
             elif land in ("grassland", "forest", "rainforest", "wetland"): Rg.append(("marsh", x - 1, y - 1, x + 1, y + 1))
-            elif land != "desert": Rg.append(("shells", x - 1, y - 1, x + 1, y + 1))
+            elif land not in ("desert", "mountain"): Rg.append(("shells", x - 1, y - 1, x + 1, y + 1))
         elif land == "grassland" and any((x + dx, y + dy) in lone for dx, dy in ((2, 0), (-2, 0), (0, 2), (0, -2))): one("apple", x, y)
     if land in ("forest", "rainforest"):
         for y in range(2, H - 2):

@@ -1164,6 +1164,115 @@ AMBIENT = {"grassland": ("rabbit", "hen", "log", "stump", "rabbit", "basket", "c
            "mountain": ("goat", "hare", "snowyowl", "goat", "campfire", "tent", "sled", "stump", "crate"), "rainforest": ("parrot", "parrot", "log", "stump", "basket", "lantern", "squirrel", "parrot", "fox", "log"),
            "wetland": ("duck", "duck", "log", "stump", "rowboat", "gull", "rabbit", "duck", "lantern", "basket")}
 
+# ---------------------------------------------------------------- own ground art for mountain, wetland, desert and rainforest (the game art has only four lands)
+for _k, _v in {"rock": ("#dcd6c8", "#aaa296", "#7a726c", "#4c4652"), "alp": ("#cfe08a", "#8fb85e", "#5a8a52", "#34584a"), "dune": ("#ffe2a0", "#f2b866", "#cf8846", "#8f5038"),
+               "redrock": ("#f4a878", "#cc6c44", "#984632", "#5a2a2c"), "clay": ("#f6cc94", "#dc9c62", "#aa6a40", "#6a3c30"), "bog": ("#bccc7c", "#829c52", "#587640", "#344a3a"),
+               "fen": ("#a8d494", "#5faa7a", "#3a8076", "#24505a"), "jungle": ("#8ed46e", "#4ca44e", "#2a7648", "#184840"), "frond": ("#c4ec74", "#6cc04c", "#2f8a48", "#1a5440"),
+               "laterite": ("#eca474", "#c46c46", "#904636", "#58282c")}.items():
+    RAMP[_k] = [G.H(c) for c in _v]
+    for _i, _c in enumerate(RAMP[_k]): G.STEP.setdefault(_c, (_k, _i))
+OWN = ("mountain", "wetland", "desert", "rainforest")
+G.PATH_RAMP.update({"mountain": "litter", "wetland": "sand", "desert": "laterite", "rainforest": "laterite"})
+def ground_own(land, kind, seed):
+    rnd = random.Random(f"go{land}{kind}{seed}"); sp = lambda n: G.spots(rnd, n); floor = kind == "floor"
+    if land == "mountain":
+        if floor:   # bare rock and scree: cracks, stones, a little lichen and alpine grass
+            R = RAMP["rock"]; cv = G.ground_base(rnd, R)
+            for x, y in sp(5):
+                dx = rnd.choice((-1, 1))
+                for k in range(rnd.randint(7, 13)):
+                    x += dx if k % 2 else 0; y += 1 if k % 3 else 0; cv.put(x, y, R[3], True); cv.put(x + 1, y, R[0], True)
+            for x, y in sp(9): G.pebble(cv, x, y, RAMP["stone"], rnd, rnd.choice((3, 4, 5)))
+            for x, y in sp(22): cv.put(x, y, R[3], True)
+            for x, y in sp(5):
+                for dx, dy in ((0, 0), (1, 0), (0, 1), (2, 1), (1, 2)): cv.put(x + dx, y + dy, RAMP["gold"][0] if (dx + dy) % 2 else RAMP["alp"][1], True)
+            for x, y in sp(4): G.clump(cv, x, y, 3, 3, 5, RAMP["alp"], rnd, 2)
+        else:       # alpine meadow: short grass, small flowers, a few stones
+            R = RAMP["alp"]; cv = G.ground_base(rnd, R, bias=.04)
+            for x, y in sp(22): G.clump(cv, x, y, 4, 3, 6, R, rnd, 4)
+            for x, y in sp(7):
+                f = rnd.choice((RAMP["dusk"], RAMP["petal"], RAMP["gold"], [CREAM, CREAM, RAMP["snow"][1], RAMP["snow"][2]]))
+                for dx, dy, c in ((0, 0, f[0]), (1, 0, f[1]), (-1, 0, f[1]), (0, 1, f[2]), (0, -1, f[0])): cv.put(x + dx, y - 4 + dy, c, True)
+                cv.put(x, y - 2, R[2], True); cv.put(x, y - 1, R[2], True)
+            for x, y in sp(4): G.pebble(cv, x, y, RAMP["rock"], rnd, 4)
+    elif land == "wetland":
+        if floor:   # peat and moss with small puddles and sedge
+            R = RAMP["bog"]; cv = G.ground_base(rnd, R)
+            for x, y in sp(3):
+                rx, ry = rnd.randint(4, 7), rnd.randint(2, 3)
+                for dy in range(-ry, ry + 1):
+                    for dx in range(-rx, rx + 1):
+                        d = dx * dx / (rx * rx) + dy * dy / (ry * ry)
+                        if d <= 1: cv.put(x + dx, y + dy, R[3] if d > .72 else RAMP["sea"][2] if dy > -ry + 1 else RAMP["sea"][1], True)
+                cv.put(x - 1, y - 1, RAMP["sea"][0], True); cv.put(x, y - 1, RAMP["sea"][0], True)
+            for x, y in sp(14): G.clump(cv, x, y, 3, 3, 7, R, rnd, 3)
+            for x, y in sp(18): cv.put(x, y, R[3], True)
+            for x, y in sp(10): cv.put(x, y, RAMP["moss"][0], True); cv.put(x + 1, y, RAMP["moss"][1], True)
+        else:       # standing water between tussocks
+            R = RAMP["fen"]; cv = G.ground_base(rnd, R, bias=.05)
+            for x, y in sp(12):
+                n = rnd.randint(5, 11)
+                for k in range(n): cv.put(x + k, y, RAMP["sea"][1], True); cv.put(x + k, y + 1, RAMP["sea"][2], True)
+                cv.put(x + 1, y, RAMP["sea"][0], True); cv.put(x + 2, y, CREAM, True)
+            for x, y in sp(14): G.clump(cv, x, y, 5, 5, 10, RAMP["bog"], rnd, 3)
+            for x, y in sp(4):
+                for k in range(3): cv.put(x, y - 10 - k, RAMP["wood"][2], True); cv.put(x + 1, y - 10 - k, RAMP["wood"][3], True)
+    elif land == "desert":
+        if floor:   # warm dune sand: long wind ripples, grit
+            R = RAMP["dune"]; cv = G.ground_base(rnd, R)
+            for x, y in sp(9):
+                n = rnd.randint(14, 26); ph = rnd.random() * 6
+                for k in range(n):
+                    yy = y + int(1.6 * math.sin(k * .38 + ph)); cv.put(x + k, yy, R[0], True); cv.put(x + k, yy + 1, R[2], True)
+            for x, y in sp(26): cv.put(x, y, R[3] if rnd.random() < .5 else R[2], True)
+            for x, y in sp(3): G.pebble(cv, x, y, RAMP["redrock"], rnd)
+        else:       # cracked clay pan with dry tufts
+            R = RAMP["clay"]; cv = G.ground_base(rnd, R, bias=.03)
+            for x, y in sp(9):
+                dx, dy = rnd.choice(((1, 0), (0, 1), (1, 1), (1, -1)))
+                for k in range(rnd.randint(9, 18)):
+                    if rnd.random() < .3: dx, dy = rnd.choice(((1, 0), (0, 1), (1, 1), (1, -1)))
+                    x += dx; y += dy; cv.put(x, y, R[3], True); cv.put(x, y + 1, R[0], True)
+            dry = [G.H("#f0e09a"), G.H("#cdb268"), G.H("#96804c"), G.H("#5e4c3a")]
+            for x, y in sp(6): G.clump(cv, x, y, 4, 4, 8, dry, rnd, 3)
+            for x, y in sp(5): G.pebble(cv, x, y, RAMP["redrock"], rnd, 4)
+    else:           # rainforest
+        if floor:   # deep green floor: moss, fallen leaves and petals, dark leaf mould
+            R = RAMP["jungle"]; cv = G.ground_base(rnd, R)
+            for x, y in sp(7):
+                L = rnd.choice((RAMP["ember"], RAMP["gold"], RAMP["litter"], RAMP["litter"], RAMP["frond"])); w = rnd.choice((5, 6, 7))
+                for dx in range(w):
+                    for dy in range(2 if 0 < dx < w - 1 else 1): cv.put(x + dx, y + dy, L[1] if dy == 0 else L[2], True)
+                for dx in range(1, w - 1): cv.put(x + dx, y, L[0] if dx < 3 else L[1], True)
+            for x, y in sp(24): cv.put(x, y, R[3], True); cv.put(x + 1, y + 1, R[3], True)
+            for x, y in sp(14): cv.put(x, y, RAMP["frond"][0], True)
+            for x, y in sp(3):
+                for dx, dy in ((0, 0), (1, 0), (0, 1), (-1, 0), (0, -1)): cv.put(x + dx, y + dy, RAMP["petal"][0 if not dx and not dy else 1], True)
+            for x, y in sp(6): G.clump(cv, x, y, 3, 3, 6, RAMP["frond"], rnd, 2)
+        else:       # broad-leaf undergrowth
+            R = RAMP["frond"]; cv = G.ground_base(rnd, RAMP["jungle"], bias=.06)
+            for x, y in sp(13):
+                rx, ry = rnd.randint(5, 8), rnd.randint(2, 3); sl = rnd.choice((-1, 1))
+                for dx in range(-rx, rx + 1):
+                    for dy in range(-ry, ry + 1):
+                        if dx * dx / (rx * rx) + dy * dy / (ry * ry) <= 1:
+                            cv.put(x + dx, y + dy + sl * dx // 3, R[0] if dy < -ry + 1 else R[1] if dy <= 0 else R[2], True)
+                for dx in range(-rx + 1, rx): cv.put(x + dx, y + sl * dx // 3, R[3] if dx % 3 else R[2], True)
+            for x, y in sp(3):
+                f = rnd.choice((RAMP["ember"], RAMP["petal"], RAMP["dusk"]))
+                for dx, dy, c in ((0, 0, RAMP["gold"][0]), (1, 0, f[1]), (-1, 0, f[1]), (0, 1, f[2]), (0, -1, f[0]), (1, -1, f[0]), (-1, 1, f[2])): cv.put(x + dx, y + dy, c, True)
+    return cv.im
+_ground0 = G.ground
+def _ground(land, kind, seed): return ground_own(land, kind, seed) if land in OWN else _ground0(land, kind, seed)
+G.ground = _ground
+def crag(seed):   # a tall pile of rock, some with a snow cap
+    im = Image.new("RGBA", (64, 96)); im.alpha_composite(G.boulder((seed + 2) % 5, False, seed % 2 == 0), (0, -24 - seed % 3 * 3)); im.alpha_composite(G.boulder(seed % 5, False, False)); return im
+def darkpine(seed): return G.pine(seed % 6, False)
+def sandrock(seed): return recolor(G.boulder(seed % 5).copy(), R5("stone"), G.r5(RAMP["redrock"]))
+LOOKS.update({"crag": crag, "sandrock": sandrock})
+ART["mountain"] = "forest"; ROUGH_DEFAULT["mountain"] = "gravel"
+AMBIENT["mountain"] = ("goat", "hare", "snowyowl", "goat", "campfire", "tent", "log", "stump", "crate")
+
 _cache = {}
 def spr(fn, *a):
     k = (fn.__name__,) + a
@@ -1231,7 +1340,7 @@ def paint_rough(bp, tw, th, rough, skip, land, seed):
         bp[px, py] = t
 
 def paint(route, si, rich, cache_dir=None, walker=True):
-    s = route["sections"][si]; rows = s["rows"]; W, Hh = len(rows[0]), len(rows); rid = route["route_id"]; land0 = route["land"]; land = ART[land0]; seed = rid * 10 + si
+    s = route["sections"][si]; rows = s["rows"]; W, Hh = len(rows[0]), len(rows); rid = route["route_id"]; land0 = route["land"]; land = ART[land0]; seed = rid * 10 + si; gland = land0 if land0 in OWN else land
     green = land in ("grassland", "forest")
     wall = lambda x, y: 0 <= x < W and 0 <= y < Hh and rows[y][x] == "#"
     walk = lambda x, y: 0 <= x < W and 0 <= y < Hh and rows[y][x] != "#"
@@ -1259,6 +1368,11 @@ def paint(route, si, rich, cache_dir=None, walker=True):
         opens = sum(walk(x + dx, y + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
         alone = not any(wall(x + dx, y + dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1) if (dx, dy) != (0, 0))
         near_wet = any((x + dx, y + dy) in wet for dx in (-1, 0, 1) for dy in (-1, 0, 1)); v = ln(x, y)
+        if land0 == "mountain":
+            if alone: return "crag" if h < 45 else "bush" if h < 60 else "tree"
+            if border: return "crag" if v > .6 else "tree"
+            if opens == 0: return "crag" if v > .55 else "tree"
+            return "crag" if v > .56 else "bush" if h < 10 else "tree"
         if land0 == "desert":
             if alone: return "sandrock" if h < 35 else "cactus" if h < 75 else "drybush"
             if border: return "sandrock" if v > .5 else "drydune" if h < 60 else "cactus"
@@ -1299,6 +1413,7 @@ def paint(route, si, rich, cache_dir=None, walker=True):
     def tree_im(x, y):
         h = crc("tc", x, y, seed); c = h % 100; v = (h // 100) % 8
         if land == "tundra": return spr(G.pine, v % 6)
+        if land0 == "mountain": return spr(darkpine, v % 6) if c < 82 else spr(G.tree, v, "pine")
         if land0 == "desert": return spr(sandrock, v % 5) if c < 60 else spr(cactus, v)
         if land0 == "island": return spr(palm, v)
         if land == "coast": return spr(G.boulder, v % 5)
@@ -1308,7 +1423,7 @@ def paint(route, si, rich, cache_dir=None, walker=True):
         if style == "maple": return spr(G.tree, v, "gold" if c < 28 else "ember" if c < 52 else "leaf" if c < 85 else "moss")
         if land == "forest": return spr(G.tree, v, "pine" if c < 32 else "moss" if c < 47 else "gold" if c < 50 else "ember" if c < 52 else "leaf")
         return spr(G.tree, v, "gold" if c < 5 else "ember" if c < 8 else "pine" if c < 20 else "moss" if c < 30 else "leaf")
-    def boulder_im(h): return spr(G.boulder, h % 5, False, True) if land == "tundra" else spr(G.boulder, h % 5, land == "forest" or (green and h % 2 == 0))
+    def boulder_im(h): return spr(G.boulder, h % 5, False, True) if land == "tundra" else spr(G.boulder, h % 5, False, h % 3 == 0) if land0 == "mountain" else spr(G.boulder, h % 5, land == "forest" or (green and h % 2 == 0))
     types = []
     for y, row in enumerate(rows):
         t = ""
@@ -1318,15 +1433,15 @@ def paint(route, si, rich, cache_dir=None, walker=True):
             elif (x, y) in on: t += "p"
             else: t += "f"
         types.append(t)
-    key = f"{crc(land, seed, *types):08x}"; cf = os.path.join(cache_dir, f"ter-{key}.png") if cache_dir else None
+    key = f"{crc(gland, 2, seed, *types):08x}"; cf = os.path.join(cache_dir, f"ter-{key}.png") if cache_dir else None
     if cf and os.path.exists(cf): ter = Image.open(cf).convert("RGBA")
     else:
-        ter = G.terrain_layer(land, [types[0]] + types, seed, True)
+        ter = G.terrain_layer(gland, [types[0]] + types, seed, True)
         if cf: ter.save(cf)
     tw, th = W * T, Hh * T + PAD
     base = Image.new("RGBA", (tw, th)); base.paste(ter.crop((0, T - PAD, tw, T - PAD + th)), (0, 0)); bp = base.load()
     rough_cells = {(x, y) for y in range(Hh) for x in range(W) if rows[y][x] == "," and (x, y) not in on and (x, y) not in wet}
-    if rough_cells: paint_rough(bp, tw, th, rough_cells, on | {(x, y) for y in range(Hh) for x in range(W) if rows[y][x] == "#" and look.get((x, y)) not in BARE}, land, seed)
+    if rough_cells: paint_rough(bp, tw, th, rough_cells, on | {(x, y) for y in range(Hh) for x in range(W) if rows[y][x] == "#" and look.get((x, y)) not in BARE}, gland, seed)
     if wet: paint_water(bp, tw, th, wet, ford | icefloor, corners, land, seed)
     items = []   # (depth, x, image, ox, oy)
     def shadow(cx, cy, big=True):
@@ -1411,6 +1526,12 @@ def paint(route, si, rich, cache_dir=None, walker=True):
             if any(max(abs(x - lx), abs(y - ly)) <= 2 for (lx, ly), _, _ in lms) and r < 620:   # a little garden round every landmark
                 kit = {"grassland": (sc_flowers, sc_tuft, sc_flowers), "forest": (sc_fern, sc_mushroom, sc_flowers), "coast": (sc_shells, sc_pebbles, sc_tuft), "tundra": (sc_drygrass, sc_sparkle, sc_pebbles)}[land]
                 add_ov(x, y, spr(kit[r % 3], kc if kit[r % 3] is sc_flowers else h % 6), .2)
+            elif land0 == "mountain":
+                if drift and r < 620: add_ov(x, y, spr(sc_flowers if r < 250 else sc_tuft, kc if r < 250 else h % 6), .2)
+                elif bare and r < 460: add_ov(x, y, spr(ROUGH["gravel"] if r < 200 else sc_pebbles, h % 6), .1)
+                elif r < 130: add_ov(x, y, spr(sc_tuft, h % 6), .2)
+                elif r < 260: add_ov(x, y, spr(sc_pebbles, h % 6), .1)
+                elif r < 300: add_ov(x, y, spr(sc_flowers, h % 12), .2)
             elif land0 == "desert":
                 if drift and r < 560: add_ov(x, y, spr(ROUGH["ripples"], h % 6), .05)
                 elif r < 110: add_ov(x, y, spr(sc_drygrass, h % 6), .2)
