@@ -109,3 +109,142 @@ details.lp-news > summary { justify-content: center; }
   .lp-stops { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 24px; }
   .lp-jeff .lp-bubble { max-width: 560px; margin-left: auto; margin-right: auto; }
 }
+
+/* ---- 2.6.41: the landing card and How to play (includes/landing_view.php, assets/landing.js). Everything here starts lh-. Pictures are the game's own art. ---- */
+.lh-svg { display: block; width: 100%; height: auto; }
+.lh-svg image, .lh-card img, .lh-loop img { image-rendering: pixelated; }
+.lh-off { display: none; }
+.lh-scene { position: relative; background: var(--ol, #2a1a10); padding: 4px; overflow: hidden; }
+.lh-fill { display: flex; align-items: stretch; justify-content: center; flex: 1 1 auto; }
+
+/* the landing card: felt, stitched; the meadow on one side, the words on the other */
+.lh-hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin: 4px 4px 28px 2px; padding: 10px 10px 18px;
+  background: var(--felt) url("img/ui/felt-umber.png") 0 0 / 32px 32px repeat; color: var(--felt-ink); box-shadow: var(--frame); outline: 2px dashed var(--thread); outline-offset: -5px; }
+.lh-hero .lh-scene { align-self: center; }
+.lh-words { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 0 6px; }
+body[data-area] main .lp .lh-hero h1, .lh-hero h1 { margin: 0; padding: 0; border: 0; font-size: 34px; font-weight: 800; line-height: 1.1; color: #f5cf6a; text-shadow: 2px 2px 0 #2a1a10; overflow-wrap: anywhere; }
+.lh-hero h1 .small { font-size: 13px; text-shadow: none; color: var(--felt-ink); }
+.lh-pitch { margin: 0; font-size: 19px; font-weight: 700; line-height: 1.3; color: var(--felt-ink); }
+.lh-sub { margin: 0 0 6px; font-size: 15px; line-height: 1.4; color: var(--felt-muted); max-width: 30em; }
+.lh-cta { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
+.lh-hero .lh-cta a.btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; max-width: 320px; min-height: 50px; margin: 0; padding: 8px 18px; border-radius: 0; font-size: 17px; font-weight: 800; text-align: center; text-decoration: none;
+  background: #7ab55c; color: #2a1a10; border: 0; box-shadow: 0 0 0 2px #2a1a10, 4px 6px 0 0 #2a1a10; }
+.lh-hero .lh-cta a.btn.lh-alt, :root[data-theme="dark"] .lh-hero .lh-cta a.btn.lh-alt { background: #f2e4c0; color: #2a1a10; min-height: var(--tap); font-size: 15px; }
+.lh-cta .btn:focus-visible, .lh-login a:focus-visible { outline: 3px solid #a9d6ea; outline-offset: 3px; }
+.lh-login { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 14px; margin: 4px 0 0; font-size: 15px; }
+.lh-login a { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 6px; color: var(--felt-ink); text-decoration: none; }
+.lh-login a b { text-decoration: underline; margin-left: .3em; }
+.lh-login a:only-child b, .lh-login a + a b { margin-left: 0; }
+.lh-small { margin: 0; font-size: 13px; color: var(--felt-muted); max-width: 34em; }
+
+/* how to play */
+.lh-htp .lp-h2 { font-size: 24px; margin-bottom: 2px; scroll-margin-top: 70px; }
+.lh-lede { margin: 0 0 14px; color: var(--ink-2); }
+.lh-loop { list-style: none; margin: 0 4px 20px 2px; padding: 10px 6px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 2px;
+  background: var(--felt) url("img/ui/felt-umber.png") 0 0 / 32px 32px repeat; color: var(--felt-ink); box-shadow: var(--frame); outline: 2px dashed var(--thread); outline-offset: -6px; }
+.lh-loop li { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-size: 14px; padding: 4px 6px; }
+.lh-loop li img { width: 32px; height: 32px; }
+.lh-loop li + li::before { content: "›"; color: var(--thread); font-size: 20px; line-height: 1; margin-right: 4px; }
+.lh-loop .lh-again { color: var(--felt-muted); font-weight: 600; }
+.lh-cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; margin: 0 4px 22px 2px; }
+.lh-card { display: flex; flex-direction: column; background: var(--lp-card); box-shadow: var(--frame); padding: 8px 8px 14px; }
+.lh-card h3 { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 10px 0 2px; padding: 0; border: 0; font-size: 19px; font-weight: 800; line-height: 1.25; color: var(--lp-ink); }
+.lh-card h3 img { width: 32px; height: 32px; }
+.lh-card p { margin: 0 auto; max-width: 34em; padding: 0 6px; font-size: 15px; line-height: 1.4; color: var(--ink-2); }
+
+/* Grow: the yard, as on the Garden page */
+.lh-yard { background: var(--t-wild, #9bbd6a); padding: 14px 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; width: 100%; }
+.lh-bed { display: grid; grid-template-columns: repeat(4, 64px); gap: 2px; border: 6px solid var(--plot, #6b4a2b); background: var(--plot, #6b4a2b); }
+.lh-tile { position: relative; width: 64px; height: 64px; background: var(--t-wild, #9bbd6a) center / 64px 64px no-repeat; image-rendering: pixelated; }
+.lh-tile i { position: absolute; left: 0; top: 0; width: 64px; height: 64px; background: center / 64px 64px no-repeat; image-rendering: pixelated; }
+.lh-tile.cur { outline: 3px solid var(--sel, #e8b923); outline-offset: -3px; z-index: 1; }
+.lh-tile.s1 { background-image: url("img/ph/tile-tilled.png"); }
+.lh-tile.s2 { background-image: url("img/ph/tile-soil-thirsty.png"); } .lh-tile.s2 i { background-image: url("img/ph/stage-vegetable-1.png"); }
+.lh-tile.s3 { background-image: url("img/ph/tile-soil-planted.png"); } .lh-tile.s3 i { background-image: url("img/ph/stage-vegetable-2.png"); }
+.lh-tile.s4 { background-image: url("img/ph/tile-soil-planted.png"); } .lh-tile.s4 i { background-image: url("img/ph/stage-vegetable-3.png"); }
+.lh-tile.s5 { background-image: url("img/ph/tile-soil-ready.png"); } .lh-tile.s5 i { background-image: url("img/ph/stage-vegetable-4.png"); }
+.lh-tile b { position: absolute; left: 0; top: 0; z-index: 2; width: 64px; height: 64px; background: url("img/ph/radish.png") center / 64px 64px no-repeat; image-rendering: pixelated; pointer-events: none; animation: lh-rise .9s ease-out forwards; }
+@keyframes lh-rise { from { transform: translateY(0); opacity: 1; } 70% { opacity: 1; } to { transform: translateY(-46px); opacity: 0; } }
+.lh-verbs { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.lh-verbs li { margin: 0; font-size: 13px; font-weight: 800; padding: 3px 9px; background: #fff3c8; color: #4a2c1a; box-shadow: 0 0 0 2px #9a6b3f; }
+.lh-verbs li.on { background: #2f5a2a; color: #f2e4c0; box-shadow: 0 0 0 2px #2a1a10; }
+.lh-jobs li { font-size: 12px; padding: 2px 7px; }
+
+/* Cook: a real recipe */
+.lh-cook { background: var(--surface-2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 16px 6px; width: 100%; }
+.lh-recipe { display: flex; align-items: center; justify-content: center; gap: 2px; }
+.lh-ing { position: relative; width: 64px; height: 64px; }
+.lh-ing img { display: block; width: 64px; height: 64px; }
+.lh-ing b { position: absolute; right: -2px; bottom: 0; padding: 1px 4px; font: 800 11px/1.15 var(--font); background: #2a1a10; color: #fff3c8; }
+.lh-op { width: 18px; font-weight: 800; font-size: 20px; color: var(--muted); }
+.lh-dish { animation: lh-bob 2.4s steps(2) infinite; }
+@keyframes lh-bob { 50% { transform: translateY(-2px); } }
+.lh-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 800; padding: 2px 8px; background: var(--surface); color: var(--accent-ink); box-shadow: 0 0 0 2px var(--accent); }
+.lh-chip img { width: 20px; height: 20px; }
+
+/* Explore: the Trail */
+.lh-trail .lh-svg { transition: opacity .35s; min-height: 120px; }
+.lh-trail.lh-fade .lh-svg { opacity: 0; }
+.lh-tchip { position: absolute; left: 10px; top: 10px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 4px; font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums;
+  background: #3d2a1c; color: #f2e4c0; box-shadow: 0 0 0 2px #2a1a10; }
+.lh-tchip img { width: 22px; height: 22px; }
+.lh-tplate { fill: #3d2a1c; stroke: #2a1a10; stroke-width: 2; }
+.lh-ttext { fill: #f2e4c0; font-weight: 800; font-family: var(--font); }
+.lh-tfloat { opacity: 0; }
+.lh-tfloat.go { animation: lh-tfl 1.1s ease-out forwards; }
+@keyframes lh-tfl { 0% { opacity: 0; transform: translateY(8px); } 15% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-30px); } }
+.lh-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 10px 0 0; }
+.lh-tabs:empty { display: none; }
+.lh-tabs button { min-height: var(--tap); padding: 4px 12px; border: 0; border-radius: 0; cursor: pointer; font: 800 14px/1.2 var(--font); color: var(--ink-2); background: var(--surface-2); box-shadow: var(--frame-lite); }
+.lh-tabs button[aria-pressed="true"] { background: #3d2a1c; color: #f2e4c0; box-shadow: 0 0 0 2px #2a1a10; }
+.lh-tabs button:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+/* Collect: item squares, as in the Satchel (own classes, so the Satchel's grid rules stay out) */
+.lh-shelf { list-style: none; margin: 0; padding: 14px 10px 12px; display: grid; grid-template-columns: repeat(2, 112px); gap: 14px 16px; justify-content: center; width: 100%; background: var(--surface-2); }
+.lh-itm { position: relative; display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0 0 2px; color: #2a1a10; text-align: center;
+  border: 12px solid transparent; border-image: url("img/items/felt-c.png") 12 fill / 12px round; image-rendering: pixelated; filter: drop-shadow(0 3px 0 var(--drop)); }
+.lh-itm > * { image-rendering: auto; }
+.lh-itm--u { border-image-source: url("img/items/felt-u.png"); } .lh-itm--r { border-image-source: url("img/items/felt-r.png"); } .lh-itm--l { border-image-source: url("img/items/felt-l.png"); }
+.lh-itm__win { position: relative; display: flex; align-items: center; justify-content: center; height: 88px; margin: -4px -4px 0; border: 12px solid transparent; border-image: url("img/items/win-c.png") 12 fill / 12px stretch; image-rendering: pixelated; }
+.lh-itm--u .lh-itm__win { border-image-source: url("img/items/win-u.png"); } .lh-itm--r .lh-itm__win { border-image-source: url("img/items/win-r.png"); } .lh-itm--l .lh-itm__win { border-image-source: url("img/items/win-l.png"); }
+.lh-card img.lh-itm__ic { display: block; flex: none; width: 64px; height: 64px; }
+.lh-itm__gem { position: absolute; left: -9px; bottom: -9px; width: 26px; height: 26px; background: url("img/items/gem-c.png") 0 0 / 100% 100% no-repeat; image-rendering: pixelated; }
+.lh-itm--u .lh-itm__gem { height: 28px; background-image: url("img/items/gem-u.png"); }
+.lh-itm--r .lh-itm__gem { width: 28px; height: 28px; background-image: url("img/items/gem-r.png"); }
+.lh-itm--l .lh-itm__gem { width: 32px; height: 32px; left: -11px; bottom: -11px; background-image: url("img/items/gem-l.png"); }
+.lh-itm--r .lh-itm__win::before, .lh-itm--r .lh-itm__win::after, .lh-itm--l .lh-itm__win::before, .lh-itm--l .lh-itm__win::after { content: ""; position: absolute; z-index: 1; width: 32px; height: 32px; pointer-events: none; image-rendering: pixelated;
+  background: url("img/items/spark-r.png") 0 0 / 128px 32px no-repeat; animation: lh-spark .9s steps(4) infinite; }
+.lh-itm--l .lh-itm__win::before, .lh-itm--l .lh-itm__win::after { background-image: url("img/items/spark-l.png"); animation-duration: .72s; }
+.lh-itm--r .lh-itm__win::before, .lh-itm--l .lh-itm__win::before { top: -10px; right: -8px; }
+.lh-itm--r .lh-itm__win::after, .lh-itm--l .lh-itm__win::after { top: 18px; left: -10px; animation-delay: -.45s; }
+@keyframes lh-spark { to { background-position: -128px 0; } }
+.lh-itm__rib { display: flex; align-items: center; justify-content: center; min-height: 34px; margin: 0 -12px; border: 8px solid transparent; border-width: 8px 6px;
+  border-image: url("img/items/rib-idle.png") 8 6 fill / 8px 6px round stretch; image-rendering: pixelated; color: #fff3c8; font: 800 13px/1.1 var(--font); }
+.lh-itm__rar { font: 800 11px/1.2 var(--font); letter-spacing: .06em; text-transform: uppercase; }
+
+/* Puzzle and Puzzle Pals */
+.lh-jig canvas { display: block; width: 100%; height: auto; }
+.lh-pals { background: var(--surface-2); width: 100%; padding: 14px 6px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.lh-roster { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 100px)); gap: 10px 6px; justify-content: center; }
+.lh-roster li { display: flex; flex-direction: column; align-items: center; margin: 0; line-height: 1.15; }
+.lh-roster img { width: 64px; height: 64px; animation: lh-hop 1.8s steps(1) infinite; }
+.lh-roster li:nth-child(2) img { animation-delay: -.3s; } .lh-roster li:nth-child(3) img { animation-delay: -.9s; } .lh-roster li:nth-child(4) img { animation-delay: -1.2s; } .lh-roster li:nth-child(5) img { animation-delay: -.6s; } .lh-roster li:nth-child(6) img { animation-delay: -1.5s; }
+@keyframes lh-hop { 0%, 100% { transform: none; } 10% { transform: translateY(-4px); } 20% { transform: translateY(-6px); } 30% { transform: translateY(-2px); } 40% { transform: none; } }
+.lh-roster b { font-size: 13px; font-weight: 800; color: var(--ink); }
+.lh-roster small { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.lh-roster .lh-u small { color: var(--brand-ink); } .lh-roster .lh-r small { color: var(--info-ink); }
+
+@media (min-width: 721px) {
+  .lh-hero { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; padding: 14px 20px 14px 14px; }
+  body[data-area] main .lp .lh-hero h1, .lh-hero h1 { font-size: 40px; }
+  .lh-htp .lp-h2 { font-size: 28px; }
+  .lh-loop li { font-size: 15px; padding: 4px 10px; }
+  .lh-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .lh-card.lh-wide { grid-column: 1 / -1; }
+  .lh-scene.lh-cover { flex: 1 1 auto; aspect-ratio: 480 / 270; }
+  .lh-scene.lh-cover > .lh-svg { position: absolute; left: 4px; top: 4px; width: calc(100% - 8px); height: calc(100% - 8px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lh-dish, .lh-roster img, .lh-itm__win::before, .lh-itm__win::after, .lh-tfloat.go { animation: none; }
+  .lh-tile b { display: none; }
+}

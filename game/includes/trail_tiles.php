@@ -43,6 +43,37 @@ function trail_base_cost(array $u, array $route): int
 }
 
 /**
+ * 2.6.41: a route is drawn from its a end to its b end. A walk that starts at the b end (scene state 'rev') goes through the same stretches
+ * in the opposite order and enters each one where the a-to-b walk leaves it. $sec is the stretch as walked (0 = the first one you step onto);
+ * the result is the stretch as drawn. Finds taken (trail_pickups) are kept by the stretch as drawn, so they stay gone both ways.
+ */
+function trail_phys_sec(int $routeId, int $sec, array $st): int
+{
+    if (empty($st['rev'])) return $sec;
+    $n = trail_authored_count($routeId);
+    if ($n < 1) $n = (int)($st['S'] ?? 1);
+    return max(0, $n - 1 - $sec);
+}
+
+/** The seed of a stretch of a walk for trail_map_make(): 'route|uid|sx|stretch as drawn', plus '|r' when the walk goes from b to a. */
+function trail_seed(int $routeId, int $uid, int $sx, int $sec, array $st): string
+{
+    return $routeId . '|' . $uid . '|' . $sx . '|' . trail_phys_sec($routeId, $sec, $st) . (empty($st['rev']) ? '' : '|r');
+}
+
+/** The same map with its entry (S) and its way on (9) swapped. A map without both is returned as it is. */
+function trail_map_flip(array $map): array
+{
+    $en = $map['entry'] ?? null; $ex = $map['spots']['9'] ?? null;
+    if (!$en || !$ex) return $map;
+    $map['t'][$en[1]][$en[0]] = '9';
+    $map['t'][$ex[1]][$ex[0]] = 'S';
+    $map['entry'] = $ex;
+    $map['spots']['9'] = $en;
+    return $map;
+}
+
+/**
  * One section's map and tokens, from a seed (pure: same seed, same section). Entry 'S' on the left edge, exit '9' on the right edge, a winding
  * floor between, a few extra floor cells for width. Tokens: 0-1 finds ('F') on floor (v2.5.51: was 1-3), never next to the entry or exit. Fights are not tokens: they
  * are rolled while walking (trail_encounter_index); only an authored delve/lair route has a fixed 'E' (miniboss/boss) on its last section.
@@ -52,6 +83,10 @@ function trail_base_cost(array $u, array $route): int
 function trail_map_make(string $seed): array
 {
     $sp = explode('|', $seed);
+    if (count($sp) === 5 && $sp[4] === 'r') {   // 2.6.41: the stretch walked the other way (from the b end of the route): the same map and tokens, entry and exit swapped
+        [$map, $tokens] = trail_map_make(implode('|', array_slice($sp, 0, 4)));
+        return [trail_map_flip($map), $tokens];
+    }
     if (count($sp) === 4 && ctype_digit($sp[0]) && ctype_digit($sp[3]) && ($art = trail_authored_section((int)$sp[0], (int)$sp[3]))) return trail_map_authored($art);
     $rng = tm_rng($seed);
     $g = array_fill(0, TRAIL_H, array_fill(0, TRAIL_W, '#'));
@@ -141,15 +176,17 @@ function trail_pickup_note(int $uid, int $routeId, int $sec): void
     } catch (Throwable $e) {}
 }
 
-function trail_scene_make(int $uid, int $expId, array $route): bool
+function trail_scene_make(int $uid, int $expId, array $route, bool $rev = false): bool
 {
     try {
         dm_scene_purge($uid);
         $S = trail_sections($route);
-        [$map, $tokens] = trail_map_make((int)$route['id'] . '|' . $uid . '|' . $expId . '|0');   // 'sx' keeps the seed stable if the walk is resumed under a new expedition id
+        $st = ['sec' => 0, 'S' => $S, 'sx' => $expId, 'phase' => 'section'];
+        if ($rev) $st['rev'] = 1;   // 2.6.41: the walk starts at the route's b end: last stretch first, each entered at its far end
+        [$map, $tokens] = trail_map_make(trail_seed((int)$route['id'], $uid, $expId, 0, $st));   // 'sx' keeps the seed stable if the walk is resumed under a new expedition id
         $seen = tm_seen_new($map['w'], $map['h']);
         tm_reveal($seen, $map['w'], $map['h'], $map['entry'][0], $map['entry'][1], 20);
-        $st = ['sec' => 0, 'S' => $S, 'sx' => $expId, 'phase' => 'section', 'tokens' => trail_pickup_apply($uid, (int)$route['id'], 0, array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens))];
+        $st['tokens'] = trail_pickup_apply($uid, (int)$route['id'], trail_phys_sec((int)$route['id'], 0, $st), array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens));
         db_insert('walk_scene', ['user_id' => $uid, 'exp_id' => $expId, 'map_key' => 'trail:' . (int)$route['id'], 'x' => $map['entry'][0], 'y' => $map['entry'][1], 'seen' => $seen, 'state' => json_encode($st), 'updated_at' => now()]);
         return true;
     } catch (Throwable $e) {
@@ -166,7 +203,7 @@ function trail_scene(array $exp): ?array
     if (!$row || !str_starts_with((string)$row['map_key'], 'trail:')) return null;
     $st = json_decode((string)$row['state'], true);
     if (!is_array($st) || !isset($st['sec'], $st['S'], $st['phase'])) return null;
-    [$map] = trail_map_make((int)substr((string)$row['map_key'], 6) . '|' . (int)$exp['user_id'] . '|' . (int)($st['sx'] ?? $exp['id']) . '|' . (int)$st['sec']);
+    [$map] = trail_map_make(trail_seed((int)substr((string)$row['map_key'], 6), (int)$exp['user_id'], (int)($st['sx'] ?? $exp['id']), (int)$st['sec'], $st));
     return ['row' => $row, 'old' => (string)$row['state'], 'map' => $map, 'x' => (int)$row['x'], 'y' => (int)$row['y'], 'seen' => (string)$row['seen'], 'st' => $st];
 }
 
@@ -317,7 +354,7 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
     if ($stop === null && $i >= 0 && (int)$sc['st']['tokens'][$i][3] === 0) { $sc['st']['tokens'][$i][3] = 1; $fire = (string)$sc['st']['tokens'][$i][2]; }
     if ($t === '9') $sc['st']['phase'] = 'confirm';
     if (!trail_save($sc)) return [false, 'That already happened. Look again.'];
-    if ($fire === 'F') trail_pickup_note((int)$u['id'], (int)substr((string)$sc['row']['map_key'], 6), (int)$sc['st']['sec']);
+    if ($fire === 'F') trail_pickup_note((int)$u['id'], (int)substr((string)$sc['row']['map_key'], 6), trail_phys_sec((int)substr((string)$sc['row']['map_key'], 6), (int)$sc['st']['sec'], $sc['st']));
     if ($fire !== null) trail_token_event($u, $exp, $fire, (string)($map['art']['boss'] ?? ''), $fire === 'M' ? trail_extra_mini($map['art'] ?? [], $tx, $ty) : null);
     $_SESSION['dm_walk'] = ['e' => (int)$exp['id'], 't' => time(), 'p' => $walked];
     return [true, ''];
@@ -345,14 +382,16 @@ function trail_next(array $u, array &$exp): array
     $sec = (int)$sc['st']['sec'];
     if ($sec + 1 >= (int)$sc['st']['S']) return [false, 'That was the last section. Head into the place.'];
     $nsec = $sec + 1;
-    [$map, $tokens] = trail_map_make((int)substr((string)$sc['row']['map_key'], 6) . '|' . (int)$exp['user_id'] . '|' . (int)($sc['st']['sx'] ?? $exp['id']) . '|' . $nsec);
+    $rid = (int)substr((string)$sc['row']['map_key'], 6);
+    [$map, $tokens] = trail_map_make(trail_seed($rid, (int)$exp['user_id'], (int)($sc['st']['sx'] ?? $exp['id']), $nsec, $sc['st']));
     $seen = tm_seen_new($map['w'], $map['h']);
     tm_reveal($seen, $map['w'], $map['h'], $map['entry'][0], $map['entry'][1], 20);
     $new = $sc;
     $hist = (array)($sc['st']['hist'] ?? []); $hist[$sec] = $sc['st']['tokens'];   // what was found and fought in the stretch you leave stays so if you walk back
     $revisit = isset($hist[$nsec]);
     $new['st'] = ['sec' => $nsec, 'S' => (int)$sc['st']['S'], 'sx' => (int)($sc['st']['sx'] ?? $exp['id']), 'phase' => 'section', 'stance' => (string)($sc['st']['stance'] ?? ''), 'hist' => $hist,
-        'tokens' => $revisit ? $hist[$nsec] : trail_pickup_apply((int)$exp['user_id'], (int)substr((string)$sc['row']['map_key'], 6), $nsec, array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens))];
+        'tokens' => $revisit ? $hist[$nsec] : trail_pickup_apply((int)$exp['user_id'], $rid, trail_phys_sec($rid, $nsec, $sc['st']), array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens))];
+    if (!empty($sc['st']['rev'])) $new['st']['rev'] = 1;
     $new['x'] = $map['entry'][0];
     $new['y'] = $map['entry'][1];
     $new['seen'] = $seen;
@@ -373,7 +412,7 @@ function trail_prev(array $u, array &$exp): array
     if ($st['phase'] !== 'section' || $sec < 1) return [false, 'There is no way back from here.'];
     if ($sc['x'] !== (int)$sc['map']['entry'][0] || $sc['y'] !== (int)$sc['map']['entry'][1]) return [false, 'Walk to where this stretch begins first.'];
     $psec = $sec - 1;
-    [$map, $tokens] = trail_map_make((int)substr((string)$sc['row']['map_key'], 6) . '|' . (int)$exp['user_id'] . '|' . (int)($st['sx'] ?? $exp['id']) . '|' . $psec);
+    [$map, $tokens] = trail_map_make(trail_seed((int)substr((string)$sc['row']['map_key'], 6), (int)$exp['user_id'], (int)($st['sx'] ?? $exp['id']), $psec, $st));
     $hist = (array)($st['hist'] ?? []); $hist[$sec] = $st['tokens'];
     $ptokens = $hist[$psec] ?? array_map(fn($t) => [$t[0], $t[1], $t[2], 1], $tokens);   // no record (an old walk): treat it as done, no fights again
     [$ex, $ey] = $map['spots']['9'];
@@ -381,6 +420,7 @@ function trail_prev(array $u, array &$exp): array
     tm_reveal($seen, $map['w'], $map['h'], $ex, $ey, 20);
     $new = $sc;
     $new['st'] = ['sec' => $psec, 'S' => (int)$st['S'], 'sx' => (int)($st['sx'] ?? $exp['id']), 'phase' => 'section', 'stance' => (string)($st['stance'] ?? ''), 'hist' => $hist, 'tokens' => $ptokens];
+    if (!empty($st['rev'])) $new['st']['rev'] = 1;
     $new['st']['phase'] = 'confirm';   // you stand on that stretch's exit: Continue is offered at once (or "Not yet" to look around)
     $new['x'] = $ex; $new['y'] = $ey; $new['seen'] = $seen;
     if (!trail_save($new)) return [false, 'You already moved. Look again.'];
@@ -587,7 +627,7 @@ function trail_snapshot_view(array $u, array $r, array $base): ?array
 {
     $st = json_decode((string)$r['state'], true);
     if (!is_array($st) || !isset($st['sec'], $st['S'])) return null;
-    [$map] = trail_map_make((int)$r['route'] . '|' . (int)$u['id'] . '|' . (int)($st['sx'] ?? 0) . '|' . (int)$st['sec']);
+    [$map] = trail_map_make(trail_seed((int)$r['route'], (int)$u['id'], (int)($st['sx'] ?? 0), (int)$st['sec'], $st));
     $ghost = array_merge($base, ['id' => -1, 'kind' => 'walk', 'status' => 'active', 'route_id' => (int)$r['route'], 'from_id' => (int)$r['from'], 'to_id' => (int)$r['to'], 'user_id' => (int)$u['id'], 'encounter' => null]);
     return [$ghost, ['row' => ['id' => 0], 'old' => '', 'map' => $map, 'x' => (int)$r['x'], 'y' => (int)$r['y'], 'seen' => (string)$r['seen'], 'st' => $st]];
 }

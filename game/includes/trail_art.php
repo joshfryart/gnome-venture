@@ -139,6 +139,13 @@ function trail_authored_all(): array
     return $all ??= trail_authored_load(__DIR__ . '/data');
 }
 
+/** How many sections an authored route has (0 = not authored). */
+function trail_authored_count(int $routeId): int
+{
+    $r = trail_authored_all()[(string)$routeId] ?? null;
+    return is_array($r) && is_array($r['sections'] ?? null) ? count($r['sections']) : 0;
+}
+
 /** One authored section (0-based) with 'land', 'route', 'sec' and 'boss' ('' / 'miniboss' / 'boss', only on the last section), or null. */
 function trail_authored_section(int $routeId, int $sec): ?array
 {

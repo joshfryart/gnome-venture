@@ -741,6 +741,10 @@ function post_update_news(string $from): void
         . "[*][b]Pine slope[/b] on route 315 now only needs a Walking Stick.\n"
         . "[*][b]Garden crew[/b]: put your pals to work in every garden (Garden > Crew): Water, Weed, Pests, Harvest and Plant. They work while you sleep, for 1, 3 or 7 sleeps or full time. After about two weeks on one job a pal gets tired and works slower, so give them a change.\n"
         . "[*][b]Hovel[/b]: new Today tab (what changed overnight, tomorrow's weather, who is away) and a Pals tab. Hired helpers have gone home and their wages are refunded.[/list]"],
+    '2.6.41' => ['🔨 Update 2.6.41: a new workshop and trails that start at the right end',
+        "[list][*][b]Front page[/b]: visitors get a new welcome and a How to play made of little living scenes from the game.\n"
+        . "[*][b]Workshop[/b]: the picture is redrawn, bigger and brighter. A section with something ready now moves a little: the fire jumps, the cauldron bubbles, sparks fly at the tool bench.\n"
+        . "[*][b]Trails[/b]: walking a road the other way, you now start at the end you came in from and pass the stretches in the opposite order.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
