@@ -99,6 +99,15 @@ if (is_post()) {
         if (!empty($res[2])) flash((string)$res[2], 'ok');   // v2.3.3: the receipt title leads the message log too
         foreach ((array)$res[1] as $l) flash((string)$l, $res[0] ? 'ok' : 'err');
         if ($res[0]) $_SESSION['pj_receipt'] = ['pal' => $jobPal, 'head' => (string)($res[2] ?? ''), 'lines' => array_map('strval', (array)$res[1])];   // shown once, at the top of the ledger
+        if ($res[0]) {   // the chest animation, same as Collect all
+            $t = (array)($res[3] ?? []);
+            if (!empty($t['coins']) || !empty($t['items'])) {
+                require_once __DIR__ . '/includes/chest.php';
+                $its = [];
+                foreach ((array)($t['items'] ?? []) as $iid => $qty) $its[] = [(int)$iid, (int)$qty, 'common'];
+                chest_note((int)($t['coins'] ?? 0), (int)($t['axp'] ?? 0) + (int)($t['cxp'] ?? 0), $its, ['title' => 'Your pal is home!', 'done' => 'Your pal brought back…']);
+            }
+        }
     } else flash((string)$res[1], $res[0] ? 'ok' : 'err');
     redirect($backTo);
 }
