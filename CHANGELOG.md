@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.49
+- **Hovel > Pals** list fits on a phone (cards no longer run off the right edge; text wraps).
+- **Pal Jobs > Tend a garden** (sleep-days on): pick a job (Water, Weed, Pests, Harvest, Plant) and 1, 3, 7 sleeps or **Full time**; the pal goes onto the garden crew slot.
+- **Garden crew bed picker** (Plant pal, Seeds and beds): a tab per garden, each bed has a check (work) and an x (avoid). Any check means only checked beds are planted; x beds are never planted. Other crew jobs still do every bed. Sleep-days popover scenes from 2.6.48 unchanged.
+
 ## 2.6.48
 - **Popover scenes**: 9 activity pictures redrawn in the 2.5D Hearth Pop style with new 6-frame loops: night fishing, snow monkeys, rift cichlids, toboggan, ice paddles, politest bow (the two gnomes now bow), snowy lanterns, frost pots, bathers' hats. Drawn at 1x, so sharper than the other acts. Art only, no code or DB change.
 
