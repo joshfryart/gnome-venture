@@ -19,6 +19,7 @@ foreach (['canvas-satchel', 'patchwork-satchel'] as $slug) {
 $uid = (int)q_val("SELECT id FROM users WHERE username = 'sprout'");
 $give = function (string $slug, int $n) use ($uid) { $iid = item_id_by_slug($slug); q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $iid]); if ($n) db_insert('user_items', ['user_id' => $uid, 'item_id' => $iid, 'qty' => $n]); };
 $u = ['id' => $uid];
+function urow_for(int $uid): array { return q_one('SELECT * FROM users WHERE id = ?', [$uid]) ?: []; }
 $give('canvas-satchel', 0); $give('patchwork-satchel', 0);
 ok('nothing owned: leather', gather_satchel_key($u) === 'leather');
 $give('canvas-satchel', 1);
@@ -27,6 +28,13 @@ $give('patchwork-satchel', 1);
 ok('both owned: patchwork wins', gather_satchel_key($u) === 'patchwork');
 ok('a saved satchel_skin column value still wins', gather_satchel_key(['id' => $uid, 'satchel_skin' => 'canvas']) === 'canvas');
 ok('no user id: leather', gather_satchel_key([]) === 'leather');
+$give('patchwork-satchel', 0); $give('canvas-satchel', 1);
+ok('picking leather is always allowed', gather_set_satchel_skin($uid, 'leather')[0] === true && (string)q_val('SELECT satchel_skin FROM users WHERE id = ?', [$uid]) === 'leather');
+ok('leather picked wins over a canvas satchel in the pack', gather_satchel_key(urow_for($uid)) === 'leather');
+ok('canvas owned: pick it', gather_set_satchel_skin($uid, 'canvas')[0] === true && gather_satchel_key(urow_for($uid)) === 'canvas');
+ok('patchwork not owned: refused, skin unchanged', gather_set_satchel_skin($uid, 'patchwork')[0] === false && (string)q_val('SELECT satchel_skin FROM users WHERE id = ?', [$uid]) === 'canvas');
+ok('nonsense refused', gather_set_satchel_skin($uid, 'gold')[0] === false);
+ok('empty picks the best owned again', gather_set_satchel_skin($uid, '')[0] === true && q_val('SELECT satchel_skin FROM users WHERE id = ?', [$uid]) === null && gather_satchel_key(urow_for($uid)) === 'canvas');
 $give('canvas-satchel', 0); $give('patchwork-satchel', 0);
 echo $fails ? "$fails FAILED\n" : "all ok\n";
 exit($fails ? 1 : 0);

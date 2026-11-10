@@ -619,6 +619,27 @@ function pj_station_minutes(int $c): int { return max(20, 60 - 4 * (max(1, $c) -
 /** Chance in percent of one extra output per make: 4 per Crafting level above 1 (cap 36). */
 function pj_station_extra_pct(int $c): int { return min(36, 4 * (max(1, $c) - 1)); }
 
+/** The owner's craft mastery for a pal's make: ingredient quantities after the recipe tier (never below 1 or half the base). slug => qty. */
+function pj_mastered_need(int $uid, array $r, ?int $tier = null): array
+{
+    require_once __DIR__ . '/craft_mastery.php';
+    $tier ??= craft_mastery_recipe_tier($uid, (int)($r['id'] ?? 0));
+    $need = [];
+    foreach (json_decode((string)$r['ingredients'], true) ?: [] as $slug => $q) $need[(string)$slug] = craft_mastery_qty(max(1, (int)$q), $tier);
+    return $need;
+}
+
+/** Units one pal make gives: the output, plus the owner's category mastery bonus, plus the pal's own extra chance; never more than double the output. */
+function pj_make_units(int $uid, string $cat, int $outputQty, int $palC, ?callable $rng = null): int
+{
+    require_once __DIR__ . '/craft_mastery.php';
+    $base = max(1, $outputQty);
+    $n = craft_mastery_yield($uid, $cat, $base);
+    $roll = $rng ? $rng(100) : random_int(0, 99);
+    if ($roll < pj_station_extra_pct($palC)) $n++;
+    return min($base * 2, $n);
+}
+
 /** The scene object [id, label, globs] of an area, or null (only objects with a tag list count). */
 function pj_station_object(string $area, string $obj): ?array
 {
@@ -683,7 +704,7 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
         if ((int)($stations['cooking'] ?? 0) === 0 || cook_pots_busy($uid) >= cook_pot_limit($u)) return [false, 'All your pots are busy. A pal needs a free pot.'];
         $kitchen3 = user_building_bonus($uid, 'kitchen')['feasts'];
         $first = $plan[0];
-        foreach ($plan as $r) if ((!str_starts_with((string)$r['slug'], 'feast-') || $kitchen3) && craft_fit(craft_stock($uid, (string)$r['ingredients']), 0, 0) > 0) { $first = $r; break; }
+        foreach ($plan as $r) if ((!str_starts_with((string)$r['slug'], 'feast-') || $kitchen3) && craft_fit(craft_stock($uid, (string)$r['ingredients'], (int)$r['id']), 0, 0) > 0) { $first = $r; break; }
         db()->beginTransaction();
         if (!pj_claim_pal($uid, $palUid, 'station')) { db()->rollBack(); return [false, $p['name'] . ' is already out.']; }
         db_insert('ppal_jobs', ['user_id' => $uid, 'pal_uid' => $palUid, 'kind' => 'station', 'target' => $target, 'plot_id' => null, 'day' => landmark_day(), 'tool' => 'passive',
@@ -705,12 +726,12 @@ function pj_station_send(array $u, string $palUid, string $area, string $obj, st
         foreach ($plan as $r) {
             if ($makes >= $cap) break;
             if (str_starts_with((string)$r['slug'], 'feast-') && !$kitchen3) continue;
-            $need = json_decode((string)$r['ingredients'], true) ?: [];
+            $need = pj_mastered_need($uid, $r);   // the owner's recipe mastery: lighter materials
             $ok = $need !== [];
             foreach ($need as $slug => $q) if (($have[(string)$slug] ?? 0) < (int)$q) { $ok = false; break; }
             if (!$ok) continue;
             foreach ($need as $slug => $q) { $have[(string)$slug] -= (int)$q; $takes[(string)$slug] = ($takes[(string)$slug] ?? 0) + (int)$q; }
-            $n = max(1, (int)$r['output_qty']) + ($rng(100) < pj_station_extra_pct($c) ? 1 : 0);
+            $n = pj_make_units($uid, $area, (int)$r['output_qty'], $c, $rng);   // category mastery yield + the pal's extra chance
             $made[(int)$r['output_item_id']] = ($made[(int)$r['output_item_id']] ?? 0) + $n;
             $outItem[(int)$r['output_item_id']] = (string)$r['out_name'];
             $makes++; $did = true;
@@ -772,7 +793,7 @@ function pj_passive_step(array $u, array $j, array &$r, int $t): void
     $score = gourmand_dish_score($u, $stock);
     db()->beginTransaction();
     foreach ($stock as $s) if ($s['id'] < 1 || !give_item($uid, $s['id'], -$s['qty'])) { db()->rollBack(); $r['skipped'] = (int)($r['skipped'] ?? 0) + 1; return; }
-    $dishes = max(1, (int)$rec['output_qty']) + (random_int(1, 100) <= pj_station_extra_pct($pal ? (int)$pal['c'] : 1) ? 1 : 0);
+    $dishes = pj_make_units($uid, 'cooking', (int)$rec['output_qty'], $pal ? (int)$pal['c'] : 1);
     db_insert('cook_pots', ['user_id' => $uid, 'recipe_id' => $rid, 'makes' => 1, 'dishes' => $dishes, 'started_at' => gmdate('Y-m-d H:i:s', $t),
         'ready_at' => gmdate('Y-m-d H:i:s', $t + cook_seconds($u, $rec)), 'score' => $score, 'pal_uid' => (string)$j['pal_uid']]);
     db()->commit();

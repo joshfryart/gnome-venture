@@ -261,6 +261,17 @@ function gather_satchel_key(array $u): string
     return GATHER_SATCHELS[0];
 }
 
+/** Pick the satchel skin to carry. Leather is always allowed; canvas and patchwork need that satchel in the pack; '' goes back to "the best one owned". Returns [ok, message]. */
+function gather_set_satchel_skin(int $uid, string $skin): array
+{
+    if ($skin === '') { q('UPDATE users SET satchel_skin = NULL WHERE id = ?', [$uid]); return [true, 'Your satchel is the best one you own again.']; }
+    if (!in_array($skin, GATHER_SATCHELS, true)) return [false, 'That is not a satchel.'];
+    $slug = ['canvas' => 'canvas-satchel', 'patchwork' => 'patchwork-satchel'][$skin] ?? '';
+    if ($slug !== '' && !q_val('SELECT 1 FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND i.slug = ? AND ui.qty > 0', [$uid, $slug])) return [false, 'You do not have that satchel.'];
+    q('UPDATE users SET satchel_skin = ? WHERE id = ?', [$skin, $uid]);
+    return [true, 'You carry the ' . $skin . ' satchel.'];
+}
+
 /** Part of the day for the scene art: 'day' | 'dusk' (dawn and dusk) | 'night', from the Hollow clock. */
 function gather_day_part(?int $hour = null): string
 {

@@ -274,7 +274,7 @@ gvAdvFold();
     pieces[k] = { k: k, el: el, x: num(el, 'data-x'), y: num(el, 'data-y'), w: num(el, 'data-w') || 1, h: num(el, 'data-h') || 1,
       rot: num(el, 'data-rot'), move: el.getAttribute('data-move') === '1', kind: el.getAttribute('data-kind'), id: num(el, 'data-id'),
       item: num(el, 'data-item'), tx: num(el, 'data-tx'), ty: num(el, 'data-ty'), name: el.getAttribute('data-name') || 'That',
-      fam: el.getAttribute('data-fam') || '', shape: el.getAttribute('data-shape') || '', img: el.getAttribute('data-img') || '', pave: el.getAttribute('data-pave') || '', art: el.getAttribute('data-art') || '', mask: -1 };
+      fam: el.getAttribute('data-fam') || '', shape: el.getAttribute('data-shape') || '', img: el.getAttribute('data-img') || '', pave: el.getAttribute('data-pave') || '', art: el.getAttribute('data-art') || '', cov: el.getAttribute('data-cov') || '', mask: -1 };
   });
   var snapBox = btn('snap'), gridBox = btn('grid');
   try { if (localStorage.getItem('gv-yard-grid') === '1') { gridBox.checked = true; yard.classList.add('showgrid'); } } catch (e) { /* storage may be off */ }
@@ -325,7 +325,29 @@ gvAdvFold();
     ['ra0', 'ra90', 'ra180', 'ra270'].forEach(function (c) { p.el.classList.remove(c); });
     p.el.classList.add('fj', 'fi');
   }
+  // 2026-11-10: untilled ground blends with its neighbours (same rule as yard_covers() in includes/yard.php); when a bed or path moves, redraw the covering masks
+  function coverAll() {
+    var kind = {}, solid = {}, k, p;
+    for (k in pieces) {
+      p = pieces[k];
+      if (p.x < 0) continue;
+      if (p.kind === 'bed') { if (p.cov) kind[p.x + ',' + p.y] = p.cov; else solid[p.x + ',' + p.y] = true; }
+      else if (p.fam === 'pave') solid[p.x + ',' + p.y] = true;
+    }
+    for (k in pieces) {
+      p = pieces[k];
+      if (p.kind !== 'bed' || !p.cov || p.cov === 'lawn' || p.x < 0) continue;
+      var img = p.el.querySelector('img.phtile');
+      if (!img) continue;
+      var has = function (dx, dy) { var c = (p.x + dx) + ',' + (p.y + dy); return kind[c] === p.cov || solid[c] === true; }, m = 0;
+      [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0]].forEach(function (a) { if (has(a[1], a[2])) m |= a[0]; });
+      [[16, 1, 2, 1, -1], [32, 4, 2, 1, 1], [64, 4, 8, -1, 1], [128, 1, 8, -1, -1]].forEach(function (a) { if ((m & a[1]) && (m & a[2]) && has(a[3], a[4])) m |= a[0]; });
+      var src = img.getAttribute('src') || '', ns = src.replace(/-\d+\.png(\?.*)?$/, '-' + m + '.png$1');
+      if (ns !== src) img.setAttribute('src', ns);
+    }
+  }
   function joinAll() {
+    coverAll();
     var cells = {}, k, p;
     for (k in pieces) { p = pieces[k]; if (p.fam && p.x >= 0) cells[p.x + ',' + p.y] = p.fam; else if (p.kind === 'bed' && p.x >= 0) cells[p.x + ',' + p.y] = 'bed'; }
     for (k in pieces) {

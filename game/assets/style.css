@@ -1064,6 +1064,7 @@ a.rend:hover b { text-decoration: underline; }
 .yard .tile.planted { background: url(img/ph/tile-soil-planted.png) center / 100% 100% no-repeat; image-rendering: pixelated; }   /* v2.5.45: soil states have their own pictures (tools/bake_soil_art.py) */
 .yard .tile.planted.thirsty { background-image: url(img/ph/tile-soil-thirsty.png); }
 .yard .tile.planted.ready { background-image: url(img/ph/tile-soil-ready.png); }
+.yard .tile.planted.nt:not(.thirsty):not(.ready) { background-image: url(img/ph/tile-notill.png); }   /* 2026-11-10: a planted no-till bed keeps its mulched no-till soil under the crop (thirsty and ripe soils have no no-till variant yet) */
 .yard .tile.wild:not(.nt) { margin: 0; border: 0; background: transparent; box-shadow: none; }   /* v2.5.43: untilled squares melt into the turf; a faint line keeps them tappable */
 .yard .tile.wild.sel:not(.nt) { box-shadow: none; }
 .yard .tile.wild::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 0 1px rgba(40, 70, 30, .22); pointer-events: none; }

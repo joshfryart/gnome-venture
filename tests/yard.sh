@@ -25,6 +25,9 @@ db "SELECT kind, ref, x, y, w, h FROM garden_objects WHERE plot_id=$PL"
 dbx "UPDATE garden_objects SET x=0, y=0 WHERE ref='beehive'"; dbx "UPDATE garden_objects SET x=1, y=0 WHERE ref='rain_barrel'"
 echo "== designer"
 curl -s -b $A -c $A $BASE/yard.php > /tmp/y.html
+NCOV=$(grep -oE 'data-kind="bed"[^>]*data-cov="[a-z]+"' /tmp/y.html | wc -l); NWILD=$(grep -oE 'class="tile wild [^"]*"[^>]*data-kind="bed"' /tmp/y.html | wc -l)
+[ "$NCOV" -gt 0 ] && echo "ok   designer: untilled beds carry data-cov ($NCOV, of $NWILD wild)" || echo "FAIL designer: no bed carries data-cov"
+grep -q 'function coverAll' $GAME/assets/site.js && echo "ok   designer: site.js redraws cover masks live" || echo "FAIL designer: coverAll missing"
 echo "  pieces: $(grep -o 'data-k="' /tmp/y.html | wc -l) · tray items: $(grep -c 'class="trayitem" data-item' /tmp/y.html) · no inline style: $(grep -c ' style=' /tmp/y.html)"
 cur() { db "SELECT group_concat('['||id||','||x||','||y||','||rot||']') FROM garden_objects WHERE plot_id=$PL AND x>=0$1"; }
 cur() { db "SELECT group_concat('['||id||','||x||','||y||','||rot||']') FROM garden_objects WHERE plot_id=$PL AND x>=0"; }

@@ -1479,6 +1479,7 @@ function schema_statements(string $driver): array
         ['users', 'ev_gather_until', 'DATETIME NULL'],
         ['users', 'ev_sale_until', 'DATETIME NULL'],
         ['plot_tiles', 'bonus_yield', 'INT NOT NULL DEFAULT 0'],
+        ['users', 'satchel_skin', 'VARCHAR(12) NULL'],              // 2026-11-10 the satchel skin the gnome picked (leather, canvas, patchwork); NULL = the best one owned
         ['landmarks', 'restored_at', 'DATETIME NULL'],               // v0.7.29 rebuilt landmarks
         ['landmark_repairs', 'dropped_at', 'DATETIME NULL'],          // v0.7.85 a given-up repair is kept (no re-paying stage 1); taking it on again resumes
         ['landmark_repairs', 'plan', 'VARCHAR(8) NULL'],              // v2.0.76 'v1' = began on the place's own build plan (empty = the old four stages)

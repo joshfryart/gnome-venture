@@ -492,6 +492,16 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     }
     [$ex, $ey] = $map['spots']['9'];
     if ($ex !== $sc['x'] || $ey !== $sc['y']) $tokens[] = [$ex, $ey, '🚪', 'gold', false];
+    // v2.6.46: a tool gate that is still shut for this gnome gets a 🔒 mark on its middle tile, and every tile of it says what it needs
+    $shut = function_exists('tool_tier') && !empty($map['art']['gates']) ? trail_gates_closed($map['art'], fn(string $type): int => tool_tier((int)$u['id'], $type)) : [];
+    $shutSeen = [];
+    foreach ($shut as $gk => $g) {
+        $gid = json_encode($g['tiles']);
+        if (isset($shutSeen[$gid])) continue;
+        $shutSeen[$gid] = true;
+        $mid = $g['tiles'][intdiv(count($g['tiles']), 2)];
+        $tokens[] = [(int)$mid[0], (int)$mid[1], '🔒', 'gold', false];
+    }
     $gate = trail_gate($sc);
     $reach = tm_reach($map, $sc['x'], $sc['y'], $gate);
     $open = str_repeat('0', $w * $h);
@@ -547,6 +557,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
             $cls .= $tap ? ' reach' : '';
             $tk = trail_token_at($sc, $x, $y);
             if ($tk >= 0) { $done = (int)$sc['st']['tokens'][$tk][3]; $cls .= ' spot' . ($done ? ' done' : ''); $label = ($sc['st']['tokens'][$tk][2] === 'E' || ($sc['st']['tokens'][$tk][2] === 'M' && !$easyMini)) ? ($done ? 'Fight, done' : 'A fight waits here') : ($done ? 'Find, done' : 'Something to find'); }
+            elseif (isset($shut[$x . ',' . $y])) { $cls .= ' gate'; $label = trail_gate_message($shut, [[$x, $y]]) ?? 'A shut gate'; }
             elseif ($t === '9') { $cls .= ' spot'; $label = 'The way on'; }
             elseif ($t === 'S') $label = (int)$sc['st']['sec'] > 0 ? 'The way back' : 'Where this stretch begins';
         }
@@ -561,7 +572,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         . '<svg class="tmpv" viewBox="0 0 ' . (DM_VIEW * TM_UNIT) . ' ' . (DM_VIEW * TM_UNIT) . '" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg><span class="tmchip" hidden></span>'
         . '<div class="tmgrid">' . $btn . '</div>' . $fightOver_html . '</div></div></div></form>' . $fightDock
         . ($art && !empty($map['art']['caption']) ? '<p class="tmcap">' . e((string)$map['art']['caption']) . '</p>' : '')
-        . '<p class="tmlegend" aria-hidden="true">' . (!empty($map['art']['boss']) || (!empty($map['art']['extra_minibosses']) && !$easyMini) ? '<span>⚔️ A fight waits</span>' : '') . '<span>✨ A find</span><span>🚪 The way on</span></p></div>';
+        . '<p class="tmlegend" aria-hidden="true">' . (!empty($map['art']['boss']) || (!empty($map['art']['extra_minibosses']) && !$easyMini) ? '<span>⚔️ A fight waits</span>' : '') . '<span>✨ A find</span><span>🚪 The way on</span>' . ($shut ? '<span>🔒 Needs a tool</span>' : '') . '</p></div>';
     return $out;
 }
 

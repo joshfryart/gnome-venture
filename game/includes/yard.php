@@ -781,7 +781,8 @@ function render_yard(array $plot, array $tiles, array $plants, array $objects, s
                 $fixed = (bool)$t['plant_id'];
                 $html .= '<div class="tile ' . $cls . ' ' . $pos . ($fixed ? ' fixed' : '') . '" title="' . e($label . ($fixed ? ' · can’t move while something grows here' : ' · drag to move this bed')) . '"'
                     . ' data-k="t' . $tx . '_' . $ty . '" data-kind="bed" data-tx="' . $tx . '" data-ty="' . $ty . '" data-x="' . (int)$t['yx'] . '" data-y="' . (int)$t['yy'] . '"'
-                    . ' data-w="1" data-h="1" data-rot="0" data-move="' . ($fixed ? '0' : '1') . '" data-name="Bed square">' . $badge . tile_icon_html($icon) . '</div>';
+                    . ' data-w="1" data-h="1" data-rot="0" data-move="' . ($fixed ? '0' : '1') . '" data-name="Bed square"'
+                    . ($cls === 'wild' && isset($covers[(int)$t['yx'] . ',' . (int)$t['yy']]) ? ' data-cov="' . e((string)$covers[(int)$t['yx'] . ',' . (int)$t['yy']][0]) . '"' : '') . '>' . $badge . tile_icon_html($icon) . '</div>';
             } else {
                 $html .= '<span class="tile ' . $cls . ' ' . $pos . '" role="img" aria-label="' . e($label) . '" title="' . e($label) . '">' . ($mode === 'mini' ? '' : $badge) . tile_icon_html($icon) . '</span>';
             }

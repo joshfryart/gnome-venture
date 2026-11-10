@@ -484,6 +484,28 @@ for ($i = 0; $i < $lim; $i++) db_insert('cook_pots', ['user_id' => $uid, 'recipe
 q("UPDATE cook_pots SET collected_at = ? WHERE collected_at IS NULL", [now()]);
 ok('crafting skill speeds a pal up', pj_station_minutes(10) < pj_station_minutes(1) && pj_station_minutes(1) === 60);
 
+echo "== pals follow the owner's craft mastery (flag on or off: it reads user_recipes.made)\n";
+$mrec = q_one("SELECT * FROM recipes WHERE category = 'cooking' ORDER BY id LIMIT 1");
+q('DELETE FROM user_recipes WHERE user_id = ? AND recipe_id = ?', [$uid, (int)$mrec['id']]);
+db_insert('user_recipes', ['user_id' => $uid, 'recipe_id' => (int)$mrec['id'], 'learned_at' => now(), 'made' => 0]);
+$mbase = array_map('intval', json_decode((string)$mrec['ingredients'], true));
+$m0 = pj_mastered_need($uid, $mrec);
+ok('no mastery: the pal uses the base quantities', $m0 === array_map(fn($q) => max(1, $q), $mbase));
+q('UPDATE user_recipes SET made = 50 WHERE user_id = ? AND recipe_id = ?', [$uid, (int)$mrec['id']]);
+$m2 = pj_mastered_need($uid, $mrec); $same = true;
+require_once $argv[1] . '/includes/craft_mastery.php';
+foreach ($m2 as $slug => $q) if ($q !== craft_mastery_qty(max(1, $mbase[$slug]), 2)) $same = false;
+ok('recipe tier 2: lighter materials, same as the gnome\'s own craft', $same && array_sum($m2) <= array_sum($m0));
+ok('the pal plan, fit and the gnome\'s own stock all read the same quantities', array_map(fn($s) => $s['qty'], craft_stock($uid, (string)$mrec['ingredients'], (int)$mrec['id'])) === $m2);
+$zero = fn(int $m): int => 0; $high = fn(int $m): int => 99;
+q('UPDATE user_recipes SET made = 0 WHERE user_id = ?', [$uid]);
+ok('no category mastery: output only (rng high = no extra)', pj_make_units($uid, 'cooking', 4, 1, $high) === 4);
+ok('the pal\'s own extra still adds one (rng 0, skill 10)', pj_make_units($uid, 'cooking', 4, 10, $zero) === 5);
+q('UPDATE user_recipes SET made = 500 WHERE user_id = ? AND recipe_id = ?', [$uid, (int)$mrec['id']]);   // cooking tier 2 = +10%
+ok('category mastery adds on top (100 -> 110, no pal extra)', pj_make_units($uid, 'cooking', 100, 1, $high) === 110);
+ok('capped at double the output (1 + pal extra + mastery never above 2)', pj_make_units($uid, 'cooking', 1, 10, $zero) <= 2);
+q('UPDATE user_recipes SET made = 0 WHERE user_id = ?', [$uid]);
+
 echo "== v2.4.70: calling pals home early\n";
 q('DELETE FROM ppal_jobs'); q('DELETE FROM cook_pots'); q("UPDATE ppal_found SET status = 'home', hp = 30, active = 0");
 $iid0 = (int)q_val("SELECT id FROM items ORDER BY id LIMIT 1");
