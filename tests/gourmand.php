@@ -260,7 +260,7 @@ echo "== the serve event: jobs, hollow jars and callings hear one event per paid
 require_once $argv[1] . '/includes/jobs.php';
 require_once $argv[1] . '/includes/hollow_goals.php';
 require_once $argv[1] . '/includes/calling_quests.php';
-$JK = job_period_key('daily');
+$JK = job_board_key('daily', $uid);   // sleep-days: the board's daily key is the gnome's game day (the real date with the flag off)
 q('DELETE FROM user_jobs WHERE user_id = ?', [$uid]);
 db_insert('user_jobs', ['user_id' => $uid, 'period' => 'daily', 'period_key' => $JK, 'kind' => 'serve', 'title' => 'Serve', 'text' => 'Serve', 'qty' => 99, 'progress' => 0, 'status' => 'active', 'taken_at' => now()]);
 $jobN = fn() => (int)q_val("SELECT progress FROM user_jobs WHERE user_id = ? AND kind = 'serve'", [$uid]);
@@ -487,7 +487,7 @@ $cookOne = function () use ($U, $rec, $uid): array {   // cook one make, ready i
     $u = $U(); q('UPDATE users SET energy = 100 WHERE id = ?', [$uid]); $u = $U();
     $r = craft($u, (int)$rec['id'], 1);
     $pot = q_one('SELECT * FROM cook_pots WHERE user_id = ? ORDER BY id DESC LIMIT 1', [$uid]);
-    if ($pot && $pot['collected_at'] === null) { q('UPDATE cook_pots SET ready_at = ? WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 60), $pot['id']]); cook_collect_one($U(), (int)$pot['id']); }
+    if ($pot && $pot['collected_at'] === null) { q('UPDATE cook_pots SET ready_at = ?, ready_tick = CASE WHEN ready_tick IS NULL THEN NULL ELSE 0 END WHERE id = ?', [gmdate('Y-m-d H:i:s', time() - 60), $pot['id']]); cook_collect_one($U(), (int)$pot['id']); }
     return [$r, q_one('SELECT * FROM cook_pots WHERE id = ?', [$pot['id'] ?? 0])];
 };
 q('DELETE FROM cook_pots WHERE user_id = ?', [$uid]); q('DELETE FROM item_quality WHERE user_id = ? AND item_id = ?', [$uid, $outId]); q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $outId]);
