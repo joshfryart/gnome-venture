@@ -36,5 +36,17 @@ ok('patchwork not owned: refused, skin unchanged', gather_set_satchel_skin($uid,
 ok('nonsense refused', gather_set_satchel_skin($uid, 'gold')[0] === false);
 ok('empty picks the best owned again', gather_set_satchel_skin($uid, '')[0] === true && q_val('SELECT satchel_skin FROM users WHERE id = ?', [$uid]) === null && gather_satchel_key(urow_for($uid)) === 'canvas');
 $give('canvas-satchel', 0); $give('patchwork-satchel', 0);
+$_SESSION['uid'] = $uid;
+ok('picker: only leather owned, no picker', gather_satchel_picker_html(['id' => $uid], '/gather.php', '') === '');
+$give('canvas-satchel', 1);
+$pk = gather_satchel_picker_html(urow_for($uid), '/gather.php', '<input type="hidden" name="back" value="world.php?tab=gather">');
+ok('picker: leather + canvas offered, no patchwork', str_contains($pk, 'value="leather"') && str_contains($pk, 'value="canvas"') && !str_contains($pk, 'value="patchwork"'));
+ok('picker: posts do=satchel_skin and keeps the back field', str_contains($pk, 'name="do" value="satchel_skin"') && str_contains($pk, 'name="back"'));
+ok('picker: no inline styles (CSP)', !str_contains($pk, 'style='));
+ok('picker: automatic choice marks canvas and says best', str_contains($pk, 'Canvas satchel ✔') && str_contains($pk, 'Carrying the best satchel') && !str_contains($pk, 'Use my best'));
+gather_set_satchel_skin($uid, 'leather');
+$pk = gather_satchel_picker_html(urow_for($uid), '/gather.php', '');
+ok('picker: manual leather marks leather and offers Use my best', str_contains($pk, 'Leather satchel ✔') && str_contains($pk, 'Use my best'));
+$give('canvas-satchel', 0); q('UPDATE users SET satchel_skin = NULL WHERE id = ?', [$uid]);
 echo $fails ? "$fails FAILED\n" : "all ok\n";
 exit($fails ? 1 : 0);

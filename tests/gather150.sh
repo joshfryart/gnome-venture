@@ -23,6 +23,22 @@ for s in foraging-knife fine-mesh-net rock-pick; do dbx "INSERT OR IGNORE INTO u
 FOREST=$(db "SELECT id FROM locations WHERE landscape='forest' LIMIT 1"); dbx "UPDATE users SET location_id=$FOREST WHERE id=$SID"
 W=$T/w.html; curl -s -c $C -b $C "$BASE/world.php?tab=gather" > $W
 
+echo "== the satchel picker (v2.6.46)"
+hasnt $W 'satchelpick' "only the starting leather satchel: no picker"
+dbx "INSERT OR IGNORE INTO user_items (user_id,item_id,qty) SELECT $SID,id,1 FROM items WHERE slug='canvas-satchel'"
+curl -s -c $C -b $C "$BASE/world.php?tab=gather" > $T/sp.html
+has $T/sp.html 'class="box satchelpick"' "owning a canvas satchel: the picker shows"
+has $T/sp.html 'name="skin" value="leather"' "leather button"
+curl -s -c $C -b $C -o /dev/null -X POST $BASE/gather.php --data-urlencode "csrf=$(csrf $T/sp.html)" -d do=satchel_skin -d skin=leather -d back=world.php?tab=gather
+chk "picking leather saves it" "$(db "SELECT satchel_skin FROM users WHERE id=$SID")" leather
+curl -s -c $C -b $C "$BASE/world.php?tab=gather" > $T/sp2.html
+has $T/sp2.html 'Use my best' "Use my best is offered after a manual pick"
+curl -s -c $C -b $C -o /dev/null -X POST $BASE/gather.php --data-urlencode "csrf=$(csrf $T/sp2.html)" -d do=satchel_skin -d skin=patchwork -d back=world.php?tab=gather
+chk "a satchel not owned is refused, skin unchanged" "$(db "SELECT satchel_skin FROM users WHERE id=$SID")" leather
+curl -s -c $C -b $C -o /dev/null -X POST $BASE/gather.php --data-urlencode "csrf=$(csrf $T/sp2.html)" -d do=satchel_skin -d skin= -d back=world.php?tab=gather
+chk "empty goes back to the best one owned" "$(db "SELECT COALESCE(satchel_skin,'NULL') FROM users WHERE id=$SID")" NULL
+dbx "DELETE FROM user_items WHERE user_id=$SID AND item_id IN (SELECT id FROM items WHERE slug='canvas-satchel')"
+
 echo "== the scene (forest, nothing gathered yet)"
 has $W '<section class="gx gatherbox" aria-label="Gather here">' "the satchel section"
 has $W 'class="gx-scene pix" src="/assets/img/gather/scene3\?-forest[a-z-]*\.png?v=' "scene art (landscape scene, v3 layered or old), same origin, versioned"

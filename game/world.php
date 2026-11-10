@@ -268,6 +268,7 @@ $GL = LANDSCAPES[$gatherLand] ?? ['🌱', ucfirst($gatherLand)]; ?>
   <?php else: ?>
     <?php if ($sg && (in_array('any', $sg['lands'], true) || in_array($gLand, $sg['lands'], true))): ?><p class="flash ok">🎯 <?= e(seek_name($sg)) ?> can be gathered right here.</p><?php endif; ?>
     <?= gather_scene_html($u, $gLand, url('gather.php'), '<input type="hidden" name="back" value="world.php?tab=gather">', $sg ? (string)$sg['tool'] : '') /* v2.0.67: satchel scene */ ?>
+    <?= gather_satchel_picker_html($u, url('gather.php'), '<input type="hidden" name="back" value="world.php?tab=gather">') ?>
   <?php endif; ?>
   <div class="box seekbox">
     <h3>🎯 Seek elsewhere</h3>

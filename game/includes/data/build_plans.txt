@@ -93,7 +93,7 @@ P|Anaconda Hollows|4|haul|Build the lookout|item:pine-log:5,item:rope:4|A high l
 P|Thatchtop Tearoom|1|haul|Rethatch the roof|item:straw-mulch:5,item:rope:3|Rain comes through the thatch in a steady drip, right onto the best teapot. Fix it, for the teapot’s sake.
 P|Thatchtop Tearoom|2|gather|Gather the tea herbs|item:meadowsweet:4,item:mint:4|Meadowsweet and mint, picked early before the dew goes. A tearoom without herbs is only a very small room.
 P|Thatchtop Tearoom|3|light|Light the window candles|item:beeswax-candles:2,item:beeswax:3|A tearoom at dusk needs a glow in every window. Warm light brings in the hungry.
-P|Thatchtop Tearoom|4|feed|Scones and tea for opening day|item:pancakes:3,item:raspberry-jam:3|Opening day means jam, cream and polite queueing. Mind the jam.
+P|Thatchtop Tearoom|4|feed|Pancakes and jam for opening day|item:pancakes:3,item:raspberry-jam:3|Opening day means jam, cream and polite queueing. Mind the jam.
 P|The Standing Stones|1|clear|Clear the heather|days:3:3|Heather has wrapped every stone like a scarf. Peel it back and let the old stones breathe.
 P|The Standing Stones|2|haul|Right the fallen stones|item:building-stone:8,item:rope:4|One stone has lain down for a nap and refuses to get up. Rope and muscle will persuade it.
 P|The Standing Stones|3|light|Light the solstice fires|item:beeswax:3,item:pine-resin:3|The stones were set to catch the midwinter sun. Fires remind the sun where to look.
@@ -109,7 +109,7 @@ P|Sea-cave Smugglers' Run|4|light|Mark the secret way|item:tin-lantern:3,item:ta
 P|Northern Lights Sauna|1|light|Fire the stove|item:birch-log:5,item:wood-ash:2|A sauna without heat is just a damp wooden box. Fire up the stove and be patient.
 P|Northern Lights Sauna|2|haul|Mend the cedar benches|item:timber-plank:5,item:pine-resin:3|Splinters in a sauna are a lesson nobody wants. Plane the planks and seal them tight.
 P|Northern Lights Sauna|3|gather|Gather the birch whisks|item:bilberries:4,item:meadowsweet:3|Gnomes beat themselves with birch twigs and call it relaxing. The twigs need a berry or two to be a proper whisk.
-P|Northern Lights Sauna|4|feed|Rye and soup after the steam|item:potato-leek-soup:3,item:smoked-trout:3|After the steam and the snow roll, there is nothing so fine as hot soup under green sky.
+P|Northern Lights Sauna|4|feed|Soup and trout after the steam|item:potato-leek-soup:3,item:smoked-trout:3|After the steam and the snow roll, there is nothing so fine as hot soup under green sky.
 # ------------------------------------------------------------ Olivewhistle Shore (SE)
 P|Olive Press Piazza|1|haul|Roll in the press stones|item:building-stone:6,item:oak-log:3|The big press stones are scattered about the piazza like very heavy marbles. Roll them back into place.
 P|Olive Press Piazza|2|gather|Gather the olive harvest|item:olive:8,item:harvest-trug:2|The branches are bowed with olives. Pick fast, before the pigeons hear about it.
@@ -119,7 +119,7 @@ P|Goat Path Vineyards|1|clear|Clear the terrace brambles|days:3:3|The goat paths
 P|Goat Path Vineyards|2|gather|Gather the harvest grapes|item:grape:7,item:woven-basket:2|The vines hang low and the grapes hang lower. Fill every basket before the wasps arrive.
 P|Goat Path Vineyards|3|haul|Prop the terrace walls|item:building-stone:6,item:rope:3|The terraces slip a little more with every rain. Stone and rope will persuade them to stay put.
 P|Goat Path Vineyards|4|feed|Cheese for the pickers|item:goat-cheese-tart:3,item:goat-cheese-salad:3|Grape pickers run on cheese. The goats, of course, supply it, and the goats expect thanks.
-P|The Labyrinth Isle|1|gather|Gather the thread for the maze|item:silk-thread:4,item:spider-silk:3|Every visitor needs a thread to find the way out. Buy silk, stay hopeful.
+P|The Labyrinth Isle|1|gather|Gather the thread for the maze|item:silk-thread:4,item:spider-silk:3|Every visitor needs a thread to find the way out. Find silk, stay hopeful.
 P|The Labyrinth Isle|2|haul|Rebuild the maze walls|item:building-stone:8,item:timber-plank:3|Two walls have fallen down and made the maze much easier, which is not what a maze wants.
 P|The Labyrinth Isle|3|clear|Mark the dead ends|days:4:2|Dead ends are best marked with a kind word and a chalk cross. Walk the maze over a few days to find them.
 P|The Labyrinth Isle|4|light|Light the heart of the maze|item:glowcap-lantern:2,item:tallow-wax:4,coins:300|At the centre sits a lamp that has been dark for an age. Light it and the whole isle breathes out.

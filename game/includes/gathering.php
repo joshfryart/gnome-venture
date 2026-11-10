@@ -272,6 +272,41 @@ function gather_set_satchel_skin(int $uid, string $skin): array
     return [true, 'You carry the ' . $skin . ' satchel.'];
 }
 
+/** The satchels this gnome can carry: key => [name, owned]. Leather is always owned. */
+function gather_satchels_owned(int $uid): array
+{
+    $out = ['leather' => ['Leather satchel', true]];
+    foreach (['canvas' => ['canvas-satchel', 'Canvas satchel'], 'patchwork' => ['patchwork-satchel', 'Patchwork satchel']] as $key => [$slug, $name]) {
+        $out[$key] = [$name, (bool)q_val('SELECT 1 FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND i.slug = ? AND ui.qty > 0', [$uid, $slug])];
+    }
+    return $out;
+}
+
+/**
+ * The satchel picker under the Gather scene: one button per satchel the gnome owns (picture, name, "carrying" on the current one) and
+ * "Use my best" to go back to the automatic choice. Empty until the gnome owns more than the starting leather satchel.
+ * Posts do=satchel_skin to gather.php (action), which flashes the answer and comes back to the Gather tab.
+ */
+function gather_satchel_picker_html(array $u, string $action, string $hiddenHtml): string
+{
+    $uid = (int)($u['id'] ?? 0);
+    $own = array_filter(gather_satchels_owned($uid), fn($o) => $o[1]);
+    if ($uid < 1 || count($own) < 2) return '';
+    $cur = gather_satchel_key($u);
+    $manual = in_array((string)($u['satchel_skin'] ?? ''), GATHER_SATCHELS, true);
+    $h = '<div class="box satchelpick"><h3>🎒 Your satchel</h3><form method="post" action="' . e($action) . '" class="satchelpick__form">' . csrf_field()
+        . '<input type="hidden" name="do" value="satchel_skin">' . $hiddenHtml . '<div class="satchelpick__row">';
+    foreach ($own as $key => [$name]) {
+        $on = $key === $cur;
+        $h .= '<button class="btn small satchelpick__btn' . ($on ? ' on' : ' alt') . '" name="skin" value="' . e($key) . '"' . ($on ? ' aria-pressed="true"' : '') . '>'
+            . '<img class="ico pix" src="' . e(url('assets/img/gather/satchel-front-' . $key . '.png')) . '" width="32" height="32" alt="" decoding="async"> '
+            . e($name) . ($on ? ' ✔' : '') . '</button>';
+    }
+    $h .= '</div>' . ($manual ? '<button class="btn small alt" name="skin" value="">Use my best</button>' : '<small class="muted">Carrying the best satchel you own.</small>')
+        . '</form></div>';
+    return $h;
+}
+
 /** Part of the day for the scene art: 'day' | 'dusk' (dawn and dusk) | 'night', from the Hollow clock. */
 function gather_day_part(?int $hour = null): string
 {

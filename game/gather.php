@@ -11,6 +11,12 @@ if (!is_post()) redirect('world.php');
 csrf_check();
 refresh_energy($u);
 $uid = (int)$u['id'];
+if (($_POST['do'] ?? '') === 'satchel_skin') {   // the satchel picker on the Gather tab: change the skin, nothing else
+    $b = (string)($_POST['back'] ?? '');
+    [$ok, $msg] = gather_set_satchel_skin($uid, (string)($_POST['skin'] ?? ''));
+    flash($msg, $ok ? 'ok' : 'err');
+    redirect(preg_match('#^(world|town)\.php(\?[^\s]*)?$#', $b) && !str_contains($b, '//') ? $b : 'world.php?tab=gather');
+}
 // Back to the page the gnome came from (only our own world and town pages), else the World page
 $back = (string)($_POST['back'] ?? '');
 $safe = preg_match('#^(world|town)\.php(\?[^\s]*)?$#', $back) && !str_contains($back, '//') ? $back : 'world.php';

@@ -7629,3 +7629,8 @@ dialog.hubpop .wsfrag .shhead + * , dialog.hubpop .wsfrag .box { margin-top: 6px
 .hov-earlier summary { cursor: pointer; color: var(--muted); }
 .hov-today .hov-tb small { white-space: normal; overflow: visible; }
 .hov-today .hov-tiv { box-sizing: border-box; }
+
+/* satchel picker under the Gather scene */
+.satchelpick__row { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0; }
+.satchelpick__btn { display: inline-flex; align-items: center; gap: .3rem; }
+.satchelpick__btn.on { outline: 2px solid currentColor; outline-offset: 1px; }
