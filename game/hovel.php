@@ -23,11 +23,12 @@ if (is_post()) {
         $msg .= ' ' . gclock_rest_summary($before, $a, $hpAfter - $hpBefore);
     }
     flash($msg, $ok ? 'ok' : 'err');
-    redirect('hovel.php' . ($ok && $kind !== 'nap' && $kind !== '' ? '?t=tasks' : ''));   // after sleeping the jobs have changed: open the Tasks tab
+    redirect('hovel.php' . ($ok && $kind !== 'nap' && $kind !== '' ? (pcrew_count($uid) > 0 ? '?t=pals' : '?t=tasks') : ''));   // after sleeping: what the pals did, else the Tasks tab (the jobs have changed)
 }
 $s = gclock_state($u);
 $T = (string)($_GET['t'] ?? 'sleep');
-if (!in_array($T, ['sleep', 'tasks', 'costs'], true)) $T = 'sleep';
+if (!in_array($T, ['sleep', 'tasks', 'pals', 'costs'], true)) $T = 'sleep';
+require_once __DIR__ . '/includes/pal_crew.php';
 $clock = sprintf('%02d:%02d', intdiv($s['minute'], 60) % 24, $s['minute'] % 60);
 $opts = gclock_rest_options($u);
 $now = hollow_now(hollow_user_region($u), null, $s);
@@ -42,7 +43,8 @@ $optHtml = function (array $o) use ($u): string {
 require_once __DIR__ . '/includes/quests_view.php';
 $cnt = tasks_counts($u, false);
 $todo = (int)($cnt['jobs'] ?? 0) + (int)($cnt['journey'] ?? 0) + (int)($cnt['requests'] ?? 0);
-$tabs = ['sleep' => ['🛏️', 'Sleep'], 'tasks' => ['📋', 'Tasks'], 'costs' => ['🕐', 'Costs']];
+$crewN = pcrew_count($uid);
+$tabs = ['sleep' => ['🛏️', 'Sleep'], 'tasks' => ['📋', 'Tasks'], 'pals' => ['🧩', 'Pals'], 'costs' => ['🕐', 'Costs']];
 ?>
 <h1>🛏️ Hovel</h1>
 <div class="hov-hero<?= $s['tired'] ? ' tired' : '' ?>">
@@ -55,7 +57,7 @@ $tabs = ['sleep' => ['🛏️', 'Sleep'], 'tasks' => ['📋', 'Tasks'], 'costs' 
 </div>
 <nav class="tabs hov-tabs" aria-label="Hovel">
   <?php foreach ($tabs as $k => [$ic, $lb]): ?>
-    <a class="<?= $T === $k ? 'on' : '' ?>" href="<?= e(url('hovel.php' . ($k === 'sleep' ? '' : '?t=' . $k))) ?>"><span aria-hidden="true"><?= $ic ?></span> <?= $lb ?><?= $k === 'tasks' && $todo > 0 ? ' <small>' . $todo . '</small>' : '' ?></a>
+    <a class="<?= $T === $k ? 'on' : '' ?>" href="<?= e(url('hovel.php' . ($k === 'sleep' ? '' : '?t=' . $k))) ?>"><span aria-hidden="true"><?= $ic ?></span> <?= $lb ?><?= $k === 'tasks' && $todo > 0 ? ' <small>' . $todo . '</small>' : '' ?><?= $k === 'pals' && $crewN > 0 ? ' <small>' . $crewN . '</small>' : '' ?></a>
   <?php endforeach; ?>
 </nav>
 <?php if ($T === 'sleep'): ?>
@@ -97,6 +99,36 @@ $tabs = ['sleep' => ['🛏️', 'Sleep'], 'tasks' => ['📋', 'Tasks'], 'costs' 
     <li class="hov-t"><a href="<?= e(url('jobs.php?t=requests')) ?>"><span class="hov-ti" aria-hidden="true">📌</span><span class="hov-tb"><b>Requests</b><small class="muted"><?= (int)($cnt['requests'] ?? 0) ? (int)$cnt['requests'] . ' to hand in or carry' : 'Orders and errands from villagers' ?></small></span><span class="hov-tr">→</span></a></li>
   </ul>
   <p><a class="btn alt" href="<?= e(url('jobs.php')) ?>">Open the Tasks page →</a></p>
+</section>
+<?php elseif ($T === 'pals'):
+    $rep = pcrew_latest_report($uid);
+    $slotsNow = q('SELECT s.*, pl.garden_name AS plot_name FROM garden_pal_slots s LEFT JOIN plots pl ON pl.id = s.plot_id WHERE s.user_id = ? ORDER BY s.plot_id, s.id', [$uid])->fetchAll(); ?>
+<section class="box hov hov-pals">
+  <?php if (!$slotsNow && !$rep): ?>
+    <p>No pals are working your garden.</p><p class="muted sm">Put a pal on Water, Weed, Pests or Harvest. They work every night while you sleep.</p>
+    <p><a class="btn" href="<?= e(url('garden.php?t=help')) ?>">Set up the crew →</a></p>
+  <?php else: ?>
+    <?php if ($rep && !empty($rep[1]['crew'])): ?>
+      <h2>While you slept <small class="muted">(day <?= (int)$rep[0] ?>)</small></h2>
+      <ul class="hov-tl">
+      <?php foreach ($rep[1]['crew'] as $c): ?>
+        <li class="hov-t"><a href="<?= e(url('garden.php?t=help')) ?>"><span class="hov-ti" aria-hidden="true"><?= PCREW_ROLES[$c['role']][0] ?? '🧩' ?></span>
+          <span class="hov-tb"><b><?= e($c['pal']) ?> · <?= e(PCREW_ROLES[$c['role']][1] ?? $c['role']) ?></b><small class="muted"><?= e($c['plot']) ?>: <?= e((string)$c['text']) ?><?= !empty($c['ended']) ? ' · finished, resting' : '' ?></small></span>
+          <span class="hov-tr"><?= (int)$c['n'] ?></span></a></li>
+      <?php endforeach; ?>
+      </ul>
+    <?php endif; ?>
+    <?php if ($slotsNow): ?>
+      <h2>Working now</h2>
+      <ul class="hov-tl">
+      <?php foreach ($slotsNow as $s): $sp = pj_pal($uid, (string)$s['pal_uid']); ?>
+        <li class="hov-t active"><a href="<?= e(url('garden.php?t=help')) ?>"><span class="hov-ti" aria-hidden="true"><?= PCREW_ROLES[$s['role']][0] ?? '🧩' ?></span>
+          <span class="hov-tb"><b><?= e($sp['name'] ?? 'A pal') ?> · <?= e(PCREW_ROLES[$s['role']][1] ?? $s['role']) ?></b><small class="muted"><?= e((string)($s['plot_name'] ?? 'Garden')) ?> · <?= $s['mode'] === 'full' ? 'full time' : 'sleep ' . min((int)$s['nights'], (int)$s['done'] + 1) . ' of ' . (int)$s['nights'] ?></small></span></a></li>
+      <?php endforeach; ?>
+      </ul>
+    <?php endif; ?>
+    <p><a class="btn alt" href="<?= e(url('garden.php?t=help')) ?>">Open Garden crew →</a></p>
+  <?php endif; ?>
 </section>
 <?php else: ?>
 <section class="box hov-costs" id="costs">

@@ -140,7 +140,18 @@ $seg = function (string $name, string $legend, array $vals, int $on, callable $f
 function pjv_ledger(array $c): string
 {
     extract($c);
+    require_once __DIR__ . '/pal_crew.php';
+    $crewRows = []; try { pcrew_boot(); $crewRows = q('SELECT s.*, pl.garden_name AS plot_name FROM garden_pal_slots s LEFT JOIN plots pl ON pl.id = s.plot_id WHERE s.user_id = ? ORDER BY s.plot_id, s.id', [$GLOBALS['u']['id'] ?? 0])->fetchAll(); } catch (Throwable $e) {}
     ob_start(); ?>
+    <?php if ($crewRows): ?>
+    <section class="box pjpanel pjcrew" aria-labelledby="pjcrewh">
+      <header class="pjpanelhd"><h2 id="pjcrewh">🌱 Garden crew</h2><small class="muted">working while you sleep</small></header>
+      <?php foreach ($crewRows as $cr): $cp = pj_pal((int)$cr['user_id'], (string)$cr['pal_uid']); ?>
+        <p class="pjrow"><?= PCREW_ROLES[$cr['role']][0] ?? '🧩' ?> <b><?= e($cp['name'] ?? 'A pal') ?></b> · <?= e(PCREW_ROLES[$cr['role']][1] ?? $cr['role']) ?> <span class="muted">· <?= e((string)($cr['plot_name'] ?? 'Garden')) ?> · <?= $cr['mode'] === 'full' ? 'full time' : 'sleep ' . min((int)$cr['nights'], (int)$cr['done'] + 1) . ' of ' . (int)$cr['nights'] ?></span>
+          <a class="btn small alt" href="<?= e(url('garden.php?t=help')) ?>">Garden crew</a></p>
+      <?php endforeach; ?>
+    </section>
+    <?php endif; ?>
     <section class="box pjpanel pjledger" aria-labelledby="pjouth">
       <header class="pjpanelhd">
         <h2 id="pjouth" tabindex="-1">Out and about</h2>

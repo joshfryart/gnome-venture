@@ -1049,6 +1049,36 @@ function schema_statements(string $driver): array
         created_at DATETIME NOT NULL
     )$END";   // v2.6.37: messages: replies under a feedback note, from the admin (from_admin = 1) or the player
 
+    $t[] = "CREATE TABLE IF NOT EXISTS garden_pal_slots (
+        id $PK,
+        plot_id $ID NOT NULL,
+        user_id $ID NOT NULL,
+        role VARCHAR(10) NOT NULL,
+        pal_uid VARCHAR(32) NOT NULL,
+        mode VARCHAR(6) NOT NULL DEFAULT 'timed',
+        nights INT NOT NULL DEFAULT 0,
+        done INT NOT NULL DEFAULT 0,
+        start_day INT NOT NULL DEFAULT 0,
+        last_day INT NULL,
+        created_at DATETIME NULL,
+        UNIQUE (plot_id, role)
+    )$END";   // v2.6.40: garden crew: one pal per role per garden, working while the gnome sleeps (includes/pal_crew.php)
+    $t[] = "CREATE TABLE IF NOT EXISTS garden_pal_rest (
+        id $PK,
+        user_id $ID NOT NULL,
+        pal_uid VARCHAR(32) NOT NULL,
+        until_day INT NOT NULL DEFAULT 0,
+        UNIQUE (user_id, pal_uid)
+    )$END";   // v2.6.40: a pal sent home from the crew rests until this game day
+    $t[] = "CREATE TABLE IF NOT EXISTS sleep_report (
+        id $PK,
+        user_id $ID NOT NULL,
+        game_day INT NOT NULL,
+        body TEXT NOT NULL,
+        created_at DATETIME NULL,
+        UNIQUE (user_id, game_day)
+    )$END";   // v2.6.40: what changed overnight (JSON), the last 3 sleeps kept
+
     $t[] = "CREATE TABLE IF NOT EXISTS site_texts (
         skey VARCHAR(60) NOT NULL PRIMARY KEY,
         body TEXT NOT NULL,

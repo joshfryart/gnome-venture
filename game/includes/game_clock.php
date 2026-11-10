@@ -447,6 +447,8 @@ function game_new_day(int $uid): void
     gclock_freeze_pals($uid);
     $h = gclock_setting_int('pal_hours_per_sleep', 8);
     if ($h > 0) gclock_shift_pal_clocks($uid, $h * 3600);
+    require_once __DIR__ . '/pal_crew.php';
+    pcrew_night($uid);   // v2.6.40: the garden crew works the night (water, weed, pests, harvest)
     // a helper tending this gnome's garden through a player job works the new day (paid pro rata)
     require_once __DIR__ . '/player_jobs.php';
     foreach (q("SELECT * FROM player_jobs WHERE poster_id = ? AND kind = 'tend' AND status = 'taken' AND ends_day IS NOT NULL", [$uid])->fetchAll() as $pj) pjob_replay_days($pj);

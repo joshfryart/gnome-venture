@@ -58,7 +58,7 @@ dbx "UPDATE ppal_found SET status='home', hp=-1"; dbx "DELETE FROM ppal_jobs"
 get paljobs.php >/dev/null
 PLOT=$(db "SELECT id FROM plots LIMIT 1")
 chk "POST send_garden redirects" "$(post paljobs.php -d do=send_garden -d pal=$PAL -d plot=$PLOT -d days=1)" 302
-chk "garden job stored" "$(db "SELECT COUNT(*) FROM ppal_jobs WHERE kind='garden' AND state='active'")" 1
+chk "garden job via the page is refused (crew replaces it, v2.6.40)" "$(db "SELECT COUNT(*) FROM ppal_jobs WHERE kind='garden' AND state='active'")" 0
 chk "a bad hash is refused (no job)" "$(get paljobs.php >/dev/null; post paljobs.php -d do=send_garden -d pal=ffffffffffffffff -d plot=$PLOT -d days=1 >/dev/null; db "SELECT COUNT(*) FROM ppal_jobs")" 1
 chk "POST without csrf is refused" "$(curl -s -c $C -b $C -X POST "$BASE/paljobs.php" -d do=recall -d job=1 -o /dev/null -w "%{http_code}")" 400
 echo "== v2.3.3: pals home with loot (home page: TODAY and MY GNOME tabs) + Collect receipt"

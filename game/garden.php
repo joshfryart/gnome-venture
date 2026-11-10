@@ -17,7 +17,7 @@ if (is_post()) {
     $y = (int)($_POST['y'] ?? -1);
     // v1.4.0: every panel action returns to its own tab (Beds is the default)
     $tabOfDo = ['build' => 'bld', 'upgrade' => 'bld', 'pantry_buy' => 'bld', 'add_scraps' => 'bld', 'heap_out' => 'bld', 'collect' => 'bld',
-                'hire' => 'help', 'dismiss' => 'help', 'expand' => 'grow', 'sign_buy' => 'grow', 'sign_use' => 'grow'];
+                'hire' => 'help', 'dismiss' => 'help', 'crew_assign' => 'help', 'crew_recall' => 'help', 'expand' => 'grow', 'sign_buy' => 'grow', 'sign_use' => 'grow'];
     if ($do === 'collect' && ($_POST['from'] ?? '') === 'yard') unset($tabOfDo['collect']);   // v1.9.7: tapping a glowing building on the yard collects and stays on the garden
     $postTab = $tabOfDo[$do] ?? (in_array((string)($_POST['t'] ?? ''), ['bld', 'an', 'help', 'grow'], true) ? (string)$_POST['t'] : 'beds');
     $tq = $postTab !== 'beds' ? '?t=' . $postTab : '';
@@ -106,7 +106,16 @@ if (is_post()) {
         [$ok, $msg] = collect_building($u, active_plot_id($uid), (string)($_POST['building'] ?? ''));
         flash($msg, $ok ? 'ok' : 'err');
     } elseif ($do === 'hire') {
-        [$ok, $msg] = hire_helper($u, active_plot_id($uid), (int)($_POST['helper_id'] ?? 0), (int)($_POST['days'] ?? 0));
+        flash('Hired helpers have gone home. Your pals do the garden work now: see the Crew tab.', 'err');   // v2.6.40
+    } elseif ($do === 'crew_assign' || $do === 'crew_recall') {
+        require_once __DIR__ . '/includes/pal_crew.php';
+        $slotRole = (string)($_POST['role'] ?? '');
+        if ($do === 'crew_assign') {
+            $m = (string)($_POST['mode'] ?? '');
+            [$ok, $msg] = pcrew_assign($u, active_plot_id($uid), $slotRole, (string)($_POST['pal'] ?? ''), $m === 'full' ? 'full' : 'timed', (int)$m, !empty($_POST['unequip']));
+        } else {
+            [$ok, $msg] = pcrew_recall($u, active_plot_id($uid), $slotRole);
+        }
         flash($msg, $ok ? 'ok' : 'err');
     } elseif ($do === 'dismiss') {
         [$ok, $msg] = dismiss_helper($u, active_plot_id($uid), (int)($_POST['hire_id'] ?? 0));
@@ -386,6 +395,7 @@ $homes = array_values(array_filter(array_keys($built), 'critter_is_home'));
 $nbr = animals120_neighbours($u, $plot);   // v1.2.0: Clementine and Percy
 $hasAnimals = $biddy !== '' || $nbr['html'] !== '' || $homes;
 if ($tab === 'an' && !$hasAnimals) $tab = 'beds';
+require_once __DIR__ . '/includes/pal_crew.php'; pcrew_retire_helpers();   // v2.6.40: hired helpers go home, wages refunded (once)
 $hires = current_hires((int)$plot['id']); $slots = helper_slots((int)$plot['id']);   // v0.7.99: one helper per Tool Shed level
 $nReadyBeds = 0;
 foreach ($tiles as $row) foreach ($row as $t) if ($t['plant_id'] && isset($plants[(int)$t['plant_id']]) && tile_info($t, $plants[(int)$t['plant_id']])['ready']) $nReadyBeds++;
@@ -396,7 +406,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
   <a class="<?= $tab === 'beds' ? 'on' : '' ?>" href="<?= e(url('garden.php')) ?>"><span class="tabic">🌱</span> Beds<?= $tb($nReadyBeds) ?></a>
   <a class="<?= $tab === 'bld' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=bld')) ?>"><span class="tabic">🏠</span> Buildings<?= $tb(count($readyB)) ?></a>
   <?php if ($hasAnimals): ?><a class="<?= $tab === 'an' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=an')) ?>"><span class="tabic">🐾</span> Animals<?= $tb($nAnimals) ?></a><?php endif; ?>
-  <a class="<?= $tab === 'help' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=help')) ?>"><span class="tabic">🧑‍🌾</span> Help<?= $tb(count($hires), ' muted') ?></a>
+  <a class="<?= $tab === 'help' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=help')) ?>"><span class="tabic">🧩</span> Crew<?php require_once __DIR__ . '/includes/pal_crew.php'; echo $tb(count(pcrew_slots((int)$plot['id'])), ' muted'); ?></a>
   <a class="<?= $tab === 'grow' ? 'on' : '' ?>" href="<?= e(url('garden.php?t=grow')) ?>"><span class="tabic">📐</span> Grow</a>
 </nav>
 <?php if ($tab === 'beds'): ?>
@@ -884,50 +894,51 @@ $maxLv = fn(string $k): int => 1 + count(BUILDING_UPGRADES[$k] ?? []);
 </div>
 <?php endif; /* v1.4.0: end of the Animals tab */ ?>
 
-<?php if ($tab === 'help'):
-    $hnames = array_map('strval', array_column($hires, 'name'));   // v1.4.0: "Clover and Moss are here"
-    $hlist = count($hnames) > 1 ? implode(', ', array_slice($hnames, 0, -1)) . ' and ' . end($hnames) : implode('', $hnames); ?>
-<div class="box hiredhelp gtab">
-  <?php if ($hires): ?><p><b>🧑‍🌾 <?= e($hlist) ?> <?= count($hires) === 1 ? 'is' : 'are' ?> here</b></p><?php endif; ?>
-  <?php foreach ($hires as $hire): ?>
-    <div class="helper on">
-      <span class="hicon"><?= e((string)$hire['icon']) ?></span>
-      <div>
-        <b><?= e($hire['name']) ?></b> <span class="muted">(<?= e((string)$hire['species']) ?>)</span> is staying in your Tool Shed.
-        <p class="help"><?= e(helper_skill_text($hire)) ?> · visits every <?= (int)setting('helper_visit_hours') ?> <?= gclock_on() ? 'game ' : '' ?>hours ·
-          <?= nice_time(max(0, ts($hire['ends_at']) - gclock_hire_now($hire))) ?> left<?= gclock_on() && empty($hire['pj_job']) ? ' (game time: it counts your days)' : '' ?></p>
-        <p class="help">So far: <?= (int)$hire['visits'] ?> visits, watered <?= (int)$hire['waterings'] ?>, weeded <?= (int)$hire['weedings'] ?>, harvested <?= (int)$hire['harvests'] ?>.</p>
-        <form method="post" data-confirm="Send <?= e($hire['name']) ?> home? Unused whole days are refunded."><?= csrf_field() ?><input type="hidden" name="do" value="dismiss"><input type="hidden" name="hire_id" value="<?= (int)$hire['id'] ?>">
-          <button class="btn small alt">Send home</button></form>
+<?php if ($tab === 'help'):   // v2.6.40: the Help tab is the pal Crew (hired helpers have retired)
+    require_once __DIR__ . '/includes/pal_crew.php';
+    pcrew_retire_helpers();
+    $crewOpen = pcrew_open($u);
+    $cslots = pcrew_slots((int)$plot['id']);
+    $cpals = $crewOpen ? pj_pals($uid) : [];
+    $today = (int)$u['game_day']; ?>
+<div class="box crew gtab">
+  <h3>🧩 Garden crew</h3>
+  <p class="help">Put a pal on each job. They work <b>while you sleep</b>, and what they did is in the Hovel under Pals.</p>
+  <?php if (!$crewOpen): ?><p class="muted">Garden crews open with pal jobs (gnome level <?= (int)pj_min_level() ?>) once you have a Puzzle Pal.</p><?php endif; ?>
+  <div class="crewslots">
+  <?php foreach (PCREW_ROLES as $rk => [$ri, $rl, $rd, $ropen]): $s = $cslots[$rk] ?? null; $sp = $s ? pj_pal($uid, (string)$s['pal_uid']) : null; ?>
+    <div class="crewslot<?= $s ? ' on' : '' ?><?= $ropen ? '' : ' off' ?>">
+      <span class="crewic" aria-hidden="true"><?= $ri ?></span>
+      <div class="crewb">
+        <b><?= e($rl) ?></b>
+        <?php if ($s): ?>
+          <small class="muted"><?= e($sp['name'] ?? 'A pal') ?> · <?= $s['mode'] === 'full' ? 'full time · night ' . ((int)$s['done'] + 1) : 'sleep ' . min((int)$s['nights'], (int)$s['done'] + 1) . ' of ' . (int)$s['nights'] ?></small>
+          <form method="post" class="inline" data-confirm="Call <?= e($sp['name'] ?? 'the pal') ?> home? They rest until you sleep."><?= csrf_field() ?><input type="hidden" name="do" value="crew_recall"><input type="hidden" name="role" value="<?= e($rk) ?>"><input type="hidden" name="t" value="help">
+            <button class="btn small alt">Call home</button></form>
+        <?php elseif (!$ropen): ?>
+          <small class="muted"><?= e($rd) ?></small>
+        <?php elseif ($crewOpen): $free = array_filter($cpals, fn($pp) => $pp['status'] === 'home'); ?>
+          <small class="muted"><?= e($rd) ?></small>
+          <details class="crewpick"><summary class="btn small">Assign a pal</summary>
+            <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="crew_assign"><input type="hidden" name="role" value="<?= e($rk) ?>"><input type="hidden" name="t" value="help">
+              <?php if (!$free): ?><p class="muted">All your pals are out.</p><?php else: ?>
+              <p class="crewpals"><?php $first = true; foreach ($free as $pp): $rest = pcrew_is_resting($uid, $pp['uid'], $today); ?>
+                <label class="crewpal<?= $rest ? ' rest' : '' ?>"><input type="radio" name="pal" value="<?= e($pp['uid']) ?>"<?= $rest ? ' disabled' : ($first ? ' checked' : '') ?>> <?= e($pp['name']) ?><?= $rest ? ' <small class="muted">resting until you sleep</small>' : ($pp['active'] ? ' <small class="muted">in your party</small>' : '') ?></label>
+              <?php if (!$rest) $first = false; endforeach; ?></p>
+              <p class="crewmode"><?php foreach (PCREW_NIGHTS as $n): ?><label><input type="radio" name="mode" value="<?= $n ?>"<?= $n === 1 ? ' checked' : '' ?>> <?= $n ?> sleep<?= $n > 1 ? 's' : '' ?></label> <?php endforeach; ?><label><input type="radio" name="mode" value="full"> Full time</label></p>
+              <p class="crewmode"><label><input type="checkbox" name="unequip" value="1"> Take off my party if needed</label></p>
+              <button class="btn small">Send to work</button>
+              <?php endif; ?>
+            </form>
+          </details>
+        <?php else: ?>
+          <small class="muted"><?= e($rd) ?></small>
+        <?php endif; ?>
       </div>
     </div>
   <?php endforeach; ?>
-  <?php if (!isset($built['tool_shed'])): ?>
-    <p>Going adventuring? A helper can water, weed and harvest while you’re away. They need somewhere to stay:
-      build a <b>🧰 Tool Shed</b> in this garden (garden level <?= (int)BUILDINGS['tool_shed'][2] ?>).</p>
-  <?php elseif (count($hires) >= $slots): ?>
-    <p class="help">🧰 Your Tool Shed houses <?= $slots ?> helper<?= $slots === 1 ? '' : 's' ?><?= $slots < 3 ? '. Upgrade it to make room for another.' : ', the most it can.' ?></p>
-  <?php else: $busy = array_map('intval', array_column($hires, 'helper_id')); ?>
-    <p class="help">🧰 Room for <?= $slots - count($hires) ?> more (the Tool Shed houses one helper per level). Paid up front. They visit every <?= (int)setting('helper_visit_hours') ?> hours, keep <?= (int)setting('helper_cut_percent') ?>% of what they harvest,
-      and you get <?= (int)setting('helper_xp_percent') ?>% XP for their harvests.</p>
-    <div class="helpers">
-    <?php foreach (q('SELECT * FROM helpers WHERE active = 1 ORDER BY wage')->fetchAll() as $h): if (in_array((int)$h['id'], $busy, true)) continue; ?>
-      <div class="helper">
-        <span class="hicon"><?= e((string)$h['icon']) ?></span>
-        <div>
-          <b><?= e($h['name']) ?></b> <span class="muted">(<?= e((string)$h['species']) ?>)</span>
-          <p class="help"><?= e((string)$h['bio']) ?></p>
-          <p class="help"><?= e(helper_skill_text($h)) ?> · <?= money((int)$h['wage']) ?> a day</p>
-          <?php foreach (HELP_DAYS as $d): ?>
-            <form method="post" class="inline" data-confirm="Hire <?= e($h['name']) ?> for <?= $d ?> day<?= $d > 1 ? 's' : '' ?> (<?= number_format((int)$h['wage'] * $d) ?>)?"><?= csrf_field() ?>
-              <input type="hidden" name="do" value="hire"><input type="hidden" name="helper_id" value="<?= (int)$h['id'] ?>"><input type="hidden" name="days" value="<?= $d ?>">
-              <button class="btn small"><?= $d ?> day<?= $d > 1 ? 's' : '' ?> · <?= money((int)$h['wage'] * $d) ?></button></form>
-          <?php endforeach; ?>
-        </div>
-      </div>
-    <?php endforeach; ?>
-    </div>
-  <?php endif; ?>
+  </div>
+  <p class="help">A pal called home rests until your next sleep. <b>Full time</b> keeps working until you call them home.</p>
 </div>
 <?php endif; /* v1.4.0: end of the Help tab */ ?>
 
