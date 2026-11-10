@@ -192,14 +192,6 @@ local function hawk()
   c:put(62, 25, G.base) c:put(65, 26, G.base) c:put(62, 26, G.base)             -- a yellow iris
   dots(c, { { 60, 22 }, { 61, 22 }, { 62, 23 }, { 63, 23 }, { 64, 24 }, { 65, 24 }, { 66, 25 } }, W.deep)   -- the hawk's glare
   form(c, c:rect(52, 78, 54, 80), P.ember, { noshade = true }) c:put(52, 78, P.ember.hi) c:put(55, 79, P.ember.shade)   -- quirk: a red ring on one leg
-  -- quirk: it is moulting: one feather drifts down behind it. A real feather: curved vane, pale quill, a split in the barbs, the tail's dark bar and pale tip
-  local vane = c:poly{ { 7, 31 }, { 11, 27 }, { 18, 27 }, { 23, 30 }, { 25, 34 }, { 20, 36 }, { 12, 35 } }
-  vane:cut(c:poly{ { 15, 37 }, { 17, 33 }, { 18, 37 } })
-  form(c, vane, DK, { frac = 0.25, off = 1 }) under(c, vane, W.deep)
-  vane:each(function(x, y) if x <= 9 then c:put(x, y, CREAM.base) elseif x <= 11 then c:put(x, y, W.deep) end end)
-  dots(c, { { 10, 31 }, { 11, 31 }, { 12, 31 }, { 13, 31 }, { 14, 31 }, { 15, 32 }, { 16, 32 }, { 17, 32 }, { 18, 32 }, { 19, 33 }, { 20, 33 }, { 21, 33 }, { 22, 34 }, { 23, 34 } }, CREAM.base)   -- quill
-  dots(c, { { 25, 35 }, { 26, 35 }, { 27, 36 }, { 28, 36 } }, CREAM.base)        -- bare end of the quill
-  dots(c, { { 13, 29 }, { 16, 29 }, { 19, 30 }, { 14, 33 }, { 20, 35 } }, W.base)   -- barbs
   c:finish()
   return c
 end
