@@ -16,6 +16,9 @@ $main = (int)q_val('SELECT id FROM plots WHERE user_id = ? ORDER BY id LIMIT 1',
 $region = (int)q_val('SELECT region_id FROM plots WHERE id = ?', [$main]);
 q('UPDATE users SET coins = 1000000, level = 20, energy = 500 WHERE id = ?', [$uid]);
 q("UPDATE plants SET grow_minutes = 3000 WHERE slug IN ('tomato','lettuce','potato','corn')");   // long growers so the timed checks never hit the cap
+// This suite checks the garden engine's real-time rules (growth seconds, last_watered, pest_at, animal timers). With sleep-days on, those
+// run on the owner's game days instead; that path is covered by tests/game_clock.php. So the flag is pinned OFF here, on purpose.
+cfg(['game_clock_on' => 0]);
 cfg(['season_force' => '', 'weather_force' => '', 'garden_fx_on' => 1, 'pests_on' => 1, 'animals_on' => 1]);
 
 /** A fresh garden for a scenario (building and yard caches are per plot). */
@@ -572,6 +575,12 @@ $e2 = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]);
 ok('a second tab does not credit the same ticks twice', $e2 === $e1, "got $e2, wanted $e1");
 ok('the second tab sees the current energy', (int)$ub['energy'] === $e2);
 q('UPDATE users SET energy = 500 WHERE id = ?', [$uid]);
+
+echo "== sleep-days: the flag is a switch, real-time rules above stay valid with it off\n";
+cfg(['game_clock_on' => 1]);
+ok('flag on turns the game clock on (garden growth then follows game days: see tests/game_clock.php)', gclock_on());
+cfg(['game_clock_on' => 0]);
+ok('flag off restores the real-time garden', !gclock_on());
 
 echo $fails ? "\n$fails FAILED\n" : "\nall ok\n";
 exit($fails ? 1 : 0);
