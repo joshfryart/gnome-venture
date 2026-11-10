@@ -412,18 +412,20 @@ function dv2_menu_html(array $u, array $exp, array $sc, bool $busy): string
     $o = '<div class="dv2route"><p class="dv2lead">' . ($at === null ? 'Which way down?' : 'Which way next?') . '</p>';
     $o .= '<form method="post" class="dv2routeform">' . csrf_field() . '<input type="hidden" name="do" value="route">';
     $atRow = $at === null ? -1 : (int)dv_route_node($route, $at)['row'];
-    foreach ($route['rows'] as $r => $row) {
-        if ($r <= $atRow) continue;   // rows behind you are not shown
-        $o .= '<div class="dv2row" data-row="' . $r . '">';
+    $last = count($route['rows']) - 1;
+    foreach ($route['rows'] as $r => $row) {   // v2.6.38: the whole route stays on show: the path you took lit, the other rooms of rows behind you greyed out
+        $past = $r <= $atRow;
+        $o .= '<div class="dv2row' . ($past ? ' past' : ($r === $atRow + 1 ? ' next' : '')) . '" data-row="' . $r . '"><span class="dv2stage" aria-hidden="true">' . ($r === $last ? '★' : $r + 1) . '</span>';
         foreach ($row as $n) {
             $isChoice = in_array($n['id'], $choices, true);
             $was = in_array($n['id'], $picked, true);
             $known = $isChoice || $was || $n['kind'] === 'boss';
             [$ico, $label] = $known ? DV2_KIND[$n['kind']] : ['❔', 'Unknown'];
             $size = $known && isset($n['tier']) && $n['kind'] !== 'boss' ? ' <small>' . DV2_SIZE[$n['tier']] . '</small>' : '';
-            $cls = 'dv2node' . ($isChoice ? ' go' : '') . ($was ? ' was' : '') . (!$known ? ' unk' : '') . ($n['kind'] === 'boss' ? ' boss' : '');
+            $off = $past && !$was;   // a room you passed by: can't be picked any more
+            $cls = 'dv2node' . ($isChoice ? ' go' : '') . ($was ? ' was' : '') . ($was && $n['id'] === $at ? ' here' : '') . ($off ? ' off' : '') . (!$known ? ' unk' : '') . ($n['kind'] === 'boss' ? ' boss' : '');
             if ($isChoice) $o .= '<button type="submit" class="' . $cls . '" name="pick" value="' . e($n['id']) . '"><span class="dv2ico" aria-hidden="true">' . $ico . '</span>' . e($label) . $size . '</button>';
-            else $o .= '<span class="' . $cls . '"' . ($known ? '' : ' role="img" aria-label="Not yet seen"') . '><span class="dv2ico" aria-hidden="true">' . $ico . '</span>' . ($known ? e($label) : '') . $size . '</span>';
+            else $o .= '<span class="' . $cls . '"' . ($known && !$off ? '' : ' role="img" aria-label="' . ($off ? 'Not taken' : 'Not yet seen') . '"') . '><span class="dv2ico" aria-hidden="true">' . $ico . '</span>' . ($known ? e($label) : '') . $size . ($was ? '<span class="dv2tick" aria-hidden="true">✓</span>' : '') . '</span>';
         }
         $o .= '</div>';
     }

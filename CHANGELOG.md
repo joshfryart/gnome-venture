@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- **Delve route menu**: prettier panel (framed, stage numbers, dotted links between rows, raised pick buttons). The whole route now stays on screen after each floor: the rooms you took are lit with a ✓, the rooms you passed by are greyed out and can't be picked. Files: `includes/delve_v2.php`, `style.css`. `tests/delve2.sh` passes.
 - **Workshop popover actions**: Make ×2 / ×5 / All and Collect buttons now send which button was pressed (before, the amount was lost). After any action the picture behind updates too: the **!** badges, the chips, the card's recipe count and the energy / header strip. File: `workshop.js`.
 - **Workshop picture**: a green **!** now sits on each crafting section with something to do (recipes ready to make, pantry jars done). Section popovers no longer repeat the page's area strip and big picture; they are a wide, left-aligned, scrolling sheet (the old 420 px cap squeezed them). Files: `hub_scene.php`, `hub_pages.php`, `craft_map.php`, `workshop.php`, `style.css`.
 
