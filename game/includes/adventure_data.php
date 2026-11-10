@@ -286,7 +286,7 @@ function import_adventure(array $regions, array $regionIds, array $regionById, a
             $L = LANDSCAPES[$v['landscape']] ?? ['', ucfirst((string)$v['landscape']), ''];
             db_insert('encyclopedia_entries', [
                 'chapter' => 'Villages', 'category' => substr((string)$v['region_name'], 0, 30), 'title' => $v['name'],
-                'body' => $L[0] . ' A ' . strtolower($L[1]) . ' village in ' . ($v['zone_name'] ?: 'the wilds') . '. ' . $L[2],
+                'body' => $L[0] . (preg_match('/^[aeiou]/i', (string)$L[1]) ? ' An ' : ' A ') . strtolower($L[1]) . ' village in ' . ($v['zone_name'] ?: 'the wilds') . '. ' . $L[2],
                 'unlock_key' => 'village:' . $v['slug'],
                 'hint' => 'Visit it on your travels (' . strtolower($L[1]) . ').',
                 'sort_order' => (int)$v['sort_order'],
@@ -366,7 +366,7 @@ function import_creatures_txt(array &$stats, string $file = 'creatures.txt'): vo
         if (!q_val('SELECT 1 FROM encyclopedia_entries WHERE unlock_key = ?', ['creature:' . $slug])) {
             db_insert('encyclopedia_entries', ['chapter' => 'Creatures', 'category' => $sizeLabel, 'title' => $name,
                 'body' => $desc . "\n\n[b]Found in:[/b] " . ($lands === 'any' ? 'every landscape' : str_replace(',', ', ', $lands))
-                    . " · [b]Level:[/b] $level\n[b]Can drop:[/b] " . implode(', ', $names) . '.',
+                    . " · [b]Level:[/b] $level" . ($names ? "\n[b]Can drop:[/b] " . implode(', ', $names) . '.' : ''),
                 'unlock_key' => 'creature:' . $slug, 'hint' => 'Defeat or befriend it on an adventure.', 'sort_order' => $level]);
             $stats['pages']++;
         }

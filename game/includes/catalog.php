@@ -161,7 +161,7 @@ function import_catalog(): array
             if (count($row) < 7) continue;
             [$slug, $name, $regionCode, $tier, $per, $poll, $desc] = $row;
             $all[] = ['slug' => $slug, 'name' => $name, 'kind' => 'flower', 'tier' => $tier, 'per' => $per,
-                'desc' => $desc . ' Attracts ' . $poll . 's.', 'region_code' => $regionCode, 'pollinator' => $poll];
+                'desc' => $desc . ' Attracts ' . (substr($poll, -1) === 'y' ? substr($poll, 0, -1) . 'ies' : $poll . 's') . '.', 'region_code' => $regionCode, 'pollinator' => $poll];
         }
 
         foreach ($all as $c) {
@@ -267,7 +267,7 @@ function import_catalog(): array
             if (!q_val('SELECT 1 FROM encyclopedia_entries WHERE unlock_key = ?', ['plant:' . $slug])) {
                 if ($isFlower) {
                     $r = $regionById[$regionIds[$c['region_code']] ?? 0] ?? null;
-                    $whereText = $r ? "\n\n[b]Native to:[/b] " . $r['gnomish_name'] . " (" . $r['real_name'] . ")." : '';
+                    $whereText = $r ? "\n\n[b]Native to:[/b] " . $r['gnomish_name'] . " (" . preg_replace('/\s*\((.*)\)\s*$/', ', $1', (string)$r['real_name']) . ")." : '';
                 } elseif ($kind === 'cover') {
                     $whereText = "\n\n[b]Cover crop:[/b] dig it in instead of harvesting to feed your soil.";
                 } else {

@@ -13,7 +13,7 @@ const ALMANAC_2644_PAGES = [
     'Resting away from home' => ['Getting started', 61,
         "Away from home, in a town or village, you can still rest. What is on offer shows on the Hovel page for where you stand.\n\n🛏️ [b]Rent a room at the inn[/b]: about 110 Petals, a full sleep.\n🧹 [b]Help around the inn[/b]: pay with about four game hours of chores instead of Petals.\n🪑 [b]Sleep on a bench[/b]: free, but only about 30% of your energy comes back. A [b]nap on a bench[/b] is free too.\n🏡 [b]Stay with a villager[/b]: free and a full sleep, once a villager there counts you as a best friend.\n\n🏕️ [b]On the road[/b] on a Trail walk you need [b]camping gear[/b]: it is made at the workshop or bought in the shop. One gear gives one full night or about two naps. Before a night at camp you may pick one dish to leave cooking in a camp pot, ready when you wake.\n\nAll these numbers are set by the game keeper and may change."],
     'Garden crew and the Hovel' => ['Garden life', 62,
-        "Your Puzzle Pals can tend the garden for you while you sleep. Open Garden > [b]Crew[/b]. Each garden has pal slots: [b]Water[/b], [b]Weed[/b], [b]Pests[/b], [b]Harvest[/b] and [b]Plant[/b]. Give a slot a pal for 1, 3 or 7 sleeps, or full time.\n\nPals work while you sleep, in the order pests, weeds, harvest, water. A pal's harvest keeps no cut for the pal, counts for jobs, and earns the pal some Gardening XP.\n\n[b]Plant:[/b] a pal puts a seed into every empty, prepared bed. A bed gets the same seed it had last; if that has run out or is out of season, the pal uses seeds you ticked in the seed grid. Treasure seeds, saplings and cover crops are never planted for you. Mark a bed [b]hands off[/b] to leave it alone.\n\n[b]Tiredness:[/b] a pal on the same full-time job works at full strength for 7 nights, then slows (60% on night 14, 50% after) and skips some beds. A ! shows from night 14. Call the pal home for a rest day and give them another job to reset.\n\n[b]The Hovel tabs:[/b] [b]Today[/b] lists what needs you (ripe crops, tired pals, requests to hand in, a reply from the game keeper) and what happened overnight (weather, the crew report, pots and jars done, villager news). [b]Pals[/b] shows what your crew did last night. The last three reports are kept.\n\nHired helpers are retired: they no longer exist."],
+        "Your Puzzle Pals can tend the garden for you while you sleep. Open Garden > [b]Crew[/b]. Each garden has pal slots: [b]Water[/b], [b]Weed[/b], [b]Pests[/b], [b]Harvest[/b] and [b]Plant[/b]. Give a slot a pal for 1, 3 or 7 sleeps, or full time.\n\nPals work while you sleep, in the order pests, weeds, harvest, plant, water. A pal's harvest keeps no cut for the pal, counts for jobs, and earns the pal some Gardening XP.\n\n[b]Plant:[/b] a pal puts a seed into every empty, prepared bed. A bed gets the same seed it had last; if that has run out or is out of season, the pal uses seeds you ticked in the seed grid. Treasure seeds, saplings and cover crops are never planted for you. Mark a bed [b]hands off[/b] to leave it alone.\n\n[b]Tiredness:[/b] a pal on the same full-time job works at full strength for 7 nights, then slows (60% on night 14, 50% after) and skips some beds. A ! shows from night 14. Call the pal home for a rest day and give them another job to reset.\n\n[b]The Hovel tabs:[/b] [b]Today[/b] lists what needs you (ripe crops, tired pals, requests to hand in, a reply from the game keeper) and what happened overnight (weather, the crew report, pots and jars done, villager news). [b]Pals[/b] shows what your crew did last night. The last three reports are kept.\n\nHired helpers are retired: they no longer exist."],
     'Messages from the game keeper' => ['Getting started', 63,
         "Send feedback from Together and it lands in [b]Together > Messages[/b], the first tab. Each note is a conversation: the game keeper's replies show as bubbles and you can answer.\n\nA yellow [b]![/b] in a circle shows on the Together tile, the phone Menu / More button and the Messages tab while a reply waits. Opening the tab clears it. Together opens on Messages when a reply is waiting."],
     'The workshop and its badges' => ['Garden life', 64,
@@ -21,7 +21,7 @@ const ALMANAC_2644_PAGES = [
     'Walking the Trail both ways' => ['Places', 65,
         "A Trail route is drawn from its first end to its last. If you start at the [b]far end[/b], you walk the same stretches in the opposite order and enter each at its far end, so the way on is always where that stretch ends. Stretch numbers on screen still count 1, 2, 3 as you walk.\n\nThings you pick up on a stretch stay gone for a while after you take them (about five and a half game days), whichever way you walk. Fights and bosses stay on their tiles, so on the way back from a delve or lair the boss stretch comes first."],
     'Puzzle Pals' => ['Garden life', 66,
-        "Puzzle Pals are small friends you meet by solving the puzzle games. A pal waiting at the place where you stand shows among the villagers on the Here page: tap it to say hello.\n\n[b]Take along:[/b] up to three pals can travel with you. They stand beside your gnome on Trail maps and behind you in a fight, where they can act: some strike or sap a foe, patch you up, or shield you.\n\n[b]Pal Jobs:[/b] send a free pal on a trip, a delve, a garden stay or a pot. Pal jobs run on game time, so they move when you sleep."],
+        "Puzzle Pals are small friends you meet by solving the puzzle games. A pal waiting at the place where you stand shows among the villagers on the Here page: tap it to say hello.\n\n[b]Take along:[/b] two pals can travel with you at first (the game keeper can raise this). They stand beside your gnome on Trail maps and behind you in a fight, where they can act: some strike or sap a foe, patch you up, or shield you.\n\n[b]Pal Jobs:[/b] send a free pal on a trip, a delve, a garden stay or a pot. Pal jobs run on game time, so they move when you sleep."],
 ];
 
 /** Stale wording fixed in worlds that already hold the old pages: title => [[old text, new text], ...]. A page that no longer holds the old text is left alone. */
@@ -35,6 +35,16 @@ const ALMANAC_2644_FIXES = [
     'Town squares' => [["The Hollow keeps its own clock, shown at the top of the town page.", "Your gnome’s game clock is shown at the top of the town page, and places close by it."]],
     'The florists' => [["it costs 3 energy and a real half hour", "it costs 3 energy and half an hour of game time"]],
     'The Job Board' => [["A new one after each daily reset.", "A new one after each sleep."]],
+];
+
+/** Fixes to generated text, applied to every page (old text => new text), once per world. */
+const ALMANAC_2644_GLOBAL = [
+    'butterflys' => 'butterflies',
+    'A island village' => 'An island village',
+    "\n[b]Can drop:[/b] ." => '',
+    'birds that eat slugs' => 'birds that eat caterpillars',
+    '(the birds eat the slugs)' => '(the birds eat the caterpillars)',
+    'scattered with pistachios and almonds' => 'scattered with pistachios',
 ];
 
 function ensure_almanac_pages_2644(): void
@@ -51,6 +61,19 @@ function ensure_almanac_pages_2644(): void
             q('UPDATE user_encyclopedia SET read_at = NULL WHERE entry_id = ?', [$row['id']]);   // shows as new again
         }
         set_setting('almanac2644fix', '1');
+    }
+    if (setting('almanac2644fix2') !== '1') {
+        foreach (q('SELECT id, body FROM encyclopedia_entries')->fetchAll() as $row) {
+            $body = (string)$row['body'];
+            foreach (ALMANAC_2644_GLOBAL as $old => $new) $body = str_replace($old, $new, $body);
+            $body = preg_replace('/\(([^()]+?) \(([^()]+)\)\)\./u', '($1, $2).', $body);   // "(North America (Canada, USA))." -> "(North America, Canada, USA)."
+            if ($body !== (string)$row['body']) q('UPDATE encyclopedia_entries SET body = ? WHERE id = ?', [$body, $row['id']]);
+        }
+        $pots = q_one("SELECT id, body FROM encyclopedia_entries WHERE chapter = 'General' AND title = 'Pots'");
+        if ($pots && str_contains((string)$pots['body'], '2 with a Kitchen I, 3 with a Kitchen II, 4 with a Kitchen III')) q('UPDATE encyclopedia_entries SET body = ? WHERE id = ?', [str_replace('2 with a Kitchen I, 3 with a Kitchen II, 4 with a Kitchen III', '3 with a Kitchen I, 4 with a Kitchen II, 5 with a Kitchen III', (string)$pots['body']), $pots['id']]);
+        $rd = q_one("SELECT id, body FROM encyclopedia_entries WHERE chapter = 'General' AND title = 'Roads and the wilds'");
+        if ($rd && str_contains((string)$rd['body'], '[b]medium[/b] for the first two steps')) q('UPDATE encyclopedia_entries SET body = ? WHERE id = ?', [preg_replace('/gets harder: \[b\]medium\[\/b\] for the first two steps, \[b\]hard\[\/b\] for the next two, then \[b\]wild\[\/b\],\s*where bosses roam\./u', 'starts as easy as the road you left, then gets a little harder. [b]Wild country[/b], where bosses roam, starts at step 7; past step 9 lie the deep wilds, always a match for your own level.', (string)$rd['body']), $rd['id']]);
+        set_setting('almanac2644fix2', '1');
     }
 }
 

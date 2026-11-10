@@ -33,7 +33,7 @@ const YARD_BONUSES = [
     'barrel' => ['🛢️', 'Rain barrel', 1, 'Beds next to it stay watered longer.'],
     'shade'  => ['🌳', 'Shade tree', 1, 'Beds next to it hold water longer in the cool shade.'],
     'hedge'  => ['🌿', 'Hedge', 1, 'Beds next to it grow weeds half as fast (no blown-in seed).'],
-    'birds'  => ['🐦', 'Birds', 2, 'Beds within 2 squares sometimes give an extra crop (the birds eat the slugs).'],
+    'birds'  => ['🐦', 'Birds', 2, 'Beds within 2 squares sometimes give an extra crop (the birds eat the caterpillars).'],
     'path'   => ['🪨', 'Path', 1, 'Beds next to a path are easier to reach: area actions sometimes cost no energy.'],
     'lodge'  => ['🐞', 'Ladybird Lodge', 2, 'Ladybirds keep aphids off beds within 2 squares (once someone lives there).'],
     'pond'   => ['🐸', 'Frog Pond', 3, 'Frogs keep slugs, snails and gnats off beds within 3 squares (once someone lives there).'],
@@ -1266,7 +1266,7 @@ function ensure_yards(): void
             . "🛢️ A rain barrel makes watering last longer in the beds next to it.\n"
             . "🌳 Shade trees keep the beds beside them watered longer.\n"
             . "🌿 Hedges (and log piles) halve weed growth in no-till beds beside them.\n"
-            . "🐦 A birdbath, bird box, pond or fountain brings birds that eat slugs in beds within 2 squares: sometimes an extra crop.\n"
+            . "🐦 A birdbath, bird box, pond or fountain brings birds that eat caterpillars in beds within 2 squares: sometimes an extra crop.\n"
             . "🪨 Beds beside a path are easy to reach: when you work several squares at once, some of them cost no energy.\n\n"
             . "Hover over a bed to see which bonuses it gets."],
         ['General', 'Getting started', 'Curb appeal and Garden of the Month', 'start', '', 11,

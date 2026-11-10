@@ -202,7 +202,7 @@ const ALMANAC_HOWTO = [
     // v0.9.5: these two stay hidden until they happen (4th item = the unlock key; the rest are there from the start)
     'Pots' => ['Getting started', 27,
         "🍳 Cooking happens in [b]pots[/b] on your Kitchen’s stove. Start a dish from Satchel → Crafting → Cooking; it goes in a free pot and cooks while you do other things. Come back and press [b]Collect[/b].\n\n"
-        . "[b]How many pots:[/b] 2 with a Kitchen I, 3 with a Kitchen II, 4 with a Kitchen III (Brewroot masters and extra Kitchens add more). A pot stays busy until you collect it, even when the dish is done.\n"
+        . "[b]How many pots:[/b] 3 with a Kitchen I, 4 with a Kitchen II, 5 with a Kitchen III (Brewroot masters and extra Kitchens add more). A pot stays busy until you collect it, even when the dish is done.\n"
         . "[b]How long:[/b] snacks about 3 game minutes, meals 15, feasts 45 (each recipe can differ: the recipe page tells you). Brewroot callings cook faster.\n"
         . "[b]Batches:[/b] a pot makes one dish, but snacks cook up to 5 at a time in one pot.\n"
         . "[b]Collecting:[/b] gives the dishes, cooking XP, a little garden XP for your Kitchen, and ♻️ Food Scraps from the peelings (1 for every 3 ingredients). The first time you make a dish its recipe page joins your Almanac.\n\n"
