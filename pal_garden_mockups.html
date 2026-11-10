@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pal garden crew mockups</title>
+<style>
+:root{--bg:#24170f;--card:#3b2a1e;--card2:#4a3526;--line:#6b4f35;--tx:#f0e3c0;--mut:#b39d78;--gold:#d9b04a;--grn:#2f8a3a;--grn2:#4fae5a;--red:#d8603a;--trk:#2a1c12}
+*{box-sizing:border-box}body{margin:0;background:#150d08;color:var(--tx);font:15px/1.35 system-ui,sans-serif;padding:16px}
+h1{font-size:20px;margin:0 0 4px}.intro{color:var(--mut);margin:0 0 18px;max-width:60rem}
+.grid{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
+.fig{width:390px;max-width:100%}.fig>.cap{font-weight:700;color:var(--gold);margin:0 0 2px}.fig>.why{font-size:12px;color:var(--mut);margin:0 0 6px}
+.ph{background:var(--bg);border:2px solid var(--line);padding:10px;min-height:120px}
+.ph h1{font-size:1.25rem;margin:2px 0 8px}
+.muted{color:var(--mut)}.sm{font-size:12px}
+.tabs{display:flex;gap:6px;margin:8px 0 10px;overflow:hidden}
+.tabs a{flex:1;text-align:center;padding:8px 4px;border:2px solid var(--line);background:var(--card);color:var(--tx);font-weight:700;white-space:nowrap;position:relative}
+.tabs a.on{background:var(--grn);border-color:#a8d070}
+.tabs a small,.badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:var(--grn2);color:#fff;font-weight:800;font-size:11px;text-align:center}
+.bang{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#e8b923;color:#2a1a10;font-weight:900;font-size:12px;border:2px solid #fff}
+.hero{display:flex;align-items:center;gap:12px;padding:6px 10px;border:2px solid var(--line);background:var(--card)}
+.hero b.t{font-size:1.8rem}.hero .m{flex:1;line-height:1.2;font-size:13px}
+.box{border:2px solid var(--line);background:var(--card);padding:10px;margin:0 0 10px}
+.box h2{font-size:1rem;margin:0 0 6px;display:flex;align-items:center;gap:6px}
+.flash{background:#1f4a4a;border:2px solid #3a8a8a;padding:8px 10px;margin:0 0 10px;font-size:13px}
+.flash.warn{background:#4a3a12;border-color:var(--gold)}
+.row{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px dashed var(--line)}.row:first-of-type{border-top:0}
+.pal{width:34px;height:34px;border-radius:50%;background:#5a4030;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;position:relative}
+.pal .bang{position:absolute;top:-6px;right:-6px;width:16px;height:16px;font-size:10px}
+.row .b{flex:1;min-width:0}.row .b b{display:block}.row .b small{color:var(--mut);display:block}
+.pill{font-size:12px;padding:1px 8px;border-radius:10px;background:var(--trk);color:var(--gold);white-space:nowrap}
+.pill.warn{color:#ffd9b0;background:#6b3a1a}.pill.ok{color:#c8f0c8;background:#1f4a2a}
+.bar{height:8px;background:var(--trk);border-radius:4px;overflow:hidden;margin-top:3px}.bar i{display:block;height:100%;background:var(--grn2)}.bar i.mid{background:var(--gold)}.bar i.low{background:var(--red)}
+.btn{display:inline-block;padding:6px 12px;border:2px solid #a8d070;background:var(--grn);color:#fff;font-weight:700;font-size:13px}
+.btn.alt{background:var(--card2);border-color:var(--line);color:var(--tx)}.btn.sm{padding:3px 8px;font-size:12px}
+.slots{display:grid;gap:6px}
+.slot{display:flex;align-items:center;gap:8px;padding:6px 8px;border:2px solid var(--line);background:var(--card2)}
+.slot.empty{border-style:dashed;background:transparent}
+.slot .ic{font-size:20px;width:26px;text-align:center}
+.slot .b{flex:1;min-width:0;line-height:1.2}.slot .b small{display:block;color:var(--mut)}
+.gname{display:flex;justify-content:space-between;align-items:center;font-weight:800;margin:10px 0 6px}
+.modal{border:2px solid var(--line);background:var(--card);box-shadow:0 0 0 999px #0008 inset}
+.mh{display:flex;justify-content:space-between;padding:10px 12px;border-bottom:2px solid var(--line);font-weight:800}.mb{padding:10px 12px}
+.seg{display:flex;gap:4px;margin:6px 0}.seg span{flex:1;text-align:center;padding:6px 2px;border:2px solid var(--line);background:var(--card2);font-size:13px}.seg span.on{background:var(--grn);border-color:#a8d070;font-weight:700}
+.seeds{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0}
+.seed{border:2px solid var(--line);background:var(--card2);text-align:center;padding:5px 2px;font-size:11px;position:relative}.seed i{display:block;font-style:normal;font-size:20px}
+.seed.sel{border-color:var(--gold);background:#5a4620}.seed.off{opacity:.4;border-style:dashed}.seed em{position:absolute;top:1px;right:3px;font-style:normal;color:var(--mut)}
+.palpick{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}
+.pp{border:2px solid var(--line);background:var(--card2);text-align:center;padding:6px 2px;font-size:12px}.pp.sel{border-color:var(--gold)}.pp .pal{margin:0 auto 3px}
+.curve{display:block;width:100%;height:auto}
+.note{font-size:12px;color:var(--mut);margin:6px 0 0}
+.tag{font-size:11px;background:#e8b923;color:#2a1a10;font-weight:800;padding:0 6px;border-radius:8px}
+</style></head><body>
+<h1>Pal garden crew: mockups</h1>
+<p class="intro">Draft for Josh. Phone width. Everything below is a proposal: names, numbers and wording can change. Pals do their garden work <b>while you sleep</b>, you read the result in the Hovel. Slots: Water, Weed, Pests, Harvest, Plant, for every garden, all open from the start.</p>
+
+<div class="grid">
+
+<!-- 1 -->
+<div class="fig"><p class="cap">1. Hovel: new “Pal Jobs” tab (after waking)</p><p class="why">After a night's sleep the Hovel opens on Pal Jobs when pals worked, otherwise on Tasks. The tab badge counts things that need you (tired pal, out of seeds).</p>
+<div class="ph"><h1>🛏️ Hovel</h1>
+<div class="hero"><b class="t">06:00</b><div class="m">Day <b>15</b><br>🌸 Spring 16 · ☀️ Sunny</div><div>⚡ 10/10</div></div>
+<div class="tabs"><a>🛏️ Sleep</a><a>📋 Tasks <small>2</small></a><a class="on">🧩 Pals <small>2</small></a><a>🕐 Costs</a></div>
+<div class="flash">You sleep soundly. A new day: energy full. Day 15.</div>
+<div class="box"><h2>🌱 Test Patch <span class="muted sm">while you slept</span></h2>
+<div class="row"><span class="pal">🧩</span><div class="b"><b>Bramble · Water</b><small>Watered 14 squares (rain did 6)</small></div><span class="pill ok">100%</span></div>
+<div class="row"><span class="pal">🧩</span><div class="b"><b>Sprout · Weed</b><small>Pulled weeds from 5 beds</small></div><span class="pill ok">100%</span></div>
+<div class="row"><span class="pal">🧩<span class="bang">!</span></span><div class="b"><b>Pip · Pests</b><small>Cleared aphids on 2 squares</small><small><b>Pip is tired of this job.</b> Day 14.</small></div><span class="pill warn">60%</span></div>
+<div class="row"><span class="pal">🧩</span><div class="b"><b>Moss · Harvest</b><small>Picked 4 carrots, 3 radishes → satchel</small></div><span class="pill ok">100%</span></div>
+<div class="row"><span class="pal">🧩</span><div class="b"><b>Dot · Plant</b><small>Replanted 4 carrot, 3 radish</small><small>⚠ Out of beet seeds (1 square left empty)</small></div><span class="pill ok">full time</span></div>
+</div>
+<p class="sm"><a class="btn alt sm">Open Garden crew →</a> <a class="btn alt sm">Open Pal Jobs page →</a></p>
+</div></div>
+
+<!-- 2 -->
+<div class="fig"><p class="cap">2. Hovel: Pal Jobs tab, no pals set</p><p class="why">Empty state points at the crew screen.</p>
+<div class="ph"><h1>🛏️ Hovel</h1>
+<div class="tabs"><a>🛏️ Sleep</a><a>📋 Tasks</a><a class="on">🧩 Pals</a><a>🕐 Costs</a></div>
+<div class="box" style="text-align:center"><p>No pals are working your garden.</p><p class="muted sm">Put a pal on Water, Weed, Pests, Harvest or Plant. They work every night while you sleep.</p><p><a class="btn">Set up the crew →</a></p></div>
+</div></div>
+
+<!-- 3 -->
+<div class="fig"><p class="cap">3. Garden: new “Crew” tab (replaces Hired help section)</p><p class="why">Five slots per garden. Each slot shows the pal, time mode, days on the job and how effective the pal still is.</p>
+<div class="ph"><h1>🌱 Garden</h1>
+<div class="tabs"><a>🌱 Beds</a><a>🏠 Buildings</a><a class="on">🧩 Crew <small>1</small></a></div>
+<div class="gname"><span>🌱 Test Patch</span><span class="muted sm">5 of 5 slots</span></div>
+<div class="slots">
+<div class="slot"><span class="ic">💧</span><div class="b"><b>Water</b><small>Bramble · timed, 2 of 3 days</small><div class="bar"><i style="width:100%"></i></div></div><span class="pill ok">100%</span></div>
+<div class="slot"><span class="ic">🌿</span><div class="b"><b>Weed</b><small>Sprout · full time · day 6</small><div class="bar"><i style="width:100%"></i></div></div><span class="pill ok">100%</span></div>
+<div class="slot"><span class="ic">🐛</span><div class="b"><b>Pests</b><small>Pip · full time · day 14 <span class="bang">!</span></small><div class="bar"><i class="low" style="width:60%"></i></div></div><span class="pill warn">60%</span></div>
+<div class="slot"><span class="ic">🧺</span><div class="b"><b>Harvest</b><small>Moss · full time · day 3</small><div class="bar"><i style="width:100%"></i></div></div><span class="pill ok">100%</span></div>
+<div class="slot empty"><span class="ic">🌰</span><div class="b"><b>Plant</b><small>No pal yet</small></div><a class="btn sm">Assign</a></div>
+</div>
+<p class="note">Tap a slot to change the pal, switch timed / full time, or call the pal home.</p>
+</div></div>
+
+<!-- 4 -->
+<div class="fig"><p class="cap">4. Slot popover: assign a pal (Plant slot)</p><p class="why">Pal picker, time mode, and a seed grid of seeds you hold that the pal can use. No pick = same seed as before only.</p>
+<div class="ph"><div class="modal"><div class="mh"><span>🌰 Plant · Test Patch</span><span>✕</span></div><div class="mb">
+<b class="sm">Pal</b>
+<div class="palpick"><div class="pp sel"><div class="pal">🧩</div>Dot<br><span class="muted">free</span></div><div class="pp"><div class="pal">🧩</div>Fern<br><span class="muted">free</span></div><div class="pp" style="opacity:.5"><div class="pal">🧩</div>Moss<br><span class="muted">Harvest</span></div></div>
+<b class="sm">How long</b>
+<div class="seg"><span>1 day</span><span>3 days</span><span>7 days</span><span class="on">Full time</span></div>
+<p class="note">Full time: works every night until you call the pal home. Effectiveness drops from day 8.</p>
+<b class="sm">What to plant</b>
+<div class="seeds">
+<div class="seed sel"><em>×12</em><i>🥕</i>Carrot</div><div class="seed"><em>×8</em><i>🥔</i>Potato</div><div class="seed"><em>×5</em><i>🌱</i>Radish</div><div class="seed off"><em>×3</em><i>🍅</i>Tomato<br><span>wrong season</span></div>
+<div class="seed"><em>×2</em><i>🥬</i>Lettuce</div><div class="seed off"><em>×1</em><i>⭐</i>Treasure<br><span>never</span></div><div class="seed"><em>×9</em><i>🌽</i>Corn</div><div class="seed"><em>×4</em><i>🫘</i>Beans</div>
+</div>
+<p class="note">Selected seed is used first. Always replants the <b>same seed</b> as before when you have it; if you run out it uses the next selected one, never rare or reserved seeds.</p>
+<p style="text-align:center"><span class="btn">Send Dot</span> <span class="btn alt">Cancel</span></p>
+</div></div></div></div>
+
+<!-- 5 -->
+<div class="fig"><p class="cap">5. Slot popover: pal is tired</p><p class="why">Opens from the ! on the slot. Shows the effect and the choices.</p>
+<div class="ph"><div class="modal"><div class="mh"><span>🐛 Pests · Pip <span class="bang">!</span></span><span>✕</span></div><div class="mb">
+<p><b>Pip wants a change.</b> “Pulling aphids for 14 days. Can I do something else?”</p>
+<svg class="curve" viewBox="0 0 320 110"><rect width="320" height="110" fill="#2a1c12"/><line x1="10" y1="20" x2="310" y2="20" stroke="#6b4f35" stroke-dasharray="3 3"/><polyline points="10,20 120,20 235,52 310,66" fill="none" stroke="#4fae5a" stroke-width="3"/><circle cx="235" cy="52" r="4" fill="#e8b923"/><text x="14" y="14" fill="#b39d78" font-size="10">100%</text><text x="125" y="14" fill="#b39d78" font-size="10">day 7</text><text x="205" y="44" fill="#e8b923" font-size="10">day 14: 60%</text><text x="268" y="84" fill="#b39d78" font-size="10">then 50%</text><text x="10" y="104" fill="#b39d78" font-size="10">days on this job</text></svg>
+<p class="sm muted">Switching to a different job (or home for a rest day) resets it. Staying keeps working at half speed.</p>
+<p><span class="btn">Change job…</span> <span class="btn alt">Send home</span> <span class="btn alt">Keep going</span></p>
+</div></div></div></div>
+
+<!-- 6 -->
+<div class="fig"><p class="cap">6. Pal Jobs page (paljobs.php): garden section</p><p class="why">The old “send to garden for 1/3/7 days” card becomes a link to each garden's crew. Pals out show their slot; tired pals get the !.</p>
+<div class="ph"><h1>🧩 Pal Jobs</h1>
+<div class="box"><h2>Out and about</h2>
+<div class="row"><span class="pal">🧩</span><div class="b"><b>Bramble</b><small>🌱 Test Patch · Water · timed, 2 of 3 days</small></div><a class="btn alt sm">Recall</a></div>
+<div class="row"><span class="pal">🧩<span class="bang">!</span></span><div class="b"><b>Pip</b><small>🌱 Test Patch · Pests · full time · day 14</small><small><b>Wants a change</b></small></div><a class="btn sm">Look</a></div>
+<div class="row"><span class="pal">🧩</span><div class="b"><b>Moss</b><small>🌱 Test Patch · Harvest · full time · day 3</small></div><a class="btn alt sm">Recall</a></div>
+<div class="row"><span class="pal">🧩</span><div class="b"><b>Fern</b><small>🌲 Trip: Oakwood · back after your next sleep</small></div></div>
+</div>
+<div class="box"><h2>🌱 Garden crew</h2><div class="row"><div class="b"><b>Test Patch</b><small>4 of 5 slots filled · Plant is empty</small></div><a class="btn sm">Open crew →</a></div></div>
+</div></div>
+
+<!-- 7 -->
+<div class="fig"><p class="cap">7. Garden: Tool Shed after hired helpers retire</p><p class="why">Helpers section is replaced. One-time notice for players who had helpers.</p>
+<div class="ph"><div class="flash warn"><b>🧰 Your hired helpers have gone home.</b><br>Pals do the garden work now. Unused wages were refunded: <b>🌸 120 Petals</b> (Old Rowan, 3 days left).</div>
+<div class="box"><h2>🧰 Tool Shed · level 2</h2><p class="sm muted">Helpers are retired. Put your pals to work from the <b>Crew</b> tab instead.</p><p><a class="btn alt sm">Open Crew →</a></p></div>
+</div></div>
+
+<!-- 8 -->
+<div class="fig"><p class="cap">8. Wake-up message (toast / message log)</p><p class="why">One short summary per sleep, not one per pal. Detail lives in Hovel › Pals.</p>
+<div class="ph"><div class="flash">🧩 Your pals worked the garden: watered 14, weeded 5 beds, cleared 2 pests, picked 7, replanted 7. <b>Pip is tired of Pests.</b></div>
+<div class="flash warn">🌰 Dot ran out of beet seeds. 1 square left empty.</div></div></div>
+
+</div>
+
+<h1 style="margin-top:26px">Rules in these mockups</h1>
+<div class="box" style="max-width:60rem"><ul>
+<li><b>When:</b> the work happens at the moment you sleep, in a fixed order: pests, weeds, harvest, plant, water, then crops grow. Sleep several days in a row and it runs each day in turn.</li>
+<li><b>Time modes:</b> 1/3/7 sleeps, or full time until recalled. Counting starts at your next sleep.</li>
+<li><b>Tiredness:</b> 100% for 7 days on the same slot and garden, falling to 60% on day 14, then 50%. A ! and a note appear on day 14. A different job or a home rest day resets it. <span class="tag">numbers to tune</span></li>
+<li><b>Plant:</b> same seed as before; or the seeds you ticked in the grid. Never rare seeds, seeds a job/order needs, or out-of-season seeds. Squares marked hands off, trees and cover crops are skipped.</li>
+<li><b>XP:</b> pals earn reduced Gardening XP from these jobs (suggest 40% of today's) and a daily cap, so big gardens don't level them instantly.</li>
+<li><b>Hired helpers:</b> retired, active contracts refunded pro rata, player told once.</li>
+</ul></div>
+</body></html>
