@@ -7,6 +7,7 @@ $u = require_login();
 $uid = (int)$u['id'];
 settle_player_jobs();
 $job = active_tend_job($uid);
+if ($job) { pjob_replay_days(q_one('SELECT * FROM player_jobs WHERE id = ?', [$job['pj_id']])); $job = active_tend_job($uid); }
 
 if (is_post()) {
     csrf_check();
@@ -64,7 +65,8 @@ $todo = array_filter($work, fn($w) => $w['acts']);
 <h1>🌱 Tending <?= eu((string)$plot['garden_name']) ?></h1>
 <p class="help">For <?= e((string)$job['npc']) ?>. You can water, weed and harvest here. Each job pays part of the wage:
   <b><?= (int)$pj['progress'] ?> / <?= (int)$pj['qty'] ?></b> done, <?= money((int)$pj['paid']) ?> of <?= money((int)$pj['wage']) ?> earned.
-  Time left: <?= nice_time(max(0, ts($pj['ends_at']) - time())) ?>. Harvests go to <?= e((string)$job['npc']) ?>; you keep a <?= (int)setting('helper_cut_percent') ?>% share.</p>
+  <?php $dl = pjob_days_left($pj); ?>
+  Time left: <?= $dl !== null ? $dl . ' sleep' . ($dl === 1 ? '' : 's') . ' in ' . e((string)$job['npc']) . '’s garden' : nice_time(max(0, ts($pj['ends_at']) - time())) ?>. Harvests go to <?= e((string)$job['npc']) ?>; you keep a <?= (int)setting('helper_cut_percent') ?>% share.</p>
 <div class="box">
   <?php foreach (['water_all' => '💧 Water all thirsty', 'weed_all' => '🌿 Weed all', 'harvest_all' => '🧺 Harvest all ready'] as $do => $label): ?>
     <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="<?= $do ?>"><button class="btn small"><?= $label ?></button></form>

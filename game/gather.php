@@ -25,6 +25,17 @@ if (ts($u['community_shift_until'] ?? null) > time()) {
 $here = player_node($u);
 $land = (string)($here['landscape'] ?: 'grassland');
 $tool = (string)($_POST['tool'] ?? '');
-[$ok, $msg] = gather_here($u, $land, $tool);   // v2.0.67: no mini-game; a find goes into the satchel reveal on the Gather tab
+require_once __DIR__ . '/includes/landmarks.php';
+require_once __DIR__ . '/includes/rebuild.php';
+if (($lmHere = landmark_at((int)$here['id'])) && landmark_in_ruins($lmHere, $uid)) {   // the panel says you can't search a ruin until it is safe
+    flash('🏚️ ' . $lmHere['name'] . ' is in ruins. Make it safe before you gather here.', 'err');
+    redirect($safe);
+}
+try {
+    [$ok, $msg] = gather_here($u, $land, $tool);
+} catch (UserError $e) {   // e.g. "still busy with a long job": say so instead of an error page
+    if (db()->inTransaction()) db()->rollBack();
+    [$ok, $msg] = [false, $e->getMessage()];
+}   // v2.0.67: no mini-game; a find goes into the satchel reveal on the Gather tab
 flash($msg, $ok ? 'ok' : 'err');
 redirect($safe);

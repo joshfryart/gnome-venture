@@ -1,5 +1,5 @@
 <?php
-// 2.6.33: stop perks belong to the player, last perk_days game days, stack up to perk_max, refresh instead of doubling.
+// 2.6.36: stop perks belong to the player, last perk_days game days, stack up to perk_max, refresh instead of doubling.
 // Run: php tests/player_perks.php GAME_DIR   (an installed copy with a gnome)
 $_SERVER['SCRIPT_NAME'] = '/gnome.php';
 require $argv[1] . '/includes/bootstrap.php';

@@ -1,11 +1,26 @@
 # Changelog
 
-## 2.6.33
+## 2.6.36
 - **Stop perks are yours now**: filling a stop meter (Repairs, Larder, Cheer) gives the player a perk that works everywhere for 7 game days (admin `perk_days`), not "one more thing" at that stop (that bonus is retired). Same perk again refreshes it; at most 3 run (`perk_max`), a 4th drops the one ending soonest. Which perk is picked from the meter's pool by player, stop and game day, preferring one not already running (choosing from two is not built yet).
   - Repairs: 🥾 Light Feet (road walks cost 1 less energy), 🦴 Good Bones (healing +25%).
   - Larder: 🧂 Seasoned (home-cooked dishes +20% energy), 🌱 Green Thumb (10% chance of one extra per harvest), 🥪 Packed Lunch (meal boosts +25% longer), 🍲 Slow Simmer (pots 20% faster).
   - Cheer: 👟 Spring in Step (walking 15% faster), 😊 Bright Mood (+10% XP), 🗣️ Silver Tongue (shops 5% cheaper).
   - Shown in the header effects list and the stop Perks card ("Your perks"). Every number is an admin setting (`perk_*`). Run Upgrade database once for the `player_perks` table. Test: `tests/player_perks.php`. Not built from the notes: Steady Hands, Mender's Luck, Sharp Tools, Full Pockets, Good Company, Sound Sleep, pick-one-of-two, Well Travelled combo.
+
+## 2.6.35
+- **Fix: "Work here today" (repairs) and Gather gave an error page or no message when you were busy**: after a long job (hours carried past 22:00, waiting for sleep) any energy spend throws "You are still busy with a long job". `landmark.php` and `gather.php` now catch it and show the message; `repair_work()` checks the busy state before it writes anything.
+- **No foraging in a ruin**: Gather at a haven, wonder or delve you have not made safe is refused ("in ruins, make it safe before you gather here"), as the place panel already says.
+## 2.6.34
+- **Calling mentor button on town maps**: the new town pictures have no slot for the mentor's lodge (Marigold Stall, Root Cellar, Old Watchtower and so on), so each town's picture page now has a round **Mentor** button in the nav that opens the mentor's lodge page in that town, where you talk to them and take chapters.
+- **Take a chapter from the calling page**: when the mentor is in another town, My Gnome > Calling now has **Travel and take on this chapter** (free trip, then the chapter starts) beside the plain free trip.
+- **Mentors never go away**: calling mentors no longer take the "visiting family" days other villagers do. On those days the mentor was missing from the street and the chapter could not be taken.
+- **Mentors on the street**: a town's calling mentor now takes the first street slot on the picture, instead of landing in "+N more villagers".
+
+## 2.6.33
+- **Player tend jobs run on the garden owner's sleeps (sleep-days)**: a "Tend my garden" job lasts N of the owner's sleeps (1, 3 or 7), not real days, so it no longer runs out while the owner is away. The Tending page says "N sleeps". The real-time deadline stays only as a 7-day backstop.
+- **The taker tends on every owner day**: each time the owner sleeps, the person tending waters every thirsty bed for that day, like a hired helper. Each watering counts as one job done and pays its share of the wage (pro rata, from escrow); the taker gets a notice. Days are also caught up when the taker opens the Tending page and when the job ends. Weeding and harvesting still need the taker's own hands (those still cost energy and time).
+- Deliver jobs, listing expiry and "one job per poster per week" stay on real time.
+- Run Upgrade database once (new columns `player_jobs.ends_day` and `tend_day`). Tests: `tests/game_clock.php` (tend job sections).
 
 ## 2.6.32
 - **"!" on the Calling tile**: on My Gnome, the Calling tile shows a yellow ! once you reach the calling level and have not chosen one. It opens the Calling tab.

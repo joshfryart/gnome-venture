@@ -71,6 +71,8 @@ function calling_start_block(array $u, array $ch, array $st, ?array $npc, bool $
         if ($why === '') {
             $h .= '<form method="post" action="' . e(url('mentor.php')) . '"><input type="hidden" name="do" value="trip">' . $hid
                 . '<button class="btn gold">🧭 Travel to ' . e($name) . ' (free)</button></form>'
+                . '<form method="post" action="' . e(url('mentor.php')) . '"><input type="hidden" name="do" value="trip_start">' . $hid
+                . '<button class="btn gold">📜 Travel and take on this chapter</button></form>'
                 . '<small class="muted">Free.</small>';
         } else {
             $h .= '<p class="help">📍 ' . e($why) . '</p>';

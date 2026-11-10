@@ -698,12 +698,23 @@ function post_update_news(string $from): void
         . "[*][b]Shops and stops[/b] have opening hours, and some villagers are away on some days.\n"
         . "[*][b]Food heals you[/b]: crops, finds and home-cooked dishes give back health.[/list]\n\n"
         . "Everyone starts on today's day. Contests, shared goals, visits and the Petal caps stay on the real clock."],
+    '2.6.35' => ['🔨 Update 2.6.35: repairs and gathering when you are busy',
+        "[list][*][b]Clear stages tell you why[/b]: if a long job still has you busy, \"Work here today\" and Gather now say so (sleep to finish it) instead of showing an error page or nothing.\n"
+        . "[*][b]No foraging in ruins[/b]: you cannot gather in a place you have not made safe yet.[/list]"],
+    '2.6.34' => ['📜 Update 2.6.34: find your calling mentor on the town map',
+        "[list][*][b]Mentor button[/b]: every town's picture now has a Mentor button that takes you straight to that town's mentor lodge.\n"
+        . "[*][b]Take it from My Gnome[/b]: if your mentor is in another town, the Calling tab has a new button that makes the free trip and takes the chapter on in one go.\n"
+        . "[*][b]Mentors stay put[/b]: calling mentors no longer go away visiting family, so you can always take your chapter.\n"
+        . "[*][b]Mentors on the street[/b]: the mentor now stands on the town picture instead of hiding in the \"more villagers\" list.[/list]"],
+    '2.6.33' => ['🌱 Update 2.6.33: tending a garden follows its owner’s sleeps',
+        "[list][*][b]Tend jobs[/b] now last 1, 3 or 7 of the owner's sleeps instead of real days, so they don't run out while the owner is away.\n"
+        . "[*][b]Automatic watering[/b]: each time the owner sleeps, the gnome tending their garden waters every thirsty bed for that day. Each watering counts as one job done and pays part of the wage. Weeding and harvesting are still done by hand.[/list]"],
     '2.6.32' => ['🍴 Update 2.6.32: food perks, a calling nudge, and a shorter road',
         "[list][*][b]Foodie rank[/b]: every 10 different foods you taste is a rank. Each rank gives +1 max energy and makes meal boosts last 2% longer.\n"
         . "[*][b]Food mastery[/b]: eat or harvest the same food 500, 1000, 1650 and 2000 times and it earns a star step (Familiar, Favourite, Beloved, Signature). Each step makes that food's boosts stronger and longer, and gives more energy. See it all on My Gnome > Foods.\n"
         . "[*][b]Calling[/b]: a yellow ! shows on the Calling tile on My Gnome once you can choose a calling and have not yet.\n"
         . "[*][b]Clovercove[/b] is now the last stop on the road out of the Maplewold towards Blossomreach. The Maplewold's only ways out are Windburrow (to Mistmoor) and Poppynook (to Maizehollow).[/list]"],
-    '2.6.33' => ['🌟 Update 2.6.33: stop perks you can use anywhere',
+    '2.6.36' => ['🌟 Update 2.6.36: stop perks you can use anywhere',
         "Fill a stop's Repairs, Larder or Cheer bar and you now earn a [b]perk for yourself[/b] that works everywhere for 7 days, instead of an extra turn at that one stop.\n\n"
         . "[list][*][b]Repairs[/b]: Light Feet (cheaper road walks), Good Bones (more healing).\n"
         . "[*][b]Larder[/b]: Seasoned (more energy from home-cooked food), Green Thumb (a chance of an extra harvest), Packed Lunch (longer meal boosts), Slow Simmer (faster pots).\n"

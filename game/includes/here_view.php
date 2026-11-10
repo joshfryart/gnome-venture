@@ -231,6 +231,23 @@ function here_routes_card(array $u, array $node, string $back): string
     return $h . '</ul>';
 }
 
+/** The calling mentor of a town node's region (one of CALLING_MENTORS), or null. */
+function here_mentor_of(array $node): ?array
+{
+    if (($node['kind'] ?? '') === 'hub' || (int)($node['region_id'] ?? 0) <= 0) return null;
+    require_once __DIR__ . '/calling_quests.php';
+    $code = (string)q_val('SELECT code FROM regions WHERE id = ?', [(int)$node['region_id']]);
+    foreach (CALLING_MENTORS as $calling => $m) if ($m[5] === $code) return ['calling' => $calling, 'name' => $m[0], 'slug' => $m[1], 'lodge' => $m[8], 'icon' => $m[7], 'spot' => (int)q_val('SELECT id FROM town_spots WHERE slug = ? AND active = 1', [$m[6]])];
+    return null;
+}
+
+/** A round "Mentor" button in the picture page's nav, linking to the mentor's lodge spot (its page has the Talk link and the chapters). */
+function here_mentor_nav(array $node): array
+{
+    $m = here_mentor_of($node);
+    return $m ? [['id' => 'mentor', 'label' => 'Mentor', 'icon' => 'ico-scroll.png', 'href' => $m['spot'] ? url('town.php?spot=' . $m['spot']) : url('mentor.php?m=' . $m['slug'])]] : [];
+}
+
 /** Town spots of the node's region, by kind (green, teahouse, board, library). */
 function here_town_spots(array $node): array
 {
@@ -510,7 +527,9 @@ function here_npcs(array $u, array $node, string $kind): array
         }
     }
     $list = array_values(array_filter($out, fn($n) => (int)($n['active'] ?? 1) === 1 && !empty($n['slug']) && !gclock_npc_away('n' . (int)$n['id'])));   // 2.6.28: villagers away today are not on the picture
-    usort($list, fn($a, $b) => (int)$a['id'] <=> (int)$b['id']);
+    if ($kind === 'town') require_once __DIR__ . '/calling_quests.php';
+    $ms = $kind === 'town' ? array_column(CALLING_MENTORS, 1) : [];   // a town's calling mentor takes a street slot first, not the "+N more"
+    usort($list, fn($a, $b) => [in_array($a['slug'], $ms, true) ? 0 : 1, (int)$a['id']] <=> [in_array($b['slug'], $ms, true) ? 0 : 1, (int)$b['id']]);
     return $list;
 }
 
@@ -637,7 +656,7 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
         $opts['chrome'] = true; $opts['pills'] = true; $opts['navbar'] = true; $opts['street'] = true; $opts['legfold'] = true; $opts['twin'] = false; $GLOBALS['gnav_gate'] = true;
         $opts['nav'] = [
             'routes' => ['href' => url($back . '?o=routes'), 'title' => 'Routes', 'card' => here_routes_card($u, $node, $back)],
-            'extra' => array_merge((function () use ($u, $node): array { require_once __DIR__ . '/stops.php'; $pk = stop_perk_nav($u, $node); return $pk ? [$pk] : []; })(), [['id' => 'ft', 'label' => 'Fast travel', 'icon' => 'ico-boot.png', 'href' => url('world.php?tab=travel#fasttravel')], ['id' => 'gps', 'label' => 'GPS', 'icon' => 'ico-map-pin.png', 'href' => url('world.php#gopanel')]]),
+            'extra' => array_merge((function () use ($u, $node): array { require_once __DIR__ . '/stops.php'; $pk = stop_perk_nav($u, $node); return $pk ? [$pk] : []; })(), array_merge(here_mentor_nav($node), [['id' => 'ft', 'label' => 'Fast travel', 'icon' => 'ico-boot.png', 'href' => url('world.php?tab=travel#fasttravel')], ['id' => 'gps', 'label' => 'GPS', 'icon' => 'ico-map-pin.png', 'href' => url('world.php#gopanel')]])),
             'world' => ['href' => url($back . '?o=world'), 'title' => 'World map', 'card' => '<p class="muted">The whole world, region by region.</p><p><a class="btn" href="' . e(url('world.php?tab=map#regionmap')) . '">Open region map</a></p><p><a class="btn alt" href="' . e(url('world.php')) . '">Open the World page</a> <a class="btn alt" href="' . e(url('world.php?tab=markets')) . '">🏪 Shops</a> <a class="btn alt" href="' . e(url('villagers.php')) . '">Villagers</a></p>'],
         ];
     }
