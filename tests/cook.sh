@@ -115,13 +115,14 @@ KL() { dbx "UPDATE garden_buildings SET level=$1 WHERE plot_id=$P AND building='
 potsn() { db "SELECT COUNT(*) FROM cook_pots WHERE user_id=$UID_ AND collected_at IS NULL"; }
 CP="inventory.php?tab=craft&c=cooking"
 cookit() { post crafting.php $CP -d recipe_id=$(db "SELECT id FROM recipes WHERE slug='$1'") -d qty=$2; }
-readyall() { dbx "UPDATE cook_pots SET ready_at=datetime('now','-1 minute') WHERE collected_at IS NULL"; }
+readyall() { dbx "UPDATE cook_pots SET ready_at=datetime('now','-1 minute'), ready_tick=CASE WHEN ready_tick IS NULL THEN NULL ELSE 0 END WHERE collected_at IS NULL"; }
 collectall() { readyall; post crafting.php $CP -d do=collect_all; }
 dbx "DELETE FROM cook_pots"; dbx "INSERT OR IGNORE INTO user_recipes (user_id,recipe_id,learned_at) SELECT $UID_, id, datetime('now') FROM recipes WHERE category='cooking'"
 for r in green-pea-soup feast-harvest-pie; do stock $r; done; stock mint-tea 400; give bought-garden-vegetable-soup 2
 dbx "UPDATE users SET level=20, coins=1000, calling=NULL, calling_chapter=NULL, calling_qt=0 WHERE id=$UID_"; KL 1; setE 60
 # a Job Board cook job and the Brewroot Journeyman chapter (task: cook 10 meals) to watch the cook event
 JK=$(TZ=America/Halifax date +%F)   # v1.4.0: days turn over at Hollow midnight (1.2.2)
+[ "$(db "SELECT value FROM settings WHERE name='game_clock_on'")" = "0" ] || JK="g$(db "SELECT game_day FROM users WHERE id=$UID_")"   # sleep-days: the board's daily key is the gnome's game day
 dbx "INSERT INTO user_jobs (user_id,period,period_key,kind,title,text,qty,progress,status,taken_at) VALUES ($UID_,'daily','$JK','cook','Cook','Cook 5 meals',5,0,'active',datetime('now'))"
 CH=$(db "SELECT id FROM calling_chapters WHERE slug='brewroot-1'")
 dbx "UPDATE users SET calling='brewroot', calling_chapter=$CH WHERE id=$UID_"
@@ -142,7 +143,7 @@ m=$(post crafting.php $CP -d do=collect_all); has "No pot is ready yet" "$m" "co
 P1=$(db "SELECT id FROM cook_pots WHERE collected_at IS NULL ORDER BY id LIMIT 1")
 m=$(post crafting.php $CP -d do=collect -d pot_id=$P1); has "ready yet" "$m" "single collect before time refused"; chk "pot still there" "$(potsn)" 2
 page "$CP"; echo "pots strip: $(grep -c 'aria-label="Pots"' $TD/ck.html) strip, $(grep -c 'data-potleft' $TD/ck.html) timers, hidden Collect forms: $(grep -c 'class="potcollect" hidden' $TD/ck.html)"
-dbx "UPDATE cook_pots SET ready_at=datetime('now','-1 minute') WHERE id=$P1"
+dbx "UPDATE cook_pots SET ready_at=datetime('now','-1 minute'), ready_tick=CASE WHEN ready_tick IS NULL THEN NULL ELSE 0 END WHERE id=$P1"
 page "garden.php?t=bld"; has "> 1 ready</a>" "$(grep -o '> [0-9]* ready</a>' $TD/ck.html | head -1)" "status badge: 1 ready"   # the 🍳 is now an <img> icon
 echo "-- collect one"
 X0=$(db "SELECT xp FROM users WHERE id=$UID_"); F0=$(qty food-scrap)
