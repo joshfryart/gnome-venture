@@ -1061,8 +1061,16 @@ function schema_statements(string $driver): array
         start_day INT NOT NULL DEFAULT 0,
         last_day INT NULL,
         created_at DATETIME NULL,
+        seeds VARCHAR(200) NULL,
         UNIQUE (plot_id, role)
     )$END";   // v2.6.40: garden crew: one pal per role per garden, working while the gnome sleeps (includes/pal_crew.php)
+    $t[] = "CREATE TABLE IF NOT EXISTS garden_pal_memory (
+        id $PK,
+        tile_id $ID NOT NULL,
+        plant_id $ID NOT NULL DEFAULT 0,
+        skip TINYINT NOT NULL DEFAULT 0,
+        UNIQUE (tile_id)
+    )$END";   // v2.6.40: what last grew in a bed (the Plant pal puts it back) and beds the Plant pal must leave alone
     $t[] = "CREATE TABLE IF NOT EXISTS garden_pal_rest (
         id $PK,
         user_id $ID NOT NULL,
@@ -1381,6 +1389,7 @@ function schema_statements(string $driver): array
     // Columns added after v0.7.0 (fresh install). Older installs get them via "Upgrade database".
     $c = [
         ['users', 'gnome_name', 'VARCHAR(30) NULL'],
+        ['garden_pal_slots', 'seeds', 'VARCHAR(200) NULL'],     // v2.6.40 garden crew: the Plant pal's ticked seeds
         ['feedback', 'user_unread', 'TINYINT NOT NULL DEFAULT 0'],     // v2.6.37 messages: 1 = an admin reply the player has not opened yet
         ['feedback', 'last_at', 'DATETIME NULL'],                      // v2.6.37 messages: time of the newest message in the thread
         ['cook_pots', 'pal_uid', 'VARCHAR(16) NULL'],                  // pal passive cooking: the pal tending this pot (NULL = the gnome's own pot)

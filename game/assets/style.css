@@ -7606,3 +7606,10 @@ dialog.hubpop .wsfrag .shhead + * , dialog.hubpop .wsfrag .box { margin-top: 6px
 .crewpick form { margin: 6px 0 0; }
 .crewpals, .crewmode { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 4px 0; }
 .crewpal.rest { opacity: .55; }
+
+.crewseeds { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: 4px; margin: 6px 0; }
+.crewseed { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border: 2px solid var(--line); background: var(--surface-2); font-size: .85rem; }
+.crewseed.off { opacity: .6; border-style: dashed; }
+.crewbeds { display: grid; grid-template-columns: repeat(auto-fill, minmax(4rem, 1fr)); gap: 4px; margin: 6px 0; }
+.crewbed { display: flex; align-items: center; gap: 4px; padding: 2px 6px; border: 1px solid var(--line); font-size: .8rem; }
+.crewmode input, .crewpals input, .crewseed input, .crewbed input { width: 16px; height: 16px; flex: none; }

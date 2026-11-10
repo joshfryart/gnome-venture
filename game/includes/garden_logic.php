@@ -1260,6 +1260,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                        WHERE id = ? AND plant_id IS NULL', [$np['id'], gclock_maint_now((int)$t['plot_id']), $head, now(), gclock_plot_date((int)$t['plot_id']), $t['id']])->rowCount() !== 1) {
                     throw new UserError('Something is already growing here.');
                 }
+                if (function_exists('pcrew_remember')) pcrew_remember((int)$t['id'], (int)$np['id']); else { require_once __DIR__ . '/pal_crew.php'; pcrew_remember((int)$t['id'], (int)$np['id']); }   // v2.6.40: the Plant pal puts this seed back
                 $msgs[] = 'You plant ' . $np['name'] . '. Don’t forget to water it!';
                 if (plant_unstudied($u, $np)) $msgs[] = '📕 Unstudied: ' . $np['name'] . ' grows ' . unstudied_slow_pct($u) . '% slower and gives ' . (100 - unstudied_yield_pct($u)) . '% less until you study ' . (plant_home_name((int)$np['id']) ?: 'its region') . ' (its gardening guide or questline) or master it.';
                 break;

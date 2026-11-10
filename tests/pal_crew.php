@@ -19,7 +19,7 @@ $u = urow($uid);
 echo "== tables\n";
 ok('slots, rest and report tables exist', (bool)q_val('SELECT COUNT(*) >= 0 FROM garden_pal_slots') && (bool)q_val('SELECT COUNT(*) >= 0 FROM garden_pal_rest') && (bool)q_val('SELECT COUNT(*) >= 0 FROM sleep_report'));
 ok('crew is open with pal jobs and the sleep clock', pcrew_open($u));
-ok('the plant slot is not open yet', PCREW_ROLES['plant'][3] === false);
+ok('the plant slot is open', PCREW_ROLES['plant'][3] === true);
 
 $MAP = (int)q_val("SELECT id FROM puzzle_pics WHERE slug = 'jig-maplewold'");
 q('INSERT INTO ppal_releases (user_id, pic_id, released_at, src) VALUES (?, ?, ?, ?)', [$uid, $MAP, now(), 'free']);
@@ -53,8 +53,8 @@ ok('pal is marked as on the crew', pj_pal($uid, $p0)['status'] === 'crew');
 ok('second pal on the same slot refused', $a2 === false);
 [$a3] = pcrew_assign($u, $plot, 'weed', $p0, 'timed', 1);
 ok('a pal already out cannot take a second job', $a3 === false);
-[$a4] = pcrew_assign($u, $plot, 'plant', $p1, 'timed', 1);
-ok('plant slot closed (phase 3)', $a4 === false);
+[$a4] = pcrew_assign($u, $plot, 'nonsense', $p1, 'timed', 1);
+ok('an unknown job is refused', $a4 === false);
 [$a5] = pcrew_assign($u, $plot + 999, 'weed', $p1, 'timed', 1);
 ok('not your garden refused', $a5 === false);
 [$a6] = pcrew_assign($u, $plot, 'weed', $p1, 'timed', 2);
@@ -117,6 +117,67 @@ ok('recall: slot freed', $c1 === true && !isset(pcrew_slots($plot)['harvest']));
 ok('recalled pal is home and resting until the next sleep', pj_pal($uid, $p3)['status'] === 'home' && pcrew_is_resting($uid, $p3, (int)$u['game_day']));
 [$c2] = pcrew_recall($u, $plot, 'harvest');
 ok('recall of an empty slot says so', $c2 === false);
+
+echo "== planting (the Plant slot)\n";
+$plant2 = q_one('SELECT * FROM plants WHERE grow_minutes <= 20 AND kind NOT IN (\'cover\',\'flower\') AND produce_item_id IS NOT NULL AND id <> ? ORDER BY id LIMIT 1', [$plant['id']]);
+ok('a second quick crop exists', (bool)$plant2);
+foreach ([$plant, $plant2] as $pp) q('UPDATE items SET category = ? WHERE id = ?', ['seed', $pp['seed_item_id']]);
+q('DELETE FROM user_items WHERE user_id = ? AND item_id IN (?, ?)', [$uid, $plant['seed_item_id'], $plant2['seed_item_id']]);
+give_item($uid, (int)$plant['seed_item_id'], 2); give_item($uid, (int)$plant2['seed_item_id'], 5);
+$opts = pcrew_seed_options($uid);
+ok('seed options list both seeds the gnome holds', isset($opts[(int)$plant['seed_item_id']]) && isset($opts[(int)$plant2['seed_item_id']]));
+$origSlug = q_val('SELECT slug FROM items WHERE id = ?', [$plant2['seed_item_id']]);
+q('UPDATE items SET slug = ? WHERE id = ?', ['treasure-seed-test', $plant2['seed_item_id']]);
+ok('treasure seeds are never offered', !isset(pcrew_seed_options($uid)[(int)$plant2['seed_item_id']]));
+ok('and are dropped from a ticked list', pcrew_clean_seeds($uid, [(int)$plant2['seed_item_id']]) === []);
+q('UPDATE items SET slug = ? WHERE id = ?', [$origSlug, $plant2['seed_item_id']]);
+ok('a ticked ordinary seed is kept', pcrew_clean_seeds($uid, [(int)$plant2['seed_item_id'], 0, 99999999]) === [(int)$plant2['seed_item_id']]);
+q('DELETE FROM garden_pal_slots WHERE plot_id = ?', [$plot]); q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]); q('DELETE FROM garden_pal_rest WHERE user_id = ?', [$uid]);
+$u = urow($uid);
+[$pl1, $plm] = pcrew_assign($u, $plot, 'plant', $p4, 'full', 0, false, [(int)$plant2['seed_item_id']]);
+ok('plant slot assigned with a ticked seed', $pl1 === true, (string)$plm);
+ok('the ticked seed is stored', q_val("SELECT seeds FROM garden_pal_slots WHERE plot_id = ? AND role = 'plant'", [$plot]) === (string)$plant2['seed_item_id']);
+// four bare, prepared beds: A remembers plant 1, B remembers nothing, C is hands off, D remembers plant 1 but only 2 seeds exist (A and D both want it)
+foreach ($tiles as $id) q('UPDATE plot_tiles SET plant_id = NULL, planted_at = NULL, growth_seconds = 0, tilled = 1, settle_until = NULL, fertility = 90, water_day = NULL, pest = NULL, weeds = 0 WHERE id = ?', [$id]);
+q('DELETE FROM garden_pal_memory WHERE tile_id IN (' . implode(',', $tiles) . ')');
+[$tA, $tB, $tC, $tD] = $tiles;
+pcrew_remember($tA, (int)$plant['id']); pcrew_remember($tD, (int)$plant['id']); pcrew_set_skip($u, $plot, [$tC]);
+q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $plant['seed_item_id']]); give_item($uid, (int)$plant['seed_item_id'], 1);   // only one of the remembered seed
+q('UPDATE plants SET seasons = NULL WHERE id IN (?, ?)', [$plant['id'], $plant2['id']]);
+q('UPDATE users SET game_minute = 360 WHERE id = ?', [$uid]);
+$dayBefore = (int)urow($uid)['game_day'];
+game_sleep($uid);
+$D = $dayBefore + 1;
+ok('bed A got its own seed back', (int)$t($tA)['plant_id'] === (int)$plant['id'], json_encode($t($tA)));
+ok('growth starts on the day that ended; no Water pal, so not watered', (int)$t($tA)['grow_day'] === $D - 1 && ($t($tA)['water_day'] === null || $t($tA)['water_day'] === ''), json_encode($t($tA)));
+ok('the remembered seed ran out: bed D falls back to the ticked seed', (int)$t($tD)['plant_id'] === (int)$plant2['id'], json_encode($t($tD)));
+ok('bed B (no memory) uses the ticked seed too', (int)$t($tB)['plant_id'] === (int)$plant2['id']);
+ok('hands-off bed C stays empty', empty($t($tC)['plant_id']));
+ok('seeds were used up one per bed', (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $plant['seed_item_id']]) === 0 && (int)q_val('SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $plant2['seed_item_id']]) === 3);
+ok('the new beds are remembered', (int)q_val('SELECT plant_id FROM garden_pal_memory WHERE tile_id = ?', [$tB]) === (int)$plant2['id']);
+$rep = pcrew_latest_report($uid);
+$pr = array_values(array_filter($rep[1]['crew'] ?? [], fn($c) => $c['role'] === 'plant'))[0] ?? [];
+ok('report: planted 3 beds', ($pr['n'] ?? 0) === 3, json_encode($pr));
+// run out of seeds entirely
+q('UPDATE plot_tiles SET plant_id = NULL, planted_at = NULL WHERE id = ?', [$tA]);
+q('DELETE FROM user_items WHERE user_id = ? AND item_id IN (?, ?)', [$uid, $plant['seed_item_id'], $plant2['seed_item_id']]);
+game_sleep($uid);
+$pr = array_values(array_filter((pcrew_latest_report($uid)[1]['crew'] ?? []), fn($c) => $c['role'] === 'plant'))[0] ?? [];
+ok('no seeds: bed stays empty and the report says why', empty($t($tA)['plant_id']) && str_contains((string)($pr['warn'] ?? ''), 'out of'), json_encode($pr));
+// off season is skipped
+give_item($uid, (int)$plant['seed_item_id'], 3);
+q("UPDATE plants SET seasons = 'winter' WHERE id = ?", [$plant['id']]);
+q("UPDATE plants SET seasons = 'winter' WHERE id = ?", [$plant2['id']]);
+q('UPDATE garden_pal_slots SET seeds = ? WHERE plot_id = ? AND role = ?', [(string)$plant['seed_item_id'], $plot, 'plant']);
+cfg(['season_epoch' => '2026-06-15']);   // midsummer
+game_sleep($uid);
+ok('an off-season seed is not planted', empty($t($tA)['plant_id']), json_encode($t($tA)));
+cfg(['season_epoch' => '2026-01-01']); q('UPDATE plants SET seasons = NULL WHERE id IN (?, ?)', [$plant['id'], $plant2['id']]);
+$u = urow($uid);
+[$sk] = pcrew_set_seeds($u, $plot, [(int)$plant['seed_item_id']]);
+ok('seeds can be changed while the pal works', $sk === true);
+[$sk2] = pcrew_set_skip($u, $plot, []);
+ok('hands-off beds can be cleared', $sk2 === true && !(int)q_val('SELECT skip FROM garden_pal_memory WHERE tile_id = ?', [$tC]));
 
 echo "== hired helpers retire with a refund\n";
 q("INSERT INTO helpers (name, species, icon, bio, skills, wage, active) VALUES ('Testy', 'mole', '🦔', 'x', 'water,weed,harvest', 20, 1)");

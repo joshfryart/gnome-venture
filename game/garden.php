@@ -17,7 +17,7 @@ if (is_post()) {
     $y = (int)($_POST['y'] ?? -1);
     // v1.4.0: every panel action returns to its own tab (Beds is the default)
     $tabOfDo = ['build' => 'bld', 'upgrade' => 'bld', 'pantry_buy' => 'bld', 'add_scraps' => 'bld', 'heap_out' => 'bld', 'collect' => 'bld',
-                'hire' => 'help', 'dismiss' => 'help', 'crew_assign' => 'help', 'crew_recall' => 'help', 'expand' => 'grow', 'sign_buy' => 'grow', 'sign_use' => 'grow'];
+                'hire' => 'help', 'dismiss' => 'help', 'crew_assign' => 'help', 'crew_recall' => 'help', 'crew_seeds' => 'help', 'crew_skip' => 'help', 'expand' => 'grow', 'sign_buy' => 'grow', 'sign_use' => 'grow'];
     if ($do === 'collect' && ($_POST['from'] ?? '') === 'yard') unset($tabOfDo['collect']);   // v1.9.7: tapping a glowing building on the yard collects and stays on the garden
     $postTab = $tabOfDo[$do] ?? (in_array((string)($_POST['t'] ?? ''), ['bld', 'an', 'help', 'grow'], true) ? (string)$_POST['t'] : 'beds');
     $tq = $postTab !== 'beds' ? '?t=' . $postTab : '';
@@ -107,12 +107,16 @@ if (is_post()) {
         flash($msg, $ok ? 'ok' : 'err');
     } elseif ($do === 'hire') {
         flash('Hired helpers have gone home. Your pals do the garden work now: see the Crew tab.', 'err');   // v2.6.40
+    } elseif ($do === 'crew_seeds' || $do === 'crew_skip') {
+        require_once __DIR__ . '/includes/pal_crew.php';
+        [$ok, $msg] = $do === 'crew_seeds' ? pcrew_set_seeds($u, active_plot_id($uid), (array)($_POST['seeds'] ?? [])) : pcrew_set_skip($u, active_plot_id($uid), (array)($_POST['skip'] ?? []));
+        flash($msg, $ok ? 'ok' : 'err');
     } elseif ($do === 'crew_assign' || $do === 'crew_recall') {
         require_once __DIR__ . '/includes/pal_crew.php';
         $slotRole = (string)($_POST['role'] ?? '');
         if ($do === 'crew_assign') {
             $m = (string)($_POST['mode'] ?? '');
-            [$ok, $msg] = pcrew_assign($u, active_plot_id($uid), $slotRole, (string)($_POST['pal'] ?? ''), $m === 'full' ? 'full' : 'timed', (int)$m, !empty($_POST['unequip']));
+            [$ok, $msg] = pcrew_assign($u, active_plot_id($uid), $slotRole, (string)($_POST['pal'] ?? ''), $m === 'full' ? 'full' : 'timed', (int)$m, !empty($_POST['unequip']), (array)($_POST['seeds'] ?? []));
         } else {
             [$ok, $msg] = pcrew_recall($u, active_plot_id($uid), $slotRole);
         }
@@ -900,7 +904,17 @@ $maxLv = fn(string $k): int => 1 + count(BUILDING_UPGRADES[$k] ?? []);
     $crewOpen = pcrew_open($u);
     $cslots = pcrew_slots((int)$plot['id']);
     $cpals = $crewOpen ? pj_pals($uid) : [];
-    $today = (int)$u['game_day']; ?>
+    $today = (int)$u['game_day'];
+    $seedOpts = $crewOpen ? pcrew_seed_options($uid) : [];
+    $seedGrid = function (array $ticked) use ($seedOpts, $plot): string {
+        if (!$seedOpts) return '<p class="muted sm">You hold no seeds a pal can plant. The pal will put back the seed each bed last had.</p>';
+        $h = '<div class="crewseeds">';
+        foreach ($seedOpts as $sid => $o) {
+            $off = plant_season_state($o['plant'], gclock_plot_date((int)$plot['id'])) === 'off';
+            $h .= '<label class="crewseed' . ($off ? ' off' : '') . '"><input type="checkbox" name="seeds[]" value="' . (int)$sid . '"' . (in_array($sid, $ticked, true) ? ' checked' : '') . '><span>' . e($o['plant']['name']) . ' <small>×' . (int)$o['qty'] . ($off ? ' · off season' : '') . '</small></span></label>';
+        }
+        return $h . '</div>';
+    }; ?>
 <div class="box crew gtab">
   <h3>🧩 Garden crew</h3>
   <p class="help">Put a pal on each job. They work <b>while you sleep</b>, and what they did is in the Hovel under Pals.</p>
@@ -915,6 +929,17 @@ $maxLv = fn(string $k): int => 1 + count(BUILDING_UPGRADES[$k] ?? []);
           <small class="muted"><?= e($sp['name'] ?? 'A pal') ?> · <?= $s['mode'] === 'full' ? 'full time · night ' . ((int)$s['done'] + 1) : 'sleep ' . min((int)$s['nights'], (int)$s['done'] + 1) . ' of ' . (int)$s['nights'] ?></small>
           <form method="post" class="inline" data-confirm="Call <?= e($sp['name'] ?? 'the pal') ?> home? They rest until you sleep."><?= csrf_field() ?><input type="hidden" name="do" value="crew_recall"><input type="hidden" name="role" value="<?= e($rk) ?>"><input type="hidden" name="t" value="help">
             <button class="btn small alt">Call home</button></form>
+          <?php if ($rk === 'plant'):
+              $ticked = array_values(array_filter(array_map('intval', explode(',', (string)($s['seeds'] ?? ''))))); $skipIds = array_map('intval', q('SELECT tile_id FROM garden_pal_memory WHERE skip = 1 AND tile_id IN (SELECT id FROM plot_tiles WHERE plot_id = ?)', [$plot['id']])->fetchAll(PDO::FETCH_COLUMN)); ?>
+            <details class="crewpick"><summary class="btn small alt">Seeds and beds</summary>
+              <p class="help">A bed gets the seed it last had. If it has none, the pal uses a ticked seed.</p>
+              <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="crew_seeds"><input type="hidden" name="t" value="help"><?= $seedGrid($ticked) ?><button class="btn small">Save seeds</button></form>
+              <p class="help">Beds to leave alone (hands off):</p>
+              <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="crew_skip"><input type="hidden" name="t" value="help"><div class="crewbeds">
+                <?php foreach ($tiles as $trow) foreach ($trow as $tt): ?><label class="crewbed"><input type="checkbox" name="skip[]" value="<?= (int)$tt['id'] ?>"<?= in_array((int)$tt['id'], $skipIds, true) ? ' checked' : '' ?>><span><?= (int)$tt['x'] + 1 ?>,<?= (int)$tt['y'] + 1 ?></span></label><?php endforeach; ?>
+              </div><button class="btn small">Save hands-off beds</button></form>
+            </details>
+          <?php endif; ?>
         <?php elseif (!$ropen): ?>
           <small class="muted"><?= e($rd) ?></small>
         <?php elseif ($crewOpen): $free = array_filter($cpals, fn($pp) => $pp['status'] === 'home'); ?>
@@ -926,6 +951,7 @@ $maxLv = fn(string $k): int => 1 + count(BUILDING_UPGRADES[$k] ?? []);
                 <label class="crewpal<?= $rest ? ' rest' : '' ?>"><input type="radio" name="pal" value="<?= e($pp['uid']) ?>"<?= $rest ? ' disabled' : ($first ? ' checked' : '') ?>> <?= e($pp['name']) ?><?= $rest ? ' <small class="muted">resting until you sleep</small>' : ($pp['active'] ? ' <small class="muted">in your party</small>' : '') ?></label>
               <?php if (!$rest) $first = false; endforeach; ?></p>
               <p class="crewmode"><?php foreach (PCREW_NIGHTS as $n): ?><label><input type="radio" name="mode" value="<?= $n ?>"<?= $n === 1 ? ' checked' : '' ?>> <?= $n ?> sleep<?= $n > 1 ? 's' : '' ?></label> <?php endforeach; ?><label><input type="radio" name="mode" value="full"> Full time</label></p>
+              <?php if ($rk === 'plant'): ?><p class="help">Seeds to use when a bed has no memory (optional). Beds always get their own seed back first.</p><?= $seedGrid([]) ?><?php endif; ?>
               <p class="crewmode"><label><input type="checkbox" name="unequip" value="1"> Take off my party if needed</label></p>
               <button class="btn small">Send to work</button>
               <?php endif; ?>

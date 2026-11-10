@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /**
  * v2.6.40: Garden crew. Every garden has five pal slots (Water, Weed, Pests, Harvest, Plant). A pal in a slot works while the gnome SLEEPS:
- * game_new_day() calls pcrew_night() once per sleep, in a fixed order: pests, weeds, harvest, (plant: phase 3), water. Time modes: 'timed' (1/3/7 sleeps,
+ * game_new_day() calls pcrew_night() once per sleep, in a fixed order: pests, weeds, harvest, plant, water. Time modes: 'timed' (1/3/7 sleeps,
  * counted from the next sleep) or 'full' (until called home). A pal sent home rests one game day (garden_pal_rest) and cannot be assigned until the next sleep.
  * What happened is saved per sleep in sleep_report (the Hovel shows it). Design + mockups: claude/todo.md (2026-11-10), pal_garden_mockups.html.
  * Growth is lazy (gclock_tile_grow settles whole days from water_day), so each tile is settled to the day that just ended, worked, then watered FOR that day.
@@ -15,7 +15,7 @@ const PCREW_ROLES = [   // key => [icon, label, what it does, open?]
     'weed'    => ['🌿', 'Weed', 'Pulls weeds from no-till beds.', true],
     'pests'   => ['🐛', 'Pests', 'Picks pests off the beds.', true],
     'harvest' => ['🧺', 'Harvest', 'Picks every ripe crop into your satchel.', true],
-    'plant'   => ['🌰', 'Plant', 'Replants emptied beds. Coming soon.', false],
+    'plant'   => ['🌰', 'Plant', 'Replants emptied beds with the same seed, or seeds you pick.', true],
 ];
 const PCREW_NIGHTS = [1, 3, 7];
 const PCREW_XP_PCT = 40;      // share of the old Gardening XP a pal earns from crew work
@@ -30,6 +30,8 @@ function pcrew_boot(): void
         q('SELECT id FROM garden_pal_slots LIMIT 1');
         q('SELECT id FROM garden_pal_rest LIMIT 1');
         q('SELECT id FROM sleep_report LIMIT 1');
+        q('SELECT seeds FROM garden_pal_slots LIMIT 1');
+        q('SELECT tile_id FROM garden_pal_memory LIMIT 1');
     } catch (Throwable $e) {
         global $CONFIG;
         db_migrate(db(), (string)$CONFIG['db']['driver']);
@@ -78,7 +80,7 @@ function pcrew_send_home(int $uid, string $palUid, int $today): void
 }
 
 /** Put a pal in a slot. Returns [ok, message]. */
-function pcrew_assign(array $u, int $plotId, string $role, string $palUid, string $mode, int $nights, bool $unequip = false): array
+function pcrew_assign(array $u, int $plotId, string $role, string $palUid, string $mode, int $nights, bool $unequip = false, array $seeds = []): array
 {
     $uid = (int)$u['id'];
     pcrew_boot();
@@ -96,7 +98,8 @@ function pcrew_assign(array $u, int $plotId, string $role, string $palUid, strin
     if (!pj_claim_pal($uid, $palUid, 'crew')) return [false, $p['name'] . ' is already out.'];
     try {
         db_insert('garden_pal_slots', ['plot_id' => $plotId, 'user_id' => $uid, 'role' => $role, 'pal_uid' => $palUid, 'mode' => $mode === 'full' ? 'full' : 'timed',
-            'nights' => $mode === 'full' ? 0 : $nights, 'done' => 0, 'start_day' => $today, 'created_at' => now()]);
+            'nights' => $mode === 'full' ? 0 : $nights, 'done' => 0, 'start_day' => $today, 'created_at' => now(),
+            'seeds' => $role === 'plant' ? implode(',', pcrew_clean_seeds((int)$u['id'], $seeds)) : null]);
     } catch (Throwable $e) {
         q("UPDATE ppal_found SET status = 'home' WHERE user_id = ? AND pal_uid = ?", [$uid, $palUid]);
         return [false, 'That slot already has a pal.'];
@@ -165,17 +168,25 @@ function pcrew_night(int $uid): void
     }
 }
 
-/** The tile work of one garden, in order. Returns [role => count, role_text => words]. */
+/** The tile work of one garden, in order. Returns [role => count, role_text => words, role_warn => problem]. */
 function pcrew_work_plot(array $owner, array $plot, array $roles, int $D): array
 {
     $uid = (int)$owner['id'];
-    $out = ['water' => 0, 'weed' => 0, 'pests' => 0, 'harvest' => 0];
+    $out = ['water' => 0, 'weed' => 0, 'pests' => 0, 'harvest' => 0, 'plant' => 0];
     $names = [];
     foreach ($roles as $role => $s) $names[$role] = (string)(pj_pal($uid, (string)$s['pal_uid'])['name'] ?? 'Your pal');
     $plants = [];
+    $planted = [];   // plant name => count, for the report
+    $whyNot = [];    // beds left empty => reason
+    $stock = [];     // seed item id => held, kept as it drops
+    $chosen = isset($roles['plant']) ? array_values(array_filter(array_map('intval', explode(',', (string)($roles['plant']['seeds'] ?? ''))))) : [];
+    $plantDate = hollow_date_add(hollow_season_epoch(), $D - 1);
+    $mem = [];
+    foreach (q('SELECT m.* FROM garden_pal_memory m JOIN plot_tiles t ON t.id = m.tile_id WHERE t.plot_id = ?', [$plot['id']])->fetchAll() as $m) $mem[(int)$m['tile_id']] = $m;
     foreach (q('SELECT * FROM plot_tiles WHERE plot_id = ? ORDER BY y, x', [$plot['id']])->fetchAll() as $raw) {
         $p = null;
         if ($raw['plant_id']) { $pid = (int)$raw['plant_id']; $p = $plants[$pid] ??= q_one('SELECT * FROM plants WHERE id = ?', [$pid]); }
+        if ($p && (int)($mem[(int)$raw['id']]['plant_id'] ?? 0) !== (int)$p['id']) { pcrew_remember((int)$raw['id'], (int)$p['id']); $mem[(int)$raw['id']] = ['plant_id' => (int)$p['id'], 'skip' => (int)($mem[(int)$raw['id']]['skip'] ?? 0)]; }   // learn what grows here
         $t = annotate_tile($raw, $p);
         if ($p) {
             $t = gclock_tile_grow($t, $p, $D - 1);   // settle every finished day up to the day before the one that just ended
@@ -198,26 +209,135 @@ function pcrew_work_plot(array $owner, array $plot, array $roles, int $D): array
             } catch (Throwable $e) {
                 if (db()->inTransaction()) db()->rollBack();
             }
-            $fresh = q_one('SELECT * FROM plot_tiles WHERE id = ?', [$t['id']]);
-            if (!$fresh || !$fresh['plant_id']) continue;   // picked clean: nothing left to water
         }
-        if ($p && isset($roles['water'])) {
+        $fresh = q_one('SELECT * FROM plot_tiles WHERE id = ?', [$t['id']]);
+        if (!$fresh) continue;
+        // plant: an empty, prepared bed gets the same seed back, or one of the ticked seeds
+        if (!$fresh['plant_id'] && isset($roles['plant']) && (int)$fresh['tilled'] === 1 && empty($mem[(int)$fresh['id']]['skip'])
+            && ts((string)$fresh['settle_until']) <= gclock_plot_now((int)$plot['id'])) {
+            [$sid, $np, $why] = pcrew_pick_seed($owner, $fresh, $mem[(int)$fresh['id']] ?? null, $chosen, $stock, $plantDate);
+            if ($np && give_item($uid, $sid, -1)) {
+                $stock[$sid]--;
+                $upd = q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = 0, growth_updated_at = ?, last_watered = NULL, water_day = NULL, owed_days = 0, grow_day = ?, harvests = 0, nipped = 0, pest = NULL, pest_at = NULL
+                          WHERE id = ? AND plant_id IS NULL', [$np['id'], gclock_maint_now((int)$plot['id']), now(), $D - 1, $fresh['id']])->rowCount();
+                if ($upd === 1) {
+                    $out['plant']++; $planted[$np['name']] = ($planted[$np['name']] ?? 0) + 1;
+                    pcrew_remember((int)$fresh['id'], (int)$np['id']); $mem[(int)$fresh['id']] = ['plant_id' => (int)$np['id'], 'skip' => 0];
+                    $plants[(int)$np['id']] = $np;
+                } else { give_item($uid, $sid, 1); }
+            } elseif ($why !== '') { $whyNot[$why] = ($whyNot[$why] ?? 0) + 1; }
             $fresh = q_one('SELECT * FROM plot_tiles WHERE id = ?', [$t['id']]);
-            if ($fresh && $fresh['plant_id'] && (string)($fresh['water_day'] ?? '') !== (string)($D - 1)) {
-                $fx = gfx_on() ? garden_day_fx(annotate_tile($fresh, $p), $p, hollow_date_add(hollow_season_epoch(), $D - 1)) : ['wet' => false];
-                if (!empty($fx['wet'])) continue;   // rain did it
-                q('UPDATE plot_tiles SET water_day = ?, last_watered = ? WHERE id = ?', [$D - 1, now(), $t['id']]);
-                $out['water']++;
-            }
+        }
+        if (!$fresh || !$fresh['plant_id']) continue;   // nothing growing: nothing to water
+        $p = $plants[(int)$fresh['plant_id']] ??= q_one('SELECT * FROM plants WHERE id = ?', [(int)$fresh['plant_id']]);
+        if ($p && isset($roles['water']) && (string)($fresh['water_day'] ?? '') !== (string)($D - 1)) {
+            $fx = gfx_on() ? garden_day_fx(annotate_tile($fresh, $p), $p, hollow_date_add(hollow_season_epoch(), $D - 1)) : ['wet' => false];
+            if (!empty($fx['wet'])) continue;   // rain did it
+            q('UPDATE plot_tiles SET water_day = ?, last_watered = ? WHERE id = ?', [$D - 1, now(), $t['id']]);
+            $out['water']++;
         }
     }
-    $out['water_text'] = $names['water'] ?? ''; $texts = [];
+    $texts = [];
     if (isset($roles['water'])) $texts['water'] = $names['water'] . ' watered ' . $out['water'] . ' bed' . ($out['water'] === 1 ? '' : 's');
     if (isset($roles['weed'])) $texts['weed'] = $names['weed'] . ' weeded ' . $out['weed'] . ' bed' . ($out['weed'] === 1 ? '' : 's');
     if (isset($roles['pests'])) $texts['pests'] = $names['pests'] . ' cleared pests from ' . $out['pests'] . ' bed' . ($out['pests'] === 1 ? '' : 's');
     if (isset($roles['harvest'])) $texts['harvest'] = $names['harvest'] . ' picked ' . $out['harvest'] . ' crop' . ($out['harvest'] === 1 ? '' : 's');
+    if (isset($roles['plant'])) {
+        $bits = []; foreach ($planted as $nm => $n) $bits[] = $n . ' ' . strtolower($nm);
+        $texts['plant'] = $names['plant'] . ($bits ? ' planted ' . implode(', ', $bits) : ' had nothing to plant');
+        if ($whyNot) { $w = []; foreach ($whyNot as $why => $n) $w[] = $n . ' bed' . ($n > 1 ? 's' : '') . ' left empty: ' . $why; $out['plant_warn'] = implode('; ', $w); }
+    }
     foreach ($texts as $k => $v) $out[$k . '_text'] = $v;
     return $out;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Planting (the Plant slot). Same seed as the bed had before, else the seeds the gnome ticked (a grid of seeds they hold).
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** Remember what grows in a bed, so the Plant slot can put the same seed back. Called when anyone plants and by the night pass. */
+function pcrew_remember(int $tileId, int $plantId): void
+{
+    try {
+        pcrew_boot();
+        if (q('UPDATE garden_pal_memory SET plant_id = ? WHERE tile_id = ?', [$plantId, $tileId])->rowCount() < 1) {
+            try { db_insert('garden_pal_memory', ['tile_id' => $tileId, 'plant_id' => $plantId, 'skip' => 0]); } catch (Throwable $e) {}
+        }
+    } catch (Throwable $e) { error_log('pcrew_remember: ' . $e->getMessage()); }
+}
+
+/** Seeds a pal may plant that this gnome holds: [seed item id => [item row, plant row, qty]]. Never treasure seeds or saplings. */
+function pcrew_seed_options(int $uid): array
+{
+    $out = [];
+    foreach (q("SELECT i.*, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.qty > 0 AND i.category = 'seed' ORDER BY i.name", [$uid])->fetchAll() as $it) {
+        if (str_contains(strtolower((string)$it['slug']), 'treasure')) continue;
+        $pl = q_one('SELECT * FROM plants WHERE seed_item_id = ?', [$it['id']]);
+        if (!$pl || $pl['kind'] === 'cover') continue;
+        $out[(int)$it['id']] = ['item' => $it, 'plant' => $pl, 'qty' => (int)$it['qty']];
+    }
+    return $out;
+}
+
+/** The ticked seed ids, keeping only ones a pal may plant (known seed items, no treasure seeds). Held or not: the pick stays when you run out. */
+function pcrew_clean_seeds(int $uid, array $ids): array
+{
+    $keep = [];
+    foreach (array_unique(array_map('intval', $ids)) as $id) {
+        if ($id < 1) continue;
+        $it = q_one("SELECT slug, category FROM items WHERE id = ?", [$id]);
+        if (!$it || $it['category'] !== 'seed' || str_contains(strtolower((string)$it['slug']), 'treasure')) continue;
+        $pl = q_one('SELECT kind FROM plants WHERE seed_item_id = ?', [$id]);
+        if ($pl && $pl['kind'] !== 'cover') $keep[] = $id;
+    }
+    return array_slice($keep, 0, 24);
+}
+
+/** Change the seeds a Plant slot may use. */
+function pcrew_set_seeds(array $u, int $plotId, array $ids): array
+{
+    $uid = (int)$u['id'];
+    pcrew_boot();
+    $s = q_one("SELECT * FROM garden_pal_slots WHERE plot_id = ? AND user_id = ? AND role = 'plant'", [$plotId, $uid]);
+    if (!$s) return [false, 'Nobody is on the Plant job.'];
+    $clean = pcrew_clean_seeds($uid, $ids);
+    q('UPDATE garden_pal_slots SET seeds = ? WHERE id = ?', [implode(',', $clean), $s['id']]);
+    return [true, $clean ? 'The Plant pal will use ' . count($clean) . ' kind' . (count($clean) > 1 ? 's' : '') . ' of seed when a bed has no memory of its own.' : 'The Plant pal will only put back the same seed.'];
+}
+
+/** Beds the Plant pal must leave alone. $tileIds = every bed to leave empty / untouched in this garden. */
+function pcrew_set_skip(array $u, int $plotId, array $tileIds): array
+{
+    $uid = (int)$u['id'];
+    pcrew_boot();
+    if (!q_val('SELECT 1 FROM plots WHERE id = ? AND user_id = ?', [$plotId, $uid])) return [false, 'That is not your garden.'];
+    $mine = array_map('intval', q('SELECT id FROM plot_tiles WHERE plot_id = ?', [$plotId])->fetchAll(PDO::FETCH_COLUMN));
+    $want = array_values(array_intersect($mine, array_map('intval', $tileIds)));
+    foreach ($mine as $tid) {
+        $skip = in_array($tid, $want, true) ? 1 : 0;
+        if (q('UPDATE garden_pal_memory SET skip = ? WHERE tile_id = ?', [$skip, $tid])->rowCount() < 1 && $skip) {
+            try { db_insert('garden_pal_memory', ['tile_id' => $tid, 'plant_id' => 0, 'skip' => 1]); } catch (Throwable $e) {}
+        }
+    }
+    return [true, count($want) ? count($want) . ' bed' . (count($want) > 1 ? 's' : '') . ' marked hands off for the Plant pal.' : 'No beds are hands off now.'];
+}
+
+/** Pick the seed for one empty bed: [item id, plant row, why-not text]. */
+function pcrew_pick_seed(array $owner, array $tile, ?array $mem, array $chosen, array &$stock, string $date): array
+{
+    $uid = (int)$owner['id'];
+    $try = [];
+    if ($mem && (int)$mem['plant_id'] > 0) { $pl = q_one('SELECT * FROM plants WHERE id = ?', [(int)$mem['plant_id']]); if ($pl && $pl['kind'] !== 'cover') $try[] = [(int)$pl['seed_item_id'], $pl, true]; }
+    foreach ($chosen as $sid) { $pl = q_one('SELECT * FROM plants WHERE seed_item_id = ?', [$sid]); if ($pl) $try[] = [(int)$sid, $pl, false]; }
+    $why = '';
+    foreach ($try as [$sid, $pl, $same]) {
+        if (($stock[$sid] ?? null) === null) $stock[$sid] = (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $sid]);
+        if ($stock[$sid] < 1) { $why = $why ?: 'out of ' . strtolower($pl['name']) . ' seeds'; continue; }
+        if (plant_season_state($pl, $date) === 'off') { $why = $why ?: strtolower($pl['name']) . ' is out of season'; continue; }
+        if ((int)$tile['fertility'] < (int)$pl['min_soil']) { $why = $why ?: strtolower($pl['name']) . ' needs richer soil'; continue; }
+        return [$sid, $pl, ''];
+    }
+    return [0, null, $why ?: 'no seed to use'];
 }
 
 function pcrew_save_report(int $uid, int $day, array $data): void
