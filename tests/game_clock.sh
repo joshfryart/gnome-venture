@@ -39,6 +39,7 @@ echo "flag off -> $(get hovel.php) (redirect expected 200 after follow? shows gn
 php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("INSERT OR REPLACE INTO settings (name,value) VALUES (\"game_clock_on\",\"1\")");'
 get hovel.php >/dev/null; grep -q 'Sleep in your hovel' $H && echo "  on: hovel shows" || { echo "  FAIL hovel missing"; }
 post hovel.php -d do=home_nap >/dev/null; echo "  after nap: $(db "SELECT game_day, game_minute FROM users WHERE username='sprout'")"
+for tb in tasks costs; do get "hovel.php?t=$tb" >/dev/null; grep -q 'hov-tabs' $H && ! grep -qi 'fatal error\|Warning:' $H && echo "  tab $tb renders" || echo "  FAIL tab $tb"; done
 get hovel.php >/dev/null; post hovel.php -d do=home_sleep >/dev/null; echo "  after sleep: $(db "SELECT game_day, game_minute FROM users WHERE username='sprout'")"
 php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $p->exec("UPDATE users SET game_day=0, game_minute=360"); $p->exec("DELETE FROM settings WHERE name=\"game_clock_on\"");'
 echo "== game clock (tests/game_clock.php)"

@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- **Hovel page**: slimmer, with tabs: **Sleep** (clock, season, weather and energy in one row; Sleep and Nap side by side), **Tasks** (today's daily / weekly / monthly job with progress, plus Journey and Requests with counts, and a link to the full Tasks page) and **Costs** (the cost table, no longer a fold). The Tasks tab shows a count badge when something is ready. After a night's sleep (not a nap) the page opens on Tasks, since the jobs have changed. Files: `hovel.php`, `style.css`, `tests/game_clock.sh` (tab checks).
+
 ## 2.6.39
 - **Delve route menu**: prettier panel (framed, stage numbers, dotted links between rows, raised pick buttons). The whole route now stays on screen after each floor: the rooms you took are lit with a ✓, the rooms you passed by are greyed out and can't be picked. Files: `includes/delve_v2.php`, `style.css`. `tests/delve2.sh` passes.
 - **Workshop popover actions**: Make ×2 / ×5 / All and Collect buttons now send which button was pressed (before, the amount was lost). After any action the picture behind updates too: the **!** badges, the chips, the card's recipe count and the energy / header strip. File: `workshop.js`.

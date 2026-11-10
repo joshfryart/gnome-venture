@@ -7521,20 +7521,31 @@ button.hubnavbtn { font: inherit; color: inherit; padding: 0; }
 
 /* sleep-days: the hovel / rest page */
 .hov { text-align: center; }
-.hov h2 { font-size: 1rem; margin: 14px 0 6px; }
-.hov-hero { padding: 10px 8px 6px; }
-.hov-time { font-size: 3rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.hov h2 { font-size: 1rem; margin: 4px 0 6px; }
+.hov-hero { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; padding: 8px 12px; border: 2px solid var(--line); background: var(--surface); }
+.hov-time { font-size: 2.2rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
 .hov-hero.tired .hov-time { color: #f59e0b; }
-.hov-day { margin: 6px 0 8px; opacity: .9; }
+.hov-mid { text-align: left; line-height: 1.25; }
+.hov-sub { font-size: .85rem; opacity: .85; }
 .hov-energy { display: inline-flex; align-items: center; gap: 6px; }
-.hov-note { margin: 8px auto; max-width: 34rem; }
-.hov-opt { display: flex; flex-direction: column; align-items: center; gap: 3px; margin: 8px auto; max-width: 30rem; }
+.hov-tabs a small { display: inline-block; min-width: 18px; padding: 0 5px; border-radius: 9px; background: #2e8b3a; color: #fff; font-weight: 800; text-align: center; }
+.hov-note { margin: 6px auto; max-width: 34rem; }
+.hov-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 4px 14px; align-items: start; }
+.hov-opt { display: flex; flex-direction: column; align-items: center; gap: 2px; margin: 6px auto; width: 100%; max-width: 30rem; }
 .hov-opt .btn { width: 100%; }
+.hov-opt small { font-size: .78rem; }
 .hov-opt.off { opacity: .6; }
-.hov-camp { margin: 8px 0; }
-.hov-costs summary { cursor: pointer; list-style: none; }
-.hov-costs summary h2 { display: inline; font-size: 1.05rem; }
-.hov-costs[open] summary { margin-bottom: 8px; }
+.hov-camp { margin: 4px 0 8px; }
+.hov-tl { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; text-align: left; }
+.hov-t a { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 10px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; }
+.hov-t a:hover, .hov-t a:focus-visible { border-color: var(--focus); }
+.hov-t.done a { opacity: .7; }
+.hov-t.active a { border-color: var(--brand-fill); }
+.hov-ti { font-size: 1.4rem; }
+.hov-tb { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.hov-tb small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hov-tb progress { width: 100%; height: 8px; }
+.hov-tr { font-weight: 700; font-variant-numeric: tabular-nums; }
 .newstabs { display: flex; gap: .5rem; flex-wrap: wrap; margin: .5rem 0; }
 .tntabs .tnradio { position: absolute; opacity: 0; pointer-events: none; }
 .tntabs .tntabbar { display: flex; gap: 6px; margin-bottom: 4px; }
