@@ -5,7 +5,18 @@ Style: Stitched Toy, hard pixels only. Ink `#2a1a10`, cream `#f2e4c0`, thread go
 Sources: `aseprite-source/pfight/*.aseprite` (one per PNG). Regenerate: `python3 aseprite-source/pfight/gen_pfight.py game/assets/img/pfight`, then `make_ase.sh`, `make_contact.py`. `check_cb.py` runs the tell-apart check.
 Open `pfight-contact.html` for every asset on felt and cream, plus grayscale, deuteranopia, protanopia and tritanopia views.
 
-## How the layers stack (all PNGs are transparent, same top-left origin)
+
+## USE THESE: real jigsaw pieces (added after review)
+The `sock-*`, `tile-*` and `frame-*` layers below are flat rectangles with end panels (legacy, still delivered). Overlays cannot cut a hole, so the true jigsaw silhouettes are pre-composed:
+- `piece-<hand|strip>-<type>-<holefam>-<knobfam>.png`: coloured body with a **real notch cut into the left edge** and a **real knob sticking out of the right edge** (transparent outside). Families: `body` (round head on a neck), `mind` (keyhole: flared base, thin neck, small head), `craft` (triangle), `flat` (straight edge, wild). 7 types x 4 x 4 x 2 sizes = 224 files.
+- `edge-<hand|strip>-<me|foe>-<holefam>-<knobfam>.png`: outline overlay that follows the same silhouette. me = cream line with gold stitches, foe = dark thorn teeth. 64 files.
+- Sizes: hand piece 114x68 (tile 96 + knob 18), strip piece 65x40 (tile 56 + knob 9). The knob is the last 18 (hand) or 9 (strip) px.
+- Snap: the next piece goes at x + 96 (hand) or x + 56 (strip), so its hole swallows the previous knob.
+- Layers: piece, then `ico-<type>.png` at (37,9) hand or (21,14) strip, then edge overlay. Value plate is already baked in at hand (21,3) 14x12, strip (13,2) 12x10: print a cream number.
+- Sources: no `.aseprite` per piece (288 files, all generated); `aseprite-source/pfight/gen_pieces.py` rebuilds them.
+- Not drawn: `frame-picked-hand.png` still fits only the legacy rectangle; a piece-shaped raised overlay is not done.
+
+## Legacy rectangle layers: how they stack (all PNGs are transparent, same top-left origin)
 1. `tile-<size>-<type>.png` frame body (full tile size)
 2. `sock-<size>-<family>-hole.png` at x=0 (left edge), `sock-<size>-<family>-knob.png` at x=W-socketW (right edge). Sockets are opaque wood end panels: knob = dark peg, hole = cream cavity.
 3. `ico-<type>.png` (hand, 32x32 at x=37,y=9) / `ico-<type>-s.png` (strip, 20x20 at x=21,y=14), sitting on the cream medallion painted into the body

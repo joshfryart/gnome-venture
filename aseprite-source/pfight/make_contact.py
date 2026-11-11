@@ -5,7 +5,7 @@ import sys
 
 D = sys.argv[1]
 T = ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item']
-files = sorted(f for f in os.listdir(D) if f.endswith('.png'))
+files = sorted(f for f in os.listdir(D) if f.endswith('.png') and not f.startswith(('piece-', 'edge-')) or f.startswith(('piece-hand-hurt-', 'edge-hand-me-body-')) and f.endswith(('-body.png', '-mind.png', '-craft.png', '-flat.png')) and ('-hurt-body-' in f or 'edge-hand-me-body-' in f))
 M = {'deut': '.367322 .860646 -.227968 0 0  .280085 .672501 .047413 0 0  -.011820 .042940 .968881 0 0  0 0 0 1 0',
      'prot': '.152286 1.052583 -.204868 0 0  .114503 .786281 .099216 0 0  -.003882 -.048116 1.051998 0 0  0 0 0 1 0',
      'trit': '1.255528 -.076749 -.178779 0 0  -.078411 .930809 .147602 0 0  .004733 .691367 .303900 0 0  0 0 0 1 0',
@@ -14,32 +14,38 @@ M = {'deut': '.367322 .860646 -.227968 0 0  .280085 .672501 .047413 0 0  -.01182
 
 def tile(k, t, lf, rf, frame='me'):
     h = k == 'hand'
-    W, H, sw = (96, 68, 20) if h else (56, 40, 12)
+    W, H = (96, 68) if h else (56, 40)
+    P = 18 if h else 9
     ix, iy = (37, 9) if h else (21, 14)
     ico = 'ico-%s.png' % t if h else 'ico-%s-s.png' % t
-    s = f'<span class="tl" style="width:{W}px;height:{H}px">'
-    s += f'<img src="tile-{k}-{t}.png" style="left:0;top:0">'
-    s += f'<img src="sock-{k}-{lf}-hole.png" style="left:0;top:0">'
-    s += f'<img src="sock-{k}-{rf}-knob.png" style="left:{W - sw}px;top:0">'
+    s = f'<span class="tl" style="width:{W}px;height:{H}px;margin-right:{P + 6}px">'
+    s += f'<img src="piece-{k}-{t}-{lf}-{rf}.png" style="left:0;top:0">'
     s += f'<img src="{ico}" style="left:{ix}px;top:{iy}px">'
-    s += f'<img src="frame-{frame}-{k}.png" style="left:0;top:0"></span>'
+    s += f'<img src="edge-{k}-{frame}-{lf}-{rf}.png" style="left:0;top:0"></span>'
     return s
+
+
+def chain(k, types, fams):
+    W = 96 if k == 'hand' else 56
+    H = 68 if k == 'hand' else 40
+    o = f'<span class="tl" style="width:{W * len(types) + 20}px;height:{H}px">'
+    for i, (t, (hf, kf)) in enumerate(zip(types, fams)):
+        ico = 'ico-%s.png' % t if k == 'hand' else 'ico-%s-s.png' % t
+        ix, iy = (37, 9) if k == 'hand' else (21, 14)
+        o += f'<img src="piece-{k}-{t}-{hf}-{kf}.png" style="left:{i * W}px;top:0"><img src="{ico}" style="left:{i * W + ix}px;top:{iy}px">'
+        o += f'<img src="edge-{k}-me-{hf}-{kf}.png" style="left:{i * W}px;top:0">'
+    return o + '</span>'
 
 
 def board():
     o = ''
     for k in ('hand', 'strip'):
-        for row, (lf, rf, fr) in enumerate([('body', 'mind', 'me'), ('mind', 'craft', 'me'),
-                                            ('craft', 'body', 'foe'), ('flat', 'flat', 'me')]):
-            if k == 'strip' and row == 3:
-                continue
+        for lf, rf, fr in [('body', 'mind', 'me'), ('mind', 'craft', 'me'), ('craft', 'body', 'foe')]:
             o += '<div class="row">' + ''.join(tile(k, t, lf, rf, fr) for t in T) + '</div>'
-    o += '<div class="row">' + ''.join(tile('hand', 'hurt', f, g) for f, g in
-                                       (('body', 'body'), ('mind', 'mind'), ('craft', 'craft')))
-    o += ('<span class="tl" style="width:100px;height:72px"><img src="frame-picked-hand.png" style="left:0;top:0">'
-          '<img src="tile-hand-guard.png" style="left:2px;top:2px"></span></div>')
-    o += '<div class="row">' + ''.join(tile('strip', 'guard', f, g) for f, g in
-                                       (('body', 'body'), ('mind', 'mind'), ('craft', 'craft'))) + '</div>'
+    chn = [('flat', 'body'), ('body', 'mind'), ('mind', 'craft'), ('craft', 'body'), ('body', 'flat')]
+    o += '<div class="row">' + chain('hand', T[:5], chn) + '</div>'
+    o += '<div class="row">' + chain('strip', T[:5], chn) + '</div>'
+    o += '<div class="row">' + ''.join(tile('hand', 'hurt', f, f) for f in ('body', 'mind', 'craft')) + ''.join(tile('strip', 'guard', f, f) for f in ('body', 'mind', 'craft')) + '</div>'
     return o
 
 
