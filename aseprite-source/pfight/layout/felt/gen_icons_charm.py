@@ -134,14 +134,14 @@ def ico_lull(S):
     if S == 32:
         d.ellipse([2, 5, 24, 27], fill=b)                        # moon disc
         d.ellipse([9, 2, 29, 22], fill=CLEAR)                    # bite -> crescent opening up-right
-        put_art(im, Z32, {'#': CREAM}, 19, 9)                    # sleepy z
+        put_art(im, Z32, {'#': light_of(b)}, 19, 9)                    # sleepy z
         for x, y in ((27, 1), (27, 2), (25, 3), (26, 3), (27, 3), (28, 3), (29, 3), (27, 4), (27, 5)):
             im.putpixel((x, y), GOLD + (255,))                   # little star
         g = [(5, 14), (5, 15), (6, 13)]
     else:
         d.ellipse([1, 3, 15, 17], fill=b)
         d.ellipse([6, 1, 19, 14], fill=CLEAR)
-        put_art(im, Z20, {'#': CREAM}, 12, 5)
+        put_art(im, Z20, {'#': light_of(b)}, 12, 5)
         for x, y in ((17, 1), (16, 2), (17, 2), (18, 2), (17, 3)):
             im.putpixel((x, y), GOLD + (255,))
         g = []
@@ -190,65 +190,70 @@ def ico_bond(S):
     return finish_icon(im, halo=(S == 32), gloss=g)
 
 
-# ---------------------------------------------------------------- pluck: finger + thumb pinching a feather, lifting it
-PLUCK32 = """
-....................ff......
-...................ffff.....
-..................fffFf.....
-.................fffFff.....
-................fffFff......
-...............fffFff.......
-...............ffFff........
-..............ffFff.........
-..............fFff..........
-.............ffFf...........
-..........yyy.Fyyy..........
-.........yyyy.Fyyyy.........
-........yyyyydyyyyyy........
-........yyyy..yyyyyyy.......
-.......yyyy....yyyyyyy......
-.......yyy......yyyyyyy.....
-......yyyy.......yyyyyyy....
-......yyy.........yyyyyy....
-......yyy........dyyyyyyy...
-......yyyy.......yyyyyyyy...
-......yyyyyy...yyydyyyyyy...
-.......yyyyyyyyyyyyyyyyyy...
-.......yyyyyyyyyyyyyyyyy....
-........yyyyyyyyyyyyyyy.....
-.........yyyyyyyyyyyyy......
-.........ccccccccccccc......
-.........ccccccccccccc......
-.........ccccccccccccc......"""
-PLUCK20 = """
-............ff....
-...........fFf....
-..........fFf.....
-.........fFf......
-.........Ff.......
-......yy.F.yy.....
-.....yyy.F.yyy....
-.....yy.....yyy...
-....yyy......yyy..
-....yy.......yyy..
-....yy......dyyy..
-....yyyy...yyyyy..
-.....yyyyyyyyyyy..
-.....yyyyyyyyyy...
-......yyyyyyyy....
-......cccccccc....
-......cccccccc....
-.................."""
+# ---------------------------------------------------------------- pluck: finger + thumb pinching a feather, plucking it
+def layers(S, parts):
+    """parts = [(draw_fn(ImageDraw), colour)], back to front. A part laid over an earlier part of another colour
+    gets a 1 px ink seam on the earlier part, so overlapping pieces stay separate (like the hurt claw gaps)."""
+    im = Image.new('RGBA', (S, S), CLEAR)
+    owner = [[-1] * S for _ in range(S)]
+    for k, (fn, col) in enumerate(parts):
+        m = Image.new('L', (S, S), 0)
+        fn(ImageDraw.Draw(m))
+        pts = [(x, y) for y in range(S) for x in range(S) if m.getpixel((x, y))]
+        s = set(pts)
+        for x, y in pts:
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                q = (x + dx, y + dy)
+                if q not in s and 0 <= q[0] < S and 0 <= q[1] < S and 0 <= owner[q[1]][q[0]] < len(parts) \
+                        and parts[owner[q[1]][q[0]]][1] != col:
+                    im.putpixel(q, INK + (255,))
+                    owner[q[1]][q[0]] = 99
+        for x, y in pts:
+            im.putpixel((x, y), col + (255,))
+            owner[y][x] = k
+    return im
 
 
 def ico_pluck(S):
-    im, d = canvas(S)
-    pal = {'f': FEATHER, 'F': dark_of(FEATHER), 'y': SKIN, 'd': dark_of(SKIN), 'c': CREAM}
+    sk, fe = SKIN, FEATHER
     if S == 32:
-        put_art(im, PLUCK32, pal, 2, 2)
-        g = [(12, 13), (13, 12)]
+        parts = [
+            (lambda d: d.polygon([(13, 15), (8, 14), (4, 11), (2, 7), (2, 2), (6, 2), (10, 6), (13, 12)], fill=255), fe),
+            (lambda d: d.polygon([(22, 24), (26, 20), (29, 24), (25, 28)], fill=255), CREAM),          # glove cuff
+            (lambda d: (d.ellipse([15, 12, 27, 25], fill=255), d.rectangle([20, 19, 25, 24], fill=255)), sk),  # back of hand
+            (lambda d: (d.line([(20, 16), (13, 11)], fill=255, width=4), d.ellipse([10, 8, 14, 12], fill=255)), sk),   # index
+            (lambda d: (d.line([(20, 22), (13, 18)], fill=255, width=4), d.ellipse([10, 16, 14, 20], fill=255)), sk),  # thumb
+        ]
+        im = layers(32, parts)
+        p = im.load()
+        for x, y in ((11, 9), (12, 9), (11, 10)):                # finger nail
+            p[x, y] = CREAM + (255,)
+        for x, y in ((11, 17), (12, 17), (11, 18)):              # thumb nail
+            p[x, y] = CREAM + (255,)
+        dk = dark_of(sk)
+        for x, y in ((17, 20), (18, 21)):                        # thumb / palm crease
+            p[x, y] = dk + (255,)
+        for x, y in ((21, 14), (22, 15), (23, 16), (24, 17)):    # knuckle line of the curled fingers
+            p[x, y] = dk + (255,)
+        for x, y in ((4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9), (10, 10), (11, 11), (12, 12)):
+            if p[x, y][:3] == fe:
+                p[x, y] = dark_of(fe) + (255,)                   # feather spine
+        g = [(17, 14), (18, 14)]
     else:
-        put_art(im, PLUCK20, pal, 1, 1)
+        parts = [
+            (lambda d: d.polygon([(8, 10), (4, 8), (1, 5), (1, 1), (4, 1), (7, 4), (8, 8)], fill=255), fe),
+            (lambda d: d.polygon([(14, 16), (17, 13), (18, 15), (16, 18)], fill=255), CREAM),
+            (lambda d: (d.ellipse([10, 8, 17, 16], fill=255), d.rectangle([13, 13, 16, 15], fill=255)), sk),
+            (lambda d: (d.line([(12, 10), (8, 7)], fill=255, width=2), d.rectangle([6, 6, 8, 8], fill=255)), sk),
+            (lambda d: (d.line([(12, 14), (8, 12)], fill=255, width=2), d.rectangle([6, 11, 8, 13], fill=255)), sk),
+        ]
+        im = layers(20, parts)
+        p = im.load()
+        p[6, 6] = CREAM + (255,)
+        p[6, 12] = CREAM + (255,)
+        for x, y in ((2, 2), (3, 3), (4, 4), (5, 5)):
+            if p[x, y][:3] == fe:
+                p[x, y] = dark_of(fe) + (255,)
         g = []
     return finish_icon(im, halo=(S == 32), gloss=g)
 

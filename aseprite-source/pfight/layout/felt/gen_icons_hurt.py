@@ -11,7 +11,7 @@ SILHOUETTE (colour-blind safe):
   jab    fist punching right + 3 speed dashes behind it
   pierce spear blade driven diagonally through an upright plank (shield line), splinters out the far side
   sting  striped wasp abdomen pointing down-left, needle stinger, falling poison drop
-  trip   boot snagged on a taut rope between two stakes, toppling, wobble ticks
+  trip   boot snagged on a taut rope between two stakes, toppling into it
   bash   round buckler with a domed boss over a jagged impact star
   smash  big maul head slammed down, handle up-right, impact rays fanning from the bottom
 """
@@ -135,17 +135,17 @@ def ico_jab(S):
         art = [
             "     oooooooooo  ",
             "   oooooooooooooo",
-            "cccooooooooooooko",
-            "cccooooooooookkoo",
-            "cccooooooooookooo",
             "cccoooooooooooooo",
-            "cccoooooooooookkk",
-            "cccookkkkkkkkkooo",
-            "cccolllllllllkooo",
-            "cccollllllllkkkko",
-            "cccoddddddkkooooo",
+            "cccooooooookkkkk ",
             "cccoooooooooooooo",
-            "cccooooooooooook ",
+            "cccoooooooooooooo",
+            "cccooooooookkkkk ",
+            "cccoooooooooooooo",
+            "cccoookkkkkkkoooo",
+            "cccoolllllllkkkk ",
+            "cccooddddddkooooo",
+            "cccoooooooooooooo",
+            "cccoooooooooooooo",
             "   ooooooooooooo ",
             "     ooooooooooo ",
         ]
@@ -155,12 +155,12 @@ def ico_jab(S):
     else:
         art = [
             "   ooooooo  ",
-            " oooooooookk",
+            " ooooooooooo",
+            "ccoooookkkk ",
             "ccoooooooooo",
-            "ccookkkkkkoo",
-            "ccollllllkkk",
+            "ccookkkkkkk ",
+            "ccollllllkoo",
             "ccoooooooooo",
-            "ccoooooooook",
             "  ooooooooo ",
         ]
         c.rows(7, 5, art, PAL)
@@ -266,7 +266,7 @@ CUFF = [(-0.6, 0), (6.6, 0), (6.6, 2.2), (-0.6, 2.2)]
 def ico_trip(S):
     c = Px(S)
     if S == 32:
-        R = lambda p: rot_pts(p, 6.5, 13, 32, 13, 17)     # boot pitched forward, toe down into the rope
+        R = lambda p: rot_pts([(x * 1.15, y * 1.15) for x, y in p], 7.5, 15, 38, 11, 23)     # boot pitched forward, toe down into the rope
         c.poly(R(BOOT), O)
         c.poly(R(SOLE), DEEP)
         c.poly(R(CUFF), CREAM)
@@ -277,18 +277,14 @@ def ico_trip(S):
         c.rect(3, 22, 28, 23, CREAM)                      # rope, in front of the toe = snagged
         for x in range(4, 28, 3):
             c.put(x, 23, STEEL)
-        c.line(3, 6, 5, 8, CREAM)                         # wobble ticks
-        c.line(2, 11, 5, 12, CREAM)
     else:
-        R = lambda p: rot_pts([(x * .62, y * .62) for x, y in p], 4, 8, 32, 8, 10)
+        R = lambda p: rot_pts([(x * .75, y * .75) for x, y in p], 5, 10, 38, 7, 15)
         c.poly(R(BOOT), O)
         c.poly(R(SOLE), DEEP)
         c.poly(R(CUFF), CREAM)
         c.rect(1, 12, 2, 18, WOOD)
         c.rect(17, 12, 18, 18, WOOD)
         c.hline(1, 18, 14, CREAM)
-        c.put(2, 4, CREAM)
-        c.put(3, 5, CREAM)
     return c.done()
 
 
@@ -344,11 +340,11 @@ def ico_smash(S):
         c.rect(9, 13, 22, 13, OL)
         for (x, y) in ((6, 11), (25, 11), (6, 21), (25, 21)):
             c.clear(x, y)
-        # impact rays fanning out from under the head
-        c.line(5, 24, 3, 27, CREAM)
-        c.line(11, 25, 10, 28, CREAM)
-        c.line(20, 25, 21, 28, CREAM)
-        c.line(26, 24, 28, 27, CREAM)
+        # impact rays fanning out from under the head (2 px so the outline does not swallow them)
+        for i in (0, 1):
+            c.line(5 + i, 24, 2 + i, 27, CREAM)
+            c.line(25 + i, 24, 28 + i, 27, CREAM)
+        c.rect(15, 24, 16, 28, CREAM)
     else:
         c.line(9, 7, 16, 1, WOOD)
         c.line(10, 7, 17, 1, WOOD)
