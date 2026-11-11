@@ -21,20 +21,42 @@ function pfight_me(array $u, array $exp): array
     $st = ['level' => (int)$u['level']];
     foreach (['grit', 'nimble', 'hardiness', 'charm', 'lore', 'luck'] as $k) $st[$k] = eff_mod($u, $k);
     $pals = [];
-    if (function_exists('ppal_equipped') && setting('ppal_party') === '1') $pals = pfight_pal_tiles($u);
+    if (setting('ppal_party') === '1') {
+        require_once __DIR__ . '/puzzle_pals.php';
+        if ((int)$u['level'] >= PPAL_PARTY_LEVEL) {
+            $road = (int)ppal_perks($u)['road'];   // the road perk (+N Grit, Nimble, Hardiness) is a passive and stays, as in gnome_combat()
+            foreach (['grit', 'nimble', 'hardiness'] as $k) $st[$k] += $road;
+            $pals = pfight_pal_tiles($u);
+        }
+    }
     $deck = pf_player_deck($st, (string)($u['calling'] ?? ''), max(1, min(3, (int)calling_tier($u))), $pals);
     return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => $deck, 'luck' => max(0, $st['luck'] * 2)];
 }
 
-/** Pal tiles: each equipped pal swaps in for one gnome tile; the tile comes from its calling and rarity (placeholder mapping until the pal tile table is authored). */
+/**
+ * Pal tiles: each equipped pal (2 at most) swaps in for one gnome tile. The in-fight skills and the active Boon of that pal CONVERT into its tile (no double dip:
+ * pfight_me() never applies ppal_skills). The skill kind decides the tile type; its numbers plus rarity decide the value. Passive out-of-fight perks are untouched.
+ */
 function pfight_pal_tiles(array $u): array
 {
-    $out = [];
-    $swapFor = ['guard' => 'dodge', 'hurt' => 'swing', 'heal' => 'rest', 'charm' => 'charm'];
-    $byCalling = ['rootwarden' => 'guard', 'thornblade' => 'hurt', 'brewroot' => 'heal', 'bloomcaller' => 'charm', 'seedkeeper' => 'heal', 'wayfinder' => 'guard'];
-    foreach (array_slice((array)ppal_equipped($u), 0, 2) as $p) {
-        $t = $byCalling[(string)($p['calling'] ?? '')] ?? 'hurt';
-        $out[] = ['swap' => $swapFor[$t], 'n' => (string)($p['name'] ?? 'Pal'), 't' => $t, 'v' => 5 + (int)($p['rarity'] ?? 0), 'r' => ['hurt' => 'mind', 'guard' => 'craft', 'heal' => 'body', 'charm' => 'body'][$t]];
+    $kindType = ['ward' => 'guard', 'foot' => 'guard', 'guard' => 'guard', 'bulwark' => 'guard', 'slip' => 'guard', 'edge' => 'hurt', 'first' => 'hurt',
+        'mend' => 'heal', 'sip' => 'heal', 'feast' => 'heal', 'rally' => 'heal', 'petal' => 'charm', 'kindle' => 'trick', 'tonic' => 'trick', 'spoils' => 'trick', 'lesson' => 'trick'];
+    $activeType = ['strike' => 'hurt', 'sap' => 'hurt', 'shield' => 'guard', 'patch' => 'heal', 'snare' => 'trick', 'daze' => 'trick', 'rouse' => 'trick', 'gust' => 'trick'];
+    $swapFor = ['hurt' => 'swing', 'guard' => 'dodge', 'heal' => 'rest', 'charm' => 'charm', 'trick' => 'hide'];
+    $knob = ['hurt' => 'mind', 'guard' => 'craft', 'heal' => 'body', 'charm' => 'body', 'trick' => 'mind'];
+    $out = []; $used = [];
+    foreach (array_slice((array)ppal_equipped($u), 0, 2) as $e) {
+        $pal = $e['pal'];
+        $score = ['hurt' => 0, 'guard' => 0, 'heal' => 0, 'charm' => 0, 'trick' => 0];
+        foreach (ppal_pal_skills($pal) as $k => $v) $score[$kindType[$k] ?? 'trick'] += (int)$v;
+        if (($b = ppal_boon($pal)) && ($b['active'] ?? '') !== '') $score[$activeType[$b['active']] ?? 'trick'] += 3;
+        arsort($score);
+        $t = (string)array_key_first($score);
+        $rar = ['common' => 0, 'uncommon' => 1, 'rare' => 2][$pal['rarity'] ?? 'common'] ?? 0;
+        $swap = $swapFor[$t];
+        if (isset($used[$swap])) foreach (['swing', 'dodge', 'rest', 'hide'] as $alt) if (!isset($used[$alt])) { $swap = $alt; break; }   // two pals of one kind replace two different tiles
+        $used[$swap] = true;
+        $out[] = ['swap' => $swap, 'n' => (string)($pal['name'] ?? 'Pal'), 't' => $t, 'v' => 4 + min(4, (int)round($score[$t] / 2)) + 2 * $rar, 'r' => $knob[$t]];
     }
     return $out;
 }
@@ -72,6 +94,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
         if ($r['err'] === 'stale') { $exp['encounter'] = json_encode($enc); return false; }   // double tap or an old page: nothing happens
         if ($r['err']) { flash($r['err'], 'err'); return false; }
         $snackUsed = $want;
+        pfight_unlock((int)$u['id'], $r['ev']);
         foreach ($r['ev'] as $e) exp_log($exp, pfight_line($e, (string)$c['name']));
         for ($i = 0; $i < $snackUsed; $i++) {   // eat the real snacks (the first one in the list that is left)
             foreach (fight_snacks($u) as $sn) if (give_item((int)$u['id'], (int)$sn['id'], -1)) { $enc['snacks'] = (int)($enc['snacks'] ?? 0) + 1; break; }
@@ -156,4 +179,36 @@ function pfight_tile_html(array $t, bool $strip, int $i = -1): string
     $inner = '<span class="pf-sock l" aria-hidden="true">' . $l . '</span><span class="pf-ico" aria-hidden="true">' . pfight_icon($t['t']) . '</span><span class="pf-nm">' . e($t['n']) . '</span><span class="pf-val">' . (int)$t['v'] . '</span><span class="pf-sock r" aria-hidden="true">' . $r . '</span>';
     if ($strip) return '<span class="' . $cls . '" role="img" aria-label="' . e($label) . '">' . $inner . '</span>';
     return '<button type="button" class="' . $cls . '" data-i="' . $i . '" data-hole="' . e((string)($t['hole'] ?? '')) . '" data-knob="' . e((string)($t['r'] ?? '')) . '" data-t="' . e($t['t']) . '" data-v="' . (int)$t['v'] . '" aria-label="' . e($label) . '" aria-pressed="false">' . $inner . '</button>';
+}
+
+/** Almanac pages for puzzle fights, added once per world by title (like ensure_almanac_new_pages_2644): one overview and one per combo, each unlocking on first use. */
+const PF_PAGES = [
+    'Puzzle fights' => ['pfight', 'Win a fight to learn how tiles work.',
+        "Fights are played with [b]tiles[/b]. You start with 5 in hand and draw 3 each turn (never above 5). Tap up to 4 tiles in the order you want them, then play the chain. The creature answers with a chain of its own, and a full chain of four gives it one more move.\n\n[b]Types:[/b] ⚔️ Hurt, 🛡️ Guard, 💚 Heal, 🌸 Charm, 😌 Soothe, 🎭 Trick, 🎒 Item. Numbers grow with your stats and level.\n\n[b]Sockets:[/b] each tile has a hole on the left and a knob on the right in one of three families (B Body, M Mind, C Craft). A knob that matches the next tile's hole is a [b]snug fit[/b]: a little extra value. A poor fit still works; it only skips the bonus.\n\n[b]The bar:[/b] every creature has one resolve bar. Hurt and Charm both fill it, gentle creatures like Charm best and wary ones like Hurt. Whichever you used more decides whether you see it off or win it over. A charmed creature leaves a gift.\n\n[b]Run[/b] always works except against the great ones, and costs nothing."],
+    'Ambush' => ['pfight:combo:trick>hurt', 'Play a Trick, then a Hurt.', "🎭 then ⚔️. The Hurt counts [b]double[/b]. Set it up, then strike."],
+    'Riposte' => ['pfight:combo:guard>hurt', 'Play a Guard, then a Hurt, or Guard right after a creature hits.', "🛡️ then ⚔️: the Hurt counts one and a half times. A Guard played straight after the creature's Hurt also turns half its value back on it."],
+    'Double Swing' => ['pfight:combo:hurt>hurt', 'Play two Hurts in a row.', "⚔️ then ⚔️: the second gets +2."],
+    'Calm Charm' => ['pfight:combo:soothe>charm', 'Play a Soothe, then a Charm.', "😌 then 🌸: the Charm counts one and a half times."],
+    'Win Over' => ['pfight:combo:charm>item', 'Play a Charm, then an Item or Snack.', "🌸 then 🎒: the offering also fills part of the bar as Charm."],
+    'Bait' => ['pfight:combo:trick>guard', 'Play a Trick, then a Guard.', "🎭 then 🛡️: the Guard counts one and a half times."],
+];
+
+function pfight_pages(): void
+{
+    if (setting('almanac_pfight') === '1') return;
+    $so = 80;
+    foreach (PF_PAGES as $title => [$key, $hint, $body]) {
+        if (q_val("SELECT 1 FROM encyclopedia_entries WHERE chapter = 'General' AND title = ?", [$title])) continue;
+        try { db_insert('encyclopedia_entries', ['chapter' => 'General', 'category' => 'Fighting', 'title' => $title, 'body' => $body, 'unlock_key' => $key, 'hint' => $hint, 'sort_order' => $so++]); } catch (PDOException $e) {}
+    }
+    set_setting('almanac_pfight', '1');
+}
+
+/** Unlock the overview, and a combo page the first time that combo fires. $events = the events of one chain. */
+function pfight_unlock(int $uid, array $events): void
+{
+    pfight_pages();
+    unlock_entries($uid, 'pfight');
+    $byName = ['Ambush' => 'trick>hurt', 'Riposte' => 'guard>hurt', 'Double Swing' => 'hurt>hurt', 'Calm Charm' => 'soothe>charm', 'Win Over' => 'charm>item', 'Bait' => 'trick>guard'];
+    foreach ($events as $e) if (($e['by'] ?? '') === 'me' && !empty($e['combo']) && isset($byName[$e['combo']])) unlock_entries($uid, 'pfight:combo:' . $byName[$e['combo']]);
 }

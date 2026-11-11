@@ -46,7 +46,7 @@ function pf_tiles(): array
         'taunt'  => ['n' => 'Taunt',  't' => 'trick',  'v' => 3, 'r' => 'body'],
         // calling tiles (tier I; II/III raise v, see pf_calling_tile)
         'bark'   => ['n' => 'Bark Wall',   't' => 'guard',  'v' => 6, 'r' => 'body'],
-        'bloom'  => ['n' => 'Bloom',       't' => 'charm',  'v' => 7, 'r' => 'mind'],
+        'bloom'  => ['n' => 'Bloom',       't' => 'charm',  'v' => 8, 'r' => 'mind'],
         'thorn'  => ['n' => 'Thorn Cut',   't' => 'hurt',   'v' => 7, 'r' => 'craft'],
         'sow'    => ['n' => 'Sow Doubt',   't' => 'trick',  'v' => 5, 'r' => 'mind'],
         'wayfind' => ['n' => 'Slip Past',  't' => 'trick',  'v' => 5, 'r' => 'body'],
@@ -89,7 +89,10 @@ function pf_player_deck(array $stats, string $calling = '', int $tier = 1, array
     $keys = ['swing', 'dodge', 'rest', 'charm', 'snack', 'hide'];
     foreach ($unlocked as $k) if (isset(pf_tiles()[$k]) && !in_array($k, $keys, true)) $keys[] = $k;
     $deck = [];
-    foreach ($keys as $k) $deck[] = pf_make_tile($k, $stats);
+    foreach ($keys as $k) {
+        $t = pf_tiles()[$k];
+        $deck[] = pf_make_tile($k, $stats, $calling === 'bloomcaller' && in_array($t['t'], ['charm', 'soothe'], true) ? 2 : 0);   // Bloomcallers: bigger Charm and Soothe numbers
+    }
     foreach (array_slice($pals, 0, 2) as $p) {   // a pal replaces one gnome tile of the type it swaps for
         foreach ($deck as $i => $t) if ($t['k'] === ($p['swap'] ?? '')) {
             $deck[$i] = pf_make_tile('pal:' . $p['n'], $stats, 0, ['n' => (string)$p['n'], 't' => (string)$p['t'], 'v' => (int)$p['v'], 'r' => $p['r'] ?? null, 'tag' => 'pal']);

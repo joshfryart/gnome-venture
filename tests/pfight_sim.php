@@ -65,5 +65,8 @@ if (json_encode($a) !== json_encode($b)) { echo "FAIL seeded fight not determini
 // stale turn ignored, view hides draw and foe hand
 $r = pf_play($a, [0], 1); if ($r['err'] !== 'stale') { echo "FAIL stale turn accepted\n"; $bad++; }
 $v = json_encode(pf_view($a)); if (str_contains($v, '"draw"') || !is_int(pf_view($a)['foe']['hand'])) { echo "FAIL view leaks\n"; $bad++; }
+foreach ($rows as $c) if (!isset(PF_GIFT[$c['slug']])) { echo "FAIL no charm gift authored for {$c['slug']}\n"; $bad++; }
+$bl = pf_player_deck(['charm' => 2, 'level' => 1], 'bloomcaller'); $plain = pf_player_deck(['charm' => 2, 'level' => 1], 'rootwarden');
+if ($bl[3]['v'] <= $plain[3]['v']) { echo "FAIL Bloomcaller Charm not bigger\n"; $bad++; }
 echo $bad ? "$bad FAILED\n" : "ok: " . count($rows) . " creatures\n";
 exit($bad ? 1 : 0);

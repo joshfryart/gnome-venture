@@ -64,6 +64,7 @@ done
 ck "fight ended" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
 get adventure.php >/dev/null
 ck "page after fight has no card" "$(grep -c 'id="pfight"' $H)" "0"
+ck "almanac page unlocked" "$(db "SELECT COUNT(*) FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id = ue.entry_id WHERE e.title = 'Puzzle fights'")" "1"
 ck "no PHP warnings in server log" "$(grep -cE 'PHP (Warning|Notice|Deprecated|Fatal)' $LOG)" "0"
 echo "turns played: $N"
 [ $FAILS -eq 0 ] && echo "pfight ok" || echo "$FAILS FAILED"

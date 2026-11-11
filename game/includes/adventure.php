@@ -973,12 +973,16 @@ function win_fight(array $u, array &$exp, array $c, bool $peaceful, bool $full =
             }
         }
     }
-    if ($peaceful && $full) {   // puzzle combat Charm: a gift. PLACEHOLDER until the species gift table is authored: the creature's likeliest item drop, once.
-        $gift = q_one('SELECT cd.item_id, i.name FROM creature_drops cd JOIN items i ON i.id = cd.item_id WHERE cd.creature_id = ? AND cd.item_id IS NOT NULL ORDER BY cd.chance DESC, cd.id LIMIT 1', [$c['id']]);
-        if ($gift) {
-            give_item($uid, (int)$gift['item_id'], 1);
-            exp_log($exp, '🎁 The ' . $c['name'] . ' leaves you a gift: ' . $gift['name']);
-            $loot[] = ['name' => (string)$gift['name'], 'qty' => 1, 'img' => (string)(item_art_map()['id'][(int)$gift['item_id']] ?? '')];
+    if ($peaceful && $full) {   // puzzle combat Charm: the species' gift (pfight_data.php PF_GIFT; a Bloomcaller gets the rarer one), else its likeliest drop
+        require_once __DIR__ . '/pfight_data.php';
+        $g = PF_GIFT[(string)$c['slug']] ?? null;
+        $gid = $g ? item_id_by_slug(slugify((string)$g[($u['calling'] ?? '') === 'bloomcaller' ? 1 : 0])) : 0;
+        if (!$gid) $gid = (int)q_val('SELECT cd.item_id FROM creature_drops cd WHERE cd.creature_id = ? AND cd.item_id IS NOT NULL ORDER BY cd.chance DESC, cd.id LIMIT 1', [$c['id']]);
+        if ($gid) {
+            $gname = (string)q_val('SELECT name FROM items WHERE id = ?', [$gid]);
+            give_item($uid, $gid, 1);
+            exp_log($exp, '🎁 The ' . $c['name'] . ' leaves you a gift: ' . $gname);
+            $loot[] = ['name' => $gname, 'qty' => 1, 'img' => (string)(item_art_map()['id'][$gid] ?? '')];
         }
     }
     foreach (check_milestones($uid) as $m) exp_log($exp, $m);
