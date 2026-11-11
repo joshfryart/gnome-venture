@@ -19,6 +19,7 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 - Stops are parametric: one script per stop type, look via `--script-param pal=<landscape_region>` from a PALETTES table. Pilot `v3/here-gate/pilot-market.lua`. New look = one new table entry.
 
 ## DONE (do not redo)
+- Creatures and minis: 117 creatures + 7 Trek crew redrawn and rigged (CHANGELOG 70; `mini/` and `folk/` files dated 2026-11-07/11); animal homes pixel art in the yard (CHANGELOG 492). Species/folk portraits and sprites done (CHANGELOG 526). Josh confirmed 2026-11-11.
 - Gather: `scene3-<land>` x 9 landscapes x day/dusk/night, satchel back/front x 3 skins, slots, vignettes, flourishes, badges, felt, ribbons, weather (checked 2026-11-11). Old `scene-<land>.png` (9) + `scene.png` are fallbacks only.
 - Acts (Josh: close enough) and big pictures (regions, banners, wonders, landing, map, journal) done 2026-11-11.
 - 1,662 items/icons 64x64 (v3 rollout); 35 batch1/2 pictures exported (2.5.48).
@@ -53,9 +54,7 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 | `-anim` strips | with the animation plan |
 | Odd-size UI | `items/` 21, `fx/` 6, `steps/` 5, `roadkinds/` 5, `ui/` 4 |
 | Craftmap | `craftmap/` 14: unused leftovers (workshop picture replaced it); delete or ignore |
-| Creatures and minis | `animals/` 72, `mini/` 201 (front-facing toy minis), `folk/` 13, `gnome/` 8 |
 | Puzzles | `puzzles/` 26 files (GIFs), jigsaw sets |
-| Portraits | 22 species portraits; 81 NPC redone |
 | Catfish | `catfish/` (1,414 files mostly part frames), plan `claude/plan-catfish.md` |
 
 ## D. FROM OLD VARIETY LIST (not made)
