@@ -5,11 +5,11 @@ Writes combo-ambush.png combo-riposte.png combo-double-swing.png combo-calm-char
 crown-boss.png open-end.png.
 
 Colour-blind cue: every stamp has its OWN outer silhouette + its own motif; colour (the two types' hues) is only an accent.
-  ambush       diamond   trick yellow  -> domino mask peeking over orange claw rips       (trick then hurt)
+  ambush       diamond   trick yellow  -> domino mask over three orange claw rips         (trick then hurt)
   riposte      shield    guard blue    -> orange U-turn arrow bouncing off a cream spark  (guard then hurt)
   double-swing burst     hurt orange   -> two crossed cream slashes                       (hurt then hurt)
   calm-charm   cloud     soothe blue   -> pink flower resting on the cloud, sleepy wisps  (soothe then charm)
-  win-over     heart     charm pink    -> cream heart sprouting two green leaves          (charm then heal)
+  win-over     heart     charm pink    -> cream heart, green heal pluses at the lobes      (charm then heal)
   bait         tag       item amber    -> wrapped trick-yellow candy on a fishing hook    (item then trick)
 Build: shape mask -> type fill, 1 px light top / shade bottom, running stitch inset 2 px -> motif (own ink outline)
 -> 1 px ink outline (4-nbr) -> 1 px cream halo (8-nbr), same finish as the ico-*.png type icons."""
@@ -123,32 +123,32 @@ def finish(a, mask_extra=None):
 
 # ---------------------------------------------------------------- the six stamps
 def ambush():
-    """diamond, trick yellow; a dark domino mask with eyes glancing sideways peeks over three orange claw rips."""
+    """diamond, trick yellow; three long orange claw rips slash diagonally behind a dark domino mask whose eyes glance sideways."""
     t, h = TY['trick'], TY['hurt']
     m = grid(lambda x, y: abs(x - 15.5) + abs(y - 15.5) <= 13.6)
     a = badge(m, t['base'], t['light'], t['shade'], DGOLD, (2, 2))
     L = layer()
-    mk, md = hx('#4a2a6c'), hx('#2f1a48')
-    pix(L, [
-        ".mm..........mm.",
-        "mmmmm......mmmmm",
-        "mmmmmmmmmmmmmmmm",
-        "mwwwpmmmmmmwwwpm",
-        "mmwwpmmddmmmwwpm",
-        ".mmmmmd..dmmmmm.",
-        "..ddd......ddd..",
-    ], 8, 8, {'m': mk, 'd': md, 'w': WHITE, 'p': INK})
+    inner = erode(erode(erode(m)))
+    for ox in (-5, 0, 5):                    # rips run top-right -> bottom-left, fat in the middle
+        for k in range(-8, 9):
+            y = 15 + k
+            x = 15 + ox - k // 2
+            if not inner[y, x]:
+                continue
+            L[y, x] = h['base'] + (255,)
+            if abs(k) < 6 and inner[y, x + 1]:
+                L[y, x + 1] = h['light'] + (255,)
     outlined(a, L)
     L = layer()
-    for ox in (13, 17, 21):                  # rips slant down-left: fat top, hooked thin tip
-        pix(L, [
-            ".ol",
-            ".ol",
-            "ol.",
-            "ol.",
-            "o..",
-            "o..",
-        ], ox - 2, 17, {'o': h['base'], 'l': h['light']})
+    mk, md = hx('#4a2a6c'), hx('#2f1a48')
+    pix(L, [
+        "mm..........mm",
+        "mmmm......mmmm",
+        "mmmmmmmmmmmmmm",
+        "mwwwpmmmmwwwpm",
+        "mmwwpmddmmwwpm",
+        ".mmmmd..dmmmm.",
+    ], 9, 12, {'m': mk, 'd': md, 'w': WHITE, 'p': INK})
     outlined(a, L)
     return finish(a)
 
@@ -227,21 +227,22 @@ def calm_charm():
     L = layer()
     pt, pd = c['light'], c['base']
     pix(L, [
-        "....pp....",
-        "...pppp...",
-        ".pp.pp.pp.",
-        "pppdyydppp",
-        "ppdyyyydpp",
-        ".pdyyyydp.",
-        "..pdyydp..",
-        ".ppp..ppp.",
-        ".ppp..ppp.",
-        "..p....p..",
-    ], 11, 8, {'p': pt, 'd': pd, 'y': GOLD})
+        "....ppp....",
+        "...ppppp...",
+        ".pp.ppp.pp.",
+        "pppp.d.pppp",
+        "ppppdyydppp",
+        ".ppdyyyydp.",
+        "...dyyyyd..",
+        "..pp.dd.pp.",
+        ".pppp..pppp",
+        "..ppp..ppp.",
+    ], 10, 7, {'p': pt, 'd': pd, 'y': GOLD})
     outlined(a, L)
-    # sleepy wisps ("~") in white at left and right
-    pix(a, ["ww..", "..ww"], 5, 18, {'w': WHITE})
-    pix(a, ["ww..", "..ww"], 23, 19, {'w': WHITE})
+    sh = s['shade']
+    pix(a, ["ss..", "..ss"], 5, 19, {'s': sh})
+    pix(a, ["ss..", "..ss"], 22, 20, {'s': sh})
+    pix(a, ["ss..", "..ss"], 6, 14, {'s': sh})
     return finish(a)
 
 
@@ -287,62 +288,47 @@ def bait():
     L = layer()
     w, g = WHITE, CD
     pix(L, [
-        "........ww..",
-        "........ww..",
-        "........ww..",
-        "........ww..",
-        "........wg..",
-        "w.......wg..",
-        "ww......wg..",
-        "ww......wg..",
-        ".ww....wwg..",
-        "..wwwwwwg...",
-        "...gggg.....",
-    ], 7, 11, {'w': w, 'g': g})
+        "ww........",
+        "ww........",
+        "ww........",
+        "ww........",
+        "wg........",
+        "wg......w.",
+        "wg.....ww.",
+        "wg.....ww.",
+        "wg....ww..",
+        ".wwwwwwg..",
+        "..gggg....",
+    ], 15, 11, {'w': w, 'g': g})
     outlined(a, L)
     L = layer()
     yw, yl, ys = t['base'], t['light'], t['shade']
     pix(L, [
-        "f..oooo..f",
-        "ffollllff",
-        "ffoyyyyoff",
-        "ffoyssyoff",
-        "f..oooo..f",
-    ], 6, 19, {'f': yl, 'o': yw, 'l': yl, 'y': yw, 's': ys})
+        "f..ooo..f",
+        "ffolllyff",
+        "ffoyyyyff",
+        "ffoysyyff",
+        "f..ooo..f",
+    ], 18, 18, {'f': yl, 'o': yw, 'l': yl, 'y': yw, 's': ys})
     outlined(a, L)
     return finish(a)
 
 
 # ---------------------------------------------------------------- crown + open end
 def crown():
+    """12x12 boss crown: three spikes with light tips, cream jewel dots on the band, ink outline."""
     rows = [
-        "...........",
-        "#...#.#...#",
-        "#g#.#g#.#g#",
-        "#gl#lgl#lg#",
-        "#gllgggllg#",
-        "#ggggrgggg#",
-        "#gggrrrggg#",
-        "#ggggrgggg#",
+        ".#...##...#.",
+        "#l#.#lg#.#g#",
+        "#lg#lggd#lg#",
+        "#lgglgggggd#",
+        "#gggggggggd#",
+        "#cgcgcgcgcd#",
         "#dddddddddd#",
-        "############",
-    ]
-    rows = [
-        "#....##....#",
-        "#l#.#ll#.#l#",
-        "#lg##gg##gl#",
-        "#lgggggggg.#",
-        "#gggg##gggg#",
-        "#ggg#cc#ggg#",
-        "#gggg##gggg#",
-        "#dddddddddd#",
-        "#cdcdcdcdcd#",
         "############",
     ]
     im = np.zeros((12, 12, 4), np.uint8)
-    pal = {'#': INK, 'g': GOLD, 'l': LGOLD, 'd': DGOLD, 'c': CREAM}
-    pix(im, rows, 0, 1, pal)
-    im[4, 10] = GOLD + (255,)
+    pix(im, rows, 0, 2, {'#': INK, 'g': GOLD, 'l': LGOLD, 'd': DGOLD, 'c': CREAM})
     return Image.fromarray(im)
 
 
