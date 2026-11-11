@@ -116,3 +116,31 @@
   .pf-buttons { max-width: 24rem; }
 }
 @media (prefers-reduced-motion: reduce) { .pf-hist, .pf-hand { scroll-behavior: auto; scroll-snap-type: none; } }
+
+/* ---- board mode ---- */
+.pfb-board { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .35rem; padding: .5rem; border: 2px solid currentColor; border-radius: .6rem; }
+.pfb-cell { position: relative; aspect-ratio: 1.45; display: grid; place-items: center; padding: 0; margin: 0; border: 0; background: none; }
+.pfb-cell.pfb-empty { border: 1px dotted currentColor; opacity: .35; border-radius: .3rem; }
+.pfb-cell.pfb-lit { border: 2px dashed #e8a317; border-radius: .4rem; background: rgba(232, 163, 23, .18); cursor: pointer; }
+.pfb-cell.pfb-lit:hover, .pfb-cell.pfb-lit:focus-visible { background: rgba(232, 163, 23, .4); outline: 3px solid Highlight; outline-offset: 1px; }
+.pfb-p { position: relative; width: 100%; height: 100%; display: block; min-width: 0; border-width: 2px; border-radius: .35rem; }
+.pfb-p .pf-ico { position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%); font-size: 1.3rem; padding: .05rem; }
+.pfb-p .pf-val { top: -.35rem; left: 50%; font-size: .7rem; }
+.pfb-p.pf-ghost { opacity: .8; outline: 2px dashed #e8a317; outline-offset: 1px; }
+.pfb-p.pf-old { filter: saturate(.7); }
+.pf-bp { position: relative; display: block; width: 6.2rem; height: 4.6rem; flex: 0 0 auto; padding: 0; }
+.pf-bp .pf-ico { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); font-size: 1.5rem; }
+.pf-bp .pf-nm { position: absolute; left: 0; right: 0; bottom: .15rem; grid-column: auto; }
+.pf-bp .pf-val { position: absolute; }
+.pf-bp[hidden] { display: none; }
+/* the four edges of a piece, drawn as marks on its sides (the real piece art replaces these) */
+.pfe { position: absolute; display: grid; place-items: center; width: 1.05rem; height: 1.05rem; font-size: .55rem; font-weight: bold; background: var(--pf-ink); color: var(--pf-cream); z-index: 2; }
+.pf-bp .pfe { width: 1.3rem; height: 1.3rem; font-size: .65rem; }
+.pfe.sL { left: -.5rem; top: 50%; margin-top: -.5rem; } .pfe.sR { right: -.5rem; top: 50%; margin-top: -.5rem; }
+.pfe.sT { top: -.5rem; left: 50%; margin-left: -.5rem; } .pfe.sB { bottom: -.5rem; left: 50%; margin-left: -.5rem; }
+.pfe.hole { background: var(--pf-cream); color: var(--pf-ink); box-shadow: inset 0 0 0 2px var(--pf-ink); }
+.pfe.f-body { border-radius: 50%; }
+.pfe.f-mind { clip-path: polygon(50% 0, 100% 0, 100% 62%, 78% 62%, 78% 100%, 22% 100%, 22% 62%, 0 62%, 0 0); border-radius: 40% 40% 0 0; }
+.pfe.f-craft { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.pfe.flat { border-radius: 0; width: .9rem; height: .35rem; }
+.pfe.flat.sL, .pfe.flat.sR { width: .35rem; height: .9rem; }

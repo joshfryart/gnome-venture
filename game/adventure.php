@@ -66,7 +66,7 @@ if (is_post()) {
         road_bind($u, $exp);   // v1.9.3: the recent-picks memory, read after the lock above and written (road_flush) before the commit below
         $enc = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
         if ($enc && $enc['type'] === 'creature' && pfight_on($u)) {   // puzzle combat: only its own actions count (an old attack button from a stale page does nothing)
-            if (in_array($do, ['pf_play', 'pf_run', 'pf_redraw'], true)) pfight_do($u, $exp, $do);
+            if (in_array($do, ['pf_play', 'pfb_play', 'pfb_pass', 'pf_run', 'pf_redraw'], true)) pfight_do($u, $exp, $do);
         } elseif ($enc && $enc['type'] === 'creature') {
             $fev0 = fight_ev_start($exp, $enc); fight_ev();   // fight events for the fight scene: both sides' health now, then whatever this action records
             if (in_array($do, ['attack', 'ability', 'flee'], true) || preg_match('/^palskill:[a-z0-9_-]{1,48}$/', $do)) {   // v2.3.8: palskill:KEY = a rare pal's active

@@ -1,7 +1,7 @@
 # Puzzle Combat: the 2D board (rules, v1)
 
 Replaces the strip with a shared jigsaw board. Engine: `game/includes/pfboard.php` (pure PHP, reuses tiles, decks, effects and RNG from `pfight.php`). Tests/sim: `tests/pfboard_sim.php`.
-Status: engine and sim done. The screen (click/drag placement), the piece renderer and the page wiring are not yet.
+Status: engine, sim, page wiring and a working screen are done (setting `pfight_mode` = board; default stays chain). Pieces are drawn with CSS marks until the four-sided piece art lands.
 
 ## Rules (from Josh, plus defaults marked *)
 - You click or drag each piece you want to play onto the board. **The board starts with one or two of the creature's pieces out** (one for small and medium, two for large and boss*; the gentlest, non-Hurt ones*).
@@ -14,8 +14,13 @@ Status: engine and sim done. The screen (click/drag placement), the piece render
 - Board is 5x5*; pieces expire 2 rounds after they are placed* (back to the owner's discard). An empty board takes the next piece in the centre*.
 - Resolve bar, Hurt/Charm, HP, Run, stall cap: unchanged. Resolve bar is x2.0 and creature piece values x0.8 in board mode (sim-tuned: small 3.0, medium 3.6, large 4.0, boss 7.2 turns; greedy bot defeat 1 to 5%).
 
+## Built
+- `pfight_mode` setting; one POST per turn (`pfb_play` with moves "handIndex,x,y;..."), `pfb_pass` when nothing fits; stale/nonce/bad-move checks.
+- `assets/pfboard.js`: click a piece then a lit cell, or drag; Undo; ghost pieces count for later placements; heavy ends the turn; legality matches PHP (`tests/pfboard_js.sh`, 400 random boards).
+- Page test `tests/pfboard.sh` (plays whole fights over HTTP), browser check `tests/pfboardshot.js`.
+
 ## Still to build
-1. Page wiring: setting `pfight_mode` (chain | board), `pfboard_do` POST (one POST per turn: a list of [hand index, x, y]), board view.
-2. Screen: board grid, click-or-drag placement, ghost preview of legal cells, Undo (plans are local until End turn), End turn.
-3. Piece renderer for four-sided pieces (art side: parts atlas, or port of `aseprite-source/pfight/layout/felt/gen4.py`).
-4. Foe placement animation and per-chain history chips.
+1. Four-sided piece art in the board (needs the art side: a parts atlas; see `claude/pfight-art-atlas-request.md`).
+2. Live effect preview for the planned placements (server dry run).
+3. Foe placement animation, chain glow, map background.
+4. Balance pass with real players; creature pieces' edges per species.
