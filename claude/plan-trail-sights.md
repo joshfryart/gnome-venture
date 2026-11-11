@@ -17,6 +17,14 @@ Content source: `claude/sights/ideas-*.md` (219 spots, 25 quest lines, all verbs
 - **Not checked:** MySQL (table DDL uses the shared `$PK/$ID/$END` helpers like `trail_pickups`), the Upgrade database run on a real site, other lands, two Sights side by side on a phone.
 - **Open from the spike:** game time per use uses the `gather` key (20 min) — decide if Sights get their own `time_sight` key; the button label shows the verb only (no per-Sight name): P3 card should name it.
 
+## 0c. P1 DONE (2026-11-11, source only, no version bump)
+- **Time per use = 10 game minutes** (Josh): new setting `time_sight` (default 10, in `GCLOCK_TIME_DEFAULTS` + the guide table). The spike double-charged (energy call already charges time): fixed, the Sight now passes `'sight'` as the time key to `spend_energy()`, so a 0-energy Sight (reading) still takes 10 min.
+- **Row grammar** now 13 columns: `slug|verb|icon|energy|cd|uses|when|check|rewards|win|lose|tool|fail_en`. `tool` = `type:tier` gate (Worn=1..Masterwork=4, gathering tool types); `fail_en` = energy a failed check costs; reward token `gather=<tool>` runs the ordinary gather table (tier rules, wear, satchel reveal).
+- **Four behaviours with example rows:** forage (clover patch: `item`, `xp`), sift (`coast-the-shell-heap`, `gather=bucket`, tool `bucket:1`), crossing (`mountain-the-rope-bridge`, `nimble:10`, fail costs 1), read (`grassland-the-old-milestone`, 0 energy), fish (`island-the-reef-shallows`, `gather=rod`, tool `rod:1`).
+- **Admin > Trail sights** (`admin/trailsights.php`, Content & text): lists all rows with lint, edit form, add for any of the 219 landmark pictures, Off, Back to the file. DB table `trail_sight_rows` (admin rows replace file rows). `trail_sight_lint()` checks picture, numbers, stat (GNOME_STATS), tool, reward tokens, item slugs, conditions.
+- **Tests:** `tests/trail_sights.php` (lint of every row, bad rows caught, energy-free, fail cost, tool gate, gather token, admin override / off / restore) passes with `game_clock trail_back adventure trail_mini`. Browser: admin page lists 5 rows, 219 landmark pictures, save works (412 px).
+- **Not done / next:** P2 data rows for all 219 from `claude/sights/ideas-*.md` (the quest beats / villager points / goodies need more than this grammar: quest task kind `sight`, villager-at-spot, conditional goodies), P3 marker + tap card + Almanac section. Not checked: MySQL, Upgrade database on a real site.
+
 ## 1. What a "Sight" is
 Every Trail section has 1 landmark sprite (`lm-<slug>`), 41 sections have 2: **665 sections, 706 landmark placements, 219 slugs** (82 hand-drawn Maplewold + 137 shared: 94 land pieces + 43 `end-*`). Each slug becomes a **Sight**: one named thing you can DO when you stand near it. No re-bake needed: position is already in the map data (`objs` rows `[x, y, "lm-<slug>", jit]`).
 

@@ -2,3 +2,8 @@
 # slug | verb | icon | energy | cooldown_tenths (game days x10; 55 = 5.5) | uses per cooldown | when (stop syntax: dp= se= we=, or -) | check (stat:dc or -) | rewards (stop_rewards grammar) | win line | lose line
 # slug = the landmark sprite name without lm-  (grassland-the-clover-patch, 232-beehive, end-haven-1-coast ...)
 grassland-the-clover-patch|Pick|🍀|1|55|2|-|-|xp=3:1,item=four-leaf-clover@20|You crouch and check leaf after leaf. Somebody was thorough, but not THAT thorough.|There is nothing here.
+# P1 examples, one per behaviour (a real data pass writes all 219 rows from claude/sights/ideas-*.md). Optional last columns: tool (type:tier) | fail_en (energy a failed check costs)
+coast-the-shell-heap|Sift|🐚|1|55|2|-|-|gather=bucket|You sift the heap, and a shell rolls out with strong opinions about spirals.|There is nothing here.|bucket:1|0
+mountain-the-rope-bridge|Cross|🪢|1|55|1|-|nimble:10|xp=4:1,find=1|You cross with your arms out, and the bridge sways in a friendly way. Something shiny was caught in the third knot.|The bridge sways and you grab the rope with both hands. Not your finest moment.|-|1
+grassland-the-old-milestone|Read|📜|0|55|1|-|-|xp=2:1|You brush the moss from the stone. The numbers are gone, but it still points confidently, and you feel better about your own sense of direction.|-|-|0
+island-the-reef-shallows|Cast|🎣|1|55|2|-|-|gather=rod|You wade in to your ankles and cast over the bright water.|There is nothing here.|rod:1|0

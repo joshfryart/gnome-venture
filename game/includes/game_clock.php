@@ -499,6 +499,7 @@ const GCLOCK_TIME_DEFAULTS = [
     'wander' => 20, 'gather' => 10, 'craft' => 15,   // craft is per unit
     'arrange' => 10, 'seed' => 10, 'shift' => 480, 'sapling' => 10, 'tend' => 10, 'repair' => 480,
     'lair' => 120, 'landmark' => 20, 'stop' => 15, 'water_other' => 10,
+    'sight' => 10,         // v2.6.68: using a Trail Sight (the big set pieces on a map)
 ];
 
 /** Game minutes one unit of an action costs (0 = free). */
@@ -848,6 +849,7 @@ function gclock_cost_guide(?array $u = null): array
         ['Craft', 'shown on the recipe', $t('craft') . ' per item'],
         ['Arrange flowers', $e(max(0, (int)setting('arrange_energy'))), $t('arrange')],
         ['Pack a seed packet', 'none', $t('seed')],
+        ['Use a Trail Sight (a big set piece on a map)', 'shown on the button', $t('sight')],
         ['Florist shift', $e(max(0, (int)setting('florist_energy'))), $t('shift') . ' (anything past 22:00 waits for tomorrow, and you cannot start another timed job until you sleep)'],
         ['Work on a landmark repair', 'shown on the button', $t('repair') . ' (same rule as a shift)'],
         ['Visit a landmark', $e(1), $t('landmark')],

@@ -28,6 +28,24 @@ function action_log_schema(string $PK, string $ID, string $END): array
             got_at INT NOT NULL,
             got_tick INT NULL
         )$END",
+        "CREATE TABLE IF NOT EXISTS trail_sight_rows (
+            id $PK,
+            slug VARCHAR(80) NOT NULL,
+            verb VARCHAR(40) NOT NULL,
+            icon VARCHAR(16) NOT NULL,
+            energy INT NOT NULL DEFAULT 1,
+            cd INT NOT NULL DEFAULT 55,
+            uses INT NOT NULL DEFAULT 1,
+            cond VARCHAR(80) NOT NULL DEFAULT '-',
+            chk VARCHAR(40) NOT NULL DEFAULT '-',
+            rewards VARCHAR(255) NOT NULL DEFAULT '',
+            win VARCHAR(400) NOT NULL DEFAULT '',
+            lose VARCHAR(400) NOT NULL DEFAULT '',
+            tool VARCHAR(20) NOT NULL DEFAULT '-',
+            fail_en INT NOT NULL DEFAULT 0,
+            active INT NOT NULL DEFAULT 1,
+            updated_at DATETIME NULL
+        )$END",
         "CREATE TABLE IF NOT EXISTS trail_sight_uses (
             id $PK,
             user_id $ID NOT NULL,
@@ -38,7 +56,7 @@ function action_log_schema(string $PK, string $ID, string $END): array
             got_at INT NOT NULL,
             got_tick INT NULL
         )$END",
-    ], ['CREATE INDEX idx_player_actions_user ON player_actions (user_id, id)', 'CREATE INDEX idx_trail_pickups_user ON trail_pickups (user_id, route_id, sec)', 'CREATE INDEX idx_trail_sight_uses_user ON trail_sight_uses (user_id, route_id, sec)'], []];
+    ], ['CREATE INDEX idx_player_actions_user ON player_actions (user_id, id)', 'CREATE INDEX idx_trail_pickups_user ON trail_pickups (user_id, route_id, sec)', 'CREATE INDEX idx_trail_sight_uses_user ON trail_sight_uses (user_id, route_id, sec)', 'CREATE UNIQUE INDEX idx_trail_sight_rows_slug ON trail_sight_rows (slug)'], []];
 }
 
 /** Pages whose posts are never logged (credentials, account, private text). */
