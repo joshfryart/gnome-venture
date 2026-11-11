@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.6.52
+## 2.6.53
 - **Puzzle combat (hidden until switched on)**: road, lair and delve fights can be played with jigsaw pieces instead of the d20 menu. Admin > Settings: **Puzzle combat** = Off / Admins only / Everyone, and **mode** = Strip (chain) or Board (a new fight uses the mode; fights under way keep theirs). Treks still use the old fight.
   - Strip: hand of pieces, build a chain of 1-4, the creature answers. Board: one open play area; place up to 4 pieces a turn next to pieces already out (knob into a hole of the same family, or a flat edge); a placed piece fires its chain newest first through linked joints; pieces leave after 2 rounds. Live preview of what your planned pieces would do. Pinch, wheel and buttons zoom the board.
   - The fight is drawn over the route map. Piece art, joint marks, chain glow, chain-length stamps, tag and upgrade icons, creature rim tint come from `assets/img/pfight/` (missing files fall back to CSS).
