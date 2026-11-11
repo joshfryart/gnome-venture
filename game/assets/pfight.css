@@ -270,3 +270,12 @@
 
 .pfi-art:empty { display: none; } .pfi-cv { display: block; width: 132px; height: 92px; image-rendering: pixelated; }
 .pf-boardmode .pf-inspect { gap: .5rem; align-items: center; }
+
+.pf-plan { margin: 0; padding-left: 1.1rem; font-size: .7rem; line-height: 1.25; } .pf-plan[hidden] { display: none; } .pf-plan-bar { list-style: none; margin-left: -1.1rem; opacity: .85; }
+
+.pfb-drop { animation: pfb-drop .4s ease-out backwards; z-index: 5; }
+@keyframes pfb-drop { from { opacity: 0; transform: translateY(-18%) scale(1.2); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .pfb-drop { animation: none; } }
+
+.pfb-mod { position: absolute; right: 12%; bottom: 8%; z-index: 3; font-size: .75rem; line-height: 1; padding: .05rem .15rem; border-radius: .3rem; background: rgba(24, 14, 8, .85); box-shadow: 0 0 0 1px #e8a317; pointer-events: none; }
+.pf-bp .pfb-mod { right: 14%; bottom: 10%; }

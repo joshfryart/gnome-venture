@@ -1,5 +1,5 @@
 <?php
-// php tests/pfmap.php GAMEDIR [seed] : puts the test gnome on a RANDOM route out of where it stands, with a RANDOM creature in front of it (prints "route name | creature name").
+// php tests/pfmap.php GAMEDIR [seed] [maxLevel] : puts the test gnome on a RANDOM route out of where it stands, with a RANDOM creature in front of it (prints "route name | creature name").
 $_SERVER['SCRIPT_NAME'] = '/adventure.php';
 require $argv[1] . '/includes/bootstrap.php';
 require_once $argv[1] . '/includes/adventure.php';
@@ -14,7 +14,7 @@ $rid = (int)$routes[mt_rand(0, count($routes) - 1)]['id'];
 [$ok, $msg] = start_expedition($u, $rid);
 if (!$ok) { echo "FAILED $msg\n"; exit(1); }
 $exp = active_expedition((int)$u['id']);
-$all = q('SELECT * FROM creatures')->fetchAll(PDO::FETCH_ASSOC); $c = $all[mt_rand(0, count($all) - 1)];
+$all = q('SELECT * FROM creatures WHERE level <= ?', [(int)($argv[3] ?? 999)])->fetchAll(PDO::FETCH_ASSOC); $c = $all[mt_rand(0, count($all) - 1)];
 $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => 0, 'sp' => 100, 'hpp' => 100, 'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);
 save_exp($exp);
 echo "route $rid | {$c['name']} ({$c['size']}, lv {$c['level']})\n";

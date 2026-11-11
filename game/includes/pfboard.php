@@ -230,7 +230,8 @@ function pfb_intent(array &$s): void
  * The player's turn: $moves = [[handIdx, x, y], ...] in play order (indices refer to the hand as it is now), 1 to 4 pieces. One POST per turn, like the strip.
  * Returns ['ev' => events, 'err' => ?string]; on an error nothing changed.
  */
-function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null): array
+/** $dry = true: place my pieces on a copy and report what they would do, without the creature's turn or any change to $s. */
+function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null, bool $dry = false): array
 {
     if ($s['over']) return ['ev' => [], 'err' => 'The fight is over.'];
     if ($turn !== $s['turn']) return ['ev' => [], 'err' => 'stale'];
@@ -255,6 +256,7 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null)
         $ev = array_merge($ev, $r);
         if (($tiles[$k]['m'] ?? '') !== 'swift') $counted++;
     }
+    if ($dry) return ['ev' => $ev, 'err' => null, 'bar' => round($w['bar']['now'], 1), 'max' => $w['bar']['max'], 'hp' => $w['me']['hp'], 'block' => $w['me']['block'], 'over' => $w['over']];
     if (!$w['over']) $ev = array_merge($ev, pfb_foe_turn($w, $counted === PFB_MAX_PLACE ? 1 : 0));
     if (!$w['over']) pfb_end_round($w);
     $w['fx'] = pfb_fx($ev);
@@ -303,7 +305,7 @@ function pfb_view(array $s): array
 {
     $v = pf_view($s);
     $v['mode'] = 'board'; $v['w'] = PFB_W; $v['h'] = PFB_H; $v['fx'] = $s['fx'] ?? [];
-    $v['pcs'] = array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born']], $s['pcs']));
+    $v['pcs'] = array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born'], 'seq' => $p['seq'], 'new' => $s['turn'] > 1 && $s['round'] - $p['born'] === 1], $s['pcs']));
     foreach ($v['hand'] as $i => $t) $v['hand'][$i]['e'] = pfb_edges($s['me']['hand'][$i]);
     unset($v['strip'], $v['open'], $v['open_t'], $v['open_v'], $v['open_by']);
     return $v;

@@ -201,6 +201,24 @@ function pfight_do(array $u, array &$exp, string $do): bool
     return false;
 }
 
+/** A dry run of the planned placements (assets/pfboard.js asks after each change). Read only: nothing is saved, and only public things come back (what the pieces would do), never the draw pile or the creature's hand. Echoes JSON and exits. */
+function pfight_preview_out(array $u, array $exp): void
+{
+    $out = function (array $o) { header('Content-Type: application/json'); header('Cache-Control: no-store'); echo json_encode($o); if (db()->inTransaction()) db()->rollBack(); exit; };
+    $enc = json_decode((string)$exp['encounter'], true); $c = $enc ? encounter_creature($enc) : null; $s = $enc['pf'] ?? null;
+    if (!$c || !is_array($s) || ($s['mode'] ?? '') !== 'board') $out(['ok' => false, 'err' => 'no fight']);
+    if (!hash_equals((string)$s['nonce'], (string)($_POST['nonce'] ?? ''))) $out(['ok' => false, 'err' => 'stale']);
+    $s['me']['hp'] = min((int)$s['me']['max'], max(1, (int)$exp['hp']));
+    $moves = [];
+    foreach (array_filter(explode(';', (string)($_POST['moves'] ?? '')), 'strlen') as $m) { $p = explode(',', $m); if (count($p) !== 3 || !ctype_digit($p[0]) || !ctype_digit($p[1]) || !ctype_digit($p[2])) $out(['ok' => false, 'err' => 'moves']); $moves[] = [(int)$p[0], (int)$p[1], (int)$p[2]]; }
+    $before = (float)$s['bar']['now'];
+    $r = pfb_play($s, $moves, (int)($_POST['turn'] ?? -1), null, true);
+    if ($r['err']) $out(['ok' => false, 'err' => (string)$r['err']]);
+    $lines = [];
+    foreach ($r['ev'] as $e) $lines[] = isset($e['pluck']) ? '🤏 Pluck: a small chance to lift something.' : pfight_line($e, (string)$c['name']);
+    $out(['ok' => true, 'lines' => $lines, 'bar' => [$before, $r['bar'], $r['max']], 'over' => $r['over'] ?: null]);
+}
+
 function pfight_line(array $e, string $foe): string
 {
     if (!empty($e['tick'])) return '🧪 The poison works on the ' . $foe . ' (+' . (int)$e['v'] . ').';
@@ -394,6 +412,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h = str_replace('@@TOP@@', $top, $h);
     $h .= '<div class="pfb-board" id="pfb-board" role="group" aria-label="The play area: pick a piece from your hand, then a lit spot. Scroll, pinch or use the zoom buttons to zoom"></div>';   // JS draws the pieces from #pf-data
     $h .= '<p class="pf-preview help" id="pf-preview" aria-live="polite">Pick a piece, then a lit spot. Up to 4 a turn; the newest plays first.</p>';
+    $h .= '<ol class="pf-plan" id="pf-plan" aria-live="polite" hidden></ol>';
     $h .= '<form method="post" class="pf-form" id="pf-form">' . csrf_field() . '<input type="hidden" name="do" value="pfb_play"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="moves" id="pf-moves" value=""></form>';
     $h .= '<div class="pf-buttons"><a class="btn pf-box" href="' . e(url('puzzlebox.php')) . '" title="Your puzzle box" aria-label="Puzzle box">🧩</a><button type="button" class="btn" id="pf-undo" disabled>Undo</button><button class="btn primary" id="pf-go" form="pf-form" disabled>End turn</button>'
         . ($v['can_run'] ? '<form method="post" class="inline pf-runf">' . csrf_field() . '<input type="hidden" name="do" value="pf_run"><input type="hidden" name="nonce" value="' . $nonce . '"><button class="btn" title="Run away" aria-label="Run away">🏃</button></form>' : '') . '</div>';
@@ -411,7 +430,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '</div>';
     if (!empty($enc['last'])) { $h .= '<details class="pfc-log"><summary>What just happened</summary><ol class="pf-last" aria-live="polite">'; foreach ($enc['last'] as $ln) $h .= '<li>' . e($ln) . '</li>'; $h .= '</ol></details>'; }
     // the board and the hand's edges for the script (public information: the board is out in the open)
-    $data = ['art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
+    $data = ['mods' => array_map(fn($m) => [$m[1], $m[0]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
     $h .= '<script type="application/json" id="pf-data">' . json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP) . '</script>';
     return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfx.js?v=' . APP_VERSION)) . '" defer></script><script src="' . e(url('assets/pfparts.js?v=' . APP_VERSION)) . '" defer></script><script src="' . e(url('assets/pfboard.js?v=' . APP_VERSION)) . '" defer></script>';
 }

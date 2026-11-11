@@ -8,7 +8,7 @@ rm -f "$GAME/config.php"; rm -rf "$GAME/data"; mkdir -p "$GAME/data"
 BASE=http://127.0.0.1:$PORT
 LOG=$(mktemp)
 php -d session.save_path=/tmp -d display_errors=1 -S 127.0.0.1:$PORT -t "$GAME" "$ROUTER" >$LOG 2>&1 & PID=$!; sleep 1
-trap "kill $PID 2>/dev/null" EXIT
+trap "kill \$PID 2>/dev/null; [ -n \"\$T\" ] && rm -rf \"\$T\"" EXIT
 C=$(mktemp); H=$(mktemp)
 csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }
 get() { curl -s -c $C -b $C "$BASE/$1" -o $H -w '%{http_code}'; }

@@ -12,7 +12,7 @@
   var rbtn = document.getElementById('pf-redraw'), pform = document.getElementById('pf-pform');
   var tiles = Array.prototype.slice.call(handEl.querySelectorAll('.pf-tile'));
   var moves = [], selected = null, submitted = false, redrawMode = false;
-  var glows = [], fxOn = true, glowTimer = 0, frame = 0;
+  var dropDone = false, glows = [], fxOn = true, glowTimer = 0, frame = 0;
   var world = null, vz = 1, vx = 0, vy = 0, viewKey = '', moved = false;
   // zoom and pan of the play area: wheel on a computer, pinch and drag on a phone, + - and reset buttons for everyone
   function clampView() {
@@ -107,6 +107,10 @@
     return false;
   }
 
+  function modBadge(m) {   // the piece's upgrade as a small glyph (until the upgrade marks are drawn)
+    var d = m && data.mods && data.mods[m]; if (!d) return null;
+    var el = document.createElement('span'); el.className = 'pfb-mod'; el.setAttribute('aria-hidden', 'true'); el.textContent = d[0]; el.title = 'Upgrade: ' + d[1]; return el;
+  }
   function edgeSpan(edge, side) {
     var s = document.createElement('span');
     s.className = 'pfe s' + side + ' ' + (edge[0] === 'flat' ? 'flat f-flat' : edge[0] + ' f-' + edge[1]);
@@ -136,7 +140,7 @@
     var lit = litCells(selected), b = working();
     boardEl.textContent = '';
     world = document.createElement('div'); world.className = 'pfb-world'; boardEl.appendChild(world);
-    var P = window.PFParts, art = P && P.ok, S = art ? P.atlas.sizes.strip : null;
+    var P = window.PFParts, art = P && P.ok, S = art ? P.atlas.sizes.strip : null, dropN = 0;
     // the view: the pieces plus one spot around them (at least 3 x 3), so the pieces stay big and nothing is shown that cannot be used
     var x0 = W, x1 = -1, y0 = H, y1 = -1;
     Object.keys(b.map).forEach(function (k) { var q = k.split(','), qx = +q[0], qy = +q[1]; x0 = Math.min(x0, qx); x1 = Math.max(x1, qx); y0 = Math.min(y0, qy); y1 = Math.max(y1, qy); });
@@ -160,11 +164,13 @@
       var key = x + ',' + y, p = b.map[key], cell;
       if (p) {
         cell = document.createElement('div'); cell.className = 'pfb-cell' + (p.ghost ? ' pfb-planned' : '');
+        if (p.by === 'foe' && p['new'] && !dropDone && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) { cell.classList.add('pfb-drop'); cell.style.animationDelay = (dropN++ * 0.45) + 's'; }   // the creature's pieces land one after another
         if (art) {
           var cv = P.piece({ size: 'strip', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, tag: p.tag, edges: p.e, old: p.age >= 1, num: p.v, tint: data.tint });
           cv.className = 'pfb-cv'; cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', (p.by === 'foe' ? 'Creature piece: ' : 'Your piece: ') + p.n + ', ' + p.t + ' ' + p.v + (p.age >= 1 ? ', expires this round' : ''));
           cell.appendChild(cv);
         } else cell.appendChild(pieceEl(p));
+        var mb = modBadge(p.m); if (mb && art) cell.appendChild(mb);
         if (p.age >= 1 && !p.ghost) { var ob = document.createElement('span'); ob.className = 'pfb-old'; ob.setAttribute('aria-hidden', 'true'); ob.textContent = '\u231B'; ob.title = 'Leaves the board at the end of this round'; cell.appendChild(ob); }
       } else if (lit[key]) {
         cell = document.createElement('button'); cell.type = 'button'; cell.className = 'pfb-cell pfb-lit'; cell.setAttribute('aria-label', 'Place here, column ' + (x + 1) + ' row ' + (y + 1));
@@ -211,13 +217,14 @@
       });
       if (!glowTimer && glows.length) startGlow();
     }
+    if (art || !data.parts) dropDone = true;
     var vk = [x0, y0, x1, y1].join(',');
     if (vk !== viewKey) { viewKey = vk; vz = 1; vx = 0; vy = 0; }   // the pieces moved the view: back to the whole area
     boardEl.appendChild(zoomControls());
     applyView();
-    tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); t.classList.add('pf-art2'); } });
+    tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); var hb = modBadge(data.hand[i].m); if (hb) t.appendChild(hb); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
-    fan();
+    fan(); planAsk();
     undo.disabled = moves.length === 0; go.disabled = moves.length === 0;
     var fits = anyFits();
     if (pform) pform.hidden = !(moves.length === 0 && !fits && selected === null);
@@ -227,6 +234,30 @@
       : moves.length + ' placed' + (heavy ? ' (a heavy piece ends your turn)' : moves.length >= 4 ? ' (the most you can place)' : '') + '. End turn when you are ready.' + (moves.length === 4 ? ' A full turn gives the creature an extra move.' : '');
   }
 
+  // what the planned pieces would do: the server runs them on a copy (nothing is saved) and answers with the lines and the resolve bar
+  var planEl = document.getElementById('pf-plan'), planTimer = 0, planAbort = null;
+  function planAsk() {
+    if (!planEl || typeof fetch !== 'function') return;
+    clearTimeout(planTimer);
+    if (planAbort) planAbort.abort();
+    if (!moves.length || submitted) { planEl.hidden = true; planEl.textContent = ''; return; }
+    planTimer = setTimeout(function () {
+      var fd = new FormData(), qs = function (n) { var e = form.querySelector('[name=' + n + ']'); return e ? e.value : ''; };
+      fd.append('csrf', qs('csrf')); fd.append('do', 'pfb_preview'); fd.append('nonce', qs('nonce')); fd.append('turn', qs('turn'));
+      fd.append('moves', moves.map(function (m) { return [m.i, m.x, m.y].join(','); }).join(';'));
+      planAbort = typeof AbortController === 'function' ? new AbortController() : null;
+      fetch(location.pathname, { method: 'POST', body: fd, credentials: 'same-origin', signal: planAbort ? planAbort.signal : undefined, headers: { 'X-Requested-With': 'pfpreview' } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          planEl.textContent = '';
+          if (!j || !j.ok) { planEl.hidden = true; return; }
+          j.lines.forEach(function (t) { var li = document.createElement('li'); li.textContent = t; planEl.appendChild(li); });
+          var li2 = document.createElement('li'); li2.className = 'pf-plan-bar';
+          li2.textContent = 'Resolve ' + Math.round(j.bar[0]) + ' \u2192 ' + Math.round(j.bar[1]) + ' of ' + Math.round(j.bar[2]) + (j.over ? ' (this ends the fight)' : '') + '. The creature answers after you end your turn.';
+          planEl.appendChild(li2); planEl.hidden = false;
+        }).catch(function () {});
+    }, 180);
+  }
   function fan() {   // overlap the hand's pieces just enough to fit one row; the picked piece is lifted by CSS and comes to the front
     var vis = tiles.filter(function (t) { return !t.hidden; }), n = vis.length; if (!n) return;
     var avail = handEl.clientWidth, w = vis[0].offsetWidth || 112, m = 6;

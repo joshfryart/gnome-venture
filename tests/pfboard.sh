@@ -8,7 +8,7 @@ rm -f "$GAME/config.php"; rm -rf "$GAME/data"; mkdir -p "$GAME/data"
 BASE=http://127.0.0.1:$PORT
 LOG=$(mktemp)
 php -d session.save_path=/tmp -d display_errors=1 -S 127.0.0.1:$PORT -t "$GAME" "$ROUTER" >$LOG 2>&1 & PID=$!; sleep 1
-trap "kill $PID 2>/dev/null" EXIT
+trap "kill \$PID 2>/dev/null; [ -n \"\$T\" ] && rm -rf \"\$T\"" EXIT
 C=$(mktemp); H=$(mktemp)
 csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }
 get() { curl -s -c $C -b $C "$BASE/$1" -o $H -w '%{http_code}'; }
@@ -48,6 +48,17 @@ ENC1=$(enc)
 ck "bad moves: redirect" "$(pf pfb_play -d moves='0,0,0')" "302"; ck "off-board / no-contact move ignored" "$(enc)" "$ENC1"
 ck "garbage moves: redirect" "$(pf pfb_play -d moves='a,b,c')" "302"; ck "garbage ignored" "$(enc)" "$ENC1"
 ck "stale turn: redirect" "$(TURN_X=99 pf pfb_play -d moves='0,2,2')" "302"; ck "stale turn ignored" "$(enc)" "$ENC1"
+# the live preview: read only, public things only
+MV0=$(php "$HERE/pfboard_move.php" "$GAME" 2>&1 | tail -1)
+if [ "$MV0" != "PASS" ] && [ "$MV0" != "NONE" ]; then
+  pf pfb_preview -d moves="$MV0" >/dev/null; PV=$(cat $H)
+  ck "preview answers ok" "$(echo "$PV" | grep -c '"ok":true')" "1"
+  ck "preview lists what happens" "$(echo "$PV" | grep -c '"lines":\["')" "1"
+  ck "preview changed nothing" "$(enc)" "$ENC1"
+  ck "preview does not show the draw pile or seed" "$(echo "$PV" | grep -c 'rng\|"draw"\|seed')" "0"
+fi
+pf pfb_preview -d moves='0,0,0' >/dev/null; ck "preview of an impossible move says no" "$(grep -c '"ok":false' $H)" "1"
+NONCE_X=deadbeef pf pfb_preview -d moves='0,2,2' >/dev/null; ck "preview with a wrong nonce says no" "$(grep -c '"ok":false' $H)" "1"; ck "still unchanged" "$(enc)" "$ENC1"
 ck "wrong nonce: redirect" "$(NONCE_X=deadbeef pf pfb_play -d moves='0,2,2')" "302"; ck "wrong nonce ignored" "$(enc)" "$ENC1"
 ck "a strip play on a board fight is refused" "$(pf pf_play -d chain=0)" "302"; ck "strip play ignored" "$(enc)" "$ENC1"
 ck "pass with pieces that fit is refused" "$(pf pfb_pass)" "302"; ck "pass ignored" "$(enc)" "$ENC1"
