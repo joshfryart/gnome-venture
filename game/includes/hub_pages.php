@@ -204,6 +204,14 @@ function treehouse_view(array $u, string $open = ''): string
         foreach ($rows as $i => $t) $top .= '<li><i aria-hidden="true">' . $medals[$i] . '</i><span>' . e((string)$t['name']) . '</span><b>' . (int)$t['best'] . '</b></li>';
         $top .= '</ol></section>';
     }
+    require_once __DIR__ . '/contests.php';
+    $squares = '<div class="chsqs">';
+    foreach (contests_hub_rows($u) as $r) {   // one square per contest: picture, name, when it closes, whether you are in
+        [$ci, $cn, , $cs, $cin, $cp, $cb] = $r;
+        $squares .= '<a class="chsq' . ($cin ? ' in' : '') . '" href="' . e(url($cp)) . '"><span class="chsi" aria-hidden="true">' . e($ci) . '</span><b>' . e($cn) . '</b>'
+            . '<small>' . e($cs) . '</small><span class="tag ' . ($cin ? 'cin' : 'cout') . '">' . ($cin ? '✔ Entered' : 'Not yet') . '</span><em>' . e($cb) . ' →</em></a>';
+    }
+    $squares .= '</div>';
     $trophies = 0;
     if (ppal_open() && !is_guest($u)) { try { $trophies = (int)q_val('SELECT COUNT(*) FROM ppal_trophies WHERE user_id = ?', [$uid]); } catch (Throwable $e) {} }
     $topGames = 0;   // games where you hold this week's top score (feeds the 'top' trophy layers)
@@ -211,9 +219,11 @@ function treehouse_view(array $u, string $open = ''): string
         try { if ((int)q_val("SELECT s.user_id FROM game_scores s JOIN users x ON x.id = s.user_id WHERE s.game = ? AND s.week = ? AND x.banned = 0 GROUP BY s.user_id ORDER BY MAX(s.score) DESC, MIN(s.id) LIMIT 1", [$gk, job_period_key('weekly')]) === $uid) $topGames++; } catch (Throwable $e) {}
     }
     hubp_add($hot, $L, 'contests', ['label' => 'Contest hall', 'emoji' => '🏆', 'chip' => 'Read', 'href' => url('treehouse.php?o=contests'),
-        'card' => ($trophies > 0 || $topGames > 0 ? '<p class="chtroph">🏆 ' . ($trophies > 0 ? '<span class="tag">' . $trophies . ' Expert jigsaw trophy' . ($trophies === 1 ? '' : ' trophies') . '</span>' : '') . ($topGames > 0 ? '<span class="tag">Top score in ' . $topGames . ' game' . ($topGames === 1 ? '' : 's') . '</span>' : '') . '</p>' : '')
-            . '<h4 class="chhead">🏅 This week’s high scores</h4>' . ($top !== '' ? '<div class="chall">' . $top . '</div>' : '<p class="muted">Nobody has scored yet this week.</p>') . '<p class="help">Top three per game. Scores reset every week.</p>'
-            . '<p><a class="btn" href="' . e(url('games.php?tab=contests')) . '">Contests →</a></p>']);
+        'card' => '<nav class="chtabs" role="tablist" aria-label="Contest hall"><button type="button" role="tab" class="on" aria-selected="true" data-chtab="contests">🏆 Contests</button><button type="button" role="tab" aria-selected="false" data-chtab="boards">🏅 Leaderboards</button></nav>'
+            . '<div class="chpanel" data-chpanel="contests">' . $squares . '<p class="help">Tap a contest to enter or see how it is going.</p></div>'
+            . '<div class="chpanel" data-chpanel="boards" hidden>'
+            . ($trophies > 0 || $topGames > 0 ? '<p class="chtroph">🏆 ' . ($trophies > 0 ? '<span class="tag">' . $trophies . ' Expert jigsaw trophy' . ($trophies === 1 ? '' : ' trophies') . '</span>' : '') . ($topGames > 0 ? '<span class="tag">Top score in ' . $topGames . ' game' . ($topGames === 1 ? '' : 's') . '</span>' : '') . '</p>' : '')
+            . ($top !== '' ? '<div class="chall">' . $top . '</div>' : '<p class="muted">Nobody has scored yet this week.</p>') . '<p class="help">Top three per game. Scores reset every week.</p></div>']);
     $sprites = [];
     $more = null;
     $dress = [];

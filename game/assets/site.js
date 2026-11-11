@@ -2338,3 +2338,12 @@ document.addEventListener('click', function (ev) {
   if (d.open) d.close();   // drawn open in the page (?slot=): show it as the dialog instead
   gvOpenDlg(d);
 });
+
+/* Contest hall pop-up: the Contests / Leaderboards tabs */
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest ? ev.target.closest('[data-chtab]') : null;
+  if (!b) return;
+  var box = b.closest('.hubcard') || document;
+  box.querySelectorAll('[data-chtab]').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  box.querySelectorAll('[data-chpanel]').forEach(function (p) { p.hidden = p.getAttribute('data-chpanel') !== b.getAttribute('data-chtab'); });
+});

@@ -7827,3 +7827,19 @@ button.hpick-it:focus-visible { outline: 3px solid var(--focus); outline-offset:
 .chg li span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chg li b { flex: none; font-variant-numeric: tabular-nums; }
 @media (max-width: 340px) { .chall { grid-template-columns: 1fr; } }
+
+/* Contest hall: tabs and contest squares */
+.chtabs { display: flex; gap: 6px; margin: 2px 0 10px; }
+.chtabs button { flex: 1; min-height: 44px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer; }
+.chtabs button.on { background: var(--brand-fill); border-color: var(--brand-line); color: #fff; }
+.chpanel[hidden] { display: none; }
+.chsqs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0 0 8px; }
+.chsq { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; aspect-ratio: 1 / 1; padding: 8px; text-align: center; text-decoration: none; color: var(--ink); background: var(--surface-2); border: 2px solid var(--line); border-radius: 14px; min-width: 0; }
+.chsq.in { border-color: var(--brand-line); box-shadow: 0 0 0 1px var(--brand-soft) inset; }
+.chsq .chsi { font-size: 2.2rem; line-height: 1; }
+.chsq b { font-size: .92rem; line-height: 1.2; text-wrap: balance; }
+.chsq small { font-size: .72rem; color: var(--muted); line-height: 1.2; }
+.chsq .tag { font-size: .7rem; padding: 0 8px; }
+.chsq .tag.cin { background: var(--brand-soft); color: var(--brand-ink); border-color: var(--brand-line); }
+.chsq em { font-style: normal; font-size: .78rem; font-weight: 700; color: var(--accent-ink); }
+.chsq:hover, .chsq:focus-visible { border-color: var(--accent-line); }
