@@ -42,7 +42,7 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 ## B. NEXT: graphical navigation (`claude/plan-graphical-nav.md`, brief `claude/art-brief-here.md`)
 1. Stop looks for the other 14 landscapes per type (only default + `desert_adobe` exist for the 11 types; market also has grassland_maplewold).
 2. Village/haven at hero scale per region; folk wiring.
-4. Doors: unique door per villager (up to 151, `door-<slug>.png`), optional. Shared 6 exist.
+4. Doors: DONE 2026-11-11, 81 unique `door-<slug>.png` + 6 shared (no night variant; lit window comes from the hotspot chips).
 5. 2.5D villager sprites: 81 of up to 151 done. Feet bottom-centre, 96 px max, transparent, 1 px outline. Prioritise villagers on the most scenes.
 6. Treehouse: nothing open (done). Optional: `scenes/wander-step-back.png`.
 7. Pal perch sprites: DONE 2026-11-11, all 570 in `assets/img/pals/` (475 block pals generator-drawn, 95 whimsy hand-drawn). Optional: found-pal arrival sparkle. Weaker whimsy: pl-dlz-6 (lizard reads turtle), pl-wgor-6 (gorilla blob), mt-bill-brolly, pl-wcof-6, pl-flfm-6.
