@@ -1738,11 +1738,12 @@ document.addEventListener('click', function (ev) {   /* after the sheet code bel
 });
 
 /* v1.9.8: shop tiles. Tap a tile: its sheet (<dialog>) opens with the details and the Buy/Sell form. Delegated, so it survives in-place loads. */
+function gvCoins() { var el = document.querySelector('.mycoins[data-coins]'); return el ? +el.getAttribute('data-coins') : -1; }   // read fresh every time, never cached
 function gvSheetTotal(form) {
   var inp = form.querySelector('.qin'), max = +form.getAttribute('data-max') || 0, price = +form.getAttribute('data-price') || 0;
   var n = Math.max(0, Math.min(max, Math.floor(+inp.value || 0)));
   var buy = form.getAttribute('data-mode') === 'buy';
-  var coinsEl = document.querySelector('.mycoins[data-coins]'), coins = coinsEl ? +coinsEl.getAttribute('data-coins') : -1;   // v2.0.5: no coin figure on the page = no 'too much' check
+  var coins = gvCoins();   // v2.0.5: no coin figure on the page = no 'too much' check
   var tot = form.querySelector('.stot'), bad = form.querySelector('.sbad'), go = form.querySelector('.sgo');
   tot.textContent = n > 0 ? tot.getAttribute('data-lbl') + ' ' + (n * price).toLocaleString() : '';
   var over = buy && coins >= 0 && n * price > coins;
@@ -1755,7 +1756,15 @@ document.addEventListener('click', function (ev) {
   var pick = t.closest('[data-sheet]');
   if (pick) {
     var dlg = pick.parentNode.querySelector('dialog.isheet');
-    if (dlg) { var f = dlg.querySelector('.sheetform'); if (f) gvSheetTotal(f); gvOpenDlg(dlg); }
+    if (dlg) {
+      var f = dlg.querySelector('.sheetform');
+      if (f) {
+        var st = pick.closest('.stile'), sw = st && st.closest('.shopwrap'), inb = sw && sw.gvBasket && sw.gvBasket[st.getAttribute('data-id')];
+        f.querySelector('.qin').value = inb ? inb.n : 1;   // already in the basket: show that amount, not 1
+        gvSheetTotal(f);
+      }
+      gvOpenDlg(dlg);
+    }
     return;
   }
   var x = t.closest('[data-sheetx]');
@@ -1774,6 +1783,23 @@ document.addEventListener('input', function (ev) {
 });
 
 /* v2.0.67: shop basket. "Add to basket" in a sheet stores n of that item; the .basket bar lists them and one post sends qty[id]=n for all. */
+window.gvBaskets = window.gvBaskets || {};
+function gvBasketKey(wrap) { var all = document.querySelectorAll('.shopwrap'); return location.pathname + '#' + Array.prototype.indexOf.call(all, wrap); }
+function gvBasketSave(wrap) { window.gvBaskets[gvBasketKey(wrap)] = wrap.gvBasket || {}; }
+/* an in-place page swap rebuilds .shopwrap: put the basket back, minus what is gone, and no more than is now on the shelf */
+function gvBasketRestore() {
+  document.querySelectorAll('.shopwrap').forEach(function (w) {
+    var saved = window.gvBaskets[gvBasketKey(w)];
+    if (w.gvBasket || !saved || !Object.keys(saved).length || !w.querySelector('form.basket')) return;
+    var keep = {};
+    Object.keys(saved).forEach(function (id) {
+      var t = w.querySelector('.stile[data-id="' + id + '"]'), max = t ? +t.getAttribute('data-max') || 0 : 0;
+      if (max > 0 && !t.classList.contains('dim')) keep[id] = { n: Math.min(saved[id].n, max), name: saved[id].name, price: +t.getAttribute('data-price') || 0 };
+    });
+    w.gvBasket = keep; gvBasketSave(w); gvBasketRender(w);
+  });
+}
+document.addEventListener('gv:swapped', gvBasketRestore);
 function gvBasketRender(wrap) {
   var bk = wrap.querySelector('form.basket');
   if (!bk) return;
@@ -1794,7 +1820,7 @@ function gvBasketRender(wrap) {
   });
   bk.hidden = !ids.length;
   tot.textContent = tot.getAttribute('data-lbl') + ' ' + sum.toLocaleString();
-  var coinsEl = document.querySelector('.mycoins[data-coins]'), coins = coinsEl ? +coinsEl.getAttribute('data-coins') : -1;
+  var coins = gvCoins();
   var over = buy && coins >= 0 && sum > coins;
   bad.hidden = !over; bad.textContent = over ? 'You have ' + coins.toLocaleString() + '. Too much.' : '';
   go.disabled = !ids.length || over;
@@ -1809,7 +1835,7 @@ document.addEventListener('click', function (ev) {
     var inp = form.querySelector('.qin'), max = +form.getAttribute('data-max') || 1, n = Math.max(1, Math.min(max, Math.floor(+inp.value || 1)));
     wrap.gvBasket = wrap.gvBasket || {};
     wrap.gvBasket[tile.getAttribute('data-id')] = { n: n, name: tile.getAttribute('data-name'), price: +tile.getAttribute('data-price') || 0 };
-    gvBasketRender(wrap);
+    gvBasketSave(wrap); gvBasketRender(wrap);
     gvCloseDlg(add.closest('dialog'));
     return;
   }
@@ -1817,7 +1843,7 @@ document.addEventListener('click', function (ev) {
   if (chip || clr) {
     var w = t.closest('.shopwrap');
     if (chip) delete w.gvBasket[chip.getAttribute('data-id')]; else w.gvBasket = {};
-    gvBasketRender(w);
+    gvBasketSave(w); gvBasketRender(w);
   }
 });
 document.addEventListener('submit', function (ev) {
@@ -1825,6 +1851,7 @@ document.addEventListener('submit', function (ev) {
   if (!bk.classList || !bk.classList.contains('basket')) return;
   var wrap = bk.closest('.shopwrap'), items = (wrap && wrap.gvBasket) || {}, ids = Object.keys(items);
   if (!ids.length) { ev.preventDefault(); return; }
+  if (wrap) { window.gvBaskets[gvBasketKey(wrap)] = {}; }   // bought: the next page starts with an empty basket
   bk.querySelectorAll('input.bq').forEach(function (i) { i.remove(); });
   ids.forEach(function (id) {
     var i = document.createElement('input');
@@ -1873,7 +1900,12 @@ document.addEventListener('click', function (ev) {
   var open = t.closest('[data-giftopen]');
   var pk = document.querySelector('.picker.giftpick');
   if (!pk) return;
-  if (open) { ev.preventDefault(); gvGiftSort(pk, 'like'); gvOpenDlg(pk); return; }
+  if (open) {
+    ev.preventDefault(); gvGiftSort(pk, 'like');
+    pk.querySelectorAll('.gcard.on').forEach(function (c) { c.classList.remove('on'); c.setAttribute('aria-pressed', 'false'); });   // a fresh start: nothing picked
+    var g0 = pk.querySelector('.giftgo'); if (g0) { g0.hidden = true; g0.querySelector('[name=item_id]').value = 0; }
+    gvOpenDlg(pk); return;
+  }
   if (!pk.contains(t)) return;
   var chip = t.closest('[data-gsort]');
   if (chip) { ev.preventDefault(); gvGiftSort(pk, chip.getAttribute('data-gsort')); return; }
