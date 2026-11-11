@@ -14,11 +14,11 @@ require_once __DIR__ . '/pfight.php';
 const PFB_W = 7, PFB_H = 5, PFB_LIFE = 3, PFB_MAX_PLACE = 1;   // one action a turn: place a piece, place the piece group you set aside, or set pieces aside (connect them in your hand)
 const PFB_FOE_MIN = 2;                       // if the creature has fewer than this many pieces on the board after its turn, the board puts one out for it (it grows into place)
 const PFB_GROUP_MAX = 3;                      // a set-aside group holds 2 or 3 pieces; a 3-piece group cannot take more
-const PFB_GROUP_MULT = [2 => 1.0, 3 => 1.5]; // the values of a placed group's pieces (3 pieces play for maximum effect; 2.6.61: was 1.25, which never paid for the two turns it takes)
-const PFB_FOE_FIRES = 2;                      // 2.6.62 fire budget: a CREATURE piece falls away after it has fired this many times (its placement is the first; 0 = off). Your own pieces are not limited (they only expire). Tuned with tests/pfboard_tune.php: it removes the creature's re-fire cascades
-const PFB_FOE_FIRE_MULT = 1.15;              // 2.6.62: the creature's pieces count this much more once they are limited, so good players find it about as hard as before (weaker players gain a little)
-const PFB_BOSS_MULT = 1.2;                    // 2.6.61: a boss's pieces count this much more (bosses cost ~11% HP at their own level, large creatures ~30%)
-const PFB_BLANK_FOE_MULT = 1.2;              // 2.6.61: the creature's pieces count this much more in the blank-centre variant (its free start piece and shorter chains made it ~half as costly as classic)
+const PFB_GROUP_MULT = [2 => 1.0, 3 => 1.5]; // the values of a placed group's pieces (3 pieces play for maximum effect; 2.6.63: was 1.25, which never paid for the two turns it takes)
+const PFB_FOE_FIRES = 2;                      // 2.6.63 fire budget: a CREATURE piece falls away after it has fired this many times (its placement is the first; 0 = off). Your own pieces are not limited (they only expire). Tuned with tests/pfboard_tune.php: it removes the creature's re-fire cascades
+const PFB_FOE_FIRE_MULT = 1.15;              // 2.6.63: the creature's pieces count this much more once they are limited, so good players find it about as hard as before (weaker players gain a little)
+const PFB_BOSS_MULT = 1.2;                    // 2.6.63: a boss's pieces count this much more (bosses cost ~11% HP at their own level, large creatures ~30%)
+const PFB_BLANK_FOE_MULT = 1.2;              // 2.6.63: the creature's pieces count this much more in the blank-centre variant (its free start piece and shorter chains made it ~half as costly as classic)
 const PFB_BAR_MULT = 0.7, PFB_FOE_MULT = 0.62;   // the resolve bar vs strip mode, and a factor on the creature's piece values (one piece a turn each side). Tuned by tests/pfboard_sim.php: small 3.2, medium 4.2, large 4.5, boss 6.6 turns, defeats under 3%
 const PFB_SIDE = ['L' => [-1, 0, 'R'], 'R' => [1, 0, 'L'], 'T' => [0, -1, 'B'], 'B' => [0, 1, 'T']];   // side => [dx, dy, the neighbour's side that touches it]
 
@@ -353,7 +353,7 @@ function pfb_anchor_pick(array &$s): ?int
     $pick = null;
     foreach ($hand as $i => $t) if ($t['t'] !== 'hurt' && ($pick === null || $t['v'] < $hand[$pick]['v'])) $pick = $i;
     if ($pick !== null) return $pick;
-    // 2.6.61: a hand of nothing but Hurt used to put a Hurt out as the "gentlest non-Hurt" piece (3% of starts, 50 creatures; it fires in your first chain). Swap in the top non-Hurt piece of the draw pile instead.
+    // 2.6.63: a hand of nothing but Hurt used to put a Hurt out as the "gentlest non-Hurt" piece (3% of starts, 50 creatures; it fires in your first chain). Swap in the top non-Hurt piece of the draw pile instead.
     foreach (array_reverse(array_keys($s['foe']['draw'])) as $di) if ($s['foe']['draw'][$di]['t'] !== 'hurt') { $s['foe']['hand'][] = $s['foe']['draw'][$di]; array_splice($s['foe']['draw'], $di, 1); return count($s['foe']['hand']) - 1; }
     return 0;
 }

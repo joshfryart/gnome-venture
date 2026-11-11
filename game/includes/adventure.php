@@ -946,7 +946,7 @@ function win_fight(array $u, array &$exp, array $c, bool $peaceful, bool $full =
         exp_log($exp, '📖 New Almanac page: ' . $c['name'] . '!');
     }
     $loot = $stolen;   // for the end scene: what dropped (name, qty, picture), starting with anything lifted with Pluck
-    if (!$peaceful || $full) {   // 2.6.61: a puzzle Charm ($full) also rolls the species' special drops (seed, Gardening Guide), which the gift alone skipped; ordinary drops stay for a win
+    if (!$peaceful || $full) {   // 2.6.63: a puzzle Charm ($full) also rolls the species' special drops (seed, Gardening Guide), which the gift alone skipped; ordinary drops stay for a win
         $scene = exp_scene($exp);
         $luckBonus = max(0, luck_mod($u)) * 2;
         foreach (q('SELECT * FROM creature_drops WHERE creature_id = ?', [$c['id']])->fetchAll() as $dr) {

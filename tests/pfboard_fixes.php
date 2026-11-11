@@ -1,5 +1,5 @@
 <?php
-// Regression tests for the 2.6.61 board fixes (no DB): php tests/pfboard_fixes.php [path/to/pfboard.php]. Each check names its scenario and expected result.
+// Regression tests for the 2.6.63 board fixes (no DB): php tests/pfboard_fixes.php [path/to/pfboard.php]. Each check names its scenario and expected result.
 // The optional path runs the same checks against another copy of the engine (used to watch them FAIL on the pre-fix code).
 require ($argv[1] ?? __DIR__ . '/../game/includes/pfboard.php');
 $bad = 0;
@@ -76,7 +76,7 @@ $ev = pfb_place($s, 'me', 0, 3, 1);
 $fired = array_values(array_filter(array_map(fn($e) => $e['k'] ?? null, $ev ?? [])));
 chk('piece placed above the blank: only that piece fires (nothing runs through the blank)', $fired === ['fx_new'], json_encode($fired));
 
-// 8. fire budget (2.6.62): a creature piece falls away after its second firing, after the chain (never mid-chain); your pieces are not limited
+// 8. fire budget (2.6.63): a creature piece falls away after its second firing, after the chain (never mid-chain); your pieces are not limited
 $mkS = function () use ($ants, $mk, $put) { $s = pfb_new(fx_me(5), $ants, 3); $s['pcs'] = []; $s['cell'] = []; $s['pid'] = 0; $s['seq'] = 0; $s['start'] = false; $s['fh']['max'] = 999.0; $s['bar']['max'] = 999.0; $s['over'] = null; return $s; };
 $s = $mkS();
 $c = $put($s, 'foe', $mk('fx_c', 'hurt', 3, 'mind'), 2, 2); $s['pcs'][$c]['f'] = 1;    // a creature piece that has fired once

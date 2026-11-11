@@ -1,10 +1,17 @@
 # Changelog
 
-## Unreleased (2.6.62)
-- Puzzle board fire budget: a creature piece falls away once it has fired twice (its placement is the first), after the chain that fired it. Your pieces are not limited. Creature piece values x1.15 to keep it about as hard for good players. Page: "x1" badge on a creature piece's last firing, info card text, fell-away pieces leave like expired ones. See `claude/plan-puzzle-board.md`.
-
-## Unreleased (2.6.61)
+## 2.6.63
+- **Puzzle board fire budget**: a creature piece falls away once it has fired twice (its placement is the first), after the chain that fired it. Your pieces are not limited. Creature piece values x1.15 to keep it about as hard for good players. Page: "x1" badge on a creature piece's last firing, info card text, fell-away pieces leave like expired ones. See `claude/plan-puzzle-board.md`.
 - Puzzle board fixes from the 2.6.60 playtest: the creature's start piece is never Hurt (swapped for a non-Hurt from its draw pile); hostile creatures take Charm at x0.6 (was x0.4); bosses' pieces x1.2; a 3-piece group plays x1.5 (was x1.25); a puzzle Charm win also rolls seed and Gardening Guide drops. Engine notes `reshuf` and `cut`; `pfb_pass` refuses before the start piece in the blank-centre variant. JS demo engine follows. Tests: `pfboard_fixes`, `pfboard_tune`. See `claude/plan-puzzle-board.md`.
+- Puzzle board playtest tooling: `tests/pf_play.php` (CLI harness), `tests/pfboard_tune.php` (win / turns / HP-lost table), `tests/pfboard_fixes.php`; opt-in blank-centre opening in the engine, JS demo engine and the demo page; design notes in `docs/puzzle-board-*.md`.
+
+## 2.6.62
+
+- Pal jobs: delve re-runs now run on real time. Trips, stations and garden stays stay on game time (they only move when your gnome's game clock does).
+
+## 2.6.61
+
+- Wren's tour: the "Water it" step can no longer get stuck on a rainy day. Rain already waters the plant, so Water used to be refused ("Watered for today") and the step never finished; while the tour waits on Water, watering now always works.
 
 ## 2.6.60
 

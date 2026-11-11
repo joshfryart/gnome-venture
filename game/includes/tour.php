@@ -59,6 +59,13 @@ function tour_action_is_free(int $uid, string $action): bool
     return $ask === 0 && $step >= 1 && $step <= count(TOUR_STEPS) && TOUR_STEPS[$step - 1][0] === $action;
 }
 
+/** Is the gnome's current tour step waiting for this event? (Rain-watered plants must still be waterable on the "Water it" step, or the tour sticks.) */
+function tour_waiting_for(int $uid, string $event): bool
+{
+    [$step, $ask] = tour_state($uid);
+    return $ask === 0 && $step >= 1 && $step <= count(TOUR_STEPS) && TOUR_STEPS[$step - 1][0] === $event;
+}
+
 /** [tour_step, tour_ask] for a gnome. tour_ask: 1 = Wren is asking "tour now or later?", 2 = said later (asked again next login), 0 = answered. */
 function tour_state(int $uid): array
 {

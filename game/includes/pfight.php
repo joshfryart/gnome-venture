@@ -13,7 +13,7 @@ const PF_CHAIN_MAX = 4;
 const PF_TURN_CAP = 24;
 /** Resolve bar = pace turns x K x (base + slope x creature level); bosses use their own K. Tuned with tests/pfight_sim.php (a realistic gnome: stat modifier about (level+3)/14). */
 const PF_GENTLE_HM = 0.8;   // gentle creatures: Hurt counts this much on the bar (Charm counts fully); tuned with tests/pfboard_sim.php
-const PF_HOSTILE_CM = 0.6;  // hostile creatures: Charm counts this much on the charm bar (2.6.61: was 0.4, so charming a hostile creature was only slower and riskier)
+const PF_HOSTILE_CM = 0.6;  // hostile creatures: Charm counts this much on the charm bar (2.6.63: was 0.4, so charming a hostile creature was only slower and riskier)
 const PF_BAR_K = 1.7, PF_BAR_BOSS = 2.0, PF_BAR_BASE = 5, PF_BAR_SLOPE = 0.4;
 const PF_FOE_DMG = 1.4, PF_FOE_BOSS = 0.78;   // foe tile values scale with its damage die; bosses hit a little softer so a long fight is survivable
 
