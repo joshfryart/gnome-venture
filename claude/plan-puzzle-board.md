@@ -4,7 +4,7 @@ Replaces the strip with a shared jigsaw board. Engine: `game/includes/pfboard.ph
 Status: engine, sim, page wiring and a working screen are done (setting `pfight_mode` = board; default stays chain). Pieces are drawn with CSS marks until the four-sided piece art lands.
 
 ## Rules (from Josh, plus defaults marked *)
-- You click or drag each piece you want to play onto the board. **The board starts with one or two of the creature's pieces out** (one for small and medium, two for large and boss*; the gentlest, non-Hurt ones*).
+- You click or drag each piece you want to play onto the board. **The board starts with one or two of the creature's pieces out** (one piece; two only for bosses*; the gentlest, non-Hurt ones*).
 - A piece goes next to a piece already on the board. Each touching edge must fit: **knob into hole of the same family**, or a **flat** edge (fits anything). All four edges of a piece are used (L, R, T, B).
 - **When a piece connects, its chain fires newest first**: the piece you just placed plays, then the pieces linked to it, each one for its owner, until the chain ends.
 - **A flat side breaks the chain and any combo across it.** (A joint is "linked" only when both edges are knob/hole.)
@@ -32,6 +32,14 @@ Status: engine, sim, page wiring and a working screen are done (setting `pfight_
 - Live effect preview: `pfb_preview` (read only dry run of the planned placements via `pfb_play(..., $dry)`), lines + resolve bar projection under the board; checked by `tests/pfboard.sh` (no state change, no draw pile or seed in the answer).
 - The creature's new pieces land one by one (reduced motion: no animation); upgrade glyph badges on pieces; touch pinch/pan tested with real touch events in `tests/pfmap.js`.
 - Gentle creatures: `PF_GENTLE_HM` = 0.8 (Hurt counts 80% on their bar, Charm 100%). A Hurt-only box against gentle creatures took ~17 turns at 0.5 and stalled; at 0.8 it is ~9-10 turns with no stalls, while a Charm box still wins in 2-4. (Sim: Hurt-only bots lose more often than mixed boxes against any creature; that is the bot, not the temper.)
+
+## Changed since (2.6.58 to 2.6.60)
+- **Connect rule:** a placement must make a linked joint (knob in a matching hole) unless nothing in hand/group can; the creature follows it (`pfb_must_link`).
+- **Two goals:** Hurt lowers the creature's health (`$s['fh']`, red bar); the pink bar (`$s['bar']`) is Charm only; bosses have no charm bar (`cm` = 0). Chips read `-N hp` / `+N charm`.
+- **Turn order on screen:** the creature's piece enters after yours resolves; each side's whole chain resolves before the other's turn (events carry `ta`, replay groups by it); turn banner shows, holds, fades, then play. The creature's pieces placed this turn are flagged `fnew` and held back until the replay reaches them.
+- Guard resets at the start of your turn (`pfb_end_round`); creature starts with one piece (boss two).
+- Set-aside group is a row under the board; the info pop-up piece is smaller; no stage banner or About fold above/below the panel.
+- Shareable demo: `tools/pfengine.js` (JS port, parity test `tests/pfengine_js.sh`), `tools/build_pf_artifact.py`, `tools/pfartifact/`.
 
 ## Still to build
 1. Upgrade marks and rarity trim art (glyph badges stand in).
