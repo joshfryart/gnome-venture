@@ -13,6 +13,53 @@
   var tiles = Array.prototype.slice.call(handEl.querySelectorAll('.pf-tile'));
   var moves = [], selected = null, submitted = false, redrawMode = false;
   var glows = [], fxOn = true, glowTimer = 0, frame = 0;
+  var world = null, vz = 1, vx = 0, vy = 0, viewKey = '', moved = false;
+  // zoom and pan of the play area: wheel on a computer, pinch and drag on a phone, + - and reset buttons for everyone
+  function clampView() {
+    var r = boardEl.getBoundingClientRect(), w = r.width || 1, h = r.height || 1;
+    vz = Math.max(1, Math.min(3, vz)); vx = Math.min(0, Math.max(w - w * vz, vx)); vy = Math.min(0, Math.max(h - h * vz, vy));
+  }
+  function applyView() {
+    clampView();
+    if (world) world.style.transform = vz === 1 ? '' : 'translate(' + vx + 'px,' + vy + 'px) scale(' + vz + ')';
+    boardEl.classList.toggle('pfb-zoomed', vz > 1);
+  }
+  function zoomAt(f, cx, cy) {
+    var nz = Math.max(1, Math.min(3, vz * f)), k = nz / vz;
+    vx = cx - (cx - vx) * k; vy = cy - (cy - vy) * k; vz = nz; applyView();
+  }
+  function zoomControls() {
+    var box = document.createElement('div'); box.className = 'pfb-zoom';
+    [['+', 'Zoom in', function () { var r = boardEl.getBoundingClientRect(); zoomAt(1.4, r.width / 2, r.height / 2); }],
+     ['\u2212', 'Zoom out', function () { var r = boardEl.getBoundingClientRect(); zoomAt(1 / 1.4, r.width / 2, r.height / 2); }],
+     ['\u2922', 'Show the whole play area', function () { vz = 1; vx = 0; vy = 0; applyView(); }]].forEach(function (d) {
+      var bt = document.createElement('button'); bt.type = 'button'; bt.textContent = d[0]; bt.setAttribute('aria-label', d[1]); bt.title = d[1]; bt.addEventListener('click', d[2]); box.appendChild(bt);
+    });
+    return box;
+  }
+  (function () {
+    var ptr = {}, last = null;   // active pointers by id; the last pinch distance / midpoint or the last single position
+    function rel(e) { var r = boardEl.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+    boardEl.addEventListener('wheel', function (e) { e.preventDefault(); var p = rel(e); zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, p.x, p.y); }, { passive: false });
+    boardEl.addEventListener('pointerdown', function (e) { if (e.target.closest && e.target.closest('.pfb-zoom')) return; ptr[e.pointerId] = rel(e); last = null; moved = false; });
+    boardEl.addEventListener('pointermove', function (e) {
+      if (!ptr[e.pointerId]) return;
+      var now = rel(e), ids = Object.keys(ptr);
+      if (ids.length >= 2) {
+        ptr[e.pointerId] = now;
+        var a = ptr[ids[0]], b = ptr[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y), m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+        if (last && last.d) { vx += m.x - last.m.x; vy += m.y - last.m.y; zoomAt(d / last.d, m.x, m.y); moved = true; }
+        last = { d: d, m: m };
+      } else if (vz > 1) {
+        var o = ptr[e.pointerId];
+        if (moved || Math.hypot(now.x - o.x, now.y - o.y) > 5) { moved = true; vx += now.x - o.x; vy += now.y - o.y; applyView(); ptr[e.pointerId] = now; }
+      }
+    });
+    function up(e) { delete ptr[e.pointerId]; last = null; }
+    boardEl.addEventListener('pointerup', up); boardEl.addEventListener('pointercancel', up); boardEl.addEventListener('pointerleave', up);
+    boardEl.addEventListener('click', function (e) { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);   // a pan or pinch is not a tap on a spot
+    boardEl.addEventListener('dblclick', function (e) { if (!e.target.closest || !e.target.closest('.pfb-lit')) { vz = 1; vx = 0; vy = 0; applyView(); } });
+  })();
   function startGlow() {   // 4 frames at about 8 fps for a few seconds, then the glow and stamps go (a still frame if the player prefers less motion)
     var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches, ticks = 0;
     glowTimer = setInterval(function () {
@@ -88,6 +135,7 @@
   function render() {
     var lit = litCells(selected), b = working();
     boardEl.textContent = '';
+    world = document.createElement('div'); world.className = 'pfb-world'; boardEl.appendChild(world);
     var P = window.PFParts, art = P && P.ok, S = art ? P.atlas.sizes.strip : null;
     // the view: the pieces plus one spot around them (at least 3 x 3), so the pieces stay big and nothing is shown that cannot be used
     var x0 = W, x1 = -1, y0 = H, y1 = -1;
@@ -106,7 +154,7 @@
       x -= x0; y -= y0;
       if (art) { el.style.left = (x * S.pitch[0] * 100 / TW) + '%'; el.style.top = (y * S.pitch[1] * 100 / TH) + '%'; el.style.width = (S.piece[0] * 100 / TW) + '%'; el.style.height = (S.piece[1] * 100 / TH) + '%'; }
       else { el.style.left = (x * 100 / VW) + '%'; el.style.top = (y * 100 / VH) + '%'; el.style.width = (100 / VW) + '%'; el.style.height = (100 / VH) + '%'; }
-      boardEl.appendChild(el);
+      world.appendChild(el);
     }
     for (var y = y0; y <= y1; y++) for (var x = x0; x <= x1; x++) {
       var key = x + ',' + y, p = b.map[key], cell;
@@ -134,7 +182,7 @@
           var ax = jx - x0, ay = jy - y0, cx = d[1] ? (ax + 1) * S.pitch[0] + S.tab[0] : ax * S.pitch[0] + S.tab[0] + S.body[0] / 2, cy = d[1] ? ay * S.pitch[1] + S.tab[1] + S.body[1] / 2 : (ay + 1) * S.pitch[1] + S.tab[1];
           var im = document.createElement('img'); im.src = P.imgs[d[4]].src; im.alt = ''; im.className = 'pfb-joint';
           im.style.left = ((cx - d[5] / 2) * 100 / TW) + '%'; im.style.top = ((cy - d[6] / 2) * 100 / TH) + '%'; im.style.width = (d[5] * 100 / TW) + '%'; im.style.height = (d[6] * 100 / TH) + '%';
-          boardEl.appendChild(im);
+          world.appendChild(im);
         });
       }
     }
@@ -152,17 +200,21 @@
           var ge = document.createElement('span'); ge.className = 'pfb-glow'; ge.setAttribute('aria-hidden', 'true');
           ge.style.backgroundImage = 'url(' + P.imgs[d[4]].src + ')'; ge.style.backgroundSize = d[7] ? '400% auto' : 'auto 400%';
           ge.style.left = ((cx - d[5] / 2) * 100 / TW) + '%'; ge.style.top = ((cy - d[6] / 2) * 100 / TH) + '%'; ge.style.width = (d[5] * 100 / TW) + '%'; ge.style.height = (d[6] * 100 / TH) + '%';
-          ge.dataset.v = String(d[7]); boardEl.appendChild(ge); glows.push(ge);
+          ge.dataset.v = String(d[7]); world.appendChild(ge); glows.push(ge);
         });
       }
       data.fx.forEach(function (c) {
         var r = byId[c.ids[0]]; if (!r || r.x < x0 || r.x > x1 || r.y < y0 || r.y > y1) return;
         var sc = P.stamp(c.ids.length); sc.className = 'pfb-stamp'; sc.setAttribute('role', 'img'); sc.setAttribute('aria-label', 'Chain of ' + c.ids.length + ' pieces');
         sc.style.left = (((r.x - x0) * S.pitch[0] + S.tab[0] + S.body[0] - 22) * 100 / TW) + '%'; sc.style.top = (((r.y - y0) * S.pitch[1] + S.tab[1] - 14) * 100 / TH) + '%'; sc.style.width = (32 * 100 / TW) + '%'; sc.style.height = (32 * 100 / TH) + '%';
-        boardEl.appendChild(sc); glows.push(sc);
+        world.appendChild(sc); glows.push(sc);
       });
       if (!glowTimer && glows.length) startGlow();
     }
+    var vk = [x0, y0, x1, y1].join(',');
+    if (vk !== viewKey) { viewKey = vk; vz = 1; vx = 0; vy = 0; }   // the pieces moved the view: back to the whole area
+    boardEl.appendChild(zoomControls());
+    applyView();
     tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
     undo.disabled = moves.length === 0; go.disabled = moves.length === 0;
@@ -170,7 +222,7 @@
     if (pform) pform.hidden = !(moves.length === 0 && !fits && selected === null);
     var heavy = heavyDone();
     prev.textContent = redrawMode ? 'Tap the piece to swap for a fresh one.' : moves.length === 0
-      ? (fits ? 'Pick a piece, then a lit cell. Up to 4 pieces a turn. The newest piece plays first, then the pieces linked to it.' : 'Nothing in your hand fits anywhere. You can pass.')
+      ? (fits ? 'Pick a piece, then a lit spot. Up to 4 a turn; the newest plays first.' : 'Nothing in your hand fits anywhere. You can pass.')
       : moves.length + ' placed' + (heavy ? ' (a heavy piece ends your turn)' : moves.length >= 4 ? ' (the most you can place)' : '') + '. End turn when you are ready.' + (moves.length === 4 ? ' A full turn gives the creature an extra move.' : '');
   }
 

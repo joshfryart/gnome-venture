@@ -201,3 +201,27 @@
 .pfb-glow { position: absolute; display: block; z-index: 2; pointer-events: none; image-rendering: pixelated; background-repeat: repeat; }
 .pfb-stamp { position: absolute; display: block; z-index: 4; pointer-events: none; image-rendering: pixelated; }
 .pfb-old { position: absolute; right: 8%; top: 4%; z-index: 3; font-size: .8rem; line-height: 1; padding: 0 .1rem; border-radius: .3rem; background: rgba(24, 14, 8, .85); color: #f2e4c0; box-shadow: 0 0 0 1px #2a1a10; }
+
+/* the play area zooms (wheel, pinch, buttons) and pans; the frame stays put */
+.pfb-board { overflow: hidden; touch-action: pan-y; }
+.pfb-board.pfb-zoomed { touch-action: none; cursor: grab; }
+.pfb-world { position: absolute; inset: 0; transform-origin: 0 0; }
+.pfb-zoom { position: absolute; right: .2rem; top: .2rem; z-index: 6; display: flex; gap: .15rem; }
+.pfb-zoom button { width: 1.6rem; height: 1.6rem; padding: 0; line-height: 1; font-size: .95rem; border: 1px solid rgba(242, 228, 192, .6); border-radius: .3rem; background: rgba(24, 14, 8, .7); color: #f2e4c0; cursor: pointer; }
+.pfb-zoom button:hover, .pfb-zoom button:focus-visible { background: rgba(232, 163, 23, .6); outline: 2px solid Highlight; outline-offset: 1px; }
+
+/* tighter board-mode layout: less padding and gap, compact text and buttons */
+.pf-boardmode { gap: .35rem; }
+.pf-boardmode .pf-hist { margin: 0; padding: .1rem 0; }
+.pf-boardmode .pf-stage { gap: .2rem; }
+.pf-boardmode .pf-center { gap: .2rem; }
+.pf-boardmode .pf-preview { margin: 0; font-size: .72rem; line-height: 1.2; }
+.pf-boardmode .pf-last { margin: 0; padding-left: 1.1rem; font-size: .68rem; line-height: 1.2; max-height: 4.8rem; overflow-y: auto; }
+.pf-boardmode .pf-buttons { gap: .3rem; }
+.pf-boardmode .pf-buttons .btn { padding: .3rem .5rem; min-height: 0; }
+.pf-boardmode .pf-extra { margin: 0; gap: .3rem; font-size: .75rem; }
+.pf-boardmode .pf-tags { margin: 0; font-size: .68rem; }
+.pf-boardmode .pf-inspect { padding: .25rem .4rem; margin: 0; }
+.pf-boardmode .pf-hand { padding: .2rem 0; }
+.advgrid.fighting.pfover .encounter { padding: .4rem .5rem; }
+.advgrid.fighting.pfover .helpfold { margin: .2rem 0 0; font-size: .75rem; }

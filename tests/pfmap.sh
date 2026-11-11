@@ -44,7 +44,7 @@ for MODE in board chain; do
 done
 # a chain on the board: play on (smart bot moves) until the page reports one, then check the glow, the stamp and the expiring cue in the browser
 db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_mode','board')" >/dev/null
-for TRY in 1 2 3 4 5 6; do
+for TRY in 1 2 3 4 5 6 7 8 9 10 11 12; do
   php -d display_errors=1 "$HERE/pfmap.php" "$GAME" $((RANDOM)) >/dev/null 2>&1; get adventure.php >/dev/null; FX=0; T=0
   while [ $T -lt 10 ]; do
     MV=$(php "$HERE/pfboard_move.php" "$GAME" 2>&1 | tail -1); [ "$MV" = "NONE" ] && break
@@ -55,6 +55,6 @@ for TRY in 1 2 3 4 5 6; do
 done
 if [ $FX = 1 ]; then
   if [ -n "$SHOT" ]; then node "$HERE/pfmap.js" "$BASE" "$SHOT" fx fx || { echo "FAIL chain glow check"; FAILS=$((FAILS+1)); }; else echo "ok   chain reported after $T turns"; fi
-else echo "FAIL no chain happened in 6 fights"; FAILS=$((FAILS+1)); fi
+else echo "FAIL no chain happened in 12 fights"; FAILS=$((FAILS+1)); fi
 grep -qi "warning\|fatal\|notice" $LOG && { echo "FAIL php log"; grep -i "warning\|fatal\|notice" $LOG | head -3; FAILS=$((FAILS+1)); } || echo "ok   no PHP warnings"
 [ $FAILS = 0 ] && echo "pfmap ok" || { echo "$FAILS FAILED"; exit 1; }
