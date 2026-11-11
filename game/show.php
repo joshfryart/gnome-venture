@@ -51,16 +51,23 @@ if (game_tab() === 'rules'):   // v1.4.1
     echo '<p><a href="' . e(url('games.php?tab=contests')) . '">← Contests</a></p>';
     page_footer(); return;
 endif; ?>
-<nav class="chips" aria-label="Show classes"><a href="#crop">🏅 <?= e($name) ?></a> <a href="#arrangements">💐 Arrangements</a></nav>
-<div class="box" id="crop">
-  <h2>This week: <?= e($name) ?></h2>
-  <p>Grow and harvest <b><?= e($plantName) ?></b>. Your best is entered for you. Judging in <?= nice_time(job_period_left('weekly')) ?>.</p>
-  <p class="help">Your best: <?= $mine ? '<b>' . e(show_size_text($crop, (float)$mine['size'])) . '</b>' : 'not entered yet' ?></p>
-  <?php if ($board): ?>
-    <table class="grid"><tr><th>#</th><th>Gnome</th><th><?= e(ucfirst($unit === 'cm' ? 'length' : 'weight')) ?></th></tr>
-      <?php foreach ($board as $b): ?><tr<?= !$b['npc'] && (int)$b['user_id'] === $uid ? ' class="here"' : '' ?>><td><?= $b['npc'] ? '🏡' : (['🥇', '🥈', '🥉'][$b['prank'] - 1] ?? $b['prank']) ?></td><td><?= e($b['gname']) ?><?= $b['npc'] ? ' ' . townsfolk_tag() : '' ?></td><td><?= e(show_size_text($crop, (float)$b['size'])) ?></td></tr><?php endforeach; ?>
-    </table>
+<div data-ptabs>
+<nav class="chtabs" role="tablist" aria-label="Show classes"><button type="button" role="tab" class="on" aria-selected="true" data-ptab="crop">🏅 <?= e($name) ?></button><button type="button" role="tab" aria-selected="false" data-ptab="arrangements">💐 Arrangements</button><button type="button" role="tab" aria-selected="false" data-ptab="past">📜 Hall of fame</button></nav>
+<div class="ppanel" data-ppanel="crop" id="crop">
+  <div class="hero">
+    <span class="herobig" aria-hidden="true">🏅</span><h2><?= e($name) ?></h2>
+    <p class="help">Grow and harvest <b><?= e($plantName) ?></b>. Your best is entered for you. Judging in <?= nice_time(job_period_left('weekly')) ?>.</p>
+    <p class="heropills"><span class="tag">Your best: <?= $mine ? e(show_size_text($crop, (float)$mine['size'])) : 'not entered yet' ?></span></p>
+  </div>
+  <?php if ($board): $mark = fn($b) => !$b['npc'] && (int)$b['user_id'] === $uid; $podium = array_slice($board, 0, 3); $restRows = array_slice($board, 3); ?>
+    <div class="podium"><?php foreach ([1, 0, 2] as $k): if (!isset($podium[$k])) continue; $b = $podium[$k]; ?>
+      <div class="pod p<?= $k + 1 ?><?= $mark($b) ? ' here' : '' ?>"><i aria-hidden="true"><?= ['🥇', '🥈', '🥉'][$k] ?></i><b><?= e($b['gname']) ?></b><?= $b['npc'] ? townsfolk_tag() : '' ?><small><?= e(show_size_text($crop, (float)$b['size'])) ?></small></div>
+    <?php endforeach; ?></div>
+    <?php if ($restRows): ?><ol class="podrest" start="4"><?php foreach ($restRows as $i => $b): ?>
+      <li<?= $mark($b) ? ' class="here"' : '' ?>><i><?= $i + 4 ?></i><span><?= e($b['gname']) ?><?= $b['npc'] ? ' ' . townsfolk_tag() : '' ?></span><b><?= e(show_size_text($crop, (float)$b['size'])) ?></b></li>
+    <?php endforeach; ?></ol><?php endif; ?>
     <?php if (array_filter($board, fn($b) => $b['npc'])) echo townsfolk_note(); ?>
+    <p class="help">🥇 <?= money(SHOW_PRIZES[1][0]) ?> and a rare seed · 🥈 <?= money(SHOW_PRIZES[2][0]) ?> · 🥉 <?= money(SHOW_PRIZES[3][0]) ?> · the top three get a 🎀.</p>
   <?php else: ?><p class="muted">No entries yet. Be the first!</p><?php endif; ?>
 </div>
 <?php
@@ -69,7 +76,7 @@ $owned = arrangements_owned($uid);
 $leaders = array_slice(townsfolk_merge(arrangement_leaders($week, 5), townsfolk_arrangements($week), 'score'), 0, 7);   // v1.0.0: townsfolk show too (never judged, never paid)
 $arrPrev = arrangement_leaders(job_period_key('weekly', time() - 7 * 86400), 3);
 ?>
-<section class="box" id="arrangements">
+<section class="box ppanel" data-ppanel="arrangements" id="arrangements" hidden>
   <h2>💐 Arrangements</h2>
   <p class="help">One flower arrangement each, judged with the crop at the end of the week. The one you enter <b>stays at the show</b>, and a better one swaps in (the old one comes home). Top three: <?= money($pzR[0]) ?>, <?= money($pzR[1]) ?> and <?= money($pzR[2]) ?> and a ribbon.</p>
   <?php if ($arrMine): ?><p>Your entry: <b>“<?= e($arrMine['title']) ?>”</b>, <?= (int)$arrMine['score'] ?>/100</p><?php endif; ?>
@@ -77,7 +84,7 @@ $arrPrev = arrangement_leaders(job_period_key('weekly', time() - 7 * 86400), 3);
   <?php else: ?>
   <div class="arrowned">
     <?php foreach ($owned as $a): $better = !$arrMine || (int)$a['arr']['score'] > (int)$arrMine['score']; ?>
-      <form method="post" action="<?= e(url('show.php')) ?>" class="arrcard"><?= csrf_field() ?><input type="hidden" name="do" value="enter_arr"><input type="hidden" name="item_id" value="<?= (int)$a['id'] ?>">
+      <form method="post" action="<?= e(url('show.php')) ?>" class="arrcard" data-noajax><?= csrf_field() ?><input type="hidden" name="do" value="enter_arr"><input type="hidden" name="item_id" value="<?= (int)$a['id'] ?>">
         <?= arrangement_svg($a['arr'], 'lg', $a['name']) ?><b><?= e($a['name']) ?></b><small><?= (int)$a['arr']['score'] ?>/100 · <?= (int)$a['qty'] ?> held</small>
         <button class="btn small" <?= $better ? '' : 'disabled' ?>><?= $arrMine ? ($better ? 'Swap it in' : 'Not better') : 'Enter it' ?></button></form>
     <?php endforeach; ?>
@@ -89,12 +96,16 @@ $arrPrev = arrangement_leaders(job_period_key('weekly', time() - 7 * 86400), 3);
     <li><?= $l['npc'] ? '<span class="tficon sm" aria-hidden="true">🏡</span>' : arrangement_svg(json_decode((string)$l['comp'], true) ?: [], 'md', $l['title']) ?> <span><b><?= e($l['gname']) ?></b><?= $l['npc'] ? ' ' . townsfolk_tag() : '' ?>: “<?= e($l['title']) ?>”, <?= (int)$l['score'] ?>/100</span></li>
   <?php endforeach; ?></ol>
   <?php if (array_filter($leaders, fn($l) => $l['npc'])) echo townsfolk_note(); ?><?php endif; ?>
-  <?php if ($arrPrev): ?><h3>Last week’s winners</h3><ul><?php foreach ($arrPrev as $i => $l): ?><li><?= ['🥇', '🥈', '🥉'][$i] ?? '' ?> <?= e($l['gname']) ?>: “<?= e($l['title']) ?>” (<?= (int)$l['score'] ?>)</li><?php endforeach; ?></ul><?php endif; ?>
+  
 </section>
+<div class="ppanel" data-ppanel="past" id="past" hidden>
 <?php if ($past): ?>
-  <div class="box"><h3>Past champions</h3><ul>
-    <?php foreach ($past as $p): ?><li><?= e($p['week']) ?> · <?= e(SHOW_CROPS[$p['crop']][0] ?? $p['crop']) ?>: <b><?= e($p['gname']) ?></b> (<?= e(show_size_text($p['crop'], (float)$p['size'])) ?>)</li><?php endforeach; ?>
-  </ul></div>
-<?php endif; ?>
+  <div class="box"><h3>Past champions</h3><ol class="podrest pastlist">
+    <?php foreach ($past as $p): ?><li><i aria-hidden="true">🏅</i><span><b><?= e($p['gname']) ?></b> <small class="muted"><?= e($p['week']) ?> · <?= e(SHOW_CROPS[$p['crop']][0] ?? $p['crop']) ?></small></span><b><?= e(show_size_text($p['crop'], (float)$p['size'])) ?></b></li><?php endforeach; ?>
+  </ol></div>
+<?php else: ?><p class="muted">No champions yet. The first judging is coming.</p><?php endif; ?>
+<?php if ($arrPrev): ?><div class="box"><h3>Last week’s arrangement winners</h3><ol class="podrest pastlist"><?php foreach ($arrPrev as $i => $l): ?><li><i aria-hidden="true"><?= ['🥇', '🥈', '🥉'][$i] ?? '' ?></i><span><b><?= e($l['gname']) ?></b> <small class="muted">“<?= e($l['title']) ?>”</small></span><b><?= (int)$l['score'] ?></b></li><?php endforeach; ?></ol></div><?php endif; ?>
+</div>
+</div>
 <p><a href="<?= e(url('games.php?tab=contests')) ?>">← Contests</a></p>
 <?php page_footer();

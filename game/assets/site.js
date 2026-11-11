@@ -2347,3 +2347,34 @@ document.addEventListener('click', function (ev) {
   box.querySelectorAll('[data-chtab]').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-selected', on ? 'true' : 'false'); });
   box.querySelectorAll('[data-chpanel]').forEach(function (p) { p.hidden = p.getAttribute('data-chpanel') !== b.getAttribute('data-chtab'); });
 });
+
+/* 2.6.65: tabbed pages ([data-ptabs] > buttons [data-ptab] + panels [data-ppanel]); a #hash naming a panel opens it */
+function gvPTab(box, name) {
+  var any = false;
+  box.querySelectorAll('[data-ppanel]').forEach(function (p) { if (p.getAttribute('data-ppanel') === name) any = true; });
+  if (!any) return false;
+  box.querySelectorAll('[data-ptab]').forEach(function (x) { var on = x.getAttribute('data-ptab') === name; x.classList.toggle('on', on); x.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  box.querySelectorAll('[data-ppanel]').forEach(function (p) { p.hidden = p.getAttribute('data-ppanel') !== name; });
+  return true;
+}
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest ? ev.target.closest('[data-ptab]') : null;
+  if (!b) return;
+  var box = b.closest('[data-ptabs]'); if (!box) return;
+  gvPTab(box, b.getAttribute('data-ptab'));
+});
+function gvPTabHash() {
+  var h = (location.hash || '').slice(1); if (!h) return;
+  document.querySelectorAll('[data-ptabs]').forEach(function (box) { gvPTab(box, h); });
+}
+gvPTabHash();
+window.addEventListener('hashchange', gvPTabHash);
+
+/* 2.6.65: generic pop-up buttons: [data-opendlg=id] opens that <dialog>, [data-closedlg] (or the backdrop) closes it */
+document.addEventListener('click', function (ev) {
+  var t = ev.target; if (!t.closest) return;
+  var o = t.closest('[data-opendlg]');
+  if (o) { gvOpenDlg(document.getElementById(o.getAttribute('data-opendlg'))); return; }
+  if (t.closest('[data-closedlg]')) { gvCloseDlg(t.closest('dialog')); return; }
+  if (t.tagName === 'DIALOG' && t.classList.contains('fairsheet')) gvCloseDlg(t);
+});

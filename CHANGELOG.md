@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.6.65
+- **Village Show**: three tabs (the week's crop, Arrangements, Hall of fame). The crop tab has a hero card, a podium for the top three and a compact list for the rest; past champions and last week's arrangement winners moved to Hall of fame. `#arrangements` still opens its tab.
+- **Trading Post**: My stall is a grid of item cards (price, left, sold, Take down) with the "Put something on the stall" form folded away; Gifts is an inbox of cards instead of a table.
+- **Satchel > Tools**: each tool is a card (icon, what you use, what it does, a wear bar that turns red when low) instead of wide tables; the Worn and What-to-make-next lists too.
+- **Almanac**: the front page leads with big section tiles (progress and ✨ new count), then the new-pages box (5 pages, not 12). The two dropdowns on chapter pages are now a row of chapter chips with a Contents link.
+- **Grand Harvest Fair**: a square per class (your score, entered or ready, current leader); tap one for your entry, the Enter button and the top three. Last month's winners folded away.
+- Tabs and pop-up buttons are generic now (`[data-ptabs]`, `[data-opendlg]`) for later pages.
+
 ## 2.6.64
 - **Contest hall** (treehouse): a pop-up with two tabs. **Contests** opens first, with one square per contest (Village Show, Grand Harvest Fair, Garden of the Month, Pumpkin Carving): picture, name, when it closes, "Entered" or "Not yet", and a link in. **Leaderboards** sits behind the second tab: compact two-column score cards, top three per game with medals and your own best, plus your trophy tags. It used to be one long list of eight five-name tables.
 - **Shop menus fix**: the gift picker no longer closes when you pick a different sort (They'll like it / By kind / A-Z). The in-place page-swap handler was catching the sort chips; it now ignores `#` links and anything inside a pop-up.

@@ -90,22 +90,24 @@ page_header('Trading Post');
     <p class="help">Put things on your stall at your own price. Other gnomes buy them any time, even while you’re away, and the money comes straight to you
       (less a <?= (int)setting('stall_tax_percent') ?>% market fee). Up to <?= (int)setting('stall_slots') ?> listings.</p>
     <?php if (!$why): ?>
+    <details class="fold mkadd"><summary>＋ Put something on the stall</summary>
     <form method="post" class="form inline" action="<?= e(url('market.php?t=stall')) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="list">
       <label>Item <select name="item_id"><?= item_options(my_tradables($uid)) ?></select></label>
       <label>How many <input type="number" name="qty" value="1" min="1" class="qty"></label>
       <label>Price each <input type="number" name="price" value="10" min="1" class="qty"></label>
-      <button class="btn small">Put on stall</button></form>
+      <button class="btn small">Put on stall</button></form></details>
     <?php endif; ?>
   </div>
   <?php if ($mine): ?>
-    <table class="grid">
-      <tr><th>Item</th><th>Price each</th><th>Left</th><th>Sold</th><th></th></tr>
-      <?php foreach ($mine as $l): ?>
-        <tr><td><?= item_pic(['id' => $l['item_id'] ?? 0, 'name' => $l['name']], 'sm') ?><?= e($l['name']) ?></td><td><?= money((int)$l['price']) ?></td><td><?= (int)$l['qty'] ?></td><td><?= (int)$l['sold'] ?></td>
-          <td><?php if ((int)$l['qty'] > 0): ?><form method="post" action="<?= e(url('market.php?t=stall')) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="unlist"><input type="hidden" name="id" value="<?= (int)$l['id'] ?>">
-            <button class="btn small alt">Take down</button></form><?php else: ?><span class="muted">sold out</span><?php endif; ?></td></tr>
+    <div class="mkgrid">
+      <?php foreach ($mine as $l): $live = (int)$l['qty'] > 0; ?>
+        <div class="mkcard<?= $live ? '' : ' off' ?>"><span class="mkpic"><?= item_pic(['id' => $l['item_id'] ?? 0, 'name' => $l['name']], 'sm') ?></span><b><?= e($l['name']) ?></b>
+          <span class="mkprice"><?= money((int)$l['price']) ?> each</span>
+          <small><?= (int)$l['qty'] ?> left · <?= (int)$l['sold'] ?> sold</small>
+          <?php if ($live): ?><form method="post" action="<?= e(url('market.php?t=stall')) ?>"><?= csrf_field() ?><input type="hidden" name="do" value="unlist"><input type="hidden" name="id" value="<?= (int)$l['id'] ?>">
+            <button class="btn small alt">Take down</button></form><?php else: ?><span class="muted">sold out</span><?php endif; ?></div>
       <?php endforeach; ?>
-    </table>
+    </div>
   <?php endif; ?>
 
 <?php elseif ($tab === 'trades'):
@@ -169,12 +171,14 @@ page_header('Trading Post');
     <?php endif; ?>
   </div>
   <?php if ($recent): ?>
-    <table class="grid"><tr><th></th><th>Gift</th><th>When</th></tr>
+    <h3>📬 Gifts</h3>
+    <div class="mkinbox">
       <?php foreach ($recent as $g): $out = (int)$g['from_id'] === $uid; ?>
-        <tr><td><?= $out ? 'To ' . e($g['to_name']) : 'From ' . e($g['from_name']) ?></td>
-          <td><?= item_pic(['id' => $g['item_id'] ?? 0, 'name' => (string)$g['item_name']], 'sm') ?><?= e(trim(($g['item_name'] ? (int)$g['qty'] . ' × ' . $g['item_name'] : '') . ((int)$g['coins'] ? ' ' . money((int)$g['coins']) : ''))) ?><?= $g['note'] ? ' <span class="muted">“' . e($g['note']) . '”</span>' . (!$out ? report_link((int)$g['from_id'], 'gift', (int)$g['id']) : '') : '' ?></td>
-          <td><?= e(substr((string)$g['sent_at'], 0, 10)) ?></td></tr>
-      <?php endforeach; ?></table>
+        <div class="mkgift<?= $out ? ' out' : '' ?>"><span class="mkpic"><?= item_pic(['id' => $g['item_id'] ?? 0, 'name' => (string)$g['item_name']], 'sm') ?></span>
+          <p><b><?= e(trim(($g['item_name'] ? (int)$g['qty'] . ' × ' . $g['item_name'] : '') . ((int)$g['coins'] ? ' ' . money((int)$g['coins']) : ''))) ?></b>
+            <small><?= $out ? 'To ' . e($g['to_name']) : 'From ' . e($g['from_name']) ?><?= $g['note'] ? ' · “' . e($g['note']) . '”' : '' ?><?= $g['note'] && !$out ? report_link((int)$g['from_id'], 'gift', (int)$g['id']) : '' ?></small></p>
+          <em><?= e(substr((string)$g['sent_at'], 0, 10)) ?></em></div>
+      <?php endforeach; ?></div>
   <?php endif; ?>
 
 <?php else: $mastered = mastered_plants($uid); $left = saplings_left_today($u); ?>
