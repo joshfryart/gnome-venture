@@ -19,6 +19,8 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 - Stops are parametric: one script per stop type, look via `--script-param pal=<landscape_region>` from a PALETTES table. Pilot `v3/here-gate/pilot-market.lua`. New look = one new table entry.
 
 ## DONE (do not redo)
+- Gather: `scene3-<land>` x 9 landscapes x day/dusk/night, satchel back/front x 3 skins, slots, vignettes, flourishes, badges, felt, ribbons, weather (checked 2026-11-11). Old `scene-<land>.png` (9) + `scene.png` are fallbacks only.
+- Acts (Josh: close enough) and big pictures (regions, banners, wonders, landing, map, journal) done 2026-11-11.
 - 1,662 items/icons 64x64 (v3 rollout); 35 batch1/2 pictures exported (2.5.48).
 - 179 weak items redrawn (2.4.98+, art pass 2.5); hedgehogs redrawn; gnome 1px eye rim for dark skin.
 - All NPC art done (portraits, `ph/npc-*`, 81 `sprite/npc-*.png`; Josh 2026-11-11).
@@ -50,13 +52,10 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 |---|---|
 | `-anim` strips | with the animation plan |
 | Odd-size UI | `items/` 21, `fx/` 6, `steps/` 5, `roadkinds/` 5, `ui/` 4 |
-| Gather scenes | `gather/` 89 |
 | Craftmap | `craftmap/` 14: unused leftovers (workshop picture replaced it); delete or ignore |
 | Creatures and minis | `animals/` 72, `mini/` 201 (front-facing toy minis), `folk/` 13, `gnome/` 8 |
 | Puzzles | `puzzles/` 26 files (GIFs), jigsaw sets |
 | Portraits | 22 species portraits; 81 NPC redone |
-| Acts | `acts/` 1,667 files (144x108): redraw in v3 after models are final |
-| Big pictures | regions (300x200 x6), banners, homes, wonders, stages, tiers, trek tiles, `landing/` 26, `map/` 11, `journal/` 14 |
 | Catfish | `catfish/` (1,414 files mostly part frames), plan `claude/plan-catfish.md` |
 
 ## D. FROM OLD VARIETY LIST (not made)
