@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.67
+- **Puzzle fight: the picture banner is gone.** On the Trail and other map pages the fight pop-up still drew the battle backdrop (gnome and creature on a landscape) above the puzzle board; puzzle fights no longer draw it. Other encounters keep it. NOT checked in a browser (the page test does not reach the pop-up path).
+
 ## 2.6.66
 - **Puzzle board: the blank-centre opening is live** (new default for board fights; admin setting `pfight_blank` = 0 turns it off). A blank wild piece sits in the middle. You pick a hand piece and a side of it (the board's four lit spots, button "Confirm start"); the creature has already put its own start piece on a side, hidden. Nothing fires in the opening; the blank is gone at the end of turn 1. New fights only; a fight already under way keeps its own opening.
 - **Puzzle board: numbers on the lit spots.** Pick a piece and every lit spot shows what it would do: damage to the creature, charm gained, health you would lose in your own chain (red), and the health the creature's reply would take next. New read-only action `pfb_cells` (`pfb_cell_preview`); the CLI harness prints the same numbers instead of `!`.

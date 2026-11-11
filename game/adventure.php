@@ -389,7 +389,7 @@ if (!$enc && $latestHtml !== '') {
 
 
 <?php $trailPop = ($trailSc || $mapMode || $dv2Scene || $wanderView) && $enc && !$fsc;   // on every tile map the encounter (a fight above all) is a popover over the screen, sized to it; it cannot be closed until it is settled
-if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria-label="<?= $enc['type'] === 'creature' ? 'A fight' : 'Something in your way' ?>"><div class="pickbox"><div class="hubcard trailui"><?= adventure_stage_html($u, $exp, $scene, $enc, 'fight', 'fightstage') /* the battle backdrop (placeholder art: scenes/fight-<land>.png) */ ?><?php endif; ?>
+if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria-label="<?= $enc['type'] === 'creature' ? 'A fight' : 'Something in your way' ?>"><div class="pickbox"><div class="hubcard trailui"><?= $pfAct ? '' : adventure_stage_html($u, $exp, $scene, $enc, 'fight', 'fightstage') /* the battle backdrop (placeholder art: scenes/fight-<land>.png) */ ?><?php endif; ?>
 <div class="panel box encounter">
 <?= fight_replay_stage((int)$last['id']) ?>   <?php // v1.4.0: Fight on replay, played by assets/fighton.js ?>
 <?= $latestHtml ?>
