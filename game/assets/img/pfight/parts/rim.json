@@ -1,0 +1,216 @@
+{
+ "note": "role id = R value of the parts index image. Colours are the exact RGB of the felt renderer. Ring order from the outside: 1 ink, 2 piping/band, 3 stitch pattern; the stitch/checker phase is BAKED into the stamps, no phase maths needed. Recolour per creature by changing RIM_FOE / BAND_FOE / STITCH_FOE / THORN_*; \"old\" = same shape, rim colours dimmed. Old must not be a colour-only cue: add a second cue (counter badge or dashed ghost) in code.",
+ "roles": {
+  "INK": {
+   "id": 1,
+   "rgb": [
+    42,
+    26,
+    16
+   ],
+   "used_by": "outline ring 1, plate border (both owners)"
+  },
+  "RIM_ME": {
+   "id": 2,
+   "rgb": [
+    242,
+    228,
+    192
+   ],
+   "used_by": "mine: cream piping (ring 2)"
+  },
+  "STITCH_ME": {
+   "id": 3,
+   "rgb": [
+    232,
+    163,
+    23
+   ],
+   "used_by": "mine: gold running stitch, ribbon stitch"
+  },
+  "RIM_FOE": {
+   "id": 4,
+   "rgb": [
+    194,
+    80,
+    44
+   ],
+   "used_by": "foe: rust ring 2 + plate corners + ribbon stitch"
+  },
+  "BAND_FOE": {
+   "id": 5,
+   "rgb": [
+    94,
+    26,
+    18
+   ],
+   "used_by": "foe: maroon band ring 3"
+  },
+  "STITCH_FOE": {
+   "id": 6,
+   "rgb": [
+    216,
+    118,
+    74
+   ],
+   "used_by": "foe: hand-size red-brown stitch"
+  },
+  "THORN_TIP": {
+   "id": 7,
+   "rgb": [
+    244,
+    214,
+    168
+   ],
+   "used_by": "foe: bone thorn tips"
+  },
+  "THORN_BODY": {
+   "id": 8,
+   "rgb": [
+    180,
+    68,
+    31
+   ],
+   "used_by": "foe: thorn body"
+  },
+  "PLATE": {
+   "id": 9,
+   "rgb": [
+    242,
+    228,
+    192
+   ],
+   "used_by": "number plate + ribbon fill (leave empty)"
+  },
+  "PLATE_SHADE": {
+   "id": 10,
+   "rgb": [
+    201,
+    180,
+    134
+   ],
+   "used_by": "plate lower edge line"
+  },
+  "FILL": {
+   "id": 11,
+   "rgb": null,
+   "used_by": "type fill: MARK where patterns-<size> mask is 1, else BASE"
+  },
+  "SHADE": {
+   "id": 12,
+   "rgb": null,
+   "used_by": "type shade colour"
+  },
+  "LIGHT": {
+   "id": 13,
+   "rgb": null,
+   "used_by": "type light colour"
+  },
+  "TYPE_BASE": {
+   "id": 14,
+   "rgb": null,
+   "used_by": "name ribbon end caps: type BASE (no pattern)"
+  }
+ },
+ "palettes": {
+  "default": {
+   "INK": [
+    42,
+    26,
+    16
+   ],
+   "RIM_ME": [
+    242,
+    228,
+    192
+   ],
+   "STITCH_ME": [
+    232,
+    163,
+    23
+   ],
+   "RIM_FOE": [
+    194,
+    80,
+    44
+   ],
+   "BAND_FOE": [
+    94,
+    26,
+    18
+   ],
+   "STITCH_FOE": [
+    216,
+    118,
+    74
+   ],
+   "THORN_TIP": [
+    244,
+    214,
+    168
+   ],
+   "THORN_BODY": [
+    180,
+    68,
+    31
+   ],
+   "PLATE": [
+    242,
+    228,
+    192
+   ],
+   "PLATE_SHADE": [
+    201,
+    180,
+    134
+   ]
+  },
+  "old": {
+   "RIM_ME": [
+    167,
+    153,
+    128
+   ],
+   "STITCH_ME": [
+    163,
+    124,
+    52
+   ],
+   "RIM_FOE": [
+    146,
+    87,
+    62
+   ],
+   "BAND_FOE": [
+    101,
+    62,
+    50
+   ],
+   "STITCH_FOE": [
+    156,
+    104,
+    75
+   ],
+   "THORN_TIP": [
+    168,
+    147,
+    117
+   ],
+   "THORN_BODY": [
+    139,
+    81,
+    56
+   ],
+   "PLATE": [
+    167,
+    153,
+    128
+   ],
+   "PLATE_SHADE": [
+    149,
+    132,
+    102
+   ]
+  }
+ }
+}

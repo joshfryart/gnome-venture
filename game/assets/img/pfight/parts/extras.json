@@ -1,0 +1,139 @@
+{
+ "deck-book.png": {
+  "size": [
+   32,
+   32
+  ],
+  "note": "puzzle book (deck), 32x32"
+ },
+ "discard-bin.png": {
+  "size": [
+   32,
+   32
+  ],
+  "note": "discard bin, 32x32"
+ },
+ "joint-h.png": {
+  "size": [
+   22,
+   14
+  ],
+  "centre_on": "the vertical seam between left/right neighbours, centred on the socket row"
+ },
+ "joint-v.png": {
+  "size": [
+   14,
+   22
+  ],
+  "centre_on": "the horizontal seam between top/bottom neighbours, centred on the socket column"
+ },
+ "chain-glow-h.png": {
+  "size": [
+   64,
+   32
+  ],
+  "frames": 4,
+  "frame": [
+   64,
+   8
+  ],
+  "tile": "repeat along the long axis; 8 px period",
+  "layout": "frames stacked top to bottom",
+  "fps": 8
+ },
+ "chain-glow-v.png": {
+  "size": [
+   32,
+   64
+  ],
+  "frames": 4,
+  "frame": [
+   8,
+   64
+  ],
+  "tile": "repeat along the long axis; 8 px period",
+  "layout": "frames stacked left to right",
+  "fps": 8
+ },
+ "resolve-frame.png": {
+  "size": [
+   96,
+   12
+  ],
+  "window": [
+   3,
+   3,
+   90,
+   6
+  ],
+  "centre_mark_x": 47
+ },
+ "resolve-fill-hurt.png": {
+  "size": [
+   90,
+   6
+  ],
+  "note": "stripe pattern; clip to width, anchor LEFT of window"
+ },
+ "resolve-fill-charm.png": {
+  "size": [
+   90,
+   6
+  ],
+  "note": "dot pattern; clip to width, anchor RIGHT of window"
+ },
+ "intent-bubble.png": {
+  "size": [
+   28,
+   24
+  ],
+  "icon_at": [
+   4,
+   1
+  ],
+  "icon_size": 20,
+  "tail": "bottom-left"
+ },
+ "combo-stamp-small.png": {
+  "size": [
+   32,
+   32
+  ],
+  "plate": [
+   10,
+   11,
+   12,
+   10
+  ],
+  "note": "combo 2-3"
+ },
+ "combo-stamp-big.png": {
+  "size": [
+   32,
+   32
+  ],
+  "plate": [
+   10,
+   11,
+   12,
+   10
+  ],
+  "note": "combo 4+"
+ },
+ "chip-me.png": {
+  "size": [
+   24,
+   24
+  ],
+  "slice": 5,
+  "note": "9-slice, YOU, solid border"
+ },
+ "chip-foe.png": {
+  "size": [
+   24,
+   24
+  ],
+  "slice": 5,
+  "note": "9-slice, FOE, dashed border"
+ }
+}

@@ -1,0 +1,104 @@
+{
+ "pitch": [
+  56,
+  40
+ ],
+ "pad_x": 9,
+ "pad_y": 6,
+ "cells": {
+  "1,0": [
+   "guard",
+   "me"
+  ],
+  "0,1": [
+   "hurt",
+   "me"
+  ],
+  "1,1": [
+   "trick",
+   "foe"
+  ],
+  "2,1": [
+   "hurt",
+   "foe"
+  ],
+  "1,2": [
+   "heal",
+   "me"
+  ]
+ },
+ "open_sockets": [
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "side": "T",
+   "kind": "hole",
+   "fam": "mind"
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "side": "B",
+   "kind": "knob",
+   "fam": "body"
+  },
+  {
+   "cell": [
+    1,
+    0
+   ],
+   "side": "L",
+   "kind": "hole",
+   "fam": "body"
+  },
+  {
+   "cell": [
+    1,
+    0
+   ],
+   "side": "R",
+   "kind": "knob",
+   "fam": "mind"
+  },
+  {
+   "cell": [
+    1,
+    2
+   ],
+   "side": "L",
+   "kind": "knob",
+   "fam": "craft"
+  },
+  {
+   "cell": [
+    1,
+    2
+   ],
+   "side": "R",
+   "kind": "hole",
+   "fam": "mind"
+  },
+  {
+   "cell": [
+    2,
+    1
+   ],
+   "side": "T",
+   "kind": "knob",
+   "fam": "craft"
+  },
+  {
+   "cell": [
+    2,
+    1
+   ],
+   "side": "B",
+   "kind": "hole",
+   "fam": "body"
+  }
+ ]
+}

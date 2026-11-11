@@ -1,0 +1,204 @@
+{
+ "strip-3x3": {
+  "1,0": {
+   "type": "guard",
+   "owner": "me",
+   "edges": {
+    "L": [
+     "hole",
+     "body"
+    ],
+    "R": [
+     "knob",
+     "mind"
+    ],
+    "T": [
+     "flat",
+     null
+    ],
+    "B": [
+     "knob",
+     "craft"
+    ]
+   }
+  },
+  "0,1": {
+   "type": "hurt",
+   "owner": "me",
+   "edges": {
+    "L": [
+     "flat",
+     null
+    ],
+    "R": [
+     "knob",
+     "mind"
+    ],
+    "T": [
+     "hole",
+     "mind"
+    ],
+    "B": [
+     "knob",
+     "body"
+    ]
+   }
+  },
+  "1,1": {
+   "type": "trick",
+   "owner": "foe",
+   "edges": {
+    "L": [
+     "hole",
+     "mind"
+    ],
+    "R": [
+     "knob",
+     "body"
+    ],
+    "T": [
+     "hole",
+     "craft"
+    ],
+    "B": [
+     "hole",
+     "mind"
+    ]
+   }
+  },
+  "2,1": {
+   "type": "hurt",
+   "owner": "foe",
+   "edges": {
+    "L": [
+     "hole",
+     "body"
+    ],
+    "R": [
+     "flat",
+     null
+    ],
+    "T": [
+     "knob",
+     "craft"
+    ],
+    "B": [
+     "hole",
+     "body"
+    ]
+   }
+  },
+  "1,2": {
+   "type": "heal",
+   "owner": "me",
+   "edges": {
+    "L": [
+     "knob",
+     "craft"
+    ],
+    "R": [
+     "hole",
+     "mind"
+    ],
+    "T": [
+     "knob",
+     "mind"
+    ],
+    "B": [
+     "flat",
+     null
+    ]
+   }
+  }
+ },
+ "hand-2x2": {
+  "0,0": {
+   "type": "heal",
+   "owner": "me",
+   "edges": {
+    "L": [
+     "flat",
+     null
+    ],
+    "R": [
+     "knob",
+     "mind"
+    ],
+    "T": [
+     "flat",
+     null
+    ],
+    "B": [
+     "hole",
+     "craft"
+    ]
+   }
+  },
+  "1,0": {
+   "type": "guard",
+   "owner": "foe",
+   "edges": {
+    "L": [
+     "hole",
+     "mind"
+    ],
+    "R": [
+     "flat",
+     null
+    ],
+    "T": [
+     "flat",
+     null
+    ],
+    "B": [
+     "knob",
+     "body"
+    ]
+   }
+  },
+  "0,1": {
+   "type": "trick",
+   "owner": "foe",
+   "edges": {
+    "L": [
+     "flat",
+     null
+    ],
+    "R": [
+     "hole",
+     "body"
+    ],
+    "T": [
+     "knob",
+     "craft"
+    ],
+    "B": [
+     "flat",
+     null
+    ]
+   }
+  },
+  "1,1": {
+   "type": "soothe",
+   "owner": "me",
+   "edges": {
+    "L": [
+     "knob",
+     "body"
+    ],
+    "R": [
+     "flat",
+     null
+    ],
+    "T": [
+     "hole",
+     "body"
+    ],
+    "B": [
+     "flat",
+     null
+    ]
+   }
+  }
+ }
+}

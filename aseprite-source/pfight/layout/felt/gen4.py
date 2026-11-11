@@ -547,27 +547,19 @@ def render(t, size, edges, owner='me'):
     edge_px[KY, KX:KX + W] = edge_px[KY + H - 1, KX:KX + W] = True
     edge_px[KY:KY + H, KX] = edge_px[KY:KY + H, KX + W - 1] = True
     if foe:
-        if hand:
-            ring = list(zip(*np.nonzero((dm == 2) & body)[::-1]))
-            for path in walk(ring):
-                if len(path) < 6:
-                    continue
-                for i, (x, y) in enumerate(path):
-                    if i % 4 < 2:
-                        px[x, y] = STITCH + (255,)
+        if hand:                      # stitch phase is positional ((x+y) in piece coords), so it never depends on other edges
+            for y, x in zip(*np.nonzero((dm == 2) & body)):
+                if (x + y) % 4 < 2:
+                    px[int(x), int(y)] = STITCH + (255,)
         for (x, y), k in thorns(size, sp).items():
             X, Y = x + KX, y + KY
             if not full[Y, X] or (dm[Y, X] == 0 and body[Y, X]):
                 px[X, Y] = {'b': BONE, 't': TOOTH, 'k': INK}[k] + (255,)
     else:
-        ring = list(zip(*np.nonzero((dm == rim) & ~F & body & ~edge_px)[::-1]))
-        on, off = (3, 2) if hand else (2, 2)
-        for path in walk(ring):
-            if len(path) < 6:
-                continue
-            for i, (x, y) in enumerate(path):
-                if i % (on + off) < on:
-                    px[x, y] = GOLD + (255,)
+        on, per = (3, 5) if hand else (2, 4)
+        for y, x in zip(*np.nonzero((dm == rim) & ~F & body & ~edge_px)):
+            if (x + y) % per < on:
+                px[int(x), int(y)] = GOLD + (255,)
 
     # number plate: cream plate, ink border; the game prints the number in INK
     d = ImageDraw.Draw(im)
