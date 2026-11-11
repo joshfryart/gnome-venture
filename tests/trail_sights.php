@@ -139,5 +139,40 @@ q('DELETE FROM trail_sight_rows WHERE slug = ?', [$base['slug']]); db_insert('tr
 $GLOBALS['gv_sights_reload'] = true; ok('an off row hides the Sight', !isset(trail_sights_all()[$base['slug']]));
 q('DELETE FROM trail_sight_rows WHERE slug = ?', [$base['slug']]); $GLOBALS['gv_sights_reload'] = true;
 ok('removing the row brings the file row back', (trail_sights_all()[$base['slug']]['src'] ?? '') === 'file');
+
+echo "== every Sight of every Trail route runs once (no errors; a closed time of day is fine)\n";
+$tc = &tool_tier_cache();
+$rows = trail_sights_all(); $ran = 0; $errs = []; $skipped = 0; $routesDone = 0;
+$authored = trail_authored_all();
+foreach ($authored as $rid => $rt) {
+    $has = false; foreach ($rt['sections'] as $sx) foreach ($sx['objs'] as $o) if (strncmp($o[2], 'lm-', 3) === 0 && isset($rows[substr($o[2], 3)])) $has = true;
+    if (!$has) continue;
+    $routesDone++;
+    q("UPDATE expeditions SET status = 'done' WHERE user_id = ?", [$u['id']]); q("UPDATE routes SET kind = 'road' WHERE id = ?", [(int)$rid]);
+    $rr = q_one('SELECT * FROM routes WHERE id = ?', [(int)$rid]); if (!$rr) continue;
+    q("UPDATE users SET location_id = ?, level = 40, energy = 150, ev_quickwalk = 0 WHERE id = ?", [$rr['a_id'], $u['id']]);
+    $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+    [$so, $sm] = start_expedition($u, (int)$rid); if (!$so) { $errs[] = "route $rid does not start: $sm"; continue; }
+    $exp = active_expedition((int)$u['id']);
+    for ($si = 0; $si < count($rt['sections']); $si++) {
+        $exp['encounter'] = null; $sc = trail_scene($exp);
+        foreach ($sc['map']['art']['objs'] as $o) {
+            if (strncmp($o[2], 'lm-', 3) !== 0 || !isset($rows[substr($o[2], 3)])) continue;
+            $slug = substr($o[2], 3); $row = $rows[$slug];
+            $st2 = null; foreach ([[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]] as [$dx, $dy]) if (in_array(tm_tile($sc['map'], $o[0] + $dx, $o[1] + $dy), ['.', ',', 'S'], true)) { $st2 = [$o[0] + $dx, $o[1] + $dy]; break; }
+            if (!$st2) { $errs[] = "$slug: nowhere to stand"; continue; }
+            $sc['x'] = $st2[0]; $sc['y'] = $st2[1]; $sc['st']['phase'] = 'section'; trail_save($sc); $sc = trail_scene($exp);
+            q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]); q('UPDATE users SET energy = 150 WHERE id = ?', [$u['id']]);
+            foreach (['rod', 'forage', 'pick', 'net', 'bucket', 'axe', 'basket', 'staff', 'lantern'] as $tt) $tc[$u['id'] . ':' . $tt] = 3;
+            foreach (trail_sight_tokens($row['rewards']) as $tk) if (str_starts_with($tk['tok'], 'take=')) { [$ts, $tq] = array_pad(explode(':', substr($tk['tok'], 5), 2), 2, '1'); give_item((int)$u['id'], (int)q_val('SELECT id FROM items WHERE slug = ?', [$ts]), (int)$tq + 1); }
+            $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+            try { [$ro, $rm] = trail_sight_do($u, $exp, $slug); save_exp($exp); $exp = active_expedition((int)$u['id']); }
+            catch (Throwable $ex) { $errs[] = "$slug threw " . get_class($ex) . ': ' . $ex->getMessage(); continue; }
+            if ($ro) $ran++; elseif (str_contains((string)$rm, 'right time') || str_contains((string)$rm, 'busy')) $skipped++; else $errs[] = "$slug refused: $rm";
+        }
+        if ($si < count($rt['sections']) - 1) { $sc = trail_scene($exp); [$ex9, $ey9] = $sc['map']['spots']['9']; $sc['x'] = $ex9; $sc['y'] = $ey9; $sc['st']['phase'] = 'confirm'; trail_save($sc); $exp['encounter'] = null; trail_next($u, $exp); $exp = active_expedition((int)$u['id']); }
+    }
+}
+ok("every Sight on every route ran or was out of its time ($ran ran, $skipped out of time, $routesDone routes)", !$errs && $ran + $skipped >= count($rows) - 2, implode(' | ', array_slice($errs, 0, 8)));
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);

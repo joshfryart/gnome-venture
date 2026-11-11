@@ -25,6 +25,13 @@ Content source: `claude/sights/ideas-*.md` (219 spots, 25 quest lines, all verbs
 - **Tests:** `tests/trail_sights.php` (lint of every row, bad rows caught, energy-free, fail cost, tool gate, gather token, admin override / off / restore) passes with `game_clock trail_back adventure trail_mini`. Browser: admin page lists 5 rows, 219 landmark pictures, save works (412 px).
 - **Not done / next:** P2 data rows for all 219 from `claude/sights/ideas-*.md` (the quest beats / villager points / goodies need more than this grammar: quest task kind `sight`, villager-at-spot, conditional goodies), P3 marker + tap card + Almanac section. Not checked: MySQL, Upgrade database on a real site.
 
+## 0d. P2 Maplewold DONE (2026-11-11, source only, no version bump)
+- **Engine grammar added:** `first:` (first use ever, table `trail_sight_first`), `token?cond` (conditional goodies, `;` between values, `/` between conditions), `take=slug:qty` (cost, checked before energy), `unlock=kind:slug` (Almanac, waits for the P3 chapter), region files `data/trail_sights_*.txt`.
+- **Data:** `data/trail_sights_maplewold.txt`: all 82 Maplewold landmarks (written by an Opus agent from `claude/sights/ideas-maplewold.md`; route 228 uses its bare picture names). 87 rows with the 5 examples, 0 lint problems (`bash tests/trail_sights_lint.sh`: columns, verbs unique, items exist, tokens valid). All 82 landmark keys on the Maplewold maps have a row.
+- **Test:** `tests/trail_sights.php` now walks 54 routes and runs every Sight once (125 placements, 2 out of their time of day): no errors.
+- **Left for later (P2b):** `claude/sights/maplewold-p2-todo.md` lists per slug the QUEST beats, VILLAGER points, new items (13 goodies dropped: white clover, maple sap, flour, maple syrup, toffee, marshmallow, lost mitten, map scrap, message bottle, scarf, glowcap repair kit, glow-cap decor, Star Chart), mini games. Weakest rows: 311-taprow (coins instead of sap), 236-beanpoles (no forecast yet), 316-starstones (XP only).
+- **Next:** P2 data for the 94 shared land pieces and the 43 end pieces (same method), then P2b (quest task kind `sight`, villager points, the new items), then P3.
+
 ## 1. What a "Sight" is
 Every Trail section has 1 landmark sprite (`lm-<slug>`), 41 sections have 2: **665 sections, 706 landmark placements, 219 slugs** (82 hand-drawn Maplewold + 137 shared: 94 land pieces + 43 `end-*`). Each slug becomes a **Sight**: one named thing you can DO when you stand near it. No re-bake needed: position is already in the map data (`objs` rows `[x, y, "lm-<slug>", jit]`).
 
