@@ -32,6 +32,14 @@ Content source: `claude/sights/ideas-*.md` (219 spots, 25 quest lines, all verbs
 - **Left for later (P2b):** `claude/sights/maplewold-p2-todo.md` lists per slug the QUEST beats, VILLAGER points, new items (13 goodies dropped: white clover, maple sap, flour, maple syrup, toffee, marshmallow, lost mitten, map scrap, message bottle, scarf, glowcap repair kit, glow-cap decor, Star Chart), mini games. Weakest rows: 311-taprow (coins instead of sap), 236-beanpoles (no forecast yet), 316-starstones (XP only).
 - **Next:** P2 data for the 94 shared land pieces and the 43 end pieces (same method), then P2b (quest task kind `sight`, villager points, the new items), then P3.
 
+## 0e. P2 DATA COMPLETE (2026-11-11): all 219 landmarks have a Sight row (source only, no version bump)
+- Files: `data/trail_sights.txt` (5 examples), `trail_sights_maplewold.txt` (82), `trail_sights_shared.txt` (89 + the 5 examples above = the 94 land pieces), `trail_sights_end.txt` (43). `bash tests/trail_sights_lint.sh`: **219 rows, 0 problems** (verbs unique, items exist). Every landmark on every authored map has a row (219 of 219).
+- Test: `tests/trail_sights.php` runs every Sight on all 246 routes (700 placements ran, 2 out of their time of day): no errors. NOTE: do not reuse the `/tmp/sights-lint` scratch DB for `trail_sights.php` twice (game time runs on, the tired surcharge breaks the energy asserts); `ci_suites.sh trail_sights` uses a fresh install and passes (also `game_clock adventure trail_back`).
+- Verb changes made to stay unique: 232-berrypatch "Pick berries", 232-crossroads "Read sign", daisy ring "Measure up", lagoon edge "Mirror", end-haven-2-grassland "Read the sign's back", end-lair-2-wetland "Follow sideways tracks".
+- Dropped goodies and the quest / villager / minigame pieces: `claude/sights/maplewold-p2-todo.md`, `shared-p2-todo.md`, `end-p2-todo.md`. Stand-ins used: `fp=1` befriends a random villager of the start town, not the named one; a few new items replaced by near ones.
+- Weakest rows: shared forest-the-glow-moss-grotto, mountain-the-echo-wall, desert-the-mirage-pool; end-wonder-2-forest, end-haven-2-grassland, end-lair-1-mountain; maplewold 311-taprow, 236-beanpoles, 316-starstones.
+- **Next: P2b** (quest task kind `sight` for the 25 quest lines, villager-at-spot, the ~50 missing new items and their art, `fp` to the named villager, fixed vs random hints), then **P3** (marker, tap card, Almanac Sights chapter + `unlock=`), then a release (version bump, changelog, slim zip).
+
 ## 1. What a "Sight" is
 Every Trail section has 1 landmark sprite (`lm-<slug>`), 41 sections have 2: **665 sections, 706 landmark placements, 219 slugs** (82 hand-drawn Maplewold + 137 shared: 94 land pieces + 43 `end-*`). Each slug becomes a **Sight**: one named thing you can DO when you stand near it. No re-bake needed: position is already in the map data (`objs` rows `[x, y, "lm-<slug>", jit]`).
 
