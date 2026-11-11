@@ -1,6 +1,6 @@
 # Puzzle Combat art (pfight)
 
-Status: **Group 1 (tiles) done.** Group 2 (strip, bar) and Group 3 (combo stamps, end cards, fx) not drawn yet.
+Status: Group 1 (tiles), Group 2 and Group 3 done (see Update 4 below and parts/README.md for the 2D board kit).
 Style: Stitched Toy, hard pixels only. Ink `#2a1a10`, cream `#f2e4c0`, thread gold `#e8a317`.
 Sources: `aseprite-source/pfight/*.aseprite` (one per PNG). Regenerate: `python3 aseprite-source/pfight/gen_pfight.py game/assets/img/pfight`, then `make_ase.sh`, `make_contact.py`. `check_cb.py` runs the tell-apart check.
 Open `pfight-contact.html` for every asset on felt and cream, plus grayscale, deuteranopia, protanopia and tritanopia views.
@@ -62,3 +62,10 @@ Closest tile pair by per-pixel difference (0-255), hand size: normal 38, gray 17
 ## Known limits
 - Strip keyhole and triangle holes are small (7 px deep); they read by silhouette but are the weakest pair.
 - Icons are drawn with scripted shapes plus auto shading (rim light, lower-right shade, gloss comma), not hand-placed pixels. Worth a pass by hand in Aseprite if a closer match to the Opus-drawn ico set is wanted.
+
+## Update 4: Groups 2 and 3 (felt style, hard pixels)
+- `combo-ambush|riposte|double-swing|calm-charm|win-over|bait.png` 32x32 (diamond, shield, burst, cloud, heart, tag silhouettes).
+- `end-charmed-small|medium|large|boss.png` 64x64 (mouse-squirrel, fox, bear, crowned lion). `ico-gift.png` 24x24.
+- `fx-hit|guard|heal|charm.png` 128x32, 4 frames of 32x32.
+- `crown-boss.png` 12x12 boss mark (use with the `boss` palette in `parts/rim.json`). `open-end.png` 24x24 open-socket marker.
+- Bar, bubble and strip art for the 2D board live in `parts/` (`resolve-*`, `intent-bubble`, `chain-glow-*`); `strip-rail.png` is dropped (no 1D strip any more).
