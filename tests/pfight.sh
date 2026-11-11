@@ -41,7 +41,7 @@ ck "flag on: puzzle card" "$(grep -c 'id="pfight"' $H)" "1"
 ck "flag on: no old attack button" "$(grep -c 'value="attack"' $H)" "0"
 ck "hand has tiles" "$( [ $(grep -o 'data-i="' $H | wc -l) -ge 5 ] && echo yes)" "yes"
 ck "no draw pile leak" "$(grep -c '"draw"' $H)" "0"
-if [ -n "$SHOT" ]; then node "$HERE/pfightshot.js" "$BASE" "$SHOT"; fi
+if [ -n "$SHOT" ]; then node "$HERE/pfightshot.js" "$BASE" "$SHOT" || { echo "FAIL browser check"; FAILS=$((FAILS+1)); }; fi
 ENC1=$(db "SELECT encounter FROM expeditions ORDER BY id DESC LIMIT 1" | md5sum)
 get adventure.php >/dev/null
 ENC2=$(db "SELECT encounter FROM expeditions ORDER BY id DESC LIMIT 1" | md5sum)

@@ -146,18 +146,6 @@ function pf_pace(string $size): float
     return ['small' => 2.5, 'medium' => 3.5, 'large' => 4.5, 'boss' => 7.0][$size] ?? 3.5;
 }
 
-/** Rough bar progress the player makes in one turn with this deck (about 2.5 tiles, half of them offence). Used to size the resolve bar. */
-function pf_expected_bar(array $deck, float $hm, float $cm): float
-{
-    $off = [];
-    foreach ($deck as $t) {
-        if ($t['t'] === 'hurt') $off[] = $t['v'] * $hm;
-        elseif ($t['t'] === 'charm') $off[] = $t['v'] * $cm;
-    }
-    if (!$off) return 3.0;
-    return max(3.0, 2.5 * 0.55 * (array_sum($off) / count($off)));
-}
-
 /**
  * Start a fight. $me = ['hp','max_hp','stats'=>[...],'deck'=>tiles,'luck'=>int,'name'].
  * $c = creature row (size, level, dmg_die, dmg_bonus, slug...). Returns state.
@@ -168,7 +156,7 @@ function pf_new(array $me, array $c, int $seed, array $opt = []): array
     $boss = $size === 'boss';
     $temper = pf_temper($c);
     $hm = $temper === 'hostile' ? 1.0 : 0.5;   // Hurt multiplier on the bar
-    $cm = $temper === 'hostile' ? 0.5 : 1.0;   // Charm multiplier
+    $cm = $temper === 'hostile' ? 0.4 : 1.0;   // Charm multiplier (wary creatures are hard to win over)
     if ($boss && empty($opt['boss_charm'])) { $hm = 1.0; $cm = 0.0; }   // story bosses: see off only
     $s = ['rng' => $seed ?: 1, 'nonce' => bin2hex(random_bytes(4)), 'turn' => 1, 'over' => null, 'strip' => [], 'log' => [],
         'hm' => $hm, 'cm' => $cm, 'boss' => $boss, 'temper' => $temper, 'size' => $size,
@@ -276,7 +264,7 @@ function pf_resolve(array &$s, string $who, array $tiles): array
                 }
                 break;
             case 'heal':
-                if ($who === 'me') $mine['hp'] = min($mine['max'], $mine['hp'] + $val);
+                if ($who === 'me') $mine['hp'] = max($mine['hp'], min($mine['max'], $mine['hp'] + $val));
                 else $s['bar']['now'] = max(0.0, $s['bar']['now'] - $val);   // the creature recovers: its bar drops
                 break;
             case 'charm':
@@ -288,7 +276,7 @@ function pf_resolve(array &$s, string $who, array $tiles): array
             case 'trick':   // setup: nothing on its own, it pays through Ambush and Bait
                 break;
             case 'item':
-                if ($who === 'me') $mine['hp'] = min($mine['max'], $mine['hp'] + $val);   // Snack/Item: heal; the caller consumes the real item
+                if ($who === 'me') $mine['hp'] = max($mine['hp'], min($mine['max'], $mine['hp'] + $val));   // Snack/Item: heal; the caller consumes the real item
                 break;
         }
         if (!empty($ck) && !empty(PF_COMBOS[$ck]['barPct']) && $who === 'me') {   // Win Over: a slice of bar
@@ -320,6 +308,7 @@ function pf_check_end(array &$s): bool
 function pf_pick(array $s, array $idx): ?array
 {
     $idx = array_values($idx);
+    foreach ($idx as $i) if (!is_int($i)) return null;
     if (!$idx || count($idx) > PF_CHAIN_MAX || count($idx) !== count(array_unique($idx))) return null;
     $out = [];
     foreach ($idx as $i) {
@@ -427,7 +416,7 @@ function pf_end_turn(array &$s): void
     pf_intent($s);
 }
 
-/** Foe intent for the icon: the type it would open with against the current open end. */
+/** Foe intent for the icon: the type it would open with against the current open end. A tendency, not a promise: your chain can change its plan. */
 function pf_intent(array &$s): void
 {
     $plan = pf_foe_plan($s, pf_foe_len($s, 0));
@@ -451,24 +440,6 @@ function pf_run(array &$s): bool
     if ($s['over'] || !$s['run_ok']) return false;
     $s['over'] = 'run';
     return true;
-}
-
-/** Live preview for the client: values for a proposed chain (indices) without changing anything. Also the open end after it. */
-function pf_preview(array $s, array $idx): ?array
-{
-    $tiles = pf_pick($s, $idx);
-    if ($tiles === null) return null;
-    [$prev, $prevBy] = pf_open($s);
-    $ok = $prevBy === 'me';
-    $out = []; $tot = ['hurt' => 0, 'guard' => 0, 'heal' => 0, 'charm' => 0];
-    foreach ($tiles as $t) {
-        [$v, $fit, $ck] = pf_value($prev, $t, $ok);
-        $ok = true;
-        $out[] = ['n' => $t['n'], 'v' => $v, 'fit' => $fit, 'combo' => $ck ? PF_COMBOS[$ck]['name'] : null];
-        if (isset($tot[$t['t']])) $tot[$t['t']] += $v;
-        $prev = $t;
-    }
-    return ['tiles' => $out, 'totals' => $tot, 'open' => $prev['r'] ?? null];
 }
 
 /** What the client may see: never the draw pile or the foe's hand (only its size and intent icon). */

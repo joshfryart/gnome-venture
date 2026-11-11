@@ -166,7 +166,7 @@ function pfight_html(array $u, array $exp, array &$enc, array $c): string
     $h = '<div class="pfight" id="pfight" data-turn="' . (int)$v['turn'] . '" data-open="' . e((string)($v['open'] ?? '')) . '" data-opent="' . e((string)($v['open_t'] ?? '')) . '" data-openv="' . (int)$v['open_v'] . '" data-openby="' . e((string)($v['open_by'] ?? '')) . '" data-redraws="' . (int)$v['redraws'] . '">';
     $h .= '<div class="pf-foe"><b>' . e((string)$c['name']) . '</b> <small class="muted">' . e((string)$c['size']) . ' · lv ' . (int)$c['level'] . ' · ' . ($s['temper'] === 'gentle' ? 'gentle' : 'wary') . '</small>';
     $h .= '<div class="pf-bar" role="img" aria-label="Resolve ' . (int)$v['bar']['now'] . ' of ' . (int)$v['bar']['max'] . '"><progress max="' . (float)$v['bar']['max'] . '" value="' . (float)$v['bar']['now'] . '"></progress></div>';
-    $h .= '<small>🃏 ' . (int)$v['foe']['hand'] . ' · next: <span class="pf-intent">' . e(pfight_icon((string)$v['foe']['intent'])) . ' ' . e((string)$v['foe']['intent']) . '</span>' . ($v['foe']['calm'] ? ' · 😌 calm ' . (int)$v['foe']['calm'] : '') . '</small></div>';
+    $h .= '<small>🃏 ' . (int)$v['foe']['hand'] . ' · likely next: <span class="pf-intent">' . e(pfight_icon((string)$v['foe']['intent'])) . ' ' . e((string)$v['foe']['intent']) . '</span>' . ($v['foe']['calm'] ? ' · 😌 calm ' . (int)$v['foe']['calm'] : '') . '</small></div>';
     $h .= '<div class="pf-strip" aria-live="polite" aria-label="The last tiles played">';
     foreach ($v['strip'] as $t) $h .= pfight_tile_html($t, true);
     if (!$v['strip']) $h .= '<small class="muted">Nothing played yet. You go first.</small>';
