@@ -99,7 +99,7 @@
     var label = 'Resolve bar: fill it to end the fight. Hurt (from the left) makes the creature back off, Charm (from the right) wins it over for a better reward. ' + Math.round(now) + ' of ' + Math.round(max);
     return '<div class="pf-bar pfx-bar" role="img" title="Fill the bar to end the fight. Hurt fills it from the left (the creature backs off), Charm from the right (you win it over: better reward)." aria-label="' + esc(label) + '"><span class="pfx-fill hurt" data-w="' + (Math.round(hw * 1000) / 10) + '"></span><span class="pfx-fill charm" data-w="' + (Math.round(cw * 1000) / 10) + '"></span><img class="pfx-frame" src="' + ART['resolve-frame.png'] + '" alt=""></div>';
   }
-  function who(by, cr) { return by === 'me' ? (img('chip-gnome.png', 'pfh-gn') || '') : '<img class="pfh-cr" src="' + ART['mini-' + cr.slug + '.png'] + '" alt="">'; }
+  function who(by, cr) { return by === 'me' ? '<span class="pfh-gn pfh-gn25" aria-hidden="true"><img src="' + ART['gnome-side.png'] + '" alt=""></span>' : '<img class="pfh-cr" src="' + ART['mini-' + cr.slug + '.png'] + '" alt="">'; }
 
   function build() {
     var s = fight.state, cr = fight.creature, enc = fight.enc, v = PFE.view(s);
@@ -117,7 +117,7 @@
     }
     if (!hist.length) hh = '<li class="pf-chip empty">Pieces are on the board. Place one next to them.</li>';
     var mini = function (cls, name, n) { return '<span class="pfc-pile ' + cls + '" role="img" aria-label="' + name + ': ' + n + ' pieces"><img src="' + ART[cls === 'deck' ? 'deck-book.png' : 'discard-bin.png'] + '" alt=""><b>' + n + '</b></span>'; };
-    var top = '<div class="pfc-top"><div class="pfc-me"><span class="pfc-av"><img src="' + ART['chip-gnome-big.png'] + '" alt="Your gnome"></span><span class="pf-hp" role="img" aria-label="Your health ' + v.hp + ' of ' + v.max + (v.block ? ', guard ' + v.block : '') + '">❤️ <progress max="' + v.max + '" value="' + v.hp + '"></progress> ' + v.hp + (v.block ? ' · 🛡️ ' + v.block : '') + '</span></div>'
+    var top = '<div class="pfc-top"><div class="pfc-me"><span class="pfc-av pfc-g25"><img src="' + ART['gnome-side.png'] + '" alt="Your gnome"></span><span class="pf-hp" role="img" aria-label="Your health ' + v.hp + ' of ' + v.max + (v.block ? ', guard ' + v.block : '') + '">❤️ <progress max="' + v.max + '" value="' + v.hp + '"></progress> ' + v.hp + (v.block ? ' · 🛡️ ' + v.block : '') + '</span></div>'
       + barHtml(v)
       + '<div class="pfc-foe"><span class="pfc-fname"><b>' + esc(cr.name) + '</b><small>lv ' + cr.level + ' · ' + (s.temper === 'gentle' ? 'gentle' : 'wary') + ' · 🃏 ' + v.foe.hand + (v.foe.calm ? ' · 😌 ' + v.foe.calm : '') + '</small></span><span class="pfc-av"><img src="' + ART['mini-' + cr.slug + '.png'] + '" alt="' + esc(cr.name) + '"><span class="pf-intent-bubble" title="Likely next move" aria-label="Likely next move: ' + esc(v.foe.intent) + '">' + sm(v.foe.intent) + '</span></span></div></div>';
     h += top + '<div class="pfc-histrow"><ol class="pf-hist" aria-label="What has been played" aria-live="polite">' + hh + '</ol><button type="button" class="btn" id="pf-skip" hidden>Skip</button><span class="pfc-piles">' + mini('deck', 'Puzzle book', v.piles.draw) + mini('disc', 'Discard', v.piles.discard) + '</span></div>';

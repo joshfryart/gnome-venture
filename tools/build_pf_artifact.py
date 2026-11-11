@@ -30,6 +30,7 @@ def png(i):
     b = io.BytesIO(); i.save(b, 'PNG'); return 'data:image/png;base64,' + base64.b64encode(b.getvalue()).decode()
 art['chip-gnome.png'] = png(sq.resize((20, 20), Image.LANCZOS))
 full = im.crop(im.getbbox()); fs = max(full.size); fq = Image.new('RGBA', (fs, fs)); fq.paste(full, ((fs - full.size[0]) // 2, 0)); art['chip-gnome-big.png'] = png(fq.resize((60, 60), Image.LANCZOS))
+art['gnome-side.png'] = uri(IMG + 'fight/demo-gnome-side.png')
 for slug in ['leopard-slug', 'thistle-beast', 'grass-snake', 'black-bear']:
     art['mini-%s.png' % slug] = uri(IMG + 'mini/mini-%s.png' % slug); art['chip-cr-%s.png' % slug] = art['mini-%s.png' % slug]
 css = open(G + 'pfight.css').read()
