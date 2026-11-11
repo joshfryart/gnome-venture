@@ -381,8 +381,8 @@
 .pf-turn[hidden] { display: none; }
 .pf-turn-me { background: #e8a317; color: #2a1a10; border: 2px solid #2a1a10; }
 .pf-turn-foe { background: #5e1a12; color: #f4d6a8; border: 2px dashed #c2502c; }
-.pf-turn-on { animation: pf-turn 1.5s ease-out both; }
-@keyframes pf-turn { 0% { opacity: 0; transform: translateX(-50%) scale(.7); } 14% { opacity: 1; transform: translateX(-50%) scale(1.06); } 22% { transform: translateX(-50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-6px); } }
+.pf-turn-on { animation: pf-turn 1.4s ease-out both; }
+@keyframes pf-turn { 0% { opacity: 0; transform: translateX(-50%) scale(.7); } 14% { opacity: 1; transform: translateX(-50%) scale(1.06); } 22% { transform: translateX(-50%) scale(1); } 71% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-6px); } }
 @media (prefers-reduced-motion: reduce) { .pf-turn-on { animation: none; } }
 
 /* the 2.5D gnome (its side strip, first frame) for the status bar and the history chips */

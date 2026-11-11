@@ -410,7 +410,7 @@
     clearTimeout(turnTimer); turnEl.textContent = text; turnEl.className = 'pf-turn pf-turn-' + who; turnEl.hidden = false;
     turnEl.style.top = Math.max(4, boardEl.offsetTop + boardEl.offsetHeight / 2 - 18) + 'px';
     void turnEl.offsetWidth; turnEl.classList.add('pf-turn-on');
-    turnTimer = setTimeout(function () { if (turnEl) turnEl.hidden = true; }, 1500);
+    turnTimer = setTimeout(function () { if (turnEl) turnEl.hidden = true; }, 1450);
   }
   function revealChip(k) { if (!histEl) return; var c = histEl.querySelector('.pf-chip-new[data-ev="' + k + '"]'); if (c) { c.hidden = false; c.classList.add('pf-chip-in'); } histEl.scrollLeft = 0; }
   function revealAllChips() { if (!histEl) return; Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-new[hidden]'), function (c) { c.hidden = false; }); histEl.scrollLeft = 0; }
@@ -454,19 +454,24 @@
     replayed = true; playing = true; fxOn = false; root.classList.add('pf-playing');
     if (skipBtn) skipBtn.hidden = false;
     if (data.replay0) { setBar(data.replay0.bar, data.barmax); setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }
-    var step = 950, lastBy = null, foeName = data.foe || 'Creature';
+    var step = 950, BAN = 1500, tt = 300, lastBy = null, foeName = data.foe || 'Creature';   // each side: its banner shows, holds for a second, fades, and only then its pieces play
     data.replay.forEach(function (ev, k) {
+      if (ev.by !== lastBy) {
+        lastBy = ev.by;
+        (function (by, at) { playTimers.push(setTimeout(function () { showTurn(by === 'me' ? 'Your turn' : foeName + "'s turn", by === 'me' ? 'me' : 'foe'); }, at)); })(ev.by, tt);
+        tt += BAN;
+      }
       playTimers.push(setTimeout(function () {
-        if (ev.by !== lastBy) { lastBy = ev.by; showTurn(ev.by === 'me' ? 'You play' : foeName + "'s turn", ev.by === 'me' ? 'me' : 'foe'); }
         if (ev.id && hiddenIds[ev.id]) { delete hiddenIds[ev.id]; revealId = ev.id; render(); revealId = null; }   // its piece is put down now, then it scores
         Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
         if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); var pc = pieceById(ev.id); if (pc) { picked = ev.id; showText(pc.n, pieceInfo(pc), pc); } }
         revealChip(k);
         if (ev.bar !== null && ev.bar !== undefined) setBar(ev.bar, data.barmax); if (ev.fh !== null && ev.fh !== undefined) setFh(ev.fh, data.fhmax); if (ev.hp !== null && ev.hp !== undefined) setHp(ev.hp);
         setGuard(ev.g);
-      }, (k + 1) * step));
+      }, tt));
+      tt += step;
     });
-    playTimers.push(setTimeout(stopPlay, (data.replay.length + 1) * step));
+    playTimers.push(setTimeout(stopPlay, tt));
     render();
   }
 

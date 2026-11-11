@@ -2,6 +2,8 @@
 
 ## 2.6.58
 
+- Puzzle fight: clearer turns. The turn banner (Your turn / the creature's turn) shows, holds about a second, fades, and only then that side's pieces play.
+
 - Puzzle fight: the creature starts with one piece (only bosses start with two).
 
 - Puzzle fight: your guard resets when YOUR turn starts (it stays up through the creature's turn; a Hold guard carries once). The creature's starting piece no longer vanishes when you only connect two pieces and end the turn (the page now holds back only the pieces it places that turn, flagged `fnew`).
