@@ -540,7 +540,7 @@
     var p = s.pcs[id], e = edges(p.tile), o = [];
     for (var side in PFB_SIDE) {
       var sd = PFB_SIDE[side], n = pieceAt(s, p.x + sd[0], p.y + sd[1]);
-      if (n && joint(e[side], edges(n.tile)[sd[2]])[1]) o.push(n);
+      if (n && n.by !== 'none' && joint(e[side], edges(n.tile)[sd[2]])[1]) o.push(n);   // the blank centre piece lets a piece connect (placement) but a chain never runs through it
     }
     o.sort(function (a, b) { return b.seq - a.seq; });
     return o.map(function (n) { return toInt(n.id); });

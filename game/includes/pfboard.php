@@ -100,7 +100,7 @@ function pfb_links(array $s, int $id): array
     $p = $s['pcs'][$id]; $e = pfb_edges($p['tile']); $o = [];
     foreach (PFB_SIDE as $side => [$dx, $dy, $opp]) {
         $n = pfb_at($s, $p['x'] + $dx, $p['y'] + $dy);
-        if ($n && pfb_joint($e[$side], pfb_edges($n['tile'])[$opp])[1]) $o[] = $n;
+        if ($n && $n['by'] !== 'none' && pfb_joint($e[$side], pfb_edges($n['tile'])[$opp])[1]) $o[] = $n;   // the blank centre piece lets a piece connect (placement) but a chain never runs through it
     }
     usort($o, fn($a, $b) => $b['seq'] <=> $a['seq']);
     return array_map(fn($n) => (int)$n['id'], $o);

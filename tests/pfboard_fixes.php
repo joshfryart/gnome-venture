@@ -66,4 +66,14 @@ $raw = pf_new(fx_me(5), $ants, 4); $bb = pfb_new(fx_me(5), $ants, 4, ['blank' =>
 $exp = array_map(fn($v) => max(1, (int)round($v * 0.62 * 1.2)), $allV($raw)); $got = $allV($bb); sort($exp); sort($got);
 chk('blank variant: every creature piece is base x 0.62 x 1.2', $exp === $got, json_encode([array_slice($exp, 0, 6), array_slice($got, 0, 6)]));
 
+// 7. the blank centre piece lets a piece connect but a chain never runs through it: a piece above the blank fires alone, not your start piece or the creature's
+$s = pfb_new(fx_me(5), $ants, 3); $s['pcs'] = []; $s['cell'] = []; $s['pid'] = 0; $s['seq'] = 0; $s['start'] = false;
+$put($s, 'none', ['k' => 'blank', 'n' => 'Blank', 't' => 'blank', 'v' => 0, 'tag' => '', 'r' => null], 3, 2);
+$put($s, 'me', $mk('fx_mine', 'hurt', 3, 'mind'), 2, 2);   // your start piece, left of the blank
+$put($s, 'foe', $mk('fx_theirs', 'hurt', 4, 'mind'), 4, 2);  // the creature's start piece, right of the blank
+$s['me']['hand'] = [$mk('fx_new', 'hurt', 5, 'mind')]; $s['fh']['max'] = 999.0; $s['bar']['max'] = 999.0;
+$ev = pfb_place($s, 'me', 0, 3, 1);
+$fired = array_values(array_filter(array_map(fn($e) => $e['k'] ?? null, $ev ?? [])));
+chk('piece placed above the blank: only that piece fires (nothing runs through the blank)', $fired === ['fx_new'], json_encode($fired));
+
 echo $bad ? "$bad FAILED\n" : "all ok\n"; exit($bad ? 1 : 0);

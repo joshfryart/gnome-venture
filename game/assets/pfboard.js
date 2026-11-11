@@ -269,7 +269,7 @@
       for (var jy = y0; jy <= y1; jy++) for (var jx = x0; jx <= x1; jx++) {
         var a = b.map[jx + ',' + jy]; if (!a) continue;
         dirs.forEach(function (d) {
-          var n = b.map[(jx + d[1]) + ',' + (jy + d[2])]; if (!n || !joint(a.e[d[0]], n.e[d[3]])[1]) return;
+          var n = b.map[(jx + d[1]) + ',' + (jy + d[2])]; if (!n || a.by === 'none' || n.by === 'none' || !joint(a.e[d[0]], n.e[d[3]])[1]) return;   // no chain mark at the blank centre piece: chains stop there
           var ax = jx - x0, ay = jy - y0, cx = d[1] ? (ax + 1) * S.pitch[0] + S.tab[0] : ax * S.pitch[0] + S.tab[0] + S.body[0] / 2, cy = d[1] ? ay * S.pitch[1] + S.tab[1] + S.body[1] / 2 : (ay + 1) * S.pitch[1] + S.tab[1];
           var im = document.createElement('img'); im.src = P.imgs[d[4]].src; im.alt = ''; im.className = 'pfb-joint';
           im.style.left = ((cx - d[5] / 2) * 100 / TW) + '%'; im.style.top = ((cy - d[6] / 2) * 100 / TH) + '%'; im.style.width = (d[5] * 100 / TW) + '%'; im.style.height = (d[6] * 100 / TH) + '%';
