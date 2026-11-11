@@ -155,7 +155,10 @@
 .pf-bp.pf-art2 { width: 132px; height: 92px; background: none; border: 0; box-shadow: none; clip-path: none; overflow: visible; }
 .pf-bp.pf-art2 .pfe, .pf-bp.pf-art2 .pf-ico, .pf-bp.pf-art2 .pf-val, .pf-bp.pf-art2 .pf-nm { display: none; }
 .pf-bp.pf-art2.pf-picked { outline: 3px solid #e8a317; outline-offset: 2px; transform: translateY(-.4rem); }
-.pf-boardmode .pf-stage { grid-template-columns: 1fr 1fr; grid-template-areas: "me foe" "center center"; }   /* the board gets the full width, not the middle third */
+.pf-boardmode .pf-stage { grid-template-columns: minmax(4.5rem, 1fr) minmax(0, 2.6fr) minmax(4.5rem, 1fr); grid-template-areas: "me center foe"; align-items: center; gap: .3rem; }   /* the board sits between you and the creature */
+.pf-boardmode .pf-side .pf-sprite { min-height: 0; } .pf-boardmode .pf-side .pf-sprite img { max-height: 5.5rem; width: auto; max-width: 100%; }
+.pf-boardmode .pf-nameplate { font-size: .75rem; padding: .1rem .3rem; } .pf-boardmode .pf-side small, .pf-boardmode .pf-hp { font-size: .68rem; }
+.pf-boardmode .pf-hp progress { width: 100%; }
 
 /* ---- the fight sits ON the route map: the map stays where it is, a scrim and the fight panel lie over it ---- */
 .advgrid.fighting.pfover { display: grid; grid-template-columns: minmax(0, 1fr); position: relative; }
@@ -181,3 +184,8 @@
 .pfx-art .pf-pile { border: 0; }
 .pfx-art .pf-pile img { width: 40px; height: 40px; }
 .pfb-board { margin-inline: auto; }
+.pf-boardmode .pf-center { min-width: 0; }
+.pfx-bar { width: 100%; }
+.pf-boardmode .pfx-bar { height: auto; aspect-ratio: 8 / 1; }
+.pf-boardmode .pfx-bar .pfx-fill { top: 25%; height: 50%; background-size: 100% 100%; }
+.pf-boardmode .pfx-bar .pfx-fill.hurt { left: 3.125%; } .pf-boardmode .pfx-bar .pfx-fill.charm { right: 3.125%; }
