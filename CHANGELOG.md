@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.61
+
+- Wren's tour: the "Water it" step can no longer get stuck on a rainy day. Rain already waters the plant, so Water used to be refused ("Watered for today") and the step never finished; while the tour waits on Water, watering now always works.
+
 ## 2.6.60
 
 - Puzzle fight: the picture banner (gnome and creature on a landscape) above the panel and the "About the creature" fold under it are gone, and the info pop-up's piece picture is smaller.
