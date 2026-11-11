@@ -1,5 +1,5 @@
 # ART TODO (single list). Updated 2026-11-11.
-Replaces `todo-art-variety.md` and `todo-art-catfish.md` (now stubs). `todo-art-acts.md` stays as the generated per-activity checklist (810/810 drawn). Items marked CHECK are unverified.
+Replaces `todo-art-variety.md` and `todo-art-catfish.md` (now stubs). `todo-art-acts.md` stays as the generated per-activity checklist (810/810 drawn).
 Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-STATE.md`). Style: `aseprite-source/art-style-guide-v3.md`.
 
 ## RULES
@@ -75,5 +75,5 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 ## F. ORDER
 1. Section A (4 items + ginseng).
 2. B1-B2 (stop looks, village/haven), B5 (sprites).
-3. B3, B6, B7 after CHECK.
+3. B7 (pal sprites).
 4. C by Josh's priority. D and E only when asked.
