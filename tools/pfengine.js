@@ -22,9 +22,9 @@
   var PF_BAR_K = 1.7, PF_BAR_BOSS = 2.0, PF_BAR_BASE = 5, PF_BAR_SLOPE = 0.4;
   var PF_FOE_DMG = 1.4, PF_FOE_BOSS = 0.78;
   var PFB_W = 7, PFB_H = 5, PFB_LIFE = 3, PFB_FOE_MIN = 2, PFB_GROUP_MAX = 3;
-  var PFB_GROUP_MULT = { 2: 1.0, 3: 1.5 };
+  var PFB_GROUP_MULT = { 2: 1.0, 3: 2.0 }, PFB_SETASIDE_GUARD = 1.0;
   var PFB_FOE_FIRES = 2, PFB_FOE_FIRE_MULT = 1.15;   // fire budget: a creature piece falls away after this many firings (its placement is the first)
-  var PFB_BOSS_MULT = 1.2, PFB_BLANK_FOE_MULT = 1.2;
+  var PFB_BOSS_MULT = 1.2, PFB_BLANK_FOE_MULT = 1.0;
   var PFB_BAR_MULT = 0.7, PFB_FOE_MULT = 0.62;
   var PFB_SIDE = { L: [-1, 0, 'R'], R: [1, 0, 'L'], T: [0, -1, 'B'], B: [0, 1, 'T'] };
   var PF_BOX_MIN = 6;
@@ -953,6 +953,7 @@
       err = mv[0] === 'j' ? connect(w, 'me', mv[1], mv[2], mv[3]) : connect(w, 'me', null, mv[1], mv[3], mv[2]);
       if (err) return { ev: [], err: err };
       var pcs = w.me.held.pcs;
+      w.me.block += Math.ceil(toInt(pcs[mv[0] === 'j' ? 1 : pcs.length - 1].tile.v) * PFB_SETASIDE_GUARD);   // 2.6.66: setting a piece aside braces you
       ev = [{ snap: snap(w), by: 'me', connect: true, n: pcs.map(function (gp) { return String(gp.tile.n); }).join(' + '), types: pcs.map(function (gp) { return String(gp.tile.t); }), size: pcs.length }];
     } else return bad();
     ev.forEach(function (e0) { e0.ta = 'me'; });
@@ -983,7 +984,7 @@
   /** What the client may see: no draw pile, no foe hand, no rng, no nonce. */
   function view(s) {
     var v = pfView(s), i;
-    v.mode = 'board'; v.w = PFB_W; v.h = PFB_H; v.fx = clone(nn(s.fx, []));
+    v.start = truthy(s.start); v.mode = 'board'; v.w = PFB_W; v.h = PFB_H; v.fx = clone(nn(s.fx, []));
     var g = nn(s.me.held, null);
     v.held = g ? {
       pcs: g.pcs.map(function (p) { return { n: p.tile.n, t: p.tile.t, v: p.tile.v, tag: p.tile.tag, m: String(nn(p.tile.m, '')), e: edges(p.tile), x: p.x, y: p.y }; }),

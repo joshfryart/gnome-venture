@@ -57,14 +57,14 @@ chk('hostile creature: charm multiplier is 0.6', abs($s['cm'] - 0.6) < 1e-9, (st
 $s = pfb_new(fx_me(5), ['slug' => 'garden-snail', 'name' => 'Snail', 'size' => 'small', 'level' => 1, 'dmg_die' => 4, 'dmg_bonus' => 0], 3);
 chk('gentle creature: charm multiplier stays 1.0', abs($s['cm'] - 1.0) < 1e-9, (string)$s['cm']);
 
-// 6. a boss's pieces count x1.2 more; the blank variant x1.2 more again (raw tiles come from pf_new at the same seed)
+// 6. a boss's pieces count x1.2 more; the blank variant no extra (2.6.66: 1.0, was 1.2) (raw tiles come from pf_new at the same seed)
 $allV = fn(array $st) => array_map(fn($t) => $t['v'], array_merge($st['foe']['draw'], $st['foe']['hand'], $st['foe']['discard'], array_map(fn($p) => $p['tile'], array_filter($st['pcs'] ?? [], fn($p) => $p['by'] === 'foe'))));
 $raw = pf_new(fx_me(20), $boss, 9); $b = pfb_new(fx_me(20), $boss, 9);
 $exp = array_map(fn($v) => max(1, (int)round($v * 0.62 * 1.2 * 1.15)), $allV($raw)); $got = $allV($b); sort($exp); sort($got);
 chk('boss foe pieces: values are base x 0.62 x 1.2 x 1.15', $exp === $got, json_encode([array_slice($exp, 0, 6), array_slice($got, 0, 6)]));
 $raw = pf_new(fx_me(5), $ants, 4); $bb = pfb_new(fx_me(5), $ants, 4, ['blank' => true]);
-$exp = array_map(fn($v) => max(1, (int)round($v * 0.62 * 1.2 * 1.15)), $allV($raw)); $got = $allV($bb); sort($exp); sort($got);
-chk('blank variant: every creature piece is base x 0.62 x 1.2 x 1.15', $exp === $got, json_encode([array_slice($exp, 0, 6), array_slice($got, 0, 6)]));
+$exp = array_map(fn($v) => max(1, (int)round($v * 0.62 * 1.0 * 1.15)), $allV($raw)); $got = $allV($bb); sort($exp); sort($got);
+chk('blank variant: every creature piece is base x 0.62 x 1.0 x 1.15', $exp === $got, json_encode([array_slice($exp, 0, 6), array_slice($got, 0, 6)]));
 
 // 7. the blank centre piece lets a piece connect but a chain never runs through it: a piece above the blank fires alone, not your start piece or the creature's
 $s = pfb_new(fx_me(5), $ants, 3); $s['pcs'] = []; $s['cell'] = []; $s['pid'] = 0; $s['seq'] = 0; $s['start'] = false;
@@ -99,5 +99,47 @@ $s = $mkS(); $my = $put($s, 'me', $mk('fx_m', 'hurt', 3, 'mind'), 2, 2); $s['pcs
 pfb_place($s, 'me', 0, 3, 2);
 chk('your piece with many firings is never limited', isset($s['pcs'][$my]) && (int)$s['pcs'][$my]['f'] === 10);
 
+
+// 2.6.66: setting a piece aside (join / add) braces you: guard = the value of the piece just set aside; a placed 3-piece group plays x2.0; blank foe x1.0
+$s = pfb_new(fx_me(12), $owl, 5); $joined = null;
+foreach ($s['me']['hand'] as $a => $ta) foreach ($s['me']['hand'] as $b => $tb) foreach (['L', 'R', 'T', 'B'] as $sd) {
+    if ($a === $b || $joined) continue; $w = $s; if (pfb_connect($w, 'me', $a, $b, $sd) === null) $joined = [$a, $b, $sd, (int)$tb['v']];
+}
+if (!$joined) chk('join guard: found a joinable pair in the hand', false, 'none');
+else {
+    $g0 = (int)$s['me']['block']; $w = $s; $r = pfb_play($w, [['j', $joined[0], $joined[1], $joined[2]]], $w['turn'], null, true);
+    chk('join (dry run): guard rises by the joined piece\'s value ' . $joined[3], $r['err'] === null && (int)$r['block'] === $g0 + $joined[3], json_encode([$r['err'], $r['block'] ?? null]));
+}
+chk('3-piece group multiplier is 2.0', abs(PFB_GROUP_MULT[3] - 2.0) < 1e-9, (string)PFB_GROUP_MULT[3]);
+
+// 2.6.66: numbers per lit cell (pfb_cell_preview): read only, one entry per legal cell, matching what a real play of that cell does
+$s = pfb_new(fx_me(12), $owl, 5); $before = json_encode($s); $pv = pfb_cell_preview($s, 0);
+chk('cell preview: nothing in the state changed', json_encode($s) === $before);
+chk('cell preview: one entry per legal cell', array_keys($pv) === array_map(fn($c) => $c[0] . ',' . $c[1], pfb_cells($s, $s['me']['hand'][0], 'me')), json_encode(array_keys($pv)));
+$okAll = true; $why = '';
+foreach ($pv as $k => $o) {
+    [$x, $y] = array_map('intval', explode(',', $k)); $w = $s; $r = pfb_play($w, [[0, $x, $y]], $s['turn']);
+    $dmg = (int)round($w['fh']['now'] - $s['fh']['now']);
+    if ($r['err'] !== null || $o['n'] < 1 || ($w['over'] ? false : $o['dmg'] !== $dmg - 0 && $o['dmg'] > $dmg)) { $okAll = false; $why = "$k " . json_encode($o) . " real dmg $dmg"; }
+}
+chk('cell preview: every number is consistent with a real play', $okAll, $why);
+// a placement that links into a creature Hurt piece reports the health it costs, equal to the loss the real play shows in your own chain (searched over seeds)
+$found = null;
+for ($sd = 1; $sd <= 40 && !$found; $sd++) {
+    $s = pfb_new(fx_me(5), $owl, $sd);
+    for ($turn = 0; $turn < 8 && !$found && !$s['over']; $turn++) {
+        $moved = false;
+        foreach ($s['me']['hand'] as $i => $t0) { $pv = pfb_cell_preview($s, $i); foreach ($pv as $k => $o) if ($o['hp'] > 0) { $found = [$s, $i, $k, $o]; break 2; } }
+        if ($found) break;
+        foreach ($s['me']['hand'] as $i => $t0) { $c = pfb_cells($s, $t0, 'me'); if ($c) { pfb_play($s, [[$i, $c[0][0], $c[0][1]]], $s['turn']); $moved = true; break; } }
+        if (!$moved) pfb_pass($s, $s['turn']);
+    }
+}
+if (!$found) chk('cell preview: found a placement that costs health (40 seeds x 8 turns)', false, 'none');
+else {
+    [$s, $i, $k, $o] = $found; [$x, $y] = array_map('intval', explode(',', $k)); $w = $s; $r = pfb_play($w, [[$i, $x, $y]], $s['turn']); $hpMe = $s['me']['hp'];
+    foreach ($r['ev'] as $e) if (($e['ta'] ?? '') === 'me' && isset($e['hpnow'])) $hpMe = $e['hpnow'];
+    chk('cell preview: health cost = the real loss in your own chain', $o['hp'] === (int)$s['me']['hp'] - $hpMe && $o['hp'] > 0, json_encode($o) . " real " . ((int)$s['me']['hp'] - $hpMe));
+}
 
 echo $bad ? "$bad FAILED\n" : "all ok\n"; exit($bad ? 1 : 0);

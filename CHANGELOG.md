@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.66
+- **Puzzle board: the blank-centre opening is live** (new default for board fights; admin setting `pfight_blank` = 0 turns it off). A blank wild piece sits in the middle. You pick a hand piece and a side of it (the board's four lit spots, button "Confirm start"); the creature has already put its own start piece on a side, hidden. Nothing fires in the opening; the blank is gone at the end of turn 1. New fights only; a fight already under way keeps its own opening.
+- **Puzzle board: numbers on the lit spots.** Pick a piece and every lit spot shows what it would do: damage to the creature, charm gained, health you would lose in your own chain (red), and the health the creature's reply would take next. New read-only action `pfb_cells` (`pfb_cell_preview`); the CLI harness prints the same numbers instead of `!`.
+- Puzzle board rules: setting a piece aside (join / add) now gives guard equal to that piece's value; a placed 3-piece group plays x2.0 (was x1.5); the creature's pieces in the blank opening are x1.0 (was x1.2). JS demo engine follows. Tests: `pfboard_fixes` (join guard, group x2.0, cell numbers), `pfboard.sh` (blank opening over HTTP, `pfb_cells`).
+
 ## 2.6.65
 - **Village Show**: three tabs (the week's crop, Arrangements, Hall of fame). The crop tab has a hero card, a podium for the top three and a compact list for the rest; past champions and last week's arrangement winners moved to Hall of fame. `#arrangements` still opens its tab.
 - **Trading Post**: My stall is a grid of item cards (price, left, sold, Take down) with the "Put something on the stall" form folded away; Gifts is an inbox of cards instead of a table.

@@ -35,6 +35,7 @@ pf() { local d=$1; shift; get adventure.php >/dev/null
   local n=$(grep -o 'name="nonce" value="[0-9a-f]*"' $H | head -1 | grep -o '[0-9a-f]\{8\}') t=$(grep -o 'id="pfight" data-turn="[0-9]*"' $H | grep -o '[0-9]*')
   post adventure.php -d do=$d -d nonce=${NONCE_X:-$n} -d turn=${TURN_X:-$t} "$@"; }
 db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_open','1')" >/dev/null; db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_mode','board')" >/dev/null
+db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_blank','0')" >/dev/null   # the classic opening for the long body below; the blank-centre opening is tested at the end
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
 get adventure.php >/dev/null
 ck "board page" "$(grep -c 'data-mode="board"' $H)" "1"
@@ -98,6 +99,35 @@ done
 ck "fight ended" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
 get adventure.php >/dev/null
 ck "page after fight has no board" "$(grep -c 'id="pfb-board"' $H)" "0"
+# 2.6.66: the blank-centre opening (the default now): the start piece goes next to the blank, the creature's is hidden until then; numbers per lit spot
+echo "== blank-centre opening"
+db "DELETE FROM settings WHERE name='pfight_blank'" >/dev/null
+php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
+get adventure.php >/dev/null
+ck "opening: start phase flagged" "$(grep -c '"start":true' $H)" "1"
+ck "opening: the blank is on the board, no creature piece yet" "$(grep -c '"by":"none"' $H)" "1"; ck "opening: no creature piece" "$(grep -c '"by":"foe"' $H)" "0"
+ck "opening: the button says Confirm start" "$(grep -c 'Confirm start' $H)" "1"
+ENC1=$(enc)
+ck "opening: a spot away from the blank is refused" "$(pf pfb_play -d moves='0,0,0')" "302"; ck "opening: refused, unchanged" "$(enc)" "$ENC1"
+ck "opening: pass is refused" "$(pf pfb_pass)" "302"; ck "opening: pass unchanged" "$(enc)" "$ENC1"
+pf pfb_cells -d i=0 >/dev/null; ck "opening: no numbers yet" "$(grep -c '"cells":{}' $H)" "1"
+ck "opening: start piece next to the blank" "$(pf pfb_play -d moves='0,2,2')" "302"
+get adventure.php >/dev/null
+ck "opening over: start flag off" "$(grep -c '"start":false' $H)" "1"
+ck "opening over: both start pieces are out" "$(grep -o '"by":"foe"' $H | wc -l | awk '{print ($1>=1)?"yes":"no"}')" "yes"
+ck "opening over: your start piece is out" "$(grep -o '"by":"me"' $H | wc -l | awk '{print ($1>=1)?"yes":"no"}')" "yes"
+ck "opening over: still turn 1" "$(grep -c 'id="pfight" data-turn="1"' $H)" "1"
+ck "opening over: the note says what each side put down" "$(grep -c 'You put .* on the left; the ' $H)" "1"
+ck "opening over: the blank is still there for turn 1" "$(grep -c '"by":"none"' $H)" "1"
+ENC1=$(enc); pf pfb_cells -d i=0 >/dev/null; PV=$(cat $H)
+ck "numbers per spot answer ok" "$(echo "$PV" | grep -c '"ok":true')" "1"
+ck "numbers per spot carry damage, charm, cost and reply" "$(echo "$PV" | grep -c '"dmg":.*"ch":.*"hp":.*"rp":')" "1"
+ck "numbers changed nothing" "$(enc)" "$ENC1"
+ck "numbers: no draw pile or seed" "$(echo "$PV" | grep -c 'rng\|"draw"\|seed')" "0"
+NONCE_X=deadbeef pf pfb_cells -d i=0 >/dev/null; ck "numbers with a wrong nonce say no" "$(grep -c '"ok":false' $H)" "1"
+pf pfb_cells -d i=x >/dev/null; ck "numbers for a junk piece say no" "$(grep -c '"ok":false' $H)" "1"
+MV=$(php "$HERE/pfboard_move.php" "$GAME" 2>&1 | tail -1)
+if [ "$MV" != "PASS" ] && [ "$MV" != "NONE" ]; then ck "turn 1 plays after the opening" "$(pf pfb_play -d moves="$MV")" "302"; get adventure.php >/dev/null; ck "turn 2 reached" "$(grep -c 'id="pfight" data-turn="2"' $H)" "1"; fi
 ck "no errors in the game error log" "$(cat "$GAME/data/error-log.txt" 2>/dev/null | wc -c | tr -d ' ')" "0"
 grep -E "PHP (Warning|Notice|Deprecated|Fatal)" $LOG | head -3 | cut -c1-260
 ck "no PHP warnings in server log" "$(grep -cE 'PHP (Warning|Notice|Deprecated|Fatal)' $LOG)" "0"

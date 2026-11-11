@@ -45,15 +45,15 @@ function pp_show(array $s): string
     $o[] = 'YOUR HAND (index: name, type, value, tag, edges; legal cells x,y that CONNECT)';
     foreach ($s['me']['hand'] as $i => $t) {
         $cells = !empty($s['start']) ? [] : pfb_cells($s, $t, 'me');
-        $marks = array_map(function ($c) use ($s, $i) {   // '!' = that placement's chain fires one of the CREATURE's Hurt pieces (it hurts you); dry run on a copy
-            $w = $s; $r = pfb_play($w, [[$i, $c[0], $c[1]]], $s['turn'], null, true);
-            $fires = false; foreach ($r['ev'] ?? [] as $e) if (($e['by'] ?? '') === 'foe' && ($e['t'] ?? '') === 'hurt' && isset($e['id'])) $fires = true;
-            return $c[0] . ',' . $c[1] . ($fires ? '!' : '');
+        $pv = !empty($s['start']) ? [] : pfb_cell_preview($s, $i);   // 2.6.66: numbers per cell: dmg to creature, charm, health you lose in your own chain, pieces that fire, the creature's reply
+        $marks = array_map(function ($c) use ($pv) {
+            $q = $pv[$c[0] . ',' . $c[1]] ?? null; if (!$q) return $c[0] . ',' . $c[1];
+            return $c[0] . ',' . $c[1] . '(d' . $q['dmg'] . ' c' . $q['ch'] . ' h-' . $q['hp'] . ' n' . $q['n'] . ' r-' . $q['rp'] . ($q['end'] ? ' END' : '') . ')';
         }, $cells);
         $o[] = sprintf('  [%d] %s | %s %d | %s%s | %s | cells: %s', $i, $t['n'], $t['t'], $t['v'], $t['tag'], ($t['m'] ?? '') ? ' [' . $t['m'] . ']' : '', pp_e(pfb_edges($t)), $marks ? implode(' ', $marks) : 'none');
     }
     if (!empty($s['me']['held'])) { $g = $s['me']['held']; $o[] = 'SET-ASIDE GROUP (' . count($g['pcs']) . ' pieces): ' . implode(' + ', array_map(fn($p) => $p['tile']['n'] . '@' . $p['x'] . ',' . $p['y'], $g['pcs'])) . ' | places at top-left x,y in: ' . (implode(' ', array_map(fn($c) => $c[0] . ',' . $c[1], pfb_group_spots($s, $g))) ?: 'none'); }
-    $o[] = 'A cell marked ! means that placement links into a creature Hurt piece, which fires and hurts you. Rules: one action a turn. A piece must make a linked joint (knob into hole of same family) unless nothing can. Flat edge fits anything but breaks the chain. Pieces expire after ' . PFB_LIFE . ' rounds. Draw pile ' . count($s['me']['draw']) . ', discard ' . count($s['me']['discard']) . '.';
+    $o[] = 'Per cell (d damage to the creature, c charm gained, h health you lose in your own chain, n pieces that fire, r health the creature reply takes next; END = the fight ends). Rules: one action a turn. A piece must make a linked joint (knob into hole of same family) unless nothing can. Flat edge fits anything but breaks the chain. Pieces expire after ' . PFB_LIFE . ' rounds. Draw pile ' . count($s['me']['draw']) . ', discard ' . count($s['me']['discard']) . '.';
     return implode("\n", $o);
 }
 function pp_events(array $ev): string

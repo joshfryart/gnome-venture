@@ -309,14 +309,14 @@
     applyView();
     tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, m: data.hand[i].m, rar: modRar(data.hand[i].m), edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); var hb = modBadge(data.hand[i].m); if (hb) t.appendChild(hb); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
-    fan(); renderHeld(); showJoinChips(); planAsk();
+    fan(); renderHeld(); showJoinChips(); planAsk(); numsSync();
     var busy = playing || submitted || !!data.won || !!rewind;
     var endBtn = document.getElementById('pf-end'); if (endBtn) endBtn.disabled = playing;
     undo.disabled = busy || (moves.length === 0 && selected === null); go.disabled = busy || moves.length === 0;
     var fits = anyFits();
     if (pform) pform.hidden = !(moves.length === 0 && !fits && selected === null);
     var sel = typeof selected === 'number' ? tiles[selected] : null, hasJoin = !!(sel && joinOptions(selected).length);
-    prev.textContent = rewind ? 'Rewound. Nothing can be played until you go back to now.' : playing ? 'Watch the chain: each piece is scored in turn.' : data.won ? 'It is over. End the fight to collect your reward.' : redrawMode ? 'Tap the piece to swap for a fresh one.'
+    prev.textContent = data.start && !rewind && !playing ? (sel ? sel.dataset.name + ': pick a side of \u2726. Nothing fires.' : moves.length ? 'Start piece chosen. Confirm start when ready.' : 'Opening: pick a piece, then a side of \u2726. Nothing fires; the creature picks its side too, hidden.') : rewind ? 'Rewound. Nothing can be played until you go back to now.' : playing ? 'Watch the chain: each piece is scored in turn.' : data.won ? 'It is over. End the fight to collect your reward.' : redrawMode ? 'Tap the piece to swap for a fresh one.'
       : sel ? sel.dataset.name + ': ' + sel.dataset.desc.split('. ')[0] + '. Pick a lit spot' + (hasJoin ? ' or set it aside.' : '.')
       : selected === 'group' ? hintText || 'Pick a lit spot for the group.'
       : moves.length === 0 ? (fits ? (!mustLink(baseBoard(), handEdges()) && baseBoard().count ? 'Nothing can connect, so you may place a piece anywhere it fits.' : root.dataset.turn === '1' ? 'Win two ways: Hurt empties its health, Charm fills the charm bar.' : 'Pick a piece, then a lit spot. One piece a turn.') : 'Nothing fits. You can pass.')
@@ -357,7 +357,7 @@
   var SIDE_TXT = { L: 'to its left', R: 'to its right', T: 'above it', B: 'below it' };
   function showJoinChips() {   // under the board: set the selected piece aside with another one (or add it to the group)
     if (!optsEl) return; optsEl.textContent = '';
-    if (selected === null || selected === 'group' || moves.length || playing || submitted || redrawMode) { optsEl.hidden = true; return; }
+    if (selected === null || selected === 'group' || moves.length || playing || submitted || redrawMode || data.start) { optsEl.hidden = true; return; }
     var list = joinOptions(selected); if (!list.length) { optsEl.hidden = true; return; }
     optsEl.hidden = false;
     var h = document.createElement('span'); h.className = 'pf-opts-h'; h.textContent = data.held ? 'Add to your group:' : 'Or set aside with:'; optsEl.appendChild(h);
@@ -494,7 +494,7 @@
   // what the planned pieces would do: the server runs them on a copy (nothing is saved) and answers with the lines and the resolve bar
   var planEl = document.getElementById('pf-plan'), planTimer = 0, planAbort = null;
   function planAsk() {
-    if (!planEl || typeof fetch !== 'function') return;
+    if (!planEl || typeof fetch !== 'function' || data.start) { if (planEl) { planEl.hidden = true; planEl.textContent = ''; } return; }
     clearTimeout(planTimer);
     if (planAbort) planAbort.abort();
     if (!moves.length || submitted || playing) { planEl.hidden = true; planEl.textContent = ''; return; }
@@ -514,6 +514,33 @@
           planEl.appendChild(li2); planEl.hidden = false;
         }).catch(function () {});
     }, 180);
+  }
+  // 2.6.66: numbers on the lit spots: what each spot would do (the server plays each one on a copy): damage to the creature, charm, health you lose in your own chain, and the health its reply would take
+  var nums = { key: null, d: null }, numsAbort = null;
+  function numsDecorate() {
+    if (!nums.d) return;
+    Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-lit'), function (c) {
+      var q = nums.d[c.dataset.x + ',' + c.dataset.y]; if (!q || c.querySelector('.pfb-num')) return;
+      var bits = [], aria = [];
+      if (q.dmg) { bits.push('\u2694' + q.dmg); aria.push(q.dmg + ' damage'); }
+      if (q.ch) { bits.push('\u273F' + q.ch); aria.push(q.ch + ' charm'); }
+      if (q.hp) { bits.push('\u2764\u2212' + q.hp); aria.push('costs you ' + q.hp + ' health'); }
+      if (q.rp) { bits.push('\u21A9\u2212' + q.rp); aria.push('the creature then takes about ' + q.rp + ' from you'); }
+      var s = document.createElement('span'); s.className = 'pfb-num' + (q.hp ? ' pfb-num-hurt' : ''); s.setAttribute('aria-hidden', 'true'); s.textContent = bits.join(' ') || (q.end ? '\u2605' : '\u2013'); c.appendChild(s);
+      c.setAttribute('aria-label', c.getAttribute('aria-label') + '. ' + (aria.length ? aria.join(', ') : 'no effect') + (q.end ? ', ends the fight' : '') + ', ' + q.n + ' piece' + (q.n === 1 ? '' : 's') + ' fire');
+    });
+  }
+  function numsSync() {
+    if (selected === null || data.won || data.start || rewind || playing || typeof fetch !== 'function') { nums.key = null; nums.d = null; if (numsAbort) numsAbort.abort(); return; }
+    var key = String(selected) + '/' + root.dataset.turn;
+    if (nums.key === key) { numsDecorate(); return; }
+    nums.key = key; nums.d = null; if (numsAbort) numsAbort.abort();
+    var fd = new FormData(), qs = function (n) { var e = form.querySelector('[name=' + n + ']'); return e ? e.value : ''; };
+    fd.append('csrf', qs('csrf')); fd.append('do', 'pfb_cells'); fd.append('nonce', qs('nonce')); fd.append('turn', qs('turn')); fd.append('i', selected === 'group' ? 'c' : String(selected));
+    numsAbort = typeof AbortController === 'function' ? new AbortController() : null;
+    fetch(location.pathname, { method: 'POST', body: fd, credentials: 'same-origin', signal: numsAbort ? numsAbort.signal : undefined, headers: { 'X-Requested-With': 'pfpreview' } })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (nums.key !== key || !j || !j.ok) return; nums.d = j.cells; numsDecorate(); }).catch(function () {});
   }
   function fan() {   // overlap the hand's pieces just enough to fit one row; the picked piece is lifted by CSS and comes to the front
     var vis = tiles.filter(function (t) { return !t.hidden; }), n = vis.length; if (!n) return;
