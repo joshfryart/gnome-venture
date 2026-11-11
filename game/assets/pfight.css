@@ -259,3 +259,6 @@
 .pf-boardmode { grid-template-columns: minmax(0, 1fr); } .pf-boardmode > * { min-width: 0; }
 .pfx-art .pfc-av .pf-intent-bubble, .pfc-av .pf-intent-bubble { left: auto; right: -6px; top: auto; bottom: -16px; width: 42px; height: 36px; background-size: 42px 36px; z-index: 3; }
 .pfx-art .pfc-av .pf-intent-bubble .pfh-ico { left: 6px; top: 1px; width: 30px; height: 30px; }
+.pfc-av { width: 58px; height: 58px; }
+.pf-boardmode .pf-buttons .pf-runf { display: inline-flex; margin: 0; }
+.pf-boardmode .pf-buttons .btn.pf-box, .pf-boardmode .pf-buttons .pf-runf .btn { padding-inline: .7rem; flex: 0 0 auto; text-decoration: none; }
