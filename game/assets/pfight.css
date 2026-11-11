@@ -143,3 +143,16 @@
 .pfe.f-craft { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
 .pfe.flat { border-radius: 0; width: .9rem; height: .35rem; }
 .pfe.flat.sL, .pfe.flat.sR { width: .35rem; height: .9rem; }
+
+/* board mode with the real parts kit */
+.pfb-arted { background: radial-gradient(ellipse at center, rgba(255, 255, 255, .05), rgba(0, 0, 0, .22)), #4a3322; }
+.pfb-cv, .pfh-cv { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.pfb-cell:has(.pfb-cv) { background: none; border: 0; }
+.pfb-cell.pfb-lit:has(.pfb-cv) { background: none; border: 0; border-radius: 0; opacity: .85; }
+.pfb-cell.pfb-lit:has(.pfb-cv):hover, .pfb-cell.pfb-lit:has(.pfb-cv):focus-visible { opacity: 1; background: none; outline: 3px solid Highlight; outline-offset: -2px; filter: brightness(1.4); }
+.pfb-planned { opacity: .8; }
+.pfb-joint { position: absolute; display: block; image-rendering: pixelated; pointer-events: none; z-index: 3; }
+.pf-bp.pf-art2 { width: 132px; height: 92px; background: none; border: 0; box-shadow: none; clip-path: none; overflow: visible; }
+.pf-bp.pf-art2 .pfe, .pf-bp.pf-art2 .pf-ico, .pf-bp.pf-art2 .pf-val, .pf-bp.pf-art2 .pf-nm { display: none; }
+.pf-bp.pf-art2.pf-picked { outline: 3px solid #e8a317; outline-offset: 2px; transform: translateY(-.4rem); }
+.pf-boardmode .pf-stage { grid-template-columns: 1fr 1fr; grid-template-areas: "me foe" "center center"; }   /* the board gets the full width, not the middle third */

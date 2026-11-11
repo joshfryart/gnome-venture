@@ -9,20 +9,21 @@ const { chromium } = require('playwright');
     p.on('pageerror', e => errs.push(String(e))); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
     await p.goto(base + '/login.php'); await p.fill('input[name=username]', 'sprout'); await p.fill('input[name=password]', 'TestPass123!'); await Promise.all([p.waitForNavigation(), p.press('input[name=password]', 'Enter')]);
     await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' });
-    const cells = await p.locator('.pfb-cell').count(), foe = await p.locator('.pfb-p.by-foe').count();
+    const art = await p.locator('.pfb-cv').first().waitFor({ timeout: 4000 }).then(() => true, () => false);
+    const cells = await p.locator('.pfb-cell').count(), foe = art ? await p.locator('.pfb-cell:not(.pfb-lit) .pfb-cv').count() : await p.locator('.pfb-p.by-foe').count();
     // find a hand piece that has lit cells
     const hand = p.locator('#pf-hand .pf-tile'); const n = await hand.count(); let lit = 0, used = -1;
     for (let i = 0; i < n && !lit; i++) { await hand.nth(i).click(); lit = await p.locator('.pfb-lit').count(); used = i; }
     await p.screenshot({ path: out + '/pfboard-' + name + '-1-lit.png', fullPage: true });
     let ghosts = 0, goDis = true, undoWorks = false;
     if (lit) {
-      await p.locator('.pfb-lit').first().click(); ghosts = await p.locator('.pf-ghost').count(); goDis = await p.locator('#pf-go').isDisabled();
+      await p.locator('.pfb-lit').first().click(); ghosts = await p.locator('.pfb-planned, .pf-ghost').count(); goDis = await p.locator('#pf-go').isDisabled();
       await p.screenshot({ path: out + '/pfboard-' + name + '-2-placed.png', fullPage: true });
-      await p.locator('#pf-undo').click(); undoWorks = (await p.locator('.pf-ghost').count()) === 0 && await p.locator('#pf-go').isDisabled();
+      await p.locator('#pf-undo').click(); undoWorks = (await p.locator('.pfb-planned, .pf-ghost').count()) === 0 && await p.locator('#pf-go').isDisabled();
     }
     const over = await p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-    const bad = (cells !== 25 || foe < 1 || !lit || ghosts !== 1 || goDis || !undoWorks || over || errs.length) ? 1 : 0; fail = fail || bad;
-    console.log(bad ? 'FAIL' : 'ok', name, '| cells', cells, '| creature pieces', foe, '| lit', lit, '| ghosts', ghosts, '| End turn enabled', !goDis, '| undo', undoWorks, '| overflow', over, '| js errors:', errs.length ? errs.join(' | ') : 'none');
+    const bad = (cells < 1 || foe < 1 || !lit || ghosts !== 1 || goDis || !undoWorks || over || errs.length) ? 1 : 0; fail = fail || bad;
+    console.log(bad ? 'FAIL' : 'ok', name, '| art', art, '| cells', cells, '| creature pieces', foe, '| lit', lit, '| ghosts', ghosts, '| End turn enabled', !goDis, '| undo', undoWorks, '| overflow', over, '| js errors:', errs.length ? errs.join(' | ') : 'none');
     await c.close();
   }
   await b.close(); process.exit(fail);

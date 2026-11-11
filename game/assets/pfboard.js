@@ -79,17 +79,55 @@
   function render() {
     var lit = litCells(selected), b = working();
     boardEl.textContent = '';
-    boardEl.style.aspectRatio = (W * 1.45) + ' / ' + H;
-    function put(el, x, y) { el.style.left = (x * 100 / W) + '%'; el.style.top = (y * 100 / H) + '%'; el.style.width = (100 / W) + '%'; el.style.height = (100 / H) + '%'; boardEl.appendChild(el); }
-    for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) {
+    var P = window.PFParts, art = P && P.ok, S = art ? P.atlas.sizes.strip : null;
+    // the view: the pieces plus one spot around them (at least 3 x 3), so the pieces stay big and nothing is shown that cannot be used
+    var x0 = W, x1 = -1, y0 = H, y1 = -1;
+    Object.keys(b.map).forEach(function (k) { var q = k.split(','), qx = +q[0], qy = +q[1]; x0 = Math.min(x0, qx); x1 = Math.max(x1, qx); y0 = Math.min(y0, qy); y1 = Math.max(y1, qy); });
+    if (x1 < 0) { x0 = x1 = Math.floor(W / 2); y0 = y1 = Math.floor(H / 2); }
+    x0 -= 1; x1 += 1; y0 -= 1; y1 += 1;
+    while (x1 - x0 + 1 < 3) { if (x0 > 0) x0--; if (x1 - x0 + 1 < 3 && x1 < W - 1) x1++; }
+    while (y1 - y0 + 1 < 3) { if (y0 > 0) y0--; if (y1 - y0 + 1 < 3 && y1 < H - 1) y1++; }
+    x0 = Math.max(0, x0); x1 = Math.min(W - 1, x1); y0 = Math.max(0, y0); y1 = Math.min(H - 1, y1);
+    var VW = x1 - x0 + 1, VH = y1 - y0 + 1;
+    var TW = art ? VW * S.pitch[0] + 2 * S.tab[0] : 0, TH = art ? VH * S.pitch[1] + 2 * S.tab[1] : 0;
+    boardEl.style.aspectRatio = art ? TW + ' / ' + TH : (VW * 1.45) + ' / ' + VH;
+    boardEl.classList.toggle('pfb-arted', !!art);
+    function put(el, x, y) {
+      x -= x0; y -= y0;
+      if (art) { el.style.left = (x * S.pitch[0] * 100 / TW) + '%'; el.style.top = (y * S.pitch[1] * 100 / TH) + '%'; el.style.width = (S.piece[0] * 100 / TW) + '%'; el.style.height = (S.piece[1] * 100 / TH) + '%'; }
+      else { el.style.left = (x * 100 / VW) + '%'; el.style.top = (y * 100 / VH) + '%'; el.style.width = (100 / VW) + '%'; el.style.height = (100 / VH) + '%'; }
+      boardEl.appendChild(el);
+    }
+    for (var y = y0; y <= y1; y++) for (var x = x0; x <= x1; x++) {
       var key = x + ',' + y, p = b.map[key], cell;
-      if (p) { cell = document.createElement('div'); cell.className = 'pfb-cell'; cell.appendChild(pieceEl(p)); }
-      else if (lit[key]) {
+      if (p) {
+        cell = document.createElement('div'); cell.className = 'pfb-cell' + (p.ghost ? ' pfb-planned' : '');
+        if (art) {
+          var cv = P.piece({ size: 'strip', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, edges: p.e, old: p.age >= 1, num: p.v });
+          cv.className = 'pfb-cv'; cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', (p.by === 'foe' ? 'Creature piece: ' : 'Your piece: ') + p.n + ', ' + p.t + ' ' + p.v + (p.age >= 1 ? ', expires this round' : ''));
+          cell.appendChild(cv);
+        } else cell.appendChild(pieceEl(p));
+      } else if (lit[key]) {
         cell = document.createElement('button'); cell.type = 'button'; cell.className = 'pfb-cell pfb-lit'; cell.setAttribute('aria-label', 'Place here, column ' + (x + 1) + ' row ' + (y + 1));
         cell.dataset.x = String(x); cell.dataset.y = String(y);
+        if (art) { var gc = P.ghost({ size: 'strip', owner: 'me', edges: data.hand[selected].e }); gc.className = 'pfb-cv'; gc.setAttribute('aria-hidden', 'true'); cell.appendChild(gc); }
       } else continue;
       put(cell, x, y);
     }
+    if (art) {   // a mark on every joint where the chain runs (knob in hole); a flat contact gets none
+      var dirs = [['R', 1, 0, 'L', 'joint-h.png', 22, 14], ['B', 0, 1, 'T', 'joint-v.png', 14, 22]];
+      for (var jy = y0; jy <= y1; jy++) for (var jx = x0; jx <= x1; jx++) {
+        var a = b.map[jx + ',' + jy]; if (!a) continue;
+        dirs.forEach(function (d) {
+          var n = b.map[(jx + d[1]) + ',' + (jy + d[2])]; if (!n || !joint(a.e[d[0]], n.e[d[3]])[1]) return;
+          var ax = jx - x0, ay = jy - y0, cx = d[1] ? (ax + 1) * S.pitch[0] + S.tab[0] : ax * S.pitch[0] + S.tab[0] + S.body[0] / 2, cy = d[1] ? ay * S.pitch[1] + S.tab[1] + S.body[1] / 2 : (ay + 1) * S.pitch[1] + S.tab[1];
+          var im = document.createElement('img'); im.src = P.imgs[d[4]].src; im.alt = ''; im.className = 'pfb-joint';
+          im.style.left = ((cx - d[5] / 2) * 100 / TW) + '%'; im.style.top = ((cy - d[6] / 2) * 100 / TH) + '%'; im.style.width = (d[5] * 100 / TW) + '%'; im.style.height = (d[6] * 100 / TH) + '%';
+          boardEl.appendChild(im);
+        });
+      }
+    }
+    tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'hand', owner: 'me', type: data.hand[i].t, edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
     undo.disabled = moves.length === 0; go.disabled = moves.length === 0;
     var fits = anyFits();
@@ -146,6 +184,7 @@
     rbtn.addEventListener('click', function () { redrawMode = !redrawMode; moves = []; selected = null; rbtn.setAttribute('aria-pressed', redrawMode ? 'true' : 'false'); rbtn.classList.toggle('pf-on', redrawMode); render(); });
   }
   window.addEventListener('pageshow', function (e) { if (e.persisted) location.reload(); });
+  document.addEventListener('pfparts-ready', render);
   window.pfbLegal = legal;   // for the parity test
   render();
 })();
