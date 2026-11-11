@@ -222,12 +222,18 @@ def forest_lantern_branch(c):
     line(c.cv, 70, c.fy - 70, 118, c.fy - 76, c.t[2], 4); line(c.cv, 118, c.fy - 76, 124, c.fy - 70, c.t[2], 3); line(c.cv, 112, c.fy - 76, 112, c.fy - 62, INK)
     lantern(c.cv, 112, c.fy - 60, c.t, c.gl); glow(c.cv, 112, c.fy - 56, 2, c.gl) if False else None; tufts(c, 8)
 def forest_root_tangle(c):
-    ground(c);
-    for i, (x, dy) in enumerate(((24, 30), (62, 40), (106, 34), (140, 28))):
-        for k in range(46):
-            xx = x + k; yy = c.fy - 6 - int(dy * math.sin(math.pi * k / 46.0))
-            for t in range(-3, 4): c.cv.put(xx, yy + 4 + abs(t) // 2 if False else yy + t, c.t[0 if t < -1 else 1 if t < 1 else 2 if t < 3 else 3]) if (k < 44) else None
-    lump(c.cv, 85, c.fy - 6, 30, 8, c.g, c.rnd, .1); tufts(c, 10)
+    ground(c, 78, 13, R5["litter"]); lump(c.cv, 85, c.fy - 6, 70, 8, c.g, c.rnd, .1)
+    for sx in (30, 140): col(c.cv, sx - 12, sx + 13, c.fy - 70, c.fy - 20, c.t, c.rnd, .06); lump(c.cv, sx, c.fy - 74, 22, 12, R5["leaf"], c.rnd, .15)
+    def root(x0, y0, x1, y1, h, th):
+        n = max(abs(x1 - x0), 1)
+        for i in range(n + 1):
+            u = i / float(n); x = x0 + int((x1 - x0) * u); y = y0 + int((y1 - y0) * u) - int(h * math.sin(math.pi * u))
+            for t in range(th):
+                c.cv.put(x, y + t - th // 2, c.t[0 if t < th * .25 else 1 if t < th * .55 else 2 if t < th * .85 else 3])
+            if i % 7 == 3: c.cv.put(x, y - th // 2 - 1, R5["moss"][1]); c.cv.put(x + 1, y - th // 2 - 1, R5["moss"][0])
+    root(8, c.fy - 18, 100, c.fy - 8, 16, 8); root(160, c.fy - 20, 60, c.fy - 10, 18, 8); root(30, c.fy - 24, 150, c.fy - 6, 12, 7); root(120, c.fy - 30, 84, c.fy - 4, 14, 6); root(48, c.fy - 34, 20, c.fy - 4, 10, 6)
+    for (x, y) in ((70, c.fy - 22), (112, c.fy - 18)): rock(c, x, y, 5, 3, R5["stone"])
+    tufts(c, 6, 40, 130)
 def forest_spring_pebbles(c):
     ground(c, 76, 13); pond(c, 85, c.fy - 18, 50, 12, R5["sea"], True)
     for i in range(14): rock(c, 44 + (i * 17) % 80, c.fy - 18 + (i * 5) % 14 - 4, 3, 2, [R5["sand"], R5["stone"], R5["petal"], R5["snow"]][i % 4])
@@ -312,13 +318,22 @@ def mtn_goat_ledge(c):
     rect(c.cv, gx + 14, gy - 4, gx + 17, gy + 1, R5["snow"][2]); c.cv.put(gx + 16, gy - 9, INK); c.cv.put(gx - 14, gy - 2, R5["snow"][1])
     tufts(c, 6, 10, 160, R5["leaf"])
 def forest_fern_tunnel(c):
-    ground(c, 76, 12)
-    for sx in (-1, 1):
-        for i in range(3): fern(c, 85 + sx * (46 - i * 4), c.fy - 8, 50 - i * 6, R5["leaf"] if i % 2 else R5["moss"], 4)
-    for i in range(7):
-        x = 40 + i * 15; line(c.cv, x, c.fy - 50 + abs(i - 3) * 4 - 8, x + 14, c.fy - 52 + abs(i - 3) * 4, R5["leaf"][1], 4)
-    for k in range(5): line(c.cv, 55 + k * 16, c.fy - 44, 55 + k * 16, c.fy - 30 - (k % 2) * 8, R5["sea"][0])
-    for k in range(3): ell(c.cv, 70 + k * 22, c.fy - 22 + k % 2 * 5, 1, 2, R5["sea"][0])
+    ground(c, 78, 13); ell(c.cv, 85, c.fy - 6, 22, 5, R5["litter"][1]); 
+    def frond(x0, ytop, cx, depth, R, sd):
+        n = 44
+        for i in range(n + 1):
+            u = i / float(n); x = x0 + (cx - x0) * (u ** 1.15); y = (c.fy - 8) - (c.fy - 8 - ytop) * math.sin(u * math.pi / 2) ** .8 + depth * u * u
+            wd = int(9 * math.sin(math.pi * min(1, u * 1.05 + .08)) ** .7) + 2
+            for t in range(-wd, wd + 1):
+                if (i % 4 == 3) and abs(t) > wd - 3: continue       # leaflet notches along the edge
+                tone = 0 if t < -wd * .4 else 1 if t < wd * .2 else 2 if t < wd * .7 else 3
+                c.cv.put(int(x), int(y) + t, R[tone])
+            c.cv.put(int(x), int(y), R[3])
+    for j, (ytop, R) in enumerate(((c.fy - 100, R5["leaf"]), (c.fy - 80, R5["moss"]), (c.fy - 92, R5["leaf"]))):
+        frond(12 + j * 12, ytop, 90 - j * 4, 10, R, 1); frond(158 - j * 12, ytop, 80 + j * 4, 10, R, -1)
+    for k in range(7): line(c.cv, 56 + k * 9, c.fy - 52 + (k % 3) * 6, 56 + k * 9, c.fy - 44 + (k % 3) * 6, R5["sea"][0]); ell(c.cv, 56 + k * 9, c.fy - 40 + (k % 3) * 6 + 4, 1, 2, R5["sea"][1])
+    for (x, y) in ((74, c.fy - 18), (98, c.fy - 22)): ell(c.cv, x, y, 3, 2, R5["sea"][0])
+    tufts(c, 5, 60, 110)
 def forest_acorn_scatter(c):
     ground(c, 78, 12)
     for i in range(22):
@@ -586,15 +601,26 @@ def mtn_stone_hut(c):
     col(c.cv, 76, 96, c.fy - 36, c.fy - 4, c.t, c.rnd, .03); rect(c.cv, 76, c.fy - 38, 96, c.fy - 34, c.t[1]); rect(c.cv, 108, c.fy - 36, 124, c.fy - 22, c.t[3]); rect(c.cv, 110, c.fy - 34, 122, c.fy - 24, R5["sea"][1])
     rect(c.cv, 140, c.fy - 22, 160, c.fy - 4, c.t[2]); rect(c.cv, 140, c.fy - 22, 160, c.fy - 20, c.t[0]); tufts(c, 4)
 def mtn_echo_wall(c):
-    ground(c, 80, 11); poly(c.cv, [(8, c.fy - 4), (8, c.fy - 96), (70, c.fy - 112), (162, c.fy - 92), (162, c.fy - 4)], c.r[2])
-    for y in range(c.fy - 112, c.fy - 3):
-        for x in range(8, 163):
-            if c.cv.get(x, y) == c.r[2]: c.cv.put(x, y, c.r[0 if x < 40 else 1 if x < 90 else 2 if x < 135 else 3] if (x * 5 + y * 3) % 19 else c.r[4])
-    for k in range(3):
-        for t in range(-3, 4): c.cv.put(85 + k * 3 - 6 + abs(t) * 0, c.fy - 70 + t * 0, CREAM) if False else None
-    for k in range(4):
-        r = 8 + k * 7; [c.cv.put(60 + int(r * math.cos(a / 30.0)), c.fy - 60 + int(r * 1.0 * math.sin(a / 30.0)), CREAM) for a in range(-60, 61) if a % 3 == 0]
-    ell(c.cv, 120, c.fy - 20, 6, 8, R5["petal"][1]); c.cv.put(120, c.fy - 22, INK); c.cv.put(122, c.fy - 22, INK); tufts(c, 3)
+    ground(c, 80, 11); top = [(6, c.fy - 4), (6, c.fy - 70), (22, c.fy - 84), (40, c.fy - 78), (58, c.fy - 100), (82, c.fy - 108), (104, c.fy - 96), (124, c.fy - 104), (146, c.fy - 84), (164, c.fy - 72), (164, c.fy - 4)]
+    poly(c.cv, top, c.r[2])
+    for y in range(c.fy - 110, c.fy - 3):
+        for x in range(6, 165):
+            if c.cv.get(x, y) == c.r[2]:
+                t = 0 if x < 30 else 1 if x < 80 else 2 if x < 130 else 3
+                if (y // 9) % 3 == 0: t = min(4, t + 1)
+                c.cv.put(x, y, c.r[t] if (x * 5 + y * 3) % 19 else c.r[4])
+    for (x0, y0, x1, y1) in ((30, c.fy - 76, 38, c.fy - 50), (118, c.fy - 90, 112, c.fy - 60)): line(c.cv, x0, y0, x1, y1, c.r[4], 2)
+    ox, oy = 85, c.fy - 40      # your voice goes out, comes back cheekier: rings bounce off the wall
+    for k, r_ in enumerate((8, 16, 24, 32)):
+        for a in range(-80, 81, 2):
+            x = ox + int(r_ * 1.5 * math.cos(math.radians(a))); y = oy + int(r_ * math.sin(math.radians(a)))
+            c.cv.put(x, y, CREAM if k % 2 == 0 else c.gl[0])
+    for k, r_ in enumerate((10, 20)):
+        for a in range(100, 261, 3):
+            x = ox + int(r_ * 1.5 * math.cos(math.radians(a))); y = oy - 14 + int(r_ * math.sin(math.radians(a))); c.cv.put(x, y, c.gl[1])
+    ell(c.cv, 150, c.fy - 18, 5, 6, R5["petal"][1]); c.cv.put(148, c.fy - 20, INK); c.cv.put(152, c.fy - 20, INK); line(c.cv, 148, c.fy - 14, 152, c.fy - 14, INK)
+    for x in range(14, 160, 22): lump(c.cv, x, c.fy - 4, 8, 4, c.g, c.rnd, .1)
+    tufts(c, 4)
 def desert_trader_poles(c):
     ground(c, 76, 12)
     for (x, h, ln) in ((40, 72, -6), (96, 82, 4), (140, 62, 8)): col(c.cv, x, x + 4, c.fy - h, c.fy - 4, c.t, c.rnd, .04); rect(c.cv, x - 1, c.fy - h - 2, x + 5, c.fy - h, c.t[3])
@@ -682,7 +708,12 @@ def tun_snow_fort(c):
     for x in (26, 52, 78, 104, 130): lump(c.cv, x, c.fy - 52, 8, 8, R5["snow"], c.rnd, .06) if x % 52 != 0 else None
     sign_flag(c, 84, c.fy - 96, c.fy - 44, R5["ember"]); lump(c.cv, 130, c.fy - 8, 7, 7, R5["snow"], c.rnd, .06); lump(c.cv, 144, c.fy - 6, 5, 5, R5["snow"], c.rnd, .06); rock(c, 24, c.fy - 5, 6, 3, R5["ice"])
 def tun_lone_fir(c):
-    ground(c, 60, 11, R5["snow"]); pinetree(c, 85, c.fy - 4, 118, R5["pine"], True); lump(c.cv, 85, c.fy - 6, 34, 8, R5["snow"], c.rnd, .06); rock(c, 128, c.fy - 5, 8, 4, R5["ice"]); tufts(c, 3, 20, 150, R5["ice"])
+    ground(c, 66, 12, R5["snow"]); lump(c.cv, 85, c.fy - 6, 46, 9, R5["snow"], c.rnd, .06)
+    pinetree(c, 85, c.fy - 4, 84, R5["pine"], True)
+    for (x, y, rx) in ((57, c.fy - 20, 10), (113, c.fy - 20, 10), (63, c.fy - 40, 9), (107, c.fy - 40, 9), (70, c.fy - 62, 8), (100, c.fy - 62, 8)): lump(c.cv, x, y, rx, 5, R5["snow"], c.rnd, .05)
+    lump(c.cv, 85, c.fy - 100, 9, 6, R5["snow"], c.rnd, .05); sparkle(c.cv, 85, c.fy - 108, CREAM)
+    for k in range(5): ell(c.cv, 40 + k * 9, c.fy - 4 - (k % 2) * 2, 2, 1, R5["snow"][3])
+    rock(c, 134, c.fy - 5, 8, 4, R5["ice"]); tufts(c, 3, 20, 150, R5["ice"])
 def tun_aurora_rise(c):
     lump(c.cv, 85, c.fy - 12, 82, 18, R5["snow"], c.rnd, .06)
     for k in range(3):
@@ -867,7 +898,7 @@ PIECES = {
     "the-cactus-garden": desert_cactus_garden, "the-eagle-s-rest": (170, 140, mtn_eagle_rest), "the-stone-hut": (170, 140, mtn_stone_hut), "the-echo-wall": (170, 140, mtn_echo_wall),
     "the-trader-s-tent-poles": desert_trader_poles, "the-switchback-bend": (170, 130, mtn_switchback), "the-hammock-palms": (170, 140, isl_hammock_palms), "the-tide-cave": isl_tide_cave,
     "the-shell-bell-tree": (170, 140, isl_shell_bell_tree), "the-hay-cart-ruts": grass_hay_cart_ruts, "the-fallen-log-bridge": forest_fallen_log_bridge, "the-bluebell-glade": forest_bluebell_glade,
-    "the-tide-pool-steps": coast_tide_pool_steps, "the-stranded-rowboat": coast_stranded_rowboat, "the-snow-fort": tun_snow_fort, "the-lone-fir": (170, 150, tun_lone_fir),
+    "the-tide-pool-steps": coast_tide_pool_steps, "the-stranded-rowboat": coast_stranded_rowboat, "the-snow-fort": tun_snow_fort, "the-lone-fir": (170, 130, tun_lone_fir),
     "the-aurora-rise": tun_aurora_rise, "the-frozen-stream": tun_frozen_stream, "the-ice-shelf-steps": tun_ice_shelf_steps, "the-star-chart-stones": tun_star_chart,
     "the-sandbar-causeway": coast_sandbar, "the-barnacle-wall": coast_barnacle_wall, "the-dune-grass-sweep": coast_dune_grass, "the-driftwood-arch": (170, 150, coast_driftwood_arch),
     "the-cairn-pass": (170, 130, mtn_cairn_pass), "the-sand-spit": isl_sand_spit, "the-rope-swing": (170, 140, isl_rope_swing), "the-sea-stack-gap": None,
