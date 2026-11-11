@@ -153,7 +153,7 @@ const GCLOCK_OWNER_DAY_SQL = '(SELECT u.game_day FROM plots pl JOIN users u ON u
 
 function gclock_on(): bool
 {
-    return setting('game_clock_on') === '1';
+    return in_array(strtolower(trim(setting('game_clock_on'))), ['1', 'on', 'true', 'yes'], true);   // tolerant: a saved 'on' counts too
 }
 
 /** The plot owner's game_day. Memoised per request; pass $reset after a sleep. */

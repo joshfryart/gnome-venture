@@ -7,7 +7,7 @@ declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 $u = require_login();
 $uid = (int)$u['id'];
-if (!gclock_on()) { flash('The hovel is still being built.', 'err'); redirect('gnome.php'); }
+if (!gclock_on()) { flash('The hovel is still being built. (Admin > Settings > Sleep-days: ON reads as "' . setting('game_clock_on') . '"; it needs 1.)', 'err'); redirect('gnome.php'); }
 if (is_post()) {
     csrf_check();
     $do = (string)($_POST['do'] ?? '');
