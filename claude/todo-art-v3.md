@@ -19,6 +19,8 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 - Stops are parametric: one script per stop type, look via `--script-param pal=<landscape_region>` from a PALETTES table. Pilot `v3/here-gate/pilot-market.lua`. New look = one new table entry.
 
 ## DONE (do not redo)
+- `-anim` strips, odd-size UI and puzzles closed (Josh 2026-11-11).
+- Cat Fish lane E pet shops: 55 `cf-pet-*` items, 11 `banner-<CODE>-pets`, 11 shopkeeper busts, `pet_slots` (CHANGELOG 991-992).
 - Creatures and minis: 117 creatures + 7 Trek crew redrawn and rigged (CHANGELOG 70; `mini/` and `folk/` files dated 2026-11-07/11); animal homes pixel art in the yard (CHANGELOG 492). Species/folk portraits and sprites done (CHANGELOG 526). Josh confirmed 2026-11-11.
 - Gather: `scene3-<land>` x 9 landscapes x day/dusk/night, satchel back/front x 3 skins, slots, vignettes, flourishes, badges, felt, ribbons, weather (checked 2026-11-11). Old `scene-<land>.png` (9) + `scene.png` are fallbacks only.
 - Acts (Josh: close enough) and big pictures (regions, banners, wonders, landing, map, journal) done 2026-11-11.
@@ -51,10 +53,7 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 ## C. LEFT OUT OF v3 (counts = files in `game/assets/img` on 2026-11-11)
 | Group | Count / note |
 |---|---|
-| `-anim` strips | with the animation plan |
-| Odd-size UI | `items/` 21, `fx/` 6, `steps/` 5, `roadkinds/` 5, `ui/` 4 |
 | Craftmap | `craftmap/` 14: unused leftovers (workshop picture replaced it); delete or ignore |
-| Puzzles | `puzzles/` 26 files (GIFs), jigsaw sets |
 | Catfish | `catfish/` (1,414 files mostly part frames), plan `claude/plan-catfish.md` |
 
 ## D. FROM OLD VARIETY LIST (not made)
@@ -65,13 +64,13 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 - Before/after pictures for 9 pilot places: Market of a Thousand Chilies, Stepped Seed Temple, Cenote of Echoes, Jaguar Root Caves, Driftwood Tavern, Sunken Gnome Galleon, Singing Waterfall, Mangrove Root Maze, Turtle Nesting Beach. Not wired.
 - Progress picture for clear stages (1/3, 2/3, 3/3).
 
-## E. CAT FISH (open lanes)
-- Lane E, only after Josh picks pet shops (`claude/plan-catfish-petshops.md` s7): 55 item sprites `cf-pet-<key>.png` 32-48 px (start Steel-pan Chime); 11 shop banners `banner-<code>-pets` 480x120; 11 shopkeeper busts 400x500; 8 `pet_slots` in `room-layout.json`; event props (golden fish, feather, stranger cat, yarn crumb).
-- Lane F, optional: side-cat nap/bored frames that move; 'watch' head turn; catch and nap frames have no eye pixels (odd-eyed shows nothing).
+## E. CAT FISH (open)
+- Lane F, optional polish only: side-cat nap/bored frames that move; a 'watch' head turn; catch and nap frames have no eye pixels (odd-eyed shows nothing there). Not verified fixed.
+- Rest of `catfish/` (1,414 files: cats, patterns, tails, collars, ups, icons, pets) is done. Plan: `claude/plan-catfish.md`.
 - Tools: `tools/catfish_recolor.py`, `tools/catfish_build_art.py`, `tools/gen_placeholder_art.py`; sources `aseprite-source/catfish/`.
 
 ## F. ORDER
 1. Section A (4 items + ginseng).
 2. B1-B2 (stop looks, village/haven), B5 (sprites).
 3. B7 (pal sprites).
-4. C by Josh's priority. D and E only when asked.
+4. C (craftmap cleanup only). D and E only when asked.
