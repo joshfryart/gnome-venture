@@ -45,7 +45,7 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 4. Doors: unique door per villager (up to 151, `door-<slug>.png`), optional. Shared 6 exist.
 5. 2.5D villager sprites: 81 of up to 151 done. Feet bottom-centre, 96 px max, transparent, 1 px outline. Prioritise villagers on the most scenes.
 6. Treehouse: nothing open (done). Optional: `scenes/wander-step-back.png`.
-7. Pal sprites (perch + yard size) per Puzzle Pal: no `assets/img/pals/` folder yet, code falls back to the sticker/crop/silhouette. Found-pal sparkle. Pal Yard job-site picture is done.
+7. Pal perch sprites: DONE 2026-11-11, all 570 in `assets/img/pals/` (475 block pals generator-drawn, 95 whimsy hand-drawn). Optional: found-pal arrival sparkle. Weaker whimsy: pl-dlz-6 (lizard reads turtle), pl-wgor-6 (gorilla blob), mt-bill-brolly, pl-wcof-6, pl-flfm-6.
 8. Trail tile sets per landscape (code-generated today, art optional); event/hotspot icons 32x32; nav icons.
 9. Canvas 480x270 treated as settled (code reads size from layout JSON).
 
