@@ -2,6 +2,8 @@
 
 ## 2.6.58
 
+- Puzzle fight: your guard resets when YOUR turn starts (it stays up through the creature's turn; a Hold guard carries once). The creature's starting piece no longer vanishes when you only connect two pieces and end the turn (the page now holds back only the pieces it places that turn, flagged `fnew`).
+
 - Fixes: the hovel gate accepts `on`/`true`/`yes` and, when it bounces you home, says what the setting reads; the creature's starting piece no longer vanishes during your first turn's replay.
 
 - Puzzle combat, two ways to win: Hurt takes the creature's HEALTH down (red bar, 0 = it backs off); the pink bar is now CHARM only (full = won over). Great creatures have no charm bar. History chips say `-N hp` (creature) and `+N charm`. Hover text, hint and demo updated.

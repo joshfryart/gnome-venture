@@ -574,6 +574,7 @@
   }
 
   function begin(s, who) {
+    if (who === 'me') return;
     var p = s[who];
     p.block = p.keep; p.keep = 0; p.thorns = false; p.evade = 0;
   }
@@ -795,12 +796,12 @@
       ev.push({ by: 'me', tag: 'poison', k: 'poison', n: 'Poison', t: 'hurt', v: iround(add), fit: false, combo: null, tick: true });
       if (checkEnd(s)) return ev;
     }
-    var n = foeLen(s);
+    var n = foeLen(s); s.lastfoe = [];
     for (var k = 0; k < n && !s.over; k++) {
       var m = search(s, 'foe');
       if (m === null) break;
       var r = place(s, 'foe', m[0], m[1], m[2]);
-      if (r) ev = ev.concat(r);
+      if (r) { ev = ev.concat(r); s.lastfoe.push(s.pid); }
     }
     s.foe.agg = 0; s.foe.slow = 0;
     return ev;
@@ -850,6 +851,7 @@
     var gone = expire(s);
     draw(s, 'foe', s.foe.hsize);
     s.turn++; s.round++;
+    s.me.block = s.me.keep; s.me.keep = 0; s.me.thorns = false; s.me.evade = 0;
     draw(s, 'me', Math.min(PF_HAND_CAP, s.me.hand.length + PF_DRAW));
     s.gone = gone.map(function (p) { return { id: p.id, by: p.by, x: p.x, y: p.y, tile: p.tile, age: s.round - 1 - p.born }; });
     s.spawn = spawn(s);
@@ -925,7 +927,7 @@
       link: groupCellsAll(s, g).some(function (o) { return o[2]; })
     } : null;
     v.pcs = [];
-    for (var id in s.pcs) { var p = s.pcs[id]; v.pcs.push({ id: p.id, by: p.by, x: p.x, y: p.y, n: p.tile.n, t: p.tile.t, v: p.tile.v, tag: p.tile.tag, m: String(nn(p.tile.m, '')), e: edges(p.tile), age: s.round - p.born, seq: p.seq, spawn: nn(s.spawn, null) === p.id }); }
+    for (var id in s.pcs) { var p = s.pcs[id]; v.pcs.push({ id: p.id, by: p.by, x: p.x, y: p.y, n: p.tile.n, t: p.tile.t, v: p.tile.v, tag: p.tile.tag, m: String(nn(p.tile.m, '')), e: edges(p.tile), age: s.round - p.born, seq: p.seq, spawn: nn(s.spawn, null) === p.id, fnew: nn(s.lastfoe, []).indexOf(p.id) >= 0 }); }
     v.gone = nn(s.gone, []).map(function (q) { return { id: q.id, by: q.by, x: q.x, y: q.y, n: q.tile.n, t: q.tile.t, v: q.tile.v, tag: q.tile.tag, m: String(nn(q.tile.m, '')), e: edges(q.tile), age: q.age }; });
     for (i = 0; i < v.hand.length; i++) v.hand[i].e = edges(s.me.hand[i]);
     delete v.strip; delete v.open; delete v.open_t; delete v.open_v; delete v.open_by;

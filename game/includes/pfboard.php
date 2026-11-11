@@ -137,6 +137,7 @@ function pfb_fire(array &$s, int $root): array
 /** The start of a side's turn: its guard from last turn is spent (a Hold guard carries over once). */
 function pfb_begin(array &$s, string $who): void
 {
+    if ($who === 'me') return;   // your guard is reset when your turn starts (pfb_end_round), so it stays up through the creature's turn
     $s[$who]['block'] = $s[$who]['keep']; $s[$who]['keep'] = 0; $s[$who]['thorns'] = false; $s[$who]['evade'] = 0;
 }
 
@@ -374,12 +375,12 @@ function pfb_foe_turn(array &$s, int $extra): array
         $ev[] = ['by' => 'me', 'tag' => 'poison', 'k' => 'poison', 'n' => 'Poison', 't' => 'hurt', 'v' => (int)round($add), 'fit' => false, 'combo' => null, 'tick' => true];
         if (pf_check_end($s)) return $ev;
     }
-    $n = pfb_foe_len($s);
+    $n = pfb_foe_len($s); $s['lastfoe'] = [];   // the pieces it puts down this turn (the page holds only these back until the replay reaches them)
     for ($k = 0; $k < $n && !$s['over']; $k++) {
         $m = pfb_search($s, 'foe');
         if ($m === null) break;
         $r = pfb_place($s, 'foe', $m[0], $m[1], $m[2]);
-        if ($r) $ev = array_merge($ev, $r);
+        if ($r) { $ev = array_merge($ev, $r); $s['lastfoe'][] = $s['pid']; }
     }
     $s['foe']['agg'] = 0; $s['foe']['slow'] = 0;
     return $ev;
@@ -481,6 +482,7 @@ function pfb_end_round(array &$s): void
     $gone = pfb_expire($s);
     pf_draw($s, 'foe', $s['foe']['hsize']);
     $s['turn']++; $s['round']++;
+    $s['me']['block'] = $s['me']['keep']; $s['me']['keep'] = 0; $s['me']['thorns'] = false; $s['me']['evade'] = 0;   // a new turn for you: last turn's guard is gone (a Hold guard carries over once)
     pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + PF_DRAW));
     $s['gone'] = array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'tile' => $p['tile'], 'age' => $s['round'] - 1 - $p['born']], $gone);   // for the replay: they are shown until everything has scored, then they go
     $s['spawn'] = pfb_spawn($s);
@@ -509,7 +511,7 @@ function pfb_view(array $s): array
     $v['mode'] = 'board'; $v['w'] = PFB_W; $v['h'] = PFB_H; $v['fx'] = $s['fx'] ?? [];
     $g = $s['me']['held'] ?? null;
     $v['held'] = $g ? ['pcs' => array_map(fn($p) => ['n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'x' => $p['x'], 'y' => $p['y']], $g['pcs']), 'spots' => pfb_group_spots($s, $g), 'link' => (bool)array_filter(pfb_group_cells_all($s, $g), fn($o) => $o[2])] : null;
-    $v['pcs'] = array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born'], 'seq' => $p['seq'], 'spawn' => ($s['spawn'] ?? null) === $p['id']], $s['pcs']));
+    $v['pcs'] = array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born'], 'seq' => $p['seq'], 'spawn' => ($s['spawn'] ?? null) === $p['id'], 'fnew' => in_array($p['id'], $s['lastfoe'] ?? [], true)], $s['pcs']));
     $v['gone'] = array_map(fn($g) => ['id' => $g['id'], 'by' => $g['by'], 'x' => $g['x'], 'y' => $g['y'], 'n' => $g['tile']['n'], 't' => $g['tile']['t'], 'v' => $g['tile']['v'], 'tag' => $g['tile']['tag'], 'm' => (string)($g['tile']['m'] ?? ''), 'e' => pfb_edges($g['tile']), 'age' => $g['age']], $s['gone'] ?? []);
     foreach ($v['hand'] as $i => $t) $v['hand'][$i]['e'] = pfb_edges($s['me']['hand'][$i]);
     unset($v['strip'], $v['open'], $v['open_t'], $v['open_v'], $v['open_by']);

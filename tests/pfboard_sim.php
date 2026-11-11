@@ -152,6 +152,10 @@ $x = pfb_new(['hp' => 40, 'max_hp' => 40, 'stats' => $st, 'deck' => pf_player_de
 $r = pfb_play($x, [['j', 0, 1, 'R']], $x['turn']);
 if ($r['err'] || empty($x['me']['held']) || !array_filter($r['ev'], fn($e) => !empty($e['connect']))) { echo "FAIL a connect turn: " . json_encode($r['err']) . "\n"; $bad++; }
 if (pfb_play($x, [[0, 1, 1], [0, 2, 2]], $x['turn'])['err'] === null) { echo "FAIL two actions in one turn\n"; $bad++; }
+$vv = pfb_view($x);
+foreach ($vv['pcs'] as $p) if (!empty($p['fnew']) && ($x['pcs'][$p['id']]['seq'] ?? 99) <= 1) { echo "FAIL a piece the creature started with is flagged as new this turn\n"; $bad++; }
+$g0 = pfb_new(['hp' => 40, 'max_hp' => 40, 'stats' => $st, 'deck' => pf_player_deck($st), 'luck' => 0], $mkc, 5); $g0['me']['block'] = 7; $g0['me']['keep'] = 2; pfb_end_round($g0);
+if ($g0['me']['block'] !== 2 || $g0['me']['keep'] !== 0) { echo "FAIL your guard is not reset at the start of your turn (held guard carries)\n"; $bad++; }
 $y = pfb_new(['hp' => 40, 'max_hp' => 40, 'stats' => $st, 'deck' => pf_player_deck($st), 'luck' => 0], $mkc, 5);
 if (pfb_play($y, [['c', 3, 2]], $y['turn'])['err'] === null) { echo "FAIL played a group that was never set aside\n"; $bad++; }
 // the board keeps the creature supplied: with fewer than two of its pieces out after its turn, one is put out (not fired); pieces that expire are listed for the replay (they scored first)

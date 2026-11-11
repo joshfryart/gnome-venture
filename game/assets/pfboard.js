@@ -17,7 +17,7 @@
   var replayKey = 'pfr:' + ((form.querySelector('[name=nonce]') || {}).value) + ':' + ((form.querySelector('[name=turn]') || {}).value), willReplay = false;
   try { willReplay = !!(data.replay && data.replay.length && !window.sessionStorage.getItem(replayKey)); } catch (e) { willReplay = !!(data.replay && data.replay.length); }
   var hiddenIds = {}, revealId = null;   // the creature's pieces from this turn stay off the board until the replay reaches them (your piece resolves first, then its turn plays)
-  if (willReplay) { var mySeq = 0; data.pcs.forEach(function (p) { if (p.by === 'me' && p.age === 1 && p.seq > mySeq) mySeq = p.seq; }); data.pcs.forEach(function (p) { if (p.by === 'foe' && p.age === 1 && p.seq > mySeq) hiddenIds[p.id] = true; }); }   // only pieces the creature puts down AFTER yours this turn; the one it started with (placed before yours, although your chain scores it) stays
+  if (willReplay) data.pcs.forEach(function (p) { if (p.fnew) hiddenIds[p.id] = true; });   // only the pieces the creature put down this turn stay off the board until the replay reaches them (not the one it started with)
   var showGone = willReplay, hideSpawn = willReplay, animateSpawn = false, histEl = root.querySelector('.pf-hist');   // pieces that left this turn stay until everything has scored; a piece the board adds for the creature waits until then too
   var glows = [], fxOn = !willReplay, glowTimer = 0, frame = 0;
   var world = null, vz = 1, vx = 0, vy = 0, viewKey = '', moved = false;
