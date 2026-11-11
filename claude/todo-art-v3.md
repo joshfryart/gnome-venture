@@ -10,8 +10,9 @@ Done: 1,662 items/icons at 64x64 (runs 1-4), live in 2.4.98; 2.5.48 added the 35
 - Review rule: weak images get a pink 2 px border in the live copy (`rollout/weak.txt`, `rollout/export_game.py`).
 
 ## A. Redo (already drawn, judged weak)
-1. The 179 in `rollout/weak.txt` (tiny/near-invisible seeds, look-alikes such as tangelo~tangor, yerba-mate~yuzu, stage-* series, stone-wall-*, muddy materials). Remove a line when fixed; re-run `export_game.py`.
-2. Known: ginseng seed leaf reads as cannabis; hedgehog model reads like a messy-haired kid; gnome rig loses eye contrast on dark skin.
+Updated 2026-11-11. The 179 weak items were redrawn (CHANGELOG 2.4.98+ and art pass 2.5); the pink border is gone for them. Hedgehogs redrawn as real hedgehogs, and gnome layers got a 1px eye rim for dark skin (CHANGELOG line 423).
+1. Still weak, in `rollout/weak.txt` (pink border in live copy): `ph/ginseng`, `ph/stone-wall-end`, `ph/tomato`, `ph/stuffed-peppers-goat`. Remove a line when fixed; re-run `export_game.py`.
+2. Ginseng Seed: new leaf reads as the wrong plant (cannabis); still on the old picture. Fix, then export.
 
 ## B. Left out of v3 on purpose (count = files today in `game/assets/img`)
 | Group | What | Count / note |
