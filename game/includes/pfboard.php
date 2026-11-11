@@ -456,8 +456,9 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null,
         $names = array_map(fn($gp) => (string)$gp['tile']['n'], $w['me']['held']['pcs']);
         $ev = [['snap' => pfb_snap($w), 'by' => 'me', 'connect' => true, 'n' => implode(' + ', $names), 'types' => array_map(fn($gp) => (string)$gp['tile']['t'], $w['me']['held']['pcs']), 'size' => count($names)]];
     } else return $bad;
+    foreach ($ev as $i => $e0) $ev[$i]['ta'] = 'me';   // whose turn the event happened in (a chain can run through the other side's pieces; the page groups by this)
     if ($dry) return ['ev' => $ev, 'err' => null, 'bar' => round($w['bar']['now'], 1), 'max' => $w['bar']['max'], 'fh' => round($w['fh']['now'], 1), 'fhmax' => $w['fh']['max'], 'hp' => $w['me']['hp'], 'block' => $w['me']['block'], 'over' => $w['over']];
-    if (!$w['over']) $ev = array_merge($ev, pfb_foe_turn($w, 0));
+    if (!$w['over']) { $fe = pfb_foe_turn($w, 0); foreach ($fe as $i => $e0) $fe[$i]['ta'] = 'foe'; $ev = array_merge($ev, $fe); }
     if (!$w['over']) pfb_end_round($w);
     $w['fx'] = pfb_fx($ev);
     $w['log'][] = ['turn' => $s['turn'], 'n' => 1];
@@ -497,7 +498,7 @@ function pfb_pass(array &$s, int $turn): array
     foreach ($s['me']['hand'] as $t) if (pfb_cells($s, $t)) return ['ev' => [], 'err' => 'You still have a piece that fits somewhere.'];
     if (!empty($s['me']['held']) && pfb_group_spots($s, $s['me']['held'])) return ['ev' => [], 'err' => 'Your set-aside group still fits somewhere.'];
     $w = $s; pfb_begin($w, 'me');
-    $ev = pfb_foe_turn($w, 0);
+    $ev = pfb_foe_turn($w, 0); foreach ($ev as $i => $e0) $ev[$i]['ta'] = 'foe';
     $w['fx'] = pfb_fx($ev);
     if (!$w['over']) pfb_end_round($w);
     $s = $w;

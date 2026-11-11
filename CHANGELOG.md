@@ -2,6 +2,8 @@
 
 ## 2.6.58
 
+- Puzzle fight: a turn resolves completely before the other side's begins. A chain that runs through the other side's pieces no longer flips the banner back and forth (events now carry the turn they belong to).
+
 - Puzzle fight: the set-aside group sits in its own row under the board (with the buttons) instead of over the pieces.
 
 - Puzzle fight: clearer turns. The turn banner (Your turn / the creature's turn) shows, holds about a second, fades, and only then that side's pieces play.

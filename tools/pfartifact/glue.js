@@ -57,7 +57,7 @@
     r.ev.forEach(function (e) {
       if (e.snap) { enc.snaps[++enc.snapn] = e.snap; enc.snaplast = enc.snapn; }
       var chip = PFE.chipEvent(e, enc.snaplast); enc.hist.push(chip);
-      enc.replay.push({ id: e.id !== undefined ? e.id : null, by: e.by, ln: PFE.line(e, fight.creature.name), bar: e.barnow !== undefined ? e.barnow : null, fh: e.fhnow !== undefined ? e.fhnow : null, hp: e.hpnow !== undefined ? e.hpnow : null, g: e.gnow !== undefined ? e.gnow : null, n: e.n || '', t: e.t || '' });
+      enc.replay.push({ id: e.id !== undefined ? e.id : null, by: e.by, ta: e.ta || e.by, ln: PFE.line(e, fight.creature.name), bar: e.barnow !== undefined ? e.barnow : null, fh: e.fhnow !== undefined ? e.fhnow : null, hp: e.hpnow !== undefined ? e.hpnow : null, g: e.gnow !== undefined ? e.gnow : null, n: e.n || '', t: e.t || '' });
     });
     enc.histnew = r.ev.length; enc.hist = enc.hist.slice(-30);
     var keep = Object.keys(enc.snaps).map(Number).sort(function (a, b) { return a - b; }).slice(-14), ns = {}; keep.forEach(function (k) { ns[k] = enc.snaps[k]; }); enc.snaps = ns;

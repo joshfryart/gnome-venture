@@ -458,9 +458,10 @@
     if (data.replay0) { setBar(data.replay0.bar, data.barmax); setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }
     var step = 950, BAN = 1500, tt = 300, lastBy = null, foeName = data.foe || 'Creature';   // each side: its banner shows, holds for a second, fades, and only then its pieces play
     data.replay.forEach(function (ev, k) {
-      if (ev.by !== lastBy) {
-        lastBy = ev.by;
-        (function (by, at) { playTimers.push(setTimeout(function () { showTurn(by === 'me' ? 'Your turn' : foeName + "'s turn", by === 'me' ? 'me' : 'foe'); }, at)); })(ev.by, tt);
+      var side = ev.ta || ev.by;   // the turn it belongs to: a chain through the other side's pieces stays in one turn
+      if (side !== lastBy) {
+        lastBy = side;
+        (function (by, at) { playTimers.push(setTimeout(function () { showTurn(by === 'me' ? 'Your turn' : foeName + "'s turn", by === 'me' ? 'me' : 'foe'); }, at)); })(side, tt);
         tt += BAN;
       }
       playTimers.push(setTimeout(function () {

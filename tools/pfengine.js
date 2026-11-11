@@ -893,8 +893,9 @@
       var pcs = w.me.held.pcs;
       ev = [{ snap: snap(w), by: 'me', connect: true, n: pcs.map(function (gp) { return String(gp.tile.n); }).join(' + '), types: pcs.map(function (gp) { return String(gp.tile.t); }), size: pcs.length }];
     } else return bad();
+    ev.forEach(function (e0) { e0.ta = 'me'; });
     if (dry) return { ev: ev, err: null, bar: round(w.bar.now, 1), max: w.bar.max, fh: round(w.fh.now, 1), fhmax: w.fh.max, hp: w.me.hp, block: w.me.block, over: w.over };
-    if (!w.over) ev = ev.concat(foeTurn(w));
+    if (!w.over) { var fe = foeTurn(w); fe.forEach(function (e0) { e0.ta = 'foe'; }); ev = ev.concat(fe); }
     if (!w.over) endRound(w);
     w.fx = fx(ev);
     w.log.push({ turn: s.turn, n: 1 });
@@ -909,7 +910,7 @@
     for (i = 0; i < s.me.hand.length; i++) if (cells(s, s.me.hand[i]).length) return { ev: [], err: 'You still have a piece that fits somewhere.' };
     if (truthy(s.me.held) && !isEmpty(s.me.held) && groupSpots(s, s.me.held).length) return { ev: [], err: 'Your set-aside group still fits somewhere.' };
     var w = clone(s); begin(w, 'me');
-    var ev = foeTurn(w);
+    var ev = foeTurn(w); ev.forEach(function (e0) { e0.ta = 'foe'; });
     w.fx = fx(ev);
     if (!w.over) endRound(w);
     assignInto(s, w);
