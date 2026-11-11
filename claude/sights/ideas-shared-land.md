@@ -109,10 +109,10 @@ QUEST KITE 1. · VILLAGER: Dreamy kite-maker, `we=wind dp=day`: flies a kite wit
 **`grassland-the-dandelion-drift`** · 🌬️ **Blow a wish** — Blow the drift into the sky and make a wish.
 Mini "Wish Delivery": your seeds land in the next town on the route; 3 game days later a villager there thanks you for the dandelions (+5 friendship, random villager). · VILLAGER: Shy villager, `se=spring`, hiding in the fluff, whispers what they wished for (fp +2). · GOODIE: 25%: `dandelion` seed.
 
-**`grassland-the-sleepy-windmill`** · ⚙️ **Grind** — Feed a grain crop in; the sails turn slowly and you get flour (swap 2 grain → 1 Picnic Flour (new)).
+**`grassland-the-sleepy-windmill`** · ⚙️ **Wind up** — Feed a grain crop in; the sails turn slowly and you get flour (swap 2 grain → 1 Picnic Flour (new)).
 QUEST PICNIC 2. · VILLAGER: Sleepy villager naps on the flour sacks at `dp=dawn`; wake gently (sense 10) and they bake you `pancakes`. · GOODIE: `we=wind`, 30%: the sails rush, double flour.
 
-**`grassland-the-daisy-ring`** · 📏 **Measure** — Get out a tape and measure the ring. It is perfect to the hair.
+**`grassland-the-daisy-ring`** · 📏 **Count** — Get out a tape and measure the ring. It is perfect to the hair.
 Mini "Who Measured?": measure it in 3 different seasons; the third time you catch a Fussy villager's grandmother with a ruler. She gives you a Daisy-Chain Crown (new, +charm). · GOODIE: `dp=dawn`, 15%: Dew Pearl (new), a drop of dew that refuses to dry.
 
 **`grassland-the-clover-patch`** · 🍀 **Hunt for four** — Everyone checked every leaf. Check again anyway (luck 12).
@@ -188,7 +188,7 @@ QUEST SONG 1. · VILLAGER: Cheerful villager, `dp=dusk se=spring`, sings tenor w
 **`wetland-the-boardwalk-gap`** · 🔨 **Mend the plank** — Fit a `timber-plank` in the gap (or just hop: nimble 9).
 QUEST BRIDGE 3. · Mini "The Missing Plank": after you mend it, the lost plank turns up 3 sections later, floating; return it → Plank's Gratitude (new, a carved coaster). · GOODIE: 10%: `bog-iron` under the boards.
 
-**`wetland-the-lily-pad-ford`** · 🐸 **Hop** — Hop pad to pad (nimble 11); fail = one wet foot.
+**`wetland-the-lily-pad-ford`** · 🐸 **Skip** — Hop pad to pad (nimble 11); fail = one wet foot.
 VILLAGER: a frog-species villager, `we=rain`, coaches your hopping: next crossing Sight +2. · GOODIE: 15%: `golden-carp` glimpsed and caught by hand (rare, 3%); 20%: `cattail-root`.
 
 **`wetland-the-dragonfly-bend`** · 🧵 **Watch the stitching** — Watch dragonflies stitch the air blue; follow one seam with your eyes (sense 10).
@@ -325,7 +325,7 @@ VILLAGER: Dreamy villager, `we=sun dp=day`, lies in the sunbeam; share it → +3
 **`rainforest-the-parrot-perch`** · 🦜 **Translate** — The parrots argue in three languages; translate one argument (lore 12). Both sides think they won.
 QUEST KITE 4. · Mini "Parrot Phrasebook": translate 5 arguments → Parrot Phrasebook (new, +1 charm with travellers). · GOODIE: 8%: a parrot drops a `bright-feather` mid-argument.
 
-**`rainforest-the-vine-bridge`** · 🎻 **Pluck** — Pluck a vine as you cross; the bridge hums a note back (nimble 10).
+**`rainforest-the-vine-bridge`** · 🎻 **Strum** — Pluck a vine as you cross; the bridge hums a note back (nimble 10).
 QUEST BRIDGE 5. · VILLAGER: Lyra Fiddlewing, `we=wind`, between towns: plays along with the bridge → +1 nimble buff. · GOODIE: 15%: Vine Twine (new, crafting string).
 
 **`rainforest-the-fallen-giant`** · 🚶 **Walk the trunk** — The path goes along the trunk; walk it end to end and count the rings at the broken end.
@@ -337,7 +337,7 @@ QUEST SONG 5. · VILLAGER: Cheerful villager, `we=rain dp=day`, dances to it →
 **`rainforest-the-lantern-fruit`** · ✨ **Pick a glow** — Pick one friendly glowing fruit; it lights your next night walk (+sense at night).
 Mini "Lantern Path": pick 3 on one night (`dp=night`) and the path is lit: no fog penalty on this route that night. · VILLAGER: Shy villager, `dp=night`, only dares walk the Trail with a lantern fruit; give them one → +5 fp. · GOODIE: 6%: Lantern Fruit Seed (new).
 
-**`rainforest-the-mist-pool`** · 🍲 **Stir** — Stir the mist like soup; see what bobs up.
+**`rainforest-the-mist-pool`** · 🍲 **Swirl** — Stir the mist like soup; see what bobs up.
 VILLAGER: Pomeroy Crumbworth, `we=fog dp=dawn`, insists it smells of soup; describe the flavour (lore 10) → 2-spoon review and 40 xp. · GOODIE: 15%: `rainbow-fish` bobs up (rod not needed); `we=fog` 5%: Soup-Mist Jar (new, decor).
 
 ### Island (9)
@@ -366,7 +366,7 @@ QUEST KITE 5. · GOODIE: 20%: `coir-fibre`; `we=wind` 6%: a lost Beach Ball (new
 **`island-the-coconut-grove`** · 🥥 **Stare down** — Stare at each coconut until the guilty one gives itself up (sense 12).
 QUEST PICNIC 5. · VILLAGER: Pomeroy Crumbworth, `se=summer`, asks for one coconut for a curry review → `coconut-curry` share. · GOODIE: 30%: `coconut`.
 
-**`island-the-lagoon-edge`** · 🪞 **Gaze** — Gaze into the glass-clear lagoon; your reflection waves first.
+**`island-the-lagoon-edge`** · 🪞 **Peer** — Gaze into the glass-clear lagoon; your reflection waves first.
 Mini "Reflection Gnome": 3 calm visits (`we=sun` or `we=cloud`) and the reflection hands you a Mirror Pebble (new, keepsake). · VILLAGER: Shy villager, `dp=dawn`, practises talking to their reflection; talk to them instead → +4 fp. · GOODIE: 10%: Striped Minnow sighting (Almanac) and a Lagoon Glass Bead (new).
 
 ### Tundra (6)
@@ -386,7 +386,7 @@ QUEST HELLO 4. · Mini ice-fishing: with a rod, `arctic-char` table. · GOODIE: 
 **`tundra-the-ice-shelf-steps`** · 🎹 **Squeak a tune** — Step on the squeaky ice steps in order to play a tune (pick kind).
 Mini "Squeak Scale": play the full scale on 3 frosty days (`we=frost`) → title **Ice Pianist**. · VILLAGER: Eager villager, `we=frost`, requests a song; play it → +3 fp. · GOODIE: 10%: Squeaky Ice Chip (new, squeaks in your satchel).
 
-**`tundra-the-star-chart-stones`** · ✏️ **Trace** — Trace the scratched constellations with a finger (`dp=night` best); +lore xp and an Almanac star.
+**`tundra-the-star-chart-stones`** · ✏️ **Connect** — Trace the scratched constellations with a finger (`dp=night` best); +lore xp and an Almanac star.
 QUEST STARS 1. · VILLAGER: Wren Thimblewick, `dp=night`, between towns: copies a star with you → seed trade. · GOODIE: 8%: Stargazer's Chalk (new, lets you add a mark the next player sees, P4).
 
 ---
@@ -400,3 +400,6 @@ Since every verb is used once, no verb + reward pair can repeat. Checks on rewar
 - **Quest beats:** 9 lines, 43 spots, no spot carries two lines (picnic knoll, scarecrow and stilt house each carry first + last beat of their own line only).
 - **Shared spots (P4):** cairn pass (stone count), bottle post (notes), star-chart stones (chalk mark): three different shared mechanics.
 - **Conditions spread (rough count):** dawn ~14, dusk ~13, night ~11, rain ~12, fog ~7, wind ~11, sun ~6, heat ~5, storm ~4, snow 2, frost 2; every season used. No spot was left non-unique.
+
+## Cross-file uniqueness fix (2026-11-11)
+Seven verbs also appeared in the Maplewold file; the shared-land ones were renamed (Maplewold keeps its verb): windmill Grind -> Wind up, daisy ring Measure -> Count, lily-pad ford Hop -> Skip, vine bridge Pluck -> Strum, mist pool Stir -> Swirl, lagoon edge Gaze -> Peer, star-chart stones Trace -> Connect. All 219 verbs are now unique across the three files; no `(new)` item name is used in more than one file.
