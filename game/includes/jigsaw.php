@@ -285,6 +285,6 @@ function jigsaw_practice_finish(array $u, string $token, int $drops): array
         if ($pp = ppal_on_solve((int)$u['id'], (int)$r['pic_id'], $x['tier'], 'free', (int)$r['id'])) $x['ppal'] = $pp;
     }
     require_once __DIR__ . '/pfight_game.php';   // puzzle combat: a finished puzzle can earn a tile upgrade offer (bigger puzzle, rarer upgrades)
-    $up = pfight_puzzle_reward($u, 'run' . (int)$r['id'], $total >= 100 ? 2 : ($total >= 40 ? 1 : 0));
+    $up = pfight_puzzle_reward($u, 'run' . (int)$r['id'], pfight_rarity_for_pieces((int)$total));
     return [true, ($new ? 'A new best: ' . puzzle_ms_text($ms) . '!' : puzzle_ms_text($ms) . '. Your best is ' . puzzle_ms_text($best) . '.') . $up, $x];
 }

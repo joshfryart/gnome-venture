@@ -484,6 +484,8 @@ function settings_schema(): array
         'ppal_spawn_count' => ['label' => 'Puzzle Pals: pals waiting on the map at once per gnome (v2.0.92)', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 10],
         'ppal_party' => ['label' => 'Puzzle Pals: gnomes can take pals along (perks, shown beside the gnome; the Expert trophy adds +1 unit) (v2.0.88)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
         'pfight_open' => ['label' => 'Puzzle combat: fights are played as jigsaw-tile chains in road, lair and delve fights (Treks not yet)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', 'admin' => 'Admins only', '1' => 'Everyone']],
+        'pfight_rarity_mid' => ['label' => 'Puzzle upgrades: a jigsaw or tournament puzzle of this many pieces or more gives better (medium) upgrade offers', 'type' => 'int', 'default' => '40', 'min' => 1, 'max' => 1000],
+        'pfight_rarity_big' => ['label' => 'Puzzle upgrades: this many pieces or more gives the best (rare-leaning) offers', 'type' => 'int', 'default' => '100', 'min' => 2, 'max' => 2000],
         'pj_open' => ['label' => 'Pal jobs: found pals can tend a garden, gather, and re-run cleared delves (needs Puzzle Pals open) (v2.3.0)', 'type' => 'select', 'default' => '1', 'options' => ['0' => 'Off', '1' => 'On']],
         'pj_min_level' => ['label' => 'Pal jobs: gnome level needed (v2.3.0)', 'type' => 'int', 'default' => '10', 'min' => 1, 'max' => 100],
         'pj_max_away' => ['label' => 'Pal jobs: pals out at once per gnome (v2.3.0)', 'type' => 'int', 'default' => '3', 'min' => 1, 'max' => 10],

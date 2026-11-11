@@ -69,3 +69,11 @@ Names are fixed so the code can find them; a missing file simply keeps the curre
 6. Contact sheet and README delivered.
 
 Commit only under `game/assets/img/pfight/` and `aseprite-source/pfight/` (sources). Do not touch other files. Report what is done and what is left.
+
+## ROUND 2 (added later): more art is needed. Read the new sections at the bottom of `claude/pfight-art-todo.md`.
+The game gained more tile types and an upgrade system. Same rules as above (colour-blind safe, hand and strip sizes, exact file names, hard pixels). Deliver in this order:
+1. **Hurt variants** (6): icons `ico-hurt-<jab|pierce|sting|trip|bash|smash>.png` (32x32) and `-s.png` (20x20), plus tag marks `tag-<quick|pierce|poison|trip|bash|heavy>.png` (12x12).
+2. **Defence, Charm and Trick variants** (8): `ico-<brace|roll|thornhide|mending|hum|lull|bond|pluck>.png` and `-s.png`, plus tag marks `tag-<hold|evade|thorns|mend|hum|lull|bond|pluck>.png`.
+3. **Puzzle upgrade marks** (11): `mod-<sticky|swift|hardy|tender|leech|spiky|soft|warm|finisher|lucky|steady>.png` at 12x12 (a corner gem on an upgraded tile). Each must read without colour (different silhouettes). Also rarity trim for common/uncommon/rare using 1, 2 or 3 stitches/pips, not colour only.
+4. The "Choose an upgrade" popover header, 96x96.
+Check each new icon against the existing set in grayscale and colour-blind views: no two silhouettes alike. Add them to your README and contact sheet. Commit only under `game/assets/img/pfight/` and `aseprite-source/pfight/`, on branch `ccr-dea0abf9-eaakqa`.

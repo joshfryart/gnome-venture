@@ -158,6 +158,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
                     foreach ($rows as $x) { $roll -= max(1, (int)$x['chance']); if ($roll <= 0) { $pick = $x; break; } }
                     give_item((int)$u['id'], (int)$pick['item_id'], 1);
                     $ln = '🤏 You lift ' . $pick['name'] . ' from the ' . $c['name'] . '!';
+                    $enc['stolen'][] = ['name' => (string)$pick['name'], 'qty' => 1, 'img' => (string)(item_art_map()['id'][(int)$pick['item_id']] ?? '')];   // shown on the win screen too
                 }
             }
             exp_log($exp, $ln); $enc['last'][] = $ln;
@@ -169,7 +170,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
     switch ($s['over']) {
         case 'seen_off': case 'charmed':
             $charm = $s['over'] === 'charmed';
-            win_fight($u, $exp, $c, $charm, $charm);
+            win_fight($u, $exp, $c, $charm, $charm, (array)($enc['stolen'] ?? []));
             return true;
         case 'defeat':
             knock_out($u, $exp, $c);
@@ -379,6 +380,13 @@ function pfight_offer_choices(array $u, int $rarity): array
  * $ref is unique per finished run, so a hand-in can never pay twice. $rarity: 0 small, 1 medium, 2 big puzzle.
  * Up to PF_OFFER_DAILY a real day, and PF_OFFER_BANK waiting at once; either way the player is told.
  */
+/** Offer rarity for a puzzle of $pieces pieces: 0 small, 1 medium, 2 big. The two thresholds are admin settings. */
+function pfight_rarity_for_pieces(int $pieces): int
+{
+    $mid = max(1, (int)setting('pfight_rarity_mid')); $big = max($mid + 1, (int)setting('pfight_rarity_big'));
+    return $pieces >= $big ? 2 : ($pieces >= $mid ? 1 : 0);
+}
+
 function pfight_puzzle_reward(array $u, string $ref, int $rarity): string
 {
     if (!pfight_on($u) || is_guest($u) || !pmod_ensure()) return '';

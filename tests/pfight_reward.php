@@ -35,5 +35,9 @@ pfight_mod_remove($u, $tk); $ck('removing an upgrade works', isset(pfight_mods($
 // a pal tile (key pal:...) never takes an upgrade
 $ck('upgrades only fit their tile types', pfight_mod_fits('hardy', 'hurt'), false);
 $ck('another gnome has none of this', pfight_mods($uid + 999), []);
+$ck('rarity: small puzzle', pfight_rarity_for_pieces(12), 0); $ck('rarity: medium puzzle', pfight_rarity_for_pieces(40), 1); $ck('rarity: big puzzle', pfight_rarity_for_pieces(100), 2);
+set_setting('pfight_rarity_mid', '20'); set_setting('pfight_rarity_big', '30');
+$ck('rarity follows the admin settings', [pfight_rarity_for_pieces(19), pfight_rarity_for_pieces(20), pfight_rarity_for_pieces(30)], [0, 1, 2]);
+set_setting('pfight_rarity_mid', '40'); set_setting('pfight_rarity_big', '100');
 echo $bad ? "$bad FAILED\n" : "reward ok\n";
 exit($bad ? 1 : 0);

@@ -926,7 +926,7 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     return false;
 }
 
-function win_fight(array $u, array &$exp, array $c, bool $peaceful, bool $full = false): void   // $full (puzzle combat Charm): full XP and a gift instead of drops
+function win_fight(array $u, array &$exp, array $c, bool $peaceful, bool $full = false, array $stolen = []): void   // $full (puzzle combat Charm): full XP and a gift instead of drops
 {
     $exp['_won'] = true;   // this request won a fight (not saved): the lair check in adventure.php reads it instead of counting on the log
     $uid = (int)$u['id'];
@@ -945,7 +945,7 @@ function win_fight(array $u, array &$exp, array $c, bool $peaceful, bool $full =
     if (unlock_entries($uid, 'creature:' . $c['slug'])) {
         exp_log($exp, '📖 New Almanac page: ' . $c['name'] . '!');
     }
-    $loot = [];   // for the end scene: what dropped (name, qty, picture)
+    $loot = $stolen;   // for the end scene: what dropped (name, qty, picture), starting with anything lifted with Pluck
     if (!$peaceful) {
         $scene = exp_scene($exp);
         $luckBonus = max(0, luck_mod($u)) * 2;
