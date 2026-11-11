@@ -1,4 +1,5 @@
 # Act scenes: one picture per stop activity (checklist)
+> Open art todos live in `claude/todo-art-v3.md` (this file is the generated checklist; all 810 drawn).
 
 > Cat Fish (2.0.92) has its own art todo: `claude/catfish-art-brief.md`.
 
