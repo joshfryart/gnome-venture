@@ -7665,3 +7665,149 @@ dialog.hubpop .wsfrag .shhead + * , dialog.hubpop .wsfrag .box { margin-top: 6px
 .crewtabs:has(input.crewtabr:nth-of-type(4):checked) .crewtabbar label:nth-child(4) { background: var(--brand-ink); color: var(--surface); }
 .crewtabs:has(input.crewtabr:nth-of-type(5):checked) .crewtabbar label:nth-child(5) { background: var(--brand-ink); color: var(--surface); }
 .crewtabs:has(input.crewtabr:nth-of-type(6):checked) .crewtabbar label:nth-child(6) { background: var(--brand-ink); color: var(--surface); }
+
+/* ===== slim home (flag home_slim, includes/home_slim.php): hovel banner, TODAY / FURNISH / GNOME tabs, decor picker ===== */
+.hslim { container-type: inline-size; gap: 12px; }
+.hslim > * { margin: 0; }
+/* banner: felt with a gold stitch, the room crop (480x120), the greeting and the two rest buttons */
+.hs-banner { position: relative; display: grid; gap: 10px; padding: 10px; background: var(--felt); color: var(--felt-ink); box-shadow: var(--shadow-2); }
+.hs-banner::before { content: ""; position: absolute; inset: 4px; border: 2px dashed var(--thread); opacity: .6; pointer-events: none; }
+.hs-banner > * { position: relative; }
+.hs-pic { position: relative; overflow: hidden; border: 2px solid var(--ol); background: var(--felt-2); }
+.hs-pic .hroom { display: block; width: 100%; height: auto; }
+.hs-tag { position: absolute; left: 6px; top: 6px; z-index: 1; padding: 1px 8px; background: var(--felt); color: var(--felt-ink); border: 2px solid var(--thread); font-weight: 700; font-size: 13px; line-height: 1.4; white-space: nowrap; max-width: calc(100% - 12px); overflow: hidden; text-overflow: ellipsis; }
+.hs-banner .hs-full { display: none; }
+.hs-side { display: grid; gap: 8px; justify-items: center; text-align: center; }
+.hs-side h1 { margin: 0; font-size: 18px; color: var(--felt-ink); }
+.hs-rest { display: grid; gap: 6px; width: 100%; justify-items: center; }
+.hs-acts { display: flex; gap: 8px; width: 100%; }
+.hs-acts .btn { flex: 1 1 auto; min-height: 52px; font-size: 17px; margin: 0; }
+.hs-acts .btn.ghost { flex: 0 0 96px; }
+.hs-note { margin: 0; font-size: 14px; color: var(--felt-muted); }
+.hs-more { width: 100%; text-align: center; color: var(--felt-ink); }
+.hs-more summary { min-height: var(--tap); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 700; }
+.hs-more p { margin: 4px 0; }
+.hs-more small { color: var(--felt-muted); }
+/* the picture: drawn room when the PNG is missing; layers are boxes until drawn; dark theme and night are a tint */
+.hroom .hr-wall { fill: #c9a06a; } .hroom .hr-floor { fill: #8a6238; } .hroom .hr-beam { fill: #6e4a2a; }
+.hroom .hr-bed { fill: #a8241f; } .hroom .hr-pillow { fill: #f2e4c0; } .hroom .hr-skirt { stroke: #4a2c1a; stroke-width: 2; }
+.hroom .hd-ph { fill: rgba(242, 228, 192, .28); stroke: rgba(74, 44, 26, .55); stroke-width: 1; }
+.hroom-full .hd-ph { stroke-dasharray: 4 3; }
+.hroom .hd-hit { fill: transparent; }
+.hroom a.hd { cursor: pointer; outline: none; }
+.hroom a.hd:hover .hd-hit { fill: rgba(232, 163, 23, .18); }
+.hroom a.hd:focus-visible .hd-hit, .hroom .hd.sel .hd-hit { stroke: var(--thread); stroke-width: 3; fill: rgba(232, 163, 23, .22); }
+.hroom .hr-tint { fill: #0b1226; opacity: 0; pointer-events: none; }
+.hroom.dp-dusk .hr-tint, .hroom.dp-dawn .hr-tint { opacity: .14; }
+.hroom.dp-night .hr-tint { opacity: .34; }
+:root[data-theme="dark"] .hroom:not(.dp-night) .hr-tint { opacity: .22; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not([data-theme="dark"]) .hroom:not(.dp-night) .hr-tint { opacity: .22; } }
+/* tabs: three across, gold count badges */
+main nav.tabs.hstabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+main nav.tabs.hstabs a { gap: 6px; }
+.hs-bang { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 4px; background: var(--thread); color: #2a1a10; font-weight: 900; font-size: 12px; line-height: 1; letter-spacing: 0; box-shadow: 0 0 0 1px #4a2c1a, 1px 1px 0 1px #4a2c1a; }
+/* body: one column on a phone; main + side from a 640 px wide home */
+.hs-cols { display: grid; gap: 12px; align-items: start; }
+.hs-cols.homepanel { padding: 0; background: none; box-shadow: none; }
+.hs-main, .hs-rail { display: grid; gap: 12px; min-width: 0; align-content: start; }
+.hs-main > *, .hs-rail > * { margin: 0; }
+.hs-h { margin: 0; font-size: 17px; text-align: center; }
+/* TODAY: Needs you */
+.hs-needs { padding: 12px 14px 10px; }
+.hs-needs h2 { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 0; font-size: 18px; }
+.hs-nlist { list-style: none; margin: 8px 0 0; padding: 0; text-align: left; }
+.hs-nlist a, .hs-nlist li > div { display: flex; align-items: center; gap: 14px; min-height: 54px; padding: 6px 4px; color: var(--ink); text-decoration: none; border-top: 2px dashed var(--line); }
+.hs-nlist li:first-child a, .hs-nlist li:first-child > div { border-top: 0; }
+.hs-nlist a:hover { background: var(--surface-2); }
+.hs-nlist a:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+.hs-ni { position: relative; flex: none; width: 28px; text-align: center; font-size: 22px; line-height: 1; }
+.hs-ni .hs-bang { position: absolute; right: -10px; top: -9px; min-width: 16px; height: 16px; font-size: 11px; }
+.hs-tx { flex: 1; min-width: 0; }
+.hs-tx b, .hs-tx small { display: block; overflow-wrap: anywhere; }
+.hs-tx small { color: var(--muted); font-size: 13px; line-height: 1.3; }
+.hs-go { flex: none; color: var(--brand-ink); font-weight: 800; white-space: nowrap; }
+.hs-quiet, .hs-empty { margin: 6px 0 0; padding-top: 8px; border-top: 2px dashed var(--line); color: var(--muted); font-size: 14px; }
+.hs-empty { border-top: 0; }
+/* the news row: paper with "!" while unread, quiet felt once read */
+a.hs-news { display: flex; align-items: center; gap: 12px; padding: 10px 14px; text-align: left; text-decoration: none; color: var(--ink); }
+a.hs-news:hover { background: var(--surface-2); }
+a.hs-news.read { background: var(--felt); color: var(--felt-ink); border: 2px dashed var(--line-2); }
+a.hs-news.read small { color: var(--felt-muted); }
+a.hs-news.read .hs-go { color: var(--thread); }
+a.hs-news:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.hs-newsl { display: flex; justify-content: center; margin: 0; }
+.hs-newsl a { display: inline-flex; align-items: center; gap: 8px; min-height: var(--tap); font-weight: 800; }
+/* GNOME */
+.hslim .gnomecard .hs-boosts { display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 14px; }
+.hslim .gnomecard .hs-boosts b { color: var(--brand-ink); }
+.hslim .gnomecard .hs-boosts a { display: inline-flex; align-items: center; min-height: var(--tap); }
+/* FURNISH: the Cosiness meter, the slot tiles, the picker */
+.hs-cosy { display: grid; gap: 6px; padding: 10px 14px; text-align: center; }
+.hs-ctop { display: flex; justify-content: center; align-items: baseline; gap: 8px; margin: 0; }
+.hs-ctop span { font-weight: 800; font-variant-numeric: tabular-nums; }
+.hs-pips { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3px; }
+.hs-pips i { height: 14px; border: 2px solid var(--line-2); background: var(--surface-2); }
+.hs-pips i.on { background: var(--thread); border-color: var(--ink-2); }
+.hs-cosy small { color: var(--muted); font-size: 13px; }
+.hs-slots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+a.hs-slot { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 76px; padding: 6px 4px; background: var(--surface); color: var(--ink); text-decoration: none; text-align: center; box-shadow: var(--frame-lite), var(--shadow); }
+a.hs-slot .sn { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+a.hs-slot .cur { font-weight: 800; }
+a.hs-slot .ch { color: var(--brand-ink); font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+a.hs-slot:hover { background: var(--surface-2); }
+a.hs-slot:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+a.hs-slot.on { background: var(--felt); color: var(--felt-ink); box-shadow: inset 0 0 0 2px var(--thread); }
+a.hs-slot.on .sn { color: var(--felt-muted); } a.hs-slot.on .ch { color: var(--thread); }
+a.hs-slot.more { background: var(--felt); color: var(--felt-ink); box-shadow: none; border: 2px dashed var(--line-2); }
+a.hs-slot.more .sn { color: var(--felt-muted); } a.hs-slot.more .ch { color: var(--thread); }
+.hs-preview { display: grid; gap: 8px; padding: 10px; text-align: center; }
+.hs-preview h3 { margin: 0; font-size: 16px; }
+.hs-preview small { color: var(--muted); font-size: 13px; }
+dialog.hpick { width: min(560px, calc(100% - 24px)); max-width: none; max-height: calc(100dvh - 24px); margin: auto; border: 0; padding: 12px 14px 14px; background: var(--surface); color: var(--ink); box-shadow: var(--shadow-2); overscroll-behavior: contain; overflow: auto; text-align: center; }
+dialog.hpick::backdrop { background: rgba(42, 26, 16, .5); overscroll-behavior: contain; }
+dialog.hpick[open]:not(:modal) { position: static; width: auto; max-height: none; margin: 0; }   /* ?slot= without script, and after a change: the picker sits under the tiles */
+dialog.hpick form { display: grid; gap: 10px; margin: 0; }
+.hpick-h { display: grid; gap: 2px; }
+.hpick-h h3 { margin: 0; font-size: 18px; }
+.hpick-h small { color: var(--muted); font-size: 13px; }
+.hpick-tray { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; align-items: start; }
+.hpick-it { display: grid; gap: 4px; justify-items: center; align-content: start; min-height: var(--tap); margin: 0; padding: 8px 4px 6px; background: var(--surface-2); color: var(--ink); border: 2px solid var(--line-2); font: inherit; font-size: 14px; cursor: pointer; }
+button.hpick-it:hover { background: var(--bg); }
+button.hpick-it:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.hpick-it[aria-pressed="true"] { border-color: var(--brand); box-shadow: inset 0 0 0 3px var(--brand-line); }
+.hpick-it .nm { font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.hpick-it .cz { color: var(--muted); font-size: 13px; }
+.hpick-it .in { color: var(--brand-ink); font-weight: 800; }
+.hpick-it.lock { border-style: dashed; background: transparent; cursor: not-allowed; }
+.hpick-it.lock .hpick-th { opacity: .45; }
+.hpick-it.lock .nm { color: var(--muted); }
+.hpick-it .wh { color: var(--ink-2); font-size: 13px; line-height: 1.25; }
+.hpick-th { display: block; max-width: 100%; height: auto; image-rendering: pixelated; }
+.hpick-th .hd-ph { fill: var(--surface); stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 3 2; vector-effect: non-scaling-stroke; }
+.hpick-act { display: flex; gap: 8px; justify-content: center; }
+.hpick-act .btn { flex: 1 1 0; max-width: 220px; margin: 0; }
+/* phone: on FURNISH the banner grows into the whole room; the side (Cosiness) comes first, the room preview is the banner */
+.hs-tab-furnish .hs-banner .hs-crop { display: none; }
+.hs-tab-furnish .hs-banner .hs-full { display: block; }
+.hs-furnish .hs-rail { order: -1; }
+.hs-furnish .hs-preview { display: none; }
+@container (min-width: 760px) {
+  .hs-banner { grid-template-columns: minmax(0, 3fr) minmax(200px, 1.2fr); align-items: center; padding: 12px 16px 12px 12px; }
+  .hs-side h1 { font-size: 20px; }
+  .hs-acts { flex-wrap: wrap; }
+  .hs-acts .btn, .hs-acts .btn.ghost { flex: 1 1 120px; }
+}
+@container (min-width: 600px) {
+  .hs-tag { font-size: 14px; }
+  .hs-cols { grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); gap: 16px; }
+  .hs-furnish .hs-rail { order: 0; }
+  .hs-furnish .hs-preview { display: grid; }
+  .hs-tab-furnish .hs-banner .hs-crop { display: block; }
+  .hs-tab-furnish .hs-banner .hs-full { display: none; }
+  .hs-slots { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); }
+  .hpick-tray { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  a.hs-slot, .hpick-it, a.hs-news, .hs-nlist a, .hroom .hd-hit { transition: background-color .12s, box-shadow .12s, fill .12s; }
+}
+/* ===== end slim home ===== */
