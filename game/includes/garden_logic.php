@@ -1138,7 +1138,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
             case 'water':
                 if (!$p && $t['method'] !== 'notill') throw new UserError('Nothing to water here.');
                 if (!tool_tier($uid, 'water')) throw new UserError('You need a watering can. Twigg’s Seed Emporium sells them.');
-                $tourWater = $p && tour_waiting_for($uid, 'water');   // tour step "Water it" must always be completable, even when rain already watered the plant
+                $tourWater = $p && function_exists('tour_waiting_for') && tour_waiting_for($uid, 'water');   // tour step "Water it" must always be completable, even when rain already watered the plant
                 if (!$tourWater && gclock_on() && $p && !tile_info($t, $p)['thirsty'] && !tile_info($t, $p)['ready']) throw new UserError('Watered for today. It will want water again after you sleep.');
                 if (!$tourWater && !gclock_on() && $t['last_watered'] && time() - ts($t['last_watered']) < 300) throw new UserError('Already well watered.');   // sleep-days: the game day decides (checked above); a sleep right after watering must not block the new day
                 if (!$tourWater && $p && $t['last_watered'] && !tile_info($t, $p)['thirsty'] && tile_info($t, $p)['wet_left'] > water_seconds($t, $p) / 2) {
