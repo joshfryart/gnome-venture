@@ -38,51 +38,68 @@ pal("dw-mirage-moon",{32,60,19,1},{{8,10},{57,12},{59,40}},function()
 end)
 ----------------------------------------------------------- bill brolly
 pal("mt-bill-brolly",{31,60,13,1},{{7,48},{58,6},{57,32}},function()
-  line(37,13,40,44,"#3a8a52",2); line(37,13,37,30,"#5fae4a",1)
-  poly({{39,44},{55,48},{54,56},{38,52}},R.black)
-  rect(46,50,54,51,"#fffaf0"); rect(46,53,53,54,"#fffaf0")
-  rect(25,55,28,58,"#e87a2a"); rect(34,55,37,58,"#e87a2a"); rect(25,55,28,55,"#ffc870"); rect(34,55,37,55,"#ffc870")
-  sblob(31,46,12,11,2,R.black)
-  sblob(30,50,7,6,2,R.cream)
-  sblob(26,31,10,9,2,R.black)
-  -- beak
-  poly({{20,22},{5,34},{9,39},{20,41}},R.yellow)
-  line(9,38,21,40,"#b8803a",1)
-  poly({{19,20},{9,27},{6,33},{15,29},{21,27}},R.orange)
-  px(7,34,"#2b1c26")
-  sblob(26,28,5,5,2,R.cream); eye(24,26,4,5)
-  sblob(34,29,3,4,2,R.cream); eye(33,28,3,4)
-  px(22,33,"#2b1c26")
+  local plum={"#8a86b8","#6a6698","#504c80","#3a3668","#2a2450"}
+  -- stem
+  line(37,12,38,30,"#3a8a52",2); line(37,12,37,28,"#5fae4a",1)
+  -- tail + red undertail
+  poly({{38,48},{52,52},{56,60},{40,58}},plum)
+  rect(40,56,52,57,"#e8523f")
+  -- legs
+  rect(25,56,28,58,"#e87a2a"); rect(34,56,37,58,"#e87a2a"); rect(25,56,28,56,"#ffc870"); rect(34,56,37,56,"#ffc870")
+  -- body + big white bib
+  sblob(33,46,12,12,2,plum)
+  sblob(28,47,7,9,2,{"#fffaf0","#fff0d8","#f0dcc8","#c8b4d0","#9a88b0"})
+  -- head
+  sblob(31,30,9,8,2,plum)
+  sblob(27,28,5,5,2,{"#a8f0e0","#5ccfc0","#3aa8a8","#2a7a90","#2a4a7a"})
+  eye(26,27,4,4)
+  rect(35,23,38,23,plum[1])
+  -- huge beak
+  poly({{23,24},{4,32},{4,37},{12,42},{24,39}},R.yellow)
+  poly({{4,32},{4,37},{8,40},{9,35}},R.red)
+  poly({{23,24},{14,27},{23,32}},R.orange)
+  line(6,37,24,35,"#2b1c26",1)
+  px(18,29,"#2b1c26")
   -- leaf umbrella
   CL=function(x,y) return y<=14 end
-  sblob(38,14,20,10,2,R.green)
+  sblob(38,14,22,11,2,R.green)
   CL=nil
-  for _,i in ipairs{-14,-7,0,7,14} do line(38,14,38+i,6+math.abs(i)*0.2,"#3a8a52",1) end
-  px(40,7,"#b4e873"); px(41,7,"#b4e873")
+  for _,i in ipairs{-16,-8,0,8,16} do line(38,14,38+i,5+math.abs(i)*0.2,"#35507a",1) end
+  px(40,6,"#d8ff9a"); px(41,6,"#d8ff9a"); px(42,6,"#d8ff9a")
   -- frog
-  sblob(49,54,6,5,2,R.green)
-  sblob(46,48,2,2,2,R.green); sblob(52,48,2,2,2,R.green)
-  px(46,48,"#2b1c26"); px(52,48,"#2b1c26"); px(45,47,"#fff6e0"); px(51,47,"#fff6e0")
-  rect(47,55,51,55,"#2b1c26"); rect(48,56,50,56,"#c0332f")
+  sblob(49,54,5,4,2,R.green)
+  sblob(46,49,2,2,2,R.green); sblob(52,49,2,2,2,R.green)
+  px(46,49,"#2b1c26"); px(52,49,"#2b1c26"); px(45,48,"#fff6e0"); px(51,48,"#fff6e0")
+  rect(47,55,51,55,"#2b1c26")
 end)
 ----------------------------------------------------------- mossback monitor
-pal("pl-dlz-6",{32,60,19,1},{{8,14},{57,10},{58,52}},function()
-  for _,b in ipairs{{47,50,6,5},{52,45,5,4},{55,40,4,4},{55,35,3,3},{53,31,2,2}} do sblob(b[1],b[2],b[3],b[4],2,olive) end
-  sblob(17,51,4,4,2,olive); sblob(47,51,4,4,2,olive)
-  sblob(32,46,17,10,3,olive,function(i,x,y) if i>=2 and i<=4 and x%4==0 and (y%3~=0) then return olive[i+1] end end)
-  sblob(32,51,10,5,2,{"#fff0a0","#ffe08a","#e8c868","#b89a5a","#7a6a7a"})
-  for x=26,38,3 do px(x,50,"#b89a5a"); px(x,53,"#b89a5a") end
-  sblob(22,56,5,3,2,olive); sblob(42,56,5,3,2,olive)
-  for _,x in ipairs{19,22,25,39,42,45} do px(x,58,"#35507a") end
-  sblob(31,32,11,9,2,olive)
-  -- moss tuft with flower
-  sblob(39,39,4,2,2,{"#d8ff9a","#b4e873","#8fd05a","#5fae4a","#3a8a52"})
-  px(40,37,"#ff9ab8"); px(41,37,"#ff9ab8"); px(40,36,"#fff6e0")
-  eye(23,28,4,5); eye(31,28,4,5)
-  px(27,34,"#35507a"); px(31,34,"#35507a")
-  rect(25,38,33,38,"#2b1c26"); px(24,37,"#2b1c26"); px(34,37,"#2b1c26")
-  rect(29,39,29,42,"#e8523f"); px(28,43,"#e8523f"); px(30,43,"#e8523f")
-  px(22,35,"#f5a0b8"); px(23,35,"#f5a0b8")
+pal("pl-dlz-6",{32,60,20,1},{{8,14},{57,10},{58,52}},function()
+  local hide={"#c8e07a","#9cc860","#6ea24a","#487a48","#35507a"}
+  local belly={"#fff0a0","#ffe08a","#e8c868","#b89a5a","#7a6a7a"}
+  -- far legs
+  line(24,46,19,54,hide[4],3); line(19,54,15,57,hide[4],2)
+  line(41,46,46,54,hide[4],3); line(46,54,50,57,hide[4],2)
+  -- tail: long, tapering, curling up
+  for _,b in ipairs{{43,46,6,4},{49,47,5,3},{54,46,4,3},{58,43,3,2},{60,39,2,2},{60,35,1,2},{59,32,1,1}} do sblob(b[1],b[2],b[3],b[4],2,hide) end
+  for _,p in ipairs{{47,44},{52,44},{56,42},{58,40}} do px(p[1],p[2],hide[4]) end
+  -- slim body
+  sblob(30,45,15,6,2,hide,function(i,x,y) if i>=2 and i<=4 and (x%5==0) and y<46 then return hide[i+1] end end)
+  sblob(29,49,12,3,2,belly)
+  -- moss patch + flower on back
+  sblob(33,39,5,2,2,{"#d8ff9a","#b4e873","#8fd05a","#5fae4a","#3a8a52"})
+  px(34,37,"#ff9ab8"); px(35,37,"#ff9ab8"); px(34,36,"#fff6e0"); px(35,38,"#ff9ab8")
+  -- near legs, splayed
+  line(21,48,14,53,hide[2],3); line(14,53,9,56,hide[2],2)
+  line(39,48,46,53,hide[2],3); line(46,53,52,56,hide[2],2)
+  for _,p in ipairs{{7,57},{9,58},{11,58},{50,57},{52,58},{54,58},{12,57},{47,57}} do px(p[1],p[2],hide[3]) end
+  -- wedge head, snout left
+  poly({{3,42},{9,37},{19,35},{25,38},{24,47},{14,48},{5,46}},hide)
+  poly({{4,45},{14,47},{24,47},{20,49},{8,48}},belly)
+  eye(15,38,4,4)
+  px(5,42,"#35507a"); px(6,42,"#35507a")
+  line(4,46,18,47,"#2b1c26",1)
+  px(2,45,"#e8523f"); px(1,46,"#e8523f"); px(1,44,"#e8523f")
+  line(21,36,22,45,hide[4],1)
 end)
 ----------------------------------------------------------- lotus perch
 pal("pl-jdf-6",{32,61,22,1},{{7,28},{58,22},{57,44}},function()

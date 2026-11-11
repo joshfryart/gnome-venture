@@ -42,51 +42,73 @@ pal("pl-thch-6",{32,60,21,1},{{7,20},{57,12},{58,46}},function()
 end)
 ----------------------------------------------------------- host
 pal("pl-wcof-6",{32,61,24,1},{{7,12},{57,10},{58,36}},function()
-  sblob(32,57,26,4,2,R.cream)
-  rect(8,58,56,58,"#e8523f")
-  local robe={"#f0a070","#d8704a","#b04a3f","#7a3a4a","#4a2f55"}
-  sblob(20,44,11,12,2,robe,function(i,x,y) if y==52 then return "#ffd966" end end)
-  sblob(14,56,4,2,2,R.brown); sblob(27,56,4,2,2,R.brown)
-  sblob(21,17,9,5,2,R.black)
-  local cocoa={"#c98a5a","#a8683f","#8a4f32","#5b3a2c","#43292a"}
-  sblob(20,26,10,10,2,cocoa)
-  for k,_ in pairs(M) do local y,x=k:match("(%-?%d+),(%-?%d+)") y=tonumber(y) x=tonumber(x)
-    if y>=19 and y<=22 then px(x,y,((x//3)%2==0) and "#e8523f" or "#fff0d0") end end
-  rect(10,23,29,23,"#8a2a40")
-  eye(14,27,4,4); eye(23,27,4,4)
-  rect(14,27,17,27,"#8a4f32"); rect(23,27,26,27,"#8a4f32")
-  px(18,33,"#2b1c26"); px(19,34,"#2b1c26"); px(20,34,"#2b1c26"); px(21,33,"#2b1c26")
-  rect(11,31,13,31,"#e8688f"); rect(26,31,28,31,"#e8688f")
-  line(28,40,38,35,robe[3],3); px(28,40,robe[2])
-  sblob(39,34,3,3,2,cocoa)
-  -- teapot
-  sblob(43,29,6,5,2,R.dark); poly({{38,27},{34,31},{36,32},{39,31}},R.dark)
-  rect(41,23,45,24,"#e8b040"); px(43,22,"#ffd966"); px(40,26,"#a8b0c8"); px(41,26,"#a8b0c8")
-  line(49,26,52,29,"#40466a",1); line(52,29,49,32,"#40466a",1)
-  line(35,32,35,48,"#d88a3a",1); px(35,36,"#ffd966"); px(35,42,"#ffd966")
-  for _,cx in ipairs{35,43,50} do
-    poly({{cx-2,48},{cx+3,48},{cx+2,53},{cx-1,53}},R.cream)
-    rect(cx-2,48,cx+2,48,"#d88a3a")
+  local robe={"#ffb888","#f08a58","#d0603f","#963a46","#4a2f55"}
+  local cocoa={"#e8b080","#c98a5a","#a8683f","#7a4a38","#4a2f45"}
+  -- tray
+  sblob(32,58,27,3,2,R.cream); rect(7,59,57,59,"#e8523f")
+  -- robe body
+  sblob(20,46,11,12,2,robe,function(i,x,y) if y==53 then return "#ffd966" end end)
+  sblob(14,57,4,2,2,R.brown); sblob(27,57,4,2,2,R.brown)
+  -- head
+  sblob(20,25,10,10,2,cocoa)
+  sblob(20,16,9,5,2,{"#6a6088","#4a4268","#3a3256","#2e2648","#261c3c"})
+  rect(10,19,30,21,"#fff0d0")
+  for x=10,30,3 do rect(x,19,x+1,21,"#e8523f") end
+  eye(14,25,4,4); eye(23,25,4,4)
+  px(18,31,"#2b1c26"); px(19,32,"#2b1c26"); px(20,32,"#2b1c26"); px(21,31,"#2b1c26")
+  rect(11,29,13,29,"#ff9ab8"); rect(27,29,29,29,"#ff9ab8")
+  -- arm to pour
+  line(27,40,36,36,robe[3],3); px(27,40,robe[2])
+  sblob(37,35,3,3,2,cocoa)
+  -- teal teapot with bright rim
+  sblob(46,32,7,6,2,R.teal)
+  poly({{39,30},{34,35},{36,36},{40,34}},R.teal)
+  rect(43,25,49,26,"#fff0a0"); px(46,24,"#ffd966")
+  px(42,30,"#d8fff0"); px(43,30,"#d8fff0")
+  line(52,28,55,32,"#fff0a0",1); line(55,32,52,36,"#fff0a0",1)
+  -- cocoa stream + cups
+  line(35,37,35,50,"#7a4a38",1)
+  for _,cx in ipairs{35,43,51} do
+    poly({{cx-3,50},{cx+3,50},{cx+2,56},{cx-2,56}},R.cream)
+    rect(cx-3,50,cx+3,50,"#8a4f32")
   end
-  px(36,48,"#ffd966"); px(44,48,"#ffd966")
+  px(36,52,"#fffaf0"); px(44,52,"#fffaf0")
+  for _,p in ipairs{{46,19},{47,18},{46,17},{47,16}} do px(p[1],p[2],"#fffaf0") end
 end)
 ----------------------------------------------------------- gorilla
 pal("pl-wgor-6",{32,60,22,1},{{7,14},{58,10},{57,40}},function()
-  sblob(22,57,6,3,2,R.dark); sblob(42,57,6,3,2,R.dark)
-  sblob(32,44,16,14,2,R.dark,function(i,x,y) if y<37 and i<=3 then return R.grey[i+1] end end)
-  sblob(32,50,9,7,2,{"#7a8098","#58607e","#4a5078","#3a3e66","#2f3258"})
-  sblob(14,45,7,12,2,R.dark); sblob(50,45,7,12,2,R.dark)
-  sblob(14,55,5,3,2,R.black); sblob(50,55,5,3,2,R.black)
-  sblob(32,22,7,4,2,R.grey)
-  sblob(32,26,10,9,2,R.dark)
-  sblob(32,29,7,6,2,{"#9a8aa8","#7a6a88","#5a4a70","#4a3a5e","#3a2e4a"})
-  eye(26,26,3,3); eye(35,26,3,3)
-  line(25,24,29,25,"#2f2440",1); line(35,25,39,24,"#2f2440",1)
-  px(31,30,"#2b1c26"); px(33,30,"#2b1c26")
-  rect(30,33,34,33,"#2b1c26"); px(29,34,"#2b1c26"); px(35,34,"#2b1c26")
-  px(23,26,"#9a8aa8"); px(41,26,"#9a8aa8")
-  sblob(51,56,4,4,2,R.orange); px(50,54,"#ffe0a0"); px(51,51,"#3a8a52"); px(52,51,"#5fae4a")
-  sblob(10,59,2,1,2,R.orange)
+  local fur={"#a4a8c8","#7c84ae","#5c6496","#444a7c","#323660"}
+  local sil={"#e0dcec","#c4bedc","#a49cc4","#7c76a4","#585480"}
+  local face={"#e8c8a8","#d0a888","#a8806e","#7a5860","#52384e"}
+  -- feet
+  sblob(22,57,6,3,2,fur); sblob(42,57,6,3,2,fur)
+  -- legs
+  sblob(23,52,6,6,2,fur); sblob(41,52,6,6,2,fur)
+  -- torso + hunched shoulders
+  sblob(32,43,13,13,2,fur)
+  sblob(32,32,24,9,2,fur)
+  -- silver saddle across shoulders/back
+  CL=function(x,y) return y<=31 end
+  sblob(32,29,19,5,2,sil)
+  CL=nil
+  -- arms: thick, hanging, knuckles on ground
+  sblob(11,43,6,13,2,fur); sblob(53,43,6,13,2,fur)
+  for _,x in ipairs{16,48} do line(x,36,x+(x<32 and 1 or -1),52,"#323660",1) end
+  sblob(9,56,6,3,2,fur); sblob(55,56,6,3,2,fur)
+  for _,x in ipairs{5,8,11,52,55,58} do px(x,58,"#323660"); px(x,57,"#7c84ae") end
+  -- light chest
+  sblob(32,40,9,8,2,face)
+  line(32,34,32,44,face[4],1); line(24,41,31,43,face[4],1); line(40,41,33,43,face[4],1)
+  -- head: crest, brow, light muzzle
+  sblob(32,16,7,6,2,fur); px(31,10,fur[1]); px(32,10,fur[1])
+  sblob(32,22,9,8,2,fur)
+  rect(24,20,40,21,"#323660")
+  eye(26,21,3,3); eye(35,21,3,3)
+  sblob(32,27,6,4,2,face)
+  px(30,26,"#2b1c26"); px(34,26,"#2b1c26")
+  rect(29,29,35,29,"#2b1c26"); px(28,28,"#2b1c26"); px(36,28,"#2b1c26")
+  -- fruit
+  sblob(57,50,3,3,2,R.orange); px(56,48,"#ffe0a0"); px(57,46,"#3a8a52"); px(58,46,"#5fae4a")
 end)
 ----------------------------------------------------------- diver
 pal("pl-wpea-6",{31,61,24,1},{{7,38},{57,6},{58,44}},function()

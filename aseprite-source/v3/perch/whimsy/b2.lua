@@ -79,20 +79,26 @@ pal("pl-aurc-6",{32,60,22,1},{{8,16},{57,12},{58,38}},function()
 end)
 ----------------------------------------------------------- marigold
 pal("pl-flfm-6",{32,60,20,1},{{6,40},{57,8},{58,34}},function()
-  line(49,48,58,58,"#8f5a38",2); poly({{54,54},{60,56},{57,62},{52,59}},R.wood)
+  -- ladle behind
+  line(49,50,59,59,"#8f5a38",2); poly({{54,55},{60,57},{57,62},{52,60}},R.wood)
+  -- petals: deep orange with dark seams
   for a=0,11 do local t=a*math.pi/6
-    sblob(32+math.cos(t)*13,32+math.sin(t)*12,6,6,2,(a%2==0) and R.orange or R.yellow) end
-  sblob(32,32,12,11,2,R.yellow)
-  eye(25,30,4,5); eye(35,30,4,5)
-  px(31,37,"#2b1c26"); px(32,38,"#2b1c26"); px(33,38,"#2b1c26"); px(34,37,"#2b1c26")
-  rect(22,36,24,36,"#ff9ab8"); rect(40,36,42,36,"#ff9ab8")
+    sblob(32+math.cos(t)*14,32+math.sin(t)*13,6,6,2,(a%2==0) and R.orange or {"#ffd966","#ffb040","#e8802a","#b8503a","#6a3a55"}) end
+  sblob(32,32,11,10,2,R.orange)
+  -- pale face disc
+  sblob(32,32,9,8,2,{"#fffbe0","#fff0a0","#ffe070","#e8b040","#b8803a"})
+  eye(26,30,4,4); eye(34,30,4,4)
+  px(31,36,"#2b1c26"); px(32,37,"#2b1c26"); px(33,37,"#2b1c26"); px(34,36,"#2b1c26")
+  rect(24,35,26,35,"#ff9ab8"); rect(38,35,40,35,"#ff9ab8")
+  -- pink hat
   sblob(32,20,13,3,2,R.pink)
   poly({{23,19},{29,3},{34,2},{37,6},{41,19}},R.pink)
   rect(24,17,40,18,"#ffd966"); px(33,3,"#ffc8dc")
+  -- blue bowl
   CL=function(x,y) return y>=50 end
-  sblob(32,55,20,9,2,R.wood,function(i,x,y) if y%4==0 and i<=4 then return R.wood[i+1] end end)
+  sblob(32,55,21,9,2,R.blue,function(i,x,y) if y%4==0 and i<=4 then return R.blue[i+1] end end)
   CL=nil
+  rect(11,50,53,50,"#fffaf0")
   for i=0,8 do local x=14+i*4.5 local y=51+math.sin(i/8*math.pi)*3
-    sblob(x,y,2.5,2.5,2,(i%3==0) and R.pink or ((i%3==1) and R.orange or R.yellow)) end
-  line(14,50,50,50,"#3a8a52",1)
+    sblob(x,y,2.5,2.5,2,(i%3==0) and R.pink or ((i%3==1) and R.red or R.yellow)) end
 end)
