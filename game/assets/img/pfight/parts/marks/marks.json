@@ -105,16 +105,16 @@
  },
  "rarity": {
   "0": [
-   7,
-   7
+   10,
+   12
   ],
   "1": [
-   7,
-   7
+   10,
+   12
   ],
   "2": [
-   7,
-   7
+   10,
+   12
   ]
  },
  "headers": {
@@ -148,7 +148,7 @@
   ]
  },
  "anchors": {
-  "note": "top-left of the mark, in PIECE IMAGE coords, drawn over the piece (1x marks). rarity 0 common, 1 uncommon, 2 rare.",
+  "note": "top-left of the mark, in PIECE IMAGE coords, drawn over the piece (1x marks). rarity 0 common, 1 uncommon, 2 rare. rarity-N.png = gem + N+1 count pips (10x12); rarity-gem-N.png = gem only (7x7).",
   "strip": {
    "tag": [
     13,
@@ -159,8 +159,8 @@
     32
    ],
    "rarity": [
-    54,
-    8
+    51,
+    7
    ]
   },
   "hand": {
@@ -173,7 +173,7 @@
     64
    ],
    "rarity": [
-    100,
+    98,
     18
    ]
   },

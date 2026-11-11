@@ -5,7 +5,7 @@ Cue rules (colour-blind): tag = cream ROUNDED SQUARE, upgrade = gold HEXAGON; ra
 import json
 import os
 import sys
-from PIL import Image
+from PIL import Image, ImageDraw
 import numpy as np
 import base_icons as B
 import gen4 as G
@@ -97,6 +97,23 @@ def gem(i):
     return Image.fromarray(a)
 
 
+def counted(i):
+    """gem + i+1 count pips under it (1 common, 2 uncommon, 3 rare), 10x12. Count and shape both carry rarity."""
+    rows, fill, shade = RAR[i]
+    out = blank(10, 12)
+    out.alpha_composite(gem(i), (1, 0))
+    n = i + 1
+    w = n * 2 + (n - 1)
+    x0 = (10 - (w + 2)) // 2
+    pad = blank(w + 2, 4)
+    d = ImageDraw.Draw(pad)
+    d.rectangle([0, 0, w + 1, 3], fill=INK + (255,))
+    for k in range(n):
+        d.rectangle([1 + k * 3, 1, 2 + k * 3, 2], fill=fill + (255,))
+    out.alpha_composite(pad, (x0, 8))
+    return out
+
+
 def header(t):
     """popover header 9-slice 24x16, slice 9 left/right: type-coloured ends (pattern), cream text field in the middle."""
     c = B.TYPES[t]
@@ -138,17 +155,18 @@ def main(out):
         badge('hex', GOLD, DGOLD, g).save(os.path.join(out, f'mod-{k}.png'))
         meta['mods'][k] = [12, 12]
     for i in RAR:
-        gem(i).save(os.path.join(out, f'rarity-{i}.png'))
-        meta['rarity'][str(i)] = [7, 7]
+        gem(i).save(os.path.join(out, f'rarity-gem-{i}.png'))
+        counted(i).save(os.path.join(out, f'rarity-{i}.png'))
+        meta['rarity'][str(i)] = [10, 12]
     for t in B.ORDER:
         header(t).save(os.path.join(out, f'pop-header-{t}.png'))
         meta['headers'][t] = [24, 16]
     sg = G.GEO['strip']
     KX, KY = sg['KX'], sg['KY']
     meta['anchors'] = {
-        'note': 'top-left of the mark, in PIECE IMAGE coords, drawn over the piece (1x marks). rarity 0 common, 1 uncommon, 2 rare.',
-        'strip': {'tag': [KX + 4, KY + 26], 'mod': [KX + 40, KY + 26], 'rarity': [KX + 45, KY + 2]},
-        'hand': {'tag': [18 + 6, 12 + 52], 'mod': [18 + 78, 12 + 52], 'rarity': [18 + 82, 12 + 6]},
+        'note': 'top-left of the mark, in PIECE IMAGE coords, drawn over the piece (1x marks). rarity 0 common, 1 uncommon, 2 rare. rarity-N.png = gem + N+1 count pips (10x12); rarity-gem-N.png = gem only (7x7).',
+        'strip': {'tag': [KX + 4, KY + 26], 'mod': [KX + 40, KY + 26], 'rarity': [KX + 42, KY + 1]},
+        'hand': {'tag': [18 + 6, 12 + 52], 'mod': [18 + 78, 12 + 52], 'rarity': [18 + 80, 12 + 6]},
         'popover': 'draw marks at 2x (24x24 / 14x14), integer scale only',
         'header': '9-slice, slice 9 px left and right, 16 px tall, stretch the middle; print the name in ink on the cream middle'}
     meta['cue'] = 'tag = cream rounded square, upgrade = gold hexagon; rarity = circle (common) / diamond (uncommon) / sparkle (rare)'
