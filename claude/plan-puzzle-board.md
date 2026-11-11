@@ -24,9 +24,12 @@ Status: engine, sim, page wiring and a working screen are done (setting `pfight_
 - Layout C (status bar, one-line history, big zoomable board, fanned hand), fight drawn on the route map (`.advgrid.pfover`), zoom/pan (wheel, pinch, buttons).
 - Tests: `tests/pfmap.sh` (random route + random creature, board and strip, phone and wide, plays until a chain shows glow and stamp).
 
+## Also built (latest)
+- Live effect preview: `pfb_preview` (read only dry run of the planned placements via `pfb_play(..., $dry)`), lines + resolve bar projection under the board; checked by `tests/pfboard.sh` (no state change, no draw pile or seed in the answer).
+- The creature's new pieces land one by one (reduced motion: no animation); upgrade glyph badges on pieces; touch pinch/pan tested with real touch events in `tests/pfmap.js`.
+- Gentle creatures: `PF_GENTLE_HM` = 0.8 (Hurt counts 80% on their bar, Charm 100%). A Hurt-only box against gentle creatures took ~17 turns at 0.5 and stalled; at 0.8 it is ~9-10 turns with no stalls, while a Charm box still wins in 2-4. (Sim: Hurt-only bots lose more often than mixed boxes against any creature; that is the bot, not the temper.)
+
 ## Still to build
-1. Live effect preview for the planned placements (server dry run).
-2. Foe placement animation; touch pinch has not been tested on a real phone.
-3. Upgrade marks and rarity trim (art not drawn yet).
-4. Balance pass with real players; creature pieces' edges per species; foes have no tactics of their own.
-5. Treks still use the old fight; gentle creatures are hard to win by Hurt alone (options a-d unchosen).
+1. Upgrade marks and rarity trim art (glyph badges stand in).
+2. Balance with real players; creature pieces' edges per species; foes have no tactics of their own.
+3. Treks still use the old fight.
