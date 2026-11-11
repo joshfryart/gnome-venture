@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.6.52
+- **Puzzle combat (hidden until switched on)**: road, lair and delve fights can be played with jigsaw pieces instead of the d20 menu. Admin > Settings: **Puzzle combat** = Off / Admins only / Everyone, and **mode** = Strip (chain) or Board (a new fight uses the mode; fights under way keep theirs). Treks still use the old fight.
+  - Strip: hand of pieces, build a chain of 1-4, the creature answers. Board: one open play area; place up to 4 pieces a turn next to pieces already out (knob into a hole of the same family, or a flat edge); a placed piece fires its chain newest first through linked joints; pieces leave after 2 rounds. Live preview of what your planned pieces would do. Pinch, wheel and buttons zoom the board.
+  - The fight is drawn over the route map. Piece art, joint marks, chain glow, chain-length stamps, tag and upgrade icons, creature rim tint come from `assets/img/pfight/` (missing files fall back to CSS).
+  - Puzzle box (`puzzlebox.php`): pack your pieces (capacity grows with level). Finishing a jigsaw or puzzle earns a pick of 1 of 3 piece upgrades (3 a day). Pluck can lift an item a creature drops. New Almanac pages unlock as you use new pieces.
+  - Balance: gentle creatures count Hurt at 0.8 (Charm 1.0). Tests: `pfight`, `pfight_sim`, `pfight_js`, `pfboard`, `pfboard_sim`, `pfboard_js`, `pfmap`, `pfight_reward`.
+
 ## 2.6.51
 - **Wattle fence**: all pieces (end, straight, corner, tee, cross, gate, icon) redrawn as one woven top-down set (`tools/gen_wattle_art.py`). The yard now shows the pixel PNG placeholder set when it exists (was always the old SVG), scaled crisp.
 - **Pal Jobs**: collecting one pal's trip or delve plays the chest animation, like Collect all.
