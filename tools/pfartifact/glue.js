@@ -13,7 +13,7 @@
   ];
   var PLAYER = { level: 9, hp: 64, stats: { level: 9, grit: 1, nimble: 1, hardiness: 1, charm: 1, lore: 1, luck: 1 },
     box: ['swing', 'jab', 'pierce', 'sting', 'bash', 'dodge', 'brace', 'rest', 'charm', 'offer', 'hum'], mods: { swing: 'leech', charm: 'warm', dodge: 'hardy' } };
-  var fight = null, selectedCreature = 0, seedN = (Date.now() % 100000) | 0, result = null;
+  var fight = null, selectedCreature = 0, seedN = (Date.now() % 100000) | 0, result = null, startMode = 'blank', pickedStart = null;
 
   // ---- the page asks for files and the preview over fetch(): answer from here (nothing else is reachable inside an artifact anyway)
   var realFetch = window.fetch;
@@ -46,7 +46,8 @@
     var cr = CREATURES[ci], seed = ++seedN * 7919 + ci;
     var deck = PFE.playerDeck(PLAYER.stats, { box: PLAYER.box });
     deck.forEach(function (t) { if (PLAYER.mods[t.k]) t.m = PLAYER.mods[t.k]; });
-    var state = PFE.newFight({ hp: PLAYER.hp, max_hp: PLAYER.hp, stats: PLAYER.stats, deck: deck, luck: PLAYER.stats.luck }, cr, seed);
+    var state = PFE.newFight({ hp: PLAYER.hp, max_hp: PLAYER.hp, stats: PLAYER.stats, deck: deck, luck: PLAYER.stats.luck }, cr, seed, startMode === 'blank' ? { blank: true } : {});
+    pickedStart = null;
     fight = { nonce: Math.random().toString(36).slice(2, 10), state: state, creature: cr, enc: { hist: [], replay: [], snaps: {}, snapn: 0, snaplast: null, histnew: 0 } };
     result = null; render();
   }
@@ -120,7 +121,7 @@
       chip.types.forEach(function (t, ci) { var tg = chip.tags[ci] || '', ti = C.tagIcon[tg] ? img('ico-' + C.tagIcon[tg] + '-s.png', 'pfh-ico') : null; hh += ti || sm(t); });
       hh += ' <span class="pfh-txt">' + esc(chip.txt) + '</span>' + (chip.tg ? who(chip.tg, cr) : '') + '</li>';
     }
-    if (!hist.length) hh = '<li class="pf-chip empty">Pieces are on the board. Place one next to them.</li>';
+    if (!hist.length) hh = '<li class="pf-chip empty">' + esc(enc.note || 'Pieces are on the board. Place one next to them.') + '</li>';
     var mini = function (cls, name, n) { return '<span class="pfc-pile ' + cls + '" role="img" aria-label="' + name + ': ' + n + ' pieces"><img src="' + ART[cls === 'deck' ? 'deck-book.png' : 'discard-bin.png'] + '" alt=""><b>' + n + '</b></span>'; };
     var top = '<div class="pfc-top"><div class="pfc-me"><span class="pfc-meav"><span class="pfc-av pfc-g25"><img src="' + ART['gnome-side.png'] + '" alt="Your gnome"></span>' + guardHtml(v.block) + '</span><span class="pf-hp" role="img" aria-label="Your health ' + v.hp + ' of ' + v.max + '' + '">❤️ <progress max="' + v.max + '" value="' + v.hp + '"></progress> ' + v.hp + '' + '</span></div>'
       + barHtml(v)
@@ -128,7 +129,7 @@
     h += top + '<div class="pfc-histrow"><ol class="pf-hist" aria-label="What has been played" aria-live="polite">' + hh + '</ol><button type="button" class="btn" id="pf-skip" hidden>Skip</button><span class="pfc-piles">' + mini('deck', 'Puzzle book', v.piles.draw) + mini('disc', 'Discard', v.piles.discard) + '</span></div>';
     h += '<div class="pf-rewind" id="pf-rewind" role="status" hidden><span id="pf-rw-t"></span><button type="button" class="btn" id="pf-rw-back">Back to now</button></div>';
     h += '<div class="pfb-board" id="pfb-board" role="group" aria-label="The play area: pick a piece from your hand, then a lit spot. Scroll, pinch or use the zoom buttons to zoom"></div>';
-    h += '<div class="pf-opts" id="pf-opts" hidden></div><p class="pf-preview help" id="pf-preview" aria-live="polite">Pick a piece, then a lit spot.</p><ol class="pf-plan" id="pf-plan" aria-live="polite" hidden></ol>';
+    h += '<div class="pf-opts" id="pf-opts" hidden></div><p class="pf-preview help" id="pf-preview" aria-live="polite">' + (blankOut(s) ? 'The blank \u2726 links to everything until the end of this turn. Pick a piece, then a lit spot.' : 'Pick a piece, then a lit spot.') + '</p><ol class="pf-plan" id="pf-plan" aria-live="polite" hidden></ol>';
     h += '<form class="pf-form" id="pf-form"><input type="hidden" name="do" value="pfb_play"><input type="hidden" name="nonce" value="' + fight.nonce + '"><input type="hidden" name="turn" value="' + v.turn + '"><input type="hidden" name="moves" id="pf-moves" value=""></form>';
     var won = !!enc.won && (s.over === 'seen_off' || s.over === 'charmed'), lost = s.over === 'defeat' || s.over === 'stall';
     if (won) h += '<div class="pf-won" role="status"><b>' + (s.over === 'charmed' ? 'The ' + esc(cr.name) + ' is charmed!' : 'The ' + esc(cr.name) + ' has had enough.') + '</b> <form class="inline pf-endform"><button class="btn primary" id="pf-end">End fight</button></form></div><button type="button" class="btn" id="pf-undo" hidden></button><button class="btn" id="pf-go" form="pf-form" hidden></button>';
@@ -160,8 +161,42 @@
     var ag = document.getElementById('pf-again'); if (ag) ag.addEventListener('click', function () { newFight(selectedCreature); });
   }
 
+  // ---- blank-centre start (the variant under test): pick a piece and a side of the blank, hidden from the creature
+  function blankOut(s) { return !!(s.pcs && s.pcs[1] && s.pcs[1].by === 'none'); }
+  var SIDENAME = { L: 'left', R: 'right', T: 'top', B: 'bottom' };
+  function edgeTxt(e) { var f = { body: 'B', mind: 'M', craft: 'C' }; return ['L', 'R', 'T', 'B'].map(function (sd) { var x = e[sd]; return sd + (x[0] === 'flat' ? ' flat' : (x[0] === 'hole' ? ' \u25CB' : ' \u25CF') + f[x[1]]); }).join(' \u00B7 '); }
+  function startHtml() {
+    var s = fight.state, cr = fight.creature, v = PFE.view(s), h = '<div class="pfstart"><h2>Your opening</h2>';
+    h += '<p>A blank piece <b>\u2726</b> sits in the middle. It fits and links with everything, does nothing itself, and is gone at the end of turn 1. Pick a piece from your hand, then a side of the blank. The ' + esc(cr.name) + ' picks one too, hidden. Nothing fires yet.</p>';
+    h += '<div class="pfs-cross" role="group" aria-label="Sides of the blank centre piece">';
+    ['T', 'L', 'C', 'R', 'B'].forEach(function (sd) {
+      if (sd === 'C') h += '<span class="pfs-c pfs-blank" aria-hidden="true">\u2726</span>';
+      else h += '<button type="button" class="pfs-side s' + sd + '" data-side="' + sd + '"' + (pickedStart === null ? ' disabled' : '') + ' aria-label="Put the piece on the ' + SIDENAME[sd] + ' of the blank">' + SIDENAME[sd] + '</button>';
+    });
+    h += '</div><div class="pfs-hand" role="group" aria-label="Your hand">';
+    v.hand.forEach(function (t, i) {
+      h += '<button type="button" class="pfs-card t-' + esc(t.t) + (pickedStart === i ? ' on' : '') + '" data-i="' + i + '" aria-pressed="' + (pickedStart === i) + '"><span class="pfs-ico" aria-hidden="true">' + ICON[t.t] + '</span><b>' + esc(t.n) + '</b><span>' + t.t + ' ' + t.v + '</span><small>' + edgeTxt(t.e) + '</small></button>';
+    });
+    return h + '</div><p class="muted help" id="pfs-msg">' + (pickedStart === null ? 'Tap a piece.' : 'Now tap a side of the blank.') + '</p></div>';
+  }
+  function bindStart() {
+    Array.prototype.forEach.call(stage.querySelectorAll('.pfs-card'), function (b) { b.addEventListener('click', function () { pickedStart = +b.dataset.i; render(); }); });
+    Array.prototype.forEach.call(stage.querySelectorAll('.pfs-side'), function (b) {
+      b.addEventListener('click', function () {
+        if (pickedStart === null) return;
+        var s = fight.state, mine = s.me.hand[pickedStart], side = b.dataset.side, err = PFE.start(s, pickedStart, side);
+        if (err) { var m = document.getElementById('pfs-msg'); if (m) m.textContent = err; return; }
+        var cx = PFE.W >> 1, cy = PFE.H >> 1, sideOf = function (p) { var dx = p.x - cx, dy = p.y - cy; return dx < 0 ? 'left' : dx > 0 ? 'right' : dy < 0 ? 'top' : 'bottom'; }, foe = [];
+        Object.keys(s.pcs).forEach(function (id) { var p = s.pcs[id]; if (p.by === 'foe') foe.push('the ' + fight.creature.name + ' put ' + p.tile.n + ' (' + p.tile.t + ' ' + p.tile.v + ') on the ' + sideOf(p)); });
+        fight.enc.note = 'You put ' + mine.n + ' on the ' + SIDENAME[side] + '; ' + foe.join(', ') + '. Turn 1: place a piece.';
+        pickedStart = null; render();
+      });
+    });
+  }
+
   function render() {
     if (result) { stage.innerHTML = resultHtml(); bindResult(); return; }
+    if (fight.state.start) { stage.innerHTML = startHtml(); bindStart(); return; }
     stage.innerHTML = build(); runScripts();
   }
   function resultHtml() {
@@ -181,5 +216,6 @@
     pick.appendChild(b);
   });
   document.getElementById('pfrestart').addEventListener('click', function () { newFight(selectedCreature); });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name=pfstart]'), function (r) { r.addEventListener('change', function () { if (r.checked) { startMode = r.value; newFight(selectedCreature); } }); });
   newFight(0);
 })();

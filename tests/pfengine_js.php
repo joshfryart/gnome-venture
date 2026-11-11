@@ -111,9 +111,9 @@ foreach (file(__DIR__ . '/../game/includes/data/creatures.txt', FILE_IGNORE_NEW_
     $lv = max(1, (int)$c[4]); $rows[] = ['slug' => $c[0], 'name' => $c[1], 'size' => $c[2], 'level' => $lv, 'dmg_die' => $die[$c[2]] ?? 6, 'dmg_bonus' => intdiv($lv, 4)];
 }
 $nf = 0; $na = 0;
-foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33]] as [$mode, $seed]) {
+foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33], ['blank', 44]] as [$mode, $seed]) {   // 'blank' = the blank-centre variant (opt blank + a hidden start), played by the single bot
     mt_srand($seed * 1000 + $ci);
-    $opt = []; $mods = false;
+    $opt = $mode === 'blank' ? ['blank' => true] : []; $mods = false;
     if ($mode === 'chaos') {
         $all = array_keys(pf_tiles()); $box = [];
         shuffle($all); $n = mt_rand(8, 14); $box = array_slice($all, 0, $n);
@@ -131,6 +131,17 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
     $s = pfb_new($me, $c, $seed + $c['level'], $opt);
     $rec = ['fight' => $c['slug'], 'mode' => $mode, 'seed' => $seed + $c['level'], 'creature' => $c, 'opt' => $opt, 'me' => $me, 'args' => $args, 'deck0' => $deck0,
         'init' => ['view' => slim(pfb_view($s)), 'state' => noNonce($s)], 'steps' => []];
+    if ($mode === 'blank') {   // before the start piece is picked nothing else may happen; bad starts refuse; then the hidden start itself
+        $tn = $s['turn'];
+        foreach ([['op' => 'play', 'moves' => [[0, 3, 1]]], ['op' => 'pass']] as $bs) {
+            $r = $bs['op'] === 'pass' ? pfb_pass($s, $tn) : pfb_play($s, $bs['moves'], $tn);
+            $rec['steps'][] = array_merge($bs, ['turn' => $tn, 'dry' => false, 'res' => $r, 'view' => slim(pfb_view($s)), 'dg' => digest($s), 'over' => $s['over'], 'fx' => $s['fx'] ?? null]); $na++;
+        }
+        foreach ([[0, 'Z'], [99, 'L'], [-1, 'R'], [0, 'l']] as [$bi, $bsd]) { $e = pfb_start($s, $bi, $bsd); $rec['steps'][] = ['op' => 'start', 'hand' => $bi, 'side' => $bsd, 'turn' => $tn, 'res' => ['err' => $e], 'view' => slim(pfb_view($s)), 'dg' => digest($s), 'over' => $s['over'], 'fx' => null]; $na++; }
+        $hi = mt_rand(0, count($s['me']['hand']) - 1); $sd = ['L', 'R', 'T', 'B'][mt_rand(0, 3)];
+        $e = pfb_start($s, $hi, $sd); $rec['steps'][] = ['op' => 'start', 'hand' => $hi, 'side' => $sd, 'turn' => $tn, 'res' => ['err' => $e], 'view' => slim(pfb_view($s)), 'dg' => digest($s), 'over' => $s['over'], 'fx' => null]; $na++;
+        $e = pfb_start($s, 0, 'L'); $rec['steps'][] = ['op' => 'start', 'hand' => 0, 'side' => 'L', 'turn' => $tn, 'res' => ['err' => $e], 'view' => slim(pfb_view($s)), 'dg' => digest($s), 'over' => $s['over'], 'fx' => null]; $na++;
+    }
     $probe = true; $t = 0;
     while (!$s['over'] && $t++ < 40) {
         $q = queries($s); $first = true;

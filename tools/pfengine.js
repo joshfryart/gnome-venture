@@ -23,7 +23,7 @@
   var PF_FOE_DMG = 1.4, PF_FOE_BOSS = 0.78;
   var PFB_W = 7, PFB_H = 5, PFB_LIFE = 3, PFB_FOE_MIN = 2, PFB_GROUP_MAX = 3;
   var PFB_GROUP_MULT = { 2: 1.0, 3: 1.5 };
-  var PFB_BOSS_MULT = 1.2;
+  var PFB_BOSS_MULT = 1.2, PFB_BLANK_FOE_MULT = 1.2;
   var PFB_BAR_MULT = 0.7, PFB_FOE_MULT = 0.62;
   var PFB_SIDE = { L: [-1, 0, 'R'], R: [1, 0, 'L'], T: [0, -1, 'B'], B: [0, 1, 'T'] };
   var PF_BOX_MIN = 6;
@@ -477,6 +477,7 @@
   // ------------------------------------------------------------------ board: edges and joints
   var EDGE_CACHE = {};
   function edges(t) {
+    if (t.k === 'blank') return { L: ['wild', null], R: ['wild', null], T: ['wild', null], B: ['wild', null] };   // the blank centre piece (opt blank): fits and links with everything
     var key = t.k + '|' + t.t + '|' + (t.r === null || t.r === undefined ? '' : t.r);
     if (has(EDGE_CACHE, key)) return EDGE_CACHE[key];
     var fam = ['body', 'mind', 'craft'];
@@ -489,6 +490,7 @@
   }
 
   function joint(a, b) {
+    if (a[0] === 'wild' || b[0] === 'wild') return [true, true];
     if (a[0] === 'flat' || b[0] === 'flat') return [true, false];
     var ok = a[0] !== b[0] && a[1] === b[1];
     return [ok, ok];
@@ -561,7 +563,9 @@
       var id = ch[i][0], par = ch[i][1];
       if (s.over) break;
       var p = s.pcs[id], who = p.by, tile = p.tile;
+      if (who === 'none') continue;   // the blank centre piece does nothing itself; the chain runs through it
       var pt = par !== null ? s.pcs[par] : null;
+      if (pt && pt.by === 'none') pt = null;   // and a piece after it has no combo parent
       var vv = value(pt ? pt.tile : null, tile, pt !== null && pt.by === who, false), ck = vv[2];
       var val = iround(vv[0] * Number(nn(p.cm, 1.0)));
       var isRoot = id === root;
@@ -728,8 +732,8 @@
     var gone = [], ids = Object.keys(s.pcs);
     for (var i = 0; i < ids.length; i++) {
       var p = s.pcs[ids[i]];
-      if (p.born <= s.round - PFB_LIFE + 1) {
-        s[p.by].discard.push(p.tile);
+      if (p.born <= s.round - (p.by === 'none' ? 1 : PFB_LIFE) + 1) {
+        if (p.by !== 'none') s[p.by].discard.push(p.tile);
         gone.push(p);
         delete s.cell[p.x + ',' + p.y]; delete s.pcs[ids[i]];
       }
@@ -818,9 +822,16 @@
   // ------------------------------------------------------------------ the whole fight
   function newFight(me, c, seed, opt) {
     var s = pfNew(me, c, seed, opt);
-    ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t) { t.v = Math.max(1, iround(t.v * PFB_FOE_MULT * (s.size === 'boss' ? PFB_BOSS_MULT : 1.0))); }); });
+    ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t) { t.v = Math.max(1, iround(t.v * PFB_FOE_MULT * (s.size === 'boss' ? PFB_BOSS_MULT : 1.0) * (truthy(opt && opt.blank) ? PFB_BLANK_FOE_MULT : 1.0))); }); });
     s.bar.max = round(s.bar.max * PFB_BAR_MULT, 1); s.fh.max = s.bar.max;
     s.mode = 'board'; s.strip = []; s.pcs = {}; s.cell = {}; s.pid = 0; s.seq = 0; s.round = 1;
+    if (opt && truthy(opt.blank)) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see start)
+      s.pid = 1; s.seq = 1; var cx = intdiv(PFB_W, 2), cy = intdiv(PFB_H, 2);
+      s.pcs[1] = { id: 1, by: 'none', tile: { k: 'blank', n: 'Blank', t: 'blank', v: 0, tag: '', r: null }, x: cx, y: cy, born: 1, seq: 1 };
+      s.cell[cx + ',' + cy] = 1; s.start = true;
+      draw(s, 'foe', s.foe.hsize); intent(s);
+      return s;
+    }
     var n = s.size === 'boss' ? 2 : 1;
     for (var k = 0; k < n; k++) {
       var pick = anchorPick(s); if (pick === null) continue;
@@ -837,6 +848,28 @@
     draw(s, 'foe', s.foe.hsize);
     intent(s);
     return s;
+  }
+
+  // Blank-centre variant: your hidden start. Pick a hand piece and a side of the blank (L, R, T, B); the creature picked its piece and side already, without seeing yours
+  // (its gentlest non-Hurt piece, a side by the seeded roll). Same side: yours stays and its piece takes the next free side. Nothing fires. A boss puts out two.
+  function start(s, handIdx, side) {
+    if (!truthy(s.start)) return 'The fight has already started.';
+    if (!has(PFB_SIDE, side)) return 'Pick a side: L, R, T or B.';
+    var tile = s.me.hand[handIdx]; if (!tile) return 'No such piece in your hand.';
+    var cx = intdiv(PFB_W, 2), cy = intdiv(PFB_H, 2), sides = ['L', 'R', 'T', 'B'], fs = sides[rand(s, 4)];
+    var put = function (who, idx, sd) {
+      var d = PFB_SIDE[sd], x = cx + d[0], y = cy + d[1], t = s[who].hand[idx];
+      s[who].hand.splice(idx, 1);
+      var id = ++s.pid; s.seq++;
+      s.pcs[id] = { id: id, by: who, tile: t, x: x, y: y, born: 1, seq: s.seq };
+      s.cell[x + ',' + y] = id;
+    };
+    put('me', handIdx, side);
+    var n = s.size === 'boss' ? 2 : 1, free = sides.filter(function (q) { return q !== side; }), st = free.indexOf(fs); if (st < 0) st = 0;
+    for (var k = 0; k < n; k++) { var pick = anchorPick(s); if (pick === null) break; put('foe', pick, free[(st + k) % free.length]); }
+    draw(s, 'foe', s.foe.hsize); intent(s);
+    s.start = false;
+    return null;
   }
 
   function fx(ev) {
@@ -869,6 +902,7 @@
   function play(s, moves, turn, dry, canPlay) {
     var bad = function () { return { ev: [], err: 'Those moves are not valid.' }; };
     if (s.over) return { ev: [], err: 'The fight is over.' };
+    if (truthy(s.start)) return { ev: [], err: 'Pick your start piece first.' };
     if (turn !== s.turn) return { ev: [], err: 'stale' };
     if (!Array.isArray(moves) || moves.length !== 1) return { ev: [], err: 'One action a turn.' };
     var mv = moves[0];
@@ -909,6 +943,7 @@
   /** Pass the turn with nothing to place. */
   function pass(s, turn) {
     if (s.over || turn !== s.turn) return { ev: [], err: s.over ? 'The fight is over.' : 'stale' };
+    if (truthy(s.start)) return { ev: [], err: 'Pick your start piece first.' };
     var i;
     for (i = 0; i < s.me.hand.length; i++) if (cells(s, s.me.hand[i]).length) return { ev: [], err: 'You still have a piece that fits somewhere.' };
     if (truthy(s.me.held) && !isEmpty(s.me.held) && groupSpots(s, s.me.held).length) return { ev: [], err: 'Your set-aside group still fits somewhere.' };
@@ -1013,7 +1048,7 @@
 
   return {
     // the public API
-    tiles: tiles, playerDeck: playerDeck, newFight: newFight, play: play, pass: pass, view: view,
+    tiles: tiles, playerDeck: playerDeck, newFight: newFight, start: start, play: play, pass: pass, view: view,
     cells: cells, edges: edges, joint: joint, groupSpots: groupSpots, groupFit: groupFit, groupOptions: groupOptions, search: search,
     line: line, chipEvent: chipEvent, chipsBoard: chipsBoard,
     // more of the PHP functions

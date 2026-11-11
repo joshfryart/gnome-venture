@@ -77,6 +77,7 @@
   }
 
   function joint(a, b) {   // [fits, linked]
+    if (a[0] === 'wild' || b[0] === 'wild') return [true, true];   // the blank centre piece (blank-start variant) fits and links with everything
     if (a[0] === 'flat' || b[0] === 'flat') return [true, false];
     var ok = a[0] !== b[0] && a[1] === b[1];
     return [ok, ok];
@@ -184,11 +185,20 @@
     s.textContent = edge[1] ? { body: 'B', mind: 'M', craft: 'C' }[edge[1]] : '·';
     return s;
   }
+  function ownerLbl(p) { return p.by === 'none' ? 'Blank centre piece: ' : (p.by === 'foe' ? 'Creature piece: ' : 'Your piece: '); }
+  function blankCv(P) {   // the blank centre piece (blank-start variant): a dashed wild square, drawn rather than composed from the parts kit
+    var S = P.atlas.sizes.strip, w = S.piece[0], h = S.piece[1], c = document.createElement('canvas'), g;
+    c.width = w; c.height = h; g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+    g.fillStyle = 'rgba(242, 228, 192, .16)'; g.fillRect(3, 3, w - 6, h - 6);
+    g.strokeStyle = '#f2e4c0'; g.lineWidth = 2; g.setLineDash([5, 4]); g.strokeRect(4, 4, w - 8, h - 8);
+    g.fillStyle = '#f2e4c0'; g.font = 'bold ' + Math.round(h * 0.5) + 'px system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('\u2726', w / 2, h / 2 + 2);
+    return c;
+  }
   function pieceEl(p) {
     var el = document.createElement('span');
     el.className = 'pf-tile pf-s pfb-p pf-' + p.t + (p.by === 'foe' ? ' by-foe' : ' by-me') + (p.ghost ? ' pf-ghost' : '') + (p.age >= LIFE1 ? ' pf-old' : '');
     el.setAttribute('role', 'img');
-    el.setAttribute('aria-label', (p.by === 'foe' ? 'Creature piece: ' : 'Your piece: ') + p.n + ', ' + p.t + ' ' + p.v);
+    el.setAttribute('aria-label', ownerLbl(p) + p.n + ', ' + p.t + ' ' + p.v);
     ['L', 'R', 'T', 'B'].forEach(function (s) { el.appendChild(edgeSpan(p.e[s], s)); });
     var ic = document.createElement('span'); ic.className = 'pf-ico'; ic.setAttribute('aria-hidden', 'true'); ic.textContent = ICON[p.t] || '❔'; el.appendChild(ic);
     var v = document.createElement('span'); v.className = 'pf-val'; v.textContent = String(p.v); el.appendChild(v);
@@ -238,10 +248,10 @@
       if (p) {
         cell = document.createElement('div'); cell.className = 'pfb-cell' + (p.ghost ? ' pfb-planned' : '') + (p.gone ? ' pfb-gone' : '') + (p.spawn && animateSpawn ? ' pfb-spawn' : '') + (revealId !== null && p.id === revealId ? ' pfb-drop' : '');
         if (p.id !== undefined && !p.ghost && p.gone) cell.dataset.id = String(p.id);
-        else if (p.id !== undefined && !p.ghost) { cell.dataset.id = String(p.id); cell.classList.add('pfb-tap'); cell.setAttribute('role', 'button'); cell.tabIndex = 0; cell.setAttribute('aria-label', (p.by === 'foe' ? 'Creature piece: ' : 'Your piece: ') + p.n + ', ' + p.t + ' ' + p.v + '. Press for details.'); }
+        else if (p.id !== undefined && !p.ghost) { cell.dataset.id = String(p.id); cell.classList.add('pfb-tap'); cell.setAttribute('role', 'button'); cell.tabIndex = 0; cell.setAttribute('aria-label', ownerLbl(p) + p.n + ', ' + p.t + ' ' + p.v + '. Press for details.'); }
         if (art) {
-          var cv = P.piece({ size: 'strip', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: p.age >= LIFE1, num: p.v, tint: data.tint });
-          cv.className = 'pfb-cv'; cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', (p.by === 'foe' ? 'Creature piece: ' : 'Your piece: ') + p.n + ', ' + p.t + ' ' + p.v + (p.age >= LIFE1 ? ', expires this round' : ''));
+          var cv = p.by === 'none' ? blankCv(P) : P.piece({ size: 'strip', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: p.age >= LIFE1, num: p.v, tint: data.tint });
+          cv.className = 'pfb-cv'; cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', ownerLbl(p) + p.n + ', ' + p.t + ' ' + p.v + (p.age >= LIFE1 ? ', expires this round' : ''));
           cell.appendChild(cv);
         } else cell.appendChild(pieceEl(p));
         var mb = modBadge(p.m); if (mb && art) cell.appendChild(mb);
@@ -362,6 +372,7 @@
   // ---- tap a piece on the board (or watch it being scored): what it is and how long it stays
   function pieceById(id) { var r = null; if (rewind) { rewind.pieces.forEach(function (p) { if (p.id === id) r = p; }); return r; } data.pcs.forEach(function (p) { if (p.id === id) r = p; }); (data.gone || []).forEach(function (g) { if (g.id === id) r = g; }); return r; }
   function pieceInfo(p) {
+    if (p.by === 'none') return 'The blank centre piece. It fits and links with every piece, does nothing itself, and is gone at the end of turn 1; its spot then opens up.';
     var t = (p.by === 'foe' ? 'The creature\u2019s ' : 'Your ') + p.t + ' ' + p.v + '.', tg = data.tags && data.tags[p.tag], md = data.mods && data.mods[p.m], left = (data.life || 2) - p.age;
     return t + (tg ? ' ' + tg[0] + ' ' + tg[1] + '.' : '') + (md ? ' Upgrade ' + md[1] + ': ' + (md[3] || '') + '.' : '') + (left <= 1 ? ' It leaves the board at the end of this round.' : ' It stays for ' + left + ' more rounds.');
   }
@@ -369,7 +380,7 @@
     if (!insp) return;
     document.getElementById('pfi-name').textContent = name; document.getElementById('pfi-desc').textContent = desc;
     var slot = document.getElementById('pfi-art'), P = window.PFParts; if (slot) slot.textContent = '';
-    if (slot && p && P && P.ok) { var c = P.piece({ size: 'hand', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: p.age >= LIFE1, num: p.v, tint: data.tint }); c.className = 'pfi-cv'; slot.appendChild(c); }
+    if (slot && p && P && P.ok && p.by !== 'none') { var c = P.piece({ size: 'hand', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: p.age >= LIFE1, num: p.v, tint: data.tint }); c.className = 'pfi-cv'; slot.appendChild(c); }
     insp.hidden = false;
   }
   function inspectPiece(id) {

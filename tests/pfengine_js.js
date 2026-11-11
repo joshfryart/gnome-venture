@@ -73,7 +73,7 @@ for (const ln of lines.slice(1)) {
     if (stop) return;
     const c = ctx + ' step ' + i + ' (turn ' + st.turn + ', ' + st.op + (st.dry ? ' dry' : '') + ' ' + JSON.stringify(st.moves || '') + ')'; na++;
     if (st.q && fail(c + ' queries', st.q, queries(s), 'q')) { stop = true; return; }
-    const res = st.op === 'pass' ? PFE.pass(s, st.turn) : PFE.play(s, st.moves, st.turn, st.dry);
+    const res = st.op === 'start' ? { err: PFE.start(s, st.hand, st.side) } : st.op === 'pass' ? PFE.pass(s, st.turn) : PFE.play(s, st.moves, st.turn, st.dry);
     if (fail(c + ' result', st.res, res, 'res')) { stop = true; return; }
     if (st.lines) {
       const fo = s.foe.name;

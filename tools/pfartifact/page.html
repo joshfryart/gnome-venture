@@ -21,6 +21,17 @@ progress{accent-color:#5cb85c}
 .pf-lost{border-color:#c2502c;background:rgba(194,80,44,.15)}
 .foot{font-size:.75rem;color:var(--mut);text-align:center}
 /*PFCSS*/
+.pfmode{border:1px solid #5a4630;border-radius:10px;padding:6px 12px;margin:0;font-size:.85rem;display:grid;gap:4px}.pfmode legend{padding:0 6px;color:var(--mut);font-size:.75rem}.pfmode label{cursor:pointer}
+.pfstart{padding:10px 8px;display:grid;gap:10px}.pfstart h2{font-family:var(--head);margin:0;font-size:1.15rem}.pfstart p{margin:0;font-size:.85rem}
+.pfs-cross{display:grid;grid-template-columns:1fr 64px 1fr;grid-template-rows:auto 64px auto;gap:6px;align-items:center;justify-items:center;max-width:320px;margin:0 auto;width:100%}
+.pfs-side{border:2px dashed var(--gold);background:rgba(232,163,23,.12);color:var(--cream);border-radius:10px;padding:.45rem .8rem;font:600 .85rem var(--font);cursor:pointer}.pfs-side:disabled{opacity:.4;cursor:default;border-color:#5a4630}.pfs-side:not(:disabled):hover,.pfs-side:focus-visible{background:rgba(232,163,23,.4);outline:3px solid #fff;outline-offset:2px}
+.pfs-side.sT{grid-column:2;grid-row:1}.pfs-side.sL{grid-column:1;grid-row:2}.pfs-side.sR{grid-column:3;grid-row:2}.pfs-side.sB{grid-column:2;grid-row:3}
+.pfs-c{grid-column:2;grid-row:2;display:grid;place-items:center;width:64px;height:64px;border:2px dashed var(--cream);background:rgba(242,228,192,.16);font-size:1.8rem;border-radius:6px}
+.pfs-hand{display:grid;grid-template-columns:repeat(auto-fill,minmax(8.6rem,1fr));gap:6px}
+.pfs-card{display:grid;gap:1px;text-align:left;padding:6px 8px;border-radius:8px;border:2px solid #000;color:#2a1a10;font:inherit;cursor:pointer;background-color:#f2e4c0}
+.pfs-card.t-hurt{background:#f0a070}.pfs-card.t-guard{background:#86bde6}.pfs-card.t-heal{background:#86d6b6}.pfs-card.t-charm{background:#eeb0cf}.pfs-card.t-soothe{background:#add8f2}.pfs-card.t-trick{background:#f0e87a}.pfs-card.t-item{background:#f0c878}
+.pfs-card .pfs-ico{font-size:1.2rem}.pfs-card small{font-size:.62rem;line-height:1.25}.pfs-card.on{outline:3px solid var(--gold);outline-offset:1px;transform:translateY(-2px)}
+.pfs-card:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .fightbox .pfight{color:#f2e4c0}
 .pfc-av img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
 .pf-boardmode .pf-inspect{position:sticky;bottom:.5rem}
@@ -28,12 +39,14 @@ progress{accent-color:#5cb85c}
 <div class="wrap">
 <div><h1>Puzzle Combat: playable demo</h1><p class="lede">A fight from Gnome Venture, using the real rules. Pick a creature, play a few turns, and tell me what is confusing or fun.</p></div>
 <details class="how"><summary>How a fight works</summary>
-<ol><li>The creature always has pieces on the board. Pick a piece from your hand, then tap a glowing spot to place it. A piece has to connect: a knob goes into a hole of the same shape (the stitch mark) with a piece already out, yours or the creature's. Only if nothing you hold can connect may you place a piece anywhere it fits.</li>
+<ol><li><b>New opening (Blank centre):</b> a blank piece \u2726 sits in the middle and links with everything. You pick a piece and a side of it; the creature picks one too, hidden. Nothing fires. The blank is gone at the end of turn 1 and its spot opens up; the two start pieces stay until they expire. Switch to Classic to compare.</li>
+<li>The creature always has pieces on the board. Pick a piece from your hand, then tap a glowing spot to place it. A piece has to connect: a knob goes into a hole of the same shape (the stitch mark) with a piece already out, yours or the creature's. Only if nothing you hold can connect may you place a piece anywhere it fits.</li>
 <li>When you place a piece, its chain scores, newest piece first, through every joint where a knob sits in a hole (the small stitch mark). A flat contact breaks the chain.</li>
 <li>Two ways to win. The red bar is the creature's health: Hurt pieces take it down and at 0 it backs off. The pink bar is the charm bar: only Charm pieces fill it, and when it is full you win the creature over for a better reward. Guard and heal keep you alive meanwhile.</li>
 <li>To build a bigger play, pick a piece and choose "set aside with" another to join them. Next turn add one more (three at most), then play the group for 25% more.</li>
 <li>Tap any piece on the board to read about it. Tap a history chip at the top to rewind the board to that moment.</li></ol></details>
 <div class="pfpick" id="pfpick" aria-label="Choose a creature"></div>
+<fieldset class="pfmode"><legend>Opening</legend><label><input type="radio" name="pfstart" value="blank" checked> <b>Blank centre</b> (new, test this)</label><label><input type="radio" name="pfstart" value="classic"> Classic (the creature puts a piece out)</label></fieldset>
 <div class="bar2"><span>One piece a turn. The creature answers after End turn.</span><button class="btn" id="pfrestart" type="button">Restart</button></div>
 <div class="fightbox" id="pfroot"><div id="pfstage"></div></div>
 <p class="foot">Demo built from the game's own code and art. Edge cases may differ slightly from the live game.</p>
