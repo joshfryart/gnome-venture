@@ -21,6 +21,7 @@ const PFB_SIDE = ['L' => [-1, 0, 'R'], 'R' => [1, 0, 'L'], 'T' => [0, -1, 'B'], 
 /** The four edges of a tile: L = hole of its type's family, R = its knob (or flat), T and B fixed per tile from its key (about a quarter flat). */
 function pfb_edges(array $t): array
 {
+    if (($t['k'] ?? '') === 'blank') return ['L' => ['wild', null], 'R' => ['wild', null], 'T' => ['wild', null], 'B' => ['wild', null]];   // the blank centre piece (opt blank): fits and links with everything
     static $cache = [];
     $key = $t['k'] . '|' . $t['t'] . '|' . ($t['r'] ?? '');
     if (isset($cache[$key])) return $cache[$key];
@@ -36,6 +37,7 @@ function pfb_edges(array $t): array
 /** Do two touching edges fit? [fits, linked]: linked = both are knob/hole (so the chain runs through the joint). */
 function pfb_joint(array $a, array $b): array
 {
+    if ($a[0] === 'wild' || $b[0] === 'wild') return [true, true];
     if ($a[0] === 'flat' || $b[0] === 'flat') return [true, false];
     return [$a[0] !== $b[0] && $a[1] === $b[1], $a[0] !== $b[0] && $a[1] === $b[1]];
 }
@@ -121,7 +123,9 @@ function pfb_fire(array &$s, int $root): array
     foreach (pfb_chain($s, $root) as [$id, $par]) {
         if ($s['over']) break;
         $p = $s['pcs'][$id]; $who = $p['by']; $tile = $p['tile'];
+        if ($who === 'none') continue;   // the blank centre piece does nothing itself; the chain runs through it
         $pt = $par !== null ? $s['pcs'][$par] : null;
+        if ($pt && $pt['by'] === 'none') $pt = null;   // and a piece after it has no combo parent
         [$val, , $ck] = pf_value($pt['tile'] ?? null, $tile, $pt !== null && $pt['by'] === $who, false);   // combos only off your own piece; no fit bonus (every link fits)
         $val = (int)round($val * (float)($p['cm'] ?? 1.0));   // a placed 3-piece group plays for more
         $isRoot = $id === $root;
@@ -299,8 +303,8 @@ function pfb_check_after(array $s, int $id): int
 function pfb_expire(array &$s): array
 {
     $gone = [];
-    foreach ($s['pcs'] as $id => $p) if ($p['born'] <= $s['round'] - PFB_LIFE + 1) {
-        $s[$p['by']]['discard'][] = $p['tile'];
+    foreach ($s['pcs'] as $id => $p) if ($p['born'] <= $s['round'] - ($p['by'] === 'none' ? 1 : PFB_LIFE) + 1) {
+        if ($p['by'] !== 'none') $s[$p['by']]['discard'][] = $p['tile'];
         $gone[] = $p;
         unset($s['cell'][$p['x'] . ',' . $p['y']], $s['pcs'][$id]);
     }
@@ -395,6 +399,13 @@ function pfb_new(array $me, array $c, int $seed, array $opt = []): array
     foreach (['hand', 'draw', 'discard'] as $z) foreach ($s['foe'][$z] as $i => $t) $s['foe'][$z][$i]['v'] = max(1, (int)round($t['v'] * PFB_FOE_MULT));
     $s['bar']['max'] = round($s['bar']['max'] * PFB_BAR_MULT, 1); $s['fh']['max'] = $s['bar']['max'];
     $s['mode'] = 'board'; $s['strip'] = []; $s['pcs'] = []; $s['cell'] = []; $s['pid'] = 0; $s['seq'] = 0; $s['round'] = 1;
+    if (!empty($opt['blank'])) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see pfb_start)
+        $s['pid'] = 1; $s['seq'] = 1; $cx = intdiv(PFB_W, 2); $cy = intdiv(PFB_H, 2);
+        $s['pcs'][1] = ['id' => 1, 'by' => 'none', 'tile' => ['k' => 'blank', 'n' => 'Blank', 't' => 'blank', 'v' => 0, 'tag' => '', 'r' => null], 'x' => $cx, 'y' => $cy, 'born' => 1, 'seq' => 1];
+        $s['cell']["$cx,$cy"] = 1; $s['start'] = true;
+        pf_draw($s, 'foe', $s['foe']['hsize']); pfb_intent($s);
+        return $s;
+    }
     $n = $s['size'] === 'boss' ? 2 : 1;
     for ($k = 0; $k < $n; $k++) {
         $pick = pfb_anchor_pick($s); if ($pick === null) continue; $hand = $s['foe']['hand'];
@@ -410,6 +421,37 @@ function pfb_new(array $me, array $c, int $seed, array $opt = []): array
     pf_draw($s, 'foe', $s['foe']['hsize']);
     pfb_intent($s);
     return $s;
+}
+
+/**
+ * Blank-centre variant: the hidden start. You pick a hand piece and a side of the blank (L, R, T, B). The creature picked its piece and side already, without seeing yours
+ * (its gentlest non-Hurt piece, a side by the seeded roll); if you chose the same side, yours stays and its piece takes the next free side. Nothing fires. A boss puts out two.
+ * Returns an error string or null. Afterwards turn 1 begins; the blank vanishes at the end of round 1 and its place becomes an open site.
+ */
+function pfb_start(array &$s, int $handIdx, string $side): ?string
+{
+    if (empty($s['start'])) return 'The fight has already started.';
+    if (!isset(PFB_SIDE[$side])) return 'Pick a side: L, R, T or B.';
+    $tile = $s['me']['hand'][$handIdx] ?? null; if (!$tile) return 'No such piece in your hand.';
+    $cx = intdiv(PFB_W, 2); $cy = intdiv(PFB_H, 2);
+    $sides = array_keys(PFB_SIDE); $fs = $sides[pf_rand($s, 4)];   // the creature's choice is rolled before yours is looked at
+    $put = function (string $who, int $idx, string $sd) use (&$s, $cx, $cy): void {
+        [$dx, $dy] = PFB_SIDE[$sd]; $x = $cx + $dx; $y = $cy + $dy; $tile = $s[$who]['hand'][$idx];
+        array_splice($s[$who]['hand'], $idx, 1);
+        $id = ++$s['pid']; $s['seq']++;
+        $s['pcs'][$id] = ['id' => $id, 'by' => $who, 'tile' => $tile, 'x' => $x, 'y' => $y, 'born' => 1, 'seq' => $s['seq']];
+        $s['cell']["$x,$y"] = $id;
+    };
+    $put('me', $handIdx, $side);
+    $n = $s['size'] === 'boss' ? 2 : 1; $free = array_values(array_diff($sides, [$side]));
+    $start = array_search($fs, $free, true); if ($start === false) $start = 0;
+    for ($k = 0; $k < $n; $k++) {
+        $pick = pfb_anchor_pick($s); if ($pick === null) break;
+        $put('foe', $pick, $free[($start + $k) % count($free)]);
+    }
+    pf_draw($s, 'foe', $s['foe']['hsize']); pfb_intent($s);
+    $s['start'] = false;
+    return null;
 }
 
 function pfb_intent(array &$s): void
@@ -429,6 +471,7 @@ function pfb_intent(array &$s): void
 function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null, bool $dry = false): array
 {
     if ($s['over']) return ['ev' => [], 'err' => 'The fight is over.'];
+    if (!empty($s['start'])) return ['ev' => [], 'err' => 'Pick your start piece first.'];
     if ($turn !== $s['turn']) return ['ev' => [], 'err' => 'stale'];
     if (count($moves) !== 1) return ['ev' => [], 'err' => 'One action a turn.'];
     $mv = $moves[0]; $bad = ['ev' => [], 'err' => 'Those moves are not valid.'];
