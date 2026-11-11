@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.64
+- **Contest hall** (treehouse): a pop-up with two tabs. **Contests** opens first, with one square per contest (Village Show, Grand Harvest Fair, Garden of the Month, Pumpkin Carving): picture, name, when it closes, "Entered" or "Not yet", and a link in. **Leaderboards** sits behind the second tab: compact two-column score cards, top three per game with medals and your own best, plus your trophy tags. It used to be one long list of eight five-name tables.
+- **Shop menus fix**: the gift picker no longer closes when you pick a different sort (They'll like it / By kind / A-Z). The in-place page-swap handler was catching the sort chips; it now ignores `#` links and anything inside a pop-up.
+- Shop menus: the basket survives an in-place page swap (items that are gone drop out, amounts are capped to the shelf, a bought basket starts empty); an item's sheet opens at the amount already in the basket instead of 1; the gift picker opens fresh (nothing picked, no "Give it?" bar); one fresh coin reader serves the sheet and basket "Too much" checks.
+
 ## 2.6.63
 - **Puzzle board fire budget**: a creature piece falls away once it has fired twice (its placement is the first), after the chain that fired it. Your pieces are not limited. Creature piece values x1.15 to keep it about as hard for good players. Page: "x1" badge on a creature piece's last firing, info card text, fell-away pieces leave like expired ones. See `claude/plan-puzzle-board.md`.
 - Puzzle board fixes from the 2.6.60 playtest: the creature's start piece is never Hurt (swapped for a non-Hurt from its draw pile); hostile creatures take Charm at x0.6 (was x0.4); bosses' pieces x1.2; a 3-piece group plays x1.5 (was x1.25); a puzzle Charm win also rolls seed and Gardening Guide drops. Engine notes `reshuf` and `cut`; `pfb_pass` refuses before the start piece in the blank-centre variant. JS demo engine follows. Tests: `pfboard_fixes`, `pfboard_tune`. See `claude/plan-puzzle-board.md`.
