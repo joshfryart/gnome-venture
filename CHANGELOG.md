@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.62
+
+- Pal jobs: delve re-runs now run on real time. Trips, stations and garden stays stay on game time (they only move when your gnome's game clock does).
+
 ## 2.6.61
 
 - Wren's tour: the "Water it" step can no longer get stuck on a rainy day. Rain already waters the plant, so Water used to be refused ("Watered for today") and the step never finished; while the tour waits on Water, watering now always works.
