@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.6.58
+## 2.6.59
 
 - Puzzle fight: a turn resolves completely before the other side's begins. A chain that runs through the other side's pieces no longer flips the banner back and forth (events now carry the turn they belong to).
 
@@ -11,6 +11,8 @@
 - Puzzle fight: the creature starts with one piece (only bosses start with two).
 
 - Puzzle fight: your guard resets when YOUR turn starts (it stays up through the creature's turn; a Hold guard carries once). The creature's starting piece no longer vanishes when you only connect two pieces and end the turn (the page now holds back only the pieces it places that turn, flagged `fnew`).
+
+## 2.6.58
 
 - Fixes: the hovel gate accepts `on`/`true`/`yes` and, when it bounces you home, says what the setting reads; the creature's starting piece no longer vanishes during your first turn's replay.
 
