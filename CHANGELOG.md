@@ -6,6 +6,7 @@
 - **Satchel > Tools**: each tool is a card (icon, what you use, what it does, a wear bar that turns red when low) instead of wide tables; the Worn and What-to-make-next lists too.
 - **Almanac**: the front page leads with big section tiles (progress and ✨ new count), then the new-pages box (5 pages, not 12). The two dropdowns on chapter pages are now a row of chapter chips with a Contents link.
 - **Grand Harvest Fair**: a square per class (your score, entered or ready, current leader); tap one for your entry, the Enter button and the top three. Last month's winners folded away.
+- Release notes posts for 2.6.64 and 2.6.65 added to `includes/update_news.php` (posted to players on first load after the update).
 - Tabs and pop-up buttons are generic now (`[data-ptabs]`, `[data-opendlg]`) for later pages.
 
 ## 2.6.64
