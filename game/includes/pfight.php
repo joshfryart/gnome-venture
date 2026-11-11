@@ -317,11 +317,11 @@ function pf_combo(?array $a, array $b): ?array
 }
 
 /** Value of $b played after $a (a = strip's open end or earlier chain tile) including fit bonus and combo. Returns [value, fit, comboKey|null]. */
-function pf_value(?array $a, array $b, bool $combo = true): array
-{   // $combo false = the open end is the other side's tile: it can still fit, but it cannot start your combo
+function pf_value(?array $a, array $b, bool $combo = true, bool $fitBonus = true): array
+{   // $combo false = the open end is the other side's tile: it can still fit, but it cannot start your combo. $fitBonus false (board): joints always fit, so there is no extra
     $v = (float)$b['v'];
     $fit = pf_fits($a, $b);
-    if ($fit) $v += max(1, (int)round($b['v'] * 0.25));
+    if ($fit && $fitBonus) $v += max(1, (int)round($b['v'] * 0.25));
     $ck = null;
     $cb = $combo ? pf_combo($a, $b) : null;
     if ($cb) { $ck = $a['t'] . '>' . $b['t']; $v = $v * $cb['mul'] / 100 + ($cb['flat'] === 'prev' ? (int)$a['v'] : (int)$cb['flat']); }
@@ -337,6 +337,93 @@ function pf_open(array $s): array
 }
 
 /** Resolve a list of tiles for one side onto the strip. Mutates state, returns events for the client. */
+/**
+ * What one tile does when it fires for $who (shared by the strip engine and the board engine). $e is its event (filled in).
+ * $root: this is the tile just played (draw/steal/lucky effects only happen then, not when an older tile fires again). $seam: Riposte across the seam applies (strip only).
+ */
+function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?string $ck, ?array $prev, ?string $prevBy, array &$e, bool $root = true, bool $seam = true): void
+{
+    $other = $who === 'me' ? 'foe' : 'me';
+    $mine = &$s[$who]; $theirs = &$s[$other];
+    $m = (string)($tile['m'] ?? '');   // the upgrade on this tile, if any
+    if ($m === 'finisher' && $who === 'me' && $s['bar']['now'] >= 0.6 * $s['bar']['max']) $val += 3;
+    switch ($tile['t']) {
+        case 'hurt':
+            $dmg = $val;
+            if ($who === 'me' && $tile['tag'] === 'bash') { $dmg += $mine['block']; $e['bashed'] = $mine['block']; $mine['block'] = 0; }   // Shield Bash: your guard becomes damage
+            if ($who === 'foe') { $cut = min($s['foe']['agg'], $dmg); $s['foe']['agg'] -= $cut; $dmg -= $cut; $e['soothed'] = $cut; }   // Soothe cuts the foe's next Hurt by its value
+            if ($who === 'foe') {   // against the player's HP
+                if ($theirs['evade'] > 0) { $theirs['evade']--; $e['evaded'] = $dmg; $dmg = 0; }   // Roll: the first Hurt misses completely
+                $abs = min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;
+                if ($abs > 0 && $theirs['thorns']) { $pr = 2 * $s['hm']; $s['bar']['now'] += $pr; $s['bar']['hurt'] += $pr; $e['pricked'] = round($pr, 1); }   // Thorn Hide: a blocked hit pricks back
+                $theirs['hp'] = max(0, $theirs['hp'] - $dmg);
+                $e['dmg'] = $dmg; $e['blocked'] = $abs;
+            } else {   // against the foe's bar, through its guard (Pierce ignores the guard)
+                $abs = $tile['tag'] === 'pierce' ? 0 : min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;
+                $add = $dmg * $s['hm'];
+                $s['bar']['now'] += $add; $s['bar']['hurt'] += $add;
+                $e['dmg'] = $dmg; $e['blocked'] = $abs; $e['bar'] = round($add, 1);
+                if ($tile['tag'] === 'poison') { $s['foe']['poison'] = 2; $s['foe']['poison_v'] = max((int)$s['foe']['poison_v'], max(1, (int)ceil($val / 2))); }
+                if ($tile['tag'] === 'trip') $s['foe']['slow'] = 1;
+                if ($root && $tile['tag'] === 'quick') { pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + 1)); $e['drew'] = 1; }
+                if ($m === 'leech' && $dmg > 0) { $mine['hp'] = min($mine['max'], $mine['hp'] + 1 + intdiv($val, 6)); $e['leeched'] = 1; }
+                if ($m === 'warm' && $dmg > 0) { $w = 0.25 * $dmg * $s['cm']; $s['bar']['now'] += $w; $s['bar']['charm'] += $w; }
+            }
+            break;
+        case 'guard':
+            $mine['block'] += $val + ($m === 'hardy' ? 2 : 0);
+            if ($tile['tag'] === 'hold') $mine['keep'] += $val + ($m === 'hardy' ? 2 : 0);
+            if ($tile['tag'] === 'thorns') $mine['thorns'] = true;
+            if ($tile['tag'] === 'evade') $mine['evade'] = 1;
+            if ($tile['tag'] === 'mend' && $who === 'me') $mine['hp'] = min($mine['max'], $mine['hp'] + 2);
+            if ($m === 'spiky' && $who === 'me') { $pr = 2 * $s['hm']; $s['bar']['now'] += $pr; $s['bar']['hurt'] += $pr; }
+            if ($seam && $prev && $prev['t'] === 'hurt' && $prevBy === $other) {   // Riposte across the seam: reflect part of the hit
+                $refl = intdiv($val, 2);
+                $e['combo'] = $e['combo'] ?: 'Riposte';
+                if ($who === 'me') { $add = $refl * $s['hm']; $s['bar']['now'] += $add; $s['bar']['hurt'] += $add; $e['bar'] = round($add, 1); }
+                else {   // the foe's reflect goes through your block like any other hit
+                    $abs = min($theirs['block'], $refl); $theirs['block'] -= $abs; $refl -= $abs;
+                    $e['reflect'] = min($refl, $theirs['hp']); $theirs['hp'] = max(0, $theirs['hp'] - $refl);
+                }
+            }
+            break;
+        case 'heal':
+            if ($who === 'me') { $mine['hp'] = max($mine['hp'], min($mine['max'], $mine['hp'] + $val + ($m === 'tender' ? 2 : 0))); if ($m === 'soft') $s['foe']['agg'] += 2; }
+            else $s['bar']['now'] = max(0.0, $s['bar']['now'] - $val);   // the creature recovers: its bar drops
+            break;
+        case 'charm':
+            if ($who === 'me') {
+                $add = $val * $s['cm']; $s['bar']['now'] += $add; $s['bar']['charm'] += $add; $e['bar'] = round($add, 1);
+                if ($tile['tag'] === 'hum') $s['foe']['agg'] += 2;
+                if ($tile['tag'] === 'lull') $s['foe']['slow'] = 1;
+                if ($tile['tag'] === 'bond' && $s['cm'] > 0 && $s['bond'] < 3) { $s['bond']++; $s['cm'] = min(1.0, $s['cm'] + 0.1); $e['bonded'] = 1; }
+                if ($m === 'soft') $s['foe']['agg'] += 2;
+            }
+            break;
+        case 'soothe':
+            if ($who === 'me') $s['foe']['agg'] += $val;   // pool that blunts the foe's next Hurt(s) this turn
+            break;
+        case 'trick':   // setup: it pays through Ambush and Bait; Pluck also tries to lift an item
+            if ($root && $who === 'me' && $tile['tag'] === 'pluck') {
+                if (!$s['can_pluck'] || $s['plucked']) $e['pluck'] = 'none';
+                else {   // a low chance, boosted by Luck; a legendary creature is harder to rob
+                    $ch = min(35, 8 + 3 * $mine['luckmod']) / ($s['boss'] ? 2 : 1);
+                    if (pf_rand($s, 1000) < $ch * 10) { $s['plucked'] = 1; $e['pluck'] = 'got'; } else $e['pluck'] = 'missed';
+                }
+            }
+            break;
+        case 'item':
+            if ($who === 'me') { $mine['hp'] = max($mine['hp'], min($mine['max'], $mine['hp'] + $val + ($m === 'tender' ? 2 : 0))); if ($m === 'soft') $s['foe']['agg'] += 2; }   // Snack/Item: heal; the caller consumes the real item
+            break;
+    }
+    if ($root && $who === 'me' && $m === 'sticky' && $fit) pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + 1));
+    if ($root && $who === 'me' && $m === 'lucky' && empty($s['lucky_used'][$tile['k']])) { $s['lucky_used'][$tile['k']] = 1; $mine['redraws'] = min(3, $mine['redraws'] + 1); }
+    if (!empty($ck) && !empty(PF_COMBOS[$ck]['barPct']) && $who === 'me') {   // Win Over: a slice of bar
+        $add = $val * PF_COMBOS[$ck]['barPct'] / 100 * $s['cm']; $s['bar']['now'] += $add; $s['bar']['charm'] += $add; $e['bar'] = round(($e['bar'] ?? 0) + $add, 1);
+    }
+    unset($mine, $theirs);
+}
+
 function pf_resolve(array &$s, string $who, array $tiles): array
 {
     $ev = [];
@@ -348,84 +435,7 @@ function pf_resolve(array &$s, string $who, array $tiles): array
         [$prev, $prevBy] = pf_open($s);
         [$val, $fit, $ck] = pf_value($prev, $tile, $prevBy === $who);   // your combos chain off your own tiles only; a snug fit works across the seam
         $e = ['by' => $who, 'tag' => $tile['tag'], 'mod' => (string)($tile['m'] ?? ''), 'k' => $tile['k'], 'n' => $tile['n'], 't' => $tile['t'], 'v' => $val, 'fit' => $fit, 'combo' => $ck ? PF_COMBOS[$ck]['name'] : null];
-        $mine = &$s[$who]; $theirs = &$s[$other];
-        $m = (string)($tile['m'] ?? '');   // the upgrade on this tile, if any
-        if ($m === 'finisher' && $who === 'me' && $s['bar']['now'] >= 0.6 * $s['bar']['max']) $val += 3;
-        switch ($tile['t']) {
-            case 'hurt':
-                $dmg = $val;
-                if ($who === 'me' && $tile['tag'] === 'bash') { $dmg += $mine['block']; $e['bashed'] = $mine['block']; $mine['block'] = 0; }   // Shield Bash: your guard becomes damage
-                if ($who === 'foe') { $cut = min($s['foe']['agg'], $dmg); $s['foe']['agg'] -= $cut; $dmg -= $cut; $e['soothed'] = $cut; }   // Soothe cuts the foe's next Hurt by its value
-                if ($who === 'foe') {   // against the player's HP
-                    if ($theirs['evade'] > 0) { $theirs['evade']--; $e['evaded'] = $dmg; $dmg = 0; }   // Roll: the first Hurt misses completely
-                    $abs = min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;
-                    if ($abs > 0 && $theirs['thorns']) { $pr = 2 * $s['hm']; $s['bar']['now'] += $pr; $s['bar']['hurt'] += $pr; $e['pricked'] = round($pr, 1); }   // Thorn Hide: a blocked hit pricks back
-                    $theirs['hp'] = max(0, $theirs['hp'] - $dmg);
-                    $e['dmg'] = $dmg; $e['blocked'] = $abs;
-                } else {   // against the foe's bar, through its guard (Pierce ignores the guard)
-                    $abs = $tile['tag'] === 'pierce' ? 0 : min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;
-                    $add = $dmg * $s['hm'];
-                    $s['bar']['now'] += $add; $s['bar']['hurt'] += $add;
-                    $e['dmg'] = $dmg; $e['blocked'] = $abs; $e['bar'] = round($add, 1);
-                    if ($tile['tag'] === 'poison') { $s['foe']['poison'] = 2; $s['foe']['poison_v'] = max((int)$s['foe']['poison_v'], max(1, (int)ceil($val / 2))); }
-                    if ($tile['tag'] === 'trip') $s['foe']['slow'] = 1;
-                    if ($tile['tag'] === 'quick') { pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + 1)); $e['drew'] = 1; }
-                    if ($m === 'leech' && $dmg > 0) { $mine['hp'] = min($mine['max'], $mine['hp'] + 1 + intdiv($val, 6)); $e['leeched'] = 1; }
-                    if ($m === 'warm' && $dmg > 0) { $w = 0.25 * $dmg * $s['cm']; $s['bar']['now'] += $w; $s['bar']['charm'] += $w; }
-                }
-                break;
-            case 'guard':
-                $mine['block'] += $val + ($m === 'hardy' ? 2 : 0);
-                if ($tile['tag'] === 'hold') $mine['keep'] += $val + ($m === 'hardy' ? 2 : 0);
-                if ($tile['tag'] === 'thorns') $mine['thorns'] = true;
-                if ($tile['tag'] === 'evade') $mine['evade'] = 1;
-                if ($tile['tag'] === 'mend' && $who === 'me') $mine['hp'] = min($mine['max'], $mine['hp'] + 2);
-                if ($m === 'spiky' && $who === 'me') { $pr = 2 * $s['hm']; $s['bar']['now'] += $pr; $s['bar']['hurt'] += $pr; }
-                if ($prev && $prev['t'] === 'hurt' && $prevBy === $other) {   // Riposte across the seam: reflect part of the hit
-                    $refl = intdiv($val, 2);
-                    $e['combo'] = $e['combo'] ?: 'Riposte';
-                    if ($who === 'me') { $add = $refl * $s['hm']; $s['bar']['now'] += $add; $s['bar']['hurt'] += $add; $e['bar'] = round($add, 1); }
-                    else {   // the foe's reflect goes through your block like any other hit
-                        $abs = min($theirs['block'], $refl); $theirs['block'] -= $abs; $refl -= $abs;
-                        $e['reflect'] = min($refl, $theirs['hp']); $theirs['hp'] = max(0, $theirs['hp'] - $refl);
-                    }
-                }
-                break;
-            case 'heal':
-                if ($who === 'me') { $mine['hp'] = max($mine['hp'], min($mine['max'], $mine['hp'] + $val + ($m === 'tender' ? 2 : 0))); if ($m === 'soft') $s['foe']['agg'] += 2; }
-                else $s['bar']['now'] = max(0.0, $s['bar']['now'] - $val);   // the creature recovers: its bar drops
-                break;
-            case 'charm':
-                if ($who === 'me') {
-                    $add = $val * $s['cm']; $s['bar']['now'] += $add; $s['bar']['charm'] += $add; $e['bar'] = round($add, 1);
-                    if ($tile['tag'] === 'hum') $s['foe']['agg'] += 2;
-                    if ($tile['tag'] === 'lull') $s['foe']['slow'] = 1;
-                    if ($tile['tag'] === 'bond' && $s['cm'] > 0 && $s['bond'] < 3) { $s['bond']++; $s['cm'] = min(1.0, $s['cm'] + 0.1); $e['bonded'] = 1; }
-                    if ($m === 'soft') $s['foe']['agg'] += 2;
-                }
-                break;
-            case 'soothe':
-                if ($who === 'me') $s['foe']['agg'] += $val;   // pool that blunts the foe's next Hurt(s) this turn
-                break;
-            case 'trick':   // setup: it pays through Ambush and Bait; Pluck also tries to lift an item
-                if ($who === 'me' && $tile['tag'] === 'pluck') {
-                    if (!$s['can_pluck'] || $s['plucked']) $e['pluck'] = 'none';
-                    else {   // a low chance, boosted by Luck; a legendary creature is harder to rob
-                        $ch = min(35, 8 + 3 * $mine['luckmod']) / ($s['boss'] ? 2 : 1);
-                        if (pf_rand($s, 1000) < $ch * 10) { $s['plucked'] = 1; $e['pluck'] = 'got'; } else $e['pluck'] = 'missed';
-                    }
-                }
-                break;
-            case 'item':
-                if ($who === 'me') { $mine['hp'] = max($mine['hp'], min($mine['max'], $mine['hp'] + $val + ($m === 'tender' ? 2 : 0))); if ($m === 'soft') $s['foe']['agg'] += 2; }   // Snack/Item: heal; the caller consumes the real item
-                break;
-        }
-        if ($who === 'me' && $m === 'sticky' && $fit) pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + 1));
-        if ($who === 'me' && $m === 'lucky' && empty($s['lucky_used'][$tile['k']])) { $s['lucky_used'][$tile['k']] = 1; $mine['redraws'] = min(3, $mine['redraws'] + 1); }
-        if (!empty($ck) && !empty(PF_COMBOS[$ck]['barPct']) && $who === 'me') {   // Win Over: a slice of bar
-            $add = $val * PF_COMBOS[$ck]['barPct'] / 100 * $s['cm']; $s['bar']['now'] += $add; $s['bar']['charm'] += $add; $e['bar'] = round(($e['bar'] ?? 0) + $add, 1);
-        }
-        unset($mine, $theirs);
+        pf_apply($s, $who, $tile, $val, $fit, $ck, $prev, $prevBy, $e);
         $s['strip'][] = ['by' => $who, 'tile' => $tile];
         if (count($s['strip']) > 24) $s['strip'] = array_slice($s['strip'], -12);
         $s[$who]['discard'][] = $tile;
