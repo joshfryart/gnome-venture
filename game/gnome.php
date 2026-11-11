@@ -6,6 +6,7 @@ require_once __DIR__ . '/includes/items.php';
 require_once __DIR__ . '/includes/adventure.php';
 require_once __DIR__ . '/includes/puzzle_pals.php';   // v2.0.89: pals along
 require_once __DIR__ . '/includes/friends.php';
+require_once __DIR__ . '/includes/home_slim.php';   // slim home (flag home_slim): hovel banner + TODAY / FURNISH / GNOME
 $u = require_login();
 
 // A link to another gnome's page goes to their public profile: other players only ever see the gnome part, never your Today.
@@ -18,7 +19,8 @@ $palsOn = ppal_open() && !is_guest($u);
 $todayOn = (int)($u['onboarded'] ?? 1) === 1;   // a gnome still being set up has no garden yet: the gnome part only
 $SUBS = ['stats' => ['💪', 'Stats'], 'calling' => ['🎩', 'Calling'], 'pals' => ['🐾', 'Pals'], 'foods' => ['🍴', 'Foods'], 'folk' => ['💛', 'Villagers'], 'gardens' => ['🏡', 'Gardens']];
 if (!$palsOn) unset($SUBS['pals']);
-$TABS = ['today' => 1, 'gnome' => 1] + $SUBS;
+$slim = $todayOn && home_slim_on();   // slim home: the Hovel and Today are one page with a FURNISH tab (includes/home_slim.php)
+$TABS = ['today' => 1, 'gnome' => 1] + ($slim ? ['furnish' => 1] : []) + $SUBS;
 $tab = (string)($_GET['tab'] ?? (isset($_GET['dye']) ? 'stats' : 'today'));   // the Dye Pot's old link (?dye=1#dyes) opens Stats, where the dyes are now
 if ($tab === 'overview') $tab = 'gnome';   // the old Overview tab
 if (!isset($TABS[$tab])) $tab = 'today';
@@ -30,6 +32,12 @@ if (is_post()) {
     $do = (string)($_POST['do'] ?? '');
     $back = (string)($_POST['back'] ?? 'gnome');
     if (!isset($TABS[$back])) $back = 'gnome';
+    if ($do === 'decor' && $slim) {   // slim home > Furnish: put an owned item in a slot
+        $slot = (string)($_POST['slot'] ?? '');
+        [$ok, $msg, $prev] = hovel_decor_set((int)$u['id'], $slot, (string)($_POST['item'] ?? ''));
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect('gnome.php?' . http_build_query(['tab' => 'furnish'] + (isset(hovel_decor_catalog()['slots'][$slot]) ? ['slot' => $slot] : []) + ($ok && $prev !== '' ? ['prev' => $prev] : [])));
+    }
     if ($do === 'heal') {   // v2.3.5: a Healing Potion or a snack, from the Health box
         [$ok, $msg] = hp_use($u, (string)($_POST['what'] ?? ''), (int)($_POST['item'] ?? 0));
         flash($msg, $ok ? 'ok' : 'err');
@@ -112,20 +120,34 @@ $radarSvg = function (string $selK = '') use ($u, $gurl): string {   // the stat
 };
 
 $pick = in_array($tab, ['gnome', 'pals'], true) ? $pick : null;   // the pal picker opens from the strip, which shows on MY GNOME and Pals
-page_header($tab === 'today' ? 'Today' : 'My Gnome');
+if ($slim) $GLOBALS['gv_home_slim'] = true;   // layout.php: the status strip leaves energy, level and weather to the header chip, the Gnome tab and the banner tag
+page_header($slim ? 'Home' : ($tab === 'today' ? 'Today' : 'My Gnome'));
 if (!$tctx) { $hour = gclock_my_hour(); $tctx['hello'] = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening'); }
 require_once __DIR__ . '/includes/today_view.php';
 $onGnome = $tab !== 'today';
 ?>
-<div class="homepage">
+<div class="homepage<?= $slim ? ' hslim hs-tab-' . e($tab) : '' ?>">
+<?php if ($slim):
+    $hsDecor = hovel_decor_chosen($uid);
+    $hsNeeds = $tab === 'today' ? home_slim_needs($u) : null;
+    $hsNeedN = $hsNeeds ? count($hsNeeds['need']) : (function () use ($u): int { $n = home_slim_needs($u); return count($n['need']); })();
+    echo home_slim_banner_html($u, $hsDecor, $tab, (string)$tctx['hello']);
+    echo home_slim_tabs_html($tab, home_slim_badges($u, $hsNeedN));
+    if ($tab === 'today') echo home_slim_today_html($u, $hsNeeds);
+    elseif ($tab === 'furnish') echo home_slim_furnish_html($u, $hsDecor);
+endif; ?>
+<?php if (!$slim): ?>
 <?= today_head_html($u, $tctx, ['class' => 'homehead', 'px' => 64]) ?>
-<?php if ($todayOn): ?>
+<?php endif; ?>
+<?php if ($todayOn && !$slim): ?>
 <nav class="tabs hometabs" aria-label="Home">
   <a href="<?= e($gurl('today')) ?>"<?= $onGnome ? '' : ' class="on" aria-current="page"' ?>>Today</a>
   <a href="<?= e($gurl('gnome')) ?>"<?= $onGnome ? ' class="on"' . ($tab === 'gnome' ? ' aria-current="page"' : '') : '' ?>>My Gnome</a>
 </nav>
 <?php endif; ?>
-<div class="homepanel<?= $onGnome ? ' gvpage' : '' ?>">
+<?php if (!$slim || !in_array($tab, ['today', 'furnish'], true)): ?>
+<div class="homepanel<?= $onGnome ? ' gvpage' : '' ?><?= $slim && $tab === 'gnome' ? ' hs-cols' : '' ?>">
+<?php if ($slim && $tab === 'gnome'): ?><div class="hs-main"><?php endif; ?>
 <?php if ($tab === 'today'): ?>
 <div class="hometoday">
 <?= today_html($u, $tctx, ['hollow' => 'line']) ?>
@@ -136,7 +158,8 @@ $onGnome = $tab !== 'today';
 <section class="box gnomecard" aria-label="Your gnome">
   <p class="gcrank"><?= $u['title'] ? '“' . e($u['title']) . '” · ' : '' ?><?= $u['calling'] ? e(CALLINGS[$u['calling']][0]) . ' · ' : '' ?>Garden gnome<?= $home ? ' of ' . e($home['gnomish_name']) : '' ?></p>
   <p class="gclevel">🎩 <b>Level <?= (int)$u['level'] ?></b> · <?= number_format((int)$u['xp']) ?>/<?= number_format(xp_for_level((int)$u['level'] + 1)) ?> XP</p>
-  <p class="gcline">🏡 <?= count($gardens) ?>/<?= max_gardens($u) ?> garden<?= max_gardens($u) === 1 ? '' : 's' ?> · ⚡ <?= (int)$u['energy'] ?>/<?= max_energy($u) ?> energy</p>
+  <p class="gcline">🏡 <?= count($gardens) ?>/<?= max_gardens($u) ?> garden<?= max_gardens($u) === 1 ? '' : 's' ?><?= $slim ? '' : ' · ⚡ ' . (int)$u['energy'] . '/' . max_energy($u) . ' energy' ?></p>
+  <?php if ($slim && ($fx = active_effects($u))): ?><p class="gcline hs-boosts"><?php foreach (array_slice($fx, 0, 3) as [$fi, $fn, $fw, $fs]): ?><span><b><?= e($fi . ' ' . $fw) ?></b> <?= e(effect_time($fs)) ?></span> <?php endforeach; ?><a href="<?= e($gurl('stats', [], '#effects')) ?>">All boosts</a></p><?php endif; ?>
   <?php if (!is_guest($u)) echo hp_card_html($u); ?>
   <p class="gcprof"><a href="<?= e(url('profile.php')) ?>">See your profile as others do</a></p>
 </section>
@@ -195,7 +218,8 @@ $onGnome = $tab !== 'today';
 <p class="gvback"><a class="gvbacklink" href="<?= e($gurl('gnome')) ?>">← My Gnome</a> <span class="muted">· <?= e($SUBS[$tab][1]) ?></span></p>
 <?php endif; ?>
 <?php if ($tab === 'gnome'): ?>
-<?php if (gclock_on()): ?><p class="help"><a href="<?= e(url('hovel.php')) ?>">🛏️ Your hovel: sleep or nap</a></p><?php endif; ?>
+<?php if ($slim): $hsN = home_slim_news($uid); ?><p class="hs-newsl"><a href="<?= e(home_slim_news_url($hsN['post'])) ?>">News &amp; release notes →<?= $hsN['unread'] ? '<b class="hs-bang" role="img" aria-label="Unread news">!</b>' : '' ?></a></p>
+<?php elseif (gclock_on()): ?><p class="help"><a href="<?= e(url('hovel.php')) ?>">🛏️ Your hovel: sleep or nap</a></p><?php endif; ?>
 <?php elseif ($tab === 'pals'):
     $perks = $canParty ? ppal_perks($u) : ['lines' => []]; ?>
     <section class="box">
@@ -381,6 +405,8 @@ $onGnome = $tab !== 'today';
 <?php endif; ?>
 <?php endif; ?>
 <?php endif; ?>
+<?php if ($slim && $tab === 'gnome'): require_once __DIR__ . '/includes/today_social.php'; ?></div><aside class="hs-rail" aria-label="The Hollow"><?= today_social_html($u, 'line') ?></aside><?php endif; ?>
 </div>
+<?php endif; ?>
 </div>
 <?php page_footer();
