@@ -76,6 +76,25 @@ ck "Almanac pages were created once" "$(db "SELECT COUNT(*) FROM encyclopedia_en
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
 ck "run: redirect" "$(pf pf_run)" "302"
 ck "run ends the fight" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
+# the Puzzle box: a level 8 gnome owns 9 tiles (base six, Soothe, Jab, Pierce) and has room for 10
+db "UPDATE users SET level=8 WHERE username='sprout'" >/dev/null
+get puzzlebox.php >/dev/null; PB=$(grep -c 'name="tile\[\]"' $H)
+ck "Puzzle box lists what a level 8 gnome owns" "$PB" "9"
+ck "Puzzle box says how many fit" "$(grep -c 'data-cap="10"' $H)" "1"
+post puzzlebox.php -d do=save -d tile[]=swing -d tile[]=dodge -d tile[]=rest -d tile[]=charm -d tile[]=hide -d tile[]=jab >/dev/null
+ck "a legal box is saved" "$(db "SELECT tiles FROM user_pbox LIMIT 1")" '["swing","dodge","rest","charm","hide","jab"]'
+get puzzlebox.php >/dev/null
+post puzzlebox.php -d do=save -d tile[]=dodge -d tile[]=rest -d tile[]=charm -d tile[]=hide -d tile[]=soothe -d tile[]=snack >/dev/null
+ck "a box with no Hurt tile is refused (old box kept)" "$(db "SELECT tiles FROM user_pbox LIMIT 1")" '["swing","dodge","rest","charm","hide","jab"]'
+get puzzlebox.php >/dev/null
+post puzzlebox.php -d do=save -d tile[]=swing -d tile[]=dodge -d tile[]=rest -d tile[]=charm -d tile[]=hide -d tile[]=jab -d tile[]=smash -d tile[]=bogus >/dev/null
+ck "tiles you do not own are ignored" "$(db "SELECT tiles FROM user_pbox LIMIT 1")" '["swing","dodge","rest","charm","hide","jab"]'
+php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
+get adventure.php >/dev/null
+NAMES=$(grep -o 'class="pf-nm">[A-Za-z ]*' $H | sed 's/class="pf-nm">//' | sed 's/ *$//' | sort -u | paste -sd,)
+BAD=$(echo "$NAMES" | tr ',' '\n' | grep -vxE 'Swing|Dodge|Rest|Charm|Hide|Jab|Breather' | wc -l)
+ck "the fight uses only the packed box" "$BAD" "0"
+ck "no error log from the box" "$(cat "$GAME/data/error-log.txt" 2>/dev/null | wc -c | tr -d ' ')" "0"
 ck "no errors in the game error log" "$(cat "$GAME/data/error-log.txt" 2>/dev/null | wc -c | tr -d ' ')" "0"
 ck "no PHP warnings in server log" "$(grep -cE 'PHP (Warning|Notice|Deprecated|Fatal)' $LOG)" "0"
 echo "turns played: $N"

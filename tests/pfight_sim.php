@@ -17,7 +17,8 @@ function sim_player(int $lv): array
     $m = max(0, intdiv($lv + 3, 14));
     $st = ['grit' => $m, 'nimble' => $m, 'hardiness' => $m, 'charm' => $m, 'lore' => $m, 'luck' => $m, 'level' => $lv];
     $callings = array_keys(PF_CALLING_TILE);
-    $deck = pf_player_deck($st, $callings[$lv % 6], 1 + intdiv($lv, 12), [], pf_unlocks($lv));
+    $cal = $callings[$lv % 6];
+    $deck = pf_player_deck($st, $cal, 1 + intdiv($lv, 12), [], [], [], true, pf_box($lv, $cal, null));   // the default puzzle box: collection in order, up to capacity
     $max = 20 + 3 * $lv + 5 * $m;
     return ['hp' => $max, 'max_hp' => $max, 'stats' => $st, 'deck' => $deck, 'luck' => $m];
 }
@@ -107,6 +108,15 @@ if (count($s['me']['hand']) !== $h0) { echo "FAIL quick did not draw a tile\n"; 
 $s = $base(['dodge', 'bash']); pf_resolve($s, 'me', $s['me']['hand']);
 $s2 = $base(['hide', 'bash']); pf_resolve($s2, 'me', $s2['me']['hand']);
 if ($s['me']['block'] !== 0 || $s['bar']['now'] <= $s2['bar']['now']) { echo "FAIL bash did not spend the guard as damage\n"; $bad++; }
+// the puzzle box
+foreach ([1 => 8, 3 => 9, 12 => 12, 18 => 14, 60 => 14] as $lv => $cap) if (pf_box_capacity($lv) !== $cap) { echo "FAIL capacity at level $lv\n"; $bad++; }
+$own = pf_collection(30, 'thornblade');
+if (count(pf_box(30, 'thornblade', null)) !== 14 || count(pf_box(1, '', null)) !== 6) { echo "FAIL default box size\n"; $bad++; }
+if (count(pf_box(30, 'thornblade', $own)) !== 14) { echo "FAIL oversize saved box not trimmed\n"; $bad++; }
+if (pf_box(1, '', ['smash', 'jab', 'swing', 'dodge', 'rest', 'charm', 'hide', 'snack']) !== PF_BASE_KEYS + [6 => 'x'] && in_array('smash', pf_box(1, '', ['smash', 'jab', 'swing', 'dodge', 'rest', 'charm', 'hide', 'snack']), true)) { echo "FAIL unowned tile in box\n"; $bad++; }
+if (pf_box_check(['dodge', 'rest', 'charm', 'hide', 'snack', 'soothe'], 8) === null) { echo "FAIL a box with no Hurt tile was accepted\n"; $bad++; }
+if (pf_box_check(['swing', 'dodge'], 8) === null) { echo "FAIL a tiny box was accepted\n"; $bad++; }
+if (pf_box_check(array_slice($own, 0, 14), 8) === null) { echo "FAIL an overfull box was accepted\n"; $bad++; }
 // determinism: same seed, same moves, same result
 $a = pf_new(sim_player(5), $rows[3], 99); $b = pf_new(sim_player(5), $rows[3], 99);
 pf_play($a, [0, 1], 1); pf_play($b, [0, 1], 1);

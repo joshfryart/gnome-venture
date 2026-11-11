@@ -219,6 +219,7 @@ $onGnome = $tab !== 'today';
     $selK = (string)($_GET['s'] ?? $keys[0]);
     if (!isset(GNOME_STATS[$selK])) $selK = $keys[0];
     $stMax = (int)setting('stat_max'); ?>
+    <?php require_once __DIR__ . '/includes/pfight_game.php'; if (pfight_on($u)): ?><p class="help">🧩 <a href="<?= e(url('puzzlebox.php')) ?>">Your Puzzle box</a>: pick the tiles you bring to a fight (<?= (int)pf_box_capacity((int)$u['level']) ?> fit).</p><?php endif; ?>
     <section class="box">
       <div class="palhead"><h2>💪 Stats</h2><?php if ($pts > 0): ?><span class="gvbadge big">✨ <?= $pts ?> point<?= $pts === 1 ? '' : 's' ?> to spend</span><?php endif; ?></div>
       <p class="help"><?= $pts > 0 ? 'Press + next to a stat to spend a point.' : '10 is an average gnome. Every 2 points above 10 gives a +1 modifier. You earn ' . (int)setting('stat_points_per_level') . ' stat point per gnome level.' ?></p>

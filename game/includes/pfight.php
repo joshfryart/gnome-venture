@@ -104,22 +104,30 @@ function pf_make_tile(string $key, array $stats, int $bonus = 0, array $over = [
 
 /** Player deck: gnome base six, the calling tile (tier upgrades value) and pals swapping in for gnome tiles.
  *  $pals = list of ['swap' => gnomeTileKey, 'n' => name, 't' => type, 'v' => base, 'r' => knob|null]. */
-function pf_player_deck(array $stats, string $calling = '', int $tier = 1, array $pals = [], array $unlocked = [], array $typeBonus = [], bool $snack = true): array
+function pf_player_deck(array $stats, string $calling = '', int $tier = 1, array $pals = [], array $unlocked = [], array $typeBonus = [], bool $snack = true, ?array $box = null): array
 {
-    $keys = ['swing', 'dodge', 'rest', 'charm', $snack ? 'snack' : 'breather', 'hide'];
-    foreach ($unlocked as $k) if (isset(pf_tiles()[$k]) && !in_array($k, $keys, true) && !in_array($k, PF_CALLING_TILE, true)) $keys[] = $k;
+    if ($box !== null) $keys = $box;   // the puzzle box the gnome packed
+    else {   // no box given (tests): base six, the calling tile, and whatever is unlocked
+        $keys = PF_BASE_KEYS;
+        if (isset(PF_CALLING_TILE[$calling])) $keys[] = PF_CALLING_TILE[$calling];
+        foreach ($unlocked as $k) if (isset(pf_tiles()[$k]) && !in_array($k, $keys, true)) $keys[] = $k;
+    }
     $deck = [];
     foreach ($keys as $k) {
-        $t = pf_tiles()[$k];
-        $deck[] = pf_make_tile($k, $stats, ($calling === 'bloomcaller' && in_array($t['t'], ['charm', 'soothe'], true) ? 2 : 0) + (int)($typeBonus[$t['t']] ?? 0));   // Bloomcallers: bigger Charm and Soothe numbers
+        if ($k === 'snack' && !$snack) $k = 'breather';   // nothing to eat: a weak Breather instead of a dead tile
+        $t = pf_tiles()[$k] ?? null; if (!$t) continue;
+        $b = (int)($typeBonus[$t['t']] ?? 0) + ($calling === 'bloomcaller' && in_array($t['t'], ['charm', 'soothe'], true) ? 2 : 0);   // Bloomcallers: bigger Charm and Soothe numbers
+        if (in_array($k, PF_CALLING_TILE, true)) $b += max(0, $tier - 1) * 2;   // calling tile: tiers upgrade it
+        $deck[] = pf_make_tile($k, $stats, $b);
     }
-    foreach (array_slice($pals, 0, 2) as $p) {   // a pal replaces one gnome tile of the type it swaps for; the last Hurt tile is never replaced by something else
-        foreach ($deck as $i => $t) if ($t['k'] === ($p['swap'] ?? '') && ($t['t'] !== 'hurt' || ($p['t'] ?? '') === 'hurt')) {
-            $deck[$i] = pf_make_tile('pal:' . $p['n'], $stats, (int)($typeBonus[(string)$p['t']] ?? 0), ['n' => (string)$p['n'], 't' => (string)$p['t'], 'v' => (int)$p['v'], 'r' => $p['r'] ?? null, 'tag' => 'pal']);
-            break;
-        }
+    foreach (array_slice($pals, 0, 2) as $p) {   // a pal replaces the gnome tile it swaps for, else another plain tile of its type; the last Hurt tile is never replaced by something else
+        $hurts = count(array_filter($deck, fn($t) => $t['t'] === 'hurt'));
+        $at = null;
+        foreach ($deck as $i => $t) if ($t['k'] === ($p['swap'] ?? '')) { $at = $i; break; }
+        if ($at === null) foreach ($deck as $i => $t) if ($t['t'] === ($p['t'] ?? '') && !in_array($t['k'], PF_CALLING_TILE, true) && !str_starts_with($t['k'], 'pal:')) { $at = $i; break; }
+        if ($at === null || ($deck[$at]['t'] === 'hurt' && $hurts < 2 && ($p['t'] ?? '') !== 'hurt')) continue;
+        $deck[$at] = pf_make_tile('pal:' . $p['n'], $stats, (int)($typeBonus[(string)$p['t']] ?? 0), ['n' => (string)$p['n'], 't' => (string)$p['t'], 'v' => (int)$p['v'], 'r' => $p['r'] ?? null, 'tag' => 'pal']);
     }
-    if (isset(PF_CALLING_TILE[$calling])) $deck[] = pf_make_tile(PF_CALLING_TILE[$calling], $stats, max(0, $tier - 1) * 2 + (int)($typeBonus[pf_tiles()[PF_CALLING_TILE[$calling]]['t']] ?? 0));
     return $deck;
 }
 
@@ -129,6 +137,49 @@ function pf_unlocks(int $level): array
     $out = [];
     foreach ([4 => 'soothe', 5 => 'jab', 8 => 'pierce', 10 => 'taunt', 11 => 'trip', 12 => 'offer', 13 => 'sting', 14 => 'bash', 16 => 'smash'] as $lv => $k) if ($level >= $lv) $out[] = $k;
     return $out;
+}
+
+/**
+ * The PUZZLE BOX: the tiles a gnome brings to a fight. It only holds so many (capacity grows with level), so the gnome chooses.
+ * Collection = the base six + everything unlocked + the calling tile. Capacity: 8 at level 1, +1 per 3 levels, 14 at most.
+ */
+const PF_BASE_KEYS = ['swing', 'dodge', 'rest', 'charm', 'snack', 'hide'];
+const PF_BOX_MIN = 6;
+
+function pf_box_capacity(int $level): int
+{
+    return min(14, 8 + intdiv(max(1, $level), 3));
+}
+
+/** Every tile key this gnome owns, in the order the default box fills: base six, calling tile, then unlocks. */
+function pf_collection(int $level, string $calling = ''): array
+{
+    $keys = PF_BASE_KEYS;
+    if (isset(PF_CALLING_TILE[$calling])) $keys[] = PF_CALLING_TILE[$calling];
+    foreach (pf_unlocks($level) as $k) if (!in_array($k, $keys, true)) $keys[] = $k;
+    return $keys;
+}
+
+/** The box actually used: the saved list cleaned up (owned tiles only, no repeats, within capacity), or the default (collection in order up to capacity). */
+function pf_box(int $level, string $calling, ?array $saved): array
+{
+    $own = pf_collection($level, $calling); $cap = pf_box_capacity($level);
+    $box = [];
+    foreach ((array)$saved as $k) if (is_string($k) && in_array($k, $own, true) && !in_array($k, $box, true)) $box[] = $k;
+    $box = array_slice($box, 0, $cap);
+    if (pf_box_check($box, $cap) !== null) $box = array_slice($own, 0, $cap);   // nothing saved, or a saved box that no longer works: the default
+    return $box;
+}
+
+/** null if the list is a legal box, else why not. */
+function pf_box_check(array $keys, int $cap): ?string
+{
+    if (count($keys) > $cap) return 'The box only holds ' . $cap . ' tiles.';
+    if (count($keys) < PF_BOX_MIN) return 'Bring at least ' . PF_BOX_MIN . ' tiles.';
+    $hurt = false;
+    foreach ($keys as $k) if ((pf_tiles()[$k]['t'] ?? '') === 'hurt') $hurt = true;
+    if (!$hurt) return 'Bring at least one Hurt tile (the great creatures cannot be charmed).';
+    return null;
 }
 
 /** Foe temperament: gentle creatures take Charm well (resolve x1) and Hurt badly (x0.5); hostile the reverse. */
