@@ -62,11 +62,31 @@ function pfb_check(array $s, array $tile, int $x, int $y): ?array
     return $joints ?: null;   // it has to touch something
 }
 
-/** Every legal [x, y] for a tile. */
-function pfb_cells(array $s, array $tile): array
+/** Does a joint list contain a LINKED joint (a knob in a matching hole, so the chain runs)? */
+function pfb_has_link(?array $joints): bool
 {
-    $o = [];
-    for ($y = 0; $y < PFB_H; $y++) for ($x = 0; $x < PFB_W; $x++) if (pfb_check($s, $tile, $x, $y) !== null) $o[] = [$x, $y];
+    if ($joints) foreach ($joints as $j) if ($j[2]) return true;
+    return false;
+}
+
+/**
+ * The board's rule for where a side may play: a piece has to connect (make at least one linked joint) with a piece already out. Only when NOTHING in the side's hand
+ * (or its set-aside group) can connect anywhere may it be put down somewhere else that fits. On an empty board the centre is the only spot (no connecting is possible).
+ */
+function pfb_must_link(array $s, string $who): bool
+{
+    if (!$s['pcs']) return false;
+    foreach ($s[$who]['hand'] as $t) for ($y = 0; $y < PFB_H; $y++) for ($x = 0; $x < PFB_W; $x++) if (pfb_has_link(pfb_check($s, $t, $x, $y))) return true;
+    $g = $s[$who]['held'] ?? null;
+    if ($g) foreach (pfb_group_cells_all($s, $g) as $o) if ($o[2]) return true;
+    return false;
+}
+
+/** Every legal [x, y] for a tile. With $who: only the spots that connect, when the side has any connecting move at all (see pfb_must_link). */
+function pfb_cells(array $s, array $tile, ?string $who = null): array
+{
+    $o = []; $must = $who !== null && pfb_must_link($s, $who);
+    for ($y = 0; $y < PFB_H; $y++) for ($x = 0; $x < PFB_W; $x++) { $j = pfb_check($s, $tile, $x, $y); if ($j !== null && (!$must || pfb_has_link($j))) $o[] = [$x, $y]; }
     return $o;
 }
 
@@ -124,7 +144,9 @@ function pfb_begin(array &$s, string $who): void
 function pfb_place(array &$s, string $who, int $handIdx, int $x, int $y): ?array
 {
     $tile = $s[$who]['hand'][$handIdx] ?? null;
-    if (!$tile || pfb_check($s, $tile, $x, $y) === null) return null;
+    if (!$tile) return null;
+    $jt = pfb_check($s, $tile, $x, $y);
+    if ($jt === null || (!pfb_has_link($jt) && pfb_must_link($s, $who))) return null;   // it has to connect unless nothing can
     array_splice($s[$who]['hand'], $handIdx, 1);
     $id = ++$s['pid']; $s['seq']++;
     $s['pcs'][$id] = ['id' => $id, 'by' => $who, 'tile' => $tile, 'x' => $x, 'y' => $y, 'born' => $s['round'], 'seq' => $s['seq']];
@@ -200,29 +222,45 @@ function pfb_connect(array &$s, string $who, ?int $a, int $b, string $side, ?int
 /** The cells a group would fill with its top-left at (ox,oy), or null if it does not fit there. Returns [[x, y, groupIdx], ...]. */
 function pfb_group_cells(array $s, array $g, int $ox, int $oy): ?array
 {
+    $r = pfb_group_cells_l($s, $g, $ox, $oy);
+    return $r === null ? null : $r[0];
+}
+
+/** [cells, linked]: the cells the group would fill and whether any joint with the board is linked, or null if it does not fit there. */
+function pfb_group_cells_l(array $s, array $g, int $ox, int $oy): ?array
+{
     $mx = min(array_column($g['pcs'], 'x')); $my = min(array_column($g['pcs'], 'y'));
     $cells = []; $mine = [];
     foreach ($g['pcs'] as $i => $p) { $x = $ox + $p['x'] - $mx; $y = $oy + $p['y'] - $my; $cells[] = [$x, $y, $i]; $mine["$x,$y"] = $i; }
-    $touch = false;
+    $touch = false; $linked = false;
     foreach ($cells as [$x, $y, $i]) {
         if ($x < 0 || $y < 0 || $x >= PFB_W || $y >= PFB_H || isset($s['cell']["$x,$y"])) return null;
         $e = pfb_edges($g['pcs'][$i]['tile']);
         foreach (PFB_SIDE as $side => [$dx, $dy, $opp]) {
             $nx = $x + $dx; $ny = $y + $dy; if (isset($mine["$nx,$ny"])) continue;   // inside the group: already checked when it was joined
             $n = pfb_at($s, $nx, $ny); if (!$n) continue;
-            if (!pfb_joint($e[$side], pfb_edges($n['tile'])[$opp])[0]) return null;
-            $touch = true;
+            $jt = pfb_joint($e[$side], pfb_edges($n['tile'])[$opp]);
+            if (!$jt[0]) return null;
+            $touch = true; if ($jt[1]) $linked = true;
         }
     }
-    if (!$s['pcs']) { $c = [intdiv(PFB_W, 2), intdiv(PFB_H, 2)]; foreach ($cells as [$x, $y]) if ($x === $c[0] && $y === $c[1]) return $cells; return null; }
-    return $touch ? $cells : null;
+    if (!$s['pcs']) { $c = [intdiv(PFB_W, 2), intdiv(PFB_H, 2)]; foreach ($cells as [$x, $y]) if ($x === $c[0] && $y === $c[1]) return [$cells, false]; return null; }
+    return $touch ? [$cells, $linked] : null;
+}
+
+/** Every spot [ox, oy, linked] where the group fits (before the connect rule). */
+function pfb_group_cells_all(array $s, array $g): array
+{
+    $o = [];
+    for ($y = 0; $y < PFB_H; $y++) for ($x = 0; $x < PFB_W; $x++) { $r = pfb_group_cells_l($s, $g, $x, $y); if ($r !== null) $o[] = [$x, $y, $r[1]]; }
+    return $o;
 }
 
 /** Every top-left spot where the group can go. */
-function pfb_group_spots(array $s, array $g): array
+function pfb_group_spots(array $s, array $g, string $who = 'me'): array
 {
-    $o = [];
-    for ($y = 0; $y < PFB_H; $y++) for ($x = 0; $x < PFB_W; $x++) if (pfb_group_cells($s, $g, $x, $y) !== null) $o[] = [$x, $y];
+    $o = []; $must = pfb_must_link($s, $who);
+    foreach (pfb_group_cells_all($s, $g) as [$x, $y, $lk]) if (!$must || $lk) $o[] = [$x, $y];
     return $o;
 }
 
@@ -230,7 +268,9 @@ function pfb_group_spots(array $s, array $g): array
 function pfb_place_group(array &$s, string $who, int $ox, int $oy): ?array
 {
     $g = $s[$who]['held'] ?? null; if (!$g) return null;
-    $cells = pfb_group_cells($s, $g, $ox, $oy); if ($cells === null) return null;
+    $r = pfb_group_cells_l($s, $g, $ox, $oy); if ($r === null) return null;
+    if (!$r[1] && pfb_must_link($s, $who)) return null;   // it has to connect unless nothing can
+    $cells = $r[0];
     $cm = PFB_GROUP_MULT[count($g['pcs'])] ?? 1.0; $root = null;
     foreach ($cells as [$x, $y, $i]) {
         $id = ++$s['pid']; $s['seq']++;
@@ -307,7 +347,7 @@ function pfb_search(array $s, string $who, bool $allowHeavy = true): ?array
     $best = null;
     foreach ($s[$who]['hand'] as $i => $tile) {
         if (!$allowHeavy && $tile['tag'] === 'heavy' && ($tile['m'] ?? '') !== 'steady') continue;
-        foreach (pfb_cells($s, $tile) as [$x, $y]) {
+        foreach (pfb_cells($s, $tile, $who) as [$x, $y]) {
             $w = $s;
             if (pfb_place($w, $who, $i, $x, $y) === null) continue;
             $sc = pfb_score($s, $w, $who);
@@ -468,7 +508,7 @@ function pfb_view(array $s): array
     $v = pf_view($s);
     $v['mode'] = 'board'; $v['w'] = PFB_W; $v['h'] = PFB_H; $v['fx'] = $s['fx'] ?? [];
     $g = $s['me']['held'] ?? null;
-    $v['held'] = $g ? ['pcs' => array_map(fn($p) => ['n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'x' => $p['x'], 'y' => $p['y']], $g['pcs']), 'spots' => pfb_group_spots($s, $g)] : null;
+    $v['held'] = $g ? ['pcs' => array_map(fn($p) => ['n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'x' => $p['x'], 'y' => $p['y']], $g['pcs']), 'spots' => pfb_group_spots($s, $g), 'link' => (bool)array_filter(pfb_group_cells_all($s, $g), fn($o) => $o[2])] : null;
     $v['pcs'] = array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born'], 'seq' => $p['seq'], 'spawn' => ($s['spawn'] ?? null) === $p['id']], $s['pcs']));
     $v['gone'] = array_map(fn($g) => ['id' => $g['id'], 'by' => $g['by'], 'x' => $g['x'], 'y' => $g['y'], 'n' => $g['tile']['n'], 't' => $g['tile']['t'], 'v' => $g['tile']['v'], 'tag' => $g['tile']['tag'], 'm' => (string)($g['tile']['m'] ?? ''), 'e' => pfb_edges($g['tile']), 'age' => $g['age']], $s['gone'] ?? []);
     foreach ($v['hand'] as $i => $t) $v['hand'][$i]['e'] = pfb_edges($s['me']['hand'][$i]);

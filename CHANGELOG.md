@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.58
+- **Puzzle combat, board mode: a piece has to connect.** A piece (or a set-aside group) must make at least one linked joint (a knob in a matching hole) with a piece already on the board, yours or the creature's, so the two sides' pieces really meet and chains run across them. Only when nothing in your hand or set-aside group can connect anywhere may you place a piece somewhere else that fits (the hint says so); the creature follows the same rule. The server checks it (a non-connecting placement is refused when something can connect) and the page only lights spots that connect.
+- **The creature's turn plays after yours.** Its new pieces stay off the board until the replay reaches them (your piece resolves, then its piece drops in and scores), instead of being on the board at once.
+- Tests: the rule on 1,415 side-turns with 1,391 refused placements and the relaxed case (`pfboard_sim`); strict spot parity PHP vs the page (`pfboard_js`); the JS engine copy follows (`pfengine_js`).
+
 ## 2.6.57
 - **Puzzle combat, board mode: history chips read as a sentence.** Each chip shows who acted (your gnome or the creature's picture), what it did (piece or tag icon), how much, and who it landed on (a second icon), e.g. creature, hurt, -6 hp, you. Setting pieces aside shows no target.
 - **Tap a history chip to rewind**: the board, the resolve bar and your health show how they stood after that piece scored, with that piece lit; nothing can be played until you tap the chip again, the newest chip, or **Back to now**. The server keeps a board snapshot for the last 14 placements (about 20 KB in the fight record); older chips still read but do not rewind.

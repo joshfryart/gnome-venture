@@ -16,6 +16,8 @@
   var moves = [], selected = null, submitted = false, redrawMode = false, rewind = null, picked = null, playing = false, replayed = false;   // moves: at most one planned action {k:'p'|'c'|'j'|'h', ...}
   var replayKey = 'pfr:' + ((form.querySelector('[name=nonce]') || {}).value) + ':' + ((form.querySelector('[name=turn]') || {}).value), willReplay = false;
   try { willReplay = !!(data.replay && data.replay.length && !window.sessionStorage.getItem(replayKey)); } catch (e) { willReplay = !!(data.replay && data.replay.length); }
+  var hiddenIds = {}, revealId = null;   // the creature's pieces from this turn stay off the board until the replay reaches them (your piece resolves first, then its turn plays)
+  if (willReplay) data.pcs.forEach(function (p) { if (p.by === 'foe' && p.age === 1) hiddenIds[p.id] = true; });
   var showGone = willReplay, hideSpawn = willReplay, animateSpawn = false, histEl = root.querySelector('.pf-hist');   // pieces that left this turn stay until everything has scored; a piece the board adds for the creature waits until then too
   var glows = [], fxOn = !willReplay, glowTimer = 0, frame = 0;
   var world = null, vz = 1, vx = 0, vy = 0, viewKey = '', moved = false;
@@ -88,7 +90,7 @@
     var m = {}, n = 0;
     if (rewind) { rewind.pieces.forEach(function (p) { m[p.x + ',' + p.y] = p; n++; }); return { map: m, count: n }; }
     if (showGone) (data.gone || []).forEach(function (g) { m[g.x + ',' + g.y] = Object.assign({ gone: true }, g); n++; });
-    data.pcs.forEach(function (p) { if (hideSpawn && p.spawn) return; m[p.x + ',' + p.y] = p; n++; });
+    data.pcs.forEach(function (p) { if ((hideSpawn && p.spawn) || hiddenIds[p.id]) return; m[p.x + ',' + p.y] = p; n++; });
     var mv = moves[0];
     if (mv && mv.k === 'p') { m[mv.x + ',' + mv.y] = { x: mv.x, y: mv.y, by: 'me', t: data.hand[mv.i].t, e: data.hand[mv.i].e, tag: data.hand[mv.i].tag, m: data.hand[mv.i].m, ghost: true, n: tiles[mv.i].dataset.name, v: tiles[mv.i].dataset.v }; n++; }
     if (mv && mv.k === 'c' && data.held) {
@@ -98,18 +100,27 @@
     return { map: m, count: n };
   }
   function baseBoard() { var m = {}; data.pcs.forEach(function (p) { m[p.x + ',' + p.y] = p; }); return { map: m, count: data.pcs.length }; }
-  function legal(b, e, x, y) {
-    if (x < 0 || y < 0 || x >= W || y >= H || b.map[x + ',' + y]) return false;
-    if (!b.count) return x === Math.floor(W / 2) && y === Math.floor(H / 2);
-    var touch = false;
+  function fitInfo(b, e, x, y) {   // -1 does not fit, 0 fits but no joint links, 1 fits and at least one joint links (a knob in a matching hole)
+    if (x < 0 || y < 0 || x >= W || y >= H || b.map[x + ',' + y]) return -1;
+    if (!b.count) return x === Math.floor(W / 2) && y === Math.floor(H / 2) ? 0 : -1;
+    var touch = false, linked = false;
     for (var s in SIDE) {
       var n = b.map[(x + SIDE[s][0]) + ',' + (y + SIDE[s][1])];
       if (!n) continue;
-      if (!joint(e[s], n.e[SIDE[s][2]])[0]) return false;
-      touch = true;
+      var j = joint(e[s], n.e[SIDE[s][2]]);
+      if (!j[0]) return -1;
+      touch = true; if (j[1]) linked = true;
     }
-    return touch;
+    return touch ? (linked ? 1 : 0) : -1;
   }
+  function legal(b, e, x, y) { return fitInfo(b, e, x, y) >= 0; }
+  // the rule: a piece has to connect (make a linked joint) with one already out; only when nothing in your hand or set-aside group can connect anywhere may it go elsewhere that fits
+  function mustLink(b, hand) {
+    if (!b.count) return false;
+    for (var i = 0; i < hand.length; i++) for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) if (fitInfo(b, hand[i], x, y) === 1) return true;
+    return !!(data.held && data.held.link);
+  }
+  function handEdges() { return data.hand.map(function (h) { return h.e; }); }
   function usable(i) {
     var mv = moves[0]; if (!mv) return true;
     if (mv.k === 'p') return mv.i !== i;
@@ -121,8 +132,8 @@
     var out = {};
     if (sel === null || moves.length && moves[0].k !== 'p' && moves[0].k !== 'c') return out;
     if (sel === 'group') { ((data.held && data.held.spots) || []).forEach(function (q) { out[q[0] + ',' + q[1]] = true; }); return out; }
-    var b = baseBoard(), e = data.hand[sel].e;
-    for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) if (legal(b, e, x, y)) out[x + ',' + y] = true;
+    var b = baseBoard(), e = data.hand[sel].e, must = mustLink(b, handEdges());
+    for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) { var f = fitInfo(b, e, x, y); if (f >= 0 && (!must || f === 1)) out[x + ',' + y] = true; }
     return out;
   }
   function anyFits() {
@@ -225,7 +236,7 @@
     for (var y = y0; y <= y1; y++) for (var x = x0; x <= x1; x++) {
       var key = x + ',' + y, p = b.map[key], cell;
       if (p) {
-        cell = document.createElement('div'); cell.className = 'pfb-cell' + (p.ghost ? ' pfb-planned' : '') + (p.gone ? ' pfb-gone' : '') + (p.spawn && animateSpawn ? ' pfb-spawn' : '');
+        cell = document.createElement('div'); cell.className = 'pfb-cell' + (p.ghost ? ' pfb-planned' : '') + (p.gone ? ' pfb-gone' : '') + (p.spawn && animateSpawn ? ' pfb-spawn' : '') + (revealId !== null && p.id === revealId ? ' pfb-drop' : '');
         if (p.id !== undefined && !p.ghost && p.gone) cell.dataset.id = String(p.id);
         else if (p.id !== undefined && !p.ghost) { cell.dataset.id = String(p.id); cell.classList.add('pfb-tap'); cell.setAttribute('role', 'button'); cell.tabIndex = 0; cell.setAttribute('aria-label', (p.by === 'foe' ? 'Creature piece: ' : 'Your piece: ') + p.n + ', ' + p.t + ' ' + p.v + '. Press for details.'); }
         if (art) {
@@ -297,7 +308,7 @@
     prev.textContent = rewind ? 'Rewound. Nothing can be played until you go back to now.' : playing ? 'Watch the chain: each piece is scored in turn.' : data.won ? 'It is over. End the fight to collect your reward.' : redrawMode ? 'Tap the piece to swap for a fresh one.'
       : sel ? sel.dataset.name + ': ' + sel.dataset.desc.split('. ')[0] + '. Pick a lit spot' + (hasJoin ? ' or set it aside.' : '.')
       : selected === 'group' ? hintText || 'Pick a lit spot for the group.'
-      : moves.length === 0 ? (fits ? (root.dataset.turn === '1' ? 'Fill the bar to win: Hurt fills it from the left, Charm from the right.' : 'Pick a piece, then a lit spot. One piece a turn.') : 'Nothing fits. You can pass.')
+      : moves.length === 0 ? (fits ? (!mustLink(baseBoard(), handEdges()) && baseBoard().count ? 'Nothing can connect, so you may place a piece anywhere it fits.' : root.dataset.turn === '1' ? 'Fill the bar to win: Hurt fills it from the left, Charm from the right.' : 'Pick a piece, then a lit spot. One piece a turn.') : 'Nothing fits. You can pass.')
       : moves[0].k === 'j' || moves[0].k === 'h' ? 'Set aside for a later turn. End turn when ready.'
       : 'Placed. End turn when ready.';
     prev.title = prev.textContent;
@@ -421,7 +432,7 @@
     if (hideSpawn) { hideSpawn = false; animateSpawn = true; render(); animateSpawn = false; }
   }
   function stopPlay(skipped) {
-    playTimers.forEach(clearTimeout); playTimers = []; playing = false; replayed = true;
+    playTimers.forEach(clearTimeout); playTimers = []; playing = false; replayed = true; hiddenIds = {};
     if (skipBtn) skipBtn.hidden = true;
     revealAllChips();
     Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
@@ -444,6 +455,7 @@
     data.replay.forEach(function (ev, k) {
       playTimers.push(setTimeout(function () {
         if (ev.by !== lastBy) { lastBy = ev.by; showTurn(ev.by === 'me' ? 'You play' : foeName + "'s turn", ev.by === 'me' ? 'me' : 'foe'); }
+        if (ev.id && hiddenIds[ev.id]) { delete hiddenIds[ev.id]; revealId = ev.id; render(); revealId = null; }   // its piece is put down now, then it scores
         Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
         if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); var pc = pieceById(ev.id); if (pc) { picked = ev.id; showText(pc.n, pieceInfo(pc), pc); } }
         revealChip(k);
@@ -576,5 +588,6 @@
   }
   if (!(data.replay && data.replay.length) && root.dataset.turn === '1' && !data.won) setTimeout(function () { showTurn('Your turn', 'me'); }, 250);
   window.pfbLegal = legal;   // for the parity test
+  window.pfbStrict = function (b, e, hand) { var must = mustLink(b, hand), o = []; for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) { var f = fitInfo(b, e, x, y); if (f >= 0 && (!must || f === 1)) o.push(x + ',' + y); } return o; };
   render();
 })();

@@ -10,10 +10,13 @@ const { chromium } = require('playwright');
     const hand = p.locator('#pf-hand .pf-tile'); const n = await hand.count(); let joined = false;
     for (let i = 0; i < n && !joined; i++) { await hand.nth(i).click({ position: { x: 8, y: 26 } }); if (await p.locator('#pf-opts:not([hidden]) .pf-chipbtn').count()) { await p.locator('#pf-opts .pf-chipbtn').first().click(); joined = true; } else await p.click('#pf-undo'); }
     if (!joined) { res.push('no join'); continue; }
-    await p.click('#pf-go');
+    const before = await p.locator('.pfb-cell[data-id]').count();
+    await p.click('#pf-go'); await p.waitForSelector('.pfb-cv'); await p.waitForTimeout(100);
+    const during = await p.locator('.pfb-cell[data-id]').count();   // the creature's piece must not be on the board before its turn plays
     const foeBanner = await p.waitForSelector('.pf-turn-foe', { timeout: 5000 }).then(() => 1, () => 0);
     const foeChips = await p.locator('.pf-chip.foe').count();
-    res.push({ foeBanner, foeChips }); if (round === 0) await p.screenshot({ path: '/tmp/claude-0/demo-aside.png', fullPage: true });
+    await p.waitForTimeout(3500); const after = await p.locator('.pfb-cell[data-id]').count();
+    res.push({ foeBanner, foeChips, before, during, after, notEarly: during <= before, arrived: after >= during }); if (round === 0) await p.screenshot({ path: '/tmp/claude-0/demo-aside.png', fullPage: true });
   }
   console.log(JSON.stringify({ res, errs })); await b.close();
 })();

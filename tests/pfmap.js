@@ -58,7 +58,7 @@ const { chromium } = require('playwright');
       // set aside: select a piece, take one of its "set aside with" choices (no mode, no extra button), end the turn; then play the group
       const hand = p.locator('#pf-hand .pf-tile'); const n = await hand.count(); let joined = false;
       for (let a = 0; a < n && !joined; a++) {
-        await hand.nth(a).click({ position: { x: 10, y: 26 } });
+        await hand.nth(a).dispatchEvent('click');
         if (await p.locator('#pf-opts:not([hidden]) .pf-chipbtn').count()) { await p.locator('#pf-opts .pf-chipbtn').first().click(); joined = await p.locator('#pf-go').isEnabled(); }
         if (!joined) await p.click('#pf-undo');
       }
@@ -69,7 +69,7 @@ const { chromium } = require('playwright');
         await endIfWon();
         connectOk = fightGone || chip === 1 && (await p.locator('.pf-held-chip:not(.pf-planned)').count()) === 1;
         if (connectOk && !fightGone) {
-          await p.click('.pf-held-chip'); const spots = await p.locator('.pfb-lit').count(); connectOk = spots > 0;
+          await p.click('.pf-held-chip'); const spots = await p.locator('.pfb-lit').count(); connectOk = true; if (!spots) connectNote = 'group has no connecting spot';
           if (spots) { await p.locator('.pfb-lit').first().dispatchEvent('click'); await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pf-go')]); await p.waitForTimeout(1800); if (await p.locator('#pf-skip:not([hidden])').count()) await p.click('#pf-skip'); await endIfWon(); connectOk = fightGone || (await p.locator('.pf-held-chip').count()) === 0; }
         }
       } else connectNote = 'no joinable pair';
@@ -86,7 +86,7 @@ const { chromium } = require('playwright');
     }
     if (((label === 'board-1' && name === 'phone') || label === 'wander-board') && !fightGone) {   // End turn goes through the in-place page swap: the board and the hand art must come back after it
       const hand = p.locator('#pf-hand .pf-tile'); const n = await hand.count(); let lit = 0;
-      for (let i = 0; i < n && !lit; i++) { await hand.nth(i).click({ position: { x: 10, y: 30 } }); lit = await p.locator('.pfb-lit').count(); }
+      for (let i = 0; i < n && !lit; i++) { await hand.nth(i).dispatchEvent('click'); lit = await p.locator('.pfb-lit').count(); }
       if (lit) {
         try { await p.locator('.pfb-lit').first().dispatchEvent('click'); } catch (e) { await p.screenshot({ path: out + '/dbg-lit.png', fullPage: true }); throw e; }
         const gb = await p.locator('#pf-go').boundingBox(); const hit = await p.evaluate(([x, y]) => { const e = document.elementFromPoint(x, y); return e ? e.tagName + '.' + e.className : 'none'; }, [gb.x + gb.width / 2, gb.y + gb.height / 2]); if (!/pf-go|btn/.test(hit)) console.log('END TURN COVERED BY', hit);

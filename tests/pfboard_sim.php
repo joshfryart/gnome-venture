@@ -54,6 +54,15 @@ $bad = 0; $tbl = []; $kinds = []; $byMode = [];
 foreach ($rows as $c) foreach ([11, 22] as $seed) {
     $me = bsim_player($c['level']); $s = pfb_new($me, $c, $seed + $c['level']); $total = count($me['deck']); $t = 0;
     while (!$s['over'] && $t++ < 40) {
+        // the connect rule: when anything can connect, every offered cell links; when nothing can, the fitting cells are offered
+        foreach (['me', 'foe'] as $side) {
+            $must = pfb_must_link($s, $side);
+            foreach ($s[$side]['hand'] as $ht) { $all = pfb_cells($s, $ht); $off = pfb_cells($s, $ht, $side);
+                foreach ($off as [$cx, $cy]) if ($must && !pfb_has_link(pfb_check($s, $ht, $cx, $cy))) { echo "FAIL {$c['slug']}: a non-connecting spot was offered although something can connect\n"; $bad++; break 2; }
+                if (!$must && $off !== $all) { echo "FAIL {$c['slug']}: with nothing able to connect the fitting spots were not all offered\n"; $bad++; break 2; } }
+            if ($must) foreach ($s[$side]['hand'] as $hi => $ht) { $off = array_map('json_encode', pfb_cells($s, $ht, $side)); foreach (pfb_cells($s, $ht) as $cxy) if (!in_array(json_encode($cxy), $off, true)) { $w = $s; if (pfb_place($w, $side, $hi, $cxy[0], $cxy[1]) !== null) { echo "FAIL {$c['slug']}: a non-connecting placement was accepted although something can connect\n"; $bad++; } $refused = ($refused ?? 0) + 1; break 2; } }
+            $rules = ($rules ?? 0) + ($must ? 1 : 0); $free = ($free ?? 0) + ($must ? 0 : 1);
+        }
         $mv = bsim_act($s, $seed === 11 ? 'single' : 'builder');
         if ($mv) $r = pfb_play($s, [$mv], $s['turn']); else $r = pfb_pass($s, $s['turn']);
         // one chain per side per turn: nothing disconnected from the piece just placed may fire
@@ -68,6 +77,7 @@ foreach ($rows as $c) foreach ([11, 22] as $seed) {
     $tbl[$c['size']][] = [(string)$s['over'], $s['turn']]; $byMode[$seed === 11 ? 'single' : 'builder'][] = [(string)$s['over'], $s['turn']];
 }
 if (!$quiet) foreach ($byMode as $m => $res) { $cnt = array_count_values(array_column($res, 0)); ksort($cnt); printf("mode %-7s n=%-3d avg turns %.1f  %s\n", $m, count($res), array_sum(array_column($res, 1)) / count($res), json_encode($cnt)); }
+if (!$quiet) echo 'connect rule in force on ' . ($rules ?? 0) . ' side-turns (' . ($refused ?? 0) . ' non-connecting placements refused), relaxed on ' . ($free ?? 0) . "\n";
 if (!$quiet) echo 'actions: ' . json_encode($kinds) . "\n";
 if (!$quiet) foreach ($tbl as $size => $res) { $cnt = array_count_values(array_column($res, 0)); ksort($cnt); printf("%-7s n=%-3d avg turns %.1f  %s\n", $size, count($res), array_sum(array_column($res, 1)) / count($res), json_encode($cnt)); }
 // ---- rules, one by one

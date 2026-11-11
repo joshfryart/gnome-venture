@@ -13,6 +13,8 @@ for ($n = 0; $n < 400; $n++) {
         $s['pcs'][$id] = ['id' => $id, 'by' => ['me', 'foe'][mt_rand(0, 1)], 'tile' => $t, 'x' => $x, 'y' => $y, 'born' => 1, 'seq' => $s['seq']]; $s['cell']["$x,$y"] = $id;
     }
     $t = pf_make_tile($keys[mt_rand(0, count($keys) - 1)], $st);
-    $cases[] = ['pcs' => array_values(array_map(fn($p) => ['x' => $p['x'], 'y' => $p['y'], 'e' => pfb_edges($p['tile'])], $s['pcs'])), 'e' => pfb_edges($t), 'legal' => pfb_cells($s, $t)];
+    $hand = [$t]; for ($h = mt_rand(0, 4); $h > 0; $h--) $hand[] = pf_make_tile($keys[mt_rand(0, count($keys) - 1)], $st);
+    $s['me']['hand'] = $hand; $s['me']['held'] = null;
+    $cases[] = ['hand' => array_map('pfb_edges', $hand), 'strict' => pfb_cells($s, $t, 'me'), 'pcs' => array_values(array_map(fn($p) => ['x' => $p['x'], 'y' => $p['y'], 'e' => pfb_edges($p['tile'])], $s['pcs'])), 'e' => pfb_edges($t), 'legal' => pfb_cells($s, $t)];
 }
 echo json_encode(['w' => PFB_W, 'h' => PFB_H, 'cases' => $cases]);

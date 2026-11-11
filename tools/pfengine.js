@@ -511,9 +511,24 @@
     return joints.length ? joints : null;
   }
 
-  function cells(s, tile) {
-    var o = [];
-    for (var y = 0; y < PFB_H; y++) for (var x = 0; x < PFB_W; x++) if (check(s, tile, x, y) !== null) o.push([x, y]);
+  function hasLink(joints) {
+    if (joints) for (var i = 0; i < joints.length; i++) if (joints[i][2]) return true;
+    return false;
+  }
+
+  /** A piece has to connect (make a linked joint) with one already out; only when nothing in the hand or the set-aside group can connect anywhere may it go elsewhere that fits. */
+  function mustLink(s, who) {
+    if (isEmpty(s.pcs)) return false;
+    var hand = s[who].hand;
+    for (var i = 0; i < hand.length; i++) for (var y = 0; y < PFB_H; y++) for (var x = 0; x < PFB_W; x++) if (hasLink(check(s, hand[i], x, y))) return true;
+    var g = nn(s[who].held, null);
+    if (g && !isEmpty(g)) { var all = groupCellsAll(s, g); for (var k = 0; k < all.length; k++) if (all[k][2]) return true; }
+    return false;
+  }
+
+  function cells(s, tile, who) {
+    var o = [], must = (who !== undefined && who !== null) && mustLink(s, who);
+    for (var y = 0; y < PFB_H; y++) for (var x = 0; x < PFB_W; x++) { var j = check(s, tile, x, y); if (j !== null && (!must || hasLink(j))) o.push([x, y]); }
     return o;
   }
 
@@ -572,7 +587,9 @@
 
   function place(s, who, handIdx, x, y) {
     var tile = isInt(handIdx) ? nn(s[who].hand[handIdx], null) : null;
-    if (!tile || check(s, tile, x, y) === null) return null;
+    if (!tile) return null;
+    var jt = check(s, tile, x, y);
+    if (jt === null || (!hasLink(jt) && mustLink(s, who))) return null;   // it has to connect unless nothing can
     s[who].hand.splice(handIdx, 1);
     var id = ++s.pid; s.seq++;
     s.pcs[id] = { id: id, by: who, tile: tile, x: x, y: y, born: s.round, seq: s.seq };
@@ -644,11 +661,17 @@
 
   /** The cells a group would fill with its top-left at (ox,oy), or null. [[x, y, groupIdx], ...] */
   function groupCells(s, g, ox, oy) {
+    var r = groupCellsL(s, g, ox, oy);
+    return r === null ? null : r[0];
+  }
+
+  /** [cells, linked] or null. */
+  function groupCellsL(s, g, ox, oy) {
     var mx = Infinity, my = Infinity, i;
     g.pcs.forEach(function (p) { mx = Math.min(mx, p.x); my = Math.min(my, p.y); });
     var cs = [], mine = {};
     for (i = 0; i < g.pcs.length; i++) { var p = g.pcs[i], x = ox + p.x - mx, y = oy + p.y - my; cs.push([x, y, i]); mine[x + ',' + y] = i; }
-    var touch = false;
+    var touch = false, linked = false;
     for (var ci = 0; ci < cs.length; ci++) {
       var cx = cs[ci][0], cy = cs[ci][1], gi = cs[ci][2];
       if (cx < 0 || cy < 0 || cx >= PFB_W || cy >= PFB_H || has(s.cell, cx + ',' + cy)) return null;
@@ -657,26 +680,34 @@
         var sd = PFB_SIDE[side], nx = cx + sd[0], ny = cy + sd[1];
         if (has(mine, nx + ',' + ny)) continue;
         var n = pieceAt(s, nx, ny); if (!n) continue;
-        if (!joint(e[side], edges(n.tile)[sd[2]])[0]) return null;
-        touch = true;
+        var jt = joint(e[side], edges(n.tile)[sd[2]]);
+        if (!jt[0]) return null;
+        touch = true; if (jt[1]) linked = true;
       }
     }
     if (isEmpty(s.pcs)) {
       var c0 = intdiv(PFB_W, 2), c1 = intdiv(PFB_H, 2);
-      for (i = 0; i < cs.length; i++) if (cs[i][0] === c0 && cs[i][1] === c1) return cs;
+      for (i = 0; i < cs.length; i++) if (cs[i][0] === c0 && cs[i][1] === c1) return [cs, false];
       return null;
     }
-    return touch ? cs : null;
+    return touch ? [cs, linked] : null;
   }
-  function groupSpots(s, g) {
+  function groupCellsAll(s, g) {
     var o = [];
-    for (var y = 0; y < PFB_H; y++) for (var x = 0; x < PFB_W; x++) if (groupCells(s, g, x, y) !== null) o.push([x, y]);
+    for (var y = 0; y < PFB_H; y++) for (var x = 0; x < PFB_W; x++) { var r = groupCellsL(s, g, x, y); if (r !== null) o.push([x, y, r[1]]); }
+    return o;
+  }
+  function groupSpots(s, g, who) {
+    var o = [], must = mustLink(s, who === undefined ? 'me' : who), all = groupCellsAll(s, g);
+    for (var i = 0; i < all.length; i++) if (!must || all[i][2]) o.push([all[i][0], all[i][1]]);
     return o;
   }
 
   function placeGroup(s, who, ox, oy) {
     var g = nn(s[who].held, null); if (!g) return null;
-    var cs = groupCells(s, g, ox, oy); if (cs === null) return null;
+    var r = groupCellsL(s, g, ox, oy); if (r === null) return null;
+    if (!r[1] && mustLink(s, who)) return null;   // it has to connect unless nothing can
+    var cs = r[0];
     var cm = nn(PFB_GROUP_MULT[g.pcs.length], 1.0), root = null;
     for (var i = 0; i < cs.length; i++) {
       var x = cs[i][0], y = cs[i][1], gi = cs[i][2];
@@ -740,7 +771,7 @@
     for (var i = 0; i < hand.length; i++) {
       var tile = hand[i];
       if (!allowHeavy && tile.tag === 'heavy' && nn(tile.m, '') !== 'steady') continue;
-      var cs = cells(s, tile);
+      var cs = cells(s, tile, who);
       for (var c = 0; c < cs.length; c++) {
         var x = cs[c][0], y = cs[c][1], w = clone(s);
         if (place(w, who, i, x, y) === null) continue;
@@ -889,7 +920,8 @@
     var g = nn(s.me.held, null);
     v.held = g ? {
       pcs: g.pcs.map(function (p) { return { n: p.tile.n, t: p.tile.t, v: p.tile.v, tag: p.tile.tag, m: String(nn(p.tile.m, '')), e: edges(p.tile), x: p.x, y: p.y }; }),
-      spots: groupSpots(s, g)
+      spots: groupSpots(s, g),
+      link: groupCellsAll(s, g).some(function (o) { return o[2]; })
     } : null;
     v.pcs = [];
     for (var id in s.pcs) { var p = s.pcs[id]; v.pcs.push({ id: p.id, by: p.by, x: p.x, y: p.y, n: p.tile.n, t: p.tile.t, v: p.tile.v, tag: p.tile.tag, m: String(nn(p.tile.m, '')), e: edges(p.tile), age: s.round - p.born, seq: p.seq, spawn: nn(s.spawn, null) === p.id }); }
