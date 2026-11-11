@@ -46,6 +46,7 @@ const { chromium } = require('playwright');
         await p.locator('.pfb-zoom button').nth(2).click();
       }
     }
+    let rewindOk = true;
     let inplaceOk = true, tapOk = true, connectOk = true, connectNote = '', fightGone = false;
     const endIfWon = async () => { if (await p.locator('#pf-end').count()) { await p.click('#pf-end'); await p.waitForTimeout(900); fightGone = true; } };   // a won fight waits for End fight
     if (label === 'board-1' && name === 'phone') {   // (the heavy turns happen once, on the phone; the wide pass only looks at what is left)
@@ -71,6 +72,16 @@ const { chromium } = require('playwright');
         }
       } else connectNote = 'no joinable pair';
     }
+    if (label === 'board-1' && name === 'phone' && !fightGone) {   // history: chips name who acted and who it landed on; tap an older chip to rewind, Back to now returns
+      const chips = p.locator('.pf-chip-rw'); const nc = await chips.count();
+      if (nc >= 2) {
+        const icons = await p.locator('.pf-chip .pfh-gn, .pf-chip .pfh-cr, .pf-chip .pfh-emo').count();
+        await chips.nth(1).click();
+        const banner = await p.locator('#pf-rewind:not([hidden])').count(), goOff = await p.locator('#pf-go').isDisabled(), pieces = await p.locator('.pfb-cell[data-id]').count();
+        await p.click('#pf-rw-back'); const back = await p.locator('#pf-rewind:not([hidden])').count();
+        rewindOk = icons >= nc && banner === 1 && goOff && pieces > 0 && back === 0;
+      }
+    }
     if (((label === 'board-1' && name === 'phone') || label === 'wander-board') && !fightGone) {   // End turn goes through the in-place page swap: the board and the hand art must come back after it
       const hand = p.locator('#pf-hand .pf-tile'); const n = await hand.count(); let lit = 0;
       for (let i = 0; i < n && !lit; i++) { await hand.nth(i).click({ position: { x: 10, y: 30 } }); lit = await p.locator('.pfb-lit').count(); }
@@ -84,8 +95,8 @@ const { chromium } = require('playwright');
     }
     if (await p.locator('#pfight').count()) await p.locator('#pfight').screenshot({ path: out + '/pfmap-' + label + '-' + name + '.png' });
     const wide = await p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-    const bad = (!over || !mapIn || !panel || !overlap || wide || errs.length || !topOk || (name !== 'wide' && !label.startsWith('chain') && panelH > 520) || !zoomOk || !inplaceOk || !tapOk || !connectOk || (replaying && !scoring) || (want === 'fx' && !glow && !stamp)) ? 1 : 0; fail = fail || bad;
-    console.log(bad ? 'FAIL' : 'ok', label, name, '| fight over map', !!over, '| map behind', overlap, '| art bar', art, '| glow', glow, '| stamps', stamp, '| expiring cues', await p.locator('.pfb-old').count(), '| foe drops', await p.locator('.pfb-drop').count(), '| replay', replaying ? (scoring ? 'lit ' + lines + ' lines' : 'NOT LIT') : 'none', '| status bar', topOk ? 'clear' : 'OVERLAP ' + JSON.stringify(lay), '| panel', panelH + 'px', '| tap info', tapOk, '| connect+group', connectOk, connectNote, '| zoom', zoomOk, '| after in-place turn', inplaceOk, '| overflow', wide, '| js errors:', errs.length ? errs.join(' | ') : 'none');
+    const bad = (!over || !mapIn || !panel || !overlap || wide || errs.length || !rewindOk || !topOk || (name !== 'wide' && !label.startsWith('chain') && panelH > 520) || !zoomOk || !inplaceOk || !tapOk || !connectOk || (replaying && !scoring) || (want === 'fx' && !glow && !stamp)) ? 1 : 0; fail = fail || bad;
+    console.log(bad ? 'FAIL' : 'ok', label, name, '| fight over map', !!over, '| map behind', overlap, '| art bar', art, '| glow', glow, '| stamps', stamp, '| expiring cues', await p.locator('.pfb-old').count(), '| foe drops', await p.locator('.pfb-drop').count(), '| replay', replaying ? (scoring ? 'lit ' + lines + ' lines' : 'NOT LIT') : 'none', '| status bar', topOk ? 'clear' : 'OVERLAP ' + JSON.stringify(lay), '| panel', panelH + 'px', '| rewind', rewindOk, '| tap info', tapOk, '| connect+group', connectOk, connectNote, '| zoom', zoomOk, '| after in-place turn', inplaceOk, '| overflow', wide, '| js errors:', errs.length ? errs.join(' | ') : 'none');
     await c.close();
   }
   await b.close(); process.exit(fail);

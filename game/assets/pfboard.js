@@ -11,9 +11,9 @@
   var go = document.getElementById('pf-go'), undo = document.getElementById('pf-undo'), prev = document.getElementById('pf-preview');
   var form = document.getElementById('pf-form'), movesIn = document.getElementById('pf-moves'), insp = document.getElementById('pf-inspect');
   var rbtn = document.getElementById('pf-redraw'), pform = document.getElementById('pf-pform');
-  var optsEl = document.getElementById('pf-opts');
+  var optsEl = document.getElementById('pf-opts'), rewindEl = document.getElementById('pf-rewind'), rwT = document.getElementById('pf-rw-t'), rwBack = document.getElementById('pf-rw-back');
   var tiles = Array.prototype.slice.call(handEl.querySelectorAll('.pf-tile'));
-  var moves = [], selected = null, submitted = false, redrawMode = false, picked = null, playing = false, replayed = false;   // moves: at most one planned action {k:'p'|'c'|'j'|'h', ...}
+  var moves = [], selected = null, submitted = false, redrawMode = false, rewind = null, picked = null, playing = false, replayed = false;   // moves: at most one planned action {k:'p'|'c'|'j'|'h', ...}
   var replayKey = 'pfr:' + ((form.querySelector('[name=nonce]') || {}).value) + ':' + ((form.querySelector('[name=turn]') || {}).value), willReplay = false;
   try { willReplay = !!(data.replay && data.replay.length && !window.sessionStorage.getItem(replayKey)); } catch (e) { willReplay = !!(data.replay && data.replay.length); }
   var showGone = willReplay, hideSpawn = willReplay, animateSpawn = false, histEl = root.querySelector('.pf-hist');   // pieces that left this turn stay until everything has scored; a piece the board adds for the creature waits until then too
@@ -84,8 +84,9 @@
     var mx = Math.min.apply(null, xs), my = Math.min.apply(null, ys);
     return [Math.max.apply(null, xs) - mx + 1, Math.max.apply(null, ys) - my + 1, mx, my];
   }
-  function working() {   // the board as it stands with my planned piece (or group) on it
+  function working() {   // the board as it stands with my planned piece (or group) on it (or, rewound, as it stood after a past piece scored)
     var m = {}, n = 0;
+    if (rewind) { rewind.pieces.forEach(function (p) { m[p.x + ',' + p.y] = p; n++; }); return { map: m, count: n }; }
     if (showGone) (data.gone || []).forEach(function (g) { m[g.x + ',' + g.y] = Object.assign({ gone: true }, g); n++; });
     data.pcs.forEach(function (p) { if (hideSpawn && p.spawn) return; m[p.x + ',' + p.y] = p; n++; });
     var mv = moves[0];
@@ -190,7 +191,7 @@
     return ['h', m.b, m.anc, m.side].join(',');
   }
   function place(x, y) {
-    if (selected === null || playing || submitted || data.won) return;
+    if (selected === null || playing || submitted || data.won || rewind) return;
     moves = [selected === 'group' ? { k: 'c', x: x, y: y } : { k: 'p', i: selected, x: x, y: y }];
     clearPicks(); selected = null; render();
   }
@@ -257,7 +258,7 @@
     }
     // the last turn's chains: a glow along each linked joint of a chain, a stamp with its length on the piece that started it (a few seconds, then gone)
     glows = [];
-    if (art && fxOn && data.fx && data.fx.length) {
+    if (art && fxOn && !rewind && data.fx && data.fx.length) {
       var sets = data.fx.map(function (c) { var m = {}; c.ids.forEach(function (id) { m[id] = true; }); return m; });
       var byId = {}; Object.keys(b.map).forEach(function (k) { var q = b.map[k]; if (q.id !== undefined) byId[q.id] = q; });
       for (var gy = y0; gy <= y1; gy++) for (var gx = x0; gx <= x1; gx++) {
@@ -287,19 +288,20 @@
     tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, m: data.hand[i].m, rar: modRar(data.hand[i].m), edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); var hb = modBadge(data.hand[i].m); if (hb) t.appendChild(hb); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
     fan(); renderHeld(); showJoinChips(); planAsk();
-    var busy = playing || submitted || !!data.won;
+    var busy = playing || submitted || !!data.won || !!rewind;
     var endBtn = document.getElementById('pf-end'); if (endBtn) endBtn.disabled = playing;
     undo.disabled = busy || (moves.length === 0 && selected === null); go.disabled = busy || moves.length === 0;
     var fits = anyFits();
     if (pform) pform.hidden = !(moves.length === 0 && !fits && selected === null);
     var sel = typeof selected === 'number' ? tiles[selected] : null, hasJoin = !!(sel && joinOptions(selected).length);
-    prev.textContent = playing ? 'Watch the chain: each piece is scored in turn.' : data.won ? 'It is over. End the fight to collect your reward.' : redrawMode ? 'Tap the piece to swap for a fresh one.'
+    prev.textContent = rewind ? 'Rewound. Nothing can be played until you go back to now.' : playing ? 'Watch the chain: each piece is scored in turn.' : data.won ? 'It is over. End the fight to collect your reward.' : redrawMode ? 'Tap the piece to swap for a fresh one.'
       : sel ? sel.dataset.name + ': ' + sel.dataset.desc.split('. ')[0] + '. Pick a lit spot' + (hasJoin ? ' or set it aside.' : '.')
       : selected === 'group' ? hintText || 'Pick a lit spot for the group.'
       : moves.length === 0 ? (fits ? 'Pick a piece, then a lit spot. One piece a turn.' : 'Nothing fits. You can pass.')
       : moves[0].k === 'j' || moves[0].k === 'h' ? 'Set aside for a later turn. End turn when ready.'
       : 'Placed. End turn when ready.';
     prev.title = prev.textContent;
+    if (rewind) { var rc = boardEl.querySelector('.pfb-cell[data-id="' + rewind.id + '"]'); if (rc) rc.classList.add('pfb-scoring'); }
     if (!replayed) maybeReplay();
   }
 
@@ -317,7 +319,7 @@
     }
     var tx = document.createElement('span'); tx.className = 'pf-held-tx'; tx.textContent = (g.planned ? 'Setting aside' : 'Set aside') + ' (' + g.pcs.length + ')' + (g.pcs.length === 3 ? ' full strength' : ''); bt.appendChild(tx);
     bt.addEventListener('click', function () {
-      if (playing || submitted || redrawMode || g.planned) return;
+      if (playing || submitted || redrawMode || g.planned || rewind) return;
       hideOpts(); moves = []; clearPicks(); selected = selected === 'group' ? null : 'group';
       if (selected) showHint(g.pcs.map(function (p) { return p.n; }).join(' + ') + ': pick a lit spot to place the whole group. The newest piece scores first.');
       render();
@@ -345,7 +347,7 @@
   }
 
   // ---- tap a piece on the board (or watch it being scored): what it is and how long it stays
-  function pieceById(id) { var r = null; data.pcs.forEach(function (p) { if (p.id === id) r = p; }); (data.gone || []).forEach(function (g) { if (g.id === id) r = g; }); return r; }
+  function pieceById(id) { var r = null; if (rewind) { rewind.pieces.forEach(function (p) { if (p.id === id) r = p; }); return r; } data.pcs.forEach(function (p) { if (p.id === id) r = p; }); (data.gone || []).forEach(function (g) { if (g.id === id) r = g; }); return r; }
   function pieceInfo(p) {
     var t = (p.by === 'foe' ? 'The creature\u2019s ' : 'Your ') + p.t + ' ' + p.v + '.', tg = data.tags && data.tags[p.tag], md = data.mods && data.mods[p.m], left = (data.life || 2) - p.age;
     return t + (tg ? ' ' + tg[0] + ' ' + tg[1] + '.' : '') + (md ? ' Upgrade ' + md[1] + ': ' + (md[3] || '') + '.' : '') + (left <= 1 ? ' It leaves the board at the end of this round.' : ' It stays for ' + left + ' more rounds.');
@@ -362,6 +364,32 @@
     picked = id; showText(p.n, pieceInfo(p), p);
     Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-tap'), function (c) { c.classList.toggle('pfb-picked', +c.dataset.id === id); });
   }
+
+  // ---- rewind: tap a history chip to see the board (and the bar and health) as they stood after that piece scored; tap it again, the newest chip, or Back to now to return
+  function newestChip() { return histEl && histEl.querySelector('.pf-chip:not([hidden])'); }
+  function exitRewind() {
+    if (!rewind) return;
+    rewind = null; if (histEl) Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-sel'), function (c) { c.classList.remove('pf-chip-sel'); });
+    if (rewindEl) rewindEl.hidden = true; root.classList.remove('pf-rewound');
+    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.hp !== undefined) setHp(data.hp);
+    if (insp) insp.hidden = true; fxOn = true; render();
+  }
+  function enterRewind(c) {
+    var pcs = data.snaps && data.snaps[c.dataset.sn]; if (!pcs) return;
+    exitRewind(); moves = []; selected = null; hideOpts(); clearPicks(); if (insp) insp.hidden = true;
+    rewind = { sn: c.dataset.sn, id: +c.dataset.id || 0, chip: c, pieces: pcs };
+    if (histEl) Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-sel'), function (x) { x.classList.remove('pf-chip-sel'); });
+    c.classList.add('pf-chip-sel');
+    if (c.dataset.bar !== '' && c.dataset.bar !== undefined) setBar(+c.dataset.bar, data.barmax); if (c.dataset.hp !== '' && c.dataset.hp !== undefined) setHp(+c.dataset.hp);
+    if (rwT) rwT.textContent = 'Rewound: ' + (c.getAttribute('aria-label') || '').split('. Press')[0];
+    if (rewindEl) rewindEl.hidden = false; root.classList.add('pf-rewound'); render();
+  }
+  function chipTap(c) { if (playing || submitted) return; if (rewind && rewind.chip === c) exitRewind(); else if (c === newestChip()) exitRewind(); else enterRewind(c); }
+  if (histEl) {
+    histEl.addEventListener('click', function (e) { var c = e.target.closest && e.target.closest('.pf-chip-rw'); if (c) chipTap(c); });
+    histEl.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('pf-chip-rw')) { e.preventDefault(); chipTap(e.target); } });
+  }
+  if (rwBack) rwBack.addEventListener('click', exitRewind);
 
   // ---- the replay: after a turn, each piece that scored is lit in turn with its line, the bar and health following
   var skipBtn = document.getElementById('pf-skip'), playTimers = [], forceReplay = false;
@@ -443,7 +471,7 @@
   }
   window.addEventListener('resize', fan);
   function select(i) {
-    if (playing || submitted || data.won) return;
+    if (playing || submitted || data.won || rewind) return;
     if (!usable(i)) return;
     clearPicks(); hideOpts(); moves = []; if (insp) insp.hidden = true;
     selected = selected === i ? null : i;

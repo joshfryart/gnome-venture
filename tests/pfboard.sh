@@ -61,6 +61,12 @@ NONCE_X=deadbeef pf pfb_preview -d moves='0,2,2' >/dev/null; ck "preview with a 
 ck "wrong nonce: redirect" "$(NONCE_X=deadbeef pf pfb_play -d moves='0,2,2')" "302"; ck "wrong nonce ignored" "$(enc)" "$ENC1"
 ck "a strip play on a board fight is refused" "$(pf pf_play -d chain=0)" "302"; ck "strip play ignored" "$(enc)" "$ENC1"
 ck "pass with pieces that fit is refused" "$(pf pfb_pass)" "302"; ck "pass ignored" "$(enc)" "$ENC1"
+# the history: chips say who and to whom, and keep a board snapshot for the rewind
+pf pfb_play -d moves="$(php "$HERE/pfboard_move.php" "$GAME" 2>&1 | tail -1)" >/dev/null; get adventure.php >/dev/null
+ck "history chips carry a rewind snapshot" "$(grep -c 'class="pf-chip [a-z]* *pf-chip-new pf-chip-rw\|pf-chip-rw' $H | awk '{print ($1>=1)?"yes":"no"}')" "yes"
+ck "the page data holds the snapshots" "$(grep -c '"snaps":{"' $H)" "1"
+ck "chips show who the move landed on" "$(grep -c 'class="pfh-gn"\|class="pfh-cr"\|pfh-emo' $H | awk '{print ($1>=1)?"yes":"no"}')" "yes"
+ENC1=$(enc)
 # set pieces aside (Connect), play the group; the page refuses a second group and a bad group spot
 JM=$(php "$HERE/pfboard_move.php" "$GAME" join 2>&1 | tail -1)
 if [ "$JM" != "NONE" ]; then

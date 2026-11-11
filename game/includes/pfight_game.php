@@ -182,7 +182,14 @@ function pfight_do(array $u, array &$exp, string $do): bool
         $won = in_array($s['over'], ['seen_off', 'charmed'], true);
         pfight_unlock((int)$u['id'], array_values(array_filter($r['ev'], fn($e) => empty($e['connect']))), $won);
         $enc['last'] = []; $enc['replay'] = []; $enc['replay0'] = $rp0;
-        if ($board) { foreach ($r['ev'] as $e) $enc['hist'][] = pfight_chip_event($e); $enc['histnew'] = count($r['ev']); }   // one chip per scored piece; the board page plays them in one at a time
+        if ($board) {
+            $snaps = (array)($enc['snaps'] ?? []); $sn = (int)($enc['snapn'] ?? 0); $cur = isset($enc['snaplast']) ? (int)$enc['snaplast'] : null;
+            foreach ($r['ev'] as $e) {
+                if (isset($e['snap'])) { $snaps[++$sn] = $e['snap']; $cur = $sn; }   // each placement keeps the board as it was, so a history chip can rewind to it
+                $enc['hist'][] = pfight_chip_event($e, $cur);
+            }
+            ksort($snaps); $enc['snaps'] = array_slice($snaps, -14, null, true); $enc['snapn'] = $sn; $enc['snaplast'] = $cur; $enc['histnew'] = count($r['ev']);
+        }   // one chip per scored piece; the board page plays them in one at a time
         else foreach (array_filter([pfight_chip($r['ev'], 'me'), pfight_chip($r['ev'], 'foe')]) as $chip) $enc['hist'][] = $chip;
         $enc['hist'] = array_slice((array)($enc['hist'] ?? []), -30);
         foreach ($r['ev'] as $e) {
@@ -313,25 +320,26 @@ function pfight_chip(array $events, string $by): ?array
 }
 
 /** Board mode: one chip per piece placed (its whole chain), who placed it, the types that fired and what came of it. */
-/** One history chip for one scored piece (board mode): who, its icon(s), and what it did in a few words. Never null: the replay and the chips line up one to one. */
-function pfight_chip_event(array $e): array
+/** One history chip for one scored piece (board mode): who acted, what it did, how much, and who it landed on (tg: 'me' | 'foe' | null for setting aside); sn: the board snapshot for the rewind. Never null: the replay and the chips line up one to one. */
+function pfight_chip_event(array $e, ?int $snap = null): array
 {
-    if (!empty($e['connect'])) return ['by' => 'me', 'types' => $e['types'], 'tags' => [], 'txt' => 'joined ' . (int)$e['size'], 'chain' => false];
-    $parts = [];
+    $base = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'sn' => $snap, 'bar' => $e['barnow'] ?? null, 'hp' => $e['hpnow'] ?? null, 'chain' => false];
+    if (!empty($e['connect'])) return $base + ['by' => 'me', 'types' => $e['types'], 'tags' => [], 'txt' => 'joined ' . (int)$e['size'], 'tg' => null];
+    $parts = []; $tg = 'foe'; $by = (string)($e['by'] ?? 'me'); $t = (string)($e['t'] ?? 'hurt');
     if (!empty($e['tick'])) $parts[] = '+' . (int)$e['v'] . ' bar';
-    elseif (($e['by'] ?? '') === 'me') {
+    elseif ($by === 'me') {
         $bar = (float)($e['bar'] ?? 0);
         if ($bar > 0) $parts[] = '+' . (int)round($bar) . ' bar';
-        if ($e['t'] === 'guard') $parts[] = '+' . (int)$e['v'] . ' guard';
-        if (in_array($e['t'], ['heal', 'item'], true)) $parts[] = '+' . (int)$e['v'] . ' hp';
+        if ($t === 'guard') { $parts[] = '+' . (int)$e['v'] . ' guard'; $tg = 'me'; }
+        if (in_array($t, ['heal', 'item'], true)) { $parts[] = '+' . (int)$e['v'] . ' hp'; $tg = 'me'; }
     } else {
         $dmg = (int)($e['dmg'] ?? 0);
-        if ($dmg > 0) $parts[] = '-' . $dmg . ' hp';
-        elseif ($e['t'] === 'guard') $parts[] = '+' . (int)$e['v'] . ' guard';
-        elseif (!empty($e['blocked'])) $parts[] = 'blocked';
+        if ($t === 'hurt') { $tg = 'me'; $parts[] = $dmg > 0 ? '-' . $dmg . ' hp' : (!empty($e['blocked']) ? 'blocked' : 'missed'); }
+        elseif ($t === 'guard') $parts[] = '+' . (int)$e['v'] . ' guard';
+        elseif (in_array($t, ['heal', 'item'], true)) $parts[] = '+' . (int)$e['v'] . ' hp';
     }
     if (!empty($e['combo'])) $parts[] = '✨' . $e['combo'];
-    return ['by' => (string)$e['by'], 'types' => [(string)($e['t'] ?? 'hurt')], 'tags' => [(string)($e['tag'] ?? '')], 'txt' => $parts ? implode(' · ', $parts) : (string)($e['n'] ?? 'piece'), 'chain' => false];
+    return $base + ['by' => $by, 'types' => [$t], 'tags' => [(string)($e['tag'] ?? '')], 'txt' => $parts ? implode(' · ', $parts) : (string)($e['n'] ?? 'piece'), 'tg' => $tg];
 }
 
 function pfight_chips_board(array $events): array
@@ -445,16 +453,24 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h = '<div class="pfight pf-screen pf-boardmode' . (pfight_part('resolve-frame.png') ? ' pfx-art' : '') . '" id="pfight" data-turn="' . (int)$v['turn'] . '" data-mode="board" data-redraws="' . (int)$v['redraws'] . '">';
     $mini = fn(string $cls, string $name, int $n) => '<span class="pfc-pile ' . $cls . '" role="img" aria-label="' . $name . ': ' . $n . ' pieces">' . (($pi = pfight_part($cls === 'deck' ? 'deck-book.png' : 'discard-bin.png')) ? '<img src="' . e($pi) . '" alt="">' : '<span aria-hidden="true">' . ($cls === 'deck' ? '📖' : '🗑️') . '</span>') . '<b>' . $n . '</b></span>';
     $h .= '@@TOP@@<div class="pfc-histrow"><ol class="pf-hist" aria-label="What has been played" aria-live="polite">';
-    // the history bar IS the log: one chip per scored piece, the newest on the left, scrolling sideways; this turn's chips are held back while the replay plays them in
-    $hist = array_values((array)($enc['hist'] ?? [])); $nNew = (int)($enc['histnew'] ?? 0); $total = count($hist); $pending = !empty($enc['replay']);
+    // the history bar IS the log: one chip per scored piece (actor, what it did, how much, who it landed on), the newest on the left, scrolling sideways; tap one to rewind the board to then.
+    // this turn's chips are held back while the replay plays them in
+    $cim0 = creature_image((string)($c['slug'] ?? ''), true); $foeSrc = ($cim0 !== '' && art_path($cim0) !== '') ? url($cim0) : null; $gnSrc = pfight_art('chip-gnome.png');
+    $who = fn(string $by) => $by === 'me' ? ($gnSrc ? '<img class="pfh-gn" src="' . e($gnSrc) . '" alt="">' : '<span class="pfh-emo" aria-hidden="true">🧙</span>') : ($foeSrc ? '<img class="pfh-cr" src="' . e($foeSrc) . '" alt="">' : '<span class="pfh-emo" aria-hidden="true">👾</span>');
+    $hist = array_values((array)($enc['hist'] ?? [])); $nNew = (int)($enc['histnew'] ?? 0); $total = count($hist); $pending = !empty($enc['replay']); $snapsAll = (array)($enc['snaps'] ?? []); $usedSn = [];
     foreach (array_reverse(array_keys($hist)) as $hi) {
-        $chip = $hist[$hi]; $evIdx = $hi - ($total - $nNew); $isNew = $nNew > 0 && $evIdx >= 0;
-        $h .= '<li class="pf-chip ' . ($chip['by'] === 'me' ? 'you' : 'foe') . ($isNew ? ' pf-chip-new' : '') . '"' . ($isNew ? ' data-ev="' . $evIdx . '"' . ($pending ? ' hidden' : '') : '') . '><b class="pfh-who">' . ($chip['by'] === 'me' ? 'YOU' : 'FOE') . '</b> ';
+        $chip = $hist[$hi]; $evIdx = $hi - ($total - $nNew); $isNew = $nNew > 0 && $evIdx >= 0; $sn = isset($chip['sn']) && isset($snapsAll[(int)$chip['sn']]) ? (int)$chip['sn'] : null;
+        if ($sn !== null) $usedSn[$sn] = $snapsAll[$sn];
+        $nm = 'the ' . (string)$c['name']; $tgw = ($chip['tg'] ?? null) === 'me' ? 'you' : $nm;
+        $label = (($chip['by'] ?? 'me') === 'me' ? 'You' : ucfirst($nm)) . ': ' . implode(', ', array_map(fn($x) => (string)$x, (array)$chip['types'])) . ', ' . (string)$chip['txt'] . (($chip['tg'] ?? null) !== null ? ', on ' . $tgw : '') . ($sn !== null ? '. Press to see the board then.' : '');
+        $h .= '<li class="pf-chip ' . ($chip['by'] === 'me' ? 'you' : 'foe') . ($isNew ? ' pf-chip-new' : '') . ($sn !== null ? ' pf-chip-rw' : '') . '"' . ($isNew ? ' data-ev="' . $evIdx . '"' . ($pending ? ' hidden' : '') : '')
+            . ($sn !== null ? ' data-sn="' . $sn . '" data-id="' . (int)($chip['id'] ?? 0) . '" data-bar="' . e((string)($chip['bar'] ?? '')) . '" data-hp="' . e((string)($chip['hp'] ?? '')) . '" role="button" tabindex="0"' : '') . ' aria-label="' . e($label) . '">'
+            . $who((string)$chip['by']);
         foreach ((array)$chip['types'] as $ci => $t) {
             $tg = (string)($chip['tags'][$ci] ?? ''); $ti = isset(PF_TAG_ICON[$tg]) ? pfight_art('ico-' . PF_TAG_ICON[$tg] . '-s.png') : null;
             $h .= $ti ? '<img class="pfh-ico" src="' . e($ti) . '" alt="" title="' . e(ucfirst($tg)) . '">' : $sm((string)$t);
         }
-        $h .= ' <span class="pfh-txt">' . e((string)$chip['txt']) . '</span></li>';
+        $h .= ' <span class="pfh-txt">' . e((string)$chip['txt']) . '</span>' . (($chip['tg'] ?? null) !== null ? $who((string)$chip['tg']) : '') . '</li>';
     }
     if (empty($enc['hist'])) $h .= '<li class="pf-chip empty">Pieces are on the board. Place one next to them.</li>';
     $h .= '</ol><button type="button" class="btn" id="pf-skip" hidden>Skip</button><span class="pfc-piles">' . $mini('deck', 'Puzzle book', (int)$v['piles']['draw']) . $mini('disc', 'Discard', (int)$v['piles']['discard']) . '</span></div>';
@@ -464,6 +480,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         . pfight_bar_html($v)
         . '<div class="pfc-foe"><span class="pfc-fname"><b>' . e((string)$c['name']) . '</b><small>lv ' . (int)$c['level'] . ' · ' . ($s['temper'] === 'gentle' ? 'gentle' : 'wary') . ' · 🃏 ' . (int)$v['foe']['hand'] . ($v['foe']['calm'] ? ' · 😌 ' . (int)$v['foe']['calm'] : '') . '</small></span><span class="pfc-av">' . $foeImg . '<span class="pf-intent-bubble" title="Likely next move" aria-label="Likely next move: ' . e((string)$v['foe']['intent']) . '">' . $sm((string)$v['foe']['intent']) . '</span></span></div></div>';
     $h = str_replace('@@TOP@@', $top, $h);
+    $h .= '<div class="pf-rewind" id="pf-rewind" role="status" hidden><span id="pf-rw-t"></span><button type="button" class="btn" id="pf-rw-back">Back to now</button></div>';
     $h .= '<div class="pfb-board" id="pfb-board" role="group" aria-label="The play area: pick a piece from your hand, then a lit spot. Scroll, pinch or use the zoom buttons to zoom"></div>';   // JS draws the pieces from #pf-data
     $h .= '<div class="pf-opts" id="pf-opts" hidden></div>';
     $h .= '<p class="pf-preview help" id="pf-preview" aria-live="polite">Pick a piece, then a lit spot. Up to 4 a turn; the newest plays first.</p>';
@@ -491,7 +508,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '</div>';
     if ($more !== '') $h .= '<details class="pfc-more"><summary>More: piece tips and the last turn</summary>' . $more . '</details>';
     // the board and the hand's edges for the script (public information: the board is out in the open)
-    $data = ['won' => $won ? (string)$s['over'] : null, 'life' => PFB_LIFE, 'tags' => PF_TAGS, 'held' => $v['held'] ?? null, 'gone' => $v['gone'] ?? [], 'bar' => $v['bar']['now'], 'barmax' => $v['bar']['max'], 'hp' => $v['hp'], 'replay' => $enc['replay'] ?? [], 'replay0' => $enc['replay0'] ?? null, 'mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3], $m[2]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
+    $data = ['won' => $won ? (string)$s['over'] : null, 'life' => PFB_LIFE, 'tags' => PF_TAGS, 'held' => $v['held'] ?? null, 'gone' => $v['gone'] ?? [], 'snaps' => (object)$usedSn, 'bar' => $v['bar']['now'], 'barmax' => $v['bar']['max'], 'hp' => $v['hp'], 'replay' => $enc['replay'] ?? [], 'replay0' => $enc['replay0'] ?? null, 'mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3], $m[2]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
     $h .= '<script type="application/json" id="pf-data">' . json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP) . '</script>';
     return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfx.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfparts.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfboard.js?v=' . APP_VERSION)) . '" data-rerun defer></script>';
 }

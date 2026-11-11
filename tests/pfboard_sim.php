@@ -152,6 +152,12 @@ $s = $fresh(); $s['pcs'] = []; $s['cell'] = []; $put($s, 'foe', $T('a', 'guard',
 if ($s['spawn'] !== null || count($s['pcs']) !== 2) { echo "FAIL a piece was put out although the creature already had two\n"; $bad++; }
 $s = $fresh(); $s['pcs'] = []; $s['cell'] = []; $old = $put($s, 'me', $h, 2, 2); $put($s, 'foe', $T('c', 'guard', 2, 'body'), 4, 2); $put($s, 'foe', $T('d', 'guard', 2, 'body'), 5, 2); $s['pcs'][$old]['born'] = 1; $s['round'] = 3; pfb_end_round($s);
 if (!in_array($old, array_column($s['gone'], 'id'), true) || isset($s['pcs'][$old])) { echo "FAIL an expired piece is not listed in gone (or is still on the board)\n"; $bad++; }
+// the history rewind: a placement keeps the board as it was (every piece with what the page needs), and a connect keeps it too
+$s = $fresh(); $s['pcs'] = []; $s['cell'] = []; $s['me']['hand'] = [$g1]; $evp = pfb_place($s, 'me', 0, intdiv(PFB_W, 2), intdiv(PFB_H, 2));
+if (!$evp || count($evp[0]['snap'] ?? []) !== 1 || $evp[0]['snap'][0]['n'] !== 'g1' || !isset($evp[0]['snap'][0]['e']['L'])) { echo "FAIL a placement did not keep a board snapshot\n"; $bad++; }
+$x = pfb_new(['hp' => 40, 'max_hp' => 40, 'stats' => $st, 'deck' => pf_player_deck($st), 'luck' => 0], $mkc, 5); $x['me']['hand'] = [$g1, $g2, $g3, $g4];
+$rj = pfb_play($x, [['j', 0, 1, 'R']], $x['turn']);
+if (!isset($rj['ev'][0]['snap'])) { echo "FAIL a connect did not keep a board snapshot\n"; $bad++; }
 // stale turn, bad moves, determinism, no leaks
 $st = ['level' => 3, 'grit' => 1, 'nimble' => 1, 'hardiness' => 1, 'charm' => 1, 'lore' => 1, 'luck' => 0];
 $mk = fn() => pfb_new(['hp' => 40, 'max_hp' => 40, 'stats' => $st, 'deck' => pf_player_deck($st), 'luck' => 0], $mkc, 77);

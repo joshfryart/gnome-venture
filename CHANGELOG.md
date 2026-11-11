@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.57
+- **Puzzle combat, board mode: history chips read as a sentence.** Each chip shows who acted (your gnome or the creature's picture), what it did (piece or tag icon), how much, and who it landed on (a second icon), e.g. creature, hurt, -6 hp, you. Setting pieces aside shows no target.
+- **Tap a history chip to rewind**: the board, the resolve bar and your health show how they stood after that piece scored, with that piece lit; nothing can be played until you tap the chip again, the newest chip, or **Back to now**. The server keeps a board snapshot for the last 14 placements (about 20 KB in the fight record); older chips still read but do not rewind.
+- Tests: snapshot kept by a placement and a connect (`pfboard_sim`); chips carry snapshots and icons (`pfboard.sh`); in a real browser a chip rewinds the board, disables play, and Back to now returns (`pfmap`).
+
 ## 2.6.56
 - **Puzzle combat, board mode: End fight.** Playing the winning piece no longer closes the fight and drops the loot at once. The last turn plays back, the board shows that the creature is beaten (or charmed), and an **End fight** button collects the reward and plays the chest scene again (the foe falls, the chest opens, the loot is drawn in). Fights lost still end at once. The end scene is also kept for the strip mode and for a knock-out.
 - **The history bar is the log.** One chip per scored piece (icon, what it did, combos), newest on the left, scrolls sideways; the text log is gone. After a turn the chips drop in one at a time as each piece scores.

@@ -131,7 +131,7 @@ function pfb_place(array &$s, string $who, int $handIdx, int $x, int $y): ?array
     $s['cell']["$x,$y"] = $id;
     $joints = pfb_check_after($s, $id);
     $ev = pfb_fire($s, $id);
-    if ($ev) $ev[0]['linked'] = $joints;   // how many linked joints the new piece made
+    if ($ev) { $ev[0]['linked'] = $joints; $ev[0]['snap'] = pfb_snap($s); }   // linked: how many linked joints the new piece made; snap: the board for the history rewind
     return $ev;
 }
 
@@ -239,8 +239,14 @@ function pfb_place_group(array &$s, string $who, int $ox, int $oy): ?array
     }
     $s[$who]['held'] = null;
     $ev = pfb_fire($s, $root);
-    if ($ev) $ev[0]['linked'] = pfb_check_after($s, $root);
+    if ($ev) { $ev[0]['linked'] = pfb_check_after($s, $root); $ev[0]['snap'] = pfb_snap($s); }
     return $ev;
+}
+
+/** The board as it stands right now (for rewinding the history): the pieces with everything the page needs to draw and describe them. */
+function pfb_snap(array $s): array
+{
+    return array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born']], $s['pcs']));
 }
 
 function pfb_check_after(array $s, int $id): int
@@ -407,7 +413,7 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null,
         else { if (count($mv) !== 4 || !is_int($mv[1]) || !is_int($mv[2]) || !is_string($mv[3])) return $bad; $err = pfb_connect($w, 'me', null, $mv[1], $mv[3], $mv[2]); }
         if ($err) return ['ev' => [], 'err' => $err];
         $names = array_map(fn($gp) => (string)$gp['tile']['n'], $w['me']['held']['pcs']);
-        $ev = [['by' => 'me', 'connect' => true, 'n' => implode(' + ', $names), 'types' => array_map(fn($gp) => (string)$gp['tile']['t'], $w['me']['held']['pcs']), 'size' => count($names)]];
+        $ev = [['snap' => pfb_snap($w), 'by' => 'me', 'connect' => true, 'n' => implode(' + ', $names), 'types' => array_map(fn($gp) => (string)$gp['tile']['t'], $w['me']['held']['pcs']), 'size' => count($names)]];
     } else return $bad;
     if ($dry) return ['ev' => $ev, 'err' => null, 'bar' => round($w['bar']['now'], 1), 'max' => $w['bar']['max'], 'hp' => $w['me']['hp'], 'block' => $w['me']['block'], 'over' => $w['over']];
     if (!$w['over']) $ev = array_merge($ev, pfb_foe_turn($w, 0));

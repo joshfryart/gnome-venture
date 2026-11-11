@@ -362,3 +362,14 @@
 .pfc-top .pfx-bar, .pfc-top .pf-bar { flex: 1 1 0; min-width: 0; }
 .pfc-foe { flex: 0 1 auto; min-width: 0; max-width: 38%; }
 .pfc-top .pf-hp { flex: none; }
+
+/* history chips: who acted, what, how much, who it landed on; tap to rewind */
+.pf-boardmode .pf-chip { gap: .2rem; height: 30px; padding: 0 .35rem; border-width: 5px; border-image-width: 5px; }
+.pf-chip .pfh-gn, .pf-chip .pfh-cr { width: 20px; height: 20px; image-rendering: pixelated; object-fit: contain; flex: none; }
+.pf-chip-rw { cursor: pointer; }
+.pf-chip-rw:focus-visible { outline: 3px solid Highlight; outline-offset: 1px; }
+.pf-chip-sel { outline: 2px solid #e8a317; outline-offset: 1px; }
+.pf-rewind { display: flex; align-items: center; justify-content: space-between; gap: .5rem; background: #e8a317; color: #2a1a10; border-radius: .5rem; padding: .25rem .5rem; font-size: .75rem; font-weight: 600; }
+.pf-rewind[hidden] { display: none; }
+.pf-rewind .btn { font-size: .72rem; padding: .2rem .6rem; min-height: 0; background: #2a1a10; color: #f2e4c0; }
+.pf-rewound .pf-tray, .pf-rewound .pf-buttons, .pf-rewound .pf-opts { opacity: .45; pointer-events: none; }
