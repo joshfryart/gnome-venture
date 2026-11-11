@@ -278,18 +278,21 @@ function pfight_chips_board(array $events): array
     if ($g) $groups[] = $g;
     $chips = [];
     foreach ($groups as $g) {
-        $by = (string)$g[0]['by']; $bar = 0.0; $guard = 0; $heal = 0; $dmg = 0; $types = [];
+        $by = (string)$g[0]['by']; $bar = 0.0; $guard = 0; $heal = 0; $dmg = 0; $types = []; $tags = [];
         foreach ($g as $e) {
-            $types[] = (string)$e['t'];
+            $types[] = (string)$e['t']; $tags[] = (string)($e['tag'] ?? '');
             if ($e['by'] === 'me') { $bar += (float)($e['bar'] ?? 0); if ($e['t'] === 'guard') $guard += (int)$e['v']; if (in_array($e['t'], ['heal', 'item'], true)) $heal += (int)$e['v']; }
             else { $dmg += (int)($e['dmg'] ?? 0); }
         }
         $parts = [];
         if ($bar > 0) $parts[] = '+' . (int)round($bar) . ' bar'; if ($guard) $parts[] = '+' . $guard . ' guard'; if ($heal) $parts[] = '+' . $heal . ' hp'; if ($dmg) $parts[] = '-' . $dmg . ' hp';
-        $chips[] = ['by' => $by, 'types' => $types, 'txt' => $parts ? implode(' · ', $parts) : 'setup', 'chain' => count($g) > 1];
+        $chips[] = ['by' => $by, 'types' => $types, 'tags' => $tags, 'txt' => $parts ? implode(' · ', $parts) : 'setup', 'chain' => count($g) > 1];
     }
     return $chips;
 }
+
+/** The variant icon file name (without ico- and -s.png) of a tag, or null: a tagged piece shows it instead of its type icon. */
+const PF_TAG_ICON = ['quick' => 'jab', 'heavy' => 'smash', 'pierce' => 'pierce', 'poison' => 'sting', 'trip' => 'trip', 'bash' => 'bash', 'hold' => 'brace', 'evade' => 'roll', 'thorns' => 'thornhide', 'mend' => 'mending', 'hum' => 'hum', 'lull' => 'lull', 'bond' => 'bond', 'pluck' => 'pluck'];
 
 /** The fight card. No inline styles (CSP). assets/pfight.js reads data-* and builds the chain; the form posts once per chain. */
 function pfight_html(array $u, array $exp, array &$enc, array $c): string
@@ -375,7 +378,10 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '@@TOP@@<ol class="pf-hist" aria-label="What has been played" aria-live="polite">';
     foreach ((array)($enc['hist'] ?? []) as $chip) {
         $h .= '<li class="pf-chip ' . ($chip['by'] === 'me' ? 'you' : 'foe') . '"><b class="pfh-who">' . ($chip['by'] === 'me' ? 'YOU' : 'FOE') . '</b> ';
-        foreach ((array)$chip['types'] as $t) $h .= $sm((string)$t);
+        foreach ((array)$chip['types'] as $ci => $t) {
+            $tg = (string)($chip['tags'][$ci] ?? ''); $ti = isset(PF_TAG_ICON[$tg]) ? pfight_art('ico-' . PF_TAG_ICON[$tg] . '-s.png') : null;
+            $h .= $ti ? '<img class="pfh-ico" src="' . e($ti) . '" alt="" title="' . e(ucfirst($tg)) . '">' : $sm((string)$t);
+        }
         $h .= ' <span class="pfh-txt">' . ($chip['chain'] ? 'chain ' : '') . e((string)$chip['txt']) . '</span></li>';
     }
     if (empty($enc['hist'])) $h .= '<li class="pf-chip empty">Pieces are on the board. Place one next to them.</li>';
@@ -395,7 +401,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '<div class="pf-tray">' . $pile('deck', 'Puzzle book', (int)$v['piles']['draw']) . '<div class="pf-hand" id="pf-hand" role="group" aria-label="Your hand (swipe sideways)">';
     foreach ($v['hand'] as $i => $t) $h .= pfight_board_piece_html($t, $i);
     $h .= '</div>' . $pile('disc', 'Discard', (int)$v['piles']['discard']) . '</div>';
-    $h .= '<div class="pf-inspect" id="pf-inspect" aria-live="polite" hidden><span class="pf-itext"><b id="pfi-name"></b><br><span id="pfi-desc"></span></span></div>';
+    $h .= '<div class="pf-inspect" id="pf-inspect" aria-live="polite" hidden><span class="pfi-art" id="pfi-art" aria-hidden="true"></span><span class="pf-itext"><b id="pfi-name"></b><br><span id="pfi-desc"></span></span></div>';
     $seen = array_values(array_unique(array_filter(array_column($v['hand'], 'tag'), fn($x) => isset(PF_TAGS[$x]))));
     if ($seen) { $h .= '<ul class="pf-tags help">'; foreach ($seen as $x) $h .= '<li>' . PF_TAGS[$x][0] . ' ' . e(PF_TAGS[$x][1]) . '</li>'; $h .= '</ul>'; }
     $h .= '<div class="pf-extra">';

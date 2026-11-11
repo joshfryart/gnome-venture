@@ -245,6 +245,12 @@
     if (!insp) return;
     document.getElementById('pfi-name').textContent = b.dataset.name || '';
     document.getElementById('pfi-desc').textContent = b.dataset.desc || '';
+    var slot = document.getElementById('pfi-art'), P = window.PFParts, i = tiles.indexOf(b);
+    if (slot && P && P.ok && data.hand[i]) {   // the piece at hand size, edges and all
+      slot.textContent = '';
+      var c = P.piece({ size: 'hand', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, edges: data.hand[i].e, num: b.dataset.v });
+      c.className = 'pfi-cv'; slot.appendChild(c);
+    }
     insp.hidden = false;
   }
 

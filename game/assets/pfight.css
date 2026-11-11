@@ -267,3 +267,6 @@
 .pbox-head { position: relative; width: 192px; max-width: 70%; margin: 0 auto .5rem; }
 .pbox-head img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
 .pbox-head h3 { position: absolute; left: 7.3%; top: 76%; width: 85.4%; height: 15.6%; margin: 0; display: grid; place-items: center; font-size: .72rem; line-height: 1; color: #2a1a10; text-align: center; white-space: nowrap; overflow: hidden; }
+
+.pfi-art:empty { display: none; } .pfi-cv { display: block; width: 132px; height: 92px; image-rendering: pixelated; }
+.pf-boardmode .pf-inspect { gap: .5rem; align-items: center; }
