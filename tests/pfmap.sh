@@ -42,6 +42,10 @@ for MODE in board chain; do
     else get adventure.php >/dev/null; grep -q 'advgrid[^"]*pfover' $H && echo "ok   fight over map" || { echo "FAIL fight not over the map"; FAILS=$((FAILS+1)); }; fi
   done
 done
+# a wander fight (the encounter pop-up over the map): the same in-place turn must keep the board
+db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_mode','board')" >/dev/null
+R=$(php -d display_errors=1 "$HERE/pfmap.php" "$GAME" $RANDOM 8 wander 2>&1 | tail -1); echo "== wander: $R"
+case "$R" in route*) if [ -n "$SHOT" ]; then node "$HERE/pfmap.js" "$BASE" "$SHOT" wander-board || { echo "FAIL wander check"; FAILS=$((FAILS+1)); }; fi;; *) echo "FAIL could not set up a wander fight: $R"; FAILS=$((FAILS+1));; esac
 # a chain on the board: play on (smart bot moves) until the page reports one, then check the glow, the stamp and the expiring cue in the browser
 db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_mode','board')" >/dev/null
 for TRY in $(seq 1 30); do

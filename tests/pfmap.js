@@ -9,14 +9,15 @@ const { chromium } = require('playwright');
     p.on('pageerror', e => errs.push(String(e))); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
     await p.goto(base + '/login.php'); await p.fill('input[name=username]', 'sprout'); await p.fill('input[name=password]', 'TestPass123!'); await Promise.all([p.waitForNavigation(), p.press('input[name=password]', 'Enter')]);
     await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' });
-    const over = await p.locator('.advgrid.pfover').count(), mapIn = await p.locator('.advgrid.pfover .mapcol').count(), panel = await p.locator('#pfight').count();
+    const wanderMode = label.startsWith('wander');
+    const over = wanderMode ? 1 : await p.locator('.advgrid.pfover').count(), mapIn = wanderMode ? 1 : await p.locator('.advgrid.pfover .mapcol').count(), panel = await p.locator('#pfight').count();
     const box = async (sel) => p.locator(sel).first().boundingBox().catch(() => null);
     const m = await box('.advgrid.pfover .mapcol'), f = await box('#pfight');
-    const overlap = !!(m && f && f.x < m.x + m.width && f.x + f.width > m.x && f.y < m.y + m.height && f.y + f.height > m.y);
+    const overlap = wanderMode || !!(m && f && f.x < m.x + m.width && f.x + f.width > m.x && f.y < m.y + m.height && f.y + f.height > m.y);
     const art = await p.locator('.pfx-bar').count();
     const glow = await p.locator('.pfb-glow').count(), stamp = await p.locator('.pfb-stamp').count();
     let zoomOk = true;
-    if (label.startsWith('board') || label === 'fx') {   // wheel zoom, the buttons, reset
+    if (label.startsWith('board') || label === 'fx' || label === 'wander-board') {   // wheel zoom, the buttons, reset
       const bb = await p.locator('#pfb-board').boundingBox();
       await p.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2); await p.mouse.wheel(0, -300); await p.waitForTimeout(80);
       const t1 = await p.evaluate(() => document.querySelector('.pfb-world').style.transform), z1 = await p.locator('.pfb-zoomed').count();
@@ -39,7 +40,7 @@ const { chromium } = require('playwright');
       }
     }
     let inplaceOk = true;
-    if (label === 'board-1') {   // End turn goes through the in-place page swap: the board and the hand art must come back after it
+    if (label === 'board-1' || label === 'wander-board') {   // End turn goes through the in-place page swap: the board and the hand art must come back after it
       const hand = p.locator('#pf-hand .pf-tile'); const n = await hand.count(); let lit = 0;
       for (let i = 0; i < n && !lit; i++) { await hand.nth(i).click({ position: { x: 10, y: 30 } }); lit = await p.locator('.pfb-lit').count(); }
       if (lit) {

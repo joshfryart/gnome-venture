@@ -11,7 +11,7 @@ $here = player_node($u);
 $routes = q('SELECT id FROM routes WHERE kind = \'road\' AND (a_id = ? OR b_id = ?)', [$here['id'], $here['id']])->fetchAll(PDO::FETCH_ASSOC);
 if (!$routes) { echo "NOROUTE\n"; exit(1); }
 $rid = (int)$routes[mt_rand(0, count($routes) - 1)]['id'];
-[$ok, $msg] = start_expedition($u, $rid);
+if (($argv[4] ?? '') === 'wander') { [$ok, $msg] = explore_start($u); } else [$ok, $msg] = start_expedition($u, $rid);
 if (!$ok) { echo "FAILED $msg\n"; exit(1); }
 $exp = active_expedition((int)$u['id']);
 $all = q('SELECT * FROM creatures WHERE level <= ?', [(int)($argv[3] ?? 999)])->fetchAll(PDO::FETCH_ASSOC); $c = $all[mt_rand(0, count($all) - 1)];
