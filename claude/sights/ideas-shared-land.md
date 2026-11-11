@@ -203,7 +203,7 @@ VILLAGER: Proud villager (a critic), `we=fog`: asks your review of the heron; ag
 ### Mountain (11)
 
 **`mountain-the-scree-slope`** · 🪨 **Play the scree** — The stones tick and chatter; step on the right ones to play a tune (pick kind), or sneak across silently.
-Mini "Scree Song": play it in 3 weathers → Scree Xylophone (new, decor). · VILLAGER: Lyra not here; Chatty villager, `dp=day se=summer`, sings along badly (+2 fp). · GOODIE: 20%: `slate-shard`; 4%: `rock-crystal`.
+Mini "Scree Song": play it in 3 weathers → Scree Xylophone (new, decor). · VILLAGER: Chatty villager, `dp=day se=summer`, sings along badly (+2 fp). · GOODIE: 20%: `slate-shard`; 4%: `rock-crystal`.
 
 **`mountain-the-pine-shelf`** · 🤗 **Hug a pine** — Hug a pine that is clinging on for dear life. It feels better.
 VILLAGER: Shy villager, `we=wind`, also holding on; hold on together → +4 friendship. · GOODIE: 30%: `pine-resin`; `se=winter` 10%: Pine-Snow Cone (new, snack, +1 energy).
