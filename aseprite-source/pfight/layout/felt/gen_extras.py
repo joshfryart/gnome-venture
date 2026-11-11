@@ -194,6 +194,63 @@ def chip(foe):
     return im
 
 
+def badge(big):
+    """flat combo badge, 24x14: small = rounded pill (gold), big = swallowtail ribbon (rust). number plate (6,3) 12x8, empty."""
+    im = new(24, 14)
+    d = ImageDraw.Draw(im)
+    if big:
+        d.polygon([(0, 0), (23, 0), (20, 6.5), (23, 13), (0, 13), (3, 6.5)], fill=INK + (255,))
+        d.polygon([(1, 1), (22, 1), (19, 6.5), (22, 12), (1, 12), (4, 6.5)], fill=RUST + (255,))
+        fill2 = hx('#d55e00')
+        d.polygon([(2, 2), (21, 2), (18, 6.5), (21, 11), (2, 11), (5, 6.5)], fill=fill2 + (255,))
+    else:
+        d.rounded_rectangle([0, 0, 23, 13], 4, fill=INK + (255,))
+        d.rounded_rectangle([1, 1, 22, 12], 3, fill=GOLD + (255,))
+        d.rounded_rectangle([2, 2, 21, 11], 2, fill=hx('#f8c552') + (255,))
+    rect(d, 5, 2, 18, 11, INK)
+    rect(d, 6, 3, 17, 10, CREAM)
+    rect(d, 6, 10, 17, 10, CD)
+    return im
+
+
+def expiry():
+    """10x10 expiring-piece badge: hourglass, gold sand. Shape is the cue (not colour)."""
+    rows = ['.########.', '.#gggggg#.', '..#gggg#..', '...#gg#...', '....##....',
+            '....##....', '...#cc#...', '..#cggc#..', '.#cggggc#.', '.########.']
+    pal = {'#': INK, 'g': GOLD, 'c': CREAM}
+    im = new(10, 10)
+    for y, r in enumerate(rows):
+        assert len(r) == 10
+        for x, ch in enumerate(r):
+            if ch in pal:
+                im.putpixel((x, y), pal[ch] + (255,))
+    return im
+
+
+def glow_caps(vertical):
+    """direction caps for the chain glow. NEWEST = start (bead), OLDEST = end (arrowhead). Drawn left->right / top->bottom."""
+    st = new(12, 8)
+    d = ImageDraw.Draw(st)
+    d.ellipse([0, 0, 7, 7], fill=INK + (255,))
+    d.ellipse([1, 1, 6, 6], fill=GOLD + (255,))
+    d.ellipse([2, 2, 5, 5], fill=CREAM + (255,))
+    for x in range(8, 12):
+        st.putpixel((x, 3), (CREAM if x < 10 else GOLD) + (255,))
+        st.putpixel((x, 4), (CREAM if x < 10 else GOLD) + (255,))
+    en = new(12, 8)
+    d = ImageDraw.Draw(en)
+    d.polygon([(2, 0), (2, 7), (11, 3.5)], fill=INK + (255,))
+    d.polygon([(3, 2), (3, 5), (8, 3.5)], fill=GOLD + (255,))
+    for x in range(0, 4):
+        en.putpixel((x, 3), (GOLD if x > 1 else CREAM) + (255,))
+        en.putpixel((x, 4), (GOLD if x > 1 else CREAM) + (255,))
+    en.putpixel((4, 3), CREAM + (255,))
+    en.putpixel((4, 4), CREAM + (255,))
+    if vertical:
+        st, en = st.rotate(-90, expand=True), en.rotate(-90, expand=True)
+    return st, en
+
+
 def ghost(piece_alpha_img):
     """lit-spot ghost: piece-shaped outline of a candidate piece, 1 px, dashed gold/cream; interior left empty.
     rule (piece-local px): outline = opaque px with a 4-neighbour outside; colour = GOLD if (x+y)%4<2 else CREAM."""
@@ -234,6 +291,13 @@ def main(out):
     save('intent-bubble.png', bubble(), icon_at=[4, 1], icon_size=20, tail='bottom-left')
     save('combo-stamp-small.png', stamp(8, hx('#e8a317'), GOLD), plate=[10, 11, 12, 10], note='combo 2-3')
     save('combo-stamp-big.png', stamp(12, hx('#d55e00'), RUST), plate=[10, 11, 12, 10], note='combo 4+')
+    save('combo-badge-small.png', badge(False), plate=[6, 3, 12, 8], note='flat pill, combo 2-3; replaces the star stamp')
+    save('combo-badge-big.png', badge(True), plate=[6, 3, 12, 8], note='swallowtail ribbon, combo 4+')
+    save('expiring-badge.png', expiry(), note='10x10 hourglass, put at a piece corner')
+    for v in (False, True):
+        a, b = glow_caps(v)
+        save('chain-glow-start-%s.png' % ('v' if v else 'h'), a, note='NEWEST end (bead). h: glow runs left->right, v: top->bottom; flip in code for the other direction')
+        save('chain-glow-end-%s.png' % ('v' if v else 'h'), b, note='OLDEST end (arrowhead, points the way the glow runs)')
     save('chip-me.png', chip(False), slice=5, note='9-slice, YOU, solid border')
     save('chip-foe.png', chip(True), slice=5, note='9-slice, FOE, dashed border')
     json.dump(files, open(os.path.join(out, 'extras.json'), 'w'), indent=1)
@@ -259,6 +323,12 @@ def main(out):
     sheet.alpha_composite(g1, (4, 64))
     sheet.alpha_composite(Image.open(os.path.join(out, 'chip-me.png')), (110, 44))
     sheet.alpha_composite(Image.open(os.path.join(out, 'chip-foe.png')), (140, 44))
+    sheet.alpha_composite(Image.open(os.path.join(out, 'combo-badge-small.png')), (4, 80))
+    sheet.alpha_composite(Image.open(os.path.join(out, 'combo-badge-big.png')), (34, 80))
+    sheet.alpha_composite(Image.open(os.path.join(out, 'expiring-badge.png')), (64, 82))
+    sheet.alpha_composite(Image.open(os.path.join(out, 'chain-glow-start-h.png')), (80, 100))
+    sheet.alpha_composite(Image.open(os.path.join(out, 'chain-glow-h.png')).crop((0, 0, 40, 8)), (92, 100))
+    sheet.alpha_composite(Image.open(os.path.join(out, 'chain-glow-end-h.png')), (132, 100))
     sheet.alpha_composite(gim, (180, 44))
     sheet.alpha_composite(cand, (260, 44))
     sheet.resize((1080, 450), Image.NEAREST).save(os.path.join(out, 'extras-sheet.png'))

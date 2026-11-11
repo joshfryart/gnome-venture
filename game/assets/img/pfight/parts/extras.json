@@ -120,6 +120,67 @@
   ],
   "note": "combo 4+"
  },
+ "combo-badge-small.png": {
+  "size": [
+   24,
+   14
+  ],
+  "plate": [
+   6,
+   3,
+   12,
+   8
+  ],
+  "note": "flat pill, combo 2-3; replaces the star stamp"
+ },
+ "combo-badge-big.png": {
+  "size": [
+   24,
+   14
+  ],
+  "plate": [
+   6,
+   3,
+   12,
+   8
+  ],
+  "note": "swallowtail ribbon, combo 4+"
+ },
+ "expiring-badge.png": {
+  "size": [
+   10,
+   10
+  ],
+  "note": "10x10 hourglass, put at a piece corner"
+ },
+ "chain-glow-start-h.png": {
+  "size": [
+   12,
+   8
+  ],
+  "note": "NEWEST end (bead). h: glow runs left->right, v: top->bottom; flip in code for the other direction"
+ },
+ "chain-glow-end-h.png": {
+  "size": [
+   12,
+   8
+  ],
+  "note": "OLDEST end (arrowhead, points the way the glow runs)"
+ },
+ "chain-glow-start-v.png": {
+  "size": [
+   8,
+   12
+  ],
+  "note": "NEWEST end (bead). h: glow runs left->right, v: top->bottom; flip in code for the other direction"
+ },
+ "chain-glow-end-v.png": {
+  "size": [
+   8,
+   12
+  ],
+  "note": "OLDEST end (arrowhead, points the way the glow runs)"
+ },
  "chip-me.png": {
   "size": [
    24,

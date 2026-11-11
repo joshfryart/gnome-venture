@@ -62,3 +62,10 @@ Hand ribbon in piece coords: at (42,58) size 58x9. Cache per (type, size, owner,
 - `combo-stamp-small.png` (combo 2-3), `combo-stamp-big.png` (4+), 32x32, number plate (10,11) 12x10 left empty.
 - `chip-me.png` / `chip-foe.png` 24x24, 9-slice margin 5 (solid vs dashed border).
 - `extras-preview.png` is a 3x preview only.
+
+## Update 2
+- `combo-badge-small.png` (pill, 2-3) / `combo-badge-big.png` (swallowtail, 4+): flat 24x14, number plate (6,3) 12x8 empty. Replace the star stamps (kept, deprecated).
+- `chain-glow-start-h|v.png` 12x8 / 8x12 = NEWEST end (bead); `chain-glow-end-h|v.png` = OLDEST end (arrowhead). Body `chain-glow-h|v.png` keeps tiling, animation runs start to end.
+  Draw left to right (h) or top to bottom (v); mirror in code for the other direction.
+- `expiring-badge.png` 10x10 hourglass (shape is the cue), put it on a piece corner.
+- Strip plate at 1.5x: non-integer scale breaks hard pixels (uneven 1/2 px). Use 1x or 2x, or draw the number after scaling.
