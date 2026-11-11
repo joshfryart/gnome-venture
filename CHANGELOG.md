@@ -1,6 +1,8 @@
 # Changelog
 
 ## 2.6.58
+
+- Puzzle combat, two ways to win: Hurt takes the creature's HEALTH down (red bar, 0 = it backs off); the pink bar is now CHARM only (full = won over). Great creatures have no charm bar. History chips say `-N hp` (creature) and `+N charm`. Hover text, hint and demo updated.
 - **Puzzle combat, board mode: a piece has to connect.** A piece (or a set-aside group) must make at least one linked joint (a knob in a matching hole) with a piece already on the board, yours or the creature's, so the two sides' pieces really meet and chains run across them. Only when nothing in your hand or set-aside group can connect anywhere may you place a piece somewhere else that fits (the hint says so); the creature follows the same rule. The server checks it (a non-connecting placement is refused when something can connect) and the page only lights spots that connect.
 - **The creature's turn plays after yours.** Its new pieces stay off the board until the replay reaches them (your piece resolves, then its piece drops in and scores), instead of being on the board at once.
 - Tests: the rule on 1,415 side-turns with 1,391 refused placements and the relaxed case (`pfboard_sim`); strict spot parity PHP vs the page (`pfboard_js`); the JS engine copy follows (`pfengine_js`).

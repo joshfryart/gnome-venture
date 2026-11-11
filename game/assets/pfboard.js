@@ -308,7 +308,7 @@
     prev.textContent = rewind ? 'Rewound. Nothing can be played until you go back to now.' : playing ? 'Watch the chain: each piece is scored in turn.' : data.won ? 'It is over. End the fight to collect your reward.' : redrawMode ? 'Tap the piece to swap for a fresh one.'
       : sel ? sel.dataset.name + ': ' + sel.dataset.desc.split('. ')[0] + '. Pick a lit spot' + (hasJoin ? ' or set it aside.' : '.')
       : selected === 'group' ? hintText || 'Pick a lit spot for the group.'
-      : moves.length === 0 ? (fits ? (!mustLink(baseBoard(), handEdges()) && baseBoard().count ? 'Nothing can connect, so you may place a piece anywhere it fits.' : root.dataset.turn === '1' ? 'Fill the bar to win: Hurt fills it from the left, Charm from the right.' : 'Pick a piece, then a lit spot. One piece a turn.') : 'Nothing fits. You can pass.')
+      : moves.length === 0 ? (fits ? (!mustLink(baseBoard(), handEdges()) && baseBoard().count ? 'Nothing can connect, so you may place a piece anywhere it fits.' : root.dataset.turn === '1' ? 'Win two ways: Hurt empties its health, Charm fills the charm bar.' : 'Pick a piece, then a lit spot. One piece a turn.') : 'Nothing fits. You can pass.')
       : moves[0].k === 'j' || moves[0].k === 'h' ? 'Set aside for a later turn. End turn when ready.'
       : 'Placed. End turn when ready.';
     prev.title = prev.textContent;
@@ -382,7 +382,7 @@
     if (!rewind) return;
     rewind = null; if (histEl) Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-sel'), function (c) { c.classList.remove('pf-chip-sel'); });
     if (rewindEl) rewindEl.hidden = true; root.classList.remove('pf-rewound');
-    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard);
+    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard);
     if (insp) insp.hidden = true; fxOn = true; render();
   }
   function enterRewind(c) {
@@ -391,7 +391,7 @@
     rewind = { sn: c.dataset.sn, id: +c.dataset.id || 0, chip: c, pieces: pcs };
     if (histEl) Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-sel'), function (x) { x.classList.remove('pf-chip-sel'); });
     c.classList.add('pf-chip-sel');
-    if (c.dataset.bar !== '' && c.dataset.bar !== undefined) setBar(+c.dataset.bar, data.barmax); if (c.dataset.hp !== '' && c.dataset.hp !== undefined) setHp(+c.dataset.hp); setGuard(c.dataset.g);
+    if (c.dataset.bar !== '' && c.dataset.bar !== undefined) setBar(+c.dataset.bar, data.barmax); if (c.dataset.fh !== '' && c.dataset.fh !== undefined) setFh(+c.dataset.fh, data.fhmax); if (c.dataset.hp !== '' && c.dataset.hp !== undefined) setHp(+c.dataset.hp); setGuard(c.dataset.g);
     var rt = c.querySelector('.pfh-txt'); if (rwT) rwT.textContent = 'Rewound to: ' + (c.classList.contains('foe') ? (data.foe || 'Creature') : 'You') + ', ' + (rt ? rt.textContent : 'a move') + '.';
     if (rewindEl) rewindEl.hidden = false; root.classList.add('pf-rewound'); render();
   }
@@ -414,11 +414,14 @@
   }
   function revealChip(k) { if (!histEl) return; var c = histEl.querySelector('.pf-chip-new[data-ev="' + k + '"]'); if (c) { c.hidden = false; c.classList.add('pf-chip-in'); } histEl.scrollLeft = 0; }
   function revealAllChips() { if (!histEl) return; Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-new[hidden]'), function (c) { c.hidden = false; }); histEl.scrollLeft = 0; }
-  function setBar(now, max) {
-    var h = root.querySelector('.pfx-fill.hurt'), c = root.querySelector('.pfx-fill.charm'); if (!max) return;
-    var fin = data.bar || 0, f = Math.max(0, Math.min(1, now / max)), k = fin > 0 ? f / (fin / max) : 0;
-    [h, c].forEach(function (el) { if (!el) return; if (el.dataset.w0 === undefined) el.dataset.w0 = el.getAttribute('data-w') || '0'; el.style.width = Math.min(100, (+el.dataset.w0) * k) + '%'; });
+  function setBar(now, max) {   // the charm bar (Charm pieces only)
+    var c = root.querySelector('.pfx-fill.charm'); if (!max) return;
+    if (c) c.style.width = Math.max(0, Math.min(100, 100 * now / max)) + '%';
     var pr = root.querySelector('.pf-bar progress'); if (pr) pr.value = now;
+  }
+  function setFh(now, max) {   // the creature's health: drains as Hurt lands
+    var el = root.querySelector('.pf-fhp'); if (!el || !max) return; var left = Math.max(0, max - now);
+    var f = el.querySelector('.fhfill'), b = el.querySelector('b'); if (f) f.style.width = Math.min(100, 100 * left / max) + '%'; if (b) b.textContent = String(Math.ceil(left - 1e-6));
   }
   function setGuard(g) {   // the blue guard bar under your head: follows the replay as guard is built and blocks hits
     var el = root.querySelector('.pf-guard'); if (!el || g === null || g === undefined || g === '') return; g = Math.max(0, +g);
@@ -436,7 +439,7 @@
     if (skipBtn) skipBtn.hidden = true;
     revealAllChips();
     Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
-    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard);
+    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard);
     if (insp) insp.hidden = true; root.classList.remove('pf-playing');
     var gone = boardEl.querySelectorAll('.pfb-gone');
     if (gone.length && skipped !== true) { Array.prototype.forEach.call(gone, function (c) { c.classList.add('pfb-leaving'); }); playTimers.push(setTimeout(afterLeave, 800)); }
@@ -450,7 +453,7 @@
     try { window.sessionStorage.setItem(replayKey, '1'); } catch (e) {}
     replayed = true; playing = true; fxOn = false; root.classList.add('pf-playing');
     if (skipBtn) skipBtn.hidden = false;
-    if (data.replay0) { setBar(data.replay0.bar, data.barmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }
+    if (data.replay0) { setBar(data.replay0.bar, data.barmax); setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }
     var step = 950, lastBy = null, foeName = data.foe || 'Creature';
     data.replay.forEach(function (ev, k) {
       playTimers.push(setTimeout(function () {
@@ -459,7 +462,7 @@
         Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
         if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); var pc = pieceById(ev.id); if (pc) { picked = ev.id; showText(pc.n, pieceInfo(pc), pc); } }
         revealChip(k);
-        if (ev.bar !== null && ev.bar !== undefined) setBar(ev.bar, data.barmax); if (ev.hp !== null && ev.hp !== undefined) setHp(ev.hp);
+        if (ev.bar !== null && ev.bar !== undefined) setBar(ev.bar, data.barmax); if (ev.fh !== null && ev.fh !== undefined) setFh(ev.fh, data.fhmax); if (ev.hp !== null && ev.hp !== undefined) setHp(ev.hp);
         setGuard(ev.g);
       }, (k + 1) * step));
     });
@@ -486,7 +489,7 @@
           if (!j || !j.ok) { planEl.hidden = true; return; }
           j.lines.forEach(function (t) { var li = document.createElement('li'); li.textContent = t; planEl.appendChild(li); });
           var li2 = document.createElement('li'); li2.className = 'pf-plan-bar';
-          li2.textContent = 'Resolve ' + Math.round(j.bar[0]) + ' \u2192 ' + Math.round(j.bar[1]) + ' of ' + Math.round(j.bar[2]) + (j.over ? ' (ends the fight)' : '') + ' \u25BE';
+          var ps = []; if (j.fh && j.fh[1] > j.fh[0]) ps.push('Creature health ' + Math.ceil(j.fh[2] - j.fh[0]) + ' \u2192 ' + Math.ceil(j.fh[2] - j.fh[1])); if (j.bar[1] > j.bar[0]) ps.push('Charm ' + Math.round(j.bar[0]) + ' \u2192 ' + Math.round(j.bar[1]) + ' of ' + Math.round(j.bar[2])); li2.textContent = (ps.length ? ps.join(' \u00B7 ') : 'No effect on the creature') + (j.over ? ' (ends the fight)' : '') + ' \u25BE';
           planEl.appendChild(li2); planEl.hidden = false;
         }).catch(function () {});
     }, 180);
@@ -563,8 +566,8 @@
   setTimeout(function () { if (!replayed && !playing) { forceReplay = true; render(); } }, 4000);   // the art never came: play the replay with the plain pieces
   window.__pfbOff = function () { document.removeEventListener('pfparts-ready', render); window.removeEventListener('resize', fan); clearInterval(glowTimer); clearTimeout(hintTimer); playTimers.forEach(clearTimeout); };
   // the resolve bar: it glows when the fight starts with a short "fill to win" note, and explains itself on hover, focus or tap
-  var barEl = root.querySelector('.pf-bar'), barTip = null, barHint = null, hintTimer = 0;
-  var TIP = 'The creature\u2019s will to fight. Hurt pieces fill it from the left: it backs off. Charm pieces fill it from the right: you win it over, for a better reward. Fill the bar to end the fight. Guard and heal keep you alive meanwhile. Gentle creatures take Charm best, wary ones take Hurt best.';
+  var barEl = root.querySelector('.pf-bars'), barTip = null, barHint = null, hintTimer = 0;
+  var TIP = 'Two ways to win. Red: the creature\u2019s health. Hurt pieces take it down, and at 0 it backs off. Pink: the charm bar. Only Charm pieces fill it, and when it is full you win the creature over for a better reward. Guard and Heal keep you alive meanwhile. Great creatures cannot be charmed.';
   function placeUnderBar(el) { var b = barEl.getBoundingClientRect(), r = root.getBoundingClientRect(); el.style.top = (b.bottom - r.top + 4) + 'px'; el.style.left = (b.left + b.width / 2 - r.left) + 'px'; }
   function showBarTip(on) {
     if (!barEl) return;
@@ -581,7 +584,7 @@
     if (root.dataset.turn === '1' && !(data.replay && data.replay.length) && !data.won) {   // a new fight: glow the bar and say what it is for
       barEl.classList.add('pf-barglow');
       var touch = window.matchMedia && window.matchMedia('(hover: none)').matches;
-      barHint = document.createElement('div'); barHint.className = 'pf-barhint'; barHint.setAttribute('role', 'status'); barHint.textContent = 'Fill the bar to win \u00B7 ' + (touch ? 'tap' : 'hover') + ' for more'; root.appendChild(barHint);
+      barHint = document.createElement('div'); barHint.className = 'pf-barhint'; barHint.setAttribute('role', 'status'); barHint.textContent = 'Empty its health or fill the charm bar \u00B7 ' + (touch ? 'tap' : 'hover') + ' for more'; root.appendChild(barHint);
       setTimeout(function () { if (barHint) placeUnderBar(barHint); }, 300); placeUnderBar(barHint);
       hintTimer = setTimeout(function () { if (barHint) barHint.hidden = true; barEl.classList.remove('pf-barglow'); }, 7000);
     }

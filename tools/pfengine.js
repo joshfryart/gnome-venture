@@ -310,6 +310,7 @@
       plucked: 0, can_pluck: truthy(opt.can_pluck), bond: 0,
       foe: { hand: [], draw: [], discard: [], block: 0, keep: 0, thorns: false, evade: 0, agg: 0, poison: 0, poison_v: 0, slow: 0, hsize: boss ? 4 : 3, name: String(nn(c.name, 'Creature')), intent: null },
       bar: { now: 0.0, max: 1.0, hurt: 0.0, charm: 0.0 },
+      fh: { now: 0.0, max: 1.0 },
       run_ok: !boss
     };
     s.me.draw = shuffle(s, clone(Object.keys(me.deck).map(function (k) { return me.deck[k]; })));
@@ -317,6 +318,7 @@
     s.foe.ordered = boss;
     s.foe.draw = boss ? fd.slice().reverse() : shuffle(s, fd);
     s.bar.max = Math.max(6.0, round(pace(size) * (boss ? PF_BAR_BOSS : PF_BAR_K) * (PF_BAR_BASE + PF_BAR_SLOPE * Math.max(1, toInt(nn(c.level, 1)))), 1));
+    s.fh.max = s.bar.max;
     draw(s, 'me', PF_HAND_CAP);
     draw(s, 'foe', s.foe.hsize);
     // PHP also calls pf_intent here (strip mode); pfb_new overwrites the intent at the end, and it uses no RNG, so it is skipped.
@@ -356,10 +358,8 @@
 
   function checkEnd(s) {
     if (s.over) return true;
-    if (s.bar.now >= s.bar.max) {
-      s.over = s.bar.charm > s.bar.hurt ? 'charmed' : 'seen_off';
-      return true;
-    }
+    if (s.fh.now >= s.fh.max) { s.over = 'seen_off'; return true; }
+    if (s.cm > 0 && s.bar.now >= s.bar.max) { s.over = 'charmed'; return true; }
     if (s.me.hp <= 0) { s.over = 'defeat'; return true; }
     return false;
   }
@@ -371,7 +371,7 @@
     var mine = s[who], theirs = s[other];
     var m = String(nn(tile.m, ''));
     var dmg, abs, add, pr;
-    if (m === 'finisher' && who === 'me' && s.bar.now >= 0.6 * s.bar.max) val += 3;
+    if (m === 'finisher' && who === 'me' && s.fh.now >= 0.6 * s.fh.max) val += 3;
     switch (tile.t) {
       case 'hurt':
         dmg = val;
@@ -380,14 +380,14 @@
         if (who === 'foe') {
           if (theirs.evade > 0) { theirs.evade--; e.evaded = dmg; dmg = 0; }
           abs = Math.min(theirs.block, dmg); theirs.block -= abs; dmg -= abs;
-          if (abs > 0 && theirs.thorns) { pr = 2 * s.hm; s.bar.now += pr; s.bar.hurt += pr; e.pricked = round(pr, 1); }
+          if (abs > 0 && theirs.thorns) { pr = 2 * s.hm; s.fh.now += pr; e.pricked = round(pr, 1); }
           theirs.hp = Math.max(0, theirs.hp - dmg);
           e.dmg = dmg; e.blocked = abs;
         } else {
           abs = tile.tag === 'pierce' ? 0 : Math.min(theirs.block, dmg); theirs.block -= abs; dmg -= abs;
           add = dmg * s.hm;
-          s.bar.now += add; s.bar.hurt += add;
-          e.dmg = dmg; e.blocked = abs; e.bar = round(add, 1);
+          s.fh.now += add;
+          e.dmg = dmg; e.blocked = abs; e.fh = round(add, 1);
           if (tile.tag === 'poison') { s.foe.poison = 2; s.foe.poison_v = Math.max(toInt(s.foe.poison_v), Math.max(1, toInt(Math.ceil(val / 2)))); }
           if (tile.tag === 'trip') s.foe.slow = 1;
           if (root && tile.tag === 'quick') { draw(s, 'me', Math.min(PF_HAND_CAP, s.me.hand.length + 1)); e.drew = 1; }
@@ -401,11 +401,11 @@
         if (tile.tag === 'thorns') mine.thorns = true;
         if (tile.tag === 'evade') mine.evade = 1;
         if (tile.tag === 'mend' && who === 'me') mine.hp = Math.min(mine.max, mine.hp + 2);
-        if (m === 'spiky' && who === 'me') { pr = 2 * s.hm; s.bar.now += pr; s.bar.hurt += pr; }
+        if (m === 'spiky' && who === 'me') { pr = 2 * s.hm; s.fh.now += pr; }
         if (seam && prev && prev.t === 'hurt' && prevBy === other) {
           var refl = intdiv(val, 2);
           e.combo = truthy(e.combo) ? e.combo : 'Riposte';
-          if (who === 'me') { add = refl * s.hm; s.bar.now += add; s.bar.hurt += add; e.bar = round(add, 1); }
+          if (who === 'me') { add = refl * s.hm; s.fh.now += add; e.fh = round(add, 1); }
           else {
             abs = Math.min(theirs.block, refl); theirs.block -= abs; refl -= abs;
             e.reflect = Math.min(refl, theirs.hp); theirs.hp = Math.max(0, theirs.hp - refl);
@@ -414,7 +414,7 @@
         break;
       case 'heal':
         if (who === 'me') { mine.hp = Math.max(mine.hp, Math.min(mine.max, mine.hp + val + (m === 'tender' ? 2 : 0))); if (m === 'soft') s.foe.agg += 2; }
-        else s.bar.now = Math.max(0.0, s.bar.now - val);
+        else s.fh.now = Math.max(0.0, s.fh.now - val);
         break;
       case 'charm':
         if (who === 'me') {
@@ -466,7 +466,8 @@
       hp: s.me.hp, max: s.me.max, block: s.me.block,
       hand: s.me.hand.map(function (t) { return { n: t.n, t: t.t, v: t.v, r: t.r, hole: PF_HOLE[t.t], tag: t.tag, m: String(nn(t.m, '')) }; }),
       redraws: s.me.redraws,
-      bar: { now: round(s.bar.now, 1), max: s.bar.max, hurt: round(s.bar.hurt, 1), charm: round(s.bar.charm, 1) },
+      bar: { now: round(s.bar.now, 1), max: s.bar.max, hurt: 0, charm: round(s.bar.charm, 1) },
+      fh: { now: round(s.fh.now, 1), max: s.fh.max }, charmable: s.cm > 0,
       foe: { name: s.foe.name, hand: s.foe.hand.length, intent: s.foe.intent, block: s.foe.block, calm: s.foe.agg },
       piles: { draw: s.me.draw.length, discard: s.me.discard.length }, strip: strip, open: openR, open_t: ot ? nn(ot.t, null) : null, open_v: ot ? nn(ot.v, 0) : 0, open_by: oby, can_run: s.run_ok, combos: clone(PF_COMBOS)
     };
@@ -565,7 +566,7 @@
       var isRoot = id === root;
       var e = { by: who, id: id, root: isRoot, tag: tile.tag, mod: String(nn(tile.m, '')), k: tile.k, n: tile.n, t: tile.t, v: val, fit: false, combo: ck ? PF_COMBOS[ck].name : null };
       apply(s, who, tile, val, isRoot && links(s, id).length !== 0, ck, pt ? pt.tile : null, pt ? pt.by : null, e, isRoot, false);
-      e.barnow = round(Number(s.bar.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block);
+      e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block);
       ev.push(e);
       checkEnd(s);
     }
@@ -759,7 +760,7 @@
 
   // ------------------------------------------------------------------ the creature's play
   function score(b, a, who) {
-    var barD = a.bar.now - b.bar.now, hpD = a.me.hp - b.me.hp;
+    var barD = (a.bar.now - b.bar.now) + (a.fh.now - b.fh.now), hpD = a.me.hp - b.me.hp;
     if (who === 'me') return barD + 0.7 * hpD + 0.3 * (a.me.block - b.me.block) - 0.3 * (a.foe.block - b.foe.block) + (truthy(a.over) && (a.over === 'seen_off' || a.over === 'charmed') ? 50 : 0);
     return -0.8 * barD - hpD + 0.4 * (a.foe.block - b.foe.block) - 0.3 * (a.me.block - b.me.block) + (a.over === 'defeat' ? 50 : 0);
   }
@@ -789,7 +790,7 @@
     begin(s, 'foe');
     if (s.foe.poison > 0) {
       var add = s.foe.poison_v * s.hm;
-      s.bar.now += add; s.bar.hurt += add; s.foe.poison--;
+      s.fh.now += add; s.foe.poison--;
       if (s.foe.poison === 0) s.foe.poison_v = 0;
       ev.push({ by: 'me', tag: 'poison', k: 'poison', n: 'Poison', t: 'hurt', v: iround(add), fit: false, combo: null, tick: true });
       if (checkEnd(s)) return ev;
@@ -814,7 +815,7 @@
   function newFight(me, c, seed, opt) {
     var s = pfNew(me, c, seed, opt);
     ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t) { t.v = Math.max(1, iround(t.v * PFB_FOE_MULT)); }); });
-    s.bar.max = round(s.bar.max * PFB_BAR_MULT, 1);
+    s.bar.max = round(s.bar.max * PFB_BAR_MULT, 1); s.fh.max = s.bar.max;
     s.mode = 'board'; s.strip = []; s.pcs = {}; s.cell = {}; s.pid = 0; s.seq = 0; s.round = 1;
     var n = (s.size === 'large' || s.size === 'boss') ? 2 : 1;
     for (var k = 0; k < n; k++) {
@@ -890,7 +891,7 @@
       var pcs = w.me.held.pcs;
       ev = [{ snap: snap(w), by: 'me', connect: true, n: pcs.map(function (gp) { return String(gp.tile.n); }).join(' + '), types: pcs.map(function (gp) { return String(gp.tile.t); }), size: pcs.length }];
     } else return bad();
-    if (dry) return { ev: ev, err: null, bar: round(w.bar.now, 1), max: w.bar.max, hp: w.me.hp, block: w.me.block, over: w.over };
+    if (dry) return { ev: ev, err: null, bar: round(w.bar.now, 1), max: w.bar.max, fh: round(w.fh.now, 1), fhmax: w.fh.max, hp: w.me.hp, block: w.me.block, over: w.over };
     if (!w.over) ev = ev.concat(foeTurn(w));
     if (!w.over) endRound(w);
     w.fx = fx(ev);
@@ -955,14 +956,15 @@
   /** One history chip for one scored event (board mode). snapId = the snapshot index the page keeps for the rewind. */
   function chipEvent(e, snapId) {
     if (snapId === undefined) snapId = null;
-    var base = { id: (e.id !== undefined && e.id !== null) ? toInt(e.id) : null, sn: snapId, bar: nn(e.barnow, null), hp: nn(e.hpnow, null), g: nn(e.gnow, null), chain: false };
+    var base = { id: (e.id !== undefined && e.id !== null) ? toInt(e.id) : null, sn: snapId, bar: nn(e.barnow, null), fh: nn(e.fhnow, null), hp: nn(e.hpnow, null), g: nn(e.gnow, null), chain: false };
     var ext = function (o) { for (var k in o) base[k] = o[k]; return base; };
     if (truthy(e.connect)) return ext({ by: 'me', types: e.types, tags: [], txt: 'joined ' + toInt(e.size), tg: null });
     var parts = [], tg = 'foe', by = String(nn(e.by, 'me')), t = String(nn(e.t, 'hurt'));
-    if (truthy(e.tick)) parts.push('+' + toInt(e.v) + ' bar');
+    if (truthy(e.tick)) parts.push('-' + toInt(e.v) + ' hp');
     else if (by === 'me') {
-      var bar = Number(nn(e.bar, 0));
-      if (bar > 0) parts.push('+' + iround(bar) + ' bar');
+      var bar = Number(nn(e.bar, 0)), fhh = Number(nn(e.fh, 0));
+      if (fhh > 0) parts.push('-' + iround(fhh) + ' hp');
+      if (bar > 0) parts.push('+' + iround(bar) + ' charm');
       if (t === 'guard') { parts.push('+' + toInt(e.v) + ' guard'); tg = 'me'; }
       if (t === 'heal' || t === 'item') { parts.push('+' + toInt(e.v) + ' hp'); tg = 'me'; }
     } else {
@@ -989,15 +991,15 @@
     for (i = 0; i < groups.length; i++) {
       g = groups[i];
       if (truthy(g[0].connect)) { chips.push({ by: 'me', types: g[0].types, tags: [], txt: 'joined ' + toInt(g[0].size), chain: false }); continue; }
-      var by = String(g[0].by), bar = 0.0, guard = 0, heal = 0, dmg = 0, types = [], tags = [];
+      var by = String(g[0].by), bar = 0.0, fhs = 0.0, guard = 0, heal = 0, dmg = 0, types = [], tags = [];
       for (j = 0; j < g.length; j++) {
         var f = g[j];
         types.push(String(f.t)); tags.push(String(nn(f.tag, '')));
-        if (f.by === 'me') { bar += Number(nn(f.bar, 0)); if (f.t === 'guard') guard += toInt(f.v); if (f.t === 'heal' || f.t === 'item') heal += toInt(f.v); }
+        if (f.by === 'me') { bar += Number(nn(f.bar, 0)); fhs += Number(nn(f.fh, 0)); if (f.t === 'guard') guard += toInt(f.v); if (f.t === 'heal' || f.t === 'item') heal += toInt(f.v); }
         else dmg += toInt(nn(f.dmg, 0));
       }
       var parts = [];
-      if (bar > 0) parts.push('+' + iround(bar) + ' bar'); if (guard) parts.push('+' + guard + ' guard'); if (heal) parts.push('+' + heal + ' hp'); if (dmg) parts.push('-' + dmg + ' hp');
+      if (fhs > 0) parts.push('-' + iround(fhs) + ' hp'); if (bar > 0) parts.push('+' + iround(bar) + ' charm'); if (guard) parts.push('+' + guard + ' guard'); if (heal) parts.push('+' + heal + ' hp'); if (dmg) parts.push('-' + dmg + ' hp');
       chips.push({ by: by, types: types, tags: tags, txt: parts.length ? parts.join(' · ') : 'setup', chain: g.length > 1 });
     }
     return chips;

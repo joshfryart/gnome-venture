@@ -127,7 +127,7 @@ function pfb_fire(array &$s, int $root): array
         $isRoot = $id === $root;
         $e = ['by' => $who, 'id' => $id, 'root' => $isRoot, 'tag' => $tile['tag'], 'mod' => (string)($tile['m'] ?? ''), 'k' => $tile['k'], 'n' => $tile['n'], 't' => $tile['t'], 'v' => $val, 'fit' => false, 'combo' => $ck ? PF_COMBOS[$ck]['name'] : null];
         pf_apply($s, $who, $tile, $val, $isRoot && pfb_links($s, $id) !== [], $ck, $pt['tile'] ?? null, $pt['by'] ?? null, $e, $isRoot, false);
-        $e['barnow'] = round((float)$s['bar']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];   // for the replay: how the bar and health stand after this piece
+        $e['barnow'] = round((float)$s['bar']['now'], 1); $e['fhnow'] = round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];   // for the replay: how the bar and health stand after this piece
         $ev[] = $e;
         pf_check_end($s);
     }
@@ -335,7 +335,7 @@ function pfb_spawn(array &$s): ?int
 
 function pfb_score(array $b, array $a, string $who): float
 {
-    $barD = $a['bar']['now'] - $b['bar']['now'];
+    $barD = ($a['bar']['now'] - $b['bar']['now']) + ($a['fh']['now'] - $b['fh']['now']);   // charm and damage both move the creature toward losing
     $hpD = $a['me']['hp'] - $b['me']['hp'];
     if ($who === 'me') return $barD + 0.7 * $hpD + 0.3 * ($a['me']['block'] - $b['me']['block']) - 0.3 * ($a['foe']['block'] - $b['foe']['block']) + ($a['over'] && in_array($a['over'], ['seen_off', 'charmed'], true) ? 50 : 0);
     return -0.8 * $barD - $hpD + 0.4 * ($a['foe']['block'] - $b['foe']['block']) - 0.3 * ($a['me']['block'] - $b['me']['block']) + ($a['over'] === 'defeat' ? 50 : 0);
@@ -369,7 +369,7 @@ function pfb_foe_turn(array &$s, int $extra): array
     pfb_begin($s, 'foe');
     if ($s['foe']['poison'] > 0) {   // Sting: the poison works on the creature before it acts
         $add = $s['foe']['poison_v'] * $s['hm'];
-        $s['bar']['now'] += $add; $s['bar']['hurt'] += $add; $s['foe']['poison']--;
+        $s['fh']['now'] += $add; $s['foe']['poison']--;
         if ($s['foe']['poison'] === 0) $s['foe']['poison_v'] = 0;
         $ev[] = ['by' => 'me', 'tag' => 'poison', 'k' => 'poison', 'n' => 'Poison', 't' => 'hurt', 'v' => (int)round($add), 'fit' => false, 'combo' => null, 'tick' => true];
         if (pf_check_end($s)) return $ev;
@@ -392,7 +392,7 @@ function pfb_new(array $me, array $c, int $seed, array $opt = []): array
 {
     $s = pf_new($me, $c, $seed, $opt);
     foreach (['hand', 'draw', 'discard'] as $z) foreach ($s['foe'][$z] as $i => $t) $s['foe'][$z][$i]['v'] = max(1, (int)round($t['v'] * PFB_FOE_MULT));
-    $s['bar']['max'] = round($s['bar']['max'] * PFB_BAR_MULT, 1);
+    $s['bar']['max'] = round($s['bar']['max'] * PFB_BAR_MULT, 1); $s['fh']['max'] = $s['bar']['max'];
     $s['mode'] = 'board'; $s['strip'] = []; $s['pcs'] = []; $s['cell'] = []; $s['pid'] = 0; $s['seq'] = 0; $s['round'] = 1;
     $n = in_array($s['size'], ['large', 'boss'], true) ? 2 : 1;
     for ($k = 0; $k < $n; $k++) {
@@ -455,7 +455,7 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null,
         $names = array_map(fn($gp) => (string)$gp['tile']['n'], $w['me']['held']['pcs']);
         $ev = [['snap' => pfb_snap($w), 'by' => 'me', 'connect' => true, 'n' => implode(' + ', $names), 'types' => array_map(fn($gp) => (string)$gp['tile']['t'], $w['me']['held']['pcs']), 'size' => count($names)]];
     } else return $bad;
-    if ($dry) return ['ev' => $ev, 'err' => null, 'bar' => round($w['bar']['now'], 1), 'max' => $w['bar']['max'], 'hp' => $w['me']['hp'], 'block' => $w['me']['block'], 'over' => $w['over']];
+    if ($dry) return ['ev' => $ev, 'err' => null, 'bar' => round($w['bar']['now'], 1), 'max' => $w['bar']['max'], 'fh' => round($w['fh']['now'], 1), 'fhmax' => $w['fh']['max'], 'hp' => $w['me']['hp'], 'block' => $w['me']['block'], 'over' => $w['over']];
     if (!$w['over']) $ev = array_merge($ev, pfb_foe_turn($w, 0));
     if (!$w['over']) pfb_end_round($w);
     $w['fx'] = pfb_fx($ev);

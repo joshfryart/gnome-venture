@@ -174,7 +174,7 @@
 .pfx-bar .pfx-frame { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; pointer-events: none; z-index: 2; }
 .pfx-bar .pfx-fill { position: absolute; top: 9px; height: 18px; width: 0; background-size: 270px 18px; image-rendering: pixelated; }
 .pfx-bar .pfx-fill.hurt { left: 9px; background-image: url(img/pfight/parts/resolve-fill-hurt.png); background-position: left top; }
-.pfx-bar .pfx-fill.charm { right: 9px; background-image: url(img/pfight/parts/resolve-fill-charm.png); background-position: right top; }
+.pfx-bar .pfx-fill.charm { left: 9px; background-image: url(img/pfight/parts/resolve-fill-charm.png); background-position: left top; }
 .pfx-art .pf-intent-bubble { width: 56px; height: 48px; padding: 0; border: 0; border-radius: 0; background: url(img/pfight/parts/intent-bubble.png) 0 0 / 56px 48px no-repeat; image-rendering: pixelated; top: -.6rem; right: -1rem; }
 .pfx-art .pf-intent-bubble .pfh-ico { position: absolute; left: 8px; top: 2px; width: 40px; height: 40px; }
 .pfx-art .pf-intent-bubble .pfh-emo { position: absolute; left: 16px; top: 8px; }
@@ -188,7 +188,7 @@
 .pfx-bar { width: 100%; }
 .pf-boardmode .pfx-bar { height: auto; aspect-ratio: 8 / 1; }
 .pf-boardmode .pfx-bar .pfx-fill { top: 25%; height: 50%; background-size: 100% 100%; }
-.pf-boardmode .pfx-bar .pfx-fill.hurt { left: 3.125%; } .pf-boardmode .pfx-bar .pfx-fill.charm { right: 3.125%; }
+.pf-boardmode .pfx-bar .pfx-fill.charm { left: 3.125%; }
 /* board mode hand: smaller pieces (the strip art at about 1.5x), wrapping to a second row instead of scrolling */
 .pf-bp.pf-art2 { width: 112px; height: 78px; }
 .pf-boardmode .pf-hand { flex-wrap: wrap; justify-content: center; overflow: visible; scroll-snap-type: none; gap: .25rem .15rem; }
@@ -230,7 +230,8 @@
 .pfc-top { display: flex; align-items: center; gap: .4rem; padding: .25rem .4rem; border-radius: .5rem; background: rgba(0, 0, 0, .3); }
 .pfc-me, .pfc-foe { display: flex; align-items: center; gap: .3rem; flex: 0 1 auto; min-width: 0; }
 .pfc-foe { justify-content: flex-end; text-align: right; }
-.pfc-top .pfx-bar, .pfc-top .pf-bar { flex: 1 1 8rem; min-width: 5rem; width: auto; margin: 0; }
+.pfc-top .pf-bars { flex: 1 1 8rem; min-width: 5rem; display: flex; flex-direction: column; gap: 3px; }
+.pfc-top .pfx-bar, .pfc-top .pf-bar { width: 100%; margin: 0; }
 .pfc-av { position: relative; display: block; width: 44px; height: 44px; flex: none; }
 .pfc-av img, .pfc-av svg { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
 .pfc-av .pf-intent-bubble { position: absolute; left: -26px; top: -22px; }
@@ -359,7 +360,7 @@
 .pf-won ~ .pf-tray { opacity: .55; pointer-events: none; }
 /* the status bar: your health, the resolve bar and the creature never overlap (the bar gives way) */
 .pfc-me { flex: none; }
-.pfc-top .pfx-bar, .pfc-top .pf-bar { flex: 1 1 0; min-width: 0; }
+.pfc-top .pf-bars { flex: 1 1 0; min-width: 0; }
 .pfc-foe { flex: 0 1 auto; min-width: 0; max-width: 38%; }
 .pfc-top .pf-hp { flex: none; }
 
@@ -391,8 +392,12 @@
 .pfh-gn25 img { position: absolute; left: -8px; top: -5px; width: 284px; height: 44px; max-width: none; image-rendering: pixelated; }
 
 /* the resolve bar: a glow when the fight starts, a short note, and a tooltip on hover / focus / tap */
-.pf-bar { cursor: help; }
-.pf-bar:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
+.pf-bars { cursor: help; }
+.pf-fhp { position: relative; display: block; height: 13px; border: 2px solid #5a1a10; border-radius: 3px; background: rgba(40, 8, 4, .7); overflow: hidden; box-sizing: border-box; }
+.pf-fhp .fhfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: repeating-linear-gradient(135deg, #e0604a 0 3px, #b83222 3px 6px); transition: width .45s ease-out; }
+.pf-fhp b { position: relative; z-index: 1; display: block; text-align: center; font: 700 .62rem/9px system-ui, sans-serif; color: #fff; text-shadow: 0 0 2px #2a0600, 0 0 2px #2a0600; }
+@media (prefers-reduced-motion: reduce) { .pf-fhp .fhfill { transition: none; } }
+.pf-bars:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
 .pf-barglow { animation: pf-barglow 1.3s ease-in-out infinite; }
 @keyframes pf-barglow { 0%, 100% { filter: drop-shadow(0 0 0 rgba(255, 226, 122, 0)); } 50% { filter: drop-shadow(0 0 7px #ffe27a) drop-shadow(0 0 3px #e8a317); } }
 .pf-barhint, .pf-bartip { position: absolute; z-index: 14; transform: translateX(-50%); background: #2a1a10; color: #f2e4c0; border: 2px solid #e8a317; border-radius: .5rem; box-shadow: 0 3px 12px rgba(0, 0, 0, .6); font-size: .74rem; line-height: 1.25; pointer-events: none; }

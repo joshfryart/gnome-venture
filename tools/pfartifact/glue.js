@@ -37,9 +37,9 @@
   }
   function preview(raw, turn) {
     var mv = parseMoves(raw); if (!mv || !fight) return { ok: false };
-    var s = JSON.parse(JSON.stringify(fight.state)), before = s.bar.now, r = PFE.play(s, mv, turn, true);
+    var s = JSON.parse(JSON.stringify(fight.state)), before = s.bar.now, fh0 = s.fh.now, r = PFE.play(s, mv, turn, true);
     if (r.err) return { ok: false, err: r.err };
-    return { ok: true, lines: r.ev.map(function (e) { return PFE.line(e, fight.creature.name); }), bar: [before, r.bar, r.max], over: r.over || null };
+    return { ok: true, lines: r.ev.map(function (e) { return PFE.line(e, fight.creature.name); }), bar: [before, r.bar, r.max], fh: [fh0, r.fh, r.fhmax], over: r.over || null };
   }
 
   function newFight(ci) {
@@ -57,7 +57,7 @@
     r.ev.forEach(function (e) {
       if (e.snap) { enc.snaps[++enc.snapn] = e.snap; enc.snaplast = enc.snapn; }
       var chip = PFE.chipEvent(e, enc.snaplast); enc.hist.push(chip);
-      enc.replay.push({ id: e.id !== undefined ? e.id : null, by: e.by, ln: PFE.line(e, fight.creature.name), bar: e.barnow !== undefined ? e.barnow : null, hp: e.hpnow !== undefined ? e.hpnow : null, g: e.gnow !== undefined ? e.gnow : null, n: e.n || '', t: e.t || '' });
+      enc.replay.push({ id: e.id !== undefined ? e.id : null, by: e.by, ln: PFE.line(e, fight.creature.name), bar: e.barnow !== undefined ? e.barnow : null, fh: e.fhnow !== undefined ? e.fhnow : null, hp: e.hpnow !== undefined ? e.hpnow : null, g: e.gnow !== undefined ? e.gnow : null, n: e.n || '', t: e.t || '' });
     });
     enc.histnew = r.ev.length; enc.hist = enc.hist.slice(-30);
     var keep = Object.keys(enc.snaps).map(Number).sort(function (a, b) { return a - b; }).slice(-14), ns = {}; keep.forEach(function (k) { ns[k] = enc.snaps[k]; }); enc.snaps = ns;
@@ -68,11 +68,11 @@
     var s = fight.state; if (s.over && kind !== 'finish') return;
     if (kind === 'play') {
       var mv = parseMoves(raw); if (!mv) return;
-      fight.enc.replay0 = { bar: Math.round(s.bar.now * 10) / 10, hp: s.me.hp, g: s.me.block };
+      fight.enc.replay0 = { bar: Math.round(s.bar.now * 10) / 10, fh: Math.round(s.fh.now * 10) / 10, hp: s.me.hp, g: s.me.block };
       var r = PFE.play(s, mv, s.turn); if (r.err) { flash(r.err); return; }
       afterPlay(r); render();
     } else if (kind === 'pass') {
-      fight.enc.replay0 = { bar: Math.round(s.bar.now * 10) / 10, hp: s.me.hp, g: s.me.block };
+      fight.enc.replay0 = { bar: Math.round(s.bar.now * 10) / 10, fh: Math.round(s.fh.now * 10) / 10, hp: s.me.hp, g: s.me.block };
       var r2 = PFE.pass(s, s.turn); if (r2.err) { flash(r2.err); return; }
       afterPlay(r2); render();
     } else if (kind === 'finish') { result = { kind: s.over, turns: s.turn }; render(); }
@@ -95,10 +95,14 @@
   }
   function guardHtml(g) { return '<span class="pf-guard' + (g > 0 ? '' : ' pf-guard-0') + '" role="img" aria-label="Guard ' + g + ': blocks the creature\u2019s hits until your next turn" title="Guard: blocks the creature\u2019s hits until your next turn"><span class="pfx-fill gfill" data-w="' + Math.min(100, Math.round(g * 100 / 16)) + '"></span><b>' + g + '</b></span>'; }
   function barHtml(v) {
-    var b = v.bar, max = Math.max(0.1, b.max), now = b.now, hu = b.hurt || 0, ch = b.charm || 0, tot = Math.max(0.001, hu + ch), f = Math.min(1, now / max);
-    var hw = hu + ch > 0 ? f * hu / tot : f, cw = hu + ch > 0 ? f * ch / tot : 0;
-    var label = 'Resolve bar: fill it to end the fight. Hurt (from the left) makes the creature back off, Charm (from the right) wins it over for a better reward. ' + Math.round(now) + ' of ' + Math.round(max);
-    return '<div class="pf-bar pfx-bar" role="img" title="Fill the bar to end the fight. Hurt fills it from the left (the creature backs off), Charm from the right (you win it over: better reward)." aria-label="' + esc(label) + '"><span class="pfx-fill hurt" data-w="' + (Math.round(hw * 1000) / 10) + '"></span><span class="pfx-fill charm" data-w="' + (Math.round(cw * 1000) / 10) + '"></span><img class="pfx-frame" src="' + ART['resolve-frame.png'] + '" alt=""></div>';
+    var b = v.bar, max = Math.max(0.1, b.max), now = b.now, fm = Math.max(0.1, v.fh.max), left = Math.max(0, fm - v.fh.now);
+    var hpLabel = 'Creature health: ' + Math.ceil(left) + ' of ' + Math.ceil(fm) + ' left. Hurt pieces take it down; at 0 it backs off.';
+    var h = '<div class="pf-bars"><span class="pf-fhp" role="img" aria-label="' + esc(hpLabel) + '" title="Creature health. Hurt pieces take it down; at 0 it backs off."><span class="pfx-fill fhfill" data-w="' + (Math.round(1000 * left / fm) / 10) + '"></span><b>' + Math.ceil(left) + '</b></span>';
+    if (v.charmable) {
+      var label = 'Charm bar: fill it to win the creature over for a better reward. Only Charm pieces fill it. ' + Math.round(now) + ' of ' + Math.round(max);
+      h += '<div class="pf-bar pfx-bar" role="img" aria-label="' + esc(label) + '"><span class="pfx-fill charm" data-w="' + (Math.round(1000 * Math.min(1, now / max)) / 10) + '"></span><img class="pfx-frame" src="' + ART['resolve-frame.png'] + '" alt=""></div>';
+    }
+    return h + '</div>';
   }
   function who(by, cr) { return by === 'me' ? '<span class="pfh-gn pfh-gn25" aria-hidden="true"><img src="' + ART['gnome-side.png'] + '" alt=""></span>' : '<img class="pfh-cr" src="' + ART['mini-' + cr.slug + '.png'] + '" alt="">'; }
 
@@ -112,7 +116,7 @@
       var nm = 'the ' + cr.name, tgw = chip.tg === 'me' ? 'you' : nm;
       var label = (chip.by === 'me' ? 'You' : nm.charAt(0).toUpperCase() + nm.slice(1)) + ': ' + chip.types.join(', ') + ', ' + chip.txt + (chip.tg ? ', on ' + tgw : '') + (sn !== null ? '. Press to see the board then.' : '');
       hh += '<li class="pf-chip ' + (chip.by === 'me' ? 'you' : 'foe') + (isNew ? ' pf-chip-new' : '') + (sn !== null ? ' pf-chip-rw' : '') + '"' + (isNew ? ' data-ev="' + evIdx + '"' + (pending ? ' hidden' : '') : '')
-        + (sn !== null ? ' data-sn="' + sn + '" data-id="' + (chip.id || 0) + '" data-bar="' + esc(chip.bar === null || chip.bar === undefined ? '' : chip.bar) + '" data-hp="' + esc(chip.hp === null || chip.hp === undefined ? '' : chip.hp) + '" role="button" tabindex="0"' : '') + ' aria-label="' + esc(label) + '">' + who(chip.by, cr);
+        + (sn !== null ? ' data-sn="' + sn + '" data-id="' + (chip.id || 0) + '" data-bar="' + esc(chip.bar === null || chip.bar === undefined ? '' : chip.bar) + '" data-fh="' + esc(chip.fh === null || chip.fh === undefined ? '' : chip.fh) + '" data-hp="' + esc(chip.hp === null || chip.hp === undefined ? '' : chip.hp) + '" role="button" tabindex="0"' : '') + ' aria-label="' + esc(label) + '">' + who(chip.by, cr);
       chip.types.forEach(function (t, ci) { var tg = chip.tags[ci] || '', ti = C.tagIcon[tg] ? img('ico-' + C.tagIcon[tg] + '-s.png', 'pfh-ico') : null; hh += ti || sm(t); });
       hh += ' <span class="pfh-txt">' + esc(chip.txt) + '</span>' + (chip.tg ? who(chip.tg, cr) : '') + '</li>';
     }
@@ -136,7 +140,7 @@
     h += '<div class="pf-extra"><form class="inline" id="pf-pform" hidden><button class="btn" id="pf-pass">Pass (nothing fits)</button></form></div>';
     var seen = {}; v.hand.forEach(function (t) { if (C.tags[t.tag]) seen[t.tag] = 1; });
     if (Object.keys(seen).length) { h += '<details class="pfc-more"><summary>More: piece tips</summary><ul class="pf-tags help">'; Object.keys(seen).forEach(function (x) { h += '<li>' + C.tags[x][0] + ' ' + esc(C.tags[x][1]) + '</li>'; }); h += '</ul></details>'; }
-    var data = { foe: cr.name, won: won ? s.over : null, life: C.life, tags: C.tags, held: v.held || null, gone: v.gone || [], snaps: usedSn, bar: v.bar.now, barmax: v.bar.max, hp: v.hp, guard: v.block, replay: enc.replay || [], replay0: enc.replay0 || null,
+    var data = { foe: cr.name, won: won ? s.over : null, life: C.life, tags: C.tags, held: v.held || null, gone: v.gone || [], snaps: usedSn, bar: v.bar.now, barmax: v.bar.max, fh: v.fh.now, fhmax: v.fh.max, charmable: !!v.charmable, hp: v.hp, guard: v.block, replay: enc.replay || [], replay0: enc.replay0 || null,
       mods: Object.keys(C.mods).reduce(function (o, k) { o[k] = [C.mods[k][1], C.mods[k][0], C.mods[k][3], C.mods[k][2]]; return o; }, {}), art: 'art/', fx: v.fx || [], tint: tintOf(cr.slug), parts: 'art/', w: v.w, h: v.h, pcs: v.pcs,
       hand: v.hand.map(function (t) { return { e: t.e, t: t.t, tag: t.tag, m: t.m }; }), combos: v.combos, icons: ICON };
     h += '<script type="application/json" id="pf-data">' + JSON.stringify(data).replace(/</g, '\\u003c') + '</script></div>';

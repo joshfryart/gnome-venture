@@ -108,21 +108,21 @@ if ($r['err'] === null) { echo "FAIL heavy tile played before the end of a chain
 $s = $base(['swing', 'smash']); $r = pf_play($s, [0, 1], 1);
 if ($r['err'] !== null) { echo "FAIL heavy tile last was refused: {$r['err']}\n"; $bad++; }
 // pierce ignores guard, plain hurt does not
-$s = $base(['pierce']); $s['foe']['block'] = 100; pf_resolve($s, 'me', [$s['me']['hand'][0]]); $pierced = $s['bar']['now'];
+$s = $base(['pierce']); $s['foe']['block'] = 100; pf_resolve($s, 'me', [$s['me']['hand'][0]]); $pierced = $s['fh']['now'];
 $s = $base(['swing']); $s['foe']['block'] = 100; pf_resolve($s, 'me', [$s['me']['hand'][0]]);
-if ($pierced <= 0 || $s['bar']['now'] != 0) { echo "FAIL pierce/guard rule\n"; $bad++; }
+if ($pierced <= 0 || $s['fh']['now'] != 0) { echo "FAIL pierce/guard rule\n"; $bad++; }
 // poison ticks twice, trip shortens the next foe chain, quick draws, bash uses the guard
 $s = $base(['sting']); pf_resolve($s, 'me', [$s['me']['hand'][0]]);
 if ($s['foe']['poison'] !== 2) { echo "FAIL poison not applied\n"; $bad++; }
-$n0 = $s['bar']['now']; pf_foe_turn($s, 0); pf_foe_turn($s, 0); pf_foe_turn($s, 0);
-if (!($s['bar']['now'] > $n0) || $s['foe']['poison'] !== 0) { echo "FAIL poison did not tick twice and stop\n"; $bad++; }
+$n0 = $s['fh']['now']; pf_foe_turn($s, 0); pf_foe_turn($s, 0); pf_foe_turn($s, 0);
+if (!($s['fh']['now'] > $n0) || $s['foe']['poison'] !== 0) { echo "FAIL poison did not tick twice and stop\n"; $bad++; }
 $s = $base(['trip']); $s['foe']['hand'] = array_slice($s['foe']['draw'], 0, 3); $l0 = pf_foe_len($s, 0); pf_resolve($s, 'me', [$s['me']['hand'][0]]);
 if (pf_foe_len($s, 0) !== max(1, $l0 - 1)) { echo "FAIL trip did not shorten the foe chain\n"; $bad++; }
 $s = $base(['jab']); $h0 = count($s['me']['hand']); $t = $s['me']['hand'][0]; array_splice($s['me']['hand'], 0, 1); pf_resolve($s, 'me', [$t]);
 if (count($s['me']['hand']) !== $h0) { echo "FAIL quick did not draw a tile\n"; $bad++; }
 $s = $base(['dodge', 'bash']); pf_resolve($s, 'me', $s['me']['hand']);
 $s2 = $base(['hide', 'bash']); pf_resolve($s2, 'me', $s2['me']['hand']);
-if ($s['me']['block'] !== 0 || $s['bar']['now'] <= $s2['bar']['now']) { echo "FAIL bash did not spend the guard as damage\n"; $bad++; }
+if ($s['me']['block'] !== 0 || $s['fh']['now'] <= $s2['fh']['now']) { echo "FAIL bash did not spend the guard as damage\n"; $bad++; }
 // the puzzle box
 foreach ([1 => 8, 3 => 9, 12 => 12, 18 => 14, 60 => 14] as $lv => $cap) if (pf_box_capacity($lv) !== $cap) { echo "FAIL capacity at level $lv\n"; $bad++; }
 $own = pf_collection(30, 'thornblade');
@@ -151,8 +151,8 @@ $s = $new(['brace']); $res($s, [0]); pf_resolve($s, 'me', [pf_make_tile('swing',
 if ($s['me']['block'] < 3) { echo "FAIL Hold guard did not carry over\n"; $bad++; }
 $s = $new(['roll']); $res($s, [0]); $hp = $s['me']['hp']; pf_resolve($s, 'foe', [['k' => 'f', 'n' => 'F', 't' => 'hurt', 'v' => 9, 'r' => null, 'tag' => '', 'm' => '']]);
 if ($s['me']['hp'] !== $hp) { echo "FAIL Roll did not dodge the first Hurt\n"; $bad++; }
-$s = $new(['thornhide']); $res($s, [0]); $b0 = $s['bar']['now']; pf_resolve($s, 'foe', [['k' => 'f', 'n' => 'F', 't' => 'hurt', 'v' => 2, 'r' => null, 'tag' => '', 'm' => '']]);
-if ($s['bar']['now'] <= $b0) { echo "FAIL Thorn Hide did not prick\n"; $bad++; }
+$s = $new(['thornhide']); $res($s, [0]); $b0 = $s['fh']['now']; pf_resolve($s, 'foe', [['k' => 'f', 'n' => 'F', 't' => 'hurt', 'v' => 2, 'r' => null, 'tag' => '', 'm' => '']]);
+if ($s['fh']['now'] <= $b0) { echo "FAIL Thorn Hide did not prick\n"; $bad++; }
 $s = $new(['mending']); $hp = $s['me']['hp']; $res($s, [0]); if ($s['me']['hp'] !== $hp + 2) { echo "FAIL Mending did not heal 2\n"; $bad++; }
 $s = $new(['hum']); $res($s, [0]); if ($s['foe']['agg'] < 2) { echo "FAIL Hum did not calm\n"; $bad++; }
 $s = $new(['lull']); $l0 = pf_foe_len($s, 0); $res($s, [0]); if (pf_foe_len($s, 0) !== max(1, $l0 - 1)) { echo "FAIL Lull did not slow the foe\n"; $bad++; }
@@ -161,8 +161,8 @@ $s = $new(['bond', 'bond']); $c0 = $s['cm']; $res($s, [0]); if ($s['cm'] <= $c0)
 $s = $new(['swing']); $s['me']['hand'][0]['m'] = 'hardy'; $t = $s['me']['hand'][0]; $t['t'] = 'guard'; $t['tag'] = ''; pf_resolve($s, 'me', [$t]); if ($s['me']['block'] < 6) { echo "FAIL Hardy\n"; $bad++; }
 $s = $new(['swing']); $t = $s['me']['hand'][0]; $t['m'] = 'leech'; $s['me']['hp'] = 10; pf_resolve($s, 'me', [$t]); if ($s['me']['hp'] <= 10) { echo "FAIL Leech\n"; $bad++; }
 $s = $new(['swing']); $t = $s['me']['hand'][0]; $t['m'] = 'warm'; pf_resolve($s, 'me', [$t]); if ($s['bar']['charm'] <= 0) { echo "FAIL Warm\n"; $bad++; }
-$s = $new(['swing']); $t = $s['me']['hand'][0]; $t['m'] = 'finisher'; $s['bar']['now'] = 0.7 * $s['bar']['max']; $a0 = $s['bar']['now']; pf_resolve($s, 'me', [$t]); $with = $s['bar']['now'] - $a0;
-$s = $new(['swing']); $t = $s['me']['hand'][0]; $s['bar']['now'] = 0.7 * $s['bar']['max']; $a0 = $s['bar']['now']; pf_resolve($s, 'me', [$t]); if ($with <= $s['bar']['now'] - $a0) { echo "FAIL Finisher\n"; $bad++; }
+$s = $new(['swing']); $t = $s['me']['hand'][0]; $t['m'] = 'finisher'; $s['fh']['now'] = 0.7 * $s['fh']['max']; $a0 = $s['fh']['now']; pf_resolve($s, 'me', [$t]); $with = $s['fh']['now'] - $a0;
+$s = $new(['swing']); $t = $s['me']['hand'][0]; $s['fh']['now'] = 0.7 * $s['fh']['max']; $a0 = $s['fh']['now']; pf_resolve($s, 'me', [$t]); if ($with <= $s['fh']['now'] - $a0) { echo "FAIL Finisher\n"; $bad++; }
 $s = $new(['swing', 'swing']); $x = $s['me']['hand'][0]; $x['m'] = 'swift'; $y = [$s['me']['hand'][1], $s['me']['hand'][1], $s['me']['hand'][1]]; $s['me']['hand'] = [$x, ...$y]; $b = $s['foe']['hand']; pf_play($s, [0, 1, 2, 3], 1);
 $s2 = $new(['swing', 'swing', 'swing', 'swing']); $b2 = count($s2['foe']['hand']); pf_play($s2, [0, 1, 2, 3], 1);
 if (count($s['log']) && $s['log'][0]['n'] !== 4) { echo "FAIL log\n"; $bad++; }
