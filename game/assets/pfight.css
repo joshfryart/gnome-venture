@@ -189,3 +189,10 @@
 .pf-boardmode .pfx-bar { height: auto; aspect-ratio: 8 / 1; }
 .pf-boardmode .pfx-bar .pfx-fill { top: 25%; height: 50%; background-size: 100% 100%; }
 .pf-boardmode .pfx-bar .pfx-fill.hurt { left: 3.125%; } .pf-boardmode .pfx-bar .pfx-fill.charm { right: 3.125%; }
+/* board mode hand: smaller pieces (the strip art at about 1.5x), wrapping to a second row instead of scrolling */
+.pf-bp.pf-art2 { width: 112px; height: 78px; }
+.pf-boardmode .pf-hand { flex-wrap: wrap; justify-content: center; overflow: visible; scroll-snap-type: none; gap: .25rem .15rem; }
+.pf-boardmode .pf-tray { align-items: flex-start; }
+.pf-boardmode .pf-tray { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+.pf-boardmode .pf-tray .pf-hand { flex: 1 1 100%; order: -1; }
+.pf-boardmode .pf-tray .pf-pile { width: 5.5rem; flex-direction: row; display: flex; gap: .3rem; align-items: center; justify-content: center; }

@@ -14,7 +14,7 @@ const { chromium } = require('playwright');
     const m = await box('.advgrid.pfover .mapcol'), f = await box('#pfight');
     const overlap = !!(m && f && f.x < m.x + m.width && f.x + f.width > m.x && f.y < m.y + m.height && f.y + f.height > m.y);
     const art = await p.locator('.pfx-bar').count();
-    await p.screenshot({ path: out + '/pfmap-' + label + '-' + name + '.png', fullPage: true });
+    await p.locator('#pfight').screenshot({ path: out + '/pfmap-' + label + '-' + name + '.png' });
     const wide = await p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     const bad = (!over || !mapIn || !panel || !overlap || wide || errs.length) ? 1 : 0; fail = fail || bad;
     console.log(bad ? 'FAIL' : 'ok', label, name, '| fight over map', !!over, '| map behind', overlap, '| art bar', art, '| overflow', wide, '| js errors:', errs.length ? errs.join(' | ') : 'none');
