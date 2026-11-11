@@ -36,6 +36,7 @@ function pp_show(array $s): string
 {
     $o = [];
     $o[] = sprintf('TURN %d | you HP %d/%d guard %d | creature "%s" (%s) DAMAGE %.1f/%.1f (full = it backs off)%s | creature intends: %s', $s['turn'], $s['me']['hp'], $s['me']['max'], $s['me']['block'], $s['foe']['name'], $s['size'], $s['fh']['now'], $s['fh']['max'], $s['cm'] > 0 ? sprintf(' CHARM %.1f/%.1f (full = won over)', $s['bar']['now'], $s['bar']['max']) : ' (no charm bar)', $s['foe']['intent'] ?? '-');
+    $o[] = sprintf('Multipliers: your Hurt counts x%s on its damage bar, your Charm x%s on its charm bar. Guard shown is what you hold NOW; it resets when your next turn starts, so after the creature moves it reads 0 (it protected you during that move).', $s['hm'], $s['cm']);
     if ($s['over']) $o[] = 'FIGHT OVER: ' . $s['over'];
     $o[] = 'BOARD (x right, y down; x 0-' . (PFB_W - 1) . ', y 0-' . (PFB_H - 1) . '). Y=your piece, C=creature piece, ?=blank centre';
     for ($y = 0; $y < PFB_H; $y++) { $r = ''; for ($x = 0; $x < PFB_W; $x++) { $p = pfb_at($s, $x, $y); $r .= $p ? ($p['by'] === 'me' ? ' Y' : ($p['by'] === 'foe' ? ' C' : ' ?')) . $p['id'] : ' . '; } $o[] = '  ' . $r; }
@@ -53,7 +54,7 @@ function pp_show(array $s): string
 function pp_events(array $ev): string
 {
     $o = [];
-    foreach ($ev as $e) { if (isset($e['connect'])) { $o[] = '  you set aside: ' . $e['n']; continue; } $o[] = sprintf('  %s %s "%s" %s %d%s%s', ($e['by'] ?? '?') === 'me' ? 'YOU' : 'CREATURE', !empty($e['root']) ? 'PLACED' : 'chain', $e['n'] ?? ($e['tag'] ?? ''), $e['t'] ?? '', $e['v'] ?? 0, !empty($e['combo']) ? ' COMBO ' . $e['combo'] : '', isset($e['barnow']) ? sprintf(' -> health %.1f charm %.1f hp %d', $e['fhnow'], $e['barnow'], $e['hpnow']) : ''); }
+    foreach ($ev as $e) { if (!empty($e['tick'])) { $o[] = sprintf('  POISON tick on the creature: +%d damage (no piece)', $e['v'] ?? 0); continue; } if (isset($e['connect'])) { $o[] = '  you set aside: ' . $e['n']; continue; } $o[] = sprintf('  %s %s "%s" %s %d%s%s', ($e['by'] ?? '?') === 'me' ? 'YOU' : 'CREATURE', !empty($e['root']) ? 'PLACED' : 'chain', $e['n'] ?? ($e['tag'] ?? ''), $e['t'] ?? '', $e['v'] ?? 0, !empty($e['combo']) ? ' COMBO ' . $e['combo'] : '', isset($e['barnow']) ? sprintf(' -> health %.1f charm %.1f hp %d', $e['fhnow'], $e['barnow'], $e['hpnow']) : ''); }
     return implode("\n", $o);
 }
 function pp_save(string $f, array $s, string $act, array $ev, ?string $err): void
@@ -63,27 +64,38 @@ function pp_save(string $f, array $s, string $act, array $ev, ?string $err): voi
         'chain' => count(array_filter($ev, fn($e) => isset($e['id']))), 'combos' => array_values(array_filter(array_map(fn($e) => $e['combo'] ?? null, $ev))), 'mode' => !empty($s['start']) ? 'start' : 'play'];
     file_put_contents($f . '.log', json_encode($line) . "\n", FILE_APPEND);
 }
+function pp_int($v, int $min, int $max, string $what): int
+{
+    if ($v === null || !preg_match('/^-?\d+$/', (string)$v)) { fwrite(STDERR, "need a whole number for $what\n"); exit(1); }
+    $n = (int)$v; if ($n < $min || $n > $max) { fwrite(STDERR, "$what must be $min..$max\n"); exit(1); }
+    return $n;
+}
+function pp_side($v): string { $v = strtoupper((string)$v); if (!in_array($v, ['L', 'R', 'T', 'B'], true)) { fwrite(STDERR, "side must be L, R, T or B\n"); exit(1); } return $v; }
 [, $cmd, $f] = $argv + [null, null, null];
 if ($cmd === 'list') { $n = (int)($f ?? 200); foreach (array_slice(pp_creatures(), 0, $n) as $c) echo "{$c['slug']} {$c['size']} L{$c['level']}\n"; exit; }
 if ($cmd === 'new') {
-    [, , , $slug, $lv, $seed] = $argv; $mode = $argv[6] ?? 'classic'; $all = pp_creatures();
+    $slug = $argv[3] ?? ''; $lv = pp_int($argv[4] ?? null, 1, 100, 'LEVEL'); $seed = pp_int($argv[5] ?? null, 0, PHP_INT_MAX, 'SEED'); $mode = $argv[6] ?? 'classic'; $all = pp_creatures();
+    if (!in_array($mode, ['classic', 'blank'], true)) { fwrite(STDERR, "mode must be classic or blank\n"); exit(1); }
     if (!isset($all[$slug])) { fwrite(STDERR, "unknown creature (use list)\n"); exit(1); }
-    $s = pfb_new(pp_player((int)$lv), $all[$slug], (int)$seed, $mode === 'blank' ? ['blank' => true] : []);
+    $s = pfb_new(pp_player($lv), $all[$slug], $seed, $mode === 'blank' ? ['blank' => true] : []);
     file_put_contents($f, json_encode($s)); @unlink($f . '.log'); echo pp_show($s) . "\n"; exit;
 }
 if (!$f || !is_file($f)) { fwrite(STDERR, "no state file\n"); exit(1); }
 $s = json_decode(file_get_contents($f), true); $a = array_slice($argv, 3); $ev = []; $err = null;
 switch ($cmd) {
     case 'show': echo pp_show($s) . "\n"; exit;
-    case 'start': $err = pfb_start($s, (int)$a[0], strtoupper($a[1] ?? '')); break;
-    case 'place': $r = pfb_play($s, [[(int)$a[0], (int)$a[1], (int)$a[2]]], $s['turn']); break;
-    case 'join': $r = pfb_play($s, [['j', (int)$a[0], (int)$a[1], strtoupper($a[2] ?? '')]], $s['turn']); break;
-    case 'add': $r = pfb_play($s, [['h', (int)$a[0], (int)$a[1], strtoupper($a[2] ?? '')]], $s['turn']); break;
-    case 'group': $r = pfb_play($s, [['c', (int)$a[0], (int)$a[1]]], $s['turn']); break;
+    case 'start': $err = pfb_start($s, pp_int($a[0] ?? null, 0, 99, 'HANDIDX'), pp_side($a[1] ?? null)); break;
+    case 'place': $r = pfb_play($s, [[pp_int($a[0] ?? null, 0, 99, 'HANDIDX'), pp_int($a[1] ?? null, -99, 99, 'X'), pp_int($a[2] ?? null, -99, 99, 'Y')]], $s['turn']); break;
+    case 'join': $r = pfb_play($s, [['j', pp_int($a[0] ?? null, 0, 99, 'A'), pp_int($a[1] ?? null, 0, 99, 'B'), pp_side($a[2] ?? null)]], $s['turn']); break;
+    case 'add': $r = pfb_play($s, [['h', pp_int($a[0] ?? null, 0, 99, 'B'), pp_int($a[1] ?? null, 0, 99, 'ANC'), pp_side($a[2] ?? null)]], $s['turn']); break;
+    case 'group': $r = pfb_play($s, [['c', pp_int($a[0] ?? null, -99, 99, 'X'), pp_int($a[1] ?? null, -99, 99, 'Y')]], $s['turn']); break;
     case 'pass': $r = pfb_pass($s, $s['turn']); break;
     default: fwrite(STDERR, "unknown command\n"); exit(1);
 }
 if (isset($r)) { $ev = $r['ev']; $err = $r['err']; }
 if ($err !== null) { pp_save($f, $s, $cmd . ' ' . implode(' ', $a), [], $err); echo "REFUSED: $err\n(nothing changed)\n"; exit(2); }
 pp_save($f, $s, $cmd . ' ' . implode(' ', $a), $ev, null);
+if ($cmd === 'start') { $cx = intdiv(PFB_W, 2); $cy = intdiv(PFB_H, 2); $sd = ['-1,0' => 'L', '1,0' => 'R', '0,-1' => 'T', '0,1' => 'B']; $o = [];
+    foreach ($s['pcs'] as $p) if ($p['by'] !== 'none') $o[] = ($p['by'] === 'me' ? 'YOU' : 'CREATURE') . ' put "' . $p['tile']['n'] . '" (' . $p['tile']['t'] . ' ' . $p['tile']['v'] . ') on side ' . ($sd[($p['x'] - $cx) . ',' . ($p['y'] - $cy)] ?? '?');
+    $ev = []; echo "START (nothing fires; turn 1 is your next action; the blank vanishes at the end of turn 1):\n  " . implode("\n  ", $o) . "\n\n" . pp_show($s) . "\n"; exit; }
 echo "WHAT HAPPENED:\n" . pp_events($ev) . "\n\n" . pp_show($s) . "\n";
