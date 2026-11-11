@@ -21,7 +21,9 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 ## DONE (do not redo)
 - 1,662 items/icons 64x64 (v3 rollout); 35 batch1/2 pictures exported (2.5.48).
 - 179 weak items redrawn (2.4.98+, art pass 2.5); hedgehogs redrawn; gnome 1px eye rim for dark skin.
-- 81 creature NPC portraits (80x100) and 81 `sprite/npc-*.png`; 151 `ph/npc-*` files exist (CHECK: all creature).
+- All NPC art done (portraits, `ph/npc-*`, 81 `sprite/npc-*.png`; Josh 2026-11-11).
+- Flower heads done (Josh 2026-11-11). Home/house art done (Josh 2026-11-11).
+- Treehouse checked 2026-11-11: layout has 8 room spots (parlour, loft, cellar, puzzles, catfish, contests, books, yard), 24 pal perches, 4 dress layers, 5 trophies; Pal Yard 6 job sites.
 - Here scenes: 46 `scenes/here-*` (15 regional towns + hub, village, haven, delve, lair, wonder, 11 stop types in default + `desert_adobe`).
 - Workshop picture + 13 `craft-anim-*` layers; treehouse (`tree-house`, 4 dress layers, trophies); `yard-pals.png`; `resid-4/6/8`; 6 shared doors.
 - Acts: 810/810 scenes + animated strips; 4 kind cards (act-craft/collect/tend/contest) drawn.
@@ -32,23 +34,20 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 1. `rollout/weak.txt`: `ph/ginseng`, `ph/stone-wall-end`, `ph/tomato`, `ph/stuffed-peppers-goat`.
 2. Ginseng Seed: new leaf reads as cannabis; still on the old picture. Fix, then export.
 3. Repaint if Josh dislikes: coralscatter wave dome + small tea house; monsoontangle bland deck + small boats; thornacre Wild Trail arch squeezed; blossomreach parasol outside box.
-4. Weakest drawn earlier: stage-gather (handle hides contents), folk gecko; road kinds trade, chain; journal cb, wca, oc, mena (CHECK if still weak).
 
 ## B. NEXT: graphical navigation (`claude/plan-graphical-nav.md`, brief `claude/art-brief-here.md`)
 1. Stop looks for the other 14 landscapes per type (only default + `desert_adobe` exist for the 11 types; market also has grassland_maplewold).
 2. Village/haven at hero scale per region; folk wiring.
-3. Per-home-kind house art for residential streets (CHECK; cottage, burrow, treehouse, hut, stone, boat, lit/dark windows).
 4. Doors: unique door per villager (up to 151, `door-<slug>.png`), optional. Shared 6 exist.
 5. 2.5D villager sprites: 81 of up to 151 done. Feet bottom-centre, 96 px max, transparent, 1 px outline. Prioritise villagers on the most scenes.
-6. Treehouse: dress layers for 5/10/20/40 pals and ~24 perches (CHECK); Cat Fish nook, Puzzle Room.
-7. Pal sprites (perch + yard size) per Puzzle Pal, found-pal sparkle; Pal Yard job sites (garden plot, trail head, delve mouth, kitchen/craft stations, sick bay, noticeboard) (CHECK).
+6. Treehouse: nothing open (done). Optional: `scenes/wander-step-back.png`.
+7. Pal sprites (perch + yard size) per Puzzle Pal: no `assets/img/pals/` folder yet, code falls back to the sticker/crop/silhouette. Found-pal sparkle. Pal Yard job-site picture is done.
 8. Trail tile sets per landscape (code-generated today, art optional); event/hotspot icons 32x32; nav icons.
 9. Canvas 480x270 treated as settled (code reads size from layout JSON).
 
 ## C. LEFT OUT OF v3 (counts = files in `game/assets/img` on 2026-11-11)
 | Group | Count / note |
 |---|---|
-| Flower heads | 12 shapes x 3 layers (`-petals`, `-centre`, full) + vase/jar/basket + packet; `flowers/` has 38 files (CHECK if done); needs tintable rig (`handoff-codechangesforart.md` s4) |
 | `-anim` strips | with the animation plan |
 | Odd-size UI | `items/` 21, `fx/` 6, `steps/` 5, `roadkinds/` 5, `ui/` 4 |
 | Gather scenes | `gather/` 89 |
