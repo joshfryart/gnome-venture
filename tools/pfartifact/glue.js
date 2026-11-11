@@ -111,7 +111,7 @@
 
   function build() {
     var s = fight.state, cr = fight.creature, enc = fight.enc, v = PFE.view(s);
-    var h = '<div class="pfight pf-screen pf-boardmode pfx-art" id="pfight" data-turn="' + v.turn + '" data-mode="board" data-redraws="0">';
+    var h = '<div class="pfight pf-screen pf-boardmode pfx-art' + (s.start ? ' pf-opening' : '') + '" id="pfight" data-turn="' + v.turn + '" data-mode="board" data-redraws="0">';
     var hist = enc.hist, nNew = enc.histnew || 0, total = hist.length, pending = !!(enc.replay && enc.replay.length), usedSn = {}, hh = '';
     for (var hi = total - 1; hi >= 0; hi--) {
       var chip = hist[hi], evIdx = hi - (total - nNew), isNew = nNew > 0 && evIdx >= 0, sn = chip.sn !== null && chip.sn !== undefined && enc.snaps[chip.sn] ? chip.sn : null;
@@ -182,7 +182,7 @@
     stage.innerHTML = build(); runScripts();
     if (fight.state.start) {   // the game's own hint says "End turn"; in the opening the button reads "Confirm start"
       var pv = document.getElementById('pf-preview'), fixing = false;
-      if (pv && window.MutationObserver) new MutationObserver(function () { if (fixing || pv.textContent.indexOf('End turn') < 0) return; fixing = true; pv.textContent = pv.textContent.replace('End turn', 'Confirm start'); fixing = false; }).observe(pv, { childList: true, characterData: true, subtree: true });
+      if (pv && window.MutationObserver) new MutationObserver(function () { if (fixing || (pv.textContent.indexOf('End turn') < 0 && pv.textContent.indexOf(' or set it aside') < 0)) return; fixing = true; pv.textContent = pv.textContent.replace('End turn', 'Confirm start').replace(' or set it aside', ''); fixing = false; }).observe(pv, { childList: true, characterData: true, subtree: true });
     }
   }
   function resultHtml() {
