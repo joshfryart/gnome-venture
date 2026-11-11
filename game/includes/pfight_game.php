@@ -411,7 +411,8 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $nonce = e((string)$s['nonce']);
     $sm = fn(string $t) => ($i = pfight_art('ico-' . $t . '-s.png')) ? '<img class="pfh-ico" src="' . e($i) . '" alt="">' : '<span class="pfh-emo" aria-hidden="true">' . e(pfight_icon($t)) . '</span>';
     $h = '<div class="pfight pf-screen pf-boardmode' . (pfight_part('resolve-frame.png') ? ' pfx-art' : '') . '" id="pfight" data-turn="' . (int)$v['turn'] . '" data-mode="board" data-redraws="' . (int)$v['redraws'] . '">';
-    $h .= '@@TOP@@<ol class="pf-hist" aria-label="What has been played" aria-live="polite">';
+    $mini = fn(string $cls, string $name, int $n) => '<span class="pfc-pile ' . $cls . '" role="img" aria-label="' . $name . ': ' . $n . ' pieces">' . (($pi = pfight_part($cls === 'deck' ? 'deck-book.png' : 'discard-bin.png')) ? '<img src="' . e($pi) . '" alt="">' : '<span aria-hidden="true">' . ($cls === 'deck' ? '📖' : '🗑️') . '</span>') . '<b>' . $n . '</b></span>';
+    $h .= '@@TOP@@<div class="pfc-histrow"><ol class="pf-hist" aria-label="What has been played" aria-live="polite">';
     foreach ((array)($enc['hist'] ?? []) as $chip) {
         $h .= '<li class="pf-chip ' . ($chip['by'] === 'me' ? 'you' : 'foe') . '"><b class="pfh-who">' . ($chip['by'] === 'me' ? 'YOU' : 'FOE') . '</b> ';
         foreach ((array)$chip['types'] as $ci => $t) {
@@ -421,7 +422,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         $h .= ' <span class="pfh-txt">' . ($chip['chain'] ? 'chain ' : '') . e((string)$chip['txt']) . '</span></li>';
     }
     if (empty($enc['hist'])) $h .= '<li class="pf-chip empty">Pieces are on the board. Place one next to them.</li>';
-    $h .= '</ol>';
+    $h .= '</ol><span class="pfc-piles">' . $mini('deck', 'Puzzle book', (int)$v['piles']['draw']) . $mini('disc', 'Discard', (int)$v['piles']['discard']) . '</span></div>';
     $cim = creature_image((string)($c['slug'] ?? ''), true);
     $foeImg = $cim !== '' ? art_img($cim, 'lg', (string)$c['name']) : creature_icon((string)$c['name'], (string)$c['size']);
     $top = '<div class="pfc-top"><div class="pfc-me"><span class="pfc-av">' . gnome_avatar_pals($u, 60) . '</span><span class="pf-hp" role="img" aria-label="Your health ' . (int)$v['hp'] . ' of ' . (int)$v['max'] . ($v['block'] ? ', guard ' . (int)$v['block'] : '') . '">❤️ <progress max="' . (int)$v['max'] . '" value="' . (int)$v['hp'] . '"></progress> ' . (int)$v['hp'] . ($v['block'] ? ' · 🛡️ ' . (int)$v['block'] : '') . '</span></div>'
@@ -429,25 +430,26 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         . '<div class="pfc-foe"><span class="pfc-fname"><b>' . e((string)$c['name']) . '</b><small>lv ' . (int)$c['level'] . ' · ' . ($s['temper'] === 'gentle' ? 'gentle' : 'wary') . ' · 🃏 ' . (int)$v['foe']['hand'] . ($v['foe']['calm'] ? ' · 😌 ' . (int)$v['foe']['calm'] : '') . '</small></span><span class="pfc-av">' . $foeImg . '<span class="pf-intent-bubble" title="Likely next move" aria-label="Likely next move: ' . e((string)$v['foe']['intent']) . '">' . $sm((string)$v['foe']['intent']) . '</span></span></div></div>';
     $h = str_replace('@@TOP@@', $top, $h);
     $h .= '<div class="pfb-board" id="pfb-board" role="group" aria-label="The play area: pick a piece from your hand, then a lit spot. Scroll, pinch or use the zoom buttons to zoom"></div>';   // JS draws the pieces from #pf-data
+    $h .= '<div class="pf-opts" id="pf-opts" hidden></div>';
     $h .= '<p class="pf-preview help" id="pf-preview" aria-live="polite">Pick a piece, then a lit spot. Up to 4 a turn; the newest plays first.</p>';
     $h .= '<ol class="pf-plan" id="pf-plan" aria-live="polite" hidden></ol><div class="pf-playbox"><ol class="pf-play" id="pf-play" aria-live="polite" hidden></ol><button type="button" class="btn" id="pf-skip" hidden>Skip</button></div>';
     $h .= '<form method="post" class="pf-form" id="pf-form">' . csrf_field() . '<input type="hidden" name="do" value="pfb_play"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="moves" id="pf-moves" value=""></form>';
-    $h .= '<div class="pf-buttons"><a class="btn pf-box" href="' . e(url('puzzlebox.php')) . '" title="Your puzzle box" aria-label="Puzzle box">🧩</a><button type="button" class="btn" id="pf-connect" aria-pressed="false" title="Set two pieces aside, joined, to play together later">Connect</button><button type="button" class="btn" id="pf-undo" disabled>Undo</button><button class="btn primary" id="pf-go" form="pf-form" disabled>End turn</button>'
+    $h .= '<div class="pf-buttons"><a class="btn pf-box" href="' . e(url('puzzlebox.php')) . '" title="Your puzzle box" aria-label="Puzzle box">🧩</a><button type="button" class="btn" id="pf-undo" disabled>Undo</button><button class="btn primary" id="pf-go" form="pf-form" disabled>End turn</button>'
         . ($v['can_run'] ? '<form method="post" class="inline pf-runf">' . csrf_field() . '<input type="hidden" name="do" value="pf_run"><input type="hidden" name="nonce" value="' . $nonce . '"><button class="btn" title="Run away" aria-label="Run away">🏃</button></form>' : '') . '</div>';
-    $h .= '<div class="pf-opts" id="pf-opts" hidden></div><div class="pf-held" id="pf-held" hidden></div>';
-    $pile = fn(string $cls, string $name, int $n) => '<div class="pf-pile ' . $cls . '" role="img" aria-label="' . $name . ': ' . $n . ' pieces">' . (($pi = pfight_part($cls === 'deck' ? 'deck-book.png' : 'discard-bin.png')) ? '<img src="' . e($pi) . '" alt="">' : '<span class="pf-pile-emo" aria-hidden="true">' . ($cls === 'deck' ? '📖' : '🗑️') . '</span>') . '<b>' . $n . '</b><small>' . $name . '</small></div>';
-    $h .= '<div class="pf-tray">' . $pile('deck', 'Puzzle book', (int)$v['piles']['draw']) . '<div class="pf-hand" id="pf-hand" role="group" aria-label="Your hand (swipe sideways)">';
+    $h .= '<div class="pf-tray"><div class="pf-hand" id="pf-hand" role="group" aria-label="Your hand">';
     foreach ($v['hand'] as $i => $t) $h .= pfight_board_piece_html($t, $i);
-    $h .= '</div>' . $pile('disc', 'Discard', (int)$v['piles']['discard']) . '</div>';
-    $h .= '<div class="pf-inspect" id="pf-inspect" aria-live="polite" hidden><span class="pfi-art" id="pfi-art" aria-hidden="true"></span><span class="pf-itext"><b id="pfi-name"></b><br><span id="pfi-desc"></span></span></div>';
+    $h .= '</div></div>';
+    $h .= '<div class="pf-inspect" id="pf-inspect" aria-live="polite" hidden><span class="pfi-art" id="pfi-art" aria-hidden="true"></span><span class="pf-itext"><b id="pfi-name"></b><br><span id="pfi-desc"></span></span><button type="button" class="pfi-x" id="pfi-x" aria-label="Close">✕</button></div>';
     $seen = array_values(array_unique(array_filter(array_column($v['hand'], 'tag'), fn($x) => isset(PF_TAGS[$x]))));
-    if ($seen) { $h .= '<ul class="pf-tags help">'; foreach ($seen as $x) $h .= '<li>' . PF_TAGS[$x][0] . ' ' . e(PF_TAGS[$x][1]) . '</li>'; $h .= '</ul>'; }
+    $more = '';
+    if ($seen) { $more .= '<ul class="pf-tags help">'; foreach ($seen as $x) $more .= '<li>' . PF_TAGS[$x][0] . ' ' . e(PF_TAGS[$x][1]) . '</li>'; $more .= '</ul>'; }
     $h .= '<div class="pf-extra">';
     $h .= '<form method="post" class="inline" id="pf-pform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="pfb_pass"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><button class="btn" id="pf-pass">Pass (nothing fits)</button></form>';
     $h .= '<form method="post" class="inline" id="pf-rform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="pf_redraw"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="card" id="pf-card" value=""></form>';
     if ($v['redraws'] > 0) $h .= '<small class="muted">🍀 ' . (int)$v['redraws'] . ' redraw' . ($v['redraws'] > 1 ? 's' : '') . '</small> <button type="button" class="btn" id="pf-redraw" hidden>Redraw a piece</button>';
     $h .= '</div>';
-    if (!empty($enc['last'])) { $h .= '<details class="pfc-log"><summary>What just happened</summary><ol class="pf-last" aria-live="polite">'; foreach ($enc['last'] as $ln) $h .= '<li>' . e($ln) . '</li>'; $h .= '</ol></details>'; }
+    if (!empty($enc['last'])) { $more .= '<p class="pfc-lh">What just happened</p><ol class="pf-last">'; foreach ($enc['last'] as $ln) $more .= '<li>' . e($ln) . '</li>'; $more .= '</ol>'; }
+    if ($more !== '') $h .= '<details class="pfc-more"><summary>More: piece tips and the last turn</summary>' . $more . '</details>';
     // the board and the hand's edges for the script (public information: the board is out in the open)
     $data = ['life' => PFB_LIFE, 'tags' => PF_TAGS, 'held' => $v['held'] ?? null, 'bar' => $v['bar']['now'], 'barmax' => $v['bar']['max'], 'hp' => $v['hp'], 'replay' => $enc['replay'] ?? [], 'replay0' => $enc['replay0'] ?? null, 'mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3], $m[2]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
     $h .= '<script type="application/json" id="pf-data">' . json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP) . '</script>';

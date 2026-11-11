@@ -66,7 +66,7 @@ JM=$(php "$HERE/pfboard_move.php" "$GAME" join 2>&1 | tail -1)
 if [ "$JM" != "NONE" ]; then
   ck "connect: redirect" "$(pf pfb_play -d moves="$JM")" "302"
   ck "connect set two pieces aside" "$(db "SELECT encounter LIKE '%\"held\":{%' FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
-  get adventure.php >/dev/null; ck "the page shows the set-aside group" "$(grep -c 'id="pf-held"' $H)" "1"
+  get adventure.php >/dev/null; ck "the page data carries the set-aside group" "$(grep -c '"held":{"pcs"' $H)" "1"
   ENC2=$(enc); pf pfb_play -d moves="$JM" >/dev/null; ck "a second group is refused" "$(enc)" "$ENC2"
   AM=$(php "$HERE/pfboard_move.php" "$GAME" add 2>&1 | tail -1)
   if [ "$AM" != "NONE" ]; then ck "add a third piece" "$(pf pfb_play -d moves="$AM")" "302"; fi

@@ -308,3 +308,31 @@
 .pf-boardmode .pf-buttons .primary { padding-inline: 1.6rem; }
 .pf-boardmode .pf-hand .pf-bp.pf-con canvas { filter: drop-shadow(0 0 3px #e8a317) drop-shadow(0 0 1px #e8a317); }
 .pf-boardmode .pf-hand .pf-bp.pf-con { outline: 2px dashed #e8a317; outline-offset: -2px; }
+
+/* ---- one screen on a phone: a one-line history with the piles beside it, a small board, one-line hint, the hand at its real size (no overlap) ---- */
+.pfc-histrow { display: flex; align-items: center; gap: .4rem; }
+.pfc-histrow .pf-hist { flex: 1 1 auto; min-width: 0; margin: 0; }
+.pfc-piles { display: flex; gap: .45rem; flex: none; font-size: .7rem; }
+.pfc-pile { display: inline-flex; align-items: center; gap: .15rem; }
+.pfc-pile img { width: 20px; height: 20px; image-rendering: pixelated; }
+.pf-held-chip { position: absolute; left: 4px; bottom: 4px; z-index: 6; padding: .15rem .35rem; background: rgba(24, 14, 8, .85); }
+.pf-held-chip.pf-planned { border-style: solid; }
+.pf-held-chip .pf-held-cv { height: 36px; }
+.pf-boardmode .pf-preview { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+.pf-plan:not(.open) li:not(.pf-plan-bar) { display: none; }
+.pf-plan li.pf-plan-bar { cursor: pointer; }
+.pf-chipbtn { font-size: .68rem; padding: .2rem .45rem; min-height: 0; }
+.pf-boardmode .pf-inspect { position: fixed; left: .5rem; right: .5rem; bottom: calc(env(safe-area-inset-bottom, 0px) + 4.6rem); z-index: 40; background: rgba(24, 14, 8, .96); max-width: 30rem; margin-inline: auto; }
+.pfi-x { margin-left: auto; align-self: flex-start; border: 0; background: none; color: inherit; font-size: 1rem; cursor: pointer; padding: .2rem .4rem; }
+.pfc-more { font-size: .72rem; margin: 0; }
+.pfc-more summary { cursor: pointer; opacity: .8; }
+.pfc-lh { margin: .2rem 0 0; font-weight: bold; }
+@media (max-width: 560px) {
+  .pf-bp.pf-art2 { width: 74px; height: 52px; }
+  .pf-boardmode .pf-hand .pf-bp.pf-picked { transform: translateY(-.35rem); }
+  .pfc-av { width: 44px; height: 44px; }
+  .pfc-top { padding: .15rem .3rem; }
+  .pf-boardmode .pf-tray .pf-hand { padding: .35rem 0 .1rem; gap: 2px; }
+  .advgrid.fighting.pfover .encounter { padding: .25rem .3rem; }
+  .pf-boardmode { gap: .25rem; }
+}

@@ -11,9 +11,9 @@
   var go = document.getElementById('pf-go'), undo = document.getElementById('pf-undo'), prev = document.getElementById('pf-preview');
   var form = document.getElementById('pf-form'), movesIn = document.getElementById('pf-moves'), insp = document.getElementById('pf-inspect');
   var rbtn = document.getElementById('pf-redraw'), pform = document.getElementById('pf-pform');
-  var heldEl = document.getElementById('pf-held'), optsEl = document.getElementById('pf-opts'), connectBtn = document.getElementById('pf-connect');
+  var optsEl = document.getElementById('pf-opts');
   var tiles = Array.prototype.slice.call(handEl.querySelectorAll('.pf-tile'));
-  var moves = [], selected = null, submitted = false, redrawMode = false, connectMode = false, conA = null, picked = null, playing = false, replayed = false;   // moves: at most one planned action {k:'p'|'c'|'j'|'h', ...}
+  var moves = [], selected = null, submitted = false, redrawMode = false, picked = null, playing = false, replayed = false;   // moves: at most one planned action {k:'p'|'c'|'j'|'h', ...}
   var glows = [], fxOn = !(data.replay && data.replay.length), glowTimer = 0, frame = 0;
   var world = null, vz = 1, vx = 0, vy = 0, viewKey = '', moved = false;
   // zoom and pan of the play area: wheel on a computer, pinch and drag on a phone, + - and reset buttons for everyone
@@ -138,17 +138,23 @@
     }
     return touch > 0 && linked > 0;
   }
-  function joinOptions(i) {   // where hand piece i can join: [{anc, side, label}]
+  function joinOptions(i) {   // ways hand piece i can be set aside joined: to the group already set aside, or to another hand piece
     var out = [];
     if (data.held) {
       data.held.pcs.forEach(function (a, ai) { for (var s in SIDE) if (groupFit(data.held, data.hand[i].e, a.x + SIDE[s][0], a.y + SIDE[s][1])) out.push({ k: 'h', b: i, anc: ai, side: s, ref: a.n }); });
-    } else if (conA !== null) {
-      var g = { pcs: [{ x: 0, y: 0, e: data.hand[conA].e }] };
-      for (var s2 in SIDE) if (groupFit(g, data.hand[i].e, SIDE[s2][0], SIDE[s2][1])) out.push({ k: 'j', a: conA, b: i, side: s2, ref: tiles[conA].dataset.name });
+    } else {
+      var g = { pcs: [{ x: 0, y: 0, e: data.hand[i].e }] };
+      tiles.forEach(function (t, p) { if (p === i || !usable(p)) return; for (var s2 in SIDE) if (groupFit(g, data.hand[p].e, SIDE[s2][0], SIDE[s2][1])) out.push({ k: 'j', a: i, b: p, side: s2, ref: t.dataset.name }); });
     }
     return out;
   }
-
+  function plannedGroup() {   // the group as it will be after the planned join (so the panel updates at once)
+    var mv = moves[0]; if (!mv || (mv.k !== 'j' && mv.k !== 'h')) return null;
+    var mk = function (i, x, y) { var h = data.hand[i]; return { n: tiles[i].dataset.name, t: h.t, v: +tiles[i].dataset.v, tag: h.tag, m: h.m, e: h.e, x: x, y: y }; };
+    if (mv.k === 'j') { var d = SIDE[mv.side]; return { pcs: [mk(mv.a, 0, 0), mk(mv.b, d[0], d[1])], planned: true }; }
+    var a = data.held.pcs[mv.anc], d2 = SIDE[mv.side];
+    return { pcs: data.held.pcs.concat([mk(mv.b, a.x + d2[0], a.y + d2[1])]), planned: true };
+  }
   function modRar(m) { return m && data.mods && data.mods[m] ? data.mods[m][2] : null; }
   function modBadge(m) {   // the piece's upgrade as a small glyph (until the upgrade marks are drawn)
     var d = m && data.mods && data.mods[m]; if (!d) return null;
@@ -204,7 +210,7 @@
     var TW = art ? VW * S.pitch[0] + 2 * S.tab[0] : 0, TH = art ? VH * S.pitch[1] + 2 * S.tab[1] : 0;
     boardEl.style.aspectRatio = art ? TW + ' / ' + TH : (VW * 1.45) + ' / ' + VH;
     boardEl.classList.toggle('pfb-arted', !!art);
-    boardEl.style.maxWidth = art ? Math.round(TW * 1.5) + 'px' : '';   // a small play area: pieces at most 1.5x
+    boardEl.style.maxWidth = art ? Math.round(TW * (window.innerWidth <= 560 ? 1.1 : 1.5)) + 'px' : '';   // a small play area: pieces at most 1.1x on a phone, 1.5x elsewhere
     function put(el, x, y, cw, ch) {
       x -= x0; y -= y0; cw = cw || 1; ch = ch || 1;
       if (art) { el.style.left = (x * S.pitch[0] * 100 / TW) + '%'; el.style.top = (y * S.pitch[1] * 100 / TH) + '%'; el.style.width = (((cw - 1) * S.pitch[0] + S.piece[0]) * 100 / TW) + '%'; el.style.height = (((ch - 1) * S.pitch[1] + S.piece[1]) * 100 / TH) + '%'; }
@@ -226,11 +232,7 @@
       } else if (lit[key]) {
         cell = document.createElement('button'); cell.type = 'button'; cell.className = 'pfb-cell pfb-lit'; cell.setAttribute('aria-label', (selected === 'group' ? 'Place the group here, top left at ' : 'Place here, ') + 'column ' + (x + 1) + ' row ' + (y + 1));
         cell.dataset.x = String(x); cell.dataset.y = String(y);
-        if (selected === 'group') { cell.dataset.cw = String(gd[0]); cell.dataset.ch = String(gd[1]); }
-        if (art && selected === 'group') {
-          var gcv = document.createElement('canvas'); gcv.width = (gd[0] - 1) * S.pitch[0] + S.piece[0]; gcv.height = (gd[1] - 1) * S.pitch[1] + S.piece[1];
-          var gx2 = gcv.getContext('2d'); data.held.pcs.forEach(function (hp) { gx2.drawImage(P.ghost({ size: 'strip', owner: 'me', edges: hp.e }), (hp.x - gd[2]) * S.pitch[0], (hp.y - gd[3]) * S.pitch[1]); });
-          gcv.className = 'pfb-cv'; gcv.setAttribute('aria-hidden', 'true'); cell.appendChild(gcv);
+        if (art && selected === 'group') { var gc0 = P.ghost({ size: 'strip', owner: 'me', edges: data.held.pcs[0].e }); gc0.className = 'pfb-cv'; gc0.setAttribute('aria-hidden', 'true'); cell.appendChild(gc0);   // one marker per spot; the whole group shows once you pick it
         } else if (art && selected !== null) { var gc = P.ghost({ size: 'strip', owner: 'me', edges: data.hand[selected].e }); gc.className = 'pfb-cv'; gc.setAttribute('aria-hidden', 'true'); cell.appendChild(gc); }
       } else continue;
       put(cell, x, y, +(cell.dataset.cw || 1), +(cell.dataset.ch || 1));
@@ -279,65 +281,61 @@
     applyView();
     tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, m: data.hand[i].m, rar: modRar(data.hand[i].m), edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); var hb = modBadge(data.hand[i].m); if (hb) t.appendChild(hb); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
-    fan(); renderHeld(); planAsk();
+    fan(); renderHeld(); showJoinChips(); planAsk();
     var busy = playing || submitted;
-    undo.disabled = busy || (moves.length === 0 && !connectMode && selected === null); go.disabled = busy || moves.length === 0;
-    if (connectBtn) { connectBtn.disabled = busy || (data.held && data.held.pcs.length >= 3) || tiles.filter(function (t) { return !t.hidden; }).length < (data.held ? 1 : 2); connectBtn.setAttribute('aria-pressed', connectMode ? 'true' : 'false'); connectBtn.classList.toggle('pf-on', connectMode); }
+    undo.disabled = busy || (moves.length === 0 && selected === null); go.disabled = busy || moves.length === 0;
     var fits = anyFits();
-    if (pform) pform.hidden = !(moves.length === 0 && !fits && selected === null && !connectMode);
-    prev.textContent = playing ? 'Watch the chain: each piece is scored in turn.' : redrawMode ? 'Tap the piece to swap for a fresh one.' : connectMode
-      ? (data.held ? 'Tap the piece to add to your group (it has to link to a piece in it).' : (conA === null ? 'Connect: tap the first piece.' : 'Now tap the piece to join to it.'))
-      : moves.length === 0 ? (fits ? 'Pick a piece, then a lit spot. One piece a turn. Or Connect pieces to play together later.' : 'Nothing in your hand fits anywhere. You can pass, or connect pieces.')
-      : moves[0].k === 'j' ? 'Set aside: the two joined pieces wait for a later turn. End turn when you are ready.'
-      : moves[0].k === 'h' ? 'Added to the group. End turn when you are ready (a group of three cannot take more).'
-      : 'Placed. End turn when you are ready.';
+    if (pform) pform.hidden = !(moves.length === 0 && !fits && selected === null);
+    var sel = typeof selected === 'number' ? tiles[selected] : null, hasJoin = !!(sel && joinOptions(selected).length);
+    prev.textContent = playing ? 'Watch the chain: each piece is scored in turn.' : redrawMode ? 'Tap the piece to swap for a fresh one.'
+      : sel ? sel.dataset.name + ': ' + sel.dataset.desc.split('. ')[0] + '. Pick a lit spot' + (hasJoin ? ' or set it aside.' : '.')
+      : selected === 'group' ? hintText || 'Pick a lit spot for the group.'
+      : moves.length === 0 ? (fits ? 'Pick a piece, then a lit spot. One piece a turn.' : 'Nothing fits. You can pass.')
+      : moves[0].k === 'j' || moves[0].k === 'h' ? 'Set aside for a later turn. End turn when ready.'
+      : 'Placed. End turn when ready.';
+    prev.title = prev.textContent;
     if (!replayed) maybeReplay();
   }
 
-  // ---- the set-aside group, Connect, and the option list
+  // ---- the set-aside group (a chip on the board that follows your plan), and the join choices under the board
   function renderHeld() {
-    if (!heldEl) return;
-    heldEl.textContent = '';
-    var g = data.held;
-    if (!g) { heldEl.hidden = true; return; }
-    heldEl.hidden = false;
-    var P = window.PFParts, bt = document.createElement('button'); bt.type = 'button'; bt.className = 'pf-held-btn' + (selected === 'group' ? ' pf-picked' : '');
+    var g = plannedGroup() || data.held; if (!g) return;
+    var P = window.PFParts, bt = document.createElement('button'); bt.type = 'button'; bt.className = 'pf-held-btn pf-held-chip' + (selected === 'group' ? ' pf-picked' : '') + (g.planned ? ' pf-planned' : '');
     bt.setAttribute('aria-pressed', selected === 'group' ? 'true' : 'false');
-    bt.setAttribute('aria-label', 'Your set-aside group: ' + g.pcs.map(function (p) { return p.n; }).join(', ') + '. Press to place it.');
+    bt.setAttribute('aria-label', (g.planned ? 'Planned group: ' : 'Your set-aside group: ') + g.pcs.map(function (p) { return p.n; }).join(', ') + (g.planned ? '' : '. Press to place it.'));
     if (P && P.ok) {
       var S = P.atlas.sizes.strip, d = groupDims(g), cv = document.createElement('canvas');
       cv.width = (d[0] - 1) * S.pitch[0] + S.piece[0]; cv.height = (d[1] - 1) * S.pitch[1] + S.piece[1]; var cx = cv.getContext('2d');
       g.pcs.forEach(function (p) { cx.drawImage(P.piece({ size: 'strip', owner: 'me', type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, num: p.v }), (p.x - d[2]) * S.pitch[0], (p.y - d[3]) * S.pitch[1]); });
       cv.className = 'pf-held-cv'; cv.setAttribute('aria-hidden', 'true'); bt.appendChild(cv);
     }
-    var tx = document.createElement('span'); tx.className = 'pf-held-tx'; tx.textContent = 'Set aside (' + g.pcs.length + '): ' + g.pcs.map(function (p) { return p.n; }).join(' + ') + (g.pcs.length === 3 ? ' \u2014 full strength' : ''); bt.appendChild(tx);
-    bt.addEventListener('click', function () { if (playing || submitted || redrawMode) return; connectMode = false; conA = null; hideOpts(); moves = []; clearPicks(); selected = selected === 'group' ? null : 'group'; if (selected) showText(g.pcs.map(function (p) { return p.n; }).join(' + '), 'Your set-aside group. Pick a lit spot to place all of it; the newest piece scores first.'); render(); });
-    heldEl.appendChild(bt);
+    var tx = document.createElement('span'); tx.className = 'pf-held-tx'; tx.textContent = (g.planned ? 'Setting aside' : 'Set aside') + ' (' + g.pcs.length + ')' + (g.pcs.length === 3 ? ' full strength' : ''); bt.appendChild(tx);
+    bt.addEventListener('click', function () {
+      if (playing || submitted || redrawMode || g.planned) return;
+      hideOpts(); moves = []; clearPicks(); selected = selected === 'group' ? null : 'group';
+      if (selected) showHint(g.pcs.map(function (p) { return p.n; }).join(' + ') + ': pick a lit spot to place the whole group. The newest piece scores first.');
+      render();
+    });
+    boardEl.appendChild(bt);
   }
-  function clearPicks() { tiles.forEach(function (t) { t.classList.remove('pf-picked'); t.classList.remove('pf-con'); t.setAttribute('aria-pressed', 'false'); }); }
+  var hintText = '';
+  function showHint(t) { hintText = t; }
+  function clearPicks() { tiles.forEach(function (t) { t.classList.remove('pf-picked'); t.setAttribute('aria-pressed', 'false'); }); }
   function hideOpts() { if (optsEl) { optsEl.hidden = true; optsEl.textContent = ''; } }
-  var SIDE_TXT = { L: 'on the left of', R: 'on the right of', T: 'above', B: 'below' };
-  function showOpts(list) {
-    optsEl.textContent = ''; optsEl.hidden = false;
-    var h = document.createElement('p'); h.className = 'pf-opts-h'; h.textContent = 'Where does it join?'; optsEl.appendChild(h);
-    list.forEach(function (o) {
-      var bt = document.createElement('button'); bt.type = 'button'; bt.className = 'btn';
-      bt.textContent = tiles[o.b].dataset.name + ' ' + SIDE_TXT[o.side] + ' ' + o.ref;
-      bt.addEventListener('click', function () { hideOpts(); moves = [o.k === 'j' ? { k: 'j', a: o.a, b: o.b, side: o.side } : { k: 'h', b: o.b, anc: o.anc, side: o.side }]; connectMode = false; conA = null; clearPicks(); selected = null; render(); });
+  var SIDE_TXT = { L: 'to its left', R: 'to its right', T: 'above it', B: 'below it' };
+  function showJoinChips() {   // under the board: set the selected piece aside with another one (or add it to the group)
+    if (!optsEl) return; optsEl.textContent = '';
+    if (selected === null || selected === 'group' || moves.length || playing || submitted || redrawMode) { optsEl.hidden = true; return; }
+    var list = joinOptions(selected); if (!list.length) { optsEl.hidden = true; return; }
+    optsEl.hidden = false;
+    var h = document.createElement('span'); h.className = 'pf-opts-h'; h.textContent = data.held ? 'Add to your group:' : 'Or set aside with:'; optsEl.appendChild(h);
+    list.slice(0, 6).forEach(function (o) {
+      var bt = document.createElement('button'); bt.type = 'button'; bt.className = 'btn pf-chipbtn';
+      bt.textContent = o.k === 'h' ? 'next to ' + o.ref + ' (' + SIDE_TXT[o.side] + ')' : '+ ' + o.ref + ', ' + SIDE_TXT[o.side];
+      bt.setAttribute('aria-label', o.k === 'h' ? 'Add ' + tiles[o.b].dataset.name + ' to your group, ' + SIDE_TXT[o.side] + ' of ' + o.ref : 'Set aside ' + tiles[o.a].dataset.name + ' joined with ' + o.ref + ', ' + o.ref + ' goes ' + SIDE_TXT[o.side]);
+      bt.addEventListener('click', function () { moves = [o.k === 'j' ? { k: 'j', a: o.a, b: o.b, side: o.side } : { k: 'h', b: o.b, anc: o.anc, side: o.side }]; clearPicks(); selected = null; render(); });
       optsEl.appendChild(bt);
     });
-  }
-  function connectTap(i) {
-    if (!data.held && conA === null) { conA = i; tiles[i].classList.add('pf-con'); render(); return; }
-    if (conA === i) { conA = null; clearPicks(); render(); return; }
-    var opts = joinOptions(i);
-    if (!opts.length) { prev.textContent = 'Those two cannot be joined: their edges must fit, and at least one joint has to link (a knob in a matching hole).'; return; }
-    if (opts.length === 1) { var o = opts[0]; moves = [o.k === 'j' ? { k: 'j', a: o.a, b: o.b, side: o.side } : { k: 'h', b: o.b, anc: o.anc, side: o.side }]; connectMode = false; conA = null; clearPicks(); selected = null; render(); return; }
-    showOpts(opts);
-  }
-  function toggleConnect() {
-    if (playing || submitted) return;
-    connectMode = !connectMode; conA = null; moves = []; selected = null; clearPicks(); hideOpts(); render();
   }
 
   // ---- tap a piece on the board (or watch it being scored): what it is and how long it stays
@@ -373,7 +371,7 @@
     if (playEl) { playEl.hidden = true; } if (skipBtn) skipBtn.hidden = true;
     Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
     if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.hp !== undefined) setHp(data.hp);
-    root.classList.remove('pf-playing'); fxOn = true; render();
+    if (insp) insp.hidden = true; root.classList.remove('pf-playing'); fxOn = true; render();
   }
   function maybeReplay() {
     var P = window.PFParts;
@@ -416,25 +414,24 @@
           if (!j || !j.ok) { planEl.hidden = true; return; }
           j.lines.forEach(function (t) { var li = document.createElement('li'); li.textContent = t; planEl.appendChild(li); });
           var li2 = document.createElement('li'); li2.className = 'pf-plan-bar';
-          li2.textContent = 'Resolve ' + Math.round(j.bar[0]) + ' \u2192 ' + Math.round(j.bar[1]) + ' of ' + Math.round(j.bar[2]) + (j.over ? ' (this ends the fight)' : '') + '. The creature answers after you end your turn.';
+          li2.textContent = 'Resolve ' + Math.round(j.bar[0]) + ' \u2192 ' + Math.round(j.bar[1]) + ' of ' + Math.round(j.bar[2]) + (j.over ? ' (ends the fight)' : '') + ' \u25BE';
           planEl.appendChild(li2); planEl.hidden = false;
         }).catch(function () {});
     }, 180);
   }
   function fan() {   // overlap the hand's pieces just enough to fit one row; the picked piece is lifted by CSS and comes to the front
     var vis = tiles.filter(function (t) { return !t.hidden; }), n = vis.length; if (!n) return;
-    var avail = handEl.clientWidth, w = vis[0].offsetWidth || 112, m = 6;
+    var avail = handEl.clientWidth, w = vis[0].offsetWidth || 112, m = window.innerWidth <= 560 ? 3 : 6;
     if (avail > 0 && n * w + (n - 1) * m > avail) m = n > 1 ? (avail - n * w) / (n - 1) : 0;
     vis.forEach(function (t, k) { t.style.marginLeft = k ? Math.floor(m) + 'px' : '0'; t.style.zIndex = t.classList.contains('pf-picked') ? '6' : String(k + 1); });
   }
   window.addEventListener('resize', fan);
   function select(i) {
     if (playing || submitted) return;
-    if (connectMode) { connectTap(i); return; }
     if (!usable(i)) return;
-    clearPicks(); hideOpts(); moves = [];
+    clearPicks(); hideOpts(); moves = []; if (insp) insp.hidden = true;
     selected = selected === i ? null : i;
-    if (selected !== null) { tiles[i].classList.add('pf-picked'); tiles[i].setAttribute('aria-pressed', 'true'); showInspect(tiles[i]); }
+    if (selected !== null) { tiles[i].classList.add('pf-picked'); tiles[i].setAttribute('aria-pressed', 'true'); }
     render();
   }
   function showInspect(b) {
@@ -466,7 +463,7 @@
   // drag and drop (mouse); touch uses the two taps
   handEl.addEventListener('dragstart', function (ev) {
     var b = ev.target.closest('.pf-tile'); if (!b || redrawMode) { ev.preventDefault(); return; }
-    var i = tiles.indexOf(b); if (!usable(i) || connectMode || playing) { ev.preventDefault(); return; }
+    var i = tiles.indexOf(b); if (!usable(i) || playing) { ev.preventDefault(); return; }
     if (selected !== i) select(i);
     try { ev.dataTransfer.setData('text/plain', String(i)); ev.dataTransfer.effectAllowed = 'move'; } catch (e) {}
   });
@@ -475,7 +472,7 @@
     var c = ev.target.closest('.pfb-lit'); if (!c) return; ev.preventDefault();
     place(parseInt(c.dataset.x, 10), parseInt(c.dataset.y, 10));
   });
-  undo.addEventListener('click', function () { if (playing) return; moves = []; selected = null; connectMode = false; conA = null; hideOpts(); clearPicks(); render(); });
+  undo.addEventListener('click', function () { if (playing) return; moves = []; selected = null; hideOpts(); clearPicks(); render(); });
   form.addEventListener('submit', function (e) {
     if (submitted || playing || !moves.length) { e.preventDefault(); return; }
     submitted = true; go.disabled = true; undo.disabled = true;
@@ -483,9 +480,10 @@
   });
   if (rbtn && parseInt(root.dataset.redraws || '0', 10) > 0) {
     rbtn.hidden = false;
-    rbtn.addEventListener('click', function () { redrawMode = !redrawMode; moves = []; selected = null; connectMode = false; conA = null; hideOpts(); rbtn.setAttribute('aria-pressed', redrawMode ? 'true' : 'false'); rbtn.classList.toggle('pf-on', redrawMode); render(); });
+    rbtn.addEventListener('click', function () { redrawMode = !redrawMode; moves = []; selected = null; hideOpts(); rbtn.setAttribute('aria-pressed', redrawMode ? 'true' : 'false'); rbtn.classList.toggle('pf-on', redrawMode); render(); });
   }
-  if (connectBtn) connectBtn.addEventListener('click', toggleConnect);
+  var inspX = document.getElementById('pfi-x'); if (inspX) inspX.addEventListener('click', function () { insp.hidden = true; picked = null; Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-picked'), function (c) { c.classList.remove('pfb-picked'); }); });
+  var planElX = document.getElementById('pf-plan'); if (planElX) planElX.addEventListener('click', function () { planElX.classList.toggle('open'); });
   if (skipBtn) skipBtn.addEventListener('click', stopPlay);
   window.addEventListener('pageshow', function (e) { if (e.persisted) location.reload(); });
   if (window.__pfbOff) window.__pfbOff();   // a swapped-in copy of this script: let go of the old one's listeners and timer

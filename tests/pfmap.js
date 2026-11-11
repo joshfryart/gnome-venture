@@ -17,6 +17,7 @@ const { chromium } = require('playwright');
     // the replay of the last turn: the piece being scored is lit, its line is listed; Skip ends it
     const replaying = await p.locator('#pfight.pf-playing').count(); let scoring = 0, lines = 0;
     if (replaying) { await p.waitForSelector('.pfb-scoring', { timeout: 4000 }).then(() => { scoring = 1; }, () => {}); lines = await p.locator('#pf-play li').count(); await p.click('#pf-skip'); await p.waitForTimeout(400); }
+    const panelH = await p.evaluate(() => { const e = document.getElementById('pfight'); return e ? Math.round(e.getBoundingClientRect().height) : 0; });   // on a phone the whole fight fits one screen
     const art = await p.locator('.pfx-bar').count();
     const glow = await p.locator('.pfb-glow').count(), stamp = await p.locator('.pfb-stamp').count();
     let zoomOk = true;
@@ -43,29 +44,29 @@ const { chromium } = require('playwright');
       }
     }
     let inplaceOk = true, tapOk = true, connectOk = true, connectNote = '';
-    if (label === 'board-1') {
+    if (label === 'board-1' && name === 'phone') {   // (the heavy turns happen once, on the phone; the wide pass only looks at what is left)
       // tap a piece on the board: its card opens (name and text)
       const tap = p.locator('.pfb-tap').first();
       if (await tap.count()) { await tap.click(); tapOk = (await p.locator('#pfi-name').textContent()).trim().length > 0 && !(await p.locator('#pf-inspect').isHidden()); }
-      // Connect: find two pieces that join, set them aside (one turn), then play the group
+      // set aside: select a piece, take one of its "set aside with" choices (no mode, no extra button), end the turn; then play the group
       const hand = p.locator('#pf-hand .pf-tile'); const n = await hand.count(); let joined = false;
-      for (let a = 0; a < n && !joined; a++) for (let b = 0; b < n && !joined; b++) {
-        if (a === b) continue;
-        await p.click('#pf-connect'); await hand.nth(a).click({ position: { x: 10, y: 30 } }); await hand.nth(b).click({ position: { x: 10, y: 30 } });
-        if (await p.locator('#pf-opts:not([hidden]) button').count()) await p.locator('#pf-opts button').first().click();
-        if (await p.locator('#pf-go').isEnabled()) joined = true; else await p.click('#pf-undo');
+      for (let a = 0; a < n && !joined; a++) {
+        await hand.nth(a).click({ position: { x: 10, y: 26 } });
+        if (await p.locator('#pf-opts:not([hidden]) .pf-chipbtn').count()) { await p.locator('#pf-opts .pf-chipbtn').first().click(); joined = await p.locator('#pf-go').isEnabled(); }
+        if (!joined) await p.click('#pf-undo');
       }
       if (joined) {
+        const chip = await p.locator('.pf-held-chip.pf-planned').count();   // the panel shows the planned group at once
         await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pf-go')]); await p.waitForTimeout(1800);
         if (await p.locator('#pf-skip:not([hidden])').count()) await p.click('#pf-skip');
-        connectOk = (await p.locator('.pf-held-btn').count()) === 1;
+        connectOk = chip === 1 && (await p.locator('.pf-held-chip:not(.pf-planned)').count()) === 1;
         if (connectOk) {
-          await p.click('.pf-held-btn'); const spots = await p.locator('.pfb-lit').count(); connectOk = spots > 0;
-          if (spots) { await p.locator('.pfb-lit').first().click(); await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pf-go')]); await p.waitForTimeout(1800); if (await p.locator('#pf-skip:not([hidden])').count()) await p.click('#pf-skip'); connectOk = (await p.locator('.pf-held-btn').count()) === 0; }
+          await p.click('.pf-held-chip'); const spots = await p.locator('.pfb-lit').count(); connectOk = spots > 0;
+          if (spots) { await p.locator('.pfb-lit').first().click(); await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pf-go')]); await p.waitForTimeout(1800); if (await p.locator('#pf-skip:not([hidden])').count()) await p.click('#pf-skip'); connectOk = (await p.locator('.pf-held-chip').count()) === 0; }
         }
       } else connectNote = 'no joinable pair';
     }
-    if (label === 'board-1' || label === 'wander-board') {   // End turn goes through the in-place page swap: the board and the hand art must come back after it
+    if ((label === 'board-1' && name === 'phone') || label === 'wander-board') {   // End turn goes through the in-place page swap: the board and the hand art must come back after it
       const hand = p.locator('#pf-hand .pf-tile'); const n = await hand.count(); let lit = 0;
       for (let i = 0; i < n && !lit; i++) { await hand.nth(i).click({ position: { x: 10, y: 30 } }); lit = await p.locator('.pfb-lit').count(); }
       if (lit) {
@@ -78,8 +79,8 @@ const { chromium } = require('playwright');
     }
     if (await p.locator('#pfight').count()) await p.locator('#pfight').screenshot({ path: out + '/pfmap-' + label + '-' + name + '.png' });
     const wide = await p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-    const bad = (!over || !mapIn || !panel || !overlap || wide || errs.length || !zoomOk || !inplaceOk || !tapOk || !connectOk || (replaying && !scoring) || (want === 'fx' && !glow && !stamp)) ? 1 : 0; fail = fail || bad;
-    console.log(bad ? 'FAIL' : 'ok', label, name, '| fight over map', !!over, '| map behind', overlap, '| art bar', art, '| glow', glow, '| stamps', stamp, '| expiring cues', await p.locator('.pfb-old').count(), '| foe drops', await p.locator('.pfb-drop').count(), '| replay', replaying ? (scoring ? 'lit ' + lines + ' lines' : 'NOT LIT') : 'none', '| tap info', tapOk, '| connect+group', connectOk, connectNote, '| zoom', zoomOk, '| after in-place turn', inplaceOk, '| overflow', wide, '| js errors:', errs.length ? errs.join(' | ') : 'none');
+    const bad = (!over || !mapIn || !panel || !overlap || wide || errs.length || (name === 'phone' && !label.startsWith('chain') && panelH > 520) || !zoomOk || !inplaceOk || !tapOk || !connectOk || (replaying && !scoring) || (want === 'fx' && !glow && !stamp)) ? 1 : 0; fail = fail || bad;
+    console.log(bad ? 'FAIL' : 'ok', label, name, '| fight over map', !!over, '| map behind', overlap, '| art bar', art, '| glow', glow, '| stamps', stamp, '| expiring cues', await p.locator('.pfb-old').count(), '| foe drops', await p.locator('.pfb-drop').count(), '| replay', replaying ? (scoring ? 'lit ' + lines + ' lines' : 'NOT LIT') : 'none', '| panel', panelH + 'px', '| tap info', tapOk, '| connect+group', connectOk, connectNote, '| zoom', zoomOk, '| after in-place turn', inplaceOk, '| overflow', wide, '| js errors:', errs.length ? errs.join(' | ') : 'none');
     await c.close();
   }
   await b.close(); process.exit(fail);

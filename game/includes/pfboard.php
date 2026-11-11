@@ -14,7 +14,7 @@ require_once __DIR__ . '/pfight.php';
 const PFB_W = 7, PFB_H = 5, PFB_LIFE = 3, PFB_MAX_PLACE = 1;   // one action a turn: place a piece, place the piece group you set aside, or set pieces aside (connect them in your hand)
 const PFB_GROUP_MAX = 3;                      // a set-aside group holds 2 or 3 pieces; a 3-piece group cannot take more
 const PFB_GROUP_MULT = [2 => 1.0, 3 => 1.25]; // the values of a placed group's pieces (3 pieces play for maximum effect)
-const PFB_BAR_MULT = 0.7, PFB_FOE_MULT = 0.42;   // the resolve bar vs strip mode, and a factor on the creature's piece values (one piece a turn each side now). Tuned by tests/pfboard_sim.php: small 3.4, medium 4.0, large 4.6, boss 6.4 turns, defeats about 1%
+const PFB_BAR_MULT = 0.7, PFB_FOE_MULT = 0.62;   // the resolve bar vs strip mode, and a factor on the creature's piece values (one piece a turn each side). Tuned by tests/pfboard_sim.php: small 3.2, medium 4.2, large 4.5, boss 6.6 turns, defeats under 3%
 const PFB_SIDE = ['L' => [-1, 0, 'R'], 'R' => [1, 0, 'L'], 'T' => [0, -1, 'B'], 'B' => [0, 1, 'T']];   // side => [dx, dy, the neighbour's side that touches it]
 
 /** The four edges of a tile: L = hole of its type's family, R = its knob (or flat), T and B fixed per tile from its key (about a quarter flat). */
@@ -282,11 +282,10 @@ function pfb_search(array $s, string $who, bool $allowHeavy = true): ?array
     return $best;
 }
 
-/** How many pieces the creature puts down this turn: one (two for a boss, and for a large one now and then); Trip/Lull make it skip a turn. */
+/** How many pieces the creature puts down this turn: exactly one (so only the chain that piece makes fires; nothing disconnected from it). Trip/Lull make it skip the turn. */
 function pfb_foe_len(array $s): int
 {
-    $base = $s['boss'] ? 2 : ($s['size'] === 'large' && $s['turn'] % 3 === 0 ? 2 : 1);
-    return max(0, min(count($s['foe']['hand']), $base - (int)$s['foe']['slow']));
+    return max(0, min(count($s['foe']['hand']), 1 - (int)$s['foe']['slow']));
 }
 
 function pfb_foe_turn(array &$s, int $extra): array

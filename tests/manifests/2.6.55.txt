@@ -11717,8 +11717,8 @@ f08a10cd40297ed0f0209d242bec0238cacc03ea  assets/mushroom.js
 de6a8a909358ed60e27f63439946927ac58991c5  assets/paljobs.js
 514b96d12852700783ad02a67201877e83172d89  assets/pbox.js
 d7882387ef576ea888608f68fc5b5df4847dc76a  assets/pest.js
-3822bc0740ac2cd0430bb22d6439421a2336e142  assets/pfboard.js
-0e74cc5f68f935d02991d80646f3fb89e3184238  assets/pfight.css
+744240896901d8f60660929e38ce1f5d391927e4  assets/pfboard.js
+df70a952b035013c0b7efab3b8eb7e5154495396  assets/pfight.css
 56bc56e74b3ef911cdd3caf00c3c09eb2d51160f  assets/pfight.js
 eb2215d5503ea93da4edd10ceb0e1a5ae35e7a5f  assets/pfparts.js
 81bfd29eb554564643f4a471332a54aabe7cfe40  assets/pfx.js
@@ -11796,7 +11796,7 @@ a4515e4c537462438293b18ad0d22ce8e4c816cd  includes/almanac_pages.php
 87787cfe689c016d5cd71c70ce70f2cf964e03e9  includes/animals140.php
 7c6c522b642f92eebe010d5170cd824f44d9d562  includes/arrange_view.php
 a0a095e8c8492ee8d9875ce16ced7676534ee582  includes/art_upload.php
-1d513d3cc6b83141cf3f94445d2f1914e4daa1e9  includes/bootstrap.php
+a9d94e9d439c5074f29d07a87fff5bd54cb1a42a  includes/bootstrap.php
 bbac817fc82c639f9044f000b406d1b4a6afdf6c  includes/breeding110.php
 88577080e8893717f6a3e3b1b9407cde6b4bc670  includes/calling_quests.php
 838dafc8cf1519f8076cc1d32ece62e88f007243  includes/calling_view.php
@@ -12006,10 +12006,10 @@ b123ddf1ab116835b4b1f563e02ae627f75cdd09  includes/pal_crew.php
 4dcb955a976a632f610f9426fa0158d00ce2bede  includes/pantry.php
 77747284dec8acb6a7c10ddb1185312d0e8330bb  includes/pantry_view.php
 8b64f42f166fbd6fbf1b7a51fec32695d6aeaebb  includes/pest.php
-aa0b2bc6da45d5c9c7246c47a6292c1135c32569  includes/pfboard.php
+0f72382974f27a6408646fd6bb75756a5ce8271f  includes/pfboard.php
 06888f8dd23362fb8efd453dbbde7de9a60674fb  includes/pfight.php
 4b84d031627ea9f842c3f9d26c5d281ca6b4ca5b  includes/pfight_data.php
-711f92d70899897696c8648563756f98a887acb4  includes/pfight_game.php
+1d563295c7068bbcadac0634db788bec5583977f  includes/pfight_game.php
 d396a90b45a433686d11b27c6ad7ede8272f739f  includes/pixel_art.php
 17eb9749be83f5b153e03389542df72e67e65f80  includes/place_ui.php
 a8525024ab9bee5fe463b0a36ffff42957061eb9  includes/player_jobs.php

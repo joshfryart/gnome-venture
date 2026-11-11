@@ -56,6 +56,8 @@ foreach ($rows as $c) foreach ([11, 22] as $seed) {
     while (!$s['over'] && $t++ < 40) {
         $mv = bsim_act($s, $seed === 11 ? 'single' : 'builder');
         if ($mv) $r = pfb_play($s, [$mv], $s['turn']); else $r = pfb_pass($s, $s['turn']);
+        // one chain per side per turn: nothing disconnected from the piece just placed may fire
+        foreach (['me', 'foe'] as $side) if (count(array_filter($r['ev'], fn($e) => !empty($e['root']) && $e['by'] === $side)) > 1) { echo "FAIL {$c['slug']}: two separate chains fired for $side in one turn\n"; $bad++; }
         if (isset($mv[0]) && is_string($mv[0])) $kinds[$mv[0]] = ($kinds[$mv[0]] ?? 0) + 1;
         if ($r['err']) { echo "FAIL illegal move {$c['slug']}: {$r['err']}\n"; $bad++; break; }
         $cnt = count($s['me']['hand']) + count($s['me']['draw']) + count($s['me']['discard']) + count(array_filter($s['pcs'], fn($p) => $p['by'] === 'me')) + count($s['me']['held']['pcs'] ?? []);

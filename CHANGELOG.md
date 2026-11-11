@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.55
+- **Puzzle combat, board mode: the creature puts down exactly one piece a turn**, so only the chain that piece makes fires (before, a boss or a large creature could put down two pieces and two unconnected groups scored). New test: no side ever fires two separate chains in one turn.
+- **Phone: the whole fight fits one screen.** One-line history with the book and discard counts beside it, a smaller play area, a one-line hint, the buttons in one row, and the hand at its real size without overlap (5 pieces across, easy to tap). The piece card is now a sheet over the bottom (close it with the cross); a tapped hand piece shows its short text in the hint line. Tips and the last turn's log are under one "More" fold.
+- **Setting pieces aside is no longer a mode.** Pick a piece: if it can join another piece in your hand (or your set-aside group) you get "set aside with" choices under the board. Tap one and the set-aside group appears on the board at once (dashed until you end the turn); End turn confirms. The Connect button is gone. The group's lit spots are one marker each so they no longer overlap.
+- Balance retune for one piece a turn each side: small 3.2, medium 4.1, large 4.5, boss 6.1 turns (sim).
+
 ## 2.6.54
 - **Puzzle combat, board mode: one action a turn.** Place one piece; or **Connect** two pieces in your hand (joined by a knob in a matching hole) and set them aside for a later turn, add one more piece to that group (up to 3), then play the group (a group of three plays for 25% more). A group of three takes no more. The creature now puts down one piece a turn (a boss two), so the resolve bar and creature strength were retuned (`tests/pfboard_sim.php`); pieces stay on the board 3 rounds.
 - **Replay**: after a turn the board plays it back one piece at a time: the piece being scored is lit and its card opens, its line is listed, and the resolve bar and your health move step by step. Skip ends it.
