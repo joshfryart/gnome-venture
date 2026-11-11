@@ -182,12 +182,16 @@ function pfight_icon(string $t): string
 function pfight_tile_html(array $t, bool $strip, int $i = -1): string
 {
     $fam = ['body' => 'B', 'mind' => 'M', 'craft' => 'C'];
-    $l = $fam[PF_HOLE[$t['t']] ?? ''] ?? '·'; $r = $t['r'] ? $fam[$t['r']] : '·';
-    $label = $t['n'] . ', ' . ucfirst($t['t']) . ' ' . $t['v'] . ', starts ' . ($t['hole'] ?? PF_HOLE[$t['t']] ?? '') . ', ends ' . ($t['r'] ?? 'flat');
-    $cls = 'pf-tile pf-' . $t['t'] . (!empty($t['by']) ? ' by-' . $t['by'] : '');
-    $inner = '<span class="pf-sock l" aria-hidden="true">' . $l . '</span><span class="pf-ico" aria-hidden="true">' . pfight_icon($t['t']) . '</span><span class="pf-nm">' . e($t['n']) . '</span><span class="pf-val">' . (int)$t['v'] . '</span><span class="pf-sock r" aria-hidden="true">' . $r . '</span>';
+    $hole = (string)($t['hole'] ?? PF_HOLE[$t['t']] ?? '');
+    $knob = (string)($t['r'] ?? '');
+    $label = $t['n'] . ', ' . ucfirst($t['t']) . ' ' . $t['v'] . ', starts ' . $hole . ', ends ' . ($knob !== '' ? $knob : 'flat');
+    $cls = 'pf-tile ' . ($strip ? 'pf-s ' : 'pf-h ') . 'pf-' . $t['t'] . (!empty($t['by']) ? ' by-' . $t['by'] : '');
+    // sockets: shape by family (round / keyhole / triangle), a hole is drawn hollow and a knob solid, and the family letter stays as text: never colour alone
+    $l = '<span class="pf-sock l hole f-' . ($hole ?: 'flat') . '" aria-hidden="true">' . ($fam[$hole] ?? '·') . '</span>';
+    $r = '<span class="pf-sock r knob f-' . ($knob ?: 'flat') . '" aria-hidden="true">' . ($fam[$knob] ?? '·') . '</span>';
+    $inner = $l . '<span class="pf-ico" aria-hidden="true">' . pfight_icon($t['t']) . '</span>' . ($strip ? '' : '<span class="pf-nm">' . e($t['n']) . '</span>') . '<span class="pf-val">' . (int)$t['v'] . '</span>' . $r;
     if ($strip) return '<span class="' . $cls . '" role="img" aria-label="' . e($label) . '">' . $inner . '</span>';
-    return '<button type="button" class="' . $cls . '" data-i="' . $i . '" data-hole="' . e((string)($t['hole'] ?? '')) . '" data-knob="' . e((string)($t['r'] ?? '')) . '" data-t="' . e($t['t']) . '" data-v="' . (int)$t['v'] . '" aria-label="' . e($label) . '" aria-pressed="false">' . $inner . '</button>';
+    return '<button type="button" class="' . $cls . '" data-i="' . $i . '" data-hole="' . e($hole) . '" data-knob="' . e($knob) . '" data-t="' . e($t['t']) . '" data-v="' . (int)$t['v'] . '" aria-label="' . e($label) . '" aria-pressed="false">' . $inner . '</button>';
 }
 
 /** Almanac pages for puzzle fights, added once per world by title (like ensure_almanac_new_pages_2644): one overview and one per combo, each unlocking on first use. */

@@ -58,13 +58,14 @@ N=0; while [ $N -lt 40 ]; do
   [ "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" = "1" ] && break
   T=$(grep -o 'id="pfight" data-turn="[0-9]*"' $H | grep -o '[0-9]*')
   CH=$(grep -o 'data-i="[0-9]*" data-hole="[a-z]*" data-knob="[a-z]*" data-t="[a-z]*"' $H | grep -v 'data-t="item"' | grep -o 'data-i="[0-9]*"' | grep -o '[0-9]*' | head -2 | paste -sd,)
-  post adventure.php -d do=pf_play -d turn=$T -d chain=$CH >/dev/null
+post adventure.php -d do=pf_play -d turn=$T -d chain=$CH >/dev/null
   N=$((N+1))
 done
 ck "fight ended" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
 get adventure.php >/dev/null
 ck "page after fight has no card" "$(grep -c 'id="pfight"' $H)" "0"
 ck "almanac page unlocked" "$(db "SELECT COUNT(*) FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id = ue.entry_id WHERE e.title = 'Puzzle fights'")" "1"
+ck "no errors in the game error log" "$(cat "$GAME/data/error-log.txt" 2>/dev/null | wc -c | tr -d ' ')" "0"
 ck "no PHP warnings in server log" "$(grep -cE 'PHP (Warning|Notice|Deprecated|Fatal)' $LOG)" "0"
 echo "turns played: $N"
 [ $FAILS -eq 0 ] && echo "pfight ok" || echo "$FAILS FAILED"
