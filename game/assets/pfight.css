@@ -118,10 +118,9 @@
 @media (prefers-reduced-motion: reduce) { .pf-hist, .pf-hand { scroll-behavior: auto; scroll-snap-type: none; } }
 
 /* ---- board mode ---- */
-.pfb-board { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .35rem; padding: .5rem; border: 2px solid currentColor; border-radius: .6rem; }
-.pfb-cell { position: relative; aspect-ratio: 1.45; display: grid; place-items: center; padding: 0; margin: 0; border: 0; background: none; }
-.pfb-cell.pfb-empty { border: 1px dotted currentColor; opacity: .35; border-radius: .3rem; }
-.pfb-cell.pfb-lit { border: 2px dashed #e8a317; border-radius: .4rem; background: rgba(232, 163, 23, .18); cursor: pointer; }
+.pfb-board { position: relative; width: 100%; border-radius: .6rem; background: radial-gradient(ellipse at center, rgba(255, 255, 255, .06), rgba(0, 0, 0, .18)), rgba(60, 40, 25, .35); box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .35); }   /* one open play area: no grid; pieces are placed by position */
+.pfb-cell { position: absolute; display: block; padding: 0; margin: 0; border: 0; background: none; }
+.pfb-cell.pfb-lit { border: 2px dashed #e8a317; border-radius: .5rem; background: rgba(232, 163, 23, .16); cursor: pointer; }
 .pfb-cell.pfb-lit:hover, .pfb-cell.pfb-lit:focus-visible { background: rgba(232, 163, 23, .4); outline: 3px solid Highlight; outline-offset: 1px; }
 .pfb-p { position: relative; width: 100%; height: 100%; display: block; min-width: 0; border-width: 2px; border-radius: .35rem; }
 .pfb-p .pf-ico { position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%); font-size: 1.3rem; padding: .05rem; }

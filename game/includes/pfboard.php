@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * Puzzle Combat, BOARD mode: a shared 2D jigsaw board instead of a strip. Pure PHP like pfight.php (which supplies tiles, decks, effects and RNG).
  * Rules (claude/plan-puzzle-board.md):
- *  - The board is a 5x5 grid. It starts with one or two of the creature's pieces out. Each turn you place up to 4 pieces, one at a time, each next to a piece already on the board.
+ *  - The board is one open area (an invisible 7x5 lattice for placement). It starts with one or two of the creature's pieces out. Each turn you place up to 4 pieces, one at a time, each next to a piece already on the board.
  *  - A piece fits where its edge meets the neighbour's: knob into hole of the same family, or a flat edge (fits anything). Every touching edge must fit.
  *  - Placing a piece CONNECTS it, and its chain fires, NEWEST FIRST: the piece you placed plays, then the pieces linked to it, each for its owner, until the chain ends.
  *    A joint is linked only when both edges are knob/hole (a flat side breaks the chain and any combo across it).
@@ -11,7 +11,7 @@ declare(strict_types=1);
  */
 require_once __DIR__ . '/pfight.php';
 
-const PFB_W = 5, PFB_H = 5, PFB_LIFE = 2, PFB_MAX_PLACE = 4;
+const PFB_W = 7, PFB_H = 5, PFB_LIFE = 2, PFB_MAX_PLACE = 4;
 const PFB_BAR_MULT = 2.0, PFB_FOE_MULT = 0.8;   // the resolve bar vs strip mode (a chain refires older pieces, so the board is faster); PFB_FOE_MULT scales the creature's piece values. Tuned by tests/pfboard_sim.php
 const PFB_SIDE = ['L' => [-1, 0, 'R'], 'R' => [1, 0, 'L'], 'T' => [0, -1, 'B'], 'B' => [0, 1, 'T']];   // side => [dx, dy, the neighbour's side that touches it]
 

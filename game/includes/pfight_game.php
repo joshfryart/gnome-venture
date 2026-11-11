@@ -370,7 +370,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         . '<small class="muted">' . e((string)$c['size']) . ' · lv ' . (int)$c['level'] . ' · ' . ($s['temper'] === 'gentle' ? 'gentle' : 'wary') . ' · 🃏 ' . (int)$v['foe']['hand'] . ($v['foe']['calm'] ? ' · 😌 ' . (int)$v['foe']['calm'] : '') . '</small></div>';
     $h .= '<div class="pf-center">';
     $h .= '<div class="pf-bar" role="img" aria-label="Resolve ' . (int)$v['bar']['now'] . ' of ' . (int)$v['bar']['max'] . '"><progress max="' . (float)$v['bar']['max'] . '" value="' . (float)$v['bar']['now'] . '"></progress></div>';
-    $h .= '<div class="pfb-board" id="pfb-board" role="group" aria-label="The board: pick a piece from your hand, then a lit cell"></div>';   // JS draws the grid from #pf-data
+    $h .= '<div class="pfb-board" id="pfb-board" role="group" aria-label="The board: pick a piece from your hand, then a lit spot"></div>';   // JS draws the grid from #pf-data
     if (!empty($enc['last'])) { $h .= '<ol class="pf-last" aria-live="polite" aria-label="What just happened">'; foreach ($enc['last'] as $ln) $h .= '<li>' . e($ln) . '</li>'; $h .= '</ol>'; }
     $h .= '<p class="pf-preview help" id="pf-preview" aria-live="polite">Pick a piece, then a lit cell. Up to 4 pieces a turn. Newest piece plays first.</p>';
     $h .= '</div></div>';

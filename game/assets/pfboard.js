@@ -79,14 +79,16 @@
   function render() {
     var lit = litCells(selected), b = working();
     boardEl.textContent = '';
+    boardEl.style.aspectRatio = (W * 1.45) + ' / ' + H;
+    function put(el, x, y) { el.style.left = (x * 100 / W) + '%'; el.style.top = (y * 100 / H) + '%'; el.style.width = (100 / W) + '%'; el.style.height = (100 / H) + '%'; boardEl.appendChild(el); }
     for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) {
       var key = x + ',' + y, p = b.map[key], cell;
-      if (p) { cell = document.createElement('div'); cell.className = 'pfb-cell'; cell.appendChild(p.ghost ? pieceEl(p) : pieceEl(p)); }
+      if (p) { cell = document.createElement('div'); cell.className = 'pfb-cell'; cell.appendChild(pieceEl(p)); }
       else if (lit[key]) {
         cell = document.createElement('button'); cell.type = 'button'; cell.className = 'pfb-cell pfb-lit'; cell.setAttribute('aria-label', 'Place here, column ' + (x + 1) + ' row ' + (y + 1));
         cell.dataset.x = String(x); cell.dataset.y = String(y);
-      } else { cell = document.createElement('div'); cell.className = 'pfb-cell pfb-empty'; }
-      boardEl.appendChild(cell);
+      } else continue;
+      put(cell, x, y);
     }
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
     undo.disabled = moves.length === 0; go.disabled = moves.length === 0;

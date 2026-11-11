@@ -61,7 +61,7 @@ $e = pfb_edges($T('swing', 'hurt', 4, 'mind')); if ($e['L'] !== ['hole', 'body']
 if (pfb_joint(['knob', 'mind'], ['hole', 'mind']) !== [true, true] || pfb_joint(['knob', 'mind'], ['hole', 'body']) !== [false, false] || pfb_joint(['flat', null], ['hole', 'body']) !== [true, false] || pfb_joint(['knob', 'mind'], ['knob', 'mind'])[0]) { echo "FAIL joints\n"; $bad++; }
 // an empty board accepts only the centre; later pieces must touch and fit
 $s = $fresh(); $a = $T('a', 'hurt', 4, 'mind');
-if (pfb_check($s, $a, 0, 0) !== null || pfb_check($s, $a, 2, 2) === null) { echo "FAIL empty board centre rule\n"; $bad++; }
+if (pfb_check($s, $a, 0, 0) !== null || pfb_check($s, $a, intdiv(PFB_W, 2), intdiv(PFB_H, 2)) === null) { echo "FAIL empty board centre rule\n"; $bad++; }
 $put($s, 'foe', $T('anchor', 'guard', 3, 'body'), 2, 2);
 if (pfb_check($s, $a, 4, 4) !== null) { echo "FAIL a piece must touch the board\n"; $bad++; }
 if (pfb_check($s, $a, 2, 2) !== null) { echo "FAIL a piece went on an occupied cell\n"; $bad++; }
