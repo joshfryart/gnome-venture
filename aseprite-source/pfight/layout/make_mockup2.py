@@ -65,7 +65,7 @@ def tray(x, y, n=3, gap=156):
     o = []
     for i in range(n):
         o.append(img(f'{ART}tray-demo-{i}.png', x + i * gap, y, 74, 52))
-        o.append(f'<i class="val" style="left:{x + i * gap + (PX + 13) * S}px;top:{y + (PY + 2) * S}px;width:{12 * S}px;height:{10 * S}px;line-height:{10 * S}px">{[3, 2, 1, 1][i]}</i>')
+        o.append(f'<i class="val" style="left:{x + i * gap + (PX + 5) * S}px;top:{y + (PY + 2) * S}px;width:{12 * S}px;height:{10 * S}px;line-height:{10 * S}px">{[3, 2, 1, 1][i]}</i>')
     return '\n'.join(o)
 
 

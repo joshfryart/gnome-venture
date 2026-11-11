@@ -85,26 +85,26 @@ STRIP_KNOBS = {
     'craft': ["..x......", "..xx.....", "..xxx....", "..xxxx...", "xxxxxxx..", "xxxxxxxxx",
               "xxxxxxxxx", "xxxxxxx..", "..xxxx...", "..xxx....", "..xx.....", "..x......"],
 }
-# strip top/bottom knobs: 6 rows deep (row = depth, row 0 touches the body), 12 columns, centred (x 22..33)
+# strip top/bottom knobs: 6 rows deep (row = depth, row 0 touches the body), 14 columns, centred (x 21..34)
 STRIP_KNOBS_V = {
-    'body': ["...xxxxxx...",
-             "..xxxxxxxx..",
-             ".xxxxxxxxxx.",
-             ".xxxxxxxxxx.",
-             "..xxxxxxxx..",
-             "....xxxx...."],
-    'mind': ["xxxxxxxxxxxx",
-             "..xxxxxxxx..",
-             ".....xx.....",
-             "...xxxxxx...",
-             "...xxxxxx...",
-             "....xxxx...."],
-    'craft': ["....xxxx....",
-              "xxxxxxxxxxxx",
-              ".xxxxxxxxxx.",
-              "...xxxxxx...",
-              "....xxxx....",
-              ".....xx....."],
+    'body': ["....xxxxxx....",
+             "..xxxxxxxxxx..",
+             ".xxxxxxxxxxxx.",
+             ".xxxxxxxxxxxx.",
+             "..xxxxxxxxxx..",
+             "....xxxxxx...."],
+    'mind': ["xxxxxxxxxxxxxx",
+             "...xxxxxxxx...",
+             "......xx......",
+             "...xxxxxxxx...",
+             "...xxxxxxxx...",
+             ".....xxxx....."],
+    'craft': [".....xxxx.....",
+              "xxxxxxxxxxxxxx",
+              ".xxxxxxxxxxxx.",
+              "...xxxxxxxx...",
+              ".....xxxx.....",
+              "......xx......"],
 }
 
 _sock = {}
@@ -699,6 +699,34 @@ def text(im, x, y, s, col=LAB):
     B.text(im, x, y, s, col)
 
 
+def pair(size, fam, vertical, gap, ta, oa, tb, ob, half, across=None):
+    """knob piece A (R or B knob) next to hole piece B (L or T hole), `gap` px apart, cropped around the seam"""
+    g = GEO[size]
+    W, H, KX, KY = g['W'], g['H'], g['KX'], g['KY']
+    if not vertical:
+        A = render(ta, size, {'R': ('knob', fam)}, oa)
+        Bp = render(tb, size, {'L': ('hole', fam)}, ob)
+        cv = Image.new('RGBA', (2 * W + 2 * KX + gap, H + 2 * KY), (0, 0, 0, 0))
+        cv.alpha_composite(Bp, (W + gap, 0))
+        cv.alpha_composite(A, (0, 0))
+        sx = KX + W
+        return cv.crop((sx - half, KY, sx + gap + half, KY + H))
+    A = render(ta, size, {'B': ('knob', fam)}, oa)
+    Bp = render(tb, size, {'T': ('hole', fam)}, ob)
+    cv = Image.new('RGBA', (W + 2 * KX, 2 * H + 2 * KY + gap), (0, 0, 0, 0))
+    cv.alpha_composite(Bp, (0, H + gap))
+    cv.alpha_composite(A, (0, 0))
+    sy, cx = KY + H, KX + W // 2
+    return cv.crop((cx - across, sy - half, cx + across, sy + gap + half))
+
+
+# extra digits for the sheet labels (3x5, same style as base_icons.FONT)
+B.FONT.update({'0': ["111", "101", "101", "101", "111"], '1': ["010", "110", "010", "010", "111"],
+               '2': ["110", "001", "010", "100", "111"], '5': ["111", "100", "110", "001", "110"],
+               '6': ["011", "100", "110", "101", "010"], '8': ["010", "101", "010", "101", "010"],
+               '9': ["010", "101", "011", "001", "110"]})
+
+
 def build_sheet():
     hg, sg = GEO['hand'], GEO['strip']
     hW, hH = hg['W'] + 2 * hg['KX'], hg['H'] + 2 * hg['KY']      # 132 x 92
@@ -737,49 +765,38 @@ def build_sheet():
     im.alpha_composite(bd, (8, y))
     h2 = compose(H2_CELLS, H2_EDGES, 'hand', 2, 2)
     im.alpha_composite(h2, (8 + 186 + 16, y))
+    text(im, 8 + 186 + 16 + h2.width + 8, y + 20, 'MINE AND FOE', LAB)
+    text(im, 8 + 186 + 16 + h2.width + 8, y + 28, 'INTERLOCK ON', LAB)
+    text(im, 8 + 186 + 16 + h2.width + 8, y + 36, 'ALL 4 SIDES', LAB)
     y += max(bd.height, h2.height) + 4
-    # sockets
-    text(im, 8, y, 'SOCKETS  KNOB AND HOLE   SIDE TABS  THEN TOP AND BOTTOM TABS   HAND AND STRIP')
+    # sockets: per family, knob and hole apart, then snapped (mine knob into a foe hole); side and top/bottom tabs
+    text(im, 8, y, 'SOCKETS   APART  THEN  MINE KNOB SNAPPED INTO FOE HOLE   SIDE AND TOP TABS   HAND THEN STRIP')
     y += 8
-    names = {'body': 'BODY ROUND', 'mind': 'MIND KEYHOLE', 'craft': 'CRAFT TRIANGLE'}
+    names = {'body': 'BODY  ROUND TAB', 'mind': 'MIND  KEYHOLE', 'craft': 'CRAFT  TRIANGLE'}
     colw = (Wd - 8) // 3
     for i, fam in enumerate(FAM3):
         x0 = 8 + i * colw
-        # hand side: knob (item, R) and hole (soothe, L) apart
-        k = render('item', 'hand', {'R': ('knob', fam)})
-        h = render('soothe', 'hand', {'L': ('hole', fam)})
-        KX, KY, W, H = hg['KX'], hg['KY'], hg['W'], hg['H']
-        im.alpha_composite(k.crop((KX + W - 26, KY, KX + W + KX, KY + H)), (x0, y))
-        im.alpha_composite(h.crop((0, KY, KX + 30, KY + H)), (x0 + 50, y))
-        # strip side
-        sk = render('item', 'strip', {'R': ('knob', fam)})
-        sh = render('soothe', 'strip', {'L': ('hole', fam)})
-        sKX, sKY, sW_, sH_ = sg['KX'], sg['KY'], sg['W'], sg['H']
-        im.alpha_composite(sk.crop((sKX + sW_ - 14, sKY, sKX + sW_ + sKX, sKY + sH_)), (x0 + 104, y))
-        im.alpha_composite(sh.crop((0, sKY, sKX + 18, sKY + sH_)), (x0 + 132, y))
-        # foe hole + mine knob snapped (strip)
-        fh = render('hurt', 'strip', {'L': ('hole', fam)}, 'foe')
-        im.alpha_composite(fh.crop((sKX, sKY, sKX + 18, sKY + sH_)), (x0 + 118, y + 44))
-        im.alpha_composite(sk.crop((sKX + sW_ - 14, sKY, sKX + sW_ + sKX, sKY + sH_)), (x0 + 104, y + 44))
-        text(im, x0, y + H + 2, names[fam])
-    y += hg['H'] + 10
-    for i, fam in enumerate(FAM3):
-        x0 = 8 + i * colw
-        KX, KY, W, H = hg['KX'], hg['KY'], hg['W'], hg['H']
-        k = render('charm', 'hand', {'B': ('knob', fam)})
-        h = render('heal', 'hand', {'T': ('hole', fam)})
-        im.alpha_composite(k.crop((KX + 20, KY + H - 18, KX + W - 20, KY + H + KY)), (x0, y))
-        im.alpha_composite(h.crop((KX + 20, 0, KX + W - 20, KY + 22)), (x0, y + 34))
-        sk = render('charm', 'strip', {'B': ('knob', fam)})
-        sh = render('heal', 'strip', {'T': ('hole', fam)})
-        fh = render('trick', 'strip', {'T': ('hole', fam)}, 'foe')
-        sKX, sKY, sW_, sH_ = sg['KX'], sg['KY'], sg['W'], sg['H']
-        im.alpha_composite(sk.crop((sKX + 8, sKY + sH_ - 10, sKX + sW_ - 8, sKY + sH_ + sKY)), (x0 + 64, y))
-        im.alpha_composite(sh.crop((sKX + 8, 0, sKX + sW_ - 8, sKY + 12)), (x0 + 64, y + 22))
-        # snapped: mine knob down into foe hole
-        im.alpha_composite(fh.crop((sKX + 8, sKY, sKX + sW_ - 8, sKY + 12)), (x0 + 64, y + 50))
-        im.alpha_composite(sk.crop((sKX + 8, sKY + sH_ - 10, sKX + sW_ - 8, sKY + sH_ + sKY)), (x0 + 64, y + 40))
-    y += 70
+        x = x0
+        a = pair('hand', fam, False, 6, 'item', 'me', 'soothe', 'me', 28)
+        im.alpha_composite(a, (x, y)); x += a.width + 4
+        a = pair('hand', fam, False, 0, 'item', 'me', 'hurt', 'foe', 28)
+        im.alpha_composite(a, (x, y)); x += a.width + 4
+        a = pair('hand', fam, True, 6, 'charm', 'me', 'heal', 'me', 22, 16)
+        im.alpha_composite(a, (x, y + 9))
+        x = x0
+        yy = y + 72
+        a = pair('hand', fam, True, 0, 'charm', 'me', 'trick', 'foe', 20, 16)
+        im.alpha_composite(a, (x, yy)); x += a.width + 6
+        a = pair('strip', fam, False, 4, 'item', 'me', 'soothe', 'me', 16)
+        im.alpha_composite(a, (x, yy)); x += a.width + 4
+        a = pair('strip', fam, False, 0, 'item', 'me', 'hurt', 'foe', 16)
+        im.alpha_composite(a, (x, yy)); x += a.width + 4
+        a = pair('strip', fam, True, 4, 'charm', 'me', 'heal', 'me', 11, 14)
+        im.alpha_composite(a, (x, yy)); x += a.width + 4
+        a = pair('strip', fam, True, 0, 'charm', 'me', 'trick', 'foe', 11, 14)
+        im.alpha_composite(a, (x, yy + 4))
+        text(im, x0, yy + 46, names[fam])
+    y += 72 + 54
     return im.crop((0, 0, Wd, y)).convert('RGB')
 
 
