@@ -380,7 +380,7 @@ function pfight_html(array $u, array $exp, array &$enc, array $c): string
     if ($v['redraws'] > 0) $h .= '<small class="muted">🍀 ' . (int)$v['redraws'] . ' redraw' . ($v['redraws'] > 1 ? 's' : '') . '</small> <button type="button" class="btn" id="pf-redraw" hidden>Redraw a piece</button>';
     $h .= '</div>';
     $h .= '<script type="application/json" id="pf-data">' . json_encode(['combos' => $v['combos'], 'hole' => PF_HOLE], JSON_HEX_TAG | JSON_HEX_AMP) . '</script>';
-    return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfight.js?v=' . APP_VERSION)) . '" defer></script>';
+    return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfight.js?v=' . APP_VERSION)) . '" data-rerun defer></script>';
 }
 
 /**
@@ -430,9 +430,9 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '</div>';
     if (!empty($enc['last'])) { $h .= '<details class="pfc-log"><summary>What just happened</summary><ol class="pf-last" aria-live="polite">'; foreach ($enc['last'] as $ln) $h .= '<li>' . e($ln) . '</li>'; $h .= '</ol></details>'; }
     // the board and the hand's edges for the script (public information: the board is out in the open)
-    $data = ['mods' => array_map(fn($m) => [$m[1], $m[0]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
+    $data = ['mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
     $h .= '<script type="application/json" id="pf-data">' . json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP) . '</script>';
-    return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfx.js?v=' . APP_VERSION)) . '" defer></script><script src="' . e(url('assets/pfparts.js?v=' . APP_VERSION)) . '" defer></script><script src="' . e(url('assets/pfboard.js?v=' . APP_VERSION)) . '" defer></script>';
+    return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfx.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfparts.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfboard.js?v=' . APP_VERSION)) . '" data-rerun defer></script>';
 }
 
 /** A hand piece in board mode: a button with its four edges drawn as marks. */

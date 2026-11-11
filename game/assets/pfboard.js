@@ -41,7 +41,7 @@
     var ptr = {}, last = null;   // active pointers by id; the last pinch distance / midpoint or the last single position
     function rel(e) { var r = boardEl.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
     boardEl.addEventListener('wheel', function (e) { e.preventDefault(); var p = rel(e); zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, p.x, p.y); }, { passive: false });
-    boardEl.addEventListener('pointerdown', function (e) { if (e.target.closest && e.target.closest('.pfb-zoom')) return; ptr[e.pointerId] = rel(e); last = null; moved = false; });
+    boardEl.addEventListener('pointerdown', function (e) { moved = false; if (e.target.closest && e.target.closest('.pfb-zoom')) return; ptr[e.pointerId] = rel(e); last = null; });
     boardEl.addEventListener('pointermove', function (e) {
       if (!ptr[e.pointerId]) return;
       var now = rel(e), ids = Object.keys(ptr);
@@ -57,7 +57,7 @@
     });
     function up(e) { delete ptr[e.pointerId]; last = null; }
     boardEl.addEventListener('pointerup', up); boardEl.addEventListener('pointercancel', up); boardEl.addEventListener('pointerleave', up);
-    boardEl.addEventListener('click', function (e) { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);   // a pan or pinch is not a tap on a spot
+    boardEl.addEventListener('click', function (e) { if (moved && !(e.target.closest && e.target.closest('.pfb-zoom'))) { e.stopPropagation(); e.preventDefault(); } moved = false; }, true);   // a pan or pinch is not a tap on a spot
     boardEl.addEventListener('dblclick', function (e) { if (!e.target.closest || !e.target.closest('.pfb-lit')) { vz = 1; vx = 0; vy = 0; applyView(); } });
   })();
   function startGlow() {   // 4 frames at about 8 fps for a few seconds, then the glow and stamps go (a still frame if the player prefers less motion)
@@ -107,8 +107,10 @@
     return false;
   }
 
+  function modRar(m) { return m && data.mods && data.mods[m] ? data.mods[m][2] : null; }
   function modBadge(m) {   // the piece's upgrade as a small glyph (until the upgrade marks are drawn)
     var d = m && data.mods && data.mods[m]; if (!d) return null;
+    if (window.PFParts && window.PFParts.marks && window.PFParts.marks['mod-' + m]) return null;   // the art mark is on the piece
     var el = document.createElement('span'); el.className = 'pfb-mod'; el.setAttribute('aria-hidden', 'true'); el.textContent = d[0]; el.title = 'Upgrade: ' + d[1]; return el;
   }
   function edgeSpan(edge, side) {
@@ -166,7 +168,7 @@
         cell = document.createElement('div'); cell.className = 'pfb-cell' + (p.ghost ? ' pfb-planned' : '');
         if (p.by === 'foe' && p['new'] && !dropDone && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) { cell.classList.add('pfb-drop'); cell.style.animationDelay = (dropN++ * 0.45) + 's'; }   // the creature's pieces land one after another
         if (art) {
-          var cv = P.piece({ size: 'strip', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, tag: p.tag, edges: p.e, old: p.age >= 1, num: p.v, tint: data.tint });
+          var cv = P.piece({ size: 'strip', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: p.age >= 1, num: p.v, tint: data.tint });
           cv.className = 'pfb-cv'; cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', (p.by === 'foe' ? 'Creature piece: ' : 'Your piece: ') + p.n + ', ' + p.t + ' ' + p.v + (p.age >= 1 ? ', expires this round' : ''));
           cell.appendChild(cv);
         } else cell.appendChild(pieceEl(p));
@@ -222,7 +224,7 @@
     if (vk !== viewKey) { viewKey = vk; vz = 1; vx = 0; vy = 0; }   // the pieces moved the view: back to the whole area
     boardEl.appendChild(zoomControls());
     applyView();
-    tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); var hb = modBadge(data.hand[i].m); if (hb) t.appendChild(hb); t.classList.add('pf-art2'); } });
+    tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, m: data.hand[i].m, rar: modRar(data.hand[i].m), edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); var hb = modBadge(data.hand[i].m); if (hb) t.appendChild(hb); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
     fan(); planAsk();
     undo.disabled = moves.length === 0; go.disabled = moves.length === 0;
@@ -317,7 +319,9 @@
     rbtn.addEventListener('click', function () { redrawMode = !redrawMode; moves = []; selected = null; rbtn.setAttribute('aria-pressed', redrawMode ? 'true' : 'false'); rbtn.classList.toggle('pf-on', redrawMode); render(); });
   }
   window.addEventListener('pageshow', function (e) { if (e.persisted) location.reload(); });
+  if (window.__pfbOff) window.__pfbOff();   // a swapped-in copy of this script: let go of the old one's listeners and timer
   document.addEventListener('pfparts-ready', render);
+  window.__pfbOff = function () { document.removeEventListener('pfparts-ready', render); window.removeEventListener('resize', fan); clearInterval(glowTimer); };
   window.pfbLegal = legal;   // for the parity test
   render();
 })();

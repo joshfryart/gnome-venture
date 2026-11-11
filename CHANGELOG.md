@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.54
+- **Puzzle combat: the board and piece art did not appear after an in-place page update** (a fight that starts, or a turn you end, swaps the page without reloading, and the fight's scripts did not run: blank board, plain hand). `site.js` now re-runs scripts marked `data-rerun` after an in-place swap; the puzzle fight's scripts are marked. Test: `pfmap` ends a turn in a real browser and checks the board and hand art are back (it fails without the fix).
+- **Puzzle combat**: upgrade marks (hexagon), rarity gems with 1-3 pips and tag marks are drawn on pieces from `assets/img/pfight/parts/marks/` (the glyph badge stays when a mark file is missing). The zoom buttons no longer lose their first tap after you pan the board.
+- Tests: `pfmap` clicks hand pieces on their visible edge (the hand fans out), uses creatures up to level 12.
+
 ## 2.6.53
 - **Puzzle combat (hidden until switched on)**: road, lair and delve fights can be played with jigsaw pieces instead of the d20 menu. Admin > Settings: **Puzzle combat** = Off / Admins only / Everyone, and **mode** = Strip (chain) or Board (a new fight uses the mode; fights under way keep theirs). Treks still use the old fight.
   - Strip: hand of pieces, build a chain of 1-4, the creature answers. Board: one open play area; place up to 4 pieces a turn next to pieces already out (knob into a hole of the same family, or a flat edge); a placed piece fires its chain newest first through linked joints; pieces leave after 2 rounds. Live preview of what your planned pieces would do. Pinch, wheel and buttons zoom the board.

@@ -6,6 +6,7 @@
   var data = {}; try { data = JSON.parse(document.getElementById('pf-data').textContent); } catch (e) { return; }
   if (!root || !data.parts) return;
   var base = data.parts;
+  if (window.PFParts && window.PFParts.ok) { setTimeout(function () { document.dispatchEvent(new Event('pfparts-ready')); }, 0); return; }   // already loaded (the page was swapped in place)
   var P = window.PFParts = { ok: false, atlas: null, rim: null, imgs: {}, sheets: {}, cache: {} };
   var ROLE = { INK: 1, RIM_ME: 2, STITCH_ME: 3, RIM_FOE: 4, BAND_FOE: 5, STITCH_FOE: 6, THORN_TIP: 7, THORN_BODY: 8, PLATE: 9, PLATE_SHADE: 10 };
   var FONT = { '0': '111101101101111', '1': '010110010010111', '2': '111001111100111', '3': '111001111001111', '4': '101101111001001', '5': '111100111001111', '6': '111100111101111', '7': '111001001001001', '8': '111101111101111', '9': '111101111001111' };
@@ -21,6 +22,8 @@
   function getJson(file) { return fetch(base + file).then(function (r) { if (!r.ok) throw new Error(file); return r.json(); }); }
 
   var TAGICON = { quick: 'jab', heavy: 'smash', pierce: 'pierce', poison: 'sting', trip: 'trip', bash: 'bash', hold: 'brace', evade: 'roll', thorns: 'thornhide', mend: 'mending', hum: 'hum', lull: 'lull', bond: 'bond', pluck: 'pluck' };
+  P.marks = {};   // 'tag-pierce', 'mod-sticky', 'rarity-1' -> image (parts/marks/), when the file exists
+  var MARKAT = { strip: { tag: [13, 32], mod: [49, 32], rarity: [51, 7] }, hand: { tag: [24, 64], mod: [96, 64], rarity: [98, 18] } };
   P.tagIcon = {};   // 'tag|size' -> image, when the file exists (a tag without one keeps its type icon)
   function loadTagIcons() {
     var jobs = [];
@@ -30,6 +33,12 @@
       });
     });
     return Promise.all(jobs);
+  }
+  function loadMarks() {
+    var names = ['rarity-0', 'rarity-1', 'rarity-2'];
+    Object.keys(TAGICON).forEach(function (t) { names.push('tag-' + t); });
+    Object.keys(data.mods || {}).forEach(function (m) { names.push('mod-' + m); });
+    return Promise.all(names.map(function (n) { return new Promise(function (ok) { var i = new Image(); i.onload = function () { P.marks[n] = i; ok(); }; i.onerror = ok; i.src = base + 'marks/' + n + '.png'; }); }));
   }
   P.load = function () {
     var A, R;
@@ -41,7 +50,7 @@
       Object.keys(A.icons).forEach(function (k) { files.push(['ico-' + k, A.icons[k].file]); });
       ['joint-h.png', 'joint-v.png', 'chain-glow-h.png', 'chain-glow-v.png', 'combo-stamp-small.png', 'combo-stamp-big.png'].forEach(function (f) { files.push([f, f]); });
       return Promise.all(files.map(function (f) { return loadImg(f[1]).then(function (img) { P.imgs[f[0]] = img; P.sheets[f[0]] = pixels(img); }); }));
-    }).then(function () { return data.art ? loadTagIcons() : null; }).then(function () { P.ok = true; });
+    }).then(function () { return data.art ? loadTagIcons() : null; }).then(loadMarks).then(function () { P.ok = true; });
   };
 
   function hsl(h, s, l) {
@@ -60,7 +69,7 @@
 
   /* o = {size:'strip'|'hand', owner:'me'|'foe', type, edges:{L:[kind,fam],..}, old, num}. Returns a new canvas (the composed piece). */
   P.piece = function (o) {
-    var key = [o.size, o.owner, o.type, o.tag || '', o.old ? 1 : 0, o.num, o.owner === 'foe' && o.tint != null ? o.tint : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|');
+    var key = [o.size, o.owner, o.type, o.tag || '', o.m || '', o.old ? 1 : 0, o.num, o.owner === 'foe' && o.tint != null ? o.tint : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|');
     var hit = P.cache[key];
     if (!hit) hit = P.cache[key] = build(o);
     var c = document.createElement('canvas'); c.width = hit.width; c.height = hit.height; c.getContext('2d').drawImage(hit, 0, 0);
@@ -98,6 +107,9 @@
     if (ti) cx.drawImage(ti, sz.icon.at[0], sz.icon.at[1], im.cell[0], im.cell[1]);
     else cx.drawImage(ic, ii * im.cell[0], 0, im.cell[0], im.cell[1], sz.icon.at[0], sz.icon.at[1], im.cell[0], im.cell[1]);
     number(cx, sz.plate, String(o.num), o.size === 'hand' ? 2 : 1);
+    var at = MARKAT[o.size], mk = function (name, a) { var im = P.marks[name]; if (im) cx.drawImage(im, a[0], a[1]); };
+    if (o.tag) mk('tag-' + o.tag, at.tag);
+    if (o.m) { mk('mod-' + o.m, at.mod); if (o.rar !== undefined && o.rar !== null) mk('rarity-' + o.rar, at.rarity); }   // the upgrade's hexagon and its rarity gem with 1-3 pips
     return cv;
   }
 

@@ -36,7 +36,7 @@ db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_open','1')" >/d
 for MODE in board chain; do
   db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_mode','$MODE')" >/dev/null
   for N in 1 2 3; do
-    R=$(php -d display_errors=1 "$HERE/pfmap.php" "$GAME" $RANDOM 2>&1 | tail -1); echo "== $MODE #$N: $R"
+    R=$(php -d display_errors=1 "$HERE/pfmap.php" "$GAME" $RANDOM 12 2>&1 | tail -1); echo "== $MODE #$N: $R"
     case "$R" in route*) ;; *) echo "FAIL could not set up a fight: $R"; FAILS=$((FAILS+1)); continue;; esac
     if [ -n "$SHOT" ]; then node "$HERE/pfmap.js" "$BASE" "$SHOT" "$MODE-$N" || { echo "FAIL map check ($MODE #$N)"; FAILS=$((FAILS+1)); }
     else get adventure.php >/dev/null; grep -q 'advgrid[^"]*pfover' $H && echo "ok   fight over map" || { echo "FAIL fight not over the map"; FAILS=$((FAILS+1)); }; fi

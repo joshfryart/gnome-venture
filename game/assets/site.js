@@ -795,6 +795,13 @@ gvAdvFold();
     if (a && b) a.innerHTML = b.innerHTML;
     else if (a && !b) a.parentNode.removeChild(a);
   }
+  // scripts that arrive in swapped-in content do not run by themselves: the ones marked data-rerun (the puzzle fight's) are replaced by fresh copies, in order
+  function rerunScripts(root) {
+    if (!root) return;
+    Array.prototype.forEach.call(root.querySelectorAll('script[data-rerun][src]'), function (old) {
+      var n = document.createElement('script'); n.src = old.src; n.async = false; old.parentNode.replaceChild(n, old);
+    });
+  }
   function toast(nodes) {
     if (!nodes.length) return;
     gvShowToasts(nodes.map(function (n) { return n.cloneNode(true); }));
@@ -826,6 +833,7 @@ gvAdvFold();
         var openKeys = Array.prototype.map.call(document.querySelectorAll('main details[open]'), foldKey);
         var wasFight = !!document.querySelector('.advgrid.fighting');
         swap(doc, 'main');
+        rerunScripts(document.querySelector('main'));
         document.querySelectorAll('main details').forEach(function (d) { if (openKeys.indexOf(foldKey(d)) >= 0) d.open = true; });
         swap(doc, '.statusstrip');
         swap(doc, '.userbar');
