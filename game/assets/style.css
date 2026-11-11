@@ -7811,3 +7811,19 @@ button.hpick-it:focus-visible { outline: 3px solid var(--focus); outline-offset:
   a.hs-slot, .hpick-it, a.hs-news, .hs-nlist a, .hroom .hd-hit { transition: background-color .12s, box-shadow .12s, fill .12s; }
 }
 /* ===== end slim home ===== */
+
+/* ===== Contest hall pop-up: compact score cards ===== */
+.chhead { margin: 6px 0 8px; }
+.chtroph { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; margin: 0 0 6px; }
+.chall { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; text-align: left; margin: 0 0 8px; }
+.chg { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px 8px; min-width: 0; }
+.chg h5 { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; margin: 0 0 4px; font-size: .85rem; line-height: 1.25; }
+.chg .chgn { min-width: 0; overflow-wrap: anywhere; }
+.chg .chbest { flex: none; font-size: .72rem; font-weight: 600; color: var(--accent-ink); background: var(--accent-soft); border: 1px solid var(--accent-line); border-radius: 999px; padding: 0 6px; }
+.chg ol { list-style: none; margin: 0; padding: 0; }
+.chg li { display: flex; align-items: baseline; gap: 5px; padding: 2px 0; font-size: .82rem; border-top: 1px dotted var(--line); }
+.chg li:first-child { border-top: 0; }
+.chg li i { font-style: normal; flex: none; }
+.chg li span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chg li b { flex: none; font-variant-numeric: tabular-nums; }
+@media (max-width: 340px) { .chall { grid-template-columns: 1fr; } }
