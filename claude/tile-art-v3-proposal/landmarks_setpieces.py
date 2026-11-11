@@ -29,6 +29,6 @@ def _make(slug, land):
     return (w, hh, draw)
 
 try:
-    LM = {slug: _make(slug, v["land"]) for slug, v in json.load(open(_CAT, encoding="utf-8")).items()}
+    LM = {slug: _make(slug, v["land"]) for slug, v in json.load(open(_CAT, encoding="utf-8")).items() if not slug.startswith("end-")}   # end-* are drawn in landmarks_endpieces.py
 except OSError:
     LM = {}
