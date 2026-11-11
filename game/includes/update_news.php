@@ -768,6 +768,8 @@ function post_update_news(string $from): void
         . "[*][b]Sleeping[/b]: festivals show game days left, long repairs pay after you sleep, tending and delivery jobs follow sleeps.\n"
         . "[*][b]Trail[/b]: shut gates show a lock and what they need.\n"
         . "[*][b]Gather tab[/b]: pick which satchel to carry. [b]Yard[/b]: cover squares update as you move beds.[/list]"],
+    '2.6.52' => ['🐾 Update 2.6.52: redrawn pals',
+        "[list][*][b]Pals[/b]: the lizard, the gorilla, the bill-brolly bird, the coffee pal and the flower-bowl pal are redrawn so they read clearly on their perch.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
