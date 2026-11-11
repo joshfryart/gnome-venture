@@ -609,6 +609,6 @@ function pf_view(array $s): array
         'redraws' => $s['me']['redraws'],
         'bar' => ['now' => round($s['bar']['now'], 1), 'max' => $s['bar']['max']],
         'foe' => ['name' => $s['foe']['name'], 'hand' => count($s['foe']['hand']), 'intent' => $s['foe']['intent'], 'block' => $s['foe']['block'], 'calm' => $s['foe']['agg']],
-        'strip' => $strip, 'open' => $open, 'open_t' => $ot['t'] ?? null, 'open_v' => $ot['v'] ?? 0, 'open_by' => $oby, 'can_run' => $s['run_ok'], 'combos' => PF_COMBOS,
+        'piles' => ['draw' => count($s['me']['draw']), 'discard' => count($s['me']['discard'])], 'strip' => $strip, 'open' => $open, 'open_t' => $ot['t'] ?? null, 'open_v' => $ot['v'] ?? 0, 'open_by' => $oby, 'can_run' => $s['run_ok'], 'combos' => PF_COMBOS,
     ];
 }

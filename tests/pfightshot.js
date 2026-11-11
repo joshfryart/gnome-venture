@@ -19,6 +19,9 @@ const { chromium } = require('playwright');
   }
   await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' });
   await p.screenshot({ path: out + '/pfight-1-start.png', fullPage: true });
+  const wide = await b.newContext({ viewport: { width: 960, height: 700 }, deviceScaleFactor: 1 }); const wp = await wide.newPage();
+  await wp.goto(base + '/login.php'); await wp.fill('input[name=username]', 'sprout'); await wp.fill('input[name=password]', 'TestPass123!'); await Promise.all([wp.waitForNavigation(), wp.press('input[name=password]', 'Enter')]);
+  await wp.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await wp.screenshot({ path: out + '/pfight-1-wide.png', fullPage: true }); await wide.close();
   const tiles = p.locator('#pf-hand .pf-tile'); const n = await tiles.count();
   await tiles.nth(0).click(); await tiles.nth(2).click();
   const prev = await p.locator('#pf-preview').innerText(); const badges = await p.locator('.pf-ord').count(); const dis = await p.locator('#pf-go').isDisabled();

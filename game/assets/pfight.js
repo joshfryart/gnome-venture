@@ -43,10 +43,22 @@
     prev.textContent = (parts.join(' · ') || 'Setup only') + (notes.length ? ' · ✨ ' + notes.join(', ') : '') + (chain.some(function (i) { return tiles[i].dataset.tag === 'bash'; }) ? ' · Bash adds your guard' : '') + (chain.filter(function (i) { return tiles[i].dataset.mod !== 'swift'; }).length === 4 ? ' · a full chain gives the foe an extra move' : '');
   }
 
+  var insp = document.getElementById('pf-inspect');
+  function showInspect(b) {   // the tapped piece at hand size with its name and what it does
+    if (!insp) return;
+    var body = document.getElementById('pfi-body'), ico = document.getElementById('pfi-ico'), edge = document.getElementById('pfi-edge');
+    var art = !!b.dataset.hbody;
+    [body, ico, edge].forEach(function (im) { im.hidden = !art; });
+    if (art) { body.src = b.dataset.hbody; ico.src = b.dataset.hico; edge.src = b.dataset.hedge; }
+    document.getElementById('pfi-name').textContent = b.dataset.name || '';
+    document.getElementById('pfi-desc').textContent = b.dataset.desc || '';
+    insp.hidden = false;
+  }
   hand.addEventListener('click', function (ev) {
     var b = ev.target.closest('.pf-tile'); if (!b) return;
     var i = parseInt(b.dataset.i, 10);
     if (redrawMode) { if (submitted) return; submitted = true; tiles.forEach(function (t) { t.disabled = true; }); document.getElementById('pf-card').value = String(i); document.getElementById('pf-rform').submit(); return; }
+    showInspect(b);
     var k = chain.indexOf(i);
     var lastHeavy = chain.length && tiles[chain[chain.length - 1]].dataset.tag === 'heavy' && tiles[chain[chain.length - 1]].dataset.mod !== 'steady';   // a heavy tile has to be last
     if (k >= 0) chain.splice(k, 1); else if (chain.length < 4 && !lastHeavy) chain.push(i);

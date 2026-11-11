@@ -92,7 +92,7 @@ post puzzlebox.php -d do=save -d tile[]=swing -d tile[]=dodge -d tile[]=rest -d 
 ck "tiles you do not own are ignored" "$(db "SELECT tiles FROM user_pbox LIMIT 1")" '["swing","dodge","rest","charm","hide","jab"]'
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
 get adventure.php >/dev/null
-NAMES=$(grep -o 'class="pf-nm">[A-Za-z ]*' $H | sed 's/class="pf-nm">//' | sed 's/ *$//' | sort -u | paste -sd,)
+NAMES=$(grep -o 'data-name="[A-Za-z ]*"' $H | sed 's/data-name="//; s/"$//' | sort -u | paste -sd,)
 BAD=$(echo "$NAMES" | tr ',' '\n' | grep -vxE 'Swing|Dodge|Rest|Charm|Hide|Jab|Breather' | wc -l)
 ck "the fight uses only the packed box" "$BAD" "0"
 # puzzle upgrades (offers per real day, the bank, picking, removing)
