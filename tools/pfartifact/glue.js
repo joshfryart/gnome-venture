@@ -47,7 +47,7 @@
     var deck = PFE.playerDeck(PLAYER.stats, { box: PLAYER.box });
     deck.forEach(function (t) { if (PLAYER.mods[t.k]) t.m = PLAYER.mods[t.k]; });
     var state = PFE.newFight({ hp: PLAYER.hp, max_hp: PLAYER.hp, stats: PLAYER.stats, deck: deck, luck: PLAYER.stats.luck }, cr, seed);
-    fight = { state: state, creature: cr, enc: { hist: [], replay: [], snaps: {}, snapn: 0, snaplast: null, histnew: 0 } };
+    fight = { nonce: Math.random().toString(36).slice(2, 10), state: state, creature: cr, enc: { hist: [], replay: [], snaps: {}, snapn: 0, snaplast: null, histnew: 0 } };
     result = null; render();
   }
 
@@ -68,11 +68,11 @@
     var s = fight.state; if (s.over && kind !== 'finish') return;
     if (kind === 'play') {
       var mv = parseMoves(raw); if (!mv) return;
-      fight.enc.replay0 = { bar: Math.round(s.bar.now * 10) / 10, hp: s.me.hp };
+      fight.enc.replay0 = { bar: Math.round(s.bar.now * 10) / 10, hp: s.me.hp, g: s.me.block };
       var r = PFE.play(s, mv, s.turn); if (r.err) { flash(r.err); return; }
       afterPlay(r); render();
     } else if (kind === 'pass') {
-      fight.enc.replay0 = { bar: Math.round(s.bar.now * 10) / 10, hp: s.me.hp };
+      fight.enc.replay0 = { bar: Math.round(s.bar.now * 10) / 10, hp: s.me.hp, g: s.me.block };
       var r2 = PFE.pass(s, s.turn); if (r2.err) { flash(r2.err); return; }
       afterPlay(r2); render();
     } else if (kind === 'finish') { result = { kind: s.over, turns: s.turn }; render(); }
@@ -93,6 +93,7 @@
     return '<button type="button" class="pf-tile pf-h pf-bp pf-' + esc(t.t) + '" data-i="' + i + '" data-t="' + esc(t.t) + '" data-tag="' + esc(t.tag || '') + '" data-mod="' + esc(t.m || '') + '" data-v="' + t.v + '" data-name="' + esc(t.n) + '" data-desc="' + esc(desc) + '" aria-label="' + esc(label) + '" aria-pressed="false" draggable="true">'
       + ed + '<span class="pf-ico" aria-hidden="true">' + ICON[t.t] + '</span><span class="pf-nm">' + esc(t.n) + '</span><span class="pf-val">' + t.v + '</span></button>';
   }
+  function guardHtml(g) { return '<span class="pf-guard' + (g > 0 ? '' : ' pf-guard-0') + '" role="img" aria-label="Guard ' + g + ': blocks the creature\u2019s hits until your next turn" title="Guard: blocks the creature\u2019s hits until your next turn"><span class="pfx-fill gfill" data-w="' + Math.min(100, Math.round(g * 100 / 16)) + '"></span><b>' + g + '</b></span>'; }
   function barHtml(v) {
     var b = v.bar, max = Math.max(0.1, b.max), now = b.now, hu = b.hurt || 0, ch = b.charm || 0, tot = Math.max(0.001, hu + ch), f = Math.min(1, now / max);
     var hw = hu + ch > 0 ? f * hu / tot : f, cw = hu + ch > 0 ? f * ch / tot : 0;
@@ -117,14 +118,14 @@
     }
     if (!hist.length) hh = '<li class="pf-chip empty">Pieces are on the board. Place one next to them.</li>';
     var mini = function (cls, name, n) { return '<span class="pfc-pile ' + cls + '" role="img" aria-label="' + name + ': ' + n + ' pieces"><img src="' + ART[cls === 'deck' ? 'deck-book.png' : 'discard-bin.png'] + '" alt=""><b>' + n + '</b></span>'; };
-    var top = '<div class="pfc-top"><div class="pfc-me"><span class="pfc-av pfc-g25"><img src="' + ART['gnome-side.png'] + '" alt="Your gnome"></span><span class="pf-hp" role="img" aria-label="Your health ' + v.hp + ' of ' + v.max + (v.block ? ', guard ' + v.block : '') + '">❤️ <progress max="' + v.max + '" value="' + v.hp + '"></progress> ' + v.hp + (v.block ? ' · 🛡️ ' + v.block : '') + '</span></div>'
+    var top = '<div class="pfc-top"><div class="pfc-me"><span class="pfc-meav"><span class="pfc-av pfc-g25"><img src="' + ART['gnome-side.png'] + '" alt="Your gnome"></span>' + guardHtml(v.block) + '</span><span class="pf-hp" role="img" aria-label="Your health ' + v.hp + ' of ' + v.max + '' + '">❤️ <progress max="' + v.max + '" value="' + v.hp + '"></progress> ' + v.hp + '' + '</span></div>'
       + barHtml(v)
-      + '<div class="pfc-foe"><span class="pfc-fname"><b>' + esc(cr.name) + '</b><small>lv ' + cr.level + ' · ' + (s.temper === 'gentle' ? 'gentle' : 'wary') + ' · 🃏 ' + v.foe.hand + (v.foe.calm ? ' · 😌 ' + v.foe.calm : '') + '</small></span><span class="pfc-av"><img src="' + ART['mini-' + cr.slug + '.png'] + '" alt="' + esc(cr.name) + '"><span class="pf-intent-bubble" title="Likely next move" aria-label="Likely next move: ' + esc(v.foe.intent) + '">' + sm(v.foe.intent) + '</span></span></div></div>';
+      + '<div class="pfc-foe"><span class="pfc-fname"><b>' + esc(cr.name) + '</b><small>lv ' + cr.level + ' · ' + (s.temper === 'gentle' ? 'gentle' : 'wary') + ' · 🃏 ' + v.foe.hand + (v.foe.calm ? ' · 😌 ' + v.foe.calm : '') + '</small></span><span class="pfc-av"><img src="' + ART['mini-' + cr.slug + '.png'] + '" alt="' + esc(cr.name) + '"><span class="pf-intent-bubble" title="Likely next move" aria-label="Likely next move: ' + esc(v.foe.intent) + '">' + (v.foe.intent ? sm(v.foe.intent) : '') + '</span></span></div></div>';
     h += top + '<div class="pfc-histrow"><ol class="pf-hist" aria-label="What has been played" aria-live="polite">' + hh + '</ol><button type="button" class="btn" id="pf-skip" hidden>Skip</button><span class="pfc-piles">' + mini('deck', 'Puzzle book', v.piles.draw) + mini('disc', 'Discard', v.piles.discard) + '</span></div>';
     h += '<div class="pf-rewind" id="pf-rewind" role="status" hidden><span id="pf-rw-t"></span><button type="button" class="btn" id="pf-rw-back">Back to now</button></div>';
     h += '<div class="pfb-board" id="pfb-board" role="group" aria-label="The play area: pick a piece from your hand, then a lit spot. Scroll, pinch or use the zoom buttons to zoom"></div>';
     h += '<div class="pf-opts" id="pf-opts" hidden></div><p class="pf-preview help" id="pf-preview" aria-live="polite">Pick a piece, then a lit spot.</p><ol class="pf-plan" id="pf-plan" aria-live="polite" hidden></ol>';
-    h += '<form class="pf-form" id="pf-form"><input type="hidden" name="do" value="pfb_play"><input type="hidden" name="nonce" value="demo"><input type="hidden" name="turn" value="' + v.turn + '"><input type="hidden" name="moves" id="pf-moves" value=""></form>';
+    h += '<form class="pf-form" id="pf-form"><input type="hidden" name="do" value="pfb_play"><input type="hidden" name="nonce" value="' + fight.nonce + '"><input type="hidden" name="turn" value="' + v.turn + '"><input type="hidden" name="moves" id="pf-moves" value=""></form>';
     var won = !!enc.won && (s.over === 'seen_off' || s.over === 'charmed'), lost = s.over === 'defeat' || s.over === 'stall';
     if (won) h += '<div class="pf-won" role="status"><b>' + (s.over === 'charmed' ? 'The ' + esc(cr.name) + ' is charmed!' : 'The ' + esc(cr.name) + ' has had enough.') + '</b> <form class="inline pf-endform"><button class="btn primary" id="pf-end">End fight</button></form></div><button type="button" class="btn" id="pf-undo" hidden></button><button class="btn" id="pf-go" form="pf-form" hidden></button>';
     else if (lost) h += '<div class="pf-won pf-lost" role="status"><b>' + (s.over === 'defeat' ? 'The ' + esc(cr.name) + ' knocks you flat.' : 'The ' + esc(cr.name) + ' loses interest and wanders off.') + '</b> <button type="button" class="btn primary" id="pf-again">Try again</button></div><button type="button" class="btn" id="pf-undo" hidden></button><button class="btn" id="pf-go" form="pf-form" hidden></button>';
@@ -135,7 +136,7 @@
     h += '<div class="pf-extra"><form class="inline" id="pf-pform" hidden><button class="btn" id="pf-pass">Pass (nothing fits)</button></form></div>';
     var seen = {}; v.hand.forEach(function (t) { if (C.tags[t.tag]) seen[t.tag] = 1; });
     if (Object.keys(seen).length) { h += '<details class="pfc-more"><summary>More: piece tips</summary><ul class="pf-tags help">'; Object.keys(seen).forEach(function (x) { h += '<li>' + C.tags[x][0] + ' ' + esc(C.tags[x][1]) + '</li>'; }); h += '</ul></details>'; }
-    var data = { foe: cr.name, won: won ? s.over : null, life: C.life, tags: C.tags, held: v.held || null, gone: v.gone || [], snaps: usedSn, bar: v.bar.now, barmax: v.bar.max, hp: v.hp, replay: enc.replay || [], replay0: enc.replay0 || null,
+    var data = { foe: cr.name, won: won ? s.over : null, life: C.life, tags: C.tags, held: v.held || null, gone: v.gone || [], snaps: usedSn, bar: v.bar.now, barmax: v.bar.max, hp: v.hp, guard: v.block, replay: enc.replay || [], replay0: enc.replay0 || null,
       mods: Object.keys(C.mods).reduce(function (o, k) { o[k] = [C.mods[k][1], C.mods[k][0], C.mods[k][3], C.mods[k][2]]; return o; }, {}), art: 'art/', fx: v.fx || [], tint: tintOf(cr.slug), parts: 'art/', w: v.w, h: v.h, pcs: v.pcs,
       hand: v.hand.map(function (t) { return { e: t.e, t: t.t, tag: t.tag, m: t.m }; }), combos: v.combos, icons: ICON };
     h += '<script type="application/json" id="pf-data">' + JSON.stringify(data).replace(/</g, '\\u003c') + '</script></div>';

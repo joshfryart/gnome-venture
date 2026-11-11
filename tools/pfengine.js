@@ -923,7 +923,7 @@
   /** One history chip for one scored event (board mode). snapId = the snapshot index the page keeps for the rewind. */
   function chipEvent(e, snapId) {
     if (snapId === undefined) snapId = null;
-    var base = { id: (e.id !== undefined && e.id !== null) ? toInt(e.id) : null, sn: snapId, bar: nn(e.barnow, null), hp: nn(e.hpnow, null), chain: false };
+    var base = { id: (e.id !== undefined && e.id !== null) ? toInt(e.id) : null, sn: snapId, bar: nn(e.barnow, null), hp: nn(e.hpnow, null), g: nn(e.gnow, null), chain: false };
     var ext = function (o) { for (var k in o) base[k] = o[k]; return base; };
     if (truthy(e.connect)) return ext({ by: 'me', types: e.types, tags: [], txt: 'joined ' + toInt(e.size), tg: null });
     var parts = [], tg = 'foe', by = String(nn(e.by, 'me')), t = String(nn(e.t, 'hurt'));

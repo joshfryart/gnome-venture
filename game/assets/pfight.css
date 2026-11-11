@@ -389,3 +389,25 @@
 .pfc-av.pfc-g25 img { position: absolute; left: 0; top: 0; width: 358px; height: 56px; max-width: none; object-fit: fill; image-rendering: pixelated; }
 .pfh-gn25 { position: relative; display: block; width: 20px; height: 20px; overflow: hidden; flex: none; }
 .pfh-gn25 img { position: absolute; left: -8px; top: -5px; width: 284px; height: 44px; max-width: none; image-rendering: pixelated; }
+
+/* the resolve bar: a glow when the fight starts, a short note, and a tooltip on hover / focus / tap */
+.pf-bar { cursor: help; }
+.pf-bar:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
+.pf-barglow { animation: pf-barglow 1.3s ease-in-out infinite; }
+@keyframes pf-barglow { 0%, 100% { filter: drop-shadow(0 0 0 rgba(255, 226, 122, 0)); } 50% { filter: drop-shadow(0 0 7px #ffe27a) drop-shadow(0 0 3px #e8a317); } }
+.pf-barhint, .pf-bartip { position: absolute; z-index: 14; transform: translateX(-50%); background: #2a1a10; color: #f2e4c0; border: 2px solid #e8a317; border-radius: .5rem; box-shadow: 0 3px 12px rgba(0, 0, 0, .6); font-size: .74rem; line-height: 1.25; pointer-events: none; }
+.pf-barhint { padding: .25rem .6rem; white-space: nowrap; font-weight: 600; animation: pf-barhint 1s ease-out both; }
+.pf-barhint::before, .pf-bartip::before { content: ''; position: absolute; top: -7px; left: 50%; margin-left: -6px; border: 6px solid transparent; border-top: 0; border-bottom-color: #e8a317; }
+.pf-bartip { padding: .45rem .6rem; width: min(92%, 21rem); text-align: left; }
+.pf-barhint[hidden], .pf-bartip[hidden] { display: none; }
+@keyframes pf-barhint { from { opacity: 0; transform: translate(-50%, -4px); } to { opacity: 1; transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .pf-barglow { animation: none; filter: drop-shadow(0 0 5px #ffe27a); } .pf-barhint { animation: none; } }
+
+/* your guard: a blue bar under your head with the number; it fills as guard is built and drains as hits are blocked */
+.pfc-meav { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: none; }
+.pf-guard { position: relative; display: block; width: 46px; height: 13px; border: 2px solid #0a3a63; border-radius: 3px; background: rgba(0, 20, 40, .65); overflow: hidden; box-sizing: border-box; }
+.pf-guard .gfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: repeating-linear-gradient(135deg, #3f9bd0 0 3px, #0072b2 3px 6px); transition: width .45s ease-out; }
+.pf-guard b { position: relative; z-index: 1; display: block; text-align: center; font: 700 .62rem/9px system-ui, sans-serif; color: #fff; text-shadow: 0 0 2px #00203a, 0 0 2px #00203a; }
+.pf-guard::before { content: '\1F6E1'; position: absolute; left: 1px; top: -1px; z-index: 1; font-size: .55rem; line-height: 11px; }
+.pf-guard-0 { opacity: .45; }
+@media (prefers-reduced-motion: reduce) { .pf-guard .gfill { transition: none; } }

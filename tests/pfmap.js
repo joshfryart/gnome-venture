@@ -22,6 +22,7 @@ const { chromium } = require('playwright');
     // your health, the resolve bar and the creature sit side by side: nothing covers anything
     const lay = await p.evaluate(() => { const q = (x) => { const e = document.querySelector(x); return e ? e.getBoundingClientRect() : null; }; const me = q('.pfc-me'), bar = q('.pfc-top .pf-bar'), foe = q('.pfc-foe'), hp = q('.pfc-top .pf-hp'); return me && bar && foe && hp ? { meBar: bar.left - me.right, barFoe: foe.left - bar.right, hpIn: me.right - hp.right } : null; });
     const topOk = !lay || (lay.meBar >= -1 && lay.barFoe >= -1 && lay.hpIn >= -1);
+    const guardEl = await p.locator('.pfc-me .pf-guard').count();   // your guard bar sits under your head
     const art = await p.locator('.pfx-bar').count();
     const glow = await p.locator('.pfb-glow').count(), stamp = await p.locator('.pfb-stamp').count();
     let zoomOk = true;
@@ -69,7 +70,7 @@ const { chromium } = require('playwright');
         connectOk = fightGone || chip === 1 && (await p.locator('.pf-held-chip:not(.pf-planned)').count()) === 1;
         if (connectOk && !fightGone) {
           await p.click('.pf-held-chip'); const spots = await p.locator('.pfb-lit').count(); connectOk = spots > 0;
-          if (spots) { await p.locator('.pfb-lit').first().click(); await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pf-go')]); await p.waitForTimeout(1800); if (await p.locator('#pf-skip:not([hidden])').count()) await p.click('#pf-skip'); await endIfWon(); connectOk = fightGone || (await p.locator('.pf-held-chip').count()) === 0; }
+          if (spots) { await p.locator('.pfb-lit').first().dispatchEvent('click'); await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pf-go')]); await p.waitForTimeout(1800); if (await p.locator('#pf-skip:not([hidden])').count()) await p.click('#pf-skip'); await endIfWon(); connectOk = fightGone || (await p.locator('.pf-held-chip').count()) === 0; }
         }
       } else connectNote = 'no joinable pair';
     }
@@ -87,7 +88,7 @@ const { chromium } = require('playwright');
       const hand = p.locator('#pf-hand .pf-tile'); const n = await hand.count(); let lit = 0;
       for (let i = 0; i < n && !lit; i++) { await hand.nth(i).click({ position: { x: 10, y: 30 } }); lit = await p.locator('.pfb-lit').count(); }
       if (lit) {
-        try { await p.locator('.pfb-lit').first().click({ timeout: 4000 }); } catch (e) { await p.screenshot({ path: out + '/dbg-lit.png', fullPage: true }); throw e; }
+        try { await p.locator('.pfb-lit').first().dispatchEvent('click'); } catch (e) { await p.screenshot({ path: out + '/dbg-lit.png', fullPage: true }); throw e; }
         const gb = await p.locator('#pf-go').boundingBox(); const hit = await p.evaluate(([x, y]) => { const e = document.elementFromPoint(x, y); return e ? e.tagName + '.' + e.className : 'none'; }, [gb.x + gb.width / 2, gb.y + gb.height / 2]); if (!/pf-go|btn/.test(hit)) console.log('END TURN COVERED BY', hit);
         await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pf-go')]); await p.waitForTimeout(1500); await endIfWon();
         const over2 = await p.locator('#pfight').count();
@@ -96,8 +97,8 @@ const { chromium } = require('playwright');
     }
     if (await p.locator('#pfight').count()) await p.locator('#pfight').screenshot({ path: out + '/pfmap-' + label + '-' + name + '.png' });
     const wide = await p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-    const bad = (!over || !mapIn || !panel || !overlap || wide || errs.length || !rewindOk || !topOk || (name !== 'wide' && !label.startsWith('chain') && panelH > 520) || !zoomOk || !inplaceOk || !tapOk || !connectOk || (replaying && (!scoring || !turnBanner)) || (want === 'fx' && !glow && !stamp)) ? 1 : 0; fail = fail || bad;
-    console.log(bad ? 'FAIL' : 'ok', label, name, '| fight over map', !!over, '| map behind', overlap, '| art bar', art, '| glow', glow, '| stamps', stamp, '| expiring cues', await p.locator('.pfb-old').count(), '| foe drops', await p.locator('.pfb-drop').count(), '| replay', replaying ? (scoring ? 'lit ' + lines + ' lines' : 'NOT LIT') : 'none', '| status bar', topOk ? 'clear' : 'OVERLAP ' + JSON.stringify(lay), '| panel', panelH + 'px', '| rewind', rewindOk, '| tap info', tapOk, '| connect+group', connectOk, connectNote, '| zoom', zoomOk, '| after in-place turn', inplaceOk, '| overflow', wide, '| js errors:', errs.length ? errs.join(' | ') : 'none');
+    const bad = (!over || !mapIn || !panel || !overlap || wide || errs.length || (!guardEl && !label.startsWith('chain')) || !rewindOk || !topOk || (name !== 'wide' && !label.startsWith('chain') && panelH > 520) || !zoomOk || !inplaceOk || !tapOk || !connectOk || (replaying && (!scoring || !turnBanner)) || (want === 'fx' && !glow && !stamp)) ? 1 : 0; fail = fail || bad;
+    console.log(bad ? 'FAIL' : 'ok', label, name, '| fight over map', !!over, '| map behind', overlap, '| art bar', art, '| glow', glow, '| stamps', stamp, '| expiring cues', await p.locator('.pfb-old').count(), '| foe drops', await p.locator('.pfb-drop').count(), '| replay', replaying ? (scoring ? 'lit ' + lines + ' lines' : 'NOT LIT') : 'none', '| status bar', topOk ? 'clear' : 'OVERLAP ' + JSON.stringify(lay), '| panel', panelH + 'px', '| guard bar', guardEl, '| rewind', rewindOk, '| tap info', tapOk, '| connect+group', connectOk, connectNote, '| zoom', zoomOk, '| after in-place turn', inplaceOk, '| overflow', wide, '| js errors:', errs.length ? errs.join(' | ') : 'none');
     await c.close();
   }
   await b.close(); process.exit(fail);

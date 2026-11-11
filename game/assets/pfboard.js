@@ -371,7 +371,7 @@
     if (!rewind) return;
     rewind = null; if (histEl) Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-sel'), function (c) { c.classList.remove('pf-chip-sel'); });
     if (rewindEl) rewindEl.hidden = true; root.classList.remove('pf-rewound');
-    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.hp !== undefined) setHp(data.hp);
+    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard);
     if (insp) insp.hidden = true; fxOn = true; render();
   }
   function enterRewind(c) {
@@ -380,7 +380,7 @@
     rewind = { sn: c.dataset.sn, id: +c.dataset.id || 0, chip: c, pieces: pcs };
     if (histEl) Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-sel'), function (x) { x.classList.remove('pf-chip-sel'); });
     c.classList.add('pf-chip-sel');
-    if (c.dataset.bar !== '' && c.dataset.bar !== undefined) setBar(+c.dataset.bar, data.barmax); if (c.dataset.hp !== '' && c.dataset.hp !== undefined) setHp(+c.dataset.hp);
+    if (c.dataset.bar !== '' && c.dataset.bar !== undefined) setBar(+c.dataset.bar, data.barmax); if (c.dataset.hp !== '' && c.dataset.hp !== undefined) setHp(+c.dataset.hp); setGuard(c.dataset.g);
     var rt = c.querySelector('.pfh-txt'); if (rwT) rwT.textContent = 'Rewound to: ' + (c.classList.contains('foe') ? (data.foe || 'Creature') : 'You') + ', ' + (rt ? rt.textContent : 'a move') + '.';
     if (rewindEl) rewindEl.hidden = false; root.classList.add('pf-rewound'); render();
   }
@@ -409,6 +409,11 @@
     [h, c].forEach(function (el) { if (!el) return; if (el.dataset.w0 === undefined) el.dataset.w0 = el.getAttribute('data-w') || '0'; el.style.width = Math.min(100, (+el.dataset.w0) * k) + '%'; });
     var pr = root.querySelector('.pf-bar progress'); if (pr) pr.value = now;
   }
+  function setGuard(g) {   // the blue guard bar under your head: follows the replay as guard is built and blocks hits
+    var el = root.querySelector('.pf-guard'); if (!el || g === null || g === undefined || g === '') return; g = Math.max(0, +g);
+    var f = el.querySelector('.gfill'), b = el.querySelector('b'); if (f) f.style.width = Math.min(100, g * 100 / 16) + '%'; if (b) b.textContent = String(g);
+    el.classList.toggle('pf-guard-0', g <= 0); el.setAttribute('aria-label', 'Guard ' + g + ': blocks the creature\u2019s hits until your next turn');
+  }
   function setHp(v) { var pr = root.querySelector('.pfc-top .pf-hp progress'); if (pr) pr.value = v; }
   function afterLeave() {   // everything has scored and the old pieces are gone: the board adds a creature piece if it is short, growing into place
     showGone = false; fxOn = true; render();
@@ -420,7 +425,7 @@
     if (skipBtn) skipBtn.hidden = true;
     revealAllChips();
     Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
-    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.hp !== undefined) setHp(data.hp);
+    if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard);
     if (insp) insp.hidden = true; root.classList.remove('pf-playing');
     var gone = boardEl.querySelectorAll('.pfb-gone');
     if (gone.length && skipped !== true) { Array.prototype.forEach.call(gone, function (c) { c.classList.add('pfb-leaving'); }); playTimers.push(setTimeout(afterLeave, 800)); }
@@ -434,7 +439,7 @@
     try { window.sessionStorage.setItem(replayKey, '1'); } catch (e) {}
     replayed = true; playing = true; fxOn = false; root.classList.add('pf-playing');
     if (skipBtn) skipBtn.hidden = false;
-    if (data.replay0) { setBar(data.replay0.bar, data.barmax); setHp(data.replay0.hp); }
+    if (data.replay0) { setBar(data.replay0.bar, data.barmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }
     var step = 950, lastBy = null, foeName = data.foe || 'Creature';
     data.replay.forEach(function (ev, k) {
       playTimers.push(setTimeout(function () {
@@ -443,6 +448,7 @@
         if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); var pc = pieceById(ev.id); if (pc) { picked = ev.id; showText(pc.n, pieceInfo(pc), pc); } }
         revealChip(k);
         if (ev.bar !== null && ev.bar !== undefined) setBar(ev.bar, data.barmax); if (ev.hp !== null && ev.hp !== undefined) setHp(ev.hp);
+        setGuard(ev.g);
       }, (k + 1) * step));
     });
     playTimers.push(setTimeout(stopPlay, (data.replay.length + 1) * step));
@@ -543,7 +549,31 @@
   if (window.__pfbOff) window.__pfbOff();   // a swapped-in copy of this script: let go of the old one's listeners and timer
   document.addEventListener('pfparts-ready', render);
   setTimeout(function () { if (!replayed && !playing) { forceReplay = true; render(); } }, 4000);   // the art never came: play the replay with the plain pieces
-  window.__pfbOff = function () { document.removeEventListener('pfparts-ready', render); window.removeEventListener('resize', fan); clearInterval(glowTimer); playTimers.forEach(clearTimeout); };
+  window.__pfbOff = function () { document.removeEventListener('pfparts-ready', render); window.removeEventListener('resize', fan); clearInterval(glowTimer); clearTimeout(hintTimer); playTimers.forEach(clearTimeout); };
+  // the resolve bar: it glows when the fight starts with a short "fill to win" note, and explains itself on hover, focus or tap
+  var barEl = root.querySelector('.pf-bar'), barTip = null, barHint = null, hintTimer = 0;
+  var TIP = 'The creature\u2019s will to fight. Hurt pieces fill it from the left: it backs off. Charm pieces fill it from the right: you win it over, for a better reward. Fill the bar to end the fight. Guard and heal keep you alive meanwhile. Gentle creatures take Charm best, wary ones take Hurt best.';
+  function placeUnderBar(el) { var b = barEl.getBoundingClientRect(), r = root.getBoundingClientRect(); el.style.top = (b.bottom - r.top + 4) + 'px'; el.style.left = (b.left + b.width / 2 - r.left) + 'px'; }
+  function showBarTip(on) {
+    if (!barEl) return;
+    if (!on) { if (barTip) barTip.hidden = true; return; }
+    if (barHint) barHint.hidden = true;
+    if (!barTip || barTip.parentNode !== root) { barTip = document.createElement('div'); barTip.className = 'pf-bartip'; barTip.setAttribute('role', 'tooltip'); barTip.textContent = TIP; root.appendChild(barTip); }
+    barTip.hidden = false; placeUnderBar(barTip);
+  }
+  if (barEl) {
+    barEl.tabIndex = 0; barEl.removeAttribute('title');
+    barEl.addEventListener('mouseenter', function () { showBarTip(true); }); barEl.addEventListener('mouseleave', function () { showBarTip(false); });
+    barEl.addEventListener('focus', function () { showBarTip(true); }); barEl.addEventListener('blur', function () { showBarTip(false); });
+    barEl.addEventListener('click', function () { showBarTip(!barTip || barTip.hidden); });
+    if (root.dataset.turn === '1' && !(data.replay && data.replay.length) && !data.won) {   // a new fight: glow the bar and say what it is for
+      barEl.classList.add('pf-barglow');
+      var touch = window.matchMedia && window.matchMedia('(hover: none)').matches;
+      barHint = document.createElement('div'); barHint.className = 'pf-barhint'; barHint.setAttribute('role', 'status'); barHint.textContent = 'Fill the bar to win \u00B7 ' + (touch ? 'tap' : 'hover') + ' for more'; root.appendChild(barHint);
+      setTimeout(function () { if (barHint) placeUnderBar(barHint); }, 300); placeUnderBar(barHint);
+      hintTimer = setTimeout(function () { if (barHint) barHint.hidden = true; barEl.classList.remove('pf-barglow'); }, 7000);
+    }
+  }
   if (!(data.replay && data.replay.length) && root.dataset.turn === '1' && !data.won) setTimeout(function () { showTurn('Your turn', 'me'); }, 250);
   window.pfbLegal = legal;   // for the parity test
   render();

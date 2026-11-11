@@ -148,7 +148,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
         win_fight($u, $exp, $c, $charm, $charm, (array)($enc['stolen'] ?? []));
         return true;
     }
-    $rp0 = ['bar' => round((float)$s['bar']['now'], 1), 'hp' => (int)$s['me']['hp']];   // where the bar and your health stood before this turn (the board page plays the turn back from here)
+    $rp0 = ['bar' => round((float)$s['bar']['now'], 1), 'hp' => (int)$s['me']['hp'], 'g' => (int)$s['me']['block']];   // where the bar and your health stood before this turn (the board page plays the turn back from here)
     $won = false;
     if ($do === 'pf_run') {
         if (!pf_run($s)) { flash('You cannot run from this one.', 'err'); return false; }
@@ -276,6 +276,12 @@ function pfight_part(string $file): ?string
 }
 
 /** The resolve bar: the art frame with Hurt filling from the left and Charm from the right (widths set by assets/pfx.js from data-w, no inline styles), or a plain progress bar. */
+/** Your guard under your head: a blue bar with the number; the board page moves it as guard is built and attacks are blocked (assets/pfboard.js setGuard). */
+function pfight_guard_html(int $g): string
+{
+    return '<span class="pf-guard' . ($g > 0 ? '' : ' pf-guard-0') . '" role="img" aria-label="Guard ' . $g . ': blocks the creature\'s hits until your next turn" title="Guard: blocks the creature\'s hits until your next turn"><span class="pfx-fill gfill" data-w="' . min(100, (int)round($g * 100 / 16)) . '"></span><b>' . $g . '</b></span>';
+}
+
 function pfight_bar_html(array $v): string
 {
     $b = $v['bar']; $max = max(0.1, (float)$b['max']); $now = (float)$b['now']; $hu = (float)($b['hurt'] ?? 0); $ch = (float)($b['charm'] ?? 0);
@@ -323,7 +329,7 @@ function pfight_chip(array $events, string $by): ?array
 /** One history chip for one scored piece (board mode): who acted, what it did, how much, and who it landed on (tg: 'me' | 'foe' | null for setting aside); sn: the board snapshot for the rewind. Never null: the replay and the chips line up one to one. */
 function pfight_chip_event(array $e, ?int $snap = null): array
 {
-    $base = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'sn' => $snap, 'bar' => $e['barnow'] ?? null, 'hp' => $e['hpnow'] ?? null, 'chain' => false];
+    $base = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'sn' => $snap, 'bar' => $e['barnow'] ?? null, 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'chain' => false];
     if (!empty($e['connect'])) return $base + ['by' => 'me', 'types' => $e['types'], 'tags' => [], 'txt' => 'joined ' . (int)$e['size'], 'tg' => null];
     $parts = []; $tg = 'foe'; $by = (string)($e['by'] ?? 'me'); $t = (string)($e['t'] ?? 'hurt');
     if (!empty($e['tick'])) $parts[] = '+' . (int)$e['v'] . ' bar';
@@ -464,7 +470,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         $nm = 'the ' . (string)$c['name']; $tgw = ($chip['tg'] ?? null) === 'me' ? 'you' : $nm;
         $label = (($chip['by'] ?? 'me') === 'me' ? 'You' : ucfirst($nm)) . ': ' . implode(', ', array_map(fn($x) => (string)$x, (array)$chip['types'])) . ', ' . (string)$chip['txt'] . (($chip['tg'] ?? null) !== null ? ', on ' . $tgw : '') . ($sn !== null ? '. Press to see the board then.' : '');
         $h .= '<li class="pf-chip ' . ($chip['by'] === 'me' ? 'you' : 'foe') . ($isNew ? ' pf-chip-new' : '') . ($sn !== null ? ' pf-chip-rw' : '') . '"' . ($isNew ? ' data-ev="' . $evIdx . '"' . ($pending ? ' hidden' : '') : '')
-            . ($sn !== null ? ' data-sn="' . $sn . '" data-id="' . (int)($chip['id'] ?? 0) . '" data-bar="' . e((string)($chip['bar'] ?? '')) . '" data-hp="' . e((string)($chip['hp'] ?? '')) . '" role="button" tabindex="0"' : '') . ' aria-label="' . e($label) . '">'
+            . ($sn !== null ? ' data-sn="' . $sn . '" data-id="' . (int)($chip['id'] ?? 0) . '" data-bar="' . e((string)($chip['bar'] ?? '')) . '" data-g="' . e((string)($chip['g'] ?? '')) . '" data-hp="' . e((string)($chip['hp'] ?? '')) . '" role="button" tabindex="0"' : '') . ' aria-label="' . e($label) . '">'
             . $who((string)$chip['by']);
         foreach ((array)$chip['types'] as $ci => $t) {
             $tg = (string)($chip['tags'][$ci] ?? ''); $ti = isset(PF_TAG_ICON[$tg]) ? pfight_art('ico-' . PF_TAG_ICON[$tg] . '-s.png') : null;
@@ -476,7 +482,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '</ol><button type="button" class="btn" id="pf-skip" hidden>Skip</button><span class="pfc-piles">' . $mini('deck', 'Puzzle book', (int)$v['piles']['draw']) . $mini('disc', 'Discard', (int)$v['piles']['discard']) . '</span></div>';
     $cim = creature_image((string)($c['slug'] ?? ''), true);
     $foeImg = $cim !== '' ? art_img($cim, 'lg', (string)$c['name']) : creature_icon((string)$c['name'], (string)$c['size']);
-    $top = '<div class="pfc-top"><div class="pfc-me"><span class="pfc-av' . ($g25 !== '' ? ' pfc-g25' : '') . '">' . ($g25 !== '' ? '<img src="' . e($g25) . '" alt="' . e(gnome_name($u)) . '">' : gnome_avatar_pals($u, 60)) . '</span><span class="pf-hp" role="img" aria-label="Your health ' . (int)$v['hp'] . ' of ' . (int)$v['max'] . ($v['block'] ? ', guard ' . (int)$v['block'] : '') . '">❤️ <progress max="' . (int)$v['max'] . '" value="' . (int)$v['hp'] . '"></progress> ' . (int)$v['hp'] . ($v['block'] ? ' · 🛡️ ' . (int)$v['block'] : '') . '</span></div>'
+    $top = '<div class="pfc-top"><div class="pfc-me"><span class="pfc-meav"><span class="pfc-av' . ($g25 !== '' ? ' pfc-g25' : '') . '">' . ($g25 !== '' ? '<img src="' . e($g25) . '" alt="' . e(gnome_name($u)) . '">' : gnome_avatar_pals($u, 60)) . '</span>' . pfight_guard_html((int)$v['block']) . '</span><span class="pf-hp" role="img" aria-label="Your health ' . (int)$v['hp'] . ' of ' . (int)$v['max'] . '">❤️ <progress max="' . (int)$v['max'] . '" value="' . (int)$v['hp'] . '"></progress> ' . (int)$v['hp'] . '</span></div>'
         . pfight_bar_html($v)
         . '<div class="pfc-foe"><span class="pfc-fname"><b>' . e((string)$c['name']) . '</b><small>lv ' . (int)$c['level'] . ' · ' . ($s['temper'] === 'gentle' ? 'gentle' : 'wary') . ' · 🃏 ' . (int)$v['foe']['hand'] . ($v['foe']['calm'] ? ' · 😌 ' . (int)$v['foe']['calm'] : '') . '</small></span><span class="pfc-av">' . $foeImg . '<span class="pf-intent-bubble" title="Likely next move" aria-label="Likely next move: ' . e((string)$v['foe']['intent']) . '">' . $sm((string)$v['foe']['intent']) . '</span></span></div></div>';
     $h = str_replace('@@TOP@@', $top, $h);
@@ -508,7 +514,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '</div>';
     if ($more !== '') $h .= '<details class="pfc-more"><summary>More: piece tips and the last turn</summary>' . $more . '</details>';
     // the board and the hand's edges for the script (public information: the board is out in the open)
-    $data = ['foe' => (string)$c['name'], 'won' => $won ? (string)$s['over'] : null, 'life' => PFB_LIFE, 'tags' => PF_TAGS, 'held' => $v['held'] ?? null, 'gone' => $v['gone'] ?? [], 'snaps' => (object)$usedSn, 'bar' => $v['bar']['now'], 'barmax' => $v['bar']['max'], 'hp' => $v['hp'], 'replay' => $enc['replay'] ?? [], 'replay0' => $enc['replay0'] ?? null, 'mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3], $m[2]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
+    $data = ['foe' => (string)$c['name'], 'won' => $won ? (string)$s['over'] : null, 'life' => PFB_LIFE, 'tags' => PF_TAGS, 'held' => $v['held'] ?? null, 'gone' => $v['gone'] ?? [], 'snaps' => (object)$usedSn, 'bar' => $v['bar']['now'], 'barmax' => $v['bar']['max'], 'hp' => $v['hp'], 'guard' => (int)$v['block'], 'replay' => $enc['replay'] ?? [], 'replay0' => $enc['replay0'] ?? null, 'mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3], $m[2]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
     $h .= '<script type="application/json" id="pf-data">' . json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP) . '</script>';
     return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfx.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfparts.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfboard.js?v=' . APP_VERSION)) . '" data-rerun defer></script>';
 }
