@@ -5,11 +5,11 @@
 .pfight progress { width: 100%; height: 1rem; }
 .pf-foe, .pf-me { display: grid; gap: .2rem; }
 .pf-strip { display: flex; gap: .3rem; overflow-x: auto; min-height: 3.4rem; padding: .3rem; border: 2px dashed currentColor; border-radius: .6rem; align-items: center; scroll-snap-type: x proximity; }
-.pf-hand { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+.pf-hand { display: flex; flex-wrap: wrap; gap: .9rem .9rem; justify-content: center; }
 
 /* tile base */
 .pf-tile { position: relative; display: grid; grid-template-columns: 2rem 1fr 2rem; align-items: center; justify-items: center; color: var(--pf-ink); font: inherit; text-align: center; touch-action: manipulation; border: 3px solid var(--pf-ink); border-radius: .5rem; background-color: var(--pf-cream); background-size: 10px 10px; overflow: visible; padding: 0; }
-.pf-h { width: 7.6rem; height: 5.2rem; grid-template-rows: 1fr auto; padding-bottom: .2rem; cursor: pointer; }
+.pf-h { width: 6.3rem; height: 5.2rem; grid-template-rows: 1fr auto; padding-bottom: .2rem; cursor: pointer; }
 .pf-s { width: 4.6rem; height: 2.8rem; grid-template-columns: 1.3rem 1fr 1.3rem; flex: 0 0 auto; scroll-snap-align: end; }
 .pf-ico { grid-column: 2; line-height: 1; background: var(--pf-cream); border-radius: 50%; padding: .1rem; }
 .pf-h .pf-ico { font-size: 1.7rem; }
@@ -29,7 +29,7 @@
 
 /* whose: your tiles have a cream stitched ring, the foe's a jagged dark one (shape, not tint) */
 .pf-tile.by-me { box-shadow: 0 0 0 2px var(--pf-cream), 0 0 0 4px var(--pf-ink); }
-.pf-tile.by-foe { clip-path: polygon(0 6%, 4% 0, 12% 5%, 22% 0, 34% 5%, 46% 0, 58% 5%, 70% 0, 82% 5%, 92% 0, 100% 6%, 100% 94%, 96% 100%, 86% 95%, 74% 100%, 62% 95%, 50% 100%, 38% 95%, 26% 100%, 14% 95%, 4% 100%, 0 94%); }
+.pf-tile.by-foe { outline: 3px dotted var(--pf-ink); outline-offset: 2px; transform: skewX(-6deg); }   /* the foe's tiles lean and carry a dotted ring: shape, not tint */
 
 /* sockets: knob = solid shape, hole = hollow shape; body round, mind keyhole, craft triangle, flat = a bar */
 .pf-sock { grid-row: 1; display: grid; place-items: center; width: 1.7rem; height: 1.7rem; font-size: .8rem; font-weight: bold; background: var(--pf-ink); color: var(--pf-cream); }
@@ -41,7 +41,6 @@
 .pf-sock.f-mind { clip-path: polygon(50% 0, 100% 0, 100% 62%, 78% 62%, 78% 100%, 22% 100%, 22% 62%, 0 62%, 0 0); border-radius: 40% 40% 0 0; }
 .pf-sock.f-craft { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
 .pf-sock.f-flat { border-radius: 0; height: .7rem; }
-.pf-sock.hole.f-mind, .pf-sock.hole.f-craft { box-shadow: none; outline: 2px solid var(--pf-ink); }
 
 .pf-hand .pf-tile:focus-visible, .pfight .btn:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
 .pf-hand .pf-picked { transform: translateY(-.35rem) scale(1.04); box-shadow: 0 .35rem 0 rgba(0,0,0,.35), 0 0 0 3px Highlight; }
@@ -50,3 +49,5 @@
 .pfight .pf-on { background: Highlight; color: HighlightText; }
 .pf-last { margin: 0; padding-left: 1.2rem; font-size: .85rem; }
 @media (prefers-reduced-motion: reduce) { .pf-strip { scroll-behavior: auto; scroll-snap-type: none; } .pf-hand .pf-picked { transform: none; } }
+.pfight [hidden] { display: none !important; }
+.pf-nm { overflow-wrap: anywhere; max-height: 2.3em; overflow: hidden; }

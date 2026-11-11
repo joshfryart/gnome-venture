@@ -48,23 +48,34 @@ ENC2=$(db "SELECT encounter FROM expeditions ORDER BY id DESC LIMIT 1" | md5sum)
 ck "reload keeps the same fight state" "$ENC1" "$ENC2"
 post adventure.php -d do=attack >/dev/null
 ck "old attack ignored" "$(db "SELECT encounter FROM expeditions ORDER BY id DESC LIMIT 1" | md5sum)" "$ENC1"
+enc() { db "SELECT encounter FROM expeditions ORDER BY id DESC LIMIT 1" | md5sum; }
+# pf DO [post args]: loads the page (fresh csrf, nonce, turn) then posts; NONCE_X / TURN_X override what the page said. Prints the HTTP status.
+pf() { local d=$1; shift; get adventure.php >/dev/null
+  local n=$(grep -o 'name="nonce" value="[0-9a-f]*"' $H | head -1 | grep -o '[0-9a-f]\{8\}') t=$(grep -o 'id="pfight" data-turn="[0-9]*"' $H | grep -o '[0-9]*')
+  post adventure.php -d do=$d -d nonce=${NONCE_X:-$n} -d turn=${TURN_X:-$t} "$@"; }
 get adventure.php >/dev/null
-post adventure.php -d do=pf_play -d turn=99 -d chain=0 >/dev/null
-ck "stale turn ignored" "$(db "SELECT encounter FROM expeditions ORDER BY id DESC LIMIT 1" | md5sum)" "$ENC1"
-post adventure.php -d do=pf_play -d turn=1 -d chain=0,0 >/dev/null
-ck "duplicate tile refused" "$(db "SELECT encounter FROM expeditions ORDER BY id DESC LIMIT 1" | md5sum)" "$ENC1"
+ck "no Snack tile when there is nothing to eat" "$(grep -c 'data-t="item"' $H)" "0"
+ENC1=$(enc)
+ck "stale turn: redirect" "$(TURN_X=99 pf pf_play -d chain=0)" "302"; ck "stale turn ignored" "$(enc)" "$ENC1"
+ck "duplicate tile: redirect" "$(pf pf_play -d chain=0,0)" "302"; ck "duplicate tile refused" "$(enc)" "$ENC1"
+ck "wrong nonce: redirect" "$(NONCE_X=deadbeef pf pf_play -d chain=0)" "302"; ck "wrong nonce ignored" "$(enc)" "$ENC1"
+ck "empty chain refused" "$(pf pf_play -d chain=)" "302"; ck "empty chain ignored" "$(enc)" "$ENC1"
+ck "redraw with no Luck: no change" "$(pf pf_redraw -d card=0)" "302"; ck "redraw ignored" "$(enc)" "$ENC1"
 N=0; while [ $N -lt 40 ]; do
   get adventure.php >/dev/null
   [ "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" = "1" ] && break
-  T=$(grep -o 'id="pfight" data-turn="[0-9]*"' $H | grep -o '[0-9]*')
   CH=$(grep -o 'data-i="[0-9]*" data-hole="[a-z]*" data-knob="[a-z]*" data-t="[a-z]*"' $H | grep -v 'data-t="item"' | grep -o 'data-i="[0-9]*"' | grep -o '[0-9]*' | head -2 | paste -sd,)
-post adventure.php -d do=pf_play -d turn=$T -d chain=$CH >/dev/null
+  CODE=$(pf pf_play -d chain=$CH); [ "$CODE" = "302" ] || { echo "FAIL play returned $CODE"; FAILS=$((FAILS+1)); break; }
   N=$((N+1))
 done
 ck "fight ended" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
 get adventure.php >/dev/null
 ck "page after fight has no card" "$(grep -c 'id="pfight"' $H)" "0"
-ck "almanac page unlocked" "$(db "SELECT COUNT(*) FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id = ue.entry_id WHERE e.title = 'Puzzle fights'")" "1"
+ck "a finished fight cannot be played again" "$(post adventure.php -d do=pf_play -d turn=1 -d nonce=deadbeef -d chain=0)" "302"
+ck "Almanac pages were created once" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE title = 'Puzzle fights'")" "1"
+php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
+ck "run: redirect" "$(pf pf_run)" "302"
+ck "run ends the fight" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
 ck "no errors in the game error log" "$(cat "$GAME/data/error-log.txt" 2>/dev/null | wc -c | tr -d ' ')" "0"
 ck "no PHP warnings in server log" "$(grep -cE 'PHP (Warning|Notice|Deprecated|Fatal)' $LOG)" "0"
 echo "turns played: $N"

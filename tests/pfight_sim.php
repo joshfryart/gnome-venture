@@ -13,12 +13,13 @@ foreach (file(__DIR__ . '/../game/includes/data/creatures.txt', FILE_IGNORE_NEW_
 }
 function sim_player(int $lv): array
 {
-    $m = intdiv($lv, 4) + 1;   // a rough stat modifier curve: +1 at level 1, +8 at level 28
-    $st = ['grit' => $m, 'nimble' => $m, 'hardiness' => $m, 'charm' => $m, 'lore' => max(0, $m - 1), 'luck' => $m * 2, 'level' => $lv];
+    // a real gnome has 4 + (L-1) stat points over 7 stats, 2 points per +1 modifier: about (L+3)/14 on every stat (the old sim gave L/4+1, about 6x too much)
+    $m = max(0, intdiv($lv + 3, 14));
+    $st = ['grit' => $m, 'nimble' => $m, 'hardiness' => $m, 'charm' => $m, 'lore' => $m, 'luck' => $m, 'level' => $lv];
     $callings = array_keys(PF_CALLING_TILE);
-    $deck = pf_player_deck($st, $callings[$lv % 6], 1 + intdiv($lv, 12));
+    $deck = pf_player_deck($st, $callings[$lv % 6], 1 + intdiv($lv, 12), [], $lv >= 7 ? ['soothe', 'jab'] : []);
     $max = 20 + 3 * $lv + 5 * $m;
-    return ['hp' => $max, 'max_hp' => $max, 'stats' => $st, 'deck' => $deck, 'luck' => $m * 2];
+    return ['hp' => $max, 'max_hp' => $max, 'stats' => $st, 'deck' => $deck, 'luck' => $m];
 }
 // bots: each returns a hand index list
 $bots = [
@@ -58,9 +59,30 @@ if (!$quiet) foreach ($tbl as $size => $byBot) foreach ($byBot as $bn => $res) {
     $cnt = array_count_values(array_column($res, 0)); ksort($cnt);
     printf("%-7s %-8s n=%-3d avg turns %.1f  %s\n", $size, $bn, count($res), array_sum(array_column($res, 1)) / count($res), json_encode($cnt));
 }
+$bounds = ['small' => [1.5, 4.5], 'medium' => [2.0, 6.0], 'large' => [3.0, 7.5], 'boss' => [4.0, 11.0]];
+foreach ($bounds as $size => [$lo, $hi]) {
+    $res = $tbl[$size]['greedy'] ?? []; if (!$res) continue;
+    $avg = array_sum(array_column($res, 1)) / count($res);
+    if ($avg < $lo || $avg > $hi) { printf("FAIL pace: %s greedy avg %.1f turns, want %.1f to %.1f\n", $size, $avg, $lo, $hi); $bad++; }
+    $lost = count(array_filter($res, fn($r) => $r[0] === 'defeat')) / count($res);
+    if ($lost > 0.35) { printf("FAIL %s greedy defeat rate %.0f%%\n", $size, $lost * 100); $bad++; }
+}
+$d = pf_player_deck(['level' => 1], '', 1, [], [], [], false);
+if (in_array('item', array_column($d, 't'), true) || !in_array('Breather', array_column($d, 'n'), true)) { echo "FAIL no-snack deck should hold a Breather and no item tile\n"; $bad++; }
+// a pal must never take the last Hurt tile
+$d = pf_player_deck(['level' => 1], '', 1, [['swap' => 'swing', 'n' => 'Shield Pal', 't' => 'guard', 'v' => 5, 'r' => null]]);
+if (!in_array('hurt', array_column($d, 't'), true)) { echo "FAIL a guard pal replaced the only Hurt tile\n"; $bad++; }
+// the foe's Hurt does not get a combo from my Guard/Trick (combos chain off your own tiles only)
+$st = ['level' => 1, 'grit' => 0]; $s = pf_new(['hp' => 99, 'max_hp' => 99, 'stats' => $st, 'deck' => pf_player_deck($st), 'luck' => 0], ['slug' => 'x', 'size' => 'small', 'level' => 1, 'dmg_die' => 4, 'dmg_bonus' => 0], 5);
+[$g, $h] = [['k' => 'g', 'n' => 'G', 't' => 'guard', 'v' => 4, 'r' => 'body', 'tag' => ''], ['k' => 'h', 'n' => 'H', 't' => 'hurt', 'v' => 6, 'r' => 'mind', 'tag' => '']];
+[$v, , $ck] = pf_value($g, $h, false);
+if ($ck !== null) { echo "FAIL seam combo given to the other side\n"; $bad++; }
+[, , $ck2] = pf_value($g, $h, true);
+if ($ck2 !== 'guard>hurt') { echo "FAIL own combo missing\n"; $bad++; }
 // determinism: same seed, same moves, same result
 $a = pf_new(sim_player(5), $rows[3], 99); $b = pf_new(sim_player(5), $rows[3], 99);
 pf_play($a, [0, 1], 1); pf_play($b, [0, 1], 1);
+unset($a['nonce'], $b['nonce']);   // the nonce is random on purpose
 if (json_encode($a) !== json_encode($b)) { echo "FAIL seeded fight not deterministic\n"; $bad++; }
 // stale turn ignored, view hides draw and foe hand
 $r = pf_play($a, [0], 1); if ($r['err'] !== 'stale') { echo "FAIL stale turn accepted\n"; $bad++; }

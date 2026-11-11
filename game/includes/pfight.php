@@ -11,20 +11,21 @@ const PF_HAND_CAP = 5;
 const PF_DRAW = 3;
 const PF_CHAIN_MAX = 4;
 const PF_TURN_CAP = 24;
+/** Resolve bar = pace turns x K x (base + slope x creature level); bosses use their own K. Tuned with tests/pfight_sim.php (a realistic gnome: stat modifier about (level+3)/14). */
+const PF_BAR_K = 1.6, PF_BAR_BOSS = 1.4, PF_BAR_BASE = 5, PF_BAR_SLOPE = 0.35;
 
 /** Effect type -> family of the hole on a tile's left side. Knob (right side) family is set per tile; null = flat/wild. */
 const PF_HOLE = ['hurt' => 'body', 'guard' => 'body', 'heal' => 'mind', 'charm' => 'mind', 'soothe' => 'mind', 'trick' => 'craft', 'item' => 'craft'];
-const PF_TYPES = ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item'];
 const PF_STAT = ['hurt' => 'grit', 'guard' => 'nimble', 'heal' => 'hardiness', 'charm' => 'charm', 'soothe' => 'charm', 'trick' => 'lore', 'item' => 'lore'];
 
 /** Combos by "prev>next" type pair. Bonus lands on the later tile. mul = value x mul (percent), flat = +value. */
 const PF_COMBOS = [
-    'trick>hurt'  => ['name' => 'Ambush',      'mul' => 200, 'flat' => 0],
+    'trick>hurt'  => ['name' => 'Ambush',      'mul' => 150, 'flat' => 'prev'],   // flat 'prev' = plus the value of the tile before
     'guard>hurt'  => ['name' => 'Riposte',     'mul' => 150, 'flat' => 0],
     'hurt>hurt'   => ['name' => 'Double Swing', 'mul' => 100, 'flat' => 2],
     'soothe>charm' => ['name' => 'Calm Charm', 'mul' => 150, 'flat' => 0],
     'charm>item'  => ['name' => 'Win Over',    'mul' => 100, 'flat' => 0, 'barPct' => 50],
-    'trick>guard' => ['name' => 'Bait',        'mul' => 150, 'flat' => 0],
+    'trick>guard' => ['name' => 'Bait',        'mul' => 100, 'flat' => 'prev'],
 ];
 
 /** The tile library. t = type, v = base value, r = knob family of the right end (null = flat), tag = optional rule. */
@@ -44,6 +45,8 @@ function pf_tiles(): array
         'soothe' => ['n' => 'Soothe', 't' => 'soothe', 'v' => 2, 'r' => 'mind'],
         'offer'  => ['n' => 'Offer',  't' => 'charm',  'v' => 6, 'r' => null],
         'taunt'  => ['n' => 'Taunt',  't' => 'trick',  'v' => 3, 'r' => 'body'],
+        'jab'    => ['n' => 'Jab',    't' => 'hurt',   'v' => 3, 'r' => 'craft'],
+        'breather' => ['n' => 'Breather', 't' => 'heal', 'v' => 2, 'r' => 'body'],   // stands in for Snack when there is nothing to eat
         // calling tiles (tier I; II/III raise v, see pf_calling_tile)
         'bark'   => ['n' => 'Bark Wall',   't' => 'guard',  'v' => 6, 'r' => 'body'],
         'bloom'  => ['n' => 'Bloom',       't' => 'charm',  'v' => 8, 'r' => 'mind'],
@@ -84,18 +87,18 @@ function pf_make_tile(string $key, array $stats, int $bonus = 0, array $over = [
 
 /** Player deck: gnome base six, the calling tile (tier upgrades value) and pals swapping in for gnome tiles.
  *  $pals = list of ['swap' => gnomeTileKey, 'n' => name, 't' => type, 'v' => base, 'r' => knob|null]. */
-function pf_player_deck(array $stats, string $calling = '', int $tier = 1, array $pals = [], array $unlocked = [], array $typeBonus = []): array
+function pf_player_deck(array $stats, string $calling = '', int $tier = 1, array $pals = [], array $unlocked = [], array $typeBonus = [], bool $snack = true): array
 {
-    $keys = ['swing', 'dodge', 'rest', 'charm', 'snack', 'hide'];
-    foreach ($unlocked as $k) if (isset(pf_tiles()[$k]) && !in_array($k, $keys, true)) $keys[] = $k;
+    $keys = ['swing', 'dodge', 'rest', 'charm', $snack ? 'snack' : 'breather', 'hide'];
+    foreach ($unlocked as $k) if (isset(pf_tiles()[$k]) && !in_array($k, $keys, true) && !in_array($k, PF_CALLING_TILE, true)) $keys[] = $k;
     $deck = [];
     foreach ($keys as $k) {
         $t = pf_tiles()[$k];
         $deck[] = pf_make_tile($k, $stats, ($calling === 'bloomcaller' && in_array($t['t'], ['charm', 'soothe'], true) ? 2 : 0) + (int)($typeBonus[$t['t']] ?? 0));   // Bloomcallers: bigger Charm and Soothe numbers
     }
-    foreach (array_slice($pals, 0, 2) as $p) {   // a pal replaces one gnome tile of the type it swaps for
-        foreach ($deck as $i => $t) if ($t['k'] === ($p['swap'] ?? '')) {
-            $deck[$i] = pf_make_tile('pal:' . $p['n'], $stats, 0, ['n' => (string)$p['n'], 't' => (string)$p['t'], 'v' => (int)$p['v'], 'r' => $p['r'] ?? null, 'tag' => 'pal']);
+    foreach (array_slice($pals, 0, 2) as $p) {   // a pal replaces one gnome tile of the type it swaps for; the last Hurt tile is never replaced by something else
+        foreach ($deck as $i => $t) if ($t['k'] === ($p['swap'] ?? '') && ($t['t'] !== 'hurt' || ($p['t'] ?? '') === 'hurt')) {
+            $deck[$i] = pf_make_tile('pal:' . $p['n'], $stats, (int)($typeBonus[(string)$p['t']] ?? 0), ['n' => (string)$p['n'], 't' => (string)$p['t'], 'v' => (int)$p['v'], 'r' => $p['r'] ?? null, 'tag' => 'pal']);
             break;
         }
     }
@@ -111,7 +114,7 @@ function pf_temper(array $c): string
 }
 
 /** Archetype from size + temperament: which foe tiles it carries. */
-function pf_foe_deck(array $c, array $foeStats): array
+function pf_foe_deck(array $c): array
 {
     $size = (string)($c['size'] ?? 'small');
     $temper = pf_temper($c);
@@ -167,19 +170,18 @@ function pf_new(array $me, array $c, int $seed, array $opt = []): array
     $hm = $temper === 'hostile' ? 1.0 : 0.5;   // Hurt multiplier on the bar
     $cm = $temper === 'hostile' ? 0.5 : 1.0;   // Charm multiplier
     if ($boss && empty($opt['boss_charm'])) { $hm = 1.0; $cm = 0.0; }   // story bosses: see off only
-    $s = ['v' => 1, 'rng' => $seed ?: 1, 'turn' => 1, 'over' => null, 'strip' => [], 'log' => [],
+    $s = ['rng' => $seed ?: 1, 'nonce' => bin2hex(random_bytes(4)), 'turn' => 1, 'over' => null, 'strip' => [], 'log' => [],
         'hm' => $hm, 'cm' => $cm, 'boss' => $boss, 'temper' => $temper, 'size' => $size,
-        'me' => ['hp' => (int)$me['hp'], 'max' => (int)$me['max_hp'], 'block' => 0, 'hand' => [], 'draw' => [], 'discard' => [], 'redraws' => max(0, intdiv((int)($me['luck'] ?? 0), 4)), 'luck' => (int)($me['luck'] ?? 0)],
+        'me' => ['hp' => (int)$me['hp'], 'max' => (int)$me['max_hp'], 'block' => 0, 'hand' => [], 'draw' => [], 'discard' => [], 'redraws' => max(0, min(3, intdiv((int)($me['luck'] ?? 0), 3)))],   // a per-fight budget (Luck modifier / 3, at most 3)
         'foe' => ['hand' => [], 'draw' => [], 'discard' => [], 'block' => 0, 'agg' => 0, 'hsize' => $boss ? 4 : 3, 'name' => (string)($c['name'] ?? 'Creature'), 'intent' => null],
         'bar' => ['now' => 0.0, 'max' => 1.0, 'hurt' => 0.0, 'charm' => 0.0],
         'run_ok' => !$boss,
     ];
     $s['me']['draw'] = pf_shuffle($s, array_values($me['deck']));
-    $foeDeck = pf_foe_deck($c, []);
+    $foeDeck = pf_foe_deck($c);
     $s['foe']['ordered'] = $boss;
     $s['foe']['draw'] = $boss ? array_reverse($foeDeck) : pf_shuffle($s, $foeDeck);   // a boss plays its authored order (the deck list), over and over
-    $exp = pf_expected_bar($me['deck'], $hm, $cm);
-    $s['bar']['max'] = max(6.0, round($exp * pf_pace($size) * ($boss ? 1.8 : 1.5), 1));
+    $s['bar']['max'] = max(6.0, round(pf_pace($size) * ($boss ? PF_BAR_BOSS : PF_BAR_K) * (PF_BAR_BASE + PF_BAR_SLOPE * max(1, (int)($c['level'] ?? 1))), 1));   // sized by the creature, so your stats and level shorten fights
     // turn one: player draws up to the cap, foe draws its hand
     pf_draw($s, 'me', PF_HAND_CAP);
     pf_draw($s, 'foe', $s['foe']['hsize']);
@@ -215,33 +217,41 @@ function pf_combo(?array $a, array $b): ?array
 }
 
 /** Value of $b played after $a (a = strip's open end or earlier chain tile) including fit bonus and combo. Returns [value, fit, comboKey|null]. */
-function pf_value(?array $a, array $b, bool $fitAllowed = true): array
-{
+function pf_value(?array $a, array $b, bool $combo = true): array
+{   // $combo false = the open end is the other side's tile: it can still fit, but it cannot start your combo
     $v = (float)$b['v'];
-    $fit = $fitAllowed && pf_fits($a, $b);
+    $fit = pf_fits($a, $b);
     if ($fit) $v += max(1, (int)round($b['v'] * 0.25));
     $ck = null;
-    $cb = pf_combo($a, $b);
-    if ($cb) { $ck = $a['t'] . '>' . $b['t']; $v = $v * $cb['mul'] / 100 + $cb['flat']; }
+    $cb = $combo ? pf_combo($a, $b) : null;
+    if ($cb) { $ck = $a['t'] . '>' . $b['t']; $v = $v * $cb['mul'] / 100 + ($cb['flat'] === 'prev' ? (int)$a['v'] : (int)$cb['flat']); }
     return [(int)round($v), $fit, $ck];
 }
 
+/** The strip's open end: [tile, who played it] or [null, null]. */
+function pf_open(array $s): array
+{
+    if (!$s['strip']) return [null, null];
+    $x = $s['strip'][count($s['strip']) - 1];
+    return [$x['tile'], $x['by']];
+}
+
 /** Resolve a list of tiles for one side onto the strip. Mutates state, returns events for the client. */
-function pf_resolve(array &$s, string $who, array $tiles, ?array $planFoil = null): array
+function pf_resolve(array &$s, string $who, array $tiles): array
 {
     $ev = [];
     $other = $who === 'me' ? 'foe' : 'me';
     $s[$who]['block'] = 0;   // your guard from last turn is spent when you act again
-    foreach ($tiles as $ti => $tile) {
+    foreach ($tiles as $tile) {
         if ($s['over']) { $s[$who]['discard'][] = $tile; continue; }   // the fight ended mid-chain: the rest just go to the discard
-        $prev = $s['strip'] ? $s['strip'][count($s['strip']) - 1]['tile'] : null;
-        [$val, $fit, $ck] = pf_value($prev, $tile);
-        $e = ['by' => $who, 'k' => $tile['k'], 'n' => $tile['n'], 't' => $tile['t'], 'v' => $val, 'fit' => $fit, 'combo' => $ck ? PF_COMBOS[$ck]['name'] : null];
+        [$prev, $prevBy] = pf_open($s);
+        [$val, $fit, $ck] = pf_value($prev, $tile, $prevBy === $who);   // your combos chain off your own tiles only; a snug fit works across the seam
+        $e = ['by' => $who, 'tag' => $tile['tag'], 'k' => $tile['k'], 'n' => $tile['n'], 't' => $tile['t'], 'v' => $val, 'fit' => $fit, 'combo' => $ck ? PF_COMBOS[$ck]['name'] : null];
         $mine = &$s[$who]; $theirs = &$s[$other];
         switch ($tile['t']) {
             case 'hurt':
                 $dmg = $val;
-                if ($who === 'foe') $dmg = max(0, $dmg - $s['foe']['agg'] * max(1, intdiv($dmg, 5)));   // Soothe takes the edge off
+                if ($who === 'foe') { $cut = min($s['foe']['agg'], $dmg); $s['foe']['agg'] -= $cut; $dmg -= $cut; $e['soothed'] = $cut; }   // Soothe cuts the foe's next Hurt by its value
                 if ($who === 'foe') {   // against the player's HP
                     $abs = min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;
                     $theirs['hp'] = max(0, $theirs['hp'] - $dmg);
@@ -255,11 +265,14 @@ function pf_resolve(array &$s, string $who, array $tiles, ?array $planFoil = nul
                 break;
             case 'guard':
                 $mine['block'] += $val;
-                if ($prev && $prev['t'] === 'hurt' && ($s['strip'][count($s['strip']) - 1]['by'] ?? '') === $other) {   // Riposte across the seam: reflect part of the hit
+                if ($prev && $prev['t'] === 'hurt' && $prevBy === $other) {   // Riposte across the seam: reflect part of the hit
                     $refl = intdiv($val, 2);
                     $e['combo'] = $e['combo'] ?: 'Riposte';
                     if ($who === 'me') { $add = $refl * $s['hm']; $s['bar']['now'] += $add; $s['bar']['hurt'] += $add; $e['bar'] = round($add, 1); }
-                    else { $mine2 = max(0, $theirs['hp'] - $refl); $e['reflect'] = $theirs['hp'] - $mine2; $theirs['hp'] = $mine2; }
+                    else {   // the foe's reflect goes through your block like any other hit
+                        $abs = min($theirs['block'], $refl); $theirs['block'] -= $abs; $refl -= $abs;
+                        $e['reflect'] = min($refl, $theirs['hp']); $theirs['hp'] = max(0, $theirs['hp'] - $refl);
+                    }
                 }
                 break;
             case 'heal':
@@ -270,9 +283,9 @@ function pf_resolve(array &$s, string $who, array $tiles, ?array $planFoil = nul
                 if ($who === 'me') { $add = $val * $s['cm']; $s['bar']['now'] += $add; $s['bar']['charm'] += $add; $e['bar'] = round($add, 1); }
                 break;
             case 'soothe':
-                if ($who === 'me') $s['foe']['agg'] = min(3, $s['foe']['agg'] + 1);
+                if ($who === 'me') $s['foe']['agg'] += $val;   // pool that blunts the foe's next Hurt(s) this turn
                 break;
-            case 'trick':   // setup: nothing on its own, it pays through combos (and bumps a little foil on the open end)
+            case 'trick':   // setup: nothing on its own, it pays through Ambush and Bait
                 break;
             case 'item':
                 if ($who === 'me') $mine['hp'] = min($mine['max'], $mine['hp'] + $val);   // Snack/Item: heal; the caller consumes the real item
@@ -359,7 +372,7 @@ function pf_foe_turn(array &$s, int $extra): array
     $rm = $plan; rsort($rm);
     foreach ($rm as $i) array_splice($s['foe']['hand'], $i, 1);
     $ev = pf_resolve($s, 'foe', $tiles);
-    $s['foe']['agg'] = max(0, $s['foe']['agg'] - 1);
+    $s['foe']['agg'] = 0;   // Soothe lasts the foe's next turn only
     return $ev;
 }
 
@@ -384,12 +397,14 @@ function pf_foe_plan(array $s, int $n): array
 
 function pf_plan_score(array $s, array $tiles): float
 {
-    $prev = $s['strip'] ? $s['strip'][count($s['strip']) - 1]['tile'] : null;
+    [$prev, $prevBy] = pf_open($s);
+    $ok = $prevBy === 'foe';
     $myHp = $s['me']['hp'] - $s['me']['block'];
     $barLeft = $s['bar']['max'] - $s['bar']['now'];
     $sc = 0.0; $dmg = 0.0;
     foreach ($tiles as $t) {
-        [$v] = pf_value($prev, $t);
+        [$v] = pf_value($prev, $t, $ok);
+        $ok = true;
         switch ($t['t']) {
             case 'hurt': $sc += $v * 1.0; $dmg += $v; break;
             case 'guard': $sc += $v * 0.55; break;
@@ -407,10 +422,8 @@ function pf_end_turn(array &$s): void
 {
     pf_draw($s, 'foe', $s['foe']['hsize']);
     $s['turn']++;
-    $s['me']['redraws'] = max(0, intdiv($s['me']['luck'], 4));
-    $s['foe']['agg'] = $s['foe']['agg'];
     pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + PF_DRAW));
-    if ($s['turn'] > PF_TURN_CAP) { $s['over'] = 'stall'; return; }
+    if ($s['turn'] > PF_TURN_CAP) { $s['over'] = $s['boss'] ? 'defeat' : 'stall'; return; }   // a boss is not escaped by dawdling
     pf_intent($s);
 }
 
@@ -422,9 +435,9 @@ function pf_intent(array &$s): void
 }
 
 /** Luck redraw: swap one hand tile for a fresh draw. Costs one of the turn's redraws. */
-function pf_redraw(array &$s, int $handIdx): bool
+function pf_redraw(array &$s, int $handIdx, int $turn): bool
 {
-    if ($s['over'] || $s['me']['redraws'] < 1 || $handIdx < 0 || $handIdx >= count($s['me']['hand'])) return false;
+    if ($s['over'] || $turn !== $s['turn'] || $s['me']['redraws'] < 1 || $handIdx < 0 || $handIdx >= count($s['me']['hand'])) return false;
     $t = array_splice($s['me']['hand'], $handIdx, 1)[0];
     $s['me']['discard'][] = $t;
     $s['me']['redraws']--;
@@ -445,10 +458,12 @@ function pf_preview(array $s, array $idx): ?array
 {
     $tiles = pf_pick($s, $idx);
     if ($tiles === null) return null;
-    $prev = $s['strip'] ? $s['strip'][count($s['strip']) - 1]['tile'] : null;
+    [$prev, $prevBy] = pf_open($s);
+    $ok = $prevBy === 'me';
     $out = []; $tot = ['hurt' => 0, 'guard' => 0, 'heal' => 0, 'charm' => 0];
     foreach ($tiles as $t) {
-        [$v, $fit, $ck] = pf_value($prev, $t);
+        [$v, $fit, $ck] = pf_value($prev, $t, $ok);
+        $ok = true;
         $out[] = ['n' => $t['n'], 'v' => $v, 'fit' => $fit, 'combo' => $ck ? PF_COMBOS[$ck]['name'] : null];
         if (isset($tot[$t['t']])) $tot[$t['t']] += $v;
         $prev = $t;
@@ -460,7 +475,8 @@ function pf_preview(array $s, array $idx): ?array
 function pf_view(array $s): array
 {
     $strip = array_map(fn($x) => ['by' => $x['by'], 'n' => $x['tile']['n'], 't' => $x['tile']['t'], 'v' => $x['tile']['v'], 'r' => $x['tile']['r']], array_slice($s['strip'], -4));
-    $open = $s['strip'] ? $s['strip'][count($s['strip']) - 1]['tile']['r'] : null;
+    [$ot, $oby] = pf_open($s);
+    $open = $ot['r'] ?? null;
     return [
         'turn' => $s['turn'], 'over' => $s['over'],
         'hp' => $s['me']['hp'], 'max' => $s['me']['max'], 'block' => $s['me']['block'],
@@ -468,6 +484,6 @@ function pf_view(array $s): array
         'redraws' => $s['me']['redraws'],
         'bar' => ['now' => round($s['bar']['now'], 1), 'max' => $s['bar']['max']],
         'foe' => ['name' => $s['foe']['name'], 'hand' => count($s['foe']['hand']), 'intent' => $s['foe']['intent'], 'block' => $s['foe']['block'], 'calm' => $s['foe']['agg']],
-        'strip' => $strip, 'open' => $open, 'can_run' => $s['run_ok'], 'combos' => PF_COMBOS,
+        'strip' => $strip, 'open' => $open, 'open_t' => $ot['t'] ?? null, 'open_v' => $ot['v'] ?? 0, 'open_by' => $oby, 'can_run' => $s['run_ok'], 'combos' => PF_COMBOS,
     ];
 }

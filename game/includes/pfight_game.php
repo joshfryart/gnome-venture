@@ -16,7 +16,7 @@ function pfight_on(array $u): bool
 }
 
 /** The player side of a fight: stats modifiers, deck (gnome six + calling tile + pals), HP carried in the expedition. */
-function pfight_me(array $u, array $exp): array
+function pfight_me(array $u, array $exp, array $enc = []): array
 {
     $st = ['level' => (int)$u['level']];
     foreach (['grit', 'nimble', 'hardiness', 'charm', 'lore', 'luck'] as $k) $st[$k] = eff_mod($u, $k);
@@ -33,11 +33,13 @@ function pfight_me(array $u, array $exp): array
     $hurtB = calling_perk($u, 'dmg_bonus') + (calling_perk($u, 'atk_bonus') >= 2 ? 1 : 0) + (calling_perk($u, 'crit_from', 20) <= 19 ? 1 : 0);
     if (calling_perk($u, 'atk_nimble') > 0) $st['grit'] = max($st['grit'], $st['nimble'] + calling_perk($u, 'atk_nimble'));
     $unlocked = [];
-    if ((int)$u['level'] >= 4) $unlocked[] = 'soothe';   // interim unlocks until the crafting hook exists: Soothe at level 4, Taunt at 7, Offer at 10
-    if ((int)$u['level'] >= 7) $unlocked[] = 'taunt';
-    if ((int)$u['level'] >= 10) $unlocked[] = 'offer';
-    $deck = pf_player_deck($st, (string)($u['calling'] ?? ''), max(1, min(3, (int)calling_tier($u))), $pals, $unlocked, ['hurt' => $hurtB, 'guard' => calling_perk($u, 'def_bonus')]);
-    return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => $deck, 'luck' => max(0, $st['luck'] * 2)];
+    if ((int)$u['level'] >= 4) $unlocked[] = 'soothe';   // interim unlocks until the crafting hook exists: Soothe 4, Jab (a second Hurt) 7, Taunt 10, Offer 12
+    if ((int)$u['level'] >= 7) $unlocked[] = 'jab';
+    if ((int)$u['level'] >= 10) $unlocked[] = 'taunt';
+    if ((int)$u['level'] >= 12) $unlocked[] = 'offer';
+    $canSnack = snacks_left($u, $enc) > 0 && fight_snacks($u) !== [];   // no snack to eat = a weak Breather instead of a dead Snack tile
+    $deck = pf_player_deck($st, (string)($u['calling'] ?? ''), max(1, min(3, (int)calling_tier($u))), $pals, $unlocked, ['hurt' => $hurtB, 'guard' => calling_perk($u, 'def_bonus')], $canSnack);
+    return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => $deck, 'luck' => max(0, $st['luck'])];
 }
 
 /**
@@ -47,7 +49,7 @@ function pfight_me(array $u, array $exp): array
 function pfight_pal_tiles(array $u): array
 {
     $kindType = ['ward' => 'guard', 'foot' => 'guard', 'guard' => 'guard', 'bulwark' => 'guard', 'slip' => 'guard', 'edge' => 'hurt', 'first' => 'hurt',
-        'mend' => 'heal', 'sip' => 'heal', 'feast' => 'heal', 'rally' => 'heal', 'petal' => 'charm', 'kindle' => 'trick', 'tonic' => 'trick', 'spoils' => 'trick', 'lesson' => 'trick'];
+        'mend' => 'heal', 'sip' => 'heal', 'feast' => 'heal', 'rally' => 'heal', 'petal' => 'charm', 'kindle' => 'trick', 'tonic' => 'trick'];   // bulwark, spoils and lesson still work the old way (max health, drops, XP) so they are not also tiles
     $activeType = ['strike' => 'hurt', 'sap' => 'hurt', 'shield' => 'guard', 'patch' => 'heal', 'snare' => 'trick', 'daze' => 'trick', 'rouse' => 'trick', 'gust' => 'trick'];
     $swapFor = ['hurt' => 'swing', 'guard' => 'dodge', 'heal' => 'rest', 'charm' => 'charm', 'trick' => 'hide'];
     $knob = ['hurt' => 'mind', 'guard' => 'craft', 'heal' => 'body', 'charm' => 'body', 'trick' => 'mind'];
@@ -55,13 +57,14 @@ function pfight_pal_tiles(array $u): array
     foreach (array_slice((array)ppal_equipped($u), 0, 2) as $e) {
         $pal = $e['pal'];
         $score = ['hurt' => 0, 'guard' => 0, 'heal' => 0, 'charm' => 0, 'trick' => 0];
-        foreach (ppal_pal_skills($pal) as $k => $v) $score[$kindType[$k] ?? 'trick'] += (int)$v;
+        foreach (ppal_pal_skills($pal) as $k => $v) if (isset($kindType[$k])) $score[$kindType[$k]] += (int)$v;
         if (($b = ppal_boon($pal)) && ($b['active'] ?? '') !== '') $score[$activeType[$b['active']] ?? 'trick'] += 3;
         arsort($score);
         $t = (string)array_key_first($score);
         $rar = ['common' => 0, 'uncommon' => 1, 'rare' => 2][$pal['rarity'] ?? 'common'] ?? 0;
         $swap = $swapFor[$t];
-        if (isset($used[$swap])) foreach (['swing', 'dodge', 'rest', 'hide'] as $alt) if (!isset($used[$alt])) { $swap = $alt; break; }   // two pals of one kind replace two different tiles
+        if (isset($used[$swap])) foreach (['hide', 'rest', 'dodge'] as $alt) if (!isset($used[$alt])) { $swap = $alt; break; }   // two pals of one kind replace two different tiles
+        if (isset($used[$swap])) continue;   // nothing left to swap: this pal stays home
         $used[$swap] = true;
         $out[] = ['swap' => $swap, 'n' => (string)($pal['name'] ?? 'Pal'), 't' => $t, 'v' => 4 + min(4, (int)round($score[$t] / 2)) + 2 * $rar, 'r' => $knob[$t]];
     }
@@ -71,7 +74,7 @@ function pfight_pal_tiles(array $u): array
 /** The fight state inside the encounter ($enc['pf']); created on first sight. Returns the state (also stored in $enc). */
 function pfight_state(array $u, array $exp, array &$enc, array $c): array
 {
-    if (empty($enc['pf'])) $enc['pf'] = pf_new(pfight_me($u, $exp), $c, random_int(1, 0x7FFFFFFE));
+    if (empty($enc['pf'])) $enc['pf'] = pf_new(pfight_me($u, $exp, $enc), $c, random_int(1, 0x7FFFFFFE));
     return $enc['pf'];
 }
 
@@ -82,31 +85,35 @@ function pfight_do(array $u, array &$exp, string $do): bool
     $c = encounter_creature($enc);
     if (!$c) return false;
     $s = pfight_state($u, $exp, $enc, $c);
-    $hp0 = (int)$s['me']['hp'];
-    $snackUsed = 0;
+    if (!hash_equals((string)$s['nonce'], (string)($_POST['nonce'] ?? ''))) { flash('That page is from another fight. Here is the current one.', 'err'); $exp['encounter'] = json_encode($enc); return false; }   // a stale page can never play into a different fight
+    $s['me']['hp'] = min((int)$s['me']['max'], max(1, (int)$exp['hp']));   // the expedition's health is the truth (the flag may have been flipped mid-fight)
+    $won = false;
     if ($do === 'pf_run') {
         if (!pf_run($s)) { flash('You cannot run from this one.', 'err'); return false; }
     } elseif ($do === 'pf_redraw') {
-        if (!pf_redraw($s, (int)($_POST['card'] ?? -1))) flash('No redraws left this turn.', 'err');
+        if (!pf_redraw($s, (int)($_POST['card'] ?? -1), (int)($_POST['turn'] ?? -1))) { $exp['encounter'] = json_encode($enc); return false; }   // no redraws left, or a stale page: nothing happens
     } elseif ($do === 'pf_play') {
         $idx = array_map('intval', array_filter(explode(',', (string)($_POST['chain'] ?? '')), 'strlen'));
-        $left = function_exists('snacks_left') ? snacks_left($u, $enc) : 0;
-        $snacks = fight_snacks($u);
+        $left = snacks_left($u, $enc);
+        $have = array_sum(array_column(fight_snacks($u), 'qty'));
         $want = 0;
-        $r = pf_play($s, $idx, (int)($_POST['turn'] ?? -1), function (array $t) use (&$want, $left, $snacks) {
+        $r = pf_play($s, $idx, (int)($_POST['turn'] ?? -1), function (array $t) use (&$want, $left, $have, $s) {
             if ($t['tag'] !== 'snack') return null;
-            if (++$want > min($left, count($snacks) ? array_sum(array_column($snacks, 'qty')) : 0)) return 'You have no snack to eat' . ($left <= 0 ? ' (snack limit reached this fight).' : '.');
+            if ((int)$s['me']['hp'] >= (int)$s['me']['max']) return 'You’re not hurt. Save the snack.';
+            if (++$want > min($left, $have)) return 'You have no snack to eat' . ($left <= 0 ? ' (snack limit reached this fight).' : '.');
             return null;
         });
-        if ($r['err'] === 'stale') { $exp['encounter'] = json_encode($enc); return false; }   // double tap or an old page: nothing happens
+        if ($r['err'] === 'stale') { flash('That turn has already passed.', 'err'); $exp['encounter'] = json_encode($enc); return false; }   // double tap or an old page: nothing happens
         if ($r['err']) { flash($r['err'], 'err'); return false; }
-        $snackUsed = $want;
-        pfight_unlock((int)$u['id'], $r['ev']);
+        $ate = 0;   // a snack is eaten only for a Snack tile that really resolved (the fight can end mid-chain), cheapest first
+        foreach ($r['ev'] as $e) if ($e['by'] === 'me' && $e['tag'] === 'snack') $ate++;
+        $snacks = fight_snacks($u);
+        usort($snacks, fn($a, $b) => $a['heal'] <=> $b['heal']);
+        foreach (array_slice($snacks, 0, 1) as $sn) for ($i = 0; $i < $ate; $i++) if (give_item((int)$u['id'], (int)$sn['id'], -1)) $enc['snacks'] = (int)($enc['snacks'] ?? 0) + 1;
+        $won = in_array($s['over'], ['seen_off', 'charmed'], true);
+        pfight_unlock((int)$u['id'], $r['ev'], $won);
         $enc['last'] = [];
         foreach ($r['ev'] as $e) { $ln = pfight_line($e, (string)$c['name']); exp_log($exp, $ln); $enc['last'][] = $ln; }
-        for ($i = 0; $i < $snackUsed; $i++) {   // eat the real snacks (the first one in the list that is left)
-            foreach (fight_snacks($u) as $sn) if (give_item((int)$u['id'], (int)$sn['id'], -1)) { $enc['snacks'] = (int)($enc['snacks'] ?? 0) + 1; break; }
-        }
     } else return false;
     $exp['hp'] = (int)$s['me']['hp'];
     $enc['pf'] = $s;
@@ -114,7 +121,6 @@ function pfight_do(array $u, array &$exp, string $do): bool
     switch ($s['over']) {
         case 'seen_off': case 'charmed':
             $charm = $s['over'] === 'charmed';
-            exp_log($exp, $charm ? '🌸 The ' . $c['name'] . ' calms down and takes to you.' : '🏆 You see off the ' . $c['name'] . '.');
             win_fight($u, $exp, $c, $charm, $charm);
             return true;
         case 'defeat':
@@ -147,9 +153,17 @@ function pfight_html(array $u, array $exp, array &$enc, array $c): string
 {
     $fresh = empty($enc['pf']);
     $s = pfight_state($u, $exp, $enc, $c);
-    if ($fresh) q('UPDATE expeditions SET encounter = ? WHERE id = ?', [json_encode($enc), $exp['id']]);   // the hand you see must be the hand the server plays
+    if ($fresh) {   // the hand you see must be the hand the server plays: write it only if the row is still exactly what this page read (compare-and-swap)
+        $n = q("UPDATE expeditions SET encounter = ? WHERE id = ? AND status = 'active' AND encounter = ?", [json_encode($enc), $exp['id'], (string)$exp['encounter']])->rowCount();
+        if ($n !== 1) {   // another request got there first: show what it stored (or nothing if the fight is already over)
+            $row = q_one("SELECT encounter FROM expeditions WHERE id = ? AND status = 'active'", [$exp['id']]);
+            $e2 = $row && $row['encounter'] ? json_decode((string)$row['encounter'], true) : null;
+            if (!$e2 || empty($e2['pf'])) return '<p class="help">The fight has moved on. <a href="' . e(url('adventure.php')) . '">Reload</a>.</p>';
+            $enc = $e2; $s = $e2['pf'];
+        }
+    }
     $v = pf_view($s);
-    $h = '<div class="pfight" id="pfight" data-turn="' . (int)$v['turn'] . '" data-open="' . e((string)($v['open'] ?? '')) . '" data-opent="' . e($v['strip'] ? (string)end($v['strip'])['t'] : '') . '" data-redraws="' . (int)$v['redraws'] . '">';
+    $h = '<div class="pfight" id="pfight" data-turn="' . (int)$v['turn'] . '" data-open="' . e((string)($v['open'] ?? '')) . '" data-opent="' . e((string)($v['open_t'] ?? '')) . '" data-openv="' . (int)$v['open_v'] . '" data-openby="' . e((string)($v['open_by'] ?? '')) . '" data-redraws="' . (int)$v['redraws'] . '">';
     $h .= '<div class="pf-foe"><b>' . e((string)$c['name']) . '</b> <small class="muted">' . e((string)$c['size']) . ' · lv ' . (int)$c['level'] . ' · ' . ($s['temper'] === 'gentle' ? 'gentle' : 'wary') . '</small>';
     $h .= '<div class="pf-bar" role="img" aria-label="Resolve ' . (int)$v['bar']['now'] . ' of ' . (int)$v['bar']['max'] . '"><progress max="' . (float)$v['bar']['max'] . '" value="' . (float)$v['bar']['now'] . '"></progress></div>';
     $h .= '<small>🃏 ' . (int)$v['foe']['hand'] . ' · next: <span class="pf-intent">' . e(pfight_icon((string)$v['foe']['intent'])) . ' ' . e((string)$v['foe']['intent']) . '</span>' . ($v['foe']['calm'] ? ' · 😌 calm ' . (int)$v['foe']['calm'] : '') . '</small></div>';
@@ -163,11 +177,11 @@ function pfight_html(array $u, array $exp, array &$enc, array $c): string
     $h .= '<div class="pf-hand" id="pf-hand">';
     foreach ($v['hand'] as $i => $t) $h .= pfight_tile_html($t, false, $i);
     $h .= '</div>';
-    $h .= '<form method="post" class="pf-form" id="pf-form">' . csrf_field() . '<input type="hidden" name="do" value="pf_play"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="chain" id="pf-chain" value="">'
+    $h .= '<form method="post" class="pf-form" id="pf-form">' . csrf_field() . '<input type="hidden" name="do" value="pf_play"><input type="hidden" name="nonce" value="' . e((string)$s['nonce']) . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="chain" id="pf-chain" value="">'
         . '<button class="btn primary" id="pf-go" disabled>Play chain</button> <button type="button" class="btn" id="pf-undo" disabled>Undo</button></form>';
     $h .= '<div class="pf-extra">';
-    if ($v['can_run']) $h .= '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="pf_run"><button class="btn">🏃 Run</button></form> ';
-    $h .= '<form method="post" class="inline" id="pf-rform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="pf_redraw"><input type="hidden" name="card" id="pf-card" value=""></form>';
+    if ($v['can_run']) $h .= '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="pf_run"><input type="hidden" name="nonce" value="' . e((string)$s['nonce']) . '"><button class="btn">🏃 Run</button></form> ';
+    $h .= '<form method="post" class="inline" id="pf-rform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="pf_redraw"><input type="hidden" name="nonce" value="' . e((string)$s['nonce']) . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="card" id="pf-card" value=""></form>';
     if ($v['redraws'] > 0) $h .= '<small class="muted">🍀 ' . (int)$v['redraws'] . ' redraw' . ($v['redraws'] > 1 ? 's' : '') . '</small> <button type="button" class="btn" id="pf-redraw" hidden>Redraw a tile</button>';
     $h .= '</div>';
     $h .= '<script type="application/json" id="pf-data">' . json_encode(['combos' => $v['combos'], 'hole' => PF_HOLE], JSON_HEX_TAG | JSON_HEX_AMP) . '</script>';
@@ -212,16 +226,16 @@ function pfight_pages(): void
     $so = 80;
     foreach (PF_PAGES as $title => [$key, $hint, $body]) {
         if (q_val("SELECT 1 FROM encyclopedia_entries WHERE chapter = 'General' AND title = ?", [$title])) continue;
-        try { db_insert('encyclopedia_entries', ['chapter' => 'General', 'category' => 'Fighting', 'title' => $title, 'body' => $body, 'unlock_key' => $key, 'hint' => $hint, 'sort_order' => $so++]); } catch (PDOException $e) {}
+        try { db_insert('encyclopedia_entries', ['chapter' => 'General', 'category' => 'Fighting', 'title' => $title, 'body' => $body, 'unlock_key' => $key, 'hint' => $hint, 'sort_order' => $so++]); } catch (PDOException $e) { return; }   // try again next time
     }
     set_setting('almanac_pfight', '1');
 }
 
 /** Unlock the overview, and a combo page the first time that combo fires. $events = the events of one chain. */
-function pfight_unlock(int $uid, array $events): void
+function pfight_unlock(int $uid, array $events, bool $won = false): void
 {
     pfight_pages();
-    unlock_entries($uid, 'pfight');
+    if ($won) unlock_entries($uid, 'pfight');
     $byName = ['Ambush' => 'trick>hurt', 'Riposte' => 'guard>hurt', 'Double Swing' => 'hurt>hurt', 'Calm Charm' => 'soothe>charm', 'Win Over' => 'charm>item', 'Bait' => 'trick>guard'];
     foreach ($events as $e) if (($e['by'] ?? '') === 'me' && !empty($e['combo']) && isset($byName[$e['combo']])) unlock_entries($uid, 'pfight:combo:' . $byName[$e['combo']]);
 }

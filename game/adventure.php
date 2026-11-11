@@ -282,7 +282,7 @@ page_header('On the mycelium');
 $wanderView = null;
 if ($exp && ($exp['kind'] ?? '') === 'explore' && ($snap = trail_snapshot($u))) $wanderView = trail_snapshot_view($u, $snap, $exp);
 if ($wanderView) {
-    $wOver = $exp && fight_scene_on() && (($enc && ($enc['type'] ?? '') === 'creature') || fight_finale_pending($exp));   // a fight off the Trail still plays on the map behind it
+    $wOver = $exp && fight_scene_on() && (($enc && ($enc['type'] ?? '') === 'creature' && !pfight_on($u)) || fight_finale_pending($exp));   // (a puzzle fight never draws the old stage)   // a fight off the Trail still plays on the map behind it
     echo '<div class="wanderbehind">' . trail_view_html($u, $wanderView[0], $wanderView[1], true, $wOver, $exp) . '</div>';
     if (!$enc) { echo wander_card_html($u, $exp, $last, $log, $from, $L); page_footer(); exit; }   // nothing in front of you: the purpose-built wander card
     ob_start();   // something in front of you: the usual encounter popover (fight, choice, meeting), the old page hidden behind it
@@ -309,10 +309,11 @@ if ($wi && !$isWalk): ?>
 </div>
 <?php endif; ?>
 <?php $hasMap = $trailSc || $wanderView || $mapMode || ($dv2Scene && $dv2Scene['map']); $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$fighting;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold); v2.1.12: event cards use it too ?>
-<div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $fighting && $hasMap && fight_scene_on() ? ' fsover' : '' ?><?= $wander ? ' wander' : '' ?>">
+<div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $fighting && $hasMap && fight_scene_on() && !pfight_on($u) ? ' fsover' : '' ?><?= $wander ? ' wander' : '' ?>">
 <div class="mapcol">
-<?php $fsc = $fighting && fight_scene_on();   // fight_scene: the animated stage replaces the picture and the popover for a creature fight
-$overMap = $exp && fight_scene_on() && ($fighting || fight_finale_pending($exp));   // a fight (or its end scene) is drawn over whichever map the page shows
+<?php $pfAct = $fighting && pfight_on($u);   // puzzle combat: no old stage, no old dock
+$fsc = $fighting && fight_scene_on() && !$pfAct;   // fight_scene: the animated stage replaces the picture and the popover for a creature fight
+$overMap = $exp && fight_scene_on() && (($fighting && !$pfAct) || fight_finale_pending($exp));   // a fight (or its end scene) is drawn over whichever map the page shows
 if ($exp && $overMap && !$fighting && !$hasMap) echo fight_finale_html($u, $exp, null);   // no map on the page (the list): the end scene plays on a stage of its own
 $evStage = $exp && !$trailSc && !$hasMap && fight_scene_on() && $enc && in_array($enc['type'] ?? '', ['choice', 'problem'], true);   // an event or a skill check stands on the same stage
 if ($evStage) { echo fight_event_html($u, $enc); }
