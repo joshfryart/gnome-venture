@@ -401,6 +401,11 @@ function pz_run_finish(array $u, array $run, int $minMs, string $winText): array
     } else {
         $msg .= ' Practice pays nothing but it’s good for you.';
     }
+    require_once __DIR__ . '/pfight_game.php';   // puzzle combat: a finished puzzle can earn a tile upgrade offer (a bigger board, rarer upgrades)
+    $tiers = $game === 'barrel' ? array_keys(PZ_BARREL_SIZES) : ($game === 'beds' ? array_keys(PZ_BEDS_SIZES) : []);
+    sort($tiers);
+    $pos = $tiers ? array_search((int)$run['size'], $tiers, false) : 0;
+    $msg .= pfight_puzzle_reward($u, 'run' . (int)$run['id'], $tiers && count($tiers) > 1 && $pos !== false ? (int)round(2 * $pos / (count($tiers) - 1)) : 0);
     return [true, $msg, $extra];
 }
 

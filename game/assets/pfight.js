@@ -40,7 +40,7 @@
     });
     var parts = [];
     [['hurt', '⚔️'], ['guard', '🛡️'], ['heal', '💚'], ['charm', '🌸'], ['soothe', '😌'], ['item', '🎒']].forEach(function (p) { if (tot[p[0]]) parts.push(p[1] + ' ' + tot[p[0]]); });
-    prev.textContent = (parts.join(' · ') || 'Setup only') + (notes.length ? ' · ✨ ' + notes.join(', ') : '') + (chain.some(function (i) { return tiles[i].dataset.tag === 'bash'; }) ? ' · Bash adds your guard' : '') + (chain.length === 4 ? ' · a full chain gives the foe an extra move' : '');
+    prev.textContent = (parts.join(' · ') || 'Setup only') + (notes.length ? ' · ✨ ' + notes.join(', ') : '') + (chain.some(function (i) { return tiles[i].dataset.tag === 'bash'; }) ? ' · Bash adds your guard' : '') + (chain.filter(function (i) { return tiles[i].dataset.mod !== 'swift'; }).length === 4 ? ' · a full chain gives the foe an extra move' : '');
   }
 
   hand.addEventListener('click', function (ev) {
@@ -48,7 +48,7 @@
     var i = parseInt(b.dataset.i, 10);
     if (redrawMode) { if (submitted) return; submitted = true; tiles.forEach(function (t) { t.disabled = true; }); document.getElementById('pf-card').value = String(i); document.getElementById('pf-rform').submit(); return; }
     var k = chain.indexOf(i);
-    var lastHeavy = chain.length && tiles[chain[chain.length - 1]].dataset.tag === 'heavy';   // a heavy tile has to be last
+    var lastHeavy = chain.length && tiles[chain[chain.length - 1]].dataset.tag === 'heavy' && tiles[chain[chain.length - 1]].dataset.mod !== 'steady';   // a heavy tile has to be last
     if (k >= 0) chain.splice(k, 1); else if (chain.length < 4 && !lastHeavy) chain.push(i);
     render();
   });

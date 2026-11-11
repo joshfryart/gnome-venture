@@ -9,6 +9,14 @@ const { chromium } = require('playwright');
   p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   await p.goto(base + '/login.php'); await p.fill('input[name=username]', 'sprout'); await p.fill('input[name=password]', 'TestPass123!');
   await Promise.all([p.waitForNavigation(), p.press('input[name=password]', 'Enter')]);
+  if (process.argv[4] === 'box') {   // just the Puzzle box page (with whatever offers are waiting)
+    await p.goto(base + '/puzzlebox.php', { waitUntil: 'networkidle' });
+    await p.screenshot({ path: out + '/pfight-5-offer.png', fullPage: false });
+    const dlg = await p.locator('dialog.pbox-offer[open]').count(); const btns = await p.locator('dialog.pbox-offer[open] .pbox-pick button').count();
+    const bad = (dlg < 1 || btns < 1 || btns > 3 || errs.length) ? 1 : 0;
+    console.log(bad ? 'FAIL' : 'ok', 'offer dialog:', dlg, '| choices', btns, '| js errors:', errs.length ? errs.join(' | ') : 'none');
+    await b.close(); process.exit(bad);
+  }
   await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' });
   await p.screenshot({ path: out + '/pfight-1-start.png', fullPage: true });
   const tiles = p.locator('#pf-hand .pf-tile'); const n = await tiles.count();

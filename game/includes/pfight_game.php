@@ -42,7 +42,7 @@ function pfight_me(array $u, array $exp, array $enc = []): array
     $cal = (string)($u['calling'] ?? '');
     $box = pf_box((int)$u['level'], $cal, pbox_load((int)$u['id']));
     $canSnack = snacks_left($u, $enc) > 0 && fight_snacks($u) !== [];   // no snack to eat = a weak Breather instead of a dead Snack tile
-    $deck = pf_player_deck($st, $cal, max(1, min(3, (int)calling_tier($u))), $pals, [], $bonus, $canSnack, $box);
+    $deck = pfight_apply_mods(pf_player_deck($st, $cal, max(1, min(3, (int)calling_tier($u))), $pals, [], $bonus, $canSnack, $box), pfight_mods((int)$u['id']));
     return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => $deck, 'luck' => max(0, $st['luck'])];
 }
 
@@ -110,7 +110,7 @@ function pfight_pal_tiles(array $u): array
 /** The fight state inside the encounter ($enc['pf']); created on first sight. Returns the state (also stored in $enc). */
 function pfight_state(array $u, array $exp, array &$enc, array $c): array
 {
-    if (empty($enc['pf'])) $enc['pf'] = pf_new(pfight_me($u, $exp, $enc), $c, random_int(1, 0x7FFFFFFE));
+    if (empty($enc['pf'])) $enc['pf'] = pf_new(pfight_me($u, $exp, $enc), $c, random_int(1, 0x7FFFFFFE), ['can_pluck' => (int)q_val('SELECT COUNT(*) FROM creature_drops WHERE creature_id = ? AND item_id IS NOT NULL', [$c['id']]) > 0]);
     return $enc['pf'];
 }
 
@@ -149,7 +149,19 @@ function pfight_do(array $u, array &$exp, string $do): bool
         $won = in_array($s['over'], ['seen_off', 'charmed'], true);
         pfight_unlock((int)$u['id'], $r['ev'], $won);
         $enc['last'] = [];
-        foreach ($r['ev'] as $e) { $ln = pfight_line($e, (string)$c['name']); exp_log($exp, $ln); $enc['last'][] = $ln; }
+        foreach ($r['ev'] as $e) {
+            $ln = pfight_line($e, (string)$c['name']);
+            if (($e['pluck'] ?? '') === 'got') {   // Pluck worked: lift one item this creature could drop (weighted by its drop chances)
+                $rows = q('SELECT cd.item_id, cd.chance, i.name FROM creature_drops cd JOIN items i ON i.id = cd.item_id WHERE cd.creature_id = ? AND cd.item_id IS NOT NULL', [$c['id']])->fetchAll();
+                if ($rows) {
+                    $tot = array_sum(array_map(fn($x) => max(1, (int)$x['chance']), $rows)); $roll = random_int(1, $tot); $pick = $rows[0];
+                    foreach ($rows as $x) { $roll -= max(1, (int)$x['chance']); if ($roll <= 0) { $pick = $x; break; } }
+                    give_item((int)$u['id'], (int)$pick['item_id'], 1);
+                    $ln = '🤏 You lift ' . $pick['name'] . ' from the ' . $c['name'] . '!';
+                }
+            }
+            exp_log($exp, $ln); $enc['last'][] = $ln;
+        }
     } else return false;
     $exp['hp'] = (int)$s['me']['hp'];
     $enc['pf'] = $s;
@@ -181,6 +193,8 @@ function pfight_line(array $e, string $foe): string
     $bits = [];
     if (!empty($e['combo'])) $bits[] = '✨ ' . $e['combo'];
     if (!empty($e['fit'])) $bits[] = 'snug fit';
+    if (($e['pluck'] ?? '') === 'missed') return '🤏 You try to pluck something from the ' . $foe . ', but it notices.';
+    if (($e['pluck'] ?? '') === 'none') return '🤏 You reach for the ' . $foe . ', but it has nothing to lift (or you already took something).';
     $tail = match ($e['t']) { 'hurt' => ($e['by'] === 'me' ? ' for ' . (int)($e['dmg'] ?? $e['v']) : ' for ' . (int)($e['dmg'] ?? $e['v']) . ' damage'), 'guard' => ' (+' . (int)$e['v'] . ' guard)', 'heal', 'item' => ' (+' . (int)$e['v'] . ' health)', 'charm' => ' (' . (int)$e['v'] . ')', default => '' };
     return ($e['by'] === 'me' ? '🧩 ' : '💥 ') . $who . ' ' . $e['n'] . $tail . ($bits ? ' · ' . implode(', ', $bits) : '') . '.';
 }
@@ -238,14 +252,15 @@ function pfight_tile_html(array $t, bool $strip, int $i = -1): string
     $hole = (string)($t['hole'] ?? PF_HOLE[$t['t']] ?? '');
     $knob = (string)($t['r'] ?? '');
     $tag = (string)($t['tag'] ?? ''); $tg = PF_TAGS[$tag] ?? null;
-    $label = $t['n'] . ', ' . ucfirst($t['t']) . ' ' . $t['v'] . ', starts ' . $hole . ', ends ' . ($knob !== '' ? $knob : 'flat') . ($tg ? ', ' . $tg[1] : '');
+    $md = PF_MODS[(string)($t['m'] ?? '')] ?? null;
+    $label = $t['n'] . ', ' . ucfirst($t['t']) . ' ' . $t['v'] . ', starts ' . $hole . ', ends ' . ($knob !== '' ? $knob : 'flat') . ($tg ? ', ' . $tg[1] : '') . ($md ? ', upgrade ' . $md[0] . ': ' . $md[2] : '');
     $cls = 'pf-tile ' . ($strip ? 'pf-s ' : 'pf-h ') . 'pf-' . $t['t'] . (!empty($t['by']) ? ' by-' . $t['by'] : '');
     // sockets: shape by family (round / keyhole / triangle), a hole is drawn hollow and a knob solid, and the family letter stays as text: never colour alone
     $l = '<span class="pf-sock l hole f-' . ($hole ?: 'flat') . '" aria-hidden="true">' . ($fam[$hole] ?? '·') . '</span>';
     $r = '<span class="pf-sock r knob f-' . ($knob ?: 'flat') . '" aria-hidden="true">' . ($fam[$knob] ?? '·') . '</span>';
-    $inner = $l . '<span class="pf-ico" aria-hidden="true">' . pfight_icon($t['t']) . '</span>' . ($strip ? '' : '<span class="pf-nm">' . e($t['n']) . ($tg ? ' <span class="pf-tg" aria-hidden="true">' . $tg[0] . '</span>' : '') . '</span>') . '<span class="pf-val">' . (int)$t['v'] . '</span>' . $r;
+    $inner = $l . '<span class="pf-ico" aria-hidden="true">' . pfight_icon($t['t']) . '</span>' . ($strip ? '' : '<span class="pf-nm">' . e($t['n']) . ($tg ? ' <span class="pf-tg" aria-hidden="true">' . $tg[0] . '</span>' : '') . ($md ? ' <span class="pf-tg" aria-hidden="true">' . $md[1] . '</span>' : '') . '</span>') . '<span class="pf-val">' . (int)$t['v'] . '</span>' . $r;
     if ($strip) return '<span class="' . $cls . '" role="img" aria-label="' . e($label) . '">' . $inner . '</span>';
-    return '<button type="button" class="' . $cls . '" data-i="' . $i . '" data-hole="' . e($hole) . '" data-knob="' . e($knob) . '" data-t="' . e($t['t']) . '" data-tag="' . e($tag) . '" data-v="' . (int)$t['v'] . '" aria-label="' . e($label) . '" aria-pressed="false">' . $inner . '</button>';
+    return '<button type="button" class="' . $cls . '" data-i="' . $i . '" data-hole="' . e($hole) . '" data-knob="' . e($knob) . '" data-t="' . e($t['t']) . '" data-tag="' . e($tag) . '" data-mod="' . e((string)($t['m'] ?? '')) . '" data-v="' . (int)$t['v'] . '" aria-label="' . e($label) . '" aria-pressed="false">' . $inner . '</button>';
 }
 
 /** Almanac pages for puzzle fights, added once per world by title (like ensure_almanac_new_pages_2644): one overview and one per combo, each unlocking on first use. */
@@ -254,6 +269,10 @@ const PF_PAGES = [
         "Fights are played with [b]tiles[/b]. You start with 5 in hand and draw 3 each turn (never above 5). Tap up to 4 tiles in the order you want them, then play the chain. The creature answers with a chain of its own, and a full chain of four gives it one more move.\n\n[b]Types:[/b] ⚔️ Hurt, 🛡️ Guard, 💚 Heal, 🌸 Charm, 😌 Soothe, 🎭 Trick, 🎒 Item. Numbers grow with your stats and level.\n\n[b]Sockets:[/b] each tile has a hole on the left and a knob on the right in one of three families (B Body, M Mind, C Craft). A knob that matches the next tile's hole is a [b]snug fit[/b]: a little extra value. A poor fit still works; it only skips the bonus.\n\n[b]The bar:[/b] every creature has one resolve bar. Hurt and Charm both fill it, gentle creatures like Charm best and wary ones like Hurt. Whichever you used more decides whether you see it off or win it over. A charmed creature leaves a gift.\n\n[b]Run[/b] always works except against the great ones, and costs nothing.\n\n[b]The Puzzle box:[/b] you do not bring every tile you own. Your box holds a limited number (8 at the start, one more every 3 levels, 14 at most), so choose. Open it from the fight card or the My Gnome page. A change applies from your next fight."],
     'Hurt tiles' => ['pfight:tiles', 'Play a Hurt tile with a tactic.',
         "Hurt tiles differ by [b]how[/b] they hit, not only how hard.\n\n⚡ [b]Jab[/b] (Quick): draws you a tile when played.\n📌 [b]Pierce[/b]: ignores the creature's guard.\n🧪 [b]Sting[/b] (Poison): keeps working for 2 more turns.\n🪢 [b]Trip[/b]: the creature plays one tile fewer next turn.\n🛡️ [b]Shield Bash[/b]: adds the guard you built earlier in the chain to the hit.\n🪨 [b]Smash[/b] (Heavy): a big blow that has to go last in a chain.\n\nThey unlock as your gnome grows: Jab at level 5, Pierce 8, Trip 11, Sting 13, Bash 14, Smash 16. Gentle creatures take Hurt at half strength; Charm suits them better."],
+    'Defence and Charm tiles' => ['pfight:tiles2', 'Play a guard or charm tile with a tactic.',
+        "Guards and Charms differ by how they work too.\n\n[b]Guards:[/b] ⚓ [b]Brace[/b] lasts through your next turn. 💨 [b]Roll[/b] makes the creature's first Hurt next turn miss completely. 🌵 [b]Thorn Hide[/b] pricks the creature when it hits your guard. 🩹 [b]Mending[/b] heals you 2.\n\n[b]Charms:[/b] 🎵 [b]Hum[/b] also calms the creature. 🌙 [b]Lull[/b] makes it play a tile fewer. 🤝 [b]Bond[/b] warms it to Charm for the rest of the fight (up to three times).\n\n[b]Stealing:[/b] 🤏 [b]Pluck[/b] is a Trick with a small chance to lift an item the creature could drop. Luck raises the chance, a legendary creature is harder to rob, and you can lift one thing a fight."],
+    'Puzzle upgrades' => ['pfight:mods', 'Finish a puzzle to earn an upgrade.',
+        "Finishing a puzzle in [b]any game and any mode[/b] can earn a [b]Puzzle upgrade[/b]: a secondary effect for one of your tiles. Open your Puzzle box and choose one of three. A bigger puzzle gives rarer upgrades.\n\nYou can earn [b]3 a day[/b] (a new day starts at midnight, server time), and up to 3 can wait unopened. Each tile holds one upgrade; it stays until you remove it, or choose another for the same tile.\n\n🧲 Sticky, 🪶 Swift, 🧱 Hardy, 💗 Tender are common. 🩸 Leech, 🦔 Spiky, 🪽 Soft touch are uncommon. 🔥 Warm, 🎯 Finisher, 🍀 Lucky, ⚖️ Steady are rare."],
     'Ambush' => ['pfight:combo:trick>hurt', 'Play a Trick, then a Hurt.', "🎭 then ⚔️. The Hurt counts one and a half times, plus the Trick's own value. Set it up, then strike."],
     'Riposte' => ['pfight:combo:guard>hurt', 'Play a Guard, then a Hurt, or Guard right after a creature hits.', "🛡️ then ⚔️: the Hurt counts one and a half times. A Guard played straight after the creature's Hurt also turns half its value back on it."],
     'Double Swing' => ['pfight:combo:hurt>hurt', 'Play two Hurts in a row.', "⚔️ then ⚔️: the second gets +2."],
@@ -279,6 +298,128 @@ function pfight_unlock(int $uid, array $events, bool $won = false): void
     pfight_pages();
     if ($won) unlock_entries($uid, 'pfight');
     $byName = ['Ambush' => 'trick>hurt', 'Riposte' => 'guard>hurt', 'Double Swing' => 'hurt>hurt', 'Calm Charm' => 'soothe>charm', 'Win Over' => 'charm>item', 'Bait' => 'trick>guard'];
-    foreach ($events as $e) if (($e['by'] ?? '') === 'me' && isset(PF_TAGS[(string)($e['tag'] ?? '')])) { unlock_entries($uid, 'pfight:tiles'); break; }
+    foreach ($events as $e) if (($e['by'] ?? '') === 'me' && isset(PF_TAGS[(string)($e['tag'] ?? '')])) { unlock_entries($uid, in_array($e['t'], ['guard', 'charm', 'trick'], true) ? 'pfight:tiles2' : 'pfight:tiles'); }
     foreach ($events as $e) if (($e['by'] ?? '') === 'me' && !empty($e['combo']) && isset($byName[$e['combo']])) unlock_entries($uid, 'pfight:combo:' . $byName[$e['combo']]);
+}
+
+
+// ---------------------------------------------------------------- upgrades (secondary effects) earned by finishing puzzles
+
+const PF_OFFER_DAILY = 3;   // offers a gnome can earn per real day (resets at midnight, server time)
+const PF_OFFER_BANK = 3;    // offers that can wait unopened
+
+/** The three tables behind upgrades: made on first use (no upgrade step needed). */
+function pmod_ensure(): bool
+{
+    static $ok = null;
+    if ($ok !== null) return $ok;
+    try { q('SELECT 1 FROM user_pmod LIMIT 1'); q('SELECT 1 FROM user_poffer LIMIT 1'); q('SELECT 1 FROM user_pgrant LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
+    try {
+        $sqlite = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+        $pk = $sqlite ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT AUTO_INCREMENT PRIMARY KEY';
+        db()->exec('CREATE TABLE IF NOT EXISTS user_pmod (user_id INTEGER NOT NULL, tile_key VARCHAR(40) NOT NULL, mod_key VARCHAR(24) NOT NULL, PRIMARY KEY (user_id, tile_key))');
+        db()->exec("CREATE TABLE IF NOT EXISTS user_poffer (id $pk, user_id INTEGER NOT NULL, ref VARCHAR(48) NOT NULL, rarity INTEGER NOT NULL DEFAULT 0, choices TEXT NOT NULL, created_at VARCHAR(24) NOT NULL, UNIQUE (user_id, ref))");
+        db()->exec('CREATE TABLE IF NOT EXISTS user_pgrant (user_id INTEGER NOT NULL, day VARCHAR(10) NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (user_id, day))');
+        return $ok = true;
+    } catch (Throwable $e) { error_log('pmod_ensure: ' . $e->getMessage()); return $ok = false; }
+}
+
+/** tile key => upgrade key, for one gnome. */
+function pfight_mods(int $uid): array
+{
+    if (!pmod_ensure()) return [];
+    $o = [];
+    foreach (q('SELECT tile_key, mod_key FROM user_pmod WHERE user_id = ?', [$uid])->fetchAll() as $r) if (isset(PF_MODS[$r['mod_key']])) $o[$r['tile_key']] = $r['mod_key'];
+    return $o;
+}
+
+function pfight_mod_fits(string $mod, string $tileType): bool
+{
+    return isset(PF_MODS[$mod]) && in_array($tileType, PF_MODS[$mod][4], true);
+}
+
+/** Today's offers earned so far: [n, cap]. The day is the real (server) day, not the game clock. */
+function pfight_offer_today(int $uid): array
+{
+    if (!pmod_ensure()) return [0, PF_OFFER_DAILY];
+    return [(int)q_val('SELECT n FROM user_pgrant WHERE user_id = ? AND day = ?', [$uid, date('Y-m-d')]), PF_OFFER_DAILY];
+}
+
+function pfight_offers(int $uid): array
+{
+    if (!pmod_ensure()) return [];
+    $o = [];
+    foreach (q('SELECT * FROM user_poffer WHERE user_id = ? ORDER BY id', [$uid])->fetchAll() as $r) { $r['choices'] = json_decode((string)$r['choices'], true) ?: []; $o[] = $r; }
+    return $o;
+}
+
+/** Three (tile, upgrade) choices for a gnome. Rarity 0-2 (bigger puzzle = rarer): the mix of upgrade rarities leans up with it. */
+function pfight_offer_choices(array $u, int $rarity): array
+{
+    $own = pf_collection((int)$u['level'], (string)($u['calling'] ?? ''));
+    $weights = [[80, 20, 0], [40, 45, 15], [15, 45, 40]][max(0, min(2, $rarity))];
+    $have = pfight_mods((int)$u['id']);
+    $out = []; $seen = [];
+    for ($try = 0; $try < 60 && count($out) < 3; $try++) {
+        $roll = random_int(1, 100); $r = $roll <= $weights[0] ? 0 : ($roll <= $weights[0] + $weights[1] ? 1 : 2);
+        $mods = array_keys(array_filter(PF_MODS, fn($m) => $m[3] === $r));
+        $mod = $mods[random_int(0, count($mods) - 1)];
+        $tiles = array_values(array_filter($own, fn($k) => pfight_mod_fits($mod, pf_tiles()[$k]['t']) && ($have[$k] ?? '') !== $mod && ($mod !== 'steady' || (pf_tiles()[$k]['tag'] ?? '') === 'heavy')));
+        if (!$tiles) continue;
+        $tile = $tiles[random_int(0, count($tiles) - 1)];
+        if (isset($seen[$tile . '|' . $mod])) continue;
+        $seen[$tile . '|' . $mod] = true;
+        $out[] = [$tile, $mod];
+    }
+    return $out;
+}
+
+/**
+ * A puzzle was finished (any game, any mode). Maybe bank an upgrade offer; returns a sentence for the player (or '').
+ * $ref is unique per finished run, so a hand-in can never pay twice. $rarity: 0 small, 1 medium, 2 big puzzle.
+ * Up to PF_OFFER_DAILY a real day, and PF_OFFER_BANK waiting at once; either way the player is told.
+ */
+function pfight_puzzle_reward(array $u, string $ref, int $rarity): string
+{
+    if (!pfight_on($u) || is_guest($u) || !pmod_ensure()) return '';
+    $uid = (int)$u['id'];
+    if (q_val('SELECT 1 FROM user_poffer WHERE user_id = ? AND ref = ?', [$uid, $ref])) return '';
+    [$n, $cap] = pfight_offer_today($uid);
+    if ($n >= $cap) return ' 🧩 No Puzzle upgrade this time: you have earned all ' . $cap . ' for today. They come back at midnight.';
+    if (count(pfight_offers($uid)) >= PF_OFFER_BANK) return ' 🧩 You have ' . PF_OFFER_BANK . ' Puzzle upgrade offers waiting. Open your Puzzle box to choose one.';
+    $choices = pfight_offer_choices($u, $rarity);
+    if (count($choices) < 1) return '';
+    try { q('INSERT INTO user_poffer (user_id, ref, rarity, choices, created_at) VALUES (?, ?, ?, ?, ?)', [$uid, $ref, $rarity, json_encode($choices), now()]); } catch (Throwable $e) { return ''; }
+    $day = date('Y-m-d');
+    if (!q('UPDATE user_pgrant SET n = n + 1 WHERE user_id = ? AND day = ?', [$uid, $day])->rowCount()) { try { q('INSERT INTO user_pgrant (user_id, day, n) VALUES (?, ?, 1)', [$uid, $day]); } catch (Throwable $e) {} }
+    pfight_pages(); unlock_entries($uid, 'pfight:mods');
+    return ' 🧩 You earned a Puzzle upgrade! (' . ($n + 1) . ' of ' . $cap . ' today) Open your Puzzle box to choose one of three.';
+}
+
+/** Choose one of an offer's three. Returns an error message or null. */
+function pfight_offer_pick(array $u, int $offerId, int $choice): ?string
+{
+    $uid = (int)$u['id'];
+    foreach (pfight_offers($uid) as $o) if ((int)$o['id'] === $offerId) {
+        $c = $o['choices'][$choice] ?? null;
+        if (!$c || !isset(pf_tiles()[$c[0]]) || !isset(PF_MODS[$c[1]])) return 'That choice is gone.';
+        if (!in_array($c[0], pf_collection((int)$u['level'], (string)($u['calling'] ?? '')), true)) return 'You do not own that tile.';
+        if (q('DELETE FROM user_poffer WHERE id = ? AND user_id = ?', [$offerId, $uid])->rowCount() !== 1) return 'That offer was already used.';
+        q('DELETE FROM user_pmod WHERE user_id = ? AND tile_key = ?', [$uid, $c[0]]);
+        q('INSERT INTO user_pmod (user_id, tile_key, mod_key) VALUES (?, ?, ?)', [$uid, $c[0], $c[1]]);
+        return null;
+    }
+    return 'That offer was not found.';
+}
+
+function pfight_mod_remove(array $u, string $tile): void
+{
+    if (pmod_ensure()) q('DELETE FROM user_pmod WHERE user_id = ? AND tile_key = ?', [(int)$u['id'], $tile]);
+}
+
+/** Put the gnome's upgrades on the tiles of a built deck (pal tiles cannot be upgraded). */
+function pfight_apply_mods(array $deck, array $mods): array
+{
+    foreach ($deck as $i => $t) if (isset($mods[$t['k']]) && pfight_mod_fits($mods[$t['k']], $t['t'])) $deck[$i]['m'] = $mods[$t['k']];
+    return $deck;
 }

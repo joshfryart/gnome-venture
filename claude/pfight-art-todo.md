@@ -35,3 +35,13 @@ The Hurt type now has six tiles that play differently. Each needs its own 32x32 
 - Shield Bash (uses your guard: a shield swung at the foe) / tag mark: small shield
 - Smash (heavy, last in chain: a mallet or boulder) / tag mark: rock
 Names: `ico-hurt-<jab|pierce|sting|trip|bash|smash>.png`, `ico-hurt-<name>-s.png`, `tag-<quick|pierce|poison|trip|bash|heavy>.png`. They must stay distinguishable from each other in grayscale (different silhouettes).
+
+## Added: defence, charm and stealing tiles, and Puzzle upgrades (needs art)
+New tile icons (32x32 hand + 20x20 strip each, own silhouette in grayscale) and a 12x12 tag mark each:
+- Guards: Brace (anchor/stump, tag: anchor), Roll (a tumbling gnome, tag: whoosh), Thorn Hide (a prickly shield, tag: cactus), Mending (a plaster/leaf bandage, tag: plaster)
+- Charms: Hum (musical note, tag: note), Lull (a crescent moon, tag: moon), Bond (two hands or two sprouts, tag: handshake)
+- Trick: Pluck (a pinching hand with a small item, tag: pinch)
+Names: `ico-<brace|roll|thornhide|mending|hum|lull|bond|pluck>.png` and `-s.png`, `tag-<hold|evade|thorns|mend|hum|lull|bond|pluck>.png`.
+
+Puzzle upgrades: a 12x12 corner gem on any upgraded tile (shown on hand tiles and the Puzzle box), one mark per upgrade so they stay tell-apart without colour: Sticky (magnet), Swift (feather), Hardy (bricks), Tender (heart), Leech (drop), Spiky (hedgehog), Soft touch (wing), Warm (flame), Finisher (target), Lucky (clover), Steady (scales). `mod-<sticky|swift|hardy|tender|leech|spiky|soft|warm|finisher|lucky|steady>.png`.
+Plus: a 96x96 popover header picture for "Choose an upgrade" (a jigsaw piece with a spark) and rarity trim for common/uncommon/rare (not colour only: 1, 2, 3 stitches or pips).

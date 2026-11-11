@@ -400,7 +400,9 @@ function puzzle_attempt_finish(array $u, string $token, int $drops): array
         require_once __DIR__ . '/puzzle_pals.php';
         if ($pp = ppal_on_solve((int)$u['id'], (int)$t['pic_id'], $x['tier'], 'tourney', (int)$a['id'])) $x['ppal'] = $pp;
     }
-    return [true, $ms <= $best ? 'A new best: ' . puzzle_ms_text($ms) . '!' : puzzle_ms_text($ms) . '. Your best is still ' . puzzle_ms_text($best) . '.', $x];
+    require_once __DIR__ . '/pfight_game.php';   // puzzle combat: a finished puzzle can earn a tile upgrade offer
+    $up = pfight_puzzle_reward($u, 'att' . (int)$a['id'], $total >= 100 ? 2 : ($total >= 40 ? 1 : 0));
+    return [true, ($ms <= $best ? 'A new best: ' . puzzle_ms_text($ms) . '!' : puzzle_ms_text($ms) . '. Your best is still ' . puzzle_ms_text($best) . '.') . $up, $x];
 }
 
 /** Settle one tournament row (status 'live'): places, notes, then free the picture of a Jigsaw. Returns false if somebody else settled it first. */

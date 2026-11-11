@@ -29,6 +29,7 @@ get 'welcome.php?step=garden' >/dev/null; post welcome.php -d do=finish -d 'gard
 echo "onboarded: $(db "SELECT onboarded FROM users WHERE username='sprout'")"
 db "UPDATE users SET energy=100 WHERE username='sprout'" >/dev/null
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" 2>&1 | tail -2
+T_REWARD=$(mktemp)
 FAILS=0; ck() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1 (got '$2', want '$3')"; FAILS=$((FAILS+1)); fi; }
 db "UPDATE settings SET value='0' WHERE name='pfight_open'" >/dev/null; db "INSERT OR IGNORE INTO settings (name,value) VALUES ('pfight_open','0')" >/dev/null
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
@@ -76,10 +77,10 @@ ck "Almanac pages were created once" "$(db "SELECT COUNT(*) FROM encyclopedia_en
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
 ck "run: redirect" "$(pf pf_run)" "302"
 ck "run ends the fight" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
-# the Puzzle box: a level 8 gnome owns 9 tiles (base six, Soothe, Jab, Pierce) and has room for 10
+# the Puzzle box: a level 8 gnome owns 12 tiles (base six, Soothe, Jab, Brace, Hum, Pluck, Pierce) and has room for 10
 db "UPDATE users SET level=8 WHERE username='sprout'" >/dev/null
 get puzzlebox.php >/dev/null; PB=$(grep -c 'name="tile\[\]"' $H)
-ck "Puzzle box lists what a level 8 gnome owns" "$PB" "9"
+ck "Puzzle box lists what a level 8 gnome owns" "$PB" "12"
 ck "Puzzle box says how many fit" "$(grep -c 'data-cap="10"' $H)" "1"
 post puzzlebox.php -d do=save -d tile[]=swing -d tile[]=dodge -d tile[]=rest -d tile[]=charm -d tile[]=hide -d tile[]=jab >/dev/null
 ck "a legal box is saved" "$(db "SELECT tiles FROM user_pbox LIMIT 1")" '["swing","dodge","rest","charm","hide","jab"]'
@@ -94,6 +95,29 @@ get adventure.php >/dev/null
 NAMES=$(grep -o 'class="pf-nm">[A-Za-z ]*' $H | sed 's/class="pf-nm">//' | sed 's/ *$//' | sort -u | paste -sd,)
 BAD=$(echo "$NAMES" | tr ',' '\n' | grep -vxE 'Swing|Dodge|Rest|Charm|Hide|Jab|Breather' | wc -l)
 ck "the fight uses only the packed box" "$BAD" "0"
+# puzzle upgrades (offers per real day, the bank, picking, removing)
+php -d display_errors=1 "$HERE/pfight_reward.php" "$GAME" > $T_REWARD 2>&1; cat $T_REWARD | grep -E "^FAIL|reward ok|Fatal|Warning" | head
+if [ -n "$SHOT" ]; then php -d display_errors=1 "$HERE/pfight_reward.php" "$GAME" >/dev/null 2>&1; node "$HERE/pfightshot.js" "$BASE" "$SHOT" box || { echo "FAIL offer dialog"; FAILS=$((FAILS+1)); }; fi
+ck "upgrade rewards test passed" "$(grep -c '^reward ok' $T_REWARD)" "1"
+# Pluck: with a lot of Luck it should lift an item within a handful of fights (and never break anything)
+db "UPDATE users SET stat_luck=40 WHERE username='sprout'" >/dev/null
+get puzzlebox.php >/dev/null
+post puzzlebox.php -d do=save -d tile[]=swing -d tile[]=dodge -d tile[]=rest -d tile[]=charm -d tile[]=hide -d tile[]=pluck >/dev/null
+LIFT=0
+for F in $(seq 1 30); do
+  php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight >/dev/null 2>&1
+  N=0; while [ $N -lt 30 ]; do
+    get adventure.php >/dev/null
+    [ "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" = "1" ] && break
+    TILES=$(grep -o 'data-i="[0-9]*" data-hole="[a-z]*" data-knob="[a-z]*" data-t="[a-z]*" data-tag="[a-z]*"' $H)
+    P=$(echo "$TILES" | grep 'data-tag="pluck"' | grep -o 'data-i="[0-9]*"' | grep -o '[0-9]*' | head -1)
+    O=$(echo "$TILES" | grep -v 'data-tag="pluck"' | grep -v 'data-t="item"' | grep -o 'data-i="[0-9]*"' | grep -o '[0-9]*' | head -1)
+    CH=$( [ -n "$P" ] && echo "$P,$O" || echo "$O" )
+    pf pf_play -d chain=$CH >/dev/null; N=$((N+1))
+  done
+  if db "SELECT log FROM expeditions ORDER BY id DESC LIMIT 1" | grep -q "You lift"; then LIFT=1; break; fi
+done
+ck "Pluck lifted an item within 30 fights (Luck 40)" "$LIFT" "1"
 ck "no error log from the box" "$(cat "$GAME/data/error-log.txt" 2>/dev/null | wc -c | tr -d ' ')" "0"
 ck "no errors in the game error log" "$(cat "$GAME/data/error-log.txt" 2>/dev/null | wc -c | tr -d ' ')" "0"
 ck "no PHP warnings in server log" "$(grep -cE 'PHP (Warning|Notice|Deprecated|Fatal)' $LOG)" "0"

@@ -59,3 +59,7 @@
 .pbox-item input:disabled + .pfight { opacity: .5; }
 .pbox-count { font-weight: bold; }
 .pf-box { font-size: .9rem; }
+.pbox-offer { max-width: min(92vw, 28rem); border: 3px solid currentColor; border-radius: .7rem; padding: .8rem; background: Canvas; color: CanvasText; }
+.pbox-offer::backdrop { background: rgba(0, 0, 0, .6); }
+.pbox-pick .btn { width: 100%; text-align: left; }
+.pbox-up { margin: 0 0 .5rem; }

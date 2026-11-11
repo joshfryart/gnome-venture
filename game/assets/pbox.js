@@ -7,3 +7,9 @@
   boxes.forEach(function (b) { b.addEventListener('change', count); });
   count();
 })();
+
+/* Offers are native <dialog open> elements (they show inline without JS); with JS they become a modal so the choice has the whole screen. */
+(function () {
+  var d = document.querySelector('dialog.pbox-offer');
+  if (d && typeof d.showModal === 'function') { d.removeAttribute('open'); try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } }
+})();
