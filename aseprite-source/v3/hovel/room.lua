@@ -40,8 +40,8 @@ tex(rect(408, 40, 471, 177), function(x, y) local cur = c:get(x, y); if cur == P
 local GL = {"#6e3a4a", "#9a5a62", "#c48478", "#dca692", "#ecc4aa", "#f6dcc0"}
 tex(rect(0, 0, W - 1, 31), function(x, y)
   local a = atan(x - 240, y + 120)
-  local k = floor(a * 70)
-  local edge = (a * 70 - k) < .22
+  local k = floor(a * 26)
+  local edge = (a * 26 - k) < .3
   local band = (y < 4) and 2 or ((y < 12) and 3 or ((y < 22) and 4 or 5))
   if edge then band = band - 1 end
   if hash(k, 0, 3) > .7 and not edge then band = band + (y > 12 and 1 or 0) end

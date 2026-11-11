@@ -49,8 +49,8 @@ do
   R(c, 19, 19, 20, 21, "#d98322"); c:put(19, 19, "#f5b82e")
   R(c, 13, 22, 26, 22, "#3f9150")
   -- needle on thread: thread runs from a stitch, over the frame, needle dangling below the frame's lip
-  for y = 22, 29 do c:put(33 - (y > 26 and 1 or 0), y, "#d03030") end
-  c:put(32, 30, "#bcbccc"); c:put(32, 31, "#9696a8")
+  for y = 22, 28 do c:put(33 - (y > 26 and 1 or 0), y, "#d03030") end
+  c:put(32, 29, "#bcbccc"); c:put(32, 30, "#9696a8")
   save(c, "hovel-wall-sampler")
 end
 

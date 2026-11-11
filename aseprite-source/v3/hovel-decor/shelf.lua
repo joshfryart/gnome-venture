@@ -147,16 +147,19 @@ end
 do
   local c, S = H.new("shelf-shells", 64, 40)
   plank(c, S, DRIFT, { drift = true, seed = 2 })
-  -- conch lying on its side, knobbly crown, pink mouth lower left
-  local con = c:poly{ {4, 26}, {6, 20}, {10, 15}, {16, 13}, {21, 15}, {23, 20}, {20, 25}, {14, 28}, {6, 28} }
-  H.sh(c, con, S.CREAM, 4, { deep = true, tex = function(x, y, t)
-    if ((x + y * 2) % 6 == 0) and t >= 4 then return S.ROSE[4] end   -- spiral growth bands
-    return pick(S.CREAM, t)
-  end })
-  for _, k in ipairs{ {11, 14}, {15, 12}, {19, 13} } do c:put(k[1], k[2], S.CREAM[6]); c:put(k[1] + 1, k[2], S.CREAM[4]) end
-  local mouth = c:poly{ {5, 26}, {8, 21}, {12, 20}, {12, 24}, {9, 27}, {6, 27} }
-  H.sh(c, mouth, S.PINK, 4, { tex = function(x, y, t) if x <= 6 then return S.PINK[6] end return pick(S.PINK, t) end })
-  c:put(8, 22, S.PINK[2]); c:put(9, 22, S.PINK[2]); c:put(9, 23, S.PINK[3])
+  -- conch lying on its side: spire to the right, knobbly shoulder, flared pink lip lower left
+  local CON = {"#5a3438", "#8a5248", "#b8785e", "#d8a07a", "#ecc49a", "#f8e2c0"}
+  local con = c:poly{ {3, 28}, {4, 22}, {8, 17}, {13, 14}, {17, 14}, {21, 16}, {26, 19}, {22, 22}, {17, 25}, {11, 28} }
+  H.sh(c, con, CON, 4, { deep = true })
+  for _, w in ipairs{ { {16, 15}, {17, 18}, {16, 22} }, { {20, 16}, {21, 18}, {20, 21} }, { {23, 18}, {23, 20} } } do
+    c:line(w, 1):each(function(x, y) if con:has(x, y) then c:put(x, y, CON[3]) end end)
+  end
+  c:put(17, 16, CON[6]); c:put(21, 17, CON[6]); c:put(24, 19, CON[5])
+  for _, k in ipairs{ {9, 16}, {12, 14}, {14, 13} } do c:put(k[1], k[2], CON[6]); c:put(k[1] + 1, k[2], CON[5]) end
+  c:put(13, 12, CON[5])
+  local mouth = c:poly{ {3, 28}, {4, 23}, {8, 19}, {12, 21}, {11, 25}, {8, 28} }
+  H.sh(c, mouth, S.PINK, 4, { tex = function(x, y, t) if x <= 5 then return S.PINK[6] end return pick(S.PINK, t) end })
+  c:line({ {7, 26}, {10, 22} }, 1):each(function(x, y) c:put(x, y, S.PINK[2]) end)
   -- red coral branching up from a sand clump
   local co = c:line({ {29, 25}, {29, 16}, {26, 11}, {25, 5} }, 2)
   co:add(c:line({ {29, 17}, {33, 12}, {34, 6} }, 2))
@@ -181,13 +184,13 @@ do
     return pick(S.BARN, t)
   end })
   -- open clam with a pearl
-  local lo = c:poly{ {50, 24}, {60, 24}, {58, 28}, {52, 28} }
-  H.sh(c, lo, S.STONE, 4, { deep = true })
-  H.hline(c, 51, 59, 24, S.PINK[5])
-  local up = c:poly{ {50, 23}, {53, 17}, {59, 16}, {61, 23} }
-  H.sh(c, up, S.STONE, 4, { deep = true, tex = function(x, y, t) if (x + y) % 3 == 0 and t == 4 then return S.STONE[3] end return pick(S.STONE, t) end })
-  H.hline(c, 51, 60, 23, S.PINK[4])
-  for _, p in ipairs{ {54, 21, S.CREAM[6]}, {55, 21, S.CREAM[5]}, {54, 22, S.CREAM[5]}, {55, 22, S.STONE[4]} } do c:put(p[1], p[2], p[3]) end
-  c:put(53, 22, S.STONE[2]); c:put(56, 22, S.STONE[2]); c:put(56, 21, S.CREAM[4]); c:put(53, 21, S.CREAM[6])
+  local lo = c:poly{ {50, 24}, {61, 24}, {59, 28}, {52, 28} }
+  H.sh(c, lo, S.STONE, 4, { deep = true, tex = function(x, y, t) if x % 2 == 0 and t == 4 then return S.STONE[3] end return pick(S.STONE, t) end })
+  local up = c:poly{ {50, 22}, {52, 17}, {56, 15}, {60, 16}, {62, 22} }
+  H.sh(c, up, S.STONE, 4, { deep = true, tex = function(x, y, t) if x % 2 == 1 and t == 4 then return S.STONE[3] end return pick(S.STONE, t) end })
+  for x = 51, 60 do c:put(x, 22, (x < 54) and S.PINK[4] or S.PINK[2]); c:put(x, 23, (x < 54) and S.PINK[3] or S.PINK[2]) end
+  local pearl = { {55, 21, S.CREAM[6]}, {56, 21, S.CREAM[5]}, {54, 22, S.CREAM[6]}, {55, 22, S.CREAM[5]}, {56, 22, S.CREAM[5]}, {57, 22, S.CREAM[4]},
+    {54, 23, S.CREAM[4]}, {55, 23, S.CREAM[4]}, {56, 23, S.CREAM[3]}, {57, 23, S.CREAM[3]} }
+  for _, p in ipairs(pearl) do c:put(p[1], p[2], p[3]) end
   H.save(c, "hovel-shelf-shells")
 end

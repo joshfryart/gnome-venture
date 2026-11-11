@@ -28,8 +28,8 @@ local function base(c, S, paint, fringe)
     local col = paint(x, y, dist(x, y), tl, br)
     if col then c:put(x, y, col) end
   end)
-  for y = 5, 17 do                                                  -- fringe off both ends
-    local len = (y % 2 == 0) and 4 or 3
+  for y = 5, 17, 2 do                                               -- fringe off both ends: separate strands
+    local len = (y % 4 == 1) and 4 or 3
     for k = 1, len do
       local cl, cr = fringe(y, k, len)
       c:put(row[y][1] - k, y, cl); c:put(row[y][2] + k, y, cr)
@@ -53,12 +53,12 @@ do
     local px, py = (x - 1) % 6, (y - 1) % 4
     local hor = (bx + by) % 2 == 0
     if hor then
-      if py == 3 then return RUSH[3] end
+      if py == 3 then return RUSH[2] end
       if px == 5 then return RUSH[3] end
       return (py == 0) and RUSH[6] or RUSH[5]
     else
-      if py == 3 then return RUSH[3] end
-      if px % 2 == 1 then return RUSH[4] end
+      if py == 3 then return RUSH[2] end
+      if px % 2 == 1 then return RUSH[3] end
       return (py == 0) and RUSH[5] or RUSH[4]
     end
   end, function(y, k, len)

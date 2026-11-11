@@ -39,7 +39,7 @@ for k, im in enumerate(cells):
             bg.putpixel((x, y), col)
     big = im.resize((im.width * S, im.height * S), Image.NEAREST)
     slot = files[k].split("hovel-")[-1].split("-")[0]
-    py = pad if slot == "shelf" else ch - pad - big.height - (0 if slot == "rug" else 30)
+    py = pad if slot == "shelf" else max(pad, ch - pad - big.height - (0 if slot == "rug" else 30))
     bg.alpha_composite(big, ((cw - big.width) // 2, py))
     small = im
     bg.alpha_composite(small, (4, 4))
