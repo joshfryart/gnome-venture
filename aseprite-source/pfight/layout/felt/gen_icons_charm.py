@@ -191,6 +191,24 @@ def ico_bond(S):
 
 
 # ---------------------------------------------------------------- pluck: finger + thumb pinching a feather, plucking it
+PLUCK20 = """
+.ff...............
+fffF..............
+ffFff.............
+.fFfff............
+..ffFff...........
+...ffFfyyyyy......
+....ffnyyyyyyyy...
+......F....yyyyy..
+......nyyy..yyyyy.
+.......yyyyyyyyyy.
+........yyyyyyyyy.
+.........yyyyyydd.
+...........yyyycc.
+............ccccc.
+..............cc.."""
+
+
 def layers(S, parts):
     """parts = [(draw_fn(ImageDraw), colour)], back to front. A part laid over an earlier part of another colour
     gets a 1 px ink seam on the earlier part, so overlapping pieces stay separate (like the hurt claw gaps)."""
@@ -240,20 +258,8 @@ def ico_pluck(S):
                 p[x, y] = dark_of(fe) + (255,)                   # feather spine
         g = [(17, 14), (18, 14)]
     else:
-        parts = [
-            (lambda d: d.polygon([(8, 10), (4, 8), (1, 5), (1, 1), (4, 1), (7, 4), (8, 8)], fill=255), fe),
-            (lambda d: d.polygon([(14, 16), (17, 13), (18, 15), (16, 18)], fill=255), CREAM),
-            (lambda d: (d.ellipse([10, 8, 17, 16], fill=255), d.rectangle([13, 13, 16, 15], fill=255)), sk),
-            (lambda d: (d.line([(12, 10), (8, 7)], fill=255, width=2), d.rectangle([6, 6, 8, 8], fill=255)), sk),
-            (lambda d: (d.line([(12, 14), (8, 12)], fill=255, width=2), d.rectangle([6, 11, 8, 13], fill=255)), sk),
-        ]
-        im = layers(20, parts)
-        p = im.load()
-        p[6, 6] = CREAM + (255,)
-        p[6, 12] = CREAM + (255,)
-        for x, y in ((2, 2), (3, 3), (4, 4), (5, 5)):
-            if p[x, y][:3] == fe:
-                p[x, y] = dark_of(fe) + (255,)
+        im = Image.new('RGBA', (20, 20), CLEAR)
+        put_art(im, PLUCK20, {'f': fe, 'F': dark_of(fe), 'y': sk, 'd': dark_of(sk), 'n': CREAM, 'c': CREAM}, 1, 2)
         g = []
     return finish_icon(im, halo=(S == 32), gloss=g)
 

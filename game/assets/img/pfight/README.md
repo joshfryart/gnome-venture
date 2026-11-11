@@ -69,3 +69,8 @@ Closest tile pair by per-pixel difference (0-255), hand size: normal 38, gray 17
 - `fx-hit|guard|heal|charm.png` 128x32, 4 frames of 32x32.
 - `crown-boss.png` 12x12 boss mark (use with the `boss` palette in `parts/rim.json`). `open-end.png` 24x24 open-socket marker.
 - Bar, bubble and strip art for the 2D board live in `parts/` (`resolve-*`, `intent-bubble`, `chain-glow-*`); `strip-rail.png` is dropped (no 1D strip any more).
+
+## Update 5: round 2 variant icons and popover header
+- `ico-<name>.png` 32x32 and `ico-<name>-s.png` 20x20 for: jab pierce sting trip bash smash (Hurt), brace roll thornhide mending (Guard), hum lull (Soothe), bond (Charm), pluck (Trick). Drawn with the same `gen_pfight.py` look as the shipped icons; every silhouette is unique at both sizes.
+- `popover-header.png` 96x96 "Choose an upgrade" header; banner rect (7,73) 82x15 left empty for the title.
+- Tag marks, upgrade marks and rarity gems: `parts/marks/` (see `parts/README.md`).
