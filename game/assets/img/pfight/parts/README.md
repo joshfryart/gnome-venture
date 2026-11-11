@@ -77,3 +77,6 @@ Hand ribbon in piece coords: at (42,58) size 58x9. Cache per (type, size, owner,
 - `pop-header-<type>.png` 24x16 9-slice (slice 9 left/right, stretch the middle), type-coloured pattern ends, cream middle: print the name in ink.
 - Anchors (top-left, piece image coords, draw over the piece at 1x): strip tag (13,32), mod (49,32), rarity (54,8); hand tag (24,64), mod (96,64), rarity (100,18). Popover: integer 2x only.
 - `marks-preview.png` is a 3x preview with marks on real pieces.
+
+## Update 6: rarity counts
+`marks/rarity-0|1|2.png` are now 10x12: the gem plus 1 / 2 / 3 count pips under it (common / uncommon / rare). `marks/rarity-gem-0|1|2.png` = old gem only (7x7). New anchors: strip (51,7), hand (98,18).
