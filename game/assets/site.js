@@ -913,6 +913,7 @@ gvAdvFold();
   document.addEventListener('click', function (ev) {
     var a = ev.target.closest ? ev.target.closest('a[data-inplace], main nav.tabs a, main nav.gvtabs a, main nav.gvtiles a, main a.gvbacklink, main nav.chips a, main nav.ccfilter a') : null;
     if (!a || ev.defaultPrevented || ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;
+    if ((a.getAttribute('href') || '').charAt(0) === '#' || a.closest('dialog')) return;   // in-page links and chips inside a popup (gift sort): never swap the page, that closes the popup
     var to = new URL(a.href, location.href);
     if (to.origin !== location.origin || to.pathname !== location.pathname) return;
     ev.preventDefault();
