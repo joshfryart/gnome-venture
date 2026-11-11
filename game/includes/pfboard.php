@@ -11,8 +11,10 @@ declare(strict_types=1);
  */
 require_once __DIR__ . '/pfight.php';
 
-const PFB_W = 7, PFB_H = 5, PFB_LIFE = 2, PFB_MAX_PLACE = 4;
-const PFB_BAR_MULT = 2.0, PFB_FOE_MULT = 0.8;   // the resolve bar vs strip mode (a chain refires older pieces, so the board is faster); PFB_FOE_MULT scales the creature's piece values. Tuned by tests/pfboard_sim.php
+const PFB_W = 7, PFB_H = 5, PFB_LIFE = 3, PFB_MAX_PLACE = 1;   // one action a turn: place a piece, place the piece group you set aside, or set pieces aside (connect them in your hand)
+const PFB_GROUP_MAX = 3;                      // a set-aside group holds 2 or 3 pieces; a 3-piece group cannot take more
+const PFB_GROUP_MULT = [2 => 1.0, 3 => 1.25]; // the values of a placed group's pieces (3 pieces play for maximum effect)
+const PFB_BAR_MULT = 0.7, PFB_FOE_MULT = 0.42;   // the resolve bar vs strip mode, and a factor on the creature's piece values (one piece a turn each side now). Tuned by tests/pfboard_sim.php: small 3.4, medium 4.0, large 4.6, boss 6.4 turns, defeats about 1%
 const PFB_SIDE = ['L' => [-1, 0, 'R'], 'R' => [1, 0, 'L'], 'T' => [0, -1, 'B'], 'B' => [0, 1, 'T']];   // side => [dx, dy, the neighbour's side that touches it]
 
 /** The four edges of a tile: L = hole of its type's family, R = its knob (or flat), T and B fixed per tile from its key (about a quarter flat). */
@@ -100,9 +102,11 @@ function pfb_fire(array &$s, int $root): array
         $p = $s['pcs'][$id]; $who = $p['by']; $tile = $p['tile'];
         $pt = $par !== null ? $s['pcs'][$par] : null;
         [$val, , $ck] = pf_value($pt['tile'] ?? null, $tile, $pt !== null && $pt['by'] === $who, false);   // combos only off your own piece; no fit bonus (every link fits)
+        $val = (int)round($val * (float)($p['cm'] ?? 1.0));   // a placed 3-piece group plays for more
         $isRoot = $id === $root;
         $e = ['by' => $who, 'id' => $id, 'root' => $isRoot, 'tag' => $tile['tag'], 'mod' => (string)($tile['m'] ?? ''), 'k' => $tile['k'], 'n' => $tile['n'], 't' => $tile['t'], 'v' => $val, 'fit' => false, 'combo' => $ck ? PF_COMBOS[$ck]['name'] : null];
         pf_apply($s, $who, $tile, $val, $isRoot && pfb_links($s, $id) !== [], $ck, $pt['tile'] ?? null, $pt['by'] ?? null, $e, $isRoot, false);
+        $e['barnow'] = round((float)$s['bar']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];   // for the replay: how the bar and health stand after this piece
         $ev[] = $e;
         pf_check_end($s);
     }
@@ -127,6 +131,114 @@ function pfb_place(array &$s, string $who, int $handIdx, int $x, int $y): ?array
     $joints = pfb_check_after($s, $id);
     $ev = pfb_fire($s, $id);
     if ($ev) $ev[0]['linked'] = $joints;   // how many linked joints the new piece made
+    return $ev;
+}
+
+// ---------------------------------------------------------------- set-aside groups (pre-connected pieces)
+
+/** The edge of a group piece on a side, and the neighbour in the group on that side (or null). */
+function pfb_group_at(array $g, int $dx, int $dy): ?int
+{
+    foreach ($g['pcs'] as $i => $p) if ($p['x'] === $dx && $p['y'] === $dy) return $i;
+    return null;
+}
+
+/** Can $tile join group $g at the cell (dx,dy)? Every touching edge must fit and at least one joint must be linked (so the group's chain runs). Returns true or a reason. */
+function pfb_group_fit(array $g, array $tile, int $dx, int $dy)
+{
+    if (count($g['pcs']) >= PFB_GROUP_MAX) return 'A group of three cannot take another piece.';
+    if (pfb_group_at($g, $dx, $dy) !== null) return 'That spot is taken.';
+    $e = pfb_edges($tile); $touch = 0; $linked = 0;
+    foreach (PFB_SIDE as $side => [$ddx, $ddy, $opp]) {
+        $ni = pfb_group_at($g, $dx + $ddx, $dy + $ddy); if ($ni === null) continue;
+        [$fits, $lk] = pfb_joint($e[$side], pfb_edges($g['pcs'][$ni]['tile'])[$opp]);
+        if (!$fits) return 'Those edges do not fit.';
+        $touch++; if ($lk) $linked++;
+    }
+    if (!$touch) return 'It has to touch the group.';
+    if (!$linked) return 'The pieces have to link (a knob in a matching hole), or their chain would not run.';
+    return true;
+}
+
+/** Every way $tile can join group $g: [[anchorIdx, side, dx, dy], ...]. */
+function pfb_group_options(array $g, array $tile): array
+{
+    $o = []; $seen = [];
+    foreach ($g['pcs'] as $ai => $a) foreach (PFB_SIDE as $side => [$ddx, $ddy]) {
+        $dx = $a['x'] + $ddx; $dy = $a['y'] + $ddy; if (isset($seen["$dx,$dy"])) continue; $seen["$dx,$dy"] = true;
+        if (pfb_group_fit($g, $tile, $dx, $dy) === true) $o[] = [$ai, $side, $dx, $dy];
+    }
+    return $o;
+}
+
+/** Set pieces aside, joined. Two hand pieces ($a anchor, $b joins on $side of it), or one hand piece onto the group already set aside ($anc = the group piece it joins, on $side). Returns an error or null. */
+function pfb_connect(array &$s, string $who, ?int $a, int $b, string $side, ?int $anc = null): ?string
+{
+    if (!isset(PFB_SIDE[$side])) return 'Those moves are not valid.';
+    $hand = $s[$who]['hand'];
+    if (!isset($hand[$b])) return 'Those moves are not valid.';
+    if ($anc !== null) {   // add to the group
+        $g = $s[$who]['held'] ?? null;
+        if (!$g) return 'There is no set-aside group to add to.';
+        if (!isset($g['pcs'][$anc])) return 'Those moves are not valid.';
+        [$ddx, $ddy] = PFB_SIDE[$side]; $dx = $g['pcs'][$anc]['x'] + $ddx; $dy = $g['pcs'][$anc]['y'] + $ddy;
+        $r = pfb_group_fit($g, $hand[$b], $dx, $dy); if ($r !== true) return $r;
+        $g['pcs'][] = ['tile' => $hand[$b], 'x' => $dx, 'y' => $dy];
+        array_splice($s[$who]['hand'], $b, 1); $s[$who]['held'] = $g; return null;
+    }
+    if (!empty($s[$who]['held'])) return 'You already have a group set aside. Add to it or play it.';
+    if ($a === null || $a === $b || !isset($hand[$a])) return 'Those moves are not valid.';
+    $g = ['pcs' => [['tile' => $hand[$a], 'x' => 0, 'y' => 0]]];
+    [$ddx, $ddy] = PFB_SIDE[$side];
+    $r = pfb_group_fit($g, $hand[$b], $ddx, $ddy); if ($r !== true) return $r;
+    $g['pcs'][] = ['tile' => $hand[$b], 'x' => $ddx, 'y' => $ddy];
+    foreach ([max($a, $b), min($a, $b)] as $i) array_splice($s[$who]['hand'], $i, 1);
+    $s[$who]['held'] = $g; return null;
+}
+
+/** The cells a group would fill with its top-left at (ox,oy), or null if it does not fit there. Returns [[x, y, groupIdx], ...]. */
+function pfb_group_cells(array $s, array $g, int $ox, int $oy): ?array
+{
+    $mx = min(array_column($g['pcs'], 'x')); $my = min(array_column($g['pcs'], 'y'));
+    $cells = []; $mine = [];
+    foreach ($g['pcs'] as $i => $p) { $x = $ox + $p['x'] - $mx; $y = $oy + $p['y'] - $my; $cells[] = [$x, $y, $i]; $mine["$x,$y"] = $i; }
+    $touch = false;
+    foreach ($cells as [$x, $y, $i]) {
+        if ($x < 0 || $y < 0 || $x >= PFB_W || $y >= PFB_H || isset($s['cell']["$x,$y"])) return null;
+        $e = pfb_edges($g['pcs'][$i]['tile']);
+        foreach (PFB_SIDE as $side => [$dx, $dy, $opp]) {
+            $nx = $x + $dx; $ny = $y + $dy; if (isset($mine["$nx,$ny"])) continue;   // inside the group: already checked when it was joined
+            $n = pfb_at($s, $nx, $ny); if (!$n) continue;
+            if (!pfb_joint($e[$side], pfb_edges($n['tile'])[$opp])[0]) return null;
+            $touch = true;
+        }
+    }
+    if (!$s['pcs']) { $c = [intdiv(PFB_W, 2), intdiv(PFB_H, 2)]; foreach ($cells as [$x, $y]) if ($x === $c[0] && $y === $c[1]) return $cells; return null; }
+    return $touch ? $cells : null;
+}
+
+/** Every top-left spot where the group can go. */
+function pfb_group_spots(array $s, array $g): array
+{
+    $o = [];
+    for ($y = 0; $y < PFB_H; $y++) for ($x = 0; $x < PFB_W; $x++) if (pfb_group_cells($s, $g, $x, $y) !== null) $o[] = [$x, $y];
+    return $o;
+}
+
+/** Put the set-aside group on the board with its top-left at (ox,oy); the NEWEST piece of the group starts the chain. Returns the events or null when illegal. */
+function pfb_place_group(array &$s, string $who, int $ox, int $oy): ?array
+{
+    $g = $s[$who]['held'] ?? null; if (!$g) return null;
+    $cells = pfb_group_cells($s, $g, $ox, $oy); if ($cells === null) return null;
+    $cm = PFB_GROUP_MULT[count($g['pcs'])] ?? 1.0; $root = null;
+    foreach ($cells as [$x, $y, $i]) {
+        $id = ++$s['pid']; $s['seq']++;
+        $s['pcs'][$id] = ['id' => $id, 'by' => $who, 'tile' => $g['pcs'][$i]['tile'], 'x' => $x, 'y' => $y, 'born' => $s['round'], 'seq' => $s['seq'], 'cm' => $cm];
+        $s['cell']["$x,$y"] = $id; $root = $id;
+    }
+    $s[$who]['held'] = null;
+    $ev = pfb_fire($s, $root);
+    if ($ev) $ev[0]['linked'] = pfb_check_after($s, $root);
     return $ev;
 }
 
@@ -170,6 +282,13 @@ function pfb_search(array $s, string $who, bool $allowHeavy = true): ?array
     return $best;
 }
 
+/** How many pieces the creature puts down this turn: one (two for a boss, and for a large one now and then); Trip/Lull make it skip a turn. */
+function pfb_foe_len(array $s): int
+{
+    $base = $s['boss'] ? 2 : ($s['size'] === 'large' && $s['turn'] % 3 === 0 ? 2 : 1);
+    return max(0, min(count($s['foe']['hand']), $base - (int)$s['foe']['slow']));
+}
+
 function pfb_foe_turn(array &$s, int $extra): array
 {
     $ev = [];
@@ -181,7 +300,7 @@ function pfb_foe_turn(array &$s, int $extra): array
         $ev[] = ['by' => 'me', 'tag' => 'poison', 'k' => 'poison', 'n' => 'Poison', 't' => 'hurt', 'v' => (int)round($add), 'fit' => false, 'combo' => null, 'tick' => true];
         if (pf_check_end($s)) return $ev;
     }
-    $n = pf_foe_len($s, $extra);
+    $n = pfb_foe_len($s);
     for ($k = 0; $k < $n && !$s['over']; $k++) {
         $m = pfb_search($s, 'foe');
         if ($m === null) break;
@@ -227,40 +346,48 @@ function pfb_intent(array &$s): void
 }
 
 /**
- * The player's turn: $moves = [[handIdx, x, y], ...] in play order (indices refer to the hand as it is now), 1 to 4 pieces. One POST per turn, like the strip.
- * Returns ['ev' => events, 'err' => ?string]; on an error nothing changed.
+ * The player's turn: ONE action. $moves holds one entry:
+ *   [handIdx, x, y]        place a hand piece at (x,y)
+ *   ['c', x, y]            place the set-aside group with its top-left at (x,y)
+ *   ['j', a, b, side]      set aside two hand pieces joined: b on the `side` of a (no effect this turn)
+ *   ['h', b, anc, side]    add hand piece b to the set-aside group, onto group piece anc's `side`
+ * Returns ['ev' => events, 'err' => ?string]; on an error nothing changed. $dry = true: report what a place would do (a copy; no creature turn).
  */
-/** $dry = true: place my pieces on a copy and report what they would do, without the creature's turn or any change to $s. */
 function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null, bool $dry = false): array
 {
     if ($s['over']) return ['ev' => [], 'err' => 'The fight is over.'];
     if ($turn !== $s['turn']) return ['ev' => [], 'err' => 'stale'];
-    $n = count($moves);
-    if ($n < 1 || $n > PFB_MAX_PLACE) return ['ev' => [], 'err' => 'Place 1 to ' . PFB_MAX_PLACE . ' pieces.'];
-    $used = []; $tiles = [];
-    foreach ($moves as $mv) {
-        if (!is_array($mv) || count($mv) !== 3 || !is_int($mv[0]) || !is_int($mv[1]) || !is_int($mv[2]) || isset($used[$mv[0]]) || !isset($s['me']['hand'][$mv[0]])) return ['ev' => [], 'err' => 'Those moves are not valid.'];
-        $used[$mv[0]] = true; $tiles[] = $s['me']['hand'][$mv[0]];
-    }
-    foreach ($tiles as $i => $t) if ($t['tag'] === 'heavy' && ($t['m'] ?? '') !== 'steady' && $i !== $n - 1) return ['ev' => [], 'err' => 'A heavy piece has to be the last one you place.'];
-    if ($canPlay) foreach ($tiles as $t) if (($why = $canPlay($t)) !== null) return ['ev' => [], 'err' => $why];
-    $w = $s;   // work on a copy: any illegal placement means nothing happens
+    if (count($moves) !== 1) return ['ev' => [], 'err' => 'One action a turn.'];
+    $mv = $moves[0]; $bad = ['ev' => [], 'err' => 'Those moves are not valid.'];
+    if (!is_array($mv) || !$mv) return $bad;
+    $w = $s;   // work on a copy: anything illegal means nothing happens
     pfb_begin($w, 'me');
-    $ev = []; $counted = 0;
-    foreach ($moves as $k => [, $x, $y]) {
-        $now = array_search($tiles[$k], $w['me']['hand'], true);   // the tile's index in the hand as it is now (earlier placements shifted it)
-        if ($now === false) return ['ev' => [], 'err' => 'Those moves are not valid.'];
-        if ($w['over']) { $w['me']['discard'][] = $tiles[$k]; array_splice($w['me']['hand'], (int)$now, 1); continue; }   // the fight ended mid-turn: the rest go to the discard
-        $r = pfb_place($w, 'me', (int)$now, $x, $y);
+    $ev = [];
+    if (is_int($mv[0])) {
+        if (count($mv) !== 3 || !is_int($mv[1]) || !is_int($mv[2]) || !isset($w['me']['hand'][$mv[0]])) return $bad;
+        if ($canPlay && ($why = $canPlay($w['me']['hand'][$mv[0]])) !== null) return ['ev' => [], 'err' => $why];
+        $r = pfb_place($w, 'me', $mv[0], $mv[1], $mv[2]);
         if ($r === null) return ['ev' => [], 'err' => 'That piece does not fit there.'];
-        $ev = array_merge($ev, $r);
-        if (($tiles[$k]['m'] ?? '') !== 'swift') $counted++;
-    }
+        $ev = $r;
+    } elseif ($mv[0] === 'c') {
+        if (count($mv) !== 3 || !is_int($mv[1]) || !is_int($mv[2])) return $bad;
+        if (empty($w['me']['held'])) return ['ev' => [], 'err' => 'You have no group set aside.'];
+        if ($canPlay) foreach ($w['me']['held']['pcs'] as $gp) if (($why = $canPlay($gp['tile'])) !== null) return ['ev' => [], 'err' => $why];
+        $r = pfb_place_group($w, 'me', $mv[1], $mv[2]);
+        if ($r === null) return ['ev' => [], 'err' => 'The group does not fit there.'];
+        $ev = $r;
+    } elseif ($mv[0] === 'j' || $mv[0] === 'h') {
+        if ($mv[0] === 'j') { if (count($mv) !== 4 || !is_int($mv[1]) || !is_int($mv[2]) || !is_string($mv[3])) return $bad; $err = pfb_connect($w, 'me', $mv[1], $mv[2], $mv[3]); }
+        else { if (count($mv) !== 4 || !is_int($mv[1]) || !is_int($mv[2]) || !is_string($mv[3])) return $bad; $err = pfb_connect($w, 'me', null, $mv[1], $mv[3], $mv[2]); }
+        if ($err) return ['ev' => [], 'err' => $err];
+        $names = array_map(fn($gp) => (string)$gp['tile']['n'], $w['me']['held']['pcs']);
+        $ev = [['by' => 'me', 'connect' => true, 'n' => implode(' + ', $names), 'types' => array_map(fn($gp) => (string)$gp['tile']['t'], $w['me']['held']['pcs']), 'size' => count($names)]];
+    } else return $bad;
     if ($dry) return ['ev' => $ev, 'err' => null, 'bar' => round($w['bar']['now'], 1), 'max' => $w['bar']['max'], 'hp' => $w['me']['hp'], 'block' => $w['me']['block'], 'over' => $w['over']];
-    if (!$w['over']) $ev = array_merge($ev, pfb_foe_turn($w, $counted === PFB_MAX_PLACE ? 1 : 0));
+    if (!$w['over']) $ev = array_merge($ev, pfb_foe_turn($w, 0));
     if (!$w['over']) pfb_end_round($w);
     $w['fx'] = pfb_fx($ev);
-    $w['log'][] = ['turn' => $s['turn'], 'n' => $n];
+    $w['log'][] = ['turn' => $s['turn'], 'n' => 1];
     $s = $w;
     return ['ev' => $ev, 'err' => null];
 }
@@ -292,6 +419,7 @@ function pfb_pass(array &$s, int $turn): array
 {
     if ($s['over'] || $turn !== $s['turn']) return ['ev' => [], 'err' => $s['over'] ? 'The fight is over.' : 'stale'];
     foreach ($s['me']['hand'] as $t) if (pfb_cells($s, $t)) return ['ev' => [], 'err' => 'You still have a piece that fits somewhere.'];
+    if (!empty($s['me']['held']) && pfb_group_spots($s, $s['me']['held'])) return ['ev' => [], 'err' => 'Your set-aside group still fits somewhere.'];
     $w = $s; pfb_begin($w, 'me');
     $ev = pfb_foe_turn($w, 0);
     $w['fx'] = pfb_fx($ev);
@@ -305,6 +433,8 @@ function pfb_view(array $s): array
 {
     $v = pf_view($s);
     $v['mode'] = 'board'; $v['w'] = PFB_W; $v['h'] = PFB_H; $v['fx'] = $s['fx'] ?? [];
+    $g = $s['me']['held'] ?? null;
+    $v['held'] = $g ? ['pcs' => array_map(fn($p) => ['n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'x' => $p['x'], 'y' => $p['y']], $g['pcs']), 'spots' => pfb_group_spots($s, $g)] : null;
     $v['pcs'] = array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born'], 'seq' => $p['seq'], 'new' => $s['turn'] > 1 && $s['round'] - $p['born'] === 1], $s['pcs']));
     foreach ($v['hand'] as $i => $t) $v['hand'][$i]['e'] = pfb_edges($s['me']['hand'][$i]);
     unset($v['strip'], $v['open'], $v['open_t'], $v['open_v'], $v['open_by']);

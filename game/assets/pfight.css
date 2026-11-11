@@ -279,3 +279,32 @@
 
 .pfb-mod { position: absolute; right: 12%; bottom: 8%; z-index: 3; font-size: .75rem; line-height: 1; padding: .05rem .15rem; border-radius: .3rem; background: rgba(24, 14, 8, .85); box-shadow: 0 0 0 1px #e8a317; pointer-events: none; }
 .pf-bp .pfb-mod { right: 14%; bottom: 10%; }
+
+/* ---- one action a turn: the set-aside group, Connect, the replay, tap-to-read ---- */
+.pf-held { display: flex; justify-content: center; }
+.pf-held[hidden], .pf-opts[hidden], .pf-play[hidden], #pf-skip[hidden] { display: none; }
+.pf-held-btn { display: flex; align-items: center; gap: .5rem; padding: .25rem .5rem; border: 2px dashed #e8a317; border-radius: .6rem; background: rgba(232, 163, 23, .1); color: inherit; cursor: pointer; text-align: left; font-size: .72rem; }
+.pf-held-btn.pf-picked { background: rgba(232, 163, 23, .3); outline: 2px solid #e8a317; }
+.pf-held-cv { display: block; height: 52px; width: auto; max-width: 9rem; image-rendering: pixelated; flex: none; }
+.pf-opts { display: flex; flex-wrap: wrap; gap: .3rem; justify-content: center; align-items: center; }
+.pf-opts-h { margin: 0; font-size: .72rem; width: 100%; text-align: center; }
+.pf-opts .btn { font-size: .72rem; padding: .25rem .5rem; min-height: 0; }
+#pf-connect.pf-on { outline: 2px solid #e8a317; background: rgba(232, 163, 23, .35); }
+.pf-boardmode .pf-buttons #pf-connect { flex: 0 0 auto; padding-inline: .7rem; }
+.pf-playbox { display: flex; gap: .4rem; align-items: flex-start; }
+.pf-play { flex: 1 1 auto; margin: 0; padding: .2rem .4rem .2rem 1.2rem; font-size: .74rem; line-height: 1.25; max-height: 6.5rem; overflow-y: auto; border-radius: .4rem; background: rgba(0, 0, 0, .3); }
+.pf-play li.foe { color: #f0a58a; }
+#pf-skip { font-size: .7rem; padding: .2rem .6rem; min-height: 0; }
+.pf-playing .pf-hand, .pf-playing .pf-held { pointer-events: none; opacity: .6; }
+.pfb-tap { cursor: pointer; }
+.pfb-tap:focus-visible { outline: 3px solid Highlight; outline-offset: 1px; }
+.pfb-cell.pfb-scoring { z-index: 8; animation: pfb-score .5s ease-out; }
+.pfb-cell.pfb-scoring .pfb-cv, .pfb-cell.pfb-scoring .pf-tile { filter: drop-shadow(0 0 4px #ffe27a) drop-shadow(0 0 2px #e8a317) brightness(1.25); }
+.pfb-cell.pfb-picked .pfb-cv { filter: drop-shadow(0 0 3px #f2e4c0); }
+@keyframes pfb-score { from { transform: scale(1.12); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .pfb-cell.pfb-scoring { animation: none; } }
+.pf-boardmode .pf-buttons { flex-wrap: wrap; justify-content: center; }
+.pf-boardmode .pf-buttons .btn { padding-inline: .9rem; }
+.pf-boardmode .pf-buttons .primary { padding-inline: 1.6rem; }
+.pf-boardmode .pf-hand .pf-bp.pf-con canvas { filter: drop-shadow(0 0 3px #e8a317) drop-shadow(0 0 1px #e8a317); }
+.pf-boardmode .pf-hand .pf-bp.pf-con { outline: 2px dashed #e8a317; outline-offset: -2px; }

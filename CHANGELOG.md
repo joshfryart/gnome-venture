@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.55
+- **Puzzle combat, board mode: one action a turn.** Place one piece; or **Connect** two pieces in your hand (joined by a knob in a matching hole) and set them aside for a later turn, add one more piece to that group (up to 3), then play the group (a group of three plays for 25% more). A group of three takes no more. The creature now puts down one piece a turn (a boss two), so the resolve bar and creature strength were retuned (`tests/pfboard_sim.php`); pieces stay on the board 3 rounds.
+- **Replay**: after a turn the board plays it back one piece at a time: the piece being scored is lit and its card opens, its line is listed, and the resolve bar and your health move step by step. Skip ends it.
+- **Tap any piece on the board** to read about it: name, whose it is, value, tag and upgrade, rounds left.
+- Tests: set-aside group rules in `pfboard_sim`; Connect, group play and refusals over HTTP in `pfboard.sh`; `pfmap` taps a piece, connects and plays a group through the real page and checks the replay lights a piece (the old `pfboardshot.js` is gone; `pfmap` covers it).
+
 ## 2.6.54
 - **Puzzle combat: the board and piece art did not appear after an in-place page update** (a fight that starts, or a turn you end, swaps the page without reloading, and the fight's scripts did not run: blank board, plain hand). `site.js` now re-runs scripts marked `data-rerun` after an in-place swap; the puzzle fight's scripts are marked. Test: `pfmap` ends a turn in a real browser and checks the board and hand art are back (it fails without the fix).
 - **Puzzle combat**: upgrade marks (hexagon), rarity gems with 1-3 pips and tag marks are drawn on pieces from `assets/img/pfight/parts/marks/` (the glyph badge stays when a mark file is missing). The zoom buttons no longer lose their first tap after you pan the board.

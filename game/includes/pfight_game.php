@@ -119,6 +119,20 @@ function pfight_state(array $u, array $exp, array &$enc, array $c): array
 }
 
 /** One POST: 'pf_play' (chain = "2,0,3", turn), 'pf_run', 'pf_redraw' (card = index). The caller holds the transaction and has locked the gnome. Returns true when the fight ended. */
+/** The one action of a board turn from the posted "moves": "i,x,y" (place a hand piece), "c,x,y" (place the set-aside group), "j,a,b,SIDE" (set two hand pieces aside, joined), "h,b,anc,SIDE" (add a hand piece to the group). Null when malformed. */
+function pfight_parse_moves(string $raw): ?array
+{
+    $parts = array_values(array_filter(explode(';', $raw), 'strlen'));
+    if (count($parts) !== 1) return null;
+    $p = explode(',', $parts[0]);
+    $int = fn($v) => ctype_digit((string)$v);
+    if (count($p) === 3 && $int($p[0]) && $int($p[1]) && $int($p[2])) return [[(int)$p[0], (int)$p[1], (int)$p[2]]];
+    if (count($p) === 3 && $p[0] === 'c' && $int($p[1]) && $int($p[2])) return [['c', (int)$p[1], (int)$p[2]]];
+    if (count($p) === 4 && $p[0] === 'j' && $int($p[1]) && $int($p[2]) && in_array($p[3], ['L', 'R', 'T', 'B'], true)) return [['j', (int)$p[1], (int)$p[2], $p[3]]];
+    if (count($p) === 4 && $p[0] === 'h' && $int($p[1]) && $int($p[2]) && in_array($p[3], ['L', 'R', 'T', 'B'], true)) return [['h', (int)$p[1], (int)$p[2], $p[3]]];
+    return null;
+}
+
 function pfight_do(array $u, array &$exp, string $do): bool
 {
     $enc = json_decode((string)$exp['encounter'], true);
@@ -127,6 +141,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
     $s = pfight_state($u, $exp, $enc, $c);
     if (!hash_equals((string)$s['nonce'], (string)($_POST['nonce'] ?? ''))) { flash('That page is from another fight. Here is the current one.', 'err'); $exp['encounter'] = json_encode($enc); return false; }   // a stale page can never play into a different fight
     $s['me']['hp'] = min((int)$s['me']['max'], max(1, (int)$exp['hp']));   // the expedition's health is the truth (the flag may have been flipped mid-fight)
+    $rp0 = ['bar' => round((float)$s['bar']['now'], 1), 'hp' => (int)$s['me']['hp']];   // where the bar and your health stood before this turn (the board page plays the turn back from here)
     $won = false;
     if ($do === 'pf_run') {
         if (!pf_run($s)) { flash('You cannot run from this one.', 'err'); return false; }
@@ -147,20 +162,19 @@ function pfight_do(array $u, array &$exp, string $do): bool
         };
         if ($do === 'pfb_pass') $r = pfb_pass($s, (int)($_POST['turn'] ?? -1));
         elseif ($board) {   // moves arrive as "handIndex,x,y;handIndex,x,y"
-            $moves = [];
-            foreach (array_filter(explode(';', (string)($_POST['moves'] ?? '')), 'strlen') as $m) { $p = explode(',', $m); $moves[] = count($p) === 3 && ctype_digit($p[0]) && ctype_digit($p[1]) && ctype_digit($p[2]) ? [(int)$p[0], (int)$p[1], (int)$p[2]] : null; }
-            $r = in_array(null, $moves, true) ? ['ev' => [], 'err' => 'Those moves are not valid.'] : pfb_play($s, $moves, (int)($_POST['turn'] ?? -1), $guard);
+            $moves = pfight_parse_moves((string)($_POST['moves'] ?? ''));
+            $r = $moves === null ? ['ev' => [], 'err' => 'Those moves are not valid.'] : pfb_play($s, $moves, (int)($_POST['turn'] ?? -1), $guard);
         } else $r = pf_play($s, $idx, (int)($_POST['turn'] ?? -1), $guard);
         if ($r['err'] === 'stale') { flash('That turn has already passed.', 'err'); $exp['encounter'] = json_encode($enc); return false; }   // double tap or an old page: nothing happens
         if ($r['err']) { flash($r['err'], 'err'); return false; }
         $ate = 0;   // a snack is eaten only for a Snack tile that really resolved (the fight can end mid-chain), cheapest first
-        foreach ($r['ev'] as $e) if ($e['by'] === 'me' && $e['tag'] === 'snack' && ($e['root'] ?? true)) $ate++;
+        foreach ($r['ev'] as $e) if ($e['by'] === 'me' && ($e['tag'] ?? '') === 'snack' && ($e['root'] ?? true)) $ate++;
         $snacks = fight_snacks($u);
         usort($snacks, fn($a, $b) => $a['heal'] <=> $b['heal']);
         foreach (array_slice($snacks, 0, 1) as $sn) for ($i = 0; $i < $ate; $i++) if (give_item((int)$u['id'], (int)$sn['id'], -1)) $enc['snacks'] = (int)($enc['snacks'] ?? 0) + 1;
         $won = in_array($s['over'], ['seen_off', 'charmed'], true);
-        pfight_unlock((int)$u['id'], $r['ev'], $won);
-        $enc['last'] = [];
+        pfight_unlock((int)$u['id'], array_values(array_filter($r['ev'], fn($e) => empty($e['connect']))), $won);
+        $enc['last'] = []; $enc['replay'] = []; $enc['replay0'] = $rp0;
         foreach ($board ? pfight_chips_board($r['ev']) : array_filter([pfight_chip($r['ev'], 'me'), pfight_chip($r['ev'], 'foe')]) as $chip) $enc['hist'][] = $chip;
         $enc['hist'] = array_slice((array)($enc['hist'] ?? []), -14);
         foreach ($r['ev'] as $e) {
@@ -176,6 +190,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
                 }
             }
             exp_log($exp, $ln); $enc['last'][] = $ln;
+            if ($board) $enc['replay'][] = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'by' => (string)$e['by'], 'ln' => $ln, 'bar' => $e['barnow'] ?? null, 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'n' => (string)($e['n'] ?? ''), 't' => (string)($e['t'] ?? '')];   // the board page plays these back one at a time
         }
     } else return false;
     $exp['hp'] = (int)$s['me']['hp'];
@@ -209,8 +224,8 @@ function pfight_preview_out(array $u, array $exp): void
     if (!$c || !is_array($s) || ($s['mode'] ?? '') !== 'board') $out(['ok' => false, 'err' => 'no fight']);
     if (!hash_equals((string)$s['nonce'], (string)($_POST['nonce'] ?? ''))) $out(['ok' => false, 'err' => 'stale']);
     $s['me']['hp'] = min((int)$s['me']['max'], max(1, (int)$exp['hp']));
-    $moves = [];
-    foreach (array_filter(explode(';', (string)($_POST['moves'] ?? '')), 'strlen') as $m) { $p = explode(',', $m); if (count($p) !== 3 || !ctype_digit($p[0]) || !ctype_digit($p[1]) || !ctype_digit($p[2])) $out(['ok' => false, 'err' => 'moves']); $moves[] = [(int)$p[0], (int)$p[1], (int)$p[2]]; }
+    $moves = pfight_parse_moves((string)($_POST['moves'] ?? ''));
+    if ($moves === null) $out(['ok' => false, 'err' => 'moves']);
     $before = (float)$s['bar']['now'];
     $r = pfb_play($s, $moves, (int)($_POST['turn'] ?? -1), null, true);
     if ($r['err']) $out(['ok' => false, 'err' => (string)$r['err']]);
@@ -221,6 +236,7 @@ function pfight_preview_out(array $u, array $exp): void
 
 function pfight_line(array $e, string $foe): string
 {
+    if (!empty($e['connect'])) return '🧩 You set ' . $e['n'] . ' aside, joined (' . (int)$e['size'] . ' pieces).';
     if (!empty($e['tick'])) return '🧪 The poison works on the ' . $foe . ' (+' . (int)$e['v'] . ').';
     $who = $e['by'] === 'me' ? 'You play' : 'The ' . $foe . ' plays';
     $bits = [];
@@ -291,11 +307,13 @@ function pfight_chips_board(array $events): array
     $groups = []; $g = null;
     foreach ($events as $e) {
         if (!empty($e['tick'])) continue;
+        if (!empty($e['connect'])) { if ($g) $groups[] = $g; $g = null; $groups[] = [$e]; continue; }
         if (!empty($e['root'])) { if ($g) $groups[] = $g; $g = [$e]; } elseif ($g) $g[] = $e;
     }
     if ($g) $groups[] = $g;
     $chips = [];
     foreach ($groups as $g) {
+        if (!empty($g[0]['connect'])) { $chips[] = ['by' => 'me', 'types' => $g[0]['types'], 'tags' => [], 'txt' => 'joined ' . (int)$g[0]['size'], 'chain' => false]; continue; }
         $by = (string)$g[0]['by']; $bar = 0.0; $guard = 0; $heal = 0; $dmg = 0; $types = []; $tags = [];
         foreach ($g as $e) {
             $types[] = (string)$e['t']; $tags[] = (string)($e['tag'] ?? '');
@@ -412,10 +430,11 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h = str_replace('@@TOP@@', $top, $h);
     $h .= '<div class="pfb-board" id="pfb-board" role="group" aria-label="The play area: pick a piece from your hand, then a lit spot. Scroll, pinch or use the zoom buttons to zoom"></div>';   // JS draws the pieces from #pf-data
     $h .= '<p class="pf-preview help" id="pf-preview" aria-live="polite">Pick a piece, then a lit spot. Up to 4 a turn; the newest plays first.</p>';
-    $h .= '<ol class="pf-plan" id="pf-plan" aria-live="polite" hidden></ol>';
+    $h .= '<ol class="pf-plan" id="pf-plan" aria-live="polite" hidden></ol><div class="pf-playbox"><ol class="pf-play" id="pf-play" aria-live="polite" hidden></ol><button type="button" class="btn" id="pf-skip" hidden>Skip</button></div>';
     $h .= '<form method="post" class="pf-form" id="pf-form">' . csrf_field() . '<input type="hidden" name="do" value="pfb_play"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="moves" id="pf-moves" value=""></form>';
-    $h .= '<div class="pf-buttons"><a class="btn pf-box" href="' . e(url('puzzlebox.php')) . '" title="Your puzzle box" aria-label="Puzzle box">🧩</a><button type="button" class="btn" id="pf-undo" disabled>Undo</button><button class="btn primary" id="pf-go" form="pf-form" disabled>End turn</button>'
+    $h .= '<div class="pf-buttons"><a class="btn pf-box" href="' . e(url('puzzlebox.php')) . '" title="Your puzzle box" aria-label="Puzzle box">🧩</a><button type="button" class="btn" id="pf-connect" aria-pressed="false" title="Set two pieces aside, joined, to play together later">Connect</button><button type="button" class="btn" id="pf-undo" disabled>Undo</button><button class="btn primary" id="pf-go" form="pf-form" disabled>End turn</button>'
         . ($v['can_run'] ? '<form method="post" class="inline pf-runf">' . csrf_field() . '<input type="hidden" name="do" value="pf_run"><input type="hidden" name="nonce" value="' . $nonce . '"><button class="btn" title="Run away" aria-label="Run away">🏃</button></form>' : '') . '</div>';
+    $h .= '<div class="pf-opts" id="pf-opts" hidden></div><div class="pf-held" id="pf-held" hidden></div>';
     $pile = fn(string $cls, string $name, int $n) => '<div class="pf-pile ' . $cls . '" role="img" aria-label="' . $name . ': ' . $n . ' pieces">' . (($pi = pfight_part($cls === 'deck' ? 'deck-book.png' : 'discard-bin.png')) ? '<img src="' . e($pi) . '" alt="">' : '<span class="pf-pile-emo" aria-hidden="true">' . ($cls === 'deck' ? '📖' : '🗑️') . '</span>') . '<b>' . $n . '</b><small>' . $name . '</small></div>';
     $h .= '<div class="pf-tray">' . $pile('deck', 'Puzzle book', (int)$v['piles']['draw']) . '<div class="pf-hand" id="pf-hand" role="group" aria-label="Your hand (swipe sideways)">';
     foreach ($v['hand'] as $i => $t) $h .= pfight_board_piece_html($t, $i);
@@ -430,7 +449,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '</div>';
     if (!empty($enc['last'])) { $h .= '<details class="pfc-log"><summary>What just happened</summary><ol class="pf-last" aria-live="polite">'; foreach ($enc['last'] as $ln) $h .= '<li>' . e($ln) . '</li>'; $h .= '</ol></details>'; }
     // the board and the hand's edges for the script (public information: the board is out in the open)
-    $data = ['mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
+    $data = ['life' => PFB_LIFE, 'tags' => PF_TAGS, 'held' => $v['held'] ?? null, 'bar' => $v['bar']['now'], 'barmax' => $v['bar']['max'], 'hp' => $v['hp'], 'replay' => $enc['replay'] ?? [], 'replay0' => $enc['replay0'] ?? null, 'mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3], $m[2]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
     $h .= '<script type="application/json" id="pf-data">' . json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP) . '</script>';
     return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfx.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfparts.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfboard.js?v=' . APP_VERSION)) . '" data-rerun defer></script>';
 }

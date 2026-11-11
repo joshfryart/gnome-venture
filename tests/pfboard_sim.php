@@ -18,37 +18,55 @@ function bsim_player(int $lv): array
     $max = 20 + 3 * $lv + 5 * $m;
     return ['hp' => $max, 'max_hp' => $max, 'stats' => $st, 'deck' => pf_player_deck($st, $cal, 1 + intdiv($lv, 12), [], [], [], true, $box), 'luck' => $m];
 }
-/** One turn for the greedy bot: place up to $n pieces by pfb_search on a scratch copy; heavy last. Returns moves in hand-index terms of the START hand. */
-function bsim_moves(array $s, int $n): array
+/** The type weights the bot uses to value a set-aside group (what its pieces would add to the bar or the fight). */
+function bsim_val(array $s, array $t): float { $w = ['hurt' => $s['hm'], 'charm' => $s['cm'], 'guard' => 0.5, 'heal' => 0.5, 'soothe' => 0.3, 'trick' => 0.4, 'item' => 0.5]; return $t['v'] * ($w[$t['t']] ?? 0.3); }
+/**
+ * One action for the bot. 'single': always the best single placement. 'builder': when the best single is weak it sets pieces aside (a joined pair, then a third) and plays the group once it has three,
+ * or two after waiting a turn. Returns the move for pfb_play, or null (nothing fits: pass).
+ */
+function bsim_act(array $s, string $mode): ?array
 {
-    $moves = []; $w = $s; $orig = $s['me']['hand']; $taken = [];
-    for ($k = 0; $k < $n; $k++) {
-        $m = pfb_search($w, 'me', $k < $n - 1 || true);
-        if ($m === null || ($m[3] <= 0.0001 && $k > 0)) break;   // always place at least one piece (a turn with nothing placed is only for a hand that fits nowhere)
-        $tile = $w['me']['hand'][$m[0]];
-        $oi = null; foreach ($orig as $i => $t) if (!isset($taken[$i]) && $t === $tile) { $oi = $i; break; }
-        if ($oi === null) break;
-        $moves[] = [$oi, $m[1], $m[2]]; $taken[$oi] = true;
-        pfb_place($w, 'me', $m[0], $m[1], $m[2]);
-        if ($tile['tag'] === 'heavy' && ($tile['m'] ?? '') !== 'steady') break;   // a heavy piece ends the turn
-        if ($w['over']) break;
+    $one = pfb_search($s, 'me');
+    $held = $s['me']['held'] ?? null;
+    if ($mode === 'builder') {
+        if ($held) {
+            $n = count($held['pcs']); $spots = pfb_group_spots($s, $held); $best = null;
+            foreach ($spots as [$x, $y]) { $w = $s; if (pfb_place_group($w, 'me', $x, $y) === null) continue; $sc = pfb_score($s, $w, 'me'); if ($best === null || $sc > $best[2]) $best = [$x, $y, $sc]; }
+            if ($n === 3 && $best) return ['c', $best[0], $best[1]];
+            if ($n === 2) {
+                $bo = null;
+                foreach ($s['me']['hand'] as $bi => $t) foreach (pfb_group_options($held, $t) as [$ai, $side]) { $v = bsim_val($s, $t); if ($bo === null || $v > $bo[0]) $bo = [$v, $bi, $ai, $side]; }
+                if ($bo && (!$one || $one[3] < 5.0)) return ['h', $bo[1], $bo[2], $bo[3]];
+                if ($best && (!$one || $best[2] >= $one[3])) return ['c', $best[0], $best[1]];
+            }
+        } elseif (!$one || $one[3] < 4.0) {
+            $bo = null; $hand = $s['me']['hand'];
+            foreach ($hand as $ai => $ta) foreach ($hand as $bi => $tb) {
+                if ($ai === $bi) continue;
+                foreach (PFB_SIDE as $side => [$dx, $dy]) { $g = ['pcs' => [['tile' => $ta, 'x' => 0, 'y' => 0]]]; if (pfb_group_fit($g, $tb, $dx, $dy) !== true) continue; $v = bsim_val($s, $ta) + bsim_val($s, $tb); if ($bo === null || $v > $bo[0]) $bo = [$v, $ai, $bi, $side]; }
+            }
+            if ($bo) return ['j', $bo[1], $bo[2], $bo[3]];
+        }
     }
-    return $moves;
+    return $one ? [$one[0], $one[1], $one[2]] : null;
 }
-$bad = 0; $tbl = [];
+$bad = 0; $tbl = []; $kinds = []; $byMode = [];
 foreach ($rows as $c) foreach ([11, 22] as $seed) {
     $me = bsim_player($c['level']); $s = pfb_new($me, $c, $seed + $c['level']); $total = count($me['deck']); $t = 0;
     while (!$s['over'] && $t++ < 40) {
-        $mv = bsim_moves($s, [2, 3, 4][$seed % 3]);
-        if ($mv) $r = pfb_play($s, $mv, $s['turn']); else $r = pfb_pass($s, $s['turn']);
+        $mv = bsim_act($s, $seed === 11 ? 'single' : 'builder');
+        if ($mv) $r = pfb_play($s, [$mv], $s['turn']); else $r = pfb_pass($s, $s['turn']);
+        if (isset($mv[0]) && is_string($mv[0])) $kinds[$mv[0]] = ($kinds[$mv[0]] ?? 0) + 1;
         if ($r['err']) { echo "FAIL illegal move {$c['slug']}: {$r['err']}\n"; $bad++; break; }
-        $cnt = count($s['me']['hand']) + count($s['me']['draw']) + count($s['me']['discard']) + count(array_filter($s['pcs'], fn($p) => $p['by'] === 'me'));
+        $cnt = count($s['me']['hand']) + count($s['me']['draw']) + count($s['me']['discard']) + count(array_filter($s['pcs'], fn($p) => $p['by'] === 'me')) + count($s['me']['held']['pcs'] ?? []);
         if ($cnt !== $total) { echo "FAIL tile conservation {$c['slug']}: $cnt vs $total\n"; $bad++; break; }
         if (count($s['pcs']) > PFB_W * PFB_H) { echo "FAIL board overflow\n"; $bad++; break; }
     }
     if (!$s['over']) { echo "FAIL fight did not end: {$c['slug']}\n"; $bad++; }
-    $tbl[$c['size']][] = [(string)$s['over'], $s['turn']];
+    $tbl[$c['size']][] = [(string)$s['over'], $s['turn']]; $byMode[$seed === 11 ? 'single' : 'builder'][] = [(string)$s['over'], $s['turn']];
 }
+if (!$quiet) foreach ($byMode as $m => $res) { $cnt = array_count_values(array_column($res, 0)); ksort($cnt); printf("mode %-7s n=%-3d avg turns %.1f  %s\n", $m, count($res), array_sum(array_column($res, 1)) / count($res), json_encode($cnt)); }
+if (!$quiet) echo 'actions: ' . json_encode($kinds) . "\n";
 if (!$quiet) foreach ($tbl as $size => $res) { $cnt = array_count_values(array_column($res, 0)); ksort($cnt); printf("%-7s n=%-3d avg turns %.1f  %s\n", $size, count($res), array_sum(array_column($res, 1)) / count($res), json_encode($cnt)); }
 // ---- rules, one by one
 $T = fn(string $k, string $t, int $v, ?string $r, string $tag = '', string $m = '') => ['k' => $k, 'n' => $k, 't' => $t, 'v' => $v, 'r' => $r, 'tag' => $tag, 'm' => $m];
@@ -90,14 +108,48 @@ if ($found) { $ev = pfb_place($s, 'me', 0, $found[0], $found[1]); if (in_array('
 // pieces expire
 $s = $fresh(); $id = $put($s, 'me', $h, 2, 2); $s['round'] = 3; pfb_expire($s);
 if ($s['pcs'] || count($s['me']['discard']) !== 1) { echo "FAIL expiry\n"; $bad++; }
+// set-aside groups: join two pieces (a knob in a matching hole), add a third, never a fourth; play the group newest piece first
+$g1 = $T('g1', 'trick', 2, 'body'); $g2 = $T('g2', 'hurt', 5, 'mind'); $g3 = $T('g3', 'heal', 3, 'craft'); $g4 = $T('g4', 'guard', 2, 'body');   // g1 R knob body -> g2 L hole body; g2 R knob mind -> g3 L hole mind
+$s = $fresh(); $s['me']['hand'] = [$g1, $g2, $g3, $g4];
+if (pfb_connect($s, 'me', 0, 1, 'R') !== null || count($s['me']['held']['pcs']) !== 2 || count($s['me']['hand']) !== 2) { echo "FAIL two pieces did not join\n"; $bad++; }
+if (pfb_connect($s, 'me', 0, 1, 'R') === null) { echo "FAIL a second group was started while one was set aside\n"; $bad++; }
+if (pfb_connect($s, 'me', null, 0, 'R', 1) !== null || count($s['me']['held']['pcs']) !== 3) { echo "FAIL a third piece did not join the group\n"; $bad++; }
+if (pfb_connect($s, 'me', null, 0, 'R', 2) === null) { echo "FAIL a fourth piece was added to a group of three\n"; $bad++; }
+// a flat contact does not link, so it cannot be set aside
+$f1 = $T('f1', 'hurt', 3, null); $f2 = $T('f2', 'hurt', 3, null); $s2 = $fresh(); $s2['me']['hand'] = [$f1, $f2];
+if (pfb_connect($s2, 'me', 0, 1, 'R') === null || !empty($s2['me']['held'])) { echo "FAIL a flat joint was accepted for a group\n"; $bad++; }
+// playing the group of three: all three fire, the newest first, values x1.25
+$s = $fresh(); $s['me']['hand'] = [$g1, $g2, $g3]; $s['foe']['hand'] = [];
+pfb_connect($s, 'me', 0, 1, 'R'); pfb_connect($s, 'me', null, 0, 'R', 1);
+$held = $s['me']['held']; $total0 = count($s['me']['hand']) + count($s['me']['draw']) + count($s['me']['discard']) + count($held['pcs']);
+$spots = pfb_group_spots($s, $held);
+if (!$spots) { echo "FAIL an empty board has no spot for the group\n"; $bad++; }
+else {
+    [$gx, $gy] = $spots[0]; $b0 = $s['bar']['now']; $ev = pfb_place_group($s, 'me', $gx, $gy);
+    $names = array_column($ev ?? [], 'n');
+    if (!$ev || $names[0] !== 'g3' || count($names) !== 3) { echo "FAIL group chain order: " . json_encode($names) . "\n"; $bad++; }
+    if (!empty($s['me']['held']) || count($s['pcs']) !== 3) { echo "FAIL the group was not put on the board\n"; $bad++; }
+    $heal = array_values(array_filter($ev ?? [], fn($e) => $e['n'] === 'g3'))[0] ?? null;
+    if ($heal && $heal['v'] !== (int)round(3 * 1.25)) { echo "FAIL a group of three did not play at x1.25 (got {$heal['v']})\n"; $bad++; }
+    $cnt = count($s['me']['hand']) + count($s['me']['draw']) + count($s['me']['discard']) + count(array_filter($s['pcs'], fn($p) => $p['by'] === 'me'));
+    if ($cnt !== $total0) { echo "FAIL tiles lost when a group was placed: $cnt vs $total0\n"; $bad++; }
+}
+// a whole turn: connect (no effect, the creature answers), then play the group; one action only
+$st = ['level' => 3, 'grit' => 1, 'nimble' => 1, 'hardiness' => 1, 'charm' => 1, 'lore' => 1, 'luck' => 0];
+$x = pfb_new(['hp' => 40, 'max_hp' => 40, 'stats' => $st, 'deck' => pf_player_deck($st), 'luck' => 0], $mkc, 5); $x['me']['hand'] = [$g1, $g2, $g3, $g4];
+$r = pfb_play($x, [['j', 0, 1, 'R']], $x['turn']);
+if ($r['err'] || empty($x['me']['held']) || !array_filter($r['ev'], fn($e) => !empty($e['connect']))) { echo "FAIL a connect turn: " . json_encode($r['err']) . "\n"; $bad++; }
+if (pfb_play($x, [[0, 1, 1], [0, 2, 2]], $x['turn'])['err'] === null) { echo "FAIL two actions in one turn\n"; $bad++; }
+$y = pfb_new(['hp' => 40, 'max_hp' => 40, 'stats' => $st, 'deck' => pf_player_deck($st), 'luck' => 0], $mkc, 5);
+if (pfb_play($y, [['c', 3, 2]], $y['turn'])['err'] === null) { echo "FAIL played a group that was never set aside\n"; $bad++; }
 // stale turn, bad moves, determinism, no leaks
 $st = ['level' => 3, 'grit' => 1, 'nimble' => 1, 'hardiness' => 1, 'charm' => 1, 'lore' => 1, 'luck' => 0];
 $mk = fn() => pfb_new(['hp' => 40, 'max_hp' => 40, 'stats' => $st, 'deck' => pf_player_deck($st), 'luck' => 0], $mkc, 77);
 $a = $mk(); $b = $mk(); unset($a['nonce'], $b['nonce']);
-$mv = bsim_moves($mk(), 2); $x1 = $mk(); $x2 = $mk(); pfb_play($x1, $mv, 1); pfb_play($x2, $mv, 1); unset($x1['nonce'], $x2['nonce']);
+$mv = [bsim_act($mk(), 'single')]; $x1 = $mk(); $x2 = $mk(); pfb_play($x1, $mv, 1); pfb_play($x2, $mv, 1); unset($x1['nonce'], $x2['nonce']);
 if (json_encode($a) !== json_encode($b) || json_encode($x1) !== json_encode($x2)) { echo "FAIL board fight not deterministic\n"; $bad++; }
 $x = $mk(); if (pfb_play($x, $mv, 9)['err'] !== 'stale') { echo "FAIL stale turn accepted\n"; $bad++; }
-$x = $mk(); $before = json_encode($x); foreach ([[[0, 0, 0]], [[0, 2, 2], [0, 2, 2]], [[99, 1, 1]], [['a', 1, 1]], []] as $bm) { $r = pfb_play($x, $bm, 1); if ($r['err'] === null || json_encode($x) !== $before) { echo "FAIL bad move accepted or state changed: " . json_encode($bm) . "\n"; $bad++; } }
+$x = $mk(); $before = json_encode($x); foreach ([[[0, 0, 0]], [[0, 2, 2], [0, 2, 2]], [[99, 1, 1]], [['a', 1, 1]], [], [['c', 1, 1]], [['j', 0, 0, 'R']], [['h', 0, 0, 'R']], [['j', 0, 1, 'Z']]] as $bm) { $r = pfb_play($x, $bm, 1); if ($r['err'] === null || json_encode($x) !== $before) { echo "FAIL bad move accepted or state changed: " . json_encode($bm) . "\n"; $bad++; } }
 $v = pfb_view($mk()); $vj = json_encode($v);
 if (str_contains($vj, '"rng"') || str_contains($vj, '"nonce"') || isset($v['draw']) || !is_int($v['foe']['hand'])) { echo "FAIL board view leaks\n"; $bad++; }
 echo $bad ? "$bad FAILED\n" : "ok: " . count($rows) . " creatures\n";

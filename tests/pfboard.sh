@@ -43,7 +43,6 @@ ck "no old attack button" "$(grep -c 'value="attack"' $H)" "0"
 ck "hand pieces" "$( [ $(grep -o 'class="pf-tile pf-h pf-bp' $H | wc -l) -ge 5 ] && echo yes)" "yes"
 ck "the board starts with a creature piece" "$(grep -o '"by":"foe"' $H | wc -l | awk '{print ($1>=1)?"yes":"no"}')" "yes"
 ck "no draw pile or seed in the page" "$(grep -c '"rng"\|"draw"' $H)" "0"
-if [ -n "$SHOT" ]; then node "$HERE/pfboardshot.js" "$BASE" "$SHOT" || { echo "FAIL browser check"; FAILS=$((FAILS+1)); }; fi
 ENC1=$(enc)
 ck "bad moves: redirect" "$(pf pfb_play -d moves='0,0,0')" "302"; ck "off-board / no-contact move ignored" "$(enc)" "$ENC1"
 ck "garbage moves: redirect" "$(pf pfb_play -d moves='a,b,c')" "302"; ck "garbage ignored" "$(enc)" "$ENC1"
@@ -62,6 +61,19 @@ NONCE_X=deadbeef pf pfb_preview -d moves='0,2,2' >/dev/null; ck "preview with a 
 ck "wrong nonce: redirect" "$(NONCE_X=deadbeef pf pfb_play -d moves='0,2,2')" "302"; ck "wrong nonce ignored" "$(enc)" "$ENC1"
 ck "a strip play on a board fight is refused" "$(pf pf_play -d chain=0)" "302"; ck "strip play ignored" "$(enc)" "$ENC1"
 ck "pass with pieces that fit is refused" "$(pf pfb_pass)" "302"; ck "pass ignored" "$(enc)" "$ENC1"
+# set pieces aside (Connect), play the group; the page refuses a second group and a bad group spot
+JM=$(php "$HERE/pfboard_move.php" "$GAME" join 2>&1 | tail -1)
+if [ "$JM" != "NONE" ]; then
+  ck "connect: redirect" "$(pf pfb_play -d moves="$JM")" "302"
+  ck "connect set two pieces aside" "$(db "SELECT encounter LIKE '%\"held\":{%' FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
+  get adventure.php >/dev/null; ck "the page shows the set-aside group" "$(grep -c 'id="pf-held"' $H)" "1"
+  ENC2=$(enc); pf pfb_play -d moves="$JM" >/dev/null; ck "a second group is refused" "$(enc)" "$ENC2"
+  AM=$(php "$HERE/pfboard_move.php" "$GAME" add 2>&1 | tail -1)
+  if [ "$AM" != "NONE" ]; then ck "add a third piece" "$(pf pfb_play -d moves="$AM")" "302"; fi
+  GM=$(php "$HERE/pfboard_move.php" "$GAME" group 2>&1 | tail -1)
+  ck "a group put off the board is refused" "$(pf pfb_play -d moves='c,99,99' >/dev/null; db "SELECT encounter LIKE '%\"held\":null%' FROM expeditions ORDER BY id DESC LIMIT 1")" "0"
+  if [ "$GM" != "NONE" ]; then ck "play the group" "$(pf pfb_play -d moves="$GM")" "302"; ck "the group left the set-aside area" "$(db "SELECT encounter LIKE '%\"held\":null%' FROM expeditions ORDER BY id DESC LIMIT 1")" "1"; fi
+else echo "note: no joinable pair in this hand (connect not exercised)"; fi
 N=0; while [ $N -lt 40 ]; do
   [ "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" = "1" ] && break
   MV=$(php "$HERE/pfboard_move.php" "$GAME" 2>&1 | tail -1)
@@ -73,6 +85,7 @@ ck "fight ended" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DE
 get adventure.php >/dev/null
 ck "page after fight has no board" "$(grep -c 'id="pfb-board"' $H)" "0"
 ck "no errors in the game error log" "$(cat "$GAME/data/error-log.txt" 2>/dev/null | wc -c | tr -d ' ')" "0"
+grep -E "PHP (Warning|Notice|Deprecated|Fatal)" $LOG | head -3 | cut -c1-260
 ck "no PHP warnings in server log" "$(grep -cE 'PHP (Warning|Notice|Deprecated|Fatal)' $LOG)" "0"
 echo "turns played: $N"
 [ $FAILS -eq 0 ] && echo "pfboard ok" || echo "$FAILS FAILED"
