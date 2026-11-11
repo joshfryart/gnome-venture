@@ -926,12 +926,12 @@ function combat_turn(array $u, array &$exp, string $action, int $itemId = 0): bo
     return false;
 }
 
-function win_fight(array $u, array &$exp, array $c, bool $peaceful): void
+function win_fight(array $u, array &$exp, array $c, bool $peaceful, bool $full = false): void   // $full (puzzle combat Charm): full XP and a gift instead of drops
 {
     $exp['_won'] = true;   // this request won a fight (not saved): the lair check in adventure.php reads it instead of counting on the log
     $uid = (int)$u['id'];
     $ps = ppal_boons_on() ? ppal_skills($u) : [];   // v2.3.8: Boons spoils (drop chance) and lesson (Fighting XP); [] with no pals along
-    $xp = $peaceful ? intdiv((int)$c['xp'], 2) : (int)$c['xp'];
+    $xp = $peaceful && !$full ? intdiv((int)$c['xp'], 2) : (int)$c['xp'];
     $pct = outlevel_percent($u, max((int)($exp['level'] ?? 0), (int)$c['level']));   // v0.7.75: outgrown areas give less XP (drops unchanged); judged by the area, not a weaker creature in it
     $xp = outlevel_scale($xp, $pct);
     if (!empty($ps['lesson'])) $xp = intdiv($xp * (100 + (int)$ps['lesson']), 100);
@@ -971,6 +971,14 @@ function win_fight(array $u, array &$exp, array $c, bool $peaceful): void
                 exp_log($exp, '🎁 Loot: ' . ($qty > 1 ? $qty . ' × ' : '') . q_val('SELECT name FROM items WHERE id = ?', [$dr['item_id']]));
                 $loot[] = ['name' => (string)q_val('SELECT name FROM items WHERE id = ?', [$dr['item_id']]), 'qty' => (int)$qty, 'img' => (string)(item_art_map()['id'][(int)$dr['item_id']] ?? '')];
             }
+        }
+    }
+    if ($peaceful && $full) {   // puzzle combat Charm: a gift. PLACEHOLDER until the species gift table is authored: the creature's likeliest item drop, once.
+        $gift = q_one('SELECT cd.item_id, i.name FROM creature_drops cd JOIN items i ON i.id = cd.item_id WHERE cd.creature_id = ? AND cd.item_id IS NOT NULL ORDER BY cd.chance DESC, cd.id LIMIT 1', [$c['id']]);
+        if ($gift) {
+            give_item($uid, (int)$gift['item_id'], 1);
+            exp_log($exp, '🎁 The ' . $c['name'] . ' leaves you a gift: ' . $gift['name']);
+            $loot[] = ['name' => (string)$gift['name'], 'qty' => 1, 'img' => (string)(item_art_map()['id'][(int)$gift['item_id']] ?? '')];
         }
     }
     foreach (check_milestones($uid) as $m) exp_log($exp, $m);

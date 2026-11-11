@@ -4,6 +4,7 @@ require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/adventure.php';
 require_once __DIR__ . '/includes/scene.php';   // v2.0.43: the stage
 require_once __DIR__ . '/includes/puzzle_pals.php';   // v2.3.8: pal actives on the fight buttons
+require_once __DIR__ . '/includes/pfight_game.php';   // puzzle combat (flag pfight_open)
 require_once __DIR__ . '/includes/fight_scene.php';   // fight_scene: the animated fight stage
 require_once __DIR__ . '/includes/trail_tiles.php';   // graphical navigation 2d: the Trail as tile sections (gnav_tiles)
 $u = require_login();
@@ -64,7 +65,9 @@ if (is_post()) {
     if ($exp) {
         road_bind($u, $exp);   // v1.9.3: the recent-picks memory, read after the lock above and written (road_flush) before the commit below
         $enc = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
-        if ($enc && $enc['type'] === 'creature') {
+        if ($enc && $enc['type'] === 'creature' && pfight_on($u)) {   // puzzle combat: only its own actions count (an old attack button from a stale page does nothing)
+            if (in_array($do, ['pf_play', 'pf_run', 'pf_redraw'], true)) pfight_do($u, $exp, $do);
+        } elseif ($enc && $enc['type'] === 'creature') {
             $fev0 = fight_ev_start($exp, $enc); fight_ev();   // fight events for the fight scene: both sides' health now, then whatever this action records
             if (in_array($do, ['attack', 'ability', 'flee'], true) || preg_match('/^palskill:[a-z0-9_-]{1,48}$/', $do)) {   // v2.3.8: palskill:KEY = a rare pal's active
                 combat_turn($u, $exp, $do);
@@ -397,6 +400,11 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
     <h3>💫 Knocked out!</h3><p>You woke up back in <?= e($from['name']) ?>. Nothing was lost except a little energy and pride.</p>
   <?php endif; ?>
   <p><a class="btn" href="<?= e(url('world.php')) ?>">Look around</a></p>
+
+<?php elseif ($enc && $enc['type'] === 'creature' && pfight_on($u)):
+    $c = encounter_creature($enc); fight_prep($enc, $c); ?>
+  <?= pfight_html($u, $exp, $enc, $c) ?>
+  <details class="helpfold"><summary>About the <?= e($c['name']) ?></summary><p><i><?= e($c['description']) ?></i></p></details>
 
 <?php elseif ($enc && $enc['type'] === 'creature'):
     $c = encounter_creature($enc);
