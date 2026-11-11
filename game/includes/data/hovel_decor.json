@@ -6,7 +6,7 @@
     {"k": "floor", "name": "Floor", "x": 0, "y": 220, "w": 480, "h": 50, "items": [
       {"k": "plank", "name": "Planks", "cosy": 1, "own": true},
       {"k": "stone", "name": "Flagstones", "cosy": 1, "own": true},
-      {"k": "moss", "name": "Moss floor", "cosy": 1, "own": false, "where": "Market · 40 gold"}
+      {"k": "moss", "name": "Moss floor", "cosy": 1, "own": false, "where": "Market · 40 Petals"}
     ]},
     {"k": "wall", "name": "Wall", "x": 150, "y": 80, "w": 40, "h": 32, "items": [
       {"k": "sampler", "name": "Sampler", "cosy": 1, "own": true},
@@ -31,7 +31,7 @@
     {"k": "lamp", "name": "Lamp", "x": 276, "y": 180, "w": 16, "h": 40, "items": [
       {"k": "candle", "name": "Candle", "cosy": 1, "own": true},
       {"k": "glowcap", "name": "Glowcap", "cosy": 2, "own": true},
-      {"k": "lantern", "name": "Lantern", "cosy": 2, "own": false, "where": "Market · 25 gold"}
+      {"k": "lantern", "name": "Lantern", "cosy": 2, "own": false, "where": "Market · 25 Petals"}
     ]},
     {"k": "pet", "name": "Pet corner", "x": 18, "y": 188, "w": 48, "h": 32, "items": [
       {"k": "basket", "name": "Basket", "cosy": 1, "own": true},

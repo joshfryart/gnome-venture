@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- **Slim Home** (new setting `home_slim`, Admin > Settings, off by default; admins always see it): Today, My Gnome and the Hovel become one Home page. A slim hovel banner (a 480x120 crop of `scenes/hovel-room.png` with the gnome, time · season · weather on its tag) carries **Go to sleep** and **Nap**; under it three tabs: **Today** (one "Needs you" list from the home cards, the Hovel's Today and the overnight crew report, plus the latest news with a gold "!" until it is opened), **Furnish** (seven decor slots: floor, wall, window, shelf, rug, lamp, pet corner; a picker per slot, locked items say where to get them, a Cosiness meter out of 12) and **Gnome** (level, health, boosts, pals along, the six sub-page tiles). Energy stays in the header chip, level on the Gnome tab. `hovel.php` still does the sleeping and sends old links home; the menu's Hovel tile goes. Off = the old pages exactly. New: `includes/home_slim.php`, `includes/data/hovel_decor.json`, table `user_hovel_decor`, test `tests/home_slim.sh`. Art is optional: a drawn room and boxes stand in.
+
 ## 2.6.51
 - **Wattle fence**: all pieces (end, straight, corner, tee, cross, gate, icon) redrawn as one woven top-down set (`tools/gen_wattle_art.py`). The yard now shows the pixel PNG placeholder set when it exists (was always the old SVG), scaled crisp.
 - **Pal Jobs**: collecting one pal's trip or delve plays the chest animation, like Collect all.

@@ -2276,3 +2276,24 @@ document.addEventListener('change', function (e) {
   var o = t.closest('.bed3') && t.closest('.bed3').querySelector('input[data-bed3="' + other + '"]');
   if (o) o.checked = false;
 });
+
+/* Slim home > Furnish (includes/home_slim.php): a slot tile, or the thing in the room, opens that slot's picker as a dialog.
+   Without script the link loads ?tab=furnish&slot=..., where the picker is drawn open in the page. Done closes a dialog, or goes back to the tiles. */
+document.addEventListener('click', function (ev) {
+  if (ev.defaultPrevented || ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey || !ev.target.closest) return;
+  var shut = ev.target.closest('[data-hdlg-close]');
+  if (shut) {
+    var dd = shut.closest('dialog');
+    if (dd && dd.open && dd.matches && dd.matches(':modal')) { ev.preventDefault(); gvCloseDlg(dd); }
+    return;
+  }
+  var dlg = ev.target.tagName === 'DIALOG' && ev.target.classList.contains('hpick') ? ev.target : null;
+  if (dlg) { if (dlg.matches && dlg.matches(':modal')) gvCloseDlg(dlg); return; }   // the dimmed area around the box
+  var a = ev.target.closest('[data-hdlg]');
+  if (!a) return;
+  var d = document.getElementById(a.getAttribute('data-hdlg'));
+  if (!d || !d.showModal) return;
+  ev.preventDefault();
+  if (d.open) d.close();   // drawn open in the page (?slot=): show it as the dialog instead
+  gvOpenDlg(d);
+});

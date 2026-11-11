@@ -8,6 +8,8 @@ require __DIR__ . '/includes/bootstrap.php';
 $u = require_login();
 $uid = (int)$u['id'];
 if (!gclock_on()) { flash('The hovel is still being built.', 'err'); redirect('gnome.php'); }
+require_once __DIR__ . '/includes/home_slim.php';
+$slimHome = (int)($u['onboarded'] ?? 1) === 1 && home_slim_on();   // slim home: the hovel is the banner and tabs of gnome.php; this page only does the sleeping
 if (is_post()) {
     csrf_check();
     $do = (string)($_POST['do'] ?? '');
@@ -23,8 +25,10 @@ if (is_post()) {
         $msg .= ' ' . gclock_rest_summary($before, $a, $hpAfter - $hpBefore);
     }
     flash($msg, $ok ? 'ok' : 'err');
+    if ($slimHome) { $back = (string)($_POST['back'] ?? 'today'); redirect('gnome.php?tab=' . (in_array($back, ['furnish', 'gnome'], true) && !($ok && $kind === 'sleep') ? $back : 'today')); }   // after a sleep: TODAY, what changed overnight
     redirect('hovel.php' . ($ok && $kind !== 'nap' && $kind !== '' ? '?t=today' : ''));   // after sleeping: what changed overnight
 }
+if ($slimHome) redirect('gnome.php?tab=' . (($_GET['t'] ?? '') === 'furnish' ? 'furnish' : 'today'));   // old links (menu, daily, the clock pill) land on the home page
 $s = gclock_state($u);
 require_once __DIR__ . '/includes/pal_crew.php';
 require_once __DIR__ . '/includes/today.php';
