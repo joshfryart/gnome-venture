@@ -24,6 +24,7 @@ import gen4 as G
 SIDES, ORDER, FAM3 = 'LRTB', B.ORDER, G.FAM3
 KINDS = [('knob', f) for f in FAM3] + [('hole', f) for f in FAM3]
 ERASE = 255
+GOLD_ = B.GOLD
 
 ROLES = {  # name: (id, default rgb)
     'INK': (1, B.INK), 'RIM_ME': (2, B.CREAM), 'STITCH_ME': (3, B.GOLD), 'RIM_FOE': (4, G.RUST),
@@ -286,6 +287,9 @@ def main(out, n_verify):
     base_rim = {k: list(v[1]) for k, v in ROLES.items() if v[1]}
     rim['palettes'] = {'default': base_rim, 'old': old_pal(base_rim)}
     rim['palettes']['old'] = {k: v for k, v in rim['palettes']['old'].items() if k not in ('INK',)}
+    rim['palettes']['boss'] = {'RIM_FOE': list(GOLD_), 'BAND_FOE': [0x3a, 0x1a, 0x4a], 'STITCH_FOE': list(B.CREAM),
+                               'THORN_TIP': [0xff, 0xf8, 0xe6], 'THORN_BODY': [0x7a, 0x48, 0xa8], 'PLATE': list(B.CREAM),
+                               'note': 'foe boss: gold ring, violet band/thorns. Second cue = crown-boss.png at the piece top-left corner, never colour only.'}
     json.dump(rim, open(os.path.join(out, 'rim.json'), 'w'), indent=1)
     json.dump(atlas, open(os.path.join(out, 'atlas.json'), 'w'), indent=1)
 

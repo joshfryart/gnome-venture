@@ -211,6 +211,39 @@
     132,
     102
    ]
+  },
+  "boss": {
+   "RIM_FOE": [
+    232,
+    163,
+    23
+   ],
+   "BAND_FOE": [
+    58,
+    26,
+    74
+   ],
+   "STITCH_FOE": [
+    242,
+    228,
+    192
+   ],
+   "THORN_TIP": [
+    255,
+    248,
+    230
+   ],
+   "THORN_BODY": [
+    122,
+    72,
+    168
+   ],
+   "PLATE": [
+    242,
+    228,
+    192
+   ],
+   "note": "foe boss: gold ring, violet band/thorns. Second cue = crown-boss.png at the piece top-left corner, never colour only."
   }
  }
 }
