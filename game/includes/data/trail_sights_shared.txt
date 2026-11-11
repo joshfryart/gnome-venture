@@ -1,0 +1,112 @@
+# Trail Sights: the shared land set pieces (P2 data), 89 rows. Ideas: claude/sights/ideas-shared-land.md; what this grammar cannot do yet: claude/sights/shared-p2-todo.md
+# slug | verb | icon | energy | cd (tenths of a game day) | uses | when | check | rewards | win | lose | tool | fail_en   (columns as in trail_sights.txt)
+# Five shared pieces already have rows in trail_sights.txt (clover patch, shell heap, rope bridge, old milestone, reef shallows), so they are not here.
+# Verbs are unique across all trail_sights*.txt rows. Changed from the ideas file: daisy ring "Count" -> "Measure up" (Maplewold birch curtain has Count), lagoon edge "Peer" -> "Mirror" (Maplewold tide steps has Peer).
+# fp= befriends a random villager of the walk's start town: it stands in for the ideas' named villager points.
+
+# Grassland
+grassland-the-plank-footbridge|Praise|🎖️|1|55|1|-|-|xp=3:1,first:xp=5,item=minnow:1@15?we=rain|You tell the bridge it is a very fine bridge. It stops creaking, stands a little taller, and you cross with a spring in your step.|-|-|0
+grassland-the-picnic-knoll|Spread a cloth|🧺|0|55|1|-|-|en=2,xp=2:1,item=custard-tart:1@30?se=summer/dp=day,seed=1@8|You spread a cloth in the dent, which is exactly picnic-sized, and eat a snack. A line of ants watches very politely from the edge.|-|-|0
+grassland-the-bramble-gap|Snip|✂️|1|55|2|-|-|xp=2:1,item=raspberry:1@40?se=autumn,item=raspberry:1@15?se=spring;summer;winter,find=1@15|You snip the brambles back until two gnomes and two opinions fit through side by side.|-|forage:1|0
+grassland-the-shepherd-s-wall|Shut the gate|🚪|0|55|1|-|-|xp=2:1,item=hen-feather:1@30?dp=dusk,en=1@25?dp=night|You open the little gate and shut it again, properly, even though the wall is mostly somewhere else. Manners matter.|-|-|0
+grassland-the-wind-combed-meadow|Wind the string|🪁|1|55|1|-|-|xp=3:1,buff=sense:1:60?we=wind,item=storm-feather:1@20?we=wind|You reel in the kite string trailing over the path. It goes on and on. Something is on the other end, very far away.|-|-|0
+grassland-the-dandelion-drift|Blow a wish|🌬️|1|55|1|-|-|xp=3:1,seed=1@25,fp=1@20?se=spring|You blow the whole drift into the sky and make one enormous wish. The fluff sets off for the next town.|-|-|0
+grassland-the-sleepy-windmill|Wind up|⚙️|1|55|1|-|-|xp=3:1,c=3:1@30,c=3:1@30?we=wind,item=pancakes:1@10?dp=dawn|You wind the sails up and they turn, slowly and sleepily. The windmill mice pay you for the grinding in crumbs and coins.|-|-|0
+grassland-the-daisy-ring|Measure up|📏|0|55|1|-|-|xp=2:1,first:xp=5,item=clean-dew:1@15?dp=dawn|You get out a tape and measure the ring. Perfect, to the hair. Somebody very fussy has been here.|-|-|0
+grassland-the-lonely-scarecrow|Tip your hat|🎩|0|55|1|-|-|xp=2:1,item=glowing-bead:1@10,item=black-feather:1@15|You tip your hat to Sir Barnaby. The crows like him, so now they like you too.|-|-|0
+grassland-the-hay-cart-ruts|Follow the ruts|🛞|1|55|1|-|-|xp=3:1,item=straw-mulch:1@25,find=1@15|You walk in the old ruts a little way. They always go home, and for a bit, so do your feet.|-|-|0
+
+# Forest
+forest-the-lantern-branch|Trim the wick|🕯️|1|55|1|-|-|xp=3:1,buff=sense:1:60?dp=dusk;night,item=firefly-glow:1@20?dp=night|You trim the old lantern's wick while its keeper is away. It burns brighter at once, and will all night.|-|-|0
+forest-the-root-tangle-crossing|Step high|🦵|1|55|1|-|nimble:10|xp=3:1,item=heartwood:1@6|You pick the right three steps over the roots: high, higher, and a little hop. The roots look impressed.|Wrong third step. You sit down in the roots, and they hold you very kindly.|-|1
+forest-the-spring-and-the-pebbles|Sip|💧|0|55|1|-|-|en=1,xp=1:1,item=singing-pebble:1@8?se=summer;autumn;winter,item=singing-pebble:1@15?se=spring|You cup your hands and sip from the spring. Very cold, very fresh, and the pebbles hum along.|-|-|0
+forest-the-owl-watch-bough|Pretend not to look|🦉|1|55|1|-|sense:11|xp=4:1,item=pretty-feather:1@15?dp=night,item=owl-feather:1@10|You stand under the bough and very carefully do not look at the owl. The owl approves of your manners.|You peek. The owl sees you peek. Everybody is embarrassed.|-|0
+forest-the-glow-moss-grotto|Read by moss-light|🌙|0|55|1|-|-|xp=2:1,first:xp=5,buff=lore:1:60|You sit in the glowing hollow and read a few pages by moss-light. The words feel cleverer in here.|-|-|0
+forest-the-fern-tunnel|Duck under|☔|1|55|1|-|nimble:10|xp=3:1,item=fiddleheads:1@30?we=rain,item=fiddleheads:1@10?we=sun;cloud;wind;fog|You duck under every drip in the fern tunnel. Dry as toast, and a little smug.|Drip. Right down the back of your neck. Soggy hat, a laugh, nothing worse.|-|0
+forest-the-acorn-scatter|Tidy the acorns|🐿️|1|55|1|-|-|xp=3:1,item=acorn-cap:1@35,item=hazelnut:1@15?se=autumn|You help Hazel Fluster, a squirrel having a very bad day, put the acorns back in three holes. Her day gets a little better.|-|-|0
+forest-the-hollow-oak|Pour tea|🫖|0|55|1|-|-|en=2,xp=2:1,item=mint-tea:1@20|You pour tea for six in the hollow, though only you turn up. It is a lovely warm rest all the same.|-|-|0
+forest-the-mushroom-ring|Walk round|🍄|1|55|1|-|-|xp=3:1,buff=luck:1:60,item=chanterelle:1@25?we=rain|You walk round the ring three times, never through. You feel a little lucky, and a little dizzy.|-|-|0
+forest-the-mossy-stair|Sweep|🧹|1|55|1|-|-|xp=3:1,c=2:1@20,item=raspberry-jam:1@8?dp=dawn|You sweep the steps for the next small boots. There is one more step than last time. There always is.|-|-|0
+forest-the-woodcutter-s-stump|Tug the tiny axe|🪓|1|55|1|-|grit:12|xp=4:1,first:xp=10,item=oak-gall:1@15,item=oak-log:1@15?se=autumn|You tug the very small axe in the very big stump. It does not come out, but it wiggles, and that counts.|You tug, slip and sit down hard. The tiny axe looks smug.|-|1
+forest-the-fallen-log-bridge|Bow back|🙇|1|55|1|-|-|xp=3:1,item=stag-beetle-shell:1@12|The log wobbles politely, so you bow back. It holds very still while you cross.|-|-|0
+forest-the-bluebell-glade|Listen for the ring|🔔|1|55|1|-|sense:11|xp=4:1,buff=charm:1:60?se=spring/dp=dawn,item=bluebell-seed:1@18?se=spring|You kneel and listen. Very faintly, the bluebells really do ring.|You hear a bee, a breeze and your own tummy. Not a ring.|-|0
+
+# Wetland
+wetland-the-mud-skipper-flats|Fire the starter|🏁|1|55|1|-|luck:11|xp=3:1,c=3:1@30,fp=1@20?dp=day|You give the skippers a reason to race and pick a winner. Yours flops over the line first, very muddy and very proud.|Your skipper stops halfway to look at a worm. Fair enough.|-|0
+wetland-the-stilt-house|Call up|🪜|0|55|1|-|-|xp=2:1,en=1@30?dp=dusk,item=woven-basket:1@5|You call up to the house on stilts. Nobody answers, and the ladder is nowhere to be seen. Somebody up there is snoring.|-|-|0
+wetland-the-willow-curtain|Part the curtain|🌿|1|55|1|-|-|xp=3:1,item=pretty-feather:1@20?se=spring,en=1?se=summer,find=1@25?se=autumn,item=frost-crystal:1@8?se=winter|You part the willow. Behind it is a nest in spring, cool shade in summer, a leaf pile in autumn and icicle chimes in winter.|-|-|0
+wetland-the-peat-bank|Sniff the pages|📖|1|55|1|-|lore:11|xp=4:1,item=sphagnum:1@30|You sniff the peat bank. Rain, old books, and definitely a bit of poetry.|It smells of mud. Just mud. You must be on the wrong page.|-|0
+wetland-the-frog-choir|Conduct|🎼|1|55|1|-|-|xp=3:1,buff=charm:1:30?dp=dusk,item=frogspawn:1@12?se=spring|You wave a reed and conduct the rehearsal. The frogs keep a fine tempo and bow at the end.|-|-|0
+wetland-the-boardwalk-gap|Mend the plank|🔨|1|55|1|-|nimble:10|xp=3:1,item=bog-iron:1@10|You lay a spare board over the gap and stamp it in. Nobody has to hop here for a while.|The board tips and you hop the gap anyway, straight into a puddle.|-|1
+wetland-the-lily-pad-ford|Skip|🐸|1|55|1|-|nimble:11|xp=4:1,item=cattail-root:1@20,item=golden-carp:1@3|You skip from pad to pad, light as a frog. A golden flash darts under the last one.|One wet foot. The frogs are kind enough not to mention it.|-|1
+wetland-the-dragonfly-bend|Watch the stitching|🧵|1|55|1|-|sense:11|xp=4:1,item=dragonfly-wing:1@20?we=sun|You follow one dragonfly seam with your eyes, all the way along the blue. Very neat stitching.|You lose the seam and go cross-eyed. The dragonflies carry on regardless.|-|0
+wetland-the-reed-causeway|Nod back|👋|0|55|1|-|-|xp=2:1,item=cattail-fluff:1@25,item=rope:1@10?dp=dawn|The reeds nod hello. You nod back. They nod more. This could go on all day, and nearly does.|-|-|0
+wetland-the-heron-s-post|Applaud|👏|0|55|1|-|-|xp=2:1,item=perch:1@10?we=fog,item=long-feather:1@6|You clap for the heron on its stage. It does the one-leg pose, very slowly, twice.|-|-|0
+
+# Mountain
+mountain-the-scree-slope|Play the scree|🪨|1|55|1|-|nimble:12|xp=4:1,item=slate-shard:1@20,item=rock-crystal:1@4|You step on just the right stones and the scree plays a little tune, tick, tock, chatter. Not bad at all.|Wrong stone. The whole slope plays a very loud wrong note, and you slide a bit.|-|1
+mountain-the-pine-shelf|Hug a pine|🤗|1|55|1|-|-|xp=3:1,item=pine-resin:1@30,en=1@10?se=winter|You hug a pine that is clinging on for dear life. It feels better. So do you, if a bit sticky.|-|-|0
+mountain-the-wind-notch|Fly a ribbon|🎐|1|55|1|-|-|xp=3:1,buff=nimble:1:60?we=wind;storm,en=1?we=sun;cloud|You hold a ribbon up in the notch and the wind plays it like a fiddle. It is a jolly tune, mostly.|-|-|0
+mountain-the-goat-ledge|Share a snack|🐐|1|55|1|-|-|xp=3:1,item=edelweiss:1@12,item=goat-hair:1@20?se=spring|You offer the goat a snack. It stays completely unbothered, but it shares the view.|-|-|0
+mountain-the-waterfall-mist|Catch a rainbow|🌈|1|55|1|-|-|en=1,xp=3:1,buff=luck:1:60?we=sun/dp=day|You hold out a jar in the mist. It fills with cool spray, and when the sun is out, with a little bit of rainbow.|-|-|0
+mountain-the-eagle-s-rest|Think alongside|🦅|0|55|1|-|-|xp=3:1,buff=lore:1:60,item=bright-feather:1@5|You sit beside the eagle's boulder and think one big thought. The eagle thinks one too. Neither of you shares.|-|-|0
+mountain-the-stone-hut|Light the stove|🔥|0|55|1|-|-|take=pine-log:1,en=3,xp=2:1,buff=hardiness:1:60,item=hot-cocoa:1@15?se=winter|You light the little stove with a pine log and warm your toes. The empty hut feels much less empty.|-|-|0
+mountain-the-echo-wall|Shout|📣|1|55|1|-|-|xp=3:1,buff=charm:1:30|You shout something nice at the wall. The echo shouts back something much cheekier, and you laugh too hard to mind.|-|-|0
+mountain-the-switchback-bend|Look back|🔭|0|55|1|-|-|xp=2:1,find=1@15,reveal@10|You look back down the way you came and spot something you missed. It was there all along, of course.|-|-|0
+mountain-the-cairn-pass|Add a stone|🗿|1|55|1|-|-|xp=4:1,first:xp=5,item=geode:1@6|You add one stone to the cairn. It is a little taller now, and you helped.|-|-|0
+
+# Coast
+coast-the-lighthouse-shadow|Signal|🔦|1|55|1|-|-|xp=3:1,fish=1@15?dp=night,item=moonfish:1@10?we=fog|You flash your lantern when the beam sweeps by. Far off, the lighthouse flashes back. Hello to you too.|-|lantern:1|0
+coast-the-kelp-line|Tie a bow|🎀|1|55|1|-|-|xp=3:1,item=bladderwrack:1@30,item=seed-pearl:1@5|The kelp lies neat as a ribbon, so you finish it off with a bow. Much tidier.|-|-|0
+coast-the-rope-and-net-rack|Relieve the guard|💂|1|55|1|-|-|xp=3:1,item=sardine:2@20?dp=dawn,item=gull-feather:1@10|You take over from the gull, who was guarding the nets very badly. You guard them well, for a bit.|-|-|0
+coast-the-bottle-post|Write back|✉️|0|55|1|-|-|xp=2:1,first:xp=10,item=sea-glass:1@8|You read the note in the bottle. It says "hello". You write "hello" back, which feels exactly right.|-|-|0
+coast-the-tide-pool-steps|Hear out a crab|🦀|1|55|1|-|charm:11|xp=4:1,item=tide-shell:1@25|You listen to one crab's opinion, all of it. The crab feels very heard and gives you a shell.|It was a very long opinion. You nod off halfway and the crab is offended.|-|0
+coast-the-stranded-rowboat|Push off|🚣|1|55|1|-|grit:11|xp=4:1,item=driftwood:1@20,fp=1@20?we=storm|You patch the old rowboat and push. It slides a little way and the sea seems to apologise.|The boat does not budge. It is very comfortable where it is.|-|1
+coast-the-sandbar-causeway|Dash across|🏃|1|55|1|-|nimble:11|xp=4:1,item=sea-glass:1@15|You dash along the sandbar before the water shuffles in. Dry boots, nearly.|The water shuffles in first. Wet to the knees, and the gulls laugh.|-|1
+coast-the-barnacle-wall|Tell a joke|🤫|1|55|1|-|charm:11|xp=4:1,item=blue-mussels:1@25|You whisper a joke to the barnacles, and they clack with laughter all down the wall.|Silence. Not a single clack. Tough crowd.|-|0
+coast-the-dune-grass-sweep|Curtsy|🎭|0|55|1|-|-|xp=2:1,item=samphire:1@15,buff=charm:1:30?we=wind/dp=dusk|The grass bows like an audience, so you curtsy back. It rustles its applause.|-|-|0
+coast-the-driftwood-arch|Clack the shells|🐚|1|55|1|-|-|xp=3:1,item=cowrie-shell:1@18,fp=1@15?we=wind|You clack the hanging shells into a rhythm. The arch rattles along, quite pleased.|-|-|0
+coast-the-sea-stack-gap|Paddle|🦶|1|55|1|-|-|en=1,xp=3:1,buff=nimble:1:20,item=urchin-test:1@12?we=storm|You paddle in the spray between the rocks. Tickly toes, and you feel quick on your feet after.|-|-|0
+
+# Desert
+desert-the-sun-bleached-bones|Sit on the fish|🪑|0|55|1|-|-|en=2,xp=2:1,item=fossil-shell:1@10|The very friendly old fish lay down to be a bench, so you sit. It was always for sitting.|-|-|0
+desert-the-salt-flat|Crunch|🧂|1|55|1|-|-|xp=3:1,item=sea-salt:1@25|You crunch-walk across the salt in a little pattern. It sounds wonderful, like walking on biscuits.|-|-|0
+desert-the-shade-awning|Nap|😴|0|55|1|-|-|en=2,xp=1:1,en=1?we=heat|You nap under the faded awning and dream something very odd about teaspoons. Lovely and cool.|-|-|0
+desert-the-red-rock-arch|Stand in the glow|🌅|0|55|1|dp=dawn,dusk|-|xp=3:1,buff=grit:1:60,item=red-ochre:1@12?dp=dusk|You stand under the arch while the low sun turns everything red and gold. You feel warm right through.|-|-|0
+desert-the-sand-ripple-lane|Read the ripples|〰️|0|55|1|-|-|xp=2:1,item=desert-glass:1@15,reveal@10|You read the ripples like a book: the wind went that way, and somebody with a wobbly cart went this way.|-|-|0
+desert-the-waystone-cluster|Introduce yourself|🤝|0|55|1|-|-|xp=2:1,first:xp=10,reveal@10|You say hello to the three leaning stones. They remember every traveller, and now they will remember you.|-|-|0
+desert-the-dry-riverbed|Dig|⛏️|1|55|2|-|-|xp=2:1,item=desert-rose-stone:1@15,find=1@25|You dig in the river's old bed. The river left in a hurry and forgot a few things.|-|pick:1|0
+desert-the-mirage-pool|Reach in|🫧|1|55|1|-|-|xp=3:1,en=1@40,find=1@10|You reach into the shimmer. Your hand is mostly in water, and a little bit not.|-|-|0
+desert-the-cactus-garden|Water|🚿|1|55|1|-|-|xp=3:1,item=nopal-seed:1@15?se=spring|You water the neat row of cacti, very carefully. Somebody has to be brave, and today it is you.|-|-|0
+desert-the-trader-s-tent-poles|Hang a lantern|🏮|1|55|1|-|-|xp=3:1,c=3:1@25|You hang a light on the tent poles, in case the trader comes back in the dark. It looks very welcoming.|-|lantern:1|0
+desert-the-well-and-its-rope|Lower the bucket|🪣|0|55|1|-|-|en=1,xp=2:1,en=2?we=heat/dp=day,c=5@6|You lower the patient bucket and it comes up full of cold water. Best drink in the desert.|-|-|0
+
+# Rainforest
+rainforest-the-stepping-roots|Climb the roots|🧗|1|55|1|-|nimble:11|xp=4:1,item=laterite-clay:1@20|You climb the green stairs out of the mud, root by root. Only a little bit muddy.|A root is slipperier than it looks. Back down in the mud you go, boots first.|-|1
+rainforest-the-giant-fern-glade|Hide and seek|🫣|1|55|1|-|-|xp=3:1,find=1@20,fp=1@15?dp=day|You hide under ferns taller than you. Something finds you anyway. It is a very calm snail.|-|-|0
+rainforest-the-orchid-tree|Admire|💐|1|55|1|-|charm:11|xp=4:1,item=bromeliad-seeds:1@12,item=cut-moth-orchid:1@5?dp=dawn/se=spring|You admire each orchid out loud. The tree preens and drops you a little something.|You call one orchid "nice". The tree is deeply offended.|-|0
+rainforest-the-canopy-gap|Sunbathe|☀️|0|55|1|-|-|xp=2:1,buff=sense:1:60,item=butterfly-scales:1@20?we=sun,item=morpho-scales:1@8?we=rain|You stand in the column of light and soak it up. Warm, bright and very calm.|-|-|0
+rainforest-the-parrot-perch|Translate|🦜|1|55|1|-|lore:12|xp=4:1,item=bright-feather:1@8|You translate one parrot argument, all three languages. Both sides are sure they won.|You translate it wrong. Now there are three arguments.|-|0
+rainforest-the-vine-bridge|Strum|🎻|1|55|1|-|nimble:11|xp=4:1,buff=nimble:1:60?we=wind|You pluck a vine as you cross and the whole bridge hums a note back. Perfectly in tune.|You pluck, wobble and grab on with both hands. The bridge hums something rude.|-|1
+rainforest-the-fallen-giant|Walk the trunk|🚶|1|55|1|-|-|xp=4:1,first:xp=10,item=cork-bark:1@18|You walk the trunk end to end and count the rings at the broken end. Older than the Hollow, easily.|-|-|0
+rainforest-the-rain-drum-leaf|Drum|🥁|1|55|1|-|-|xp=3:1,en=1@20?we=rain,fp=1@20?we=rain/dp=day|You tap the huge leaf along with the rain. Plip, plap, boom. The rain keeps very good time.|-|-|0
+rainforest-the-lantern-fruit|Pick a glow|✨|1|55|1|-|-|xp=3:1,buff=sense:1:120?dp=dusk;night,item=lanternroot:1@6|You pick one friendly glowing fruit. It lights your way, and hums a little when you hold it.|-|-|0
+rainforest-the-mist-pool|Swirl|🍲|1|55|1|-|-|xp=3:1,item=rainbow-fish:1@15|You stir the mist like soup and see what bobs up. It smells a little of soup, too.|-|-|0
+
+# Island
+island-the-hammock-palms|Ask to share|🛏️|0|55|1|-|charm:12|en=3,xp=2:1,item=coconut:1@10|You ask the crab very politely, and it shuffles over. You share the hammock for a lovely long rest.|The crab says no, very firmly. It was here first.|-|0
+island-the-tide-cave|Breathe with|🌊|0|55|1|-|-|xp=2:1,buff=lore:1:60,find=1@20?dp=dawn|You breathe in and out with the cave, slow and deep. Very calm. Very damp.|-|-|0
+island-the-shell-bell-tree|Chime|🎶|1|55|1|-|-|xp=3:1,buff=charm:1:60?dp=dusk,item=tide-shell:1@12|You chime the hanging shells in a little tune. The whole tree tinkles along.|-|-|0
+island-the-sand-spit|Point|👉|0|55|1|-|-|xp=2:1,item=pink-sand:1@18,reveal@10|You stand at the very tip and point the same way the spit points. Something is out there. Probably.|-|-|0
+island-the-rope-swing|Swing|🤸|1|55|1|-|grit:12|en=1,xp=4:1,item=coral-fragment:1@10|You swing out wide and splash into the deep blue pool. A big one. The fish give it a nine.|A very small splash. More of a plop. Still lovely and wet.|-|0
+island-the-palm-lean|Shin up|🌴|1|55|1|-|nimble:12|xp=4:1,item=coir-fibre:1@20|You shin up the leaning palm to see what it is holding. Mostly a nice view.|You get halfway and slide back down, hugging the trunk the whole way.|-|1
+island-the-coconut-grove|Stare down|🥥|1|55|1|-|sense:12|xp=4:1,item=coconut:1@30,item=coconut-curry:1@5?se=summer|You stare at each coconut until the guilty one gives itself up. Thunk.|The coconuts stare back. You blink first.|-|0
+island-the-lagoon-edge|Mirror|🪞|0|55|1|-|-|xp=2:1,first:xp=5,buff=charm:1:30?we=sun;cloud|You gaze into the glass-clear lagoon. Your reflection waves first, which is a bit rude, but friendly.|-|-|0
+
+# Tundra
+tundra-the-snow-fort|Raise the flag|🚩|1|55|1|-|-|xp=3:1,item=snow-moth-dust:1@15,fp=1@20?we=snow|You raise the fort's tatty flag again. It has seen better battles, and better snacks.|-|-|0
+tundra-the-lone-fir|Shake the snow off|🎄|1|55|1|-|-|xp=3:1,item=crowberries:1@25,item=cloudberry:1@5|You gently shake the snow off the fir so it can stand up straight. Most of it lands on your hat.|-|-|0
+tundra-the-aurora-rise|Lie back|🌌|0|55|1|-|-|xp=2:1,first:xp=5,buff=luck:1:240?dp=dusk;night,item=frost-crystal:1@8?dp=night/se=winter|You lie back on the rise. At night the sky does slow green things; by day the clouds try their best.|-|-|0
+tundra-the-frozen-stream|Peer through|🪟|1|55|1|-|-|xp=3:1,item=arctic-char:1@10,item=frost-crystal:1@6|You peer through the bright ice like a window. A fish peers back, just as curious.|-|-|0
+tundra-the-ice-shelf-steps|Squeak a tune|🎹|1|55|1|-|nimble:11|xp=4:1,buff=charm:1:30?we=frost|You step on the squeaky ice steps in just the right order. Squeak, squeak, squeeeak. A tune!|Squeak, squawk, crunch. Not a tune. The steps sound embarrassed for you.|-|0
+tundra-the-star-chart-stones|Connect|✏️|0|55|1|-|-|xp=2:1,xp=4:1?dp=night,first:xp=10|You trace the scratched stars with one finger. At night the real ones line up right above them.|-|-|0
