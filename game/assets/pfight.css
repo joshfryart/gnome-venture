@@ -316,7 +316,8 @@
 .pfc-piles { display: flex; gap: .45rem; flex: none; font-size: .7rem; }
 .pfc-pile { display: inline-flex; align-items: center; gap: .15rem; }
 .pfc-pile img { width: 20px; height: 20px; image-rendering: pixelated; }
-.pf-held-chip { position: absolute; left: 4px; bottom: 4px; z-index: 6; padding: .15rem .35rem; background: rgba(24, 14, 8, .85); }
+.pf-heldrow { display: flex; justify-content: center; margin: .1rem 0; }
+.pf-held-chip { padding: .15rem .35rem; background: rgba(24, 14, 8, .85); }
 .pf-held-chip.pf-planned { border-style: solid; }
 .pf-held-chip .pf-held-cv { height: 36px; }
 .pf-boardmode .pf-preview { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }

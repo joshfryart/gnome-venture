@@ -2,6 +2,8 @@
 
 ## 2.6.58
 
+- Puzzle fight: the set-aside group sits in its own row under the board (with the buttons) instead of over the pieces.
+
 - Puzzle fight: clearer turns. The turn banner (Your turn / the creature's turn) shows, holds about a second, fades, and only then that side's pieces play.
 
 - Puzzle fight: the creature starts with one piece (only bosses start with two).

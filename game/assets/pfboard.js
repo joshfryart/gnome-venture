@@ -318,6 +318,7 @@
 
   // ---- the set-aside group (a chip on the board that follows your plan), and the join choices under the board
   function renderHeld() {
+    var old = root.querySelector('.pf-heldrow'); if (old) old.parentNode.removeChild(old);   // the group sits in its own row under the board, with the other buttons (not over the pieces)
     var g = plannedGroup() || data.held; if (!g) return;
     var P = window.PFParts, bt = document.createElement('button'); bt.type = 'button'; bt.className = 'pf-held-btn pf-held-chip' + (selected === 'group' ? ' pf-picked' : '') + (g.planned ? ' pf-planned' : '');
     bt.setAttribute('aria-pressed', selected === 'group' ? 'true' : 'false');
@@ -335,7 +336,8 @@
       if (selected) showHint(g.pcs.map(function (p) { return p.n; }).join(' + ') + ': pick a lit spot to place the whole group. The newest piece scores first.');
       render();
     });
-    boardEl.appendChild(bt);
+    var row = document.createElement('div'); row.className = 'pf-heldrow'; row.appendChild(bt);
+    var anchor = document.getElementById('pf-preview'); if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(row, anchor); else boardEl.parentNode.insertBefore(row, boardEl.nextSibling);
   }
   var hintText = '';
   function showHint(t) { hintText = t; }
