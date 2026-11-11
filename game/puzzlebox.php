@@ -42,7 +42,7 @@ page_header('Puzzle box');
   <p class="help pbox-up">🧩 Puzzle upgrades: finishing a puzzle (any game, any mode) can earn one; a bigger puzzle gives rarer ones. You have earned <b><?= $today ?> of <?= $dayCap ?></b> today (a new day starts at midnight, server time). <?= count($offers) ?> of <?= PF_OFFER_BANK ?> offers waiting.</p>
   <?php foreach (array_slice($offers, 0, 1) as $o): ?>   <?php /* one offer at a time; the next opens after you choose */ ?>
   <dialog class="pbox-offer" id="offer<?= (int)$o['id'] ?>" open aria-label="Choose a Puzzle upgrade">
-    <h3>🧩 Choose an upgrade</h3>
+    <?php if ($hi = pfight_art('popover-header.png')): ?><div class="pbox-head"><img src="<?= e($hi) ?>" alt=""><h3>Choose an upgrade</h3></div><?php else: ?><h3>🧩 Choose an upgrade</h3><?php endif; ?>
     <p class="help">One of these three goes on the tile shown. It stays until you remove it. From <?= ['a small', 'a medium', 'a big'][(int)$o['rarity']] ?? 'a' ?> puzzle.</p>
     <ul class="pbox-list">
     <?php foreach ($o['choices'] as $ci => [$tk, $mk]): $def = pf_tiles()[$tk] ?? null; $md = PF_MODS[$mk] ?? null; if (!$def || !$md) continue; ?>

@@ -262,3 +262,8 @@
 .pfc-av { width: 58px; height: 58px; }
 .pf-boardmode .pf-buttons .pf-runf { display: inline-flex; margin: 0; }
 .pf-boardmode .pf-buttons .btn.pf-box, .pf-boardmode .pf-buttons .pf-runf .btn { padding-inline: .7rem; flex: 0 0 auto; text-decoration: none; }
+
+/* the popover header art (96x96, the banner at 7,73 82x15 carries the title) */
+.pbox-head { position: relative; width: 192px; max-width: 70%; margin: 0 auto .5rem; }
+.pbox-head img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.pbox-head h3 { position: absolute; left: 7.3%; top: 76%; width: 85.4%; height: 15.6%; margin: 0; display: grid; place-items: center; font-size: .72rem; line-height: 1; color: #2a1a10; text-align: center; white-space: nowrap; overflow: hidden; }

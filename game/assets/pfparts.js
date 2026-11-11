@@ -20,6 +20,17 @@
   }
   function getJson(file) { return fetch(base + file).then(function (r) { if (!r.ok) throw new Error(file); return r.json(); }); }
 
+  var TAGICON = { quick: 'jab', heavy: 'smash', pierce: 'pierce', poison: 'sting', trip: 'trip', bash: 'bash', hold: 'brace', evade: 'roll', thorns: 'thornhide', mend: 'mending', hum: 'hum', lull: 'lull', bond: 'bond', pluck: 'pluck' };
+  P.tagIcon = {};   // 'tag|size' -> image, when the file exists (a tag without one keeps its type icon)
+  function loadTagIcons() {
+    var jobs = [];
+    Object.keys(TAGICON).forEach(function (tag) {
+      [['strip', '-s'], ['hand', '']].forEach(function (z) {
+        jobs.push(new Promise(function (ok) { var i = new Image(); i.onload = function () { P.tagIcon[tag + '|' + z[0]] = i; ok(); }; i.onerror = ok; i.src = data.art + 'ico-' + TAGICON[tag] + z[1] + '.png'; }));
+      });
+    });
+    return Promise.all(jobs);
+  }
   P.load = function () {
     var A, R;
     return Promise.all([getJson('atlas.json'), getJson('rim.json')]).then(function (j) {
@@ -30,7 +41,7 @@
       Object.keys(A.icons).forEach(function (k) { files.push(['ico-' + k, A.icons[k].file]); });
       ['joint-h.png', 'joint-v.png', 'chain-glow-h.png', 'chain-glow-v.png', 'combo-stamp-small.png', 'combo-stamp-big.png'].forEach(function (f) { files.push([f, f]); });
       return Promise.all(files.map(function (f) { return loadImg(f[1]).then(function (img) { P.imgs[f[0]] = img; P.sheets[f[0]] = pixels(img); }); }));
-    }).then(function () { P.ok = true; });
+    }).then(function () { return data.art ? loadTagIcons() : null; }).then(function () { P.ok = true; });
   };
 
   function hsl(h, s, l) {
@@ -49,7 +60,7 @@
 
   /* o = {size:'strip'|'hand', owner:'me'|'foe', type, edges:{L:[kind,fam],..}, old, num}. Returns a new canvas (the composed piece). */
   P.piece = function (o) {
-    var key = [o.size, o.owner, o.type, o.old ? 1 : 0, o.num, o.owner === 'foe' && o.tint != null ? o.tint : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|');
+    var key = [o.size, o.owner, o.type, o.tag || '', o.old ? 1 : 0, o.num, o.owner === 'foe' && o.tint != null ? o.tint : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|');
     var hit = P.cache[key];
     if (!hit) hit = P.cache[key] = build(o);
     var c = document.createElement('canvas'); c.width = hit.width; c.height = hit.height; c.getContext('2d').drawImage(hit, 0, 0);
@@ -83,7 +94,9 @@
     }
     cx.putImageData(img, 0, 0);
     var ic = P.imgs['ico-' + o.size], im = A.icons[o.size], ii = im.order.indexOf(o.type);
-    cx.drawImage(ic, ii * im.cell[0], 0, im.cell[0], im.cell[1], sz.icon.at[0], sz.icon.at[1], im.cell[0], im.cell[1]);
+    var ti = o.tag ? P.tagIcon[o.tag + '|' + o.size] : null;   // a tag with its own icon replaces the type icon
+    if (ti) cx.drawImage(ti, sz.icon.at[0], sz.icon.at[1], im.cell[0], im.cell[1]);
+    else cx.drawImage(ic, ii * im.cell[0], 0, im.cell[0], im.cell[1], sz.icon.at[0], sz.icon.at[1], im.cell[0], im.cell[1]);
     number(cx, sz.plate, String(o.num), o.size === 'hand' ? 2 : 1);
     return cv;
   }
