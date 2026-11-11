@@ -2,11 +2,18 @@
 
 Status: PLAN ONLY (2026-11-11). Nothing built. Model = how Trail fishing was done (2.6.38): the map already knows where the thing is, a button row under the map appears when the gnome is close, it posts an action, uses energy, pays a reward.
 
+## 0. DECIDED 2026-11-11 (Josh)
+1. **Radius = next to it (1 tile, 8 neighbours of the landmark's feet tile)**, not 3. Consequence: every landmark needs a walkable tile beside it. Add a lint (`tests/trail_sights.php`) that checks all 706 placements have one; where none, move the landmark in the map data or accept the 2-tile fallback for that spot only. The gnome has to leave the road to use a Sight (intended).
+2. **Trigger = button under the map AND tap the sprite** (button in P1, tap card in P3).
+3. **Never shared**: drop archetype I's shared counter / notes. Cairn pass and bottle post become private (your own stones and notes, tracked per player). No `trail_sight_shared` table, no moderation.
+4. **Free hints allowed** on end pieces (true weather, Oasis, lair stat). New quest task kind `sight` for the end-piece quest lines.
+Content source: `claude/sights/ideas-*.md` (219 spots, 25 quest lines, all verbs unique).
+
 ## 1. What a "Sight" is
 Every Trail section has 1 landmark sprite (`lm-<slug>`), 41 sections have 2: **665 sections, 706 landmark placements, 219 slugs** (82 hand-drawn Maplewold + 137 shared: 94 land pieces + 43 `end-*`). Each slug becomes a **Sight**: one named thing you can DO when you stand near it. No re-bake needed: position is already in the map data (`objs` rows `[x, y, "lm-<slug>", jit]`).
 
 Rules (same spirit as fishing):
-- Button appears only when the gnome is within **3 tiles** of the landmark's feet tile (sprites sit 2-5 tiles off the road, so 1-2 would never trigger) and no fight/event is open.
+- Button appears only when the gnome is within **1 tile** of the landmark's feet tile (DECIDED: next to it; see section 0) and no fight/event is open.
 - Costs 1 energy (like Fish) and 10 game minutes (sleep-days). Admin can change per row.
 - Never a KO, never a fight. Worst case: a scratch (lose a little energy / a line of text). Fights stay on E / M tokens.
 - Per player, per section, per Sight: **cooldown on game days** (default 5.5, same as Trail finds, setting `trail_sight_tenths` 55) and **max uses per cooldown** (default 1-3 by kind). Keeps it from being a farm.
@@ -46,7 +53,7 @@ Shared pieces are per land, so rewards use the land's loot table; the 82 Maplewo
 | F | **Use / craft** | uses an item you carry; small craft or swap | well and rope (bucket: water), sleepy windmill (grain -> flour), net rack (borrow / mend net), trader's tent poles (barter swap), lantern branch (light a lantern: night buff), scarecrow (leave a hat: crow gift), stranded rowboat (patch: lets you row a short hop) | kinds `swap`, `buy`, `snack` |
 | G | **Lore / read** | read it, pays a tiny XP + Almanac note, sometimes a hint or a map clue | milestone, star-chart stones, bottle post (note says 'hello'; sometimes an item), waystone cluster, echo wall (echo returns a funny line), wind-combed meadow (kite: hint to weather), aurora rise (night only: wish) | kind `lore`; cheap, 0 energy allowed |
 | H | **Hazard / terrain** | a small choice: push on or go round; costs / gains a little | scree slope (noisy: +encounter odds for a while, or sneak across), wind notch (wind buff / debuff by weather), bramble gap (axe cuts: wood), sand-ripple lane, dry riverbed (dig: pebble / fossil), sea-stack gap, red rock arch (glows at dusk: bonus) | uses `when` weather / day-part |
-| I | **Persistent / shared** | adds to something everyone sees | cairn pass (add a stone: a shared counter on the Sight card, milestone rewards), bottle post (leave a note for a later player), milestone (distance marker) | phase 4; needs a table `trail_sight_shared (slug, route, sec, count)`, player notes moderated like Messages |
+| I | **Persistent / private** | adds to something of yours (DECIDED: never shared) | cairn pass (add a stone: a shared counter on the Sight card, milestone rewards), bottle post (leave a note for a later player), milestone (distance marker) | phase 4; needs a table `trail_sight_shared (slug, route, sec, count)`, player notes moderated like Messages |
 | J | **End-piece scout** | prepare for the place ahead | haven path / last turn (peek at the shop / rest price, free), wonder gates / hush (peek: lore + first-visit XP), delve mine mouth (listen: hints the first room; light a lantern: +buff for the delve), delve lantern line (same), lair approach / threshold (read footprints: shows the boss, its weakness hint, and offers Sneak) | the 43 `end-*`; ties to boss fights without adding a fight |
 
 Maplewold's 82 hand-drawn landmarks get the same archetypes by name (pond mill = F grind, apple tree = A, ford = B, scarecrow = F, haybales = D, hedgerow = H, beehive = A honey with a sting check, taproom / sugar shack = F swap, etc.); a row-by-row list is written when phase 2 starts.
