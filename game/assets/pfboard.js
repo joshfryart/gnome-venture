@@ -297,7 +297,7 @@
     prev.textContent = rewind ? 'Rewound. Nothing can be played until you go back to now.' : playing ? 'Watch the chain: each piece is scored in turn.' : data.won ? 'It is over. End the fight to collect your reward.' : redrawMode ? 'Tap the piece to swap for a fresh one.'
       : sel ? sel.dataset.name + ': ' + sel.dataset.desc.split('. ')[0] + '. Pick a lit spot' + (hasJoin ? ' or set it aside.' : '.')
       : selected === 'group' ? hintText || 'Pick a lit spot for the group.'
-      : moves.length === 0 ? (fits ? 'Pick a piece, then a lit spot. One piece a turn.' : 'Nothing fits. You can pass.')
+      : moves.length === 0 ? (fits ? (root.dataset.turn === '1' ? 'Fill the bar to win: Hurt fills it from the left, Charm from the right.' : 'Pick a piece, then a lit spot. One piece a turn.') : 'Nothing fits. You can pass.')
       : moves[0].k === 'j' || moves[0].k === 'h' ? 'Set aside for a later turn. End turn when ready.'
       : 'Placed. End turn when ready.';
     prev.title = prev.textContent;

@@ -279,11 +279,11 @@ function pfight_part(string $file): ?string
 function pfight_bar_html(array $v): string
 {
     $b = $v['bar']; $max = max(0.1, (float)$b['max']); $now = (float)$b['now']; $hu = (float)($b['hurt'] ?? 0); $ch = (float)($b['charm'] ?? 0);
-    $label = 'Resolve ' . (int)$b['now'] . ' of ' . (int)$b['max'] . ($hu + $ch > 0 ? ' (hurt ' . (int)round($hu) . ', charm ' . (int)round($ch) . ')' : '');
+    $label = 'Resolve bar: fill it to end the fight. Hurt (from the left) makes the creature back off, Charm (from the right) wins it over for a better reward. ' . (int)$b['now'] . ' of ' . (int)$b['max'] . ($hu + $ch > 0 ? ' (hurt ' . (int)round($hu) . ', charm ' . (int)round($ch) . ')' : '');
     if (!pfight_part('resolve-frame.png')) return '<div class="pf-bar" role="img" aria-label="' . e($label) . '"><progress max="' . $max . '" value="' . $now . '"></progress></div>';
     $tot = max(0.001, $hu + $ch); $f = min(1.0, $now / $max);
     $hw = $hu + $ch > 0 ? $f * $hu / $tot : $f; $cw = $hu + $ch > 0 ? $f * $ch / $tot : 0.0;
-    return '<div class="pf-bar pfx-bar" role="img" aria-label="' . e($label) . '"><span class="pfx-fill hurt" data-w="' . round($hw * 100, 1) . '"></span><span class="pfx-fill charm" data-w="' . round($cw * 100, 1) . '"></span><img class="pfx-frame" src="' . e((string)pfight_part('resolve-frame.png')) . '" alt=""></div>';
+    return '<div class="pf-bar pfx-bar" role="img" title="Fill the bar to end the fight. Hurt fills it from the left (the creature backs off), Charm from the right (you win it over: better reward)." aria-label="' . e($label) . '"><span class="pfx-fill hurt" data-w="' . round($hw * 100, 1) . '"></span><span class="pfx-fill charm" data-w="' . round($cw * 100, 1) . '"></span><img class="pfx-frame" src="' . e((string)pfight_part('resolve-frame.png')) . '" alt=""></div>';
 }
 
 function pfight_art(string $file): ?string
