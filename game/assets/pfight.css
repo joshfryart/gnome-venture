@@ -51,3 +51,5 @@
 @media (prefers-reduced-motion: reduce) { .pf-strip { scroll-behavior: auto; scroll-snap-type: none; } .pf-hand .pf-picked { transform: none; } }
 .pfight [hidden] { display: none !important; }
 .pf-nm { overflow-wrap: anywhere; max-height: 2.3em; overflow: hidden; }
+.pf-tg { font-size: .75rem; }
+.pf-tags { margin: 0; padding-left: 1.1rem; font-size: .8rem; }

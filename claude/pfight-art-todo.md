@@ -25,3 +25,13 @@ ambush, riposte, double-swing, calm-charm, win-over, bait. Used as a pop when a 
 ## Outcome art
 - "Charmed" end card: the creature with a flower (per size is enough: small/medium/large/boss), 64x64.
 - Gift box icon, 24x24.
+
+## Added: Hurt tile variants (needs art)
+The Hurt type now has six tiles that play differently. Each needs its own 32x32 hand icon (and 20x20 strip icon) instead of the generic Hurt icon, plus a tiny 12x12 tag mark shown next to the name:
+- Jab (quick: a fast light poke) / tag mark: lightning
+- Pierce (ignores guard: a needle or thorn through a shield) / tag mark: pin
+- Sting (poison: a bee/thorn with a drip) / tag mark: flask or drip
+- Trip (creature plays a tile fewer: a rope or root across the path) / tag mark: knot
+- Shield Bash (uses your guard: a shield swung at the foe) / tag mark: small shield
+- Smash (heavy, last in chain: a mallet or boulder) / tag mark: rock
+Names: `ico-hurt-<jab|pierce|sting|trip|bash|smash>.png`, `ico-hurt-<name>-s.png`, `tag-<quick|pierce|poison|trip|bash|heavy>.png`. They must stay distinguishable from each other in grayscale (different silhouettes).

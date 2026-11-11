@@ -17,7 +17,7 @@ function sim_player(int $lv): array
     $m = max(0, intdiv($lv + 3, 14));
     $st = ['grit' => $m, 'nimble' => $m, 'hardiness' => $m, 'charm' => $m, 'lore' => $m, 'luck' => $m, 'level' => $lv];
     $callings = array_keys(PF_CALLING_TILE);
-    $deck = pf_player_deck($st, $callings[$lv % 6], 1 + intdiv($lv, 12), [], $lv >= 7 ? ['soothe', 'jab'] : []);
+    $deck = pf_player_deck($st, $callings[$lv % 6], 1 + intdiv($lv, 12), [], pf_unlocks($lv));
     $max = 20 + 3 * $lv + 5 * $m;
     return ['hp' => $max, 'max_hp' => $max, 'stats' => $st, 'deck' => $deck, 'luck' => $m];
 }
@@ -44,6 +44,8 @@ foreach ($rows as $c) {
             $t = 0;
             while (!$s['over'] && $t++ < 60) {
                 $mv = $bot($s);
+                $hv = array_values(array_filter($mv, fn($i) => ($s['me']['hand'][$i]['tag'] ?? '') === 'heavy'));   // bots obey the rule: one heavy tile, last
+                if ($hv) $mv = [...array_values(array_diff($mv, $hv)), $hv[0]];
                 if ($s['me']['hand'] === []) { echo "FAIL no legal move: {$c['slug']} $bn turn {$s['turn']}\n"; $bad++; break; }
                 $r = pf_play($s, $mv, $s['turn']);
                 if ($r['err']) { echo "FAIL illegal bot move {$c['slug']} $bn: {$r['err']}\n"; $bad++; break; }
@@ -79,6 +81,32 @@ $st = ['level' => 1, 'grit' => 0]; $s = pf_new(['hp' => 99, 'max_hp' => 99, 'sta
 if ($ck !== null) { echo "FAIL seam combo given to the other side\n"; $bad++; }
 [, , $ck2] = pf_value($g, $h, true);
 if ($ck2 !== 'guard>hurt') { echo "FAIL own combo missing\n"; $bad++; }
+// the new Hurt tactics
+$mkc = ['slug' => 'x', 'size' => 'medium', 'level' => 5, 'dmg_die' => 6, 'dmg_bonus' => 0, 'temper' => 'hostile'];
+$mkst = ['level' => 1];
+$base = function (array $hand) use ($mkc, $mkst) { $s = pf_new(['hp' => 99, 'max_hp' => 99, 'stats' => $mkst, 'deck' => pf_player_deck($mkst), 'luck' => 0], $mkc, 3);
+    $s['me']['hand'] = array_map(fn($k) => pf_make_tile($k, $mkst), $hand); $s['me']['draw'] = array_map(fn($k) => pf_make_tile($k, $mkst), ['swing', 'swing', 'swing']); return $s; };
+// heavy only last
+$s = $base(['smash', 'swing']); $r = pf_play($s, [0, 1], 1);
+if ($r['err'] === null) { echo "FAIL heavy tile played before the end of a chain\n"; $bad++; }
+$s = $base(['swing', 'smash']); $r = pf_play($s, [0, 1], 1);
+if ($r['err'] !== null) { echo "FAIL heavy tile last was refused: {$r['err']}\n"; $bad++; }
+// pierce ignores guard, plain hurt does not
+$s = $base(['pierce']); $s['foe']['block'] = 100; pf_resolve($s, 'me', [$s['me']['hand'][0]]); $pierced = $s['bar']['now'];
+$s = $base(['swing']); $s['foe']['block'] = 100; pf_resolve($s, 'me', [$s['me']['hand'][0]]);
+if ($pierced <= 0 || $s['bar']['now'] != 0) { echo "FAIL pierce/guard rule\n"; $bad++; }
+// poison ticks twice, trip shortens the next foe chain, quick draws, bash uses the guard
+$s = $base(['sting']); pf_resolve($s, 'me', [$s['me']['hand'][0]]);
+if ($s['foe']['poison'] !== 2) { echo "FAIL poison not applied\n"; $bad++; }
+$n0 = $s['bar']['now']; pf_foe_turn($s, 0); pf_foe_turn($s, 0); pf_foe_turn($s, 0);
+if (!($s['bar']['now'] > $n0) || $s['foe']['poison'] !== 0) { echo "FAIL poison did not tick twice and stop\n"; $bad++; }
+$s = $base(['trip']); $s['foe']['hand'] = array_slice($s['foe']['draw'], 0, 3); $l0 = pf_foe_len($s, 0); pf_resolve($s, 'me', [$s['me']['hand'][0]]);
+if (pf_foe_len($s, 0) !== max(1, $l0 - 1)) { echo "FAIL trip did not shorten the foe chain\n"; $bad++; }
+$s = $base(['jab']); $h0 = count($s['me']['hand']); $t = $s['me']['hand'][0]; array_splice($s['me']['hand'], 0, 1); pf_resolve($s, 'me', [$t]);
+if (count($s['me']['hand']) !== $h0) { echo "FAIL quick did not draw a tile\n"; $bad++; }
+$s = $base(['dodge', 'bash']); pf_resolve($s, 'me', $s['me']['hand']);
+$s2 = $base(['hide', 'bash']); pf_resolve($s2, 'me', $s2['me']['hand']);
+if ($s['me']['block'] !== 0 || $s['bar']['now'] <= $s2['bar']['now']) { echo "FAIL bash did not spend the guard as damage\n"; $bad++; }
 // determinism: same seed, same moves, same result
 $a = pf_new(sim_player(5), $rows[3], 99); $b = pf_new(sim_player(5), $rows[3], 99);
 pf_play($a, [0, 1], 1); pf_play($b, [0, 1], 1);

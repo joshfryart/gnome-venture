@@ -12,7 +12,8 @@ const PF_DRAW = 3;
 const PF_CHAIN_MAX = 4;
 const PF_TURN_CAP = 24;
 /** Resolve bar = pace turns x K x (base + slope x creature level); bosses use their own K. Tuned with tests/pfight_sim.php (a realistic gnome: stat modifier about (level+3)/14). */
-const PF_BAR_K = 1.6, PF_BAR_BOSS = 1.4, PF_BAR_BASE = 5, PF_BAR_SLOPE = 0.35;
+const PF_BAR_K = 1.7, PF_BAR_BOSS = 2.0, PF_BAR_BASE = 5, PF_BAR_SLOPE = 0.4;
+const PF_FOE_DMG = 1.4, PF_FOE_BOSS = 0.78;   // foe tile values scale with its damage die; bosses hit a little softer so a long fight is survivable
 
 /** Effect type -> family of the hole on a tile's left side. Knob (right side) family is set per tile; null = flat/wild. */
 const PF_HOLE = ['hurt' => 'body', 'guard' => 'body', 'heal' => 'mind', 'charm' => 'mind', 'soothe' => 'mind', 'trick' => 'craft', 'item' => 'craft'];
@@ -26,6 +27,16 @@ const PF_COMBOS = [
     'soothe>charm' => ['name' => 'Calm Charm', 'mul' => 150, 'flat' => 0],
     'charm>item'  => ['name' => 'Win Over',    'mul' => 100, 'flat' => 0, 'barPct' => 50],
     'trick>guard' => ['name' => 'Bait',        'mul' => 100, 'flat' => 'prev'],
+];
+
+/** What a tile's tag does (shown on the card). Hurt tiles differ by tactic, not just by number. */
+const PF_TAGS = [
+    'quick'  => ['⚡', 'Quick: draw a tile when played'],
+    'heavy'  => ['🪨', 'Heavy: has to be the last tile of a chain'],
+    'pierce' => ['📌', 'Pierce: ignores the creature\'s guard'],
+    'poison' => ['🧪', 'Poison: keeps working for 2 more turns'],
+    'trip'   => ['🪢', 'Trip: the creature plays one tile fewer next turn'],
+    'bash'   => ['🛡️', 'Bash: adds the guard you built earlier in this chain to the hit'],
 ];
 
 /** The tile library. t = type, v = base value, r = knob family of the right end (null = flat), tag = optional rule. */
@@ -45,7 +56,13 @@ function pf_tiles(): array
         'soothe' => ['n' => 'Soothe', 't' => 'soothe', 'v' => 2, 'r' => 'mind'],
         'offer'  => ['n' => 'Offer',  't' => 'charm',  'v' => 6, 'r' => null],
         'taunt'  => ['n' => 'Taunt',  't' => 'trick',  'v' => 3, 'r' => 'body'],
-        'jab'    => ['n' => 'Jab',    't' => 'hurt',   'v' => 3, 'r' => 'craft'],
+        // Hurt tiles that play differently (unlocks: see pfight_me)
+        'jab'    => ['n' => 'Jab',    't' => 'hurt',   'v' => 2, 'r' => 'craft', 'tag' => 'quick'],
+        'pierce' => ['n' => 'Pierce', 't' => 'hurt',   'v' => 3, 'r' => 'mind',  'tag' => 'pierce'],
+        'sting'  => ['n' => 'Sting',  't' => 'hurt',   'v' => 2, 'r' => 'body',  'tag' => 'poison'],
+        'trip'   => ['n' => 'Trip',   't' => 'hurt',   'v' => 2, 'r' => 'craft', 'tag' => 'trip'],
+        'bash'   => ['n' => 'Shield Bash', 't' => 'hurt', 'v' => 2, 'r' => 'mind', 'tag' => 'bash'],
+        'smash'  => ['n' => 'Smash',  't' => 'hurt',   'v' => 6, 'r' => 'body',  'tag' => 'heavy'],
         'breather' => ['n' => 'Breather', 't' => 'heal', 'v' => 2, 'r' => 'body'],   // stands in for Snack when there is nothing to eat
         // calling tiles (tier I; II/III raise v, see pf_calling_tile)
         'bark'   => ['n' => 'Bark Wall',   't' => 'guard',  'v' => 6, 'r' => 'body'],
@@ -106,6 +123,14 @@ function pf_player_deck(array $stats, string $calling = '', int $tier = 1, array
     return $deck;
 }
 
+/** The tiles a gnome of this level has unlocked beyond the base six (interim: levels, until the crafting hook exists). Shared by the game and the sim. */
+function pf_unlocks(int $level): array
+{
+    $out = [];
+    foreach ([4 => 'soothe', 5 => 'jab', 8 => 'pierce', 10 => 'taunt', 11 => 'trip', 12 => 'offer', 13 => 'sting', 14 => 'bash', 16 => 'smash'] as $lv => $k) if ($level >= $lv) $out[] = $k;
+    return $out;
+}
+
 /** Foe temperament: gentle creatures take Charm well (resolve x1) and Hurt badly (x0.5); hostile the reverse. */
 function pf_temper(array $c): string
 {
@@ -119,7 +144,7 @@ function pf_foe_deck(array $c): array
     $size = (string)($c['size'] ?? 'small');
     $temper = pf_temper($c);
     $boss = $size === 'boss';
-    $v = max(1, (int)round((((int)($c['dmg_die'] ?? 4) + 1) / 2 + (int)($c['dmg_bonus'] ?? 0)) * ($boss ? 1.05 : 1.4)));
+    $v = max(1, (int)round((((int)($c['dmg_die'] ?? 4) + 1) / 2 + (int)($c['dmg_bonus'] ?? 0)) * ($boss ? PF_FOE_BOSS : PF_FOE_DMG)));
     $mk = fn(string $k, string $n, string $t, int $val, ?string $r, string $tag = '') => ['k' => 'f:' . $k, 'n' => $n, 't' => $t, 'v' => max(1, $val), 'r' => $r, 'tag' => $tag];
     $deck = [
         $mk('hit1', 'Lunge', 'hurt', $v, 'mind'), $mk('hit2', 'Snap', 'hurt', $v, 'body'),
@@ -161,7 +186,7 @@ function pf_new(array $me, array $c, int $seed, array $opt = []): array
     $s = ['rng' => $seed ?: 1, 'nonce' => bin2hex(random_bytes(4)), 'turn' => 1, 'over' => null, 'strip' => [], 'log' => [],
         'hm' => $hm, 'cm' => $cm, 'boss' => $boss, 'temper' => $temper, 'size' => $size,
         'me' => ['hp' => (int)$me['hp'], 'max' => (int)$me['max_hp'], 'block' => 0, 'hand' => [], 'draw' => [], 'discard' => [], 'redraws' => max(0, min(3, intdiv((int)($me['luck'] ?? 0), 3)))],   // a per-fight budget (Luck modifier / 3, at most 3)
-        'foe' => ['hand' => [], 'draw' => [], 'discard' => [], 'block' => 0, 'agg' => 0, 'hsize' => $boss ? 4 : 3, 'name' => (string)($c['name'] ?? 'Creature'), 'intent' => null],
+        'foe' => ['hand' => [], 'draw' => [], 'discard' => [], 'block' => 0, 'agg' => 0, 'poison' => 0, 'poison_v' => 0, 'slow' => 0, 'hsize' => $boss ? 4 : 3, 'name' => (string)($c['name'] ?? 'Creature'), 'intent' => null],
         'bar' => ['now' => 0.0, 'max' => 1.0, 'hurt' => 0.0, 'charm' => 0.0],
         'run_ok' => !$boss,
     ];
@@ -239,16 +264,20 @@ function pf_resolve(array &$s, string $who, array $tiles): array
         switch ($tile['t']) {
             case 'hurt':
                 $dmg = $val;
+                if ($who === 'me' && $tile['tag'] === 'bash') { $dmg += $mine['block']; $e['bashed'] = $mine['block']; $mine['block'] = 0; }   // Shield Bash: your guard becomes damage
                 if ($who === 'foe') { $cut = min($s['foe']['agg'], $dmg); $s['foe']['agg'] -= $cut; $dmg -= $cut; $e['soothed'] = $cut; }   // Soothe cuts the foe's next Hurt by its value
                 if ($who === 'foe') {   // against the player's HP
                     $abs = min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;
                     $theirs['hp'] = max(0, $theirs['hp'] - $dmg);
                     $e['dmg'] = $dmg; $e['blocked'] = $abs;
-                } else {   // against the foe's bar, through its guard
-                    $abs = min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;
+                } else {   // against the foe's bar, through its guard (Pierce ignores the guard)
+                    $abs = $tile['tag'] === 'pierce' ? 0 : min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;
                     $add = $dmg * $s['hm'];
                     $s['bar']['now'] += $add; $s['bar']['hurt'] += $add;
                     $e['dmg'] = $dmg; $e['blocked'] = $abs; $e['bar'] = round($add, 1);
+                    if ($tile['tag'] === 'poison') { $s['foe']['poison'] = 2; $s['foe']['poison_v'] = max((int)$s['foe']['poison_v'], max(1, (int)ceil($val / 2))); }
+                    if ($tile['tag'] === 'trip') $s['foe']['slow'] = 1;
+                    if ($tile['tag'] === 'quick') { pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + 1)); $e['drew'] = 1; }
                 }
                 break;
             case 'guard':
@@ -329,6 +358,7 @@ function pf_play(array &$s, array $idx, int $turn, ?callable $canPlay = null): a
     if ($turn !== $s['turn']) return ['ev' => [], 'err' => 'stale'];
     $tiles = pf_pick($s, $idx);
     if ($tiles === null) return ['ev' => [], 'err' => 'Pick 1 to 4 tiles from your hand.'];
+    foreach ($tiles as $i => $t) if ($t['tag'] === 'heavy' && $i !== count($tiles) - 1) return ['ev' => [], 'err' => 'A heavy tile has to go last in the chain.'];
     if ($canPlay) foreach ($tiles as $t) if (($why = $canPlay($t)) !== null) return ['ev' => [], 'err' => $why];
     $rm = $idx; rsort($rm);
     foreach ($rm as $i) array_splice($s['me']['hand'], $i, 1);
@@ -348,11 +378,19 @@ function pf_foe_len(array $s, int $extra): int
 {
     $base = $s['size'] === 'small' ? 1 : ($s['boss'] ? 3 : 2);
     if ($s['size'] === 'small' && $s['turn'] % 2 === 0) $base = 2;
-    return min(count($s['foe']['hand']), $base + $extra);
+    return max(1, min(count($s['foe']['hand']), $base + $extra - (int)$s['foe']['slow']));
 }
 
 function pf_foe_turn(array &$s, int $extra): array
 {
+    $ev = [];
+    if ($s['foe']['poison'] > 0) {   // Sting: the poison works on the creature before it acts
+        $add = $s['foe']['poison_v'] * $s['hm'];
+        $s['bar']['now'] += $add; $s['bar']['hurt'] += $add; $s['foe']['poison']--;
+        if ($s['foe']['poison'] === 0) $s['foe']['poison_v'] = 0;
+        $ev[] = ['by' => 'me', 'tag' => 'poison', 'k' => 'poison', 'n' => 'Poison', 't' => 'hurt', 'v' => (int)round($add), 'fit' => false, 'combo' => null, 'tick' => true];
+        if (pf_check_end($s)) return $ev;
+    }
     $n = pf_foe_len($s, $extra);
     $plan = pf_foe_plan($s, $n);
     $hand = $s['foe']['hand'];
@@ -360,8 +398,9 @@ function pf_foe_turn(array &$s, int $extra): array
     foreach ($plan as $i) $tiles[] = $hand[$i];
     $rm = $plan; rsort($rm);
     foreach ($rm as $i) array_splice($s['foe']['hand'], $i, 1);
-    $ev = pf_resolve($s, 'foe', $tiles);
+    $ev = array_merge($ev, pf_resolve($s, 'foe', $tiles));
     $s['foe']['agg'] = 0;   // Soothe lasts the foe's next turn only
+    $s['foe']['slow'] = 0;  // so does Trip
     return $ev;
 }
 
