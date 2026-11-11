@@ -37,6 +37,7 @@
   }
   function preview(raw, turn) {
     var mv = parseMoves(raw); if (!mv || !fight) return { ok: false };
+    if (fight.state.start) { var sd = typeof mv[0][0] === 'number' ? sideAt(mv[0][1], mv[0][2]) : null, st = fight.state; return sd ? { ok: true, lines: ['Start piece on the ' + SIDENAME[sd] + ' of the blank. Nothing fires; the creature picks its side too, hidden.'], bar: [st.bar.now, st.bar.now, st.bar.max], fh: [st.fh.now, st.fh.now, st.fh.max], over: null } : { ok: false }; }
     var s = JSON.parse(JSON.stringify(fight.state)), before = s.bar.now, fh0 = s.fh.now, r = PFE.play(s, mv, turn, true);
     if (r.err) return { ok: false, err: r.err };
     return { ok: true, lines: r.ev.map(function (e) { return PFE.line(e, fight.creature.name); }), bar: [before, r.bar, r.max], fh: [fh0, r.fh, r.fhmax], over: r.over || null };
@@ -68,6 +69,7 @@
   function submit(kind, raw) {
     var s = fight.state; if (s.over && kind !== 'finish') return;
     if (kind === 'play') {
+      if (s.start) { doStart(raw); return; }
       var mv = parseMoves(raw); if (!mv) return;
       fight.enc.replay0 = { bar: Math.round(s.bar.now * 10) / 10, fh: Math.round(s.fh.now * 10) / 10, hp: s.me.hp, g: s.me.block };
       var r = PFE.play(s, mv, s.turn); if (r.err) { flash(r.err); return; }
@@ -121,7 +123,7 @@
       chip.types.forEach(function (t, ci) { var tg = chip.tags[ci] || '', ti = C.tagIcon[tg] ? img('ico-' + C.tagIcon[tg] + '-s.png', 'pfh-ico') : null; hh += ti || sm(t); });
       hh += ' <span class="pfh-txt">' + esc(chip.txt) + '</span>' + (chip.tg ? who(chip.tg, cr) : '') + '</li>';
     }
-    if (!hist.length) hh = '<li class="pf-chip empty">' + esc(enc.note || 'Pieces are on the board. Place one next to them.') + '</li>';
+    if (!hist.length) hh = '<li class="pf-chip empty">' + esc(enc.note || (s.start ? 'Opening: the blank \u2726 is in the middle. The creature picks its side too, hidden.' : 'Pieces are on the board. Place one next to them.')) + '</li>';
     var mini = function (cls, name, n) { return '<span class="pfc-pile ' + cls + '" role="img" aria-label="' + name + ': ' + n + ' pieces"><img src="' + ART[cls === 'deck' ? 'deck-book.png' : 'discard-bin.png'] + '" alt=""><b>' + n + '</b></span>'; };
     var top = '<div class="pfc-top"><div class="pfc-me"><span class="pfc-meav"><span class="pfc-av pfc-g25"><img src="' + ART['gnome-side.png'] + '" alt="Your gnome"></span>' + guardHtml(v.block) + '</span><span class="pf-hp" role="img" aria-label="Your health ' + v.hp + ' of ' + v.max + '' + '">❤️ <progress max="' + v.max + '" value="' + v.hp + '"></progress> ' + v.hp + '' + '</span></div>'
       + barHtml(v)
@@ -129,12 +131,12 @@
     h += top + '<div class="pfc-histrow"><ol class="pf-hist" aria-label="What has been played" aria-live="polite">' + hh + '</ol><button type="button" class="btn" id="pf-skip" hidden>Skip</button><span class="pfc-piles">' + mini('deck', 'Puzzle book', v.piles.draw) + mini('disc', 'Discard', v.piles.discard) + '</span></div>';
     h += '<div class="pf-rewind" id="pf-rewind" role="status" hidden><span id="pf-rw-t"></span><button type="button" class="btn" id="pf-rw-back">Back to now</button></div>';
     h += '<div class="pfb-board" id="pfb-board" role="group" aria-label="The play area: pick a piece from your hand, then a lit spot. Scroll, pinch or use the zoom buttons to zoom"></div>';
-    h += '<div class="pf-opts" id="pf-opts" hidden></div><p class="pf-preview help" id="pf-preview" aria-live="polite">' + (blankOut(s) ? 'The blank \u2726 links to everything until the end of this turn. Pick a piece, then a lit spot.' : 'Pick a piece, then a lit spot.') + '</p><ol class="pf-plan" id="pf-plan" aria-live="polite" hidden></ol>';
+    h += '<div class="pf-opts" id="pf-opts" hidden></div><p class="pf-preview help" id="pf-preview" aria-live="polite">' + (s.start ? 'Opening: pick a piece, then a side of \u2726. Nothing fires.' : blankOut(s) ? 'The blank \u2726 connects to everything but fires nothing. It is gone after this turn. Pick a piece, then a lit spot.' : 'Pick a piece, then a lit spot.') + '</p><ol class="pf-plan" id="pf-plan" aria-live="polite" hidden></ol>';
     h += '<form class="pf-form" id="pf-form"><input type="hidden" name="do" value="pfb_play"><input type="hidden" name="nonce" value="' + fight.nonce + '"><input type="hidden" name="turn" value="' + v.turn + '"><input type="hidden" name="moves" id="pf-moves" value=""></form>';
     var won = !!enc.won && (s.over === 'seen_off' || s.over === 'charmed'), lost = s.over === 'defeat' || s.over === 'stall';
     if (won) h += '<div class="pf-won" role="status"><b>' + (s.over === 'charmed' ? 'The ' + esc(cr.name) + ' is charmed!' : 'The ' + esc(cr.name) + ' has had enough.') + '</b> <form class="inline pf-endform"><button class="btn primary" id="pf-end">End fight</button></form></div><button type="button" class="btn" id="pf-undo" hidden></button><button class="btn" id="pf-go" form="pf-form" hidden></button>';
     else if (lost) h += '<div class="pf-won pf-lost" role="status"><b>' + (s.over === 'defeat' ? 'The ' + esc(cr.name) + ' knocks you flat.' : 'The ' + esc(cr.name) + ' loses interest and wanders off.') + '</b> <button type="button" class="btn primary" id="pf-again">Try again</button></div><button type="button" class="btn" id="pf-undo" hidden></button><button class="btn" id="pf-go" form="pf-form" hidden></button>';
-    else h += '<div class="pf-buttons"><button type="button" class="btn" id="pf-undo" disabled>Undo</button><button class="btn primary" id="pf-go" form="pf-form" disabled>End turn</button></div>';
+    else h += '<div class="pf-buttons"><button type="button" class="btn" id="pf-undo" disabled>Undo</button><button class="btn primary" id="pf-go" form="pf-form" disabled>' + (s.start ? 'Confirm start' : 'End turn') + '</button></div>';
     h += '<div class="pf-tray"><div class="pf-hand" id="pf-hand" role="group" aria-label="Your hand">';
     v.hand.forEach(function (t, i) { h += pieceHtml(t, i); });
     h += '</div></div><div class="pf-inspect" id="pf-inspect" aria-live="polite" hidden><span class="pfi-art" id="pfi-art" aria-hidden="true"></span><span class="pf-itext"><b id="pfi-name"></b><br><span id="pfi-desc"></span></span><button type="button" class="pfi-x" id="pfi-x" aria-label="Close">✕</button></div>';
@@ -161,43 +163,27 @@
     var ag = document.getElementById('pf-again'); if (ag) ag.addEventListener('click', function () { newFight(selectedCreature); });
   }
 
-  // ---- blank-centre start (the variant under test): pick a piece and a side of the blank, hidden from the creature
+  // ---- blank-centre start (the variant under test): the normal fight screen with only the blank on the board; the four sides of the blank are the lit spots
   function blankOut(s) { return !!(s.pcs && s.pcs[1] && s.pcs[1].by === 'none'); }
   var SIDENAME = { L: 'left', R: 'right', T: 'top', B: 'bottom' };
-  function edgeTxt(e) { var f = { body: 'B', mind: 'M', craft: 'C' }; return ['L', 'R', 'T', 'B'].map(function (sd) { var x = e[sd]; return sd + (x[0] === 'flat' ? ' flat' : (x[0] === 'hole' ? ' \u25CB' : ' \u25CF') + f[x[1]]); }).join(' \u00B7 '); }
-  function startHtml() {
-    var s = fight.state, cr = fight.creature, v = PFE.view(s), h = '<div class="pfstart"><h2>Your opening</h2>';
-    h += '<p>A blank piece <b>\u2726</b> sits in the middle. It fits and links with everything, does nothing itself, and is gone at the end of turn 1. Pick a piece from your hand, then a side of the blank. The ' + esc(cr.name) + ' picks one too, hidden. Nothing fires yet.</p>';
-    h += '<div class="pfs-cross" role="group" aria-label="Sides of the blank centre piece">';
-    ['T', 'L', 'C', 'R', 'B'].forEach(function (sd) {
-      if (sd === 'C') h += '<span class="pfs-c pfs-blank" aria-hidden="true">\u2726</span>';
-      else h += '<button type="button" class="pfs-side s' + sd + '" data-side="' + sd + '"' + (pickedStart === null ? ' disabled' : '') + ' aria-label="Put the piece on the ' + SIDENAME[sd] + ' of the blank">' + SIDENAME[sd] + '</button>';
-    });
-    h += '</div><div class="pfs-hand" role="group" aria-label="Your hand">';
-    v.hand.forEach(function (t, i) {
-      h += '<button type="button" class="pfs-card t-' + esc(t.t) + (pickedStart === i ? ' on' : '') + '" data-i="' + i + '" aria-pressed="' + (pickedStart === i) + '"><span class="pfs-ico" aria-hidden="true">' + ICON[t.t] + '</span><b>' + esc(t.n) + '</b><span>' + t.t + ' ' + t.v + '</span><small>' + edgeTxt(t.e) + '</small></button>';
-    });
-    return h + '</div><p class="muted help" id="pfs-msg">' + (pickedStart === null ? 'Tap a piece.' : 'Now tap a side of the blank.') + '</p></div>';
-  }
-  function bindStart() {
-    Array.prototype.forEach.call(stage.querySelectorAll('.pfs-card'), function (b) { b.addEventListener('click', function () { pickedStart = +b.dataset.i; render(); }); });
-    Array.prototype.forEach.call(stage.querySelectorAll('.pfs-side'), function (b) {
-      b.addEventListener('click', function () {
-        if (pickedStart === null) return;
-        var s = fight.state, mine = s.me.hand[pickedStart], side = b.dataset.side, err = PFE.start(s, pickedStart, side);
-        if (err) { var m = document.getElementById('pfs-msg'); if (m) m.textContent = err; return; }
-        var cx = PFE.W >> 1, cy = PFE.H >> 1, sideOf = function (p) { var dx = p.x - cx, dy = p.y - cy; return dx < 0 ? 'left' : dx > 0 ? 'right' : dy < 0 ? 'top' : 'bottom'; }, foe = [];
-        Object.keys(s.pcs).forEach(function (id) { var p = s.pcs[id]; if (p.by === 'foe') foe.push('the ' + fight.creature.name + ' put ' + p.tile.n + ' (' + p.tile.t + ' ' + p.tile.v + ') on the ' + sideOf(p)); });
-        fight.enc.note = 'You put ' + mine.n + ' on the ' + SIDENAME[side] + '; ' + foe.join(', ') + '. Turn 1: place a piece.';
-        pickedStart = null; render();
-      });
-    });
+  function sideAt(x, y) { var cx = PFE.W >> 1, cy = PFE.H >> 1, dx = x - cx, dy = y - cy; if (Math.abs(dx) + Math.abs(dy) !== 1) return null; return dx < 0 ? 'L' : dx > 0 ? 'R' : dy < 0 ? 'T' : 'B'; }
+  function doStart(raw) {   // the move the page posts ("hand,x,y") becomes the hidden start: that hand piece on that side of the blank
+    var s = fight.state, mv = parseMoves(raw), side = mv && typeof mv[0][0] === 'number' ? sideAt(mv[0][1], mv[0][2]) : null;
+    if (!side) { flash('Pick a spot next to the blank.'); return; }
+    var mine = s.me.hand[mv[0][0]], err = PFE.start(s, mv[0][0], side); if (err) { flash(err); return; }
+    var cx = PFE.W >> 1, cy = PFE.H >> 1, sideOf = function (p) { var dx = p.x - cx, dy = p.y - cy; return dx < 0 ? 'left' : dx > 0 ? 'right' : dy < 0 ? 'top' : 'bottom'; }, foe = [];
+    Object.keys(s.pcs).forEach(function (id) { var q = s.pcs[id]; if (q.by === 'foe') foe.push('the ' + fight.creature.name + ' put ' + q.tile.n + ' (' + q.tile.t + ' ' + q.tile.v + ') on the ' + sideOf(q)); });
+    fight.enc.note = 'You put ' + mine.n + ' on the ' + SIDENAME[side] + '; ' + foe.join(', ') + '. Turn 1: place a piece.';
+    render();
   }
 
   function render() {
     if (result) { stage.innerHTML = resultHtml(); bindResult(); return; }
-    if (fight.state.start) { stage.innerHTML = startHtml(); bindStart(); return; }
     stage.innerHTML = build(); runScripts();
+    if (fight.state.start) {   // the game's own hint says "End turn"; in the opening the button reads "Confirm start"
+      var pv = document.getElementById('pf-preview'), fixing = false;
+      if (pv && window.MutationObserver) new MutationObserver(function () { if (fixing || pv.textContent.indexOf('End turn') < 0) return; fixing = true; pv.textContent = pv.textContent.replace('End turn', 'Confirm start'); fixing = false; }).observe(pv, { childList: true, characterData: true, subtree: true });
+    }
   }
   function resultHtml() {
     var cr = fight.creature, s = fight.state, charmed = result.kind === 'charmed';
