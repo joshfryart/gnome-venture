@@ -1,0 +1,4 @@
+# Trail Sights (P0 spike, v2.6.68): what you can DO next to a big set piece on a Trail map. Plan: claude/plan-trail-sights.md, ideas: claude/sights/ideas-*.md
+# slug | verb | icon | energy | cooldown_tenths (game days x10; 55 = 5.5) | uses per cooldown | when (stop syntax: dp= se= we=, or -) | check (stat:dc or -) | rewards (stop_rewards grammar) | win line | lose line
+# slug = the landmark sprite name without lm-  (grassland-the-clover-patch, 232-beehive, end-haven-1-coast ...)
+grassland-the-clover-patch|Pick|🍀|1|55|2|-|-|xp=3:1,item=four-leaf-clover@20|You crouch and check leaf after leaf. Somebody was thorough, but not THAT thorough.|There is nothing here.

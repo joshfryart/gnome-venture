@@ -9,6 +9,14 @@ Status: PLAN ONLY (2026-11-11). Nothing built. Model = how Trail fishing was don
 4. **Free hints allowed** on end pieces (true weather, Oasis, lair stat). New quest task kind `sight` for the end-piece quest lines.
 Content source: `claude/sights/ideas-*.md` (219 spots, 25 quest lines, all verbs unique).
 
+## 0b. P0 SPIKE RESULT (2026-11-11): DONE, works end to end
+- **Reach lint:** `tests/trail_sights_reach.php`: all 706 landmark placements have a reachable tile (all 706: the landmark's own tile is walkable ground, so the gnome can stand ON it; radius 1 is safe everywhere).
+- **Engine reuse:** `stop_do()` is NOT reusable (tied to a stop location: `stop_pool`, `stop_state`, `stop_log`, slots, folk). The parts that ARE reusable work with a pseudo-place (the walk's start location + the Sight's name + the land): `stop_rewards()`, `stop_check()`, `stop_cond_ok()/stop_now()`. Done that way in `trail_sight_do()`.
+- **Built (source only, NO version bump, not released):** `game/includes/trail_sights.php` (table parse, `trail_sights_near`, `trail_sights_here`, cooldown on game ticks, `trail_sight_do`), `data/trail_sights.txt` (one row: `grassland-the-clover-patch` Pick, 1 energy, 2 uses per 5.5 game days, `xp=3:1,item=four-leaf-clover@20`), table `trail_sight_uses` (in `action_log.php` schema, created by the migrator), `do=sight` handler + `.trailsight` button in `adventure.php`, tests `tests/trail_sights.php/.sh` (in CI list).
+- **Checked:** php -l, `ci_suites trail_sights trail_back adventure` pass, Playwright at 412 px on route 240: button `🍀 Pick ⚡1` appears beside the clover patch, click shows the line + `+7 XP` over the map, energy -1, +20 game min; after 2 uses the button greys.
+- **Not checked:** MySQL (table DDL uses the shared `$PK/$ID/$END` helpers like `trail_pickups`), the Upgrade database run on a real site, other lands, two Sights side by side on a phone.
+- **Open from the spike:** game time per use uses the `gather` key (20 min) — decide if Sights get their own `time_sight` key; the button label shows the verb only (no per-Sight name): P3 card should name it.
+
 ## 1. What a "Sight" is
 Every Trail section has 1 landmark sprite (`lm-<slug>`), 41 sections have 2: **665 sections, 706 landmark placements, 219 slugs** (82 hand-drawn Maplewold + 137 shared: 94 land pieces + 43 `end-*`). Each slug becomes a **Sight**: one named thing you can DO when you stand near it. No re-bake needed: position is already in the map data (`objs` rows `[x, y, "lm-<slug>", jit]`).
 
