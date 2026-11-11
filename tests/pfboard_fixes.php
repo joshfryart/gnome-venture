@@ -60,11 +60,11 @@ chk('gentle creature: charm multiplier stays 1.0', abs($s['cm'] - 1.0) < 1e-9, (
 // 6. a boss's pieces count x1.2 more; the blank variant x1.2 more again (raw tiles come from pf_new at the same seed)
 $allV = fn(array $st) => array_map(fn($t) => $t['v'], array_merge($st['foe']['draw'], $st['foe']['hand'], $st['foe']['discard'], array_map(fn($p) => $p['tile'], array_filter($st['pcs'] ?? [], fn($p) => $p['by'] === 'foe'))));
 $raw = pf_new(fx_me(20), $boss, 9); $b = pfb_new(fx_me(20), $boss, 9);
-$exp = array_map(fn($v) => max(1, (int)round($v * 0.62 * 1.2)), $allV($raw)); $got = $allV($b); sort($exp); sort($got);
-chk('boss foe pieces: values are base x 0.62 x 1.2', $exp === $got, json_encode([array_slice($exp, 0, 6), array_slice($got, 0, 6)]));
+$exp = array_map(fn($v) => max(1, (int)round($v * 0.62 * 1.2 * 1.15)), $allV($raw)); $got = $allV($b); sort($exp); sort($got);
+chk('boss foe pieces: values are base x 0.62 x 1.2 x 1.15', $exp === $got, json_encode([array_slice($exp, 0, 6), array_slice($got, 0, 6)]));
 $raw = pf_new(fx_me(5), $ants, 4); $bb = pfb_new(fx_me(5), $ants, 4, ['blank' => true]);
-$exp = array_map(fn($v) => max(1, (int)round($v * 0.62 * 1.2)), $allV($raw)); $got = $allV($bb); sort($exp); sort($got);
-chk('blank variant: every creature piece is base x 0.62 x 1.2', $exp === $got, json_encode([array_slice($exp, 0, 6), array_slice($got, 0, 6)]));
+$exp = array_map(fn($v) => max(1, (int)round($v * 0.62 * 1.2 * 1.15)), $allV($raw)); $got = $allV($bb); sort($exp); sort($got);
+chk('blank variant: every creature piece is base x 0.62 x 1.2 x 1.15', $exp === $got, json_encode([array_slice($exp, 0, 6), array_slice($got, 0, 6)]));
 
 // 7. the blank centre piece lets a piece connect but a chain never runs through it: a piece above the blank fires alone, not your start piece or the creature's
 $s = pfb_new(fx_me(5), $ants, 3); $s['pcs'] = []; $s['cell'] = []; $s['pid'] = 0; $s['seq'] = 0; $s['start'] = false;
@@ -75,5 +75,29 @@ $s['me']['hand'] = [$mk('fx_new', 'hurt', 5, 'mind')]; $s['fh']['max'] = 999.0; 
 $ev = pfb_place($s, 'me', 0, 3, 1);
 $fired = array_values(array_filter(array_map(fn($e) => $e['k'] ?? null, $ev ?? [])));
 chk('piece placed above the blank: only that piece fires (nothing runs through the blank)', $fired === ['fx_new'], json_encode($fired));
+
+// 8. fire budget (2.6.62): a creature piece falls away after its second firing, after the chain (never mid-chain); your pieces are not limited
+$mkS = function () use ($ants, $mk, $put) { $s = pfb_new(fx_me(5), $ants, 3); $s['pcs'] = []; $s['cell'] = []; $s['pid'] = 0; $s['seq'] = 0; $s['start'] = false; $s['fh']['max'] = 999.0; $s['bar']['max'] = 999.0; $s['over'] = null; return $s; };
+$s = $mkS();
+$c = $put($s, 'foe', $mk('fx_c', 'hurt', 3, 'mind'), 2, 2); $s['pcs'][$c]['f'] = 1;    // a creature piece that has fired once
+$d = $put($s, 'me', $mk('fx_d', 'hurt', 2, 'body'), 1, 2);                              // beyond it, on its left
+$s['me']['hand'] = [$mk('fx_p', 'charm', 2, null)];                                      // a charm: its left hole (mind) takes the creature piece's knob
+$ev = pfb_place($s, 'me', 0, 3, 2);
+$fired = array_values(array_filter(array_map(fn($e) => $e['k'] ?? null, $ev ?? [])));
+chk('chain runs through a creature piece on its last firing and on to the piece beyond it', in_array('fx_c', $fired, true) && in_array('fx_d', $fired, true), json_encode($fired));
+chk('creature piece falls away after its second firing', !isset($s['pcs'][$c]), json_encode(array_keys($s['pcs'])));
+chk('the fallen creature piece goes to the creature discard and is listed as spent', count(array_filter($s['foe']['discard'], fn($t) => $t['k'] === 'fx_c')) === 1 && count($s['spent'] ?? []) === 1, json_encode(array_map(fn($t) => $t['k'], $s['foe']['discard'])));
+chk('your own pieces stay on the board however often they fire', isset($s['pcs'][$d]) && (int)$s['pcs'][$d]['f'] >= 1);
+$s = $mkS();
+$c = $put($s, 'foe', $mk('fx_c2', 'hurt', 3, 'mind'), 2, 2);                             // never fired
+$s['me']['hand'] = [$mk('fx_p2', 'charm', 2, null)];
+pfb_place($s, 'me', 0, 3, 2);
+chk('a creature piece that fires once stays (budget not used up)', isset($s['pcs'][$c]) && (int)$s['pcs'][$c]['f'] === 1, json_encode($s['pcs'][$c] ?? null));
+$sv = pfb_view($s); $row = array_values(array_filter($sv['pcs'], fn($p) => $p['id'] === $c))[0] ?? null;
+chk('the view says one firing is left on it', $row && $row['fl'] === 1, json_encode($row['fl'] ?? null));
+$s = $mkS(); $my = $put($s, 'me', $mk('fx_m', 'hurt', 3, 'mind'), 2, 2); $s['pcs'][$my]['f'] = 9; $s['me']['hand'] = [$mk('fx_p3', 'charm', 2, null)];
+pfb_place($s, 'me', 0, 3, 2);
+chk('your piece with many firings is never limited', isset($s['pcs'][$my]) && (int)$s['pcs'][$my]['f'] === 10);
+
 
 echo $bad ? "$bad FAILED\n" : "all ok\n"; exit($bad ? 1 : 0);

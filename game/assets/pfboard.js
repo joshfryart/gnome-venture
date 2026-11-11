@@ -255,6 +255,7 @@
           cell.appendChild(cv);
         } else cell.appendChild(pieceEl(p));
         var mb = modBadge(p.m); if (mb && art) cell.appendChild(mb);
+        if (p.fl === 1 && !p.ghost && !p.gone) { var fb = document.createElement('span'); fb.className = 'pfb-fl'; fb.setAttribute('aria-hidden', 'true'); fb.textContent = '\u00d71'; fb.title = 'One more firing and it falls away'; cell.appendChild(fb); }   // fire budget: a creature piece on its last firing
         if (p.age >= LIFE1 && !p.ghost) { var ob = document.createElement('span'); ob.className = 'pfb-old'; ob.setAttribute('aria-hidden', 'true'); ob.textContent = '\u231B'; ob.title = 'Leaves the board at the end of this round'; cell.appendChild(ob); }
       } else if (lit[key]) {
         cell = document.createElement('button'); cell.type = 'button'; cell.className = 'pfb-cell pfb-lit'; cell.setAttribute('aria-label', (selected === 'group' ? 'Place the group here, top left at ' : 'Place here, ') + 'column ' + (x + 1) + ' row ' + (y + 1));
@@ -374,7 +375,8 @@
   function pieceInfo(p) {
     if (p.by === 'none') return 'The blank centre piece. It fits and links with every piece, does nothing itself, and is gone at the end of turn 1; its spot then opens up.';
     var t = (p.by === 'foe' ? 'The creature\u2019s ' : 'Your ') + p.t + ' ' + p.v + '.', tg = data.tags && data.tags[p.tag], md = data.mods && data.mods[p.m], left = (data.life || 2) - p.age;
-    return t + (tg ? ' ' + tg[0] + ' ' + tg[1] + '.' : '') + (md ? ' Upgrade ' + md[1] + ': ' + (md[3] || '') + '.' : '') + (left <= 1 ? ' It leaves the board at the end of this round.' : ' It stays for ' + left + ' more rounds.');
+    var fbt = p.by === 'foe' && typeof p.fl === 'number' ? (p.fl <= 1 ? ' One more firing and it falls away.' : ' It falls away after ' + p.fl + ' more firings.') : '';   // fire budget
+    return t + fbt + (tg ? ' ' + tg[0] + ' ' + tg[1] + '.' : '') + (md ? ' Upgrade ' + md[1] + ': ' + (md[3] || '') + '.' : '') + (left <= 1 ? ' It leaves the board at the end of this round.' : ' It stays for ' + left + ' more rounds.');
   }
   function showText(name, desc, p) {
     if (!insp) return;

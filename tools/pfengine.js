@@ -23,6 +23,7 @@
   var PF_FOE_DMG = 1.4, PF_FOE_BOSS = 0.78;
   var PFB_W = 7, PFB_H = 5, PFB_LIFE = 3, PFB_FOE_MIN = 2, PFB_GROUP_MAX = 3;
   var PFB_GROUP_MULT = { 2: 1.0, 3: 1.5 };
+  var PFB_FOE_FIRES = 2, PFB_FOE_FIRE_MULT = 1.15;   // fire budget: a creature piece falls away after this many firings (its placement is the first)
   var PFB_BOSS_MULT = 1.2, PFB_BLANK_FOE_MULT = 1.2;
   var PFB_BAR_MULT = 0.7, PFB_FOE_MULT = 0.62;
   var PFB_SIDE = { L: [-1, 0, 'R'], R: [1, 0, 'L'], T: [0, -1, 'B'], B: [0, 1, 'T'] };
@@ -571,11 +572,33 @@
       var isRoot = id === root;
       var e = { by: who, id: id, root: isRoot, tag: tile.tag, mod: String(nn(tile.m, '')), k: tile.k, n: tile.n, t: tile.t, v: val, fit: false, combo: ck ? PF_COMBOS[ck].name : null };
       apply(s, who, tile, val, isRoot && links(s, id).length !== 0, ck, pt ? pt.tile : null, pt ? pt.by : null, e, isRoot, false);
+      s.pcs[id].f = toInt(nn(s.pcs[id].f, 0)) + 1;   // fire budget: one more firing used
       e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block);
       ev.push(e);
       checkEnd(s);
     }
     return ev;
+  }
+
+  function fireLimit(p) { return p.by === 'foe' ? Math.max(0, PFB_FOE_FIRES) : 0; }
+  function goneEntry(s, p, fell) {
+    var e = { id: p.id, by: p.by, x: p.x, y: p.y, tile: p.tile, age: s.round - 1 - p.born };
+    if (fell) e.fell = true;
+    return e;
+  }
+  // Fire budget: after a chain has finished, creature pieces that have fired their limit fall away (to their discard); never mid-chain.
+  function spend(s) {
+    if (s.over) return;
+    var ids = Object.keys(s.pcs);
+    for (var i = 0; i < ids.length; i++) {
+      var p = s.pcs[ids[i]], lim = fireLimit(p);
+      if (lim > 0 && toInt(nn(p.f, 0)) >= lim) {
+        s[p.by].discard.push(p.tile);
+        if (!Array.isArray(s.spent)) s.spent = [];
+        s.spent.push(p);
+        delete s.cell[p.x + ',' + p.y]; delete s.pcs[ids[i]];
+      }
+    }
   }
 
   function begin(s, who) {
@@ -604,6 +627,7 @@
     var joints = checkAfter(s, id);
     var ev = fire(s, id);
     if (ev.length) { ev[0].linked = joints; ev[0].snap = snap(s); }
+    spend(s);
     return ev;
   }
 
@@ -725,6 +749,7 @@
     s[who].held = null;
     var ev = fire(s, root);
     if (ev.length) { ev[0].linked = checkAfter(s, root); ev[0].snap = snap(s); }
+    spend(s);
     return ev;
   }
 
@@ -822,7 +847,7 @@
   // ------------------------------------------------------------------ the whole fight
   function newFight(me, c, seed, opt) {
     var s = pfNew(me, c, seed, opt);
-    ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t) { t.v = Math.max(1, iround(t.v * PFB_FOE_MULT * (s.size === 'boss' ? PFB_BOSS_MULT : 1.0) * (truthy(opt && opt.blank) ? PFB_BLANK_FOE_MULT : 1.0))); }); });
+    ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t) { t.v = Math.max(1, iround(t.v * PFB_FOE_MULT * (s.size === 'boss' ? PFB_BOSS_MULT : 1.0) * (truthy(opt && opt.blank) ? PFB_BLANK_FOE_MULT : 1.0) * (PFB_FOE_FIRES > 0 ? PFB_FOE_FIRE_MULT : 1.0))); }); });
     s.bar.max = round(s.bar.max * PFB_BAR_MULT, 1); s.fh.max = s.bar.max;
     s.mode = 'board'; s.strip = []; s.pcs = {}; s.cell = {}; s.pid = 0; s.seq = 0; s.round = 1;
     if (opt && truthy(opt.blank)) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see start)
@@ -889,7 +914,7 @@
     s.turn++; s.round++;
     s.me.block = s.me.keep; s.me.keep = 0; s.me.thorns = false; s.me.evade = 0;
     draw(s, 'me', Math.min(PF_HAND_CAP, s.me.hand.length + PF_DRAW));
-    s.gone = gone.map(function (p) { return { id: p.id, by: p.by, x: p.x, y: p.y, tile: p.tile, age: s.round - 1 - p.born }; });
+    s.gone = nn(s.spent, []).map(function (p) { return goneEntry(s, p, true); }).concat(gone.map(function (p) { return goneEntry(s, p, false); }));
     s.spawn = spawn(s);
     if (s.turn > PF_TURN_CAP) { s.over = s.boss ? 'defeat' : 'stall'; return; }
     intent(s);
@@ -907,7 +932,7 @@
     if (!Array.isArray(moves) || moves.length !== 1) return { ev: [], err: 'One action a turn.' };
     var mv = moves[0];
     if (!Array.isArray(mv) || !mv.length) return bad();
-    var w = clone(s);
+    var w = clone(s); w.spent = [];
     begin(w, 'me');
     var ev = [], why, r, err;
     if (isInt(mv[0])) {
@@ -947,7 +972,7 @@
     var i;
     for (i = 0; i < s.me.hand.length; i++) if (cells(s, s.me.hand[i]).length) return { ev: [], err: 'You still have a piece that fits somewhere.' };
     if (truthy(s.me.held) && !isEmpty(s.me.held) && groupSpots(s, s.me.held).length) return { ev: [], err: 'Your set-aside group still fits somewhere.' };
-    var w = clone(s); begin(w, 'me');
+    var w = clone(s); w.spent = []; begin(w, 'me');
     var ev = foeTurn(w); ev.forEach(function (e0) { e0.ta = 'foe'; });
     w.fx = fx(ev);
     if (!w.over) endRound(w);
@@ -966,8 +991,8 @@
       link: groupCellsAll(s, g).some(function (o) { return o[2]; })
     } : null;
     v.pcs = [];
-    for (var id in s.pcs) { var p = s.pcs[id]; v.pcs.push({ id: p.id, by: p.by, x: p.x, y: p.y, n: p.tile.n, t: p.tile.t, v: p.tile.v, tag: p.tile.tag, m: String(nn(p.tile.m, '')), e: edges(p.tile), age: s.round - p.born, seq: p.seq, spawn: nn(s.spawn, null) === p.id, fnew: nn(s.lastfoe, []).indexOf(p.id) >= 0 }); }
-    v.gone = nn(s.gone, []).map(function (q) { return { id: q.id, by: q.by, x: q.x, y: q.y, n: q.tile.n, t: q.tile.t, v: q.tile.v, tag: q.tile.tag, m: String(nn(q.tile.m, '')), e: edges(q.tile), age: q.age }; });
+    for (var id in s.pcs) { var p = s.pcs[id]; v.pcs.push({ id: p.id, by: p.by, x: p.x, y: p.y, n: p.tile.n, t: p.tile.t, v: p.tile.v, tag: p.tile.tag, m: String(nn(p.tile.m, '')), e: edges(p.tile), age: s.round - p.born, seq: p.seq, fl: fireLimit(p) > 0 ? Math.max(0, fireLimit(p) - toInt(nn(p.f, 0))) : null, spawn: nn(s.spawn, null) === p.id, fnew: nn(s.lastfoe, []).indexOf(p.id) >= 0 }); }
+    v.gone = nn(s.gone, []).map(function (q) { return { id: q.id, by: q.by, x: q.x, y: q.y, n: q.tile.n, t: q.tile.t, v: q.tile.v, tag: q.tile.tag, m: String(nn(q.tile.m, '')), e: edges(q.tile), age: q.age, fell: truthy(q.fell) }; });
     for (i = 0; i < v.hand.length; i++) v.hand[i].e = edges(s.me.hand[i]);
     delete v.strip; delete v.open; delete v.open_t; delete v.open_v; delete v.open_by;
     return v;

@@ -40,7 +40,7 @@ function pp_show(array $s): string
     if ($s['over']) $o[] = 'FIGHT OVER: ' . $s['over'];
     $o[] = 'BOARD (x right, y down; x 0-' . (PFB_W - 1) . ', y 0-' . (PFB_H - 1) . '). Y=your piece, C=creature piece, ?=blank centre';
     for ($y = 0; $y < PFB_H; $y++) { $r = ''; for ($x = 0; $x < PFB_W; $x++) { $p = pfb_at($s, $x, $y); $r .= $p ? ($p['by'] === 'me' ? ' Y' : ($p['by'] === 'foe' ? ' C' : ' ?')) . $p['id'] : ' . '; } $o[] = '  ' . $r; }
-    foreach ($s['pcs'] as $p) if (!($s['over'] && $p['by'] === 'none')) $o[] = sprintf('  piece #%d %s @%d,%d %s "%s" %s %d%s age %d (%s)', $p['id'], $p['by'] === 'me' ? 'YOURS' : ($p['by'] === 'foe' ? 'CREATURE' : 'BLANK'), $p['x'], $p['y'], $p['by'] === 'none' ? '-' : $p['tile']['t'], $p['tile']['n'], $p['tile']['tag'], $p['tile']['v'], ($p['tile']['m'] ?? '') ? ' [' . $p['tile']['m'] . ']' : '', $s['round'] - $p['born'], pp_e(pfb_edges($p['tile'])));
+    foreach ($s['pcs'] as $p) if (!($s['over'] && $p['by'] === 'none')) $o[] = sprintf('  piece #%d %s @%d,%d %s "%s" %s %d%s age %d%s (%s)', $p['id'], $p['by'] === 'me' ? 'YOURS' : ($p['by'] === 'foe' ? 'CREATURE' : 'BLANK'), $p['x'], $p['y'], $p['by'] === 'none' ? '-' : $p['tile']['t'], $p['tile']['n'], $p['tile']['tag'], $p['tile']['v'], ($p['tile']['m'] ?? '') ? ' [' . $p['tile']['m'] . ']' : '', $s['round'] - $p['born'], pfb_fire_limit($p) > 0 ? ' fires left ' . max(0, pfb_fire_limit($p) - (int)($p['f'] ?? 0)) : '', pp_e(pfb_edges($p['tile'])));
     if (!empty($s['start'])) $o[] = 'START PHASE: choose a hand piece and a side of the blank centre (L R T B) with `start`. The creature has already chosen without seeing you.';
     $o[] = 'YOUR HAND (index: name, type, value, tag, edges; legal cells x,y that CONNECT)';
     foreach ($s['me']['hand'] as $i => $t) {
@@ -105,6 +105,8 @@ if ($cmd === 'start') { $cx = intdiv(PFB_W, 2); $cy = intdiv(PFB_H, 2); $sd = ['
     $ev = []; echo "START (nothing fires; turn 1 is your next action; the blank vanishes at the end of turn 1):\n  " . implode("\n  ", $o) . "\n\n" . pp_show($s) . "\n"; exit; }
 $notes = [];
 if (!empty($s['cut'])) $notes[] = 'CHAIN STOPPED: the fight ended mid-chain; ' . $s['cut'] . ' linked piece(s) did not fire.';
-if (!empty($s['gone'])) $notes[] = 'EXPIRED at the end of the round (3 rounds old): ' . implode(', ', array_map(fn($g) => ($g['by'] === 'me' ? 'yours ' : 'creature ') . '"' . $g['tile']['n'] . '"', $s['gone'])) . '.';
+$fell = array_filter($s['gone'] ?? [], fn($g) => !empty($g['fell'])); $exp = array_filter($s['gone'] ?? [], fn($g) => empty($g['fell']) && $g['by'] !== 'none');
+if ($fell) $notes[] = 'FELL AWAY (the creature\'s fire budget: a creature piece goes after it has fired twice): ' . implode(', ', array_map(fn($g) => 'creature "' . $g['tile']['n'] . '"', $fell)) . '.';
+if ($exp) $notes[] = 'EXPIRED at the end of the round (3 rounds old): ' . implode(', ', array_map(fn($g) => ($g['by'] === 'me' ? 'yours ' : 'creature ') . '"' . $g['tile']['n'] . '"', $exp)) . '.';
 if (!empty($s['reshuf'])) $notes[] = 'RESHUFFLE: ' . implode(' and ', array_unique(array_map(fn($w) => $w === 'me' ? 'your' : "the creature's", $s['reshuf']))) . ' draw pile was refilled from its discard.';
 echo "WHAT HAPPENED:\n" . pp_events($ev) . ($notes ? "\n" . implode("\n", array_map(fn($n) => '  ' . $n, $notes)) : '') . "\n\n" . pp_show($s) . "\n";

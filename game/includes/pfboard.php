@@ -15,6 +15,8 @@ const PFB_W = 7, PFB_H = 5, PFB_LIFE = 3, PFB_MAX_PLACE = 1;   // one action a t
 const PFB_FOE_MIN = 2;                       // if the creature has fewer than this many pieces on the board after its turn, the board puts one out for it (it grows into place)
 const PFB_GROUP_MAX = 3;                      // a set-aside group holds 2 or 3 pieces; a 3-piece group cannot take more
 const PFB_GROUP_MULT = [2 => 1.0, 3 => 1.5]; // the values of a placed group's pieces (3 pieces play for maximum effect; 2.6.61: was 1.25, which never paid for the two turns it takes)
+const PFB_FOE_FIRES = 2;                      // 2.6.62 fire budget: a CREATURE piece falls away after it has fired this many times (its placement is the first; 0 = off). Your own pieces are not limited (they only expire). Tuned with tests/pfboard_tune.php: it removes the creature's re-fire cascades
+const PFB_FOE_FIRE_MULT = 1.15;              // 2.6.62: the creature's pieces count this much more once they are limited, so good players find it about as hard as before (weaker players gain a little)
 const PFB_BOSS_MULT = 1.2;                    // 2.6.61: a boss's pieces count this much more (bosses cost ~11% HP at their own level, large creatures ~30%)
 const PFB_BLANK_FOE_MULT = 1.2;              // 2.6.61: the creature's pieces count this much more in the blank-centre variant (its free start piece and shorter chains made it ~half as costly as classic)
 const PFB_BAR_MULT = 0.7, PFB_FOE_MULT = 0.62;   // the resolve bar vs strip mode, and a factor on the creature's piece values (one piece a turn each side). Tuned by tests/pfboard_sim.php: small 3.2, medium 4.2, large 4.5, boss 6.6 turns, defeats under 3%
@@ -134,11 +136,39 @@ function pfb_fire(array &$s, int $root): array
         $isRoot = $id === $root;
         $e = ['by' => $who, 'id' => $id, 'root' => $isRoot, 'tag' => $tile['tag'], 'mod' => (string)($tile['m'] ?? ''), 'k' => $tile['k'], 'n' => $tile['n'], 't' => $tile['t'], 'v' => $val, 'fit' => false, 'combo' => $ck ? PF_COMBOS[$ck]['name'] : null];
         pf_apply($s, $who, $tile, $val, $isRoot && pfb_links($s, $id) !== [], $ck, $pt['tile'] ?? null, $pt['by'] ?? null, $e, $isRoot, false);
+        $s['pcs'][$id]['f'] = (int)($s['pcs'][$id]['f'] ?? 0) + 1;   // fire budget: one more firing used (the placement counts as the first)
         $e['barnow'] = round((float)$s['bar']['now'], 1); $e['fhnow'] = round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];   // for the replay: how the bar and health stand after this piece
         $ev[] = $e;
         pf_check_end($s);
     }
     return $ev;
+}
+
+/** How many times may this piece fire before it falls away? 0 = no limit (your pieces, the blank, and everything when PFB_FOE_FIRES is 0). */
+function pfb_fire_limit(array $p): int
+{
+    return $p['by'] === 'foe' ? max(0, PFB_FOE_FIRES) : 0;
+}
+
+/** A piece leaving the board, as the replay and the page want it. */
+function pfb_gone_entry(array $s, array $p, bool $fell): array
+{
+    $e = ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'tile' => $p['tile'], 'age' => $s['round'] - 1 - $p['born']];
+    if ($fell) $e['fell'] = true;
+    return $e;
+}
+
+/** Fire budget: after a chain has finished, creature pieces that have fired their limit fall away (to their discard). Never mid-chain, so a chain keeps its shape. Returns nothing; $s['spent'] lists them for the replay. */
+function pfb_spend(array &$s): void
+{
+    if ($s['over']) return;
+    foreach ($s['pcs'] as $id => $p) {
+        $lim = pfb_fire_limit($p);
+        if ($lim > 0 && (int)($p['f'] ?? 0) >= $lim) {
+            $s[$p['by']]['discard'][] = $p['tile']; $s['spent'][] = $p;
+            unset($s['cell'][$p['x'] . ',' . $p['y']], $s['pcs'][$id]);
+        }
+    }
 }
 
 /** The start of a side's turn: its guard from last turn is spent (a Hold guard carries over once). */
@@ -162,6 +192,7 @@ function pfb_place(array &$s, string $who, int $handIdx, int $x, int $y): ?array
     $joints = pfb_check_after($s, $id);
     $ev = pfb_fire($s, $id);
     if ($ev) { $ev[0]['linked'] = $joints; $ev[0]['snap'] = pfb_snap($s); }   // linked: how many linked joints the new piece made; snap: the board for the history rewind
+    pfb_spend($s);
     return $ev;
 }
 
@@ -288,6 +319,7 @@ function pfb_place_group(array &$s, string $who, int $ox, int $oy): ?array
     $s[$who]['held'] = null;
     $ev = pfb_fire($s, $root);
     if ($ev) { $ev[0]['linked'] = pfb_check_after($s, $root); $ev[0]['snap'] = pfb_snap($s); }
+    pfb_spend($s);
     return $ev;
 }
 
@@ -402,7 +434,7 @@ function pfb_foe_turn(array &$s, int $extra): array
 function pfb_new(array $me, array $c, int $seed, array $opt = []): array
 {
     $s = pf_new($me, $c, $seed, $opt);
-    $fm = PFB_FOE_MULT * ($s['size'] === 'boss' ? PFB_BOSS_MULT : 1.0) * (!empty($opt['blank']) ? PFB_BLANK_FOE_MULT : 1.0);
+    $fm = PFB_FOE_MULT * ($s['size'] === 'boss' ? PFB_BOSS_MULT : 1.0) * (!empty($opt['blank']) ? PFB_BLANK_FOE_MULT : 1.0) * (PFB_FOE_FIRES > 0 ? PFB_FOE_FIRE_MULT : 1.0);
     foreach (['hand', 'draw', 'discard'] as $z) foreach ($s['foe'][$z] as $i => $t) $s['foe'][$z][$i]['v'] = max(1, (int)round($t['v'] * $fm));
     $s['bar']['max'] = round($s['bar']['max'] * PFB_BAR_MULT, 1); $s['fh']['max'] = $s['bar']['max'];
     $s['mode'] = 'board'; $s['strip'] = []; $s['pcs'] = []; $s['cell'] = []; $s['pid'] = 0; $s['seq'] = 0; $s['round'] = 1;
@@ -484,7 +516,7 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null,
     $mv = $moves[0]; $bad = ['ev' => [], 'err' => 'Those moves are not valid.'];
     if (!is_array($mv) || !$mv) return $bad;
     $w = $s;   // work on a copy: anything illegal means nothing happens
-    $w['reshuf'] = []; $w['cut'] = 0;
+    $w['reshuf'] = []; $w['cut'] = 0; $w['spent'] = [];
     pfb_begin($w, 'me');
     $ev = [];
     if (is_int($mv[0])) {
@@ -536,7 +568,7 @@ function pfb_end_round(array &$s): void
     $s['turn']++; $s['round']++;
     $s['me']['block'] = $s['me']['keep']; $s['me']['keep'] = 0; $s['me']['thorns'] = false; $s['me']['evade'] = 0;   // a new turn for you: last turn's guard is gone (a Hold guard carries over once)
     pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + PF_DRAW));
-    $s['gone'] = array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'tile' => $p['tile'], 'age' => $s['round'] - 1 - $p['born']], $gone);   // for the replay: they are shown until everything has scored, then they go
+    $s['gone'] = array_merge(array_map(fn($p) => pfb_gone_entry($s, $p, true), $s['spent'] ?? []), array_map(fn($p) => pfb_gone_entry($s, $p, false), $gone));   // for the replay: they are shown until everything has scored, then they go
     $s['spawn'] = pfb_spawn($s);
     if ($s['turn'] > PF_TURN_CAP) { $s['over'] = $s['boss'] ? 'defeat' : 'stall'; return; }
     pfb_intent($s);
@@ -549,7 +581,7 @@ function pfb_pass(array &$s, int $turn): array
     if (!empty($s['start'])) return ['ev' => [], 'err' => 'Pick your start piece first.'];
     foreach ($s['me']['hand'] as $t) if (pfb_cells($s, $t)) return ['ev' => [], 'err' => 'You still have a piece that fits somewhere.'];
     if (!empty($s['me']['held']) && pfb_group_spots($s, $s['me']['held'])) return ['ev' => [], 'err' => 'Your set-aside group still fits somewhere.'];
-    $w = $s; $w['reshuf'] = []; $w['cut'] = 0; pfb_begin($w, 'me');
+    $w = $s; $w['reshuf'] = []; $w['cut'] = 0; $w['spent'] = []; pfb_begin($w, 'me');
     $ev = pfb_foe_turn($w, 0); foreach ($ev as $i => $e0) $ev[$i]['ta'] = 'foe';
     $w['fx'] = pfb_fx($ev);
     if (!$w['over']) pfb_end_round($w);
@@ -564,8 +596,8 @@ function pfb_view(array $s): array
     $v['mode'] = 'board'; $v['w'] = PFB_W; $v['h'] = PFB_H; $v['fx'] = $s['fx'] ?? [];
     $g = $s['me']['held'] ?? null;
     $v['held'] = $g ? ['pcs' => array_map(fn($p) => ['n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'x' => $p['x'], 'y' => $p['y']], $g['pcs']), 'spots' => pfb_group_spots($s, $g), 'link' => (bool)array_filter(pfb_group_cells_all($s, $g), fn($o) => $o[2])] : null;
-    $v['pcs'] = array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born'], 'seq' => $p['seq'], 'spawn' => ($s['spawn'] ?? null) === $p['id'], 'fnew' => in_array($p['id'], $s['lastfoe'] ?? [], true)], $s['pcs']));
-    $v['gone'] = array_map(fn($g) => ['id' => $g['id'], 'by' => $g['by'], 'x' => $g['x'], 'y' => $g['y'], 'n' => $g['tile']['n'], 't' => $g['tile']['t'], 'v' => $g['tile']['v'], 'tag' => $g['tile']['tag'], 'm' => (string)($g['tile']['m'] ?? ''), 'e' => pfb_edges($g['tile']), 'age' => $g['age']], $s['gone'] ?? []);
+    $v['pcs'] = array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born'], 'seq' => $p['seq'], 'fl' => pfb_fire_limit($p) > 0 ? max(0, pfb_fire_limit($p) - (int)($p['f'] ?? 0)) : null, 'spawn' => ($s['spawn'] ?? null) === $p['id'], 'fnew' => in_array($p['id'], $s['lastfoe'] ?? [], true)], $s['pcs']));
+    $v['gone'] = array_map(fn($g) => ['id' => $g['id'], 'by' => $g['by'], 'x' => $g['x'], 'y' => $g['y'], 'n' => $g['tile']['n'], 't' => $g['tile']['t'], 'v' => $g['tile']['v'], 'tag' => $g['tile']['tag'], 'm' => (string)($g['tile']['m'] ?? ''), 'e' => pfb_edges($g['tile']), 'age' => $g['age'], 'fell' => !empty($g['fell'])], $s['gone'] ?? []);
     foreach ($v['hand'] as $i => $t) $v['hand'][$i]['e'] = pfb_edges($s['me']['hand'][$i]);
     unset($v['strip'], $v['open'], $v['open_t'], $v['open_v'], $v['open_by']);
     return $v;
