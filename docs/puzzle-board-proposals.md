@@ -250,3 +250,30 @@ All scratch code is in the session scratchpad, `/tmp/claude-0/-home-user-gnome-v
 - `run.php BOT MODE N OFFS`: the rule sims, run on the patched engine copy in `eng/`. Switches are environment variables: `BFM`, `SAFE=half|skip|echo`, `PASS=free|cost|brace`, `GF`, `GKEEP`, `SAG`, `G3`, `HCM`, `BOSSCH`, `BM`, `FM`, `ANCHOR`, `BLIFE`.
 - `opening.php`: the start-choice sweep.
 - `out/*.txt`: raw results.
+
+## P9. Fire budget: a piece falls away after N firings (Josh's idea)
+**Rule.** Every piece counts its firings. Its placement is firing 1. When a piece has fired N times it falls away (to its owner's discard, like expiry) once the current chain has finished (never mid-chain). Default N = 2; some tiles stick longer (candidates: guard/Hold tag, a rare upgrade, boss pieces). The 3-round expiry stays. Start pieces start at 0 fires. The blank never counts. A chain visits each piece once, so a piece gains at most one firing per chain. Group pieces fire once on placement. UI: pips on the piece (fires left), a "fell away" line in the replay.
+
+**Prototype** (throwaway engine copy; `FIRES`, `FO` = player limit, `FM` = creature multiplier; 88 creatures x 2 seeds, win % at level / 4 under / 8 under, classic; blank behaves the same way):
+
+| Variant | greedy | careful | noisy | random | turns (greedy, at level) |
+|---|---|---|---|---|---|
+| today | 98 / 93 / 65 | 99 / 93 / 68 | 91 / 75 / 53 | 81 / 48 / 26 | 4.6 |
+| **both sides N=2** | 97 / 78 / 55 | 93 / 74 / 50 | 95 / 65 / 41 | 74 / 31 / 20 | **7.9** (HP lost 27% to 41%) |
+| both sides N=3 | 98 / 87 / 61 | 100 / 89 / 64 | 89 / 68 / 48 | 65 / 29 / 21 | 5.8 |
+| **creature N=2, you unlimited** | 100 / 98 / 79 | 99 / 99 / 79 | 99 / 94 / 71 | 94 / 72 / 42 | 5.1 (HP lost 19%) |
+| creature N=2, you N=3 | 100 / 94 / 73 | 99 / 95 / 72 | 100 / 85 / 61 | 90 / 67 / 35 | 5.7 |
+| creature N=2, creature x1.15 | 99 / 93 / 71 | 99 / 93 / 72 | 98 / 90 / 64 | 84 / 55 / 31 | 5.2 |
+| creature N=1 (cannot be re-fired) | 100 / 100 / 100 | 100 / 100 / 100 | 100 / 100 / 100 | 100 / 99 / 93 | 4.5 |
+
+**Findings**
+- **Limiting both sides is wrong.** Your own re-fires are how you win; at N=2 fights run ~70% longer, HP lost rises (27% to 41%) and win rates drop at every skill level. N=3 for both is roughly neutral and does not manage re-fire.
+- **Limiting only the creature's pieces works.** It removes the cascade that decides defeats (HP lost 27% to 19%; random-play win 81% to 94%, 4 under 48% to 72%) at a cost of about half a turn. It is a skill-flattening change: weak players gain most.
+- **It makes the game easier, so retune.** Creature multiplier x1.15 puts good players back at today's difficulty (99 / 93 / 71) while weak players still gain 3-7 points. Blank: apply the same limit; keep the blank multiplier at 1.0 as in P2.
+- **N=1 is degenerate:** creature pieces vanish on their own placement, so there is nothing on the board to connect to and the shared board is gone. N must be at least 2 for creature pieces (placement plus one re-fire).
+- **Side effect:** fewer creature Hurt pieces linger, so fewer `!` cells and fewer forced hurting moves (not measured separately).
+
+**Recommendation: do it, creature pieces only, N=2, creature multiplier x1.15, you unlimited (3-round expiry).** Knobs for "some stick longer": creature guard/Hold pieces and boss pieces N=3 (not yet measured), a rare player upgrade for N+1 if you later cap your own pieces.
+**Needs a human decision:** symmetric versus creature-only (data says creature-only); which creature tiles stick longer; whether weak players should keep gaining 3-7 points (raise the multiplier to remove it).
+**Test:** a new `tests/pfboard_fixes` check (a piece vanishes after its Nth fire, never mid-chain; start pieces and blank exempt) plus `pfboard_tune.php` rows before/after; JS port and `pfboard.js` pips follow.
+Scratch sim: `/tmp/claude-0/-home-user-gnome-venture/8b4d4b94-cd53-5117-bf6a-320e9e085f12/scratchpad/sim/` (`eng2/`, `run2.php`, `jobsF/G/H.txt`, `out2/`).
