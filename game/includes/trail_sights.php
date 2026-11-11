@@ -8,7 +8,7 @@ declare(strict_types=1);
  */
 
 const TRAIL_SIGHT_COLS = ['slug', 'verb', 'icon', 'energy', 'cd', 'uses', 'when', 'check', 'rewards', 'win', 'lose', 'tool', 'fail_en'];
-const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather'];
+const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather', 'take', 'unlock'];
 
 /** One data row (an array of strings in TRAIL_SIGHT_COLS order, the last two optional) as a Sight row, or null if it is not one. */
 function trail_sight_row(array $p): ?array
@@ -20,15 +20,33 @@ function trail_sight_row(array $p): ?array
         'tool' => ($p[11] ?? '') === '' ? '-' : $p[11], 'fail_en' => max(0, (int)($p[12] ?? 0)), 'src' => 'file'];
 }
 
-/** The rows of data/trail_sights.txt, [slug => row]. Pure parse (an optional $file for the tests). */
+/** The rows of data/trail_sights.txt and every data/trail_sights_*.txt (one per region), [slug => row]. Pure parse (an optional $file for the tests: that one file only). */
 function trail_sights_file(?string $file = null): array
 {
-    $file ??= __DIR__ . '/data/trail_sights.txt';
+    $files = $file !== null ? [$file] : array_merge([__DIR__ . '/data/trail_sights.txt'], glob(__DIR__ . '/data/trail_sights_*.txt') ?: []);
     $out = [];
-    foreach (is_file($file) ? (file($file, FILE_IGNORE_NEW_LINES) ?: []) : [] as $line) {
+    foreach ($files as $f) foreach (is_file($f) ? (file($f, FILE_IGNORE_NEW_LINES) ?: []) : [] as $line) {
         $line = trim($line);
         if ($line === '' || $line[0] === '#') continue;
         if ($r = trail_sight_row(explode('|', $line))) $out[$r['slug']] = $r;
+    }
+    return $out;
+}
+
+/**
+ * The reward list of a row as tokens: [['tok' => 'item=x:1@25', 'cond' => 'se=summer' | '', 'first' => bool], ...].
+ * Grammar on top of the rest-stop one: `first:xp=10` pays only the first time this gnome ever uses the Sight; `item=x:1@25?se=summer;dp=dusk` only when the condition holds
+ * (stop words; ; between values, / between conditions); `take=slug:qty` is a cost (needed in the satchel, used up on a win); `unlock=kind:slug` opens an Almanac page;
+ * `gather=<tool>` runs the gather table.
+ */
+function trail_sight_tokens(string $rewards): array
+{
+    $out = [];
+    foreach (array_filter(array_map('trim', explode(',', $rewards))) as $tok) {
+        $first = false; $cond = '';
+        if (str_starts_with($tok, 'first:')) { $first = true; $tok = substr($tok, 6); }
+        if (($i = strpos($tok, '?')) !== false) { $cond = str_replace(';', ',', substr($tok, $i + 1)); $tok = substr($tok, 0, $i); }
+        $out[] = ['tok' => $tok, 'cond' => $cond, 'first' => $first];
     }
     return $out;
 }
@@ -76,12 +94,15 @@ function trail_sight_lint(array $r, bool $db = true): array
         $t = explode(':', $r['tool']);
         if (count($t) !== 2 || !in_array($t[0], GATHER_TOOLS, true) || !in_array((int)$t[1], [1, 2, 3, 4], true)) $bad[] = 'tool must be type:tier 1-4 (' . implode(', ', GATHER_TOOLS) . ')';
     }
-    foreach (array_filter(array_map('trim', explode(',', $r['rewards']))) as $tok) {
+    foreach (trail_sight_tokens($r['rewards']) as $t) {
+        $tok = $t['tok'];
+        if ($t['cond'] !== '') foreach (explode('/', $t['cond']) as $part) if (!preg_match('/^(dp|se|we|hp)=[a-z,]+$/', trim($part))) $bad[] = 'bad condition "' . $part . '" in ' . $tok;
         if (str_contains($tok, '@')) { [$tok, $pc] = explode('@', $tok, 2); if (!ctype_digit($pc) || (int)$pc > 100) $bad[] = 'bad chance in ' . $tok; }
         [$k, $v] = array_pad(explode('=', $tok, 2), 2, '');
         if (!in_array($k, TRAIL_SIGHT_REWARD_TOKENS, true)) { $bad[] = 'unknown reward "' . $k . '"'; continue; }
         if ($k === 'gather' && !in_array($v, GATHER_TOOLS, true)) $bad[] = 'gather= needs a tool type';
-        if ($k === 'item' && $db) { $slug = explode(':', $v)[0]; try { if (!q_val('SELECT id FROM items WHERE slug = ?', [$slug])) $bad[] = 'no item "' . $slug . '"'; } catch (Throwable $e) { /* no items table */ } }
+        if ($k === 'unlock' && !preg_match('/^[a-z]+:[a-z0-9-]+$/', $v)) $bad[] = 'unlock= needs kind:slug';
+        if (($k === 'item' || $k === 'take') && $db) { $slug = explode(':', $v)[0]; try { if (!q_val('SELECT id FROM items WHERE slug = ?', [$slug])) $bad[] = 'no item "' . $slug . '"'; } catch (Throwable $e) { /* no items table */ } }
     }
     return $bad;
 }
@@ -89,7 +110,7 @@ function trail_sight_lint(array $r, bool $db = true): array
 /** Make the Sights tables if the Upgrade database run has not yet (the admin page uses this; the game falls back to the file and no cooldown). */
 function trail_sights_ensure_tables(): bool
 {
-    try { q('SELECT 1 FROM trail_sight_rows LIMIT 1'); q('SELECT 1 FROM trail_sight_uses LIMIT 1'); return true; } catch (Throwable $e) {}
+    try { q('SELECT 1 FROM trail_sight_rows LIMIT 1'); q('SELECT 1 FROM trail_sight_uses LIMIT 1'); q('SELECT 1 FROM trail_sight_first LIMIT 1'); return true; } catch (Throwable $e) {}
     try {
         require_once __DIR__ . '/action_log.php';
         $sqlite = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
@@ -171,6 +192,12 @@ function trail_sight_do(array $u, array &$exp, string $slug): array
         [$tt, $tier] = explode(':', $row['tool']);
         if (tool_tier((int)$u['id'], $tt) < (int)$tier) return [false, 'You need a ' . (TOOL_TIERS[(int)$tier] ?? '') . ' ' . (GATHER_TOOL_NOUN[$tt] ?? 'tool') . ' for that.'];
     }
+    $takes = [];   // take=slug:qty: needed in the satchel (checked before any energy goes), used up on a win
+    foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'take=')) {
+        [$tslug, $tqty] = array_pad(explode(':', substr($t['tok'], 5), 2), 2, '1'); $tid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$tslug]); $tq = max(1, (int)$tqty);
+        if (!$tid || (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [(int)$u['id'], $tid]) < $tq) return [false, 'You need ' . $tq . ' × ' . ($tid ? (string)q_val('SELECT name FROM items WHERE id = ?', [$tid]) : $tslug) . ' for that.'];
+        $takes[] = [$tid, $tq];
+    }
     if (!spend_energy((int)$u['id'], $row['energy'], 'sight')) return [false, 'You need ' . $row['energy'] . ' energy for that.'];   // time: setting time_sight (10 game minutes); an energy-free Sight still takes the time
     $loc = q_one('SELECT * FROM locations WHERE id = ?', [(int)$exp['from_id']]) ?: [];
     $loc['name'] = $row['verb'];
@@ -178,21 +205,30 @@ function trail_sight_do(array $u, array &$exp, string $slug): array
     $ok = true; $f = 1.0;
     if ($row['check'] !== '-' && str_contains($row['check'], ':')) { [$stat, $dc] = explode(':', $row['check'], 2); [$ok] = stop_check($u, $stat, (int)$dc); }
     $lines = [];
+    $first = false;
+    try { $first = !q_val('SELECT 1 FROM trail_sight_first WHERE user_id = ? AND slug = ?', [(int)$u['id'], $slug]); } catch (Throwable $e) { /* table missing: no first-time bonus */ }
     if ($ok) {
-        $plain = [];   // gather=<tool> runs the ordinary gather table (tool tier rules, wear, satchel reveal); the rest is the rest-stop reward grammar
-        foreach (array_filter(array_map('trim', explode(',', $row['rewards']))) as $tok) {
+        $now = null; $plain = [];   // the rest-stop reward grammar for most tokens; gather= runs the gather table, unlock= opens an Almanac page, take= is paid below
+        foreach (trail_sight_tokens($row['rewards']) as $t) {
+            if ($t['first'] && !$first) continue;
+            if ($t['cond'] !== '') { $now ??= stop_now($loc); if (!stop_cond_ok($t['cond'], $now)) continue; }
+            $tok = $t['tok'];
+            if (str_starts_with($tok, 'take=')) continue;
             if (str_starts_with($tok, 'gather=')) {
                 require_once __DIR__ . '/gathering.php';
                 $gl = gather_on_walk($u, $loc['landscape'], substr($tok, 7), true, $found);
                 if ($found) gather_reveal_set($found);
                 $lines[] = $gl ?? 'You find nothing this time.';
-            } else $plain[] = $tok;
+            } elseif (str_starts_with($tok, 'unlock=')) { if (unlock_entries((int)$u['id'], substr($tok, 7)) > 0) $lines[] = '📖 A new Almanac page'; }
+            else $plain[] = $tok;
         }
+        foreach ($takes as [$tid, $tq]) give_item((int)$u['id'], $tid, -$tq);
         $lines = array_merge($plain ? stop_rewards($u, $loc, implode(',', $plain), $f) : [], $lines);
     } elseif ($row['fail_en'] > 0) {   // a slip costs a little energy (never below 0)
         q('UPDATE users SET energy = CASE WHEN energy >= ? THEN energy - ? ELSE 0 END WHERE id = ?', [$row['fail_en'], $row['fail_en'], (int)$u['id']]);
         $lines[] = '-' . $row['fail_en'] . ' energy';
     }
+    if ($ok && $first) { try { db_insert('trail_sight_first', ['user_id' => (int)$u['id'], 'slug' => $slug]); } catch (Throwable $e) {} }
     $text = $row['icon'] . ' ' . ($ok ? $row['win'] : $row['lose']) . ($lines ? ' (' . implode(', ', $lines) . ')' : '');
     exp_log($exp, $text);
     $route = (int)substr((string)$sc['row']['map_key'], 6);
