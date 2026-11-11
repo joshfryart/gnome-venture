@@ -25,3 +25,11 @@ Your assignment gives: creature slug, level, seed, mode, PLAYSTYLE (greedy = hig
 Write exactly this JSON (and nothing else) to the output path:
 {"slug","level","seed","mode","playstyle","result":"seen_off|charmed|defeat|stall|abandoned","turns":N,"hp_left":N,"refused_moves":N,"longest_chain":N,"combos":[names],"start_choice":"hand idx, side, why (blank mode)","start_felt":"1 sentence: did the hidden start / blank centre matter?","bugs":["exact command + exact odd output"],"confusing":["rule or output you misread, with the turn"],"dull_or_swingy":"1 sentence on any turn where you had no real choice or luck decided it","fun_1_to_5":N}
 Be exact. Quote output, never invent numbers. If a command crashes, put the full error in bugs and set result "abandoned".
+
+## Updates (2.6.61)
+- The blank centre piece never triggers anything and chains never run through it: a piece you place touching the blank connects (legal) but only fires itself and whatever it directly links to. Report anything that contradicts this.
+- In `show`, a cell marked `!` means that placement links into a creature Hurt piece, which will fire and hurt you.
+- `start` prints where both start pieces went. Output also prints EXPIRED, RESHUFFLE and CHAIN STOPPED notes.
+- Playstyles: greedy = highest-value piece that moves a bar that exists (never Charm against a boss: bosses have no charm bar); random = pick each choice with `$((RANDOM % N))` over the legal moves, not by habit; careful = guard/heal first, avoid `!` cells; chain = longest chain/combos; charm = pursue the charm bar (against a boss use damage and say so).
+- The assignment's `level` field is the LEVEL argument; `creature_level` is information only; `offset` says how far under (or at) the creature's level you are.
+- Extra fields in your JSON report: `start_felt` (did the opening choice matter, and was it clear), `set_aside_wanted` (did you want to set pieces aside in the opening: yes/no), `fair_1_to_5` (did the result feel earned).
