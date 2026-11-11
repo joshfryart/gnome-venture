@@ -1,36 +1,47 @@
-# Puzzle Combat fight screen: layout spec (for the code AI)
+# Puzzle Combat fight screen: layout spec v2 (for the code AI)
 
-Files: `mockup.html` (live), `mockup-phone.png`, `mockup-wide.png`. Regenerate with `python3 make_mockup.py > mockup.html`.
-Red outline in the mockup = placeholder art not drawn yet (size given). Solid = real art in `game/assets/img/pfight/`.
-All art is native pixel art shown at 2x with `image-rendering: pixelated`. Phone = 412 css px wide = 206 art px.
+Files here: `mockup.html` (live), `mockup-phone.png`, `mockup-wide.png`, `board-demo.png/.json` (2D board art + piece/socket data), `tray-demo-*.png`, `inspect-demo.png`.
+Regenerate: `python3 make_board_demo.py && python3 make_mockup.py > mockup.html`.
+RED outline = placeholder art that is not drawn yet. RED circle = an open socket marker (attach point). Solid = real delivered art.
+All art is native pixel art shown at 2x with `image-rendering: pixelated`. Phone = 412 css px = 206 art px.
 
-## Idea
-The fight is played ON TOP of the world map screen the player was on when the fight started. The map is the background of the whole fight screen. Player on one side, creature on the other, a shared board in the middle where tiles (jigsaw pieces) snap together in a chain, and a history bar across the top that keeps the log of past turns. Phone portrait: creature top-right, board middle, player bottom-left, hand tray at the bottom. Wide screen: player left, creature right, board middle, hand under the board.
+## Idea (updated)
+The fight plays on top of the map where it began (map = full-screen background). Player on one side, creature on the other, a **shared 2D jigsaw board** in the middle. Players attach pieces **one at a time**: a piece is placed so one of its knobs or holes meets a matching open socket on a piece already on the board. Pieces can branch in any of four directions, so chains and shapes grow across the board. **When a piece connects, its chain (if any) activates**: the effect depends on where and to what it connects. A history bar across the top logs every connection.
 
-## Layers, bottom to top (z-order)
-1. **Map background** (1): the map view where the fight began, cropped to the screen. Static, no interaction. Needs a dark scrim so UI is readable (CSS, solid, not drawn art).
-2. **Creature** (3) with name plate, **intent bubble** (4) showing the type icon `ico-<type>-s.png` (20x20) of what it will do next. **Player avatar** (8) with name.
-3. **Shared resolve bar** (5): `bar-frame.png` 96x12 with two fills growing from both sides: Hurt (slashes) from one end, Charm (flowers) from the other. Fills `bar-fill-hurt.png` and `bar-fill-charm.png` are 92x8.
-4. **Board** (7): one horizontal rail `strip-rail.png` (24 high, tiles horizontally). Played pieces sit on it as strip pieces at 2x (pitch 112 css px). Mine have the cream stitched edge, the creature's the dark thorn edge. The rail scrolls horizontally and auto-scrolls to the **open end** (6): `open-end.png` 24x24 marker where the next piece goes. A chain is 1 to 4 pieces per side.
-5. **Combo stamp** (9): `combo-<name>.png` 32x32 pops over the board when a combo fires, then fades.
-6. **Hand tray** (10): hand pieces at 2x, horizontally scrollable. One selected piece is "picked" (raised): draw `frame-picked-hand.png` behind it and lift it. Value number is printed by code over the dark plate; name is printed by code on the line near the bottom.
-7. **History bar** (2): fixed at top, overlays the map. Horizontally scrollable chips, newest at the right, auto-scroll to newest. Each chip = who (YOU solid cream border, FOE dashed border) + the type icons played (`ico-<type>-s.png`, 20x20) + the result text. Tapping a chip may open a details popover.
-8. **Buttons**: Play chain, Undo last tile, Pass (code, CSS).
+## Screen zones (numbers match the mockup)
+1. **Map background**: map screen where the fight began, cropped, behind everything, with a dark scrim.
+2. **History bar** (top, overlays the map): scrolling chips, newest at the right. A chip = YOU (cream border) or FOE (dashed border) + the type icons of the chain that fired (`ico-<type>-s.png` 20x20) + result text.
+3. **Creature** (64x64 sprite, name plate). 4. **Intent bubble** (28x24) with the type icon of what it will do next.
+5. **Shared resolve bar** (96x12 frame, fills 92x8 from both ends: Hurt slashes, Charm flowers).
+6. **Just-placed piece**: glow ring (FX) on the piece that was attached this turn while its chain plays out.
+7. **Board**: the 2D puzzle. Open sockets (red circles) show where the selected piece could attach; show them only for sockets the selected piece fits.
+8. **Player** (gnome avatar). 9. **Combo stamp** (32x32) pops when a named combo fires.
+10. **Hand tray**: pieces at board size (strip, 2x), swipe sideways. The selected piece has a gold selection ring.
+11. **Inspect card**: tap a hand piece to see it at hand size (`piece` at 96x68 body) with name, number, chain text (all printed by code).
+Buttons (code): Undo, End turn.
 
-## How a piece is assembled (already delivered)
-- Strip piece (board): `piece-strip-<type>-<holefam>-<knobfam>.png` (65x40) + `ico-<type>-s.png` at (21,14) + `edge-strip-<me|foe>-<holefam>-<knobfam>.png`.
-- Hand piece: `piece-hand-<type>-<holefam>-<knobfam>.png` (114x68) + `ico-<type>.png` at (37,9) + `edge-hand-me-...` ; number at (21,3) 14x12 on the dark plate, cream text.
-- Families: body, mind, craft, flat (wild). Hole is on the left, knob on the right. Snap pitch: next strip piece x + 56, hand piece x + 96 (art px). A knob fits a hole of the same family; flat fits anything.
-- The code must draw pieces with `image-rendering: pixelated` and integer scale.
+## Piece art model (important for code)
+Each piece = a body (type colour + pattern + icon + number plate) with up to four **edges**: `L R T B`, each one of `flat`, `knob:<family>`, `hole:<family>`. Families: body (round tab), mind (keyhole), craft (triangle). A knob fits a hole of the same family; flat is wild.
+- Silhouettes are real jigsaw cutouts (holes are transparent), so a piece cannot be a fixed rectangle with overlays.
+- There are too many combinations to ship as files (7 types x 7^4 edge states). Two ways:
+  A. **Runtime render (recommended)**: port `aseprite-source/pfight/gen_shapes.py` (`shape_mask` + `paint`, plain integer pixel maths, about 100 lines) to a JS canvas, cache per (type, edges, owner, size). Output is identical to the PNGs.
+  B. Ask the art side for a **parts atlas** (bodies per type + knob/hole cutters per family) if canvas drawing is not wanted.
+- Sizes: body 96x68 (hand) / 56x40 (strip). Tab depth 18 / 9 on the left and right, 12 / 6 on top and bottom (shallower so the icon is not cut). A piece image is body + tab depth on every side: strip 74x52, hand 132x92. Place pieces on a grid at body pitch (56x40 strip, 96x68 hand) so a knob sits exactly in the neighbour's hole.
+- Owner: mine = cream piping with gold stitches; creature's = dark thorn rim with rust accent (`owner='foe'` in `paint`).
+- The icon (`ico-<type>-s.png` 20x20 at body offset (21,14); hand `ico-<type>.png` 32x32 at (37,9)) and number plate (strip 12x10 at (13,2); hand 14x12 at (21,3)) are baked into the piece image by `paint(..., icon_dir)`. Code prints a cream number over the dark plate.
+- `board-demo.json`: example data: cells, owners, edge definitions and the list of open sockets (cell, side, kind, family). Use it as the data shape.
 
-## Real jigsaw shapes (art pass)
-`game/assets/img/pfight/shapes-assembled-<hand|strip>.png` and `shapes-exploded-<hand|strip>.png` show true four-sided pieces (tab or blank on every edge, corners and edges flat). The current game only needs left hole and right knob. If the board ever grows into a 2D puzzle, these shapes are ready: generator `aseprite-source/pfight/gen_shapes.py` can write any `L/R/T/B` combination.
+## Rules the art assumes (please confirm, they drive the code)
+- A piece attaches only where a knob meets a hole of the same family (flat fits anything). The first piece goes in the centre.
+- "Chain" = the connected group that the new connection joins. The effect depends on the connection (which type touches which, how many edges match). Show it by running the glow along the connected pieces in order and adding a chip to the history bar.
+- The creature uses the same board and rules, its pieces appear with the foe rim.
+- Do both players share one board? (the mockup assumes yes.)
 
-## Not drawn yet (red in the mockup)
-creature sprites, player avatar (existing gnome art), map crop, `strip-rail`, `open-end`, `intent-bubble`, `bar-frame`, `bar-fill-hurt`, `bar-fill-charm`, combo stamps, history chips (CSS in the mockup; may want a small drawn chip frame).
+## Not drawn yet (red)
+creature sprites, player avatar (existing gnome art), map crop, `bar-frame`, `bar-fill-hurt`, `bar-fill-charm`, `intent-bubble`, combo stamps, chain-fire glow FX, open-socket marker (art version of the red circle), history chip frame, gold selection ring (CSS in mockup). The old `strip-rail` and `open-end` are replaced by the 2D board and the socket markers.
 
 ## Open questions for the code AI
-1. Phone hand tray: two 2x hand pieces do not fit side by side (each 228 css px with its knob). Horizontal scroll (shown) or 1.5x? Prefer integer scaling.
-2. Board: horizontal scroll rail (shown) versus wrapping onto two rows. Wrapping breaks the snap read, so scroll is preferred.
-3. History bar height 60 css px; should it collapse while the player is placing tiles?
-4. Wide layout breakpoint (suggest 760 css px).
+1. Board size cap: the mockup shows 3x3 cells at 2x on a phone (372x264 css). Larger boards need panning or a smaller scale. Preferred: fixed small grid or pan.
+2. Phone hand tray: strip-size pieces at 2x (3 per row) so what you hold is what you place; hand-size art only on the inspect card.
+3. Wide breakpoint (suggest 760 css px).
+4. Port `gen_shapes.py` to JS (A) or request the parts atlas (B)?

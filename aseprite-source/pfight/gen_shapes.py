@@ -22,8 +22,9 @@ TY = list(TYPES)
 def shape_mask(k, edges):
     g = G[k]
     W, H, P, R = g['W'], g['H'], g['P'], g['R']
-    Wc, Hc = W + 2 * P, H + 2 * P
-    ox = oy = P
+    PV = max(6, P * 2 // 3)                     # shallower tabs top/bottom so they miss the icon
+    Wc, Hc = W + 2 * P, H + 2 * PV
+    ox, oy = P, PV
     m = [[False] * Wc for _ in range(Hc)]
     for y in range(H):
         for x in range(W):
@@ -33,8 +34,9 @@ def shape_mask(k, edges):
         kind, fam = edges[side]
         if kind == 'flat':
             continue
-        hp = prof(fam, P, k)
-        for t in range(P):
+        dep = P if side in 'LR' else PV
+        hp = prof(fam, dep, k, 1.0 if side in 'LR' else dep / P)
+        for t in range(dep):
             rng = range(Hc) if side in 'LR' else range(Wc)
             for s in rng:
                 c = cy if side in 'LR' else cx
@@ -52,7 +54,7 @@ def shape_mask(k, edges):
     return m, Wc, Hc, ox, oy
 
 
-def paint(t, k, edges):
+def paint(t, k, edges, owner='me', icon_dir=None):
     m, Wc, Hc, ox, oy = shape_mask(k, edges)
     d = depth_map(m, Wc, Hc)
     base = TYPES[t]
@@ -67,7 +69,14 @@ def paint(t, k, edges):
             dd = d[y][x]
             code = pat(t, x - ox, y - oy, k)
             c = pm[code] if code else base
-            if dd == 1:
+            if owner == 'foe':                               # dark thorn rim, rust accent
+                if dd == 1:
+                    c = INK
+                elif dd == 2:
+                    c = (150, 52, 28)
+                elif dd == 3 and (x + y) % 4 < 2:
+                    c = INK
+            elif dd == 1:
                 c = INK
             elif dd == 2:
                 c = CREAM                                    # stitched cream piping
@@ -76,12 +85,32 @@ def paint(t, k, edges):
             elif dd == 3:
                 c = lt
             px[x, y] = c + (255,)
-    # gold button in the middle of the body
-    bx, by = ox + G[k]['W'] // 2, oy + G[k]['H'] // 2
-    b = 4 if k == 'hand' else 3
-    for yy in range(b):
-        for xx in range(b):
-            px[bx - b // 2 + xx, by - b // 2 + yy] = (INK if xx in (0, b - 1) and yy in (0, b - 1) else GOLD) + (255,)
+    if icon_dir:                                     # medallion + icon + value plate (as the 1D pieces)
+        g = G[k]
+        for y in range(Hc):
+            for x in range(Wc):
+                d2 = (x + .5 - ox - g['mx']) ** 2 + (y + .5 - oy - g['my']) ** 2
+                if d2 <= g['mr'] ** 2 and m[y][x] and d[y][x] > 3:
+                    px[x, y] = (INK if d2 > (g['mr'] - 1.15) ** 2 else CREAM) + (255,)
+        ic = Image.open(os.path.join(icon_dir, 'ico-%s.png' % t if k == 'hand' else 'ico-%s-s.png' % t)).convert('RGBA')
+        ix, iy = ox + (37 if k == 'hand' else 21), oy + (9 if k == 'hand' else 14)
+        ip = ic.load()
+        for yy in range(ic.height):
+            for xx in range(ic.width):
+                if ip[xx, yy][3] and m[iy + yy][ix + xx]:
+                    px[ix + xx, iy + yy] = ip[xx, yy]
+        for y in range(g['vh']):
+            for x in range(g['vw']):
+                X, Y = ox + g['vx'] + x, oy + g['vy'] + y
+                if in_rr(x, y, g['vw'], g['vh'], 2) and m[Y][X]:
+                    edge = not all(in_rr(x + a, y + b, g['vw'], g['vh'], 2) for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+                    px[X, Y] = (CREAM if edge else INK) + (255,)
+    else:                                            # gold button in the middle of the body
+        bx, by = ox + G[k]['W'] // 2, oy + G[k]['H'] // 2
+        b = 4 if k == 'hand' else 3
+        for yy in range(b):
+            for xx in range(b):
+                px[bx - b // 2 + xx, by - b // 2 + yy] = (INK if xx in (0, b - 1) and yy in (0, b - 1) else GOLD) + (255,)
     return im
 
 

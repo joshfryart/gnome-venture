@@ -19,27 +19,27 @@ G = {'hand': dict(W=96, H=68, P=18, R=5, vx=21, vy=3, vw=14, vh=12, mx=53, my=25
      'strip': dict(W=56, H=40, P=9, R=3, vx=13, vy=2, vw=12, vh=10, mx=31, my=24, mr=11.5)}
 
 
-def prof(fam, P, k):
+def prof(fam, P, k, sc=1.0):
     """half-height per column t=0..P-1, base (wide) at t=0 -> tip at t=P-1"""
     hand = k == 'hand'
     out = []
     for t in range(P):
         x = t + .5
         if fam == 'body':    # classic jigsaw: short neck, big round head
-            r = 9.6 if hand else 5.0
+            r = (9.6 if hand else 5.0) * sc
             c = P - r
-            neck = 6.0 if hand else 3.2
+            neck = (6.0 if hand else 3.2) * sc
             hh = max(neck if x < c else 0, math.sqrt(max(0, r * r - (x - c) ** 2)))
         elif fam == 'mind':  # keyhole: flared trapezoid base, thin neck, small round head
-            r = 6.4 if hand else 3.2
+            r = (6.4 if hand else 3.2) * sc
             c = P - r
-            neck = 2.4 if hand else 1.2
-            top = 14.0 if hand else 7.5
+            neck = (2.4 if hand else 1.2) * sc
+            top = (14.0 if hand else 7.5) * sc
             flare = top - (top - neck) * x / (P * .38)
             hh = max(neck, flare if x < P * .38 else 0, math.sqrt(max(0, r * r - (x - c) ** 2)))
         else:                # craft: triangle with a slightly blunt tip
-            A = 15.0 if hand else 8.0
-            hh = A * (1 - x / P) + (.9 if hand else .5)
+            A = (15.0 if hand else 8.0) * sc
+            hh = A * (1 - x / P) + (.9 if hand else .5) * sc
         out.append(hh)
     return out
 
