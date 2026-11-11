@@ -1,85 +1,73 @@
--- stuffed-peppers-goat (lean E2_15)
--- One big red bell-pepper half baked as a boat: glossy red shell, green stem at the left end, mound of cream goat cheese
--- browned in patches, thyme sprig and chilli flakes, steam rising.
--- quirk: a drip of melted cheese runs down the front of the shell.
 local NAME = "stuffed-peppers-goat"
+-- stuffed-peppers-goat: blue-glazed oval baking dish with tomato sauce holding two bell pepper halves (red, yellow),
+-- each filled with herby rice and topped with golden-browned goat cheese rounds, basil leaf, green stem stubs. quirk: steam curls.
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
-local floor, abs, sin, cos, pi, max, min, sqrt, atan2 = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt, math.atan2 or math.atan
-local function clamp(v,a,b) return max(a,min(b,v)) end
-
-local RED = { "#4a1220", "#7a1a28", "#a82a2e", "#d04a32", "#ec7040", "#ffa468" }
-local CHS = { "#9a8a78", "#c8bca4", "#e8dfc6", "#f6efdc", "#fffaee" }
-local GRN = { "#1c3d2a", "#2a5e36", "#3f8a3e", "#68b04a", "#9ad45e", "#c8ee8c" }
-c:groundShadow(34, 53, 25, 3)
-local function ell(cx, cy, rx, ry, fn)
-  for y = floor(cy - ry) - 1, floor(cy + ry) + 1 do for x = floor(cx - rx) - 1, floor(cx + rx) + 1 do
-    local nx, ny = (x - cx) / rx, (y - cy) / ry
-    local d = nx * nx + ny * ny
-    if d <= 1 then fn(x, y, nx, ny, sqrt(max(0, 1 - d))) end
-  end end
+local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
+local CUTS = { 0.18, 0.34, 0.5, 0.66, 0.82 }
+local GLAZE = { "#3e4e72", "#5f78a0", "#8aa6c6", "#b4cadc", "#dcecf0", "#f6fbf6" }
+local SAUCE = { "#5a1420", "#862224", "#b0342a", "#d0502e", "#e8743a", "#f8a05c" }
+local RED   = { "#4a1424", "#7a1c2c", "#a82a2a", "#d0402e", "#ec6a3e", "#ff9a62" }
+local YEL   = { "#6a3a22", "#a85a1e", "#d88a1c", "#f2b52a", "#ffd24e", "#fff09a" }
+local FILL  = { "#5a3a22", "#8a5a30", "#b8844a", "#d8aa68", "#ecc98a", "#f8e2b0" }
+local CHEESE= { "#a8885a", "#d0b47e", "#ecdcae", "#f8f0d4", "#fffae6", "#fffdf0" }
+local GRN   = { "#163a35", "#1f553f", "#2b7046", "#3f8f4c", "#62ad55", "#93cb68" }
+local function T(nm) return { r = { name = nm } } end
+c:groundShadow(32, 58, 25, 3)
+-- dish body: top ellipse + bottom ellipse + joining rect
+local top = G.oval(32, 43, 25, 11, 0, 1)
+local bot = G.oval(32, 47, 24, 10, 0, 1)
+local body = HP.mask() body:add(top) body:add(bot) body:add(c:rect(8, 43, 56, 47))
+local bn = {}
+body:each(function(x, y) local dx, dy = (x - 32) / 26, (y - 47) / 12 local nx, ny = dx, dy local z = sqrt(max(1 - nx * nx - ny * ny * 0.6, 0.05)) bn[K(x, y)] = { G.norm(nx, ny * 0.8, z) } end)
+G.toneN(c, body, bn, GLAZE, { tok = T("dish"), cuts = CUTS, amb = 0.1, wrap = 0.25 })
+-- lugs
+for _, p in ipairs{ {4,44},{5,44},{4,45},{5,45},{58,44},{59,44},{58,45},{59,45},{6,44},{57,44} } do c:put(p[1], p[2], GLAZE[3], T("lug")) end
+c:put(4, 45, GLAZE[2], T("lug")) c:put(5, 45, GLAZE[2], T("lug")) c:put(58, 45, GLAZE[2], T("lug")) c:put(59, 45, GLAZE[2], T("lug"))
+-- rim highlight band along top-left of the ellipse, blue stripe near base
+top:edge():each(function(x, y) if y < 42 and x < 40 then c:put(x, y, GLAZE[6], T("dish")) end end)
+for x = 12, 52 do local y = 52 if body:has(x, y) then c:put(x, y, GLAZE[2], T("dish")) end end
+-- sauce inside
+local sm, sn = G.oval(32, 43, 22, 8.6, 0, 1)
+G.toneN(c, sm, sn, SAUCE, { tok = T("sauce"), cuts = CUTS, amb = 0.12, wrap = 0.25 })
+-- pepper boat
+local function pepper(cx, cy, ang, RAMP, nm, stemSide)
+  local rx, ry = 11.5, 7.2
+  local om, on = G.oval(cx, cy, rx, ry, ang, 1)
+  -- soft shadow on sauce
+  om:shift(1, 2):each(function(x, y) if not om:has(x, y) and sm:has(x, y) then c:put(x, y, SAUCE[1], T("sh")) end end)
+  G.toneN(c, om, on, RAMP, { tok = T(nm), cuts = CUTS, amb = 0.1, wrap = 0.25 })
+  local im, inn = G.oval(cx, cy + 0.4, rx - 2.4, ry - 2.2, ang, 1.4)
+  -- inner wall: darker ring then filling
+  c:fillMask(im:grow(1):clip(om), RAMP[2])
+  local ft = T(nm .. "f")
+  local idx = G.toneN(c, im, inn, FILL, { tok = ft, cuts = CUTS, amb = 0.15, wrap = 0.3 })
+  im:each(function(x, y) local h = X.hash(x, y, 5 + cx)
+    if h > 0.9 then c:put(x, y, GRN[4], ft) elseif h > 0.82 then c:put(x, y, FILL[5], ft) elseif h > 0.78 then c:put(x, y, RED[3], ft) end end)
+  -- stem stub at one end
+  local sx = cx + stemSide * (rx + 0.5) * cos(ang)
+  local sy = cy + stemSide * (rx + 0.5) * sin(ang)
+  local stm, stn = G.oval(sx, sy - 0.5, 2.6, 2.2, 0, 1)
+  G.toneN(c, stm, stn, GRN, { tok = T(nm .. "s"), cuts = CUTS })
+  return om, im
 end
-local bodyM = {}
-ell(33, 36, 25, 15, function(x, y, nx, ny, nz)
-  bodyM[x * 100 + y] = true
-  local l = -0.45 * nx - 0.55 * ny + 0.7 * nz
-  local i = clamp(floor((l + 0.15) * 4.6) + 1, 1, 6)
-  c:put(x, y, RED[i])
-end)
--- lobe creases on the shell front
-for _, off in ipairs{ -13, 0, 13 } do
-  for y = 42, 51 do
-    local t = (y - 36) / 15
-    local x = floor(33 + off * 1.5 * sqrt(max(0, 1 - t * t)) * 0.7 + 0.5)
-    if bodyM[x * 100 + y] then c:put(x, y, RED[2]); if bodyM[(x + 1) * 100 + y] then c:put(x + 1, y, RED[4]) end end
-  end
+local aom, aim = pepper(22, 38, -0.2, RED, "pa", -1)
+local bom, bim = pepper(42, 43, 0.15, YEL, "pb", 1)
+-- goat cheese rounds, browned on top
+local function cheese(cx, cy, r)
+  local m, n = G.oval(cx, cy, r, r * 0.8, 0, 1.2)
+  G.toneN(c, m, n, CHEESE, { tok = T("ch" .. cx), cuts = CUTS, amb = 0.12, wrap = 0.25 })
+  m:each(function(x, y) if y <= cy - r * 0.2 and X.hash(x, y, cx) > 0.35 and x >= cx - 1 then c:put(x, y, "#e0a040", T("ch" .. cx)) end end)
+  c:put(floor(cx - r * 0.4), floor(cy - r * 0.4), CHEESE[6], T("ch" .. cx))
 end
--- glossy specs
-for _, p in ipairs{ {15,43},{16,44},{17,45},{25,48},{26,48},{44,45} } do c:put(p[1], p[2], RED[6]) end
-c:put(14, 42, "#fff0d8"); c:put(15, 42, "#ffd9b0"); c:put(24, 47, "#ffd9b0")
--- inner flesh ring
-ell(33, 32.5, 21, 10, function(x, y) c:put(x, y, "#ffb870") end)
-ell(33, 33.5, 21, 10, function(x, y) c:put(x, y, "#e8803c") end)
--- cheese mound
-ell(33, 32, 20, 9.5, function(x, y, nx, ny, nz)
-  local l = -0.4 * nx - 0.7 * ny + 0.6 * nz
-  local i = clamp(floor((l + 0.1) * 4.6) + 1, 1, 5)
-  c:put(x, y, CHS[i])
-end)
-ell(26, 28, 8, 4.5, function(x, y, nx, ny, nz) local l = -0.5 * nx - 0.7 * ny + 0.6 * nz c:put(x, y, CHS[clamp(floor((l + 0.2) * 4) + 2, 2, 5)]) end)
-ell(40, 28, 9, 4.5, function(x, y, nx, ny, nz) local l = -0.5 * nx - 0.7 * ny + 0.6 * nz c:put(x, y, CHS[clamp(floor((l + 0.2) * 4) + 2, 2, 5)]) end)
--- browned patches
-local function brown(cx, cy, rx, ry, seed)
-  ell(cx, cy, rx, ry, function(x, y, nx, ny)
-    local h = X.hash(x, y, seed)
-    c:put(x, y, (nx * nx + ny * ny > 0.5 or h > 0.8) and "#d89a48" or "#b47432")
-  end)
-end
-brown(28, 27, 4, 2, 5); brown(41, 29, 5, 2.5, 6); brown(34, 33, 3, 1.5, 7); brown(20, 33, 2, 1.2, 8)
-for _, p in ipairs{ {25,26},{39,27},{42,30} } do c:put(p[1], p[2], "#f0c46c") end
--- chilli flakes
-for _, p in ipairs{ {24,31},{36,26},{31,35},{45,32},{19,31} } do c:put(p[1], p[2], "#c8322a") end
--- thyme sprig
-local TH = { "#2a5e36", "#4f9a46", "#8cc860" }
-for _, p in ipairs{ {29,30},{30,29},{31,28},{32,27},{33,27},{34,26} } do c:put(p[1], p[2], TH[1]) end
-for _, p in ipairs{ {30,28},{32,26},{34,28},{33,29},{35,25},{31,30},{28,29} } do c:put(p[1], p[2], TH[2]); c:put(p[1] + 1, p[2], TH[3]) end
--- stem + calyx at the left end
-local sm, sn = G.tube({ {13,31}, {8,26}, {7,20}, {10,15} }, function(t) return 2.3 - 0.5 * t end)
-G.toneN(c, sm, sn, GRN, { tok = { r = { name = "stem" } }, amb = 0.12, wrap = 0.3 })
-ell(11, 33, 4.2, 4, function(x, y, nx, ny, nz) local l = -0.5 * nx - 0.6 * ny + 0.6 * nz c:put(x, y, GRN[clamp(floor((l + 0.1) * 4.5) + 1, 1, 6)]) end)
-c:put(8, 30, GRN[6]); c:put(9, 31, GRN[5])
--- cheese drip down the shell front
-for y = 42, 46 do c:put(41, y, CHS[3]); c:put(42, y, CHS[2]) end
-c:put(40, 47, CHS[3]); c:put(41, 47, CHS[4]); c:put(42, 47, CHS[3]); c:put(43, 47, CHS[2]); c:put(41, 48, CHS[2]); c:put(42, 48, CHS[1])
-c:put(41, 43, CHS[5])
--- steam
-local ST = { "#f6f0f8", "#d8d0e4" }
-local function wisp(x0, y0, ph)
-  for i = 0, 12 do
-    local x = floor(x0 + sin(i * 0.7 + ph) * 2.2 + 0.5)
-    c:put(x, y0 - i, ST[1]); c:put(x + 1, y0 - i, ST[2])
-  end
-end
-wisp(27, 21, 0); wisp(39, 20, 2); wisp(49, 23, 4)
+cheese(20, 37, 3.2) cheese(26, 39, 2.6)
+cheese(40, 42, 3.2) cheese(46, 44, 2.6)
+-- basil leaf on the red pepper
+local lm, ln = G.blade(21, 40, 24, 35, 29, 36, function(t) if t > 0.985 then return -1 end return max(0.4, 2.2 * sin(pi * t) ^ 0.8) end, { fold = 0.5 })
+G.toneN(c, lm, ln, GRN, { tok = T("basil"), cuts = CUTS })
+-- steam curls (quirk)
+local function steam(pts) for _, p in ipairs(pts) do c:put(p[1], p[2], "#d6e2ea", T("steam")) c:put(p[1] + 1, p[2], "#b4c6d2", T("steam")) end end
+steam{ {20,29},{19,27},{20,25},{21,23},{20,21} }
+steam{ {40,33},{39,31},{40,29},{41,27},{40,25} }
 G.save(c, NAME)

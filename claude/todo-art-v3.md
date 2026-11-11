@@ -36,9 +36,8 @@ Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-
 - Cat Fish lanes A-D (scarf, collars, seasons, yarn, yarn-panel icons).
 
 ## A. REDO (weak)
-1. `rollout/weak.txt`: `ph/ginseng`, `ph/stone-wall-end`, `ph/tomato`, `ph/stuffed-peppers-goat`.
-2. Ginseng Seed: new leaf reads as cannabis; still on the old picture. Fix, then export.
-3. Repaint if Josh dislikes: coralscatter wave dome + small tea house; monsoontangle bland deck + small boats; thornacre Wild Trail arch squeezed; blossomreach parasol outside box.
+1. Done 2026-11-11 (pending Josh review): ginseng, ginseng-seed, stone-wall-end, tomato, stuffed-peppers-goat redrawn; `weak.txt` empty.
+2. Repaint if Josh dislikes: coralscatter wave dome + small tea house; monsoontangle bland deck + small boats; thornacre Wild Trail arch squeezed; blossomreach parasol outside box. Stuffed peppers busy at 64 px; ginseng 3 px margins.
 
 ## B. NEXT: graphical navigation (`claude/plan-graphical-nav.md`, brief `claude/art-brief-here.md`)
 1. Stop looks for the other 14 landscapes per type (only default + `desert_adobe` exist for the 11 types; market also has grassland_maplewold).
