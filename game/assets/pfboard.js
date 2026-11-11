@@ -217,6 +217,7 @@
     applyView();
     tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
+    fan();
     undo.disabled = moves.length === 0; go.disabled = moves.length === 0;
     var fits = anyFits();
     if (pform) pform.hidden = !(moves.length === 0 && !fits && selected === null);
@@ -226,6 +227,13 @@
       : moves.length + ' placed' + (heavy ? ' (a heavy piece ends your turn)' : moves.length >= 4 ? ' (the most you can place)' : '') + '. End turn when you are ready.' + (moves.length === 4 ? ' A full turn gives the creature an extra move.' : '');
   }
 
+  function fan() {   // overlap the hand's pieces just enough to fit one row; the picked piece is lifted by CSS and comes to the front
+    var vis = tiles.filter(function (t) { return !t.hidden; }), n = vis.length; if (!n) return;
+    var avail = handEl.clientWidth, w = vis[0].offsetWidth || 112, m = 6;
+    if (avail > 0 && n * w + (n - 1) * m > avail) m = n > 1 ? (avail - n * w) / (n - 1) : 0;
+    vis.forEach(function (t, k) { t.style.marginLeft = k ? Math.floor(m) + 'px' : '0'; t.style.zIndex = t.classList.contains('pf-picked') ? '6' : String(k + 1); });
+  }
+  window.addEventListener('resize', fan);
   function select(i) {
     if (!usable(i)) return;
     if (selected !== null) { tiles[selected].classList.remove('pf-picked'); tiles[selected].setAttribute('aria-pressed', 'false'); }

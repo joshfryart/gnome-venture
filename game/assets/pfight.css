@@ -225,3 +225,37 @@
 .pf-boardmode .pf-hand { padding: .2rem 0; }
 .advgrid.fighting.pfover .encounter { padding: .4rem .5rem; }
 .advgrid.fighting.pfover .helpfold { margin: .2rem 0 0; font-size: .75rem; }
+
+/* ---- layout C: one status bar (you | resolve | creature), a one-line history, a big board, a fanned hand ---- */
+.pfc-top { display: flex; align-items: center; gap: .4rem; padding: .25rem .4rem; border-radius: .5rem; background: rgba(0, 0, 0, .3); }
+.pfc-me, .pfc-foe { display: flex; align-items: center; gap: .3rem; flex: 0 1 auto; min-width: 0; }
+.pfc-foe { justify-content: flex-end; text-align: right; }
+.pfc-top .pfx-bar, .pfc-top .pf-bar { flex: 1 1 8rem; min-width: 5rem; width: auto; margin: 0; }
+.pfc-av { position: relative; display: block; width: 44px; height: 44px; flex: none; }
+.pfc-av img, .pfc-av svg { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.pfc-av .pf-intent-bubble { position: absolute; left: -26px; top: -22px; }
+.pfc-top .pf-hp { display: flex; align-items: center; gap: .2rem; font-size: .7rem; }
+.pfc-top .pf-hp progress { width: 3.2rem; }
+.pfc-fname { display: grid; font-size: .72rem; line-height: 1.15; min-width: 0; }
+.pfc-fname small { font-size: .62rem; opacity: .8; }
+.pfc-fname b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pf-boardmode .pf-hist { flex-wrap: nowrap; overflow: hidden; }
+.pf-boardmode .pfb-board { width: 100%; }
+.pf-boardmode .pf-buttons { justify-content: center; }
+.pf-boardmode .pf-buttons .btn { flex: 0 0 auto; padding-inline: 1.6rem; }
+.pf-boardmode .pf-buttons .primary { padding-inline: 2.6rem; }
+/* the fan: pieces overlap (pfboard.js sets the overlap to fit the row); the picked one rises and comes to the front */
+.pf-boardmode .pf-tray { display: flex; flex-wrap: nowrap; align-items: flex-end; gap: .2rem; }
+.pf-boardmode .pf-tray .pf-hand { order: 0; flex: 1 1 0; min-width: 0; flex-wrap: nowrap; justify-content: center; overflow: visible; padding: .5rem .2rem .1rem; }
+.pf-boardmode .pf-tray .pf-pile { flex: none; display: grid; width: 2.6rem; padding: .1rem; border: 0; gap: 0; justify-items: center; font-size: .65rem; }
+.pf-boardmode .pf-tray .pf-pile small { display: none; }
+.pf-boardmode .pf-hand .pf-bp { flex: none; position: relative; transition: transform .12s; }
+.pf-boardmode .pf-hand .pf-bp:hover { z-index: 5; }
+.pf-boardmode .pf-hand .pf-bp.pf-picked { z-index: 6; transform: translateY(-.7rem); outline: 0; }
+.pf-boardmode .pf-hand .pf-bp.pf-picked canvas { filter: drop-shadow(0 0 3px #e8a317) drop-shadow(0 0 1px #e8a317); }
+.pfc-log { font-size: .72rem; }
+.pfc-log summary { cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .pf-boardmode .pf-hand .pf-bp { transition: none; } }
+.pf-boardmode { grid-template-columns: minmax(0, 1fr); } .pf-boardmode > * { min-width: 0; }
+.pfx-art .pfc-av .pf-intent-bubble, .pfc-av .pf-intent-bubble { left: auto; right: -6px; top: auto; bottom: -16px; width: 42px; height: 36px; background-size: 42px 36px; z-index: 3; }
+.pfx-art .pfc-av .pf-intent-bubble .pfh-ico { left: 6px; top: 1px; width: 30px; height: 30px; }
