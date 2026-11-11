@@ -80,6 +80,14 @@ N=0; while [ $N -lt 40 ]; do
   if [ "$MV" = "PASS" ]; then CODE=$(pf pfb_pass); elif [ "$MV" = "NONE" ]; then break; else CODE=$(pf pfb_play -d moves="$MV"); fi
   [ "$CODE" = "302" ] || { echo "FAIL play returned $CODE"; FAILS=$((FAILS+1)); break; }
   N=$((N+1))
+  if [ "$(db "SELECT encounter LIKE '%\"won\":%' FROM expeditions ORDER BY id DESC LIMIT 1")" = "1" ]; then   # won: the fight waits for the End fight button
+    get adventure.php >/dev/null; ck "a won fight waits for End fight" "$(grep -c 'id="pf-end"' $H)" "1"
+    ck "a won fight is still on until you end it" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" "0"
+    pf pfb_play -d moves="0,1,1" >/dev/null; ck "no more plays after the win" "$(db "SELECT encounter LIKE '%\"won\":%' FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
+    ck "End fight: redirect" "$(pf pf_finish)" "302"
+    get adventure.php >/dev/null; ck "the end scene (chest, loot) plays after End fight" "$(grep -c 'id="fightscene"' $H | awk '{print ($1>=1)?"yes":"no"}')" "yes"
+    break
+  fi
 done
 ck "fight ended" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
 get adventure.php >/dev/null

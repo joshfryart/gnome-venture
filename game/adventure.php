@@ -67,7 +67,11 @@ if (is_post()) {
         $enc = $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
         if ($enc && $enc['type'] === 'creature' && pfight_on($u)) {   // puzzle combat: only its own actions count (an old attack button from a stale page does nothing)
             if ($do === 'pfb_preview') pfight_preview_out($u, $exp);   // read only; answers JSON and exits
-            if (in_array($do, ['pf_play', 'pfb_play', 'pfb_pass', 'pf_run', 'pf_redraw'], true)) pfight_do($u, $exp, $do);
+            if (in_array($do, ['pf_play', 'pfb_play', 'pfb_pass', 'pf_run', 'pf_redraw', 'pf_finish'], true)) {
+                $fev0 = fight_ev_start($exp, $enc); fight_ev();   // the end scene (the chest and the loot drawn in) is kept for the next page, like the old fight's
+                pfight_do($u, $exp, $do);
+                fight_ev_save($fev0, $exp);
+            }
         } elseif ($enc && $enc['type'] === 'creature') {
             $fev0 = fight_ev_start($exp, $enc); fight_ev();   // fight events for the fight scene: both sides' health now, then whatever this action records
             if (in_array($do, ['attack', 'ability', 'flee'], true) || preg_match('/^palskill:[a-z0-9_-]{1,48}$/', $do)) {   // v2.3.8: palskill:KEY = a rare pal's active

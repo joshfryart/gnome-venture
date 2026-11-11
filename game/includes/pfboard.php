@@ -12,6 +12,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/pfight.php';
 
 const PFB_W = 7, PFB_H = 5, PFB_LIFE = 3, PFB_MAX_PLACE = 1;   // one action a turn: place a piece, place the piece group you set aside, or set pieces aside (connect them in your hand)
+const PFB_FOE_MIN = 2;                       // if the creature has fewer than this many pieces on the board after its turn, the board puts one out for it (it grows into place)
 const PFB_GROUP_MAX = 3;                      // a set-aside group holds 2 or 3 pieces; a 3-piece group cannot take more
 const PFB_GROUP_MULT = [2 => 1.0, 3 => 1.25]; // the values of a placed group's pieces (3 pieces play for maximum effect)
 const PFB_BAR_MULT = 0.7, PFB_FOE_MULT = 0.62;   // the resolve bar vs strip mode, and a factor on the creature's piece values (one piece a turn each side). Tuned by tests/pfboard_sim.php: small 3.2, medium 4.2, large 4.5, boss 6.6 turns, defeats under 3%
@@ -247,13 +248,41 @@ function pfb_check_after(array $s, int $id): int
     return count(pfb_links($s, $id));
 }
 
-/** Expire old pieces at the end of a round: back to their owner's discard. */
-function pfb_expire(array &$s): void
+/** Expire old pieces at the end of a round (after everything has scored): back to their owner's discard. Returns what left, for the replay. */
+function pfb_expire(array &$s): array
 {
+    $gone = [];
     foreach ($s['pcs'] as $id => $p) if ($p['born'] <= $s['round'] - PFB_LIFE + 1) {
         $s[$p['by']]['discard'][] = $p['tile'];
+        $gone[] = $p;
         unset($s['cell'][$p['x'] . ',' . $p['y']], $s['pcs'][$id]);
     }
+    return $gone;
+}
+
+/** Which creature hand piece starts the board or refills it: its gentlest non-Hurt piece. */
+function pfb_anchor_pick(array $s): ?int
+{
+    $hand = $s['foe']['hand']; if (!$hand) return null;
+    $pick = null;
+    foreach ($hand as $i => $t) if ($t['t'] !== 'hurt' && ($pick === null || $t['v'] < $hand[$pick]['v'])) $pick = $i;
+    return $pick ?? 0;
+}
+
+/** After the creature's turn: if it has fewer than PFB_FOE_MIN pieces out, put one of its gentlest pieces on the board (nothing fires for it). Returns the new piece's id or null. */
+function pfb_spawn(array &$s): ?int
+{
+    if (count(array_filter($s['pcs'], fn($p) => $p['by'] === 'foe')) >= PFB_FOE_MIN) return null;
+    $pick = pfb_anchor_pick($s); if ($pick === null) return null;
+    $tile = $s['foe']['hand'][$pick];
+    $cells = $s['pcs'] ? pfb_cells($s, $tile) : [[intdiv(PFB_W, 2), intdiv(PFB_H, 2)]];
+    if (!$cells) return null;
+    [$x, $y] = $cells[pf_rand($s, count($cells))];
+    array_splice($s['foe']['hand'], $pick, 1);
+    $id = ++$s['pid']; $s['seq']++;
+    $s['pcs'][$id] = ['id' => $id, 'by' => 'foe', 'tile' => $tile, 'x' => $x, 'y' => $y, 'born' => $s['round'], 'seq' => $s['seq']];
+    $s['cell']["$x,$y"] = $id;
+    return $id;
 }
 
 // ---------------------------------------------------------------- the creature's play
@@ -321,9 +350,7 @@ function pfb_new(array $me, array $c, int $seed, array $opt = []): array
     $s['mode'] = 'board'; $s['strip'] = []; $s['pcs'] = []; $s['cell'] = []; $s['pid'] = 0; $s['seq'] = 0; $s['round'] = 1;
     $n = in_array($s['size'], ['large', 'boss'], true) ? 2 : 1;
     for ($k = 0; $k < $n; $k++) {
-        $hand = $s['foe']['hand']; $pick = null;
-        foreach ($hand as $i => $t) if ($t['t'] !== 'hurt' && ($pick === null || $t['v'] < $hand[$pick]['v'])) $pick = $i;
-        $pick ??= 0;
+        $pick = pfb_anchor_pick($s); if ($pick === null) continue; $hand = $s['foe']['hand'];
         $cells = $s['pcs'] ? null : [[intdiv(PFB_W, 2), intdiv(PFB_H, 2)]];
         $tile = $hand[$pick]; $cells ??= pfb_cells($s, $tile);
         if (!$cells) continue;
@@ -405,10 +432,12 @@ function pfb_fx(array $ev): array
 
 function pfb_end_round(array &$s): void
 {
-    pfb_expire($s);
+    $gone = pfb_expire($s);
     pf_draw($s, 'foe', $s['foe']['hsize']);
     $s['turn']++; $s['round']++;
     pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + PF_DRAW));
+    $s['gone'] = array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'tile' => $p['tile'], 'age' => $s['round'] - 1 - $p['born']], $gone);   // for the replay: they are shown until everything has scored, then they go
+    $s['spawn'] = pfb_spawn($s);
     if ($s['turn'] > PF_TURN_CAP) { $s['over'] = $s['boss'] ? 'defeat' : 'stall'; return; }
     pfb_intent($s);
 }
@@ -434,7 +463,8 @@ function pfb_view(array $s): array
     $v['mode'] = 'board'; $v['w'] = PFB_W; $v['h'] = PFB_H; $v['fx'] = $s['fx'] ?? [];
     $g = $s['me']['held'] ?? null;
     $v['held'] = $g ? ['pcs' => array_map(fn($p) => ['n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'x' => $p['x'], 'y' => $p['y']], $g['pcs']), 'spots' => pfb_group_spots($s, $g)] : null;
-    $v['pcs'] = array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born'], 'seq' => $p['seq'], 'new' => $s['turn'] > 1 && $s['round'] - $p['born'] === 1], $s['pcs']));
+    $v['pcs'] = array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born'], 'seq' => $p['seq'], 'spawn' => ($s['spawn'] ?? null) === $p['id']], $s['pcs']));
+    $v['gone'] = array_map(fn($g) => ['id' => $g['id'], 'by' => $g['by'], 'x' => $g['x'], 'y' => $g['y'], 'n' => $g['tile']['n'], 't' => $g['tile']['t'], 'v' => $g['tile']['v'], 'tag' => $g['tile']['tag'], 'm' => (string)($g['tile']['m'] ?? ''), 'e' => pfb_edges($g['tile']), 'age' => $g['age']], $s['gone'] ?? []);
     foreach ($v['hand'] as $i => $t) $v['hand'][$i]['e'] = pfb_edges($s['me']['hand'][$i]);
     unset($v['strip'], $v['open'], $v['open_t'], $v['open_v'], $v['open_by']);
     return $v;

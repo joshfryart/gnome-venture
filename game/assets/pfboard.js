@@ -14,7 +14,10 @@
   var optsEl = document.getElementById('pf-opts');
   var tiles = Array.prototype.slice.call(handEl.querySelectorAll('.pf-tile'));
   var moves = [], selected = null, submitted = false, redrawMode = false, picked = null, playing = false, replayed = false;   // moves: at most one planned action {k:'p'|'c'|'j'|'h', ...}
-  var glows = [], fxOn = !(data.replay && data.replay.length), glowTimer = 0, frame = 0;
+  var replayKey = 'pfr:' + ((form.querySelector('[name=nonce]') || {}).value) + ':' + ((form.querySelector('[name=turn]') || {}).value), willReplay = false;
+  try { willReplay = !!(data.replay && data.replay.length && !window.sessionStorage.getItem(replayKey)); } catch (e) { willReplay = !!(data.replay && data.replay.length); }
+  var showGone = willReplay, hideSpawn = willReplay, animateSpawn = false, histEl = root.querySelector('.pf-hist');   // pieces that left this turn stay until everything has scored; a piece the board adds for the creature waits until then too
+  var glows = [], fxOn = !willReplay, glowTimer = 0, frame = 0;
   var world = null, vz = 1, vx = 0, vy = 0, viewKey = '', moved = false;
   // zoom and pan of the play area: wheel on a computer, pinch and drag on a phone, + - and reset buttons for everyone
   function clampView() {
@@ -83,7 +86,8 @@
   }
   function working() {   // the board as it stands with my planned piece (or group) on it
     var m = {}, n = 0;
-    data.pcs.forEach(function (p) { m[p.x + ',' + p.y] = p; n++; });
+    if (showGone) (data.gone || []).forEach(function (g) { m[g.x + ',' + g.y] = Object.assign({ gone: true }, g); n++; });
+    data.pcs.forEach(function (p) { if (hideSpawn && p.spawn) return; m[p.x + ',' + p.y] = p; n++; });
     var mv = moves[0];
     if (mv && mv.k === 'p') { m[mv.x + ',' + mv.y] = { x: mv.x, y: mv.y, by: 'me', t: data.hand[mv.i].t, e: data.hand[mv.i].e, tag: data.hand[mv.i].tag, m: data.hand[mv.i].m, ghost: true, n: tiles[mv.i].dataset.name, v: tiles[mv.i].dataset.v }; n++; }
     if (mv && mv.k === 'c' && data.held) {
@@ -186,7 +190,7 @@
     return ['h', m.b, m.anc, m.side].join(',');
   }
   function place(x, y) {
-    if (selected === null || playing || submitted) return;
+    if (selected === null || playing || submitted || data.won) return;
     moves = [selected === 'group' ? { k: 'c', x: x, y: y } : { k: 'p', i: selected, x: x, y: y }];
     clearPicks(); selected = null; render();
   }
@@ -220,8 +224,9 @@
     for (var y = y0; y <= y1; y++) for (var x = x0; x <= x1; x++) {
       var key = x + ',' + y, p = b.map[key], cell;
       if (p) {
-        cell = document.createElement('div'); cell.className = 'pfb-cell' + (p.ghost ? ' pfb-planned' : '');
-        if (p.id !== undefined && !p.ghost) { cell.dataset.id = String(p.id); cell.classList.add('pfb-tap'); cell.setAttribute('role', 'button'); cell.tabIndex = 0; cell.setAttribute('aria-label', (p.by === 'foe' ? 'Creature piece: ' : 'Your piece: ') + p.n + ', ' + p.t + ' ' + p.v + '. Press for details.'); }
+        cell = document.createElement('div'); cell.className = 'pfb-cell' + (p.ghost ? ' pfb-planned' : '') + (p.gone ? ' pfb-gone' : '') + (p.spawn && animateSpawn ? ' pfb-spawn' : '');
+        if (p.id !== undefined && !p.ghost && p.gone) cell.dataset.id = String(p.id);
+        else if (p.id !== undefined && !p.ghost) { cell.dataset.id = String(p.id); cell.classList.add('pfb-tap'); cell.setAttribute('role', 'button'); cell.tabIndex = 0; cell.setAttribute('aria-label', (p.by === 'foe' ? 'Creature piece: ' : 'Your piece: ') + p.n + ', ' + p.t + ' ' + p.v + '. Press for details.'); }
         if (art) {
           var cv = P.piece({ size: 'strip', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: p.age >= LIFE1, num: p.v, tint: data.tint });
           cv.className = 'pfb-cv'; cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', (p.by === 'foe' ? 'Creature piece: ' : 'Your piece: ') + p.n + ', ' + p.t + ' ' + p.v + (p.age >= LIFE1 ? ', expires this round' : ''));
@@ -282,12 +287,13 @@
     tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, m: data.hand[i].m, rar: modRar(data.hand[i].m), edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); var hb = modBadge(data.hand[i].m); if (hb) t.appendChild(hb); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
     fan(); renderHeld(); showJoinChips(); planAsk();
-    var busy = playing || submitted;
+    var busy = playing || submitted || !!data.won;
+    var endBtn = document.getElementById('pf-end'); if (endBtn) endBtn.disabled = playing;
     undo.disabled = busy || (moves.length === 0 && selected === null); go.disabled = busy || moves.length === 0;
     var fits = anyFits();
     if (pform) pform.hidden = !(moves.length === 0 && !fits && selected === null);
     var sel = typeof selected === 'number' ? tiles[selected] : null, hasJoin = !!(sel && joinOptions(selected).length);
-    prev.textContent = playing ? 'Watch the chain: each piece is scored in turn.' : redrawMode ? 'Tap the piece to swap for a fresh one.'
+    prev.textContent = playing ? 'Watch the chain: each piece is scored in turn.' : data.won ? 'It is over. End the fight to collect your reward.' : redrawMode ? 'Tap the piece to swap for a fresh one.'
       : sel ? sel.dataset.name + ': ' + sel.dataset.desc.split('. ')[0] + '. Pick a lit spot' + (hasJoin ? ' or set it aside.' : '.')
       : selected === 'group' ? hintText || 'Pick a lit spot for the group.'
       : moves.length === 0 ? (fits ? 'Pick a piece, then a lit spot. One piece a turn.' : 'Nothing fits. You can pass.')
@@ -339,7 +345,7 @@
   }
 
   // ---- tap a piece on the board (or watch it being scored): what it is and how long it stays
-  function pieceById(id) { var r = null; data.pcs.forEach(function (p) { if (p.id === id) r = p; }); return r; }
+  function pieceById(id) { var r = null; data.pcs.forEach(function (p) { if (p.id === id) r = p; }); (data.gone || []).forEach(function (g) { if (g.id === id) r = g; }); return r; }
   function pieceInfo(p) {
     var t = (p.by === 'foe' ? 'The creature\u2019s ' : 'Your ') + p.t + ' ' + p.v + '.', tg = data.tags && data.tags[p.tag], md = data.mods && data.mods[p.m], left = (data.life || 2) - p.age;
     return t + (tg ? ' ' + tg[0] + ' ' + tg[1] + '.' : '') + (md ? ' Upgrade ' + md[1] + ': ' + (md[3] || '') + '.' : '') + (left <= 1 ? ' It leaves the board at the end of this round.' : ' It stays for ' + left + ' more rounds.');
@@ -358,7 +364,9 @@
   }
 
   // ---- the replay: after a turn, each piece that scored is lit in turn with its line, the bar and health following
-  var playEl = document.getElementById('pf-play'), skipBtn = document.getElementById('pf-skip'), playTimers = [];
+  var skipBtn = document.getElementById('pf-skip'), playTimers = [], forceReplay = false;
+  function revealChip(k) { if (!histEl) return; var c = histEl.querySelector('.pf-chip-new[data-ev="' + k + '"]'); if (c) { c.hidden = false; c.classList.add('pf-chip-in'); } histEl.scrollLeft = 0; }
+  function revealAllChips() { if (!histEl) return; Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-new[hidden]'), function (c) { c.hidden = false; }); histEl.scrollLeft = 0; }
   function setBar(now, max) {
     var h = root.querySelector('.pfx-fill.hurt'), c = root.querySelector('.pfx-fill.charm'); if (!max) return;
     var fin = data.bar || 0, f = Math.max(0, Math.min(1, now / max)), k = fin > 0 ? f / (fin / max) : 0;
@@ -366,28 +374,36 @@
     var pr = root.querySelector('.pf-bar progress'); if (pr) pr.value = now;
   }
   function setHp(v) { var pr = root.querySelector('.pfc-top .pf-hp progress'); if (pr) pr.value = v; }
-  function stopPlay() {
+  function afterLeave() {   // everything has scored and the old pieces are gone: the board adds a creature piece if it is short, growing into place
+    showGone = false; fxOn = true; render();
+    if (hideSpawn) { hideSpawn = false; animateSpawn = true; render(); animateSpawn = false; }
+  }
+  function stopPlay(skipped) {
     playTimers.forEach(clearTimeout); playTimers = []; playing = false; replayed = true;
-    if (playEl) { playEl.hidden = true; } if (skipBtn) skipBtn.hidden = true;
+    if (skipBtn) skipBtn.hidden = true;
+    revealAllChips();
     Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
     if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.hp !== undefined) setHp(data.hp);
-    if (insp) insp.hidden = true; root.classList.remove('pf-playing'); fxOn = true; render();
+    if (insp) insp.hidden = true; root.classList.remove('pf-playing');
+    var gone = boardEl.querySelectorAll('.pfb-gone');
+    if (gone.length && skipped !== true) { Array.prototype.forEach.call(gone, function (c) { c.classList.add('pfb-leaving'); }); playTimers.push(setTimeout(afterLeave, 800)); }
+    else afterLeave();
   }
   function maybeReplay() {
     var P = window.PFParts;
-    if (replayed || playing || !data.replay || !data.replay.length) { replayed = true; return; }
-    if (data.parts && !(P && P.ok)) return;   // wait for the art so the pieces are there to light up
-    var key = 'pfr:' + (form.querySelector('[name=nonce]') || {}).value + ':' + (form.querySelector('[name=turn]') || {}).value;
-    try { if (window.sessionStorage.getItem(key)) { replayed = true; return; } window.sessionStorage.setItem(key, '1'); } catch (e) {}
+    if (replayed || playing) return;
+    if (!data.replay || !data.replay.length || !willReplay) { replayed = true; showGone = false; hideSpawn = false; revealAllChips(); return; }
+    if (data.parts && !(P && P.ok) && !forceReplay) return;   // wait for the art so the pieces are there to light up (but not for ever)
+    try { window.sessionStorage.setItem(replayKey, '1'); } catch (e) {}
     replayed = true; playing = true; fxOn = false; root.classList.add('pf-playing');
-    if (playEl) { playEl.textContent = ''; playEl.hidden = false; } if (skipBtn) skipBtn.hidden = false;
+    if (skipBtn) skipBtn.hidden = false;
     if (data.replay0) { setBar(data.replay0.bar, data.barmax); setHp(data.replay0.hp); }
     var step = 950;
     data.replay.forEach(function (ev, k) {
       playTimers.push(setTimeout(function () {
         Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
         if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); var pc = pieceById(ev.id); if (pc) { picked = ev.id; showText(pc.n, pieceInfo(pc), pc); } }
-        if (playEl) { var li = document.createElement('li'); li.textContent = ev.ln; li.className = ev.by === 'me' ? 'you' : 'foe'; playEl.appendChild(li); li.scrollIntoView && li.scrollIntoView({ block: 'nearest' }); }
+        revealChip(k);
         if (ev.bar !== null && ev.bar !== undefined) setBar(ev.bar, data.barmax); if (ev.hp !== null && ev.hp !== undefined) setHp(ev.hp);
       }, (k + 1) * step));
     });
@@ -427,7 +443,7 @@
   }
   window.addEventListener('resize', fan);
   function select(i) {
-    if (playing || submitted) return;
+    if (playing || submitted || data.won) return;
     if (!usable(i)) return;
     clearPicks(); hideOpts(); moves = []; if (insp) insp.hidden = true;
     selected = selected === i ? null : i;
@@ -484,10 +500,11 @@
   }
   var inspX = document.getElementById('pfi-x'); if (inspX) inspX.addEventListener('click', function () { insp.hidden = true; picked = null; Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-picked'), function (c) { c.classList.remove('pfb-picked'); }); });
   var planElX = document.getElementById('pf-plan'); if (planElX) planElX.addEventListener('click', function () { planElX.classList.toggle('open'); });
-  if (skipBtn) skipBtn.addEventListener('click', stopPlay);
+  if (skipBtn) skipBtn.addEventListener('click', function () { stopPlay(true); });
   window.addEventListener('pageshow', function (e) { if (e.persisted) location.reload(); });
   if (window.__pfbOff) window.__pfbOff();   // a swapped-in copy of this script: let go of the old one's listeners and timer
   document.addEventListener('pfparts-ready', render);
+  setTimeout(function () { if (!replayed && !playing) { forceReplay = true; render(); } }, 4000);   // the art never came: play the replay with the plain pieces
   window.__pfbOff = function () { document.removeEventListener('pfparts-ready', render); window.removeEventListener('resize', fan); clearInterval(glowTimer); playTimers.forEach(clearTimeout); };
   window.pfbLegal = legal;   // for the parity test
   render();

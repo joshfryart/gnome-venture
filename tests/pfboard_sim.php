@@ -144,6 +144,14 @@ if ($r['err'] || empty($x['me']['held']) || !array_filter($r['ev'], fn($e) => !e
 if (pfb_play($x, [[0, 1, 1], [0, 2, 2]], $x['turn'])['err'] === null) { echo "FAIL two actions in one turn\n"; $bad++; }
 $y = pfb_new(['hp' => 40, 'max_hp' => 40, 'stats' => $st, 'deck' => pf_player_deck($st), 'luck' => 0], $mkc, 5);
 if (pfb_play($y, [['c', 3, 2]], $y['turn'])['err'] === null) { echo "FAIL played a group that was never set aside\n"; $bad++; }
+// the board keeps the creature supplied: with fewer than two of its pieces out after its turn, one is put out (not fired); pieces that expire are listed for the replay (they scored first)
+$s = $fresh(); $s['pcs'] = []; $s['cell'] = []; $s['round'] = 5; pfb_end_round($s);
+$foeOut = count(array_filter($s['pcs'], fn($p) => $p['by'] === 'foe'));
+if ($s['spawn'] === null || $foeOut !== 1) { echo "FAIL no creature piece was put out when it had none ({$foeOut})\n"; $bad++; }
+$s = $fresh(); $s['pcs'] = []; $s['cell'] = []; $put($s, 'foe', $T('a', 'guard', 2, 'body'), 2, 2); $put($s, 'foe', $T('b', 'guard', 2, 'body'), 4, 2); $s['round'] = 1; pfb_end_round($s);
+if ($s['spawn'] !== null || count($s['pcs']) !== 2) { echo "FAIL a piece was put out although the creature already had two\n"; $bad++; }
+$s = $fresh(); $s['pcs'] = []; $s['cell'] = []; $old = $put($s, 'me', $h, 2, 2); $put($s, 'foe', $T('c', 'guard', 2, 'body'), 4, 2); $put($s, 'foe', $T('d', 'guard', 2, 'body'), 5, 2); $s['pcs'][$old]['born'] = 1; $s['round'] = 3; pfb_end_round($s);
+if (!in_array($old, array_column($s['gone'], 'id'), true) || isset($s['pcs'][$old])) { echo "FAIL an expired piece is not listed in gone (or is still on the board)\n"; $bad++; }
 // stale turn, bad moves, determinism, no leaks
 $st = ['level' => 3, 'grit' => 1, 'nimble' => 1, 'hardiness' => 1, 'charm' => 1, 'lore' => 1, 'luck' => 0];
 $mk = fn() => pfb_new(['hp' => 40, 'max_hp' => 40, 'stats' => $st, 'deck' => pf_player_deck($st), 'luck' => 0], $mkc, 77);

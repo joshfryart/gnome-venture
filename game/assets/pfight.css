@@ -336,3 +336,29 @@
   .advgrid.fighting.pfover .encounter { padding: .25rem .3rem; }
   .pf-boardmode { gap: .25rem; }
 }
+
+/* ---- the history bar is the log (newest on the left, scrolls sideways); leaving pieces; a piece the board adds ---- */
+.pf-boardmode .pf-hist { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+.pf-boardmode .pf-chip { flex: none; }
+.pf-boardmode .pf-chip[hidden] { display: none; }
+.pf-chip-in { animation: pf-chip-in .4s ease-out; }
+@keyframes pf-chip-in { from { opacity: 0; transform: translateX(-34px) scale(.8); } to { opacity: 1; transform: none; } }
+.pfb-cell.pfb-leaving { animation: pfb-leave .75s ease-in forwards; }
+@keyframes pfb-leave { to { opacity: 0; transform: scale(.55) translateY(-12%); } }
+.pfb-cell.pfb-spawn { animation: pfb-spawn 2.2s ease-out both; transform-origin: 50% 50%; z-index: 6; }
+@keyframes pfb-spawn { 0% { opacity: 0; transform: scale(.05); } 55% { opacity: 1; transform: scale(1); } 63% { transform: translateX(-4%) rotate(-3deg); } 71% { transform: translateX(4%) rotate(3deg); } 79% { transform: translateX(-3%) rotate(-2deg); } 87% { transform: translateX(3%) rotate(2deg); } 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .pfb-cell.pfb-leaving, .pfb-cell.pfb-spawn, .pf-chip-in { animation: none; } .pfb-cell.pfb-leaving { opacity: 0; } }
+
+/* the fight is won: the board waits for End fight (after the replay of the last turn) */
+.pf-won { display: flex; align-items: center; justify-content: center; gap: .6rem; flex-wrap: wrap; padding: .3rem .5rem; border: 2px solid #e8a317; border-radius: .6rem; background: rgba(232, 163, 23, .15); }
+.pf-endform { margin: 0; }
+#pf-end { font-size: 1rem; padding: .45rem 1.4rem; animation: pf-pulse 1.6s ease-in-out infinite; }
+#pf-end:disabled { animation: none; opacity: .5; }
+@keyframes pf-pulse { 50% { box-shadow: 0 0 0 4px rgba(232, 163, 23, .5); } }
+@media (prefers-reduced-motion: reduce) { #pf-end { animation: none; } }
+.pf-won ~ .pf-tray { opacity: .55; pointer-events: none; }
+/* the status bar: your health, the resolve bar and the creature never overlap (the bar gives way) */
+.pfc-me { flex: none; }
+.pfc-top .pfx-bar, .pfc-top .pf-bar { flex: 1 1 0; min-width: 0; }
+.pfc-foe { flex: 0 1 auto; min-width: 0; max-width: 38%; }
+.pfc-top .pf-hp { flex: none; }

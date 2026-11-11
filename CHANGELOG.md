@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.6.56
+- **Puzzle combat, board mode: End fight.** Playing the winning piece no longer closes the fight and drops the loot at once. The last turn plays back, the board shows that the creature is beaten (or charmed), and an **End fight** button collects the reward and plays the chest scene again (the foe falls, the chest opens, the loot is drawn in). Fights lost still end at once. The end scene is also kept for the strip mode and for a knock-out.
+- **The history bar is the log.** One chip per scored piece (icon, what it did, combos), newest on the left, scrolls sideways; the text log is gone. After a turn the chips drop in one at a time as each piece scores.
+- **Pieces that expire leave after they have scored**: during the replay you still see them (and they are lit if they scored), then they fade away.
+- **The creature always has at least two pieces on the board**: if it has fewer after its turn, the board puts out one (nothing fires for it); it grows into place and shakes.
+- **Your health is never covered**: the status bar (you, resolve bar, creature) no longer overlaps at 360 px; checked in the tests.
+- Tests: spawn and expiry rules in `pfboard_sim`; a won fight waits for End fight, no more plays after the win, and the end scene plays (`pfboard.sh`); the browser test checks the status bar at 412 and 360 px.
+
 ## 2.6.55
 - **Puzzle combat, board mode: the creature puts down exactly one piece a turn**, so only the chain that piece makes fires (before, a boss or a large creature could put down two pieces and two unconnected groups scored). New test: no side ever fires two separate chains in one turn.
 - **Phone: the whole fight fits one screen.** One-line history with the book and discard counts beside it, a smaller play area, a one-line hint, the buttons in one row, and the hand at its real size without overlap (5 pieces across, easy to tap). The piece card is now a sheet over the bottom (close it with the cross); a tapped hand piece shows its short text in the hint line. Tips and the last turn's log are under one "More" fold.
