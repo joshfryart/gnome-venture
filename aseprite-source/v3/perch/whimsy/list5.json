@@ -1,0 +1,135 @@
+[
+{
+"key": "mm-gatepost-hoot",
+"name": "Gatepost Hoot",
+"rarity": "rare",
+"shape": "whimsy-owl",
+"blurb": "Watches the lane from the gatepost and hoots at the sheep."
+},
+{
+"key": "th-tall-tiptoe",
+"name": "Tall Tiptoe",
+"rarity": "rare",
+"shape": "whimsy-giraffe",
+"blurb": "Reaches the top leaves before anybody else is out of bed."
+},
+{
+"key": "pl-frt-6",
+"name": "Barrow Icecrown",
+"rarity": "rare",
+"shape": "whimsy-icecrown",
+"blurb": "The frost toad\u2019s spare crown of ice, still croaking when nobody looks."
+},
+{
+"key": "pl-sbs-6",
+"name": "Silverback Spool",
+"rarity": "rare",
+"shape": "whimsy-spider",
+"blurb": "The big spider\u2019s spare spool, still humming its old web song."
+},
+{
+"key": "pl-smk-6",
+"name": "Sleepy Salamander",
+"rarity": "rare",
+"shape": "whimsy-salamander",
+"blurb": "A pocket fire salamander that snores little smoke puffs in its sleep."
+},
+{
+"key": "pl-bvd-6",
+"name": "Dam Captain",
+"rarity": "rare",
+"shape": "whimsy-beaver",
+"blurb": "A beaver captain whose flat tail keeps time for the whole dam while it chews."
+},
+{
+"key": "pl-pgg-6",
+"name": "Quartermaster Gull",
+"rarity": "rare",
+"shape": "whimsy-gull",
+"blurb": "A pirate gull in a tricorn hat who counts the loot twice and the fish three times."
+},
+{
+"key": "pl-tcb-6",
+"name": "Bridgewalk Marmot",
+"rarity": "rare",
+"shape": "whimsy-marmot",
+"blurb": "A chibi marmot crossing the high rope bridge with a walnut held up like a prize."
+},
+{
+"key": "pl-cblo-6",
+"name": "Hilltop Teahouse",
+"rarity": "rare",
+"shape": "whimsy-teahouse",
+"blurb": "A little teahouse with curly eaves and a warm window, who waves at everyone on the hill path."
+},
+{
+"key": "pl-gaun-6",
+"name": "Pampas Rider",
+"rarity": "rare",
+"shape": "whimsy-horse",
+"blurb": "A chibi gaucho gnome riding his chibi horse across the pampas, tipping his hat to every cow."
+},
+{
+"key": "pl-oliv-6",
+"name": "Pressed Gold",
+"rarity": "rare",
+"shape": "whimsy-olive",
+"blurb": "A plump olive that was squeezed into the finest golden oil and is quite proud of it."
+},
+{
+"key": "pl-turt-6",
+"name": "Moonshell Hatchling",
+"rarity": "rare",
+"shape": "whimsy-hatchling",
+"blurb": "A chibi hatchling with a moonlit shell, who leads the others down to the water."
+},
+{
+"key": "pl-wfla-6",
+"name": "Stallkeeper Plumeling",
+"rarity": "rare",
+"shape": "whimsy-stallbird",
+"blurb": "A small flamingo who minds the feather stall and counts every plume twice."
+},
+{
+"key": "pl-wlig-6",
+"name": "Candlehead Crab",
+"rarity": "rare",
+"shape": "whimsy-lampcrab",
+"blurb": "A crab who holds up a lit candle in each claw so the boats can find the rocks."
+},
+{
+"key": "pl-wpry-6",
+"name": "Redsaddle Yak",
+"rarity": "rare",
+"shape": "whimsy-yak",
+"blurb": "A shaggy yak in a red saddle who carries the wishes up the pass, one slow step at a time."
+},
+{
+"key": "pl-sung-6",
+"name": "Hullmate Octopus",
+"rarity": "rare",
+"shape": "whimsy-octopus",
+"blurb": "A chibi red octopus with big startled eyes, tucked beside the hull and waving a curly arm."
+},
+{
+"key": "pl-labi-6",
+"name": "Plinth Riddler",
+"rarity": "rare",
+"shape": "whimsy-stonegnome",
+"blurb": "A chibi stone gnome in a grey pointy hat, who asks the same riddle and waits very patiently."
+},
+{
+"key": "pl-skyc-6",
+"name": "Trailpack Cubbie",
+"rarity": "rare",
+"shape": "whimsy-bearcub",
+"blurb": "A chibi brown cub with a red pack, perched on the cliff edge and gazing out at the sky."
+},
+{
+"key": "pl-volc-6",
+"name": "Sunhat Spicer",
+"rarity": "rare",
+"shape": "whimsy-spicegnome",
+"blurb": "A chibi gnome with a straw cone hat and a brown beard, gathering spice for the market below."
+}
+]
