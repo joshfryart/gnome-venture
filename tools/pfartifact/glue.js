@@ -11,7 +11,7 @@
     { slug: 'grass-snake', name: 'Grass Snake', size: 'large', level: 14, dmg_die: 8, dmg_bonus: 3, temper: 'gentle', blurb: 'Large and gentle. Charm it, or wear it down.' },
     { slug: 'black-bear', name: 'Black Bear', size: 'large', level: 25, dmg_die: 8, dmg_bonus: 6, temper: 'hostile', blurb: 'Large and wary. Hits hard; bring guard.' }
   ];
-  var PLAYER = { level: 9, hp: 46, stats: { level: 9, grit: 1, nimble: 1, hardiness: 1, charm: 1, lore: 1, luck: 1 },
+  var PLAYER = { level: 9, hp: 64, stats: { level: 9, grit: 1, nimble: 1, hardiness: 1, charm: 1, lore: 1, luck: 1 },
     box: ['swing', 'jab', 'pierce', 'sting', 'bash', 'dodge', 'brace', 'rest', 'charm', 'offer', 'hum'], mods: { swing: 'leech', charm: 'warm', dodge: 'hardy' } };
   var fight = null, selectedCreature = 0, seedN = (Date.now() % 100000) | 0, result = null;
 

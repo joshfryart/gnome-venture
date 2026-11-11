@@ -381,7 +381,7 @@
     if (histEl) Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-sel'), function (x) { x.classList.remove('pf-chip-sel'); });
     c.classList.add('pf-chip-sel');
     if (c.dataset.bar !== '' && c.dataset.bar !== undefined) setBar(+c.dataset.bar, data.barmax); if (c.dataset.hp !== '' && c.dataset.hp !== undefined) setHp(+c.dataset.hp);
-    if (rwT) rwT.textContent = 'Rewound: ' + (c.getAttribute('aria-label') || '').split('. Press')[0];
+    var rt = c.querySelector('.pfh-txt'); if (rwT) rwT.textContent = 'Rewound to: ' + (c.classList.contains('foe') ? (data.foe || 'Creature') : 'You') + ', ' + (rt ? rt.textContent : 'a move') + '.';
     if (rewindEl) rewindEl.hidden = false; root.classList.add('pf-rewound'); render();
   }
   function chipTap(c) { if (playing || submitted) return; if (rewind && rewind.chip === c) exitRewind(); else if (c === newestChip()) exitRewind(); else enterRewind(c); }
