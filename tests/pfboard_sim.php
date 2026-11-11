@@ -130,7 +130,7 @@ if (pfb_connect($s, 'me', null, 0, 'R', 2) === null) { echo "FAIL a fourth piece
 // a flat contact does not link, so it cannot be set aside
 $f1 = $T('f1', 'hurt', 3, null); $f2 = $T('f2', 'hurt', 3, null); $s2 = $fresh(); $s2['me']['hand'] = [$f1, $f2];
 if (pfb_connect($s2, 'me', 0, 1, 'R') === null || !empty($s2['me']['held'])) { echo "FAIL a flat joint was accepted for a group\n"; $bad++; }
-// playing the group of three: all three fire, the newest first, values x1.25
+// playing the group of three: all three fire, the newest first, values x PFB_GROUP_MULT[3]
 $s = $fresh(); $s['me']['hand'] = [$g1, $g2, $g3]; $s['foe']['hand'] = [];
 pfb_connect($s, 'me', 0, 1, 'R'); pfb_connect($s, 'me', null, 0, 'R', 1);
 $held = $s['me']['held']; $total0 = count($s['me']['hand']) + count($s['me']['draw']) + count($s['me']['discard']) + count($held['pcs']);
@@ -142,7 +142,7 @@ else {
     if (!$ev || $names[0] !== 'g3' || count($names) !== 3) { echo "FAIL group chain order: " . json_encode($names) . "\n"; $bad++; }
     if (!empty($s['me']['held']) || count($s['pcs']) !== 3) { echo "FAIL the group was not put on the board\n"; $bad++; }
     $heal = array_values(array_filter($ev ?? [], fn($e) => $e['n'] === 'g3'))[0] ?? null;
-    if ($heal && $heal['v'] !== (int)round(3 * 1.25)) { echo "FAIL a group of three did not play at x1.25 (got {$heal['v']})\n"; $bad++; }
+    if ($heal && $heal['v'] !== (int)round(3 * PFB_GROUP_MULT[3])) { echo "FAIL a group of three did not play at x" . PFB_GROUP_MULT[3] . " (got {$heal['v']})\n"; $bad++; }
     $cnt = count($s['me']['hand']) + count($s['me']['draw']) + count($s['me']['discard']) + count(array_filter($s['pcs'], fn($p) => $p['by'] === 'me'));
     if ($cnt !== $total0) { echo "FAIL tiles lost when a group was placed: $cnt vs $total0\n"; $bad++; }
 }

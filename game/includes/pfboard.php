@@ -14,7 +14,9 @@ require_once __DIR__ . '/pfight.php';
 const PFB_W = 7, PFB_H = 5, PFB_LIFE = 3, PFB_MAX_PLACE = 1;   // one action a turn: place a piece, place the piece group you set aside, or set pieces aside (connect them in your hand)
 const PFB_FOE_MIN = 2;                       // if the creature has fewer than this many pieces on the board after its turn, the board puts one out for it (it grows into place)
 const PFB_GROUP_MAX = 3;                      // a set-aside group holds 2 or 3 pieces; a 3-piece group cannot take more
-const PFB_GROUP_MULT = [2 => 1.0, 3 => 1.25]; // the values of a placed group's pieces (3 pieces play for maximum effect)
+const PFB_GROUP_MULT = [2 => 1.0, 3 => 1.5]; // the values of a placed group's pieces (3 pieces play for maximum effect; 2.6.61: was 1.25, which never paid for the two turns it takes)
+const PFB_BOSS_MULT = 1.2;                    // 2.6.61: a boss's pieces count this much more (bosses cost ~11% HP at their own level, large creatures ~30%)
+const PFB_BLANK_FOE_MULT = 1.2;              // 2.6.61: the creature's pieces count this much more in the blank-centre variant (its free start piece and shorter chains made it ~half as costly as classic)
 const PFB_BAR_MULT = 0.7, PFB_FOE_MULT = 0.62;   // the resolve bar vs strip mode, and a factor on the creature's piece values (one piece a turn each side). Tuned by tests/pfboard_sim.php: small 3.2, medium 4.2, large 4.5, boss 6.6 turns, defeats under 3%
 const PFB_SIDE = ['L' => [-1, 0, 'R'], 'R' => [1, 0, 'L'], 'T' => [0, -1, 'B'], 'B' => [0, 1, 'T']];   // side => [dx, dy, the neighbour's side that touches it]
 
@@ -120,8 +122,9 @@ function pfb_chain(array $s, int $root): array
 function pfb_fire(array &$s, int $root): array
 {
     $ev = [];
-    foreach (pfb_chain($s, $root) as [$id, $par]) {
-        if ($s['over']) break;
+    $chain = pfb_chain($s, $root);
+    foreach ($chain as $ci => [$id, $par]) {
+        if ($s['over']) { $s['cut'] = ($s['cut'] ?? 0) + count($chain) - $ci; break; }   // the fight ended mid-chain: how many linked pieces did not fire (for the harness and replay)
         $p = $s['pcs'][$id]; $who = $p['by']; $tile = $p['tile'];
         if ($who === 'none') continue;   // the blank centre piece does nothing itself; the chain runs through it
         $pt = $par !== null ? $s['pcs'][$par] : null;
@@ -312,12 +315,15 @@ function pfb_expire(array &$s): array
 }
 
 /** Which creature hand piece starts the board or refills it: its gentlest non-Hurt piece. */
-function pfb_anchor_pick(array $s): ?int
+function pfb_anchor_pick(array &$s): ?int
 {
     $hand = $s['foe']['hand']; if (!$hand) return null;
     $pick = null;
     foreach ($hand as $i => $t) if ($t['t'] !== 'hurt' && ($pick === null || $t['v'] < $hand[$pick]['v'])) $pick = $i;
-    return $pick ?? 0;
+    if ($pick !== null) return $pick;
+    // 2.6.61: a hand of nothing but Hurt used to put a Hurt out as the "gentlest non-Hurt" piece (3% of starts, 50 creatures; it fires in your first chain). Swap in the top non-Hurt piece of the draw pile instead.
+    foreach (array_reverse(array_keys($s['foe']['draw'])) as $di) if ($s['foe']['draw'][$di]['t'] !== 'hurt') { $s['foe']['hand'][] = $s['foe']['draw'][$di]; array_splice($s['foe']['draw'], $di, 1); return count($s['foe']['hand']) - 1; }
+    return 0;
 }
 
 /** After the creature's turn: if it has fewer than PFB_FOE_MIN pieces out, put one of its gentlest pieces on the board (nothing fires for it). Returns the new piece's id or null. */
@@ -396,7 +402,8 @@ function pfb_foe_turn(array &$s, int $extra): array
 function pfb_new(array $me, array $c, int $seed, array $opt = []): array
 {
     $s = pf_new($me, $c, $seed, $opt);
-    foreach (['hand', 'draw', 'discard'] as $z) foreach ($s['foe'][$z] as $i => $t) $s['foe'][$z][$i]['v'] = max(1, (int)round($t['v'] * PFB_FOE_MULT));
+    $fm = PFB_FOE_MULT * ($s['size'] === 'boss' ? PFB_BOSS_MULT : 1.0) * (!empty($opt['blank']) ? PFB_BLANK_FOE_MULT : 1.0);
+    foreach (['hand', 'draw', 'discard'] as $z) foreach ($s['foe'][$z] as $i => $t) $s['foe'][$z][$i]['v'] = max(1, (int)round($t['v'] * $fm));
     $s['bar']['max'] = round($s['bar']['max'] * PFB_BAR_MULT, 1); $s['fh']['max'] = $s['bar']['max'];
     $s['mode'] = 'board'; $s['strip'] = []; $s['pcs'] = []; $s['cell'] = []; $s['pid'] = 0; $s['seq'] = 0; $s['round'] = 1;
     if (!empty($opt['blank'])) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see pfb_start)
@@ -477,6 +484,7 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null,
     $mv = $moves[0]; $bad = ['ev' => [], 'err' => 'Those moves are not valid.'];
     if (!is_array($mv) || !$mv) return $bad;
     $w = $s;   // work on a copy: anything illegal means nothing happens
+    $w['reshuf'] = []; $w['cut'] = 0;
     pfb_begin($w, 'me');
     $ev = [];
     if (is_int($mv[0])) {
@@ -538,9 +546,10 @@ function pfb_end_round(array &$s): void
 function pfb_pass(array &$s, int $turn): array
 {
     if ($s['over'] || $turn !== $s['turn']) return ['ev' => [], 'err' => $s['over'] ? 'The fight is over.' : 'stale'];
+    if (!empty($s['start'])) return ['ev' => [], 'err' => 'Pick your start piece first.'];
     foreach ($s['me']['hand'] as $t) if (pfb_cells($s, $t)) return ['ev' => [], 'err' => 'You still have a piece that fits somewhere.'];
     if (!empty($s['me']['held']) && pfb_group_spots($s, $s['me']['held'])) return ['ev' => [], 'err' => 'Your set-aside group still fits somewhere.'];
-    $w = $s; pfb_begin($w, 'me');
+    $w = $s; $w['reshuf'] = []; $w['cut'] = 0; pfb_begin($w, 'me');
     $ev = pfb_foe_turn($w, 0); foreach ($ev as $i => $e0) $ev[$i]['ta'] = 'foe';
     $w['fx'] = pfb_fx($ev);
     if (!$w['over']) pfb_end_round($w);

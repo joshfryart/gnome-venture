@@ -13,6 +13,7 @@ const PF_CHAIN_MAX = 4;
 const PF_TURN_CAP = 24;
 /** Resolve bar = pace turns x K x (base + slope x creature level); bosses use their own K. Tuned with tests/pfight_sim.php (a realistic gnome: stat modifier about (level+3)/14). */
 const PF_GENTLE_HM = 0.8;   // gentle creatures: Hurt counts this much on the bar (Charm counts fully); tuned with tests/pfboard_sim.php
+const PF_HOSTILE_CM = 0.6;  // hostile creatures: Charm counts this much on the charm bar (2.6.61: was 0.4, so charming a hostile creature was only slower and riskier)
 const PF_BAR_K = 1.7, PF_BAR_BOSS = 2.0, PF_BAR_BASE = 5, PF_BAR_SLOPE = 0.4;
 const PF_FOE_DMG = 1.4, PF_FOE_BOSS = 0.78;   // foe tile values scale with its damage die; bosses hit a little softer so a long fight is survivable
 
@@ -218,7 +219,7 @@ function pf_box_check(array $keys, int $cap): ?string
     return null;
 }
 
-/** Foe temperament: gentle creatures take Charm well (resolve x1) and Hurt badly (x0.5); hostile the reverse. */
+/** Foe temperament: gentle creatures take Charm well (charm x1) and Hurt less well (x PF_GENTLE_HM = 0.8); hostile take Hurt x1 and Charm x PF_HOSTILE_CM = 0.6. */
 function pf_temper(array $c): string
 {
     if (!empty($c['temper'])) return (string)$c['temper'];
@@ -268,7 +269,7 @@ function pf_new(array $me, array $c, int $seed, array $opt = []): array
     $boss = $size === 'boss';
     $temper = pf_temper($c);
     $hm = $temper === 'hostile' ? 1.0 : PF_GENTLE_HM;   // Hurt multiplier on the bar
-    $cm = $temper === 'hostile' ? 0.4 : 1.0;   // Charm multiplier (wary creatures are hard to win over)
+    $cm = $temper === 'hostile' ? PF_HOSTILE_CM : 1.0;   // Charm multiplier (wary creatures are hard to win over)
     if ($boss && empty($opt['boss_charm'])) { $hm = 1.0; $cm = 0.0; }   // story bosses: see off only
     $s = ['rng' => $seed ?: 1, 'nonce' => bin2hex(random_bytes(4)), 'turn' => 1, 'over' => null, 'strip' => [], 'log' => [],
         'hm' => $hm, 'cm' => $cm, 'boss' => $boss, 'temper' => $temper, 'size' => $size,
@@ -301,6 +302,7 @@ function pf_draw(array &$s, string $who, int $upTo): void
             if (!$p['discard']) return;
             $p['draw'] = ($who === 'foe' && !empty($p['ordered'])) ? array_reverse($p['discard']) : pf_shuffle($s, $p['discard']); $p['discard'] = [];
             $p = &$s[$who];
+            $s['reshuf'][] = $who;   // for the turn's replay and the playtest harness: this side's draw pile was refilled from its discard
         }
         $p['hand'][] = array_pop($p['draw']);
     }

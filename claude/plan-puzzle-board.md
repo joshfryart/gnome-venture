@@ -45,3 +45,11 @@ Status: engine, sim, page wiring and a working screen are done (setting `pfight_
 1. Upgrade marks and rarity trim art (glyph badges stand in).
 2. Balance with real players; creature pieces' edges per species; foes have no tactics of their own.
 3. Treks still use the old fight.
+
+## Changed in 2.6.61 (from the 2.6.60 playtest, `docs/puzzle-board-playtest-2.6.60.md`)
+- **Creature start piece** is never Hurt: when its whole hand is Hurt, the top non-Hurt piece of its draw pile is swapped in (`pfb_anchor_pick`). It used to put a Hurt out (3% of starts, 50 creatures) and it fired in your first chain.
+- **Multipliers:** hostile creatures take Charm x`PF_HOSTILE_CM` = 0.6 (was 0.4); gentle creatures take Hurt x`PF_GENTLE_HM` = 0.8, Charm x1. A boss's pieces count x`PFB_BOSS_MULT` = 1.2; a placed 3-piece group plays x1.5 (was 1.25). Charm wins also roll the species' seed and Gardening Guide drops (they used to skip them).
+- **Blank-centre start (opt-in, harness only, `pfb_new(..., ['blank' => true])` + `pfb_start`):** a blank wild piece (fits and links everything, fires nothing) sits in the centre; both sides put a start piece on one of its four sides, hidden; if they collide yours stays and the creature takes the next free side; the blank vanishes at the end of round 1 and its cell is an open site, start pieces keep nothing. The creature's pieces count x`PFB_BLANK_FOE_MULT` = 1.2 in this variant (a free start piece made it about half as costly as classic).
+- **State notes** the engine now keeps for the replay and harness: `reshuf` (a draw pile was refilled from its discard), `cut` (linked pieces that did not fire because the fight ended mid-chain). `pfb_pass` refuses in the start phase.
+- **Not done:** start pieces keeping their links after the blank leaves (you decided they become open sites); per-creature tuning of the slow outliers and the ~15 duplicate-deck groups (content authoring, listed in the playtest report).
+- Tests: `tests/pfboard_fixes.php` (each fix watched failing on the 2.6.60 engine, passing now), `tests/pfboard_tune.php` (win / turns / HP lost by size, at the creature's level and 8 below, classic and blank).

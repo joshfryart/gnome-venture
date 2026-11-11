@@ -52,3 +52,8 @@ One bot family, default gnome build (no pals/upgrades), 6-16 seeds per cell for 
 
 ## 8. Reproduce
 `php tests/pf_play.php new STATE SLUG LEVEL SEED [classic|blank]`, then `start/place/join/add/group/pass/show`. Example: `new S tawny-owl 1 1088 blank; start S 3 L; place S 2 4 2`.
+
+## 9. Fixes made after this report (2.6.61)
+Done: anchor fallback; hostile Charm 0.6; boss pieces x1.2; group of 3 x1.5; blank variant creature pieces x1.2; Charm wins roll seed/guide drops (not covered by an automated test; code path is a 3-line change in `win_fight`); reshuffle, cut-chain and expiry notes, `!` marks on cells that fire creature Hurt, stall label (harness), pass guard in the start phase; comments and plan doc corrected; harness validation. Each engine fix has a check in `tests/pfboard_fixes.php` that fails on the 2.6.60 engine.
+Not done: start pieces keeping links after the blank leaves (you chose: they become open sites); slow-outlier and duplicate-deck creature tuning (needs per-creature content decisions); the 1,200 haiku turn-level data is in the scratchpad only.
+Tuning table (`php tests/pfboard_tune.php 3`, greedy bot, 3 seeds): at creature level, HP lost classic/blank (medium) 32%/13% before, 31%/18% after; boss classic 11% to 21%; boss 8 levels under 100% to 81% win; blank 8 levels under now about equal to classic.

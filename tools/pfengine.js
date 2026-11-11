@@ -22,7 +22,8 @@
   var PF_BAR_K = 1.7, PF_BAR_BOSS = 2.0, PF_BAR_BASE = 5, PF_BAR_SLOPE = 0.4;
   var PF_FOE_DMG = 1.4, PF_FOE_BOSS = 0.78;
   var PFB_W = 7, PFB_H = 5, PFB_LIFE = 3, PFB_FOE_MIN = 2, PFB_GROUP_MAX = 3;
-  var PFB_GROUP_MULT = { 2: 1.0, 3: 1.25 };
+  var PFB_GROUP_MULT = { 2: 1.0, 3: 1.5 };
+  var PFB_BOSS_MULT = 1.2;
   var PFB_BAR_MULT = 0.7, PFB_FOE_MULT = 0.62;
   var PFB_SIDE = { L: [-1, 0, 'R'], R: [1, 0, 'L'], T: [0, -1, 'B'], B: [0, 1, 'T'] };
   var PF_BOX_MIN = 6;
@@ -300,7 +301,7 @@
   function pfNew(me, c, seed, opt) {
     opt = opt || {};
     var size = String(nn(c.size, 'small')), boss = size === 'boss', tp = temper(c);
-    var hm = tp === 'hostile' ? 1.0 : PF_GENTLE_HM, cm = tp === 'hostile' ? 0.4 : 1.0;
+    var hm = tp === 'hostile' ? 1.0 : PF_GENTLE_HM, cm = tp === 'hostile' ? 0.6 : 1.0;
     if (boss && !truthy(opt.boss_charm)) { hm = 1.0; cm = 0.0; }
     var luck = toInt(nn(me.luck, 0));
     var s = {
@@ -740,7 +741,9 @@
     var hand = s.foe.hand; if (!hand.length) return null;
     var pick = null;
     for (var i = 0; i < hand.length; i++) if (hand[i].t !== 'hurt' && (pick === null || hand[i].v < hand[pick].v)) pick = i;
-    return pick === null ? 0 : pick;
+    if (pick !== null) return pick;
+    for (var di = s.foe.draw.length - 1; di >= 0; di--) if (s.foe.draw[di].t !== 'hurt') { s.foe.hand.push(s.foe.draw[di]); s.foe.draw.splice(di, 1); return s.foe.hand.length - 1; }
+    return 0;
   }
 
   function foeCount(s) { var n = 0; for (var id in s.pcs) if (s.pcs[id].by === 'foe') n++; return n; }
@@ -815,7 +818,7 @@
   // ------------------------------------------------------------------ the whole fight
   function newFight(me, c, seed, opt) {
     var s = pfNew(me, c, seed, opt);
-    ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t) { t.v = Math.max(1, iround(t.v * PFB_FOE_MULT)); }); });
+    ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t) { t.v = Math.max(1, iround(t.v * PFB_FOE_MULT * (s.size === 'boss' ? PFB_BOSS_MULT : 1.0))); }); });
     s.bar.max = round(s.bar.max * PFB_BAR_MULT, 1); s.fh.max = s.bar.max;
     s.mode = 'board'; s.strip = []; s.pcs = {}; s.cell = {}; s.pid = 0; s.seq = 0; s.round = 1;
     var n = s.size === 'boss' ? 2 : 1;

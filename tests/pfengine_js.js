@@ -21,7 +21,8 @@ function first(a, b, p) {
     for (let i = 0; i < Math.max(a.length, b.length); i++) { if (i >= a.length || i >= b.length) return { p: p + '[' + i + ']', php: a[i], js: b[i] }; const d = first(a[i], b[i], p + '[' + i + ']'); if (d) return d; }
     return null;
   }
-  const ka = Object.keys(a), kb = Object.keys(b);
+  const SKIP = ['reshuf', 'cut'];   // harness/replay notes the PHP engine keeps (reshuffle and cut-chain counters); the demo port does not
+  const ka = Object.keys(a).filter(k => !SKIP.includes(k)), kb = Object.keys(b).filter(k => !SKIP.includes(k));
   for (const k of ka) { if (!(k in b)) return { p: p + '.' + k, php: a[k], js: '(missing)' }; const d = first(a[k], b[k], p + '.' + k); if (d) return d; }
   for (const k of kb) if (!(k in a)) return { p: p + '.' + k, php: '(missing)', js: b[k] };
   if (ka.join() !== kb.join()) return { p: p + ' (key order)', php: ka.join(), js: kb.join() };

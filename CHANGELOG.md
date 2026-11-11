@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased (2.6.61)
+- Puzzle board fixes from the 2.6.60 playtest: the creature's start piece is never Hurt (swapped for a non-Hurt from its draw pile); hostile creatures take Charm at x0.6 (was x0.4); bosses' pieces x1.2; a 3-piece group plays x1.5 (was x1.25); a puzzle Charm win also rolls seed and Gardening Guide drops. Engine notes `reshuf` and `cut`; `pfb_pass` refuses before the start piece in the blank-centre variant. JS demo engine follows. Tests: `pfboard_fixes`, `pfboard_tune`. See `claude/plan-puzzle-board.md`.
+
 ## 2.6.60
 
 - Puzzle fight: the picture banner (gnome and creature on a landscape) above the panel and the "About the creature" fold under it are gone, and the info pop-up's piece picture is smaller.
