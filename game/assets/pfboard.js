@@ -92,6 +92,7 @@
     var TW = art ? VW * S.pitch[0] + 2 * S.tab[0] : 0, TH = art ? VH * S.pitch[1] + 2 * S.tab[1] : 0;
     boardEl.style.aspectRatio = art ? TW + ' / ' + TH : (VW * 1.45) + ' / ' + VH;
     boardEl.classList.toggle('pfb-arted', !!art);
+    boardEl.style.maxWidth = art ? Math.round(TW * 1.5) + 'px' : '';   // a small play area: pieces at most 1.5x
     function put(el, x, y) {
       x -= x0; y -= y0;
       if (art) { el.style.left = (x * S.pitch[0] * 100 / TW) + '%'; el.style.top = (y * S.pitch[1] * 100 / TH) + '%'; el.style.width = (S.piece[0] * 100 / TW) + '%'; el.style.height = (S.piece[1] * 100 / TH) + '%'; }

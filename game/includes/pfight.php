@@ -617,7 +617,7 @@ function pf_view(array $s): array
         'hp' => $s['me']['hp'], 'max' => $s['me']['max'], 'block' => $s['me']['block'],
         'hand' => array_map(fn($t) => ['n' => $t['n'], 't' => $t['t'], 'v' => $t['v'], 'r' => $t['r'], 'hole' => PF_HOLE[$t['t']], 'tag' => $t['tag'], 'm' => (string)($t['m'] ?? '')], $s['me']['hand']),
         'redraws' => $s['me']['redraws'],
-        'bar' => ['now' => round($s['bar']['now'], 1), 'max' => $s['bar']['max']],
+        'bar' => ['now' => round($s['bar']['now'], 1), 'max' => $s['bar']['max'], 'hurt' => round($s['bar']['hurt'], 1), 'charm' => round($s['bar']['charm'], 1)],
         'foe' => ['name' => $s['foe']['name'], 'hand' => count($s['foe']['hand']), 'intent' => $s['foe']['intent'], 'block' => $s['foe']['block'], 'calm' => $s['foe']['agg']],
         'piles' => ['draw' => count($s['me']['draw']), 'discard' => count($s['me']['discard'])], 'strip' => $strip, 'open' => $open, 'open_t' => $ot['t'] ?? null, 'open_v' => $ot['v'] ?? 0, 'open_by' => $oby, 'can_run' => $s['run_ok'], 'combos' => PF_COMBOS,
     ];

@@ -215,6 +215,25 @@ function pfight_line(array $e, string $foe): string
 }
 
 /** URL of a delivered pfight art file, or null (a missing file always falls back to the emoji and CSS look). Checked once per file per request. */
+/** A file of the parts kit (assets/img/pfight/parts/), or null. */
+function pfight_part(string $file): ?string
+{
+    static $c = [];
+    if (!array_key_exists($file, $c)) $c[$file] = is_file(__DIR__ . '/../assets/img/pfight/parts/' . $file) ? url('assets/img/pfight/parts/' . $file) : null;
+    return $c[$file];
+}
+
+/** The resolve bar: the art frame with Hurt filling from the left and Charm from the right (widths set by assets/pfx.js from data-w, no inline styles), or a plain progress bar. */
+function pfight_bar_html(array $v): string
+{
+    $b = $v['bar']; $max = max(0.1, (float)$b['max']); $now = (float)$b['now']; $hu = (float)($b['hurt'] ?? 0); $ch = (float)($b['charm'] ?? 0);
+    $label = 'Resolve ' . (int)$b['now'] . ' of ' . (int)$b['max'] . ($hu + $ch > 0 ? ' (hurt ' . (int)round($hu) . ', charm ' . (int)round($ch) . ')' : '');
+    if (!pfight_part('resolve-frame.png')) return '<div class="pf-bar" role="img" aria-label="' . e($label) . '"><progress max="' . $max . '" value="' . $now . '"></progress></div>';
+    $tot = max(0.001, $hu + $ch); $f = min(1.0, $now / $max);
+    $hw = $hu + $ch > 0 ? $f * $hu / $tot : $f; $cw = $hu + $ch > 0 ? $f * $ch / $tot : 0.0;
+    return '<div class="pf-bar pfx-bar" role="img" aria-label="' . e($label) . '"><span class="pfx-fill hurt" data-w="' . round($hw * 100, 1) . '"></span><span class="pfx-fill charm" data-w="' . round($cw * 100, 1) . '"></span><img class="pfx-frame" src="' . e((string)pfight_part('resolve-frame.png')) . '" alt=""></div>';
+}
+
 function pfight_art(string $file): ?string
 {
     static $c = [];
@@ -291,7 +310,7 @@ function pfight_html(array $u, array $exp, array &$enc, array $c): string
     $v = pf_view($s);
     $nonce = e((string)$s['nonce']);
     $sm = fn(string $t) => ($i = pfight_art('ico-' . $t . '-s.png')) ? '<img class="pfh-ico" src="' . e($i) . '" alt="">' : '<span class="pfh-emo" aria-hidden="true">' . e(pfight_icon($t)) . '</span>';   // small type icon, or the emoji
-    $h = '<div class="pfight pf-screen" id="pfight" data-turn="' . (int)$v['turn'] . '" data-open="' . e((string)($v['open'] ?? '')) . '" data-opent="' . e((string)($v['open_t'] ?? '')) . '" data-openv="' . (int)$v['open_v'] . '" data-openby="' . e((string)($v['open_by'] ?? '')) . '" data-redraws="' . (int)$v['redraws'] . '">';
+    $h = '<div class="pfight pf-screen' . (pfight_part('resolve-frame.png') ? ' pfx-art' : '') . '" id="pfight" data-turn="' . (int)$v['turn'] . '" data-open="' . e((string)($v['open'] ?? '')) . '" data-opent="' . e((string)($v['open_t'] ?? '')) . '" data-openv="' . (int)$v['open_v'] . '" data-openby="' . e((string)($v['open_by'] ?? '')) . '" data-redraws="' . (int)$v['redraws'] . '">';
 
     // 5. history bar: one chip per chain that fired, newest at the right (YOU solid, FOE dashed)
     $h .= '<ol class="pf-hist" aria-label="What has been played" aria-live="polite">';
@@ -313,7 +332,7 @@ function pfight_html(array $u, array $exp, array &$enc, array $c): string
     $h .= '<div class="pf-side pf-foe"><div class="pf-sprite">' . $foeImg . '<span class="pf-intent-bubble" title="Likely next move" aria-label="Likely next move: ' . e((string)$v['foe']['intent']) . '">' . $sm((string)$v['foe']['intent']) . '</span></div><b class="pf-nameplate">' . e((string)$c['name']) . '</b>'
         . '<small class="muted">' . e((string)$c['size']) . ' · lv ' . (int)$c['level'] . ' · ' . ($s['temper'] === 'gentle' ? 'gentle' : 'wary') . ' · 🃏 ' . (int)$v['foe']['hand'] . ($v['foe']['calm'] ? ' · 😌 ' . (int)$v['foe']['calm'] : '') . '</small></div>';
     $h .= '<div class="pf-center">';
-    $h .= '<div class="pf-bar" role="img" aria-label="Resolve ' . (int)$v['bar']['now'] . ' of ' . (int)$v['bar']['max'] . '"><progress max="' . (float)$v['bar']['max'] . '" value="' . (float)$v['bar']['now'] . '"></progress></div>';
+    $h .= pfight_bar_html($v);
     $h .= '<div class="pf-strip pf-board" aria-label="The last pieces played">';
     foreach ($v['strip'] as $t) $h .= pfight_tile_html($t, true);
     $h .= '</div>';
@@ -326,7 +345,7 @@ function pfight_html(array $u, array $exp, array &$enc, array $c): string
     $h .= '<div class="pf-buttons"><button type="button" class="btn" id="pf-undo" disabled>Undo</button><button class="btn primary" id="pf-go" form="pf-form" disabled>End turn</button></div>';
 
     // 6 hand (swipe), 7 discard, 8 puzzle book (deck)
-    $pile = fn(string $cls, string $name, string $icon, int $n) => '<div class="pf-pile ' . $cls . '" role="img" aria-label="' . $name . ': ' . $n . ' pieces">' . (($i = pfight_art($icon)) ? '<img src="' . e($i) . '" alt="">' : '<span class="pf-pile-emo" aria-hidden="true">' . ($cls === 'deck' ? '📖' : '🗑️') . '</span>') . '<b>' . $n . '</b><small>' . $name . '</small></div>';
+    $pile = fn(string $cls, string $name, string $icon, int $n) => '<div class="pf-pile ' . $cls . '" role="img" aria-label="' . $name . ': ' . $n . ' pieces">' . (($i = pfight_part($cls === 'deck' ? 'deck-book.png' : 'discard-bin.png') ?: pfight_art($icon)) ? '<img src="' . e($i) . '" alt="">' : '<span class="pf-pile-emo" aria-hidden="true">' . ($cls === 'deck' ? '📖' : '🗑️') . '</span>') . '<b>' . $n . '</b><small>' . $name . '</small></div>';
     $h .= '<div class="pf-tray">' . $pile('deck', 'Puzzle book', 'ico-deck.png', (int)$v['piles']['draw']) . '<div class="pf-hand" id="pf-hand" role="group" aria-label="Your hand (swipe sideways)">';
     foreach ($v['hand'] as $i => $t) $h .= pfight_tile_html($t, false, $i);
     $h .= '</div>' . $pile('disc', 'Discard', 'ico-discard.png', (int)$v['piles']['discard']) . '</div>';
@@ -352,7 +371,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $v = pfb_view($s);
     $nonce = e((string)$s['nonce']);
     $sm = fn(string $t) => ($i = pfight_art('ico-' . $t . '-s.png')) ? '<img class="pfh-ico" src="' . e($i) . '" alt="">' : '<span class="pfh-emo" aria-hidden="true">' . e(pfight_icon($t)) . '</span>';
-    $h = '<div class="pfight pf-screen pf-boardmode" id="pfight" data-turn="' . (int)$v['turn'] . '" data-mode="board" data-redraws="' . (int)$v['redraws'] . '">';
+    $h = '<div class="pfight pf-screen pf-boardmode' . (pfight_part('resolve-frame.png') ? ' pfx-art' : '') . '" id="pfight" data-turn="' . (int)$v['turn'] . '" data-mode="board" data-redraws="' . (int)$v['redraws'] . '">';
     $h .= '<ol class="pf-hist" aria-label="What has been played" aria-live="polite">';
     foreach ((array)($enc['hist'] ?? []) as $chip) {
         $h .= '<li class="pf-chip ' . ($chip['by'] === 'me' ? 'you' : 'foe') . '"><b class="pfh-who">' . ($chip['by'] === 'me' ? 'YOU' : 'FOE') . '</b> ';
@@ -369,14 +388,14 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '<div class="pf-side pf-foe"><div class="pf-sprite">' . $foeImg . '<span class="pf-intent-bubble" title="Likely next move" aria-label="Likely next move: ' . e((string)$v['foe']['intent']) . '">' . $sm((string)$v['foe']['intent']) . '</span></div><b class="pf-nameplate">' . e((string)$c['name']) . '</b>'
         . '<small class="muted">' . e((string)$c['size']) . ' · lv ' . (int)$c['level'] . ' · ' . ($s['temper'] === 'gentle' ? 'gentle' : 'wary') . ' · 🃏 ' . (int)$v['foe']['hand'] . ($v['foe']['calm'] ? ' · 😌 ' . (int)$v['foe']['calm'] : '') . '</small></div>';
     $h .= '<div class="pf-center">';
-    $h .= '<div class="pf-bar" role="img" aria-label="Resolve ' . (int)$v['bar']['now'] . ' of ' . (int)$v['bar']['max'] . '"><progress max="' . (float)$v['bar']['max'] . '" value="' . (float)$v['bar']['now'] . '"></progress></div>';
+    $h .= pfight_bar_html($v);
     $h .= '<div class="pfb-board" id="pfb-board" role="group" aria-label="The board: pick a piece from your hand, then a lit spot"></div>';   // JS draws the grid from #pf-data
     if (!empty($enc['last'])) { $h .= '<ol class="pf-last" aria-live="polite" aria-label="What just happened">'; foreach ($enc['last'] as $ln) $h .= '<li>' . e($ln) . '</li>'; $h .= '</ol>'; }
     $h .= '<p class="pf-preview help" id="pf-preview" aria-live="polite">Pick a piece, then a lit cell. Up to 4 pieces a turn. Newest piece plays first.</p>';
     $h .= '</div></div>';
     $h .= '<form method="post" class="pf-form" id="pf-form">' . csrf_field() . '<input type="hidden" name="do" value="pfb_play"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="moves" id="pf-moves" value=""></form>';
     $h .= '<div class="pf-buttons"><button type="button" class="btn" id="pf-undo" disabled>Undo</button><button class="btn primary" id="pf-go" form="pf-form" disabled>End turn</button></div>';
-    $pile = fn(string $cls, string $name, int $n) => '<div class="pf-pile ' . $cls . '" role="img" aria-label="' . $name . ': ' . $n . ' pieces"><span class="pf-pile-emo" aria-hidden="true">' . ($cls === 'deck' ? '📖' : '🗑️') . '</span><b>' . $n . '</b><small>' . $name . '</small></div>';
+    $pile = fn(string $cls, string $name, int $n) => '<div class="pf-pile ' . $cls . '" role="img" aria-label="' . $name . ': ' . $n . ' pieces">' . (($pi = pfight_part($cls === 'deck' ? 'deck-book.png' : 'discard-bin.png')) ? '<img src="' . e($pi) . '" alt="">' : '<span class="pf-pile-emo" aria-hidden="true">' . ($cls === 'deck' ? '📖' : '🗑️') . '</span>') . '<b>' . $n . '</b><small>' . $name . '</small></div>';
     $h .= '<div class="pf-tray">' . $pile('deck', 'Puzzle book', (int)$v['piles']['draw']) . '<div class="pf-hand" id="pf-hand" role="group" aria-label="Your hand (swipe sideways)">';
     foreach ($v['hand'] as $i => $t) $h .= pfight_board_piece_html($t, $i);
     $h .= '</div>' . $pile('disc', 'Discard', (int)$v['piles']['discard']) . '</div>';
@@ -392,7 +411,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     // the board and the hand's edges for the script (public information: the board is out in the open)
     $data = ['parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
     $h .= '<script type="application/json" id="pf-data">' . json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP) . '</script>';
-    return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfparts.js?v=' . APP_VERSION)) . '" defer></script><script src="' . e(url('assets/pfboard.js?v=' . APP_VERSION)) . '" defer></script>';
+    return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfx.js?v=' . APP_VERSION)) . '" defer></script><script src="' . e(url('assets/pfparts.js?v=' . APP_VERSION)) . '" defer></script><script src="' . e(url('assets/pfboard.js?v=' . APP_VERSION)) . '" defer></script>';
 }
 
 /** A hand piece in board mode: a button with its four edges drawn as marks. */

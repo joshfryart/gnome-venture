@@ -156,3 +156,28 @@
 .pf-bp.pf-art2 .pfe, .pf-bp.pf-art2 .pf-ico, .pf-bp.pf-art2 .pf-val, .pf-bp.pf-art2 .pf-nm { display: none; }
 .pf-bp.pf-art2.pf-picked { outline: 3px solid #e8a317; outline-offset: 2px; transform: translateY(-.4rem); }
 .pf-boardmode .pf-stage { grid-template-columns: 1fr 1fr; grid-template-areas: "me foe" "center center"; }   /* the board gets the full width, not the middle third */
+
+/* ---- the fight sits ON the route map: the map stays where it is, a scrim and the fight panel lie over it ---- */
+.advgrid.fighting.pfover { display: grid; grid-template-columns: minmax(0, 1fr); position: relative; }
+.advgrid.fighting.pfover > * { grid-area: 1 / 1; min-width: 0; }
+.advgrid.fighting.pfover > .mapcol { display: block; opacity: .55; filter: blur(1.5px) brightness(.7); pointer-events: none; }
+.advgrid.fighting.pfover .mapwrap, .advgrid.fighting.pfover .mapwrap { max-height: none; overflow: visible; }
+.advgrid.fighting.pfover .encounter { max-width: none; max-height: none; overflow: visible; align-self: stretch; z-index: 2; background: rgba(24, 14, 8, .8); border-radius: .8rem; box-shadow: 0 0 0 2px rgba(0, 0, 0, .5); animation: pf-in .25s ease-out; }
+@keyframes pf-in { from { opacity: 0; transform: scale(.98); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .advgrid.fighting.pfover .encounter { animation: none; } }
+
+/* ---- art extras from the parts kit (the .pfx-art class is only set when the files exist) ---- */
+.pfx-bar { position: relative; width: 288px; max-width: 100%; height: 36px; margin: 0 auto; }
+.pfx-bar .pfx-frame { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; pointer-events: none; z-index: 2; }
+.pfx-bar .pfx-fill { position: absolute; top: 9px; height: 18px; width: 0; background-size: 270px 18px; image-rendering: pixelated; }
+.pfx-bar .pfx-fill.hurt { left: 9px; background-image: url(img/pfight/parts/resolve-fill-hurt.png); background-position: left top; }
+.pfx-bar .pfx-fill.charm { right: 9px; background-image: url(img/pfight/parts/resolve-fill-charm.png); background-position: right top; }
+.pfx-art .pf-intent-bubble { width: 56px; height: 48px; padding: 0; border: 0; border-radius: 0; background: url(img/pfight/parts/intent-bubble.png) 0 0 / 56px 48px no-repeat; image-rendering: pixelated; top: -.6rem; right: -1rem; }
+.pfx-art .pf-intent-bubble .pfh-ico { position: absolute; left: 8px; top: 2px; width: 40px; height: 40px; }
+.pfx-art .pf-intent-bubble .pfh-emo { position: absolute; left: 16px; top: 8px; }
+.pfx-art .pf-chip { border: 10px solid transparent; border-radius: 0; padding: 0 .3rem; image-rendering: pixelated; border-image: url(img/pfight/parts/chip-me.png) 5 fill / 10px / 0 stretch; }
+.pfx-art .pf-chip.foe { border-image-source: url(img/pfight/parts/chip-foe.png); }
+.pfx-art .pf-chip.empty { border: 0; border-image: none; }
+.pfx-art .pf-pile { border: 0; }
+.pfx-art .pf-pile img { width: 40px; height: 40px; }
+.pfb-board { margin-inline: auto; }

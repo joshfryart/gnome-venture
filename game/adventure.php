@@ -309,8 +309,8 @@ if ($wi && !$isWalk): ?>
 </div>
 <?php endif; ?>
 <?php $hasMap = $trailSc || $wanderView || $mapMode || ($dv2Scene && $dv2Scene['map']); $fighting = $enc && $enc['type'] === 'creature'; $wander = $isExplore && $exp && !$fighting;   // v2.1.11: the phone wander layout (map left, info right, actions in a grid, gather in a fold); v2.1.12: event cards use it too ?>
-<div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $fighting && $hasMap && fight_scene_on() && !pfight_on($u) ? ' fsover' : '' ?><?= $wander ? ' wander' : '' ?>">
-<div class="mapcol">
+<div class="advgrid<?= $isExplore ? ' withrings' : '' ?><?= $fighting ? ' fighting' : '' ?><?= $fighting && $hasMap && fight_scene_on() && !pfight_on($u) ? ' fsover' : '' ?><?= $wander ? ' wander' : '' ?><?= $fighting && pfight_on($u) ? ' pfover' : '' ?>">
+<div class="mapcol"<?= $fighting && pfight_on($u) ? ' inert aria-hidden="true"' : '' ?>>
 <?php $pfAct = $fighting && pfight_on($u);   // puzzle combat: no old stage, no old dock
 $fsc = $fighting && fight_scene_on() && !$pfAct;   // fight_scene: the animated stage replaces the picture and the popover for a creature fight
 $overMap = $exp && fight_scene_on() && (($fighting && !$pfAct) || fight_finale_pending($exp));   // a fight (or its end scene) is drawn over whichever map the page shows
