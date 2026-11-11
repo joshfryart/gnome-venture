@@ -770,6 +770,17 @@ function post_update_news(string $from): void
         . "[*][b]Gather tab[/b]: pick which satchel to carry. [b]Yard[/b]: cover squares update as you move beds.[/list]"],
     '2.6.52' => ['🐾 Update 2.6.52: redrawn pals',
         "[list][*][b]Pals[/b]: the lizard, the gorilla, the bill-brolly bird, the coffee pal and the flower-bowl pal are redrawn so they read clearly on their perch.[/list]"],
+    '2.6.64' => ['🏆 Update 2.6.64: a tidier Contest hall, and a gift menu fix',
+        "[list][*][b]Contest hall[/b] (in the treehouse): it opens on a new [b]Contests[/b] tab with a big square for each contest: the Village Show, the Grand Harvest Fair, Garden of the Month and Pumpkin Carving. Each shows when it closes and whether you have entered. Tap one to go straight in.\n"
+        . "[*][b]Leaderboards[/b] now sit on their own tab: neat cards with the top three for each game, with medals and your own best score.\n"
+        . "[*][b]Gift menu[/b]: picking a different sort (They'll like it, By kind, A-Z) no longer closes the menu.\n"
+        . "[*][b]Shops[/b]: your basket stays put when the page refreshes, an item you already put in the basket opens at that amount, and the gift menu starts fresh each time.[/list]"],
+    '2.6.65' => ['📋 Update 2.6.65: long lists made easier on the eyes',
+        "[list][*][b]Village Show[/b]: three tabs (the week's crop, Arrangements and Hall of fame). The crop tab has a podium for the top three and a short list for the rest.\n"
+        . "[*][b]Trading Post[/b]: your stall is a set of item cards, and Gifts is an inbox of cards instead of a table.\n"
+        . "[*][b]Tools[/b] (Satchel): every tool has a card with a wear bar that turns red when it is nearly worn out.\n"
+        . "[*][b]Almanac[/b]: the front page starts with big section tiles showing your progress and what is new, and the chapter menus are now a row of buttons.\n"
+        . "[*][b]Grand Harvest Fair[/b]: one square for each class. Tap it to see your entry, enter it and read the top three.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

@@ -90,21 +90,19 @@ if ($view === 'belt') {   // v0.7.88: the toolbelt, by job. Its mend forms post 
         $brokenCopy = $best ? null : tool_broken_owned($uid, $type);
         $next = null;
         foreach (TOOL_ITEMS as $ti) if ($ti[0] === $type && $ti[1] === $tier + 1) $next = $ti;
+        $info = $best ? tool_wear_info($best, (int)q_val('SELECT wear FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$best['id']])) : null;
+        $pct = $info && $info['limit'] > 0 ? max(0, min(100, (int)round($info['left'] * 100 / $info['limit']))) : -1;
+        $using = $best ? '<b>' . e($best['name']) . '</b> <span class="ptier t' . $tier . '">' . e(TOOL_TIERS[$tier] ?? '') . '</span>'
+            : ($byHand ? '<span class="muted">By hand</span>' : '<span class="bad">None yet</span>');
+        if ($upgrade) $sub = $next ? e($next[2]) . ' · ' . ($next[1] >= 4 ? 'rare stock, or craft at a Tool Shed' : money($next[3]) . ' at Twigg’s')
+            : (in_array($type, ['broadfork', 'soiltest'], true) && !$tier ? 'Sold at Twigg’s' : 'Nothing better to make: you have the best.');
+        else $sub = e($tier ? tool_tier_text($type, $tier) : ($byHand ? 'One square at a time.' : $what));
         ob_start(); ?>
-        <tr>
-          <td data-l="Job"><?= $icon ?> <b><?= e($label) ?></b></td>
-          <td data-l="Using"><?php if ($best): ?><b><?= e($best['name']) ?></b> <span class="ptier t<?= $tier ?>"><?= e(TOOL_TIERS[$tier] ?? '') ?></span>
-            <?php elseif ($byHand): ?><span class="muted">By hand</span>
-            <?php else: ?><span class="bad">None yet</span><?php endif; ?></td>
-          <?php if (!$upgrade): ?>
-          <td class="help" data-l="What it does"><?= e($tier ? tool_tier_text($type, $tier) : ($byHand ? 'One square at a time.' : $what)) ?></td>
-          <td class="help" data-l="Wear"><?php if ($best): ?><?= e(tool_left_text($uid, $type) ?: 'Never wears out') ?>
-            <?php elseif ($brokenCopy): ?><span class="bad">💥 Broken: mend it on the Mend tab</span>
-            <?php else: ?>—<?php endif; ?></td>
-          <?php else: ?>
-          <td class="help" data-l="Next upgrade"><?php if ($next): ?><?= e($next[2]) ?> · <?= $next[1] >= 4 ? 'rare stock, or craft at a Tool Shed' : money($next[3]) . ' at Twigg’s' ?><?php elseif (in_array($type, ['broadfork', 'soiltest'], true) && !$tier): ?>Sold at Twigg’s<?php else: ?>Nothing better to make: you have the best.<?php endif; ?></td>
-          <?php endif; ?>
-        </tr>
+        <div class="tc<?= $brokenCopy || ($pct >= 0 && $pct < 25) ? ' warn' : '' ?>"><span class="ic" aria-hidden="true"><?= $icon ?></span>
+          <p><b><?= e($label) ?></b> <?= $using ?><small><?= $sub ?></small>
+          <?php if (!$upgrade): if ($pct >= 0): ?><span class="wear<?= $pct < 25 ? ' lo' : '' ?>"><i style="width:<?= $pct ?>%"></i></span><small><?= e(tool_left_text($uid, $type)) ?></small>
+          <?php elseif ($brokenCopy): ?><small class="bad">💥 Broken: mend it on the Mend tab</small>
+          <?php elseif ($best): ?><small>Never wears out</small><?php endif; endif; ?></p></div>
         <?php return (string)ob_get_clean();
     };
     ?>
@@ -130,16 +128,10 @@ if ($view === 'belt') {   // v0.7.88: the toolbelt, by job. Its mend forms post 
   <?php if ($bNow === 'garden' || $bNow === 'gather' || $bNow === 'travel'):
       $list = ['garden' => $garden, 'gather' => $adventure, 'travel' => $travel][$bNow]; ?>
   <h2><?= $bNow === 'garden' ? '🌱 Garden jobs' : ($bNow === 'gather' ? '🧺 Gathering gear' : '🥾 Travel gear') ?></h2>
-  <div class="scroll"><table class="grid">
-    <tr><th>Job</th><th>Using</th><th>What it does</th><th>Wear</th></tr>
-    <?php foreach ($list as $type => $t) echo $jobRow($type, $t); ?>
-  </table></div>
+  <div class="toolcards"><?php foreach ($list as $type => $t) echo $jobRow($type, $t); ?></div>
   <?php elseif ($bNow === 'upgrade'): ?>
   <h2>⬆️ What to make next</h2>
-  <div class="scroll"><table class="grid">
-    <tr><th>Job</th><th>Using</th><th>Next upgrade</th></tr>
-    <?php foreach (TOOL_TYPES as $type => $t) echo $jobRow($type, $t, true); ?>
-  </table></div>
+  <div class="toolcards"><?php foreach (TOOL_TYPES as $type => $t) echo $jobRow($type, $t, true); ?></div>
   <?php else:   // mend
       $worn = [];
       foreach (TOOL_TYPES as $type => $t) {
@@ -148,12 +140,11 @@ if ($view === 'belt') {   // v0.7.88: the toolbelt, by job. Its mend forms post 
       } ?>
   <h2>🔧 Worn tools</h2>
   <?php if (!$worn): ?><p class="muted">None. Nothing you carry has been used yet.</p>
-  <?php else: ?><div class="scroll"><table class="grid">
-    <tr><th>Job</th><th>Using</th><th>Wear</th></tr>
+  <?php else: ?><div class="toolcards">
     <?php foreach ($worn as $type => [$label, $icon]): $best = best_tool($uid, $type); ?>
-      <tr><td data-l="Job"><?= $icon ?> <b><?= e($label) ?></b></td><td data-l="Using"><b><?= e($best['name']) ?></b></td><td data-l="Wear"><?= tool_belt_wear_html($uid, $type, $hidBelt) ?></td></tr>
+      <div class="tc"><span class="ic" aria-hidden="true"><?= $icon ?></span><p><b><?= e($label) ?></b> <b><?= e($best['name']) ?></b><small><?= tool_belt_wear_html($uid, $type, $hidBelt) ?></small></p></div>
     <?php endforeach; ?>
-  </table></div><?php endif; ?>
+  </div><?php endif; ?>
   <h2>💥 Broken tools</h2>
   <?php if (!$brokenOwned): ?><p class="muted">None. Everything you carry is in working order.</p>
   <?php else: foreach ($brokenOwned as $b): ?>

@@ -7843,3 +7843,50 @@ button.hpick-it:focus-visible { outline: 3px solid var(--focus); outline-offset:
 .chsq .tag.cin { background: var(--brand-soft); color: var(--brand-ink); border-color: var(--brand-line); }
 .chsq em { font-style: normal; font-size: .78rem; font-weight: 700; color: var(--accent-ink); }
 .chsq:hover, .chsq:focus-visible { border-color: var(--accent-line); }
+
+/* ===== 2.6.65: tabbed contest pages (data-ptabs), hero, podium ===== */
+[data-ptabs] .chtabs { margin: 6px 0 10px; }
+[data-ptabs] .chtabs button { min-width: 0; padding: 0 6px; font-size: .88rem; }
+.ppanel[hidden] { display: none; }
+.hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin: 4px 0 10px; }
+.hero h2 { margin: 0; font-size: 1.1rem; } .hero .help { margin: 0; } .hero .herobig { font-size: 2.6rem; line-height: 1; } .heropills { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 4px 0 0; }
+.podium { display: flex; align-items: flex-end; justify-content: center; gap: 6px; margin: 12px 0 8px; }
+.podium .pod { flex: 1; min-width: 0; text-align: center; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px 10px 0 0; padding: 6px 4px; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.podium .pod i { font-style: normal; font-size: 1.6rem; line-height: 1; } .podium .pod b { font-size: .85rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .podium .pod small { font-size: .75rem; color: var(--muted); }
+.podium .p1 { min-height: 100px; background: var(--accent-soft); border-color: var(--accent-line); } .podium .p2 { min-height: 80px; } .podium .p3 { min-height: 66px; }
+.podium .pod.here { box-shadow: 0 0 0 2px var(--brand-line) inset; }
+.podrest { list-style: none; margin: 0 0 8px; padding: 0; }
+.podrest li { display: flex; align-items: baseline; gap: 8px; padding: 5px 8px; border-bottom: 1px dotted var(--line); font-size: .9rem; }
+.podrest li i { font-style: normal; flex: none; min-width: 20px; color: var(--muted); } .podrest li span { flex: 1; min-width: 0; } .podrest li b { flex: none; font-variant-numeric: tabular-nums; }
+.podrest li.here { background: var(--accent-soft); border-radius: 6px; }
+.podrest.pastlist li small { display: block; }
+
+/* 2.6.65: Trading Post stall cards and gifts inbox */
+.mkadd { margin: 6px 0 0; } .mkadd summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
+.mkgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin: 8px 0; }
+.mkcard { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; padding: 10px 6px; background: var(--surface-2); border: 2px solid var(--line); border-radius: 14px; min-width: 0; }
+.mkcard.off { opacity: .6; } .mkcard b { font-size: .9rem; } .mkcard small { color: var(--muted); } .mkcard form { margin: 4px 0 0; }
+.mkprice { background: var(--accent-soft); color: var(--accent-ink); border: 1px solid var(--accent-line); border-radius: 999px; padding: 0 8px; font-size: .78rem; }
+.mkinbox { display: grid; gap: 6px; margin: 6px 0; }
+.mkgift { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; }
+.mkgift p { margin: 0; flex: 1; min-width: 0; } .mkgift small { display: block; color: var(--muted); } .mkgift em { font-style: normal; color: var(--muted); font-size: .78rem; flex: none; } .mkgift.out { opacity: .85; }
+
+/* 2.6.65: tool cards (Satchel > Tools) */
+.toolcards { display: grid; gap: 8px; margin: 8px 0; }
+.toolcards .tc { display: flex; align-items: center; gap: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; }
+.toolcards .tc.warn { border-color: #c0502a; }
+.toolcards .tc .ic { font-size: 1.9rem; line-height: 1; flex: none; }
+.toolcards .tc p { margin: 0; flex: 1; min-width: 0; } .toolcards .tc small { display: block; color: var(--muted); }
+.toolcards .wear { display: block; height: 6px; background: rgba(0,0,0,.35); border-radius: 4px; margin: 5px 0 2px; overflow: hidden; }
+.toolcards .wear i { display: block; height: 100%; background: var(--brand-line); } .toolcards .wear.lo i { background: #c0502a; }
+
+/* 2.6.65: Almanac chapter chips and bigger section tiles */
+.almnav { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 6px 0 10px; } .almnav a { flex: none; white-space: nowrap; }
+.contents .secgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 10px 0 14px; }
+@media (min-width: 720px) { .contents .secgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.contents .seccard { align-items: center; text-align: center; padding: 14px 8px; border-radius: 14px; } .contents .seccard .secicon { font-size: 2rem; line-height: 1; }
+
+/* 2.6.65: Fair class squares and sheets */
+button.chsq { font: inherit; cursor: pointer; width: 100%; }
+.chsq .tag.ready { background: var(--accent-soft); color: var(--accent-ink); border-color: var(--accent-line); }
+.fairsheet .fsbody { padding: 4px 14px 14px; } .fairsheet h4 { margin: 10px 0 4px; }

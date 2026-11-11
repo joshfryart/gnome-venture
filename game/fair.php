@@ -45,7 +45,8 @@ endif; ?>
 <p class="gtagline">Enter your best crop in each class. Judging in <?= nice_time(job_period_left('monthly')) ?>.</p>
 <?php if (!$inPlay): ?><p class="help">You are in a time-out, so you can look but not enter this month.</p><?php endif; ?>
 
-<?php foreach (FAIR_CATS as $key => [$icon, $label]):
+<?php $tiles = ""; $sheets = "";
+foreach (FAIR_CATS as $key => [$icon, $label]):
     $mine = q_one('SELECT b.score, COALESCE(p.name, b.label) AS crop FROM fair_best b LEFT JOIN plants p ON p.id = b.plant_id
                    WHERE b.user_id = ? AND b.month = ? AND b.cat = ?', [$uid, $month, $key]);
     $entry = q_one('SELECT e.score, COALESCE(p.name, e.label) AS crop FROM fair_entries e LEFT JOIN plants p ON p.id = e.plant_id
@@ -55,38 +56,41 @@ endif; ?>
               WHERE e.month = ? AND e.cat = ? AND ' . gnome_in_play_sql('u') . ' ORDER BY e.score DESC, e.at, e.id LIMIT 3', [$month, $key])->fetchAll();
     $top = townsfolk_merge($top, townsfolk_fair($month, $key), 'score');   // v1.0.0: townsfolk enter too (never judged, never paid)
     $canEnter = $inPlay && $mine && (!$entry || (int)$mine['score'] > (int)$entry['score']);
-?>
-<div class="box fair-card">
-  <h2><?= $icon ?> <?= e($label) ?></h2>
+ob_start(); ?>
+<dialog class="picker fairsheet" id="fs-<?= e($key) ?>" aria-label="<?= e($label) ?>"><div class="pickbox">
+  <div class="pickhead"><h3><?= $icon ?> <?= e($label) ?></h3><button type="button" class="pickx" data-closedlg aria-label="Close">✕</button></div>
+  <div class="fsbody">
   <?php if ($mine): ?>
     <p>Your best: <b><?= e($mine['crop'] ?? 'a crop') ?></b>, <?= e(fair_word((int)$mine['score'])) ?> <?= (int)$mine['score'] ?></p>
   <?php else: ?>
-    <p class="muted"><?= $key === 'preserve' ? 'No jar collected yet this month. Fill a jar in your 🫙 Pantry, wait for it, and collect it.' : 'No harvest yet this month. ' . ($key === 'produce' ? 'Grow any vegetable, fruit, grain or herb and harvest it.' : 'Grow a ' . e(strtolower($label)) . ' crop and harvest it.') ?></p>
+    <p class="muted"><?= $key === 'preserve' ? 'No jar collected yet this month. Fill a jar in your 🫙 Pantry, wait for it, and collect it.' : 'No harvest yet this month. ' . ($key === 'produce' ? 'Grow any vegetable, fruit, grain or herb and harvest it.' : 'Harvest one to see it here.') ?></p>
   <?php endif; ?>
-  <?php if ($entry): ?>
-    <p class="help">In the fair: <?= e($entry['crop'] ?? 'a crop') ?>, <?= e(fair_word((int)$entry['score'])) ?> <?= (int)$entry['score'] ?></p>
-  <?php endif; ?>
+  <?php if ($entry): ?><p class="help">In the fair: <?= e($entry['crop'] ?? 'a crop') ?>, <?= e(fair_word((int)$entry['score'])) ?> <?= (int)$entry['score'] ?></p><?php endif; ?>
   <?php if ($canEnter): ?>
     <form method="post" action="<?= e(url('fair.php')) ?>"><?= csrf_field() ?>
-      <input type="hidden" name="do" value="enter">
-      <input type="hidden" name="cat" value="<?= e($key) ?>">
-      <button class="btn small" type="submit"><?= $entry ? 'Swap in the better one' : 'Enter it' ?></button>
+      <input type="hidden" name="do" value="enter"><input type="hidden" name="cat" value="<?= e($key) ?>">
+      <button class="btn" type="submit"><?= $entry ? 'Swap in the better one' : 'Enter it' ?></button>
     </form>
   <?php endif; ?>
-  <?php if ($top): ?>
-    <h3>This month’s leaders</h3>
-    <ol class="top"><?php foreach ($top as $t): ?>
-      <li><?= $t['npc'] ? '🏡 ' : '' ?><?= e($t['gname']) ?><?= $t['npc'] ? ' ' . townsfolk_tag() : '' ?>: <?= e($t['crop'] ?? 'a crop') ?>, <?= e(fair_word((int)$t['score'])) ?> <?= (int)$t['score'] ?></li>
+  <?php if ($top): $mk = ['🥇', '🥈', '🥉']; ?>
+    <h4>This month’s leaders</h4>
+    <ol class="podrest"><?php foreach ($top as $i => $t): ?>
+      <li><i aria-hidden="true"><?= $mk[$i] ?></i><span><b><?= e($t['gname']) ?></b><?= $t['npc'] ? ' ' . townsfolk_tag() : '' ?> <small class="muted"><?= e($t['crop'] ?? 'a crop') ?>, <?= e(fair_word((int)$t['score'])) ?></small></span><b><?= (int)$t['score'] ?></b></li>
     <?php endforeach; ?></ol>
     <?php if (array_filter($top, fn($t) => $t['npc'])) echo townsfolk_note(); ?>
-  <?php else: ?>
-    <p class="muted">No entries yet. Be the first!</p>
-  <?php endif; ?>
-</div>
-<?php endforeach; ?>
+  <?php else: ?><p class="muted">No entries yet. Be the first!</p><?php endif; ?>
+  </div>
+</div></dialog>
+<?php $sheets .= ob_get_clean();
+    $state = $entry ? ['✔ Entered', 'cin'] : ($canEnter ? ['Ready to enter', 'ready'] : ['Not yet', 'cout']);
+    $tiles .= '<button type="button" class="chsq' . ($entry ? ' in' : '') . '" data-opendlg="fs-' . e($key) . '"><span class="chsi" aria-hidden="true">' . $icon . '</span><b>' . e($label) . '</b>'
+        . '<small>' . ($mine ? e(fair_word((int)$mine['score'])) . ' ' . (int)$mine['score'] : 'No harvest yet') . '</small><span class="tag ' . $state[1] . '">' . $state[0] . '</span>'
+        . '<em>' . ($top ? '🥇 ' . e((string)$top[0]['gname']) : 'No entries yet') . '</em></button>';
+endforeach; ?>
+<div class="chsqs fairsqs"><?= $tiles ?></div>
+<?= $sheets ?>
 
-<div class="box fair-card">
-  <h2>Last month’s winners</h2>
+<details class="fold box"><summary>🏅 Last month’s winners</summary>
   <?php if ($wins): ?>
     <ul>
       <?php foreach ($wins as $cat => $list): ?>
@@ -98,7 +102,7 @@ endif; ?>
   <?php else: ?>
     <p class="muted">No winners were recorded for <?= e($prev) ?>.</p>
   <?php endif; ?>
-</div>
+</details>
 
 <p><a href="<?= e(url('games.php?tab=contests')) ?>">← Contests</a></p>
 <?php page_footer();

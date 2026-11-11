@@ -120,20 +120,13 @@ page_header('My Almanac');
   };
   $secNew = function (array $chs) use ($unread): int { $n = 0; foreach ($chs as $c) $n += $unread[$c] ?? 0; return $n; }; ?>
   <?php // v1.6.3: sections and chapters are two dropdowns in one row (each its own GET form; site.js sends it when a choice changes) ?>
-  <div class="pickrow">
-    <form method="get" action="<?= e(url('book.php')) ?>" class="pickform">
-      <label>Section <select name="ch" data-autosubmit>
-        <?php foreach (ALMANAC_SECTIONS as $sk => [$ic, $label, $chs]): $sn = $secNew($chs); ?><option value="<?= e($chs[0]) ?>"<?= $sk === $section ? ' selected' : '' ?>><?= $ic ?> <?= e($label) ?><?= $sn ? ' ✨' : '' ?></option><?php endforeach; ?>
-      </select></label><button class="btn small pickgo">Go</button>
-    </form>
-    <?php if (count(ALMANAC_SECTIONS[$section][2]) > 1): ?>
-    <form method="get" action="<?= e(url('book.php')) ?>" class="pickform">
-      <label>Chapter <select name="ch" data-autosubmit>
-        <?php foreach (ALMANAC_SECTIONS[$section][2] as $c): if ($c === 'Pals' && !$palsOk) continue; if (!in_array($c, ['Milestones', 'Journey', 'Guides', 'Folk', 'Glossary', 'Pals'], true) && !isset($chapters[$c])) continue; ?><option value="<?= e($c) ?>"<?= $c === $tab ? ' selected' : '' ?>><?= e($chapterLabel($c)) ?><?= ($pc = trim(html_entity_decode(strip_tags($chipCount($c))))) !== '' ? ' (' . e($pc) . ')' : '' ?></option><?php endforeach; ?>
-      </select></label><button class="btn small pickgo">Go</button>
-    </form>
-    <?php endif; ?>
-  </div>
+  <?php if ($tab !== 'Contents'): ?>
+  <nav class="chips almnav" aria-label="Almanac chapters"><a href="<?= e(url('book.php?ch=Contents')) ?>">📖 Contents</a>
+    <?php foreach (ALMANAC_SECTIONS[$section][2] as $c): if ($c === 'Pals' && !$palsOk) continue; if (!in_array($c, ['Milestones', 'Journey', 'Guides', 'Folk', 'Glossary', 'Pals'], true) && !isset($chapters[$c])) continue; ?>
+      <a class="<?= $c === $tab ? 'on' : '' ?>" href="<?= e(url('book.php?ch=' . urlencode($c))) ?>"<?= $c === $tab ? ' aria-current="page"' : '' ?>><?= e($chapterLabel($c)) ?><?= $chipCount($c) ?></a>
+    <?php endforeach; ?>
+  </nav>
+  <?php endif; ?>
 
 <?php if ($tab === 'Contents'):   // v0.7.72: the front page
     require_once __DIR__ . '/includes/journey.php';
@@ -148,7 +141,7 @@ page_header('My Almanac');
                                      ['%' . $qs . '%', $uid])->fetchAll() : [];
     $newPages = q('SELECT e.id, e.chapter, e.title FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id = ue.entry_id
                    WHERE ue.user_id = ? AND ue.read_at IS NULL ORDER BY ue.unlocked_at DESC, e.title LIMIT 80', [$uid])->fetchAll();
-    $newPages = array_slice(array_values(array_filter($newPages, fn($np) => !isset($quiet[(int)$np['id']]))), 0, 12);   // v1.6.2
+    $newPages = array_slice(array_values(array_filter($newPages, fn($np) => !isset($quiet[(int)$np['id']]))), 0, 5);   // v1.6.2
     $newTotal = array_sum($unread);
     $jc = journey_current($u);
     $jst = $jc ? journey_status($u, $jc) : null;
@@ -168,6 +161,21 @@ page_header('My Almanac');
         <?php endif; ?>
       </div>
     <?php endif; ?>
+    <div class="secgrid">
+      <?php foreach (ALMANAC_SECTIONS as $sk => [$ic, $label, $chs]): if ($sk === 'contents') continue;
+          $h = 0; $tt = 0;
+          foreach ($chs as $c) if (isset($chapters[$c])) { $h += (int)$chapters[$c]['have']; $tt += (int)$chapters[$c]['total']; }
+          if ($sk === 'journey') { $tt = count(journey_chapters()); $h = (int)q_val('SELECT COUNT(*) FROM user_quests WHERE user_id = ? AND done_at IS NOT NULL', [$uid]); }
+          if ($sk === 'growing') { $h += $guidesRead; $tt += count($guides); }
+          if ($sk === 'folk') { $h += $metN; $tt += (int)q_val('SELECT COUNT(*) FROM npcs WHERE active = 1'); }
+          $sn = $secNew($chs); ?>
+        <a class="box seccard" href="<?= e(url('book.php?ch=' . urlencode($chs[0]))) ?>">
+          <span class="secicon"><?= $ic ?></span><b><?= e($label) ?></b>
+          <small class="muted"><?= e(implode(' · ', array_map($chapterLabel, array_values(array_filter($chs, fn($c) => $c !== 'Pals' || $palsOk))))) ?></small>
+          <?php if ($tt): ?><progress max="<?= $tt ?>" value="<?= $h ?>"></progress><small><?= $h ?> of <?= $tt ?><?= $sk === 'journey' ? ' chapters' : '' ?><?= $sn ? ' · ✨ ' . $sn . ' new' : '' ?></small><?php endif; ?>
+        </a>
+      <?php endforeach; ?>
+    </div>
     <div class="cgrid">
       <div class="box ccard"><h3>✨ New pages <small><?= $newTotal ?></small></h3>
         <?php if ($newPages): ?><ul class="hitlist"><?php foreach ($newPages as $np): ?><li><a href="<?= $open($np) ?>"><?= e($np['title']) ?></a> <small class="muted"><?= e($chapterLabel((string)$np['chapter'])) ?></small></li><?php endforeach; ?></ul>
@@ -209,21 +217,6 @@ page_header('My Almanac');
         <p><?= $palT > 0 ? 'You have found ' . $palF . ' of ' . $palT . ' puzzle pals so far.' : 'Solve a jigsaw on Advanced to start your collection.' ?></p>
         <p><a href="<?= e(url('book.php?ch=Pals')) ?>">Open the Pal Book →</a></p></div>
       <?php endif; ?>
-    </div>
-    <div class="secgrid">
-      <?php foreach (ALMANAC_SECTIONS as $sk => [$ic, $label, $chs]): if ($sk === 'contents') continue;
-          $h = 0; $tt = 0;
-          foreach ($chs as $c) if (isset($chapters[$c])) { $h += (int)$chapters[$c]['have']; $tt += (int)$chapters[$c]['total']; }
-          if ($sk === 'journey') { $tt = count(journey_chapters()); $h = (int)q_val('SELECT COUNT(*) FROM user_quests WHERE user_id = ? AND done_at IS NOT NULL', [$uid]); }
-          if ($sk === 'growing') { $h += $guidesRead; $tt += count($guides); }
-          if ($sk === 'folk') { $h += $metN; $tt += (int)q_val('SELECT COUNT(*) FROM npcs WHERE active = 1'); }
-          $sn = $secNew($chs); ?>
-        <a class="box seccard" href="<?= e(url('book.php?ch=' . urlencode($chs[0]))) ?>">
-          <span class="secicon"><?= $ic ?></span><b><?= e($label) ?></b>
-          <small class="muted"><?= e(implode(' · ', array_map($chapterLabel, array_values(array_filter($chs, fn($c) => $c !== 'Pals' || $palsOk))))) ?></small>
-          <?php if ($tt): ?><progress max="<?= $tt ?>" value="<?= $h ?>"></progress><small><?= $h ?> of <?= $tt ?><?= $sk === 'journey' ? ' chapters' : '' ?><?= $sn ? ' · ✨ ' . $sn . ' new' : '' ?></small><?php endif; ?>
-        </a>
-      <?php endforeach; ?>
     </div>
   </div>
 
