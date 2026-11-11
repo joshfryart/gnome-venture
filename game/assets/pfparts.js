@@ -28,20 +28,28 @@
       Object.keys(A.sheets).forEach(function (k) { files.push([k, A.sheets[k].file]); });
       Object.keys(A.patterns).forEach(function (k) { files.push(['pat-' + k, A.patterns[k].file]); });
       Object.keys(A.icons).forEach(function (k) { files.push(['ico-' + k, A.icons[k].file]); });
-      ['joint-h.png', 'joint-v.png'].forEach(function (f) { files.push([f, f]); });
+      ['joint-h.png', 'joint-v.png', 'chain-glow-h.png', 'chain-glow-v.png', 'combo-stamp-small.png', 'combo-stamp-big.png'].forEach(function (f) { files.push([f, f]); });
       return Promise.all(files.map(function (f) { return loadImg(f[1]).then(function (img) { P.imgs[f[0]] = img; P.sheets[f[0]] = pixels(img); }); }));
     }).then(function () { P.ok = true; });
   };
 
-  function palette(old) {
+  function hsl(h, s, l) {
+    var a = s * Math.min(l, 1 - l), f = function (n) { var k = (n + h / 30) % 12; return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))); };
+    return [f(0), f(8), f(4)];
+  }
+  function palette(old, tint) {
     var def = P.rim.palettes['default'], o = old ? P.rim.palettes.old : {}, p = {};
     Object.keys(ROLE).forEach(function (k) { p[ROLE[k]] = o[k] || def[k]; });
+    if (tint !== undefined && tint !== null) {   // a creature's own colour on its rim (roles 4-8); an old piece is dimmed
+      var d = old ? .72 : 1;
+      p[4] = hsl(tint, .5, .42 * d); p[5] = hsl(tint, .55, .2 * d); p[6] = hsl(tint, .5, .6 * d); p[8] = hsl(tint, .5, .36 * d);
+    }
     return p;
   }
 
   /* o = {size:'strip'|'hand', owner:'me'|'foe', type, edges:{L:[kind,fam],..}, old, num}. Returns a new canvas (the composed piece). */
   P.piece = function (o) {
-    var key = [o.size, o.owner, o.type, o.old ? 1 : 0, o.num, ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|');
+    var key = [o.size, o.owner, o.type, o.old ? 1 : 0, o.num, o.owner === 'foe' && o.tint != null ? o.tint : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|');
     var hit = P.cache[key];
     if (!hit) hit = P.cache[key] = build(o);
     var c = document.createElement('canvas'); c.width = hit.width; c.height = hit.height; c.getContext('2d').drawImage(hit, 0, 0);
@@ -62,7 +70,7 @@
         if (sh.d[q + 3] > 0) role[y * W + x] = sh.d[q] === A.erase ? 0 : sh.d[q];
       }
     });
-    var pal = palette(o.old), ty = A.types[o.type], pat = P.sheets['pat-' + o.size], pm = A.patterns[o.size];
+    var pal = palette(o.old, o.owner === 'foe' ? o.tint : null), ty = A.types[o.type], pat = P.sheets['pat-' + o.size], pm = A.patterns[o.size];
     var pc = pm.order.indexOf(o.type) * pm.cell[0];
     var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
     var cx = cv.getContext('2d'), img = cx.createImageData(W, H);
@@ -88,6 +96,14 @@
       for (var j = 0; j < 15; j++) if (g.charAt(j) === '1') cx.fillRect(x0 + n * (gw + k) + (j % 3) * k, y0 + Math.floor(j / 3) * k, k, k);
     }
   }
+
+  /* a combo stamp for a chain of n pieces: small for 2-3, big for 4+, the number printed on its plate */
+  P.stamp = function (n) {
+    var big = n >= 4, img = P.imgs[big ? 'combo-stamp-big.png' : 'combo-stamp-small.png'];
+    var c = document.createElement('canvas'); c.width = 32; c.height = 32; var cx = c.getContext('2d'); cx.drawImage(img, 0, 0);
+    number(cx, { at: [10, 11], size: [12, 10] }, String(n), 1);
+    return c;
+  };
 
   /* the lit-spot ghost: the piece's silhouette as a gold/cream dashed outline (rule in the parts README) */
   P.ghost = function (o) {

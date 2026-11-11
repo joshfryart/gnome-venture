@@ -29,6 +29,9 @@ get 'welcome.php?step=garden' >/dev/null; post welcome.php -d do=finish -d 'gard
 echo "onboarded: $(db "SELECT onboarded FROM users WHERE username='sprout'")"
 db "UPDATE users SET energy=100 WHERE username='sprout'" >/dev/null
 FAILS=0
+pf() { local d=$1; shift; get adventure.php >/dev/null
+  local n=$(grep -o 'name="nonce" value="[0-9a-f]*"' $H | head -1 | grep -o '[0-9a-f]\{8\}') t=$(grep -o 'id="pfight" data-turn="[0-9]*"' $H | grep -o '[0-9]*')
+  post adventure.php -d do=$d -d nonce=$n -d turn=$t "$@"; }
 db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_open','1')" >/dev/null
 for MODE in board chain; do
   db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_mode','$MODE')" >/dev/null
@@ -39,5 +42,19 @@ for MODE in board chain; do
     else get adventure.php >/dev/null; grep -q 'advgrid[^"]*pfover' $H && echo "ok   fight over map" || { echo "FAIL fight not over the map"; FAILS=$((FAILS+1)); }; fi
   done
 done
+# a chain on the board: play on (smart bot moves) until the page reports one, then check the glow, the stamp and the expiring cue in the browser
+db "INSERT OR REPLACE INTO settings (name,value) VALUES ('pfight_mode','board')" >/dev/null
+for TRY in 1 2 3 4 5 6; do
+  php -d display_errors=1 "$HERE/pfmap.php" "$GAME" $((RANDOM)) >/dev/null 2>&1; get adventure.php >/dev/null; FX=0; T=0
+  while [ $T -lt 10 ]; do
+    MV=$(php "$HERE/pfboard_move.php" "$GAME" 2>&1 | tail -1); [ "$MV" = "NONE" ] && break
+    if [ "$MV" = "PASS" ]; then pf pfb_pass >/dev/null; else pf pfb_play -d moves="$MV" >/dev/null; fi
+    get adventure.php >/dev/null; if grep -q '"fx":\[{' $H; then FX=1; break; fi; T=$((T+1))
+  done
+  [ $FX = 1 ] && break
+done
+if [ $FX = 1 ]; then
+  if [ -n "$SHOT" ]; then node "$HERE/pfmap.js" "$BASE" "$SHOT" fx fx || { echo "FAIL chain glow check"; FAILS=$((FAILS+1)); }; else echo "ok   chain reported after $T turns"; fi
+else echo "FAIL no chain happened in 6 fights"; FAILS=$((FAILS+1)); fi
 grep -qi "warning\|fatal\|notice" $LOG && { echo "FAIL php log"; grep -i "warning\|fatal\|notice" $LOG | head -3; FAILS=$((FAILS+1)); } || echo "ok   no PHP warnings"
 [ $FAILS = 0 ] && echo "pfmap ok" || { echo "$FAILS FAILED"; exit 1; }

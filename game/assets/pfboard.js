@@ -12,6 +12,15 @@
   var rbtn = document.getElementById('pf-redraw'), pform = document.getElementById('pf-pform');
   var tiles = Array.prototype.slice.call(handEl.querySelectorAll('.pf-tile'));
   var moves = [], selected = null, submitted = false, redrawMode = false;
+  var glows = [], fxOn = true, glowTimer = 0, frame = 0;
+  function startGlow() {   // 4 frames at about 8 fps for a few seconds, then the glow and stamps go (a still frame if the player prefers less motion)
+    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches, ticks = 0;
+    glowTimer = setInterval(function () {
+      ticks++; frame = calm ? 0 : (frame + 1) % 4;
+      glows.forEach(function (g) { if (!g.classList.contains('pfb-glow')) return; var w = g.getBoundingClientRect(); g.style.backgroundPosition = g.dataset.v === '1' ? (-frame * w.width) + 'px 0' : '0 ' + (-frame * w.height) + 'px'; });
+      if (ticks > 40) { clearInterval(glowTimer); fxOn = false; glows.forEach(function (g) { if (g.parentNode) g.parentNode.removeChild(g); }); glows = []; }
+    }, 125);
+  }
 
   function joint(a, b) {   // [fits, linked]
     if (a[0] === 'flat' || b[0] === 'flat') return [true, false];
@@ -104,10 +113,11 @@
       if (p) {
         cell = document.createElement('div'); cell.className = 'pfb-cell' + (p.ghost ? ' pfb-planned' : '');
         if (art) {
-          var cv = P.piece({ size: 'strip', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, edges: p.e, old: p.age >= 1, num: p.v });
+          var cv = P.piece({ size: 'strip', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, edges: p.e, old: p.age >= 1, num: p.v, tint: data.tint });
           cv.className = 'pfb-cv'; cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', (p.by === 'foe' ? 'Creature piece: ' : 'Your piece: ') + p.n + ', ' + p.t + ' ' + p.v + (p.age >= 1 ? ', expires this round' : ''));
           cell.appendChild(cv);
         } else cell.appendChild(pieceEl(p));
+        if (p.age >= 1 && !p.ghost) { var ob = document.createElement('span'); ob.className = 'pfb-old'; ob.setAttribute('aria-hidden', 'true'); ob.textContent = '\u231B'; ob.title = 'Leaves the board at the end of this round'; cell.appendChild(ob); }
       } else if (lit[key]) {
         cell = document.createElement('button'); cell.type = 'button'; cell.className = 'pfb-cell pfb-lit'; cell.setAttribute('aria-label', 'Place here, column ' + (x + 1) + ' row ' + (y + 1));
         cell.dataset.x = String(x); cell.dataset.y = String(y);
@@ -127,6 +137,31 @@
           boardEl.appendChild(im);
         });
       }
+    }
+    // the last turn's chains: a glow along each linked joint of a chain, a stamp with its length on the piece that started it (a few seconds, then gone)
+    glows = [];
+    if (art && fxOn && data.fx && data.fx.length) {
+      var sets = data.fx.map(function (c) { var m = {}; c.ids.forEach(function (id) { m[id] = true; }); return m; });
+      var byId = {}; Object.keys(b.map).forEach(function (k) { var q = b.map[k]; if (q.id !== undefined) byId[q.id] = q; });
+      for (var gy = y0; gy <= y1; gy++) for (var gx = x0; gx <= x1; gx++) {
+        var ga = b.map[gx + ',' + gy]; if (!ga || ga.id === undefined) continue;
+        [['R', 1, 0, 'L', 'chain-glow-v.png', 8, 32, 1], ['B', 0, 1, 'T', 'chain-glow-h.png', 32, 8, 0]].forEach(function (d) {
+          var gn = b.map[(gx + d[1]) + ',' + (gy + d[2])]; if (!gn || gn.id === undefined || !joint(ga.e[d[0]], gn.e[d[3]])[1]) return;
+          if (!sets.some(function (st) { return st[ga.id] && st[gn.id]; })) return;
+          var ax = gx - x0, ay = gy - y0, cx = d[1] ? (ax + 1) * S.pitch[0] + S.tab[0] : ax * S.pitch[0] + S.tab[0] + S.body[0] / 2, cy = d[1] ? ay * S.pitch[1] + S.tab[1] + S.body[1] / 2 : (ay + 1) * S.pitch[1] + S.tab[1];
+          var ge = document.createElement('span'); ge.className = 'pfb-glow'; ge.setAttribute('aria-hidden', 'true');
+          ge.style.backgroundImage = 'url(' + P.imgs[d[4]].src + ')'; ge.style.backgroundSize = d[7] ? '400% auto' : 'auto 400%';
+          ge.style.left = ((cx - d[5] / 2) * 100 / TW) + '%'; ge.style.top = ((cy - d[6] / 2) * 100 / TH) + '%'; ge.style.width = (d[5] * 100 / TW) + '%'; ge.style.height = (d[6] * 100 / TH) + '%';
+          ge.dataset.v = String(d[7]); boardEl.appendChild(ge); glows.push(ge);
+        });
+      }
+      data.fx.forEach(function (c) {
+        var r = byId[c.ids[0]]; if (!r || r.x < x0 || r.x > x1 || r.y < y0 || r.y > y1) return;
+        var sc = P.stamp(c.ids.length); sc.className = 'pfb-stamp'; sc.setAttribute('role', 'img'); sc.setAttribute('aria-label', 'Chain of ' + c.ids.length + ' pieces');
+        sc.style.left = (((r.x - x0) * S.pitch[0] + S.tab[0] + S.body[0] - 22) * 100 / TW) + '%'; sc.style.top = (((r.y - y0) * S.pitch[1] + S.tab[1] - 14) * 100 / TH) + '%'; sc.style.width = (32 * 100 / TW) + '%'; sc.style.height = (32 * 100 / TH) + '%';
+        boardEl.appendChild(sc); glows.push(sc);
+      });
+      if (!glowTimer && glows.length) startGlow();
     }
     tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });

@@ -257,9 +257,22 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null)
     }
     if (!$w['over']) $ev = array_merge($ev, pfb_foe_turn($w, $counted === PFB_MAX_PLACE ? 1 : 0));
     if (!$w['over']) pfb_end_round($w);
+    $w['fx'] = pfb_fx($ev);
     $w['log'][] = ['turn' => $s['turn'], 'n' => $n];
     $s = $w;
     return ['ev' => $ev, 'err' => null];
+}
+
+/** What to show of the last turn: each chain that fired as [by, ids in firing order] (the client draws a glow on its linked joints and a stamp with its length). */
+function pfb_fx(array $ev): array
+{
+    $o = [];
+    foreach ($ev as $e) {
+        if (!isset($e['id'])) continue;
+        if (!empty($e['root']) || !$o) $o[] = ['by' => $e['by'], 'ids' => []];
+        $o[count($o) - 1]['ids'][] = (int)$e['id'];
+    }
+    return array_values(array_filter($o, fn($c) => count($c['ids']) >= 2));
 }
 
 function pfb_end_round(array &$s): void
@@ -279,6 +292,7 @@ function pfb_pass(array &$s, int $turn): array
     foreach ($s['me']['hand'] as $t) if (pfb_cells($s, $t)) return ['ev' => [], 'err' => 'You still have a piece that fits somewhere.'];
     $w = $s; pfb_begin($w, 'me');
     $ev = pfb_foe_turn($w, 0);
+    $w['fx'] = pfb_fx($ev);
     if (!$w['over']) pfb_end_round($w);
     $s = $w;
     return ['ev' => $ev, 'err' => null];
@@ -288,7 +302,7 @@ function pfb_pass(array &$s, int $turn): array
 function pfb_view(array $s): array
 {
     $v = pf_view($s);
-    $v['mode'] = 'board'; $v['w'] = PFB_W; $v['h'] = PFB_H;
+    $v['mode'] = 'board'; $v['w'] = PFB_W; $v['h'] = PFB_H; $v['fx'] = $s['fx'] ?? [];
     $v['pcs'] = array_values(array_map(fn($p) => ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'n' => $p['tile']['n'], 't' => $p['tile']['t'], 'v' => $p['tile']['v'], 'tag' => $p['tile']['tag'], 'm' => (string)($p['tile']['m'] ?? ''), 'e' => pfb_edges($p['tile']), 'age' => $s['round'] - $p['born']], $s['pcs']));
     foreach ($v['hand'] as $i => $t) $v['hand'][$i]['e'] = pfb_edges($s['me']['hand'][$i]);
     unset($v['strip'], $v['open'], $v['open_t'], $v['open_v'], $v['open_by']);

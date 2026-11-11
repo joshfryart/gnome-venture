@@ -2,7 +2,7 @@
 const fs = require('fs'); const D = JSON.parse(fs.readFileSync(process.argv[2]));
 const src = fs.readFileSync(__dirname + '/../game/assets/pfboard.js', 'utf8');
 let legal = null;
-const mk = () => ({ dataset: { mode: 'board', redraws: '0' }, textContent: JSON.stringify({ w: D.w, h: D.h, pcs: [], hand: [], icons: {} }), insertBefore() {}, classList: { add() {}, remove() {}, toggle() {} }, appendChild() {}, setAttribute() {}, addEventListener() {}, querySelectorAll() { return []; }, hidden: false, style: {}, disabled: false, focus() {} });
+const mk = () => ({ dataset: { mode: 'board', redraws: '0' }, textContent: JSON.stringify({ w: D.w, h: D.h, pcs: [], hand: [], icons: {} }), insertBefore() {}, removeChild() {}, classList: { add() {}, remove() {}, toggle() {} }, appendChild() {}, setAttribute() {}, addEventListener() {}, querySelectorAll() { return []; }, hidden: false, style: {}, disabled: false, focus() {} });
 global.document = { addEventListener() {}, getElementById: () => mk(), createElement: () => mk() };
 global.window = { addEventListener() {}, set pfbLegal(f) { legal = f; }, get pfbLegal() { return legal; } };
 new Function('window', 'document', src)(global.window, global.document);

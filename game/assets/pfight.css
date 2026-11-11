@@ -196,3 +196,8 @@
 .pf-boardmode .pf-tray { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; }
 .pf-boardmode .pf-tray .pf-hand { flex: 1 1 100%; order: -1; }
 .pf-boardmode .pf-tray .pf-pile { width: 5.5rem; flex-direction: row; display: flex; gap: .3rem; align-items: center; justify-content: center; }
+
+/* chain glow, combo stamps, expiring-piece cue */
+.pfb-glow { position: absolute; display: block; z-index: 2; pointer-events: none; image-rendering: pixelated; background-repeat: repeat; }
+.pfb-stamp { position: absolute; display: block; z-index: 4; pointer-events: none; image-rendering: pixelated; }
+.pfb-old { position: absolute; right: 8%; top: 4%; z-index: 3; font-size: .8rem; line-height: 1; padding: 0 .1rem; border-radius: .3rem; background: rgba(24, 14, 8, .85); color: #f2e4c0; box-shadow: 0 0 0 1px #2a1a10; }
