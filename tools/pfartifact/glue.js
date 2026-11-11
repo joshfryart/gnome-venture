@@ -135,7 +135,7 @@
     h += '<div class="pf-extra"><form class="inline" id="pf-pform" hidden><button class="btn" id="pf-pass">Pass (nothing fits)</button></form></div>';
     var seen = {}; v.hand.forEach(function (t) { if (C.tags[t.tag]) seen[t.tag] = 1; });
     if (Object.keys(seen).length) { h += '<details class="pfc-more"><summary>More: piece tips</summary><ul class="pf-tags help">'; Object.keys(seen).forEach(function (x) { h += '<li>' + C.tags[x][0] + ' ' + esc(C.tags[x][1]) + '</li>'; }); h += '</ul></details>'; }
-    var data = { won: won ? s.over : null, life: C.life, tags: C.tags, held: v.held || null, gone: v.gone || [], snaps: usedSn, bar: v.bar.now, barmax: v.bar.max, hp: v.hp, replay: enc.replay || [], replay0: enc.replay0 || null,
+    var data = { foe: cr.name, won: won ? s.over : null, life: C.life, tags: C.tags, held: v.held || null, gone: v.gone || [], snaps: usedSn, bar: v.bar.now, barmax: v.bar.max, hp: v.hp, replay: enc.replay || [], replay0: enc.replay0 || null,
       mods: Object.keys(C.mods).reduce(function (o, k) { o[k] = [C.mods[k][1], C.mods[k][0], C.mods[k][3], C.mods[k][2]]; return o; }, {}), art: 'art/', fx: v.fx || [], tint: tintOf(cr.slug), parts: 'art/', w: v.w, h: v.h, pcs: v.pcs,
       hand: v.hand.map(function (t) { return { e: t.e, t: t.t, tag: t.tag, m: t.m }; }), combos: v.combos, icons: ICON };
     h += '<script type="application/json" id="pf-data">' + JSON.stringify(data).replace(/</g, '\\u003c') + '</script></div>';

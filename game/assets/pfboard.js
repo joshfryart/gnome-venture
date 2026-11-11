@@ -392,7 +392,15 @@
   if (rwBack) rwBack.addEventListener('click', exitRewind);
 
   // ---- the replay: after a turn, each piece that scored is lit in turn with its line, the bar and health following
-  var skipBtn = document.getElementById('pf-skip'), playTimers = [], forceReplay = false;
+  var skipBtn = document.getElementById('pf-skip'), playTimers = [], forceReplay = false, turnEl = null, turnTimer = 0;
+  function showTurn(text, who) {   // a short banner over the play area so it is clear whose turn it is
+    if (!boardEl || !boardEl.parentNode) return;
+    if (!turnEl || turnEl.parentNode !== root) { turnEl = document.createElement('div'); turnEl.setAttribute('role', 'status'); root.appendChild(turnEl); }
+    clearTimeout(turnTimer); turnEl.textContent = text; turnEl.className = 'pf-turn pf-turn-' + who; turnEl.hidden = false;
+    turnEl.style.top = Math.max(4, boardEl.offsetTop + boardEl.offsetHeight / 2 - 18) + 'px';
+    void turnEl.offsetWidth; turnEl.classList.add('pf-turn-on');
+    turnTimer = setTimeout(function () { if (turnEl) turnEl.hidden = true; }, 1500);
+  }
   function revealChip(k) { if (!histEl) return; var c = histEl.querySelector('.pf-chip-new[data-ev="' + k + '"]'); if (c) { c.hidden = false; c.classList.add('pf-chip-in'); } histEl.scrollLeft = 0; }
   function revealAllChips() { if (!histEl) return; Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-new[hidden]'), function (c) { c.hidden = false; }); histEl.scrollLeft = 0; }
   function setBar(now, max) {
@@ -404,6 +412,7 @@
   function setHp(v) { var pr = root.querySelector('.pfc-top .pf-hp progress'); if (pr) pr.value = v; }
   function afterLeave() {   // everything has scored and the old pieces are gone: the board adds a creature piece if it is short, growing into place
     showGone = false; fxOn = true; render();
+    if (!data.won) showTurn('Your turn', 'me');
     if (hideSpawn) { hideSpawn = false; animateSpawn = true; render(); animateSpawn = false; }
   }
   function stopPlay(skipped) {
@@ -426,9 +435,10 @@
     replayed = true; playing = true; fxOn = false; root.classList.add('pf-playing');
     if (skipBtn) skipBtn.hidden = false;
     if (data.replay0) { setBar(data.replay0.bar, data.barmax); setHp(data.replay0.hp); }
-    var step = 950;
+    var step = 950, lastBy = null, foeName = data.foe || 'Creature';
     data.replay.forEach(function (ev, k) {
       playTimers.push(setTimeout(function () {
+        if (ev.by !== lastBy) { lastBy = ev.by; showTurn(ev.by === 'me' ? 'You play' : foeName + "'s turn", ev.by === 'me' ? 'me' : 'foe'); }
         Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
         if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); var pc = pieceById(ev.id); if (pc) { picked = ev.id; showText(pc.n, pieceInfo(pc), pc); } }
         revealChip(k);
@@ -534,6 +544,7 @@
   document.addEventListener('pfparts-ready', render);
   setTimeout(function () { if (!replayed && !playing) { forceReplay = true; render(); } }, 4000);   // the art never came: play the replay with the plain pieces
   window.__pfbOff = function () { document.removeEventListener('pfparts-ready', render); window.removeEventListener('resize', fan); clearInterval(glowTimer); playTimers.forEach(clearTimeout); };
+  if (!(data.replay && data.replay.length) && root.dataset.turn === '1' && !data.won) setTimeout(function () { showTurn('Your turn', 'me'); }, 250);
   window.pfbLegal = legal;   // for the parity test
   render();
 })();

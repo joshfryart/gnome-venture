@@ -373,3 +373,13 @@
 .pf-rewind[hidden] { display: none; }
 .pf-rewind .btn { font-size: .72rem; padding: .2rem .6rem; min-height: 0; background: #2a1a10; color: #f2e4c0; }
 .pf-rewound .pf-tray, .pf-rewound .pf-buttons, .pf-rewound .pf-opts { opacity: .45; pointer-events: none; }
+
+/* a short "whose turn" banner over the play area */
+.pf-boardmode { position: relative; }
+.pf-turn { position: absolute; left: 50%; z-index: 12; transform: translateX(-50%); padding: .35rem 1.1rem; border-radius: 2rem; font: 700 1.05rem/1.1 system-ui, sans-serif; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 10px rgba(0, 0, 0, .6); }
+.pf-turn[hidden] { display: none; }
+.pf-turn-me { background: #e8a317; color: #2a1a10; border: 2px solid #2a1a10; }
+.pf-turn-foe { background: #5e1a12; color: #f4d6a8; border: 2px dashed #c2502c; }
+.pf-turn-on { animation: pf-turn 1.5s ease-out both; }
+@keyframes pf-turn { 0% { opacity: 0; transform: translateX(-50%) scale(.7); } 14% { opacity: 1; transform: translateX(-50%) scale(1.06); } 22% { transform: translateX(-50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .pf-turn-on { animation: none; } }

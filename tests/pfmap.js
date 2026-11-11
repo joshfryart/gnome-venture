@@ -16,7 +16,8 @@ const { chromium } = require('playwright');
     const overlap = wanderMode || !!(m && f && f.x < m.x + m.width && f.x + f.width > m.x && f.y < m.y + m.height && f.y + f.height > m.y);
     // the replay of the last turn: the piece being scored is lit, its line is listed; Skip ends it
     const replaying = await p.locator('#pfight.pf-playing').count(); let scoring = 0, lines = 0;
-    if (replaying) { await p.waitForSelector('.pfb-scoring', { timeout: 4000 }).then(() => { scoring = 1; }, () => {}); lines = await p.locator('#pf-play li').count(); await p.click('#pf-skip'); await p.waitForTimeout(400); }
+    let turnBanner = 1;
+    if (replaying) { turnBanner = await p.waitForSelector('.pf-turn:not([hidden])', { timeout: 4000 }).then(() => 1, () => 0); await p.waitForSelector('.pfb-scoring', { timeout: 4000 }).then(() => { scoring = 1; }, () => {}); lines = await p.locator('#pf-play li').count(); await p.click('#pf-skip'); await p.waitForTimeout(400); }
     const panelH = await p.evaluate(() => { const e = document.getElementById('pfight'); return e ? Math.round(e.getBoundingClientRect().height) : 0; });   // on a phone the whole fight fits one screen
     // your health, the resolve bar and the creature sit side by side: nothing covers anything
     const lay = await p.evaluate(() => { const q = (x) => { const e = document.querySelector(x); return e ? e.getBoundingClientRect() : null; }; const me = q('.pfc-me'), bar = q('.pfc-top .pf-bar'), foe = q('.pfc-foe'), hp = q('.pfc-top .pf-hp'); return me && bar && foe && hp ? { meBar: bar.left - me.right, barFoe: foe.left - bar.right, hpIn: me.right - hp.right } : null; });
@@ -95,7 +96,7 @@ const { chromium } = require('playwright');
     }
     if (await p.locator('#pfight').count()) await p.locator('#pfight').screenshot({ path: out + '/pfmap-' + label + '-' + name + '.png' });
     const wide = await p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-    const bad = (!over || !mapIn || !panel || !overlap || wide || errs.length || !rewindOk || !topOk || (name !== 'wide' && !label.startsWith('chain') && panelH > 520) || !zoomOk || !inplaceOk || !tapOk || !connectOk || (replaying && !scoring) || (want === 'fx' && !glow && !stamp)) ? 1 : 0; fail = fail || bad;
+    const bad = (!over || !mapIn || !panel || !overlap || wide || errs.length || !rewindOk || !topOk || (name !== 'wide' && !label.startsWith('chain') && panelH > 520) || !zoomOk || !inplaceOk || !tapOk || !connectOk || (replaying && (!scoring || !turnBanner)) || (want === 'fx' && !glow && !stamp)) ? 1 : 0; fail = fail || bad;
     console.log(bad ? 'FAIL' : 'ok', label, name, '| fight over map', !!over, '| map behind', overlap, '| art bar', art, '| glow', glow, '| stamps', stamp, '| expiring cues', await p.locator('.pfb-old').count(), '| foe drops', await p.locator('.pfb-drop').count(), '| replay', replaying ? (scoring ? 'lit ' + lines + ' lines' : 'NOT LIT') : 'none', '| status bar', topOk ? 'clear' : 'OVERLAP ' + JSON.stringify(lay), '| panel', panelH + 'px', '| rewind', rewindOk, '| tap info', tapOk, '| connect+group', connectOk, connectNote, '| zoom', zoomOk, '| after in-place turn', inplaceOk, '| overflow', wide, '| js errors:', errs.length ? errs.join(' | ') : 'none');
     await c.close();
   }
