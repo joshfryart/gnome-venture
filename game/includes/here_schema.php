@@ -17,6 +17,7 @@ function here_settings(): array
         'gnav_enter_energy' => ['label' => 'Picture navigation: energy to step onto the Trail from a place (tile walks only; the number shown is the number charged)', 'type' => 'int', 'default' => '1', 'min' => 0, 'max' => 100],
         'gnav_craft' => ['label' => 'Picture navigation: the Crafting workshop picture (needs gnav_on; the old crafting pages stay)', 'type' => 'bool', 'default' => '0'],
         'gnav_tree' => ['label' => 'Picture navigation: the Treehouse (Games, Puzzle Pals) and the Pal Yard pictures (needs gnav_on; the old pages stay)', 'type' => 'bool', 'default' => '0'],
+        'home_slim' => ['label' => 'Slim Home: Today, My Gnome and the Hovel become one Home page (hovel banner with Sleep and Nap, then Today / Furnish / Gnome tabs). Off = today’s pages exactly; admins always see it', 'type' => 'bool', 'default' => '0'],
         'gnav_login_here' => ['label' => 'Picture navigation: logging in lands on Here (a player can pick Home in Account)', 'type' => 'bool', 'default' => '1'],
     ];
 }

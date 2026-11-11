@@ -1,0 +1,135 @@
+[
+{
+"key": "rr-glimmer-frog",
+"name": "Glimmer Frog",
+"rarity": "rare",
+"shape": "whimsy-frog",
+"blurb": "Glows a little when it rains and croaks a tune about llamas."
+},
+{
+"key": "gc-parrot-pennant",
+"name": "Parrot Pennant",
+"rarity": "rare",
+"shape": "whimsy-parrot",
+"blurb": "Repeats everything the rain says, then shouts it louder."
+},
+{
+"key": "cs-keel-drift",
+"name": "Keel Drift",
+"rarity": "rare",
+"shape": "whimsy-turtle",
+"blurb": "Glides past the reef with a slow wink and a very old shell."
+},
+{
+"key": "pl-cwy-6",
+"name": "Last Forge Flame",
+"rarity": "rare",
+"shape": "whimsy-flame",
+"blurb": "The wyrm\u2019s last little flame from the forge, curled up and dreaming of dragons."
+},
+{
+"key": "pl-bjq-6",
+"name": "Little Box Queen",
+"rarity": "rare",
+"shape": "whimsy-jelly",
+"blurb": "A box jelly as square as a cube who insists she is the queen."
+},
+{
+"key": "pl-ana-6",
+"name": "Big Grin Anaconda",
+"rarity": "rare",
+"shape": "whimsy-anaconda",
+"blurb": "A huge anaconda coiled in the hollows creek, grinning from ear to ear, who only ever wants a hug."
+},
+{
+"key": "pl-mgr-6",
+"name": "Mazeroot Mangrove",
+"rarity": "rare",
+"shape": "whimsy-mangrove",
+"blurb": "A little mangrove that grew its roots into a maze over the dark water and forgot the way out."
+},
+{
+"key": "pl-sll-6",
+"name": "Fluffytail Snow Leopard",
+"rarity": "rare",
+"shape": "whimsy-fluffytail",
+"blurb": "A fluffy snow leopard curled up in its own long tail on the ledge, purring like a little avalanche."
+},
+{
+"key": "pl-baob-6",
+"name": "Baobab Innkeeper",
+"rarity": "rare",
+"shape": "whimsy-baobab",
+"blurb": "A baobab-shaped innkeeper with a glowing door, who welcomes every traveller with a friendly rustle."
+},
+{
+"key": "pl-flmk-6",
+"name": "Noodle Skipper",
+"rarity": "rare",
+"shape": "whimsy-noodlebowl",
+"blurb": "A gnome in a pointed straw hat who sells noodles from a little boat and always has one more bowl."
+},
+{
+"key": "pl-aurs-6",
+"name": "Towel Bear",
+"rarity": "rare",
+"shape": "whimsy-bear",
+"blurb": "A sleepy bear wrapped in a warm towel, who steams happily outside the sauna and waves at the aurora."
+},
+{
+"key": "pl-sugr-6",
+"name": "Maple Mayor",
+"rarity": "rare",
+"shape": "whimsy-maple",
+"blurb": "A jolly maple-leaf mayor who taps every tree in town and hands out syrup at the door."
+},
+{
+"key": "pl-wfri-6",
+"name": "Dancing Pinkcap",
+"rarity": "rare",
+"shape": "whimsy-toadstool",
+"blurb": "A plump pink mushroom who twirls at the head of the ring and hands round small gifts."
+},
+{
+"key": "pl-wlfe-6",
+"name": "Candle Boat Pilot",
+"rarity": "rare",
+"shape": "whimsy-wishlight",
+"blurb": "A small floating lantern that steers itself along the river, carrying one wish."
+},
+{
+"key": "pl-wdol-6",
+"name": "Nudging Boto",
+"rarity": "rare",
+"shape": "whimsy-boto",
+"blurb": "A chubby pink river dolphin who nudges you toward the next hidden seed."
+},
+{
+"key": "pl-stkv-6",
+"name": "Rooftop Courier",
+"rarity": "rare",
+"shape": "whimsy-whitestork",
+"blurb": "A chibi white stork on a rooftop perch, parcel ready, waiting for the evening delivery round."
+},
+{
+"key": "pl-hang-6",
+"name": "Swallow Swoop",
+"rarity": "rare",
+"shape": "whimsy-swallow",
+"blurb": "A chibi swallow swooping round the ruin, wings tucked and tail flicked, delivering seeds to the terraces."
+},
+{
+"key": "pl-sing-6",
+"name": "Hollowhome Bluebird",
+"rarity": "rare",
+"shape": "whimsy-bluebird",
+"blurb": "A chibi bluebird peeking from a round hollow in the green cliff, singing along to the fall."
+},
+{
+"key": "pl-trng-6",
+"name": "Tuftear Chipmunk",
+"rarity": "rare",
+"shape": "whimsy-chipmunk",
+"blurb": "A chibi chipmunk with big tufty ears and purple socks, holding a little white orb on top of the stump."
+}
+]

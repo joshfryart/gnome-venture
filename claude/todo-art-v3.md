@@ -1,66 +1,75 @@
-# Art to-do after the v3 rollout (2026-11-04). Method for ALL of it: Sonnet at medium effort.
+# ART TODO (single list). Updated 2026-11-11.
+Replaces `todo-art-variety.md` and `todo-art-catfish.md` (now stubs). `todo-art-acts.md` stays as the generated per-activity checklist (810/810 drawn).
+Source, scripts, state: `aseprite-source/v3/` (read `HANDOFF.md`, then `ROLLOUT-STATE.md`). Style: `aseprite-source/art-style-guide-v3.md`.
 
-Done: 1,662 items/icons at 64x64 (runs 1-4), live in 2.4.98; 2.5.48 added the 35 pictures from `v3/items/batch1` and `batch2` that had never been exported (Ginseng Seed still not: the leaf reads as cannabis, fix it first). See CHANGELOG. Source, scripts and state: `aseprite-source/v3/` (read `HANDOFF.md` first, then `ROLLOUT-STATE.md`). Style: `aseprite-source/art-style-guide-v3.md`.
+## RULES
+- No human villagers (Josh 2026-11-04): every NPC portrait and sprite is a creature, or a gnome clearly unlike the player. Player gnome needs front/back/side + 6-frame walk (test: `aseprite-source/v3/gnome-dir/`).
+- Scene and picture art = ONE pass by Opus medium. No draft-then-rich pass.
+- Ask Josh before drawing at scale: cost estimate, first batch, one contact sheet.
+- No text, circles, people or animals painted into scenes. Placeholders (red border, THIS IS PLACEHOLDER) never ship as final.
+- Real art replaces a placeholder by the SAME file name and size.
+- Weak images get a pink 2 px border in the live copy: list `aseprite-source/v3/rollout/weak.txt`, re-run `rollout/export_game.py`, then bump version and run `tests/build_update.sh`.
 
-## How to run it (cheapest known path, measured)
-- Seeds: `rollout/items-seed.js` (hybrid, params only for `items/seedgen/seedgen.lua`, ~10k tokens per seed, low/medium effort, groups of 12).
-- Other 64x64 items: `rollout/items-lean.js` (no draft, cheat sheet `lib/CHEATSHEET.md`, ~22-25k per item, Sonnet medium, groups of 6).
-- Do NOT use `items-run.js` with a draft step (D1 cost 45k per item, more than Opus).
-- Big pictures, portraits and models: no cheap path measured yet. Test one of each first (`rollout/items-misc.js` is the template: Sonnet medium, one agent per kind, blind comparison against existing art). Needs a cheat sheet per kind (scene engine, portrait, 2.5D model).
-- Review rule: weak images get a pink 2 px border in the live copy (`rollout/weak.txt`, `rollout/export_game.py`).
-
-## A. Redo (already drawn, judged weak)
-1. The 179 in `rollout/weak.txt` (tiny/near-invisible seeds, look-alikes such as tangelo~tangor, yerba-mate~yuzu, stage-* series, stone-wall-*, muddy materials). Remove a line when fixed; re-run `export_game.py`.
-2. Known: ginseng seed leaf reads as cannabis; hedgehog model reads like a messy-haired kid; gnome rig loses eye contrast on dark skin.
-
-## B. Left out of v3 on purpose (count = files today in `game/assets/img`)
-| Group | What | Count / note |
-|---|---|---|
-| Flower heads | 12 shapes x 3 layers (`-petals` neutral grey to tint, `-centre`, full) + vase/jar/basket back and front + packet | 19 files; needs the tintable rig (see `handoff-codechangesforart.md` section 4) |
-| `-anim` strips | animated versions of items | with the animation plan |
-| Odd-size UI | `items/` 21, `fx/` 6, `steps/` 5, `roadkinds/` 5, `ui/` 4 | sizes vary |
-| Gather scenes, craftmap scenes | `gather/` 38, `craftmap/` 14 | the craftmap is replaced by the workshop picture (D below) |
-| Creatures and minis | `animals/` 36, `mini/` 201 (front-facing toy minis), `folk/` 11, `gnome/` 8 | |
-| Catfish | `catfish/` (1,414 files, mostly part frames) | own plan: `claude/plan-catfish.md` |
-| Puzzles | `puzzles/` 12 GIFs, jigsaw sets | |
-| Portraits | 82 NPC portraits redo (80x100) + 22 species portraits | portraits need 3 passes in the Opus version |
-| Acts | `acts/` (144x108, 1,667 files) | redraw after models are final |
-| Big pictures | 13 regions (300x200 x6), banners, homes, wonders, stages, tiers, trek tiles, `landing/` 19, `map/` 11, `journal/` 14 | |
-
-## C. New art the graphical-navigation plan needs (`claude/plan-graphical-nav.md`)
-Canvas for all pictures: **480x270** (Josh still deciding; code reads size from the layout JSON). Slots (exits, spots, stand points) come from `data/here_layouts.json`; art must leave the ground flat for sprites and have no people painted in.
-1. **Here scenes**: about 45 templates = `<kind>-<landscape>` (village-forest, haven-coast, town-desert, delve-mountain, stop-camp...) + generic. File `scenes/here-<key>.png`. 8 path stubs, horizon line rule, per-template layout JSON.
-2. **Residential street**: 4-6 styles, `scenes/resid-<style>.png`, slots for 4, 6 or 8 houses; house art per home kind (cottage, burrow, treehouse, hut, stone, boat) with lit/dark window.
-3. **Doors**: 6 shared door arts (`door-<homekey>.png`, lit and dark) + optional unique door per villager (`door-<slug>.png`, up to 151).
-4. **2.5D villager sprites**: up to 151, `assets/img/sprite/npc-<slug>.png`, feet at bottom-centre, 96 px tall max, transparent, 1 px outline. Model rig exists for the gnome; species models (frog, hedgehog) done as tests.
-5. **Crafting workshop** picture (7 sections: Cooking, Pantry, Tools, Garden supplies, Potions, Building, Yard and decor) + up to 6 separate animation layers (bubbling pot, stirring spoon, potion drip, steam, hearth flicker, glowing jars) as sprite sheets.
-6. **Treehouse** cutaway (4 rooms, about 24 pal perches, trophy shelf, bookshelf, Cat Fish nook, Puzzle Room) + dressing layers for 5/10/20/40 pals (rug, string lights, telescope).
-7. **Pal sprites** (perch and yard size) for each Puzzle Pal, found-pal arrival sparkle; **Pal Yard** picture with job sites (garden plot, trail head, delve mouth, kitchen and craft stations, sick bay, noticeboard).
-8. **Trail tile sets** per landscape (generated by code today, art optional) and event/hotspot icons (32x32).
-9. Art briefs to write first: `claude/art-brief-here.md` (Phase 6 of the plan). Placeholder generator: `tools/gen_here_placeholders.py` (Phase 1e).
-
-## D. Order I would do it
-1. Test one picture, one portrait, one 2.5D model with Sonnet medium and decide (cost + quality).
-2. Weak redo of seeds with the hybrid generator (cheap).
-3. Here scenes (45) then Residential and doors, because they unlock Phases 2 and 3.
-4. Sprites for the villagers that stand on the most scenes first.
-5. Workshop, Treehouse, Pal Yard (one picture each, Phases 4-5).
-6. Everything in B at your priority.
-
-## RULE (Josh, 2026-11-04): no human villagers
-Every NPC portrait and 2.5D sprite is a creature, or a gnome that is clearly different from the player gnome. Old human-looking NPC art (e.g. Auntie Mossbead, now a turtle) is redesigned as a fitting creature, keeping name and mood. Check all 82 portraits and `ph/npc-*` art. The player gnome needs front/back/side views and a 6-frame walk cycle (tile-walk): test in `aseprite-source/v3/gnome-dir/`.
-
-## RULE (Josh, 2026-11-04): single pass only
-Scene and picture art is ONE initial pass by Opus medium. No draft-then-rich second pass for now (it may come back later).
-
-## METHOD (Josh approved 2026-11-05: "Love"): hero-scale gate-view scenes, parametric looks
-- Look: GATE VIEW from the entrance (timber/stone gate frame, lantern, bunting), one-point perspective to about (240,112), 480x270 native. HERO SCALE: fewer, bigger, chunky readable fronts and props (80-140 px near, 56+ far), 12+ px gaps, no overlaps, strong 1px dark edge in own darker tone, warm light upper left, cool-violet shade, wide road (150+ px at the bottom), real sky and hill depth. Clickable things can be whole building fronts. Bottom-right 100x40 stays plain (compass + globe icons). No text, circles, people or animals painted. Quirks (4-6, big enough to see).
-- Cost rules: single Opus-medium pass, no rich pass, no fix rounds, minimal reading (CHEATSHEET + scenes part of README, look at 1-2 reference PNGs, do not read other scene Lua). About 110-150k per scene.
+## HOW TO RUN (cheapest measured)
+- Seeds: `rollout/items-seed.js` (hybrid, ~10k tokens each, groups of 12).
+- Other 64x64 items: `rollout/items-lean.js` (cheat sheet `lib/CHEATSHEET.md`, ~22-25k each, Sonnet medium, groups of 6). Not `items-run.js` with a draft step.
+- Gate-view scenes: single Opus-medium pass, ~110-150k each, read only CHEATSHEET + scenes part of README + 1-2 reference PNGs.
 - Per scene output: `.lua/.png/.aseprite` + `.layout.json` {w,h,horizon,view,spots[{k,name,x,y,box}],stand[],compass_clear}.
-- Stops are PARAMETRIC: one script per stop TYPE, looks chosen by `--script-param pal=<landscape_region>` from a PALETTES table (colour ramps by role + flora/roofStyle/wallStyle/skyStyle/hillStyle choices). Pilot: `v3/here-gate/pilot-market.lua` (market hamlet; looks grassland_maplewold and desert_adobe). A new look = one new table entry. Stop uniqueness = type (landmark) x landscape (backdrop/flora) x region (architecture skin) x name (quirk prop by slug hash). Next types: mill, ferry, inn, jetty, herb, orchard, shrine, spring, tower, workshop, camp.
-- Approved references: `here-market-maplewold-v5` (town, hero scale), `pilot-market-*` (stop looks), `here-market-maplewold-v4` (rich fronts). Mockups: `v3/here-gate/mockup-*.png`.
+- Look: gate view, one-point perspective to ~(240,112), 480x270, hero scale (props 80-140 px near, 56+ far, 12+ px gaps), 1 px dark edge in own tone, warm light upper left, cool-violet shade, road 150+ px wide at bottom, bottom-right 100x40 plain, 4-6 visible quirks.
+- Stops are parametric: one script per stop type, look via `--script-param pal=<landscape_region>` from a PALETTES table. Pilot `v3/here-gate/pilot-market.lua`. New look = one new table entry.
 
-## Status (towns)
-- DONE: 15 main town gate scenes (mossbottom + 14 regions) + Maplewold v5, in `aseprite-source/v3/here-gate/towns/`. Imported to game on branch `ccr-4352abc3-code` (not on main).
-- Weak spots to repaint if Josh dislikes: coralscatter wave (dome) + small tea house; monsoontangle bland deck + small boats; thornacre Wild Trail arch squeezed; blossomreach parasol outside box.
-- NEXT art: stop looks for other 11 types (only market done), village/haven hero-scale, folk wiring, hotspot/nav icons.
+## DONE (do not redo)
+- `-anim` strips, odd-size UI and puzzles closed (Josh 2026-11-11).
+- Cat Fish lane E pet shops: 55 `cf-pet-*` items, 11 `banner-<CODE>-pets`, 11 shopkeeper busts, `pet_slots` (CHANGELOG 991-992).
+- Creatures and minis: 117 creatures + 7 Trek crew redrawn and rigged (CHANGELOG 70; `mini/` and `folk/` files dated 2026-11-07/11); animal homes pixel art in the yard (CHANGELOG 492). Species/folk portraits and sprites done (CHANGELOG 526). Josh confirmed 2026-11-11.
+- Gather: `scene3-<land>` x 9 landscapes x day/dusk/night, satchel back/front x 3 skins, slots, vignettes, flourishes, badges, felt, ribbons, weather (checked 2026-11-11). Old `scene-<land>.png` (9) + `scene.png` are fallbacks only.
+- Acts (Josh: close enough) and big pictures (regions, banners, wonders, landing, map, journal) done 2026-11-11.
+- 1,662 items/icons 64x64 (v3 rollout); 35 batch1/2 pictures exported (2.5.48).
+- 179 weak items redrawn (2.4.98+, art pass 2.5); hedgehogs redrawn; gnome 1px eye rim for dark skin.
+- All NPC art done (portraits, `ph/npc-*`, 81 `sprite/npc-*.png`; Josh 2026-11-11).
+- Flower heads done (Josh 2026-11-11). Home/house art done (Josh 2026-11-11).
+- Treehouse checked 2026-11-11: layout has 8 room spots (parlour, loft, cellar, puzzles, catfish, contests, books, yard), 24 pal perches, 4 dress layers, 5 trophies; Pal Yard 6 job sites.
+- Here scenes: 46 `scenes/here-*` (15 regional towns + hub, village, haven, delve, lair, wonder, 11 stop types in default + `desert_adobe`).
+- Workshop picture + 13 `craft-anim-*` layers; treehouse (`tree-house`, 4 dress layers, trophies); `yard-pals.png`; `resid-4/6/8`; 6 shared doors.
+- Acts: 810/810 scenes + animated strips; 4 kind cards (act-craft/collect/tend/contest) drawn.
+- Stage verb icons (5), stop tier pictures (12x4), folk species (11), road kind icons (5), journal pictures (14), Jeff poses.
+- Cat Fish lanes A-D (scarf, collars, seasons, yarn, yarn-panel icons).
+
+## A. REDO (weak)
+1. Done 2026-11-11 (pending Josh review): ginseng, ginseng-seed, stone-wall-end, tomato, stuffed-peppers-goat redrawn; `weak.txt` empty.
+2. Repaint if Josh dislikes: coralscatter wave dome + small tea house; monsoontangle bland deck + small boats; thornacre Wild Trail arch squeezed; blossomreach parasol outside box. Stuffed peppers busy at 64 px; ginseng 3 px margins.
+
+## B. NEXT: graphical navigation (`claude/plan-graphical-nav.md`, brief `claude/art-brief-here.md`)
+1. Stop looks for the other 14 landscapes per type (only default + `desert_adobe` exist for the 11 types; market also has grassland_maplewold).
+2. Village/haven at hero scale per region; folk wiring.
+4. Doors: DONE 2026-11-11, 81 unique `door-<slug>.png` + 6 shared (no night variant; lit window comes from the hotspot chips).
+5. 2.5D villager sprites: 81 of up to 151 done. Feet bottom-centre, 96 px max, transparent, 1 px outline. Prioritise villagers on the most scenes.
+6. Treehouse: nothing open (done). Optional: `scenes/wander-step-back.png`.
+7. Pal perch sprites: DONE 2026-11-11, all 570 in `assets/img/pals/` (475 block pals generator-drawn, 95 whimsy hand-drawn). Optional: found-pal arrival sparkle. Weaker whimsy: pl-dlz-6 (lizard reads turtle), pl-wgor-6 (gorilla blob), mt-bill-brolly, pl-wcof-6, pl-flfm-6.
+8. Trail tile sets per landscape (code-generated today, art optional); event/hotspot icons 32x32; nav icons.
+9. Canvas 480x270 treated as settled (code reads size from layout JSON).
+
+## C. LEFT OUT OF v3 (counts = files in `game/assets/img` on 2026-11-11)
+| Group | Count / note |
+|---|---|
+| Craftmap | `craftmap/` 14: unused leftovers (workshop picture replaced it); delete or ignore |
+| Catfish | `catfish/` (1,414 files mostly part frames), plan `claude/plan-catfish.md` |
+
+## D. FROM OLD VARIETY LIST (not made)
+- Build-stage verb icons `steps/stage-<verb>.png`: carry, befriend, trial, vigil, wait, decorate, craft_on_site, fetch_lore. Add a placeholder when each verb ships.
+- Stop header picture that changes per tier (`<kind>-<tier>.png` exist, header not wired).
+- Per-activity closer pictures for regional acts; "Birds of the Maplewold" journal page picture per collection.
+- Road Journal: a picture per sketch page (6 per region).
+- Before/after pictures for 9 pilot places: Market of a Thousand Chilies, Stepped Seed Temple, Cenote of Echoes, Jaguar Root Caves, Driftwood Tavern, Sunken Gnome Galleon, Singing Waterfall, Mangrove Root Maze, Turtle Nesting Beach. Not wired.
+- Progress picture for clear stages (1/3, 2/3, 3/3).
+
+## E. CAT FISH (open)
+- Lane F, optional polish only: side-cat nap/bored frames that move; a 'watch' head turn; catch and nap frames have no eye pixels (odd-eyed shows nothing there). Not verified fixed.
+- Rest of `catfish/` (1,414 files: cats, patterns, tails, collars, ups, icons, pets) is done. Plan: `claude/plan-catfish.md`.
+- Tools: `tools/catfish_recolor.py`, `tools/catfish_build_art.py`, `tools/gen_placeholder_art.py`; sources `aseprite-source/catfish/`.
+
+## F. ORDER
+1. Section A (4 items + ginseng).
+2. B1-B2 (stop looks, village/haven), B5 (sprites).
+3. B7 (pal sprites).
+4. C (craftmap cleanup only). D and E only when asked.

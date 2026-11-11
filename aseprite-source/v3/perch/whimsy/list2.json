@@ -1,0 +1,135 @@
+[
+{
+"key": "mh-popcorn-moon",
+"name": "Popcorn Moon",
+"rarity": "rare",
+"shape": "whimsy-moon",
+"blurb": "Rises over the field and goes pop at midnight."
+},
+{
+"key": "bb-homing-stork",
+"name": "Homing Stork",
+"rarity": "rare",
+"shape": "whimsy-stork",
+"blurb": "Knows the way home from anywhere and never asks directions."
+},
+{
+"key": "br-dragon-dart",
+"name": "Dragon Dart",
+"rarity": "rare",
+"shape": "whimsy-dragonfly",
+"blurb": "Darts over the koi pond on paper wings and winks at the Long Wall."
+},
+{
+"key": "pl-owl-6",
+"name": "Great White Plumelet",
+"rarity": "rare",
+"shape": "whimsy-feather",
+"blurb": "The great white owl\u2019s finest feather, dipped in aurora light."
+},
+{
+"key": "pl-hcr-6",
+"name": "Gale Islander",
+"rarity": "rare",
+"shape": "whimsy-crab",
+"blurb": "A pocket crab with a whole tiny island on its back, palm trees and all."
+},
+{
+"key": "pl-tgm-6",
+"name": "Tiger Moth Locket",
+"rarity": "rare",
+"shape": "whimsy-moth",
+"blurb": "A wing eyespot kept like a locket, glowing softly like a lantern."
+},
+{
+"key": "pl-fyn-6",
+"name": "Trail Dassie",
+"rarity": "rare",
+"shape": "whimsy-dassie",
+"blurb": "A chibi rock dassie sitting on the ash trail, sniffing a protea as if it were cake."
+},
+{
+"key": "pl-smg-6",
+"name": "Saltblock Minecart",
+"rarity": "rare",
+"shape": "whimsy-minecart",
+"blurb": "A little mine cart piled with salt blocks that rumbles down the galleries and sings at every bend."
+},
+{
+"key": "pl-rrs-6",
+"name": "Songline Kangaroo",
+"rarity": "rare",
+"shape": "whimsy-kangaroo",
+"blurb": "A little kangaroo wayfarer who points a paw along the song and hops the whole way home."
+},
+{
+"key": "pl-drmc-6",
+"name": "Hut Dweller",
+"rarity": "rare",
+"shape": "whimsy-hut",
+"blurb": "A round mud hut with a thatched roof and a lit doorway, who opens up for every late drummer."
+},
+{
+"key": "pl-lemn-6",
+"name": "Abbot Lemon",
+"rarity": "rare",
+"shape": "whimsy-lemon",
+"blurb": "A wise lemon-faced abbot who blesses every fruit and keeps the best one for himself."
+},
+{
+"key": "pl-spsk-6",
+"name": "Minty Fez Vendor",
+"rarity": "rare",
+"shape": "whimsy-fez",
+"blurb": "A little fez with a friendly face who sells every spice with a wink and a cup of mint tea."
+},
+{
+"key": "pl-wcen-6",
+"name": "Chestwatch Goldfish",
+"rarity": "rare",
+"shape": "whimsy-goldfish",
+"blurb": "A plump goldfish who guards the sunken chest and fans a fin at the echoes."
+},
+{
+"key": "pl-wgoa-6",
+"name": "Supervising Billy",
+"rarity": "rare",
+"shape": "whimsy-goat",
+"blurb": "A woolly goat on the wall who watches the harvest and takes one grape for his trouble."
+},
+{
+"key": "pl-wpan-6",
+"name": "Splinter Paw Panda",
+"rarity": "rare",
+"shape": "whimsy-panda",
+"blurb": "A serious panda who holds up one paw to show a splinter, then nibbles shoots like a judge."
+},
+{
+"key": "pl-wsta-6",
+"name": "Starwise Cheerer",
+"rarity": "rare",
+"shape": "whimsy-navigator",
+"blurb": "A navigator in a bright headband who cheers when the stars line up."
+},
+{
+"key": "pl-ambr-6",
+"name": "Plumetail Digger",
+"rarity": "rare",
+"shape": "whimsy-redsquirrel",
+"blurb": "A chibi red squirrel with a great plume of tail, perched on a crate beside the glowing amber."
+},
+{
+"key": "pl-oasi-6",
+"name": "Twinhump Stroller",
+"rarity": "rare",
+"shape": "whimsy-bactrian",
+"blurb": "A chibi two-humped camel in a red saddle blanket, strolling in with the oasis every morning."
+},
+{
+"key": "pl-step-6",
+"name": "Scarlet Riddlecaller",
+"rarity": "rare",
+"shape": "whimsy-macaw",
+"blurb": "A chibi scarlet macaw on the top terrace, calling every riddle out loud for the climbers."
+}
+]

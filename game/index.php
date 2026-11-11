@@ -11,6 +11,7 @@ $today = $u && (int)($u['onboarded'] ?? 1) === 1;   // v0.7.48: a "Today" page f
 // Next version: Today is the TODAY tab of the home page (gnome.php). Every old address lands there: index.php, ?today=1, and the
 // old ?t=out / ?t=hollow links on their part of it. Only ?news=all (every news post) still draws here.
 if (!$allNews && $u && $today) redirect('gnome.php' . (($_GET['t'] ?? '') === 'out' ? '#todaycards' : (($_GET['t'] ?? '') === 'hollow' ? '#hollowtoday' : '')));
+if ($allNews && $u) { require_once __DIR__ . '/includes/here_schema.php'; hub_seen_set((int)$u['id'], 'news'); }   // slim home: the news row's "!" goes once the list is opened
 if ($today) $GLOBALS['gv_today_page'] = true;   // v1.9.2: layout.php hides the rail boxes this page already shows
 if ($today) {   // the Today cards live in includes/today_view.php (gnome.php shows them on its TODAY tab)
     require_once __DIR__ . '/includes/today_view.php';

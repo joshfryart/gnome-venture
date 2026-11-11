@@ -1,0 +1,3 @@
+# Art handoff (2026-11-11), branch ccr-0535d2f5-2dlln2. See the prompt Josh pasted; facts below.
+Done: weak items, 570 pal perches (`assets/img/pals/`), 81 unique doors (`scenes/door-<slug>.png`). Generators: `aseprite-source/v3/perch/` (block pals: build_params.py + perch_gen.lua; whimsy: `whimsy/`), `aseprite-source/v3/doors-unique/` (pilot + w1..w4 generators). Aseprite: extract `aseprite-source/Aseprite_1.3.18.6-x64.AppImage` to /tmp/aseq.
+Open: stop looks for 7 unmapped regions; weak whimsy perches (pl-dlz-6, pl-wgor-6, mt-bill-brolly, pl-wcof-6, pl-flfm-6); release 2.6.52 and merge to main (Josh must approve).

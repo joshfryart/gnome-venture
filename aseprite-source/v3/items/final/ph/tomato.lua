@@ -1,52 +1,49 @@
--- tomato (lean E2_17)
 local NAME = "tomato"
+-- tomato: plump ripe slightly squat tomato with faint lobes and stem dimple, five-point green calyx and curly stem,
+-- waxy window highlight, ground shadow. quirk: one dew drop and a tiny split at the shoulder.
 local G = dofile("/home/user/gnome-venture/aseprite-source/v3/items/batch2/_bbg.lua")
 local HP, X, K = G.HP, G.X, G.K
 local c = HP.canvas{ w = 64, h = 64, scale = 1, name = NAME }
 local floor, abs, sin, cos, pi, max, min, sqrt = math.floor, math.abs, math.sin, math.cos, math.pi, math.max, math.min, math.sqrt
 local CUTS = { 0.18, 0.34, 0.5, 0.66, 0.82 }
-local function ell(cx, cy, rx, ry, a)
-  a = a or 0
-  local ca, sa = cos(a), sin(a)
-  local m = HP.mask()
-  for y = floor(cy - max(rx, ry)) - 1, floor(cy + max(rx, ry)) + 1 do for x = floor(cx - max(rx, ry)) - 1, floor(cx + max(rx, ry)) + 1 do
-    local dx, dy = x + 0.5 - cx, y + 0.5 - cy
-    local u, v = (dx * ca + dy * sa) / rx, (-dx * sa + dy * ca) / ry
-    if u * u + v * v <= 1 then m:set(x, y) end
-  end end
-  return m
+local RED = { "#4a1424", "#7a1c2c", "#a82a2a", "#d0402e", "#ec6a3e", "#ff9a62" }
+local GRN = { "#163a35", "#1f553f", "#2b7046", "#3f8f4c", "#62ad55", "#93cb68" }
+c:groundShadow(32, 57, 20, 3)
+local m, n = G.oval(32, 38, 20, 16.5, 0, 1.0)
+-- lobes: perturb the normals with 3 soft ribs so the fruit isn't a ball
+m:each(function(x, y) local k = K(x, y) local v = n[k]
+  local rib = sin((x - 32) * 0.55) * 0.18
+  n[k] = { G.norm and select(1, G.norm(v[1] + rib, v[2], v[3])) or v[1], v[2], v[3] } end)
+local tok = { r = { name = "fruit" } }
+local idx, lv = G.toneN(c, m, n, RED, { tok = tok, cuts = CUTS, amb = 0.08, wrap = 0.25 })
+-- stem dimple: dark ring around the calyx
+m:each(function(x, y) local d = sqrt((x - 32) ^ 2 + ((y - 24) * 1.6) ^ 2) if d > 7 and d < 8.4 then c:put(x, y, RED[2], tok) end end)
+-- ribs (dark creases)
+for _, cx in ipairs{ 18, 46 } do for y = 28, 50 do local x = floor(cx + sin((y - 28) * 0.15) * 2 + (cx < 32 and 0 or 0)) if m:has(x, y) then c:put(x, y, RED[2], tok) end end end
+-- waxy highlight: window streak upper-left
+for _, p in ipairs{ {20,32},{21,31},{22,30},{23,29},{20,33},{21,32},{22,31},{20,34} } do if m:has(p[1], p[2]) then c:put(p[1], p[2], "#ffd8b8", tok) end end
+c:put(21, 31, "#fff4e0", tok) c:put(20, 33, "#fff4e0", tok)
+-- bounce light lower right
+for _, p in ipairs{ {44,48},{43,49},{42,50},{45,46} } do if m:has(p[1], p[2]) then c:put(p[1], p[2], RED[4], tok) end end
+-- quirk: tiny shoulder split + dew drop
+for _, p in ipairs{ {41,27},{42,28},{42,29},{43,30} } do if m:has(p[1], p[2]) then c:put(p[1], p[2], "#f7c46a", tok) end end
+c:put(41, 28, RED[1], tok) c:put(43, 31, RED[1], tok)
+local dm, dn = G.oval(37, 43, 2.2, 2.6, 0, 1)
+local dt = { r = { name = "drop" } }
+X.tone(c, dm, X.light(dn, { amb = 0.1, wrap = 0.2 }), { "#6a2a5a", "#a83a50", "#d8605a", "#f09a86", "#ffd2bc", "#ffd2bc" }, { cuts = CUTS, tok = dt })
+c:put(36, 42, "#fff8ee", dt) c:put(38, 45, "#7aa8c8", dt)
+-- calyx: 5 sepals + stem
+local function sepal(ax, ay, cx, cy, bx, by, w)
+  local sm, sn = G.blade(ax, ay, cx, cy, bx, by, function(t) if t > 0.985 then return -1 end return max(0.4, w * (1 - t) ^ 0.7 * (0.5 + t)) end, { fold = 0.4 })
+  G.toneN(c, sm, sn, GRN, { tok = { r = { name = "sep" .. ax .. bx .. by } }, cuts = CUTS, amb = 0.12, wrap = 0.22 })
 end
-local function shade(m, ramp, tok, R, amb, wrap)
-  local n = X.pillow(m, R)
-  G.toneN(c, m, n, ramp, { tok = tok, cuts = CUTS, amb = amb or 0.1, wrap = wrap or 0.2 })
-  return n
-end
-local function dot(x, y, col, tok) c:put(floor(x), floor(y), col, tok) end
-local RED = { "#4a0f22", "#7e1a26", "#b52a2a", "#dc4a2e", "#f27a42", "#ffb878" }
-local LEAF = { "#173a2a", "#25603a", "#3c8a44", "#62b050", "#98d070" }
-c:groundShadow(32, 58, 20, 3)
-local m = ell(32, 36, 21, 18)
-m:cut(c:rect(31, 17, 33, 19)) -- slight dimple handled by calyx
-local t = { r = { name = "fruit" } }
-local n = shade(m, RED, t, 20, 0.08, 0.2)
--- lobe creases
-for _, x in ipairs{ 20, 44 } do c:line({ {x, 24}, {x - 1 + (x > 32 and 2 or 0), 38}, {x, 51} }, 1):clip(m):each(function(px, py) c:put(px, py, RED[2], t) end) end
-local sx, sy = G.specAt(m, n, 22)
-if sx then for _, p in ipairs{ {0,0},{1,0},{0,1},{-1,1},{2,1} } do dot(sx + p[1], sy + p[2], RED[6], t) end end
-dot(sx + 3, sy + 4, "#ffd8a8", t)
--- calyx star: five pointed sepals
-local ct = { r = { name = "calyx" } }
-for i = 0, 4 do
-  local a = -pi / 2 + (i - 2) * 1.2 + 0.0
-  local ex, ey = 32 + cos(a) * 15, 21 + sin(a) * 6 + 3
-  local lm, ln, LT, LS = G.blade(32, 21, 32 + cos(a) * 9, 21 + sin(a) * 6 - 2, ex, ey, function(u) if u > 0.97 then return -1 end return max(0.4, 2.8 * sin(pi * min(1, u * 0.95 + 0.05)) ^ 0.7) end, { fold = 0.3 })
-  G.toneN(c, lm, ln, LEAF, { tok = ct, cuts = CUTS, amb = 0.1, wrap = 0.2 })
-end
-ell(32, 21, 3, 2):each(function(x, y) c:put(x, y, LEAF[2], ct) end)
--- stem
-local sm = G.tube({ {32,21}, {32,14}, {33,9}, {37,7} }, function(u) return 2.0 - 0.5 * u end)
-sm:each(function(x, y) c:put(x, y, x <= 32 and "#8aae48" or "#4e7a30", { r = { name = "stem" } }) end)
-dot(32, 12, "#c4e078", ct)
--- quirk: a fat dew drop on the shoulder
-for _, p in ipairs{ {44,28,"#ffd8d0"},{45,28,"#ffeee8"},{44,29,"#b8c8e8"},{45,29,"#8aa0d0"},{43,29,"#8aa0d0"} } do dot(p[1], p[2], p[3], t) end
+sepal(32, 24, 22, 24, 14, 29, 2.6)
+sepal(32, 24, 42, 24, 50, 29, 2.6)
+sepal(32, 24, 26, 20, 19, 19, 2.2)
+sepal(32, 24, 38, 20, 45, 19, 2.2)
+sepal(32, 25, 31, 30, 29, 33, 2.2)
+local km, kn = G.oval(32, 24, 3.2, 2.2, 0, 1)
+X.tone(c, km, X.light(kn, { amb = 0.1, wrap = 0.25 }), GRN, { cuts = CUTS, tok = { r = { name = "hub" } } })
+local sm, sn, ST = G.tube({ {32,23}, {32,16}, {34,11}, {38,10} }, function(t) return 1.5 - 0.4 * t end)
+G.toneN(c, sm, sn, GRN, { tok = { r = { name = "stem" } }, cuts = CUTS })
 G.save(c, NAME)

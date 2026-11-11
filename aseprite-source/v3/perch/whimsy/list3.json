@@ -1,0 +1,135 @@
+[
+{
+"key": "ss-cocopaddle",
+"name": "Cocopaddle",
+"rarity": "rare",
+"shape": "whimsy-boat",
+"blurb": "Sails a coconut half across the whole archipelago."
+},
+{
+"key": "dw-mirage-moon",
+"name": "Mirage Moon",
+"rarity": "rare",
+"shape": "whimsy-moon",
+"blurb": "Shines over the dunes and makes the camels blink."
+},
+{
+"key": "mt-bill-brolly",
+"name": "Bill Brolly",
+"rarity": "rare",
+"shape": "whimsy-hornbill",
+"blurb": "Carries a giant leaf for an umbrella and shares it with the nearest frog."
+},
+{
+"key": "pl-dlz-6",
+"name": "Mossback Monitor",
+"rarity": "rare",
+"shape": "whimsy-lizard",
+"blurb": "A pocket-sized monitor lizard, polished by a hundred jungle naps."
+},
+{
+"key": "pl-jdf-6",
+"name": "Lotus Perch",
+"rarity": "rare",
+"shape": "whimsy-lotus",
+"blurb": "A pink lotus where the jade dragon-fly naps, humming with its wingbeat."
+},
+{
+"key": "pl-scr-6",
+"name": "Sandlit Scarab Charm",
+"rarity": "rare",
+"shape": "whimsy-scarab",
+"blurb": "A cart-sized beetle shrunk to a charm, its red jewel still blinking."
+},
+{
+"key": "pl-jrc-6",
+"name": "Boulder Jaguar",
+"rarity": "rare",
+"shape": "whimsy-jaguar",
+"blurb": "A chibi jaguar curled on its mossy boulder, guarding the twisty path with a very serious purr."
+},
+{
+"key": "pl-scg-6",
+"name": "Moonlit Keg",
+"rarity": "rare",
+"shape": "whimsy-barrel",
+"blurb": "A keg on the tide ledge that hides a moonbeam and sneaks it past the coast guard."
+},
+{
+"key": "pl-aurc-6",
+"name": "Nightcap Fox",
+"rarity": "rare",
+"shape": "whimsy-fox",
+"blurb": "A cosy little fox curled up by the camp, who wraps its tail around the warmest spot of the night."
+},
+{
+"key": "pl-flfm-6",
+"name": "Garland Florist",
+"rarity": "rare",
+"shape": "whimsy-marigold",
+"blurb": "A little marigold in a pink hat who rows through the lake market and sells garlands to every passing boat."
+},
+{
+"key": "pl-chil-6",
+"name": "Pepper Prince",
+"rarity": "rare",
+"shape": "whimsy-chili",
+"blurb": "A plump red chili in a tiny crown, who sells the spiciest bargains in the whole market."
+},
+{
+"key": "pl-thch-6",
+"name": "Teatime Hedgehog",
+"rarity": "rare",
+"shape": "whimsy-hedgehog",
+"blurb": "A round little hedgehog who trots between the tables with a tiny treat and never spills a drop."
+},
+{
+"key": "pl-wcof-6",
+"name": "Headband Pourer",
+"rarity": "rare",
+"shape": "whimsy-host",
+"blurb": "A calm host in a striped headband who pours three cups and spills not a drop."
+},
+{
+"key": "pl-wgor-6",
+"name": "Frowny Silverback",
+"rarity": "rare",
+"shape": "whimsy-gorilla",
+"blurb": "A huge, soft-hearted silverback who looks stern but shares his fruit, one at a time."
+},
+{
+"key": "pl-wpea-6",
+"name": "Whiskerwatch Diver",
+"rarity": "rare",
+"shape": "whimsy-diver",
+"blurb": "A bearded diver on the raft who holds a pearl up to the sun and keeps the rest for later."
+},
+{
+"key": "pl-wsto-6",
+"name": "Blinkseed Stonehead",
+"rarity": "rare",
+"shape": "whimsy-stonehead",
+"blurb": "A carved head in a small red cap who blinks once and drops a gold seed for every question."
+},
+{
+"key": "pl-migr-6",
+"name": "Pinstripe Plodder",
+"rarity": "rare",
+"shape": "whimsy-zebra",
+"blurb": "A chibi zebra with bold black stripes, plodding happily along with the herd and never falling behind."
+},
+{
+"key": "pl-silk-6",
+"name": "Purplehat Haggler",
+"rarity": "rare",
+"shape": "whimsy-merchant",
+"blurb": "A chibi travelling gnome in a purple cone hat, swapping seeds with a dozen lands at once."
+},
+{
+"key": "pl-gate-6",
+"name": "Whisker Sentinel",
+"rarity": "rare",
+"shape": "whimsy-gatecat",
+"blurb": "A chibi shrine cat with a red collar, sitting very still beside the path and watching every climber."
+}
+]

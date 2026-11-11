@@ -1,0 +1,42 @@
+{
+  "_about": "Slim Home > Furnish (includes/home_slim.php). The hovel room is scenes/hovel-room.png, 480x270, floor line y=220; the Home banner is its y104-224 crop (480x120). Each slot is a layer box on that canvas; each item's art is assets/img/scenes/hovel-<slot>-<item>.png at the slot's size (feet bottom-centre, 1 px umber outline, transparent). Art is optional. own: true = every gnome has it (v1: no economy; hovel_decor_owned() is where new sources go). cosy: 0 to 2 per item; the meter's top is the sum of each slot's best item.",
+  "canvas": {"w": 480, "h": 270, "crop": [104, 224], "floor": 220},
+  "gnome": {"x": 214, "y": 172, "w": 32, "h": 48},
+  "slots": [
+    {"k": "floor", "name": "Floor", "x": 0, "y": 220, "w": 480, "h": 50, "items": [
+      {"k": "plank", "name": "Planks", "cosy": 1, "own": true},
+      {"k": "stone", "name": "Flagstones", "cosy": 1, "own": true},
+      {"k": "moss", "name": "Moss floor", "cosy": 1, "own": false, "where": "Market · 40 Petals"}
+    ]},
+    {"k": "wall", "name": "Wall", "x": 150, "y": 80, "w": 40, "h": 32, "items": [
+      {"k": "sampler", "name": "Sampler", "cosy": 1, "own": true},
+      {"k": "leaf", "name": "Pressed leaf", "cosy": 1, "own": true},
+      {"k": "map", "name": "Old map", "cosy": 2, "own": false, "where": "Wren’s Journey, step 5"}
+    ]},
+    {"k": "window", "name": "Window", "x": 56, "y": 62, "w": 48, "h": 48, "items": [
+      {"k": "curtain", "name": "Curtains", "cosy": 1, "own": true},
+      {"k": "plain", "name": "Plain", "cosy": 0, "own": true},
+      {"k": "ivy", "name": "Ivy", "cosy": 2, "own": false, "where": "Garden level 3"}
+    ]},
+    {"k": "shelf", "name": "Shelf", "x": 300, "y": 84, "w": 64, "h": 40, "items": [
+      {"k": "jars", "name": "Jars", "cosy": 1, "own": true},
+      {"k": "books", "name": "Books", "cosy": 2, "own": true},
+      {"k": "shells", "name": "Shells", "cosy": 2, "own": false, "where": "Trip to the coast"}
+    ]},
+    {"k": "rug", "name": "Rug", "x": 168, "y": 224, "w": 112, "h": 24, "items": [
+      {"k": "rush", "name": "Rush mat", "cosy": 1, "own": true},
+      {"k": "mossrug", "name": "Moss rug", "cosy": 2, "own": true},
+      {"k": "patch", "name": "Patchwork", "cosy": 2, "own": false, "where": "Crafting: sewing"}
+    ]},
+    {"k": "lamp", "name": "Lamp", "x": 276, "y": 180, "w": 16, "h": 40, "items": [
+      {"k": "candle", "name": "Candle", "cosy": 1, "own": true},
+      {"k": "glowcap", "name": "Glowcap", "cosy": 2, "own": true},
+      {"k": "lantern", "name": "Lantern", "cosy": 2, "own": false, "where": "Market · 25 Petals"}
+    ]},
+    {"k": "pet", "name": "Pet corner", "x": 18, "y": 188, "w": 48, "h": 32, "items": [
+      {"k": "basket", "name": "Basket", "cosy": 1, "own": true},
+      {"k": "cushion", "name": "Cushion", "cosy": 1, "own": true},
+      {"k": "hammock", "name": "Hammock", "cosy": 1, "own": false, "where": "Festival prize"}
+    ]}
+  ]
+}
