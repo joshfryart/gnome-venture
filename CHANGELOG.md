@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.60 (not built yet)
+
+- Puzzle fight: the picture banner (gnome and creature on a landscape) above the panel is gone, and the info pop-up's piece picture is smaller.
+
 ## 2.6.59
 
 - Puzzle fight: a turn resolves completely before the other side's begins. A chain that runs through the other side's pieces no longer flips the banner back and forth (events now carry the turn they belong to).

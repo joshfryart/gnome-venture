@@ -322,7 +322,7 @@ $overMap = $exp && fight_scene_on() && (($fighting && !$pfAct) || fight_finale_p
 if ($exp && $overMap && !$fighting && !$hasMap) echo fight_finale_html($u, $exp, null);   // no map on the page (the list): the end scene plays on a stage of its own
 $evStage = $exp && !$trailSc && !$hasMap && fight_scene_on() && $enc && in_array($enc['type'] ?? '', ['choice', 'problem'], true);   // an event or a skill check stands on the same stage
 if ($evStage) { echo fight_event_html($u, $enc); }
-elseif ($exp && !$trailSc && !$fsc && !($overMap && !$hasMap)) { echo adventure_stage_html($u, $exp, $scene, $enc); }   // the tile page has no scene picture: the map is the picture ?>
+elseif ($exp && !$trailSc && !$fsc && !$pfAct && !($overMap && !$hasMap)) { echo adventure_stage_html($u, $exp, $scene, $enc); }   // the tile page has no scene picture: the map is the picture ?>
 <?php if ($dv2Scene): // v2.3.1: the floor you are on, or the route menu between floors ?>
 <?php if ($dv2Scene['map']): ?><?= dv2_floor_html($u, $exp, $dv2Scene, (bool)$enc, $overMap) ?>
 <?php elseif ($dv2Scene['st']['q']): ?><?= dv2_quick_html($dv2Scene) ?>
