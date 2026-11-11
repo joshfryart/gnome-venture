@@ -2,7 +2,7 @@
 
 ## 2.6.60 (not built yet)
 
-- Puzzle fight: the picture banner (gnome and creature on a landscape) above the panel is gone, and the info pop-up's piece picture is smaller.
+- Puzzle fight: the picture banner (gnome and creature on a landscape) above the panel and the "About the creature" fold under it are gone, and the info pop-up's piece picture is smaller.
 
 ## 2.6.59
 

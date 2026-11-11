@@ -410,7 +410,6 @@ if ($trailPop): ?><dialog class="picker hubpop trailpop" id="trailpop" open aria
 <?php elseif ($enc && $enc['type'] === 'creature' && pfight_on($u)):
     $c = encounter_creature($enc); fight_prep($enc, $c); ?>
   <?= pfight_html($u, $exp, $enc, $c) ?>
-  <details class="helpfold"><summary>About the <?= e($c['name']) ?></summary><p><i><?= e($c['description']) ?></i></p></details>
 
 <?php elseif ($enc && $enc['type'] === 'creature'):
     $c = encounter_creature($enc);
