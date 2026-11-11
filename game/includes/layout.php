@@ -594,11 +594,12 @@ function nav_sheet(array $u, string $page): string
     if (festival_active()) array_splice($groups['Together'], 3, 0, [['festival.php', festival_active()['icon'], 'Festival', '', 'festival']]);   // v1.7.0 menu: no 'on' badge (the status line shows the festival)
     require_once __DIR__ . '/destination.php';
     $ds = function_exists('dest_status') ? dest_status($u) : null;
+    require_once __DIR__ . '/home_slim.php'; $slimNav = (int)($u['onboarded'] ?? 1) === 1 && home_slim_on();   // slim home: the home page is the hovel, so the menu says so
     $h = '<div class="navhead"><a class="navme" href="' . e(url('gnome.php?tab=gnome')) . '">' . gnome_avatar_pals($u, 40) . '<span><b>' . e(gnome_name($u)) . '</b></span></a>'
         . '<button type="button" class="navx" aria-label="Close the menu">✕</button></div>'
         . '<div class="navrow"><p class="navstatus' . ($ds ? '' : ' nodest') . '"><span class="navpetals">' . money((int)$u['coins']) . ($ds ? ' · ' : '') . '</span>'   // v2.4.91: Petals hidden from 721px (the header pill shows them)
         . ($ds ? '🏁 ' . e(dest_name($uid, $ds[0])) . ', ' . (int)$ds[1] . ' stop' . ($ds[1] === 1 ? '' : 's') : '') . '</p>'
-        . '<a class="navhome' . ($page === 'gnome.php' ? ' on" aria-current="page' : '') . '" href="' . e(url('gnome.php')) . '"><span class="nti">' . nav_icon('today', '🏠', 20) . '</span> Home</a>' . theme_toggle('th-nav') . '</div>';   // v1.6.5: dark/light switch next to it   // v1.0.0.1: one row on a phone   // next version: the one menu entry for the home page (Today + My Gnome); the My Gnome tile is gone
+        . '<a class="navhome' . ($page === 'gnome.php' ? ' on" aria-current="page' : '') . '" href="' . e(url('gnome.php')) . '"><span class="nti">' . (!empty($slimNav) ? nav_icon('hovel', '🛏️', 20) : nav_icon('today', '🏠', 20)) . '</span> ' . (!empty($slimNav) ? 'Hovel' : 'Home') . '</a>' . theme_toggle('th-nav') . '</div>';   // v1.6.5: dark/light switch next to it   // v1.0.0.1: one row on a phone   // next version: the one menu entry for the home page (Today + My Gnome); the My Gnome tile is gone
     foreach ($groups as $name => $tiles) {
         // menu icons: the groups stay open on every screen (no folding any more)
         $tl = '';
