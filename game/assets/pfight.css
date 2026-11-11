@@ -22,3 +22,4 @@
 .pf-extra { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
 .pfight .pf-on { background: Highlight; color: HighlightText; }
 @media (prefers-reduced-motion: reduce) { .pf-strip { scroll-behavior: auto; scroll-snap-type: none; } .pf-hand .pf-picked { transform: none; } }
+.pf-last { margin: 0; padding-left: 1.2rem; font-size: .85rem; }

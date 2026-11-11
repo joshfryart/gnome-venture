@@ -29,7 +29,14 @@ function pfight_me(array $u, array $exp): array
             $pals = pfight_pal_tiles($u);
         }
     }
-    $deck = pf_player_deck($st, (string)($u['calling'] ?? ''), max(1, min(3, (int)calling_tier($u))), $pals);
+    // the old calling numbers, remapped (no d20 any more): extra damage, defence and the Wayfinder's Nimble attack become tile values; a keen crit range becomes +1 Hurt
+    $hurtB = calling_perk($u, 'dmg_bonus') + (calling_perk($u, 'atk_bonus') >= 2 ? 1 : 0) + (calling_perk($u, 'crit_from', 20) <= 19 ? 1 : 0);
+    if (calling_perk($u, 'atk_nimble') > 0) $st['grit'] = max($st['grit'], $st['nimble'] + calling_perk($u, 'atk_nimble'));
+    $unlocked = [];
+    if ((int)$u['level'] >= 4) $unlocked[] = 'soothe';   // interim unlocks until the crafting hook exists: Soothe at level 4, Taunt at 7, Offer at 10
+    if ((int)$u['level'] >= 7) $unlocked[] = 'taunt';
+    if ((int)$u['level'] >= 10) $unlocked[] = 'offer';
+    $deck = pf_player_deck($st, (string)($u['calling'] ?? ''), max(1, min(3, (int)calling_tier($u))), $pals, $unlocked, ['hurt' => $hurtB, 'guard' => calling_perk($u, 'def_bonus')]);
     return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => $deck, 'luck' => max(0, $st['luck'] * 2)];
 }
 
@@ -95,7 +102,8 @@ function pfight_do(array $u, array &$exp, string $do): bool
         if ($r['err']) { flash($r['err'], 'err'); return false; }
         $snackUsed = $want;
         pfight_unlock((int)$u['id'], $r['ev']);
-        foreach ($r['ev'] as $e) exp_log($exp, pfight_line($e, (string)$c['name']));
+        $enc['last'] = [];
+        foreach ($r['ev'] as $e) { $ln = pfight_line($e, (string)$c['name']); exp_log($exp, $ln); $enc['last'][] = $ln; }
         for ($i = 0; $i < $snackUsed; $i++) {   // eat the real snacks (the first one in the list that is left)
             foreach (fight_snacks($u) as $sn) if (give_item((int)$u['id'], (int)$sn['id'], -1)) { $enc['snacks'] = (int)($enc['snacks'] ?? 0) + 1; break; }
         }
@@ -149,6 +157,7 @@ function pfight_html(array $u, array $exp, array &$enc, array $c): string
     foreach ($v['strip'] as $t) $h .= pfight_tile_html($t, true);
     if (!$v['strip']) $h .= '<small class="muted">Nothing played yet. You go first.</small>';
     $h .= '</div>';
+    if (!empty($enc['last'])) { $h .= '<ol class="pf-last" aria-live="polite" aria-label="What just happened">'; foreach ($enc['last'] as $ln) $h .= '<li>' . e($ln) . '</li>'; $h .= '</ol>'; }
     $h .= '<div class="pf-me">❤️ <progress max="' . (int)$v['max'] . '" value="' . (int)$v['hp'] . '"></progress> ' . (int)$v['hp'] . '/' . (int)$v['max'] . ($v['block'] ? ' · 🛡️ ' . (int)$v['block'] : '') . '</div>';
     $h .= '<p class="pf-preview help" id="pf-preview" aria-live="polite">Tap tiles in the order you want them (1 to 4).</p>';
     $h .= '<div class="pf-hand" id="pf-hand">';

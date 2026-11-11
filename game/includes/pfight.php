@@ -84,14 +84,14 @@ function pf_make_tile(string $key, array $stats, int $bonus = 0, array $over = [
 
 /** Player deck: gnome base six, the calling tile (tier upgrades value) and pals swapping in for gnome tiles.
  *  $pals = list of ['swap' => gnomeTileKey, 'n' => name, 't' => type, 'v' => base, 'r' => knob|null]. */
-function pf_player_deck(array $stats, string $calling = '', int $tier = 1, array $pals = [], array $unlocked = []): array
+function pf_player_deck(array $stats, string $calling = '', int $tier = 1, array $pals = [], array $unlocked = [], array $typeBonus = []): array
 {
     $keys = ['swing', 'dodge', 'rest', 'charm', 'snack', 'hide'];
     foreach ($unlocked as $k) if (isset(pf_tiles()[$k]) && !in_array($k, $keys, true)) $keys[] = $k;
     $deck = [];
     foreach ($keys as $k) {
         $t = pf_tiles()[$k];
-        $deck[] = pf_make_tile($k, $stats, $calling === 'bloomcaller' && in_array($t['t'], ['charm', 'soothe'], true) ? 2 : 0);   // Bloomcallers: bigger Charm and Soothe numbers
+        $deck[] = pf_make_tile($k, $stats, ($calling === 'bloomcaller' && in_array($t['t'], ['charm', 'soothe'], true) ? 2 : 0) + (int)($typeBonus[$t['t']] ?? 0));   // Bloomcallers: bigger Charm and Soothe numbers
     }
     foreach (array_slice($pals, 0, 2) as $p) {   // a pal replaces one gnome tile of the type it swaps for
         foreach ($deck as $i => $t) if ($t['k'] === ($p['swap'] ?? '')) {
@@ -99,7 +99,7 @@ function pf_player_deck(array $stats, string $calling = '', int $tier = 1, array
             break;
         }
     }
-    if (isset(PF_CALLING_TILE[$calling])) $deck[] = pf_make_tile(PF_CALLING_TILE[$calling], $stats, max(0, $tier - 1) * 2);
+    if (isset(PF_CALLING_TILE[$calling])) $deck[] = pf_make_tile(PF_CALLING_TILE[$calling], $stats, max(0, $tier - 1) * 2 + (int)($typeBonus[pf_tiles()[PF_CALLING_TILE[$calling]]['t']] ?? 0));
     return $deck;
 }
 
@@ -128,6 +128,11 @@ function pf_foe_deck(array $c, array $foeStats): array
     else { $deck[] = $mk('guard2', 'Shy Back', 'guard', max(1, intdiv($v * 2, 3)), 'body'); }
     if ($size === 'large' || $boss) { $deck[] = $mk('hit4', 'Slam', 'hurt', $v + 2, 'mind'); $deck[] = $mk('guard3', 'Bulk', 'guard', max(1, $v - 1), 'craft'); }
     if ($boss) { $deck[] = $mk('hit5', 'Crush', 'hurt', $v + 3, 'body'); $deck[] = $mk('feint2', 'Scheme', 'trick', max(1, intdiv($v, 2)), 'mind'); }
+    if ($boss) {   // authored pattern: wind up, guard, strike, feint, heavy blows late. The boss plays the deck in this order.
+        $order = ['f:feint', 'f:guard', 'f:hit1', 'f:feint2', 'f:hit2', 'f:guard3', 'f:hit3', 'f:hit4', 'f:rest', 'f:hit5'];
+        $rank = array_flip($order);
+        usort($deck, fn($a, $b) => ($rank[$a['k']] ?? 99) <=> ($rank[$b['k']] ?? 99));
+    }
     foreach ((array)($c['signature'] ?? PF_SIGNATURE[(string)($c['slug'] ?? '')] ?? []) as $sig) $deck[] = $mk('sig' . count($deck), (string)$sig['n'], (string)$sig['t'], (int)$sig['v'], $sig['r'] ?? null, 'sig');
     return $deck;
 }
@@ -171,7 +176,8 @@ function pf_new(array $me, array $c, int $seed, array $opt = []): array
     ];
     $s['me']['draw'] = pf_shuffle($s, array_values($me['deck']));
     $foeDeck = pf_foe_deck($c, []);
-    $s['foe']['draw'] = pf_shuffle($s, $foeDeck);
+    $s['foe']['ordered'] = $boss;
+    $s['foe']['draw'] = $boss ? array_reverse($foeDeck) : pf_shuffle($s, $foeDeck);   // a boss plays its authored order (the deck list), over and over
     $exp = pf_expected_bar($me['deck'], $hm, $cm);
     $s['bar']['max'] = max(6.0, round($exp * pf_pace($size) * ($boss ? 1.8 : 1.5), 1));
     // turn one: player draws up to the cap, foe draws its hand
@@ -188,7 +194,7 @@ function pf_draw(array &$s, string $who, int $upTo): void
     while (count($p['hand']) < $upTo) {
         if (!$p['draw']) {
             if (!$p['discard']) return;
-            $p['draw'] = pf_shuffle($s, $p['discard']); $p['discard'] = [];
+            $p['draw'] = ($who === 'foe' && !empty($p['ordered'])) ? array_reverse($p['discard']) : pf_shuffle($s, $p['discard']); $p['discard'] = [];
             $p = &$s[$who];
         }
         $p['hand'][] = array_pop($p['draw']);
