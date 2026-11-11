@@ -395,7 +395,7 @@ function pfb_new(array $me, array $c, int $seed, array $opt = []): array
     foreach (['hand', 'draw', 'discard'] as $z) foreach ($s['foe'][$z] as $i => $t) $s['foe'][$z][$i]['v'] = max(1, (int)round($t['v'] * PFB_FOE_MULT));
     $s['bar']['max'] = round($s['bar']['max'] * PFB_BAR_MULT, 1); $s['fh']['max'] = $s['bar']['max'];
     $s['mode'] = 'board'; $s['strip'] = []; $s['pcs'] = []; $s['cell'] = []; $s['pid'] = 0; $s['seq'] = 0; $s['round'] = 1;
-    $n = in_array($s['size'], ['large', 'boss'], true) ? 2 : 1;
+    $n = $s['size'] === 'boss' ? 2 : 1;
     for ($k = 0; $k < $n; $k++) {
         $pick = pfb_anchor_pick($s); if ($pick === null) continue; $hand = $s['foe']['hand'];
         $cells = $s['pcs'] ? null : [[intdiv(PFB_W, 2), intdiv(PFB_H, 2)]];

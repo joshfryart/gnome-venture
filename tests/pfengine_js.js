@@ -32,7 +32,7 @@ function fail(ctx, php, js, label) {
   const d = first(norm(php), norm(js), label);
   if (!d) return false;
   bad++;
-  if (bad <= 12) console.log('FAIL ' + ctx + ' at ' + d.p + '\n   php: ' + JSON.stringify(d.php).slice(0, 300) + '\n   js:  ' + JSON.stringify(d.js).slice(0, 300));
+  if (bad <= 12) console.log('FAIL ' + ctx + ' at ' + d.p + '\n   php: ' + String(JSON.stringify(d.php)).slice(0, 300) + '\n   js:  ' + String(JSON.stringify(d.js)).slice(0, 300));
   return true;
 }
 

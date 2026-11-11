@@ -818,7 +818,7 @@
     ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t) { t.v = Math.max(1, iround(t.v * PFB_FOE_MULT)); }); });
     s.bar.max = round(s.bar.max * PFB_BAR_MULT, 1); s.fh.max = s.bar.max;
     s.mode = 'board'; s.strip = []; s.pcs = {}; s.cell = {}; s.pid = 0; s.seq = 0; s.round = 1;
-    var n = (s.size === 'large' || s.size === 'boss') ? 2 : 1;
+    var n = s.size === 'boss' ? 2 : 1;
     for (var k = 0; k < n; k++) {
       var pick = anchorPick(s); if (pick === null) continue;
       var hand = s.foe.hand;

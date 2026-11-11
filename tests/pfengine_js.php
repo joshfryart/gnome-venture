@@ -149,7 +149,10 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
         foreach (candidates($s, $mode) as $mv) {
             $tn = $s['turn'];
             if ($mv === null) {
-                $r = pfb_pass($s, $tn); $emit(['op' => 'pass', 'turn' => $tn, 'res' => $r, 'lines' => []]);
+                $r = pfb_pass($s, $tn); $step = ['op' => 'pass', 'turn' => $tn, 'res' => $r]; $pev = $r['ev'] ?? [];   // the creature plays after a pass too: same records as a play
+                $step['lines'] = array_map(fn($e) => pfight_line($e, $s['foe']['name']), $pev);
+                $step['chips'] = array_map(fn($e, $i) => pfight_chip_event($e, $i), $pev, array_keys($pev));
+                $step['chipsb'] = pfight_chips_board($pev); $emit($step);
                 if (!$r['err']) break; else continue;
             }
             if (($mode !== 'single' || $tn % 3 === 0) && ($t % 2 === 0 || $mode === 'chaos')) {   // a dry run first: it must not change anything
