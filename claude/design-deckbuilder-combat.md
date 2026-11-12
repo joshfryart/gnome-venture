@@ -381,3 +381,4 @@ Data: add a `class` column to `creatures.txt` (after `size`), values `insect|bir
 
 Open: (a) keep 6 classes or fold Plant into Beast; (b) poison and trip stacking caps above; (c) mockup screen 5 shows the layers.
 10. DECIDED (Q16-Q19): keep 6 classes (Plant/Fungus stays). Class "Insect" renamed CRITTER (insects, spiders, scorpion, centipede, snail, slug; trick quick). Sea otter bandit, salt sea lion, bog leech = Water; reef turtle = Reptile/Amphibian; jade jaguar = Beast; thistle beast, will-o-wisp, old bramblehorn = Plant/Fungus. No `?` tags left. Stacking caps for poison/trip still untested.
+11. DECIDED (Josh): Pre-fight screen: Auto-use current deck option (remembered per player); creature card still shown; active deck shown read-only (with a way to turn Auto off and edit); then Let's fight.

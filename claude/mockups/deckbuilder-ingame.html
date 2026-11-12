@@ -1006,13 +1006,17 @@ body{margin:0;background:var(--felt);color:var(--felt-ink);font:400 1rem/1.5 var
           <div class="leanleg"><span><i style="background:var(--danger)"></i>body</span><span><i style="background:var(--purple)"></i>mind</span><span><i style="background:var(--accent)"></i>craft</span></div></div>
       </div>
       <div class="chips small"><span class="chip">It plays: Claw · Maul · Brace · Shoulder Barge</span><span class="chip">+ Mist Veil · Bog Grip</span><span class="chip">+ Slam · Howl · 2 more</span></div>
-      <p class="help" style="margin-top:8px">Swaps: <span class="pips" id="pips"><i></i><i></i></span> <span id="swapcount">0 made, no limit</span>. Tap a deck piece to take out, then a bench piece to put in. The deck locks when the board appears.</p>
+      <label class="pbox-item" style="margin-top:10px;cursor:pointer"><input type="checkbox" id="autouse" aria-label="Auto-use my current deck"><span class="pbox-txt"><b>Auto-use my current deck</b><br><small>Skip swapping and go straight to the fight. Remembered for you.</small></span></label>
+      <div id="swapui"><p class="help" style="margin-top:8px">Swaps: <span class="pips" id="pips"><i></i><i></i></span> <span id="swapcount">0 made, no limit</span>. Tap a deck piece to take out, then a bench piece to put in. The deck locks when the board appears.</p>
       <div class="sec">Your deck <span id="deckn">16</span></div>
       <ul class="pbox-grid" id="pfdeck"></ul>
       <div class="sec">Bench <span>tap one to put in</span></div>
       <div class="pf-strip" id="pfbench" style="overflow-x:auto"></div>
       <p class="note" id="swapnote">Tip: Pierce gets through Brace; Mist Veil makes your first hit miss, so a cheap Jab first is good.</p>
-      <div class="actrow"><button type="button" class="btn" id="s3reset">Undo swaps</button><a class="btn" href="#s2" title="Full box">🧩 Box</a><button type="button" class="btn primary">⚔️ Fight</button></div>
+      </div>
+      <div id="autoui" hidden><p class="note"><b>Auto deck is active.</b> Your saved deck goes into the fight as it is. <button type="button" class="btn" id="autooff" style="min-height:30px;padding:2px 8px">Turn off and edit</button></p>
+      <div class="sec">Active deck <span id="autodeckn">read-only</span></div><ul class="pbox-grid" id="autodeck"></ul></div>
+      <div class="actrow"><button type="button" class="btn" id="s3reset">Undo swaps</button><a class="btn" href="#s2" title="Full box">🧩 Box</a><button type="button" class="btn primary">⚔️ Let's fight</button></div>
     </div>
   </main></div>
   <nav class="bottombar" aria-label="Quick links"><a href="#"><span aria-hidden="true">🌱</span>Garden</a><a href="#"><span aria-hidden="true">🌍</span>World</a><a href="#"><span aria-hidden="true">👜</span>Satchel</a><a href="#" class="on" aria-current="page"><span aria-hidden="true">📍</span>Here</a><a href="#"><span aria-hidden="true">📋</span>Tasks</a><button type="button" class="menubtn more"><span aria-hidden="true">☰</span>More</button></nav>
@@ -1220,6 +1224,15 @@ function s3draw(){
 }
 $('#s3reset').addEventListener('click',function(){deck=deck0.map(function(p){delete p.sw;return p;});bench=bench0.slice();swaps=0;outSel=null;s3draw();});
 s3draw();
+function autoSet(on,save){
+  $('#autouse').checked=on;$('#swapui').hidden=on;$('#autoui').hidden=!on;$('#s3reset').hidden=on;
+  var L=$('#autodeck');L.innerHTML='';if(on)deck.forEach(function(p){L.appendChild(card(p,{tag:'div',src:false,cls:'fixed'}));});
+  $('#autodeckn').textContent=deck.length+' pieces, read-only';
+  if(save)safe(function(){localStorage.setItem('gv_autodeck',on?'1':'0');});
+}
+$('#autouse').addEventListener('change',function(){autoSet(this.checked,true);});
+$('#autooff').addEventListener('click',function(){autoSet(false,true);});
+autoSet(safe(function(){return localStorage.getItem('gv_autodeck')==='1';})===true,false);
 
 /* ================= 4. in the fight: a captured frame of the game's own board and hand ================= */
 (function(){
