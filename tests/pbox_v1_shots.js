@@ -78,7 +78,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
 
     // ---- 4. the fight: a seeded position with ground, a forecast, the aim and hand pieces that cannot be played
     await speed(0); let st = null;
-    for (const sd of [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]) {   // the deck differs with the kit that was packed: take the first seeded position that shows everything
+    for (const sd of [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]) {   // the deck differs with the kit that was packed: take the first seeded position that shows everything
       seed('fight', 'large'); seed('midfight', String(sd), '3', 'soft'); await open('/adventure.php'); await p.waitForTimeout(500);
       st = await pos(); if (st.off >= 1 && st.off < 5 && st.envp >= 1 && st.aim === 1 && st.ground === 0) break;
     }

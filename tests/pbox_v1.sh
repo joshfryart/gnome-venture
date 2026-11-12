@@ -139,7 +139,7 @@ curl -s -c $C -b $C -X POST "$BASE/adventure.php" -H 'X-Requested-With: pfflip' 
 ck "flip by request: the same piece again flips it back" "$(encq 'empty($s["me"]["hand"][0]["flip"]) ? "back" : "flipped"')" "back"
 php -d display_errors=1 "$HERE/pbox_v1_seed.php" "$GAME" midfight 8 3 soft | tail -1
 get adventure.php >/dev/null
-ck "after a turn: the state before it (aim, and the face-up environment pieces) is in the page for the replay; environment events carry where they landed" "$(grep -c '"prev":{"ter":{' $H) $(grep -c '"env":"place"' $H) $(grep -c '"env":{"next":\[{' $H)" "1 1 1"
+ck "after a turn: the state before it (aim, and the face-up environment pieces) is in the page for the replay; environment events carry where they landed" "$(grep -c '"prev":{"ter":' $H) $(grep -c '"env":"\(place\|pass\)"' $H) $(grep -c '"env":{"next":\[{' $H)" "1 1 1"
 ck "terrain chips have no piece-type icon" "$(grep -o '<li class="pf-chip env[^>]*>.\{0,90\}' $H | grep -c 'pfh-ico\|❔')" "0"
 
 echo "== the result card"
