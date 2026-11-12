@@ -1,0 +1,177 @@
+# Puzzle board combat as a deckbuilder: design review (2026-11-12)
+
+Design only. No game code changed. Mockups: `claude/mockups/deckbuilder-mockups.html` (390 px first; starter pick, Puzzle box, pre-fight swap, in-fight hand and board).
+Josh's brief: combat should feel like a deckbuilder with equipment. Pals and tools add pieces, pieces come from every part of the game, a new player picks a starter deck, a Puzzle box page manages it, swaps happen only before a fight, expiry is reviewed, and every creature gets its own pieces plus region pieces.
+
+## 1. Current state (what is already there)
+
+| Area | Finding | Where |
+|---|---|---|
+| A deck already exists | The **Puzzle box** is a list of tile keys, one copy each. Capacity is 8 at level 1, +1 per 3 levels, 14 max; at least 6, and at least 1 Hurt. Stored as JSON in `user_pbox` (table made on first use). Page `puzzlebox.php`, linked from `gnome.php:246` and the 🧩 button on the fight screen. | `pfight.php:179-220` (`pf_box*`, `pf_collection`), `pfight_game.php:50-80`, `game/puzzlebox.php` |
+| What a gnome owns | Base six (Swing, Dodge, Rest, Charm, Snack, Hide), 17 level unlocks (Soothe at L4 up to Smash at L16, "interim until the crafting hook exists"), plus one calling tile (tier II/III adds +2 each). 30 tile defs in total. | `pfight.php:68-114`, `pf_unlocks():171` |
+| Pals | Up to 2 equipped pals **replace** a gnome tile (they do not add one). Type comes from the pal's skills and Boon, value is 4 + skill + 2 x rarity. Pal tiles cannot be upgraded. | `pfight_game.php:86-109`, `pf_player_deck():159` |
+| Tools | No link to combat. The toolbelt has 19 tool types at tier 1-4 (Worn, Sturdy, Fine, Masterwork), and the best tool of each type is used automatically ("no need to equip"). | `tools.php:17-60`, `inventory.php:73` |
+| Upgrades | Finishing puzzles banks offers (3 a day). Each pick puts one mod (common, uncommon or rare) on one tile key. | `pfight_game.php:644-770`, `PF_MODS` |
+| Hand and draw | Hand cap 5, draw 3 a round, reshuffle from discard. With a 10-14 tile box, a 5-turn fight cycles the deck about once. | `PF_HAND_CAP`, `PF_DRAW`, `pfb_end_round()` |
+| Expiry | Every piece expires `PFB_LIFE` = 3 rounds after it is placed (`pfb_expire`). Creature pieces also fall away after 2 firings (`PFB_FOE_FIRES`). The page shows an hourglass cue and an "x1" badge. | `pfboard.php:14,19,339` |
+| Creature decks | Built from **size + temper** only (Lunge, Snap, Brace, Feint, Recover, then Rend or Shy Back, then Slam and Bulk for large, then Crush and Scheme for bosses). Only **5 of 88** species have a signature tile (`PF_SIGNATURE`). The playtest lists about 15 groups of creatures with identical decks. | `pfight.php:230-254`, `pfight_data.php:11-17` |
+| Creature tags are mostly inert | In `pf_apply`, Hurt tags (pierce, poison, trip, quick, bash) only work for `me`. A creature Hurt with a tag does nothing extra. Guard tags (hold, thorns, evade) work for both sides. A creature Trick does nothing on its own, only through combos. So creature identity needs a few foe-side effects. | `pfight.php:356-419` |
+| Region | The fight does not know the region. Creatures are keyed by landscape (`creatures.txt`); the expedition carries `region` (`adventure.php:305-320`). The fight starts at `adventure.php:426` via `pfight_html` and then `pfight_state` (`pfight_game.php:112`), which builds the deck once into `$enc['pf']`. | |
+| JS port | `tools/pfengine.js` mirrors `foeDeck`, `PF_SIGNATURE` and `PFB_LIFE`. Any engine or data change must change it too (`tests/pfengine_js.sh`). | `pfengine.js:24,83,269` |
+
+**Pending proposals, settled.** P2 (blank multiplier 1.0), P1-A4 (numbers on lit cells) and P4 (join/add guard + 3-group x2.0) are **already in the engine** (2.6.66; `pfboard.php:17-22`, `pfb_cell_preview`). The `claude/todo.md` line 90 "PUZZLE BOARD next" is stale on those three and should be trimmed. Still open from P7: group placements get no numbers or `!`; creature guard soaking your Hurt is silent (show "creature guard N" and "Hurt 9 (4 blocked)" from `e['blocked']`); the blank leaving is reported as "EXPIRED ... creature" (skip `by === 'none'`, say "The blank centre is gone"); `add` gives no ANC/SIDE help (list legal adds from `pfb_group_options`). Those are build step 1 below. Not built: P1-A3 (x0.5 hurt-link) and the JS demo cell numbers.
+
+## 2. The deck model
+
+### 2.1 Two parts: Kit and Gear
+- **Kit (you choose):** the pieces you pack from your collection. The starter size is **X = 10**.
+- **Gear (equipped, added automatically):** each tool on your **fight belt** adds its piece, and each equipped pal adds its piece. Gear pieces are **added** to the deck. They no longer replace a tile, so `pfight_pal_tiles`' swap rule goes.
+- Deck in a fight = Kit + Gear, about 15 at mid level. Hand 5, draw 3: a deck of 15 cycles about once in a 5-turn fight, which keeps the draw varied without feeling random.
+
+| | Level 1 | Level 12 | Level 24 | Level 30+ |
+|---|---|---|---|---|
+| Kit size (min 8, max) | 10 | 12 | 14 | 15 |
+| Fight belt tool slots | 2 | 3 | 3 | 4 (L20+) |
+| Pal slots (existing party) | 2 | 2 | 2 | 2 |
+| Typical deck | 14 | 17 | 19 | 21 |
+
+Kit max = `10 + floor(level / 6)`, at most 15 (replaces `pf_box_capacity`). Min 8. A thin deck is a valid strategy: it is more consistent but runs out sooner.
+
+### 2.2 Where pieces come from (every part of the game)
+
+| Source | How you get it | Rank from | Count | Example pieces |
+|---|---|---|---|---|
+| Basics | owned at start | – | 6 | Swing, Dodge, Rest, Charm, Snack, Hide |
+| Knacks (today's unlocks) | level, later crafting | – | 17 | Jab, Brace, Sting, Lull, Smash |
+| Calling | your calling | calling tier I-III | 6 (+6 at tier III) | Bark Wall; tier III adds a 2nd piece, e.g. Rootwarden "Deep Roots" (guard, hold) |
+| Tools (Gear) | own the tool; put it on the fight belt | tool tier 1-4 | 19 | Hoe: "Hoe Hook" (hurt, pierce); Rod: "Reel In" (trick); Lantern: "Glare" (charm, lull); Staff: "Sweep" (guard, evade) |
+| Puzzle Pals (Gear) | equip the pal | pal rarity | 570 (generated) | type from Boon effect, knob from the pal's knob, tag from a rare pal's active Boon |
+| Crops | harvest a crop **kind** (9 kinds) | food mastery tier 1-4 (`food_mastery.php`) | 9 | Herb: "Herb Poultice" (heal, mend); Spice: "Pepper Puff" (hurt, poison); Grain: "Oat Cake" (guard, hold); Fruit: "Juicy Bite" (item) |
+| Crafts | craft in a category | `craft_mastery_category_tier` | about 6 | Garden: "Compost Lob" (hurt, poison); Alchemy: "Tonic" (heal, quick); Tool Shed: "Spare Handle" (guard, bash) |
+| Regions | earn that region's Gardening Guide | number of guides held | 14 | Mistmoor "Mist Veil" (guard, evade); Spicepeak "Monsoon Spice" (hurt, quick) |
+
+Pal pieces are generated, not authored. The type comes from the existing Boon/skill mapping (`pfight_game.php:88-99`). The knob family comes from the pal's knob: round, tri → body; keyhole, double → mind; peg, hook → craft. A pal piece's edges therefore match its jigsaw shape.
+
+### 2.3 Rank (rarity)
+One four-step scale for every source, drawn as the rim trim on the piece (still on the "still to build" art list).
+
+| Rank | Tool tier | Pal | Mastery | Value | Extra |
+|---|---|---|---|---|---|
+| I Common | Worn | common | 1 | base | – |
+| II Uncommon | Sturdy | uncommon | 2 | +2 | – |
+| III Rare | Fine | rare | 3 | +4 | gains its tag |
+| IV Masterwork | Masterwork | – | 4 | +5 | tag, life 4 (sticks a round longer) |
+
+Deck caps: at most **3 Rare** and **1 Masterwork** (2 at level 25) across Kit + Gear. Without the caps the best deck is "all top rank", and the choice is gone.
+
+### 2.4 Deck rules
+1. Kit: min 8, max by level; one copy of each piece; basics up to 2 copies (two Swings is fine).
+2. At least 1 Hurt piece, as today (bosses have no charm bar). Warn, but do not refuse, below 2.
+3. Rank caps as in 2.3.
+4. **No changes during a fight.** The deck is built once when `$enc['pf']` is created (already true). Changes are made in the Puzzle box, or on the pre-fight screen (2.6).
+5. A broken tool (`tool_broken_owned`) leaves the belt until it is mended. Fights do **not** wear tools.
+6. Upgrades (`user_pmod`) stay per piece key and now fit tool, crop, craft and region pieces too. Pal pieces stay un-upgradable.
+
+### 2.5 Starter deck: first board fight
+- Trigger: a gnome with no saved deck (`user_pdeck` row missing) meets a creature with board mode on. The fight start is gated **before** `pfight_state` creates `$enc['pf']` (`adventure.php:426`), so the creature waits.
+- Screen: "Pack your first Puzzle box". **4 fixed core** pieces (Swing, Dodge, Rest, Charm) plus **pick 6 of 12** offered. The 12 always include your calling piece, your 2 best tools, your equipped pals' pieces (shown as Gear, free), 1 home-region crop piece and the rest from Knacks you own. Three one-tap kits (Bold, Steady, Kind) pre-fill the 6 for players who do not want to choose.
+- Must hold 2 or more Hurt pieces before Confirm is lit. After that, the box is open to edit at any time outside a fight.
+- Existing players: migrate `user_pbox` into the new Kit (same keys), set the belt to the 2 best gathering tools, and show the Puzzle box once with a "New: Gear" note. They do not go through the starter pick.
+
+### 2.6 Swapping before a fight
+- **Puzzle box page:** full edit. Tabs: Kit, Fight belt, Pals, Upgrades. Reachable from the hovel (a new 🧩 spot), the gnome page (exists) and the menu.
+- **Pre-fight screen (new):** when a creature appears, before the board, show the creature card (size, temper, its knob lean, the region piece it carries) and allow **up to 2 swaps** (Kit or belt), then "Fight". Skipping it is one tap. Once the board is up, the 🧩 button on the fight screen shows the deck read-only.
+
+### 2.7 Expiry: review and tune
+- Today all pieces live 3 rounds; creature pieces also fall away after 2 firings. Data (P9): the creature fire budget is what manages re-fire, and the 3-round expiry mainly keeps the 7x5 board turning over. Keep both.
+- **Change:** make life a piece stat, `life` 2-4 (default `PFB_LIFE` 3). Fleeting pieces (Quick and crop snacks) get 2; Masterwork and Hold pieces get 4. That gives deckbuilding a "board presence" axis without new rules. Creature pieces stay at 3 + fire budget 2; boss Hold pieces get 3 firings (the untested "some stick longer" knob, to measure).
+- **Labels:** every piece shows ⌛ and its rounds left (3, 2, 1). On its last round the badge turns amber and reads "last". Creature pieces also show fires left (x2, x1). The blank's leaving reads "The blank centre is gone (round 1 over)".
+
+## 3. Creature pieces: every creature unique, plus region pieces
+
+**Scheme.** Creature deck = **core 4** (2 Hurt, 1 Guard, 1 Recover or Feint by temper) + **2 species pieces** (authored, each with a tag) + **size extras** (large +1, boss +2 authored, keeping the boss order) + **region pieces** of the region the fight is in (small/medium get 1, large and boss get 2). Each species also gets a **knob lean**: about 60% of its knobs and holes in one family (body, mind or craft), so some of your pieces fit it better. The pre-fight screen shows the lean, which is a reason to swap.
+
+Engine support needed (foe side; today these tags do nothing for creatures): **pierce** (ignores your guard), **poison** (2 ticks on your HP), **quick** (creature draws 1), **trip** (you draw 1 fewer next round, not a lost action), **bash** (adds its guard). Hold, thorns and evade already work for creatures.
+
+### 3.1 Sample: 11 creatures
+
+| Creature (size, level, temper) | Species piece 1 | Species piece 2 | Lean | Size extra | Plays like |
+|---|---|---|---|---|---|
+| Aphid Swarm (S1, gentle) | Swarm: hurt 2, quick | Honeydew: heal, life 2 | mind | – | many weak pieces, keeps drawing |
+| Garden Snail (S1, gentle) | Slime Trail: guard, hold (exists) | Shell Tuck: guard, evade | body | – | slow, hard to hurt; Pierce or Charm beats it |
+| Paper Wasp (M6, hostile) | Sting: hurt, poison (exists, add tag) | Paper Nest: guard, thorns | craft | – | punishes Hurt-only boxes |
+| Bog Leech (M6, hostile) | Latch: hurt, poison | Slick: guard, evade | body | – | a wearing fight; bring Rest or Herb pieces |
+| Shore Crab (M7, gentle) | Pinch: hurt, pierce | Shell Up: guard, hold | body | – | guard through your guard |
+| Red Fox (L16, hostile) | Sly Pounce: trick (exists) | Quick Bite: hurt, quick | mind | Den Dash: trick | Ambush combos (trick then hurt) |
+| Tawny Owl (L17, gentle) | Silent Swoop: hurt, pierce | Hoot: trick | mind | Feather Fluff: guard | rewards Charm, punishes stacked guard |
+| Badger (L18, hostile) | Dig In: guard, hold | Maul: hurt, heavy | body | Bash Back: hurt, bash | builds guard, then cashes it in |
+| Bramble Wolf (L22, hostile) | Howl: trick (exists) | Bramble Bite: hurt, bash | craft | Pack Circle: guard, thorns | thorny; Ambush plus Bash |
+| Dune Wyrm (boss 30) | Sand Swallow: hurt, heavy | Burrow Under: guard, evade | body | Quake: hurt, trip; Shed Skin: heal | trips your draw, then big hits |
+| Jade Jaguar (boss 32) | Jade Gaze: trick | Pounce: hurt, pierce | mind | Stalk: guard, evade; Rake: hurt, poison | Ambush-Pierce; read the order |
+
+Values follow the current archetype formula (`$v` from the damage die). Species pieces sit at about `$v` (Hurt) and `2/3 $v` (Guard). Retune with `tests/pfboard_tune.php`; aim for no size row moving more than 5 points.
+
+### 3.2 Region pieces (each region: one Hurt piece and one other; small/medium get only the non-Hurt one)
+
+| Region | Hurt piece | Other piece | From the climate trait |
+|---|---|---|---|
+| The Maplewold | Cold Snap: hurt, trip | Frost Bark: guard, hold | crisp winters |
+| Maizehollow | Ash Spit: hurt, pierce | Dry Spell: trick | volcanic ash, dry spells |
+| The Sunsprinkle Isles | Breaker: hurt, quick | Sea Breeze: heal, life 2 | breeze, quick regrowth |
+| The Rainroot Reaches | Canopy Drop: hurt, heavy | Humus Hide: guard | rainforest |
+| Mistmoor | Bog Grip: hurt | Mist Veil: guard, evade | soft rain, mist |
+| Olivewhistle Shore | Stone Throw: hurt, bash | Terra Wall: guard, hold | stony red soil |
+| Birchbramble Steppe | Short Fuse: hurt, quick | Black Earth: heal | short, hot summers |
+| The Dunewhisper | Sandsting: hurt, poison | Heat Shimmer: guard, evade | dry heat |
+| The Greatcanopy | Downpour: hurt | Laterite Crust: guard, thorns | rainy season |
+| Thornacre Savanna | Highland Charge: hurt, heavy | Thornbush: guard, thorns | highland, thorn scrub |
+| Spicepeak | Monsoon Spice: hurt, poison | River Silt: heal | monsoon, spices |
+| Blossomreach | Petal Storm: hurt, quick | Terrace Wall: guard, hold | four seasons, terraces |
+| The Monsoon Tangle | Paddy Surge: hurt, bash | Steam: trick | steamy |
+| The Coralscatter | Coral Cut: hurt, pierce | Island Time: guard, hold | coral, slow travel |
+
+The same data, with a `me` flag, gives the player's region pieces (2.2): earn a region's Guide and you own its "Other" piece as a Kit piece.
+
+## 4. Data and schema changes
+- `game/includes/data/pf_pieces.txt` (new, linted): `key|name|source|ref|type|v|knob|tag|life|blurb`. Sources: basic, knack, calling, tool, crop, craft, region. The tile library moves out of `pf_tiles()`, which reads the file (cached). Pal pieces stay generated.
+- `game/includes/data/pf_creature_pieces.txt` (new): `slug|lean|n|type|v_mult|knob|tag` (2-4 rows per species). It replaces `PF_SIGNATURE`; tag `sig` becomes the real tag.
+- `game/includes/data/pf_region_pieces.txt` (new): `region|slot(hurt/other)|n|type|v_mult|knob|tag|life`.
+- Table `user_pdeck` (made on first use like `pbox_ensure`): `user_id PK, kit TEXT (json keys), belt TEXT (json tool types), ver INT, made_at`. On first load, migrate from `user_pbox`, then leave `user_pbox` unused.
+- Tile instance gains `life` (int) and `rank` (1-4). `pfb_expire` uses `$p['tile']['life'] ?? PFB_LIFE`. The view sends `life_left` (`pfb_view`, `pfb_snap`).
+- Fight start: pass `region` (from `$exp`/the route) into the creature row, so `pf_foe_deck($c)` can add region pieces. Treks (`trek_fight.php`) pass none and get no region piece.
+- `pf_apply`: foe-side pierce, poison (a `me.poison` tick in `pfb_end_round`), quick, trip (`me.slowdraw`), bash.
+- `pf_player_deck`: Kit + Gear. Pals are added, not swapped; tool pieces are ranked by `tool_tier`; rank caps are checked in a new `pf_deck_check` (replaces `pf_box_check`).
+- JS port: `pfengine.js` gets the same tables (generated from the txt files by `tools/build_pf_artifact.py`) and life and foe tags; extend the parity test.
+
+## 5. Build order (small steps, each shippable behind `pfight_open`)
+1. **Clarity leftovers (P7):** group-spot numbers, creature guard readout, blank expiry label, `add` help, "rounds left" number on pieces. Trim the stale todo line.
+2. **Per-piece life** in engine and JS (default 3, so nothing changes yet); view `life_left`; regression test.
+3. **Foe-side tags** (pierce, poison, quick, trip, bash); tests that fail on the old engine; tune table.
+4. **Creature pieces data** for all 88 creatures plus lean; lint; retune (the 15 duplicate-deck groups go away).
+5. **Region into the fight** plus region pieces data; tune per region (one row per region in `pfboard_tune.php`).
+6. **Piece catalogue file** plus new sources (tools, crops, crafts, regions, pal-as-addition) in `pf_collection`; no UI yet; sims with random legal decks.
+7. **`user_pdeck`** plus migration plus `pf_deck_check` (size, rank caps, Hurt).
+8. **Puzzle box v2 page** (Kit, Belt, Pals, Upgrades tabs) and the hovel spot.
+9. **Starter pick** gate (new gnomes) and the one-time "New: Gear" note (existing gnomes).
+10. **Pre-fight swap screen** (up to 2 swaps).
+11. Balance: deck-variety bots, a 100-fight agent round, then **a human session** (still never done).
+
+## 6. Risks
+- **Power creep:** bigger decks of ranked pieces make fights easier. Rank caps and a retune (`PFB_FOE_MULT`) at steps 4, 6 and 9.
+- **Deck bloat:** 20+ pieces dilute the hand, so good pieces show up late. Kit max and belt slots are the brakes; watch turns per fight.
+- **Authoring load:** 88 creatures x 2-4 pieces, 19 tools, 9 crops, about 6 crafts, 14 regions x 2. Ship in batches; archetype fallback stays.
+- **Edge legality:** a strong knob lean can leave a hand with no linking move (forced flat placements). Lint: every species keeps at least 1 knob in each family.
+- **Pal change:** pals now add instead of replacing. That is a buff and changes the pal party's value; measure it.
+- **Existing boxes:** migration must never leave a gnome with an illegal deck (fall back to the default, as `pf_box` does).
+- **Parity:** every data change also goes into the JS port; build the JS tables from the txt files to avoid drift.
+- **Treks** still use the old fight; their creatures get no region pieces until treks move to the board.
+
+## 7. Open questions for Josh (recommended answer first)
+1. **Starter deck size X?** Recommend **10** (4 fixed core + pick 6 of 12, or a one-tap kit); Gear comes on top.
+2. **How many tools add a piece?** Recommend a **fight belt of 2 slots (3 at L12, 4 at L20)**, not every tool owned (19 would swamp the deck).
+3. **Pals add or replace?** Recommend **add** (each equipped pal adds its piece), and retire the swap rule.
+4. **Swaps right before a fight:** recommend **up to 2 swaps** on a pre-fight screen with the creature card; full edits only in the Puzzle box; none once the board is up.
+5. **Expiry:** recommend **keep 3 rounds as the default** and add per-piece life 2-4 (Fleeting/Masterwork). Creature pieces stay at 3 + fire budget 2; boss Hold pieces get 3 firings (measure).
+6. **Rank caps:** recommend at most **3 Rare and 1 Masterwork** per deck (2 Masterwork at L25).
+7. **Tools in fights:** recommend **no wear from fights**; a broken tool leaves the belt until mended.
+8. **Creature knob lean** (60% one family, shown before the fight so you can swap for it)? Recommend **yes**, with a lint that keeps every family present.
