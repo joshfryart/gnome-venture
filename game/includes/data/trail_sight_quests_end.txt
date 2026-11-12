@@ -1,0 +1,59 @@
+# Quest lines made of Sight uses. A line begins the first time you use one of its beat Sights (in `seq` order: the FIRST beat), then each beat Sight used in order (or any order for `any`) ticks it.
+# Q|slug|title|giver (a villager's name)|icon|order (seq|any)|reward (Sights reward grammar; fp=N = N friendship with the giver)|intro (one sentence, shown when it begins)|outro (shown when it is done)
+# B|slug|Sight slug|label (what this beat asks, shown as "title: label (2 of 6)")|when (- or dp=/se=/we= conditions the Sight use must happen in)
+# ================================================================ Maplewold (claude/sights/ideas-maplewold.md, section 1)
+# ================================================================ shared land pieces (claude/sights/ideas-shared-land.md, cross-spot lines)
+# ================================================================ end pieces (claude/sights/ideas-end-pieces.md, section 1)
+Q|lamplighters-round|The Lamplighter's Round|Burdock Deepdelve|🕯️|any|xp=80,item=tin-lantern:1,c=60,fp=2|Somebody put up lanterns before five deep delves and then forgot them, and Burdock thinks we should not forget them.|All five lanterns glow at once, and Burdock calls you a proper Lamplighter.
+B|lamplighters-round|end-delve-2-forest|Light the first lantern|-
+B|lamplighters-round|end-delve-2-wetland|Float a candle into the maze|-
+B|lamplighters-round|end-delve-2-rainforest|Borrow a firefly for a lantern|-
+B|lamplighters-round|end-delve-2-desert|Trim the sooty wicks|-
+B|lamplighters-round|end-delve-2-island|Shoo the wick-stealing gulls|-
+Q|big-friends-lullaby|A Lullaby for Big Friends|Lyra Fiddlewing|💤|any|xp=80,item=firefly-jar:1,c=50,buff=nimble:1:240,fp=2|Lyra wants to write a lullaby for the sleepy giants, so they wake up nicer, and she needs one note from each.|Lyra plays the Big Friends Lullaby on the green, and somewhere far off seven giants sleep a little sweeter.
+B|big-friends-lullaby|end-lair-2-tundra|Count the Frost Toad's snores|-
+B|big-friends-lullaby|end-lair-2-wetland|Follow the crab's sideways tracks|-
+B|big-friends-lullaby|end-lair-2-forest|Pick up a rustly wing-scale|-
+B|big-friends-lullaby|end-lair-2-coast|Spot the slow jelly-glow|-
+B|big-friends-lullaby|end-lair-2-rainforest|Pluck a humming web thread|-
+B|big-friends-lullaby|end-lair-2-desert|Measure the scarab's rolling rut|-
+B|big-friends-lullaby|end-lair-2-mountain|Read the three sets of footprints|-
+Q|scouts-field-notes|The Scout's Field Notes|Captain Bracken Spurwing|🔭|any|xp=80,item=pretty-feather:1,c=60,buff=sense:1:240,fp=2|Captain Spurwing says a Hedge Knight looks before leaping, ideally a long look, and hands you a fresh notebook.|The Captain reads your notes, nods three times, and gives you a feather for your scout's cap.
+B|scouts-field-notes|end-lair-1-desert|Watch the shimmer before the lair|-
+B|scouts-field-notes|end-lair-1-island|Read the dragonlizard's tail-drag|-
+B|scouts-field-notes|end-lair-1-mountain|Peek over the ridge carefully|-
+B|scouts-field-notes|end-lair-2-mountain|Read the big footprints up close|-
+Q|gate-rubbings|Wren's Gate Rubbings|Wren Thimblewick|🖍️|any|xp=80,seed=1,c=50,fp=2|Wren collects crayon rubbings of the wonder gates, and every gate hides one line of a riddle.|Wren reads the riddle lines in order, they rhyme, and she claps like a gnome half her age.
+B|gate-rubbings|end-wonder-1-rainforest|Make the first gate rubbing|-
+B|gate-rubbings|end-wonder-1-coast|Count the gate's glimmers|-
+B|gate-rubbings|end-wonder-1-desert|Shade your eyes at the gate|-
+B|gate-rubbings|end-wonder-1-forest|Squint through the amber gate|-
+B|gate-rubbings|end-wonder-1-island|Trace the gate's maze|-
+B|gate-rubbings|end-wonder-1-mountain|Call the goats at the gate|-
+B|gate-rubbings|end-wonder-1-wetland|Stand on one leg by the gate|-
+B|gate-rubbings|end-wonder-1-grassland|Hum with the stones at dusk|dp=dusk
+Q|book-of-hushes|The Book of Hushes|Sorrel Inkcap|📖|any|xp=80,item=sages-draught:1,c=50,fp=2|Sorrel says every hush is a place about to speak, and asks you to write down what it nearly says.|The book is bound, its pages very quiet, and Sorrel shelves it where nobody will shush it.
+B|book-of-hushes|end-wonder-2-forest|Tiptoe in and listen|-
+B|book-of-hushes|end-wonder-2-coast|Hold a shell to your ear|-
+B|book-of-hushes|end-wonder-2-desert|Whisper a question and wait|-
+B|book-of-hushes|end-wonder-2-grassland|Put a hand on the ground|-
+B|book-of-hushes|end-wonder-2-island|Find the first star|-
+B|book-of-hushes|end-wonder-2-mountain|Catch your breath and listen|-
+B|book-of-hushes|end-wonder-2-rainforest|Sit very still and write|-
+B|book-of-hushes|end-wonder-2-wetland|Count the wingbeats and bind it|-
+Q|follow-your-nose|Follow Your Nose|Pomeroy Crumbworth|👃|any|xp=70,item=feast-berry-honey-cake:1,c=40,fp=2|Pomeroy says a good writer smells the supper before he sees it, and wants to know if you can too.|Pomeroy awards your nose a full five spoons, which he has never done before, and shares his cake.
+B|follow-your-nose|end-haven-1-grassland|Sniff the breeze for scones|-
+B|follow-your-nose|end-haven-1-coast|Follow the mint on the air|-
+B|follow-your-nose|end-haven-1-island|Clap the rhythm and sniff|-
+B|follow-your-nose|end-haven-1-tundra|Count the steam puffs for buns|-
+B|follow-your-nose|end-haven-1-wetland|Wave at the boats and sniff|-
+Q|rest-here-repainted|Rest Here, Repainted|Tobias Trundle|🪧|seq|xp=70,item=scute-wind-chime:1,c=80,fp=2|Tobias painted every Rest Here sign sixty years ago, and they are fading, so he would like a bright red hand.|Tobias signs the last sign with a flourish and says they will last another sixty years, at least.
+B|rest-here-repainted|desert-the-red-rock-arch|Stand in the glow to find the red|-
+B|rest-here-repainted|end-haven-2-grassland|Read the sign's back and repaint|-
+B|rest-here-repainted|end-haven-2-coast|Straighten and repaint the sign|-
+B|rest-here-repainted|end-haven-2-island|Blow the conch for Tobias|-
+Q|echo-map|The Echo Map|Tumble Waymarsh|📣|seq|xp=80,item=hiking-staff:1,c=50,fp=2|Tumble maps delves by ear and needs someone to listen at four mine mouths for him.|The last echo answers in Tumble's own voice, because of course he was already inside.
+B|echo-map|end-delve-1-coast|Read the tide line at the mouth|-
+B|echo-map|end-delve-1-desert|Wet a finger for the draught|-
+B|echo-map|end-delve-1-mountain|Drop a pebble and count|-
+B|echo-map|end-delve-1-rainforest|Shout hello into the dark|-

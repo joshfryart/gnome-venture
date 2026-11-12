@@ -485,6 +485,10 @@ function lair_victory(array $u, array &$exp): void
         if ($sid) { give_item($uid, (int)$sid, 1); exp_log($exp, '🌟 Among the bones: ' . q_val('SELECT name FROM items WHERE id = ?', [$sid]) . '!'); }
     }
     $exp['status'] = 'done';
+    if (function_exists('trail_sight_quest_event') || is_file(__DIR__ . '/trail_sights.php')) {   // v2.6.68: a Trail Sights quest line may ask for a lair won (@boss)
+        require_once __DIR__ . '/trail_sights.php';
+        foreach (trail_sight_quest_event($u, 'boss', (string)$lm['slug']) as $ql) exp_log($exp, $ql);
+    }
 }
 
 /**

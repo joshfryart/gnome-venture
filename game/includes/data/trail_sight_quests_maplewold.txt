@@ -1,0 +1,66 @@
+# Quest lines made of Sight uses. A line begins the first time you use one of its beat Sights (in `seq` order: the FIRST beat), then each beat Sight used in order (or any order for `any`) ticks it.
+# Q|slug|title|giver (a villager's name)|icon|order (seq|any)|reward (Sights reward grammar; fp=N = N friendship with the giver)|intro (one sentence, shown when it begins)|outro (shown when it is done)
+# B|slug|Sight slug|label (what this beat asks, shown as "title: label (2 of 6)")|when (- or dp=/se=/we= conditions the Sight use must happen in)
+# ================================================================ Maplewold (claude/sights/ideas-maplewold.md, section 1)
+# ================================================================ shared land pieces (claude/sights/ideas-shared-land.md, cross-spot lines)
+# ================================================================ end pieces (claude/sights/ideas-end-pieces.md, section 1)
+Q|picnic-list|Bramble's Picnic List|Bramble Mossfoot|🧺|any|xp=60,item=walking-stick:1,c=50,fp=2|Bramble hands you a crumpled list and says a picnic is just a walk with snacks at the end, so tick these off and save the picnic for last.|You spread the blanket on Picnic Rise, Bramble brings the honey, and every lesson on the list tastes like jam.
+B|picnic-list|236-wildflowers|Sniff the wildflowers by the road|-
+B|picnic-list|232-berrypatch|Pick berries from the patch|-
+B|picnic-list|hedgerow|Trim the hedgerow with a tool|-
+B|picnic-list|232-beehive|Peek into the beehive, bravely|-
+B|picnic-list|scarecrow|Dress the scarecrow from your Satchel|-
+B|picnic-list|236-dandelions|Blow the dandelion clocks|-
+B|picnic-list|232-picnicrise|Have the picnic on the rise|-
+Q|sap-to-stack|Sap to Stack|Clover Puddlejump|🥞|seq|xp=70,item=pancakes:3,item=maple-syrup:1,c=40,fp=2|Clover says the roof is fixed and now she needs pancakes, lots of them, and please do not look at her like that.|The stack wobbles, Pomeroy gives it all the spoons, and Clover very nearly smiles.
+B|sap-to-stack|311-taprow|Tap the maples for spring sap|se=spring
+B|sap-to-stack|311-bucketstacks|Stack up two clean buckets|-
+B|sap-to-stack|236-windmill|Grind wheat into pancake flour|-
+B|sap-to-stack|haybales|Burrow in for a hidden egg|-
+B|sap-to-stack|311-sugarshack|Stir the sap into syrup|-
+B|sap-to-stack|311-pancakelane|Flip a stack in Pancake Lane|-
+Q|which-nettle|Which Nettle?|Nettle Cobblefield@v-na-1-3|📬|seq|xp=50,item=beeswax-candles:2,c=30,fp=2|Letters for N. Cobblefield keep going to the wrong Nettle, and both Nettles would like it to stop, please.|A fifth arrow on the signpost now says Nettles: BOTH WAYS, and the post has never been happier.
+B|which-nettle|236-stonebridge|Bow and check the letter cubby|-
+B|which-nettle|236-beanpoles|Eavesdrop on the gossiping beans|-
+B|which-nettle|306-mosslog|Stroke the log where Nettle waits|-
+B|which-nettle|306-mossgate|Ask the moss for nicknames|-
+B|which-nettle|232-crossroads|Read the sign and add an arrow|-
+Q|lost-lantern|The Lantern That Wandered Off|Keeper Marram|🏮|seq|xp=70,item=stone-lantern:1,item=sea-glass:2,c=40|The lighthouse keeper's little lantern has wandered off down the shore, and she would very much like it home before dark.|You hum and the lantern glows again on its rocks, and somewhere a seal pup looks rather proud of itself.
+B|lost-lantern|308-kelpline|Untangle the lantern's brass hook|-
+B|lost-lantern|307-tideline|Comb the tideline for clues|-
+B|lost-lantern|314-driftwood|Imagine where the dragon points|-
+B|lost-lantern|314-steppingrocks|Coax the seal pup kindly|-
+B|lost-lantern|314-gullparliament|Petition the gulls to let you pass|-
+B|lost-lantern|314-lanternrocks|Hum the lantern back alight|-
+Q|owl-letter|A Letter for the Den|Sorrel Fiddlewood|🦉|seq|xp=80,item=owl-feather:1,c=50,buff=charm:1:120,fp=2|Sorrel has a letter for the Great White Owl and nobody brave enough to carry it, except, perhaps, you.|The owl reads her letter twice, says it is from her cousin in the south, and blinks at you very softly.
+B|owl-letter|316-starstones|Chart the stones to find North|-
+B|owl-letter|316-kettletree|Brew tea for the raven's directions|-
+B|owl-letter|309-auroraledge|Gaze where the sky ribbon points|dp=night
+B|owl-letter|315-gate|Answer the gate's owlish riddle|-
+B|owl-letter|315-bridge|Test the snow bridge, letter and all|-
+B|owl-letter|315-feather|Preen the giant feather smooth|-
+B|owl-letter|315-cairns|Crown a cairn with a feather|-
+B|owl-letter|315-doormat|Wipe your feet on the mat|-
+B|owl-letter|315-den|Blink politely and hand over the letter|-
+Q|woodland-census|Wren's Woodland Census|Wren Thimblewick|📖|any|xp=60,seed=1,c=30,fp=3|Wren's field guide has a Maplewold-shaped hole in it, and she would love your help filling it with critters.|Wren tucks your notes into the guide, finds Tansy's old pin flag in the stump, and goes a bit misty.
+B|woodland-census|304-owloak|Hoot hello to the sleepy owl|dp=dusk,night
+B|woodland-census|304-hollowtrunk|Duck in to meet the spider|-
+B|woodland-census|305-sunclearing|Bask beside the sunny rabbit|we=sun
+B|woodland-census|306-toadsteps|Climb to the toad's top step|-
+B|woodland-census|312-woodpecker|Duet with the slow woodpecker|-
+B|woodland-census|312-larder|Barter with the squirrel's larder|-
+B|woodland-census|312-greatstump|Trace the rings and hand in|-
+Q|sled-derby|The Wickerby Sled Derby|Rue Wickerby|🛷|seq|xp=60,item=birch-log:3,item=timber-plank:1,c=30,fp=2|Rue and Elm Wickerby each swear their sled is faster, and the only way to settle it is a race on the snow.|It is a tie, it is always a tie, and both cousins hug you as if you won.
+B|sled-derby|304-acorndrop|Catch acorn caps for the runners|-
+B|sled-derby|304-oakarch|Measure the runners against the arch|-
+B|sled-derby|236-haywagon|Feed the sparrows for a cushion|-
+B|sled-derby|310-combridge|Chip the runners sharp on the ridge|-
+B|sled-derby|310-driftpass|Zigzag down the race course|-
+B|sled-derby|310-sledtrack|Sled the big race in winter|se=winter
+Q|beaver-paperwork|Beaver Paperwork|Beaver Foreman|🦫|seq|xp=60,item=rope:2,c=40|The Beaver Foreman says everything is a lumber order, including lunch, and today lunch needs delivering.|The crew eats lunch in the glowing tunnel and stamps your paw-print, which means you are Beaver-approved.
+B|beaver-paperwork|313-stickgate|Unlatch the stick gate politely|-
+B|beaver-paperwork|313-lodge|Taste the stew and take orders|-
+B|beaver-paperwork|313-beaverdam|Patch a leak in the dam|-
+B|beaver-paperwork|313-mudslide|Slide the clay down quickly|-
+B|beaver-paperwork|313-tunnelmouth|Light the lantern at the mouth|-
+B|beaver-paperwork|313-glowtunnel|Hush in and deliver lunch|-

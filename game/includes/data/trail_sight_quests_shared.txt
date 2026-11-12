@@ -1,0 +1,58 @@
+# Quest lines made of Sight uses. A line begins the first time you use one of its beat Sights (in `seq` order: the FIRST beat), then each beat Sight used in order (or any order for `any`) ticks it.
+# Q|slug|title|giver (a villager's name)|icon|order (seq|any)|reward (Sights reward grammar; fp=N = N friendship with the giver)|intro (one sentence, shown when it begins)|outro (shown when it is done)
+# B|slug|Sight slug|label (what this beat asks, shown as "title: label (2 of 6)")|when (- or dp=/se=/we= conditions the Sight use must happen in)
+# ================================================================ Maplewold (claude/sights/ideas-maplewold.md, section 1)
+# ================================================================ shared land pieces (claude/sights/ideas-shared-land.md, cross-spot lines)
+# ================================================================ end pieces (claude/sights/ideas-end-pieces.md, section 1)
+Q|runaway-kite|The Runaway Kite|Mabel Pennywhistle|🪁|seq|xp=60,item=silk-bunting:1,c=40,fp=2|Mabel's best kite sailed off towards everywhere, and she would love you to follow it there.|The palm lets go, the kite comes home in pieces you can mend, and Mabel flies it over the village with a happy sigh.
+B|runaway-kite|grassland-the-wind-combed-meadow|Wind the trailing kite string|-
+B|runaway-kite|mountain-the-wind-notch|Fly a ribbon to catch the tail|we=wind
+B|runaway-kite|coast-the-dune-grass-sweep|Curtsy and find the paper bow|-
+B|runaway-kite|rainforest-the-parrot-perch|Translate a swap with the parrot|-
+B|runaway-kite|island-the-palm-lean|Shin up and free the kite|-
+Q|sunday-hat|Sir Barnaby's Sunday Hat|Moss Windlass|🎩|seq|xp=50,item=shiny-trinket:1,c=40,fp=2|Moss cannot bear the lonely scarecrow's tiny hat a moment longer, especially now the crows have borrowed his Sunday one.|Moss stitches every piece back together right there in the field, and Sir Barnaby has never stood so straight.
+B|sunday-hat|grassland-the-lonely-scarecrow|Tip your hat to Sir Barnaby|-
+B|sunday-hat|forest-the-owl-watch-bough|Pretend not to see the hatband|dp=night
+B|sunday-hat|coast-the-rope-and-net-rack|Relieve the gull of the crown|-
+B|sunday-hat|desert-the-cactus-garden|Water the cactus for the feather|-
+Q|bridgewarden|The Bridgewarden's Rounds|Sorrel Rushworth|🌉|seq|xp=60,item=stepping-stones:2,c=50,fp=2|Sorrel has inspected every bridge in the Hollow except the ones he hasn't, and he would like you to do those.|Every bridge stands a little taller now, and so, somehow, does Sorrel.
+B|bridgewarden|grassland-the-plank-footbridge|Praise the plank footbridge|-
+B|bridgewarden|forest-the-fallen-log-bridge|Bow back to the wobbly log|-
+B|bridgewarden|wetland-the-boardwalk-gap|Mend the plank in the gap|-
+B|bridgewarden|mountain-the-rope-bridge|Cross and retie the third knot|-
+B|bridgewarden|rainforest-the-vine-bridge|Strum the vines into tune|-
+Q|hello-letters|The Hello Letters|Bunty Windlass@v-ca-4-2|🍾|seq|xp=50,item=cowrie-shell:3,c=30,fp=3|Bunty found a note in the bottle post that just says hello, and is far too shy to answer it alone.|The writer was a crab called Pinchwell all along, and now Bunty has a pen pal and a very full heart.
+B|hello-letters|coast-the-bottle-post|Write back hello for Bunty|-
+B|hello-letters|island-the-sand-spit|Point out the reply bottle|-
+B|hello-letters|desert-the-mirage-pool|Reach in for the shimmery note|-
+B|hello-letters|tundra-the-frozen-stream|Peer through the ice at a note|-
+B|hello-letters|island-the-hammock-palms|Ask to share the crab's hammock|-
+Q|star-wheel|Wren's Star-Wheel|Wren Thimblewick|🌟|seq|xp=70,item=sundial:1,seed=1,c=30,fp=2|Wren is building a star-wheel and needs a gnome who does not mind staying up very late.|The keeper's lens clicks into place, the star-wheel turns, and Wren names a tiny star after you.
+B|star-wheel|tundra-the-star-chart-stones|Connect the star-chart stones|dp=night
+B|star-wheel|tundra-the-aurora-rise|Lie back and match the green|dp=night
+B|star-wheel|mountain-the-eagle-s-rest|Think alongside the eagle at night|dp=night/we=sun,cloud,rain,storm,frost,heat,wind,snow
+B|star-wheel|desert-the-red-rock-arch|Stand in the glow for the evening star|dp=dusk
+B|star-wheel|coast-the-lighthouse-shadow|Signal the keeper for a lens|dp=night
+Q|picnic-for-everyone|The Picnic for Everyone|Yarrow Mossgrove@v-esa-4-1|🧺|seq|xp=60,item=garden-honey:2,c=40,fp=3|Yarrow wants the whole town on one blanket, which is a big blanket and a bigger picnic.|Everything is laid out on the knoll, everyone squeezes on, and Yarrow beams like a teapot.
+B|picnic-for-everyone|grassland-the-picnic-knoll|Spread a cloth to measure the dent|-
+B|picnic-for-everyone|grassland-the-sleepy-windmill|Wind up the mill for flour|-
+B|picnic-for-everyone|forest-the-hollow-oak|Pour tea and borrow teacups|-
+B|picnic-for-everyone|desert-the-well-and-its-rope|Lower the bucket for cold water|-
+B|picnic-for-everyone|island-the-coconut-grove|Stare down the guiltiest coconut|-
+Q|hollow-round|Lyra's Hollow Round|Lyra Fiddlewing|🎶|seq|xp=60,item=wind-chime:1,c=40,fp=2|Lyra is writing a new song and needs five sounds from five very different places.|Lyra plays the Hollow Round from start to finish, and the last note is the cheeky echo you found.
+B|hollow-round|wetland-the-frog-choir|Conduct until the low note returns|-
+B|hollow-round|mountain-the-echo-wall|Shout the note at the wall|-
+B|hollow-round|island-the-shell-bell-tree|Chime the right shell|-
+B|hollow-round|forest-the-bluebell-glade|Listen for the bluebells' ring|-
+B|hollow-round|rainforest-the-rain-drum-leaf|Drum the beat in the rain|we=rain
+Q|trader-went-home|The Trader Who Went Home|Tobias Trundle|🐢|seq|xp=60,item=woven-basket:1,c=60,fp=2|Tobias would dearly love to find his old teacher, who left a note saying back soon a very long time ago.|You find Old Marrowby on his farm, happily retired, and Tobias laughs so hard his shell rocks.
+B|trader-went-home|desert-the-trader-s-tent-poles|Hang a lantern for Marrowby|-
+B|trader-went-home|desert-the-sand-ripple-lane|Read the wobbly cart ripples|-
+B|trader-went-home|desert-the-waystone-cluster|Introduce yourself to the waystones|-
+B|trader-went-home|grassland-the-old-milestone|Read where the milestone points|-
+B|trader-went-home|grassland-the-hay-cart-ruts|Follow the ruts to the farm|-
+Q|walking-ladder|The Ladder That Went for a Walk|Posy Thistledown@v-ee-2-2|🪜|seq|xp=50,item=hammock:1,c=30,fp=2|Posy lives in a stilt house and would very much like to get in, but her ladder has gone for a walk.|The ladder strolls home warm and happy, Posy climbs up, and is asleep before she reaches the top.
+B|walking-ladder|wetland-the-stilt-house|Call up to the stilt house|-
+B|walking-ladder|wetland-the-reed-causeway|Nod back to the pointing reeds|-
+B|walking-ladder|mountain-the-goat-ledge|Share a snack with the goat|-
+B|walking-ladder|mountain-the-stone-hut|Light the stove for the ladder|-

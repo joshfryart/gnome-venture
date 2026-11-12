@@ -7,7 +7,7 @@ require_once __DIR__ . '/includes/world.php';
 require_once __DIR__ . '/includes/catalog.php';
 require_once __DIR__ . '/includes/glossary.php';
 $u = require_login();
-require_once __DIR__ . '/includes/almanac_pages.php'; ensure_almanac_pages_2644(); ensure_almanac_pages_2646(); require_once __DIR__ . '/includes/trail_sights.php'; trail_sights_ensure_almanac();   // v2.6.44: the sleep-days, crew, Messages pages (once)
+require_once __DIR__ . '/includes/almanac_pages.php'; ensure_almanac_pages_2644(); ensure_almanac_pages_2646(); require_once __DIR__ . '/includes/trail_sights.php'; trail_sights_ensure_almanac(); trail_sights_ensure_pages();   // v2.6.44: the sleep-days, crew, Messages pages (once)
 require_once __DIR__ . '/includes/garden_logic.php';   // v0.9.1: unstudied_slow_pct()
 $uid = (int)$u['id'];
 require_once __DIR__ . '/includes/breeding110.php'; breeding110_boot();   // v1.1.0: imports the hybrids once on an upgraded world
@@ -22,7 +22,7 @@ if (is_post()) {
     require_once __DIR__ . '/includes/stop_pass.php';
     require_once __DIR__ . '/includes/catfish.php';
     require_once __DIR__ . '/includes/gourmand.php';
-    $earned = array_merge($earned, journey_titles($uid), calling_titles($uid), stop_titles($uid), catfish_titles($uid), gourmand_titles($uid));   // v1.0.0: passport titles   // v0.7.65: Journey titles too; v0.9.4: calling chapter titles
+    $earned = array_merge($earned, journey_titles($uid), calling_titles($uid), stop_titles($uid), catfish_titles($uid), gourmand_titles($uid), trail_sight_titles($uid));   // v1.0.0: passport titles   // v0.7.65: Journey titles too; v0.9.4: calling chapter titles
     if ($want === '' || in_array($want, $earned, true)) {
         q('UPDATE users SET title = ? WHERE id = ?', [$want === '' ? null : $want, $uid]);
         flash($want === '' ? 'Title removed.' : 'You are now known as “' . $want . '”.');

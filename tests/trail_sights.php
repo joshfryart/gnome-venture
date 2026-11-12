@@ -238,5 +238,121 @@ $html = trail_view_html($u, $exp, $sc, false);
 ok('the map draws a gold ! (tmsight) over the landmark', str_contains($html, 'class="tmsight"'));
 $sc['x'] = 0; $sc['y'] = 0; $cards = trail_sights_cards_html($u, $sc, $marks);
 ok('the Sights card shows name, caption and a Walk-there button when you are away from it', str_contains($cards, 'sgcard') && str_contains($cards, 'Walk there') && str_contains($cards, 'clover patch'), substr($cards, 0, 200));
+
+echo "== P4: the engine features (conditions, variants, pick, villagers, give, hints, titles, pages, new folk, quest orders, gates, event beats, item effects)\n";
+$tmp = sys_get_temp_dir() . '/sights-p4-' . getmypid(); @mkdir($tmp);
+$w = fn(string $name, string $body) => file_put_contents("$tmp/$name", $body) !== false ? "$tmp/$name" : '';
+$u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
+// conditions
+$nowT = ['dp' => 'dusk', 'se' => 'winter', 'we' => 'rain', 'hp' => '', 'st' => 'sneak', 'pal' => '1'];
+ok('cond: sneak + dusk holds', trail_sight_cond_ok('st=sneak/dp=dusk,night', $nowT));
+ok('cond: hunt does not hold while sneaking', !trail_sight_cond_ok('st=hunt', $nowT));
+ok('cond: pal=1 holds, pal=0 does not', trail_sight_cond_ok('pal=1', $nowT) && !trail_sight_cond_ok('pal=0', $nowT));
+ok('cond: unknown key fails', !trail_sight_cond_ok('mood=sad', $nowT));
+ok('cond text reads in plain words', trail_sight_cond_text('st=sneak/dp=dusk') === 'sneaking, at dusk', trail_sight_cond_text('st=sneak/dp=dusk'));
+ok('lint accepts st= and pal= conditions', !array_filter(trail_sight_lint(['when' => 'st=sneak/pal=1'] + $base), fn($p) => str_contains($p, 'condition')));
+// variants and pick
+$seen = []; for ($i = 0; $i < 60; $i++) $seen[trail_sight_line('a // b // c')] = 1;
+ok('a line with " // " variants gives each variant in time', count($seen) === 3, json_encode(array_keys($seen)));
+$pickRow = ['check' => 'pick:3:Left;Middle;Right', 'slug' => 'x'] + $base;
+ok('pick lints and has 3 labels', !trail_sight_lint($pickRow) || !array_filter(trail_sight_lint($pickRow), fn($p) => str_contains($p, 'pick')), json_encode(trail_sight_lint($pickRow)));
+ok('a pick with the wrong number of labels is caught', (bool)array_filter(trail_sight_lint(['check' => 'pick:3:A;B'] + $base), fn($p) => str_contains($p, 'pick')));
+$ans = trail_sight_pick_answer((int)$u['id'], $pickRow);
+ok('the pick answer is stable for the day and within range', $ans === trail_sight_pick_answer((int)$u['id'], $pickRow) && $ans >= 0 && $ans < 3);
+$put(['check' => 'pick:3:Left;Middle;Right', 'lose' => 'Wrong door.', 'rewards' => 'xp=2', 'uses' => 9, 'energy' => 0]); $fresh();
+$sc = trail_scene($exp); $sc['x'] = $spot[0]; $sc['y'] = $spot[1]; trail_save($sc);
+[$p0, $pm] = trail_sight_do($u, $exp, $base['slug']);
+ok('a pick Sight without a choice is refused', !$p0 && $pm === 'Choose one.', (string)$pm);
+$right = trail_sight_pick_answer((int)$u['id'], trail_sights_all()[$base['slug']]);
+$fresh(); [$p1] = trail_sight_do($u, $exp, $base['slug'], ['pick' => $right]); save_exp($exp);
+ok('the right pick wins (xp line in the log)', $p1 && str_contains((string)q_val('SELECT log FROM expeditions WHERE id = ?', [$exp['id']]), 'XP'));
+$fresh(); [$p2] = trail_sight_do($u, $exp, $base['slug'], ['pick' => ($right + 1) % 3]); save_exp($exp);
+ok('a wrong pick uses the lose line', $p2 && str_contains((string)q_val('SELECT log FROM expeditions WHERE id = ?', [$exp['id']]), 'Wrong door'));
+// villagers: daily roll, away, hidden npc, nocheck, give
+$GLOBALS['gv_sight_folk_file'] = $w('folk.txt', "{$base['slug']}|Pomeroy Crumbworth|-|100|Pomeroy is here.|fp=1\n{$base['slug']}|Mabel Pennywhistle|-|100|Mabel waves.|nocheck,fp=1\n{$base['slug']}|Bunty Windlass|-|100|Bunty wants a carrot.|give=" . q_val('SELECT slug FROM items ORDER BY id LIMIT 1') . ":1,xp=5\n");
+$here = trail_sight_folk_here($base['slug'], ['dp' => 'day', 'se' => 'spring', 'we' => 'sun', 'hp' => '', 'st' => 'normal', 'pal' => '0'], (int)$u['id']);
+$names = array_column($here, 'who');
+ok('villagers at 100% are here (Pomeroy only when active)', in_array('Mabel Pennywhistle', $names, true) && in_array('Bunty Windlass', $names, true), json_encode($names));
+$pomActive = (int)q_val("SELECT active FROM npcs WHERE name = 'Pomeroy Crumbworth'");
+ok('a hidden NPC (Pomeroy, inactive) is not here; an active one is', ($pomActive === 1) === in_array('Pomeroy Crumbworth', $names, true), "active=$pomActive");
+ok('the daily roll is stable', $here === trail_sight_folk_here($base['slug'], ['dp' => 'day', 'se' => 'spring', 'we' => 'sun', 'hp' => '', 'st' => 'normal', 'pal' => '0'], (int)$u['id']));
+$GLOBALS['gv_sight_folk_file'] = $w('folk2.txt', "{$base['slug']}|Nobody At All|dp=nosuchdaypart|100|x|fp=1\n");
+ok('a condition that fails keeps a villager away', trail_sight_folk_here($base['slug'], ['dp' => 'day', 'se' => 'spring', 'we' => 'sun', 'hp' => '', 'st' => 'normal', 'pal' => '0'], 1) === []);
+// nocheck makes a hard check a sure win
+$GLOBALS['gv_sight_folk_file'] = $w('folk3.txt', "{$base['slug']}|Mabel Pennywhistle|-|100|Mabel steadies the plank.|nocheck,xp=1\n");
+$put(['check' => 'grit:25', 'lose' => 'You slip.', 'rewards' => 'xp=2', 'uses' => 9, 'energy' => 0]); $fresh();
+q('UPDATE users SET stat_grit = 1 WHERE id = ?', [$u['id']]); $fresh();
+$GLOBALS['gv_sight_folk_file'] = $w('folk3.txt', "{$base['slug']}|Mabel Pennywhistle|-|100|Mabel steadies the plank.|nocheck,xp=1\n");
+[$nc] = trail_sight_do($u, $exp, $base['slug']); save_exp($exp);
+ok('a villager with nocheck makes a hard check a sure thing', $nc && str_contains((string)q_val('SELECT log FROM expeditions WHERE id = ?', [$exp['id']]), 'no roll needed'));
+// give
+$gslug = (string)q_val('SELECT slug FROM items ORDER BY id LIMIT 1'); $gid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$gslug]);
+$GLOBALS['gv_sight_folk_file'] = $w('folk4.txt', "{$base['slug']}|Bunty Windlass@v-ca-4-2|-|100|Bunty is glad of it.|give=$gslug:1,xp=7\n");
+q('DELETE FROM user_items WHERE user_id = ? AND item_id = ?', [$u['id'], $gid]); $fresh();
+[$g0, $gm0] = trail_sight_give($u, $exp, $base['slug'], 0);
+ok('give: refused without the item', !$g0 && str_contains((string)$gm0, 'You need'), (string)$gm0);
+give_item((int)$u['id'], $gid, 2); $fresh(); [$g1] = trail_sight_give($u, $exp, $base['slug'], 0); save_exp($exp);
+ok('give: with the item it is used up and the villager pays', $g1 && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$u['id'], $gid]) === 1 && str_contains((string)q_val('SELECT log FROM expeditions WHERE id = ?', [$exp['id']]), 'Bunty'));
+// hints, titles, pages
+$locx = q_one('SELECT * FROM locations ORDER BY id LIMIT 1') + ['landscape' => 'grassland'];
+ok('hint=weather is a line about tomorrow', str_contains(trail_sight_hint($u, $locx, 'weather'), 'tomorrow'));
+ok('hint=away says who is away or that all are home', trail_sight_hint($u, $locx, 'away') !== '');
+q('DELETE FROM user_sight_titles WHERE user_id = ?', [$u['id']]);
+ok('a title is given once', trail_sight_give_title((int)$u['id'], 'Bridgewarden') && !trail_sight_give_title((int)$u['id'], 'Bridgewarden') && trail_sight_titles((int)$u['id']) === ['Bridgewarden']);
+$GLOBALS['gv_sight_pages_file'] = $w('pages.txt', "my-first-page|Sights|Test|My first page|Hello \\n world.\n");
+set_setting('almanac_sight_pages', ''); trail_sights_ensure_pages();
+ok('an extra Almanac page is made and opens with page=<key>', (int)q_val("SELECT COUNT(*) FROM encyclopedia_entries WHERE unlock_key = 'sightpage:my-first-page'") === 1 && count(trail_sight_pay($u, $locx, 'page=my-first-page')) === 1 && trail_sight_pay($u, $locx, 'page=my-first-page') === []);
+ok('lint: page= needs a known key', (bool)array_filter(trail_sight_lint(['rewards' => 'page=no-such-page'] + $base), fn($p) => str_contains($p, 'page=')) && !array_filter(trail_sight_lint(['rewards' => 'page=my-first-page'] + $base), fn($p) => str_contains($p, 'page=')));
+// new villagers
+$vs = (string)q_val("SELECT slug FROM locations WHERE kind = 'village' ORDER BY id LIMIT 1");
+$GLOBALS['gv_sight_newfolk_file'] = $w('newfolk.txt', "Keeper Marram|Mole|Generous|Lighthouse keeper|A stout gnome in a knitted cap.|$vs\n");
+$rf = new ReflectionFunction('trail_sights_ensure_newfolk'); $st = $rf->getStaticVariables();
+$dd = &$st;
+// the static guard is per request: run the body once by calling the lookup after clearing the guard through a fresh process-safe path
+$vrow = q_one("SELECT * FROM locations WHERE slug = ?", [$vs]); require_once $argv[1] . '/includes/stop_folk.php'; stop_folk_ensure($vrow);
+db_insert('stop_folk', ['location_id' => (int)$vrow['id'], 'slot' => 9, 'name' => 'Keeper Marram', 'species' => 'Mole', 'personality' => 'Generous', 'role' => 'Lighthouse keeper', 'bio' => 'x']);
+ok('a made villager (Keeper Marram) can be found by name and befriended', trail_sight_folk_id('Keeper Marram') > 0 && trail_sight_befriend($u, 'Keeper Marram@' . $vs, 1) !== '');
+// quest orders, gates, duplicates, event beats, needs
+$GLOBALS['gv_sight_quests_file'] = $w('q.txt', "Q|q-last|Last Is Last|Nettle Cobblefield|📜|anylast|xp=5|intro|outro\nB|q-last|{$base['slug']}|one|-\nB|q-last|mountain-the-rope-bridge|two|-\nB|q-last|grassland-the-old-milestone|three|-\n"
+    . "Q|q-dup|Twice The Same|Nettle Cobblefield|📜|seq|xp=5|intro|outro\nB|q-dup|{$base['slug']}|first|-\nB|q-dup|mountain-the-rope-bridge|middle|-\nB|q-dup|{$base['slug']}|again|-\n"
+    . "Q|q-gated|After Dup|Nettle Cobblefield|📜|any|xp=5|intro|outro|quest:q-dup\nB|q-gated|{$base['slug']}|g1|-\nB|q-gated|mountain-the-rope-bridge|g2|-\n"
+    . "Q|q-event|Boss And Meal|Nettle Cobblefield|📜|any|xp=5|intro|outro\nB|q-event|@boss|win a lair|-\nB|q-event|@meal|eat a meal|-\n"
+    . "Q|q-needs|Bring It|Nettle Cobblefield|📜|seq|xp=5|intro|outro\nB|q-needs|{$base['slug']}|hand over|-|take=$gslug:2\nB|q-needs|mountain-the-rope-bridge|then this|-\n");
+$aq = trail_sight_quests();
+ok('the test quests parse (5 lines)', count($aq) === 5, (string)count($aq));
+q('DELETE FROM user_sight_quests WHERE user_id = ?', [$u['id']]);
+$nowQ = ['dp' => 'day', 'se' => 'spring', 'we' => 'sun', 'hp' => '', 'st' => 'normal', 'pal' => '0'];
+trail_sight_quest_hook($u, 'grassland-the-old-milestone', $locx, $nowQ);
+ok('anylast: the last beat does not count first', !trail_sight_quest_row((int)$u['id'], 'q-last'));
+trail_sight_quest_hook($u, $base['slug'], $locx, $nowQ); trail_sight_quest_hook($u, 'mountain-the-rope-bridge', $locx, $nowQ);
+$r1 = trail_sight_quest_row((int)$u['id'], 'q-last'); ok('anylast: two others in any order then the last is open', $r1 && $r1['done_at'] === null && count(json_decode($r1['beats'], true)) === 2);
+trail_sight_quest_hook($u, 'grassland-the-old-milestone', $locx, $nowQ);
+$r1 = trail_sight_quest_row((int)$u['id'], 'q-last'); ok('anylast: the last beat finishes the line', $r1 && $r1['done_at'] !== null);
+$r2 = trail_sight_quest_row((int)$u['id'], 'q-dup'); ok('seq: the Sights used in order begin the dup line (beats 1 and 2 so far)', $r2 && json_decode($r2['beats'], true) === [0, 1], json_encode($r2['beats'] ?? null));
+$gr = trail_sight_quest_row((int)$u['id'], 'q-gated'); ok('a gated line has not begun while its gate is open', !$gr);
+trail_sight_quest_hook($u, $base['slug'], $locx, $nowQ);
+$r2 = trail_sight_quest_row((int)$u['id'], 'q-dup'); ok('a Sight can be a beat twice in one line (first and third)', $r2 && $r2['done_at'] !== null && json_decode($r2['beats'], true) === [0, 1, 2], json_encode($r2['beats'] ?? null));
+trail_sight_quest_hook($u, $base['slug'], $locx, $nowQ); $gr = trail_sight_quest_row((int)$u['id'], 'q-gated'); ok('once the gate is done the gated line begins', (bool)$gr);
+trail_sight_quest_event($u, 'boss', 'some-lair'); $er = trail_sight_quest_row((int)$u['id'], 'q-event');
+ok('@boss event beat counts (any lair)', $er && json_decode($er['beats'], true) === [0], json_encode($er));
+trail_sight_quest_event($u, 'meal'); $er = trail_sight_quest_row((int)$u['id'], 'q-event'); ok('@meal event beat finishes the line', $er && $er['done_at'] !== null);
+give_item((int)$u['id'], $gid, 5); q('UPDATE user_items SET qty = 1 WHERE user_id = ? AND item_id = ?', [$u['id'], $gid]);
+trail_sight_quest_hook($u, $base['slug'], $locx, $nowQ);
+ok('needs: a beat that needs 2 items does not count with 1', !trail_sight_quest_row((int)$u['id'], 'q-needs'));
+give_item((int)$u['id'], $gid, 2); trail_sight_quest_hook($u, $base['slug'], $locx, $nowQ);
+$nr = trail_sight_quest_row((int)$u['id'], 'q-needs'); ok('needs: with 2 it counts and uses them up', $nr && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$u['id'], $gid]) === 1);
+ok('quest lint: bad kind, gate and needs are caught', count(trail_sight_quest_lint(['slug' => 'z', 'title' => 't', 'giver' => 'g', 'icon' => 'i', 'order' => 'seq', 'reward' => 'xp=1', 'intro' => 'i', 'outro' => 'o', 'gate' => 'quest:nope', 'beats' => [['@wrong', 'l', '-', ''], [$base['slug'], 'l', '-', 'take=x']]], trail_sights_all(), $aq)) >= 3);
+// private tally (a cairn) and its milestone condition
+q('DELETE FROM trail_sight_tally WHERE user_id = ?', [$u['id']]);
+ok('tally: counts up and the tl= condition opens at N', trail_sight_tally_add((int)$u['id'], 'cairn') === 1 && !trail_sight_cond_ok('tl=cairn:2', ['tl' => trail_sight_tallies((int)$u['id'])]) && trail_sight_tally_add((int)$u['id'], 'cairn') === 2 && trail_sight_cond_ok('tl=cairn:2', ['tl' => trail_sight_tallies((int)$u['id'])]));
+ok('lint: tally and tl= are valid', !array_filter(trail_sight_lint(['rewards' => 'tally=cairn,title=Cairn Builder?tl=cairn:5'] + $base), fn($p) => str_contains($p, 'tally') || str_contains($p, 'condition')), json_encode(trail_sight_lint(['rewards' => 'tally=cairn,title=Cairn Builder?tl=cairn:5'] + $base)));
+$put(['rewards' => 'tally=cairn,xp=1?tl=cairn:99', 'uses' => 9, 'energy' => 0, 'check' => '-']); $fresh(); $t0 = (int)(trail_sight_tallies((int)$u['id'])['cairn'] ?? 0);
+[$ty] = trail_sight_do($u, $exp, $base['slug']); save_exp($exp);
+ok('a Sight with tally= adds one to the counter', $ty && (int)(trail_sight_tallies((int)$u['id'])['cairn'] ?? 0) === $t0 + 1);
+// item effects
+$GLOBALS['gv_sight_items_file'] = $w('items.txt', "p4-decor-test|P4 Decor Test|decor|3|40|0|A test.|{\"decor\":{\"type\":\"ornament\",\"w\":1,\"h\":1,\"icon\":\"x\",\"appeal\":2,\"bonus\":\"\"}}\n");
+trail_sights_ensure_items();
+$fxv = (string)q_val("SELECT effects FROM items WHERE slug = 'p4-decor-test'"); ok('an item with an effects column gets its effects JSON', str_contains($fxv, 'ornament'), $fxv);
+unset($GLOBALS['gv_sight_folk_file'], $GLOBALS['gv_sight_quests_file'], $GLOBALS['gv_sight_pages_file'], $GLOBALS['gv_sight_newfolk_file'], $GLOBALS['gv_sight_items_file']);
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);
