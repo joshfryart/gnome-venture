@@ -79,7 +79,7 @@ function stext(string $key): string
         '{energy_minutes}' => rtrim(rtrim(number_format(energy_tick()[1] / 60, 1), '0'), '.'),
         '{energy_rate}' => energy_rate_text(),   // v0.9.0
         '{native}' => (string)(int)setting('native_bonus_percent'),
-        '{pages}' => number_format((int)q_val('SELECT COUNT(*) FROM encyclopedia_entries')),
+        '{pages}' => number_format((int)q_val("SELECT COUNT(*) FROM encyclopedia_entries WHERE NOT (unlock_key LIKE 'sight:%' OR unlock_key LIKE 'sightpage:%')")),
         '{regions}' => (string)(int)q_val('SELECT COUNT(*) FROM regions'),
     ];
     return strtr($s, $vars);

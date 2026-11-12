@@ -383,6 +383,13 @@ $fxv = (string)q_val("SELECT effects FROM items WHERE slug = 'p4-decor-test'"); 
 unset($GLOBALS['gv_sight_folk_file'], $GLOBALS['gv_sight_quests_file'], $GLOBALS['gv_sight_pages_file'], $GLOBALS['gv_sight_newfolk_file'], $GLOBALS['gv_sight_items_file']);
 
 echo "== review fixes\n";
+require_once $argv[1] . '/includes/almanac.php';
+[$aHave, $aTotal] = almanac_counts((int)$u['id']);
+$rawTotal = (int)q_val('SELECT COUNT(*) FROM encyclopedia_entries'); $sightPages = (int)q_val("SELECT COUNT(*) FROM encyclopedia_entries WHERE unlock_key LIKE 'sight:%' OR unlock_key LIKE 'sightpage:%'");
+ok('the Almanac totals leave out the Sights pages (' . $sightPages . ' of ' . $rawTotal . ')', $sightPages > 100 && $aTotal === $rawTotal - $sightPages, "$aTotal vs " . ($rawTotal - $sightPages));
+$haveRaw = (int)q_val('SELECT COUNT(*) FROM user_encyclopedia WHERE user_id = ?', [$u['id']]);
+unlock_entries((int)$u['id'], 'sight:' . array_key_first(trail_sights_all()));
+ok('unlocking a Sights page does not raise the page count', almanac_counts((int)$u['id'])[0] === $aHave, json_encode([$aHave, almanac_counts((int)$u['id'])]));
 // gifts to a stop villager inside the walk's own transaction (stop_gift would throw on a nested beginTransaction)
 $vv = q_one("SELECT * FROM locations WHERE kind = 'village' ORDER BY id LIMIT 1"); stop_folk_ensure($vv);
 $fid0 = (int)q_val('SELECT id FROM stop_folk WHERE location_id = ? ORDER BY slot LIMIT 1', [$vv['id']]);
