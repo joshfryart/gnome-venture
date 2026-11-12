@@ -149,6 +149,30 @@ body{padding-block:10px 28px}
 @media (prefers-reduced-motion:reduce){.pfb-cell.pfb-drop.pfb-scoring{animation:none}}
 .mk.evflash{z-index:9;background:rgba(255,214,90,.35)}
 @media (prefers-reduced-motion:reduce){.mk.aim{animation:none}.fbar i{transition:none}.hc{transition:none}}
+/* terrain help: popover over the board, legend row, help sheet */
+.bwrap{position:relative}
+button.gc{border:0;cursor:pointer;z-index:1}
+button.gc:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+.mk .mkb{position:absolute;left:1px;top:1px;display:flex;align-items:center;gap:1px;padding:1px 2px 1px 1px;margin:0;border:0;background:rgba(20,12,6,.88);color:#ffd65a;font:inherit;cursor:pointer;pointer-events:auto}
+.mk .mkb.m2{top:auto;bottom:1px}
+.mk .mkb svg{position:static;width:11px;height:11px;padding:0;background:none}
+.mk .mkb em{font:700 8px/10px var(--font);font-style:normal;color:#ffe9a8}
+.mk.ev.k-thorn .mkb{color:#ff8a6a}
+.pop{position:absolute;left:4px;right:4px;bottom:4px;z-index:11;display:flex;gap:8px;align-items:flex-start;padding:6px 8px;background:#f2e4c0;color:#2a1a10;border:2px solid #2a1a10;box-shadow:0 2px 10px rgba(0,0,0,.6)}
+.pop.top{bottom:auto;top:4px}
+.popi{flex:none;width:26px;height:26px;display:grid;place-items:center;background:#33231a;color:#ffd65a}
+.popi svg{width:16px;height:16px}
+.popt{flex:1;min-width:0;display:grid;gap:1px;font-size:11.5px;line-height:1.3}
+.popt b{font-size:13px}.popt i{font-style:normal;font-weight:700;font-size:10.5px;color:#7a4a1f}
+.popx{flex:none;width:26px;height:26px;margin:0;padding:0;border:1px solid #2a1a10;background:#fff3c8;color:#2a1a10;font:700 16px/1 var(--font);cursor:pointer}
+.legend .tg{cursor:pointer;font-size:10px;padding:0 4px}
+.legend .lg-sun{border-color:#ffd65a}.legend .lg-sun svg{color:#ffd65a}.legend .lg-br{border-color:#7ab55c}.legend .lg-br svg{color:#9fd67d}.legend .lg-mud{border-color:#a67c52}.legend .lg-mud svg{color:#d9b48a}
+.legend .qm{min-width:22px;justify-content:center;font-size:12px;border-color:#e8a317;color:#ffd65a}
+button.tg{cursor:pointer;font-family:inherit;margin:0}
+.pf-turn small{display:block;font:600 .68rem/1.2 system-ui,sans-serif;opacity:.9}
+.helpl{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.hrow2{display:flex;gap:8px;align-items:flex-start}
+.sheet .popt{color:var(--ink)}.sheet .popt i{color:var(--muted)}
 /* result */
 .res{text-align:center;display:grid;gap:8px;justify-items:center}
 .res h2{margin:0;font-size:20px}

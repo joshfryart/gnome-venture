@@ -685,3 +685,30 @@ Bots, not people. Default gnome deck with made-up sources (no real pal, tool or 
 2. Board size does not change play. Keep it as a look (small 5x4 up to boss 7x6), or should big boards get something that uses the room (start pieces further apart, ground 1-3 steps out on 7-wide boards)?
 3. Events: 2 a round change the plan in 1 turn in 6, but ignoring them costs 2 health points. Enough, or make them hit harder (thorn 15%, gust 2 cells, 3 a round on boss boards)?
 4. Bramble takes 14-21% of the creature's bar for free. Halve it on creatures like the thorn burst (chain bot drops to 68%, fights half a turn longer)?
+
+## Player-facing terrain text
+
+The words the player reads in the playable demo (`claude/mockups/pf-demo-v1.html`; source `tools/pfdemo_v1/app.js`, `terrText` / `evText2` / `turnText`). Numbers below are the sim 3 values; the demo reads them live from the Tuning drawer. Shown in: a popover (tap a ground cell, a forecast mark or a legend chip), the legend row under the board, the "?" help, and the terrain-turn banner.
+
+**Terrain turn** (banner: "Terrain turn: events land, then bramble pricks")
+- Every round goes: you, the creature, then the terrain.
+- On the terrain turn the marked events land in order, then bramble pricks, then old pieces expire. The next events are marked before you move.
+- Same rules for you and the creature.
+
+**Terrain** (legend chips: "Sunny: counts double", "Bramble: -10% a round", "Mud: no links")
+| Ground | Text | Who |
+|---|---|---|
+| Sunny patch | A Hurt or Charm piece standing here counts double. | Works for you and the creature. |
+| Bramble | At the end of every round, a piece standing here costs its owner 10% of their health. (If bramble is halved on creatures: "The creature's pieces cost it 5%.") | Pricks you and the creature. |
+| Mud | A piece here does not link. No chain runs into it or out of it. | Stops your chains and the creature's. |
+
+**Events** (every one: "Lands at the end of this round, after the creature's move.")
+| Event | Forecast chip | Text | Who |
+|---|---|---|---|
+| Sunbeam | Sunbeam: turns sunny | This cell turns sunny. The oldest sunny patch fades. | Good for whoever stands here. |
+| Bramble creep | Bramble creep: turns to bramble | This cell turns to bramble and pricks at once (10% of health). The oldest bramble withers. | Hurts whoever stands here. |
+| Puddle | Puddle: turns to mud | This cell turns to mud, so links here are cut. The old mud dries up. | Cuts chains for both sides. |
+| Gust | Gust: pushes (piece name) | The piece here is pushed one cell along the arrow, if that cell is free. | Moves your piece or the creature's. |
+| Thorn burst | Thorn burst: hurts around it | Every piece on this cell and the 4 cells next to it costs its owner 10% of their health. The creature's pieces cost it 5%. | Hits both sides. |
+
+**Also in the help:** the creature's aim ("The red mark is where its next piece goes. Take the cell and it has to pick again.") and chains ("A piece you place fires, then every piece linked to it. A chain of 3 or more uses up every piece that fired. Pal, tool and crop pieces in one chain: 2 kinds +30%, all 3 +60%.").
