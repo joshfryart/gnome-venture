@@ -17,6 +17,13 @@ $cap = pf_box_capacity($lvl);
 if (is_post()) {
     csrf_check();
     $do = (string)($_POST['do'] ?? '');
+    if (str_starts_with($do, 'pfd_') && pfight_v1_on($u)) {   // 2.6.74, v1 deck model (admin setting pfight_v1): starter, switch a piece, belt, auto-use, fix a tool (includes/pfdeck.php, pfd_post). The page for them is the UI stage
+        require_once __DIR__ . '/includes/pfdeck.php';
+        require_once __DIR__ . '/includes/pfdeck_view.php';
+        [$ok, $msg] = pfv_post($u, $do, $_POST);   // stage C: pfd_post plus the carry-over of an old box when the starter is packed
+        if (!$ok || !in_array($do, ['pfd_toggle', 'pfd_auto'], true)) flash($msg, $ok ? 'ok' : 'err');   // a switched piece shows on the page itself
+        redirect('puzzlebox.php' . (in_array($_POST['t'] ?? '', ['belt', 'pals'], true) ? '?t=' . $_POST['t'] : ''));
+    }
     if ($do === 'pick') {   // choose one of the three from an offer
         $why = pfight_offer_pick($u, (int)($_POST['offer'] ?? 0), (int)($_POST['choice'] ?? -1));
         flash($why ?? 'Upgrade added to your tile.', $why ? 'err' : 'ok');
@@ -29,6 +36,20 @@ if (is_post()) {
     redirect('puzzlebox.php');
 }
 
+if (($_GET['pfd'] ?? '') === 'json' && pfight_v1_on($u)) {   // 2.6.74 debug helper (v1 deck model, admins while pfight_v1 = admin): the whole deck as JSON, for the UI stage and the tests
+    require_once __DIR__ . '/includes/pfdeck.php';
+    header('Content-Type: application/json'); header('Cache-Control: no-store');
+    echo json_encode(pfd_deck($u) + ['wear' => pfd_wear($u)], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+if (pfight_v1_on($u)) {   // 2.6.74 stage C: the v1 Puzzle box (deck bar, kit / belt / pals, harmony, auto-use; the starter pick the first time). includes/pfdeck_view.php
+    require_once __DIR__ . '/includes/pfdeck_view.php';
+    $GLOBALS['AJAX_PAGE'] = true;   // its buttons update in place
+    page_header('Puzzle box');
+    echo pfv_box_html($u, (string)($_GET['t'] ?? 'kit'));
+    page_footer();
+    exit;
+}
 [$st, , $bonus] = pfight_calc($u);
 $mods = pfight_mods($uid); $offers = pfight_offers($uid); [$today, $dayCap] = pfight_offer_today($uid);
 $own = pf_collection($lvl, $cal);

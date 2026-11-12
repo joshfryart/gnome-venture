@@ -69,7 +69,8 @@ if (is_post()) {
         if ($enc && $enc['type'] === 'creature' && pfight_on($u)) {   // puzzle combat: only its own actions count (an old attack button from a stale page does nothing)
             if ($do === 'pfb_preview') pfight_preview_out($u, $exp);   // read only; answers JSON and exits
             if ($do === 'pfb_cells') pfight_cells_out($u, $exp);   // read only: the numbers for each lit spot
-            if (in_array($do, ['pf_play', 'pfb_play', 'pfb_pass', 'pf_run', 'pf_redraw', 'pf_finish'], true)) {
+            if (($do === 'pfv_go' || str_starts_with($do, 'pfd_')) && pfight_v1_on($u)) { require_once __DIR__ . '/includes/pfdeck_view.php'; pfv_adv_post($u, $exp, $enc, $do); }   // 2.6.74 v1: the starter pick and the pre-fight screen (swap pieces, auto-use, Let's fight)
+            if (in_array($do, ['pf_play', 'pfb_play', 'pfb_pass', 'pfb_flip', 'pf_run', 'pf_redraw', 'pf_finish'], true)) {
                 $fev0 = fight_ev_start($exp, $enc); fight_ev();   // the end scene (the chest and the loot drawn in) is kept for the next page, like the old fight's
                 pfight_do($u, $exp, $do);
                 fight_ev_save($fev0, $exp);
@@ -289,6 +290,7 @@ function wander_card_html(array $u, array $exp, array $last, array $log, array $
 }
 
 page_header('On the mycelium');
+if (!empty($_SESSION['pfv_res'])) { require_once __DIR__ . '/includes/pfdeck_view.php'; echo pfv_result_take(); }   // 2.6.74 v1: the result card of a puzzle fight that was lost or left (never set with pfight_v1 off)
 // graphical navigation 2d: Wander off the Trail plays in a popover over the Trail's section; when the wander ends the walk is picked up again
 $wanderView = null;
 if ($exp && ($exp['kind'] ?? '') === 'explore' && ($snap = trail_snapshot($u))) $wanderView = trail_snapshot_view($u, $snap, $exp);

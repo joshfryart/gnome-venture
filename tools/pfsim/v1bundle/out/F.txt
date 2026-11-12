@@ -1,0 +1,1 @@
+"bar":{"small":1.6,"medium":1.6,"large":1.6,"boss":1.25},"foe":{"small":1.05,"medium":0.92,"large":0.86,"boss":1.0},"nev":{"small":1,"medium":2,"large":2,"boss":2}

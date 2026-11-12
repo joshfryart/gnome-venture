@@ -1,0 +1,230 @@
+== today {"ground":0,"events":0,"limit":0,"aim":0,"team":1,"foe":1}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 100 / 25 / 5.1 | 100 / 24 / 3.5 | 100 / 23 / 4.7 | 100 / 25 / 5.0 | 100 / 27 / 7.3 | 207+ |
+| look | at level | 100 / 6 / 5.2 | 100 / 8 / 3.3 | 100 / 5 / 5.4 | 100 / 8 / 5.0 | 100 / 4 / 7.3 | 207+ |
+| smart | at level | 100 / 7 / 4.5 | 100 / 7 / 3.0 | 100 / 7 / 4.3 | 100 / 7 / 4.4 | 100 / 5 / 6.3 | 207+ |
+== start {"foe":1.35}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 64 / 67 / 6.2 | 78 / 51 / 4.3 | 61 / 67 / 5.7 | 64 / 72 / 6.1 | 56 / 79 / 8.7 | 207+ |
+| look | at level | 95 / 29 / 7.8 | 97 / 21 / 5.1 | 88 / 37 / 8.2 | 98 / 31 / 7.4 | 99 / 27 / 10.6 | 207+ |
+| smart | at level | 100 / 20 / 5.6 | 100 / 18 / 3.6 | 100 / 22 / 5.5 | 100 / 22 / 5.5 | 100 / 17 / 7.7 | 207+ |
+== start13 {"foe":1.3}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 69 / 65 / 6.4 | 78 / 51 / 4.3 | 67 / 64 / 5.9 | 68 / 70 / 6.2 | 64 / 76 / 9.0 | 207+ |
+| look | at level | 97 / 27 / 7.7 | 97 / 21 / 5.1 | 92 / 33 / 7.9 | 98 / 29 / 7.4 | 100 / 24 / 10.4 | 207+ |
+| smart | at level | 100 / 19 / 5.5 | 100 / 18 / 3.6 | 100 / 19 / 5.5 | 100 / 21 / 5.4 | 100 / 17 / 7.5 | 207+ |
+== noground {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3,"ground":0}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 74 / 63 / 6.7 | 80 / 49 / 4.4 | 70 / 61 / 6.1 | 70 / 71 / 6.8 | 75 / 71 / 9.3 | 207+ |
+| look | at level | 97 / 24 / 7.4 | 97 / 20 / 4.8 | 94 / 27 / 7.7 | 98 / 30 / 7.5 | 100 / 20 / 9.7 | 207+ |
+| smart | at level | 100 / 17 / 5.8 | 100 / 18 / 3.8 | 100 / 19 / 5.5 | 100 / 19 / 6.2 | 100 / 14 / 7.6 | 207+ |
+== noevents {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3,"events":0}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 68 / 62 / 4.8 | 72 / 50 / 3.1 | 66 / 59 / 4.0 | 68 / 66 / 4.8 | 66 / 72 / 7.1 | 207+ |
+| look | at level | 96 / 26 / 5.4 | 98 / 22 / 3.5 | 92 / 26 / 4.9 | 96 / 28 / 5.2 | 99 / 28 / 8.1 | 207+ |
+| smart | at level | 100 / 19 / 4.3 | 99 / 20 / 2.9 | 100 / 20 / 3.8 | 100 / 20 / 4.2 | 100 / 18 / 6.1 | 207+ |
+== noenv {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3,"ground":0,"events":0}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 65 / 66 / 7.2 | 77 / 49 / 4.5 | 67 / 64 / 6.4 | 60 / 73 / 7.2 | 56 / 78 / 10.8 | 207+ |
+| look | at level | 94 / 26 / 9.3 | 97 / 19 / 5.4 | 88 / 30 / 9.1 | 95 / 31 / 8.9 | 98 / 26 / 13.9 | 207+ |
+| smart | at level | 100 / 15 / 7.2 | 100 / 14 / 4.0 | 99 / 17 / 7.2 | 100 / 17 / 7.0 | 100 / 13 / 10.7 | 207+ |
+== sun15 {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3,"sun":1.5}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 70 / 64 / 5.1 | 75 / 56 / 3.6 | 63 / 66 / 4.8 | 68 / 68 / 4.9 | 74 / 66 / 6.9 | 207+ |
+| look | at level | 98 / 29 / 5.7 | 98 / 27 / 4.1 | 97 / 31 / 6.2 | 98 / 32 / 5.1 | 100 / 26 / 7.3 | 207+ |
+| smart | at level | 100 / 22 / 4.4 | 100 / 24 / 3.1 | 100 / 22 / 4.3 | 100 / 24 / 4.5 | 100 / 17 / 5.8 | 207+ |
+== soft {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3,"bramble":0.07,"ev_unit":0.05,"sun":1.5}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 69 / 65 / 5.4 | 74 / 54 / 3.7 | 61 / 67 / 5.1 | 70 / 68 / 5.4 | 71 / 70 / 7.6 | 207+ |
+| look | at level | 96 / 29 / 6.4 | 97 / 25 / 4.3 | 91 / 32 / 6.7 | 98 / 29 / 5.8 | 100 / 28 / 8.9 | 207+ |
+| smart | at level | 100 / 20 / 5.0 | 100 / 20 / 3.1 | 100 / 22 / 4.8 | 100 / 22 / 4.9 | 100 / 17 / 7.1 | 207+ |
+== ev1 {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3,"nev":1}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 68 / 62 / 4.5 | 70 / 54 / 3.1 | 65 / 62 / 4.1 | 67 / 66 / 4.5 | 71 / 67 / 6.5 | 207+ |
+| look | at level | 97 / 28 / 5.1 | 97 / 23 / 3.6 | 96 / 29 / 4.8 | 97 / 29 / 4.7 | 98 / 31 / 7.2 | 207+ |
+| smart | at level | 99 / 21 / 4.0 | 100 / 19 / 2.8 | 98 / 23 / 3.9 | 100 / 23 / 4.0 | 100 / 20 / 5.5 | 207+ |
+== wide {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3,"nsun":4,"nbr":4,"nmud":2,"gmax":3}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 71 / 63 / 4.8 | 73 / 55 / 3.3 | 68 / 64 / 4.4 | 72 / 64 / 4.8 | 69 / 68 / 6.6 | 207+ |
+| look | at level | 97 / 29 / 5.1 | 94 / 30 / 3.8 | 97 / 30 / 4.9 | 98 / 29 / 4.6 | 99 / 28 / 7.0 | 207+ |
+| smart | at level | 100 / 23 / 4.1 | 100 / 23 / 3.1 | 99 / 25 / 3.8 | 100 / 22 / 3.9 | 100 / 20 / 5.6 | 207+ |
+== foe12 {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3,"foe":1.2}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 76 / 58 / 4.6 | 81 / 49 / 3.5 | 67 / 60 / 4.3 | 74 / 61 / 4.3 | 83 / 62 / 6.4 | 207+ |
+| look | at level | 98 / 25 / 4.9 | 100 / 18 / 3.6 | 96 / 31 / 5.1 | 99 / 28 / 4.4 | 100 / 24 / 6.5 | 207+ |
+| smart | at level | 100 / 19 / 3.9 | 100 / 18 / 2.8 | 100 / 20 / 3.8 | 100 / 22 / 3.8 | 100 / 17 / 5.3 | 207+ |
+== foe135 {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3,"foe":1.35}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 67 / 64 / 4.3 | 70 / 56 / 3.1 | 59 / 64 / 4.1 | 69 / 65 / 4.2 | 69 / 70 / 6.1 | 207+ |
+| look | at level | 95 / 31 / 4.9 | 97 / 26 / 3.6 | 88 / 39 / 5.1 | 96 / 31 / 4.5 | 99 / 29 / 6.5 | 207+ |
+| smart | at level | 100 / 24 / 3.9 | 100 / 24 / 2.7 | 99 / 25 / 3.7 | 100 / 26 / 3.9 | 100 / 21 / 5.4 | 207+ |
+== team0 {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3,"team":1}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 70 / 62 / 4.4 | 70 / 56 / 3.1 | 62 / 62 / 4.2 | 71 / 65 / 4.2 | 75 / 66 / 6.2 | 207+ |
+| look | at level | 97 / 29 / 4.8 | 97 / 27 / 3.6 | 93 / 33 / 4.9 | 96 / 30 / 4.4 | 100 / 26 / 6.5 | 207+ |
+| smart | at level | 100 / 23 / 3.9 | 100 / 25 / 2.8 | 99 / 24 / 3.7 | 100 / 25 / 3.8 | 100 / 18 / 5.4 | 207+ |
+== lim4 {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3,"limit":4}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 75 / 57 / 3.7 | 78 / 51 / 2.8 | 74 / 56 / 3.5 | 73 / 60 / 3.6 | 76 / 60 / 5.0 | 207+ |
+| look | at level | 99 / 25 / 3.9 | 99 / 24 / 3.1 | 99 / 27 / 3.8 | 99 / 26 / 3.6 | 100 / 22 / 5.1 | 207+ |
+| smart | at level | 99 / 23 / 3.4 | 99 / 23 / 2.6 | 100 / 23 / 3.2 | 100 / 24 / 3.2 | 100 / 21 / 4.5 | 207+ |
+== blind1 {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3}
+|---|---|---|---|---|---|---|---|
+| look-g | at level | 91 / 41 / 5.5 | 90 / 36 / 4.1 | 86 / 46 / 5.7 | 91 / 43 / 5.1 | 96 / 38 / 7.3 | 207+ |
+| look-e | at level | 96 / 30 / 5.0 | 96 / 28 / 3.7 | 93 / 33 / 5.0 | 97 / 30 / 4.7 | 100 / 30 / 6.6 | 207+ |
+== thirds {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 71 / 60 / 4.3 | 72 / 54 / 3.1 | 64 / 60 / 4.0 | 72 / 63 / 4.1 | 77 / 63 / 6.1 | 207+ |
+| look | at level | 97 / 27 / 4.7 | 97 / 24 / 3.6 | 94 / 31 / 4.8 | 97 / 28 / 4.2 | 100 / 25 / 6.4 | 207+ |
+| smart | at level | 100 / 21 / 3.7 | 100 / 22 / 2.7 | 100 / 20 / 3.5 | 100 / 25 / 3.6 | 100 / 18 / 5.1 | 207+ |
+== thirds2 {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3,"team":2}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 73 / 58 / 4.2 | 72 / 54 / 3.1 | 65 / 58 / 3.9 | 75 / 60 / 4.0 | 79 / 62 / 6.0 | 207+ |
+| look | at level | 97 / 26 / 4.6 | 97 / 24 / 3.4 | 95 / 29 / 4.8 | 97 / 27 / 4.1 | 100 / 24 / 6.2 | 207+ |
+| smart | at level | 100 / 20 / 3.6 | 100 / 21 / 2.6 | 100 / 18 / 3.3 | 100 / 22 / 3.4 | 100 / 17 / 4.9 | 207+ |
+== pairs {"nsun":3,"nbr":3,"nmud":1,"gmin":1,"gmax":2,"nev":2,"foe":1.3}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 71 / 61 / 4.4 | 72 / 54 / 3.1 | 64 / 60 / 4.0 | 71 / 64 / 4.1 | 77 / 64 / 6.2 | 207+ |
+| look | at level | 97 / 27 / 4.8 | 97 / 24 / 3.6 | 94 / 31 / 4.8 | 96 / 29 / 4.3 | 100 / 25 / 6.4 | 207+ |
+| smart | at level | 100 / 21 / 3.8 | 100 / 22 / 2.7 | 100 / 20 / 3.5 | 100 / 25 / 3.7 | 100 / 18 / 5.2 | 207+ |
+-- bite today
+| Bot | Level | best move changes if ground ignored: any / costs 3+ / 8+ points | if events ignored | if both ignored | mean cost of playing blind (points a turn) | placed on sunny when it could | placed in a thorn zone when one was open | health lost to bramble / thorn | creature health lost to bramble / thorn | my sunny fires per fight (re-fires) | progress from sunny cells | creature sunny fires | rain guards me / creature | wind moves | Teamwork per fight | fights with Teamwork | top piece share of progress |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | - | - | - | - | 0% | 0% | 0% / 0% | 0% / 0% | 0.00 (0.00) | 0% | 0.00 | 0.00 / 0.00 | 0.00 | 0.00 | 0% | 55% |
+| look | at level | 0% / 0% / 0% | 0% / 0% / 0% | 0% / 0% / 0% | 0.0 | 0% | 0% | 0% / 0% | 0% / 0% | 0.00 (0.00) | 0% | 0.00 | 0.00 / 0.00 | 0.00 | 0.00 | 0% | 62% |
+| smart | at level | 0% / 0% / 0% | 0% / 0% / 0% | 0% / 0% / 0% | 0.0 | 0% | 0% | 0% / 0% | 0% / 0% | 0.00 (0.00) | 0% | 0.00 | 0.00 / 0.00 | 0.00 | 0.00 | 0% | 64% |
+
+chain, at level, pieces by share of progress: swing 24%, pierce 17%, jab 12%, trip 10%, sting 10%
+
+look, at level, pieces by share of progress: swing 23%, pierce 16%, trip 15%, sting 13%, thorn 10%
+
+smart, at level, pieces by share of progress: swing 22%, pierce 16%, trip 15%, sting 13%, jab 10%
+-- bite start
+| Bot | Level | best move changes if ground ignored: any / costs 3+ / 8+ points | if events ignored | if both ignored | mean cost of playing blind (points a turn) | placed on sunny when it could | placed in a thorn zone when one was open | health lost to bramble / thorn | creature health lost to bramble / thorn | my sunny fires per fight (re-fires) | progress from sunny cells | creature sunny fires | rain guards me / creature | wind moves | Teamwork per fight | fights with Teamwork | top piece share of progress |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | - | - | - | - | 50% | 42% | 2% / 5% | 2% / 9% | 0.50 (0.19) | 15% | 0.46 | 0.50 / 1.14 | 0.28 | 0.06 | 6% | 53% |
+| look | at level | 10% / 8% / 6% | 7% / 5% / 3% | 15% / 12% / 8% | 6.0 | 40% | 34% | 1% / 5% | 2% / 13% | 0.63 (0.26) | 18% | 0.36 | 0.84 / 1.26 | 0.34 | 0.02 | 2% | 59% |
+| smart | at level | 12% / 10% / 7% | 8% / 5% / 3% | 18% / 14% / 10% | 7.0 | 39% | 19% | 1% / 4% | 2% / 12% | 0.67 (0.36) | 25% | 0.28 | 0.67 / 1.05 | 0.28 | 0.07 | 7% | 65% |
+
+chain, at level, pieces by share of progress: swing 21%, pierce 17%, trip 12%, jab 11%, sting 9%
+
+look, at level, pieces by share of progress: swing 20%, trip 17%, pierce 17%, sting 11%, jab 9%
+
+smart, at level, pieces by share of progress: swing 20%, pierce 17%, trip 15%, jab 12%, sting 11%
+-- bite noground
+| Bot | Level | best move changes if ground ignored: any / costs 3+ / 8+ points | if events ignored | if both ignored | mean cost of playing blind (points a turn) | placed on sunny when it could | placed in a thorn zone when one was open | health lost to bramble / thorn | creature health lost to bramble / thorn | my sunny fires per fight (re-fires) | progress from sunny cells | creature sunny fires | rain guards me / creature | wind moves | Teamwork per fight | fights with Teamwork | top piece share of progress |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | - | - | - | - | 0% | 43% | 0% / 10% | 0% / 19% | 0.00 (0.00) | 0% | 0.00 | 1.09 / 2.48 | 0.61 | 0.06 | 6% | 51% |
+| look | at level | 0% / 0% / 0% | 14% / 11% / 6% | 14% / 11% / 6% | 3.5 | 0% | 36% | 0% / 9% | 0% / 25% | 0.00 (0.00) | 0% | 0.00 | 1.73 / 2.51 | 0.66 | 0.02 | 2% | 60% |
+| smart | at level | 0% / 0% / 0% | 15% / 10% / 6% | 15% / 10% / 6% | 3.9 | 0% | 19% | 0% / 8% | 0% / 23% | 0.00 (0.00) | 0% | 0.00 | 1.41 / 2.10 | 0.58 | 0.06 | 5% | 63% |
+
+chain, at level, pieces by share of progress: swing 23%, pierce 17%, jab 10%, trip 10%, charm 9%
+
+look, at level, pieces by share of progress: swing 21%, pierce 18%, trip 17%, sting 9%, thorn 9%
+
+smart, at level, pieces by share of progress: swing 21%, pierce 19%, trip 15%, jab 10%, thorn 10%
+-- bite noevents
+| Bot | Level | best move changes if ground ignored: any / costs 3+ / 8+ points | if events ignored | if both ignored | mean cost of playing blind (points a turn) | placed on sunny when it could | placed in a thorn zone when one was open | health lost to bramble / thorn | creature health lost to bramble / thorn | my sunny fires per fight (re-fires) | progress from sunny cells | creature sunny fires | rain guards me / creature | wind moves | Teamwork per fight | fights with Teamwork | top piece share of progress |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | - | - | - | - | 50% | 0% | 7% / 0% | 8% / 0% | 1.54 (0.84) | 45% | 1.41 | 0.00 / 0.00 | 0.00 | 0.04 | 4% | 61% |
+| look | at level | 27% / 23% / 18% | 0% / 0% / 0% | 27% / 23% / 18% | 12.7 | 52% | 0% | 5% / 0% | 10% / 0% | 1.91 (1.03) | 57% | 0.79 | 0.00 / 0.00 | 0.00 | 0.02 | 2% | 71% |
+| smart | at level | 30% / 27% / 22% | 0% / 0% / 0% | 30% / 27% / 22% | 16.2 | 51% | 0% | 5% / 0% | 10% / 0% | 1.87 (1.10) | 62% | 0.60 | 0.00 / 0.00 | 0.00 | 0.04 | 4% | 74% |
+
+chain, at level, pieces by share of progress: swing 23%, pierce 15%, trip 13%, jab 12%, thorn 9%
+
+look, at level, pieces by share of progress: swing 21%, trip 19%, pierce 14%, jab 11%, sting 11%
+
+smart, at level, pieces by share of progress: swing 21%, trip 17%, pierce 14%, jab 13%, sting 11%
+-- bite sun15
+| Bot | Level | best move changes if ground ignored: any / costs 3+ / 8+ points | if events ignored | if both ignored | mean cost of playing blind (points a turn) | placed on sunny when it could | placed in a thorn zone when one was open | health lost to bramble / thorn | creature health lost to bramble / thorn | my sunny fires per fight (re-fires) | progress from sunny cells | creature sunny fires | rain guards me / creature | wind moves | Teamwork per fight | fights with Teamwork | top piece share of progress |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | - | - | - | - | 48% | 46% | 8% / 9% | 8% / 15% | 1.57 (0.83) | 38% | 1.41 | 0.93 / 1.92 | 0.50 | 0.05 | 5% | 58% |
+| look | at level | 24% / 20% / 13% | 11% / 8% / 5% | 30% / 25% / 18% | 11.3 | 42% | 37% | 6% / 9% | 11% / 20% | 1.70 (0.96) | 45% | 0.99 | 1.34 / 2.08 | 0.57 | 0.02 | 2% | 68% |
+| smart | at level | 25% / 21% / 14% | 11% / 8% / 5% | 31% / 25% / 18% | 13.2 | 38% | 24% | 6% / 7% | 11% / 18% | 1.51 (0.96) | 46% | 0.80 | 1.08 / 1.78 | 0.47 | 0.06 | 6% | 72% |
+
+chain, at level, pieces by share of progress: swing 22%, pierce 18%, jab 10%, trip 10%, charm 9%
+
+look, at level, pieces by share of progress: swing 20%, pierce 18%, trip 17%, sting 9%, thorn 9%
+
+smart, at level, pieces by share of progress: swing 21%, pierce 18%, trip 15%, jab 11%, thorn 9%
+-- bite ev1
+| Bot | Level | best move changes if ground ignored: any / costs 3+ / 8+ points | if events ignored | if both ignored | mean cost of playing blind (points a turn) | placed on sunny when it could | placed in a thorn zone when one was open | health lost to bramble / thorn | creature health lost to bramble / thorn | my sunny fires per fight (re-fires) | progress from sunny cells | creature sunny fires | rain guards me / creature | wind moves | Teamwork per fight | fights with Teamwork | top piece share of progress |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | - | - | - | - | 50% | 42% | 7% / 4% | 7% / 6% | 1.45 (0.79) | 46% | 1.33 | 0.41 / 0.76 | 0.20 | 0.04 | 4% | 61% |
+| look | at level | 28% / 25% / 19% | 6% / 5% / 3% | 31% / 27% / 21% | 14.3 | 52% | 36% | 6% / 4% | 11% / 9% | 1.81 (0.94) | 59% | 0.78 | 0.63 / 0.91 | 0.23 | 0.02 | 2% | 71% |
+| smart | at level | 30% / 27% / 21% | 6% / 4% / 3% | 33% / 30% / 23% | 17.4 | 52% | 21% | 5% / 4% | 10% / 8% | 1.79 (1.02) | 63% | 0.61 | 0.54 / 0.73 | 0.19 | 0.04 | 4% | 76% |
+
+chain, at level, pieces by share of progress: swing 23%, pierce 15%, trip 12%, jab 12%, sting 10%
+
+look, at level, pieces by share of progress: swing 20%, trip 19%, pierce 16%, sting 11%, jab 10%
+
+smart, at level, pieces by share of progress: swing 20%, trip 18%, pierce 16%, jab 12%, sting 10%
+-- bite wide
+| Bot | Level | best move changes if ground ignored: any / costs 3+ / 8+ points | if events ignored | if both ignored | mean cost of playing blind (points a turn) | placed on sunny when it could | placed in a thorn zone when one was open | health lost to bramble / thorn | creature health lost to bramble / thorn | my sunny fires per fight (re-fires) | progress from sunny cells | creature sunny fires | rain guards me / creature | wind moves | Teamwork per fight | fights with Teamwork | top piece share of progress |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | - | - | - | - | 50% | 47% | 6% / 9% | 6% / 14% | 1.23 (0.61) | 38% | 1.16 | 0.89 / 1.71 | 0.44 | 0.05 | 5% | 59% |
+| look | at level | 27% / 23% / 17% | 11% / 8% / 5% | 33% / 29% / 22% | 16.1 | 45% | 36% | 4% / 9% | 9% / 18% | 1.35 (0.67) | 48% | 0.71 | 1.17 / 1.81 | 0.51 | 0.01 | 1% | 69% |
+| smart | at level | 28% / 25% / 19% | 11% / 8% / 5% | 34% / 30% / 23% | 19.9 | 47% | 21% | 4% / 8% | 8% / 17% | 1.43 (0.76) | 57% | 0.55 | 1.01 / 1.50 | 0.39 | 0.05 | 5% | 75% |
+
+chain, at level, pieces by share of progress: swing 21%, pierce 16%, trip 12%, jab 10%, thorn 9%
+
+look, at level, pieces by share of progress: swing 19%, trip 17%, pierce 16%, sting 12%, jab 10%
+
+smart, at level, pieces by share of progress: swing 19%, pierce 17%, trip 15%, jab 13%, sting 11%
+-- bite team0
+| Bot | Level | best move changes if ground ignored: any / costs 3+ / 8+ points | if events ignored | if both ignored | mean cost of playing blind (points a turn) | placed on sunny when it could | placed in a thorn zone when one was open | health lost to bramble / thorn | creature health lost to bramble / thorn | my sunny fires per fight (re-fires) | progress from sunny cells | creature sunny fires | rain guards me / creature | wind moves | Teamwork per fight | fights with Teamwork | top piece share of progress |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | - | - | - | - | 50% | 45% | 7% / 8% | 8% / 13% | 1.46 (0.77) | 46% | 1.30 | 0.81 / 1.60 | 0.44 | 0.00 | 0% | 62% |
+| look | at level | 28% / 25% / 19% | 10% / 8% / 5% | 34% / 29% / 22% | 15.6 | 50% | 37% | 5% / 8% | 10% / 16% | 1.71 (0.93) | 59% | 0.73 | 1.14 / 1.72 | 0.48 | 0.00 | 0% | 72% |
+| smart | at level | 30% / 26% / 21% | 11% / 8% / 5% | 36% / 31% / 24% | 18.4 | 48% | 26% | 5% / 7% | 10% / 15% | 1.62 (0.96) | 61% | 0.59 | 0.95 / 1.48 | 0.41 | 0.00 | 0% | 77% |
+
+chain, at level, pieces by share of progress: swing 22%, pierce 18%, trip 11%, jab 10%, thorn 9%
+
+look, at level, pieces by share of progress: swing 19%, pierce 18%, trip 18%, sting 9%, jab 9%
+
+smart, at level, pieces by share of progress: swing 21%, pierce 19%, trip 16%, jab 11%, sting 10%
+-- bite thirds
+| Bot | Level | best move changes if ground ignored: any / costs 3+ / 8+ points | if events ignored | if both ignored | mean cost of playing blind (points a turn) | placed on sunny when it could | placed in a thorn zone when one was open | health lost to bramble / thorn | creature health lost to bramble / thorn | my sunny fires per fight (re-fires) | progress from sunny cells | creature sunny fires | rain guards me / creature | wind moves | Teamwork per fight | fights with Teamwork | top piece share of progress |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | - | - | - | - | 49% | 45% | 7% / 8% | 7% / 13% | 1.43 (0.77) | 47% | 1.26 | 0.79 / 1.54 | 0.44 | 0.22 | 22% | 64% |
+| look | at level | 28% / 25% / 19% | 10% / 8% / 5% | 34% / 29% / 22% | 15.4 | 51% | 37% | 5% / 8% | 9% / 16% | 1.69 (0.91) | 58% | 0.70 | 1.10 / 1.66 | 0.47 | 0.23 | 22% | 73% |
+| smart | at level | 31% / 27% / 21% | 10% / 7% / 4% | 36% / 31% / 24% | 18.1 | 48% | 25% | 5% / 7% | 9% / 14% | 1.55 (0.95) | 59% | 0.59 | 0.89 / 1.41 | 0.38 | 0.38 | 35% | 79% |
+
+chain, at level, pieces by share of progress: swing 23%, pierce 18%, trip 11%, jab 10%, sting 9%
+
+look, at level, pieces by share of progress: swing 20%, pierce 19%, trip 18%, sting 9%, jab 8%
+
+smart, at level, pieces by share of progress: swing 21%, pierce 19%, trip 16%, jab 11%, sting 9%
+-- bite thirds2
+| Bot | Level | best move changes if ground ignored: any / costs 3+ / 8+ points | if events ignored | if both ignored | mean cost of playing blind (points a turn) | placed on sunny when it could | placed in a thorn zone when one was open | health lost to bramble / thorn | creature health lost to bramble / thorn | my sunny fires per fight (re-fires) | progress from sunny cells | creature sunny fires | rain guards me / creature | wind moves | Teamwork per fight | fights with Teamwork | top piece share of progress |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | - | - | - | - | 49% | 44% | 7% / 8% | 7% / 13% | 1.40 (0.76) | 46% | 1.24 | 0.78 / 1.50 | 0.42 | 0.24 | 24% | 65% |
+| look | at level | 28% / 25% / 19% | 10% / 7% / 5% | 33% / 29% / 22% | 15.5 | 51% | 37% | 5% / 8% | 9% / 15% | 1.66 (0.91) | 57% | 0.68 | 1.08 / 1.61 | 0.46 | 0.24 | 23% | 74% |
+| smart | at level | 31% / 27% / 21% | 10% / 7% / 4% | 35% / 30% / 23% | 17.8 | 48% | 25% | 5% / 7% | 9% / 13% | 1.50 (0.92) | 57% | 0.57 | 0.86 / 1.32 | 0.36 | 0.44 | 42% | 80% |
+
+chain, at level, pieces by share of progress: swing 23%, pierce 18%, trip 11%, jab 10%, sting 9%
+
+look, at level, pieces by share of progress: swing 20%, pierce 19%, trip 18%, sting 9%, jab 8%
+
+smart, at level, pieces by share of progress: swing 22%, pierce 20%, trip 15%, jab 11%, sting 9%
+-- bite pairs
+| Bot | Level | best move changes if ground ignored: any / costs 3+ / 8+ points | if events ignored | if both ignored | mean cost of playing blind (points a turn) | placed on sunny when it could | placed in a thorn zone when one was open | health lost to bramble / thorn | creature health lost to bramble / thorn | my sunny fires per fight (re-fires) | progress from sunny cells | creature sunny fires | rain guards me / creature | wind moves | Teamwork per fight | fights with Teamwork | top piece share of progress |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | - | - | - | - | 49% | 45% | 7% / 8% | 8% / 13% | 1.44 (0.77) | 47% | 1.27 | 0.79 / 1.56 | 0.44 | 0.18 | 18% | 64% |
+| look | at level | 28% / 25% / 19% | 10% / 7% / 5% | 34% / 29% / 22% | 15.2 | 51% | 37% | 5% / 8% | 9% / 16% | 1.69 (0.92) | 58% | 0.70 | 1.11 / 1.68 | 0.47 | 0.18 | 17% | 73% |
+| smart | at level | 31% / 27% / 21% | 10% / 7% / 4% | 36% / 31% / 24% | 18.0 | 49% | 26% | 5% / 7% | 10% / 14% | 1.57 (0.95) | 60% | 0.60 | 0.90 / 1.43 | 0.38 | 0.32 | 30% | 79% |
+
+chain, at level, pieces by share of progress: swing 23%, pierce 18%, trip 10%, jab 10%, thorn 9%
+
+look, at level, pieces by share of progress: swing 20%, pierce 19%, trip 17%, sting 9%, jab 9%
+
+smart, at level, pieces by share of progress: swing 22%, pierce 20%, trip 15%, jab 11%, sting 9%
+-- bite blind1
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| look-g | at level | 28% / 24% / 18% | 11% / 8% / 5% | 34% / 29% / 22% | 17.5 | 23% | 36% | 11% / 8% | 9% / 21% | 0.96 (0.66) | 35% | 1.48 | 1.33 / 1.91 | 0.54 | 0.01 | 1% | 68% |
+| look-e | at level | 27% / 24% / 18% | 10% / 7% / 5% | 33% / 29% / 22% | 16.1 | 52% | 46% | 5% / 11% | 10% / 15% | 1.73 (0.93) | 59% | 0.73 | 1.04 / 1.77 | 0.47 | 0.02 | 2% | 72% |
+
+look-g, at level, pieces by share of progress: swing 21%, pierce 18%, trip 16%, sting 10%, thorn 9%
+
+look-e, at level, pieces by share of progress: swing 19%, trip 18%, pierce 17%, sting 10%, thorn 8%
+SIDE_DONE

@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deckbuilder Combat Mockups</title>
+<style>
+:root{
+  --bg:#f4ecd8; --panel:#fffaf0; --ink:#2a1a10; --muted:#6b5a48; --line:#d9c9a8; --accent:#e8a317; --accent-ink:#2a1a10;
+  --hurt:#d55e00; --guard:#0072b2; --heal:#009e73; --charm:#cc79a7; --soothe:#56b4e9; --trick:#c9b800; --item:#e69f00;
+  --foe:#7a2e2e; --me:#2e5a7a; --board:#efe2c2; --cell:#e2d2ac; --lit:#fff3c4; --bad:#b3261e; --ok:#2e7d32;
+  --r1:#9a8c78; --r2:#3f9b5a; --r3:#3a7bd5; --r4:#c98a12;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17130f; --panel:#221c16; --ink:#f2e4c0; --muted:#b8a78c; --line:#3d3226; --accent:#f0b43a; --accent-ink:#1a120a;
+    --board:#2b241c; --cell:#352c22; --lit:#4a3d1c; --foe:#e08a8a; --me:#8ab8e0; --bad:#ff8a80; --ok:#81c784;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17130f; --panel:#221c16; --ink:#f2e4c0; --muted:#b8a78c; --line:#3d3226; --accent:#f0b43a; --accent-ink:#1a120a;
+  --board:#2b241c; --cell:#352c22; --lit:#4a3d1c; --foe:#e08a8a; --me:#8ab8e0; --bad:#ff8a80; --ok:#81c784;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;padding:16px}
+h1{font-size:1.25rem;margin:0 0 .25rem}
+.lede{color:var(--muted);margin:0 0 1rem;max-width:60ch}
+.topbar{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-bottom:1rem}
+.topbar a,.topbar button{font:inherit;font-size:.85rem;padding:.35rem .7rem;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-decoration:none;cursor:pointer}
+.screens{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.phone{width:100%;max-width:390px;background:var(--panel);border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.phone > header{padding:.7rem 1rem;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.5rem}
+.phone > header h2{font-size:1rem;margin:0;flex:1}
+.phone > header .tag{font-size:.7rem;color:var(--muted)}
+.body{padding:.8rem 1rem 1rem}
+.cap{font-size:.72rem;color:var(--muted);margin:.2rem 0 .6rem}
+.note{font-size:.72rem;color:var(--muted);border-left:3px solid var(--accent);padding:.2rem .5rem;margin:.6rem 0}
+.btn{font:inherit;font-weight:600;font-size:.88rem;padding:.55rem .9rem;border-radius:.6rem;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.spread{justify-content:space-between}
+.chip{font-size:.72rem;padding:.15rem .5rem;border-radius:999px;border:1px solid var(--line);background:var(--bg)}
+.chip.warn{border-color:var(--bad);color:var(--bad)}
+.chip.good{border-color:var(--ok);color:var(--ok)}
+
+/* piece card */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.grid.four{grid-template-columns:repeat(4,1fr)}
+.grid.four .ty{font-size:.55rem;max-width:calc(100% - 1.1rem);overflow:hidden;white-space:nowrap}
+.pc{position:relative;border:2px solid var(--line);border-radius:.7rem;background:var(--bg);padding:.4rem .35rem .35rem;text-align:left;font:inherit;color:inherit;cursor:pointer;min-height:84px;display:flex;flex-direction:column;gap:.15rem}
+.pc .ty{display:flex;align-items:center;gap:.25rem;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.pc .ty i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.pc b{font-size:.8rem;line-height:1.15}
+.pc small{font-size:.64rem;color:var(--muted);line-height:1.2}
+.pc .v{position:absolute;top:.3rem;right:.35rem;font-weight:800;font-size:.95rem}
+.pc .src{font-size:.6rem;color:var(--muted)}
+.pc .rk{position:absolute;left:0;right:0;bottom:0;height:4px;border-radius:0 0 .55rem .55rem}
+.pc.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.pc.sel::after{content:"✓";position:absolute;top:-8px;left:-6px;background:var(--accent);color:var(--accent-ink);border-radius:50%;width:18px;height:18px;font-size:.7rem;display:grid;place-items:center;font-weight:800}
+.pc.fixed{cursor:default;opacity:.92}
+#core .pc.fixed::before{content:"core";position:absolute;bottom:.4rem;right:.35rem;font-size:.55rem;color:var(--muted)}
+.pc.gear{border-style:dashed}
+.pc.off{opacity:.4;cursor:not-allowed}
+.t-hurt i{background:var(--hurt)} .t-guard i{background:var(--guard)} .t-heal i{background:var(--heal)} .t-charm i{background:var(--charm)} .t-trick i{background:var(--trick)} .t-item i{background:var(--item)} .t-soothe i{background:var(--soothe)}
+.r1{background:var(--r1)} .r2{background:var(--r2)} .r3{background:var(--r3)} .r4{background:linear-gradient(90deg,var(--r4),#f6d27a,var(--r4))}
+
+.kits{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;margin-bottom:.6rem}
+.kit{font:inherit;font-size:.74rem;padding:.45rem .3rem;border-radius:.6rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;text-align:center}
+.kit b{display:block;font-size:.82rem}
+.sectionh{font-size:.78rem;font-weight:700;margin:.8rem 0 .35rem;display:flex;justify-content:space-between;align-items:baseline}
+.sectionh span{font-weight:400;color:var(--muted);font-size:.7rem}
+.stick{position:sticky;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding:.6rem 1rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+
+/* tabs */
+.tabs{display:flex;gap:.25rem;border-bottom:1px solid var(--line);margin:0 -1rem .7rem;padding:0 1rem;overflow-x:auto}
+.tabs button{font:inherit;font-size:.8rem;padding:.45rem .6rem;border:0;background:none;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:700}
+.pane[hidden]{display:none}
+.meter{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin:.2rem 0 .1rem}
+.meter i{display:block;height:100%;background:var(--accent)}
+.slot{border:2px dashed var(--line);border-radius:.7rem;min-height:84px;display:grid;place-items:center;font-size:.7rem;color:var(--muted);text-align:center;padding:.3rem}
+.toolrow{display:flex;gap:.5rem;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--line);font-size:.8rem}
+.toolrow:last-child{border-bottom:0}
+.toolrow .ic{font-size:1.2rem;width:1.6rem;text-align:center}
+.toolrow .grow{flex:1}
+.toolrow small{display:block;color:var(--muted);font-size:.68rem}
+.tier{font-size:.62rem;padding:.05rem .35rem;border-radius:4px;color:#fff;font-weight:700}
+
+/* pre-fight */
+.foe{display:flex;gap:.7rem;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:.8rem;padding:.6rem}
+.foe .pic{width:64px;height:64px;border-radius:.6rem;background:radial-gradient(circle at 40% 35%,#d9a066,#7a4a22);display:grid;place-items:center;font-size:2rem}
+.foe h3{margin:0;font-size:.95rem}
+.foe p{margin:.1rem 0;font-size:.72rem;color:var(--muted)}
+.lean{display:flex;gap:2px;height:8px;border-radius:4px;overflow:hidden;margin-top:.3rem}
+.lean span{display:block}
+.swapbar{display:flex;align-items:center;gap:.35rem;margin:.6rem 0 .2rem;font-size:.78rem}
+.pips{display:flex;gap:3px}
+.pips i{width:12px;height:12px;border-radius:50%;border:2px solid var(--accent)}
+.pips i.used{background:var(--accent)}
+.strip{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.3rem}
+.strip .pc{min-width:88px;flex:0 0 88px}
+.pc.swapout{border-color:var(--bad)}
+.pc.swapin{border-color:var(--ok)}
+
+/* board */
+.status{display:flex;justify-content:space-between;align-items:center;gap:.4rem;font-size:.72rem;margin-bottom:.4rem}
+.bar{flex:1}
+.bar .meter i.hp{background:var(--heal)} .bar .meter i.fh{background:var(--hurt)} .bar .meter i.cm{background:var(--charm)}
+.board{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;background:var(--board);padding:6px;border-radius:.8rem;border:1px solid var(--line)}
+.cell{aspect-ratio:1;border-radius:6px;position:relative;font-size:.55rem;display:grid;place-items:center}
+.cell.empty{background:transparent}
+.cell.lit{background:var(--lit);outline:2px dashed var(--accent);outline-offset:-2px;cursor:pointer}
+.cell.lit .num{font-weight:800;font-size:.6rem;line-height:1.05;text-align:center}
+.cell.lit .num .neg{color:var(--bad)}
+.cell.lit.hurtme{outline-color:var(--bad)}
+.cell.bp{color:#fff;font-weight:800;cursor:pointer;border:2px solid rgba(0,0,0,.25)}
+.cell.bp.foe{box-shadow:0 0 0 2px var(--foe) inset}
+.cell.bp.me{box-shadow:0 0 0 2px var(--me) inset}
+.cell.bp .val{font-size:.8rem}
+.cell.bp .life{position:absolute;bottom:1px;right:2px;font-size:.5rem;background:rgba(0,0,0,.45);border-radius:3px;padding:0 2px}
+.cell.bp .life.last{background:var(--accent);color:var(--accent-ink)}
+.cell.bp .fires{position:absolute;top:1px;left:2px;font-size:.5rem;background:var(--foe);color:#fff;border-radius:3px;padding:0 2px}
+.cell.blank{background:repeating-linear-gradient(45deg,var(--cell) 0 4px,transparent 4px 8px);border:1px dashed var(--muted)}
+.bg-hurt{background:var(--hurt)} .bg-guard{background:var(--guard)} .bg-heal{background:var(--heal)} .bg-charm{background:var(--charm)} .bg-trick{background:var(--trick);color:#2a1a10!important} .bg-item{background:var(--item)}
+.legend{display:flex;flex-wrap:wrap;gap:.3rem .7rem;font-size:.64rem;color:var(--muted);margin:.4rem 0}
+.hand{display:flex;gap:.35rem;margin-top:.5rem;overflow-x:auto;padding:.2rem 0 .3rem}
+.hand .pc{min-width:70px;flex:0 0 70px;min-height:76px}
+.info{margin-top:.5rem;background:var(--bg);border:1px solid var(--line);border-radius:.7rem;padding:.5rem .6rem;font-size:.74rem;min-height:3.2rem}
+.info b{font-size:.8rem}
+.held{margin-top:.4rem;font-size:.72rem;border:2px dashed var(--accent);border-radius:.6rem;padding:.3rem .5rem;display:flex;justify-content:space-between;align-items:center;gap:.4rem}
+.log{font-size:.7rem;color:var(--muted);margin:.3rem 0 0}
+.log .g{color:var(--guard);font-weight:600}
+/* creature layers */
+.seg{display:flex;gap:.3rem;margin-bottom:.6rem}
+.seg button{flex:1;font:inherit;font-size:.78rem;padding:.4rem .3rem;border-radius:.6rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:700}
+.layer{margin-top:.7rem}
+.layer h4{margin:0 0 .3rem;font-size:.76rem;display:flex;justify-content:space-between;align-items:baseline;gap:.4rem}
+.layer h4 span{font-weight:400;font-size:.66rem;color:var(--muted)}
+.layer .grid{grid-template-columns:repeat(2,1fr)}
+.layer .pc{min-height:72px;cursor:default}
+.layer .pc small.tg{font-weight:700;color:var(--ink)}
+.lk{position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:.6rem 0 0 .6rem}
+.lk.base{background:var(--guard)} .lk.reg{background:var(--heal)} .lk.rar{background:var(--item)} .lk.uni{background:var(--charm)}
+.tally{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:.5rem 0 .2rem}
+.tally span{display:block}
+@media (max-width:430px){ body{padding:16px} .screens{gap:16px} }
+@media (prefers-reduced-motion:no-preference){ .pc{transition:border-color .15s, transform .15s} .pc:active{transform:scale(.97)} }
+</style>
+</head>
+<body>
+<h1>Deckbuilder combat: mockups</h1>
+<p class="lede">Static stubs for <code>claude/design-deckbuilder-combat.md</code>. Tap things: they toggle, count and swap, but nothing is saved. Piece colours follow <code>pfight.css</code>; the bottom strip on a piece is its rank (grey I, green II, blue III, gold IV Masterwork). Dashed border = Gear (added by a tool or pal).</p>
+<div class="topbar">
+  <a href="#s1">1 Starter pick</a><a href="#s2">2 Puzzle box</a><a href="#s3">3 Before the fight</a><a href="#s4">4 In the fight</a><a href="#s5">5 Creature card</a>
+  <button type="button" id="theme">Toggle light/dark</button>
+</div>
+
+<div class="screens">
+
+<!-- ============ 1. STARTER PICK ============ -->
+<section class="phone" id="s1" aria-label="Starter deck pick">
+  <header><h2>🧩 Pack your first Puzzle box</h2><span class="tag">first board fight</span></header>
+  <div class="body">
+    <p class="cap">A Red Fox blocks the trail. Before your first puzzle fight, pack a box: 4 core pieces are in already. <b>Pick 6 more</b> (at least 2 ⚔️ Hurt in total). You can change it any time outside a fight.</p>
+    <div class="kits" role="group" aria-label="Quick kits">
+      <button class="kit" data-kit="bold"><b>⚔️ Bold</b>hit hard</button>
+      <button class="kit" data-kit="steady"><b>🛡️ Steady</b>guard &amp; heal</button>
+      <button class="kit" data-kit="kind"><b>💗 Kind</b>charm them</button>
+    </div>
+    <div class="sectionh">Core <span>always in</span></div>
+    <div class="grid four" id="core"></div>
+    <div class="sectionh">Gear <span>added free: belt + pals</span></div>
+    <div class="grid four" id="sgear"></div>
+    <div class="sectionh">Choose 6 of 12 <span id="pickinfo">0 / 6</span></div>
+    <div class="grid" id="offer"></div>
+    <p class="note">The 12 offers always include your calling piece, your 2 best tools, a home-region crop piece and Knacks you own.</p>
+  </div>
+  <div class="stick">
+    <div class="row"><span class="chip" id="s1count">Deck 7 of 10</span><span class="chip warn" id="s1hurt">Hurt 1</span></div>
+    <button class="btn primary" id="s1go" disabled>Pack &amp; fight</button>
+  </div>
+</section>
+
+<!-- ============ 2. PUZZLE BOX ============ -->
+<section class="phone" id="s2" aria-label="Puzzle box deck manager">
+  <header><h2>🧩 Puzzle box</h2><span class="tag">hovel · menu · gnome page</span></header>
+  <div class="body">
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-pane="p-kit">Kit</button>
+      <button role="tab" aria-selected="false" data-pane="p-belt">Fight belt</button>
+      <button role="tab" aria-selected="false" data-pane="p-pals">Pals</button>
+      <button role="tab" aria-selected="false" data-pane="p-up">Upgrades <span class="chip">1</span></button>
+    </div>
+
+    <div class="pane" id="p-kit">
+      <div class="row spread"><b style="font-size:.85rem">Kit <span id="kitn">11</span> / 12</b><span class="chip" id="rk">Rare 2/3 · Masterwork 1/1</span></div>
+      <div class="meter"><i id="kitm" style="width:92%"></i></div>
+      <p class="cap">Level 12: up to 12 pieces (min 8). Deck in a fight = Kit + 3 belt + 2 pals = <b id="decktot">16</b>.</p>
+      <div class="row" style="gap:.3rem;margin-bottom:.5rem" role="group" aria-label="Filter by source">
+        <button class="chip fsrc" data-f="all" style="border-color:var(--accent)">All</button>
+        <button class="chip fsrc" data-f="basic">Basics</button>
+        <button class="chip fsrc" data-f="calling">Calling</button>
+        <button class="chip fsrc" data-f="crop">Crops</button>
+        <button class="chip fsrc" data-f="craft">Crafts</button>
+        <button class="chip fsrc" data-f="region">Regions</button>
+      </div>
+      <div class="sectionh">Packed <span>tap to take out</span></div>
+      <div class="grid" id="packed"></div>
+      <div class="sectionh">Collection <span>tap to pack</span></div>
+      <div class="grid" id="coll"></div>
+    </div>
+
+    <div class="pane" id="p-belt" hidden>
+      <p class="cap">Each tool on your fight belt adds its piece. Its tier is the piece's rank. 3 slots at level 12 (4 at level 20). Fights do not wear tools; a broken tool cannot go on the belt.</p>
+      <div class="grid" id="beltslots"></div>
+      <div class="sectionh">Your tools <span>best of each kind</span></div>
+      <div id="tools"></div>
+    </div>
+
+    <div class="pane" id="p-pals" hidden>
+      <p class="cap">Your 2 pals each <b>add</b> a piece (they used to replace one). Type from their Boon, knob from their jigsaw knob, rank from rarity.</p>
+      <div class="grid" id="palp"></div>
+      <p class="note">Change pals on the Pals page. This tab only shows what they bring.</p>
+    </div>
+
+    <div class="pane" id="p-up" hidden>
+      <p class="cap">Finishing puzzles earns upgrades (2 of 3 today). Pick one; it stays on that piece.</p>
+      <div class="grid">
+        <button class="pc t-hurt"><span class="ty"><i></i>Hurt</span><b>Hoe Hook + 🎯 Finisher</b><small>+3 past 60% resolve</small><span class="rk r3"></span></button>
+        <button class="pc t-guard"><span class="ty"><i></i>Guard</span><b>Oat Cake + 🧱 Hardy</b><small>+2 guard</small><span class="rk r2"></span></button>
+        <button class="pc t-heal"><span class="ty"><i></i>Heal</span><b>Herb Poultice + 💗 Tender</b><small>heals 2 more</small><span class="rk r1"></span></button>
+      </div>
+    </div>
+  </div>
+  <div class="stick"><button class="btn">Default box</button><button class="btn primary" id="s2save">Pack the box</button></div>
+</section>
+
+<!-- ============ 3. PRE-FIGHT SWAP ============ -->
+<section class="phone" id="s3" aria-label="Before the fight swap">
+  <header><h2>⚠️ A creature blocks the trail</h2><span class="tag">before the board</span></header>
+  <div class="body">
+    <div class="foe">
+      <div class="pic" aria-hidden="true">🦡</div>
+      <div style="flex:1">
+        <h3>Badger · large · level 18</h3>
+        <p>Hostile: Charm counts 60%. In <b>Mistmoor</b>: carries <b>Mist Veil</b> (guard, evade) and <b>Bog Grip</b> (hurt).</p>
+        <p>Knobs lean <b style="color:var(--hurt)">body</b>: your body-hole pieces (Hurt, Guard) link to it more often.</p>
+        <div class="lean" aria-label="Knob lean: body 60, mind 20, craft 20"><span style="flex:60;background:var(--hurt)"></span><span style="flex:20;background:var(--charm)"></span><span style="flex:20;background:var(--trick)"></span></div>
+      </div>
+    </div>
+    <div class="row" style="gap:.3rem;margin-top:.5rem">
+      <span class="chip">Its pieces: Dig In (hold) · Maul (heavy) · Bash Back (bash)</span>
+    </div>
+    <div class="swapbar"><b>Swaps</b><div class="pips" id="pips"><i></i><i></i></div><span class="cap" style="margin:0">up to 2, then the deck is locked</span></div>
+    <div class="sectionh">Your deck (16) <span>1: tap one to take out</span></div>
+    <div class="strip" id="pfdeck"></div>
+    <div class="sectionh">Bench <span>2: tap one to put in</span></div>
+    <div class="strip" id="pfbench"></div>
+    <p class="note" id="swapnote">Tip: Pierce gets through Dig In; Mist Veil makes the first hit miss, so a cheap Jab first is good.</p>
+  </div>
+  <div class="stick"><button class="btn" id="s3reset">Undo swaps</button><button class="btn primary">⚔️ Fight</button></div>
+</section>
+
+<!-- ============ 4. IN COMBAT ============ -->
+<section class="phone" id="s4" aria-label="In the fight">
+  <header><h2>Round 3 · your turn</h2><span class="tag">deck locked 🔒</span></header>
+  <div class="body">
+    <div class="status">
+      <div class="bar">You 41/58<div class="meter"><i class="hp" style="width:70%"></i></div></div>
+      <div class="bar">Badger health<div class="meter"><i class="fh" style="width:46%"></i></div></div>
+      <div class="bar">Charm<div class="meter"><i class="cm" style="width:12%"></i></div></div>
+    </div>
+    <div class="row" style="gap:.3rem;margin-bottom:.4rem">
+      <span class="chip">🛡️ your guard 3</span><span class="chip" style="border-color:var(--guard);color:var(--guard)">🛡️ creature guard 4</span><span class="chip">Draw 6 · Discard 5</span>
+    </div>
+    <div class="board" id="board" aria-label="Board"></div>
+    <div class="legend">
+      <span>⌛2 = rounds left</span><span><b style="color:var(--accent)">⌛last</b> = leaves after this round</span><span>x1 = creature piece fires once more</span><span>lit cell: +damage / −your HP</span>
+    </div>
+    <div class="info" id="info" aria-live="polite"><b>Pick a piece</b>, then a lit spot. The numbers show what that spot does: damage dealt (⚔️), charm (💗), health it costs you (red) and the creature's likely reply (↩).</div>
+    <div class="hand" id="hand"></div>
+    <div class="held"><span>Set aside: <b>Jab ⟷ Swing</b> (2 of 3; a 3-piece group plays x2.0)</span><button class="btn" style="padding:.25rem .5rem;font-size:.72rem">Add…</button></div>
+    <p class="log">Last: Badger placed <b>Dig In</b> (<span class="g">guard 4</span>, holds a round). Your Swing 7 → <b>3 blocked</b> by its guard, 4 hit. The blank centre is gone (round 1 over).</p>
+  </div>
+  <div class="stick"><button class="btn">Undo</button><button class="btn" title="Deck is read-only during a fight">🧩 Deck</button><button class="btn primary" id="s4go" disabled>End turn</button></div>
+</section>
+
+<!-- ============ 5. CREATURE CARD: LAYERS ============ -->
+<section class="phone" id="s5" aria-label="Creature card layers">
+  <header><h2>🐾 Creature card</h2><span class="tag">pre-fight, layers</span></header>
+  <div class="body">
+    <div class="seg" role="group" aria-label="Example creature"><button type="button" data-c="wolf" aria-pressed="true">Bramble Wolf</button><button type="button" data-c="wyrm" aria-pressed="false">Dune Wyrm</button></div>
+    <div class="foe">
+      <div class="pic" id="c5pic" aria-hidden="true">🐺</div>
+      <div style="flex:1">
+        <h3 id="c5h"></h3>
+        <p id="c5p"></p>
+        <div class="row" style="gap:.3rem;margin-top:.2rem" id="c5chips"></div>
+      </div>
+    </div>
+    <div class="tally" id="c5tally" aria-hidden="true"></div>
+    <div class="cap" id="c5cap"></div>
+    <div id="c5layers"></div>
+    <p class="note">Hurt values are shown for this creature (<code>$v</code> = <b id="c5v"></b>). Layers: <b style="color:var(--guard)">Base 4</b> from its class, <b style="color:var(--heal)">Region</b> pieces, <b style="color:var(--item)">Size / rarity</b> (boss pieces for bosses), and <b style="color:var(--charm)">3 Unique</b> to the creature. Tap a piece for its meaning.</p>
+    <div class="info" id="c5info" aria-live="polite"><b>Tap a piece</b> to see where it comes from.</div>
+  </div>
+  <div class="stick"><button class="btn">Back to swap</button><button class="btn primary">⚔️ Fight</button></div>
+</section>
+
+</div>
+
+<script>
+(function(){
+  // theme toggle
+  var root=document.documentElement;
+  document.getElementById('theme').addEventListener('click',function(){
+    var dark = root.getAttribute('data-theme')==='dark' || (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+    root.setAttribute('data-theme', dark?'light':'dark');
+  });
+
+  var TYPE={hurt:'Hurt',guard:'Guard',heal:'Heal',charm:'Charm',trick:'Trick',item:'Item',soothe:'Soothe'};
+  function card(p,extra){
+    var b=document.createElement('button'); b.type='button';
+    b.className='pc t-'+p.t+(p.gear?' gear':'')+(extra?' '+extra:'');
+    b.innerHTML='<span class="ty"><i></i>'+TYPE[p.t]+'</span><span class="v">'+p.v+'</span><b>'+p.n+'</b>'+
+      (p.tag?'<small>'+p.tag+'</small>':'')+(p.src?'<span class="src">'+p.src+'</span>':'')+'<span class="rk r'+(p.r||1)+'"></span>';
+    return b;
+  }
+
+  // ---------- 1. starter pick
+  var core=[{n:'Swing',t:'hurt',v:5,src:'basic'},{n:'Dodge',t:'guard',v:5,src:'basic'},{n:'Rest',t:'heal',v:4,src:'basic'},{n:'Charm',t:'charm',v:5,src:'basic'}];
+  var sgear=[{n:'Hoe Hook',t:'hurt',v:5,tag:'📌 pierce',src:'🔧 Sturdy hoe',r:2,gear:1},{n:'Glare',t:'charm',v:4,tag:'🌙 lull',src:'🏮 Worn lantern',r:1,gear:1},{n:'Acorn Nip',t:'heal',v:5,src:'🐾 pal',r:1,gear:1},{n:'Leaf Tuck',t:'guard',v:5,src:'🐾 pal',r:1,gear:1}];
+  var offer=[
+    {id:'thorn',n:'Thorn Cut',t:'hurt',v:8,src:'Thornblade calling',r:2},
+    {id:'jab',n:'Jab',t:'hurt',v:3,tag:'⚡ quick, ⌛2',src:'knack'},
+    {id:'snack',n:'Snack',t:'item',v:6,src:'basic'},
+    {id:'hide',n:'Hide',t:'trick',v:4,src:'basic'},
+    {id:'oat',n:'Oat Cake',t:'guard',v:4,tag:'⚓ hold',src:'🌾 grain crop',r:1},
+    {id:'herb',n:'Herb Poultice',t:'heal',v:4,tag:'🩹 mend',src:'🌿 herb crop',r:1},
+    {id:'brace',n:'Brace',t:'guard',v:4,tag:'⚓ hold',src:'knack'},
+    {id:'soothe',n:'Soothe',t:'soothe',v:3,src:'knack'},
+    {id:'hum',n:'Hum',t:'charm',v:4,tag:'🎵 hum',src:'knack'},
+    {id:'pluck',n:'Pluck',t:'trick',v:3,tag:'🤏 pluck',src:'knack'},
+    {id:'swing2',n:'Swing (2nd)',t:'hurt',v:5,src:'basic copy'},
+    {id:'frost',n:'Frost Bark',t:'guard',v:5,tag:'⚓ hold',src:'🗺️ Maplewold',r:1}
+  ];
+  var KITS={bold:['thorn','jab','swing2','hide','snack','oat'],steady:['thorn','oat','herb','brace','snack','jab'],kind:['hum','soothe','pluck','herb','thorn','snack']};
+  var picked={};
+  var coreEl=document.getElementById('core'); core.forEach(function(p){coreEl.appendChild(card(p,'fixed'));});
+  var sg=document.getElementById('sgear'); sgear.forEach(function(p){sg.appendChild(card(p,'fixed'));});
+  var off=document.getElementById('offer');
+  offer.forEach(function(p){var b=card(p); b.dataset.id=p.id; b.addEventListener('click',function(){
+    if(picked[p.id]) delete picked[p.id]; else if(Object.keys(picked).length<6) picked[p.id]=1; s1upd();}); off.appendChild(b);});
+  document.querySelectorAll('.kit').forEach(function(k){k.addEventListener('click',function(){picked={}; KITS[k.dataset.kit].forEach(function(id){picked[id]=1;}); s1upd();});});
+  function s1upd(){
+    var n=Object.keys(picked).length, hurt=1+1; // Swing + Hoe Hook gear
+    offer.forEach(function(p){ if(picked[p.id]&&p.t==='hurt') hurt++; });
+    off.querySelectorAll('.pc').forEach(function(b){b.classList.toggle('sel',!!picked[b.dataset.id]); b.classList.toggle('off',!picked[b.dataset.id]&&n>=6);});
+    document.getElementById('pickinfo').textContent=n+' / 6';
+    document.getElementById('s1count').textContent='Kit '+(4+n)+' of 10 · deck '+(8+n);
+    var h=document.getElementById('s1hurt'); h.textContent='Hurt '+hurt; h.className='chip '+(hurt>=2?'good':'warn');
+    document.getElementById('s1go').disabled=!(n===6&&hurt>=2);
+  }
+  s1upd();
+
+  // ---------- 2. puzzle box
+  document.querySelectorAll('#s2 .tabs button').forEach(function(t){t.addEventListener('click',function(){
+    document.querySelectorAll('#s2 .tabs button').forEach(function(x){x.setAttribute('aria-selected',x===t?'true':'false');});
+    document.querySelectorAll('#s2 .pane').forEach(function(p){p.hidden=p.id!==t.dataset.pane;});
+  });});
+  var all=[
+    {id:1,n:'Swing',t:'hurt',v:6,s:'basic',src:'basic',on:1},{id:2,n:'Dodge',t:'guard',v:6,s:'basic',src:'basic',on:1},
+    {id:3,n:'Rest',t:'heal',v:5,s:'basic',src:'basic',on:1},{id:4,n:'Charm',t:'charm',v:6,s:'basic',src:'basic',on:1},
+    {id:5,n:'Thorn Cut',t:'hurt',v:11,s:'calling',src:'Thornblade II',r:2,on:1},{id:6,n:'Jab',t:'hurt',v:4,s:'basic',src:'knack',tag:'⚡ quick ⌛2',on:1},
+    {id:7,n:'Pepper Puff',t:'hurt',v:6,s:'crop',src:'🌶️ spice · Beloved',tag:'🧪 poison',r:3,on:1},
+    {id:8,n:'Oat Cake',t:'guard',v:6,s:'crop',src:'🌾 grain · Favourite',tag:'⚓ hold',r:2,on:1},
+    {id:9,n:'Tonic',t:'heal',v:7,s:'craft',src:'⚗️ alchemy',tag:'⚡ quick',r:2,on:1},
+    {id:10,n:'Mist Veil',t:'guard',v:5,s:'region',src:'🗺️ Mistmoor',tag:'💨 evade',r:1,on:1},
+    {id:11,n:'Compost Lob',t:'hurt',v:7,s:'craft',src:'🪴 garden craft',tag:'🧪 poison',r:3,on:1},
+    {id:12,n:'Hide',t:'trick',v:5,s:'basic',src:'basic'},{id:13,n:'Snack',t:'item',v:7,s:'basic',src:'basic'},
+    {id:14,n:'Herb Poultice',t:'heal',v:5,s:'crop',src:'🌿 herb · Familiar',tag:'🩹 mend',r:1},
+    {id:15,n:'Cold Snap',t:'hurt',v:6,s:'region',src:'🗺️ Maplewold',tag:'🪢 trip',r:1},
+    {id:16,n:'Lull',t:'charm',v:5,s:'basic',src:'knack',tag:'🌙 lull'},
+    {id:17,n:'Spare Handle',t:'guard',v:6,s:'craft',src:'🛠️ tool shed',tag:'🛡️ bash',r:2},
+    {id:18,n:'Monsoon Spice',t:'hurt',v:7,s:'region',src:'🗺️ Spicepeak',tag:'🧪 poison',r:2}
+  ];
+  var filt='all', CAP=12;
+  var packedEl=document.getElementById('packed'), collEl=document.getElementById('coll');
+  function s2draw(){
+    packedEl.innerHTML=''; collEl.innerHTML='';
+    var n=0,rare=0;
+    all.forEach(function(p){ if(p.on){n++; if(p.r===3) rare++;} });
+    all.forEach(function(p){
+      if(filt!=='all'&&p.s!==filt) return;
+      var full=!p.on&&n>=CAP, rareFull=!p.on&&p.r===3&&rare+1>=3;
+      var b=card(p, p.on?'sel':((full||rareFull)?'off':''));
+      b.addEventListener('click',function(){ if(!p.on&&(full||rareFull)) return; p.on=!p.on; s2draw(); });
+      (p.on?packedEl:collEl).appendChild(b);
+    });
+    document.getElementById('kitn').textContent=n;
+    document.getElementById('kitm').style.width=Math.round(n/CAP*100)+'%';
+    document.getElementById('decktot').textContent=n+5;
+    document.getElementById('rk').textContent='Rare '+(rare+1)+'/3 · Masterwork 1/1';
+    document.getElementById('s2save').disabled=n<8;
+  }
+  document.querySelectorAll('.fsrc').forEach(function(c){c.addEventListener('click',function(){filt=c.dataset.f;
+    document.querySelectorAll('.fsrc').forEach(function(x){x.style.borderColor=x===c?'var(--accent)':'';}); s2draw();});});
+  s2draw();
+  // belt
+  var tools=[
+    {ic:'⛏️',job:'Tilling',name:'Steel Spade',tier:3,p:{n:'Hoe Hook',t:'hurt',v:9,tag:'📌 pierce',r:3,gear:1,src:'⛏️ Fine'},on:1},
+    {ic:'🏮',job:'Lantern',name:'Masterwork Lantern',tier:4,p:{n:'Glare',t:'charm',v:9,tag:'🌙 lull ⌛4',r:4,gear:1,src:'🏮 Masterwork'},on:1},
+    {ic:'🦯',job:'Walking',name:'Ash Staff',tier:2,p:{n:'Sweep',t:'guard',v:7,tag:'💨 evade',r:2,gear:1,src:'🦯 Sturdy'},on:1},
+    {ic:'🎣',job:'Fishing',name:'Reed Rod',tier:1,p:{n:'Reel In',t:'trick',v:4,r:1,gear:1,src:'🎣 Worn'}},
+    {ic:'🪓',job:'Logging',name:'Hatchet',tier:2,p:{n:'Chop',t:'hurt',v:8,tag:'🪨 heavy',r:2,gear:1,src:'🪓 Sturdy'}},
+    {ic:'🦋',job:'Bug catching',name:'Bug Net',tier:1,broken:1,p:{n:'Net Toss',t:'trick',v:4,tag:'🪢 trip',r:1,gear:1,src:'🦋 Worn'}}
+  ];
+  var TN={1:'Worn',2:'Sturdy',3:'Fine',4:'Masterwork'}, TC={1:'var(--r1)',2:'var(--r2)',3:'var(--r3)',4:'var(--r4)'};
+  function beltDraw(){
+    var slots=document.getElementById('beltslots'); slots.innerHTML='';
+    var on=tools.filter(function(t){return t.on;});
+    for(var i=0;i<3;i++){ if(on[i]) slots.appendChild(card(on[i].p)); else { var d=document.createElement('div'); d.className='slot'; d.textContent='Empty slot: add a tool below'; slots.appendChild(d);} }
+    var tl=document.getElementById('tools'); tl.innerHTML='';
+    tools.forEach(function(t){
+      var r=document.createElement('div'); r.className='toolrow';
+      r.innerHTML='<span class="ic">'+t.ic+'</span><span class="grow"><b>'+t.name+'</b> <span class="tier" style="background:'+TC[t.tier]+'">'+TN[t.tier]+'</span><small>'+t.job+' → '+t.p.n+' ('+TYPE[t.p.t]+' '+t.p.v+(t.p.tag?', '+t.p.tag:'')+')'+(t.broken?' · <span style="color:var(--bad)">💥 broken: mend first</span>':'')+'</small></span>';
+      var b=document.createElement('button'); b.className='btn'; b.style.fontSize='.72rem'; b.style.padding='.3rem .5rem';
+      b.textContent=t.on?'Take off':'Put on'; b.disabled=!!t.broken||(!t.on&&on.length>=3);
+      b.addEventListener('click',function(){t.on=!t.on; beltDraw();});
+      r.appendChild(b); tl.appendChild(r);
+    });
+  }
+  beltDraw();
+  var palp=document.getElementById('palp');
+  [{n:'Bark Badger',t:'guard',v:8,tag:'peg knob → craft',r:2,gear:1,src:'🐾 uncommon · Borrowed Coat'},
+   {n:'Samara Spin',t:'hurt',v:9,tag:'⚔️ strike active → quick',r:3,gear:1,src:'🐾 rare · hook knob'}].forEach(function(p){palp.appendChild(card(p));});
+
+  // ---------- 3. pre-fight swap
+  var deck=[{n:'Swing',t:'hurt',v:6},{n:'Dodge',t:'guard',v:6},{n:'Rest',t:'heal',v:5},{n:'Charm',t:'charm',v:6},{n:'Thorn Cut',t:'hurt',v:11,r:2},{n:'Jab',t:'hurt',v:4,tag:'⚡ quick'},
+    {n:'Pepper Puff',t:'hurt',v:6,tag:'🧪 poison',r:3},{n:'Oat Cake',t:'guard',v:6,tag:'⚓ hold',r:2},{n:'Tonic',t:'heal',v:7,r:2},{n:'Mist Veil',t:'guard',v:5,tag:'💨 evade'},{n:'Compost Lob',t:'hurt',v:7,tag:'🧪 poison',r:3},
+    {n:'Hoe Hook',t:'hurt',v:9,tag:'📌 pierce',r:3,gear:1},{n:'Glare',t:'charm',v:9,tag:'🌙 lull',r:4,gear:1},{n:'Sweep',t:'guard',v:7,r:2,gear:1},{n:'Bark Badger',t:'guard',v:8,r:2,gear:1},{n:'Samara Spin',t:'hurt',v:9,r:3,gear:1}];
+  var bench=[{n:'Pierce',t:'hurt',v:5,tag:'📌 pierce'},{n:'Hide',t:'trick',v:5},{n:'Snack',t:'item',v:7},{n:'Cold Snap',t:'hurt',v:6,tag:'🪢 trip'},{n:'Spare Handle',t:'guard',v:6,tag:'🛡️ bash',r:2}];
+  var swaps=[], outSel=null;
+  var deck0=deck.slice(), bench0=bench.slice();
+  function s3draw(){
+    var de=document.getElementById('pfdeck'), be=document.getElementById('pfbench'); de.innerHTML=''; be.innerHTML='';
+    deck.forEach(function(p,i){ var b=card(p, outSel===i?'swapout':(p.swapped?'swapin':'')); if(p.gear){b.classList.add('off'); b.title='Gear: change it in the Puzzle box';}
+      b.addEventListener('click',function(){ if(p.gear||swaps.length>=2) return; outSel=outSel===i?null:i; s3draw(); }); de.appendChild(b); });
+    bench.forEach(function(p,i){ var b=card(p, (outSel===null||swaps.length>=2)?'off':''); b.addEventListener('click',function(){
+      if(outSel===null||swaps.length>=2) return; var o=deck[outSel]; p.swapped=1; deck[outSel]=p; bench[i]=o; swaps.push(1); outSel=null; s3draw(); }); be.appendChild(b); });
+    document.querySelectorAll('#pips i').forEach(function(x,k){x.classList.toggle('used',k<swaps.length);});
+    document.getElementById('swapnote').textContent= swaps.length>=2 ? 'Both swaps used. The deck locks when the board appears.' : 'Tip: Pierce gets through Dig In; Mist Veil makes the first hit miss, so a cheap Jab first is good.';
+  }
+  document.getElementById('s3reset').addEventListener('click',function(){deck=deck0.map(function(p){delete p.swapped;return p;}).slice(); bench=bench0.map(function(p){delete p.swapped;return p;}).slice(); swaps=[]; outSel=null; s3draw();});
+  s3draw();
+
+  // ---------- 4. board
+  // pieces on board: x,y,owner,type,value,life,fires,name
+  var B=[
+    {x:2,y:2,by:'me',t:'hurt',v:7,life:1,n:'Swing'},
+    {x:3,y:2,by:'foe',t:'guard',v:4,life:3,fires:1,n:'Dig In (hold)'},
+    {x:3,y:1,by:'foe',t:'hurt',v:8,life:2,fires:2,n:'Maul (heavy)'},
+    {x:4,y:2,by:'me',t:'guard',v:6,life:2,n:'Oat Cake (hold)'},
+    {x:3,y:3,by:'me',t:'heal',v:7,life:3,n:'Tonic'},
+    {x:4,y:3,by:'foe',t:'guard',v:5,life:1,fires:1,n:'Mist Veil (evade, Mistmoor)'}
+  ];
+  var LIT={ // per hand piece index: cells with numbers [x,y,dmg,charm,hpcost,reply]
+    0:[[1,2,9,0,0,6],[2,1,9,0,8,10],[5,2,7,0,0,7],[2,3,9,0,0,6]],
+    1:[[1,2,0,0,0,5],[5,2,0,0,0,4],[4,1,0,0,8,9]],
+    2:[[2,1,0,6,8,9],[5,3,0,6,0,6],[3,4,0,6,0,5]],
+    3:[[1,2,5,0,0,6],[2,3,5,0,0,6],[4,4,5,0,0,6],[2,1,5,0,8,9]]
+  };
+  var hand=[{n:'Hoe Hook',t:'hurt',v:9,tag:'📌 pierce',r:3,gear:1,life:3},{n:'Sweep',t:'guard',v:7,tag:'💨 evade',r:2,gear:1,life:3},{n:'Glare',t:'charm',v:9,tag:'🌙 lull ⌛4',r:4,gear:1,life:4},{n:'Jab',t:'hurt',v:4,tag:'⚡ quick ⌛2',life:2}];
+  var sel=null, boardEl=document.getElementById('board'), info=document.getElementById('info');
+  function bdraw(){
+    boardEl.innerHTML='';
+    var lit={}; if(sel!==null) LIT[sel].forEach(function(c){lit[c[0]+','+c[1]]=c;});
+    for(var y=0;y<5;y++) for(var x=0;x<7;x++){
+      var c=document.createElement('div'); c.className='cell empty';
+      var p=B.filter(function(q){return q.x===x&&q.y===y;})[0];
+      if(p){
+        c.className='cell bp '+p.by+' bg-'+p.t;
+        c.innerHTML='<span class="val">'+p.v+'</span><span class="life'+(p.life===1?' last':'')+'">⌛'+(p.life===1?'last':p.life)+'</span>'+(p.fires?'<span class="fires">x'+p.fires+'</span>':'');
+        (function(p){c.addEventListener('click',function(){
+          info.innerHTML='<b>'+p.n+'</b> · '+(p.by==='foe'?'Badger':'yours')+' · '+TYPE[p.t]+' '+p.v+'<br>'+(p.life===1?'<b style="color:var(--accent)">Leaves at the end of this round.</b>':p.life+' rounds left.')+(p.fires?' Fires '+p.fires+' more time'+(p.fires>1?'s':'')+', then falls away.':'');
+        });})(p);
+      } else if(lit[x+','+y]){
+        var L=lit[x+','+y]; c.className='cell lit'+(L[4]?' hurtme':'');
+        c.innerHTML='<span class="num">'+(L[2]?'⚔️'+L[2]:'')+(L[3]?'💗'+L[3]:'')+(!L[2]&&!L[3]?'🛡️':'')+(L[4]?'<br><span class="neg">−'+L[4]+'</span>':'')+'</span>';
+        (function(L){c.addEventListener('click',function(){
+          info.innerHTML='<b>'+hand[sel].n+' here:</b> '+(L[2]?L[2]+' damage':'')+(L[3]?L[3]+' charm':'')+(!L[2]&&!L[3]?'guard up':'')+
+            (L[4]?', <span style="color:var(--bad)"><b>costs you '+L[4]+' HP</b> (links into Maul)</span>':', costs you nothing')+'. Badger reply about ↩ −'+L[5]+' HP.';
+          document.getElementById('s4go').disabled=false;
+        });})(L);
+      }
+      boardEl.appendChild(c);
+    }
+  }
+  var handEl=document.getElementById('hand');
+  function hdraw(){
+    handEl.innerHTML='';
+    hand.forEach(function(p,i){ var b=card(p, sel===i?'sel':''); b.addEventListener('click',function(){
+      sel=sel===i?null:i; document.getElementById('s4go').disabled=true;
+      info.innerHTML= sel===null ? '<b>Pick a piece</b>, then a lit spot.' : '<b>'+p.n+'</b> · '+TYPE[p.t]+' '+p.v+(p.tag?' · '+p.tag:'')+'<br>Stays '+p.life+' rounds once placed. Lit spots show what each one does.';
+      hdraw(); bdraw(); }); handEl.appendChild(b); });
+  }
+  hdraw(); bdraw();
+  // ---------- 5. creature card layers
+  var CR={
+    wolf:{pic:'🐺',h:'Bramble Wolf · large · L22',cls:'Beast',lean:'body',reg:'Mistmoor',v:8,
+      p:'Class <b>Beast</b>: builds guard and cashes it in. Hostile: Charm counts 60%.',
+      L:[['base','Base 4 · Beast',[['Claw','hurt',8,'',''],['Maul','hurt',9,'',''],['Brace','guard',6,'',''],['Shoulder Barge','trick',4,'bash','adds its guard']]],
+         ['reg','Region · Mistmoor',[['Bog Grip','hurt',8,'',''],['Mist Veil','guard',6,'evade','']]],
+         ['rar','Size · large (+1)',[['Slam','hurt',10,'','']]],
+         ['uni','Unique 3 · Bramble Wolf',[['Howl','trick',4,'',''],['Bramble Bite','hurt',8,'bash',''],['Pack Circle','guard',6,'thorns','']]]]},
+    wyrm:{pic:'🐍',h:'Dune Wyrm · boss · L30',cls:'Reptile / Amphibian',lean:'craft',reg:'The Dunewhisper',v:14,
+      p:'Class <b>Reptile</b>: poison wears you down. Boss: no charm bar; plays its pieces in a set order.',
+      L:[['base','Base 4 · Reptile',[['Bite','hurt',13,'',''],['Tail Lash','hurt',13,'',''],['Scale Guard','guard',10,'',''],['Venom Spit','trick',7,'poison','']]],
+         ['reg','Region · Dunewhisper',[['Sandsting','hurt',14,'poison',''],['Heat Shimmer','guard',9,'evade','']]],
+         ['rar','Boss (+2)',[['Crush','hurt',17,'heavy',''],['Scheme','trick',7,'','']]],
+         ['uni','Unique 3 · Dune Wyrm',[['Sand Swallow','hurt',16,'heavy',''],['Burrow Under','guard',10,'evade',''],['Quake','hurt',14,'trip','']]]]}
+  };
+  var LC={base:'var(--guard)',reg:'var(--heal)',rar:'var(--item)',uni:'var(--charm)'};
+  var c5=document.getElementById('s5');
+  function c5draw(key){
+    var c=CR[key], n=0;
+    document.getElementById('c5pic').textContent=c.pic;
+    document.getElementById('c5h').textContent=c.h;
+    document.getElementById('c5p').innerHTML=c.p;
+    document.getElementById('c5v').textContent=c.v;
+    document.getElementById('c5chips').innerHTML='<span class="chip">Class: '+c.cls+'</span><span class="chip">Lean: '+c.lean+'</span><span class="chip">In '+c.reg+'</span>';
+    var lay=document.getElementById('c5layers'), tal=document.getElementById('c5tally'); lay.innerHTML=''; tal.innerHTML='';
+    c.L.forEach(function(L){
+      n+=L[2].length;
+      var d=document.createElement('div'); d.className='layer';
+      d.innerHTML='<h4>'+L[1]+'<span>'+L[2].length+' piece'+(L[2].length>1?'s':'')+'</span></h4>';
+      var g=document.createElement('div'); g.className='grid';
+      L[2].forEach(function(q){
+        var b=document.createElement('button'); b.type='button'; b.className='pc t-'+q[1];
+        b.innerHTML='<span class="lk '+L[0]+'"></span><span class="ty"><i></i>'+TYPE[q[1]]+'</span><span class="v">'+q[2]+'</span><b>'+q[0]+'</b>'+(q[3]?'<small class="tg">'+q[3]+'</small>':'');
+        b.addEventListener('click',function(){
+          document.getElementById('c5info').innerHTML='<b>'+q[0]+'</b> · '+TYPE[q[1]]+' '+q[2]+(q[3]?' · '+q[3]:'')+'<br>From: '+L[1]+'. Plays up to 2 times, stays 3 rounds.'+(q[4]?' '+q[4]+'.':'');
+        });
+        g.appendChild(b);
+      });
+      d.appendChild(g); lay.appendChild(d);
+      var t=document.createElement('span'); t.style.flex=L[2].length; t.style.background=LC[L[0]]; tal.appendChild(t);
+    });
+    document.getElementById('c5cap').textContent='Deck: '+n+' pieces, in 4 layers.';
+  }
+  c5.querySelectorAll('.seg button').forEach(function(b){
+    b.addEventListener('click',function(){
+      c5.querySelectorAll('.seg button').forEach(function(o){o.setAttribute('aria-pressed',o===b?'true':'false');});
+      c5draw(b.getAttribute('data-c'));
+    });
+  });
+  c5draw('wolf');
+})();
+</script>
+</body>
+</html>

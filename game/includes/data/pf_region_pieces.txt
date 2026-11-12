@@ -1,0 +1,32 @@
+# Region pieces of CREATURES: a creature met in a region carries that region's pieces (small and medium: the 'other' piece; large and boss: both).
+# region code|slot (hurt / other)|name|type|v_mult|knob|tag|life        The player's region piece (the 'other' one, from the Gardening Guide) is in pf_pieces.txt (r:CODE).
+# Design: claude/design-deckbuilder-combat.md 3.2. Linted by tests/pfdeck_v1.php.
+
+NA|hurt|Cold Snap|hurt|1.0|body|trip|3
+NA|other|Frost Bark|guard|0.7|craft|hold|4
+CA|hurt|Ash Spit|hurt|1.0|craft|pierce|3
+CA|other|Dry Spell|trick|0.4|body|-|3
+CB|hurt|Breaker|hurt|0.9|mind|quick|2
+CB|other|Sea Breeze|heal|0.5|craft|-|2
+SA|hurt|Canopy Drop|hurt|1.2|mind|-|3
+SA|other|Humus Hide|guard|0.7|body|-|3
+NWE|hurt|Bog Grip|hurt|1.0|body|-|3
+NWE|other|Mist Veil|guard|0.6|mind|evade|3
+SE|hurt|Stone Throw|hurt|1.0|mind|bash|3
+SE|other|Terra Wall|guard|0.7|craft|hold|4
+EE|hurt|Short Fuse|hurt|0.9|body|quick|2
+EE|other|Black Earth|heal|0.5|mind|-|3
+MENA|hurt|Sandsting|hurt|1.0|body|poison|3
+MENA|other|Heat Shimmer|guard|0.6|mind|evade|3
+WCA|hurt|Downpour|hurt|1.0|craft|-|3
+WCA|other|Laterite Crust|guard|0.7|body|thorns|3
+ESA|hurt|Highland Charge|hurt|1.2|body|-|3
+ESA|other|Thornbush|guard|0.7|craft|thorns|3
+CSA|hurt|Monsoon Spice|hurt|0.9|craft|poison|3
+CSA|other|River Silt|heal|0.5|body|-|3
+EA|hurt|Petal Storm|hurt|0.9|mind|quick|2
+EA|other|Terrace Wall|guard|0.7|body|hold|4
+SEA|hurt|Paddy Surge|hurt|1.0|body|bash|3
+SEA|other|Steam|trick|0.4|mind|-|3
+OC|hurt|Coral Cut|hurt|1.0|craft|pierce|3
+OC|other|Island Time|guard|0.7|mind|hold|4

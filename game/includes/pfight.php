@@ -15,6 +15,7 @@ const PF_TURN_CAP = 24;
 const PF_GENTLE_HM = 0.8;   // gentle creatures: Hurt counts this much on the bar (Charm counts fully); tuned with tests/pfboard_sim.php
 const PF_HOSTILE_CM = 0.6;  // hostile creatures: Charm counts this much on the charm bar (2.6.63: was 0.4, so charming a hostile creature was only slower and riskier)
 const PF_BAR_K = 1.7, PF_BAR_BOSS = 2.0, PF_BAR_BASE = 5, PF_BAR_SLOPE = 0.4;
+const PF_POISON_CAP = 3;   // 2.6.74: creature poison on you: at most this many ticks waiting (each poison piece adds 2)
 const PF_FOE_DMG = 1.4, PF_FOE_BOSS = 0.78;   // foe tile values scale with its damage die; bosses hit a little softer so a long fight is survivable
 
 /** Effect type -> family of the hole on a tile's left side. Knob (right side) family is set per tile; null = flat/wild. */
@@ -64,12 +65,21 @@ const PF_MODS = [
     'steady'   => ['Steady', '⚖️', 'A Heavy tile can go anywhere in the chain', 2, ['hurt']],
 ];
 
-/** The tile library. t = type, v = base value, r = knob family of the right end (null = flat), tag = optional rule. */
-function pf_tiles(): array
+/** The lines of a puzzle-combat data file (includes/data/): each a list of trimmed cells; comments and blank lines skipped; [] when the file is missing. No DB. */
+function pf_data_lines(string $file): array
 {
-    static $T = null;
-    if ($T) return $T;
-    $T = [
+    $path = __DIR__ . '/data/' . $file; $out = [];
+    if (!is_file($path)) return $out;
+    foreach (file($path, FILE_IGNORE_NEW_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#') continue;
+        $out[] = array_map('trim', explode('|', $line));
+    }
+    return $out;
+}
+
+/** The tile library as it was before 2.6.74 moved it to data/pf_pieces.txt: used when the file is missing or broken, and by the lint (the file must give exactly this). */
+const PF_TILES_BUILTIN = [
         // gnome base six
         'swing'  => ['n' => 'Swing',  't' => 'hurt',   'v' => 4, 'r' => 'mind'],
         'dodge'  => ['n' => 'Dodge',  't' => 'guard',  'v' => 4, 'r' => 'body'],
@@ -107,7 +117,25 @@ function pf_tiles(): array
         'sow'    => ['n' => 'Sow Doubt',   't' => 'trick',  'v' => 5, 'r' => 'mind'],
         'wayfind' => ['n' => 'Slip Past',  't' => 'trick',  'v' => 5, 'r' => 'body'],
         'brew'   => ['n' => 'Steep',       't' => 'heal',   'v' => 6, 'r' => 'craft'],
-    ];
+];
+
+/** The tile library. t = type, v = base value, r = knob family of the right end (null = flat), tag = optional rule.
+ *  2.6.74: read from data/pf_pieces.txt (its basic, knack and calling rows, in file order; cached). The tool, crop, craft and region pieces of the v1 deck model are in the same file: pfd_catalog() in pfdeck.php. */
+function pf_tiles(): array
+{
+    static $T = null;
+    if ($T) return $T;
+    $T = [];
+    foreach (pf_data_lines('pf_pieces.txt') as $r) {
+        if (count($r) < 10 || !in_array($r[2], ['basic', 'knack', 'calling'], true) || !isset(PF_HOLE[$r[4]]) || (int)$r[5] < 1) continue;
+        $knob = explode('/', $r[6])[0];
+        $t = ['n' => $r[1], 't' => $r[4], 'v' => (int)$r[5], 'r' => in_array($knob, ['body', 'mind', 'craft'], true) ? $knob : null];
+        if ($r[7] !== '-' && $r[7] !== '') $t['tag'] = $r[7];
+        $T[$r[0]] = $t;
+    }
+    foreach (PF_BASE_KEYS as $k) if (!isset($T[$k])) { $T = []; break; }
+    foreach (PF_TILES_BUILTIN as $k => $_) if (!isset($T[$k])) { $T = []; break; }   // a file that lost a piece the game needs: the built-in library
+    if (!$T) $T = PF_TILES_BUILTIN;
     return $T;
 }
 
@@ -135,7 +163,9 @@ function pf_make_tile(string $key, array $stats, int $bonus = 0, array $over = [
     $d = $over + $d;
     $stat = max(0, (int)($stats[PF_STAT[$d['t']]] ?? 0));
     $lvl = intdiv(max(1, (int)($stats['level'] ?? 1)), 3);
-    return ['k' => $key, 'n' => $d['n'], 't' => $d['t'], 'v' => max(1, (int)$d['v'] + $stat + $lvl + $bonus), 'r' => $d['r'], 'tag' => (string)$d['tag'], 'm' => ''];
+    $t = ['k' => $key, 'n' => $d['n'], 't' => $d['t'], 'v' => max(1, (int)$d['v'] + $stat + $lvl + $bonus), 'r' => $d['r'], 'tag' => (string)$d['tag'], 'm' => ''];
+    foreach (['src', 'life', 'col', 'up', 'edges', 'rank', 'tool'] as $k) if (isset($d[$k])) $t[$k] = $d[$k];   // 2.6.74 (v1 board rules, see pfb_v1_tile): where the piece comes from, its life in rounds, its authored edges. No tile carries them yet
+    return $t;
 }
 
 /** Player deck: gnome base six, the calling tile (tier upgrades value) and pals swapping in for gnome tiles.
@@ -229,6 +259,7 @@ function pf_temper(array $c): string
 /** Archetype from size + temperament: which foe tiles it carries. */
 function pf_foe_deck(array $c): array
 {
+    if (!empty($c['deck']) && is_array($c['deck'])) return array_values($c['deck']);   // 2.6.74 (v1 deck model): the creature row carries its layered deck (pfd_foe_row in pfdeck.php)
     $size = (string)($c['size'] ?? 'small');
     $temper = pf_temper($c);
     $boss = $size === 'boss';
@@ -351,20 +382,29 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
     $other = $who === 'me' ? 'foe' : 'me';
     $mine = &$s[$who]; $theirs = &$s[$other];
     $m = (string)($tile['m'] ?? '');   // the upgrade on this tile, if any
+    $ft = !empty($s['v1']['tags']);   // 2.6.74 (v1 deck model): creature-side tags work (pierce, poison, quick, trip, bash; evade and thorns against your hits; the class trick pieces)
     if ($m === 'finisher' && $who === 'me' && $s['fh']['now'] >= 0.6 * $s['fh']['max']) $val += 3;
     switch ($tile['t']) {
         case 'hurt':
             $dmg = $val;
             if ($who === 'me' && $tile['tag'] === 'bash') { $dmg += $mine['block']; $e['bashed'] = $mine['block']; $mine['block'] = 0; }   // Shield Bash: your guard becomes damage
+            if ($ft && $who === 'foe' && ($tile['tag'] === 'bash' || !empty($mine['bashnext']))) { $dmg += $mine['block']; $e['bashed'] = $mine['block']; if ($tile['tag'] === 'bash') $mine['block'] = 0; $mine['bashnext'] = 0; }   // creature Bash: its guard goes into the hit (a Bash piece spends the guard; a Shoulder Barge before it only lends it)
             if ($who === 'foe') { $cut = min($s['foe']['agg'], $dmg); $s['foe']['agg'] -= $cut; $dmg -= $cut; $e['soothed'] = $cut; }   // Soothe cuts the foe's next Hurt by its value
             if ($who === 'foe') {   // against the player's HP
                 if ($theirs['evade'] > 0) { $theirs['evade']--; $e['evaded'] = $dmg; $dmg = 0; }   // Roll: the first Hurt misses completely
-                $abs = min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;
+                $abs = $ft && $tile['tag'] === 'pierce' ? 0 : min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;   // creature Pierce: ignores your guard
                 if ($abs > 0 && $theirs['thorns']) { $pr = 2 * $s['hm']; $s['fh']['now'] += $pr; $e['pricked'] = round($pr, 1); }   // Thorn Hide: a blocked hit pricks back
                 $theirs['hp'] = max(0, $theirs['hp'] - $dmg);
                 $e['dmg'] = $dmg; $e['blocked'] = $abs;
+                if ($ft) {
+                    if ($tile['tag'] === 'poison') { $theirs['poison'] = min(PF_POISON_CAP, (int)($theirs['poison'] ?? 0) + 2); $theirs['poison_v'] = max((int)($theirs['poison_v'] ?? 0), max(1, (int)ceil($val / 3))); $e['poisoned'] = $theirs['poison']; }   // 2 ticks on your health, at most PF_POISON_CAP waiting
+                    if ($tile['tag'] === 'trip') { $theirs['slowdraw'] = 1; $e['tripped'] = 1; }   // you draw one piece fewer next round (once a round however many trips land)
+                    if ($root && $tile['tag'] === 'quick') $s['foe']['again'] = 1;   // the creature puts down one more piece this turn (once a turn)
+                }
             } else {   // against the foe's bar, through its guard (Pierce ignores the guard)
+                if ($ft && $theirs['evade'] > 0) { $theirs['evade']--; $e['evaded'] = $dmg; $dmg = 0; }   // the creature's Evade: your first Hurt misses
                 $abs = $tile['tag'] === 'pierce' ? 0 : min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;
+                if ($ft && $abs > 0 && $theirs['thorns']) { $pr = max(2, (int)round(0.04 * $mine['max'])); $mine['hp'] = max(0, $mine['hp'] - $pr); $e['pricked'] = $pr; }   // the creature's Thorns: a blocked hit pricks you
                 $add = $dmg * $s['hm'];
                 $s['fh']['now'] += $add;
                 $e['dmg'] = $dmg; $e['blocked'] = $abs; $e['fh'] = round($add, 1);
@@ -409,6 +449,15 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
             if ($who === 'me') $s['foe']['agg'] += $val;   // pool that blunts the foe's next Hurt(s) this turn
             break;
         case 'trick':   // setup: it pays through Ambush and Bait; Pluck also tries to lift an item
+            if ($ft && $who === 'foe') {   // the creature's class tricks
+                if ($root && $tile['tag'] === 'quick') $s['foe']['again'] = 1;
+                if ($tile['tag'] === 'evade') $mine['evade'] = 1;
+                if ($tile['tag'] === 'bash') $mine['bashnext'] = 1;
+                if ($tile['tag'] === 'thorns') $mine['thorns'] = true;
+                if ($tile['tag'] === 'poison') { $theirs['poison'] = min(PF_POISON_CAP, (int)($theirs['poison'] ?? 0) + 2); $theirs['poison_v'] = max((int)($theirs['poison_v'] ?? 0), max(1, (int)ceil($val / 2))); $e['poisoned'] = $theirs['poison']; }
+                if ($tile['tag'] === 'trip') { $theirs['slowdraw'] = 1; $e['tripped'] = 1; }
+                if ($tile['tag'] === 'heal') $s['fh']['now'] = max(0.0, $s['fh']['now'] - $val);
+            }
             if ($root && $who === 'me' && $tile['tag'] === 'pluck') {
                 if (!$s['can_pluck'] || $s['plucked']) $e['pluck'] = 'none';
                 else {   // a low chance, boosted by Luck; a legendary creature is harder to rob
@@ -594,6 +643,7 @@ function pf_redraw(array &$s, int $handIdx, int $turn): bool
 {
     if ($s['over'] || $turn !== $s['turn'] || $s['me']['redraws'] < 1 || $handIdx < 0 || $handIdx >= count($s['me']['hand'])) return false;
     $t = array_splice($s['me']['hand'], $handIdx, 1)[0];
+    unset($t['flip'], $t['ft']);   // v1 board rules: a flipped piece goes back the right way up
     $s['me']['discard'][] = $t;
     $s['me']['redraws']--;
     pf_draw($s, 'me', count($s['me']['hand']) + 1);

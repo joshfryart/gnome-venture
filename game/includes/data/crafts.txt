@@ -108,3 +108,6 @@ canvas-sheet|Canvas Sheet|building|canvas-sheet:1|coir-fibre:3,cottongrass:2|3
 metal-pins|Metal Pins|building|metal-pins:4|bog-iron:1|3
 camping-pot|Camping Pot|building|camping-pot:1|bog-iron:1,river-clay:1|3
 camping-gear|Camping Gear|building|camping-gear:1|rope:2,metal-pins:4,canvas-sheet:1,timber-plank:2,camping-pot:1|4
+
+# 2.6.74 (puzzle combat, v1 deck model): fixes one fight tool on the Puzzle box belt (item: includes/pfdeck.php, pfd_ensure_content). No building needed.
+tool-repair-kit|Tool Repair Kit|garden|tool-repair-kit:1|flint:1,pine-resin:1,coir-fibre:1|2

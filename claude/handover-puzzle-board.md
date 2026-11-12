@@ -1,5 +1,7 @@
 # Puzzle board combat: handover (2026-11-11, main = 2.6.67)
 
+**2.6.74 build, stage A (2026-11-12):** the v1 board rules are in the engine behind the admin setting `pfight_v1` (off by default). Read `claude/handover-v1-stageA.md` first for anything about v1.
+
 **2.6.66 (merged to main; 2.6.67 only removes the fight-pop-up banner)** adds: blank-centre opening live by default (`pfight_blank` setting, 0 = classic), numbers on lit spots (`pfb_cell_preview`, POST `pfb_cells`), `PFB_BLANK_FOE_MULT` 1.0, join/add guard, 3-piece group x2.0. See `claude/plan-puzzle-board.md` "Changed in 2.6.66" and `CHANGELOG.md`. Zip: `releases/GnomeVenture-2.6.66-web-update.zip` (slim, needs 2.6.65+, no DB upgrade). Everything older (2.6.63 rules) is on `main`. Not run: full CI, MySQL, phone, a human play session. Done from the ranked list below: items 1, 2, 3 (item 2 numbers only; the x0.5 hurt-link rule A3 is not built).
 
 ## What exists

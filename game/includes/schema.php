@@ -1573,5 +1573,7 @@ function schema_statements(string $driver): array
     [$gct, $gci, $gcc] = game_clock_schema($PK, $ID, $END);
     require_once __DIR__ . '/home_slim.php';   // slim home: user_hovel_decor (Furnish)
     [$hst, $hsi, $hsc] = home_slim_schema($PK, $ID, $END);
-    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt, $gct, $hst), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri, $gci, $hsi), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc, $gcc, $hsc)];
+    require_once __DIR__ . '/pfdeck.php';   // 2.6.74: puzzle combat, the v1 deck model (pf_decks, pf_deck_pieces, pf_belts, pf_tool_wear)
+    $pfdt = pfd_schema($END);
+    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt, $gct, $hst, $pfdt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri, $gci, $hsi), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc, $gcc, $hsc)];
 }

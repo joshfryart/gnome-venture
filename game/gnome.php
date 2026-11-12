@@ -212,7 +212,7 @@ endif; ?>
         : (calling_offered($u) ? '<small class="gvsub">Not started</small>' : '')]; ?>
 <h2 class="gvhead">Your gnome</h2>
 <nav class="gvtiles" aria-label="Your gnome">
-  <?php foreach ($SUBS as $tk => [$ti, $tl]): ?><a href="<?= e($gurl($tk)) ?>"><span class="gvti" aria-hidden="true"><?= $tk === 'calling' ? ph_or_emoji('hat-' . (string)$u['calling'], '🎩', 24) : $ti ?></span><span class="gvtl"><?= e($tileTxt[$tk]) ?></span><?= $tileSub[$tk] ?? '' ?><?= $tk === 'calling' && !$u['calling'] && (int)$u['level'] >= $callingLevel ? '<b class="gvbadge" aria-label="Choose your calling">!</b>' : '' ?><?= $tk === 'stats' && $pts > 0 ? '<b class="gvbadge" aria-label="' . $pts . ' stat point' . ($pts === 1 ? '' : 's') . ' to spend">' . $pts . '</b>' : '' ?></a><?php endforeach; ?>
+  <?php foreach ($SUBS as $tk => [$ti, $tl]): ?><a href="<?= e($gurl($tk)) ?>"><span class="gvti" aria-hidden="true"><?= $tk === 'calling' ? ph_or_emoji('hat-' . (string)$u['calling'], '🎩', 24) : $ti ?></span><span class="gvtl"><?= e($tileTxt[$tk]) ?></span><?= $tileSub[$tk] ?? '' ?><?= $tk === 'calling' && !$u['calling'] && (int)$u['level'] >= $callingLevel ? '<b class="gvbadge" aria-label="Choose your calling">!</b>' : '' ?><?= $tk === 'stats' && $pts > 0 ? '<b class="gvbadge" aria-label="' . $pts . ' stat point' . ($pts === 1 ? '' : 's') . ' to spend">' . $pts . '</b>' : '' ?></a><?php endforeach; ?><?php if (in_array(setting('pfight_v1'), ['1', 'admin'], true) && (require_once __DIR__ . '/includes/pfight_game.php') && pfight_on($u) && pfight_v1_on($u) && !is_guest($u)):   // 2.6.74 v1: the Puzzle box (deck, belt, pals) is a tile of the Hovel's Gnome tab ?><a href="<?= e(url('puzzlebox.php')) ?>"><span class="gvti" aria-hidden="true">🧩</span><span class="gvtl">Puzzle box</span></a><?php endif; ?>
 </nav>
 <?php else: ?>
 <p class="gvback"><a class="gvbacklink" href="<?= e($gurl('gnome')) ?>">← My Gnome</a> <span class="muted">· <?= e($SUBS[$tab][1]) ?></span></p>
@@ -243,7 +243,7 @@ endif; ?>
     $selK = (string)($_GET['s'] ?? $keys[0]);
     if (!isset(GNOME_STATS[$selK])) $selK = $keys[0];
     $stMax = (int)setting('stat_max'); ?>
-    <?php require_once __DIR__ . '/includes/pfight_game.php'; if (pfight_on($u)): ?><p class="help">🧩 <a href="<?= e(url('puzzlebox.php')) ?>">Your Puzzle box</a>: pick the tiles you bring to a fight (<?= (int)pf_box_capacity((int)$u['level']) ?> fit).</p><?php endif; ?>
+    <?php require_once __DIR__ . '/includes/pfight_game.php'; if (pfight_on($u) && pfight_v1_on($u)): ?><p class="help">🧩 <a href="<?= e(url('puzzlebox.php')) ?>">Your Puzzle box</a>: the deck you bring to a fight (kit, belt tools, pals).</p><?php elseif (pfight_on($u)): ?><p class="help">🧩 <a href="<?= e(url('puzzlebox.php')) ?>">Your Puzzle box</a>: pick the tiles you bring to a fight (<?= (int)pf_box_capacity((int)$u['level']) ?> fit).</p><?php endif; ?>
     <section class="box">
       <div class="palhead"><h2>💪 Stats</h2><?php if ($pts > 0): ?><span class="gvbadge big">✨ <?= $pts ?> point<?= $pts === 1 ? '' : 's' ?> to spend</span><?php endif; ?></div>
       <p class="help"><?= $pts > 0 ? 'Press + next to a stat to spend a point.' : '10 is an average gnome. Every 2 points above 10 gives a +1 modifier. You earn ' . (int)setting('stat_points_per_level') . ' stat point per gnome level.' ?></p>
