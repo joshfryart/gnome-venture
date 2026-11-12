@@ -532,9 +532,9 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             q("UPDATE news SET kind = 'notes'");
             set_setting('news_all_notes_done', '1');
         });
-        boot_step('den_owl_route_level_2675', function () {   // v2.6.75: the Den of the Great White Owl (Maplewold, tundra) sat on a hard-zone route of Lv 28-32 next to a Lv 3 village; it is now Lv 13-19 (the medium zone range, as the Maplewold's other side places). Only a side route still at the old 28-32 is changed
+        boot_step('den_owl_route_level_2675', function () {   // v2.6.75: the Den of the Great White Owl (Maplewold, tundra) sat on a hard-zone route of Lv 28-32 next to a Lv 3 village; it is now Lv 8-12 (also applied after a fresh import, which makes it 13-19 from the medium zone). Only a side route still at the old 28-32 is changed
             $den = (int)q_val('SELECT id FROM locations WHERE name = ?', ['Den of the Great White Owl']);
-            if ($den > 0) q("UPDATE routes SET level = 16, min_level = 13, max_level = 19 WHERE kind = 'side' AND (a_id = ? OR b_id = ?) AND min_level >= 20", [$den, $den]);
+            if ($den > 0) q("UPDATE routes SET level = 10, min_level = 8, max_level = 12 WHERE kind = 'side' AND (a_id = ? OR b_id = ?) AND min_level > 12", [$den, $den]);
         });
         boot_step('sleep_days_start_2609', function () {   // v2.6.09: sleep-days goes live; every gnome starts on today's game day, once
             if (setting('gclock_started') === '') {
