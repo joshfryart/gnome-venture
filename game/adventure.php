@@ -69,7 +69,7 @@ if (is_post()) {
         if ($enc && $enc['type'] === 'creature' && pfight_on($u)) {   // puzzle combat: only its own actions count (an old attack button from a stale page does nothing)
             if ($do === 'pfb_preview') pfight_preview_out($u, $exp);   // read only; answers JSON and exits
             if ($do === 'pfb_cells') pfight_cells_out($u, $exp);   // read only: the numbers for each lit spot
-            if (in_array($do, ['pf_play', 'pfb_play', 'pfb_pass', 'pf_run', 'pf_redraw', 'pf_finish'], true)) {
+            if (in_array($do, ['pf_play', 'pfb_play', 'pfb_pass', 'pfb_flip', 'pf_run', 'pf_redraw', 'pf_finish'], true)) {
                 $fev0 = fight_ev_start($exp, $enc); fight_ev();   // the end scene (the chest and the loot drawn in) is kept for the next page, like the old fight's
                 pfight_do($u, $exp, $do);
                 fight_ev_save($fev0, $exp);
