@@ -23,7 +23,7 @@ pf() { local d=$1; shift; get adventure.php >/dev/null
   local n=$(grep -o 'name="nonce" value="[0-9a-f]*"' $H | head -1 | grep -o '[0-9a-f]\{8\}') t=$(grep -o 'id="pfight" data-turn="[0-9]*"' $H | grep -o '[0-9]*')
   post adventure.php -d do=$d -d nonce=$n -d turn=$t "$@"; }
 # a page without what differs from load to load (tokens, clocks, the version stamp on assets)
-norm() { sed -e 's/name="csrf" value="[^"]*"/CSRF/g' -e 's/name="_n" value="[^"]*"/N/g' -e 's/name="nonce" value="[^"]*"/NONCE/g' -e 's/[0-9][0-9]:[0-9][0-9]/HH:MM/g' "$1"; }
+norm() { sed -e 's/name="csrf" value="[^"]*"/CSRF/g' -e 's/name="_n" value="[^"]*"/N/g' -e 's/name="nonce" value="[^"]*"/NONCE/g' -e 's/[0-9][0-9]:[0-9][0-9]/HH:MM/g' -e 's/2\.6\.[0-9][0-9]*/VER/g' "$1"; }   # VER: the old copy is 2.6.73, the working copy a later version (asset links carry it)
 install() {   # install, register sprout, onboard: on the server at $1 with the game copy $2
   local B=$BASE G=$GAME; BASE=$1; GAME=$2
   get install.php >/dev/null
@@ -50,23 +50,23 @@ echo "== install + register + welcome"
 install $BASE $GAME; echo installed
 
 echo "== flag off: the old pages, byte for byte"
-OLD=ba9c416c   # the commit before stage C
+OLD=${OLD:-b2c83466}   # the 2.6.73 release (before stages A to C). Stage D: was ba9c416c (the commit before stage C); that copy made the repair kit's recipe and Almanac page with the setting off, the release does not
 if git -C "$ROOT" cat-file -e $OLD^{commit} 2>/dev/null; then
-  ck "pfboard.js, pfight.js, pbox.js, pfight.css, pfparts.js are untouched since stage B" "$(git -C "$ROOT" diff --stat $OLD -- game/assets/pfboard.js game/assets/pfight.js game/assets/pbox.js game/assets/pfight.css game/assets/pfparts.js | wc -l | tr -d ' ')" "0"
+  ck "pfboard.js, pfight.js, pbox.js, pfight.css, pfparts.js are untouched since 2.6.73" "$(git -C "$ROOT" diff --stat $OLD -- game/assets/pfboard.js game/assets/pfight.js game/assets/pbox.js game/assets/pfight.css game/assets/pfparts.js | wc -l | tr -d ' ')" "0"
   T0=$(mktemp -d); git -C "$ROOT" archive $OLD game | tar -x -C "$T0"; GAME0=$T0/game; mkdir -p "$GAME0/data"; PORT0=$((PORT+500)); BASE0=http://127.0.0.1:$PORT0
   php -d session.save_path=/tmp -d display_errors=1 -S 127.0.0.1:$PORT0 -t "$GAME0" "$ROUTER" >/dev/null 2>&1 & PID0=$!; sleep 1
   C1=$C; C=$(mktemp); install $BASE0 $GAME0; C0=$C; C=$C1
   for G in "$GAME" "$GAME0"; do php -d display_errors=1 "$HERE/advforce.php" "$G" >/dev/null 2>&1; php -r '$p=new PDO("sqlite:'$G'/data/game.sqlite"); $p->exec("UPDATE users SET energy=50, game_minute=600 WHERE username=\"sprout\""); $e=$p->query("SELECT id FROM expeditions ORDER BY id DESC LIMIT 1")->fetchColumn(); $c=$p->query("SELECT id, hp FROM creatures WHERE level <= 3 ORDER BY id LIMIT 1")->fetch(PDO::FETCH_NUM); $pf=["type"=>"creature","id"=>(int)$c[0],"lv"=>0,"sp"=>100,"hpp"=>100,"hp"=>(int)$c[1],"max"=>(int)$c[1],"bark"=>0,"poison"=>0,"used"=>false]; $p->prepare("UPDATE expeditions SET encounter=? WHERE id=?")->execute([json_encode($pf), $e]);'; done
   for pg in puzzlebox.php 'gnome.php?tab=gnome' 'gnome.php?tab=stats' book.php; do
     get "$pg" >/dev/null; norm $H > $H.new; curl -s -c $C0 -b $C0 "$BASE0/$pg" -o $H.o; norm $H.o > $H.old
-    [ -n "$DEBUG" ] && diff $H.new $H.old | cut -c1-300 | head -12
-    ck "flag off: $pg is the page of the commit before stage C" "$(diff $H.new $H.old | wc -l | tr -d ' ')" "0"
+    [ -n "$DEBUG" ] && { diff $H.new $H.old | cut -c1-300 | head -12; cp $H.new "$DEBUG.new"; cp $H.old "$DEBUG.old"; }
+    ck "flag off: $pg is the page of 2.6.73" "$(diff $H.new $H.old | wc -l | tr -d ' ')" "0"
   done
   # the fight page: the hand is dealt at random, so both copies get the same state (the new copy's) before they draw it
   get adventure.php >/dev/null; ENC=$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); echo $p->query("SELECT encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetchColumn();')
   php -r '$p=new PDO("sqlite:'$GAME0'/data/game.sqlite"); $p->prepare("UPDATE expeditions SET encounter=? WHERE id=(SELECT MAX(id) FROM expeditions)")->execute([$argv[1]]);' "$ENC"
   get adventure.php >/dev/null; norm $H > $H.new; curl -s -c $C0 -b $C0 "$BASE0/adventure.php" -o $H.o; norm $H.o > $H.old
-  ck "flag off: the board fight page is the page of the commit before stage C (same fight state)" "$(grep -c 'id="pfb-board"' $H.new) $(diff $H.new $H.old | wc -l | tr -d ' ')" "1 0"
+  ck "flag off: the board fight page is the page of 2.6.73 (same fight state)" "$(grep -c 'id="pfb-board"' $H.new) $(diff $H.new $H.old | wc -l | tr -d ' ')" "1 0"
   db "UPDATE expeditions SET encounter=NULL" >/dev/null
 else echo "skip the comparison with commit $OLD (not in this checkout)"; fi
 get puzzlebox.php >/dev/null; cp $H $H.off

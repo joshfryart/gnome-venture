@@ -10,6 +10,8 @@ Ported from the approved references: `claude/mockups/deckbuilder-ingame.html` (b
 - `pfboard.js`, `pfight.js`, `pbox.js`, `pfight.css`, `pfparts.js` are not changed. The v1 fight has its own script (below).
 - With the setting off nothing new is loaded: `layout.php` and `gnome.php` only `require` the puzzle-fight code when the setting is `1` or `admin`.
 
+**Stage D (2.6.74 release) changed this:** the belts, the Tool Repair Kit, its recipe and the belts' shelf are NOT made while `pfight_v1` is Off (`pfd_live`); `pfd_ensure()` makes them once on the first v1 use (`pfd_content_once`, marker setting `pfd_content`). The flag-off page check in `tests/pbox_v1.sh` now compares with the 2.6.73 release (`b2c83466`), version strings masked.
+
 ## Files
 | File | What |
 |---|---|

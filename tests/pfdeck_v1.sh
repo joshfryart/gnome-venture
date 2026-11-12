@@ -37,6 +37,7 @@ set_ pfight_open 1
 get 'puzzlebox.php?pfd=json' >/dev/null
 ck "pfight_v1 unset: no deck JSON (the old Puzzle box page)" "$(grep -c '"pieces":\[' $H)" "0"
 ck "pfight_v1 unset: a pfd_ action does nothing (no deck tables touched)" "$(post puzzlebox.php -d do=pfd_starter -d kit=bold) $(db "SELECT COUNT(*) FROM pf_decks") $(db "SELECT COUNT(*) FROM pf_deck_pieces")" "302 0 0"
+ck "pfight_v1 off (2.6.74 release): no fight belt, no repair kit, no shelf, no recipe after the install" "$(db "SELECT (SELECT COUNT(*) FROM items WHERE slug IN ('stitched-fight-belt','masterwork-fight-belt','tool-repair-kit')) || ' ' || (SELECT COUNT(*) FROM recipes WHERE slug='tool-repair-kit')")" "0 0"
 set_ pfight_v1 admin
 get 'puzzlebox.php?pfd=json' >/dev/null
 ck "pfight_v1 = admin, a player: still no deck JSON" "$(grep -c '"pieces":\[' $H)" "0"

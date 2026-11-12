@@ -372,9 +372,30 @@ function pfd_ensure(): bool
 {
     static $ok = null;
     if ($ok !== null) return $ok;
-    try { q('SELECT 1 FROM pf_tool_wear LIMIT 1'); q('SELECT 1 FROM pf_belts LIMIT 1'); q('SELECT 1 FROM pf_deck_pieces LIMIT 1'); q('SELECT 1 FROM pf_decks LIMIT 1'); return $ok = true; } catch (Throwable $e) {}
-    try { foreach (pfd_schema() as $sql) db()->exec($sql); return $ok = true; }
-    catch (Throwable $e) { error_log('pfd_ensure: ' . $e->getMessage()); return $ok = false; }
+    try { q('SELECT 1 FROM pf_tool_wear LIMIT 1'); q('SELECT 1 FROM pf_belts LIMIT 1'); q('SELECT 1 FROM pf_deck_pieces LIMIT 1'); q('SELECT 1 FROM pf_decks LIMIT 1'); $ok = true; } catch (Throwable $e) {}
+    if ($ok === null) {
+        try { foreach (pfd_schema() as $sql) db()->exec($sql); $ok = true; }
+        catch (Throwable $e) { error_log('pfd_ensure: ' . $e->getMessage()); return $ok = false; }
+    }
+    pfd_content_once();
+    return $ok;
+}
+
+/** Is the v1 setting on for anyone (Admins only or Everyone)? While it is Off the belts and the repair kit are not made, so players see nothing new in the shop or the craft lists. */
+function pfd_live(): bool
+{
+    return !in_array((string)setting('pfight_v1'), ['', '0'], true);
+}
+
+/** The first v1 use after the setting was switched on: make the belts, the repair kit and its recipe (once; marker setting `pfd_content`). */
+function pfd_content_once(): void
+{
+    if (!pfd_live() || setting('pfd_content') === '1') return;
+    try {
+        require_once __DIR__ . '/crafting.php';
+        ensure_crafts();
+        if (item_id_by_slug(PFD_REPAIR)) set_setting('pfd_content', '1');
+    } catch (Throwable $e) { error_log('pfd_content_once: ' . $e->getMessage()); }
 }
 
 /** CREATE TABLE statements (plain SQL that SQLite and MySQL both take). */
@@ -388,9 +409,11 @@ function pfd_schema(string $end = ''): array
     ];
 }
 
-/** The belt and repair items, the belts' shelf at Twigg's (adds only; safe to repeat). The repair kit's recipe is in data/crafts.txt; called from ensure_crafts() before the recipes are read. */
+/** The belt and repair items, the belts' shelf at Twigg's (adds only; safe to repeat). The repair kit's recipe is in data/crafts.txt; called from ensure_crafts() before the recipes are read.
+ *  Nothing is made while the setting pfight_v1 is Off (the recipe import then skips the kit: its item is missing); pfd_content_once() makes them on the first v1 use. */
 function pfd_ensure_content(): void
 {
+    if (!pfd_live()) return;
     $shop = (int)q_val("SELECT id FROM shops WHERE slug = 'twigg-s-seed-emporium'");
     foreach (PFD_BELT_ITEMS as $slug => [$name, $price, $rarity, $desc]) {
         $id = item_id_by_slug($slug);

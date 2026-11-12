@@ -14,7 +14,7 @@ $u = q_one("SELECT * FROM users WHERE username = 'sprout'"); $uid = (int)$u['id'
 $give = function (string $slug, int $n = 1) use ($uid) { $id = item_id_by_slug($slug); if ($id) give_item($uid, $id, $n); return $id; };
 
 if ($what === 'box') {
-    pfd_ensure(); pfd_ensure_content();
+    q("INSERT OR REPLACE INTO settings (name, value) VALUES ('pfight_v1', 'admin')"); setting('__reload__'); pfd_ensure(); pfd_ensure_content();   // the content is only made while the setting is on
     q('UPDATE users SET level = 12, coins = 900 WHERE id = ?', [$uid]);
     $byType = [];   // one tool per type and tier
     foreach (q("SELECT slug, effects FROM items WHERE category = 'tool'")->fetchAll() as $r) { $f = json_decode((string)$r['effects'], true) ?: []; if (!empty($f['tool'])) $byType[$f['tool']][(int)($f['tier'] ?? $f['power'] ?? 1)] = $r['slug']; }

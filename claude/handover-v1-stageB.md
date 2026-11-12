@@ -9,6 +9,8 @@ Design: `claude/design-deckbuilder-combat.md` (DECIDED 1-11, class tables, autho
 - A v1 fight started under stage A (state has `v1` without `tags`) keeps playing without creature tags.
 - The four tables are in `schema.php` (made by "Upgrade database" / the version bump in stage D) and are also made on first use (`pfd_ensure`).
 
+**Stage D (2.6.74 release) changed this:** the belts, the Tool Repair Kit, its recipe and the belts' shelf are NOT made while `pfight_v1` is Off (`pfd_live`); `pfd_ensure()` makes them once on the first v1 use (`pfd_content_once`, marker setting `pfd_content`). The flag-off page check in `tests/pbox_v1.sh` now compares with the 2.6.73 release (`b2c83466`), version strings masked.
+
 ## Data files (`game/includes/data/`, all linted by `tests/pfdeck_v1.php`)
 | File | Format | Rows |
 |---|---|---|

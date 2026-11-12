@@ -340,8 +340,16 @@ echo "== 9. the deck model in the database\n";
 $u = q_one("SELECT * FROM users WHERE username = 'sprout'"); $uid = (int)$u['id'];
 $re = fn() => q_one('SELECT * FROM users WHERE id = ?', [$uid]);
 $item = fn(string $slug, int $n = 1) => give_item($uid, item_id_by_slug($slug), $n);
+// 2.6.74 release: the belts, the kit and its recipe are only made once the setting is on (the flag-off check is in pfdeck_v1.sh, before the setting is switched on)
+q("INSERT OR REPLACE INTO settings (name, value) VALUES ('pfight_v1', '0')"); setting('__reload__'); pfd_ensure_content();
+chk('setting off: pfd_live() is false', !pfd_live());
+q("INSERT OR REPLACE INTO settings (name, value) VALUES ('pfight_v1', 'admin')"); setting('__reload__');
 chk('the tables are made on first use', pfd_ensure() && q_val('SELECT COUNT(*) FROM pf_decks') !== false && q_val('SELECT COUNT(*) FROM pf_deck_pieces') !== false && q_val('SELECT COUNT(*) FROM pf_belts') !== false && q_val('SELECT COUNT(*) FROM pf_tool_wear') !== false);
 chk('the schema (Upgrade database) lists the four tables', count(array_filter(schema_statements('sqlite')[0], fn($t) => preg_match('/CREATE TABLE IF NOT EXISTS pf_(decks|deck_pieces|belts|tool_wear) /', $t))) === 4 && count(array_filter(schema_statements('mysql')[0], fn($t) => preg_match('/CREATE TABLE IF NOT EXISTS pf_(decks|deck_pieces|belts|tool_wear) .*InnoDB/s', $t))) === 4);
+chk('setting on: the first use makes the content once (marker setting pfd_content)', setting('pfd_content') === '1', setting('pfd_content'));
+$nItems = (int)q_val('SELECT COUNT(*) FROM items'); $nRec = (int)q_val('SELECT COUNT(*) FROM recipes'); $nStock = (int)q_val('SELECT COUNT(*) FROM shop_stock');
+require_once APP_ROOT . '/includes/crafting.php'; pfd_ensure_content(); ensure_crafts();
+chk('content: a second run adds nothing', [(int)q_val('SELECT COUNT(*) FROM items'), (int)q_val('SELECT COUNT(*) FROM recipes'), (int)q_val('SELECT COUNT(*) FROM shop_stock')] === [$nItems, $nRec, $nStock]);
 chk('content: the two fight belts and the Tool Repair Kit exist; the belts are on Twigg\'s shelf; the kit has a recipe', item_id_by_slug('stitched-fight-belt') > 0 && item_id_by_slug('masterwork-fight-belt') > 0 && item_id_by_slug(PFD_REPAIR) > 0
     && (int)q_val("SELECT COUNT(*) FROM shop_stock ss JOIN items i ON i.id = ss.item_id WHERE i.slug IN ('stitched-fight-belt', 'masterwork-fight-belt')") === 2
     && (int)q_val('SELECT output_item_id FROM recipes WHERE slug = ?', [PFD_REPAIR]) === item_id_by_slug(PFD_REPAIR), [item_id_by_slug('stitched-fight-belt'), item_id_by_slug(PFD_REPAIR), q_val('SELECT COUNT(*) FROM recipes WHERE slug = ?', [PFD_REPAIR])]);
