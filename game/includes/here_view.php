@@ -662,16 +662,18 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
         array_unshift($sprites, ['id' => 'you', 'x' => 0, 'y' => 0, 'name' => 'You', 'href' => url('gnome.php'), 'src' => $gurl, 'w' => 64, 'h' => 80, 'fw' => 64, 'fh' => 80, 'frames' => 8, 'emoji' => '🧙']);
     }
     $opts = ['layout' => $L, 'alt' => 'Where you are: ' . $node['name'], 'open' => $open, 'debug' => $debug, 'close_href' => url($back), 'title' => 'List view'];
+    $canWander = on_road((int)$node['id']) && ts($u['community_shift_until'] ?? null) <= time();   // v2.6.72: Wander is a round button under the picture, like Fast travel and GPS
     if ($gate) {
         $opts['chrome'] = true; $opts['pills'] = true; $opts['navbar'] = true; $opts['street'] = true; $opts['legfold'] = true; $opts['twin'] = false; $GLOBALS['gnav_gate'] = true;
         $opts['nav'] = [
             'routes' => ['href' => url($back . '?o=routes'), 'title' => 'Routes', 'card' => here_routes_card($u, $node, $back)],
-            'extra' => array_merge((function () use ($u, $node): array { require_once __DIR__ . '/stops.php'; $pk = stop_perk_nav($u, $node); return $pk ? [$pk] : []; })(), array_merge(here_mentor_nav($node), [['id' => 'ft', 'label' => 'Fast travel', 'icon' => 'ico-boot.png', 'href' => url('world.php?tab=travel#fasttravel')], ['id' => 'gps', 'label' => 'GPS', 'icon' => 'ico-map-pin.png', 'href' => url('world.php#gopanel')]])),
+            'extra' => array_merge((function () use ($u, $node): array { require_once __DIR__ . '/stops.php'; $pk = stop_perk_nav($u, $node); return $pk ? [$pk] : []; })(), array_merge(here_mentor_nav($node), [['id' => 'ft', 'label' => 'Fast travel', 'icon' => 'ico-boot.png', 'href' => url('world.php?tab=travel#fasttravel')], ['id' => 'gps', 'label' => 'GPS', 'icon' => 'ico-map-pin.png', 'href' => url('world.php#gopanel')]], $canWander ? [['id' => 'wander', 'label' => 'Wander', 'title' => 'Wander off the path', 'icon' => 'ico-leaf.png', 'form' => 'wanderform']] : [])),
             'world' => ['href' => url($back . '?o=world'), 'title' => 'World map', 'card' => '<p class="muted">The whole world, region by region.</p><p><a class="btn" href="' . e(url('world.php?tab=map#regionmap')) . '">Open region map</a></p><p><a class="btn alt" href="' . e(url('world.php')) . '">Open the World page</a> <a class="btn alt" href="' . e(url('world.php?tab=markets')) . '">🏪 Shops</a> <a class="btn alt" href="' . e(url('villagers.php')) . '">Villagers</a></p>'],
         ];
     }
     if ($over > 0) $opts['more'] = ['label' => '+' . $over . ' more villagers', 'href' => url('villagers.php')];
     $h = hub_scene($key, array_merge($exits, $spots), $sprites, $opts);
+    if ($gate && $canWander) $h .= '<form method="post" action="' . e(url('adventure.php')) . '" id="wanderform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="explore"></form>';
     if ($more) $h .= '<p><a class="btn alt" href="' . e($more['href']) . '">' . e($more['label']) . '</a></p>';
     return $h;
 }
