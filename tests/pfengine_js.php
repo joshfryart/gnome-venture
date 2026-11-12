@@ -4,8 +4,10 @@
 // every action (dry runs, bad moves, passes, plays) and, after each, the events, the view and a digest of the hidden state.
 // The bots mirror tests/pfboard_sim.php (bsim_act, 'single' and 'builder'), plus a 'chaos' bot that plays random legal and
 // illegal moves with random tile boxes, upgrades and options, so every tile tag and upgrade is exercised.
-require __DIR__ . '/../game/includes/pfboard.php';
-require __DIR__ . '/../game/includes/pfight_game.php';
+require_once __DIR__ . '/../game/includes/pfboard.php';
+require_once __DIR__ . '/../game/includes/pfight_game.php';
+require_once __DIR__ . '/../game/includes/pfdeck.php';   // 2.6.74 stage B: the deck model (mode v1d)
+require_once __DIR__ . '/pfboard_tune_v1.php';   // tv_sources: a typical gnome's deck sources by level
 
 function out(array $o): void { echo json_encode($o, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION), "\n"; }
 
@@ -118,10 +120,10 @@ foreach (file(__DIR__ . '/../game/includes/data/creatures.txt', FILE_IGNORE_NEW_
 $nf = 0; $na = 0;
 // 'blank' = the blank-centre variant (opt blank + a hidden start), played by the single bot. 2.6.74: 'v1' = the v1 board rules with the blank opening (single bot, flips when stuck);
 // 'v1b' = v1 with the builder bot and made-up sources (Teamwork); 'v1chaos' = v1 with random moves, random flips and random rule switches
-foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33], ['blank', 44], ['v1', 55], ['v1b', 66], ['v1chaos', 77]] as [$mode0, $seed]) {
+foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33], ['blank', 44], ['v1', 55], ['v1b', 66], ['v1chaos', 77], ['v1d', 88]] as [$mode0, $seed]) {   // 'v1d' (stage B) = v1 with the deck model: the layered creature deck (class base 4 + region + size extras + 3 unique, creature tags) against a deck-model deck (tool pieces wear)
     mt_srand($seed * 1000 + $ci);
-    $v1 = str_starts_with($mode0, 'v1'); $mode = ['v1' => 'blank', 'v1b' => 'builder', 'v1chaos' => 'chaos'][$mode0] ?? $mode0;
-    if ($v1 && $mode0 !== 'v1' && ($ci + ($mode0 === 'v1b' ? 0 : 1)) % 2) continue;   // half the creatures each, to keep the run short
+    $v1 = str_starts_with($mode0, 'v1'); $mode = ['v1' => 'blank', 'v1b' => 'builder', 'v1chaos' => 'chaos', 'v1d' => 'blank'][$mode0] ?? $mode0;
+    if ($v1 && $mode0 !== 'v1' && $mode0 !== 'v1d' && ($ci + ($mode0 === 'v1b' ? 0 : 1)) % 2) continue;   // half the creatures each, to keep the run short
     $opt = $mode === 'blank' ? ['blank' => true] : []; $mods = false;
     if ($mode === 'chaos') {
         $all = array_keys(pf_tiles()); $box = [];
@@ -137,14 +139,18 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
         $me = ['hp' => $hp, 'max_hp' => $hp + mt_rand(0, 8), 'stats' => $stt, 'deck' => $deck, 'luck' => mt_rand(0, 9)];
         $opt = ['can_pluck' => (bool)mt_rand(0, 1), 'boss_charm' => (bool)mt_rand(0, 1)];
     } else { $p = bsim_player($c['level']); $me = $p['me']; $args = $p['args']; $deck0 = $me['deck']; }
+    if ($mode0 === 'v1d') {
+        $src = tv_sources($c['level']); $me['deck'] = pfd_tiles(pfd_fight_entries($src), $me['stats'], [], $src['calling'], $src['ctier']);
+        $c = pfd_foe_row($c, array_keys(pfd_region_pieces())[$ci % 14]);
+    }
     if ($v1) {
         $opt['v1'] = true;
         if ($mode0 === 'v1chaos') {
             $opt['v1'] = [['events' => 0], ['ground' => 0], ['limit' => 0], ['limit' => 4, 'foe_x' => 1.3], ['aim' => 0], ['edges' => 0], ['flip' => 0, 'life' => 0], ['nev' => 3, 'thorn' => 0.3, 'bramble' => 0.25], ['team2' => 2, 'team3' => 3, 'bar_x' => 0.8], true][mt_rand(0, 9)];
             if (mt_rand(0, 1)) $opt['blank'] = true;
         }
-        if ($mode0 !== 'v1') foreach ($me['deck'] as $i => $t) { $me['deck'][$i]['src'] = ['pal', 'tool', 'crop', 'craft', 'region'][($i + $ci) % 5]; if ($i % 4 === 0) $me['deck'][$i]['life'] = 2 + ($i + $ci) % 3; if ($i % 7 === 3) $me['deck'][$i]['edges'] = false; if ($i % 7 === 5) { $me['deck'][$i]['col'] = 'mind'; $me['deck'][$i]['up'] = false; } }
-        if ($ci % 3 === 0) $c['class'] = ['Critter', 'Water', 'Bird', 'Plant / Fungus', 'Reptile / Amphibian', 'Beast'][$ci % 6];
+        if ($mode0 !== 'v1' && $mode0 !== 'v1d') foreach ($me['deck'] as $i => $t) { $me['deck'][$i]['src'] = ['pal', 'tool', 'crop', 'craft', 'region'][($i + $ci) % 5]; if ($i % 4 === 0) $me['deck'][$i]['life'] = 2 + ($i + $ci) % 3; if ($i % 7 === 3) $me['deck'][$i]['edges'] = false; if ($i % 7 === 5) { $me['deck'][$i]['col'] = 'mind'; $me['deck'][$i]['up'] = false; } }
+        if ($ci % 3 === 0 && $mode0 !== 'v1d') $c['class'] = ['Critter', 'Water', 'Bird', 'Plant / Fungus', 'Reptile / Amphibian', 'Beast'][$ci % 6];
     }
     $s = pfb_new($me, $c, $seed + $c['level'], $opt);
     $rec = ['fight' => $c['slug'], 'mode' => $mode0, 'seed' => $seed + $c['level'], 'creature' => $c, 'opt' => $opt, 'me' => $me, 'args' => $args, 'deck0' => $deck0,

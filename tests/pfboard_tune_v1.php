@@ -6,7 +6,8 @@
 //   OFFSETS: gnome level minus creature level, e.g. 0,-4,-8.   MULT 1 = about 200 fights per size and offset (0.25 for a quick look).
 //   env V1='{"foe_x":1.1,"limit":4}' (pfb_v1_cfg overrides; a value may be a map by size: {"foe":{"small":0.7,"medium":0.5,"large":0.4,"boss":0.45}}), SRC=mixed|built|thirds|none (made-up sources for Teamwork).
 // Targets (claude/design-board-strategy.md): chain about 70% at level, smart 90% or more, fights 6-8 turns (small 4-5). The bots are tools/pfsim/v1bundle/run.php's, plus the flip.
-require __DIR__ . '/../game/includes/pfboard.php';
+require_once __DIR__ . '/../game/includes/pfboard.php';
+require_once __DIR__ . '/../game/includes/pfdeck.php';
 const TV_SEEDS = ['small' => 21, 'medium' => 8, 'large' => 5, 'boss' => 23];   // 10 small, 26 medium, 43 large, 9 boss creatures -> 210 / 208 / 215 / 207 fights
 function tv_creatures(): array
 {
@@ -17,9 +18,31 @@ function tv_creatures(): array
     }
     return $o;
 }
+/** Stage B: a typical gnome's sources at a level for the v1 deck model: a one-tap starter kit, a belt that grows (2 tools, 3 from level 10, 4 from 20; tiers rise with level),
+ *  1 pal from level 3 and 2 from 8, crops, crafts and regions as the game is played, and up to 3 knacks switched on. Deck: 14 pieces at level 1, about 22 at level 30. */
+function tv_sources(int $lv): array
+{
+    $cals = array_keys(PF_CALLING_TILE); $src = pfd_sources_blank($lv, $cals[$lv % 6], ['NA', 'NWE', 'SE', 'EA'][$lv % 4]);
+    $src['ctier'] = min(3, 1 + intdiv($lv, 12));
+    $src['starter'] = array_merge(PFD_CORE, pfd_offer_keys($src['calling'], $src['home'], PFD_KITS[['bold', 'steady', 'kind'][$lv % 3]]));
+    $tier = min(3, 1 + intdiv($lv, 10)); $src['slots'] = $lv >= 20 ? 4 : ($lv >= 10 ? 3 : 2);
+    foreach (array_slice(['axe', 'till', 'staff', 'lantern'], 0, $src['slots']) as $i => $t) $src['tools'][$t] = max(1, $tier - ($i > 1 ? 1 : 0));
+    $src['belt'] = array_keys($src['tools']);
+    if ($lv >= 3) $src['pals'][] = ['n' => 'Bark Badger', 't' => 'guard', 'v' => 5 + ($lv >= 12 ? 2 : 0), 'r' => 'craft', 'rank' => $lv >= 12 ? 2 : 1];
+    if ($lv >= 8) $src['pals'][] = ['n' => 'Samara Spin', 't' => 'hurt', 'v' => 5 + ($lv >= 20 ? 2 : 0), 'r' => 'body', 'rank' => $lv >= 20 ? 2 : 1];
+    foreach (['vegetable' => 2, 'spice' => 10, 'fruit' => 14, 'nut' => 22] as $k => $at) if ($lv >= $at) $src['crops'][$k] = min(3, 1 + intdiv($lv - $at, 12));
+    foreach (['garden' => 6, 'potions' => 12, 'tools' => 18] as $k => $at) if ($lv >= $at) $src['crafts'][$k] = 1;
+    if ($lv >= 5) $src['regions'][$src['home']] = 1; if ($lv >= 16) $src['regions']['MENA'] = 2;
+    $on = 0; foreach (['smash', 'sting', 'lull', 'pierce', 'hum', 'brace'] as $k) if ($on < 3 && $lv >= (int)pfd_catalog()[$k]['ref'] && !in_array($k, $src['starter'], true)) { $src['state'][$k] = true; $on++; }
+    return $src;
+}
 function tv_player(int $lv): array
 {
-    $m = max(0, intdiv($lv + 3, 14)); $st = ['grit' => $m, 'nimble' => $m, 'hardiness' => $m, 'charm' => $m, 'lore' => $m, 'luck' => $m, 'level' => $lv];
+    $m = max(0, intdiv($lv + 3, 14));
+    if ((getenv('DECK') ?: 'real') === 'real') {   // stage B: the deck model's deck (DECK=old: the stage A sim deck with made-up sources)
+        $st = ['grit' => $m, 'nimble' => $m, 'hardiness' => $m, 'charm' => $m, 'lore' => $m, 'luck' => $m, 'level' => $lv]; $max = 20 + 3 * $lv + 5 * $m; $src = tv_sources($lv);
+        return ['hp' => $max, 'max_hp' => $max, 'stats' => $st, 'deck' => pfd_tiles(pfd_fight_entries($src), $st, [], $src['calling'], $src['ctier']), 'luck' => $m];
+    } $st = ['grit' => $m, 'nimble' => $m, 'hardiness' => $m, 'charm' => $m, 'lore' => $m, 'luck' => $m, 'level' => $lv];
     $cals = array_keys(PF_CALLING_TILE); $cal = $cals[$lv % 6]; $own = pf_collection($lv, $cal); $cap = pf_box_capacity($lv);
     $want = ['hurt' => 5, 'charm' => 3, 'guard' => 3, 'heal' => 1, 'trick' => 1, 'item' => 1, 'soothe' => 0]; $box = []; $n = [];
     foreach ($own as $k) { $t = pf_tiles()[$k]['t']; if (($n[$t] ?? 0) < ($want[$t] ?? 0) && count($box) < $cap) { $box[] = $k; $n[$t] = ($n[$t] ?? 0) + 1; } }
@@ -112,7 +135,8 @@ foreach ($offs as $d) foreach (tv_creatures() as $c) {
     $nk = max(1, (int)ceil(TV_SEEDS[$c['size']] * $mult));
     for ($k = 0; $k < $nk; $k++) {
         $lv = max(1, $c['level'] + $d); $seed = 500 + 7 * $k + $c['level'] + 1000 * (crc32($c['slug']) % 97);
-        $s = pfb_new(tv_player($lv), $c, $seed, ['blank' => true, 'v1' => $over ?: true]);
+        $cr = (getenv('FOE') ?: 'layers') === 'layers' ? pfd_foe_row($c, array_keys(pfd_region_pieces())[(crc32($c['slug']) + $k) % 14]) : $c;   // stage B: the layered creature deck, in a region that changes with the seed (FOE=old: the archetype decks)
+        $s = pfb_new(tv_player($lv), $cr, $seed, ['blank' => true, 'v1' => $over ?: true]);
         $hand = $s['me']['hand']; $bi = 0; foreach ($hand as $i => $t) if ($t['t'] === 'hurt' && $t['v'] > $hand[$bi]['v']) $bi = $i;
         pfb_start($s, $bi, ['L', 'R', 'T', 'B'][$k % 4]);
         $t = 0; $st = ['used' => 0, 'tw' => 0, 'flip' => 0, 'reaim' => 0, 'pass' => 0];
