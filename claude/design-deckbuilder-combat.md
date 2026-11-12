@@ -183,6 +183,7 @@ The same data, with a `me` flag, gives the player's region pieces (2.2): earn a 
 4. Swaps: UNLIMITED before the fight, none during.
 5. Expiry: keep 3-round default; per-piece 2-4; label on piece.
 6. Rarity caps per deck: max 3 Rare, 1 Masterwork.
-7. Tool WEAR: a tool loses 2 durability each time ITS piece is played; broken = unusable until fixed, leaves the belt. Repair = a CRAFTED repair item from materials (Q10, Q11). OPEN: durability max per tool and belt tiers (slots per belt).
+7. Tool WEAR: a tool loses 2 durability each time ITS piece is played; broken = unusable until fixed, leaves the belt. Repair = a CRAFTED repair item from materials (Q10, Q11). Durability: 20 base, +4 per rank (Q12). Belt: 3 tiers, BOUGHT only (no crafting), slots 2/3/4 (Q13).
 8. Creature pieces by layers: 4 base from creature TYPE, + extra from REGION, + extra from monster RARITY or boss tag, + 3 UNIQUE to the creature. Lean not a separate idea.
 Next: mockups review by Josh, then build step 1 (clarity items) + engine step for creature tags.
+9. Creature TYPE = animal class, ~6: Insect, Bird, Beast, Reptile/Amphibian, Water, Plant/Fungus (Q14). `creatures.txt` has no type column yet: add one and tag ~95 creatures. Each class gets a fixed BASE 4 (2 Hurt, 1 Guard, 1 class trick: Insect quick, Bird evade, Beast bash, Reptile poison, Water trip, Plant thorns/heal). TODO: Claude drafts the table + mockup for Josh to approve (Q15).
