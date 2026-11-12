@@ -596,6 +596,7 @@ function pf_redraw(array &$s, int $handIdx, int $turn): bool
 {
     if ($s['over'] || $turn !== $s['turn'] || $s['me']['redraws'] < 1 || $handIdx < 0 || $handIdx >= count($s['me']['hand'])) return false;
     $t = array_splice($s['me']['hand'], $handIdx, 1)[0];
+    unset($t['flip'], $t['ft']);   // v1 board rules: a flipped piece goes back the right way up
     $s['me']['discard'][] = $t;
     $s['me']['redraws']--;
     pf_draw($s, 'me', count($s['me']['hand']) + 1);
