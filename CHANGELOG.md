@@ -2,7 +2,7 @@
 
 ## 2.6.72
 - **Fix: stuck at a place found while wandering.** A place you push through to while wandering off the path (for example the Den of the Great White Owl) showed its Back to exploring / Back to the road buttons only on the old Town page, so on the Here page you had no way back except a saved route. The Here page now shows the same box under the route strip (shared helper `explore_comeback_html`, also used by `town.php`). Both buttons are free.
-- **Wander button on the Here page.** On a road stop, Wander (leaf icon, 1 energy, same rule as the World page) is now a round button under the picture next to Routes, World, Fast travel and GPS. Not shown while on a community garden shift. NOT checked in a browser or on a phone. Version number and release notes not bumped yet.
+- **Wander button on the Here page.** On a road stop, Wander (leaf icon, 1 energy, same rule as the World page) is now a round button under the picture next to Routes, World, Fast travel and GPS. Not shown while on a community garden shift. Version bumped to 2.6.72, release notes added. NOT checked in a browser or on a phone.
 
 ## 2.6.70
 - **Villagers on the Trail, tidied up (Trail Sights follow-ups).** The villager card has a `👣 Walk over` button (tapping a villager's tile opens their card, so there is always a way to walk there); a villager is never drawn behind or over a landmark sprite (the sprite's real width is checked, 705 of 706 landmarks have a free spot) nor on a find, a gate or the way on; chatting with a villager who has just left writes a journal line.
