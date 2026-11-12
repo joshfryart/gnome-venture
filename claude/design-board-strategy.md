@@ -191,3 +191,122 @@ Scratch only, nothing in the repo. A runner like `tools/pfsim/run.php` with: bla
 5. Ground works for the creature too, fully.
 6. Source sets (pal + tool + crop Teamwork bonus) are in v1 with the rest.
 Note: v1 is now bigger (ground + events + spend-on-chain + aim + Teamwork + deckbuilder). Sim before build; ship in steps behind flags.
+
+## Sim results (v1 bundle, spend-on-chain)
+
+Sim only, on a patched copy of the 2.6.67 board engine. No game code or version changed. Scripts: `tools/pfsim/v1bundle/` (README there). All 88 creatures, blank-centre opening, 207-215 fights per cell. Numbers move about 4 points run to run.
+
+### Rules as simulated
+- **Ground:** 5 fixed cells per fight, 2-3 steps from the centre: 2 sunny (a Hurt or Charm piece on it plays x1.5), 2 bramble (pricks the owner of the piece on it for 7% of max health each environment turn; a creature piece costs the creature 7% of its health), 1 mud (no link into or out of it). Same for both sides. The creature's search knows bramble costs it.
+- **Environment turn** after the creature: bramble, then the announced event. **Events:** one each round, shown one round ahead on a cell on or next to a piece. Rain: every piece on the cell and its 4 neighbours gives its owner guard (5% of max health per piece) through the next turn. Wind: the piece on the cell moves one cell in the shown direction if that cell is free. Thorn burst: every piece on the cell and its 4 neighbours costs its owner 5% of max health.
+- **Use-up:** a chain that fires 3 or more pieces removes every piece that fired (yours and the creature's) to its owner's discard. Also for chains the creature starts.
+- **Aim:** the creature shows its next piece and cell and commits. Bots can read it. No reply number: the greedy bot sees only its own chain numbers.
+- **Teamwork:** a chain that fires a pal, a tool and a crop piece of yours: +25% on your pieces in that chain. Sim deck: 2 pal, 2 tool, 2 crop pieces, the rest knacks.
+- **Bots:** random; chain (always the longest chain, ties by the bigger number); greedy (best own-chain numbers); look (best state after its chain, the shown aim and the announced environment turn); smart (two turns: top 6 by look, then its best chain next turn with the pieces it keeps; uses set-aside; does not peek at the draw pile); never3 and smartn3 (look and smart that avoid a use-up chain when another move exists).
+
+### Tuned numbers (recommended)
+| Number | Value | Note |
+|---|---|---|
+| Use-up limit | 3 | Limit 4 is too soft (below) |
+| Sunny | x1.5 | Weak lever: x2 changes nothing |
+| Bramble | 7% of max health per environment turn | Weak lever |
+| Event strength | 5% of max health per piece in the zone | Weak lever |
+| Aim fumble | x0.5, **only when its cell is taken** | If only its link is gone it picks again at full value (see "Rules that look broken") |
+| Creature piece values | **x1.35** on top of today | This is the knob that sets the difficulty. `PFB_FOE_MULT` 0.62 would become about 0.84 |
+| Teamwork | +25% | Almost never happens with a mixed deck |
+
+### Main table (recommended numbers)
+Win % / health lost % / turns. `all` = mean of the four sizes. Small creatures are low level, so the gnome is level 1 at both 4 and 8 under.
+
+| Bot | Level | all | small | medium | large | boss |
+|---|---|---|---|---|---|---|
+| random | at level | 44 / 80 / 10.9 | 51 / 71 / 9.1 | 47 / 79 / 9.1 | 37 / 86 / 10.2 | 39 / 82 / 15.1 |
+| random | 4 under | 26 / 87 / 9.3 | 60 / 68 / 5.8 | 13 / 94 / 7.5 | 16 / 93 / 9.4 | 14 / 93 / 14.4 |
+| random | 8 under | 20 / 89 / 7.6 | 63 / 65 / 5.6 | 8 / 97 / 5.1 | 6 / 99 / 7.6 | 3 / 98 / 12.1 |
+| **chain** | **at level** | **70 / 64 / 6.8** | 84 / 47 / 4.6 | 66 / 64 / 6.1 | 67 / 70 / 6.7 | 63 / 74 / 9.7 |
+| chain | 4 under | 49 / 75 / 6.1 | 87 / 45 / 3.0 | 30 / 85 / 5.0 | 39 / 84 / 6.7 | 39 / 88 / 9.7 |
+| chain | 8 under | 33 / 81 / 5.6 | 87 / 45 / 3.0 | 17 / 91 / 4.0 | 16 / 94 / 6.2 | 13 / 96 / 9.2 |
+| greedy | at level | 85 / 49 / 6.9 | 93 / 35 / 4.8 | 80 / 53 / 6.5 | 80 / 56 / 6.6 | 88 / 54 / 9.6 |
+| greedy | 4 under | 66 / 65 / 6.7 | 94 / 37 / 2.7 | 42 / 77 / 5.9 | 61 / 74 / 7.5 | 68 / 70 / 10.5 |
+| greedy | 8 under | 46 / 74 / 6.1 | 94 / 37 / 2.7 | 25 / 87 / 4.4 | 29 / 87 / 6.6 | 36 / 87 / 10.5 |
+| never3 | at level | 98 / 24 / 8.6 | 98 / 20 / 5.5 | 95 / 25 / 8.5 | 99 / 29 / 8.8 | 99 / 23 / 11.7 |
+| never3 | 4 under | 87 / 38 / 9.9 | 99 / 23 / 3.4 | 67 / 53 / 11.3 | 87 / 46 / 10.8 | 96 / 29 / 14.0 |
+| never3 | 8 under | 68 / 53 / 10.8 | 99 / 23 / 3.4 | 48 / 73 / 9.2 | 54 / 70 / 12.5 | 72 / 46 / 18.1 |
+| look | at level | 97 / 23 / 8.3 | 98 / 18 / 5.1 | 91 / 26 / 8.4 | 98 / 27 / 8.2 | 99 / 21 / 11.6 |
+| look | 4 under | 86 / 37 / 9.3 | 97 / 20 / 3.4 | 66 / 54 / 10.0 | 84 / 42 / 9.9 | 97 / 31 / 13.7 |
+| look | 8 under | 69 / 51 / 10.3 | 97 / 20 / 3.4 | 45 / 72 / 8.4 | 51 / 69 / 11.7 | 81 / 42 / 17.5 |
+| smartn3 | at level | 99 / 22 / 7.1 | 100 / 19 / 4.6 | 98 / 24 / 7.1 | 100 / 24 / 6.7 | 100 / 20 / 10.1 |
+| smartn3 | 4 under | 94 / 32 / 8.4 | 100 / 20 / 3.2 | 80 / 50 / 9.4 | 97 / 33 / 9.1 | 100 / 27 / 11.9 |
+| smartn3 | 8 under | 80 / 45 / 9.4 | 100 / 20 / 3.2 | 54 / 66 / 8.8 | 73 / 57 / 11.0 | 95 / 37 / 14.5 |
+| **smart** | **at level** | **100 / 16 / 6.2** | 100 / 15 / 3.7 | 100 / 18 / 6.1 | 100 / 17 / 6.2 | 100 / 14 / 8.8 |
+| smart | 4 under | 97 / 23 / 7.5 | 100 / 16 / 2.7 | 90 / 37 / 8.7 | 99 / 26 / 7.9 | 100 / 15 / 10.6 |
+| smart | 8 under | 88 / 35 / 9.0 | 100 / 16 / 2.7 | 65 / 54 / 9.3 | 86 / 43 / 10.7 | 100 / 27 / 13.3 |
+
+**Target met:** at level "just chain" wins 70% and loses 64% of its health; smart wins 100% and loses 16%. A one-turn reader (look) wins 97% and loses 23%.
+
+Today's rules with the same bots and seeds, at level (`all`): random 79 / 55 / 12.1, chain 100 / 25 / 5.1, greedy 100 / 18 / 4.8, look 100 / 6 / 5.2 (it sees the reply), smart 100 / 7 / 4.5.
+
+### What use-up does to the board and the hand (at level)
+| Bot | Pieces fired per placement | Placements that use pieces up | Took a 3+ chain when one was open | My pieces out at turn start | Hand at turn start | Progress from re-fires | My pieces used up per fight: by my chains / by the creature's | Fights at the turn cap |
+|---|---|---|---|---|---|---|---|---|
+| chain, today | 2.91 | (65% fire 3+) | 94% | 2.0 | 4.8 | 71% | - | 0.0% |
+| smart, today | 2.65 | (54% fire 3+) | 77% | 2.0 | 4.7 | 75% | - | 0.0% |
+| random | 2.25 | 30% | 62% | 0.9 | 4.9 | 32% | 5.4 / 3.1 | 2.6% |
+| chain | 2.45 | 42% | 94% | 0.7 | 4.9 | 49% | 5.0 / 1.1 | 0.0% |
+| greedy | 2.28 | 34% | 75% | 0.9 | 4.8 | 55% | 4.6 / 1.1 | 0.0% |
+| never3 | 2.07 | 13% | 28% | 1.1 | 4.9 | 42% | 2.1 / 3.7 | 0.2% |
+| look | 2.25 | 30% | 71% | 0.8 | 4.9 | 47% | 4.5 / 2.5 | 0.8% |
+| smartn3 | 2.09 | 12% | 20% | 1.1 | 4.8 | 56% | 1.5 / 2.0 | 0.1% |
+| smart | 2.27 | 31% | 57% | 0.9 | 4.8 | 61% | 3.2 / 1.2 | 0.0% |
+
+- **The hand is fine.** Used-up pieces go to the discard and come back, so the hand stays at 4.8-4.9 and no bot ever had a turn with no legal move.
+- **The board is nearly empty.** You start a turn with 0.7-1.1 of your own pieces out (2.0 today). Use-up clears clusters before they grow.
+- **Blind chaining now pays for itself badly.** The chain bot uses pieces up in 42% of its placements, re-fires give 49% of its progress (71% today) and its fights take 6.8 turns (5.1 today). The longer fight under a x1.35 creature is what costs it the health.
+- **Chaining 3+ is still right about half the time.** Smart takes an open 3+ chain 57% of the time (77% today). It pays to finish the fight, to use up the creature's pieces with yours, and to cash in a cluster the creature is about to hit.
+
+### Degenerate play
+- **"Never chain 3+" is safe for a one-turn reader, but not best.** never3 equals look (98 / 24 against 97 / 23 at level), only slower. With planning it loses: smartn3 99 / 22 / 7.1 against smart 100 / 16 / 6.2 at level, and 80% against 88% wins at 8 under. So the rule does not make "never chain" the answer, but a casual careful player can ignore long chains at no cost.
+- **Stalling:** rare. Turn-cap fights: 0-0.8% at level for every bot but random; never3 6% and look 5% at 8 under. Fights are longer (smart 6.2 turns against 4.5 today; boss 8.8 against 6.3).
+- **Hoarding pieces** (look and smart with a bonus for own pieces on the board): no gain (97 / 21, 100 / 16).
+- **Blocking the aim cell** is the main trick of the one-turn reader: look makes the creature fumble 1.9 times a fight, smart 1.0, chain 0.9 (by accident).
+- **Random play collapses:** 44% wins at level (79% today). A new or careless-and-unlucky player will lose more than half of level fights.
+
+### Variants (at level, `all`, win / health lost / turns)
+| Variant | chain | look | smart |
+|---|---|---|---|
+| **Recommended** (limit 3, creature x1.35, fumble only when blocked) | 70 / 64 / 6.8 | 97 / 23 / 8.3 | 100 / 16 / 6.2 |
+| Creature x1.0, all else default, fumble also when the link is gone | 95 / 40 / 7.5 | 100 / 10 / 7.3 | 100 / 9 / 5.7 |
+| Creature x1.2 | 80 / 56 / 7.2 | 98 / 17 / 8.0 | 100 / 12 / 6.1 |
+| Creature x1.5 | 65 / 67 / 6.5 | 96 / 26 / 8.4 | 100 / 18 / 6.3 |
+| Limit 4, creature x1.35 | 89 / 48 / 5.4 | 100 / 14 / 5.7 | 100 / 14 / 4.7 |
+| Limit 4, creature x1.7 | 74 / 60 / 5.1 | 99 / 19 / 6.0 | 100 / 19 / 4.8 |
+| No use-up, creature x1.35 | 94 / 41 / 4.8 | 100 / 13 / 5.0 | 100 / 14 / 4.2 |
+| Fumble also when the link is gone, creature x1.55 | 75 / 63 / 7.2 | 98 / 22 / 8.6 | 100 / 16 / 6.4 |
+| Creature's own chains do not use pieces up | 64 / 67 / 6.2 | 98 / 24 / 7.3 | 100 / 17 / 5.7 |
+| No ground | 68 / 65 / 7.1 | 96 / 22 / 8.6 | 100 / 14 / 6.6 |
+| No events | 68 / 65 / 6.9 | 96 / 23 / 8.6 | 100 / 16 / 6.6 |
+| Strong environment (sunny x2, bramble 12%, events x2) | 70 / 62 / 6.3 | 98 / 23 / 7.3 | 100 / 17 / 5.5 |
+| Environment only (creature x1.0, bramble 20%, events x4; 63 fights per cell) | 90 / 49 / 6.3 | 100 / 14 / 5.9 | 100 / 12 / 4.8 |
+| No Teamwork | 69 / 64 / 6.8 | 97 / 23 / 8.3 | 100 / 16 / 6.2 |
+| Every piece has a source, Teamwork +25% | 71 / 62 / 6.7 | 97 / 22 / 8.1 | 100 / 15 / 6.1 |
+| Every piece has a source, Teamwork +50% | 72 / 61 / 6.6 | 97 / 21 / 7.8 | 100 / 15 / 5.7 |
+
+- **Use-up at 3 is the strongest single rule:** at creature x1.35 it takes the chain bot from 94% to 70%. Limit 4 only reaches 89% (16% of its placements fire 4 or more), and to hit 70% it needs creature x1.7, which costs careful players more health (19% against 16%).
+- **The 70% cannot be reached with ground, bramble or event numbers.** Even bramble 20% and events x4 leave the chain bot at 90%. The creature factor does it: x1.2 gives 80%, x1.35 gives 70%, x1.5 gives 65%.
+
+### Rules that look broken or weak
+1. **Ground and events hardly matter once chains use pieces up.** Removing either changes no result by more than the noise. Per fight at level a side fires on a sunny cell about 0.5 times, loses 1-2% health to bramble and 2-3% to thorn bursts, and wind moves 0.1-0.3 of its pieces. Reason: the board holds under one of your pieces between turns, so there is rarely anything on a marked cell. Use-up and "places that matter" work against each other.
+2. **Aim fumble "when its link is gone" breaks under use-up.** Chains remove the pieces the creature aimed to link with, so it fumbled 2.6-2.9 times a fight against bots that were not trying (about 40% of its turns at half value). Recommended: it fumbles only when you take its cell; if only its link is gone it picks again at full value.
+3. **Teamwork almost never happens** with a mixed deck: 0.04-0.05 times a fight. With every piece sourced it is 0.2-0.5 times a fight and moves results by 1-2 points even at +50%. It needs 3 pieces in one chain, so it always uses them up. It is harmless, but players will not notice it at +25%.
+4. **The creature uses your pieces up too.** Its search already prefers long chains, so it removes 1.1-3.7 of your pieces a fight (most against careful players who keep pieces out). Turning this off makes the chain bot do worse (64%), not better, so it is not a balance problem, but it may feel unfair on screen.
+5. **Small creatures stay easy for the chain bot** (84% against 63-67% for the rest): their piece values are 1-3, so x1.35 mostly rounds away. Bosses are the hardest for it (63%, 74% health lost).
+
+### Limits
+Bots, not people. Default gnome deck with made-up sources (no real pal, tool or crop pieces, no per-piece life 2-4). Ground mix is fixed (no regions). The look and smart bots simulate the creature's aimed move exactly; when it fumbles they also know its second choice, which a player would not. Swift pieces and belt perks that raise the limit were not modelled.
+
+### Questions for Josh
+1. Creature x1.35 is what produces the 70%. OK as the difficulty knob, given random play then wins only 44% at level?
+2. Aim fumble only when its cell is taken (not when its link is gone)?
+3. Do chains the creature starts use pieces up too (simulated: yes)?
+4. Ground and events barely register with use-up at 3. Keep them as flavour in v1, or make them bite (more cells, pieces on ground are not used up, events that hit the hand or the gnome instead of pieces)?
+5. Teamwork: raise it (for example +50% and the pieces are not used up) so it is worth building for?
