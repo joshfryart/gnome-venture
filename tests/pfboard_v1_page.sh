@@ -62,7 +62,7 @@ ck "pfight_v1 = admin, an admin: a v1 fight, on the board even when pfight_mode 
 echo "== the page of a v1 fight"
 ck "board page" "$(grep -c 'data-mode="board"' $H)" "1"
 ck "page data: rule numbers, ground, forecast, aim, flip" "$(grep -c '"v1":{"limit":3.*"ter":.*"envs":.*"aim":.*"flip":{"on":true,"used":false}' $H)" "1"
-ck "page data (2.6.75): the environment's face-up piece, no ground cells, no forecast" "$(grep -c '"env":true.*"ter":{}.*"envs":\[\].*"env":{"next":{"k":"e:[a-z]*","n":"[A-Za-z]*","kind":"[a-z]*","life":[23],"e":{' $H)" "1"
+ck "page data (2.6.75): the environment's two face-up pieces (a list), no ground cells, no forecast" "$(grep -c '"env":true.*"ter":{}.*"envs":\[\].*"env":{"next":\[{"k":"e:[a-z]*","n":"[A-Za-z]*","kind":"[a-z]*","life":[23],"e":{' $H)" "1"
 ck "page data: the board size of the creature (small: 5x4)" "$(encq '$s["size"] . " " . $s["w"] . "x" . $s["h"]')" "small 5x4"; ck "page data carries that size" "$(grep -c '"w":5,"h":4' $H)" "1"
 ck "page data: hand pieces carry life, source, flip" "$(grep -c '"life":[234],"src":"[a-z]*","flip":false,"canflip":true' $H | awk '{print ($1>=1)?"yes":"no"}')" "yes"
 ck "no draw pile or seed in the page" "$(grep -c '"rng"\|"draw"' $H)" "0"

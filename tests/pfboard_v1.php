@@ -280,6 +280,7 @@ for ($seed = 1; $seed <= 60 && !$done; $seed++) {
         chk('the flipped lit-cell numbers (pfb_cell_preview with flip) cover the flipped piece\'s cells', isset($pv[$cells[0][0] . ',' . $cells[0][1]]) && count($pv) === count($cells), [array_keys($pv), $cells]);
         chk('the next turn has its flip again', pfb_view($w)['flip']['used'] === false && pfb_can_flip($w, 0));
         for ($k = 0; $k < 6 && !$w['over']; $k++) { $m = pfb_search($w, 'me'); if (!$m) break; pfb_play($w, [[$m[0], $m[1], $m[2]]], $w['turn']); }
+        foreach ($w['pcs'] as $p) if ($p['by'] === 'me' && $p['tile']['k'] === $key) pfb_discard($w, $p);   // the fight ended with it still out: it leaves the way every piece leaves
         $back = array_filter(array_merge($w['me']['discard'], $w['me']['draw'], $w['me']['hand']), fn($t) => $t['k'] === $key);
         chk('when it leaves the board it goes back the right way up', count($back) === 1 && empty(array_values($back)[0]['flip']) && !isset(array_values($back)[0]['ft']), $back);
         $done = true; break;
@@ -319,7 +320,7 @@ $s = pfb_new(v1_me(), v1_foe('large'), 5, ['v1' => ['foe_x' => 2, 'bar_x' => 0.5
 chk('sim knobs foe_x / bar_x scale the size numbers', abs($s['v1']['foe'] - 2 * PFB_V1_FOE_MULT['large']) < 1e-9 && abs($s['v1']['bar'] - 0.5 * PFB_V1_BAR_MULT['large']) < 1e-9);
 
 echo "== 11. whole fights: invariants, save and load\n";
-$n = 0; $fail = []; $over = []; $turns = []; $evs = ['env' => 0, 'used' => 0, 'tw' => 0, 'sun' => 0, 'flip' => 0, 'reaim' => 0, 'old terrain' => 0, 'place' => 0, 'pass' => 0, 'expire' => 0, 'push' => 0, 'env used up' => 0, 'reshuffle' => 0];
+$n = 0; $fail = []; $over = []; $turns = []; $evs = ['env' => 0, 'used' => 0, 'tw' => 0, 'sun' => 0, 'flip' => 0, 'reaim' => 0, 'old terrain' => 0, 'place' => 0, 'pass' => 0, 'expire' => 0, 'push' => 0, 'env used up' => 0, 'reshuffle' => 0, 'mud weakens' => 0];
 foreach (['sun', 'bramble', 'rain', 'wind', 'thorn'] as $ek) { $evs["me fires $ek"] = 0; $evs["creature fires $ek"] = 0; }
 $regs = array_keys(pfb_env_table()['regions']);
 foreach ($rows as $ci => $c) foreach ([0, 1, 2] as $k) {
@@ -328,7 +329,7 @@ foreach ($rows as $ci => $c) foreach ([0, 1, 2] as $k) {
     $me = v1_me($c['level']); foreach ($me['deck'] as $i => $t) if ($k && $i % 2) $me['deck'][$i]['src'] = ['pal', 'tool', 'crop'][($i + $ci) % 3];
     $s = pfb_new($me, $c, 300 + 17 * $ci + $k, ['v1' => $old ? V1_OLD : true, 'blank' => true]); $deckN = count($me['deck']); $tag = $c['slug'] . "#$k";
     $envN = $old ? 0 : count(pfb_env_deck($c['size'], (string)($c['region'] ?? ''))); $ed0 = $old ? 0 : count($s['env']['draw']);
-    if ($old) { unset($s['v1']['env'], $s['v1']['envn'], $s['v1']['rain'], $s['v1']['th_foe']); $s['v1']['foe'] = 0.56; $s['v1']['bar'] = 1.3; }   // exactly the keys a 2.6.74 save has
+    if ($old) { unset($s['v1']['env'], $s['v1']['envn'], $s['v1']['rain'], $s['v1']['th_foe'], $s['v1']['mud'], $s['v1']['envcap']); $s['v1']['foe'] = 0.56; $s['v1']['bar'] = 1.3; }   // exactly the keys a 2.6.74 save has
     if (pfb_start($s, $ci % count($s['me']['hand']), 'LRTB'[$ci % 4]) !== null) { $fail[] = "$tag start"; continue; }
     $t = 0;
     while (!$s['over'] && $t++ < 40) {
@@ -347,7 +348,7 @@ foreach ($rows as $ci => $c) foreach ([0, 1, 2] as $k) {
         }
         foreach ($s['gone'] ?? [] as $g) if ($g['by'] === 'env' && isset($g['used'])) $evs['env used up']++;
         if (!$old && $t > 1 && count($s['env']['draw']) > $ed0) $evs['reshuffle']++; if (!$old) $ed0 = count($s['env']['draw']);
-        foreach ($r['ev'] as $e) { if (isset($e['env'])) $evs['env']++; if (isset($e['used'])) $evs['used']++; if (isset($e['tw'])) $evs['tw']++; if (isset($e['sun'])) $evs['sun']++; if (!isset($e['ta'])) $fail[] = "$tag: an event without ta"; }
+        foreach ($r['ev'] as $e) { if (isset($e['env'])) $evs['env']++; if (isset($e['mud'])) $evs['mud weakens']++; if (isset($e['used'])) $evs['used']++; if (isset($e['tw'])) $evs['tw']++; if (isset($e['sun'])) $evs['sun']++; if (!isset($e['ta'])) $fail[] = "$tag: an event without ta"; }
         if (!empty($s['reaim'])) $evs['reaim']++;
         $seen = []; $mine = count($s['me']['hand']) + count($s['me']['draw']) + count($s['me']['discard']) + count($s['me']['held']['pcs'] ?? []);
         foreach ($s['pcs'] as $id => $p) {
@@ -360,11 +361,13 @@ foreach ($rows as $ci => $c) foreach ([0, 1, 2] as $k) {
         if ($mine !== $deckN) $fail[] = "$tag: deck pieces lost or doubled ($mine of $deckN)";
         if ($old) { if (isset($s['env']) || array_filter($s['pcs'], fn($p) => $p['by'] === 'env')) $fail[] = "$tag: a 2.6.74 fight got environment pieces"; }
         else {   // the environment's pieces: none lost or doubled, no ground, no forecast, Wind carries its arrow only on the board
-            $en = count($s['env']['draw']) + count($s['env']['discard']) + ($s['env']['next'] ? 1 : 0) + count(array_filter($s['pcs'], fn($p) => $p['by'] === 'env'));
+            $en = count($s['env']['draw']) + count($s['env']['discard']) + count($s['env']['next']) + count(array_filter($s['pcs'], fn($p) => $p['by'] === 'env'));
             if ($en !== $envN) $fail[] = "$tag: environment pieces lost or doubled ($en of $envN)";
             if ($s['ter'] !== [] || $s['envs'] !== []) $fail[] = "$tag: ground or forecast in an environment-piece fight";
+            if (count($s['env']['next']) > 2) $fail[] = "$tag: more than two pieces face up";
+            if (count($s['cell']) > (int)ceil(0.7 * $s['w'] * $s['h']) + 2) $fail[] = "$tag: the board is over the environment's cap (" . count($s['cell']) . ' pieces)';
             foreach ($s['pcs'] as $p) if ($p['by'] === 'env' && (($p['tile']['env'] === 'wind') !== isset($p['tile']['dir']) || $p['tile']['t'] !== 'env')) $fail[] = "$tag: env piece shape";
-            foreach (array_merge($s['env']['draw'], $s['env']['discard'], $s['env']['next'] ? [$s['env']['next']] : []) as $et) if (isset($et['dir']) || isset($et['flip'])) $fail[] = "$tag: an arrow left on a piece in the env deck";
+            foreach (array_merge($s['env']['draw'], $s['env']['discard'], $s['env']['next']) as $et) if (isset($et['dir']) || isset($et['flip'])) $fail[] = "$tag: an arrow left on a piece in the env deck";
             foreach (['me', 'foe'] as $w) foreach (['hand', 'draw', 'discard'] as $z) foreach ($s[$w][$z] as $pt) if (($pt['src'] ?? '') === 'env') $fail[] = "$tag: an environment piece in a player's deck";
         }
         foreach ($s['ter'] as $key => $kind) { [$x, $y] = array_map('intval', explode(',', $key)); if ($x < 0 || $y < 0 || $x >= $s['w'] || $y >= $s['h'] || !in_array($kind, ['sun', 'br', 'mud'], true)) $fail[] = "$tag: bad ground $key"; }

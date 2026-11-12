@@ -31,38 +31,53 @@ foreach ($P as $p) { if ($p['env'] === 'mud') continue; $s0 = v1_bare(); $e0 = [
     if (count($sides) >= 2) $any++; }
 chk('edges: the four core pieces (Swing, Dodge, Rest, Charm; flipped or not) link to every firing environment piece from 2 sides or more', $any === 5, $any);
 
-// ---- the start of a fight, the face-up piece, the environment's turn
+// ---- the start of a fight, the face-up pieces, the environment's turn
 $s = pfb_new(v1_me(), v1_foe('medium') + ['region' => 'SE'], 21, ['v1' => true, 'blank' => true]); $deckN = count(pfb_env_deck('medium', 'SE'));
-chk('new fight: the environment has its deck, one piece face up, no ground cells and no forecast', !empty($s['v1']['env']) && $s['env']['next'] !== null && count($s['env']['draw']) === $deckN - 1 && $s['env']['discard'] === [] && $s['ter'] === [] && $s['envs'] === [], [count($s['env']['draw']), $deckN]);
+chk('new fight: the environment has its deck, TWO pieces face up (a list), no ground cells and no forecast', !empty($s['v1']['env']) && $s['v1']['envn'] === 2 && count($s['env']['next']) === 2 && array_is_list($s['env']['next']) && count($s['env']['draw']) === $deckN - 2 && $s['env']['discard'] === [] && $s['ter'] === [] && $s['envs'] === [], [count($s['env']['draw']), $deckN]);
 $v = pfb_view($s); $nx = $s['env']['next'];
-chk('view: env.next names the face-up piece (name, kind, life, edges), how many wait and how many it places a round; v1.env is on, ground and events off', $v['env']['next'] === ['k' => $nx['k'], 'n' => $nx['n'], 'kind' => $nx['env'], 'life' => $nx['life'], 'e' => $nx['ed']] && $v['env']['deck'] === $deckN - 1 && $v['env']['used'] === 0 && $v['env']['n'] === 1 && $v['v1']['env'] === true && $v['v1']['ground'] === false && $v['v1']['events'] === false, $v['env']);
+chk('view: env.next lists the face-up pieces in the order they will be placed (name, kind, life, edges), how many wait and how many it places a round; v1.env is on, ground and events off', $v['env']['next'] === array_map(fn($t) => ['k' => $t['k'], 'n' => $t['n'], 'kind' => $t['env'], 'life' => $t['life'], 'e' => $t['ed']], $nx) && $v['env']['deck'] === $deckN - 2 && $v['env']['used'] === 0 && $v['env']['n'] === 2 && $v['v1']['env'] === true && $v['v1']['envn'] === 2 && $v['v1']['mud'] === PFB_MUD && $v['v1']['th_foe'] === PFB_THORN_FOE && $v['v1']['ground'] === false && $v['v1']['events'] === false, $v['env']);
 chk('the same seed gives the same environment deck', pfb_new(v1_me(), v1_foe('medium') + ['region' => 'SE'], 21, ['v1' => true, 'blank' => true])['env'] === $s['env']);
-pfb_start($s, 0, 'L'); $m = pfb_search($s, 'me'); $r = pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']); $tas = array_column($r['ev'], 'ta'); $last = end($r['ev']); $envp = array_values(array_filter($s['pcs'], fn($p) => $p['by'] === 'env'));
-chk('round 1: you, the creature, then the environment: its turn is the last event (by env, ta env, env place) and puts down exactly the piece that lay face up', $last['ta'] === 'env' && $last['by'] === 'env' && $last['env'] === 'place' && $last['kind'] === $nx['env'] && $last['n'] === $nx['n'] && count($envp) === 1 && $envp[0]['tile']['k'] === $nx['k'] && $last['id'] === $envp[0]['id'] && [$last['x'], $last['y']] === [$envp[0]['x'], $envp[0]['y']] && array_search('env', $tas, true) > (int)array_search('foe', $tas, true), $last);
-$prevE = $r['ev'][count($r['ev']) - 2];
+$found = null;   // a seed where both face-up pieces find a cell in round 1
+for ($seed = 21; $seed < 60 && !$found; $seed++) {
+    $s = pfb_new(v1_me(), v1_foe('medium') + ['region' => 'SE'], $seed, ['v1' => true, 'blank' => true]); $nx = $s['env']['next']; pfb_start($s, 0, 'L'); $m = pfb_search($s, 'me'); if (!$m) continue;
+    $r = pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']); $pl = array_values(array_filter($r['ev'], fn($e) => ($e['env'] ?? '') === 'place')); if (count($pl) === 2 && !$s['over']) $found = [$s, $nx, $r, $pl];
+}
+[$s, $nx, $r, $pl] = $found; $tas = array_column($r['ev'], 'ta'); $envp = array_values(array_filter($s['pcs'], fn($p) => $p['by'] === 'env')); $last = $pl[1];
+chk('round 1: you, the creature, then the environment: its turn comes last (by env, ta env, env place) and puts down exactly the two pieces that lay face up, in their order', count($envp) === 2 && [$pl[0]['kind'], $pl[1]['kind']] === [$nx[0]['env'], $nx[1]['env']] && [$pl[0]['n'], $pl[1]['n']] === [$nx[0]['n'], $nx[1]['n']] && [$pl[0]['id'], $pl[1]['id']] === [$envp[0]['id'], $envp[1]['id']] && [$last['x'], $last['y']] === [$envp[1]['x'], $envp[1]['y']] && $last['ta'] === 'env' && $last['by'] === 'env' && !array_filter(array_slice($tas, array_search('env', $tas, true)), fn($t) => $t !== 'env') && array_search('env', $tas, true) > (int)array_search('foe', $tas, true), $pl);
+$prevE = array_values(array_filter($r['ev'], fn($e) => $e['ta'] !== 'env')); $prevE = end($prevE);
 chk('the environment\'s turn fires nothing: the bars and your health stand as after the creature\'s last piece', [$last['barnow'], $last['fhnow'], $last['hpnow']] === [$prevE['barnow'], $prevE['fhnow'], $prevE['hpnow']] && $last['me'] === 0 && $last['foe'] === 0.0);
-chk('after its turn the next piece lies face up and the deck is one shorter', $s['env']['next'] !== null && count($s['env']['draw']) === $deckN - 2);
+chk('after its turn two new pieces lie face up and the deck is two shorter', count($s['env']['next']) === 2 && count($s['env']['draw']) === $deckN - 4);
 $vp = array_column(pfb_view($s)['pcs'], null, 'id')[$envp[0]['id']];
-chk('view: the placed piece is by env, carries its kind, and has its whole life left (its life counts from the next round)', $vp['by'] === 'env' && $vp['kind'] === $nx['env'] && $vp['left'] === $nx['life'] && $vp['life'] === $nx['life'] && $vp['age'] === 0 && $vp['src'] === 'env' && $vp['t'] === 'env', $vp);
-$ln = pfight_line($last, 'Owl'); chk('the place line names the piece', str_contains($ln, 'places ' . $nx['n']), $ln);
+chk('view: the placed piece is by env, carries its kind, and has its whole life left (its life counts from the next round)', $vp['by'] === 'env' && $vp['kind'] === $nx[0]['env'] && $vp['left'] === $nx[0]['life'] && $vp['life'] === $nx[0]['life'] && $vp['age'] === 0 && $vp['src'] === 'env' && $vp['t'] === 'env', $vp);
+$ln = pfight_line($pl[0], 'Owl'); chk('the place line names the piece', str_contains($ln, 'places ' . $nx[0]['n']), $ln);
 
-$s = v1_bare(); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2); $sun = v1_env('sun', null, false); $s9 = $s; v1_put($s9, 'env', v1_env('mud', null, false), 0, 0); $cells = pfb_env_cells($s9, $sun);
-chk('where it may go: only cells where the piece LINKS, when there are any (the cells that only touch a flat Mud fit, but are left out)', $cells && pfb_check($s9, $sun, 1, 0) !== null && !in_array([1, 0], $cells, true) && !in_array([0, 1], $cells, true) && !array_filter($cells, fn($c) => !pfb_has_link(pfb_check($s9, $sun, $c[0], $c[1]))), $cells);
+$s = v1_bare(); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2);
+$sun = v1_env('sun', null, false); $s9 = $s; v1_put($s9, 'env', ['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['flat', null])] + v1_env('rain'), 0, 0); $cells = pfb_env_cells($s9, $sun);
+chk('where it may go: only cells where the piece LINKS, when there are any (the cells that only touch a flat piece fit, but are left out)', $cells && pfb_check($s9, $sun, 1, 0) !== null && !in_array([1, 0], $cells, true) && !in_array([0, 1], $cells, true) && !array_filter($cells, fn($c) => !pfb_has_link(pfb_check($s9, $sun, $c[0], $c[1]))), $cells);
 $cells = pfb_env_cells($s, $sun);
 $mud = v1_env('mud', null, false); $mc = pfb_env_cells($s, $mud);
 chk('Mud links nowhere, so it may go on any free cell next to a piece', count($mc) === 4 && !array_filter($mc, fn($c) => abs($c[0] - 2) + abs($c[1] - 2) !== 1), $mc);
-$s['env'] = ['draw' => [v1_env('rain', null, false)], 'discard' => [], 'next' => $sun]; $pid0 = $s['pid']; pfb_env_place($s); $np = $s['pcs'][$s['pid']];
-chk('the environment places its piece on one of those cells, born for the next round, and logs it (place, id, kind, name, cell)', $s['pid'] === $pid0 + 1 && $np['by'] === 'env' && in_array([$np['x'], $np['y']], $cells, true) && $np['born'] === $s['round'] + 1 && $s['envlog'] === [['k' => 'place', 'x' => $np['x'], 'y' => $np['y'], 'me' => 0, 'foe' => 0.0, 'id' => $np['id'], 'kind' => 'sun', 'n' => 'Sun']] && $s['env']['next']['env'] === 'rain' && $s['env']['draw'] === [], $s['envlog']);
+$s['env'] = ['draw' => [v1_env('rain', null, false), v1_env('thorn', null, false)], 'discard' => [], 'next' => [$sun]]; $pid0 = $s['pid']; pfb_env_place($s); $np = $s['pcs'][$s['pid']];
+chk('the environment places its piece on one of those cells, born for the next round, and logs it (place, id, kind, name, cell); then it turns pieces face up until two lie open', $s['pid'] === $pid0 + 1 && $np['by'] === 'env' && in_array([$np['x'], $np['y']], $cells, true) && $np['born'] === $s['round'] + 1 && $s['envlog'] === [['k' => 'place', 'x' => $np['x'], 'y' => $np['y'], 'me' => 0, 'foe' => 0.0, 'id' => $np['id'], 'kind' => 'sun', 'n' => 'Sun']] && array_column($s['env']['next'], 'env') === ['thorn', 'rain'] && $s['env']['draw'] === [], $s['envlog']);
+$s = v1_bare(); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2); $s['env'] = ['draw' => [v1_env('thorn')], 'discard' => [], 'next' => [v1_env('rain'), v1_env('sun')]]; pfb_env_place($s); $ep = array_values(array_filter($s['pcs'], fn($p) => $p['by'] === 'env'));
+chk('two pieces a turn: both face-up pieces go down in their order (two place notes), the second may link to the first', count($ep) === 2 && [$ep[0]['tile']['env'], $ep[1]['tile']['env']] === ['rain', 'sun'] && array_column($s['envlog'], 'k') === ['place', 'place'] && array_column($s['envlog'], 'kind') === ['rain', 'sun'] && array_column($s['env']['next'], 'env') === ['thorn'], $s['envlog']);
 $s = v1_bare(); $kb = ['knob', 'body']; $allk = ['L' => $kb, 'R' => $kb, 'T' => $kb, 'B' => $kb]; v1_put($s, 'foe', ['ed' => $allk] + v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2);
-$odd = ['ed' => $allk] + v1_env('sun'); $s['env'] = ['draw' => [v1_env('rain')], 'discard' => [], 'next' => $odd]; $n0 = count($s['pcs']); pfb_env_place($s);
-chk('no cell fits: the environment passes, keeps its piece face up and says which', count($s['pcs']) === $n0 && $s['env']['next'] === $odd && count($s['env']['draw']) === 1 && $s['envlog'] === [['k' => 'pass', 'x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0, 'kind' => 'sun', 'n' => 'Sun']], $s['envlog']);
-$ev = pfb_env_events($s); chk('a pass is an event too (by env, ta env, env pass) with a line', count($ev) === 1 && $ev[0]['env'] === 'pass' && $ev[0]['ta'] === 'env' && str_contains(pfight_line($ev[0], 'Owl'), 'no place for Sun'), $ev);
-$s = v1_bare(); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2); $s['env'] = ['draw' => [], 'discard' => [], 'next' => null]; pfb_env_place($s);
+$odd = ['ed' => $allk] + v1_env('sun'); $s['env'] = ['draw' => [v1_env('thorn')], 'discard' => [], 'next' => [$odd, v1_env('rain')]]; $n0 = count($s['pcs']); pfb_env_place($s);
+chk('a piece that fits nowhere: the environment passes for THAT piece, keeps it face up (first in line) and says which; the other piece is still placed and one new piece is turned up', count($s['pcs']) === $n0 + 1 && $s['env']['next'][0] === $odd && array_column($s['env']['next'], 'env') === ['sun', 'thorn'] && $s['env']['draw'] === [] && $s['envlog'][0] === ['k' => 'pass', 'x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0, 'kind' => 'sun', 'n' => 'Sun'] && $s['envlog'][1]['k'] === 'place' && $s['envlog'][1]['kind'] === 'rain', $s['envlog']);
+$ev = pfb_env_events($s); chk('a pass is an event too (by env, ta env, env pass) with a line', count($ev) === 2 && $ev[0]['env'] === 'pass' && $ev[0]['ta'] === 'env' && str_contains(pfight_line($ev[0], 'Owl'), 'no place for Sun'), $ev);
+$s = v1_bare(); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2); $s['env'] = ['draw' => [], 'discard' => [], 'next' => []]; pfb_env_place($s);
 chk('every piece is out: it passes with nothing to place', $s['envlog'] === [['k' => 'pass', 'x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0]] && str_contains(pfb_env_line(pfb_env_events($s)[0], 'Owl'), 'no piece to place'), $s['envlog']);
-$s['env'] = ['draw' => [], 'discard' => [v1_env('rain'), v1_env('sun'), v1_env('wind')], 'next' => null]; pfb_env_draw($s);
-chk('the deck is empty: the discard is shuffled back in and the top piece turned face up', $s['env']['next'] !== null && count($s['env']['draw']) === 2 && $s['env']['discard'] === []);
-$s = v1_bare('medium', ['envn' => 2]); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2); $s['env'] = ['draw' => [v1_env('rain'), v1_env('mud')], 'discard' => [], 'next' => v1_env('sun')]; pfb_env_place($s);
-chk('rule value envn = 2: two pieces a turn', count(array_filter($s['pcs'], fn($p) => $p['by'] === 'env')) === 2 && count($s['envlog']) === 2 && $s['env']['next']['env'] === 'rain');
+$s['env'] = ['draw' => [], 'discard' => [v1_env('rain'), v1_env('sun'), v1_env('wind')], 'next' => []]; pfb_env_draw($s);
+chk('the deck is empty: the discard is shuffled back in and two pieces are turned face up', count($s['env']['next']) === 2 && count($s['env']['draw']) === 1 && $s['env']['discard'] === []);
+$s['env'] = ['draw' => [v1_env('rain')], 'discard' => [], 'next' => []]; pfb_env_draw($s);
+chk('one piece left in all: only one lies face up', count($s['env']['next']) === 1 && $s['env']['draw'] === []);
+$s = v1_bare('medium', ['envn' => 1]); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2); $s['env'] = ['draw' => [v1_env('rain'), v1_env('mud')], 'discard' => [], 'next' => [v1_env('sun')]]; pfb_env_place($s);
+chk('rule value envn = 1: one piece a turn, one face up', count(array_filter($s['pcs'], fn($p) => $p['by'] === 'env')) === 1 && count($s['envlog']) === 1 && array_column($s['env']['next'], 'env') === ['mud']);
+$full = function (int $n) { $s = v1_bare(); $flat = ['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['flat', null])]; for ($i = 0; $i < $n; $i++) v1_put($s, 'foe', $flat + v1_tile($s, "f:x$i", 'guard', 1, 'body', 'creature'), $i % 5, intdiv($i, 5)); $s['env'] = ['draw' => [], 'discard' => [], 'next' => [v1_env('mud', null, false), v1_env('mud', null, false)]]; pfb_env_place($s); return $s; };
+$s = $full(18); $s2 = $full(16);
+chk('a full board: with 70% of the cells taken (18 of 25) the environment places nothing and says the board is too full; with 16 taken it places one, then stops at 17 (still under 70%: it places the second too)', array_column($s['envlog'], 'k') === ['pass', 'pass'] && ($s['envlog'][0]['full'] ?? 0) === 1 && count($s['env']['next']) === 2 && str_contains(pfb_env_line(pfb_env_events($s)[0], 'Owl'), 'too full') && array_column($s2['envlog'], 'k') === ['place', 'place'] && count($s2['cell']) === 18, [array_column($s['envlog'], 'k'), array_column($s2['envlog'], 'k')]);
+$s3 = $full(17);
+chk('the cap is checked before each piece: with 17 taken the first is placed (18 = 72%), the second is kept', array_column($s3['envlog'], 'k') === ['place', 'pass'] && ($s3['envlog'][1]['full'] ?? 0) === 1 && count($s3['env']['next']) === 1, array_column($s3['envlog'], 'k'));
 $s = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => ['env' => 0]]);
 chk('rule switch env = 0: no environment at all (no deck, no ground, no events), and the view has no env', !isset($s['env']) && $s['ter'] === [] && $s['envs'] === [] && !isset(pfb_view($s)['env']) && pfb_view($s)['v1']['env'] === false);
 
@@ -91,6 +106,35 @@ chk('no combo runs through an environment piece (Hurt, Rain, Hurt: no Double Swi
 $s = v1_bare('medium', ['limit' => 0]); v1_put($s, 'me', v1_tile($s, 'c1', 'charm', 3, 'body', 'tool'), 1, 2); v1_put($s, 'env', v1_env('rain'), 2, 2); $ev = v1_place($s, 'me', v1_tile($s, 'h1', 'hurt', 5, 'mind', 'pal'), 3, 2);
 chk('Teamwork: an environment piece is no source, and it does not break Teamwork either (pal + tool through Rain: +30%)', $ev && ($ev[0]['tw'] ?? 0) === PFB_TEAM2 && !isset($ev[1]['tw']), $ev[0]['tw'] ?? null);
 
+$s = v1_bare('medium', ['limit' => 0]); $s['me']['hp'] = 5; v1_put($s, 'me', v1_tile($s, 'r1', 'heal', 3, 'body'), 1, 2); v1_put($s, 'env', v1_env('sun'), 2, 2); $ev = v1_place($s, 'me', v1_tile($s, 'g1', 'guard', 4, 'mind'), 3, 2);
+chk('Sun doubles EVERY type: a Guard piece gives double guard and a Heal piece heals double', $ev && $ev[0]['v'] === 8 && $s['me']['block'] === 8 && $ev[2]['v'] === 6 && $s['me']['hp'] === 11 && ($ev[0]['sun'] ?? 0) === 1 && ($ev[2]['sun'] ?? 0) === 1, [$ev[0]['v'] ?? null, $s['me']['block'], $s['me']['hp']]);
+
+// ---- Mud's teeth
+$mt = function (array $over = [], ?array $mudAt = [3, 1], string $who = 'me') {   // [charm 4 at 1,2] [your Hurt 8 placed at 2,2], a Mud next to the placed piece only
+    $s = v1_bare('medium', $over + ['limit' => 0]); $a = v1_put($s, $who, v1_tile($s, $who === 'me' ? 'c1' : 'f:c1', 'charm', 4, 'body', $who === 'me' ? 'knack' : 'creature'), 1, 2);
+    if ($mudAt) v1_put($s, 'env', v1_env('mud', null, false), $mudAt[0], $mudAt[1]);
+    return [$s, $a];
+};
+$h8 = v1_tile(v1_bare(), 'h8', 'hurt', 8, 'mind');
+[$s, $a] = $mt([], [2, 1]); $fh0 = $s['fh']['now']; $ev = v1_place($s, 'me', $h8, 2, 2);
+chk('Mud\'s teeth: your piece standing next to a Mud counts 25% less (8 -> 6, flagged mud); the piece of the chain that is not next to it counts in full', $ev && count($ev) === 2 && $ev[0]['v'] === 6 && ($ev[0]['mud'] ?? 0) === 1 && $ev[1]['v'] === 4 && !isset($ev[1]['mud']) && abs($s['fh']['now'] - $fh0 - 6 * $s['hm']) < 1e-9, array_map(fn($x) => [$x['v'], $x['mud'] ?? 0], $ev ?? []));
+[$s, $a] = $mt([], null); $ev = v1_place($s, 'me', $h8, 2, 2);
+chk('no Mud next to it: full value, no flag', $ev && $ev[0]['v'] === 8 && !isset($ev[0]['mud']));
+[$s, $a] = $mt([], [3, 1]); $ev = v1_place($s, 'me', $h8, 2, 2);
+chk('a Mud that only touches a corner does not count (next to = the four sides)', $ev && $ev[0]['v'] === 8 && !isset($ev[0]['mud']));
+[$s, $a] = $mt([], [1, 1]); $ev = v1_place($s, 'me', $h8, 2, 2);
+chk('the linked piece next to the Mud is the one that is weakened (charm 4 -> 3)', $ev && $ev[0]['v'] === 8 && $ev[1]['v'] === 3 && ($ev[1]['mud'] ?? 0) === 1, array_map(fn($x) => $x['v'], $ev ?? []));
+[$s, $a] = $mt([], [2, 1], 'me'); $hp0 = $s['me']['hp']; $ev = v1_place($s, 'foe', v1_tile($s, 'f:h', 'hurt', 8, 'mind', 'creature'), 2, 2);
+chk('the same for the creature: its Hurt 8 next to a Mud hits for 6', $ev && $ev[0]['v'] === 6 && $hp0 - $s['me']['hp'] === 6 && ($ev[0]['mud'] ?? 0) === 1, $ev[0]['v'] ?? null);
+[$s, $a] = $mt(['mud' => 0.5], [2, 1]); $ev = v1_place($s, 'me', $h8, 2, 2); [$s2] = $mt(['mud' => 0], [2, 1]); $ev2 = v1_place($s2, 'me', $h8, 2, 2);
+chk('rule value mud: 0.5 halves, 0 switches the teeth off', $ev && $ev[0]['v'] === 4 && $ev2 && $ev2[0]['v'] === 8 && !isset($ev2[0]['mud']), [$ev[0]['v'] ?? null, $ev2[0]['v'] ?? null]);
+[$s, $a] = $mt([], [2, 1]); v1_put($s, 'env', v1_env('sun'), 2, 3); $ev = v1_place($s, 'me', $h8, 2, 2);
+chk('Sun and Mud together: doubled, then a quarter off (8 -> 16 -> 12)', $ev && $ev[0]['v'] === 12 && ($ev[0]['sun'] ?? 0) === 1 && ($ev[0]['mud'] ?? 0) === 1, $ev[0]['v'] ?? null);
+[$s, $a] = $mt([], [2, 1]); $s['me']['hand'] = [$h8]; $s['turn'] = 1; $pv = pfb_cell_preview($s, 0)['2,2'] ?? null;
+chk('lit-cell numbers: the weakened damage and how many of your pieces a Mud weakens', $pv && $pv['dmg'] === 6 && $pv['mud'] === 1, $pv);
+$s = v1_bare('medium', ['limit' => 0]); v1_put($s, 'env', v1_env('mud', null, false), 3, 1); v1_put($s, 'env', v1_env('rain'), 2, 2); v1_put($s, 'env', v1_env('bramble'), 2, 1); $fh0 = $s['fh']['now']; $ev = v1_place($s, 'me', v1_tile($s, 'g1', 'guard', 1, 'mind'), 1, 2);
+chk('environment pieces next to a Mud keep their full effect (Bramble still takes a tenth)', $ev && abs($s['fh']['now'] - $fh0 - PFB_BRAMBLE * $s['fh']['max']) < 1e-9 && !array_filter($ev, fn($x) => isset($x['mud'])), $s['fh']['now'] - $fh0);
+
 // ---- Bramble, Thornburst, Rain
 [$s, $a, $e] = $mk('bramble'); $hp0 = $s['me']['hp']; $fh0 = $s['fh']['now']; $ev = v1_place($s, 'me', $swing, 3, 2); $want = PFB_BRAMBLE * $s['fh']['max'];
 chk('Bramble in your chain: the creature loses a tenth of its bar, you lose nothing (event: foe = that, me = 0, for me)', $ev && abs($s['fh']['now'] - $fh0 - $want - 5 * $s['hm']) < 1e-9 && $s['me']['hp'] === $hp0 && $ev[1]['kind'] === 'bramble' && $ev[1]['foe'] === round($want, 1) && $ev[1]['me'] === 0 && $ev[1]['for'] === 'me', [$s['fh']['now'] - $fh0, $want]);
@@ -99,9 +143,9 @@ chk('Bramble in the creature\'s chain: you lose a tenth of your health (guard do
 [$s, $a, $e] = $mk('thorn'); $hp0 = $s['me']['hp']; $fh0 = $s['fh']['now']; $ev = v1_place($s, 'me', v1_tile($s, 'g1', 'guard', 2, 'mind'), 3, 2); $want = max(1, (int)round(PFB_THORN * $s['me']['max']));
 chk('Thornburst in your chain: YOU lose a tenth of your health, the creature nothing', $ev && $hp0 - $s['me']['hp'] === $want && $s['fh']['now'] === $fh0 && $ev[1]['kind'] === 'thorn' && $ev[1]['me'] === $want && $ev[1]['foe'] === 0.0, [$hp0 - $s['me']['hp'], $want]);
 [$s, $a, $e] = $mk('thorn'); $hp0 = $s['me']['hp']; $fh0 = $s['fh']['now']; $ev = v1_place($s, 'foe', v1_tile($s, 'f:g', 'guard', 2, 'mind', 'creature'), 3, 2);
-chk('Thornburst in the creature\'s chain: the creature loses a tenth of its bar, you nothing', $ev && abs($s['fh']['now'] - $fh0 - PFB_THORN * PFB_THORN_FOE * $s['fh']['max']) < 1e-9 && $s['me']['hp'] === $hp0 && $ev[1]['for'] === 'foe' && $ev[1]['me'] === 0, $s['fh']['now'] - $fh0);
-[$s, $a, $e] = $mk('thorn', 'me', ['th_foe' => 0.5, 'thorn' => 0.2]); $fh0 = $s['fh']['now']; v1_place($s, 'foe', v1_tile($s, 'f:g', 'guard', 2, 'mind', 'creature'), 3, 2);
-chk('rule values thorn and th_foe scale it (0.2 x 0.5 for the creature)', abs($s['fh']['now'] - $fh0 - 0.1 * $s['fh']['max']) < 1e-9, $s['fh']['now'] - $fh0);
+chk('Thornburst in the creature\'s chain: the creature loses HALF as much (5% of its bar), you nothing', $ev && PFB_THORN_FOE === 0.5 && abs($s['fh']['now'] - $fh0 - 0.05 * $s['fh']['max']) < 1e-9 && $s['me']['hp'] === $hp0 && $ev[1]['for'] === 'foe' && $ev[1]['me'] === 0, $s['fh']['now'] - $fh0);
+[$s, $a, $e] = $mk('thorn', 'me', ['th_foe' => 1, 'thorn' => 0.2]); $fh0 = $s['fh']['now']; v1_place($s, 'foe', v1_tile($s, 'f:g', 'guard', 2, 'mind', 'creature'), 3, 2);
+chk('rule values thorn and th_foe scale it (0.2 x 1 for the creature)', abs($s['fh']['now'] - $fh0 - 0.2 * $s['fh']['max']) < 1e-9, $s['fh']['now'] - $fh0);
 [$s, $a, $e] = $mk('rain'); $g0 = $s['me']['block']; $ev = v1_place($s, 'me', $swing, 3, 2); $want = max(1, (int)round(PFB_RAIN * $s['me']['max']));
 chk('Rain in your chain: you get guard worth 15% of your health (event guard and v)', $ev && $s['me']['block'] - $g0 === $want && $ev[1]['kind'] === 'rain' && $ev[1]['guard'] === $want && $ev[1]['v'] === $want && $s['foe']['block'] === 0, [$s['me']['block'] - $g0, $want]);
 [$s, $a, $e] = $mk('rain'); $ev = v1_place($s, 'foe', v1_tile($s, 'f:h', 'hurt', 1, 'mind', 'creature'), 3, 2); $want = max(1, (int)round(PFB_RAIN * $s['fh']['max']));
@@ -141,7 +185,7 @@ for ($i = 0; $i < 12; $i++) $dirs[pfb_env_wind_dir($s, 2, 2)] = 1;
 chk('Wind\'s arrow when it is placed: toward a piece that has a free cell behind it (here only the right side; the left piece stands at the edge)', array_keys($dirs) === ['R'], array_keys($dirs));
 $s = v1_bare(); $dirs = []; for ($i = 0; $i < 40; $i++) $dirs[pfb_env_wind_dir($s, 2, 2)] = 1; ksort($dirs);
 chk('Wind\'s arrow with nothing to push: any of the four sides', array_keys($dirs) === ['B', 'L', 'R', 'T'], array_keys($dirs));
-$s = v1_bare(); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2); $s['env'] = ['draw' => [v1_env('rain')], 'discard' => [], 'next' => v1_env('wind', null, false)]; pfb_env_place($s); $wp = $s['pcs'][$s['pid']];
+$s = v1_bare(); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2); $s['env'] = ['draw' => [v1_env('rain')], 'discard' => [], 'next' => [v1_env('wind', null, false)]]; pfb_env_place($s); $wp = $s['pcs'][$s['pid']];
 chk('a placed Wind carries its arrow (piece, log note, view); the arrow is gone when the piece returns to the deck', isset(PFB_SIDE[$wp['tile']['dir'] ?? '']) && $s['envlog'][0]['dir'] === $wp['tile']['dir'] && array_column(pfb_view($s)['pcs'], null, 'id')[$wp['id']]['dir'] === $wp['tile']['dir'] && (function () use ($s, $wp) { $w = $s; pfb_discard($w, $wp); return !isset($w['env']['discard'][0]['dir']) && $w['env']['discard'][0]['env'] === 'wind'; })(), $wp['tile']['dir'] ?? null);
 
 // ---- Mud
@@ -154,8 +198,8 @@ chk('Mud: chains stop at it: the piece on its far side does not fire, Mud itself
 
 // ---- life, expiry, the replay notes
 $s = v1_bare('medium'); $s['foe']['hand'] = []; $s['foe']['draw'] = []; $s['foe']['discard'] = []; v1_put($s, 'me', v1_tile($s, 'a', 'guard', 1, 'body', 'knack', ['life' => 4]), 2, 2);
-$s['env'] = ['draw' => [], 'discard' => [], 'next' => v1_env('sun', null, false)]; $r0 = $s['round']; pfb_end_round($s); $eid = null; foreach ($s['pcs'] as $p) if ($p['by'] === 'env') $eid = $p['id'];
-$seen = [$s['round'] => isset($s['pcs'][$eid])]; $s['env']['next'] = null; $s['env']['draw'] = [];
+$s['env'] = ['draw' => [], 'discard' => [], 'next' => [v1_env('sun', null, false)]]; $r0 = $s['round']; pfb_end_round($s); $eid = null; foreach ($s['pcs'] as $p) if ($p['by'] === 'env') $eid = $p['id'];
+$seen = [$s['round'] => isset($s['pcs'][$eid])]; $s['env']['next'] = []; $s['env']['draw'] = [];
 pfb_end_round($s); $seen[$s['round']] = isset($s['pcs'][$eid]); $log2 = $s['envlog']; pfb_end_round($s); $seen[$s['round']] = isset($s['pcs'][$eid]); $log3 = $s['envlog'];
 chk('life: a Sun (2 rounds) placed at the end of round 1 is there in rounds 2 and 3 and gone in round 4', $eid !== null && $seen === [$r0 + 1 => true, $r0 + 2 => true, $r0 + 3 => false], $seen);
 $exn = array_values(array_filter($log3, fn($L) => $L['k'] === 'expire'));
@@ -174,7 +218,7 @@ chk('the creature\'s search may link to an environment piece (it is a legal, lin
 chk('the creature\'s search avoids Thornburst when another linking cell is as good', $m !== null && !in_array([$m[1], $m[2]], [[3, 2], [2, 1], [2, 3]], true), $m);
 
 // ---- a fight started under 2.6.74
-$s = pfb_new(v1_me(), v1_foe('large'), 12, ['v1' => V1_OLD, 'blank' => true]); unset($s['v1']['env'], $s['v1']['envn'], $s['v1']['rain'], $s['v1']['th_foe']); $s = json_decode(json_encode($s), true);
+$s = pfb_new(v1_me(), v1_foe('large'), 12, ['v1' => V1_OLD, 'blank' => true]); unset($s['v1']['env'], $s['v1']['envn'], $s['v1']['rain'], $s['v1']['th_foe'], $s['v1']['mud'], $s['v1']['envcap']); $s = json_decode(json_encode($s), true);
 $hadTer = $s['ter'] !== []; pfb_start($s, 0, 'L'); $kinds = []; $t = 0; $bad0 = false;
 while (!$s['over'] && $t++ < 40) { $m = pfb_search($s, 'me'); $r = $m ? pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']) : pfb_pass($s, $s['turn']); if ($r['err']) { $bad0 = true; break; } foreach ($r['ev'] as $e) if (isset($e['env'])) $kinds[$e['env']] = 1; if (isset($s['env']) || array_filter($s['pcs'], fn($p) => $p['by'] === 'env')) $bad0 = true; }
 chk('a fight saved by 2.6.74 (v1 without the env keys) plays on to its end with its ground and forecast events, and never gets an environment piece', $hadTer && !$bad0 && $s['over'] !== null && !array_intersect(array_keys($kinds), ['fire', 'place', 'pass', 'expire']) && count(array_intersect(array_keys($kinds), ['sunbeam', 'creep', 'puddle', 'gust', 'thorn', 'bramble'])) >= 3 && !isset(pfb_view($s)['env']) && pfb_view($s)['v1']['env'] === false, [$s['over'], array_keys($kinds)]);
