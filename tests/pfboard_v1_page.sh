@@ -63,6 +63,7 @@ echo "== the page of a v1 fight"
 ck "board page" "$(grep -c 'data-mode="board"' $H)" "1"
 ck "page data: rule numbers, ground, forecast, aim, flip" "$(grep -c '"v1":{"limit":3.*"ter":.*"envs":.*"aim":.*"flip":{"on":true,"used":false}' $H)" "1"
 ck "page data (2.6.75): the environment's two face-up pieces (a list), no ground cells, no forecast" "$(grep -c '"env":true.*"ter":{}.*"envs":\[\].*"env":{"next":\[{"k":"e:[a-z]*","n":"[A-Za-z]*","kind":"[a-z]*","life":[23],"e":{' $H)" "1"
+ck "page (2.6.75): the legend row is the environment strip (no terrain legend)" "$(grep -c 'id="pfv-legend" role="group" aria-label="The environment: its next pieces"' $H) $(grep -c 'aria-label="Terrain legend"' $H)" "1 0"
 ck "page data: the board size of the creature (small: 5x4)" "$(encq '$s["size"] . " " . $s["w"] . "x" . $s["h"]')" "small 5x4"; ck "page data carries that size" "$(grep -c '"w":5,"h":4' $H)" "1"
 ck "page data: hand pieces carry life, source, flip" "$(grep -c '"life":[234],"src":"[a-z]*","flip":false,"canflip":true' $H | awk '{print ($1>=1)?"yes":"no"}')" "yes"
 ck "no draw pile or seed in the page" "$(grep -c '"rng"\|"draw"' $H)" "0"
@@ -93,10 +94,11 @@ N=0; ENVN=0; PLN=0; FIN=0; OLDT=0; while [ $N -lt 60 ]; do
   [ "$CODE" = "302" ] || { echo "FAIL play returned $CODE"; FAILS=$((FAILS+1)); break; }
   N=$((N+1))
   [ "$(encq 'isset($s["v1"]) ? 1 : 0')" = "0" ] && [ "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" != "1" ] && { echo "FAIL the fight lost its v1 rules"; FAILS=$((FAILS+1)); break; }
-  get adventure.php >/dev/null; ENVN=$((ENVN + $(grep -o 'class="pf-chip env' $H | wc -l))); PLN=$((PLN + $(grep -o '"env":"place","x":[0-9],"y":[0-9]' $H | wc -l))); FIN=$((FIN + $(grep -o '"env":"fire","x":[0-9],"y":[0-9][^}]*"kind":"[a-z]*","for":"[a-z]*"' $H | wc -l))); OLDT=$((OLDT + $(grep -o '"env":"\(sunbeam\|creep\|puddle\|gust\|thorn\|bramble\)"' $H | wc -l)))
+  get adventure.php >/dev/null; ENVN=$((ENVN + $(grep -o 'class="pf-chip env' $H | wc -l))); ENVL=$((ENVL + $(grep -o 'class="pf-chip env[^>]*aria-label="Environment: ' $H | wc -l))); ENVT=$((ENVT + $(grep -o 'class="pf-chip env[^>]*aria-label="Terrain: ' $H | wc -l))); PLN=$((PLN + $(grep -o '"env":"place","x":[0-9],"y":[0-9]' $H | wc -l))); FIN=$((FIN + $(grep -o '"env":"fire","x":[0-9],"y":[0-9][^}]*"kind":"[a-z]*","for":"[a-z]*"' $H | wc -l))); OLDT=$((OLDT + $(grep -o '"env":"\(sunbeam\|creep\|puddle\|gust\|thorn\|bramble\)"' $H | wc -l)))
   if [ "$(db "SELECT encounter LIKE '%\"won\":%' FROM expeditions ORDER BY id DESC LIMIT 1")" = "1" ]; then ck "End fight: redirect" "$(pf pf_finish)" "302"; break; fi
 done
 ck "the fight ended" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
+ck "2.6.75: environment history chips say Environment, never Terrain" "$([ $ENVL -ge 1 ] && echo yes || echo no) $ENVT" "yes 0"
 ck "the environment's turn showed as history chips" "$([ $ENVN -ge 1 ] && echo yes || echo no)" "yes"
 ck "2.6.75: the replay carries the environment's placements (env place, cell) and its pieces firing in chains (env fire, kind, for)" "$([ $PLN -ge 1 ] && [ $FIN -ge 1 ] && echo yes || echo "no ($PLN placed, $FIN fired)")" "yes"
 ck "2.6.75: no 2.6.74 terrain event in a new fight" "$OLDT" "0"

@@ -72,6 +72,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await p.click('#pfv-deckfold summary'); ck(T('pre-fight, auto on: Show deck opens the read-only deck'), await p.locator('#pfv-deckfold .pc').first().isVisible(), true); await p.click('#pfv-deckfold summary');
     await shot('3-prefight-auto-on');
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-go')]); await p.waitForTimeout(1500);
+    await p.waitForSelector('#pfb-board .gc', { timeout: 8000 }).catch(() => {});
     ck(T('Let\'s fight: the board of a boss (7 by 6 cells), no ground cells, two face-up environment pieces in the strip'), [await n('#pfb-board .gc'), await n('#pfb-board .gc[data-ter]'), await n('#pfv-legend .envp'), await n('#pfv-legend [data-ter]')], [42, 0, 2, 0]);
     await shot('4-fight-opening');
 

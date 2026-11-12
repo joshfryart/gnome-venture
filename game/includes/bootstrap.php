@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.6.74');
+define('APP_VERSION', '2.6.75');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -532,7 +532,7 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             q("UPDATE news SET kind = 'notes'");
             set_setting('news_all_notes_done', '1');
         });
-        boot_step('den_owl_route_level_2675', function () {   // v2.6.75: the Den of the Great White Owl (Maplewold, tundra) sat on a hard-zone route of Lv 28-32 next to a Lv 3 village; it is now Lv 8-12 (also applied after a fresh import, which makes it 13-19 from the medium zone). Only a side route still at the old 28-32 is changed
+        boot_step('den_owl_route_level_2675', function () {   // v2.6.75: the Den of the Great White Owl (Maplewold, tundra) sat on a hard-zone route of Lv 28-32 next to a Lv 3 village; it is now Lv 8-12 (a fresh world gets the same Lv 8-12 where the side routes are laid, `link_hidden_places()` in `includes/roads.php`). Only a side route still at the old 28-32 is changed
             $den = (int)q_val('SELECT id FROM locations WHERE name = ?', ['Den of the Great White Owl']);
             if ($den > 0) q("UPDATE routes SET level = 10, min_level = 8, max_level = 12 WHERE kind = 'side' AND (a_id = ? OR b_id = ?) AND min_level > 12", [$den, $den]);
         });

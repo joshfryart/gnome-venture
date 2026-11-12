@@ -137,7 +137,7 @@ ck "flip by request: a second piece is refused with a reason, nothing changes" "
 ck "flip by request: a stale turn and a wrong nonce are refused" "$(curl -s -c $C -b $C -X POST "$BASE/adventure.php" -H 'X-Requested-With: pfflip' --data-urlencode "csrf=$(csrf $H)" -d do=pfb_flip -d nonce=$NN -d turn=99 -d hand=0 | grep -c '"ok":false') $(curl -s -c $C -b $C -X POST "$BASE/adventure.php" -H 'X-Requested-With: pfflip' --data-urlencode "csrf=$(csrf $H)" -d do=pfb_flip -d nonce=deadbeef -d turn=$TT -d hand=0 | grep -c '"ok":false') $(encq '!empty($s["me"]["hand"][0]["flip"]) ? "still flipped" : "changed"')" "1 1 still flipped"
 curl -s -c $C -b $C -X POST "$BASE/adventure.php" -H 'X-Requested-With: pfflip' --data-urlencode "csrf=$(csrf $H)" -d do=pfb_flip -d nonce=$NN -d turn=$TT -d hand=0 >/dev/null
 ck "flip by request: the same piece again flips it back" "$(encq 'empty($s["me"]["hand"][0]["flip"]) ? "back" : "flipped"')" "back"
-php -d display_errors=1 "$HERE/pbox_v1_seed.php" "$GAME" midfight 8 3 | tail -1
+php -d display_errors=1 "$HERE/pbox_v1_seed.php" "$GAME" midfight 8 3 soft | tail -1
 get adventure.php >/dev/null
 ck "after a turn: the state before it (aim, and the face-up environment pieces) is in the page for the replay; environment events carry where they landed" "$(grep -c '"prev":{"ter":{' $H) $(grep -c '"env":"place"' $H) $(grep -c '"env":{"next":\[{' $H)" "1 1 1"
 ck "terrain chips have no piece-type icon" "$(grep -o '<li class="pf-chip env[^>]*>.\{0,90\}' $H | grep -c 'pfh-ico\|❔')" "0"

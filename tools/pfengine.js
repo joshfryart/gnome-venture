@@ -1460,6 +1460,7 @@
     v.pcs = [];
     for (var id in s.pcs) { var p = s.pcs[id]; v.pcs.push({ id: p.id, by: p.by, x: p.x, y: p.y, n: p.tile.n, t: p.tile.t, v: p.tile.v, tag: p.tile.tag, m: String(nn(p.tile.m, '')), e: edges(p.tile), age: s.round - p.born, seq: p.seq, fl: fireLimit(p) > 0 ? Math.max(0, fireLimit(p) - toInt(nn(p.f, 0))) : null, spawn: nn(s.spawn, null) === p.id, fnew: nn(s.lastfoe, []).indexOf(p.id) >= 0 }); }
     v.gone = nn(s.gone, []).map(function (q) { return { id: q.id, by: q.by, x: q.x, y: q.y, n: q.tile.n, t: q.tile.t, v: q.tile.v, tag: q.tile.tag, m: String(nn(q.tile.m, '')), e: edges(q.tile), age: q.age, fell: truthy(q.fell) }; });
+    nn(s.gone, []).forEach(function (q, i) { if (q.by === 'env') { v.gone[i].kind = String(q.tile.env); v.gone[i].dir = q.tile.dir === undefined ? null : q.tile.dir; } });   // 2.6.75: an environment piece that left: its kind and Wind's arrow
     for (i = 0; i < v.hand.length; i++) v.hand[i].e = edges(s.me.hand[i]);
     delete v.strip; delete v.open; delete v.open_t; delete v.open_v; delete v.open_by;
     if (s.v1) {   // v1: ground, forecast, the aim, use-up, Teamwork, flip and piece life
