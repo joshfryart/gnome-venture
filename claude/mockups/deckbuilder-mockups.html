@@ -132,6 +132,20 @@ h1{font-size:1.25rem;margin:0 0 .25rem}
 .held{margin-top:.4rem;font-size:.72rem;border:2px dashed var(--accent);border-radius:.6rem;padding:.3rem .5rem;display:flex;justify-content:space-between;align-items:center;gap:.4rem}
 .log{font-size:.7rem;color:var(--muted);margin:.3rem 0 0}
 .log .g{color:var(--guard);font-weight:600}
+/* creature layers */
+.seg{display:flex;gap:.3rem;margin-bottom:.6rem}
+.seg button{flex:1;font:inherit;font-size:.78rem;padding:.4rem .3rem;border-radius:.6rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:700}
+.layer{margin-top:.7rem}
+.layer h4{margin:0 0 .3rem;font-size:.76rem;display:flex;justify-content:space-between;align-items:baseline;gap:.4rem}
+.layer h4 span{font-weight:400;font-size:.66rem;color:var(--muted)}
+.layer .grid{grid-template-columns:repeat(2,1fr)}
+.layer .pc{min-height:72px;cursor:default}
+.layer .pc small.tg{font-weight:700;color:var(--ink)}
+.lk{position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:.6rem 0 0 .6rem}
+.lk.base{background:var(--guard)} .lk.reg{background:var(--heal)} .lk.rar{background:var(--item)} .lk.uni{background:var(--charm)}
+.tally{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:.5rem 0 .2rem}
+.tally span{display:block}
 @media (max-width:430px){ body{padding:16px} .screens{gap:16px} }
 @media (prefers-reduced-motion:no-preference){ .pc{transition:border-color .15s, transform .15s} .pc:active{transform:scale(.97)} }
 </style>
@@ -140,7 +154,7 @@ h1{font-size:1.25rem;margin:0 0 .25rem}
 <h1>Deckbuilder combat: mockups</h1>
 <p class="lede">Static stubs for <code>claude/design-deckbuilder-combat.md</code>. Tap things: they toggle, count and swap, but nothing is saved. Piece colours follow <code>pfight.css</code>; the bottom strip on a piece is its rank (grey I, green II, blue III, gold IV Masterwork). Dashed border = Gear (added by a tool or pal).</p>
 <div class="topbar">
-  <a href="#s1">1 Starter pick</a><a href="#s2">2 Puzzle box</a><a href="#s3">3 Before the fight</a><a href="#s4">4 In the fight</a>
+  <a href="#s1">1 Starter pick</a><a href="#s2">2 Puzzle box</a><a href="#s3">3 Before the fight</a><a href="#s4">4 In the fight</a><a href="#s5">5 Creature card</a>
   <button type="button" id="theme">Toggle light/dark</button>
 </div>
 
@@ -272,6 +286,28 @@ h1{font-size:1.25rem;margin:0 0 .25rem}
     <p class="log">Last: Badger placed <b>Dig In</b> (<span class="g">guard 4</span>, holds a round). Your Swing 7 → <b>3 blocked</b> by its guard, 4 hit. The blank centre is gone (round 1 over).</p>
   </div>
   <div class="stick"><button class="btn">Undo</button><button class="btn" title="Deck is read-only during a fight">🧩 Deck</button><button class="btn primary" id="s4go" disabled>End turn</button></div>
+</section>
+
+<!-- ============ 5. CREATURE CARD: LAYERS ============ -->
+<section class="phone" id="s5" aria-label="Creature card layers">
+  <header><h2>🐾 Creature card</h2><span class="tag">pre-fight, layers</span></header>
+  <div class="body">
+    <div class="seg" role="group" aria-label="Example creature"><button type="button" data-c="wolf" aria-pressed="true">Bramble Wolf</button><button type="button" data-c="wyrm" aria-pressed="false">Dune Wyrm</button></div>
+    <div class="foe">
+      <div class="pic" id="c5pic" aria-hidden="true">🐺</div>
+      <div style="flex:1">
+        <h3 id="c5h"></h3>
+        <p id="c5p"></p>
+        <div class="row" style="gap:.3rem;margin-top:.2rem" id="c5chips"></div>
+      </div>
+    </div>
+    <div class="tally" id="c5tally" aria-hidden="true"></div>
+    <div class="cap" id="c5cap"></div>
+    <div id="c5layers"></div>
+    <p class="note">Hurt values are shown for this creature (<code>$v</code> = <b id="c5v"></b>). Layers: <b style="color:var(--guard)">Base 4</b> from its class, <b style="color:var(--heal)">Region</b> pieces, <b style="color:var(--item)">Size / rarity</b> (boss pieces for bosses), and <b style="color:var(--charm)">3 Unique</b> to the creature. Tap a piece for its meaning.</p>
+    <div class="info" id="c5info" aria-live="polite"><b>Tap a piece</b> to see where it comes from.</div>
+  </div>
+  <div class="stick"><button class="btn">Back to swap</button><button class="btn primary">⚔️ Fight</button></div>
 </section>
 
 </div>
@@ -472,6 +508,56 @@ h1{font-size:1.25rem;margin:0 0 .25rem}
       hdraw(); bdraw(); }); handEl.appendChild(b); });
   }
   hdraw(); bdraw();
+  // ---------- 5. creature card layers
+  var CR={
+    wolf:{pic:'🐺',h:'Bramble Wolf · large · L22',cls:'Beast',lean:'body',reg:'Mistmoor',v:8,
+      p:'Class <b>Beast</b>: builds guard and cashes it in. Hostile: Charm counts 60%.',
+      L:[['base','Base 4 · Beast',[['Claw','hurt',8,'',''],['Maul','hurt',9,'',''],['Brace','guard',6,'',''],['Shoulder Barge','trick',4,'bash','adds its guard']]],
+         ['reg','Region · Mistmoor',[['Bog Grip','hurt',8,'',''],['Mist Veil','guard',6,'evade','']]],
+         ['rar','Size · large (+1)',[['Slam','hurt',10,'','']]],
+         ['uni','Unique 3 · Bramble Wolf',[['Howl','trick',4,'',''],['Bramble Bite','hurt',8,'bash',''],['Pack Circle','guard',6,'thorns','']]]]},
+    wyrm:{pic:'🐍',h:'Dune Wyrm · boss · L30',cls:'Reptile / Amphibian',lean:'craft',reg:'The Dunewhisper',v:14,
+      p:'Class <b>Reptile</b>: poison wears you down. Boss: no charm bar; plays its pieces in a set order.',
+      L:[['base','Base 4 · Reptile',[['Bite','hurt',13,'',''],['Tail Lash','hurt',13,'',''],['Scale Guard','guard',10,'',''],['Venom Spit','trick',7,'poison','']]],
+         ['reg','Region · Dunewhisper',[['Sandsting','hurt',14,'poison',''],['Heat Shimmer','guard',9,'evade','']]],
+         ['rar','Boss (+2)',[['Crush','hurt',17,'heavy',''],['Scheme','trick',7,'','']]],
+         ['uni','Unique 3 · Dune Wyrm',[['Sand Swallow','hurt',16,'heavy',''],['Burrow Under','guard',10,'evade',''],['Quake','hurt',14,'trip','']]]]}
+  };
+  var LC={base:'var(--guard)',reg:'var(--heal)',rar:'var(--item)',uni:'var(--charm)'};
+  var c5=document.getElementById('s5');
+  function c5draw(key){
+    var c=CR[key], n=0;
+    document.getElementById('c5pic').textContent=c.pic;
+    document.getElementById('c5h').textContent=c.h;
+    document.getElementById('c5p').innerHTML=c.p;
+    document.getElementById('c5v').textContent=c.v;
+    document.getElementById('c5chips').innerHTML='<span class="chip">Class: '+c.cls+'</span><span class="chip">Lean: '+c.lean+'</span><span class="chip">In '+c.reg+'</span>';
+    var lay=document.getElementById('c5layers'), tal=document.getElementById('c5tally'); lay.innerHTML=''; tal.innerHTML='';
+    c.L.forEach(function(L){
+      n+=L[2].length;
+      var d=document.createElement('div'); d.className='layer';
+      d.innerHTML='<h4>'+L[1]+'<span>'+L[2].length+' piece'+(L[2].length>1?'s':'')+'</span></h4>';
+      var g=document.createElement('div'); g.className='grid';
+      L[2].forEach(function(q){
+        var b=document.createElement('button'); b.type='button'; b.className='pc t-'+q[1];
+        b.innerHTML='<span class="lk '+L[0]+'"></span><span class="ty"><i></i>'+TYPE[q[1]]+'</span><span class="v">'+q[2]+'</span><b>'+q[0]+'</b>'+(q[3]?'<small class="tg">'+q[3]+'</small>':'');
+        b.addEventListener('click',function(){
+          document.getElementById('c5info').innerHTML='<b>'+q[0]+'</b> · '+TYPE[q[1]]+' '+q[2]+(q[3]?' · '+q[3]:'')+'<br>From: '+L[1]+'. Plays up to 2 times, stays 3 rounds.'+(q[4]?' '+q[4]+'.':'');
+        });
+        g.appendChild(b);
+      });
+      d.appendChild(g); lay.appendChild(d);
+      var t=document.createElement('span'); t.style.flex=L[2].length; t.style.background=LC[L[0]]; tal.appendChild(t);
+    });
+    document.getElementById('c5cap').textContent='Deck: '+n+' pieces, in 4 layers.';
+  }
+  c5.querySelectorAll('.seg button').forEach(function(b){
+    b.addEventListener('click',function(){
+      c5.querySelectorAll('.seg button').forEach(function(o){o.setAttribute('aria-pressed',o===b?'true':'false');});
+      c5draw(b.getAttribute('data-c'));
+    });
+  });
+  c5draw('wolf');
 })();
 </script>
 </body>
