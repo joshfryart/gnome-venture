@@ -135,6 +135,13 @@ if ($f) {
     ok('the low one stays in the satchel', (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $lowId]) === 1);
 }
 $f = find_order($folk, 'feast');
+if (!$f) {   // feast orders are rare (4 in 100) and a small town may have none in any cycle length: add a townsperson whose id gives one (their order is a pure function of the id)
+    cfg(['orders_cycle_days' => 7]); $todayF = hollow_today(); $proto = $folk[0];
+    for ($nid = 9001; $nid < 9600 && !$f; $nid++) {
+        $fake = array_merge($proto, ['id' => $nid, 'name' => 'Test Hostess ' . $nid]);
+        if (($fo = npc_order($fake, $todayF)) && $fo['kind'] === 'feast') { db_insert('npcs', $fake); $folk = town_folk($town); $f = [$fake, $fo, 7]; }
+    }
+}
 ok('found a feast order', (bool)$f);
 if ($f) {
     [$n, $o] = $f;

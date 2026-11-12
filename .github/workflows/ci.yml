@@ -54,6 +54,8 @@ jobs:
           bash tests/walk.sh "$RUNNER_TEMP/game" 8781 tests/router.php | tee "$RUNNER_TEMP/walk.out"
           grep -q '^installed' "$RUNNER_TEMP/walk.out"
           ! grep -E '^\s*FAIL|Fatal' "$RUNNER_TEMP/walk.out"
+      - name: Python imaging (the catfish suite builds its art with tools/catfish_*.py: Pillow and numpy)
+        run: sudo apt-get install -y -qq python3-pil python3-numpy
       - name: Test suites
         run: bash tests/ci_suites.sh
         env:

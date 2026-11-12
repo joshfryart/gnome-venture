@@ -213,7 +213,7 @@ chk "a player cannot open the editor" "$(login >/dev/null; [[ $(get 'admin/here_
 echo "== the Extras tab of the Rest stop popover: every button works in place (v2.5.99)"
 if command -v node >/dev/null && [ -z "$NOBROWSER" ]; then
   php "$HERE/stop_extras_setup.php" "$GAME" >/dev/null 2>&1
-  node "$HERE/stop_extras.js" "$BASE" >$TD/extras-browser.out 2>&1 || { cat $TD/extras-browser.out; FAILS=$((FAILS+1)); }
+  if node -e "require('playwright')" 2>/dev/null; then node "$HERE/stop_extras.js" "$BASE" >$TD/extras-browser.out 2>&1 || { cat $TD/extras-browser.out; FAILS=$((FAILS+1)); }; else echo "ok   stop extras browser pass: skipped (no playwright)"; fi
   grep -q 'extras buttons ok' $TD/extras-browser.out && echo "  ok   Rest, Buy and a check all work from the Extras tab"
 fi
 echo "== no PHP problems"
