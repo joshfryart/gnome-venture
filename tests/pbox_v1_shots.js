@@ -72,19 +72,21 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await p.click('#pfv-deckfold summary'); ck(T('pre-fight, auto on: Show deck opens the read-only deck'), await p.locator('#pfv-deckfold .pc').first().isVisible(), true); await p.click('#pfv-deckfold summary');
     await shot('3-prefight-auto-on');
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-go')]); await p.waitForTimeout(1500);
-    ck(T('Let\'s fight: the board of a boss (7 by 6 cells) with ground'), [await n('#pfb-board .gc'), await n('#pfb-board .gc[data-ter]') > 0], [42, true]);
+    ck(T('Let\'s fight: the board of a boss (7 by 6 cells), no ground cells, two face-up environment pieces in the strip'), [await n('#pfb-board .gc'), await n('#pfb-board .gc[data-ter]'), await n('#pfv-legend .envp'), await n('#pfv-legend [data-ter]')], [42, 0, 2, 0]);
     await shot('4-fight-opening');
 
     // ---- 4. the fight: a seeded position with ground, a forecast, the aim and hand pieces that cannot be played
     await speed(0); let st = null;
     for (const sd of [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]) {   // the deck differs with the kit that was packed: take the first seeded position that shows everything
-      seed('fight', 'large'); seed('midfight', String(sd), '3'); await open('/adventure.php'); await p.waitForTimeout(500);
-      st = await pos(); if (st.off >= 1 && st.off < 5 && st.marks >= 1 && st.aim === 1 && st.ground > 0) break;
+      seed('fight', 'large'); seed('midfight', String(sd), '3', 'soft'); await open('/adventure.php'); await p.waitForTimeout(500);
+      st = await pos(); if (st.off >= 1 && st.off < 5 && st.envp >= 1 && st.aim === 1 && st.ground === 0) break;
     }
-    async function pos() { return p.evaluate(() => ({ ground: document.querySelectorAll('#pfb-board .gc[data-ter]').length, frames: document.querySelectorAll('#pfb-board .gf svg').length, marks: document.querySelectorAll('#pfb-board .mk.ev .mkb em').length, aim: document.querySelectorAll('#pfb-board .mk.aim').length,
-      off: document.querySelectorAll('#pf-hand .pfv-off').length, pips: document.querySelectorAll('#pf-hand .pf-tile .xp').length, legend: document.querySelectorAll('#pfv-legend [data-ter]').length, evchips: document.querySelectorAll('#pfv-row .tg.ev').length, aimchip: document.querySelectorAll('#pfv-row .tg.aim').length,
+    async function pos() { return p.evaluate(() => ({ ground: document.querySelectorAll('#pfb-board .gc[data-ter]').length, marks: document.querySelectorAll('#pfb-board .mk.ev').length, legendTer: document.querySelectorAll('#pfv-legend [data-ter]').length, evchips: document.querySelectorAll('#pfv-row .tg.ev').length,
+      envp: document.querySelectorAll('#pfv-legend .envp').length, envOnBoard: document.querySelectorAll('#pfb-board .pfb-cell.pfb-env').length, envBadge: document.querySelectorAll('#pfb-board .pfb-cell.pfb-env .pfv-eb').length, envPips: document.querySelectorAll('#pfb-board .pfb-cell.pfb-env .xp').length,
+      aim: document.querySelectorAll('#pfb-board .mk.aim').length, off: document.querySelectorAll('#pf-hand .pfv-off').length, pips: document.querySelectorAll('#pf-hand .pf-tile .xp').length, aimchip: document.querySelectorAll('#pfv-row .tg.aim').length,
       team: document.querySelectorAll('#pfv-row .tg.team').length, envchips: document.querySelectorAll('.pf-chip.env').length, lifepips: document.querySelectorAll('#pfb-board .pfb-cell .xp').length > 0 })); }
-    ck(T('fight: ground cells with icons, forecast marks with words, the aim marker, legend, forecast and aim chips, Teamwork chip, life pips'), [st.ground > 0, st.frames === st.ground, st.marks >= 1, st.aim, st.legend, st.evchips === st.marks, st.aimchip, st.team, st.lifepips, st.pips > 0], [true, true, true, 1, 3, true, 1, 1, true, true]);
+    ck(T('fight: no ground cells, legend or forecast marks; the Next strip shows 2 face-up environment pieces; environment pieces on the board with a badge and life pips; the aim marker, Teamwork chip, life pips'),
+      [st.ground, st.marks, st.legendTer, st.evchips, st.envp, st.envOnBoard >= 1, st.envBadge === st.envOnBoard, st.envPips === st.envOnBoard, st.aim, st.aimchip, st.team, st.pips > 0], [0, 0, 0, 0, 2, true, true, true, 1, 1, 1, true]);
     ck(T('fight: some hand pieces cannot be played here and are faded'), st.off >= 1 && st.off < 5, true);
     ck(T('fight: a faded piece is 38% and grey'), await p.evaluate(() => { const s = getComputedStyle(document.querySelector('#pf-hand .pfv-off')); return [s.opacity, /grayscale/.test(s.filter)]; }), ['0.38', true]);
     // the faded pieces are exactly the ones the server has no lit cell for (flipped or not)
@@ -95,15 +97,17 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await p.locator('#pf-hand .pfv-off').first().click({ force: true }); await p.waitForTimeout(150);
     ck(T('fight: a faded piece says why and is not picked'), [/cannot be played: /.test(await p.locator('#pf-preview').innerText()), await n('#pf-hand .pf-picked')], [true, 0]);
     await shot('4-fight-faded-hand');
-    await p.locator('#pfb-board .mkb').first().click(); await p.waitForTimeout(150);
-    ck(T('fight: a forecast mark opens its popover (name, what it does, when, who)'), /Lands at the end of this round/.test(await p.locator('.pfv-pop').innerText()), true);
-    await shot('4-fight-forecast-popover');
-    await p.click('.pfv-popx'); await p.evaluate(() => { const g = [...document.querySelectorAll('#pfb-board .gc[data-ter]')].find(c => { const r = c.getBoundingClientRect(); return document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2) === c; }); (g || document.querySelector('#pfb-board .gc[data-ter]')).click(); }); await p.waitForTimeout(150);   // a ground cell with nothing on it
-    ck(T('fight: a ground cell opens its popover'), await n('.pfv-pop'), 1);
+    await p.locator('#pfv-legend [data-en="0"]').click(); await p.waitForTimeout(150);
+    ck(T('fight: a Next-strip piece opens its popover (name, what it does in words, who gets it)'), await p.locator('.pfv-pop').innerText().then(t => [/Goes to whoever fires it/.test(t), /you or the creature|your chain/.test(t)]), [true, true]);
+    await shot('4-fight-env-popover');
+    await p.click('.pfv-popx');
+    const ecol = await p.evaluate(() => { const c = document.querySelector('#pfb-board .pfb-cell.pfb-env'); if (!c) return null; c.click(); return c.getAttribute('aria-label'); }); await p.waitForTimeout(150);
+    ck(T('fight: an environment piece on the board says it is the environment\'s and opens its card'), [/^Environment piece: /.test(ecol || ''), /belongs to nobody/.test(await p.locator('#pf-inspect').innerText())], [true, true]);
+    await p.click('#pfi-x').catch(() => {});
     await p.click('#pfv-legend [data-a=turn]'); await p.waitForTimeout(100);
-    ck(T('fight: the Terrain turn chip explains the round'), /you, the creature, then the terrain/.test(await p.locator('.pfv-pop').innerText()), true);
+    ck(T('fight: the Environment chip explains the round and the environment turn'), await p.locator('.pfv-pop').innerText().then(t => [/you, the creature, then the environment/.test(t), /two pieces|2 pieces/.test(t), /belong to nobody/.test(t)]), [true, true, true]);
     await p.click('#pfv-legend [data-a=help]'); await p.waitForTimeout(200);
-    ck(T('fight: the ? help covers the terrain turn, the aim, chains, flip, terrain and the five events'), await p.locator('.pfv-sheet').innerText().then(t => ['Terrain turn', 'aim', 'Chains', 'Flip', 'Sunny patch', 'Bramble', 'Mud', 'Sunbeam', 'Bramble creep', 'Puddle', 'Gust', 'Thorn burst', 'Animation speed'].every(w => t.toLowerCase().includes(w.toLowerCase()))), true);
+    ck(T('fight: the ? help covers the environment turn, the aim, chains, flip and the six environment pieces'), await p.locator('.pfv-sheet').innerText().then(t => ['Environment turn', 'aim', 'Chains', 'Flip', 'Sun', 'Bramble', 'Rain', 'Wind', 'Mud', 'Thornburst', 'whoever fires it', 'Animation speed'].every(w => t.toLowerCase().includes(w.toLowerCase()))), true);
     await shot('4-fight-help', false);
     await p.keyboard.press('Escape'); ck(T('fight: Escape closes the help'), await n('.pfv-sheet'), 0);
     const pi = await p.evaluate(() => [...document.querySelectorAll('#pf-hand .pf-tile')].findIndex(t => !t.classList.contains('pfv-off')));
@@ -133,7 +137,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await shot('4-fight-flipped');
 
     // ---- the turn played back step by step: Your turn, the creature's turn, Terrain turn
-    seed('fight', 'boss'); seed('midfight', '8', '3'); await speed(0); await open('/adventure.php'); await speed(1);
+    seed('fight', 'boss'); seed('midfight', '8', '3', 'soft'); await speed(0); await open('/adventure.php'); await speed(1);
     const pj = await p.evaluate(() => [...document.querySelectorAll('#pf-hand .pf-tile')].findIndex(t => !t.classList.contains('pfv-off')));
     await p.locator('#pf-hand .pf-tile').nth(pj).click(); await p.waitForTimeout(700);
     if (!(await n('#pfb-board .pfb-lit'))) { await p.click('#pf-flip'); await p.waitForTimeout(1500); }
@@ -144,14 +148,14 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     const seen = {};
     for (let k = 0; k < 90 && !(seen.me && seen.foe && seen.env && seen.flash); k++) {
       await p.waitForTimeout(200);
-      const s = await p.evaluate(() => { const e = document.querySelector('.pf-turn:not([hidden])'); return { t: e ? (e.className.match(/pf-turn-(me|foe|env)/) || [])[1] || '' : '', fl: document.querySelectorAll('.evflash').length, skip: !!(document.getElementById('pf-skip') && !document.getElementById('pf-skip').hidden) }; }).catch(() => ({ t: '' }));
+      const s = await p.evaluate(() => { const e = document.querySelector('.pf-turn:not([hidden])'); return { t: e ? (e.className.match(/pf-turn-(me|foe|env)/) || [])[1] || '' : '', fl: document.querySelectorAll('.pfv-envin, .pfv-fx').length, skip: !!(document.getElementById('pf-skip') && !document.getElementById('pf-skip').hidden) }; }).catch(() => ({ t: '' }));
       if (s.t && !seen[s.t]) { seen[s.t] = 1; await p.waitForTimeout(250); await shot('5-turn-banner-' + s.t, false); }
-      if (s.fl && !seen.flash) { seen.flash = 1; await shot('5-turn-terrain-event', false); }
+      if (s.fl && !seen.flash) { seen.flash = 1; await shot('5-turn-env-place', false); }
       if (s.skip) seen.skip = 1;
     }
-    ck(T('replay: the banners YOUR TURN, THEIR TURN and TERRAIN TURN each show, a terrain event flashes its mark, Skip is offered'), [!!seen.me, !!seen.foe, !!seen.env, !!seen.flash, !!seen.skip], [true, true, true, true, true]);
+    ck(T('replay: the banners YOUR TURN, THEIR TURN and ENVIRONMENT TURN each show, an environment piece grows in or an effect shows, Skip is offered'), [!!seen.me, !!seen.foe, !!seen.env, !!seen.flash, !!seen.skip], [true, true, true, true, true]);
     await p.click('#pf-skip').catch(() => {}); await p.waitForTimeout(400);
-    ck(T('replay: Skip ends it; the board is the new turn\'s'), [await p.evaluate(() => document.getElementById('pfight').classList.contains('pf-playing')), await n('#pfb-board .mk.ev') > 0], [false, true]);
+    ck(T('replay: Skip ends it; the board is the new turn\'s'), [await p.evaluate(() => document.getElementById('pfight').classList.contains('pf-playing')), await n('#pfb-board .pfb-cell.pfb-env') > 0], [false, true]);
     await p.click('#pfv-legend [data-a=spd]'); ck(T('speed: the chip cycles 1x, 2x, skip'), /2/.test(await p.locator('#pfv-legend [data-a=spd]').innerText()), true); await speed(0);
 
     // ---- 5. the result card: a win (with tool wear), then a fight that was left
@@ -188,6 +192,9 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
         ck(V(`${size} board: the page does not scroll (document height <= window, scrollTo stays at 0), nothing overflows the fight`), [m.doc, m.sy, m.fight, m.wide], [true, 0, true, true]);
         ck(V(`${size} board: header, history, chips, board, legend, hint, buttons and hand are all on screen; cells at least 24px; Flip is 40 to 46px high`), [m.all, m.hand, m.cell >= 24, m.flipH >= 40 && m.flipH <= 46], [[], true, true, true]);
         await q.screenshot({ path: `${out}/7-fit-${size}-${vp[0]}x${vp[1]}-${theme}.png` });
+        if (size === 'medium') { await q.click('#pfv-legend [data-en="0"]').catch(() => {}); await q.waitForTimeout(250);
+          ck(V('medium board: the Next-strip popover opens over the fight and the page still does not scroll, the strip does not overflow'), [await q.locator('.pfv-pop').count(), await q.evaluate(() => document.documentElement.scrollHeight <= innerHeight), await q.evaluate(() => { const l = document.getElementById('pfv-legend'); return l.scrollWidth <= l.clientWidth + 1; })], [1, true, true]);
+          await q.screenshot({ path: `${out}/7-envpop-${vp[0]}x${vp[1]}-${theme}.png` }); await q.click('.pfv-popx').catch(() => {}); }
       }
       seed('win'); await q.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await q.waitForTimeout(600);
       ck(V('the result card lies over the fight (the page still does not scroll) with the reward button reachable'), [await q.evaluate(() => document.documentElement.scrollHeight <= innerHeight), await q.locator('#pf-end').count()], [true, 1]);

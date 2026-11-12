@@ -1,5 +1,6 @@
   // ================= v1 (2.6.74 stage C): state, texts and drawing helpers. Ported from the approved demo (tools/pfdemo_v1/app.js); the texts mirror claude/design-board-strategy.md, "Player-facing terrain text".
   var V1 = data.v1 || {}, PREV = data.prev || null, phase = 'now', terOver = {}, movedBack = {}, usedGone = {}, leavingUsed = {}, flashEnv = null, flashIds = {}, aimHide = false, stepNow = 0, stepNote = '';
+  var ENV = !!V1.env, ENVD = data.env || { next: [] }, envLit = {}, slideIds = {}, fadeIds = {}, fxPop = null, stripRem = [], stripNew = false, stripBad = false, lastLegend = '';
   var flipBusy = false, wrapObs = null, wrapEl = null, fitTW = 0, fitTH = 0;
   var planQ = null, offMsg = '', popEl = null, sheetEl = null, rowEl = document.getElementById('pfv-row'), legendEl = document.getElementById('pfv-legend'), flipBtn = document.getElementById('pf-flip');
   var SPD = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '0' ? 0 : 1; } catch (e) {}
@@ -14,6 +15,9 @@
     mud: '<path d="M1 5c2-2 3 2 5 0s3 2 5 0 3 1 4 0M1 9c2-2 3 2 5 0s3 2 5 0 3 1 4 0M1 13c2-2 3 2 5 0s3 2 5 0 3 1 4 0" stroke="currentColor" stroke-width="1.6" fill="none"/>',
     gust: '<path d="M2 8h10M8 3.5L12.5 8 8 12.5" stroke="currentColor" stroke-width="2.2" fill="none"/>',
     thorn: '<path d="M8 0l1.8 5L15 3l-3 4.6L16 9l-4.6 1L13 15l-4.2-3L8 16l-1-4-4 3 1.6-5L0 9l4-1.4L1 3l5.2 2z" fill="currentColor"/>',
+    rain: '<path d="M4.4 9.2A2.9 2.9 0 0 1 4.9 3.6a3.6 3.6 0 0 1 6.9 1.1 2.5 2.5 0 0 1-.5 4.5z" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M5 11.2v2.6M8 11v3.4M11 11.2v2.6" stroke="currentColor" stroke-width="1.6" fill="none"/>',
+    wind: '<path d="M1.5 5.5h8.2a2 2 0 1 0-2-2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M1.5 8.6h11.2a2 2 0 1 1-2 2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M1.5 11.7h5.5" stroke="currentColor" stroke-width="1.7" fill="none"/>',
+    env: '<path d="M1 13.5l4.6-7.6 3 4.6 2-2.9L15 13.5z" fill="currentColor"/><circle cx="12" cy="3.6" r="1.8" fill="currentColor"/>',
     aim: '<circle cx="8" cy="8" r="5.2" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><path d="M8 0v3.4M8 12.6V16M0 8h3.4M12.6 8H16" stroke="currentColor" stroke-width="1.8"/>'
   };
   function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -21,6 +25,96 @@
   function svgEl(k, rot) { var h = document.createElement('span'); h.innerHTML = svg(k, 0); var el = h.firstChild; if (rot) el.style.transform = 'rotate(' + rot + 'deg)'; return el; }
   function pc100(x) { return Math.round(x * 100) + '%'; }
   function times(x) { return x === 2 ? 'double' : x === 3 ? 'triple' : x === 1 ? 'as normal' : '×' + x; }
+  // ---- 2.6.75 ENVIRONMENT PIECES (design-board-strategy.md, "Sim 5"): a third player that puts pieces on the board. Texts and numbers come from the fight's own rule values (V1).
+  var EK = { sun: { n: 'Sun', s: 'Sun', c: '#ffd65a', h: 46, i: 'sun' }, bramble: { n: 'Bramble', s: 'Bramble', c: '#7ab55c', h: 105, i: 'br' }, rain: { n: 'Rain', s: 'Rain', c: '#6db4d0', h: 200, i: 'rain' },
+    wind: { n: 'Wind', s: 'Wind', c: '#c3cde0', h: 220, i: 'wind' }, mud: { n: 'Mud', s: 'Mud', c: '#a67c52', h: 28, i: 'mud' }, thorn: { n: 'Thornburst', s: 'Thorn', c: '#ff6a4a', h: 8, i: 'thorn' } };
+  var DIRW = { L: 'left', R: 'right', T: 'up', B: 'down' }, DXY = { L: [-1, 0], R: [1, 0], T: [0, -1], B: [0, 1] };
+  var ENAME = { Sun: 'sun', Bramble: 'bramble', Rain: 'rain', Wind: 'wind', Mud: 'mud', Thornburst: 'thorn' };
+  (data.gone || []).forEach(function (g) { if (g.by === 'env' && !g.kind) g.kind = ENAME[g.n] || 'mud'; });   // an older save: no kind on a piece that left
+  function envKind(k) { return EK[k] || EK.mud; }
+  function envBadge(kind) {
+    return { sun: '×' + (V1.sun || 2), bramble: '−' + pc100(V1.bramble || 0), rain: '+' + pc100(V1.rain || 0), mud: '−' + pc100(V1.mud || 0), thorn: '−' + pc100(V1.thorn || 0) }[kind] || '';
+  }
+  function envText(kind, life) {
+    var who = 'Goes to whoever fires it: you or the creature.', lf = life ? ' It goes after ' + life + ' rounds.' : '', N = (V1.limit || 3);
+    var T = {
+      sun: { l: ['Fire it in your chain: your pieces in that chain count ' + times(V1.sun || 2) + ' (damage, charm, guard and healing).'], chip: '×' + (V1.sun || 2) + ' for the chain' },
+      bramble: { l: ['Fire it in your chain: the creature loses ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of its health. If the creature fires it, you lose ' + pc100(V1.bramble || 0) + ' of yours. Guard does not help.'], chip: '−' + pc100(V1.bramble || 0) + ' to the other side' },
+      rain: { l: ['Fire it in your chain: you get guard worth ' + pc100(V1.rain || 0) + ' of your health. If the creature fires it, it gets the guard.'], chip: 'guard' },
+      wind: { l: ['Fire it in your chain: the piece its arrow points at slides one cell along the arrow, if that cell is free.'], chip: 'pushes a piece' },
+      mud: { l: ['Nothing links to it, so chains stop here. A piece next to it counts ' + pc100(V1.mud || 0) + ' less.' + lf], chip: 'no links, −' + pc100(V1.mud || 0) + ' next to it' },
+      thorn: { l: ['Fire it in your chain and you lose ' + pc100(V1.thorn || 0) + ' of your health. The creature loses ' + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' when it fires it. Link around it, or make the creature run into it.'], chip: '−' + pc100(V1.thorn || 0) + ' to you, −' + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' to the creature' }
+    }[kind];
+    if (!T) return null;
+    if (kind !== 'mud' && lf) T.l.push(lf.trim());
+    return { n: envKind(kind).n, g: envKind(kind).i, l: T.l, who: who, chip: T.chip };
+  }
+  function envTurnText() {
+    var n = ENVD.n || V1.envn || 2;
+    return { n: 'Environment turn', g: 'env', l: ['Every round goes: you, the creature, then the environment.',
+      'On its turn the environment puts ' + (n === 1 ? 'a piece' : n + ' pieces') + ' on the board. The pieces shown as NEXT are the ones it places at the end of this round, the left one first.',
+      'Its pieces belong to nobody. Link to one and it fires in your chain, for you. The creature can do the same.',
+      'They count for the chain like any piece: a chain of ' + (V1.limit || 3) + ' or more uses them up.'], who: 'Same rules for you and the creature.' };
+  }
+  function envTurnNote() { var n = ENVD.n || V1.envn || 2; return 'Environment turn. It puts ' + (n === 1 ? 'its piece' : 'its ' + n + ' pieces') + ' on the board. Nothing fires on its turn.'; }
+  function envTurnSub() { var n = ENVD.n || V1.envn || 2; return 'it places ' + (n === 1 ? 'a piece' : n + ' pieces'); }
+  /** a piece drawn on a canvas: the vector icons above, painted with Path2D */
+  function glyph(g, k, x, y, size, col) {
+    var re = /<(circle|path)([^>]*)\/>/g, m, sc = size / 16;
+    g.save(); g.translate(x, y); g.scale(sc, sc); g.fillStyle = col; g.strokeStyle = col; g.lineCap = 'round'; g.lineJoin = 'round';
+    while ((m = re.exec(SVG[k]))) {
+      var a = m[2], at = function (n) { var q = new RegExp(' ' + n + '="([^"]*)"').exec(' ' + a.trim()); return q ? q[1] : null; }, pp;
+      if (m[1] === 'circle') { pp = new Path2D(); pp.arc(+at('cx'), +at('cy'), +at('r'), 0, 7); } else pp = new Path2D(at('d'));
+      if (at('fill') === 'none') { g.lineWidth = +at('stroke-width') || 1.6; g.stroke(pp); } else g.fill(pp);
+    }
+    g.restore();
+  }
+  /** an environment piece: the parts kit's piece (so the edges and knobs are the real ones) in its own colour, a dark disc with the kind's icon, and a dashed cream frame no player piece has */
+  function envCv(P, p, size) {
+    var K = envKind(p.kind), sz = P.atlas.sizes[size], cv = P.piece({ size: size, owner: 'foe', type: 'soothe', tint: K.h, edges: p.e, old: false, num: '' }), g = cv.getContext('2d');
+    g.globalCompositeOperation = 'source-atop'; g.fillStyle = K.c + 'a6'; g.fillRect(0, 0, cv.width, cv.height); g.globalCompositeOperation = 'source-over';
+    var ia = sz.icon.at, is = sz.icon.size[0];
+    g.fillStyle = '#2a1a10'; g.beginPath(); g.arc(ia[0] + is / 2, ia[1] + is / 2, is / 2 + 1, 0, 7); g.fill();
+    glyph(g, K.i, ia[0] + 3, ia[1] + 3, is - 6, K.c);
+    g.setLineDash([4, 3]); g.strokeStyle = '#f2e4c0'; g.lineWidth = size === 'hand' ? 3 : 1.6; g.strokeRect(sz.body_at[0] + 2, sz.body_at[1] + 2, sz.body[0] - 4, sz.body[1] - 4);
+    return cv;
+  }
+  function mudNear(x, y) { return ENV && data.pcs.some(function (q) { return q.kind === 'mud' && Math.abs(q.x - x) + Math.abs(q.y - y) === 1; }); }
+  /** on a board cell: an environment piece's effect badge (Wind: its arrow) and the effect it is playing now; a player piece next to a Mud: the mud mark */
+  function envDeco(cell, p) {
+    if (!ENV || p.ghost || p.gone || p.by === 'none') return;
+    var b;
+    if (p.by === 'env') {
+      b = document.createElement('span'); b.className = 'pfv-eb k-' + p.kind; b.setAttribute('aria-hidden', 'true');
+      if (p.kind === 'wind') b.appendChild(svgEl('gust', ROT[p.dir] || 0)); else b.textContent = envBadge(p.kind);
+      cell.appendChild(b);
+    } else if (mudNear(p.x, p.y)) {
+      b = document.createElement('span'); b.className = 'pfv-mn'; b.title = 'Next to Mud: counts ' + pc100(V1.mud || 0) + ' less'; b.setAttribute('aria-hidden', 'true'); b.appendChild(svgEl('mud')); cell.appendChild(b);
+    }
+    if (fxPop && fxPop.id === p.id) { var f = document.createElement('span'); f.className = 'pfv-fx k-' + (fxPop.kind || ''); f.textContent = fxPop.t; cell.appendChild(f); }
+  }
+  /** which environment pieces your chain would fire from each lit spot: they glow while a piece is picked */
+  function envLitSet(lit, b) {
+    var out = {}; if (!ENV || selected === null || selected === 'group' || !data.hand[selected]) return out;
+    var e = data.hand[selected].e;
+    Object.keys(lit).forEach(function (k) {
+      var q = k.split(','), seen = {}, stack = [{ x: +q[0], y: +q[1], e: e }]; seen[k] = 1;
+      while (stack.length) {
+        var a = stack.pop();
+        for (var s in SIDE) {
+          var nx = a.x + SIDE[s][0], ny = a.y + SIDE[s][1], nk = nx + ',' + ny, n = b.map[nk];
+          if (!n || seen[nk] || n.by === 'none' || n.gone || n.ghost || !joint(a.e[s], n.e[SIDE[s][2]])[1]) continue;
+          seen[nk] = 1; if (n.by === 'env') out[n.id] = 1; stack.push({ x: nx, y: ny, e: n.e });
+        }
+      }
+    });
+    return out;
+  }
+  function envPieceInfo(p) {
+    var T = envText(p.kind, null), t = T.n + ' (environment piece). ';
+    if (p.gone) return t + (p.used ? 'Used up by a chain of ' + (V1.limit || 3) + ' or more.' : 'It has faded.');
+    return t + T.l.join(' ') + (p.kind === 'wind' && p.dir ? ' Its arrow points ' + DIRW[p.dir] + '.' : '') + ' It belongs to nobody. ' + (p.left <= 1 ? 'It leaves the board at the end of this round.' : 'It stays for ' + p.left + ' more rounds.');
+  }
   var WHEN = 'Lands at the end of this round, after the creature’s move.';
   function terrText(k) {
     var foeBr = V1.br_foe !== 1 ? ' The creature’s pieces cost it ' + pc100(V1.bramble * V1.br_foe) + '.' : '';
@@ -105,7 +199,7 @@
   function drawRows() {
     if (!rowEl) return;
     var foe = data.foe || 'Creature', h = '', lim = V1.limit || 0, n = planQ && moves.length ? planQ.n || 0 : 0, tw = planQ && moves.length ? planQ.tw || 1 : 1, st = data.status || {}, i, dots = '';
-    h += '<span class="tg step on" title="Every round goes: you, the creature, then the terrain">R' + (data.round || 1) + ' \u00B7 ' + (data.won ? 'over' : stepNow === 1 ? '<span class="fn">' + esc(foe) + '</span>' : stepNow === 2 ? 'Terrain' : 'You') + '</span>';
+    h += '<span class="tg step on" title="Every round goes: you, the creature, then the ' + (ENV ? 'environment' : 'terrain') + '">R' + (data.round || 1) + ' \u00B7 ' + (data.won ? 'over' : stepNow === 1 ? '<span class="fn">' + esc(foe) + '</span>' : stepNow === 2 ? (ENV ? 'Environment' : 'Terrain') : 'You') + '</span>';
     for (i = 1; i <= Math.max(lim, 3); i++) dots += '<i class="' + (n >= i ? (lim > 0 && n >= lim ? 'over' : 'on') : '') + '"></i>';
     h += '<span class="tg" role="img" aria-label="Pieces that fire in your chain: ' + n + '. ' + (lim > 0 ? lim + ' or more: every piece that fired is used up.' : '') + '" title="' + (lim > 0 ? 'A chain of ' + lim + ' or more uses up every piece that fired.' : 'Chain') + '">chain <span class="dots">' + dots + '</span></span>';
     h += '<span class="tg team' + (tw > 1 ? ' on' : '') + '" title="Pal, tool and crop pieces in one chain: 2 kinds +30%, all 3 +60%">' + (tw > 1 ? 'Teamwork +' + Math.round((tw - 1) * 100) + '%' : 'Teamwork') + '</span>';
@@ -127,8 +221,24 @@
     Array.prototype.forEach.call(rowEl.querySelectorAll('.tg.ev'), function (bt) { var e = dispEnvs()[+bt.dataset.ev]; if (e && e.kind === 'gust') { var sv = bt.querySelector('svg'); if (sv) sv.style.transform = 'rotate(' + ROT[e.dir] + 'deg)'; } });
   }
   function spdLabel() { return '▶ ' + (SPD === 2 ? '2×' : SPD === 0 ? 'skip' : '1×'); }
+  function stripItems() {
+    if (phase === 'pre' && PREV && PREV.env) return (PREV.env.next || []).map(function (it, i) { return { it: it, i: i }; }).filter(function (o) { return stripRem.indexOf(o.i) < 0; }).map(function (o) { return o.it; });
+    return ENVD.next || [];
+  }
+  function drawStrip() {
+    var items = stripItems(), h = '<button type="button" class="tg envlab" data-a="turn" aria-label="Environment turn: what happens in a round">' + svg('env') + '<span class="el">Environment</span><span class="es">Env</span></button>';
+    items.forEach(function (it, i) {
+      var K = envKind(it.kind), pips = '<span class="xp" aria-hidden="true">'; for (var q = 0; q < it.life; q++) pips += '<i></i>'; pips += '</span>';
+      h += '<button type="button" class="tg envp k-' + it.kind + (stripNew ? ' pfv-flipup' : '') + (stripBad && i === 0 ? ' pfv-nope' : '') + '" data-en="' + i + '" aria-label="Next environment piece ' + (i + 1) + ': ' + K.n + ', stays ' + it.life + ' rounds. What it does">' + svg(K.i) + '<span class="fn">' + K.s + '</span>' + pips + '</button>';
+    });
+    if (!items.length) h += '<span class="tg envnone">all on the board</span>';
+    h += '<button type="button" class="tg qm" data-a="help" aria-label="Help: how the board and the environment work">?</button>'
+      + '<button type="button" class="tg spd" data-a="spd" aria-label="Animation speed: ' + (SPD === 2 ? 'double' : SPD === 0 ? 'skip' : 'normal') + '. Press to change">' + spdLabel() + '</button>';
+    if (h !== lastLegend) { lastLegend = h; legendEl.innerHTML = h; }
+  }
   function drawLegend() {
     if (!legendEl) return;
+    if (ENV) { drawStrip(); return; }
     legendEl.innerHTML = [['sun', '\u00d7' + V1.sun, 'Sunny: counts ' + times(V1.sun)], ['br', '\u2212' + pc100(V1.bramble || 0), 'Bramble: \u2212' + pc100(V1.bramble || 0) + ' a round'], ['mud', 'no links', 'Mud: no links']].map(function (q) { return '<button type="button" class="tg lg-' + q[0] + '" data-ter="' + q[0] + '" aria-label="' + q[2] + '. Press for more" title="' + q[2] + '">' + svg(q[0]) + q[1] + '</button>'; }).join('')
       + '<button type="button" class="tg" data-a="turn" aria-label="Terrain turn: what happens in a round">Turn</button><button type="button" class="tg qm" data-a="help" aria-label="Help: how the board works">?</button>'
       + '<button type="button" class="tg spd" data-a="spd" aria-label="Animation speed: ' + (SPD === 2 ? 'double' : SPD === 0 ? 'skip' : 'normal') + '. Press to change">' + spdLabel() + '</button>';
@@ -136,10 +246,10 @@
 
   // ---- popover over the board (a ground cell, a forecast mark, a legend chip) and the help sheet
   function closePop() { if (popEl && popEl.parentNode) popEl.parentNode.removeChild(popEl); popEl = null; }
-  function popHtml(pt, rot) { return '<span class="pfv-popi">' + svg(pt.g, 0) + '</span><span class="pfv-popt"><b>' + esc(pt.n) + '</b>' + pt.l.map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + '<i>' + esc(pt.who) + '</i></span>'; }
+  function popHtml(pt, rot) { return '<span class="pfv-popi">' + svg(pt.g, 0) + '</span><span class="pfv-popt"><b>' + esc(pt.n) + '</b>' + pt.l.map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + '<i>' + esc(pt.who) + '</i>' + (pt.chip ? '<em class="pfv-pchip">' + esc(pt.chip) + '</em>' : '') + '</span>'; }
   function showPop(o) {
     var same = popEl && popEl.dataset.k === o.t + ':' + o.k; closePop(); if (same) return;
-    var pt = o.t === 'ter' ? terrText(o.k) : o.t === 'turn' ? turnText() : evText2(o.k); if (!pt) return;
+    var pt = o.t === 'ter' ? terrText(o.k) : o.t === 'turn' ? (ENV ? envTurnText() : turnText()) : o.t === 'envp' ? envText(o.k, o.life) : evText2(o.k); if (!pt) return;
     popEl = document.createElement('div'); popEl.className = 'pfv-pop'; popEl.setAttribute('role', 'dialog'); popEl.setAttribute('aria-label', pt.n); popEl.dataset.k = o.t + ':' + o.k;
     popEl.innerHTML = popHtml(pt) + '<button type="button" class="pfv-popx" aria-label="Close">×</button>';
     if (o.rot) { var sv = popEl.querySelector('svg'); if (sv) sv.style.transform = 'rotate(' + o.rot + 'deg)'; }
@@ -158,17 +268,18 @@
   function closeSheet() { if (sheetEl && sheetEl.parentNode) sheetEl.parentNode.removeChild(sheetEl); sheetEl = null; }
   function helpSheet() {
     closeSheet(); closePop();
-    var row = function (t) { return '<li><span class="pfv-popi">' + svg(t.g, 0) + '</span><span class="pfv-popt"><b>' + esc(t.n) + '</b>' + t.l.filter(function (x) { return x !== WHEN; }).map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + (t.who ? '<i>' + esc(t.who) + '</i>' : '') + '</span></li>'; };
+    var row = function (t) { return '<li><span class="pfv-popi">' + svg(t.g, 0) + '</span><span class="pfv-popt"><b>' + esc(t.n) + '</b>' + t.l.filter(function (x) { return x !== WHEN; }).map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + (t.who ? '<i>' + esc(t.who) + '</i>' : '') + (t.chip ? '<em class="pfv-pchip">' + esc(t.chip) + '</em>' : '') + '</span></li>'; };
     var lim = V1.limit || 0;
     sheetEl = document.createElement('div');
     sheetEl.innerHTML = '<button type="button" class="pfv-sheetbg" data-x="1" aria-label="Close"></button><div class="pfv-sheet" role="dialog" aria-label="How the board works"><div class="pfv-sheet-in">'
       + '<div class="hrow"><h2>How the board works</h2><button type="button" class="btn small" data-x="1">Done</button></div>'
-      + '<div class="sl">The round</div><ul class="helpl">' + row(turnText())
+      + '<div class="sl">The round</div><ul class="helpl">' + row(ENV ? envTurnText() : turnText())
       + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again.'], who: '' })
       + row({ n: 'Chains', g: 'gust', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + ' Pal, tool and crop pieces in one chain: 2 kinds +30%, all 3 +60%.'], who: '' })
       + row({ n: 'Flip', g: 'gust', l: ['Once a turn, free: Flip swaps the top and bottom edges of the piece you picked. A faded piece cannot be played right now; tap it to see why.'], who: '' })
-      + '</ul><div class="sl">Terrain <span>tap a ground cell</span></div><ul class="helpl">' + ['sun', 'br', 'mud'].map(function (k) { return row(terrText(k)); }).join('') + '</ul>'
-      + '<div class="sl">Events <span>marked a round ahead</span></div><p class="hint">' + WHEN + '</p><ul class="helpl">' + ['sunbeam', 'creep', 'puddle', 'gust', 'thorn'].map(function (k) { return row(evText2(k)); }).join('') + '</ul>'
+      + (ENV ? '</ul><div class="sl">Environment pieces <span>tap one in the Next strip</span></div><ul class="helpl">' + ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'].map(function (k) { return row(envText(k, null)); }).join('') + '</ul>' : '')
+      + (ENV ? '' : '</ul><div class="sl">Terrain <span>tap a ground cell</span></div><ul class="helpl">' + ['sun', 'br', 'mud'].map(function (k) { return row(terrText(k)); }).join('') + '</ul>'
+      + '<div class="sl">Events <span>marked a round ahead</span></div><p class="hint">' + WHEN + '</p><ul class="helpl">' + ['sunbeam', 'creep', 'puddle', 'gust', 'thorn'].map(function (k) { return row(evText2(k)); }).join('') + '</ul>')
       + '<div class="sl">Animation speed</div><div class="spdrow">' + [['1', '1×'], ['2', '2×'], ['0', 'Skip']].map(function (o) { return '<button type="button" class="btn small' + (String(SPD) === o[0] ? ' primary' : ' ghost') + '" data-spd="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>'
       + '</div></div>';
     (root.closest('dialog') || document.body).appendChild(sheetEl);   // inside the Trail's popover when the fight is in one (a modal dialog covers the page)
@@ -185,10 +296,46 @@
   function replayStart() {
     if (PREV) phase = 'pre';
     terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = '';
+    stripRem = []; stripBad = false; slideIds = {}; fadeIds = {}; fxPop = null;
+    if (ENV) { envPre(); drawLegend(); }
     (data.replay || []).forEach(function (ev) { if (ev.env === 'gust' && ev.moved && ev.moved.id !== undefined && typeof ev.x === 'number') movedBack[ev.moved.id] = { x: ev.x, y: ev.y }; });
   }
-  function replayDone() { phase = 'now'; terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = ''; }
+  var envPush = {};
+  function envPre() {   // pieces the environment places this turn stay off the board until its turn plays; a piece Wind pushes starts where it stood
+    var pushes = {};
+    (data.replay || []).forEach(function (ev) {
+      if (ev.env === 'place' && ev.id) hiddenIds[ev.id] = true;
+      if (ev.env === 'fire' && ev.kind === 'wind' && ev.moved && ev.moved.id !== undefined && ev.dir && DXY[ev.dir]) { var d = DXY[ev.dir]; (pushes[ev.moved.id] = pushes[ev.moved.id] || []).push({ x: ev.moved.x - d[0], y: ev.moved.y - d[1] }); }
+    });
+    movedBack = {}; envPush = {};
+    Object.keys(pushes).forEach(function (id) { movedBack[id] = pushes[id][0]; envPush[id] = pushes[id].slice(1); });
+  }
+  function replayDone() { if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
+    fxPop = null; fadeIds = {}; slideIds = {}; phase = 'now'; terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = ''; }
+  function envStepE(ev) {   // one step of the environment's own events: a piece fires in a chain, the environment places, finds no place, pieces fade
+    var K = envKind(ev.kind);
+    flashIds = {}; fxPop = null; slideIds = {}; fadeIds = {}; stripBad = false;
+    if (ev.env === 'fire') {
+      flashIds[ev.id] = 1;
+      var t = ev.kind === 'sun' ? '\u00d7' + (V1.sun || 2) + ' for ' + (ev.for === 'me' ? 'you' : 'the creature')
+        : ev.kind === 'bramble' ? (ev.for === 'me' ? 'creature \u2212' + Math.round(ev.foe || 0) : 'you \u2212' + (ev.me || 0))
+        : ev.kind === 'rain' ? (ev.for === 'me' ? '+' + (ev.guard || ev.v || 0) + ' guard' : 'its guard')
+        : ev.kind === 'thorn' ? (ev.for === 'me' ? 'you \u2212' + (ev.me || 0) : 'creature \u2212' + Math.round(ev.foe || 0))
+        : ev.kind === 'wind' ? (ev.moved ? 'push' : 'no push') : '';
+      fxPop = { id: ev.id, t: t, kind: ev.kind };
+      if (ev.kind === 'wind' && ev.moved && ev.moved.id !== undefined) {
+        var nxt = envPush[ev.moved.id] || []; if (nxt.length) movedBack[ev.moved.id] = nxt.shift(); else delete movedBack[ev.moved.id];
+        flashIds[ev.moved.id] = 1; slideIds[ev.moved.id] = ev.dir || 'R';
+      }
+    } else if (ev.env === 'place') {
+      var pi = (PREV && PREV.env ? PREV.env.next : []).findIndex(function (it, i) { return it.kind === ev.kind && stripRem.indexOf(i) < 0; }); if (pi >= 0) stripRem.push(pi);
+      flashIds[ev.id] = 1; fxPop = { id: ev.id, t: K.n, kind: ev.kind };
+    } else if (ev.env === 'pass') { stripBad = true; }
+    else if (ev.env === 'expire') { (ev.ids || []).forEach(function (id) { fadeIds[id] = 1; }); }
+    render(); drawLegend();
+  }
   function envStep(ev) {
+    if (ENV) { envStepE(ev); return; }
     var had = flashEnv !== null || Object.keys(flashIds).length > 0;
     flashEnv = null; flashIds = {};
     if (!ev.env) { if (had) render(); return; }
@@ -214,7 +361,8 @@
     if (rowEl) rowEl.addEventListener('click', function (ev) { var b = ev.target.closest('[data-ev]'); if (!b) return; var e = dispEnvs()[+b.dataset.ev]; if (e) showPop({ t: 'ev', k: e.kind, rot: e.kind === 'gust' ? ROT[e.dir] : 0, y: e.y }); });
     if (legendEl) legendEl.addEventListener('click', function (ev) {
       var b = ev.target.closest('button'); if (!b) return;
-      if (b.dataset.ter) showPop({ t: 'ter', k: b.dataset.ter, y: null });
+      if (b.dataset.en !== undefined) { var it = stripItems()[+b.dataset.en]; if (it) showPop({ t: 'envp', k: it.kind, life: it.life, y: null }); }
+      else if (b.dataset.ter) showPop({ t: 'ter', k: b.dataset.ter, y: null });
       else if (b.dataset.a === 'turn') showPop({ t: 'turn', k: 'turn', y: null });
       else if (b.dataset.a === 'help') helpSheet();
       else if (b.dataset.a === 'spd') setSpd(SPD === 1 ? 2 : SPD === 2 ? 0 : 1);
@@ -273,3 +421,4 @@
         if (ff && fh) { submitted = true; fh.value = String(i); if (typeof ff.requestSubmit === 'function') ff.requestSubmit(); else ff.submit(); }
       });
   }
+  if (ENV && willReplay) { envPre(); if (PREV) phase = 'pre'; }

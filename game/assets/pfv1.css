@@ -326,3 +326,52 @@ html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 .pf-v1.pfv-fit .pf-buttons { max-width: none; width: 100%; }
 .pf-v1.pfv-fit .pf-buttons .btn { flex: 0 1 auto; }
 .pf-v1.pfv-fit .pfc-top { overflow-x: clip; }   /* a wide intent bubble never makes the fight wider than the window */
+
+/* 2.6.75: ENVIRONMENT PIECES. The Next strip (in the legend row: no extra row), the pieces on the board (a dashed cream frame, a dark disc with the kind's icon, an effect badge, life pips), the glow on the ones your chain would fire, the replay animations. */
+.pf-v1 { --e-sun: #ffd65a; --e-bramble: #7ab55c; --e-rain: #6db4d0; --e-wind: #c3cde0; --e-mud: #a67c52; --e-thorn: #ff6a4a; }
+.pf-v1 .pfv-legend .envlab { border-color: #7ab55c; color: #d5ecc4; background: rgba(47, 90, 42, .45); }
+.pf-v1 .pfv-legend .envlab svg { color: #9fd67d; width: 13px; height: 13px; }
+.pf-v1 .pfv-legend .envp { border-color: var(--ec, #7ab55c); gap: 3px; padding: 0 5px; min-width: 0; }
+.pf-v1 .pfv-legend .envp svg { color: var(--ec, #ffd65a); width: 14px; height: 14px; }
+.pf-v1 .pfv-legend .envp.k-sun { --ec: var(--e-sun); } .pf-v1 .pfv-legend .envp.k-bramble { --ec: var(--e-bramble); } .pf-v1 .pfv-legend .envp.k-rain { --ec: var(--e-rain); }
+.pf-v1 .pfv-legend .envp.k-wind { --ec: var(--e-wind); } .pf-v1 .pfv-legend .envp.k-mud { --ec: var(--e-mud); } .pf-v1 .pfv-legend .envp.k-thorn { --ec: var(--e-thorn); }
+.pf-v1 .pfv-legend .envp { border-style: dashed; }
+.pf-v1 .tg .xp { position: static; transform: none; display: inline-flex; gap: 1px; padding: 0; background: none; }
+.pf-v1 .tg .xp i { width: 4px; height: 6px; background: #e8a317; }
+.pf-v1 .pfv-legend .envnone { border-style: dashed; color: var(--fm); }
+.pf-v1 .pfv-legend .envp.pfv-flipup { animation: pfv-flipup .6s ease-out both; }
+.pf-v1 .pfv-legend .envp.pfv-nope { animation: pfv-nope .5s ease-in-out; border-color: #ff6a4a; }
+@keyframes pfv-flipup { 0% { transform: rotateX(90deg) scale(.8); opacity: 0; } 100% { transform: rotateX(0) scale(1); opacity: 1; } }
+@keyframes pfv-nope { 20%, 60% { transform: translateX(-3px); } 40%, 80% { transform: translateX(3px); } }
+.pfv-pchip { display: inline-block; justify-self: start; margin-top: 2px; padding: 0 5px; font: 700 10px/16px var(--font, system-ui, sans-serif); font-style: normal; color: #f2e4c0; background: #3d2a1c; border: 1px solid #2a1a10; }
+.pfv-sheet .pfv-pchip { color: var(--ink); background: var(--surface-2, rgba(128, 128, 128, .15)); border-color: var(--ol, #888); }
+.pf-v1 .pfv-pop { max-height: 72%; overflow-y: auto; }
+/* on the board */
+.pf-v1 .pfb-cell.pfb-env .pfb-cv { filter: drop-shadow(0 0 2px var(--ec, #f2e4c0)); }
+.pf-v1 .pfb-cell.k-sun { --ec: var(--e-sun); } .pf-v1 .pfb-cell.k-bramble { --ec: var(--e-bramble); } .pf-v1 .pfb-cell.k-rain { --ec: var(--e-rain); }
+.pf-v1 .pfb-cell.k-wind { --ec: var(--e-wind); } .pf-v1 .pfb-cell.k-mud { --ec: var(--e-mud); } .pf-v1 .pfb-cell.k-thorn { --ec: var(--e-thorn); }
+.pf-v1 .pfb-cell .pfv-eb { position: absolute; right: 13%; top: 12%; z-index: 4; display: flex; align-items: center; min-width: 8px; height: 11px; padding: 0 2px; font: 700 8px/11px var(--font, system-ui, sans-serif); color: var(--ec, #ffd65a); background: rgba(20, 12, 6, .9); border: 1px solid var(--ec, #ffd65a); pointer-events: none; white-space: nowrap; }
+.pf-v1 .pfb-cell .pfv-eb svg { width: 9px; height: 9px; }
+.pf-v1 .pfb-cell .pfv-mn { position: absolute; left: 13%; top: 12%; z-index: 4; display: grid; place-items: center; width: 12px; height: 11px; color: #d9b48a; background: rgba(20, 12, 6, .9); border: 1px solid #a67c52; pointer-events: none; }
+.pf-v1 .pfb-cell .pfv-mn svg { width: 9px; height: 9px; }
+.pf-v1 .pfb-cell.pfv-envlit .pfb-cv { animation: pfv-elit 1.1s ease-in-out infinite; }
+@keyframes pfv-elit { 0%, 100% { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 1px var(--ec, #fff)); } 50% { filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 4px var(--ec, #fff)); } }
+.pf-v1 .pfb-cell.pfv-envin { animation: pfv-envin .6s ease-out both; z-index: 7; }
+@keyframes pfv-envin { 0% { transform: scale(.2) rotate(-12deg); opacity: 0; } 65% { transform: scale(1.18) rotate(2deg); opacity: 1; } 100% { transform: scale(1) rotate(0); } }
+.pf-v1 .pfb-cell.pfv-slide-L { animation: pfv-sl 0.55s ease-out; --sx: 76%; --sy: 0%; } .pf-v1 .pfb-cell.pfv-slide-R { animation: pfv-sl 0.55s ease-out; --sx: -76%; --sy: 0%; }
+.pf-v1 .pfb-cell.pfv-slide-T { animation: pfv-sl 0.55s ease-out; --sx: 0%; --sy: 76%; } .pf-v1 .pfb-cell.pfv-slide-B { animation: pfv-sl 0.55s ease-out; --sx: 0%; --sy: -76%; }
+@keyframes pfv-sl { 0% { transform: translate(var(--sx), var(--sy)); } 100% { transform: none; } }
+.pf-v1 .pfb-cell.pfv-fades { animation: pfv-fades .8s ease-in forwards; }
+.pf-v1 .pfb-cell.pfv-fades::after { content: 'fades'; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 0 3px; font: 700 9px/13px var(--font, system-ui, sans-serif); color: #2a1a10; background: #f2e4c0; z-index: 5; white-space: nowrap; }
+@keyframes pfv-fades { 0% { opacity: 1; } 100% { opacity: 0; transform: scale(.8); } }
+.pf-v1 .pfb-cell .pfv-fx { position: absolute; left: 50%; bottom: 82%; transform: translateX(-50%); z-index: 12; padding: 1px 5px; font: 700 10px/13px var(--font, system-ui, sans-serif); white-space: nowrap; color: #2a1a10; background: var(--ec, #ffd65a); border: 1px solid #2a1a10; pointer-events: none; animation: pfv-fxup 1.2s ease-out both; }
+@keyframes pfv-fxup { 0% { opacity: 0; transform: translate(-50%, 8px); } 20% { opacity: 1; transform: translate(-50%, 0); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -6px); } }
+.pf-v1 .pfb-cell.pfb-env:not(.pfb-gone) .pfb-cv { outline: 0; }
+/* without the parts kit the piece is a CSS tile: an environment piece gets its kind's colour and a dashed frame */
+.pf-v1 .pfb-p.by-env { border-style: dashed; border-color: var(--ec, #f2e4c0); background: color-mix(in srgb, var(--ec, #888) 35%, #2a1a10); }
+@media (prefers-reduced-motion: reduce) {
+  .pf-v1 .pfb-cell.pfv-envlit .pfb-cv, .pf-v1 .pfb-cell.pfv-envin, .pf-v1 .pfb-cell[class*="pfv-slide-"], .pf-v1 .pfb-cell.pfv-fades, .pf-v1 .pfv-fx, .pf-v1 .pfv-legend .envp { animation: none; }
+  .pf-v1 .pfb-cell.pfv-envlit .pfb-cv { filter: drop-shadow(0 0 5px #fff); }
+}
+.pf-v1 .pfv-legend .envlab .es { display: none; }
+@media (max-width: 380px) { .pf-v1 .pfv-legend .envlab .el { display: none; } .pf-v1 .pfv-legend .envlab .es { display: inline; } }
