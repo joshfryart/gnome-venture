@@ -7,6 +7,8 @@ declare(strict_types=1);
  * Data: data/trail_sights.txt. Rewards and the stat check reuse the rest-stop engine (stops.php: stop_rewards, stop_check, stop_cond_ok).
  */
 
+require_once __DIR__ . '/trail_sight_extras.php';
+
 const TRAIL_SIGHT_COLS = ['slug', 'verb', 'icon', 'energy', 'cd', 'uses', 'when', 'check', 'rewards', 'win', 'lose', 'tool', 'fail_en'];
 const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather', 'take', 'unlock'];
 
@@ -102,7 +104,7 @@ function trail_sight_lint(array $r, bool $db = true): array
         if (!in_array($k, TRAIL_SIGHT_REWARD_TOKENS, true)) { $bad[] = 'unknown reward "' . $k . '"'; continue; }
         if ($k === 'gather' && !in_array($v, GATHER_TOOLS, true)) $bad[] = 'gather= needs a tool type';
         if ($k === 'unlock' && !preg_match('/^[a-z]+:[a-z0-9-]+$/', $v)) $bad[] = 'unlock= needs kind:slug';
-        if (($k === 'item' || $k === 'take') && $db) { $slug = explode(':', $v)[0]; try { if (!q_val('SELECT id FROM items WHERE slug = ?', [$slug])) $bad[] = 'no item "' . $slug . '"'; } catch (Throwable $e) { /* no items table */ } }
+        if (($k === 'item' || $k === 'take') && $db) { $slug = explode(':', $v)[0]; if (!trail_sight_item_known($slug)) $bad[] = 'no item "' . $slug . '"'; }
     }
     return $bad;
 }
@@ -110,13 +112,14 @@ function trail_sight_lint(array $r, bool $db = true): array
 /** Make the Sights tables if the Upgrade database run has not yet (the admin page uses this; the game falls back to the file and no cooldown). */
 function trail_sights_ensure_tables(): bool
 {
-    try { q('SELECT 1 FROM trail_sight_rows LIMIT 1'); q('SELECT 1 FROM trail_sight_uses LIMIT 1'); q('SELECT 1 FROM trail_sight_first LIMIT 1'); return true; } catch (Throwable $e) {}
+    try { q('SELECT 1 FROM trail_sight_rows LIMIT 1'); q('SELECT 1 FROM trail_sight_uses LIMIT 1'); q('SELECT 1 FROM trail_sight_first LIMIT 1'); q('SELECT 1 FROM user_sight_quests LIMIT 1'); trail_sights_ensure_items(); return true; } catch (Throwable $e) {}
     try {
         require_once __DIR__ . '/action_log.php';
         $sqlite = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
         [$t, $i] = action_log_schema($sqlite ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY', $sqlite ? 'INTEGER' : 'INT UNSIGNED', $sqlite ? '' : ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
         foreach ($t as $sql) if (str_contains($sql, 'trail_sight_')) db()->exec($sql);
         foreach ($i as $sql) if (str_contains($sql, 'trail_sight_')) { try { db()->exec($sql); } catch (Throwable $e) {} }
+        trail_sights_ensure_items();
         return true;
     } catch (Throwable $e) { error_log('trail_sights_ensure_tables: ' . $e->getMessage()); return false; }
 }
@@ -198,6 +201,7 @@ function trail_sight_do(array $u, array &$exp, string $slug): array
         if (!$tid || (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [(int)$u['id'], $tid]) < $tq) return [false, 'You need ' . $tq . ' × ' . ($tid ? (string)q_val('SELECT name FROM items WHERE id = ?', [$tid]) : $tslug) . ' for that.'];
         $takes[] = [$tid, $tq];
     }
+    trail_sights_ensure_items();   // a Sight can hand out an item only Sights give (data/trail_sight_items.txt): make them before the first use
     if (!spend_energy((int)$u['id'], $row['energy'], 'sight')) return [false, 'You need ' . $row['energy'] . ' energy for that.'];   // time: setting time_sight (10 game minutes); an energy-free Sight still takes the time
     $loc = q_one('SELECT * FROM locations WHERE id = ?', [(int)$exp['from_id']]) ?: [];
     $loc['name'] = $row['verb'];
@@ -228,9 +232,16 @@ function trail_sight_do(array $u, array &$exp, string $slug): array
         q('UPDATE users SET energy = CASE WHEN energy >= ? THEN energy - ? ELSE 0 END WHERE id = ?', [$row['fail_en'], $row['fail_en'], (int)$u['id']]);
         $lines[] = '-' . $row['fail_en'] . ' energy';
     }
+    if ($ok) {   // villagers who turn up, quest lines, the Almanac page
+        $now ??= stop_now($loc);
+        foreach (trail_sight_folk_here($slug, $now) as $f) if (random_int(1, 100) <= $f['chance']) { $lines = array_merge($lines, ['💬 ' . $f['line']], trail_sight_pay($u, $loc, $f['rewards'], $f['who'])); break; }
+        $qlines = trail_sight_quest_hook($u, $slug, $loc, $now);
+        try { unlock_entries((int)$u['id'], 'sight:' . $slug); } catch (Throwable $e) {}
+    }
     if ($ok && $first) { try { db_insert('trail_sight_first', ['user_id' => (int)$u['id'], 'slug' => $slug]); } catch (Throwable $e) {} }
     $text = $row['icon'] . ' ' . ($ok ? $row['win'] : $row['lose']) . ($lines ? ' (' . implode(', ', $lines) . ')' : '');
     exp_log($exp, $text);
+    foreach ($qlines ?? [] as $ql) exp_log($exp, $ql);
     $route = (int)substr((string)$sc['row']['map_key'], 6);
     $sec = trail_phys_sec($route, (int)$sc['st']['sec'], $sc['st']);
     try {

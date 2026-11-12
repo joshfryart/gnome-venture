@@ -1,0 +1,2 @@
+# Villagers who may turn up at a Sight. sight slug | villager name | when (- or dp=/se=/we=) | chance % | line (what you see; shown with a speech mark) | rewards (Sights grammar; fp=N = N friendship with THIS villager)
+# The villager is a rest-stop villager (stop_folk) or a town NPC / traveller (npcs) by exact name. Only rolled after a successful use. One villager per use.

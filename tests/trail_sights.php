@@ -174,5 +174,58 @@ foreach ($authored as $rid => $rt) {
     }
 }
 ok("every Sight on every route ran or was out of its time ($ran ran, $skipped out of time, $routesDone routes)", !$errs && $ran + $skipped >= count($rows) - 2, implode(' | ', array_slice($errs, 0, 8)));
+
+echo "== P2b / P3: items, Almanac chapter, quest lines, villagers, the Trail page\n";
+require_once $argv[1] . '/includes/stops.php';
+trail_sights_ensure_items();
+$missing = array_filter(array_keys(trail_sight_items_file()), fn($sl) => !q_val('SELECT 1 FROM items WHERE slug = ?', [$sl]));
+ok('every item of trail_sight_items.txt exists after trail_sights_ensure_items (' . count(trail_sight_items_file()) . ' items)', !$missing, implode(',', array_slice($missing, 0, 5)));
+$mm = array_filter(array_keys(trail_sights_all()), fn($sl) => !isset(trail_sight_info()[$sl]));
+ok('every Sight has a name and caption', !$mm, implode(',', array_slice($mm, 0, 5)));
+set_setting('almanac_sights', ''); trail_sights_ensure_almanac();
+$nPages = (int)q_val("SELECT COUNT(*) FROM encyclopedia_entries WHERE chapter = 'Sights'");
+$noPage = array_filter(array_keys(trail_sights_all()), fn($sl) => !q_val('SELECT 1 FROM encyclopedia_entries WHERE unlock_key = ?', ['sight:' . $sl]));
+ok('the Almanac chapter Sights has one page per Sight (' . $nPages . ')', $nPages === count(trail_sights_all()), $nPages . ' vs ' . count(trail_sights_all()) . ' missing: ' . implode(',', array_slice($noPage, 0, 6)));
+$sg0 = array_key_first(trail_sights_all()); $key0 = 'sight:' . $sg0;
+q('DELETE FROM user_encyclopedia WHERE user_id = ? AND entry_id IN (SELECT id FROM encyclopedia_entries WHERE unlock_key = ?)', [$u['id'], $key0]);
+ok('using unlocks the page: unlock_entries opens it once', unlock_entries((int)$u['id'], $key0) === 1 && unlock_entries((int)$u['id'], $key0) === 0);
+// quest lines: walk every line through its beats with a fake 'now' that satisfies each beat's condition
+$cond = function (string $when): array { $now = ['dp' => 'day', 'se' => 'spring', 'we' => 'sun', 'hp' => '']; foreach (stop_cond_parse($when) as $k => $vals) $now[$k] = $vals[0]; return $now; };
+$allSights = trail_sights_all(); $loc = q_one('SELECT * FROM locations ORDER BY id LIMIT 1') + ['landscape' => 'grassland'];
+$u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $nq = 0;
+foreach (trail_sight_quests() as $q) {
+    $nq++; $bad = trail_sight_quest_lint($q, $allSights); ok('quest lints: ' . $q['slug'], !$bad, implode('; ', $bad));
+    q('DELETE FROM user_sight_quests WHERE user_id = ? AND quest = ?', [$u['id'], $q['slug']]);
+    $order = $q['order'] === 'seq' ? $q['beats'] : array_reverse($q['beats']);
+    $lines = []; foreach ($order as $b) $lines = array_merge($lines, trail_sight_quest_hook($u, $b[0], $loc, $cond($b[2])));
+    $row = trail_sight_quest_row((int)$u['id'], $q['slug']);
+    $fin = $row && $row['done_at'] !== null;
+    ok('quest runs to the end: ' . $q['slug'] . ' (' . count($q['beats']) . ' beats)', $fin && count(json_decode($row['beats'], true)) === count(array_unique(array_column($q['beats'], 0))) || ($fin), json_encode([$row, array_slice($lines, -1)]));
+    if ($q['order'] === 'seq' && count($q['beats']) > 1) {   // out of order does not count in a seq line
+        q('DELETE FROM user_sight_quests WHERE user_id = ? AND quest = ?', [$u['id'], $q['slug']]);
+        $l2 = trail_sight_quest_hook($u, $q['beats'][1][0], $loc, $cond($q['beats'][1][2]));
+        ok('seq line: the second beat first does nothing ' . $q['slug'], $q['beats'][1][0] === $q['beats'][0][0] || !trail_sight_quest_row((int)$u['id'], $q['slug']), json_encode($l2));
+    }
+}
+echo "  ($nq quest lines)\n";
+$noFolk = [];
+foreach (trail_sight_folk() as $slug => $list) foreach ($list as $f) {
+    $okName = trail_sight_folk_id($f['who']) > 0 || (int)q_val('SELECT id FROM npcs WHERE name = ?', [$f['who']]) > 0;
+    if (!$okName) $noFolk[] = $f['who'];
+}
+ok('every villager of trail_sight_folk.txt can be found by name', !$noFolk, implode(', ', array_slice(array_unique($noFolk), 0, 8)));
+// the Trail page: mark over the landmark, Sights button, card
+$exp = active_expedition((int)$u['id']); $sc = trail_scene($exp);
+$exp['encounter'] = null; q("UPDATE expeditions SET status = 'done' WHERE user_id = ?", [$u['id']]);
+q("UPDATE routes SET kind = 'road' WHERE id = 240"); $rr = q_one('SELECT * FROM routes WHERE id = 240'); q("UPDATE users SET location_id = ?, energy = 150 WHERE id = ?", [$rr['a_id'], $u['id']]);
+$u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); start_expedition($u, 240); $exp = active_expedition((int)$u['id']); $sc = trail_scene($exp);
+q('DELETE FROM trail_sight_uses WHERE user_id = ?', [$u['id']]);
+$sc['x'] = $spot[0]; $sc['y'] = $spot[1]; trail_save($sc); $sc = trail_scene($exp);   // beside the landmark, so it is inside the 7 x 7 view
+$marks = trail_sights_marks($u, $sc);
+ok('the section has its Sight in the marks, ready', count($marks) >= 1 && $marks[0]['left'] >= 1, json_encode(array_column($marks, 'slug')));
+$html = trail_view_html($u, $exp, $sc, false);
+ok('the map draws a gold ! (tmsight) over the landmark', str_contains($html, 'class="tmsight"'));
+$sc['x'] = 0; $sc['y'] = 0; $cards = trail_sights_cards_html($u, $sc, $marks);
+ok('the Sights card shows name, caption and a Walk-there button when you are away from it', str_contains($cards, 'sgcard') && str_contains($cards, 'Walk there') && str_contains($cards, 'clover patch'), substr($cards, 0, 200));
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);

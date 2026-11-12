@@ -24,7 +24,7 @@ hedgerow|Trim|✂️|1|55|2|-|-|xp=2:1,item=meadowsweet:1@30,item=wild-strawberr
 236-dandelions|Blow|🌬️|1|55|1|-|-|xp=3:1,seed=1@30,find=1@50?we=wind|You blow a dandelion clock and make a hundred wishes at once. Tip: a used Sight grows back in about 5 days.|-|-|0
 236-stonebridge|Bow|🙇|1|55|1|-|charm:9|xp=3:1,c=10@40,item=herb-flatbread:1@10|You bow, because the bridge insists, and it lets you peek in its letter cubby. Someone left a tip there for whoever carries the post.|The bridge pretends not to see you.|-|0
 236-beanpoles|Eavesdrop|👂|1|55|1|-|-|xp=3:1,item=green-bean:1@30,buff=sense:1:30?we=rain|You lean in and listen. Every bean is talking about the weather, and most of them disagree.|-|-|0
-236-windmill|Grind|⚙️|1|55|1|-|-|xp=3:1,item=plain-compost:1@30,c=3:1@50?we=wind|The sails go round, grinding nothing at all. The windmill mice hand you a sack of chaff for your garden.|-|-|0
+236-windmill|Grind|⚙️|1|55|1|-|-|xp=3:1,item=plain-compost:1@30,item=flour:1@50?we=wind|The sails go round, grinding nothing at all. The windmill mice hand you a sack of chaff for your garden.|-|-|0
 236-haywagon|Feed|🐦|1|55|1|-|-|xp=3:1,item=pretty-feather:1@10,item=hen-feather:1@20|You scatter a few crumbs, and the sparrow family in the driving seat chirps you all the road gossip.|-|-|0
 
 # 304 Poppyburrow to Acornby (forest, L1)
@@ -37,7 +37,7 @@ hedgerow|Trim|✂️|1|55|2|-|-|xp=2:1,item=meadowsweet:1@30,item=wild-strawberr
 305-birchtunnel|Whisper|🤫|1|55|1|-|-|xp=3:1,find=1@40,find=1@40?we=fog,item=birch-log:1@10|You whisper into the birch tunnel, and a rumour whispers back about something shiny just off the path.|-|-|0
 305-birchcurtain|Count|🔢|1|55|1|-|-|xp=3:1,item=birch-log:1@15,item=pine-resin:1@15,item=bright-feather:1@50?we=fog|You count the trunks, then count again. A crowd that has forgotten why it came, and now so have you.|-|-|0
 305-fernhollow|Nestle|🌿|0|55|1|-|charm:9|en=3,buff=sense:1:30,item=fiddleheads:1@20?se=spring,item=sphagnum:1@20|The small snail budges up, and you nestle into the ferns for a calm little nap.|The snail has the best seat and is not budging. Fair enough.|-|0
-305-sunclearing|Bask|☀️|0|55|1|we=sun|-|xp=2:1,buff=hardiness:1:60,item=four-leaf-clover:1@1|You sit in the square of sun beside the rabbit. Neither of you says a word. It is lovely.|-|-|0
+305-sunclearing|Bask|☀️|0|55|1|we=sun|-|xp=2:1,buff=hardiness:1:60,item=four-leaf-clover:1@1,item=white-clover-seed:1@25|You sit in the square of sun beside the rabbit. Neither of you says a word. It is lovely.|-|-|0
 
 # 306 Cloverholt to Mossgate (forest, L1)
 306-mosslog|Stroke|🟢|1|55|1|-|-|xp=3:1,item=living-moss:1@20,item=chanterelle:1@30?we=rain,buff=charm:1:30|You stroke the moss and the log purrs. You tell it that it is a very nice bridge, and it agrees.|-|-|0
@@ -46,7 +46,7 @@ hedgerow|Trim|✂️|1|55|2|-|-|xp=2:1,item=meadowsweet:1@30,item=wild-strawberr
 306-toadsteps|Climb|🍄|1|55|1|-|nimble:9|xp=3:1,item=toad-slime:1@10,item=chanterelle:1@20,reveal@15|You climb the toadstool steps and look out from the top. A toad is already up here, enjoying the view.|You slide down three soft caps. Boing, boing, boing.|-|0
 
 # 307 Poppyburrow to Shellhollow (coast, L1)
-307-tideline|Comb|🐚|1|55|2|-|-|xp=2:1,item=spiral-shell:1@40,item=spiral-shell:1@20?dp=dawn,item=sea-glass:1@15,item=cowrie-shell:1@8,item=driftwood:1@30?we=storm,item=bladderwrack:1@30?we=storm|You comb the tideline. The tide has gone out and left its homework, and you mark it kindly.|-|-|0
+307-tideline|Comb|🐚|1|55|2|-|-|xp=2:1,item=spiral-shell:1@40,item=spiral-shell:1@20?dp=dawn,item=sea-glass:1@15,item=cowrie-shell:1@8,item=driftwood:1@30?we=storm,item=bladderwrack:1@30?we=storm,item=message-bottle:1@1|You comb the tideline. The tide has gone out and left its homework, and you mark it kindly.|-|-|0
 307-barnacles|Grin|😁|1|55|1|-|charm:8|xp=3:1,item=blue-mussels:1@30,buff=charm:1:60|You grin at the barnacles and they grin right back. Barnacle grins are catching.|You grin. They grin wider. Somehow you lose.|-|0
 307-shellhollow|Echo|📣|0|55|1|-|-|xp=2:1,item=tide-shell:1@10|You say "hello" into the hollow, and the echo says something much funnier back.|-|-|0
 307-sandcastle|Salute|🏰|1|55|1|-|-|xp=3:1,first:xp=5,item=tide-shell:1@20|You salute the crab in charge. It inspects your boots, your hat and your posture, and lets you pass, Corporal.|-|-|0
@@ -55,24 +55,24 @@ hedgerow|Trim|✂️|1|55|2|-|-|xp=2:1,item=meadowsweet:1@30,item=wild-strawberr
 308-pebblebar|Skim|🪨|1|55|1|-|-|xp=3:1,item=flint:1@30,item=sea-glass:1@20,item=singing-pebble:1@2|You skim a pebble across the water. You count the skips and round up, generously.|-|-|0
 308-kelpline|Untangle|🌿|1|55|1|-|nimble:9|xp=3:1,item=kelp-frond:1@40,item=bladderwrack:1@30?we=storm;wind,item=urchin-test:1@8|You untangle a very relieved shrimp from the kelp. It thanks you in shrimp.|Now you are tangled too. The shrimp untangles you.|-|0
 308-rockpool|Wave|👋|1|55|1|-|-|xp=3:1,item=sea-salt:1@15,item=seed-pearl:1@3|You wave at the crab, and it waves one claw back. It is keeping count.|-|-|0
-308-tidesteps|Peer|🔍|1|55|1|-|-|xp=3:1,item=samphire:1@30,item=urchin-test:1@15,item=sardine:1@10|You peer into a pool the size of a teacup. A very small fish looks back, very cross.|-|-|0
+308-tidesteps|Peer|🔍|1|55|1|-|-|xp=3:1,item=samphire:1@30,item=urchin-test:1@15,item=sardine:1@10,item=map-scrap:1@10?dp=dawn|You peer into a pool the size of a teacup. A very small fish looks back, very cross.|-|-|0
 
 # 309 Cloverholt to Iciclecrest (tundra, L1)
 309-frozenpond|Skate|⛸️|1|55|1|-|nimble:10|xp=4:1,item=frost-crystal:1@5,item=frost-crystal:1@10?se=winter|You skate a careful figure on the pond, polished like a plate. Something silver flicks by under the ice.|You sit down very suddenly and slide. Graceful, in its way.|-|1
-309-snowmen|Judge|🥕|0|55|1|-|-|xp=2:1,item=carrot:1@40,item=hot-cocoa:1@5|You judge the snowman gallery and pick a winner. Every snowman has a fan, and every carrot is very serious.|-|-|0
+309-snowmen|Judge|🥕|0|55|1|-|-|xp=2:1,item=carrot:1@40,item=hot-cocoa:1@5,item=snowman-scarf:1@3?se=winter|You judge the snowman gallery and pick a winner. Every snowman has a fan, and every carrot is very serious.|-|-|0
 309-icecave|Shelter|🧊|0|55|1|we=snow,storm,frost|-|en=2,xp=2:1,item=frost-crystal:1@10,item=fossil-shell:1@3|You shelter in the ice cave until the weather calms down. It gives you a very cold, very polite smile.|-|-|0
 309-auroraledge|Gaze|🌌|0|55|1|-|-|xp=2:1,first:xp=5,buff=luck:1:120?dp=night,item=snow-moth-dust:1@25?se=winter/dp=night,item=frost-crystal:1@15?dp=night/we=frost|You gaze up through the clear ice. At night the sky shows through, pink and green. By day you see yourself, slightly greener.|-|-|0
 
 # 310 Poppyburrow to Snowcombe (tundra, L1)
 310-driftpass|Zigzag|↯|1|55|1|-|-|xp=3:1,item=cottongrass:1@30,item=crowberries:1@25?se=autumn|You take the zig, then the zag, then the zig. You arrive exactly where you meant to, only snowier.|-|-|0
-310-sledtrack|Sled|🛷|1|55|1|-|-|xp=4:1,en=1,item=snow-moth-dust:1@10|Wheee! You sled down the track, worn smooth by small cheerful gnomes. You pass one lost mitten on the way.|-|-|0
+310-sledtrack|Sled|🛷|1|55|1|-|-|xp=4:1,en=1,item=snow-moth-dust:1@10,first:item=lost-mitten:1|Wheee! You sled down the track, worn smooth by small cheerful gnomes. You pass one lost mitten on the way.|-|-|0
 310-combridge|Chip|⛏️|1|55|2|-|-|xp=2:1,item=flint:1@35,item=fossil-shell:1@6,item=frost-crystal:1@4|You chip a little ice and stone from the ridge. It says "ow", politely.|-|pick:1|0
 310-icicurtain|Ring|🎐|1|55|1|-|-|xp=3:1,buff=charm:1:60,item=frost-crystal:1@8|You ring a little tune on the icicles, and they chime back. Please don't lick them.|-|-|0
 
 # 311 Honeybrook to The Sugar Shack (grassland haven, L1)
-311-taprow|Tap|🍁|1|55|2|se=spring|-|xp=3:1,c=3:1@60|You collect a little bucket of sap. Drip, drip, drip. The Sugar Shack buys it on the spot.|-|-|0
+311-taprow|Tap|🍁|1|55|2|se=spring|-|xp=3:1,item=maple-sap:1@60|You collect a little bucket of sap. Drip, drip, drip. The Sugar Shack will be glad of it.|-|-|0
 311-bucketstacks|Stack|🪣|1|55|1|-|-|xp=3:1,c=2:1,find=1@15|You stack the buckets as tall as you dare before the wobble. They are waiting for the sap to get its act together.|-|-|0
-311-sugarshack|Stir|🥄|1|55|1|-|-|xp=10,en=2|You stir the big syrup pan for the cook. You get a lick of syrup and a very sticky spoon.|-|-|0
+311-sugarshack|Stir|🥄|1|55|1|-|-|xp=10,en=2,item=maple-syrup:1@10,item=toffee:1@20?se=winter|You stir the big syrup pan for the cook. You get a lick of syrup and a very sticky spoon.|-|-|0
 311-pancakelane|Flip|🥞|1|55|1|-|nimble:10|xp=3:1,item=pancakes:1@15,item=custard-tart:1@3|You flip a pancake high over the lane and catch it in the pan. It smells so good you walk a little crooked.|The pancake lands on your head, which is also nice.|-|0
 
 # 312 Cloverholt to Thousand Rings Stump (forest wonder, L8)
@@ -88,8 +88,8 @@ hedgerow|Trim|✂️|1|55|2|-|-|xp=2:1,item=meadowsweet:1@30,item=wild-strawberr
 313-mudslide|Slide|🛝|1|55|1|-|-|xp=3:1,item=river-clay:1@50,item=perch:1@10,buff=nimble:1:60|You slide down the mud, shiny as a plum. You are now very muddy and a little bit slippery.|-|-|0
 313-lodge|Taste|🥣|1|55|1|-|hardiness:9|xp=3:1,buff=grit:1:60,item=garden-vegetable-soup:1@10|You taste a spoon of the bark stew. It warms you right down to your boots.|It's very... barky. You smile politely.|-|0
 313-stickgate|Unlatch|🪵|1|55|1|-|-|xp=3:1,item=birch-log:1@15|You find the right stick and lift a latch made of a smaller stick. The gate swings open, a little proud of itself.|-|-|0
-313-tunnelmouth|Light|🏮|1|55|1|-|-|xp=3:1,first:xp=10,buff=sense:1:60|You light your lantern at the tunnel mouth and straighten the tiny Welcome sign. Much better.|-|lantern:1|0
-313-glowtunnel|Hush|🍄|1|55|1|-|sense:10|xp=3:1,item=glowing-bead:1@25,item=firefly-glow:1@10|You tiptoe in, very hushed. The shy glow-caps brighten for you.|You sneeze. Every glow-cap goes dark, deeply offended.|-|0
+313-tunnelmouth|Light|🏮|1|55|1|-|-|xp=3:1,first:xp=10,buff=sense:1:60,item=glowcap-repair-kit:1@5|You light your lantern at the tunnel mouth and straighten the tiny Welcome sign. Much better.|-|lantern:1|0
+313-glowtunnel|Hush|🍄|1|55|1|-|sense:10|xp=3:1,item=glowing-bead:1@25,item=firefly-glow:1@10,item=glowcap-garden-light:1@3|You tiptoe in, very hushed. The shy glow-caps brighten for you.|You sneeze. Every glow-cap goes dark, deeply offended.|-|0
 
 # 314 Honeybrook to Lighthouse of the Lost Lantern (coast wonder, L8)
 314-driftwood|Imagine|🐉|1|55|1|-|-|xp=3:1,en=2,item=driftwood:1@35,item=bladderwrack:1@15|A dragon, a chair, a very tired sofa. Today the driftwood is a sofa, so you sit on it for a bit.|-|-|0
@@ -113,6 +113,6 @@ hedgerow|Trim|✂️|1|55|2|-|-|xp=2:1,item=meadowsweet:1@30,item=wild-strawberr
 
 # 316 Poppyburrow to Aurora Camp (tundra haven, L1)
 316-skyhill|Wish|🌠|0|55|1|-|-|xp=2:1,xp=8?dp=dawn;day,en=2?dp=dusk;night,item=cottongrass:1@25|You lie on the hill counting nothing in particular. By day the clouds make shapes; at night a star goes by and you wish on it.|-|-|0
-316-starstones|Chart|🗺️|0|55|1|-|-|xp=3:1,first:xp=5,item=frost-crystal:1@5?dp=night|You lay the missing stone in the stone sky. Now it points North, and so, for a moment, do you.|-|-|0
-316-auroracamp|Toast|🔥|0|55|1|-|-|en=2,xp=2:1|You toast your toes by the banked fire while green lights do slow dances overhead.|-|-|0
+316-starstones|Chart|🗺️|0|55|1|-|-|xp=3:1,first:xp=5,item=frost-crystal:1@5?dp=night,item=star-chart:1@30?dp=night|You lay the missing stone in the stone sky. Now it points North, and so, for a moment, do you.|-|-|0
+316-auroracamp|Toast|🔥|0|55|1|-|-|en=2,xp=2:1,item=marshmallow:1@20|You toast your toes by the banked fire while green lights do slow dances overhead.|-|-|0
 316-kettletree|Brew|☕|0|55|1|-|-|en=1,xp=2:1,item=crowberry-cordial:1@5|You pick a mug from the clinking kettle tree and brew yourself something hot. Lovely.|-|-|0

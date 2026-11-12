@@ -339,6 +339,10 @@ function trail_art_svg(array $map, array $state): string
         }
         if (!$in($X, $Y, $bw * $k, $bh * $k)) continue;
         $items[] = [$oy + .5 + $jy / TRAIL_ART_PX, $ox, '<image href="' . e(trail_art_url('obj/' . $key . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $n($bw * $k) . '" height="' . $n($bh * $k) . '"/>'];
+        if (isset($state['sights'][$ox . ',' . $oy]) && strncmp((string)$key, 'lm-', 3) === 0) {   // v2.6.68: a Sight is ready here: a small gold ! over the sprite (Trail Sights)
+            $mx = $X + $bw * $k / 2; $my = max(14.0, $Y - 4);
+            $items[] = [$oy + .9, $ox, '<g class="tmsight"><circle cx="' . $n($mx) . '" cy="' . $n($my) . '" r="11" fill="#f5b82e" stroke="#2b1c26" stroke-width="2"/><text x="' . $n($mx) . '" y="' . $n($my + 5.5) . '" text-anchor="middle" font-size="16" font-weight="700" fill="#2b1c26">!</text></g>'];
+        }
     }
     $marks = '';
     foreach ($state['tokens'] ?? [] as $tk) {

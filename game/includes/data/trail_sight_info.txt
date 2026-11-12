@@ -1,0 +1,220 @@
+# Names and captions of the Sights (one per landmark picture). slug | Name | caption (what the Sight card and its Almanac page say)
+grassland-the-clover-patch|The clover patch|A clover patch. Someone has already checked every leaf for luck.
+coast-the-shell-heap|The shell-heap|A mound of shells, sorted by someone with strong feelings about spirals.
+mountain-the-rope-bridge|The rope bridge|A rope bridge, sturdy for its age and fond of swaying.
+grassland-the-old-milestone|The old milestone|A mossy milestone with the numbers worn off. It still points confidently.
+island-the-reef-shallows|The reef shallows|Warm shallows full of brightly coloured fish.
+haybales|The hay maze|A hay maze that has never once fooled a goat.
+scarecrow|The pleased scarecrow|He looks very pleased with himself.
+ford|The stepping-stone ford|Stones worn smooth by a thousand small boots.
+pondmill|The pond mill|A wheel that turns for the fun of it.
+apple|The lone apple tree|The apples are not for you. Probably.
+hedgerow|The strict hedgerow|Trimmed by someone with strong opinions.
+232-beehive|The beehive meadow|A no-visitors sign they can't spell.
+232-berrypatch|The berry patch|Mostly eaten already by someone small.
+232-logbridge|The log bridge|Wide enough for two gnomes who like each other.
+232-well|The polite well|Knock, and something polite knocks back.
+232-crossroads|The lunch crossroads|Four arrows, all of them pointing at lunch.
+232-picnicrise|The picnic rise|A flat spot that is clearly for sitting on.
+236-wildflowers|The nodding wildflowers|Flowers, all nodding hello.
+236-dandelions|The dandelion clocks|Sneeze, and make a hundred wishes at once.
+236-stonebridge|The proper stone bridge|The bridge insists.
+236-beanpoles|The chatty beanpoles|Every bean is talking about the weather.
+236-windmill|The idle windmill|Sails going round, grinding nothing at all.
+236-haywagon|The sparrow haywagon|A family of sparrows in the driving seat.
+304-oakarch|The oak arch|Like a doorway someone grew on purpose.
+304-hollowtrunk|The hollow trunk|Don't mind a spider's hello.
+304-acorndrop|The acorn drop|Wear a hat, or don't, they're only small.
+304-owloak|The sleepy owl oak|Someone inside is saying 'hoo' in a sleepy way.
+305-birchtunnel|The birch tunnel|Like friends sharing one big secret.
+305-birchcurtain|The birch curtain|A crowd that has forgotten why it came.
+305-fernhollow|The fern hollow|A small snail has the best seat.
+305-sunclearing|The sun clearing|The sun lands in a square, and a rabbit is sitting in it.
+306-mosslog|The mossy log|You wouldn't call it a bridge. It would.
+306-dripgrotto|The drip grotto|The drips keep time, more or less.
+306-mossgate|The mossy gateposts|Two mossy gateposts and no gate. The moss says that's on purpose.
+306-toadsteps|The toadstool steps|Like stepping stones up a green stair.
+307-tideline|The tide line|The tide has gone out and left its homework.
+307-barnacles|The smiling barnacles|Barnacles, which all look like they're smiling.
+307-shellhollow|The echo shell|Echoes if you say 'hello'.
+307-sandcastle|The crab's sandcastle|Six towers, one flag, and a crab in charge.
+308-pebblebar|The pebble bar|Pebbles in every colour, all lovely to hold.
+308-kelpline|The kelp line|To be admired and politely not eaten.
+308-rockpool|The waving rockpool|A crab inside who waves one claw. Wave back.
+308-tidesteps|The teacup tide steps|Each holding a pool the size of a teacup.
+309-frozenpond|The frozen pond|Polished like a plate. Gnomes walk round it. Mostly.
+309-snowmen|The snowman gallery|Each with a different, very serious carrot.
+309-icecave|The polite ice cave|A very cold, very polite smile.
+309-auroraledge|The aurora ledge|Clear ice where the sky shows through, pink and green.
+310-driftpass|The zigzag drift pass|Take the zig, then the zag, then the zig.
+310-sledtrack|The sled track|Worn smooth by small cheerful gnomes, and one lost mitten.
+310-combridge|The comb ridge|All its teeth pointing politely down.
+310-icicurtain|The icicle curtain|Icicles that chime when you pass. Please don't lick them.
+311-taprow|The maple tap row|Each with a little bucket. Drip, drip, drip.
+311-bucketstacks|The bucket stacks|Waiting for the sap to get its act together.
+311-sugarshack|The sugar shack|A chimney that smells of pancakes.
+311-pancakelane|Pancake lane|Smells so strongly of pancakes it is hard to walk straight.
+312-ringlog|The ring log|Count them. Then lose count. Start again.
+312-woodpecker|The slow woodpecker|Knocking out a very slow song.
+312-toadring|The toadstool ring|Step inside and you feel exactly one inch taller.
+312-bramble|The bramble berries|The berries are right there. You may have one.
+312-greatstump|The great stump|Rings go back before your grandmother's grandmother.
+312-larder|The squirrel larder|The squirrel will pretend not to watch.
+313-beaverdam|The tidy beaver dam|Tidy as a drawer.
+313-mudslide|The shiny mudslide|Shiny as a plum, where somebody has clearly been sliding for fun.
+313-lodge|The bark-stew lodge|Someone is cooking in there. Smells like bark stew.
+313-stickgate|The stick gate|A latch made of a smaller stick.
+313-tunnelmouth|The tiny tunnel mouth|A tiny 'Welcome' sign, hung slightly crooked.
+313-glowtunnel|The glow-cap tunnel|They are shy, but not unfriendly.
+314-driftwood|The driftwood shapes|A dragon, a chair, a very tired sofa.
+314-shellpile|The spiral shell pile|Sorted by someone with very strong feelings about spirals.
+314-steppingrocks|The seal pup rocks|The sea sloshing happily underneath.
+314-causeway|The tidal causeway|Nobody has fallen in. Nobody who'll admit it.
+314-lanternrocks|The humming lantern rocks|Lit by something that sounds like humming.
+314-gullparliament|The gull parliament|A hundred gulls in rows, mid-way through a very important meeting.
+315-gate|The owl gate|A sign reads: Owl? Yes.
+315-lamps|The snowflake lamps|Each with a warm yellow bulb and one snowflake on its hat.
+315-slope|The fwumping pines|The snow slides off their shoulders with a soft 'fwump'.
+315-fort|The snow fort|Walls knee-high, built by someone very serious about it.
+315-stream|The glassy stream|A stream gone to glass.
+315-bridge|The sturdy bridge|Sturdier than it looks.
+315-feather|The giant feather|A single white feather the size of a gnome, standing like a flag.
+315-cairns|The feather cairns|Each topped with a feather. Someone has been very patient.
+315-doormat|The moss doormat|A doormat made of moss, and a very big, very soft 'hoo'.
+315-den|The owl den|Two big kind eyes inside, blinking slowly.
+316-skyhill|The stargazing hill|Perfect for lying down and counting nothing in particular.
+316-starstones|The star stones|Flat stones laid in the shape of the sky.
+316-auroracamp|The aurora camp|Tents, a banked fire and a kettle, with green lights doing slow dances overhead.
+316-kettletree|The kettle tree|A tree hung with kettles and mugs, clinking.
+grassland-the-plank-footbridge|The plank footbridge|A plank bridge over a ditch. The ditch is not deep, but the bridge is proud.
+grassland-the-picnic-knoll|The picnic knoll|A flat green knoll with a dent in it exactly the shape of a picnic.
+grassland-the-bramble-gap|The bramble gap|A gap in the brambles, wide enough for one gnome and one opinion.
+grassland-the-shepherd-s-wall|The shepherd's wall|A dry-stone wall running off into the grass, with a gate that is mostly decoration.
+grassland-the-wind-combed-meadow|The wind-combed meadow|Grass lying down in one direction, as if told to. A kite string trails over the path.
+grassland-the-dandelion-drift|The dandelion drift|A drift of dandelion fluff, ready to leave at the first sneeze.
+grassland-the-sleepy-windmill|The sleepy windmill|A little windmill turning slowly, in no hurry at all.
+grassland-the-daisy-ring|The daisy ring|A circle of daisies so even that someone must have measured. Nobody will own up.
+grassland-the-lonely-scarecrow|The lonely scarecrow|A scarecrow with a very small hat. The crows seem to like him.
+grassland-the-hay-cart-ruts|The hay-cart ruts|Two deep ruts from a cart that has long since gone home.
+forest-the-lantern-branch|The lantern branch|An old lantern hangs from a branch. Somebody trims its wick.
+forest-the-root-tangle-crossing|The root-tangle crossing|Roots knot across the path like a puzzle with one answer: step high.
+forest-the-spring-and-the-pebbles|Spring and pebbles|A trickle of spring water over bright pebbles.
+forest-the-owl-watch-bough|The owl-watch bough|A low bough where an owl pretends not to see you.
+forest-the-glow-moss-grotto|The glow-moss grotto|A damp hollow with moss that glows faintly, like a night-light.
+forest-the-fern-tunnel|The fern tunnel|Ferns arch overhead and drip softly on everyone's hat.
+forest-the-acorn-scatter|The acorn scatter|Acorns everywhere, as though a squirrel had a very bad day.
+forest-the-hollow-oak|The hollow oak|An oak so hollow it could host tea for six.
+forest-the-mushroom-ring|The mushroom ring|Toadstools in a tidy ring. The path goes round, because the path is sensible.
+forest-the-mossy-stair|The mossy stair|Steps of root and moss, worn smooth by many small boots.
+forest-the-woodcutter-s-stump|The woodcutter's stump|A giant stump, still carrying a very small axe.
+forest-the-fallen-log-bridge|The fallen-log bridge|A great log laid across a gully. It wobbles, but only out of politeness.
+forest-the-bluebell-glade|The bluebell glade|A glade of bluebells that seems to ring if you listen closely.
+wetland-the-mud-skipper-flats|The mud-skipper flats|Wet flats with small skippers who race for no reason.
+wetland-the-stilt-house|The stilt-house|A house on stilts, with a ladder that has gone for a walk.
+wetland-the-willow-curtain|The willow curtain|Willow branches drape the path like a gentle curtain.
+wetland-the-peat-bank|The peat bank|A soft brown bank that smells of rain and old books.
+wetland-the-frog-choir|The frog choir|A bank of frogs rehearsing something important.
+wetland-the-boardwalk-gap|The boardwalk gap|A boardwalk with one plank missing. A neat little hop.
+wetland-the-lily-pad-ford|The lily-pad ford|Lily pads big enough to stand on. Almost.
+wetland-the-dragonfly-bend|The dragonfly bend|A bend where dragonflies stitch the air with blue.
+wetland-the-reed-causeway|The reed causeway|A narrow causeway through tall reeds, nodding hello.
+wetland-the-heron-s-post|The heron's post|A post where a heron stands as if on a stage.
+mountain-the-scree-slope|The scree slope|A slope of loose small stones that tick and chatter underfoot.
+mountain-the-pine-shelf|The pine shelf|A shelf of pines clinging to a cliff for dear life.
+mountain-the-wind-notch|The wind notch|A notch in the ridge where the wind plays whatever it likes.
+mountain-the-goat-ledge|The goat ledge|A ledge with a goat. The goat is entirely unbothered.
+mountain-the-waterfall-mist|The waterfall mist|A waterfall mists the path with tiny rainbows.
+mountain-the-eagle-s-rest|The eagle's rest|A flat boulder where an eagle likes to think.
+mountain-the-stone-hut|The stone hut|A little stone hut with a chimney and no one at home.
+mountain-the-echo-wall|The echo wall|A rock wall that gives your own voice back, only cheekier.
+mountain-the-switchback-bend|The switchback bend|A tight bend in the path, with a view of the way you just came.
+mountain-the-cairn-pass|The cairn pass|A pass marked with cairns, each taller than the last.
+coast-the-lighthouse-shadow|The lighthouse shadow|A far lighthouse throws a slow sweep of light over the sand.
+coast-the-kelp-line|The kelp-line|A line of kelp left by the tide, as neat as a ribbon.
+coast-the-rope-and-net-rack|The rope-and-net rack|Nets drying on a rack. A gull stands guard, badly.
+coast-the-bottle-post|The bottle post|A post with a bottle on top. There is a note inside. It says 'hello'.
+coast-the-tide-pool-steps|The tide-pool steps|Flat rocks full of small pools, each with a crab who has opinions.
+coast-the-stranded-rowboat|The stranded rowboat|A rowboat on the sand, waiting for the sea to come back and apologise.
+coast-the-sandbar-causeway|The sandbar causeway|A narrow bar of sand with water either side, sparkling.
+coast-the-barnacle-wall|The barnacle wall|A rock wall crusted with barnacles. Please do not tickle them.
+coast-the-dune-grass-sweep|The dune grass sweep|Tall dune grass bows all one way, like an audience.
+coast-the-driftwood-arch|The driftwood arch|A bleached arch of driftwood, hung with shells that click in the wind.
+coast-the-sea-stack-gap|The sea-stack gap|A gap between two tall rocks where the spray tickles your ankles.
+desert-the-sun-bleached-bones|The sun-bleached bones|The bones of a very large, very friendly fish. Do not ask.
+desert-the-salt-flat|The salt flat|A flat of white salt that crunches pleasantly.
+desert-the-shade-awning|The shade awning|A faded awning on two poles. Perfect for a very small nap.
+desert-the-red-rock-arch|The red rock arch|A rock arch that glows when the sun is low.
+desert-the-sand-ripple-lane|The sand-ripple lane|Sand rippled like a washboard in neat lines.
+desert-the-waystone-cluster|The waystone cluster|Three weathered waystones leaning together like old friends.
+desert-the-dry-riverbed|The dry riverbed|A river that left years ago and kept the bed made.
+desert-the-mirage-pool|The mirage pool|A pool that is mostly shimmer, and a little bit not.
+desert-the-cactus-garden|The cactus garden|Cactus in a neat row. Somebody waters them. Somebody is brave.
+desert-the-trader-s-tent-poles|The trader's tent poles|Poles from a trader's tent, left up in case they return.
+desert-the-well-and-its-rope|The rope well|A well with a rope and a very patient bucket.
+rainforest-the-stepping-roots|The stepping-roots|Roots arching out of the mud like a row of green stairs.
+rainforest-the-giant-fern-glade|The giant fern glade|Ferns taller than a gnome, nodding in the drip.
+rainforest-the-orchid-tree|The orchid tree|A tree dressed head to toe in orchids.
+rainforest-the-canopy-gap|The canopy gap|A gap in the canopy where the sun comes down in a column.
+rainforest-the-parrot-perch|The parrot perch|A tall branch where parrots argue in three languages.
+rainforest-the-vine-bridge|The vine bridge|A bridge of woven vines that hums when the wind comes through.
+rainforest-the-fallen-giant|The fallen giant|A fallen tree, so big the path goes along its trunk.
+rainforest-the-rain-drum-leaf|The rain-drum leaf|A huge leaf that drums when it rains. It is raining a little.
+rainforest-the-lantern-fruit|The lantern fruit|Small glowing fruits hang low, just to be friendly.
+rainforest-the-mist-pool|The mist-pool|A still pool with mist curling over it like steam from soup.
+island-the-hammock-palms|The hammock palms|Two palms with a hammock. It has already been claimed by a crab.
+island-the-tide-cave|The tide-cave|A small cave that breathes in and out with the tide.
+island-the-shell-bell-tree|The shell-bell tree|A tree hung with shells that chime like bells.
+island-the-sand-spit|The sand spit|A spit of white sand reaching out like a pointing finger.
+island-the-rope-swing|The rope swing|A rope swing over a deep blue pool. It is begging to be used.
+island-the-palm-lean|The palm lean|A palm tree that leans so far it has to be holding something.
+island-the-coconut-grove|The coconut grove|A grove of coconuts, each one trying to look innocent.
+island-the-lagoon-edge|The lagoon edge|A lagoon as clear as glass, with tiny striped fish.
+tundra-the-snow-fort|The snow-fort|A snow fort with a flag. It has seen better battles, and better snacks.
+tundra-the-lone-fir|The lone fir|One fir tree wearing a good deal of snow.
+tundra-the-aurora-rise|The aurora rise|A low rise where the sky does green things at night.
+tundra-the-frozen-stream|The frozen stream|A frozen stream, bright as a window.
+tundra-the-ice-shelf-steps|The ice-shelf steps|Steps of pale ice that squeak under each boot.
+tundra-the-star-chart-stones|The star-chart stones|Flat stones scratched with constellations by patient hands.
+end-haven-1-grassland|Haven path, grassland|A smell of something warm drifts down the path from the place ahead.
+end-haven-1-coast|Haven path, coastal|A smell of something warm drifts down the path from the place ahead.
+end-haven-1-island|Haven path, island|A smell of something warm drifts down the path from the place ahead.
+end-haven-1-tundra|Haven path, tundra|A smell of something warm drifts down the path from the place ahead.
+end-haven-1-wetland|Haven path, wetland|A smell of something warm drifts down the path from the place ahead.
+end-haven-2-grassland|Haven sign, grassland|A little sign, hand-painted: 'Rest Here'.
+end-haven-2-coast|Haven sign, coastal|A little sign, hand-painted: 'Rest Here'.
+end-haven-2-island|Haven sign, island|A little sign, hand-painted: 'Rest Here'.
+end-wonder-1-coast|Wonder gates, coastal|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-desert|Wonder gates, desert|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-forest|Wonder gates, forest|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-grassland|Wonder gates, grassland|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-island|Wonder gates, island|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-mountain|Wonder gates, mountain|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-rainforest|Wonder gates, rainforest|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-wetland|Wonder gates, wetland|Something wonderful is close. You can feel it in your shoes.
+end-wonder-2-coast|Wonder hush, coastal|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-desert|Wonder hush, desert|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-forest|Wonder hush, forest|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-grassland|Wonder hush, grassland|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-island|Wonder hush, island|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-mountain|Wonder hush, mountain|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-rainforest|Wonder hush, rainforest|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-wetland|Wonder hush, wetland|The air goes quiet, as if the place ahead were about to speak.
+end-delve-1-coast|Mine mouth, coastal|The mouth of the place ahead breathes cool air and a hint of old echoes.
+end-delve-1-desert|Mine mouth, desert|The mouth of the place ahead breathes cool air and a hint of old echoes.
+end-delve-1-mountain|Mine mouth, mountain|The mouth of the place ahead breathes cool air and a hint of old echoes.
+end-delve-1-rainforest|Mine mouth, rainforest|The mouth of the place ahead breathes cool air and a hint of old echoes.
+end-delve-2-forest|Lantern line, forest|A line of old lanterns leads to the place ahead. Please bring your own light.
+end-delve-2-wetland|Lantern line, wetland|A line of old lanterns leads to the place ahead. Please bring your own light.
+end-delve-2-rainforest|Lantern line, rainforest|A line of old lanterns leads to the place ahead. Please bring your own light.
+end-delve-2-desert|Lantern line, desert|A line of old lanterns leads to the place ahead. Please bring your own light.
+end-delve-2-island|Lantern line, island|A line of old lanterns leads to the place ahead. Please bring your own light.
+end-lair-1-desert|Lair approach, desert|The grass goes silent. Something big is thinking about you from the place ahead.
+end-lair-1-island|Lair approach, island|The grass goes silent. Something big is thinking about you from the place ahead.
+end-lair-1-mountain|Lair approach, mountain|The grass goes silent. Something big is thinking about you from the place ahead.
+end-lair-2-coast|Lair threshold, coastal|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.
+end-lair-2-desert|Lair threshold, desert|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.
+end-lair-2-forest|Lair threshold, forest|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.
+end-lair-2-mountain|Lair threshold, mountain|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.
+end-lair-2-rainforest|Lair threshold, rainforest|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.
+end-lair-2-tundra|Lair threshold, tundra|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.
+end-lair-2-wetland|Lair threshold, wetland|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.

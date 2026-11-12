@@ -7890,3 +7890,14 @@ button.hpick-it:focus-visible { outline: 3px solid var(--focus); outline-offset:
 button.chsq { font: inherit; cursor: pointer; width: 100%; }
 .chsq .tag.ready { background: var(--accent-soft); color: var(--accent-ink); border-color: var(--accent-line); }
 .fairsheet .fsbody { padding: 4px 14px 14px; } .fairsheet h4 { margin: 10px 0 4px; }
+
+/* v2.6.68 Trail Sights: the Sights pop-up cards and the gold ! over a landmark */
+.sgcards{display:grid;gap:10px}
+.sgcard{display:flex;gap:10px;align-items:flex-start;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(0,0,0,.18)}
+.sgpic{width:84px;height:72px;object-fit:contain;image-rendering:pixelated;flex:none;background:rgba(120,150,100,.25);border-radius:8px}
+.sgbody{min-width:0;flex:1}
+.sgbody h4{margin:0 0 2px}
+.sgbody p{margin:2px 0}
+.sgq b{color:var(--gold,#f5b82e)}
+.trailsights small{opacity:.8}
+details.sgq summary{cursor:pointer}
