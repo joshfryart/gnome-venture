@@ -746,6 +746,15 @@ function trail_sight_quests_box(array $u): string
 function trail_sights_folk_on_map(array $u, array $exp, array $sc, array $marks, bool $consume = false): array
 {
     if (!$marks || ($sc['st']['phase'] ?? '') !== 'section') return [];
+    static $memo = []; $mk = (int)$u['id'] . '|' . (int)($sc['row']['id'] ?? 0) . '|' . (int)$sc['x'] . ',' . (int)$sc['y'] . '|' . md5((string)($sc['old'] ?? ''));
+    if (!$consume && isset($memo[$mk]) && empty($GLOBALS['gv_sights_nocache'])) return $memo[$mk];   // the Trail page asks twice (map and pop-ups): one answer per request
+    $out = trail_sights_folk_on_map_build($u, $exp, $sc, $marks, $consume);
+    if (!$consume) $memo[$mk] = $out;
+    return $out;
+}
+
+function trail_sights_folk_on_map_build(array $u, array $exp, array $sc, array $marks, bool $consume): array
+{
     $loc = q_one('SELECT * FROM locations WHERE id = ?', [(int)($exp['from_id'] ?? 0)]) ?: [];
     $loc += ['landscape' => 'grassland', 'name' => ''];
     $now = trail_sight_now($loc, $sc, $u);
@@ -756,7 +765,7 @@ function trail_sights_folk_on_map(array $u, array $exp, array $sc, array $marks,
             $pic = trail_sight_folk_pic($f['who']);
             if (!$pic) continue;
             $spot = null;   // a free walkable tile beside the landmark (not under its sprite)
-            foreach ([[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [2, 0], [-2, 0]] as [$dx, $dy]) { $tx = $m['x'] + $dx; $ty = $m['y'] + $dy; if (($tx === (int)$sc['x'] && $ty === (int)$sc['y']) || isset($taken[$tx . ',' . $ty])) continue; if (in_array(tm_tile($sc['map'], $tx, $ty), ['.', ','], true) && trail_token_at($sc, $tx, $ty) < 0 && !trail_sight_tile_in_gate($sc['map']['art'] ?? [], $tx, $ty)) { $spot = [$tx, $ty]; break; } }   // never on the gnome's own tile
+            foreach ([[0, 1], [1, 1], [-1, 1], [2, 1], [-2, 1], [0, 2], [1, 0], [-1, 0], [2, 0], [-2, 0], [3, 0], [-3, 0], [1, 2], [-1, 2]] as [$dx, $dy]) { $tx = $m['x'] + $dx; $ty = $m['y'] + $dy; if (($tx === (int)$sc['x'] && $ty === (int)$sc['y']) || isset($taken[$tx . ',' . $ty])) continue; if (in_array(tm_tile($sc['map'], $tx, $ty), ['.', ','], true) && trail_token_at($sc, $tx, $ty) < 0 && !trail_sight_tile_in_gate($sc['map']['art'] ?? [], $tx, $ty) && !trail_sight_covered_by_sprite($sc['map']['art'] ?? [], $tx, $ty)) { $spot = [$tx, $ty]; break; } }   // never on the gnome's own tile
             if (!$spot) continue;   // no free tile beside the landmark: nobody stands there
             $taken[$spot[0] . ',' . $spot[1]] = true;
             $anim = false;   // walks in once per game day and place (the page swaps in place after every step: the session remembers they have arrived)
@@ -766,6 +775,23 @@ function trail_sights_folk_on_map(array $u, array $exp, array $sc, array $marks,
         }
     }
     return $out;
+}
+
+/**
+ * Would a villager standing on tile x, y be hidden by, or draw over, a landmark's sprite? A landmark sprite is as wide as its picture (up to ~3 tiles) and its feet row is oy;
+ * a villager on a tile ABOVE or ON the feet row whose 46 x 69 figure meets the sprite is covered. Below the feet row they stand in front, which is fine.
+ */
+function trail_sight_covered_by_sprite(array $art, int $tx, int $ty): bool
+{
+    $vx0 = $tx * 64 + 32 - 23; $vx1 = $vx0 + 46; $vy1 = $ty * 64 + 64 + 6; $vy0 = $vy1 - 69;
+    foreach ((array)($art['objs'] ?? []) as $ob) {
+        $key = (string)($ob[2] ?? '');
+        if (strncmp($key, 'lm-', 3) !== 0 || $ty > (int)$ob[1]) continue;
+        [$bw, $bh] = trail_art_obj_size($key);
+        $x0 = (int)$ob[0] * 64 + 32 - intdiv($bw, 2) + (int)($ob[3] ?? 0); $x1 = $x0 + $bw; $y1 = (int)$ob[1] * 64 + 62 + (int)($ob[4] ?? 0); $y0 = $y1 - $bh;
+        if ($vx0 < $x1 && $vx1 > $x0 && $vy0 < $y1 && $vy1 > $y0) return true;
+    }
+    return false;
 }
 
 /** Is tile x, y one of the tiles of a tool gate of this section? (a villager does not stand in a gate) */
@@ -794,7 +820,7 @@ function trail_sight_folk_pic(string $who): ?array
 }
 
 /** The card of a villager met on the road (the pop-up when you tap them on the map): who they are, how well you know them, Chat and Gift. $e = a trail_sights_folk_on_map entry. */
-function trail_sight_folk_card_html(array $u, array $e): string
+function trail_sight_folk_card_html(array $u, array $e, ?array $sc = null): string
 {
     [, , , $name, , $kind, $id, , $slug, $who] = $e;
     $uid = (int)$u['id'];
@@ -813,6 +839,7 @@ function trail_sight_folk_card_html(array $u, array $e): string
     $key = $kind . $id;
     $h = '<div class="sgcard sgfolkcard"><div class="sgbody"><h4>' . e($name) . '</h4><p class="muted">' . e($meta) . '</p>' . ($bio !== '' ? '<p class="help">' . e($bio) . '</p>' : '') . ($lvl !== '' ? '<p>💛 ' . e((string)$lvl) . '</p>' : '')
         . '<p class="help">' . e($name) . ' is out and about by ' . e(trail_sight_label($slug)[0]) . '.</p>'
+        . ($sc && ((int)$sc['x'] !== (int)$e[0] || (int)$sc['y'] !== (int)$e[1]) ? '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="trail_go"><button class="btn alt" name="go" value="' . (int)$e[0] . ',' . (int)$e[1] . '">👣 Walk over</button></form> ' : '')
         . '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="sightchat"><input type="hidden" name="fk" value="' . e($key) . '"><input type="hidden" name="slug" value="' . e($slug) . '"><button class="btn">💬 Chat</button></form>';
     $gifts = [];
     try { $gifts = array_slice(stop_giftable($uid), 0, 40); } catch (Throwable $ex) {}
@@ -837,7 +864,7 @@ function trail_sight_folk_talk(array $u, array &$exp, string $what, string $fk, 
     $sc = trail_scene($exp);
     if (!$sc || $exp['encounter']) return [false, 'Not now.'];
     $e = trail_sight_folk_entry($u, $exp, $sc, $fk);
-    if (!$e) return [false, 'They have gone on their way.'];
+    if (!$e) { exp_log($exp, '💬 They have gone on their way.'); return [false, 'They have gone on their way.']; }
     [, , , $name, , $kind, $id] = $e; $uid = (int)$u['id'];
     require_once __DIR__ . '/stop_folk.php'; require_once __DIR__ . '/friends.php';
     if ($kind === 's') {
