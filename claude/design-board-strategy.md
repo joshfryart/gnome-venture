@@ -795,3 +795,12 @@ Baseline (hashed edges, sim 3 creature values, same decks and creatures):
 2. Linking over all spots is 24%, under the 25-30% aim. Raising it needs fewer illegal spots (for example a mismatch that sits flat instead of being refused), which is a rule change.
 3. The creature does not flip; a flipped player piece next to creature pieces was not studied separately.
 4. Only the starter deck was measured. Single-family decks and the built deck (`DECK=built`) were not.
+
+## DECIDED by Josh 2026-11-12 (after testing 2.6.74): environment as PIECES
+Fixed ground cells + forecast marks + hidden environment effects were too hard to track. Replace with ENVIRONMENT PIECES:
+1. The environment is a third player with its own turn (after the creature). On it, it PLACES one piece from its own deck on the board.
+2. Env pieces are real, visible pieces: edges, life (expiry), effect. You and the creature can link to them and fire them in chains.
+3. When fired, the effect goes to WHOEVER'S CHAIN fires it (Sun boosts the firing side; Bramble hurts the OTHER side; etc.).
+4. No fixed ground cells and no separate forecast marks. The env deck is the forecast: its NEXT piece is shown face up a round ahead.
+5. v1 env set (6): Sun (firing side x2), Bramble (hurts the other side), Mud (blocks links through it), Rain (guard to firer), Wind (pushes an adjacent piece), Thornburst (damages whoever fires it). Region variants later.
+Open: env deck composition per region/size, env piece life, how many pieces per env turn (1 default), edges authoring, retune sims (creature mult, fight length), Teamwork unaffected.
