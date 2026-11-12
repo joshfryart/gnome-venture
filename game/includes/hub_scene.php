@@ -246,7 +246,13 @@ function hub_navbar(array $routes, array $world, array $extra = []): string
     };
     $btn = fn(string $id, string $href, string $label, string $icon, string $pop) => '<li><a class="hubnavbtn round" id="hs-' . e($id) . '" href="' . e($href) . '" data-pop="hubpop-' . e($pop) . '" aria-haspopup="dialog" aria-label="' . e($label) . '">' . $img($icon, $label) . '</a><span class="hubnavcap">' . e($label) . '</span></li>';
     $o = $btn('routes', (string)$routes['href'], 'Routes', 'ico-compass.png', 'routes') . $btn('world', (string)$world['href'], 'World', 'ico-globe.png', 'world');
-    foreach ($extra as $x) $o .= $btn((string)$x['id'], (string)$x['href'], (string)$x['label'], (string)$x['icon'], (string)$x['id']);
+    foreach ($extra as $x) {
+        if (!empty($x['form'])) {   // v2.6.72: a button that posts a hidden form (Wander), not a popover
+            $o .= '<li><button type="submit" form="' . e((string)$x['form']) . '" class="hubnavbtn round" aria-label="' . e((string)($x['title'] ?? $x['label'])) . '" title="' . e((string)($x['title'] ?? $x['label'])) . '">' . $img((string)$x['icon'], (string)$x['label']) . '</button><span class="hubnavcap">' . e((string)$x['label']) . '</span></li>';
+            continue;
+        }
+        $o .= $btn((string)$x['id'], (string)$x['href'], (string)$x['label'], (string)$x['icon'], (string)$x['id']);
+    }
     return '<ul class="hubnavbar" aria-label="Go somewhere">' . $o . '</ul>';
 }
 

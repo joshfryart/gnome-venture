@@ -109,7 +109,7 @@ page_header('World');
 <?php if (gnav_on()) { require_once __DIR__ . '/includes/here_view.php'; echo gnav_tools_html($u, 'world.php'); }   // graphical navigation: Fast travel + GPS up front ?>
 <?php $mapCode = !empty($node['region_id']) ? (string)q_val('SELECT code FROM regions WHERE id = ?', [$node['region_id']]) : ''; ?>
 <?= place_header_html(is_file(__DIR__ . '/assets/img/scenes/map-' . $mapCode . '.png') ? 'map-' . $mapCode . '.png' : 'map-world.png', 'Map of ' . (string)$node['region'], 'World · ' . (string)$node['region'], '🌍 World', '', place_chips($u)) ?>
-<?php $canWander = on_road((int)$node['id']) && ts($u['community_shift_until'] ?? null) <= time();   // v2.0.x: Wander is a tab, not a Go-panel button ?>
+<?php $canWander = can_wander_from((int)$node['id']) && ts($u['community_shift_until'] ?? null) <= time();   // v2.0.x: Wander is a tab, not a Go-panel button ?>
 <?php if ($canWander): ?><form method="post" action="<?= e(url('adventure.php')) ?>" id="wanderform" hidden><?= csrf_field() ?><input type="hidden" name="do" value="explore"></form><?php endif; ?>
 <?= place_tabs_html([
     'go' => ['🧭 Go', url('world.php'), ''],
@@ -122,7 +122,7 @@ page_header('World');
 
 <?php else:
 require_once __DIR__ . '/includes/here_view.php'; echo gnav_tools_html($u, 'world.php', false);   // the Fast travel + GPS popovers
-$canWander = on_road((int)$node['id']) && ts($u['community_shift_until'] ?? null) <= time();
+$canWander = can_wander_from((int)$node['id']) && ts($u['community_shift_until'] ?? null) <= time();
 if ($canWander) echo '<form method="post" action="' . e(url('adventure.php')) . '" id="wanderform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="explore"></form>';
 $ico = fn(string $f, string $alt) => '<img src="' . e(url('assets/img/ico/' . $f)) . '" width="28" height="28" alt="" decoding="async">';
 $navb = function (string $label, string $icon, string $attrs, bool $on = false) use ($ico): string { return '<li><a class="hubnavbtn round' . ($on ? ' on' : '') . '" ' . $attrs . ' aria-label="' . e($label) . '">' . $ico($icon, $label) . '</a><span class="hubnavcap">' . e($label) . '</span></li>'; };

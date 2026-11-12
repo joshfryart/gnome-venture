@@ -167,7 +167,7 @@ function explore_start(array $u): array
     if (trek_inside($uid)) return [false, 'You’re on a trek. Leave the trek first.'];   // v1.8.0
     if (ts($u['community_shift_until'] ?? null) > time()) return [false, 'You’re on a tending shift at the community garden. Finish or end it first.'];
     $here = player_node($u);
-    if (!on_road((int)$here['id'])) return [false, 'Head back to a road first. You can only wander off from a road.'];
+    if (!can_wander_from((int)$here['id'])) return [false, 'Head back to a road, haven or den first. You can only wander off from there.'];
     $free = staff_free($uid);
     if (!$free && !spend_energy($uid, 1, 'wander')) return [false, 'You need 1 energy to wander off the path. Rest or eat something first.'];
     unset($_SESSION['explore_found'], $_SESSION['explore_back']);
@@ -413,6 +413,17 @@ function explore_visit(array $u, array &$exp, int $placeId): bool
     $exp['status'] = 'done';
     exp_log($exp, '🚶 You push through to ' . $l['name'] . '.');
     return true;
+}
+
+/** v0.7.61: the "Back to exploring / Back to the road" box, shown on a place you found off the path (town.php and the Here page). */
+function explore_comeback_html(array $node): string
+{
+    $eb = $_SESSION['explore_back'] ?? null;
+    if (!$eb || (int)$eb['place'] !== (int)$node['id'] || !($from = q_one('SELECT name FROM locations WHERE id = ?', [$eb['from']]))) return '';
+    $f = fn(string $do, string $cls, string $label): string => '<form method="post" action="' . e(url('adventure.php')) . '" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="' . $do . '"><button class="btn small' . $cls . '">' . $label . '</button></form>';
+    return '<div class="box notice comeback">🌿 You found this place while exploring off the path. '
+        . $f('explore_back', '', '🌿 Back to exploring') . ' ' . $f('explore_road', ' alt', '🛣️ Back to the road at ' . e((string)$from['name']))
+        . ' <span class="help">Both are free.</span></div>';
 }
 
 /** v0.7.61: from a place found off the path, slip back into the wilds where you were (free) or back to the road. */

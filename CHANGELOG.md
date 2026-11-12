@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.6.73
+- **Wander from havens, dens, delves and wonders.** Wander used to need a road stop, so a gnome standing at a haven or a den (lair) had no Wander button and the server refused it. New `can_wander_from()` (`includes/roads.php`): a road stop, or a haven / lair / delve / wonder place. Used by the Wander start (`explore_start`), the round Wander button and the wild hotspot on the Here page, and the World page. "Back to the road" from such a wander returns you to that haven or den. The Trail-section Wander is unchanged (road stretches only). NOT checked in a browser, on a phone, or by a test run.
+
+## 2.6.72
+- **Fix: stuck at a place found while wandering.** A place you push through to while wandering off the path (for example the Den of the Great White Owl) showed its Back to exploring / Back to the road buttons only on the old Town page, so on the Here page you had no way back except a saved route. The Here page now shows the same box under the route strip (shared helper `explore_comeback_html`, also used by `town.php`). Both buttons are free.
+- **Wander button on the Here page.** On a road stop, Wander (leaf icon, 1 energy, same rule as the World page) is now a round button under the picture next to Routes, World, Fast travel and GPS. Not shown while on a community garden shift. Version bumped to 2.6.72, release notes added. NOT checked in a browser or on a phone.
+
 ## 2.6.70
 - **Villagers on the Trail, tidied up (Trail Sights follow-ups).** The villager card has a `👣 Walk over` button (tapping a villager's tile opens their card, so there is always a way to walk there); a villager is never drawn behind or over a landmark sprite (the sprite's real width is checked, 705 of 706 landmarks have a free spot) nor on a find, a gate or the way on; chatting with a villager who has just left writes a journal line.
 - **Lighter Trail pages:** one `trail_sight_uses` query per stretch for the request (was one per Sight, repeated), the villager list asked once per request; give-an-item keeps one row per villager row (the day it was last given) instead of one per day, old use rows are pruned after 120 days; the lint refuses `take=` with a condition / `first:` / a chance and a cooldown of 0.

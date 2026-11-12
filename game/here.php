@@ -29,6 +29,7 @@ $kindIcons = ['village' => '🏡', 'haven' => '🏕️', 'wonder' => '✨', 'lai
 <?= wander_step_once('road') /* v2.5.49: the gnome stepping back onto the road, once (art optional) */ ?>
 <?= trail_resume_html($u) /* a walk put away by Wander off the Trail */ ?>
 <?= dest_resume_html($u) ?>
+<?= explore_comeback_html($node) /* a place found while wandering: back to exploring or back to the road */ ?>
 <?php $hv = here_view($u, $node, $debug, $open); $gate = !empty($GLOBALS['gnav_gate']); ?>
 <?= $hv ?>
 <?= gnav_tools_html($u, 'here.php', !$gate) ?>
