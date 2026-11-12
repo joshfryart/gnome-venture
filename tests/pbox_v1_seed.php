@@ -49,7 +49,7 @@ if ($what === 'fight') {
     $size = $argv[3] ?? 'small';
     $c = q_one('SELECT * FROM creatures WHERE size = ? ORDER BY level, id LIMIT 1', [$size]);
     $exp['encounter'] = json_encode(['type' => 'creature', 'id' => (int)$c['id'], 'lv' => 0, 'sp' => 100, 'hpp' => 100, 'hp' => (int)$c['hp'], 'max' => (int)$c['hp'], 'bark' => 0, 'poison' => 0, 'used' => false]);
-    $exp['hp'] = (int)$exp['max_hp']; save_exp($exp);
+    save_exp($exp); q('UPDATE expeditions SET hp = 60, max_hp = 60 WHERE id = ?', [$exp['id']]);   // a sturdy gnome, so the seeded fights last
     pfd_ensure(); pfd_row($uid); q('UPDATE pf_decks SET auto_use = ? WHERE user_id = ?', [($argv[4] ?? '') === 'auto' ? 1 : 0, $uid]);
     echo "creature: {$c['name']} ({$c['size']}, level {$c['level']})\n";
     exit;
@@ -57,20 +57,19 @@ if ($what === 'fight') {
 $enc = json_decode((string)$exp['encounter'], true); $c = encounter_creature($enc);
 $save = function () use (&$exp, &$enc) { $exp['encounter'] = json_encode($enc); save_exp($exp); };
 /** One greedy turn through the real POST path (pfight_do): the first hand piece and lit cell that the engine accepts. Returns false when nothing could be played. */
-$turn = function (bool $flipFirst = false) use (&$exp, &$enc, &$u, $c) {
+$turn = function (bool $worst = false) use (&$exp, &$enc, &$u, $c) {
     $enc = json_decode((string)$exp['encounter'], true); $s = $enc['pf']; if ($s['over']) return false;
     $_POST = ['nonce' => $s['nonce'], 'turn' => $s['turn']];
     if (!empty($s['start'])) { $cx = intdiv(pfb_w($s), 2); $cy = intdiv(pfb_h($s), 2); $_POST['moves'] = '0,' . ($cx - 1) . ',' . $cy; pfight_do($u, $exp, 'pfb_play'); save_exp($exp); return true; }
     $best = null;
-    foreach ($s['me']['hand'] as $i => $t) foreach (pfb_cell_preview($s, $i) as $key => $q) { $sc = ($q['dmg'] ?? 0) + ($q['ch'] ?? 0) + ($q['n'] ?? 0); if ($best === null || $sc > $best[0]) $best = [$sc, $i, $key]; }
+    foreach ($s['me']['hand'] as $i => $t) foreach (pfb_cell_preview($s, $i) as $key => $q) { $sc = ($q['dmg'] ?? 0) + ($q['ch'] ?? 0) + ($q['n'] ?? 0); if ($worst) $sc = -$sc; if ($best === null || $sc > $best[0]) $best = [$sc, $i, $key]; }
     if ($best === null) { pfight_do($u, $exp, 'pfb_pass'); save_exp($exp); return true; }
     $_POST['moves'] = $best[1] . ',' . $best[2]; pfight_do($u, $exp, 'pfb_play'); save_exp($exp);
     return true;
 };
 if ($what === 'midfight') {
     $enc['pfgo'] = 1; unset($enc['pf']); $save();
-    mt_srand((int)($argv[3] ?? 7));
-    $s = pfight_state($u, $exp, $enc, $c); $save();
+    $enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[3] ?? 7), ['v1' => true, 'blank' => true, 'can_pluck' => false]); $save();   // as pfight_state deals it, with a fixed seed
     for ($i = 0; $i < (int)($argv[4] ?? 3); $i++) { $exp = active_expedition($uid); if (!$exp || !$exp['encounter']) break; $turn(); }
     $exp = active_expedition($uid); $enc = $exp ? json_decode((string)$exp['encounter'], true) : null; $s = $enc['pf'] ?? null;
     echo $s ? 'midfight: turn ' . $s['turn'] . ', pieces ' . count($s['pcs']) . ', ground ' . count($s['ter'] ?? []) . ', forecast ' . count($s['envs'] ?? []) . ', aim ' . (empty($s['foe']['plan']) ? 'no' : 'yes') . ', over ' . ($s['over'] ?: 'no') . "\n" : "midfight: the fight ended\n";
@@ -82,9 +81,10 @@ if ($what === 'win' || $what === 'lose') {
     else { $s['me']['hp'] = 1; $exp['hp'] = 1; $s['wear'] = ['till' => 4] + (array)($s['wear'] ?? []); }
     $enc['pf'] = $s; $save();
     for ($i = 0; $i < 30; $i++) { $exp = active_expedition($uid); if (!$exp || !$exp['encounter']) break; $enc = json_decode((string)$exp['encounter'], true); if (!empty($enc['pf']['over'])) break;
-        if ($what === 'lose') { $enc['pf']['me']['hp'] = 1; $exp['hp'] = 1; $exp['encounter'] = json_encode($enc); save_exp($exp); }
-        $turn(); }
+        if ($what === 'lose') { $enc['pf']['me']['hp'] = 1; $enc['pf']['me']['block'] = 0; $enc['pf']['fh']['now'] = 0; $enc['pf']['bar']['now'] = 0; $exp['hp'] = 1; $exp['encounter'] = json_encode($enc); save_exp($exp); }   // one health, and the creature never gets weaker
+        $turn($what === 'lose'); }
     $exp = active_expedition($uid); $enc = $exp && $exp['encounter'] ? json_decode((string)$exp['encounter'], true) : null;
+    if (isset($_SESSION['pfv_res'])) file_put_contents($argv[1] . '/data/pfv_res.json', json_encode($_SESSION['pfv_res']));   // the test hands it to a page (tests/pbox_v1.sh)
     echo $what . ': over ' . ($enc['pf']['over'] ?? 'gone') . ', session result ' . (isset($_SESSION['pfv_res']) ? json_encode($_SESSION['pfv_res']) : 'none') . "\n";
     exit;
 }

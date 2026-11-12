@@ -586,6 +586,10 @@ function nav_sheet(array $u, string $page): string
     ];
     require_once __DIR__ . '/catfish.php'; require_once __DIR__ . '/puzzle_pals.php';   // Hobbies: Puzzle Pals tile once open, after Games (Cat Fish and Puzzles are tiles on the Games page)
     if (ppal_open() && !is_guest($u)) $groups['Hobbies'][] = ['puzzlepals.php', '🧩', 'Puzzle Pals', '', 'puzzlepals'];
+    if (in_array(setting('pfight_v1'), ['1', 'admin'], true)) {   // 2.6.74 v1 (admin setting pfight_v1): the Puzzle box in the menu, under You (nothing is loaded while the setting is off)
+        require_once __DIR__ . '/pfight_game.php';
+        if (pfight_on($u) && pfight_v1_on($u) && !is_guest($u)) $groups['You'][] = ['puzzlebox.php', '🧩', 'Puzzle box', '', 'puzzlebox'];
+    }
     require_once __DIR__ . '/gourmand.php';   // next version: a Gourmand tile once he is open (admins always)
     if (gourmand_open()) array_splice($groups['Out & about'], 3, 0, [['gourmand.php', '🥄', 'Gourmand', '', 'gourmand']]);
     if (gclock_on() && !home_slim_menu()) array_splice($groups['You'], 0, 0, [['hovel.php', '🛏️', 'Hovel', '', 'hovel']]);   // sleep-days: the Rest page (sleep, nap, inn) is a menu tile (slim home: the Home entry is the hovel)

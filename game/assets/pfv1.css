@@ -244,3 +244,7 @@
   .pf-v1 .pfb-cell.pfv-used { opacity: .35; }
   .pfv .sw input::after { transition: none; }
 }
+/* the fight card is dark felt in both themes: its text keeps the light ink in the light theme too (the result card inside it follows the theme) */
+#pfight.pf-v1 > :not(.pfv) { --ink: #f2e4c0; --ink-2: #e6d3a4; --muted: #c9a96e; color: #f2e4c0; }
+#pfight.pf-v1 > .pfv-pop { color: #2a1a10; }
+.pf-v1 .pf-preview { white-space: normal; overflow: visible; text-overflow: clip; min-height: 2.5em; }

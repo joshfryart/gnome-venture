@@ -546,6 +546,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
             . ($sn !== null ? ' data-sn="' . $sn . '" data-id="' . (int)($chip['id'] ?? 0) . '" data-bar="' . e((string)($chip['bar'] ?? '')) . '" data-fh="' . e((string)($chip['fh'] ?? '')) . '" data-g="' . e((string)($chip['g'] ?? '')) . '" data-hp="' . e((string)($chip['hp'] ?? '')) . '" role="button" tabindex="0"' : '') . ' aria-label="' . e($label) . '">'
             . $who((string)$chip['by']);
         foreach ((array)$chip['types'] as $ci => $t) {
+            if (($chip['by'] ?? '') === 'env') continue;   // v1: a terrain chip has no piece type
             $tg = (string)($chip['tags'][$ci] ?? ''); $ti = isset(PF_TAG_ICON[$tg]) ? pfight_art('ico-' . PF_TAG_ICON[$tg] . '-s.png') : null;
             $h .= $ti ? '<img class="pfh-ico" src="' . e($ti) . '" alt="" title="' . e(ucfirst($tg)) . '">' : $sm((string)$t);
         }
