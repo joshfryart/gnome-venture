@@ -658,3 +658,47 @@ function trail_sight_quests_box(array $u): string
     }
     return '<section class="box qsec"><h3>🔎 Sight quests</h3>' . ($open ?: '<p class="muted">None on the go.</p>') . ($fin ? '<p class="muted">' . $fin . ' finished.</p>' : '') . '</section>';
 }
+
+/**
+ * Villagers who are out and about at a Sight of this section RIGHT NOW (their row's time of day, season and weather hold, they are not away, the daily roll says yes), to draw on the map
+ * beside the landmark: [[x, y, picture url, name, frames]]. One villager per landmark (the first that is here). The same answer the Sights card and trail_sight_do use.
+ */
+function trail_sights_folk_on_map(array $u, array $exp, array $sc, array $marks): array
+{
+    if (!$marks || ($sc['st']['phase'] ?? '') !== 'section') return [];
+    $loc = q_one('SELECT * FROM locations WHERE id = ?', [(int)($exp['from_id'] ?? 0)]) ?: [];
+    $loc += ['landscape' => 'grassland', 'name' => ''];
+    $now = trail_sight_now($loc, $sc, $u);
+    $out = [];
+    foreach ($marks as $m) {
+        foreach (trail_sight_folk_here($m['slug'], $now, (int)$u['id']) as $f) {
+            [$name] = trail_sight_split_who($f['who']);
+            $pic = trail_sight_folk_pic($f['who']);
+            if (!$pic) continue;
+            $spot = null;   // a free walkable tile beside the landmark (not under its sprite)
+            foreach ([[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [2, 0], [-2, 0]] as [$dx, $dy]) { $tx = $m['x'] + $dx; $ty = $m['y'] + $dy; if ($tx === (int)$sc['x'] && $ty === (int)$sc['y']) continue; if (in_array(tm_tile($sc['map'], $tx, $ty), ['.', ',', 'S'], true)) { $spot = [$tx, $ty]; break; } }   // never on the gnome's own tile
+            if (!$spot) $spot = [$m['x'], $m['y']];
+            $out[] = [$spot[0], $spot[1], $pic[0], $name, $pic[1]];
+            break;
+        }
+    }
+    return $out;
+}
+
+/** A named villager's map picture: [url, frames] (a 4-frame sprite sheet shows its first frame), or null. */
+function trail_sight_folk_pic(string $who): ?array
+{
+    try {
+        $fid = trail_sight_folk_id($who);
+        if ($fid) {
+            require_once __DIR__ . '/stop_folk.php';
+            $folk = q_one('SELECT * FROM stop_folk WHERE id = ?', [$fid]);
+            $rel = $folk ? stop_folk_art($folk, 'sprite') : '';
+            return $rel !== '' ? [url($rel), 4] : null;
+        }
+        [$name] = trail_sight_split_who($who);
+        $npc = q_one('SELECT * FROM npcs WHERE name = ? ORDER BY id LIMIT 1', [$name]);
+        if ($npc) { require_once __DIR__ . '/here_view.php'; $sp = here_sprite($npc); if ($sp['src'] !== '') return [$sp['src'], (int)($sp['frames'] ?? 1)]; }
+    } catch (Throwable $e) {}
+    return null;
+}

@@ -248,6 +248,13 @@ ok('the section has its Sight in the marks, ready', count($marks) >= 1 && $marks
 $html = trail_view_html($u, $exp, $sc, false);
 ok('the map draws a gold ! (tmsight) over the landmark', str_contains($html, 'class="tmsight"'));
 $sc['x'] = 0; $sc['y'] = 0; $cards = trail_sights_cards_html($u, $sc, $marks);
+$GLOBALS['gv_sight_folk_file'] = $w('folkmap.txt', "{$base['slug']}|Mabel Pennywhistle|-|100|Mabel is out walking.|fp=1\n{$base['slug']}|Nobody Away|dp=nosuchdaypart|100|x|fp=1\n");
+$sc['x'] = $spot[0]; $sc['y'] = $spot[1]; $fm = trail_sights_folk_on_map($u, $exp, $sc, $marks);
+ok('a villager who is out and about (condition holds, rolled in) is drawn on the map beside the landmark', count($fm) === 1 && $fm[0][3] === 'Mabel Pennywhistle' && !($fm[0][0] === $sc['x'] && $fm[0][1] === $sc['y']) && max(abs($fm[0][0] - $marks[0]['x']), abs($fm[0][1] - $marks[0]['y'])) <= 2, json_encode($fm));
+ok('the map markup has the villager (tmfolk)', str_contains(trail_view_html($u, $exp, $sc, false), 'class="tmfolk"'));
+$GLOBALS['gv_sight_folk_file'] = $w('folkmap2.txt', "{$base['slug']}|Nobody Away|dp=nosuchdaypart|100|x|fp=1\n");
+ok('a villager whose time of day does not hold is not on the map', trail_sights_folk_on_map($u, $exp, $sc, $marks) === []);
+unset($GLOBALS['gv_sight_folk_file']); $sc['x'] = 0; $sc['y'] = 0;
 ok('the Sights card shows name, caption and a Walk-there button when you are away from it', str_contains($cards, 'sgcard') && str_contains($cards, 'Walk there') && str_contains($cards, 'clover patch'), substr($cards, 0, 200));
 
 echo "== P4: the engine features (conditions, variants, pick, villagers, give, hints, titles, pages, new folk, quest orders, gates, event beats, item effects)\n";

@@ -55,6 +55,9 @@ Content source: `claude/sights/ideas-*.md` (219 spots, 25 quest lines, all verbs
 - **Still not possible (per-set todo files):** lines that change with the destination, true tide/snore-count/first-room hints, shop discounts, buffs that last only inside a delve/lair or until sleep, "every 7th day"/market-day timing, choose-your-reward, quest time limits, a villager's own stat check, escorts. Also not checked: MySQL, a real phone, balance in play.
 - **Next:** release (bump `APP_VERSION`, CHANGELOG, `tools/check_versions.sh`, slim zip; Upgrade database creates 8 tables: trail_sight_uses/first/rows/tally, user_sight_quests/titles), phone check.
 
+## 0h. Villagers show on the map (2026-11-12)
+A villager who is out and about at a Sight (their row's time of day / season / weather hold now, they are not away, the daily roll says yes) is drawn on the route map beside the landmark (a 46 x 69 sprite, first frame of the sheet; `<title>` = their name; never on the gnome's own tile). Same answer as the Sights card ("X is here today") and `trail_sight_do`. Code: `trail_sights_folk_on_map()`, `trail_sight_folk_pic()` (`trail_sight_extras.php`), state key `folk` in `trail_art_svg`. Test in `tests/trail_sights.php`. Not done: tapping the villager opens their own card (today the tile walks you next to them and the Sights card names them); a walk-on animation.
+
 ## 1. What a "Sight" is
 Every Trail section has 1 landmark sprite (`lm-<slug>`), 41 sections have 2: **665 sections, 706 landmark placements, 219 slugs** (82 hand-drawn Maplewold + 137 shared: 94 land pieces + 43 `end-*`). Each slug becomes a **Sight**: one named thing you can DO when you stand near it. No re-bake needed: position is already in the map data (`objs` rows `[x, y, "lm-<slug>", jit]`).
 
