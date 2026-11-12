@@ -10,69 +10,98 @@ def rep(old, new, count=1):
     src = src.replace(old, new)
 
 rep("require_once __DIR__ . '/pfight.php';", r"""require_once (getenv('ENG') ?: __DIR__ . '/../../../game/includes') . '/pfight.php';
-// ---- v1 bundle switches (SIM ONLY). Override with env V1='{"limit":4,...}'
-const V1_DEFAULTS = ['ground' => 1, 'nsun' => 2, 'nbr' => 2, 'nmud' => 1, 'gmin' => 2, 'gmax' => 3, 'sun' => 2.0, 'bramble' => 0.10,   // ground cells, gmin-gmax steps from the centre; bramble = share of max health per environment turn
-    'events' => 1, 'nev' => 1, 'ev' => 1.0, 'ev_unit' => 0.10,   // nev forecast events a round; strength = ev x ev_unit x max health (or creature health) per piece in the zone
+// ---- v1 bundle switches (SIM ONLY, sim 3). Override with env V1='{"limit":4,...}'. A value may be a map by creature size: {"foe":{"small":1.5,"medium":1.3,"large":1.3,"boss":1.2}}
+const V1_SIZES = ['small', 'medium', 'large', 'boss'];
+const V1_DEFAULTS = ['dims' => ['small' => [5, 4], 'medium' => [5, 5], 'large' => [7, 5], 'boss' => [7, 6]],   // board width x height by creature size
+    'ground' => 1, 'nsun' => ['small' => 2, 'medium' => 3, 'large' => 3, 'boss' => 4], 'nbr' => ['small' => 2, 'medium' => 2, 'large' => 3, 'boss' => 3], 'nmud' => 1, 'gmin' => 1, 'gmax' => 2,   // ground cells, gmin-gmax steps from the centre
+    'sun' => 2.0, 'bramble' => 0.10, 'br_foe' => 1.0,   // sunny factor; bramble = share of max health per environment turn (x br_foe for a creature piece)
+    'events' => 1, 'nev' => 1, 'evk' => ['sunbeam', 'creep', 'gust', 'thorn', 'puddle'], 'ev_unit' => 0.10, 'ev_foe' => 0.5, 'gextra' => 0,   // nev forecast events a round, kinds drawn evenly from evk; thorn burst = ev_unit x max health per piece (x ev_foe for the creature); gextra: ground cells of a kind allowed above the start count
     'limit' => 3, 'spend_foe' => 1,   // a chain of `limit` or more fired pieces uses those pieces up (0 = off); spend_foe: also for chains the creature starts
-    'aim' => 1, 'foe' => 1.35, 'team' => 1.6,   // aim: shown and committed, no fumble; foe: factor on the creature's piece values; team: Teamwork factor (pal + tool + crop in one chain)
+    'aim' => 1, 'foe' => 1.3, 'bar' => 1.0, 'team2' => 1.3, 'team' => 1.6,   // aim: shown and committed, no fumble; foe: factor on the creature's piece values; bar: factor on the creature's bars; Teamwork: 2 sources / 3 sources in one chain
     'blind' => ''];   // sim only: 'g' the creature's search ignores ground, 'e' ignores events (not used in the tables)
-function v1(string $k) { static $c = null; if ($c === null) $c = (json_decode(getenv('V1') ?: '{}', true) ?: []) + V1_DEFAULTS; return $c[$k]; }
+function v1(string $k) {
+    static $c = null; if ($c === null) $c = (json_decode(getenv('V1') ?: '{}', true) ?: []) + V1_DEFAULTS;
+    $pick = function ($v) { $sz = $GLOBALS['PFSZ'] ?? 'medium'; return is_array($v) && array_intersect(array_keys($v), V1_SIZES) ? ($v[$sz] ?? null) : $v; };
+    return $pick($c[$k]) ?? $pick(V1_DEFAULTS[$k]);
+}
+function pfb_w(): int { return $GLOBALS['PFBW'] ?? PFB_W; }
+function pfb_h(): int { return $GLOBALS['PFBH'] ?? PFB_H; }
 function pfb_ter(array $s, int $x, int $y): string { return $s['ter']["$x,$y"] ?? ''; }
 function pfb_st(array &$s, string $k, float $n = 1): void { $s['st'][$k] = ($s['st'][$k] ?? 0) + $n; }
 
-/** Ground: nsun sunny, nbr bramble, nmud mud cells, 2-3 steps from the centre. */
+/** Ground: nsun sunny, nbr bramble, nmud mud cells, gmin-gmax steps from the centre. */
 function pfb_seed_ground(array &$s): void
 {
     $s['ter'] = []; if (!v1('ground')) return;
-    $cx = intdiv(PFB_W, 2); $cy = intdiv(PFB_H, 2); $cand = [];
-    for ($y = 0; $y < PFB_H; $y++) for ($x = 0; $x < PFB_W; $x++) { $d = abs($x - $cx) + abs($y - $cy); if ($d >= (int)v1('gmin') && $d <= (int)v1('gmax')) $cand[] = "$x,$y"; }
+    $cx = intdiv(pfb_w(), 2); $cy = intdiv(pfb_h(), 2); $cand = [];
+    for ($y = 0; $y < pfb_h(); $y++) for ($x = 0; $x < pfb_w(); $x++) { $d = abs($x - $cx) + abs($y - $cy); if ($d >= (int)v1('gmin') && $d <= (int)v1('gmax')) $cand[] = "$x,$y"; }
     $cand = pf_shuffle($s, $cand);
     foreach (['sun' => (int)v1('nsun'), 'br' => (int)v1('nbr'), 'mud' => (int)v1('nmud')] as $kind => $n) for ($i = 0; $i < $n && $cand; $i++) $s['ter'][array_pop($cand)] = $kind;
+}
+/** An event puts ground on a cell (replacing what was there). There are never more cells of a kind than at the start (+ gextra): the oldest one goes. */
+function pfb_ground_set(array &$s, int $x, int $y, string $kind): void
+{
+    unset($s['ter']["$x,$y"]); $s['ter']["$x,$y"] = $kind;
+    $cap = max(1, (int)v1(['sun' => 'nsun', 'br' => 'nbr', 'mud' => 'nmud'][$kind]) + (int)v1('gextra')); $have = array_keys($s['ter'], $kind, true);
+    while (count($have) > $cap) unset($s['ter'][array_shift($have)]);
 }
 /** The environment hurts the owner of a piece: you lose health, the creature loses health (both as a share of the maximum). */
 function pfb_env_hurt(array &$s, string $who, float $frac, string $tag): void
 {
     if ($who === 'me') { $d = max(1, (int)round($frac * $s['me']['max'])); $s['me']['hp'] = max(0, $s['me']['hp'] - $d); pfb_st($s, $tag . '_me', $d / $s['me']['max']); }
-    elseif ($who === 'foe') { $s['fh']['now'] += $frac * $s['fh']['max']; pfb_st($s, $tag . '_foe', $frac); }
+    elseif ($who === 'foe') { $frac *= (float)v1($tag === 'thorn' ? 'ev_foe' : 'br_foe'); $s['fh']['now'] += $frac * $s['fh']['max']; pfb_st($s, $tag . '_foe', $frac); }
 }
-/** The environment turn (after the creature): bramble pricks, then the announced event lands. */
+/** The environment turn (after the creature): the announced events land (they move ground, push a piece or burst), then bramble pricks. */
 function pfb_env_turn(array &$s): void
 {
-    if (v1('ground')) foreach ($s['pcs'] as $p) if (pfb_ter($s, $p['x'], $p['y']) === 'br') pfb_env_hurt($s, $p['by'], (float)v1('bramble'), 'br');
     if (v1('events')) foreach ($s['envs'] ?? [] as $e) {
-        $u = (float)v1('ev') * (float)v1('ev_unit');
-        if ($e['kind'] === 'wind') {
+        $on = pfb_at($s, $e['x'], $e['y']); $ob = $on && $on['by'] !== 'none' ? $on['by'] : null;
+        if ($e['kind'] === 'gust') {
             $id = $s['cell'][$e['x'] . ',' . $e['y']] ?? null; [$dx, $dy] = PFB_SIDE[$e['dir']]; $nx = $e['x'] + $dx; $ny = $e['y'] + $dy;
-            if ($id !== null && $nx >= 0 && $ny >= 0 && $nx < PFB_W && $ny < PFB_H && !isset($s['cell']["$nx,$ny"])) {
-                unset($s['cell'][$e['x'] . ',' . $e['y']]); $s['cell']["$nx,$ny"] = $id; $s['pcs'][$id]['x'] = $nx; $s['pcs'][$id]['y'] = $ny; pfb_st($s, 'wind_' . $s['pcs'][$id]['by']);
+            if ($id !== null && $ob && $nx >= 0 && $ny >= 0 && $nx < pfb_w() && $ny < pfb_h() && !isset($s['cell']["$nx,$ny"])) {
+                unset($s['cell'][$e['x'] . ',' . $e['y']]); $s['cell']["$nx,$ny"] = $id; $s['pcs'][$id]['x'] = $nx; $s['pcs'][$id]['y'] = $ny; pfb_st($s, 'gust_' . $ob);
             }
-        } else {
-            foreach (pfb_zone($e) as [$x, $y]) { $p = pfb_at($s, $x, $y); if (!$p || $p['by'] === 'none') continue;
-                if ($e['kind'] === 'thorn') pfb_env_hurt($s, $p['by'], $u, 'thorn');
-                else { $g = max(1, (int)round($u * ($p['by'] === 'me' ? $s['me']['max'] : $s['fh']['max']))); if ($p['by'] === 'me') $s['me']['keep'] += $g; else $s['foe']['block'] += $g; pfb_st($s, 'rain_' . $p['by']); }   // rain: guard for the owner through the next turn
-            }
-        }
+        } elseif ($e['kind'] === 'thorn') {
+            foreach (pfb_zone($e) as [$x, $y]) { $p = pfb_at($s, $x, $y); if ($p && $p['by'] !== 'none') pfb_env_hurt($s, $p['by'], (float)v1('ev_unit'), 'thorn'); }
+        } else { $kind = ['sunbeam' => 'sun', 'creep' => 'br', 'puddle' => 'mud'][$e['kind']]; pfb_ground_set($s, $e['x'], $e['y'], $kind); if ($ob) pfb_st($s, $e['kind'] . '_' . $ob); }
+        pfb_st($s, 'ev_' . $e['kind']);
     }
+    if (v1('ground')) foreach ($s['pcs'] as $p) if (pfb_ter($s, $p['x'], $p['y']) === 'br') pfb_env_hurt($s, $p['by'], (float)v1('bramble'), 'br');
     pf_check_end($s);
 }
 function pfb_zone(array $e): array { $z = [[$e['x'], $e['y']]]; foreach (PFB_SIDE as [$dx, $dy]) $z[] = [$e['x'] + $dx, $e['y'] + $dy]; return $z; }
-/** What the announced events will do to a piece of $who put on (x,y), in the creature's score units (thorn costs, rain guards). */
-function pfb_env_bias(array $s, string $who, int $x, int $y): float
+/** What the announced events will do to a piece of $who put on (x,y), in the creature's score units. */
+function pfb_env_bias(array $s, string $who, int $x, int $y, ?array $tile = null): float
 {
-    $b = 0.0; $u = (float)v1('ev') * (float)v1('ev_unit'); $m = $who === 'foe' ? 0.8 * $s['fh']['max'] : 0.7 * $s['me']['max'];
-    if (v1('events')) foreach ($s['envs'] ?? [] as $e) { if ($e['kind'] === 'wind') continue; foreach (pfb_zone($e) as [$zx, $zy]) if ($zx === $x && $zy === $y) $b += $e['kind'] === 'thorn' ? -$u * $m : 0.4 * $u * $m; }
+    $b = 0.0; $m = $who === 'foe' ? 0.8 * $s['fh']['max'] : 0.7 * $s['me']['max'];
+    if (v1('events')) foreach ($s['envs'] ?? [] as $e) {
+        if ($e['kind'] === 'thorn') { foreach (pfb_zone($e) as [$zx, $zy]) if ($zx === $x && $zy === $y) $b -= (float)v1('ev_unit') * ($who === 'foe' ? (float)v1('ev_foe') : 1.0) * $m; }
+        elseif ($e['x'] === $x && $e['y'] === $y) {
+            if ($e['kind'] === 'creep') $b -= (float)v1('bramble') * ($who === 'foe' ? (float)v1('br_foe') : 1.0) * $m;
+            elseif ($e['kind'] === 'sunbeam' && $tile && in_array($tile['t'], ['hurt', 'charm'], true)) $b += 0.3 * $tile['v'];
+        }
+    }
     return $b;
 }
-/** Announce the next event (shown one round ahead): a cell on or next to a piece, one of rain / wind / thorn burst. */
+/** Announce the next events (shown before you move, they land after the creature's move): each on a cell on or next to a piece. */
 function pfb_forecast(array &$s): void
 {
     $s['envs'] = []; if (!v1('events')) return;
-    $cand = [];
-    foreach ($s['pcs'] as $p) { $cand[$p['x'] . ',' . $p['y']] = 1; foreach (PFB_SIDE as [$dx, $dy]) { $x = $p['x'] + $dx; $y = $p['y'] + $dy; if ($x >= 0 && $y >= 0 && $x < PFB_W && $y < PFB_H) $cand["$x,$y"] = 1; } }
-    $keys = array_keys($cand);
+    $cand = []; $pcs = [];
+    foreach ($s['pcs'] as $p) { if ($p['by'] !== 'none') $pcs[] = $p['x'] . ',' . $p['y']; $cand[$p['x'] . ',' . $p['y']] = 1; foreach (PFB_SIDE as [$dx, $dy]) { $x = $p['x'] + $dx; $y = $p['y'] + $dy; if ($x >= 0 && $y >= 0 && $x < pfb_w() && $y < pfb_h()) $cand["$x,$y"] = 1; } }
+    $keys = array_keys($cand); $kinds = v1('evk');
     for ($i = 0; $i < (int)v1('nev') && $keys; $i++) {
-        $j = pf_rand($s, count($keys)); [$x, $y] = array_map('intval', explode(',', $keys[$j])); array_splice($keys, $j, 1);
-        $s['envs'][] = ['kind' => ['rain', 'wind', 'thorn'][pf_rand($s, 3)], 'x' => $x, 'y' => $y, 'dir' => array_keys(PFB_SIDE)[pf_rand($s, 4)]];
+        $kind = $kinds[pf_rand($s, count($kinds))]; $dir = 'L';
+        if ($kind === 'gust') {   // a piece, and a direction that is free now
+            if (!$pcs) continue; $j = pf_rand($s, count($pcs)); $key = $pcs[$j]; [$x, $y] = array_map('intval', explode(',', $key)); $dirs = [];
+            foreach (PFB_SIDE as $d => [$dx, $dy]) { $nx = $x + $dx; $ny = $y + $dy; if ($nx >= 0 && $ny >= 0 && $nx < pfb_w() && $ny < pfb_h() && !isset($s['cell']["$nx,$ny"])) $dirs[] = $d; }
+            if (!$dirs) $dirs = array_keys(PFB_SIDE); $dir = $dirs[pf_rand($s, count($dirs))];
+        } else {
+            $gk = ['sunbeam' => 'sun', 'creep' => 'br', 'puddle' => 'mud'][$kind] ?? null; $ok = array_values(array_filter($keys, fn($k) => $gk === null || ($s['ter'][$k] ?? '') !== $gk)); if (!$ok) continue;
+            $key = $ok[pf_rand($s, count($ok))];
+        }
+        $keys = array_values(array_diff($keys, [$key])); [$x, $y] = array_map('intval', explode(',', $key));
+        $s['envs'][] = ['kind' => $kind, 'x' => $x, 'y' => $y, 'dir' => $dir];
     }
 }""")
 
@@ -85,7 +114,8 @@ rep("$touch = true; if ($jt[1]) $linked = true;", "$touch = true; if ($jt[1] && 
 rep("    $chain = pfb_chain($s, $root);\n    foreach", r"""    $chain = pfb_chain($s, $root);
     $rb = $s['pcs'][$root]['by']; $tw = 1.0; $s['fired'] = []; $s['firedby'] = $rb;
     if (v1('team') > 1) { $srcs = []; foreach ($chain as [$cid]) { $cp = $s['pcs'][$cid]; if ($cp['by'] === $rb && !empty($cp['tile']['src'])) $srcs[$cp['tile']['src']] = 1; }
-        if (isset($srcs['pal'], $srcs['tool'], $srcs['crop'])) { $tw = (float)v1('team'); pfb_st($s, 'team'); } }
+        $ns = count(array_intersect_key($srcs, ['pal' => 1, 'tool' => 1, 'crop' => 1]));
+        if ($ns >= 3) { $tw = (float)v1('team'); pfb_st($s, 'team3'); } elseif ($ns === 2 && v1('team2') > 1) { $tw = (float)v1('team2'); pfb_st($s, 'team2'); } }
     foreach""")
 rep("$val = (int)round($val * (float)($p['cm'] ?? 1.0));   // a placed 3-piece group plays for more", r"""$val = (int)round($val * (float)($p['cm'] ?? 1.0));   // a placed 3-piece group plays for more
         if (in_array($tile['t'], ['hurt', 'charm'], true) && pfb_ter($s, $p['x'], $p['y']) === 'sun') { $val = (int)round($val * (float)v1('sun')); pfb_st($s, 'sun_' . $who); }
@@ -109,7 +139,7 @@ rep("    if ($s['over']) return;\n    foreach ($s['pcs'] as $id => $p) {\n      
 rep("if ($jt === null || (!pfb_has_link($jt) && pfb_must_link($s, $who))) return null;   // it has to connect unless nothing can", "if ($jt === null || (!pfb_has_link($jt) && empty($s['aimforce']) && pfb_must_link($s, $who))) return null;   // it has to connect unless nothing can (v1: a committed aim plays on its cell even when its link has gone)")
 
 # creature search: knows what bramble and the announced events do to a piece that stays out
-rep("            $sc = pfb_score($s, $w, $who);\n", "            $sc = pfb_score($s, $w, $who);\n            if (pfb_ter($s, $x, $y) === 'br' && isset($w['cell'][\"$x,$y\"]) && strpos((string)v1('blind'), 'g') === false) $sc -= 2 * (float)v1('bramble') * ($who === 'foe' ? 0.8 * $s['fh']['max'] : 0.7 * $s['me']['max']);\n            if (isset($w['cell'][\"$x,$y\"]) && strpos((string)v1('blind'), 'e') === false) $sc += pfb_env_bias($s, $who, $x, $y);\n")
+rep("            $sc = pfb_score($s, $w, $who);\n", "            $sc = pfb_score($s, $w, $who);\n            if (pfb_ter($s, $x, $y) === 'br' && isset($w['cell'][\"$x,$y\"]) && strpos((string)v1('blind'), 'g') === false) $sc -= 2 * (float)v1('bramble') * ($who === 'foe' ? (float)v1('br_foe') * 0.8 * $s['fh']['max'] : 0.7 * $s['me']['max']);\n            if (isset($w['cell'][\"$x,$y\"]) && strpos((string)v1('blind'), 'e') === false) $sc += pfb_env_bias($s, $who, $x, $y, $tile);\n")
 
 # aim: commit (no fumble)
 rep("""        $m = pfb_search($s, 'foe');
@@ -130,11 +160,15 @@ rep("""    $m = pfb_search($s, 'foe');
     $s['foe']['plan'] = $m ? ['k' => $s['foe']['hand'][$m[0]]['k'], 't' => $s['foe']['hand'][$m[0]]['t'], 'v' => $s['foe']['hand'][$m[0]]['v'], 'x' => $m[1], 'y' => $m[2]] : null;   // v1: the aim (piece and cell), shown to the player""")
 
 # new: creature factor, ground
+rep("    $s = pf_new($me, $c, $seed, $opt);\n    $fm = PFB_FOE_MULT", "    $GLOBALS['PFSZ'] = $c['size'] ?? 'medium'; [$GLOBALS['PFBW'], $GLOBALS['PFBH']] = v1('dims');   // v1: the board size comes from the creature's size\n    $s = pf_new($me, $c, $seed, $opt);\n    $fm = PFB_FOE_MULT")
+rep("$s['bar']['max'] = round($s['bar']['max'] * PFB_BAR_MULT, 1);", "$s['bar']['max'] = round($s['bar']['max'] * PFB_BAR_MULT * (float)v1('bar'), 1);")
 rep("* (PFB_FOE_FIRES > 0 ? PFB_FOE_FIRE_MULT : 1.0);", "* (PFB_FOE_FIRES > 0 ? PFB_FOE_FIRE_MULT : 1.0) * (float)v1('foe');")
 rep("$s['pid'] = 0; $s['seq'] = 0; $s['round'] = 1;", "$s['pid'] = 0; $s['seq'] = 0; $s['round'] = 1; $s['st'] = []; pfb_seed_ground($s);")
 
 # environment turn after the creature
 rep("{\n    $gone = pfb_expire($s);", "{\n    pfb_env_turn($s); if ($s['over']) return;\n    $gone = pfb_expire($s);")
 
+# board size by creature size: every use of the two constants reads the size of this fight
+src = src.replace('PFB_W', 'pfb_w()').replace('PFB_H', 'pfb_h()').replace('const pfb_w() = 7, pfb_h() = 5', 'const PFB_W = 7, PFB_H = 5').replace('?? pfb_w(); }', '?? PFB_W; }').replace('?? pfb_h(); }', '?? PFB_H; }')
 open(os.path.join(here, 'pfboard_v1.php'), 'w').write(src.replace(" * Puzzle Combat, BOARD mode:", " * SIM-ONLY COPY (generated by mkengine.py; do not edit, do not load from the game). Puzzle Combat, BOARD mode:"))
 print('ok')

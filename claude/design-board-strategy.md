@@ -488,3 +488,200 @@ Bots, not people. Default gnome deck with made-up sources (no real pal, tool or 
 4. Event damage on CREATURES halved (player event damage unchanged).
 5. Teamwork: any 2 of 3 sources (pal/tool/crop) in one chain = +30%; all 3 = +60%.
 Combined with: field size by creature size; use-up limit 3 both sides; aim shown, no fumble; creature mult starts x1.3. Next: sim 3 with all of these (per-size boards), then build in flagged steps.
+
+## Sim results 3 (full v1 bundle)
+
+Sim only, on a patched copy of the 2.6.67 board engine. No game code or version changed. Scripts: `tools/pfsim/v1bundle/` (README there; `bash side3.sh` re-runs everything). All 88 creatures, blank-centre opening, 207-215 fights per cell. Numbers move about 4 points run to run. With every v1 rule switched off the copy gives today's numbers (chain 100 / 25 / 5.2, smart 100 / 7 / 4.5).
+
+### Rules as simulated (every decision so far)
+- **Board size by creature size:** small 5x4, medium 5x5, large 7x5, boss 7x6. The centre is `intdiv(w, 2), intdiv(h, 2)`.
+- **Ground:** sunny, bramble and mud cells 1-2 steps from the centre, count by size (table below). Sunny: a Hurt or Charm piece on it plays x2. Bramble: the owner of the piece on it loses 10% of max health each environment turn (a creature piece costs the creature 10% of its bar). Mud: no link into or out of it. Same for both sides.
+- **Use-up:** a chain that fires 3 or more pieces removes every piece that fired, for chains started by either side.
+- **Aim:** the creature shows its next piece and cell. No fumble: if the cell is taken or the piece is gone it picks again at full value. No reply number.
+- **Events (reworked):** announced at the start of your turn on a marked cell, they land after the creature's move, so you get one move to answer. The mark is always on or next to a piece. Order in the environment turn: events land, then bramble pricks. Five kinds, drawn evenly:
+
+| Event | Mark | What happens when it lands |
+|---|---|---|
+| Sunbeam | a cell that is not sunny | The cell becomes sunny. The oldest sunny cell fades (the count stays the same). |
+| Bramble creep | a cell that is not bramble | The cell becomes bramble and pricks at once. The oldest bramble withers. |
+| Puddle | a cell that is not mud | The cell becomes mud (links on it are cut). The old mud dries. |
+| Gust | a piece, with an arrow | The piece moves one cell along the arrow if that cell is free (the arrow points at a free cell when announced). |
+| Thorn burst | a cell | Every piece on the cell and its 4 neighbours costs its owner 10% of max health. **Creature pieces cost the creature 5%** (halved). |
+
+- **Teamwork:** your pieces in a chain you start come from 2 of the 3 sources (pal, tool, crop): +30% on your pieces in it. All 3: +60%.
+- **Bots:** as in sim 2. `chain` always plays the longest chain. `look` reads one turn (its chain, the shown aim, the announced environment turn). `smart` plans two turns. `-g` / `-e` / `-ge` bots ignore ground / events / both when they choose. `never3` and `smartn3` avoid using pieces up.
+- **Best move changes:** each turn, the bot's best move with everything visible against its pick with ground or events hidden; the turn counts when the blind pick is worse. look is measured by one-turn reading, smart by its two-turn score (a sunbeam only pays next turn, so one-turn reading cannot see it).
+
+### Final numbers (ready to become constants in `pfboard.php`)
+| Constant (proposed name) | small | medium | large | boss | Note |
+|---|---|---|---|---|---|
+| Board `PFB_SIZE` (w x h) | 5x4 | 5x5 | 7x5 | 7x6 | today 7x5 for all |
+| `PFB_GROUND` sunny / bramble / mud | 2 / 2 / 1 | 3 / 2 / 1 | 3 / 3 / 1 | 4 / 3 / 1 | of the 11-12 cells 1-2 steps from the centre |
+| `PFB_GROUND_DIST` | 1-2 | 1-2 | 1-2 | 1-2 | steps from the centre |
+| `PFB_EVENTS` a round | 1 | 2 | 2 | 2 | 5 kinds, even odds |
+| Creature piece values (factor on today) | x1.05 | x0.90 | x0.86 | x1.03 | sim 2 had x1.3 for all |
+| `PFB_FOE_MULT` (today 0.62) | 0.65 | 0.56 | 0.53 | 0.64 | boss still x `PFB_BOSS_MULT` 1.2 on top |
+| Creature bars (factor on today) | x1.6 | x1.6 | x1.6 | x1.25 | **new: this is what gives 6-8 turns** |
+| `PFB_BAR_MULT` (today 0.7) | 1.12 | 1.12 | 1.12 | 0.88 | |
+
+| Constant | Value |
+|---|---|
+| `PFB_USEUP` (chain length that uses pieces up) | 3, both sides |
+| `PFB_SUN_MULT` | 2.0 (Hurt and Charm pieces) |
+| `PFB_BRAMBLE` | 0.10 of max health per environment turn, both sides |
+| `PFB_THORN` | 0.10 of max health per piece in the zone |
+| `PFB_EVENT_FOE` | 0.5 (thorn burst on creature pieces) |
+| Ground cap | an event never raises the count of a kind: the oldest cell of that kind goes |
+| `PFB_TEAM2` / `PFB_TEAM3` | 1.3 / 1.6 |
+| Aim | shown, committed, no fumble, no reply number |
+| Unchanged | `PFB_LIFE` 3, `PFB_FOE_FIRES` 2, `PFB_FOE_FIRE_MULT` 1.15, `PFB_BOSS_MULT` 1.2, `PFB_BLANK_FOE_MULT` 1.0 |
+
+### Main table (final numbers)
+Win % / health lost % / turns. `all` = mean of the four sizes. Small creatures are low level, so the gnome is level 1 at both 4 and 8 under.
+
+| Bot | Level | all | small | medium | large | boss |
+|---|---|---|---|---|---|---|
+| random | at level | 43 / 82 / 9.3 | 47 / 74 / 8.5 | 44 / 83 / 9.7 | 41 / 85 / 9.5 | 41 / 86 / 9.6 |
+| random | 4 under | 27 / 89 / 8.3 | 53 / 72 / 6.8 | 13 / 96 / 8.0 | 20 / 93 / 9.0 | 22 / 93 / 9.2 |
+| random | 8 under | 18 / 92 / 6.8 | 44 / 77 / 6.5 | 8 / 97 / 5.5 | 7 / 97 / 7.3 | 13 / 96 / 7.9 |
+| **chain** | **at level** | 73 / 66 / 6.4 | 71 / 59 / 5.0 | 73 / 64 / 6.4 | 70 / 70 / 6.9 | 77 / 68 / 7.3 |
+| chain | 4 under | 49 / 77 / 5.9 | 74 / 55 / 3.5 | 24 / 90 / 5.9 | 44 / 83 / 7.2 | 53 / 79 / 7.0 |
+| chain | 8 under | 34 / 82 / 5.3 | 74 / 55 / 3.5 | 14 / 93 / 4.3 | 21 / 90 / 6.2 | 28 / 90 / 6.9 |
+| greedy | at level | 85 / 51 / 6.0 | 88 / 43 / 5.0 | 82 / 51 / 5.9 | 83 / 56 / 6.5 | 88 / 54 / 6.7 |
+| greedy | 4 under | 67 / 65 / 5.9 | 87 / 41 / 3.1 | 43 / 83 / 6.4 | 63 / 70 / 7.0 | 74 / 66 / 7.1 |
+| greedy | 8 under | 49 / 73 / 5.5 | 87 / 41 / 3.1 | 28 / 86 / 5.1 | 35 / 85 / 6.8 | 47 / 82 / 7.1 |
+| never3 | at level | 96 / 32 / 7.8 | 94 / 26 / 6.3 | 94 / 30 / 8.6 | 96 / 34 / 7.8 | 99 / 37 / 8.4 |
+| never3 | 4 under | 89 / 43 / 8.8 | 97 / 29 / 4.2 | 74 / 54 / 11.7 | 91 / 45 / 9.6 | 93 / 44 / 9.8 |
+| never3 | 8 under | 74 / 54 / 8.9 | 97 / 29 / 4.2 | 49 / 71 / 9.6 | 69 / 59 / 11.1 | 81 / 58 / 10.9 |
+| look-ge | at level | 92 / 37 / 8.8 | 93 / 29 / 7.0 | 83 / 42 / 9.8 | 96 / 37 / 8.9 | 96 / 40 / 9.6 |
+| look-ge | 4 under | 78 / 50 / 9.7 | 90 / 35 / 5.0 | 54 / 62 / 11.4 | 80 / 53 / 11.5 | 88 / 49 / 10.7 |
+| look-ge | 8 under | 63 / 63 / 9.4 | 90 / 35 / 5.0 | 33 / 81 / 8.7 | 57 / 71 / 11.8 | 71 / 64 / 12.0 |
+| look | at level | 98 / 24 / 7.2 | 95 / 21 / 5.9 | 98 / 24 / 7.9 | 100 / 26 / 7.4 | 99 / 26 / 7.8 |
+| look | 4 under | 90 / 37 / 8.5 | 98 / 26 / 3.8 | 74 / 51 / 11.5 | 92 / 37 / 9.7 | 96 / 36 / 9.1 |
+| look | 8 under | 78 / 49 / 8.8 | 98 / 26 / 3.8 | 50 / 68 / 10.1 | 74 / 52 / 10.8 | 90 / 48 / 10.5 |
+| smartn3 | at level | 97 / 27 / 6.6 | 97 / 22 / 5.3 | 98 / 26 / 7.2 | 97 / 27 / 6.9 | 98 / 33 / 7.1 |
+| smartn3 | 4 under | 93 / 35 / 7.6 | 98 / 23 / 3.7 | 82 / 46 / 10.3 | 94 / 34 / 8.2 | 97 / 35 / 8.1 |
+| smartn3 | 8 under | 82 / 46 / 7.9 | 98 / 23 / 3.7 | 57 / 63 / 8.7 | 81 / 51 / 9.8 | 90 / 46 / 9.4 |
+| smart-ge | at level | 98 / 28 / 7.1 | 97 / 23 / 5.2 | 96 / 31 / 7.8 | 99 / 27 / 7.4 | 99 / 29 / 7.8 |
+| smart-ge | 4 under | 92 / 37 / 8.4 | 95 / 28 / 4.0 | 79 / 46 / 10.8 | 98 / 35 / 9.7 | 96 / 39 / 9.0 |
+| smart-ge | 8 under | 81 / 46 / 9.0 | 95 / 28 / 4.0 | 56 / 62 / 9.5 | 80 / 52 / 11.5 | 92 / 44 / 10.9 |
+| **smart** | **at level** | 100 / 17 / 5.6 | 100 / 15 / 4.4 | 100 / 16 / 6.0 | 100 / 17 / 6.0 | 100 / 19 / 6.1 |
+| smart | 4 under | 99 / 21 / 6.7 | 100 / 18 / 3.3 | 97 / 25 / 9.3 | 100 / 20 / 7.5 | 100 / 20 / 6.8 |
+| smart | 8 under | 95 / 29 / 7.6 | 100 / 18 / 3.3 | 83 / 41 / 9.6 | 95 / 29 / 9.2 | 100 / 29 / 8.3 |
+
+**Targets at level:** "just chain" wins 73% and loses 66% of its health in 6.4 turns; smart wins 100% and loses 17% in 5.6 turns; a one-turn reader (look) wins 98% and loses 24% in 7.2 turns. Fights are 6.0-7.9 turns on medium, large and boss boards and 4.4-5.9 on small ones (sim 2: 3.9 for smart). The chain bot is 3 points over the 70% aim, inside the noise (a 420-fight check gave 71%).
+
+| Gap (win points / health points less lost) | at level | 4 under | 8 under |
+|---|---|---|---|
+| smart over chain | +27 / 49 | +50 / 56 | +61 / 53 |
+| look over chain | +25 / 42 | +41 / 40 | +44 / 33 |
+| smart over smart that ignores ground and events | +2 / 11 | +7 / 16 | +14 / 17 |
+| look over look that ignores ground and events | +6 / 13 | +12 / 13 | +15 / 14 |
+| smart over smart that never uses pieces up | +3 / 10 | +6 / 14 | +13 / 17 |
+
+### Do ground and events change the best move (at level)
+Share of turns where the pick made blind is worse. "Fights" = fights with at least one turn where the forecast changed the plan.
+
+| Played by | ground hidden | events hidden | both hidden | both, costs 3+ points | Fights where a forecast changed the plan | Mean cost of playing blind, points a turn |
+|---|---|---|---|---|---|---|
+| smart (two-turn) | 35% | **17%** | **40%** | 34% | 60% | 18.7 |
+| look (one-turn) | 25% | 9% | 28% | 23% | 45% | 9.2 |
+| smart, 1 event a round on every board | 35% | 11% | 39% | 33% | 44% | |
+| smart, sunny x1.5 | 29% | 18% | 36% | 28% | 66% | |
+
+| Both hidden, by board | small 5x4 | medium 5x5 | large 7x5 | boss 7x6 |
+|---|---|---|---|---|
+| smart: both / events alone | 33% / 12% | 41% / 19% | 41% / 20% | 45% / 19% |
+| look: both / events alone | 23% / 5% | 29% / 9% | 28% / 10% | 31% / 11% |
+
+What it costs to ignore them for a whole fight (at level, win / health lost / turns):
+
+| Bot | sees all | ignores events | ignores ground | ignores both |
+|---|---|---|---|---|
+| smart | 100 / 17 / 5.6 | 100 / 19 / 5.9 | 98 / 26 / 6.9 | 98 / 28 / 7.1 |
+| look | 98 / 24 / 7.2 | 97 / 26 / 7.4 | 94 / 35 / 8.6 | 92 / 37 / 8.8 |
+
+- **The 30% target is met for a planner (40%)** and just missed for a one-turn reader (28%).
+- **Events now change the plan in 17% of a planner's turns** and in 60% of fights (sim 2: 11% of turns). Two events a round do that; one a round gives 11%.
+- **But ignoring events is still cheap:** 2 health points a fight. Ground is the thing you cannot ignore (9-11 health points and 2-4 win points at level; ground and events together 14 win points at 8 under).
+- Per fight (smart): 1.7-1.8 events of each kind; 0.9 pieces pushed by a gust (0.28 mine, 0.62 the creature's); 1.45 pieces get ground put under them (about a third mine).
+
+### What the environment does in a fight (at level)
+| Bot | My health lost to bramble / thorn | Creature bar lost to bramble / thorn | Progress from sunny cells | My sunny fires per fight (re-fires) | Creature sunny fires | Placements that use pieces up | Took a 3+ chain when one was open | Creature re-aims per fight | Turn cap |
+|---|---|---|---|---|---|---|---|---|---|
+| random | 18% / 14% | 14% / 9% | 30% | 1.38 (0.72) | 2.63 | 28% | 61% | | 0.5% |
+| chain | 9% / 7% | 10% / 6% | 41% | 1.89 (0.97) | 1.68 | 39% | 94% | 2.2 | 0.0% |
+| look-ge | 14% / 10% | 14% / 8% | 33% | 1.42 (1.00) | 2.27 | 29% | 71% | | 1.1% |
+| look | 7% / 7% | 15% / 8% | 53% | 2.14 (1.18) | 1.25 | 29% | 69% | 2.9 | 0.2% |
+| smart | 6% / 5% | 14% / 7% | 57% | 2.03 (1.19) | 1.00 | 30% | 58% | 1.5 | 0.0% |
+
+The environment is what sets the fight length: with no ground and no events the same creatures take 10-14 turns (chain 11.1, look 14.1, smart 10.3); ground alone 6-8; events alone 8-11.
+
+### Teamwork (2 sources +30%, 3 sources +60%)
+Mixed deck = 1 pal, 2 tool (the first belt), 2 crop pieces, the rest knacks (5 of 7 pieces at level 1, 5 of 14 from level 20). Built deck = 2 pal, 4 tool, 4 crop.
+
+| Deck | 2-source chains per fight: chain / look / smart | 3-source chains per fight | Fights with Teamwork | Result at level: chain, look, smart |
+|---|---|---|---|---|
+| No sources | 0 | 0 | 0% | 70 / 68, 97 / 26, 100 / 18 |
+| Mixed | 0.70 / 0.68 / 0.72 | 0.02 / 0.02 / 0.04 | 51% / 48% / 56% | 73 / 66, 98 / 24, 100 / 17 |
+| Built | 1.71 / 1.78 / 1.55 | 0.17 / 0.14 / 0.24 | 93% / 90% / 91% | 75 / 61, 99 / 23, 100 / 15 |
+
+Fights with Teamwork by board (smart): mixed 75% / 56% / 42% / 48% (small / medium / large / boss), built 98% / 94% / 83% / 87%.
+
+- **Teamwork now shows up:** about every second fight with a mixed deck, nine fights in ten with a built one (sim 2: 2-4% and 17-30%). A pair fires in a 2-chain, so it does not need use-up.
+- It is worth 2-5 win points for a careless player and 1-3 health points for a careful one, and fights with a built deck are half a turn shorter. All 3 sources stays rare (it needs a 3-chain, which uses the pieces up).
+
+### Variants (at level, `all`, win / health lost / turns)
+| Variant | chain | look | smart |
+|---|---|---|---|
+| **Final numbers** | 73 / 66 / 6.4 | 98 / 24 / 7.2 | 100 / 17 / 5.6 |
+| Bars as today, creature x1.3 (sim 2 numbers on the new boards and events) | 71 / 61 / 4.3 | 95 / 29 / 5.0 | 99 / 23 / 4.0 |
+| No events | 70 / 65 / 7.1 | 97 / 22 / 8.3 | 100 / 15 / 6.1 |
+| No ground | 70 / 68 / 8.8 | 97 / 24 / 10.6 | 100 / 14 / 7.9 |
+| No ground, no events | 70 / 68 / 11.1 | 89 / 17 / 14.1 | 99 / 9 / 10.3 |
+| 1 event a round on every board | 70 / 66 / 6.7 | | 100 / 15 / 5.9 |
+| Sunny x1.5 | 73 / 67 / 7.2 | | 100 / 16 / 6.5 |
+| Thorn burst at full strength on creatures | 74 / 63 / 6.1 | 99 / 23 / 6.6 | 100 / 16 / 5.2 |
+| Bramble also halved on creatures | 68 / 69 / 6.7 | 97 / 27 / 8.0 | 100 / 17 / 6.2 |
+| Events add ground (one more cell of a kind allowed) | 70 / 66 / 6.0 | 98 / 26 / 6.7 | 100 / 18 / 5.4 |
+| Creature values +15% | 62 / 71 / 6.1 | 96 / 29 / 7.6 | 100 / 20 / 5.8 |
+| Limit 4 | 77 / 59 / 5.2 | 99 / 21 / 5.7 | 100 / 18 / 4.8 |
+| **Boards: all 7x5** (alternative set 1) | 73 / 65 / 6.3 | | 100 / 16 / 5.7 |
+| **Boards: 4x4, 5x4, 6x5, 7x5** (alternative set 2) | 69 / 68 / 6.4 | | 100 / 18 / 5.8 |
+
+### Degenerate play and boss behaviour
+- **Never chaining 3+:** worse. never3 96 / 32 against look 98 / 24; smartn3 97 / 27 against smart 100 / 17, and 82% against 95% at 8 under. Smart takes an open 3+ chain 58% of the time.
+- **Stalling:** none at level (0.0-1.1% of fights at the turn cap, no passes, a turn with no legal move in under 0.1% of turns, also on 5x4 and 4x4). Under level, medium creatures reach the cap in 2-7% of fights for careful bots (fights of 9-12 turns).
+- **Ground camping:** as in sim 2. A careful player gets 53-57% of its progress from sunny cells with about 2 sunny fires a fight, 1.2 of them re-fires. Sunbeams move the patches, pieces live 3 rounds and a 3+ chain uses them up, so nobody sits on one patch.
+- **A dominant piece:** no. Swing 22% of all progress, Trip 16%, Pierce 15%, Jab 14% (today Swing 22-24%). Inside one fight the top piece gives 67% (85% on small boards, 4-turn fights).
+- **Boss:** at level it behaves like the other sizes (chain 77 / 68 / 7.3, smart 100 / 19 / 6.1). Under level it is still soft for a planner: smart wins 100% at 4 and at 8 under (chain 53% and 28%). The environment takes 31% of a boss's bar in a careful fight at level (21% bramble, 10% thorn) and 40% at 8 under, because a boss keeps more pieces out.
+- **Random play:** 43% at level.
+
+### Red flags
+1. **Board size changes nothing in the numbers.** All fights on 7x5, or on boards one step smaller, give the same results within the noise (the one exception: medium on 5x4, chain 60%). Use-up keeps about one of your pieces out, so play stays within 2 cells of the centre and never reaches the edge. Board size is a look, not a constraint.
+2. **Fight length needed tougher creatures.** With today's bars, fights stay at 4-5 turns whatever the events do. The 6-8 turns come from bars x1.6 (boss x1.25) with creature piece values lowered to x0.86-1.05 so the win rates hold. Lowering the creature factor alone does not lengthen a fight.
+3. **Events change plans but cost little to ignore** (2 health points a fight). Ground carries the strategy.
+4. **One-turn readers sit at 28%** on the best-move measure, under the 30% aim.
+5. **Bramble still gives the creature's bar away:** 14% a fight (boss 21%), on top of 7% from thorn bursts. Halving bramble on creatures too costs the chain bot 5 points and adds half a turn.
+6. **The shown aim often does not happen:** the creature re-aims 1.5-2.9 times a fight (a quarter to 40% of its turns), mostly because the player took the cell. With no fumble that is free for the player and may read as a wrong forecast.
+7. **Medium creatures under level are the wall** (chain 24% at 4 under, look 74%, smart 97%; at 8 under 14% / 50% / 83%), bosses under level are not (above).
+8. **Small creatures:** the chain bot wins 74% when under level (the gnome is level 1 either way), and one piece gives 85% of the progress.
+
+### Limits
+Bots, not people. Default gnome deck with made-up sources (no real pal, tool or crop pieces, no per-piece life 2-4). One ground mix per size (no regions). Event kinds are drawn evenly and marks are random among cells on or next to a piece. "Best move" is the bot's own best, not a solved game. Swift pieces and perks that raise the limit were not modelled. The per-size factors were tuned on 200-400 fights per size; expect to move them by 0.05 in the retune.
+
+### Build order (each step small, each behind its own flag, all off for players until step 8)
+1. **Board size in the state** (`pfv1_size`): `$s['w']`, `$s['h']` set in `pfb_new` from the creature's size; replace every `PFB_W` / `PFB_H` read (13 places) and the view; same in `tools/pfengine.js`; page grid reads the view. No rule change.
+2. **Use-up** (`pfv1_useup`): in `pfb_spend`, a chain of 3+ sends every fired piece to its owner's discard, both sides. Chain meter on the page.
+3. **Aim** (`pfv1_aim`): `pfb_intent` stores piece and cell; `pfb_foe_turn` plays it, or searches again if it cannot; the view shows it; the reply number leaves `pfb_cell_preview`.
+4. **Ground** (`pfv1_ground`): `$s['ter']` seeded in `pfb_new` (counts by size, 1-2 steps out); sunny in `pfb_fire`, mud in `pfb_check` / `pfb_links`, bramble in a new `pfb_env_turn` at the top of `pfb_end_round`; creature search knows bramble; page draws the cells.
+5. **Events** (`pfv1_events`): `pfb_forecast` in `pfb_intent`, the five kinds in `pfb_env_turn` (before bramble), ground cap, marks and arrows on the page, replay entries.
+6. **Teamwork** (`pfv1_team`): needs `src` on pieces (deckbuilder step 6); 2 sources x1.3, 3 sources x1.6 in `pfb_fire`; a line in the chain preview.
+7. **Per-size constants**: `PFB_FOE_MULT` and `PFB_BAR_MULT` become maps by size, used only when the flags are on.
+8. **Retune and switch on**: port the chain and smart bots to `tests/pfboard_tune.php`, re-run against the real engine with real decks, JS parity test, then enable the flags together.
+
+### Questions for Josh
+1. Longer fights need tougher creatures: bars x1.6 (boss x1.25) with softer hits (x0.86-1.05). OK, or keep today's bars and accept 4-5 turns?
+2. Board size does not change play. Keep it as a look (small 5x4 up to boss 7x6), or should big boards get something that uses the room (start pieces further apart, ground 1-3 steps out on 7-wide boards)?
+3. Events: 2 a round change the plan in 1 turn in 6, but ignoring them costs 2 health points. Enough, or make them hit harder (thorn 15%, gust 2 cells, 3 a round on boss boards)?
+4. Bramble takes 14-21% of the creature's bar for free. Halve it on creatures like the thorn burst (chain bot drops to 68%, fights half a turn longer)?

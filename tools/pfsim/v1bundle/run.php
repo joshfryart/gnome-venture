@@ -24,8 +24,11 @@ function player(int $lv): array {
     foreach ($own as $k) if (!in_array($k, $box, true) && count($box) < $cap) $box[] = $k;
     $max = 20 + 3 * $lv + 5 * $m;
     $deck = pf_player_deck($st, $cal, 1 + intdiv($lv, 12), [], [], [], true, $box);
-    $src = [1 => 'pal', 2 => 'tool', 3 => 'crop', 5 => 'pal', 6 => 'tool', 7 => 'crop'];
-    foreach ($deck as $i => $t) $deck[$i]['src'] = getenv('SRC') === 'thirds' ? ['pal', 'tool', 'crop'][$i % 3] : (getenv('SRC') === 'pairs' ? ($i < 12 ? ['pal', 'tool', 'crop'][$i % 3] : 'knack') : ($src[$i] ?? 'knack'));   // SRC=thirds: every piece has a source (a deck built for Teamwork); SRC=pairs: 4 pal, 4 tool, 4 crop
+    // Sources for Teamwork. Default "mixed": 1 pal, 2 tool (the starting belt), 2 crop, the rest knacks. SRC=built: 2 pal (a full party), 4 tool (the top belt), 4 crop. SRC=thirds: every piece has a source. SRC=none: no sources.
+    $mode = getenv('SRC') ?: 'mixed'; $n = count($deck);
+    $plan = $mode === 'built' ? ['pal', 'tool', 'crop', 'tool', 'crop', 'pal', 'tool', 'crop', 'tool', 'crop'] : ['tool', 'crop', 'pal', 'tool', 'crop'];
+    $slots = []; for ($i = 0; $i < count($plan); $i++) $slots[(int)floor(($i + 0.5) * $n / count($plan))] = $plan[$i];   // spread over the deck (it is shuffled anyway)
+    foreach ($deck as $i => $t) $deck[$i]['src'] = $mode === 'thirds' ? ['pal', 'tool', 'crop'][$i % 3] : ($mode === 'none' ? 'knack' : ($slots[$i] ?? 'knack'));
     return ['hp' => $max, 'max_hp' => $max, 'stats' => $st, 'deck' => $deck, 'luck' => $m, 'calling' => $cal];
 }
 function places(array $s): array { $o = []; foreach ($s['me']['hand'] as $i => $t) foreach (pfb_cells($s, $t, 'me') as [$x, $y]) $o[] = [$i, $x, $y]; if (!empty($s['me']['held'])) foreach (pfb_group_spots($s, $s['me']['held']) as [$x, $y]) $o[] = ['c', $x, $y]; return $o; }
@@ -61,7 +64,33 @@ function metric(array $s, array $pl, array &$m): void {
     $full = ranked($s, $pl); if (count($full) < 2) return; $val = []; foreach ($full as [$v, $a]) $val[json_encode($a)] = $v; $best = $full[0][0]; $ba = $full[0][1];
     $m['bm_n']++;
     foreach (['g', 'e', 'ge'] as $w) { $r = ranked(strip($s, $w), $pl)[0][1] ?? null; if ($r === null) continue; $reg = $best - ($val[json_encode($r)] ?? $best);
-        if ($reg > 1e-6) { $m["bm_$w"]++; if ($r[1] !== $ba[1] || $r[2] !== $ba[2]) $m["bmc_$w"]++; } if ($reg >= 0.03) $m["bm3_$w"]++; if ($reg >= 0.08) $m["bm8_$w"]++; $m["bmr_$w"] += $reg; }
+        if ($reg > 1e-6) { $m["bm_$w"]++; if ($w === 'e') $m['bm_efight'] = 1; if ($r[1] !== $ba[1] || $r[2] !== $ba[2]) $m["bmc_$w"]++; } if ($reg >= 0.03) $m["bm3_$w"]++; if ($reg >= 0.08) $m["bm8_$w"]++; $m["bmr_$w"] += $reg; }
+}
+/** smart's score of one action: 0.35 x the look value + 0.65 x the value after my best own chain next turn with the pieces I keep (no peeking at the draw pile). */
+function smart_score(array $s, array $a, float $v1, array $w): float {
+    $v2 = $v1;
+    if (!$w['over']) {
+        $keep = count($s['me']['hand']) - ($a[0] === 'j' ? 2 : ($a[0] === 'c' ? 0 : 1)); $v2 = $v1 - 0.02;
+        foreach ($w['me']['hand'] as $i => $t) { if ($i >= $keep) break; foreach (pfb_cells($w, $t, 'me') as [$x, $y]) { [$w2] = dry($w, [$i, $x, $y]); $v2 = max($v2, value($w2)); } }
+        if (!empty($w['me']['held'])) foreach (pfb_group_spots($w, $w['me']['held']) as [$x, $y]) { [$w2] = dry($w, ['c', $x, $y]); $v2 = max($v2, value($w2)); }
+    }
+    return 0.35 * $v1 + 0.65 * $v2;
+}
+/** smart: two turns. The top 6 actions by look (set-aside included), scored by smart_score, best first. */
+function smart_rank(array $s, array $acts): array {
+    $o = []; foreach (array_slice(ranked($s, $acts), 0, 6) as [$v1, $a, $w]) $o[] = [smart_score($s, $a, $v1, $w), $a];
+    usort($o, fn($x, $y) => $y[0] <=> $x[0]); return $o;
+}
+/** The same measure for the two-turn planner: its pick with ground / events hidden, scored with everything visible. */
+function metric2(array $s, array $pl, array &$m): void {
+    $acts = array_merge($pl, joins($s)); if (count($acts) < 2) return;
+    $full = smart_rank($s, $acts); if (!$full) return; $best = $full[0][0]; $ba = $full[0][1]; $val = []; foreach ($full as [$v, $a]) $val[json_encode($a)] = $v;
+    $m['bm_n']++; $hit = false;
+    foreach (['g', 'e', 'ge'] as $w) { $r = smart_rank(strip($s, $w), $acts)[0][1] ?? null; if ($r === null || $r === $ba) continue; $k = json_encode($r);
+        if (!isset($val[$k])) { $x = $s; $rr = act($x, $r); if ($rr['err']) continue; $val[$k] = smart_score($s, $r, value($x), $x); }
+        $reg = $best - $val[$k];
+        if ($reg > 1e-6) { $m["bm_$w"]++; if ($w === 'e') $hit = true; } if ($reg >= 0.03) $m["bm3_$w"]++; if ($reg >= 0.08) $m["bm8_$w"]++; $m["bmr_$w"] += max(0, $reg); }
+    if ($hit) $m['bm_efight'] = 1;
 }
 function choose(array $s, string $bot, array $pl, array $dr): array {
     if (strpos($bot, '-') !== false) { [$bot, $bl] = explode('-', $bot, 2); $s = strip($s, $bl); }
@@ -72,22 +101,7 @@ function choose(array $s, string $bot, array $pl, array $dr): array {
     if ($bot === 'greedy') { $b = 0; $bs = -1e9; foreach ($dr as $i => $d) { $sc = pfb_score($s, $d[0], 'me'); if ($sc > $bs + 1e-9) { $bs = $sc; $b = $i; } } return $pl[$b]; }   // best own-chain numbers
     if ($bot === 'never3') { $lim = (int)v1('limit') ?: 3; $ok = []; foreach ($pl as $i => $a) if ($dr[$i][1] < $lim) $ok[] = $a; return ranked($s, $ok ?: $pl)[0][1] ?? ['pass']; }   // look, but never uses pieces up if it can help it
     if ($bot === 'look') return ranked($s, $pl)[0][1] ?? ['pass'];
-    if ($bot === 'smart') {   // two turns: top 6 by look (set-aside included), then my best own chain next turn with the pieces I keep (no peeking at the draw pile)
-        $acts = array_merge($pl, joins($s)); if (!$acts) return ['pass'];
-        $top = array_slice(ranked($s, $acts), 0, 6); if (!$top) return ['pass'];
-        $best = null; $bs = -1e9;
-        foreach ($top as [$v1, $a, $w]) {
-            $v2 = $v1;
-            if (!$w['over']) {
-                $keep = count($s['me']['hand']) - ($a[0] === 'j' ? 2 : ($a[0] === 'c' ? 0 : 1)); $v2 = $v1 - 0.02;
-                foreach ($w['me']['hand'] as $i => $t) { if ($i >= $keep) break; foreach (pfb_cells($w, $t, 'me') as [$x, $y]) { [$w2] = dry($w, [$i, $x, $y]); $v2 = max($v2, value($w2)); } }
-                if (!empty($w['me']['held'])) foreach (pfb_group_spots($w, $w['me']['held']) as [$x, $y]) { [$w2] = dry($w, ['c', $x, $y]); $v2 = max($v2, value($w2)); }
-            }
-            $sc = 0.35 * $v1 + 0.65 * $v2;
-            if ($sc > $bs + 1e-9) { $bs = $sc; $best = $a; }
-        }
-        return $best;
-    }
+    if ($bot === 'smart') { $acts = array_merge($pl, joins($s)); if (!$acts) return ['pass']; $r = smart_rank($s, $acts); return $r ? $r[0][1] : ['pass']; }
     throw new Exception("bot $bot");
 }
 
@@ -102,21 +116,22 @@ foreach (array_map('intval', explode(',', $offs)) as $d) foreach (creatures() as
         $hand = $s['me']['hand']; $bi = 0; foreach ($hand as $i => $t) if ($t['t'] === 'hurt' && $t['v'] > $hand[$bi]['v']) $bi = $i;
         pfb_start($s, $bi, ['L', 'R', 'T', 'B'][$k % 4]);
         $t = 0; $m = ['pl' => 0, 'fired' => 0, 'long' => 0, 'opp' => 0, 'tookopp' => 0, 'longest' => 0, 'pass' => 0, 'join' => 0, 'hand' => 0, 'board' => 0, 'legal' => 0, 'nolegal' => 0, 'on_sun' => 0, 'on_br' => 0, 'on_mud' => 0, 'in_thorn' => 0, 'in_rain' => 0, 'sun_open' => 0, 'thorn_open' => 0,
-            'bm_n' => 0, 'bm_g' => 0, 'bm_e' => 0, 'bm_ge' => 0, 'bmc_g' => 0, 'bmc_e' => 0, 'bmc_ge' => 0, 'bm3_g' => 0, 'bm3_e' => 0, 'bm3_ge' => 0, 'bm8_g' => 0, 'bm8_e' => 0, 'bm8_ge' => 0, 'bmr_g' => 0, 'bmr_e' => 0, 'bmr_ge' => 0];
+            'nev' => 0, 'mark_n' => 0, 'on_sunmark' => 0, 'on_brmark' => 0, 'bm_efight' => 0, 'bm_n' => 0, 'bm_g' => 0, 'bm_e' => 0, 'bm_ge' => 0, 'bmc_g' => 0, 'bmc_e' => 0, 'bmc_ge' => 0, 'bm3_g' => 0, 'bm3_e' => 0, 'bm3_ge' => 0, 'bm8_g' => 0, 'bm8_e' => 0, 'bm8_ge' => 0, 'bmr_g' => 0, 'bmr_e' => 0, 'bmr_ge' => 0];
         $zone = function (array $s, string $kind, int $x, int $y): bool { foreach ($s['envs'] ?? [] as $e) if ($e['kind'] === $kind) foreach (pfb_zone($e) as [$zx, $zy]) if ($zx === $x && $zy === $y) return true; return false; };
         while (!$s['over'] && $t++ < 40) {
             $pl = places($s); $dr = array_map(fn($a) => dry($s, $a), $pl);
             $m['hand'] += count($s['me']['hand']); $m['board'] += count(array_filter($s['pcs'], fn($q) => $q['by'] === 'me')); $m['legal'] += count($pl); if (!$pl) $m['nolegal']++;
-            if ($metric) metric($s, $pl, $m);
+            if ($metric) { if (explode('-', $bot)[0] === 'smart' && getenv('METRIC') !== '1') metric2($s, $pl, $m); else metric($s, $pl, $m); }
+            $m['nev'] += count($s['envs'] ?? []); foreach ($s['envs'] ?? [] as $e) if (in_array($e['kind'], ['sunbeam', 'creep', 'puddle'], true)) { $m['mark_n']++; }
             $a = choose($s, $bot, $pl, $dr);
             if (array_filter($pl, fn($q) => is_int($q[0]) && pfb_ter($s, $q[1], $q[2]) === 'sun' && in_array($s['me']['hand'][$q[0]]['t'], ['hurt', 'charm'], true))) $m['sun_open']++;
             if (array_filter($pl, fn($q) => is_int($q[0]) && $zone($s, 'thorn', $q[1], $q[2]))) $m['thorn_open']++;
-            if (is_int($a[0])) { $tk = pfb_ter($s, $a[1], $a[2]); if ($tk === 'sun' && in_array($s['me']['hand'][$a[0]]['t'], ['hurt', 'charm'], true)) $m['on_sun']++; elseif ($tk === 'br') $m['on_br']++; elseif ($tk === 'mud') $m['on_mud']++; if ($zone($s, 'thorn', $a[1], $a[2])) $m['in_thorn']++; if ($zone($s, 'rain', $a[1], $a[2])) $m['in_rain']++; }
+            if (is_int($a[0])) { $tk = pfb_ter($s, $a[1], $a[2]); if ($tk === 'sun' && in_array($s['me']['hand'][$a[0]]['t'], ['hurt', 'charm'], true)) $m['on_sun']++; elseif ($tk === 'br') $m['on_br']++; elseif ($tk === 'mud') $m['on_mud']++; if ($zone($s, 'thorn', $a[1], $a[2])) $m['in_thorn']++; foreach ($s['envs'] ?? [] as $e) if ($e['x'] === $a[1] && $e['y'] === $a[2]) { if ($e['kind'] === 'sunbeam') $m['on_sunmark']++; if ($e['kind'] === 'creep') $m['on_brmark']++; } }
             if ($a[0] === 'pass') $m['pass']++; elseif ($a[0] === 'j' || $a[0] === 'h') $m['join']++;
             else { $i = array_search($a, $pl); $n = $dr[$i][1]; $mx = max(array_map(fn($x) => $x[1], $dr)); $m['pl']++; $m['fired'] += $n; if ($n >= $lim) $m['long']++; if ($mx >= $lim) { $m['opp']++; if ($n >= $lim) $m['tookopp']++; } if ($n === $mx) $m['longest']++; }
             $r = act($s, $a);
             if ($r['err']) { $r = pfb_pass($s, $s['turn']); if ($r['err']) { if (!$pl) break; pfb_play($s, [$pl[0]], $s['turn']); } }
         }
-        echo json_encode(['bot' => $bot, 'd' => $d, 'size' => $c['size'], 'slug' => $c['slug'], 'win' => in_array($s['over'], ['seen_off', 'charmed'], true) ? 1 : 0, 'over' => $s['over'] ?: 'cap', 'turns' => $s['turn'], 'hp' => round(1 - $s['me']['hp'] / $s['me']['max'], 3), 't' => $t] + $m + ['st' => $s['st']]), "\n";
+        echo json_encode(['bot' => $bot, 'd' => $d, 'size' => $c['size'], 'slug' => $c['slug'], 'win' => in_array($s['over'], ['seen_off', 'charmed'], true) ? 1 : 0, 'over' => $s['over'] ?: 'cap', 'turns' => $s['turn'], 'hp' => round(1 - $s['me']['hp'] / $s['me']['max'], 3), 't' => $t, 'w' => pfb_w(), 'h' => pfb_h()] + $m + ['st' => $s['st']]), "\n";
     }
 }
