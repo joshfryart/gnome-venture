@@ -187,6 +187,7 @@ $st = calling_status($row(), calling_chapter($wrong));
 ok('state: regions + recipes read live', isset($st['tasks'][8]) && $st['tasks'][8]['goal'] === 1, json_encode($st['tasks'][8] ?? null));
 
 echo "== real garden path emits events\n";
+set_setting('weather_force', 'sun'); setting('__reload__');   // rain waters the bed itself and the water action then does nothing
 $tTend = $T('event', 'tend', 'slug=plant,kind=vegetable', 1);
 $tWater = $T('event', 'water', '', 1);
 [$r, $m] = calling_start($row(), $wrong);   // re-start adds rows for the new tasks

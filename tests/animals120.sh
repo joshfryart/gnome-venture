@@ -23,6 +23,7 @@ dbx "UPDATE users SET tour_step=0, coins=1000000, level=30, energy=60, energy_up
 P=$(db "SELECT id FROM plots WHERE user_id=$UID_ LIMIT 1")
 dbx "UPDATE plots SET garden_level=12 WHERE id=$P"
 dbx "REPLACE INTO settings (name,value) VALUES ('kitchen_pots','0')"
+dbx "REPLACE INTO settings (name,value) VALUES ('game_clock_on','0')"   # the critters' timers are real time here (the game clock is on by default now)
 dbx "INSERT INTO garden_buildings (plot_id,building,built_at,last_collect) VALUES ($P,'kitchen',datetime('now'),datetime('now'))"
 
 echo "== data (fresh install)"

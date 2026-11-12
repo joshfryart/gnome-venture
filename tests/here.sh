@@ -162,14 +162,15 @@ chk "an encounter on the Trail is a popover (dialog.trailpop)" "$(grep -q '<dial
 chk "...that holds the fight buttons" "$(sed -n '/trailpop/,/<\/dialog>/p' $TD/here-p.html | grep -q 'value="attack"' && echo 1)"
 cli clearenc >/dev/null; get adventure.php >/dev/null
 chk "settled: no popover, the map is back" "$(grep -q 'trailpop' $TD/here-p.html && echo 0 || echo 1)"
+SEC0=$(cli tilego | tail -1 | cut -d' ' -f2-3)   # "phase section": a Continue before the exit must leave it as it was (the route, so the first section number, differs per world)
+R=$(post adventure.php -d do=trail_next)
+chk "Continue before the exit is refused (section unchanged)" "$([[ $(cli tilego | tail -1 | cut -d' ' -f2-3) == "$SEC0" ]] && echo 1)" "$SEC0 -> $(cli tilego | tail -1)"
 T=$(cli tilego | tail -1); XY=${T%% *}
 R=$(post adventure.php -d do=trail_go -d go=$XY)
 chk "tapping a lit tile walks (redirect back)" "$([[ $R == 302* ]] && echo 1)" "$R $XY"
 R=$(post adventure.php -d do=trail_go -d go=0,0)
 get adventure.php >/dev/null
 chk "a tap on a tile nobody may walk is refused, page still fine" "$(grep -q 'class="tilemap' $TD/here-p.html || grep -q 'encounter' $TD/here-p.html && echo 1)"
-R=$(post adventure.php -d do=trail_next)
-chk "Continue before the exit is refused (still section 1)" "$([[ $(cli tilego | tail -1) == *" section 1 "* ]] && echo 1)" "$(cli tilego | tail -1)"   # sections are numbered from 1; a refused Continue leaves it at 1
 cli set gnav_tiles 0 >/dev/null; get adventure.php >/dev/null
 chk "a tile walk in progress stays a tile walk when gnav_tiles is switched off" "$(grep -q 'class="tilemap' $TD/here-p.html && echo 1)"
 cli set gnav_tiles 1 >/dev/null
