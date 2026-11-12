@@ -186,7 +186,7 @@ The same data, with a `me` flag, gives the player's region pieces (2.2): earn a 
 7. Tool WEAR: a tool loses 2 durability each time ITS piece is played; broken = unusable until fixed, leaves the belt. Repair = a CRAFTED repair item from materials (Q10, Q11). Durability: 20 base, +4 per rank (Q12). Belt: 3 tiers, BOUGHT only (no crafting), slots 2/3/4 (Q13).
 8. Creature pieces by layers: 4 base from creature TYPE, + extra from REGION, + extra from monster RARITY or boss tag, + 3 UNIQUE to the creature. Lean not a separate idea.
 Next: mockups review by Josh, then build step 1 (clarity items) + engine step for creature tags.
-9. Creature TYPE = animal class, ~6: Insect, Bird, Beast, Reptile/Amphibian, Water, Plant/Fungus (Q14). `creatures.txt` has no type column yet: add one and tag ~95 creatures. Each class gets a fixed BASE 4 (2 Hurt, 1 Guard, 1 class trick: Insect quick, Bird evade, Beast bash, Reptile poison, Water trip, Plant thorns/heal). TODO: Claude drafts the table + mockup for Josh to approve (Q15).
+9. Creature TYPE = animal class, ~6: Critter, Bird, Beast, Reptile/Amphibian, Water, Plant/Fungus (Q14). `creatures.txt` has no type column yet: add one and tag ~95 creatures. Each class gets a fixed BASE 4 (2 Hurt, 1 Guard, 1 class trick: Critter quick, Bird evade, Beast bash, Reptile poison, Water trip, Plant thorns/heal). TODO: Claude drafts the table + mockup for Josh to approve (Q15).
 
 ## Creature classes: base 4 (draft)
 
@@ -196,7 +196,7 @@ Status: draft for Josh to approve (Q15). Implements DECIDED item 8 and 9. Layer 
 
 ### Class tables
 
-**Insect** (swarms, bugs, spiders and their kin). Lean: **mind**. Identity: cheap and fast, keeps drawing. Total Hurt 1.7x, a little under the norm because Quick gives it extra plays.
+**Critter** (swarms, bugs, spiders and their kin). Lean: **mind**. Identity: cheap and fast, keeps drawing. Total Hurt 1.7x, a little under the norm because Quick gives it extra plays.
 
 | Piece | Type | Effect | v | Knob | Tag | Life |
 |---|---|---|---|---|---|---|
@@ -254,35 +254,35 @@ Plant note: Josh wrote "thorns/heal". Draft puts thorns on the Guard and heal on
 
 ### Balance notes
 - **Hurt budget:** every class gets 1.7-2.1x `$v` of Hurt across its 2 pieces; compare with today's archetype (two hits at 1.0 plus a Rend at 1.1 for hostile). Classes are weaker in raw Hurt than the archetype because the unique 3 and region pieces add more.
-- **Guard** 0.6-0.7: Insect and Bird lower (they rely on quick or evade), Beast, Reptile, Water and Plant 0.7.
+- **Guard** 0.6-0.7: Critter and Bird lower (they rely on quick or evade), Beast, Reptile, Water and Plant 0.7.
 - **Trick slot** 0.4-0.5: its value matters little, the tag is the point. Poison at 0.5 over 2 ticks is the most damaging, so Reptile Hurt stays at 0.9.
-- **Danger combos:** Insect quick + unique Hurt-quick (e.g. Aphid Swarm) can fire 3-4 pieces a turn; cap with the fire budget 2 and test Gnat Cloud. Reptile poison + region poison (Dunewhisper, Spicepeak) stacks; stack cap proposal: poison ticks do not stack, a second poison refreshes. Water trip + region trip (Maplewold) is the other stack: cap at 1 draw lost.
+- **Danger combos:** Critter quick + unique Hurt-quick (e.g. Aphid Swarm) can fire 3-4 pieces a turn; cap with the fire budget 2 and test Gnat Cloud. Reptile poison + region poison (Dunewhisper, Spicepeak) stacks; stack cap proposal: poison ticks do not stack, a second poison refreshes. Water trip + region trip (Maplewold) is the other stack: cap at 1 draw lost.
 - **Knob families:** each class lists all three families in its 4 pieces; this keeps the lint "every species has at least 1 knob in each family" true before uniques are added. The class lean is a tendency, not a rule, and is shown as a bar on the creature card.
-- **Class sizes** (from the table below): Beast 30, Insect 17, Reptile/Amphibian 15, Bird 11, Water 11, Plant/Fungus 4. Plant is thin; if Josh prefers, fold Plant/Fungus into Beast and keep 5 classes (open question below).
+- **Class sizes** (from the table below): Beast 30, Critter 17, Reptile/Amphibian 15, Bird 11, Water 11, Plant/Fungus 4. Plant is thin; if Josh prefers, fold Plant/Fungus into Beast and keep 5 classes (open question below).
 - **Retune:** run `tests/pfboard_tune.php` once the foe tags exist; aim for no size row moving more than 5 points.
 
 ### CLASS TAG TABLE
 `slug=Class`, `?` = unsure (13). Order within a class follows `creatures.txt`.
 
-**Insect** (17 creatures, 5 unsure)
+**Critter** (17 creatures, 5 unsure)
 ```
-aphid-swarm=Insect
-ant-scouts=Insect
-gnat-cloud=Insect
-sand-fleas=Insect
-dusk-moth=Insect
-dung-beetle=Insect
-earwig=Insect
-cave-glowworm=Insect
-paper-wasp=Insect
-ember-beetle=Insect
-leafcutter-column=Insect
-giant-bumblebee=Insect
-garden-snail=Insect?
-leopard-slug=Insect?
-orb-spider=Insect?
-dune-scorpion=Insect?
-giant-centipede=Insect?
+aphid-swarm=Critter
+ant-scouts=Critter
+gnat-cloud=Critter
+sand-fleas=Critter
+dusk-moth=Critter
+dung-beetle=Critter
+earwig=Critter
+cave-glowworm=Critter
+paper-wasp=Critter
+ember-beetle=Critter
+leafcutter-column=Critter
+giant-bumblebee=Critter
+garden-snail=Critter
+leopard-slug=Critter
+orb-spider=Critter
+dune-scorpion=Critter
+giant-centipede=Critter
 ```
 
 **Bird** (11 creatures, 0 unsure)
@@ -329,9 +329,9 @@ glacier-bear=Beast
 prairie-bison=Beast
 desert-camel=Beast
 lichen-reindeer=Beast
-sea-otter-bandit=Beast?
-salt-sea-lion=Beast?
-jade-jaguar=Beast?
+sea-otter-bandit=Water
+salt-sea-lion=Water
+jade-jaguar=Beast
 ```
 
 **Reptile/Amphibian** (15 creatures, 1 unsure)
@@ -350,7 +350,7 @@ dust-sidewinder=Reptile/Amphibian
 poison-dart-frog=Reptile/Amphibian
 desert-gila-dragon=Reptile/Amphibian
 desert-tortoise=Reptile/Amphibian
-reef-turtle=Reptile/Amphibian?
+reef-turtle=Reptile/Amphibian
 ```
 
 **Water** (11 creatures, 1 unsure)
@@ -365,18 +365,19 @@ deep-octopus=Water
 hermit-crab-hoarder=Water
 bog-pike=Water
 clam-lurker=Water
-bog-leech=Water?
+bog-leech=Water
 ```
 
 **Plant/Fungus** (4 creatures, 3 unsure)
 ```
 moss-golem=Plant/Fungus
-thistle-beast=Plant/Fungus?
-will-o-wisp=Plant/Fungus?
-old-bramblehorn=Plant/Fungus?
+thistle-beast=Plant/Fungus
+will-o-wisp=Plant/Fungus
+old-bramblehorn=Plant/Fungus
 ```
-Judgement calls behind the `?` tags: spiders, scorpions and centipedes are arachnids or myriapods but read as "bugs" to a gnome, so Insect; snails and slugs are land invertebrates, so Insect too (Water was the alternative for the snail); sea otter and sea lion are mammals living on the coast (Beast or Water); Reef Turtle could be Reptile or Water; Jade Jaguar Spirit is a spirit (Beast or Plant); Thistle Beast, Will-o'-Wisp and Old Bramblehorn are the only Plant/Fungus candidates, so Plant stays small.
+Judgement calls behind the `?` tags: spiders, scorpions and centipedes are arachnids or myriapods but read as "bugs" to a gnome, so Critter; snails and slugs are land invertebrates, so Critter too (Water was the alternative for the snail); sea otter and sea lion are mammals living on the coast (Beast or Water); Reef Turtle could be Reptile or Water; Jade Jaguar Spirit is a spirit (Beast or Plant); Thistle Beast, Will-o'-Wisp and Old Bramblehorn are the only Plant/Fungus candidates, so Plant stays small.
 
 Data: add a `class` column to `creatures.txt` (after `size`), values `insect|bird|beast|reptile|water|plant`; the base 4 live in a new `pf_class_pieces.txt` (`class|n|type|v_mult|knob|tag|life`).
 
 Open: (a) keep 6 classes or fold Plant into Beast; (b) poison and trip stacking caps above; (c) mockup screen 5 shows the layers.
+10. DECIDED (Q16-Q19): keep 6 classes (Plant/Fungus stays). Class "Insect" renamed CRITTER (insects, spiders, scorpion, centipede, snail, slug; trick quick). Sea otter bandit, salt sea lion, bog leech = Water; reef turtle = Reptile/Amphibian; jade jaguar = Beast; thistle beast, will-o-wisp, old bramblehorn = Plant/Fungus. No `?` tags left. Stacking caps for poison/trip still untested.
