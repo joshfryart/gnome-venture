@@ -163,6 +163,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
     }
     $rp0 = ['bar' => round((float)$s['bar']['now'], 1), 'fh' => round((float)$s['fh']['now'], 1), 'hp' => (int)$s['me']['hp'], 'g' => (int)$s['me']['block']];   // where the bar and your health stood before this turn (the board page plays the turn back from here)
     $won = false;
+    $prev = !empty($s['v1']) ? ['ter' => (object)($s['ter'] ?? []), 'envs' => $s['envs'] ?? [], 'aim' => $s['foe']['plan'] ?? null] : null;   // v1 (stage C): the ground, the forecast and the aim as they stood before this turn (the page plays the turn back from there)
     if ($do === 'pf_run') {
         if (!pf_run($s)) { flash('You cannot run from this one.', 'err'); return false; }
     } elseif ($do === 'pfb_flip') {   // v1: flip a hand piece (free, once a turn; POST hand = its index, turn). Nothing else changes: no creature turn, the replay of the last turn stays
@@ -211,6 +212,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
         $won = in_array($s['over'], ['seen_off', 'charmed'], true);
         pfight_unlock((int)$u['id'], array_values(array_filter($r['ev'], fn($e) => empty($e['connect']))), $won);
         $enc['last'] = []; $enc['replay'] = []; $enc['replay0'] = $rp0;
+        if ($prev) $enc['prev'] = $prev;
         if ($board) {
             $snaps = (array)($enc['snaps'] ?? []); $sn = (int)($enc['snapn'] ?? 0); $cur = isset($enc['snaplast']) ? (int)$enc['snaplast'] : null;
             foreach ($r['ev'] as $e) {
@@ -234,7 +236,9 @@ function pfight_do(array $u, array &$exp, string $do): bool
                 }
             }
             exp_log($exp, $ln); $enc['last'][] = $ln;
-            if ($board) $enc['replay'][] = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'by' => (string)$e['by'], 'ta' => (string)($e['ta'] ?? $e['by']), 'ln' => $ln, 'bar' => $e['barnow'] ?? null, 'fh' => $e['fhnow'] ?? null, 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'n' => (string)($e['n'] ?? ''), 't' => (string)($e['t'] ?? '')];   // the board page plays these back one at a time
+            if ($board) $enc['replay'][] = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'by' => (string)$e['by'], 'ta' => (string)($e['ta'] ?? $e['by']), 'ln' => $ln, 'bar' => $e['barnow'] ?? null, 'fh' => $e['fhnow'] ?? null, 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'n' => (string)($e['n'] ?? ''), 't' => (string)($e['t'] ?? '')]   // the board page plays these back one at a time
+                + (isset($e['env']) ? ['env' => (string)$e['env'], 'x' => $e['x'] ?? null, 'y' => $e['y'] ?? null, 'dir' => $e['dir'] ?? null, 'moved' => $e['moved'] ?? null, 'ids' => $e['ids'] ?? null, 'me' => $e['me'] ?? 0, 'foe' => $e['foe'] ?? 0] : [])   // v1 (stage C): a terrain event: where it landed and what it did
+                + (!empty($e['used']) ? ['used' => $e['used']] : []) + (!empty($e['tw']) ? ['tw' => $e['tw']] : []) + (!empty($e['sun']) ? ['sun' => 1] : []);
         }
     } else return false;
     $exp['hp'] = (int)$s['me']['hp'];
@@ -245,6 +249,10 @@ function pfight_do(array $u, array &$exp, string $do): bool
     }
     $enc['pf'] = $s;
     $exp['encounter'] = json_encode($enc);
+    if (!empty($s['v1']) && in_array($s['over'], ['defeat', 'run', 'stall'], true)) {   // v1 (stage C): the result card of a fight that was lost or left is shown on the next page (the encounter is gone by then)
+        require_once __DIR__ . '/pfdeck_view.php';
+        $_SESSION['pfv_res'] = ['how' => (string)$s['over'], 'name' => (string)$c['name'], 'slug' => (string)($c['slug'] ?? ''), 'size' => (string)($c['size'] ?? 'small'), 'hp' => $s['over'] === 'defeat' ? 0 : (int)$s['me']['hp'], 'max' => (int)$s['me']['max'], 'turns' => (int)$s['turn'], 'wear' => pfv_wear_rows($u, $s), 'at' => time()];
+    }
     switch ($s['over']) {
         case 'seen_off': case 'charmed':
             if (($s['mode'] ?? '') === 'board') { $enc['won'] = $s['over']; $exp['encounter'] = json_encode($enc); return true; }   // the board waits for the End fight button (after its replay)
@@ -440,6 +448,11 @@ const PF_TAG_ICON = ['quick' => 'jab', 'heavy' => 'smash', 'pierce' => 'pierce',
 function pfight_html(array $u, array $exp, array &$enc, array $c): string
 {
     $fresh = empty($enc['pf']);
+    if ($fresh && pfight_v1_on($u) && !is_guest($u)) {   // 2.6.74 v1 (stage C): nothing is dealt until the gnome has packed a first box and pressed Let's fight on the pre-fight screen
+        require_once __DIR__ . '/pfdeck_view.php';
+        if (!pfd_deck($u)['starter']) return pfv_starter_html($u, pfd_deck($u), true) . pfv_assets();
+        if (empty($enc['pfgo'])) return pfv_prefight_html($u, $exp, $c);
+    }
     $s = pfight_state($u, $exp, $enc, $c);
     if ($fresh) {   // the hand you see must be the hand the server plays: write it only if the row is still exactly what this page read (compare-and-swap)
         $n = q("UPDATE expeditions SET encounter = ? WHERE id = ? AND status = 'active' AND encounter = ?", [json_encode($enc), $exp['id'], (string)$exp['encounter']])->rowCount();
@@ -516,7 +529,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $v = pfb_view($s);
     $nonce = e((string)$s['nonce']);
     $sm = fn(string $t) => ($i = pfight_art('ico-' . $t . '-s.png')) ? '<img class="pfh-ico" src="' . e($i) . '" alt="">' : '<span class="pfh-emo" aria-hidden="true">' . e(pfight_icon($t)) . '</span>';
-    $h = '<div class="pfight pf-screen pf-boardmode' . (pfight_part('resolve-frame.png') ? ' pfx-art' : '') . (!empty($s['start']) ? ' pf-opening' : '') . '" id="pfight" data-turn="' . (int)$v['turn'] . '" data-mode="board" data-redraws="' . (int)$v['redraws'] . '">';
+    $h = '<div class="pfight pf-screen pf-boardmode' . (pfight_part('resolve-frame.png') ? ' pfx-art' : '') . (!empty($s['start']) ? ' pf-opening' : '') . (isset($v['v1']) ? ' pf-v1' : '') . '" id="pfight" data-turn=""' . (int)$v['turn'] . '" data-mode="board" data-redraws="' . (int)$v['redraws'] . '">';
     $mini = fn(string $cls, string $name, int $n) => '<span class="pfc-pile ' . $cls . '" role="img" aria-label="' . $name . ': ' . $n . ' pieces">' . (($pi = pfight_part($cls === 'deck' ? 'deck-book.png' : 'discard-bin.png')) ? '<img src="' . e($pi) . '" alt="">' : '<span aria-hidden="true">' . ($cls === 'deck' ? '📖' : '🗑️') . '</span>') . '<b>' . $n . '</b></span>';
     $h .= '@@TOP@@<div class="pfc-histrow"><ol class="pf-hist" aria-label="What has been played" aria-live="polite">';
     // the history bar IS the log: one chip per scored piece (actor, what it did, how much, who it landed on), the newest on the left, scrolling sideways; tap one to rewind the board to then.
@@ -547,17 +560,25 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         . '<div class="pfc-foe"><span class="pfc-fname"><b>' . e((string)$c['name']) . '</b><small>lv ' . (int)$c['level'] . ' · ' . ($s['temper'] === 'gentle' ? 'gentle' : 'wary') . ' · 🃏 ' . (int)$v['foe']['hand'] . ($v['foe']['calm'] ? ' · 😌 ' . (int)$v['foe']['calm'] : '') . '</small></span><span class="pfc-av">' . $foeImg . '<span class="pf-intent-bubble" title="Likely next move" aria-label="Likely next move: ' . e((string)$v['foe']['intent']) . '">' . $sm((string)$v['foe']['intent']) . '</span></span></div></div>';
     $h = str_replace('@@TOP@@', $top, $h);
     $h .= '<div class="pf-rewind" id="pf-rewind" role="status" hidden><span id="pf-rw-t"></span><button type="button" class="btn" id="pf-rw-back">Back to now</button></div>';
+    if (isset($v['v1'])) $h .= '<div class="pfv-row" id="pfv-row"></div>';   // v1 (stage C): turn order, chain dots, Teamwork, the aim, the forecast and what waits on each side (assets/pfboardv1.js fills it)
     $h .= '<div class="pfb-board" id="pfb-board" role="group" aria-label="The play area: pick a piece from your hand, then a lit spot. Scroll, pinch or use the zoom buttons to zoom"></div>';   // JS draws the pieces from #pf-data
+    if (isset($v['v1'])) $h .= '<div class="pfv-legend" id="pfv-legend" role="group" aria-label="Terrain legend"></div>';
     $h .= '<div class="pf-opts" id="pf-opts" hidden></div>';
     $h .= '<p class="pf-preview help" id="pf-preview" aria-live="polite">Pick a piece, then a lit spot. Up to 4 a turn; the newest plays first.</p>';
     $h .= '<ol class="pf-plan" id="pf-plan" aria-live="polite" hidden></ol>';
     $h .= '<form method="post" class="pf-form" id="pf-form">' . csrf_field() . '<input type="hidden" name="do" value="pfb_play"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="moves" id="pf-moves" value=""></form>';
     $won = !empty($enc['won']) && in_array($s['over'], ['seen_off', 'charmed'], true);
-    if ($won) {
+    if ($won && isset($v['v1'])) {   // v1 (stage C): the result card (win or charm, tool wear, a link to the box) with the End fight button
+        require_once __DIR__ . '/pfdeck_view.php';
+        $h .= pfv_result_html(['how' => (string)$s['over'], 'name' => (string)$c['name'], 'slug' => (string)($c['slug'] ?? ''), 'size' => (string)($c['size'] ?? 'small'), 'hp' => (int)$v['hp'], 'max' => (int)$v['max'], 'turns' => (int)$v['turn'], 'wear' => pfv_wear_rows($u, $s)],
+            '<form method="post" class="grow pf-endform">' . csrf_field() . '<input type="hidden" name="do" value="pf_finish"><input type="hidden" name="nonce" value="' . $nonce . '"><button class="btn primary" id="pf-end">🎁 Collect the reward</button></form>');
+        $h .= '<button type="button" class="btn" id="pf-undo" hidden></button><button class="btn" id="pf-go" form="pf-form" hidden></button>';
+    } elseif ($won) {
         $h .= '<div class="pf-won" role="status"><b>' . ($s['over'] === 'charmed' ? 'The ' . e((string)$c['name']) . ' is charmed!' : 'The ' . e((string)$c['name']) . ' has had enough.') . '</b> <form method="post" class="inline pf-endform">' . csrf_field() . '<input type="hidden" name="do" value="pf_finish"><input type="hidden" name="nonce" value="' . $nonce . '"><button class="btn primary" id="pf-end">End fight</button></form></div>';
         $h .= '<button type="button" class="btn" id="pf-undo" hidden></button><button class="btn" id="pf-go" form="pf-form" hidden></button>';
     } else {
         $h .= '<div class="pf-buttons"><a class="btn pf-box" href="' . e(url('puzzlebox.php')) . '" title="Your puzzle box" aria-label="Puzzle box">🧩</a><button type="button" class="btn" id="pf-undo" disabled>Undo</button><button class="btn primary" id="pf-go" form="pf-form" disabled>' . (!empty($s['start']) ? 'Confirm start' : 'End turn') . '</button>'
+            . (isset($v['v1']) && !empty($v['flip']['on']) ? '<button type="button" class="btn pfv-flipb" id="pf-flip" disabled aria-label="Flip: swap the top and bottom edges of the piece you picked (once a turn, free)">⇅ Flip</button>' : '')
             . ($v['can_run'] && !$s['over'] ? '<form method="post" class="inline pf-runf">' . csrf_field() . '<input type="hidden" name="do" value="pf_run"><input type="hidden" name="nonce" value="' . $nonce . '"><button class="btn" title="Run away" aria-label="Run away">🏃</button></form>' : '') . '</div>';
     }
     $h .= '<div class="pf-tray"><div class="pf-hand" id="pf-hand" role="group" aria-label="Your hand">';
@@ -571,6 +592,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '<form method="post" class="inline" id="pf-pform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="pfb_pass"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><button class="btn" id="pf-pass">Pass (nothing fits)</button></form>';
     $h .= '<form method="post" class="inline" id="pf-rform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="pf_redraw"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="card" id="pf-card" value=""></form>';
     if ($v['redraws'] > 0) $h .= '<small class="muted">🍀 ' . (int)$v['redraws'] . ' redraw' . ($v['redraws'] > 1 ? 's' : '') . '</small> <button type="button" class="btn" id="pf-redraw" hidden>Redraw a piece</button>';
+    if (isset($v['v1'])) $h .= '<form method="post" class="inline" id="pf-fform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="pfb_flip"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="hand" id="pf-fhand" value=""></form>';
     $h .= '</div>';
     if ($more !== '') $h .= '<details class="pfc-more"><summary>More: piece tips and the last turn</summary>' . $more . '</details>';
     // the board and the hand's edges for the script (public information: the board is out in the open)
@@ -579,9 +601,20 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         foreach (['v1', 'round', 'ter', 'envs', 'envlog', 'aim', 'reaim', 'flip'] as $k) $data[$k] = $v[$k];
         foreach (['status', 'wear'] as $k) if (isset($v[$k])) $data[$k] = $v[$k];   // 2.6.74 deck model: what waits on each side (creature tags), tool wear so far
         foreach ($v['hand'] as $i => $t) $data['hand'][$i] += ['life' => $t['life'], 'src' => $t['src'], 'flip' => $t['flip'], 'canflip' => $t['canflip']];
+        // stage C (the v1 page script, assets/pfboardv1.js): the state before the last turn for the replay, the fight tools (durability left before this fight), whose piece is a tool piece, the box link
+        foreach ($v['hand'] as $i => $t) $data['hand'][$i] += ['tool' => (string)($t['tool'] ?? ''), 'rank' => (int)($t['rank'] ?? 0)];
+        $data['prev'] = !empty($enc['replay']) ? ($enc['prev'] ?? null) : null;
+        $data['box'] = url('puzzlebox.php'); $data['turncap'] = PF_TURN_CAP; $data['toolwear'] = PFB_TOOL_WEAR; $data['fires'] = PFB_FOE_FIRES;
+        $data['tools'] = (object)[];
+        if (!empty((array)$v['wear']) || array_filter(array_column($data['hand'], 'tool'))) {
+            require_once __DIR__ . '/pfdeck.php'; $tw = [];
+            foreach (pfd_wear($u) as $type => $w) if ((int)$w['tier'] > 0 && isset(pfd_catalog()['t:' . $type])) $tw[$type] = ['n' => (string)pfd_catalog()['t:' . $type]['n'], 'left' => (int)$w['left'] + (!empty($enc['wearsaved']) ? (int)(((array)$v['wear'])[$type] ?? 0) : 0), 'max' => (int)$w['max']];
+            $data['tools'] = (object)$tw;
+        }
     }
     $h .= '<script type="application/json" id="pf-data">' . json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP) . '</script>';
-    return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfx.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfparts.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfboard.js?v=' . APP_VERSION)) . '" data-rerun defer></script>';
+    return $h . '</div><link rel="stylesheet" href="' . e(url('assets/pfight.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfx.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfparts.js?v=' . APP_VERSION)) . '" data-rerun defer></script>' . (isset($v['v1']) ? '<link rel="stylesheet" href="' . e(url('assets/pfv1.css?v=' . APP_VERSION)) . '"><script src="' . e(url('assets/pfv1box.js?v=' . APP_VERSION)) . '" data-rerun defer></script><script src="' . e(url('assets/pfboardv1.js?v=' . APP_VERSION)) . '" data-rerun defer></script>'   // v1 (stage C): its own board script (a fork of pfboard.js), so the old one stays as it is
+        : '<script src="' . e(url('assets/pfboard.js?v=' . APP_VERSION)) . '" data-rerun defer></script>');
 }
 
 /** A hand piece in board mode: a button with its four edges drawn as marks. */
