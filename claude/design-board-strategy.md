@@ -182,3 +182,12 @@ Turn order shown in the status line: You, Creature, Ground.
 ## 7. Rebuild the sims
 
 Scratch only, nothing in the repo. A runner like `tools/pfsim/run.php` with: blank opening, bots as in 1.1 (chain = most pieces fired via `pfb_play(..., dry)`; look = best state after a full `pfb_play`; smart = top 6 by look, then the best look value one turn later, with `j`, `h`, `c` actions), state value = progress share + 1.2 x health share. Prototype switches in a copy of `pfboard.php`: terrain map `$s['ter']` seeded in `pfb_new` (`cm` 1.5 on a sunny cell in `pfb_place` and `pfb_place_group`, `pfb_links` returns nothing on or into mud, bramble tick at the top of `pfb_end_round`); Overreach in `pfb_play` and `pfb_foe_len`; Aim in `pfb_intent` and `pfb_foe_turn`; creature factor in `pfb_new`.
+
+## DECIDED by Josh 2026-11-12 (answers to section 6)
+1. Difficulty at level: a careless "just chain" player wins ~70% (harder than the 85-90% recommended); careful play should clearly beat it. Retune after the build with the sims.
+2. Environment: ground cells AND events in v1 (not events later).
+3. Chain cost: a chain of 3 or more USES UP the fired pieces (spent/removed after resolving). Limit 3. (Not the extra creature turn.) Re-run the sims with this rule; perks may raise the limit.
+4. Show the creature's aim; remove the reply number from lit cells; keep your own chain numbers.
+5. Ground works for the creature too, fully.
+6. Source sets (pal + tool + crop Teamwork bonus) are in v1 with the rest.
+Note: v1 is now bigger (ground + events + spend-on-chain + aim + Teamwork + deckbuilder). Sim before build; ship in steps behind flags.
