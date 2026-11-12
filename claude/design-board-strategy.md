@@ -712,3 +712,86 @@ The words the player reads in the playable demo (`claude/mockups/pf-demo-v1.html
 | Thorn burst | Thorn burst: hurts around it | Every piece on this cell and the 4 cells next to it costs its owner 10% of their health. The creature's pieces cost it 5%. | Hits both sides. |
 
 **Also in the help:** the creature's aim ("The red mark is where its next piece goes. Take the cell and it has to pick again.") and chains ("A piece you place fires, then every piece linked to it. A chain of 3 or more uses up every piece that fired. Pal, tool and crop pieces in one chain: 2 kinds +30%, all 3 +60%.").
+
+## Sim 4: authored edges, harmony meter, flip
+
+Sim only; no game code or version changed. **Engine: the design demo's JS engine** (`tools/pfengine.js` + the v1 patches in `tools/build_pf_demo_v1.py`), not the PHP sim of sims 1-3: the PHP copy (`tools/pfsim/v1bundle`) was NOT changed and still has hashed edges. Runner: `tools/pfdemo_v1/sim4.js` (bots chain / look / smart as in `run.php`; `PF_EDGES=hash` = the old edges). Deck: the demo starter deck (4 core + Bold kit + 2 belt tools + 2 pals, 14 pieces). Creatures: the demo's 9 layered creatures (2 small, 3 medium, 3 large, 1 boss), not the 88. 200 fights per cell. So win rates here compare with each other, not with sim 3.
+
+### What changed
+1. **Authored edges** (rule and full table: `claude/design-deckbuilder-combat.md`, "Authored edges"). Left = hole of the type family, right = knob of the authored `knob` family, top and bottom = one knob and one hole of the column family (pals body, tools craft, crops mind, crafts craft; other pieces their type family). Hurt, Charm and Trick carry the knob on top, the others the hole. No flat edges. Creatures: 3 pieces in 5 use the class lean as column family.
+2. **Deck harmony meter** in the Puzzle box (link rate, "hand links", knob family bar). Starter deck: link rate 32%, hand links 100%, body 39 / mind 29 / craft 32.
+3. **Flip**: once a turn, free, swap the top and bottom of the piece you place. Bots may place any piece flipped; the creature does not flip.
+
+### Link rates (at level, per turn: every hand piece on every free cell next to a piece)
+| | Baseline (hashed edges) | New, as dealt | New, flip allowed |
+|---|---|---|---|
+| Spots that link, of all spots | 16% | 17% | **24%** |
+| Spots that link, of the legal spots | 45% | 87% | 87% |
+| Spots that are illegal (edges do not match) | 64% | 80% | 72% |
+| Turns where the hand has a linking move | 96% | 92% | 95-96% |
+
+By piece (chain bot; link of all spots / illegal; "new" = as dealt, without flip):
+| | Baseline | New |
+|---|---|---|
+| Hurt | 14% / 71% | 16% / 81% |
+| Guard | 16% / 62% | 16% / 82% |
+| Heal | 17% / 56% | 18% / 79% |
+| Charm | 20% / 68% | 17% / 81% |
+| Item | 29% / 43% | 28% / 68% |
+| basic | 19% / 62% | 19% / 78% |
+| knack | 13% / 70% | 15% / 83% |
+| calling | 16% / 73% | 17% / 81% |
+| crop | 16% / 58% | 14% / 84% |
+| tool | 15% / 59% | 18% / 79% |
+| pal | 16% / 66% | 16% / 82% |
+
+- The target "25-30% of legal placements link" was already passed by the baseline when counted over legal spots (45%). Counted over ALL spots next to a piece, linking goes 16% -> 24% with the flip: just under the 25-30% target.
+- The hashed edges were not short of links: 96% of turns already had a linking move. What they had was many legal spots that do not link (flat edges, 20% of all spots). The authored edges remove the flats, so a legal spot nearly always links (87%), but more spots are illegal (64% -> 72%).
+- Without the flip the authored edges alone are no better than the hash (17% of spots, 92% of turns). The flip is what adds the links.
+- Lint "a linking move on 90% of turns or more" holds for the starter deck (95-96%).
+
+### Retune (creature piece values; bars unchanged)
+`PFB_FOE_MULT` by size: small **0.72**, medium **0.53**, large **0.41**, boss **0.46** (sim 3: 0.65 / 0.56 / 0.53 / 0.64). Bars as in sim 3 (x1.12, boss x0.88). Everything else as the sim 3 table.
+
+### Win % / health lost % / turns
+New (authored edges + flip, retuned):
+| Bot | Size | At level | 4 under | 8 under |
+|---|---|---|---|---|
+| chain | small | 74 / 52 / 8.6 | 68 / 57 / 8.0 | 71 / 55 / 8.2 |
+| chain | medium | 72 / 60 / 6.4 | 35 / 84 / 5.8 | 15 / 95 / 5.0 |
+| chain | large | 70 / 69 / 6.0 | 43 / 82 / 5.9 | 16 / 94 / 5.2 |
+| chain | boss | 73 / 70 / 9.3 | 53 / 80 / 8.8 | 27 / 92 / 8.4 |
+| look | small | 93 / 24 / 6.3 | 95 / 21 / 5.8 | 95 / 20 / 6.1 |
+| look | medium | 96 / 26 / 5.5 | 83 / 45 / 7.1 | 57 / 67 / 7.7 |
+| look | large | 98 / 25 / 5.6 | 85 / 44 / 6.8 | 65 / 63 / 8.3 |
+| look | boss | 98 / 31 / 8.9 | 88 / 47 / 10.9 | 70 / 65 / 11.7 |
+| smart | small | 97 / 18 / 5.5 | 97 / 18 / 4.9 | 99 / 15 / 4.8 |
+| smart | medium | 98 / 21 / 4.4 | 92 / 37 / 5.8 | 64 / 64 / 6.9 |
+| smart | large | 99 / 22 / 4.8 | 90 / 37 / 6.2 | 74 / 56 / 7.7 |
+| smart | boss | 99 / 27 / 7.5 | 91 / 40 / 9.9 | 80 / 53 / 10.7 |
+
+Baseline (hashed edges, sim 3 creature values, same decks and creatures):
+| Bot | Size | At level | 4 under | 8 under |
+|---|---|---|---|---|
+| chain | small | 92 / 42 / 7.1 | 87 / 47 / 7.6 | 86 / 49 / 7.5 |
+| chain | medium | 72 / 67 / 6.3 | 23 / 90 / 5.9 | 13 / 96 / 4.8 |
+| chain | large | 49 / 80 / 5.7 | 25 / 90 / 5.4 | 17 / 95 / 4.8 |
+| chain | boss | 49 / 83 / 7.5 | 24 / 93 / 7.3 | 9 / 98 / 6.3 |
+| look | small | 100 / 16 / 5.6 | 100 / 16 / 5.6 | 100 / 14 / 5.6 |
+| look | medium | 100 / 26 / 5.5 | 77 / 55 / 8.3 | 46 / 78 / 8.9 |
+| look | large | 92 / 43 / 6.6 | 71 / 59 / 7.6 | 49 / 77 / 8.3 |
+| look | boss | 96 / 46 / 9.5 | 85 / 61 / 11.0 | 51 / 80 / 10.6 |
+| smart | small | 100 / 15 / 5.0 | 100 / 14 / 4.9 | 100 / 14 / 4.8 |
+| smart | medium | 99 / 27 / 4.9 | 86 / 47 / 7.4 | 58 / 71 / 8.2 |
+| smart | large | 98 / 35 / 5.7 | 81 / 54 / 6.9 | 59 / 71 / 8.0 |
+| smart | boss | 96 / 39 / 8.5 | 89 / 54 / 10.0 | 69 / 71 / 10.3 |
+
+- Targets at level: chain 70-74% (aim ~70%), smart 97-99% (aim 90% or more). Met on every size.
+- Fights are short for a planner at level (smart 4.4-5.5 turns on small to large; sim 3 aimed at 6-8).
+- Small creatures: their values are 1-3, so the factor moves in steps (0.72 is the first step that brings chain under 80%).
+
+### Unresolved
+1. The PHP sim and the 88 real creatures were not re-run with authored edges; `mkengine.py` needs the same edge rule before the numbers can become constants.
+2. Linking over all spots is 24%, under the 25-30% aim. Raising it needs fewer illegal spots (for example a mismatch that sits flat instead of being refused), which is a rule change.
+3. The creature does not flip; a flipped player piece next to creature pieces was not studied separately.
+4. Only the starter deck was measured. Single-family decks and the built deck (`DECK=built`) were not.
