@@ -50,8 +50,8 @@ const PFB_ENV_N = ['small' => 1, 'medium' => 1, 'large' => 1, 'boss' => 1];   //
 const PFB_RAIN = 0.15;                        // Rain: guard for the side that fires it, a share of its maximum (your health, the creature's bar)
 const PFB_THORN_FOE = 1.0;                    // Thornburst fired by the creature: x this (both sides choose to fire it, so it is not halved like the old thorn burst event)
 const PFB_ENV_EDGE = ['h' => 'hole', 'k' => 'knob', 'b' => 'body', 'm' => 'mind', 'c' => 'craft'];
-const PFB_V1_FOE_MULT = ['small' => 0.76, 'medium' => 0.56, 'large' => 0.42, 'boss' => 0.53];   // the creature's piece values by size (replaces PFB_FOE_MULT 0.62; boss, blank and fire-budget factors still apply). Stage B retune (2.6.74) with the layered creature decks, creature tags and deck-model decks: tests/pfboard_tune_v1.php, chain bot about 70% at level. Stage A (archetype decks) had 0.72 / 0.54 / 0.56 / 0.62 and bars 1.12 / 1.12 / 1.12 / 0.88. The design demo's JS sim (9 creatures) had 0.72 / 0.53 / 0.41 / 0.46
-const PFB_V1_BAR_MULT = ['small' => 1.0, 'medium' => 1.3, 'large' => 1.6, 'boss' => 1.0];   // the creature's bars by size (replaces PFB_BAR_MULT): longer fights
+const PFB_V1_FOE_MULT = ['small' => 1.0, 'medium' => 0.70, 'large' => 0.53, 'boss' => 0.66];   // the creature's piece values by size (replaces PFB_FOE_MULT 0.62; boss, blank and fire-budget factors still apply). 2.6.75 retune for ENVIRONMENT PIECES (no ground, so nothing shortens a fight for free): tests/pfboard_tune_v1.php, chain bot about 70% at level, claude/design-board-strategy.md "Sim 5". 2.6.74 (ground and events, stage B) had 0.76 / 0.56 / 0.42 / 0.53 with bars 1.0 / 1.3 / 1.6 / 1.0; a fight started then keeps those numbers in its state
+const PFB_V1_BAR_MULT = ['small' => 0.75, 'medium' => 0.92, 'large' => 1.05, 'boss' => 0.66];   // the creature's bars by size (replaces PFB_BAR_MULT)
 
 /** The rule numbers of a v1 fight for a creature size; $over replaces single values (tests and sims: ['events' => 0] switches a rule off, 'foe_x' / 'bar_x' scale the creature). */
 function pfb_v1_cfg(string $size, array $over = []): array

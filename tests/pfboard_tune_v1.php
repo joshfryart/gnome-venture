@@ -134,7 +134,7 @@ foreach ($g as $d => $bySize) foreach (['small', 'medium', 'large', 'boss'] as $
     printf("%-5s d%+d %-6s n=%3d win=%3.0f%% hp_lost=%2.0f%% turns=%.1f | per fight: used-up chains %.1f, Teamwork %.2f, flips %.1f, re-aims %.1f, passes %.2f, turn cap %.0f%%\n", $bot, $d, $sz, $n, 100 * $avg('win'), 100 * $avg('hp'), $avg('turns'), $avg('used'), $avg('tw'), $avg('flip'), $avg('reaim'), $avg('pass'), 100 * $avg('cap'));
     if ($avg('eplace') > 0) {   // 2.6.75 environment pieces
         $k = fn(string $p) => implode(' ', array_map(fn($ek) => substr($ek, 0, 2) . sprintf('%.2f', $avg($p . $ek)), PFB_ENV_KINDS));
-        printf("      env per fight: placed %.1f (pass %.2f), fired by me %.2f [%s], by creature %.2f [%s], pushes %.2f; env cost: me %.0f%% hp, creature %.0f%% bar; my chain length %.2f; pieces on board %.1f%s\n", $avg('eplace'), $avg('epass'), $avg('efire_me'), $k('me_'), $avg('efire_foe'), $k('foe_'), $avg('push'), 100 * $avg('e_hp'), 100 * $avg('e_bar'), array_sum(array_column($a, 'len')) / max(1, array_sum(array_column($a, 'chains'))), array_sum(array_column($a, 'pcs')) / max(1, array_sum(array_column($a, 'turns'))),
+        printf("      env per fight: placed %.1f (pass %.2f), fired by me %.2f [%s], by creature %.2f [%s], pushes %.2f, fires of a piece that had fired before %.2f; env cost: me %.0f%% hp, creature %.0f%% bar; my chain length %.2f; pieces on board %.1f%s\n", $avg('eplace'), $avg('epass'), $avg('efire_me'), $k('me_'), $avg('efire_foe'), $k('foe_'), $avg('push'), $avg('refire'), 100 * $avg('e_hp'), 100 * $avg('e_bar'), array_sum(array_column($a, 'len')) / max(1, array_sum(array_column($a, 'chains'))), array_sum(array_column($a, 'pcs')) / max(1, array_sum(array_column($a, 'turns'))),
             $blind ? sprintf('; best move changes with env hidden: %.0f%% of turns, %.0f%% of fights, cost %.3f a turn', 100 * array_sum(array_column($a, 'echg')) / max(1, array_sum(array_column($a, 'eturns'))), 100 * count(array_filter($a, fn($r) => $r['echg'] > 0)) / $n, array_sum(array_column($a, 'ecost')) / max(1, array_sum(array_column($a, 'echg')))) : '');
     }
 }
@@ -156,7 +156,7 @@ foreach ($offs as $d) foreach (tv_creatures() as $c) {
         $s = pfb_new(tv_player($lv), $cr, $seed, ['blank' => true, 'v1' => $over ?: true]);
         $hand = $s['me']['hand']; $bi = 0; foreach ($hand as $i => $t) if ($t['t'] === 'hurt' && $t['v'] > $hand[$bi]['v']) $bi = $i;
         pfb_start($s, $bi, ['L', 'R', 'T', 'B'][$k % 4]);
-        $t = 0; $st = ['used' => 0, 'tw' => 0, 'flip' => 0, 'reaim' => 0, 'pass' => 0, 'eplace' => 0, 'epass' => 0, 'efire_me' => 0, 'efire_foe' => 0, 'push' => 0, 'echg' => 0, 'eturns' => 0, 'ecost' => 0.0, 'e_hp' => 0.0, 'e_bar' => 0.0, 'len' => 0, 'chains' => 0, 'pcs' => 0];
+        $t = 0; $st = ['used' => 0, 'tw' => 0, 'flip' => 0, 'reaim' => 0, 'pass' => 0, 'eplace' => 0, 'epass' => 0, 'efire_me' => 0, 'efire_foe' => 0, 'push' => 0, 'echg' => 0, 'eturns' => 0, 'ecost' => 0.0, 'e_hp' => 0.0, 'e_bar' => 0.0, 'len' => 0, 'chains' => 0, 'pcs' => 0, 'refire' => 0]; $firedIds = [];
         foreach (PFB_ENV_KINDS as $ek) { $st['me_' . $ek] = 0; $st['foe_' . $ek] = 0; $st['pl_' . $ek] = 0; }
         while (!$s['over'] && $t++ < 40) {
             $pl = tv_places($s); $a = tv_choose($s, $bot, $pl);
@@ -170,7 +170,7 @@ foreach ($offs as $d) foreach (tv_creatures() as $c) {
             if ($r['err']) { $r = pfb_pass($s, $s['turn']); if ($r['err']) { if (!$pl) break; $r = tv_act($s, $pl[0]); if ($r['err']) break; } }
             foreach ($r['ev'] as $e) { if (isset($e['used']) && ($e['ta'] ?? '') === 'me') $st['used']++; if (isset($e['tw']) && !empty($e['root'])) $st['tw']++;
                 if (($e['env'] ?? '') === 'place') { $st['eplace']++; $st['pl_' . $e['kind']]++; } if (($e['env'] ?? '') === 'pass') $st['epass']++;
-                if (($e['env'] ?? '') === 'fire') { $st['efire_' . $e['for']]++; $st[$e['for'] . '_' . $e['kind']]++; if (isset($e['moved'])) $st['push']++; $st['e_hp'] += $e['me'] / $s['me']['max']; $st['e_bar'] += $e['foe'] / $s['fh']['max']; }
+                if (($e['env'] ?? '') === 'fire') { $st['efire_' . $e['for']]++; $st[$e['for'] . '_' . $e['kind']]++; if (isset($e['moved'])) $st['push']++; if (isset($firedIds[$e['id']])) $st['refire']++; $firedIds[$e['id']] = 1; $st['e_hp'] += $e['me'] / $s['me']['max']; $st['e_bar'] += $e['foe'] / $s['fh']['max']; }
                 if (!empty($e['root']) && ($e['ta'] ?? '') === 'me') $st['chains']++; if (isset($e['id']) && ($e['ta'] ?? '') === 'me') $st['len']++; }
             $st['pcs'] += count($s['pcs']);
             if (!empty($s['reaim'])) $st['reaim']++;
