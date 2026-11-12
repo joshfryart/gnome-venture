@@ -178,11 +178,11 @@ The same data, with a `me` flag, gives the player's region pieces (2.2): earn a 
 
 ## DECIDED by Josh 2026-11-12 (answers to Q1-Q8)
 1. Starter deck 10: 4 core + pick 6 of 12 (one-tap kit allowed).
-2. 2 toolbelt tools add a piece each. NO max deck size (strategy). OPEN: do slots grow with level?
+2. 2 toolbelt tools add a piece each. NO max deck size (strategy). Slots grow by a BELT UPGRADE (craft or buy), not by level (Q9).
 3. Pals add a piece, ONLY active party pals.
 4. Swaps: UNLIMITED before the fight, none during.
 5. Expiry: keep 3-round default; per-piece 2-4; label on piece.
 6. Rarity caps per deck: max 3 Rare, 1 Masterwork.
-7. Tool WEAR: tools wear from fights; a broken tool leaves the belt. OPEN: repair path and wear rate.
+7. Tool WEAR: a tool loses 2 durability each time ITS piece is played; broken = unusable until fixed, leaves the belt. Repair = a CRAFTED repair item from materials (Q10, Q11). OPEN: durability max per tool and belt tiers (slots per belt).
 8. Creature pieces by layers: 4 base from creature TYPE, + extra from REGION, + extra from monster RARITY or boss tag, + 3 UNIQUE to the creature. Lean not a separate idea.
 Next: mockups review by Josh, then build step 1 (clarity items) + engine step for creature tags.
