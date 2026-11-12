@@ -140,10 +140,10 @@ if (is_post()) {
             elseif ($do === 'trail_prev') [$tok, $tmsg] = trail_prev($u, $exp);
             elseif ($do === 'trail_stay') [$tok, $tmsg] = trail_stay($u, $exp);
             elseif ($do === 'gather') [$tok, $tmsg] = trail_gather($u, $exp, (string)($_POST['tool'] ?? ''));
-            elseif ($do === 'sight') [$tok, $tmsg] = trail_sight_do($u, $exp, (string)($_POST['slug'] ?? ''), isset($_POST['pick']) ? ['pick' => (int)$_POST['pick']] : []);
-            elseif ($do === 'sightchat') [$tok, $tmsg] = trail_sight_folk_talk($u, $exp, 'chat', (string)($_POST['fk'] ?? ''));
-            elseif ($do === 'sightgift') [$tok, $tmsg] = trail_sight_folk_talk($u, $exp, 'gift', (string)($_POST['fk'] ?? ''), (int)($_POST['item_id'] ?? 0));
-            elseif ($do === 'sightgive') [$tok, $tmsg] = trail_sight_give($u, $exp, (string)($_POST['slug'] ?? ''), (int)($_POST['idx'] ?? -1));   // v2.6.68 Trail Sights
+            elseif ($do === 'sight') { $sgp = fn(string $k): string => is_scalar($_POST[$k] ?? null) ? (string)$_POST[$k] : ''; [$tok, $tmsg] = trail_sight_do($u, $exp, $sgp('slug'), $sgp('pick') !== '' && ctype_digit($sgp('pick')) ? ['pick' => (int)$sgp('pick')] : []); }   // v2.6.68 Trail Sights (POST values may be arrays: only scalars count)
+            elseif ($do === 'sightchat') { $sgp = fn(string $k): string => is_scalar($_POST[$k] ?? null) ? (string)$_POST[$k] : ''; [$tok, $tmsg] = trail_sight_folk_talk($u, $exp, 'chat', $sgp('fk')); }
+            elseif ($do === 'sightgift') { $sgp = fn(string $k): string => is_scalar($_POST[$k] ?? null) ? (string)$_POST[$k] : ''; [$tok, $tmsg] = trail_sight_folk_talk($u, $exp, 'gift', $sgp('fk'), (int)$sgp('item_id')); }
+            elseif ($do === 'sightgive') { $sgp = fn(string $k): string => is_scalar($_POST[$k] ?? null) ? (string)$_POST[$k] : ''; [$tok, $tmsg] = trail_sight_give($u, $exp, $sgp('slug'), $sgp('idx') !== '' && ctype_digit($sgp('idx')) ? (int)$sgp('idx') : -1); }   // v2.6.68 Trail Sights
             elseif ($do === 'trail_stance') [$tok, $tmsg] = trail_stance($u, $exp, (string)($_POST['mode'] ?? ''));
             elseif ($do === 'trail_wander') { [$tok, $tmsg] = trail_wander($u, $exp); }
             elseif ($do === 'trail_back') { [$tok, $tmsg] = trail_back($u, $exp); $visited = true; }

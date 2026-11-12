@@ -78,6 +78,8 @@ function trail_sight_items_file(?string $file = null): array
 /** Make the items only Sights give. Adds only; an item that exists (or was edited in Admin) is left alone. Returns how many were added. */
 function trail_sights_ensure_items(): int
 {
+    $sig = md5(implode(',', array_map(fn($f) => basename($f) . filemtime($f), glob(__DIR__ . '/data/trail_sight_items*.txt') ?: [])));
+    if (empty($GLOBALS['gv_sight_items_file']) && setting('sight_items_sig') === $sig) return 0;   // already made for these files (a use does not look at 100 items each time)
     $n = 0;
     foreach (trail_sight_items_file() as $slug => [$name, $cat, $rar, $price, $edible, $desc, $fx]) {
         try {
@@ -86,7 +88,17 @@ function trail_sights_ensure_items(): int
             $n++;
         } catch (Throwable $e) { /* made by another request, or no items table */ }
     }
+    if (empty($GLOBALS['gv_sight_items_file'])) { try { set_setting('sight_items_sig', $sig); } catch (Throwable $e) {} }
     return $n;
+}
+
+/** A short-lived lock in the settings (60 s): true if this request may do the work, false if another started it a moment ago. (The Almanac pages have no unique key: two requests would double them.) */
+function trail_sight_claim(string $name): bool
+{
+    $v = (int)setting($name);
+    if ($v > 0 && time() - $v < 60) return false;
+    set_setting($name, (string)time());
+    return true;
 }
 
 // ---------------------------------------------------------------- the Almanac "Sights" chapter
@@ -107,6 +119,7 @@ function trail_sights_ensure_almanac(): void
 {
     $sig = md5(implode(',', array_map(fn($f) => basename($f) . filemtime($f), array_merge(glob(__DIR__ . '/data/trail_sight*.txt') ?: [], [__FILE__]))));   // cheap: the data files and this file unchanged = nothing to do
     if (setting('almanac_sights') === $sig) return;
+    if (!trail_sight_claim('almanac_sights_lock')) return;   // another request is making the pages
     require_once __DIR__ . '/gathering.php'; require_once __DIR__ . '/tools.php';   // GATHER_TOOL_NOUN, TOOL_TIERS
     $rows = trail_sights_all(null, false);
     $sort = 0;
@@ -163,6 +176,10 @@ function trail_sight_quest_lint(array $q, array $sights, array $allQuests = []):
         elseif ($needs !== '' && !trail_sight_item_known(explode(':', substr($needs, 5))[0])) $bad[] = 'beat needs unknown item ' . $needs;
     }
     if ($q['gate'] !== '' && (!preg_match('/^quest:([a-z0-9-]+)$/', $q['gate'], $m) || ($allQuests && !isset($allQuests[$m[1]])))) $bad[] = 'bad gate ' . $q['gate'];
+    elseif ($q['gate'] !== '' && $allQuests) {   // a gate loop (A waits for B waits for A) could never begin
+        $seen = [$q['slug']]; $g = $q['gate'];
+        while ($g !== '' && preg_match('/^quest:([a-z0-9-]+)$/', $g, $gm)) { if (in_array($gm[1], $seen, true)) { $bad[] = 'gate loop through ' . $gm[1]; break; } $seen[] = $gm[1]; $g = $allQuests[$gm[1]]['gate'] ?? ''; }
+    }
     if ($q['title'] === '' || $q['intro'] === '' || $q['outro'] === '') $bad[] = 'title, intro and outro are all needed';
     $probe = ['slug' => 'x', 'verb' => 'x', 'icon' => 'x', 'energy' => 0, 'cd' => 0, 'uses' => 1, 'when' => '-', 'check' => '-', 'rewards' => $q['reward'], 'win' => 'x', 'lose' => '', 'tool' => '-', 'fail_en' => 0];
     foreach (trail_sight_lint($probe, true) as $p) if (!str_starts_with($p, 'no landmark picture')) $bad[] = 'reward: ' . $p;
@@ -266,11 +283,13 @@ function trail_sight_event_match(string $beat, string $ev): bool
 /** A game event that quest lines may ask for: 'boss' (arg = the lair's slug), 'meal', 'friend' (arg = the villager's name). Returns journal lines for the caller to show. */
 function trail_sight_quest_event(array $u, string $kind, string $arg = ''): array
 {
-    if (!function_exists('trail_sight_quests') || !trail_sight_quests()) return [];
-    require_once __DIR__ . '/stops.php';
-    $loc = q_one('SELECT * FROM locations WHERE id = ?', [(int)($u['location_id'] ?? 0)]) ?: q_one('SELECT * FROM locations ORDER BY id LIMIT 1') ?: [];
-    $loc += ['landscape' => 'grassland']; $loc['name'] = 'a quest';
-    return trail_sight_quest_hook($u, '@' . $kind . ($arg !== '' ? ':' . $arg : ''), $loc, trail_sight_now($loc, null));
+    try {   // a quest line must never break a fight's end or a meal: any trouble here is silent
+        if (!function_exists('trail_sight_quests') || !trail_sight_quests()) return [];
+        require_once __DIR__ . '/stops.php';
+        $loc = q_one('SELECT * FROM locations WHERE id = ?', [(int)($u['location_id'] ?? 0)]) ?: q_one('SELECT * FROM locations ORDER BY id LIMIT 1') ?: [];
+        $loc += ['landscape' => 'grassland']; $loc['name'] = 'a quest';
+        return trail_sight_quest_hook($u, '@' . $kind . ($arg !== '' ? ':' . $arg : ''), $loc, trail_sight_now($loc, null, $u));
+    } catch (Throwable $e) { error_log('trail_sight_quest_event: ' . $e->getMessage()); return []; }
 }
 
 /** The quest lines a gnome has begun or finished, for the Tasks page: [[quest, done indexes, finished(bool)]]. */
@@ -359,6 +378,13 @@ function trail_sight_split_who(string $who): array
 /** A named villager's stop_folk id (made for the villages of the world on the way if needed; `Name@village-slug` picks the one in that village), or 0 if no villager has that name. */
 function trail_sight_folk_id(string $who): int
 {
+    static $memo = [];
+    if (isset($memo[$who]) && empty($GLOBALS['gv_sights_reload'])) return $memo[$who];
+    return $memo[$who] = trail_sight_folk_id_lookup($who);
+}
+
+function trail_sight_folk_id_lookup(string $who): int
+{
     [$name, $vslug] = trail_sight_split_who($who);
     try {
         require_once __DIR__ . '/stop_folk.php';
@@ -371,6 +397,7 @@ function trail_sight_folk_id(string $who): int
         }
         $id = (int)q_val('SELECT id FROM stop_folk WHERE name = ? ORDER BY id LIMIT 1', [$name]);
         if ($id) return $id;
+        if (q_val('SELECT 1 FROM npcs WHERE name = ?', [$name])) return 0;   // a town NPC or traveller: no need to make every village's folk to look for them
         foreach (q("SELECT * FROM locations WHERE kind = 'village' ORDER BY id")->fetchAll() as $v) {
             stop_folk_ensure($v);
             $id = (int)q_val('SELECT id FROM stop_folk WHERE name = ? ORDER BY id LIMIT 1', [$name]);
@@ -389,7 +416,7 @@ function trail_sight_pay(array $u, array $loc, string $rewards, string $who = ''
     require_once __DIR__ . '/stops.php';
     $now = null; $plain = []; $lines = [];
     foreach (trail_sight_tokens($rewards) as $t) {
-        if ($t['cond'] !== '') { $now ??= trail_sight_now($loc, null); if (!trail_sight_cond_ok($t['cond'], $now)) continue; }
+        if ($t['cond'] !== '') { $now ??= trail_sight_now($loc, null, $u); if (!trail_sight_cond_ok($t['cond'], $now)) continue; }
         $tok = $t['tok'];
         if (preg_match('/^(.*)@(\d+)$/', $tok, $cm) && preg_match('/^(fp|fpto|title|page|hint)=/', $tok)) { if (random_int(1, 100) > (int)$cm[2]) continue; $tok = $cm[1]; }   // a chance on one of OUR tokens (the others go to stop_rewards, which rolls its own)
         if (str_starts_with($tok, 'fp=') && $who !== '') $lines[] = trail_sight_befriend($u, $who, max(1, (int)substr($tok, 3)));
@@ -484,6 +511,7 @@ function trail_sight_hint(array $u, array $loc, string $kind): string
         }
         if ($kind === 'season') return '🍂 It is ' . hollow_season() . ' now.';
         if ($kind === 'away') {
+            if (($loc['kind'] ?? '') !== 'village') return '';   // only a village has folk to be away from
             require_once __DIR__ . '/stop_folk.php';
             $names = [];
             foreach (q('SELECT id, name FROM stop_folk WHERE location_id = ? ORDER BY slot', [(int)($loc['id'] ?? 0)])->fetchAll() as $f) if (gclock_npc_away('s' . $f['id'])) $names[] = $f['name'];
@@ -532,6 +560,7 @@ function trail_sights_ensure_pages(): void
 {
     $sig = md5(json_encode(trail_sight_pages()));
     if (setting('almanac_sight_pages') === $sig) return;
+    if (!trail_sight_claim('almanac_sight_pages_lock')) return;
     $n = 0;
     foreach (trail_sight_pages() as $key => [$chapter, $cat, $title, $body]) {
         $n++;
@@ -676,7 +705,7 @@ function trail_sights_folk_on_map(array $u, array $exp, array $sc, array $marks,
             $pic = trail_sight_folk_pic($f['who']);
             if (!$pic) continue;
             $spot = null;   // a free walkable tile beside the landmark (not under its sprite)
-            foreach ([[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [2, 0], [-2, 0]] as [$dx, $dy]) { $tx = $m['x'] + $dx; $ty = $m['y'] + $dy; if ($tx === (int)$sc['x'] && $ty === (int)$sc['y']) continue; if (in_array(tm_tile($sc['map'], $tx, $ty), ['.', ',', 'S'], true)) { $spot = [$tx, $ty]; break; } }   // never on the gnome's own tile
+            foreach ([[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [2, 0], [-2, 0]] as [$dx, $dy]) { $tx = $m['x'] + $dx; $ty = $m['y'] + $dy; if ($tx === (int)$sc['x'] && $ty === (int)$sc['y']) continue; if (in_array(tm_tile($sc['map'], $tx, $ty), ['.', ','], true) && trail_token_at($sc, $tx, $ty) < 0 && !trail_sight_tile_in_gate($sc['map']['art'] ?? [], $tx, $ty)) { $spot = [$tx, $ty]; break; } }   // never on the gnome's own tile
             if (!$spot) $spot = [$m['x'], $m['y']];
             $anim = false;   // walks in once per game day and place (the page swaps in place after every step: the session remembers they have arrived)
             if ($consume) { $key = (function_exists('gclock_my_date') ? gclock_my_date() : date('Y-m-d')) . '|' . $m['slug'] . '|' . $name; if (session_status() === PHP_SESSION_ACTIVE && empty($_SESSION['sgfk'][$key])) { $_SESSION['sgfk'][$key] = 1; $anim = true; if (count($_SESSION['sgfk']) > 60) $_SESSION['sgfk'] = array_slice($_SESSION['sgfk'], -30, null, true); } }
@@ -685,6 +714,13 @@ function trail_sights_folk_on_map(array $u, array $exp, array $sc, array $marks,
         }
     }
     return $out;
+}
+
+/** Is tile x, y one of the tiles of a tool gate of this section? (a villager does not stand in a gate) */
+function trail_sight_tile_in_gate(array $art, int $x, int $y): bool
+{
+    foreach ((array)($art['gates'] ?? []) as $g) foreach ((array)($g['tiles'] ?? []) as $t) if ((int)$t[0] === $x && (int)$t[1] === $y) return true;
+    return false;
 }
 
 /** A named villager's map picture: [url, frames, kind 's' stop villager | 'n' town NPC, id] (a 4-frame sprite sheet shows its first frame), or null. */
@@ -755,7 +791,7 @@ function trail_sight_folk_talk(array $u, array &$exp, string $what, string $fk, 
     if ($kind === 's') {
         $f = q_one('SELECT * FROM stop_folk WHERE id = ?', [$id]); $vloc = $f ? q_one('SELECT * FROM locations WHERE id = ?', [(int)$f['location_id']]) : null;
         if (!$vloc) return [false, 'They have gone on their way.'];
-        [$ok, $msg] = $what === 'chat' ? stop_chat($u, $vloc, $id) : stop_gift($u, $vloc, $id, $itemId);
+        [$ok, $msg] = $what === 'chat' ? stop_chat($u, $vloc, $id) : trail_sight_stop_gift($u, $f, $id, $itemId);   // stop_gift opens its own transaction: not inside the walk's
     } else {
         $npc = q_one('SELECT * FROM npcs WHERE id = ?', [$id]); $today = gclock_my_date();
         if (!$npc) return [false, 'They have gone on their way.'];
@@ -773,4 +809,26 @@ function trail_sight_folk_talk(array $u, array &$exp, string $what, string $fk, 
     }
     exp_log($exp, $msg);
     return [$ok, ''];
+}
+
+/**
+ * stop_gift() without its own transaction (adventure.php already holds one and a second beginTransaction throws): same rules, once a day each, +friendship (2, or 4 for food,
+ * flowers, produce and arrangements, with a Charm boost). The claim is made only after the gnome is known to carry the item. [ok, message]
+ */
+function trail_sight_stop_gift(array $u, array $folk, int $folkId, int $itemId): array
+{
+    $uid = (int)$u['id'];
+    $item = q_one("SELECT * FROM items WHERE id = ? AND tradable = 1 AND category NOT IN ('tool', 'broken')", [$itemId]);
+    if (!$item) return [false, 'Pick something to give.'];
+    if (gclock_npc_away('s' . $folkId)) return [false, $folk['name'] . ' is away today (visiting family). Try again after you sleep.'];
+    if ((int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $itemId]) < 1) return [false, 'You don’t have one of those.'];
+    $today = gclock_my_date();
+    stop_friend_ensure($uid, $folkId);
+    if (q('UPDATE stop_friend SET last_gift = ? WHERE user_id = ? AND folk_id = ? AND (last_gift IS NULL OR last_gift <> ?)', [$today, $uid, $folkId, $today])->rowCount() !== 1) return [false, $folk['name'] . ' has already had a present from you today.'];
+    if (!give_item($uid, $itemId, -1)) { q('UPDATE stop_friend SET last_gift = NULL WHERE user_id = ? AND folk_id = ?', [$uid, $folkId]); return [false, 'You don’t have one of those.']; }
+    $pts = in_array($item['category'], ['food', 'flower', 'produce', 'arrangement'], true) ? 4 : 2;
+    $pts = (int)round($pts * (1 + 0.08 * max(0, function_exists('eff_mod') ? eff_mod($u, 'charm') : 0)));
+    $before = stop_friend_points($uid, $folkId);
+    $new = stop_friend_add($uid, $folkId, $pts);
+    return [true, npc_icon($folk['species']) . ' ' . $folk['name'] . ' takes the ' . $item['name'] . ' with a grateful smile. (💛 +' . ($new - $before) . ')'];
 }

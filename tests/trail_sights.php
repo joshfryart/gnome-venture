@@ -381,5 +381,48 @@ $GLOBALS['gv_sight_items_file'] = $w('items.txt', "p4-decor-test|P4 Decor Test|d
 trail_sights_ensure_items();
 $fxv = (string)q_val("SELECT effects FROM items WHERE slug = 'p4-decor-test'"); ok('an item with an effects column gets its effects JSON', str_contains($fxv, 'ornament'), $fxv);
 unset($GLOBALS['gv_sight_folk_file'], $GLOBALS['gv_sight_quests_file'], $GLOBALS['gv_sight_pages_file'], $GLOBALS['gv_sight_newfolk_file'], $GLOBALS['gv_sight_items_file']);
+
+echo "== review fixes\n";
+// gifts to a stop villager inside the walk's own transaction (stop_gift would throw on a nested beginTransaction)
+$vv = q_one("SELECT * FROM locations WHERE kind = 'village' ORDER BY id LIMIT 1"); stop_folk_ensure($vv);
+$fid0 = (int)q_val('SELECT id FROM stop_folk WHERE location_id = ? ORDER BY slot LIMIT 1', [$vv['id']]);
+$gslug2 = (string)q_val("SELECT slug FROM items WHERE tradable = 1 AND category NOT IN ('tool', 'broken') ORDER BY id LIMIT 1"); $gid2 = (int)q_val('SELECT id FROM items WHERE slug = ?', [$gslug2]);
+give_item((int)$u['id'], $gid2, 3);
+q('UPDATE stop_friend SET last_gift = NULL WHERE user_id = ?', [$u['id']]);
+db()->beginTransaction();
+try { [$gg1, $gm1] = trail_sight_stop_gift($u, q_one('SELECT * FROM stop_folk WHERE id = ?', [$fid0]), $fid0, $gid2); $thrown = false; } catch (Throwable $ex) { $thrown = true; $gg1 = false; $gm1 = $ex->getMessage(); }
+db()->commit();
+ok('a gift to a stop villager works inside a transaction (no nested beginTransaction)', !$thrown && $gg1, (string)$gm1);
+[$gg2, $gm2] = trail_sight_stop_gift($u, q_one('SELECT * FROM stop_folk WHERE id = ?', [$fid0]), $fid0, $gid2);
+ok('a second gift the same day is refused and keeps the item', !$gg2 && str_contains((string)$gm2, 'already'), (string)$gm2);
+// give= only once a day per row
+$GLOBALS['gv_sight_folk_file'] = $w('folkgive.txt', "{$base['slug']}|Bunty Windlass@v-ca-4-2|-|100|Bunty is glad.|give=$gslug2:1,xp=7\n");
+$u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $exp = active_expedition((int)$u['id']);
+$sc = trail_scene($exp); $sc['x'] = $spot[0]; $sc['y'] = $spot[1]; trail_save($sc);
+q("DELETE FROM trail_sight_first WHERE slug LIKE 'give:%'");
+[$gv1] = trail_sight_give($u, $exp, $base['slug'], 0); save_exp($exp); $exp = active_expedition((int)$u['id']);
+[$gv2, $gvm2] = trail_sight_give($u, $exp, $base['slug'], 0);
+ok('give= pays once a day (a second give is refused, nothing is taken)', $gv1 && !$gv2 && str_contains((string)$gvm2, 'today'), (string)$gvm2);
+unset($GLOBALS['gv_sight_folk_file']);
+// a gate loop is a lint problem
+$cq = ['a' => ['slug' => 'a', 'title' => 't', 'giver' => 'g', 'icon' => 'i', 'order' => 'any', 'reward' => 'xp=1', 'intro' => 'i', 'outro' => 'o', 'gate' => 'quest:b', 'beats' => [[$base['slug'], 'l', '-', ''], ['mountain-the-rope-bridge', 'l', '-', '']]],
+       'b' => ['slug' => 'b', 'title' => 't', 'giver' => 'g', 'icon' => 'i', 'order' => 'any', 'reward' => 'xp=1', 'intro' => 'i', 'outro' => 'o', 'gate' => 'quest:a', 'beats' => [[$base['slug'], 'l', '-', ''], ['mountain-the-rope-bridge', 'l', '-', '']]]];
+ok('a quest gate loop is caught by the lint', (bool)array_filter(trail_sight_quest_lint($cq['a'], trail_sights_all(), $cq), fn($p) => str_contains($p, 'gate loop')));
+// items are not looked at again on every use
+trail_sights_ensure_items(); ok('the items file is not re-checked once made (signature)', trail_sights_ensure_items() === 0 && setting('sight_items_sig') !== '');
+// a villager is never put on a find/boss token tile, the start tile or in a gate
+$sc2 = trail_scene($exp); $sc2['x'] = 0; $sc2['y'] = 0;
+$tk = $sc2['st']['tokens'][0] ?? null;
+ok('the villager spot helper keeps out of gates', !trail_sight_tile_in_gate(['gates' => [['tiles' => [[3, 4]]]]], 5, 5) && trail_sight_tile_in_gate(['gates' => [['tiles' => [[3, 4]]]]], 3, 4));
+// quest events never throw
+q('ALTER TABLE user_sight_quests RENAME TO user_sight_quests_x'); $evOk = true;
+try { trail_sight_quest_event($u, 'meal'); trail_sight_quest_event($u, 'boss', 'x'); } catch (Throwable $ex) { $evOk = false; }
+q('ALTER TABLE user_sight_quests_x RENAME TO user_sight_quests');
+ok('quest events do not throw when the Sights tables are missing', $evOk);
+// Sights with the tables missing degrade quietly (before Upgrade database)
+q('ALTER TABLE trail_sight_uses RENAME TO trail_sight_uses_x'); q('ALTER TABLE trail_sight_first RENAME TO trail_sight_first_x'); $degOk = true;
+try { $hr = trail_sights_here($u, trail_scene($exp)); } catch (Throwable $ex) { $degOk = false; }
+q('ALTER TABLE trail_sight_uses_x RENAME TO trail_sight_uses'); q('ALTER TABLE trail_sight_first_x RENAME TO trail_sight_first');
+ok('the Sight list still works with the use tables missing', $degOk);
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);

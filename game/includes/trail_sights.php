@@ -330,7 +330,10 @@ function trail_sight_give(array $u, array &$exp, string $slug, int $idx): array
     if (!$g) return [false, 'They do not need anything.'];
     [$gs, $gq] = array_pad(explode(':', substr($g, 5), 2), 2, '1'); $gid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$gs]); $gq = max(1, (int)$gq);
     $gname = $gid ? (string)q_val('SELECT name FROM items WHERE id = ?', [$gid]) : $gs;
+    $gkey = 'give:' . substr(md5($slug . '|' . $idx . '|' . gclock_my_date()), 0, 24);   // once a day per villager row, or a cheap item could be given again and again for the rewards
+    try { if (q_val('SELECT 1 FROM trail_sight_first WHERE user_id = ? AND slug = ?', [(int)$u['id'], $gkey])) return [false, trail_sight_split_who($f['who'])[0] . ' has had what they need from you today.']; } catch (Throwable $e) { return [false, 'Not now.']; }
     if (!$gid || !give_item((int)$u['id'], $gid, -$gq)) return [false, 'You need ' . $gq . ' × ' . $gname . ' for that.'];
+    try { db_insert('trail_sight_first', ['user_id' => (int)$u['id'], 'slug' => $gkey]); } catch (Throwable $e) { /* a double click: the lock above already serialises */ }
     gclock_charge((int)$u['id'], 'sight');
     $lines = trail_sight_pay($u, $loc, $f['rewards'], $f['who']);
     exp_log($exp, '🎁 You give ' . trail_sight_split_who($f['who'])[0] . ' ' . $gq . ' × ' . $gname . '. ' . $f['line'] . ($lines ? ' (' . implode(', ', $lines) . ')' : ''));
