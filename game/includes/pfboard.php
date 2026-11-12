@@ -93,16 +93,17 @@ function pfb_lean(array $c): string
 }
 
 /**
- * v1: give a tile its source, its life and its authored edges (tile fields 'src', 'life', 'ed'). A tile that already carries them keeps them (authored per piece: 'ed' = the four edges,
- * or 'col' = column family and 'up' = knob on top; 'ed' => false keeps the old hashed edges). $col = the column family for a piece without its own.
+ * v1: give a tile its source, its life and its authored edges (tile fields 'src', 'life', 'ed'). What the tile already carries wins (authored per piece, see pf_make_tile):
+ * 'src', 'life', 'edges' = all four edges, or 'col' = column family and 'up' = knob on top; 'edges' => false keeps the old hashed edges. $col = the column family for a piece without its own.
  */
 function pfb_v1_tile(array $t, array $cfg, ?string $col = null): array
 {
     $t['src'] = pfb_src($t);
     if ($cfg['life']) $t['life'] = max(PFB_LIFE_MIN, min(PFB_LIFE_MAX, (int)($t['life'] ?? ($t['tag'] === 'quick' ? 2 : ($t['tag'] === 'hold' ? 4 : PFB_LIFE)))));
     else unset($t['life']);
-    if (!$cfg['edges'] || (array_key_exists('ed', $t) && $t['ed'] === false)) { unset($t['ed']); return $t; }
-    if (!isset($t['ed']) || !is_array($t['ed'])) $t['ed'] = pfb_author_edges($t, (string)($t['col'] ?? PFB_SRC_FAM[$t['src']] ?? $col ?? PF_HOLE[$t['t']] ?? 'body'), isset($t['up']) ? (bool)$t['up'] : null);
+    unset($t['ed']);
+    if (!$cfg['edges'] || (array_key_exists('edges', $t) && $t['edges'] === false)) return $t;
+    $t['ed'] = is_array($t['edges'] ?? null) ? $t['edges'] : pfb_author_edges($t, (string)($t['col'] ?? PFB_SRC_FAM[$t['src']] ?? $col ?? PF_HOLE[$t['t']] ?? 'body'), isset($t['up']) ? (bool)$t['up'] : null);
     return $t;
 }
 

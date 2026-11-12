@@ -13,7 +13,10 @@ def uri(path, mime='image/png'): return 'data:%s;base64,%s' % (mime, base64.b64e
 def js(o): return json.dumps(o, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/').replace('<!--', '<\\!--')
 
 # ------------------------------------------------------------------ the v1 engine (pfengine.js + patches)
-src = open('tools/pfengine.js').read()
+# 2.6.74: tools/pfengine.js now carries the v1 rules itself (ported from here into the game, behind pfight_v1). The design demo keeps its own patched copy of the engine
+# as it was before that port, so the approved demo does not move: commit 614072fc.
+import subprocess
+src = subprocess.check_output(['git', 'show', '614072fc:tools/pfengine.js']).decode()
 def rep(old, new, count=1):
     global src
     assert src.count(old) == count, (src.count(old), old)

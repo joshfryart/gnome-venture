@@ -56,6 +56,11 @@ const queries = s => {
   s.me.hand.forEach(t => { q.cells.push(PFE.cells(s, t)); q.edges.push(PFE.edges(t)); });
   const g = s.me.held;
   if (g) { q.spots = PFE.groupSpots(s, g); q.opts = s.me.hand.map(t => PFE.groupOptions(g, t)); }
+  if (s.v1) {   // the v1 board rules
+    q.canflip = s.me.hand.map((t, i) => PFE.canFlip(s, i));
+    q.cp = s.me.hand.map((t, i) => [PFE.cellPreview(s, i), PFE.cellPreview(s, i, true)]);
+    if (g) q.cpc = PFE.cellPreview(s, 'c');
+  }
   return q;
 };
 let nf = 0, na = 0, done = null;
@@ -73,7 +78,7 @@ for (const ln of lines.slice(1)) {
     if (stop) return;
     const c = ctx + ' step ' + i + ' (turn ' + st.turn + ', ' + st.op + (st.dry ? ' dry' : '') + ' ' + JSON.stringify(st.moves || '') + ')'; na++;
     if (st.q && fail(c + ' queries', st.q, queries(s), 'q')) { stop = true; return; }
-    const res = st.op === 'start' ? { err: PFE.start(s, st.hand, st.side) } : st.op === 'pass' ? PFE.pass(s, st.turn) : PFE.play(s, st.moves, st.turn, st.dry);
+    const res = st.op === 'flip' ? { err: PFE.flip(s, st.hand, st.turn) } : st.op === 'start' ? { err: PFE.start(s, st.hand, st.side) } : st.op === 'pass' ? PFE.pass(s, st.turn) : PFE.play(s, st.moves, st.turn, st.dry);
     if (fail(c + ' result', st.res, res, 'res')) { stop = true; return; }
     if (st.lines) {
       const fo = s.foe.name;

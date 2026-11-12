@@ -135,7 +135,9 @@ function pf_make_tile(string $key, array $stats, int $bonus = 0, array $over = [
     $d = $over + $d;
     $stat = max(0, (int)($stats[PF_STAT[$d['t']]] ?? 0));
     $lvl = intdiv(max(1, (int)($stats['level'] ?? 1)), 3);
-    return ['k' => $key, 'n' => $d['n'], 't' => $d['t'], 'v' => max(1, (int)$d['v'] + $stat + $lvl + $bonus), 'r' => $d['r'], 'tag' => (string)$d['tag'], 'm' => ''];
+    $t = ['k' => $key, 'n' => $d['n'], 't' => $d['t'], 'v' => max(1, (int)$d['v'] + $stat + $lvl + $bonus), 'r' => $d['r'], 'tag' => (string)$d['tag'], 'm' => ''];
+    foreach (['src', 'life', 'col', 'up', 'edges'] as $k) if (isset($d[$k])) $t[$k] = $d[$k];   // 2.6.74 (v1 board rules, see pfb_v1_tile): where the piece comes from, its life in rounds, its authored edges. No tile carries them yet
+    return $t;
 }
 
 /** Player deck: gnome base six, the calling tile (tier upgrades value) and pals swapping in for gnome tiles.

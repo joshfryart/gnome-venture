@@ -195,7 +195,9 @@
     if (over) d = Object.assign({}, d, over);
     var stat = Math.max(0, toInt(nn(stats[PF_STAT[d.t]], 0)));
     var lvl = intdiv(Math.max(1, toInt(nn(stats.level, 1))), 3);
-    return { k: key, n: d.n, t: d.t, v: Math.max(1, toInt(d.v) + stat + lvl + bonus), r: nn(d.r), tag: String(d.tag), m: '' };
+    var t = { k: key, n: d.n, t: d.t, v: Math.max(1, toInt(d.v) + stat + lvl + bonus), r: nn(d.r), tag: String(d.tag), m: '' };
+    ['src', 'life', 'col', 'up', 'edges'].forEach(function (k) { if (d[k] !== undefined && d[k] !== null) t[k] = d[k]; });   // v1 board rules (v1Tile): source, life, authored edges
+    return t;
   }
 
   function callingKeys() { var o = []; for (var k in PF_CALLING_TILE) o.push(PF_CALLING_TILE[k]); return o; }
@@ -475,10 +477,221 @@
     };
   }
 
+  // ------------------------------------------------------------------ v1 board rules (pfboard.php "v1 board rules"; a fight started with opt.v1 carries s.v1, every other fight plays as before)
+  var PFB_SIZE = { small: [5, 4], medium: [5, 5], large: [7, 5], boss: [7, 6] };
+  var PFB_GROUND = { small: [2, 2, 1], medium: [3, 2, 1], large: [3, 3, 1], boss: [4, 3, 1] }, PFB_GROUND_DIST = [1, 2];
+  var PFB_EVENTS = { small: 1, medium: 2, large: 2, boss: 2 }, PFB_EVENT_KINDS = ['sunbeam', 'creep', 'gust', 'thorn', 'puddle'];
+  var PFB_EVENT_NAME = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst', bramble: 'Bramble' };
+  var PFB_USEUP = 3, PFB_SUN_MULT = 2.0, PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 1.0, PFB_THORN = 0.10, PFB_EVENT_FOE = 0.5, PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;
+  var PFB_TEAM_SRC = ['pal', 'tool', 'crop'], PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'creature'];
+  var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
+  var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };
+  var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4;
+  var PFB_V1_FOE_MULT = { small: 0.72, medium: 0.53, large: 0.41, boss: 0.46 }, PFB_V1_BAR_MULT = { small: 1.12, medium: 1.12, large: 1.12, boss: 0.88 };
+  var KIND_GROUND = { sunbeam: 'sun', creep: 'br', puddle: 'mud' }, GROUND_N = { sun: 'nsun', br: 'nbr', mud: 'nmud' };
+
+  function isNumeric(v) { return (typeof v === 'number' && isFinite(v)) || (typeof v === 'string' && v.trim() !== '' && isFinite(Number(v))); }
+  function v1Cfg(size, over) {
+    if (!has(PFB_SIZE, size)) size = 'medium';
+    var g = PFB_GROUND[size];
+    var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 1, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
+      events: 1, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: PFB_TEAM2, team3: PFB_TEAM3,
+      edges: 1, flip: 1, life: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size] };
+    var INTS = { w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1 };
+    over = over || {};
+    for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
+    if (over.foe_x !== undefined && over.foe_x !== null) cfg.foe = round(cfg.foe * Number(over.foe_x), 4);
+    if (over.bar_x !== undefined && over.bar_x !== null) cfg.bar = round(cfg.bar * Number(over.bar_x), 4);
+    if (!cfg.edges) cfg.flip = 0;
+    return cfg;
+  }
+  function pfbW(s) { return nn(s.w, PFB_W); }
+  function pfbH(s) { return nn(s.h, PFB_H); }
+  function ter(s, x, y) { return (s.ter && s.ter[x + ',' + y]) || ''; }
+  function noTer(s) { return !s.ter || isEmpty(s.ter); }
+  function inb(s, x, y) { return x >= 0 && y >= 0 && x < pfbW(s) && y < pfbH(s); }
+  function srcOf(t) {
+    if (t.src !== undefined && t.src !== null && PFB_SRC.indexOf(t.src) >= 0) return t.src;
+    var k = String(nn(t.k, ''));
+    if (k.indexOf('pal:') === 0) return 'pal';
+    if (k.indexOf('f:') === 0) return 'creature';
+    if (PF_BASE_KEYS.indexOf(k) >= 0 || k === 'breather') return 'basic';
+    if (callingKeys().indexOf(k) >= 0) return 'calling';
+    return 'knack';
+  }
+  function authorEdges(t, col, up) {
+    if (up === undefined || up === null) up = has(PFB_UP, t.t);
+    var fam = nn(PF_HOLE[t.t], 'body');
+    return { L: ['hole', fam], R: ['knob', nn(t.r, fam)], T: [up ? 'knob' : 'hole', col], B: [up ? 'hole' : 'knob', col] };
+  }
+  function lean(c) {
+    var fam = ['body', 'mind', 'craft'];
+    if (fam.indexOf(nn(c.lean, '')) >= 0) return c.lean;
+    var cl = String(nn(c['class'], '')).toLowerCase();
+    for (var k in PFB_CLASS_LEAN) if (cl !== '' && cl.indexOf(k) >= 0) return PFB_CLASS_LEAN[k];
+    return fam[crc32(String(nn(c.slug, nn(c.name, '')))) % 3];
+  }
+  function v1Tile(t, cfg, col) {
+    t.src = srcOf(t);
+    if (cfg.life) t.life = Math.max(PFB_LIFE_MIN, Math.min(PFB_LIFE_MAX, toInt(nn(t.life, t.tag === 'quick' ? 2 : (t.tag === 'hold' ? 4 : PFB_LIFE)))));
+    else delete t.life;
+    delete t.ed;
+    if (!cfg.edges || t.edges === false) return t;
+    t.ed = (t.edges && typeof t.edges === 'object') ? clone(t.edges) : authorEdges(t, String(nn(t.col, nn(PFB_SRC_FAM[t.src], nn(col, nn(PF_HOLE[t.t], 'body'))))), (t.up !== undefined && t.up !== null) ? truthy(t.up) : null);
+    return t;
+  }
+  function v1Tiles(s, c) {
+    var order = {}, ln = lean(c);
+    foeDeck(c).forEach(function (t, i) { order[t.k] = i; });
+    ['hand', 'draw', 'discard'].forEach(function (z) {
+      s.me[z].forEach(function (t) { v1Tile(t, s.v1); });
+      s.foe[z].forEach(function (t) { v1Tile(t, s.v1, nn(order[t.k], 0) % 5 < 3 ? ln : null); });
+    });
+  }
+  function lifeOf(s, p) {
+    if (p.by === 'none') return 1;
+    return (s.v1 && truthy(s.v1.life)) ? toInt(nn(p.tile.life, PFB_LIFE)) : PFB_LIFE;
+  }
+  function discardPiece(s, p) {
+    if (p.by === 'none') return;
+    var t = clone(p.tile); delete t.flip; delete t.ft;
+    s[p.by].discard.push(t);
+  }
+  function seedGround(s) {
+    s.ter = {}; if (!s.v1.ground) return;
+    var cx = intdiv(pfbW(s), 2), cy = intdiv(pfbH(s), 2), cand = [];
+    for (var y = 0; y < pfbH(s); y++) for (var x = 0; x < pfbW(s); x++) { var d = Math.abs(x - cx) + Math.abs(y - cy); if (d >= PFB_GROUND_DIST[0] && d <= PFB_GROUND_DIST[1]) cand.push(x + ',' + y); }
+    cand = shuffle(s, cand);
+    [['sun', s.v1.nsun], ['br', s.v1.nbr], ['mud', s.v1.nmud]].forEach(function (g) { for (var i = 0; i < g[1] && cand.length; i++) s.ter[cand.pop()] = g[0]; });
+  }
+  function groundSet(s, x, y, kind) {
+    delete s.ter[x + ',' + y]; s.ter[x + ',' + y] = kind;
+    var cap = Math.max(1, toInt(s.v1[GROUND_N[kind]]));
+    var have = Object.keys(s.ter).filter(function (k) { return s.ter[k] === kind; });
+    while (have.length > cap) delete s.ter[have.shift()];
+  }
+  function envHurt(s, who, frac, tag) {
+    if (frac <= 0) return 0.0;
+    if (who === 'me') { var d = Math.max(1, iround(frac * s.me.max)); s.me.hp = Math.max(0, s.me.hp - d); return d; }
+    if (who === 'foe') { var a = frac * Number(s.v1[tag === 'thorn' ? 'ev_foe' : 'br_foe']) * s.fh.max; s.fh.now += a; return a; }
+    return 0.0;
+  }
+  function zone(e) { var z = [[e.x, e.y]]; for (var sd in PFB_SIDE) z.push([e.x + PFB_SIDE[sd][0], e.y + PFB_SIDE[sd][1]]); return z; }
+  /** The terrain turn (after the creature's): the announced events land in order, then bramble pricks. s.envlog = one note per event. */
+  function envTurn(s) {
+    s.envlog = [];
+    if (s.v1.events) nn(s.envs, []).forEach(function (e) {
+      var on = pieceAt(s, e.x, e.y), ob = on && on.by !== 'none' ? on.by : null, L = { k: e.kind, x: e.x, y: e.y, me: 0, foe: 0.0 };
+      if (e.kind === 'gust') {
+        var id = s.cell[e.x + ',' + e.y], d = PFB_SIDE[e.dir], nx = e.x + d[0], ny = e.y + d[1]; L.dir = e.dir;
+        if (id !== undefined && id !== null && ob && inb(s, nx, ny) && !has(s.cell, nx + ',' + ny)) {
+          delete s.cell[e.x + ',' + e.y]; s.cell[nx + ',' + ny] = id; s.pcs[id].x = nx; s.pcs[id].y = ny;
+          L.moved = { id: id, by: ob, n: on.tile.n, x: nx, y: ny };
+        }
+      } else if (e.kind === 'thorn') {
+        zone(e).forEach(function (z) { var p = pieceAt(s, z[0], z[1]); if (p && p.by !== 'none') L[p.by] += envHurt(s, p.by, Number(s.v1.thorn), 'thorn'); });
+      } else {
+        groundSet(s, e.x, e.y, KIND_GROUND[e.kind]);
+        if (ob) L.on = { id: on.id, by: ob, n: on.tile.n };
+      }
+      L.me = toInt(L.me); L.foe = round(L.foe, 1);
+      s.envlog.push(L);
+    });
+    if (s.v1.ground) {
+      var B = { k: 'bramble', x: null, y: null, me: 0, foe: 0.0, ids: [] };
+      for (var pid in s.pcs) { var q = s.pcs[pid]; if (q.by !== 'none' && ter(s, q.x, q.y) === 'br') { B[q.by] += envHurt(s, q.by, Number(s.v1.bramble), 'br'); B.ids.push(q.id); } }
+      B.me = toInt(B.me); B.foe = round(B.foe, 1);
+      if (B.ids.length) s.envlog.push(B);
+    }
+    checkEnd(s);
+  }
+  /** The terrain turn as events for the replay (by and ta 'env'). */
+  function envEvents(s) {
+    return nn(s.envlog, []).map(function (L) {
+      var e = { by: 'env', ta: 'env', env: L.k, tag: '', k: 'env:' + L.k, n: nn(PFB_EVENT_NAME[L.k], 'Terrain'), t: 'env', v: 0, fit: false, combo: null, x: L.x, y: L.y, me: L.me, foe: L.foe };
+      ['dir', 'moved', 'on', 'ids'].forEach(function (k) { if (L[k] !== undefined && L[k] !== null) e[k] = clone(L[k]); });
+      e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block);
+      return e;
+    });
+  }
+  function envLine(e, foe) {
+    var cost = [];
+    if (truthy(e.me)) cost.push('you lose ' + toInt(e.me) + ' health');
+    if (truthy(e.foe)) cost.push('the ' + foe + ' loses ' + iround(Number(e.foe)));
+    var c = cost.length ? ': ' + cost.join(', ') : '';
+    var whose = function (p) { return (p.by === 'me' ? 'your ' : 'the ' + foe + '’s ') + p.n; };
+    switch (e.env) {
+      case 'sunbeam': return '☀️ Sunbeam: a cell turns sunny' + (e.on ? ' under ' + whose(e.on) : '') + '.';
+      case 'creep': return '🌿 Bramble creep: a cell turns to bramble' + (e.on ? ' under ' + whose(e.on) : '') + '.';
+      case 'puddle': return '💧 Puddle: a cell turns to mud' + (e.on ? ', and ' + whose(e.on) + ' no longer links' : '') + '.';
+      case 'gust': return e.moved ? '💨 Gust: ' + whose(e.moved) + ' is pushed one cell.' : '💨 Gust: nothing moves.';
+      case 'thorn': return '🌵 Thorn burst' + (c !== '' ? c : ': nothing in reach') + '.';
+      default: return '🌿 Bramble pricks' + c + '.';
+    }
+  }
+  function envBias(s, who, x, y, tile) {
+    var b = 0.0, m = who === 'foe' ? 0.8 * s.fh.max : 0.7 * s.me.max;
+    nn(s.envs, []).forEach(function (e) {
+      if (e.kind === 'thorn') { zone(e).forEach(function (z) { if (z[0] === x && z[1] === y) b -= Number(s.v1.thorn) * (who === 'foe' ? Number(s.v1.ev_foe) : 1.0) * m; }); }
+      else if (e.x === x && e.y === y) {
+        if (e.kind === 'creep') b -= Number(s.v1.bramble) * (who === 'foe' ? Number(s.v1.br_foe) : 1.0) * m;
+        else if (e.kind === 'sunbeam' && tile && (tile.t === 'hurt' || tile.t === 'charm')) b += 0.3 * tile.v;
+      }
+    });
+    return b;
+  }
+  function forecast(s) {
+    s.envs = []; if (!s.v1.events) return;
+    var cand = {}, pcs = [], id, sd;
+    for (id in s.pcs) {
+      var p = s.pcs[id]; if (p.by !== 'none') pcs.push(p.x + ',' + p.y); cand[p.x + ',' + p.y] = 1;
+      for (sd in PFB_SIDE) { var x = p.x + PFB_SIDE[sd][0], y = p.y + PFB_SIDE[sd][1]; if (inb(s, x, y)) cand[x + ',' + y] = 1; }
+    }
+    var keys = Object.keys(cand);
+    for (var i = 0; i < toInt(s.v1.nev) && keys.length; i++) {
+      var kind = PFB_EVENT_KINDS[rand(s, PFB_EVENT_KINDS.length)], dir = null, key;
+      if (kind === 'gust') {
+        if (!pcs.length) continue;
+        key = pcs[rand(s, pcs.length)]; var xy = key.split(',').map(Number), dirs = [];
+        for (sd in PFB_SIDE) { var nx = xy[0] + PFB_SIDE[sd][0], ny = xy[1] + PFB_SIDE[sd][1]; if (inb(s, nx, ny) && !has(s.cell, nx + ',' + ny)) dirs.push(sd); }
+        if (!dirs.length) dirs = Object.keys(PFB_SIDE);
+        dir = dirs[rand(s, dirs.length)];
+        if (keys.indexOf(key) < 0) continue;
+      } else {
+        var gk = nn(KIND_GROUND[kind], null);
+        var ok = keys.filter(function (k) { return gk === null || nn(s.ter[k], '') !== gk; }); if (!ok.length) continue;
+        key = ok[rand(s, ok.length)];
+      }
+      keys = keys.filter(function (k) { return k !== key; });
+      var c = key.split(',').map(Number);
+      s.envs.push({ kind: kind, x: c[0], y: c[1], dir: dir });
+    }
+  }
+  function canFlip(s, handIdx) {
+    var t = isInt(handIdx) ? nn(s.me.hand[handIdx], null) : null;
+    if (!s.v1 || !truthy(s.v1.flip) || truthy(s.over) || !t || !t.ed) return false;
+    return toInt(nn(s.me.flipt, 0)) !== toInt(s.turn) || toInt(nn(t.ft, 0)) === toInt(s.turn);
+  }
+  /** v1 FLIP: swap the top and bottom edges of a hand piece (free, once a turn). Returns an error or null. */
+  function flip(s, handIdx, turn) {
+    if (truthy(s.over)) return 'The fight is over.';
+    if (turn !== s.turn) return 'stale';
+    if (!s.v1 || !truthy(s.v1.flip)) return 'Pieces cannot be flipped in this fight.';
+    var t = isInt(handIdx) ? nn(s.me.hand[handIdx], null) : null; if (!t) return 'No such piece in your hand.';
+    if (!t.ed) return 'That piece cannot be flipped.';
+    if (!canFlip(s, handIdx)) return 'You have already flipped a piece this turn.';
+    if (toInt(nn(t.ft, 0)) === toInt(s.turn)) { delete t.ft; s.me.flipt = 0; }
+    else { t.ft = toInt(s.turn); s.me.flipt = toInt(s.turn); }
+    if (truthy(t.flip)) delete t.flip; else t.flip = true;
+    return null;
+  }
+  function flipped(t) { var f = clone(t); if (truthy(f.flip)) delete f.flip; else f.flip = true; return f; }
+
   // ------------------------------------------------------------------ board: edges and joints
   var EDGE_CACHE = {};
   function edges(t) {
     if (t.k === 'blank') return { L: ['wild', null], R: ['wild', null], T: ['wild', null], B: ['wild', null] };   // the blank centre piece (opt blank): fits and links with everything
+    if (t.ed) return truthy(t.flip) ? { L: t.ed.L, R: t.ed.R, T: t.ed.B, B: t.ed.T } : t.ed;   // v1: authored edges (a flipped piece swaps top and bottom)
     var key = t.k + '|' + t.t + '|' + (t.r === null || t.r === undefined ? '' : t.r);
     if (has(EDGE_CACHE, key)) return EDGE_CACHE[key];
     var fam = ['body', 'mind', 'craft'];
@@ -503,15 +716,15 @@
   }
 
   function check(s, tile, x, y) {
-    if (x < 0 || y < 0 || x >= PFB_W || y >= PFB_H || has(s.cell, x + ',' + y)) return null;
-    if (isEmpty(s.pcs)) return (x === intdiv(PFB_W, 2) && y === intdiv(PFB_H, 2)) ? [] : null;
+    if (x < 0 || y < 0 || x >= pfbW(s) || y >= pfbH(s) || has(s.cell, x + ',' + y)) return null;
+    if (isEmpty(s.pcs)) return (x === intdiv(pfbW(s), 2) && y === intdiv(pfbH(s), 2)) ? [] : null;
     var e = edges(tile), joints = [];
     for (var side in PFB_SIDE) {
       var sd = PFB_SIDE[side], n = pieceAt(s, x + sd[0], y + sd[1]);
       if (!n) continue;
       var j = joint(e[side], edges(n.tile)[sd[2]]);
       if (!j[0]) return null;
-      joints.push([side, toInt(n.id), j[1]]);
+      joints.push([side, toInt(n.id), j[1] && (noTer(s) || (ter(s, x, y) !== 'mud' && ter(s, x + sd[0], y + sd[1]) !== 'mud'))]);   // v1: mud blocks links
     }
     return joints.length ? joints : null;
   }
@@ -525,7 +738,7 @@
   function mustLink(s, who) {
     if (isEmpty(s.pcs)) return false;
     var hand = s[who].hand;
-    for (var i = 0; i < hand.length; i++) for (var y = 0; y < PFB_H; y++) for (var x = 0; x < PFB_W; x++) if (hasLink(check(s, hand[i], x, y))) return true;
+    for (var i = 0; i < hand.length; i++) for (var y = 0; y < pfbH(s); y++) for (var x = 0; x < pfbW(s); x++) if (hasLink(check(s, hand[i], x, y))) return true;
     var g = nn(s[who].held, null);
     if (g && !isEmpty(g)) { var all = groupCellsAll(s, g); for (var k = 0; k < all.length; k++) if (all[k][2]) return true; }
     return false;
@@ -533,7 +746,7 @@
 
   function cells(s, tile, who) {
     var o = [], must = (who !== undefined && who !== null) && mustLink(s, who);
-    for (var y = 0; y < PFB_H; y++) for (var x = 0; x < PFB_W; x++) { var j = check(s, tile, x, y); if (j !== null && (!must || hasLink(j))) o.push([x, y]); }
+    for (var y = 0; y < pfbH(s); y++) for (var x = 0; x < pfbW(s); x++) { var j = check(s, tile, x, y); if (j !== null && (!must || hasLink(j))) o.push([x, y]); }
     return o;
   }
 
@@ -541,7 +754,7 @@
     var p = s.pcs[id], e = edges(p.tile), o = [];
     for (var side in PFB_SIDE) {
       var sd = PFB_SIDE[side], n = pieceAt(s, p.x + sd[0], p.y + sd[1]);
-      if (n && n.by !== 'none' && joint(e[side], edges(n.tile)[sd[2]])[1]) o.push(n);   // the blank centre piece lets a piece connect (placement) but a chain never runs through it
+      if (n && n.by !== 'none' && joint(e[side], edges(n.tile)[sd[2]])[1] && (noTer(s) || (ter(s, p.x, p.y) !== 'mud' && ter(s, n.x, n.y) !== 'mud'))) o.push(n);   // the blank centre piece lets a piece connect (placement) but a chain never runs through it
     }
     o.sort(function (a, b) { return b.seq - a.seq; });
     return o.map(function (n) { return toInt(n.id); });
@@ -560,6 +773,13 @@
 
   function fire(s, root) {
     var ev = [], ch = chain(s, root);
+    var v1 = nn(s.v1, null), rb = s.pcs[root].by, tw = 1.0;
+    if (v1) {   // v1: what fired (for use-up) and Teamwork
+      s.fired = []; s.firedby = rb; var srcs = {};
+      ch.forEach(function (c) { var cp = s.pcs[c[0]]; if (cp.by === rb && PFB_TEAM_SRC.indexOf(nn(cp.tile.src, '')) >= 0) srcs[cp.tile.src] = 1; });
+      var ns = Object.keys(srcs).length;
+      if (rb === 'me' && ns >= 3) tw = Number(v1.team3); else if (rb === 'me' && ns === 2) tw = Number(v1.team2);
+    }
     for (var i = 0; i < ch.length; i++) {
       var id = ch[i][0], par = ch[i][1];
       if (s.over) break;
@@ -569,8 +789,14 @@
       if (pt && pt.by === 'none') pt = null;   // and a piece after it has no combo parent
       var vv = value(pt ? pt.tile : null, tile, pt !== null && pt.by === who, false), ck = vv[2];
       var val = iround(vv[0] * Number(nn(p.cm, 1.0)));
+      var sunny = !!v1 && (tile.t === 'hurt' || tile.t === 'charm') && ter(s, p.x, p.y) === 'sun';
+      if (sunny) val = iround(val * Number(v1.sun));
+      if (tw > 1 && who === rb) val = iround(val * tw);
+      if (v1) s.fired.push(id);
       var isRoot = id === root;
       var e = { by: who, id: id, root: isRoot, tag: tile.tag, mod: String(nn(tile.m, '')), k: tile.k, n: tile.n, t: tile.t, v: val, fit: false, combo: ck ? PF_COMBOS[ck].name : null };
+      if (sunny) e.sun = 1;
+      if (tw > 1 && who === rb) e.tw = tw;
       apply(s, who, tile, val, isRoot && links(s, id).length !== 0, ck, pt ? pt.tile : null, pt ? pt.by : null, e, isRoot, false);
       s.pcs[id].f = toInt(nn(s.pcs[id].f, 0)) + 1;   // fire budget: one more firing used
       e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block);
@@ -584,21 +810,34 @@
   function goneEntry(s, p, fell) {
     var e = { id: p.id, by: p.by, x: p.x, y: p.y, tile: p.tile, age: s.round - 1 - p.born };
     if (fell) e.fell = true;
+    if (p.used !== undefined && p.used !== null) e.used = p.used;
     return e;
   }
   // Fire budget: after a chain has finished, creature pieces that have fired their limit fall away (to their discard); never mid-chain.
   function spend(s) {
-    if (s.over) return;
+    var fired = nn(s.fired, []), by = nn(s.firedby, 'me'), used = []; delete s.fired; delete s.firedby;
+    if (s.over) return used;
+    var lim3 = s.v1 ? toInt(nn(s.v1.limit, 0)) : 0;
+    if (lim3 > 0 && fired.length >= lim3) {   // v1 USE-UP: a chain of 3 or more uses up every piece that fired
+      fired.forEach(function (fid) {
+        if (!has(s.pcs, fid)) return; var q = s.pcs[fid];
+        discardPiece(s, q); q.used = by;
+        if (!Array.isArray(s.spent)) s.spent = [];
+        s.spent.push(q); used.push(fid);
+        delete s.cell[q.x + ',' + q.y]; delete s.pcs[fid];
+      });
+    }
     var ids = Object.keys(s.pcs);
     for (var i = 0; i < ids.length; i++) {
       var p = s.pcs[ids[i]], lim = fireLimit(p);
       if (lim > 0 && toInt(nn(p.f, 0)) >= lim) {
-        s[p.by].discard.push(p.tile);
+        discardPiece(s, p);
         if (!Array.isArray(s.spent)) s.spent = [];
         s.spent.push(p);
         delete s.cell[p.x + ',' + p.y]; delete s.pcs[ids[i]];
       }
     }
+    return used;
   }
 
   function begin(s, who) {
@@ -619,7 +858,7 @@
     var tile = isInt(handIdx) ? nn(s[who].hand[handIdx], null) : null;
     if (!tile) return null;
     var jt = check(s, tile, x, y);
-    if (jt === null || (!hasLink(jt) && mustLink(s, who))) return null;   // it has to connect unless nothing can
+    if (jt === null || (!hasLink(jt) && !truthy(s.aimforce) && mustLink(s, who))) return null;   // it has to connect unless nothing can (v1: the creature's committed aim plays anyway)
     s[who].hand.splice(handIdx, 1);
     var id = ++s.pid; s.seq++;
     s.pcs[id] = { id: id, by: who, tile: tile, x: x, y: y, born: s.round, seq: s.seq };
@@ -627,7 +866,8 @@
     var joints = checkAfter(s, id);
     var ev = fire(s, id);
     if (ev.length) { ev[0].linked = joints; ev[0].snap = snap(s); }
-    spend(s);
+    var used = spend(s);
+    if (used.length && ev.length) ev[0].used = used;
     return ev;
   }
 
@@ -705,7 +945,7 @@
     var touch = false, linked = false;
     for (var ci = 0; ci < cs.length; ci++) {
       var cx = cs[ci][0], cy = cs[ci][1], gi = cs[ci][2];
-      if (cx < 0 || cy < 0 || cx >= PFB_W || cy >= PFB_H || has(s.cell, cx + ',' + cy)) return null;
+      if (cx < 0 || cy < 0 || cx >= pfbW(s) || cy >= pfbH(s) || has(s.cell, cx + ',' + cy)) return null;
       var e = edges(g.pcs[gi].tile);
       for (var side in PFB_SIDE) {
         var sd = PFB_SIDE[side], nx = cx + sd[0], ny = cy + sd[1];
@@ -713,11 +953,11 @@
         var n = pieceAt(s, nx, ny); if (!n) continue;
         var jt = joint(e[side], edges(n.tile)[sd[2]]);
         if (!jt[0]) return null;
-        touch = true; if (jt[1]) linked = true;
+        touch = true; if (jt[1] && (noTer(s) || (ter(s, cx, cy) !== 'mud' && ter(s, nx, ny) !== 'mud'))) linked = true;
       }
     }
     if (isEmpty(s.pcs)) {
-      var c0 = intdiv(PFB_W, 2), c1 = intdiv(PFB_H, 2);
+      var c0 = intdiv(pfbW(s), 2), c1 = intdiv(pfbH(s), 2);
       for (i = 0; i < cs.length; i++) if (cs[i][0] === c0 && cs[i][1] === c1) return [cs, false];
       return null;
     }
@@ -725,7 +965,7 @@
   }
   function groupCellsAll(s, g) {
     var o = [];
-    for (var y = 0; y < PFB_H; y++) for (var x = 0; x < PFB_W; x++) { var r = groupCellsL(s, g, x, y); if (r !== null) o.push([x, y, r[1]]); }
+    for (var y = 0; y < pfbH(s); y++) for (var x = 0; x < pfbW(s); x++) { var r = groupCellsL(s, g, x, y); if (r !== null) o.push([x, y, r[1]]); }
     return o;
   }
   function groupSpots(s, g, who) {
@@ -749,7 +989,8 @@
     s[who].held = null;
     var ev = fire(s, root);
     if (ev.length) { ev[0].linked = checkAfter(s, root); ev[0].snap = snap(s); }
-    spend(s);
+    var used = spend(s);
+    if (used.length && ev.length) ev[0].used = used;
     return ev;
   }
 
@@ -757,8 +998,8 @@
     var gone = [], ids = Object.keys(s.pcs);
     for (var i = 0; i < ids.length; i++) {
       var p = s.pcs[ids[i]];
-      if (p.born <= s.round - (p.by === 'none' ? 1 : PFB_LIFE) + 1) {
-        if (p.by !== 'none') s[p.by].discard.push(p.tile);
+      if (p.born <= s.round - lifeOf(s, p) + 1) {
+        discardPiece(s, p);
         gone.push(p);
         delete s.cell[p.x + ',' + p.y]; delete s.pcs[ids[i]];
       }
@@ -781,7 +1022,7 @@
     if (foeCount(s) >= PFB_FOE_MIN) return null;
     var pick = anchorPick(s); if (pick === null) return null;
     var tile = s.foe.hand[pick];
-    var cs = !isEmpty(s.pcs) ? cells(s, tile) : [[intdiv(PFB_W, 2), intdiv(PFB_H, 2)]];
+    var cs = !isEmpty(s.pcs) ? cells(s, tile) : [[intdiv(pfbW(s), 2), intdiv(pfbH(s), 2)]];
     if (!cs.length) return null;
     var xy = cs[rand(s, cs.length)], x = xy[0], y = xy[1];
     s.foe.hand.splice(pick, 1);
@@ -810,6 +1051,10 @@
         var x = cs[c][0], y = cs[c][1], w = clone(s);
         if (place(w, who, i, x, y) === null) continue;
         var sc = score(s, w, who);
+        if (s.v1 && has(w.cell, x + ',' + y)) {   // v1: bramble under a piece that stays out, and what the announced events will do to it
+          if (ter(s, x, y) === 'br') sc -= 2 * Number(s.v1.bramble) * (who === 'foe' ? Number(s.v1.br_foe) * 0.8 * s.fh.max : 0.7 * s.me.max);
+          sc += envBias(s, who, x, y, tile);
+        }
         if (best === null || sc > best[3] + 1e-9) best = [i, x, y, sc];
       }
     }
@@ -829,10 +1074,16 @@
       if (checkEnd(s)) return ev;
     }
     var n = foeLen(s); s.lastfoe = [];
+    if (s.v1) s.reaim = 0;
     for (var k = 0; k < n && !s.over; k++) {
-      var m = search(s, 'foe');
-      if (m === null) break;
-      var r = place(s, 'foe', m[0], m[1], m[2]);
+      var r = null, plan = (s.v1 && truthy(s.v1.aim) && k === 0) ? nn(s.foe.plan, null) : null;
+      if (plan) for (var hi = 0; hi < s.foe.hand.length; hi++) if (s.foe.hand[hi].k === plan.k) { s.aimforce = true; r = place(s, 'foe', hi, plan.x, plan.y); delete s.aimforce; break; }   // v1 AIM
+      if (r === null) {   // no fumble: it picks again at full value
+        if (plan) s.reaim = 1;
+        var m = search(s, 'foe');
+        if (m === null) break;
+        r = place(s, 'foe', m[0], m[1], m[2]);
+      }
       if (r) { ev = ev.concat(r); s.lastfoe.push(s.pid); }
     }
     s.foe.agg = 0; s.foe.slow = 0;
@@ -840,18 +1091,25 @@
   }
 
   function intent(s) {
+    if (s.v1) forecast(s);
     var m = search(s, 'foe');
     s.foe.intent = m ? s.foe.hand[m[0]].t : null;
+    if (s.v1 && truthy(s.v1.aim)) { var h = m ? s.foe.hand[m[0]] : null; s.foe.plan = h && foeLen(s) > 0 ? { k: h.k, n: h.n, t: h.t, v: h.v, tag: h.tag, x: m[1], y: m[2] } : null; }
   }
 
   // ------------------------------------------------------------------ the whole fight
   function newFight(me, c, seed, opt) {
     var s = pfNew(me, c, seed, opt);
-    ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t) { t.v = Math.max(1, iround(t.v * PFB_FOE_MULT * (s.size === 'boss' ? PFB_BOSS_MULT : 1.0) * (truthy(opt && opt.blank) ? PFB_BLANK_FOE_MULT : 1.0) * (PFB_FOE_FIRES > 0 ? PFB_FOE_FIRE_MULT : 1.0))); }); });
-    s.bar.max = round(s.bar.max * PFB_BAR_MULT, 1); s.fh.max = s.bar.max;
+    var v1 = (opt && truthy(opt.v1)) ? v1Cfg(s.size, (typeof opt.v1 === 'object' && !Array.isArray(opt.v1)) ? opt.v1 : {}) : null;
+    ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t) { t.v = Math.max(1, iround(t.v * (v1 ? v1.foe : PFB_FOE_MULT) * (s.size === 'boss' ? PFB_BOSS_MULT : 1.0) * (truthy(opt && opt.blank) ? PFB_BLANK_FOE_MULT : 1.0) * (PFB_FOE_FIRES > 0 ? PFB_FOE_FIRE_MULT : 1.0))); }); });
+    s.bar.max = round(s.bar.max * (v1 ? v1.bar : PFB_BAR_MULT), 1); s.fh.max = s.bar.max;
     s.mode = 'board'; s.strip = []; s.pcs = {}; s.cell = {}; s.pid = 0; s.seq = 0; s.round = 1;
+    if (v1) {
+      s.w = v1.w; s.h = v1.h; delete v1.w; delete v1.h; s.v1 = v1;
+      v1Tiles(s, c); seedGround(s); s.envs = []; s.envlog = []; s.reaim = 0; s.me.flipt = 0;
+    }
     if (opt && truthy(opt.blank)) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see start)
-      s.pid = 1; s.seq = 1; var cx = intdiv(PFB_W, 2), cy = intdiv(PFB_H, 2);
+      s.pid = 1; s.seq = 1; var cx = intdiv(pfbW(s), 2), cy = intdiv(pfbH(s), 2);
       s.pcs[1] = { id: 1, by: 'none', tile: { k: 'blank', n: 'Blank', t: 'blank', v: 0, tag: '', r: null }, x: cx, y: cy, born: 1, seq: 1 };
       s.cell[cx + ',' + cy] = 1; s.start = true;
       draw(s, 'foe', s.foe.hsize); intent(s);
@@ -861,7 +1119,7 @@
     for (var k = 0; k < n; k++) {
       var pick = anchorPick(s); if (pick === null) continue;
       var hand = s.foe.hand;
-      var cs = isEmpty(s.pcs) ? [[intdiv(PFB_W, 2), intdiv(PFB_H, 2)]] : null;
+      var cs = isEmpty(s.pcs) ? [[intdiv(pfbW(s), 2), intdiv(pfbH(s), 2)]] : null;
       var tile = hand[pick]; if (cs === null) cs = cells(s, tile);
       if (!cs.length) continue;
       var xy = cs[rand(s, cs.length)], x = xy[0], y = xy[1];
@@ -881,7 +1139,7 @@
     if (!truthy(s.start)) return 'The fight has already started.';
     if (!has(PFB_SIDE, side)) return 'Pick a side: L, R, T or B.';
     var tile = s.me.hand[handIdx]; if (!tile) return 'No such piece in your hand.';
-    var cx = intdiv(PFB_W, 2), cy = intdiv(PFB_H, 2), sides = ['L', 'R', 'T', 'B'], fs = sides[rand(s, 4)];
+    var cx = intdiv(pfbW(s), 2), cy = intdiv(pfbH(s), 2), sides = ['L', 'R', 'T', 'B'], fs = sides[rand(s, 4)];
     var put = function (who, idx, sd) {
       var d = PFB_SIDE[sd], x = cx + d[0], y = cy + d[1], t = s[who].hand[idx];
       s[who].hand.splice(idx, 1);
@@ -909,6 +1167,7 @@
   }
 
   function endRound(s) {
+    if (s.v1) { envTurn(s); if (s.over) return; }   // v1: the terrain turn
     var gone = expire(s);
     draw(s, 'foe', s.foe.hsize);
     s.turn++; s.round++;
@@ -932,7 +1191,12 @@
     if (!Array.isArray(moves) || moves.length !== 1) return { ev: [], err: 'One action a turn.' };
     var mv = moves[0];
     if (!Array.isArray(mv) || !mv.length) return bad();
+    if (mv[0] === 'f' && s.v1 && truthy(s.v1.flip)) {   // v1 FLIP: free, the turn goes on
+      if (mv.length !== 2 || !isInt(mv[1])) return bad();
+      return { ev: [], err: flip(dry ? clone(s) : s, mv[1], turn), free: true };
+    }
     var w = clone(s); w.spent = [];
+    if (w.v1) w.envlog = [];
     begin(w, 'me');
     var ev = [], why, r, err;
     if (isInt(mv[0])) {
@@ -960,6 +1224,7 @@
     if (dry) return { ev: ev, err: null, bar: round(w.bar.now, 1), max: w.bar.max, fh: round(w.fh.now, 1), fhmax: w.fh.max, hp: w.me.hp, block: w.me.block, over: w.over };
     if (!w.over) { var fe = foeTurn(w); fe.forEach(function (e0) { e0.ta = 'foe'; }); ev = ev.concat(fe); }
     if (!w.over) endRound(w);
+    if (w.v1) ev = ev.concat(envEvents(w));
     w.fx = fx(ev);
     w.log.push({ turn: s.turn, n: 1 });
     assignInto(s, w);
@@ -971,20 +1236,43 @@
     if (s.over || turn !== s.turn) return { ev: [], err: s.over ? 'The fight is over.' : 'stale' };
     if (truthy(s.start)) return { ev: [], err: 'Pick your start piece first.' };
     var i;
-    for (i = 0; i < s.me.hand.length; i++) if (cells(s, s.me.hand[i]).length) return { ev: [], err: 'You still have a piece that fits somewhere.' };
+    for (i = 0; i < s.me.hand.length; i++) {
+      if (cells(s, s.me.hand[i]).length) return { ev: [], err: 'You still have a piece that fits somewhere.' };
+      if (canFlip(s, i) && cells(s, flipped(s.me.hand[i])).length) return { ev: [], err: 'You still have a piece that fits somewhere when you flip it.' };
+    }
     if (truthy(s.me.held) && !isEmpty(s.me.held) && groupSpots(s, s.me.held).length) return { ev: [], err: 'Your set-aside group still fits somewhere.' };
     var w = clone(s); w.spent = []; begin(w, 'me');
+    if (w.v1) w.envlog = [];
     var ev = foeTurn(w); ev.forEach(function (e0) { e0.ta = 'foe'; });
     w.fx = fx(ev);
     if (!w.over) endRound(w);
+    if (w.v1) ev = ev.concat(envEvents(w));
     assignInto(s, w);
     return { ev: ev, err: null };
+  }
+
+  /** v1: the numbers on the lit cells of a hand piece (or 'c' = the set-aside group): your own chain only (pfb_cell_preview, v1 branch). flipIt: with the piece flipped. */
+  function cellPreview(s, handIdx, flipIt) {
+    if (truthy(s.over) || truthy(s.start) || !s.v1) return {};
+    if (flipIt) { if (handIdx === 'c' || !canFlip(s, handIdx)) return {}; s = clone(s); s.me.hand[handIdx] = flipped(s.me.hand[handIdx]); }
+    var cs, o = {};
+    if (handIdx === 'c') { if (!truthy(s.me.held) || isEmpty(s.me.held)) return {}; cs = groupSpots(s, s.me.held); }
+    else { var tile = nn(s.me.hand[handIdx], null); if (!tile) return {}; cs = cells(s, tile, 'me'); }
+    var fh0 = Number(s.fh.now), b0 = Number(s.bar.now), hp0 = toInt(s.me.hp);
+    cs.forEach(function (c) {
+      var r = play(clone(s), [[handIdx === 'c' ? 'c' : handIdx, c[0], c[1]]], s.turn, true);
+      if (r.err) return;
+      var n = 0, tw = 1.0, sun = 0;
+      r.ev.forEach(function (e) { if (e.barnow === undefined) return; n++; if (e.tw !== undefined) tw = Number(e.tw); if (truthy(e.sun) && e.by === 'me') sun++; });
+      o[c[0] + ',' + c[1]] = { dmg: iround(r.fh - fh0), ch: iround(r.bar - b0), hp: Math.max(0, hp0 - toInt(r.hp)), n: n, used: !!(r.ev[0] && r.ev[0].used && r.ev[0].used.length), tw: tw, sun: sun, end: truthy(r.over) };
+    });
+    return o;
   }
 
   /** What the client may see: no draw pile, no foe hand, no rng, no nonce. */
   function view(s) {
     var v = pfView(s), i;
-    v.start = truthy(s.start); v.mode = 'board'; v.w = PFB_W; v.h = PFB_H; v.fx = clone(nn(s.fx, []));
+    v.start = truthy(s.start); v.mode = 'board'; v.w = pfbW(s); v.h = pfbH(s); v.fx = clone(nn(s.fx, []));
     var g = nn(s.me.held, null);
     v.held = g ? {
       pcs: g.pcs.map(function (p) { return { n: p.tile.n, t: p.tile.t, v: p.tile.v, tag: p.tile.tag, m: String(nn(p.tile.m, '')), e: edges(p.tile), x: p.x, y: p.y }; }),
@@ -996,11 +1284,28 @@
     v.gone = nn(s.gone, []).map(function (q) { return { id: q.id, by: q.by, x: q.x, y: q.y, n: q.tile.n, t: q.tile.t, v: q.tile.v, tag: q.tile.tag, m: String(nn(q.tile.m, '')), e: edges(q.tile), age: q.age, fell: truthy(q.fell) }; });
     for (i = 0; i < v.hand.length; i++) v.hand[i].e = edges(s.me.hand[i]);
     delete v.strip; delete v.open; delete v.open_t; delete v.open_v; delete v.open_by;
+    if (s.v1) {   // v1: ground, forecast, the aim, use-up, Teamwork, flip and piece life
+      var c = s.v1;
+      v.v1 = { limit: toInt(c.limit), sun: c.sun, bramble: c.bramble, br_foe: c.br_foe, thorn: c.thorn, ev_foe: c.ev_foe, team2: c.team2, team3: c.team3,
+        ground: truthy(c.ground), events: truthy(c.events), aim: truthy(c.aim), flip: truthy(c.flip), life: truthy(c.life), edges: truthy(c.edges) };
+      v.round = toInt(s.round);
+      v.ter = clone(nn(s.ter, {}));
+      v.envs = nn(s.envs, []).map(function (e) { var o = clone(e), q = pieceAt(s, e.x, e.y); o.n = PFB_EVENT_NAME[e.kind]; o.on = q && q.by !== 'none' ? { id: q.id, by: q.by, n: q.tile.n } : null; return o; });
+      v.envlog = clone(nn(s.envlog, []));
+      v.aim = clone(nn(s.foe.plan, null));
+      v.reaim = truthy(s.reaim);
+      v.flip = { on: truthy(c.flip), used: toInt(nn(s.me.flipt, 0)) === toInt(s.turn) };
+      v.pcs.forEach(function (q) { var p = s.pcs[q.id], life = lifeOf(s, p); q.life = life; q.left = p.born + life - toInt(s.round); q.src = String(nn(p.tile.src, '')); q.flip = truthy(p.tile.flip); q.ter = ter(s, p.x, p.y); });
+      for (i = 0; i < v.hand.length; i++) { var ht = s.me.hand[i]; v.hand[i].life = toInt(nn(ht.life, PFB_LIFE)); v.hand[i].src = String(nn(ht.src, '')); v.hand[i].flip = truthy(ht.flip); v.hand[i].canflip = canFlip(s, i); }
+      if (v.held) v.held.pcs.forEach(function (q, gi) { var gt = g.pcs[gi].tile; q.life = toInt(nn(gt.life, PFB_LIFE)); q.src = String(nn(gt.src, '')); q.flip = truthy(gt.flip); });
+      v.gone.forEach(function (q, gi) { var u = s.gone[gi].used; if (u !== undefined && u !== null) q.used = u; });
+    }
     return v;
   }
 
   // ------------------------------------------------------------------ text lines and history chips (pfight_game.php)
   function line(e, foe) {
+    if (e.env !== undefined && e.env !== null) return envLine(e, foe);   // v1: a terrain event
     if (truthy(e.connect)) return '🧩 You set ' + e.n + ' aside, joined (' + toInt(e.size) + ' pieces).';
     if (truthy(e.tick)) return '🧪 The poison works on the ' + foe + ' (+' + toInt(e.v) + ').';
     var who = e.by === 'me' ? 'You play' : 'The ' + foe + ' plays';
@@ -1026,6 +1331,10 @@
     var base = { id: (e.id !== undefined && e.id !== null) ? toInt(e.id) : null, sn: snapId, bar: nn(e.barnow, null), fh: nn(e.fhnow, null), hp: nn(e.hpnow, null), g: nn(e.gnow, null), chain: false };
     var ext = function (o) { for (var k in o) base[k] = o[k]; return base; };
     if (truthy(e.connect)) return ext({ by: 'me', types: e.types, tags: [], txt: 'joined ' + toInt(e.size), tg: null });
+    if (e.env !== undefined && e.env !== null) {   // v1: a terrain event
+      var ep = []; if (truthy(e.me)) ep.push('you -' + toInt(e.me) + ' hp'); if (truthy(e.foe)) ep.push('creature -' + iround(Number(e.foe)) + ' hp');
+      return ext({ by: 'env', types: ['env'], tags: [String(e.env)], txt: String(e.n) + (ep.length ? ': ' + ep.join(' · ') : ''), tg: truthy(e.me) ? 'me' : (truthy(e.foe) ? 'foe' : null) });
+    }
     var parts = [], tg = 'foe', by = String(nn(e.by, 'me')), t = String(nn(e.t, 'hurt'));
     if (truthy(e.tick)) parts.push('-' + toInt(e.v) + ' hp');
     else if (by === 'me') {
@@ -1049,7 +1358,7 @@
     var groups = [], g = null, i, j;
     for (i = 0; i < events.length; i++) {
       var e = events[i];
-      if (truthy(e.tick)) continue;
+      if (truthy(e.tick) || (e.env !== undefined && e.env !== null)) continue;
       if (truthy(e.connect)) { if (g) groups.push(g); g = null; groups.push([e]); continue; }
       if (truthy(e.root)) { if (g) groups.push(g); g = [e]; } else if (g) g.push(e);
     }
@@ -1079,6 +1388,7 @@
     line: line, chipEvent: chipEvent, chipsBoard: chipsBoard,
     // more of the PHP functions
     check: check, chain: chain, links: links, place: place, placeGroup: placeGroup, connect: connect, groupCells: groupCells, score: score, expire: expire,
+    flip: flip, canFlip: canFlip, cellPreview: cellPreview, v1Cfg: v1Cfg, ter: ter, envLine: envLine, forecast: forecast, envTurn: envTurn, lifeOf: lifeOf,
     spawn: spawn, endRound: endRound, foeTurn: foeTurn, intent: intent, snap: snap, fx: fx, begin: begin, fire: fire,
     makeTile: makeTile, foeDeck: foeDeck, temper: temper, value: value, apply: apply, checkEnd: checkEnd, draw: draw, rand: rand, shuffle: shuffle,
     collection: collection, box: box, boxCheck: boxCheck, boxCapacity: boxCapacity, unlocks: unlocks,

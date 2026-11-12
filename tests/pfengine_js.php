@@ -74,6 +74,11 @@ function queries(array $s): array
     foreach ($s['me']['hand'] as $t) { $q['cells'][] = pfb_cells($s, $t); $q['edges'][] = pfb_edges($t); }
     $g = $s['me']['held'] ?? null;
     if ($g) { $q['spots'] = pfb_group_spots($s, $g); $q['opts'] = array_map(fn($t) => pfb_group_options($g, $t), $s['me']['hand']); }
+    if (!empty($s['v1'])) {   // the v1 board rules: flip, the lit-cell numbers (own chain only), as dealt and flipped
+        $q['canflip'] = array_map(fn($i) => pfb_can_flip($s, $i), array_keys($s['me']['hand']));
+        $q['cp'] = array_map(fn($i) => [(object)pfb_cell_preview($s, $i), (object)pfb_cell_preview($s, $i, true)], array_keys($s['me']['hand']));
+        if ($g) $q['cpc'] = (object)pfb_cell_preview($s, 'c');
+    }
     return $q;
 }
 /** The hidden state in brief: rng and the order of every pile, so a shuffle or a draw that differs shows up at once. */
@@ -111,8 +116,12 @@ foreach (file(__DIR__ . '/../game/includes/data/creatures.txt', FILE_IGNORE_NEW_
     $lv = max(1, (int)$c[4]); $rows[] = ['slug' => $c[0], 'name' => $c[1], 'size' => $c[2], 'level' => $lv, 'dmg_die' => $die[$c[2]] ?? 6, 'dmg_bonus' => intdiv($lv, 4)];
 }
 $nf = 0; $na = 0;
-foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33], ['blank', 44]] as [$mode, $seed]) {   // 'blank' = the blank-centre variant (opt blank + a hidden start), played by the single bot
+// 'blank' = the blank-centre variant (opt blank + a hidden start), played by the single bot. 2.6.74: 'v1' = the v1 board rules with the blank opening (single bot, flips when stuck);
+// 'v1b' = v1 with the builder bot and made-up sources (Teamwork); 'v1chaos' = v1 with random moves, random flips and random rule switches
+foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33], ['blank', 44], ['v1', 55], ['v1b', 66], ['v1chaos', 77]] as [$mode0, $seed]) {
     mt_srand($seed * 1000 + $ci);
+    $v1 = str_starts_with($mode0, 'v1'); $mode = ['v1' => 'blank', 'v1b' => 'builder', 'v1chaos' => 'chaos'][$mode0] ?? $mode0;
+    if ($v1 && $mode0 !== 'v1' && ($ci + ($mode0 === 'v1b' ? 0 : 1)) % 2) continue;   // half the creatures each, to keep the run short
     $opt = $mode === 'blank' ? ['blank' => true] : []; $mods = false;
     if ($mode === 'chaos') {
         $all = array_keys(pf_tiles()); $box = [];
@@ -128,8 +137,17 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
         $me = ['hp' => $hp, 'max_hp' => $hp + mt_rand(0, 8), 'stats' => $stt, 'deck' => $deck, 'luck' => mt_rand(0, 9)];
         $opt = ['can_pluck' => (bool)mt_rand(0, 1), 'boss_charm' => (bool)mt_rand(0, 1)];
     } else { $p = bsim_player($c['level']); $me = $p['me']; $args = $p['args']; $deck0 = $me['deck']; }
+    if ($v1) {
+        $opt['v1'] = true;
+        if ($mode0 === 'v1chaos') {
+            $opt['v1'] = [['events' => 0], ['ground' => 0], ['limit' => 0], ['limit' => 4, 'foe_x' => 1.3], ['aim' => 0], ['edges' => 0], ['flip' => 0, 'life' => 0], ['nev' => 3, 'thorn' => 0.3, 'bramble' => 0.25], ['team2' => 2, 'team3' => 3, 'bar_x' => 0.8], true][mt_rand(0, 9)];
+            if (mt_rand(0, 1)) $opt['blank'] = true;
+        }
+        if ($mode0 !== 'v1') foreach ($me['deck'] as $i => $t) { $me['deck'][$i]['src'] = ['pal', 'tool', 'crop', 'craft', 'region'][($i + $ci) % 5]; if ($i % 4 === 0) $me['deck'][$i]['life'] = 2 + ($i + $ci) % 3; if ($i % 7 === 3) $me['deck'][$i]['edges'] = false; if ($i % 7 === 5) { $me['deck'][$i]['col'] = 'mind'; $me['deck'][$i]['up'] = false; } }
+        if ($ci % 3 === 0) $c['class'] = ['Critter', 'Water', 'Bird', 'Plant / Fungus', 'Reptile / Amphibian', 'Beast'][$ci % 6];
+    }
     $s = pfb_new($me, $c, $seed + $c['level'], $opt);
-    $rec = ['fight' => $c['slug'], 'mode' => $mode, 'seed' => $seed + $c['level'], 'creature' => $c, 'opt' => $opt, 'me' => $me, 'args' => $args, 'deck0' => $deck0,
+    $rec = ['fight' => $c['slug'], 'mode' => $mode0, 'seed' => $seed + $c['level'], 'creature' => $c, 'opt' => $opt, 'me' => $me, 'args' => $args, 'deck0' => $deck0,
         'init' => ['view' => slim(pfb_view($s)), 'state' => noNonce($s)], 'steps' => []];
     if ($mode === 'blank') {   // before the start piece is picked nothing else may happen; bad starts refuse; then the hidden start itself
         $tn = $s['turn'];
@@ -156,6 +174,13 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
                 $r = pfb_play($s, $bm, $tn); $emit(['op' => 'play', 'moves' => $bm, 'turn' => $tn, 'dry' => false, 'res' => $r]);
             }
             $r = pfb_play($s, [[0, 3, 2]], $tn + 3); $emit(['op' => 'play', 'moves' => [[0, 3, 2]], 'turn' => $tn + 3, 'dry' => false, 'res' => $r]);
+        }
+        if ($v1) {   // flips: a random one now and then (also a second, refused one, and flipping back), and one that unsticks a hand that only fits flipped
+            $tn = $s['turn']; $nh = count($s['me']['hand']);
+            $fl = function (int $i) use (&$s, &$emit, $tn) { $e = pfb_flip($s, $i, $tn); $emit(['op' => 'flip', 'hand' => $i, 'turn' => $tn, 'res' => ['err' => $e]]); return $e; };
+            if ($mode0 === 'v1chaos' && $nh && mt_rand(0, 3) === 0) { $fl(mt_rand(0, $nh)); if (mt_rand(0, 1)) $fl(mt_rand(0, $nh - 1)); }
+            if (!pfb_search($s, 'me')) foreach (array_keys($s['me']['hand']) as $i) { if (!pfb_can_flip($s, $i)) continue; if ($fl($i)) continue; if (pfb_search($s, 'me')) break; $fl($i); }
+            if ($mode0 === 'v1chaos' && $nh && mt_rand(0, 5) === 0) { $dr = (bool)mt_rand(0, 1); $r = pfb_play($s, [['f', 0]], $tn, null, $dr); $emit(['op' => 'play', 'moves' => [['f', 0]], 'turn' => $tn, 'dry' => $dr, 'res' => $r]); }
         }
         foreach (candidates($s, $mode) as $mv) {
             $tn = $s['turn'];
