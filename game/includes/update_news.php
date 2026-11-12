@@ -100,6 +100,8 @@ const UPDATE_NEWS = [
     '2.6.72' => ['🌿 Update 2.6.72: the way back from wandering',
         "[list][*][b]Fixed[/b]: a place you find while wandering off the path (like the Den of the Great White Owl) now has [b]Back to exploring[/b] and [b]Back to the road[/b] buttons on the Here page, so you are never stuck there. Both are free.\n"
         . "[*][b]Wander[/b] is now a round button under the picture on road stops, next to Routes, World, Fast travel and GPS.[/list]"],
+    '2.6.73' => ['🌿 Update 2.6.73: wander from havens and dens',
+        "[list][*][b]Wander[/b] now works from havens, dens, delves and wonders too, not only road stops. Look for the round leaf button under the picture.[/list]"],
 ];
 
 /** Posts the news for every version after $from up to this one (skips any already posted). */

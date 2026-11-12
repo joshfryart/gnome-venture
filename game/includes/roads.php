@@ -147,6 +147,13 @@ function on_road(int $locId): bool
     return (bool)q_val("SELECT 1 FROM routes WHERE kind = 'road' AND (a_id = ? OR b_id = ?)", [$locId, $locId]);
 }
 
+/** v2.6.73: can you wander off the path from here? A road stop, or a haven, den (lair), delve or wonder (landmark places are off the road but you can still step off from them). */
+function can_wander_from(int $locId): bool
+{
+    if (on_road($locId)) return true;
+    return (bool)q_val("SELECT 1 FROM locations l WHERE l.id = ? AND (l.kind IN ('haven','lair','delve','wonder') OR EXISTS (SELECT 1 FROM landmarks m WHERE m.location_id = l.id AND m.kind IN ('haven','lair','delve','wonder')))", [$locId]);
+}
+
 /** The road a place is on, with its stops in order, or null. */
 function road_of(int $locId): ?array
 {

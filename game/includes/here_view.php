@@ -504,7 +504,7 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
         }
     }
     // a wild trail: wander off the Trail from any place on a road (the existing Wander: adventure.php do=explore)
-    if (isset($want['wild']) && on_road((int)$node['id'])) {
+    if (isset($want['wild']) && can_wander_from((int)$node['id'])) {
         $card = '<p>Leave the Trail and wander the wilds. Each step costs energy; you can come back.</p>' . here_form('adventure.php', ['do' => 'explore'], '🌿 Wander off the Trail');
         $add('wild', 'Wander off the Trail', '🌿', url('world.php'), $card);
     }
@@ -662,7 +662,7 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
         array_unshift($sprites, ['id' => 'you', 'x' => 0, 'y' => 0, 'name' => 'You', 'href' => url('gnome.php'), 'src' => $gurl, 'w' => 64, 'h' => 80, 'fw' => 64, 'fh' => 80, 'frames' => 8, 'emoji' => '🧙']);
     }
     $opts = ['layout' => $L, 'alt' => 'Where you are: ' . $node['name'], 'open' => $open, 'debug' => $debug, 'close_href' => url($back), 'title' => 'List view'];
-    $canWander = on_road((int)$node['id']) && ts($u['community_shift_until'] ?? null) <= time();   // v2.6.72: Wander is a round button under the picture, like Fast travel and GPS
+    $canWander = can_wander_from((int)$node['id']) && ts($u['community_shift_until'] ?? null) <= time();   // v2.6.72: Wander is a round button under the picture, like Fast travel and GPS
     if ($gate) {
         $opts['chrome'] = true; $opts['pills'] = true; $opts['navbar'] = true; $opts['street'] = true; $opts['legfold'] = true; $opts['twin'] = false; $GLOBALS['gnav_gate'] = true;
         $opts['nav'] = [

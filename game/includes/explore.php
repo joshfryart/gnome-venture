@@ -167,7 +167,7 @@ function explore_start(array $u): array
     if (trek_inside($uid)) return [false, 'You’re on a trek. Leave the trek first.'];   // v1.8.0
     if (ts($u['community_shift_until'] ?? null) > time()) return [false, 'You’re on a tending shift at the community garden. Finish or end it first.'];
     $here = player_node($u);
-    if (!on_road((int)$here['id'])) return [false, 'Head back to a road first. You can only wander off from a road.'];
+    if (!can_wander_from((int)$here['id'])) return [false, 'Head back to a road, haven or den first. You can only wander off from there.'];
     $free = staff_free($uid);
     if (!$free && !spend_energy($uid, 1, 'wander')) return [false, 'You need 1 energy to wander off the path. Rest or eat something first.'];
     unset($_SESSION['explore_found'], $_SESSION['explore_back']);
