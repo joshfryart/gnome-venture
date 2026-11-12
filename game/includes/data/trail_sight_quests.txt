@@ -21,7 +21,7 @@ B|sap-to-stack|haybales|Burrow in for a hidden egg|-
 B|sap-to-stack|311-sugarshack|Stir the sap into syrup|-
 B|sap-to-stack|311-pancakelane|Flip a stack in Pancake Lane|-
 
-Q|which-nettle|Which Nettle?|Nettle Cobblefield|📬|seq|xp=50,item=beeswax-candles:2,c=30,fp=2|Letters for N. Cobblefield keep going to the wrong Nettle, and both Nettles would like it to stop, please.|A fifth arrow on the signpost now says Nettles: BOTH WAYS, and the post has never been happier.
+Q|which-nettle|Which Nettle?|Nettle Cobblefield@v-na-1-3|📬|seq|xp=50,item=beeswax-candles:2,c=30,fp=2|Letters for N. Cobblefield keep going to the wrong Nettle, and both Nettles would like it to stop, please.|A fifth arrow on the signpost now says Nettles: BOTH WAYS, and the post has never been happier.
 B|which-nettle|236-stonebridge|Bow and check the letter cubby|-
 B|which-nettle|236-beanpoles|Eavesdrop on the gossiping beans|-
 B|which-nettle|306-mosslog|Stroke the log where Nettle waits|-
@@ -94,7 +94,7 @@ B|bridgewarden|wetland-the-boardwalk-gap|Mend the plank in the gap|-
 B|bridgewarden|mountain-the-rope-bridge|Cross and retie the third knot|-
 B|bridgewarden|rainforest-the-vine-bridge|Strum the vines into tune|-
 
-Q|hello-letters|The Hello Letters|Bunty Windlass|🍾|seq|xp=50,item=cowrie-shell:3,c=30,fp=3|Bunty found a note in the bottle post that just says hello, and is far too shy to answer it alone.|The writer was a crab called Pinchwell all along, and now Bunty has a pen pal and a very full heart.
+Q|hello-letters|The Hello Letters|Bunty Windlass@v-ca-4-2|🍾|seq|xp=50,item=cowrie-shell:3,c=30,fp=3|Bunty found a note in the bottle post that just says hello, and is far too shy to answer it alone.|The writer was a crab called Pinchwell all along, and now Bunty has a pen pal and a very full heart.
 B|hello-letters|coast-the-bottle-post|Write back hello for Bunty|-
 B|hello-letters|island-the-sand-spit|Point out the reply bottle|-
 B|hello-letters|desert-the-mirage-pool|Reach in for the shimmery note|-
@@ -108,7 +108,7 @@ B|star-wheel|mountain-the-eagle-s-rest|Think alongside the eagle at night|dp=nig
 B|star-wheel|desert-the-red-rock-arch|Stand in the glow for the evening star|dp=dusk
 B|star-wheel|coast-the-lighthouse-shadow|Signal the keeper for a lens|dp=night
 
-Q|picnic-for-everyone|The Picnic for Everyone|Yarrow Mossgrove|🧺|seq|xp=60,item=garden-honey:2,c=40,fp=3|Yarrow wants the whole town on one blanket, which is a big blanket and a bigger picnic.|Everything is laid out on the knoll, everyone squeezes on, and Yarrow beams like a teapot.
+Q|picnic-for-everyone|The Picnic for Everyone|Yarrow Mossgrove@v-esa-4-1|🧺|seq|xp=60,item=garden-honey:2,c=40,fp=3|Yarrow wants the whole town on one blanket, which is a big blanket and a bigger picnic.|Everything is laid out on the knoll, everyone squeezes on, and Yarrow beams like a teapot.
 B|picnic-for-everyone|grassland-the-picnic-knoll|Spread a cloth to measure the dent|-
 B|picnic-for-everyone|grassland-the-sleepy-windmill|Wind up the mill for flour|-
 B|picnic-for-everyone|forest-the-hollow-oak|Pour tea and borrow teacups|-
@@ -129,7 +129,7 @@ B|trader-went-home|desert-the-waystone-cluster|Introduce yourself to the wayston
 B|trader-went-home|grassland-the-old-milestone|Read where the milestone points|-
 B|trader-went-home|grassland-the-hay-cart-ruts|Follow the ruts to the farm|-
 
-Q|walking-ladder|The Ladder That Went for a Walk|Posy Thistledown|🪜|seq|xp=50,item=hammock:1,c=30,fp=2|Posy lives in a stilt house and would very much like to get in, but her ladder has gone for a walk.|The ladder strolls home warm and happy, Posy climbs up, and is asleep before she reaches the top.
+Q|walking-ladder|The Ladder That Went for a Walk|Posy Thistledown@v-ee-2-2|🪜|seq|xp=50,item=hammock:1,c=30,fp=2|Posy lives in a stilt house and would very much like to get in, but her ladder has gone for a walk.|The ladder strolls home warm and happy, Posy climbs up, and is asleep before she reaches the top.
 B|walking-ladder|wetland-the-stilt-house|Call up to the stilt house|-
 B|walking-ladder|wetland-the-reed-causeway|Nod back to the pointing reeds|-
 B|walking-ladder|mountain-the-goat-ledge|Share a snack with the goat|-

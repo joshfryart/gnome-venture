@@ -214,6 +214,17 @@ foreach (trail_sight_folk() as $slug => $list) foreach ($list as $f) {
     if (!$okName) $noFolk[] = $f['who'];
 }
 ok('every villager of trail_sight_folk.txt can be found by name', !$noFolk, implode(', ', array_slice(array_unique($noFolk), 0, 8)));
+// twins: a name shared by villagers of different villages must say which one (Name@village-slug) in the folk rows and quest givers
+require_once $argv[1] . '/includes/stop_folk.php';
+foreach (q("SELECT * FROM locations WHERE kind = 'village' ORDER BY id")->fetchAll() as $vv) stop_folk_ensure($vv);
+$twinNames = array_column(q('SELECT name FROM stop_folk GROUP BY name HAVING COUNT(*) > 1')->fetchAll(), 'name');
+$unpinned = [];
+foreach (trail_sight_folk() as $sl => $lst) foreach ($lst as $f) if (in_array(trail_sight_split_who($f['who'])[0], $twinNames, true) && !str_contains($f['who'], '@')) $unpinned[] = $sl . ':' . $f['who'];
+foreach (trail_sight_quests() as $qq) if (in_array(trail_sight_split_who($qq['giver'])[0], $twinNames, true) && !str_contains($qq['giver'], '@')) $unpinned[] = 'quest ' . $qq['slug'] . ':' . $qq['giver'];
+ok('no villager of a shared name is left unpinned (' . count($twinNames) . ' shared names in the world)', !$unpinned, implode(', ', array_slice($unpinned, 0, 6)));
+$wrong = [];
+foreach (trail_sight_folk() as $sl => $lst) foreach ($lst as $f) if (str_contains($f['who'], '@') && !trail_sight_folk_id($f['who'])) $wrong[] = $f['who'];
+ok('every pinned villager (Name@village) exists in that village', !$wrong, implode(', ', array_slice($wrong, 0, 6)));
 // the Trail page: mark over the landmark, Sights button, card
 $exp = active_expedition((int)$u['id']); $sc = trail_scene($exp);
 $exp['encounter'] = null; q("UPDATE expeditions SET status = 'done' WHERE user_id = ?", [$u['id']]);

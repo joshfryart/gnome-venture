@@ -2,46 +2,46 @@
 # The villager is a rest-stop villager (stop_folk) or a town NPC / traveller (npcs) by exact name. Only rolled after a successful use. One villager per use.
 
 # ---- The Maplewold (claude/sights/ideas-maplewold.md). Route 228's Sights have bare slugs (haybales, ford ...). Nettle Cobblefield is the Cloverholt herbalist (her name twin at Mossgate is left out: see folk-todo.md).
-haybales|Posy Thistledown|se=summer/dp=day|50|Posy Thistledown is fast asleep in the hay, and rings you a tiny lullaby on her bell without waking up.|fp=1,buff=hardiness:1:60
+haybales|Posy Thistledown@v-na-1-1|se=summer/dp=day|50|Posy Thistledown is fast asleep in the hay, and rings you a tiny lullaby on her bell without waking up.|fp=1,buff=hardiness:1:60
 ford|Dorrit Snailwick|dp=dawn|50|Dorrit Snailwick was waiting for someone to hop with, so you hop the stones together: one, two, wheee.|fp=1,xp=3
 pondmill|Fennick Hollowell|se=summer/dp=dusk|50|Fennick Hollowell races his leaf boat against yours, loses on purpose, and whispers which shop has a sale tomorrow.|fp=1,xp=3
-apple|Moss Sedgemoor|se=autumn|50|Moss Sedgemoor pops out from behind the tree, grumbles "fine, ONE", and pretends he is not smiling.|fp=1,item=apple:1
+apple|Moss Sedgemoor@v-na-1-1|se=autumn|50|Moss Sedgemoor pops out from behind the tree, grumbles "fine, ONE", and pretends he is not smiling.|fp=1,item=apple:1
 hedgerow|Clover Puddlejump|dp=dawn|35|Clover Puddlejump inspects your trimming, sniffs, and decides it will do. High praise indeed.|fp=1,c=5
 232-beehive|Mabel Pennywhistle|we=sun/se=spring,summer|50|Mabel Pennywhistle is visiting her cousins the bees, and kindly fixes the spelling on their sign.|fp=1,item=beeswax:1@50
 232-berrypatch|Alder Pennywhistle|dp=dawn|50|Alder Pennywhistle is buying berries for his stall and pays you a few Petals for your best three.|fp=1,c=8
 232-logbridge|Clover Brambleby|-|25|Clover Brambleby is off to see her cousin Bunty in Shellhollow, so you cross the log side by side, chatting all the way.|fp=2
 232-crossroads|Tobias Trundle|-|20|Tobias Trundle has set up a tiny shell-shop under the signpost and gives you a seed "for reading so nicely".|fp=1,seed=1
 232-picnicrise|Bramble Mossfoot|we=sun/dp=day|50|Bramble Mossfoot is picnicking on the rise and swaps you half a sandwich for a bite of yours.|fp=2
-236-wildflowers|Basil Teaspoon|se=summer/dp=day|45|Basil Teaspoon is dozing in the flowers and mumbles which ones his bees like best this week.|fp=1,item=meadowsweet:1@50
+236-wildflowers|Basil Teaspoon@v-na-1-3|se=summer/dp=day|45|Basil Teaspoon is dozing in the flowers and mumbles which ones his bees like best this week.|fp=1,item=meadowsweet:1@50
 236-beanpoles|Dorrit Thistledown|-|25|Dorrit Thistledown has stopped to argue with the beans. The beans are winning.|fp=1,xp=3
 236-windmill|Barnaby Nettlebed|we=wind|50|Barnaby Nettlebed is mending the sails, and you hold one steady while he mutters about proper joinery.|fp=1,item=timber-plank:1@40
 304-oakarch|Sorrel Rushworth|dp=day|35|Sorrel Rushworth is measuring the arch for "a proper door, at last", and you hold the end of the tape.|fp=1,item=oak-log:1@40
 304-owloak|Wren Thimblewick|dp=dusk|35|Wren Thimblewick is sketching the owl and gives you a seed for your very good hoot.|fp=1,seed=1
 305-birchtunnel|Elm Crumblewick|-|25|Elm Crumblewick is off to see his cousin Fennel and whispers a herb tip: mushrooms like the damp side.|fp=1,item=chanterelle:1@40
-305-birchcurtain|Fennel Crumblewick|we=fog|50|Fennel Crumblewick stood so still in the fog that you counted her as a birch. She is delighted.|fp=1,item=bright-feather:1@50
+305-birchcurtain|Fennel Crumblewick@v-na-3-2|we=fog|50|Fennel Crumblewick stood so still in the fog that you counted her as a birch. She is delighted.|fp=1,item=bright-feather:1@50
 305-fernhollow|Posy Mossgrove|se=spring,summer|45|The snail in the fern hollow is Posy Mossgrove on her slow pilgrimage, and she shares the seat.|fp=1,item=snail-trail-glaze:1@20
-305-sunclearing|Hazel Nettlebed|we=sun/dp=day|45|Hazel Nettlebed is writing the rabbit into her notebook and wants to hear everything you saw.|fp=1,item=beeswax:1@40
+305-sunclearing|Hazel Nettlebed@v-na-2-2|we=sun/dp=day|45|Hazel Nettlebed is writing the rabbit into her notebook and wants to hear everything you saw.|fp=1,item=beeswax:1@40
 306-dripgrotto|Lyra Fiddlewing|we=rain|25|The drips play a whole tune today, and Lyra Fiddlewing pops in to teach it to you.|fp=1,xp=4
 306-dripgrotto|Rue Wickerby|-|30|Rue Wickerby is building a clock that runs on drips, and gives you a part he no longer needs.|fp=1,item=glowing-bead:1@30
 306-mossgate|Posy Mossgrove|dp=dusk|40|Posy Mossgrove has reached the shrine gate at last, after only three weeks, and asks it to bless you both.|fp=1,buff=luck:1:60
-307-barnacles|Yarrow Mossgrove|dp=dawn|45|Yarrow Mossgrove is picking mussels for the inn and hands you a warm bowl of stew.|fp=1,item=fishermans-stew:1@30
-307-shellhollow|Willa Gillyflower|dp=dusk|45|Willa Gillyflower is collecting echoes in a jar and tells you the first bit of a very long story.|fp=1,xp=4
+307-barnacles|Yarrow Mossgrove@v-na-3-1|dp=dawn|45|Yarrow Mossgrove is picking mussels for the inn and hands you a warm bowl of stew.|fp=1,item=fishermans-stew:1@30
+307-shellhollow|Willa Gillyflower@v-na-3-1|dp=dusk|45|Willa Gillyflower is collecting echoes in a jar and tells you the first bit of a very long story.|fp=1,xp=4
 307-sandcastle|Bunty Brambleby|se=summer/dp=day|50|Bunty Brambleby is building castles with her inn guests and lets you add the seventh tower.|fp=2
-308-pebblebar|Fennel Crumblewick|dp=dusk|45|Fennel Crumblewick keeps the skipping record and says your throw was very nearly seven.|fp=1,item=sea-glass:1@30
-308-rockpool|Wick Kettleby|dp=day|45|Wick Kettleby is teaching the crab to wave signal flags. The crab is doing better than you.|fp=1,xp=3
+308-pebblebar|Fennel Crumblewick@v-na-3-2|dp=dusk|45|Fennel Crumblewick keeps the skipping record and says your throw was very nearly seven.|fp=1,item=sea-glass:1@30
+308-rockpool|Wick Kettleby@v-na-3-2|dp=day|45|Wick Kettleby is teaching the crab to wave signal flags. The crab is doing better than you.|fp=1,xp=3
 308-tidesteps|Burdock Oakenpot|dp=dawn|45|Burdock Oakenpot is mapping every teacup pool and lets you name a very small, very cross fish.|fp=1,xp=4
 309-frozenpond|Sorrel Fiddlewood|se=winter/dp=day|50|Sorrel Fiddlewood skates over between hot soaks and twirls you round the pond twice.|fp=2,buff=nimble:1:60
 309-icecave|Moss Windlass|-|30|Moss Windlass is keeping the bath salts cool in the cave, and fusses your scarf straight.|fp=1,item=sea-salt:1@40
-310-sledtrack|Elm Wickerby|se=winter/dp=day|50|Elm Wickerby is testing a new sled and lets you ride it down, squealing all the way.|fp=1,item=birch-log:1@30
-310-icicurtain|Hazel Nettlebed|se=winter|40|Hazel Nettlebed is on her way to Snowcombe, hums along with the icicles, and gives you beeswax for cold lips.|fp=1,item=beeswax:1@50
+310-sledtrack|Elm Wickerby@v-na-4-2|se=winter/dp=day|50|Elm Wickerby is testing a new sled and lets you ride it down, squealing all the way.|fp=1,item=birch-log:1@30
+310-icicurtain|Hazel Nettlebed@v-na-2-2|se=winter|40|Hazel Nettlebed is on her way to Snowcombe, hums along with the icicles, and gives you beeswax for cold lips.|fp=1,item=beeswax:1@50
 311-bucketstacks|Clover Brambleby|se=spring/dp=dawn|50|Clover Brambleby weighs your bucket stack for the Sugar Shack and pays a Petal per level.|fp=1,c=6
 311-sugarshack|Clover Puddlejump|se=spring/dp=day|50|Clover Puddlejump stirs the pot beside you and is very nearly cheerful about it.|fp=2
 312-ringlog|Dorrit Thistledown|dp=day|45|Dorrit Thistledown is counting rings while she waits for mushrooms. Your guesses tie, so she shares her basket.|fp=1,item=chanterelle:2@50
 312-toadring|Dorrit Snailwick|se=autumn/dp=dusk|50|Dorrit Snailwick twirls round the toad ring with you until you both fall over.|fp=2,item=toad-jewel:1@10
-312-bramble|Nettle Cobblefield|se=summer/dp=dawn|45|Nettle Cobblefield is picking bramble leaves for tea and nods at your very good manners.|fp=1,xp=3
+312-bramble|Nettle Cobblefield@v-na-1-3|se=summer/dp=dawn|45|Nettle Cobblefield is picking bramble leaves for tea and nods at your very good manners.|fp=1,xp=3
 313-lodge|Sorrel Rushworth|dp=day|35|Sorrel Rushworth came to admire the beavers' joinery and admits it is better than his.|fp=1,item=timber-plank:1@30
 314-causeway|Burdock Oakenpot|-|30|Burdock Oakenpot is timing the tide with a pocket watch and marks the best minute on your map.|fp=1,item=tide-shell:1@40
-315-lamps|Wick Kettleby|se=winter/dp=dusk|50|Wick Kettleby is lighting the lamps for the Owl ("she's practically family"), and you light one together.|fp=2,item=beeswax-candles:1@30
+315-lamps|Wick Kettleby@v-na-3-2|se=winter/dp=dusk|50|Wick Kettleby is lighting the lamps for the Owl ("she's practically family"), and you light one together.|fp=2,item=beeswax-candles:1@30
 315-slope|Dorrit Thistledown|se=autumn,winter/dp=day|45|Dorrit Thistledown is gathering resin. You tickle a tree, the snow goes fwump on her, and she laughs for ages.|fp=2,item=pine-resin:1@30
 315-fort|Barnaby Nettlebed|se=winter|40|Barnaby Nettlebed inspects the snow fort's joinery and calls it "adequate". You glow.|fp=1,xp=3
 315-stream|Sorrel Fiddlewood|se=winter|40|Sorrel Fiddlewood is ice-fishing and lets you dangle a line in her hole for a bit.|fp=1,item=arctic-char:1@30

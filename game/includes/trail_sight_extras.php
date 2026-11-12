@@ -242,13 +242,27 @@ function trail_sight_folk_here(string $slug, array $now): array
     return $out;
 }
 
-/** A named villager's stop_folk id (made for the villages of the world on the way if needed), or 0 if no villager has that name. */
-function trail_sight_folk_id(string $name): int
+/** "Nettle Cobblefield@cloverholt" => ['Nettle Cobblefield', 'cloverholt']: several villagers share a name in different villages, so a data row may say which one (the village's location slug). */
+function trail_sight_split_who(string $who): array
 {
+    [$n, $v] = array_pad(explode('@', $who, 2), 2, '');
+    return [trim($n), trim($v)];
+}
+
+/** A named villager's stop_folk id (made for the villages of the world on the way if needed; `Name@village-slug` picks the one in that village), or 0 if no villager has that name. */
+function trail_sight_folk_id(string $who): int
+{
+    [$name, $vslug] = trail_sight_split_who($who);
     try {
+        require_once __DIR__ . '/stop_folk.php';
+        if ($vslug !== '') {
+            $v = q_one("SELECT * FROM locations WHERE slug = ? AND kind = 'village'", [$vslug]);
+            if (!$v) return 0;
+            stop_folk_ensure($v);
+            return (int)q_val('SELECT id FROM stop_folk WHERE name = ? AND location_id = ? ORDER BY id LIMIT 1', [$name, (int)$v['id']]);
+        }
         $id = (int)q_val('SELECT id FROM stop_folk WHERE name = ? ORDER BY id LIMIT 1', [$name]);
         if ($id) return $id;
-        require_once __DIR__ . '/stop_folk.php';
         foreach (q("SELECT * FROM locations WHERE kind = 'village' ORDER BY id")->fetchAll() as $v) {
             stop_folk_ensure($v);
             $id = (int)q_val('SELECT id FROM stop_folk WHERE name = ? ORDER BY id LIMIT 1', [$name]);
@@ -270,9 +284,9 @@ function trail_sight_pay(array $u, array $loc, string $rewards, string $who = ''
         if ($t['cond'] !== '') { $now ??= stop_now($loc); if (!stop_cond_ok($t['cond'], $now)) continue; }
         $tok = $t['tok'];
         if (str_starts_with($tok, 'fp=') && $who !== '') {   // a stop villager (stop_folk) or a town NPC / traveller (npcs: shopkeepers, Tobias, Lyra, Wren, Pomeroy ...) by name
-            $fid = trail_sight_folk_id($who); $pts = max(1, (int)substr($tok, 3));
+            $fid = trail_sight_folk_id($who); $pts = max(1, (int)substr($tok, 3)); [$who] = trail_sight_split_who($who);   // $who is shown without the village
             if ($fid) { require_once __DIR__ . '/stop_folk.php'; stop_friend_add((int)$u['id'], $fid, $pts); $lines[] = '💛 ' . $who . ' likes you a little more'; }
-            else { try { $nid = (int)q_val('SELECT id FROM npcs WHERE name = ? AND active = 1 ORDER BY id LIMIT 1', [$who]); } catch (Throwable $e) { $nid = 0; }
+            else { try { $nid = (int)q_val('SELECT id FROM npcs WHERE name = ? AND active = 1 ORDER BY id LIMIT 1', [trail_sight_split_who($who)[0]]); } catch (Throwable $e) { $nid = 0; }
                 if ($nid) { require_once __DIR__ . '/friends.php'; friend_add((int)$u['id'], $nid, $pts); $lines[] = '💛 ' . $who . ' likes you a little more'; } }
             continue;
         }
@@ -342,7 +356,7 @@ function trail_sight_quests_box(array $u): string
             $next = !$d && ($q['order'] === 'any' || $i === count($done));
             $li .= '<li' . ($d ? ' class="muted"' : '') . '>' . ($d ? '✅ ' : ($next ? '👉 ' : '▫️ ')) . e($b[1]) . ($next ? ' <small>(' . e(trail_sight_label($b[0])[0]) . ')</small>' : '') . '</li>';
         }
-        $open .= '<details class="sgq" open><summary>' . e($q['icon']) . ' <b>' . e($q['title']) . '</b> <small class="muted">' . count($done) . '/' . count($q['beats']) . ' · ' . e($q['giver']) . '</small></summary><ul class="qlist">' . $li . '</ul></details>';
+        $open .= '<details class="sgq" open><summary>' . e($q['icon']) . ' <b>' . e($q['title']) . '</b> <small class="muted">' . count($done) . '/' . count($q['beats']) . ' · ' . e(trail_sight_split_who($q['giver'])[0]) . '</small></summary><ul class="qlist">' . $li . '</ul></details>';
     }
     return '<section class="box qsec"><h3>🔎 Sight quests</h3>' . ($open ?: '<p class="muted">None on the go.</p>') . ($fin ? '<p class="muted">' . $fin . ' finished.</p>' : '') . '</section>';
 }
