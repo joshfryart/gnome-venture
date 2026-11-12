@@ -25,8 +25,8 @@ if (is_post()) {
         db_insert('trail_sight_rows', ['slug' => $slug, 'verb' => '-', 'icon' => '-', 'energy' => 0, 'cd' => 0, 'uses' => 1, 'cond' => '-', 'chk' => '-', 'rewards' => '', 'win' => '', 'lose' => '', 'tool' => '-', 'fail_en' => 0, 'active' => 0, 'updated_at' => now()]);
         admin_log('trail_sight', $slug, 'switched off'); flash('Switched off. "Back to the file" turns it on again.'); redirect('admin/trailsights.php');
     }
-    $f = fn(string $k, int $max = 400): string => mb_substr(trim(is_scalar($_POST[$k] ?? null) ? (string)$_POST[$k] : ''), 0, $max);
-    $row = trail_sight_row([$slug, $f('verb', 24), $f('icon', 16), $f('energy', 2), $f('cd', 4), $f('uses', 2), $f('when', 80), $f('check', 40), $f('rewards', 255), $f('win'), $f('lose'), $f('tool', 20), $f('fail_en', 2)]);
+    $f = fn(string $k, int $max = 1500): string => mb_substr(trim(is_scalar($_POST[$k] ?? null) ? (string)$_POST[$k] : ''), 0, $max);
+    $row = trail_sight_row([$slug, $f('verb', 24), $f('icon', 16), $f('energy', 2), $f('cd', 4), $f('uses', 2), $f('when', 80), $f('check', 40), $f('rewards', 1500), $f('win', 1500), $f('lose', 1500), $f('tool', 20), $f('fail_en', 2)]);
     if (!$row) { flash('Something is missing.', 'err'); redirect($back); }
     $bad = trail_sight_lint($row);
     if ($bad && empty($_POST['force'])) { flash('Not saved: ' . implode('; ', $bad) . '.', 'err'); redirect($back); }
@@ -54,9 +54,9 @@ page_header('Trail sights', true);
     <?php foreach ([['verb', 'Verb (the button)', 24], ['icon', 'Icon', 16], ['energy', 'Energy', 2], ['cd', 'Cooldown (tenths of a game day, 55 = 5.5)', 4], ['uses', 'Uses per cooldown', 2], ['when', 'When (- or dp=…/se=…/we=…)', 80], ['check', 'Check (- or stat:difficulty)', 40], ['tool', 'Tool (- or type:tier)', 20], ['fail_en', 'Energy a failed check costs', 2]] as [$k, $lab, $mx]): ?>
       <label><?= e($lab) ?> <input name="<?= e($k) ?>" maxlength="<?= $mx ?>" value="<?= e((string)$cur[$k]) ?>"></label>
     <?php endforeach; ?>
-    <label>Rewards <input name="rewards" maxlength="255" value="<?= e((string)$cur['rewards']) ?>" style="width:100%"></label>
-    <label>Win line <textarea name="win" rows="3" maxlength="400" style="width:100%"><?= e((string)$cur['win']) ?></textarea></label>
-    <label>Lose line (only with a check) <textarea name="lose" rows="2" maxlength="400" style="width:100%"><?= e((string)$cur['lose']) ?></textarea></label>
+    <label>Rewards <input name="rewards" maxlength="1500" value="<?= e((string)$cur['rewards']) ?>" style="width:100%"></label>
+    <label>Win line <textarea name="win" rows="4" maxlength="1500" style="width:100%"><?= e((string)$cur['win']) ?></textarea></label>
+    <label>Lose line (only with a check) <textarea name="lose" rows="3" maxlength="1500" style="width:100%"><?= e((string)$cur['lose']) ?></textarea></label>
     <?php $pr = trail_sight_lint($cur); if ($pr): ?><p class="flash err">Problems now: <?= e(implode('; ', $pr)) ?></p><?php endif; ?>
     <button class="btn">💾 Save</button> <a class="btn ghost" href="<?= e(url('admin/trailsights.php')) ?>">Cancel</a>
     <?php if (isset($file[$edit]) || ($cur['src'] ?? '') !== 'new'): ?><button class="btn ghost" name="restore" value="1">↩️ Back to the file</button><button class="btn ghost" name="off" value="1">⏸️ Off</button><?php endif; ?>

@@ -21,10 +21,15 @@ foreach ($verbs as $v => $s) if (count($s) > 1) { echo "BAD verb '$v' used by " 
 foreach (trail_sight_quests() as $q) foreach (trail_sight_quest_lint($q, $all) as $p) { echo "BAD quest {$q['slug']}: $p\n"; $bad++; }
 foreach (trail_sight_folk() as $slug => $list) foreach ($list as $f) {
     if (!isset($all[$slug])) { echo "BAD folk row on unknown Sight $slug\n"; $bad++; }
-    $probe = ['slug' => $slug, 'verb' => 'x', 'icon' => 'x', 'energy' => 0, 'cd' => 0, 'uses' => 1, 'when' => $f['when'], 'check' => '-', 'rewards' => $f['rewards'], 'win' => 'x', 'lose' => '', 'tool' => '-', 'fail_en' => 0];
+    $probe = ['slug' => $slug, 'verb' => 'x', 'icon' => 'x', 'energy' => 0, 'cd' => 55, 'uses' => 1, 'when' => $f['when'], 'check' => '-', 'rewards' => $f['rewards'], 'win' => 'x', 'lose' => '', 'tool' => '-', 'fail_en' => 0];
     foreach (trail_sight_lint($probe) as $p) { echo "BAD folk $slug/{$f['who']}: $p\n"; $bad++; }
     if ($f['line'] === '' || $f['who'] === '') { echo "BAD folk $slug has no villager or line\n"; $bad++; }
 }
+require_once $argv[1] . '/includes/stop_folk.php';
+foreach (q("SELECT * FROM locations WHERE kind = 'village' ORDER BY id")->fetchAll() as $vv) stop_folk_ensure($vv);
+trail_sights_ensure_newfolk();
+foreach (trail_sight_folk() as $slug => $list) foreach ($list as $f) if (!trail_sight_folk_id($f['who']) && !q_val('SELECT 1 FROM npcs WHERE name = ?', [trail_sight_split_who($f['who'])[0]])) { echo "BAD folk $slug: no villager named {$f['who']}\n"; $bad++; }
+foreach (trail_sight_quests() as $q) if (!trail_sight_folk_id($q['giver']) && !q_val('SELECT 1 FROM npcs WHERE name = ?', [trail_sight_split_who($q['giver'])[0]])) { echo "BAD quest {$q['slug']}: no villager named giver {$q['giver']}\n"; $bad++; }
 $info = trail_sight_info(); foreach (array_keys($all) as $s) if (!isset($info[$s])) { echo "BAD no name/caption row for $s in trail_sight_info.txt\n"; $bad++; }
 foreach (trail_sight_items_file() as $slug => $it) if (!in_array($it[1], ['forage', 'part', 'misc', 'produce', 'flower', 'food', 'decor', 'supply', 'other', 'soil'], true)) { echo "BAD item $slug category {$it[1]}\n"; $bad++; }
 echo count($all) . " rows, $bad problems\n";

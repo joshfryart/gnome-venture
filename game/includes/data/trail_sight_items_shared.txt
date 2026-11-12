@@ -2,7 +2,7 @@
 # slug | Name | category | rarity 1-30 | base_price | edible 0/1 | description | effects (optional JSON)
 # Sight keepsakes and minigame prizes
 five-leaf-clover|Five-Leaf Clover|flower|28|30|1|The one leaf nobody checked, found hiding under a snail. Tuck it in your hat for a lucky afternoon.|{"temp":{"luck":2,"minutes":240}}
-clover-ledger|The Clover Ledger|misc|16|12|0|A copy of a very thorough clipboard: every clover leaf in the patch, checked, double-checked and initialled.
+clover-ledger|The Clover Ledger|misc|16|12|0|A copy of a very thorough clipboard: every clover leaf in the patch, checked, double-checked and initialled.||0
 left-handed-spiral|Left-Handed Spiral|misc|30|45|0|A shell that spirals the wrong way round. The sorter gasped out loud when you found it.
 starfish-friend|Starfish Friend|misc|26|20|1|A small starfish who would like to ride on your hat for a walk. It brings luck, and a faint smell of sea.|{"temp":{"luck":1,"minutes":180}}
 crab-gavel|Crab Gavel|misc|22|22|0|A tiny driftwood gavel the crabs of the tide pools gave their fairest judge. Order, order.
@@ -26,5 +26,5 @@ seaside-stationery|Seaside Stationery|misc|18|20|0|Paper with little waves on th
 pocket-star-wheel|Pocket Star-Wheel|decor|26|50|0|Wren's star-wheel with the keeper's lens in it. Turn it to tonight and the stars line up.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🌟","appeal":6,"bonus":""}}
 patchwork-picnic-blanket|Patchwork Picnic Blanket|decor|24|50|0|A blanket big enough for the whole town, folded small enough for one yard.|{"decor":{"type":"seat","w":2,"h":1,"icon":"🧺","appeal":6,"bonus":""}}
 hollow-round-song-sheet|Song Sheet: The Hollow Round|decor|22|36|0|Lyra's new song, five sounds long, with a cheeky echo at the end. Frame it and hum along.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🎼","appeal":5,"bonus":""}}
-marrowbys-price-book|Marrowby's Old Price Book|misc|24|36|0|Old Marrowby's book of fair prices, with notes in the margins like "too much for a turnip".
+marrowbys-price-book|Marrowby's Old Price Book|misc|24|36|0|Old Marrowby's book of fair prices, with notes in the margins like "too much for a turnip".||0
 feather-pillow|Feather Pillow|decor|20|30|0|A plump pillow from the stilt house. The ladder recommends it.|{"decor":{"type":"seat","w":1,"h":1,"icon":"🪶","appeal":4,"bonus":""}}

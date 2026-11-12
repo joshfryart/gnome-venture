@@ -9,7 +9,7 @@ marshmallow|Toasted Marshmallow|food|8|6|1|Golden outside, gooey inside, and sti
 message-bottle|Message in a Bottle|misc|28|30|0|A corked bottle with a rolled note inside that just says hello, very warmly.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🍾","appeal":4,"bonus":""}}
 map-scrap|Map Scrap|misc|14|12|0|A torn corner of somebody's map with a little x drawn on it and a smiley face.
 snowman-scarf|Snowman's Spare Scarf|misc|18|16|0|A tiny knitted scarf the snowmen take turns wearing; today it is your turn.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🧣","appeal":3,"bonus":""}}
-lost-mitten|Lost Mitten|misc|20|4|0|One red mitten with a bell on it, plainly missing its other half and its owner.
+lost-mitten|Lost Mitten|misc|20|4|0|One red mitten with a bell on it, plainly missing its other half and its owner.||0
 glowcap-repair-kit|Glowcap Lantern Repair Kit|misc|16|22|0|A tin of wicks, a spare glass and a very small screwdriver for a tired glowcap lantern.
 glowcap-garden-light|Glow-cap Garden Light|decor|24|36|0|A shy glowing mushroom that followed you home and would like to live by the path.|{"decor":{"type":"light","w":1,"h":1,"icon":"🍄","appeal":4,"bonus":""}}
 star-chart|Star Chart|misc|10|10|0|Tonight's sky copied in your own wobbly hand, with one star you are fairly sure you made up.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🗺️","appeal":3,"bonus":""}}

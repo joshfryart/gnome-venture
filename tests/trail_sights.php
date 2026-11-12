@@ -135,7 +135,7 @@ give_item((int)$u['id'], $idI, 3); $fresh();
 ok('take: with the item it works and uses 2 up', $n2 && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$u['id'], $idI]) === 1);
 echo "== P1: admin rows replace, hide and restore\n";
 $GLOBALS['gv_sights_reload'] = true; ok('a saved row replaces the file row (src edited)', (trail_sights_all()[$base['slug']]['src'] ?? '') === 'edited');
-q('DELETE FROM trail_sight_rows WHERE slug = ?', [$base['slug']]); db_insert('trail_sight_rows', ['slug' => $base['slug'], 'verb' => '-', 'icon' => '-', 'energy' => 0, 'cd' => 0, 'uses' => 1, 'cond' => '-', 'chk' => '-', 'rewards' => '', 'win' => '', 'lose' => '', 'tool' => '-', 'fail_en' => 0, 'active' => 0, 'updated_at' => now()]);
+q('DELETE FROM trail_sight_rows WHERE slug = ?', [$base['slug']]); db_insert('trail_sight_rows', ['slug' => $base['slug'], 'verb' => '-', 'icon' => '-', 'energy' => 0, 'cd' => 55, 'uses' => 1, 'cond' => '-', 'chk' => '-', 'rewards' => '', 'win' => '', 'lose' => '', 'tool' => '-', 'fail_en' => 0, 'active' => 0, 'updated_at' => now()]);
 $GLOBALS['gv_sights_reload'] = true; ok('an off row hides the Sight', !isset(trail_sights_all()[$base['slug']]));
 q('DELETE FROM trail_sight_rows WHERE slug = ?', [$base['slug']]); $GLOBALS['gv_sights_reload'] = true;
 ok('removing the row brings the file row back', (trail_sights_all()[$base['slug']]['src'] ?? '') === 'file');
@@ -167,7 +167,7 @@ foreach ($authored as $rid => $rt) {
             foreach (trail_sight_tokens($row['rewards']) as $tk) if (str_starts_with($tk['tok'], 'take=')) { [$ts, $tq] = array_pad(explode(':', substr($tk['tok'], 5), 2), 2, '1'); give_item((int)$u['id'], (int)q_val('SELECT id FROM items WHERE slug = ?', [$ts]), (int)$tq + 1); }
             $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
             $pk = trail_sight_pick_info($row);
-            try { [$ro, $rm] = trail_sight_do($u, $exp, $slug, $pk ? ['pick' => trail_sight_pick_answer((int)$u['id'], $row)] : []); save_exp($exp); $exp = active_expedition((int)$u['id']); }
+            try { [$ro, $rm] = trail_sight_do($u, $exp, $slug, $pk ? ['pick' => trail_sight_pick_right($u, trail_scene($exp), $row)] : []); save_exp($exp); $exp = active_expedition((int)$u['id']); }
             catch (Throwable $ex) { $errs[] = "$slug threw " . get_class($ex) . ': ' . $ex->getMessage(); continue; }
             if ($ro) $ran++; elseif (str_contains((string)$rm, 'right time') || str_contains((string)$rm, 'busy')) $skipped++; else $errs[] = "$slug refused: $rm";
         }
@@ -290,7 +290,7 @@ $put(['check' => 'pick:3:Left;Middle;Right', 'lose' => 'Wrong door.', 'rewards' 
 $sc = trail_scene($exp); $sc['x'] = $spot[0]; $sc['y'] = $spot[1]; trail_save($sc);
 [$p0, $pm] = trail_sight_do($u, $exp, $base['slug']);
 ok('a pick Sight without a choice is refused', !$p0 && $pm === 'Choose one.', (string)$pm);
-$right = trail_sight_pick_answer((int)$u['id'], trail_sights_all()[$base['slug']]);
+$right = trail_sight_pick_right($u, trail_scene($exp), trail_sights_all()[$base['slug']]);
 $fresh(); [$p1] = trail_sight_do($u, $exp, $base['slug'], ['pick' => $right]); save_exp($exp);
 ok('the right pick wins (xp line in the log)', $p1 && str_contains((string)q_val('SELECT log FROM expeditions WHERE id = ?', [$exp['id']]), 'XP'));
 $fresh(); [$p2] = trail_sight_do($u, $exp, $base['slug'], ['pick' => ($right + 1) % 3]); save_exp($exp);
@@ -376,6 +376,46 @@ ok('lint: tally and tl= are valid', !array_filter(trail_sight_lint(['rewards' =>
 $put(['rewards' => 'tally=cairn,xp=1?tl=cairn:99', 'uses' => 9, 'energy' => 0, 'check' => '-']); $fresh(); $t0 = (int)(trail_sight_tallies((int)$u['id'])['cairn'] ?? 0);
 [$ty] = trail_sight_do($u, $exp, $base['slug']); save_exp($exp);
 ok('a Sight with tally= adds one to the counter', $ty && (int)(trail_sight_tallies((int)$u['id'])['cairn'] ?? 0) === $t0 + 1);
+// review: stored progress survives a data edit, a line is paid once, the table-less world loses nothing
+$qa = ['slug' => 'q-edit', 'title' => 'Edit', 'giver' => 'Nettle Cobblefield', 'icon' => 'i', 'order' => 'seq', 'reward' => 'xp=1', 'intro' => 'i', 'outro' => 'o', 'gate' => '', 'beats' => [['a', 'A', '-', ''], ['b', 'B', '-', ''], ['c', 'C', '-', '']]];
+$ids = trail_sight_beat_ids($qa);
+ok('beat ids are stable per Sight and occurrence', $ids === ['a#1', 'b#1', 'c#1']);
+$qb = $qa; array_splice($qb['beats'], 1, 0, [['z', 'Z', '-', '']]);   // a beat inserted in the middle
+$rowStored = ['beats' => json_encode(['a#1', 'b#1'])];
+ok('a stored id still points at its own beat after a beat is inserted', trail_sight_quest_done($qb, $rowStored) === [0, 2], json_encode(trail_sight_quest_done($qb, $rowStored)));
+$qc = $qa; array_pop($qc['beats']);   // the line got shorter
+ok('stored indexes beyond a shorter line are dropped', trail_sight_quest_done($qc, ['beats' => json_encode([0, 1, 2])]) === [0, 1]);
+ok('seq: the next beat is the first not done, even with a hole', trail_sight_beat_open($qa, [1], 0) && !trail_sight_beat_open($qa, [1], 2));
+$GLOBALS['gv_sight_quests_file'] = $w('qf.txt', "Q|q-once|Once|Nettle Cobblefield|📜|any|xp=9|intro|outro\nB|q-once|{$base['slug']}|one|-\nB|q-once|mountain-the-rope-bridge|two|-\n");
+$qo = trail_sight_quests()['q-once']; q("DELETE FROM user_sight_quests WHERE user_id = ? AND quest = 'q-once'", [$u['id']]);
+db_insert('user_sight_quests', ['user_id' => $u['id'], 'quest' => 'q-once', 'beats' => json_encode(['x#1', 'y#1']), 'started_at' => now(), 'done_at' => null]);
+$xp0 = (int)q_val('SELECT xp FROM users WHERE id = ?', [$u['id']]);
+$f1 = trail_sight_quest_finish($u, $qo, $locx, $nowQ); $f2 = trail_sight_quest_finish($u, $qo, $locx, $nowQ);
+ok('a finished line is paid once (the second finish is empty)', $f1 !== '' && $f2 === '');
+q("DELETE FROM user_sight_quests WHERE user_id = ? AND quest = 'q-once'", [$u['id']]);
+db_insert('user_sight_quests', ['user_id' => $u['id'], 'quest' => 'q-once', 'beats' => json_encode(['a#1', 'b#1']), 'started_at' => now(), 'done_at' => null]);
+$hk = trail_sight_quest_hook($u, 'unrelated-sight', $locx, $nowQ);
+ok('a line whose beats were all done before an edit is finished by the next hook', (bool)array_filter($hk, fn($l) => str_contains($l, 'is done')) || trail_sight_quest_row((int)$u['id'], 'q-once')['done_at'] !== null);
+unset($GLOBALS['gv_sight_quests_file']);
+// a quest beat that needs an item says what is missing and uses nothing
+$GLOBALS['gv_sight_quests_file'] = $w('qn.txt', "Q|q-miss|Missing|Nettle Cobblefield|📜|seq|xp=1|intro|outro\nB|q-miss|{$base['slug']}|hand it over|-|take=$gslug:9\nB|q-miss|mountain-the-rope-bridge|then|-\n");
+q("DELETE FROM user_sight_quests WHERE user_id = ?", [$u['id']]); q('UPDATE user_items SET qty = 1 WHERE user_id = ? AND item_id = ?', [$u['id'], $gid]);
+$mm2 = trail_sight_quest_hook($u, $base['slug'], $locx, $nowQ);
+ok('a beat that needs more than you carry says so and takes nothing', (bool)array_filter($mm2, fn($l) => str_contains($l, 'needs')) && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$u['id'], $gid]) === 1, json_encode($mm2));
+unset($GLOBALS['gv_sight_quests_file']);
+// the pick draw changes with every try
+$pk3 = ['check' => 'pick:5', 'slug' => 'x'] + $base; $ansA = []; for ($t = 0; $t < 12; $t++) $ansA[trail_sight_pick_answer((int)$u['id'], $pk3, '1|2|' . $t)] = 1;
+ok('the pick answer is a fresh draw for each try (12 tries show at least 3 different answers of 5)', count($ansA) >= 3, json_encode(array_keys($ansA)));
+// the atomic claim: the second claim inside a minute fails
+q("DELETE FROM settings WHERE name = 'p4_claim_test'");
+ok('trail_sight_claim: one request wins, the next within a minute does not', trail_sight_claim('p4_claim_test') && !trail_sight_claim('p4_claim_test'));
+// quest items cannot be sold or given by accident: tradable 0 from the items file
+trail_sights_ensure_items(); $nt = (int)q_val("SELECT COUNT(*) FROM items WHERE slug IN ('owl-letter','honey-parcel','gate-rubbing') AND tradable = 0");
+ok('quest letters and parcels are not tradable', $nt >= 2, (string)$nt);
+// a refused road gift is a message, not a journal line
+$gfk = $fe0[5] . $fe0[6]; $logBefore = (string)q_val('SELECT log FROM expeditions WHERE id = ?', [$exp['id']]);
+[$rg, $rm] = trail_sight_folk_talk($u, $exp, 'gift', 's999999', 0);
+ok('a refused gift returns the message and writes no journal line', !$rg && $rm !== '' && $logBefore === (string)q_val('SELECT log FROM expeditions WHERE id = ?', [$exp['id']]));
 // item effects
 $GLOBALS['gv_sight_items_file'] = $w('items.txt', "p4-decor-test|P4 Decor Test|decor|3|40|0|A test.|{\"decor\":{\"type\":\"ornament\",\"w\":1,\"h\":1,\"icon\":\"x\",\"appeal\":2,\"bonus\":\"\"}}\n");
 trail_sights_ensure_items();
