@@ -238,7 +238,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
             exp_log($exp, $ln); $enc['last'][] = $ln;
             if ($board) $enc['replay'][] = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'by' => (string)$e['by'], 'ta' => (string)($e['ta'] ?? $e['by']), 'ln' => $ln, 'bar' => $e['barnow'] ?? null, 'fh' => $e['fhnow'] ?? null, 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'n' => (string)($e['n'] ?? ''), 't' => (string)($e['t'] ?? '')]   // the board page plays these back one at a time
                 + (isset($e['env']) ? ['env' => (string)$e['env'], 'x' => $e['x'] ?? null, 'y' => $e['y'] ?? null, 'dir' => $e['dir'] ?? null, 'moved' => $e['moved'] ?? null, 'ids' => $e['ids'] ?? null, 'me' => $e['me'] ?? 0, 'foe' => $e['foe'] ?? 0] + (isset($e['kind']) ? ['kind' => (string)$e['kind']] : []) + (isset($e['for']) ? ['for' => (string)$e['for']] : []) + (isset($e['guard']) ? ['guard' => (int)$e['guard']] : []) : [])   // v1 (stage C): a terrain event: where it landed and what it did
-                + (!empty($e['used']) ? ['used' => $e['used']] : []) + (!empty($e['tw']) ? ['tw' => $e['tw']] : []) + (!empty($e['sun']) ? ['sun' => 1] : []);
+                + (!empty($e['used']) ? ['used' => $e['used']] : []) + (!empty($e['tw']) ? ['tw' => $e['tw']] : []) + (!empty($e['sun']) ? ['sun' => 1] : []) + (!empty($e['mud']) ? ['mud' => 1] : []) + (!empty($e['full']) ? ['full' => 1] : []);
         }
     } else return false;
     $exp['hp'] = (int)$s['me']['hp'];

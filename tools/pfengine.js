@@ -509,15 +509,15 @@
   var PFB_V1_FOE_MULT = { small: 1.0, medium: 0.70, large: 0.53, boss: 0.66 }, PFB_V1_BAR_MULT = { small: 0.75, medium: 0.92, large: 1.05, boss: 0.66 };   // 2.6.75 retune for environment pieces
   // 2.6.75 ENVIRONMENT PIECES: the environment is a third player; after the creature's turn it places one piece from its own deck, its next piece lies face up a round ahead.
   // PFB_ENV_ROWS is a copy of game/includes/data/pf_env.txt (key, name, kind, edges L,R,T,B, life, copies small/medium/large/boss, blurb); tests/pfengine_js.sh compares the two.
-  var PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'], PFB_ENV_N = { small: 1, medium: 1, large: 1, boss: 1 }, PFB_RAIN = 0.15, PFB_THORN_FOE = 1.0;
+  var PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'], PFB_ENV_N = { small: 2, medium: 2, large: 2, boss: 2 }, PFB_RAIN = 0.15, PFB_THORN_FOE = 0.5, PFB_ENV_CAP = 0.7, PFB_MUD = 0.25;
   var PFB_ENV_EDGE = { h: 'hole', k: 'knob', b: 'body', m: 'mind', c: 'craft' };
   var PFB_ENV_ROWS = [
     ['sun', 'Sun', 'sun', 'hb,km,kc,hc', 2, [2, 2, 2, 2], 'Fire it in your chain: your pieces in that chain count double.'],
     ['bramble', 'Bramble', 'bramble', 'hm,kc,kb,hb', 3, [1, 2, 2, 3], 'Fire it in your chain: the other side loses a tenth of its health.'],
     ['rain', 'Rain', 'rain', 'hc,kb,km,hm', 2, [2, 2, 2, 2], 'Fire it in your chain: you get guard.'],
     ['wind', 'Wind', 'wind', 'hb,kc,hm,km', 2, [1, 1, 1, 1], 'Fire it in your chain: the piece its arrow points at slides one cell.'],
-    ['mud', 'Mud', 'mud', 'f,f,f,f', 3, [1, 1, 1, 1], 'Nothing links to it. Chains stop here.'],
-    ['thorn', 'Thornburst', 'thorn', 'hm,kb,hc,kc', 3, [1, 2, 2, 2], 'Whoever fires it in a chain loses a tenth of their health.']
+    ['mud', 'Mud', 'mud', 'f,f,f,f', 3, [1, 1, 1, 1], 'Nothing links to it, and a piece next to it counts a quarter less.'],
+    ['thorn', 'Thornburst', 'thorn', 'hm,kb,hc,kc', 3, [1, 2, 2, 2], 'Fire it in your chain and you lose a tenth of your health. The creature loses half as much.']
   ];
   var PFB_ENV_REGIONS = { NA: { wind: 1 }, CA: { sun: 1 }, CB: { sun: 1 }, SA: { rain: 1 }, NWE: { rain: 1 }, SE: { sun: 1 }, EE: { bramble: 1 }, MENA: { wind: 1 }, WCA: { bramble: 1 }, ESA: { thorn: 1 }, CSA: { mud: 1 }, EA: { rain: 1 }, SEA: { rain: 1, mud: 1 }, OC: { wind: 1 } };
   var KIND_GROUND = { sunbeam: 'sun', creep: 'br', puddle: 'mud' }, GROUND_N = { sun: 'nsun', br: 'nbr', mud: 'nmud' };
@@ -529,7 +529,7 @@
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: PFB_TEAM2, team3: PFB_TEAM3,
       edges: 1, flip: 1, life: 1, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE };   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP };   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     var INTS = { w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
     for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
@@ -564,8 +564,15 @@
     return deck;
   }
   function envDraw(s) {
-    if (!s.env.draw.length && s.env.discard.length) { s.env.draw = shuffle(s, s.env.discard); s.env.discard = []; }
-    s.env.next = s.env.draw.length ? s.env.draw.pop() : null;
+    while (s.env.next.length < toInt(s.v1.envn)) {
+      if (!s.env.draw.length && s.env.discard.length) { s.env.draw = shuffle(s, s.env.discard); s.env.discard = []; }
+      if (!s.env.draw.length) break;
+      s.env.next.push(s.env.draw.pop());
+    }
+  }
+  function mudNear(s, x, y) {
+    for (var d in PFB_SIDE) { var n = pieceAt(s, x + PFB_SIDE[d][0], y + PFB_SIDE[d][1]); if (n && n.by === 'env' && n.tile.env === 'mud') return true; }
+    return false;
   }
   function envCells(s, tile) {
     var fit = [], link = [];
@@ -581,14 +588,14 @@
     if (!ok.length) ok = Object.keys(PFB_SIDE);
     return ok[rand(s, ok.length)];
   }
-  /** The environment's turn: it puts its face-up piece on the board and turns the next one face up. Nothing fires. */
+  /** The environment's turn: it puts its face-up pieces on the board, one after the other, then turns new ones face up. Nothing fires. */
   function envPlace(s) {
-    s.envlog = [];
-    for (var i = 0; i < toInt(s.v1.envn); i++) {
-      var tile = nn(s.env.next, null);
-      if (!tile) { s.envlog.push({ k: 'pass', x: null, y: null, me: 0, foe: 0.0 }); break; }
-      var cs = envCells(s, tile);
-      if (!cs.length) { s.envlog.push({ k: 'pass', x: null, y: null, me: 0, foe: 0.0, kind: tile.env, n: tile.n }); break; }
+    s.envlog = []; var keep = [];
+    if (!s.env.next.length) s.envlog.push({ k: 'pass', x: null, y: null, me: 0, foe: 0.0 });
+    s.env.next.forEach(function (tile) {
+      var full = Object.keys(s.cell).length >= Number(nn(s.v1.envcap, 1)) * pfbW(s) * pfbH(s);
+      var cs = full ? [] : envCells(s, tile);
+      if (!cs.length) { var P = { k: 'pass', x: null, y: null, me: 0, foe: 0.0, kind: tile.env, n: tile.n }; if (full) P.full = 1; s.envlog.push(P); keep.push(tile); return; }
       var c = cs[rand(s, cs.length)], x = c[0], y = c[1];
       if (tile.env === 'wind') tile.dir = envWindDir(s, x, y);
       var id = ++s.pid; s.seq++;
@@ -597,8 +604,9 @@
       var L = { k: 'place', x: x, y: y, me: 0, foe: 0.0, id: id, kind: tile.env, n: tile.n };
       if (tile.dir !== undefined && tile.dir !== null) L.dir = tile.dir;
       s.envlog.push(L);
-      envDraw(s);
-    }
+    });
+    s.env.next = keep;
+    envDraw(s);
   }
   function envCost(s, who, frac) {
     if (frac <= 0) return 0.0;
@@ -728,7 +736,7 @@
   function envEvents(s) {
     return nn(s.envlog, []).map(function (L) {
       var e = { by: 'env', ta: 'env', env: L.k, tag: '', k: 'env:' + L.k, n: nn(PFB_EVENT_NAME[L.k], 'Terrain'), t: 'env', v: 0, fit: false, combo: null, x: L.x, y: L.y, me: L.me, foe: L.foe };
-      ['dir', 'moved', 'on', 'ids', 'id', 'kind'].forEach(function (k) { if (L[k] !== undefined && L[k] !== null) e[k] = clone(L[k]); });
+      ['dir', 'moved', 'on', 'ids', 'id', 'kind', 'full'].forEach(function (k) { if (L[k] !== undefined && L[k] !== null) e[k] = clone(L[k]); });
       if (L.n !== undefined && L.n !== null) e.n = L.n;   // 2.6.75: an environment piece placed (or kept back): its name
       e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block);
       return e;
@@ -752,7 +760,7 @@
           default: return '🟫 ' + String(e.n) + '.';
         }
       case 'place': return '🍃 The environment places ' + String(e.n) + '.';
-      case 'pass': return (e.kind !== undefined && e.kind !== null) ? '🍃 The environment finds no place for ' + String(e.n) + '.' : '🍃 The environment has no piece to place.';
+      case 'pass': return (e.kind !== undefined && e.kind !== null) ? (truthy(e.full) ? '🍃 The board is too full: the environment keeps ' + String(e.n) + '.' : '🍃 The environment finds no place for ' + String(e.n) + '.') : '🍃 The environment has no piece to place.';
       case 'expire': return '🍂 ' + (nn(e.ids, []).length === 1 ? 'An environment piece fades.' : nn(e.ids, []).length + ' environment pieces fade.');
       case 'sunbeam': return '☀️ Sunbeam: a cell turns sunny' + (e.on ? ' under ' + whose(e.on) : '') + '.';
       case 'creep': return '🌿 Bramble creep: a cell turns to bramble' + (e.on ? ' under ' + whose(e.on) : '') + '.';
@@ -934,11 +942,14 @@
       var sunny = !!v1 && (tile.t === 'hurt' || tile.t === 'charm') && ter(s, p.x, p.y) === 'sun';
       if (sunny) val = iround(val * Number(v1.sun));
       if (esun > 1 && who === rb) { val = iround(val * esun); sunny = true; }
+      var muddy = !!v1 && truthy(v1.env) && Number(nn(v1.mud, 0)) > 0 && mudNear(s, p.x, p.y);   // Mud's teeth
+      if (muddy) val = iround(val * (1 - Number(v1.mud)));
       if (tw > 1 && who === rb) val = iround(val * tw);
       if (v1) s.fired.push(id);
       var isRoot = id === root;
       var e = { by: who, id: id, root: isRoot, tag: tile.tag, mod: String(nn(tile.m, '')), k: tile.k, n: tile.n, t: tile.t, v: val, fit: false, combo: ck ? PF_COMBOS[ck].name : null };
       if (sunny) e.sun = 1;
+      if (muddy) e.mud = 1;
       if (tw > 1 && who === rb) e.tw = tw;
       apply(s, who, tile, val, isRoot && links(s, id).length !== 0, ck, pt ? pt.tile : null, pt ? pt.by : null, e, isRoot, false);
       s.pcs[id].f = toInt(nn(s.pcs[id].f, 0)) + 1;   // fire budget: one more firing used
@@ -1260,7 +1271,7 @@
     if (v1) {
       s.w = v1.w; s.h = v1.h; delete v1.w; delete v1.h; s.v1 = v1;
       v1Tiles(s, c); seedGround(s); s.envs = []; s.envlog = []; s.reaim = 0; s.me.flipt = 0;
-      if (v1.env) { s.env = { draw: shuffle(s, envDeck(s.size, String(nn(c.region, '')))), discard: [], next: null }; envDraw(s); }   // 2.6.75: the environment's deck
+      if (v1.env) { s.env = { draw: shuffle(s, envDeck(s.size, String(nn(c.region, '')))), discard: [], next: [] }; envDraw(s); }   // 2.6.75: the environment's deck
       if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.me.slowdraw = 0; s.foe.bashnext = 0; s.foe.again = 0; }
     }
     if (opt && truthy(opt.blank)) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see start)
@@ -1428,9 +1439,10 @@
     cs.forEach(function (c) {
       var r = play(clone(s), [[handIdx === 'c' ? 'c' : handIdx, c[0], c[1]]], s.turn, true);
       if (r.err) return;
-      var n = 0, tw = 1.0, sun = 0;
-      r.ev.forEach(function (e) { if (e.barnow === undefined) return; n++; if (e.tw !== undefined) tw = Number(e.tw); if (truthy(e.sun) && e.by === 'me') sun++; });
+      var n = 0, tw = 1.0, sun = 0, mud = 0;
+      r.ev.forEach(function (e) { if (e.barnow === undefined) return; n++; if (e.tw !== undefined) tw = Number(e.tw); if (truthy(e.sun) && e.by === 'me') sun++; if (truthy(e.mud) && e.by === 'me') mud++; });
       o[c[0] + ',' + c[1]] = { dmg: iround(r.fh - fh0), ch: iround(r.bar - b0), hp: Math.max(0, hp0 - toInt(r.hp)), n: n, used: !!(r.ev[0] && r.ev[0].used && r.ev[0].used.length), tw: tw, sun: sun, end: truthy(r.over) };
+      if (truthy(s.v1.env)) o[c[0] + ',' + c[1]].mud = mud;
     });
     return o;
   }
@@ -1453,13 +1465,13 @@
     if (s.v1) {   // v1: ground, forecast, the aim, use-up, Teamwork, flip and piece life
       var c = s.v1;
       v.v1 = { limit: toInt(c.limit), sun: c.sun, bramble: c.bramble, br_foe: c.br_foe, thorn: c.thorn, ev_foe: c.ev_foe, team2: c.team2, team3: c.team3,
-        env: truthy(c.env), envn: toInt(nn(c.envn, 0)), rain: Number(nn(c.rain, 0)), th_foe: Number(nn(c.th_foe, 1)),
+        env: truthy(c.env), envn: toInt(nn(c.envn, 0)), rain: Number(nn(c.rain, 0)), th_foe: Number(nn(c.th_foe, 1)), mud: Number(nn(c.mud, 0)), envcap: Number(nn(c.envcap, 1)),
         ground: truthy(c.ground), events: truthy(c.events), aim: truthy(c.aim), flip: truthy(c.flip), life: truthy(c.life), edges: truthy(c.edges) };
       v.round = toInt(s.round);
       v.ter = clone(nn(s.ter, {}));
       v.envs = nn(s.envs, []).map(function (e) { var o = clone(e), q = pieceAt(s, e.x, e.y); o.n = PFB_EVENT_NAME[e.kind]; o.on = q && q.by !== 'none' ? { id: q.id, by: q.by, n: q.tile.n } : null; return o; });
       v.envlog = clone(nn(s.envlog, []));
-      if (truthy(c.env)) { var nx = nn(s.env.next, null); v.env = { next: nx ? { k: nx.k, n: nx.n, kind: nx.env, life: toInt(nx.life), e: edges(nx) } : null, deck: s.env.draw.length, used: s.env.discard.length, n: toInt(c.envn) }; }   // 2.6.75
+      if (truthy(c.env)) v.env = { next: s.env.next.map(function (nx) { return { k: nx.k, n: nx.n, kind: nx.env, life: toInt(nx.life), e: edges(nx) }; }), deck: s.env.draw.length, used: s.env.discard.length, n: toInt(c.envn) };   // 2.6.75: next is a list
       v.aim = clone(nn(s.foe.plan, null));
       v.reaim = truthy(s.reaim);
       v.flip = { on: truthy(c.flip), used: toInt(nn(s.me.flipt, 0)) === toInt(s.turn) };

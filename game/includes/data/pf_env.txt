@@ -1,6 +1,6 @@
 # Puzzle combat: the ENVIRONMENT'S pieces and decks (2.6.75, v1 board rules). Read by pfb_env_table() in pfboard.php; the JS port (tools/pfengine.js, PFB_ENV) carries a copy.
 # Linted by tests/pfboard_v1.php (and the JS copy by tests/pfengine_js.sh).
-# The environment is a third player: after the creature's turn it places ONE piece from its deck (shuffled; the discard is shuffled back in when the deck runs out). Its next piece is shown a round ahead.
+# The environment is a third player: after the creature's turn it places TWO pieces from its deck (shuffled; the discard is shuffled back in when the deck runs out). Its next pieces lie face up a round ahead.
 #
 # key|name|kind|edges L,R,T,B|life|copies small/medium/large/boss|blurb
 #   kind: sun bramble rain wind mud thorn.
@@ -11,8 +11,8 @@ sun|Sun|sun|hb,km,kc,hc|2|2/2/2/2|Fire it in your chain: your pieces in that cha
 bramble|Bramble|bramble|hm,kc,kb,hb|3|1/2/2/3|Fire it in your chain: the other side loses a tenth of its health.
 rain|Rain|rain|hc,kb,km,hm|2|2/2/2/2|Fire it in your chain: you get guard.
 wind|Wind|wind|hb,kc,hm,km|2|1/1/1/1|Fire it in your chain: the piece its arrow points at slides one cell.
-mud|Mud|mud|f,f,f,f|3|1/1/1/1|Nothing links to it. Chains stop here.
-thorn|Thornburst|thorn|hm,kb,hc,kc|3|1/2/2/2|Whoever fires it in a chain loses a tenth of their health.
+mud|Mud|mud|f,f,f,f|3|1/1/1/1|Nothing links to it, and a piece next to it counts a quarter less.
+thorn|Thornburst|thorn|hm,kb,hc,kc|3|1/2/2/2|Fire it in your chain and you lose a tenth of your health. The creature loses half as much.
 
 # Regions lean: =REGION CODE|kind+N or kind-N, ...  (copies more or fewer of every piece of that kind; never below 0)
 =NA|wind+1
