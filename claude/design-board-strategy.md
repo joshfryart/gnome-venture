@@ -475,3 +475,8 @@ Bots, not people. Default gnome deck with made-up sources (no real pal, tool or 
 4. The environment takes about 25% of the creature's health for free. Should events hit creature pieces at half strength, or is that the point?
 5. Teamwork needs a deck built for it to show up once in three fights. Enough, or should 2 of the 3 sources give a smaller bonus?
 6. Bosses under level are easy for a planner (99% at 8 under). Raise `PFB_BOSS_MULT` in the retune?
+
+## DECIDED by Josh 2026-11-12 (field size)
+- Field (board) size is SET BY CREATURE SIZE: small foe = smallest board, boss = the MAXIMUM board. Today every fight uses 7x5 (`PFB_W`, `PFB_H` in `pfboard.php`). Proposal to sim: small 5x4, medium 5x5, large 7x5, boss 7x5 or 7x6 (the max). Ground cells, events and creature mult must be re-tuned per size.
+- "Constrain playing": Josh has no preference; Claude picks. Default: the field size is the constraint (smaller board = tighter reach); add no extra rule unless the sim shows stalling.
+- Sim 2 open questions (ground distance, events rework, fight length, event damage on creatures, Teamwork rate) NOT yet answered by Josh.
