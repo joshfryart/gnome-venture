@@ -480,3 +480,11 @@ Bots, not people. Default gnome deck with made-up sources (no real pal, tool or 
 - Field (board) size is SET BY CREATURE SIZE: small foe = smallest board, boss = the MAXIMUM board. Today every fight uses 7x5 (`PFB_W`, `PFB_H` in `pfboard.php`). Proposal to sim: small 5x4, medium 5x5, large 7x5, boss 7x5 or 7x6 (the max). Ground cells, events and creature mult must be re-tuned per size.
 - "Constrain playing": Josh has no preference; Claude picks. Default: the field size is the constraint (smaller board = tighter reach); add no extra rule unless the sim shows stalling.
 - Sim 2 open questions (ground distance, events rework, fight length, event damage on creatures, Teamwork rate) NOT yet answered by Josh.
+
+## DECIDED by Josh 2026-11-12 (sim 2 questions QA1-QA5)
+1. Ground cells stay 1-2 steps from the centre.
+2. Events REWORKED: forecast a round ahead; they move or spawn ground (new sunny/bramble, push a piece) so they force a decision.
+3. Fight length target 6-8 turns (small stay 4-5); lower creature mult / rely on ground and events.
+4. Event damage on CREATURES halved (player event damage unchanged).
+5. Teamwork: any 2 of 3 sources (pal/tool/crop) in one chain = +30%; all 3 = +60%.
+Combined with: field size by creature size; use-up limit 3 both sides; aim shown, no fumble; creature mult starts x1.3. Next: sim 3 with all of these (per-size boards), then build in flagged steps.
