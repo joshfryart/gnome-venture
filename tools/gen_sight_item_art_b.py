@@ -216,7 +216,7 @@ def d_teeny_axe(cv, rnd):
     for (lx, ly, c) in ((7, -19, INK), (7, -18, INK), (12, -20, INK), (12, -19, INK)):
         x, y = rot([(lx, ly)], fr)[0]; cv.put(int(x), int(y), c)
     for lx in range(7, 13):
-        ly = -15.5 + .12 * (lx - 9.5) ** 2
+        ly = -13.6 - .22 * (lx - 9.5) ** 2
         x, y = rot([(lx, ly)], fr)[0]; cv.put(int(x), int(y), INK)
     for (lx, ly) in ((5, -16), (14, -17)):
         x, y = rot([(lx, ly)], fr)[0]; cv.put(int(x), int(y), R["petal"][1])
@@ -234,25 +234,30 @@ def d_mudskipper_medal(cv, rnd):
         return (M[1] if lx < 2 else M[2]) if (int(lx) // 3) % 2 == 0 else (L[1] if lx < 4 else L[2])
     lpoly(cv, [(0, 0), (11, 0), (11, 26), (0, 26)], (17, 6, -22), strap)
     lpoly(cv, [(0, 0), (11, 0), (11, 26), (0, 26)], (37, 2, 22), strap)
+    for y in range(0, 6):
+        for x in range(S): clear(cv, x, y)
     rect(cv, 17, 6, 47, 11, R["gold"][2]); rect(cv, 17, 6, 47, 8, R["gold"][1]); rect(cv, 17, 10, 47, 11, R["gold"][3])
     for x in (17, 46): cv.put(x, 7, R["gold"][0])
     # bronze medal
     B = BRONZE
     lump(cv, 32, 39, 15.5, 15.5, B, rnd, 0)
     ilump(cv, 32, 39, 12, 12, B)
-    lump(cv, 32, 39, 10.5, 10.5, [B[1], B[1], B[2], B[2], B[3]], rnd, 0)
-    # embossed mudskipper: body, tail, popped-up eyes
-    for x in range(24, 41):
-        u = (x - 24) / 16
-        hh = 3.2 * math.sin(math.pi * min(1, u * 1.15)) if u < .87 else 0
-        for y in range(int(41 - hh), int(41 + hh * .7) + 1):
-            cv.put(x, y, B[0] if y <= 41 - hh + 1 else B[1])
-        if hh: cv.put(x, int(41 + hh * .7) + 1, B[4])
-    poly(cv, [(38, 41), (43, 37), (43, 45)], B[0]); cv.put(43, 45, B[4]); cv.put(42, 44, B[3])
-    for ex in (26, 29):
-        ell(cv, ex, 36, 1.6, 1.6, B[0]); cv.put(ex, 36, INK)
-    cv.put(25, 42, INK); cv.put(26, 42, INK)                                                # grin
-    for (x, y) in ((28, 46), (31, 47), (34, 46)): cv.put(x, y, B[0])                       # fins
+    lump(cv, 32, 39, 10.5, 10.5, [B[2], B[2], B[2], B[3], B[3]], rnd, 0)
+    # embossed mudskipper: a raised fish with a sunken rim, popped-up eyes, spiky back fin
+    fish = Cv(S, S)
+    ell(fish, 30, 42, 8, 3.3, 1 and B[0]); ell(fish, 25, 41, 4, 3.6, B[0])
+    poly(fish, [(36, 42), (42, 37), (41, 42), (42, 47)], B[0])
+    for x in range(28, 37, 3): poly(fish, [(x, 39), (x + 1, 36), (x + 3, 39)], B[0])
+    ell(fish, 24, 37, 1.8, 1.8, B[0]); ell(fish, 28, 37, 1.8, 1.8, B[0])
+    fp = fish.im.load()
+    for y in range(S):
+        for x in range(S):
+            if fp[x, y][3]:
+                cv.put(x, y, B[0] if not fp[x, y - 1][3] or not fp[x - 1, y][3] else B[1])
+            elif any(fp[x + dx, y + dy][3] for dx, dy in ((-1, 0), (0, -1), (-1, -1))): cv.put(x, y, B[4])
+    cv.put(24, 37, INK); cv.put(28, 37, INK)
+    cv.put(21, 43, B[3]); cv.put(22, 43, B[3]); cv.put(23, 43, B[3])                         # grin
+    for (x, y) in ((29, 45), (30, 46), (33, 45)): cv.put(x, y, B[2])                       # fins
     def post(cv): star(cv, 49, 28, CREAM)
     return dict(post=post)
 
@@ -278,9 +283,10 @@ def d_willow_withies(cv, rnd):
     # twine binding round the middle
     S_ = R["sand"]
     cx, cy = bez(A, Bz, C, .52)
+    G = R["gold"]
     for j in range(3):
-        lpoly(cv, [(-1, -11), (1, -11), (1, 11), (-1, 11)], (cx - 3 + j * 3, cy + 3 - j * 3 + 1, 42),
-              lambda lx, ly: S_[1] if lx < 0 else S_[3])
+        lpoly(cv, [(-1.1, -12), (1.1, -12), (1.1, 12), (-1.1, 12)], (cx - 3.5 + j * 3.2, cy + 4.5 - j * 3.2, 42),
+              lambda lx, ly: (G[0] if ly < -4 else G[1] if ly < 4 else G[2]) if lx < .1 else G[3])
     # a few narrow willow leaves near the tips
     Lf = R["leaf"]
     for (x, y, a) in ((48, 10, -30), (54, 17, 20), (45, 16, -60)):
@@ -398,13 +404,18 @@ def d_pine_snow_cone(cv, rnd):
             cv.put(x, y, base[1 if u < .35 else 2 if u < .7 else 3])
     for x in range(18, 47): cv.put(x, 38, CREAMR[0]); cv.put(x, 39, CREAMR[3])
     # pine cone scoop
-    L = R["litter"]
-    lump(cv, 32, 30, 14, 11, L, rnd, 0)
-    for row, yy in enumerate(range(22, 40, 4)):
-        for xx in range(18 + (row % 2) * 3, 48, 6):
-            if not cv.get(xx, yy)[3] or yy > 37: continue
-            for dx in range(-2, 3): cv.put(xx + dx, yy + 1, L[4] if abs(dx) < 2 else L[3])
-            cv.put(xx - 1, yy - 1, L[0]); cv.put(xx, yy - 1, L[0]); cv.put(xx, yy, L[1])
+    L = R["wood"]
+    lump(cv, 32, 30, 14, 11, [L[2], L[3], L[3], L[4], L[4]], rnd, 0)
+    for row, yy in enumerate((22, 25, 28, 31, 34, 37)):                                   # shingled scales
+        for xx in range(16 + (row % 2) * 3, 50, 6):
+            nx, ny = (xx - 32) / 14.5, (yy - 30) / 11.5
+            if nx * nx + ny * ny > .95: continue
+            lit = (xx - 32) / 14 * .5 + (yy - 30) / 11 * .5
+            b0 = 0 if lit < -.35 else 1 if lit < .1 else 2
+            poly(cv, [(xx - 2.6, yy - 2), (xx + 2.6, yy - 2), (xx + 2.4, yy + 1), (xx, yy + 3), (xx - 2.4, yy + 1)], L[b0 + 1])
+            cv.put(xx - 1, yy - 1, L[b0]); cv.put(xx, yy - 1, L[b0])
+            for dx in (-2, -1, 1, 2): cv.put(xx + dx, yy + 2 - abs(dx) // 2 + (0 if abs(dx) == 2 else 0), L[4])
+            cv.put(xx, yy + 3, L[4])
     # snow cap
     Sn = R["snow"]
     lump(cv, 31, 18, 13, 7, Sn, rnd, 0)
@@ -424,11 +435,10 @@ def d_pine_snow_cone(cv, rnd):
 def d_pocket_whistle(cv, rnd):
     D = R["dusk"]; G = R["gold"]
     # ribbon tail first (behind)
-    pts = [bez((44, 42), (58, 46), (48, 56), t / 40) for t in range(41)]
-    for x, y in pts:
-        xi, yi = int(round(x)), int(round(y))
-        for dy in range(3): cv.put(xi, yi + dy, D[1] if dy == 0 else D[2] if dy == 1 else D[3])
-    poly(cv, [(46, 54), (51, 55), (49, 58), (44, 58)], D[2]); cv.put(46, 56, D[3])
+    lpoly(cv, [(0, -2.5), (13, -2.5), (16, -2.5), (13.5, 0), (16, 2.5), (0, 2.5)], (45, 44, 50),
+          lambda lx, ly: D[1] if ly < -1 else D[2] if ly < 1.2 else D[3])
+    lpoly(cv, [(0, -2.2), (11, -2.2), (13, -2.2), (11, 0), (13, 2.2), (0, 2.2)], (47, 42, 18),
+          lambda lx, ly: R["petal"][1] if ly < 0 else R["petal"][2])
     # mouthpiece + barrel
     for x in range(9, 44):
         for y in range(25, 36):
@@ -438,8 +448,10 @@ def d_pocket_whistle(cv, rnd):
             cv.put(x, y, D[min(4, t + fold)])
     # round chamber
     lump(cv, 40, 38, 11, 11, D, rnd, 0)
-    for k in range(0, 360, 45):                                                             # folded ribbon creases
-        a = math.radians(k); cv.put(int(40 + 7 * math.cos(a)), int(38 + 7 * math.sin(a)), D[3])
+    for y in range(27, 50):                                                                # folded ribbon creases
+        for x in range(29, 52):
+            c = cv.get(x, y)
+            if c in D and ((x + y // 2) // 4) % 2: cv.put(x, y, D[min(4, D.index(c) + 1)])
     ilump(cv, 40, 38, 3.5, 3.5, D)
     # brass rings
     for x0 in (19, 31):
@@ -583,16 +595,17 @@ def d_barnacle_giggle(cv, rnd):
             line(cv, cx + fx * bw / 2, by - 1, cx + fx * tw / 2, ty + 2, C[3] if fx < .3 else C[4])
             line(cv, cx + fx * bw / 2 - 1, by - 2, cx + fx * tw / 2 - 1, ty + 3, C[1] if fx < .3 else C[2])
         ell(cv, cx, ty + 1, tw / 2 - 1.5, 1.6, R["dusk"][3]); cv.put(int(cx - tw / 2 + 2), ty, C[0])
+        if tw > 8: poly(cv, [(cx - 4, ty + 2), (cx, ty - 1), (cx, ty + 2)], C[1]); poly(cv, [(cx + 1, ty + 2), (cx + 1, ty - 1), (cx + 4, ty + 2)], C[2])
         return ty
     cone(14, 49, 12, 6, 9, 3); cone(50, 50, 11, 5, 8, 3)
-    ty = cone(32, 49, 26, 12, 26, 5)
+    ty = cone(32, 49, 30, 16, 21, 6)
     def post(cv):
         P = R["petal"]                                                                     # feathery cirri waving out
-        for (pts) in (((31, 23), (29, 20), (27, 18), (27, 16)), ((33, 23), (34, 19), (36, 17), (38, 17)), ((32, 23), (32, 19), (31, 16))):
+        for (pts) in (((30, 26), (28, 23), (26, 21), (26, 19)), ((34, 26), (35, 22), (37, 20), (39, 20)), ((32, 26), (32, 22), (31, 19))):
             for i, (x, y) in enumerate(pts): cv.put(x, y, P[1] if i < 2 else P[0])
-        for (x0, y0, dx, dy) in ((22, 22, -1, -1), (19, 27, -2, 0), (42, 22, 1, -1), (45, 27, 2, 0), (32, 11, 0, -1)):   # giggle clicks
+        for (x0, y0, dx, dy) in ((21, 24, -1, -1), (16, 30, -1, 0), (43, 24, 1, -1), (48, 30, 1, 0), (32, 15, 0, -1)):   # giggle clicks
             for k in range(3): cv.put(x0 + dx * k, y0 + dy * k, INK)
-        for (x, y) in ((13, 18), (15, 20), (17, 18)): cv.put(x, y, R["dusk"][2])
+        pass
     return dict(post=post, shadow=(32, 56, 22, 2))
 
 
@@ -689,12 +702,19 @@ def d_cactus_bloom(cv, rnd):
             if cv.get(x - 1, y)[3]: cv.put(x - 1, y, M[1] if x0 < 35 else M[2])
     # bloom
     P = R["petal"]
-    for i in range(8):
-        a = math.radians(i * 45 + 10); px, py = 32 + 9 * math.cos(a), 25 + 7.5 * math.sin(a)
-        lump(cv, px, py, 6, 5, P, rnd, 0)
-    for i in range(6):
-        a = math.radians(i * 60 + 35); px, py = 32 + 5 * math.cos(a), 24 + 4 * math.sin(a)
-        lump(cv, px, py, 4, 3.5, [P[0], P[0], P[1], P[1], P[2]], rnd, 0)
+    def petal(L_, Pc):
+        def f(lx, ly):
+            if ly > 3: return Pc[3]
+            u = lx / L_
+            return Pc[0] if (u > .55 and ly < .5) else Pc[1] if ly < .8 else Pc[2]
+        return f
+    angs = sorted(range(9), key=lambda i: math.sin(math.radians(i * 40 - 80)))
+    for i in angs:
+        a_ = i * 40 - 80
+        lpoly(cv, [(0, -3), (6, -5), (10, -4), (12.5, -1.5), (13, 0), (12.5, 1.5), (10, 4), (6, 5), (0, 3)], (32, 25, a_), petal(13, P))
+    for i in range(7):
+        a_ = i * 51 - 60
+        lpoly(cv, [(0, -2.5), (4, -3), (8, 0), (4, 3), (0, 2.5)], (32, 25, a_), petal(8, [P[0], P[0], P[1], P[2], P[3]]))
     G = R["gold"]
     lump(cv, 32, 25, 3.2, 3, G, rnd, 0)
     for (x, y) in ((29, 21), (32, 20), (35, 21), (30, 22), (34, 22)): cv.put(x, y, G[1])
