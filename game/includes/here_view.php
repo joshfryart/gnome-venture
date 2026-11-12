@@ -625,6 +625,16 @@ function here_quest_ready(array $u, array $node, array $n): bool
         require_once __DIR__ . '/town_social.php';
         $npc = q_one('SELECT * FROM npcs WHERE id = ?', [(int)$n['id']]);
         if (!$npc) return false;
+        if (setting('orders_on') === '1') {   // the town Orders board replaced the weekly favours: a "!" means a real order on the board that you can fill now (the old favour crops no longer count)
+            static $boards = [];
+            $town = (string)($node['region'] ?? '');
+            $boards[$town] ??= orders_board($town);
+            foreach ($boards[$town] as $b) {
+                if ((int)$b['npc']['id'] !== (int)$npc['id']) continue;
+                return !order_done($uid, (int)$npc['id'], $b['o']['cycle']) && !empty(order_check($uid, $b['o'])['enough']);
+            }
+            return false;
+        }
         $o = favour_offer($uid, $npc, (string)($node['region'] ?? ''));
         return $o && empty($o['done']) && $have((int)$o['item']['id']) >= (int)$o['qty'];
     } catch (Throwable $e) { return false; }

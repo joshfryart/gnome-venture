@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.69
+- **Fix: a ! over a villager with nothing to hand in.** The ! over a villager (Here page) still came from the retired weekly "bring me N crops" favours. With the town Orders board on (the default) those favours are not shown anywhere, so a villager such as Juniper Kettleby got a ! whenever you carried enough of the old favour crop, and neither chatting nor gifting cleared it. With Orders on, a ! now means a real order on the current board that you have not delivered and can fill now; with Orders off the old favour rule is unchanged. Test: `tests/here_bang.php` (fails on 2.6.68, passes now). No DB change.
+
 ## 2.6.68
 - **Trail Sights: the big landmarks on the Trail maps can be used.** All 219 landmark pictures (82 Maplewold, 94 shared land pieces, 43 end pieces) are now places you can DO something. Stand on or next to a landmark: a gold ! shows over it while its Sight is ready, a `🔎 Sights` button opens cards (picture, caption, cost, tool, check, time, quest step) and a Use button sits under the map. A Sight costs 0-2 energy and 10 game minutes (setting `time_sight`), has a cooldown per stretch (5.5 game days by default) and never ends in a fight or KO. Rewards come from the rest-stop reward rules: xp, coins, items, gathering, hints, titles, Almanac pages, private counters, friendship.
 - **Many kinds of Sight:** forage, tool-gated gathering (bucket, rod ...), stat checks and crossings (a slip costs a little energy), pick-one-of-three minigames, sneak / hunt / Puzzle Pal bonuses, true hints (tomorrow's weather, who is away, what lives ahead), win lines with variants, private counters with milestone titles, first-time bonuses.
