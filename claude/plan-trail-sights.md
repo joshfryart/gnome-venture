@@ -40,6 +40,13 @@ Content source: `claude/sights/ideas-*.md` (219 spots, 25 quest lines, all verbs
 - Weakest rows: shared forest-the-glow-moss-grotto, mountain-the-echo-wall, desert-the-mirage-pool; end-wonder-2-forest, end-haven-2-grassland, end-lair-1-mountain; maplewold 311-taprow, 236-beanpoles, 316-starstones.
 - **Next: P2b** (quest task kind `sight` for the 25 quest lines, villager-at-spot, the ~50 missing new items and their art, `fp` to the named villager, fixed vs random hints), then **P3** (marker, tap card, Almanac Sights chapter + `unlock=`), then a release (version bump, changelog, slim zip).
 
+## 0f. P2b + P3 DONE (2026-11-12, source only, NO version bump, not released)
+- **Code:** `includes/trail_sight_extras.php` (names/captions, items seeding, Almanac chapter, quest lines, villagers at Sights, the Trail-page marks/cards/quest box), tables `user_sight_quests`, `trail_sight_first`, `trail_sight_rows`, `trail_sight_uses`. Data: `trail_sight_info.txt` (219 names + captions), `trail_sight_items.txt` (62 new items, no art), `trail_sight_quests.txt` (25 lines, 140 beats), `trail_sight_folk.txt` (161 villager points on 160 Sights; names checked to exist in a fresh install).
+- **UI:** gold ! over a landmark while its Sight is ready; `🔎 Sights` button + pop-up cards (picture, caption, cost, tool, check, time, quest step, Walk there / Use); 📜 Sight quests box on Tasks (jobs.php?t=journey); Almanac chapter "Sights" (219 pages, open on first use).
+- **Tests:** `tests/trail_sights.php` (all 219 Sights on 246 routes, 25 quest lines end to end, folk names resolve, Almanac pages, marks, cards) + `trail_sights_lint.sh` (219 rows, 0 problems incl. quests/folk/info/items). Browser at 412 px: mark, card, quest box checked.
+- **Known limits (see `claude/sights/*-todo.md`):** quest lines are mostly `any` order; item hand-ins, errands, titles, away days, "no roll with them", Pomeroy (hidden until Gourmand on), Keeper Marram / Beaver Foreman (not villagers), 62 items without art (10 decor cannot be placed yet), Sneak bonuses, fixed vs random hints, same-name villagers in other regions may get the friendship (10 Maplewold twins).
+- **Next:** release (bump `APP_VERSION`, CHANGELOG, `tools/check_versions.sh`, slim zip; needs Upgrade database for the 4 new tables), phone check, then item art and the engine bits above.
+
 ## 1. What a "Sight" is
 Every Trail section has 1 landmark sprite (`lm-<slug>`), 41 sections have 2: **665 sections, 706 landmark placements, 219 slugs** (82 hand-drawn Maplewold + 137 shared: 94 land pieces + 43 `end-*`). Each slug becomes a **Sight**: one named thing you can DO when you stand near it. No re-bake needed: position is already in the map data (`objs` rows `[x, y, "lm-<slug>", jit]`).
 
