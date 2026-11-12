@@ -663,7 +663,7 @@ function trail_sight_quests_box(array $u): string
  * Villagers who are out and about at a Sight of this section RIGHT NOW (their row's time of day, season and weather hold, they are not away, the daily roll says yes), to draw on the map
  * beside the landmark: [[x, y, picture url, name, frames]]. One villager per landmark (the first that is here). The same answer the Sights card and trail_sight_do use.
  */
-function trail_sights_folk_on_map(array $u, array $exp, array $sc, array $marks): array
+function trail_sights_folk_on_map(array $u, array $exp, array $sc, array $marks, bool $consume = false): array
 {
     if (!$marks || ($sc['st']['phase'] ?? '') !== 'section') return [];
     $loc = q_one('SELECT * FROM locations WHERE id = ?', [(int)($exp['from_id'] ?? 0)]) ?: [];
@@ -678,14 +678,16 @@ function trail_sights_folk_on_map(array $u, array $exp, array $sc, array $marks)
             $spot = null;   // a free walkable tile beside the landmark (not under its sprite)
             foreach ([[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [2, 0], [-2, 0]] as [$dx, $dy]) { $tx = $m['x'] + $dx; $ty = $m['y'] + $dy; if ($tx === (int)$sc['x'] && $ty === (int)$sc['y']) continue; if (in_array(tm_tile($sc['map'], $tx, $ty), ['.', ',', 'S'], true)) { $spot = [$tx, $ty]; break; } }   // never on the gnome's own tile
             if (!$spot) $spot = [$m['x'], $m['y']];
-            $out[] = [$spot[0], $spot[1], $pic[0], $name, $pic[1]];
+            $anim = false;   // walks in once per game day and place (the page swaps in place after every step: the session remembers they have arrived)
+            if ($consume) { $key = (function_exists('gclock_my_date') ? gclock_my_date() : date('Y-m-d')) . '|' . $m['slug'] . '|' . $name; if (session_status() === PHP_SESSION_ACTIVE && empty($_SESSION['sgfk'][$key])) { $_SESSION['sgfk'][$key] = 1; $anim = true; if (count($_SESSION['sgfk']) > 60) $_SESSION['sgfk'] = array_slice($_SESSION['sgfk'], -30, null, true); } }
+            $out[] = [$spot[0], $spot[1], $pic[0], $name, $pic[1], $pic[2], $pic[3], $anim, $m['slug'], $f['who']];
             break;
         }
     }
     return $out;
 }
 
-/** A named villager's map picture: [url, frames] (a 4-frame sprite sheet shows its first frame), or null. */
+/** A named villager's map picture: [url, frames, kind 's' stop villager | 'n' town NPC, id] (a 4-frame sprite sheet shows its first frame), or null. */
 function trail_sight_folk_pic(string $who): ?array
 {
     try {
@@ -694,11 +696,81 @@ function trail_sight_folk_pic(string $who): ?array
             require_once __DIR__ . '/stop_folk.php';
             $folk = q_one('SELECT * FROM stop_folk WHERE id = ?', [$fid]);
             $rel = $folk ? stop_folk_art($folk, 'sprite') : '';
-            return $rel !== '' ? [url($rel), 4] : null;
+            return $rel !== '' ? [url($rel), 4, 's', $fid] : null;
         }
         [$name] = trail_sight_split_who($who);
         $npc = q_one('SELECT * FROM npcs WHERE name = ? ORDER BY id LIMIT 1', [$name]);
-        if ($npc) { require_once __DIR__ . '/here_view.php'; $sp = here_sprite($npc); if ($sp['src'] !== '') return [$sp['src'], (int)($sp['frames'] ?? 1)]; }
+        if ($npc) { require_once __DIR__ . '/here_view.php'; $sp = here_sprite($npc); if ($sp['src'] !== '') return [$sp['src'], (int)($sp['frames'] ?? 1), 'n', (int)$npc['id']]; }
     } catch (Throwable $e) {}
     return null;
+}
+
+/** The card of a villager met on the road (the pop-up when you tap them on the map): who they are, how well you know them, Chat and Gift. $e = a trail_sights_folk_on_map entry. */
+function trail_sight_folk_card_html(array $u, array $e): string
+{
+    [, , , $name, , $kind, $id, , $slug, $who] = $e;
+    $uid = (int)$u['id'];
+    $meta = ''; $bio = ''; $lvl = '';
+    try {
+        if ($kind === 's') {
+            require_once __DIR__ . '/stop_folk.php';
+            $f = q_one('SELECT * FROM stop_folk WHERE id = ?', [$id]);
+            if ($f) { $meta = $f['species'] . ' · ' . $f['personality'] . ' · ' . $f['role']; $bio = (string)$f['bio']; $lvl = STOP_FRIEND_LEVELS[stop_friend_level(stop_friend_points($uid, $id))['index']][1] ?? ''; }
+        } else {
+            require_once __DIR__ . '/friends.php';
+            $n = q_one('SELECT * FROM npcs WHERE id = ?', [$id]);
+            if ($n) { $meta = trim(($n['species'] ?? '') . ' · ' . ($n['personality'] ?? ''), ' ·'); $bio = (string)($n['bio'] ?? ''); $lvl = friend_level((int)friendship($uid, $id)['points'])[1] ?? ''; }
+        }
+    } catch (Throwable $ex) {}
+    $key = $kind . $id;
+    $h = '<div class="sgcard sgfolkcard"><div class="sgbody"><h4>' . e($name) . '</h4><p class="muted">' . e($meta) . '</p>' . ($bio !== '' ? '<p class="help">' . e($bio) . '</p>' : '') . ($lvl !== '' ? '<p>💛 ' . e((string)$lvl) . '</p>' : '')
+        . '<p class="help">' . e($name) . ' is out and about by ' . e(trail_sight_label($slug)[0]) . '.</p>'
+        . '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="sightchat"><input type="hidden" name="fk" value="' . e($key) . '"><input type="hidden" name="slug" value="' . e($slug) . '"><button class="btn">💬 Chat</button></form>';
+    $gifts = [];
+    try { $gifts = array_slice(stop_giftable($uid), 0, 40); } catch (Throwable $ex) {}
+    if ($gifts) {
+        $h .= '<form method="post" class="inline sgrow">' . csrf_field() . '<input type="hidden" name="do" value="sightgift"><input type="hidden" name="fk" value="' . e($key) . '"><input type="hidden" name="slug" value="' . e($slug) . '"><select name="item_id" aria-label="Gift">';
+        foreach ($gifts as $g) $h .= '<option value="' . (int)$g['id'] . '">' . e($g['name']) . ' × ' . (int)$g['qty'] . '</option>';
+        $h .= '</select> <button class="btn alt">🎁 Give a present</button></form>';
+    }
+    return $h . '</div></div>';
+}
+
+/** Is the villager $fk ('s12' / 'n3') one who is out and about at a Sight of this section right now? Returns their map entry or null. */
+function trail_sight_folk_entry(array $u, array $exp, array $sc, string $fk): ?array
+{
+    foreach (trail_sights_folk_on_map($u, $exp, $sc, trail_sights_marks($u, $sc)) as $e) if (($e[5] . $e[6]) === $fk) return $e;
+    return null;
+}
+
+/** Chat with / give a present to a villager met on the road. $what = 'chat' | 'gift'. [ok, message]. Same rules as at a rest stop: once a day each, friendship. */
+function trail_sight_folk_talk(array $u, array &$exp, string $what, string $fk, int $itemId = 0): array
+{
+    $sc = trail_scene($exp);
+    if (!$sc || $exp['encounter']) return [false, 'Not now.'];
+    $e = trail_sight_folk_entry($u, $exp, $sc, $fk);
+    if (!$e) return [false, 'They have gone on their way.'];
+    [, , , $name, , $kind, $id] = $e; $uid = (int)$u['id'];
+    require_once __DIR__ . '/stop_folk.php'; require_once __DIR__ . '/friends.php';
+    if ($kind === 's') {
+        $f = q_one('SELECT * FROM stop_folk WHERE id = ?', [$id]); $vloc = $f ? q_one('SELECT * FROM locations WHERE id = ?', [(int)$f['location_id']]) : null;
+        if (!$vloc) return [false, 'They have gone on their way.'];
+        [$ok, $msg] = $what === 'chat' ? stop_chat($u, $vloc, $id) : stop_gift($u, $vloc, $id, $itemId);
+    } else {
+        $npc = q_one('SELECT * FROM npcs WHERE id = ?', [$id]); $today = gclock_my_date();
+        if (!$npc) return [false, 'They have gone on their way.'];
+        if ($what === 'chat') {
+            if (!friend_claim($uid, $id, 'last_talk', $today)) { $ok = true; $msg = '💬 ' . $name . ' has already had a good chat with you today.'; }
+            else { $g = max(1, 3 + (function_exists('eff_mod') ? eff_mod($u, 'charm') : 0)); friend_add($uid, $id, $g); $ok = true; $msg = '💬 You have a good chat with ' . $name . '. (💛 +' . $g . ')'; }
+        } else {
+            $item = q_one("SELECT * FROM items WHERE id = ? AND tradable = 1 AND category NOT IN ('tool', 'broken')", [$itemId]);
+            if (!$item) return [false, 'Pick something to give.'];
+            if (!friend_claim($uid, $id, 'last_gift', $today)) return [false, $name . ' has already had a present from you today.'];
+            if (!give_item($uid, $itemId, -1)) return [false, 'You do not have one of those.'];
+            $pts = in_array($item['category'], ['food', 'flower', 'produce', 'arrangement'], true) ? 4 : 2; friend_add($uid, $id, $pts);
+            $ok = true; $msg = '🎁 ' . $name . ' takes the ' . $item['name'] . ' with a grateful smile. (💛 +' . $pts . ')';
+        }
+    }
+    exp_log($exp, $msg);
+    return [$ok, ''];
 }

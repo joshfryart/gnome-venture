@@ -513,7 +513,8 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     $sightMarks = [];   // v2.6.68 Trail Sights: where a Sight is ready (a gold ! over the landmark)
     $sightAll = function_exists('trail_sights_marks') && !$busy ? trail_sights_marks($u, $sc) : [];
     foreach ($sightAll as $sm) if ($sm['left'] > 0) $sightMarks[$sm['x'] . ',' . $sm['y']] = true;
-    $folkMap = $sightAll && function_exists('trail_sights_folk_on_map') ? trail_sights_folk_on_map($u, $exp, $sc, $sightAll) : [];   // villagers out and about at a Sight now
+    $folkMap = $sightAll && function_exists('trail_sights_folk_on_map') ? trail_sights_folk_on_map($u, $exp, $sc, $sightAll, true) : [];
+    $folkTiles = []; foreach ($folkMap as $fi => $fe) $folkTiles[$fe[0] . ',' . $fe[1]] = $fi;   // tap a villager: their card   // villagers out and about at a Sight now
     $gate = trail_gate($sc);
     $reach = tm_reach($map, $sc['x'], $sc['y'], $gate);
     $open = str_repeat('0', $w * $h);
@@ -576,7 +577,9 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         }
         if ($me) { $cls .= ' here'; $label = 'You are here'; }
         $dis = !$tap;
-        $btn .= '<button type="submit" class="' . $cls . '" name="go" value="' . $x . ',' . $y . '"' . ($dis ? ' disabled' : '') . ($label !== '' ? ' aria-label="' . e($label) . '"' : ($tap ? ' aria-label="Walk here"' : ' tabindex="-1"')) . '></button>';
+        $fpop = isset($folkTiles[$x . ',' . $y]) && !$busy && $phase === 'section' ? ' data-pop="hubpop-tfolk-' . $folkTiles[$x . ',' . $y] . '"' : '';
+        if ($fpop) $dis = false;   // the villager's tile opens their card even when it is not a tile to walk to
+        $btn .= '<button type="submit" class="' . $cls . '" name="go" value="' . $x . ',' . $y . '"' . ($dis ? ' disabled' : '') . $fpop . ($label !== '' ? ' aria-label="' . e($label) . '"' : ($tap ? ' aria-label="Walk here"' : ' tabindex="-1"')) . '></button>';
     }
     $data = ' data-clamp="1" data-tile="' . TM_UNIT . '" data-cols="' . DM_VIEW . '" data-rows="' . DM_VIEW . '" data-x0="' . $win['x0'] . '" data-y0="' . $win['y0'] . '" data-px="' . $sc['x'] . '" data-py="' . $sc['y'] . '" data-mw="' . $w . '" data-mh="' . $h . '" data-open="' . $open . '"';
     if ($walk) $data .= ' data-walk="' . e(implode(';', array_map(fn($p) => $p[0] . ',' . $p[1], $walk['p']))) . '"' . $extData;

@@ -252,6 +252,15 @@ $GLOBALS['gv_sight_folk_file'] = $w('folkmap.txt', "{$base['slug']}|Mabel Pennyw
 $sc['x'] = $spot[0]; $sc['y'] = $spot[1]; $fm = trail_sights_folk_on_map($u, $exp, $sc, $marks);
 ok('a villager who is out and about (condition holds, rolled in) is drawn on the map beside the landmark', count($fm) === 1 && $fm[0][3] === 'Mabel Pennywhistle' && !($fm[0][0] === $sc['x'] && $fm[0][1] === $sc['y']) && max(abs($fm[0][0] - $marks[0]['x']), abs($fm[0][1] - $marks[0]['y'])) <= 2, json_encode($fm));
 ok('the map markup has the villager (tmfolk)', str_contains(trail_view_html($u, $exp, $sc, false), 'class="tmfolk"'));
+$fe0 = $fm[0]; $_SESSION['sgfk'] = [];
+$fm2 = trail_sights_folk_on_map($u, $exp, $sc, $marks, true); $fm3 = trail_sights_folk_on_map($u, $exp, $sc, $marks, true);
+ok('a villager walks in once (the animation flag is set the first time only)', $fm2 && $fm2[0][7] === true && $fm3[0][7] === false, json_encode([$fm2[0][7] ?? null, $fm3[0][7] ?? null]));
+$card = trail_sight_folk_card_html($u, $fe0);
+ok('the villager card names them and offers Chat', str_contains($card, 'Mabel Pennywhistle') && str_contains($card, 'sightchat'), substr($card, 0, 160));
+$fkey = $fe0[5] . $fe0[6]; $fp0 = $fe0[5] === 's' ? stop_friend_points((int)$u['id'], (int)$fe0[6]) : 0;
+[$c1] = trail_sight_folk_talk($u, $exp, 'chat', $fkey); save_exp($exp);
+ok('chat with a villager met on the road works and logs a line', $c1 && str_contains((string)q_val('SELECT log FROM expeditions WHERE id = ?', [$exp['id']]), 'Mabel'));
+ok('a villager who is not here cannot be talked to', !trail_sight_folk_talk($u, $exp, 'chat', 's999999')[0]);
 $GLOBALS['gv_sight_folk_file'] = $w('folkmap2.txt', "{$base['slug']}|Nobody Away|dp=nosuchdaypart|100|x|fp=1\n");
 ok('a villager whose time of day does not hold is not on the map', trail_sights_folk_on_map($u, $exp, $sc, $marks) === []);
 unset($GLOBALS['gv_sight_folk_file']); $sc['x'] = 0; $sc['y'] = 0;
