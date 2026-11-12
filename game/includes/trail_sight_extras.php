@@ -719,24 +719,27 @@ function trail_sights_cards_html(array $u, array $sc, array $marks, ?array $exp 
     return $h !== '' ? $h : '<p class="muted">Nothing to do at the big landmarks of this stretch.</p>';
 }
 
-/** The "📜 Sight quests" box of the Tasks page: lines begun and not finished (with their beats), and a count of finished ones. '' when none. */
-function trail_sight_quests_box(array $u): string
+/** The Sights tab of Journey: one collapsible card per line begun and not finished (first one open), with a progress bar and its beats; $open gets the count. '' when none. */
+function trail_sight_quests_box(array $u, int &$openCount = 0): string
 {
     $mine = trail_sight_quests_of((int)$u['id']);
     if (!$mine) return '';
-    $open = ''; $fin = 0;
+    $h = ''; $fin = 0; $openCount = 0;
     foreach ($mine as [$q, $done, $isDone]) {
         if ($isDone) { $fin++; continue; }
-        $li = '';
+        $li = ''; $tot = max(1, count($q['beats'])); $pct = (int)round(count($done) / $tot * 100);
         foreach ($q['beats'] as $i => $b) {
             $d = in_array($i, $done, true);
             $next = !$d && trail_sight_beat_open($q, $done, $i);
             $where = $b[0] !== '' && $b[0][0] === '@' ? '' : ' <small>(' . e(trail_sight_label($b[0])[0]) . ')</small>';
-            $li .= '<li' . ($d ? ' class="muted"' : '') . '>' . ($d ? '✅ ' : ($next ? '👉 ' : '▫️ ')) . e($b[1]) . ($next ? $where : '') . '</li>';
+            $li .= '<li class="' . ($d ? 'muted ' : '') . ($next ? 'next' : '') . '">' . ($d ? '✅ ' : ($next ? '👉 ' : '▫️ ')) . e($b[1]) . ($next ? $where : '') . '</li>';
         }
-        $open .= '<details class="sgq" open><summary>' . e($q['icon']) . ' <b>' . e($q['title']) . '</b> <small class="muted">' . count($done) . '/' . count($q['beats']) . ' · ' . e(trail_sight_split_who($q['giver'])[0]) . '</small></summary><ul class="qlist">' . $li . '</ul></details>';
+        $h .= '<details class="sgq sgqcard"' . ($openCount === 0 ? ' open' : '') . '><summary><span class="sgqt">' . e($q['icon']) . ' <b>' . e($q['title']) . '</b></span>'
+            . '<small class="muted">' . count($done) . '/' . count($q['beats']) . ' · ' . e(trail_sight_split_who($q['giver'])[0]) . '</small>'
+            . '<span class="sgqbar" aria-hidden="true"><i style="width:' . $pct . '%"></i></span></summary><ul class="qlist">' . $li . '</ul></details>';
+        $openCount++;
     }
-    return '<section class="box qsec"><h3>🔎 Sight quests</h3>' . ($open ?: '<p class="muted">None on the go.</p>') . ($fin ? '<p class="muted">' . $fin . ' finished.</p>' : '') . '</section>';
+    return ($h ?: '<p class="muted">None on the go.</p>') . ($fin ? '<p class="muted">🏁 ' . $fin . ' finished.</p>' : '');
 }
 
 /**
