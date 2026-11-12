@@ -4,45 +4,52 @@
 # ---- Shared land pieces (claude/sights/ideas-shared-land.md). "A Shy villager" -> a real villager of that kind from a region the piece stands in.
 # ---- End pieces (claude/sights/ideas-end-pieces.md). "A Chatty local" -> a real villager of that kind from the destination's region.
 end-haven-1-grassland|Tilly Puddlefoot|dp=dusk|40|Tilly Puddlefoot is walking home from the tearoom and tells you what is on the shelf today.|fp=1,xp=3
-end-haven-1-coast|Alder Barleycorn|dp=dawn|45|Alder Barleycorn is running to open the stall and presses a free cup of mint tea on you.|fp=1,item=mint-tea:1@50
+end-haven-1-grassland|Pomeroy Crumbworth|dp=dusk,day|20|Pomeroy Crumbworth is sniffing the same breeze with his eyes shut, and writes your guess down in his little book.|fp=1,xp=4
+end-haven-1-coast|Alder Barleycorn|dp=dawn|45|Alder Barleycorn is running to open the stall, presses a free cup of mint tea on you, and points out the right alley with it.|nocheck,fp=1,item=mint-tea:1@50
 end-haven-1-island|Posy Oakenpot|dp=night/we=sun,cloud|45|Posy Oakenpot is walking to the kava circle under the stars and tells you a story on the way.|fp=1,xp=3
 end-haven-1-tundra|Ferrin Pennywhistle|we=snow|45|Ferrin Pennywhistle trudges to the sauna through the snow, grumbling, and grumbles you a mug of cocoa.|fp=1,item=hot-cocoa:1@40
+end-haven-1-tundra|Pomeroy Crumbworth|-|25|Pomeroy Crumbworth is waiting by the sauna with a napkin tucked in, hoping somebody will let him taste a sauna bun.|give=sauna-bun:1,fp=2,xp=6,c=10
 end-haven-1-wetland|Bramwick Pennywhistle|dp=dawn|45|Bramwick Pennywhistle poles past on the way to market and waves so hard the boat wobbles.|fp=1,xp=3
 end-haven-2-grassland|Ulric Tumblethorn|dp=day/we=sun|45|Ulric Tumblethorn is napping against the sign post, so you tiptoe past and they mumble thank you.|fp=1,item=cornbread:1@20
-end-haven-2-coast|Sorrel Acorncap|dp=dawn|45|Sorrel Acorncap checks the sign is level with a tiny spirit level. It is, so you get a lemon.|fp=1,item=lemon:1@50
+end-haven-2-coast|Sorrel Acorncap|dp=dawn|45|Sorrel Acorncap holds the sign steady with one hand and a tiny spirit level with the other. It is level, so you get a lemon.|nocheck,fp=1,item=lemon:1@50
 end-haven-2-island|Lyra Fiddlewing|-|30|Lyra Fiddlewing stops on her way to the tavern and plays you a song right there on the path.|fp=1,xp=3
+end-haven-2-island|Tobias Trundle|-|25|Tobias Trundle is resting on the tavern step with a pot of red paint and asks how his signs are looking these days.|fp=1,xp=4
 end-wonder-1-coast|Linden Pennywhistle|dp=night|40|Linden Pennywhistle comes to watch the glimmers and whispers how to catch fireflies in a jar.|fp=1,item=firefly-glow:1@30
-end-wonder-1-desert|Marigold Nettlebed|-|35|Marigold Nettlebed is measuring the reflection with a stick and gets a different answer every time.|fp=1,xp=4
+end-wonder-1-desert|Marigold Nettlebed|-|35|Marigold Nettlebed is measuring the reflection with a stick and would swap a squint along it for a piece of desert glass.|give=desert-glass:1,buff=sense:1:120,fp=1,xp=3
 end-wonder-1-forest|Tansy Oakenpot|se=spring|45|Tansy Oakenpot has a spade far too big for them, so you help carry it and they share the resin they dug.|fp=1,item=pine-resin:2@50
 end-wonder-1-grassland|Wren Thimblewick|se=autumn/dp=dusk|50|Wren Thimblewick is reading the gate's old rubbings and swaps you a seed for holding the paper.|fp=1,seed=1
 end-wonder-1-island|Perrin Hollowell|-|35|Perrin Hollowell, who has solved the maze forty times, says you traced it wrong. You did not, but you nod politely.|fp=1,xp=3
 end-wonder-1-mountain|Dilly Sedgemoor|se=autumn|45|Dilly Sedgemoor comes down from the vines with a basket for helpers and gives you some grapes.|fp=1,item=grape:2@50
 end-wonder-1-rainforest|Juniper Oakenpot|dp=dawn|45|Juniper Oakenpot is sweeping the temple gate, asks you to wipe your feet, then whispers a riddle hint.|fp=1,xp=4
-end-wonder-1-wetland|Marigold Gillyflower|-|35|Marigold Gillyflower is making hats from fallen flamingo feathers and gives you a pretty one.|fp=1,item=pretty-feather:1@40
+end-wonder-1-rainforest|Wren Thimblewick|-|25|Wren Thimblewick is waiting by the temple with a roll of paper and a stub of crayon, and hands you both.|fp=1,item=gate-rubbing:1
+end-wonder-1-wetland|Plume Rosewader|-|35|Plume Rosewader makes hats from fallen flamingo feathers, and three of yours would make one fine plume for your cap.|give=flamingo-feather:3,item=pretty-feather:1,fp=2
 end-wonder-2-coast|Dilly Teaspoon|dp=day/we=sun|45|Dilly Teaspoon is drying off on the rocks after a dive and tells you all the latest gossip.|fp=1,item=seed-pearl:1@10
 end-wonder-2-desert|Juniper Peppercorn|dp=dusk|45|Juniper Peppercorn follows the Oasis wherever it wanders and shares a spoon of date syrup.|fp=1,item=date-syrup:1@40
 end-wonder-2-forest|Fig Oakenpot|dp=day|40|Fig Oakenpot is napping by the path. You do not wake them, and later find a bamboo shoot left for you.|fp=1,item=bamboo-shoot:1@40
+end-wonder-2-forest|Sorrel Inkcap|-|25|Sorrel Inkcap is sitting on a stump with a very quiet notebook, puts a finger to her lips, and tears you out a page.|fp=1,item=hush-page:1
 end-wonder-2-grassland|Orla Cobblefield|-|35|Orla Cobblefield is walking the silk road with a caravan and swaps you a handful of dried figs.|fp=1,item=dried-figs:1@50
-end-wonder-2-island|Juniper Honeycomb|dp=dusk|45|Juniper Honeycomb paddles in at dusk and kindly corrects your star name.|fp=1,xp=8
+end-wonder-2-island|Juniper Honeycomb|dp=dusk|45|Juniper Honeycomb paddles in at dusk, points at the right bit of sky, and kindly lets you say the name first.|nocheck,fp=1,xp=4
 end-wonder-2-mountain|Mabel Burrowby|dp=dawn|45|Mabel Burrowby walks down at dawn with a flask of cold coffee and pours you a cup.|fp=1,item=cold-brew-coffee:1@40
 end-wonder-2-rainforest|Thimble Fiddlewood|we=rain/dp=dawn|45|Thimble Fiddlewood brings fruit to the glade on rainy mornings, and you help carry the basket.|fp=1,item=mango:1@40
 end-wonder-2-wetland|Tuck Bumbleby|dp=day|40|Tuck Bumbleby is waiting for the stork with the post and lets you hold the letter bag.|fp=1,xp=3
-end-delve-1-coast|Fig Windlass|dp=dusk|40|Fig Windlass, a retired smuggler, sits on a barrel and swears the rope is perfectly honest now.|fp=1,item=rope:1@30
+end-delve-1-coast|Gaffer Brineworth|dp=dusk|40|Gaffer Brineworth, a retired smuggler on a barrel, grumbles the tide times at you and swears his rope is perfectly honest now.|nocheck,fp=1,item=rope:1@30
 end-delve-1-desert|Mabel Tumblethorn|dp=dawn|40|Mabel Tumblethorn hums a songline at dawn and teaches you one verse of it.|fp=1,xp=4
-end-delve-1-mountain|Rook Windlass|-|35|Rook Windlass, a proud mountain guide, walks the first ledge with you and points out every good foothold.|fp=1,xp=4
-end-delve-1-rainforest|Tilly Barleycorn|dp=dawn|40|Tilly Barleycorn climbs up at dawn to mend the bridges, and you carry the rope for her.|fp=1,xp=6
+end-delve-1-mountain|Rook Windlass|-|35|Rook Windlass, a proud mountain guide, will walk the first ledge with you for a bit of goat cheese, and points out every good foothold.|give=goat-cheese:1,buff=nimble:1:120,fp=2
+end-delve-1-rainforest|Tilly Barleycorn|dp=dawn|40|Tilly Barleycorn climbs up at dawn to mend the bridges and could really use a coil of rope carried up.|give=rope:1,xp=10,fp=2
+end-delve-1-rainforest|Tumble Waymarsh|-|15|Tumble Waymarsh's voice comes back with your echo, then Tumble himself, covered in moss and grinning.|fp=1,xp=4
 end-delve-2-forest|Ulric Acorncap|dp=dusk|40|Ulric Acorncap comes out of the mine at dusk to sit by your lantern and leaves you a pinch of rock dust.|fp=1,item=rock-dust:1@40
-end-delve-2-wetland|Ulric Bumbleby|-|35|Ulric Bumbleby collects the floated candles at the far side and paddles one back to you.|fp=1,item=beeswax-candles:1@20
-end-delve-2-rainforest|Ferrin Sedgemoor|dp=night|45|Ferrin Sedgemoor is counting fireflies and lets you name one. You name it Ferrin, which they love.|fp=2
+end-delve-2-forest|Burdock Deepdelve|-|20|Burdock Deepdelve is polishing the lantern glass and hands you a spare taper with great ceremony.|fp=1,item=taper:1
+end-delve-2-wetland|Ulric Bumbleby|-|35|Ulric Bumbleby collects the floated candles at the far side and paddles back a wick, saying it is a lucky one.|fp=1,item=lucky-wick:1@40
+end-delve-2-rainforest|Ferrin Sedgemoor|dp=night|45|Ferrin Sedgemoor is counting fireflies, calls one over for your lantern, and lets you name it. You name it Ferrin, which they love.|nocheck,fp=2
 end-delve-2-desert|Juniper Windlass|dp=dusk|45|Juniper Windlass inspects your wick trimming and gives it three flames out of three.|fp=1,c=10
-end-delve-2-island|Dew Dewberry|-|35|Dew Dewberry thanks you for shooing the gulls and gives you two sardines.|fp=1,item=sardine:2@50
-end-lair-1-desert|Linden Thistledown|dp=day|40|Linden Thistledown tells you a very tall tale about the dragon-fly, which gets taller each time.|fp=1,xp=6
-end-lair-1-island|Moss Petalwing|-|35|Moss Petalwing dozes in the shade and swears the lizard once napped right next to him.|fp=1,xp=3
+end-delve-2-island|Netty Shoalbright|-|35|Netty Shoalbright thanks you for shooing the gulls and gives you two sardines for next time.|fp=1,item=sardine:2@50
+end-lair-1-desert|Spurrow Tallstory|dp=day|40|Spurrow Tallstory tells you a very tall tale about the dragon-fly, which gets taller each time.|fp=1,xp=6
+end-lair-1-island|Dozy Driftmoss|-|35|Dozy Driftmoss dozes in the shade and swears the lizard once napped right next to him.|fp=1,xp=3
 end-lair-1-mountain|Orla Wickerby|-|35|Orla Wickerby lost a sock to the wolf and is very cross about it. You find it under a rock.|fp=1,item=wild-honeycomb:1@30
 end-lair-2-coast|Thimble Crumblewick|dp=dusk|40|Thimble Crumblewick, the reef warden, warns you about the jellies, then gives you samphire for courage.|fp=1,item=samphire:1@50
 end-lair-2-desert|Basil Barleycorn|-|35|Basil Barleycorn is measuring the rut too, and you compare notes very seriously.|fp=1,xp=8
-end-lair-2-forest|Tumble Seedwell|dp=night|40|Tumble Seedwell is watching for moths with a lantern and shares the light with you.|fp=1,xp=3
+end-lair-2-forest|Lumen Mothglow|dp=night|40|Lumen Mothglow is watching for moths with a little lantern and shares the light with you.|fp=1,xp=3
 end-lair-2-mountain|Captain Bracken Spurwing|-|15|Captain Bracken Spurwing is checking the circle on his rounds and gives you a free tip: look before you leap.|fp=1,xp=5
 end-lair-2-rainforest|Gorse Oakenpot|dp=dawn|45|Gorse Oakenpot collects loose web threads at dawn and fussily gives you one for helping.|fp=1,item=silk-thread:1@40
 end-lair-2-tundra|Willa Bumbleby|we=snow|45|Willa Bumbleby brings the Frost Toad a blanket on snow days. He is an old friend, she says.|fp=1,xp=3
-end-lair-2-wetland|Fig Gillyflower|dp=dawn|45|Fig Gillyflower waits at low tide to feed the crab, and you help toss in the mussels.|fp=1,c=10
+end-lair-2-wetland|Pip Pinchkin|dp=dawn|45|Pip Pinchkin waits at low tide to feed the crab and would love two blue mussels to toss in.|give=blue-mussels:2,c=25,fp=1

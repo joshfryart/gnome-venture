@@ -1,0 +1,9 @@
+# Items only the end-piece Sights and their quest lines give (claude/sights/ideas-end-pieces.md). slug | Name | category | rarity | base_price | edible | description | effects (optional JSON)
+# Quest tokens (cheap, kept for a quest beat's take=): gate-rubbing (Wren's Gate Rubbings), hush-page (The Book of Hushes), snore-note (A Lullaby for Big Friends).
+gate-rubbing|Gate Rubbing|other|3|1|0|A crayon rubbing of a wonder gate, with one line of an old riddle on it. Wren Thimblewick would love to read it.
+hush-page|Hush Page|other|3|1|0|A page with what a quiet place nearly said, written down very softly. Sorrel Inkcap is binding them into a book.
+snore-note|Snore Note|other|3|1|0|One note of a very large friend's snore, jotted on a scrap of stave. Lyra Fiddlewing needs six for her lullaby.
+lucky-wick|Lucky Wick|supply|10|20|1|A floated candle's wick, paddled back across the maze by a dreamy boat gnome. Light it for a bit of luck.|{"temp":{"luck":1,"minutes":120}}
+scouts-spyglass|Scout's Spyglass|supply|20|80|1|A pocket spyglass of card and a beetle-wing lens, from Captain Spurwing. Good for one very long look.|{"temp":{"sense":2,"minutes":240}}
+book-of-hushes|Book of Hushes|decor|30|260|0|A quiet book of quiet pages, bound in moss-green cloth. It sits on a shelf and somehow makes the room calmer.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"📖","appeal":6,"bonus":""}}
+lullaby-song-sheet|Big Friends Lullaby|decor|25|180|0|Lyra's lullaby for the sleepy giants, framed. Seven notes, seven snores, and one very gentle tune.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🎼","appeal":5,"bonus":""}}

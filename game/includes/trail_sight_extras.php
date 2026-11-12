@@ -391,6 +391,7 @@ function trail_sight_pay(array $u, array $loc, string $rewards, string $who = ''
     foreach (trail_sight_tokens($rewards) as $t) {
         if ($t['cond'] !== '') { $now ??= trail_sight_now($loc, null); if (!trail_sight_cond_ok($t['cond'], $now)) continue; }
         $tok = $t['tok'];
+        if (preg_match('/^(.*)@(\d+)$/', $tok, $cm) && preg_match('/^(fp|fpto|title|page|hint)=/', $tok)) { if (random_int(1, 100) > (int)$cm[2]) continue; $tok = $cm[1]; }   // a chance on one of OUR tokens (the others go to stop_rewards, which rolls its own)
         if (str_starts_with($tok, 'fp=') && $who !== '') $lines[] = trail_sight_befriend($u, $who, max(1, (int)substr($tok, 3)));
         elseif (str_starts_with($tok, 'fpto=')) { [$wn, $wp] = array_pad(explode(':', substr($tok, 5), 2), 2, '1'); $lines[] = trail_sight_befriend($u, $wn, max(1, (int)$wp)); }
         elseif (str_starts_with($tok, 'title=')) { if (trail_sight_give_title((int)$u['id'], substr($tok, 6))) $lines[] = '🏅 Title: ' . substr($tok, 6); }
@@ -424,6 +425,8 @@ function trail_sight_now(array $loc, ?array $sc, ?array $u = null): array
     if ($u && function_exists('trail_pal_urls')) { try { $pal = count(trail_pal_urls($u)); } catch (Throwable $e) {} }
     $now['pal'] = $pal > 0 ? '1' : '0';
     $now['tl'] = $u ? trail_sight_tallies((int)$u['id']) : [];
+    $now['qd'] = [];
+    if ($u) { try { $now['qd'] = array_column(q('SELECT quest FROM user_sight_quests WHERE user_id = ? AND done_at IS NOT NULL', [(int)$u['id']])->fetchAll(), 'quest'); } catch (Throwable $e) {} }
     return $now;
 }
 
@@ -433,7 +436,8 @@ function trail_sight_cond_ok(string $cond, array $now): bool
     if (trim($cond) === '' || trim($cond) === '-') return true;
     foreach (explode('/', $cond) as $part) {
         [$k, $v] = array_pad(explode('=', trim($part), 2), 2, '');
-        if ($k === 'tl') { [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); if ((int)(($now['tl'] ?? [])[$tk] ?? 0) < (int)$tn) return false; continue; }   // tl=<key>:N = a tally is at least N
+        if ($k === 'tl' || $k === 'tn') { [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); $have = (int)(($now['tl'] ?? [])[$tk] ?? 0); if ($k === 'tl' ? $have < (int)$tn : $have !== (int)$tn) return false; continue; }   // tl=<key>:N = a tally is at least N; tn=<key>:N = exactly N (pays once, on the use that reaches it)
+        if ($k === 'qd') { if (!array_intersect(array_map('trim', explode(',', $v)), (array)($now['qd'] ?? []))) return false; continue; }   // qd=<quest slug>[,..] = that Sight quest line is done
         if (!in_array($k, ['dp', 'se', 'we', 'hp', 'st', 'pal'], true) || $v === '') return false;
         if (!in_array((string)($now[$k] ?? ''), array_values(array_filter(array_map('trim', explode(',', $v)))), true)) return false;
     }
@@ -462,7 +466,8 @@ function trail_sight_cond_text(string $cond): string
         [$k, $v] = array_pad(explode('=', trim($part), 2), 2, '');
         if ($k === 'pal') $bits[] = $v === '1' ? 'with a Puzzle Pal along' : 'on your own';
         elseif ($k === 'st') $bits[] = implode(' or ', array_map(fn($x) => $x === 'sneak' ? 'sneaking' : ($x === 'hunt' ? 'hunting' : 'walking normally'), explode(',', $v)));
-        elseif ($k === 'tl') { [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); $bits[] = 'after ' . $tn . ' ' . $tk; }
+        elseif ($k === 'tl' || $k === 'tn') { [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); $bits[] = 'after ' . $tn . ' ' . $tk; }
+        elseif ($k === 'qd') $bits[] = 'once ' . str_replace('-', ' ', $v) . ' is done';
         elseif (isset($w[$k])) $bits[] = $w[$k] . implode(' or ', explode(',', $v));
     }
     return implode(', ', $bits);

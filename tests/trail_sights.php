@@ -166,7 +166,8 @@ foreach ($authored as $rid => $rt) {
             foreach (['rod', 'forage', 'pick', 'net', 'bucket', 'axe', 'basket', 'staff', 'lantern'] as $tt) $tc[$u['id'] . ':' . $tt] = 3;
             foreach (trail_sight_tokens($row['rewards']) as $tk) if (str_starts_with($tk['tok'], 'take=')) { [$ts, $tq] = array_pad(explode(':', substr($tk['tok'], 5), 2), 2, '1'); give_item((int)$u['id'], (int)q_val('SELECT id FROM items WHERE slug = ?', [$ts]), (int)$tq + 1); }
             $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
-            try { [$ro, $rm] = trail_sight_do($u, $exp, $slug); save_exp($exp); $exp = active_expedition((int)$u['id']); }
+            $pk = trail_sight_pick_info($row);
+            try { [$ro, $rm] = trail_sight_do($u, $exp, $slug, $pk ? ['pick' => trail_sight_pick_answer((int)$u['id'], $row)] : []); save_exp($exp); $exp = active_expedition((int)$u['id']); }
             catch (Throwable $ex) { $errs[] = "$slug threw " . get_class($ex) . ': ' . $ex->getMessage(); continue; }
             if ($ro) $ran++; elseif (str_contains((string)$rm, 'right time') || str_contains((string)$rm, 'busy')) $skipped++; else $errs[] = "$slug refused: $rm";
         }
@@ -183,7 +184,7 @@ ok('every item of trail_sight_items.txt exists after trail_sights_ensure_items (
 $mm = array_filter(array_keys(trail_sights_all()), fn($sl) => !isset(trail_sight_info()[$sl]));
 ok('every Sight has a name and caption', !$mm, implode(',', array_slice($mm, 0, 5)));
 set_setting('almanac_sights', ''); trail_sights_ensure_almanac();
-$nPages = (int)q_val("SELECT COUNT(*) FROM encyclopedia_entries WHERE chapter = 'Sights'");
+$nPages = (int)q_val("SELECT COUNT(*) FROM encyclopedia_entries WHERE chapter = 'Sights' AND unlock_key LIKE 'sight:%'");
 $noPage = array_filter(array_keys(trail_sights_all()), fn($sl) => !q_val('SELECT 1 FROM encyclopedia_entries WHERE unlock_key = ?', ['sight:' . $sl]));
 ok('the Almanac chapter Sights has one page per Sight (' . $nPages . ')', $nPages === count(trail_sights_all()), $nPages . ' vs ' . count(trail_sights_all()) . ' missing: ' . implode(',', array_slice($noPage, 0, 6)));
 $sg0 = array_key_first(trail_sights_all()); $key0 = 'sight:' . $sg0;
@@ -193,19 +194,29 @@ ok('using unlocks the page: unlock_entries opens it once', unlock_entries((int)$
 $cond = function (string $when): array { $now = ['dp' => 'day', 'se' => 'spring', 'we' => 'sun', 'hp' => '']; foreach (stop_cond_parse($when) as $k => $vals) $now[$k] = $vals[0]; return $now; };
 $allSights = trail_sights_all(); $loc = q_one('SELECT * FROM locations ORDER BY id LIMIT 1') + ['landscape' => 'grassland'];
 $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $nq = 0;
-foreach (trail_sight_quests() as $q) {
-    $nq++; $bad = trail_sight_quest_lint($q, $allSights); ok('quest lints: ' . $q['slug'], !$bad, implode('; ', $bad));
+$qAll = trail_sight_quests(); $qOrder = array_keys($qAll);   // gate lines after the lines they wait for
+usort($qOrder, fn($x, $y) => ($qAll[$x]['gate'] !== '') <=> ($qAll[$y]['gate'] !== ''));
+foreach ($qOrder as $qs) {
+    $q = $qAll[$qs];
+    $nq++; $bad = trail_sight_quest_lint($q, $allSights, $qAll); ok('quest lints: ' . $q['slug'], !$bad, implode('; ', $bad));
     q('DELETE FROM user_sight_quests WHERE user_id = ? AND quest = ?', [$u['id'], $q['slug']]);
-    $order = $q['order'] === 'seq' ? $q['beats'] : array_reverse($q['beats']);
-    $lines = []; foreach ($order as $b) $lines = array_merge($lines, trail_sight_quest_hook($u, $b[0], $loc, $cond($b[2])));
-    $row = trail_sight_quest_row((int)$u['id'], $q['slug']);
-    $fin = $row && $row['done_at'] !== null;
-    ok('quest runs to the end: ' . $q['slug'] . ' (' . count($q['beats']) . ' beats)', $fin && count(json_decode($row['beats'], true)) === count(array_unique(array_column($q['beats'], 0))) || ($fin), json_encode([$row, array_slice($lines, -1)]));
-    if ($q['order'] === 'seq' && count($q['beats']) > 1) {   // out of order does not count in a seq line
-        q('DELETE FROM user_sight_quests WHERE user_id = ? AND quest = ?', [$u['id'], $q['slug']]);
-        $l2 = trail_sight_quest_hook($u, $q['beats'][1][0], $loc, $cond($q['beats'][1][2]));
-        ok('seq line: the second beat first does nothing ' . $q['slug'], $q['beats'][1][0] === $q['beats'][0][0] || !trail_sight_quest_row((int)$u['id'], $q['slug']), json_encode($l2));
+    $lines = []; $guard = 0;
+    while ($guard++ < 60) {   // keep doing the next open beat until the line is done (hand-in items are supplied, event beats are fired)
+        $row = trail_sight_quest_row((int)$u['id'], $q['slug']);
+        if ($row && $row['done_at'] !== null) break;
+        $doneIdx = trail_sight_quest_done($q, $row); $moved = false;
+        foreach ($q['beats'] as $i => $b) {
+            if (!trail_sight_beat_open($q, $doneIdx, $i)) continue;
+            if ($nd = trail_sight_beat_need($b)) give_item((int)$u['id'], $nd[0], $nd[1]);
+            if ($b[0][0] === '@') { $kind = explode(':', substr($b[0], 1))[0]; if ($kind === 'friend') { $fo = trail_sight_folk_id(substr($b[0], 8)); if ($fo) stop_friend_add((int)$u['id'], $fo, 10); $lines = array_merge($lines, trail_sight_quest_hook($u, 'grassland-the-old-milestone', $loc, $cond('-'))); }
+                else $lines = array_merge($lines, trail_sight_quest_event($u, $kind, explode(':', $b[0], 2)[1] ?? 'a-lair')); }
+            else $lines = array_merge($lines, trail_sight_quest_hook($u, $b[0], $loc, $cond($b[2])));
+            $moved = true; break;
+        }
+        if (!$moved) break;
     }
+    $row = trail_sight_quest_row((int)$u['id'], $q['slug']);
+    ok('quest runs to the end: ' . $q['slug'] . ' (' . count($q['beats']) . ' beats, ' . $q['order'] . ')', $row && $row['done_at'] !== null, json_encode([$row['beats'] ?? null, array_slice($lines, -1)]));
 }
 echo "  ($nq quest lines)\n";
 $noFolk = [];

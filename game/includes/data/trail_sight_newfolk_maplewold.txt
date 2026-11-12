@@ -1,0 +1,6 @@
+# Villagers the Maplewold Sights need that the world did not make (claude/sights/ideas-maplewold.md). Name | species | personality | role | bio | village slug
+# Added to that village's stop villagers (slot 9+). v-na-1-2 Honeybrook, v-na-2-1 Acornby, v-na-3-2 Pebblestead.
+Keeper Marram|Gnome|Warm|Lighthouse keeper|A stout gnome in a knitted cap who keeps the Lighthouse of the Lost Lantern and hums to the lanterns at dusk. Lodges in Pebblestead between shifts.|v-na-3-2
+Mister Plink|Frog|Shy|Well-dweller|The polite something at the bottom of the Honeybrook well. Knocks back when knocked, and lends his singing pebble to gnomes with good manners.|v-na-1-2
+Beaver Foreman|Beaver|Proud|Dam foreman|Runs the Beaverdam crew with a flat tail and a loud slap. Everything is a lumber order, including lunch. Comes up to Acornby to argue about joinery.|v-na-2-1
+Mrs Whorl|Hermit Crab|Fussy|Shell-sorter|Sorts the shell pile on the Lighthouse road with very strong feelings about spirals. Wants a fourth shell. Always wants a fourth shell.|v-na-3-2

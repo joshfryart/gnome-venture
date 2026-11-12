@@ -1,0 +1,8 @@
+# Villagers the shared land Sights need that the world did not make (claude/sights/ideas-shared-land.md). Added to that village's stop villagers (slot 9+), once.
+# Name | species | personality | role | bio | village slug
+Sir Barnaby|Scarecrow|Proud|Scarecrow|The lonely scarecrow of the grass roads, very proud of his hat, and of the crows, who like him. He has come to Hayglen for a sit-down.|v-wca-1-3
+Hazel Fluster|Squirrel|Fussy|Acorn keeper|A squirrel who is nearly always having a very bad day, and who is very grateful to anybody who helps it become a good one.|v-oc-3-2
+Old Marrowby|Tortoise|Generous|Retired trader|Tobias Trundle's old teacher, who left a note saying "back soon" a very long time ago and is now happily retired on a farm past the grass.|v-mena-2-3
+Pinchwell|Crab|Shy|Pen pal|A crab who lives in a hammock and writes very short, very warm letters to anybody who writes back.|v-oc-1-3
+Keeper Loamwick|Mole|Generous|Lighthouse keeper|A mole who keeps the lighthouse lamp, cannot see it very well himself, and knows exactly where the fish are anyway.|v-se-1-1
+Granny Tapewell|Field Mouse|Fussy|Retired seamstress|A grandmother with a tape measure who has kept the daisy ring perfectly round for sixty years, and would like it noticed.|v-esa-1-2

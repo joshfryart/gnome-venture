@@ -11,7 +11,7 @@ require_once __DIR__ . '/trail_sight_extras.php';
 
 const TRAIL_SIGHT_COLS = ['slug', 'verb', 'icon', 'energy', 'cd', 'uses', 'when', 'check', 'rewards', 'win', 'lose', 'tool', 'fail_en'];
 const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather', 'take', 'unlock', 'hint', 'title', 'page', 'nocheck', 'give', 'fpto', 'tally'];
-const TRAIL_SIGHT_COND_RE = '/^((dp|se|we|hp|st|pal)=[a-z0-9,]+|tl=[a-z0-9-]+:\d+)$/';   // a condition part: dp= se= we= hp= (rest-stop words), st= (sneak hunt normal), pal= (1 with a Puzzle Pal along)
+const TRAIL_SIGHT_COND_RE = '/^((dp|se|we|hp|st|pal)=[a-z0-9,]+|(tl|tn)=[a-z0-9-]+:\d+|qd=[a-z0-9,-]+)$/';   // tl = a tally is AT LEAST N, tn = a tally is EXACTLY N (the use that reaches it: pays once), qd = one of these Sight quest lines is done   // a condition part: dp= se= we= hp= (rest-stop words), st= (sneak hunt normal), pal= (1 with a Puzzle Pal along)
 
 /** One data row (an array of strings in TRAIL_SIGHT_COLS order, the last two optional) as a Sight row, or null if it is not one. */
 function trail_sight_row(array $p): ?array
@@ -103,7 +103,8 @@ function trail_sight_lint(array $r, bool $db = true): array
     foreach (trail_sight_tokens($r['rewards']) as $t) {
         $tok = $t['tok'];
         if ($t['cond'] !== '') foreach (explode('/', $t['cond']) as $part) if (!preg_match(TRAIL_SIGHT_COND_RE, trim($part))) $bad[] = 'bad condition "' . $part . '" in ' . $tok;
-        if (str_contains($tok, '@')) { [$tok, $pc] = explode('@', $tok, 2); if (!ctype_digit($pc) || (int)$pc > 100) $bad[] = 'bad chance in ' . $tok; }
+        if (preg_match('/^(.*)@(\d+)$/', $tok, $cm)) { $tok = $cm[1]; if ((int)$cm[2] > 100) $bad[] = 'bad chance in ' . $tok; }   // a trailing @N is a chance (a villager's @village-slug is not)
+        elseif (str_contains($tok, '@') && !str_starts_with($tok, 'fpto=') && !str_starts_with($tok, 'fp=')) $bad[] = 'bad chance in ' . $tok;
         [$k, $v] = array_pad(explode('=', $tok, 2), 2, '');
         if (!in_array($k, TRAIL_SIGHT_REWARD_TOKENS, true)) { $bad[] = 'unknown reward "' . $k . '"'; continue; }
         if ($k === 'gather' && !in_array($v, GATHER_TOOLS, true)) $bad[] = 'gather= needs a tool type';
@@ -256,7 +257,7 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
     $first = false;
     try { $first = !q_val('SELECT 1 FROM trail_sight_first WHERE user_id = ? AND slug = ?', [(int)$u['id'], $slug]); } catch (Throwable $e) { /* table missing: no first-time bonus */ }
     if ($ok) {   // tally=<key> counts this use for the gnome (a private cairn, a collection); conditions tl=<key>:N see the new count
-        foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'tally=')) { trail_sight_tally_add((int)$u['id'], substr($t['tok'], 6)); $now['tl'] = trail_sight_tallies((int)$u['id']); $lines[] = '🪨 ' . substr($t['tok'], 6) . ' ' . $now['tl'][substr($t['tok'], 6)]; }
+        foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'tally=') && ($t['cond'] === '' || trail_sight_cond_ok($t['cond'], $now))) { trail_sight_tally_add((int)$u['id'], substr($t['tok'], 6)); $now['tl'] = trail_sight_tallies((int)$u['id']); $lines[] = '🪨 ' . substr($t['tok'], 6) . ' ' . $now['tl'][substr($t['tok'], 6)]; }
     }
     if ($ok) {
         $plain = [];   // the rest-stop reward grammar for most tokens; gather= runs the gather table; hint= title= page= unlock= are ours; take= is paid below

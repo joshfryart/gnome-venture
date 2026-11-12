@@ -1,0 +1,8 @@
+# Villagers the end-piece designs name that the world did not make (claude/sights/ideas-end-pieces.md). Name | species | personality | role | bio | village slug (a village of the destination's region and land)
+Gaffer Brineworth|Toad|Grumpy|Retired smuggler|Retired smuggler at Spraywell. Sits on a barrel by the sea caves and swears the rope he sells is perfectly honest now.|v-nwe-3-1
+Netty Shoalbright|Frog|Generous|Fisher|Fisher at Atollmead. Feeds half the gulls of the grottoes by accident and the other half on purpose.|v-se-3-1
+Spurrow Tallstory|Gecko|Proud|Lair-watcher|Lair-watcher at Coppergate. Has watched the Jade Dragon-fly for thirty summers and tells it taller every time.|v-ea-4-1
+Dozy Driftmoss|Tortoise|Sleepy|Beachcomber|Beachcomber at Spindriftbottom. Naps in the shade of the palms and swears the Dragonlizard once napped right beside him.|v-sea-3-1
+Lumen Mothglow|Moth|Dreamy|Moth-watcher|Moth-watcher at Leafmead. Sits up at night with a little lantern, hoping the Tiger Moth will come and say hello.|v-csa-3-1
+Pip Pinchkin|Shrew|Eager|Crab-sitter|Crab-sitter at Heronholt. Feeds the Hurricane Crab at low tide, so it stays sleepy instead of grumpy.|v-cb-4-1
+Plume Rosewader|Dragonfly|Cheerful|Feather-crafter|Feather-crafter at Bogmead. Makes hats from the feathers the flamingos drop and gives most of them away.|v-esa-3-1
