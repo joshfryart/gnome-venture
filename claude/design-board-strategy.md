@@ -310,3 +310,11 @@ Bots, not people. Default gnome deck with made-up sources (no real pal, tool or 
 3. Do chains the creature starts use pieces up too (simulated: yes)?
 4. Ground and events barely register with use-up at 3. Keep them as flavour in v1, or make them bite (more cells, pieces on ground are not used up, events that hit the hand or the gnome instead of pieces)?
 5. Teamwork: raise it (for example +50% and the pieces are not used up) so it is worth building for?
+
+## DECIDED by Josh 2026-11-12 (answers to sim questions Q26-Q30)
+- Creature values x1.35 as the difficulty knob (retune after the "bite" change below to keep chain bot ~70%).
+- Aim: show only; NO fumble.
+- Use-up (chain of 3+ spends the fired pieces, limit 3) applies to BOTH sides.
+- Ground + events must BITE (proposed start: sunny x2, bramble 10%, events 10% per piece); re-sim and lower creature mult if needed to keep the 70% / 90% targets.
+- Teamwork: keep 3 sources (pal + tool + crop), bonus raised to +60%. (Triggers rarely, 0.05/fight at +25%; re-check play feel.)
+Next: re-run sim with these settings, then build in steps behind flags.
