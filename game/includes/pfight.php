@@ -15,6 +15,7 @@ const PF_TURN_CAP = 24;
 const PF_GENTLE_HM = 0.8;   // gentle creatures: Hurt counts this much on the bar (Charm counts fully); tuned with tests/pfboard_sim.php
 const PF_HOSTILE_CM = 0.6;  // hostile creatures: Charm counts this much on the charm bar (2.6.63: was 0.4, so charming a hostile creature was only slower and riskier)
 const PF_BAR_K = 1.7, PF_BAR_BOSS = 2.0, PF_BAR_BASE = 5, PF_BAR_SLOPE = 0.4;
+const PF_POISON_CAP = 3;   // 2.6.74: creature poison on you: at most this many ticks waiting (each poison piece adds 2)
 const PF_FOE_DMG = 1.4, PF_FOE_BOSS = 0.78;   // foe tile values scale with its damage die; bosses hit a little softer so a long fight is survivable
 
 /** Effect type -> family of the hole on a tile's left side. Knob (right side) family is set per tile; null = flat/wild. */
@@ -136,7 +137,7 @@ function pf_make_tile(string $key, array $stats, int $bonus = 0, array $over = [
     $stat = max(0, (int)($stats[PF_STAT[$d['t']]] ?? 0));
     $lvl = intdiv(max(1, (int)($stats['level'] ?? 1)), 3);
     $t = ['k' => $key, 'n' => $d['n'], 't' => $d['t'], 'v' => max(1, (int)$d['v'] + $stat + $lvl + $bonus), 'r' => $d['r'], 'tag' => (string)$d['tag'], 'm' => ''];
-    foreach (['src', 'life', 'col', 'up', 'edges'] as $k) if (isset($d[$k])) $t[$k] = $d[$k];   // 2.6.74 (v1 board rules, see pfb_v1_tile): where the piece comes from, its life in rounds, its authored edges. No tile carries them yet
+    foreach (['src', 'life', 'col', 'up', 'edges', 'rank', 'tool'] as $k) if (isset($d[$k])) $t[$k] = $d[$k];   // 2.6.74 (v1 board rules, see pfb_v1_tile): where the piece comes from, its life in rounds, its authored edges. No tile carries them yet
     return $t;
 }
 
@@ -231,6 +232,7 @@ function pf_temper(array $c): string
 /** Archetype from size + temperament: which foe tiles it carries. */
 function pf_foe_deck(array $c): array
 {
+    if (!empty($c['deck']) && is_array($c['deck'])) return array_values($c['deck']);   // 2.6.74 (v1 deck model): the creature row carries its layered deck (pfd_foe_row in pfdeck.php)
     $size = (string)($c['size'] ?? 'small');
     $temper = pf_temper($c);
     $boss = $size === 'boss';
@@ -353,20 +355,29 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
     $other = $who === 'me' ? 'foe' : 'me';
     $mine = &$s[$who]; $theirs = &$s[$other];
     $m = (string)($tile['m'] ?? '');   // the upgrade on this tile, if any
+    $ft = !empty($s['v1']['tags']);   // 2.6.74 (v1 deck model): creature-side tags work (pierce, poison, quick, trip, bash; evade and thorns against your hits; the class trick pieces)
     if ($m === 'finisher' && $who === 'me' && $s['fh']['now'] >= 0.6 * $s['fh']['max']) $val += 3;
     switch ($tile['t']) {
         case 'hurt':
             $dmg = $val;
             if ($who === 'me' && $tile['tag'] === 'bash') { $dmg += $mine['block']; $e['bashed'] = $mine['block']; $mine['block'] = 0; }   // Shield Bash: your guard becomes damage
+            if ($ft && $who === 'foe' && ($tile['tag'] === 'bash' || !empty($mine['bashnext']))) { $dmg += $mine['block']; $e['bashed'] = $mine['block']; if ($tile['tag'] === 'bash') $mine['block'] = 0; $mine['bashnext'] = 0; }   // creature Bash: its guard goes into the hit (a Bash piece spends the guard; a Shoulder Barge before it only lends it)
             if ($who === 'foe') { $cut = min($s['foe']['agg'], $dmg); $s['foe']['agg'] -= $cut; $dmg -= $cut; $e['soothed'] = $cut; }   // Soothe cuts the foe's next Hurt by its value
             if ($who === 'foe') {   // against the player's HP
                 if ($theirs['evade'] > 0) { $theirs['evade']--; $e['evaded'] = $dmg; $dmg = 0; }   // Roll: the first Hurt misses completely
-                $abs = min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;
+                $abs = $ft && $tile['tag'] === 'pierce' ? 0 : min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;   // creature Pierce: ignores your guard
                 if ($abs > 0 && $theirs['thorns']) { $pr = 2 * $s['hm']; $s['fh']['now'] += $pr; $e['pricked'] = round($pr, 1); }   // Thorn Hide: a blocked hit pricks back
                 $theirs['hp'] = max(0, $theirs['hp'] - $dmg);
                 $e['dmg'] = $dmg; $e['blocked'] = $abs;
+                if ($ft) {
+                    if ($tile['tag'] === 'poison') { $theirs['poison'] = min(PF_POISON_CAP, (int)($theirs['poison'] ?? 0) + 2); $theirs['poison_v'] = max((int)($theirs['poison_v'] ?? 0), max(1, (int)ceil($val / 3))); $e['poisoned'] = $theirs['poison']; }   // 2 ticks on your health, at most PF_POISON_CAP waiting
+                    if ($tile['tag'] === 'trip') { $theirs['slowdraw'] = 1; $e['tripped'] = 1; }   // you draw one piece fewer next round (once a round however many trips land)
+                    if ($root && $tile['tag'] === 'quick') $s['foe']['again'] = 1;   // the creature puts down one more piece this turn (once a turn)
+                }
             } else {   // against the foe's bar, through its guard (Pierce ignores the guard)
+                if ($ft && $theirs['evade'] > 0) { $theirs['evade']--; $e['evaded'] = $dmg; $dmg = 0; }   // the creature's Evade: your first Hurt misses
                 $abs = $tile['tag'] === 'pierce' ? 0 : min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;
+                if ($ft && $abs > 0 && $theirs['thorns']) { $pr = max(2, (int)round(0.04 * $mine['max'])); $mine['hp'] = max(0, $mine['hp'] - $pr); $e['pricked'] = $pr; }   // the creature's Thorns: a blocked hit pricks you
                 $add = $dmg * $s['hm'];
                 $s['fh']['now'] += $add;
                 $e['dmg'] = $dmg; $e['blocked'] = $abs; $e['fh'] = round($add, 1);
@@ -411,6 +422,15 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
             if ($who === 'me') $s['foe']['agg'] += $val;   // pool that blunts the foe's next Hurt(s) this turn
             break;
         case 'trick':   // setup: it pays through Ambush and Bait; Pluck also tries to lift an item
+            if ($ft && $who === 'foe') {   // the creature's class tricks
+                if ($root && $tile['tag'] === 'quick') $s['foe']['again'] = 1;
+                if ($tile['tag'] === 'evade') $mine['evade'] = 1;
+                if ($tile['tag'] === 'bash') $mine['bashnext'] = 1;
+                if ($tile['tag'] === 'thorns') $mine['thorns'] = true;
+                if ($tile['tag'] === 'poison') { $theirs['poison'] = min(PF_POISON_CAP, (int)($theirs['poison'] ?? 0) + 2); $theirs['poison_v'] = max((int)($theirs['poison_v'] ?? 0), max(1, (int)ceil($val / 2))); $e['poisoned'] = $theirs['poison']; }
+                if ($tile['tag'] === 'trip') { $theirs['slowdraw'] = 1; $e['tripped'] = 1; }
+                if ($tile['tag'] === 'heal') $s['fh']['now'] = max(0.0, $s['fh']['now'] - $val);
+            }
             if ($root && $who === 'me' && $tile['tag'] === 'pluck') {
                 if (!$s['can_pluck'] || $s['plucked']) $e['pluck'] = 'none';
                 else {   // a low chance, boosted by Luck; a legendary creature is harder to rob

@@ -20,7 +20,7 @@
   var PF_HAND_CAP = 5, PF_DRAW = 3, PF_CHAIN_MAX = 4, PF_TURN_CAP = 24;
   var PF_GENTLE_HM = 0.8;
   var PF_BAR_K = 1.7, PF_BAR_BOSS = 2.0, PF_BAR_BASE = 5, PF_BAR_SLOPE = 0.4;
-  var PF_FOE_DMG = 1.4, PF_FOE_BOSS = 0.78;
+  var PF_FOE_DMG = 1.4, PF_FOE_BOSS = 0.78, PF_POISON_CAP = 3;
   var PFB_W = 7, PFB_H = 5, PFB_LIFE = 3, PFB_FOE_MIN = 2, PFB_GROUP_MAX = 3;
   var PFB_GROUP_MULT = { 2: 1.0, 3: 2.0 }, PFB_SETASIDE_GUARD = 1.0;
   var PFB_FOE_FIRES = 2, PFB_FOE_FIRE_MULT = 1.15;   // fire budget: a creature piece falls away after this many firings (its placement is the first)
@@ -196,7 +196,7 @@
     var stat = Math.max(0, toInt(nn(stats[PF_STAT[d.t]], 0)));
     var lvl = intdiv(Math.max(1, toInt(nn(stats.level, 1))), 3);
     var t = { k: key, n: d.n, t: d.t, v: Math.max(1, toInt(d.v) + stat + lvl + bonus), r: nn(d.r), tag: String(d.tag), m: '' };
-    ['src', 'life', 'col', 'up', 'edges'].forEach(function (k) { if (d[k] !== undefined && d[k] !== null) t[k] = d[k]; });   // v1 board rules (v1Tile): source, life, authored edges
+    ['src', 'life', 'col', 'up', 'edges', 'rank', 'tool'].forEach(function (k) { if (d[k] !== undefined && d[k] !== null) t[k] = d[k]; });   // v1 board rules (v1Tile): source, life, authored edges
     return t;
   }
 
@@ -269,6 +269,7 @@
   }
 
   function foeDeck(c) {
+    if (Array.isArray(c.deck) && c.deck.length) return clone(c.deck);   // 2.6.74 (v1 deck model): the creature row carries its layered deck
     var size = String(nn(c.size, 'small')), tp = temper(c), boss = size === 'boss';
     var v = Math.max(1, iround(((toInt(nn(c.dmg_die, 4)) + 1) / 2 + toInt(nn(c.dmg_bonus, 0))) * (boss ? PF_FOE_BOSS : PF_FOE_DMG)));
     var mk = function (k, n, t, val, r, tag) { return { k: 'f:' + k, n: n, t: t, v: Math.max(1, val), r: nn(r), tag: tag === undefined ? '' : tag }; };
@@ -375,20 +376,29 @@
     var mine = s[who], theirs = s[other];
     var m = String(nn(tile.m, ''));
     var dmg, abs, add, pr;
+    var ft = !!(s.v1 && truthy(s.v1.tags));   // 2.6.74: creature-side tags work
     if (m === 'finisher' && who === 'me' && s.fh.now >= 0.6 * s.fh.max) val += 3;
     switch (tile.t) {
       case 'hurt':
         dmg = val;
         if (who === 'me' && tile.tag === 'bash') { dmg += mine.block; e.bashed = mine.block; mine.block = 0; }
+        if (ft && who === 'foe' && (tile.tag === 'bash' || truthy(mine.bashnext))) { dmg += mine.block; e.bashed = mine.block; if (tile.tag === 'bash') mine.block = 0; mine.bashnext = 0; }
         if (who === 'foe') { var cut = Math.min(s.foe.agg, dmg); s.foe.agg -= cut; dmg -= cut; e.soothed = cut; }
         if (who === 'foe') {
           if (theirs.evade > 0) { theirs.evade--; e.evaded = dmg; dmg = 0; }
-          abs = Math.min(theirs.block, dmg); theirs.block -= abs; dmg -= abs;
+          abs = ft && tile.tag === 'pierce' ? 0 : Math.min(theirs.block, dmg); theirs.block -= abs; dmg -= abs;
           if (abs > 0 && theirs.thorns) { pr = 2 * s.hm; s.fh.now += pr; e.pricked = round(pr, 1); }
           theirs.hp = Math.max(0, theirs.hp - dmg);
           e.dmg = dmg; e.blocked = abs;
+          if (ft) {
+            if (tile.tag === 'poison') { theirs.poison = Math.min(PF_POISON_CAP, toInt(nn(theirs.poison, 0)) + 2); theirs.poison_v = Math.max(toInt(nn(theirs.poison_v, 0)), Math.max(1, toInt(Math.ceil(val / 3)))); e.poisoned = theirs.poison; }
+            if (tile.tag === 'trip') { theirs.slowdraw = 1; e.tripped = 1; }
+            if (root && tile.tag === 'quick') s.foe.again = 1;
+          }
         } else {
+          if (ft && theirs.evade > 0) { theirs.evade--; e.evaded = dmg; dmg = 0; }
           abs = tile.tag === 'pierce' ? 0 : Math.min(theirs.block, dmg); theirs.block -= abs; dmg -= abs;
+          if (ft && abs > 0 && theirs.thorns) { pr = Math.max(2, iround(0.04 * mine.max)); mine.hp = Math.max(0, mine.hp - pr); e.pricked = pr; }
           add = dmg * s.hm;
           s.fh.now += add;
           e.dmg = dmg; e.blocked = abs; e.fh = round(add, 1);
@@ -433,6 +443,15 @@
         if (who === 'me') s.foe.agg += val;
         break;
       case 'trick':
+        if (ft && who === 'foe') {   // the creature's class tricks
+          if (root && tile.tag === 'quick') s.foe.again = 1;
+          if (tile.tag === 'evade') mine.evade = 1;
+          if (tile.tag === 'bash') mine.bashnext = 1;
+          if (tile.tag === 'thorns') mine.thorns = true;
+          if (tile.tag === 'poison') { theirs.poison = Math.min(PF_POISON_CAP, toInt(nn(theirs.poison, 0)) + 2); theirs.poison_v = Math.max(toInt(nn(theirs.poison_v, 0)), Math.max(1, toInt(Math.ceil(val / 2)))); e.poisoned = theirs.poison; }
+          if (tile.tag === 'trip') { theirs.slowdraw = 1; e.tripped = 1; }
+          if (tile.tag === 'heal') s.fh.now = Math.max(0.0, s.fh.now - val);
+        }
         if (root && who === 'me' && tile.tag === 'pluck') {
           if (!s.can_pluck || truthy(s.plucked)) e.pluck = 'none';
           else {
@@ -481,12 +500,12 @@
   var PFB_SIZE = { small: [5, 4], medium: [5, 5], large: [7, 5], boss: [7, 6] };
   var PFB_GROUND = { small: [2, 2, 1], medium: [3, 2, 1], large: [3, 3, 1], boss: [4, 3, 1] }, PFB_GROUND_DIST = [1, 2];
   var PFB_EVENTS = { small: 1, medium: 2, large: 2, boss: 2 }, PFB_EVENT_KINDS = ['sunbeam', 'creep', 'gust', 'thorn', 'puddle'];
-  var PFB_EVENT_NAME = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst', bramble: 'Bramble' };
+  var PFB_EVENT_NAME = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst', bramble: 'Bramble', poison: 'Poison' };
   var PFB_USEUP = 3, PFB_SUN_MULT = 2.0, PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 1.0, PFB_THORN = 0.10, PFB_EVENT_FOE = 0.5, PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;
   var PFB_TEAM_SRC = ['pal', 'tool', 'crop'], PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'creature'];
   var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
   var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };
-  var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4;
+  var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4, PFB_TOOL_WEAR = 2;
   var PFB_V1_FOE_MULT = { small: 0.72, medium: 0.54, large: 0.56, boss: 0.62 }, PFB_V1_BAR_MULT = { small: 1.12, medium: 1.12, large: 1.12, boss: 0.88 };
   var KIND_GROUND = { sunbeam: 'sun', creep: 'br', puddle: 'mud' }, GROUND_N = { sun: 'nsun', br: 'nbr', mud: 'nmud' };
 
@@ -496,8 +515,8 @@
     var g = PFB_GROUND[size];
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 1, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 1, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: PFB_TEAM2, team3: PFB_TEAM3,
-      edges: 1, flip: 1, life: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size] };
-    var INTS = { w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1 };
+      edges: 1, flip: 1, life: 1, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size] };
+    var INTS = { w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1 };
     over = over || {};
     for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
     if (over.foe_x !== undefined && over.foe_x !== null) cfg.foe = round(cfg.foe * Number(over.foe_x), 4);
@@ -626,6 +645,7 @@
       case 'puddle': return '💧 Puddle: a cell turns to mud' + (e.on ? ', and ' + whose(e.on) + ' no longer links' : '') + '.';
       case 'gust': return e.moved ? '💨 Gust: ' + whose(e.moved) + ' is pushed one cell.' : '💨 Gust: nothing moves.';
       case 'thorn': return '🌵 Thorn burst' + (c !== '' ? c : ': nothing in reach') + '.';
+      case 'poison': return '🧪 The poison works on you' + c + '.';
       default: return '🌿 Bramble pricks' + c + '.';
     }
   }
@@ -863,6 +883,7 @@
     var id = ++s.pid; s.seq++;
     s.pcs[id] = { id: id, by: who, tile: tile, x: x, y: y, born: s.round, seq: s.seq };
     s.cell[x + ',' + y] = id;
+    if (who === 'me' && tile.tool !== undefined && tile.tool !== null) { if (!s.wear) s.wear = {}; s.wear[tile.tool] = toInt(nn(s.wear[tile.tool], 0)) + PFB_TOOL_WEAR; }   // tool wear
     var joints = checkAfter(s, id);
     var ev = fire(s, id);
     if (ev.length) { ev[0].linked = joints; ev[0].snap = snap(s); }
@@ -985,6 +1006,7 @@
       var id = ++s.pid; s.seq++;
       s.pcs[id] = { id: id, by: who, tile: g.pcs[gi].tile, x: x, y: y, born: s.round, seq: s.seq, cm: cm };
       s.cell[x + ',' + y] = id; root = id;
+      var gt = g.pcs[gi].tile; if (who === 'me' && gt.tool !== undefined && gt.tool !== null) { if (!s.wear) s.wear = {}; s.wear[gt.tool] = toInt(nn(s.wear[gt.tool], 0)) + PFB_TOOL_WEAR; }
     }
     s[who].held = null;
     var ev = fire(s, root);
@@ -1035,8 +1057,14 @@
   // ------------------------------------------------------------------ the creature's play
   function score(b, a, who) {
     var barD = (a.bar.now - b.bar.now) + (a.fh.now - b.fh.now), hpD = a.me.hp - b.me.hp;
-    if (who === 'me') return barD + 0.7 * hpD + 0.3 * (a.me.block - b.me.block) - 0.3 * (a.foe.block - b.foe.block) + (truthy(a.over) && (a.over === 'seen_off' || a.over === 'charmed') ? 50 : 0);
-    return -0.8 * barD - hpD + 0.4 * (a.foe.block - b.foe.block) - 0.3 * (a.me.block - b.me.block) + (a.over === 'defeat' ? 50 : 0);
+    var tg = 0.0;
+    if (a.v1 && truthy(a.v1.tags)) {
+      var u = 0.05 * a.me.max, pz = function (z) { return toInt(nn(z.me.poison, 0)) * toInt(nn(z.me.poison_v, 0)); }, I = function (x) { return x === true ? 1 : toInt(nn(x, 0)); };
+      tg = (pz(a) - pz(b)) + u * (1.0 * (I(a.me.slowdraw) - I(b.me.slowdraw)) + 1.5 * (I(a.foe.evade) - I(b.foe.evade)) + 0.6 * (I(a.foe.thorns) - I(b.foe.thorns))
+        + 1.0 * (I(a.foe.bashnext) - I(b.foe.bashnext)) + 1.5 * (I(a.foe.again) - I(b.foe.again)));
+    }
+    if (who === 'me') return -0.7 * tg + barD + 0.7 * hpD + 0.3 * (a.me.block - b.me.block) - 0.3 * (a.foe.block - b.foe.block) + (truthy(a.over) && (a.over === 'seen_off' || a.over === 'charmed') ? 50 : 0);
+    return tg - 0.8 * barD - hpD + 0.4 * (a.foe.block - b.foe.block) - 0.3 * (a.me.block - b.me.block) + (a.over === 'defeat' ? 50 : 0);
   }
 
   /** The best single placement for who: [handIdx, x, y, score] or null. */
@@ -1073,7 +1101,8 @@
       ev.push({ by: 'me', tag: 'poison', k: 'poison', n: 'Poison', t: 'hurt', v: iround(add), fit: false, combo: null, tick: true });
       if (checkEnd(s)) return ev;
     }
-    var n = foeLen(s); s.lastfoe = [];
+    var n = foeLen(s), again = false; s.lastfoe = [];
+    if (s.v1 && truthy(s.v1.tags)) s.foe.again = 0;
     if (s.v1) s.reaim = 0;
     for (var k = 0; k < n && !s.over; k++) {
       var r = null, plan = (s.v1 && truthy(s.v1.aim) && k === 0) ? nn(s.foe.plan, null) : null;
@@ -1085,6 +1114,7 @@
         r = place(s, 'foe', m[0], m[1], m[2]);
       }
       if (r) { ev = ev.concat(r); s.lastfoe.push(s.pid); }
+      if (truthy(s.foe.again)) { if (!again) { again = true; n++; } s.foe.again = 0; }   // a Quick piece: one more piece this turn (once)
     }
     s.foe.agg = 0; s.foe.slow = 0;
     return ev;
@@ -1107,6 +1137,7 @@
     if (v1) {
       s.w = v1.w; s.h = v1.h; delete v1.w; delete v1.h; s.v1 = v1;
       v1Tiles(s, c); seedGround(s); s.envs = []; s.envlog = []; s.reaim = 0; s.me.flipt = 0;
+      if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.me.slowdraw = 0; s.foe.bashnext = 0; s.foe.again = 0; }
     }
     if (opt && truthy(opt.blank)) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see start)
       s.pid = 1; s.seq = 1; var cx = intdiv(pfbW(s), 2), cy = intdiv(pfbH(s), 2);
@@ -1168,11 +1199,21 @@
 
   function endRound(s) {
     if (s.v1) { envTurn(s); if (s.over) return; }   // v1: the terrain turn
+    var slow = 0;
+    if (s.v1 && truthy(s.v1.tags)) {   // creature tags: its poison works on you, a trip costs you one draw
+      if (toInt(s.me.poison) > 0) {
+        var pv = Math.max(1, toInt(s.me.poison_v)); s.me.hp = Math.max(0, s.me.hp - pv); s.me.poison--;
+        s.envlog.push({ k: 'poison', x: null, y: null, me: pv, foe: 0.0 });
+        if (s.me.poison === 0) s.me.poison_v = 0;
+        if (checkEnd(s)) return;
+      }
+      slow = truthy(s.me.slowdraw) ? 1 : 0; s.me.slowdraw = 0;
+    }
     var gone = expire(s);
     draw(s, 'foe', s.foe.hsize);
     s.turn++; s.round++;
     s.me.block = s.me.keep; s.me.keep = 0; s.me.thorns = false; s.me.evade = 0;
-    draw(s, 'me', Math.min(PF_HAND_CAP, s.me.hand.length + PF_DRAW));
+    draw(s, 'me', Math.min(PF_HAND_CAP, s.me.hand.length + PF_DRAW - slow));
     s.gone = nn(s.spent, []).map(function (p) { return goneEntry(s, p, true); }).concat(gone.map(function (p) { return goneEntry(s, p, false); }));
     s.spawn = spawn(s);
     if (s.turn > PF_TURN_CAP) { s.over = s.boss ? 'defeat' : 'stall'; return; }
@@ -1295,8 +1336,11 @@
       v.aim = clone(nn(s.foe.plan, null));
       v.reaim = truthy(s.reaim);
       v.flip = { on: truthy(c.flip), used: toInt(nn(s.me.flipt, 0)) === toInt(s.turn) };
-      v.pcs.forEach(function (q) { var p = s.pcs[q.id], life = lifeOf(s, p); q.life = life; q.left = p.born + life - toInt(s.round); q.src = String(nn(p.tile.src, '')); q.flip = truthy(p.tile.flip); q.ter = ter(s, p.x, p.y); });
-      for (i = 0; i < v.hand.length; i++) { var ht = s.me.hand[i]; v.hand[i].life = toInt(nn(ht.life, PFB_LIFE)); v.hand[i].src = String(nn(ht.src, '')); v.hand[i].flip = truthy(ht.flip); v.hand[i].canflip = canFlip(s, i); }
+      if (truthy(c.tags)) v.status = { poison: toInt(s.me.poison), poison_v: toInt(s.me.poison_v), slowdraw: toInt(s.me.slowdraw), evade: toInt(s.me.evade),
+        foe_evade: toInt(s.foe.evade), foe_thorns: truthy(s.foe.thorns), foe_bash: toInt(s.foe.bashnext), foe_slow: toInt(s.foe.slow), foe_poison: toInt(s.foe.poison) };
+      v.wear = clone(nn(s.wear, {}));
+      v.pcs.forEach(function (q) { var p = s.pcs[q.id], life = lifeOf(s, p); q.life = life; q.left = p.born + life - toInt(s.round); q.src = String(nn(p.tile.src, '')); q.flip = truthy(p.tile.flip); q.ter = ter(s, p.x, p.y); q.rank = toInt(nn(p.tile.rank, 0)); q.layer = String(nn(p.tile.layer, '')); });
+      for (i = 0; i < v.hand.length; i++) { var ht = s.me.hand[i]; v.hand[i].life = toInt(nn(ht.life, PFB_LIFE)); v.hand[i].src = String(nn(ht.src, '')); v.hand[i].flip = truthy(ht.flip); v.hand[i].canflip = canFlip(s, i); v.hand[i].rank = toInt(nn(ht.rank, 0)); v.hand[i].tool = String(nn(ht.tool, '')); }
       if (v.held) v.held.pcs.forEach(function (q, gi) { var gt = g.pcs[gi].tile; q.life = toInt(nn(gt.life, PFB_LIFE)); q.src = String(nn(gt.src, '')); q.flip = truthy(gt.flip); });
       v.gone.forEach(function (q, gi) { var u = s.gone[gi].used; if (u !== undefined && u !== null) q.used = u; });
     }
