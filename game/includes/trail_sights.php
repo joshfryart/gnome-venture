@@ -233,7 +233,9 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
     [$left, $why] = trail_sight_state((int)$u['id'], $sc, $row);
     if ($left < 1) return [false, $why ?: 'Not again just yet.'];
     $pick = trail_sight_pick_info($row);
-    if ($pick && (!isset($opt['pick']) || (int)$opt['pick'] < 0 || (int)$opt['pick'] >= $pick[0])) return [false, 'Choose one.'];
+    $folkHere = trail_sight_folk_here($slug, $now, (int)$u['id']);
+    $sure = false; foreach ($folkHere as $fh) if (in_array('nocheck', array_map(fn($t) => $t['tok'], trail_sight_tokens($fh['rewards'])), true)) { $sure = $fh; break; }
+    if ($pick && !$sure && (!isset($opt['pick']) || (int)$opt['pick'] < 0 || (int)$opt['pick'] >= $pick[0])) return [false, 'Choose one.'];   // a villager with nocheck settles a pick too
     if ($row['tool'] !== '-') {   // needs a gathering tool of at least this tier
         require_once __DIR__ . '/gathering.php';
         [$tt, $tier] = explode(':', $row['tool']);
@@ -248,10 +250,8 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
     trail_sights_ensure_items();   // a Sight can hand out an item only Sights give (data/trail_sight_items.txt): make them before the first use
     trail_sights_ensure_newfolk();
     if (!spend_energy((int)$u['id'], $row['energy'], 'sight')) return [false, 'You need ' . $row['energy'] . ' energy for that.'];   // time: setting time_sight (10 game minutes); an energy-free Sight still takes the time
-    $folkHere = trail_sight_folk_here($slug, $now, (int)$u['id']);
-    $sure = false; foreach ($folkHere as $fh) if (in_array('nocheck', array_map(fn($t) => $t['tok'], trail_sight_tokens($fh['rewards'])), true)) { $sure = $fh; break; }
     $ok = true;
-    if ($pick) $ok = (int)$opt['pick'] === trail_sight_pick_answer((int)$u['id'], $row);
+    if ($pick && !$sure) $ok = (int)($opt['pick'] ?? -1) === trail_sight_pick_answer((int)$u['id'], $row);
     elseif ($row['check'] !== '-' && str_contains($row['check'], ':') && !$sure) { [$stat, $dc] = explode(':', $row['check'], 2); [$ok] = stop_check($u, $stat, (int)$dc); }
     $lines = [];
     $first = false;

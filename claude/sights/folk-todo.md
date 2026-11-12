@@ -4,11 +4,8 @@ Status: TODO list (2026-11-12). Rows: `game/includes/data/trail_sight_folk.txt` 
 Every name was checked against a fresh install (stop_folk made for every village + npcs). Generic design villagers ("a Shy local") became a real villager of that personality from a region the Sight stands in. The kind or role is changed where none fits (noted below).
 
 ## Skipped design points (no row)
-- **Pomeroy Crumbworth** (236-haywagon, 311-pancakelane, coast-the-kelp-line, desert-the-salt-flat, rainforest-the-mist-pool, island-the-coconut-grove): he is `active = 0` until the admin turns on `gourmand_open`, and a folk row has no way to check that, so he would turn up while hidden. Needs a `when` word for "Gourmand open" (or the folk code skipping inactive npcs).
-- **306-mosslog**: "Nettle Cobblefield of Mossgate". Two Maplewold villagers have that name (Cloverholt herbalist, Mossgate keeper) and `trail_sight_folk_id()` takes the first by id (Cloverholt), so her friendship would go to the wrong Nettle. 306-mossgate uses Posy Mossgrove (Mossgate pilgrim) instead of her. Needs a `name@village` form in the folk file (or renaming one of the Nettles).
-- **313-beaverdam**: the Beaver Foreman is a creature, not a villager.
-- **314-shellpile**: the sorter is a `hermit-crab-hoarder` creature.
-- **314-lanternrocks**: Keeper Marram (new) is a quest giver only (`trail_sight_quests.txt`), not in npcs / stop_folk.
+- **Pomeroy Crumbworth** (coast-the-kelp-line, desert-the-salt-flat, rainforest-the-mist-pool, island-the-coconut-grove): the folk code now skips him while hidden. Maplewold DONE (2026-11-12: 236-haywagon, 311-pancakelane rows).
+- Maplewold DONE (2026-11-12): 306-mosslog / 306-mossgate Nettle Cobblefield@v-na-2-3; Beaver Foreman (313-beaverdam), Mrs Whorl the hermit-crab sorter (314-shellpile), Keeper Marram (314-lanternrocks) and Mister Plink (232-well) are new villagers in `trail_sight_newfolk_maplewold.txt`. Maplewold errands, swaps and "no roll with them" are `give=` / `nocheck` rows; what is still impossible is in `maplewold-p2-todo.md`.
 - **desert-the-trader-s-tent-poles**: Old Marrowby (after TRADER) does not exist as a villager.
 - **island-the-hammock-palms**: Pinchwell is a crab in a quest letter, not a villager.
 
@@ -45,4 +42,4 @@ Posy Thistledown, Moss Sedgemoor, Basil Teaspoon, Fennel Crumblewick, Hazel Nett
 - Letters: end-wonder-2-wetland letter from a friend villager (`letters.php` hook).
 
 ## New items wished for (none exist; rows use a near item or none)
-white clover (apple), map scrap (308-tidesteps), lantern oil refill (314-lanternrocks), room voucher (307-sandcastle), Root-Race Ribbon, The Clover Ledger, Blue-Stitch Hat Patch, Waterfall Sketch, Dare Pebble, Orchid Cutting (-> `cut-moth-orchid`), Fir Ornament, Flamingo Feather (-> `pretty-feather`), Lucky Wick (-> `beeswax-candles`), rope-cattail (-> `rope`), custard tart slice is real (`custard-tart`).
+(Maplewold: white clover is `white-clover-sprig`, map scrap is paid by Burdock; lantern oil refill and room voucher stay impossible: maplewold-p2-todo.md) Root-Race Ribbon, The Clover Ledger, Blue-Stitch Hat Patch, Waterfall Sketch, Dare Pebble, Orchid Cutting (-> `cut-moth-orchid`), Fir Ornament, Flamingo Feather (-> `pretty-feather`), Lucky Wick (-> `beeswax-candles`), rope-cattail (-> `rope`), custard tart slice is real (`custard-tart`).

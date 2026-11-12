@@ -17,12 +17,12 @@ star-chart|Star Chart|misc|10|10|0|Tonight's sky copied in your own wobbly hand,
 lost-sock|Lost Sock|misc|22|2|0|A stripy sock somebody left on the brambles long ago; it has clearly had adventures.
 grumpys-hedge-shears|Grumpy's Hedge-Shears|misc|20|24|0|A pair of old shears a grumpy gnome gave you after you finally agreed with him.
 tuft-of-fleece|Tuft of Fleece|part|5|5|0|A soft curl of sheep's wool snagged on the wall stones, warm as a nap.
-daisy-chain-crown|Daisy-Chain Crown|misc|18|14|0|A crown of daisies made by somebody's grandmother, who measured it twice.
+daisy-chain-crown|Daisy-Chain Crown|misc|18|14|1|A crown of daisies made by somebody's grandmother, who measured it twice.|{"temp":{"charm":2,"minutes":120}}
 dew-pearl|Dew Pearl|misc|12|12|0|A drop of morning dew that simply refuses to dry, and seems proud of it.
 root-race-ribbon|Root-Race Ribbon|misc|14|10|0|A blue ribbon for crossing the root tangle faster than an eager young villager.
 glow-moss-nightlight|Glow-Moss Nightlight|decor|22|30|0|A cushion of glowing moss in a jar that keeps the dark politely in the corners.|{"decor":{"type":"light","w":1,"h":1,"icon":"🌙","appeal":4,"bonus":""}}
 bookmark-snail|Bookmark Snail|misc|10|3|0|A calm little snail who likes to sit between pages and keep your place.
-fern-drip-hat-charm|Fern-Drip Hat Charm|misc|26|28|0|A curled fern frond for your hat brim that sends the rain politely elsewhere.
+fern-drip-hat-charm|Fern-Drip Hat Charm|misc|26|28|1|A curled fern frond for your hat brim that sends the rain politely elsewhere.|{"temp":{"hardiness":2,"minutes":120}}
 squirrels-spare-key|Squirrel's Spare Key|misc|24|20|0|A tiny key a flustered squirrel trusted you with; nobody knows what it opens.
 toadstool-stool|Toadstool Stool|decor|24|34|0|A spotted toadstool exactly the right height for sitting and thinking.|{"decor":{"type":"seat","w":1,"h":1,"icon":"🍄","appeal":4,"bonus":""}}
 brass-button|Brass Button|misc|8|6|0|A brass button worn smooth by many boots and a few very interested gulls.
@@ -33,7 +33,7 @@ icicle-chime|Icicle Chime|decor|20|30|0|Icicles that never melt, strung on a twi
 bog-pressed-bookmark|Bog-Pressed Bookmark|misc|16|12|0|A flower pressed flat in the peat for a hundred years and still smelling faintly of summer.
 herons-programme-notes|Heron's Programme Notes|misc|12|8|0|A soggy leaflet explaining the heron's performance, act by very still act.
 pine-snow-cone|Pine-Snow Cone|food|8|6|1|A pine cone dusted with snow and a drizzle of resin syrup, crunchy and bright.|{"energy":2}
-pocket-whistle|Pocket Whistle|misc|14|10|0|A stray tune caught in a ribbon and folded into a whistle that hums it back.
+pocket-whistle|Pocket Whistle|misc|14|10|1|A stray tune caught in a ribbon and folded into a whistle that hums it back.|{"temp":{"charm":1,"minutes":120}}
 bottled-rainbow|Bottled Rainbow|decor|26|38|0|A jar of waterfall mist with a small rainbow inside that lights a room in stripes.|{"decor":{"type":"light","w":1,"h":1,"icon":"🌈","appeal":5,"bonus":""}}
 visitors-book-page|Visitors' Book Page|misc|8|4|0|A page from the stone hut's visitors' book, full of silly notes from past guests.
 echo-pebble|Echo Pebble|misc|12|10|0|A smooth pebble that repeats your last toast, a little louder each time.

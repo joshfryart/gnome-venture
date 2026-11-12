@@ -2,6 +2,8 @@
 
 Status: 2026-11-12, source only. Items: `game/includes/data/trail_sight_items.txt` (62 items, made once by `trail_sights_ensure_items()` on the first Sight use or in Admin > Trail sights). Rows: the `rewards` column of 60 rows in `trail_sights_maplewold.txt` (12), `trail_sights_shared.txt` (42), `trail_sights_end.txt` (6). `bash tests/trail_sights_lint.sh`: 0 problems.
 
+**Maplewold DONE (2026-11-12):** effects added to maple-syrup, toffee, marshmallow (short buffs) and glowcap-garden-light, star-chart, message-bottle, snowman-scarf (decor); 9 new Maplewold items in `trail_sight_items_maplewold.txt` (art list: `maplewold-art-todo.md`). Still no use: flour, maple-sap (quest hand-in only), map-scrap, lost-mitten (now a give to Posy), glowcap-repair-kit.
+
 ## Art needed (all 62: there is no art yet, the game shows its placeholder)
 Maplewold: flour, maple-sap, maple-syrup, toffee, marshmallow, message-bottle, map-scrap, snowman-scarf, lost-mitten, glowcap-repair-kit, glowcap-garden-light, star-chart.
 Shared land: lost-sock, grumpys-hedge-shears, tuft-of-fleece, daisy-chain-crown, dew-pearl, root-race-ribbon, glow-moss-nightlight, bookmark-snail, fern-drip-hat-charm, squirrels-spare-key, toadstool-stool, brass-button, teeny-axe, mudskipper-medal, willow-withies, icicle-chime, bog-pressed-bookmark, herons-programme-notes, pine-snow-cone, pocket-whistle, bottled-rainbow, visitors-book-page, echo-pebble, gulls-medal, barnacle-giggle, dream-souvenir, old-river-pebble, mirage-marble, cactus-bloom, marrowbys-wooden-coin, wishing-coin, giant-fern-spores, vine-twine, giants-bark-curl, raindrop-bead, lantern-fruit, soup-mist-jar, cave-echo-shell, bell-shell, beach-ball, lagoon-glass-bead, aurora-ribbon, frost-window-pane, squeaky-ice-chip, stargazers-chalk.
