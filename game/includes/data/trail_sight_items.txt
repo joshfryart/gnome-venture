@@ -1,0 +1,67 @@
+# Items only Trail Sights give (made once when a Sight is first used; an item that exists is never changed). No art needed yet: the game shows its placeholder.
+# slug | Name | category (forage part decor food produce supply other misc flower soil) | rarity 1-30 | base_price | edible 0/1 | description
+# Maplewold
+flour|Flour|produce|4|6|0|A soft little sack of flour from a windmill that was only pretending to be asleep.
+maple-sap|Maple Sap|produce|5|5|0|Thin, clear and faintly sweet; the maple gave it up with a polite drip.
+maple-syrup|Maple Syrup|food|10|18|1|A small jar of amber syrup that makes any breakfast feel like a holiday.|{"temp":{"luck":1,"minutes":120},"energy":2}
+toffee|Winter Toffee|food|12|14|1|A square of sugar-shack toffee that sticks your teeth together in the nicest way.|{"temp":{"grit":1,"minutes":90},"energy":2}
+marshmallow|Toasted Marshmallow|food|8|6|1|Golden outside, gooey inside, and still warm from the aurora campfire.|{"temp":{"hardiness":1,"minutes":60},"energy":2}
+message-bottle|Message in a Bottle|misc|28|30|0|A corked bottle with a rolled note inside that just says hello, very warmly.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🍾","appeal":4,"bonus":""}}
+map-scrap|Map Scrap|misc|14|12|0|A torn corner of somebody's map with a little x drawn on it and a smiley face.
+snowman-scarf|Snowman's Spare Scarf|misc|18|16|0|A tiny knitted scarf the snowmen take turns wearing; today it is your turn.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🧣","appeal":3,"bonus":""}}
+lost-mitten|Lost Mitten|misc|20|4|0|One red mitten with a bell on it, plainly missing its other half and its owner.||0
+glowcap-repair-kit|Glowcap Lantern Repair Kit|misc|16|22|0|A tin of wicks, a spare glass and a very small screwdriver for a tired glowcap lantern.
+glowcap-garden-light|Glow-cap Garden Light|decor|24|36|0|A shy glowing mushroom that followed you home and would like to live by the path.|{"decor":{"type":"light","w":1,"h":1,"icon":"🍄","appeal":4,"bonus":""}}
+star-chart|Star Chart|misc|10|10|0|Tonight's sky copied in your own wobbly hand, with one star you are fairly sure you made up.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🗺️","appeal":3,"bonus":""}}
+# Shared land
+lost-sock|Lost Sock|misc|22|2|0|A stripy sock somebody left on the brambles long ago; it has clearly had adventures.
+grumpys-hedge-shears|Grumpy's Hedge-Shears|misc|20|24|0|A pair of old shears a grumpy gnome gave you after you finally agreed with him.
+tuft-of-fleece|Tuft of Fleece|part|5|5|0|A soft curl of sheep's wool snagged on the wall stones, warm as a nap.
+daisy-chain-crown|Daisy-Chain Crown|misc|18|14|1|A crown of daisies made by somebody's grandmother, who measured it twice.|{"temp":{"charm":2,"minutes":120}}
+dew-pearl|Dew Pearl|misc|12|12|0|A drop of morning dew that simply refuses to dry, and seems proud of it.
+root-race-ribbon|Root-Race Ribbon|misc|14|10|0|A blue ribbon for crossing the root tangle faster than an eager young villager.
+glow-moss-nightlight|Glow-Moss Nightlight|decor|22|30|0|A cushion of glowing moss in a jar that keeps the dark politely in the corners.|{"decor":{"type":"light","w":1,"h":1,"icon":"🌙","appeal":4,"bonus":""}}
+bookmark-snail|Bookmark Snail|misc|10|3|0|A calm little snail who likes to sit between pages and keep your place.
+fern-drip-hat-charm|Fern-Drip Hat Charm|misc|26|28|1|A curled fern frond for your hat brim that sends the rain politely elsewhere.|{"temp":{"hardiness":2,"minutes":120}}
+squirrels-spare-key|Squirrel's Spare Key|misc|24|20|0|A tiny key a flustered squirrel trusted you with; nobody knows what it opens.
+toadstool-stool|Toadstool Stool|decor|24|34|0|A spotted toadstool exactly the right height for sitting and thinking.|{"decor":{"type":"seat","w":1,"h":1,"icon":"🍄","appeal":4,"bonus":""}}
+brass-button|Brass Button|misc|8|6|0|A brass button worn smooth by many boots and a few very interested gulls.
+teeny-axe|Teeny Axe|misc|20|25|0|The very small axe from the woodcutter's stump, finally tugged free and ever so pleased about it.
+mudskipper-medal|Mudskipper Medal|misc|16|14|0|A medal won by a mudskipper you bet on, who would like you to have it.
+willow-withies|Willow Withies|part|4|5|0|A bundle of bendy willow switches, just right for weaving a basket.
+icicle-chime|Icicle Chime|decor|20|30|0|Icicles that never melt, strung on a twig, tinkling softly when the door opens.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"❄️","appeal":4,"bonus":""}}
+bog-pressed-bookmark|Bog-Pressed Bookmark|misc|16|12|0|A flower pressed flat in the peat for a hundred years and still smelling faintly of summer.
+herons-programme-notes|Heron's Programme Notes|misc|12|8|0|A soggy leaflet explaining the heron's performance, act by very still act.
+pine-snow-cone|Pine-Snow Cone|food|8|6|1|A pine cone dusted with snow and a drizzle of resin syrup, crunchy and bright.|{"energy":2}
+pocket-whistle|Pocket Whistle|misc|14|10|1|A stray tune caught in a ribbon and folded into a whistle that hums it back.|{"temp":{"charm":1,"minutes":120}}
+bottled-rainbow|Bottled Rainbow|decor|26|38|0|A jar of waterfall mist with a small rainbow inside that lights a room in stripes.|{"decor":{"type":"light","w":1,"h":1,"icon":"🌈","appeal":5,"bonus":""}}
+visitors-book-page|Visitors' Book Page|misc|8|4|0|A page from the stone hut's visitors' book, full of silly notes from past guests.
+echo-pebble|Echo Pebble|misc|12|10|0|A smooth pebble that repeats your last toast, a little louder each time.
+gulls-medal|Gull's Medal of Not Really Trying|misc|14|5|0|A bottle-cap medal from a gull who was not really trying and still feels it counts.
+barnacle-giggle|Barnacle Giggle|misc|18|12|0|A small shell that clicks like a giggle whenever anyone touches it.
+dream-souvenir|Dream Souvenir|misc|16|12|0|A weird little thing you brought back from a nap and cannot quite explain.
+old-river-pebble|Old River Pebble|misc|16|12|0|A round pebble the river left behind when it went away, still cool to the touch.
+mirage-marble|Mirage Marble|misc|22|26|0|A glass marble with a tiny blue pool inside that is definitely, probably real.
+cactus-bloom|Cactus Bloom|flower|14|14|0|A bright pink cactus flower, offered very carefully by a prickly friend.
+marrowbys-wooden-coin|Marrowby's Wooden Coin|misc|14|10|0|A worn wooden trade token from Old Marrowby's stall, good for one fair swap.
+wishing-coin|Wishing Coin|misc|20|20|0|An old coin from the bottom of the well, still holding someone's wish warm.
+giant-fern-spores|Giant Fern Spores|forage|8|8|0|A twist of leaf full of fern dust that smells like a green, green morning.
+vine-twine|Vine Twine|part|5|6|0|A length of springy jungle vine that still hums the tune of the bridge.
+giants-bark-curl|Giant's Bark Curl|decor|16|24|0|A big curl of bark from the fallen giant, rolled like a sleeping scroll.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🪵","appeal":3,"bonus":""}}
+raindrop-bead|Raindrop Bead|misc|20|18|0|A drop of storm rain that set hard on the drum leaf, clear as a little window.
+lantern-fruit|Lantern Fruit|forage|8|8|1|A friendly glowing fruit that lights your way home and tastes faintly of honey.|{"temp":{"sense":1,"minutes":120}}
+soup-mist-jar|Soup-Mist Jar|decor|24|26|0|A jar of mist from the pool that does, everyone agrees, smell a bit like soup.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🫙","appeal":4,"bonus":""}}
+cave-echo-shell|Cave Echo Shell|misc|14|12|0|Hold it to your ear and the tide cave breathes in and out for you.
+bell-shell|Bell Shell|decor|14|16|0|A shell from the shell-bell tree that rings sweetly when hung by a door.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🐚","appeal":4,"bonus":""}}
+beach-ball|Beach Ball|decor|20|20|0|A bright striped ball the wind blew into a palm tree; it is delighted to be found.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🏐","appeal":3,"bonus":""}}
+lagoon-glass-bead|Lagoon Glass Bead|misc|14|14|0|A bead of sea glass the colour of the lagoon at noon, with a striped minnow in its memory.
+aurora-ribbon|Aurora Ribbon|decor|28|40|0|A strip of green light from the night sky that waves gently above your bed.|{"decor":{"type":"light","w":1,"h":1,"icon":"🌌","appeal":6,"bonus":""}}
+frost-window-pane|Frost Window Pane|misc|20|18|0|A flake of clear ice that never melts and shows the world in frosty swirls.
+squeaky-ice-chip|Squeaky Ice Chip|misc|12|6|0|A chip of ice that squeaks in your satchel at the very worst moments.
+stargazers-chalk|Stargazer's Chalk|misc|14|10|0|A stub of pale chalk for marking the stones where you saw a nice star.
+# End pieces
+sauna-bun|Sauna Bun|food|10|10|1|A soft cardamom bun warm from the sauna stove, best eaten wrapped in a towel.|{"temp":{"hardiness":1,"minutes":120}}
+mirror-salt-crystal|Mirror Salt Crystal|forage|22|24|0|A salt crystal so flat and bright it shows the sky twice after rain.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"💎","appeal":3,"bonus":""}}
+amber-seed|Amber Seed|misc|26|34|0|An old-world seed asleep in a bead of amber, dreaming of a very long spring.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🟠","appeal":4,"bonus":""}}
+flamingo-feather|Flamingo Feather|part|18|18|0|A pink feather from a flamingo who stood on one leg with you, out of politeness.
+taper|Taper|misc|4|3|0|A thin wax taper for lighting lanterns, handed over with great ceremony.

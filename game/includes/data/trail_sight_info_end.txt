@@ -1,0 +1,44 @@
+# Names and captions of the Sights (one per landmark picture). slug | Name | caption (what the Sight card and its Almanac page say)
+end-haven-1-grassland|Haven path, grassland|A smell of something warm drifts down the path from the place ahead.
+end-haven-1-coast|Haven path, coastal|A smell of something warm drifts down the path from the place ahead.
+end-haven-1-island|Haven path, island|A smell of something warm drifts down the path from the place ahead.
+end-haven-1-tundra|Haven path, tundra|A smell of something warm drifts down the path from the place ahead.
+end-haven-1-wetland|Haven path, wetland|A smell of something warm drifts down the path from the place ahead.
+end-haven-2-grassland|Haven sign, grassland|A little sign, hand-painted: 'Rest Here'.
+end-haven-2-coast|Haven sign, coastal|A little sign, hand-painted: 'Rest Here'.
+end-haven-2-island|Haven sign, island|A little sign, hand-painted: 'Rest Here'.
+end-wonder-1-coast|Wonder gates, coastal|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-desert|Wonder gates, desert|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-forest|Wonder gates, forest|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-grassland|Wonder gates, grassland|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-island|Wonder gates, island|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-mountain|Wonder gates, mountain|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-rainforest|Wonder gates, rainforest|Something wonderful is close. You can feel it in your shoes.
+end-wonder-1-wetland|Wonder gates, wetland|Something wonderful is close. You can feel it in your shoes.
+end-wonder-2-coast|Wonder hush, coastal|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-desert|Wonder hush, desert|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-forest|Wonder hush, forest|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-grassland|Wonder hush, grassland|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-island|Wonder hush, island|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-mountain|Wonder hush, mountain|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-rainforest|Wonder hush, rainforest|The air goes quiet, as if the place ahead were about to speak.
+end-wonder-2-wetland|Wonder hush, wetland|The air goes quiet, as if the place ahead were about to speak.
+end-delve-1-coast|Mine mouth, coastal|The mouth of the place ahead breathes cool air and a hint of old echoes.
+end-delve-1-desert|Mine mouth, desert|The mouth of the place ahead breathes cool air and a hint of old echoes.
+end-delve-1-mountain|Mine mouth, mountain|The mouth of the place ahead breathes cool air and a hint of old echoes.
+end-delve-1-rainforest|Mine mouth, rainforest|The mouth of the place ahead breathes cool air and a hint of old echoes.
+end-delve-2-forest|Lantern line, forest|A line of old lanterns leads to the place ahead. Please bring your own light.
+end-delve-2-wetland|Lantern line, wetland|A line of old lanterns leads to the place ahead. Please bring your own light.
+end-delve-2-rainforest|Lantern line, rainforest|A line of old lanterns leads to the place ahead. Please bring your own light.
+end-delve-2-desert|Lantern line, desert|A line of old lanterns leads to the place ahead. Please bring your own light.
+end-delve-2-island|Lantern line, island|A line of old lanterns leads to the place ahead. Please bring your own light.
+end-lair-1-desert|Lair approach, desert|The grass goes silent. Something big is thinking about you from the place ahead.
+end-lair-1-island|Lair approach, island|The grass goes silent. Something big is thinking about you from the place ahead.
+end-lair-1-mountain|Lair approach, mountain|The grass goes silent. Something big is thinking about you from the place ahead.
+end-lair-2-coast|Lair threshold, coastal|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.
+end-lair-2-desert|Lair threshold, desert|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.
+end-lair-2-forest|Lair threshold, forest|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.
+end-lair-2-mountain|Lair threshold, mountain|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.
+end-lair-2-rainforest|Lair threshold, rainforest|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.
+end-lair-2-tundra|Lair threshold, tundra|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.
+end-lair-2-wetland|Lair threshold, wetland|A wide, scuffed circle of earth. The kind of place a very large friend might sleep.

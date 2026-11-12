@@ -531,6 +531,10 @@ function eat_item(array $u, int $itemId): array
         tour_event($uid, 'eat');
         $msgs = array_merge($msgs, tour_messages());
     }
+    if ($homeCooked && is_file(__DIR__ . '/trail_sights.php')) {   // v2.6.68: a Trail Sights quest line may ask for a home-cooked meal (@meal)
+        require_once __DIR__ . '/trail_sights.php';
+        foreach (trail_sight_quest_event($u, 'meal') as $ql) $msgs[] = $ql;
+    }
     return [true, $msgs];
 }
 

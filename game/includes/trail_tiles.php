@@ -510,6 +510,11 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         $openMid[(int)$mid[0] . ',' . (int)$mid[1]] = 'Open: ' . ($g['tool_name'] ?? $g['tool_type'] ?? 'tool') . ' gate';
         if (!empty($map['art']) && trail_art_ready($map['art']) && ($mid[0] !== $sc['x'] || $mid[1] !== $sc['y'])) $tokens[] = [(int)$mid[0], (int)$mid[1], '🔓', 'gold', false];
     }
+    $sightMarks = [];   // v2.6.68 Trail Sights: where a Sight is ready (a gold ! over the landmark)
+    $sightAll = function_exists('trail_sights_marks') && !$busy ? trail_sights_marks($u, $sc) : [];
+    foreach ($sightAll as $sm) if ($sm['left'] > 0) $sightMarks[$sm['x'] . ',' . $sm['y']] = true;
+    $folkMap = $sightAll && function_exists('trail_sights_folk_on_map') ? trail_sights_folk_on_map($u, $exp, $sc, $sightAll, true) : [];
+    $folkTiles = []; foreach ($folkMap as $fi => $fe) $folkTiles[$fe[0] . ',' . $fe[1]] = $fi;   // tap a villager: their card   // villagers out and about at a Sight now
     $gate = trail_gate($sc);
     $reach = tm_reach($map, $sc['x'], $sc['y'], $gate);
     $open = str_repeat('0', $w * $h);
@@ -535,9 +540,9 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     [$fightOver_html, $fightDock, $fightOver] = fight_map_over($u, $fightExp ?? $exp, $sc, $win, $fightOver);   // the stage over the map (or its end scene) and the fight menu under it
     $art = !empty($map['art']) && trail_art_ready($map['art']);   // an authored section with its baked picture: the Hearth Pop v3 look
     $svg = $art
-        ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW, 'tokens' => $tokens, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u), 'pals' => $fightOver ? [] : trail_pal_urls($u)])
+        ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW, 'tokens' => $tokens, 'sights' => $sightMarks, 'folk' => $folkMap, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u), 'pals' => $fightOver ? [] : trail_pal_urls($u)])
         : tm_render_svg($map, $land, ['px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $win['x0'], 'y0' => $win['y0'], 'cols' => DM_VIEW, 'rows' => DM_VIEW,
-            'light' => 8, 'tokens' => $tokens, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u), 'pals' => $fightOver ? [] : trail_pal_urls($u)]);   // fight_scene: the fight stage draws the gnome
+            'light' => 8, 'tokens' => $tokens, 'sights' => $sightMarks, 'folk' => $folkMap, 'walk' => $walk, 'me' => $fightOver ? '' : trek_art_me($u), 'pals' => $fightOver ? [] : trail_pal_urls($u)]);   // fight_scene: the fight stage draws the gnome
     // v2.5.51: a wider picture covering the whole walk, shown only while the gnome walks (assets/tilemap.js keeps the camera on the gnome, like the delve maps)
     $extSvg = ''; $extData = '';
     if ($walk && count($walk['p']) > 1) {
@@ -546,9 +551,9 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         $ex1 = max(max($xs) + 6, $win['x0'] + DM_VIEW); $ey1 = max(max($ys) + 6, $win['y0'] + DM_VIEW);
         if (($ex1 - $ex0) * ($ey1 - $ey0) <= 900) {
             $extSvg = $art
-                ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $ex0, 'y0' => $ey0, 'cols' => $ex1 - $ex0, 'rows' => $ey1 - $ey0, 'tokens' => $tokens, 'walk' => $walk, 'pals' => trail_pal_urls($u), 'me' => trek_art_me($u), 'sfx' => 'x'])
+                ? trail_art_svg($map, ['px' => $sc['x'], 'py' => $sc['y'], 'x0' => $ex0, 'y0' => $ey0, 'cols' => $ex1 - $ex0, 'rows' => $ey1 - $ey0, 'tokens' => $tokens, 'sights' => $sightMarks, 'folk' => $folkMap, 'walk' => $walk, 'pals' => trail_pal_urls($u), 'me' => trek_art_me($u), 'sfx' => 'x'])
                 : tm_render_svg($map, $land, ['px' => $sc['x'], 'py' => $sc['y'], 'seen' => $sc['seen'], 'x0' => $ex0, 'y0' => $ey0, 'cols' => $ex1 - $ex0, 'rows' => $ey1 - $ey0,
-                    'light' => 8, 'dim' => 999, 'tokens' => $tokens, 'walk' => $walk, 'pals' => trail_pal_urls($u), 'me' => trek_art_me($u), 'sfx' => 'x']);
+                    'light' => 8, 'dim' => 999, 'tokens' => $tokens, 'sights' => $sightMarks, 'folk' => $folkMap, 'walk' => $walk, 'pals' => trail_pal_urls($u), 'me' => trek_art_me($u), 'sfx' => 'x']);
             $extData = ' data-ex0="' . $ex0 . '" data-ey0="' . $ey0 . '" data-ew="' . ($ex1 - $ex0) . '" data-eh="' . ($ey1 - $ey0) . '"';
         }
     }
@@ -572,7 +577,9 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         }
         if ($me) { $cls .= ' here'; $label = 'You are here'; }
         $dis = !$tap;
-        $btn .= '<button type="submit" class="' . $cls . '" name="go" value="' . $x . ',' . $y . '"' . ($dis ? ' disabled' : '') . ($label !== '' ? ' aria-label="' . e($label) . '"' : ($tap ? ' aria-label="Walk here"' : ' tabindex="-1"')) . '></button>';
+        $fpop = isset($folkTiles[$x . ',' . $y]) && !$busy && $phase === 'section' ? ' data-pop="hubpop-tfolk-' . $folkTiles[$x . ',' . $y] . '"' : '';
+        if ($fpop) $dis = false;   // the villager's tile opens their card even when it is not a tile to walk to
+        $btn .= '<button type="submit" class="' . $cls . '" name="go" value="' . $x . ',' . $y . '"' . ($dis ? ' disabled' : '') . $fpop . ($label !== '' ? ' aria-label="' . e($label) . '"' : ($tap ? ' aria-label="Walk here"' : ' tabindex="-1"')) . '></button>';
     }
     $data = ' data-clamp="1" data-tile="' . TM_UNIT . '" data-cols="' . DM_VIEW . '" data-rows="' . DM_VIEW . '" data-x0="' . $win['x0'] . '" data-y0="' . $win['y0'] . '" data-px="' . $sc['x'] . '" data-py="' . $sc['y'] . '" data-mw="' . $w . '" data-mh="' . $h . '" data-open="' . $open . '"';
     if ($walk) $data .= ' data-walk="' . e(implode(';', array_map(fn($p) => $p[0] . ',' . $p[1], $walk['p']))) . '"' . $extData;

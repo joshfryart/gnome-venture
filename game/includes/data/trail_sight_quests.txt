@@ -1,0 +1,6 @@
+# Quest lines made of Sight uses. A line begins the first time you use one of its beat Sights (in `seq` order: the FIRST beat), then each beat Sight used in order (or any order for `any`) ticks it.
+# Q|slug|title|giver (a villager's name)|icon|order (seq|any)|reward (Sights reward grammar; fp=N = N friendship with the giver)|intro (one sentence, shown when it begins)|outro (shown when it is done)
+# B|slug|Sight slug|label (what this beat asks, shown as "title: label (2 of 6)")|when (- or dp=/se=/we= conditions the Sight use must happen in)
+# ================================================================ Maplewold (claude/sights/ideas-maplewold.md, section 1)
+# ================================================================ shared land pieces (claude/sights/ideas-shared-land.md, cross-spot lines)
+# ================================================================ end pieces (claude/sights/ideas-end-pieces.md, section 1)

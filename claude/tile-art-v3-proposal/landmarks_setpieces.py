@@ -28,7 +28,14 @@ def _make(slug, land):
             lump(cv, w // 2, hh - 70, 60, 46, base, rnd, .1)
     return (w, hh, draw)
 
+def _drawn():   # slugs drawn for real in landmarks_shared.py / landmarks_endpieces.py: no stand-in for those
+    import importlib.util
+    here = os.path.dirname(os.path.abspath(__file__)); out = set()
+    for f in ("landmarks_endpieces.py", "landmarks_shared.py"):
+        sp = importlib.util.spec_from_file_location("_d_" + f[:-3], os.path.join(here, f)); m = importlib.util.module_from_spec(sp); sp.loader.exec_module(m); out |= set(m.LM)
+    return out
 try:
-    LM = {slug: _make(slug, v["land"]) for slug, v in json.load(open(_CAT, encoding="utf-8")).items()}
+    _DONE = _drawn()
+    LM = {slug: _make(slug, v["land"]) for slug, v in json.load(open(_CAT, encoding="utf-8")).items() if slug not in _DONE}   # drawn ones live in landmarks_endpieces.py / landmarks_shared.py
 except OSError:
     LM = {}

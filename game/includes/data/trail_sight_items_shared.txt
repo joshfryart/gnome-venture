@@ -1,0 +1,30 @@
+# Items only the shared land Sights and their quest lines give (claude/sights/ideas-shared-land.md). Made once like trail_sight_items.txt. Art: claude/sights/shared-art-todo.md
+# slug | Name | category | rarity 1-30 | base_price | edible 0/1 | description | effects (optional JSON)
+# Sight keepsakes and minigame prizes
+five-leaf-clover|Five-Leaf Clover|flower|28|30|1|The one leaf nobody checked, found hiding under a snail. Tuck it in your hat for a lucky afternoon.|{"temp":{"luck":2,"minutes":240}}
+clover-ledger|The Clover Ledger|misc|16|12|0|A copy of a very thorough clipboard: every clover leaf in the patch, checked, double-checked and initialled.||0
+left-handed-spiral|Left-Handed Spiral|misc|30|45|0|A shell that spirals the wrong way round. The sorter gasped out loud when you found it.
+starfish-friend|Starfish Friend|misc|26|20|1|A small starfish who would like to ride on your hat for a walk. It brings luck, and a faint smell of sea.|{"temp":{"luck":1,"minutes":180}}
+crab-gavel|Crab Gavel|misc|22|22|0|A tiny driftwood gavel the crabs of the tide pools gave their fairest judge. Order, order.
+mirror-pebble|Mirror Pebble|misc|22|20|0|A flat pebble your reflection handed you from the lagoon. It always shows you smiling.
+dare-pebble|Dare Pebble|misc|14|8|0|The pretty pebble you won for paddling one sea stack further than was strictly sensible.
+rivers-postcard|River's Postcard|misc|26|30|0|A flat stone with wavy lines on it: the old river came back for one rainy night and wrote home.
+blue-stitch-hat-patch|Blue-Stitch Hat Patch|misc|20|24|1|A patch stitched in dragonfly blue. Sew it on your hat and your feet feel quicker all walk.|{"temp":{"nimble":1,"minutes":240}}
+parrot-phrasebook|Parrot Phrasebook|misc|20|22|1|A page of useful parrot phrases in three languages. Read it before a chat and everyone likes you more.|{"temp":{"charm":1,"minutes":180}}
+planks-gratitude|Plank's Gratitude|decor|18|20|0|A little coaster carved from the plank you put back. It is very grateful and very flat.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🪵","appeal":3,"bonus":""}}
+scree-xylophone|Scree Xylophone|decor|24|40|0|Seven scree stones on a string frame that play tick, tock and chatter when the wind blows.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🪨","appeal":5,"bonus":""}}
+waterfall-sketch|Waterfall Sketch|decor|20|30|0|A small painting of the falls, mostly mist, by a painter who let you hold her brushes.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🖼️","appeal":4,"bonus":""}}
+arch-shell-mobile|Arch Shell Mobile|decor|22|32|0|Shells from the driftwood arch on a string, clacking in the wind's own rhythm.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🎐","appeal":5,"bonus":""}}
+salt-sign|Salt Sign|decor|24|34|0|Your whole name, crunched into the salt flat one letter a day and baked into a crunchy sign.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🪧","appeal":5,"bonus":""}}
+snow-fort-banner|Snow-Fort Banner|decor|22|28|0|The fort's tatty flag, won fair and square in a snowball standoff with a cup of cocoa at stake.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🚩","appeal":4,"bonus":""}}
+fir-ornament|Fir Ornament|decor|18|22|0|A small painted bauble from the lone fir, given by someone who hangs one there every winter.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🎄","appeal":4,"bonus":""}}
+# Quest line rewards
+runaway-kite|The Runaway Kite|decor|26|60|0|Mabel's best kite, mended from every piece you found. It flies over your yard and never runs away again.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🪁","appeal":6,"bonus":""}}
+hatters-thimble|Hatter's Thimble|misc|20|30|1|A silver thimble from a fussy hatter. Pop it on your thumb before a visit and you are ever so charming.|{"temp":{"charm":2,"minutes":240}}
+bridgewardens-badge|Bridgewarden's Badge|decor|24|40|0|A shiny badge for the gnome who praised, bowed to, mended, retied and tuned every bridge on the round. Hang it with pride.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🎖️","appeal":5,"bonus":""}}
+seaside-stationery|Seaside Stationery|misc|18|20|0|Paper with little waves on the edges, for writing to a crab who writes back.
+pocket-star-wheel|Pocket Star-Wheel|decor|26|50|0|Wren's star-wheel with the keeper's lens in it. Turn it to tonight and the stars line up.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🌟","appeal":6,"bonus":""}}
+patchwork-picnic-blanket|Patchwork Picnic Blanket|decor|24|50|0|A blanket big enough for the whole town, folded small enough for one yard.|{"decor":{"type":"seat","w":2,"h":1,"icon":"🧺","appeal":6,"bonus":""}}
+hollow-round-song-sheet|Song Sheet: The Hollow Round|decor|22|36|0|Lyra's new song, five sounds long, with a cheeky echo at the end. Frame it and hum along.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🎼","appeal":5,"bonus":""}}
+marrowbys-price-book|Marrowby's Old Price Book|misc|24|36|0|Old Marrowby's book of fair prices, with notes in the margins like "too much for a turnip".||0
+feather-pillow|Feather Pillow|decor|20|30|0|A plump pillow from the stilt house. The ladder recommends it.|{"decor":{"type":"seat","w":1,"h":1,"icon":"🪶","appeal":4,"bonus":""}}

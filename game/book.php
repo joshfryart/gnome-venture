@@ -7,7 +7,7 @@ require_once __DIR__ . '/includes/world.php';
 require_once __DIR__ . '/includes/catalog.php';
 require_once __DIR__ . '/includes/glossary.php';
 $u = require_login();
-require_once __DIR__ . '/includes/almanac_pages.php'; ensure_almanac_pages_2644(); ensure_almanac_pages_2646();   // v2.6.44: the sleep-days, crew, Messages pages (once)
+require_once __DIR__ . '/includes/almanac_pages.php'; ensure_almanac_pages_2644(); ensure_almanac_pages_2646(); require_once __DIR__ . '/includes/trail_sights.php'; trail_sights_ensure_almanac(); trail_sights_ensure_pages();   // v2.6.44: the sleep-days, crew, Messages pages (once)
 require_once __DIR__ . '/includes/garden_logic.php';   // v0.9.1: unstudied_slow_pct()
 $uid = (int)$u['id'];
 require_once __DIR__ . '/includes/breeding110.php'; breeding110_boot();   // v1.1.0: imports the hybrids once on an upgraded world
@@ -22,7 +22,7 @@ if (is_post()) {
     require_once __DIR__ . '/includes/stop_pass.php';
     require_once __DIR__ . '/includes/catfish.php';
     require_once __DIR__ . '/includes/gourmand.php';
-    $earned = array_merge($earned, journey_titles($uid), calling_titles($uid), stop_titles($uid), catfish_titles($uid), gourmand_titles($uid));   // v1.0.0: passport titles   // v0.7.65: Journey titles too; v0.9.4: calling chapter titles
+    $earned = array_merge($earned, journey_titles($uid), calling_titles($uid), stop_titles($uid), catfish_titles($uid), gourmand_titles($uid), trail_sight_titles($uid));   // v1.0.0: passport titles   // v0.7.65: Journey titles too; v0.9.4: calling chapter titles
     if ($want === '' || in_array($want, $earned, true)) {
         q('UPDATE users SET title = ? WHERE id = ?', [$want === '' ? null : $want, $uid]);
         flash($want === '' ? 'Title removed.' : 'You are now known as “' . $want . '”.');
@@ -241,7 +241,7 @@ page_header('My Almanac');
     $earnedTitles = q('SELECT DISTINCT m.reward_title FROM user_milestones um JOIN almanac_milestones m ON m.id = um.milestone_id
                        WHERE um.user_id = ? AND m.reward_title IS NOT NULL ORDER BY m.reward_title', [$uid])->fetchAll(PDO::FETCH_COLUMN);
     require_once __DIR__ . '/includes/journey.php';
-    $earnedTitles = array_values(array_unique(array_merge($earnedTitles, journey_titles($uid), calling_titles($uid), (function () use ($uid) { require_once __DIR__ . '/includes/stop_pass.php'; return stop_titles($uid); })(), (function () use ($uid) { require_once __DIR__ . '/includes/catfish.php'; return catfish_titles($uid); })(), (function () use ($uid) { require_once __DIR__ . '/includes/gourmand.php'; return gourmand_titles($uid); })())));
+    $earnedTitles = array_values(array_unique(array_merge($earnedTitles, journey_titles($uid), calling_titles($uid), trail_sight_titles($uid), (function () use ($uid) { require_once __DIR__ . '/includes/stop_pass.php'; return stop_titles($uid); })(), (function () use ($uid) { require_once __DIR__ . '/includes/catfish.php'; return catfish_titles($uid); })(), (function () use ($uid) { require_once __DIR__ . '/includes/gourmand.php'; return gourmand_titles($uid); })())));
     if ($earnedTitles): ?>
   <form method="post" class="titlepick"><?= csrf_field() ?>
     <label>Your title <select name="title"><option value="">— none —</option>

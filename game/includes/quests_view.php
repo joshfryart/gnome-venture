@@ -37,6 +37,10 @@ function quests_overview(array $u): void
     require_once __DIR__ . '/calling_view.php';
     if (($cl = calling_today_line($u)) !== '') { $any = true; echo '<section class="box qsec"><h3>📜 Your calling</h3>' . $cl . '</section>'; }
 
+    // Trail Sights quest lines (v2.6.68)
+    require_once __DIR__ . '/trail_sights.php';
+    if (($sq = trail_sight_quests_box($u)) !== '') { $any = true; echo $sq; }
+
     // Landmark repairs (full boxes: they have their own buttons)
     require_once __DIR__ . '/rebuild.php';
     foreach (repair_list($uid) as $k => $rp) {

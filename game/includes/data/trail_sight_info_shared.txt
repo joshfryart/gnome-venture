@@ -1,0 +1,95 @@
+# Names and captions of the Sights (one per landmark picture). slug | Name | caption (what the Sight card and its Almanac page say)
+grassland-the-clover-patch|The clover patch|A clover patch. Someone has already checked every leaf for luck.
+coast-the-shell-heap|The shell-heap|A mound of shells, sorted by someone with strong feelings about spirals.
+mountain-the-rope-bridge|The rope bridge|A rope bridge, sturdy for its age and fond of swaying.
+grassland-the-old-milestone|The old milestone|A mossy milestone with the numbers worn off. It still points confidently.
+island-the-reef-shallows|The reef shallows|Warm shallows full of brightly coloured fish.
+grassland-the-plank-footbridge|The plank footbridge|A plank bridge over a ditch. The ditch is not deep, but the bridge is proud.
+grassland-the-picnic-knoll|The picnic knoll|A flat green knoll with a dent in it exactly the shape of a picnic.
+grassland-the-bramble-gap|The bramble gap|A gap in the brambles, wide enough for one gnome and one opinion.
+grassland-the-shepherd-s-wall|The shepherd's wall|A dry-stone wall running off into the grass, with a gate that is mostly decoration.
+grassland-the-wind-combed-meadow|The wind-combed meadow|Grass lying down in one direction, as if told to. A kite string trails over the path.
+grassland-the-dandelion-drift|The dandelion drift|A drift of dandelion fluff, ready to leave at the first sneeze.
+grassland-the-sleepy-windmill|The sleepy windmill|A little windmill turning slowly, in no hurry at all.
+grassland-the-daisy-ring|The daisy ring|A circle of daisies so even that someone must have measured. Nobody will own up.
+grassland-the-lonely-scarecrow|The lonely scarecrow|A scarecrow with a very small hat. The crows seem to like him.
+grassland-the-hay-cart-ruts|The hay-cart ruts|Two deep ruts from a cart that has long since gone home.
+forest-the-lantern-branch|The lantern branch|An old lantern hangs from a branch. Somebody trims its wick.
+forest-the-root-tangle-crossing|The root-tangle crossing|Roots knot across the path like a puzzle with one answer: step high.
+forest-the-spring-and-the-pebbles|Spring and pebbles|A trickle of spring water over bright pebbles.
+forest-the-owl-watch-bough|The owl-watch bough|A low bough where an owl pretends not to see you.
+forest-the-glow-moss-grotto|The glow-moss grotto|A damp hollow with moss that glows faintly, like a night-light.
+forest-the-fern-tunnel|The fern tunnel|Ferns arch overhead and drip softly on everyone's hat.
+forest-the-acorn-scatter|The acorn scatter|Acorns everywhere, as though a squirrel had a very bad day.
+forest-the-hollow-oak|The hollow oak|An oak so hollow it could host tea for six.
+forest-the-mushroom-ring|The mushroom ring|Toadstools in a tidy ring. The path goes round, because the path is sensible.
+forest-the-mossy-stair|The mossy stair|Steps of root and moss, worn smooth by many small boots.
+forest-the-woodcutter-s-stump|The woodcutter's stump|A giant stump, still carrying a very small axe.
+forest-the-fallen-log-bridge|The fallen-log bridge|A great log laid across a gully. It wobbles, but only out of politeness.
+forest-the-bluebell-glade|The bluebell glade|A glade of bluebells that seems to ring if you listen closely.
+wetland-the-mud-skipper-flats|The mud-skipper flats|Wet flats with small skippers who race for no reason.
+wetland-the-stilt-house|The stilt-house|A house on stilts, with a ladder that has gone for a walk.
+wetland-the-willow-curtain|The willow curtain|Willow branches drape the path like a gentle curtain.
+wetland-the-peat-bank|The peat bank|A soft brown bank that smells of rain and old books.
+wetland-the-frog-choir|The frog choir|A bank of frogs rehearsing something important.
+wetland-the-boardwalk-gap|The boardwalk gap|A boardwalk with one plank missing. A neat little hop.
+wetland-the-lily-pad-ford|The lily-pad ford|Lily pads big enough to stand on. Almost.
+wetland-the-dragonfly-bend|The dragonfly bend|A bend where dragonflies stitch the air with blue.
+wetland-the-reed-causeway|The reed causeway|A narrow causeway through tall reeds, nodding hello.
+wetland-the-heron-s-post|The heron's post|A post where a heron stands as if on a stage.
+mountain-the-scree-slope|The scree slope|A slope of loose small stones that tick and chatter underfoot.
+mountain-the-pine-shelf|The pine shelf|A shelf of pines clinging to a cliff for dear life.
+mountain-the-wind-notch|The wind notch|A notch in the ridge where the wind plays whatever it likes.
+mountain-the-goat-ledge|The goat ledge|A ledge with a goat. The goat is entirely unbothered.
+mountain-the-waterfall-mist|The waterfall mist|A waterfall mists the path with tiny rainbows.
+mountain-the-eagle-s-rest|The eagle's rest|A flat boulder where an eagle likes to think.
+mountain-the-stone-hut|The stone hut|A little stone hut with a chimney and no one at home.
+mountain-the-echo-wall|The echo wall|A rock wall that gives your own voice back, only cheekier.
+mountain-the-switchback-bend|The switchback bend|A tight bend in the path, with a view of the way you just came.
+mountain-the-cairn-pass|The cairn pass|A pass marked with cairns, each taller than the last.
+coast-the-lighthouse-shadow|The lighthouse shadow|A far lighthouse throws a slow sweep of light over the sand.
+coast-the-kelp-line|The kelp-line|A line of kelp left by the tide, as neat as a ribbon.
+coast-the-rope-and-net-rack|The rope-and-net rack|Nets drying on a rack. A gull stands guard, badly.
+coast-the-bottle-post|The bottle post|A post with a bottle on top. There is a note inside. It says 'hello'.
+coast-the-tide-pool-steps|The tide-pool steps|Flat rocks full of small pools, each with a crab who has opinions.
+coast-the-stranded-rowboat|The stranded rowboat|A rowboat on the sand, waiting for the sea to come back and apologise.
+coast-the-sandbar-causeway|The sandbar causeway|A narrow bar of sand with water either side, sparkling.
+coast-the-barnacle-wall|The barnacle wall|A rock wall crusted with barnacles. Please do not tickle them.
+coast-the-dune-grass-sweep|The dune grass sweep|Tall dune grass bows all one way, like an audience.
+coast-the-driftwood-arch|The driftwood arch|A bleached arch of driftwood, hung with shells that click in the wind.
+coast-the-sea-stack-gap|The sea-stack gap|A gap between two tall rocks where the spray tickles your ankles.
+desert-the-sun-bleached-bones|The sun-bleached bones|The bones of a very large, very friendly fish. Do not ask.
+desert-the-salt-flat|The salt flat|A flat of white salt that crunches pleasantly.
+desert-the-shade-awning|The shade awning|A faded awning on two poles. Perfect for a very small nap.
+desert-the-red-rock-arch|The red rock arch|A rock arch that glows when the sun is low.
+desert-the-sand-ripple-lane|The sand-ripple lane|Sand rippled like a washboard in neat lines.
+desert-the-waystone-cluster|The waystone cluster|Three weathered waystones leaning together like old friends.
+desert-the-dry-riverbed|The dry riverbed|A river that left years ago and kept the bed made.
+desert-the-mirage-pool|The mirage pool|A pool that is mostly shimmer, and a little bit not.
+desert-the-cactus-garden|The cactus garden|Cactus in a neat row. Somebody waters them. Somebody is brave.
+desert-the-trader-s-tent-poles|The trader's tent poles|Poles from a trader's tent, left up in case they return.
+desert-the-well-and-its-rope|The rope well|A well with a rope and a very patient bucket.
+rainforest-the-stepping-roots|The stepping-roots|Roots arching out of the mud like a row of green stairs.
+rainforest-the-giant-fern-glade|The giant fern glade|Ferns taller than a gnome, nodding in the drip.
+rainforest-the-orchid-tree|The orchid tree|A tree dressed head to toe in orchids.
+rainforest-the-canopy-gap|The canopy gap|A gap in the canopy where the sun comes down in a column.
+rainforest-the-parrot-perch|The parrot perch|A tall branch where parrots argue in three languages.
+rainforest-the-vine-bridge|The vine bridge|A bridge of woven vines that hums when the wind comes through.
+rainforest-the-fallen-giant|The fallen giant|A fallen tree, so big the path goes along its trunk.
+rainforest-the-rain-drum-leaf|The rain-drum leaf|A huge leaf that drums when it rains. It is raining a little.
+rainforest-the-lantern-fruit|The lantern fruit|Small glowing fruits hang low, just to be friendly.
+rainforest-the-mist-pool|The mist-pool|A still pool with mist curling over it like steam from soup.
+island-the-hammock-palms|The hammock palms|Two palms with a hammock. It has already been claimed by a crab.
+island-the-tide-cave|The tide-cave|A small cave that breathes in and out with the tide.
+island-the-shell-bell-tree|The shell-bell tree|A tree hung with shells that chime like bells.
+island-the-sand-spit|The sand spit|A spit of white sand reaching out like a pointing finger.
+island-the-rope-swing|The rope swing|A rope swing over a deep blue pool. It is begging to be used.
+island-the-palm-lean|The palm lean|A palm tree that leans so far it has to be holding something.
+island-the-coconut-grove|The coconut grove|A grove of coconuts, each one trying to look innocent.
+island-the-lagoon-edge|The lagoon edge|A lagoon as clear as glass, with tiny striped fish.
+tundra-the-snow-fort|The snow-fort|A snow fort with a flag. It has seen better battles, and better snacks.
+tundra-the-lone-fir|The lone fir|One fir tree wearing a good deal of snow.
+tundra-the-aurora-rise|The aurora rise|A low rise where the sky does green things at night.
+tundra-the-frozen-stream|The frozen stream|A frozen stream, bright as a window.
+tundra-the-ice-shelf-steps|The ice-shelf steps|Steps of pale ice that squeak under each boot.
+tundra-the-star-chart-stones|The star-chart stones|Flat stones scratched with constellations by patient hands.

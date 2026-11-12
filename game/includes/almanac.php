@@ -5,8 +5,10 @@ declare(strict_types=1);
 
 function almanac_counts(int $uid): array
 {
-    $total = (int)q_val('SELECT COUNT(*) FROM encyclopedia_entries');
-    $have = (int)q_val('SELECT COUNT(*) FROM user_encyclopedia WHERE user_id = ?', [$uid]);
+    // v2.6.68: the Trail Sights pages (unlock keys sight:* and sightpage:*, chapter "Sights") are a collection of their own: they do not count toward the page counts and percentages
+    $skip = "NOT (e.unlock_key LIKE 'sight:%' OR e.unlock_key LIKE 'sightpage:%')";
+    $total = (int)q_val("SELECT COUNT(*) FROM encyclopedia_entries e WHERE $skip");
+    $have = (int)q_val("SELECT COUNT(*) FROM user_encyclopedia ue JOIN encyclopedia_entries e ON e.id = ue.entry_id WHERE ue.user_id = ? AND $skip", [$uid]);
     return [$have, $total];
 }
 

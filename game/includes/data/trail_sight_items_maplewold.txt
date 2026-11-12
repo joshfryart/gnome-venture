@@ -1,0 +1,11 @@
+# Items only the Maplewold Sights, villagers and quest lines give (made once on the first Sight use; an item that exists is never changed). Art: claude/sights/maplewold-art-todo.md
+# slug | Name | category | rarity 1-30 | base_price | edible 0/1 | description | effects (optional JSON)
+white-clover-sprig|White Clover Sprig|flower|4|4|0|A sprig of white clover the sunny rabbit nudged your way. A certain grumpy mouse in Poppyburrow is very fond of it.
+mixed-up-letter|Mixed-up Letter|misc|3|2|0|A letter addressed to "N. Cobblefield", which is not nearly as helpful as it sounds.||0
+honey-parcel|Bramble's Honey Parcel|misc|4|4|0|The picnic's leftover honey wrapped in a dock leaf, for Alder Pennywhistle in Honeybrook. Please do not lick the leaf.||0
+bunty-parcel|Parcel for Bunty|misc|4|4|0|A string-tied parcel from Clover Brambleby to her cousin Bunty at the Shellhollow inn. It smells of biscuits.||0
+owl-letter|Letter for the Owl|misc|6|2|0|A thick letter with a snowflake seal, addressed in careful capitals: TO THE GREAT WHITE OWL, THE DEN.||0
+sticky-spoon|Very Sticky Spoon|food|6|8|1|The syrup spoon from the Sugar Shack, still sticky. Lick it and the world gets briefly sweeter.|{"temp":{"charm":1,"minutes":60},"energy":1}
+spider-hammock|Spider-Silk Hammock|decor|20|40|0|A tiny hammock the polite spider knitted for you after three hellos. Strung between two twigs, it begs for a nap.|{"decor":{"type":"seat","w":1,"h":1,"icon":"🕸️","appeal":4,"bonus":""}}
+derby-rosette|Derby Marshal's Rosette|decor|18|30|0|A red and white rosette from the Wickerby Sled Derby, which was a tie, as it always is.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🎀","appeal":4,"bonus":""}}
+beaver-badge|Beaver-approved Badge|decor|18|30|0|A wooden badge with a paw print stamped on it. The Beaver Foreman does not give these out lightly. Or at all, usually.|{"decor":{"type":"ornament","w":1,"h":1,"icon":"🦫","appeal":4,"bonus":""}}

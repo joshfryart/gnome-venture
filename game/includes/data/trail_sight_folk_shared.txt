@@ -1,0 +1,90 @@
+# Villagers who may turn up at a Sight. sight slug | villager name | when (- or dp=/se=/we=) | chance % | line (what you see; shown with a speech mark) | rewards (Sights grammar; fp=N = N friendship with THIS villager)
+# The villager is a rest-stop villager (stop_folk) or a town NPC / traveller (npcs) by exact name. Only rolled after a successful use. One villager per use.
+# ---- The Maplewold (claude/sights/ideas-maplewold.md). Route 228's Sights have bare slugs (haybales, ford ...). Nettle Cobblefield is the Cloverholt herbalist (her name twin at Mossgate is left out: see folk-todo.md).
+# ---- Shared land pieces (claude/sights/ideas-shared-land.md). "A Shy villager" -> a real villager of that kind from a region the piece stands in.
+# ---- End pieces (claude/sights/ideas-end-pieces.md). "A Chatty local" -> a real villager of that kind from the destination's region.
+grassland-the-plank-footbridge|Nettle Larkspur|dp=dawn|40|Nettle Larkspur asks you to rate the bridge out of ten, and beams at your eight.|fp=2
+grassland-the-picnic-knoll|Basil Honeycomb|se=summer/dp=day|45|Basil Honeycomb is having a picnic and cuts you a slice of custard tart.|fp=1,item=custard-tart:1@40
+grassland-the-bramble-gap|Basil Gillyflower|dp=day|35|Basil Gillyflower is stuck halfway through the brambles and will not budge until you agree with him. You agree. He hands you his old shears.|fp=2,item=grumpys-hedge-shears:1@25
+grassland-the-shepherd-s-wall|Perrin Cobblefield|dp=dusk|40|Perrin Cobblefield checks you shut the gate properly and gives you a feather for manners.|fp=1,item=hen-feather:1@50
+grassland-the-wind-combed-meadow|Posy Acorncap|we=wind/dp=day|45|Posy Acorncap is flying a kite shaped like a fish and lets you hold the string.|fp=1,xp=3
+grassland-the-dandelion-drift|Dilly Nettlebed|se=spring|40|Dilly Nettlebed is hiding in the dandelion fluff and whispers what they wished for. It was a pony.|fp=2
+grassland-the-sleepy-windmill|Thimble Hollowell|dp=dawn|45|Thimble Hollowell is napping on the flour sacks, wakes up all floury, and makes you pancakes.|fp=1,item=pancakes:1@30
+grassland-the-daisy-ring|Granny Tapewell|tl=daisy-measures:3|35|Granny Tapewell pops up with her own tape measure, checks yours, and says you will do. She has been keeping the ring round for sixty years.|fp=2,item=daisy-chain-crown:1@50
+grassland-the-clover-patch|Dorrit Rushworth|we=rain|45|Dorrit Rushworth has a clipboard of checked clover leaves and asks you to recheck the wet ones. She gives you a copy of her ledger.|fp=2,item=clover-ledger:1@30,page=clover-ledger
+grassland-the-lonely-scarecrow|Alder Windlass|dp=dusk|40|Alder Windlass is telling the scarecrow their worries, so you sit and listen too.|fp=2
+grassland-the-hay-cart-ruts|Mabel Mossgrove|se=autumn/dp=day|45|Mabel Mossgrove gives you a bumpy hay-ride to the next bend, singing the whole way.|fp=1,xp=3
+forest-the-lantern-branch|Alder Thistledown|dp=dusk/tl=wicks-trimmed:2|35|Alder Thistledown, the sleepy wick-keeper, yawns, sees you have kept the lantern trimmed, and leaves you a spare lantern.|fp=2,item=tin-lantern:1@15
+forest-the-root-tangle-crossing|Bramwick Honeycomb|dp=day|40|Bramwick Honeycomb races you over the roots, loses by a whisker, and pins a ribbon on you anyway.|fp=2,item=root-race-ribbon:1@30
+forest-the-spring-and-the-pebbles|Wren Thimblewick|dp=dawn|35|Wren Thimblewick is testing the spring water and swaps you a seed for your prettiest pebble.|fp=1,seed=1
+forest-the-spring-and-the-pebbles|Wren Thimblewick|dp=dawn,day|30|Wren Thimblewick is collecting singing pebbles from the spring and would swap two seeds for one of yours.|give=singing-pebble:1,seed=2,fp=1
+forest-the-glow-moss-grotto|Willa Marrowby|we=rain|40|Willa Marrowby is reading by the glow of the moss and lends you a book, if you promise to bring it back.|fp=2
+forest-the-acorn-scatter|Hazel Fluster|se=autumn/tl=acorn-tidies:3|40|Hazel Fluster says this has been a good day, three times now, and trusts you with her spare key.|fp=2,item=squirrels-spare-key:1@40
+forest-the-fern-tunnel|Sorrel Peppercorn|we=rain|45|Sorrel Peppercorn holds a big leaf over you both "because it is raining anyway", and admits it is nice.|nocheck,fp=2
+forest-the-hollow-oak|Wick Dewdrop|se=winter/dp=day|45|Wick Dewdrop is holding Oak Tea in the hollow and saves you the sixth seat, and all the gossip.|fp=1,xp=3,hint=away
+forest-the-mushroom-ring|Bramwick Barleycorn|we=fog|45|Bramwick Barleycorn is dancing inside the mushroom ring and twirls you in.|fp=2
+forest-the-mossy-stair|Willa Bumbleby|dp=dawn|40|Willa Bumbleby is climbing the stair very slowly, so you carry her basket up and she gives you a jar of jam.|fp=1,item=raspberry-jam:1@30
+forest-the-woodcutter-s-stump|Linden Honeycomb|se=autumn|40|Linden Honeycomb tells you how the axe got stuck. It was a very small argument.|fp=1,item=oak-log:1@30
+forest-the-bluebell-glade|Lyra Fiddlewing|se=spring/dp=dawn|45|Lyra Fiddlewing tunes her fiddle to the bluebells, and with her playing the note you hear the ring at once.|nocheck,fp=1,xp=3
+wetland-the-mud-skipper-flats|Rook Acorncap|dp=day|40|Rook Acorncap is running a book on the mud skippers, and your pick wins by a nose.|fp=2
+wetland-the-stilt-house|Clover Peppercorn|dp=dusk|40|Clover Peppercorn owns the stilt house and lets you nap on the porch while they snore.|fp=1,en=2
+wetland-the-willow-curtain|Hazel Puddlefoot|we=fog|40|Hazel Puddlefoot is hiding behind the willow, so you chat without peeking. It goes very well.|fp=2
+wetland-the-peat-bank|Fig Snailwick|we=rain|45|Fig Snailwick is reading on the peat bank, grumbles, then lets you guess the book. You guess right, and get a recommendation.|fp=2,page=peat-bank-book
+wetland-the-frog-choir|Quill Larkspur|se=spring/dp=dusk|45|Quill Larkspur is singing tenor with the frogs and makes room for you in the back row.|fp=2
+wetland-the-lily-pad-ford|Wick Rushworth|we=rain|40|Wick Rushworth, a frog of great experience, calls out every hop from a lily pad. You cannot miss.|nocheck,fp=1,xp=4
+wetland-the-dragonfly-bend|Pip Oakenpot|se=summer/dp=day|40|Pip Oakenpot is studying how the dragonflies stitch the air and very fussily asks you to hold the thread.|fp=1,item=dragonfly-wing:1@20
+wetland-the-dragonfly-bend|Pip Oakenpot|se=summer/dp=day|35|Pip Oakenpot needs three dragonfly wings to copy the stitching, and sews you a hat patch in the same blue.|give=dragonfly-wing:3,item=blue-stitch-hat-patch:1,fp=2
+wetland-the-reed-causeway|Fig Hollowell|dp=dawn|40|Fig Hollowell is cutting reeds for a roof, and you help bundle them up.|fp=1,item=rope:1@30
+wetland-the-heron-s-post|Tilly Dewdrop|we=fog|45|Tilly Dewdrop, a critic, asks your review of the heron. You agree it was luminous.|fp=2
+mountain-the-scree-slope|Quill Tumblethorn|se=summer/dp=day|40|Quill Tumblethorn sings all the way down the scree, badly, and you join in, worse.|fp=2
+mountain-the-pine-shelf|Juniper Dewdrop|we=wind|45|Juniper Dewdrop is also holding on to the pine shelf in the wind, so you hold on together.|fp=2
+mountain-the-wind-notch|Elm Puddlefoot|dp=dusk|40|Elm Puddlefoot is listening to the notch and asks what tune it played. You hum it back.|fp=2
+mountain-the-goat-ledge|Hazel Dewdrop|se=spring|40|Hazel Dewdrop looks after these goats, and since the goat let you sit, you get a tuft of its hair.|fp=1,item=goat-hair:1@50
+mountain-the-waterfall-mist|Cobb Tumblethorn|dp=dawn|40|Cobb Tumblethorn is painting the falls, and you hold the brushes. The painting is mostly mist, and she gives you a little one.|fp=1,item=waterfall-sketch:1@25
+mountain-the-eagle-s-rest|Willa Pennywhistle|dp=dawn|40|Willa Pennywhistle came up here to be left alone, so you leave her alone very nicely. She notices.|fp=2
+mountain-the-stone-hut|Rook Dewdrop|se=winter|40|Rook Dewdrop is on holiday in the stone hut and toasts you some bread, with cocoa.|fp=1,item=hot-cocoa:1@40
+mountain-the-switchback-bend|Tobias Trundle|dp=day|30|Tobias Trundle is plodding up the switchback, so you walk a bend with him and he gives you a seed.|fp=1,seed=1
+mountain-the-cairn-pass|Tuck Gillyflower|we=snow|45|Tuck Gillyflower insists his cairn is the tallest, so you add a stone to his.|fp=2
+coast-the-lighthouse-shadow|Keeper Loamwick|dp=night/we=fog|40|Keeper Loamwick, the lighthouse mole, flashes you where the fish are shoaling, and you catch one.|fp=2,fish=1
+coast-the-kelp-line|Pomeroy Crumbworth|se=summer/dp=dusk|35|Pomeroy Crumbworth is reviewing kelp crisps and needs two fresh bladderwrack. He gives your kelp two spoons out of three.|give=bladderwrack:2,xp=40,fp=2
+coast-the-rope-and-net-rack|Sorrel Dewdrop|dp=dawn|45|Sorrel Dewdrop is mending nets, grumbles that your knot is wrong, and gives you two sardines anyway.|fp=1,item=sardine:2@50
+coast-the-tide-pool-steps|Rook Rushworth|dp=day|40|Rook Rushworth is counting crabs in the pools and you count too. You both get a different number.|fp=2
+coast-the-stranded-rowboat|Ferrin Pennywhistle|we=storm|45|Ferrin Pennywhistle says the boat is his and the sea owes him. You help push, and he softens a bit.|fp=2
+coast-the-sandbar-causeway|Orla Lanternby|dp=dusk|40|Orla Lanternby times you across the sandbar with a shell-clock and declares it a record.|fp=2
+coast-the-dune-grass-sweep|Lyra Fiddlewing|we=wind/dp=dusk|45|Lyra Fiddlewing is practising for the dune grass audience, so you clap along too.|fp=1,xp=3
+coast-the-driftwood-arch|Ulric Puddlefoot|we=wind|40|Ulric Puddlefoot is resting in the arch's shade and shares a snack with you.|fp=2
+coast-the-sea-stack-gap|Alder Puddlefoot|se=summer|40|Alder Puddlefoot dares you to paddle one stack further, and pays up a pretty pebble when you do.|fp=1,item=dare-pebble:1@40
+coast-the-shell-heap|Ulric Crumblewick|dp=day|40|Ulric Crumblewick inspects your shell sorting and finds it perfect, which never happens.|fp=2
+desert-the-sun-bleached-bones|Yarrow Lanternby|dp=day|40|Yarrow Lanternby is bursting to ask about the bones, so you sit and wonder about them together.|fp=2
+desert-the-salt-flat|Pomeroy Crumbworth|we=heat|35|Pomeroy Crumbworth wants a pinch of real sea salt for a recipe and rates your crunching one spoon, which is high praise.|give=sea-salt:1,xp=30,fp=2
+desert-the-shade-awning|Orla Teaspoon|dp=day|40|Orla Teaspoon is already napping under the awning, so you nap beside them without snoring. Mostly.|fp=2
+desert-the-red-rock-arch|Ivy Brambleby|dp=dusk|40|Ivy Brambleby is watching the arch glow at dusk and shuffles over to share it.|fp=2
+desert-the-waystone-cluster|Alder Burrowby|se=autumn|40|Alder Burrowby leans on the waystones and tells you absolutely everything, including who is away today.|fp=1,xp=3,hint=away
+desert-the-mirage-pool|Wren Thimblewick|we=heat|40|Wren Thimblewick is studying how real the pool is and trades you a seed for your opinion.|fp=1,seed=1
+desert-the-cactus-garden|Hazel Hollowell|dp=dawn|40|Hazel Hollowell waters the cactus garden very bravely and lets you hold the can while showing off.|fp=2
+desert-the-trader-s-tent-poles|Old Marrowby|se=autumn|40|Old Marrowby has set up his autumn barter stall under the poles: three of a desert find for two from the sea.|give=desert-glass:3,item=sea-glass:2,fp=1
+desert-the-trader-s-tent-poles|Old Marrowby|se=autumn|40|Old Marrowby spots one of his old wooden coins and swaps it for a crystal, fair and square, as he always said.|give=marrowbys-wooden-coin:1,item=rock-crystal:1,fp=1
+desert-the-well-and-its-rope|Tilly Wickerby|we=heat/dp=day|45|Tilly Wickerby hauls up a cold bucket and shares the well water with you.|fp=1,en=1
+rainforest-the-stepping-roots|Thimble Fiddlewood|we=rain|40|Thimble Fiddlewood, a very quick gecko, shows you which roots are grippy. You climb straight up behind them.|nocheck,fp=2
+rainforest-the-giant-fern-glade|Ferrin Sedgemoor|dp=day|40|Ferrin Sedgemoor is playing hide and seek in the giant ferns and is very bad at hiding.|fp=2
+rainforest-the-orchid-tree|Quill Thistledown|se=spring/dp=dawn|45|Quill Thistledown asks which orchid is best. You answer honestly and get a cutting.|fp=1,item=cut-moth-orchid:1@30
+rainforest-the-canopy-gap|Wick Marrowby|we=sun/dp=day|40|Wick Marrowby is lying in the sunbeam and scoots over to share it.|fp=2
+rainforest-the-vine-bridge|Lyra Fiddlewing|we=wind|40|Lyra Fiddlewing plays along with the creaking vine bridge, and you cross in time to the tune without a wobble.|nocheck,fp=1,xp=3
+rainforest-the-fallen-giant|Juniper Puddlefoot|dp=dusk|40|Juniper Puddlefoot is sitting on the fallen trunk at dusk and pats the spot beside them.|fp=2
+rainforest-the-rain-drum-leaf|Rue Hollowell|we=rain/dp=day|45|Rue Hollowell is dancing to the rain drum, and you dance too, very splashily.|fp=2
+rainforest-the-lantern-fruit|Posy Marrowby|dp=night|40|Posy Marrowby only dares walk the dark Trail with a lantern fruit, and has not got one. Could you spare yours?|give=lantern-fruit:1,fp=4
+rainforest-the-mist-pool|Pomeroy Crumbworth|we=fog/dp=dawn|40|Pomeroy Crumbworth insists the mist smells of soup and asks you to describe the flavour. Leek, you say. He writes it down.|fp=2,xp=20
+island-the-hammock-palms|Pinchwell|dp=day|35|Pinchwell, the crab who writes letters, tells the hammock crab you are a friend, so of course you may share. There is a letter for you too.|nocheck,fp=1,item=cowrie-shell:1@40
+island-the-tide-cave|Willa Thistledown|we=cloud|40|Willa Thistledown is napping to the cave's breathing, so you breathe very quietly too.|fp=2
+island-the-shell-bell-tree|Lyra Fiddlewing|dp=dusk|40|Lyra Fiddlewing plays a duet with the shell bells, and you get to ring the high one.|fp=1,xp=3
+island-the-sand-spit|Tansy Thistledown|dp=dawn|40|Tansy Thistledown wonders what the sand spit points at, so you look together and spot a sea-bird.|fp=2,page=sand-spit-seabird
+island-the-rope-swing|Pip Mossgrove|se=summer/dp=day|45|Pip Mossgrove scores your splash a nine out of ten, docking one for style.|fp=2
+island-the-coconut-grove|Pomeroy Crumbworth|se=summer|35|Pomeroy Crumbworth needs one good coconut for a curry review and shares the curry with you.|give=coconut:1,item=coconut-curry:1,fp=2
+island-the-reef-shallows|Wren Thimblewick|we=sun|40|Wren Thimblewick is counting fish species, and you point out one she missed.|fp=1,seed=1
+island-the-lagoon-edge|Fennel Mossgrove|dp=dawn|40|Fennel Mossgrove is practising talking to their reflection, so you say hello instead.|fp=2
+tundra-the-snow-fort|Dilly Lanternby|we=snow|45|Dilly Lanternby is defending the snow fort alone, so you join their side. You lose gloriously.|fp=2
+tundra-the-snow-fort|Dilly Lanternby|we=snow,frost|35|Dilly Lanternby says the fort only has better snacks to fight for. Bring hot cocoa and the banner goes to the winner of a friendly snowball standoff. You win.|give=hot-cocoa:1,item=snow-fort-banner:1,fp=2
+tundra-the-lone-fir|Sage Tumblethorn|se=winter/dp=dusk|45|Sage Tumblethorn hangs one ornament on the lone fir each year, lets you hang it this time, and gives you one to take home.|fp=2,item=fir-ornament:1@40
+tundra-the-aurora-rise|Thistle Leafwhisker|se=winter/dp=night|45|Thistle Leafwhisker makes a wish on every colour of the aurora and shares one with you.|fp=2
+tundra-the-ice-shelf-steps|Sorrel Honeycomb|we=frost|40|Sorrel Honeycomb asks for a song on the icy steps, so you sing one, teeth chattering.|fp=2
+tundra-the-star-chart-stones|Wren Thimblewick|dp=night|40|Wren Thimblewick is copying a star off the stones, and you copy one with her.|fp=1,seed=1
