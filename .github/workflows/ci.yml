@@ -18,11 +18,11 @@ jobs:
           php-version: '8.1'
       - name: PHP lint (every .php file)
         run: |
-          # combat_math_golden.php redefines random_int() on purpose, which php -l reports as a fatal, so it is skipped
+          # combat_math_golden.php and fight_events.php redefine random_int() on purpose, which php -l reports as a fatal, so they are skipped
           fail=0
           while IFS= read -r -d '' f; do
             php -l "$f" >/dev/null || { php -l "$f"; fail=1; }
-          done < <(find . -name '*.php' -not -path './.git/*' -not -name combat_math_golden.php -print0)
+          done < <(find . -name '*.php' -not -path './.git/*' -not -name combat_math_golden.php -not -name fight_events.php -print0)
           exit $fail
       - name: Merge conflict markers (same check as tests/build_update.sh)
         run: |
@@ -78,7 +78,8 @@ jobs:
           ini-values: opcache.jit=off, opcache.jit_buffer_size=0
       - name: Fresh install vs upgrade from the previous release zip
         run: |
-          old=$(ls releases/GnomeVenture-*-source.zip | sort -V | tail -2 | head -1)
+          # patch releases ship slim zips only; source zips (milestones) live in releases/ or releases/archive/
+          old=$(ls releases/GnomeVenture-*-source.zip releases/archive/GnomeVenture-*-source.zip 2>/dev/null | sort -V | tail -1)
           echo "upgrading from $old"
           bash tests/upgrade_check.sh "$old" 8790
 
