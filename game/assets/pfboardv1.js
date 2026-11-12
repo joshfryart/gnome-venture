@@ -24,6 +24,7 @@
   var glows = [], fxOn = !willReplay, glowTimer = 0, frame = 0;
   // ================= v1 (2.6.74 stage C): state, texts and drawing helpers. Ported from the approved demo (tools/pfdemo_v1/app.js); the texts mirror claude/design-board-strategy.md, "Player-facing terrain text".
   var V1 = data.v1 || {}, PREV = data.prev || null, phase = 'now', terOver = {}, movedBack = {}, usedGone = {}, leavingUsed = {}, flashEnv = null, flashIds = {}, aimHide = false, stepNow = 0, stepNote = '';
+  var flipBusy = false, wrapObs = null, wrapEl = null, fitTW = 0, fitTH = 0;
   var planQ = null, offMsg = '', popEl = null, sheetEl = null, rowEl = document.getElementById('pfv-row'), legendEl = document.getElementById('pfv-legend'), flipBtn = document.getElementById('pf-flip');
   var SPD = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '0' ? 0 : 1; } catch (e) {}
   var FOETAG = { quick: 'Quick: it plays one more piece this turn', evade: 'Evade: your next hit on it misses', bash: 'Bash: adds its guard to its next hit', poison: 'Poison: 2 ticks on your health',
@@ -116,9 +117,9 @@
       if (!t.dataset.v1) { t.dataset.v1 = '1';
         if (h.life) t.appendChild(pipsEl(h.life, h.life));
         if (SRCI[h.src]) { var s = document.createElement('span'); s.className = 'src'; s.title = 'Teamwork source: ' + h.src; s.setAttribute('aria-hidden', 'true'); s.textContent = SRCI[h.src]; t.appendChild(s); }
-        t.classList.toggle('pfv-flipped', !!h.flip);
         t.setAttribute('aria-label', t.getAttribute('aria-label') + '; stays ' + (h.life || 3) + ' rounds' + (SRCI[h.src] ? '; Teamwork source: ' + h.src : '') + (h.flip ? '; flipped' : ''));
       }
+      t.classList.toggle('pfv-flipped', !!h.flip);
       var why = busy || redrawMode ? null : handWhy(i);
       t.classList.toggle('pfv-off', !!why); if (why) t.setAttribute('aria-disabled', 'true'); else t.removeAttribute('aria-disabled');
     });
@@ -128,14 +129,14 @@
   function drawRows() {
     if (!rowEl) return;
     var foe = data.foe || 'Creature', h = '', lim = V1.limit || 0, n = planQ && moves.length ? planQ.n || 0 : 0, tw = planQ && moves.length ? planQ.tw || 1 : 1, st = data.status || {}, i, dots = '';
-    h += '<span class="tg step">R' + (data.round || 1) + '</span>' + ['You', esc(foe), 'Terrain'].map(function (t, k) { return '<span class="tg step' + (k === stepNow && !data.won ? ' on' : '') + '">' + t + '</span>'; }).join('<span class="tg step" aria-hidden="true">›</span>');
+    h += '<span class="tg step on" title="Every round goes: you, the creature, then the terrain">R' + (data.round || 1) + ' \u00B7 ' + (data.won ? 'over' : stepNow === 1 ? '<span class="fn">' + esc(foe) + '</span>' : stepNow === 2 ? 'Terrain' : 'You') + '</span>';
     for (i = 1; i <= Math.max(lim, 3); i++) dots += '<i class="' + (n >= i ? (lim > 0 && n >= lim ? 'over' : 'on') : '') + '"></i>';
     h += '<span class="tg" role="img" aria-label="Pieces that fire in your chain: ' + n + '. ' + (lim > 0 ? lim + ' or more: every piece that fired is used up.' : '') + '" title="' + (lim > 0 ? 'A chain of ' + lim + ' or more uses up every piece that fired.' : 'Chain') + '">chain <span class="dots">' + dots + '</span></span>';
     h += '<span class="tg team' + (tw > 1 ? ' on' : '') + '" title="Pal, tool and crop pieces in one chain: 2 kinds +30%, all 3 +60%">' + (tw > 1 ? 'Teamwork +' + Math.round((tw - 1) * 100) + '%' : 'Teamwork') + '</span>';
     if (!data.won) {
       var aim = dispAim();
       if (!data.start) h += st.foe_slow && phase !== 'pre' ? '<span class="tg good">' + esc(foe) + ' is slowed: no move</span>' : aim ? '<span class="tg aim">' + svg('aim') + 'Aims ' + esc(aim.n) + ' ' + esc(aim.t) + ' ' + aim.v + (data.reaim && phase !== 'pre' ? ' (picked again)' : '') + '</span>' : '<span class="tg aim">no aim</span>';
-      dispEnvs().forEach(function (e, k) { if (phase === 'pre' && envDone[k]) return; h += '<button type="button" class="tg ev" data-ev="' + k + '">' + svg(EVG[e.kind]) + EVN[e.kind] + ': ' + (e.kind === 'gust' && e.on ? 'pushes ' + esc(e.on.n) : evText2(e.kind).w) + '</button>'; });
+      dispEnvs().forEach(function (e, k) { if (phase === 'pre' && envDone[k]) return; h += '<button type="button" class="tg ev" data-ev="' + k + '">' + svg(EVG[e.kind]) + (e.kind === 'gust' && e.on ? 'Gust: pushes ' + esc(e.on.n) : EVN[e.kind]) + '</button>'; });
       if (st.poison) h += '<span class="tg bad">poisoned ' + st.poison + '</span>';
       if (st.slowdraw) h += '<span class="tg bad">tripped: draw −1</span>';
       if (st.foe_evade) h += '<span class="tg bad">it dodges your next hit</span>';
@@ -152,8 +153,8 @@
   function spdLabel() { return '▶ ' + (SPD === 2 ? '2×' : SPD === 0 ? 'skip' : '1×'); }
   function drawLegend() {
     if (!legendEl) return;
-    legendEl.innerHTML = [['sun', 'Sunny: counts ' + times(V1.sun)], ['br', 'Bramble: −' + pc100(V1.bramble || 0) + ' a round'], ['mud', 'Mud: no links']].map(function (q) { return '<button type="button" class="tg lg-' + q[0] + '" data-ter="' + q[0] + '">' + svg(q[0]) + q[1] + '</button>'; }).join('')
-      + '<button type="button" class="tg" data-a="turn">Terrain turn</button><button type="button" class="tg qm" data-a="help" aria-label="Help: how the board works">?</button>'
+    legendEl.innerHTML = [['sun', '\u00d7' + V1.sun, 'Sunny: counts ' + times(V1.sun)], ['br', '\u2212' + pc100(V1.bramble || 0), 'Bramble: \u2212' + pc100(V1.bramble || 0) + ' a round'], ['mud', 'no links', 'Mud: no links']].map(function (q) { return '<button type="button" class="tg lg-' + q[0] + '" data-ter="' + q[0] + '" aria-label="' + q[2] + '. Press for more" title="' + q[2] + '">' + svg(q[0]) + q[1] + '</button>'; }).join('')
+      + '<button type="button" class="tg" data-a="turn" aria-label="Terrain turn: what happens in a round">Turn</button><button type="button" class="tg qm" data-a="help" aria-label="Help: how the board works">?</button>'
       + '<button type="button" class="tg spd" data-a="spd" aria-label="Animation speed: ' + (SPD === 2 ? 'double' : SPD === 0 ? 'skip' : 'normal') + '. Press to change">' + spdLabel() + '</button>';
   }
 
@@ -194,7 +195,7 @@
       + '<div class="sl">Events <span>marked a round ahead</span></div><p class="hint">' + WHEN + '</p><ul class="helpl">' + ['sunbeam', 'creep', 'puddle', 'gust', 'thorn'].map(function (k) { return row(evText2(k)); }).join('') + '</ul>'
       + '<div class="sl">Animation speed</div><div class="spdrow">' + [['1', '1×'], ['2', '2×'], ['0', 'Skip']].map(function (o) { return '<button type="button" class="btn small' + (String(SPD) === o[0] ? ' primary' : ' ghost') + '" data-spd="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>'
       + '</div></div>';
-    document.body.appendChild(sheetEl);
+    (root.closest('dialog') || document.body).appendChild(sheetEl);   // inside the Trail's popover when the fight is in one (a modal dialog covers the page)
     sheetEl.addEventListener('click', function (ev) {
       if (ev.target.closest('[data-x]')) { closeSheet(); return; }
       var sb = ev.target.closest('[data-spd]'); if (sb) { setSpd(+sb.dataset.spd); helpSheet(); }
@@ -242,24 +243,60 @@
       else if (b.dataset.a === 'help') helpSheet();
       else if (b.dataset.a === 'spd') setSpd(SPD === 1 ? 2 : SPD === 2 ? 0 : 1);
     });
-    var fform = document.getElementById('pf-fform'), fkey = 'pfvflip', me = ((form.querySelector('[name=nonce]') || {}).value) + ':' + ((form.querySelector('[name=turn]') || {}).value) + ':';
-    if (flipBtn && fform) flipBtn.addEventListener('click', function () {
-      if (typeof selected !== 'number' || playing || submitted || !data.hand[selected].canflip) return;
-      submitted = true; flipBtn.disabled = true;
-      try { window.sessionStorage.setItem(fkey, me + selected); } catch (e) {}
-      document.getElementById('pf-fhand').value = String(selected);
-      if (typeof fform.requestSubmit === 'function') fform.requestSubmit(); else fform.submit();
-    });
-    try {   // back from a flip: the piece is picked again and turns over
-      var fv = window.sessionStorage.getItem(fkey);
-      if (fv && fv.indexOf(me) === 0) { var fi = parseInt(fv.slice(me.length), 10); window.sessionStorage.removeItem(fkey);
-        if (tiles[fi] && data.hand[fi] && !data.won) { selected = fi; tiles[fi].classList.add('pf-picked', 'pfv-flipping'); tiles[fi].setAttribute('aria-pressed', 'true'); setTimeout(function () { if (tiles[fi]) tiles[fi].classList.remove('pfv-flipping'); }, 500); } }
-      else if (fv) window.sessionStorage.removeItem(fkey);
-    } catch (e) {}
+    if (flipBtn) flipBtn.addEventListener('click', doFlip);
+    wrapEl = document.createElement('div'); wrapEl.className = 'pfv-bwrap'; boardEl.parentNode.insertBefore(wrapEl, boardEl); wrapEl.appendChild(boardEl);   // the board takes the room that is left: the fight fits the window
+    if (window.pfvFrame) window.pfvFrame();
+    window.addEventListener('resize', refit);
+    if (typeof ResizeObserver === 'function') { wrapObs = new ResizeObserver(function () { fitBoard(); }); wrapObs.observe(wrapEl); }
     document.addEventListener('keydown', onKey);
     if (window.pfvSizes) window.pfvSizes();
   }
-  function v1Off() { closeSheet(); closePop(); document.removeEventListener('keydown', onKey); }
+  function v1Off() { closeSheet(); closePop(); document.removeEventListener('keydown', onKey); window.removeEventListener('resize', refit); if (wrapObs) wrapObs.disconnect(); }
+
+  /** The board is as big as the room between the rows above and under it allows (its cells scale); never wider than the fight. */
+  function fitBoard() {
+    if (!wrapEl || !fitTW || !root.classList.contains('pfv-fit')) return;
+    var r = wrapEl.getBoundingClientRect(); if (r.height < 30 || r.width < 30) return;
+    var ar = fitTW / fitTH, w = Math.floor(Math.min(r.width, r.height * ar, fitTW * 1.7));
+    boardEl.style.maxWidth = 'none'; boardEl.style.aspectRatio = 'auto'; boardEl.style.width = w + 'px'; boardEl.style.height = Math.floor(w / ar) + 'px';
+  }
+  function refit() { if (window.pfvFrame) window.pfvFrame(); fitBoard(); fan(); }
+
+  /** FLIP (2.6.75: no page load): the server flips the picked piece and answers with the hand; the piece turns over where it is, its lit spots and their numbers are worked out again. */
+  function flipLabel() {
+    if (!flipBtn) return;
+    var used = !!(data.flip && data.flip.used), can = typeof selected === 'number' && data.hand[selected] && data.hand[selected].canflip;
+    var why = used && !can ? 'You have flipped a piece this turn. Flip that piece back to get the flip again.' : typeof selected !== 'number' ? 'Pick a piece from your hand first.' : !can ? 'This piece cannot be flipped.' : 'Flip: swap the top and bottom edges of the piece you picked (once a turn, free)';
+    flipBtn.textContent = used && !can ? '\u21C5 Flip used' : '\u21C5 Flip'; flipBtn.title = why; flipBtn.setAttribute('aria-label', why);
+  }
+  function redrawTile(i) {   // the hand piece is drawn again with its edges as they are now
+    var t = tiles[i]; if (!t) return;
+    Array.prototype.forEach.call(t.querySelectorAll('.pfh-cv, .pfb-mod, .pfe'), function (x) { x.parentNode.removeChild(x); });
+    delete t.dataset.arted;
+    if (!(window.PFParts && window.PFParts.ok)) ['B', 'T', 'R', 'L'].forEach(function (sd) { t.insertBefore(edgeSpan(data.hand[i].e[sd], sd), t.firstChild); });
+  }
+  function doFlip() {
+    var i = selected;
+    if (typeof i !== 'number' || playing || submitted || flipBusy || !data.hand[i] || !data.hand[i].canflip) return;
+    flipBusy = true; flipBtn.disabled = true;
+    var fd = new FormData(), qs = function (n) { var e = form.querySelector('[name=' + n + ']'); return e ? e.value : ''; };
+    fd.append('csrf', qs('csrf')); fd.append('do', 'pfb_flip'); fd.append('nonce', qs('nonce')); fd.append('turn', qs('turn')); fd.append('hand', String(i));
+    fetch(location.pathname, { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'pfflip' } })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        flipBusy = false;
+        if (!j || !j.ok) { offMsg = (j && j.err) || 'The piece could not be flipped.'; render(); return; }
+        (j.hand || []).forEach(function (h, k) { if (data.hand[k]) { data.hand[k].e = h.e; data.hand[k].flip = h.flip; data.hand[k].canflip = h.canflip; } });
+        data.flip = j.flip || data.flip;
+        redrawTile(i); nums.key = null; nums.d = null; planQ = null; offMsg = ''; moves = []; closePop();
+        tiles[i].classList.add('pfv-flipping'); render();
+        setTimeout(function () { if (tiles[i]) tiles[i].classList.remove('pfv-flipping'); }, 450);
+      })
+      .catch(function () {   // no answer (offline, an old server): the plain form post, which reloads the page
+        flipBusy = false; var ff = document.getElementById('pf-fform'), fh = document.getElementById('pf-fhand');
+        if (ff && fh) { submitted = true; fh.value = String(i); if (typeof ff.requestSubmit === 'function') ff.requestSubmit(); else ff.submit(); }
+      });
+  }
 
   var world = null, vz = 1, vx = 0, vy = 0, viewKey = '', moved = false;
   // zoom and pan of the play area: wheel on a computer, pinch and drag on a phone, + - and reset buttons for everyone
@@ -478,6 +515,7 @@
     var TW = art ? VW * S.pitch[0] + 2 * S.tab[0] : 0, TH = art ? VH * S.pitch[1] + 2 * S.tab[1] : 0;
     boardEl.style.aspectRatio = art ? TW + ' / ' + TH : (VW * 1.45) + ' / ' + VH;
     boardEl.classList.toggle('pfb-arted', !!art);
+    fitTW = art ? TW : VW * 1.45; fitTH = art ? TH : VH;
     boardEl.style.maxWidth = art ? Math.round(TW * (window.innerWidth <= 560 ? 1.1 : 1.5)) + 'px' : '';   // a small play area: pieces at most 1.1x on a phone, 1.5x elsewhere
     function put(el, x, y, cw, ch) {
       x -= x0; y -= y0; cw = cw || 1; ch = ch || 1;
@@ -556,6 +594,7 @@
     var vk = [x0, y0, x1, y1].join(',');
     if (vk !== viewKey) { viewKey = vk; vz = 1; vx = 0; vy = 0; }   // the pieces moved the view: back to the whole area
     boardEl.appendChild(zoomControls());
+    fitBoard();
     applyView();
     tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, m: data.hand[i].m, rar: modRar(data.hand[i].m), edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); var hb = modBadge(data.hand[i].m); if (hb) t.appendChild(hb); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
@@ -564,19 +603,19 @@
     var busy = playing || submitted || !!data.won || !!rewind;
     var endBtn = document.getElementById('pf-end'); if (endBtn) endBtn.disabled = playing;
     undo.disabled = busy || (moves.length === 0 && selected === null); go.disabled = busy || moves.length === 0;
-    if (flipBtn) flipBtn.disabled = busy || typeof selected !== 'number' || !data.hand[selected].canflip || redrawMode;
-    var fits = anyFits();
+    if (flipBtn) flipBtn.disabled = busy || flipBusy || typeof selected !== 'number' || !data.hand[selected].canflip || redrawMode;
+    var fits = anyFits() || tiles.some(function (t, i) { return usable(i) && data.hand[i] && data.hand[i].canflip && !handWhy(i); });   // v1: a piece that fits once flipped is not 'nothing fits' (the server refuses that pass)
     if (pform) pform.hidden = !(moves.length === 0 && !fits && selected === null);
     var sel = typeof selected === 'number' ? tiles[selected] : null, hasJoin = !!(sel && joinOptions(selected).length);
     prev.textContent = offMsg && !playing && !rewind ? offMsg : stepNote && playing ? stepNote : sel && !redrawMode && !data.start && !Object.keys(lit).length && data.hand[selected].canflip ? sel.dataset.name + ' fits nowhere this way up. Flip it.' : data.start && !rewind && !playing ? (sel ? sel.dataset.name + ': pick a side of \u2726. Nothing fires.' : moves.length ? 'Start piece chosen. Confirm start when ready.' : 'Opening: pick a piece, then a side of \u2726. Nothing fires; the creature picks its side too, hidden.') : rewind ? 'Rewound. Nothing can be played until you go back to now.' : playing ? 'Watch the chain: each piece is scored in turn.' : data.won ? 'It is over. End the fight to collect your reward.' : redrawMode ? 'Tap the piece to swap for a fresh one.'
-      : sel ? sel.dataset.name + ': ' + sel.dataset.desc.split('. ')[0] + '. Pick a lit spot' + (hasJoin ? ' or set it aside.' : '.') + ' The number is what your own chain does.' + (data.hand[selected].tool ? ' Tool piece: \u2212' + (data.toolwear || 2) + ' durability when played.' : '')
+      : sel ? sel.dataset.name + ': ' + sel.dataset.desc.split('. ')[0] + '. Pick a lit spot' + (hasJoin ? ' or set it aside.' : '.') + ' The number is what your own chain does.' + (data.hand[selected].tool ? ' Tool piece: \u2212' + (data.toolwear || 2) + ' durability when played.' : '') + (data.flip && data.flip.used && !data.hand[selected].canflip ? ' Your flip is used this turn.' : '')
       : selected === 'group' ? hintText || 'Pick a lit spot for the group.'
       : moves.length === 0 ? (fits ? (!mustLink(baseBoard(), handEdges()) && baseBoard().count ? 'Nothing can connect, so you may place a piece anywhere it fits.' : root.dataset.turn === '1' ? 'Win two ways: Hurt empties its health, Charm fills the charm bar.' : 'Pick a piece, then a lit spot. One piece a turn.') : 'Nothing fits. You can pass.')
       : moves[0].k === 'j' || moves[0].k === 'h' ? 'Set aside for a later turn. End turn when ready.'
       : 'Placed. End turn when ready.';
     prev.title = prev.textContent;
     if (rewind) { var rc = boardEl.querySelector('.pfb-cell[data-id="' + rewind.id + '"]'); if (rc) rc.classList.add('pfb-scoring'); }
-    drawRows();
+    drawRows(); flipLabel(); fitBoard();
     if (!replayed) maybeReplay();
   }
 

@@ -248,3 +248,81 @@
 #pfight.pf-v1 > :not(.pfv) { --ink: #f2e4c0; --ink-2: #e6d3a4; --muted: #c9a96e; color: #f2e4c0; }
 #pfight.pf-v1 > .pfv-pop { color: #2a1a10; }
 .pf-v1 .pf-preview { white-space: normal; overflow: visible; text-overflow: clip; min-height: 2.5em; }
+
+/* ================= 2.6.75 ================= */
+/* the belt's tools as buttons (icon, name, a small durability bar; rank = border, on the belt = filled) */
+.pfv .toolg { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.pfv .toolg > li { margin: 0; min-width: 0; }
+.pfv .toolg > li.hint { grid-column: 1 / -1; }
+.pfv .tb { position: relative; display: grid; grid-template-columns: 22px minmax(0, 1fr); align-items: center; gap: 2px 4px; width: 100%; min-height: 44px; margin: 0; padding: 3px 5px 4px; border: 2px solid var(--line); border-radius: 0; background: var(--surface-2); color: var(--ink); font: inherit; text-align: left; cursor: pointer; box-shadow: none; }
+.pfv .tb .ti { font-size: 16px; line-height: 1; text-align: center; }
+.pfv .tb .ti img, .pfv .tb .ti .ico { width: 18px; height: 18px; }
+.pfv .tb .tn { min-width: 0; font-size: 11px; font-weight: 600; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pfv .tb .dur { grid-column: 1 / -1; height: 5px; }
+.pfv .tb.t2 { border-color: #4f9a45; } .pfv .tb.t3 { border-color: #3f8fb0; } .pfv .tb.t4 { border-color: #e8a317; box-shadow: 0 0 5px #e8a317; }
+.pfv .tb.on { background: var(--brand-soft); }
+.pfv .tb.on::after { content: '✓'; position: absolute; right: 0; top: 0; width: 13px; height: 13px; font: 700 10px/13px var(--pfv-font); text-align: center; background: var(--brand-fill); color: var(--on-fill, #fff); }
+.pfv .tb.broken { border-style: dashed; border-color: var(--danger); }
+.pfv .tb.pick { outline: 3px solid var(--focus); outline-offset: -1px; }
+.pfv .tb:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+.pfv .pinfo .btn + .btn { margin-left: 4px; }
+/* the pre-fight screen: Let's fight is always on screen; with Auto deck on the deck waits in a fold under it */
+.pfv .pfv-act { position: sticky; bottom: 0; z-index: 3; margin: 8px -2px 0; padding: 6px 2px; background: var(--surface, #fff); }
+.pfv .pfv-autostrip { margin-top: 8px; }
+.pfv .pfv-deckfold { margin: 6px 0 0; }
+.pfv .pfv-deckfold > summary { cursor: pointer; min-height: 36px; padding: 6px 2px; font-size: 13px; font-weight: 700; }
+.pfv .pfv-deckfold > summary span { font-weight: 400; color: var(--muted); font-size: 12px; }
+/* a screen that fits the window (the fight, the pre-fight screen): fixed between the site's header and bottom bar (the script measures them), the page behind does not scroll */
+html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
+#pfv-pre.pfv-fit { position: fixed; z-index: 60; top: var(--pfv-top, 0px); bottom: var(--pfv-bot, 0px); left: 50%; width: min(100vw, 560px); max-width: none; transform: translateX(-50%); margin: 0; overflow-y: auto; overscroll-behavior: contain; box-sizing: border-box; }
+#pfight.pf-v1.pfv-fit { position: fixed; z-index: 60; top: var(--pfv-top, 0px); bottom: var(--pfv-bot, 0px); left: 50%; width: min(100vw, 760px); max-width: none; transform: translateX(-50%); margin: 0; padding: 4px 6px calc(4px + env(safe-area-inset-bottom, 0px)); border-radius: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 3px; overflow: hidden; background: #2b1d14; box-shadow: 0 0 0 100vmax rgba(12, 7, 4, .78); clip-path: inset(0 -100vmax); }
+#pfight.pf-v1.pfv-fit > * { flex: none; margin-top: 0; margin-bottom: 0; min-width: 0; }
+#pfight.pf-v1.pfv-fit > .pfv-bwrap { flex: 1 1 0; min-height: 0; display: grid; place-items: center; overflow: hidden; }
+#pfight.pf-v1.pfv-fit .pfb-board { margin: 0; flex: none; }
+/* compact rows above and under the board: one line each, chips scroll sideways */
+.pf-v1.pfv-fit .pfc-top { padding-top: 2px; padding-bottom: 2px; }
+.pf-v1.pfv-fit .pfv-legend, .pf-v1.pfv-fit .pf-opts { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; scrollbar-width: none; min-height: 24px; margin: 0; gap: 3px; }
+.pf-v1.pfv-fit .pfv-row { margin: 0; gap: 2px 3px; min-height: 22px; max-height: 68px; overflow: hidden; }
+.pf-v1 .pfv-row .tg .fn { display: inline-block; max-width: 8.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+.pf-v1.pfv-fit .pfv-row::-webkit-scrollbar, .pf-v1.pfv-fit .pfv-legend::-webkit-scrollbar, .pf-v1.pfv-fit .pf-opts::-webkit-scrollbar { display: none; }
+.pf-v1.pfv-fit .pfv-row .tg, .pf-v1.pfv-fit .pfv-legend .tg { flex: none; }
+.pf-v1.pfv-fit .pfv-legend .tg { min-height: 26px; padding: 0 6px; }
+.pf-v1.pfv-fit .pfv-legend .spd { margin-left: auto; }
+.pf-v1.pfv-fit .pf-opts { align-items: center; padding: 0; }
+.pf-v1.pfv-fit .pf-opts .btn { flex: none; min-height: 32px; padding: 2px 8px; font-size: 12px; margin: 0; white-space: nowrap; }
+.pf-v1.pfv-fit .pf-opts .pf-opts-h { flex: none; font-size: 11px; }
+.pf-v1.pfv-fit .pf-preview { min-height: 0; height: 2.5em; line-height: 1.25; margin: 0; font-size: 12px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-align: center; }
+.pf-v1.pfv-fit .pf-plan { margin: 0; padding: 0; max-height: 1.5em; overflow: hidden; font-size: 12px; }
+.pf-v1.pfv-fit .pf-plan.open { position: absolute; left: 6px; right: 6px; bottom: 130px; z-index: 14; max-height: 50%; overflow-y: auto; padding: 6px 8px; background: #2a1a10; border: 2px solid #e8a317; box-shadow: 0 2px 10px rgba(0, 0, 0, .6); }
+.pf-v1.pfv-fit .pfc-more { display: none; }
+.pf-v1.pfv-fit .pf-extra { margin: 0; padding: 0; min-height: 0; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-items: center; }
+.pf-v1.pfv-fit .pf-extra:empty { display: none; }
+.pf-v1.pfv-fit .pf-tray { margin: 0; padding: 0; }
+.pf-v1.pfv-fit .pf-tray .pf-hand { padding: 6px 0 0; }
+.pf-v1.pfv-fit .pf-heldrow { margin: 0; }
+/* Flip and the buttons beside it: about a fifth smaller, still 40px to tap */
+.pf-v1 .pf-buttons { display: flex; flex-wrap: nowrap; gap: 6px; justify-content: center; align-items: center; margin: 2px 0; }
+.pf-v1 .pf-buttons .btn, .pf-v1 .pf-extra .btn, .pf-v1 #pf-skip, .pf-v1 .pf-rewind .btn { min-height: 40px; padding: 3px 10px; font-size: 14px; margin: 0; }
+.pf-v1 .pf-buttons form { margin: 0; }
+.pf-v1 .pf-buttons #pf-go { flex: 1 1 auto; max-width: 220px; }
+.pf-v1 .pf-buttons .pfv-flipb { white-space: nowrap; }
+.pf-v1 #pf-skip { min-height: 34px; padding: 2px 10px; font-size: 13px; }
+/* overlays: the piece card during a replay, the result card, the help; none of them pushes the layout */
+.pf-v1.pfv-fit .pf-inspect { position: absolute; left: 6px; right: 6px; bottom: 6px; z-index: 13; margin: 0; padding: 6px 8px; font-size: 12px; line-height: 1.3; max-height: 96px; overflow: hidden; }
+.pf-v1.pfv-fit .pf-inspect b { font-size: 13px; }
+.pf-v1.pfv-fit .pf-inspect .pfi-cv { max-height: 52px; width: auto; }
+#pfight.pf-v1.pfv-fit > .pfv.res { position: absolute; left: 6px; right: 6px; top: 56px; bottom: 6px; z-index: 20; margin: 0; max-width: 520px; margin-inline: auto; overflow-y: auto; align-content: start; box-shadow: 0 4px 18px rgba(0, 0, 0, .7); }
+@media (max-height: 700px) {
+  .pf-v1.pfv-fit .pfc-top .pfc-av img, .pf-v1.pfv-fit .pfc-top .pfc-av svg { max-height: 40px; width: auto; }
+  .pf-v1.pfv-fit .pf-preview { height: 1.3em; -webkit-line-clamp: 1; }
+}
+
+.pf-v1.pfv-fit .pf-opts .pf-opts-h { flex: 0 0 auto; width: auto; margin: 0; }
+@media (max-height: 700px) {
+  .pf-v1.pfv-fit .pfc-top { padding: 1px 4px; }
+  .pf-v1.pfv-fit .pfc-av { width: 36px; height: 36px; }
+  .pf-v1.pfv-fit .pf-hist .pf-chip { min-height: 0; }
+}
+.pf-v1.pfv-fit .pf-buttons { max-width: none; width: 100%; }
+.pf-v1.pfv-fit .pf-buttons .btn { flex: 0 1 auto; }
+.pf-v1.pfv-fit .pfc-top { overflow-x: clip; }   /* a wide intent bubble never makes the fight wider than the window */

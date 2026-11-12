@@ -47,7 +47,19 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     ck(T('box: Take out updates the page in place (one piece fewer in the kit)'), await n('.pfv-g .pc.sel'), kitN - 1);
     await p.click('#pfv-filt [data-g=crop]'); await p.waitForTimeout(100);
     ck(T('box: the crop filter leaves only crop pieces'), await p.evaluate(() => [...document.querySelectorAll('.pfv-g > li[data-g]')].filter(li => !li.hidden).every(li => li.dataset.g === 'crop')), true);
-    await open('/puzzlebox.php?t=belt'); ck(T('belt: durability bars are sized by the script'), await p.evaluate(() => [...document.querySelectorAll('.pfv .dur i')].some(i => i.style.width && i.style.width !== '0%')), true); await shot('2-box-belt');
+    await open('/puzzlebox.php?t=belt'); ck(T('belt: durability bars are sized by the script'), await p.evaluate(() => [...document.querySelectorAll('.pfv .dur i')].some(i => i.style.width && i.style.width !== '0%')), true); 
+    ck(T('belt: the tools are buttons in a grid (no long list)'), [await n('#pfv-tools .tb') >= 4, await n('.pfv .toolrow'), await p.evaluate(() => { const b = [...document.querySelectorAll('#pfv-tools .tb')].map(x => x.getBoundingClientRect()); return b[0].top === b[1].top && b[1].top === b[2].top; })], [true, 0, true]);
+    await p.locator('#pfv-tools .tb.on').first().click(); await p.waitForTimeout(100);
+    ck(T('belt: a tapped tool shows its line with Take off'), [/durability \d+\/\d+/.test(await p.locator('#pfv-info').innerText()), await n('#pfv-info [data-pfv-tool][data-do=pfd_unequip]')], [true, 1]);
+    await shot('2-box-belt');
+    const onN = await n('#pfv-tools .tb.on');
+    await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-info [data-pfv-tool][data-do=pfd_unequip]')]); await p.waitForTimeout(900);
+    ck(T('belt: Take off works in place (one tool fewer on the belt, the tab is kept)'), [await n('#pfv-tools .tb.on'), await n('.pfv .tabs a.on[href*="t=belt"]')], [onN - 1, 1]);
+    await p.locator('#pfv-tools .tb:not(.on):not(.broken)').first().click(); await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-info [data-pfv-tool][data-do=pfd_equip]')]); await p.waitForTimeout(900);
+    ck(T('belt: Put on works in place'), await n('#pfv-tools .tb.on'), onN);
+    await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-auto')]); await p.waitForTimeout(900);
+    ck(T('box: the auto-use switch works in place (on), and off again'), await p.isChecked('#pfv-auto'), true);
+    await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-auto')]); await p.waitForTimeout(900);
     await open('/puzzlebox.php?t=pals'); await shot('2-box-pals');
 
     // ---- 3. the pre-fight screen: auto off (free swaps), auto on (read-only)
@@ -56,7 +68,8 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     ck(T('pre-fight, auto off: creature piece detail, a deck piece offers Take out, a bench is there'), [/plays ×2/.test(await p.locator('#pfv-cinfo').innerText()), await n('#pfv-info [data-pfv-act]'), await p.locator('#pfv-pre').innerText().then(t => /BENCH/i.test(t))], [true, 1, true]);
     await shot('3-prefight-auto-off');
     seed('fight', 'boss', 'auto'); await open('/adventure.php');
-    ck(T('pre-fight, auto on: the note, Turn off and edit, no swaps, Let\'s fight'), [/Auto deck is active/.test(await p.locator('#pfv-info').innerText()), await n('#pfv-pre .pc[data-a=tog]'), await n('#pfv-go')], [true, 0, 1]);
+    ck(T('pre-fight, auto on: one strip (N pieces), Turn off and edit, no swaps, the deck in a closed fold, Let\'s fight on screen'), [/Auto deck is active: \d+ pieces/.test(await p.locator('#pfv-info').innerText()), await n('#pfv-pre .pc[data-a=tog]'), await p.evaluate(() => document.getElementById('pfv-deckfold').open), await p.evaluate(() => { const r = document.getElementById('pfv-go').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }), await p.locator('#pfv-deckfold .pc').first().isVisible()], [true, 0, false, true, false]);
+    await p.click('#pfv-deckfold summary'); ck(T('pre-fight, auto on: Show deck opens the read-only deck'), await p.locator('#pfv-deckfold .pc').first().isVisible(), true); await p.click('#pfv-deckfold summary');
     await shot('3-prefight-auto-on');
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-go')]); await p.waitForTimeout(1500);
     ck(T('Let\'s fight: the board of a boss (7 by 6 cells) with ground'), [await n('#pfb-board .gc'), await n('#pfb-board .gc[data-ter]') > 0], [42, true]);
@@ -85,7 +98,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await p.locator('#pfb-board .mkb').first().click(); await p.waitForTimeout(150);
     ck(T('fight: a forecast mark opens its popover (name, what it does, when, who)'), /Lands at the end of this round/.test(await p.locator('.pfv-pop').innerText()), true);
     await shot('4-fight-forecast-popover');
-    await p.click('.pfv-popx'); await p.locator('#pfb-board .gc[data-ter]').first().click({ position: { x: 4, y: 4 } }); await p.waitForTimeout(150);
+    await p.click('.pfv-popx'); await p.evaluate(() => { const g = [...document.querySelectorAll('#pfb-board .gc[data-ter]')].find(c => { const r = c.getBoundingClientRect(); return document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2) === c; }); (g || document.querySelector('#pfb-board .gc[data-ter]')).click(); }); await p.waitForTimeout(150);   // a ground cell with nothing on it
     ck(T('fight: a ground cell opens its popover'), await n('.pfv-pop'), 1);
     await p.click('#pfv-legend [data-a=turn]'); await p.waitForTimeout(100);
     ck(T('fight: the Terrain turn chip explains the round'), /you, the creature, then the terrain/.test(await p.locator('.pfv-pop').innerText()), true);
@@ -97,8 +110,26 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await p.locator('#pf-hand .pf-tile').nth(pi).click(); await p.waitForTimeout(900);
     ck(T('fight: a playable piece lights its spots with numbers, without a reply number; Flip is on'), [await n('#pfb-board .pfb-lit') > 0, await n('#pfb-board .pfb-lit .pfb-num') > 0, await p.locator('#pfb-board').innerText().then(t => t.includes('↩')), await p.isDisabled('#pf-flip')], [true, true, false, false]);
     await shot('4-fight-lit-spots');
-    await p.click('#pf-flip'); await p.waitForTimeout(1500);
-    ck(T('fight: Flip turns the piece over (marked, picked again), and the flip is used'), [await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].classList.contains('pfv-flipped'), pi), await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].classList.contains('pf-picked'), pi), await p.evaluate(() => JSON.parse(document.getElementById('pf-data').textContent).flip.used)], [true, true, true]);
+    // 2.6.75 regression (Josh: "Flip reloads the page and does nothing"): the flip happens on the page itself. No navigation, the fight element is the same node, the piece is drawn again with top and bottom swapped,
+    // the server has it flipped, the lit spots are asked for again, the other pieces say the flip is used.
+    const before = await p.evaluate((i) => { const f = document.getElementById('pfight'); f.__same = 1; window.__navmark = 1; const t = document.querySelectorAll('#pf-hand .pf-tile')[i]; return { art: t.querySelector('.pfh-cv').toDataURL(), lit: [...document.querySelectorAll('#pfb-board .pfb-lit')].map(c => c.dataset.x + ',' + c.dataset.y).join(' ') }; }, pi);
+    let navs = 0; const onNav = (f) => { if (f === p.mainFrame()) navs++; }; p.on('framenavigated', onNav);
+    const [flipReq] = await Promise.all([p.waitForRequest(r => r.method() === 'POST' && /do"\s*\r?\n\r?\npfb_flip|do=pfb_flip/.test(r.postData() || '')), p.click('#pf-flip')]);
+    ck(T('flip: the piece turns over (the animation class is on it once the answer is in)'), await p.waitForFunction((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].classList.contains('pfv-flipping'), pi, { timeout: 3000, polling: 'raf' }).then(() => true).catch(() => false), true);
+    await p.waitForTimeout(1200);
+    const after = await p.evaluate((i) => { const f = document.getElementById('pfight'), t = document.querySelectorAll('#pf-hand .pf-tile')[i]; return { same: f.__same === 1 && window.__navmark === 1, art: t.querySelector('.pfh-cv').toDataURL(), flipped: t.classList.contains('pfv-flipped'), picked: t.classList.contains('pf-picked'), nums: document.querySelectorAll('#pfb-board .pfb-lit .pfb-num').length, lit: document.querySelectorAll('#pfb-board .pfb-lit').length, btn: document.getElementById('pf-flip').disabled }; }, pi);
+    p.off('framenavigated', onNav);
+    const srvFlip = execSync(`php -r '$p=new PDO("sqlite:${game}/data/game.sqlite"); $e=json_decode($p->query("SELECT encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetchColumn(),true); echo empty($e["pf"]["me"]["hand"][${pi}]["flip"]) ? "no" : "flipped";'`).toString();
+    ck(T('flip: no page load and no swap of the page (same fight element), sent as a request (X-Requested-With: pfflip)'), [navs, after.same, flipReq.headers()['x-requested-with']], [0, true, 'pfflip']);
+    ck(T('flip: the piece is drawn again with its edges swapped, marked flipped, still picked; the server has it flipped'), [after.art !== before.art, after.flipped, after.picked, srvFlip], [true, true, true, 'flipped']);
+    ck(T('flip: the lit spots and their numbers are worked out again; the same piece may flip back'), [after.lit > 0, after.nums > 0, after.btn], [true, true, false]);
+    const other = await p.evaluate((i) => [...document.querySelectorAll('#pf-hand .pf-tile')].findIndex((t, k) => k !== i && !t.classList.contains('pfv-off')), pi);
+    if (other >= 0) { await p.locator('#pf-hand .pf-tile').nth(other).click(); await p.waitForTimeout(300);
+      ck(T('flip: with another piece picked the button is off and says why (Flip used)'), [await p.isDisabled('#pf-flip'), /Flip used/.test(await p.locator('#pf-flip').innerText()), /flipped a piece this turn/.test(await p.getAttribute('#pf-flip', 'title'))], [true, true, true]);
+      await p.locator('#pf-hand .pf-tile').nth(pi).click(); await p.waitForTimeout(300); }
+    await p.click('#pf-flip'); await p.waitForTimeout(1200);
+    ck(T('flip: flipping it back restores the piece and gives the flip back'), [await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].querySelector('.pfh-cv').toDataURL(), pi) === before.art, await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].classList.contains('pfv-flipped'), pi)], [true, false]);
+    await p.click('#pf-flip'); await p.waitForTimeout(1200);
     await shot('4-fight-flipped');
 
     // ---- the turn played back step by step: Your turn, the creature's turn, Terrain turn
@@ -136,6 +167,45 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await shot('6-result-left');
     ck(T('no console errors on any screen'), errs, []);
     await c.close();
+
+    // ---- 2.6.75: the fight never scrolls: every board size at phone, small phone and desktop sizes; the pre-fight screen keeps Let's fight on screen; the menu has the link under Hobbies
+    for (const vp of [[390, 844], [360, 640], [1280, 720]]) {
+      const c2 = await b.newContext({ viewport: { width: vp[0], height: vp[1] }, deviceScaleFactor: vp[0] > 1000 ? 1 : 2 }); const q = await c2.newPage(); const e2 = [];
+      q.on('pageerror', e => e2.push(String(e))); q.on('console', m => { if (m.type() === 'error') e2.push(m.text()); });
+      await q.addInitScript(() => { try { localStorage.setItem('pfvspd', '0'); } catch (e) {} });
+      await q.goto(base + '/login.php'); await q.fill('input[name=username]', 'sprout'); await q.fill('input[name=password]', 'TestPass123!');
+      await Promise.all([q.waitForNavigation(), q.press('input[name=password]', 'Enter')]);
+      const V = (s) => `${theme} ${vp[0]}x${vp[1]}: ${s}`;
+      for (const size of ['small', 'medium', 'large', 'boss']) {
+        seed('fight', size); seed('midfight', '8', '2', 'soft');
+        await q.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await q.waitForTimeout(700);
+        const pk = q.locator('#pf-hand .pf-tile:not(.pfv-off)'); if (await pk.count()) { await pk.first().click({ timeout: 3000 }); await q.waitForTimeout(500); }
+        const m = await q.evaluate(() => { const f = document.getElementById('pfight'), ih = innerHeight, iw = innerWidth, de = document.documentElement; window.scrollTo(0, 400);
+          const inV = (sel) => { const e = document.querySelector(sel); if (!e) return false; const r = e.getBoundingClientRect(); return r.height > 0 && r.top >= -1 && r.bottom <= ih + 1 && r.left >= -1 && r.right <= iw + 1; };
+          const bd = document.getElementById('pfb-board').getBoundingClientRect(), d = JSON.parse(document.getElementById('pf-data').textContent), fb = document.getElementById('pf-flip').getBoundingClientRect();
+          return { doc: de.scrollHeight <= ih, sy: window.scrollY, fight: f.scrollHeight <= f.clientHeight + 1 && f.scrollWidth <= f.clientWidth + 1, wide: de.scrollWidth <= iw, cell: Math.round(bd.height / d.h),
+            all: ['.pfc-top', '.pf-hist', '#pfv-row', '#pfb-board', '#pfv-legend', '#pf-preview', '.pf-buttons', '#pf-go', '#pf-flip', '#pf-undo', '#pf-hand'].filter(s => !inV(s)), hand: [...document.querySelectorAll('#pf-hand .pf-tile')].every(t => { const r = t.getBoundingClientRect(); return r.top >= 0 && r.bottom <= ih + 1; }), flipH: Math.round(fb.height) }; });
+        ck(V(`${size} board: the page does not scroll (document height <= window, scrollTo stays at 0), nothing overflows the fight`), [m.doc, m.sy, m.fight, m.wide], [true, 0, true, true]);
+        ck(V(`${size} board: header, history, chips, board, legend, hint, buttons and hand are all on screen; cells at least 24px; Flip is 40 to 46px high`), [m.all, m.hand, m.cell >= 24, m.flipH >= 40 && m.flipH <= 46], [[], true, true, true]);
+        await q.screenshot({ path: `${out}/7-fit-${size}-${vp[0]}x${vp[1]}-${theme}.png` });
+      }
+      seed('win'); await q.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await q.waitForTimeout(600);
+      ck(V('the result card lies over the fight (the page still does not scroll) with the reward button reachable'), [await q.evaluate(() => document.documentElement.scrollHeight <= innerHeight), await q.locator('#pf-end').count()], [true, 1]);
+      await q.locator('#pf-end').scrollIntoViewIfNeeded(); await q.screenshot({ path: `${out}/7-fit-result-${vp[0]}x${vp[1]}-${theme}.png` });
+      await Promise.all([q.waitForResponse(r => r.request().method() === 'POST'), q.click('#pf-end')]); await q.waitForTimeout(900);
+      ck(V('after the fight the page scrolls again (the lock is gone)'), await q.evaluate(() => getComputedStyle(document.documentElement).overflowY !== 'hidden'), true);
+      for (const auto of ['auto', 'off']) {
+        seed('fight', 'boss', auto); await q.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await q.waitForTimeout(600);
+        ck(V(`pre-fight, auto ${auto === 'auto' ? 'on' : 'off'}: Let's fight is on screen without scrolling`), await q.evaluate(() => { const r = document.getElementById('pfv-go').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight && document.documentElement.scrollHeight <= innerHeight; }), true);
+        await q.screenshot({ path: `${out}/7-prefight-${auto}-${vp[0]}x${vp[1]}-${theme}.png` });
+      }
+      sql('UPDATE expeditions SET encounter=NULL');
+      await q.goto(base + '/puzzlebox.php?t=belt', { waitUntil: 'networkidle' }); await q.waitForTimeout(500); await q.screenshot({ path: `${out}/7-belt-${vp[0]}x${vp[1]}-${theme}.png`, fullPage: true });
+      ck(V('the menu has the Puzzle box under Hobbies'), await q.evaluate(() => { const g = document.querySelector('details[data-g="Hobbies"]'); return !!g && !!g.querySelector('a.navtile[href$="puzzlebox.php"]'); }), true);
+      if (vp[0] < 1000) { await q.click('.menubtn.more').catch(() => {}); await q.waitForTimeout(400); } await q.screenshot({ path: `${out}/7-menu-${vp[0]}x${vp[1]}-${theme}.png` });
+      ck(V('no console errors'), e2, []);
+      await c2.close();
+    }
   }
   await b.close();
   console.log('shots: done' + (fails ? ' (' + fails + ' failed)' : ''));

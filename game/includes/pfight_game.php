@@ -294,6 +294,26 @@ function pfight_preview_out(array $u, array $exp): void
     $out(['ok' => true, 'lines' => $lines, 'bar' => [$before, $r['bar'], $r['max']], 'fh' => [$fh0, $r['fh'], $r['fhmax']], 'over' => $r['over'] ?: null]);
 }
 
+/**
+ * 2.6.75: flip a hand piece WITHOUT a page load (assets/pfboardv1.js posts do=pfb_flip with X-Requested-With: pfflip). The flip is saved here (the caller holds the transaction and has locked the gnome);
+ * the answer is the hand as it now stands (edges, flipped, who may still flip) and whether the turn's flip is used. Echoes JSON and exits. The plain form post (pfight_do) still works without script.
+ */
+function pfight_flip_out(array $u, array $exp): void
+{
+    $out = function (array $o) { header('Content-Type: application/json'); header('Cache-Control: no-store'); echo json_encode($o); exit; };
+    $bad = function (string $why) use ($out) { if (db()->inTransaction()) db()->rollBack(); $out(['ok' => false, 'err' => $why]); };
+    $enc = json_decode((string)$exp['encounter'], true); $c = $enc ? encounter_creature($enc) : null; $s = $enc['pf'] ?? null;
+    if (!$c || !is_array($s) || ($s['mode'] ?? '') !== 'board') $bad('There is no fight to flip a piece in.');
+    if (!hash_equals((string)$s['nonce'], (string)($_POST['nonce'] ?? ''))) $bad('That page is from another fight. Reload it.');
+    $err = pfb_flip($s, (int)($_POST['hand'] ?? -1), (int)($_POST['turn'] ?? -1));
+    if ($err) $bad($err === 'stale' ? 'That turn has already passed. Reload the page.' : $err);
+    $enc['pf'] = $s;
+    q("UPDATE expeditions SET encounter = ? WHERE id = ? AND status = 'active'", [json_encode($enc), $exp['id']]);
+    if (db()->inTransaction()) db()->commit();
+    $v = pfb_view($s);
+    $out(['ok' => true, 'hand' => array_map(fn($t) => ['e' => $t['e'], 'flip' => !empty($t['flip']), 'canflip' => !empty($t['canflip'])], $v['hand']), 'flip' => $v['flip'] ?? ['on' => false, 'used' => false]]);
+}
+
 /** 2.6.66: the numbers for each lit spot of one hand piece (i = hand index) or the set-aside group (i = c): see pfb_cell_preview. Read only; echoes JSON and exits. */
 function pfight_cells_out(array $u, array $exp): void
 {

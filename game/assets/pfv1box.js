@@ -15,6 +15,21 @@
       c.className = 'pfb-cv'; c.setAttribute('aria-hidden', 'true'); h.parentNode.replaceChild(c, h);
     });
   }
+  /** 2.6.75: a screen that fits the window (the fight, the pre-fight screen): fixed between the site's header and its bottom bar (measured here), or the whole window inside the Trail's popover. */
+  function frame() {
+    var el = document.querySelector('#pfight.pf-v1') || document.getElementById('pfv-pre'); if (!el) return;
+    var top = 0, bot = 0, st = document.documentElement.style;
+    var dlg = el.closest('dialog'), modal = false; try { modal = !!(dlg && dlg.matches(':modal')); } catch (e) {}
+    if (!modal) {   // a modal popover (the Trail's) covers the header and the bottom bar; anything else leaves them in sight
+      if (!el.classList.contains('pfv-fit')) { try { window.scrollTo(0, 0); } catch (e) {} }
+      var hd = document.querySelector('.bannerin'), bb = document.querySelector('.bottombar');
+      if (hd) top = Math.max(0, Math.round(hd.getBoundingClientRect().bottom));
+      if (bb && getComputedStyle(bb).display !== 'none' && getComputedStyle(bb).position === 'fixed') bot = Math.max(0, Math.round(window.innerHeight - bb.getBoundingClientRect().top));
+      if (top > window.innerHeight * 0.4) top = 0;
+    }
+    st.setProperty('--pfv-top', top + 'px'); st.setProperty('--pfv-bot', bot + 'px');
+    el.classList.add('pfv-fit');
+  }
   function send(form) { if (typeof form.requestSubmit === 'function') form.requestSubmit(); else form.submit(); }
   function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
@@ -71,6 +86,17 @@
           all('.pfv-g > li[data-g]', root).forEach(function (li) { li.hidden = g !== 'all' && li.getAttribute('data-g') !== g; });
           return;
         }
+        var tdo = ev.target.closest('[data-pfv-tool]');
+        if (tdo && form) {   // a tool button's action: put on, take off, fix
+          form.querySelector('[name=do]').value = tdo.getAttribute('data-do'); form.querySelector('[name=tool]').value = tdo.getAttribute('data-pfv-tool');
+          tdo.disabled = true; send(form); return;
+        }
+        var tb = ev.target.closest('.tb[data-a=tool]');
+        if (tb) {
+          all('.tb.pick, .pc.pick', root).forEach(function (x) { x.classList.remove('pick'); }); tb.classList.add('pick');
+          var acts = (tb.getAttribute('data-acts') || '').split(';').filter(Boolean).map(function (a) { var q = a.split('|'); return '<button type="button" class="btn ' + esc(q[2]) + '" data-pfv-tool="' + esc(tb.getAttribute('data-arg')) + '" data-do="' + esc(q[0]) + '"' + (q[3] === '1' ? ' disabled' : '') + '>' + esc(q[1]) + '</button>'; }).join('');
+          say(info, line(tb) + acts); return;
+        }
         var act = ev.target.closest('[data-pfv-act]');
         if (act && form) {
           form.querySelector('[name=do]').value = 'pfd_toggle'; form.querySelector('[name=key]').value = act.getAttribute('data-key'); form.querySelector('[name=on]').value = act.getAttribute('data-on');
@@ -88,6 +114,8 @@
   if (window.__pfvOff) window.__pfvOff();
   document.addEventListener('pfparts-ready', mount);
   window.__pfvOff = function () { document.removeEventListener('pfparts-ready', mount); };
-  window.pfvSizes = sizes;
-  init();
+  window.pfvSizes = sizes; window.pfvFrame = frame;
+  window.addEventListener('resize', frame);
+  var off0 = window.__pfvOff; window.__pfvOff = function () { off0(); window.removeEventListener('resize', frame); };
+  init(); frame();
 })();
