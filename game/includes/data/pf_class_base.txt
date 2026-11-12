@@ -1,0 +1,45 @@
+# Creature classes: the BASE 4 pieces of every creature of a class (2 Hurt, 1 Guard, 1 class trick), and the size extras (the rarity / boss layer).
+# class|name|type|v_mult|knob|tag|life      v_mult x the creature's archetype value (pfd_foe_v). life in rounds (2-4).
+# class: a class of pf_creature_class.txt, or @large / @boss = the extra pieces of a large creature / a boss. A line =Class|lean gives the family the class leans to (3 pieces in 5 stack in it).
+# Design: claude/design-deckbuilder-combat.md, "Creature classes: base 4". Linted by tests/pfdeck_v1.php.
+
+=Critter|mind
+Critter|Nip|hurt|0.9|mind|-|3
+Critter|Sting|hurt|0.8|craft|-|3
+Critter|Chitin Shell|guard|0.6|body|-|3
+Critter|Skitter|trick|0.4|mind|quick|2
+
+=Bird|craft
+Bird|Peck|hurt|1.0|mind|-|3
+Bird|Talon Dive|hurt|1.1|craft|-|3
+Bird|Wing Cover|guard|0.6|body|-|3
+Bird|Flutter Off|trick|0.4|craft|evade|3
+
+=Beast|body
+Beast|Claw|hurt|1.0|body|-|3
+Beast|Maul|hurt|1.1|mind|-|3
+Beast|Brace|guard|0.7|body|-|3
+Beast|Shoulder Barge|trick|0.5|craft|bash|3
+
+=Reptile/Amphibian|craft
+Reptile/Amphibian|Bite|hurt|0.9|body|-|3
+Reptile/Amphibian|Tail Lash|hurt|0.9|craft|-|3
+Reptile/Amphibian|Scale Guard|guard|0.7|mind|-|3
+Reptile/Amphibian|Venom Spit|trick|0.5|craft|poison|3
+
+=Water|body
+Water|Snap|hurt|1.0|body|-|3
+Water|Splash|hurt|0.9|mind|-|3
+Water|Slick Hide|guard|0.7|body|-|3
+Water|Undertow|trick|0.4|mind|trip|3
+
+=Plant/Fungus|mind
+Plant/Fungus|Lash Vine|hurt|0.9|craft|-|3
+Plant/Fungus|Spore Puff|hurt|0.8|mind|-|3
+Plant/Fungus|Bramble Coat|guard|0.7|body|thorns|3
+Plant/Fungus|Sap Mend|trick|0.4|mind|heal|3
+
+@large|Slam|hurt|1.2|mind|-|3
+
+@boss|Scheme|trick|0.5|mind|-|3
+@boss|Crush|hurt|1.3|body|-|3

@@ -1,0 +1,269 @@
+# The 3 UNIQUE pieces of every creature (the top layer of its deck: base 4 of its class + region + size extras + these 3).
+# slug|lean|name|type|v_mult|knob|tag|life       lean: the family 3 of its pieces in 5 stack in (body, mind, craft; here the class lean). v_mult x the creature's archetype value.
+# type: hurt guard heal trick.  tag (creature side): hurt = pierce poison quick trip bash; guard = hold thorns evade; trick = quick evade bash thorns poison trip heal; or -.  life: rounds 2-4.
+# Order follows creatures.txt; names are unique across the file. Linted by tests/pfdeck_v1.php.
+
+aphid-swarm|mind|Swarm|hurt|0.6|mind|quick|2
+aphid-swarm|mind|Honeydew|heal|0.5|craft|-|2
+aphid-swarm|mind|Cloud Up|guard|0.5|body|evade|3
+garden-snail|mind|Slime Trail|guard|0.7|body|hold|4
+garden-snail|mind|Shell Tuck|guard|0.6|mind|evade|3
+garden-snail|mind|Rasp|hurt|0.8|craft|-|3
+ant-scouts|mind|Scout Bite|hurt|0.8|body|-|3
+ant-scouts|mind|Ant Trail|trick|0.4|craft|quick|2
+ant-scouts|mind|Carry Off|hurt|0.7|mind|trip|3
+gnat-cloud|mind|Whine|trick|0.4|mind|trip|3
+gnat-cloud|mind|Gnat Nip|hurt|0.6|craft|quick|2
+gnat-cloud|mind|Scatter|guard|0.5|body|evade|3
+leopard-slug|mind|Slime Slick|trick|0.4|mind|trip|3
+leopard-slug|mind|Slug Lunge|hurt|0.8|body|-|3
+leopard-slug|mind|Thick Slime|guard|0.7|craft|hold|4
+sand-fleas|mind|Flea Hop|hurt|0.7|craft|quick|2
+sand-fleas|mind|Itch|hurt|0.7|mind|poison|3
+sand-fleas|mind|Sand Burrow|guard|0.6|body|-|3
+dusk-moth|mind|Wing Dust|trick|0.4|mind|evade|3
+dusk-moth|mind|Flutter Bump|hurt|0.8|body|-|3
+dusk-moth|mind|Dusk Veil|guard|0.6|craft|hold|4
+dung-beetle|mind|Dung Roll|hurt|1.0|body|-|3
+dung-beetle|mind|Hard Wings|guard|0.7|craft|hold|4
+dung-beetle|mind|Push On|trick|0.4|mind|bash|3
+earwig|mind|Pincer|hurt|0.9|craft|pierce|3
+earwig|mind|Tuck Under|guard|0.6|body|-|3
+earwig|mind|Night Scuttle|trick|0.4|mind|quick|2
+cave-glowworm|mind|Glow Lure|trick|0.4|mind|trip|3
+cave-glowworm|mind|Sticky Thread|hurt|0.8|craft|-|3
+cave-glowworm|mind|Dim|guard|0.6|body|evade|3
+orb-spider|mind|Web Snare|hurt|0.8|mind|trip|3
+orb-spider|mind|Venom Fang|hurt|0.9|craft|poison|3
+orb-spider|mind|Silk Wrap|guard|0.6|body|-|3
+paper-wasp|mind|Wasp Sting|hurt|0.9|craft|poison|3
+paper-wasp|mind|Paper Nest|guard|0.7|body|thorns|3
+paper-wasp|mind|Buzz Dive|hurt|0.8|mind|quick|2
+bog-leech|body|Latch|hurt|0.8|craft|poison|3
+bog-leech|body|Slick|guard|0.6|body|evade|3
+bog-leech|body|Drain|heal|0.5|mind|-|3
+grumpy-lemming|body|Grumble|trick|0.4|mind|-|3
+grumpy-lemming|body|Lemming Bite|hurt|0.9|craft|-|3
+grumpy-lemming|body|Dig Snow|guard|0.6|body|evade|3
+bullfrog|craft|Tongue Lash|hurt|0.9|mind|trip|3
+bullfrog|craft|Deep Croak|trick|0.4|craft|-|3
+bullfrog|craft|Puff Up|guard|0.7|body|-|3
+shore-crab|body|Pinch|hurt|1.0|body|pierce|3
+shore-crab|body|Shell Up|guard|0.7|craft|hold|4
+shore-crab|body|Sidestep|trick|0.4|mind|evade|3
+barn-rat|body|Gnaw|hurt|0.9|craft|pierce|3
+barn-rat|body|Filth Bite|hurt|0.8|mind|poison|3
+barn-rat|body|Squeeze By|guard|0.6|body|evade|3
+sun-lizard|craft|Sun Bask|heal|0.5|mind|-|3
+sun-lizard|craft|Tail Drop|guard|0.6|craft|evade|3
+sun-lizard|craft|Lizard Dart|hurt|0.9|body|quick|2
+tunnel-mole|body|Burrow|guard|0.7|mind|hold|4
+tunnel-mole|body|Mole Claw|hurt|1.0|body|-|3
+tunnel-mole|body|Dirt Toss|trick|0.4|craft|trip|3
+carrion-crow|craft|Hat Snatch|trick|0.4|mind|trip|3
+carrion-crow|craft|Dive Bomb|hurt|1.1|craft|pierce|3
+carrion-crow|craft|Mob Caw|hurt|0.8|body|quick|2
+herring-gull|craft|Chip Thief|trick|0.4|mind|trip|3
+herring-gull|craft|Gull Swoop|hurt|1.0|craft|-|3
+herring-gull|craft|Screech|hurt|0.8|body|quick|2
+dune-scorpion|mind|Tail Sting|hurt|0.9|craft|poison|3
+dune-scorpion|mind|Claw Grab|hurt|0.9|body|pierce|3
+dune-scorpion|mind|Plate Up|guard|0.7|mind|hold|4
+frost-hare|body|Hare Kick|hurt|0.9|body|quick|2
+frost-hare|body|Zigzag|guard|0.6|craft|evade|3
+frost-hare|body|Thump|trick|0.4|mind|-|3
+giant-centipede|mind|Hundred Legs|hurt|0.7|mind|quick|2
+giant-centipede|mind|Venom Jaws|hurt|0.9|craft|poison|3
+giant-centipede|mind|Coil Up|guard|0.6|body|-|3
+thistle-beast|mind|Needle Volley|hurt|0.9|craft|poison|3
+thistle-beast|mind|Thistle Spines|guard|0.7|body|thorns|3
+thistle-beast|mind|Root Deep|heal|0.5|mind|-|3
+ember-beetle|mind|Ember Spit|hurt|0.9|craft|poison|3
+ember-beetle|mind|Hot Shell|guard|0.7|body|thorns|3
+ember-beetle|mind|Cinder Rush|hurt|1.0|mind|-|3
+will-o-wisp|mind|Lead Astray|trick|0.4|mind|trip|3
+will-o-wisp|mind|Wisp Burn|hurt|0.9|craft|-|3
+will-o-wisp|mind|Flicker|guard|0.6|body|evade|3
+grass-snake|craft|Coil|guard|0.7|body|hold|4
+grass-snake|craft|Strike|hurt|1.0|mind|quick|2
+grass-snake|craft|Constrict|hurt|0.9|craft|trip|3
+grey-heron|craft|Spear Beak|hurt|1.1|craft|pierce|3
+grey-heron|craft|Stand Still|guard|0.7|body|hold|4
+grey-heron|craft|Wade In|trick|0.4|mind|-|3
+mischief-monkey|body|Pocket Pick|trick|0.4|mind|trip|3
+mischief-monkey|body|Fruit Fling|hurt|0.9|craft|quick|2
+mischief-monkey|body|Swing Away|guard|0.6|body|evade|3
+red-fox|body|Sly Pounce|trick|0.5|body|-|3
+red-fox|body|Quick Bite|hurt|0.9|mind|quick|2
+red-fox|body|Den Dash|guard|0.7|craft|evade|3
+raccoon|body|Bandit Grab|trick|0.4|mind|trip|3
+raccoon|body|Scratch|hurt|1.0|craft|-|3
+raccoon|body|Bin Lid|guard|0.7|body|-|3
+tawny-owl|craft|Silent Swoop|hurt|1.0|craft|pierce|3
+tawny-owl|craft|Hoot|trick|0.5|mind|-|3
+tawny-owl|craft|Feather Fluff|guard|0.7|body|-|3
+arctic-fox|body|Snow Dive|hurt|1.1|mind|-|3
+arctic-fox|body|White Out|guard|0.6|craft|evade|3
+arctic-fox|body|Cold Nip|hurt|0.8|body|quick|2
+badger|body|Dig In|guard|0.8|body|hold|4
+badger|body|Badger Maul|hurt|1.3|mind|-|3
+badger|body|Bash Back|hurt|0.9|craft|bash|3
+mire-toad|craft|Toad Slime|guard|0.7|mind|thorns|3
+mire-toad|craft|Belly Flop|hurt|1.1|body|-|3
+mire-toad|craft|Bog Breath|trick|0.4|craft|poison|3
+tide-crab-knight|body|Knight's Claw|hurt|1.1|body|pierce|3
+tide-crab-knight|body|Tide Shield|guard|0.8|craft|hold|4
+tide-crab-knight|body|Joust|hurt|1.0|mind|bash|3
+moss-golem|mind|Boulder Fist|hurt|1.2|body|-|3
+moss-golem|mind|Moss Cloak|guard|0.8|mind|hold|4
+moss-golem|mind|Regrow|heal|0.5|craft|-|3
+bramble-wolf|body|Howl|trick|0.5|mind|-|3
+bramble-wolf|body|Bramble Bite|hurt|1.0|craft|bash|3
+bramble-wolf|body|Pack Circle|guard|0.7|body|thorns|3
+coconut-crab-titan|body|Husk Crack|hurt|1.3|body|pierce|3
+coconut-crab-titan|body|Coconut Drop|hurt|1.1|mind|trip|3
+coconut-crab-titan|body|Titan Shell|guard|0.8|craft|hold|4
+great-hawk|craft|Stoop|hurt|1.25|craft|-|3
+great-hawk|craft|Talon Grip|hurt|1.0|body|trip|3
+great-hawk|craft|High Circle|guard|0.7|mind|evade|3
+ancient-snapper|craft|Snapping Jaw|hurt|1.3|body|pierce|3
+ancient-snapper|craft|Mossy Shell|guard|0.8|craft|hold|4
+ancient-snapper|craft|Mud Sink|trick|0.5|mind|evade|3
+reef-leviathan|body|Tidal Slam|hurt|1.3|body|-|3
+reef-leviathan|body|Deep Dive|guard|0.7|mind|evade|3
+reef-leviathan|body|Whirlpool|hurt|1.0|craft|trip|3
+old-bramblehorn|mind|Horn Gore|hurt|1.25|body|pierce|3
+old-bramblehorn|mind|Bramble Mantle|guard|0.8|craft|thorns|3
+old-bramblehorn|mind|Ancient Root|heal|0.5|mind|-|3
+dune-wyrm|craft|Burrow Under|guard|0.7|craft|evade|3
+dune-wyrm|craft|Quake|hurt|1.0|craft|trip|3
+dune-wyrm|craft|Sand Swallow|hurt|1.25|body|-|3
+snow-owl-monarch|craft|Frost Wing|hurt|1.0|mind|trip|3
+snow-owl-monarch|craft|Snow Glare|trick|0.5|craft|evade|3
+snow-owl-monarch|craft|Royal Talon|hurt|1.25|body|pierce|3
+storm-eagle|craft|Thunder Dive|hurt|1.3|craft|-|3
+storm-eagle|craft|Gale Wing|guard|0.7|mind|evade|3
+storm-eagle|craft|Lightning Claw|hurt|1.0|body|quick|2
+jade-jaguar|body|Jade Gaze|trick|0.5|mind|trip|3
+jade-jaguar|body|Jaguar Pounce|hurt|1.25|craft|pierce|3
+jade-jaguar|body|Spirit Stalk|guard|0.7|body|evade|3
+delta-gharial|craft|Thin Snout|hurt|1.0|craft|pierce|3
+delta-gharial|craft|Death Roll|hurt|1.2|body|-|3
+delta-gharial|craft|River Drift|guard|0.7|mind|evade|3
+emerald-python|craft|Squeeze|hurt|1.1|body|trip|3
+emerald-python|craft|Emerald Coil|guard|0.8|mind|hold|4
+emerald-python|craft|Slow Swallow|heal|0.5|craft|-|3
+jungle-tiger|body|Stripe Stalk|trick|0.5|mind|evade|3
+jungle-tiger|body|Tiger Pounce|hurt|1.3|body|-|3
+jungle-tiger|body|Rake Claws|hurt|1.0|craft|pierce|3
+spice-monitor|craft|Spice Bite|hurt|0.9|craft|poison|3
+spice-monitor|craft|Tail Whip|hurt|1.0|body|-|3
+spice-monitor|craft|Fork Tongue|trick|0.4|mind|-|3
+cloud-leopard|body|Branch Drop|hurt|1.2|craft|pierce|3
+cloud-leopard|body|Cloud Coat|guard|0.7|mind|evade|3
+cloud-leopard|body|Long Tail|trick|0.4|body|-|3
+savanna-hyena|body|Cackle|trick|0.4|mind|trip|3
+savanna-hyena|body|Bone Crunch|hurt|1.2|body|pierce|3
+savanna-hyena|body|Scavenge|heal|0.5|craft|-|3
+mangrove-crab-king|body|Root Grip|hurt|1.0|craft|trip|3
+mangrove-crab-king|body|King's Pincer|hurt|1.2|body|pierce|3
+mangrove-crab-king|body|Mud Armour|guard|0.8|mind|hold|4
+sand-viper-matriarch|craft|Viper Fang|hurt|1.0|craft|poison|3
+sand-viper-matriarch|craft|Sidle|guard|0.7|mind|evade|3
+sand-viper-matriarch|craft|Brood Hiss|trick|0.5|body|trip|3
+honey-badger-brute|body|No Fear|guard|0.8|body|thorns|3
+honey-badger-brute|body|Brute Bite|hurt|1.2|craft|-|3
+honey-badger-brute|body|Shrug Off|heal|0.5|mind|-|3
+thunder-yak|body|Thunder Charge|hurt|1.3|body|-|3
+thunder-yak|body|Shaggy Coat|guard|0.8|mind|hold|4
+thunder-yak|body|Horn Toss|hurt|0.9|craft|bash|3
+reef-eel-lord|body|Eel Shock|hurt|1.0|mind|trip|3
+reef-eel-lord|body|Lunge From Hole|hurt|1.0|craft|quick|2
+reef-eel-lord|body|Slip Back|guard|0.7|body|evade|3
+outback-dingo|body|Dingo Snap|hurt|0.8|craft|quick|2
+outback-dingo|body|Circle Round|trick|0.4|mind|-|3
+outback-dingo|body|Dust Roll|guard|0.6|body|evade|3
+fern-cassowary|craft|Casque Butt|hurt|1.1|body|bash|3
+fern-cassowary|craft|Dagger Kick|hurt|1.2|craft|pierce|3
+fern-cassowary|craft|Fern Crouch|guard|0.7|mind|-|3
+deep-octopus|body|Ink Cloud|trick|0.5|mind|evade|3
+deep-octopus|body|Eight Arms|hurt|0.8|craft|quick|2
+deep-octopus|body|Sucker Grip|hurt|1.1|body|trip|3
+hermit-crab-hoarder|body|Borrowed Shell|guard|0.8|body|hold|4
+hermit-crab-hoarder|body|Hoard Toss|hurt|0.9|mind|-|3
+hermit-crab-hoarder|body|Shell Swap|heal|0.5|craft|-|3
+sea-otter-bandit|body|Rock Crack|hurt|1.0|craft|bash|3
+sea-otter-bandit|body|Kelp Wrap|guard|0.6|mind|evade|3
+sea-otter-bandit|body|Pebble Pocket|trick|0.4|body|trip|3
+dust-sidewinder|craft|Side Wind|guard|0.6|mind|evade|3
+dust-sidewinder|craft|Dust Fang|hurt|0.9|craft|poison|3
+dust-sidewinder|craft|Sand Skim|hurt|0.8|body|quick|2
+poison-dart-frog|craft|Dart Skin|guard|0.6|body|thorns|3
+poison-dart-frog|craft|Toxic Touch|hurt|0.8|craft|poison|3
+poison-dart-frog|craft|Bright Warning|trick|0.4|mind|-|3
+reef-turtle|craft|Flipper Slap|hurt|1.0|mind|-|3
+reef-turtle|craft|Reef Shell|guard|0.8|body|hold|4
+reef-turtle|craft|Drift Off|heal|0.5|craft|-|3
+leafcutter-column|mind|Leaf Shears|hurt|0.9|craft|pierce|3
+leafcutter-column|mind|March On|trick|0.4|mind|quick|2
+leafcutter-column|mind|Leaf Roof|guard|0.7|body|hold|4
+ptarmigan-flock|craft|Snow Flurry|hurt|0.7|mind|quick|2
+ptarmigan-flock|craft|Huddle|guard|0.7|body|hold|4
+ptarmigan-flock|craft|Burst Up|trick|0.4|craft|evade|3
+bog-pike|body|Pike Strike|hurt|1.0|craft|quick|2
+bog-pike|body|Weed Lurk|guard|0.6|mind|evade|3
+bog-pike|body|Jaw Lock|hurt|1.0|body|pierce|3
+desert-gila-dragon|craft|Gila Chew|hurt|1.0|craft|poison|3
+desert-gila-dragon|craft|Bead Hide|guard|0.8|body|hold|4
+desert-gila-dragon|craft|Slow Stomp|hurt|1.1|mind|-|3
+cliff-ram|body|Ram Butt|hurt|1.1|body|bash|3
+cliff-ram|body|Sure Hooves|guard|0.7|craft|-|3
+cliff-ram|body|Head Down|trick|0.5|mind|bash|3
+wolverine|body|Grump Snarl|trick|0.4|mind|-|3
+wolverine|body|Ripping Bite|hurt|1.2|craft|pierce|3
+wolverine|body|Thick Fur|guard|0.7|body|hold|4
+wild-boar|body|Tusk Gore|hurt|1.2|craft|pierce|3
+wild-boar|body|Mud Wallow|guard|0.7|body|-|3
+wild-boar|body|Boar Rush|hurt|1.0|mind|bash|3
+pelican-parliament|craft|Big Scoop|hurt|1.0|body|trip|3
+pelican-parliament|craft|Pouch Slap|hurt|1.0|mind|-|3
+pelican-parliament|craft|Wing Wall|guard|0.8|craft|hold|4
+beaver-foreman|body|Tail Slap|hurt|1.0|body|trip|3
+beaver-foreman|body|Log Wall|guard|0.8|craft|hold|4
+beaver-foreman|body|Gnaw Through|hurt|0.9|mind|pierce|3
+giant-anteater|body|Long Tongue|trick|0.4|mind|trip|3
+giant-anteater|body|Claw Hug|hurt|1.2|body|-|3
+giant-anteater|body|Rear Up|guard|0.7|craft|-|3
+giant-bumblebee|mind|Bumble Bump|hurt|1.0|body|-|3
+giant-bumblebee|mind|Fuzz Coat|guard|0.7|mind|-|3
+giant-bumblebee|mind|Pollen Puff|trick|0.4|craft|trip|3
+tufted-lynx|body|Ear Twitch|trick|0.4|mind|evade|3
+tufted-lynx|body|Lynx Spring|hurt|1.2|body|-|3
+tufted-lynx|body|Hook Claw|hurt|0.9|craft|pierce|3
+clam-lurker|body|Clamp|hurt|1.2|body|trip|3
+clam-lurker|body|Shut Tight|guard|0.8|craft|hold|4
+clam-lurker|body|Pearl Glint|trick|0.4|mind|-|3
+desert-tortoise|craft|Shell In|guard|0.8|body|hold|4
+desert-tortoise|craft|Beak Nip|hurt|0.9|craft|-|3
+desert-tortoise|craft|Dig Down|trick|0.4|mind|evade|3
+griffon-vulture|craft|Carrion Rake|hurt|1.0|craft|poison|3
+griffon-vulture|craft|Wait It Out|heal|0.5|mind|-|3
+griffon-vulture|craft|Bald Glare|trick|0.4|body|trip|3
+black-bear|body|Bear Swipe|hurt|1.3|body|-|3
+black-bear|body|Stand Tall|guard|0.8|mind|-|3
+black-bear|body|Honey Lick|heal|0.5|craft|-|3
+salt-sea-lion|body|Bull Bark|trick|0.4|mind|-|3
+salt-sea-lion|body|Flipper Smack|hurt|1.1|body|-|3
+salt-sea-lion|body|Blubber Roll|guard|0.8|craft|-|3
+glacier-bear|body|Ice Paw|hurt|1.2|body|trip|3
+glacier-bear|body|Blubber|guard|0.8|craft|hold|4
+glacier-bear|body|Glacier Roar|trick|0.5|mind|-|3
+prairie-bison|body|Stampede|hurt|1.3|body|-|3
+prairie-bison|body|Wall of Wool|guard|0.8|mind|hold|4
+prairie-bison|body|Dust Cloud|trick|0.4|craft|evade|3
+desert-camel|body|Camel Spit|hurt|0.8|craft|trip|3
+desert-camel|body|Long Kick|hurt|1.2|body|-|3
+desert-camel|body|Hump Store|heal|0.5|mind|-|3
+lichen-reindeer|body|Antler Sweep|hurt|1.1|craft|-|3
+lichen-reindeer|body|Herd Wheel|guard|0.7|body|evade|3
+lichen-reindeer|body|Snow Dig|heal|0.5|mind|-|3

@@ -65,12 +65,21 @@ const PF_MODS = [
     'steady'   => ['Steady', '⚖️', 'A Heavy tile can go anywhere in the chain', 2, ['hurt']],
 ];
 
-/** The tile library. t = type, v = base value, r = knob family of the right end (null = flat), tag = optional rule. */
-function pf_tiles(): array
+/** The lines of a puzzle-combat data file (includes/data/): each a list of trimmed cells; comments and blank lines skipped; [] when the file is missing. No DB. */
+function pf_data_lines(string $file): array
 {
-    static $T = null;
-    if ($T) return $T;
-    $T = [
+    $path = __DIR__ . '/data/' . $file; $out = [];
+    if (!is_file($path)) return $out;
+    foreach (file($path, FILE_IGNORE_NEW_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#') continue;
+        $out[] = array_map('trim', explode('|', $line));
+    }
+    return $out;
+}
+
+/** The tile library as it was before 2.6.74 moved it to data/pf_pieces.txt: used when the file is missing or broken, and by the lint (the file must give exactly this). */
+const PF_TILES_BUILTIN = [
         // gnome base six
         'swing'  => ['n' => 'Swing',  't' => 'hurt',   'v' => 4, 'r' => 'mind'],
         'dodge'  => ['n' => 'Dodge',  't' => 'guard',  'v' => 4, 'r' => 'body'],
@@ -108,7 +117,25 @@ function pf_tiles(): array
         'sow'    => ['n' => 'Sow Doubt',   't' => 'trick',  'v' => 5, 'r' => 'mind'],
         'wayfind' => ['n' => 'Slip Past',  't' => 'trick',  'v' => 5, 'r' => 'body'],
         'brew'   => ['n' => 'Steep',       't' => 'heal',   'v' => 6, 'r' => 'craft'],
-    ];
+];
+
+/** The tile library. t = type, v = base value, r = knob family of the right end (null = flat), tag = optional rule.
+ *  2.6.74: read from data/pf_pieces.txt (its basic, knack and calling rows, in file order; cached). The tool, crop, craft and region pieces of the v1 deck model are in the same file: pfd_catalog() in pfdeck.php. */
+function pf_tiles(): array
+{
+    static $T = null;
+    if ($T) return $T;
+    $T = [];
+    foreach (pf_data_lines('pf_pieces.txt') as $r) {
+        if (count($r) < 10 || !in_array($r[2], ['basic', 'knack', 'calling'], true) || !isset(PF_HOLE[$r[4]]) || (int)$r[5] < 1) continue;
+        $knob = explode('/', $r[6])[0];
+        $t = ['n' => $r[1], 't' => $r[4], 'v' => (int)$r[5], 'r' => in_array($knob, ['body', 'mind', 'craft'], true) ? $knob : null];
+        if ($r[7] !== '-' && $r[7] !== '') $t['tag'] = $r[7];
+        $T[$r[0]] = $t;
+    }
+    foreach (PF_BASE_KEYS as $k) if (!isset($T[$k])) { $T = []; break; }
+    foreach (PF_TILES_BUILTIN as $k => $_) if (!isset($T[$k])) { $T = []; break; }   // a file that lost a piece the game needs: the built-in library
+    if (!$T) $T = PF_TILES_BUILTIN;
     return $T;
 }
 

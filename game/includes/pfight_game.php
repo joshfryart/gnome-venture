@@ -50,6 +50,10 @@ function pfight_me(array $u, array $exp, array $enc = []): array
     $cal = (string)($u['calling'] ?? '');
     $box = pf_box((int)$u['level'], $cal, pbox_load((int)$u['id']));
     $canSnack = snacks_left($u, $enc) > 0 && fight_snacks($u) !== [];   // no snack to eat = a weak Breather instead of a dead Snack tile
+    if (pfight_v1_on($u)) {   // 2.6.74, the v1 deck model: the deck the gnome built (starter kit + what they switched on + fight-belt tools + party pals); pals add a piece, they no longer swap one out
+        require_once __DIR__ . '/pfdeck.php';
+        return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => pfight_apply_mods(pfd_start_fight($u, $st, $bonus, $canSnack), pfight_mods((int)$u['id'])), 'luck' => max(0, $st['luck'])];
+    }
     $deck = pfight_apply_mods(pf_player_deck($st, $cal, max(1, min(3, (int)calling_tier($u))), $pals, [], $bonus, $canSnack, $box), pfight_mods((int)$u['id']));
     return ['hp' => max(1, (int)$exp['hp']), 'max_hp' => (int)$exp['max_hp'], 'stats' => $st, 'deck' => $deck, 'luck' => max(0, $st['luck'])];
 }
@@ -121,6 +125,7 @@ function pfight_state(array $u, array $exp, array &$enc, array $c): array
     if (empty($enc['pf'])) {   // a new fight starts in the mode the setting says; a fight already under way keeps its own
         $v1 = pfight_v1_on($u);   // the v1 board rules: always a board fight; the state carries $s['v1'], so a fight under way keeps the rules it started with
         $new = $v1 || setting('pfight_mode') === 'board' ? 'pfb_new' : 'pf_new';
+        if ($v1) { require_once __DIR__ . '/pfdeck.php'; $c = pfd_foe_row($c, pfd_exp_region($exp)); }   // the creature's layered deck: 4 base (class) + region + size extras + 3 unique
         $enc['pf'] = $new(pfight_me($u, $exp, $enc), $c, random_int(1, 0x7FFFFFFE), ['v1' => $v1, 'blank' => setting('pfight_blank') !== '0', 'can_pluck' => (int)q_val('SELECT COUNT(*) FROM creature_drops WHERE creature_id = ? AND item_id IS NOT NULL', [$c['id']]) > 0]);
     }
     return $enc['pf'];
@@ -233,6 +238,11 @@ function pfight_do(array $u, array &$exp, string $do): bool
         }
     } else return false;
     $exp['hp'] = (int)$s['me']['hp'];
+    if ($s['over'] && !empty($s['wear']) && empty($enc['wearsaved'])) {   // v1 deck model: the fight is over (however it ended), so the wear of the fight tools whose pieces were played is saved, once
+        require_once __DIR__ . '/pfdeck.php';
+        $enc['wearsaved'] = 1;
+        foreach (pfd_end_fight($u, $s) as $ln) exp_log($exp, $ln);
+    }
     $enc['pf'] = $s;
     $exp['encounter'] = json_encode($enc);
     switch ($s['over']) {

@@ -1,0 +1,95 @@
+# Puzzle combat pieces of the PLAYER (2.6.74, v1 deck model). Read by pf_tiles() (the basic, knack and calling rows: the old tile library) and pfd_catalog() (everything). Linted by tests/pfdeck_v1.php.
+# key|name|source|ref|type|v|knob/edges|tag|life|rarity|blurb
+# source: basic, knack, calling, tool, crop, craft, region.  ref: knack = the level it unlocks at; calling = the calling; tool = tool type (TOOL_TYPES); crop = crop kind (crops.txt);
+#   craft = recipe category (CRAFT_CATEGORIES); region = region code (regions.txt).  key: tool pieces t:TYPE, crop c:KIND, craft k:CATEGORY, region r:CODE.
+# type: hurt guard heal charm soothe trick item.  v: base value (the gnome's stat, level / 3 and the rank bonus are added).
+# knob/edges: the family of the RIGHT knob (body, mind, craft; - = flat), then optionally /COLUMN family and /up or /down (default: the source's column family, see PFB_SRC_FAM; knob on top for hurt, charm, trick).
+# tag: a PF_TAGS key, snack, or -.  life: rounds on the board 2-4, or - (3; Quick 2; Hold 4; Masterwork 4).  rarity: 0 (none), 1-4 fixed, or src = the rank of the player's source (tool tier, mastery, guides).
+
+# --- the old tile library (order matters: it is pf_tiles())
+swing|Swing|basic|-|hurt|4|mind|-|-|0|A plain swing.
+dodge|Dodge|basic|-|guard|4|body|-|-|0|Step aside.
+rest|Rest|basic|-|heal|3|craft|-|-|0|Catch your breath.
+charm|Charm|basic|-|charm|4|craft|-|-|0|A kind word.
+snack|Snack|basic|-|item|5|body|snack|-|0|Eat a snack from your satchel.
+hide|Hide|basic|-|trick|3|body|-|-|0|Duck out of sight.
+soothe|Soothe|knack|4|soothe|2|mind|-|-|0|Calms the creature: its next hit is softer.
+offer|Offer|knack|12|charm|6|-|-|-|0|A gift held out. Flat right edge.
+taunt|Taunt|knack|10|trick|3|body|-|-|0|Draw it in.
+jab|Jab|knack|5|hurt|2|craft|quick|-|0|A quick poke.
+pierce|Pierce|knack|8|hurt|3|mind|pierce|-|0|Goes through guard.
+sting|Sting|knack|13|hurt|2|body|poison|-|0|Keeps working.
+trip|Trip|knack|11|hurt|2|craft|trip|-|0|It loses its next move.
+bash|Shield Bash|knack|14|hurt|2|mind|bash|-|0|Your guard becomes the hit.
+smash|Smash|knack|16|hurt|6|body|heavy|-|0|A heavy blow.
+brace|Brace|knack|6|guard|3|craft|hold|-|0|Guard that lasts.
+roll|Roll|knack|9|guard|2|body|evade|-|0|Its next hit misses.
+thornhide|Thorn Hide|knack|12|guard|3|mind|thorns|-|0|Blocked hits prick back.
+mending|Mending|knack|15|guard|2|craft|mend|-|0|Guard and a little health.
+hum|Hum|knack|6|charm|3|body|hum|-|0|Charm that also calms.
+lull|Lull|knack|10|charm|3|craft|lull|-|0|It loses its next move.
+bond|Bond|knack|13|charm|3|mind|bond|-|0|Charm works better afterwards.
+pluck|Pluck|knack|7|trick|2|body|pluck|-|0|May lift an item.
+breather|Breather|basic|-|heal|2|body|-|-|0|Stands in for Snack when there is nothing to eat.
+bark|Bark Wall|calling|rootwarden|guard|6|body|-|-|0|Rootwarden calling piece.
+bloom|Bloom|calling|bloomcaller|charm|8|mind|-|-|0|Bloomcaller calling piece.
+thorn|Thorn Cut|calling|thornblade|hurt|7|craft|-|-|0|Thornblade calling piece.
+sow|Sow Doubt|calling|seedkeeper|trick|5|mind|-|-|0|Seedkeeper calling piece.
+wayfind|Slip Past|calling|wayfinder|trick|5|body|-|-|0|Wayfinder calling piece.
+brew|Steep|calling|brewroot|heal|6|craft|-|-|0|Brewroot calling piece.
+
+# --- fight tools: one piece per tool type, added while the tool is on the fight belt
+t:till|Hoe Hook|tool|till|hurt|3|body|pierce|-|src|The edge of a tilling tool hooks past its guard.
+t:water|Cool Shower|tool|water|heal|3|mind|-|-|src|A splash from the watering can.
+t:plant|Dibber Poke|tool|plant|hurt|2|craft|quick|-|src|A quick poke with the dibber.
+t:spread|Mulch Heap|tool|spread|guard|3|mind|hold|-|src|A heap of mulch to stand behind.
+t:weed|Root Out|tool|weed|hurt|3|mind|-|-|src|Pulls it up by the roots.
+t:harvest|Basket Catch|tool|harvest|guard|4|craft|-|-|src|Catches the blow in the basket.
+t:prune|Clean Cut|tool|prune|hurt|4|body|-|-|src|One clean snip.
+t:broadfork|Fork Lift|tool|broadfork|hurt|5|body|heavy|-|src|The whole broadfork, both hands.
+t:soiltest|Probe|tool|soiltest|trick|3|mind|-|-|src|Finds the soft spot.
+t:forage|Forager's Find|tool|forage|item|4|body|-|2|src|Something tasty from the hedge.
+t:pick|Rock Chip|tool|pick|hurt|3|body|bash|-|src|A chip of stone with your guard behind it.
+t:net|Net Toss|tool|net|hurt|2|craft|trip|-|src|Tangles its legs.
+t:bucket|Bucket Slosh|tool|bucket|soothe|3|mind|-|-|src|Cold water calms it down.
+t:axe|Chop|tool|axe|hurt|4|body|-|-|src|A good chop.
+t:rod|Reel In|tool|rod|trick|3|body|-|-|src|Hooks it and pulls it close.
+t:basket|Pack Wall|tool|basket|guard|3|body|-|-|src|Your pack takes the hit.
+t:staff|Sweep|tool|staff|guard|3|mind|evade|-|src|A sweep of the staff: its next hit misses.
+t:lantern|Glare|tool|lantern|charm|3|craft|lull|-|src|Bright light in its eyes.
+
+# --- crops: one piece per crop kind, owned once you have grown a crop of that kind
+c:vegetable|Garden Greens|crop|vegetable|heal|3|body|-|-|src|A crunchy bite from the patch.
+c:tuber|Spud Shield|crop|tuber|guard|4|body|-|-|src|A big potato takes the blow.
+c:legume|Sweet Pea|crop|legume|charm|3|mind|bond|-|src|A sprig of sweet pea.
+c:grain|Oat Cake|crop|grain|guard|3|craft|hold|-|src|Filling and steady.
+c:fruit|Juicy Bite|crop|fruit|item|4|craft|-|2|src|Sweet and gone in a moment.
+c:tree|Windfall|crop|tree|hurt|5|body|heavy|-|src|A branch load of fruit comes down.
+c:nut|Nut Crack|crop|nut|hurt|3|mind|pierce|-|src|Cracks a hard shell.
+c:herb|Herb Poultice|crop|herb|heal|4|body|-|-|src|Crushed leaves on a scrape.
+c:spice|Pepper Puff|crop|spice|hurt|3|body|poison|-|src|It keeps sneezing.
+
+# --- crafts: one piece per recipe category, owned once you have made something in it
+k:cooking|Hot Soup|craft|cooking|heal|3|craft|-|-|src|A warm bowl.
+k:pantry|Pickle Splash|craft|pantry|hurt|2|craft|quick|-|src|Sharp brine in the eye.
+k:tools|Spare Handle|craft|tools|guard|4|mind|hold|-|src|A spare handle to block with.
+k:garden|Compost Lob|craft|garden|hurt|3|body|poison|-|src|A ripe lump of compost.
+k:potions|Tonic|craft|potions|heal|4|mind|-|-|src|A sip of green tonic.
+k:building|Stone Wall|craft|building|guard|4|body|-|-|src|Dressed stone, stacked.
+k:decor|Wind Chime|craft|decor|charm|3|body|hum|-|src|A soft tune on the breeze.
+
+# --- regions: one piece per region, owned once you have read its Gardening Guide (the creature side of the region: pf_region_pieces.txt)
+r:NA|Frost Bark|region|NA|guard|3|body|hold|-|src|The Maplewold: bark hard with frost.
+r:CA|Dry Spell|region|CA|trick|3|body|-|-|src|Maizehollow: the ground cracks.
+r:CB|Sea Breeze|region|CB|heal|3|mind|-|2|src|The Sunsprinkle Isles: a fresh breeze.
+r:SA|Humus Hide|region|SA|guard|4|body|-|-|src|The Rainroot Reaches: deep forest floor.
+r:NWE|Mist Veil|region|NWE|guard|3|mind|evade|-|src|Mistmoor: lost in the mist.
+r:SE|Terra Wall|region|SE|guard|3|craft|hold|-|src|Olivewhistle Shore: a red stone terrace.
+r:EE|Black Earth|region|EE|heal|3|mind|-|-|src|Birchbramble Steppe: rich black soil.
+r:MENA|Heat Shimmer|region|MENA|guard|3|mind|evade|-|src|The Dunewhisper: the air bends.
+r:WCA|Laterite Crust|region|WCA|guard|3|craft|thorns|-|src|The Greatcanopy: baked red crust.
+r:ESA|Thornbush|region|ESA|guard|3|craft|thorns|-|src|Thornacre Savanna: thorn scrub.
+r:CSA|River Silt|region|CSA|heal|3|body|-|-|src|Spicepeak: silt from the great rivers.
+r:EA|Terrace Wall|region|EA|guard|3|mind|hold|-|src|Blossomreach: a hillside terrace.
+r:SEA|Steam|region|SEA|trick|3|mind|-|-|src|The Monsoon Tangle: thick steam.
+r:OC|Island Time|region|OC|guard|3|body|hold|-|src|The Coralscatter: no hurry at all.
