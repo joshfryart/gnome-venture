@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.70
+- **Villagers on the Trail, tidied up (Trail Sights follow-ups).** The villager card has a `👣 Walk over` button (tapping a villager's tile opens their card, so there is always a way to walk there); a villager is never drawn behind or over a landmark sprite (the sprite's real width is checked, 705 of 706 landmarks have a free spot) nor on a find, a gate or the way on; chatting with a villager who has just left writes a journal line.
+- **Lighter Trail pages:** one `trail_sight_uses` query per stretch for the request (was one per Sight, repeated), the villager list asked once per request; give-an-item keeps one row per villager row (the day it was last given) instead of one per day, old use rows are pruned after 120 days; the lint refuses `take=` with a condition / `first:` / a chance and a cooldown of 0.
+- **Tests:** `tests/trail_sights.php` had silently stopped at its villager-on-map block (a helper was defined after use; the bootstrap swallows the fatal and exits 0), so the later blocks had not run since 2.6.68. Fixed; they run (405 checks, all ok) and `trail_sights.sh` / `here_bang.sh` now fail if the test does not reach its last line or prints PHP warnings. No game code was wrong. Release notes (in-game News > Release notes) added for 2.6.68, 2.6.69, 2.6.70. No DB change.
+
 ## 2.6.69
 - **Fix: a ! over a villager with nothing to hand in.** The ! over a villager (Here page) still came from the retired weekly "bring me N crops" favours. With the town Orders board on (the default) those favours are not shown anywhere, so a villager such as Juniper Kettleby got a ! whenever you carried enough of the old favour crop, and neither chatting nor gifting cleared it. With Orders on, a ! now means a real order on the current board that you have not delivered and can fill now; with Orders off the old favour rule is unchanged. Test: `tests/here_bang.php` (fails on 2.6.68, passes now). No DB change.
 

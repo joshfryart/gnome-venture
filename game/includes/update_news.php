@@ -83,6 +83,20 @@ const UPDATE_NEWS = [
         "Garden bed pictures were showing as odd text instead of the little bed icons. They look right again."],
     '2.0.36' => ['🧙 Your gnome looks right on phones',
         "On phones the Today page showed a plain white-hatted gnome. It now wears your own hat and beard colours. Trek foes also have new pictures."],
+    '2.6.68' => ['🔎 Update 2.6.68: the big landmarks on the Trail can be used',
+        "[list][*][b]Sights[/b]: every big landmark you pass on a Trail map (bridges, wells, windmills, gates, caves ...) now has something to do. A gold [b]![/b] shows over a landmark that is ready. Stand next to it and tap [b]🔎 Sights[/b] for its card, then use it. Each costs a little energy and 10 game minutes, and grows back after a few days.\n"
+        . "[*][b]Lots of kinds[/b]: forage, pick a tool and gather, cross a wobbly bridge, guess the right knock, sneak up, scout the place ahead and get a true hint about the weather or what lives there.\n"
+        . "[*][b]Villagers out and about[/b]: some villagers turn up at a landmark at the right time of day. They stand on the map beside it and walk in. Tap them to chat or give a present, or hand over what they ask for.\n"
+        . "[*][b]25 quest lines[/b] (Bramble's Picnic List, Sap to Stack, Which Nettle? and many more) are made of Sights. They appear in a new [b]Sight quests[/b] box on your Tasks page.\n"
+        . "[*][b]Almanac[/b]: a new Sights chapter fills as you try each one (it does not count toward your page totals).\n"
+        . "[*][b]New things[/b]: 104 new keepsakes, parcels, charms and yard decor, all with new pictures, and every landmark on the Trail has its own drawing now.[/list]"],
+    '2.6.69' => ['❗ Update 2.6.69: the ! over a villager',
+        "[list][*][b]Fixed[/b]: a villager could have a [b]![/b] over their head when you had nothing to hand in to them (it was left over from the old weekly favours). The ! now only shows when a villager has a real order on the town board that you can fill right now.[/list]"],
+    '2.6.70' => ['🧑‍🌾 Update 2.6.70: villagers on the Trail, tidied up',
+        "[list][*][b]Villager cards[/b] have a [b]👣 Walk over[/b] button, so you can always walk to a villager even when tapping them opens their card.\n"
+        . "[*][b]No more hiding[/b]: villagers out at a landmark are never drawn behind or on top of its picture, and they never stand on a find, a gate or the way on.\n"
+        . "[*][b]Chatting[/b] with a villager who has just gone on their way now says so in your journal.\n"
+        . "[*][b]Smoother[/b]: Trail pages with landmarks do a lot less work on each step, and a villager's request for an item can only be filled once a day.[/list]"],
 ];
 
 /** Posts the news for every version after $from up to this one (skips any already posted). */
