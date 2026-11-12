@@ -1076,6 +1076,27 @@ body{padding-block:10px 28px}
 .fb-log div{white-space:normal}
 .fb-log b{display:inline-block;min-width:16px;color:var(--fm);font-variant-numeric:tabular-nums}
 .fb-log .me{color:#d5ecc4}.fb-log .foe{color:#ffd0c4}.fb-log .env{color:#ffe3a0}.fb-log .sys{color:var(--fm)}
+/* playback: the site's own classes do the work (pf-turn, pfb-drop, pfb-scoring, pfb-leaving, pfb-spawn, pf-chip-in, pfb-glow, pfb-stamp); below is only the glue */
+#app{position:relative}
+.pf-turn-env{background:#2f5a2a;color:#f2e4c0;border:2px solid #7ab55c}
+.fb>*{min-width:0}
+.fb-hist{display:block;color:var(--fi);min-height:32px;min-width:0;overflow:hidden}
+.fb-hist .pfc-histrow{min-width:0}
+.fb-hist .pf-hist{scrollbar-width:none}
+.fb-hist .pf-hist{border-bottom:0;color:var(--fi)}
+.fb-hist .pf-chip{color:#2a1a10;font-size:11px}
+.fb-hist .pf-chip.foe{color:#f4d6a8}
+.fb-hist .pf-chip.you .pfh-txt{color:#2a1a10!important;font-weight:700;opacity:1}.fb-hist .pf-chip.foe .pfh-txt{color:#f4d6a8!important;font-weight:700;opacity:1}
+.fb-hist .pf-chip.env{border:1px solid #7ab55c;border-image:none;background:rgba(47,90,42,.55);color:#e4f3d6;height:30px;padding:0 6px;box-sizing:border-box}
+.fb-hist .pf-chip.env svg{width:13px;height:13px;flex:none}
+.fb-hist .pf-chip.empty{color:var(--fm);font-size:11px;height:30px}
+.fb-hist .pf-chip .pfh-gn{object-fit:cover;object-position:top}
+.fb-hist #pf-skip{flex:none;margin:0;min-height:28px;padding:2px 10px;font-size:12px}
+.bp.pfb-gone{cursor:default;z-index:2}
+.pfb-cell.pfb-drop.pfb-scoring{animation:pfb-drop .4s ease-out backwards,pfb-score .5s ease-out .4s}
+@media (prefers-reduced-motion:reduce){.pfb-cell.pfb-drop.pfb-scoring{animation:none}}
+.mk.evflash{z-index:9;background:rgba(255,214,90,.35)}
+@media (prefers-reduced-motion:reduce){.mk.aim{animation:none}.fbar i{transition:none}.hc{transition:none}}
 /* result */
 .res{text-align:center;display:grid;gap:8px;justify-items:center}
 .res h2{margin:0;font-size:20px}
@@ -2740,7 +2761,7 @@ body{padding-block:10px 28px}
   var EVT = { sunbeam: 'this cell turns sunny (Hurt and Charm play double); the oldest sunny cell fades', creep: 'this cell turns to bramble and pricks at once; the oldest bramble withers',
     puddle: 'this cell turns to mud (no links in or out); the old mud dries', gust: 'the piece here is pushed one cell along the arrow', thorn: 'every piece on this cell and its 4 neighbours costs its owner health' };
   var GRN = { sun: 'Sunny', br: 'Bramble', mud: 'Mud' };
-  var TUNE0 = { foe_x: 1, bar_x: 1, ev_unit: 0.10, bramble: 0.10, sun: 2, limit: 3, br_half: false, nev: 'auto', big: false, lvl: 0 };
+  var TUNE0 = { foe_x: 1, bar_x: 1, ev_unit: 0.10, bramble: 0.10, sun: 2, limit: 3, br_half: false, nev: 'auto', big: false, lvl: 0, anim: '1' };
 
   // ------------------------------------------------------------------ small helpers
   function safe(f) { try { return f(); } catch (e) { return null; } }
@@ -2789,8 +2810,8 @@ body{padding-block:10px 28px}
   function cv(o) { pend.push(o); return '<i class="cvh" data-i="' + (pend.length - 1) + '"></i>'; }
   function mount(el) {
     Array.prototype.forEach.call(el.querySelectorAll('i.cvh'), function (h) {
-      var o = pend[+h.getAttribute('data-i')], c = o.ghost ? PP.ghost(o) : PP.piece(o);
-      c.setAttribute('aria-hidden', 'true'); h.parentNode.replaceChild(c, h);
+      var o = pend[+h.getAttribute('data-i')], c = o.stamp ? PP.stamp(o.stamp) : o.ghost ? PP.ghost(o) : PP.piece(o);
+      if (o.stamp) { c.className = 'pfb-stamp'; c.setAttribute('role', 'img'); c.setAttribute('aria-label', 'Chain of ' + o.stamp + ' pieces'); c.setAttribute('style', o.style); } else { c.className = 'pfb-cv'; c.setAttribute('aria-hidden', 'true'); } h.parentNode.replaceChild(c, h);
     });
     pend = [];
   }
@@ -2912,7 +2933,7 @@ body{padding-block:10px 28px}
   // ------------------------------------------------------------------ 4. the fight
   function startFight() {
     var c = curCreature(), f = PFD.newFight(sv, c, (++ui.seed) * 7919 + 13, engineTune());
-    F = { s: f.s, g: f.g, c: c, log: [], sel: null, cell: null, pv: null, insp: null, mid: null, busy: false, cache: null };
+    stopQ(); F = { s: f.s, g: f.g, c: c, log: [], chips: [], chipn: 0, sel: null, cell: null, pv: null, insp: null, show: null, fx: null, busy: false, cache: null }; ui.barPrev = {};
     lg('sys', 'Opening: put one piece next to the blank centre. Nothing fires yet.');
     RES = null; screen = 'fight'; ui.info = ''; draw();
   }
@@ -2984,16 +3005,23 @@ body{padding-block:10px 28px}
       + (p.over ? ' · <b>this ends it</b>' : '') + '</span>';
   }
   function fight() {
-    var s = F.mid || F.s, v = PFE.view(s), c = F.c, G = geom(v), h = '', i, name = esc(c.name), start = !!F.s.start;
-    var hpF = v.hp / v.max, fhLeft = Math.max(0, v.fh.max - v.fh.now), step = F.busy ? 1 : 0;
+    var sh = F.show || { s: F.s }, s = sh.s, v = PFE.view(s), c = F.c, G = geom(v), h = '', i, name = esc(c.name), start = !!F.s.start;
+    if (sh.bars) { v.hp = sh.bars.hp; v.block = sh.bars.g; v.fh.now = sh.bars.fh; v.bar.now = sh.bars.bar; }
+    var hpF = v.hp / v.max, fhLeft = Math.max(0, v.fh.max - v.fh.now), step = F.show ? (sh.who === 'foe' ? 1 : sh.who === 'env' ? 2 : 0) : 0, hide = sh.hide || {};
+    var bw = function (k, f) { var t = pct(Math.max(0, Math.min(1, f))), p0 = ui.barPrev[k] === undefined ? t : ui.barPrev[k]; return ' data-bk="' + k + '" data-bw="' + t + '" style="width:' + p0 + '"'; };
     // who is who
     h += '<div class="fb-top"><div class="fb-who"><span class="fb-av"><img src="' + ART['gnome.png'] + '" alt="Your gnome"></span><span class="fb-st"><b>You <small>lv ' + F.g.level + '</small></b>'
-      + '<span class="fbar b-hp" role="img" aria-label="Your health ' + v.hp + ' of ' + v.max + '"><i style="width:' + pct(hpF) + '"></i><span>' + v.hp + '/' + v.max + '</span></span>'
-      + '<span class="fbar b-gd sm" role="img" aria-label="Your guard ' + v.block + '"><i style="width:' + pct(Math.min(1, v.block / Math.max(1, v.max * .4))) + '"></i><span>guard ' + v.block + '</span></span></span></div>'
+      + '<span class="fbar b-hp" role="img" aria-label="Your health ' + v.hp + ' of ' + v.max + '"><i' + bw('hp', hpF) + '></i><span>' + v.hp + '/' + v.max + '</span></span>'
+      + '<span class="fbar b-gd sm" role="img" aria-label="Your guard ' + v.block + '"><i' + bw('g', v.block / Math.max(1, v.max * .4)) + '></i><span>guard ' + v.block + '</span></span></span></div>'
       + '<div class="fb-who foe"><span class="fb-av"><img src="' + ART['mini-' + c.slug + '.png'] + '" alt="' + name + '"></span><span class="fb-st"><b>' + name + ' <small>lv ' + c.level + '</small></b>'
-      + '<span class="fbar b-fh" role="img" aria-label="Creature health ' + Math.ceil(fhLeft) + ' of ' + Math.round(v.fh.max) + '"><i style="width:' + pct(fhLeft / v.fh.max) + '"></i><span>' + Math.ceil(fhLeft) + '/' + Math.round(v.fh.max) + (v.foe.block ? ' · guard ' + v.foe.block : '') + '</span></span>'
-      + (v.charmable ? '<span class="fbar b-ch sm" role="img" aria-label="Charm ' + Math.round(v.bar.now) + ' of ' + Math.round(v.bar.max) + '"><i style="width:' + pct(Math.min(1, v.bar.now / v.bar.max)) + '"></i><span>charm ' + Math.round(v.bar.now) + '/' + Math.round(v.bar.max) + '</span></span>'
+      + '<span class="fbar b-fh" role="img" aria-label="Creature health ' + Math.ceil(fhLeft) + ' of ' + Math.round(v.fh.max) + '"><i' + bw('fh', fhLeft / v.fh.max) + '></i><span>' + Math.ceil(fhLeft) + '/' + Math.round(v.fh.max) + (v.foe.block ? ' · guard ' + v.foe.block : '') + '</span></span>'
+      + (v.charmable ? '<span class="fbar b-ch sm" role="img" aria-label="Charm ' + Math.round(v.bar.now) + ' of ' + Math.round(v.bar.max) + '"><i' + bw('ch', v.bar.now / v.bar.max) + '></i><span>charm ' + Math.round(v.bar.now) + '/' + Math.round(v.bar.max) + '</span></span>'
         : '<span class="fbar sm"><span>cannot be charmed</span></span>') + '</span></div></div>';
+    // what has been played: the site's history chips, newest first, and its Skip button while a turn plays back
+    h += '<div class="pfight pf-boardmode pfx-art fb-hist"><div class="pfc-histrow"><ol class="pf-hist" aria-label="What has been played">' + (F.chips.slice(0, 12).map(function (ch, k) {
+      return '<li class="pf-chip ' + (ch.by === 'me' ? 'you' : ch.by === 'env' ? 'env' : 'foe') + (k < F.chipn ? ' pf-chip-in' : '') + '">' + ch.html + '</li>'; }).join('') || '<li class="pf-chip empty">Nothing played yet</li>')
+      + '</ol><button type="button" class="btn" id="pf-skip" data-a="skip"' + (Q.on ? '' : ' hidden') + '>Skip</button></div></div>';
+    F.chipn = 0;
     // turn order, aim, forecast
     var pvw = F.pv, lim = v.limit, dots = '';
     for (i = 1; i <= Math.max(lim, 3); i++) dots += '<i class="' + (pvw && pvw.n >= i ? (lim > 0 && i >= lim && pvw.n >= lim ? 'over' : 'on') : '') + '"></i>';
@@ -3015,9 +3043,10 @@ body{padding-block:10px 28px}
     for (cy = 0; cy < v.h; cy++) for (cx = 0; cx < v.w; cx++) { key = cx + ',' + cy; B += '<div class="gc' + (v.ter[key] ? ' g-' + v.ter[key] : '') + '" style="' + G.body(cx, cy) + '"></div>'; }
     var at = {}; v.pcs.forEach(function (p) { at[p.x + ',' + p.y] = p; });
     v.pcs.forEach(function (p) {
+      if (hide[p.id]) return;
       if (p.by === 'none') { B += '<div class="bp blank" style="' + G.piece(p.x, p.y) + '" title="The blank centre: pieces connect to it, nothing fires through it. Gone after round 1."><span>✦</span></div>'; return; }
       var tagged = p.tag && TAGS[p.tag] ? p.tag : '';
-      B += '<button type="button" class="bp by-' + p.by + (p.fnew && !F.busy ? ' fnew' : '') + (fires[p.id] ? ' glow' : '') + (F.insp === p.id ? ' insp' : '') + '" style="' + G.piece(p.x, p.y) + '" data-a="insp" data-arg="' + p.id + '" aria-label="' + (p.by === 'me' ? 'Your piece: ' : 'Creature piece: ') + esc(p.n) + ', ' + p.t + ' ' + p.v + ', ' + p.left + ' rounds left">'
+      B += '<button type="button" class="bp pfb-cell by-' + p.by + (p.fnew && !F.show ? ' fnew' : '') + (fires[p.id] ? ' glow' : '') + (F.insp === p.id ? ' insp' : '') + (sh.drop === p.id ? ' pfb-drop' : '') + (sh.score === p.id || (sh.scores && sh.scores[p.id]) ? ' pfb-scoring' : '') + (ui.spawn && p.spawn ? ' pfb-spawn' : '') + '" style="' + G.piece(p.x, p.y) + '" data-a="insp" data-arg="' + p.id + '" aria-label="' + (p.by === 'me' ? 'Your piece: ' : 'Creature piece: ') + esc(p.n) + ', ' + p.t + ' ' + p.v + ', ' + p.left + ' rounds left">'
         + cv({ size: 'strip', owner: p.by, type: p.t, edges: p.e, tag: tagged, num: '' }) + '<b class="bv">' + p.v + '</b>' + pips(p.left, p.life, 'xp') + (p.fl !== null && p.fl !== undefined ? '<em class="fl">×' + p.fl + '</em>' : '') + '</button>';
       [['R', 1, 0, 'L'], ['B', 0, 1, 'T']].forEach(function (d) {   // the stitch mark on a linked joint (a chain runs through it)
         var n = at[(p.x + d[1]) + ',' + (p.y + d[2])]; if (!n || n.by === 'none') return;
@@ -3026,13 +3055,30 @@ body{padding-block:10px 28px}
         else B += '<img class="jt" src="' + ART['joint-v.png'] + '" alt="" style="left:' + pct((p.x * 56 + 9 + 21) / G.BW) + ';top:' + pct(((p.y + 1) * 40 + 6 - 11) / G.BH) + ';width:' + pct(14 / G.BW) + ';height:' + pct(22 / G.BH) + '">';
       });
     });
+    (sh.ghosts || []).forEach(function (q) {   // pieces that were used up, fell away or expired stay until everything has scored, then leave (the site's pfb-gone / pfb-leaving)
+      if (at[q.x + ',' + q.y]) return; var qt = q.tile;
+      B += '<div class="bp pfb-cell pfb-gone by-' + q.by + (sh.leaving ? ' pfb-leaving' : '') + (sh.score === q.id ? ' pfb-scoring' : '') + '" style="' + G.piece(q.x, q.y) + '">' + cv({ size: 'strip', owner: q.by, type: qt.t, edges: PFE.edges(qt), tag: qt.tag && TAGS[qt.tag] ? qt.tag : '', num: '' }) + '<b class="bv">' + qt.v + '</b></div>';
+    });
+    if (F.fx && !F.show) {   // the last turn's chains: a glow along each linked joint, a stamp with its length on the piece that started it (as the site draws them)
+      var sets = F.fx.map(function (ch) { var m = {}; ch.ids.forEach(function (id) { m[id] = true; }); return m; }), byId = {};
+      v.pcs.forEach(function (p) { byId[p.id] = p; });
+      v.pcs.forEach(function (ga) {
+        [['R', 1, 0, 'L', 'chain-glow-v.png', 8, 32, 1], ['B', 0, 1, 'T', 'chain-glow-h.png', 32, 8, 0]].forEach(function (d) {
+          var gn = at[(ga.x + d[1]) + ',' + (ga.y + d[2])]; if (!gn || ga.by === 'none' || gn.by === 'none' || !PFE.joint(ga.e[d[0]], gn.e[d[3]])[1]) return;
+          if (!sets.some(function (st) { return st[ga.id] && st[gn.id]; })) return;
+          var gx = d[1] ? (ga.x + 1) * 56 + 9 : ga.x * 56 + 9 + 28, gy = d[1] ? ga.y * 40 + 6 + 20 : (ga.y + 1) * 40 + 6;
+          B += '<span class="pfb-glow" aria-hidden="true" data-v="' + d[7] + '" style="background-image:url(' + ART[d[4]] + ');background-size:' + (d[7] ? '400% auto' : 'auto 400%') + ';left:' + pct((gx - d[5] / 2) / G.BW) + ';top:' + pct((gy - d[6] / 2) / G.BH) + ';width:' + pct(d[5] / G.BW) + ';height:' + pct(d[6] / G.BH) + '"></span>';
+        });
+      });
+      F.fx.forEach(function (ch) { var r0 = byId[ch.ids[0]]; if (r0) B += cv({ stamp: ch.ids.length, style: 'left:' + pct((r0.x * 56 + 9 + 56 - 22) / G.BW) + ';top:' + pct((r0.y * 40 + 6 - 14) / G.BH) + ';width:' + pct(32 / G.BW) + ';height:' + pct(32 / G.BH) }); });
+    }
     for (key in v.ter) { xy = key.split(','); B += '<div class="gf g-' + v.ter[key] + '" style="' + G.body(+xy[0], +xy[1]) + '">' + svg(v.ter[key]) + '</div>'; }
     if (!s.over) {
-      v.envs.forEach(function (e) {
+      v.envs.forEach(function (e, ek) {
         if (e.kind === 'thorn') [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) { var zx = e.x + d[0], zy = e.y + d[1]; if (zx >= 0 && zy >= 0 && zx < v.w && zy < v.h) B += '<div class="mk zone" style="' + G.body(zx, zy) + '"></div>'; });
-        B += '<div class="mk ev k-' + e.kind + '" style="' + G.body(e.x, e.y) + '">' + svg(EVG[e.kind], e.kind === 'gust' ? ROT[e.dir] : 0) + '</div>';
+        B += '<div class="mk ev k-' + e.kind + (sh.flash === ek ? ' pfb-cell pfb-scoring evflash' : '') + '" style="' + G.body(e.x, e.y) + '">' + svg(EVG[e.kind], e.kind === 'gust' ? ROT[e.dir] : 0) + '</div>';
       });
-      if (v.plan && !start && !v.status.foe_slow) B += '<div class="mk aim" style="' + G.body(v.plan.x, v.plan.y) + '">' + svg('aim') + '<b>' + v.plan.v + '</b></div>';
+      if (v.plan && !start && !v.status.foe_slow && sh.aim !== false) B += '<div class="mk aim" style="' + G.body(v.plan.x, v.plan.y) + '">' + svg('aim') + '<b>' + v.plan.v + '</b></div>';
     }
     var lit = litCells(), tile = F.sel !== null ? F.s.me.hand[F.sel] : null;
     lit.forEach(function (q) {
@@ -3040,11 +3086,12 @@ body{padding-block:10px 28px}
       B += '<button type="button" class="lit' + (on ? ' sel' : '') + '" style="' + G.piece(q.x, q.y) + '" data-a="cell" data-x="' + q.x + '" data-y="' + q.y + '" aria-label="Place here, column ' + (q.x + 1) + ' row ' + (q.y + 1) + '">'
         + cv({ ghost: 1, size: 'strip', owner: 'me', edges: PFE.edges(tile) }) + '<span class="ln">' + pvLabel(q.pv) + '</span></button>';
     });
-    h += '<div class="board" style="aspect-ratio:' + G.BW + '/' + G.BH + ';max-width:' + Math.round(G.BW * 1.25) + 'px" role="group" aria-label="The board, ' + v.w + ' by ' + v.h + '">' + B + '</div>';
+    h += '<div class="board" style="aspect-ratio:' + G.BW + '/' + G.BH + ';max-width:' + Math.round(G.BW * 1.25) + 'px" role="group" aria-label="The board, ' + v.w + ' by ' + v.h + '"' + (Q.on ? ' data-a="skip" title="Tap to skip"' : '') + '>' + B + '</div>';
     // what is selected
     var info, canPass = false;
-    if (s.over) info = '<span><b>The fight is over.</b></span>';
-    else if (F.busy) info = '<span>The ' + name + ' moves, then the ground…</span>';
+    if (s.over && !F.show) info = '<span><b>The fight is over.</b></span>';
+    else if (F.show) info = '<span>' + (sh.note || 'Playing the turn…') + '</span>';
+    else if (F.busy) info = '<span>…</span>';
     else if (F.cell && tile) info = pvText(tile, F.pv) + '<button type="button" class="btn primary" data-a="play">Play</button>';
     else if (ui.info) info = ui.info;
     else if (tile) info = lit.length ? '<span><b>' + esc(tile.n) + '</b> ' + TYPE[tile.t] + ' ' + tile.v + ': tap a lit cell. The number is what your own chain does.' + (tile.tool ? ' Tool piece: −2 durability when played.' : '') + '</span>' : '<span><b>' + esc(tile.n) + '</b> fits nowhere right now.</span>';
@@ -3067,7 +3114,112 @@ body{padding-block:10px 28px}
     h += '<div class="fb-log" role="log" aria-label="Turn log">' + F.log.slice(0, 14).map(function (L) { return '<div class="' + L.cls + '"><b>' + L.r + '</b> ' + L.txt + '</div>'; }).join('') + '</div>';
     return '<div class="fb">' + ico(h).replace(/☀/g, '<span style="color:#ffd65a">☀</span>') + '</div>';
   }
-  function after(fn, ms) { if (ui.fast) fn(); else setTimeout(fn, ms); }
+  // ---- the playback queue (ported from the site's replay in game/assets/pfboard.js: maybeReplay / showTurn / stopPlay / afterLeave).
+  // Each side: its banner shows, holds, fades (BAN), and only then its pieces play, one event every STEP: the piece is put down (pfb-drop), it scores (pfb-scoring),
+  // its history chip slides in and the bars follow. Then the pieces that left go (pfb-leaving), the chain glow and stamps show, and "Your turn" comes up.
+  var Q = { on: false, timer: 0, steps: [], done: null }, STEP = 950, BAN = 1500, LEAVE = 800, turnEl = null, turnTimer = 0, glowTimer = 0;
+  function speed() { var a = tune().anim; return ui.fast || a === 'skip' ? 0 : a === '2' ? 2 : 1; }
+  function calm() { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+  function showTurn(text, who) {   // a short banner over the play area so it is clear whose turn it is
+    var app = document.getElementById('app'), bd = main.querySelector('.board'); if (!bd) return;
+    if (!turnEl) { turnEl = document.createElement('div'); turnEl.setAttribute('role', 'status'); app.appendChild(turnEl); }
+    clearTimeout(turnTimer); turnEl.textContent = text; turnEl.className = 'pf-turn pf-turn-' + who; turnEl.hidden = false;
+    var r = bd.getBoundingClientRect(), ar = app.getBoundingClientRect();
+    turnEl.style.top = Math.max(4, r.top - ar.top + r.height / 2 - 18) + 'px';
+    turnEl.style.animationDuration = (1.4 / Math.max(1, speed())) + 's';
+    void turnEl.offsetWidth; turnEl.classList.add('pf-turn-on');
+    turnTimer = setTimeout(function () { if (turnEl) turnEl.hidden = true; }, 1450 / Math.max(1, speed()));
+  }
+  function hideTurn() { clearTimeout(turnTimer); if (turnEl) turnEl.hidden = true; }
+  function stopQ() { clearTimeout(Q.timer); Q.on = false; Q.steps = []; Q.done = null; hideTurn(); clearInterval(glowTimer); glowTimer = 0; }
+  function nextStep() {
+    if (!Q.on) return;
+    var st = Q.steps.shift(); if (!st) { var d = Q.done; Q.on = false; Q.done = null; d(false); return; }
+    st.fn(); Q.timer = setTimeout(nextStep, st.d / speed());
+  }
+  function skipPlay() { if (!Q.on) return; clearTimeout(Q.timer); var d = Q.done; Q.on = false; Q.steps = []; Q.done = null; hideTurn(); d(true); }
+  function startGlow() {   // 4 frames at about 8 fps for a few seconds, then the glow and stamps go (a still frame if the player prefers less motion)
+    var ticks = 0, frame = 0, still = calm(); clearInterval(glowTimer);
+    glowTimer = setInterval(function () {
+      ticks++; if (!still) frame = (frame + 1) % 4;
+      Array.prototype.forEach.call(main.querySelectorAll('.pfb-glow'), function (g) { var w = g.getBoundingClientRect(); g.style.backgroundPosition = g.getAttribute('data-v') === '1' ? (-frame * w.width) + 'px 0' : '0 ' + (-frame * w.height) + 'px'; });
+      if (ticks > 40 || !F) { clearInterval(glowTimer); glowTimer = 0; if (F) F.fx = null; Array.prototype.forEach.call(main.querySelectorAll('.pfb-glow,.pfb-stamp'), function (g) { if (g.parentNode) g.parentNode.removeChild(g); }); }
+    }, 125);
+  }
+  /** One history chip (the site's markup: who, the piece's icon, what it did, on whom). */
+  function chipOf(e) {
+    var ch = PFE.chipEvent(e), gn = '<img class="pfh-gn" src="' + ART['gnome.png'] + '" alt="">', cr = '<img class="pfh-cr" src="' + ART['mini-' + F.c.slug + '.png'] + '" alt="">', t = ch.types[0];
+    var tagIc = ch.tags && ch.tags[0] && ART['ico-' + ({ quick: 'jab', heavy: 'smash', pierce: 'pierce', poison: 'sting', trip: 'trip', bash: 'bash', hold: 'brace', evade: 'roll', thorns: 'thornhide', mend: 'mending', hum: 'hum', lull: 'lull', bond: 'bond' }[ch.tags[0]] || '-') + '-s.png'];
+    return { by: ch.by, html: (ch.by === 'me' ? gn : cr) + '<img class="pfh-ico" src="' + (tagIc || ART['ico-' + t + '-s.png'] || ART['ico-trick-s.png']) + '" alt="' + esc(t) + '"> <span class="pfh-txt">' + esc(String(ch.txt).replace(/✨/g, '✦ ')) + '</span>' + (ch.tg === 'me' ? gn : ch.tg === 'foe' ? cr : '') };
+  }
+  function envChip(L, name) {
+    var k = L.k === 'bramble' ? 'br' : L.k === 'poison' ? 'thorn' : EVG[L.k], txt;
+    if (L.k === 'gust') txt = L.moved ? 'pushes ' + L.moved.n : 'no push'; else if (L.k === 'poison') txt = 'poison -' + L.me + ' hp';
+    else if (L.k === 'thorn' || L.k === 'bramble') txt = ((L.me ? '-' + L.me + ' hp ' : '') + (L.foe ? '-' + Math.round(L.foe) + ' ' + name : '')) || 'nothing hit';
+    else txt = EVN[L.k].toLowerCase();
+    return { by: 'env', txt: txt, html: svg(k) + ' <span class="pfh-txt">' + esc(txt) + '</span>' };
+  }
+  /** Your move (mv = [handIdx, x, y]) or a pass (null): the engine plays the whole round at once; the stages are replayed from copies. */
+  function runTurn(mv) {
+    var s = F.s, S0 = PFE.clone(s), before = { wear: PFE.clone(s.wear || {}) }, name = F.c.name;
+    var A = PFE.clone(s); A.spent = []; A.uselog = []; PFE.begin(A, 'me');
+    if (mv && PFE.place(A, 'me', mv[0], mv[1], mv[2]) === null) { ui.info = '<span>That piece does not fit there.</span>'; F.cell = null; draw(); return; }
+    var myId = mv ? A.pid : null, B = null, C = null;
+    if (!A.over) { B = PFE.clone(A); PFE.foeTurn(B); if (!B.over) { C = PFE.clone(B); PFE.endRound(C); } }
+    var r = mv ? PFE.play(s, [mv], s.turn) : PFE.pass(s, s.turn);
+    if (r.err) { ui.info = '<span>' + esc(r.err) + '</span>'; draw(); return; }
+    F.sel = null; F.cell = null; F.pv = null; F.cache = null; F.insp = null; F.fx = null; F.busy = true; ui.info = ''; clearInterval(glowTimer); glowTimer = 0;
+    var evMe = r.ev.filter(function (e) { return e.ta === 'me' && !e.connect; }), evFoe = r.ev.filter(function (e) { return e.ta === 'foe'; });
+    var bars = { hp: S0.me.hp, g: S0.me.block, fh: S0.fh.now, bar: S0.bar.now }, steps = [], pending = [];
+    var snapBars = function () { return { hp: bars.hp, g: bars.g, fh: bars.fh, bar: bars.bar }; };
+    var take = function (e) { if (e.hpnow !== undefined) { bars.hp = e.hpnow; bars.g = e.gnow; bars.fh = e.fhnow; bars.bar = e.barnow; } return snapBars(); };
+    var frame = function (o, d, chip, banner) { steps.push({ d: d, fn: function () { if (chip) { F.chips.unshift(chip); F.chipn = 1; } F.show = o; draw(); if (banner) showTurn(banner[0], banner[1]); } }); if (chip) pending.push(chip); };
+    var spentA = (A.spent || []).slice(), b0 = snapBars();
+    // your turn
+    frame({ s: S0, who: 'me', bars: b0, note: mv ? 'Your piece goes down…' : 'You pass.' }, mv ? BAN : 400, null, mv ? ['Your turn', 'me'] : null);
+    evMe.forEach(function (e, k) { frame({ s: A, who: 'me', bars: take(e), ghosts: spentA, drop: k === 0 ? myId : null, score: e.id, aim: false, note: evText(e, name) }, STEP, chipOf(e)); });
+    if (spentA.length) frame({ s: A, who: 'me', bars: snapBars(), ghosts: spentA, leaving: true, aim: false, note: 'A chain of ' + (s.v1.limit || 3) + ' or more: the pieces that fired are used up.' }, LEAVE);
+    // the creature's turn: its aim is on the board while the banner shows, then its piece goes down and its chain scores
+    if (B) {
+      var hid = {}, spentB = (B.spent || []).filter(function (q) { return !spentA.some(function (a) { return a.id === q.id; }); }); (B.lastfoe || []).forEach(function (id) { hid[id] = true; });
+      frame({ s: A, who: 'foe', bars: snapBars(), note: S0.foe.plan ? 'The ' + esc(name) + ' aims ' + esc(S0.foe.plan.n) + ' at the marked cell.' : 'The ' + esc(name) + ' looks for a spot.' }, BAN, null, [name + "'s turn", 'foe']);
+      if (!evFoe.length) frame({ s: B, who: 'foe', bars: snapBars(), aim: false, note: 'The ' + esc(name) + ' makes no move.' }, STEP);
+      evFoe.forEach(function (e) {
+        var drop = null; if (e.id && hid[e.id]) { delete hid[e.id]; drop = e.id; }
+        frame({ s: B, who: 'foe', bars: take(e), hide: PFE.clone(hid), ghosts: spentB, drop: drop, score: e.id, aim: false, note: (e.tick ? 'Your ' : esc(name) + ': ') + evText(e, name) + (drop && s.reaim ? ' (its aim was blocked, it picked again)' : '') }, STEP, chipOf(e));
+      });
+      if (spentB.length) frame({ s: B, who: 'foe', bars: snapBars(), ghosts: spentB, leaving: true, aim: false, note: 'Pieces that fired twice, or in a chain of 3, fall away.' }, LEAVE);
+    }
+    // the environment turn: the announced events land in order, then bramble pricks (v1 design; the site has no environment turn yet)
+    if (C) {
+      var el = C.envlog || [];
+      if (el.length) frame({ s: B, who: 'env', bars: snapBars(), aim: false, note: 'The ground acts: the announced events land, then bramble pricks.' }, BAN, null, ['Ground', 'env']);
+      el.forEach(function (L) {
+        var fl = null, sc = {}; (B.envs || []).forEach(function (e, k) { if (fl === null && e.kind === L.k && e.x === L.x && e.y === L.y) fl = k; });
+        if (L.k === 'bramble') for (var id in B.pcs) { var p = B.pcs[id]; if (PFE.ter(C, p.x, p.y) === 'br' && p.by !== 'none') sc[id] = 1; }
+        if (L.k === 'thorn') for (var id2 in B.pcs) { var p2 = B.pcs[id2]; if (Math.abs(p2.x - L.x) + Math.abs(p2.y - L.y) <= 1 && p2.by !== 'none') sc[id2] = 1; }
+        if (L.me) bars.hp = Math.max(0, bars.hp - L.me); if (L.foe) bars.fh += L.foe;
+        var ch = envChip(L, name);
+        frame({ s: B, who: 'env', bars: snapBars(), flash: fl, scores: sc, aim: false, note: '<b>' + (L.k === 'bramble' ? 'Bramble' : L.k === 'poison' ? 'Poison' : EVN[L.k]) + '</b>: ' + esc(ch.txt) }, STEP, ch);
+      });
+      var exp = (s.gone || []).filter(function (q) { return !q.fell && q.by !== 'none'; });
+      if (exp.length || el.length) frame({ s: s, who: 'env', ghosts: exp, leaving: true, aim: false, note: exp.length ? 'Expired: ' + exp.map(function (q) { return esc(q.tile.n); }).join(', ') + '.' : 'The ground has changed.' }, exp.length ? LEAVE : 500);
+    }
+    Q.steps = steps; Q.on = true;
+    Q.done = function (skipped) {
+      if (skipped) { pending.forEach(function (ch) { if (F.chips.indexOf(ch) < 0) F.chips.unshift(ch); }); F.chipn = 0; }
+      F.show = null; F.busy = false; F.fx = s.over ? null : (s.fx || []).filter(function (ch) { return ch.ids.every(function (id) { return !!s.pcs[id]; }); });
+      if (!mv) lg('me', 'You pass.');
+      logTurn(r, before);
+      var sp = speed(); if (!sp || !F.fx || !F.fx.length) F.fx = null;
+      ui.spawn = !skipped && !!sp; draw(); ui.spawn = false;
+      if (F.fx) startGlow();
+      if (s.over) { F.busy = true; if (sp) Q.timer = setTimeout(function () { if (F) finish(F.s.over); }, 900 / sp); else finish(s.over); }
+      else if (sp) showTurn('Your turn', 'me');
+    };
+    if (!speed()) { skipPlay(); return; }
+    nextStep();
+  }
   function doPlay() {
     var s = F.s, i = F.sel, x = F.cell[0], y = F.cell[1];
     if (s.start) {
@@ -3075,26 +3227,13 @@ body{padding-block:10px 28px}
       if (err) { ui.info = '<span>' + esc(err) + '</span>'; draw(); return; }
       var fp = []; for (var id in s.pcs) if (s.pcs[id].by === 'foe') fp.push(s.pcs[id].tile.n);
       lg('sys', 'You put out ' + esc(nm) + '; the ' + esc(F.c.name) + ' puts out ' + esc(fp.join(' and ')) + '.');
-      F.sel = null; F.cell = null; F.pv = null; F.cache = null; draw(); return;
+      F.sel = null; F.cell = null; F.pv = null; F.cache = null; draw();
+      if (speed()) showTurn('Your turn', 'me');
+      return;
     }
-    var before = { wear: PFE.clone(s.wear || {}) }, mid = PFE.clone(s); mid.spent = []; mid.uselog = []; PFE.begin(mid, 'me');
-    if (PFE.place(mid, 'me', i, x, y) === null) { ui.info = '<span>That piece does not fit there.</span>'; F.cell = null; draw(); return; }
-    F.mid = mid; F.busy = true; F.sel = null; F.cell = null; F.pv = null; F.cache = null; F.insp = null; ui.info = ''; draw();
-    after(function () {
-      var r = PFE.play(s, [[i, x, y]], s.turn); F.mid = null; F.busy = false;
-      if (r.err) { ui.info = '<span>' + esc(r.err) + '</span>'; draw(); return; }
-      logTurn(r, before); endCheck();
-    }, 550);
+    runTurn([i, x, y]);
   }
-  function doPass() {
-    var s = F.s, before = { wear: PFE.clone(s.wear || {}) }, r = PFE.pass(s, s.turn);
-    if (r.err) { ui.info = '<span>' + esc(r.err) + '</span>'; draw(); return; }
-    lg('me', 'You pass.'); logTurn(r, before); endCheck();
-  }
-  function endCheck() {
-    draw();
-    if (F.s.over) { F.busy = true; after(function () { finish(F.s.over); }, 900); }
-  }
+  function doPass() { runTurn(null); }
   /** The fight is over: tool wear is applied (2 durability a play; a broken tool leaves the belt), then the result card. */
   function finish(how) {
     var s = F.s, wear = [];
@@ -3104,7 +3243,7 @@ body{padding-block:10px 28px}
       wear.push({ t: t, plays: s.wear[id], before: b, after: a });
     });
     sv.fights++; save();
-    RES = { how: how, c: F.c, hp: s.me.hp, max: s.me.max, turns: s.turn, wear: wear, st: s.st || {}, fh: Math.max(0, s.fh.max - s.fh.now), fhmax: s.fh.max, bar: s.bar.now, barmax: s.bar.max, log: F.log.slice(0, 40) };
+    stopQ(); RES = { how: how, c: F.c, hp: s.me.hp, max: s.me.max, turns: s.turn, wear: wear, st: s.st || {}, fh: Math.max(0, s.fh.max - s.fh.now), fhmax: s.fh.max, bar: s.bar.now, barmax: s.bar.max, log: F.log.slice(0, 40) };
     F = null; screen = 'result'; ui.info = ''; draw();
   }
 
@@ -3137,6 +3276,7 @@ body{padding-block:10px 28px}
     var t = tune(), h = '<div class="hrow"><h2>Tuning</h2><button type="button" class="btn ghost small" data-a="treset">Reset</button><button type="button" class="btn small" data-a="sclose">Done</button></div>'
       + '<p class="note"><b>Provisional.</b> These are the sim 3 numbers. Changes apply to the next fight.</p>';
     TR.forEach(function (r) { h += '<div class="tune"><label for="tu-' + r[0] + '">' + r[1] + '</label><output id="to-' + r[0] + '" for="tu-' + r[0] + '">' + r[5](t[r[0]]) + '</output><input type="range" id="tu-' + r[0] + '" data-k="' + r[0] + '" min="' + r[2] + '" max="' + r[3] + '" step="' + r[4] + '" value="' + t[r[0]] + '"><small>' + r[6] + '</small></div>'; });
+    h += '<label class="tsel" for="tu-anim">Animation speed <select id="tu-anim" data-k="anim">' + [['1', '1× (as the site)'], ['2', '2×'], ['skip', 'skip']].map(function (o) { return '<option value="' + o[0] + '"' + (String(t.anim) === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>';
     h += '<label class="tsel" for="tu-nev">Events a round <select id="tu-nev" data-k="nev">' + [['auto', 'by size (1 small, 2 others)'], ['0', 'none'], ['1', '1'], ['2', '2'], ['3', '3']].map(function (o) { return '<option value="' + o[0] + '"' + (String(t.nev) === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>'
       + '<label class="tchk" for="tu-br_half"><input type="checkbox" id="tu-br_half" data-k="br_half"' + (t.br_half ? ' checked' : '') + '>Halve bramble on creature pieces</label>'
       + '<label class="tchk" for="tu-big"><input type="checkbox" id="tu-big" data-k="big"' + (t.big ? ' checked' : '') + '>Every board 7×5 (size is only a look)</label>'
@@ -3171,6 +3311,10 @@ body{padding-block:10px 28px}
     pend = [];
     main.innerHTML = screen === 'fight' ? fight() : ico(SCREENS[screen]());
     mount(main);
+    var bl = main.querySelectorAll('[data-bk]');
+    if (bl.length) { var set = function () { Array.prototype.forEach.call(bl, function (b) { b.style.width = b.getAttribute('data-bw'); }); };
+      Array.prototype.forEach.call(bl, function (b) { ui.barPrev[b.getAttribute('data-bk')] = b.getAttribute('data-bw'); });
+      if (speed()) { void main.offsetWidth; requestAnimationFrame(set); } else set(); }
     var items = screen === 'fight' ? [['🧩', 'Deck', 'deck', 0], ['⚠️', 'Give up', 'giveup', 0], ['🔧', 'Tuning', 'tune', 0]]
       : [['🧩', 'Box', 'nbox', screen === 'box' || screen === 'starter'], ['⚔️', 'Creatures', 'npre', screen === 'pre'], ['🔧', 'Tuning', 'tune', 0]];
     nav.innerHTML = ico(items.map(function (it) { return '<a href="#" role="button" data-a="' + it[2] + '"' + (it[3] ? ' class="on" aria-current="page"' : '') + '><span aria-hidden="true">' + it[0] + '</span>' + it[1] + '</a>'; }).join(''));
@@ -3226,15 +3370,17 @@ body{padding-block:10px 28px}
     play: function () { if (F.busy || !F.cell) return; doPlay(); return true; },
     pass: function () { if (F.busy) return; doPass(); return true; },
     insp: function (id) {
-      var s = F.mid || F.s, p = s.pcs[id]; if (!p) return; F.insp = +id; F.cell = null; F.pv = null;
+      if (Q.on) { skipPlay(); return true; }
+      var s = F.s, p = s.pcs[id]; if (!p) return; F.insp = +id; F.cell = null; F.pv = null;
       var t = p.tile, left = p.born + (t.life || 3) - s.round, g = PFE.ter(s, p.x, p.y);
       say('<span><b>' + esc(t.n) + '</b> ' + TYPE[t.t] + ' ' + t.v + ' · ' + (p.by === 'me' ? 'yours' : esc(F.c.name) + (t.layer ? ', ' + PFD.LAYERS[t.layer].toLowerCase() : '')) + ' · ' + left + (left === 1 ? ' round left' : ' rounds left')
         + (p.by === 'foe' ? ' · plays left ' + Math.max(0, 2 - (p.f || 0)) : '') + (g ? ' · on ' + GRN[g].toLowerCase() : '') + tagText(t, p.by === 'foe') + '</span>');
     },
-    evinfo: function (k) { var e = (F.mid || F.s).envs[+k]; if (e) say('<span><b>' + EVN[e.kind] + '</b> lands after the creature\'s move: ' + EVT[e.kind] + '.</span>'); },
-    giveup: function () { if (!F || F.busy) return; finish('fled'); return true; },
+    evinfo: function (k) { var e = F.s.envs[+k]; if (e) say('<span><b>' + EVN[e.kind] + '</b> lands after the creature\'s move: ' + EVT[e.kind] + '.</span>'); },
+    giveup: function () { if (!F) return; if (Q.on) { skipPlay(); if (!F) return true; } if (F.busy) return true; finish('fled'); return true; },
+    skip: function () { skipPlay(); return true; },
     deck: function () { ui.sheet = 'deck'; },
-    refight: function () { ui.sheet = null; startFight(); return true; },
+    refight: function () { ui.sheet = null; stopQ(); startFight(); return true; },
     // sheets
     tune: function () { ui.sheet = 'tune'; },
     sclose: function () { ui.sheet = null; },
@@ -3263,6 +3409,6 @@ body{padding-block:10px 28px}
     draw();
   }
   if (window.PFParts && window.PFParts.ok) boot(); else { document.addEventListener('pfparts-ready', boot); setTimeout(function () { if (!PP) boot(); }, 4000); }
-  window.__demo = { ui: ui, save: function () { return sv; }, fight: function () { return F; }, result: function () { return RES; }, draw: draw, lit: litCells, PFE: PFE, PFD: PFD };
+  window.__demo = { Q: Q, ui: ui, save: function () { return sv; }, fight: function () { return F; }, result: function () { return RES; }, draw: draw, lit: litCells, PFE: PFE, PFD: PFD };
 })();
 </script>
