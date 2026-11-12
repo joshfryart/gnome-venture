@@ -133,7 +133,7 @@ Values follow the current archetype formula (`$v` from the damage die). Species 
 The same data, with a `me` flag, gives the player's region pieces (2.2): earn a region's Guide and you own its "Other" piece as a Kit piece.
 
 ## 4. Data and schema changes
-- `game/includes/data/pf_pieces.txt` (new, linted): `key|name|source|ref|type|v|knob|tag|life|blurb`. Sources: basic, knack, calling, tool, crop, craft, region. The tile library moves out of `pf_tiles()`, which reads the file (cached). Pal pieces stay generated.
+- `game/includes/data/pf_pieces.txt` (new, linted): `key|name|source|ref|type|v|knob|col|up|tag|life|blurb`. Authored edges (see "Authored edges" at the end): `knob` = family of the right knob, `col` = family of the top and bottom edges, `up` = 1 when the column knob is on top (0 = hole on top). The left edge is always a hole of the type's family. The same three columns go into `pf_class_pieces.txt`, `pf_creature_pieces.txt` and `pf_region_pieces.txt`. Sources: basic, knack, calling, tool, crop, craft, region. The tile library moves out of `pf_tiles()`, which reads the file (cached). Pal pieces stay generated.
 - `game/includes/data/pf_creature_pieces.txt` (new): `slug|lean|n|type|v_mult|knob|tag` (2-4 rows per species). It replaces `PF_SIGNATURE`; tag `sig` becomes the real tag.
 - `game/includes/data/pf_region_pieces.txt` (new): `region|slot(hurt/other)|n|type|v_mult|knob|tag|life`.
 - Table `user_pdeck` (made on first use like `pbox_ensure`): `user_id PK, kit TEXT (json keys), belt TEXT (json tool types), ver INT, made_at`. On first load, migrate from `user_pbox`, then leave `user_pbox` unused.
@@ -382,3 +382,91 @@ Data: add a `class` column to `creatures.txt` (after `size`), values `insect|bir
 Open: (a) keep 6 classes or fold Plant into Beast; (b) poison and trip stacking caps above; (c) mockup screen 5 shows the layers.
 10. DECIDED (Q16-Q19): keep 6 classes (Plant/Fungus stays). Class "Insect" renamed CRITTER (insects, spiders, scorpion, centipede, snail, slug; trick quick). Sea otter bandit, salt sea lion, bog leech = Water; reef turtle = Reptile/Amphibian; jade jaguar = Beast; thistle beast, will-o-wisp, old bramblehorn = Plant/Fungus. No `?` tags left. Stacking caps for poison/trip still untested.
 11. DECIDED (Josh): Pre-fight screen: Auto-use current deck option (remembered per player); creature card still shown; active deck shown read-only (with a way to turn Auto off and edit); then Let's fight.
+
+## Authored edges (DECIDED by Josh 2026-11-12, ideas 1-3: authored edges, harmony meter, flip)
+
+Replaces the crc32 hash for the top and bottom edges (`pfb_edges`). Sim and numbers: `claude/design-board-strategy.md`, "Sim 4". Built so far only in the design demo (`tools/pfdemo_v1/data.js`, `edgesOf`); game code not changed.
+
+**Rule (one piece = four edges, no flat edges):**
+- **Left:** a hole of the piece's TYPE family (as today: Hurt and Guard body; Heal, Charm and Soothe mind; Trick and Item craft).
+- **Right:** a knob of the authored `knob` family (as today: what the piece leads into).
+- **Top and bottom:** one knob and one hole of the piece's COLUMN family `col`. Sourced pieces use the source family: **pals body, tools craft, crops mind, crafts craft**. Basics, knacks, calling and region pieces use their TYPE family.
+- **Way up (`up`):** Hurt, Charm and Trick pieces carry the column knob on top and the hole below; Guard, Heal, Soothe and Item the other way round.
+- **Same type connects by design:** two pieces of the same type and column family always stack (Swing on Jab, Dodge on Brace). Two pieces of one family but a different way up (Swing on Dodge) link after one of them is flipped.
+- **Flip:** once a turn, free, the player swaps the top and bottom edges of the piece they are about to place. It stays flipped. The creature does not flip.
+- **Creatures:** the class lean is the column family of 3 pieces in 5 of the creature's deck (base 4, region, size, unique, in deck order); the other 2 use their type family. The way up alternates by type as for the player.
+- **Lint:** every legal deck must have a linking move on 90% of turns or more (the harmony meter's "hand links" number; sim 4 measured 95-96% with the starter deck).
+
+**Puzzle box: deck harmony meter.** Under the Teamwork row: "Link rate" (share of piece-next-to-piece placements inside the deck that link, on any side, flip allowed), "hand links" (chance a hand of 5 has a piece that links to one of 2 other deck pieces) and a body / mind / craft bar of the deck's knob families. Hint: mixed sources give Teamwork, one family gives easy chains.
+
+**Player pieces (demo catalogue)**
+
+| Piece | Type | Source | Left | Right | Top | Bottom |
+|---|---|---|---|---|---|---|
+| Swing | hurt | basic | hole body | knob mind | knob body | hole body |
+| Dodge | guard | basic | hole body | knob body | hole body | knob body |
+| Rest | heal | basic | hole mind | knob craft | hole mind | knob mind |
+| Charm | charm | basic | hole mind | knob craft | knob mind | hole mind |
+| Thorn Cut | hurt | calling | hole body | knob craft | knob body | hole body |
+| Jab | hurt | knack | hole body | knob craft | knob body | hole body |
+| Snack | item | basic | hole craft | knob body | hole craft | knob craft |
+| Hide | trick | basic | hole craft | knob body | knob craft | hole craft |
+| Oat Cake | guard | crop | hole body | knob craft | hole mind | knob mind |
+| Herb Poultice | heal | crop | hole mind | knob body | hole mind | knob mind |
+| Brace | guard | knack | hole body | knob craft | hole body | knob body |
+| Soothe | soothe | knack | hole mind | knob mind | hole mind | knob mind |
+| Hum | charm | knack | hole mind | knob body | knob mind | hole mind |
+| Pierce | hurt | knack | hole body | knob mind | knob body | hole body |
+| Frost Bark | guard | region | hole body | knob body | hole body | knob body |
+| Pepper Puff | hurt | crop | hole body | knob body | knob mind | hole mind |
+| Berry Burst | hurt | crop | hole body | knob mind | knob mind | hole mind |
+| Juicy Bite | item | crop | hole craft | knob craft | hole mind | knob mind |
+| Honey Glaze | charm | crop | hole mind | knob mind | knob mind | hole mind |
+| Tonic | heal | craft | hole mind | knob mind | hole craft | knob craft |
+| Compost Lob | hurt | craft | hole body | knob body | knob craft | hole craft |
+| Spare Handle | guard | craft | hole body | knob mind | hole craft | knob craft |
+| Mist Veil | guard | region | hole body | knob mind | hole body | knob body |
+| Cold Snap | hurt | region | hole body | knob body | knob body | hole body |
+| Monsoon Spice | hurt | region | hole body | knob body | knob body | hole body |
+| Lull | charm | knack | hole mind | knob craft | knob mind | hole mind |
+| Shield Bash | hurt | knack | hole body | knob mind | knob body | hole body |
+| Roll | guard | knack | hole body | knob body | hole body | knob body |
+| Hoe Hook (Steel Spade) | hurt | tool | hole body | knob body | knob craft | hole craft |
+| Glare (Masterwork Lantern) | charm | tool | hole mind | knob craft | knob craft | hole craft |
+| Sweep (Ash Staff) | guard | tool | hole body | knob mind | hole craft | knob craft |
+| Reel In (Reed Rod) | trick | tool | hole craft | knob body | knob craft | hole craft |
+| Chop (Hatchet) | hurt | tool | hole body | knob body | knob craft | hole craft |
+| Net Toss (Bug Net) | hurt | tool | hole body | knob craft | knob craft | hole craft |
+| Bark Badger | guard | pal | hole body | knob craft | hole body | knob body |
+| Acorn Nip | heal | pal | hole mind | knob mind | hole body | knob body |
+| Samara Spin | hurt | pal | hole body | knob body | knob body | hole body |
+| Moth Glow | charm | pal | hole mind | knob body | knob body | hole body |
+
+**Class base 4** (lean = the family 3 pieces in 5 of a creature stack in; shown for the base 4 as dealt first)
+
+| Piece | Type | Class (lean) | Left | Right | Top | Bottom |
+|---|---|---|---|---|---|---|
+| Nip | hurt | Critter (mind) | hole body | knob mind | knob mind | hole mind |
+| Sting | hurt | Critter (mind) | hole body | knob craft | knob mind | hole mind |
+| Chitin Shell | guard | Critter (mind) | hole body | knob body | hole mind | knob mind |
+| Skitter | trick | Critter (mind) | hole craft | knob mind | knob craft | hole craft |
+| Snap | hurt | Water (body) | hole body | knob body | knob body | hole body |
+| Splash | hurt | Water (body) | hole body | knob mind | knob body | hole body |
+| Slick Hide | guard | Water (body) | hole body | knob body | hole body | knob body |
+| Undertow | trick | Water (body) | hole craft | knob mind | knob craft | hole craft |
+| Peck | hurt | Bird (craft) | hole body | knob mind | knob craft | hole craft |
+| Talon Dive | hurt | Bird (craft) | hole body | knob craft | knob craft | hole craft |
+| Wing Cover | guard | Bird (craft) | hole body | knob body | hole craft | knob craft |
+| Flutter Off | trick | Bird (craft) | hole craft | knob craft | knob craft | hole craft |
+| Lash Vine | hurt | Plant / Fungus (mind) | hole body | knob craft | knob mind | hole mind |
+| Spore Puff | hurt | Plant / Fungus (mind) | hole body | knob mind | knob mind | hole mind |
+| Bramble Coat | guard | Plant / Fungus (mind) | hole body | knob body | hole mind | knob mind |
+| Sap Mend | trick | Plant / Fungus (mind) | hole craft | knob mind | knob craft | hole craft |
+| Bite | hurt | Reptile / Amphibian (craft) | hole body | knob body | knob craft | hole craft |
+| Tail Lash | hurt | Reptile / Amphibian (craft) | hole body | knob craft | knob craft | hole craft |
+| Scale Guard | guard | Reptile / Amphibian (craft) | hole body | knob mind | hole craft | knob craft |
+| Venom Spit | trick | Reptile / Amphibian (craft) | hole craft | knob craft | knob craft | hole craft |
+| Claw | hurt | Beast (body) | hole body | knob body | knob body | hole body |
+| Maul | hurt | Beast (body) | hole body | knob mind | knob body | hole body |
+| Brace | guard | Beast (body) | hole body | knob body | hole body | knob body |
+| Shoulder Barge | trick | Beast (body) | hole craft | knob craft | knob craft | hole craft |

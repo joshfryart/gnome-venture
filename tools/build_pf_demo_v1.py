@@ -31,7 +31,7 @@ rep("  // ------------------------------------------------------------------ til
     sun: 2.0, bramble: 0.10, br_foe: 1.0,
     events: 1, nev: { small: 1, medium: 2, large: 2, boss: 2 }, evk: ['sunbeam', 'creep', 'gust', 'thorn', 'puddle'], ev_unit: 0.10, ev_foe: 0.5, gextra: 0,
     limit: 3, spend_foe: 1, aim: 1,
-    foe: { small: 0.65, medium: 0.56, large: 0.53, boss: 0.64 }, bar: { small: 1.12, medium: 1.12, large: 1.12, boss: 0.88 }, foe_x: 1, bar_x: 1,
+    foe: { small: 0.72, medium: 0.53, large: 0.41, boss: 0.46 }, /* sim 4 retune for authored edges + flip (sim 3: 0.65 / 0.56 / 0.53 / 0.64) */ bar: { small: 1.12, medium: 1.12, large: 1.12, boss: 0.88 }, foe_x: 1, bar_x: 1,
     team2: 1.3, team: 1.6
   };
   function v1cfg(size, over) {
@@ -144,6 +144,10 @@ rep("  // ------------------------------------------------------------------ til
   // ------------------------------------------------------------------ tiles
 """)
 
+# authored edges (sim 4): a piece that carries `ed` uses it instead of the hashed top / bottom; `flip` swaps its top and bottom
+rep("  function edges(t) {\n", "  function edges(t) {\n    if (t.ed) return t.flip ? { L: t.ed.L, R: t.ed.R, T: t.ed.B, B: t.ed.T } : t.ed;\n")
+rep("return { k: key, n: d.n, t: d.t, v: Math.max(1, toInt(d.v) + stat + lvl + bonus), r: nn(d.r), tag: String(d.tag), m: '' };", "var mt = { k: key, n: d.n, t: d.t, v: Math.max(1, toInt(d.v) + stat + lvl + bonus), r: nn(d.r), tag: String(d.tag), m: '' }; if (d.ed) mt.ed = d.ed; return mt;")
+rep("var mk = function (k, n, t, val, r, tag) { return", "var mk = function (k, n, t, val, r, tag) { return", 1)
 # a creature deck built by layers (class base 4 + region + size / boss + 3 unique) comes ready-made
 rep("  function foeDeck(c) {\n", "  function foeDeck(c) {\n    if (c.deck) return clone(c.deck);\n")
 

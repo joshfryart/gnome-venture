@@ -31,6 +31,19 @@ body{padding-block:10px 28px}
 .note{margin:8px 0 0;padding:6px 8px;font-size:12px;line-height:1.3;background:var(--accent-soft);color:var(--accent-ink);border:1px solid var(--accent-line)}
 .note b{color:inherit}
 .gvpg .sw{font-size:12.5px;gap:6px}.gvpg .sw .chip{font-size:11px;padding:0 5px}
+.harm{display:flex;align-items:center;gap:6px;margin:4px 0 0;font-size:11px;color:var(--muted)}
+.harm>b{flex:none;width:52px}
+.harm .chip{font-size:11px;padding:0 6px;margin:0;flex:none}
+.hmeter{position:relative;flex:1;height:14px;background:var(--surface-2);border:1px solid var(--ol);min-width:0}
+.hmeter i{position:absolute;inset:0 auto 0 0;background:#e8a317}.hmeter.good i{background:#4f9a45}.hmeter.low i{background:#d6322b}
+.hmeter span{position:absolute;inset:0;text-align:center;font:700 10px/12px var(--font);color:var(--ink)}
+.harm .stack.fam{height:14px}
+.harmhint{margin:3px 0 0;font-size:11px}
+.fb-info .flipb{min-height:32px;padding:2px 8px;font-size:12px}
+.hc.flipping canvas{animation:hcflip .35s ease-out}
+@keyframes hcflip{0%{transform:scaleY(1)}50%{transform:scaleY(0)}100%{transform:scaleY(1)}}
+.hc.flipped::after{content:'⇅';position:absolute;left:2px;top:30px;width:13px;height:13px;font:700 10px/13px var(--font);text-align:center;background:rgba(20,12,6,.85);color:#ffd65a}
+@media (prefers-reduced-motion:reduce){.hc.flipping canvas{animation:none}}
 /* creature picker */
 .crgrid{list-style:none;margin:0 0 8px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
 .crb{display:grid;justify-items:center;gap:1px;width:100%;min-width:0;padding:4px 2px;margin:0;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;cursor:pointer}

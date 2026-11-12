@@ -7,8 +7,21 @@
   'use strict';
   var RANK_BONUS = [0, 0, 2, 4, 5], RANK_NAME = ['', 'Worn', 'Sturdy', 'Fine', 'Masterwork'], RARE_CAP = 3, MW_CAP = 1, KIT_MIN = 8;
   var TEAM_SRC = { pal: 1, tool: 1, crop: 1 };
-  /* id: [name, type, base value, knob family, tag, source, rank, where it comes from, engine key (same key = same edges)] */
-  function P(id, n, t, v, r, tag, src, rank, from, k) { return { id: id, n: n, t: t, v: v, r: r, tag: tag || '', src: src, rank: rank || 0, from: from || '', k: k || 'x:' + id }; }
+  // ---- authored edges (sim 4). Left = a hole of the piece's TYPE family, right = a knob of its authored `knob` family (what it leads into),
+  // top = a hole and bottom = a knob of its COLUMN family: the source family for pals (body), tools (craft), crops (mind) and crafts (craft); the TYPE family for basics, knacks, calling and region pieces.
+  // So a row reads left to right along the knobs, and a column stacks pieces of one family: two pieces of the same type always link in a column (Hurt on Hurt, Guard on Hurt, Heal on Charm). Flip swaps top and bottom. EDGE_MODE 'hash' = the old hashed top / bottom (baseline).
+  var ENV = (typeof process === 'object' && process && process.env) || {}, EDGE_MODE = ENV.PF_EDGES || 'auth';
+  var HOLE = { hurt: 'body', guard: 'body', heal: 'mind', charm: 'mind', soothe: 'mind', trick: 'craft', item: 'craft' };
+  var SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft' };
+  var UP = { hurt: 1, charm: 1, trick: 1 };   // these types carry the column knob on top and the hole below; guard, heal, soothe and item the other way round. Same way up = stacks as it is; the other way = flip one.
+  function edgesOf(t, knob, col, up) { if (up === undefined) up = !!UP[t]; return { L: ['hole', HOLE[t] || 'body'], R: ['knob', knob], T: [up ? 'knob' : 'hole', col], B: [up ? 'hole' : 'knob', col] }; }
+  function colFam(p) { return SRC_FAM[p.src] || HOLE[p.t]; }
+  /* id: [name, type, base value, knob family, tag, source, rank, where it comes from, engine key] */
+  function P(id, n, t, v, r, tag, src, rank, from, k) {
+    var p = { id: id, n: n, t: t, v: v, r: r, tag: tag || '', src: src, rank: rank || 0, from: from || '', k: k || 'x:' + id };
+    if (EDGE_MODE === 'auth') p.ed = edgesOf(t, r, colFam(p));
+    return p;
+  }
   var PIECES = [
     P('swing', 'Swing', 'hurt', 4, 'mind', '', 'basic', 0, 'basic', 'swing'), P('dodge', 'Dodge', 'guard', 4, 'body', '', 'basic', 0, 'basic', 'dodge'),
     P('rest', 'Rest', 'heal', 3, 'craft', '', 'basic', 0, 'basic', 'rest'), P('charm', 'Charm', 'charm', 4, 'craft', '', 'basic', 0, 'basic', 'charm'),
@@ -68,6 +81,22 @@
     c.team = (c.src.pal ? 1 : 0) + (c.src.tool ? 1 : 0) + (c.src.crop ? 1 : 0);
     return c;
   }
+  /** Deck harmony: how well the deck's pieces link with each other. link = share of (piece next to piece, on any of the 4 sides, flip allowed) that link;
+      hand = chance that a hand of 5 has a piece that links to one of 2 other deck pieces on the board (seeded sampling); fam = knob families in the deck. */
+  function harmony(sv) {
+    var ps = deckPieces(sv).filter(function (p) { return p.ed; }), n = ps.length, fam = { body: 0, mind: 0, craft: 0 }, links = 0, tot = 0;
+    var lk = function (a, b) { return PFE.joint(a, b)[1]; };
+    var pair = function (a, b) { return (lk(a.ed.R, b.ed.L) ? 1 : 0) + (lk(b.ed.R, a.ed.L) ? 1 : 0) + (lk(a.ed.B, b.ed.T) || lk(a.ed.B, b.ed.B) ? 1 : 0) + (lk(b.ed.B, a.ed.T) || lk(b.ed.T, a.ed.T) ? 1 : 0); };
+    ps.forEach(function (p) { fam[p.ed.R[1]]++; fam[p.ed.B[1]]++; });
+    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (i !== j) { links += pair(ps[i], ps[j]); tot += 4; }
+    var seed = 12345, rnd = function (m) { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed % m; }, hit = 0, T = 240;
+    for (var t = 0; t < T && n >= 7; t++) {
+      var idx = ps.map(function (_, k) { return k; }); for (var q = n - 1; q > 0; q--) { var r = rnd(q + 1), x = idx[q]; idx[q] = idx[r]; idx[r] = x; }
+      var ok = false; for (var h = 0; h < 5 && !ok; h++) for (var b = 5; b < 7 && !ok; b++) if (pair(ps[idx[h]], ps[idx[b]])) ok = true;
+      if (ok) hit++;
+    }
+    return { n: n, link: tot ? links / tot : 0, hand: n >= 7 ? hit / T : 0, fam: fam };
+  }
   /** Why the deck cannot be used, or null. */
   function deckCheck(sv) {
     var c = counts(sv);
@@ -91,7 +120,7 @@
   }
   /** One fight piece (engine tile) from a catalogue entry at the gnome's level. */
   function tile(p, g) {
-    var t = PFE.makeTile(p.k, g.stats, RANK_BONUS[p.rank] || 0, { n: p.n, t: p.t, v: p.v, r: p.r, tag: p.tag });
+    var t = PFE.makeTile(p.k, g.stats, RANK_BONUS[p.rank] || 0, { n: p.n, t: p.t, v: p.v, r: p.r, tag: p.tag, ed: p.ed });
     t.life = life(p); t.src = p.src; t.rank = p.rank; t.id = p.id; if (p.tool) t.tool = p.tool;
     return t;
   }
@@ -145,7 +174,12 @@
   /** The creature's pieces by layer: [{layer, n, t, v, r, tag, life, k}] (values before the board factors). */
   function foePieces(c) {
     var v = foeV(c), out = [], big = c.size === 'large' || c.size === 'boss', i = 0;
-    var add = function (layer, q) { out.push({ k: 'f:' + c.slug + ':' + (i++), n: q[0], t: q[1], v: Math.max(1, Math.round(q[2] * v)), r: q[3], tag: q[4] || '', life: q[5] || 3, layer: layer }); };
+    var lean = CLASSES[c.cls].lean;
+    var add = function (layer, q) {   // the class lean: 3 pieces in 5 stack in the lean family (top hole, bottom knob), the others in their type family
+      var o = { k: 'f:' + c.slug + ':' + i, n: q[0], t: q[1], v: Math.max(1, Math.round(q[2] * v)), r: q[3], tag: q[4] || '', life: q[5] || 3, layer: layer };
+      if (EDGE_MODE === 'auth') o.ed = edgesOf(o.t, o.r, i % 5 < 3 ? lean : HOLE[o.t]);
+      i++; out.push(o);
+    };
     CLASSES[c.cls].P.forEach(function (q) { add('base', q); });
     var rg = REGIONS[c.region]; if (big) add('reg', rg[0]); add('reg', rg[1]);
     SIZE_EXTRA[c.size].forEach(function (q) { add('rar', q); });
@@ -168,10 +202,12 @@
     ['foe_x', 'bar_x', 'ev_unit', 'bramble', 'sun', 'limit', 'br_foe', 'nev', 'dims'].forEach(function (k) { if (tune[k] !== undefined && tune[k] !== null) v1[k] = tune[k]; });
     if (v1.nev === 0) v1.events = 0;
     var s = PFE.newFight({ hp: g.max, max_hp: g.max, stats: g.stats, deck: deckTiles(sv, g), luck: 0 }, foeRow(c), seed, { blank: true, v1: v1 });
+    s.canflip = EDGE_MODE === 'auth' && ENV.PF_FLIP !== '0';
     return { s: s, g: g, c: c };
   }
   return { PIECES: PIECES, CORE: CORE, OFFER: OFFER, KITS: KITS, TOOLS: TOOLS, PALS: PALS, BELT_SLOTS: BELT_SLOTS, CLASSES: CLASSES, REGIONS: REGIONS, CREATURES: CREATURES, LAYERS: LAYERS,
+    EDGE_MODE: EDGE_MODE, HOLE: HOLE, SRC_FAM: SRC_FAM, edgesOf: edgesOf, colFam: colFam,
     RANK_NAME: RANK_NAME, RANK_BONUS: RANK_BONUS, RARE_CAP: RARE_CAP, MW_CAP: MW_CAP, KIT_MIN: KIT_MIN, TEAM_SRC: TEAM_SRC,
-    toolMax: toolMax, byId: byId, life: life, freshSave: freshSave, deckPieces: deckPieces, counts: counts, deckCheck: deckCheck, capBlock: capBlock,
+    toolMax: toolMax, byId: byId, life: life, freshSave: freshSave, deckPieces: deckPieces, counts: counts, deckCheck: deckCheck, capBlock: capBlock, harmony: harmony,
     gnome: gnome, tile: tile, deckTiles: deckTiles, foeV: foeV, foePieces: foePieces, foeRow: foeRow, newFight: newFight };
 });

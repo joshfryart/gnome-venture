@@ -87,7 +87,7 @@
     });
     pend = [];
   }
-  function art(p, owner) { return cv({ size: 'strip', owner: owner || 'me', type: p.t, edges: PFE.edges({ k: p.k, t: p.t, r: p.r }), tag: p.tag && TAGS[p.tag] ? p.tag : '', num: '' }); }
+  function art(p, owner) { return cv({ size: 'strip', owner: owner || 'me', type: p.t, edges: PFE.edges({ k: p.k, t: p.t, r: p.r, ed: p.ed }), tag: p.tag && TAGS[p.tag] ? p.tag : '', num: '' }); }
   function pips(n, max, cls) { var h = ''; for (var i = 0; i < max; i++) h += '<i' + (i < n ? '' : ' class="e"') + '></i>'; return '<span class="' + cls + (n <= 1 && max > 1 ? ' last' : '') + '" aria-hidden="true">' + h + '</span>'; }
   function curCreature() { return PFD.byId2(sv.cr) || PFD.CREATURES[0]; }
   function curGnome() { var c = curCreature(); return PFD.gnome(c.level + tune().lvl); }
@@ -116,7 +116,16 @@
     return '<div class="meter" role="img" aria-label="Deck ' + c.n + ': kit ' + c.kit + ', belt ' + c.belt + ', pals ' + c.pals + '"><b>' + c.n + '</b><span class="stack"><span class="k" style="flex:' + Math.max(1, c.kit) + '">🧩 ' + c.kit + '</span>'
       + (c.belt ? '<span class="b" style="flex:' + c.belt + '">🔧 ' + c.belt + '</span>' : '') + (c.pals ? '<span class="p" style="flex:' + c.pals + '">🐾 ' + c.pals + '</span>' : '') + '</span></div>'
       + '<div class="teamrow"><b>Teamwork</b>' + ['pal', 'tool', 'crop'].map(function (k) { return '<span class="chip' + (c.src[k] ? '' : ' off') + '">' + SRCI[k] + ' ' + k + ' ' + c.src[k] + '</span>'; }).join('')
-      + '<span>' + (c.team >= 3 ? '2 in a chain +30%, all 3 +60%' : c.team === 2 ? 'both in one chain: +30%' : 'needs 2 of 3 sources') + '</span></div>';
+      + '<span>' + (c.team >= 3 ? '2 in a chain +30%, all 3 +60%' : c.team === 2 ? 'both in one chain: +30%' : 'needs 2 of 3 sources') + '</span></div>' + harmonyRow();
+  }
+
+  /** Deck harmony: link rate meter, chance a hand links, the knob families, and the trade-off against Teamwork. */
+  function harmonyRow() {
+    var hm = PFD.harmony(sv), f = hm.fam, tot = Math.max(1, f.body + f.mind + f.craft), top = Math.max(f.body, f.mind, f.craft) / tot, lk = Math.round(hm.link * 100), hd = Math.round(hm.hand * 100);
+    var seg = ['body', 'mind', 'craft'].map(function (k) { return f[k] ? '<span class="' + k + '" style="flex:' + f[k] + '">' + k + ' ' + Math.round(100 * f[k] / tot) + '%</span>' : ''; }).join('');
+    return '<div class="harm" role="img" aria-label="Deck harmony: link rate ' + lk + ' percent, a hand links ' + hd + ' percent of the time"><b>Link rate</b><span class="hmeter' + (lk >= 30 ? ' good' : lk >= 22 ? '' : ' low') + '"><i style="width:' + Math.min(100, lk * 2) + '%"></i><span>' + lk + '%</span></span><span class="chip" title="Chance that a hand of 5 has a piece that links">hand links ' + hd + '%</span></div>'
+      + '<div class="harm"><b>Knobs</b><span class="stack fam">' + seg + '</span></div>'
+      + '<p class="hint harmhint">' + (top >= 0.5 ? 'One family leads: easy chains, less Teamwork.' : 'Mixed families: more Teamwork, fewer links.') + ' Pals are body, tools craft, crops mind.</p>';
   }
 
   // ------------------------------------------------------------------ 1. starter deck
@@ -249,26 +258,30 @@
     body: function (x, y) { return 'left:' + pct((x * 56 + 9) / BW) + ';top:' + pct((y * 40 + 6) / BH) + ';width:' + pct(56 / BW) + ';height:' + pct(40 / BH); } }; }
   function litCells() {
     var s = F.s; if (F.sel === null || F.busy || s.over) return [];
-    if (F.cache && F.cache.sel === F.sel && F.cache.turn === s.turn && F.cache.start === !!s.start) return F.cache.cells;
+    if (F.cache && F.cache.sel === F.sel && F.cache.turn === s.turn && F.cache.start === !!s.start && F.cache.flip === !!s.me.hand[F.sel].flip) return F.cache.cells;
     var out = [], tile = s.me.hand[F.sel];
     if (s.start) { var cx = Math.floor(s.w / 2), cy = Math.floor(s.h / 2); ['L', 'R', 'T', 'B'].forEach(function (sd) { var d = PFE.SIDE[sd]; out.push({ x: cx + d[0], y: cy + d[1], side: sd, pv: null }); }); }
     else PFE.cells(s, tile, 'me').forEach(function (c) { out.push({ x: c[0], y: c[1], pv: PFE.preview(s, F.sel, c[0], c[1]) }); });
-    F.cache = { sel: F.sel, turn: s.turn, start: !!s.start, cells: out };
+    F.cache = { sel: F.sel, turn: s.turn, start: !!s.start, flip: !!tile.flip, cells: out };
     return out;
   }
+  /** Flip: once a turn, free, the selected hand piece swaps its top and bottom edges. Flipping the same piece back gives the flip back. */
+  function flipFree(k) { var s = F.s; return !!s.canflip && !!s.me.hand[k] && !!s.me.hand[k].ed && (F.flipTurn !== s.turn || F.flipK === k || F.flipK === null); }
+  function cellsFlipped(t) { t.flip = !t.flip; var c = PFE.cells(F.s, t, 'me'); t.flip = !t.flip; return c; }
   /** Why each hand piece cannot be played right now (null = it can). Recomputed on every draw, so it follows every change of the board. */
   function handWhy() {
     var s = F.s, out = [], any = false;
     if (F.busy || F.show || s.over) return s.me.hand.map(function () { return s.over ? 'The fight is over.' : 'Wait: the turn is still playing.'; });
     s.me.hand.forEach(function (t, i) {
       var why = null;
-      if (!s.start) { if (!PFE.cells(s, t, 'me').length) why = PFE.cells(s, t).length ? 'No spot links. Another piece can link, so this one has to wait.' : 'No spot fits this piece right now.'; }
+      if (!s.start && !PFE.cells(s, t, 'me').length && !(flipFree(i) && cellsFlipped(t).length)) why = PFE.cells(s, t).length ? 'No spot links. Another piece can link, so this one has to wait.' : 'No spot fits this piece' + (s.canflip && t.ed && !flipFree(i) ? ', and your flip is used this turn.' : ', flipped or not.');
       out.push(why); if (!why && !(t.tool && toolLeft(t.tool) <= 0)) any = true;
     });
     s.me.hand.forEach(function (t, i) { if (!out[i] && t.tool && toolLeft(t.tool) <= 0 && any) out[i] = 'Tool broken: Fix in the box.'; });
     return out;
   }
   function toolLeft(id) { return sv.dur[id] - 2 * ((F.s.wear || {})[id] || 0); }
+  function flipBtn() { if (F.sel === null || !F.s.canflip || !F.s.me.hand[F.sel].ed) return ''; var ok = flipFree(F.sel) && !F.busy; return '<button type="button" class="btn ghost flipb" data-a="flip"' + (ok ? '' : ' disabled title="One flip a turn"') + ' aria-label="Flip: swap this piece\'s top and bottom edges' + (ok ? '' : ' (used this turn)') + '">⇅ Flip</button>'; }
   function pvLabel(p) {
     if (!p) return '<span class="n">start</span>';
     var a = [];
@@ -385,9 +398,9 @@
     if (s.over && !F.show) info = '<span><b>The fight is over.</b></span>';
     else if (F.show) info = '<span>' + (sh.note || 'Playing the turn…') + '</span>';
     else if (F.busy) info = '<span>…</span>';
-    else if (F.cell && tile) info = pvText(tile, F.pv) + '<button type="button" class="btn primary" data-a="play">Play</button>';
+    else if (F.cell && tile) info = pvText(tile, F.pv) + flipBtn() + '<button type="button" class="btn primary" data-a="play">Play</button>';
     else if (ui.info) info = ui.info;
-    else if (tile) info = lit.length ? '<span><b>' + esc(tile.n) + '</b> ' + TYPE[tile.t] + ' ' + tile.v + ': tap a lit cell. The number is what your own chain does.' + (tile.tool ? ' Tool piece: −2 durability when played.' : '') + '</span>' : '<span><b>' + esc(tile.n) + '</b> fits nowhere right now.</span>';
+    else if (tile) info = (lit.length ? '<span><b>' + esc(tile.n) + '</b> ' + TYPE[tile.t] + ' ' + tile.v + ': tap a lit cell. The number is what your own chain does.' + (tile.tool ? ' Tool piece: −2 durability when played.' : '') + '</span>' : '<span><b>' + esc(tile.n) + '</b> fits nowhere this way up. Flip it.</span>') + flipBtn();
     else {
       canPass = !start && !F.s.me.hand.some(function (t) { return PFE.cells(F.s, t).length > 0; });
       info = canPass ? '<span>Nothing in your hand fits.</span><button type="button" class="btn primary" data-a="pass">Pass</button>' : '<span>' + (start ? 'Pick a piece, then a side of the blank centre ✦.' : 'Pick a piece from your hand.') + '</span>';
@@ -397,7 +410,7 @@
     var hand = '', why = F.show ? v.hand.map(function () { return 'Wait: the turn is still playing.'; }) : handWhy();
     v.hand.forEach(function (t, k) {
       var tagged = t.tag && TAGS[t.tag] ? t.tag : '';
-      hand += '<button type="button" class="hc' + (F.sel === k ? ' sel' : '') + (why[k] ? ' off' : '') + '" data-a="hand" data-arg="' + k + '" aria-pressed="' + (F.sel === k) + '"' + (why[k] ? ' aria-disabled="true"' : '') + ' aria-label="' + esc(t.n) + ', ' + t.t + ' ' + t.v + ', stays ' + t.life + ' rounds' + (why[k] ? '. Cannot be played: ' + esc(why[k]) : '') + '">'
+      hand += '<button type="button" class="hc' + (F.sel === k ? ' sel' : '') + (why[k] ? ' off' : '') + (ui.flipAnim === k ? ' flipping' : '') + (s.me.hand[k] && s.me.hand[k].flip ? ' flipped' : '') + '" data-a="hand" data-arg="' + k + '" aria-pressed="' + (F.sel === k) + '"' + (why[k] ? ' aria-disabled="true"' : '') + ' aria-label="' + esc(t.n) + ', ' + t.t + ' ' + t.v + ', stays ' + t.life + ' rounds' + (why[k] ? '. Cannot be played: ' + esc(why[k]) : '') + '">'
         + cv({ size: 'strip', owner: 'me', type: t.t, edges: t.e, tag: tagged, num: '' }) + '<b class="bv">' + t.v + '</b>' + (SRCI[t.src] ? '<span class="src" title="Teamwork source: ' + t.src + '">' + SRCI[t.src] + '</span>' : '')
         + '<span class="hn">' + esc(t.n) + '</span>' + pips(t.life, t.life, 'xp') + '</button>';
     });
@@ -670,6 +683,11 @@
       F.cell = [x, y]; F.pv = q.pv; F.pop = null; say('');
     },
     play: function () { if (F.busy || !F.cell) return; doPlay(); return true; },
+    flip: function () {
+      if (F.busy || Q.on || F.sel === null || !flipFree(F.sel)) return; var t = F.s.me.hand[F.sel]; t.flip = !t.flip;
+      if (F.flipTurn === F.s.turn && F.flipK === F.sel) { F.flipK = null; } else { F.flipTurn = F.s.turn; F.flipK = F.sel; }
+      F.cache = null; F.cell = null; F.pv = null; say(''); ui.flipAnim = F.sel; draw(); ui.flipAnim = null; return true;
+    },
     pass: function () { if (F.busy) return; doPass(); return true; },
     insp: function (id) {
       if (Q.on) { skipPlay(); return true; }

@@ -979,6 +979,19 @@ body{padding-block:10px 28px}
 .note{margin:8px 0 0;padding:6px 8px;font-size:12px;line-height:1.3;background:var(--accent-soft);color:var(--accent-ink);border:1px solid var(--accent-line)}
 .note b{color:inherit}
 .gvpg .sw{font-size:12.5px;gap:6px}.gvpg .sw .chip{font-size:11px;padding:0 5px}
+.harm{display:flex;align-items:center;gap:6px;margin:4px 0 0;font-size:11px;color:var(--muted)}
+.harm>b{flex:none;width:52px}
+.harm .chip{font-size:11px;padding:0 6px;margin:0;flex:none}
+.hmeter{position:relative;flex:1;height:14px;background:var(--surface-2);border:1px solid var(--ol);min-width:0}
+.hmeter i{position:absolute;inset:0 auto 0 0;background:#e8a317}.hmeter.good i{background:#4f9a45}.hmeter.low i{background:#d6322b}
+.hmeter span{position:absolute;inset:0;text-align:center;font:700 10px/12px var(--font);color:var(--ink)}
+.harm .stack.fam{height:14px}
+.harmhint{margin:3px 0 0;font-size:11px}
+.fb-info .flipb{min-height:32px;padding:2px 8px;font-size:12px}
+.hc.flipping canvas{animation:hcflip .35s ease-out}
+@keyframes hcflip{0%{transform:scaleY(1)}50%{transform:scaleY(0)}100%{transform:scaleY(1)}}
+.hc.flipped::after{content:'⇅';position:absolute;left:2px;top:30px;width:13px;height:13px;font:700 10px/13px var(--font);text-align:center;background:rgba(20,12,6,.85);color:#ffd65a}
+@media (prefers-reduced-motion:reduce){.hc.flipping canvas{animation:none}}
 /* creature picker */
 .crgrid{list-style:none;margin:0 0 8px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
 .crb{display:grid;justify-items:center;gap:1px;width:100%;min-width:0;padding:4px 2px;margin:0;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;cursor:pointer}
@@ -1316,7 +1329,7 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
     sun: 2.0, bramble: 0.10, br_foe: 1.0,
     events: 1, nev: { small: 1, medium: 2, large: 2, boss: 2 }, evk: ['sunbeam', 'creep', 'gust', 'thorn', 'puddle'], ev_unit: 0.10, ev_foe: 0.5, gextra: 0,
     limit: 3, spend_foe: 1, aim: 1,
-    foe: { small: 0.65, medium: 0.56, large: 0.53, boss: 0.64 }, bar: { small: 1.12, medium: 1.12, large: 1.12, boss: 0.88 }, foe_x: 1, bar_x: 1,
+    foe: { small: 0.72, medium: 0.53, large: 0.41, boss: 0.46 }, /* sim 4 retune for authored edges + flip (sim 3: 0.65 / 0.56 / 0.53 / 0.64) */ bar: { small: 1.12, medium: 1.12, large: 1.12, boss: 0.88 }, foe_x: 1, bar_x: 1,
     team2: 1.3, team: 1.6
   };
   function v1cfg(size, over) {
@@ -1485,7 +1498,7 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
     if (over) d = Object.assign({}, d, over);
     var stat = Math.max(0, toInt(nn(stats[PF_STAT[d.t]], 0)));
     var lvl = intdiv(Math.max(1, toInt(nn(stats.level, 1))), 3);
-    return { k: key, n: d.n, t: d.t, v: Math.max(1, toInt(d.v) + stat + lvl + bonus), r: nn(d.r), tag: String(d.tag), m: '' };
+    var mt = { k: key, n: d.n, t: d.t, v: Math.max(1, toInt(d.v) + stat + lvl + bonus), r: nn(d.r), tag: String(d.tag), m: '' }; if (d.ed) mt.ed = d.ed; return mt;
   }
 
   function callingKeys() { var o = []; for (var k in PF_CALLING_TILE) o.push(PF_CALLING_TILE[k]); return o; }
@@ -1784,6 +1797,7 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
   // ------------------------------------------------------------------ board: edges and joints
   var EDGE_CACHE = {};
   function edges(t) {
+    if (t.ed) return t.flip ? { L: t.ed.L, R: t.ed.R, T: t.ed.B, B: t.ed.T } : t.ed;
     if (t.k === 'blank') return { L: ['wild', null], R: ['wild', null], T: ['wild', null], B: ['wild', null] };   // the blank centre piece (opt blank): fits and links with everything
     var key = t.k + '|' + t.t + '|' + (t.r === null || t.r === undefined ? '' : t.r);
     if (has(EDGE_CACHE, key)) return EDGE_CACHE[key];
@@ -2603,8 +2617,21 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
   'use strict';
   var RANK_BONUS = [0, 0, 2, 4, 5], RANK_NAME = ['', 'Worn', 'Sturdy', 'Fine', 'Masterwork'], RARE_CAP = 3, MW_CAP = 1, KIT_MIN = 8;
   var TEAM_SRC = { pal: 1, tool: 1, crop: 1 };
-  /* id: [name, type, base value, knob family, tag, source, rank, where it comes from, engine key (same key = same edges)] */
-  function P(id, n, t, v, r, tag, src, rank, from, k) { return { id: id, n: n, t: t, v: v, r: r, tag: tag || '', src: src, rank: rank || 0, from: from || '', k: k || 'x:' + id }; }
+  // ---- authored edges (sim 4). Left = a hole of the piece's TYPE family, right = a knob of its authored `knob` family (what it leads into),
+  // top = a hole and bottom = a knob of its COLUMN family: the source family for pals (body), tools (craft), crops (mind) and crafts (craft); the TYPE family for basics, knacks, calling and region pieces.
+  // So a row reads left to right along the knobs, and a column stacks pieces of one family: two pieces of the same type always link in a column (Hurt on Hurt, Guard on Hurt, Heal on Charm). Flip swaps top and bottom. EDGE_MODE 'hash' = the old hashed top / bottom (baseline).
+  var ENV = (typeof process === 'object' && process && process.env) || {}, EDGE_MODE = ENV.PF_EDGES || 'auth';
+  var HOLE = { hurt: 'body', guard: 'body', heal: 'mind', charm: 'mind', soothe: 'mind', trick: 'craft', item: 'craft' };
+  var SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft' };
+  var UP = { hurt: 1, charm: 1, trick: 1 };   // these types carry the column knob on top and the hole below; guard, heal, soothe and item the other way round. Same way up = stacks as it is; the other way = flip one.
+  function edgesOf(t, knob, col, up) { if (up === undefined) up = !!UP[t]; return { L: ['hole', HOLE[t] || 'body'], R: ['knob', knob], T: [up ? 'knob' : 'hole', col], B: [up ? 'hole' : 'knob', col] }; }
+  function colFam(p) { return SRC_FAM[p.src] || HOLE[p.t]; }
+  /* id: [name, type, base value, knob family, tag, source, rank, where it comes from, engine key] */
+  function P(id, n, t, v, r, tag, src, rank, from, k) {
+    var p = { id: id, n: n, t: t, v: v, r: r, tag: tag || '', src: src, rank: rank || 0, from: from || '', k: k || 'x:' + id };
+    if (EDGE_MODE === 'auth') p.ed = edgesOf(t, r, colFam(p));
+    return p;
+  }
   var PIECES = [
     P('swing', 'Swing', 'hurt', 4, 'mind', '', 'basic', 0, 'basic', 'swing'), P('dodge', 'Dodge', 'guard', 4, 'body', '', 'basic', 0, 'basic', 'dodge'),
     P('rest', 'Rest', 'heal', 3, 'craft', '', 'basic', 0, 'basic', 'rest'), P('charm', 'Charm', 'charm', 4, 'craft', '', 'basic', 0, 'basic', 'charm'),
@@ -2664,6 +2691,22 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
     c.team = (c.src.pal ? 1 : 0) + (c.src.tool ? 1 : 0) + (c.src.crop ? 1 : 0);
     return c;
   }
+  /** Deck harmony: how well the deck's pieces link with each other. link = share of (piece next to piece, on any of the 4 sides, flip allowed) that link;
+      hand = chance that a hand of 5 has a piece that links to one of 2 other deck pieces on the board (seeded sampling); fam = knob families in the deck. */
+  function harmony(sv) {
+    var ps = deckPieces(sv).filter(function (p) { return p.ed; }), n = ps.length, fam = { body: 0, mind: 0, craft: 0 }, links = 0, tot = 0;
+    var lk = function (a, b) { return PFE.joint(a, b)[1]; };
+    var pair = function (a, b) { return (lk(a.ed.R, b.ed.L) ? 1 : 0) + (lk(b.ed.R, a.ed.L) ? 1 : 0) + (lk(a.ed.B, b.ed.T) || lk(a.ed.B, b.ed.B) ? 1 : 0) + (lk(b.ed.B, a.ed.T) || lk(b.ed.T, a.ed.T) ? 1 : 0); };
+    ps.forEach(function (p) { fam[p.ed.R[1]]++; fam[p.ed.B[1]]++; });
+    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (i !== j) { links += pair(ps[i], ps[j]); tot += 4; }
+    var seed = 12345, rnd = function (m) { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed % m; }, hit = 0, T = 240;
+    for (var t = 0; t < T && n >= 7; t++) {
+      var idx = ps.map(function (_, k) { return k; }); for (var q = n - 1; q > 0; q--) { var r = rnd(q + 1), x = idx[q]; idx[q] = idx[r]; idx[r] = x; }
+      var ok = false; for (var h = 0; h < 5 && !ok; h++) for (var b = 5; b < 7 && !ok; b++) if (pair(ps[idx[h]], ps[idx[b]])) ok = true;
+      if (ok) hit++;
+    }
+    return { n: n, link: tot ? links / tot : 0, hand: n >= 7 ? hit / T : 0, fam: fam };
+  }
   /** Why the deck cannot be used, or null. */
   function deckCheck(sv) {
     var c = counts(sv);
@@ -2687,7 +2730,7 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
   }
   /** One fight piece (engine tile) from a catalogue entry at the gnome's level. */
   function tile(p, g) {
-    var t = PFE.makeTile(p.k, g.stats, RANK_BONUS[p.rank] || 0, { n: p.n, t: p.t, v: p.v, r: p.r, tag: p.tag });
+    var t = PFE.makeTile(p.k, g.stats, RANK_BONUS[p.rank] || 0, { n: p.n, t: p.t, v: p.v, r: p.r, tag: p.tag, ed: p.ed });
     t.life = life(p); t.src = p.src; t.rank = p.rank; t.id = p.id; if (p.tool) t.tool = p.tool;
     return t;
   }
@@ -2741,7 +2784,12 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
   /** The creature's pieces by layer: [{layer, n, t, v, r, tag, life, k}] (values before the board factors). */
   function foePieces(c) {
     var v = foeV(c), out = [], big = c.size === 'large' || c.size === 'boss', i = 0;
-    var add = function (layer, q) { out.push({ k: 'f:' + c.slug + ':' + (i++), n: q[0], t: q[1], v: Math.max(1, Math.round(q[2] * v)), r: q[3], tag: q[4] || '', life: q[5] || 3, layer: layer }); };
+    var lean = CLASSES[c.cls].lean;
+    var add = function (layer, q) {   // the class lean: 3 pieces in 5 stack in the lean family (top hole, bottom knob), the others in their type family
+      var o = { k: 'f:' + c.slug + ':' + i, n: q[0], t: q[1], v: Math.max(1, Math.round(q[2] * v)), r: q[3], tag: q[4] || '', life: q[5] || 3, layer: layer };
+      if (EDGE_MODE === 'auth') o.ed = edgesOf(o.t, o.r, i % 5 < 3 ? lean : HOLE[o.t]);
+      i++; out.push(o);
+    };
     CLASSES[c.cls].P.forEach(function (q) { add('base', q); });
     var rg = REGIONS[c.region]; if (big) add('reg', rg[0]); add('reg', rg[1]);
     SIZE_EXTRA[c.size].forEach(function (q) { add('rar', q); });
@@ -2764,11 +2812,13 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
     ['foe_x', 'bar_x', 'ev_unit', 'bramble', 'sun', 'limit', 'br_foe', 'nev', 'dims'].forEach(function (k) { if (tune[k] !== undefined && tune[k] !== null) v1[k] = tune[k]; });
     if (v1.nev === 0) v1.events = 0;
     var s = PFE.newFight({ hp: g.max, max_hp: g.max, stats: g.stats, deck: deckTiles(sv, g), luck: 0 }, foeRow(c), seed, { blank: true, v1: v1 });
+    s.canflip = EDGE_MODE === 'auth' && ENV.PF_FLIP !== '0';
     return { s: s, g: g, c: c };
   }
   return { PIECES: PIECES, CORE: CORE, OFFER: OFFER, KITS: KITS, TOOLS: TOOLS, PALS: PALS, BELT_SLOTS: BELT_SLOTS, CLASSES: CLASSES, REGIONS: REGIONS, CREATURES: CREATURES, LAYERS: LAYERS,
+    EDGE_MODE: EDGE_MODE, HOLE: HOLE, SRC_FAM: SRC_FAM, edgesOf: edgesOf, colFam: colFam,
     RANK_NAME: RANK_NAME, RANK_BONUS: RANK_BONUS, RARE_CAP: RARE_CAP, MW_CAP: MW_CAP, KIT_MIN: KIT_MIN, TEAM_SRC: TEAM_SRC,
-    toolMax: toolMax, byId: byId, life: life, freshSave: freshSave, deckPieces: deckPieces, counts: counts, deckCheck: deckCheck, capBlock: capBlock,
+    toolMax: toolMax, byId: byId, life: life, freshSave: freshSave, deckPieces: deckPieces, counts: counts, deckCheck: deckCheck, capBlock: capBlock, harmony: harmony,
     gnome: gnome, tile: tile, deckTiles: deckTiles, foeV: foeV, foePieces: foePieces, foeRow: foeRow, newFight: newFight };
 });
 </script>
@@ -2861,7 +2911,7 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
     });
     pend = [];
   }
-  function art(p, owner) { return cv({ size: 'strip', owner: owner || 'me', type: p.t, edges: PFE.edges({ k: p.k, t: p.t, r: p.r }), tag: p.tag && TAGS[p.tag] ? p.tag : '', num: '' }); }
+  function art(p, owner) { return cv({ size: 'strip', owner: owner || 'me', type: p.t, edges: PFE.edges({ k: p.k, t: p.t, r: p.r, ed: p.ed }), tag: p.tag && TAGS[p.tag] ? p.tag : '', num: '' }); }
   function pips(n, max, cls) { var h = ''; for (var i = 0; i < max; i++) h += '<i' + (i < n ? '' : ' class="e"') + '></i>'; return '<span class="' + cls + (n <= 1 && max > 1 ? ' last' : '') + '" aria-hidden="true">' + h + '</span>'; }
   function curCreature() { return PFD.byId2(sv.cr) || PFD.CREATURES[0]; }
   function curGnome() { var c = curCreature(); return PFD.gnome(c.level + tune().lvl); }
@@ -2890,7 +2940,16 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
     return '<div class="meter" role="img" aria-label="Deck ' + c.n + ': kit ' + c.kit + ', belt ' + c.belt + ', pals ' + c.pals + '"><b>' + c.n + '</b><span class="stack"><span class="k" style="flex:' + Math.max(1, c.kit) + '">🧩 ' + c.kit + '</span>'
       + (c.belt ? '<span class="b" style="flex:' + c.belt + '">🔧 ' + c.belt + '</span>' : '') + (c.pals ? '<span class="p" style="flex:' + c.pals + '">🐾 ' + c.pals + '</span>' : '') + '</span></div>'
       + '<div class="teamrow"><b>Teamwork</b>' + ['pal', 'tool', 'crop'].map(function (k) { return '<span class="chip' + (c.src[k] ? '' : ' off') + '">' + SRCI[k] + ' ' + k + ' ' + c.src[k] + '</span>'; }).join('')
-      + '<span>' + (c.team >= 3 ? '2 in a chain +30%, all 3 +60%' : c.team === 2 ? 'both in one chain: +30%' : 'needs 2 of 3 sources') + '</span></div>';
+      + '<span>' + (c.team >= 3 ? '2 in a chain +30%, all 3 +60%' : c.team === 2 ? 'both in one chain: +30%' : 'needs 2 of 3 sources') + '</span></div>' + harmonyRow();
+  }
+
+  /** Deck harmony: link rate meter, chance a hand links, the knob families, and the trade-off against Teamwork. */
+  function harmonyRow() {
+    var hm = PFD.harmony(sv), f = hm.fam, tot = Math.max(1, f.body + f.mind + f.craft), top = Math.max(f.body, f.mind, f.craft) / tot, lk = Math.round(hm.link * 100), hd = Math.round(hm.hand * 100);
+    var seg = ['body', 'mind', 'craft'].map(function (k) { return f[k] ? '<span class="' + k + '" style="flex:' + f[k] + '">' + k + ' ' + Math.round(100 * f[k] / tot) + '%</span>' : ''; }).join('');
+    return '<div class="harm" role="img" aria-label="Deck harmony: link rate ' + lk + ' percent, a hand links ' + hd + ' percent of the time"><b>Link rate</b><span class="hmeter' + (lk >= 30 ? ' good' : lk >= 22 ? '' : ' low') + '"><i style="width:' + Math.min(100, lk * 2) + '%"></i><span>' + lk + '%</span></span><span class="chip" title="Chance that a hand of 5 has a piece that links">hand links ' + hd + '%</span></div>'
+      + '<div class="harm"><b>Knobs</b><span class="stack fam">' + seg + '</span></div>'
+      + '<p class="hint harmhint">' + (top >= 0.5 ? 'One family leads: easy chains, less Teamwork.' : 'Mixed families: more Teamwork, fewer links.') + ' Pals are body, tools craft, crops mind.</p>';
   }
 
   // ------------------------------------------------------------------ 1. starter deck
@@ -3023,26 +3082,30 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
     body: function (x, y) { return 'left:' + pct((x * 56 + 9) / BW) + ';top:' + pct((y * 40 + 6) / BH) + ';width:' + pct(56 / BW) + ';height:' + pct(40 / BH); } }; }
   function litCells() {
     var s = F.s; if (F.sel === null || F.busy || s.over) return [];
-    if (F.cache && F.cache.sel === F.sel && F.cache.turn === s.turn && F.cache.start === !!s.start) return F.cache.cells;
+    if (F.cache && F.cache.sel === F.sel && F.cache.turn === s.turn && F.cache.start === !!s.start && F.cache.flip === !!s.me.hand[F.sel].flip) return F.cache.cells;
     var out = [], tile = s.me.hand[F.sel];
     if (s.start) { var cx = Math.floor(s.w / 2), cy = Math.floor(s.h / 2); ['L', 'R', 'T', 'B'].forEach(function (sd) { var d = PFE.SIDE[sd]; out.push({ x: cx + d[0], y: cy + d[1], side: sd, pv: null }); }); }
     else PFE.cells(s, tile, 'me').forEach(function (c) { out.push({ x: c[0], y: c[1], pv: PFE.preview(s, F.sel, c[0], c[1]) }); });
-    F.cache = { sel: F.sel, turn: s.turn, start: !!s.start, cells: out };
+    F.cache = { sel: F.sel, turn: s.turn, start: !!s.start, flip: !!tile.flip, cells: out };
     return out;
   }
+  /** Flip: once a turn, free, the selected hand piece swaps its top and bottom edges. Flipping the same piece back gives the flip back. */
+  function flipFree(k) { var s = F.s; return !!s.canflip && !!s.me.hand[k] && !!s.me.hand[k].ed && (F.flipTurn !== s.turn || F.flipK === k || F.flipK === null); }
+  function cellsFlipped(t) { t.flip = !t.flip; var c = PFE.cells(F.s, t, 'me'); t.flip = !t.flip; return c; }
   /** Why each hand piece cannot be played right now (null = it can). Recomputed on every draw, so it follows every change of the board. */
   function handWhy() {
     var s = F.s, out = [], any = false;
     if (F.busy || F.show || s.over) return s.me.hand.map(function () { return s.over ? 'The fight is over.' : 'Wait: the turn is still playing.'; });
     s.me.hand.forEach(function (t, i) {
       var why = null;
-      if (!s.start) { if (!PFE.cells(s, t, 'me').length) why = PFE.cells(s, t).length ? 'No spot links. Another piece can link, so this one has to wait.' : 'No spot fits this piece right now.'; }
+      if (!s.start && !PFE.cells(s, t, 'me').length && !(flipFree(i) && cellsFlipped(t).length)) why = PFE.cells(s, t).length ? 'No spot links. Another piece can link, so this one has to wait.' : 'No spot fits this piece' + (s.canflip && t.ed && !flipFree(i) ? ', and your flip is used this turn.' : ', flipped or not.');
       out.push(why); if (!why && !(t.tool && toolLeft(t.tool) <= 0)) any = true;
     });
     s.me.hand.forEach(function (t, i) { if (!out[i] && t.tool && toolLeft(t.tool) <= 0 && any) out[i] = 'Tool broken: Fix in the box.'; });
     return out;
   }
   function toolLeft(id) { return sv.dur[id] - 2 * ((F.s.wear || {})[id] || 0); }
+  function flipBtn() { if (F.sel === null || !F.s.canflip || !F.s.me.hand[F.sel].ed) return ''; var ok = flipFree(F.sel) && !F.busy; return '<button type="button" class="btn ghost flipb" data-a="flip"' + (ok ? '' : ' disabled title="One flip a turn"') + ' aria-label="Flip: swap this piece\'s top and bottom edges' + (ok ? '' : ' (used this turn)') + '">⇅ Flip</button>'; }
   function pvLabel(p) {
     if (!p) return '<span class="n">start</span>';
     var a = [];
@@ -3159,9 +3222,9 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
     if (s.over && !F.show) info = '<span><b>The fight is over.</b></span>';
     else if (F.show) info = '<span>' + (sh.note || 'Playing the turn…') + '</span>';
     else if (F.busy) info = '<span>…</span>';
-    else if (F.cell && tile) info = pvText(tile, F.pv) + '<button type="button" class="btn primary" data-a="play">Play</button>';
+    else if (F.cell && tile) info = pvText(tile, F.pv) + flipBtn() + '<button type="button" class="btn primary" data-a="play">Play</button>';
     else if (ui.info) info = ui.info;
-    else if (tile) info = lit.length ? '<span><b>' + esc(tile.n) + '</b> ' + TYPE[tile.t] + ' ' + tile.v + ': tap a lit cell. The number is what your own chain does.' + (tile.tool ? ' Tool piece: −2 durability when played.' : '') + '</span>' : '<span><b>' + esc(tile.n) + '</b> fits nowhere right now.</span>';
+    else if (tile) info = (lit.length ? '<span><b>' + esc(tile.n) + '</b> ' + TYPE[tile.t] + ' ' + tile.v + ': tap a lit cell. The number is what your own chain does.' + (tile.tool ? ' Tool piece: −2 durability when played.' : '') + '</span>' : '<span><b>' + esc(tile.n) + '</b> fits nowhere this way up. Flip it.</span>') + flipBtn();
     else {
       canPass = !start && !F.s.me.hand.some(function (t) { return PFE.cells(F.s, t).length > 0; });
       info = canPass ? '<span>Nothing in your hand fits.</span><button type="button" class="btn primary" data-a="pass">Pass</button>' : '<span>' + (start ? 'Pick a piece, then a side of the blank centre ✦.' : 'Pick a piece from your hand.') + '</span>';
@@ -3171,7 +3234,7 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
     var hand = '', why = F.show ? v.hand.map(function () { return 'Wait: the turn is still playing.'; }) : handWhy();
     v.hand.forEach(function (t, k) {
       var tagged = t.tag && TAGS[t.tag] ? t.tag : '';
-      hand += '<button type="button" class="hc' + (F.sel === k ? ' sel' : '') + (why[k] ? ' off' : '') + '" data-a="hand" data-arg="' + k + '" aria-pressed="' + (F.sel === k) + '"' + (why[k] ? ' aria-disabled="true"' : '') + ' aria-label="' + esc(t.n) + ', ' + t.t + ' ' + t.v + ', stays ' + t.life + ' rounds' + (why[k] ? '. Cannot be played: ' + esc(why[k]) : '') + '">'
+      hand += '<button type="button" class="hc' + (F.sel === k ? ' sel' : '') + (why[k] ? ' off' : '') + (ui.flipAnim === k ? ' flipping' : '') + (s.me.hand[k] && s.me.hand[k].flip ? ' flipped' : '') + '" data-a="hand" data-arg="' + k + '" aria-pressed="' + (F.sel === k) + '"' + (why[k] ? ' aria-disabled="true"' : '') + ' aria-label="' + esc(t.n) + ', ' + t.t + ' ' + t.v + ', stays ' + t.life + ' rounds' + (why[k] ? '. Cannot be played: ' + esc(why[k]) : '') + '">'
         + cv({ size: 'strip', owner: 'me', type: t.t, edges: t.e, tag: tagged, num: '' }) + '<b class="bv">' + t.v + '</b>' + (SRCI[t.src] ? '<span class="src" title="Teamwork source: ' + t.src + '">' + SRCI[t.src] + '</span>' : '')
         + '<span class="hn">' + esc(t.n) + '</span>' + pips(t.life, t.life, 'xp') + '</button>';
     });
@@ -3444,6 +3507,11 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
       F.cell = [x, y]; F.pv = q.pv; F.pop = null; say('');
     },
     play: function () { if (F.busy || !F.cell) return; doPlay(); return true; },
+    flip: function () {
+      if (F.busy || Q.on || F.sel === null || !flipFree(F.sel)) return; var t = F.s.me.hand[F.sel]; t.flip = !t.flip;
+      if (F.flipTurn === F.s.turn && F.flipK === F.sel) { F.flipK = null; } else { F.flipTurn = F.s.turn; F.flipK = F.sel; }
+      F.cache = null; F.cell = null; F.pv = null; say(''); ui.flipAnim = F.sel; draw(); ui.flipAnim = null; return true;
+    },
     pass: function () { if (F.busy) return; doPass(); return true; },
     insp: function (id) {
       if (Q.on) { skipPlay(); return true; }

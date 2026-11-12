@@ -1,0 +1,122 @@
+== n3 {"foe":1.35,"fumble_on":"blocked"}
+|---|---|---|---|---|---|---|---|
+| smartn3 | at level | 99 / 22 / 7.1 | 100 / 19 / 4.6 | 98 / 24 / 7.1 | 100 / 24 / 6.7 | 100 / 20 / 10.1 | 207+ |
+| smartn3 | 4 under | 94 / 32 / 8.4 | 100 / 20 / 3.2 | 80 / 50 / 9.4 | 97 / 33 / 9.1 | 100 / 27 / 11.9 | 207+ |
+| smartn3 | 8 under | 80 / 45 / 9.4 | 100 / 20 / 3.2 | 54 / 66 / 8.8 | 73 / 57 / 11.0 | 95 / 37 / 14.5 | 207+ |
+== lim4 {"foe":1.35,"fumble_on":"blocked","limit":4}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 89 / 48 / 5.4 | 92 / 40 / 3.6 | 84 / 49 / 4.9 | 90 / 51 / 5.4 | 88 / 53 / 7.6 | 207+ |
+| look | at level | 100 / 14 / 5.7 | 100 / 15 / 3.8 | 100 / 13 / 5.8 | 100 / 14 / 5.4 | 100 / 12 / 7.8 | 207+ |
+| smart | at level | 100 / 14 / 4.7 | 100 / 14 / 3.1 | 100 / 16 / 4.4 | 100 / 13 / 4.6 | 100 / 13 / 6.5 | 207+ |
+== lim4t {"foe":1.7,"fumble_on":"blocked","limit":4}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 74 / 60 / 5.1 | 81 / 49 / 3.4 | 72 / 59 / 4.7 | 72 / 64 / 5.1 | 70 / 68 / 7.1 | 207+ |
+| look | at level | 99 / 19 / 6.0 | 100 / 21 / 3.9 | 99 / 20 / 6.2 | 99 / 19 / 5.6 | 100 / 16 / 8.3 | 207+ |
+| smart | at level | 100 / 19 / 4.8 | 100 / 20 / 3.2 | 100 / 21 / 4.6 | 100 / 18 / 4.8 | 100 / 17 / 6.8 | 207+ |
+== lim0 {"foe":1.35,"fumble_on":"blocked","limit":0}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 94 / 41 / 4.8 | 94 / 37 / 3.3 | 93 / 36 / 4.4 | 96 / 44 / 4.9 | 92 / 47 / 6.6 | 207+ |
+| look | at level | 100 / 13 / 5.0 | 100 / 14 / 3.4 | 100 / 12 / 5.1 | 100 / 13 / 4.8 | 100 / 12 / 6.5 | 207+ |
+| smart | at level | 100 / 14 / 4.2 | 100 / 14 / 3.0 | 100 / 14 / 4.1 | 100 / 13 / 4.1 | 100 / 13 / 5.8 | 207+ |
+== fany {"foe":1.55}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 75 / 63 / 7.2 | 83 / 47 / 4.6 | 68 / 64 / 6.3 | 67 / 71 / 7.1 | 80 / 71 / 10.7 | 207+ |
+| look | at level | 98 / 22 / 8.6 | 98 / 17 / 5.4 | 95 / 23 / 8.6 | 99 / 27 / 8.5 | 100 / 20 / 11.8 | 207+ |
+| smart | at level | 100 / 16 / 6.4 | 100 / 13 / 3.8 | 100 / 18 / 6.4 | 100 / 16 / 6.5 | 100 / 15 / 9.1 | 207+ |
+== nsf {"foe":1.35,"fumble_on":"blocked","spend_foe":0}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 64 / 67 / 6.2 | 80 / 51 / 4.2 | 64 / 65 / 5.7 | 60 / 71 / 6.2 | 50 / 81 / 8.6 | 207+ |
+| look | at level | 98 / 24 / 7.3 | 99 / 18 / 4.6 | 95 / 28 / 7.1 | 99 / 26 / 7.0 | 100 / 25 / 10.4 | 207+ |
+| smart | at level | 100 / 17 / 5.7 | 100 / 15 / 3.5 | 100 / 19 / 5.4 | 100 / 18 / 5.7 | 100 / 16 / 8.2 | 207+ |
+== noground {"foe":1.35,"fumble_on":"blocked","ground":0}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 68 / 65 / 7.1 | 80 / 49 / 4.6 | 63 / 67 / 6.3 | 66 / 70 / 7.2 | 64 / 74 / 10.3 | 207+ |
+| look | at level | 96 / 22 / 8.6 | 97 / 17 / 4.9 | 91 / 25 / 8.7 | 98 / 25 / 8.3 | 99 / 19 / 12.3 | 207+ |
+| smart | at level | 100 / 14 / 6.6 | 100 / 13 / 4.0 | 100 / 16 / 6.4 | 100 / 15 / 6.3 | 100 / 13 / 9.6 | 207+ |
+== noevents {"foe":1.35,"fumble_on":"blocked","events":0}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 68 / 65 / 6.9 | 80 / 50 / 4.6 | 63 / 65 / 6.1 | 67 / 70 / 6.9 | 62 / 76 / 10.2 | 207+ |
+| look | at level | 96 / 23 / 8.6 | 97 / 17 / 4.9 | 91 / 27 / 9.0 | 98 / 27 / 8.0 | 99 / 21 / 12.3 | 207+ |
+| smart | at level | 100 / 16 / 6.6 | 100 / 13 / 3.8 | 100 / 18 / 6.5 | 100 / 18 / 6.4 | 100 / 13 / 9.8 | 207+ |
+== strongenv {"foe":1.35,"fumble_on":"blocked","sun":2,"bramble":0.12,"ev":2}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 70 / 62 / 6.3 | 82 / 48 / 4.4 | 66 / 63 / 5.8 | 68 / 67 / 6.2 | 65 / 71 / 8.7 | 207+ |
+| look | at level | 98 / 23 / 7.3 | 98 / 19 / 4.7 | 96 / 26 / 7.4 | 98 / 25 / 7.1 | 100 / 22 / 9.9 | 207+ |
+| smart | at level | 100 / 17 / 5.5 | 100 / 16 / 3.6 | 100 / 18 / 5.4 | 100 / 17 / 5.6 | 100 / 16 / 7.3 | 207+ |
+== team0 {"foe":1.35,"fumble_on":"blocked","team":1}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 69 / 64 / 6.8 | 82 / 48 / 4.7 | 65 / 64 / 6.1 | 67 / 70 / 6.7 | 63 / 74 / 9.8 | 207+ |
+| look | at level | 97 / 23 / 8.3 | 98 / 18 / 5.1 | 91 / 26 / 8.4 | 98 / 27 / 8.2 | 99 / 21 / 11.6 | 207+ |
+| smart | at level | 100 / 16 / 6.2 | 100 / 15 / 3.7 | 100 / 18 / 6.2 | 100 / 17 / 6.2 | 100 / 14 / 8.8 | 207+ |
+== foe12 {"foe":1.2,"fumble_on":"blocked"}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 80 / 56 / 7.2 | 89 / 39 / 4.9 | 73 / 57 / 6.3 | 75 / 64 / 6.9 | 82 / 64 / 10.5 | 207+ |
+| look | at level | 98 / 17 / 8.0 | 100 / 11 / 5.1 | 94 / 19 / 8.0 | 100 / 21 / 7.8 | 100 / 17 / 11.2 | 207+ |
+| smart | at level | 100 / 12 / 6.1 | 100 / 10 / 3.7 | 100 / 13 / 6.0 | 100 / 14 / 6.0 | 100 / 10 / 8.6 | 207+ |
+== foe15 {"foe":1.5,"fumble_on":"blocked"}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 65 / 67 / 6.5 | 84 / 47 / 4.6 | 63 / 66 / 5.9 | 58 / 75 / 6.3 | 56 / 79 / 9.3 | 207+ |
+| look | at level | 96 / 26 / 8.4 | 98 / 18 / 5.1 | 92 / 30 / 8.4 | 97 / 33 / 8.3 | 99 / 23 / 11.7 | 207+ |
+| smart | at level | 100 / 18 / 6.3 | 100 / 15 / 3.7 | 100 / 20 / 6.3 | 100 / 19 / 6.2 | 100 / 17 / 9.1 | 207+ |
+== thirds {"foe":1.35,"fumble_on":"blocked"}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 71 / 62 / 6.7 | 83 / 46 / 4.6 | 65 / 63 / 6.0 | 72 / 67 / 6.6 | 64 / 74 / 9.7 | 207+ |
+| look | at level | 97 / 22 / 8.1 | 99 / 16 / 5.0 | 92 / 25 / 8.2 | 99 / 25 / 7.9 | 99 / 21 / 11.3 | 207+ |
+| smart | at level | 100 / 15 / 6.1 | 100 / 14 / 3.6 | 100 / 17 / 6.0 | 100 / 15 / 6.2 | 100 / 14 / 8.4 | 207+ |
+== thirds15 {"foe":1.35,"fumble_on":"blocked","team":1.5}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 72 / 61 / 6.6 | 84 / 45 / 4.5 | 66 / 61 / 5.8 | 73 / 64 / 6.5 | 64 / 72 / 9.5 | 207+ |
+| look | at level | 97 / 21 / 7.8 | 99 / 16 / 4.9 | 93 / 25 / 7.9 | 99 / 24 / 7.6 | 99 / 20 / 11.0 | 207+ |
+| smart | at level | 100 / 15 / 5.7 | 100 / 13 / 3.5 | 100 / 16 / 5.7 | 100 / 14 / 5.8 | 100 / 15 / 7.9 | 207+ |
+== thirds0 {"foe":1.35,"fumble_on":"blocked","team":1}
+|---|---|---|---|---|---|---|---|
+| chain | at level | 69 / 64 / 6.8 | 82 / 48 / 4.7 | 65 / 64 / 6.1 | 67 / 70 / 6.7 | 63 / 74 / 9.8 | 207+ |
+| look | at level | 97 / 23 / 8.3 | 98 / 18 / 5.1 | 91 / 26 / 8.4 | 98 / 27 / 8.2 | 99 / 21 / 11.6 | 207+ |
+| smart | at level | 100 / 16 / 6.2 | 100 / 15 / 3.7 | 100 / 18 / 6.2 | 100 / 17 / 6.2 | 100 / 14 / 8.8 | 207+ |
+== hoard {"foe":1.35,"fumble_on":"blocked"}
+|---|---|---|---|---|---|---|---|
+| look | at level | 97 / 21 / 8.1 | 98 / 16 / 5.1 | 92 / 23 / 8.0 | 98 / 25 / 7.9 | 100 / 21 / 11.3 | 207+ |
+| smart | at level | 100 / 16 / 6.1 | 100 / 14 / 3.7 | 100 / 19 / 5.9 | 100 / 16 / 6.0 | 100 / 14 / 8.7 | 207+ |
+-- detail lim4
+| Bot | Level | pieces fired per placement | placements that use pieces up | took a 3+ chain when one was open | played the longest chain | my pieces out (turn start) | hand (turn start) | turns with no legal move | progress from re-fires | Teamwork per fight | creature fumbles per fight | health lost to bramble / thorn | my pieces used up: by my chains / by the creature's | fights that hit the turn cap |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | 2.73 | 16% | 94% | 95% | 1.5 | 4.8 | 0.0% | 64% | 0.13 | 0.53 | 3% / 4% | 2.3 / 0.2 | 0.0% |
+| look | at level | 2.44 | 9% | 58% | 70% | 1.6 | 4.8 | 0.0% | 65% | 0.07 | 1.02 | 2% / 5% | 1.5 / 0.5 | 0.0% |
+| smart | at level | 2.46 | 9% | 46% | 66% | 1.7 | 4.8 | 0.0% | 71% | 0.07 | 0.62 | 2% / 4% | 1.0 / 0.4 | 0.0% |
+-- detail nsf
+| Bot | Level | pieces fired per placement | placements that use pieces up | took a 3+ chain when one was open | played the longest chain | my pieces out (turn start) | hand (turn start) | turns with no legal move | progress from re-fires | Teamwork per fight | creature fumbles per fight | health lost to bramble / thorn | my pieces used up: by my chains / by the creature's | fights that hit the turn cap |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | 2.55 | 50% | 95% | 96% | 0.9 | 4.8 | 0.0% | 53% | 0.05 | 0.56 | 2% / 3% | 5.3 / 0.0 | 0.0% |
+| look | at level | 2.35 | 38% | 67% | 73% | 1.1 | 4.9 | 0.0% | 55% | 0.03 | 1.26 | 1% / 3% | 5.2 / 0.0 | 0.0% |
+| smart | at level | 2.31 | 33% | 56% | 62% | 1.2 | 4.8 | 0.0% | 65% | 0.06 | 0.77 | 1% / 3% | 3.3 / 0.0 | 0.0% |
+-- detail thirds
+| Bot | Level | pieces fired per placement | placements that use pieces up | took a 3+ chain when one was open | played the longest chain | my pieces out (turn start) | hand (turn start) | turns with no legal move | progress from re-fires | Teamwork per fight | creature fumbles per fight | health lost to bramble / thorn | my pieces used up: by my chains / by the creature's | fights that hit the turn cap |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | 2.45 | 42% | 94% | 95% | 0.7 | 4.8 | 0.0% | 50% | 0.23 | 0.92 | 1% / 2% | 4.8 / 1.1 | 0.0% |
+| look | at level | 2.24 | 30% | 71% | 80% | 0.8 | 4.9 | 0.0% | 49% | 0.34 | 1.84 | 1% / 3% | 4.4 / 2.4 | 0.7% |
+| smart | at level | 2.28 | 32% | 59% | 67% | 0.9 | 4.8 | 0.0% | 62% | 0.49 | 0.91 | 1% / 2% | 3.2 / 1.0 | 0.0% |
+-- detail thirds15
+| Bot | Level | pieces fired per placement | placements that use pieces up | took a 3+ chain when one was open | played the longest chain | my pieces out (turn start) | hand (turn start) | turns with no legal move | progress from re-fires | Teamwork per fight | creature fumbles per fight | health lost to bramble / thorn | my pieces used up: by my chains / by the creature's | fights that hit the turn cap |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | 2.44 | 42% | 94% | 95% | 0.7 | 4.8 | 0.0% | 51% | 0.28 | 0.89 | 1% / 2% | 4.7 / 1.1 | 0.0% |
+| look | at level | 2.24 | 31% | 72% | 80% | 0.8 | 4.9 | 0.0% | 50% | 0.39 | 1.75 | 1% / 3% | 4.3 / 2.2 | 0.7% |
+| smart | at level | 2.28 | 32% | 60% | 67% | 0.9 | 4.8 | 0.0% | 64% | 0.60 | 0.83 | 0% / 2% | 3.1 / 0.9 | 0.0% |
+-- detail strongenv
+| Bot | Level | pieces fired per placement | placements that use pieces up | took a 3+ chain when one was open | played the longest chain | my pieces out (turn start) | hand (turn start) | turns with no legal move | progress from re-fires | Teamwork per fight | creature fumbles per fight | health lost to bramble / thorn | my pieces used up: by my chains / by the creature's | fights that hit the turn cap |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | 2.43 | 41% | 94% | 95% | 0.8 | 4.8 | 0.0% | 48% | 0.05 | 0.88 | 2% / 5% | 4.5 / 1.1 | 0.0% |
+| look | at level | 2.23 | 30% | 70% | 79% | 0.8 | 4.9 | 0.0% | 46% | 0.02 | 1.60 | 1% / 4% | 4.0 / 2.1 | 0.1% |
+| smart | at level | 2.24 | 31% | 57% | 65% | 1.0 | 4.8 | 0.0% | 61% | 0.03 | 0.86 | 1% / 4% | 2.8 / 1.0 | 0.0% |
+-- detail noground
+| Bot | Level | pieces fired per placement | placements that use pieces up | took a 3+ chain when one was open | played the longest chain | my pieces out (turn start) | hand (turn start) | turns with no legal move | progress from re-fires | Teamwork per fight | creature fumbles per fight | health lost to bramble / thorn | my pieces used up: by my chains / by the creature's | fights that hit the turn cap |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| chain | at level | 2.47 | 44% | 96% | 96% | 0.7 | 4.9 | 0.0% | 50% | 0.07 | 0.90 | 0% / 3% | 5.4 / 1.0 | 0.0% |
+| look | at level | 2.26 | 31% | 71% | 80% | 0.8 | 4.9 | 0.0% | 49% | 0.02 | 1.87 | 0% / 3% | 4.9 / 2.3 | 1.1% |
+| smart | at level | 2.31 | 32% | 58% | 66% | 0.9 | 4.8 | 0.0% | 63% | 0.05 | 0.98 | 0% / 3% | 3.6 / 1.2 | 0.1% |
+-- detail n3
+| Bot | Level | pieces fired per placement | placements that use pieces up | took a 3+ chain when one was open | played the longest chain | my pieces out (turn start) | hand (turn start) | turns with no legal move | progress from re-fires | Teamwork per fight | creature fumbles per fight | health lost to bramble / thorn | my pieces used up: by my chains / by the creature's | fights that hit the turn cap |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| smartn3 | at level | 2.09 | 12% | 20% | 43% | 1.1 | 4.8 | 0.0% | 56% | 0.04 | 1.35 | 2% / 4% | 1.5 / 2.0 | 0.1% |
+| smartn3 | 4 under | 2.12 | 13% | 21% | 41% | 1.0 | 4.8 | 0.0% | 53% | 0.09 | 1.81 | 2% / 5% | 1.9 / 2.7 | 1.4% |
+| smartn3 | 8 under | 2.15 | 13% | 20% | 41% | 1.0 | 4.8 | 0.0% | 52% | 0.14 | 2.19 | 2% / 5% | 2.3 / 3.1 | 2.0% |
+SIDE_DONE
