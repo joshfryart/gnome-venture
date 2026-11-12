@@ -1068,6 +1068,8 @@ body{padding-block:10px 28px}
 .hc .xp i{width:6px;height:3px}
 .hc.sel{transform:translateY(-4px);border-color:#e8a317;background:rgba(232,163,23,.18)}
 .hc.none{opacity:.45}
+.hc.off{opacity:.38;filter:grayscale(.85);transform:none;border-color:transparent;background:none}
+.hc.off .hn{opacity:1}
 .hc .src{position:absolute;right:2px;top:2px;width:13px;height:13px;display:grid;place-items:center;background:rgba(20,12,6,.85)}
 .hc .src .ico{width:11px;height:11px}
 .hc:focus-visible{outline:2px solid #fff;outline-offset:1px}
@@ -3028,6 +3030,19 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
     F.cache = { sel: F.sel, turn: s.turn, start: !!s.start, cells: out };
     return out;
   }
+  /** Why each hand piece cannot be played right now (null = it can). Recomputed on every draw, so it follows every change of the board. */
+  function handWhy() {
+    var s = F.s, out = [], any = false;
+    if (F.busy || F.show || s.over) return s.me.hand.map(function () { return s.over ? 'The fight is over.' : 'Wait: the turn is still playing.'; });
+    s.me.hand.forEach(function (t, i) {
+      var why = null;
+      if (!s.start) { if (!PFE.cells(s, t, 'me').length) why = PFE.cells(s, t).length ? 'No spot links. Another piece can link, so this one has to wait.' : 'No spot fits this piece right now.'; }
+      out.push(why); if (!why && !(t.tool && toolLeft(t.tool) <= 0)) any = true;
+    });
+    s.me.hand.forEach(function (t, i) { if (!out[i] && t.tool && toolLeft(t.tool) <= 0 && any) out[i] = 'Tool broken: Fix in the box.'; });
+    return out;
+  }
+  function toolLeft(id) { return sv.dur[id] - 2 * ((F.s.wear || {})[id] || 0); }
   function pvLabel(p) {
     if (!p) return '<span class="n">start</span>';
     var a = [];
@@ -3153,10 +3168,10 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
     }
     h += '<div class="fb-info" aria-live="polite">' + info + '</div>';
     // the hand
-    var hand = '';
+    var hand = '', why = F.show ? v.hand.map(function () { return 'Wait: the turn is still playing.'; }) : handWhy();
     v.hand.forEach(function (t, k) {
       var tagged = t.tag && TAGS[t.tag] ? t.tag : '';
-      hand += '<button type="button" class="hc' + (F.sel === k ? ' sel' : '') + '" data-a="hand" data-arg="' + k + '" aria-pressed="' + (F.sel === k) + '" aria-label="' + esc(t.n) + ', ' + t.t + ' ' + t.v + ', stays ' + t.life + ' rounds">'
+      hand += '<button type="button" class="hc' + (F.sel === k ? ' sel' : '') + (why[k] ? ' off' : '') + '" data-a="hand" data-arg="' + k + '" aria-pressed="' + (F.sel === k) + '"' + (why[k] ? ' aria-disabled="true"' : '') + ' aria-label="' + esc(t.n) + ', ' + t.t + ' ' + t.v + ', stays ' + t.life + ' rounds' + (why[k] ? '. Cannot be played: ' + esc(why[k]) : '') + '">'
         + cv({ size: 'strip', owner: 'me', type: t.t, edges: t.e, tag: tagged, num: '' }) + '<b class="bv">' + t.v + '</b>' + (SRCI[t.src] ? '<span class="src" title="Teamwork source: ' + t.src + '">' + SRCI[t.src] + '</span>' : '')
         + '<span class="hn">' + esc(t.n) + '</span>' + pips(t.life, t.life, 'xp') + '</button>';
     });
@@ -3421,7 +3436,7 @@ button.tg{cursor:pointer;font-family:inherit;margin:0}
     autooff: function () { sv.auto = false; save(); say(''); },
     fight: function () { if (PFD.deckCheck(sv)) { screen = 'box'; return; } startFight(); return true; },
     // fight
-    hand: function (k) { if (F.busy || F.s.over) return; F.pop = null; k = +k; F.sel = F.sel === k ? null : k; F.cell = null; F.pv = null; F.insp = null; say(''); },
+    hand: function (k) { if (Q.on) return true; F.pop = null; k = +k; var w = handWhy()[k]; if (w) { F.sel = null; F.cell = null; F.pv = null; F.insp = null; say('<span><b>' + esc(F.s.me.hand[k].n) + '</b> cannot be played: ' + esc(w) + '</span>'); return; } F.sel = F.sel === k ? null : k; F.cell = null; F.pv = null; F.insp = null; say(''); },
     cell: function (_, el) {
       if (F.busy || F.sel === null) return; var x = +el.getAttribute('data-x'), y = +el.getAttribute('data-y');
       if (F.cell && F.cell[0] === x && F.cell[1] === y) { doPlay(); return true; }
