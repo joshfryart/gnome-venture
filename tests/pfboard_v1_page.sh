@@ -62,6 +62,7 @@ ck "pfight_v1 = admin, an admin: a v1 fight, on the board even when pfight_mode 
 echo "== the page of a v1 fight"
 ck "board page" "$(grep -c 'data-mode="board"' $H)" "1"
 ck "page data: rule numbers, ground, forecast, aim, flip" "$(grep -c '"v1":{"limit":3.*"ter":.*"envs":.*"aim":.*"flip":{"on":true,"used":false}' $H)" "1"
+ck "page data (2.6.75): the environment's face-up piece, no ground cells, no forecast" "$(grep -c '"env":true.*"ter":{}.*"envs":\[\].*"env":{"next":{"k":"e:[a-z]*","n":"[A-Za-z]*","kind":"[a-z]*","life":[23],"e":{' $H)" "1"
 ck "page data: the board size of the creature (small: 5x4)" "$(encq '$s["size"] . " " . $s["w"] . "x" . $s["h"]')" "small 5x4"; ck "page data carries that size" "$(grep -c '"w":5,"h":4' $H)" "1"
 ck "page data: hand pieces carry life, source, flip" "$(grep -c '"life":[234],"src":"[a-z]*","flip":false,"canflip":true' $H | awk '{print ($1>=1)?"yes":"no"}')" "yes"
 ck "no draw pile or seed in the page" "$(grep -c '"rng"\|"draw"' $H)" "0"
@@ -85,18 +86,20 @@ ck "numbers changed nothing" "$(enc)" "$ENC1"
 ck "numbers: no draw pile or seed" "$(echo "$PV" | grep -c 'rng\|"draw"\|seed')" "0"
 echo "== a whole v1 fight on the page"
 set_ pfight_v1 0   # the flag goes off mid-fight: this fight keeps the v1 rules
-N=0; ENVN=0; while [ $N -lt 60 ]; do
+N=0; ENVN=0; PLN=0; FIN=0; OLDT=0; while [ $N -lt 60 ]; do
   [ "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" = "1" ] && break
   MV=$(php "$HERE/pfboard_move.php" "$GAME" 2>&1 | tail -1)
   if [ "$MV" = "PASS" ]; then CODE=$(pf pfb_pass); elif [ "$MV" = "NONE" ]; then break; elif [ "${MV%% *}" = "FLIP" ]; then CODE=$(pf pfb_flip -d hand="${MV##* }"); else CODE=$(pf pfb_play -d moves="$MV"); fi
   [ "$CODE" = "302" ] || { echo "FAIL play returned $CODE"; FAILS=$((FAILS+1)); break; }
   N=$((N+1))
   [ "$(encq 'isset($s["v1"]) ? 1 : 0')" = "0" ] && [ "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" != "1" ] && { echo "FAIL the fight lost its v1 rules"; FAILS=$((FAILS+1)); break; }
-  get adventure.php >/dev/null; ENVN=$((ENVN + $(grep -o 'class="pf-chip env' $H | wc -l)))
+  get adventure.php >/dev/null; ENVN=$((ENVN + $(grep -o 'class="pf-chip env' $H | wc -l))); PLN=$((PLN + $(grep -o '"env":"place","x":[0-9],"y":[0-9]' $H | wc -l))); FIN=$((FIN + $(grep -o '"env":"fire","x":[0-9],"y":[0-9][^}]*"kind":"[a-z]*","for":"[a-z]*"' $H | wc -l))); OLDT=$((OLDT + $(grep -o '"env":"\(sunbeam\|creep\|puddle\|gust\|thorn\|bramble\)"' $H | wc -l)))
   if [ "$(db "SELECT encounter LIKE '%\"won\":%' FROM expeditions ORDER BY id DESC LIMIT 1")" = "1" ]; then ck "End fight: redirect" "$(pf pf_finish)" "302"; break; fi
 done
 ck "the fight ended" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
-ck "terrain events showed as history chips" "$([ $ENVN -ge 1 ] && echo yes || echo no)" "yes"
+ck "the environment's turn showed as history chips" "$([ $ENVN -ge 1 ] && echo yes || echo no)" "yes"
+ck "2.6.75: the replay carries the environment's placements (env place, cell) and its pieces firing in chains (env fire, kind, for)" "$([ $PLN -ge 1 ] && [ $FIN -ge 1 ] && echo yes || echo "no ($PLN placed, $FIN fired)")" "yes"
+ck "2.6.75: no 2.6.74 terrain event in a new fight" "$OLDT" "0"
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
 get adventure.php >/dev/null
 ck "flag off again: the next fight is an old one (pfight_mode chain: the strip)" "$(encq '(isset($s["v1"]) ? "v1" : "old") . " " . ($s["mode"] ?? "strip")')" "old strip"

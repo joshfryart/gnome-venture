@@ -1168,9 +1168,9 @@ function pfb_view(array $s): array
         $v['ter'] = (object)($s['ter'] ?? []);   // "x,y" => 'sun' | 'br' | 'mud' (oldest first)
         $v['envs'] = array_map(fn($e) => $e + ['n' => PFB_EVENT_NAME[$e['kind']], 'on' => ($q = pfb_at($s, $e['x'], $e['y'])) && $q['by'] !== 'none' ? ['id' => $q['id'], 'by' => $q['by'], 'n' => $q['tile']['n']] : null], $s['envs'] ?? []);   // the forecast: lands after the creature's move
         $v['envlog'] = $s['envlog'] ?? [];   // what the last terrain turn did
-        if (!empty($c['env'])) {   // 2.6.75: the environment's deck: its next piece (face up a round ahead; null = none left or all on the board), how many wait, how many it places a round
+        if (!empty($c['env'])) {   // 2.6.75: the environment's deck: its next piece (face up a round ahead; null = none left or all on the board), how many wait in its deck ('deck') and in its discard ('used'; shuffled back in when the deck is empty), how many it places a round
             $nx = $s['env']['next'] ?? null;
-            $v['env'] = ['next' => $nx ? ['k' => $nx['k'], 'n' => $nx['n'], 'kind' => $nx['env'], 'life' => (int)$nx['life'], 'e' => pfb_edges($nx)] : null, 'draw' => count($s['env']['draw']), 'discard' => count($s['env']['discard']), 'n' => (int)$c['envn']];
+            $v['env'] = ['next' => $nx ? ['k' => $nx['k'], 'n' => $nx['n'], 'kind' => $nx['env'], 'life' => (int)$nx['life'], 'e' => pfb_edges($nx)] : null, 'deck' => count($s['env']['draw']), 'used' => count($s['env']['discard']), 'n' => (int)$c['envn']];
         }
         $v['aim'] = $s['foe']['plan'] ?? null;   // the creature's next piece and cell (null: it shows none, or it is tripped)
         $v['reaim'] = !empty($s['reaim']);   // last turn it could not play its aim and picked again
@@ -1181,7 +1181,7 @@ function pfb_view(array $s): array
         foreach ($v['pcs'] as $i => $q) {
             $p = $s['pcs'][$q['id']]; $life = pfb_life($s, $p);
             $v['pcs'][$i] += ['life' => $life, 'left' => $p['born'] + $life - (int)$s['round'], 'src' => (string)($p['tile']['src'] ?? ''), 'flip' => !empty($p['tile']['flip']), 'ter' => pfb_ter($s, $p['x'], $p['y']), 'rank' => (int)($p['tile']['rank'] ?? 0), 'layer' => (string)($p['tile']['layer'] ?? '')];   // left: rounds it still stays, this one included (1 = it goes at the end of this round)
-            if ($p['by'] === 'env') $v['pcs'][$i] += ['env' => (string)$p['tile']['env'], 'dir' => $p['tile']['dir'] ?? null];   // 2.6.75: an environment piece: its kind, Wind's arrow
+            if ($p['by'] === 'env') $v['pcs'][$i] += ['kind' => (string)$p['tile']['env'], 'dir' => $p['tile']['dir'] ?? null];   // 2.6.75: an environment piece: its kind, Wind's arrow
         }
         foreach ($v['hand'] as $i => $t) { $ht = $s['me']['hand'][$i]; $v['hand'][$i] += ['life' => (int)($ht['life'] ?? PFB_LIFE), 'src' => (string)($ht['src'] ?? ''), 'flip' => !empty($ht['flip']), 'canflip' => pfb_can_flip($s, $i), 'rank' => (int)($ht['rank'] ?? 0), 'tool' => (string)($ht['tool'] ?? '')]; }
         if ($v['held']) foreach ($v['held']['pcs'] as $i => $q) { $ht = $g['pcs'][$i]['tile']; $v['held']['pcs'][$i] += ['life' => (int)($ht['life'] ?? PFB_LIFE), 'src' => (string)($ht['src'] ?? ''), 'flip' => !empty($ht['flip'])]; }
