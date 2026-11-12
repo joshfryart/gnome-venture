@@ -1,5 +1,5 @@
 <?php
-// php tests/pfboard_move.php GAMEDIR : prints one legal move for the test gnome in its current board fight, as "handIndex,x,y" (or "PASS" when nothing fits, or "NONE" when there is no board fight).
+// php tests/pfboard_move.php GAMEDIR : prints one legal move for the test gnome in its current board fight, as "handIndex,x,y" (or "PASS" when nothing fits, "FLIP i" in a v1 fight when only a flipped piece fits, or "NONE" when there is no board fight).
 $_SERVER['SCRIPT_NAME'] = '/adventure.php';
 require $argv[1] . '/includes/bootstrap.php';
 require_once $argv[1] . '/includes/adventure.php';
@@ -24,4 +24,7 @@ if ($mode === 'group') {   // "c,x,y" for the set-aside group, or NONE
     $g = $s['me']['held'] ?? null; $sp = $g ? pfb_group_spots($s, $g) : []; echo $sp ? "c,{$sp[0][0]},{$sp[0][1]}\n" : "NONE\n"; exit;
 }
 $m = pfb_search($s, 'me');
+if (!$m && !empty($s['v1'])) foreach (array_keys($s['me']['hand']) as $i) {   // v1: nothing fits as dealt; "FLIP i" when flipping hand piece i gives a move
+    if (!pfb_can_flip($s, $i)) continue; $w = $s; pfb_flip($w, $i, $w['turn']); if (pfb_search($w, 'me')) { echo "FLIP $i\n"; exit; }
+}
 echo $m ? $m[0] . ',' . $m[1] . ',' . $m[2] . "\n" : "PASS\n";

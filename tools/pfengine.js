@@ -487,7 +487,7 @@
   var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
   var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };
   var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4;
-  var PFB_V1_FOE_MULT = { small: 0.72, medium: 0.53, large: 0.41, boss: 0.46 }, PFB_V1_BAR_MULT = { small: 1.12, medium: 1.12, large: 1.12, boss: 0.88 };
+  var PFB_V1_FOE_MULT = { small: 0.72, medium: 0.54, large: 0.56, boss: 0.62 }, PFB_V1_BAR_MULT = { small: 1.12, medium: 1.12, large: 1.12, boss: 0.88 };
   var KIND_GROUND = { sunbeam: 'sun', creep: 'br', puddle: 'mud' }, GROUND_N = { sun: 'nsun', br: 'nbr', mud: 'nmud' };
 
   function isNumeric(v) { return (typeof v === 'number' && isFinite(v)) || (typeof v === 'string' && v.trim() !== '' && isFinite(Number(v))); }

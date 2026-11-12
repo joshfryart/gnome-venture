@@ -41,7 +41,7 @@ const PFB_SRC_FAM = ['pal' => 'body', 'tool' => 'craft', 'crop' => 'mind', 'craf
 const PFB_UP = ['hurt' => 1, 'charm' => 1, 'trick' => 1];   // these types carry the column knob on top and the hole below; guard, heal, soothe and item the other way round
 const PFB_CLASS_LEAN = ['critter' => 'mind', 'insect' => 'mind', 'water' => 'body', 'bird' => 'craft', 'plant' => 'mind', 'fungus' => 'mind', 'reptile' => 'craft', 'amphibian' => 'craft', 'beast' => 'body'];   // a creature class leans to a family: 3 of its pieces in 5 stack in it
 const PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4;     // per-piece life in rounds (tile field 'life'; default PFB_LIFE, Quick pieces 2, Hold pieces 4)
-const PFB_V1_FOE_MULT = ['small' => 0.72, 'medium' => 0.53, 'large' => 0.41, 'boss' => 0.46];   // the creature's piece values by size (replaces PFB_FOE_MULT; boss, blank and fire-budget factors still apply). Tuned with tests/pfboard_tune_v1.php
+const PFB_V1_FOE_MULT = ['small' => 0.72, 'medium' => 0.54, 'large' => 0.56, 'boss' => 0.62];   // the creature's piece values by size (replaces PFB_FOE_MULT 0.62; boss, blank and fire-budget factors still apply). Tuned on the real engine and the 88 creatures with tests/pfboard_tune_v1.php (chain bot about 70% at level, smart 99%+). The design demo's JS sim (9 creatures) had 0.72 / 0.53 / 0.41 / 0.46
 const PFB_V1_BAR_MULT = ['small' => 1.12, 'medium' => 1.12, 'large' => 1.12, 'boss' => 0.88];   // the creature's bars by size (replaces PFB_BAR_MULT): longer fights
 
 /** The rule numbers of a v1 fight for a creature size; $over replaces single values (tests and sims: ['events' => 0] switches a rule off, 'foe_x' / 'bar_x' scale the creature). */
@@ -988,7 +988,7 @@ function pfb_view(array $s): array
         $v['flip'] = ['on' => (bool)$c['flip'], 'used' => (int)($s['me']['flipt'] ?? 0) === (int)$s['turn']];
         foreach ($v['pcs'] as $i => $q) {
             $p = $s['pcs'][$q['id']]; $life = pfb_life($s, $p);
-            $v['pcs'][$i] += ['life' => $life, 'left' => $p['born'] + $life - (int)$s['round'], 'src' => (string)($p['tile']['src'] ?? ''), 'flip' => !empty($p['tile']['flip']), 'ter' => pfb_ter($s, $p['x'], $p['y'])];   // left: rounds it still stays after this one (0 = it goes at the end of this round)
+            $v['pcs'][$i] += ['life' => $life, 'left' => $p['born'] + $life - (int)$s['round'], 'src' => (string)($p['tile']['src'] ?? ''), 'flip' => !empty($p['tile']['flip']), 'ter' => pfb_ter($s, $p['x'], $p['y'])];   // left: rounds it still stays, this one included (1 = it goes at the end of this round)
         }
         foreach ($v['hand'] as $i => $t) { $ht = $s['me']['hand'][$i]; $v['hand'][$i] += ['life' => (int)($ht['life'] ?? PFB_LIFE), 'src' => (string)($ht['src'] ?? ''), 'flip' => !empty($ht['flip']), 'canflip' => pfb_can_flip($s, $i)]; }
         if ($v['held']) foreach ($v['held']['pcs'] as $i => $q) { $ht = $g['pcs'][$i]['tile']; $v['held']['pcs'][$i] += ['life' => (int)($ht['life'] ?? PFB_LIFE), 'src' => (string)($ht['src'] ?? ''), 'flip' => !empty($ht['flip'])]; }
