@@ -93,7 +93,7 @@ if ($T === 'requests'): tasks_requests($u, $hub); page_footer(); return; endif; 
 </nav>
 <?php require_once __DIR__ . '/includes/rebuild.php';   // v1.1.0: repairs moved to the Journey section; a pointer here
 if ($nRep = count(repair_list($uid))): ?>
-  <p class="help"><a href="<?= e(url('jobs.php?t=journey#repairs')) ?>">🔨 <?= $nRep ?> repair<?= $nRep === 1 ? '' : 's' ?> under way → Journey</a></p>
+  <p class="help"><a href="<?= e(url('jobs.php?t=journey&q=repairs')) ?>">🔨 <?= $nRep ?> repair<?= $nRep === 1 ? '' : 's' ?> under way → Journey</a></p>
 <?php endif; ?>
 
 <?php foreach (JOB_PERIODS as $period => [$label, $icon, $count]):

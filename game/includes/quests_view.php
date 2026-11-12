@@ -7,16 +7,18 @@ declare(strict_types=1);
  */
 require_once __DIR__ . '/journey.php';
 
-function quests_overview(array $u): void
+function quests_overview(array $u, string $sub = 'story'): void
 {
     $uid = (int)$u['id'];
-    $any = false;
+    $sec = ['story' => '', 'sights' => '', 'repairs' => ''];
+    $cnt = ['story' => 0, 'sights' => 0, 'repairs' => 0];
 
-    // Wren's Journey: every chapter in progress
+    // Story: Wren's Journey chapters in progress
     $rows = '';
     foreach (journey_chapters() as $ch) {
         $st = journey_status($u, $ch);
         if (!$st['row'] || $st['row']['done_at']) continue;
+        $cnt['story']++;
         $n = count(array_filter($st['tasks'], fn($t) => $t[3]));
         $rd = journey_ready($u, $st);
         $hf = '';   // v1.7.5: hand-in / finish right here (journey.php sends you back to this tab)
@@ -31,25 +33,33 @@ function quests_overview(array $u): void
     if ($rows === '' && ($nl = journey_next_locked($u))) {
         $rows = '<li class="muted">Next chapter: ' . e($nl['region']) . ' (level ' . (int)$nl['min_level'] . '). It starts when you walk there.</li>';
     }
-    if ($rows !== '') { $any = true; echo '<section class="box qsec"><h3>🧭 Wren’s Journey</h3><ul class="qlist">' . $rows . '</ul></section>'; }
-
-    // Calling questline
+    if ($rows !== '') $sec['story'] .= '<section class="box qsec"><h3>🧭 Wren’s Journey</h3><ul class="qlist">' . $rows . '</ul></section>';
     require_once __DIR__ . '/calling_view.php';
-    if (($cl = calling_today_line($u)) !== '') { $any = true; echo '<section class="box qsec"><h3>📜 Your calling</h3>' . $cl . '</section>'; }
+    if (($cl = calling_today_line($u)) !== '') { $cnt['story']++; $sec['story'] .= '<section class="box qsec"><h3>📜 Your calling</h3>' . $cl . '</section>'; }
 
-    // Trail Sights quest lines (v2.6.68)
+    // Sights: Trail Sights quest lines (v2.6.68)
     require_once __DIR__ . '/trail_sights.php';
-    if (($sq = trail_sight_quests_box($u)) !== '') { $any = true; echo $sq; }
+    $sg = trail_sight_quests_box($u, $cnt['sights']);
+    if ($sg !== '') $sec['sights'] = $sg;
 
-    // Landmark repairs (full boxes: they have their own buttons)
+    // Repairs: landmark repairs (full boxes: they have their own buttons)
     require_once __DIR__ . '/rebuild.php';
-    foreach (repair_list($uid) as $k => $rp) {
-        $any = true;
-        if ($k === 0) echo '<h2 id="repairs">🔨 Your repairs</h2>';
-        echo '<div class="box">' . repair_box($u, $rp, 'jobs.php?t=journey') . '</div>';
+    foreach (repair_list($uid) as $rp) {
+        $cnt['repairs']++;
+        $sec['repairs'] .= '<div class="box">' . repair_box($u, $rp, 'jobs.php?t=journey&q=repairs') . '</div>';
     }
 
-    if (!$any) echo '<p class="muted">No quests on the go. Walk to a new region to start a Journey chapter.</p>';
+    if (!isset($sec[$sub])) $sub = 'story';
+    $tabs = ['story' => ['🧭', 'Story'], 'sights' => ['🔎', 'Sights'], 'repairs' => ['🔨', 'Repairs']];
+    echo '<nav class="tabs jobtabs jqsub">';
+    foreach ($tabs as $k => [$ti, $tl]) {
+        echo '<a class="' . ($sub === $k ? 'on' : '') . '" href="' . e(url('jobs.php?t=journey&q=' . $k)) . '"><span aria-hidden="true">' . $ti . '</span> ' . $tl . ($cnt[$k] ? ' <small class="tbadge muted">' . $cnt[$k] . '</small>' : '') . '</a>';
+    }
+    echo '</nav>';
+    if ($sec[$sub] !== '') { echo $sec[$sub]; return; }
+    echo '<p class="muted">' . ['story' => 'No chapter on the go. Walk to a new region to start a Journey chapter.',
+        'sights' => 'No sight quests yet. Chat with folk at the big landmarks along the trail.',
+        'repairs' => 'No repairs under way.'][$sub] . '</p>';
 }
 
 
@@ -100,7 +110,7 @@ function tasks_counts(array $u, bool $hub = false): array
 
 function tasks_quests(array $u): void
 {
-    quests_overview($u);
+    quests_overview($u, (string)($_GET['q'] ?? 'story'));
 }
 
 /** POST do=order|favour from the Requests tab. Same rules as the town square. */

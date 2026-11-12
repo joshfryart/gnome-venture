@@ -7910,3 +7910,17 @@ details.sgq summary{cursor:pointer}
 .tmfolk-in svg{animation:tmfolkbob .3s steps(2,end) 6}
 @media (prefers-reduced-motion: reduce){.tmfolk-in,.tmfolk-in svg{animation:none}}
 .sgrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
+
+/* Journey sub-tabs + sight quest cards */
+.jqsub { margin-top: 0; }
+.jqsub .tbadge { margin-left: 4px; padding: 0 6px; border-radius: 999px; background: rgba(242, 228, 192, .22); }
+.sgqcard { border: 1px solid rgba(255,255,255,.12); border-radius: 10px; background: rgba(0,0,0,.18); margin: 0 0 8px; padding: 0; overflow: hidden; }
+.sgqcard > summary { list-style: none; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: center; padding: 10px 12px; cursor: pointer; }
+.sgqcard > summary::-webkit-details-marker { display: none; }
+.sgqcard > summary::after { content: '▾'; grid-column: 2; grid-row: 1; justify-self: end; opacity: .6; }
+.sgqcard:not([open]) > summary::after { content: '▸'; }
+.sgqcard > summary small { grid-column: 1; }
+.sgqbar { grid-column: 1 / -1; height: 5px; border-radius: 3px; background: rgba(255,255,255,.12); overflow: hidden; margin-top: 4px; }
+.sgqbar i { display: block; height: 100%; background: var(--gold, #f5b82e); border-radius: 3px; }
+.sgqcard .qlist { padding: 4px 12px 12px; }
+.sgqcard .qlist li.next { color: var(--ink); font-weight: 600; }

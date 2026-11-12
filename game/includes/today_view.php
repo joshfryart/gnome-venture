@@ -175,7 +175,7 @@ function today_html(array $u, array $c, array $o = []): string
         $h .= '<a class="box tcard ' . e($cc) . '" href="' . e(url($ch)) . '"><h3>' . $ct . '</h3><p>' . $cs . '</p><span class="tgo">' . $cl . '</span></a>';
     }
     $h .= '</div>';
-    if ($nRepairs) $h .= '<p class="help"><a href="' . e(url('jobs.php?t=journey#repairs')) . '">🔨 ' . $nRepairs . ' repair' . ($nRepairs === 1 ? '' : 's') . ' under way</a></p>';
+    if ($nRepairs) $h .= '<p class="help"><a href="' . e(url('jobs.php?t=journey&q=repairs')) . '">🔨 ' . $nRepairs . ' repair' . ($nRepairs === 1 ? '' : 's') . ' under way</a></p>';
     $h .= '</div>';
     $h .= '<div class="todayhollow" id="hollowtoday">' . today_social_html($u, ($o['hollow'] ?? 'full') === 'line' ? 'line' : 'hollow') . '</div>';
     if ($c['guide']) {
