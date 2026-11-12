@@ -1,6 +1,8 @@
 <?php
 // php run.php BOT OFFSETS [SHARD/NSHARDS] [MULT]   env V1='{"limit":3,...}' (see pfboard_v1.php). Prints one JSON line per fight.
 // BOT: random | chain | greedy | look | smart | never3 | smartn3 (the last two avoid chains that use pieces up).  OFFSETS: gnome level minus creature level, e.g. 0,-4,-8.
+// A suffix makes look or smart blind to the environment when it chooses: look-g (ignores ground), look-e (ignores events), look-ge, smart-ge.
+// look and smart fights also record how often the best one-turn move changes when ground / events are ignored (keys bm_*). METRIC=0 turns that off.
 // Fights per creature are set so every size has >= 200 fights per offset (x MULT, default 1).
 require __DIR__ . '/pfboard_v1.php';
 const SEEDS = ['small' => 21, 'medium' => 8, 'large' => 5, 'boss' => 23];   // 10 small, 26 medium, 43 large, 9 boss creatures -> 210 / 208 / 215 / 207 fights
@@ -23,7 +25,7 @@ function player(int $lv): array {
     $max = 20 + 3 * $lv + 5 * $m;
     $deck = pf_player_deck($st, $cal, 1 + intdiv($lv, 12), [], [], [], true, $box);
     $src = [1 => 'pal', 2 => 'tool', 3 => 'crop', 5 => 'pal', 6 => 'tool', 7 => 'crop'];
-    foreach ($deck as $i => $t) $deck[$i]['src'] = getenv('SRC') === 'thirds' ? ['pal', 'tool', 'crop'][$i % 3] : ($src[$i] ?? 'knack');   // SRC=thirds: every piece has a source (a deck built for Teamwork)
+    foreach ($deck as $i => $t) $deck[$i]['src'] = getenv('SRC') === 'thirds' ? ['pal', 'tool', 'crop'][$i % 3] : (getenv('SRC') === 'pairs' ? ($i < 12 ? ['pal', 'tool', 'crop'][$i % 3] : 'knack') : ($src[$i] ?? 'knack'));   // SRC=thirds: every piece has a source (a deck built for Teamwork); SRC=pairs: 4 pal, 4 tool, 4 crop
     return ['hp' => $max, 'max_hp' => $max, 'stats' => $st, 'deck' => $deck, 'luck' => $m, 'calling' => $cal];
 }
 function places(array $s): array { $o = []; foreach ($s['me']['hand'] as $i => $t) foreach (pfb_cells($s, $t, 'me') as [$x, $y]) $o[] = [$i, $x, $y]; if (!empty($s['me']['held'])) foreach (pfb_group_spots($s, $s['me']['held']) as [$x, $y]) $o[] = ['c', $x, $y]; return $o; }
@@ -51,7 +53,18 @@ function ranked(array $s, array $acts): array {
     usort($o, fn($x, $y) => $y[0] <=> $x[0]);
     return $o;
 }
+/** The state as a player who ignores ground ('g') and / or events ('e') reads it. */
+function strip(array $s, string $what): array { if (strpos($what, 'g') !== false) $s['ter'] = []; if (strpos($what, 'e') !== false) $s['envs'] = []; return $s; }
+/** How often does the best one-turn move change when the environment is ignored? Counts turns where the move picked blind is worse (by the full reading) than the best move: any amount, and by 0.03+ / 0.08+ of the state value (1.0 = the whole creature bar, 1.2 = all your health). */
+function metric(array $s, array $pl, array &$m): void {
+    if (count($pl) < 2) return;
+    $full = ranked($s, $pl); if (count($full) < 2) return; $val = []; foreach ($full as [$v, $a]) $val[json_encode($a)] = $v; $best = $full[0][0]; $ba = $full[0][1];
+    $m['bm_n']++;
+    foreach (['g', 'e', 'ge'] as $w) { $r = ranked(strip($s, $w), $pl)[0][1] ?? null; if ($r === null) continue; $reg = $best - ($val[json_encode($r)] ?? $best);
+        if ($reg > 1e-6) { $m["bm_$w"]++; if ($r[1] !== $ba[1] || $r[2] !== $ba[2]) $m["bmc_$w"]++; } if ($reg >= 0.03) $m["bm3_$w"]++; if ($reg >= 0.08) $m["bm8_$w"]++; $m["bmr_$w"] += $reg; }
+}
 function choose(array $s, string $bot, array $pl, array $dr): array {
+    if (strpos($bot, '-') !== false) { [$bot, $bl] = explode('-', $bot, 2); $s = strip($s, $bl); }
     if ($bot === 'smartn3') { $lim = (int)v1('limit') ?: 3; $ok = []; foreach ($pl as $i => $a) if ($dr[$i][1] < $lim) $ok[] = $a; if ($ok) $pl = $ok; $bot = 'smart'; }   // smart, but never uses pieces up if it can help it
     if (!$pl && $bot !== 'smart') return ['pass'];
     if ($bot === 'random') return $pl[mt_rand(0, count($pl) - 1)];
@@ -79,7 +92,7 @@ function choose(array $s, string $bot, array $pl, array $dr): array {
 }
 
 [, $bot, $offs] = $argv + [null, 'chain', '0']; [$shard, $nsh] = array_map('intval', explode('/', $argv[3] ?? '0/1')); $mult = (float)($argv[4] ?? 1);
-$lim = (int)v1('limit') ?: 3; $ci = 0;
+$lim = (int)v1('limit') ?: 3; $ci = 0; $metric = getenv('METRIC') !== '0' && in_array(explode('-', $bot)[0], ['look', 'smart'], true);
 foreach (array_map('intval', explode(',', $offs)) as $d) foreach (creatures() as $c) {
     if ($ci++ % $nsh !== $shard) continue;
     $nk = max(1, (int)ceil(SEEDS[$c['size']] * $mult));
@@ -88,11 +101,17 @@ foreach (array_map('intval', explode(',', $offs)) as $d) foreach (creatures() as
         $s = pfb_new(player($lv), $c, $seed, ['blank' => true]);
         $hand = $s['me']['hand']; $bi = 0; foreach ($hand as $i => $t) if ($t['t'] === 'hurt' && $t['v'] > $hand[$bi]['v']) $bi = $i;
         pfb_start($s, $bi, ['L', 'R', 'T', 'B'][$k % 4]);
-        $t = 0; $m = ['pl' => 0, 'fired' => 0, 'long' => 0, 'opp' => 0, 'tookopp' => 0, 'longest' => 0, 'pass' => 0, 'join' => 0, 'hand' => 0, 'board' => 0, 'legal' => 0, 'nolegal' => 0];
+        $t = 0; $m = ['pl' => 0, 'fired' => 0, 'long' => 0, 'opp' => 0, 'tookopp' => 0, 'longest' => 0, 'pass' => 0, 'join' => 0, 'hand' => 0, 'board' => 0, 'legal' => 0, 'nolegal' => 0, 'on_sun' => 0, 'on_br' => 0, 'on_mud' => 0, 'in_thorn' => 0, 'in_rain' => 0, 'sun_open' => 0, 'thorn_open' => 0,
+            'bm_n' => 0, 'bm_g' => 0, 'bm_e' => 0, 'bm_ge' => 0, 'bmc_g' => 0, 'bmc_e' => 0, 'bmc_ge' => 0, 'bm3_g' => 0, 'bm3_e' => 0, 'bm3_ge' => 0, 'bm8_g' => 0, 'bm8_e' => 0, 'bm8_ge' => 0, 'bmr_g' => 0, 'bmr_e' => 0, 'bmr_ge' => 0];
+        $zone = function (array $s, string $kind, int $x, int $y): bool { foreach ($s['envs'] ?? [] as $e) if ($e['kind'] === $kind) foreach (pfb_zone($e) as [$zx, $zy]) if ($zx === $x && $zy === $y) return true; return false; };
         while (!$s['over'] && $t++ < 40) {
             $pl = places($s); $dr = array_map(fn($a) => dry($s, $a), $pl);
             $m['hand'] += count($s['me']['hand']); $m['board'] += count(array_filter($s['pcs'], fn($q) => $q['by'] === 'me')); $m['legal'] += count($pl); if (!$pl) $m['nolegal']++;
+            if ($metric) metric($s, $pl, $m);
             $a = choose($s, $bot, $pl, $dr);
+            if (array_filter($pl, fn($q) => is_int($q[0]) && pfb_ter($s, $q[1], $q[2]) === 'sun' && in_array($s['me']['hand'][$q[0]]['t'], ['hurt', 'charm'], true))) $m['sun_open']++;
+            if (array_filter($pl, fn($q) => is_int($q[0]) && $zone($s, 'thorn', $q[1], $q[2]))) $m['thorn_open']++;
+            if (is_int($a[0])) { $tk = pfb_ter($s, $a[1], $a[2]); if ($tk === 'sun' && in_array($s['me']['hand'][$a[0]]['t'], ['hurt', 'charm'], true)) $m['on_sun']++; elseif ($tk === 'br') $m['on_br']++; elseif ($tk === 'mud') $m['on_mud']++; if ($zone($s, 'thorn', $a[1], $a[2])) $m['in_thorn']++; if ($zone($s, 'rain', $a[1], $a[2])) $m['in_rain']++; }
             if ($a[0] === 'pass') $m['pass']++; elseif ($a[0] === 'j' || $a[0] === 'h') $m['join']++;
             else { $i = array_search($a, $pl); $n = $dr[$i][1]; $mx = max(array_map(fn($x) => $x[1], $dr)); $m['pl']++; $m['fired'] += $n; if ($n >= $lim) $m['long']++; if ($mx >= $lim) { $m['opp']++; if ($n >= $lim) $m['tookopp']++; } if ($n === $mx) $m['longest']++; }
             $r = act($s, $a);

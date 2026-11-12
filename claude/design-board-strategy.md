@@ -318,3 +318,160 @@ Bots, not people. Default gnome deck with made-up sources (no real pal, tool or 
 - Ground + events must BITE (proposed start: sunny x2, bramble 10%, events 10% per piece); re-sim and lower creature mult if needed to keep the 70% / 90% targets.
 - Teamwork: keep 3 sources (pal + tool + crop), bonus raised to +60%. (Triggers rarely, 0.05/fight at +25%; re-check play feel.)
 Next: re-run sim with these settings, then build in steps behind flags.
+
+## Sim results 2 (bite settings)
+
+Sim only, on a patched copy of the 2.6.67 board engine. No game code or version changed. Scripts: `tools/pfsim/v1bundle/` (README there). All 88 creatures, blank-centre opening, 207-215 fights per cell. Numbers move about 4 points run to run.
+
+### What changed from sim 1
+- **Aim:** shown and committed, no fumble. If you take its cell, the creature picks again at full value. The bots read the aim cell. No reply number.
+- **Use-up** at 3, both sides (as before).
+- **Ground and events:** sunny x2, bramble 10%, events 10% per piece. The creature's search now also knows what the announced thorn burst and rain do to a piece it leaves out.
+- **Teamwork:** pal + tool + crop pieces of yours in one chain, +60% on your pieces in it.
+- **New bots:** `look-ge` and `smart-ge` are look and smart that ignore ground and events when they choose (`look-g`, `look-e`: only one of the two).
+- **New measure, "best move changes":** each turn, take the best move by one-turn reading with everything visible, and the best move with ground / events hidden. Count the turn when the blind pick is worse. Also counted: worse by 3+ and by 8+ points (100 points = the creature's whole bar; 120 = all your health).
+
+### The start settings do not bite enough
+Start settings as given (5 cells 2-3 steps out, 1 event a round, creature x1.35): chain 64 / 67 / 6.2, look 95 / 29 / 7.8, smart 100 / 20 / 5.6. The best move changes in only **15-18%** of turns (ground 10-12%, events 7-8%). Bigger numbers alone do not do it: the board holds about one of your pieces between turns, so the marked cells are rarely where you can play. What does it is **putting the ground where the pieces are**: cells 1-2 steps from the centre instead of 2-3.
+
+### Recommended numbers
+| Number | Value | Note |
+|---|---|---|
+| Use-up limit | 3, both sides | Unchanged |
+| Ground cells | **3 sunny, 3 bramble, 1 mud, 1-2 steps from the centre** | Was 2 / 2 / 1 at 2-3 steps. 7 of the 12 cells around the centre are marked |
+| Sunny | x2 for a Hurt or Charm piece on it | x1.5 drops the best-move change to 30-31% |
+| Bramble | 10% of max health per environment turn | Owner of the piece pays; creature pieces cost the creature |
+| Events | **2 a round**, 10% of max health per piece in the zone | Was 1 a round. Rain: guard. Thorn burst: health. Wind: moves a piece |
+| Aim | shown, committed, no fumble | |
+| Creature piece values | **x1.3** (was x1.35) | `PFB_FOE_MULT` 0.62 would become about 0.81. x1.35 gives chain 67%, x1.2 gives 76% |
+| Teamwork | +60% | Rare, see below |
+
+### Main table (recommended numbers)
+Win % / health lost % / turns. `all` = mean of the four sizes. Small creatures are low level, so the gnome is level 1 at both 4 and 8 under.
+
+| Bot | Level | all | small | medium | large | boss |
+|---|---|---|---|---|---|---|
+| random | at level | 42 / 82 / 6.3 | 39 / 79 / 4.9 | 40 / 82 / 6.0 | 42 / 84 / 5.7 | 45 / 83 / 8.5 |
+| random | 4 under | 27 / 88 / 5.5 | 40 / 78 / 4.1 | 14 / 94 / 4.8 | 24 / 91 / 5.4 | 28 / 91 / 7.8 |
+| random | 8 under | 18 / 92 / 4.7 | 36 / 79 / 4.0 | 8 / 97 / 3.2 | 12 / 96 / 4.4 | 15 / 96 / 7.2 |
+| **chain** | **at level** | 70 / 62 / 4.4 | 70 / 56 / 3.1 | 62 / 62 / 4.2 | 71 / 65 / 4.2 | 75 / 66 / 6.2 |
+| chain | 4 under | 53 / 71 / 4.1 | 81 / 46 / 2.2 | 33 / 83 / 3.6 | 42 / 81 / 4.6 | 57 / 75 / 6.0 |
+| chain | 8 under | 42 / 78 / 3.8 | 81 / 46 / 2.2 | 21 / 91 / 2.9 | 30 / 88 / 3.9 | 36 / 87 / 6.2 |
+| greedy | at level | 85 / 49 / 4.1 | 87 / 44 / 2.9 | 81 / 46 / 3.6 | 83 / 54 / 3.9 | 89 / 53 / 5.9 |
+| greedy | 4 under | 70 / 60 / 4.0 | 93 / 34 / 2.0 | 48 / 76 / 3.8 | 60 / 67 / 4.3 | 77 / 62 / 5.9 |
+| greedy | 8 under | 56 / 69 / 3.9 | 93 / 34 / 2.0 | 34 / 84 / 3.1 | 43 / 79 / 4.0 | 52 / 79 / 6.3 |
+| never3 | at level | 95 / 34 / 4.9 | 93 / 32 / 3.5 | 94 / 36 / 4.8 | 93 / 36 / 4.6 | 99 / 33 / 6.8 |
+| never3 | 4 under | 87 / 46 / 5.4 | 97 / 27 / 2.3 | 66 / 65 / 6.0 | 87 / 48 / 5.8 | 96 / 45 / 7.6 |
+| never3 | 8 under | 71 / 58 / 5.5 | 97 / 27 / 2.3 | 44 / 78 / 5.2 | 60 / 70 / 6.1 | 83 / 58 / 8.4 |
+| look-ge | at level | 89 / 43 / 5.7 | 87 / 37 / 4.2 | 80 / 49 / 5.6 | 92 / 45 / 5.4 | 98 / 39 / 7.6 |
+| look-ge | 4 under | 74 / 55 / 6.0 | 89 / 37 / 2.7 | 47 / 76 / 5.9 | 75 / 59 / 6.8 | 87 / 49 / 8.6 |
+| look-ge | 8 under | 58 / 67 / 5.8 | 89 / 37 / 2.7 | 32 / 85 / 4.8 | 45 / 78 / 6.2 | 68 / 70 / 9.7 |
+| look | at level | 97 / 29 / 4.9 | 97 / 26 / 3.6 | 93 / 32 / 5.0 | 96 / 30 / 4.4 | 100 / 26 / 6.5 |
+| look | 4 under | 90 / 40 / 5.2 | 99 / 24 / 2.3 | 74 / 56 / 5.9 | 91 / 45 / 5.7 | 96 / 34 / 6.9 |
+| look | 8 under | 76 / 52 / 5.4 | 99 / 24 / 2.3 | 46 / 74 / 5.2 | 68 / 63 / 6.1 | 91 / 48 / 8.2 |
+| smartn3 | at level | 96 / 32 / 4.3 | 93 / 32 / 2.9 | 99 / 29 / 4.2 | 95 / 35 / 4.1 | 98 / 33 / 6.0 |
+| smartn3 | 4 under | 90 / 41 / 4.6 | 96 / 25 / 2.3 | 74 / 59 / 5.0 | 94 / 41 / 4.8 | 97 / 36 / 6.4 |
+| smartn3 | 8 under | 79 / 50 / 5.0 | 96 / 25 / 2.3 | 54 / 71 / 5.0 | 76 / 57 / 5.3 | 89 / 46 / 7.3 |
+| smart-ge | at level | 94 / 37 / 4.9 | 92 / 33 / 3.4 | 91 / 42 / 4.7 | 94 / 39 / 4.9 | 99 / 35 / 6.6 |
+| smart-ge | 4 under | 85 / 47 / 5.3 | 92 / 34 / 2.3 | 65 / 64 / 5.7 | 87 / 49 / 6.0 | 97 / 40 / 7.3 |
+| smart-ge | 8 under | 70 / 59 / 5.3 | 92 / 34 / 2.3 | 39 / 79 / 4.8 | 61 / 68 / 6.1 | 88 / 53 / 8.1 |
+| **smart** | **at level** | 100 / 23 / 3.9 | 100 / 24 / 2.7 | 99 / 23 / 3.7 | 100 / 25 / 3.8 | 100 / 18 / 5.4 |
+| smart | 4 under | 97 / 31 / 4.4 | 100 / 22 / 2.1 | 88 / 45 / 4.8 | 99 / 33 / 4.8 | 100 / 22 / 5.8 |
+| smart | 8 under | 89 / 40 / 4.7 | 100 / 22 / 2.1 | 73 / 63 / 5.0 | 86 / 47 / 5.2 | 99 / 30 / 6.6 |
+
+**Targets met at level:** "just chain" wins 70% and loses 62% of its health; smart wins 100% and loses 23%; a one-turn reader (look) wins 97% and loses 29%.
+
+Today's rules with the same bots and seeds, at level (`all`): chain 100 / 25 / 5.1, look 100 / 6 / 5.2, smart 100 / 7 / 4.5.
+
+### Does strategy matter now
+| Gap (win points / health points) | at level | 4 under | 8 under |
+|---|---|---|---|
+| smart over chain | +30 / 39 less lost | +44 / 40 | +47 / 38 |
+| look over chain | +27 / 33 | +37 / 31 | +34 / 26 |
+| smart over smart that ignores ground and events | +6 / 14 | +12 / 16 | +19 / 19 |
+| look over look that ignores ground and events | +8 / 14 | +16 / 15 | +18 / 15 |
+| look over look that ignores only ground | +6 / 12 | | |
+| look over look that ignores only events | +1 / 1 | | |
+| smart over smart that never uses pieces up | +4 / 9 | +7 / 10 | +10 / 10 |
+
+Best move changes (share of turns, at level; any / costs 3+ points / costs 8+ points):
+
+| Fights played by | ground ignored | events ignored | both ignored | Mean cost of the blind pick, points a turn |
+|---|---|---|---|---|
+| look | 28% / 24% / 18% | 10% / 8% / 5% | **33%** / 29% / 22% | 15.5 |
+| smart | 30% / 26% / 21% | 11% / 8% / 5% | **36%** / 31% / 24% | 18.3 |
+| look, start settings | 10% / 8% / 6% | 7% / 5% / 3% | 15% / 12% / 8% | 6.0 |
+
+- **Yes for ground.** It changes the best cell in 28-30% of turns, and a careful player who ignores it loses 6 win points and 12 health points at level, 18-19 win points at 8 under.
+- **Not for events.** They change the best move in 1 turn in 10, and ignoring them costs 1 point. Ground and events together reach the 1-in-3 target (33-36%), ground carries it.
+- Careful bots stand on a sunny cell in about half the turns they can (chain 50% by accident, the ground-blind bots 17-24%), and step into an open thorn zone in 25-37% of the turns one is open (chain 45%).
+
+### What the rules do in a fight (at level)
+| Bot | Health lost to bramble / thorn | Creature health lost to bramble / thorn | My sunny fires per fight (of which re-fires) | Progress from sunny cells | Creature sunny fires | Placements that use pieces up | Took a 3+ chain when one was open | Creature re-aims per fight | Fights at the turn cap |
+|---|---|---|---|---|---|---|---|---|---|
+| random | 15% / 17% | 10% / 19% | 1.04 (0.52) | 35% | 1.88 | 27% | 60% | 2.36 | 0.0% |
+| chain | 7% / 8% | 8% / 13% | 1.46 (0.77) | 46% | 1.30 | 39% | 93% | 1.32 | 0.0% |
+| greedy | 8% / 9% | 8% / 12% | 1.68 (0.99) | 54% | 0.95 | 30% | 70% | 1.07 | 0.0% |
+| never3 | 9% / 12% | 9% / 16% | 1.68 (0.72) | 58% | 0.80 | 12% | 25% | 1.64 | 0.0% |
+| look-ge | 11% / 11% | 9% / 18% | 1.04 (0.70) | 36% | 1.50 | 28% | 71% | 1.57 | 0.0% |
+| look | 5% / 8% | 10% / 16% | 1.71 (0.93) | 58% | 0.72 | 29% | 70% | 1.76 | 0.1% |
+| smartn3 | 8% / 11% | 10% / 16% | 1.63 (0.78) | 62% | 0.75 | 10% | 17% | 1.05 | 0.0% |
+| smart-ge | 11% / 11% | 9% / 17% | 0.82 (0.66) | 32% | 1.32 | 29% | 58% | 0.89 | 0.0% |
+| smart | 5% / 7% | 10% / 15% | 1.61 (0.97) | 61% | 0.60 | 29% | 58% | 0.95 | 0.0% |
+
+"Creature re-aims" = its aimed cell was taken or its aimed piece was gone, so it picked again (no penalty).
+
+### Teamwork
+| Deck | Teamwork per fight: chain / look / smart | Fights with at least one: chain / look / smart | Result against no Teamwork (chain, look, smart at level) |
+|---|---|---|---|
+| Mixed (2 pal, 2 tool, 2 crop of 7-14 pieces), +60% | 0.04 / 0.02 / 0.04 | 4% / 2% / 4% | none (70 / 62, 97 / 29, 100 / 23 both ways) |
+| At most 4 of each source, +60% | 0.18 / 0.18 / 0.32 | 18% / 17% / 30% | chain 71 / 61, look 97 / 27, smart 100 / 21 |
+| Every piece has a source, +60% | 0.22 / 0.23 / 0.38 | 22% / 22% / 35% | chain 71 / 60, look 97 / 27, smart 100 / 21 |
+| Every piece has a source, +100% | 0.24 / 0.24 / 0.44 | 24% / 23% / 42% | chain 73 / 58, look 97 / 26, smart 100 / 20 |
+
+- **With a mixed deck it is still under 0.2 a fight (0.02-0.05).** A deck built for it gets 0.2-0.4 a fight, about one fight in three for a planner. By size (every piece sourced, smart): small 0.26, medium 0.40, large 0.38, boss 0.47.
+- Reason: it needs 3 of your own pieces in one chain, and use-up leaves about one of your pieces on the board. Every Teamwork chain also uses its pieces up.
+- Even at +100% it moves results by 1-3 points. It is safe, and a deck-building goal, but it will not carry a fight.
+
+### Variants (at level, `all`, win / health lost / turns)
+| Variant | chain | look | smart | Best move changes (smart) |
+|---|---|---|---|---|
+| **Recommended** | 70 / 62 / 4.4 | 97 / 29 / 4.9 | 100 / 23 / 3.9 | 36% |
+| Start settings, creature x1.35 | 64 / 67 / 6.2 | 95 / 29 / 7.8 | 100 / 20 / 5.6 | 18% |
+| Start settings, creature x1.3 | 69 / 65 / 6.4 | 97 / 27 / 7.7 | 100 / 19 / 5.5 | |
+| No ground | 74 / 63 / 6.7 | 97 / 24 / 7.4 | 100 / 17 / 5.8 | 15% |
+| No events | 68 / 62 / 4.8 | 96 / 26 / 5.4 | 100 / 19 / 4.3 | 30% |
+| No ground, no events | 65 / 66 / 7.2 | 94 / 26 / 9.3 | 100 / 15 / 7.2 | 0% |
+| Sunny x1.5 | 70 / 64 / 5.1 | 98 / 29 / 5.7 | 100 / 22 / 4.4 | 31% |
+| Soft numbers (sunny x1.5, bramble 7%, events 5%) | 69 / 65 / 5.4 | 96 / 29 / 6.4 | 100 / 20 / 5.0 | |
+| 1 event a round | 68 / 62 / 4.5 | 97 / 28 / 5.1 | 99 / 21 / 4.0 | 33% |
+| 10 cells (4 / 4 / 2) 1-3 steps out | 71 / 63 / 4.8 | 97 / 29 / 5.1 | 100 / 23 / 4.1 | 34% |
+| Creature x1.2 | 76 / 58 / 4.6 | 98 / 25 / 4.9 | 100 / 19 / 3.9 | |
+| Creature x1.35 | 67 / 64 / 4.3 | 95 / 31 / 4.9 | 100 / 24 / 3.9 | |
+| Limit 4 | 75 / 57 / 3.7 | 99 / 25 / 3.9 | 99 / 23 / 3.4 | |
+
+### Degenerate play
+- **Never chaining 3+:** now clearly worse. never3 95 / 34 against look 97 / 29; smartn3 96 / 32 against smart 100 / 23, and 79% against 89% at 8 under. Sim 1 had it equal for a one-turn reader. Smart takes an open 3+ chain 58% of the time.
+- **Stalling:** none. 0.0-0.2% of fights reach the turn cap for any bot at any level.
+- **Ground camping:** mild. A careful player gets about 60% of its progress from sunny cells with 1.6-1.7 sunny fires a fight, about 1.0 of them a re-fire of a piece that stays there. A piece lives 3 rounds and a 3+ chain uses it up, so it cannot be farmed for long. But sunny is the main thing on the board now: the ground-blind bots get half as much from it.
+- **A dominant single piece:** no. Over all fights the top piece is Swing with 19-22% of progress, then Pierce 17-19% and Trip 11-18%, the same as today (Swing 22-24%). Inside one fight the top piece gives 63-77% of the progress (55-64% today): fights are shorter, so fewer pieces get to score.
+- **Runaway boss:** no. At level the boss is the easiest size for the chain bot (75%) and costs smart the least health (18%). Under level it is too soft for a planner: smart wins 100% at 4 under and 99% at 8 under. The hard size under level is medium (smart 88% and 73%, chain 33% and 21%).
+- **Random play:** 42% at level.
+
+### Rules that look broken or weak
+1. **Events do not change decisions.** 2 a round at 10% still change the best move in only 1 turn in 10, and a player who never looks at them loses 1 point. They do change the fight length: thorn bursts and bramble together take about 25% of the creature's health in a careful fight (15% + 10%), for free, because the creature has more pieces standing on the board than you do. With no ground, events alone cut fights by 1.5 turns (smart 5.8 against 7.2); on top of the ground, by about half a turn.
+2. **Fights are short.** Smart 3.9 turns at level (small 2.7, boss 5.4); today 4.5, sim 1 6.2. Sunny x2 on both sides and the free environment damage do it. There is little room to plan in a 3-turn fight.
+3. **Teamwork stays rare** (above).
+4. **Small creatures:** the chain bot wins 70% at level but 81% when under level (the gnome is level 1 there). Their piece values are 1-3, so the factor mostly rounds away.
+5. **The chain bot stands on bramble and in thorn zones by accident** and loses 15% of its health to them a fight (smart 12%); random loses 32%. For a careless player the environment is now as big a cost as it is a tool for a careful one.
+
+### Limits
+Bots, not people. Default gnome deck with made-up sources (no real pal, tool or crop pieces, no per-piece life 2-4). One ground mix (no regions). Events are one of three kinds at random on a cell on or next to a piece. The "best move" is the best by one-turn reading with the bot's state value, not a solved game. Swift pieces and perks that raise the limit were not modelled.
+
+### Questions for Josh
+1. Ground cells 1-2 steps from the centre (7 marked of the 12 cells there) is what makes ground decisive. OK on screen, or too busy?
+2. Events still do not change decisions. Keep them as they are (they shorten fights and hurt careless players), or change what they do: aim them at the cells you can play next turn, make them bigger (a whole row), or let them hit your hand?
+3. Fights are down to about 4 turns (small creatures under 3). Wanted? If not: sunny x1.5 and 1 event a round give 5 turns and cost a little of the ground effect; more creature health is the other lever.
+4. The environment takes about 25% of the creature's health for free. Should events hit creature pieces at half strength, or is that the point?
+5. Teamwork needs a deck built for it to show up once in three fights. Enough, or should 2 of the 3 sources give a smaller bonus?
+6. Bosses under level are easy for a planner (99% at 8 under). Raise `PFB_BOSS_MULT` in the retune?

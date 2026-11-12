@@ -11,10 +11,11 @@ declare(strict_types=1);
  */
 require_once (getenv('ENG') ?: __DIR__ . '/../../../game/includes') . '/pfight.php';
 // ---- v1 bundle switches (SIM ONLY). Override with env V1='{"limit":4,...}'
-const V1_DEFAULTS = ['ground' => 1, 'nsun' => 2, 'nbr' => 2, 'nmud' => 1, 'sun' => 1.5, 'bramble' => 0.07,   // ground cells; bramble = share of max health per environment turn
-    'events' => 1, 'ev' => 1.0, 'ev_unit' => 0.05,   // forecast events; strength = ev x ev_unit x max health (or creature health) per piece in the zone
+const V1_DEFAULTS = ['ground' => 1, 'nsun' => 2, 'nbr' => 2, 'nmud' => 1, 'gmin' => 2, 'gmax' => 3, 'sun' => 2.0, 'bramble' => 0.10,   // ground cells, gmin-gmax steps from the centre; bramble = share of max health per environment turn
+    'events' => 1, 'nev' => 1, 'ev' => 1.0, 'ev_unit' => 0.10,   // nev forecast events a round; strength = ev x ev_unit x max health (or creature health) per piece in the zone
     'limit' => 3, 'spend_foe' => 1,   // a chain of `limit` or more fired pieces uses those pieces up (0 = off); spend_foe: also for chains the creature starts
-    'aim' => 1, 'fumble' => 0.5, 'fumble_on' => 'any', 'foe' => 1.0, 'team' => 1.25];
+    'aim' => 1, 'foe' => 1.35, 'team' => 1.6,   // aim: shown and committed, no fumble; foe: factor on the creature's piece values; team: Teamwork factor (pal + tool + crop in one chain)
+    'blind' => ''];   // sim only: 'g' the creature's search ignores ground, 'e' ignores events (not used in the tables)
 function v1(string $k) { static $c = null; if ($c === null) $c = (json_decode(getenv('V1') ?: '{}', true) ?: []) + V1_DEFAULTS; return $c[$k]; }
 function pfb_ter(array $s, int $x, int $y): string { return $s['ter']["$x,$y"] ?? ''; }
 function pfb_st(array &$s, string $k, float $n = 1): void { $s['st'][$k] = ($s['st'][$k] ?? 0) + $n; }
@@ -24,9 +25,9 @@ function pfb_seed_ground(array &$s): void
 {
     $s['ter'] = []; if (!v1('ground')) return;
     $cx = intdiv(PFB_W, 2); $cy = intdiv(PFB_H, 2); $cand = [];
-    for ($y = 0; $y < PFB_H; $y++) for ($x = 0; $x < PFB_W; $x++) { $d = abs($x - $cx) + abs($y - $cy); if ($d >= 2 && $d <= 3) $cand[] = "$x,$y"; }
+    for ($y = 0; $y < PFB_H; $y++) for ($x = 0; $x < PFB_W; $x++) { $d = abs($x - $cx) + abs($y - $cy); if ($d >= (int)v1('gmin') && $d <= (int)v1('gmax')) $cand[] = "$x,$y"; }
     $cand = pf_shuffle($s, $cand);
-    foreach (['sun' => (int)v1('nsun'), 'br' => (int)v1('nbr'), 'mud' => (int)v1('nmud')] as $kind => $n) for ($i = 0; $i < $n; $i++) $s['ter'][array_pop($cand)] = $kind;
+    foreach (['sun' => (int)v1('nsun'), 'br' => (int)v1('nbr'), 'mud' => (int)v1('nmud')] as $kind => $n) for ($i = 0; $i < $n && $cand; $i++) $s['ter'][array_pop($cand)] = $kind;
 }
 /** The environment hurts the owner of a piece: you lose health, the creature loses health (both as a share of the maximum). */
 function pfb_env_hurt(array &$s, string $who, float $frac, string $tag): void
@@ -38,8 +39,7 @@ function pfb_env_hurt(array &$s, string $who, float $frac, string $tag): void
 function pfb_env_turn(array &$s): void
 {
     if (v1('ground')) foreach ($s['pcs'] as $p) if (pfb_ter($s, $p['x'], $p['y']) === 'br') pfb_env_hurt($s, $p['by'], (float)v1('bramble'), 'br');
-    $e = $s['env'] ?? null;
-    if ($e && v1('events')) {
+    if (v1('events')) foreach ($s['envs'] ?? [] as $e) {
         $u = (float)v1('ev') * (float)v1('ev_unit');
         if ($e['kind'] === 'wind') {
             $id = $s['cell'][$e['x'] . ',' . $e['y']] ?? null; [$dx, $dy] = PFB_SIDE[$e['dir']]; $nx = $e['x'] + $dx; $ny = $e['y'] + $dy;
@@ -47,8 +47,7 @@ function pfb_env_turn(array &$s): void
                 unset($s['cell'][$e['x'] . ',' . $e['y']]); $s['cell']["$nx,$ny"] = $id; $s['pcs'][$id]['x'] = $nx; $s['pcs'][$id]['y'] = $ny; pfb_st($s, 'wind_' . $s['pcs'][$id]['by']);
             }
         } else {
-            $zone = [[$e['x'], $e['y']]]; foreach (PFB_SIDE as [$dx, $dy]) $zone[] = [$e['x'] + $dx, $e['y'] + $dy];
-            foreach ($zone as [$x, $y]) { $p = pfb_at($s, $x, $y); if (!$p || $p['by'] === 'none') continue;
+            foreach (pfb_zone($e) as [$x, $y]) { $p = pfb_at($s, $x, $y); if (!$p || $p['by'] === 'none') continue;
                 if ($e['kind'] === 'thorn') pfb_env_hurt($s, $p['by'], $u, 'thorn');
                 else { $g = max(1, (int)round($u * ($p['by'] === 'me' ? $s['me']['max'] : $s['fh']['max']))); if ($p['by'] === 'me') $s['me']['keep'] += $g; else $s['foe']['block'] += $g; pfb_st($s, 'rain_' . $p['by']); }   // rain: guard for the owner through the next turn
             }
@@ -56,15 +55,25 @@ function pfb_env_turn(array &$s): void
     }
     pf_check_end($s);
 }
+function pfb_zone(array $e): array { $z = [[$e['x'], $e['y']]]; foreach (PFB_SIDE as [$dx, $dy]) $z[] = [$e['x'] + $dx, $e['y'] + $dy]; return $z; }
+/** What the announced events will do to a piece of $who put on (x,y), in the creature's score units (thorn costs, rain guards). */
+function pfb_env_bias(array $s, string $who, int $x, int $y): float
+{
+    $b = 0.0; $u = (float)v1('ev') * (float)v1('ev_unit'); $m = $who === 'foe' ? 0.8 * $s['fh']['max'] : 0.7 * $s['me']['max'];
+    if (v1('events')) foreach ($s['envs'] ?? [] as $e) { if ($e['kind'] === 'wind') continue; foreach (pfb_zone($e) as [$zx, $zy]) if ($zx === $x && $zy === $y) $b += $e['kind'] === 'thorn' ? -$u * $m : 0.4 * $u * $m; }
+    return $b;
+}
 /** Announce the next event (shown one round ahead): a cell on or next to a piece, one of rain / wind / thorn burst. */
 function pfb_forecast(array &$s): void
 {
-    $s['env'] = null; if (!v1('events')) return;
+    $s['envs'] = []; if (!v1('events')) return;
     $cand = [];
     foreach ($s['pcs'] as $p) { $cand[$p['x'] . ',' . $p['y']] = 1; foreach (PFB_SIDE as [$dx, $dy]) { $x = $p['x'] + $dx; $y = $p['y'] + $dy; if ($x >= 0 && $y >= 0 && $x < PFB_W && $y < PFB_H) $cand["$x,$y"] = 1; } }
-    if (!$cand) return;
-    $keys = array_keys($cand); [$x, $y] = array_map('intval', explode(',', $keys[pf_rand($s, count($keys))]));
-    $s['env'] = ['kind' => ['rain', 'wind', 'thorn'][pf_rand($s, 3)], 'x' => $x, 'y' => $y, 'dir' => array_keys(PFB_SIDE)[pf_rand($s, 4)]];
+    $keys = array_keys($cand);
+    for ($i = 0; $i < (int)v1('nev') && $keys; $i++) {
+        $j = pf_rand($s, count($keys)); [$x, $y] = array_map('intval', explode(',', $keys[$j])); array_splice($keys, $j, 1);
+        $s['envs'][] = ['kind' => ['rain', 'wind', 'thorn'][pf_rand($s, 3)], 'x' => $x, 'y' => $y, 'dir' => array_keys(PFB_SIDE)[pf_rand($s, 4)]];
+    }
 }
 
 const PFB_W = 7, PFB_H = 5, PFB_LIFE = 3, PFB_MAX_PLACE = 1;   // one action a turn: place a piece, place the piece group you set aside, or set pieces aside (connect them in your hand)
@@ -199,7 +208,7 @@ function pfb_fire(array &$s, int $root): array
         $isRoot = $id === $root;
         $e = ['by' => $who, 'id' => $id, 'root' => $isRoot, 'tag' => $tile['tag'], 'mod' => (string)($tile['m'] ?? ''), 'k' => $tile['k'], 'n' => $tile['n'], 't' => $tile['t'], 'v' => $val, 'fit' => false, 'combo' => $ck ? PF_COMBOS[$ck]['name'] : null];
         pf_apply($s, $who, $tile, $val, $isRoot && pfb_links($s, $id) !== [], $ck, $pt['tile'] ?? null, $pt['by'] ?? null, $e, $isRoot, false);
-        $s['pcs'][$id]['f'] = (int)($s['pcs'][$id]['f'] ?? 0) + 1; if ($rb === 'me' && $who === 'me') pfb_st($s, $isRoot ? 'prog_root' : 'prog_refire', $s['fh']['now'] + $s['bar']['now'] - $pr0);   // fire budget: one more firing used (the placement counts as the first)
+        $s['pcs'][$id]['f'] = (int)($s['pcs'][$id]['f'] ?? 0) + 1; if ($rb === 'me' && $who === 'me') { $pd = $s['fh']['now'] + $s['bar']['now'] - $pr0; pfb_st($s, $isRoot ? 'prog_root' : 'prog_refire', $pd); pfb_st($s, 'pk_' . $tile['k'], $pd); if (pfb_ter($s, $p['x'], $p['y']) === 'sun') { pfb_st($s, 'prog_sun', $pd); if (!$isRoot) pfb_st($s, 'sunre_me'); } }   // fire budget: one more firing used (the placement counts as the first)
         $e['barnow'] = round((float)$s['bar']['now'], 1); $e['fhnow'] = round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];   // for the replay: how the bar and health stand after this piece
         $ev[] = $e;
         pf_check_end($s);
@@ -259,7 +268,6 @@ function pfb_place(array &$s, string $who, int $handIdx, int $x, int $y): ?array
     $id = ++$s['pid']; $s['seq']++;
     $s['pcs'][$id] = ['id' => $id, 'by' => $who, 'tile' => $tile, 'x' => $x, 'y' => $y, 'born' => $s['round'], 'seq' => $s['seq']];
     $s['cell']["$x,$y"] = $id;
-    if (!empty($s['fumbling'])) $s['pcs'][$id]['cm'] = (float)v1('fumble');
     $joints = pfb_check_after($s, $id);
     $ev = pfb_fire($s, $id);
     if ($ev) { $ev[0]['linked'] = $joints; $ev[0]['snap'] = pfb_snap($s); }   // linked: how many linked joints the new piece made; snap: the board for the history rewind
@@ -465,7 +473,8 @@ function pfb_search(array $s, string $who, bool $allowHeavy = true): ?array
             $w = $s;
             if (pfb_place($w, $who, $i, $x, $y) === null) continue;
             $sc = pfb_score($s, $w, $who);
-            if (pfb_ter($s, $x, $y) === 'br') $sc -= 2 * (float)v1('bramble') * ($who === 'foe' ? 0.8 * $s['fh']['max'] : 0.7 * $s['me']['max']);
+            if (pfb_ter($s, $x, $y) === 'br' && isset($w['cell']["$x,$y"]) && strpos((string)v1('blind'), 'g') === false) $sc -= 2 * (float)v1('bramble') * ($who === 'foe' ? 0.8 * $s['fh']['max'] : 0.7 * $s['me']['max']);
+            if (isset($w['cell']["$x,$y"]) && strpos((string)v1('blind'), 'e') === false) $sc += pfb_env_bias($s, $who, $x, $y);
             if ($best === null || $sc > $best[3] + 1e-9) $best = [$i, $x, $y, $sc];
         }
     }
@@ -494,12 +503,11 @@ function pfb_foe_turn(array &$s, int $extra): array
         $r = null; $plan = v1('aim') ? ($s['foe']['plan'] ?? null) : null;
         if ($plan) foreach ($s['foe']['hand'] as $hi => $ht) if ($ht['k'] === $plan['k']) { $s['aimforce'] = true; $r = pfb_place($s, 'foe', $hi, $plan['x'], $plan['y']); unset($s['aimforce']); break; }
         if ($r !== null) pfb_st($s, 'aim_ok');
-        if ($r === null) {
-            if ($plan && (v1('fumble_on') === 'any' || isset($s['cell'][$plan['x'] . ',' . $plan['y']]))) { $s['fumbling'] = true; pfb_st($s, 'fumble'); }   // fumble_on 'any': cell taken or link gone; 'blocked': only when the cell is taken (link gone = it picks again at full value)
-            elseif ($plan) pfb_st($s, 'reaim');
+        if ($r === null) {   // no fumble: when its cell is taken (or its piece is gone) it picks again at full value
+            if ($plan) pfb_st($s, 'reaim');
             $m = pfb_search($s, 'foe');
-            if ($m === null) { unset($s['fumbling']); break; }
-            $r = pfb_place($s, 'foe', $m[0], $m[1], $m[2]); unset($s['fumbling']);
+            if ($m === null) break;
+            $r = pfb_place($s, 'foe', $m[0], $m[1], $m[2]);
         }
         if ($r) { $ev = array_merge($ev, $r); $s['lastfoe'][] = $s['pid']; }
     }

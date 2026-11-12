@@ -1,11 +1,11 @@
 <?php
-// php agg.php out/LABEL.jsonl [more.jsonl ...] [--detail]   -> markdown tables: bot x size x level
+// php agg.php out/LABEL.jsonl [more.jsonl ...] [--detail] [--bite]   -> markdown tables: bot x size x level (--detail: chains and board; --bite: ground, events, Teamwork, best-move changes, piece shares)
 $rows = []; $detail = in_array('--detail', $argv, true);
 foreach (array_slice($argv, 1) as $f) if ($f[0] !== '-') foreach (file($f, FILE_IGNORE_NEW_LINES) as $l) { $r = json_decode($l, true); if ($r) $rows[] = $r; }
 $g = [];
 foreach ($rows as $r) { $g[$r['bot']][$r['d']][$r['size']][] = $r; $g[$r['bot']][$r['d']]['all'][] = $r; }
 $avg = fn($a, $k) => array_sum(array_map(fn($r) => $r[$k], $a)) / max(1, count($a));
-$order = ['random', 'chain', 'greedy', 'never3', 'look', 'smartn3', 'smart'];
+$order = ['random', 'chain', 'greedy', 'never3', 'look-ge', 'look-g', 'look-e', 'look', 'smartn3', 'smart-ge', 'smart'];
 $bots = array_values(array_unique(array_merge(array_intersect($order, array_keys($g)), array_keys($g))));
 $ds = []; foreach ($g as $b) foreach ($b as $d => $_) $ds[$d] = 1; krsort($ds); $ds = array_keys($ds);
 // 'all' = mean of the four sizes (each size counts the same; there are 43 large and 9 boss creatures)
@@ -15,8 +15,20 @@ echo "Win % / health lost % / turns. `all` = mean of the four sizes.\n\n| Bot | 
 foreach ($bots as $b) foreach ($ds as $d) { if (!isset($g[$b][$d])) continue; $c = $cell($g[$b][$d]);
     echo "| $b | " . ($d == 0 ? 'at level' : (-$d) . ' under') . ' | ' . implode(' | ', array_map(fn($k) => sprintf('%.0f / %.0f / %.1f', $c[$k][0], $c[$k][1], $c[$k][2]), ['all', 'small', 'medium', 'large', 'boss'])) . ' | ' . min($c['small'][3], $c['medium'][3], $c['large'][3], $c['boss'][3]) . "+ |\n"; }
 if ($detail) {
-    echo "\n| Bot | Level | pieces fired per placement | placements that use pieces up | took a 3+ chain when one was open | played the longest chain | my pieces out (turn start) | hand (turn start) | turns with no legal move | progress from re-fires | Teamwork per fight | creature fumbles per fight | health lost to bramble / thorn | my pieces used up: by my chains / by the creature's | fights that hit the turn cap |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n";
+    echo "\n| Bot | Level | pieces fired per placement | placements that use pieces up | took a 3+ chain when one was open | played the longest chain | my pieces out (turn start) | hand (turn start) | turns with no legal move | progress from re-fires | Teamwork per fight | creature re-aims per fight | health lost to bramble / thorn | my pieces used up: by my chains / by the creature's | fights that hit the turn cap |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n";
     foreach ($bots as $b) foreach ($ds as $d) { $a = $g[$b][$d]['all'] ?? null; if (!$a) continue; $S = fn($k) => array_sum(array_map(fn($r) => $r[$k] ?? 0, $a)); $T = fn($k) => array_sum(array_map(fn($r) => $r['st'][$k] ?? 0, $a)); $n = count($a);
         printf("| %s | %s | %.2f | %.0f%% | %.0f%% | %.0f%% | %.1f | %.1f | %.1f%% | %.0f%% | %.2f | %.2f | %.0f%% / %.0f%% | %.1f / %.1f | %.1f%% |\n", $b, $d == 0 ? 'at level' : (-$d) . ' under', $S('fired') / max(1, $S('pl')), 100 * $S('long') / max(1, $S('pl')), 100 * $S('tookopp') / max(1, $S('opp')), 100 * $S('longest') / max(1, $S('pl')),
-            $S('board') / max(1, $S('t')), $S('hand') / max(1, $S('t')), 100 * $S('nolegal') / max(1, $S('t')), 100 * $T('prog_refire') / max(1e-9, $T('prog_refire') + $T('prog_root')), $T('team') / $n, $T('fumble') / $n, 100 * $T('br_me') / $n, 100 * $T('thorn_me') / $n, $T('used_me_by_me') / $n, $T('used_me_by_foe') / $n, 100 * count(array_filter($a, fn($r) => in_array($r['over'], ['stall', 'cap'], true) || ($r['over'] === 'defeat' && $r['turns'] > 24))) / $n); }
+            $S('board') / max(1, $S('t')), $S('hand') / max(1, $S('t')), 100 * $S('nolegal') / max(1, $S('t')), 100 * $T('prog_refire') / max(1e-9, $T('prog_refire') + $T('prog_root')), $T('team') / $n, $T('reaim') / $n, 100 * $T('br_me') / $n, 100 * $T('thorn_me') / $n, $T('used_me_by_me') / $n, $T('used_me_by_foe') / $n, 100 * count(array_filter($a, fn($r) => in_array($r['over'], ['stall', 'cap'], true) || ($r['over'] === 'defeat' && $r['turns'] > 24))) / $n); }
+}
+if (in_array('--bite', $argv, true)) {
+    echo "\n| Bot | Level | best move changes if ground ignored: any / costs 3+ / 8+ points | if events ignored | if both ignored | mean cost of playing blind (points a turn) | placed on sunny when it could | placed in a thorn zone when one was open | health lost to bramble / thorn | creature health lost to bramble / thorn | my sunny fires per fight (re-fires) | progress from sunny cells | creature sunny fires | rain guards me / creature | wind moves | Teamwork per fight | fights with Teamwork | top piece share of progress |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n";
+    foreach ($bots as $b) foreach ($ds as $d) { $a = $g[$b][$d]['all'] ?? null; if (!$a) continue; $S = fn($k) => array_sum(array_map(fn($r) => $r[$k] ?? 0, $a)); $T = fn($k) => array_sum(array_map(fn($r) => $r['st'][$k] ?? 0, $a)); $n = count($a); $bn = max(1, $S('bm_n'));
+        $top = 0; foreach ($a as $r) { $pk = array_filter($r['st'], fn($v, $k) => strpos($k, 'pk_') === 0, ARRAY_FILTER_USE_BOTH); $top += $pk && array_sum($pk) > 0 ? max($pk) / array_sum($pk) : 0; }
+        $bm = fn($w) => $S('bm_n') ? sprintf('%.0f%% / %.0f%% / %.0f%%', 100 * $S("bm_$w") / $bn, 100 * $S("bm3_$w") / $bn, 100 * $S("bm8_$w") / $bn) : '-';
+        printf("| %s | %s | %s | %s | %s | %s | %.0f%% | %.0f%% | %.0f%% / %.0f%% | %.0f%% / %.0f%% | %.2f (%.2f) | %.0f%% | %.2f | %.2f / %.2f | %.2f | %.2f | %.0f%% | %.0f%% |\n", $b, $d == 0 ? 'at level' : (-$d) . ' under', $bm('g'), $bm('e'), $bm('ge'), $S('bm_n') ? sprintf('%.1f', 100 * $S('bmr_ge') / $bn) : '-',
+            100 * $S('on_sun') / max(1, $S('sun_open')), 100 * $S('in_thorn') / max(1, $S('thorn_open')), 100 * $T('br_me') / $n, 100 * $T('thorn_me') / $n, 100 * $T('br_foe') / $n, 100 * $T('thorn_foe') / $n, $T('sun_me') / $n, $T('sunre_me') / $n,
+            100 * $T('prog_sun') / max(1e-9, $T('prog_refire') + $T('prog_root')), $T('sun_foe') / $n, $T('rain_me') / $n, $T('rain_foe') / $n, ($T('wind_me') + $T('wind_foe')) / $n, $T('team') / $n, 100 * count(array_filter($a, fn($r) => ($r['st']['team'] ?? 0) > 0)) / $n, 100 * $top / $n); }
+    // which piece carries the fights (share of all progress, over every fight of the bot at level)
+    foreach ($bots as $b) { $a = $g[$b][0]['all'] ?? null; if (!$a) continue; $pk = []; foreach ($a as $r) foreach ($r['st'] as $k => $v) if (strpos($k, 'pk_') === 0) $pk[substr($k, 3)] = ($pk[substr($k, 3)] ?? 0) + $v; arsort($pk); $t = max(1e-9, array_sum($pk));
+        echo "\n$b, at level, pieces by share of progress: " . implode(', ', array_map(fn($k) => sprintf('%s %.0f%%', $k, 100 * $pk[$k] / $t), array_slice(array_keys($pk), 0, 5))) . "\n"; }
 }
