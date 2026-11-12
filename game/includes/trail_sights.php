@@ -117,6 +117,7 @@ function trail_sight_lint(array $r, bool $db = true): array
         if ($k === 'nocheck' && $v !== '') $bad[] = 'nocheck takes no value';
         if ($k === 'tally' && !preg_match('/^[a-z0-9-]{2,30}$/', $v)) $bad[] = 'tally= needs a key of 2 to 30 letters, digits or -';
         if ($k === 'fpto' && !preg_match('/^[^:@]+(@[a-z0-9-]+)?(:\d+)?$/', $v)) $bad[] = 'fpto= needs Name[@village][:points]';
+        if ($k === 'take' && ($t['cond'] !== '' || $t['first'] || str_contains($t['tok'], '@'))) $bad[] = 'take= is a cost: it cannot have a condition, first: or a chance';
         if ($k === 'give') { $gs = explode(':', $v)[0]; if (!trail_sight_item_known($gs)) $bad[] = 'give= item "' . $gs . '" does not exist'; }
         if (($k === 'item' || $k === 'take') && $db) { $slug = explode(':', $v)[0]; if (!trail_sight_item_known($slug)) $bad[] = 'no item "' . $slug . '"'; }
     }
@@ -174,9 +175,15 @@ function trail_sight_state(int $uid, array $sc, array $row): array
 {
     $route = (int)substr((string)$sc['row']['map_key'], 6);
     $sec = trail_phys_sec($route, (int)$sc['st']['sec'], $sc['st']);
-    try {
-        $r = q_one('SELECT * FROM trail_sight_uses WHERE user_id = ? AND route_id = ? AND sec = ? AND slug = ?', [$uid, $route, $sec, $row['slug']]);
-    } catch (Throwable $e) { return [$row['uses'], '']; }   // table missing before Upgrade database
+    static $cache = [];   // every use row of this stretch in one query, for the request (reset after a use: trail_sight_state_reset)
+    $ck = $uid . '|' . $route . '|' . $sec;
+    if (!empty($GLOBALS['gv_sights_nocache'])) $cache = [];
+    if (!isset($cache[$ck])) {
+        try { $cache[$ck] = array_column(q('SELECT * FROM trail_sight_uses WHERE user_id = ? AND route_id = ? AND sec = ?', [$uid, $route, $sec])->fetchAll(), null, 'slug'); }
+        catch (Throwable $e) { return [$row['uses'], '']; }   // table missing before Upgrade database
+    }
+    $GLOBALS['gv_sights_state_cache'] = &$cache;
+    $r = $cache[$ck][$row['slug']] ?? null;
     if (!$r) return [$row['uses'], ''];
     static $uc = []; $u = $uc[$uid] ??= q_one('SELECT * FROM users WHERE id = ?', [$uid]);   // once per request (the tick is for the Sight list, not for money)
     $span = (int)round($row['cd'] * 144);   // game ticks are minutes: cd is tenths of a game day, so 55 = 7920 (same as trail_pickups)
@@ -218,6 +225,12 @@ function trail_sight_pick_info(array $row): ?array
     $n = max(2, min(5, (int)($c[1] ?? 3)));
     $labels = isset($c[2]) ? explode(';', $c[2]) : array_map(fn($i) => (string)($i + 1), range(0, $n - 1));
     return [$n, $labels];
+}
+
+/** Forget the cached use rows (after a use, so the next read is fresh). */
+function trail_sight_state_reset(): void
+{
+    if (isset($GLOBALS['gv_sights_state_cache']) && is_array($GLOBALS['gv_sights_state_cache'])) $GLOBALS['gv_sights_state_cache'] = [];
 }
 
 /**
@@ -317,6 +330,8 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
             db_insert('trail_sight_uses', ['user_id' => (int)$u['id'], 'route_id' => $route, 'sec' => $sec, 'slug' => $slug, 'n' => 1, 'got_at' => time(), 'got_tick' => $uu && gclock_on() ? gclock_state($uu)['tick'] : null]);
         } else q('UPDATE trail_sight_uses SET n = n + 1 WHERE id = ?', [$r['id']]);
     } catch (Throwable $e) { /* table missing before Upgrade database: no cooldown, the energy still counts */ }
+    trail_sight_state_reset();
+    if (random_int(1, 40) === 1) { try { q('DELETE FROM trail_sight_uses WHERE got_at < ?', [time() - 120 * 86400]); } catch (Throwable $e) {} }   // old cooldown rows (the longest cooldown is 40 days)
     return [true, ''];
 }
 
@@ -340,10 +355,11 @@ function trail_sight_give(array $u, array &$exp, string $slug, int $idx): array
     if (!$g) return [false, 'They do not need anything.'];
     [$gs, $gq] = array_pad(explode(':', substr($g, 5), 2), 2, '1'); $gid = (int)q_val('SELECT id FROM items WHERE slug = ?', [$gs]); $gq = max(1, (int)$gq);
     $gname = $gid ? (string)q_val('SELECT name FROM items WHERE id = ?', [$gid]) : $gs;
-    $gkey = 'give:' . substr(md5($slug . '|' . $idx . '|' . gclock_my_date()), 0, 24);   // once a day per villager row, or a cheap item could be given again and again for the rewards
-    try { if (q_val('SELECT 1 FROM trail_sight_first WHERE user_id = ? AND slug = ?', [(int)$u['id'], $gkey])) return [false, trail_sight_split_who($f['who'])[0] . ' has had what they need from you today.']; } catch (Throwable $e) { return [false, 'Not now.']; }
+    $gkey = 'give~' . substr(md5($slug . '|' . $idx), 0, 16); $dayNo = (int)floor(strtotime(gclock_my_date() . ' UTC') / 86400);   // one row per villager row, holding the day it was last given: nothing piles up
+    $last = (int)(trail_sight_tallies((int)$u['id'])[$gkey] ?? 0);
+    if ($last === $dayNo) return [false, trail_sight_split_who($f['who'])[0] . ' has had what they need from you today.'];
     if (!$gid || !give_item((int)$u['id'], $gid, -$gq)) return [false, 'You need ' . $gq . ' × ' . $gname . ' for that.'];
-    try { db_insert('trail_sight_first', ['user_id' => (int)$u['id'], 'slug' => $gkey]); } catch (Throwable $e) { /* a double click: the lock above already serialises */ }
+    try { if (q('UPDATE trail_sight_tally SET n = ? WHERE user_id = ? AND tkey = ?', [$dayNo, (int)$u['id'], $gkey])->rowCount() < 1) db_insert('trail_sight_tally', ['user_id' => (int)$u['id'], 'tkey' => $gkey, 'n' => $dayNo]); } catch (Throwable $e) { /* a double click: the user lock already serialises */ }
     gclock_charge((int)$u['id'], 'sight');
     $lines = trail_sight_pay($u, $loc, $f['rewards'], $f['who'], $now);
     exp_log($exp, '🎁 You give ' . trail_sight_split_who($f['who'])[0] . ' ' . $gq . ' × ' . $gname . '. ' . $f['line'] . ($lines ? ' (' . implode(', ', $lines) . ')' : ''));

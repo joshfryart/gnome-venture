@@ -7,6 +7,7 @@ require_once $argv[1] . '/includes/adventure.php';
 require_once $argv[1] . '/includes/trail_tiles.php';
 require_once $argv[1] . '/includes/trail_sights.php';
 $fails = 0;
+$GLOBALS['gv_sights_nocache'] = true;   // the tests change the rows under the request-scoped caches
 function ok(string $what, bool $cond, string $extra = ''): void { global $fails; echo ($cond ? '  ok   ' : '  FAIL ') . $what . ($cond ? '' : "  $extra") . "\n"; if (!$cond) $fails++; }
 echo "== data\n";
 $all = trail_sights_all();
@@ -423,6 +424,9 @@ $fxv = (string)q_val("SELECT effects FROM items WHERE slug = 'p4-decor-test'"); 
 unset($GLOBALS['gv_sight_folk_file'], $GLOBALS['gv_sight_quests_file'], $GLOBALS['gv_sight_pages_file'], $GLOBALS['gv_sight_newfolk_file'], $GLOBALS['gv_sight_items_file']);
 
 echo "== review fixes\n";
+ok('lint: take= may not have a condition, first: or a chance', count(array_filter([trail_sight_lint(['rewards' => 'take=x:1?se=winter'] + $base), trail_sight_lint(['rewards' => 'first:take=x:1'] + $base), trail_sight_lint(['rewards' => 'take=x:1@50'] + $base)], fn($r) => (bool)array_filter($r, fn($p) => str_contains($p, 'take= is a cost')))) === 3);
+ok('lint: a Sight with no cooldown is refused', (bool)array_filter(trail_sight_lint(['cd' => 0] + $base), fn($p) => str_contains($p, 'cooldown')));
+
 require_once $argv[1] . '/includes/almanac.php';
 [$aHave, $aTotal] = almanac_counts((int)$u['id']);
 $rawTotal = (int)q_val('SELECT COUNT(*) FROM encyclopedia_entries'); $sightPages = (int)q_val("SELECT COUNT(*) FROM encyclopedia_entries WHERE unlock_key LIKE 'sight:%' OR unlock_key LIKE 'sightpage:%'");
@@ -446,7 +450,7 @@ ok('a second gift the same day is refused and keeps the item', !$gg2 && str_cont
 $GLOBALS['gv_sight_folk_file'] = $w('folkgive.txt', "{$base['slug']}|Bunty Windlass@v-ca-4-2|-|100|Bunty is glad.|give=$gslug2:1,xp=7\n");
 $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $exp = active_expedition((int)$u['id']);
 $sc = trail_scene($exp); $sc['x'] = $spot[0]; $sc['y'] = $spot[1]; trail_save($sc);
-q("DELETE FROM trail_sight_first WHERE slug LIKE 'give:%'");
+q("DELETE FROM trail_sight_tally WHERE tkey LIKE 'give~%'");
 [$gv1] = trail_sight_give($u, $exp, $base['slug'], 0); save_exp($exp); $exp = active_expedition((int)$u['id']);
 [$gv2, $gvm2] = trail_sight_give($u, $exp, $base['slug'], 0);
 ok('give= pays once a day (a second give is refused, nothing is taken)', $gv1 && !$gv2 && str_contains((string)$gvm2, 'today'), (string)$gvm2);

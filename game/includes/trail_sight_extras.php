@@ -746,6 +746,15 @@ function trail_sight_quests_box(array $u): string
 function trail_sights_folk_on_map(array $u, array $exp, array $sc, array $marks, bool $consume = false): array
 {
     if (!$marks || ($sc['st']['phase'] ?? '') !== 'section') return [];
+    static $memo = []; $mk = (int)$u['id'] . '|' . (int)($sc['row']['id'] ?? 0) . '|' . (int)$sc['x'] . ',' . (int)$sc['y'] . '|' . md5((string)($sc['old'] ?? ''));
+    if (!$consume && isset($memo[$mk]) && empty($GLOBALS['gv_sights_nocache'])) return $memo[$mk];   // the Trail page asks twice (map and pop-ups): one answer per request
+    $out = trail_sights_folk_on_map_build($u, $exp, $sc, $marks, $consume);
+    if (!$consume) $memo[$mk] = $out;
+    return $out;
+}
+
+function trail_sights_folk_on_map_build(array $u, array $exp, array $sc, array $marks, bool $consume): array
+{
     $loc = q_one('SELECT * FROM locations WHERE id = ?', [(int)($exp['from_id'] ?? 0)]) ?: [];
     $loc += ['landscape' => 'grassland', 'name' => ''];
     $now = trail_sight_now($loc, $sc, $u);
@@ -794,7 +803,7 @@ function trail_sight_folk_pic(string $who): ?array
 }
 
 /** The card of a villager met on the road (the pop-up when you tap them on the map): who they are, how well you know them, Chat and Gift. $e = a trail_sights_folk_on_map entry. */
-function trail_sight_folk_card_html(array $u, array $e): string
+function trail_sight_folk_card_html(array $u, array $e, ?array $sc = null): string
 {
     [, , , $name, , $kind, $id, , $slug, $who] = $e;
     $uid = (int)$u['id'];
@@ -813,6 +822,7 @@ function trail_sight_folk_card_html(array $u, array $e): string
     $key = $kind . $id;
     $h = '<div class="sgcard sgfolkcard"><div class="sgbody"><h4>' . e($name) . '</h4><p class="muted">' . e($meta) . '</p>' . ($bio !== '' ? '<p class="help">' . e($bio) . '</p>' : '') . ($lvl !== '' ? '<p>💛 ' . e((string)$lvl) . '</p>' : '')
         . '<p class="help">' . e($name) . ' is out and about by ' . e(trail_sight_label($slug)[0]) . '.</p>'
+        . ($sc && ((int)$sc['x'] !== (int)$e[0] || (int)$sc['y'] !== (int)$e[1]) ? '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="trail_go"><button class="btn alt" name="go" value="' . (int)$e[0] . ',' . (int)$e[1] . '">👣 Walk over</button></form> ' : '')
         . '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="sightchat"><input type="hidden" name="fk" value="' . e($key) . '"><input type="hidden" name="slug" value="' . e($slug) . '"><button class="btn">💬 Chat</button></form>';
     $gifts = [];
     try { $gifts = array_slice(stop_giftable($uid), 0, 40); } catch (Throwable $ex) {}
