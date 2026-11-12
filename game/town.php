@@ -119,13 +119,7 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
       <?= scene_place_banner($node, $node['name']) ?>
     <?php endif; ?>
     <?php require_once __DIR__ . '/includes/destination.php'; echo dest_resume_html($u);   // v1.0.4: carry on along the route ?>
-    <?php $eb = $_SESSION['explore_back'] ?? null;
-    if ($eb && (int)$eb['place'] === (int)$node['id'] && ($ebFrom = q_one('SELECT name FROM locations WHERE id = ?', [$eb['from']]))): // v0.7.61 ?>
-      <div class="box notice comeback">🌿 You found this place while exploring off the path.
-        <form method="post" action="<?= e(url('adventure.php')) ?>" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="explore_back"><button class="btn small">🌿 Back to exploring</button></form>
-        <form method="post" action="<?= e(url('adventure.php')) ?>" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="explore_road"><button class="btn small alt">🛣️ Back to the road at <?= e($ebFrom['name']) ?></button></form>
-        <span class="help">Both are free.</span></div>
-    <?php endif; ?>
+    <?php require_once __DIR__ . '/includes/explore.php'; echo explore_comeback_html($node); ?>
     <?php if ($node['kind'] === 'village'): ?>
       <?php /* v2.0.65: the "Rest stop · a small village on the road …" line is gone: the place header says rest stop, and the road is a chip there */ ?>
       <?= local_panel($u, $node) ?>

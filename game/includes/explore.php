@@ -415,6 +415,17 @@ function explore_visit(array $u, array &$exp, int $placeId): bool
     return true;
 }
 
+/** v0.7.61: the "Back to exploring / Back to the road" box, shown on a place you found off the path (town.php and the Here page). */
+function explore_comeback_html(array $node): string
+{
+    $eb = $_SESSION['explore_back'] ?? null;
+    if (!$eb || (int)$eb['place'] !== (int)$node['id'] || !($from = q_one('SELECT name FROM locations WHERE id = ?', [$eb['from']]))) return '';
+    $f = fn(string $do, string $cls, string $label): string => '<form method="post" action="' . e(url('adventure.php')) . '" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="' . $do . '"><button class="btn small' . $cls . '">' . $label . '</button></form>';
+    return '<div class="box notice comeback">🌿 You found this place while exploring off the path. '
+        . $f('explore_back', '', '🌿 Back to exploring') . ' ' . $f('explore_road', ' alt', '🛣️ Back to the road at ' . e((string)$from['name']))
+        . ' <span class="help">Both are free.</span></div>';
+}
+
 /** v0.7.61: from a place found off the path, slip back into the wilds where you were (free) or back to the road. */
 function explore_come_back(array $u, string $how): array
 {
