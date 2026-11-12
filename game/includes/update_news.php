@@ -97,6 +97,9 @@ const UPDATE_NEWS = [
         . "[*][b]No more hiding[/b]: villagers out at a landmark are never drawn behind or on top of its picture, and they never stand on a find, a gate or the way on.\n"
         . "[*][b]Chatting[/b] with a villager who has just gone on their way now says so in your journal.\n"
         . "[*][b]Smoother[/b]: Trail pages with landmarks do a lot less work on each step, and a villager's request for an item can only be filled once a day.[/list]"],
+    '2.6.71' => ['📜 Update 2.6.71: a tidier Journey tab',
+        "[list][*][b]Journey[/b] on your Tasks page is split into three tabs: [b]🧭 Story[/b], [b]🔎 Sights[/b] and [b]🔨 Repairs[/b], each with a count.\n"
+        . "[*][b]Sight quests[/b] are now tidy cards with a progress bar. Tap one to open or close it; the next step is in bold.[/list]"],
 ];
 
 /** Posts the news for every version after $from up to this one (skips any already posted). */
