@@ -816,7 +816,7 @@ Built in the real engine (`game/includes/pfboard.php`, `tools/pfengine.js`), beh
 - **Life:** Sun, Rain, Wind 2 rounds; Bramble, Mud, Thornburst 3. It counts from the round after the piece is placed.
 - **Environment pieces are pieces:** they link and fire in your chains and the creature's, count for the chain length, and a chain of 3 or more uses them up like any piece (decided: yes, as recommended). In a chain of 2 they stay and can fire again.
 - **The effect goes to the side that started the chain.** Sun: that side's pieces in the chain x2 (every type, once). Bramble: the other side loses 10% of its maximum (guard does not help). Rain: guard worth 15% of the firing side's maximum. Wind: pushes one piece one cell (below). Thornburst: the firing side loses 10%. Mud: nothing.
-- **Wind, exactly:** the piece carries an arrow, set when it is placed (toward a neighbour that has a free cell behind it, if there is one; else any side). When it fires, the piece next to it on the arrow's side slides one cell further along the arrow if that cell is on the board and free; otherwise nothing moves. It moves your pieces, the creature's and other environment pieces; never the blank. A pushed piece still fires in that chain. One piece fires once per chain and each side places one piece a turn, so there are no wind loops.
+- **Wind, exactly:** the piece carries an arrow, set when it is placed (toward a neighbour that has a free cell behind it, if there is one; else any side). When it fires, the piece next to it on the arrow's side slides one cell further along the arrow if that cell is on the board and free; otherwise nothing moves. It moves your pieces, the creature's and other environment pieces; never the blank. A pushed piece still fires in that chain. A piece fires once per chain and only a placement starts a chain, so there are no wind loops.
 - **Mud, exactly:** four flat sides. Any piece fits against it, nothing links to it, so no chain runs into or through it. It never fires, is never used up, and leaves after 3 rounds.
 - **Edges:** each firing piece has two knobs, two holes and all three families (table in the handover). The four core pieces link to each of them from 2 sides or more; over the whole catalogue 14-56% of pieces link per side.
 - **Combos and Teamwork:** no combo through an environment piece; Teamwork unchanged.
@@ -906,7 +906,7 @@ Share of turns where the bot's pick with the environment pieces' effects hidden 
 | Medium only: harder hits, shorter bar (0.80, 0.80) | medium 67 / 63 / 5.7; 4 under 26% (look 46%) | |
 
 - The environment is worth 1 to 2 turns of fight length (a planner: 6.2 against 8.4 turns on large boards) and little in win rate for a careless player (its Thornbursts cancel its Brambles).
-- With environment pieces whose edges have a wild side (tried): no passes, but Mud then links and fires, and the chain bot drops to 46-51% (it runs into every Thornburst). Not used.
+- With environment pieces whose edges have a wild side (tried): no passes, but Mud then links and fires, and the chain bot lost up to 19 win points on medium to boss boards (it runs into every Thornburst). Not used.
 
 ### Degenerate play
 - **Environment camping:** no. A piece that had already fired fires again 0.1-0.5 times a fight; Sun lives 2 rounds, and any chain of 3 uses the piece up. The chain bot's chains are 3.0-3.3 pieces long, so most environment pieces fire once.
