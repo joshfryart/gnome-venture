@@ -526,7 +526,7 @@ if ($withDb) {
     foreach ($rooms as [, , $ks]) foreach ($ks as $k) $listed[$k] = 1;
     require_once $game . '/includes/games.php';
     ok('treehouse: every game of GAMES sits in a room', array_diff(array_keys(GAMES), array_keys($listed)) === [], implode(',', array_diff(array_keys(GAMES), array_keys($listed))));
-    ok('treehouse: contest hall links to the Contests tab', str_contains($th, 'games.php?tab=contests'));
+    ok('treehouse: contest hall has Contests and Leaderboards tabs', str_contains($th, 'data-chtab="contests"') && str_contains($th, 'data-chtab="boards"'));   // 2.6.64: tabs, squares link to each contest
     ok('treehouse: CSP safe', !preg_match('/\sstyle=|<script|\son[a-z]+=/i', $th));
     $guestL = here_layouts_all()['treehouse']; ok('treehouse layout has 24 perches', count($guestL['pals']) === 24);
     ok('gnav_page_open: off for a player with the flag off', (function () { sset('gnav_craft', '0'); return !gnav_on() || setting('gnav_craft') !== '1'; })());
@@ -620,7 +620,7 @@ if ($withDb) {
     q("DELETE FROM here_layouts WHERE layout_key = 'treehouse'");
     q("UPDATE ppal_found SET status = 'home' WHERE user_id = ?", [$uid]); q('DELETE FROM ppal_jobs WHERE user_id = ?', [$uid]);
     ok('perf: pj_pals, ppal_found_map and the view do not break with a removed pal key', (function () use ($uid, $u) { q("INSERT INTO ppal_found (user_id, pal_key, pic_id, found_at, times, active) VALUES (?, 'no-such-pal', 1, ?, 1, 0)", [$uid, now()]); $h = treehouse_view($u); q("DELETE FROM ppal_found WHERE pal_key = 'no-such-pal'"); return str_contains($h, 'class="hubsvg'); })());
-    ok('Contest hall card: this week\'s high scores and the Contests tab', str_contains($th, 'This week’s high scores') && str_contains($th, 'games.php?tab=contests'));
+    ok('Contest hall card: Leaderboards tab with this week\'s top scores, Contests tab', str_contains($th, 'data-chpanel="boards"') && str_contains($th, 'Top three per game') && str_contains($th, 'data-chpanel="contests"'));
     ok('locked room: a closed Puzzle Room has shutters and says so', (function () use ($u) { sset('puzzles_open', '0'); $h = treehouse_view($u); sset('puzzles_open', '1'); return str_contains($h, 'class="shutter"') && str_contains($h, 'The Puzzle Room is still being tidied'); })());
     q('UPDATE users SET level = 1 WHERE id = ?', [$uid]);
     ok('level-gated game: Marrow says when it opens', str_contains(treehouse_view(me()), 'Opens at level ' . (int)setting('marrow_min_level')));

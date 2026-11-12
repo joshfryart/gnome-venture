@@ -25,6 +25,7 @@ chk "placeholder art for the four new kinds exists" "$([ -f $GAME/assets/img/act
 echo "== playing the kinds (a Maplewold stop)"
 SID=$(db "SELECT id FROM users WHERE username='sprout'" | tr -d ' ')
 LOC=$(db "SELECT l.id FROM locations l JOIN regions r ON r.id=l.region_id WHERE l.kind='village' AND r.code='NA' ORDER BY l.id LIMIT 1" | tr -d ' ')
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('game_clock_on','0')"   # stop opening hours follow the game clock now; these checks run at any hour
 dbx "UPDATE users SET level=8, energy=60, coins=1000, location_id=$LOC WHERE id=$SID"
 OUT=$(phpx '$SID=(int)'$SID'; $u0=q_one("SELECT * FROM users WHERE id='$SID'"); $loc=q_one("SELECT * FROM locations WHERE id='$LOC'");
   $try = function(string $slug, array $in) use ($SID, $loc) {

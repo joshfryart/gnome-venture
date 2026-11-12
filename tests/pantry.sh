@@ -124,7 +124,7 @@ readyall; m=$(post crafting.php "$PT" -d do=jar_collect_all); has "Collected" "$
 page "$PT"; chk "7 free jars shown" "$(grep -o 'title="Empty jar"' /tmp/pk.html | wc -l | tr -d ' ')" 7
 
 echo "== Harvest Fair Preserves class (page)"
-page fair.php; has "Preserves" "$(grep -o '<h2>🫙 Preserves</h2>' /tmp/pk.html | head -1 | sed 's/<[^>]*>//g')" "Fair page has the class"; has "$(db "SELECT label FROM fair_best WHERE user_id=$UID_ AND cat='preserve'")" "$(grep -o 'Your best: <b>[^<]*' /tmp/pk.html | tail -1)" "your best is a jar"
+page fair.php; has "Preserves" "$(grep -o '<h3>🫙 Preserves</h3>' /tmp/pk.html | head -1 | sed 's/<[^>]*>//g')" "Fair page has the class"; has "$(db "SELECT label FROM fair_best WHERE user_id=$UID_ AND cat='preserve'")" "$(grep -o 'Your best: <b>[^<]*' /tmp/pk.html | tail -1)" "your best is a jar"
 m=$(post fair.php fair.php -d do=enter -d cat=preserve); has "Entered in the Preserves class" "$m" "entered"
 chk "entry has a label, no plant" "$(db "SELECT label||'/'||plant_id FROM fair_entries WHERE user_id=$UID_ AND cat='preserve'")" "$(db "SELECT label FROM fair_best WHERE user_id=$UID_ AND cat='preserve'")/0"
 

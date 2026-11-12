@@ -7883,7 +7883,7 @@ button.hpick-it:focus-visible { outline: 3px solid var(--focus); outline-offset:
 /* 2.6.65: Almanac chapter chips and bigger section tiles */
 .almnav { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 6px 0 10px; } .almnav a { flex: none; white-space: nowrap; }
 .contents .secgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 10px 0 14px; }
-@media (min-width: 720px) { .contents .secgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 721px) { .contents .secgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .contents .seccard { align-items: center; text-align: center; padding: 14px 8px; border-radius: 14px; } .contents .seccard .secicon { font-size: 2rem; line-height: 1; }
 
 /* 2.6.65: Fair class squares and sheets */

@@ -9,6 +9,7 @@ require_once $argv[1] . '/includes/hollow_clock.php';
 $fails = 0;
 function ok(string $what, bool $cond, string $extra = ''): void { global $fails; echo ($cond ? '  ok   ' : '  FAIL ') . $what . ($cond ? '' : "  $extra") . "\n"; if (!$cond) $fails++; }
 function cfg(array $kv): void { foreach ($kv as $k => $v) set_setting($k, (string)$v); setting('__reload__'); }
+cfg(['game_clock_on' => '0']);   // stop opening hours follow the game clock now; these checks run at any hour
 function me(): array { return q_one("SELECT * FROM users WHERE username = 'sprout'"); }
 function stopOfType(string $type, int $skip = 0): array {
     $rows = array_values(array_filter(q("SELECT * FROM locations WHERE kind = 'village' ORDER BY id")->fetchAll(), fn($l) => stop_type_of($l) === $type));
@@ -55,9 +56,9 @@ ok('a meter drains with the days (3 days, ' . STOP_METER_DECAY . ' a day)', stop
 ok('no perk yet, so no extra slot', stop_perk_bonus($lu, $lid) === 0 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc));
 [$v, $filled] = stop_meter_add($lu, $lid, 'cheer', 120);
 ok('a full meter fills, restarts, and gives a perk', $filled === 'cheer' && $v === STOP_METER_AFTER && isset(stop_perks($lu, $lid)['cheer']));
-ok('the perk is one more thing per visit', stop_slots($lkLoc, $lu) === stop_slots($lkLoc) + 1);
+ok('2.6.33: a full meter no longer adds a slot (perks are the player\'s now)', stop_slots($lkLoc, $lu) === stop_slots($lkLoc));
 stop_meter_add($lu, $lid, 'larder', 120);
-ok('perks stack: two full meters give two more', stop_perk_bonus($lu, $lid) === 2 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc) + 2);
+ok('two full meters still add no slots', stop_perk_bonus($lu, $lid) === 0 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc));
 q('DELETE FROM stop_prog WHERE user_id = ? AND k = ?', [$lu, 'perk:larder']);
 ok('the perk is only at that stop', stop_perk_bonus($lu, $lid + 99999) === 0);
 ok('the perk ends after its days', (function () use ($lu, $lid) { stop_prog_set($lu, $lid, 'perk:cheer', 1, ['until' => gmdate('Y-m-d', strtotime(today() . ' 12:00:00 UTC -1 days'))]); return stop_perk_bonus($lu, $lid) === 0; })());

@@ -136,11 +136,11 @@ echo -n "  wear owned hat + beard dyes: "; postf $A gnome.php gnome.php -d do=dy
 chk "hat dye saved" "$(db "SELECT hat_dye FROM users WHERE id=$SID")" "#e75480"
 chk "beard saved" "$(db "SELECT beard_color FROM users WHERE id=$SID")" "#d4af37"
 curl -s -b $A "$BASE/gnome.php?tab=stats" > /tmp/s97.html
-# v2.0.x: avatars are tinted pixel sprites; the dye shows up as one tint filter (id tint-<hex>-<id>) per avatar drawn (header, nav, picker)
-chk "avatars drawn with the hat dye and beard dye (3 avatars)" "$(grep -o 'id="tint-e75480-' /tmp/s97.html | wc -l)|$(grep -o 'id="tint-d4af37-' /tmp/s97.html | wc -l)" "3|3"
-chk "dyed hat beats the calling colour" "$(dbx "UPDATE users SET calling='bloomcaller' WHERE id=$SID"; curl -s -b $A "$BASE/gnome.php?tab=stats" | grep -o 'id="tint-e75480-' | wc -l)" 3
+# v2.5.33: avatars are the 2.5D gnome strip; the dye is the h= (hat) and b= (beard) colour in its gnome_sprite.php URL, one per avatar drawn (header, nav, picker)
+chk "avatars drawn with the hat dye and beard dye (3 avatars)" "$(grep -o 'h=e75480' /tmp/s97.html | wc -l)|$(grep -o 'b=d4af37' /tmp/s97.html | wc -l)" "3|3"
+chk "dyed hat beats the calling colour" "$(dbx "UPDATE users SET calling='bloomcaller' WHERE id=$SID"; curl -s -b $A "$BASE/gnome.php?tab=stats" | grep -o 'h=e75480' | wc -l)" 3
 dbx "UPDATE users SET calling=NULL WHERE id=$SID"
-chk "other gnomes see the dye (profile)" "$(curl -s -b $B "$BASE/profile.php?id=$SID" | grep -o 'id="tint-e75480-' | wc -l)" 1
+chk "other gnomes see the dye (profile)" "$(curl -s -b $B "$BASE/profile.php?id=$SID" | grep -o 'h=e75480' | wc -l)" 1
 echo -n "  back to no dye + a starter beard colour: "; postf $A gnome.php gnome.php -d do=dye -d hat=none -d beard='#f4f1ea'
 chk "hat dye cleared" "$(db "SELECT COALESCE(hat_dye,'none')||' '||beard_color FROM users WHERE id=$SID")" "none #f4f1ea"
 chk "still owned" "$(db "SELECT COUNT(*) FROM sink_owned WHERE user_id=$SID AND kind='dye'")" 3

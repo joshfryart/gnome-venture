@@ -169,7 +169,7 @@ R=$(post adventure.php -d do=trail_go -d go=0,0)
 get adventure.php >/dev/null
 chk "a tap on a tile nobody may walk is refused, page still fine" "$(grep -q 'class="tilemap' $TD/here-p.html || grep -q 'encounter' $TD/here-p.html && echo 1)"
 R=$(post adventure.php -d do=trail_next)
-chk "Continue before the exit is refused (still section 1)" "$([[ $(cli tilego | tail -1) == *" section 0 "* || $(cli tilego | tail -1) == *" 0 "* ]] && echo 1)" "$(cli tilego | tail -1)"
+chk "Continue before the exit is refused (still section 1)" "$([[ $(cli tilego | tail -1) == *" section 1 "* ]] && echo 1)" "$(cli tilego | tail -1)"   # sections are numbered from 1; a refused Continue leaves it at 1
 cli set gnav_tiles 0 >/dev/null; get adventure.php >/dev/null
 chk "a tile walk in progress stays a tile walk when gnav_tiles is switched off" "$(grep -q 'class="tilemap' $TD/here-p.html && echo 1)"
 cli set gnav_tiles 1 >/dev/null

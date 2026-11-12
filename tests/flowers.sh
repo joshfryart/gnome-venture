@@ -14,6 +14,7 @@ get() { curl -s -c $S -b $S "$BASE/$1" -o $T/p.html; }
 post() { local page=$1; shift; get "$page"; curl -s -c $S -b $S -X POST "$BASE/$page" --data-urlencode "csrf=$(csrf $T/p.html)" "$@" -o $T/post.html; get "$page"; }
 SID=$(db "SELECT id FROM users WHERE username='sprout'")
 dbx "UPDATE users SET onboarded=1, tour_step=0, coins=5000, energy=100, level=10 WHERE id=$SID"
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('game_clock_on','0')"   # these are the real-time timers (drying rack, florist shift); the game clock is on by default now
 item() { db "SELECT id FROM items WHERE slug='$1'"; }
 qty() { db "SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id=$SID AND item_id=$1"; }
 for s in damask-rose dahlia cosmos lavender chamomile bluebell dutch-tulip; do dbx "INSERT OR REPLACE INTO user_items (user_id,item_id,qty) SELECT $SID,id,4 FROM items WHERE slug='cut-$s'"; done

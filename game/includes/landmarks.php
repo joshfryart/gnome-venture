@@ -487,7 +487,7 @@ function lair_victory(array $u, array &$exp): void
     $exp['status'] = 'done';
     if (function_exists('trail_sight_quest_event') || is_file(__DIR__ . '/trail_sights.php')) {   // v2.6.68: a Trail Sights quest line may ask for a lair won (@boss)
         require_once __DIR__ . '/trail_sights.php';
-        foreach (trail_sight_quest_event($u, 'boss', (string)$lm['slug']) as $ql) exp_log($exp, $ql);
+        foreach (trail_sight_quest_event($u, 'boss', (string)($lm['loc_slug'] ?? '')) as $ql) exp_log($exp, $ql);
     }
 }
 
