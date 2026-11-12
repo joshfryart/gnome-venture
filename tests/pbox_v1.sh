@@ -53,7 +53,7 @@ echo "== flag off: the old pages, byte for byte"
 OLD=ba9c416c   # the commit before stage C
 if git -C "$ROOT" cat-file -e $OLD^{commit} 2>/dev/null; then
   ck "pfboard.js, pfight.js, pbox.js, pfight.css, pfparts.js are untouched since stage B" "$(git -C "$ROOT" diff --stat $OLD -- game/assets/pfboard.js game/assets/pfight.js game/assets/pbox.js game/assets/pfight.css game/assets/pfparts.js | wc -l | tr -d ' ')" "0"
-  T0=$(mktemp -d); git -C "$ROOT" archive $OLD game | tar -x -C "$T0"; GAME0=$T0/game; mkdir -p "$GAME0/data"; PORT0=$((PORT+1)); BASE0=http://127.0.0.1:$PORT0
+  T0=$(mktemp -d); git -C "$ROOT" archive $OLD game | tar -x -C "$T0"; GAME0=$T0/game; mkdir -p "$GAME0/data"; PORT0=$((PORT+500)); BASE0=http://127.0.0.1:$PORT0
   php -d session.save_path=/tmp -d display_errors=1 -S 127.0.0.1:$PORT0 -t "$GAME0" "$ROUTER" >/dev/null 2>&1 & PID0=$!; sleep 1
   C1=$C; C=$(mktemp); install $BASE0 $GAME0; C0=$C; C=$C1
   for G in "$GAME" "$GAME0"; do php -d display_errors=1 "$HERE/advforce.php" "$G" >/dev/null 2>&1; php -r '$p=new PDO("sqlite:'$G'/data/game.sqlite"); $p->exec("UPDATE users SET energy=50, game_minute=600 WHERE username=\"sprout\""); $e=$p->query("SELECT id FROM expeditions ORDER BY id DESC LIMIT 1")->fetchColumn(); $c=$p->query("SELECT id, hp FROM creatures WHERE level <= 3 ORDER BY id LIMIT 1")->fetch(PDO::FETCH_NUM); $pf=["type"=>"creature","id"=>(int)$c[0],"lv"=>0,"sp"=>100,"hpp"=>100,"hp"=>(int)$c[1],"max"=>(int)$c[1],"bark"=>0,"poison"=>0,"used"=>false]; $p->prepare("UPDATE expeditions SET encounter=? WHERE id=?")->execute([json_encode($pf), $e]);'; done
