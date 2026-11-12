@@ -187,7 +187,7 @@ function pfb_env_fire(array &$s, array $p, string $rb): array
     elseif ($kind === 'wind') {   // the piece next to it on the arrow's side slides one cell further along the arrow, if that cell is on the board and free (the blank never moves)
         $d = (string)($t['dir'] ?? 'R'); [$dx, $dy] = PFB_SIDE[$d]; $e['dir'] = $d;
         $x = $p['x'] + $dx; $y = $p['y'] + $dy; $nx = $x + $dx; $ny = $y + $dy; $q = pfb_at($s, $x, $y);
-        if ($q && $q['by'] !== 'none' && $nx >= 0 && $ny >= 0 && $nx < pfb_w($s) && $ny < pfb_h($s) && !isset($s['cell']["$nx,$ny"])) {
+        if (empty($v1['nowind']) && $q && $q['by'] !== 'none' && $nx >= 0 && $ny >= 0 && $nx < pfb_w($s) && $ny < pfb_h($s) && !isset($s['cell']["$nx,$ny"])) {
             unset($s['cell']["$x,$y"]); $s['cell']["$nx,$ny"] = $q['id']; $s['pcs'][$q['id']]['x'] = $nx; $s['pcs'][$q['id']]['y'] = $ny;
             $e['moved'] = ['id' => $q['id'], 'by' => $q['by'], 'n' => $q['tile']['n'], 'x' => $nx, 'y' => $ny];
         }

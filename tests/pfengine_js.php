@@ -87,7 +87,7 @@ function queries(array $s): array
 function digest(array $s): array
 {
     $k = fn(array $a) => array_map(fn($t) => $t['k'] . ':' . $t['v'], $a);
-    return ['rng' => $s['rng'], 'md' => $k($s['me']['draw']), 'mx' => $k($s['me']['discard']), 'fh' => $k($s['foe']['hand']), 'fd' => $k($s['foe']['draw']), 'fx' => $k($s['foe']['discard']), 'held' => $s['me']['held'] ?? null];
+    return ['rng' => $s['rng'], 'md' => $k($s['me']['draw']), 'mx' => $k($s['me']['discard']), 'fh' => $k($s['foe']['hand']), 'fd' => $k($s['foe']['draw']), 'fx' => $k($s['foe']['discard']), 'held' => $s['me']['held'] ?? null] + (isset($s['env']) ? ['ed' => $k($s['env']['draw']), 'ex' => $k($s['env']['discard'])] : []);   // 2.6.75: the environment's deck
 }
 function noNonce(array $s): array { unset($s['nonce']); return $s; }
 function slim(array $v): array { unset($v['combos']); return $v; }   // the combo table never changes; it is checked once in the header
@@ -108,7 +108,7 @@ foreach ([[$st, 'bloomcaller', 2, [], ['soothe', 'jab', 'nonexistent', 'swing'],
           [$st, '', 1, $pals, [], [], true, ['swing', 'pierce', 'dodge', 'rest', 'charm', 'snack', 'bark', 'nothing']], [$st, 'wayfinder', 1, [], pf_unlocks(16), [], true, null]] as $a) {
     $decks[] = ['args' => $a, 'deck' => pf_player_deck(...$a)];
 }
-out(['hdr' => true, 'tiles' => pf_tiles(), 'combos' => PF_COMBOS, 'tags' => PF_TAGS, 'mods' => PF_MODS, 'rounds' => $rounds, 'crc' => $crc, 'decks' => $decks]);
+out(['hdr' => true, 'tiles' => pf_tiles(), 'combos' => PF_COMBOS, 'tags' => PF_TAGS, 'mods' => PF_MODS, 'rounds' => $rounds, 'crc' => $crc, 'decks' => $decks, 'env' => pfb_env_table(), 'envdecks' => array_map(fn($a) => [$a, pfb_env_deck(...$a)], [['small', ''], ['medium', 'SEA'], ['large', 'NA'], ['boss', 'ESA'], ['odd', 'nowhere']])]);
 
 // ---- fights
 $die = ['small' => 4, 'medium' => 6, 'large' => 8, 'boss' => 10];
@@ -120,9 +120,9 @@ foreach (file(__DIR__ . '/../game/includes/data/creatures.txt', FILE_IGNORE_NEW_
 $nf = 0; $na = 0;
 // 'blank' = the blank-centre variant (opt blank + a hidden start), played by the single bot. 2.6.74: 'v1' = the v1 board rules with the blank opening (single bot, flips when stuck);
 // 'v1b' = v1 with the builder bot and made-up sources (Teamwork); 'v1chaos' = v1 with random moves, random flips and random rule switches
-foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33], ['blank', 44], ['v1', 55], ['v1b', 66], ['v1chaos', 77], ['v1d', 88]] as [$mode0, $seed]) {   // 'v1d' (stage B) = v1 with the deck model: the layered creature deck (class base 4 + region + size extras + 3 unique, creature tags) against a deck-model deck (tool pieces wear)
+foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33], ['blank', 44], ['v1', 55], ['v1b', 66], ['v1chaos', 77], ['v1d', 88], ['v1old', 99]] as [$mode0, $seed]) {   // 2.6.75: v1 fights have ENVIRONMENT PIECES; 'v1old' = a fight started under 2.6.74 (ground and events), which must still play the same   // 'v1d' (stage B) = v1 with the deck model: the layered creature deck (class base 4 + region + size extras + 3 unique, creature tags) against a deck-model deck (tool pieces wear)
     mt_srand($seed * 1000 + $ci);
-    $v1 = str_starts_with($mode0, 'v1'); $mode = ['v1' => 'blank', 'v1b' => 'builder', 'v1chaos' => 'chaos', 'v1d' => 'blank'][$mode0] ?? $mode0;
+    $v1 = str_starts_with($mode0, 'v1'); $mode = ['v1' => 'blank', 'v1b' => 'builder', 'v1chaos' => 'chaos', 'v1d' => 'blank', 'v1old' => 'blank'][$mode0] ?? $mode0;
     if ($v1 && $mode0 !== 'v1' && $mode0 !== 'v1d' && ($ci + ($mode0 === 'v1b' ? 0 : 1)) % 2) continue;   // half the creatures each, to keep the run short
     $opt = $mode === 'blank' ? ['blank' => true] : []; $mods = false;
     if ($mode === 'chaos') {
@@ -146,10 +146,13 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
     if ($v1) {
         $opt['v1'] = true;
         if ($mode0 === 'v1chaos') {
-            $opt['v1'] = [['events' => 0], ['ground' => 0], ['limit' => 0], ['limit' => 4, 'foe_x' => 1.3], ['aim' => 0], ['edges' => 0], ['flip' => 0, 'life' => 0], ['nev' => 3, 'thorn' => 0.3, 'bramble' => 0.25], ['team2' => 2, 'team3' => 3, 'bar_x' => 0.8], true][mt_rand(0, 9)];
+            $old = ['env' => 0, 'ground' => 1, 'events' => 1];
+            $opt['v1'] = [$old + ['nev' => 3, 'thorn' => 0.3, 'bramble' => 0.25], ['env' => 0, 'events' => 1], ['limit' => 0], ['limit' => 4, 'foe_x' => 1.3], ['aim' => 0], ['edges' => 0], ['flip' => 0, 'life' => 0], ['envn' => 2, 'thorn' => 0.3, 'bramble' => 0.25, 'rain' => 0.3, 'th_foe' => 0.5], ['team2' => 2, 'team3' => 3, 'bar_x' => 0.8, 'sun' => 3], ['envn' => 3, 'limit' => 0], $old, true][mt_rand(0, 11)];
             if (mt_rand(0, 1)) $opt['blank'] = true;
         }
         if ($mode0 !== 'v1' && $mode0 !== 'v1d') foreach ($me['deck'] as $i => $t) { $me['deck'][$i]['src'] = ['pal', 'tool', 'crop', 'craft', 'region'][($i + $ci) % 5]; if ($i % 4 === 0) $me['deck'][$i]['life'] = 2 + ($i + $ci) % 3; if ($i % 7 === 3) $me['deck'][$i]['edges'] = false; if ($i % 7 === 5) { $me['deck'][$i]['col'] = 'mind'; $me['deck'][$i]['up'] = false; } }
+        if ($mode0 === 'v1old') $opt['v1'] = ['env' => 0, 'ground' => 1, 'events' => 1];
+        if ($mode0 !== 'v1d' && $ci % 2 === 0) $c['region'] = array_keys(pfb_env_table()['regions'])[$ci % 14];   // the region leans the environment's deck
         if ($ci % 3 === 0 && $mode0 !== 'v1d') $c['class'] = ['Critter', 'Water', 'Bird', 'Plant / Fungus', 'Reptile / Amphibian', 'Beast'][$ci % 6];
     }
     $s = pfb_new($me, $c, $seed + $c['level'], $opt);

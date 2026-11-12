@@ -163,7 +163,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
     }
     $rp0 = ['bar' => round((float)$s['bar']['now'], 1), 'fh' => round((float)$s['fh']['now'], 1), 'hp' => (int)$s['me']['hp'], 'g' => (int)$s['me']['block']];   // where the bar and your health stood before this turn (the board page plays the turn back from here)
     $won = false;
-    $prev = !empty($s['v1']) ? ['ter' => (object)($s['ter'] ?? []), 'envs' => $s['envs'] ?? [], 'aim' => $s['foe']['plan'] ?? null] : null;   // v1 (stage C): the ground, the forecast and the aim as they stood before this turn (the page plays the turn back from there)
+    $prev = !empty($s['v1']) ? ['ter' => (object)($s['ter'] ?? []), 'envs' => $s['envs'] ?? [], 'aim' => $s['foe']['plan'] ?? null] + (!empty($s['v1']['env']) ? ['env' => pfb_view($s)['env']] : []) : null;   // 2.6.75: plus the environment's face-up piece   // v1 (stage C): the ground, the forecast and the aim as they stood before this turn (the page plays the turn back from there)
     if ($do === 'pf_run') {
         if (!pf_run($s)) { flash('You cannot run from this one.', 'err'); return false; }
     } elseif ($do === 'pfb_flip') {   // v1: flip a hand piece (free, once a turn; POST hand = its index, turn). Nothing else changes: no creature turn, the replay of the last turn stays
@@ -237,7 +237,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
             }
             exp_log($exp, $ln); $enc['last'][] = $ln;
             if ($board) $enc['replay'][] = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'by' => (string)$e['by'], 'ta' => (string)($e['ta'] ?? $e['by']), 'ln' => $ln, 'bar' => $e['barnow'] ?? null, 'fh' => $e['fhnow'] ?? null, 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'n' => (string)($e['n'] ?? ''), 't' => (string)($e['t'] ?? '')]   // the board page plays these back one at a time
-                + (isset($e['env']) ? ['env' => (string)$e['env'], 'x' => $e['x'] ?? null, 'y' => $e['y'] ?? null, 'dir' => $e['dir'] ?? null, 'moved' => $e['moved'] ?? null, 'ids' => $e['ids'] ?? null, 'me' => $e['me'] ?? 0, 'foe' => $e['foe'] ?? 0] : [])   // v1 (stage C): a terrain event: where it landed and what it did
+                + (isset($e['env']) ? ['env' => (string)$e['env'], 'x' => $e['x'] ?? null, 'y' => $e['y'] ?? null, 'dir' => $e['dir'] ?? null, 'moved' => $e['moved'] ?? null, 'ids' => $e['ids'] ?? null, 'me' => $e['me'] ?? 0, 'foe' => $e['foe'] ?? 0] + (isset($e['kind']) ? ['kind' => (string)$e['kind']] : []) + (isset($e['for']) ? ['for' => (string)$e['for']] : []) + (isset($e['guard']) ? ['guard' => (int)$e['guard']] : []) : [])   // v1 (stage C): a terrain event: where it landed and what it did
                 + (!empty($e['used']) ? ['used' => $e['used']] : []) + (!empty($e['tw']) ? ['tw' => $e['tw']] : []) + (!empty($e['sun']) ? ['sun' => 1] : []);
         }
     } else return false;
@@ -416,7 +416,7 @@ function pfight_chip_event(array $e, ?int $snap = null): array
     if (!empty($e['connect'])) return $base + ['by' => 'me', 'types' => $e['types'], 'tags' => [], 'txt' => 'joined ' . (int)$e['size'], 'tg' => null];
     if (isset($e['env'])) {   // v1: a terrain event (by 'env'): what it cost each side, or its name
         $parts = []; if (!empty($e['me'])) $parts[] = 'you -' . (int)$e['me'] . ' hp'; if (!empty($e['foe'])) $parts[] = 'creature -' . (int)round((float)$e['foe']) . ' hp';
-        return $base + ['by' => 'env', 'types' => ['env'], 'tags' => [(string)$e['env']], 'txt' => (string)$e['n'] . ($parts ? ': ' . implode(' · ', $parts) : ''), 'tg' => !empty($e['me']) ? 'me' : (!empty($e['foe']) ? 'foe' : null)];
+        return $base + ['by' => 'env', 'types' => ['env'], 'tags' => [(string)($e['kind'] ?? $e['env'])], 'txt' => (string)$e['n'] . ($parts ? ': ' . implode(' · ', $parts) : ''), 'tg' => !empty($e['me']) ? 'me' : (!empty($e['foe']) ? 'foe' : null)];
     }
     $parts = []; $tg = 'foe'; $by = (string)($e['by'] ?? 'me'); $t = (string)($e['t'] ?? 'hurt');
     if (!empty($e['tick'])) $parts[] = '-' . (int)$e['v'] . ' hp';
@@ -620,7 +620,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $data = ['start' => !empty($s['start']), 'foe' => (string)$c['name'], 'won' => $won ? (string)$s['over'] : null, 'life' => PFB_LIFE, 'tags' => PF_TAGS, 'held' => $v['held'] ?? null, 'gone' => $v['gone'] ?? [], 'snaps' => (object)$usedSn, 'bar' => $v['bar']['now'], 'barmax' => $v['bar']['max'], 'fh' => $v['fh']['now'], 'fhmax' => $v['fh']['max'], 'charmable' => !empty($v['charmable']), 'hp' => $v['hp'], 'guard' => (int)$v['block'], 'replay' => $enc['replay'] ?? [], 'replay0' => $enc['replay0'] ?? null, 'mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3], $m[2]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
     if (isset($v['v1'])) {   // the v1 board rules: ground, forecast, the creature's aim, flip, piece life (pfb_view); the page script for them is stage C
         foreach (['v1', 'round', 'ter', 'envs', 'envlog', 'aim', 'reaim', 'flip'] as $k) $data[$k] = $v[$k];
-        foreach (['status', 'wear'] as $k) if (isset($v[$k])) $data[$k] = $v[$k];   // 2.6.74 deck model: what waits on each side (creature tags), tool wear so far
+        foreach (['status', 'wear', 'env'] as $k) if (isset($v[$k])) $data[$k] = $v[$k];   // 2.6.74 deck model: what waits on each side (creature tags), tool wear so far
         foreach ($v['hand'] as $i => $t) $data['hand'][$i] += ['life' => $t['life'], 'src' => $t['src'], 'flip' => $t['flip'], 'canflip' => $t['canflip']];
         // stage C (the v1 page script, assets/pfboardv1.js): the state before the last turn for the replay, the fight tools (durability left before this fight), whose piece is a tool piece, the box link
         foreach ($v['hand'] as $i => $t) $data['hand'][$i] += ['tool' => (string)($t['tool'] ?? ''), 'rank' => (int)($t['rank'] ?? 0)];

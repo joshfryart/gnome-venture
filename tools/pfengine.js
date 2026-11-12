@@ -500,23 +500,37 @@
   var PFB_SIZE = { small: [5, 4], medium: [5, 5], large: [7, 5], boss: [7, 6] };
   var PFB_GROUND = { small: [2, 2, 1], medium: [3, 2, 1], large: [3, 3, 1], boss: [4, 3, 1] }, PFB_GROUND_DIST = [1, 2];
   var PFB_EVENTS = { small: 1, medium: 2, large: 2, boss: 2 }, PFB_EVENT_KINDS = ['sunbeam', 'creep', 'gust', 'thorn', 'puddle'];
-  var PFB_EVENT_NAME = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst', bramble: 'Bramble', poison: 'Poison' };
+  var PFB_EVENT_NAME = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst', bramble: 'Bramble', poison: 'Poison', place: 'Environment', pass: 'Environment', expire: 'Environment' };
   var PFB_USEUP = 3, PFB_SUN_MULT = 2.0, PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 1.0, PFB_THORN = 0.10, PFB_EVENT_FOE = 0.5, PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;
-  var PFB_TEAM_SRC = ['pal', 'tool', 'crop'], PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'creature'];
+  var PFB_TEAM_SRC = ['pal', 'tool', 'crop'], PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'creature', 'env'];
   var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
   var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };
   var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4, PFB_TOOL_WEAR = 2;
   var PFB_V1_FOE_MULT = { small: 0.76, medium: 0.56, large: 0.42, boss: 0.53 }, PFB_V1_BAR_MULT = { small: 1.0, medium: 1.3, large: 1.6, boss: 1.0 };
+  // 2.6.75 ENVIRONMENT PIECES: the environment is a third player; after the creature's turn it places one piece from its own deck, its next piece lies face up a round ahead.
+  // PFB_ENV_ROWS is a copy of game/includes/data/pf_env.txt (key, name, kind, edges L,R,T,B, life, copies small/medium/large/boss, blurb); tests/pfengine_js.sh compares the two.
+  var PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'], PFB_ENV_N = { small: 1, medium: 1, large: 1, boss: 1 }, PFB_RAIN = 0.15, PFB_THORN_FOE = 1.0;
+  var PFB_ENV_EDGE = { h: 'hole', k: 'knob', b: 'body', m: 'mind', c: 'craft' };
+  var PFB_ENV_ROWS = [
+    ['sun', 'Sun', 'sun', 'hb,km,kc,hc', 2, [2, 2, 2, 2], 'Fire it in your chain: your pieces in that chain count double.'],
+    ['bramble', 'Bramble', 'bramble', 'hm,kc,kb,hb', 3, [1, 2, 2, 3], 'Fire it in your chain: the other side loses a tenth of its health.'],
+    ['rain', 'Rain', 'rain', 'hc,kb,km,hm', 2, [2, 2, 2, 2], 'Fire it in your chain: you get guard.'],
+    ['wind', 'Wind', 'wind', 'hb,kc,hm,km', 2, [1, 1, 1, 1], 'Fire it in your chain: the piece its arrow points at slides one cell.'],
+    ['mud', 'Mud', 'mud', 'f,f,f,f', 3, [1, 1, 1, 1], 'Nothing links to it. Chains stop here.'],
+    ['thorn', 'Thornburst', 'thorn', 'hm,kb,hc,kc', 3, [1, 2, 2, 2], 'Whoever fires it in a chain loses a tenth of their health.']
+  ];
+  var PFB_ENV_REGIONS = { NA: { wind: 1 }, CA: { sun: 1 }, CB: { sun: 1 }, SA: { rain: 1 }, NWE: { rain: 1 }, SE: { sun: 1 }, EE: { bramble: 1 }, MENA: { wind: 1 }, WCA: { bramble: 1 }, ESA: { thorn: 1 }, CSA: { mud: 1 }, EA: { rain: 1 }, SEA: { rain: 1, mud: 1 }, OC: { wind: 1 } };
   var KIND_GROUND = { sunbeam: 'sun', creep: 'br', puddle: 'mud' }, GROUND_N = { sun: 'nsun', br: 'nbr', mud: 'nmud' };
 
   function isNumeric(v) { return (typeof v === 'number' && isFinite(v)) || (typeof v === 'string' && v.trim() !== '' && isFinite(Number(v))); }
   function v1Cfg(size, over) {
     if (!has(PFB_SIZE, size)) size = 'medium';
     var g = PFB_GROUND[size];
-    var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 1, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
-      events: 1, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: PFB_TEAM2, team3: PFB_TEAM3,
-      edges: 1, flip: 1, life: 1, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size] };
-    var INTS = { w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1 };
+    var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
+      events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: PFB_TEAM2, team3: PFB_TEAM3,
+      edges: 1, flip: 1, life: 1, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE };   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+    var INTS = { w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
     for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
     if (over.foe_x !== undefined && over.foe_x !== null) cfg.foe = round(cfg.foe * Number(over.foe_x), 4);
@@ -524,6 +538,92 @@
     if (!cfg.edges) cfg.flip = 0;
     return cfg;
   }
+  // ------------------------------------------------------------------ 2.6.75 environment pieces (pfb_env_* in pfboard.php)
+  function envEdge(c) {
+    if (c === 'w') return ['wild', null];
+    if (c.length === 2 && (c[0] === 'h' || c[0] === 'k') && has(PFB_ENV_EDGE, c[1]) && c[1] !== 'h' && c[1] !== 'k') return [PFB_ENV_EDGE[c[0]], PFB_ENV_EDGE[c[1]]];
+    return ['flat', null];
+  }
+  var ENV_TABLE = null;
+  function envTable() {
+    if (ENV_TABLE) return ENV_TABLE;
+    var T = { pieces: {}, regions: clone(PFB_ENV_REGIONS) }, sizes = Object.keys(PFB_SIZE);
+    PFB_ENV_ROWS.forEach(function (r) {
+      var ed = r[3].split(','), w = {}; sizes.forEach(function (z, i) { w[z] = r[5][i]; });
+      T.pieces[r[0]] = { k: 'e:' + r[0], n: r[1], env: r[2], ed: { L: envEdge(ed[0]), R: envEdge(ed[1]), T: envEdge(ed[2]), B: envEdge(ed[3]) }, life: Math.max(PFB_LIFE_MIN, Math.min(PFB_LIFE_MAX, r[4])), w: w, blurb: r[6] };
+    });
+    return ENV_TABLE = T;
+  }
+  function envDeck(size, region) {
+    if (!has(PFB_SIZE, size)) size = 'medium';
+    var T = envTable(), bias = (region && has(T.regions, region)) ? T.regions[region] : {}, deck = [];
+    for (var key in T.pieces) {
+      var p = T.pieces[key], n = Math.max(0, toInt(p.w[size]) + toInt(nn(bias[p.env], 0)));
+      for (var i = 0; i < n; i++) deck.push({ k: p.k, n: p.n, t: 'env', v: 0, r: null, tag: '', m: '', src: 'env', env: p.env, life: p.life, ed: clone(p.ed) });
+    }
+    return deck;
+  }
+  function envDraw(s) {
+    if (!s.env.draw.length && s.env.discard.length) { s.env.draw = shuffle(s, s.env.discard); s.env.discard = []; }
+    s.env.next = s.env.draw.length ? s.env.draw.pop() : null;
+  }
+  function envCells(s, tile) {
+    var fit = [], link = [];
+    for (var y = 0; y < pfbH(s); y++) for (var x = 0; x < pfbW(s); x++) { var j = check(s, tile, x, y); if (j === null) continue; fit.push([x, y]); if (hasLink(j)) link.push([x, y]); }
+    return link.length ? link : fit;
+  }
+  function envWindDir(s, x, y) {
+    var ok = [];
+    for (var d in PFB_SIDE) {
+      var sd = PFB_SIDE[d], n = pieceAt(s, x + sd[0], y + sd[1]), bx = x + 2 * sd[0], by = y + 2 * sd[1];
+      if (n && n.by !== 'none' && inb(s, bx, by) && !has(s.cell, bx + ',' + by)) ok.push(d);
+    }
+    if (!ok.length) ok = Object.keys(PFB_SIDE);
+    return ok[rand(s, ok.length)];
+  }
+  /** The environment's turn: it puts its face-up piece on the board and turns the next one face up. Nothing fires. */
+  function envPlace(s) {
+    s.envlog = [];
+    for (var i = 0; i < toInt(s.v1.envn); i++) {
+      var tile = nn(s.env.next, null);
+      if (!tile) { s.envlog.push({ k: 'pass', x: null, y: null, me: 0, foe: 0.0 }); break; }
+      var cs = envCells(s, tile);
+      if (!cs.length) { s.envlog.push({ k: 'pass', x: null, y: null, me: 0, foe: 0.0, kind: tile.env, n: tile.n }); break; }
+      var c = cs[rand(s, cs.length)], x = c[0], y = c[1];
+      if (tile.env === 'wind') tile.dir = envWindDir(s, x, y);
+      var id = ++s.pid; s.seq++;
+      s.pcs[id] = { id: id, by: 'env', tile: tile, x: x, y: y, born: s.round + 1, seq: s.seq };
+      s.cell[x + ',' + y] = id;
+      var L = { k: 'place', x: x, y: y, me: 0, foe: 0.0, id: id, kind: tile.env, n: tile.n };
+      if (tile.dir !== undefined && tile.dir !== null) L.dir = tile.dir;
+      s.envlog.push(L);
+      envDraw(s);
+    }
+  }
+  function envCost(s, who, frac) {
+    if (frac <= 0) return 0.0;
+    if (who === 'me') { var d = Math.max(1, iround(frac * s.me.max)); s.me.hp = Math.max(0, s.me.hp - d); return d; }
+    var a = frac * s.fh.max; s.fh.now += a; return a;
+  }
+  /** An environment piece fires in a chain started by rb: its effect goes to that side. Returns its event. */
+  function envFire(s, p, rb) {
+    var t = p.tile, kind = String(t.env), ot = rb === 'me' ? 'foe' : 'me', v1 = s.v1;
+    var e = { by: 'env', id: p.id, root: false, tag: '', mod: '', k: t.k, n: t.n, t: 'env', v: 0, fit: false, combo: null, env: 'fire', kind: kind, 'for': rb, x: p.x, y: p.y, me: 0, foe: 0.0 };
+    if (kind === 'bramble') e[ot] = envCost(s, ot, Number(v1.bramble) * (ot === 'foe' ? Number(v1.br_foe) : 1.0));
+    else if (kind === 'thorn') e[rb] = envCost(s, rb, Number(v1.thorn) * (rb === 'foe' ? Number(v1.th_foe) : 1.0));
+    else if (kind === 'rain') { var g = Math.max(1, iround(Number(v1.rain) * (rb === 'me' ? s.me.max : s.fh.max))); s[rb].block += g; e.guard = g; e.v = g; }
+    else if (kind === 'wind') {
+      var d = String(nn(t.dir, 'R')), sd = PFB_SIDE[d]; e.dir = d;
+      var x = p.x + sd[0], y = p.y + sd[1], nx = x + sd[0], ny = y + sd[1], q = pieceAt(s, x, y);
+      if (!truthy(v1.nowind) && q && q.by !== 'none' && inb(s, nx, ny) && !has(s.cell, nx + ',' + ny)) {
+        delete s.cell[x + ',' + y]; s.cell[nx + ',' + ny] = q.id; s.pcs[q.id].x = nx; s.pcs[q.id].y = ny;
+        e.moved = { id: q.id, by: q.by, n: q.tile.n, x: nx, y: ny };
+      }
+    }
+    e.me = toInt(e.me); e.foe = round(Number(e.foe), 1);
+    return e;
+  }
+
   function pfbW(s) { return nn(s.w, PFB_W); }
   function pfbH(s) { return nn(s.h, PFB_H); }
   function ter(s, x, y) { return (s.ter && s.ter[x + ',' + y]) || ''; }
@@ -573,7 +673,7 @@
   }
   function discardPiece(s, p) {
     if (p.by === 'none') return;
-    var t = clone(p.tile); delete t.flip; delete t.ft;
+    var t = clone(p.tile); delete t.flip; delete t.ft; delete t.dir;
     s[p.by].discard.push(t);
   }
   function seedGround(s) {
@@ -628,7 +728,8 @@
   function envEvents(s) {
     return nn(s.envlog, []).map(function (L) {
       var e = { by: 'env', ta: 'env', env: L.k, tag: '', k: 'env:' + L.k, n: nn(PFB_EVENT_NAME[L.k], 'Terrain'), t: 'env', v: 0, fit: false, combo: null, x: L.x, y: L.y, me: L.me, foe: L.foe };
-      ['dir', 'moved', 'on', 'ids'].forEach(function (k) { if (L[k] !== undefined && L[k] !== null) e[k] = clone(L[k]); });
+      ['dir', 'moved', 'on', 'ids', 'id', 'kind'].forEach(function (k) { if (L[k] !== undefined && L[k] !== null) e[k] = clone(L[k]); });
+      if (L.n !== undefined && L.n !== null) e.n = L.n;   // 2.6.75: an environment piece placed (or kept back): its name
       e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block);
       return e;
     });
@@ -640,6 +741,19 @@
     var c = cost.length ? ': ' + cost.join(', ') : '';
     var whose = function (p) { return (p.by === 'me' ? 'your ' : 'the ' + foe + '’s ') + p.n; };
     switch (e.env) {
+      case 'fire':   // 2.6.75: an environment piece fired in a chain
+        var mine = nn(e['for'], 'me') === 'me';
+        switch (nn(e.kind, '')) {
+          case 'sun': return '☀️ Sun: ' + (mine ? 'your pieces in this chain count double.' : 'the ' + foe + '’s pieces in this chain count double.');
+          case 'bramble': return '🌿 Bramble' + (c !== '' ? c : ': nothing happens') + '.';
+          case 'thorn': return '🌵 Thornburst' + (c !== '' ? c : ': nothing happens') + '.';
+          case 'rain': return '🌧️ Rain: ' + (mine ? 'you get ' : 'the ' + foe + ' gets ') + toInt(nn(e.guard, 0)) + ' guard.';
+          case 'wind': return e.moved ? '💨 Wind: ' + whose(e.moved) + ' is pushed one cell.' : '💨 Wind: nothing moves.';
+          default: return '🟫 ' + String(e.n) + '.';
+        }
+      case 'place': return '🍃 The environment places ' + String(e.n) + '.';
+      case 'pass': return (e.kind !== undefined && e.kind !== null) ? '🍃 The environment finds no place for ' + String(e.n) + '.' : '🍃 The environment has no piece to place.';
+      case 'expire': return '🍂 ' + (nn(e.ids, []).length === 1 ? 'An environment piece fades.' : nn(e.ids, []).length + ' environment pieces fade.');
       case 'sunbeam': return '☀️ Sunbeam: a cell turns sunny' + (e.on ? ' under ' + whose(e.on) : '') + '.';
       case 'creep': return '🌿 Bramble creep: a cell turns to bramble' + (e.on ? ' under ' + whose(e.on) : '') + '.';
       case 'puddle': return '💧 Puddle: a cell turns to mud' + (e.on ? ', and ' + whose(e.on) + ' no longer links' : '') + '.';
@@ -800,17 +914,26 @@
       var ns = Object.keys(srcs).length;
       if (rb === 'me' && ns >= 3) tw = Number(v1.team3); else if (rb === 'me' && ns === 2) tw = Number(v1.team2);
     }
+    var esun = 1.0;   // 2.6.75: a Sun piece in the chain: the pieces of the side that started it count x sun
+    if (v1 && truthy(v1.env)) ch.forEach(function (c) { var cp = s.pcs[c[0]]; if (cp.by === 'env' && cp.tile.env === 'sun') esun = Number(v1.sun); });
     for (var i = 0; i < ch.length; i++) {
       var id = ch[i][0], par = ch[i][1];
       if (s.over) break;
       var p = s.pcs[id], who = p.by, tile = p.tile;
       if (who === 'none') continue;   // the blank centre piece does nothing itself; the chain runs through it
+      if (who === 'env') {   // 2.6.75: an environment piece: its effect goes to the side whose chain this is
+        var ee = envFire(s, p, rb); s.fired.push(id);
+        s.pcs[id].f = toInt(nn(s.pcs[id].f, 0)) + 1;
+        ee.barnow = round(Number(s.bar.now), 1); ee.fhnow = round(Number(s.fh.now), 1); ee.hpnow = toInt(s.me.hp); ee.gnow = toInt(s.me.block);
+        ev.push(ee); checkEnd(s); continue;
+      }
       var pt = par !== null ? s.pcs[par] : null;
-      if (pt && pt.by === 'none') pt = null;   // and a piece after it has no combo parent
+      if (pt && (pt.by === 'none' || pt.by === 'env')) pt = null;   // and a piece after it (or after an environment piece) has no combo parent
       var vv = value(pt ? pt.tile : null, tile, pt !== null && pt.by === who, false), ck = vv[2];
       var val = iround(vv[0] * Number(nn(p.cm, 1.0)));
       var sunny = !!v1 && (tile.t === 'hurt' || tile.t === 'charm') && ter(s, p.x, p.y) === 'sun';
       if (sunny) val = iround(val * Number(v1.sun));
+      if (esun > 1 && who === rb) { val = iround(val * esun); sunny = true; }
       if (tw > 1 && who === rb) val = iround(val * tw);
       if (v1) s.fired.push(id);
       var isRoot = id === root;
@@ -1137,6 +1260,7 @@
     if (v1) {
       s.w = v1.w; s.h = v1.h; delete v1.w; delete v1.h; s.v1 = v1;
       v1Tiles(s, c); seedGround(s); s.envs = []; s.envlog = []; s.reaim = 0; s.me.flipt = 0;
+      if (v1.env) { s.env = { draw: shuffle(s, envDeck(s.size, String(nn(c.region, '')))), discard: [], next: null }; envDraw(s); }   // 2.6.75: the environment's deck
       if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.me.slowdraw = 0; s.foe.bashnext = 0; s.foe.again = 0; }
     }
     if (opt && truthy(opt.blank)) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see start)
@@ -1198,7 +1322,7 @@
   }
 
   function endRound(s) {
-    if (s.v1) { envTurn(s); if (s.over) return; }   // v1: the terrain turn
+    if (s.v1) { if (truthy(s.v1.env)) envPlace(s); else envTurn(s); if (s.over) return; }   // v1: the environment's turn (2.6.75: it places a piece; a 2.6.74 fight: the terrain turn)
     var slow = 0;
     if (s.v1 && truthy(s.v1.tags)) {   // creature tags: its poison works on you, a trip costs you one draw
       if (toInt(s.me.poison) > 0) {
@@ -1210,6 +1334,7 @@
       slow = truthy(s.me.slowdraw) ? 1 : 0; s.me.slowdraw = 0;
     }
     var gone = expire(s);
+    if (s.v1 && truthy(s.v1.env)) { var eg = gone.filter(function (p) { return p.by === 'env'; }).map(function (p) { return p.id; }); if (eg.length) s.envlog.push({ k: 'expire', x: null, y: null, me: 0, foe: 0.0, ids: eg }); }   // 2.6.75
     draw(s, 'foe', s.foe.hsize);
     s.turn++; s.round++;
     s.me.block = s.me.keep; s.me.keep = 0; s.me.thorns = false; s.me.evade = 0;
@@ -1328,18 +1453,20 @@
     if (s.v1) {   // v1: ground, forecast, the aim, use-up, Teamwork, flip and piece life
       var c = s.v1;
       v.v1 = { limit: toInt(c.limit), sun: c.sun, bramble: c.bramble, br_foe: c.br_foe, thorn: c.thorn, ev_foe: c.ev_foe, team2: c.team2, team3: c.team3,
+        env: truthy(c.env), envn: toInt(nn(c.envn, 0)), rain: Number(nn(c.rain, 0)), th_foe: Number(nn(c.th_foe, 1)),
         ground: truthy(c.ground), events: truthy(c.events), aim: truthy(c.aim), flip: truthy(c.flip), life: truthy(c.life), edges: truthy(c.edges) };
       v.round = toInt(s.round);
       v.ter = clone(nn(s.ter, {}));
       v.envs = nn(s.envs, []).map(function (e) { var o = clone(e), q = pieceAt(s, e.x, e.y); o.n = PFB_EVENT_NAME[e.kind]; o.on = q && q.by !== 'none' ? { id: q.id, by: q.by, n: q.tile.n } : null; return o; });
       v.envlog = clone(nn(s.envlog, []));
+      if (truthy(c.env)) { var nx = nn(s.env.next, null); v.env = { next: nx ? { k: nx.k, n: nx.n, kind: nx.env, life: toInt(nx.life), e: edges(nx) } : null, draw: s.env.draw.length, discard: s.env.discard.length, n: toInt(c.envn) }; }   // 2.6.75
       v.aim = clone(nn(s.foe.plan, null));
       v.reaim = truthy(s.reaim);
       v.flip = { on: truthy(c.flip), used: toInt(nn(s.me.flipt, 0)) === toInt(s.turn) };
       if (truthy(c.tags)) v.status = { poison: toInt(s.me.poison), poison_v: toInt(s.me.poison_v), slowdraw: toInt(s.me.slowdraw), evade: toInt(s.me.evade),
         foe_evade: toInt(s.foe.evade), foe_thorns: truthy(s.foe.thorns), foe_bash: toInt(s.foe.bashnext), foe_slow: toInt(s.foe.slow), foe_poison: toInt(s.foe.poison) };
       v.wear = clone(nn(s.wear, {}));
-      v.pcs.forEach(function (q) { var p = s.pcs[q.id], life = lifeOf(s, p); q.life = life; q.left = p.born + life - toInt(s.round); q.src = String(nn(p.tile.src, '')); q.flip = truthy(p.tile.flip); q.ter = ter(s, p.x, p.y); q.rank = toInt(nn(p.tile.rank, 0)); q.layer = String(nn(p.tile.layer, '')); });
+      v.pcs.forEach(function (q) { var p = s.pcs[q.id], life = lifeOf(s, p); q.life = life; q.left = p.born + life - toInt(s.round); q.src = String(nn(p.tile.src, '')); q.flip = truthy(p.tile.flip); q.ter = ter(s, p.x, p.y); q.rank = toInt(nn(p.tile.rank, 0)); q.layer = String(nn(p.tile.layer, '')); if (p.by === 'env') { q.env = String(p.tile.env); q.dir = nn(p.tile.dir, null); } });
       for (i = 0; i < v.hand.length; i++) { var ht = s.me.hand[i]; v.hand[i].life = toInt(nn(ht.life, PFB_LIFE)); v.hand[i].src = String(nn(ht.src, '')); v.hand[i].flip = truthy(ht.flip); v.hand[i].canflip = canFlip(s, i); v.hand[i].rank = toInt(nn(ht.rank, 0)); v.hand[i].tool = String(nn(ht.tool, '')); }
       if (v.held) v.held.pcs.forEach(function (q, gi) { var gt = g.pcs[gi].tile; q.life = toInt(nn(gt.life, PFB_LIFE)); q.src = String(nn(gt.src, '')); q.flip = truthy(gt.flip); });
       v.gone.forEach(function (q, gi) { var u = s.gone[gi].used; if (u !== undefined && u !== null) q.used = u; });
@@ -1377,7 +1504,7 @@
     if (truthy(e.connect)) return ext({ by: 'me', types: e.types, tags: [], txt: 'joined ' + toInt(e.size), tg: null });
     if (e.env !== undefined && e.env !== null) {   // v1: a terrain event
       var ep = []; if (truthy(e.me)) ep.push('you -' + toInt(e.me) + ' hp'); if (truthy(e.foe)) ep.push('creature -' + iround(Number(e.foe)) + ' hp');
-      return ext({ by: 'env', types: ['env'], tags: [String(e.env)], txt: String(e.n) + (ep.length ? ': ' + ep.join(' · ') : ''), tg: truthy(e.me) ? 'me' : (truthy(e.foe) ? 'foe' : null) });
+      return ext({ by: 'env', types: ['env'], tags: [String(nn(e.kind, e.env))], txt: String(e.n) + (ep.length ? ': ' + ep.join(' · ') : ''), tg: truthy(e.me) ? 'me' : (truthy(e.foe) ? 'foe' : null) });
     }
     var parts = [], tg = 'foe', by = String(nn(e.by, 'me')), t = String(nn(e.t, 'hurt'));
     if (truthy(e.tick)) parts.push('-' + toInt(e.v) + ' hp');
@@ -1427,7 +1554,7 @@
 
   return {
     // the public API
-    tiles: tiles, playerDeck: playerDeck, newFight: newFight, start: start, play: play, pass: pass, view: view,
+    envTable: envTable, envDeck: envDeck, tiles: tiles, playerDeck: playerDeck, newFight: newFight, start: start, play: play, pass: pass, view: view,
     cells: cells, edges: edges, joint: joint, groupSpots: groupSpots, groupFit: groupFit, groupOptions: groupOptions, search: search,
     line: line, chipEvent: chipEvent, chipsBoard: chipsBoard,
     // more of the PHP functions
