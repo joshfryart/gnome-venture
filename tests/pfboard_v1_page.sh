@@ -36,6 +36,8 @@ pf() { local d=$1; shift; get adventure.php >/dev/null
   local n=$(grep -o 'name="nonce" value="[0-9a-f]*"' $H | head -1 | grep -o '[0-9a-f]\{8\}') t=$(grep -o 'id="pfight" data-turn="[0-9]*"' $H | grep -o '[0-9]*')
   post adventure.php -d do=$d -d nonce=${NONCE_X:-$n} -d turn=${TURN_X:-$t} "$@"; }
 set_() { db "INSERT OR REPLACE INTO settings (name,value) VALUES ('$1','$2')" >/dev/null; }
+# stage C: with pfight_v1 on, a fight is dealt only after the starter is packed and "Let's fight" is pressed on the pre-fight screen
+letsfight() { get adventure.php >/dev/null; if grep -q 'id="pfv-starter"' $H; then post adventure.php -d do=pfd_starter -d kit=steady >/dev/null; get adventure.php >/dev/null; fi; if grep -q 'id="pfv-pre"' $H; then post adventure.php -d do=pfv_go >/dev/null; fi; get adventure.php >/dev/null; }
 set_ pfight_open 1; set_ pfight_mode board
 echo "== gating"
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
@@ -52,6 +54,10 @@ ck "pfight_v1 = admin: a player who is not an admin still gets the old rules" "$
 db "UPDATE users SET role='admin' WHERE username='sprout'" >/dev/null; set_ pfight_mode chain
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
 get adventure.php >/dev/null
+ck "stage C: an admin first packs a box (the starter pick), nothing is dealt" "$(grep -c 'id="pfv-starter"' $H) $(encq 'isset($s) ? "dealt" : "not dealt"')" "1 not dealt"
+post adventure.php -d do=pfd_starter -d kit=steady >/dev/null; get adventure.php >/dev/null
+ck "stage C: then the pre-fight screen (creature card, Let's fight), still nothing dealt" "$(grep -c 'id="pfv-pre"' $H) $(grep -c 'class="foecard"' $H) $(grep -c 'value="pfv_go"' $H) $(encq 'isset($s) ? "dealt" : "not dealt"')" "1 1 1 not dealt"
+letsfight
 ck "pfight_v1 = admin, an admin: a v1 fight, on the board even when pfight_mode is chain" "$(encq '(isset($s["v1"]) ? "v1" : "old") . " " . $s["mode"]')" "v1 board"
 echo "== the page of a v1 fight"
 ck "board page" "$(grep -c 'data-mode="board"' $H)" "1"

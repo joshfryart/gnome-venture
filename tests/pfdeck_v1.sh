@@ -54,7 +54,7 @@ get puzzlebox.php >/dev/null; post puzzlebox.php -d do=pfd_auto -d on=1 >/dev/nu
 ck "POST do=pfd_auto on=1: remembered" "$(db "SELECT auto_use FROM pf_decks")" "1"
 get puzzlebox.php >/dev/null; post puzzlebox.php -d do=pfd_toggle -d key=snack -d on=1 -d csrf=wrong >/dev/null
 ck "a POST without the right csrf token changes nothing" "$(db "SELECT active FROM pf_deck_pieces WHERE piece_key='snack'")" "0"
-ck "the old Puzzle box page still renders for the admin" "$(get puzzlebox.php) $(grep -c 'id="pbox"' $H)" "200 1"
+ck "stage C: the admin gets the v1 Puzzle box page (the old form is gone for them)" "$(get puzzlebox.php) $(grep -c 'id="pfv-box"' $H) $(grep -c 'id="pbox"' $H)" "200 1 0"
 db "DELETE FROM pf_deck_pieces" >/dev/null; db "DELETE FROM pf_decks" >/dev/null; db "UPDATE users SET role='player' WHERE username='sprout'" >/dev/null
 php -d display_errors=1 "$HERE/pfdeck_v1.php" "$GAME" 2>&1 | tee $H.db | grep -v "^ok" | cut -c1-900; cat "$GAME/data/error-log.txt" 2>/dev/null | head -5 | cut -c1-500
 FAILS=$((FAILS + $(grep -c '^FAIL' $H.db)))
@@ -64,7 +64,9 @@ set_ pfight_blank 1
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
 MID=$(db "SELECT id FROM creatures WHERE slug='tunnel-mole'"); MHP=$(db "SELECT hp FROM creatures WHERE slug='tunnel-mole'")   # a level 9 creature for the level 9 gnome: a fight long enough for tool pieces to be played
 db "UPDATE expeditions SET encounter='{\"type\":\"creature\",\"id\":$MID,\"lv\":0,\"sp\":100,\"hpp\":100,\"hp\":$MHP,\"max\":$MHP,\"bark\":0,\"poison\":0,\"used\":false}', hp=max_hp WHERE status='active'" >/dev/null
-get adventure.php >/dev/null
+# stage C: with pfight_v1 on, a fight is dealt only after the starter is packed and "Let's fight" is pressed on the pre-fight screen
+letsfight() { get adventure.php >/dev/null; if grep -q 'id="pfv-starter"' $H; then post adventure.php -d do=pfd_starter -d kit=steady >/dev/null; get adventure.php >/dev/null; fi; if grep -q 'id="pfv-pre"' $H; then post adventure.php -d do=pfv_go >/dev/null; fi; get adventure.php >/dev/null; }
+letsfight
 encq() { php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); $e=json_decode($p->query("SELECT encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetchColumn(),true); $s=$e["pf"]??null; echo eval("return ".$argv[1].";");' "$1"; }
 pf() { local d=$1; shift; get adventure.php >/dev/null
   local n=$(grep -o 'name="nonce" value="[0-9a-f]*"' $H | head -1 | grep -o '[0-9a-f]\{8\}') t=$(grep -o 'id="pfight" data-turn="[0-9]*"' $H | grep -o '[0-9]*')
