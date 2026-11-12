@@ -189,15 +189,15 @@ def dare_pebble(cv, rnd):
     def bands(x, y):
         k = int((y + .05 * (x - 32) ** 2 + .35 * (x - 32)) / 4.5) % 4
         return (PETAL, WOOL, DUSK, WOOL)[k]
-    egg = Mell(32, 33, 14, 18)
+    egg = Mell(32, 38, 19, 12)
     shade(cv, egg, bands, "ball", rnd, .03)
-    px(cv, pix(Mline([(23, 25), (26, 20)], 2)), CREAM); cv.put(23, 28, CREAM)
+    px(cv, pix(Mline([(20, 31), (25, 26)], 2)), CREAM); cv.put(19, 34, CREAM)
     # a gold star sticker, for being slightly too brave
     st = [(39 + (4.5 if k % 2 == 0 else 2) * math.cos(-math.pi / 2 + k * math.pi / 5),
-           38 + (4.5 if k % 2 == 0 else 2) * math.sin(-math.pi / 2 + k * math.pi / 5)) for k in range(10)]
+           40 + (4.5 if k % 2 == 0 else 2) * math.sin(-math.pi / 2 + k * math.pi / 5)) for k in range(10)]
     shade(cv, Mpoly(st), GOLD, "ball", rim=False)
     # splashes
-    for x, y in ((12, 40), (52, 36), (49, 44)):
+    for x, y in ((10, 42), (54, 38), (51, 46)):
         shade(cv, union(Mell(x, y + 1, 1.8, 1.8), Mpoly([(x, y - 3), (x + 1.6, y + .5), (x - 1.6, y + .5)])), SEA, "ball")
 
 
@@ -337,20 +337,20 @@ def waterfall_sketch(cv, rnd):
             cv.put(x, y, WOOD[2] if y < 26 else WOOD[3])
     # ledge and a brush she let you hold
     shade(cv, Mrect(8, 44, 57, 48), WOOD, "edge")
-    shade(cv, Mline([(30, 45), (52, 41)], 2), WOOD, "edge")
-    shade(cv, Mline([(52, 41), (57, 40)], 2), STONE, "edge")
-    shade(cv, Mell(59, 39.5, 2.2, 1.6), SEA, "ball")
+    shade(cv, Mline([(28, 45), (48, 42)], 2), WOOD, "edge")
+    shade(cv, Mline([(48, 42), (52, 41)], 2), STONE, "edge")
+    shade(cv, Mell(54, 40.5, 2.2, 1.6), SEA, "ball")
 
 
 def arch_shell_mobile(cv, rnd):
-    hang = [(14, 37), (25, 47), (39, 43), (50, 32)]
-    arch = bezier((7, 24), (32, 0), (57, 24), 40)
-    for (x0, y0), (x, y1) in zip([(round(x), round(bezier((7, 24), (32, 0), (57, 24), 40)[min(range(41), key=lambda i: abs(arch[i][0] - x))][1])) for x, _ in hang], hang):
+    hang = [(16, 32), (26, 40), (38, 37), (48, 29)]
+    arch = bezier((9, 25), (32, 3), (55, 25), 40)
+    for (x0, y0), (x, y1) in zip([(round(x), round(arch[min(range(41), key=lambda i: abs(arch[i][0] - x))][1])) for x, _ in hang], hang):
         px(cv, [(x, y) for y in range(y0, y1)], PARCH[4])
     shade(cv, Mline(arch, 4), DRIFT, "edge", rnd, .12)
-    for x, y in ((7, 24), (57, 24)): shade(cv, Mell(x, y + 1, 2.5, 2.5), DRIFT, "ball")
-    for x, y in ((18, 13), (30, 11), (44, 13)): cv.put(x, y, DRIFT[4])
-    shade(cv, minus(Mell(32, 6, 3.5, 3.5), Mell(32, 6, 1.6, 1.6)), PARCH, "edge")
+    for x, y in ((9, 25), (55, 25)): shade(cv, Mell(x, y + 1, 2.5, 2.5), DRIFT, "ball")
+    for x, y in ((19, 16), (30, 14), (44, 16)): cv.put(x, y, DRIFT[4])
+    shade(cv, minus(Mell(32, 10, 3, 3), Mell(32, 10, 1.4, 1.4)), PARCH, "edge")
     # scallop (pink)
     x, y = hang[0]
     fan = Mpoly([(x, y + 9)] + [(x + 8 * math.cos(a), y + 9 + 8 * math.sin(a)) for a in (math.radians(d) for d in range(-160, -19, 10))])
@@ -373,7 +373,7 @@ def arch_shell_mobile(cv, rnd):
     for r in (2.5, 4.5): px(cv, pix(inter(minus(Mell(x, y + 8, r, r), Mell(x, y + 8, r - 1, r - 1)), clam)), DUSK[3])
 
     def post(c):
-        for x, y in ((20, 46), (31, 52), (45, 44)):
+        for x, y in ((22, 41), (32, 46), (43, 38)):
             c.put(x, y, CREAM); c.put(x + 1, y - 1, CREAM)
     return post
 
@@ -390,39 +390,39 @@ GLY = {
 def salt_sign(cv, rnd):
     shade(cv, Mrect(29, 34, 36, 54), WOOD, "cyl", rnd, .06)
     for cx, cy, rx, ry in ((32, 54, 11, 3), (26, 53, 5, 2.5), (39, 53, 5, 2.5)): lump(cv, cx, cy, rx, ry, SALT, rnd, .2)
-    edge = [(x, y, 1.6 + rnd.random()) for x, y in [(6 + k * 2.6, 11) for k in range(20)] + [(6 + k * 2.6, 38) for k in range(20)]
-            + [(6, 12 + k * 3) for k in range(9)] + [(57, 12 + k * 3) for k in range(9)]]
-    board = union(Mrr(6, 11, 58, 39, 3), Mdots(edge))
+    edge = [(x, y, 1.6 + rnd.random()) for x, y in [(9 + k * 2.4, 11) for k in range(20)] + [(9 + k * 2.4, 38) for k in range(20)]
+            + [(9, 12 + k * 3) for k in range(9)] + [(55, 12 + k * 3) for k in range(9)]]
+    board = union(Mrr(9, 11, 56, 39, 3), Mdots(edge))
     shade(cv, board, SALT, "ball", rnd, .14, box=(4, 6, 60, 44))
     word = "GNOME"
     x0 = 32 - (len(word) * 6 - 1) // 2
     for i, ch in enumerate(word):
         glyph(cv, x0 + i * 6, 21, GLY[ch], TOAST[3], TOAST[1])
-    for x, y in ((12, 15), (50, 16), (15, 33), (47, 34), (9, 25), (55, 27)): cv.put(x, y, SALT[3])
+    for x, y in ((14, 15), (50, 16), (16, 33), (47, 34), (12, 25), (52, 27)): cv.put(x, y, SALT[3])
 
     def post(c):
-        sparkle(c, 9, 7, CREAM); sparkle(c, 56, 8, CREAM, True)
+        sparkle(c, 10, 7, CREAM); sparkle(c, 54, 7, CREAM, True)
     return post
 
 
 def snow_fort_banner(cv, rnd):
-    shade(cv, Mrect(31, 4, 34, 44), WOOD, "cyl")
-    shade(cv, Mell(32.5, 4, 2.5, 2.5), GOLD, "ball")
+    shade(cv, Mrect(31, 9, 34, 44), WOOD, "cyl")
+    shade(cv, Mell(32.5, 9, 2.5, 2.5), GOLD, "ball")
     # tatty flag
     flag = []
     for x in range(34, 56):
         w = round(1.5 * math.sin((x - 34) * .45))
-        for y in range(8 + w, 26 + w): flag.append((x, y))
+        for y in range(12 + w, 29 + w): flag.append((x, y))
     fm = Image.new("L", (S, S), 0)
     for p in flag: fm.putpixel(p, 255)
-    fm = minus(fm, Mpoly([(56, 8), (51, 11), (56, 14), (50, 17), (56, 21), (52, 24), (56, 28)]))
-    fm = minus(fm, Mrect(45, 21, 47, 23))
+    fm = minus(fm, Mpoly([(56, 11), (51, 14), (56, 17), (50, 20), (56, 24), (52, 27), (56, 31)]))
+    fm = minus(fm, Mrect(45, 24, 47, 26))
     shade(cv, fm, lambda x, y: EMBER if (x // 4) % 2 or True else EMBER, "flat", rnd, .04)
     for x, y in pix(fm):
         if math.sin((x - 34) * .45) > .6: tint(cv, [(x, y)], EMBER, -1)
         elif math.sin((x - 34) * .45) < -.6: tint(cv, [(x, y)], EMBER, 1)
     w0 = lambda x: round(1.5 * math.sin((x - 34) * .45))
-    shade(cv, Mell(42, 16 + w0(42), 4, 4), WOOL, "ball")
+    shade(cv, Mell(42, 19 + w0(42), 4, 4), WOOL, "ball")
     # the fort wall, bricks of snow
     wall = minus(Mrect(9, 38, 56, 56), union(*[Mrect(x, 38, x + 5, 42) for x in (15, 27, 39, 51)]))
     shade(cv, wall, SNOW, "flat", rnd, .03)
@@ -432,21 +432,23 @@ def snow_fort_banner(cv, rnd):
         px(cv, [(x, y) for y in range(y0, y0 + 5 if y0 > 38 else y0 + 4)], SNOW[3])
     for x, y in ((14, 55), (22, 55), (40, 55)): cv.put(x, y, SNOW[4])
     # the cocoa at stake
-    shade(cv, Mrr(45, 30, 52, 38, 1), EMBER, "cyl")
-    shade(cv, minus(Mell(52.5, 33.5, 2.5, 2.5), Mell(52.5, 33.5, 1, 1)), EMBER, "edge")
-    shade(cv, Mrect(46, 30, 51, 31), COCOA, 2, rim=False)
+    shade(cv, Mrr(11, 31, 18, 38, 1), EMBER, "cyl")
+    shade(cv, minus(Mell(18.5, 34.5, 2.5, 2.5), Mell(18.5, 34.5, 1, 1)), EMBER, "edge")
+    shade(cv, Mrect(12, 31, 17, 32), COCOA, 2, rim=False)
 
     def post(c):
-        for i, y in enumerate(range(23, 28)): c.put(48 + (i % 2), y, WOOL[1])
+        for i, y in enumerate(range(24, 29)): c.put(14 + (i % 2), y, WOOL[1])
     return post
 
 
 def fir_ornament(cv, rnd):
-    shade(cv, Mline([(6, 10), (32, 9), (58, 12)], 2), WOOD, "edge")
-    for k in range(0, 52, 3):
-        x = 7 + k; y = 9 + (1 if k > 26 else 0)
-        for dy, dx in ((-4, 2), (4, 2)):
-            px(cv, pix(Mline([(x, y), (x + dx, y + dy)], 1)), PINE[1] if dy < 0 else PINE[3])
+    twig = bezier((12, 13), (32, 7), (52, 12), 30)
+    shade(cv, Mline(twig, 2), WOOD, "edge")
+    for i in range(0, 31, 2):
+        x, y = twig[i]; L = 3 + 3 * math.sin(math.pi * i / 30)
+        for dy, c in ((-1, PINE[0]), (1, PINE[2])):
+            px(cv, pix(Mline([(x, y), (x + 2.5, y + dy * L)], 1)), c)
+    for x, y in ((18, 8), (40, 7), (47, 15), (25, 15)): cv.put(x, y, WOOL[0])
     # hook and cap
     shade(cv, minus(Mell(32, 15, 2.5, 3.5), Mell(32, 15, 1, 2)), GOLD, "edge")
     cap = Mrr(27, 17, 38, 23, 1); shade(cv, cap, GOLD, "cyl")
@@ -465,7 +467,7 @@ def fir_ornament(cv, rnd):
 
 
 def runaway_kite(cv, rnd):
-    T, Rr, B, L = (34, 3), (57, 18), (31, 42), (11, 20)
+    T, Rr, B, L = (34, 7), (56, 21), (31, 41), (12, 22)
     kite = Mpoly([T, Rr, B, L])
 
     def side(p, a, b): return (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0])
@@ -475,18 +477,18 @@ def runaway_kite(cv, rnd):
         return {(False, False): EMBER, (True, False): GOLD, (False, True): SEA, (True, True): PETAL}[(s1, s2)]
     shade(cv, kite, quad, "flat", rnd, .03)
     # a mended patch, stitches everywhere
-    patch = Mpoly([(19, 21), (25, 18), (28, 24), (22, 27)]); shade(cv, patch, LEAF, "flat", rim=False)
-    for x, y in pix(minus(Mpoly([(18, 20), (26, 17), (29, 25), (21, 28)]), patch)):
+    patch = Mpoly([(19, 23), (25, 20), (28, 26), (22, 29)]); shade(cv, patch, LEAF, "flat", rim=False)
+    for x, y in pix(minus(Mpoly([(18, 22), (26, 19), (29, 27), (21, 30)]), patch)):
         if (x + y) % 2: cv.put(x, y, WOOL[0])
-    for x, y in ((44, 30), (47, 27), (40, 9), (42, 12)):
+    for x, y in ((44, 31), (47, 28), (39, 13), (41, 16)):
         for dx, dy in ((0, 0), (1, 1), (1, 0), (0, 1)): pass
         px(cv, [(x, y), (x + 1, y + 1), (x + 1, y - 1), (x - 1, y + 1), (x - 1, y - 1)], WOOL[0])
     px(cv, pix(Mline([T, B], 1)) + pix(Mline([L, Rr], 1)), WOOD[3])
     # happy to be home
-    for x, y in ((28, 23), (29, 22), (30, 23), (37, 22), (38, 21), (39, 22)): cv.put(x, y, INK)
-    for x, y in ((32, 26), (33, 27), (34, 27), (35, 26)): cv.put(x, y, INK)
+    for x, y in ((28, 25), (29, 24), (30, 25), (37, 24), (38, 23), (39, 24)): cv.put(x, y, INK)
+    for x, y in ((32, 28), (33, 29), (34, 29), (35, 28)): cv.put(x, y, INK)
     # tail with bows
-    tail = bezier(B, (22, 46), (16, 56), 24)
+    tail = bezier(B, (23, 44), (18, 54), 24)
     for x, y in tail: cv.put(round(x), round(y), PARCH[4])
     for i, Rb in ((8, PETAL), (16, GOLD), (24, SEA)):
         x, y = tail[i]; x, y = round(x), round(y)
@@ -526,12 +528,12 @@ def shield_pts(x0, x1, yt, yk, yb):
 
 
 def bridgewardens_badge(cv, rnd):
-    bar = Mrr(18, 4, 47, 14, 2)
+    bar = Mrr(18, 7, 47, 16, 2)
     shade(cv, bar, lambda x, y: SEA if x < 24 or x >= 41 else WOOL if x < 29 or x >= 36 else GOLD, "hcyl")
-    for x in (24, 29, 36, 41): px(cv, [(x, y) for y in range(5, 13)], INK)
-    for x in (26, 39): shade(cv, minus(Mell(x, 16.5, 2.5, 2.5), Mell(x, 16.5, 1, 1)), GOLD, "edge")
-    outer = Mpoly(shield_pts(13, 52, 18, 35, 57)); shade(cv, outer, GOLD, "ball", rnd, .02)
-    inner = Mpoly(shield_pts(17, 48, 22, 35, 52))
+    for x in (24, 29, 36, 41): px(cv, [(x, y) for y in range(8, 15)], INK)
+    for x in (26, 39): shade(cv, minus(Mell(x, 18, 2.5, 2.5), Mell(x, 18, 1, 1)), GOLD, "edge")
+    outer = Mpoly(shield_pts(13, 52, 20, 35, 55)); shade(cv, outer, GOLD, "ball", rnd, .02)
+    inner = Mpoly(shield_pts(17, 48, 24, 35, 51))
     # sky, river and an arched bridge
     for x, y in pix(inner): cv.put(x, y, ICE[1] if y < 36 else SEA[2] if (x + y) % 5 else SEA[1])
     deck = inter(Mrect(14, 30, 52, 33), inner); shade(cv, deck, WOOD, "edge")
@@ -539,8 +541,8 @@ def bridgewardens_badge(cv, rnd):
     px(cv, [(x, 33) for x in range(19, 47, 4)], STONE[3])
     for x in range(19, 47, 3): px(cv, [(x, 28), (x, 29)], WOOD[2])
     px(cv, [(x, 27) for x in range(18, 48)], WOOD[2])
-    px(cv, pix(minus(Mpoly(shield_pts(16, 49, 21, 35, 53)), inner)), GOLD[3])
-    sparkle(cv, 22, 25, CREAM)
+    px(cv, pix(minus(Mpoly(shield_pts(16, 49, 23, 35, 52)), inner)), GOLD[3])
+    sparkle(cv, 22, 27, CREAM)
 
     def post(c):
         sparkle(c, 8, 22, GOLD[0], True); sparkle(c, 57, 30, GOLD[0]); sparkle(c, 54, 49, CREAM)
@@ -597,7 +599,7 @@ def pocket_star_wheel(cv, rnd):
 
 
 def patchwork_picnic_blanket(cv, rnd):
-    A, Bp, C, D = (5, 30), (32, 19), (59, 30), (32, 41)
+    A, Bp, C, D = (7, 30), (32, 20), (57, 30), (32, 40)
     pal = [EMBER, GOLD, LEAF, SEA, PETAL, WOOL, DUSK]
     grid = [[pal[(i * 3 + j * 5 + (i * j) % 3) % len(pal)] for j in range(4)] for i in range(4)]
     det = (Bp[0] - A[0]) * (D[1] - A[1]) - (Bp[1] - A[1]) * (D[0] - A[0])
@@ -614,7 +616,7 @@ def patchwork_picnic_blanket(cv, rnd):
     def layers(x, y, along):
         k = int((y - along) // 3)
         return grid[k % 4][(x // 7) % 4]
-    for m, base, t, along in ((left, A, 2, lambda x: A[1] + (x - A[0]) * 11 / 27), (right, D, 3, lambda x: D[1] - (x - D[0]) * 11 / 27)):
+    for m, base, t, along in ((left, A, 2, lambda x: A[1] + (x - A[0]) * (D[1] - A[1]) / (D[0] - A[0])), (right, D, 3, lambda x: D[1] + (x - D[0]) * (C[1] - D[1]) / (C[0] - D[0]))):
         shade(cv, m, lambda x, y, al=along: layers(x, y, al(x)), t, rnd, .03, rim=False)
         for x, y in pix(m):
             if (y - along(x)) % 3 < 1 and y - along(x) > 1: cv.put(x, y, INK if t == 3 else grid[0][0][4] if False else H("#4a3040"))
@@ -665,9 +667,9 @@ def curve_y(pts, x):
 
 
 def marrowbys_price_book(cv, rnd):
-    cover = Mpoly([(3, 25), (32, 31), (61, 25), (61, 47), (32, 55), (3, 47)])
+    cover = Mpoly([(5, 25), (32, 31), (59, 25), (59, 47), (32, 55), (5, 47)])
     shade(cv, cover, LEATHER, "flat", rnd, .06)
-    ltop, lbot = bezier((6, 23), (18, 16), (31, 28), 30), bezier((6, 44), (18, 38), (31, 50), 30)
+    ltop, lbot = bezier((8, 23), (19, 16), (31, 28), 30), bezier((8, 44), (19, 38), (31, 50), 30)
     for off, t in ((3, 3), (1.5, 2)):
         for pg in (lambda p: p, lambda p: (64 - p[0], p[1])):
             m = Mpoly([pg((x, y + off)) for x, y in ltop] + [pg((x, y + off)) for x, y in reversed(lbot)])
@@ -680,7 +682,7 @@ def marrowbys_price_book(cv, rnd):
     for cx, cy in ((12, 40), (52, 28)): tint(cv, pix(inter(lp if cx < 32 else rp, Mell(cx, cy, 3, 2))), PARCH, 1)
     # left page: the price list, a coin at the end of each line
     for k in range(4):
-        for x in range(9, 22):
+        for x in range(11, 22):
             if (x + k) % 6: cv.put(x, round(curve_y(ltop, x)) + 6 + k * 5, BR)
         x = 26; y = round(curve_y(ltop, x)) + 6 + k * 5
         px(cv, [(x, y), (x + 1, y), (x, y - 1), (x + 1, y - 1)], GOLD[1]); cv.put(x + 1, y, GOLD[3])
@@ -698,34 +700,32 @@ def marrowbys_price_book(cv, rnd):
     shade(cv, Mpoly([(31, 50), (34, 50), (35, 59), (33, 57), (31, 59)]), EMBER, "edge")
 
 
+def feather(cv, O, ang, L, R=WOOL):
+    vane = Mpoly(axis_poly(O, ang, [(0, .8), (L * .25, 2.6), (L * .65, 3), (L * .9, 1.4), (L, .3)]))
+    shade(cv, vane, R, "ball")
+    px(cv, pix(Mline([O, (O[0] + (L - 1) * math.cos(ang), O[1] + (L - 1) * math.sin(ang))], 1)), R[3])
+
+
 def feather_pillow(cv, rnd):
-    corners = [(7, 19), (57, 21), (55, 52), (9, 50)]
+    corners = [(6, 23), (58, 21), (56, 52), (8, 54)]
     pts = []
     for i in range(4):
         a, b = corners[i], corners[(i + 1) % 4]
         mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
-        cx, cy = 32 - mx, 36 - my; L = math.hypot(cx, cy)
-        ctrl = (mx - cx / L * 2, my - cy / L * 2) if i % 2 == 0 else (mx - cx / L * 3, my - cy / L * 3)
-        ctrl = (mx + cx / L * 3, my + cy / L * 3)
-        pts += bezier(a, ctrl, b, 16)[:-1]
-    body = union(Mpoly(pts), Mell(32, 36, 21, 13))
+        cx, cy = 32 - mx, 38 - my; L = math.hypot(cx, cy)
+        k = 4 if i % 2 == 0 else 5
+        pts += bezier(a, (mx + cx / L * k, my + cy / L * k), b, 16)[:-1]
+    body = Mpoly(pts)
     PST = ramp("#f0f8ff", "#cfe4f6", "#a6c6e6", "#7c9cc6", "#56709c")
-    shade(cv, body, lambda x, y: PST if (x - y // 6) % 6 in (0, 1) else WOOL, "ball", rnd, .03, box=(6, 17, 58, 55))
+    shade(cv, body, lambda x, y: PST if (x + round(((y - 38) / 9) ** 2 * (1 if x > 32 else -1))) % 7 in (0, 1) else WOOL,
+          "ball", rnd, .02, box=(5, 19, 59, 57))
     # tuft in the middle, creases out to the corners
     for c in corners:
-        for x, y in bezier((32, 36), ((32 + c[0]) / 2, (36 + c[1]) / 2 + 2), c, 14)[3:-3]:
-            tint(cv, [(round(x), round(y))], WOOL, 1); tint(cv, [(round(x), round(y))], PST, 1)
-    shade(cv, Mell(32, 36, 2, 2), PST, "ball")
-    # a feather escaping from a corner seam
-    O, a = (50, 23), math.radians(-60)
-    vane = Mpoly(axis_poly(O, a, [(0, 1), (5, 3), (12, 3.2), (17, 1.5), (19, .3)]))
-    shade(cv, vane, WOOL, "ball")
-    px(cv, pix(Mline([O, (O[0] + 18 * math.cos(a), O[1] + 18 * math.sin(a))], 1)), WOOL[3])
-
-    def post(c):
-        for x, y in ((12, 8), (13, 9), (14, 9), (15, 10), (16, 10), (17, 10)): c.put(x, y, WOOL[2])
-        for x, y in ((13, 8), (14, 8), (15, 9), (16, 9)): c.put(x, y, WOOL[0])
-    return post
+        for x, y in bezier((32, 38), ((32 + c[0]) / 2, (38 + c[1]) / 2 + 1), c, 16)[4:-4]:
+            for q in ((round(x), round(y)),): tint(cv, [q], WOOL, 1); tint(cv, [q], PST, 1)
+    shade(cv, Mell(32, 38, 2.2, 1.8), PETAL, "ball")
+    # feathers escaping
+    feather(cv, (49, 26), math.radians(-58), 19)
 
 
 ITEMS = {
