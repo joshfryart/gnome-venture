@@ -244,20 +244,20 @@ def d_mudskipper_medal(cv, rnd):
     ilump(cv, 32, 39, 12, 12, B)
     lump(cv, 32, 39, 10.5, 10.5, [B[2], B[2], B[2], B[3], B[3]], rnd, 0)
     # embossed mudskipper: a raised fish with a sunken rim, popped-up eyes, spiky back fin
-    fish = Cv(S, S)
-    ell(fish, 30, 42, 8, 3.3, 1 and B[0]); ell(fish, 25, 41, 4, 3.6, B[0])
-    poly(fish, [(36, 42), (42, 37), (41, 42), (42, 47)], B[0])
-    for x in range(28, 37, 3): poly(fish, [(x, 39), (x + 1, 36), (x + 3, 39)], B[0])
-    ell(fish, 24, 37, 1.8, 1.8, B[0]); ell(fish, 28, 37, 1.8, 1.8, B[0])
+    fish = Cv(S, S); Gd = R["gold"]
+    ell(fish, 31, 41, 6.5, 2.6, Gd[0]); ell(fish, 27, 40.5, 3.4, 3, Gd[0])
+    poly(fish, [(36, 41), (40, 37.5), (39.5, 41), (40, 44.5)], Gd[0])
+    for x in (30, 33): poly(fish, [(x, 39), (x + 1, 36.5), (x + 2.5, 39)], Gd[0])
+    ell(fish, 25.5, 37, 1.6, 1.6, Gd[0]); ell(fish, 28.5, 37, 1.6, 1.6, Gd[0])
     fp = fish.im.load()
     for y in range(S):
         for x in range(S):
             if fp[x, y][3]:
-                cv.put(x, y, B[0] if not fp[x, y - 1][3] or not fp[x - 1, y][3] else B[1])
-            elif any(fp[x + dx, y + dy][3] for dx, dy in ((-1, 0), (0, -1), (-1, -1))): cv.put(x, y, B[4])
-    cv.put(24, 37, INK); cv.put(28, 37, INK)
-    cv.put(21, 43, B[3]); cv.put(22, 43, B[3]); cv.put(23, 43, B[3])                         # grin
-    for (x, y) in ((29, 45), (30, 46), (33, 45)): cv.put(x, y, B[2])                       # fins
+                cv.put(x, y, Gd[0] if not fish.get(x, y - 1)[3] or not fish.get(x - 1, y)[3] else Gd[1] if fish.get(x + 1, y + 1)[3] else Gd[2])
+            elif any(fish.get(x + dx, y + dy)[3] for dx, dy in ((-1, 0), (0, -1), (-1, -1), (1, 0), (0, 1))): cv.put(x, y, B[4])
+    cv.put(25, 37, INK); cv.put(28, 37, INK)
+    cv.put(24, 41, Gd[3]); cv.put(25, 42, Gd[3]); cv.put(26, 42, Gd[3])                       # grin
+    cv.put(30, 44, Gd[2]); cv.put(29, 45, Gd[2])                                             # fin
     def post(cv): star(cv, 49, 28, CREAM)
     return dict(post=post)
 
@@ -406,16 +406,15 @@ def d_pine_snow_cone(cv, rnd):
     # pine cone scoop
     L = R["wood"]
     lump(cv, 32, 30, 14, 11, [L[2], L[3], L[3], L[4], L[4]], rnd, 0)
-    for row, yy in enumerate((22, 25, 28, 31, 34, 37)):                                   # shingled scales
-        for xx in range(16 + (row % 2) * 3, 50, 6):
-            nx, ny = (xx - 32) / 14.5, (yy - 30) / 11.5
-            if nx * nx + ny * ny > .95: continue
-            lit = (xx - 32) / 14 * .5 + (yy - 30) / 11 * .5
-            b0 = 0 if lit < -.35 else 1 if lit < .1 else 2
-            poly(cv, [(xx - 2.6, yy - 2), (xx + 2.6, yy - 2), (xx + 2.4, yy + 1), (xx, yy + 3), (xx - 2.4, yy + 1)], L[b0 + 1])
-            cv.put(xx - 1, yy - 1, L[b0]); cv.put(xx, yy - 1, L[b0])
-            for dx in (-2, -1, 1, 2): cv.put(xx + dx, yy + 2 - abs(dx) // 2 + (0 if abs(dx) == 2 else 0), L[4])
-            cv.put(xx, yy + 3, L[4])
+    for row, yy in enumerate((21, 25, 29, 33, 37)):                                      # scales with pale tips
+        for xx in range(15 + (row % 2) * 3, 50, 5 if row % 2 else 5):
+            nx, ny = (xx + .5 - 32) / 14, (yy + 1.5 - 30) / 11
+            if nx * nx + ny * ny > .8: continue
+            sh = 1 if xx < 30 else 2 if xx < 40 else 3
+            for dx in range(-2, 2): cv.put(xx + dx, yy, L[sh + 1])
+            for dx in range(-2, 3): cv.put(xx + dx, yy + 1, L[sh] if dx < 0 else L[min(4, sh + 1)])
+            for dx in range(-1, 2): cv.put(xx + dx, yy + 2, L[sh - 1] if dx < 1 else L[sh])
+            cv.put(xx, yy + 3, L[0])
     # snow cap
     Sn = R["snow"]
     lump(cv, 31, 18, 13, 7, Sn, rnd, 0)
