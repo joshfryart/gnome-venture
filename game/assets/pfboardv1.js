@@ -228,23 +228,23 @@
     var foe = data.foe || 'Creature', h = '', lim = V1.limit || 0, n = planQ && moves.length ? planQ.n || 0 : 0, tw = planQ && moves.length ? planQ.tw || 1 : 1, st = data.status || {}, i, dots = '';
     h += '<span class="tg step on" title="Every round goes: you, the creature, then the ' + (ENV ? 'environment' : 'terrain') + '">R' + (data.round || 1) + ' \u00B7 ' + (data.won ? 'over' : stepNow === 1 ? '<span class="fn">' + esc(foe) + '</span>' : stepNow === 2 ? (ENV ? 'Environment' : 'Terrain') : 'You') + '</span>';
     for (i = 1; i <= Math.max(lim, 3); i++) dots += '<i class="' + (n >= i ? (lim > 0 && n >= lim ? 'over' : 'on') : '') + '"></i>';
-    h += '<span class="tg" role="img" aria-label="Pieces that fire in your chain: ' + n + '. ' + (lim > 0 ? lim + ' or more: every piece that fired is used up.' : '') + '" title="' + (lim > 0 ? 'A chain of ' + lim + ' or more uses up every piece that fired.' : 'Chain') + '">chain <span class="dots">' + dots + '</span></span>';
-    h += '<span class="tg team' + (tw > 1 ? ' on' : '') + '" title="Pal, tool and crop pieces in one chain: 2 kinds +30%, all 3 +60%">' + (tw > 1 ? 'Teamwork +' + Math.round((tw - 1) * 100) + '%' : 'Teamwork') + '</span>';
+    h += '<span class="tg" role="img" aria-label="Pieces that fire in your chain: ' + n + '. ' + (lim > 0 ? lim + ' or more: every piece that fired is used up.' : '') + '" title="' + (lim > 0 ? 'A chain of ' + lim + ' or more uses up every piece that fired.' : 'Chain') + '"><span class="dots">' + dots + '</span></span>';   // 2.6.90 (Josh: "very busy"): no word, the dots say it
+    if (tw > 1) h += '<span class="tg team on" title="Pal, tool and crop pieces in one chain: 2 kinds +30%, all 3 +60%">Teamwork +' + Math.round((tw - 1) * 100) + '%</span>';   // 2.6.90: only when the chain has it (the rule is in the help sheet)
     if (!data.won) {
       var aim = dispAim();
       if (!data.start) h += st.foe_slow && phase !== 'pre' ? '<span class="tg good">' + esc(foe) + ' is slowed: no move</span>' : aim ? '<span class="tg aim">' + svg('aim') + 'Aims ' + esc(aim.n) + ' ' + esc(aim.t) + ' ' + aim.v + (data.reaim && phase !== 'pre' ? ' (picked again)' : '') + '</span>' : '<span class="tg aim">no aim</span>';
       dispEnvs().forEach(function (e, k) { if (phase === 'pre' && envDone[k]) return; h += '<button type="button" class="tg ev" data-ev="' + k + '">' + svg(EVG[e.kind]) + (e.kind === 'gust' && e.on ? 'Gust: pushes ' + esc(e.on.n) : EVN[e.kind]) + '</button>'; });
       if (st.poison) h += '<span class="tg bad">poisoned ' + st.poison + '</span>';
-      if (st.slowdraw) h += '<span class="tg bad">tripped: draw −1</span>';
-      else if (data.tripped) h += '<span class="tg bad" title="The creature tripped you: you drew one fewer piece this turn">tripped: drew 1 fewer</span>';
-      if (st.foe_evade) h += '<span class="tg bad">it dodges your next hit</span>';
+      if (st.slowdraw) h += '<span class="tg bad">tripped −1 draw</span>';
+      else if (data.tripped) h += '<span class="tg bad" title="The creature tripped you: you drew one fewer piece this turn">tripped −1 draw</span>';
+      if (st.foe_evade) h += '<span class="tg bad" title="The creature dodges your next hit">dodges next hit</span>';
       if (st.foe_thorns) h += '<span class="tg bad">thorny guard</span>';
       if (st.foe_bash) h += '<span class="tg bad">bash waits</span>';
-      if (st.evade) h += '<span class="tg good">you dodge the next hit</span>';
+      if (st.evade) h += '<span class="tg good" title="You dodge the creature\u2019s next hit">you dodge next</span>';
     }
-    var tools = data.tools || {}, wear = data.wear || {}, inHand = {}; data.hand.forEach(function (t) { if (t.tool) inHand[t.tool] = 1; });
-    Object.keys(tools).forEach(function (ty) { var w = wear[ty] || 0; if (!w && !inHand[ty]) return; var left = Math.max(0, tools[ty].left - w), f = left / Math.max(1, tools[ty].max);
-      h += '<span class="tg wear' + (f <= .25 ? ' crit' : f <= .5 ? ' low' : '') + '" title="Tool durability: −' + (data.toolwear || 2) + ' each time its piece is played">🔧 ' + esc(tools[ty].n) + ' ' + left + '/' + tools[ty].max + '</span>'; });
+    var tools = data.tools || {}, wear = data.wear || {}, inHand = {}, tl = [], worst = 1; data.hand.forEach(function (t) { if (t.tool) inHand[t.tool] = 1; });
+    Object.keys(tools).forEach(function (ty) { var w = wear[ty] || 0; if (!w && !inHand[ty]) return; var left = Math.max(0, tools[ty].left - w), f = left / Math.max(1, tools[ty].max); worst = Math.min(worst, f); tl.push(tools[ty].n + ' ' + left + '/' + tools[ty].max); });
+    if (tl.length) h += '<span class="tg wear' + (worst <= .25 ? ' crit' : worst <= .5 ? ' low' : '') + '" title="Tool durability (\u2212' + (data.toolwear || 2) + ' each time its piece is played): ' + esc(tl.join(', ')) + '" aria-label="Tool durability: ' + esc(tl.join(', ')) + '">\uD83D\uDD27 ' + tl.length + '</span>';   // 2.6.90: one chip for all the tools in play; the numbers are in its title
     rowEl.innerHTML = h;
     Array.prototype.forEach.call(rowEl.querySelectorAll('.tg.ev'), function (bt) { var e = dispEnvs()[+bt.dataset.ev]; if (e && e.kind === 'gust') { var sv = bt.querySelector('svg'); if (sv) sv.style.transform = 'rotate(' + ROT[e.dir] + 'deg)'; } });
   }
@@ -440,6 +440,7 @@
     if (insp) wrapEl.appendChild(insp);   // 2.6.76: the piece card is an overlay on the top of the board room when there is no room to dock it
     var ge0 = root.querySelector('.pf-guard'); if (ge0) { ge0.title = 'Guard: blocks the creature\u2019s hits. Your guard fades when your turn starts, unless Hold keeps it.'; ge0.setAttribute('aria-label', ge0.title); }   // 2.6.77
     dockEl = document.createElement('div'); dockEl.className = 'pfv-dock'; dockEl.id = 'pfv-dock'; if (legendEl && legendEl.parentNode) legendEl.parentNode.insertBefore(dockEl, legendEl.nextSibling);   // 2.6.77: docked card (in the flow) between the board and the hand
+    if (dockEl.parentNode && optsEl) { var pairEl = document.createElement('div'); pairEl.className = 'pfv-pair'; dockEl.parentNode.insertBefore(pairEl, dockEl); pairEl.appendChild(dockEl); pairEl.appendChild(optsEl); }   // 2.6.90 (Josh): the piece card and "Or set aside with" are one row, side by side
     if (histEl && typeof MutationObserver === 'function') { dockMo = new MutationObserver(function () { if (dockOn) dockFill(); }); dockMo.observe(histEl, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] }); }
     document.addEventListener('pointerdown', inspOut, true);
     if (window.pfvSizes) window.pfvSizes();
