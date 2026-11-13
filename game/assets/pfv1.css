@@ -437,3 +437,14 @@ html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 .pfv-dock .pfv-dockidle ul { margin: 0; padding: 0; list-style: none; }
 .pfv-dock .pfv-dockidle li { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pfv-dock .pfv-dockidle .dn { margin: 2px 0 0; font-weight: 700; color: #e8a317; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* 2.6.77: the dock is always there (46px or more): a compact card, 1 to 2 lines and small art; it never lies over the board */
+.pf-v1.pfv-docks .pfv-dock .pf-inspect .pfi-ch, .pf-v1.pfv-docks .pfv-dock .pf-inspect br { display: none; }
+.pf-v1.pfv-docks .pfv-dock .pf-inspect .pf-itext { display: block; font-size: 12px; line-height: 1.25; max-height: 100%; }
+.pf-v1.pfv-docks .pfv-dock .pf-inspect .pf-itext b { margin-right: 4px; }
+.pf-v1.pfv-docks .pfv-dock .pfv-dockidle li:nth-child(n+2), .pf-v1.pfv-docks .pfv-dock .pfv-dockidle .dn { display: none; }
+.pf-v1.pfv-docks .pfv-dock { padding: 2px 8px; }
+.pf-v1.pfv-docks .pfv-dock .pfv-dockidle .dl { display: inline; margin-right: 6px; }
+.pf-v1.pfv-docks .pfv-dock .pfv-dockidle ul { display: inline; }
+.pf-v1.pfv-docks .pfv-dock .pfv-dockidle li { display: inline; }
+.pfv-dock .pfv-dockidle li { white-space: normal; }
+.pf-v1.pfv-dockon .pfv-dock .pf-inspect .pfi-x { min-width: 32px; min-height: 32px; }

@@ -322,6 +322,7 @@
 
   // ---- the replay: it starts from the ground, forecast and aim as they stood before the turn; each terrain event flashes its mark and what it hit; used-up pieces leave after their side's chain
   function replayStart() {
+    if (insp) { insp.hidden = true; picked = null; Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-picked'), function (c) { c.classList.remove('pfb-picked'); }); }   // 2.6.77: the card never stays open into a replay
     if (PREV) phase = 'pre';
     terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = '';
     stripRem = []; stripBad = false; slideIds = {}; fadeIds = {}; fxPop = null;
@@ -434,34 +435,34 @@
     fitBusy = true;
     try {
       var ar = fitTW / fitTH, base = {}, r, w, h, rem, hw0 = HAND_W(), hh0 = Math.round(hw0 * 52 / 74), n = tiles.length || 5;
-      fitVars({ '--pfv-btn': '44px' }); wrapEl.style.flex = ''; wrapEl.style.height = ''; setDock(false);
+      fitVars({ '--pfv-btn': '44px', '--pfv-dock': '46px' }); wrapEl.style.flex = ''; wrapEl.style.height = ''; setDock(true);   // the card is docked always, never over the board
       r = wrapEl.getBoundingClientRect(); if (r.height < 30 || r.width < 30) return;
       w = Math.floor(Math.min(r.width, r.height * ar, fitTW * 1.7)); h = Math.round(w / ar);
       boardEl.style.maxWidth = 'none'; boardEl.style.aspectRatio = fitTW + ' / ' + fitTH; boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px';
       rem = Math.floor(r.height - h) - 4;
       if (rem >= 10) {
-        var v = { '--pfv-btn': '44px' }, dock = 0, hs = 1, gaps = Math.max(1, root.children.length - 1);
+        var v = { '--pfv-btn': '44px', '--pfv-dock': '46px' }, dock = 46, hs = 1, gaps = Math.max(1, root.children.length - 1);
         if (rem >= 8) { v['--pfv-btn'] = '48px'; rem -= 4; }
         var avail = handEl.clientWidth, hsW = Math.min(1.5, avail / (hw0 * (n - 0.12 * (n - 1)))), hcost = function (x) { return Math.round(hh0 * (x - 1)); };
         hsW = Math.max(1, Math.floor(hsW * 20) / 20);
-        if (rem >= 56 + 12) { dock = 56; rem -= 56; }
+        if (rem >= 12 + 20) { dock = 66; rem -= 20; }
         hs = hsW; if (hcost(hs) > rem - (dock ? 0 : 0)) hs = Math.max(1, Math.floor((1 + Math.max(0, rem) / hh0) * 20) / 20);
         rem -= hcost(hs);
-        if (dock) { var more = Math.min(64, rem); dock += more; rem -= more; }
+        { var more = Math.min(54, rem); dock += more; rem -= more; }
         if (rem >= 8) { v['--pfv-leg'] = '34px'; rem -= 8; }
         var gx = Math.max(0, Math.min(18, Math.floor(rem / gaps))); rem -= gx * gaps;
         v['--pfv-gap'] = (3 + gx) + 'px'; v['--pfv-hw'] = Math.round(hw0 * hs) + 'px'; v['--pfv-hh'] = Math.round(hh0 * hs) + 'px';
-        if (dock) { v['--pfv-dock'] = dock + 'px'; setDock(true); }
+        v['--pfv-dock'] = dock + 'px';
         fitVars(v);
         if (rem > 6) { wrapEl.style.flex = '0 1 auto'; wrapEl.style.height = h + 'px'; }   // what is left: the whole block is centred, one band over it and one under it (the rows give way first if something grows)
         // the card, the hand and the buttons must not push the board out of its room: if they did, take the extras back step by step
-        var tries = 0; while (tries++ < 4 && wrapEl.getBoundingClientRect().height < h - 1 && (dockOn || v['--pfv-hw'] !== hw0 + 'px')) {
-          if (dockOn) { setDock(false); delete v['--pfv-dock']; } else { delete v['--pfv-hw']; delete v['--pfv-hh']; }
+        var tries = 0; while (tries++ < 4 && wrapEl.getBoundingClientRect().height < h - 1 && (v['--pfv-hw'] !== hw0 + 'px' || v['--pfv-dock'] !== '46px')) {
+          if (v['--pfv-dock'] !== '46px') v['--pfv-dock'] = '46px'; else { delete v['--pfv-hw']; delete v['--pfv-hh']; }
           fitVars(v);
         }
-        if (wrapEl.getBoundingClientRect().height < h - 1) { fitVars({ '--pfv-btn': '44px' }); wrapEl.style.flex = ''; wrapEl.style.height = ''; var r2 = wrapEl.getBoundingClientRect(); w = Math.floor(Math.min(r2.width, r2.height * ar, fitTW * 1.7)); h = Math.round(w / ar); boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px'; }
+        if (wrapEl.getBoundingClientRect().height < h - 1) { fitVars({ '--pfv-btn': '44px', '--pfv-dock': '46px' }); wrapEl.style.flex = ''; wrapEl.style.height = ''; var r2 = wrapEl.getBoundingClientRect(); w = Math.floor(Math.min(r2.width, r2.height * ar, fitTW * 1.7)); h = Math.round(w / ar); boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px'; }
       }
-      if (dockOn) { if (insp && !insp.hidden && selected === null && picked === null) insp.hidden = true; dockEl.style.setProperty('--pfv-dockh', dockEl.clientHeight + 'px'); dockFill(); }
+      if (dockOn) { root.classList.toggle('pfv-docks', dockEl.clientHeight < 70); if (insp && !insp.hidden && selected === null && picked === null) insp.hidden = true; dockEl.style.setProperty('--pfv-dockh', dockEl.clientHeight + 'px'); dockFill(); }
     } finally { fitBusy = false; }
     fan();
   }
@@ -472,8 +473,9 @@
     var lines = [], chips = histEl ? Array.prototype.slice.call(histEl.querySelectorAll('.pf-chip:not([hidden])')) : [];
     chips.slice(0, 4).forEach(function (c) { var t = (c.getAttribute('aria-label') || c.textContent || '').replace(/\. Press to see the board then\.?$/, '').replace(/\s+/g, ' ').trim(); if (t) lines.push(t); });
     var nx = ''; if (ENV) { var it = stripItems(); nx = it.length ? 'Next in the environment: ' + it.map(function (x) { return envKind(x.kind).n; }).join(', ') + '.' : 'Next: the environment has nothing more to place.'; }
-    var key = lines.join('|') + '#' + nx; if (idle.dataset.k === key) return; idle.dataset.k = key;
-    idle.innerHTML = '<b class="dl">Last plays</b><ul>' + (lines.length ? lines.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') : '<li>Nothing played yet.</li>') + '</ul>' + (nx ? '<p class="dn">' + esc(nx) + '</p>' : '');
+    if (playing) { var bn = turnEl && !turnEl.hidden ? turnEl.textContent : ''; lines = [(bn ? bn + ': ' : '') + (stepNote || 'playing…')]; nx = ''; }
+    var key = (playing ? 'P' : '') + lines.join('|') + '#' + nx; if (idle.dataset.k === key) return; idle.dataset.k = key;
+    idle.innerHTML = '<b class="dl">' + (playing ? 'Now' : 'Last plays') + '</b><ul>' + (lines.length ? lines.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') : '<li>Nothing played yet.</li>') + '</ul>' + (nx ? '<p class="dn">' + esc(nx) + '</p>' : '');
   }
   function refit() { if (window.pfvFrame) window.pfvFrame(); fitBoard(); fan(); }
 
@@ -899,6 +901,7 @@
   }
   function inspectPiece(id) {
     var p = pieceById(id); if (!p) return;
+    if (picked === id && insp && !insp.hidden) { insp.hidden = true; picked = null; Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-picked'), function (c) { c.classList.remove('pfb-picked'); }); return; }   // 2.6.77: tap the piece again: the card goes
     picked = id; showText(p.n, pieceInfo(p), p);
     Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-tap'), function (c) { c.classList.toggle('pfb-picked', +c.dataset.id === id); });
   }

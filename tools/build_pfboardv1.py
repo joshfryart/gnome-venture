@@ -88,6 +88,7 @@ rep("setTimeout(function () { showTurn('Your turn', 'me'); }, 250);", "setTimeou
 rep("      c.className = 'pfi-cv'; slot.appendChild(c);\n    }\n    insp.hidden = false;", "      c.className = 'pfi-cv'; slot.appendChild(c);\n    }\n    inspExtra(i);\n    insp.hidden = false;")
 # --- 2.6.77: a picked hand piece shows its card in the dock under the board (when there is room to dock it)
 rep("    if (selected !== null) { tiles[i].classList.add('pf-picked'); tiles[i].setAttribute('aria-pressed', 'true'); }\n    render();\n  }\n  function showInspect(b) {", "    if (selected !== null) { tiles[i].classList.add('pf-picked'); tiles[i].setAttribute('aria-pressed', 'true'); }\n    render();\n    if (selected !== null && dockOn) showInspect(tiles[i]);\n  }\n  function showInspect(b) {")
+rep("    picked = id; showText(p.n, pieceInfo(p), p);", "    if (picked === id && insp && !insp.hidden) { insp.hidden = true; picked = null; Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-picked'), function (c) { c.classList.remove('pfb-picked'); }); return; }   // 2.6.77: tap the piece again: the card goes\n    picked = id; showText(p.n, pieceInfo(p), p);")
 out = os.path.join(R, 'game/assets/pfboardv1.js')
 if '--check' in sys.argv:
     sys.exit(0 if open(out, encoding='utf-8').read() == s else 'build_pfboardv1: game/assets/pfboardv1.js is not what the build gives (run tools/build_pfboardv1.py)')
