@@ -202,7 +202,7 @@ $s = v1_bare(); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creatu
 chk('a placed Wind carries its arrow (piece, log note, view); the arrow is gone when the piece returns to the deck', isset(PFB_SIDE[$wp['tile']['dir'] ?? '']) && $s['envlog'][0]['dir'] === $wp['tile']['dir'] && array_column(pfb_view($s)['pcs'], null, 'id')[$wp['id']]['dir'] === $wp['tile']['dir'] && (function () use ($s, $wp) { $w = $s; pfb_discard($w, $wp); return !isset($w['env']['discard'][0]['dir']) && $w['env']['discard'][0]['env'] === 'wind'; })(), $wp['tile']['dir'] ?? null);
 
 // ---- Mud
-$s = v1_bare(); $mid = v1_put($s, 'env', v1_env('mud', null, false), 2, 2); $j = pfb_check($s, $swing, 3, 2);
+$s = v1_bare('medium', ['must' => 1]); $mid = v1_put($s, 'env', v1_env('mud', null, false), 2, 2); $j = pfb_check($s, $swing, 3, 2);
 chk('Mud: a piece fits against it on any side but never links', $j !== null && !pfb_has_link($j) && pfb_check($s, $swing, 1, 2) !== null && pfb_check($s, $swing, 2, 1) !== null && pfb_check($s, $swing, 2, 3) !== null && pfb_links($s, $mid) === []);
 $oth = v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 0);
 chk('Mud: while a linking spot exists, the spots that only touch Mud are not offered', !in_array([3, 2], pfb_cells($s, $swing, 'me'), true) && in_array([3, 2], pfb_cells($s, $swing), true) && pfb_cells($s, $swing, 'me') !== []);

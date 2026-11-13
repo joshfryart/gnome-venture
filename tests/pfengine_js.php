@@ -53,14 +53,16 @@ function bsim_act(array $s, string $mode): ?array
 /** Candidate moves in order (the first that is legal is played). Chaos tries something random first, then falls back to the single bot. */
 function candidates(array $s, string $mode): array
 {
-    if ($mode !== 'chaos') return [bsim_act($s, $mode)];
+    $aside = pfb_v1r($s, 'aside') || !empty($s['me']['held']); $free = pfb_v1r($s, 'freepass');   // 2.6.95: set aside only where the rules allow it (or a group is held); a pass now and then where passing is free
+    if ($free && mt_rand(0, 9) === 0) return [null, bsim_act($s, $mode === 'chaos' ? 'single' : $mode)];
+    if ($mode !== 'chaos') { $a = bsim_act($s, $mode); return [$a !== null && !$aside && is_string($a[0]) ? bsim_act($s, 'single') : $a]; }
     $c = []; $hand = $s['me']['hand']; $held = $s['me']['held'] ?? null; $r = mt_rand(0, 99);
     if ($held && $r < 35) {
         if (count($held['pcs']) < 3 && $hand && mt_rand(0, 1)) { $c[] = ['h', mt_rand(0, count($hand) - 1), mt_rand(0, count($held['pcs']) - 1), array_rand(PFB_SIDE)]; }
         $spots = pfb_group_spots($s, $held);
         if ($spots) { $sp = $spots[mt_rand(0, count($spots) - 1)]; $c[] = ['c', $sp[0], $sp[1]]; }
         else $c[] = ['c', mt_rand(0, 6), mt_rand(0, 4)];
-    } elseif (!$held && count($hand) >= 2 && $r < 25) {
+    } elseif (!$held && $aside && count($hand) >= 2 && $r < 25) {
         $c[] = ['j', mt_rand(0, count($hand) - 1), mt_rand(0, count($hand) - 1), array_rand(PFB_SIDE)];
     } elseif ($hand && $r < 80) {
         $i = mt_rand(0, count($hand) - 1); $cells = pfb_cells($s, $hand[$i]);
@@ -120,9 +122,9 @@ foreach (file(__DIR__ . '/../game/includes/data/creatures.txt', FILE_IGNORE_NEW_
 $nf = 0; $na = 0;   // modes: v1 and v1d play the DEFAULT rules, v1pre plays the 2.6.94 rule set, so parity covers both from here on
 // 'blank' = the blank-centre variant (opt blank + a hidden start), played by the single bot. 2.6.74: 'v1' = the v1 board rules with the blank opening (single bot, flips when stuck);
 // 'v1b' = v1 with the builder bot and made-up sources (Teamwork); 'v1chaos' = v1 with random moves, random flips and random rule switches
-foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33], ['blank', 44], ['v1', 55], ['v1b', 66], ['v1chaos', 77], ['v1d', 88], ['v1old', 99], ['v1pre', 111]] as [$mode0, $seed]) {   // 2.6.75: v1 fights have ENVIRONMENT PIECES; 'v1old' = a fight started under 2.6.74 (ground and events), which must still play the same   // 'v1d' (stage B) = v1 with the deck model: the layered creature deck (class base 4 + region + size extras + 3 unique, creature tags) against a deck-model deck (tool pieces wear)
+foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos', 33], ['blank', 44], ['v1', 55], ['v1b', 66], ['v1chaos', 77], ['v1d', 88], ['v1old', 99], ['v1pre', 111], ['v1preb', 122]] as [$mode0, $seed]) {   // 2.6.75: v1 fights have ENVIRONMENT PIECES; 'v1old' = a fight started under 2.6.74 (ground and events), which must still play the same   // 'v1d' (stage B) = v1 with the deck model: the layered creature deck (class base 4 + region + size extras + 3 unique, creature tags) against a deck-model deck (tool pieces wear)
     mt_srand($seed * 1000 + $ci);
-    $v1 = str_starts_with($mode0, 'v1'); $mode = ['v1' => 'blank', 'v1b' => 'builder', 'v1chaos' => 'chaos', 'v1d' => 'blank', 'v1old' => 'blank', 'v1pre' => 'blank'][$mode0] ?? $mode0;
+    $v1 = str_starts_with($mode0, 'v1'); $mode = ['v1' => 'blank', 'v1b' => 'builder', 'v1chaos' => 'chaos', 'v1d' => 'blank', 'v1old' => 'blank', 'v1pre' => 'blank', 'v1preb' => 'builder'][$mode0] ?? $mode0;
     if ($v1 && $mode0 !== 'v1' && $mode0 !== 'v1d' && ($ci + ($mode0 === 'v1b' ? 0 : 1)) % 2) continue;   // half the creatures each, to keep the run short
     $opt = $mode === 'blank' ? ['blank' => true] : []; $mods = false;
     if ($mode === 'chaos') {
@@ -151,7 +153,7 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
             if (mt_rand(0, 1)) $opt['blank'] = true;
         }
         if ($mode0 !== 'v1' && $mode0 !== 'v1d') foreach ($me['deck'] as $i => $t) { $me['deck'][$i]['src'] = ['pal', 'tool', 'crop', 'craft', 'region'][($i + $ci) % 5]; if ($i % 4 === 0) $me['deck'][$i]['life'] = 2 + ($i + $ci) % 3; if ($i % 7 === 3) $me['deck'][$i]['edges'] = false; if ($i % 7 === 5) { $me['deck'][$i]['col'] = 'mind'; $me['deck'][$i]['up'] = false; } }
-        if ($mode0 === 'v1pre') $opt['v1'] = ['team2' => PFB_TEAM2, 'team3' => PFB_TEAM3, 'life' => 1] + PFB_V1_PRE;   // the full 2.6.94 rule set (V1_294 in pfboard_v1.php): parity covers it as well as the defaults
+        if ($mode0 === 'v1pre' || $mode0 === 'v1preb') $opt['v1'] = ['team2' => PFB_TEAM2, 'team3' => PFB_TEAM3, 'life' => 1] + PFB_V1_PRE;   // the full 2.6.94 rule set (V1_294 in pfboard_v1.php): parity covers it as well as the defaults
         if ($mode0 === 'v1old') $opt['v1'] = ['env' => 0, 'ground' => 1, 'events' => 1];
         if ($mode0 !== 'v1d' && $ci % 2 === 0) $c['region'] = array_keys(pfb_env_table()['regions'])[$ci % 14];   // the region leans the environment's deck
         if ($ci % 3 === 0 && $mode0 !== 'v1d') $c['class'] = ['Critter', 'Water', 'Bird', 'Plant / Fungus', 'Reptile / Amphibian', 'Beast'][$ci % 6];

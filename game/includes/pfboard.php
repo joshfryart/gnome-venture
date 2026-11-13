@@ -84,7 +84,7 @@ function pfb_v1_cfg(string $size, array $over = [], int $level = 0): array
     $cfg = ['w' => $dims[0], 'h' => $dims[1], 'ground' => 0, 'nsun' => $g[0], 'nbr' => $g[1], 'nmud' => $g[2], 'sun' => PFB_SUN_MULT, 'bramble' => PFB_BRAMBLE, 'br_foe' => PFB_BRAMBLE_FOE,
         'events' => 0, 'nev' => PFB_EVENTS[$size], 'thorn' => PFB_THORN, 'ev_foe' => PFB_EVENT_FOE, 'limit' => PFB_USEUP, 'aim' => 1, 'team2' => 1.0, 'team3' => 1.0,   // 2.6.95: Teamwork off (2.6.94 fights carry 1.3 / 1.6 in their saved cfg)
         'edges' => 1, 'flip' => 1, 'life' => 0, 'tags' => 1, 'foe' => PFB_V1_FOE_MULT[$size], 'bar' => PFB_V1_BAR_MULT[$size],
-        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 1] + PFB_V1_PRE;   // nowm 1 (2.6.95): no Wind or Mud in the deck   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
+        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 1, 'aside' => 0, 'must' => 0, 'freepass' => 1] + PFB_V1_PRE;   // nowm 1 (2.6.95): no Wind or Mud in the deck; aside 0, must 0, freepass 1 (2.6.95): no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
     foreach ($over as $k => $v) if (array_key_exists($k, $cfg) && is_numeric($v)) $cfg[$k] = is_int($cfg[$k]) ? (int)$v : (float)$v;
     if (isset($over['foe_x'])) $cfg['foe'] = round($cfg['foe'] * (float)$over['foe_x'], 4);
     if (isset($over['bar_x'])) $cfg['bar'] = round($cfg['bar'] * (float)$over['bar_x'], 4);
@@ -567,7 +567,7 @@ function pfb_has_link(?array $joints): bool
  */
 function pfb_must_link(array $s, string $who): bool
 {
-    if (!$s['pcs']) return false;
+    if (!$s['pcs'] || ($who === 'me' && !pfb_v1r($s, 'must'))) return false;   // 2.6.95: v1 'must' 0 = the player may put a piece on any cell where it fits (the creature always links)
     foreach ($s[$who]['hand'] as $t) for ($y = 0; $y < pfb_h($s); $y++) for ($x = 0; $x < pfb_w($s); $x++) if (pfb_has_link(pfb_check($s, $t, $x, $y))) return true;
     $g = $s[$who]['held'] ?? null;
     if ($g) foreach (pfb_group_cells_all($s, $g) as $o) if ($o[2]) return true;
@@ -1106,12 +1106,14 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null,
         $ev = $r;
     } elseif ($mv[0] === 'c') {
         if (count($mv) !== 3 || !is_int($mv[1]) || !is_int($mv[2])) return $bad;
+        if (empty($w['me']['held']) && !pfb_v1r($w, 'aside')) return $bad;   // 2.6.95: no group set aside and none allowed
         if (empty($w['me']['held'])) return ['ev' => [], 'err' => 'You have no group set aside.'];
         if ($canPlay) foreach ($w['me']['held']['pcs'] as $gp) if (($why = $canPlay($gp['tile'])) !== null) return ['ev' => [], 'err' => $why];
         $r = pfb_place_group($w, 'me', $mv[1], $mv[2]);
         if ($r === null) return ['ev' => [], 'err' => 'The group does not fit there.'];
         $ev = $r;
     } elseif ($mv[0] === 'j' || $mv[0] === 'h') {
+        if (!pfb_v1r($w, 'aside') && empty($w['me']['held'])) return $bad;   // 2.6.95: no setting aside in a new fight (a group already held can still be added to and played)
         if ($mv[0] === 'j') { if (count($mv) !== 4 || !is_int($mv[1]) || !is_int($mv[2]) || !is_string($mv[3])) return $bad; $err = pfb_connect($w, 'me', $mv[1], $mv[2], $mv[3]); }
         else { if (count($mv) !== 4 || !is_int($mv[1]) || !is_int($mv[2]) || !is_string($mv[3])) return $bad; $err = pfb_connect($w, 'me', null, $mv[1], $mv[3], $mv[2]); }
         if ($err) return ['ev' => [], 'err' => $err];
@@ -1219,12 +1221,12 @@ function pfb_pass(array &$s, int $turn): array
 {
     if ($s['over'] || $turn !== $s['turn']) return ['ev' => [], 'err' => $s['over'] ? 'The fight is over.' : 'stale'];
     if (!empty($s['start'])) return ['ev' => [], 'err' => 'Pick your start piece first.'];
-    foreach ($s['me']['hand'] as $i => $t) {
+    if (!pfb_v1r($s, 'freepass')) foreach ($s['me']['hand'] as $i => $t) {   // 2.6.95: passing is free in a new fight
         if (pfb_cells($s, $t)) return ['ev' => [], 'err' => 'You still have a piece that fits somewhere.'];
         if (pfb_can_flip($s, $i)) { $ft = $t; if (!empty($ft['flip'])) unset($ft['flip']); else $ft['flip'] = true; if (pfb_cells($s, $ft)) return ['ev' => [], 'err' => 'You still have a piece that fits somewhere when you flip it.']; }   // v1
     }
-    if (!empty($s['me']['held']) && pfb_group_spots($s, $s['me']['held'])) return ['ev' => [], 'err' => 'Your set-aside group still fits somewhere.'];
-    $w = $s; $w['reshuf'] = []; $w['cut'] = 0; $w['spent'] = []; pfb_begin($w, 'me');
+    if (!pfb_v1r($s, 'freepass') && !empty($s['me']['held']) && pfb_group_spots($s, $s['me']['held'])) return ['ev' => [], 'err' => 'Your set-aside group still fits somewhere.'];
+    $w = $s; $w['reshuf'] = []; $w['cut'] = 0; $w['spent'] = []; $w['lastfoe'] = []; $w['gone'] = []; pfb_begin($w, 'me');   // 2.6.95: a pass is a turn like a play: last round's news is not this turn's (as pfb_play, 2.6.88)
     if (!empty($w['v1'])) $w['envlog'] = [];
     $ev = pfb_foe_turn($w, 0); foreach ($ev as $i => $e0) $ev[$i]['ta'] = 'foe';
     $w['fx'] = pfb_fx($ev);

@@ -140,9 +140,11 @@ switch ($cmd) {
     case 'place': $hi = pp_int($a[0] ?? null, 0, 99, 'HANDIDX'); $px = pp_int($a[1] ?? null, -99, 99, 'X'); $py = pp_int($a[2] ?? null, -99, 99, 'Y');
         if (!$s['over'] && empty($s['start'])) { $pe = !isset($s['me']['hand'][$hi]) ? 'No such piece in your hand.' : ($px < 0 || $py < 0 || $px >= pfb_w($s) || $py >= pfb_h($s) ? 'That cell is off the board (x 0-' . (pfb_w($s) - 1) . ', y 0-' . (pfb_h($s) - 1) . ').' : (pfb_at($s, $px, $py) ? 'That cell is taken by piece #' . pfb_at($s, $px, $py)['id'] . '.' : null)); if ($pe !== null) { pp_save($f, $s, 'place ' . implode(' ', $a), [], $pe); echo "REFUSED: $pe\n(nothing changed)\n"; exit(2); } }
         $r = pfb_play($s, [[pp_int($a[0] ?? null, 0, 99, 'HANDIDX'), pp_int($a[1] ?? null, -99, 99, 'X'), pp_int($a[2] ?? null, -99, 99, 'Y')]], $s['turn']); break;
-    case 'join': $r = pfb_play($s, [['j', pp_int($a[0] ?? null, 0, 99, 'A'), pp_int($a[1] ?? null, 0, 99, 'B'), pp_side($a[2] ?? null)]], $s['turn']); break;
-    case 'add': $r = pfb_play($s, [['h', pp_int($a[0] ?? null, 0, 99, 'B'), pp_int($a[1] ?? null, 0, 99, 'ANC'), pp_side($a[2] ?? null)]], $s['turn']); break;
-    case 'group': $r = pfb_play($s, [['c', pp_int($a[0] ?? null, -99, 99, 'X'), pp_int($a[1] ?? null, -99, 99, 'Y')]], $s['turn']); break;
+    case 'join': case 'add': case 'group':   // 2.6.95: setting aside is out of a new fight (a group already held can still be added to and played)
+        if (!pfb_v1r($s, 'aside') && empty($s['me']['held'])) { echo "REFUSED: Not in this fight.\n(nothing changed)\n"; exit(2); }
+        if ($cmd === 'join') $r = pfb_play($s, [['j', pp_int($a[0] ?? null, 0, 99, 'A'), pp_int($a[1] ?? null, 0, 99, 'B'), pp_side($a[2] ?? null)]], $s['turn']);
+        elseif ($cmd === 'add') $r = pfb_play($s, [['h', pp_int($a[0] ?? null, 0, 99, 'B'), pp_int($a[1] ?? null, 0, 99, 'ANC'), pp_side($a[2] ?? null)]], $s['turn']);
+        else $r = pfb_play($s, [['c', pp_int($a[0] ?? null, -99, 99, 'X'), pp_int($a[1] ?? null, -99, 99, 'Y')]], $s['turn']); break;
     case 'pass': $r = pfb_pass($s, $s['turn']); break;
     case 'flip': $err = pfb_flip($s, pp_int($a[0] ?? null, 0, 99, 'HANDIDX'), $s['turn']); if ($err === null) { pp_save($f, $s, 'flip ' . implode(' ', $a), [], null); echo "FLIPPED (free; the turn goes on):\n\n" . pp_show($s) . "\n"; exit; } break;
     default: fwrite(STDERR, "unknown command\n"); exit(1);

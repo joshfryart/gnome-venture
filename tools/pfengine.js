@@ -536,7 +536,7 @@
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: 1, team3: 1,   // 2.6.95: Teamwork off
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1 };   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1 };   // 2.6.95: no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
     var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
@@ -903,7 +903,7 @@
 
   /** A piece has to connect (make a linked joint) with one already out; only when nothing in the hand or the set-aside group can connect anywhere may it go elsewhere that fits. */
   function mustLink(s, who) {
-    if (isEmpty(s.pcs)) return false;
+    if (isEmpty(s.pcs) || (who === 'me' && !v1r(s, 'must'))) return false;   // 2.6.95: v1 'must' 0 = the player may put a piece on any cell where it fits
     var hand = s[who].hand;
     for (var i = 0; i < hand.length; i++) for (var y = 0; y < pfbH(s); y++) for (var x = 0; x < pfbW(s); x++) if (hasLink(check(s, hand[i], x, y))) return true;
     var g = nn(s[who].held, null);
@@ -1422,12 +1422,14 @@
       ev = r;
     } else if (mv[0] === 'c') {
       if (mv.length !== 3 || !isInt(mv[1]) || !isInt(mv[2])) return bad();
+      if ((!truthy(w.me.held) || isEmpty(w.me.held)) && !v1r(w, 'aside')) return bad();
       if (!truthy(w.me.held) || isEmpty(w.me.held)) return { ev: [], err: 'You have no group set aside.' };
       if (canPlay) for (var gi = 0; gi < w.me.held.pcs.length; gi++) if ((why = canPlay(w.me.held.pcs[gi].tile)) !== null && why !== undefined) return { ev: [], err: why };
       r = placeGroup(w, 'me', mv[1], mv[2]);
       if (r === null) return { ev: [], err: 'The group does not fit there.' };
       ev = r;
     } else if (mv[0] === 'j' || mv[0] === 'h') {
+      if (!v1r(w, 'aside') && (!truthy(w.me.held) || isEmpty(w.me.held))) return bad();   // 2.6.95: no setting aside in a new fight
       if (mv.length !== 4 || !isInt(mv[1]) || !isInt(mv[2]) || typeof mv[3] !== 'string') return bad();
       err = mv[0] === 'j' ? connect(w, 'me', mv[1], mv[2], mv[3]) : connect(w, 'me', null, mv[1], mv[3], mv[2]);
       if (err) return { ev: [], err: err };
@@ -1454,12 +1456,12 @@
     if (s.over || turn !== s.turn) return { ev: [], err: s.over ? 'The fight is over.' : 'stale' };
     if (truthy(s.start)) return { ev: [], err: 'Pick your start piece first.' };
     var i;
-    for (i = 0; i < s.me.hand.length; i++) {
+    if (!v1r(s, 'freepass')) for (i = 0; i < s.me.hand.length; i++) {   // 2.6.95: passing is free in a new fight
       if (cells(s, s.me.hand[i]).length) return { ev: [], err: 'You still have a piece that fits somewhere.' };
       if (canFlip(s, i) && cells(s, flipped(s.me.hand[i])).length) return { ev: [], err: 'You still have a piece that fits somewhere when you flip it.' };
     }
-    if (truthy(s.me.held) && !isEmpty(s.me.held) && groupSpots(s, s.me.held).length) return { ev: [], err: 'Your set-aside group still fits somewhere.' };
-    var w = clone(s); w.spent = []; begin(w, 'me');
+    if (!v1r(s, 'freepass') && truthy(s.me.held) && !isEmpty(s.me.held) && groupSpots(s, s.me.held).length) return { ev: [], err: 'Your set-aside group still fits somewhere.' };
+    var w = clone(s); w.spent = []; w.lastfoe = []; w.gone = []; begin(w, 'me');   // 2.6.95: a pass is a turn like a play: last round's news is not this turn's
     if (w.v1) w.envlog = [];
     var ev = foeTurn(w); ev.forEach(function (e0) { e0.ta = 'foe'; });
     w.fx = fx(ev);
