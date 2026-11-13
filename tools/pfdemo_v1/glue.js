@@ -263,7 +263,8 @@
       + slider('limit', 'Use-up limit', 2, 6, 1, function (x) { return x + '+'; }, 'A chain this long uses its pieces up.') + slider('envn', 'Environment pieces a round', 1, 3, 1, function (x) { return x; })
       + slider('lvl', 'Your level vs the creature', -8, 4, 1, function (x) { return x > 0 ? '+' + x : x; }, 'Below 0 makes it harder.')
       + '<div class="tsel"><label for="t-belt">Fight belt (bought in the game)</label><select id="t-belt" data-k="belt"><option value="1">I · 2 slots</option><option value="2">II · 3 slots</option><option value="3">III · 4 slots</option></select></div>'
-      + '<div class="tsel"><label for="t-anim">Animation</label><select id="t-anim" data-k="anim"><option value="1">Normal</option><option value="2">Fast</option><option value="0">Skip</option></select></div></div></div>';
+      + '<div class="tsel"><label for="t-anim">Animation</label><select id="t-anim" data-k="anim"><option value="1">Normal</option><option value="2">Fast</option><option value="0">Skip</option></select></div>'
+      + '<div class="tsel"><label>A new gnome (forgets the box, wear and fight)</label><button type="button" class="btn small ghost" id="t-new">Start over</button></div></div></div>';
     sheetEl.querySelector('#t-belt').value = String(S.tune.belt); sheetEl.querySelector('#t-anim').value = String(S.tune.anim);
   }
   sheetEl.addEventListener('input', function (ev) {
@@ -276,7 +277,8 @@
     else { S.tune.anim = ev.target.value; safe(function () { localStorage.setItem('pfvspd', S.tune.anim); }); }
   });
   sheetEl.addEventListener('click', function (ev) {
-    if (ev.target.closest('[data-close]')) { sheetEl.hidden = true; sheetEl.innerHTML = ''; render(true); return; }
+    if (ev.target.closest('[data-close]')) { sheetEl.hidden = true; sheetEl.innerHTML = ''; if (!(window.__demoState && window.__demoState.fight)) render(true); return; }   // a fight on screen is left alone (a replay must not restart)
+    if (ev.target.closest('#t-new')) { S.src = PFD.blank(); S.enc = null; S.res = null; S.screen = 'box'; S.tab = 'kit'; S.fights = 0; setBelt(); sheetEl.hidden = true; sheetEl.innerHTML = ''; flash('A new gnome: pack a first Puzzle box.', 'ok'); render(); return; }
     if (ev.target.closest('#t-reset')) { S.tune = Object.assign({}, TUNE0); if (!locked()) setBelt(); tuning(); }
   });
   document.getElementById('b-tune').addEventListener('click', tuning);
