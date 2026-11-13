@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.88
+- **Health went up as soon as the turn was sent, not when the heal piece lit up (Josh).** The page the server sends already has the NEW health in it, and the number beside the health bar was never walked by the replay (only the bar was), so a Heal or Snack showed its effect at once. The number now follows the replay like the bar, and your health, guard and the creature's health show what they were before the turn until the replay reaches the piece that changes them. Checked frame by frame in the real game: 20 stays on screen until the Rest piece lights up, then 25.
+- **The last turn of a fight replayed the turn before it (Josh).** A turn that ends the fight has no creature turn and no end of round, so the pieces the creature put down and the pieces that left in the round BEFORE stayed in the saved state and the page played them again (hidden, then revealed; shown, then leaving). They are now cleared at the start of every turn (`pfboard.php`). New `tests/pfv1_finalturn.php` (run by `pfv1_charm`) fails without the fix.
+- **Needs 2.6.79+, no DB change. Puzzle combat v1 is still admin-gated.**
+
 ## 2.6.87
 - **Debug log: the fight's numbers (`?pfdebug=1`), to chase "healing doesn't heal me" (Josh).** After every turn the log now has a `FIGHT` line (turn, your health out of its maximum, guard, the charm bar, the creature's health, and your health before the turn), the `HAND` types, and one `REPLAY` line per piece that fired with your health at that point. Checked in the real game first: Rest (+5), Breather (+4) and Steep (+8) heal on the server (20 to 25, 24 and 28), are saved to the expedition, and show on the page; a Snack piece needs a snack in the satchel and does nothing when you are at full health (by design). No game rules changed.
 - **Needs 2.6.79+, no DB change. Puzzle combat v1 is still admin-gated.**

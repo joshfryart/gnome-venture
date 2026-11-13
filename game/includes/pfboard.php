@@ -1066,6 +1066,7 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null,
     }
     $w = $s;   // work on a copy: anything illegal means nothing happens
     $w['reshuf'] = []; $w['cut'] = 0; $w['spent'] = [];
+    $w['lastfoe'] = []; $w['gone'] = [];   // 2.6.88: what the creature put down and what left LAST round is not this turn's news. Without this a turn that ends the fight (no creature turn, no end of round) replayed them again.
     if (!empty($w['v1'])) $w['envlog'] = [];
     pfb_begin($w, 'me');
     $ev = [];

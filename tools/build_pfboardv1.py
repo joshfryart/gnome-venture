@@ -96,6 +96,8 @@ rep("    if (selected !== null) { tiles[i].classList.add('pf-picked'); tiles[i].
 rep("    picked = id; showText(p.n, pieceInfo(p), p);", "    if (picked === id && insp && !insp.hidden) { insp.hidden = true; picked = null; Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-picked'), function (c) { c.classList.remove('pfb-picked'); }); return; }   // 2.6.77: tap the piece again: the card goes\n    picked = id; showText(p.n, pieceInfo(p), p);")
 # --- 2.6.77: the guard rule in words
 rep("blocks the creature\\u2019s hits until your next turn", "blocks the creature\\u2019s hits. It fades when your turn starts, unless Hold keeps it")
+# --- 2.6.88 (Josh: "health should go up once the heal piece is highlighted, it goes up as soon as the turn is submitted"): the number beside the health bar is part of the page the server sends, so it already showed the NEW health; setHp only moved the bar. Now it sets the number too (and the label), so the replay can walk both
+rep("  function setHp(v) { var pr = root.querySelector('.pfc-top .pf-hp progress'); if (pr) pr.value = v; }", "  function setHp(v) {\n    var h = root.querySelector('.pfc-top .pf-hp'), pr = h && h.querySelector('progress'); if (pr) pr.value = v;\n    if (h) { var n = h.lastChild; while (n && !(n.nodeType === 3 && /\\d/.test(n.nodeValue))) n = n.previousSibling; if (n) n.nodeValue = ' ' + v; h.setAttribute('aria-label', 'Your health ' + v + (pr ? ' of ' + pr.max : '')); }\n  }")
 out = os.path.join(R, 'game/assets/pfboardv1.js')
 if '--check' in sys.argv:
     sys.exit(0 if open(out, encoding='utf-8').read() == s else 'build_pfboardv1: game/assets/pfboardv1.js is not what the build gives (run tools/build_pfboardv1.py)')
