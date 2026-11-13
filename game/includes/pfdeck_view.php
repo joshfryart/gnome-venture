@@ -44,8 +44,11 @@ function pfv_entries(array $u, array $entries): array
 }
 
 /** The one-line description of a player piece (the detail line under a grid). */
+function pfv_last_extra(?string $x = null): string { static $last = ''; if ($x !== null) $last = $x; return $last; }
+
 function pfv_desc(array $p, string $extra = ''): string
 {
+    pfv_last_extra($extra);   // the detail sheet shows it as its own note line
     $tg = PF_TAGS[(string)($p['tag'] ?? '')] ?? null;
     return (PFV_TYPE[$p['t']] ?? ucfirst((string)$p['t'])) . ' ' . (int)$p['v'] . (!empty($p['rank']) ? ' · ' . PFD_RANK_NAME[(int)$p['rank']] : '') . ' · stays ' . (int)$p['life'] . ' rounds'
         . (in_array($p['src'] ?? '', PFB_TEAM_SRC, true) ? ' · Teamwork: ' . $p['src'] : '') . ($extra !== '' ? ' · ' . $extra : '')
@@ -62,8 +65,12 @@ function pfv_pc(array $p, array $o = []): string
     $tg = PF_TAGS[(string)($p['tag'] ?? '')] ?? null; $own = (string)($o['owner'] ?? 'me');
     $art = json_encode(['t' => $p['t'], 'e' => $p['e'], 'tag' => $tg ? (string)$p['tag'] : '', 'o' => $own], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
     $label = $p['n'] . ', ' . (PFV_TYPE[$p['t']] ?? $p['t']) . ' ' . (int)$p['v'] . (($p['tag'] ?? '') !== '' && ($p['tag'] ?? '') !== 'pal' ? ', ' . $p['tag'] : '') . (!empty($p['rank']) ? ', ' . PFD_RANK_NAME[(int)$p['rank']] : '') . ', stays ' . $life . ' rounds';
+    // 2.6.76: everything the detail sheet shows for this piece (assets/pfv1box.js, PFSheet); the tag's words come from PF_TAGS, the one table
+    $pcd = ['n' => (string)$p['n'], 't' => (string)$p['t'], 'ty' => PFV_TYPE[$p['t']] ?? ucfirst((string)$p['t']), 'v' => (int)$p['v'], 'rk' => (int)($p['rank'] ?? 0), 'rn' => !empty($p['rank']) ? PFD_RANK_NAME[(int)$p['rank']] : '', 'src' => (string)($p['src'] ?? ''), 'life' => $life,
+        'tag' => $tg ? (string)$p['tag'] : '', 'ti' => $tg ? $tg[0] : '', 'tt' => $tg ? $tg[1] : '', 'e' => $p['e'], 'bl' => (string)($p['blurb'] ?? ''), 'note' => isset($o['d']) ? pfv_last_extra() : '', 'own' => $own]
+        + (isset($o['dur']) ? ['dur' => $o['dur']] : []);
     return '<li' . (isset($o['g']) ? ' data-g="' . e((string)$o['g']) . '"' : '') . '><button type="button" class="pc' . (!empty($p['rank']) ? ' r' . (int)$p['rank'] : '') . (!empty($p['gear']) ? ' gear' : '') . (($o['cls'] ?? '') !== '' ? ' ' . e((string)$o['cls']) : '') . '"'
-        . (isset($o['a']) ? ' data-a="' . e((string)$o['a']) . '" data-arg="' . e((string)($o['arg'] ?? $p['key'] ?? '')) . '"' : '') . ' data-n="' . e((string)$p['n']) . '" data-d="' . e((string)($o['d'] ?? '')) . '" data-t="' . e((string)$p['t']) . '"' . ($o['x'] ?? '')
+        . (isset($o['a']) ? ' data-a="' . e((string)$o['a']) . '" data-arg="' . e((string)($o['arg'] ?? $p['key'] ?? '')) . '"' : '') . ' data-n="' . e((string)$p['n']) . '" data-d="' . e((string)($o['d'] ?? '')) . '" data-t="' . e((string)$p['t']) . '" data-pc="' . e(json_encode($pcd, JSON_UNESCAPED_UNICODE)) . '"' . ($o['x'] ?? '')
         . ' aria-label="' . e($label) . '"><i class="cvh" data-p="' . e($art) . '"></i><span class="pc-v" aria-hidden="true">' . (int)$p['v'] . '</span>'
         . ($tg ? '<span class="pc-t" aria-hidden="true">' . $tg[0] . '</span>' : (isset(PFV_SRC_ICON[$p['src'] ?? '']) && in_array($p['src'], ['pal', 'tool', 'crop'], true) ? '<span class="pc-t" aria-hidden="true">' . PFV_SRC_ICON[$p['src']] . '</span>' : ''))
         . (($o['name'] ?? true) === false ? '' : '<span class="pc-n">' . e((string)$p['n']) . '</span>') . '<span class="pc-x' . ($life < 3 ? ' few' : '') . '" aria-hidden="true">' . $px . '</span></button></li>';
@@ -190,7 +197,7 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
         foreach ($d['belt'] as $i => $b) { if ($i >= 4) break;
             $onBelt[$b['type']] = $b['state'];
             $p = null; foreach ($P as $q) if ($q['tool'] === $b['type']) $p = $q;
-            if ($p && $b['state'] === 'ok') $bs .= str_replace(['<li>', '</li>'], ['<li class="bslot">', pfv_durbar((int)$b['left'], (int)$b['max']) . '<small>' . (int)$b['left'] . '/' . (int)$b['max'] . '</small></li>'], pfv_pc($p, ['a' => 'info', 'd' => pfv_desc($p, 'durability ' . (int)$b['left'] . '/' . (int)$b['max'] . ', −' . PFB_TOOL_WEAR . ' a play')]));
+            if ($p && $b['state'] === 'ok') $bs .= str_replace(['<li>', '</li>'], ['<li class="bslot">', pfv_durbar((int)$b['left'], (int)$b['max']) . '<small>' . (int)$b['left'] . '/' . (int)$b['max'] . '</small></li>'], pfv_pc($p, ['a' => 'info', 'dur' => [(int)$b['left'], (int)$b['max']], 'd' => pfv_desc($p, 'durability ' . (int)$b['left'] . '/' . (int)$b['max'] . ', −' . PFB_TOOL_WEAR . ' a play')]));
             else $bs .= pfv_slot($b['state'] === 'broken' ? 'broken' : ($b['state'] === 'over' ? 'no slot' : 'gone'));
         }
         for ($i = count($d['belt']); $i < 4; $i++) $bs .= pfv_slot($i >= $slots ? 'locked<br>Belt ' . ($i === 2 ? 'II' : 'III') : '＋');
@@ -205,7 +212,7 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
             if (!$locked && ($bk || (int)$w['wear'] > 0)) $acts[] = 'pfd_fix|🔧 Fix|gold|' . ($kits < 1 ? '1' : '0');
             if (!$locked && !$bk) $acts[] = $on ? 'pfd_unequip|Take off|ghost|0' : 'pfd_equip|' . ($full ? 'Belt full' : 'Put on') . '|primary|' . ($full ? '1' : '0');
             $td = $tt[0] . ' tool · ' . PFD_RANK_NAME[(int)$w['tier']] . ' · durability ' . (int)$w['left'] . '/' . (int)$w['max'] . ($bk ? ' · worn out: fix it with a Tool Repair Kit' . ($kits < 1 ? ' (you have none)' : '') : ($on ? ' · on the belt' : '')) . '.';
-            $h .= '<li><button type="button" class="tb t' . (int)$w['tier'] . ($bk ? ' broken' : '') . ($on ? ' on' : '') . '" data-a="tool" data-arg="' . e($type) . '" data-n="' . e($pn) . '" data-d="' . e($td) . '" data-acts="' . e(implode(';', $acts)) . '" aria-pressed="' . ($on ? 'true' : 'false') . '" aria-label="' . e($pn . ', ' . $td) . '">'
+            $h .= '<li><button type="button" class="tb t' . (int)$w['tier'] . ($bk ? ' broken' : '') . ($on ? ' on' : '') . '" data-a="tool" data-arg="' . e($type) . '" data-n="' . e($pn) . '" data-d="' . e($td) . '" data-acts="' . e(implode(';', $acts)) . '" data-dur="' . (int)$w['left'] . '/' . (int)$w['max'] . '" data-rk="' . (int)$w['tier'] . '" data-ico="' . e($tt[1]) . '" aria-pressed="' . ($on ? 'true' : 'false') . '" aria-label="' . e($pn . ', ' . $td) . '">'
                 . '<span class="ti" aria-hidden="true">' . $tt[1] . '</span><span class="tn">' . e($pn) . '</span>' . pfv_durbar((int)$w['left'], (int)$w['max']) . '</button></li>';
         }
         $h .= ($any ? '' : '<li class="hint">No tools yet. A garden or gathering tool in your satchel can go on the belt.</li>') . '</ul>';

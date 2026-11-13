@@ -85,6 +85,7 @@ rep("moves.length === 0 ? (fits ? (!mustLink(baseBoard(), handEdges()) && baseBo
 rep("root.dataset.turn === '1' ? 'Win two ways: Hurt empties its health, Charm fills the charm bar.'", "root.dataset.turn === '1' ? (data.opened ? 'The creature opened with ' + data.opened + ' piece' + (data.opened === 1 ? '' : 's') + '. ' : '') + 'Hurt empties its health, Charm fills the bar.'")
 rep(": 'Nothing fits. You can pass.')", ": 'No piece fits. Tap End turn to pass.')")
 rep("setTimeout(function () { showTurn('Your turn', 'me'); }, 250);", "setTimeout(function () { showTurn('Your turn', 'me', meSub()); }, 250);")
+rep("      c.className = 'pfi-cv'; slot.appendChild(c);\n    }\n    insp.hidden = false;", "      c.className = 'pfi-cv'; slot.appendChild(c);\n    }\n    inspExtra(i);\n    insp.hidden = false;")
 out = os.path.join(R, 'game/assets/pfboardv1.js')
 if '--check' in sys.argv:
     sys.exit(0 if open(out, encoding='utf-8').read() == s else 'build_pfboardv1: game/assets/pfboardv1.js is not what the build gives (run tools/build_pfboardv1.py)')

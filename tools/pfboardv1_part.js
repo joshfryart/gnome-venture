@@ -381,6 +381,14 @@
     document.addEventListener('pointerdown', inspOut, true);
     if (window.pfvSizes) window.pfvSizes();
   }
+  /** 2.6.76: the piece card shows the same chips, life and tag words as the Puzzle box's detail sheet (PFSheet, assets/pfv1box.js): one line under the text, the card stays slim. */
+  function inspExtra(i) {
+    var d = data.hand && data.hand[i], t = document.getElementById('pfi-desc'); if (!t || !d || !window.PFSheet) return;
+    var old = insp.querySelector('.pfi-ch'); if (old) old.parentNode.removeChild(old);
+    var TY = { hurt: 'Hurt', guard: 'Guard', heal: 'Heal', charm: 'Charm', soothe: 'Soothe', trick: 'Trick', item: 'Item' }, RN = ['', 'Common', 'Uncommon', 'Rare', 'Masterwork'];
+    var pc = { t: d.t, ty: TY[d.t] || d.t, v: d.v, rn: d.rank ? RN[d.rank] : '', rk: d.rank || 0, src: d.src && d.src !== 'knack' ? d.src : '', life: 0 };
+    var el = document.createElement('div'); el.className = 'pfi-ch'; el.innerHTML = window.PFSheet.chips(pc) + (d.life ? ' <span class="ch">stays ' + d.life + '</span>' : ''); insp.querySelector('.pf-itext').appendChild(el);
+  }
   function inspOut(ev) {   // a tap outside the piece card closes it
     if (!insp || insp.hidden || insp.contains(ev.target)) return;
     insp.hidden = true; picked = null; Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-picked'), function (c) { c.classList.remove('pfb-picked'); });
