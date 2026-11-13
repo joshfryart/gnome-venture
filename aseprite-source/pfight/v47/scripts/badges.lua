@@ -40,11 +40,12 @@ local function hand(name)
   local p = plate(n, BG[name])
   local g = L.cv(n, n)
   if name == "lock" then
-    g:disc(9, 6.6, 5.2, C); g:disc(9, 6.6, 2.8, BG.lock); g:rect(3, 9, 14, 9, nil)
-    g:rect(3, 8, 5, 10, nil)
-    g:rect(4, 9, 13, 15, C); g:rect(8, 11, 9, 13, K); g:rect(8, 14, 9, 14, K)
-    g:rect(4, 15, 13, 15, L.CREAMSH)
-    for y = 0, n - 1 do for x = 0, n - 1 do if g:get(x, y) == nil and ((x - 9) ^ 2 + (y - 6.6) ^ 2) < 2.8 ^ 2 then g:set(x, y, BG.lock) end end end
+    for y = 1, 9 do for x = 3, 14 do
+      local d2 = (x + .5 - 9) ^ 2 + (y + .5 - 6.5) ^ 2
+      if d2 <= 5.4 ^ 2 and d2 > 2.9 ^ 2 then g:set(x, y, C) end
+    end end
+    g:rect(4, 9, 13, 15, C); g:rect(4, 15, 13, 15, L.CREAMSH)
+    g:rect(8, 11, 9, 13, K); g:disc(9, 11.2, 1.4, K)
   elseif name == "star" then
     local pts, cx, cy = {}, 9, 9.6
     for i = 0, 9 do local a = -math.pi / 2 + i * math.pi / 5; local r = (i % 2 == 0) and 7.4 or 3.1; pts[#pts + 1] = { cx + r * math.cos(a), cy + r * math.sin(a) } end

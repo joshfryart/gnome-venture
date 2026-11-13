@@ -1,0 +1,37 @@
+PASS strip: 24 PNGs have the right size (piece 82x73, body 56x47 at (13,13), tab 13, badge 11) 
+PASS strip: no semi-transparent pixel in any PNG 
+PASS strip: 24 PNG files present (found 24)
+PASS hand: 24 PNGs have the right size (piece 140x124, body 96x80 at (22,22), tab 22, badge 18) 
+PASS hand: no semi-transparent pixel in any PNG 
+PASS hand: 24 PNG files present (found 24)
+PASS strip glyph hurt   18x19 at body x 19..36 y 14..32  centre (27.5, 23.0) = body centre (27.5, 23.0)
+PASS strip glyph guard  18x19 at body x 19..36 y 14..32  centre (27.5, 23.0) = body centre (27.5, 23.0)
+PASS strip glyph heal   18x19 at body x 19..36 y 14..32  centre (27.5, 23.0) = body centre (27.5, 23.0)
+PASS strip glyph charm  18x19 at body x 19..36 y 14..32  centre (27.5, 23.0) = body centre (27.5, 23.0)
+PASS strip glyph soothe 18x19 at body x 19..36 y 14..32  centre (27.5, 23.0) = body centre (27.5, 23.0)
+PASS strip glyph trick  18x19 at body x 19..36 y 14..32  centre (27.5, 23.0) = body centre (27.5, 23.0)
+PASS strip glyph item   18x19 at body x 19..36 y 14..32  centre (27.5, 23.0) = body centre (27.5, 23.0)
+PASS hand glyph hurt   32x32 at body x 32..63 y 24..55  centre (47.5, 39.5) = body centre (47.5, 39.5)
+PASS hand glyph guard  32x32 at body x 32..63 y 24..55  centre (47.5, 39.5) = body centre (47.5, 39.5)
+PASS hand glyph heal   32x32 at body x 32..63 y 24..55  centre (47.5, 39.5) = body centre (47.5, 39.5)
+PASS hand glyph charm  32x32 at body x 32..63 y 24..55  centre (47.5, 39.5) = body centre (47.5, 39.5)
+PASS hand glyph soothe 32x32 at body x 32..63 y 24..55  centre (47.5, 39.5) = body centre (47.5, 39.5)
+PASS hand glyph trick  32x32 at body x 32..63 y 24..55  centre (47.5, 39.5) = body centre (47.5, 39.5)
+PASS hand glyph item   32x32 at body x 32..63 y 24..55  centre (47.5, 39.5) = body centre (47.5, 39.5)
+PASS strip knob body  centred on its side; widths top 12, right 11, bottom 12, left 11
+PASS strip knob mind  centred on its side; widths top 16, right 17, bottom 16, left 17
+PASS strip knob craft centred on its side; widths top 18, right 17, bottom 18, left 17
+PASS hand knob body  centred on its side; widths top 20, right 20, bottom 20, left 20
+PASS hand knob mind  centred on its side; widths top 28, right 28, bottom 28, left 28
+PASS hand knob craft centred on its side; widths top 30, right 30, bottom 30, left 30
+PASS strip body  interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [116, 118]
+PASS strip mind  interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [100, 102]
+PASS strip craft interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [136]
+PASS strip flat edges: neighbours abut without overlap
+PASS hand body  interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [352]
+PASS hand mind  interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [302]
+PASS hand craft interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [410]
+PASS hand flat edges: neighbours abut without overlap
+PASS strip glyphs never overlap a hole or its rim; smallest gap 0 px (0 = touching) 
+PASS hand glyphs never overlap a hole or its rim; smallest gap 0 px (0 = touching) 
+RESULT ALL PASS

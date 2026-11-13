@@ -8,7 +8,7 @@ local FAMSH = { body = 0xb03e34, mind = 0x7a5cc0, craft = 0xc08a10 }
 function S.knobSide(c, side, fam)
   local len = L.sideLen(c, side)
   local cv = L.cv(c.W, c.H)
-  local inK2 = function(u, v) return u >= 0 and u <= len - 1 and (v == 0 or (v >= 1 and L.inK(c, fam, len, u, v - 1))) end
+  local inK2 = function(u, v) return u >= 0 and u <= len - 1 and L.inK(c, fam, len, u, math.max(v - 1, 0)) and v <= c.T end
   local list = {}
   for v = 0, c.T do for u = 0, len - 1 do if inK2(u, v) then
     local x, y = L.sideXY(c, side, u, v)
@@ -37,13 +37,15 @@ function S.holeSide(c, side, fam)
     local x, y = hxy(u, d)
     if x then cut:set(x, y, L.ERASE); inH[y * 1000 + x] = true end
   end end
-  for d = -1, c.T do for u = -1, len do
-    if not hxy(u, d) then
-      local x, y = L.sideXY(c, side, u, -d)
-      local nb = false
-      for _, o in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do if inH[(y + o[2]) * 1000 + x + o[1]] then nb = true end end
-      if nb and L.inBody(c, x - c.T, y - c.T) then ring:set(x, y, L.FAM[fam]) end
-    end
+  local r1 = {}
+  local function adj(set, x, y) for _, o in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do if set[(y + o[2]) * 1000 + x + o[1]] then return true end end return false end
+  for d = -2, c.T + 1 do for u = -2, len + 1 do   -- ring 1: dark outline against the cut-out (like every silhouette edge)
+    local x, y = L.sideXY(c, side, u, -d)
+    if not inH[y * 1000 + x] and adj(inH, x, y) and L.inBody(c, x - c.T, y - c.T) then ring:set(x, y, L.INK); r1[y * 1000 + x] = true end
+  end end
+  for d = -2, c.T + 1 do for u = -2, len + 1 do   -- ring 2: 1 px rim in the family colour, just inside
+    local x, y = L.sideXY(c, side, u, -d)
+    if not inH[y * 1000 + x] and not r1[y * 1000 + x] and adj(r1, x, y) and L.inBody(c, x - c.T, y - c.T) and not L.isRim(c, x - c.T, y - c.T) then ring:set(x, y, L.FAM[fam]) end
   end end
   return ring, cut
 end

@@ -17,8 +17,8 @@ M.TYPES = {  -- from game/assets/img/pfight/parts/atlas.json (base / light / sha
 M.ORDER = { "hurt", "guard", "heal", "charm", "soothe", "trick", "item" }
 
 M.CFG = {
-  strip = { name = "strip", BW = 56, BH = 47, T = 7, lenTB = 14, lenLR = 15, R = 4, stitchIn = 3, gW = 18, gH = 19, badge = 11, ring = 3 },
-  hand  = { name = "hand", BW = 96, BH = 80, T = 12, lenTB = 24, lenLR = 26, R = 7, stitchIn = 5, gW = 32, gH = 32, badge = 18, ring = 4 },
+  strip = { name = "strip", BW = 56, BH = 47, T = 13, lenTB = 20, lenLR = 21, R = 5, k = 1, stitchIn = 3, gW = 16, gH = 17, badge = 11, ring = 3 },
+  hand  = { name = "hand", BW = 96, BH = 80, T = 22, lenTB = 34, lenLR = 34, R = 8, k = 22 / 13, stitchIn = 5, gW = 30, gH = 30, badge = 18, ring = 4 },
 }
 for _, c in pairs(M.CFG) do c.W = c.BW + 2 * c.T; c.H = c.BH + 2 * c.T end
 
@@ -86,9 +86,9 @@ function M.save(path, w, h, layers)
   spr:close()
 end
 function M.savelayer(path, cv)  -- single-layer debug png (used by check.py)
-  M.save(path .. "__", cv.w, cv.h, { { name = "l", cv = cv } })
-  os.remove(path .. "__.aseprite")
-  os.rename(path .. "__.png", path .. ".png")
+  M.save(path, cv.w, cv.h, { { name = "l", cv = cv } })
+  os.remove(path .. ".aseprite")
+  os.remove(path .. "__.png")  -- leftover of an earlier draft of this helper
 end
 
 -- body geometry --------------------------------------------------------
@@ -117,16 +117,18 @@ end
 -- socket (knob / hole) profile ------------------------------------------
 -- local coords: u along the edge 0..len-1, i = depth from the base 0..T-1.  fam body = square, mind = round, craft = triangle
 function M.inK(c, fam, len, u, i)
-  local T, cu = c.T, (len - 1) / 2
-  local du = math.abs(u - cu)
-  if u < 0 or u > len - 1 or i < 0 or i > T - 1 then return false end
-  if fam == "body" then return true end
-  if fam == "mind" then
-    local a, b = len / 2, T
-    return (du * du) / (a * a) + ((i + .5) ^ 2) / (b * b) <= 1.0001
+  if u < 0 or u > len - 1 or i < 0 or i > c.T - 1 then return false end
+  local k = c.k
+  local dx, y = math.abs(u - (len - 1) / 2), (i + .5) * (k == 1 and 1.045 or 1)  -- strip: tabs end 1 px short of the glyph row
+  if fam == "body" then       -- classic jigsaw: narrow neck, round head (circle r 6, centre ~7 px out)
+    if dx <= 3.5 * k and y <= 2.1 * k then return true end
+    return dx * dx + (y - 6.973 * k) ^ 2 <= (6 * k) ^ 2
+  elseif fam == "mind" then   -- keyhole: flared base 18 wide, thin neck at 4.6 out, small round head
+    if y <= 4.6 * k and dx <= (9 - 6.8 * y / (4.6 * k)) * k then return true end
+    return dx * dx + (y - 8.18 * k) ^ 2 <= (4.2 * k) ^ 2
+  else                        -- craft: blunt wedge 18 wide to 4 wide
+    return y <= 13 * k and dx <= (9 - 7 * y / (13 * k)) * k
   end
-  local hw = (len / 2) * (1 - (i + .5) / (T + 1))
-  return du <= hw
 end
 -- side geometry: local (u,v) -> image coords; v = outward distance from the body edge row (0 = edge row)
 function M.sideXY(c, side, u, v)

@@ -34,7 +34,7 @@ function F.frame(c, owner)
   if owner == "foe" then
     ring2(c, hand and 2 or 1, 0xc8402e, band)
     local RED2, BONE, TOOTH = 0x8e2a1c, 0xf4d6a8, 0xb4441f
-    local pos = hand and { 8, 18, 28 } or { 5, 11, 17 }
+    local pos = hand and { 7, 17, 26 } or { 5, 11 }
     local wmax = hand and 9 or 5
     for _, p0 in ipairs(pos) do for _, cx in ipairs({ p0, c.BW - 1 - p0 }) do
       local rows = (wmax + 1) // 2

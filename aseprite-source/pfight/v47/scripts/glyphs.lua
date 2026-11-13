@@ -13,8 +13,8 @@ end
 
 local draw = {}
 function draw.hurt(g, W, H, P, hand)
-  local w, sp, s = 4, 5, 4
-  if hand then w, sp, s = 7, 9, 7 end
+  local w, sp, s = 3, 5, 3
+  if hand then w, sp, s = 6, 9, 6 end
   for k = 0, 2 do
     local a = s + k * sp
     g:poly({ { a, 0 }, { a + w, 0 }, { a - s + (hand and 2 or 1.5), H }, { a - s, H } }, CREAM)
