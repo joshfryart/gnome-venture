@@ -119,9 +119,10 @@
   }
   function ensureVisible(b) {   // the tapped piece stays in view above the sheet; the page only moves when the sheet would hide it
     if (!sheet || !b) return;
-    var wide = window.innerWidth >= 900, sr = sheet.getBoundingClientRect(), r = b.getBoundingClientRect();
+    var wide = window.innerWidth >= 900, sr = { top: window.innerHeight - (parseInt(sheet.style.getPropertyValue('--dbot'), 10) || 0) - sheet.offsetHeight }, r = b.getBoundingClientRect();   // the sheet's final place (it may still be sliding up)
     var hd = document.querySelector('.bannerin'), top = hd ? Math.max(0, hd.getBoundingClientRect().bottom) : 0, lim = wide ? window.innerHeight : sr.top;
-    if (r.bottom > lim - 6) window.scrollBy(0, Math.round(r.bottom - lim + 12)); else if (r.top < top + 4) window.scrollBy(0, Math.round(r.top - top - 12));
+    var dy = r.bottom > lim - 6 ? Math.round(r.bottom - lim + 12) : r.top < top + 4 ? Math.round(r.top - top - 12) : 0;
+    if (dy) { try { window.scrollBy({ top: dy, left: 0, behavior: 'instant' }); } catch (e) { window.scrollBy(0, dy); } }
   }
   function openSheet(root, b, keep) {
     var pc = btnData(b); if (!pc) return false;

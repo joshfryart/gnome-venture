@@ -419,3 +419,4 @@ html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 }
 .pf-v1 .pf-inspect .pfi-ch { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 2px; }
 .pf-v1 .pf-inspect .ch { display: inline-flex; padding: 0 5px; font-size: 11px; line-height: 16px; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .25); color: inherit; }
+@media (max-width: 899px) { html.pfv-dopen body { padding-bottom: calc(45vh + 56px); } }   /* room to scroll the last piece above the sheet */
