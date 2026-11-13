@@ -66,6 +66,7 @@ function page_header(string $title, bool $admin = false): void
 <?php if (!$admin && !$u && !empty($GLOBALS['gv_landing'])): ?><script src="<?= e(url('assets/landing.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* 2.6.41: the living scenes of the logged-out front page */ ?>
 <?php if ($admin): ?><link rel="stylesheet" href="<?= e(url('assets/admin.css?v=' . APP_VERSION)) ?>"><script src="<?= e(url('assets/admin.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* v1.6.3: admin look and menu, admin pages only */ ?>
+<?php if (isset($_GET['pfdebug']) || isset($_COOKIE['pfdbg'])): ?><script src="<?= e(url('assets/pfdebug.js?v=' . APP_VERSION)) ?>"></script><?php endif; /* 2.6.81: debug log for "End turn reloads", only with ?pfdebug=1 (cookie), assets/pfdebug.js */ ?>
 <script src="<?= e(url('assets/early.js?v=' . APP_VERSION)) ?>"></script>
 <script src="<?= e(url('assets/site.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php if (!$admin && in_array($page, ['spit.php', 'worms.php', 'memory.php', 'mushroom.php', 'race.php', 'marrow.php', 'letters.php'], true)): ?><script src="<?= e(url('assets/' . substr($page, 0, -4) . '.js?v=' . APP_VERSION)) ?>" defer></script>
