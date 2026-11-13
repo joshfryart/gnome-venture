@@ -52,11 +52,23 @@ const PFB_MUD = 0.25;                         // Mud's teeth: a piece standing n
 const PFB_RAIN = 0.15;                        // Rain: guard for the side that fires it, a share of its maximum (your health, the creature's bar)
 const PFB_THORN_FOE = 0.5;                    // Thornburst fired by the creature: x this (Josh, after Sim 5: 5% for the creature, 10% for you)
 const PFB_ENV_EDGE = ['h' => 'hole', 'k' => 'knob', 'b' => 'body', 'm' => 'mind', 'c' => 'craft'];
-const PFB_V1_FOE_MULT = ['small' => 0.95, 'medium' => 0.60, 'large' => 0.42, 'boss' => 0.45];   // 2.6.79 retune for isolated environment pieces (the creature fires them more): was 1.0 / 0.67 / 0.53 / 0.66.   // the creature's piece values by size (replaces PFB_FOE_MULT 0.62; boss, blank and fire-budget factors still apply). 2.6.75 retune for ENVIRONMENT PIECES (no ground, so nothing shortens a fight for free): tests/pfboard_tune_v1.php, chain bot about 70% at level, claude/design-board-strategy.md "Sim 5" (second retune: 2 environment pieces a round, Mud's teeth, Thornburst halved on the creature; with 1 piece a round it was 1.0 / 0.70 / 0.53 / 0.66 and bars 0.75 / 0.92 / 1.05 / 0.66). 2.6.74 (ground and events, stage B) had 0.76 / 0.56 / 0.42 / 0.53 with bars 1.0 / 1.3 / 1.6 / 1.0; a fight started then keeps those numbers in its state
-const PFB_V1_BAR_MULT = ['small' => 0.828, 'medium' => 0.994, 'large' => 1.15, 'boss' => 0.764];   // 2.6.79: x0.92 (was 0.90 / 1.08 / 1.25 / 0.83)   // the creature's bars by size (replaces PFB_BAR_MULT)
+const PFB_V1_FOE_MULT = ['small' => 0.95, 'medium' => 0.60, 'large' => 0.42, 'boss' => 0.585];   // after 2.6.94 (AIMSTICK): boss x1.3 (was 0.45) with its bar x0.8, so a boss hits harder in a shorter fight: chain bot at level 88 -> 88-90% (94% with AIMSTICK alone), 4 under 76 -> 73-75%, 8 under 50%, fights 8.7 -> 7.6 turns. Medium and large also take the level curve PFB_V1_LEVEL.   // 2.6.79 retune for isolated environment pieces (the creature fires them more): was 1.0 / 0.67 / 0.53 / 0.66.   // the creature's piece values by size (replaces PFB_FOE_MULT 0.62; boss, blank and fire-budget factors still apply). 2.6.75 retune for ENVIRONMENT PIECES (no ground, so nothing shortens a fight for free): tests/pfboard_tune_v1.php, chain bot about 70% at level, claude/design-board-strategy.md "Sim 5" (second retune: 2 environment pieces a round, Mud's teeth, Thornburst halved on the creature; with 1 piece a round it was 1.0 / 0.70 / 0.53 / 0.66 and bars 0.75 / 0.92 / 1.05 / 0.66). 2.6.74 (ground and events, stage B) had 0.76 / 0.56 / 0.42 / 0.53 with bars 1.0 / 1.3 / 1.6 / 1.0; a fight started then keeps those numbers in its state
+const PFB_V1_BAR_MULT = ['small' => 0.828, 'medium' => 0.994, 'large' => 1.15, 'boss' => 0.611];   // after 2.6.94: boss x0.8 (was 0.764), see PFB_V1_FOE_MULT.   // 2.6.79: x0.92 (was 0.90 / 1.08 / 1.25 / 0.83)   // the creature's bars by size (replaces PFB_BAR_MULT)
 
-/** The rule numbers of a v1 fight for a creature size; $over replaces single values (tests and sims: ['events' => 0] switches a rule off, 'foe_x' / 'bar_x' scale the creature). */
-function pfb_v1_cfg(string $size, array $over = []): array
+// LEVEL CURVE (after 2.6.94, AIMSTICK retune; claude/design-board-strategy.md targets, sims in tests/pfboard_tune_v1.php): one factor f by the creature's size and level,
+// f = clamp(1 + slope x (level - ref), lo, hi), as [slope, ref, lo, hi]. Its piece values are x f; its bar is x min(1, f), so a weak creature is also shorter, a strong one only hits harder.
+// Why: the gnome grows faster than the creature (health 20 + 3L, deck and tools step up), so with flat size factors the first creatures of a size were walls (medium lv 5-10 and
+// large lv 11-15 about 55-60% for the chain bot at level, sun-lizard / carrion-crow under 30%) and the late ones were free (medium lv 16+ and large lv 26+ about 90-96%).
+// Medium: 0.85 at lv 9 or less, 1.0 at 12, 1.35 from 19. Large: 0.85 at lv 16 or less, 1.0 at 22, 1.10 from 26 (a steeper large curve cost too much at 8 under).
+// Small (lv 1-5) and bosses (all lv 26-35) are flat: the boss retune is in PFB_V1_FOE_MULT / PFB_V1_BAR_MULT. Reconciles two sim reviews (balance "r4": medium lv 5-9 only;
+// difficulty "Proposal A": medium, large and boss by level) into this one curve; chain bot at level is then 76-87% in nearly every size x 5-level band (was 57-96%; left: medium lv 1-5 = orb-spider alone 62%, bosses lv 26-30 92%).
+const PFB_V1_LEVEL = ['small' => [0.0, 1, 1.0, 1.0], 'medium' => [0.05, 12, 0.85, 1.35], 'large' => [0.025, 22, 0.85, 1.10], 'boss' => [0.0, 1, 1.0, 1.0]];
+/** The level factor of a curve [slope, ref, lo, hi] at a creature level (see PFB_V1_LEVEL). */
+function pfb_v1_lvx(array $c, int $lv): float { return round(max((float)$c[2], min((float)$c[3], 1 + (float)$c[0] * ($lv - (int)$c[1]))), 4); }
+
+/** The rule numbers of a v1 fight for a creature size and level; $over replaces single values (tests and sims: ['events' => 0] switches a rule off, 'foe_x' / 'bar_x' scale the creature,
+ *  'lv' => [slope, ref, lo, hi] replaces the level curve). $level 0 = no level factor (lvx 1). */
+function pfb_v1_cfg(string $size, array $over = [], int $level = 0): array
 {
     if (!isset(PFB_SIZE[$size])) $size = 'medium';
     $g = PFB_GROUND[$size];
@@ -68,6 +80,8 @@ function pfb_v1_cfg(string $size, array $over = []): array
     foreach ($over as $k => $v) if (array_key_exists($k, $cfg) && is_numeric($v)) $cfg[$k] = is_int($cfg[$k]) ? (int)$v : (float)$v;
     if (isset($over['foe_x'])) $cfg['foe'] = round($cfg['foe'] * (float)$over['foe_x'], 4);
     if (isset($over['bar_x'])) $cfg['bar'] = round($cfg['bar'] * (float)$over['bar_x'], 4);
+    $cfg['lvx'] = $level > 0 ? pfb_v1_lvx(is_array($over['lv'] ?? null) ? $over['lv'] : PFB_V1_LEVEL[$size], $level) : 1.0;   // the level curve: piece values x f, bar x min(1, f)
+    $cfg['foe'] = round($cfg['foe'] * $cfg['lvx'], 4); $cfg['bar'] = round($cfg['bar'] * min(1.0, $cfg['lvx']), 4);
     // 2.6.93 (Josh: "give me a version with a 4x4 board to test"): a test board. adventure.php?pfboard=4x4 (the session) or the setting pfight_board_test = 4x4 gives every fight that STARTS from then on that board, whatever the creature's size; ?pfboard=off clears it. Rules that name cells (ground, environment pieces) keep working on the smaller board.
     $bt = (string)($_SESSION['pfb_test'] ?? '') !== '' ? (string)$_SESSION['pfb_test'] : (function_exists('setting') ? (string)setting('pfight_board_test') : '');
     if ($bt !== '' && !isset($over['w']) && !isset($over['h']) && preg_match('/^([3-9])x([3-9])$/', $bt, $bm)) { $cfg['w'] = (int)$bm[1]; $cfg['h'] = (int)$bm[2]; }
@@ -527,6 +541,7 @@ function pfb_check(array $s, array $tile, int $x, int $y): ?array
         if (!$fits) return null;
         $joints[] = [$side, (int)$n['id'], $linked && (empty($s['ter']) || (pfb_ter($s, $x, $y) !== 'mud' && pfb_ter($s, $x + $dx, $y + $dy) !== 'mud'))];   // v1: mud blocks links
     }
+    if (!$joints && !empty($s['aimforce'])) return [];   // AIMSTICK (v1 aim): the creature's shown aim lands even when a use-up chain has left its cell touching nothing; only your piece on the cell, or an edge of yours that does not fit, breaks it
     return $joints ?: null;   // it has to touch something
 }
 
@@ -973,7 +988,7 @@ function pfb_foe_turn(array &$s, int $extra): array
 function pfb_new(array $me, array $c, int $seed, array $opt = []): array
 {
     $s = pf_new($me, $c, $seed, $opt);
-    $v1 = !empty($opt['v1']) ? pfb_v1_cfg($s['size'], is_array($opt['v1']) ? $opt['v1'] : []) : null;   // v1 rules (admin setting pfight_v1): this fight's rule numbers, kept in the state
+    $v1 = !empty($opt['v1']) ? pfb_v1_cfg($s['size'], is_array($opt['v1']) ? $opt['v1'] : [], max(1, (int)($c['level'] ?? 1))) : null;   // v1 rules (admin setting pfight_v1): this fight's rule numbers, kept in the state
     $fm = ($v1 ? $v1['foe'] : PFB_FOE_MULT) * ($s['size'] === 'boss' ? PFB_BOSS_MULT : 1.0) * (!empty($opt['blank']) ? PFB_BLANK_FOE_MULT : 1.0) * (PFB_FOE_FIRES > 0 ? PFB_FOE_FIRE_MULT : 1.0);
     foreach (['hand', 'draw', 'discard'] as $z) foreach ($s['foe'][$z] as $i => $t) $s['foe'][$z][$i]['v'] = max(1, (int)round($t['v'] * $fm));
     $s['bar']['max'] = round($s['bar']['max'] * ($v1 ? $v1['bar'] : PFB_BAR_MULT), 1); $s['fh']['max'] = $s['bar']['max'];

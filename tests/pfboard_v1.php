@@ -213,6 +213,16 @@ $s = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => ['aim' => 0], 'blank' => tru
 chk('rule switch aim = 0: no aim is stored or shown', !isset($s['foe']['plan']) && pfb_view($s)['aim'] === null);
 $s = v1_bare(); v1_put($s, 'me', v1_tile($s, 'c1', 'charm', 3, 'body'), 2, 2); $s['foe']['hand'] = [v1_tile($s, 'f:h', 'hurt', 3, 'mind', 'creature')]; $s['foe']['slow'] = 1; pfb_intent($s);
 chk('a tripped creature shows no aim', $s['foe']['plan'] === null);
+// AIMSTICK: the shown aim holds when a use-up chain has removed every neighbour of its cell (it then touches nothing); only your piece on its cell, or an edge of yours that does not fit, makes it pick again
+$aimAlone = function (bool $misfit) {
+    $s = v1_bare(); $ft = v1_tile($s, 'f:h', 'hurt', 3, 'mind', 'creature'); $far = v1_put($s, 'me', v1_tile($s, 'c1', 'charm', 3, 'body'), 0, 0);   // a piece far away: the board is not empty
+    if ($misfit) { $n = v1_tile($s, 'g1', 'guard', 3, 'body'); $n['ed'] = ['L' => ['knob', 'craft'], 'R' => ['knob', 'craft'], 'T' => ['knob', 'craft'], 'B' => ['knob', 'craft']]; $ft['ed'] = ['L' => ['knob', 'craft'], 'R' => ['knob', 'craft'], 'T' => ['knob', 'craft'], 'B' => ['knob', 'craft']]; v1_put($s, 'me', $n, 2, 2); }   // knob against knob: does not fit
+    $s['foe']['hand'] = [$ft]; $s['foe']['plan'] = ['k' => 'f:h', 'n' => 'F:h', 't' => 'hurt', 'v' => 3, 'tag' => '', 'x' => 3, 'y' => 2];   // its aim at (3,2); nothing of its old neighbours is left
+    $ev = pfb_foe_turn($s, 0); $at = pfb_at($s, 3, 2);
+    return ['reaim' => (int)$s['reaim'], 'at' => $at ? $at['by'] . ':' . $at['tile']['k'] : null, 'ev' => count($ev)];
+};
+$g = $aimAlone(false); chk('AIMSTICK: an aim whose cell touches nothing now (its neighbours were used up) still lands on that cell, no re-aim', $g['reaim'] === 0 && $g['at'] === 'foe:f:h', $g);
+$g = $aimAlone(true); chk('AIMSTICK: an edge of yours that does not fit next to the aimed cell still makes it pick again', $g['reaim'] === 1 && $g['at'] !== 'foe:f:h', $g);
 
 echo "== 6. Teamwork: pal / tool / crop pieces of yours in one chain\n";
 $team = function (array $srcs, array $over = []) {   // a row of your pieces with these sources; the last one is placed and starts the chain. Returns its events.
@@ -316,12 +326,19 @@ $s0 = v1_bare('medium', ['life' => 0]); chk('rule switch life = 0: every piece l
 echo "== 10. creature values and bars by size\n";
 foreach (['small', 'medium', 'large', 'boss'] as $size) {
     $c = v1_foe($size, 12); $base = pf_new(v1_me(12), $c, 5); $s = pfb_new(v1_me(12), $c, 5, ['v1' => true]);
-    $fm = PFB_V1_FOE_MULT[$size] * ($size === 'boss' ? PFB_BOSS_MULT : 1.0) * PFB_FOE_FIRE_MULT; $want = []; foreach (pf_foe_deck($c) as $t) $want[$t['k']] = max(1, (int)round($t['v'] * $fm));
+    $lf = pfb_v1_lvx(PFB_V1_LEVEL[$size], 12); $fmul = round(PFB_V1_FOE_MULT[$size] * $lf, 4); $bmul = round(PFB_V1_BAR_MULT[$size] * min(1.0, $lf), 4);   // after 2.6.94: the level curve (a lv 12 creature)
+    $fm = $fmul * ($size === 'boss' ? PFB_BOSS_MULT : 1.0) * PFB_FOE_FIRE_MULT; $want = []; foreach (pf_foe_deck($c) as $t) $want[$t['k']] = max(1, (int)round($t['v'] * $fm));
     $got = []; foreach (array_merge($s['foe']['hand'], $s['foe']['draw'], array_column($s['pcs'], 'tile')) as $t) $got[$t['k']] = $t['v']; ksort($want); ksort($got);
-    chk("$size: bar x" . PFB_V1_BAR_MULT[$size] . ', creature piece values x' . PFB_V1_FOE_MULT[$size], $s['bar']['max'] === round($base['bar']['max'] * PFB_V1_BAR_MULT[$size], 1) && $s['fh']['max'] === $s['bar']['max'] && $got === $want, [$s['bar']['max'], $got, $want]);
+    chk("$size lv 12: bar x$bmul, creature piece values x$fmul (size numbers x level curve $lf)", $s['v1']['lvx'] === $lf && $s['bar']['max'] === round($base['bar']['max'] * $bmul, 1) && $s['fh']['max'] === $s['bar']['max'] && $got === $want, [$s['bar']['max'], $got, $want]);
 }
-$s = pfb_new(v1_me(), v1_foe('large'), 5, ['v1' => ['foe_x' => 2, 'bar_x' => 0.5]]);
-chk('sim knobs foe_x / bar_x scale the size numbers', abs($s['v1']['foe'] - 2 * PFB_V1_FOE_MULT['large']) < 1e-9 && abs($s['v1']['bar'] - 0.5 * PFB_V1_BAR_MULT['large']) < 1e-9);
+$s = pfb_new(v1_me(), v1_foe('large'), 5, ['v1' => ['foe_x' => 2, 'bar_x' => 0.5]]); $lf = $s['v1']['lvx'];
+chk('sim knobs foe_x / bar_x scale the size numbers (then the level curve)', $lf === 0.85 && abs($s['v1']['foe'] - round(2 * PFB_V1_FOE_MULT['large'] * $lf, 4)) < 1e-9 && abs($s['v1']['bar'] - round(0.5 * PFB_V1_BAR_MULT['large'] * $lf, 4)) < 1e-9, $s['v1']);
+// the level curve itself: f = clamp(1 + slope x (level - ref), lo, hi); piece values x f, the bar x min(1, f)
+$lc = []; foreach ([['medium', 5], ['medium', 9], ['medium', 12], ['medium', 16], ['medium', 30], ['large', 14], ['large', 22], ['large', 40], ['small', 3], ['boss', 30]] as [$sz, $lv]) $lc["$sz $lv"] = pfb_v1_cfg($sz, [], $lv)['lvx'];
+chk('level curve: medium 0.85 up to lv 9, 1 at 12, 1.2 at 16, 1.35 cap; large 0.85 low, 1 at 22, 1.1 cap; small and boss flat', $lc === ['medium 5' => 0.85, 'medium 9' => 0.85, 'medium 12' => 1.0, 'medium 16' => 1.2, 'medium 30' => 1.35, 'large 14' => 0.85, 'large 22' => 1.0, 'large 40' => 1.1, 'small 3' => 1.0, 'boss 30' => 1.0], $lc);
+$hi = pfb_v1_cfg('medium', [], 30); $lo = pfb_v1_cfg('medium', [], 5); $no = pfb_v1_cfg('medium');
+chk('level curve: a strong creature only hits harder (bar unchanged), a weak one hits softer AND has a shorter bar; no level = no curve', $hi['bar'] === PFB_V1_BAR_MULT['medium'] && $hi['foe'] === round(PFB_V1_FOE_MULT['medium'] * 1.35, 4) && $lo['bar'] === round(PFB_V1_BAR_MULT['medium'] * 0.85, 4) && $lo['foe'] === round(PFB_V1_FOE_MULT['medium'] * 0.85, 4) && $no['lvx'] === 1.0 && $no['foe'] === PFB_V1_FOE_MULT['medium'], [$hi, $lo]);
+chk('level curve: \'lv\' => [slope, ref, lo, hi] replaces it (sims)', pfb_v1_cfg('large', ['lv' => [0.1, 10, 0.5, 2]], 15)['lvx'] === 1.5);
 
 echo "== 11. whole fights: invariants, save and load\n";
 $n = 0; $fail = []; $over = []; $turns = []; $evs = ['bar full ends' => 0, 'charm win' => 0, 'env' => 0, 'used' => 0, 'tw' => 0, 'sun' => 0, 'flip' => 0, 'reaim' => 0, 'old terrain' => 0, 'place' => 0, 'pass' => 0, 'expire' => 0, 'push' => 0, 'env used up' => 0, 'reshuffle' => 0, 'mud weakens' => 0];

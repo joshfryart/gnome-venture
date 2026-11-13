@@ -4,7 +4,7 @@
 //   BOT: chain (always the longest chain; never looks at its health or the creature) | look (best state after the whole round: its chain, the shown aim, the terrain turn)
 //        | smart (two turns: top 6 by look, then its best own chain next turn; uses set-aside). All may flip (one flip a turn).
 //   OFFSETS: gnome level minus creature level, e.g. 0,-4,-8.   MULT 1 = about 200 fights per size and offset (0.25 for a quick look).
-//   env V1='{"foe_x":1.1,"limit":4}' (pfb_v1_cfg overrides; a value may be a map by size: {"foe":{"small":0.7,"medium":0.5,"large":0.4,"boss":0.45}}), SRC=mixed|built|thirds|none (made-up sources for Teamwork).
+//   env V1='{"foe_x":1.1,"limit":4}' (pfb_v1_cfg overrides; a value may be a map by size: {"foe":{"small":0.7,"medium":0.5,"large":0.4,"boss":0.45}}; {"lv":{"medium":[0.05,12,0.85,1.35]}} replaces a level curve, PFB_V1_LEVEL), SRC=mixed|built|thirds|none (made-up sources for Teamwork).
 // Targets (claude/design-board-strategy.md): chain about 70% at level, smart 90% or more, fights 6-8 turns (small 4-5). The bots are tools/pfsim/v1bundle/run.php's, plus the flip.
 require_once __DIR__ . '/../game/includes/pfboard.php';
 require_once __DIR__ . '/../game/includes/pfdeck.php';

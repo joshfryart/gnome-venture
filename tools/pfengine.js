@@ -507,7 +507,10 @@
   var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
   var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };
   var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4, PFB_TOOL_WEAR = 2;
-  var PFB_V1_FOE_MULT = { small: 0.95, medium: 0.60, large: 0.42, boss: 0.45 }, PFB_V1_BAR_MULT = { small: 0.828, medium: 0.994, large: 1.15, boss: 0.764 };   // 2.6.79 retune for isolated environment pieces   // 2.6.75 retune for environment pieces
+  var PFB_V1_FOE_MULT = { small: 0.95, medium: 0.60, large: 0.42, boss: 0.585 }, PFB_V1_BAR_MULT = { small: 0.828, medium: 0.994, large: 1.15, boss: 0.611 };   // after 2.6.94 (AIMSTICK): boss x1.3 with its bar x0.8 (was 0.45 / 0.764)
+  // after 2.6.94: the LEVEL CURVE (PFB_V1_LEVEL in pfboard.php, where the why is): f = clamp(1 + slope x (level - ref), lo, hi) as [slope, ref, lo, hi]; piece values x f, bar x min(1, f)
+  var PFB_V1_LEVEL = { small: [0.0, 1, 1.0, 1.0], medium: [0.05, 12, 0.85, 1.35], large: [0.025, 22, 0.85, 1.10], boss: [0.0, 1, 1.0, 1.0] };
+  function v1Lvx(c, lv) { return round(Math.max(Number(c[2]), Math.min(Number(c[3]), 1 + Number(c[0]) * (lv - toInt(c[1])))), 4); }   // 2.6.79 retune for isolated environment pieces   // 2.6.75 retune for environment pieces
   // 2.6.75 ENVIRONMENT PIECES: the environment is a third player; after the creature's turn it places one piece from its own deck, its next piece lies face up a round ahead.
   // PFB_ENV_ROWS is a copy of game/includes/data/pf_env.txt (key, name, kind, edges L,R,T,B, life, copies small/medium/large/boss, blurb); tests/pfengine_js.sh compares the two.
   var PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'], PFB_ENV_N = { small: 2, medium: 2, large: 2, boss: 2 }, PFB_RAIN = 0.15, PFB_THORN_FOE = 0.5, PFB_ENV_CAP = 0.7, PFB_MUD = 0.25;
@@ -524,7 +527,7 @@
   var KIND_GROUND = { sunbeam: 'sun', creep: 'br', puddle: 'mud' }, GROUND_N = { sun: 'nsun', br: 'nbr', mud: 'nmud' };
 
   function isNumeric(v) { return (typeof v === 'number' && isFinite(v)) || (typeof v === 'string' && v.trim() !== '' && isFinite(Number(v))); }
-  function v1Cfg(size, over) {
+  function v1Cfg(size, over, level) {
     if (!has(PFB_SIZE, size)) size = 'medium';
     var g = PFB_GROUND[size];
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
@@ -536,6 +539,9 @@
     for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
     if (over.foe_x !== undefined && over.foe_x !== null) cfg.foe = round(cfg.foe * Number(over.foe_x), 4);
     if (over.bar_x !== undefined && over.bar_x !== null) cfg.bar = round(cfg.bar * Number(over.bar_x), 4);
+    level = toInt(level || 0);
+    cfg.lvx = level > 0 ? v1Lvx(Array.isArray(over.lv) ? over.lv : PFB_V1_LEVEL[size], level) : 1.0;   // the level curve: piece values x f, bar x min(1, f)
+    cfg.foe = round(cfg.foe * cfg.lvx, 4); cfg.bar = round(cfg.bar * Math.min(1.0, cfg.lvx), 4);
     if (!cfg.edges) cfg.flip = 0;
     return cfg;
   }
@@ -880,6 +886,7 @@
       if (!j[0]) return null;
       joints.push([side, toInt(n.id), j[1] && (noTer(s) || (ter(s, x, y) !== 'mud' && ter(s, x + sd[0], y + sd[1]) !== 'mud'))]);   // v1: mud blocks links
     }
+    if (!joints.length && truthy(s.aimforce)) return [];   // AIMSTICK (v1 aim): the shown aim lands even when its cell now touches nothing
     return joints.length ? joints : null;
   }
 
@@ -1287,7 +1294,7 @@
   // ------------------------------------------------------------------ the whole fight
   function newFight(me, c, seed, opt) {
     var s = pfNew(me, c, seed, opt);
-    var v1 = (opt && truthy(opt.v1)) ? v1Cfg(s.size, (typeof opt.v1 === 'object' && !Array.isArray(opt.v1)) ? opt.v1 : {}) : null;
+    var v1 = (opt && truthy(opt.v1)) ? v1Cfg(s.size, (typeof opt.v1 === 'object' && !Array.isArray(opt.v1)) ? opt.v1 : {}, Math.max(1, toInt(nn(c.level, 1)))) : null;
     ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t) { t.v = Math.max(1, iround(t.v * (v1 ? v1.foe : PFB_FOE_MULT) * (s.size === 'boss' ? PFB_BOSS_MULT : 1.0) * (truthy(opt && opt.blank) ? PFB_BLANK_FOE_MULT : 1.0) * (PFB_FOE_FIRES > 0 ? PFB_FOE_FIRE_MULT : 1.0))); }); });
     s.bar.max = round(s.bar.max * (v1 ? v1.bar : PFB_BAR_MULT), 1); s.fh.max = s.bar.max;
     s.mode = 'board'; s.strip = []; s.pcs = {}; s.cell = {}; s.pid = 0; s.seq = 0; s.round = 1;

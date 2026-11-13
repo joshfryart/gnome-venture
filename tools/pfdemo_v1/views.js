@@ -158,7 +158,7 @@
   }
 
   // ---------------------------------------------------------------- 3. the pre-fight screen
-  function foeV(c, v, tune) { var cfg = PFE.v1Cfg(c.size, tune || {}); return Math.max(1, Math.round(v * cfg.foe * (c.size === 'boss' ? BOSS_MULT : 1) * (C.foeFires > 0 ? FIRE_MULT : 1))); }
+  function foeV(c, v, tune) { var cfg = PFE.v1Cfg(c.size, tune || {}, c.level); /* the level curve (after 2.6.94) */ return Math.max(1, Math.round(v * cfg.foe * (c.size === 'boss' ? BOSS_MULT : 1) * (C.foeFires > 0 ? FIRE_MULT : 1))); }
   function foeCard(ctx, c) {
     var size = c.size || 'small', dims = PFE.v1Cfg(size, ctx.tune), cl = c.class, rn = D.regions[c.region] || '', by = {}, cells = '', lean = c.lean, order = { base: 0, reg: 1, rar: 2, uni: 3 };
     var pieces = c.deck.map(function (p, i) { return [p, i]; }).sort(function (a, b) { return (order[a[0].layer] - order[b[0].layer]) || (a[1] - b[1]); }).map(function (x) { return x[0]; });

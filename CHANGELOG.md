@@ -2,6 +2,32 @@
 
 ## Unreleased (after 2.6.94, no version bump, no zip)
 - **Pick a different piece after flipping and the flip is taken back by itself (Josh).** The flip you used this turn goes back on its own when you pick another hand piece, so the flip is free again for the piece you picked. Deselecting the flipped piece keeps its flip. Source `tools/pfboardv1_part.js` (`unflipPrev`) and one replacement in `tools/build_pfboardv1.py`; `game/assets/pfboardv1.js` rebuilt. New browser test `tests/pfv1_flip.sh` (fails without the change).
+- **The creature's shown aim now holds (AIMSTICK).** Before, the shown aim did not happen on 44-51% of creature turns: usually a use-up chain had removed every neighbour of the aimed cell, and a piece must touch something. Now the aim lands on its cell anyway. Only two things make the creature pick again: you put a piece on that cell, or you put a piece next to it whose edge does not fit. Broken aims (chain bot at level) fell to 6-8% for medium, large and boss creatures and 11% for small ones. `pfb_check` and `check` in `tools/pfengine.js`. Regression check in `tests/pfboard_v1.php` section 5; it failed before the fix. The parity test fails if only the PHP side has the fix.
+- **One level curve for creature strength, plus a boss retune (v1 fights).** `PFB_V1_LEVEL` uses f = clamp(1 + slope x (level - ref), lo, hi). The creature's piece values are multiplied by f and its bar by min(1, f), so a weak creature also has a shorter bar, and a strong one only hits harder.
+  - Medium: [0.05, 12, 0.85, 1.35]. Large: [0.025, 22, 0.85, 1.10]. Small and boss: flat.
+  - Boss: piece values x1.3 (0.45 -> 0.585) and bar x0.8 (0.764 -> 0.611). This makes up for AIMSTICK, which on its own took the chain bot to 94% against bosses.
+  - This one curve replaces two earlier proposals: balance "r4" (medium levels 5-9 only) and difficulty "Proposal A" (medium, large and boss by level).
+  - A fight already under way keeps its numbers, because they are stored in its state.
+  - Changed in PHP and the JS port together; `tools/pfdemo_v1/views.js` now passes the creature level.
+  - Results: chain bot at level, win %, 24 seeds per creature, 4 shards:
+
+    | | small | medium | large | boss |
+    |---|---|---|---|---|
+    | before, at level | 84 | 77 | 82 | 88 |
+    | after, at level | 83 | 79 | 85 | 88-92 |
+    | before, 4 under | 72 | 37 | 62 | 76 |
+    | after, 4 under | 69 | 36 | 67 | 73-78 |
+    | before, 8 under | 72 | 13 | 34 | 50 |
+    | after, 8 under | 69 | 11 | 31 | 50 |
+
+  - By 5-level creature band, chain bot at level:
+    - Medium: was 58 / 60 / 89 / 94 / 96 / 96, now 62 / 77 / 84 / 76 / 83 / 79. The 1-5 band is orb-spider alone, n=24.
+    - Large: was 57 / 77 / 87 / 87 / 86 / 83, now 83 / 87 / 85 / 83 / 84 / 85.
+    - Boss: lv 26-30 was 90, now 92 (driven by individual bosses, not level); lv 31-35 was 81, now 76.
+  - Boss fights are shorter: 8.7 -> 7.6 turns at level.
+  - Look and smart bots: still 99-100% wins, health lost unchanged (look 12-15%, smart 10-14% at level).
+  - Test expectations changed for this retune, in `tests/pfboard_v1.php` section 10: the bar and piece-value checks per size now include the level factor, and the foe_x / bar_x knob check applies the curve. New checks for the curve itself.
+  - Not verified: real players, the live MySQL game and phone play. Bot sims only.
 - **Playtest harness (`tests/pf_play.php`) output is clearer** (no engine change): notice lines are readable, refusals say why, each event shows its real change, no stale cells after the fight.
 
 ## 2.6.94
