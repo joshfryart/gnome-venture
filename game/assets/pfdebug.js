@@ -89,13 +89,25 @@
     Array.prototype.forEach.call(document.querySelectorAll('[data-pfdbg]'), function (x) { x.parentNode.removeChild(x); });   // never two panels
     btn = document.createElement('button'); btn.type = 'button'; btn.textContent = 'bug';
     var s = btn.style; s.position = 'fixed'; s.right = '6px'; s.bottom = '6px'; s.zIndex = '2147483647'; s.fontSize = '14px'; s.font = '12px/1 monospace'; s.padding = '6px 8px'; s.opacity = '.85'; s.background = '#222'; s.color = '#fff'; s.border = '1px solid #888'; s.borderRadius = '6px';
-    box = document.createElement('div'); s = box.style; s.position = 'fixed'; s.left = '0'; s.right = '0'; s.bottom = '0'; s.height = '45%'; s.zIndex = '2147483646'; s.background = 'rgba(0,0,0,.92)'; s.color = '#9f9'; s.font = '10px/1.25 monospace'; s.display = 'none'; s.flexDirection = 'column';
-    var bar = document.createElement('div'); bar.style.cssText = ''; bar.style.padding = '4px 50px 4px 4px'; bar.style.display = 'flex'; bar.style.gap = '6px';
-    function b(label, fn) { var x = document.createElement('button'); x.type = 'button'; x.textContent = label; x.style.font = '11px monospace'; x.style.padding = '4px 8px'; x.addEventListener('click', fn); bar.appendChild(x); }
-    b('Copy', function () { var t = buf.join('\n'); try { navigator.clipboard.writeText(t); log('copied'); } catch (e) { var r = document.createRange(); r.selectNodeContents(pre); var sl = getSelection(); sl.removeAllRanges(); sl.addRange(r); } });
-    b('Clear', function () { buf = []; try { ls.setItem(K, '[]'); } catch (e) {} paint(); });
-    b('Off', function () { document.cookie = 'pfdbg=0; path=/; max-age=0'; try { ls.removeItem(K); } catch (e) {} location.search = ''; });
-    pre = document.createElement('pre'); pre.style.margin = '0'; pre.style.padding = '4px'; pre.style.overflow = 'auto'; pre.style.flex = '1'; pre.style.whiteSpace = 'pre-wrap'; pre.style.userSelect = 'text';
+    box = document.createElement('div'); s = box.style; s.position = 'fixed'; s.left = '0'; s.right = '0'; s.bottom = '0'; s.height = '55%'; s.zIndex = '2147483646'; s.background = 'rgba(0,0,0,.92)'; s.color = '#9f9'; s.font = '10px/1.25 monospace'; s.display = 'none'; s.flexDirection = 'column';
+    var bar = document.createElement('div'); bar.style.padding = '6px 70px 6px 6px'; bar.style.display = 'flex'; bar.style.gap = '8px'; bar.style.alignItems = 'center'; bar.style.flexWrap = 'wrap';
+    var st = document.createElement('span'); st.style.color = '#ff9'; st.style.font = '12px monospace';
+    function say(t) { st.textContent = t; }
+    function b(label, fn) { var x = document.createElement('button'); x.type = 'button'; x.textContent = label; x.style.font = '14px monospace'; x.style.minHeight = '44px'; x.style.minWidth = '72px'; x.style.padding = '8px 12px'; x.style.touchAction = 'manipulation';
+      var go = function (ev) { ev.stopPropagation(); try { fn(); } catch (e) { say('error: ' + e.message); } }; x.addEventListener('click', go); bar.appendChild(x); }
+    b('Copy', function () {
+      var t = buf.join('\n');
+      pre.focus(); pre.select(); try { pre.setSelectionRange(0, t.length); } catch (e) {}
+      var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+      if (ok) { say('copied ' + buf.length + ' lines'); return; }
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(function () { say('copied ' + buf.length + ' lines'); }, function () { say('copy blocked: the text is selected, press and hold, Copy'); }); return; }
+      say('all selected: press and hold the text, Copy');
+    });
+    b('Clear', function () { buf = []; try { ls.setItem(K, '[]'); } catch (e) {} paint(); say('cleared'); });
+    b('Off', function () { say('turning off...'); document.cookie = 'pfdbg=0; path=/; max-age=0'; try { ls.removeItem(K); ls.removeItem(C); } catch (e) {} location.href = location.pathname; });
+    bar.appendChild(st);
+    pre = document.createElement('textarea'); pre.readOnly = true; pre.style.margin = '0'; pre.style.padding = '4px'; pre.style.flex = '1'; pre.style.width = '100%'; pre.style.boxSizing = 'border-box'; pre.style.background = '#000'; pre.style.color = '#9f9'; pre.style.border = '0'; pre.style.font = '10px/1.25 monospace'; pre.style.resize = 'none';
+    ['click', 'pointerdown', 'touchstart'].forEach(function (n) { box.addEventListener(n, function (ev) { ev.stopPropagation(); }); });
     box.appendChild(bar); box.appendChild(pre);
     btn.setAttribute('data-pfdbg', '1'); box.setAttribute('data-pfdbg', '1');
     btn.addEventListener('click', function () { open = !open; box.style.display = open ? 'flex' : 'none'; paint(); });
@@ -111,7 +123,7 @@
   function paint() {
     if (!box) { ui(); if (!box) return; }
     btn.textContent = 'bug ' + buf.length;
-    if (open) { pre.textContent = buf.slice(-120).join('\n'); pre.scrollTop = pre.scrollHeight; }
+    if (open) { pre.value = buf.slice(-120).join('\n'); pre.scrollTop = pre.scrollHeight; }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paint); else paint();
   // the swap replaces <main> only, but keep the panel alive if something ever removes it

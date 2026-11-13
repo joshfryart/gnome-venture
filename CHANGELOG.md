@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.83
+- **Debug panel buttons (2.6.82) gave no sign they worked.** Copy, Clear and Off are bigger (44px) and a status line says what happened ("copied N lines", "cleared", "turning off..."). The log is a text box you can select and copy by hand if the Copy button is blocked, and Off goes back to the page without the debug address. Only loaded with `?pfdebug=1`.
+- **Needs 2.6.79+, no DB change. Puzzle combat v1 is still admin-gated.**
+
 ## 2.6.82
 - **The `bug` debug button was hidden behind the Trail fight (2.6.81).** The fight is a modal pop-up, which sits above everything else on the page and makes the rest of it unclickable, so the button could not be seen or tapped. It now lives inside the open pop-up (and on the page when there is none), and there is never more than one panel. Only loaded with `?pfdebug=1`; nothing changes for players.
 - **Needs 2.6.79+, no DB change. Puzzle combat v1 is still admin-gated.**
