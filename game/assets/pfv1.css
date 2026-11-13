@@ -464,3 +464,5 @@ html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 dialog.trailpop.pfdlg { background: #2b1d14; }
 /* The real cause: every turn the new fight panel (.encounter) replayed pfight.css's 0.25s fade-in (opacity + transform). While a transform is animating, the panel is the containing block of the fixed fight, so the fight shrank to the panel's 8px height for a moment and then jumped to full size: the "reload". The fight panel never animates in. */
 dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: none; }
+/* 2.6.85 (Josh, wide window): the charm bar is 8:1 and took the whole header width, so on a wide window it grew very tall. It is never wider than 320px (40px tall), centred in the header. */
+.pf-v1 .pfc-top .pf-bars .pfx-bar { width: 100%; max-width: 320px; margin-inline: auto; }

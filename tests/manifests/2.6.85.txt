@@ -12506,7 +12506,7 @@ b014998895b74014e6c6f15e0e18cc80ac8f02ea  assets/pfboardv1.js
 76e3b9384b9f2b6542eb219080e2d09fdad9633c  assets/pfight.css
 56bc56e74b3ef911cdd3caf00c3c09eb2d51160f  assets/pfight.js
 eb2215d5503ea93da4edd10ceb0e1a5ae35e7a5f  assets/pfparts.js
-1a522a69388906c27a26285fdfad03d96b6377e9  assets/pfv1.css
+237320914e455054aed71595c3a972ef70671efc  assets/pfv1.css
 618c17236bc664398a4f39d2a6dd10f90f912799  assets/pfv1box.js
 81bfd29eb554564643f4a471332a54aabe7cfe40  assets/pfx.js
 729b69ea888701e8921630ca27335798c8176f3a  assets/puzzlehub.js
@@ -12583,7 +12583,7 @@ a4515e4c537462438293b18ad0d22ce8e4c816cd  includes/almanac_pages.php
 87787cfe689c016d5cd71c70ce70f2cf964e03e9  includes/animals140.php
 7c6c522b642f92eebe010d5170cd824f44d9d562  includes/arrange_view.php
 a0a095e8c8492ee8d9875ce16ced7676534ee582  includes/art_upload.php
-d2b38526d55c9f6e58f86b257f6d5fcc2d34930b  includes/bootstrap.php
+71542871001e7c1a1ee9236929514c37109e1028  includes/bootstrap.php
 bbac817fc82c639f9044f000b406d1b4a6afdf6c  includes/breeding110.php
 88577080e8893717f6a3e3b1b9407cde6b4bc670  includes/calling_quests.php
 838dafc8cf1519f8076cc1d32ece62e88f007243  includes/calling_view.php
