@@ -507,7 +507,7 @@
   var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
   var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };
   var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4, PFB_TOOL_WEAR = 2;
-  var PFB_V1_FOE_MULT = { small: 1.0, medium: 0.67, large: 0.53, boss: 0.66 }, PFB_V1_BAR_MULT = { small: 0.90, medium: 1.08, large: 1.25, boss: 0.83 };   // 2.6.75 retune for environment pieces
+  var PFB_V1_FOE_MULT = { small: 0.95, medium: 0.60, large: 0.42, boss: 0.45 }, PFB_V1_BAR_MULT = { small: 0.828, medium: 0.994, large: 1.15, boss: 0.764 };   // 2.6.79 retune for isolated environment pieces   // 2.6.75 retune for environment pieces
   // 2.6.75 ENVIRONMENT PIECES: the environment is a third player; after the creature's turn it places one piece from its own deck, its next piece lies face up a round ahead.
   // PFB_ENV_ROWS is a copy of game/includes/data/pf_env.txt (key, name, kind, edges L,R,T,B, life, copies small/medium/large/boss, blurb); tests/pfengine_js.sh compares the two.
   var PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'], PFB_ENV_N = { small: 2, medium: 2, large: 2, boss: 2 }, PFB_RAIN = 0.15, PFB_THORN_FOE = 0.5, PFB_ENV_CAP = 0.7, PFB_MUD = 0.25;
@@ -772,7 +772,7 @@
           default: return '🟫 ' + String(e.n) + '.';
         }
       case 'place': return '🍃 The environment places ' + String(e.n) + '.';
-      case 'pass': return (e.kind !== undefined && e.kind !== null) ? (truthy(e.full) ? '🍃 The board is too full: the environment keeps ' + String(e.n) + '.' : '🍃 The environment finds no place for ' + String(e.n) + '.') : '🍃 The environment has no piece to place.';
+      case 'pass': return (e.kind !== undefined && e.kind !== null) ? (truthy(e.full) ? '🍃 The board is full: the environment keeps ' + String(e.n) + '.' : '🍃 The environment finds no place for ' + String(e.n) + '.') : '🍃 The environment has no piece to place.';
       case 'expire': return '🍂 ' + (nn(e.ids, []).length === 1 ? 'An environment piece fades.' : nn(e.ids, []).length + ' environment pieces fade.');
       case 'sunbeam': return '☀️ Sunbeam: a cell turns sunny' + (e.on ? ' under ' + whose(e.on) : '') + '.';
       case 'creep': return '🌿 Bramble creep: a cell turns to bramble' + (e.on ? ' under ' + whose(e.on) : '') + '.';

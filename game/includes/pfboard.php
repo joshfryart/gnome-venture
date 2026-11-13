@@ -52,8 +52,8 @@ const PFB_MUD = 0.25;                         // Mud's teeth: a piece standing n
 const PFB_RAIN = 0.15;                        // Rain: guard for the side that fires it, a share of its maximum (your health, the creature's bar)
 const PFB_THORN_FOE = 0.5;                    // Thornburst fired by the creature: x this (Josh, after Sim 5: 5% for the creature, 10% for you)
 const PFB_ENV_EDGE = ['h' => 'hole', 'k' => 'knob', 'b' => 'body', 'm' => 'mind', 'c' => 'craft'];
-const PFB_V1_FOE_MULT = ['small' => 1.0, 'medium' => 0.67, 'large' => 0.53, 'boss' => 0.66];   // the creature's piece values by size (replaces PFB_FOE_MULT 0.62; boss, blank and fire-budget factors still apply). 2.6.75 retune for ENVIRONMENT PIECES (no ground, so nothing shortens a fight for free): tests/pfboard_tune_v1.php, chain bot about 70% at level, claude/design-board-strategy.md "Sim 5" (second retune: 2 environment pieces a round, Mud's teeth, Thornburst halved on the creature; with 1 piece a round it was 1.0 / 0.70 / 0.53 / 0.66 and bars 0.75 / 0.92 / 1.05 / 0.66). 2.6.74 (ground and events, stage B) had 0.76 / 0.56 / 0.42 / 0.53 with bars 1.0 / 1.3 / 1.6 / 1.0; a fight started then keeps those numbers in its state
-const PFB_V1_BAR_MULT = ['small' => 0.90, 'medium' => 1.08, 'large' => 1.25, 'boss' => 0.83];   // the creature's bars by size (replaces PFB_BAR_MULT)
+const PFB_V1_FOE_MULT = ['small' => 0.95, 'medium' => 0.60, 'large' => 0.42, 'boss' => 0.45];   // 2.6.79 retune for isolated environment pieces (the creature fires them more): was 1.0 / 0.67 / 0.53 / 0.66.   // the creature's piece values by size (replaces PFB_FOE_MULT 0.62; boss, blank and fire-budget factors still apply). 2.6.75 retune for ENVIRONMENT PIECES (no ground, so nothing shortens a fight for free): tests/pfboard_tune_v1.php, chain bot about 70% at level, claude/design-board-strategy.md "Sim 5" (second retune: 2 environment pieces a round, Mud's teeth, Thornburst halved on the creature; with 1 piece a round it was 1.0 / 0.70 / 0.53 / 0.66 and bars 0.75 / 0.92 / 1.05 / 0.66). 2.6.74 (ground and events, stage B) had 0.76 / 0.56 / 0.42 / 0.53 with bars 1.0 / 1.3 / 1.6 / 1.0; a fight started then keeps those numbers in its state
+const PFB_V1_BAR_MULT = ['small' => 0.828, 'medium' => 0.994, 'large' => 1.15, 'boss' => 0.764];   // 2.6.79: x0.92 (was 0.90 / 1.08 / 1.25 / 0.83)   // the creature's bars by size (replaces PFB_BAR_MULT)
 
 /** The rule numbers of a v1 fight for a creature size; $over replaces single values (tests and sims: ['events' => 0] switches a rule off, 'foe_x' / 'bar_x' scale the creature). */
 function pfb_v1_cfg(string $size, array $over = []): array
@@ -399,7 +399,7 @@ function pfb_env_line(array $e, string $foe): string
                 default: return '🟫 ' . (string)$e['n'] . '.';
             }
         case 'place': return '🍃 The environment places ' . (string)$e['n'] . '.';
-        case 'pass': return isset($e['kind']) ? (!empty($e['full']) ? '🍃 The board is too full: the environment keeps ' . (string)$e['n'] . '.' : '🍃 The environment finds no place for ' . (string)$e['n'] . '.') : '🍃 The environment has no piece to place.';
+        case 'pass': return isset($e['kind']) ? (!empty($e['full']) ? '🍃 The board is full: the environment keeps ' . (string)$e['n'] . '.' : '🍃 The environment finds no place for ' . (string)$e['n'] . '.') : '🍃 The environment has no piece to place.';
         case 'expire': return '🍂 ' . (count((array)($e['ids'] ?? [])) === 1 ? 'An environment piece fades.' : count((array)($e['ids'] ?? [])) . ' environment pieces fade.');
         case 'sunbeam': return '☀️ Sunbeam: a cell turns sunny' . (isset($e['on']) ? ' under ' . $whose($e['on']) : '') . '.';
         case 'creep': return '🌿 Bramble creep: a cell turns to bramble' . (isset($e['on']) ? ' under ' . $whose($e['on']) : '') . '.';
