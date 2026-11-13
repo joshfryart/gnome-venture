@@ -174,7 +174,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await c.close();
 
     // ---- 2.6.75: the fight never scrolls: every board size at phone, small phone and desktop sizes; the pre-fight screen keeps Let's fight on screen; the menu has the link under Hobbies
-    for (const vp of [[390, 844], [360, 640], [1280, 720]]) {
+    for (const vp of [[390, 844], [360, 640], [412, 915], [1280, 720]]) {
       const c2 = await b.newContext({ viewport: { width: vp[0], height: vp[1] }, deviceScaleFactor: vp[0] > 1000 ? 1 : 2 }); const q = await c2.newPage(); const e2 = [];
       q.on('pageerror', e => e2.push(String(e))); q.on('console', m => { if (m.type() === 'error') e2.push(m.text()); });
       await q.addInitScript(() => { try { localStorage.setItem('pfvspd', '0'); } catch (e) {} });
@@ -193,6 +193,17 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
         ck(V(`${size} board: the page does not scroll (document height <= window, scrollTo stays at 0), nothing overflows the fight`), [m.doc, m.sy, m.fight, m.wide], [true, 0, true, true]);
         ck(V(`${size} board: header, history, chips, board, legend, hint, buttons and hand are all on screen; cells at least 24px; Flip is 40 to 46px high`), [m.all, m.hand, m.cell >= 24, m.flipH >= 40 && m.flipH <= 46], [[], true, true, true]);
         await q.screenshot({ path: `${out}/7-fit-${size}-${vp[0]}x${vp[1]}-${theme}.png` });
+        // 2.6.76: no dead bands. The sections from the chips down are packed (no gap over 24px between the boxes of the header, chips, board, Next strip, hint, buttons, hand), the board takes the height there is
+        const lay = await q.evaluate(() => { const ih = innerHeight, rs = ['.pfc-top', '#pfv-row', '#pfb-board', '#pfv-legend', '#pf-preview', '.pf-buttons', '#pf-hand'].map(s => { const r = document.querySelector(s).getBoundingClientRect(); return [s, r.top, r.bottom]; }).sort((a, b) => a[1] - b[1]);
+          const bd = document.getElementById('pfb-board').getBoundingClientRect(), wr = document.querySelector('.pfv-bwrap').getBoundingClientRect(), hd = document.getElementById('pf-hand').getBoundingClientRect(), ft = document.getElementById('pfight').getBoundingClientRect();
+          return { gaps: rs.slice(1).map((r, i) => [r[0], Math.round(r[1] - rs[i][2])]).filter(g => g[1] > 24 || g[1] < -1), pct: Math.round(bd.height * 100 / ih), roomLeft: Math.round(wr.height - bd.height), handBottomGap: Math.round(ft.bottom - hd.bottom) }; });
+        ck(V(`${size} board: no gap over 24px between header, chips, board, Next strip, hint, buttons and hand`), lay.gaps, []);
+        if (vp[1] >= 800) ck(V(`${size} board: the board is at least 45% of the window height on a tall phone (${lay.pct}%)`), lay.pct >= 45, true);
+        ck(V(`${size} board: the room under or over the board (width limits it) is at most 48px in all (${lay.roomLeft})`), lay.roomLeft <= 48 || vp[0] > 1000, true);
+        const wasInsp = await q.evaluate(() => { const t = document.querySelector('#pfb-board .pfb-tap'); if (t) t.click(); const i = document.getElementById('pf-inspect'), h = document.getElementById('pf-hand').getBoundingClientRect(), ib = i.getBoundingClientRect(), bd = document.getElementById('pfb-board').getBoundingClientRect(); return { open: !i.hidden, over: ib.bottom <= h.top + 1, inBoardRoom: ib.top >= bd.top - 60 && ib.bottom <= bd.bottom + 60, doc: document.documentElement.scrollHeight <= innerHeight }; });
+        await q.waitForTimeout(150); if (wasInsp.open) await q.screenshot({ path: `${out}/7-insp-${size}-${vp[0]}x${vp[1]}-${theme}.png` });
+        ck(V(`${size} board: the piece card is an overlay on the board room (not over the hand), the page does not grow`), [wasInsp.open, wasInsp.over, wasInsp.inBoardRoom, wasInsp.doc], [true, true, true, true]);
+        if (wasInsp.open) { const pv = await q.locator('#pf-preview').boundingBox(); await q.mouse.click(pv.x + pv.width / 2, pv.y + pv.height / 2); await q.waitForTimeout(150); ck(V(`${size} board: a tap outside closes the piece card`), await q.evaluate(() => document.getElementById('pf-inspect').hidden), true); }
         if (size === 'medium') { await q.click('#pfv-legend [data-en="0"]').catch(() => {}); await q.waitForTimeout(250);
           ck(V('medium board: the Next-strip popover opens over the fight and the page still does not scroll, the strip does not overflow'), [await q.locator('.pfv-pop').count(), await q.evaluate(() => document.documentElement.scrollHeight <= innerHeight), await q.evaluate(() => { const l = document.getElementById('pfv-legend'); return l.scrollWidth <= l.clientWidth + 1; })], [1, true, true]);
           await q.screenshot({ path: `${out}/7-envpop-${vp[0]}x${vp[1]}-${theme}.png` }); await q.click('.pfv-popx').catch(() => {}); }

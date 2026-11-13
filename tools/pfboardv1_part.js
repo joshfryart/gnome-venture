@@ -373,16 +373,23 @@
     window.addEventListener('resize', refit);
     if (typeof ResizeObserver === 'function') { wrapObs = new ResizeObserver(function () { fitBoard(); }); wrapObs.observe(wrapEl); }
     document.addEventListener('keydown', onKey);
+    if (insp) wrapEl.appendChild(insp);   // 2.6.76: the piece card is an overlay on the top of the board room, it never covers the hand
+    document.addEventListener('pointerdown', inspOut, true);
     if (window.pfvSizes) window.pfvSizes();
   }
-  function v1Off() { closeSheet(); closePop(); document.removeEventListener('keydown', onKey); window.removeEventListener('resize', refit); if (wrapObs) wrapObs.disconnect(); }
+  function inspOut(ev) {   // a tap outside the piece card closes it
+    if (!insp || insp.hidden || insp.contains(ev.target)) return;
+    insp.hidden = true; picked = null; Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-picked'), function (c) { c.classList.remove('pfb-picked'); });
+  }
+  function v1Off() { closeSheet(); closePop(); document.removeEventListener('pointerdown', inspOut, true); document.removeEventListener('keydown', onKey); window.removeEventListener('resize', refit); if (wrapObs) wrapObs.disconnect(); }
 
   /** The board is as big as the room between the rows above and under it allows (its cells scale); never wider than the fight. */
   function fitBoard() {
     if (!wrapEl || !fitTW || !root.classList.contains('pfv-fit')) return;
     var r = wrapEl.getBoundingClientRect(); if (r.height < 30 || r.width < 30) return;
-    var ar = fitTW / fitTH, w = Math.floor(Math.min(r.width, r.height * ar, fitTW * 1.7));
-    boardEl.style.maxWidth = 'none'; boardEl.style.aspectRatio = 'auto'; boardEl.style.width = w + 'px'; boardEl.style.height = Math.floor(w / ar) + 'px';
+    // 2.6.76: the board takes ALL the height there is. A wide board on a tall phone is limited by the width, so its rows grow taller than the pieces' own proportion (up to 2.3x, a stretch the pixel art takes well) instead of leaving a dead band above and under it; a board that is limited by the height gets narrower.
+    var ar = fitTW / fitTH, w = Math.floor(Math.min(r.width, r.height * ar, fitTW * 1.7)), h = Math.floor(Math.min(r.height, w / ar * 2.3));
+    boardEl.style.maxWidth = 'none'; boardEl.style.aspectRatio = 'auto'; boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px';
   }
   function refit() { if (window.pfvFrame) window.pfvFrame(); fitBoard(); fan(); }
 
