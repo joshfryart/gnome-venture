@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (after 2.6.94, no version bump, no zip)
+- **Pick a different piece after flipping and the flip is taken back by itself (Josh).** The flip you used this turn goes back on its own when you pick another hand piece, so the flip is free again for the piece you picked. Deselecting the flipped piece keeps its flip. Source `tools/pfboardv1_part.js` (`unflipPrev`) and one replacement in `tools/build_pfboardv1.py`; `game/assets/pfboardv1.js` rebuilt. New browser test `tests/pfv1_flip.sh` (fails without the change).
+- **Playtest harness (`tests/pf_play.php`) output is clearer** (no engine change): notice lines are readable, refusals say why, each event shows its real change, no stale cells after the fight.
+
 ## 2.6.94
 - **4x4 is the board for every creature size (Josh: "make 4x4 the board size going forward").** `PFB_SIZE` is 4x4 for small, medium, large and boss (engine, JS port, parity test). `?pfboard=WxH` and the `pfight_board_test` setting still override. Tests moved to 4x4 seeds. Foe/bar multipliers were tuned per size: re-check balance.
 - **Needs 2.6.88+, no DB change. Puzzle combat v1 is still admin-gated.**

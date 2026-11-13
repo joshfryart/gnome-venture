@@ -507,8 +507,13 @@
     delete t.dataset.arted;
     if (!(window.PFParts && window.PFParts.ok)) ['B', 'T', 'R', 'L'].forEach(function (sd) { t.insertBefore(edgeSpan(data.hand[i].e[sd], sd), t.firstChild); });
   }
-  function doFlip() {
-    var i = selected;
+  /** after 2.6.94 (Josh): pick a different piece after flipping one and the flip is taken back by itself (the flip is free again for the piece you pick). While the flip is used, exactly the piece flipped this turn still says canflip. */
+  function unflipPrev(next) {
+    if (!(data.flip && data.flip.used)) return;
+    for (var p = 0; p < data.hand.length; p++) if (p !== next && data.hand[p] && data.hand[p].canflip) { doFlip(p); return; }
+  }
+  function doFlip(idx) {
+    var i = typeof idx === 'number' ? idx : selected;
     if (typeof i !== 'number' || playing || submitted || flipBusy || !data.hand[i] || !data.hand[i].canflip) return;
     flipBusy = true; flipBtn.disabled = true;
     var fd = new FormData(), qs = function (n) { var e = form.querySelector('[name=' + n + ']'); return e ? e.value : ''; };

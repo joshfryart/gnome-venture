@@ -18,6 +18,8 @@ rep("    if (c) c.style.width = Math.max(0, Math.min(100, 100 * now / max)) + '%
 # --- 2.6.80 (Josh): a number on the charm meter, "N/100" (the engine's own one-decimal value scaled to 100; 100 only once the bar is full = the creature is won, else at most 99)
 rep("    var pr = root.querySelector('.pf-bar progress'); if (pr) pr.value = now;", "    var pr = root.querySelector('.pf-bar progress'); if (pr) pr.value = now;\n    var bx = root.querySelector('.pf-bar'); if (bx) { var nb = bx.querySelector('.pf-charmn'); if (!nb) { nb = document.createElement('b'); nb.className = 'pf-charmn'; nb.setAttribute('aria-hidden', 'true'); bx.appendChild(nb); } var rn = Math.round(now * 10) / 10; nb.textContent = Math.max(0, rn >= max ? 100 : Math.min(99, Math.floor(100 * rn / max))) + '/100'; }")
 rep("((form.querySelector('[name=turn]') || {}).value), willReplay = false;", "((form.querySelector('[name=turn]') || {}).value) + (data.won || data.lost ? ':end' : ''), willReplay = false;")
+# --- after 2.6.94 (Josh): picking a different piece takes back this turn's flip
+rep("    selected = selected === i ? null : i;\n    if (selected !== null) { tiles[i].classList.add('pf-picked');", "    if (selected !== i) unflipPrev(i);\n    selected = selected === i ? null : i;\n    if (selected !== null) { tiles[i].classList.add('pf-picked');")
 # --- state and helpers (the v1 part is pasted in after the first declarations)
 rep("p.age >= LIFE1", "isOld(p)", 5)
 rep("  var glows = [], fxOn = !willReplay, glowTimer = 0, frame = 0;", "  var glows = [], fxOn = !willReplay, glowTimer = 0, frame = 0;\n" + v1)
