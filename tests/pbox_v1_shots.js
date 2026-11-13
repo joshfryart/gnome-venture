@@ -41,21 +41,21 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await open('/puzzlebox.php');
     const kitN = await n('.pfv-g .pc.sel');
     await p.locator('.pfv-g .pc.sel').nth(5).click();
-    ck(T('box: a tapped piece shows its detail line with a Take out button'), [await n('#pfv-info [data-pfv-act]'), /stays \d rounds/.test(await p.locator('#pfv-info').innerText())], [1, true]);
+    ck(T('box: a tapped piece shows its detail line with a Take out button'), [await n('.pfv-dsheet [data-pfv-act]'), /stays \d rounds/.test(await p.locator('#pfv-info').innerText())], [1, true]);
     await shot('2-box-kit');
-    await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-info [data-pfv-act]')]); await p.waitForTimeout(900);
+    await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('.pfv-dsheet [data-pfv-act]')]); await p.waitForTimeout(900);
     ck(T('box: Take out updates the page in place (one piece fewer in the kit)'), await n('.pfv-g .pc.sel'), kitN - 1);
     await p.click('#pfv-filt [data-g=crop]'); await p.waitForTimeout(100);
     ck(T('box: the crop filter leaves only crop pieces'), await p.evaluate(() => [...document.querySelectorAll('.pfv-g > li[data-g]')].filter(li => !li.hidden).every(li => li.dataset.g === 'crop')), true);
     await open('/puzzlebox.php?t=belt'); ck(T('belt: durability bars are sized by the script'), await p.evaluate(() => [...document.querySelectorAll('.pfv .dur i')].some(i => i.style.width && i.style.width !== '0%')), true); 
     ck(T('belt: the tools are buttons in a grid (no long list)'), [await n('#pfv-tools .tb') >= 4, await n('.pfv .toolrow'), await p.evaluate(() => { const b = [...document.querySelectorAll('#pfv-tools .tb')].map(x => x.getBoundingClientRect()); return b[0].top === b[1].top && b[1].top === b[2].top; })], [true, 0, true]);
     await p.locator('#pfv-tools .tb.on').first().click(); await p.waitForTimeout(100);
-    ck(T('belt: a tapped tool shows its line with Take off'), [/durability \d+\/\d+/.test(await p.locator('#pfv-info').innerText()), await n('#pfv-info [data-pfv-tool][data-do=pfd_unequip]')], [true, 1]);
+    ck(T('belt: a tapped tool shows its line with Take off'), [/durability \d+\/\d+/.test(await p.locator('#pfv-info').innerText()), await n('.pfv-dsheet [data-pfv-tool][data-do=pfd_unequip]')], [true, 1]);
     await shot('2-box-belt');
     const onN = await n('#pfv-tools .tb.on');
-    await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-info [data-pfv-tool][data-do=pfd_unequip]')]); await p.waitForTimeout(900);
+    await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('.pfv-dsheet [data-pfv-tool][data-do=pfd_unequip]')]); await p.waitForTimeout(900);
     ck(T('belt: Take off works in place (one tool fewer on the belt, the tab is kept)'), [await n('#pfv-tools .tb.on'), await n('.pfv .tabs a.on[href*="t=belt"]')], [onN - 1, 1]);
-    await p.locator('#pfv-tools .tb:not(.on):not(.broken)').first().click(); await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-info [data-pfv-tool][data-do=pfd_equip]')]); await p.waitForTimeout(900);
+    await p.locator('#pfv-tools .tb:not(.on):not(.broken)').first().click(); await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('.pfv-dsheet [data-pfv-tool][data-do=pfd_equip]')]); await p.waitForTimeout(900);
     ck(T('belt: Put on works in place'), await n('#pfv-tools .tb.on'), onN);
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-auto')]); await p.waitForTimeout(900);
     ck(T('box: the auto-use switch works in place (on), and off again'), await p.isChecked('#pfv-auto'), true);
@@ -65,7 +65,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     // ---- 3. the pre-fight screen: auto off (free swaps), auto on (read-only)
     seed('fight', 'medium'); await open('/adventure.php');
     await p.locator('#pfv-pre .pc.L-uni').first().click(); await p.locator('#pfv-pre .pc[data-a=tog]').nth(2).click();
-    ck(T('pre-fight, auto off: creature piece detail, a deck piece offers Take out, a bench is there'), [/plays ×2/.test(await p.locator('#pfv-cinfo').innerText()), await n('#pfv-info [data-pfv-act]'), await p.locator('#pfv-pre').innerText().then(t => /BENCH/i.test(t))], [true, 1, true]);
+    ck(T('pre-fight, auto off: creature piece detail, a deck piece offers Take out, a bench is there'), [/plays ×2/.test(await p.locator('#pfv-cinfo').innerText()), await n('.pfv-dsheet [data-pfv-act]'), await p.locator('#pfv-pre').innerText().then(t => /BENCH/i.test(t))], [true, 1, true]);
     await shot('3-prefight-auto-off');
     seed('fight', 'boss', 'auto'); await open('/adventure.php');
     ck(T('pre-fight, auto on: one strip (N pieces), Turn off and edit, no swaps, the deck in a closed fold, Let\'s fight on screen'), [/Auto deck is active: \d+ pieces/.test(await p.locator('#pfv-info').innerText()), await n('#pfv-pre .pc[data-a=tog]'), await p.evaluate(() => document.getElementById('pfv-deckfold').open), await p.evaluate(() => { const r = document.getElementById('pfv-go').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }), await p.locator('#pfv-deckfold .pc').first().isVisible()], [true, 0, false, true, false]);
@@ -159,6 +159,27 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     ck(T('replay: Skip ends it; the board is the new turn\'s'), [await p.evaluate(() => document.getElementById('pfight').classList.contains('pf-playing')), await n('#pfb-board .pfb-cell.pfb-env') > 0], [false, true]);
     await p.click('#pfv-legend [data-a=spd]'); ck(T('speed: the chip cycles 1x, 2x, skip'), /2/.test(await p.locator('#pfv-legend [data-a=spd]').innerText()), true); await speed(0);
 
+    // ---- 2.6.76: notices. The creature acts more than normal or you lose a play: the page says so in the banner, the message line, a history chip and the log
+    for (const [kind, re, chip] of [['quick', /Quick\. The .* plays a second piece/, /Quick/], ['slow', /loses its turn/, /loses its turn/], ['trip', /Tripped: you draw 1 fewer/, /draw 1 fewer|fewer/]]) {
+      seed('fight', 'small'); seed('notes', kind); await speed(1); await open('/adventure.php');
+      let got = { line: false, ban: '', envBan: '' };
+      for (let k = 0; k < 120 && !(got.line && (kind !== 'quick' || got.envBan)); k++) {
+        await p.waitForTimeout(150);
+        const r = await p.evaluate(() => { const b = document.querySelector('.pf-turn:not([hidden])'); return { pv: (document.getElementById('pf-preview') || {}).textContent || '', ban: b ? b.textContent : '', cls: b ? b.className : '' }; });
+        if (re.test(r.pv)) got.line = true; if (/Quick|loses/.test(r.ban)) got.ban = r.ban; if (/pf-turn-env/.test(r.cls)) got.envBan = r.ban;
+      }
+      ck(T(`notice ${kind}: the message line says it while the turn plays`), got.line, true);
+      if (kind === 'quick') ck(T('notice quick: the creature banner has a subtitle about the Quick piece; the environment banner says "environment ... not the creature"'), [/Quick/.test(got.ban), /environment places/i.test(got.envBan) && /not the creature/.test(got.envBan)], [true, true]);
+      if (kind === 'slow') ck(T('notice slow: the creature banner says it loses its turn'), /loses its turn/.test(got.ban), true);
+      await p.click('#pf-skip').catch(() => {}); await p.waitForTimeout(500);
+      ck(T(`notice ${kind}: a history chip says it (by the creature), no layout growth`), [await p.locator('.pf-hist .pf-chip.foe').evaluateAll((els, rx) => els.some(e => new RegExp(rx).test(e.textContent)), chip.source), await p.evaluate(() => document.documentElement.scrollHeight <= innerHeight)], [true, true]);
+      if (kind === 'trip') ck(T('notice trip: the chips row shows "tripped" for the turn you drew one fewer'), /tripped/i.test(await p.locator('#pfv-row').innerText()), true);
+      await shot('9-notice-' + kind, false);
+    }
+    await speed(0); seed('fight', 'small'); seed('notes', 'open'); await open('/adventure.php');
+    ck(T('notice opening: the message line says how many pieces the creature opened with'), /opened with \d+ piece/.test(await p.locator('#pf-preview').innerText()), true);
+    await shot('9-notice-open', false);
+
     // ---- 5. the result card: a win (with tool wear), then a fight that was left
     seed('win'); await open('/adventure.php');
     ck(T('result: the win card with tool wear rows, the box link and the reward button'), [await n('#pfv-res .resbadge'), await n('#pfv-res .toolrow') >= 2, await n('#pfv-res a[href*="puzzlebox.php"]'), await n('#pf-end')], [1, true, 1, 1]);
@@ -174,7 +195,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await c.close();
 
     // ---- 2.6.75: the fight never scrolls: every board size at phone, small phone and desktop sizes; the pre-fight screen keeps Let's fight on screen; the menu has the link under Hobbies
-    for (const vp of [[390, 844], [360, 640], [1280, 720]]) {
+    for (const vp of [[390, 844], [360, 640], [412, 915], [1280, 720]]) {
       const c2 = await b.newContext({ viewport: { width: vp[0], height: vp[1] }, deviceScaleFactor: vp[0] > 1000 ? 1 : 2 }); const q = await c2.newPage(); const e2 = [];
       q.on('pageerror', e => e2.push(String(e))); q.on('console', m => { if (m.type() === 'error') e2.push(m.text()); });
       await q.addInitScript(() => { try { localStorage.setItem('pfvspd', '0'); } catch (e) {} });
@@ -184,6 +205,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
       for (const size of ['small', 'medium', 'large', 'boss']) {
         seed('fight', size); seed('midfight', '8', '2', 'soft');
         await q.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await q.waitForTimeout(700);
+        const pct0 = await q.evaluate(() => Math.round(document.getElementById('pfb-board').getBoundingClientRect().height * 100 / innerHeight));   // before a piece is picked (picking adds the set-aside row)
         const pk = q.locator('#pf-hand .pf-tile:not(.pfv-off)'); if (await pk.count()) { await pk.first().click({ timeout: 3000 }); await q.waitForTimeout(500); }
         const m = await q.evaluate(() => { const f = document.getElementById('pfight'), ih = innerHeight, iw = innerWidth, de = document.documentElement; window.scrollTo(0, 400);
           const inV = (sel) => { const e = document.querySelector(sel); if (!e) return false; const r = e.getBoundingClientRect(); return r.height > 0 && r.top >= -1 && r.bottom <= ih + 1 && r.left >= -1 && r.right <= iw + 1; };
@@ -193,6 +215,17 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
         ck(V(`${size} board: the page does not scroll (document height <= window, scrollTo stays at 0), nothing overflows the fight`), [m.doc, m.sy, m.fight, m.wide], [true, 0, true, true]);
         ck(V(`${size} board: header, history, chips, board, legend, hint, buttons and hand are all on screen; cells at least 24px; Flip is 40 to 46px high`), [m.all, m.hand, m.cell >= 24, m.flipH >= 40 && m.flipH <= 46], [[], true, true, true]);
         await q.screenshot({ path: `${out}/7-fit-${size}-${vp[0]}x${vp[1]}-${theme}.png` });
+        // 2.6.76: no dead bands. The sections from the chips down are packed (no gap over 24px between the boxes of the header, chips, board, Next strip, hint, buttons, hand), the board takes the height there is
+        const lay = await q.evaluate(() => { const ih = innerHeight, rs = ['.pfc-top', '.pfc-histrow', '#pfv-row', '#pfb-board', '#pfv-legend', '.pf-opts', '#pf-preview', '.pf-buttons', '#pf-hand'].map(s => { const r = document.querySelector(s).getBoundingClientRect(); return [s, r.top, r.bottom, r.height]; }).filter(r => r[3] > 0).sort((a, b) => a[1] - b[1]);
+          const bd = document.getElementById('pfb-board').getBoundingClientRect(), wr = document.querySelector('.pfv-bwrap').getBoundingClientRect(), hd = document.getElementById('pf-hand').getBoundingClientRect(), ft = document.getElementById('pfight').getBoundingClientRect();
+          return { gaps: rs.slice(1).map((r, i) => [r[0], Math.round(r[1] - rs[i][2])]).filter(g => g[1] > 24 || g[1] < -1), pct: Math.round(bd.height * 100 / ih), roomLeft: Math.round(wr.height - bd.height), handBottomGap: Math.round(ft.bottom - hd.bottom) }; });
+        ck(V(`${size} board: no gap over 24px between header, chips, board, Next strip, hint, buttons and hand`), lay.gaps, []);
+        if (vp[1] >= 800) ck(V(`${size} board: the board is at least 45% of the window height on a tall phone (${pct0}%)`), pct0 >= 45, true);
+        ck(V(`${size} board: the room under or over the board (width limits it) is at most 48px in all (${lay.roomLeft})`), lay.roomLeft <= 48 || vp[0] > 1000, true);
+        const wasInsp = await q.evaluate(() => { const t = document.querySelector('#pfb-board .pfb-tap'); if (t) t.click(); const i = document.getElementById('pf-inspect'), h = document.getElementById('pf-hand').getBoundingClientRect(), ib = i.getBoundingClientRect(), bd = document.getElementById('pfb-board').getBoundingClientRect(); return { open: !i.hidden, over: ib.bottom <= h.top + 1, inBoardRoom: ib.top >= bd.top - 60 && ib.bottom <= bd.bottom + 60, doc: document.documentElement.scrollHeight <= innerHeight }; });
+        await q.waitForTimeout(150); if (wasInsp.open) await q.screenshot({ path: `${out}/7-insp-${size}-${vp[0]}x${vp[1]}-${theme}.png` });
+        ck(V(`${size} board: the piece card is an overlay on the board room (not over the hand), the page does not grow`), [wasInsp.open, wasInsp.over, wasInsp.inBoardRoom, wasInsp.doc], [true, true, true, true]);
+        if (wasInsp.open) { const pv = await q.locator('#pf-preview').boundingBox(); await q.mouse.click(pv.x + pv.width / 2, pv.y + pv.height / 2); await q.waitForTimeout(150); ck(V(`${size} board: a tap outside closes the piece card`), await q.evaluate(() => document.getElementById('pf-inspect').hidden), true); }
         if (size === 'medium') { await q.click('#pfv-legend [data-en="0"]').catch(() => {}); await q.waitForTimeout(250);
           ck(V('medium board: the Next-strip popover opens over the fight and the page still does not scroll, the strip does not overflow'), [await q.locator('.pfv-pop').count(), await q.evaluate(() => document.documentElement.scrollHeight <= innerHeight), await q.evaluate(() => { const l = document.getElementById('pfv-legend'); return l.scrollWidth <= l.clientWidth + 1; })], [1, true, true]);
           await q.screenshot({ path: `${out}/7-envpop-${vp[0]}x${vp[1]}-${theme}.png` }); await q.click('.pfv-popx').catch(() => {}); }
@@ -208,6 +241,24 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
         await q.screenshot({ path: `${out}/7-prefight-${auto}-${vp[0]}x${vp[1]}-${theme}.png` });
       }
       sql('UPDATE expeditions SET encounter=NULL');
+      // 2.6.76: the piece detail sheet: tap the LAST piece of a long collection and the detail is in view at once (bottom sheet, or a side panel on a wide screen)
+      seed('box'); await q.goto(base + '/puzzlebox.php', { waitUntil: 'networkidle' }); await q.waitForTimeout(500);
+      const nPc = await q.locator('.pfv-g .pc').count(), lastPc = q.locator('.pfv-g .pc').nth(nPc - 1); await lastPc.scrollIntoViewIfNeeded(); const kit0 = await q.locator('.pfv-g').first().locator('.pc').count();
+      await lastPc.click(); await q.waitForTimeout(350);
+      const sh = await q.evaluate(() => { const e = document.querySelector('.pfv-dsheet'); if (!e) return null; const r = e.getBoundingClientRect(), t = document.querySelector('.pfv-g .pc.pick'), tr = t ? t.getBoundingClientRect() : null, b = e.querySelector('.dacts .btn'), br = b ? b.getBoundingClientRect() : null;
+        return { inside: r.top >= 0 && r.bottom <= innerHeight + 1 && r.left >= 0 && r.right <= innerWidth + 1, tall: innerWidth >= 900 || r.height <= innerHeight * 0.46, btnIn: !!br && br.bottom <= innerHeight && br.top >= 0, marked: !!t, pieceSeen: !!tr && tr.bottom > 0 && tr.top < innerHeight && (innerWidth >= 900 || tr.top < r.top), art: !!e.querySelector('.dart canvas'), name: e.querySelector('.dn').textContent.length > 0, chips: e.querySelectorAll('.dch .ch').length >= 2, life: e.querySelectorAll('.lp i').length >= 1, edges: e.querySelectorAll('.edg .ed').length === 4, docw: document.documentElement.scrollWidth <= innerWidth + 1 }; });
+      ck(V('piece detail: the sheet is fully inside the window after tapping the last piece of the collection, at most 46% high, the action button in view'), sh && [sh.inside, sh.tall, sh.btnIn], [true, true, true]);
+      ck(V('piece detail: the tapped piece stays marked and in sight; art, name, chips, life pips and the four edges are there; no sideways scroll'), sh && [sh.marked, sh.pieceSeen, sh.art, sh.name, sh.chips, sh.life, sh.edges, sh.docw], [true, true, true, true, true, true, true, true]);
+      await q.screenshot({ path: `${out}/8-detail-${vp[0]}x${vp[1]}-${theme}.png` });
+      await q.keyboard.press('ArrowLeft'); await q.waitForTimeout(200);
+      ck(V('piece detail: the arrow key steps to the neighbouring piece without closing'), [await q.locator('.pfv-dsheet .dpos').innerText(), await q.locator('.pfv-dsheet').count()], [`${nPc - 1} of ${nPc}`, 1]);
+      await q.click('.pfv-dsheet [data-dn="1"]'); await q.waitForTimeout(150);
+      await Promise.all([q.waitForResponse(r => r.request().method() === 'POST'), q.click('.pfv-dsheet [data-pfv-act]')]); await q.waitForTimeout(1000);
+      ck(V('piece detail: Pack in deck works from the sheet; the kit grows by one piece in place and the sheet is gone'), [await q.locator('.pfv-g').first().locator('.pc').count(), await q.locator('.pfv-dsheet').count()], [kit0 + 1, 0]);
+      await q.locator('.pfv-g .pc').nth(2).click(); await q.waitForTimeout(250); await q.keyboard.press('Escape'); await q.waitForTimeout(150);
+      ck(V('piece detail: Escape closes the sheet and unmarks the piece'), [await q.locator('.pfv-dsheet').count(), await q.locator('.pfv-g .pc.pick').count()], [0, 0]);
+      await q.locator('.pfv-g .pc').nth(3).click(); await q.waitForTimeout(250); const pv2 = await q.locator('.pfv > .hrow').boundingBox(); await q.mouse.click(Math.min(vp[0] - 5, (pv2 ? pv2.x + pv2.width : 20) - 2), 8); await q.waitForTimeout(150);
+      ck(V('piece detail: a tap outside closes it'), await q.locator('.pfv-dsheet').count(), 0);
       await q.goto(base + '/puzzlebox.php?t=belt', { waitUntil: 'networkidle' }); await q.waitForTimeout(500); await q.screenshot({ path: `${out}/7-belt-${vp[0]}x${vp[1]}-${theme}.png`, fullPage: true });
       ck(V('the menu has the Puzzle box under Hobbies'), await q.evaluate(() => { const g = document.querySelector('details[data-g="Hobbies"]'); return !!g && !!g.querySelector('a.navtile[href$="puzzlebox.php"]'); }), true);
       if (vp[0] < 1000) { await q.click('.menubtn.more').catch(() => {}); await q.waitForTimeout(400); } await q.screenshot({ path: `${out}/7-menu-${vp[0]}x${vp[1]}-${theme}.png` });

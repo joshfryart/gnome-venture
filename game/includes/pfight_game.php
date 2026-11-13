@@ -238,7 +238,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
             exp_log($exp, $ln); $enc['last'][] = $ln;
             if ($board) $enc['replay'][] = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'by' => (string)$e['by'], 'ta' => (string)($e['ta'] ?? $e['by']), 'ln' => $ln, 'bar' => $e['barnow'] ?? null, 'fh' => $e['fhnow'] ?? null, 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'n' => (string)($e['n'] ?? ''), 't' => (string)($e['t'] ?? '')]   // the board page plays these back one at a time
                 + (isset($e['env']) ? ['env' => (string)$e['env'], 'x' => $e['x'] ?? null, 'y' => $e['y'] ?? null, 'dir' => $e['dir'] ?? null, 'moved' => $e['moved'] ?? null, 'ids' => $e['ids'] ?? null, 'me' => $e['me'] ?? 0, 'foe' => $e['foe'] ?? 0] + (isset($e['kind']) ? ['kind' => (string)$e['kind']] : []) + (isset($e['for']) ? ['for' => (string)$e['for']] : []) + (isset($e['guard']) ? ['guard' => (int)$e['guard']] : []) : [])   // v1 (stage C): a terrain event: where it landed and what it did
-                + (!empty($e['used']) ? ['used' => $e['used']] : []) + (!empty($e['tw']) ? ['tw' => $e['tw']] : []) + (!empty($e['sun']) ? ['sun' => 1] : []) + (!empty($e['mud']) ? ['mud' => 1] : []) + (!empty($e['full']) ? ['full' => 1] : []);
+                + (isset($e['note']) ? ['note' => (string)$e['note']] : []) + (!empty($e['used']) ? ['used' => $e['used']] : []) + (!empty($e['tw']) ? ['tw' => $e['tw']] : []) + (!empty($e['sun']) ? ['sun' => 1] : []) + (!empty($e['mud']) ? ['mud' => 1] : []) + (!empty($e['full']) ? ['full' => 1] : []);
         }
     } else return false;
     $exp['hp'] = (int)$s['me']['hp'];
@@ -334,7 +334,9 @@ function pfight_line(array $e, string $foe): string
     if (isset($e['env'])) return pfb_env_line($e, $foe);   // v1: a terrain event
     if (!empty($e['connect'])) return '🧩 You set ' . $e['n'] . ' aside, joined (' . (int)$e['size'] . ' pieces).';
     if (!empty($e['tick'])) return '🧪 The poison works on the ' . $foe . ' (+' . (int)$e['v'] . ').';
+    if (isset($e['note'])) return match ($e['note']) { 'quick' => '⚡ ' . ($e['n'] !== '' ? $e['n'] . ': ' : '') . 'Quick. The ' . $foe . ' plays a second piece.', 'slow' => '⏳ The ' . $foe . ' loses its turn.', default => '🦶 Tripped: you draw 1 fewer piece next turn.' };   // 2.6.76
     $who = $e['by'] === 'me' ? 'You play' : 'The ' . $foe . ' plays';
+    if (!empty($e['ta']) && $e['ta'] !== $e['by'] && in_array($e['ta'], ['me', 'foe'], true) && in_array($e['by'], ['me', 'foe'], true)) $who = $e['ta'] === 'me' ? 'Your chain fires the ' . $foe . '’s' : 'The ' . $foe . '’s chain fires your';   // 2.6.76: a chain through the other side's piece
     $bits = [];
     if (!empty($e['combo'])) $bits[] = '✨ ' . $e['combo'];
     if (!empty($e['fit'])) $bits[] = 'snug fit';
@@ -418,6 +420,7 @@ function pfight_chip_event(array $e, ?int $snap = null): array
         $parts = []; if (!empty($e['me'])) $parts[] = 'you -' . (int)$e['me'] . ' hp'; if (!empty($e['foe'])) $parts[] = 'creature -' . (int)round((float)$e['foe']) . ' hp';
         return $base + ['by' => 'env', 'types' => ['env'], 'tags' => [(string)($e['kind'] ?? $e['env'])], 'txt' => (string)$e['n'] . ($parts ? ': ' . implode(' · ', $parts) : ''), 'tg' => !empty($e['me']) ? 'me' : (!empty($e['foe']) ? 'foe' : null)];
     }
+    if (isset($e['note'])) return $base + ['by' => 'foe', 'types' => ['note'], 'tags' => [(string)$e['note']], 'txt' => $e['note'] === 'quick' ? '⚡ Quick: plays 2' : ($e['note'] === 'slow' ? '⏳ loses its turn' : '🦶 you draw 1 fewer'), 'tg' => null];   // 2.6.76
     $parts = []; $tg = 'foe'; $by = (string)($e['by'] ?? 'me'); $t = (string)($e['t'] ?? 'hurt');
     if (!empty($e['tick'])) $parts[] = '-' . (int)$e['v'] . ' hp';
     elseif ($by === 'me') {
@@ -566,7 +569,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
             . ($sn !== null ? ' data-sn="' . $sn . '" data-id="' . (int)($chip['id'] ?? 0) . '" data-bar="' . e((string)($chip['bar'] ?? '')) . '" data-fh="' . e((string)($chip['fh'] ?? '')) . '" data-g="' . e((string)($chip['g'] ?? '')) . '" data-hp="' . e((string)($chip['hp'] ?? '')) . '" role="button" tabindex="0"' : '') . ' aria-label="' . e($label) . '">'
             . $who((string)$chip['by']);
         foreach ((array)$chip['types'] as $ci => $t) {
-            if (($chip['by'] ?? '') === 'env') continue;   // v1: a terrain chip has no piece type
+            if (($chip['by'] ?? '') === 'env' || $t === 'note') continue;   // v1: a terrain chip has no piece type; nor has a notice (2.6.76)
             $tg = (string)($chip['tags'][$ci] ?? ''); $ti = isset(PF_TAG_ICON[$tg]) ? pfight_art('ico-' . PF_TAG_ICON[$tg] . '-s.png') : null;
             $h .= $ti ? '<img class="pfh-ico" src="' . e($ti) . '" alt="" title="' . e(ucfirst($tg)) . '">' : $sm((string)$t);
         }
@@ -625,6 +628,8 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         // stage C (the v1 page script, assets/pfboardv1.js): the state before the last turn for the replay, the fight tools (durability left before this fight), whose piece is a tool piece, the box link
         foreach ($v['hand'] as $i => $t) $data['hand'][$i] += ['tool' => (string)($t['tool'] ?? ''), 'rank' => (int)($t['rank'] ?? 0)];
         $data['prev'] = !empty($enc['replay']) ? ($enc['prev'] ?? null) : null;
+        $data['tripped'] = (int)($s['me']['tripped'] ?? 0);   // 2.6.76: you drew one fewer this turn
+        if ((int)$s['turn'] === 1 && empty($s['start'])) $data['opened'] = count(array_filter($s['pcs'], fn($p) => $p['by'] === 'foe'));   // the creature's opening pieces
         $data['box'] = url('puzzlebox.php'); $data['turncap'] = PF_TURN_CAP; $data['toolwear'] = PFB_TOOL_WEAR; $data['fires'] = PFB_FOE_FIRES;
         $data['tools'] = (object)[];
         if (!empty((array)$v['wear']) || array_filter(array_column($data['hand'], 'tool'))) {

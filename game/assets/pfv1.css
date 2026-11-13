@@ -277,7 +277,7 @@ html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 #pfv-pre.pfv-fit { position: fixed; z-index: 60; top: var(--pfv-top, 0px); bottom: var(--pfv-bot, 0px); left: 50%; width: min(100vw, 560px); max-width: none; transform: translateX(-50%); margin: 0; overflow-y: auto; overscroll-behavior: contain; box-sizing: border-box; }
 #pfight.pf-v1.pfv-fit { position: fixed; z-index: 60; top: var(--pfv-top, 0px); bottom: var(--pfv-bot, 0px); left: 50%; width: min(100vw, 760px); max-width: none; transform: translateX(-50%); margin: 0; padding: 4px 6px calc(4px + env(safe-area-inset-bottom, 0px)); border-radius: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 3px; overflow: hidden; background: #2b1d14; box-shadow: 0 0 0 100vmax rgba(12, 7, 4, .78); clip-path: inset(0 -100vmax); }
 #pfight.pf-v1.pfv-fit > * { flex: none; margin-top: 0; margin-bottom: 0; min-width: 0; }
-#pfight.pf-v1.pfv-fit > .pfv-bwrap { flex: 1 1 0; min-height: 0; display: grid; place-items: center; overflow: hidden; }
+#pfight.pf-v1.pfv-fit > .pfv-bwrap { flex: 1 1 0; min-height: 0; display: grid; place-items: center; overflow: hidden; position: relative; }
 #pfight.pf-v1.pfv-fit .pfb-board { margin: 0; flex: none; }
 /* compact rows above and under the board: one line each, chips scroll sideways */
 .pf-v1.pfv-fit .pfc-top { padding-top: 2px; padding-bottom: 2px; }
@@ -308,7 +308,7 @@ html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 .pf-v1 .pf-buttons .pfv-flipb { white-space: nowrap; }
 .pf-v1 #pf-skip { min-height: 34px; padding: 2px 10px; font-size: 13px; }
 /* overlays: the piece card during a replay, the result card, the help; none of them pushes the layout */
-.pf-v1.pfv-fit .pf-inspect { position: absolute; left: 6px; right: 6px; bottom: 6px; z-index: 13; margin: 0; padding: 6px 8px; font-size: 12px; line-height: 1.3; max-height: 96px; overflow: hidden; }
+.pf-v1.pfv-fit .pf-inspect { position: absolute; left: 4px; right: 4px; top: 4px; z-index: 13; margin: 0; padding: 6px 8px; font-size: 12px; line-height: 1.3; max-height: 96px; overflow: hidden; }
 .pf-v1.pfv-fit .pf-inspect b { font-size: 13px; }
 .pf-v1.pfv-fit .pf-inspect .pfi-cv { max-height: 52px; width: auto; }
 #pfight.pf-v1.pfv-fit > .pfv.res { position: absolute; left: 6px; right: 6px; top: 56px; bottom: 6px; z-index: 20; margin: 0; max-width: 520px; margin-inline: auto; overflow-y: auto; align-content: start; box-shadow: 0 4px 18px rgba(0, 0, 0, .7); }
@@ -375,3 +375,48 @@ html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 }
 .pf-v1 .pfv-legend .envlab .es { display: none; }
 @media (max-width: 380px) { .pf-v1 .pfv-legend .envlab .el { display: none; } .pf-v1 .pfv-legend .envlab .es { display: inline; } }
+
+/* 2.6.76: the piece detail sheet (assets/pfv1box.js). A bottom sheet above the bottom bar (up to 45% of the window), a side panel on a wide screen; the tapped piece stays marked in the grid. */
+.pfv-dsheet { --f-body: #d2623a; --f-mind: #3d86c6; --f-craft: #d1a31f; position: fixed; left: 0; right: 0; bottom: var(--dbot, 0px); z-index: 9990; max-height: 45vh; max-height: min(45dvh, 100% - 8px); display: flex; flex-direction: column; box-sizing: border-box; background: var(--surface); color: var(--ink); border-top: 3px solid var(--ol, #2a1a10); box-shadow: 0 -6px 18px rgba(0, 0, 0, .35); padding: 4px max(12px, env(safe-area-inset-left, 0px)) 8px; font-size: 13px; line-height: 1.3; touch-action: pan-y; }
+.pfv-dsheet.slide { animation: pfv-dup .18s ease-out; }
+@keyframes pfv-dup { from { transform: translateY(40%); opacity: .4; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .pfv-dsheet.slide { animation: none; } }
+.pfv-dsheet .dgrab { width: 40px; height: 4px; margin: 2px auto 4px; background: var(--line); border-radius: 2px; flex: none; }
+.pfv-dsheet .dbar { display: flex; align-items: center; gap: 6px; flex: none; }
+.pfv-dsheet .dpos { flex: 1; text-align: center; font-size: 11px; color: var(--muted); }
+.pfv-dsheet .dnav, .pfv-dsheet .dx { min-width: 40px; min-height: 36px; padding: 0 8px; margin: 0; font-size: 20px; line-height: 1; background: var(--surface-2); color: var(--ink); border: 2px solid var(--line); border-radius: 0; cursor: pointer; }
+.pfv-dsheet .dnav:disabled { opacity: .35; cursor: default; }
+.pfv-dsheet .dx { font-size: 16px; }
+.pfv-dsheet .dbody { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 0; }
+.pfv-dsheet .dtop { display: flex; gap: 10px; align-items: center; }
+.pfv-dsheet .dart { flex: none; width: 88px; display: grid; place-items: center; }
+.pfv-dsheet .dart .pfi-cv { width: 88px; height: auto; max-height: 84px; image-rendering: pixelated; display: block; }
+.pfv-dsheet .dart.tool { font-size: 40px; width: 64px; }
+.pfv-dsheet .dmain { min-width: 0; flex: 1; display: grid; gap: 3px; }
+.pfv-dsheet .dn { font-size: 16px; line-height: 1.15; overflow-wrap: anywhere; }
+.pfv-dsheet .dch { display: flex; flex-wrap: wrap; gap: 4px; }
+.pfv-dsheet .ch { display: inline-flex; align-items: center; gap: 3px; padding: 0 6px; min-height: 20px; font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-2); }
+.pfv-dsheet .ch.ty b { color: var(--ink); }
+.pfv-dsheet .ch.rk.r2 { border-color: #4f9d4f; } .pfv-dsheet .ch.rk.r3 { border-color: #3d86c6; } .pfv-dsheet .ch.rk.r4 { border-color: #b8860b; background: var(--accent-soft); color: var(--accent-ink); }
+.pfv-dsheet .dlife { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+.pfv-dsheet .lp { display: inline-flex; gap: 2px; } .pfv-dsheet .lp i { width: 8px; height: 8px; background: var(--brand, #2e7d4f); border: 1px solid var(--ol, #2a1a10); }
+.pfv-dsheet .dtag { margin: 6px 0 0; padding: 4px 6px; background: var(--brand-soft); color: var(--brand-ink); font-weight: 600; }
+.pfv-dsheet .ddur { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; font-size: 12px; }
+.pfv-dsheet .ddur .dur { flex: 1; max-width: 160px; height: 8px; background: var(--line); display: block; } .pfv-dsheet .ddur .dur i { display: block; height: 100%; background: var(--brand, #2e7d4f); }
+.pfv-dsheet .dedge { display: flex; align-items: center; gap: 10px; margin: 6px 0 0; font-size: 12px; color: var(--ink-2); }
+.pfv-dsheet .edg { flex: none; display: grid; grid-template-columns: repeat(3, 14px); grid-template-rows: repeat(3, 14px); gap: 1px; place-items: center; }
+.pfv-dsheet .edg b { width: 14px; height: 14px; background: var(--surface-2); border: 2px solid var(--line); box-sizing: border-box; }
+.pfv-dsheet .ed { width: 11px; height: 11px; border-radius: 50%; box-sizing: border-box; background: var(--c, #999); border: 2px solid var(--c, #999); }
+.pfv-dsheet .ed.ho { background: var(--surface); } .pfv-dsheet .ed.wi { background: conic-gradient(var(--f-body), var(--f-mind), var(--f-craft), var(--f-body)); border-color: transparent; }
+.pfv-dsheet .ed.f-body { --c: var(--f-body); } .pfv-dsheet .ed.f-mind { --c: var(--f-mind); } .pfv-dsheet .ed.f-craft { --c: var(--f-craft); }
+.pfv-dsheet .dfl { margin: 6px 0 0; font-style: italic; color: var(--ink-2); }
+.pfv-dsheet .dnote { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+.pfv-dsheet .dacts { flex: none; display: flex; gap: 8px; padding-top: 6px; }
+.pfv-dsheet .dacts .btn { flex: 1; min-height: 44px; margin: 0; font-size: 15px; }
+@media (min-width: 900px) {   /* a wide screen: a panel on the right, no dimming */
+  .pfv-dsheet { left: auto; right: 12px; top: 72px; bottom: auto; width: 340px; max-height: calc(100vh - 84px); border: 3px solid var(--ol, #2a1a10); box-shadow: 0 4px 18px rgba(0, 0, 0, .35); }
+  .pfv-dsheet .dgrab { display: none; }
+}
+.pf-v1 .pf-inspect .pfi-ch { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 2px; }
+.pf-v1 .pf-inspect .ch { display: inline-flex; padding: 0 5px; font-size: 11px; line-height: 16px; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .25); color: inherit; }
+@media (max-width: 899px) { html.pfv-dopen body { padding-bottom: calc(45vh + 56px); } }   /* room to scroll the last piece above the sheet */

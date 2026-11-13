@@ -900,6 +900,12 @@ function pfb_foe_len(array $s): int
     return max(0, min(count($s['foe']['hand']), 1 - (int)$s['foe']['slow']));
 }
 
+/** 2.6.76: a notice event (no piece, no numbers): the creature acts more than normal or you lose a play. note = quick | slow | trip. The page shows it as a chip, a log line and in the banner. */
+function pfb_note(string $kind, string $n = ''): array
+{
+    return ['by' => 'foe', 'note' => $kind, 'k' => 'note', 'n' => $n, 't' => 'note', 'tag' => '', 'v' => 0, 'fit' => false, 'combo' => null];
+}
+
 function pfb_foe_turn(array &$s, int $extra): array
 {
     $ev = [];
@@ -911,6 +917,7 @@ function pfb_foe_turn(array &$s, int $extra): array
         $ev[] = ['by' => 'me', 'tag' => 'poison', 'k' => 'poison', 'n' => 'Poison', 't' => 'hurt', 'v' => (int)round($add), 'fit' => false, 'combo' => null, 'tick' => true];
         if (pf_check_end($s)) return $ev;
     }
+    if (!empty($s['v1']['tags']) && (int)$s['foe']['slow'] > 0 && $s['foe']['hand']) $ev[] = pfb_note('slow');   // 2.6.76: it loses its turn
     $n = pfb_foe_len($s); $s['lastfoe'] = []; $again = false;
     if (!empty($s['v1']['tags'])) $s['foe']['again'] = 0;
     if (!empty($s['v1'])) $s['reaim'] = 0;   // the pieces it puts down this turn (the page holds only these back until the replay reaches them)
@@ -924,7 +931,7 @@ function pfb_foe_turn(array &$s, int $extra): array
             $r = pfb_place($s, 'foe', $m[0], $m[1], $m[2]);
         }
         if ($r) { $ev = array_merge($ev, $r); $s['lastfoe'][] = $s['pid']; }
-        if (!empty($s['foe']['again'])) { if (!$again) { $again = true; $n++; } $s['foe']['again'] = 0; }   // a Quick piece it placed: one more piece this turn (once)
+        if (!empty($s['foe']['again'])) { if (!$again) { $again = true; $n++; if (!empty($s['v1']['tags']) && $r) $ev[] = pfb_note('quick', (string)($r[0]['n'] ?? '')); } $s['foe']['again'] = 0; }   // a Quick piece it placed: one more piece this turn (once)
     }
     $s['foe']['agg'] = 0; $s['foe']['slow'] = 0;
     return $ev;
@@ -945,7 +952,7 @@ function pfb_new(array $me, array $c, int $seed, array $opt = []): array
         $s['w'] = $v1['w']; $s['h'] = $v1['h']; unset($v1['w'], $v1['h']); $s['v1'] = $v1;
         pfb_v1_tiles($s, $c); pfb_seed_ground($s); $s['envs'] = []; $s['envlog'] = []; $s['reaim'] = 0; $s['me']['flipt'] = 0;
         if ($v1['env']) { $s['env'] = ['draw' => pf_shuffle($s, pfb_env_deck($s['size'], (string)($c['region'] ?? ''))), 'discard' => [], 'next' => []]; pfb_env_draw($s); }   // 2.6.75: the environment's deck; its next pieces lie face up
-        if ($v1['tags']) { $s['me']['poison'] = 0; $s['me']['poison_v'] = 0; $s['me']['slowdraw'] = 0; $s['foe']['bashnext'] = 0; $s['foe']['again'] = 0; }
+        if ($v1['tags']) { $s['me']['poison'] = 0; $s['me']['poison_v'] = 0; $s['me']['slowdraw'] = 0; $s['me']['tripped'] = 0; $s['foe']['bashnext'] = 0; $s['foe']['again'] = 0; }
     }
     if (!empty($opt['blank'])) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see pfb_start)
         $s['pid'] = 1; $s['seq'] = 1; $cx = intdiv(pfb_w($s), 2); $cy = intdiv(pfb_h($s), 2);
@@ -1061,8 +1068,10 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null,
     foreach ($ev as $i => $e0) $ev[$i]['ta'] = 'me';   // whose turn the event happened in (a chain can run through the other side's pieces; the page groups by this)
     if ($dry) return ['ev' => $ev, 'err' => null, 'bar' => round($w['bar']['now'], 1), 'max' => $w['bar']['max'], 'fh' => round($w['fh']['now'], 1), 'fhmax' => $w['fh']['max'], 'hp' => $w['me']['hp'], 'block' => $w['me']['block'], 'over' => $w['over']];
     if (!$w['over']) { $fe = pfb_foe_turn($w, 0); foreach ($fe as $i => $e0) $fe[$i]['ta'] = 'foe'; $ev = array_merge($ev, $fe); }
+    $trip = !$w['over'] && !empty($w['v1']['tags']) && !empty($w['me']['slowdraw']);
     if (!$w['over']) pfb_end_round($w);
     if (!empty($w['v1'])) $ev = array_merge($ev, pfb_env_events($w));   // v1: the terrain turn, as events after the creature's (ta 'env')
+    if ($trip && !$w['over']) { $tn = pfb_note('trip'); $tn['ta'] = $ev ? (string)(end($ev)['ta'] ?? 'foe') : 'foe'; $ev[] = $tn; }   // 2.6.76: you draw one fewer
     $w['fx'] = pfb_fx($ev);
     $w['log'][] = ['turn' => $s['turn'], 'n' => 1];
     $s = $w;
@@ -1131,7 +1140,7 @@ function pfb_end_round(array &$s): void
             if ($s['me']['poison'] === 0) $s['me']['poison_v'] = 0;
             if (pf_check_end($s)) return;
         }
-        $slow = !empty($s['me']['slowdraw']) ? 1 : 0; $s['me']['slowdraw'] = 0;
+        $slow = !empty($s['me']['slowdraw']) ? 1 : 0; $s['me']['slowdraw'] = 0; $s['me']['tripped'] = $slow;   // 2.6.76: the hand area says so
     }
     $gone = pfb_expire($s);
     if (!empty($s['v1']['env'])) { $eg = array_values(array_map(fn($p) => $p['id'], array_filter($gone, fn($p) => $p['by'] === 'env'))); if ($eg) $s['envlog'][] = ['k' => 'expire', 'x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0, 'ids' => $eg]; }   // 2.6.75: environment pieces whose time is up
@@ -1159,8 +1168,10 @@ function pfb_pass(array &$s, int $turn): array
     if (!empty($w['v1'])) $w['envlog'] = [];
     $ev = pfb_foe_turn($w, 0); foreach ($ev as $i => $e0) $ev[$i]['ta'] = 'foe';
     $w['fx'] = pfb_fx($ev);
+    $trip = !$w['over'] && !empty($w['v1']['tags']) && !empty($w['me']['slowdraw']);
     if (!$w['over']) pfb_end_round($w);
     if (!empty($w['v1'])) $ev = array_merge($ev, pfb_env_events($w));
+    if ($trip && !$w['over']) { $tn = pfb_note('trip'); $tn['ta'] = $ev ? (string)(end($ev)['ta'] ?? 'foe') : 'foe'; $ev[] = $tn; }
     $s = $w;
     return ['ev' => $ev, 'err' => null];
 }

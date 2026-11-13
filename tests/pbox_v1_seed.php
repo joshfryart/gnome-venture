@@ -75,6 +75,21 @@ if ($what === 'midfight') {
     echo $s ? 'midfight: turn ' . $s['turn'] . ', pieces ' . count($s['pcs']) . ', environment pieces ' . count(array_filter($s['pcs'], fn($p) => $p['by'] === 'env')) . ', face up ' . count($s['env']['next'] ?? []) . ', ground ' . count($s['ter'] ?? []) . ', aim ' . (empty($s['foe']['plan']) ? 'no' : 'yes') . ', over ' . ($s['over'] ?: 'no') . "\n" : "midfight: the fight ended\n";
     exit;
 }
+if ($what === 'notes') {   // 2.6.76: php tests/pbox_v1_seed.php GAME notes quick|slow|trip|open [SEED]: a fight whose last turn (or opening) shows that notice
+    $kind = $argv[3] ?? 'quick'; $enc['pfgo'] = 1; unset($enc['pf']); $save();
+    $enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[4] ?? 8), ['v1' => true, 'can_pluck' => false]); $save();   // not the blank opening: the creature's opening pieces are on the board
+    if ($kind !== 'open') {
+        $s = $enc['pf'];
+        if ($kind === 'quick') { foreach ($s['foe']['hand'] as $i => $t) $s['foe']['hand'][$i]['tag'] = 'quick'; $s['foe']['plan'] = null; }
+        if ($kind === 'slow') $s['foe']['slow'] = 1;
+        if ($kind === 'trip') $s['me']['slowdraw'] = 1;
+        $enc['pf'] = $s; $save();
+        $turn(true);
+    }
+    $exp = active_expedition($uid); $enc = json_decode((string)$exp['encounter'], true);
+    echo 'notes ' . $kind . ': ' . json_encode(array_values(array_map(fn($r) => ($r['note'] ?? '-'), (array)($enc['replay'] ?? [])))) . "\n";
+    exit;
+}
 if ($what === 'win' || $what === 'lose') {
     $s = $enc['pf'];
     if ($what === 'win') { $s['fh']['now'] = $s['fh']['max'] - 0.5; $s['wear'] = ['till' => 6, 'water' => 6] + (array)($s['wear'] ?? []); }

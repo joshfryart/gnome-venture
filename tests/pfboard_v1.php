@@ -387,6 +387,7 @@ $line = pfb_env_line(['env' => 'gust', 'moved' => ['by' => 'me', 'n' => 'Swing']
 $line = pfb_env_line(['env' => 'thorn', 'me' => 4, 'foe' => 2.4], 'Owl'); chk('a thorn burst line says what each side lost', str_contains($line, 'you lose 4') && str_contains($line, 'Owl loses 2'), $line);
 
 require __DIR__ . '/pfboard_v1_env.php';   // 13: environment pieces (2.6.75)
+require __DIR__ . '/pfboard_v1_notes.php';   // 14: notices (2.6.76)
 
 chk('no PHP warning or notice anywhere in this run', !$warn, array_slice($warn, 0, 3));
 echo $bad ? "$bad FAILED\n" : "all ok\n";
