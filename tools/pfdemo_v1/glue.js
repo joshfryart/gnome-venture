@@ -173,6 +173,24 @@
     return { html: PFV.fightHtml({ c: c, s: S.enc.pf, enc: S.enc, src: S.src, g: x.g, wear: wear }), fight: true };
   }
 
+  // ---- the site swaps emoji for its own drawn icons in every page it renders (includes/emoji_icons.php): the same here, over the text nodes of the markup built by views.js
+  var ICO = D.ico || {}, icoKeys = Object.keys(ICO).sort(function (a, b) { return b.length - a.length; });
+  var ICO_RE = icoKeys.length ? new RegExp('(' + icoKeys.map(function (k) { return k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')\\uFE0F?', 'g') : null;
+  function iconSwap(root) {
+    if (!ICO_RE) return;
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), list = [], n;
+    while ((n = w.nextNode())) { var pn = n.parentNode && n.parentNode.nodeName; if (pn !== 'SCRIPT' && pn !== 'STYLE' && pn !== 'TEXTAREA' && ICO_RE.test(n.nodeValue)) list.push(n); ICO_RE.lastIndex = 0; }
+    list.forEach(function (t) {
+      var frag = document.createDocumentFragment(), s = t.nodeValue, last = 0, m; ICO_RE.lastIndex = 0;
+      while ((m = ICO_RE.exec(s))) {
+        var r = ICO[m[1]]; if (m.index > last) frag.appendChild(document.createTextNode(s.slice(last, m.index)));
+        if (r && ART['ico/' + r[0] + '.svg']) { var im = document.createElement('img'); im.className = 'ico pix'; im.src = ART['ico/' + r[0] + '.svg']; im.alt = r[1] ? '' : r[2]; im.width = 16; im.height = 16; frag.appendChild(im); } else frag.appendChild(document.createTextNode(m[0]));
+        last = m.index + m[0].length;
+      }
+      if (last < s.length) frag.appendChild(document.createTextNode(s.slice(last)));
+      t.parentNode.replaceChild(frag, t);
+    });
+  }
   var injected = [];
   function runScripts(names) {
     injected.forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); }); injected = [];
@@ -182,10 +200,11 @@
   function render(keepScroll) {
     if (window.__pfbOff) safe(window.__pfbOff); if (window.__pfvOff) safe(window.__pfvOff);
     var y = keepScroll ? window.scrollY : 0, p = page();
-    var fl = S.flash ? '<p class="note' + (S.flash.kind === 'err' ? ' warn' : '') + '" role="status">' + esc(S.flash.msg) + '</p>' : ''; S.flash = null;
+    var fm = S.flash; S.flash = null;
+    var fl = fm ? '<div class="flash ' + (fm.kind === 'err' ? 'err' : 'ok') + '" role="' + (fm.kind === 'err' ? 'alert' : 'status') + '">' + esc(fm.msg) + '</div>' : '';
     main.innerHTML = (p.fight ? '' : fl) + p.html;
-    if (p.fight && fl) { var f = main.querySelector('#pf-preview'); if (f) f.insertAdjacentHTML('beforebegin', fl.replace('class="note', 'class="pf-preview help note')); }
-    document.documentElement.classList.remove('pfv-dopen');
+    if (p.fight && fm) { var pv = main.querySelector('#pf-preview'); if (pv) pv.textContent = fm.msg; }
+    document.documentElement.classList.remove('pfv-dopen'); iconSwap(main);
     runScripts(p.fight ? ['pfx', 'pfparts', 'pfv1box', 'pfboardv1'] : (p.plain ? [] : ['pfparts', 'pfv1box']));
     if (!p.fight) { document.documentElement.style.removeProperty('--pfv-top'); window.scrollTo(0, y); }
     var onFight = !!(S.enc && !p.plain && S.screen !== 'box' && S.screen !== 'result');
@@ -267,5 +286,7 @@
   safe(function () { document.documentElement.setAttribute('data-theme', window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }); themeSync();
 
   window.__demo = { S: S, PFE: PFE, PFD: PFD, go: go, meet: meet, render: render, fightDo: fightDo, tuning: tuning };
+  iconSwap(document.querySelector('.banner')); iconSwap(nav);
+  flash('Welcome. Pack your first Puzzle box, then meet a creature (Creatures, below). Tuning, at the top, changes the rules numbers.', 'ok');
   setBelt(); render();
 })();

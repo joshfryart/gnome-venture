@@ -38,6 +38,13 @@ im = Image.new('RGBA', L[0].size)
 for l in L: im = Image.alpha_composite(im, l)
 full = im.crop(im.getbbox()); fs = max(full.size); fq = Image.new('RGBA', (fs, fs)); fq.paste(full, ((fs - full.size[0]) // 2, 0))
 b = io.BytesIO(); fq.resize((60, 60), Image.LANCZOS).save(b, 'PNG'); art['gnome.png'] = 'data:image/png;base64,' + base64.b64encode(b.getvalue()).decode()
+# emoji -> the game's own SVG icons (emoji_icons.php swaps them on every page): only the emoji the demo's own text uses
+texts = ''.join(rd(f) for f in [D + 'views.js', D + 'glue.js', D + 'page.html'])
+ico = {}
+for em, r in data['ico'].items():
+    f = G + 'img/ico/%s.svg' % r[0]
+    if em in texts and os.path.isfile(f): ico[em] = r; art['ico/%s.svg' % r[0]] = uri(f, 'image/svg+xml')
+data['ico'] = ico
 atlas = json.load(open(PT + 'atlas.json')); rim = json.load(open(PT + 'rim.json'))
 
 # ---- css: the game's own files; images become data: URIs (the ones the pages use) or nothing
