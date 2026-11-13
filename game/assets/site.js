@@ -795,6 +795,53 @@ gvAdvFold();
     if (a && b) a.innerHTML = b.innerHTML;
     else if (a && !b) a.parentNode.removeChild(a);
   }
+
+  /* 2.6.80 (Josh: End turn "still reloads the popover"): the puzzle fight on the Trail sits in a MODAL <dialog id="trailpop">. Replacing <main> destroyed it every turn: the modal left the top layer and came back,
+     the backdrop redrew, the card's scroll and the focus reset. So while the old page has that dialog open as a modal around a puzzle fight and the new page has one too, the dialog element (and the nodes
+     above it) stay, and only what is around and inside them is replaced. Returns false (nothing touched) when this does not apply: the normal swap then runs. */
+  function syncAttrs(o, n, keep) {
+    Array.prototype.slice.call(o.attributes).forEach(function (a) { if (a.name !== 'open' && a.name !== 'tabindex' && !/^data-up$/.test(a.name) && !n.hasAttribute(a.name)) o.removeAttribute(a.name); });
+    Array.prototype.forEach.call(n.attributes, function (a) { if (a.name !== 'class' && a.name !== 'open' && o.getAttribute(a.name) !== a.value) o.setAttribute(a.name, a.value); });
+    var want = (n.getAttribute('class') || '').split(/\s+/).filter(Boolean);
+    Array.prototype.slice.call(o.classList).forEach(function (c) { if (want.indexOf(c) < 0 && (keep || []).indexOf(c) < 0) o.classList.remove(c); });
+    want.forEach(function (c) { o.classList.add(c); });
+  }
+  function keepTrailPop(doc) {
+    var main = document.querySelector('main'), nmain = doc.querySelector('main'), od = document.getElementById('trailpop'), nd = doc.getElementById('trailpop');
+    if (!main || !nmain || !od || !nd || !main.contains(od) || !nmain.contains(nd) || od === main || !od.open) return false;
+    try { if (!od.matches(':modal')) return false; } catch (e) { return false; }
+    if (!od.querySelector('#pfight') || !nd.querySelector('#pfight')) return false;
+    var oc = [], nc = [], e, i;
+    for (e = od; e && e !== main; e = e.parentNode) oc.push(e);
+    for (e = nd; e && e !== nmain; e = e.parentNode) nc.push(e);
+    if (oc.length !== nc.length || oc.length < 1) return false;
+    var oh = od.querySelector('.hubcard'), nh = nd.querySelector('.hubcard');
+    if (!oh || !nh) return false;
+    var top = oh.scrollTop;
+    var op = main, np = nmain;
+    for (i = oc.length - 1; i >= 0; i--) {   // from the child of <main> down to the dialog: keep the node, replace its siblings
+      var o = oc[i], n = nc[i];
+      while (o.previousSibling) op.removeChild(o.previousSibling);
+      while (o.nextSibling) op.removeChild(o.nextSibling);
+      var pre = '', post = '', x;
+      for (x = n.previousSibling; x; x = x.previousSibling) pre = (x.nodeType === 1 ? x.outerHTML : x.nodeType === 3 ? x.textContent.replace(/&/g, '&amp;').replace(/</g, '&lt;') : '') + pre;
+      for (x = n.nextSibling; x; x = x.nextSibling) post += (x.nodeType === 1 ? x.outerHTML : x.nodeType === 3 ? x.textContent.replace(/&/g, '&amp;').replace(/</g, '&lt;') : '');
+      if (pre) o.insertAdjacentHTML('beforebegin', pre);
+      if (post) o.insertAdjacentHTML('afterend', post);
+      if (o !== od) syncAttrs(o, n);
+      op = o; np = n;
+    }
+    syncAttrs(od, nd, ['wired', 'cardwired']);   // classes the page scripts put on (wired) stay
+    var ob = od.querySelector('.pickbox'), nb = nd.querySelector('.pickbox');
+    if (ob && nb && ob.contains(oh) && nb.contains(nh)) {
+      // everything between the dialog and the card keeps its node; the card keeps its node too (and so its scroll): only its content is replaced
+      var po = oh.parentNode, pn = nh.parentNode;
+      if (po !== ob || pn !== nb) { od.innerHTML = nd.innerHTML; }
+      else { syncAttrs(ob, nb); syncAttrs(oh, nh, ['wired', 'cardwired']); oh.innerHTML = nh.innerHTML; while (ob.firstChild !== oh && ob.firstChild) ob.removeChild(ob.firstChild); while (oh.nextSibling) ob.removeChild(oh.nextSibling); }
+    } else od.innerHTML = nd.innerHTML;
+    var oh2 = od.querySelector('.hubcard'); if (oh2) oh2.scrollTop = top;
+    return true;
+  }
   // scripts that arrive in swapped-in content do not run by themselves: the ones marked data-rerun (the puzzle fight's) are replaced by fresh copies, in order
   function rerunScripts(root) {
     if (!root) return;
@@ -834,7 +881,8 @@ gvAdvFold();
         // Keep folds the player had open (e.g. buildings, hired help) open after the swap
         var openKeys = Array.prototype.map.call(document.querySelectorAll('main details[open]'), foldKey);
         var wasFight = !!document.querySelector('.advgrid.fighting');
-        swap(doc, 'main'); swapped = true;
+        if (!keepTrailPop(doc)) swap(doc, 'main');
+        swapped = true;
         rerunScripts(document.querySelector('main'));
         document.querySelectorAll('main details').forEach(function (d) { if (openKeys.indexOf(foldKey(d)) >= 0) d.open = true; });
         swap(doc, '.statusstrip');

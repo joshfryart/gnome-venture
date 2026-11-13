@@ -40,7 +40,10 @@ echo "== charm pieces and the end of the fight (browser)"
 if [ -d /opt/node-tools/node_modules/playwright ] || node -e "require('playwright')" 2>/dev/null; then
   [ -n "$ONLYEND" ] || NODE_PATH=${NODE_PATH:-/opt/node-tools/node_modules} node "$HERE/pfv1_charm.js" "$BASE" "$GAME" "$HERE" 2>&1 | tee $H.out | cut -c1-400
   NODE_PATH=${NODE_PATH:-/opt/node-tools/node_modules} node "$HERE/pfv1_endturn.js" "$BASE" "$GAME" "$HERE" 2>&1 | tee -a $H.out | cut -c1-400   # 2.6.79: End turn on an emulated phone
-  FAILS=$(grep -c '^FAIL' $H.out); [ "$(grep -c '^charm: done' $H.out)" = 1 ] && [ "$(grep -c '^endturn: done' $H.out)" = 1 ] || FAILS=$((FAILS+1))
+  # 2.6.80: the same turns inside the MODAL Trail dialog (a tile walk, the fight in #trailpop): the dialog must stay the same open modal element
+  php "$HERE/here.php" "$GAME" cli tilewalk >/dev/null
+  NODE_PATH=${NODE_PATH:-/opt/node-tools/node_modules} node "$HERE/pfv1_trail.js" "$BASE" "$GAME" "$HERE" 2>&1 | tee -a $H.out | cut -c1-400
+  FAILS=$(grep -c '^FAIL' $H.out); [ "$(grep -c '^charm: done' $H.out)" = 1 ] && [ "$(grep -c '^endturn: done' $H.out)" = 1 ] && [ "$(grep -c '^trail: done' $H.out)" = 1 ] || FAILS=$((FAILS+1))
 else echo "skip (no playwright)"; FAILS=0; fi
 [ -n "$FAILS" ] && [ "$FAILS" -eq 0 ] && echo "pfv1_charm ok" || echo "$FAILS FAILED"
 [ "${FAILS:-1}" -eq 0 ]
