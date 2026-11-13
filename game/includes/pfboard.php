@@ -132,9 +132,22 @@ function pfb_mud_near(array $s, int $x, int $y): bool
     return false;
 }
 
-/** Where the environment may put a piece (2.6.78, Josh): it TRIES a free cell where its edges fit a neighbour but link to nothing (no knob in a matching hole, so it joins no chain); only when no such cell exists, any fitting cell (linking allowed). */
+/**
+ * Where the environment may put a piece. 2.6.79 (Josh: "Environment should try playing on two spaces that don't have anything connecting"; 2.6.78 only avoided LINKS, which still put its pieces next to the action):
+ * an ISOLATED empty cell, with no piece on any of its 4 sides, so nothing connects to it. Of those, the 3 that lie FARTHEST (Manhattan distance) from every piece on the board (this turn's earlier environment piece
+ * included) come back, farthest first, and the seeded draw picks one of them. Anyone may link to it later by placing next to it (the normal edge rule). Only when no isolated cell exists: a cell where the piece fits but links
+ * to nothing, then any fitting cell (the 2.6.78 rules). Empty list = nothing fits.
+ */
 function pfb_env_cells(array $s, array $tile): array
 {
+    $iso = [];
+    if ($s['pcs']) for ($y = 0; $y < pfb_h($s); $y++) for ($x = 0; $x < pfb_w($s); $x++) {
+        if (isset($s['cell']["$x,$y"])) continue;
+        foreach (PFB_SIDE as [$dx, $dy]) if (pfb_at($s, $x + $dx, $y + $dy)) continue 2;
+        $d = 99; foreach ($s['pcs'] as $p) $d = min($d, abs($p['x'] - $x) + abs($p['y'] - $y));
+        $iso[] = [$d, $y, $x];
+    }
+    if ($iso) { usort($iso, fn($a, $b) => [$b[0], $a[1], $a[2]] <=> [$a[0], $b[1], $b[2]]); return array_map(fn($o) => [$o[2], $o[1]], array_slice($iso, 0, 3)); }
     $fit = []; $link = [];
     for ($y = 0; $y < pfb_h($s); $y++) for ($x = 0; $x < pfb_w($s); $x++) { $j = pfb_check($s, $tile, $x, $y); if ($j === null) continue; $fit[] = [$x, $y]; if (pfb_has_link($j)) $link[] = [$x, $y]; }
     return array_values(array_filter($fit, fn($c) => !in_array($c, $link, true))) ?: $fit;

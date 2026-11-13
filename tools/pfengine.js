@@ -575,9 +575,18 @@
     for (var d in PFB_SIDE) { var n = pieceAt(s, x + PFB_SIDE[d][0], y + PFB_SIDE[d][1]); if (n && n.by === 'env' && n.tile.env === 'mud') return true; }
     return false;
   }
-  function envCells(s, tile) {
+  function envCells(s, tile) {   // 2.6.79: isolated empty cells, the 3 farthest from every piece (farthest first); else a fitting cell that links to nothing, else any fitting cell
+    var iso = [], x, y, k, d, p, ok, sd;
+    if (Object.keys(s.pcs).length) for (y = 0; y < pfbH(s); y++) for (x = 0; x < pfbW(s); x++) {
+      if (s.cell[x + ',' + y] !== undefined) continue;
+      ok = true; for (k in PFB_SIDE) { sd = PFB_SIDE[k]; if (pieceAt(s, x + sd[0], y + sd[1])) { ok = false; break; } }
+      if (!ok) continue;
+      d = 99; for (k in s.pcs) { p = s.pcs[k]; d = Math.min(d, Math.abs(p.x - x) + Math.abs(p.y - y)); }
+      iso.push([d, y, x]);
+    }
+    if (iso.length) { iso.sort(function (a, b) { return b[0] - a[0] || a[1] - b[1] || a[2] - b[2]; }); return iso.slice(0, 3).map(function (o) { return [o[2], o[1]]; }); }
     var fit = [], link = [];
-    for (var y = 0; y < pfbH(s); y++) for (var x = 0; x < pfbW(s); x++) { var j = check(s, tile, x, y); if (j === null) continue; fit.push([x, y]); if (hasLink(j)) link.push([x, y]); }
+    for (y = 0; y < pfbH(s); y++) for (x = 0; x < pfbW(s); x++) { var j = check(s, tile, x, y); if (j === null) continue; fit.push([x, y]); if (hasLink(j)) link.push([x, y]); }
     var seen = {}; link.forEach(function (c) { seen[c[0] + ',' + c[1]] = 1; });
     var free = fit.filter(function (c) { return !seen[c[0] + ',' + c[1]]; });
     return free.length ? free : fit;

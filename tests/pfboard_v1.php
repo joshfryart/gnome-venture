@@ -199,7 +199,7 @@ foreach (['small', 'medium', 'large', 'boss'] as $size) for ($seed = 1; $seed <=
         if (!$aim || !$foeRoot) continue;
         if ($block && isset($s['cell']) && ($mv[1] === $aim['x'] && $mv[2] === $aim['y'])) { $taken++; $at = pfb_at($s, $aim['x'], $aim['y']); if (!empty($s['reaim']) || $s['over'] || !$at || $at['by'] === 'foe') $takenFull++; continue; }   // (your piece may have been used up by its own chain: then the cell is free again and the aim plays)
         if (!empty($s['reaim'])) $re++;
-        else { $played++; $p = null; foreach ($r['ev'] as $e) if (isset($e['snap'], $e['id']) && ($e['ta'] ?? '') === 'foe') foreach ($e['snap'] as $q) if ($q['id'] === $e['id']) $p = $q; if ($foeRoot['k'] !== $aim['k'] || ($p && ($p['x'] !== $aim['x'] || $p['y'] !== $aim['y']))) $wrong++; }
+        else { $played++; $p = null; foreach ($r['ev'] as $e) if (isset($e['snap'], $e['id']) && ($e['ta'] ?? '') === 'foe') foreach ($e['snap'] as $q) if ($q['id'] === $e['id'] && $p === null) $p = $q; /* the FIRST piece it placed (a Quick piece may add a second) */ if ($foeRoot['k'] !== $aim['k'] || ($p && !array_filter($r['ev'], fn($e) => isset($e['moved'])) && ($p['x'] !== $aim['x'] || $p['y'] !== $aim['y']))) $wrong++;   /* (a Wind in the chain may push the piece off its cell afterwards: that is the Wind, not a wrong aim) */ }
     }
 }
 chk('the aim is in the state and the view; when the creature plays its aim it is that piece on that cell', $played > 40 && $wrong === 0, compact('played', 're', 'wrong', 'noAim'));
@@ -334,6 +334,7 @@ foreach ($rows as $ci => $c) foreach ([0, 1, 2] as $k) {
     $t = 0;
     while (!$s['over'] && $t++ < 40) {
         if ($t === 3) $s = json_decode(json_encode($s), true);   // the fight is saved as JSON in the encounter between turns
+        if ($t % 5 === 4 && pfb_can_flip($s, 0)) { pfb_flip($s, 0, $s['turn']); $evs['flip']++; }   // (2.6.79: the environment's pieces stand apart, so a piece that fits only flipped is rarer: flip now and then anyway)
         $m = pfb_search($s, 'me');
         if (!$m) foreach (array_keys($s['me']['hand']) as $i) { if (!pfb_can_flip($s, $i)) continue; pfb_flip($s, $i, $s['turn']); $evs['flip']++; if ($m = pfb_search($s, 'me')) break; pfb_flip($s, $i, $s['turn']); $evs['flip']--; }
         $r = $m ? pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']) : pfb_pass($s, $s['turn']);
