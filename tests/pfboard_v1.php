@@ -350,6 +350,7 @@ foreach ($rows as $ci => $c) foreach ([0, 1, 2] as $k) {
         if (!$old && $t > 1 && count($s['env']['draw']) > $ed0) $evs['reshuffle']++; if (!$old) $ed0 = count($s['env']['draw']);
         foreach ($r['ev'] as $e) { if (isset($e['env'])) $evs['env']++; if (isset($e['mud'])) $evs['mud weakens']++; if (isset($e['used'])) $evs['used']++; if (isset($e['tw'])) $evs['tw']++; if (isset($e['sun'])) $evs['sun']++; if (!isset($e['ta'])) $fail[] = "$tag: an event without ta"; }
         if (!empty($s['reaim'])) $evs['reaim']++;
+        if (!$s['over'] && ((int)$s['me']['block'] !== (int)($s['me']['kept'] ?? 0) || (int)$s['me']['keep'] !== 0)) $fail[] = "$tag turn {$s['turn']}: guard {$s['me']['block']} at the start of your turn, only {$s['me']['kept']} may carry (Hold)";   // 2.6.77: nothing but a Hold guard is up when your turn starts
         $seen = []; $mine = count($s['me']['hand']) + count($s['me']['draw']) + count($s['me']['discard']) + count($s['me']['held']['pcs'] ?? []);
         foreach ($s['pcs'] as $id => $p) {
             $key = $p['x'] . ',' . $p['y']; if ($p['by'] === 'me') $mine++;
@@ -388,6 +389,7 @@ $line = pfb_env_line(['env' => 'thorn', 'me' => 4, 'foe' => 2.4], 'Owl'); chk('a
 
 require __DIR__ . '/pfboard_v1_env.php';   // 13: environment pieces (2.6.75)
 require __DIR__ . '/pfboard_v1_notes.php';   // 14: notices (2.6.76)
+require __DIR__ . '/pfboard_v1_guard.php';   // 15: your guard fades when your turn starts (2.6.77)
 
 chk('no PHP warning or notice anywhere in this run', !$warn, array_slice($warn, 0, 3));
 echo $bad ? "$bad FAILED\n" : "all ok\n";

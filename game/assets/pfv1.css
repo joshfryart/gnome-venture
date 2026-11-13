@@ -275,7 +275,7 @@
 /* a screen that fits the window (the fight, the pre-fight screen): fixed between the site's header and bottom bar (the script measures them), the page behind does not scroll */
 html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 #pfv-pre.pfv-fit { position: fixed; z-index: 60; top: var(--pfv-top, 0px); bottom: var(--pfv-bot, 0px); left: 50%; width: min(100vw, 560px); max-width: none; transform: translateX(-50%); margin: 0; overflow-y: auto; overscroll-behavior: contain; box-sizing: border-box; }
-#pfight.pf-v1.pfv-fit { position: fixed; z-index: 60; top: var(--pfv-top, 0px); bottom: var(--pfv-bot, 0px); left: 50%; width: min(100vw, 760px); max-width: none; transform: translateX(-50%); margin: 0; padding: 4px 6px calc(4px + env(safe-area-inset-bottom, 0px)); border-radius: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 3px; overflow: hidden; background: #2b1d14; box-shadow: 0 0 0 100vmax rgba(12, 7, 4, .78); clip-path: inset(0 -100vmax); }
+#pfight.pf-v1.pfv-fit { position: fixed; z-index: 60; top: var(--pfv-top, 0px); bottom: var(--pfv-bot, 0px); left: 50%; width: min(100vw, 760px); max-width: none; transform: translateX(-50%); margin: 0; padding: 4px 6px calc(4px + env(safe-area-inset-bottom, 0px)); border-radius: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: var(--pfv-gap, 3px); justify-content: center; overflow: hidden; background: #2b1d14; box-shadow: 0 0 0 100vmax rgba(12, 7, 4, .78); clip-path: inset(0 -100vmax); }
 #pfight.pf-v1.pfv-fit > * { flex: none; margin-top: 0; margin-bottom: 0; min-width: 0; }
 #pfight.pf-v1.pfv-fit > .pfv-bwrap { flex: 1 1 0; min-height: 0; display: grid; place-items: center; overflow: hidden; position: relative; }
 #pfight.pf-v1.pfv-fit .pfb-board { margin: 0; flex: none; }
@@ -302,7 +302,7 @@ html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 .pf-v1.pfv-fit .pf-heldrow { margin: 0; }
 /* Flip and the buttons beside it: about a fifth smaller, still 40px to tap */
 .pf-v1 .pf-buttons { display: flex; flex-wrap: nowrap; gap: 6px; justify-content: center; align-items: center; margin: 2px 0; }
-.pf-v1 .pf-buttons .btn, .pf-v1 .pf-extra .btn, .pf-v1 #pf-skip, .pf-v1 .pf-rewind .btn { min-height: 40px; padding: 3px 10px; font-size: 14px; margin: 0; }
+.pf-v1 .pf-buttons .btn, .pf-v1 .pf-extra .btn, .pf-v1 #pf-skip, .pf-v1 .pf-rewind .btn { min-height: 44px; padding: 3px 10px; font-size: 14px; margin: 0; }
 .pf-v1 .pf-buttons form { margin: 0; }
 .pf-v1 .pf-buttons #pf-go { flex: 1 1 auto; max-width: 220px; }
 .pf-v1 .pf-buttons .pfv-flipb { white-space: nowrap; }
@@ -420,3 +420,31 @@ html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 .pf-v1 .pf-inspect .pfi-ch { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 2px; }
 .pf-v1 .pf-inspect .ch { display: inline-flex; padding: 0 5px; font-size: 11px; line-height: 16px; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .25); color: inherit; }
 @media (max-width: 899px) { html.pfv-dopen body { padding-bottom: calc(45vh + 56px); } }   /* room to scroll the last piece above the sheet */
+
+/* 2.6.77: uniform scale only. The board's cells and the pieces keep the art's proportion (script: fitBoard). The height a tall phone has to spare goes to the hand (pieces scaled up as pictures, never stretched), a docked card under the board, 44 to 48px buttons, bigger gaps. */
+.pf-v1.pfv-fit .pf-buttons .btn { min-height: var(--pfv-btn, 44px); }
+.pf-v1.pfv-fit .pf-buttons .pfv-flipb, .pf-v1.pfv-fit .pf-buttons #pf-go { min-height: var(--pfv-btn, 44px); }
+#pfight.pf-v1.pfv-fit .pf-hand .pf-bp.pf-art2 { width: var(--pfv-hw, 74px); height: var(--pfv-hh, 52px); }
+@media (min-width: 561px) { #pfight.pf-v1.pfv-fit .pf-hand .pf-bp.pf-art2 { width: var(--pfv-hw, 112px); height: var(--pfv-hh, 78px); } }
+.pf-v1.pfv-fit .pfv-legend .tg { min-height: var(--pfv-leg, 26px); }
+.pfv-dock { display: none; }
+.pf-v1.pfv-dockon .pfv-dock { display: block; position: relative; box-sizing: border-box; height: var(--pfv-dock, 56px); overflow: hidden; padding: 4px 8px; border: 2px solid rgba(242, 228, 192, .28); border-radius: 6px; background: rgba(0, 0, 0, .25); color: #f2e4c0; font-size: 13px; line-height: 1.3; }
+.pf-v1.pfv-dockon .pfv-dock .pf-inspect { position: absolute; inset: 0; z-index: 2; max-height: none; margin: 0; padding: 4px 8px; border: 0; border-radius: 0; background: #2b1d14; box-sizing: border-box; overflow: hidden; align-items: center; }
+.pf-v1.pfv-dockon .pfv-dock .pf-inspect[hidden] { display: none; }
+.pf-v1.pfv-dockon .pfv-dock .pf-inspect .pfi-cv { max-height: calc(var(--pfv-dock, 56px) - 14px); width: auto; }
+.pf-v1.pfv-dockon .pfv-dock .pf-itext { min-width: 0; overflow: hidden; }
+.pfv-dock .pfv-dockidle .dl { display: block; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
+.pfv-dock .pfv-dockidle ul { margin: 0; padding: 0; list-style: none; }
+.pfv-dock .pfv-dockidle li { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pfv-dock .pfv-dockidle .dn { margin: 2px 0 0; font-weight: 700; color: #e8a317; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* 2.6.77: the dock is always there (46px or more): a compact card, 1 to 2 lines and small art; it never lies over the board */
+.pf-v1.pfv-docks .pfv-dock .pf-inspect .pfi-ch, .pf-v1.pfv-docks .pfv-dock .pf-inspect br { display: none; }
+.pf-v1.pfv-docks .pfv-dock .pf-inspect .pf-itext { display: block; font-size: 12px; line-height: 1.25; max-height: 100%; }
+.pf-v1.pfv-docks .pfv-dock .pf-inspect .pf-itext b { margin-right: 4px; }
+.pf-v1.pfv-docks .pfv-dock .pfv-dockidle li:nth-child(n+2), .pf-v1.pfv-docks .pfv-dock .pfv-dockidle .dn { display: none; }
+.pf-v1.pfv-docks .pfv-dock { padding: 2px 8px; }
+.pf-v1.pfv-docks .pfv-dock .pfv-dockidle .dl { display: inline; margin-right: 6px; }
+.pf-v1.pfv-docks .pfv-dock .pfv-dockidle ul { display: inline; }
+.pf-v1.pfv-docks .pfv-dock .pfv-dockidle li { display: inline; }
+.pfv-dock .pfv-dockidle li { white-space: normal; }
+.pf-v1.pfv-dockon .pfv-dock .pf-inspect .pfi-x { min-width: 32px; min-height: 32px; }

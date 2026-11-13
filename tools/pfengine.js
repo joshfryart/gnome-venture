@@ -1225,6 +1225,14 @@
 
   function foeLen(s) { return Math.max(0, Math.min(s.foe.hand.length, 1 - toInt(s.foe.slow))); }
 
+  function guardNotes(s, ev) {   // 2.6.77 (pfb_guard_notes)
+    if (!s.v1 || s.over) return;
+    var ta = ev.length ? String(nn(ev[ev.length - 1].ta, 'foe')) : 'foe';
+    [['fade', toInt(nn(s.me.faded, 0))], ['hold', toInt(nn(s.me.kept, 0))]].forEach(function (q) {
+      if (q[1] <= 0) return;
+      var e = note(q[0], String(q[1])); e.by = 'me'; e.ta = ta; e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block); ev.push(e);
+    });
+  }
   function note(kind, n) { return { by: 'foe', note: kind, k: 'note', n: n === undefined ? '' : n, t: 'note', tag: '', v: 0, fit: false, combo: null }; }   // 2.6.76: a notice event (pfb_note)
 
   function foeTurn(s) {
@@ -1351,7 +1359,9 @@
     if (s.v1 && truthy(s.v1.env)) { var eg = gone.filter(function (p) { return p.by === 'env'; }).map(function (p) { return p.id; }); if (eg.length) s.envlog.push({ k: 'expire', x: null, y: null, me: 0, foe: 0.0, ids: eg }); }   // 2.6.75
     draw(s, 'foe', s.foe.hsize);
     s.turn++; s.round++;
-    s.me.block = s.me.keep; s.me.keep = 0; s.me.thorns = false; s.me.evade = 0;
+    if (s.v1 && truthy(s.v1)) { var kept = Math.min(toInt(s.me.keep), toInt(s.me.block)); s.me.faded = Math.max(0, toInt(s.me.block) - kept); s.me.kept = kept; s.me.block = kept; s.me.keep = 0; }   // 2.6.77: your guard fades when your turn starts; only a Hold guard still standing carries over, once
+    else { s.me.block = s.me.keep; s.me.keep = 0; }
+    s.me.thorns = false; s.me.evade = 0;
     draw(s, 'me', Math.min(PF_HAND_CAP, s.me.hand.length + PF_DRAW - slow));
     s.gone = nn(s.spent, []).map(function (p) { return goneEntry(s, p, true); }).concat(gone.map(function (p) { return goneEntry(s, p, false); }));
     s.spawn = spawn(s);
@@ -1407,6 +1417,7 @@
     if (!w.over) endRound(w);
     if (w.v1) ev = ev.concat(envEvents(w));
     if (trip && !w.over) { var tn = note('trip'); tn.ta = ev.length ? String(nn(ev[ev.length - 1].ta, 'foe')) : 'foe'; ev.push(tn); }
+    guardNotes(w, ev);
     w.fx = fx(ev);
     w.log.push({ turn: s.turn, n: 1 });
     assignInto(s, w);
@@ -1431,6 +1442,7 @@
     if (!w.over) endRound(w);
     if (w.v1) ev = ev.concat(envEvents(w));
     if (trip && !w.over) { var tn = note('trip'); tn.ta = ev.length ? String(nn(ev[ev.length - 1].ta, 'foe')) : 'foe'; ev.push(tn); }
+    guardNotes(w, ev);
     assignInto(s, w);
     return { ev: ev, err: null };
   }
@@ -1521,6 +1533,8 @@
     switch (e.note) {
       case 'quick': return '\u26A1 ' + (e.n ? e.n + ': ' : '') + 'Quick. The ' + foe + ' plays a second piece.';
       case 'slow': return '\u23F3 The ' + foe + ' loses its turn.';
+      case 'fade': return '\uD83D\uDEE1\uFE0F Your guard fades (-' + toInt(e.n) + ') as your turn starts.';
+      case 'hold': return '\uD83D\uDEE1\uFE0F Hold: ' + toInt(e.n) + ' guard stays up into your turn.';
       default: return '\uD83E\uDDB6 Tripped: you draw 1 fewer piece next turn.';
     }
   }
@@ -1535,7 +1549,7 @@
       var ep = []; if (truthy(e.me)) ep.push('you -' + toInt(e.me) + ' hp'); if (truthy(e.foe)) ep.push('creature -' + iround(Number(e.foe)) + ' hp');
       return ext({ by: 'env', types: ['env'], tags: [String(nn(e.kind, e.env))], txt: String(e.n) + (ep.length ? ': ' + ep.join(' · ') : ''), tg: truthy(e.me) ? 'me' : (truthy(e.foe) ? 'foe' : null) });
     }
-    if (e.note !== undefined && e.note !== null) return ext({ by: 'foe', types: ['note'], tags: [String(e.note)], txt: e.note === 'quick' ? '\u26A1 Quick: plays 2' : e.note === 'slow' ? '\u23F3 loses its turn' : '\uD83E\uDDB6 you draw 1 fewer', tg: null });
+    if (e.note !== undefined && e.note !== null) return ext({ by: String(e.by), types: ['note'], tags: [String(e.note)], txt: e.note === 'quick' ? '\u26A1 Quick: plays 2' : e.note === 'slow' ? '\u23F3 loses its turn' : e.note === 'fade' ? '\uD83D\uDEE1\uFE0F guard fades -' + toInt(e.n) : e.note === 'hold' ? '\uD83D\uDEE1\uFE0F Hold kept ' + toInt(e.n) : '\uD83E\uDDB6 you draw 1 fewer', tg: null });
     var parts = [], tg = 'foe', by = String(nn(e.by, 'me')), t = String(nn(e.t, 'hurt'));
     if (truthy(e.tick)) parts.push('-' + toInt(e.v) + ' hp');
     else if (by === 'me') {
