@@ -56,7 +56,7 @@ const VERBOSE = !!process.env.VERBOSE;
   }
   // ---- what the page does from the click on Play until it is quiet: when the replay runs, which banners show, how the charm bar fills, when the result card appears
   const sample = () => p.evaluate(() => { const f = document.getElementById('pfight'); if (!f) return null; const r = document.getElementById('pfv-res'), b = document.querySelector('.pfx-fill.charm'), tn = document.querySelector('.pf-turn:not([hidden])');
-    return { mark: window.__mark || null, playing: f.classList.contains('pf-playing'), wait: f.classList.contains('pfv-endwait'), res: !!r && getComputedStyle(r).display !== 'none' && r.getBoundingClientRect().height > 0, bar: b ? b.style.width : null, banner: tn ? tn.textContent.trim() : '' }; }).catch(() => null);
+    return { mark: window.__mark || null, playing: f.classList.contains('pf-playing'), wait: f.classList.contains('pfv-endwait'), res: !!r && getComputedStyle(r).display !== 'none' && r.getBoundingClientRect().height > 0, bar: b ? b.style.width : null, cn: (document.querySelector('.pf-charmn') || {}).textContent || null, banner: tn ? tn.textContent.trim() : '' }; }).catch(() => null);
   async function playAndWatch(i) {
     await p.locator('#pf-hand .pf-tile').nth(i).click(); await p.waitForTimeout(250);
     await p.locator('#pfb-board .pfb-lit').first().click(); await p.waitForTimeout(150);
@@ -124,6 +124,16 @@ const VERBOSE = !!process.env.VERBOSE;
   r = await playAndWatch(0);
   ck('the charm bar is never drawn full while the fight goes on', r.tl.some(s => s.bar === '100%') , false);
   quietOk('bar');
+  // 2.6.80 (Josh): a number on the charm meter, N/100: 0/100 at the start, up after a charm piece, 100/100 only when the creature is won
+  await start('plain', SD, 2);
+  const n0 = await p.locator('.pf-charmn').first().textContent().catch(() => null);
+  ck('charm meter number: 0/100 at the start', n0, '0/100');
+  r = await playAndWatch(0);
+  const nN = r.tl.map(s => s.cn).filter(Boolean), nv = x => parseInt(x, 10), last = nN[nN.length - 1];
+  ck('charm meter number: it climbs during the replay and is higher after a charm piece (N/100, never 100 before the win)', [nN.every(x => /^\d{1,3}\/100$/.test(x)), nN.some((x, i) => i && nv(x) > nv(nN[0])) || nv(last) > 0, nN.some(x => x === '100/100')], [true, true, false]);
+  await start('near', SD, 2); r = await playAndWatch(0);
+  ck('charm meter number: 100/100 exactly when the creature is won', [r.tl.some(s => s.res), (r.tl.filter(s => s.res).pop() || {}).cn], [true, '100/100']);
+  quietOk('charm meter number');
 
   console.log('charm: done');
   await b.close(); process.exit(fails ? 1 : 0);

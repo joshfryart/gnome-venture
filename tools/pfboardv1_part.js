@@ -393,6 +393,7 @@
   function v1Boot() {
     root.addEventListener('submit', ghostSnap, true);
     ghostShow();
+    if (data.bar !== undefined && data.barmax) setBar(data.replay0 && data.replay0.bar !== undefined ? data.replay0.bar : data.bar, data.barmax);   // 2.6.80: the N/100 number is there from the first frame
     if (!willReplay || !SPD || !(data.replay && data.replay.length)) endReveal();
     else setTimeout(endReveal, 40000);   // never hold the card for ever (a replay that never ran)
     drawLegend();

@@ -417,6 +417,7 @@
   function v1Boot() {
     root.addEventListener('submit', ghostSnap, true);
     ghostShow();
+    if (data.bar !== undefined && data.barmax) setBar(data.replay0 && data.replay0.bar !== undefined ? data.replay0.bar : data.bar, data.barmax);   // 2.6.80: the N/100 number is there from the first frame
     if (!willReplay || !SPD || !(data.replay && data.replay.length)) endReveal();
     else setTimeout(endReveal, 40000);   // never hold the card for ever (a replay that never ran)
     drawLegend();
@@ -984,6 +985,7 @@
     var c = root.querySelector('.pfx-fill.charm'); if (!max) return;
     if (c) c.style.width = Math.max(0, now >= max ? 100 : Math.min(96, Math.floor(1000 * now / max) / 10)) + '%';
     var pr = root.querySelector('.pf-bar progress'); if (pr) pr.value = now;
+    var bx = root.querySelector('.pf-bar'); if (bx) { var nb = bx.querySelector('.pf-charmn'); if (!nb) { nb = document.createElement('b'); nb.className = 'pf-charmn'; nb.setAttribute('aria-hidden', 'true'); bx.appendChild(nb); } var rn = Math.round(now * 10) / 10; nb.textContent = Math.max(0, rn >= max ? 100 : Math.min(99, Math.floor(100 * rn / max))) + '/100'; }
   }
   function setFh(now, max) {   // the creature's health: drains as Hurt lands
     var el = root.querySelector('.pf-fhp'); if (!el || !max) return; var left = Math.max(0, max - now);
