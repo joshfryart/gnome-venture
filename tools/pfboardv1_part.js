@@ -377,7 +377,9 @@
     window.addEventListener('resize', refit);
     if (typeof ResizeObserver === 'function') { wrapObs = new ResizeObserver(function () { fitBoard(); }); wrapObs.observe(wrapEl); }
     document.addEventListener('keydown', onKey);
-    if (insp) wrapEl.appendChild(insp);   // 2.6.76: the piece card is an overlay on the top of the board room, it never covers the hand
+    if (insp) wrapEl.appendChild(insp);   // 2.6.76: the piece card is an overlay on the top of the board room when there is no room to dock it
+    dockEl = document.createElement('div'); dockEl.className = 'pfv-dock'; dockEl.id = 'pfv-dock'; if (legendEl && legendEl.parentNode) legendEl.parentNode.insertBefore(dockEl, legendEl.nextSibling);   // 2.6.77: docked card (in the flow) between the board and the hand
+    if (histEl && typeof MutationObserver === 'function') { dockMo = new MutationObserver(function () { if (dockOn) dockFill(); }); dockMo.observe(histEl, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] }); }
     document.addEventListener('pointerdown', inspOut, true);
     if (window.pfvSizes) window.pfvSizes();
   }
@@ -386,22 +388,68 @@
     var d = data.hand && data.hand[i], t = document.getElementById('pfi-desc'); if (!t || !d || !window.PFSheet) return;
     var old = insp.querySelector('.pfi-ch'); if (old) old.parentNode.removeChild(old);
     var TY = { hurt: 'Hurt', guard: 'Guard', heal: 'Heal', charm: 'Charm', soothe: 'Soothe', trick: 'Trick', item: 'Item' }, RN = ['', 'Common', 'Uncommon', 'Rare', 'Masterwork'];
-    var pc = { t: d.t, ty: TY[d.t] || d.t, v: d.v, rn: d.rank ? RN[d.rank] : '', rk: d.rank || 0, src: d.src && d.src !== 'knack' ? d.src : '', life: 0 };
+    var pv = d.v !== undefined ? d.v : +(tiles[i] && tiles[i].dataset.v) || 0, pc = { t: d.t, ty: TY[d.t] || d.t, v: pv, rn: d.rank ? RN[d.rank] : '', rk: d.rank || 0, src: d.src && d.src !== 'knack' ? d.src : '', life: 0 };
     var el = document.createElement('div'); el.className = 'pfi-ch'; el.innerHTML = window.PFSheet.chips(pc) + (d.life ? ' <span class="ch">stays ' + d.life + '</span>' : ''); insp.querySelector('.pf-itext').appendChild(el);
   }
   function inspOut(ev) {   // a tap outside the piece card closes it
     if (!insp || insp.hidden || insp.contains(ev.target)) return;
     insp.hidden = true; picked = null; Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-picked'), function (c) { c.classList.remove('pfb-picked'); });
   }
-  function v1Off() { closeSheet(); closePop(); document.removeEventListener('pointerdown', inspOut, true); document.removeEventListener('keydown', onKey); window.removeEventListener('resize', refit); if (wrapObs) wrapObs.disconnect(); }
+  function v1Off() { closeSheet(); closePop(); document.removeEventListener('pointerdown', inspOut, true); document.removeEventListener('keydown', onKey); window.removeEventListener('resize', refit); if (wrapObs) wrapObs.disconnect(); if (dockMo) dockMo.disconnect(); }
 
-  /** The board is as big as the room between the rows above and under it allows (its cells scale); never wider than the fight. */
+  /** 2.6.77: the board keeps the art's own proportion at every size (a cell is the piece's body, 56 x 40, never stretched; the pieces scale with it). It is as large as the width and its share of the height allow. A tall phone has height to spare: it goes to the hand (larger pieces, uniformly scaled), a docked card under the board (the picked piece, or the last plays and what comes next), 44px+ buttons, bigger gaps between the rows; what is left is split above and under the whole block. Nothing here changes a piece's proportion. */
+  var fitBusy = false, dockEl = null, dockOn = false, dockMo = null;
+  var HAND_W = function () { return window.innerWidth <= 560 ? 74 : 112; };
+  function fitVars(v) { var st = root.style; ['--pfv-gap', '--pfv-btn', '--pfv-hw', '--pfv-hh', '--pfv-dock', '--pfv-leg'].forEach(function (k) { if (v && v[k] !== undefined) st.setProperty(k, v[k]); else st.removeProperty(k); }); }
+  function setDock(on) {
+    if (on === dockOn || !dockEl) return; dockOn = on; root.classList.toggle('pfv-dockon', on);
+    if (insp) { if (on) dockEl.insertBefore(insp, dockEl.firstChild); else if (wrapEl) wrapEl.appendChild(insp); }   // the card docks under the board (in the flow) or, with no room to spare, lies over the board room
+  }
   function fitBoard() {
-    if (!wrapEl || !fitTW || !root.classList.contains('pfv-fit')) return;
-    var r = wrapEl.getBoundingClientRect(); if (r.height < 30 || r.width < 30) return;
-    // 2.6.76: the board takes ALL the height there is. A wide board on a tall phone is limited by the width, so its rows grow taller than the pieces' own proportion (up to 2.6x, a stretch the pixel art takes well) instead of leaving a dead band above and under it; a board that is limited by the height gets narrower.
-    var ar = fitTW / fitTH, w = Math.floor(Math.min(r.width, r.height * ar, fitTW * 1.7)), h = Math.floor(Math.min(r.height, w / ar * 2.6));
-    boardEl.style.maxWidth = 'none'; boardEl.style.aspectRatio = 'auto'; boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px';
+    if (fitBusy || !wrapEl || !fitTW || !root.classList.contains('pfv-fit')) return;
+    fitBusy = true;
+    try {
+      var ar = fitTW / fitTH, base = {}, r, w, h, rem, hw0 = HAND_W(), hh0 = Math.round(hw0 * 52 / 74), n = tiles.length || 5;
+      fitVars({ '--pfv-btn': '44px' }); wrapEl.style.flex = ''; wrapEl.style.height = ''; setDock(false);
+      r = wrapEl.getBoundingClientRect(); if (r.height < 30 || r.width < 30) return;
+      w = Math.floor(Math.min(r.width, r.height * ar, fitTW * 1.7)); h = Math.round(w / ar);
+      boardEl.style.maxWidth = 'none'; boardEl.style.aspectRatio = fitTW + ' / ' + fitTH; boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px';
+      rem = Math.floor(r.height - h) - 4;
+      if (rem >= 10) {
+        var v = { '--pfv-btn': '44px' }, dock = 0, hs = 1, gaps = Math.max(1, root.children.length - 1);
+        if (rem >= 8) { v['--pfv-btn'] = '48px'; rem -= 4; }
+        var avail = handEl.clientWidth, hsW = Math.min(1.5, avail / (hw0 * (n - 0.12 * (n - 1)))), hcost = function (x) { return Math.round(hh0 * (x - 1)); };
+        hsW = Math.max(1, Math.floor(hsW * 20) / 20);
+        if (rem >= 56 + 12) { dock = 56; rem -= 56; }
+        hs = hsW; if (hcost(hs) > rem - (dock ? 0 : 0)) hs = Math.max(1, Math.floor((1 + Math.max(0, rem) / hh0) * 20) / 20);
+        rem -= hcost(hs);
+        if (dock) { var more = Math.min(64, rem); dock += more; rem -= more; }
+        if (rem >= 8) { v['--pfv-leg'] = '34px'; rem -= 8; }
+        var gx = Math.max(0, Math.min(18, Math.floor(rem / gaps))); rem -= gx * gaps;
+        v['--pfv-gap'] = (3 + gx) + 'px'; v['--pfv-hw'] = Math.round(hw0 * hs) + 'px'; v['--pfv-hh'] = Math.round(hh0 * hs) + 'px';
+        if (dock) { v['--pfv-dock'] = dock + 'px'; setDock(true); }
+        fitVars(v);
+        if (rem > 6) { wrapEl.style.flex = '0 1 auto'; wrapEl.style.height = h + 'px'; }   // what is left: the whole block is centred, one band over it and one under it (the rows give way first if something grows)
+        // the card, the hand and the buttons must not push the board out of its room: if they did, take the extras back step by step
+        var tries = 0; while (tries++ < 4 && wrapEl.getBoundingClientRect().height < h - 1 && (dockOn || v['--pfv-hw'] !== hw0 + 'px')) {
+          if (dockOn) { setDock(false); delete v['--pfv-dock']; } else { delete v['--pfv-hw']; delete v['--pfv-hh']; }
+          fitVars(v);
+        }
+        if (wrapEl.getBoundingClientRect().height < h - 1) { fitVars({ '--pfv-btn': '44px' }); wrapEl.style.flex = ''; wrapEl.style.height = ''; var r2 = wrapEl.getBoundingClientRect(); w = Math.floor(Math.min(r2.width, r2.height * ar, fitTW * 1.7)); h = Math.round(w / ar); boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px'; }
+      }
+      if (dockOn) { if (insp && !insp.hidden && selected === null && picked === null) insp.hidden = true; dockEl.style.setProperty('--pfv-dockh', dockEl.clientHeight + 'px'); dockFill(); }
+    } finally { fitBusy = false; }
+    fan();
+  }
+  /** the dock when no piece is picked: the last plays and what comes next (the strip's two environment pieces are on the row above) */
+  function dockFill() {
+    if (!dockEl) return;
+    var idle = dockEl.querySelector('.pfv-dockidle'); if (!idle) { idle = document.createElement('div'); idle.className = 'pfv-dockidle'; dockEl.appendChild(idle); }
+    var lines = [], chips = histEl ? Array.prototype.slice.call(histEl.querySelectorAll('.pf-chip:not([hidden])')) : [];
+    chips.slice(0, 4).forEach(function (c) { var t = (c.getAttribute('aria-label') || c.textContent || '').replace(/\. Press to see the board then\.?$/, '').replace(/\s+/g, ' ').trim(); if (t) lines.push(t); });
+    var nx = ''; if (ENV) { var it = stripItems(); nx = it.length ? 'Next in the environment: ' + it.map(function (x) { return envKind(x.kind).n; }).join(', ') + '.' : 'Next: the environment has nothing more to place.'; }
+    var key = lines.join('|') + '#' + nx; if (idle.dataset.k === key) return; idle.dataset.k = key;
+    idle.innerHTML = '<b class="dl">Last plays</b><ul>' + (lines.length ? lines.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') : '<li>Nothing played yet.</li>') + '</ul>' + (nx ? '<p class="dn">' + esc(nx) + '</p>' : '');
   }
   function refit() { if (window.pfvFrame) window.pfvFrame(); fitBoard(); fan(); }
 

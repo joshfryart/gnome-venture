@@ -86,6 +86,8 @@ rep("root.dataset.turn === '1' ? 'Win two ways: Hurt empties its health, Charm f
 rep(": 'Nothing fits. You can pass.')", ": 'No piece fits. Tap End turn to pass.')")
 rep("setTimeout(function () { showTurn('Your turn', 'me'); }, 250);", "setTimeout(function () { showTurn('Your turn', 'me', meSub()); }, 250);")
 rep("      c.className = 'pfi-cv'; slot.appendChild(c);\n    }\n    insp.hidden = false;", "      c.className = 'pfi-cv'; slot.appendChild(c);\n    }\n    inspExtra(i);\n    insp.hidden = false;")
+# --- 2.6.77: a picked hand piece shows its card in the dock under the board (when there is room to dock it)
+rep("    if (selected !== null) { tiles[i].classList.add('pf-picked'); tiles[i].setAttribute('aria-pressed', 'true'); }\n    render();\n  }\n  function showInspect(b) {", "    if (selected !== null) { tiles[i].classList.add('pf-picked'); tiles[i].setAttribute('aria-pressed', 'true'); }\n    render();\n    if (selected !== null && dockOn) showInspect(tiles[i]);\n  }\n  function showInspect(b) {")
 out = os.path.join(R, 'game/assets/pfboardv1.js')
 if '--check' in sys.argv:
     sys.exit(0 if open(out, encoding='utf-8').read() == s else 'build_pfboardv1: game/assets/pfboardv1.js is not what the build gives (run tools/build_pfboardv1.py)')
