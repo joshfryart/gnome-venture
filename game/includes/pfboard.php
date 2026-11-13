@@ -24,7 +24,7 @@ const PFB_BAR_MULT = 0.7, PFB_FOE_MULT = 0.62;   // the resolve bar vs strip mod
 const PFB_SIDE = ['L' => [-1, 0, 'R'], 'R' => [1, 0, 'L'], 'T' => [0, -1, 'B'], 'B' => [0, 1, 'T']];   // side => [dx, dy, the neighbour's side that touches it]
 
 // ---------------------------------------------------------------- v1 board rules (2.6.74; admin setting pfight_v1). A fight started with opt 'v1' carries $s['v1'] (its rule numbers); every other fight plays exactly as before.
-const PFB_SIZE = ['small' => [5, 4], 'medium' => [5, 5], 'large' => [7, 5], 'boss' => [7, 6]];   // the board (w, h) by creature size (the old rules: PFB_W x PFB_H for all)
+const PFB_SIZE = ['small' => [4, 4], 'medium' => [4, 4], 'large' => [4, 4], 'boss' => [4, 4]];   // the board (w, h) by creature size (the old rules: PFB_W x PFB_H for all). 2.6.94 (Josh): 4 x 4 for every size, going forward (it was 5x4, 5x5, 7x5, 7x6); ?pfboard=WxH or the setting pfight_board_test still gives a test board
 const PFB_GROUND = ['small' => [2, 2, 1], 'medium' => [3, 2, 1], 'large' => [3, 3, 1], 'boss' => [4, 3, 1]];   // ground cells at the start: sunny, bramble, mud
 const PFB_GROUND_DIST = [1, 2];               // ground cells lie this many steps from the centre (min, max)
 const PFB_EVENTS = ['small' => 1, 'medium' => 2, 'large' => 2, 'boss' => 2];   // forecast events a round
@@ -60,7 +60,8 @@ function pfb_v1_cfg(string $size, array $over = []): array
 {
     if (!isset(PFB_SIZE[$size])) $size = 'medium';
     $g = PFB_GROUND[$size];
-    $cfg = ['w' => PFB_SIZE[$size][0], 'h' => PFB_SIZE[$size][1], 'ground' => 0, 'nsun' => $g[0], 'nbr' => $g[1], 'nmud' => $g[2], 'sun' => PFB_SUN_MULT, 'bramble' => PFB_BRAMBLE, 'br_foe' => PFB_BRAMBLE_FOE,
+    $dims = (!empty($GLOBALS['PFB_TEST_SIZES'][$size]) ? $GLOBALS['PFB_TEST_SIZES'][$size] : PFB_SIZE[$size]);   // the tests of the board engine keep the old geometry (5x4 to 7x6) through this global; the game never sets it
+    $cfg = ['w' => $dims[0], 'h' => $dims[1], 'ground' => 0, 'nsun' => $g[0], 'nbr' => $g[1], 'nmud' => $g[2], 'sun' => PFB_SUN_MULT, 'bramble' => PFB_BRAMBLE, 'br_foe' => PFB_BRAMBLE_FOE,
         'events' => 0, 'nev' => PFB_EVENTS[$size], 'thorn' => PFB_THORN, 'ev_foe' => PFB_EVENT_FOE, 'limit' => PFB_USEUP, 'aim' => 1, 'team2' => PFB_TEAM2, 'team3' => PFB_TEAM3,
         'edges' => 1, 'flip' => 1, 'life' => 1, 'tags' => 1, 'foe' => PFB_V1_FOE_MULT[$size], 'bar' => PFB_V1_BAR_MULT[$size],
         'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP];   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain

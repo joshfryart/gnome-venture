@@ -11,7 +11,7 @@ let fails = 0;
 const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.stringify(want); if (g === w) console.log('ok   ' + what); else { console.log(`FAIL ${what} (got ${g}, want ${w})`); fails++; } };
 (async () => {
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--no-sandbox'] }).catch(() => chromium.launch({ args: ['--no-sandbox'] }));
-  for (const theme of ['light', 'dark']) {
+  for (const theme of (process.env.THEMES || 'light,dark').split(',')) {
     sql(`UPDATE users SET theme='${theme}' WHERE username='sprout'`);
     const c = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
     const p = await c.newPage(); const errs = [];
@@ -73,14 +73,21 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await shot('3-prefight-auto-on');
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-go')]); await p.waitForTimeout(1500);
     await p.waitForSelector('#pfb-board .gc', { timeout: 8000 }).catch(() => {});
-    ck(T('Let\'s fight: the board of a boss (7 by 6 cells), no ground cells, two face-up environment pieces in the strip'), [await n('#pfb-board .gc'), await n('#pfb-board .gc[data-ter]'), await n('#pfv-legend .envp'), await n('#pfv-legend [data-ter]')], [42, 0, 2, 0]);
+    ck(T('Let\'s fight: the board of a boss (4 by 4 cells, every board is 4 x 4 since 2.6.94), no ground cells, two face-up environment pieces in the strip'), [await n('#pfb-board .gc'), await n('#pfb-board .gc[data-ter]'), await n('#pfv-legend .envp'), await n('#pfv-legend [data-ter]')], [16, 0, 2, 0]);
     await shot('4-fight-opening');
 
     // ---- 4. the fight: a seeded position with ground, a forecast, the aim and hand pieces that cannot be played
     await speed(0); let st = null;
     for (const sd of Array.from({ length: 40 }, (_, i) => i + 7)) {   // 2.6.79: the environment drops its pieces away from the action, the board is more open and a piece that fits nowhere is rarer: look further   // the deck differs with the kit that was packed: take the first seeded position that shows everything
       seed('fight', 'large'); seed('midfight', String(sd), '3', 'soft', 'fade'); await open('/adventure.php'); await p.waitForTimeout(500);
-      st = await pos(); if (st.off >= 1 && st.off < 5 && st.envp >= 1 && st.aim === 1 && st.ground === 0) break;
+      st = await pos(); if (!(st.off >= 1 && st.off < 5 && st.envp >= 1 && st.aim === 1 && st.ground === 0)) continue;
+      const litOk = await (async () => {   // 2.6.94: on a 4 x 4 board a position can have no hand piece with lit spots (and different top and bottom edges): look for one that has
+        const cand = await p.evaluate(() => [...document.querySelectorAll('#pf-hand .pf-tile')].map((t, k) => { const m = /T (\w+ \w+), B (\w+ \w+)/.exec(t.getAttribute('aria-label') || ''); return !t.classList.contains('pfv-off') && (!m || m[1] !== m[2]) ? k : -1; }).filter(k => k >= 0));
+        for (const k of cand) { await p.locator('#pf-hand .pf-tile').nth(k).click(); await p.waitForTimeout(600); let lit = await n('#pfb-board .pfb-lit');
+          if (lit && !(await p.isDisabled('#pf-flip'))) { await p.click('#pf-flip'); await p.waitForTimeout(1300); lit = await n('#pfb-board .pfb-lit'); await p.click('#pf-flip'); await p.waitForTimeout(1300); }   // the flip test below needs spots after the flip too
+          await p.locator('#pf-hand .pf-tile').nth(k).click(); await p.waitForTimeout(250); if (lit) return true; }
+        return false; })();
+      if (litOk) break;
     }
     async function pos() { return p.evaluate(() => ({ ground: document.querySelectorAll('#pfb-board .gc[data-ter]').length, marks: document.querySelectorAll('#pfb-board .mk.ev').length, legendTer: document.querySelectorAll('#pfv-legend [data-ter]').length, evchips: document.querySelectorAll('#pfv-row .tg.ev').length,
       envp: document.querySelectorAll('#pfv-legend .envp').length, envOnBoard: document.querySelectorAll('#pfb-board .pfb-cell.pfb-env').length, envBadge: document.querySelectorAll('#pfb-board .pfb-cell.pfb-env .pfv-eb').length, envPips: document.querySelectorAll('#pfb-board .pfb-cell.pfb-env .xp').length,
@@ -113,7 +120,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await p.keyboard.press('Escape'); ck(T('fight: Escape closes the help'), await n('.pfv-sheet'), 0);
     let pi = -1;   // (2.6.79: a piece whose top and bottom differ, so its flip is seen, and that has lit spots as it is)
     const cand = await p.evaluate(() => [...document.querySelectorAll('#pf-hand .pf-tile')].map((t, k) => { const m = /T (\w+ \w+), B (\w+ \w+)/.exec(t.getAttribute('aria-label') || ''); return !t.classList.contains('pfv-off') && (!m || m[1] !== m[2]) ? k : -1; }).filter(k => k >= 0));
-    for (const k of cand) { await p.locator('#pf-hand .pf-tile').nth(k).click(); await p.waitForTimeout(900); if (await n('#pfb-board .pfb-lit')) { pi = k; break; } await p.locator('#pf-hand .pf-tile').nth(k).click(); await p.waitForTimeout(300); }
+    for (const k of cand) { await p.locator('#pf-hand .pf-tile').nth(k).click(); await p.waitForTimeout(900); if (await n('#pfb-board .pfb-lit')) { let ok2 = true; if (!(await p.isDisabled('#pf-flip'))) { await p.click('#pf-flip'); await p.waitForTimeout(1300); ok2 = !!(await n('#pfb-board .pfb-lit')); await p.click('#pf-flip'); await p.waitForTimeout(1300); } if (ok2) { pi = k; break; } } await p.locator('#pf-hand .pf-tile').nth(k).click(); await p.waitForTimeout(300); }   // 2.6.94: a piece with spots as it is AND flipped (the flip test below needs both)
     if (pi < 0) { pi = await p.evaluate(() => [...document.querySelectorAll('#pf-hand .pf-tile')].findIndex(t => !t.classList.contains('pfv-off'))); await p.locator('#pf-hand .pf-tile').nth(pi).click(); await p.waitForTimeout(900); }
     ck(T('fight: a playable piece lights its spots with numbers, without a reply number; Flip is on'), [await n('#pfb-board .pfb-lit') > 0, await n('#pfb-board .pfb-lit .pfb-num') > 0, await p.locator('#pfb-board').innerText().then(t => t.includes('↩')), await p.isDisabled('#pf-flip')], [true, true, false, false]);
     await shot('4-fight-lit-spots');
@@ -140,7 +147,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await shot('4-fight-flipped');
 
     // ---- the turn played back step by step: Your turn, the creature's turn, Terrain turn
-    seed('fight', 'boss'); seed('midfight', '8', '3', 'soft'); await speed(0); await open('/adventure.php'); await speed(1);
+    seed('fight', 'boss'); seed('midfight', '12', '3', 'soft'); await speed(0); await open('/adventure.php'); await speed(1);   // 2.6.94: seed 12 (the creature plays a piece on the 4 x 4 board; 8 was the seed for the old boards)
     const pj = await p.evaluate(() => [...document.querySelectorAll('#pf-hand .pf-tile')].findIndex(t => !t.classList.contains('pfv-off')));
     await p.locator('#pf-hand .pf-tile').nth(pj).click(); await p.waitForTimeout(700);
     if (!(await n('#pfb-board .pfb-lit'))) { await p.click('#pf-flip'); await p.waitForTimeout(1500); }
@@ -166,12 +173,15 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
 
     // ---- 2.6.76: notices. The creature acts more than normal or you lose a play: the page says so in the banner, the message line, a history chip and the log
     for (const [kind, re, chip] of [['quick', /Quick\. The .* plays a second piece/, /Quick/], ['slow', /loses its turn/, /loses its turn/], ['trip', /Tripped: you draw 1 fewer/, /draw 1 fewer|fewer/]]) {
-      seed('fight', 'small'); seed('notes', kind); await speed(1); await open('/adventure.php');
       let got = { line: false, ban: '', envBan: '' };
-      for (let k = 0; k < 120 && !(got.line && (kind !== 'quick' || got.envBan)); k++) {
-        await p.waitForTimeout(150);
-        const r = await p.evaluate(() => { const b = document.querySelector('.pf-turn:not([hidden])'); return { pv: (document.getElementById('pf-preview') || {}).textContent || '', ban: b ? b.textContent : '', cls: b ? b.className : '' }; });
-        if (re.test(r.pv)) got.line = true; if (/Quick|loses/.test(r.ban)) got.ban = r.ban; if (/pf-turn-env/.test(r.cls)) got.envBan = r.ban;
+      for (let sdn = 8; sdn < 16 && !got.line; sdn++) {   // 2.6.94: on a 4 x 4 board a seeded turn does not always show the notice (the creature may get no second piece down): try the next seed
+        seed('fight', 'small'); seed('notes', kind, String(sdn)); await speed(1); await open('/adventure.php');
+        got = { line: false, ban: '', envBan: '' };
+        for (let k = 0; k < 120 && !(got.line && (kind !== 'quick' || got.envBan)); k++) {
+          await p.waitForTimeout(150);
+          const r = await p.evaluate(() => { const b = document.querySelector('.pf-turn:not([hidden])'); return { pv: (document.getElementById('pf-preview') || {}).textContent || '', ban: b ? b.textContent : '', cls: b ? b.className : '' }; });
+          if (re.test(r.pv)) got.line = true; if (/Quick|loses/.test(r.ban)) got.ban = r.ban; if (/pf-turn-env/.test(r.cls)) got.envBan = r.ban;
+        }
       }
       ck(T(`notice ${kind}: the message line says it while the turn plays`), got.line, true);
       if (kind === 'quick') ck(T('notice quick: the creature banner has a subtitle about the Quick piece; the environment banner says "environment ... not the creature"'), [/Quick/.test(got.ban), /environment places/i.test(got.envBan) && /not the creature/.test(got.envBan)], [true, true]);

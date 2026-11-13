@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.94
+- **4x4 is the board for every creature size (Josh: "make 4x4 the board size going forward").** `PFB_SIZE` is 4x4 for small, medium, large and boss (engine, JS port, parity test). `?pfboard=WxH` and the `pfight_board_test` setting still override. Tests moved to 4x4 seeds. Foe/bar multipliers were tuned per size: re-check balance.
+- **Needs 2.6.88+, no DB change. Puzzle combat v1 is still admin-gated.**
+
 ## 2.6.93
 - **A test board for the puzzle fight (Josh: "give me a version with a 4x4 board to test").** `adventure.php?pfboard=4x4` (any size from 3x3 to 9x9; `?pfboard=off` clears it) makes every puzzle fight you START afterwards use that board, whatever the creature's size; a fight already under way keeps its board. It lives in your session; the setting `pfight_board_test` (for example `4x4`) does the same for everyone. With nothing set the boards are as before (small 5x4, medium 5x5, large 7x5, boss 7x6). Checked in the real game: the four creature sizes on a 4x4 board play to the end with no errors, and the board fills the screen with larger pieces. `pfb_v1_cfg` in `includes/pfboard.php`, the toggle at the top of `adventure.php`.
 - **Needs 2.6.88+, no DB change. Puzzle combat v1 is still admin-gated.**

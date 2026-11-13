@@ -498,7 +498,7 @@
   }
 
   // ------------------------------------------------------------------ v1 board rules (pfboard.php "v1 board rules"; a fight started with opt.v1 carries s.v1, every other fight plays as before)
-  var PFB_SIZE = { small: [5, 4], medium: [5, 5], large: [7, 5], boss: [7, 6] };
+  var PFB_SIZE = { small: [4, 4], medium: [4, 4], large: [4, 4], boss: [4, 4] };
   var PFB_GROUND = { small: [2, 2, 1], medium: [3, 2, 1], large: [3, 3, 1], boss: [4, 3, 1] }, PFB_GROUND_DIST = [1, 2];
   var PFB_EVENTS = { small: 1, medium: 2, large: 2, boss: 2 }, PFB_EVENT_KINDS = ['sunbeam', 'creep', 'gust', 'thorn', 'puddle'];
   var PFB_EVENT_NAME = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst', bramble: 'Bramble', poison: 'Poison', place: 'Environment', pass: 'Environment', expire: 'Environment' };
@@ -1397,7 +1397,7 @@
       if (mv.length !== 2 || !isInt(mv[1])) return bad();
       return { ev: [], err: flip(dry ? clone(s) : s, mv[1], turn), free: true };
     }
-    var w = clone(s); w.spent = [];
+    var w = clone(s); w.spent = []; w.lastfoe = []; w.gone = [];   // 2.6.88: what the creature put down and what left LAST round is not this turn's news (PHP pfb_play does the same)
     if (w.v1) w.envlog = [];
     begin(w, 'me');
     var ev = [], why, r, err;

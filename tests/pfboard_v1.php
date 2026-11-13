@@ -2,6 +2,7 @@
 // The v1 board rules (2.6.74, admin setting pfight_v1): one block of checks per rule, flag-off parity, and whole fights with invariants. No DB, no server.
 // php tests/pfboard_v1.php      Every check names its scenario and prints what it got when it fails.
 require __DIR__ . '/../game/includes/pfboard.php';
+$GLOBALS['PFB_TEST_SIZES'] = ['small' => [5, 4], 'medium' => [5, 5], 'large' => [7, 5], 'boss' => [7, 6]];   // 2.6.94: the game's boards are 4x4 now; this file tests the engine on the old geometry
 require __DIR__ . '/../game/includes/pfight_game.php';
 $bad = 0; $warn = [];
 set_error_handler(function (int $no, string $msg, string $file, int $line) use (&$warn) { $warn[] = "$msg ($file:$line)"; return true; });   // any PHP warning or notice in the engine fails the run (the last check)
@@ -75,7 +76,9 @@ $o = pfb_new(v1_me(), v1_foe('medium'), 5);
 chk('flip is refused in an old fight (engine and action)', pfb_flip($o, 0, $o['turn']) !== null && pfb_play($o, [['f', 0]], $o['turn'])['err'] === 'Those moves are not valid.' && !pfb_can_flip($o, 0));
 chk('old creature values and bars use PFB_FOE_MULT / PFB_BAR_MULT', $o['bar']['max'] === round(pf_new(v1_me(), v1_foe('medium'), 5)['bar']['max'] * PFB_BAR_MULT, 1));
 
-echo "== 1. board size by creature size\n";
+echo "== 1. board size by creature size (the production sizes: 4 x 4 for every size since 2.6.94)\n";
+$tsz = $GLOBALS['PFB_TEST_SIZES']; unset($GLOBALS['PFB_TEST_SIZES']);   // this section runs on the game's own sizes, the others on the old geometry
+chk('every creature size has a 4 x 4 board', array_values(array_unique(array_map(fn($d) => $d[0] . 'x' . $d[1], PFB_SIZE))) === ['4x4']);
 foreach (PFB_SIZE as $size => [$w, $h]) {
     $s = pfb_new(v1_me(), v1_foe($size), 9, ['v1' => true, 'blank' => true]); $bl = $s['pcs'][1];
     chk("$size: board {$w}x{$h}, the blank in the centre, the view says so", $s['w'] === $w && $s['h'] === $h && $bl['x'] === intdiv($w, 2) && $bl['y'] === intdiv($h, 2) && pfb_view($s)['w'] === $w && pfb_view($s)['h'] === $h, [$s['w'], $s['h'], $bl['x'], $bl['y']]);
@@ -85,6 +88,7 @@ foreach (PFB_SIZE as $size => [$w, $h]) {
 $s = pfb_new(v1_me(), v1_foe('small'), 9, ['v1' => true]);
 chk('classic opening (no blank): the creature starts in the centre of its own board', isset($s['cell']['2,2']) && count($s['pcs']) === 1, array_keys($s['cell']));
 
+$GLOBALS['PFB_TEST_SIZES'] = $tsz;
 echo "== 2. ground: sunny, bramble, mud (a fight started under 2.6.74: v1 without env; new fights have environment pieces, section 13)\n";
 foreach (PFB_GROUND as $size => [$ns, $nb, $nm]) {
     $ok = true; $got = null;

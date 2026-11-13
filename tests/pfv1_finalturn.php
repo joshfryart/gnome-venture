@@ -22,7 +22,8 @@ $ck = function ($what, $got, $want) { $g = json_encode($got); $w = json_encode($
 $ck('before the last turn the creature has put pieces down and one has left (the test is meaningful)', [count($s['lastfoe'] ?? []) > 0, count($s['gone'] ?? []) > 0], [true, true]);
 // make the next turn a winning one: one charm piece away
 $st = $s['me']['stats'] ?? ['level' => 8]; $st['level'] = 8;
-$s['bar']['now'] = round($s['bar']['max'] * 0.97, 1); $s['me']['hand'] = [pfb_v1_tile(pf_make_tile('charm', $st), $s['v1'])]; $enc['pf'] = $s; $exp['encounter'] = json_encode($enc); save_exp($exp);
+$s['bar']['now'] = round($s['bar']['max'] - 0.1, 1); $k = 0; foreach ($s['me']['hand'] as $hi => $ht) if (pfb_cell_preview($s, $hi)) { $k = $hi; break; }   // a hand piece that has a legal spot on this board (the board and its pieces change with its size)
+$ct = pfb_v1_tile(pf_make_tile('charm', $st), $s['v1']); $ct['ed'] = $s['me']['hand'][$k]['ed']; $s['me']['hand'] = [$ct]; $enc['pf'] = $s; $exp['encounter'] = json_encode($enc); save_exp($exp);   // the bar is a hair from full: any charm piece wins, on any board
 $turn();
 $exp = active_expedition($uid); $enc = json_decode((string)$exp['encounter'], true); $s = $enc['pf'];
 $v = pfb_view($s); $fnew = array_filter($v['pcs'], fn($p) => $p['fnew']);

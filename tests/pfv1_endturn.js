@@ -32,7 +32,12 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     ck(`${what}: no empty-board frame, no failed request, no console error`, [s.blank, L.bad, L.errs.filter(x => !/ResizeObserver/.test(x))], [0, [], []]);
   };
   const quiet = () => p.waitForFunction(() => { const f = document.getElementById('pfight'); return f && !f.classList.contains('pf-playing'); }, null, { timeout: 25000 }).then(() => p.waitForTimeout(400)).catch(() => {});
-  const hand = async (i) => { await p.locator('#pf-hand .pf-tile').nth(i).tap(); await p.waitForTimeout(250); };
+  const hand = async (i) => {   // 2.6.94: on a 4 x 4 board the piece asked for may have no spot after a turn: take the next hand piece that has one (all Charm pieces here)
+    await p.locator('#pf-hand .pf-tile').nth(i).tap(); await p.waitForTimeout(250);
+    if (await p.locator('#pfb-board .pfb-lit').count()) return;
+    await p.locator('#pf-hand .pf-tile').nth(i).tap(); await p.waitForTimeout(150);
+    for (let j = 0; j < 5; j++) { if (j === i) continue; await p.locator('#pf-hand .pf-tile').nth(j).tap(); await p.waitForTimeout(350); if (await p.locator('#pfb-board .pfb-lit').count()) return; await p.locator('#pf-hand .pf-tile').nth(j).tap(); await p.waitForTimeout(150); }
+  };
   const cell = async () => { await p.locator('#pfb-board .pfb-lit').first().tap(); await p.waitForTimeout(200); };
   const start = async (kind) => { seed('fight', 'small'); seed(kind === 'nofit' ? 'nofit' : 'charm', ...(kind === 'nofit' ? ['7'] : ['7', 'plain'])); await p.evaluate(() => localStorage.setItem('pfvspd', '2')).catch(() => {}); await open(); };
 

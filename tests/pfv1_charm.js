@@ -59,6 +59,10 @@ const VERBOSE = !!process.env.VERBOSE;
     return { mark: window.__mark || null, playing: f.classList.contains('pf-playing'), wait: f.classList.contains('pfv-endwait'), res: !!r && getComputedStyle(r).display !== 'none' && r.getBoundingClientRect().height > 0, bar: b ? b.style.width : null, cn: (document.querySelector('.pf-charmn') || {}).textContent || null, banner: tn ? tn.textContent.trim() : '' }; }).catch(() => null);
   async function playAndWatch(i) {
     await p.locator('#pf-hand .pf-tile').nth(i).click(); await p.waitForTimeout(250);
+    if (!(await p.locator('#pfb-board .pfb-lit').count())) {   // 2.6.94: on a 4 x 4 board the piece asked for may have no spot after a few turns: take the next hand piece that has one (they are all Charm pieces here)
+      await p.locator('#pf-hand .pf-tile').nth(i).click(); await p.waitForTimeout(150);
+      for (let j = 0; j < 5; j++) { if (j === i) continue; await p.locator('#pf-hand .pf-tile').nth(j).click(); await p.waitForTimeout(400); if (await p.locator('#pfb-board .pfb-lit').count()) break; await p.locator('#pf-hand .pf-tile').nth(j).click(); await p.waitForTimeout(150); }
+    }
     await p.locator('#pfb-board .pfb-lit').first().click(); await p.waitForTimeout(150);
     const t0 = Date.now(); await p.click('#pf-go');
     const tl = []; let quiet = 0;
