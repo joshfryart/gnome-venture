@@ -436,6 +436,7 @@
 
   /** 2.6.77: the board keeps the art's own proportion at every size (a cell is the piece's body, 56 x 40, never stretched; the pieces scale with it). It is as large as the width and its share of the height allow. A tall phone has height to spare: it goes to the hand (larger pieces, uniformly scaled), a docked card under the board (the picked piece, or the last plays and what comes next), 44px+ buttons, bigger gaps between the rows; what is left is split above and under the whole block. Nothing here changes a piece's proportion. */
   var fitBusy = false, dockEl = null, dockOn = false, dockMo = null;
+  function handAR() { var P = window.PFParts, S = P && P.ok && P.atlas && P.atlas.sizes && P.atlas.sizes.strip; return S && P.atlas.version === 47 ? S.piece[1] / S.piece[0] : 52 / 74; }   // 2.6.89: the hand shows the strip-size piece; the jigsaw piece is 82 x 73, the old one 74 x 52
   var HAND_W = function () { return window.innerWidth <= 560 ? 74 : 112; };
   function fitVars(v) { var st = root.style; ['--pfv-gap', '--pfv-btn', '--pfv-hw', '--pfv-hh', '--pfv-dock', '--pfv-leg'].forEach(function (k) { if (v && v[k] !== undefined) st.setProperty(k, v[k]); else st.removeProperty(k); }); }
   function setDock(on) {
@@ -446,7 +447,7 @@
     if (fitBusy || !wrapEl || !fitTW || !root.classList.contains('pfv-fit')) return;
     fitBusy = true;
     try {
-      var ar = fitTW / fitTH, base = {}, r, w, h, rem, hw0 = HAND_W(), hh0 = Math.round(hw0 * 52 / 74), n = tiles.length || 5, d0 = 46, rows = (data.h || 5);
+      var ar = fitTW / fitTH, base = {}, r, w, h, rem, hw0 = HAND_W(), hh0 = Math.round(hw0 * handAR()), n = tiles.length || 5, d0 = 46, rows = (data.h || 5);
       fitVars({ '--pfv-btn': '44px', '--pfv-dock': d0 + 'px' }); wrapEl.style.flex = ''; wrapEl.style.height = ''; setDock(true);   // the card is docked always, never over the board
       r = wrapEl.getBoundingClientRect(); if (r.height < 30 || r.width < 30) return;
       w = Math.floor(Math.min(r.width, r.height * ar, fitTW * 1.7)); h = Math.round(w / ar);

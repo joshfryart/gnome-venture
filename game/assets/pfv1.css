@@ -466,3 +466,9 @@ dialog.trailpop.pfdlg { background: #0d0704; }   /* 2.6.85: the colour the margi
 dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: none; }
 /* 2.6.85 (Josh, wide window): the charm bar is 8:1 and took the whole header width, so on a wide window it grew very tall. It is never wider than 320px (40px tall), centred in the header. */
 .pf-v1 .pfc-top .pf-bars .pfx-bar { width: 100%; max-width: 320px; margin-inline: auto; }
+
+/* 2.6.89: the jigsaw pieces (class pf-jig on the fight, set by assets/pfparts.js when the parts47 kit is used). The hand shows the strip-size piece, 82 x 73 (the old one was 74 x 52). */
+#pfight.pf-jig .pf-bp.pf-art2, #pfight.pf-jig.pf-v1.pfv-fit .pf-hand .pf-bp.pf-art2 { height: auto; aspect-ratio: 82 / 73; }
+/* the life pips go in the bottom-left corner of the body (the middle of the bottom edge is a knob or a hole): the art leaves that slot free */
+.pf-jig.pf-v1 .pfb-cell .xp { left: 20.7%; bottom: 23%; transform: none; }
+.pf-jig.pf-v1 .pf-hand .pf-tile .xp { left: 20.7%; bottom: 23%; transform: none; }

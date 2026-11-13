@@ -1,0 +1,280 @@
+{
+ "version": 47,
+ "note": "built by tools/build_parts47.py from aseprite-source/pfight/v47",
+ "erase": [
+  255,
+  0,
+  255
+ ],
+ "order": {
+  "types": [
+   "hurt",
+   "guard",
+   "heal",
+   "charm",
+   "soothe",
+   "trick",
+   "item"
+  ],
+  "frames": [
+   "me",
+   "foe",
+   "env"
+  ],
+  "socks": [
+   "body-knob",
+   "body-hole",
+   "mind-knob",
+   "mind-hole",
+   "craft-knob",
+   "craft-hole"
+  ],
+  "badges": [
+   "lock",
+   "star",
+   "flip",
+   "eye",
+   "land"
+  ],
+  "overlays": [
+   "picked",
+   "faded",
+   "now"
+  ]
+ },
+ "base": {
+  "hurt": [
+   213,
+   94,
+   0
+  ],
+  "guard": [
+   0,
+   99,
+   158
+  ],
+  "heal": [
+   0,
+   158,
+   115
+  ],
+  "charm": [
+   204,
+   121,
+   167
+  ],
+  "soothe": [
+   98,
+   188,
+   238
+  ],
+  "trick": [
+   240,
+   228,
+   66
+  ],
+  "item": [
+   230,
+   159,
+   0
+  ]
+ },
+ "sizes": {
+  "strip": {
+   "piece": [
+    82,
+    73
+   ],
+   "body": [
+    56,
+    47
+   ],
+   "body_at": [
+    13,
+    13
+   ],
+   "pitch": [
+    56,
+    47
+   ],
+   "tab": [
+    13,
+    13
+   ],
+   "cell": [
+    82,
+    73
+   ],
+   "badge": [
+    11,
+    11
+   ],
+   "plate": {
+    "at": [
+     16,
+     16
+    ],
+    "size": [
+     16,
+     12
+    ],
+    "k": 2
+   },
+   "owner": [
+    55,
+    16
+   ],
+   "extra": [
+    55,
+    46
+   ],
+   "icon": {
+    "at": [
+     31,
+     26
+    ],
+    "size": [
+     20,
+     20
+    ]
+   },
+   "glyph_centre": [
+    41.0,
+    36.5
+   ],
+   "socks": {
+    "top": [
+     29,
+     0,
+     53,
+     28
+    ],
+    "right": [
+     54,
+     24,
+     82,
+     49
+    ],
+    "bottom": [
+     29,
+     45,
+     53,
+     73
+    ],
+    "left": [
+     0,
+     24,
+     28,
+     49
+    ]
+   }
+  },
+  "hand": {
+   "piece": [
+    140,
+    124
+   ],
+   "body": [
+    96,
+    80
+   ],
+   "body_at": [
+    22,
+    22
+   ],
+   "pitch": [
+    96,
+    80
+   ],
+   "tab": [
+    22,
+    22
+   ],
+   "cell": [
+    140,
+    124
+   ],
+   "badge": [
+    18,
+    18
+   ],
+   "plate": {
+    "at": [
+     27,
+     27
+    ],
+    "size": [
+     28,
+     20
+    ],
+    "k": 3
+   },
+   "owner": [
+    95,
+    27
+   ],
+   "extra": [
+    95,
+    79
+   ],
+   "icon": {
+    "at": [
+     54,
+     46
+    ],
+    "size": [
+     32,
+     32
+    ]
+   },
+   "glyph_centre": [
+    70.0,
+    62.0
+   ],
+   "socks": {
+    "top": [
+     51,
+     0,
+     89,
+     46
+    ],
+    "right": [
+     94,
+     43,
+     140,
+     81
+    ],
+    "bottom": [
+     51,
+     78,
+     89,
+     124
+    ],
+    "left": [
+     0,
+     43,
+     46,
+     81
+    ]
+   }
+  }
+ },
+ "sheets": {
+  "strip": {
+   "tiles": "tiles-strip.png",
+   "glyphs": "glyphs-strip.png",
+   "frames": "frames-strip.png",
+   "socks": "socks-strip.png",
+   "badges": "badges-strip.png",
+   "overlays": "overlays-strip.png"
+  },
+  "hand": {
+   "tiles": "tiles-hand.png",
+   "glyphs": "glyphs-hand.png",
+   "frames": "frames-hand.png",
+   "socks": "socks-hand.png",
+   "badges": "badges-hand.png",
+   "overlays": "overlays-hand.png"
+  }
+ }
+}

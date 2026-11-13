@@ -1,0 +1,184 @@
+{
+ "tags": {
+  "quick": [
+   12,
+   12
+  ],
+  "heavy": [
+   12,
+   12
+  ],
+  "pierce": [
+   12,
+   12
+  ],
+  "poison": [
+   12,
+   12
+  ],
+  "trip": [
+   12,
+   12
+  ],
+  "bash": [
+   12,
+   12
+  ],
+  "hold": [
+   12,
+   12
+  ],
+  "thorns": [
+   12,
+   12
+  ],
+  "evade": [
+   12,
+   12
+  ],
+  "mend": [
+   12,
+   12
+  ],
+  "hum": [
+   12,
+   12
+  ],
+  "lull": [
+   12,
+   12
+  ],
+  "bond": [
+   12,
+   12
+  ],
+  "pluck": [
+   12,
+   12
+  ]
+ },
+ "mods": {
+  "sticky": [
+   12,
+   12
+  ],
+  "swift": [
+   12,
+   12
+  ],
+  "hardy": [
+   12,
+   12
+  ],
+  "tender": [
+   12,
+   12
+  ],
+  "leech": [
+   12,
+   12
+  ],
+  "spiky": [
+   12,
+   12
+  ],
+  "soft": [
+   12,
+   12
+  ],
+  "warm": [
+   12,
+   12
+  ],
+  "finisher": [
+   12,
+   12
+  ],
+  "lucky": [
+   12,
+   12
+  ],
+  "steady": [
+   12,
+   12
+  ]
+ },
+ "rarity": {
+  "0": [
+   10,
+   12
+  ],
+  "1": [
+   10,
+   12
+  ],
+  "2": [
+   10,
+   12
+  ]
+ },
+ "headers": {
+  "hurt": [
+   24,
+   16
+  ],
+  "guard": [
+   24,
+   16
+  ],
+  "heal": [
+   24,
+   16
+  ],
+  "charm": [
+   24,
+   16
+  ],
+  "soothe": [
+   24,
+   16
+  ],
+  "trick": [
+   24,
+   16
+  ],
+  "item": [
+   24,
+   16
+  ]
+ },
+ "anchors": {
+  "note": "top-left of the mark, in PIECE IMAGE coords, drawn over the piece (1x marks). rarity 0 common, 1 uncommon, 2 rare. rarity-N.png = gem + N+1 count pips (10x12); rarity-gem-N.png = gem only (7x7).",
+  "strip": {
+   "tag": [
+    13,
+    32
+   ],
+   "mod": [
+    49,
+    32
+   ],
+   "rarity": [
+    51,
+    7
+   ]
+  },
+  "hand": {
+   "tag": [
+    24,
+    64
+   ],
+   "mod": [
+    96,
+    64
+   ],
+   "rarity": [
+    98,
+    18
+   ]
+  },
+  "popover": "draw marks at 2x (24x24 / 14x14), integer scale only",
+  "header": "9-slice, slice 9 px left and right, 16 px tall, stretch the middle; print the name in ink on the cream middle"
+ },
+ "cue": "tag = cream rounded square, upgrade = gold hexagon; rarity = circle (common) / diamond (uncommon) / sparkle (rare)"
+}
