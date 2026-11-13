@@ -1,6 +1,6 @@
 <?php
 // Puzzle fight BOARD playtest harness for agents and bots (no DB, no server, no browser).
-//   php tests/pf_play.php new STATE CREATURE_SLUG LEVEL SEED [classic|blank|v1|v1classic|v1old] [REGION]   start a fight (blank = blank wild centre + hidden start; v1 = the v1 board rules with the blank opening and ENVIRONMENT PIECES (2.6.75); v1old = the 2.6.74 ground and events; REGION = a region code, it leans the environment's deck)
+//   php tests/pf_play.php new STATE CREATURE_SLUG LEVEL SEED [classic|blank|v1|v1classic|v1old] [REGION] [old]   start a fight (the real layered creature deck and the deck-model player deck; arg 8 `old` = the archetype creature deck and the stage A player deck) (blank = blank wild centre + hidden start; v1 = the v1 board rules with the blank opening and ENVIRONMENT PIECES (2.6.75); v1old = the 2.6.74 ground and events; REGION = a region code, it leans the environment's deck)
 //   php tests/pf_play.php flip STATE HANDIDX              (v1 only) flip a hand piece: swap its top and bottom edges. Free, once a turn; flip the same piece again to take it back
 //   php tests/pf_play.php show STATE                                           the board, your hand and every legal cell
 //   php tests/pf_play.php start STATE HANDIDX SIDE        (blank only) hidden start piece next to the centre: SIDE = L R T B
@@ -12,6 +12,7 @@
 //   php tests/pf_play.php list [N]                         creatures (slug, size, level)
 // STATE is a json file. Every action is appended to STATE.log (one json line each) for data. The creature's hand and the draw pile are never shown.
 require __DIR__ . '/../game/includes/pfboard.php';
+require __DIR__ . '/../game/includes/pfdeck.php';
 $die = ['small' => 4, 'medium' => 6, 'large' => 8, 'boss' => 10];
 function pp_creatures(): array
 {
@@ -22,9 +23,30 @@ function pp_creatures(): array
     }
     return $o;
 }
-function pp_player(int $lv): array
+/** The player's sources at a level (the deck model's, as tests/pfboard_tune_v1.php tv_sources): a kit, a belt of tools, pals, crops, crafts, regions and knacks. */
+function pp_sources(int $lv): array
+{
+    $cals = array_keys(PF_CALLING_TILE); $src = pfd_sources_blank($lv, $cals[$lv % 6], ['NA', 'NWE', 'SE', 'EA'][$lv % 4]);
+    $src['ctier'] = min(3, 1 + intdiv($lv, 12));
+    $src['starter'] = array_merge(PFD_CORE, pfd_offer_keys($src['calling'], $src['home'], PFD_KITS[['bold', 'steady', 'kind'][$lv % 3]]));
+    $tier = min(3, 1 + intdiv($lv, 10)); $src['slots'] = $lv >= 20 ? 4 : ($lv >= 10 ? 3 : 2);
+    foreach (array_slice(['axe', 'till', 'staff', 'lantern'], 0, $src['slots']) as $i => $t) $src['tools'][$t] = max(1, $tier - ($i > 1 ? 1 : 0));
+    $src['belt'] = array_keys($src['tools']);
+    if ($lv >= 3) $src['pals'][] = ['n' => 'Bark Badger', 't' => 'guard', 'v' => 5 + ($lv >= 12 ? 2 : 0), 'r' => 'craft', 'rank' => $lv >= 12 ? 2 : 1];
+    if ($lv >= 8) $src['pals'][] = ['n' => 'Samara Spin', 't' => 'hurt', 'v' => 5 + ($lv >= 20 ? 2 : 0), 'r' => 'body', 'rank' => $lv >= 20 ? 2 : 1];
+    foreach (['vegetable' => 2, 'spice' => 10, 'fruit' => 14, 'nut' => 22] as $k => $at) if ($lv >= $at) $src['crops'][$k] = min(3, 1 + intdiv($lv - $at, 12));
+    foreach (['garden' => 6, 'potions' => 12, 'tools' => 18] as $k => $at) if ($lv >= $at) $src['crafts'][$k] = 1;
+    if ($lv >= 5) $src['regions'][$src['home']] = 1; if ($lv >= 16) $src['regions']['MENA'] = 2;
+    $on = 0; foreach (['smash', 'sting', 'lull', 'pierce', 'hum', 'brace'] as $k) if ($on < 3 && $lv >= (int)pfd_catalog()[$k]['ref'] && !in_array($k, $src['starter'], true)) { $src['state'][$k] = true; $on++; }
+    return $src;
+}
+function pp_player(int $lv, bool $old = false): array
 {
     $m = max(0, intdiv($lv + 3, 14)); $st = ['grit' => $m, 'nimble' => $m, 'hardiness' => $m, 'charm' => $m, 'lore' => $m, 'luck' => $m, 'level' => $lv];
+    if (!$old) {   // the deck model's deck, as the live game and the tuner deal it
+        $max = 20 + 3 * $lv + 5 * $m; $src = pp_sources($lv);
+        return ['hp' => $max, 'max_hp' => $max, 'stats' => $st, 'deck' => pfd_tiles(pfd_fight_entries($src), $st, [], $src['calling'], $src['ctier']), 'luck' => $m];
+    }
     $cals = array_keys(PF_CALLING_TILE); $cal = $cals[$lv % 6]; $own = pf_collection($lv, $cal); $cap = pf_box_capacity($lv);
     $want = ['hurt' => 5, 'charm' => 3, 'guard' => 3, 'heal' => 1, 'trick' => 1, 'item' => 1, 'soothe' => 0]; $box = []; $n = [];
     foreach ($own as $k) { $t = pf_tiles()[$k]['t']; if (($n[$t] ?? 0) < ($want[$t] ?? 0) && count($box) < $cap) { $box[] = $k; $n[$t] = ($n[$t] ?? 0) + 1; } }
@@ -54,7 +76,7 @@ function pp_show(array $s): string
         $what = ['sunbeam' => 'the cell turns sunny (the oldest sunny cell fades)', 'creep' => 'the cell turns to bramble and pricks at once (the oldest bramble withers)', 'puddle' => 'the cell turns to mud (the old mud dries)', 'gust' => 'the piece there is pushed one cell', 'thorn' => 'every piece on it and next to it costs its owner ' . (int)round(100 * $s['v1']['thorn']) . '% health (the creature half)'];
         if (!$envm) $o[] = 'TERRAIN FORECAST (lands at the end of this round, after the creature\'s move): ' . (implode('; ', array_map(fn($e) => PFB_EVENT_NAME[$e['kind']] . ' at ' . $e['x'] . ',' . $e['y'] . ($e['kind'] === 'gust' ? ' toward ' . ['L' => 'left', 'R' => 'right', 'T' => 'up', 'B' => 'down'][$e['dir']] : '') . ': ' . $what[$e['kind']], $s['envs'] ?? [])) ?: 'nothing');
     }
-    foreach ($s['pcs'] as $p) if (!($s['over'] && $p['by'] === 'none')) $o[] = sprintf('  piece #%d %s @%d,%d %s "%s" %s %d%s age %d%s (%s)', $p['id'], $p['by'] === 'me' ? 'YOURS' : ($p['by'] === 'foe' ? 'CREATURE' : ($p['by'] === 'env' ? 'ENVIRONMENT' . (isset($p['tile']['dir']) ? ' arrow ' . ['L' => 'left', 'R' => 'right', 'T' => 'up', 'B' => 'down'][$p['tile']['dir']] : '') : 'BLANK')), $p['x'], $p['y'], $p['by'] === 'none' ? '-' : $p['tile']['t'], $p['tile']['n'], $p['tile']['tag'], $p['tile']['v'], ($p['tile']['m'] ?? '') ? ' [' . $p['tile']['m'] . ']' : '', $s['round'] - $p['born'], (pfb_fire_limit($p) > 0 ? ' fires left ' . max(0, pfb_fire_limit($p) - (int)($p['f'] ?? 0)) : '') . ($v1 && $p['by'] !== 'none' ? ' | stays ' . ($p['born'] + pfb_life($s, $p) - $s['round']) . ' round(s), this one included | from: ' . ($p['tile']['src'] ?? '?') . (!empty($p['tile']['flip']) ? ' | FLIPPED' : '') : ''), pp_e(pfb_edges($p['tile'])));
+    foreach ($s['pcs'] as $p) if (!($s['over'] && $p['by'] === 'none')) $o[] = sprintf('  piece #%d %s @%d,%d %s "%s" %s %d%s age %d%s (%s)', $p['id'], $p['by'] === 'me' ? 'YOURS' : ($p['by'] === 'foe' ? 'CREATURE' : ($p['by'] === 'env' ? 'ENVIRONMENT' . (isset($p['tile']['dir']) ? ' arrow ' . ['L' => 'left', 'R' => 'right', 'T' => 'up', 'B' => 'down'][$p['tile']['dir']] : '') : 'BLANK')), $p['x'], $p['y'], $p['by'] === 'none' ? '-' : $p['tile']['t'], $p['tile']['n'], $p['tile']['tag'], $p['tile']['v'], ($p['tile']['m'] ?? '') ? ' [' . $p['tile']['m'] . ']' : '', $s['round'] - $p['born'], (pfb_fire_limit($p) > 0 ? ' fires left ' . max(0, pfb_fire_limit($p) - (int)($p['f'] ?? 0)) : '') . ($v1 && $p['by'] !== 'none' ? ' | stays ' . ($p['born'] + pfb_life($s, $p) - $s['round']) . ' round(s), this one included | from: ' . ($p['tile']['src'] ?? '?') . (($p['tile']['layer'] ?? '') !== '' ? ' | layer: ' . $p['tile']['layer'] : '') . (!empty($p['tile']['flip']) ? ' | FLIPPED' : '') : ''), pp_e(pfb_edges($p['tile'])));
     if (!empty($s['start'])) $o[] = 'START PHASE: choose a hand piece and a side of the blank centre (L R T B) with `start`. The creature has already chosen without seeing you.';
     $o[] = 'YOUR HAND (index: name, type, value, tag, edges; legal cells x,y that CONNECT)';
     foreach ($s['me']['hand'] as $i => $t) {
@@ -105,7 +127,9 @@ if ($cmd === 'new') {
     $slug = $argv[3] ?? ''; $lv = pp_int($argv[4] ?? null, 1, 100, 'LEVEL'); $seed = pp_int($argv[5] ?? null, 0, PHP_INT_MAX, 'SEED'); $mode = $argv[6] ?? 'classic'; $all = pp_creatures();
     if (!in_array($mode, ['classic', 'blank', 'v1', 'v1classic', 'v1old'], true)) { fwrite(STDERR, "mode must be classic, blank, v1, v1classic or v1old\n"); exit(1); }
     if (!isset($all[$slug])) { fwrite(STDERR, "unknown creature (use list)\n"); exit(1); }
-    $s = pfb_new(pp_player($lv), $all[$slug] + ['region' => (string)($argv[7] ?? '')], $seed, ['blank' => in_array($mode, ['blank', 'v1', 'v1old'], true), 'v1' => $mode === 'v1old' ? ['env' => 0, 'ground' => 1, 'events' => 1] : str_starts_with($mode, 'v1')]);
+    $old = ($argv[8] ?? '') === 'old'; $reg = (string)($argv[7] ?? ''); $keys = array_keys(pfd_region_pieces());
+    $cr = $old ? $all[$slug] + ['region' => $reg] : pfd_foe_row($all[$slug], $reg !== '' ? $reg : $keys[(crc32($slug) + $seed) % 14]) + ['region' => $reg];
+    $s = pfb_new(pp_player($lv, $old), $cr, $seed, ['blank' => in_array($mode, ['blank', 'v1', 'v1old'], true), 'v1' => $mode === 'v1old' ? ['env' => 0, 'ground' => 1, 'events' => 1] : str_starts_with($mode, 'v1')]);
     file_put_contents($f, json_encode($s)); @unlink($f . '.log'); echo pp_show($s) . "\n"; exit;
 }
 if (!$f || !is_file($f)) { fwrite(STDERR, "no state file\n"); exit(1); }
