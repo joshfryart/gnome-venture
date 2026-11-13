@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.81
+- **Debug log for "End turn still reloads" (Josh).** Open the Trail fight at `adventure.php?pfdebug=1` (a cookie keeps it on for a day; `?pfdebug=0` or the panel's Off turns it off). A `bug N` button shows a log that survives a real reload: page loads (`LOAD nav=...`), `BEFOREUNLOAD`, every form send and whether it went in place or as a plain post, every fetch with its status and any redirect, the swap of the page area, `#pfight` / `#trailpop` being rebuilt, and script errors. Copy it and send it. Nothing changes for players: the file is only loaded with that cookie or address.
+- **Needs 2.6.79+, no DB change. Puzzle combat v1 is still admin-gated.**
+
 ## 2.6.80
 - **End turn no longer flickers the fight on the Trail (Josh: "still reloads the popover").** On the Trail the fight is shown in a pop-up window (a modal dialog) over the map. Every End turn, Pass, Undo, Flip and the final turn replaced the whole page area, which threw that pop-up away and built a new one: it closed and opened again, its dimmed backdrop redrew and the focus reset, on every turn. Seen in an emulated phone (tests/pfv1_trail.js): a close event and a brand new dialog element on every turn. Now the pop-up stays the same open window the whole fight and only what is inside it changes, so nothing closes or reopens, and the result card shows in the same window. Fights on other pages, other pop-ups and villager cards work as before.
 - **A number on the Charm meter.** The meter now reads "N/100" (starting at 0/100) so you can see how close the creature is to being won over. It follows the replay as the bar fills, and reads 100/100 only when the creature is won (never before).
