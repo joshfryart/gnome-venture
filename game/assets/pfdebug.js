@@ -86,8 +86,9 @@
   var box = null, btn = null, pre = null, open = false;
   function ui() {
     if (box || !document.body) return;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-pfdbg]'), function (x) { x.parentNode.removeChild(x); });   // never two panels
     btn = document.createElement('button'); btn.type = 'button'; btn.textContent = 'bug';
-    var s = btn.style; s.position = 'fixed'; s.right = '6px'; s.bottom = '6px'; s.zIndex = '2147483647'; s.font = '12px/1 monospace'; s.padding = '6px 8px'; s.opacity = '.85'; s.background = '#222'; s.color = '#fff'; s.border = '1px solid #888'; s.borderRadius = '6px';
+    var s = btn.style; s.position = 'fixed'; s.right = '6px'; s.bottom = '6px'; s.zIndex = '2147483647'; s.fontSize = '14px'; s.font = '12px/1 monospace'; s.padding = '6px 8px'; s.opacity = '.85'; s.background = '#222'; s.color = '#fff'; s.border = '1px solid #888'; s.borderRadius = '6px';
     box = document.createElement('div'); s = box.style; s.position = 'fixed'; s.left = '0'; s.right = '0'; s.bottom = '0'; s.height = '45%'; s.zIndex = '2147483646'; s.background = 'rgba(0,0,0,.92)'; s.color = '#9f9'; s.font = '10px/1.25 monospace'; s.display = 'none'; s.flexDirection = 'column';
     var bar = document.createElement('div'); bar.style.cssText = ''; bar.style.padding = '4px 50px 4px 4px'; bar.style.display = 'flex'; bar.style.gap = '6px';
     function b(label, fn) { var x = document.createElement('button'); x.type = 'button'; x.textContent = label; x.style.font = '11px monospace'; x.style.padding = '4px 8px'; x.addEventListener('click', fn); bar.appendChild(x); }
@@ -96,8 +97,16 @@
     b('Off', function () { document.cookie = 'pfdbg=0; path=/; max-age=0'; try { ls.removeItem(K); } catch (e) {} location.search = ''; });
     pre = document.createElement('pre'); pre.style.margin = '0'; pre.style.padding = '4px'; pre.style.overflow = 'auto'; pre.style.flex = '1'; pre.style.whiteSpace = 'pre-wrap'; pre.style.userSelect = 'text';
     box.appendChild(bar); box.appendChild(pre);
+    btn.setAttribute('data-pfdbg', '1'); box.setAttribute('data-pfdbg', '1');
     btn.addEventListener('click', function () { open = !open; box.style.display = open ? 'flex' : 'none'; paint(); });
-    document.body.appendChild(box); document.body.appendChild(btn);
+    host();
+  }
+  // a modal <dialog> (the Trail fight) is in the top layer above everything and makes the page inert: the panel must live inside it while it is open
+  function host() {
+    if (!box) return;
+    var dl = null; try { dl = document.querySelector('dialog[open]:modal'); } catch (e) {}
+    var h = dl || document.body; if (!h) return;
+    if (box.parentNode !== h) { h.appendChild(box); h.appendChild(btn); }
   }
   function paint() {
     if (!box) { ui(); if (!box) return; }
@@ -106,5 +115,5 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paint); else paint();
   // the swap replaces <main> only, but keep the panel alive if something ever removes it
-  setInterval(function () { if (box && !box.parentNode && document.body) { document.body.appendChild(box); document.body.appendChild(btn); } }, 1000);
+  setInterval(host, 500);
 })();

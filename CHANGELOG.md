@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.82
+- **The `bug` debug button was hidden behind the Trail fight (2.6.81).** The fight is a modal pop-up, which sits above everything else on the page and makes the rest of it unclickable, so the button could not be seen or tapped. It now lives inside the open pop-up (and on the page when there is none), and there is never more than one panel. Only loaded with `?pfdebug=1`; nothing changes for players.
+- **Needs 2.6.79+, no DB change. Puzzle combat v1 is still admin-gated.**
+
 ## 2.6.81
 - **Debug log for "End turn still reloads" (Josh).** Open the Trail fight at `adventure.php?pfdebug=1` (a cookie keeps it on for a day; `?pfdebug=0` or the panel's Off turns it off). A `bug N` button shows a log that survives a real reload: page loads (`LOAD nav=...`), `BEFOREUNLOAD`, every form send and whether it went in place or as a plain post, every fetch with its status and any redirect, the swap of the page area, `#pfight` / `#trailpop` being rebuilt, and script errors. Copy it and send it. Nothing changes for players: the file is only loaded with that cookie or address.
 - **Needs 2.6.79+, no DB change. Puzzle combat v1 is still admin-gated.**

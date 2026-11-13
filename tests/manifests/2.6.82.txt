@@ -12502,7 +12502,7 @@ de6a8a909358ed60e27f63439946927ac58991c5  assets/paljobs.js
 d7882387ef576ea888608f68fc5b5df4847dc76a  assets/pest.js
 4d05f0cc3b03144151e890fbfd82e11c2fcdb1b0  assets/pfboard.js
 5d4f294cfa007a953e17f80a6a5336180ae29620  assets/pfboardv1.js
-0f8b6ad8d9cbe888f26cc03570bc4699f7c86625  assets/pfdebug.js
+57e37b3ec4d8ad508bdfd160e95e31c774b988b8  assets/pfdebug.js
 76e3b9384b9f2b6542eb219080e2d09fdad9633c  assets/pfight.css
 56bc56e74b3ef911cdd3caf00c3c09eb2d51160f  assets/pfight.js
 eb2215d5503ea93da4edd10ceb0e1a5ae35e7a5f  assets/pfparts.js
@@ -12583,7 +12583,7 @@ a4515e4c537462438293b18ad0d22ce8e4c816cd  includes/almanac_pages.php
 87787cfe689c016d5cd71c70ce70f2cf964e03e9  includes/animals140.php
 7c6c522b642f92eebe010d5170cd824f44d9d562  includes/arrange_view.php
 a0a095e8c8492ee8d9875ce16ced7676534ee582  includes/art_upload.php
-20805ee4908cbf4e8518f244d13bb4a81ca7b9fe  includes/bootstrap.php
+1e0a2e3715138402fc7a337a9320ce7f68e7f092  includes/bootstrap.php
 bbac817fc82c639f9044f000b406d1b4a6afdf6c  includes/breeding110.php
 88577080e8893717f6a3e3b1b9407cde6b4bc670  includes/calling_quests.php
 838dafc8cf1519f8076cc1d32ece62e88f007243  includes/calling_view.php
