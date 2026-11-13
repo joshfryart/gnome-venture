@@ -155,7 +155,7 @@ chk('values are v_mult x the archetype value (Badger, level 18: v 12 -> Claw 12,
 chk('the lean: 3 pieces in 5 (deck order) stack in the class family (Beast: body), the others in their type family', array_column($bd, 'col') === ['body', 'body', 'body', 'craft', 'body', 'body', 'body', 'body', 'body', 'body'], array_column($bd, 'col'));
 $wy = pfd_foe_row(dk_foe('boss', 30, 'dune-wyrm'), 'MENA')['deck'];
 chk('a boss plays a set order: one set-up piece, then two Hurt pieces, and again', array_slice(array_map(fn($p) => $p['t'] === 'hurt' ? 'H' : 's', $wy), 0, 9) === ['s', 'H', 'H', 's', 'H', 'H', 's', 'H', 'H'] && count($wy) === 11, array_column($wy, 't'));
-$s = pfb_new(dk_me(18), pfd_foe_row(dk_foe('large', 18, 'badger'), 'NWE'), 3, ['v1' => true, 'blank' => true]);
+$s = pfb_new(dk_me(18), pfd_foe_row(dk_foe('large', 18, 'badger'), 'NWE'), 3, ['v1' => ['life' => 1], 'blank' => true]);   // 2.6.95: a new fight has no per-piece life; this check is about the 2.6.94 rule
 $all = array_merge($s['foe']['hand'], $s['foe']['draw'], $s['foe']['discard']);
 chk('a v1 fight deals the layered deck: 10 creature pieces, each with authored edges in its column family, its life and layer', count($all) === 10 && !array_filter($all, fn($t) => !isset($t['ed'], $t['life'], $t['layer']) || $t['ed']['T'][1] !== $t['col'] || $t['src'] !== 'creature'), array_column($all, 'n'));
 chk('Dig In (hold) stays 4 rounds, Skitter-like quick pieces 2', (function () use ($all) { foreach ($all as $t) if ($t['n'] === 'Dig In') return $t['life'] === 4; return false; })() && pfd_foe_pieces(dk_foe('small', 1, 'aphid-swarm'))[3]['life'] === 2);
