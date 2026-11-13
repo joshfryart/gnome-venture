@@ -271,7 +271,7 @@ chk('a creature: 3 pieces in 5 (deck order) stack in its lean family, the other 
 chk('a creature without a class still gets a lean, fixed by its slug', in_array(pfb_lean(['slug' => 'garden-snail']), ['body', 'mind', 'craft'], true) && pfb_lean(['slug' => 'garden-snail']) === pfb_lean(['slug' => 'garden-snail']));
 
 echo "== 8. flip\n";
-$s = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => true, 'blank' => true]); pfb_start($s, 0, 'L'); $t0 = $s['me']['hand'][0]; $e0 = pfb_edges($t0); $turn = $s['turn'];
+$s = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => V1_294, 'blank' => true]); pfb_start($s, 0, 'L'); $t0 = $s['me']['hand'][0]; $e0 = pfb_edges($t0); $turn = $s['turn'];
 $err = pfb_flip($s, 0, $turn); $e1 = pfb_edges($s['me']['hand'][0]);
 chk('flip swaps the top and bottom edges of the hand piece (left and right stay)', $err === null && $e1['T'] === $e0['B'] && $e1['B'] === $e0['T'] && $e1['L'] === $e0['L'] && $e1['R'] === $e0['R'], $err);
 chk('it is free: the turn has not moved, the creature has not played', $s['turn'] === $turn && pfb_view($s)['flip'] === ['on' => true, 'used' => true] && pfb_view($s)['hand'][0]['flip'] === true);
@@ -452,7 +452,7 @@ chk('a 2.6.94 state with none of the new keys resolves every key to PRE', !$bad1
 $v = pfb_view($s)['v1']; $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (!array_key_exists($k, $v) || (int)$v[$k] !== $d) $bad16[] = $k;
 chk('its view emits every key resolved to PRE', !$bad16, $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($n, $k) !== $d) $bad16[] = $k;
-chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass: 2.6.95)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass']), $bad16);
+chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1: 2.6.95)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1']), $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['onebar' => 1, 'redraw' => 1]]);
 chk('an override switches a key on', pfb_v1r($n, 'onebar') === 1 && pfb_v1r($n, 'redraw') === 1 && pfb_v1r($n, 'aimtot') === 0);
 chk('pfb_v1r on a fight without v1 rules is the PRE value too', pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5), 'aside') === 1);
@@ -516,6 +516,16 @@ for ($sd = 1; $sd <= 40; $sd++) {
 }
 chk('after a pass that ends the fight, gone and lastfoe hold only this round (no stale piece)', $ended > 0 && $leaks === 0, [$ended, $leaks]);
 chk('pfb_view of a new fight says aside 0, must 0, freepass 1', ($v = pfb_view(pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]))['v1']) && $v['aside'] === 0 && $v['must'] === 0 && $v['freepass'] === 1, $v);
+
+echo "== 19. week 1 cuts, part 3: flip without a limit (2.6.95); a fight saved under 2.6.94 keeps one flip a turn\n";
+$fn = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => true, 'blank' => true]); pfb_start($fn, 0, 'L'); $fo = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => V1_294, 'blank' => true]); pfb_start($fo, 0, 'L');
+$tn = $fn['turn']; $a0 = pfb_edges($fn['me']['hand'][0]); $b0 = pfb_edges($fn['me']['hand'][1]);
+$e1 = pfb_flip($fn, 0, $tn); $e2 = pfb_flip($fn, 1, $tn); $e3 = pfb_flip($fo, 0, $fo['turn']); $e4 = pfb_flip($fo, 1, $fo['turn']);
+chk('a new fight: flipping piece 0 and then piece 1 both succeed and both stay flipped', $e1 === null && $e2 === null && !empty($fn['me']['hand'][0]['flip']) && !empty($fn['me']['hand'][1]['flip']) && pfb_edges($fn['me']['hand'][0])['T'] === $a0['B'] && pfb_edges($fn['me']['hand'][1])['T'] === $b0['B'], [$e1, $e2]);
+chk('a V1_294 fight: the second flip is refused', $e3 === null && $e4 !== null && empty($fo['me']['hand'][1]['flip']), [$e3, $e4]);
+chk('a new fight keeps no flip turn: view flip.used stays false, every hand piece with edges says canflip', pfb_view($fn)['flip']['used'] === false && !isset($fn['me']['hand'][0]['ft']) && (int)$fn['me']['flipt'] === 0 && pfb_can_flip($fn, 0) && pfb_can_flip($fn, 1) && pfb_view($fn)['v1']['flip1'] === 0 && pfb_view($fo)['v1']['flip1'] === 1);
+chk('a new fight: a flipped piece flips back, and flipping again works any number of times', pfb_flip($fn, 0, $tn) === null && pfb_edges($fn['me']['hand'][0]) === $a0 && pfb_flip($fn, 0, $tn) === null && pfb_flip($fn, 1, $tn) === null && empty($fn['me']['hand'][1]['flip']));
+chk('a new fight: the action [f, i] works for two pieces in one turn, free', ($r1 = pfb_play($fn, [['f', 2]], $tn))['err'] === null && ($r2 = pfb_play($fn, [['f', 3]], $tn))['err'] === null && $fn['turn'] === $tn && !empty($r2['free']), [$r1['err'] ?? null, $r2['err'] ?? null]);
 
 chk('no PHP warning or notice anywhere in this run', !$warn, array_slice($warn, 0, 3));
 echo $bad ? "$bad FAILED\n" : "all ok\n";

@@ -84,7 +84,7 @@ function pfb_v1_cfg(string $size, array $over = [], int $level = 0): array
     $cfg = ['w' => $dims[0], 'h' => $dims[1], 'ground' => 0, 'nsun' => $g[0], 'nbr' => $g[1], 'nmud' => $g[2], 'sun' => PFB_SUN_MULT, 'bramble' => PFB_BRAMBLE, 'br_foe' => PFB_BRAMBLE_FOE,
         'events' => 0, 'nev' => PFB_EVENTS[$size], 'thorn' => PFB_THORN, 'ev_foe' => PFB_EVENT_FOE, 'limit' => PFB_USEUP, 'aim' => 1, 'team2' => 1.0, 'team3' => 1.0,   // 2.6.95: Teamwork off (2.6.94 fights carry 1.3 / 1.6 in their saved cfg)
         'edges' => 1, 'flip' => 1, 'life' => 0, 'tags' => 1, 'foe' => PFB_V1_FOE_MULT[$size], 'bar' => PFB_V1_BAR_MULT[$size],
-        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 1, 'aside' => 0, 'must' => 0, 'freepass' => 1] + PFB_V1_PRE;   // nowm 1 (2.6.95): no Wind or Mud in the deck; aside 0, must 0, freepass 1 (2.6.95): no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
+        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 1, 'aside' => 0, 'must' => 0, 'freepass' => 1, 'flip1' => 0] + PFB_V1_PRE;   // nowm 1 (2.6.95): no Wind or Mud in the deck; aside 0, must 0, freepass 1 (2.6.95): no set-aside, a piece need not link (you), passing is free; flip1 0 (2.6.95): flip any piece, any number of times   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
     foreach ($over as $k => $v) if (array_key_exists($k, $cfg) && is_numeric($v)) $cfg[$k] = is_int($cfg[$k]) ? (int)$v : (float)$v;
     if (isset($over['foe_x'])) $cfg['foe'] = round($cfg['foe'] * (float)$over['foe_x'], 4);
     if (isset($over['bar_x'])) $cfg['bar'] = round($cfg['bar'] * (float)$over['bar_x'], 4);
@@ -482,11 +482,12 @@ function pfb_forecast(array &$s): void
     }
 }
 
-/** May the hand piece be flipped now? One flip a turn; the piece flipped this turn may be flipped back (that gives the flip back). Only authored edges flip. */
+/** May the hand piece be flipped now? One flip a turn (2.6.94 fights: v1 flip1) or, from 2.6.95, any number; the piece flipped this turn may be flipped back (that gives the flip back). Only authored edges flip. */
 function pfb_can_flip(array $s, int $handIdx): bool
 {
     $t = $s['me']['hand'][$handIdx] ?? null;
     if (empty($s['v1']['flip']) || $s['over'] || !$t || !isset($t['ed'])) return false;
+    if (!pfb_v1r($s, 'flip1')) return true;   // 2.6.95: no limit, any piece with edges, any number of times
     return (int)($s['me']['flipt'] ?? 0) !== (int)$s['turn'] || (int)($t['ft'] ?? 0) === (int)$s['turn'];
 }
 
@@ -499,7 +500,8 @@ function pfb_flip(array &$s, int $handIdx, int $turn): ?string
     $t = $s['me']['hand'][$handIdx] ?? null; if (!$t) return 'No such piece in your hand.';
     if (!isset($t['ed'])) return 'That piece cannot be flipped.';
     if (!pfb_can_flip($s, $handIdx)) return 'You have already flipped a piece this turn.';
-    if ((int)($t['ft'] ?? 0) === (int)$s['turn']) { unset($t['ft']); $s['me']['flipt'] = 0; }   // flipped back: the flip is free again
+    if (!pfb_v1r($s, 'flip1')) { /* 2.6.95: unlimited, nothing to remember */ }
+    elseif ((int)($t['ft'] ?? 0) === (int)$s['turn']) { unset($t['ft']); $s['me']['flipt'] = 0; }   // flipped back: the flip is free again
     else { $t['ft'] = (int)$s['turn']; $s['me']['flipt'] = (int)$s['turn']; }
     if (!empty($t['flip'])) unset($t['flip']); else $t['flip'] = true;
     $s['me']['hand'][$handIdx] = $t;

@@ -536,7 +536,7 @@
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: 1, team3: 1,   // 2.6.95: Teamwork off
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1 };   // 2.6.95: no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0 };   // 2.6.95: no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
     var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
@@ -836,6 +836,7 @@
   function canFlip(s, handIdx) {
     var t = isInt(handIdx) ? nn(s.me.hand[handIdx], null) : null;
     if (!s.v1 || !truthy(s.v1.flip) || truthy(s.over) || !t || !t.ed) return false;
+    if (!v1r(s, 'flip1')) return true;   // 2.6.95: no limit, any piece with edges, any number of times
     return toInt(nn(s.me.flipt, 0)) !== toInt(s.turn) || toInt(nn(t.ft, 0)) === toInt(s.turn);
   }
   /** v1 FLIP: swap the top and bottom edges of a hand piece (free, once a turn). Returns an error or null. */
@@ -846,7 +847,8 @@
     var t = isInt(handIdx) ? nn(s.me.hand[handIdx], null) : null; if (!t) return 'No such piece in your hand.';
     if (!t.ed) return 'That piece cannot be flipped.';
     if (!canFlip(s, handIdx)) return 'You have already flipped a piece this turn.';
-    if (toInt(nn(t.ft, 0)) === toInt(s.turn)) { delete t.ft; s.me.flipt = 0; }
+    if (!v1r(s, 'flip1')) { /* 2.6.95: unlimited, nothing to remember */ }
+    else if (toInt(nn(t.ft, 0)) === toInt(s.turn)) { delete t.ft; s.me.flipt = 0; }
     else { t.ft = toInt(s.turn); s.me.flipt = toInt(s.turn); }
     if (truthy(t.flip)) delete t.flip; else t.flip = true;
     return null;
