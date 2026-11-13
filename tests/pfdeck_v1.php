@@ -1,5 +1,5 @@
 <?php
-// The v1 DECK MODEL (2.6.74 stage B, admin setting pfight_v1): data lint, creature layers and creature tags, the player's deck from its sources, starter, belt, wear, harmony, flag-off parity.
+// The v1 DECK MODEL (2.6.74 stage B, admin setting pfight_v1): data lint, creature layers and creature tags, the player's deck from its sources, starter, kits, belt, wear, flag-off parity.
 // php tests/pfdeck_v1.php            the pure checks (no DB, no server)
 // php tests/pfdeck_v1.php GAMEDIR    the database checks on an installed copy of the game (player "sprout"); tests/pfdeck_v1.sh runs both
 $G = $argv[1] ?? '';
@@ -240,35 +240,35 @@ echo '     ' . json_encode($tot['over']) . ' ' . json_encode($tot['tags']) . "\n
 
 echo "== 4. the player's deck from its sources\n";
 $src = pfd_sources_blank(1, 'thornblade', 'NWE'); $b = pfd_build($src);
-chk('no starter chosen: the default kit plays (4 core + the Steady kit), 10 pieces, nothing saved', !$b['starter'] && array_column($b['deck'], 'key') === ['swing', 'dodge', 'rest', 'charm', 'thorn', 'c:grain', 'c:herb', 'brace', 'r:NWE', 'jab'] && $b['err'] === null, array_column($b['deck'], 'key'));
+chk('no starter chosen: the default kit plays (4 core + the Bold kit), 10 pieces, nothing saved', !$b['starter'] && array_column($b['deck'], 'key') === ['swing', 'dodge', 'rest', 'charm', 'thorn', 'jab', 'swing#2', 'pierce', 'snack', 'c:grain'] && $b['err'] === null, array_column($b['deck'], 'key'));
 chk('the offer: 12 pieces with the calling piece and the home region piece; three one-tap kits of 6', count($b['offer']) === 12 && in_array('thorn', $b['offer'], true) && in_array('r:NWE', $b['offer'], true) && array_map('count', $b['kits']) === ['bold' => 6, 'steady' => 6, 'kind' => 6], $b['offer']);
 chk('no calling: Taunt stands in for the calling piece; an unknown home: the Maplewold piece', in_array('taunt', pfd_offer_keys('', 'ZZ'), true) && in_array('r:NA', pfd_offer_keys('', 'ZZ'), true));
 $off = pfd_offer_keys('thornblade', 'NWE');
 chk('starter check: 6 picks from the offer', pfd_starter_check(array_slice($off, 0, 6), 'thornblade', 'NWE') === null);
 chk('starter check: 5 picks, a repeat, a piece not on offer are refused', pfd_starter_check(array_slice($off, 0, 5), 'thornblade', 'NWE') !== null && pfd_starter_check(['jab', 'jab', 'snack', 'hide', 'brace', 'hum'], 'thornblade', 'NWE') !== null && pfd_starter_check(['smash', 'jab', 'snack', 'hide', 'brace', 'hum'], 'thornblade', 'NWE') !== null);
-chk('starter check: fewer than 2 Hurt pieces is refused (core Swing + none)', pfd_starter_check(['snack', 'hide', 'brace', 'soothe', 'hum', 'c:grain'], 'rootwarden', 'NWE') === 'Bring at least two Hurt pieces.');
+chk('starter check: fewer than 3 Hurt pieces is refused (core Swing + none)', pfd_starter_check(['snack', 'hide', 'brace', 'soothe', 'hum', 'c:grain'], 'rootwarden', 'NWE') === 'Bring at least three Hurt pieces.');
 $src['starter'] = array_merge(PFD_CORE, pfd_offer_keys('thornblade', 'NWE', PFD_KITS['bold'])); $b = pfd_build($src);
 chk('the Bold kit: a second Swing is in the deck (10 pieces, 5 Hurt)', $b['starter'] && count($b['deck']) === 10 && $b['counts']['hurt'] === 5 && in_array('swing#2', array_column($b['deck'], 'key'), true) && array_count_values(array_column(pfd_tiles($b['deck'], dk_stats(1)), 'k'))['swing'] === 2, $b['counts']);
 chk('a starter piece is owned even without its source (Oat Cake with no grain grown: rank Common)', (function () use ($b) { foreach ($b['pieces'] as $e) if ($e['key'] === 'c:grain') return $e['starter'] && $e['rank'] === 1 && $e['on']; return false; })());
 chk('level 1 owns no knack beyond the starter; level 16 owns all 17 (off until switched on)', count(array_filter($b['pieces'], fn($e) => $e['src'] === 'knack' && !$e['starter'])) === 0 && (function () { $b = pfd_build(['level' => 16] + pfd_sources_blank(16, 'thornblade')); $k = array_filter($b['pieces'], fn($e) => $e['src'] === 'knack'); return count($k) === 17 && count(array_filter($k, fn($e) => $e['on'])) === 2; })());
 $src = pfd_sources_blank(12, 'bloomcaller', 'EA'); $src['crops'] = ['spice' => 3, 'fruit' => 1]; $src['crafts'] = ['potions' => 2]; $src['regions'] = ['EA' => 1, 'OC' => 1]; $b = pfd_build($src); $keys = array_column($b['deck'], 'key');
-chk('crop, craft and region pieces the gnome owns are in the deck by default (no maximum deck size)', !array_diff(['c:spice', 'c:fruit', 'k:potions', 'r:EA', 'r:OC'], $keys) && count($keys) === 14 && $b['err'] === null, $keys);
+chk('crop, craft and region pieces the gnome owns are in the deck by default (no maximum deck size)', !array_diff(['c:spice', 'c:fruit', 'k:potions', 'r:EA', 'r:OC'], $keys) && count($keys) === 15 && $b['err'] === null, $keys);
 chk('a piece of a source the gnome does not have is not owned (no tuber, no garden craft, no Dunewhisper guide)', !array_filter($b['pieces'], fn($e) => in_array($e['key'], ['c:tuber', 'k:garden', 'r:MENA'], true)));
 chk('the rank comes from the source: spice mastery 3 = Rare, potions 2 = Uncommon', array_column($b['pieces'], 'rank', 'key')['c:spice'] === 3 && array_column($b['pieces'], 'rank', 'key')['k:potions'] === 2);
 chk('another calling\'s piece is not owned; your own is', !in_array('thorn', array_column($b['pieces'], 'key'), true) && in_array('bloom', array_column($b['pieces'], 'key'), true));
 $src['state'] = ['c:fruit' => false, 'lull' => true, 'smash' => true]; $b2 = pfd_build($src); $k2 = array_column($b2['deck'], 'key');
 chk('switching: a crop piece off, an owned knack on; a knack above your level stays out', !in_array('c:fruit', $k2, true) && in_array('lull', $k2, true) && !in_array('smash', $k2, true), $k2);
-$src['state'] = array_fill_keys(['dodge', 'rest', 'charm', 'c:grain', 'c:herb', 'brace', 'c:fruit', 'k:potions'], false); $b3 = pfd_build($src);
+$src['state'] = array_fill_keys(['dodge', 'rest', 'charm', 'c:grain', 'snack', 'swing#2', 'pierce', 'c:fruit', 'k:potions'], false); $b3 = pfd_build($src);
 chk('validate: fewer than 8 kit pieces is refused', $b3['counts']['kit'] === 6 && $b3['err'] === 'Pack at least 8 kit pieces.', $b3['counts']);
 chk('a fight with an illegal deck falls back to the default kit (never an illegal deck in a fight)', count(pfd_fight_entries($src)) >= PFD_KIT_MIN && pfd_validate(pfd_build(['starter' => null, 'state' => []] + $src)) === null);
-$src = pfd_sources_blank(12, 'rootwarden'); $src['state'] = ['swing' => false, 'jab' => false, 'taunt' => true, 'soothe' => true, 'hum' => true]; $b4 = pfd_build($src);
+$src = pfd_sources_blank(12, 'rootwarden'); $src['state'] = ['swing' => false, 'jab' => false, 'swing#2' => false, 'pierce' => false, 'taunt' => true, 'soothe' => true, 'hum' => true]; $b4 = pfd_build($src);
 chk('validate: no Hurt piece is refused', $b4['counts']['hurt'] === 0 && str_starts_with((string)$b4['err'], 'Bring at least one Hurt piece'), $b4['counts']);
 $src = pfd_sources_blank(20, 'thornblade'); $src['crops'] = ['spice' => 3, 'fruit' => 3, 'nut' => 3, 'herb' => 3]; $b5 = pfd_build($src);
 chk('rarity cap: a 4th Rare piece is over the cap (refused; in a fight it is left out)', $b5['counts']['rare'] === 4 && $b5['err'] === 'At most 3 Rare pieces a deck. Take one out first.' && count(array_filter($b5['pieces'], fn($e) => $e['out'] === 'cap')) === 1 && count(array_filter($b5['deck'], fn($e) => $e['rank'] === 3)) === 3, $b5['counts']);
 $src = pfd_sources_blank(20, 'thornblade'); $src['tools'] = ['axe' => 4, 'till' => 4]; $b6 = pfd_build($src);
 chk('rarity cap: a 2nd Masterwork is over the cap', $b6['counts']['mw'] === 2 && $b6['err'] === 'At most 1 Masterwork piece a deck. Take the other one out first.' && count(array_filter($b6['deck'], fn($e) => $e['rank'] === 4)) === 1, $b6['counts']);
 $src = pfd_sources_blank(20, 'thornblade'); $src['tools'] = ['axe' => 3, 'till' => 4]; $src['crops'] = ['spice' => 3, 'fruit' => 3]; $src['pals'] = [['n' => 'Moth Glow', 't' => 'charm', 'v' => 8, 'r' => 'body', 'rank' => 2]];
-$b7 = pfd_build($src);
+$src['state'] = ['brace' => true, 'snack' => false]; $b7 = pfd_build($src);
 chk('3 Rare + 1 Masterwork is legal (kit + gear together)', $b7['counts']['rare'] === 3 && $b7['counts']['mw'] === 1 && $b7['err'] === null, $b7['counts']);
 chk('gear: tool pieces from the belt and the party pal\'s piece are ADDED (source tool / pal); Teamwork sources counted', $b7['counts']['belt'] === 2 && $b7['counts']['pals'] === 1 && $b7['counts']['team'] === 3 && $b7['counts']['n'] === 15, $b7['counts']);
 $tiles = pfd_tiles($b7['deck'], dk_stats(20)); $byK = array_column($tiles, null, 'k');
@@ -312,15 +312,13 @@ $ce = pfb_connect($g, 'me', 0, 1, 'B'); $held0 = empty($g['wear']); $sp = $ce ==
 if ($sp) pfb_place_group($g, 'me', $sp[0][0], $sp[0][1]);
 chk('a set-aside group: each tool piece in it costs its tool 2 when the group is placed (not when it is set aside)', $ce === null && $held0 && $sp && ($g['wear'] ?? []) == ['axe' => 2, 'till' => 2], [$ce, $g['wear'] ?? null]);
 
-echo "== 7. deck harmony\n";
-$h = pfd_harmony(pfd_build(pfd_sources_blank(1, 'thornblade'))['deck']);
-chk('harmony of the starter deck: link rate and hand links between 0 and 1, families counted (2 per piece)', $h['n'] === 10 && $h['link'] > 0.2 && $h['link'] < 0.6 && $h['hand'] >= 0.9 && array_sum($h['fam']) === 20, $h);
-chk('harmony is the same every time (seeded)', $h === pfd_harmony(pfd_build(pfd_sources_blank(1, 'thornblade'))['deck']));
-$low = 1.0; foreach (array_merge([''], array_keys(PF_CALLING_TILE)) as $cal) foreach (array_keys(PFD_KITS) as $kit) foreach (['NA', 'CB', 'SEA'] as $home) { $sr = pfd_sources_blank(1, $cal, $home); $sr['starter'] = array_merge(PFD_CORE, pfd_offer_keys($cal, $home, PFD_KITS[$kit])); $low = min($low, pfd_harmony(pfd_build($sr)['deck'])['hand']); }
-chk('lint: every one-tap starter deck has a linking move on 90% of hands or more (lowest ' . round(100 * $low) . '%)', $low >= 0.9, $low);
-$one = pfd_harmony(array_filter(pfd_build(pfd_sources_blank(16, 'thornblade'))['pieces'], fn($e) => $e['t'] === 'hurt' && $e['src'] !== 'crop'));
-chk('one family links more: an all-Hurt kit (one column family) has a higher link rate than the starter', $one['link'] > $h['link'], [$one['link'], $h['link']]);
-chk('edges of an entry are the board\'s (Oat Cake: left hole body, right knob craft, top hole mind, bottom knob mind)', pfd_edges(pfd_build(pfd_sources_blank(1, 'thornblade'))['deck'][5]) === ['L' => ['hole', 'body'], 'R' => ['knob', 'craft'], 'T' => ['hole', 'mind'], 'B' => ['knob', 'mind']]);
+echo "== 7. kits: four Hurt each, Bold by default, no harmony meter\n";
+chk('PFD_KIT_DEFAULT is bold', PFD_KIT_DEFAULT === 'bold');
+$lowH = 99; foreach (array_merge([''], array_keys(PF_CALLING_TILE)) as $cal) foreach (array_keys(PFD_KITS) as $kit) foreach (['NA', 'CB', 'SEA'] as $home) { $sr = pfd_sources_blank(1, $cal, $home); $sr['starter'] = array_merge(PFD_CORE, pfd_offer_keys($cal, $home, PFD_KITS[$kit])); $lowH = min($lowH, pfd_build($sr)['counts']['hurt']); }
+chk('every kit with the core holds at least 4 Hurt pieces for every calling and home (lowest ' . $lowH . ')', $lowH >= 4, $lowH);
+chk('a 2-Hurt pick is refused, a 3-Hurt pick is not', pfd_starter_check(['jab', 'snack', 'hide', 'brace', 'soothe', 'hum'], 'rootwarden', 'NWE') === 'Bring at least three Hurt pieces.' && pfd_starter_check(['jab', 'pierce', 'hide', 'brace', 'soothe', 'hum'], 'rootwarden', 'NWE') === null);
+chk('the deck model has no harmony key and no pfd_harmony', !function_exists('pfd_harmony') && !array_key_exists('harmony', pfd_build(pfd_sources_blank(1, 'thornblade'))));
+chk('edges of an entry are the board\'s (Oat Cake: left hole body, right knob craft, top hole mind, bottom knob mind)', pfd_edges(pfd_build(pfd_sources_blank(1, 'thornblade'))['deck'][9]) === ['L' => ['hole', 'body'], 'R' => ['knob', 'craft'], 'T' => ['hole', 'mind'], 'B' => ['knob', 'mind']]);
 
 echo "== 8. flag off: nothing changed\n";
 $me0 = ['hp' => 40, 'max_hp' => 40, 'stats' => dk_stats(8), 'deck' => pf_player_deck(dk_stats(8), 'thornblade', 1, [], pf_unlocks(8)), 'luck' => 0];
@@ -358,7 +356,7 @@ chk('placeholder art for the three new items', !array_filter(['stitched-fight-be
 q("DELETE FROM user_items WHERE user_id = ? AND item_id IN (SELECT id FROM items WHERE category = 'tool')", [$uid]); tool_cache_reset();
 $d = pfd_deck($uid);
 chk('a new gnome: no starter chosen, the default kit of 10, not locked, auto off, 2 belt slots', !$d['starter'] && count($d['deck']) === 10 && !$d['locked'] && !$d['auto'] && $d['slots'] === 2 && $d['belt_tier'] === 1 && $d['err'] === null, [count($d['deck']), $d['slots']]);
-chk('pfd_deck carries harmony and the offer', isset($d['harmony']['link'], $d['harmony']['hand'], $d['harmony']['fam']) && count($d['offer']) === 12);
+chk('pfd_deck carries the offer and no harmony meter', !isset($d['harmony']) && count($d['offer']) === 12);
 chk('starter: 5 picks refused', pfd_set_starter($uid, array_slice($d['offer'], 0, 5)) === 'Pick exactly 6 pieces.');
 chk('starter: an unknown kit refused', pfd_set_starter($uid, 'fancy') === 'There is no such kit.');
 chk('starter: a piece that is not on offer refused, nothing saved', pfd_set_starter($uid, ['smash', 'jab', 'snack', 'hide', 'brace', 'hum']) !== null && (int)q_val('SELECT COUNT(*) FROM pf_deck_pieces WHERE user_id = ?', [$uid]) === 0);
@@ -369,7 +367,7 @@ chk('starter: once only', pfd_set_starter($uid, 'bold') === 'You have already pa
 chk('toggle: a piece you do not own is refused', pfd_toggle($uid, 'smash') === 'You do not own that piece.' && pfd_toggle($uid, 'c:tuber') === 'You do not own that piece.');
 chk('toggle: a starter piece off (10 -> 9), and back on', pfd_toggle($uid, 'soothe') === null && count(pfd_deck($uid)['deck']) === 9 && pfd_toggle($uid, 'soothe', true) === null && count(pfd_deck($uid)['deck']) === 10);
 pfd_toggle($uid, 'soothe', false); pfd_toggle($uid, 'hum', false);
-chk('toggle: the kit may not drop under 8', pfd_toggle($uid, 'snack', false) === 'Pack at least 8 kit pieces.' && count(pfd_deck($uid)['deck']) === 8);
+chk('toggle: the kit may not drop under 8', pfd_toggle($uid, 'jab', false) === 'Pack at least 8 kit pieces.' && count(pfd_deck($uid)['deck']) === 8);
 pfd_toggle($uid, 'soothe', true); pfd_toggle($uid, 'hum', true);
 q('UPDATE users SET level = 9 WHERE id = ?', [$uid]);
 chk('level 9: Pierce is owned (off), and can be switched on', pfd_toggle($uid, 'pierce', true) === null && in_array('pierce', array_column(pfd_deck($uid)['deck'], 'key'), true));

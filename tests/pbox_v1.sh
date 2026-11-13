@@ -92,7 +92,7 @@ ck "carry-over: the old box's Hide (owned, not picked) is switched on; Taunt is 
 echo "== the Puzzle box page"
 php -d display_errors=1 "$HERE/pbox_v1_seed.php" "$GAME" box | tail -1
 get puzzlebox.php >/dev/null
-ck "the box: tabs, deck bar, Teamwork, harmony meter, cap pips, filter, auto-use switch, detail line" "$(grep -c 'id="pfv-box"' $H) $(grep -c 'class="meter"' $H) $(grep -c 'class="teamrow"' $H) $(grep -c 'class="hmeter' $H) $(grep -o 'class="capp ' $H | wc -l | tr -d ' ') $(grep -c 'id="pfv-filt"' $H) $(grep -c 'id="pfv-auto"' $H) $(grep -c 'id="pfv-info"' $H)" "1 1 1 1 2 1 1 1"
+ck "the box: tabs, deck bar, Hurt line (no Teamwork row, no harmony meter), cap pips, filter, auto-use switch, detail line" "$(grep -c 'id="pfv-box"' $H) $(grep -c 'class="meter"' $H) $(grep -c 'Hurt pieces: [0-9]* of [0-9]*' $H) $(grep -c 'class="hmeter\|class="harm"' $H) $(grep -o 'class="capp ' $H | wc -l | tr -d ' ') $(grep -c 'id="pfv-filt"' $H) $(grep -c 'id="pfv-auto"' $H) $(grep -c 'id="pfv-info"' $H)" "1 1 1 0 2 1 1 1"
 ck "the kit: packed pieces and a collection, each with art data, value and expiry pips" "$([ $(grep -o 'data-a="tog"' $H | wc -l) -ge 14 ] && echo many) $([ $(grep -o 'class="cvh" data-p=' $H | wc -l) -ge 14 ] && echo art) $(grep -c 'class="pc-x' $H | head -1 | sed 's/[1-9][0-9]*/pips/')" "many art pips"
 ck "toggle through the page: Jab out (no flash for a switch), back in" "$(post puzzlebox.php -d do=pfd_toggle -d key=jab -d on=0) $(db "SELECT active FROM pf_deck_pieces WHERE piece_key='jab'") $(get puzzlebox.php >/dev/null; post puzzlebox.php -d do=pfd_toggle -d key=jab -d on=1 >/dev/null; db "SELECT active FROM pf_deck_pieces WHERE piece_key='jab'")" "302 0 1"
 get 'puzzlebox.php?t=belt' >/dev/null

@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2.6.74 stage B, the v1 DECK MODEL (setting pfight_v1): tests/pfdeck_v1.php without a database (data lint, creature layers and tags, deck building, belt, wear, harmony, flag-off parity),
+# 2.6.74 stage B, the v1 DECK MODEL (setting pfight_v1): tests/pfdeck_v1.php without a database (data lint, creature layers and tags, deck building, belt, wear, flag-off parity),
 # then on an installed copy: the tables, starter, toggle, belt, wear / break / fix, the fight hookup, and the Puzzle box page's POST actions and JSON helper.
 # Usage: tests/pfdeck_v1.sh [GAME_COPY_DIR] [PORT] [ROUTER]   (default: copies src/game to a temp dir; never writes a DB into src)
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -45,7 +45,7 @@ get puzzlebox.php >/dev/null; post puzzlebox.php -d do=pfd_starter -d kit=bold >
 ck "pfight_v1 = admin, a player: a pfd_ action does nothing" "$(db "SELECT COUNT(*) FROM pf_decks")" "0"
 db "UPDATE users SET role='admin' WHERE username='sprout'" >/dev/null
 get 'puzzlebox.php?pfd=json' >/dev/null
-ck "an admin: the deck as JSON (pieces, deck, counts, offer, belt, harmony, wear)" "$(php -r '$d=json_decode(file_get_contents($argv[1]),true); echo isset($d["pieces"],$d["deck"],$d["counts"],$d["offer"],$d["belt"],$d["harmony"],$d["wear"]) && count($d["deck"])>=10 && !$d["starter"] ? "yes" : "no";' $H)" "yes"
+ck "an admin: the deck as JSON (pieces, deck, counts, offer, belt, wear)" "$(php -r '$d=json_decode(file_get_contents($argv[1]),true); echo isset($d["pieces"],$d["deck"],$d["counts"],$d["offer"],$d["belt"],$d["wear"]) && !isset($d["harmony"]) && count($d["deck"])>=10 && !$d["starter"] ? "yes" : "no";' $H)" "yes"
 get puzzlebox.php >/dev/null
 ck "POST do=pfd_starter kit=bold: redirect" "$(post puzzlebox.php -d do=pfd_starter -d kit=bold)" "302"
 ck "the starter is saved (10 pieces, chosen)" "$(db "SELECT COUNT(*) FROM pf_deck_pieces WHERE starter=1") $(db "SELECT starter FROM pf_decks")" "10 1"

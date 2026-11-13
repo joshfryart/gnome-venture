@@ -64,7 +64,14 @@ $turn = function (bool $worst = false) use (&$exp, &$enc, &$u, $c) {
     if (!empty($s['start'])) { $cx = intdiv(pfb_w($s), 2); $cy = intdiv(pfb_h($s), 2); $_POST['moves'] = '0,' . ($cx - 1) . ',' . $cy; pfight_do($u, $exp, 'pfb_play'); save_exp($exp); return true; }
     $best = null;
     foreach ($s['me']['hand'] as $i => $t) foreach (pfb_cell_preview($s, $i) as $key => $q) { $sc = ($q['dmg'] ?? 0) + ($q['ch'] ?? 0) + ($q['n'] ?? 0); if ($worst) $sc = -$sc; if ($best === null || $sc > $best[0]) $best = [$sc, $i, $key]; }
-    if ($best === null) { pfight_do($u, $exp, 'pfb_pass'); save_exp($exp); return true; }
+    if ($best === null) {   // nothing fits as it is: flip a piece that fits flipped and play it (a pass is refused while one does), else pass
+        foreach ($s['me']['hand'] as $i => $t) if (pfb_cell_preview($s, $i, true)) {
+            $_POST['hand'] = $i; pfight_do($u, $exp, 'pfb_flip'); save_exp($exp); $e2 = json_decode((string)$exp['encounter'], true);
+            foreach (pfb_cell_preview($e2['pf'], $i) as $key => $q) { $_POST = ['nonce' => $s['nonce'], 'turn' => $s['turn'], 'moves' => $i . ',' . $key]; pfight_do($u, $exp, 'pfb_play'); save_exp($exp); break; }
+            return true;
+        }
+        pfight_do($u, $exp, 'pfb_pass'); save_exp($exp); return true;
+    }
     $_POST['moves'] = $best[1] . ',' . $best[2]; pfight_do($u, $exp, 'pfb_play'); save_exp($exp);
     return true;
 };

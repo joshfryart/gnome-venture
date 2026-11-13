@@ -42,7 +42,7 @@ if (($_GET['pfd'] ?? '') === 'json' && pfight_v1_on($u)) {   // 2.6.74 debug hel
     echo json_encode(pfd_deck($u) + ['wear' => pfd_wear($u)], JSON_UNESCAPED_UNICODE);
     exit;
 }
-if (pfight_v1_on($u)) {   // 2.6.74 stage C: the v1 Puzzle box (deck bar, kit / belt / pals, harmony, auto-use; the starter pick the first time). includes/pfdeck_view.php
+if (pfight_v1_on($u)) {   // 2.6.74 stage C: the v1 Puzzle box (deck bar, kit / belt / pals, auto-use; the starter pick the first time). includes/pfdeck_view.php
     require_once __DIR__ . '/includes/pfdeck_view.php';
     $GLOBALS['AJAX_PAGE'] = true;   // its buttons update in place
     page_header('Puzzle box');

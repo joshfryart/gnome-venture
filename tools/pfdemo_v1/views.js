@@ -50,15 +50,9 @@
     var c = d.counts, kit = c.kit;
     var h = '<div class="meter" role="img" aria-label="Deck ' + c.n + ': kit ' + kit + ', belt ' + c.belt + ', pals ' + c.pals + '"><b>' + c.n + '</b><span class="stack"><span class="k" data-f="' + Math.max(1, kit) + '">🧩 ' + kit + '</span>'
       + (c.belt ? '<span class="b" data-f="' + c.belt + '">🔧 ' + c.belt + '</span>' : '') + (c.pals ? '<span class="p" data-f="' + c.pals + '">🐾 ' + c.pals + '</span>' : '') + '</span></div>';
-    h += '<div class="teamrow"><b>Teamwork</b>';
-    [['pal', '🐾'], ['tool', '🔧'], ['crop', '🌾']].forEach(function (x) { h += '<span class="chip' + (c.src[x[0]] ? '' : ' off') + '">' + x[1] + ' ' + x[0] + ' ' + c.src[x[0]] + '</span>'; });
-    h += '<span>' + (c.team >= 3 ? '2 in a chain +30%, all 3 +60%' : (c.team === 2 ? 'both in one chain: +30%' : 'needs 2 of 3 sources')) + '</span></div>';
-    if (slim) return h;
-    var hm = d.harmony, f = hm.fam, tot = Math.max(1, f.body + f.mind + f.craft), top = Math.max(f.body, f.mind, f.craft) / tot, lk = Math.round(hm.link * 100), hd = Math.round(hm.hand * 100), seg = '';
-    ['body', 'mind', 'craft'].forEach(function (k) { if (f[k]) seg += '<span class="' + k + '" data-f="' + f[k] + '">' + k + ' ' + Math.round(100 * f[k] / tot) + '%</span>'; });
-    h += '<div class="harm" role="img" aria-label="Deck harmony: link rate ' + lk + ' percent, a hand links ' + hd + ' percent of the time"><b>Link rate</b><span class="hmeter' + (lk >= 30 ? ' good' : (lk >= 22 ? '' : ' low')) + '"><i data-w="' + Math.min(100, lk * 2) + '"></i><span>' + lk + '%</span></span><span class="chip" title="Chance that a hand of 5 has a piece that links">hand links ' + hd + '%</span></div>'
-      + '<div class="harm"><b>Knobs</b><span class="stack fam">' + seg + '</span></div>'
-      + '<p class="hint harmhint">' + (top >= 0.5 ? 'One family leads: easy chains, less Teamwork.' : 'Mixed families: more Teamwork, fewer links.') + ' Pals are body, tools craft, crops mind.</p>';
+    var n = c.n, hu = c.hurt;
+    h += '<div class="teamrow hurtrow"><b>Hurt pieces: ' + hu + ' of ' + n + '</b></div>';
+    if (n > 0 && hu * 10 < 3 * n) h += '<p class="hint">Few Hurt pieces: fights will be long</p>';
     return h;
   }
   function form(back) { return '<form method="post" id="pfv-f" hidden><input type="hidden" name="do" value=""><input type="hidden" name="key" value=""><input type="hidden" name="on" value=""><input type="hidden" name="tool" value="">' + (back || '') + '</form>'; }
@@ -81,7 +75,7 @@
     [['bold', '⚔️ Bold'], ['steady', '🛡️ Steady'], ['kind', '💗 Kind']].forEach(function (k) { kits += '<button class="btn" name="kit" value="' + k[0] + '" data-kit="' + e(d.kits[k[0]].join(',')) + '">' + k[1] + '</button>'; });
     var pp = ''; for (i = 0; i < C.picks; i++) pp += '<i></i>';
     return '<div class="box pbox pfv" id="pfv-starter" data-picks="' + C.picks + '">'
-      + '<div class="hrow"><h2>🧩 Pack your box</h2><span class="chip warn" id="pfv-hurt" title="Hurt pieces (at least 2)">⚔️ <b>1</b></span><span class="chip"><b id="pfv-n">4</b>/10</span></div>'
+      + '<div class="hrow"><h2>🧩 Pack your box</h2><span class="chip warn" id="pfv-hurt" title="Hurt pieces (at least 3)">⚔️ <b>1</b></span><span class="chip"><b id="pfv-n">4</b>/10</span></div>'
       + (inFight ? '<p class="note">A creature is waiting. Pack your first Puzzle box, then you meet it.</p>' : '')
       + '<form method="post" id="pfv-sform"><input type="hidden" name="do" value="pfd_starter">'
       + '<ul class="pcg c5" id="pfv-tray" aria-label="Your box: 10 slots">' + tray + '</ul>'

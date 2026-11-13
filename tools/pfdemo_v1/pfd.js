@@ -21,7 +21,7 @@
     if (picks.length !== C.picks || new Set(picks).size !== C.picks) return 'Pick exactly ' + C.picks + ' pieces.';
     for (var i = 0; i < picks.length; i++) if (offer.indexOf(picks[i]) < 0) return 'Pick from the pieces on offer.';
     var hurt = 0; C.core.concat(picks).forEach(function (k) { if ((piece(k) || {}).t === 'hurt') hurt++; });
-    return hurt < 2 ? 'Bring at least two Hurt pieces.' : null;
+    return hurt < 3 ? 'Bring at least three Hurt pieces.' : null;
   }
   /** The sample gnome's sources (the shape of pfd_sources_blank): what it owns. level = the level its pieces were unlocked at (values use the fight's level). */
   function blank() {
@@ -51,7 +51,7 @@
   /** pfd_build: every piece the gnome could bring (kit first, then gear), the deck a fight uses, counts, the error. */
   function build(src) {
     var lvl = src.level, cal = src.calling, chosen = Array.isArray(src.starter);
-    var starter = chosen ? src.starter.slice() : C.core.concat(offerKeys(cal, src.home, C.kits.steady));
+    var starter = chosen ? src.starter.slice() : C.core.concat(offerKeys(cal, src.home, C.kits.bold));
     var rankOf = function (p) {
       if (p.rar !== 'src') return +p.rar;
       var have = { crop: src.crops, craft: src.crafts, region: src.regions, tool: src.tools }[p.src] || {};
@@ -119,22 +119,6 @@
       return PFE.makeTile(e.k, stats, b, over);
     });
   }
-  function harmony(entries) {
-    var ed = entries.map(edges), n = ed.length, fam = { body: 0, mind: 0, craft: 0 }, links = 0, tot = 0;
-    var lk = function (a, b) { return PFE.joint(a, b)[1]; };
-    var pair = function (a, b) { return (lk(a.R, b.L) ? 1 : 0) + (lk(b.R, a.L) ? 1 : 0) + (lk(a.B, b.T) || lk(a.B, b.B) ? 1 : 0) + (lk(b.B, a.T) || lk(b.T, a.T) ? 1 : 0); };
-    ed.forEach(function (e) { fam[e.R[1]]++; fam[e.B[1]]++; });
-    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (i !== j) { links += pair(ed[i], ed[j]); tot += 4; }
-    var seed = 12345n, rnd = function (m) { seed = (seed * 1103515245n + 12345n) & 0x7fffffffn; return Number(seed % BigInt(m)); }, hit = 0, T = 240;
-    for (var t = 0; t < T && n >= 7; t++) {
-      var idx = []; for (var a = 0; a < n; a++) idx.push(a);
-      for (var q = n - 1; q > 0; q--) { var r = rnd(q + 1), x = idx[q]; idx[q] = idx[r]; idx[r] = x; }
-      var ok = false; for (var h = 0; h < 5 && !ok; h++) for (var b = 5; b < 7 && !ok; b++) if (pair(ed[idx[h]], ed[idx[b]])) ok = true;
-      if (ok) hit++;
-    }
-    return { n: n, link: tot ? Math.round(links / tot * 1e4) / 1e4 : 0, hand: n >= 7 ? Math.round(hit / T * 1e4) / 1e4 : 0, fam: fam };
-  }
-
   // ---- the gnome in memory (the demo's "database"): sources + the deck + locks
   var Beltslots = [2, 3, 4];
   function wearAll(src) {
@@ -144,7 +128,7 @@
     });
     return out;
   }
-  function deck(src) { var b = build(src); b.harmony = harmony(b.deck); b.belt_tier = src.beltTier || 1; return b; }
+  function deck(src) { var b = build(src); b.belt_tier = src.beltTier || 1; return b; }
   /** The POST actions (pfd_post). Returns [ok, message]. $in = {kit, pick[], key, on, tool, slot}. */
   function post(src, locked, doo, input) {
     var err = null;

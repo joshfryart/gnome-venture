@@ -12088,7 +12088,7 @@ main>.note{margin:8px 0 0}
     if (picks.length !== C.picks || new Set(picks).size !== C.picks) return 'Pick exactly ' + C.picks + ' pieces.';
     for (var i = 0; i < picks.length; i++) if (offer.indexOf(picks[i]) < 0) return 'Pick from the pieces on offer.';
     var hurt = 0; C.core.concat(picks).forEach(function (k) { if ((piece(k) || {}).t === 'hurt') hurt++; });
-    return hurt < 2 ? 'Bring at least two Hurt pieces.' : null;
+    return hurt < 3 ? 'Bring at least three Hurt pieces.' : null;
   }
   /** The sample gnome's sources (the shape of pfd_sources_blank): what it owns. level = the level its pieces were unlocked at (values use the fight's level). */
   function blank() {
@@ -12118,7 +12118,7 @@ main>.note{margin:8px 0 0}
   /** pfd_build: every piece the gnome could bring (kit first, then gear), the deck a fight uses, counts, the error. */
   function build(src) {
     var lvl = src.level, cal = src.calling, chosen = Array.isArray(src.starter);
-    var starter = chosen ? src.starter.slice() : C.core.concat(offerKeys(cal, src.home, C.kits.steady));
+    var starter = chosen ? src.starter.slice() : C.core.concat(offerKeys(cal, src.home, C.kits.bold));
     var rankOf = function (p) {
       if (p.rar !== 'src') return +p.rar;
       var have = { crop: src.crops, craft: src.crafts, region: src.regions, tool: src.tools }[p.src] || {};
@@ -12186,22 +12186,6 @@ main>.note{margin:8px 0 0}
       return PFE.makeTile(e.k, stats, b, over);
     });
   }
-  function harmony(entries) {
-    var ed = entries.map(edges), n = ed.length, fam = { body: 0, mind: 0, craft: 0 }, links = 0, tot = 0;
-    var lk = function (a, b) { return PFE.joint(a, b)[1]; };
-    var pair = function (a, b) { return (lk(a.R, b.L) ? 1 : 0) + (lk(b.R, a.L) ? 1 : 0) + (lk(a.B, b.T) || lk(a.B, b.B) ? 1 : 0) + (lk(b.B, a.T) || lk(b.T, a.T) ? 1 : 0); };
-    ed.forEach(function (e) { fam[e.R[1]]++; fam[e.B[1]]++; });
-    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) if (i !== j) { links += pair(ed[i], ed[j]); tot += 4; }
-    var seed = 12345n, rnd = function (m) { seed = (seed * 1103515245n + 12345n) & 0x7fffffffn; return Number(seed % BigInt(m)); }, hit = 0, T = 240;
-    for (var t = 0; t < T && n >= 7; t++) {
-      var idx = []; for (var a = 0; a < n; a++) idx.push(a);
-      for (var q = n - 1; q > 0; q--) { var r = rnd(q + 1), x = idx[q]; idx[q] = idx[r]; idx[r] = x; }
-      var ok = false; for (var h = 0; h < 5 && !ok; h++) for (var b = 5; b < 7 && !ok; b++) if (pair(ed[idx[h]], ed[idx[b]])) ok = true;
-      if (ok) hit++;
-    }
-    return { n: n, link: tot ? Math.round(links / tot * 1e4) / 1e4 : 0, hand: n >= 7 ? Math.round(hit / T * 1e4) / 1e4 : 0, fam: fam };
-  }
-
   // ---- the gnome in memory (the demo's "database"): sources + the deck + locks
   var Beltslots = [2, 3, 4];
   function wearAll(src) {
@@ -12211,7 +12195,7 @@ main>.note{margin:8px 0 0}
     });
     return out;
   }
-  function deck(src) { var b = build(src); b.harmony = harmony(b.deck); b.belt_tier = src.beltTier || 1; return b; }
+  function deck(src) { var b = build(src); b.belt_tier = src.beltTier || 1; return b; }
   /** The POST actions (pfd_post). Returns [ok, message]. $in = {kit, pick[], key, on, tool, slot}. */
   function post(src, locked, doo, input) {
     var err = null;
@@ -12332,15 +12316,9 @@ main>.note{margin:8px 0 0}
     var c = d.counts, kit = c.kit;
     var h = '<div class="meter" role="img" aria-label="Deck ' + c.n + ': kit ' + kit + ', belt ' + c.belt + ', pals ' + c.pals + '"><b>' + c.n + '</b><span class="stack"><span class="k" data-f="' + Math.max(1, kit) + '">🧩 ' + kit + '</span>'
       + (c.belt ? '<span class="b" data-f="' + c.belt + '">🔧 ' + c.belt + '</span>' : '') + (c.pals ? '<span class="p" data-f="' + c.pals + '">🐾 ' + c.pals + '</span>' : '') + '</span></div>';
-    h += '<div class="teamrow"><b>Teamwork</b>';
-    [['pal', '🐾'], ['tool', '🔧'], ['crop', '🌾']].forEach(function (x) { h += '<span class="chip' + (c.src[x[0]] ? '' : ' off') + '">' + x[1] + ' ' + x[0] + ' ' + c.src[x[0]] + '</span>'; });
-    h += '<span>' + (c.team >= 3 ? '2 in a chain +30%, all 3 +60%' : (c.team === 2 ? 'both in one chain: +30%' : 'needs 2 of 3 sources')) + '</span></div>';
-    if (slim) return h;
-    var hm = d.harmony, f = hm.fam, tot = Math.max(1, f.body + f.mind + f.craft), top = Math.max(f.body, f.mind, f.craft) / tot, lk = Math.round(hm.link * 100), hd = Math.round(hm.hand * 100), seg = '';
-    ['body', 'mind', 'craft'].forEach(function (k) { if (f[k]) seg += '<span class="' + k + '" data-f="' + f[k] + '">' + k + ' ' + Math.round(100 * f[k] / tot) + '%</span>'; });
-    h += '<div class="harm" role="img" aria-label="Deck harmony: link rate ' + lk + ' percent, a hand links ' + hd + ' percent of the time"><b>Link rate</b><span class="hmeter' + (lk >= 30 ? ' good' : (lk >= 22 ? '' : ' low')) + '"><i data-w="' + Math.min(100, lk * 2) + '"></i><span>' + lk + '%</span></span><span class="chip" title="Chance that a hand of 5 has a piece that links">hand links ' + hd + '%</span></div>'
-      + '<div class="harm"><b>Knobs</b><span class="stack fam">' + seg + '</span></div>'
-      + '<p class="hint harmhint">' + (top >= 0.5 ? 'One family leads: easy chains, less Teamwork.' : 'Mixed families: more Teamwork, fewer links.') + ' Pals are body, tools craft, crops mind.</p>';
+    var n = c.n, hu = c.hurt;
+    h += '<div class="teamrow hurtrow"><b>Hurt pieces: ' + hu + ' of ' + n + '</b></div>';
+    if (n > 0 && hu * 10 < 3 * n) h += '<p class="hint">Few Hurt pieces: fights will be long</p>';
     return h;
   }
   function form(back) { return '<form method="post" id="pfv-f" hidden><input type="hidden" name="do" value=""><input type="hidden" name="key" value=""><input type="hidden" name="on" value=""><input type="hidden" name="tool" value="">' + (back || '') + '</form>'; }
@@ -12363,7 +12341,7 @@ main>.note{margin:8px 0 0}
     [['bold', '⚔️ Bold'], ['steady', '🛡️ Steady'], ['kind', '💗 Kind']].forEach(function (k) { kits += '<button class="btn" name="kit" value="' + k[0] + '" data-kit="' + e(d.kits[k[0]].join(',')) + '">' + k[1] + '</button>'; });
     var pp = ''; for (i = 0; i < C.picks; i++) pp += '<i></i>';
     return '<div class="box pbox pfv" id="pfv-starter" data-picks="' + C.picks + '">'
-      + '<div class="hrow"><h2>🧩 Pack your box</h2><span class="chip warn" id="pfv-hurt" title="Hurt pieces (at least 2)">⚔️ <b>1</b></span><span class="chip"><b id="pfv-n">4</b>/10</span></div>'
+      + '<div class="hrow"><h2>🧩 Pack your box</h2><span class="chip warn" id="pfv-hurt" title="Hurt pieces (at least 3)">⚔️ <b>1</b></span><span class="chip"><b id="pfv-n">4</b>/10</span></div>'
       + (inFight ? '<p class="note">A creature is waiting. Pack your first Puzzle box, then you meet it.</p>' : '')
       + '<form method="post" id="pfv-sform"><input type="hidden" name="do" value="pfd_starter">'
       + '<ul class="pcg c5" id="pfv-tray" aria-label="Your box: 10 slots">' + tray + '</ul>'
@@ -12440,7 +12418,7 @@ main>.note{margin:8px 0 0}
   }
 
   // ---------------------------------------------------------------- 3. the pre-fight screen
-  function foeV(c, v, tune) { var cfg = PFE.v1Cfg(c.size, tune || {}); return Math.max(1, Math.round(v * cfg.foe * (c.size === 'boss' ? BOSS_MULT : 1) * (C.foeFires > 0 ? FIRE_MULT : 1))); }
+  function foeV(c, v, tune) { var cfg = PFE.v1Cfg(c.size, tune || {}, c.level); /* the level curve (after 2.6.94) */ return Math.max(1, Math.round(v * cfg.foe * (c.size === 'boss' ? BOSS_MULT : 1) * (C.foeFires > 0 ? FIRE_MULT : 1))); }
   function foeCard(ctx, c) {
     var size = c.size || 'small', dims = PFE.v1Cfg(size, ctx.tune), cl = c.class, rn = D.regions[c.region] || '', by = {}, cells = '', lean = c.lean, order = { base: 0, reg: 1, rar: 2, uni: 3 };
     var pieces = c.deck.map(function (p, i) { return [p, i]; }).sort(function (a, b) { return (order[a[0].layer] - order[b[0].layer]) || (a[1] - b[1]); }).map(function (x) { return x[0]; });
