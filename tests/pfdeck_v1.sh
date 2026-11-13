@@ -81,7 +81,7 @@ N=0; TOOLP=0; while [ $N -lt 70 ]; do
   if [ "$MV" = "PASS" ]; then CODE=$(pf pfb_pass); elif [ "$MV" = "NONE" ]; then break; elif [ "${MV%% *}" = "FLIP" ]; then CODE=$(pf pfb_flip -d hand="${MV##* }"); else CODE=$(pf pfb_play -d moves="$MV"); fi
   [ "$CODE" = "302" ] || { echo "FAIL play returned $CODE"; FAILS=$((FAILS+1)); break; }
   N=$((N+1)); WF=$(encq 'array_sum($s["wear"] ?? [])'); [ -n "$WF" ] && [ "$WF" != "0" ] && TOOLP=$WF
-  if [ "$(db "SELECT encounter LIKE '%\"won\":%' FROM expeditions ORDER BY id DESC LIMIT 1")" = "1" ]; then ck "End fight: redirect" "$(pf pf_finish)" "302"; break; fi
+  if [ "$(db "SELECT encounter LIKE '%\"won\":%' OR encounter LIKE '%\"lost\":%' FROM expeditions ORDER BY id DESC LIMIT 1")" = "1" ]; then ck "End fight (won, or 2.6.78: lost and waiting for Continue): redirect" "$(pf pf_finish)" "302"; break; fi
 done
 ck "the fight ended" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
 ck "tool pieces were played in the fight (wear counted)" "$([ "$TOOLP" -ge 2 ] && echo yes || echo "no: $TOOLP")" "yes"
