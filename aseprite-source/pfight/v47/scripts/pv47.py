@@ -63,17 +63,17 @@ def with_state(size, img, state):
     if state == 'faded':
         out = img.copy(); out.alpha_composite(ov); return out
     out = Image.new('RGBA', img.size, (0, 0, 0, 0)); out.alpha_composite(ov); out.alpha_composite(img); return out
+K, H = 'knob', 'hole'
+CLUSTER = [
+  (0, 0, 'hurt',   'me',  dict(right=(K, 'body'), bottom=(K, 'mind'))),
+  (1, 0, 'guard',  'me',  dict(left=(H, 'body'), right=(K, 'craft'), bottom=(H, 'body'))),
+  (2, 0, 'heal',   'me',  dict(left=(H, 'craft'), bottom=(K, 'mind'))),
+  (0, 1, 'charm',  'foe', dict(top=(H, 'mind'), right=(K, 'craft'))),
+  (1, 1, 'soothe', 'me',  dict(top=(K, 'body'), left=(H, 'craft'), right=(K, 'mind'))),
+  (2, 1, 'trick',  'me',  dict(top=(H, 'mind'), left=(H, 'mind'), right=(K, 'body'), bottom=(K, 'craft'))),
+  (3, 1, 'item',   'env', dict(left=(H, 'body'))),
+  (2, 2, 'hurt',   'me',  dict(top=(H, 'craft'))),
+]
 def cluster(size):
     """the 5 x 3 chain used in the sheet; every knob sits in a hole of the same family"""
-    K, H = 'knob', 'hole'
-    spec = [
-      (0, 0, 'hurt',   'me',  dict(right=(K, 'body'), bottom=(K, 'mind'))),
-      (1, 0, 'guard',  'me',  dict(left=(H, 'body'), right=(K, 'craft'), bottom=(H, 'body'))),
-      (2, 0, 'heal',   'me',  dict(left=(H, 'craft'), bottom=(K, 'mind'))),
-      (0, 1, 'charm',  'foe', dict(top=(H, 'mind'), right=(K, 'craft'))),
-      (1, 1, 'soothe', 'me',  dict(top=(K, 'body'), left=(H, 'craft'), right=(K, 'mind'))),
-      (2, 1, 'trick',  'me',  dict(top=(H, 'mind'), left=(H, 'mind'), right=(K, 'body'), bottom=(K, 'craft'))),
-      (3, 1, 'item',   'env', dict(left=(H, 'body'))),
-      (2, 2, 'hurt',   'me',  dict(top=(H, 'craft'))),
-    ]
-    return board(size, [(x, y, piece(size, t, e, o)) for x, y, t, o, e in spec], 5, 3)
+    return board(size, [(x, y, piece(size, t, e, o)) for x, y, t, o, e in CLUSTER], 5, 3)

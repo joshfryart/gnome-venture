@@ -52,6 +52,11 @@ for size in ('strip', 'hand'):
     for b in ('lock', 'star', 'flip', 'eye', 'land'): H.append(fig('%s/badge-%s-%s.png' % (size, size, b), size, b, z=Z[size] * (3 if size == 'strip' else 2)))
     H.append('</div><h3>6. Board cluster 5 x 3 at the real pitch %dx%d: knobs sit in matching holes (native file board-cluster-%s.png)</h3>' % (c['pitch'][0], c['pitch'][1], size))
     H.append('<div class="board">%s</div>' % img('board-cluster-%s.png' % size, size))
+    H.append('<h3>7a. Hero pieces, one per family: three knobs and a hole of the same shape</h3><div class="row">')
+    for fam, ty, hole in (('body', 'hurt', 'left'), ('mind', 'soothe', 'bottom'), ('craft', 'trick', 'top')):
+        e = {s: ('knob', fam) for s in SIDES}; e[hole] = ('hole', fam)
+        H.append(fig(save('%s-hero-%s' % (size, fam), piece(size, ty, e)), size, '%s hero' % fam))
+    H.append('</div>')
     H.append('<h3>7. A loose piece, so the silhouette reads on its own</h3><div class="row">%s</div></section>' % fig(save('%s-loose' % size, piece(size, 'charm', dict(top=('knob', 'body'), right=('knob', 'mind'), bottom=('hole', 'craft'), left=('hole', 'body')))), size, 'jigsaw outline'))
 CSS = '''body{margin:0;background:#150d07;color:#f2e4c0;font:14px/1.35 system-ui,sans-serif;padding:16px 24px}
 h1{font-size:1.3rem;color:#f6c453}h2{font-size:1.15rem;color:#f6c453;margin:36px 0 4px;border-top:1px solid #4a3322;padding-top:14px}h3{font-size:.95rem;color:#cdb48c;margin:22px 0 8px}

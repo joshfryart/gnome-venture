@@ -24,14 +24,18 @@ PASS strip knob craft centred on its side; widths top 18, right 17, bottom 18, l
 PASS hand knob body  centred on its side; widths top 20, right 20, bottom 20, left 20
 PASS hand knob mind  centred on its side; widths top 28, right 28, bottom 28, left 28
 PASS hand knob craft centred on its side; widths top 30, right 30, bottom 30, left 30
-PASS strip body  interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [116, 118]
-PASS strip mind  interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [100, 102]
+PASS strip body  interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [108, 112]
+PASS strip mind  interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [110, 112]
 PASS strip craft interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [136]
 PASS strip flat edges: neighbours abut without overlap
-PASS hand body  interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [352]
-PASS hand mind  interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [302]
+PASS hand body  interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [334]
+PASS hand mind  interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [324]
 PASS hand craft interlock, 4 directions x knob/hole both ways: overlap 0 px, gap 0 px, hole cells [410]
 PASS hand flat edges: neighbours abut without overlap
+PASS strip cluster of 8 pieces (5x3 grid): 0 overlapping pixels
+PASS strip cluster: 1068 hole cells, 0 left empty (no gaps)
+PASS hand cluster of 8 pieces (5x3 grid): 0 overlapping pixels
+PASS hand cluster: 3204 hole cells, 0 left empty (no gaps)
 PASS strip glyphs never overlap a hole or its rim; smallest gap 0 px (0 = touching) 
 PASS hand glyphs never overlap a hole or its rim; smallest gap 0 px (0 = touching) 
 RESULT ALL PASS

@@ -57,7 +57,7 @@ for size, c in CFG.items():
         res = []
         for side in SIDES:
             for a_kind, b_kind in (('knob', 'hole'), ('hole', 'knob')):
-                A = piece(size, 'hurt', {side: (a_kind, fam)}); B = piece(size, 'guard', {OPP[side]: (b_kind, fam)})
+                A = piece(size, TYPES[(len(res) + 0) % 7], {side: (a_kind, fam)}); B = piece(size, TYPES[(len(res) + 3) % 7], {OPP[side]: (b_kind, fam)})
                 dx, dy = STEP[side][0] * px, STEP[side][1] * py
                 oa, ob = opaque(A, 0, 0), opaque(B, dx, dy)
                 overlap = oa & ob
@@ -74,6 +74,28 @@ for size, c in CFG.items():
     A = piece(size, 'hurt'); B = piece(size, 'guard')
     ok = all(not (opaque(A, 0, 0) & opaque(B, STEP[s][0] * px, STEP[s][1] * py)) for s in SIDES)
     rep(ok, '%s flat edges: neighbours abut without overlap' % size)
+
+# 5b. the 5 x 3 cluster: no overlap anywhere (sum of pieces = union), every seam filled
+for size, c in CFG.items():
+    px, py = c['pitch']
+    import pv47
+    spec = pv47.CLUSTER
+    pcs = [(x, y, piece(size, t, e, o)) for x, y, t, o, e in spec]
+    occ = {}; over = 0
+    for x, y, im in pcs:
+        for p in opaque(im, x * px, y * py):
+            over += p in occ; occ[p] = 1
+    rep(over == 0, '%s cluster of %d pieces (5x3 grid): %d overlapping pixels' % (size, len(pcs), over))
+    seams = 0; gaps = 0
+    for x, y, t, o, e in spec:
+        for side, (kind, fam) in e.items():
+            if kind != 'hole': continue
+            hs = P(size, 'sock-%s-%s-hole' % (size, fam)); x0, y0, x1, y1 = region(size, side)
+            for xx in range(x0, x1):
+                for yy in range(y0, y1):
+                    if hs.getpixel((xx, yy)) == ERASE:
+                        seams += 1; gaps += (xx + x * px, yy + y * py) not in occ
+    rep(gaps == 0 and seams > 0, '%s cluster: %d hole cells, %d left empty (no gaps)' % (size, seams, gaps))
 
 # 6. no hole (cut-out or its rim) touches a glyph pixel; report the gap to the nearest one
 for size, c in CFG.items():
