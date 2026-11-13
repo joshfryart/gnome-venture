@@ -363,8 +363,9 @@
 
   function checkEnd(s) {
     if (s.over) return true;
-    if (s.fh.now >= s.fh.max) { s.over = 'seen_off'; return true; }
-    if (s.cm > 0 && s.bar.now >= s.bar.max) { s.over = 'charmed'; return true; }
+    var v1 = !!s.v1, fn = v1 ? round(s.fh.now, 1) : s.fh.now, bn = v1 ? round(s.bar.now, 1) : s.bar.now;   // 2.6.78 (v1): compared as shown (one decimal)
+    if (fn >= s.fh.max) { s.over = 'seen_off'; return true; }
+    if (s.cm > 0 && bn >= s.bar.max) { s.over = 'charmed'; return true; }
     if (s.me.hp <= 0) { s.over = 'defeat'; return true; }
     return false;
   }
@@ -577,7 +578,9 @@
   function envCells(s, tile) {
     var fit = [], link = [];
     for (var y = 0; y < pfbH(s); y++) for (var x = 0; x < pfbW(s); x++) { var j = check(s, tile, x, y); if (j === null) continue; fit.push([x, y]); if (hasLink(j)) link.push([x, y]); }
-    return link.length ? link : fit;
+    var seen = {}; link.forEach(function (c) { seen[c[0] + ',' + c[1]] = 1; });
+    var free = fit.filter(function (c) { return !seen[c[0] + ',' + c[1]]; });
+    return free.length ? free : fit;
   }
   function envWindDir(s, x, y) {
     var ok = [];

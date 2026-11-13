@@ -16,7 +16,7 @@
   var optsEl = document.getElementById('pf-opts'), rewindEl = document.getElementById('pf-rewind'), rwT = document.getElementById('pf-rw-t'), rwBack = document.getElementById('pf-rw-back');
   var tiles = Array.prototype.slice.call(handEl.querySelectorAll('.pf-tile'));
   var moves = [], selected = null, submitted = false, redrawMode = false, rewind = null, picked = null, playing = false, replayed = false;   // moves: at most one planned action {k:'p'|'c'|'j'|'h', ...}
-  var replayKey = 'pfr:' + ((form.querySelector('[name=nonce]') || {}).value) + ':' + ((form.querySelector('[name=turn]') || {}).value), willReplay = false;
+  var replayKey = 'pfr:' + ((form.querySelector('[name=nonce]') || {}).value) + ':' + ((form.querySelector('[name=turn]') || {}).value) + (data.won || data.lost ? ':end' : ''), willReplay = false;
   try { willReplay = !!(data.replay && data.replay.length && !window.sessionStorage.getItem(replayKey)); } catch (e) { willReplay = !!(data.replay && data.replay.length); }
   var hiddenIds = {}, revealId = null;   // the creature's pieces from this turn stay off the board until the replay reaches them (your piece resolves first, then its turn plays)
   if (willReplay) data.pcs.forEach(function (p) { if (p.fnew) hiddenIds[p.id] = true; });   // only the pieces the creature put down this turn stay off the board until the replay reaches them (not the one it started with)
@@ -77,7 +77,7 @@
     var n = ENVD.n || V1.envn || 2;
     return { n: 'Environment turn', g: 'env', l: ['Every round goes: you, the creature, then the environment.',
       'On its turn the environment puts ' + (n === 1 ? 'a piece' : n + ' pieces') + ' on the board. The pieces shown as NEXT are the ones it places at the end of this round, the left one first.',
-      'Its pieces belong to nobody. Link to one and it fires in your chain, for you. The creature can do the same.',
+      'It tries to put each piece where it links to nothing, to keep fights varied. Its pieces belong to nobody. Link to one and it fires in your chain, for you. The creature can do the same.',
       'They count for the chain like any piece: a chain of ' + (V1.limit || 3) + ' or more uses them up.'], who: 'Same rules for you and the creature.' };
   }
   function envTurnNote() { var n = ENVD.n || V1.envn || 2; return 'Environment turn. It puts ' + (n === 1 ? 'its piece' : 'its ' + n + ' pieces') + ' on the board. Nothing fires on its turn.'; }
@@ -386,7 +386,11 @@
     return tt + 850 / SPD;
   }
 
+  /** 2.6.78: the result card of a fight that is over waits (the server marks the fight pfv-endwait) until the last turn has been replayed in full, then it fades in. A skipped or absent replay shows it at once. */
+  function endReveal() { if (!root.classList.contains('pfv-endwait')) return; root.classList.remove('pfv-endwait'); root.classList.add('pfv-endin'); }
   function v1Boot() {
+    if (!willReplay || !SPD || !(data.replay && data.replay.length)) endReveal();
+    else setTimeout(endReveal, 40000);   // never hold the card for ever (a replay that never ran)
     drawLegend();
     if (rowEl) rowEl.addEventListener('click', function (ev) { var b = ev.target.closest('[data-ev]'); if (!b) return; var e = dispEnvs()[+b.dataset.ev]; if (e) showPop({ t: 'ev', k: e.kind, rot: e.kind === 'gust' ? ROT[e.dir] : 0, y: e.y }); });
     if (legendEl) legendEl.addEventListener('click', function (ev) {
@@ -950,7 +954,7 @@
   function revealAllChips() { if (!histEl) return; Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-new[hidden]'), function (c) { c.hidden = false; }); histEl.scrollLeft = 0; }
   function setBar(now, max) {   // the charm bar (Charm pieces only)
     var c = root.querySelector('.pfx-fill.charm'); if (!max) return;
-    if (c) c.style.width = Math.max(0, Math.min(100, 100 * now / max)) + '%';
+    if (c) c.style.width = Math.max(0, now >= max ? 100 : Math.min(96, Math.floor(1000 * now / max) / 10)) + '%';
     var pr = root.querySelector('.pf-bar progress'); if (pr) pr.value = now;
   }
   function setFh(now, max) {   // the creature's health: drains as Hurt lands
@@ -964,7 +968,7 @@
   }
   function setHp(v) { var pr = root.querySelector('.pfc-top .pf-hp progress'); if (pr) pr.value = v; }
   function afterLeave() {   // everything has scored and the old pieces are gone: the board adds a creature piece if it is short, growing into place
-    showGone = false; fxOn = true; replayDone(); render();
+    showGone = false; fxOn = true; replayDone(); endReveal(); render();
     if (!data.won && SPD) showTurn('Your turn', 'me', meSub());
     if (hideSpawn) { hideSpawn = false; animateSpawn = true; render(); animateSpawn = false; }
   }

@@ -95,7 +95,7 @@ N=0; ENVN=0; PLN=0; FIN=0; OLDT=0; while [ $N -lt 60 ]; do
   N=$((N+1))
   [ "$(encq 'isset($s["v1"]) ? 1 : 0')" = "0" ] && [ "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" != "1" ] && { echo "FAIL the fight lost its v1 rules"; FAILS=$((FAILS+1)); break; }
   get adventure.php >/dev/null; ENVN=$((ENVN + $(grep -o 'class="pf-chip env' $H | wc -l))); ENVL=$((ENVL + $(grep -o 'class="pf-chip env[^>]*aria-label="Environment: ' $H | wc -l))); ENVT=$((ENVT + $(grep -o 'class="pf-chip env[^>]*aria-label="Terrain: ' $H | wc -l))); PLN=$((PLN + $(grep -o '"env":"place","x":[0-9],"y":[0-9]' $H | wc -l))); FIN=$((FIN + $(grep -o '"env":"fire","x":[0-9],"y":[0-9][^}]*"kind":"[a-z]*","for":"[a-z]*"' $H | wc -l))); OLDT=$((OLDT + $(grep -o '"env":"\(sunbeam\|creep\|puddle\|gust\|thorn\|bramble\)"' $H | wc -l)))
-  if [ "$(db "SELECT encounter LIKE '%\"won\":%' FROM expeditions ORDER BY id DESC LIMIT 1")" = "1" ]; then ck "End fight: redirect" "$(pf pf_finish)" "302"; break; fi
+  if [ "$(db "SELECT encounter LIKE '%\"won\":%' OR encounter LIKE '%\"lost\":%' FROM expeditions ORDER BY id DESC LIMIT 1")" = "1" ]; then ck "End fight (won, or 2.6.78: lost and waiting for Continue): redirect" "$(pf pf_finish)" "302"; break; fi
 done
 ck "the fight ended" "$(db "SELECT encounter IS NULL FROM expeditions ORDER BY id DESC LIMIT 1")" "1"
 ck "2.6.75: environment history chips say Environment, never Terrain" "$([ $ENVL -ge 1 ] && echo yes || echo no) $ENVT" "yes 0"

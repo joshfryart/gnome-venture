@@ -53,7 +53,12 @@ $ln = pfight_line($pl[0], 'Owl'); chk('the place line names the piece', str_cont
 
 $s = v1_bare(); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2);
 $sun = v1_env('sun', null, false); $s9 = $s; v1_put($s9, 'env', ['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['flat', null])] + v1_env('rain'), 0, 0); $cells = pfb_env_cells($s9, $sun);
-chk('where it may go: only cells where the piece LINKS, when there are any (the cells that only touch a flat piece fit, but are left out)', $cells && pfb_check($s9, $sun, 1, 0) !== null && !in_array([1, 0], $cells, true) && !in_array([0, 1], $cells, true) && !array_filter($cells, fn($c) => !pfb_has_link(pfb_check($s9, $sun, $c[0], $c[1]))), $cells);
+chk('where it may go (2.6.78, Josh): it TRIES cells where the piece links to nothing (the cells that only touch a flat piece)', $cells && pfb_check($s9, $sun, 1, 0) !== null && pfb_check($s9, $sun, 0, 1) !== null && count($cells) === count(array_filter($cells, fn($c) => !pfb_has_link(pfb_check($s9, $sun, $c[0], $c[1])))) && in_array([1, 0], $cells, true), $cells);
+$sL = v1_bare(); $kb = ['knob', 'body']; $hb = ['hole', 'body']; v1_put($sL, 'foe', ['ed' => ['L' => $kb, 'R' => $kb, 'T' => $kb, 'B' => $kb]] + v1_tile($sL, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2);
+$allh = ['ed' => ['L' => $hb, 'R' => $hb, 'T' => $hb, 'B' => $hb]] + v1_env('sun', null, false); $cl = pfb_env_cells($sL, $allh);
+chk('fallback: when every fitting cell would link, any fitting cell is allowed (linking allowed)', count($cl) === 4 && count(array_filter($cl, fn($c) => pfb_has_link(pfb_check($sL, $allh, $c[0], $c[1])))) === 4, $cl);
+$sL['env'] = ['draw' => [], 'discard' => [], 'next' => [$allh]]; pfb_env_place($sL);
+chk('fallback: the piece is placed on a linking cell rather than passing', count(array_filter($sL['pcs'], fn($p) => $p['by'] === 'env')) === 1, $sL['envlog']);
 $cells = pfb_env_cells($s, $sun);
 $mud = v1_env('mud', null, false); $mc = pfb_env_cells($s, $mud);
 chk('Mud links nowhere, so it may go on any free cell next to a piece', count($mc) === 4 && !array_filter($mc, fn($c) => abs($c[0] - 2) + abs($c[1] - 2) !== 1), $mc);

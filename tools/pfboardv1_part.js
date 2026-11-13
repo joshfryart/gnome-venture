@@ -53,7 +53,7 @@
     var n = ENVD.n || V1.envn || 2;
     return { n: 'Environment turn', g: 'env', l: ['Every round goes: you, the creature, then the environment.',
       'On its turn the environment puts ' + (n === 1 ? 'a piece' : n + ' pieces') + ' on the board. The pieces shown as NEXT are the ones it places at the end of this round, the left one first.',
-      'Its pieces belong to nobody. Link to one and it fires in your chain, for you. The creature can do the same.',
+      'It tries to put each piece where it links to nothing, to keep fights varied. Its pieces belong to nobody. Link to one and it fires in your chain, for you. The creature can do the same.',
       'They count for the chain like any piece: a chain of ' + (V1.limit || 3) + ' or more uses them up.'], who: 'Same rules for you and the creature.' };
   }
   function envTurnNote() { var n = ENVD.n || V1.envn || 2; return 'Environment turn. It puts ' + (n === 1 ? 'its piece' : 'its ' + n + ' pieces') + ' on the board. Nothing fires on its turn.'; }
@@ -362,7 +362,11 @@
     return tt + 850 / SPD;
   }
 
+  /** 2.6.78: the result card of a fight that is over waits (the server marks the fight pfv-endwait) until the last turn has been replayed in full, then it fades in. A skipped or absent replay shows it at once. */
+  function endReveal() { if (!root.classList.contains('pfv-endwait')) return; root.classList.remove('pfv-endwait'); root.classList.add('pfv-endin'); }
   function v1Boot() {
+    if (!willReplay || !SPD || !(data.replay && data.replay.length)) endReveal();
+    else setTimeout(endReveal, 40000);   // never hold the card for ever (a replay that never ran)
     drawLegend();
     if (rowEl) rowEl.addEventListener('click', function (ev) { var b = ev.target.closest('[data-ev]'); if (!b) return; var e = dispEnvs()[+b.dataset.ev]; if (e) showPop({ t: 'ev', k: e.kind, rot: e.kind === 'gust' ? ROT[e.dir] : 0, y: e.y }); });
     if (legendEl) legendEl.addEventListener('click', function (ev) {
