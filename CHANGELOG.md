@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.86
+- **The background behind the fight pop-up blinked on End turn (Josh).** Two causes, both fixed. (1) Each turn the page around the pop-up (the Trail map) was thrown away and rebuilt from the server's copy and its map scripts started again; now nothing behind a fight is touched during its turns (`site.js` `keepTrailPop`; the status bar, user bar and message list are also left alone when their new copy is identical). (2) The margins around the fight are the fight's own dim over the pop-up window, so while the old fight was out of the way for a moment they showed the window's raw colour, about 19 brightness levels lighter; the pop-up window now has exactly the dimmed colour (`pfv1.css`, 2 levels of difference left, not visible). Measured frame by frame in the real game.
+- **Needs 2.6.79+, no DB change. Puzzle combat v1 is still admin-gated. The debug log (`?pfdebug=1`) stays in.**
+
 ## 2.6.85
 - **Charm bar too large on a wide window (Josh).** The bar is 8:1 and took the whole header width, so at about 790px wide it was 60px tall and dominated the header. It is now at most 320px wide (40px tall) and centred. Phones are unchanged (they were already narrower than that). The red health bar above it is unchanged.
 - **Needs 2.6.79+, no DB change. Puzzle combat v1 is still admin-gated.**

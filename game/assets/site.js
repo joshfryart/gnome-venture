@@ -792,7 +792,7 @@ gvAdvFold();
   var busy = false;
   function swap(doc, sel) {
     var a = document.querySelector(sel), b = doc.querySelector(sel);
-    if (a && b) a.innerHTML = b.innerHTML;
+    if (a && b) { if (a.innerHTML !== b.innerHTML) a.innerHTML = b.innerHTML; }   // 2.6.85: identical = untouched (no redraw, no blink)
     else if (a && !b) a.parentNode.removeChild(a);
   }
 
@@ -819,18 +819,8 @@ gvAdvFold();
     if (!oh || !nh) return false;
     var top = oh.scrollTop;
     var op = main, np = nmain;
-    for (i = oc.length - 1; i >= 0; i--) {   // from the child of <main> down to the dialog: keep the node, replace its siblings
-      var o = oc[i], n = nc[i];
-      while (o.previousSibling) op.removeChild(o.previousSibling);
-      while (o.nextSibling) op.removeChild(o.nextSibling);
-      var pre = '', post = '', x;
-      for (x = n.previousSibling; x; x = x.previousSibling) pre = (x.nodeType === 1 ? x.outerHTML : x.nodeType === 3 ? x.textContent.replace(/&/g, '&amp;').replace(/</g, '&lt;') : '') + pre;
-      for (x = n.nextSibling; x; x = x.nextSibling) post += (x.nodeType === 1 ? x.outerHTML : x.nodeType === 3 ? x.textContent.replace(/&/g, '&amp;').replace(/</g, '&lt;') : '');
-      if (pre) o.insertAdjacentHTML('beforebegin', pre);
-      if (post) o.insertAdjacentHTML('afterend', post);
-      if (o !== od) syncAttrs(o, n);
-      op = o; np = n;
-    }
+    /* 2.6.85 (Josh: "the background behind the popover blinks"): the page around the pop-up (the Trail map, with the zoom and marks its scripts add) used to be thrown away and rebuilt from the server's copy on every turn, and the map scripts started again. Nothing behind a fight changes during its turns (it is inert and dimmed), so it is left exactly as it is: only the dialog's own content is replaced. */
+    for (i = oc.length - 1; i >= 0; i--) { if (oc[i] !== od) syncAttrs(oc[i], nc[i]); }
     syncAttrs(od, nd, ['wired', 'cardwired']);   // classes the page scripts put on (wired) stay
     var ob = od.querySelector('.pickbox'), nb = nd.querySelector('.pickbox');
     if (ob && nb && ob.contains(oh) && nb.contains(nh)) {
@@ -881,7 +871,8 @@ gvAdvFold();
         // Keep folds the player had open (e.g. buildings, hired help) open after the swap
         var openKeys = Array.prototype.map.call(document.querySelectorAll('main details[open]'), foldKey);
         var wasFight = !!document.querySelector('.advgrid.fighting');
-        if (!keepTrailPop(doc)) swap(doc, 'main');
+        var kept = keepTrailPop(doc);   // 2.6.85: true = only the fight pop-up's content was replaced, the page around it was left alone
+        if (!kept) swap(doc, 'main');
         swapped = true;
         rerunScripts(document.querySelector('main'));
         document.querySelectorAll('main details').forEach(function (d) { if (openKeys.indexOf(foldKey(d)) >= 0) d.open = true; });
@@ -905,18 +896,21 @@ gvAdvFold();
         gvPageToasts();
         gvCountdown();
         gvAdvFold();   // v1.0.2
-        gvMaps();
-        gvRegionZoom();
-        gvMycZoom();   // v1.6.4
-        gvMycApply();   // v1.6.0: keep the map filter after an in-place load
-        gvMycScroll();   // v1.6.1
-        gvMetro();
-        gvRouteFade();   // v2.0.57
-        gvGarden();
-        document.dispatchEvent(new Event('gv:swapped'));   // v2.4.97: Wren's tour bubble re-aims after an in-place page swap
-        gvAlmTabs();
-        gvWanderFolds();
-        gvShelves();   // v2.4.67: the swapped-in Satchel / Crafting shelves get their handlers
+        if (kept) document.dispatchEvent(new Event('gv:swapped'));   // the page behind a fight was left alone: only the event (the hooks below are for a swapped page)
+        if (!kept) {   // the hooks of the page behind a fight stay as they are
+          gvMaps();
+          gvRegionZoom();
+          gvMycZoom();   // v1.6.4
+          gvMycApply();   // v1.6.0: keep the map filter after an in-place load
+          gvMycScroll();   // v1.6.1
+          gvMetro();
+          gvRouteFade();   // v2.0.57
+          gvGarden();
+          document.dispatchEvent(new Event('gv:swapped'));   // v2.4.97: Wren's tour bubble re-aims after an in-place page swap
+          gvAlmTabs();
+          gvWanderFolds();
+          gvShelves();   // v2.4.67: the swapped-in Satchel / Crafting shelves get their handlers
+        }
         if (window.gvShpopAfterSwap) window.gvShpopAfterSwap();   // and a Satchel sheet that was open opens again
         if (after) after();
         } catch (e) { if (!swapped) throw e; busy = false; if (window.console) console.warn('gv: after the swap: ' + (e && e.message)); }
