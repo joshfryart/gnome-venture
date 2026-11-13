@@ -416,7 +416,7 @@
     if (insp) wrapEl.appendChild(insp);   // 2.6.76: the piece card is an overlay on the top of the board room when there is no room to dock it
     var ge0 = root.querySelector('.pf-guard'); if (ge0) { ge0.title = 'Guard: blocks the creature\u2019s hits. Your guard fades when your turn starts, unless Hold keeps it.'; ge0.setAttribute('aria-label', ge0.title); }   // 2.6.77
     dockEl = document.createElement('div'); dockEl.className = 'pfv-dock'; dockEl.id = 'pfv-dock'; if (legendEl && legendEl.parentNode) legendEl.parentNode.insertBefore(dockEl, legendEl.nextSibling);   // 2.6.77: docked card (in the flow) between the board and the hand
-    if (dockEl.parentNode && optsEl) { var pairEl = document.createElement('div'); pairEl.className = 'pfv-pair'; dockEl.parentNode.insertBefore(pairEl, dockEl); pairEl.appendChild(dockEl); pairEl.appendChild(optsEl); }   // 2.6.90 (Josh): the piece card and "Or set aside with" are one row, side by side
+    if (dockEl.parentNode && optsEl) { pairEl = document.createElement('div'); pairEl.className = 'pfv-pair'; dockEl.parentNode.insertBefore(pairEl, dockEl); pairEl.appendChild(dockEl); pairEl.appendChild(optsEl); }   // 2.6.90 (Josh): the piece card and "Or set aside with" are one row, side by side
     if (histEl && typeof MutationObserver === 'function') { dockMo = new MutationObserver(function () { if (dockOn) dockFill(); }); dockMo.observe(histEl, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] }); }
     document.addEventListener('pointerdown', inspOut, true);
     if (window.pfvSizes) window.pfvSizes();
@@ -436,7 +436,7 @@
   function v1Off() { closeSheet(); closePop(); document.removeEventListener('pointerdown', inspOut, true); document.removeEventListener('keydown', onKey); window.removeEventListener('resize', refit); if (wrapObs) wrapObs.disconnect(); if (dockMo) dockMo.disconnect(); }
 
   /** 2.6.77: the board keeps the art's own proportion at every size (a cell is the piece's body, 56 x 40, never stretched; the pieces scale with it). It is as large as the width and its share of the height allow. A tall phone has height to spare: it goes to the hand (larger pieces, uniformly scaled), a docked card under the board (the picked piece, or the last plays and what comes next), 44px+ buttons, bigger gaps between the rows; what is left is split above and under the whole block. Nothing here changes a piece's proportion. */
-  var fitBusy = false, dockEl = null, dockOn = false, dockMo = null;
+  var fitBusy = false, dockEl = null, dockOn = false, dockMo = null, pairEl = null;
   function handAR() { var P = window.PFParts, S = P && P.ok && P.atlas && P.atlas.sizes && P.atlas.sizes.strip; return S && P.atlas.version === 47 ? S.piece[1] / S.piece[0] : 52 / 74; }   // 2.6.89: the hand shows the strip-size piece; the jigsaw piece is 82 x 73, the old one 74 x 52
   var HAND_W = function () { return window.innerWidth <= 560 ? 74 : 112; };
   function fitVars(v) { var st = root.style; ['--pfv-gap', '--pfv-btn', '--pfv-hw', '--pfv-hh', '--pfv-dock', '--pfv-leg'].forEach(function (k) { if (v && v[k] !== undefined) st.setProperty(k, v[k]); else st.removeProperty(k); }); }

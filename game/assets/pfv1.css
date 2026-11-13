@@ -475,14 +475,15 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 /* 2.6.89 (Josh: the piece card "too large"): the card's piece is the hand-size picture (140 x 124 now, it was 132 x 92) and the old rules stretched it to a 1.43 box at 140 px. It is a small picture beside the text: 62 px wide, its own proportion. */
 #pfight.pf-jig .pf-inspect .pfi-cv, #pfight.pf-jig.pf-v1.pfv-fit .pf-inspect .pfi-cv, #pfight.pf-jig.pf-v1.pfv-dockon .pfv-dock .pf-inspect .pfi-cv { width: 62px; height: auto; aspect-ratio: 140 / 124; max-height: none; }
 
-/* 2.6.90 (Josh: "bring these two sections together on the same line, side by side"): the piece card (the dock) and the set-aside choices share one row. The card takes the room; the choices sit to its right as a short stack (the label over the buttons). With no set-aside choice the card has the whole row. */
+/* 2.6.90 (Josh: "bring these two sections together on the same line, side by side") and 2.6.91 ("nicely placed, don't overlap, tighten them up"): the piece card (the dock) and the set-aside choices share one row. The row is exactly as tall as the card (the fit counts on that), the card takes the room, the choices sit to its right in their own box: one short line per choice (name + arrow; the long words are in the title), one column, and if there are more than fit they scroll inside their box (a swipe), so nothing is clipped, nothing overlaps what is below, and the board never gives up height for them. With no set-aside choice the card has the whole row. */
 .pf-v1 .pfv-pair { display: flex; gap: 6px; align-items: stretch; min-width: 0; }
 .pf-v1 .pfv-pair .pfv-dock { flex: 1 1 0; min-width: 0; }
-.pf-v1 .pfv-pair .pf-opts { flex: 0 1 38%; min-width: 0; flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: stretch; gap: 2px; overflow: hidden; padding: 0; max-height: var(--pfv-dock, 46px); }
+.pf-v1 .pfv-pair .pf-opts { flex: 0 0 36%; min-width: 0; display: flex; flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: stretch; gap: 3px; padding: 0; max-height: var(--pfv-dock, 46px); overflow-y: auto; overscroll-behavior: contain; scroll-snap-type: y proximity; scrollbar-width: none; }
+.pf-v1 .pfv-pair .pf-opts::-webkit-scrollbar { display: none; }
 .pf-v1 .pfv-pair .pf-opts[hidden] { display: none; }
-.pf-v1 .pfv-pair .pf-opts .pf-opts-h { width: auto; text-align: left; font-size: 10px; line-height: 11px; }
-@media (max-height: 700px) { .pf-v1 .pfv-pair .pf-opts .pf-opts-h { display: none; } }
-.pf-v1 .pfv-pair .pf-opts .btn { white-space: normal; min-height: 32px; padding: 2px 8px; line-height: 1.15; text-align: left; flex: 0 1 auto; }
+.pf-v1 .pfv-pair .pf-opts .pf-opts-h { width: auto; text-align: left; font-size: 10px; line-height: 11px; flex: 0 0 auto; }
+.pf-v1 .pfv-pair .pf-opts .btn { min-height: 32px; min-width: 0; padding: 2px 6px; font-size: 12px; line-height: 1.1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 0 0 auto; scroll-snap-align: start; }
+@media (max-height: 700px) { .pf-v1 .pfv-pair .pf-opts .pf-opts-h { display: none; } .pf-v1 .pfv-pair .pf-opts { justify-content: flex-start; } }
 /* the card is narrower beside the set-aside choices: smaller chips so they sit in fewer rows */
 .pf-jig.pf-v1 .pfv-pair .pf-inspect .pfi-ch { gap: 2px; margin-top: 1px; }
 .pf-jig.pf-v1 .pfv-pair .pf-inspect .ch { font-size: 10px; line-height: 14px; padding: 0 4px; }

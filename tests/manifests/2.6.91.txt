@@ -12559,13 +12559,13 @@ de6a8a909358ed60e27f63439946927ac58991c5  assets/paljobs.js
 514b96d12852700783ad02a67201877e83172d89  assets/pbox.js
 d7882387ef576ea888608f68fc5b5df4847dc76a  assets/pest.js
 4d05f0cc3b03144151e890fbfd82e11c2fcdb1b0  assets/pfboard.js
-100a4da43328db0de725b6734858c23607f0d490  assets/pfboardv1.js
+f5810490e245702afc47b12dbc6ae26e5395b416  assets/pfboardv1.js
 7255e52e8b9a1edf4dc8f34c2bf2979811f0c495  assets/pfdebug.js
 76e3b9384b9f2b6542eb219080e2d09fdad9633c  assets/pfight.css
 56bc56e74b3ef911cdd3caf00c3c09eb2d51160f  assets/pfight.js
 eb2215d5503ea93da4edd10ceb0e1a5ae35e7a5f  assets/pfparts.js
 8fa06b71b75c76c73390c7850f7170dc4acf0cbf  assets/pfparts47.js
-6a711a693bcc325e4a769091fd96c454ec4115ce  assets/pfv1.css
+73d9b544b3070fa9c8501d013946d8d9411112d5  assets/pfv1.css
 618c17236bc664398a4f39d2a6dd10f90f912799  assets/pfv1box.js
 81bfd29eb554564643f4a471332a54aabe7cfe40  assets/pfx.js
 729b69ea888701e8921630ca27335798c8176f3a  assets/puzzlehub.js
@@ -12642,7 +12642,7 @@ a4515e4c537462438293b18ad0d22ce8e4c816cd  includes/almanac_pages.php
 87787cfe689c016d5cd71c70ce70f2cf964e03e9  includes/animals140.php
 7c6c522b642f92eebe010d5170cd824f44d9d562  includes/arrange_view.php
 a0a095e8c8492ee8d9875ce16ced7676534ee582  includes/art_upload.php
-b23943401daef9bda086ed8130410a651d10cd3b  includes/bootstrap.php
+a5024fc53aa2bf79a756b2a81e5e29a9e6ed9fd0  includes/bootstrap.php
 bbac817fc82c639f9044f000b406d1b4a6afdf6c  includes/breeding110.php
 88577080e8893717f6a3e3b1b9407cde6b4bc670  includes/calling_quests.php
 838dafc8cf1519f8076cc1d32ece62e88f007243  includes/calling_view.php
@@ -12830,7 +12830,7 @@ bdffed39e3b06347bee274dc3d8e85bf66d6daff  includes/folk_list.php
 c311966eb703b773f88bdb84bb6a8d7de2d53102  includes/fresh_start.php
 d1e3863d4b6e8b93bd8810c0eed97574d67926b3  includes/friends.php
 78a99f40afe383bde839a076284fc384f7a15729  includes/functions.php
-809c63b4dff2c5c521f53e4495dcdaf93da91190  includes/game_clock.php
+eb3d4bb620f80b304aaffd2c14d7c23edc10477a  includes/game_clock.php
 858f431b3a94d67bfb5d97b6cc41dc5de96f11b7  includes/games.php
 92ebef61c2662792be889a95a32fa6a5b1d0a905  includes/garden_critters.php
 6010e678cda189adcf0f12ebed210184177cff0f  includes/garden_fx.php

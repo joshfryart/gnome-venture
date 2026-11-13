@@ -475,12 +475,12 @@ function gclock_freeze_pals(int $uid): void
 /**
  * Move a gnome's running pal work $secs closer to done: active jobs get started_at, ends_at and last_tick earlier (so progress,
  * passive ticks and the end time all jump ahead), and pots a pal tends get their start and ready time earlier.
- * Delve re-runs are left out: they run on real time.
+ * 2.6.91 (Josh: the pal delve "runs in real time and should run on Game Time"): delve re-runs are on game time like trips, shifts and garden stays (they used to be left out).
  * Pal-tended pots are not on the gnome's tick because a pal's cooking is checked by the real-time job code.
  */
 function gclock_shift_pal_clocks(int $uid, int $secs): void
 {
-    foreach (q("SELECT id, started_at, ends_at, last_tick FROM ppal_jobs WHERE user_id = ? AND state = 'active' AND kind <> 'delve'", [$uid])->fetchAll() as $j) {
+    foreach (q("SELECT id, started_at, ends_at, last_tick FROM ppal_jobs WHERE user_id = ? AND state = 'active'", [$uid])->fetchAll() as $j) {
         $sh = fn($v) => $v === null || $v === '' ? $v : gmdate('Y-m-d H:i:s', (int)strtotime($v . ' UTC') - $secs);
         q('UPDATE ppal_jobs SET started_at = ?, ends_at = ?, last_tick = ? WHERE id = ?', [$sh($j['started_at']), $sh($j['ends_at']), $sh($j['last_tick']), $j['id']]);
     }
