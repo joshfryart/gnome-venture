@@ -184,6 +184,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
       for (const size of ['small', 'medium', 'large', 'boss']) {
         seed('fight', size); seed('midfight', '8', '2', 'soft');
         await q.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await q.waitForTimeout(700);
+        const pct0 = await q.evaluate(() => Math.round(document.getElementById('pfb-board').getBoundingClientRect().height * 100 / innerHeight));   // before a piece is picked (picking adds the set-aside row)
         const pk = q.locator('#pf-hand .pf-tile:not(.pfv-off)'); if (await pk.count()) { await pk.first().click({ timeout: 3000 }); await q.waitForTimeout(500); }
         const m = await q.evaluate(() => { const f = document.getElementById('pfight'), ih = innerHeight, iw = innerWidth, de = document.documentElement; window.scrollTo(0, 400);
           const inV = (sel) => { const e = document.querySelector(sel); if (!e) return false; const r = e.getBoundingClientRect(); return r.height > 0 && r.top >= -1 && r.bottom <= ih + 1 && r.left >= -1 && r.right <= iw + 1; };
@@ -194,11 +195,11 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
         ck(V(`${size} board: header, history, chips, board, legend, hint, buttons and hand are all on screen; cells at least 24px; Flip is 40 to 46px high`), [m.all, m.hand, m.cell >= 24, m.flipH >= 40 && m.flipH <= 46], [[], true, true, true]);
         await q.screenshot({ path: `${out}/7-fit-${size}-${vp[0]}x${vp[1]}-${theme}.png` });
         // 2.6.76: no dead bands. The sections from the chips down are packed (no gap over 24px between the boxes of the header, chips, board, Next strip, hint, buttons, hand), the board takes the height there is
-        const lay = await q.evaluate(() => { const ih = innerHeight, rs = ['.pfc-top', '#pfv-row', '#pfb-board', '#pfv-legend', '#pf-preview', '.pf-buttons', '#pf-hand'].map(s => { const r = document.querySelector(s).getBoundingClientRect(); return [s, r.top, r.bottom]; }).sort((a, b) => a[1] - b[1]);
+        const lay = await q.evaluate(() => { const ih = innerHeight, rs = ['.pfc-top', '.pfc-histrow', '#pfv-row', '#pfb-board', '#pfv-legend', '.pf-opts', '#pf-preview', '.pf-buttons', '#pf-hand'].map(s => { const r = document.querySelector(s).getBoundingClientRect(); return [s, r.top, r.bottom, r.height]; }).filter(r => r[3] > 0).sort((a, b) => a[1] - b[1]);
           const bd = document.getElementById('pfb-board').getBoundingClientRect(), wr = document.querySelector('.pfv-bwrap').getBoundingClientRect(), hd = document.getElementById('pf-hand').getBoundingClientRect(), ft = document.getElementById('pfight').getBoundingClientRect();
           return { gaps: rs.slice(1).map((r, i) => [r[0], Math.round(r[1] - rs[i][2])]).filter(g => g[1] > 24 || g[1] < -1), pct: Math.round(bd.height * 100 / ih), roomLeft: Math.round(wr.height - bd.height), handBottomGap: Math.round(ft.bottom - hd.bottom) }; });
         ck(V(`${size} board: no gap over 24px between header, chips, board, Next strip, hint, buttons and hand`), lay.gaps, []);
-        if (vp[1] >= 800) ck(V(`${size} board: the board is at least 45% of the window height on a tall phone (${lay.pct}%)`), lay.pct >= 45, true);
+        if (vp[1] >= 800) ck(V(`${size} board: the board is at least 45% of the window height on a tall phone (${pct0}%)`), pct0 >= 45, true);
         ck(V(`${size} board: the room under or over the board (width limits it) is at most 48px in all (${lay.roomLeft})`), lay.roomLeft <= 48 || vp[0] > 1000, true);
         const wasInsp = await q.evaluate(() => { const t = document.querySelector('#pfb-board .pfb-tap'); if (t) t.click(); const i = document.getElementById('pf-inspect'), h = document.getElementById('pf-hand').getBoundingClientRect(), ib = i.getBoundingClientRect(), bd = document.getElementById('pfb-board').getBoundingClientRect(); return { open: !i.hidden, over: ib.bottom <= h.top + 1, inBoardRoom: ib.top >= bd.top - 60 && ib.bottom <= bd.bottom + 60, doc: document.documentElement.scrollHeight <= innerHeight }; });
         await q.waitForTimeout(150); if (wasInsp.open) await q.screenshot({ path: `${out}/7-insp-${size}-${vp[0]}x${vp[1]}-${theme}.png` });

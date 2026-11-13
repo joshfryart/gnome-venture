@@ -81,7 +81,10 @@
       'They count for the chain like any piece: a chain of ' + (V1.limit || 3) + ' or more uses them up.'], who: 'Same rules for you and the creature.' };
   }
   function envTurnNote() { var n = ENVD.n || V1.envn || 2; return 'Environment turn. It puts ' + (n === 1 ? 'its piece' : 'its ' + n + ' pieces') + ' on the board. Nothing fires on its turn.'; }
-  function envTurnSub() { var n = ENVD.n || V1.envn || 2; return 'it places ' + (n === 1 ? 'a piece' : n + ' pieces'); }
+  function envTurnSub() { var n = ENVD.n || V1.envn || 2; return 'the environment places ' + (n === 1 ? 'a piece' : n + ' pieces') + ', not the creature'; }
+  // 2.6.76: notices (Quick, a lost turn, a trip, the opening): short plain words for the banner, the message line and the row
+  function foeSub() { var q = (data.replay || []).filter(function (e) { return e.note === 'quick' || e.note === 'slow'; })[0]; return q ? (q.note === 'slow' ? 'loses its turn' : (q.n ? q.n + ': ' : '') + 'Quick, plays a second piece') : ''; }
+  function meSub() { return data.tripped ? 'Tripped: you drew 1 fewer piece' : (data.opened && root.dataset.turn === '1' ? 'the ' + (data.foe || 'creature') + ' opened with ' + data.opened + ' piece' + (data.opened === 1 ? '' : 's') : ''); }
   /** a piece drawn on a canvas: the vector icons above, painted with Path2D */
   function glyph(g, k, x, y, size, col) {
     var re = /<(circle|path)([^>]*)\/>/g, m, sc = size / 16;
@@ -233,6 +236,7 @@
       dispEnvs().forEach(function (e, k) { if (phase === 'pre' && envDone[k]) return; h += '<button type="button" class="tg ev" data-ev="' + k + '">' + svg(EVG[e.kind]) + (e.kind === 'gust' && e.on ? 'Gust: pushes ' + esc(e.on.n) : EVN[e.kind]) + '</button>'; });
       if (st.poison) h += '<span class="tg bad">poisoned ' + st.poison + '</span>';
       if (st.slowdraw) h += '<span class="tg bad">tripped: draw −1</span>';
+      else if (data.tripped) h += '<span class="tg bad" title="The creature tripped you: you drew one fewer piece this turn">tripped: drew 1 fewer</span>';
       if (st.foe_evade) h += '<span class="tg bad">it dodges your next hit</span>';
       if (st.foe_thorns) h += '<span class="tg bad">thorny guard</span>';
       if (st.foe_bash) h += '<span class="tg bad">bash waits</span>';
@@ -411,8 +415,8 @@
   function fitBoard() {
     if (!wrapEl || !fitTW || !root.classList.contains('pfv-fit')) return;
     var r = wrapEl.getBoundingClientRect(); if (r.height < 30 || r.width < 30) return;
-    // 2.6.76: the board takes ALL the height there is. A wide board on a tall phone is limited by the width, so its rows grow taller than the pieces' own proportion (up to 2.3x, a stretch the pixel art takes well) instead of leaving a dead band above and under it; a board that is limited by the height gets narrower.
-    var ar = fitTW / fitTH, w = Math.floor(Math.min(r.width, r.height * ar, fitTW * 1.7)), h = Math.floor(Math.min(r.height, w / ar * 2.3));
+    // 2.6.76: the board takes ALL the height there is. A wide board on a tall phone is limited by the width, so its rows grow taller than the pieces' own proportion (up to 2.6x, a stretch the pixel art takes well) instead of leaving a dead band above and under it; a board that is limited by the height gets narrower.
+    var ar = fitTW / fitTH, w = Math.floor(Math.min(r.width, r.height * ar, fitTW * 1.7)), h = Math.floor(Math.min(r.height, w / ar * 2.6));
     boardEl.style.maxWidth = 'none'; boardEl.style.aspectRatio = 'auto'; boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px';
   }
   function refit() { if (window.pfvFrame) window.pfvFrame(); fitBoard(); fan(); }
@@ -767,7 +771,7 @@
     prev.textContent = offMsg && !playing && !rewind ? offMsg : stepNote && playing ? stepNote : sel && !redrawMode && !data.start && !Object.keys(lit).length && data.hand[selected].canflip ? sel.dataset.name + ' fits nowhere this way up. Flip it.' : data.start && !rewind && !playing ? (sel ? sel.dataset.name + ': pick a side of \u2726. Nothing fires.' : moves.length ? 'Start piece chosen. Confirm start when ready.' : 'Opening: pick a piece, then a side of \u2726. Nothing fires; the creature picks its side too, hidden.') : rewind ? 'Rewound. Nothing can be played until you go back to now.' : playing ? 'Watch the chain: each piece is scored in turn.' : data.won ? 'It is over. End the fight to collect your reward.' : redrawMode ? 'Tap the piece to swap for a fresh one.'
       : sel ? sel.dataset.name + ': ' + sel.dataset.desc.split('. ')[0] + '. Pick a lit spot' + (hasJoin ? ' or set it aside.' : '.') + ' The number is what your own chain does.' + (data.hand[selected].tool ? ' Tool piece: \u2212' + (data.toolwear || 2) + ' durability when played.' : '') + (data.flip && data.flip.used && !data.hand[selected].canflip ? ' Your flip is used this turn.' : '')
       : selected === 'group' ? hintText || 'Pick a lit spot for the group.'
-      : moves.length === 0 ? (fits ? (!mustLink(baseBoard(), handEdges()) && baseBoard().count ? 'Nothing can connect, so you may place a piece anywhere it fits.' : root.dataset.turn === '1' ? 'Win two ways: Hurt empties its health, Charm fills the charm bar.' : 'Pick a piece, then a lit spot. One piece a turn.') : 'Nothing fits. You can pass.')
+      : moves.length === 0 ? (fits ? (!anyFits() ? 'No piece fits this way up. Pick one and Flip it.' : !mustLink(baseBoard(), handEdges()) && baseBoard().count ? 'Nothing can connect, so you may place a piece anywhere it fits.' : root.dataset.turn === '1' ? (data.opened ? 'The creature opened with ' + data.opened + ' piece' + (data.opened === 1 ? '' : 's') + '. ' : '') + 'Hurt empties its health, Charm fills the bar.' : 'Pick a piece, then a lit spot. One piece a turn.') : 'No piece fits. Tap End turn to pass.')
       : moves[0].k === 'j' || moves[0].k === 'h' ? 'Set aside for a later turn. End turn when ready.'
       : 'Placed. End turn when ready.';
     prev.title = prev.textContent;
@@ -899,7 +903,7 @@
   function setHp(v) { var pr = root.querySelector('.pfc-top .pf-hp progress'); if (pr) pr.value = v; }
   function afterLeave() {   // everything has scored and the old pieces are gone: the board adds a creature piece if it is short, growing into place
     showGone = false; fxOn = true; replayDone(); render();
-    if (!data.won && SPD) showTurn('Your turn', 'me');
+    if (!data.won && SPD) showTurn('Your turn', 'me', meSub());
     if (hideSpawn) { hideSpawn = false; animateSpawn = true; render(); animateSpawn = false; }
   }
   function stopPlay(skipped) {
@@ -931,7 +935,7 @@
       if (side !== lastBy) {
         if (lastBy === 'me' || lastBy === 'foe') tt = useUpStep(lastBy, tt);   // v1: the pieces that side's chain used up leave before the next turn
         lastBy = side;
-        (function (by, at) { playTimers.push(setTimeout(function () { stepNow = by === 'me' ? 0 : by === 'foe' ? 1 : 2; stepNote = by === 'env' ? (ENV ? envTurnNote() : 'Terrain turn. The marked events land in order, then bramble pricks, then old pieces expire.') : by === 'foe' ? (PREV && PREV.aim ? 'The ' + foeName + ' aims ' + PREV.aim.n + ' at the marked cell.' : 'The ' + foeName + ' looks for a spot.') : ''; render(); if (by === 'env') showTurn(ENV ? 'Environment turn' : 'Terrain turn', 'env', ENV ? envTurnSub() : 'events land, then bramble pricks'); else showTurn(by === 'me' ? 'Your turn' : foeName + "'s turn", by === 'me' ? 'me' : 'foe'); }, at)); })(side, tt);
+        (function (by, at) { playTimers.push(setTimeout(function () { stepNow = by === 'me' ? 0 : by === 'foe' ? 1 : 2; stepNote = by === 'env' ? (ENV ? envTurnNote() : 'Terrain turn. The marked events land in order, then bramble pricks, then old pieces expire.') : by === 'foe' ? (PREV && PREV.aim ? 'The ' + foeName + ' aims ' + PREV.aim.n + ' at the marked cell.' : 'The ' + foeName + ' looks for a spot.') : ''; render(); if (by === 'env') showTurn(ENV ? 'Environment turn' : 'Terrain turn', 'env', ENV ? envTurnSub() : 'events land, then bramble pricks'); else showTurn(by === 'me' ? 'Your turn' : foeName + "'s turn", by === 'me' ? 'me' : 'foe', by === 'foe' ? foeSub() : ''); }, at)); })(side, tt);
         tt += BAN;
       }
       playTimers.push(setTimeout(function () {
@@ -1104,7 +1108,7 @@
       hintTimer = setTimeout(function () { if (barHint) barHint.hidden = true; barEl.classList.remove('pf-barglow'); }, 7000);
     }
   }
-  if (!(data.replay && data.replay.length) && root.dataset.turn === '1' && !data.won) setTimeout(function () { showTurn('Your turn', 'me'); }, 250);
+  if (!(data.replay && data.replay.length) && root.dataset.turn === '1' && !data.won) setTimeout(function () { showTurn('Your turn', 'me', meSub()); }, 250);
   window.pfbLegal = legal;   // for the parity test
   window.pfbStrict = function (b, e, hand) { var must = mustLink(b, hand), o = []; for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) { var f = fitInfo(b, e, x, y); if (f >= 0 && (!must || f === 1)) o.push(x + ',' + y); } return o; };
   render();

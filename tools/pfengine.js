@@ -1225,6 +1225,8 @@
 
   function foeLen(s) { return Math.max(0, Math.min(s.foe.hand.length, 1 - toInt(s.foe.slow))); }
 
+  function note(kind, n) { return { by: 'foe', note: kind, k: 'note', n: n === undefined ? '' : n, t: 'note', tag: '', v: 0, fit: false, combo: null }; }   // 2.6.76: a notice event (pfb_note)
+
   function foeTurn(s) {
     var ev = [];
     begin(s, 'foe');
@@ -1235,6 +1237,7 @@
       ev.push({ by: 'me', tag: 'poison', k: 'poison', n: 'Poison', t: 'hurt', v: iround(add), fit: false, combo: null, tick: true });
       if (checkEnd(s)) return ev;
     }
+    if (s.v1 && truthy(s.v1.tags) && toInt(s.foe.slow) > 0 && s.foe.hand.length) ev.push(note('slow'));
     var n = foeLen(s), again = false; s.lastfoe = [];
     if (s.v1 && truthy(s.v1.tags)) s.foe.again = 0;
     if (s.v1) s.reaim = 0;
@@ -1248,7 +1251,7 @@
         r = place(s, 'foe', m[0], m[1], m[2]);
       }
       if (r) { ev = ev.concat(r); s.lastfoe.push(s.pid); }
-      if (truthy(s.foe.again)) { if (!again) { again = true; n++; } s.foe.again = 0; }   // a Quick piece: one more piece this turn (once)
+      if (truthy(s.foe.again)) { if (!again) { again = true; n++; if (s.v1 && truthy(s.v1.tags) && r && r.length) ev.push(note('quick', String(nn(r[0].n, '')))); } s.foe.again = 0; }   // a Quick piece: one more piece this turn (once)
     }
     s.foe.agg = 0; s.foe.slow = 0;
     return ev;
@@ -1272,7 +1275,7 @@
       s.w = v1.w; s.h = v1.h; delete v1.w; delete v1.h; s.v1 = v1;
       v1Tiles(s, c); seedGround(s); s.envs = []; s.envlog = []; s.reaim = 0; s.me.flipt = 0;
       if (v1.env) { s.env = { draw: shuffle(s, envDeck(s.size, String(nn(c.region, '')))), discard: [], next: [] }; envDraw(s); }   // 2.6.75: the environment's deck
-      if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.me.slowdraw = 0; s.foe.bashnext = 0; s.foe.again = 0; }
+      if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.me.slowdraw = 0; s.me.tripped = 0; s.foe.bashnext = 0; s.foe.again = 0; }
     }
     if (opt && truthy(opt.blank)) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see start)
       s.pid = 1; s.seq = 1; var cx = intdiv(pfbW(s), 2), cy = intdiv(pfbH(s), 2);
@@ -1342,7 +1345,7 @@
         if (s.me.poison === 0) s.me.poison_v = 0;
         if (checkEnd(s)) return;
       }
-      slow = truthy(s.me.slowdraw) ? 1 : 0; s.me.slowdraw = 0;
+      slow = truthy(s.me.slowdraw) ? 1 : 0; s.me.slowdraw = 0; s.me.tripped = slow;
     }
     var gone = expire(s);
     if (s.v1 && truthy(s.v1.env)) { var eg = gone.filter(function (p) { return p.by === 'env'; }).map(function (p) { return p.id; }); if (eg.length) s.envlog.push({ k: 'expire', x: null, y: null, me: 0, foe: 0.0, ids: eg }); }   // 2.6.75
@@ -1400,8 +1403,10 @@
     ev.forEach(function (e0) { e0.ta = 'me'; });
     if (dry) return { ev: ev, err: null, bar: round(w.bar.now, 1), max: w.bar.max, fh: round(w.fh.now, 1), fhmax: w.fh.max, hp: w.me.hp, block: w.me.block, over: w.over };
     if (!w.over) { var fe = foeTurn(w); fe.forEach(function (e0) { e0.ta = 'foe'; }); ev = ev.concat(fe); }
+    var trip = !w.over && w.v1 && truthy(w.v1.tags) && truthy(w.me.slowdraw);
     if (!w.over) endRound(w);
     if (w.v1) ev = ev.concat(envEvents(w));
+    if (trip && !w.over) { var tn = note('trip'); tn.ta = ev.length ? String(nn(ev[ev.length - 1].ta, 'foe')) : 'foe'; ev.push(tn); }
     w.fx = fx(ev);
     w.log.push({ turn: s.turn, n: 1 });
     assignInto(s, w);
@@ -1422,8 +1427,10 @@
     if (w.v1) w.envlog = [];
     var ev = foeTurn(w); ev.forEach(function (e0) { e0.ta = 'foe'; });
     w.fx = fx(ev);
+    var trip = !w.over && w.v1 && truthy(w.v1.tags) && truthy(w.me.slowdraw);
     if (!w.over) endRound(w);
     if (w.v1) ev = ev.concat(envEvents(w));
+    if (trip && !w.over) { var tn = note('trip'); tn.ta = ev.length ? String(nn(ev[ev.length - 1].ta, 'foe')) : 'foe'; ev.push(tn); }
     assignInto(s, w);
     return { ev: ev, err: null };
   }
@@ -1492,6 +1499,7 @@
     if (e.env !== undefined && e.env !== null) return envLine(e, foe);   // v1: a terrain event
     if (truthy(e.connect)) return '🧩 You set ' + e.n + ' aside, joined (' + toInt(e.size) + ' pieces).';
     if (truthy(e.tick)) return '🧪 The poison works on the ' + foe + ' (+' + toInt(e.v) + ').';
+    if (e.note !== undefined && e.note !== null) return noteLine(e, foe);
     var who = e.by === 'me' ? 'You play' : 'The ' + foe + ' plays';
     var bits = [];
     if (truthy(e.combo)) bits.push('✨ ' + e.combo);
@@ -1506,7 +1514,15 @@
       case 'charm': tail = ' (' + toInt(e.v) + ')'; break;
       default: tail = '';
     }
+    if (e.ta && e.ta !== e.by && (e.ta === 'me' || e.ta === 'foe') && (e.by === 'me' || e.by === 'foe')) who = e.ta === 'me' ? 'Your chain fires the ' + foe + '\u2019s' : 'The ' + foe + '\u2019s chain fires your';   // 2.6.76: a chain through the other side's piece
     return (e.by === 'me' ? '🧩 ' : '💥 ') + who + ' ' + e.n + tail + (bits.length ? ' · ' + bits.join(', ') : '') + '.';
+  }
+  function noteLine(e, foe) {
+    switch (e.note) {
+      case 'quick': return '\u26A1 ' + (e.n ? e.n + ': ' : '') + 'Quick. The ' + foe + ' plays a second piece.';
+      case 'slow': return '\u23F3 The ' + foe + ' loses its turn.';
+      default: return '\uD83E\uDDB6 Tripped: you draw 1 fewer piece next turn.';
+    }
   }
 
   /** One history chip for one scored event (board mode). snapId = the snapshot index the page keeps for the rewind. */
@@ -1519,6 +1535,7 @@
       var ep = []; if (truthy(e.me)) ep.push('you -' + toInt(e.me) + ' hp'); if (truthy(e.foe)) ep.push('creature -' + iround(Number(e.foe)) + ' hp');
       return ext({ by: 'env', types: ['env'], tags: [String(nn(e.kind, e.env))], txt: String(e.n) + (ep.length ? ': ' + ep.join(' · ') : ''), tg: truthy(e.me) ? 'me' : (truthy(e.foe) ? 'foe' : null) });
     }
+    if (e.note !== undefined && e.note !== null) return ext({ by: 'foe', types: ['note'], tags: [String(e.note)], txt: e.note === 'quick' ? '\u26A1 Quick: plays 2' : e.note === 'slow' ? '\u23F3 loses its turn' : '\uD83E\uDDB6 you draw 1 fewer', tg: null });
     var parts = [], tg = 'foe', by = String(nn(e.by, 'me')), t = String(nn(e.t, 'hurt'));
     if (truthy(e.tick)) parts.push('-' + toInt(e.v) + ' hp');
     else if (by === 'me') {

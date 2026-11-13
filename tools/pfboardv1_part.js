@@ -57,7 +57,10 @@
       'They count for the chain like any piece: a chain of ' + (V1.limit || 3) + ' or more uses them up.'], who: 'Same rules for you and the creature.' };
   }
   function envTurnNote() { var n = ENVD.n || V1.envn || 2; return 'Environment turn. It puts ' + (n === 1 ? 'its piece' : 'its ' + n + ' pieces') + ' on the board. Nothing fires on its turn.'; }
-  function envTurnSub() { var n = ENVD.n || V1.envn || 2; return 'it places ' + (n === 1 ? 'a piece' : n + ' pieces'); }
+  function envTurnSub() { var n = ENVD.n || V1.envn || 2; return 'the environment places ' + (n === 1 ? 'a piece' : n + ' pieces') + ', not the creature'; }
+  // 2.6.76: notices (Quick, a lost turn, a trip, the opening): short plain words for the banner, the message line and the row
+  function foeSub() { var q = (data.replay || []).filter(function (e) { return e.note === 'quick' || e.note === 'slow'; })[0]; return q ? (q.note === 'slow' ? 'loses its turn' : (q.n ? q.n + ': ' : '') + 'Quick, plays a second piece') : ''; }
+  function meSub() { return data.tripped ? 'Tripped: you drew 1 fewer piece' : (data.opened && root.dataset.turn === '1' ? 'the ' + (data.foe || 'creature') + ' opened with ' + data.opened + ' piece' + (data.opened === 1 ? '' : 's') : ''); }
   /** a piece drawn on a canvas: the vector icons above, painted with Path2D */
   function glyph(g, k, x, y, size, col) {
     var re = /<(circle|path)([^>]*)\/>/g, m, sc = size / 16;
@@ -209,6 +212,7 @@
       dispEnvs().forEach(function (e, k) { if (phase === 'pre' && envDone[k]) return; h += '<button type="button" class="tg ev" data-ev="' + k + '">' + svg(EVG[e.kind]) + (e.kind === 'gust' && e.on ? 'Gust: pushes ' + esc(e.on.n) : EVN[e.kind]) + '</button>'; });
       if (st.poison) h += '<span class="tg bad">poisoned ' + st.poison + '</span>';
       if (st.slowdraw) h += '<span class="tg bad">tripped: draw −1</span>';
+      else if (data.tripped) h += '<span class="tg bad" title="The creature tripped you: you drew one fewer piece this turn">tripped: drew 1 fewer</span>';
       if (st.foe_evade) h += '<span class="tg bad">it dodges your next hit</span>';
       if (st.foe_thorns) h += '<span class="tg bad">thorny guard</span>';
       if (st.foe_bash) h += '<span class="tg bad">bash waits</span>';
@@ -387,8 +391,8 @@
   function fitBoard() {
     if (!wrapEl || !fitTW || !root.classList.contains('pfv-fit')) return;
     var r = wrapEl.getBoundingClientRect(); if (r.height < 30 || r.width < 30) return;
-    // 2.6.76: the board takes ALL the height there is. A wide board on a tall phone is limited by the width, so its rows grow taller than the pieces' own proportion (up to 2.3x, a stretch the pixel art takes well) instead of leaving a dead band above and under it; a board that is limited by the height gets narrower.
-    var ar = fitTW / fitTH, w = Math.floor(Math.min(r.width, r.height * ar, fitTW * 1.7)), h = Math.floor(Math.min(r.height, w / ar * 2.3));
+    // 2.6.76: the board takes ALL the height there is. A wide board on a tall phone is limited by the width, so its rows grow taller than the pieces' own proportion (up to 2.6x, a stretch the pixel art takes well) instead of leaving a dead band above and under it; a board that is limited by the height gets narrower.
+    var ar = fitTW / fitTH, w = Math.floor(Math.min(r.width, r.height * ar, fitTW * 1.7)), h = Math.floor(Math.min(r.height, w / ar * 2.6));
     boardEl.style.maxWidth = 'none'; boardEl.style.aspectRatio = 'auto'; boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px';
   }
   function refit() { if (window.pfvFrame) window.pfvFrame(); fitBoard(); fan(); }
