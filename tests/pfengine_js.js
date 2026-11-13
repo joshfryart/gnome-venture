@@ -86,6 +86,8 @@ for (const ln of lines.slice(1)) {
       const fo = s.foe.name;
       if (fail(c + ' lines', st.lines, res.ev.map(e => PFE.line(e, fo)), 'lines') || fail(c + ' chips', st.chips, res.ev.map((e, k) => PFE.chipEvent(e, k)), 'chips') || fail(c + ' chips board', st.chipsb, PFE.chipsBoard(res.ev), 'chipsb')) { stop = true; return; }
     }
+    if (s.v1 && !s.over && ((s.cm > 0 && PFE.round(s.bar.now, 1) >= s.bar.max) || PFE.round(s.fh.now, 1) >= s.fh.max || s.me.hp <= 0)) { bad++; if (bad <= 12) console.log('FAIL ' + c + ': a full bar (or no health) and the fight is not over'); }   // 2.6.78: the bars as shown and the engine agree
+    if (s.v1 && !s.over && !st.dry && res.ev) res.ev.forEach(e => { if (e.barnow !== undefined && ((s.cm > 0 && e.barnow >= s.bar.max) || e.fhnow >= s.fh.max || e.hpnow <= 0)) { bad++; if (bad <= 12) console.log('FAIL ' + c + ': an event shows a full bar and the fight goes on'); } });
     if (fail(c + ' view', st.view, slim(PFE.view(s)), 'view') || fail(c + ' hidden state', st.dg, digest(s), 'dg') || fail(c + ' over/fx', [st.over, st.fx], [s.over, s.fx === undefined ? null : s.fx], 'over_fx')) stop = true;
   });
   if (!stop) fail(ctx + ' final state', rec.final, ns(s), 'final');

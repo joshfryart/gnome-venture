@@ -5,7 +5,7 @@
 # no console error, the replay of the last turn plays (banners, the bar reaching full) BEFORE the end scene, and a reload after the end still lands on the result.
 # Usage: tests/pfv1_charm.sh [PORT]
 HERE=$(cd "$(dirname "$0")" && pwd); ROOT=$(cd "$HERE/.." && pwd)
-PORT=${1:-8811}; T=$(mktemp -d); cp -r "$ROOT/game" "$T/game"; GAME=$T/game
+PORT=${1:-8811}; T=$(mktemp -d); cp -r "${SRC:-$ROOT/game}" "$T/game"; GAME=$T/game
 rm -f "$GAME/config.php"; rm -rf "$GAME/data"; mkdir -p "$GAME/data"
 BASE=http://127.0.0.1:$PORT; LOG=$(mktemp)
 php -d session.save_path=/tmp -d display_errors=1 -S 127.0.0.1:$PORT -t "$GAME" "$HERE/router.php" >$LOG 2>&1 & PID=$!; sleep 1

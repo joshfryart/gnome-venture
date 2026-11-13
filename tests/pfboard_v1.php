@@ -320,7 +320,7 @@ $s = pfb_new(v1_me(), v1_foe('large'), 5, ['v1' => ['foe_x' => 2, 'bar_x' => 0.5
 chk('sim knobs foe_x / bar_x scale the size numbers', abs($s['v1']['foe'] - 2 * PFB_V1_FOE_MULT['large']) < 1e-9 && abs($s['v1']['bar'] - 0.5 * PFB_V1_BAR_MULT['large']) < 1e-9);
 
 echo "== 11. whole fights: invariants, save and load\n";
-$n = 0; $fail = []; $over = []; $turns = []; $evs = ['env' => 0, 'used' => 0, 'tw' => 0, 'sun' => 0, 'flip' => 0, 'reaim' => 0, 'old terrain' => 0, 'place' => 0, 'pass' => 0, 'expire' => 0, 'push' => 0, 'env used up' => 0, 'reshuffle' => 0, 'mud weakens' => 0];
+$n = 0; $fail = []; $over = []; $turns = []; $evs = ['bar full ends' => 0, 'charm win' => 0, 'env' => 0, 'used' => 0, 'tw' => 0, 'sun' => 0, 'flip' => 0, 'reaim' => 0, 'old terrain' => 0, 'place' => 0, 'pass' => 0, 'expire' => 0, 'push' => 0, 'env used up' => 0, 'reshuffle' => 0, 'mud weakens' => 0];
 foreach (['sun', 'bramble', 'rain', 'wind', 'thorn'] as $ek) { $evs["me fires $ek"] = 0; $evs["creature fires $ek"] = 0; }
 $regs = array_keys(pfb_env_table()['regions']);
 foreach ($rows as $ci => $c) foreach ([0, 1, 2] as $k) {
@@ -346,6 +346,11 @@ foreach ($rows as $ci => $c) foreach ([0, 1, 2] as $k) {
             if (in_array($en, ['place', 'pass', 'expire'], true)) { $evs[$en]++; if ($e['ta'] !== 'env' || isset($e['barnow']) === false) $fail[] = "$tag: env turn event shape"; }
             if ($en === 'fire') { $evs[($e['for'] === 'me' ? 'me' : 'creature') . ' fires ' . $e['kind']]++; if (isset($e['moved'])) $evs['push']++; if ($e['by'] !== 'env' || !in_array($e['ta'], ['me', 'foe'], true) || !isset($e['id'])) $fail[] = "$tag: env fire event shape"; }
         }
+        // 2.6.78 (Josh: "the charm bar fills but the fight does not end"): the bars as SHOWN (one decimal, the replay's barnow / fhnow) and the engine agree after every action: a full bar, an empty creature or no health left means the fight is over; and no event shows a full bar while the fight goes on
+        $fullNow = ($s['cm'] > 0 && round((float)$s['bar']['now'], 1) >= $s['bar']['max']) || round((float)$s['fh']['now'], 1) >= $s['fh']['max'] || $s['me']['hp'] <= 0;
+        if ($fullNow && !$s['over']) $fail[] = "$tag turn {$s['turn']}: the bar reads full (or you are out of health) and the fight is not over";
+        if (!$s['over']) foreach ($r['ev'] as $e) if (isset($e['barnow']) && (($s['cm'] > 0 && $e['barnow'] >= $s['bar']['max']) || $e['fhnow'] >= $s['fh']['max'] || $e['hpnow'] <= 0)) $fail[] = "$tag turn {$s['turn']}: an event shows a full bar or no health and the fight goes on";
+        $evs['bar full ends']++; if ($s['over'] === 'charmed') $evs['charm win']++;
         foreach ($s['gone'] ?? [] as $g) if ($g['by'] === 'env' && isset($g['used'])) $evs['env used up']++;
         if (!$old && $t > 1 && count($s['env']['draw']) > $ed0) $evs['reshuffle']++; if (!$old) $ed0 = count($s['env']['draw']);
         foreach ($r['ev'] as $e) { if (isset($e['env'])) $evs['env']++; if (isset($e['mud'])) $evs['mud weakens']++; if (isset($e['used'])) $evs['used']++; if (isset($e['tw'])) $evs['tw']++; if (isset($e['sun'])) $evs['sun']++; if (!isset($e['ta'])) $fail[] = "$tag: an event without ta"; }
@@ -381,6 +386,30 @@ foreach ($rows as $ci => $c) foreach ([0, 1, 2] as $k) {
 chk("$n whole v1 fights (every creature, two decks, saved and loaded mid-fight): pieces on the board, cell map, deck count, ground, views", !$fail, array_slice($fail, 0, 5));
 chk('those fights use every rule (environment pieces placed, kept back, fired by both sides in every kind, pushed, used up, expired, reshuffled; use-up, Teamwork, flips, re-aims; the 2.6.74 terrain in its fights)', !array_filter($evs, fn($x) => $x < 1), $evs);
 echo '     ' . json_encode($over) . ' avg turns ' . round(array_sum($turns) / max(1, count($turns)), 1) . ' ' . json_encode($evs) . "\n";
+
+echo "== 11b. the charm bar ends the fight the moment it reads full (2.6.78)\n";
+$s = v1_bare('small'); $s['bar']['max'] = 20.7; $s['bar']['now'] = 20.66; $s['cm'] = 1.0; $r = pf_check_end($s);
+chk('v1: a bar at 20.66 of 20.7 reads 20.7 (full) and the fight is won over', $r && $s['over'] === 'charmed', $s['over']);
+$s = v1_bare('small'); $s['bar']['max'] = 20.7; $s['bar']['now'] = 20.6; $s['cm'] = 1.0;
+chk('v1: a bar at 20.6 of 20.7 is not full: the fight goes on', !pf_check_end($s) && !$s['over']);
+$s = v1_bare('small'); $s['fh']['now'] = $s['fh']['max'] - 0.04;
+chk('v1: a creature with 0.04 of its health left reads empty (the shown number) and is seen off', pf_check_end($s) && $s['over'] === 'seen_off', $s['over']);
+$s = pfb_new(v1_me(), v1_foe('small'), 5, []); $s['bar']['max'] = 20.7; $s['bar']['now'] = 20.66; $s['cm'] = 1.0;
+chk('flag off: the old exact comparison (20.66 of 20.7 is not full)', !pf_check_end($s) && !$s['over']);
+$nCh = 0; $okCh = true; $badCh = '';
+for ($sd = 1; $sd <= 60; $sd++) {   // a player who plays charm first: after every action, a full bar means the fight is over
+    $s = pfb_new(v1_me(10), v1_foe(['small', 'medium'][$sd % 2], 6 + $sd % 5), 900 + $sd, ['v1' => true, 'blank' => true]); pfb_start($s, 0, 'LRTB'[$sd % 4]);
+    for ($t = 0; $t < 30 && !$s['over']; $t++) {
+        foreach (array_keys($s['me']['hand']) as $i) if ($s['me']['hand'][$i]['t'] !== 'charm' && $i % 2) $s['me']['hand'][$i] = pfb_v1_tile(pf_make_tile('charm', ['level' => 10]), $s['v1']);   // charm in the hand, always
+        $best = null; foreach ($s['me']['hand'] as $i => $h) foreach (pfb_cell_preview($s, $i) as $key => $q) { $sc = ($q['ch'] ?? 0) * 10 + ($q['dmg'] ?? 0); if ($best === null || $sc > $best[0]) $best = [$sc, $i, $key]; }
+        $r = $best ? pfb_play($s, [[$best[1], ...array_map('intval', explode(',', $best[2]))]], $s['turn']) : pfb_pass($s, $s['turn']); if ($r['err']) break;
+        $full = round((float)$s['bar']['now'], 1) >= $s['bar']['max'];
+        if ($full && !$s['over']) { $okCh = false; $badCh = "seed $sd turn $t bar {$s['bar']['now']} / {$s['bar']['max']}"; }
+        if (!$s['over']) foreach ($r['ev'] as $e) if (isset($e['barnow']) && $e['barnow'] >= $s['bar']['max']) { $okCh = false; $badCh = "seed $sd: event shows a full bar"; }
+    }
+    if ($s['over'] === 'charmed') $nCh++;
+}
+chk("60 fights of a charm-first player: never a full bar with the fight still on ($nCh charm wins)", $okCh && $nCh >= 10, $badCh ?: "only $nCh charm wins");
 
 echo "== 12. page wiring (no DB): moves, lines\n";
 chk('pfight_parse_moves still reads the four old moves', pfight_parse_moves('1,2,3') === [[1, 2, 3]] && pfight_parse_moves('c,1,2') === [['c', 1, 2]] && pfight_parse_moves('f,1') === null);
