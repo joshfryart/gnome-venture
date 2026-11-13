@@ -54,22 +54,77 @@ const VERBOSE = !!process.env.VERBOSE;
     }
     console.log('charm: done'); await b.close(); process.exit(fails ? 1 : 0);
   }
-  const variants = (process.env.VARIANTS || 'plain,near,defeat').split(',');
-  for (const sp of (process.env.SPEEDS || '1').split(',')) for (const var_ of variants) for (const sd of (process.env.SEEDS || '7,8').split(',')) {
-    seed('fight', 'small'); const info = seed('charm', sd, var_); await speed(sp); await open(); reset();
-    if (VERBOSE) console.log('---', var_, sd, 'speed', sp, info);
-    const trail = [];
-    for (let turn = 0; turn < 6; turn++) {
-      const s0 = await st().catch(() => null); if (!s0 || s0.res) break;
-      const n = await p.locator('#pf-hand .pf-tile').count(); let did = 'nolit';
-      for (let i = 0; i < n && did === 'nolit'; i++) did = await playOne(i);
-      if (did === 'nolit') { await p.click('#pf-pass').catch(() => {}); }
-      const s = await settle(); trail.push(`${did} -> ${JSON.stringify(s)}`);
-      if (s.res) break;
+  // ---- what the page does from the click on Play until it is quiet: when the replay runs, which banners show, how the charm bar fills, when the result card appears
+  const sample = () => p.evaluate(() => { const f = document.getElementById('pfight'); if (!f) return null; const r = document.getElementById('pfv-res'), b = document.querySelector('.pfx-fill.charm'), tn = document.querySelector('.pf-turn:not([hidden])');
+    return { mark: window.__mark || null, playing: f.classList.contains('pf-playing'), wait: f.classList.contains('pfv-endwait'), res: !!r && getComputedStyle(r).display !== 'none' && r.getBoundingClientRect().height > 0, bar: b ? b.style.width : null, banner: tn ? tn.textContent.trim() : '' }; }).catch(() => null);
+  async function playAndWatch(i) {
+    await p.locator('#pf-hand .pf-tile').nth(i).click(); await p.waitForTimeout(250);
+    await p.locator('#pfb-board .pfb-lit').first().click(); await p.waitForTimeout(150);
+    const t0 = Date.now(); await p.click('#pf-go');
+    const tl = []; let quiet = 0;
+    for (let k = 0; k < 260; k++) {
+      await p.waitForTimeout(90); const s = await sample(); if (!s) continue; s.t = Date.now() - t0; tl.push(s);
+      const busy = s.playing || s.wait; quiet = busy ? 0 : quiet + 1; if (quiet >= 8 && k > 12) break;
     }
-    if (VERBOSE) { console.log(trail.join('\n')); console.log('navs', JSON.stringify(L.navs)); console.log('reqs', JSON.stringify(L.reqs)); console.log('bad', JSON.stringify(L.bad)); console.log('errs', JSON.stringify(L.errs)); }
-    ck(`[${var_} ${sd} x${sp}] no console errors`, L.errs, []);
+    const first = (f) => { const x = tl.find(f); return x ? x.t : null; };
+    return { tl, played: tl.some(s => s.playing), tPlayStart: first(s => s.playing), tRes: first(s => s.res), banners: [...new Set(tl.map(s => s.banner).filter(Boolean))], tBarFull: first(s => s.bar === '100%'), mark: tl.every(s => s.mark === 'same-doc'), resWhilePlaying: tl.some(s => s.playing && s.res), last: tl[tl.length - 1] };
   }
+  const nav = () => ({ navs: L.navs.length, docPosts: L.reqs.filter(r => /^POST document/.test(r)).length, bad: L.bad.filter(x => !/^302 /.test(x)), errs: L.errs });
+  const quietOk = (w) => ck(w + ': no navigation, no plain POST, no failed request, no console error', nav(), { navs: 0, docPosts: 0, bad: [], errs: [] });
+  const start = async (var_, sd, sp) => { seed('fight', 'small'); seed('charm', sd, var_); await speed(sp); await open(); reset(); };
+  const SD = process.env.SEED || '7';
+
+  // 1. charm pieces turn after turn (the creature answers each time): the page is swapped in place, the replay plays, nothing reloads
+  await start('plain', SD, 2);
+  for (let k = 0; k < 2; k++) {
+    const r = await playAndWatch(0);
+    ck(`charm turn ${k + 1}: the replay plays (your turn, the creature's turn) and the page is the same document`, [r.played, r.mark, r.banners.some(x => /Your turn/i.test(x)), k === 1 || r.banners.some(x => /turn/i.test(x) && !/Your turn/i.test(x))], [true, true, true, true]);   // (the second charm may already win the fight)
+  }
+  quietOk('charm pieces, 2 turns');
+
+  // 2. the charm that fills the bar on the FIRST turn: the last turn is replayed, the bar fills, and only then the result card shows
+  await start('near', SD, 1);
+  let r = await playAndWatch(0);
+  ck('charm win (turn 1): the replay plays, the bar reaches full, and only then the result card shows (never over the replay)', [r.played, r.tBarFull !== null, r.tRes !== null && r.tBarFull !== null && r.tBarFull <= r.tRes, r.resWhilePlaying, r.banners.some(x => /Your turn/i.test(x))], [true, true, true, false, true]);
+  ck('charm win (turn 1): the card says Charmed with the reward button, the page is the same document', [await p.locator('#pfv-res .badge-charm').count(), await p.locator('#pf-end').isVisible(), r.mark], [1, true, true]);
+  quietOk('charm win turn 1');
+  // a reload after the end lands on the result at once (no replay again)
+  await p.reload({ waitUntil: 'networkidle' }); await p.waitForTimeout(500);
+  ck('reload after the end: the result card shows at once', await sample().then(s => [s.res, s.playing, s.wait]), [true, false, false]);
+
+  // 3. the charm that fills the bar on a LATER turn (the page already replayed that turn's number once: the replay must still play)
+  await start('plain', SD, 1); reset();
+  await playAndWatch(0);
+  seed('setbar', '0.93');
+  await p.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await p.waitForTimeout(500); await p.evaluate(() => { window.__mark = 'same-doc'; }); reset();
+  r = await playAndWatch(0);
+  ck('charm win (a later turn): the last turn is replayed (not skipped), the bar fills, then the card', [r.played, r.tBarFull !== null && r.tRes !== null && r.tBarFull <= r.tRes, r.resWhilePlaying, r.mark], [true, true, false, true]);
+  quietOk('charm win, later turn');
+
+  // 4. a lost fight: your last turn and the creature's answer are replayed, then the lost card with its Continue button; Continue ends the fight
+  await start('defeat', SD, 1);
+  r = await playAndWatch(0);
+  ck('defeat: the replay plays your turn and the creature\'s turn first, then the card (never over the replay)', [r.played, r.banners.some(x => /Your turn/i.test(x)), r.banners.some(x => /turn/i.test(x) && !/Your turn/i.test(x)), r.resWhilePlaying, r.tRes !== null], [true, true, true, false, true]);
+  ck('defeat: the lost card with a button to go home (same document, no reload)', [await p.locator('#pfv-res .badge-lose').count(), await p.locator('#pf-end').isVisible(), r.mark], [1, true, true]);
+  quietOk('defeat');
+  await Promise.all([p.waitForResponse(x => x.request().method() === 'POST'), p.click('#pf-end')]); await p.waitForTimeout(1500);
+  ck('defeat: Continue ends the fight (no fight on the page any more)', await p.locator('#pfight').count(), 0);
+
+  // 5. animation speed: skip shows the card at once; a tap on Skip during the replay shortens it
+  await start('near', SD, 0);
+  r = await playAndWatch(0);
+  ck('speed skip: the card shows at once', [r.tRes !== null && r.tRes < 1500, r.mark], [true, true]);
+  await start('near', SD, 1);
+  await p.locator('#pf-hand .pf-tile').nth(0).click(); await p.waitForTimeout(250); await p.locator('#pfb-board .pfb-lit').first().click(); await p.waitForTimeout(150); await p.click('#pf-go');
+  await p.waitForSelector('#pf-skip:not([hidden])', { timeout: 5000 }); await p.click('#pf-skip'); await p.waitForTimeout(1500);
+  ck('Skip during the replay of the last turn: the card shows (the replay can be shortened by the player only)', await sample().then(s => [s.res, s.playing]), [true, false]);
+
+  // 6. the engine and the bar agree (the page never reads a full bar before the fight is won): the fill stops short of the end until then
+  await start('plain', SD, 2);
+  r = await playAndWatch(0);
+  ck('the charm bar is never drawn full while the fight goes on', r.tl.some(s => s.bar === '100%') , false);
+  quietOk('bar');
+
   console.log('charm: done');
   await b.close(); process.exit(fails ? 1 : 0);
 })();

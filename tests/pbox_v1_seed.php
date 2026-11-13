@@ -88,6 +88,13 @@ if ($what === 'charm') {   // 2.6.78: php tests/pbox_v1_seed.php GAME charm SEED
     echo 'charm ' . $var . ': turn ' . $s['turn'] . ', bar ' . $s['bar']['now'] . '/' . $s['bar']['max'] . ', hand ' . implode(',', array_column($s['me']['hand'], 'n')) . "\n";
     exit;
 }
+if ($what === 'setbar') {   // 2.6.78: php tests/pbox_v1_seed.php GAME setbar FRACTION [hp]: the charm bar at that share of full (and your health), the hand all Charm pieces again, in the fight under way
+    $s = $enc['pf']; $st = $s['me']['stats'] ?? ['level' => 8]; $st['level'] = 8;
+    $s['bar']['now'] = round($s['bar']['max'] * (float)($argv[3] ?? 0.9), 1);
+    if (isset($argv[4])) { $s['me']['hp'] = (int)$argv[4]; $exp['hp'] = (int)$argv[4]; }
+    $s['me']['hand'] = array_map(fn($k) => pfb_v1_tile(pf_make_tile($k, $st), $s['v1']), ['charm', 'offer', 'hum', 'lull', 'bond']);
+    $enc['pf'] = $s; $save(); echo 'setbar: ' . $s['bar']['now'] . '/' . $s['bar']['max'] . ' hp ' . $s['me']['hp'] . ' turn ' . $s['turn'] . "\n"; exit;
+}
 if ($what === 'notes') {   // 2.6.76: php tests/pbox_v1_seed.php GAME notes quick|slow|trip|open [SEED]: a fight whose last turn (or opening) shows that notice
     $kind = $argv[3] ?? 'quick'; $enc['pfgo'] = 1; unset($enc['pf']); $save();
     $enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[4] ?? 8), ['v1' => true, 'can_pluck' => false]); $save();   // not the blank opening: the creature's opening pieces are on the board
