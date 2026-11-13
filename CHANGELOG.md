@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.84
+- **End turn "reloads" the fight: found and fixed (Josh).** Recorded frame by frame in the real game: after End turn the fight panel shrank to a thin 8px bar for about a fifth of a second, the Trail map showed through behind it, then the fight jumped back to full size. Cause: every turn the swapped-in fight panel (`.encounter`) replayed a 0.25s fade-in (`pf-in`, opacity + a transform). While a transform animates, that panel becomes the box the fight is sized against (the fight is `position: fixed`), so the fight collapsed to the panel's height until the animation ended. Now the fight panel never animates in (`pfv1.css`). Also: the Trail pop-up window is solid in the fight's colour (class `pfdlg`, set by `adventure.php`), so the map can never show through while a turn is swapped in, and the frozen old fight that covers the swap is solid and sits above the new one until it is drawn.
+- **A tap during a loading step no longer reloads the page (`site.js`).** From the debug log: a Trail step tapped while the last one was still loading (1 to 3 seconds each) went out as a plain post, a real page load. Now any in-place form tapped while another one is loading is dropped, as the fight's forms already were in 2.6.79.
+- **Needs 2.6.79+, no DB change. Puzzle combat v1 is still admin-gated. The debug log (`?pfdebug=1`) stays in.**
+
 ## 2.6.83
 - **Debug panel buttons (2.6.82) gave no sign they worked.** Copy, Clear and Off are bigger (44px) and a status line says what happened ("copied N lines", "cleared", "turning off..."). The log is a text box you can select and copy by hand if the Copy button is blocked, and Off goes back to the page without the debug address. Only loaded with `?pfdebug=1`.
 - **Needs 2.6.79+, no DB change. Puzzle combat v1 is still admin-gated.**

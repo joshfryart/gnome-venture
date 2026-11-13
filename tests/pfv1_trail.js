@@ -23,6 +23,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
           const d = document.getElementById('trailpop'), f = document.getElementById('pfight'), bd = document.getElementById('pfb-board');
           if (!d) window.__gone++; else { if (d !== window.__dlg && !window.__newd) { window.__newd = 1; window.__ev.push('new dialog element'); } if (!d.matches(':modal')) window.__modalLost++; }
           if (!window.__over && (!f || !bd || !bd.children.length) && !document.querySelector('.pfv-ghost')) window.__blank++;
+          if (f && !window.__over && f.getBoundingClientRect().height < 200) window.__collapsed = (window.__collapsed || 0) + 1;   // 2.6.84: the fight shrank to a thin bar while a turn was swapped in (the pf-in fade-in of its panel)
           const h = d && d.querySelector('.hubcard'); if (h && window.__ctop !== undefined && h.scrollTop < window.__ctop - 1 && !window.__over) window.__scrollMin = Math.min(window.__scrollMin, h.scrollTop);
         }
         requestAnimationFrame(tick);
@@ -49,6 +50,8 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
       const s = await p.evaluate((ended) => { const d = document.getElementById('trailpop'); const h = d && d.querySelector('.hubcard'); return { mark: window.__mark, ev: window.__ev, blank: window.__blank, same: d === window.__dlg, modal: !!d && d.matches(':modal') && d.open, lost: window.__modalLost, gone: window.__gone, top: h ? h.scrollTop : -1, want: window.__ctop, min: window.__scrollMin, wy: window.scrollY, wy0: window.__wy }; }, ended).catch(() => ({ mark: 'gone' }));
       ck(`[${tag}] ${what}: same document, no navigation/close/cancel/new dialog/plain submit`, [s.mark, L.navs.length, s.ev, L.posts.length], [1, 0, [], 0]);
       ck(`[${tag}] ${what}: the SAME dialog element, open and modal in every frame`, [s.same, s.modal, s.lost, s.gone], [true, true, 0, 0]);
+      ck(`[${tag}] ${what}: the fight never collapses to a thin bar and the map never shows (2.6.84)`, await p.evaluate(() => [window.__collapsed || 0, !!document.querySelector('dialog.trailpop.pfdlg')]), [0, true]);
+      await p.evaluate(() => { window.__collapsed = 0; });
       ck(`[${tag}] ${what}: the page scroll is unchanged`, s.wy, s.wy0);
       if (!ended) ck(`[${tag}] ${what}: the card never scrolls back (it is not the scroller: the fight is a fixed full screen), no empty-board frame`, [s.min === 1e9, s.blank], [true, 0]);
       ck(`[${tag}] ${what}: no failed request, no console error`, [L.bad, L.errs.filter(x => !/ResizeObserver/.test(x))], [[], []]);

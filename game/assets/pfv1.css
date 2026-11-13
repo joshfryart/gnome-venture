@@ -454,8 +454,13 @@ html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 @keyframes pfvresin { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .pfv-endin #pfv-res { animation: none; } }
 /* 2.6.79: the frozen old fight shown over the new one until the new board is drawn (no empty flash on End turn) */
-.pfv-ghost { position: fixed !important; z-index: 40; margin: 0 !important; pointer-events: none; overflow: hidden; }
+.pfv-ghost { position: fixed !important; z-index: 61; background: #2b1d14; margin: 0 !important; pointer-events: none; overflow: hidden; }
 
 /* 2.6.80: the number on the charm meter (N/100) */
 .pf-bar { position: relative; }
 .pf-bar .pf-charmn { position: absolute; inset: 0; z-index: 3; display: flex; align-items: center; justify-content: center; font: 700 .62rem/1 system-ui, sans-serif; color: #fff; text-shadow: 0 0 2px #2a0010, 0 0 2px #2a0010, 0 1px 1px #2a0010; pointer-events: none; font-variant-numeric: tabular-nums; }
+
+/* 2.6.84 (Josh: End turn "reloads"): the fight draws its own dim over the page (a huge box-shadow), so while a turn swaps the old fight for the new one the page behind (the Trail map) showed for a moment. The pop-up window itself is solid in the fight's colour, so there is nothing to show through. */
+dialog.trailpop.pfdlg { background: #2b1d14; }
+/* The real cause: every turn the new fight panel (.encounter) replayed pfight.css's 0.25s fade-in (opacity + transform). While a transform is animating, the panel is the containing block of the fixed fight, so the fight shrank to the panel's 8px height for a moment and then jumped to full size: the "reload". The fight panel never animates in. */
+dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: none; }

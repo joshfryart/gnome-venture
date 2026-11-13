@@ -932,6 +932,8 @@ gvAdvFold();
   document.addEventListener('submit', function (ev) {
     var form = ev.target;
     if (busy && (form.method || '').toLowerCase() === 'post' && form.closest && form.closest('#pfight')) { ev.preventDefault(); return; }   // 2.6.79: a fight form sent while another in-place load is still running is dropped, never sent the plain way (that was a full page load)
+    /* 2.6.84 (debug log: a Trail step tapped while the last one was still loading, 1 to 3 seconds, went out as a plain post = a real page load): the same for every page form that is sent in place. A tap during a load is dropped. */
+    if (busy && (form.method || '').toLowerCase() === 'post' && !form.hasAttribute('data-noajax') && form.enctype !== 'multipart/form-data' && form.closest && (form.closest('main') || form.closest('.advbar'))) { try { if (new URL(form.getAttribute('action') || location.href, location.href).origin === location.origin) { ev.preventDefault(); return; } } catch (e) {} }
     if (ev.defaultPrevented || busy || (form.method || '').toLowerCase() !== 'post' || form.hasAttribute('data-noajax')) return;
     if (form.enctype === 'multipart/form-data') return;
     var main = document.querySelector('main');

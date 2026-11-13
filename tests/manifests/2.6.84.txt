@@ -31,7 +31,7 @@ e85bca285e04fc70689274b3cbcc6f0d0fe9d7c5  admin/puzzles.php
 a8ee7d16da7542d10b9cef727b4ce44a676435f8  admin/upload.php
 5fb06e46834212d06d313be4f7b06ec427746481  admin/usage.php
 4866d9121a003c587301a7792c6c1b7518fda832  admin/xp.php
-15ce9dcf8829132c03395dfa6ee936608fcbd7e5  adventure.php
+4b7a8a798da4b0175fa90a81d814a7778a73bbbd  adventure.php
 ad5c4b3bc413c8b4a5d70e6f8acf928452a6668d  arrange.php
 5a99cc298f510750d50bfe6d407d478878c19e7d  assets/admin.css
 434f3d68330f7d0a44dba637b963904545b9301f  assets/admin.js
@@ -12501,12 +12501,12 @@ de6a8a909358ed60e27f63439946927ac58991c5  assets/paljobs.js
 514b96d12852700783ad02a67201877e83172d89  assets/pbox.js
 d7882387ef576ea888608f68fc5b5df4847dc76a  assets/pest.js
 4d05f0cc3b03144151e890fbfd82e11c2fcdb1b0  assets/pfboard.js
-5d4f294cfa007a953e17f80a6a5336180ae29620  assets/pfboardv1.js
+b014998895b74014e6c6f15e0e18cc80ac8f02ea  assets/pfboardv1.js
 4b87aeecb63a7f6ac4d1a6c3a05e636c81bc66df  assets/pfdebug.js
 76e3b9384b9f2b6542eb219080e2d09fdad9633c  assets/pfight.css
 56bc56e74b3ef911cdd3caf00c3c09eb2d51160f  assets/pfight.js
 eb2215d5503ea93da4edd10ceb0e1a5ae35e7a5f  assets/pfparts.js
-535d868b2b708566debd306edaa05b0e8d7ee7a2  assets/pfv1.css
+1a522a69388906c27a26285fdfad03d96b6377e9  assets/pfv1.css
 618c17236bc664398a4f39d2a6dd10f90f912799  assets/pfv1box.js
 81bfd29eb554564643f4a471332a54aabe7cfe40  assets/pfx.js
 729b69ea888701e8921630ca27335798c8176f3a  assets/puzzlehub.js
@@ -12516,7 +12516,7 @@ c669ec571e848d73050df20b531f62404cb825ba  assets/race.js
 a103fba30728f115898a4795e2df6e40ce7541da  assets/rainbarrel.js
 122c3a77599d3cfd09ced02658c429d806f70d48  assets/shell.js
 2ee16d960cfb3d650b85b6bce22b8bdae2be7732  assets/shpop.js
-af2d5884870bd506134ab548b7d2ccae4391725f  assets/site.js
+325ea512ffa8e4909af193d59caf1b967a678989  assets/site.js
 bbde7acb08f6400768d21bef6e1cf78ef77e052b  assets/spit.js
 2f4693e410ac746a5c0edf63772c227b2d2d7610  assets/stage.js
 63d83d82087a967e9e2f1540d84add99039e8928  assets/style.css
@@ -12583,7 +12583,7 @@ a4515e4c537462438293b18ad0d22ce8e4c816cd  includes/almanac_pages.php
 87787cfe689c016d5cd71c70ce70f2cf964e03e9  includes/animals140.php
 7c6c522b642f92eebe010d5170cd824f44d9d562  includes/arrange_view.php
 a0a095e8c8492ee8d9875ce16ced7676534ee582  includes/art_upload.php
-a2dbb747d76ce5c180c1ebff98535fa8f9d7ad5e  includes/bootstrap.php
+d2b38526d55c9f6e58f86b257f6d5fcc2d34930b  includes/bootstrap.php
 bbac817fc82c639f9044f000b406d1b4a6afdf6c  includes/breeding110.php
 88577080e8893717f6a3e3b1b9407cde6b4bc670  includes/calling_quests.php
 838dafc8cf1519f8076cc1d32ece62e88f007243  includes/calling_view.php
