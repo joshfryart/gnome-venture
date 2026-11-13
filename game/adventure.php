@@ -9,6 +9,10 @@ require_once __DIR__ . '/includes/fight_scene.php';   // fight_scene: the animat
 require_once __DIR__ . '/includes/trail_tiles.php';
 require_once __DIR__ . '/includes/trail_sights.php';   // v2.6.68 Trail Sights (spike)   // graphical navigation 2d: the Trail as tile sections (gnav_tiles)
 $u = require_login();
+if (!is_post() && isset($_GET['pfboard'])) {   // 2.6.93: a test board for the puzzle fight: ?pfboard=4x4 (any 3x3 to 9x9), ?pfboard=off. It applies to fights that start after it.
+    if (preg_match('/^[3-9]x[3-9]$/', (string)$_GET['pfboard'])) { $_SESSION['pfb_test'] = (string)$_GET['pfboard']; flash('Test board ' . $_GET['pfboard'] . ' is on: it applies to the next puzzle fight you start. ?pfboard=off turns it off.', 'ok'); }
+    else { unset($_SESSION['pfb_test']); flash('Test board off.', 'ok'); }
+}
 $uid = (int)$u['id'];
 
 $exp = active_expedition($uid);

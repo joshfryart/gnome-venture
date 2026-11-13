@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.93
+- **A test board for the puzzle fight (Josh: "give me a version with a 4x4 board to test").** `adventure.php?pfboard=4x4` (any size from 3x3 to 9x9; `?pfboard=off` clears it) makes every puzzle fight you START afterwards use that board, whatever the creature's size; a fight already under way keeps its board. It lives in your session; the setting `pfight_board_test` (for example `4x4`) does the same for everyone. With nothing set the boards are as before (small 5x4, medium 5x5, large 7x5, boss 7x6). Checked in the real game: the four creature sizes on a 4x4 board play to the end with no errors, and the board fills the screen with larger pieces. `pfb_v1_cfg` in `includes/pfboard.php`, the toggle at the top of `adventure.php`.
+- **Needs 2.6.88+, no DB change. Puzzle combat v1 is still admin-gated.**
+
 ## 2.6.92
 - **The set-aside choices are in two rows, no scrolling, on desktop and mobile (Josh).** The choices beside the piece card are a grid of two rows that gains a column for every second choice (1 or 2 choices: one column; 3 or 4: two; 5 or 6: three). The two rows share the card's height, so the row is still exactly as tall as the card and the board never changes size; a single choice is one centred button. Nothing scrolls, nothing is clipped, nothing overlaps (checked with 1, 2, 3, 4 and 6 choices at 390 x 844, 360 x 640 and 787 wide: always two rows, every button inside its box, no overlap, board height unchanged). The "Or set aside with:" label is gone (each button starts with "+" and the hint line under the card says it). When the card is narrow beside three or more choices on a phone, its chips go and its picture is smaller, so the name and number stay readable.
 - **Needs 2.6.88+, no DB change. Puzzle combat v1 is still admin-gated.**

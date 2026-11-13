@@ -67,6 +67,9 @@ function pfb_v1_cfg(string $size, array $over = []): array
     foreach ($over as $k => $v) if (array_key_exists($k, $cfg) && is_numeric($v)) $cfg[$k] = is_int($cfg[$k]) ? (int)$v : (float)$v;
     if (isset($over['foe_x'])) $cfg['foe'] = round($cfg['foe'] * (float)$over['foe_x'], 4);
     if (isset($over['bar_x'])) $cfg['bar'] = round($cfg['bar'] * (float)$over['bar_x'], 4);
+    // 2.6.93 (Josh: "give me a version with a 4x4 board to test"): a test board. adventure.php?pfboard=4x4 (the session) or the setting pfight_board_test = 4x4 gives every fight that STARTS from then on that board, whatever the creature's size; ?pfboard=off clears it. Rules that name cells (ground, environment pieces) keep working on the smaller board.
+    $bt = (string)($_SESSION['pfb_test'] ?? '') !== '' ? (string)$_SESSION['pfb_test'] : (function_exists('setting') ? (string)setting('pfight_board_test') : '');
+    if ($bt !== '' && !isset($over['w']) && !isset($over['h']) && preg_match('/^([3-9])x([3-9])$/', $bt, $bm)) { $cfg['w'] = (int)$bm[1]; $cfg['h'] = (int)$bm[2]; }
     if (!$cfg['edges']) $cfg['flip'] = 0;   // only authored edges flip
     return $cfg;
 }

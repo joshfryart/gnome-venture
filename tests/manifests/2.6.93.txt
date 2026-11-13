@@ -31,7 +31,7 @@ e85bca285e04fc70689274b3cbcc6f0d0fe9d7c5  admin/puzzles.php
 a8ee7d16da7542d10b9cef727b4ce44a676435f8  admin/upload.php
 5fb06e46834212d06d313be4f7b06ec427746481  admin/usage.php
 4866d9121a003c587301a7792c6c1b7518fda832  admin/xp.php
-4b7a8a798da4b0175fa90a81d814a7778a73bbbd  adventure.php
+38184b8b1443ac9ebe8acdfa8910ccb0cf45b613  adventure.php
 ad5c4b3bc413c8b4a5d70e6f8acf928452a6668d  arrange.php
 5a99cc298f510750d50bfe6d407d478878c19e7d  assets/admin.css
 434f3d68330f7d0a44dba637b963904545b9301f  assets/admin.js
@@ -12642,7 +12642,7 @@ a4515e4c537462438293b18ad0d22ce8e4c816cd  includes/almanac_pages.php
 87787cfe689c016d5cd71c70ce70f2cf964e03e9  includes/animals140.php
 7c6c522b642f92eebe010d5170cd824f44d9d562  includes/arrange_view.php
 a0a095e8c8492ee8d9875ce16ced7676534ee582  includes/art_upload.php
-0b91b8f7683452543b2be4a10f5b9e78666b6f9c  includes/bootstrap.php
+c30a94cca026810369fca69d0b2d2496267d1241  includes/bootstrap.php
 bbac817fc82c639f9044f000b406d1b4a6afdf6c  includes/breeding110.php
 88577080e8893717f6a3e3b1b9407cde6b4bc670  includes/calling_quests.php
 838dafc8cf1519f8076cc1d32ece62e88f007243  includes/calling_view.php
@@ -12886,7 +12886,7 @@ b123ddf1ab116835b4b1f563e02ae627f75cdd09  includes/pal_crew.php
 4dcb955a976a632f610f9426fa0158d00ce2bede  includes/pantry.php
 77747284dec8acb6a7c10ddb1185312d0e8330bb  includes/pantry_view.php
 8b64f42f166fbd6fbf1b7a51fec32695d6aeaebb  includes/pest.php
-9ddc7e66f0e46b3556aece298027e31f3e6f5a86  includes/pfboard.php
+8c6686fa196dc745bfa1c8038e5fbc52818ad8c7  includes/pfboard.php
 824d3192b6efa8a656c2dd8cf60366e0c5748eda  includes/pfdeck.php
 a9578b8ad3ea34233d51125dbb8c4ae5f4f5554e  includes/pfdeck_view.php
 dd0328f72cf13bf39644316ae0e49fdb90165fc9  includes/pfight.php
