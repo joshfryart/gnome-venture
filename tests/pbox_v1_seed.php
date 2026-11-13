@@ -72,6 +72,13 @@ if ($what === 'midfight') {
     $enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[3] ?? 7), ['v1' => true, 'blank' => true, 'can_pluck' => false]); $save();   // as pfight_state deals it, with a fixed seed
     for ($i = 0; $i < (int)($argv[4] ?? 3); $i++) { $exp = active_expedition($uid); if (!$exp || !$exp['encounter']) break; $turn(($argv[5] ?? '') === 'soft'); }   // soft: the weakest move each turn, so the fight is still on afterwards
     $exp = active_expedition($uid); $enc = $exp ? json_decode((string)$exp['encounter'], true) : null; $s = $enc['pf'] ?? null;
+    if ($s && ($argv[6] ?? '') === 'fade') {   // 2.6.79: hand pieces that fit nowhere are rarer now (the environment's pieces stand apart): give the first two hand pieces edges that fit nowhere on this board
+        $fams = ['body', 'mind', 'craft'];
+        foreach ([0, 1] as $hi) { if (!isset($s['me']['hand'][$hi])) continue;
+            for ($try = 0; $try < 3000; $try++) { mt_srand($try * 7 + $hi); $e = []; foreach (['L', 'R', 'T', 'B'] as $d) $e[$d] = [mt_rand(0, 1) ? 'knob' : 'hole', $fams[mt_rand(0, 2)]]; $s['me']['hand'][$hi]['ed'] = $e; if (!pfb_cell_preview($s, $hi) && !pfb_can_flip($s, $hi)) break; }
+        }
+        $enc['pf'] = $s; $save();
+    }
     echo $s ? 'midfight: turn ' . $s['turn'] . ', pieces ' . count($s['pcs']) . ', environment pieces ' . count(array_filter($s['pcs'], fn($p) => $p['by'] === 'env')) . ', face up ' . count($s['env']['next'] ?? []) . ', ground ' . count($s['ter'] ?? []) . ', aim ' . (empty($s['foe']['plan']) ? 'no' : 'yes') . ', over ' . ($s['over'] ?: 'no') . "\n" : "midfight: the fight ended\n";
     exit;
 }

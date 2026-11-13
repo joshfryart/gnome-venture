@@ -78,8 +78,8 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
 
     // ---- 4. the fight: a seeded position with ground, a forecast, the aim and hand pieces that cannot be played
     await speed(0); let st = null;
-    for (const sd of [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]) {   // the deck differs with the kit that was packed: take the first seeded position that shows everything
-      seed('fight', 'large'); seed('midfight', String(sd), '3', 'soft'); await open('/adventure.php'); await p.waitForTimeout(500);
+    for (const sd of Array.from({ length: 40 }, (_, i) => i + 7)) {   // 2.6.79: the environment drops its pieces away from the action, the board is more open and a piece that fits nowhere is rarer: look further   // the deck differs with the kit that was packed: take the first seeded position that shows everything
+      seed('fight', 'large'); seed('midfight', String(sd), '3', 'soft', 'fade'); await open('/adventure.php'); await p.waitForTimeout(500);
       st = await pos(); if (st.off >= 1 && st.off < 5 && st.envp >= 1 && st.aim === 1 && st.ground === 0) break;
     }
     async function pos() { return p.evaluate(() => ({ ground: document.querySelectorAll('#pfb-board .gc[data-ter]').length, marks: document.querySelectorAll('#pfb-board .mk.ev').length, legendTer: document.querySelectorAll('#pfv-legend [data-ter]').length, evchips: document.querySelectorAll('#pfv-row .tg.ev').length,
@@ -111,8 +111,10 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     ck(T('fight: the ? help covers the environment turn, the aim, chains, flip and the six environment pieces'), await p.locator('.pfv-sheet').innerText().then(t => ['Environment turn', 'aim', 'Chains', 'Flip', 'Sun', 'Bramble', 'Rain', 'Wind', 'Mud', 'Thornburst', 'whoever fires it', 'Animation speed'].every(w => t.toLowerCase().includes(w.toLowerCase()))), true);
     await shot('4-fight-help', false);
     await p.keyboard.press('Escape'); ck(T('fight: Escape closes the help'), await n('.pfv-sheet'), 0);
-    const pi = await p.evaluate(() => [...document.querySelectorAll('#pf-hand .pf-tile')].findIndex(t => !t.classList.contains('pfv-off')));
-    await p.locator('#pf-hand .pf-tile').nth(pi).click(); await p.waitForTimeout(900);
+    let pi = -1;   // (2.6.79: a piece whose top and bottom differ, so its flip is seen, and that has lit spots as it is)
+    const cand = await p.evaluate(() => [...document.querySelectorAll('#pf-hand .pf-tile')].map((t, k) => { const m = /T (\w+ \w+), B (\w+ \w+)/.exec(t.getAttribute('aria-label') || ''); return !t.classList.contains('pfv-off') && (!m || m[1] !== m[2]) ? k : -1; }).filter(k => k >= 0));
+    for (const k of cand) { await p.locator('#pf-hand .pf-tile').nth(k).click(); await p.waitForTimeout(900); if (await n('#pfb-board .pfb-lit')) { pi = k; break; } await p.locator('#pf-hand .pf-tile').nth(k).click(); await p.waitForTimeout(300); }
+    if (pi < 0) { pi = await p.evaluate(() => [...document.querySelectorAll('#pf-hand .pf-tile')].findIndex(t => !t.classList.contains('pfv-off'))); await p.locator('#pf-hand .pf-tile').nth(pi).click(); await p.waitForTimeout(900); }
     ck(T('fight: a playable piece lights its spots with numbers, without a reply number; Flip is on'), [await n('#pfb-board .pfb-lit') > 0, await n('#pfb-board .pfb-lit .pfb-num') > 0, await p.locator('#pfb-board').innerText().then(t => t.includes('↩')), await p.isDisabled('#pf-flip')], [true, true, false, false]);
     await shot('4-fight-lit-spots');
     // 2.6.75 regression (Josh: "Flip reloads the page and does nothing"): the flip happens on the page itself. No navigation, the fight element is the same node, the piece is drawn again with top and bottom swapped,
