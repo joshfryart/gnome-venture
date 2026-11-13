@@ -132,12 +132,12 @@ function pfb_mud_near(array $s, int $x, int $y): bool
     return false;
 }
 
-/** Where the environment may put a piece: every free cell where its edges fit a neighbour; when some of those link (knob in a matching hole), only those. */
+/** Where the environment may put a piece (2.6.78, Josh): it TRIES a free cell where its edges fit a neighbour but link to nothing (no knob in a matching hole, so it joins no chain); only when no such cell exists, any fitting cell (linking allowed). */
 function pfb_env_cells(array $s, array $tile): array
 {
     $fit = []; $link = [];
     for ($y = 0; $y < pfb_h($s); $y++) for ($x = 0; $x < pfb_w($s); $x++) { $j = pfb_check($s, $tile, $x, $y); if ($j === null) continue; $fit[] = [$x, $y]; if (pfb_has_link($j)) $link[] = [$x, $y]; }
-    return $link ?: $fit;
+    return array_values(array_filter($fit, fn($c) => !in_array($c, $link, true))) ?: $fit;
 }
 
 /** Wind: the arrow it gets when it is placed. A side where a piece stands with a free cell behind it, if there is one (L, R, T, B order, one drawn by the seeded roll); else any side. */

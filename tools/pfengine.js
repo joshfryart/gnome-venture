@@ -577,7 +577,9 @@
   function envCells(s, tile) {
     var fit = [], link = [];
     for (var y = 0; y < pfbH(s); y++) for (var x = 0; x < pfbW(s); x++) { var j = check(s, tile, x, y); if (j === null) continue; fit.push([x, y]); if (hasLink(j)) link.push([x, y]); }
-    return link.length ? link : fit;
+    var seen = {}; link.forEach(function (c) { seen[c[0] + ',' + c[1]] = 1; });
+    var free = fit.filter(function (c) { return !seen[c[0] + ',' + c[1]]; });
+    return free.length ? free : fit;
   }
   function envWindDir(s, x, y) {
     var ok = [];
