@@ -195,20 +195,23 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
         }
         for ($i = count($d['belt']); $i < 4; $i++) $bs .= pfv_slot($i >= $slots ? 'locked<br>Belt ' . ($i === 2 ? 'II' : 'III') : '＋');
         $h .= '<div class="sl">On the belt <span>each adds its piece · −' . PFB_TOOL_WEAR . ' durability a play</span></div><ul class="pcg">' . $bs . '</ul>';
-        $h .= '<div class="sl">Tools <span>🧰 repair kits: ' . $kits . '</span></div><ul class="tools">';
+        // 2.6.75: the tools are buttons (icon, name, a small durability bar, rank border), not a long list; a tap shows the tool's line with Put on / Take off / Fix
+        $h .= '<div class="sl">Tools <span>🧰 repair kits: ' . $kits . '</span></div><ul class="toolg" id="pfv-tools">';
         $full = count(array_filter($onBelt, fn($s) => $s === 'ok')) >= $slots; $any = false;
         foreach ($wear as $type => $w) {
             if ((int)$w['tier'] < 1 || !isset(pfd_catalog()['t:' . $type])) continue; $any = true;
             $pn = (string)pfd_catalog()['t:' . $type]['n']; $tt = TOOL_TYPES[$type] ?? [ucfirst($type), '🔧']; $on = ($onBelt[$type] ?? '') === 'ok'; $bk = !empty($w['broken']);
-            $f = fn(string $do, string $lbl, string $cls, string $aria, bool $dis = false) => '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="' . $do . '"><input type="hidden" name="tool" value="' . e($type) . '">' . $back . '<button class="btn' . $cls . '" aria-label="' . e($aria) . '"' . ($dis ? ' disabled' : '') . '>' . $lbl . '</button></form>';
-            $h .= '<li class="toolrow t' . (int)$w['tier'] . ($bk ? ' broken' : '') . '"><span class="ti" aria-hidden="true">' . $tt[1] . '</span><span class="tx"><b>' . e($pn) . ' <small>' . (int)$w['left'] . '/' . (int)$w['max'] . '</small></b><small class="tsub">' . e($tt[0]) . ' tool · ' . PFD_RANK_NAME[(int)$w['tier']] . '</small>' . pfv_durbar((int)$w['left'], (int)$w['max']) . '</span>'
-                . ($bk || (int)$w['wear'] > 0 && !$on ? $f('pfd_fix', '🔧 Fix', ' gold', 'Fix ' . $pn . ' with a Tool Repair Kit', $kits < 1) : '')
-                . ($bk ? '' : ($on ? ((int)$w['wear'] > 0 ? $f('pfd_fix', '🔧 Fix', ' gold', 'Fix ' . $pn . ' with a Tool Repair Kit', $kits < 1) : '') . $f('pfd_unequip', 'Take off', ' ghost', 'Take ' . $pn . ' off the belt', $locked) : $f('pfd_equip', $full ? 'Belt full' : 'Put on', '', 'Put ' . $pn . ' on the belt', $locked || $full))) . '</li>';
+            $acts = [];   // what the detail line offers: do|label|class|disabled
+            if (!$locked && ($bk || (int)$w['wear'] > 0)) $acts[] = 'pfd_fix|🔧 Fix|gold|' . ($kits < 1 ? '1' : '0');
+            if (!$locked && !$bk) $acts[] = $on ? 'pfd_unequip|Take off|ghost|0' : 'pfd_equip|' . ($full ? 'Belt full' : 'Put on') . '|primary|' . ($full ? '1' : '0');
+            $td = $tt[0] . ' tool · ' . PFD_RANK_NAME[(int)$w['tier']] . ' · durability ' . (int)$w['left'] . '/' . (int)$w['max'] . ($bk ? ' · worn out: fix it with a Tool Repair Kit' . ($kits < 1 ? ' (you have none)' : '') : ($on ? ' · on the belt' : '')) . '.';
+            $h .= '<li><button type="button" class="tb t' . (int)$w['tier'] . ($bk ? ' broken' : '') . ($on ? ' on' : '') . '" data-a="tool" data-arg="' . e($type) . '" data-n="' . e($pn) . '" data-d="' . e($td) . '" data-acts="' . e(implode(';', $acts)) . '" aria-pressed="' . ($on ? 'true' : 'false') . '" aria-label="' . e($pn . ', ' . $td) . '">'
+                . '<span class="ti" aria-hidden="true">' . $tt[1] . '</span><span class="tn">' . e($pn) . '</span>' . pfv_durbar((int)$w['left'], (int)$w['max']) . '</button></li>';
         }
         $h .= ($any ? '' : '<li class="hint">No tools yet. A garden or gathering tool in your satchel can go on the belt.</li>') . '</ul>';
         $h .= '<p class="hint">' . ($tier < 3 ? 'A bigger belt holds more tools: <a href="' . e(url('shop.php')) . '">buy one at Twigg’s</a> (Belt II from level ' . PFD_BELTS[2][2] . ', Belt III from level ' . PFD_BELTS[3][2] . ').' : 'Your belt holds the most tools a belt can.')
             . ' A worn-out tool leaves the deck until you fix it with a Tool Repair Kit (crafted: flint, pine resin, coir fibre).</p>';
-        $hint = 'Tap a belt piece to read it.';
+        $hint = $locked ? 'Tap a tool to read it.' : 'Tap a tool, then put it on, take it off or fix it.';
     } else {
         $pl = '';
         foreach ($P as $p) if ($p['src'] === 'pal') $pl .= pfv_pc($p, ['cls' => 'sel' . ($p['out'] !== '' ? ' out' : ''), 'a' => 'info', 'd' => pfv_desc($p, 'in your party')]);
@@ -264,13 +267,19 @@ function pfv_prefight_html(array $u, array $exp, array $c): string
         if ($p['on'] && $p['out'] === '') { $n++; $deck .= pfv_pc($p, $auto ? ['cls' => 'fixed lock', 'a' => 'info', 'd' => pfv_desc($p, 'locked (Auto deck)')] : ['a' => $p['gear'] ? 'info' : 'tog', 'd' => pfv_desc($p, $p['gear'] ? 'gear: change it in the box' : ''), 'x' => ' data-on="1"']); }
         elseif (!$p['gear'] && !$auto) $bench .= pfv_pc($p, ['a' => 'tog', 'd' => pfv_desc($p, $p['out'] !== '' ? 'over the rarity cap' : ''), 'x' => ' data-on="' . ($p['on'] ? '1' : '0') . '"', 'cls' => $p['out'] !== '' ? 'out' : '']);
     }
-    $h = '<div class="box pfv" id="pfv-pre">' . pfv_foe_card($c, $region);
-    $h .= '<div class="sl">Your deck <span>' . $n . ' pieces · ❤️ ' . max(1, (int)$exp['hp']) . '/' . (int)$exp['max_hp'] . '</span></div>' . pfv_deckbar($d, true) . '<ul class="pcg c5">' . $deck . '</ul>';
-    if (!$auto) $h .= '<div class="sl">Bench <span>tap to add</span></div><ul class="pcg c5">' . ($bench ?: pfv_slot('none')) . '</ul>';
-    if ($auto) $h .= '<div class="pinfo" id="pfv-info" aria-live="polite" data-hint="Auto deck is active."><span><b>Auto deck is active.</b> Your saved deck goes in as it is.</span><form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="pfd_auto"><input type="hidden" name="on" value="0"><button class="btn ghost">Turn off and edit</button></form></div>';
-    else $h .= '<div class="pinfo" id="pfv-info" aria-live="polite" data-hint="Tap a deck piece to take it out, a bench piece to add it.">' . ($d['err'] !== null ? '<span><b>' . e((string)$d['err']) . '</b> Until then the standard kit plays.</span>' : '<span>Tap a deck piece to take it out, a bench piece to add it. Nothing changes once the fight starts.</span>') . '</div>'
-        . pfv_auto_html(false);
-    $h .= '<div class="actrow"><a class="btn ghost" href="' . e(url('puzzlebox.php')) . '">🧩 Box</a><form method="post" class="grow pfv-gof">' . csrf_field() . '<input type="hidden" name="do" value="pfv_go"><button class="btn primary" id="pfv-go">⚔️ Let’s fight</button></form></div>';
+    $h = '<div class="box pfv" id="pfv-pre"><div class="pfv-scroll">' . pfv_foe_card($c, $region);
+    $go = '<div class="actrow pfv-act"><a class="btn ghost" href="' . e(url('puzzlebox.php')) . '">🧩 Box</a><form method="post" class="grow pfv-gof">' . csrf_field() . '<input type="hidden" name="do" value="pfv_go"><button class="btn primary" id="pfv-go">⚔️ Let’s fight</button></form></div>';
+    if ($auto) {   // 2.6.75: Auto deck on: the creature, one strip, Let's fight; the read-only deck waits in a fold under the button
+        $h .= '<div class="pinfo pfv-autostrip" id="pfv-info" aria-live="polite" data-hint="Auto deck is active."><span><b>Auto deck is active:</b> ' . $n . ' pieces · ❤️ ' . max(1, (int)$exp['hp']) . '/' . (int)$exp['max_hp'] . '</span>'
+            . '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="pfd_auto"><input type="hidden" name="on" value="0"><button class="btn ghost">Turn off and edit</button></form></div>'
+            . '</div>' . $go
+            . '<details class="pfv-deckfold" id="pfv-deckfold"><summary>Show deck <span>' . $n . ' pieces, read-only</span></summary>' . pfv_deckbar($d, true) . '<ul class="pcg c5">' . $deck . '</ul></details>';
+    } else {
+        $h .= '<div class="sl">Your deck <span>' . $n . ' pieces · ❤️ ' . max(1, (int)$exp['hp']) . '/' . (int)$exp['max_hp'] . '</span></div>' . pfv_deckbar($d, true) . '<ul class="pcg c5">' . $deck . '</ul>'
+            . '<div class="sl">Bench <span>tap to add</span></div><ul class="pcg c5">' . ($bench ?: pfv_slot('none')) . '</ul>'
+            . '<div class="pinfo" id="pfv-info" aria-live="polite" data-hint="Tap a deck piece to take it out, a bench piece to add it.">' . ($d['err'] !== null ? '<span><b>' . e((string)$d['err']) . '</b> Until then the standard kit plays.</span>' : '<span>Tap a deck piece to take it out, a bench piece to add it. Nothing changes once the fight starts.</span>') . '</div>'
+            . pfv_auto_html(false) . '</div>' . $go;
+    }
     return $h . pfv_form() . '</div>' . pfv_assets();
 }
 

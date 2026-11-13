@@ -3,7 +3,9 @@
 // php tests/pfboard_v1.php      Every check names its scenario and prints what it got when it fails.
 require __DIR__ . '/../game/includes/pfboard.php';
 require __DIR__ . '/../game/includes/pfight_game.php';
-$bad = 0;
+$bad = 0; $warn = [];
+set_error_handler(function (int $no, string $msg, string $file, int $line) use (&$warn) { $warn[] = "$msg ($file:$line)"; return true; });   // any PHP warning or notice in the engine fails the run (the last check)
+const V1_OLD = ['env' => 0, 'ground' => 1, 'events' => 1];   // the 2.6.74 terrain (ground cells, forecast events): what a fight started before 2.6.75 carries
 function chk(string $name, bool $ok, $got = ''): void { global $bad; echo ($ok ? 'ok   ' : 'FAIL ') . $name . ($ok ? '' : ' (got ' . (is_string($got) ? $got : json_encode($got)) . ')') . "\n"; if (!$ok) $bad++; }
 function v1_me(int $lv = 8): array
 {
@@ -33,6 +35,16 @@ function v1_put(array &$s, string $who, array $tile, int $x, int $y): int
 }
 /** Place a tile for $who through the engine (its chain fires, use-up applies). */
 function v1_place(array &$s, string $who, array $tile, int $x, int $y): ?array { $s[$who]['hand'] = [$tile]; return pfb_place($s, $who, 0, $x, $y); }
+/** An environment piece as the deck makes it; $wild = every edge wild, so it links whatever stands next to it (the checks then need no matching families). */
+function v1_env(string $kind, ?string $dir = null, bool $wild = true): array
+{
+    foreach (pfb_env_deck('boss') as $t) if ($t['env'] === $kind) {
+        if ($wild) $t['ed'] = ['L' => ['wild', null], 'R' => ['wild', null], 'T' => ['wild', null], 'B' => ['wild', null]];
+        if ($dir !== null) $t['dir'] = $dir;
+        return $t;
+    }
+    throw new RuntimeException("no environment piece of kind $kind");
+}
 function v1_strip(array $s): array { unset($s['nonce']); return $s; }
 $rows = []; $die = ['small' => 4, 'medium' => 6, 'large' => 8, 'boss' => 10];
 foreach (file(__DIR__ . '/../game/includes/data/creatures.txt', FILE_IGNORE_NEW_LINES) as $l) {
@@ -43,10 +55,10 @@ foreach (file(__DIR__ . '/../game/includes/data/creatures.txt', FILE_IGNORE_NEW_
 echo "== 0. flag off: exactly the old rules\n";
 $a = pfb_new(v1_me(), v1_foe('large'), 41, ['blank' => true]); $b = pfb_new(v1_me(), v1_foe('large'), 41, ['blank' => true, 'v1' => false]);
 chk('opt v1 = false starts the same fight as no opt', v1_strip($a) === v1_strip($b));
-chk('an old fight has no v1 state (v1, w, h, ter, envs, envlog, reaim)', !array_intersect(array_keys($a), ['v1', 'w', 'h', 'ter', 'envs', 'envlog', 'reaim']) && !isset($a['me']['flipt']) && !array_key_exists('plan', $a['foe']), array_keys($a));
+chk('an old fight has no v1 state (v1, w, h, ter, envs, envlog, reaim, env)', !array_intersect(array_keys($a), ['v1', 'w', 'h', 'ter', 'envs', 'envlog', 'reaim', 'env']) && !isset($a['me']['flipt']) && !array_key_exists('plan', $a['foe']), array_keys($a));
 chk('an old fight is 7x5 for a large creature and for a boss', pfb_w($a) === 7 && pfb_h($a) === 5 && pfb_view(pfb_new(v1_me(), v1_foe('boss'), 3))['h'] === 5);
 chk('old tiles carry no source, life or authored edges', !array_filter(array_merge($a['me']['hand'], $a['me']['draw'], $a['foe']['hand'], $a['foe']['draw']), fn($t) => isset($t['src']) || isset($t['ed']) || isset($t['life'])));
-$v = pfb_view($a); chk('the old view has no v1 keys', !isset($v['v1']) && !isset($v['ter']) && !isset($v['aim']) && !isset($v['hand'][0]['life']));
+$v = pfb_view($a); chk('the old view has no v1 keys', !isset($v['v1']) && !isset($v['env']) && !isset($v['ter']) && !isset($v['aim']) && !isset($v['hand'][0]['life']));
 pfb_start($a, 0, 'L'); pfb_start($b, 0, 'L'); $same = true; $noEnv = true; $rp = false; $t = 0;
 while (!$a['over'] && $t++ < 40) {
     if ($t <= 3) foreach (array_keys($a['me']['hand']) as $hi) foreach (pfb_cell_preview($a, $hi) as $cell) if (array_key_exists('rp', $cell)) $rp = true;
@@ -73,41 +85,41 @@ foreach (PFB_SIZE as $size => [$w, $h]) {
 $s = pfb_new(v1_me(), v1_foe('small'), 9, ['v1' => true]);
 chk('classic opening (no blank): the creature starts in the centre of its own board', isset($s['cell']['2,2']) && count($s['pcs']) === 1, array_keys($s['cell']));
 
-echo "== 2. ground: sunny, bramble, mud\n";
+echo "== 2. ground: sunny, bramble, mud (a fight started under 2.6.74: v1 without env; new fights have environment pieces, section 13)\n";
 foreach (PFB_GROUND as $size => [$ns, $nb, $nm]) {
     $ok = true; $got = null;
     for ($seed = 1; $seed <= 30; $seed++) {
-        $s = pfb_new(v1_me(), v1_foe($size), $seed, ['v1' => true, 'blank' => true]); $n = array_count_values($s['ter']); $cx = intdiv($s['w'], 2); $cy = intdiv($s['h'], 2);
+        $s = pfb_new(v1_me(), v1_foe($size), $seed, ['v1' => V1_OLD, 'blank' => true]); $n = array_count_values($s['ter']); $cx = intdiv($s['w'], 2); $cy = intdiv($s['h'], 2);
         if (($n['sun'] ?? 0) !== $ns || ($n['br'] ?? 0) !== $nb || ($n['mud'] ?? 0) !== $nm) { $ok = false; $got = $n; }
         foreach ($s['ter'] as $k => $kind) { [$x, $y] = array_map('intval', explode(',', $k)); $d = abs($x - $cx) + abs($y - $cy); if ($d < 1 || $d > 2 || $x < 0 || $y < 0 || $x >= $s['w'] || $y >= $s['h']) { $ok = false; $got = $k; } }
     }
     chk("$size: $ns sunny, $nb bramble, $nm mud, all 1-2 steps from the centre (30 seeds)", $ok, $got);
 }
-$s = v1_bare(); $guard = v1_tile($s, 'g1', 'guard', 3, 'body'); $swing = v1_tile($s, 'h1', 'hurt', 5, 'mind');
-$s = v1_bare(); v1_put($s, 'foe', v1_tile($s, 'c1', 'charm', 3, 'body'), 2, 2); $plain = v1_place($s, 'me', $swing, 3, 2);
-$s2 = v1_bare(); v1_put($s2, 'foe', v1_tile($s2, 'c1', 'charm', 3, 'body'), 2, 2); $s2['ter']['3,2'] = 'sun'; $sunny = v1_place($s2, 'me', $swing, 3, 2);
+$s = v1_bare('medium', V1_OLD); $guard = v1_tile($s, 'g1', 'guard', 3, 'body'); $swing = v1_tile($s, 'h1', 'hurt', 5, 'mind');
+$s = v1_bare('medium', V1_OLD); v1_put($s, 'foe', v1_tile($s, 'c1', 'charm', 3, 'body'), 2, 2); $plain = v1_place($s, 'me', $swing, 3, 2);
+$s2 = v1_bare('medium', V1_OLD); v1_put($s2, 'foe', v1_tile($s2, 'c1', 'charm', 3, 'body'), 2, 2); $s2['ter']['3,2'] = 'sun'; $sunny = v1_place($s2, 'me', $swing, 3, 2);
 chk('sunny: a Hurt piece on a sunny cell counts double (and says so)', $plain && $sunny && $sunny[0]['v'] === 2 * $plain[0]['v'] && ($sunny[0]['sun'] ?? 0) === 1 && !isset($plain[0]['sun']), [$plain[0]['v'] ?? null, $sunny[0]['v'] ?? null]);
-$s3 = v1_bare(); v1_put($s3, 'foe', v1_tile($s3, 'c1', 'charm', 3, 'body'), 2, 2); $s3['ter']['3,2'] = 'sun'; $g = v1_place($s3, 'me', v1_tile($s3, 'g2', 'guard', 4, 'body'), 3, 2);
+$s3 = v1_bare('medium', V1_OLD); v1_put($s3, 'foe', v1_tile($s3, 'c1', 'charm', 3, 'body'), 2, 2); $s3['ter']['3,2'] = 'sun'; $g = v1_place($s3, 'me', v1_tile($s3, 'g2', 'guard', 4, 'body'), 3, 2);
 chk('sunny: a Guard piece does not count double', $g && $g[0]['v'] === 4 && !isset($g[0]['sun']), $g[0]['v'] ?? null);
-$s4 = v1_bare(); v1_put($s4, 'me', v1_tile($s4, 'c1', 'charm', 3, 'body'), 2, 2); $s4['ter']['3,2'] = 'sun'; $hp0 = $s4['me']['hp']; $f = v1_place($s4, 'foe', v1_tile($s4, 'f:x', 'hurt', 4, 'mind', 'creature'), 3, 2);
+$s4 = v1_bare('medium', V1_OLD); v1_put($s4, 'me', v1_tile($s4, 'c1', 'charm', 3, 'body'), 2, 2); $s4['ter']['3,2'] = 'sun'; $hp0 = $s4['me']['hp']; $f = v1_place($s4, 'foe', v1_tile($s4, 'f:x', 'hurt', 4, 'mind', 'creature'), 3, 2);
 chk('sunny works for the creature too: its Hurt piece hits for double', $f && $f[0]['v'] === 8 && $hp0 - $s4['me']['hp'] === 8, [$f[0]['v'] ?? null, $hp0 - $s4['me']['hp']]);
-$s5 = v1_bare(); v1_put($s5, 'foe', v1_tile($s5, 'c1', 'charm', 3, 'body'), 2, 2); $s5['ter']['3,2'] = 'mud';
+$s5 = v1_bare('medium', V1_OLD); v1_put($s5, 'foe', v1_tile($s5, 'c1', 'charm', 3, 'body'), 2, 2); $s5['ter']['3,2'] = 'mud';
 $j = pfb_check($s5, $swing, 3, 2); $j0 = pfb_check($s2, v1_tile($s2, 'h9', 'hurt', 5, 'mind'), 1, 2);
 chk('mud: a piece on mud fits but does not link (the same joint links on other ground)', $j !== null && !pfb_has_link($j) && pfb_has_link($j0), [$j, $j0]);
 chk('mud: while another spot links, the mud spot is not offered', !in_array([3, 2], pfb_cells($s5, $swing, 'me'), true) && in_array([3, 2], pfb_cells($s5, $swing), true));
-$s6 = v1_bare(); v1_put($s6, 'foe', v1_tile($s6, 'c1', 'charm', 3, 'body'), 2, 2); $s6['ter']['2,2'] = 'mud'; $j = pfb_check($s6, $swing, 3, 2); $m = v1_place($s6, 'me', $swing, 3, 2);
+$s6 = v1_bare('medium', V1_OLD); v1_put($s6, 'foe', v1_tile($s6, 'c1', 'charm', 3, 'body'), 2, 2); $s6['ter']['2,2'] = 'mud'; $j = pfb_check($s6, $swing, 3, 2); $m = v1_place($s6, 'me', $swing, 3, 2);
 chk('mud: no link INTO a piece on mud either, so no chain runs through it (only your piece fires)', $j !== null && !pfb_has_link($j) && $m && count($m) === 1 && ($m[0]['linked'] ?? -1) === 0, [$j, count($m ?? [])]);
-$s7 = v1_bare(); $s7['ter']['3,2'] = 'br'; $s7['ter']['1,1'] = 'br'; v1_put($s7, 'me', $swing, 3, 2); v1_put($s7, 'foe', $guard, 1, 1); $hp0 = $s7['me']['hp']; $fh0 = $s7['fh']['now'];
+$s7 = v1_bare('medium', V1_OLD); $s7['ter']['3,2'] = 'br'; $s7['ter']['1,1'] = 'br'; v1_put($s7, 'me', $swing, 3, 2); v1_put($s7, 'foe', $guard, 1, 1); $hp0 = $s7['me']['hp']; $fh0 = $s7['fh']['now'];
 pfb_env_turn($s7); $want = max(1, (int)round(PFB_BRAMBLE * $s7['me']['max']));
 chk('bramble: at the end of the round a piece on bramble costs its owner 10% of max health (you and the creature)', $hp0 - $s7['me']['hp'] === $want && abs($s7['fh']['now'] - $fh0 - PFB_BRAMBLE * $s7['fh']['max']) < 1e-9, [$hp0 - $s7['me']['hp'], $s7['fh']['now'] - $fh0]);
 $ev = pfb_env_events($s7);
 chk('bramble: the terrain turn reports it as an event note (by env, ta env, what each side lost, the pieces)', count($ev) === 1 && $ev[0]['by'] === 'env' && $ev[0]['ta'] === 'env' && $ev[0]['env'] === 'bramble' && $ev[0]['me'] === $want && count($ev[0]['ids']) === 2 && str_contains(pfight_line($ev[0], 'Test Thing'), 'Bramble'), $ev);
-$s8 = v1_bare('medium', ['ground' => 0]); chk('rule switch ground = 0: no ground cells', pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => ['ground' => 0]])['ter'] === []);
+$s8 = v1_bare('medium', ['ground' => 0] + V1_OLD); chk('rule switch ground = 0: no ground cells', pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => ['ground' => 0] + V1_OLD])['ter'] === []);
 
 echo "== 3. the terrain turn and forecast events\n";
 $okN = true; $okNear = true; $kinds = [];
 foreach (['small', 'medium', 'large', 'boss'] as $size) for ($seed = 1; $seed <= 25; $seed++) {
-    $s = pfb_new(v1_me(), v1_foe($size), $seed, ['v1' => true, 'blank' => true]); pfb_start($s, 0, 'LRTB'[$seed % 4]);
+    $s = pfb_new(v1_me(), v1_foe($size), $seed, ['v1' => V1_OLD, 'blank' => true]); pfb_start($s, 0, 'LRTB'[$seed % 4]);
     for ($t = 0; $t < 4 && !$s['over']; $t++) {
         if (count($s['envs']) > PFB_EVENTS[$size]) $okN = false;
         foreach ($s['envs'] as $e) {
@@ -122,28 +134,28 @@ foreach (['small', 'medium', 'large', 'boss'] as $size) for ($seed = 1; $seed <=
 chk('forecast: at most 1 event a round on a small board, 2 on the others', $okN);
 chk('forecast: every mark is on or next to a piece and on the board; a gust marks a piece and has a direction', $okNear);
 chk('forecast: all five kinds turn up (sunbeam, creep, puddle, gust, thorn)', count($kinds) === 5, array_keys($kinds));
-$s = v1_bare(); $s['ter'] = ['1,1' => 'sun', '3,3' => 'sun', '1,3' => 'sun']; $s['envs'] = [['kind' => 'sunbeam', 'x' => 3, 'y' => 2, 'dir' => null]]; pfb_env_turn($s);
+$s = v1_bare('medium', V1_OLD); $s['ter'] = ['1,1' => 'sun', '3,3' => 'sun', '1,3' => 'sun']; $s['envs'] = [['kind' => 'sunbeam', 'x' => 3, 'y' => 2, 'dir' => null]]; pfb_env_turn($s);
 chk('sunbeam: the cell turns sunny and the OLDEST sunny cell fades (the count stays)', $s['ter'] === ['3,3' => 'sun', '1,3' => 'sun', '3,2' => 'sun'], $s['ter']);
-$s = v1_bare(); $s['ter'] = ['1,1' => 'br', '3,3' => 'br']; v1_put($s, 'me', $swing, 3, 2); $hp0 = $s['me']['hp']; $s['envs'] = [['kind' => 'creep', 'x' => 3, 'y' => 2, 'dir' => null]]; pfb_env_turn($s);
+$s = v1_bare('medium', V1_OLD); $s['ter'] = ['1,1' => 'br', '3,3' => 'br']; v1_put($s, 'me', $swing, 3, 2); $hp0 = $s['me']['hp']; $s['envs'] = [['kind' => 'creep', 'x' => 3, 'y' => 2, 'dir' => null]]; pfb_env_turn($s);
 chk('bramble creep: the cell turns to bramble and pricks at once; the oldest bramble withers', $s['ter'] === ['3,3' => 'br', '3,2' => 'br'] && $hp0 - $s['me']['hp'] === max(1, (int)round(PFB_BRAMBLE * $s['me']['max'])), [$s['ter'], $hp0 - $s['me']['hp']]);
-$s = v1_bare(); $s['ter'] = ['1,1' => 'mud']; v1_put($s, 'foe', v1_tile($s, 'c1', 'charm', 3, 'body'), 2, 2); $s['envs'] = [['kind' => 'puddle', 'x' => 3, 'y' => 2, 'dir' => null]]; pfb_env_turn($s);
+$s = v1_bare('medium', V1_OLD); $s['ter'] = ['1,1' => 'mud']; v1_put($s, 'foe', v1_tile($s, 'c1', 'charm', 3, 'body'), 2, 2); $s['envs'] = [['kind' => 'puddle', 'x' => 3, 'y' => 2, 'dir' => null]]; pfb_env_turn($s);
 chk('puddle: the cell turns to mud (links there are cut) and the old mud dries', $s['ter'] === ['3,2' => 'mud'] && !pfb_has_link(pfb_check($s, $swing, 3, 2)), $s['ter']);
-$s = v1_bare(); $id = v1_put($s, 'me', $swing, 2, 2); $s['envs'] = [['kind' => 'gust', 'x' => 2, 'y' => 2, 'dir' => 'R']]; pfb_env_turn($s);
+$s = v1_bare('medium', V1_OLD); $id = v1_put($s, 'me', $swing, 2, 2); $s['envs'] = [['kind' => 'gust', 'x' => 2, 'y' => 2, 'dir' => 'R']]; pfb_env_turn($s);
 chk('gust: the piece moves one cell along the arrow', $s['pcs'][$id]['x'] === 3 && $s['pcs'][$id]['y'] === 2 && ($s['cell']['3,2'] ?? 0) === $id && !isset($s['cell']['2,2']) && ($s['envlog'][0]['moved']['id'] ?? 0) === $id, $s['cell']);
-$s = v1_bare(); $id = v1_put($s, 'me', $swing, 2, 2); v1_put($s, 'foe', $guard, 3, 2); $s['envs'] = [['kind' => 'gust', 'x' => 2, 'y' => 2, 'dir' => 'R']]; pfb_env_turn($s);
+$s = v1_bare('medium', V1_OLD); $id = v1_put($s, 'me', $swing, 2, 2); v1_put($s, 'foe', $guard, 3, 2); $s['envs'] = [['kind' => 'gust', 'x' => 2, 'y' => 2, 'dir' => 'R']]; pfb_env_turn($s);
 chk('gust: it does not move when the cell is taken', $s['pcs'][$id]['x'] === 2 && !isset($s['envlog'][0]['moved']));
-$s = v1_bare(); $id = v1_put($s, 'me', $swing, 0, 2); $s['envs'] = [['kind' => 'gust', 'x' => 0, 'y' => 2, 'dir' => 'L']]; pfb_env_turn($s);
+$s = v1_bare('medium', V1_OLD); $id = v1_put($s, 'me', $swing, 0, 2); $s['envs'] = [['kind' => 'gust', 'x' => 0, 'y' => 2, 'dir' => 'L']]; pfb_env_turn($s);
 chk('gust: it does not push a piece off the board', $s['pcs'][$id]['x'] === 0);
-$s = v1_bare(); v1_put($s, 'me', $swing, 2, 2); v1_put($s, 'foe', $guard, 3, 2); v1_put($s, 'foe', $guard, 2, 1); v1_put($s, 'me', $swing, 4, 4); $hp0 = $s['me']['hp']; $fh0 = $s['fh']['now'];
+$s = v1_bare('medium', V1_OLD); v1_put($s, 'me', $swing, 2, 2); v1_put($s, 'foe', $guard, 3, 2); v1_put($s, 'foe', $guard, 2, 1); v1_put($s, 'me', $swing, 4, 4); $hp0 = $s['me']['hp']; $fh0 = $s['fh']['now'];
 $s['envs'] = [['kind' => 'thorn', 'x' => 2, 'y' => 2, 'dir' => null]]; pfb_env_turn($s);
 chk('thorn burst: each of your pieces on the cell or next to it costs 10% of your health; pieces further away are safe', $hp0 - $s['me']['hp'] === max(1, (int)round(PFB_THORN * $s['me']['max'])), $hp0 - $s['me']['hp']);
 chk('thorn burst: event damage on the creature is halved (5% of its health for each of its pieces)', abs($s['fh']['now'] - $fh0 - 2 * PFB_THORN * PFB_EVENT_FOE * $s['fh']['max']) < 1e-9, $s['fh']['now'] - $fh0);
-$s = v1_bare(); $s['ter'] = ['2,2' => 'br']; v1_put($s, 'me', $swing, 2, 2); $s['me']['hp'] = 1; pfb_env_turn($s);
+$s = v1_bare('medium', V1_OLD); $s['ter'] = ['2,2' => 'br']; v1_put($s, 'me', $swing, 2, 2); $s['me']['hp'] = 1; pfb_env_turn($s);
 chk('the terrain can end the fight (bramble takes your last health: defeat)', $s['over'] === 'defeat');
 // in a real turn: the events come after the creature's, in the order announced, then bramble
 $found = null;
 for ($seed = 1; $seed <= 40 && !$found; $seed++) {
-    $s = pfb_new(v1_me(), v1_foe('large'), $seed, ['v1' => true, 'blank' => true]); pfb_start($s, 0, 'L');
+    $s = pfb_new(v1_me(), v1_foe('large'), $seed, ['v1' => V1_OLD, 'blank' => true]); pfb_start($s, 0, 'L');
     for ($t = 0; $t < 5 && !$s['over']; $t++) {
         $ann = $s['envs']; $m = pfb_search($s, 'me'); if (!$m) break; $r = pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']);
         $env = array_values(array_filter($r['ev'], fn($e) => ($e['by'] ?? '') === 'env' && $e['env'] !== 'bramble'));
@@ -154,7 +166,7 @@ $tas = array_map(fn($e) => $e['ta'], $found[2]); $lastFoe = max(array_keys($tas,
 chk('a real turn: both announced events land, in order, as event notes after the creature\'s move', $found && array_column($found[1], 'env') === array_column($found[0], 'kind') && array_column($found[1], 'x') === array_column($found[0], 'x') && $firstEnv > $lastFoe, [$tas]);
 chk('a real turn: every event carries ta (me, foe or env) and the bars after it', !array_filter($found[2], fn($e) => !in_array($e['ta'] ?? '', ['me', 'foe', 'env'], true)) && !array_filter($found[2], fn($e) => $e['ta'] === 'env' && !isset($e['hpnow'], $e['fhnow'], $e['barnow'])));
 chk('terrain events have a log line and a history chip, and stay out of the chain chips', !array_filter($found[2], fn($e) => $e['ta'] === 'env' && (pfight_line($e, 'X') === '' || pfight_chip_event($e)['by'] !== 'env')) && !array_filter(pfight_chips_board($found[2]), fn($c) => $c['by'] === 'env'));
-chk('rule switch events = 0: nothing is forecast', pfb_new(v1_me(), v1_foe('large'), 4, ['v1' => ['events' => 0]])['envs'] === []);
+chk('rule switch events = 0: nothing is forecast', pfb_new(v1_me(), v1_foe('large'), 4, ['v1' => ['events' => 0] + V1_OLD])['envs'] === []);
 
 echo "== 4. use-up: a chain of 3+ spends the pieces that fired (both sides)\n";
 // a row: charm (R knob body) -> hurt (L hole body, R knob mind) -> charm (L hole mind)
@@ -268,6 +280,7 @@ for ($seed = 1; $seed <= 60 && !$done; $seed++) {
         chk('the flipped lit-cell numbers (pfb_cell_preview with flip) cover the flipped piece\'s cells', isset($pv[$cells[0][0] . ',' . $cells[0][1]]) && count($pv) === count($cells), [array_keys($pv), $cells]);
         chk('the next turn has its flip again', pfb_view($w)['flip']['used'] === false && pfb_can_flip($w, 0));
         for ($k = 0; $k < 6 && !$w['over']; $k++) { $m = pfb_search($w, 'me'); if (!$m) break; pfb_play($w, [[$m[0], $m[1], $m[2]]], $w['turn']); }
+        foreach ($w['pcs'] as $p) if ($p['by'] === 'me' && $p['tile']['k'] === $key) pfb_discard($w, $p);   // the fight ended with it still out: it leaves the way every piece leaves
         $back = array_filter(array_merge($w['me']['discard'], $w['me']['draw'], $w['me']['hand']), fn($t) => $t['k'] === $key);
         chk('when it leaves the board it goes back the right way up', count($back) === 1 && empty(array_values($back)[0]['flip']) && !isset(array_values($back)[0]['ft']), $back);
         $done = true; break;
@@ -307,10 +320,16 @@ $s = pfb_new(v1_me(), v1_foe('large'), 5, ['v1' => ['foe_x' => 2, 'bar_x' => 0.5
 chk('sim knobs foe_x / bar_x scale the size numbers', abs($s['v1']['foe'] - 2 * PFB_V1_FOE_MULT['large']) < 1e-9 && abs($s['v1']['bar'] - 0.5 * PFB_V1_BAR_MULT['large']) < 1e-9);
 
 echo "== 11. whole fights: invariants, save and load\n";
-$n = 0; $fail = []; $over = []; $turns = []; $evs = ['env' => 0, 'used' => 0, 'tw' => 0, 'sun' => 0, 'flip' => 0, 'reaim' => 0];
-foreach ($rows as $ci => $c) foreach ([0, 1] as $k) {
+$n = 0; $fail = []; $over = []; $turns = []; $evs = ['env' => 0, 'used' => 0, 'tw' => 0, 'sun' => 0, 'flip' => 0, 'reaim' => 0, 'old terrain' => 0, 'place' => 0, 'pass' => 0, 'expire' => 0, 'push' => 0, 'env used up' => 0, 'reshuffle' => 0, 'mud weakens' => 0];
+foreach (['sun', 'bramble', 'rain', 'wind', 'thorn'] as $ek) { $evs["me fires $ek"] = 0; $evs["creature fires $ek"] = 0; }
+$regs = array_keys(pfb_env_table()['regions']);
+foreach ($rows as $ci => $c) foreach ([0, 1, 2] as $k) {
+    if ($k === 2 && $ci % 4) continue;   // every fourth creature also plays a fight with the 2.6.74 terrain
+    $old = $k === 2; if ($k === 1) $c['region'] = $regs[$ci % count($regs)];
     $me = v1_me($c['level']); foreach ($me['deck'] as $i => $t) if ($k && $i % 2) $me['deck'][$i]['src'] = ['pal', 'tool', 'crop'][($i + $ci) % 3];
-    $s = pfb_new($me, $c, 300 + 17 * $ci + $k, ['v1' => true, 'blank' => true]); $deckN = count($me['deck']); $tag = $c['slug'] . "#$k";
+    $s = pfb_new($me, $c, 300 + 17 * $ci + $k, ['v1' => $old ? V1_OLD : true, 'blank' => true]); $deckN = count($me['deck']); $tag = $c['slug'] . "#$k";
+    $envN = $old ? 0 : count(pfb_env_deck($c['size'], (string)($c['region'] ?? ''))); $ed0 = $old ? 0 : count($s['env']['draw']);
+    if ($old) { unset($s['v1']['env'], $s['v1']['envn'], $s['v1']['rain'], $s['v1']['th_foe'], $s['v1']['mud'], $s['v1']['envcap']); $s['v1']['foe'] = 0.56; $s['v1']['bar'] = 1.3; }   // exactly the keys a 2.6.74 save has
     if (pfb_start($s, $ci % count($s['me']['hand']), 'LRTB'[$ci % 4]) !== null) { $fail[] = "$tag start"; continue; }
     $t = 0;
     while (!$s['over'] && $t++ < 40) {
@@ -319,7 +338,17 @@ foreach ($rows as $ci => $c) foreach ([0, 1] as $k) {
         if (!$m) foreach (array_keys($s['me']['hand']) as $i) { if (!pfb_can_flip($s, $i)) continue; pfb_flip($s, $i, $s['turn']); $evs['flip']++; if ($m = pfb_search($s, 'me')) break; pfb_flip($s, $i, $s['turn']); $evs['flip']--; }
         $r = $m ? pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']) : pfb_pass($s, $s['turn']);
         if ($r['err']) { $fail[] = "$tag turn {$s['turn']}: " . $r['err']; break; }
-        foreach ($r['ev'] as $e) { if (isset($e['env'])) $evs['env']++; if (isset($e['used'])) $evs['used']++; if (isset($e['tw'])) $evs['tw']++; if (isset($e['sun'])) $evs['sun']++; if (!isset($e['ta'])) $fail[] = "$tag: an event without ta"; }
+        foreach ($r['ev'] as $e) {
+            $en = $e['env'] ?? null;
+            if ($old && $en !== null && !in_array($en, ['sunbeam', 'creep', 'puddle', 'gust', 'thorn', 'bramble', 'poison'], true)) $fail[] = "$tag: a 2.6.74 fight with an environment-piece event ($en)";
+            if (!$old && $en !== null && !in_array($en, ['fire', 'place', 'pass', 'expire', 'poison'], true)) $fail[] = "$tag: a terrain event in an environment-piece fight ($en)";
+            if ($old && $en !== null && $en !== 'poison') $evs['old terrain']++;
+            if (in_array($en, ['place', 'pass', 'expire'], true)) { $evs[$en]++; if ($e['ta'] !== 'env' || isset($e['barnow']) === false) $fail[] = "$tag: env turn event shape"; }
+            if ($en === 'fire') { $evs[($e['for'] === 'me' ? 'me' : 'creature') . ' fires ' . $e['kind']]++; if (isset($e['moved'])) $evs['push']++; if ($e['by'] !== 'env' || !in_array($e['ta'], ['me', 'foe'], true) || !isset($e['id'])) $fail[] = "$tag: env fire event shape"; }
+        }
+        foreach ($s['gone'] ?? [] as $g) if ($g['by'] === 'env' && isset($g['used'])) $evs['env used up']++;
+        if (!$old && $t > 1 && count($s['env']['draw']) > $ed0) $evs['reshuffle']++; if (!$old) $ed0 = count($s['env']['draw']);
+        foreach ($r['ev'] as $e) { if (isset($e['env'])) $evs['env']++; if (isset($e['mud'])) $evs['mud weakens']++; if (isset($e['used'])) $evs['used']++; if (isset($e['tw'])) $evs['tw']++; if (isset($e['sun'])) $evs['sun']++; if (!isset($e['ta'])) $fail[] = "$tag: an event without ta"; }
         if (!empty($s['reaim'])) $evs['reaim']++;
         $seen = []; $mine = count($s['me']['hand']) + count($s['me']['draw']) + count($s['me']['discard']) + count($s['me']['held']['pcs'] ?? []);
         foreach ($s['pcs'] as $id => $p) {
@@ -330,6 +359,17 @@ foreach ($rows as $ci => $c) foreach ([0, 1] as $k) {
         }
         if (count($s['cell']) !== count($s['pcs'])) $fail[] = "$tag: cell count";
         if ($mine !== $deckN) $fail[] = "$tag: deck pieces lost or doubled ($mine of $deckN)";
+        if ($old) { if (isset($s['env']) || array_filter($s['pcs'], fn($p) => $p['by'] === 'env')) $fail[] = "$tag: a 2.6.74 fight got environment pieces"; }
+        else {   // the environment's pieces: none lost or doubled, no ground, no forecast, Wind carries its arrow only on the board
+            $en = count($s['env']['draw']) + count($s['env']['discard']) + count($s['env']['next']) + count(array_filter($s['pcs'], fn($p) => $p['by'] === 'env'));
+            if ($en !== $envN) $fail[] = "$tag: environment pieces lost or doubled ($en of $envN)";
+            if ($s['ter'] !== [] || $s['envs'] !== []) $fail[] = "$tag: ground or forecast in an environment-piece fight";
+            if (count($s['env']['next']) > 2) $fail[] = "$tag: more than two pieces face up";
+            if (count($s['cell']) > (int)ceil(0.7 * $s['w'] * $s['h']) + 2) $fail[] = "$tag: the board is over the environment's cap (" . count($s['cell']) . ' pieces)';
+            foreach ($s['pcs'] as $p) if ($p['by'] === 'env' && (($p['tile']['env'] === 'wind') !== isset($p['tile']['dir']) || $p['tile']['t'] !== 'env')) $fail[] = "$tag: env piece shape";
+            foreach (array_merge($s['env']['draw'], $s['env']['discard'], $s['env']['next']) as $et) if (isset($et['dir']) || isset($et['flip'])) $fail[] = "$tag: an arrow left on a piece in the env deck";
+            foreach (['me', 'foe'] as $w) foreach (['hand', 'draw', 'discard'] as $z) foreach ($s[$w][$z] as $pt) if (($pt['src'] ?? '') === 'env') $fail[] = "$tag: an environment piece in a player's deck";
+        }
         foreach ($s['ter'] as $key => $kind) { [$x, $y] = array_map('intval', explode(',', $key)); if ($x < 0 || $y < 0 || $x >= $s['w'] || $y >= $s['h'] || !in_array($kind, ['sun', 'br', 'mud'], true)) $fail[] = "$tag: bad ground $key"; }
         $cnt = array_count_values($s['ter']); [$gs, $gb, $gm] = PFB_GROUND[$s['size']]; if (($cnt['sun'] ?? 0) > $gs || ($cnt['br'] ?? 0) > $gb || ($cnt['mud'] ?? 0) > $gm) $fail[] = "$tag: more ground than at the start";
         $v = pfb_view($s); if (json_encode($v) === false || isset($v['foe']['hand'][0])) $fail[] = "$tag: view";
@@ -338,7 +378,7 @@ foreach ($rows as $ci => $c) foreach ([0, 1] as $k) {
     if (!$s['over']) $fail[] = "$tag: the fight does not end"; $n++; $over[$s['over'] ?? 'none'] = ($over[$s['over'] ?? 'none'] ?? 0) + 1; $turns[] = $s['turn'];
 }
 chk("$n whole v1 fights (every creature, two decks, saved and loaded mid-fight): pieces on the board, cell map, deck count, ground, views", !$fail, array_slice($fail, 0, 5));
-chk('those fights use every rule (terrain events, use-up, Teamwork, sunny, flips, re-aims)', !array_filter($evs, fn($x) => $x < 1), $evs);
+chk('those fights use every rule (environment pieces placed, kept back, fired by both sides in every kind, pushed, used up, expired, reshuffled; use-up, Teamwork, flips, re-aims; the 2.6.74 terrain in its fights)', !array_filter($evs, fn($x) => $x < 1), $evs);
 echo '     ' . json_encode($over) . ' avg turns ' . round(array_sum($turns) / max(1, count($turns)), 1) . ' ' . json_encode($evs) . "\n";
 
 echo "== 12. page wiring (no DB): moves, lines\n";
@@ -346,5 +386,8 @@ chk('pfight_parse_moves still reads the four old moves', pfight_parse_moves('1,2
 $line = pfb_env_line(['env' => 'gust', 'moved' => ['by' => 'me', 'n' => 'Swing'], 'me' => 0, 'foe' => 0], 'Owl'); chk('a gust line names the piece it pushed', str_contains($line, 'your Swing'), $line);
 $line = pfb_env_line(['env' => 'thorn', 'me' => 4, 'foe' => 2.4], 'Owl'); chk('a thorn burst line says what each side lost', str_contains($line, 'you lose 4') && str_contains($line, 'Owl loses 2'), $line);
 
+require __DIR__ . '/pfboard_v1_env.php';   // 13: environment pieces (2.6.75)
+
+chk('no PHP warning or notice anywhere in this run', !$warn, array_slice($warn, 0, 3));
 echo $bad ? "$bad FAILED\n" : "all ok\n";
 exit($bad ? 1 : 0);

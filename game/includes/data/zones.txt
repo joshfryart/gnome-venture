@@ -2,7 +2,7 @@
 NA|1|grassland|Bramblesweep Prairie|easy|3
 NA|2|forest|Old Maplewood|medium|3
 NA|3|coast|Foghorn Shallows|medium|2
-NA|4|tundra|The Frostbitten North|hard|2
+NA|4|tundra|The Frostbitten North|medium|2
 CA|1|grassland|Cornrow Flats|easy|3
 CA|2|rainforest|The Quetzal Tangle|medium|3
 CA|3|desert|Cactusbristle Barrens|medium|2

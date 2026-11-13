@@ -43,13 +43,15 @@ fail('header tiles', hdr.tiles, PFE.tiles(), 'tiles');
 fail('header combos', hdr.combos, PFE.COMBOS, 'combos');
 fail('header tags', hdr.tags, PFE.TAGS, 'tags');
 fail('header mods', hdr.mods, PFE.MODS, 'mods');
+fail('header env table (data/pf_env.txt = PFB_ENV_ROWS in tools/pfengine.js)', hdr.env, PFE.envTable(), 'env');
+hdr.envdecks.forEach(([a, d]) => fail('header env deck ' + a.join('/'), d, PFE.envDeck(a[0], a[1]), 'envdeck'));
 hdr.rounds.forEach(([x, r1, r0]) => { if (PFE.round(x, 1) !== r1 || PFE.round(x, 0) !== r0) { bad++; if (bad <= 12) console.log('FAIL round(' + x + '): php ' + r1 + ' / ' + r0 + ', js ' + PFE.round(x, 1) + ' / ' + PFE.round(x, 0)); } });
 hdr.crc.forEach(([s, c]) => { if (PFE.crc32(s) !== c) { bad++; if (bad <= 12) console.log('FAIL crc32(' + s + '): php ' + c + ' js ' + PFE.crc32(s)); } });
 const deckOf = a => PFE.playerDeck(a[0], { calling: a[1], tier: a[2], pals: a[3], unlocked: a[4], typeBonus: a[5], snack: a[6], box: a[7] });
 hdr.decks.forEach((d, i) => fail('header deck #' + i, d.deck, deckOf(d.args), 'deck'));
 
 // ---- fights
-const digest = s => { const k = a => a.map(t => t.k + ':' + t.v); return { rng: s.rng, md: k(s.me.draw), mx: k(s.me.discard), fh: k(s.foe.hand), fd: k(s.foe.draw), fx: k(s.foe.discard), held: s.me.held === undefined ? null : s.me.held }; };
+const digest = s => { const k = a => a.map(t => t.k + ':' + t.v); return { rng: s.rng, md: k(s.me.draw), mx: k(s.me.discard), fh: k(s.foe.hand), fd: k(s.foe.draw), fx: k(s.foe.discard), held: s.me.held === undefined ? null : s.me.held, ...(s.env ? { ed: k(s.env.draw), ex: k(s.env.discard) } : {}) }; };
 const slim = v => { delete v.combos; return v; };
 const queries = s => {
   const q = { search: PFE.search(s, 'me'), search_nh: PFE.search(s, 'me', false), foe_search: PFE.search(s, 'foe'), cells: [], edges: [] };

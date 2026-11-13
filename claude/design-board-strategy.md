@@ -795,3 +795,220 @@ Baseline (hashed edges, sim 3 creature values, same decks and creatures):
 2. Linking over all spots is 24%, under the 25-30% aim. Raising it needs fewer illegal spots (for example a mismatch that sits flat instead of being refused), which is a rule change.
 3. The creature does not flip; a flipped player piece next to creature pieces was not studied separately.
 4. Only the starter deck was measured. Single-family decks and the built deck (`DECK=built`) were not.
+
+## DECIDED by Josh 2026-11-12 (after testing 2.6.74): environment as PIECES
+Fixed ground cells + forecast marks + hidden environment effects were too hard to track. Replace with ENVIRONMENT PIECES:
+1. The environment is a third player with its own turn (after the creature). On it, it PLACES one piece from its own deck on the board.
+2. Env pieces are real, visible pieces: edges, life (expiry), effect. You and the creature can link to them and fire them in chains.
+3. When fired, the effect goes to WHOEVER'S CHAIN fires it (Sun boosts the firing side; Bramble hurts the OTHER side; etc.).
+4. No fixed ground cells and no separate forecast marks. The env deck is the forecast: its NEXT piece is shown face up a round ahead.
+5. v1 env set (6): Sun (firing side x2), Bramble (hurts the other side), Mud (blocks links through it), Rain (guard to firer), Wind (pushes an adjacent piece), Thornburst (damages whoever fires it). Region variants later.
+Open: env deck composition per region/size, env piece life, how many pieces per env turn (1 default), edges authoring, retune sims (creature mult, fight length), Teamwork unaffected.
+
+## Sim 5: environment pieces
+
+Built in the real engine (`game/includes/pfboard.php`, `tools/pfengine.js`), behind `pfight_v1`; no page UI yet (stage E2). Engine notes, state and event formats: `claude/handover-v1-envpieces.md`. Sims: `tests/pfboard_tune_v1.php` on the real engine, the 88 real creatures with their layered decks in a region, a typical deck-model deck by level, bots chain / look / smart as in sims 3 and 4, 207-215 fights per cell (smart blind-move and variant rows: 104-129). Numbers move about 4 points run to run.
+
+**Josh answered the questions at the end (2 pieces a round everywhere, Mud gets teeth, Thornburst 5% for the creature, Sun doubles every value). The rules and the player text below are the FINAL ones; the tables from "Final numbers" to "Questions for Josh" are the first run (1 piece a round, Mud without teeth) and are kept for comparison. The final numbers are in "Sim 5b" at the end.**
+
+### Rules as built (every open point of the DECIDED block)
+- **Round:** you, the creature, the environment. On its turn the environment puts its TWO face-up pieces on the board, one after the other in the order they lie, and turns two new ones face up. Nothing fires on its turn. 2 pieces a round on every board.
+- **Where:** a free cell where the piece fits its neighbours (the normal edge rule); if it can link somewhere, it goes on a linking cell; the cell is drawn by the fight's seed. A piece that fits nowhere stays face up for the next round (the other piece is still placed). While 70% or more of the board's cells are taken it places nothing (a safety limit; never reached in the sims).
+- **Deck by creature size** (copies of Sun / Bramble / Rain / Wind / Mud / Thornburst): small 2/1/2/1/1/1 (8 pieces), medium 2/2/2/1/1/2 (10), large 2/2/2/1/1/2 (10), boss 2/3/2/1/1/2 (11). **Region:** one more copy: NA wind, CA sun, CB sun, SA rain, NWE rain, SE sun, EE bramble, MENA wind, WCA bramble, ESA thorn, CSA mud, EA rain, SEA rain and mud, OC wind. Shuffled; the discard is shuffled back in when the deck is empty.
+- **Life:** Sun, Rain, Wind 2 rounds; Bramble, Mud, Thornburst 3. It counts from the round after the piece is placed.
+- **Environment pieces are pieces:** they link and fire in your chains and the creature's, count for the chain length, and a chain of 3 or more uses them up like any piece (decided: yes, as recommended). In a chain of 2 they stay and can fire again.
+- **The effect goes to the side that started the chain.** Sun: that side's pieces in the chain x2 (every type, once). Bramble: the other side loses 10% of its maximum (guard does not help). Rain: guard worth 15% of the firing side's maximum. Wind: pushes one piece one cell (below). Thornburst: you lose 10% when your chain fires it, the creature 5% when its chain does. Mud: see below.
+- **Wind, exactly:** the piece carries an arrow, set when it is placed (toward a neighbour that has a free cell behind it, if there is one; else any side). When it fires, the piece next to it on the arrow's side slides one cell further along the arrow if that cell is on the board and free; otherwise nothing moves. It moves your pieces, the creature's and other environment pieces; never the blank. A pushed piece still fires in that chain. A piece fires once per chain and only a placement starts a chain, so there are no wind loops.
+- **Mud, exactly:** four flat sides. Any piece fits against it, nothing links to it, so no chain runs into or through it. It never fires, is never used up, and leaves after 3 rounds. **Teeth: a piece standing next to a Mud (on one of its four sides) counts 25% less when it fires**, yours and the creature's alike (after Sun and Teamwork; where the piece stands at that moment). Environment pieces next to a Mud keep their full effect.
+- **Edges:** each firing piece has two knobs, two holes and all three families (table in the handover). The four core pieces link to each of them from 2 sides or more; over the whole catalogue 14-56% of pieces link per side.
+- **Combos and Teamwork:** no combo through an environment piece; Teamwork unchanged.
+- **Fights started under 2.6.74** keep their ground and events.
+
+### Player-facing text (for the popover of each piece, the face-up slot and the help)
+**The environment** ("Environment turn: it places a piece")
+- Every round goes: you, the creature, then the environment.
+- On its turn the environment puts two pieces on the board. The two pieces shown as NEXT are the ones it places at the end of this round, the left one first.
+- Its pieces belong to nobody. Link to one and it fires in your chain, for you. The creature can do the same.
+- They count for the chain like any piece: a chain of 3 or more uses them up.
+
+| Piece | Text | Chip |
+|---|---|---|
+| Sun | Fire it in your chain: your pieces in that chain count double (damage, charm, guard and healing). | x2 for the chain |
+| Bramble | Fire it in your chain: the creature loses 10% of its health. If the creature fires it, you lose 10% of yours. Guard does not help. | -10% to the other side |
+| Rain | Fire it in your chain: you get guard (15% of your health). | guard |
+| Wind | Fire it in your chain: the piece its arrow points at slides one cell along the arrow, if that cell is free. | pushes a piece |
+| Mud | Nothing links to it, so chains stop here. A piece next to it counts a quarter less. It goes after 3 rounds. | no links, -25% next to it |
+| Thornburst | Fire it in your chain and you lose 10% of your health. The creature loses 5% when it fires it. Link around it, or make the creature run into it. | -10% to you, -5% to the creature |
+
+Banner lines of the environment's turn: "The environment places Sun.", "The environment finds no place for Sun." (it tries again next round), "The board is too full: the environment keeps Sun.", "An environment piece fades."
+
+### First run: numbers with 1 piece a round (superseded by Sim 5b)
+| Constant | small | medium | large | boss | 2.6.74 |
+|---|---|---|---|---|---|
+| `PFB_V1_FOE_MULT` (creature piece values) | 1.0 | 0.70 | 0.53 | 0.66 | 0.76 / 0.56 / 0.42 / 0.53 |
+| `PFB_V1_BAR_MULT` (creature bars) | 0.75 | 0.92 | 1.05 | 0.66 | 1.0 / 1.3 / 1.6 / 1.0 |
+| `PFB_ENV_N` (pieces a round) | 1 | 1 | 1 | 1 | |
+
+`PFB_SUN_MULT` 2.0, `PFB_BRAMBLE` 0.10, `PFB_THORN` 0.10 (`PFB_THORN_FOE` 1.0: not halved on the creature any more, it chooses), `PFB_RAIN` 0.15, `PFB_USEUP` 3. Ground and events took 20-30% of a creature's bar for free; without them the bars had to come down by 25-35% and the creature's pieces up by a quarter to keep the same win rates and lengths.
+
+### Win % / health lost % / turns
+| Bot | Level | small | medium | large | boss |
+|---|---|---|---|---|---|
+| **chain** | **at level** | 63 / 60 / 4.9 | 70 / 65 / 6.6 | 69 / 69 / 7.1 | 68 / 76 / 8.2 |
+| chain | 4 under | 64 / 61 / 4.2 | 25 / 89 / 5.8 | 40 / 86 / 7.3 | 43 / 87 / 7.8 |
+| chain | 8 under | 64 / 61 / 4.2 | 8 / 96 / 5.0 | 16 / 95 / 6.3 | 15 / 96 / 6.8 |
+| look | at level | 93 / 30 / 5.9 | 89 / 34 / 7.1 | 97 / 33 / 8.1 | 100 / 29 / 7.9 |
+| look | 4 under | 90 / 31 / 4.9 | 45 / 72 / 8.9 | 77 / 53 / 9.8 | 96 / 40 / 9.5 |
+| look | 8 under | 90 / 31 / 4.9 | 19 / 90 / 8.9 | 50 / 75 / 9.8 | 74 / 67 / 10.9 |
+| **smart** | **at level** | 100 / 13 / 4.1 | 100 / 17 / 5.6 | 100 / 16 / 6.2 | 100 / 17 / 6.5 |
+| smart | 4 under | 99 / 18 / 4.0 | 86 / 39 / 8.0 | 99 / 23 / 7.9 | 100 / 21 / 7.5 |
+| smart | 8 under | 99 / 18 / 4.0 | 61 / 62 / 10.2 | 90 / 42 / 9.0 | 100 / 29 / 8.9 |
+
+Small creatures are level 1-4, so the gnome is level 1 at 4 and at 8 under. A second chain run at double size gave small 68%.
+- **Targets at level:** chain 63-70% (aim about 70; small moves in steps because its values are 1-3), smart 100% (aim 90 or more) and it loses 13-17% of its health against 60-76% for chain. Fights: chain 4.9 / 6.6 / 7.1 / 8.2 turns, look 5.9 / 7.1 / 8.1 / 7.9, smart 4.1 / 5.6 / 6.2 / 6.5 (aim 6-8, small 4-5): met for chain and look, a planner is half a turn under on medium boards.
+
+### What the environment does in a fight (at level, per fight)
+| Bot, board | Placed | Passes | Fired by you (Sun / Bramble / Rain / Wind / Thornburst) | Fired by the creature (of which Thornburst) | Pushes | Fires of a piece that had fired before | You lose to it | The creature loses to it | Pieces on the board |
+|---|---|---|---|---|---|---|---|---|---|
+| chain, small | 3.0 | 0.9 | 2.2 (0.5 / 0.4 / 0.6 / 0.3 / 0.4) | 0.2 (0.0) | 0.15 | 0.2 | 4% | 4% | 3.3 |
+| chain, medium | 4.6 | 1.0 | 3.6 (0.7 / 0.9 / 0.9 / 0.4 / 0.8) | 0.4 (0.1) | 0.22 | 0.3 | 9% | 10% | 3.1 |
+| chain, large | 5.2 | 0.9 | 4.2 (0.9 / 1.0 / 1.0 / 0.5 / 1.0) | 0.4 (0.1) | 0.23 | 0.3 | 10% | 10% | 3.1 |
+| chain, boss | 6.1 | 1.1 | 5.2 (0.9 / 1.6 / 1.1 / 0.5 / 1.1) | 0.6 (0.0) | 0.27 | 0.5 | 12% | 17% | 3.0 |
+| look, medium | 5.0 | 1.2 | 3.7 (0.8 / 1.0 / 0.9 / 0.4 / 0.6) | 0.6 (0.2) | 0.22 | 0.4 | 8% | 12% | 3.2 |
+| look, boss | 5.8 | 1.1 | 4.5 (0.7 / 1.6 / 1.0 / 0.4 / 0.8) | 0.7 (0.3) | 0.28 | 0.4 | 9% | 19% | 3.2 |
+| smart, small | 2.6 | 0.5 | 1.2 (0.4 / 0.2 / 0.4 / 0.1 / 0.0) | 0.6 (0.2) | 0.10 | 0.1 | 1% | 5% | 3.9 |
+| smart, medium | 4.0 | 0.6 | 2.1 (0.6 / 0.7 / 0.6 / 0.2 / 0.1) | 1.0 (0.6) | 0.16 | 0.3 | 1% | 13% | 3.6 |
+| smart, large | 4.6 | 0.6 | 2.8 (0.7 / 0.8 / 0.9 / 0.3 / 0.1) | 1.3 (0.8) | 0.20 | 0.4 | 2% | 16% | 3.4 |
+| smart, boss | 5.0 | 0.5 | 3.1 (0.6 / 1.3 / 0.9 / 0.2 / 0.1) | 1.3 (0.8) | 0.19 | 0.4 | 2% | 22% | 3.3 |
+
+"Lose to it" = share of the maximum taken by Bramble and Thornburst over the fight. Mud is never fired (0 in 2500 fights).
+
+### Does strategy matter
+Share of turns where the bot's pick with the environment pieces' effects hidden is worse than its real pick (the same measure as "ground and events hidden" in sim 3):
+
+| Played by | small | medium | large | boss | Fights with at least one such turn |
+|---|---|---|---|---|---|
+| smart (two turns) | 13% | 21% | 27% | 32% | 36% / 59% / 80% / 92% |
+| look (one turn) | 8% | 12% | 17% | 16% | 32% / 51% / 78% / 79% |
+| smart, 2 pieces a round | 21% | 28% | 38% | 38% | 49% / 68% / 89% / 87% |
+
+- Reading the board is still the game: smart over chain is +30 to +37 win points and 47-59 health points at level; look over chain +19 to +32 win points.
+- The environment itself changes the best move in about a quarter of a planner's turns on medium to boss boards (sim 3's ground and events: 40%), and in 8-17% of a one-turn reader's.
+- A careless player pays for it: the chain bot runs into 0.4-1.1 Thornbursts a fight (4-12% of its health); the planner runs into 0.0-0.1 and makes the creature run into 0.2-0.8.
+
+### Variants (at level, win / health lost / turns)
+| Variant | chain small / medium / large / boss | smart small / medium / large / boss |
+|---|---|---|
+| **As built** | 63 / 60 / 4.9, 70 / 65 / 6.6, 69 / 69 / 7.1, 68 / 76 / 8.2 | 100 / 13 / 4.1, 100 / 17 / 5.6, 100 / 16 / 6.2, 100 / 17 / 6.5 |
+| No environment at all | 70 / 55 / 5.1, 69 / 60 / 7.2, 75 / 64 / 8.4, 70 / 70 / 9.8 | 99 / 15 / 4.4, 99 / 18 / 6.8, 100 / 17 / 8.4, 100 / 19 / 8.4 |
+| 2 pieces a round | 78 / 53 / 4.9, 75 / 61 / 6.0, 80 / 62 / 6.4, 85 / 69 / 7.2 | 100 / 12 / 3.7, 100 / 14 / 4.8, 100 / 13 / 5.1, 100 / 15 / 5.4 |
+| Bramble and Thornburst do nothing | 66 / 59 / 5.2, 66 / 65 / 7.4, 67 / 68 / 8.3, 62 / 79 / 10.1 | 99 / 12 / 3.9, 98 / 18 / 6.6, 100 / 16 / 7.8, 100 / 21 / 8.4 |
+| Sun x1.5 | 61 / 62 / 5.0, 64 / 68 / 6.8, 64 / 72 / 7.3, 62 / 80 / 8.3 | |
+| Medium only: softer hits, longer bar (0.62, 1.05) | medium 61 / 70 / 7.7; 4 under 22% (look 50%) | |
+| Medium only: harder hits, shorter bar (0.80, 0.80) | medium 67 / 63 / 5.7; 4 under 26% (look 46%) | |
+
+- The environment is worth 1 to 2 turns of fight length (a planner: 6.2 against 8.4 turns on large boards) and little in win rate for a careless player (its Thornbursts cancel its Brambles).
+- With environment pieces whose edges have a wild side (tried): no passes, but Mud then links and fires, and the chain bot lost up to 19 win points on medium to boss boards (it runs into every Thornburst). Not used.
+
+### Degenerate play
+- **Environment camping:** no. A piece that had already fired fires again 0.1-0.5 times a fight; Sun lives 2 rounds, and any chain of 3 uses the piece up. The chain bot's chains are 3.0-3.3 pieces long, so most environment pieces fire once.
+- **Mud stalling:** no. Passes by the player 0.00-0.02 a fight; turn cap 0-1% at level for every bot (4% for smart against medium creatures 8 under, fights of 10 turns). Mud takes one cell for 3 rounds and that is all it does.
+- **Wind loops:** impossible by rule; 0.1-0.3 pushes a fight, about half the Winds that fire move something.
+- **Thornburst and Bramble abuse:** this is where the planner gains. It fires 0.7-1.3 Brambles a fight on medium to boss boards and makes the creature fire 0.6-0.8 Thornbursts (the creature must link when it can, and its shown aim is committed, so a piece placed next to its aim can run its chain into a Thornburst). Together 13-22% of the creature's bar (sim 3: bramble ground and thorn bursts took 21-31%). Each Bramble can fire up to 3 times in chains of 2; in practice once.
+- **Endless boards:** no. 3.0-3.9 pieces on the board on average; the board never fills.
+- **A dominant environment piece:** no kind is fired much more than its share of the deck. Bramble is the one that is always good for the player (0.4-1.6 a fight for a careless player).
+
+### Red flags
+1. **The environment passes about once in five turns** (0.9-1.2 a fight for chain and look, 0.5-0.6 for smart): with about 3 pieces on the board its piece often fits nowhere. The face-up piece then stays another round. Harmless, but the "next" slot will sometimes not move.
+2. **The creature hardly uses the environment** (0.2-0.6 firings a fight against a careless player; against a planner 1.0-1.3, more than half of them Thornbursts it was pushed into). The pieces are in effect the player's tools and traps. Sun doubles the creature's chain in 1 fight in 10.
+3. **The environment changes a planner's best move in 21-32% of turns on medium to boss boards, 13% on small ones** (aim was 30%); with 2 pieces a round 28-38%, but then fights are 1 turn shorter and the chain bot wins 75-85% (needs a retune).
+4. **Medium creatures under level are harder than in 2.6.74:** chain 25% at 4 under (was 31%), look 45% (was 64%), smart 86% (was 88%); at 8 under 8% / 19% / 61%. Trading hits for bar does not help (variants). Their pieces had to go from 0.56 to 0.70 to hold 70% at level.
+5. **A planner's fights are short on small and medium boards** (4.1 and 5.6 turns).
+6. **Mud does little.** It is never fired and only takes a cell.
+7. **The bots know which cell the environment will take** (they simulate the round); a player only sees the piece. look and smart are flattered a little.
+8. **The chain bot's Thornburst cost** (9-12% of its health a fight on medium to boss boards) is what a new player will feel first. The lit-cell number shows it ("h-5"), the UI should make it loud.
+
+### Limits
+Bots, not people. One typical deck per level. The UI was not built, so nothing here says how readable it is. Region leans were not tuned one by one (one more copy moves a kind's share from 20% to 27%). The page tests of the fight screen (`tests/pbox_v1.sh`) fail until stage E2 draws the new pieces.
+
+### Questions for Josh
+1. Two pieces a round on medium, large and boss boards? It brings the environment up to the 30% mark and makes the board busier (4.2 pieces instead of 3.1), but fights get a turn shorter and the creature needs a retune. Built as 1 everywhere, as decided.
+2. Mud: keep it as a plain wall, or give it teeth (a piece touching Mud does not link at all)?
+3. Thornburst traps on the creature (a planner makes it fire 0.6-0.8 a fight): keep as the reward for reading its aim, or halve Thornburst on the creature as the old thorn burst was?
+4. When the environment finds no cell, should it keep the piece (as built) or discard it and show a new one?
+5. Sun doubles every type (guard and heal too), as "firing side x2 on that chain" says. Keep, or only Hurt and Charm as the sunny patch did?
+
+### Sim 5b: final numbers after Josh's answers (2 pieces a round, Mud's teeth, Thornburst 5% on the creature)
+Same sims as above (real engine, 88 creatures, 207-215 fights per cell; blind-move rows for smart and the variant rows 104-129).
+
+| Constant (in `pfboard.php` and `tools/pfengine.js`) | small | medium | large | boss |
+|---|---|---|---|---|
+| `PFB_V1_FOE_MULT` (creature piece values) | 1.0 | 0.67 | 0.53 | 0.66 |
+| `PFB_V1_BAR_MULT` (creature bars) | 0.90 | 1.08 | 1.25 | 0.83 |
+| `PFB_ENV_N` (pieces a round, and face up) | 2 | 2 | 2 | 2 |
+
+`PFB_MUD` 0.25, `PFB_THORN` 0.10 with `PFB_THORN_FOE` 0.5, `PFB_ENV_CAP` 0.7, `PFB_SUN_MULT` 2.0, `PFB_BRAMBLE` 0.10, `PFB_RAIN` 0.15, `PFB_USEUP` 3. Decks unchanged (8 / 10 / 10 / 11 pieces). Two pieces a round gave the player more to fire, so the bars went up by about a fifth against the first run.
+
+**Win % / health lost % / turns**
+| Bot | Level | small | medium | large | boss |
+|---|---|---|---|---|---|
+| **chain** | **at level** | 71 / 60 / 6.0 | 67 / 69 / 7.1 | 70 / 72 / 7.5 | 71 / 76 / 8.0 |
+| chain | 4 under | 57 / 67 / 5.1 | 26 / 89 / 6.3 | 43 / 86 / 7.5 | 56 / 86 / 8.2 |
+| chain | 8 under | 57 / 67 / 5.1 | 9 / 96 / 5.2 | 18 / 95 / 6.7 | 17 / 97 / 7.3 |
+| look | at level | 97 / 26 / 6.7 | 94 / 30 / 7.2 | 98 / 29 / 8.0 | 100 / 26 / 8.0 |
+| look | 4 under | 90 / 31 / 6.2 | 67 / 60 / 9.4 | 94 / 39 / 9.4 | 99 / 33 / 9.1 |
+| look | 8 under | 90 / 31 / 6.2 | 28 / 84 / 9.7 | 64 / 64 / 10.3 | 91 / 53 / 10.5 |
+| **smart** | **at level** | 100 / 15 / 5.0 | 100 / 17 / 5.9 | 100 / 14 / 6.5 | 100 / 16 / 6.8 |
+| smart | 4 under | 100 / 18 / 4.9 | 89 / 35 / 8.1 | 99 / 22 / 7.9 | 100 / 19 / 7.8 |
+| smart | 8 under | 100 / 18 / 4.9 | 74 / 53 / 10.2 | 90 / 36 / 9.2 | 100 / 26 / 8.8 |
+
+- **Targets at level:** chain 67-71% (aim about 70), smart 100% (aim 90 or more) losing 14-17% of its health against 60-76% for chain. Turns: chain 6.0 / 7.1 / 7.5 / 8.0, look 6.7 / 7.2 / 8.0 / 8.0, smart 5.0 / 5.9 / 6.5 / 6.8 (aim 6-8; small 4-5: **small fights are a turn too long**, 5.0-6.7).
+- Under level is kinder than the first run for a reader: medium 4 under look 67% (first run 45%, 2.6.74 64%), smart 89%.
+
+**What the environment does in a fight (at level, per fight)**
+| Bot, board | Placed | Pieces kept back (no cell) | Fired by you (Sun / Bramble / Rain / Wind / Thornburst) | Fired by the creature (of which Thornburst) | Pushes | Re-fires | You lose to it | The creature loses to it | Pieces on the board: mean / most in a fight (mean) / most ever | Weakened by Mud: yours / the creature's |
+|---|---|---|---|---|---|---|---|---|---|---|
+| chain, small | 8.3 | 1.6 | 6.0 (1.6 / 0.9 / 1.8 / 0.9 / 0.9) | 0.8 (0.1) | 0.36 | 0.4 | 11% | 10% | 4.3 / 6.1 / 9 (45% of the cells) | 0.35 / 2.9 |
+| chain, medium | 10.6 | 1.8 | 8.2 (1.8 / 1.9 / 1.9 / 0.9 / 1.7) | 1.1 (0.3) | 0.35 | 0.5 | 20% | 20% | 4.2 / 6.1 / 9 (36%) | 0.38 / 3.2 |
+| chain, large | 11.4 | 1.6 | 9.2 (1.9 / 2.2 / 2.2 / 1.0 / 2.0) | 1.1 (0.2) | 0.38 | 0.6 | 22% | 23% | 4.2 / 6.1 / 9 (26%) | 0.31 / 3.5 |
+| chain, boss | 12.5 | 1.6 | 10.3 (2.0 / 3.2 / 2.1 / 1.0 / 2.0) | 1.2 (0.2) | 0.55 | 0.6 | 23% | 33% | 4.1 / 6.0 / 9 (21%) | 0.18 / 3.8 |
+| look, medium | 10.6 | 1.9 | 7.4 (1.7 / 2.0 / 1.9 / 0.7 / 1.1) | 1.6 (0.7) | 0.39 | 0.7 | 14% | 24% | 4.4 / 6.6 / 10 (40%) | 0.30 / 2.7 |
+| smart, small | 6.8 | 1.2 | 3.4 (1.0 / 0.7 / 1.2 / 0.3 / 0.2) | 1.4 (0.5) | 0.24 | 0.3 | 3% | 9% | 4.9 / 6.8 / 10 (50%) | 0.24 / 1.5 |
+| smart, medium | 8.4 | 1.3 | 4.8 (1.2 / 1.5 / 1.4 / 0.4 / 0.3) | 2.0 (1.0) | 0.27 | 0.5 | 5% | 21% | 4.6 / 6.8 / 11 (44%) | 0.26 / 1.8 |
+| smart, large | 9.8 | 1.2 | 5.9 (1.5 / 1.9 / 1.7 / 0.5 / 0.4) | 2.4 (1.3) | 0.29 | 0.6 | 6% | 25% | 4.6 / 6.7 / 10 (29%) | 0.20 / 2.0 |
+| smart, boss | 10.5 | 1.0 | 6.7 (1.4 / 2.9 / 1.5 / 0.5 / 0.4) | 2.4 (1.1) | 0.31 | 0.6 | 7% | 34% | 4.7 / 6.9 / 11 (26%) | 0.10 / 2.0 |
+
+**Does strategy matter** (share of turns where the pick with the environment's effects hidden is worse; fights with such a turn)
+| Played by | small | medium | large | boss | Fights |
+|---|---|---|---|---|---|
+| smart | 22% | 32% | 38% | 41% | 55% / 83% / 91% / 94% |
+| look | 19% | 24% | 33% | 30% | 66% / 80% / 96% / 94% |
+
+The 30% aim is met on medium to boss boards for a planner and on large and boss boards for a one-turn reader (first run: 13-32% and 8-17%).
+
+**Variants (at level, win / health lost / turns)**
+| Variant | chain small / medium / large / boss | smart small / medium / large / boss |
+|---|---|---|
+| **Final** | 71 / 60 / 6.0, 67 / 69 / 7.1, 70 / 72 / 7.5, 71 / 76 / 8.0 | 100 / 15 / 5.0, 100 / 17 / 5.9, 100 / 14 / 6.5, 100 / 16 / 6.8 |
+| Mud without teeth | 68 / 62 / 5.8, 67 / 69 / 7.0, 69 / 73 / 7.3, 69 / 78 / 8.0 | 100 / 15 / 4.7, 99 / 19 / 5.7, 100 / 14 / 6.6, 100 / 16 / 6.9 |
+| Thornburst 10% on the creature too | | 100 / 15 / 4.6, 100 / 16 / 5.6, 100 / 13 / 6.0, 100 / 16 / 6.4 |
+| No board cap | the same numbers (the cap is never reached) | |
+| First-run constants with the new rules | 81 / 52 / 5.2, 76 / 61 / 6.1, 82 / 61 / 6.5, 83 / 67 / 7.0 | 100 / 12 / 3.5, 100 / 16 / 5.0, 100 / 14 / 5.3, 100 / 15 / 5.3 |
+
+**Degenerate play with 2 pieces a round**
+- **The environment flooding the board:** no. 4.1-4.9 pieces on the board on average, 6-7 at the fullest moment of a fight, 11 at most in 7500 fights (50% of a small board, 26% of a boss board). The environment's pieces live 2-3 rounds and most are used up by the chain that fires them.
+- **Board full:** never. The 70% cap did not trigger once (0.00 passes for a full board in every cell); with the cap switched off the results are the same. It stays in as a safety limit.
+- **Passes:** the environment keeps a piece back 1.0-2.1 times a fight (13-19% of its placements) because no cell fits its edges. The player passes 0.00-0.03 times a fight. Turn cap 0-1% in every cell, also under level.
+- **Mud stalling:** no. Mud's teeth weaken 0.1-0.4 of the player's pieces and 1.5-3.8 of the creature's pieces a fight; taking the teeth away moves no result by more than the noise.
+- **Camping, wind loops:** as in the first run (re-fires 0.3-0.8 a fight; 0.2-0.6 pushes a fight).
+- **Thornburst and Bramble:** a planner still makes the creature fire 0.5-1.3 Thornbursts a fight (now 5% each) and fires 0.7-2.9 Brambles; the environment takes 9% / 21% / 25% / 34% of the creature's bar for a planner and 10% / 20% / 23% / 33% for the chain bot, who pays 11-23% of its own health in Thornbursts.
+
+**Red flags**
+1. **Mud's teeth bite the creature, not the player:** 1.5-3.8 creature pieces weakened a fight against 0.1-0.4 of the player's. The creature's pieces stand on the board for longer (yours are mostly used up by your own chains), so Mud lands next to them. Mud is in effect a small gift, and it changes no number by more than noise.
+2. **Bosses give a third of their bar to the environment** (33-34%; 3 Brambles in their deck, 2.9-3.2 Bramble firings a fight). Bars are tuned around it, but a boss fight leans on Bramble.
+3. **Small fights are a turn too long** (5.0-6.7 turns, aim 4-5). A shorter bar pushes the chain bot over 75% (small values move in steps).
+4. **The careless player pays a fifth of their health to Thornbursts** on medium to boss boards (20-23%; first run 9-12%): two pieces a round double the traps. The UI has to show the cost before the move.
+5. **The environment keeps a piece back about once a fight or more** (no fitting cell), so a face-up slot sometimes does not move.
+6. **The creature still hardly uses the environment by choice** (0.8-1.2 firings a fight against the chain bot, 1.4-2.4 against a planner with about half of them Thornbursts).
+7. Medium creatures under level stay the wall for a careless player (chain 26% at 4 under, 9% at 8 under).
+8. The bots still see which cell the environment will take (first-run red flag 7).
