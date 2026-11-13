@@ -139,11 +139,10 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     ck(T('flip: the lit spots and their numbers are worked out again; the same piece may flip back'), [after.lit > 0, after.nums > 0, after.btn], [true, true, false]);
     const other = await p.evaluate((i) => [...document.querySelectorAll('#pf-hand .pf-tile')].findIndex((t, k) => k !== i && !t.classList.contains('pfv-off')), pi);
     if (other >= 0) { await p.locator('#pf-hand .pf-tile').nth(other).click(); await p.waitForTimeout(300);
-      ck(T('flip: with another piece picked the button is off and says why (Flip used)'), [await p.isDisabled('#pf-flip'), /Flip used/.test(await p.locator('#pf-flip').innerText()), /flipped a piece this turn/.test(await p.getAttribute('#pf-flip', 'title'))], [true, true, true]);
+      ck(T('flip: picking another piece takes the flip back by itself (after 2.6.94): the first piece is no longer flipped, the button is on'), [await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].classList.contains('pfv-flipped'), pi), await p.isDisabled('#pf-flip'), /Flip used/.test(await p.locator('#pf-flip').innerText())], [false, false, false]);
       await p.locator('#pf-hand .pf-tile').nth(pi).click(); await p.waitForTimeout(300); }
     await p.click('#pf-flip'); await p.waitForTimeout(1200);
-    ck(T('flip: flipping it back restores the piece and gives the flip back'), [await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].querySelector('.pfh-cv').toDataURL(), pi) === before.art, await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].classList.contains('pfv-flipped'), pi)], [true, false]);
-    await p.click('#pf-flip'); await p.waitForTimeout(1200);
+    ck(T('flip: after the automatic flip back, flipping the piece again flips it again'), [await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].querySelector('.pfh-cv').toDataURL(), pi) !== before.art, await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].classList.contains('pfv-flipped'), pi)], [true, true]);
     await shot('4-fight-flipped');
 
     // ---- the turn played back step by step: Your turn, the creature's turn, Terrain turn
