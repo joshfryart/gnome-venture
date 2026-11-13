@@ -373,7 +373,7 @@
       g.removeAttribute('id'); g.removeAttribute('data-turn'); Array.prototype.forEach.call(g.querySelectorAll('[id]'), function (x) { x.removeAttribute('id'); });
       Array.prototype.forEach.call(g.querySelectorAll('script, form, [hidden]'), function (x) { if (x.parentNode) x.parentNode.removeChild(x); });
       g.classList.add('pfv-ghost'); g.setAttribute('aria-hidden', 'true');
-      var gh = window.__pfbGhost = { n: g, t: Date.now(), x: r.left, y: r.top, w: r.width, h: r.height, bg: getComputedStyle(document.body).backgroundColor, shown: false };
+      var gh = window.__pfbGhost = { n: g, t: Date.now(), x: r.left, y: r.top, w: r.width, h: r.height, bg: '#2b1d14', shown: false };
       if (window.__pfbGhostObs) window.__pfbGhostObs.disconnect();
       var obs = window.__pfbGhostObs = new MutationObserver(function () {   // the moment the new fight is swapped in (before anything is painted), the frozen old one goes over it
         var n = document.getElementById('pfight'); if (!n || n === root || !n.parentNode || gh.shown) return;
