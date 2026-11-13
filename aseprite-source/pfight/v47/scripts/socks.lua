@@ -12,7 +12,7 @@ function S.knobSide(c, side, fam)
   local list = {}
   for v = 0, c.T do for u = 0, len - 1 do if inK2(u, v) then
     local x, y = L.sideXY(c, side, u, v)
-    local edge = not (inK2(u - 1, v) and inK2(u + 1, v) and inK2(u, v + 1))
+    local edge = not (inK2(u - 1, v) and inK2(u + 1, v) and inK2(u, v + 1) and (v == 0 or inK2(u, v - 1)))
     list[#list + 1] = { x, y, edge }
   end end end
   local isEdge = {}
@@ -43,9 +43,14 @@ function S.holeSide(c, side, fam)
     local x, y = L.sideXY(c, side, u, -d)
     if not inH[y * 1000 + x] and adj(inH, x, y) and L.inBody(c, x - c.T, y - c.T) then ring:set(x, y, L.INK); r1[y * 1000 + x] = true end
   end end
-  for d = -2, c.T + 1 do for u = -2, len + 1 do   -- ring 2: 1 px rim in the family colour, just inside
+  for d = -2, c.T + 1 do for u = -2, len + 1 do   -- ring 2: 1 px rim in the family colour; darker on the wall that faces away from the light (reads as cut deep), lighter on the lit wall
     local x, y = L.sideXY(c, side, u, -d)
-    if not inH[y * 1000 + x] and not r1[y * 1000 + x] and adj(r1, x, y) and L.inBody(c, x - c.T, y - c.T) and not L.isRim(c, x - c.T, y - c.T) then ring:set(x, y, L.FAM[fam]) end
+    if not inH[y * 1000 + x] and not r1[y * 1000 + x] and adj(r1, x, y) and L.inBody(c, x - c.T, y - c.T) and not L.isRim(c, x - c.T, y - c.T) then
+      local col = L.FAM[fam]
+      if r1[(y + 1) * 1000 + x] or r1[y * 1000 + x + 1] then col = FAMSH[fam]
+      elseif r1[(y - 1) * 1000 + x] or r1[y * 1000 + x - 1] then col = L.FAMLIGHT[fam] end
+      ring:set(x, y, col)
+    end
   end end
   return ring, cut
 end

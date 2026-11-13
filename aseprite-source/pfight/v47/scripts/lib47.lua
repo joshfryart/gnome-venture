@@ -14,6 +14,19 @@ M.TYPES = {  -- from game/assets/img/pfight/parts/atlas.json (base / light / sha
   trick  = { base = 0xf0e442, light = 0xfbf5a0, shade = 0xa8860e, mark = 0xd2bd1e },
   item   = { base = 0xe69f00, light = 0xf8c552, shade = 0xa05c08, mark = 0xb06a08 },
 }
+function M.mix(a, b, t)
+  local function ch(sh) local x, y = (a >> sh) & 255, (b >> sh) & 255; return math.floor(x + (y - x) * t + .5) end
+  return (ch(16) << 16) | (ch(8) << 8) | ch(0)
+end
+-- 5-tone hue-shifted ramp per type: hi (warm tint), light, base, shade, deep (cooler/violet), plus a rim tinted by the type
+for _, P in pairs(M.TYPES) do
+  P.hi = M.mix(M.mix(P.light, 0xfff1c8, .55), 0xffe9b0, .25)
+  local sr, sg, sb = (P.shade >> 16) & 255, (P.shade >> 8) & 255, P.shade & 255
+  P.deep = (math.floor(sr * .55 + 10) << 16) | (math.floor(sg * .5 + 4) << 8) | math.floor(sb * .62 + 18)
+  P.rim = M.mix(M.INK, P.deep, .35)
+  P.dotL = M.mix(P.base, P.light, .5)
+  P.dotD = M.mix(P.base, P.shade, .5)
+end
 M.ORDER = { "hurt", "guard", "heal", "charm", "soothe", "trick", "item" }
 
 M.CFG = {
@@ -112,6 +125,18 @@ function M.distBody(c, x, y)  -- image coords -> euclid distance to nearest body
     if M.inBody(c, xx, yy) then local d = math.sqrt((xx - bx) ^ 2 + (yy - by) ^ 2); if d < best then best = d end end
   end end
   return best
+end
+
+-- reserved areas (body coords) the game draws into, plus the glyph box: no grain dots there
+function M.reserved(c, x, y, m)
+  m = m or 1
+  local boxes
+  if c.name == "strip" then boxes = { { 3, 3, 16, 12 }, { 42, 3, 11, 11 }, { 42, 33, 11, 11 }, { 4, 40, 17, 3 }, { 17, 12, 22, 23 } }
+  else boxes = { { 5, 5, 28, 20 }, { 73, 5, 18, 18 }, { 73, 57, 18, 18 }, { 7, 68, 31, 5 }, { 30, 22, 36, 36 } } end
+  for _, b in ipairs(boxes) do
+    if x >= b[1] - m and x < b[1] + b[3] + m and y >= b[2] - m and y < b[2] + b[4] + m then return true end
+  end
+  return false
 end
 
 -- socket (knob / hole) profile ------------------------------------------

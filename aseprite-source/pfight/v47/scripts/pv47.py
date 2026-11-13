@@ -33,18 +33,16 @@ def piece(size, typ, edges=None, owner='me'):
     """edges: dict side -> (kind, fam); returns RGBA image W x H"""
     edges = edges or {}
     img = P(size, 'tile-%s-%s' % (size, typ)).copy()
-    if owner == 'env':   # grey body: swap the type ramp for a grey ramp
-        from_to = {}
-        t = {'hurt': ((213, 94, 0), (240, 138, 60), (138, 44, 10)), 'guard': ((0, 99, 158), (63, 155, 208), (10, 61, 110)), 'heal': ((0, 158, 115), (76, 199, 154), (6, 106, 85)),
-             'charm': ((204, 121, 167), (234, 166, 200), (138, 63, 112)), 'soothe': ((98, 188, 238), (164, 220, 248), (47, 132, 189)), 'trick': ((240, 228, 66), (251, 245, 160), (168, 134, 14)),
-             'item': ((230, 159, 0), (248, 197, 82), (160, 92, 8))}[typ]
-        g = ((0x6f, 0x6a, 0x5c), (0x9a, 0x94, 0x84), (0x4d, 0x49, 0x3f))
-        px = img.load()
+    if owner == 'env':   # grey felt: every saturated (type colour) pixel becomes a grey of the same relative lightness
+        base = {'hurt': (213, 94, 0), 'guard': (0, 99, 158), 'heal': (0, 158, 115), 'charm': (204, 121, 167), 'soothe': (98, 188, 238), 'trick': (240, 228, 66), 'item': (230, 159, 0)}[typ]
+        lum = lambda r, g, b: 0.3 * r + 0.59 * g + 0.11 * b
+        bl = lum(*base); px = img.load()
         for y in range(img.height):
             for x in range(img.width):
-                r, gg, b, a = px[x, y]
-                for k in range(3):
-                    if (r, gg, b) == t[k]: px[x, y] = g[k] + (a,)
+                r, g, b, a = px[x, y]
+                if a and max(r, g, b) - min(r, g, b) > 70:
+                    k = lum(r, g, b) / bl
+                    px[x, y] = (min(255, int(0x6f * k)), min(255, int(0x6a * k)), min(255, int(0x5c * k)), 255)
     if owner in ('foe', 'env'): img.alpha_composite(P(size, 'frame-%s-%s' % (size, owner)))
     for side in SIDES:
         if side in edges and edges[side]: stamp(img, size, side, edges[side][1], edges[side][0])

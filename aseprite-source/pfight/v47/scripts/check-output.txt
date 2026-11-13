@@ -38,4 +38,12 @@ PASS hand cluster of 8 pieces (5x3 grid): 0 overlapping pixels
 PASS hand cluster: 3204 hole cells, 0 left empty (no gaps)
 PASS strip glyphs never overlap a hole or its rim; smallest gap 0 px (0 = touching) 
 PASS hand glyphs never overlap a hole or its rim; smallest gap 0 px (0 = touching) 
+PASS strip all tabs and holes are mirror-symmetric (alpha) 
+PASS strip outline weight: all silhouette edge pixels of 40 random pieces are dark (1 px, same colour family) 
+PASS strip no isolated orphan pixels in 40 random pieces 
+PASS strip felt grain uses 2.3% of body pixels (limit 6%)
+PASS hand all tabs and holes are mirror-symmetric (alpha) 
+PASS hand outline weight: all silhouette edge pixels of 40 random pieces are dark (1 px, same colour family) 
+PASS hand no isolated orphan pixels in 40 random pieces 
+PASS hand felt grain uses 2.3% of body pixels (limit 6%)
 RESULT ALL PASS

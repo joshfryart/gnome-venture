@@ -3,6 +3,7 @@ local L = dofile(debug.getinfo(1, "S").source:match("@(.*/)") .. "lib47.lua")
 local CREAM, CREAMSH, INK, GOLD, GOLDSH = L.CREAM, L.CREAMSH, L.INK, L.GOLD, L.GOLDSH
 local G = {}
 
+local CREAMHI = 0xfffbe8
 local function shade(g, depth)  -- lower-right edge of cream shapes goes one step darker (light from the upper left)
   local list = {}
   for y = 0, g.h - 1 do for x = 0, g.w - 1 do
@@ -141,6 +142,12 @@ function G.make(cfg, tname)
     for dy = -1, 1 do for dx = -1, 1 do o:set(x + 1 + dx, y + 1 + dy, INK) end end
   end end end
   o:blit(g, 1, 1)
+  for y = 1, H do for x = 1, W do   -- 1 px highlight row along the lit top edge
+    if o:get(x, y) == CREAM and o:get(x, y - 1) == INK and o:get(x, y + 1) ~= INK then o:set(x, y, CREAMHI) end
+  end end
+  if tname == "hurt" then   -- claw tips pick up the type colour
+    for y = H - (hand and 4 or 2), H do for x = 1, W do local v = o:get(x, y); if v == CREAM or v == CREAMSH then o:set(x, y, P.light) end end end
+  end
   return o
 end
 return G

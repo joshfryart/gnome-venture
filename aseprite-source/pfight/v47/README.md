@@ -11,18 +11,20 @@ wide (12/16/18 px), left/right tabs odd (11/17/17), each centred on its side. Ta
 Slots left empty for the game (body coords, strip): plate 16x12 at (3,3), owner badge 11x11 at (42,3), star/flip 11x11 at (42,33), pips from (4,40).
 
 ## Files (strip/ and hand/, each .aseprite + .png)
-tile-<size>-<hurt|guard|heal|charm|soothe|trick|item> (layers base, shade, light, stitch, glyph, rim) | sock-<size>-<body|mind|craft>-<knob|hole>
+tile-<size>-<hurt|guard|heal|charm|soothe|trick|item> (layers base, grain, shade, light, stitch, glyph, rim; 5-tone ramp hi/light/base/shade/deep, rim tinted by type) | sock-<size>-<body|mind|craft>-<knob|hole>
 frame-<size>-<me|foe|env> | overlay-<size>-<picked|faded|now> | badge-<size>-<lock|star|flip|eye|land> (11x11 / 18x18).
-Also: scripts/ (Lua + check.py + make_sheet.py + check-output.txt), contact-sheet.html (+ sheet/), board-cluster-strip.png, board-cluster-hand.png.
+Also: scripts/ (Lua, run.sh, check.py, make_sheet.py, check-output.txt), contact-sheet.html (+ sheet/), compare-today-vs-new.html,
+board-cluster-strip.png, board-cluster-hand.png, history/ (pass0-jigsaw, pass1-puzzle, pass2-rich, compare sheet PNGs).
+Pass 3 polish sheet = history/pass3-polish.png. Grain: sparse 1 px dots, 2.4% of body pixels, never near glyph, plate, badges, pips, stitch.
 Sock files hold all four sides in one image (layers top/right/bottom/left); crop one side with the rectangles in scripts/pv47.py `region()`.
 Knob = pixels to stamp (dark outline + family fill + the junction row on the body edge). Hole = ring pixels (1 px dark, 1 px family colour)
 plus the cut-out marked with pure magenta #ff00ff (= ERASE: set transparent). Stamp order: tile, frame, socks. `pv47.piece()` does exactly this.
 Tab shapes: Body = neck + round head (red), Mind = keyhole (purple), Craft = blunt wedge (gold). A knob fills the hole exactly (verified).
-Overlays: picked = gold ring (3 px strip, 4 px hand) + dark edge, draw UNDER the piece; now = glow ring + sparkles, UNDER; faded = 50% stipple veil
+Overlays: picked = hue-shifted gold gradient ring (3 px strip, 4 px hand) + dark edge, draw UNDER the piece; now = glow ring + sparkles, UNDER; faded = 50% stipple veil
 (no semi-transparency is allowed), OVER the piece; desaturate the tile in code. Env body: map type base/light/shade to greys (see pv47.piece).
 
 ## Run
-`SC=<scratch>; $SC/ase.sh --batch --script scripts/build_all.lua` (draws all), then `python3 scripts/make_sheet.py`, `python3 scripts/check.py`.
+`SC=<dir containing ase.sh> scripts/run.sh` = draw all (Aseprite batch), build sheets, run check.py.
 
 ## What the game code needs (not done here)
 - atlas.json / gen_parts.py: new sizes (piece 82x73 and 140x124, body at 13 / 22, pitch 56x47 / 96x80), tab depth 13 / 22 on all sides.

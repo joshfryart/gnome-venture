@@ -67,3 +67,33 @@ h1{font-size:1.3rem;color:#f6c453}h2{font-size:1.15rem;color:#f6c453;margin:36px
 .board{display:inline-block;padding:14px;background:#2f2016;border:2px solid #5b4128}'''
 open(os.path.join(V, 'contact-sheet.html'), 'w').write('<!doctype html><html><head><meta charset="utf-8"><title>Puzzle pieces v47</title><style>%s</style></head><body><h1>Puzzle-combat pieces v47 (56 x 47 strip, 96 x 80 hand)</h1>%s</body></html>' % (CSS, ''.join(H)))
 print('sheet written')
+
+# ---- compare-today-vs-new.html : today's art (game/assets/img/pfight/parts) beside the new set, same scale
+import json
+TODAY = '../../../game/assets/img/pfight/parts/'
+dj = json.load(open(os.path.join(V, '..', '..', '..', 'game/assets/img/pfight/parts/example/board-demo-pieces.json')))
+KM = {'L': 'left', 'R': 'right', 'T': 'top', 'B': 'bottom'}
+def newboard(size, key):
+    cells = []
+    for k, v in dj[key].items():
+        x, y = map(int, k.split(',')); e = {KM[s]: (kd, fam) for s, (kd, fam) in v['edges'].items() if kd != 'flat'}
+        cells.append((x, y, piece(size, v['type'], e, v['owner'])))
+    cols = max(c[0] for c in cells) + 1; rows = max(c[1] for c in cells) + 1
+    return board(size, cells, cols, rows)
+newboard('strip', 'strip-3x3').save(os.path.join(SH, 'compare-strip-board.png'))
+hk = [k for k in dj if k.startswith('hand')]
+if hk: newboard('hand', hk[0]).save(os.path.join(SH, 'compare-hand-board.png'))
+def im2(path, z, label):
+    im = Image.open(os.path.join(V, path)); return '<figure><img class="px" src="%s" style="--w:%d;--h:%d;--z:%d" alt=""><figcaption>%s</figcaption></figure>' % (path, im.width, im.height, z, label)
+C = ['<h1>Today (left) vs the new 56 x 47 jigsaw set (right), same pixel scale</h1><p>Same pieces (types, owners, edge families) as the game\'s own board-demo files. Today: body 56x40, bumps 9 / 6 px. New: body 56x47, tabs 13 px.</p>']
+C.append('<h2>Strip board, 3 x 3, 3x</h2><div class="row">' + im2('../../../game/assets/img/pfight/parts/example/board-demo.png', 3, 'today') + im2('sheet/compare-strip-board.png', 3, 'new') + '</div>')
+if hk:
+    C.append('<h2>Hand board, 2 x 2, 2x</h2><div class="row">' + im2('../../../game/assets/img/pfight/parts/example/board-demo-hand.png', 2, 'today') + im2('sheet/compare-hand-board.png', 2, 'new') + '</div>')
+C.append('<h2>One piece: creature trick, left hole Mind, right knob Body, top hole Craft, bottom hole Mind, 5x</h2><div class="row">' + im2('../../../game/assets/img/pfight/parts/example/strip-foe-trick-final.png', 5, 'today') +
+         im2(save('compare-foe-trick', piece('strip', 'trick', dict(left=('hole', 'mind'), right=('knob', 'body'), top=('hole', 'craft'), bottom=('hole', 'mind')), 'foe')), 'strip', 5, 'new') if False else '</div>')
+foe = save('compare-foe-trick', piece('strip', 'trick', dict(left=('hole', 'mind'), right=('knob', 'body'), top=('hole', 'craft'), bottom=('hole', 'mind')), 'foe'))
+C[-1] = C[-1][:-6] if C[-1].endswith('</div>') else C[-1]
+C.append('<h2>One piece: creature trick, left hole Mind, right knob Body, top hole Craft, bottom hole Mind, 5x</h2><div class="row">' + im2('../../../game/assets/img/pfight/parts/example/strip-foe-trick-final.png', 5, 'today') + im2(foe, 5, 'new') + '</div>')
+C.append('<h2>Type icons: today 20x20 (5x) vs new glyph tiles (strip, 4x)</h2><div class="row">' + im2('../../../game/assets/img/pfight/parts/icons-strip.png', 5, 'today: icons-strip.png') + '</div><div class="row">' + ''.join(im2('strip/tile-strip-%s.png' % t, 3, t) for t in TYPES) + '</div>')
+open(os.path.join(V, 'compare-today-vs-new.html'), 'w').write('<!doctype html><html><head><meta charset="utf-8"><title>Today vs new</title><style>%s</style></head><body>%s</body></html>' % (CSS, ''.join(C)))
+print('compare written')

@@ -109,5 +109,42 @@ for size, c in CFG.items():
             if gp & hp: hit.append((t, fam))
             gaps.append(min(max(abs(a[0] - b[0]), abs(a[1] - b[1])) for a in gp for b in hp) - 1)
     rep(not hit, '%s glyphs never overlap a hole or its rim; smallest gap %d px (0 = touching) %s' % (size, min(gaps), hit[:3] or ''))
+# 7. polish: symmetric tabs and holes, identical outline weight (every silhouette edge pixel is dark), no orphan pixels
+for size, cf in CFG.items():
+    bad = []
+    for fam in FAMS:
+        for kind in ('knob', 'hole'):
+            sk = P(size, 'sock-%s-%s-%s' % (size, fam, kind))
+            for side in SIDES:
+                x0, y0, x1, y1 = region(size, side)
+                for x in range(x0, x1):
+                    for y in range(y0, y1):
+                        mx, my = (cf['W'] - 1 - x, y) if side in ('top', 'bottom') else (x, cf['H'] - 1 - y)
+                        if not (x0 <= mx < x1 and y0 <= my < y1): continue
+                        if (sk.getpixel((x, y))[3] > 0) != (sk.getpixel((mx, my))[3] > 0): bad.append((fam, kind, side, x, y))
+    rep(not bad, '%s all tabs and holes are mirror-symmetric (alpha) %s' % (size, bad[:2] or ''))
+    lum = lambda p: 0.3 * p[0] + 0.59 * p[1] + 0.11 * p[2]
+    light_edge, orph = [], []
+    import random
+    rnd = random.Random(5)
+    for n in range(40):
+        t = TYPES[n % 7]
+        e = {s: (rnd.choice(['knob', 'hole', None]), rnd.choice(FAMS)) for s in SIDES}
+        e = {s: v for s, v in e.items() if v[0]}
+        owner = ['me', 'foe'][n % 2]
+        im = piece(size, t, e, owner); px = im.load(); W_, H_ = im.size
+        for y in range(H_):
+            for x in range(W_):
+                if px[x, y][3] == 0: continue
+                nb4 = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+                if any(not (0 <= a < W_ and 0 <= b < H_) or px[a, b][3] == 0 for a, b in nb4):
+                    if lum(px[x, y]) > 80: light_edge.append((t, x, y))
+                if not any(0 <= x + dx < W_ and 0 <= y + dy < H_ and px[x + dx, y + dy][3] and (dx or dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1)): orph.append((t, x, y))
+    rep(not light_edge, '%s outline weight: all silhouette edge pixels of 40 random pieces are dark (1 px, same colour family) %s' % (size, light_edge[:3] or ''))
+    rep(not orph, '%s no isolated orphan pixels in 40 random pieces %s' % (size, orph[:3] or ''))
+    # grain budget
+    g = Image.open(os.path.join(V, 'scripts/layers/grain-%s-hurt.png' % size)).convert('RGBA')
+    ng = sum(1 for p in g.getdata() if p[3]); body = sum(1 for p in P(size, 'tile-%s-hurt' % size).getchannel('A').getdata() if p)
+    rep(ng / body <= 0.06, '%s felt grain uses %.1f%% of body pixels (limit 6%%)' % (size, 100. * ng / body))
 print('RESULT', 'FAIL (%d)' % fails if fails else 'ALL PASS')
 sys.exit(1 if fails else 0)
