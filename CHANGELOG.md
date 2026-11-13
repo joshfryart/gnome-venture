@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.87
+- **Debug log: the fight's numbers (`?pfdebug=1`), to chase "healing doesn't heal me" (Josh).** After every turn the log now has a `FIGHT` line (turn, your health out of its maximum, guard, the charm bar, the creature's health, and your health before the turn), the `HAND` types, and one `REPLAY` line per piece that fired with your health at that point. Checked in the real game first: Rest (+5), Breather (+4) and Steep (+8) heal on the server (20 to 25, 24 and 28), are saved to the expedition, and show on the page; a Snack piece needs a snack in the satchel and does nothing when you are at full health (by design). No game rules changed.
+- **Needs 2.6.79+, no DB change. Puzzle combat v1 is still admin-gated.**
+
 ## 2.6.86
 - **The background behind the fight pop-up blinked on End turn (Josh).** Two causes, both fixed. (1) Each turn the page around the pop-up (the Trail map) was thrown away and rebuilt from the server's copy and its map scripts started again; now nothing behind a fight is touched during its turns (`site.js` `keepTrailPop`; the status bar, user bar and message list are also left alone when their new copy is identical). (2) The margins around the fight are the fight's own dim over the pop-up window, so while the old fight was out of the way for a moment they showed the window's raw colour, about 19 brightness levels lighter; the pop-up window now has exactly the dimmed colour (`pfv1.css`, 2 levels of difference left, not visible). Measured frame by frame in the real game.
 - **Needs 2.6.79+, no DB change. Puzzle combat v1 is still admin-gated. The debug log (`?pfdebug=1`) stays in.**

@@ -59,12 +59,22 @@
 
   // ---- what the page does to itself: the swap of <main>, the fight and its dialog being replaced
   var lastFight = null, lastDlg = null, lastMain = null, swaps = 0;
+  // ---- 2.6.87: the numbers of the fight after every turn (health, guard, the hand and what the replay did), to see a heal that does not heal
+  function fightNums() {
+    try {
+      var el = document.getElementById('pf-data'); if (!el) return; var d = JSON.parse(el.textContent);
+      var pr = document.querySelector('.pfc-top .pf-hp progress'), root = document.getElementById('pfight');
+      log('FIGHT turn=' + (root && root.dataset.turn) + ' hp=' + d.hp + '/' + (pr ? pr.max : '?') + ' guard=' + d.guard + ' bar=' + d.bar + '/' + d.barmax + ' fh=' + d.fh + '/' + d.fhmax + (d.replay0 ? ' | before: hp=' + d.replay0.hp + ' g=' + d.replay0.g : ''));
+      log('  HAND ' + (d.hand || []).map(function (h) { return h.t + (h.v !== undefined ? h.v : '') + (h.n ? '(' + h.n + ')' : ''); }).join(' '));
+      (d.replay || []).forEach(function (r) { log('  REPLAY ' + r.by + ' ' + r.t + ' hp=' + r.hp + ' g=' + r.g + ' ' + String(r.ln || '').slice(0, 60)); });
+    } catch (e) { log('FIGHT numbers failed: ' + e.message); }
+  }
   function watch() {
     var main = document.querySelector('main'), fi = document.getElementById('pfight'), dl = document.getElementById('trailpop');
     if (lastMain && main && main !== lastMain) log('MAIN element replaced');
-    if (lastFight && fi !== lastFight) log('#pfight ' + (fi ? 'NEW node (fight rebuilt)' : 'GONE'));
+    if (lastFight && fi !== lastFight) { log('#pfight ' + (fi ? 'NEW node (fight rebuilt)' : 'GONE')); if (fi) fightNums(); }
     if (lastDlg && dl !== lastDlg) log('#trailpop ' + (dl ? 'NEW dialog node' : 'GONE'));
-    if (!lastFight && fi) log('#pfight appeared');
+    if (!lastFight && fi) { log('#pfight appeared'); fightNums(); }
     lastMain = main; lastFight = fi; lastDlg = dl;
   }
   function startObs() {
