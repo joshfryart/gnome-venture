@@ -77,7 +77,7 @@ rep("var lit = litCells(selected), b = working();", "var lit = litCells(selected
 rep("(p.fnew && !playing && !p.gone ? ' pfv-fnew' : '')", "(p.fnew && !playing && !p.gone ? ' pfv-fnew' : '') + (p.by === 'env' ? ' pfb-env k-' + p.kind : '') + (envLit[p.id] ? ' pfv-envlit' : '') + (p.by === 'env' && revealId !== null && p.id === revealId ? ' pfv-envin' : '') + (slideIds[p.id] ? ' pfv-slide-' + slideIds[p.id] : '') + (p.gone && fadeIds[p.id] ? ' pfv-fades' : '')")
 rep("cell.appendChild(pipsEl(p.left, p.life));   // v1: the rounds it still stays", "cell.appendChild(pipsEl(p.left, p.life));   // v1: the rounds it still stays\n        envDeco(cell, p);")
 rep("    drawRows(); flipLabel(); fitBoard();", "    drawRows(); if (ENV) drawLegend(); flipLabel(); fitBoard();")
-rep("if (pc) { picked = ev.id; showText(", "if (pc && ev.env !== 'place') { picked = ev.id; showText(")
+rep("if (pc) { picked = ev.id; showText(", "if (pc && ev.env !== 'place') { picked = ev.id; if (!dockOn) showText(")
 rep("if (slot && p && P && P.ok && p.by !== 'none') { var c = P.piece({ size: 'hand', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: isOld(p), num: p.v, tint: data.tint });", "if (slot && p && P && P.ok && p.by !== 'none') { var c = p.by === 'env' ? envCv(P, p, 'hand') : P.piece({ size: 'hand', owner: p.by === 'foe' ? 'foe' : 'me', type: p.t, tag: p.tag, m: p.m, rar: modRar(p.m), edges: p.e, old: isOld(p), num: p.v, tint: data.tint });")
 rep("    if (p.by === 'none') return 'The blank centre piece. It fits", "    if (p.by === 'env') return envPieceInfo(p);\n    if (p.by === 'none') return 'The blank centre piece. It fits")
 # --- 2.6.76: notices: the opening, no piece fits, the new fight's banner
@@ -89,6 +89,8 @@ rep("      c.className = 'pfi-cv'; slot.appendChild(c);\n    }\n    insp.hidden 
 # --- 2.6.77: a picked hand piece shows its card in the dock under the board (when there is room to dock it)
 rep("    if (selected !== null) { tiles[i].classList.add('pf-picked'); tiles[i].setAttribute('aria-pressed', 'true'); }\n    render();\n  }\n  function showInspect(b) {", "    if (selected !== null) { tiles[i].classList.add('pf-picked'); tiles[i].setAttribute('aria-pressed', 'true'); }\n    render();\n    if (selected !== null && dockOn) showInspect(tiles[i]);\n  }\n  function showInspect(b) {")
 rep("    picked = id; showText(p.n, pieceInfo(p), p);", "    if (picked === id && insp && !insp.hidden) { insp.hidden = true; picked = null; Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-picked'), function (c) { c.classList.remove('pfb-picked'); }); return; }   // 2.6.77: tap the piece again: the card goes\n    picked = id; showText(p.n, pieceInfo(p), p);")
+# --- 2.6.77: the guard rule in words
+rep("blocks the creature\\u2019s hits until your next turn", "blocks the creature\\u2019s hits. It fades when your turn starts, unless Hold keeps it")
 out = os.path.join(R, 'game/assets/pfboardv1.js')
 if '--check' in sys.argv:
     sys.exit(0 if open(out, encoding='utf-8').read() == s else 'build_pfboardv1: game/assets/pfboardv1.js is not what the build gives (run tools/build_pfboardv1.py)')

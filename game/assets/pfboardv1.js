@@ -304,6 +304,7 @@
       + '<div class="sl">The round</div><ul class="helpl">' + row(ENV ? envTurnText() : turnText())
       + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again.'], who: '' })
       + row({ n: 'Chains', g: 'gust', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + ' Pal, tool and crop pieces in one chain: 2 kinds +30%, all 3 +60%.'], who: '' })
+      + row({ n: 'Guard', g: 'gust', l: ['Your guard blocks the creature’s hits. It fades when your turn starts, unless Hold keeps it (what is left of a Hold guard stays up once).'], who: '' })
       + row({ n: 'Flip', g: 'gust', l: ['Once a turn, free: Flip swaps the top and bottom edges of the piece you picked. A faded piece cannot be played right now; tap it to see why.'], who: '' })
       + (ENV ? '</ul><div class="sl">Environment pieces <span>tap one in the Next strip</span></div><ul class="helpl">' + ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'].map(function (k) { return row(envText(k, null)); }).join('') + '</ul>' : '')
       + (ENV ? '' : '</ul><div class="sl">Terrain <span>tap a ground cell</span></div><ul class="helpl">' + ['sun', 'br', 'mud'].map(function (k) { return row(terrText(k)); }).join('') + '</ul>'
@@ -403,6 +404,7 @@
     if (typeof ResizeObserver === 'function') { wrapObs = new ResizeObserver(function () { fitBoard(); }); wrapObs.observe(wrapEl); }
     document.addEventListener('keydown', onKey);
     if (insp) wrapEl.appendChild(insp);   // 2.6.76: the piece card is an overlay on the top of the board room when there is no room to dock it
+    var ge0 = root.querySelector('.pf-guard'); if (ge0) { ge0.title = 'Guard: blocks the creature\u2019s hits. Your guard fades when your turn starts, unless Hold keeps it.'; ge0.setAttribute('aria-label', ge0.title); }   // 2.6.77
     dockEl = document.createElement('div'); dockEl.className = 'pfv-dock'; dockEl.id = 'pfv-dock'; if (legendEl && legendEl.parentNode) legendEl.parentNode.insertBefore(dockEl, legendEl.nextSibling);   // 2.6.77: docked card (in the flow) between the board and the hand
     if (histEl && typeof MutationObserver === 'function') { dockMo = new MutationObserver(function () { if (dockOn) dockFill(); }); dockMo.observe(histEl, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] }); }
     document.addEventListener('pointerdown', inspOut, true);
@@ -434,14 +436,15 @@
     if (fitBusy || !wrapEl || !fitTW || !root.classList.contains('pfv-fit')) return;
     fitBusy = true;
     try {
-      var ar = fitTW / fitTH, base = {}, r, w, h, rem, hw0 = HAND_W(), hh0 = Math.round(hw0 * 52 / 74), n = tiles.length || 5;
-      fitVars({ '--pfv-btn': '44px', '--pfv-dock': '46px' }); wrapEl.style.flex = ''; wrapEl.style.height = ''; setDock(true);   // the card is docked always, never over the board
+      var ar = fitTW / fitTH, base = {}, r, w, h, rem, hw0 = HAND_W(), hh0 = Math.round(hw0 * 52 / 74), n = tiles.length || 5, d0 = 46, rows = (data.h || 5);
+      fitVars({ '--pfv-btn': '44px', '--pfv-dock': d0 + 'px' }); wrapEl.style.flex = ''; wrapEl.style.height = ''; setDock(true);   // the card is docked always, never over the board
       r = wrapEl.getBoundingClientRect(); if (r.height < 30 || r.width < 30) return;
       w = Math.floor(Math.min(r.width, r.height * ar, fitTW * 1.7)); h = Math.round(w / ar);
+      if (h < 27 * rows) { d0 = 34; fitVars({ '--pfv-btn': '44px', '--pfv-dock': d0 + 'px' }); r = wrapEl.getBoundingClientRect(); w = Math.floor(Math.min(r.width, r.height * ar, fitTW * 1.7)); h = Math.round(w / ar); }   // a small screen: the card is one line high so the cells stay readable
       boardEl.style.maxWidth = 'none'; boardEl.style.aspectRatio = fitTW + ' / ' + fitTH; boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px';
       rem = Math.floor(r.height - h) - 4;
       if (rem >= 10) {
-        var v = { '--pfv-btn': '44px', '--pfv-dock': '46px' }, dock = 46, hs = 1, gaps = Math.max(1, root.children.length - 1);
+        var v = { '--pfv-btn': '44px', '--pfv-dock': d0 + 'px' }, dock = d0, hs = 1, gaps = Math.max(1, root.children.length - 1);
         if (rem >= 8) { v['--pfv-btn'] = '48px'; rem -= 4; }
         var avail = handEl.clientWidth, hsW = Math.min(1.5, avail / (hw0 * (n - 0.12 * (n - 1)))), hcost = function (x) { return Math.round(hh0 * (x - 1)); };
         hsW = Math.max(1, Math.floor(hsW * 20) / 20);
@@ -456,11 +459,11 @@
         fitVars(v);
         if (rem > 6) { wrapEl.style.flex = '0 1 auto'; wrapEl.style.height = h + 'px'; }   // what is left: the whole block is centred, one band over it and one under it (the rows give way first if something grows)
         // the card, the hand and the buttons must not push the board out of its room: if they did, take the extras back step by step
-        var tries = 0; while (tries++ < 4 && wrapEl.getBoundingClientRect().height < h - 1 && (v['--pfv-hw'] !== hw0 + 'px' || v['--pfv-dock'] !== '46px')) {
-          if (v['--pfv-dock'] !== '46px') v['--pfv-dock'] = '46px'; else { delete v['--pfv-hw']; delete v['--pfv-hh']; }
+        var tries = 0; while (tries++ < 4 && wrapEl.getBoundingClientRect().height < h - 1 && (v['--pfv-hw'] !== hw0 + 'px' || v['--pfv-dock'] !== d0 + 'px')) {
+          if (v['--pfv-dock'] !== d0 + 'px') v['--pfv-dock'] = d0 + 'px'; else { delete v['--pfv-hw']; delete v['--pfv-hh']; }
           fitVars(v);
         }
-        if (wrapEl.getBoundingClientRect().height < h - 1) { fitVars({ '--pfv-btn': '44px', '--pfv-dock': '46px' }); wrapEl.style.flex = ''; wrapEl.style.height = ''; var r2 = wrapEl.getBoundingClientRect(); w = Math.floor(Math.min(r2.width, r2.height * ar, fitTW * 1.7)); h = Math.round(w / ar); boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px'; }
+        if (wrapEl.getBoundingClientRect().height < h - 1) { fitVars({ '--pfv-btn': '44px', '--pfv-dock': d0 + 'px' }); wrapEl.style.flex = ''; wrapEl.style.height = ''; var r2 = wrapEl.getBoundingClientRect(); w = Math.floor(Math.min(r2.width, r2.height * ar, fitTW * 1.7)); h = Math.round(w / ar); boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px'; }
       }
       if (dockOn) { root.classList.toggle('pfv-docks', dockEl.clientHeight < 70); if (insp && !insp.hidden && selected === null && picked === null) insp.hidden = true; dockEl.style.setProperty('--pfv-dockh', dockEl.clientHeight + 'px'); dockFill(); }
     } finally { fitBusy = false; }
@@ -957,7 +960,7 @@
   function setGuard(g) {   // the blue guard bar under your head: follows the replay as guard is built and blocks hits
     var el = root.querySelector('.pf-guard'); if (!el || g === null || g === undefined || g === '') return; g = Math.max(0, +g);
     var f = el.querySelector('.gfill'), b = el.querySelector('b'); if (f) f.style.width = Math.min(100, g * 100 / 16) + '%'; if (b) b.textContent = String(g);
-    el.classList.toggle('pf-guard-0', g <= 0); el.setAttribute('aria-label', 'Guard ' + g + ': blocks the creature\u2019s hits until your next turn');
+    el.classList.toggle('pf-guard-0', g <= 0); el.setAttribute('aria-label', 'Guard ' + g + ': blocks the creature\u2019s hits. It fades when your turn starts, unless Hold keeps it');
   }
   function setHp(v) { var pr = root.querySelector('.pfc-top .pf-hp progress'); if (pr) pr.value = v; }
   function afterLeave() {   // everything has scored and the old pieces are gone: the board adds a creature piece if it is short, growing into place
@@ -1002,7 +1005,7 @@
         if (ev.id && hiddenIds[ev.id]) { delete hiddenIds[ev.id]; revealId = ev.id; render(); revealId = null; }   // its piece is put down now, then it scores
         Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
         stepNote = ev.ln || ''; envStep(ev);
-        if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); var pc = pieceById(ev.id); if (pc && ev.env !== 'place') { picked = ev.id; showText(pc.n, pieceInfo(pc), pc); } }
+        if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); var pc = pieceById(ev.id); if (pc && ev.env !== 'place') { picked = ev.id; if (!dockOn) showText(pc.n, pieceInfo(pc), pc); } }
         revealChip(k);
         if (ev.bar !== null && ev.bar !== undefined) setBar(ev.bar, data.barmax); if (ev.fh !== null && ev.fh !== undefined) setFh(ev.fh, data.fhmax); if (ev.hp !== null && ev.hp !== undefined) setHp(ev.hp);
         setGuard(ev.g);

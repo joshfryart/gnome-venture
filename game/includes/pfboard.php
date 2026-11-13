@@ -900,6 +900,19 @@ function pfb_foe_len(array $s): int
     return max(0, min(count($s['foe']['hand']), 1 - (int)$s['foe']['slow']));
 }
 
+/** 2.6.77: the notices for your guard at the start of your turn ('fade' = it ran out, 'hold' = a Hold guard stayed up), as events after the round's others; gnow is what the shield shows from there on. */
+function pfb_guard_notes(array &$s, array &$ev): void
+{
+    if (empty($s['v1']) || $s['over']) return;
+    $ta = $ev ? (string)(end($ev)['ta'] ?? 'foe') : 'foe';
+    foreach ([['fade', (int)($s['me']['faded'] ?? 0)], ['hold', (int)($s['me']['kept'] ?? 0)]] as [$k, $n]) {
+        if ($n <= 0) continue;
+        $e = pfb_note($k, (string)$n); $e['by'] = 'me'; $e['ta'] = $ta;
+        $e['barnow'] = round((float)$s['bar']['now'], 1); $e['fhnow'] = round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];
+        $ev[] = $e;
+    }
+}
+
 /** 2.6.76: a notice event (no piece, no numbers): the creature acts more than normal or you lose a play. note = quick | slow | trip. The page shows it as a chip, a log line and in the banner. */
 function pfb_note(string $kind, string $n = ''): array
 {
@@ -1072,6 +1085,7 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null,
     if (!$w['over']) pfb_end_round($w);
     if (!empty($w['v1'])) $ev = array_merge($ev, pfb_env_events($w));   // v1: the terrain turn, as events after the creature's (ta 'env')
     if ($trip && !$w['over']) { $tn = pfb_note('trip'); $tn['ta'] = $ev ? (string)(end($ev)['ta'] ?? 'foe') : 'foe'; $ev[] = $tn; }   // 2.6.76: you draw one fewer
+    pfb_guard_notes($w, $ev);   // 2.6.77
     $w['fx'] = pfb_fx($ev);
     $w['log'][] = ['turn' => $s['turn'], 'n' => 1];
     $s = $w;
@@ -1146,7 +1160,11 @@ function pfb_end_round(array &$s): void
     if (!empty($s['v1']['env'])) { $eg = array_values(array_map(fn($p) => $p['id'], array_filter($gone, fn($p) => $p['by'] === 'env'))); if ($eg) $s['envlog'][] = ['k' => 'expire', 'x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0, 'ids' => $eg]; }   // 2.6.75: environment pieces whose time is up
     pf_draw($s, 'foe', $s['foe']['hsize']);
     $s['turn']++; $s['round']++;
-    $s['me']['block'] = $s['me']['keep']; $s['me']['keep'] = 0; $s['me']['thorns'] = false; $s['me']['evade'] = 0;   // a new turn for you: last turn's guard is gone (a Hold guard carries over once)
+    if (!empty($s['v1'])) {   // 2.6.77: your guard fades when your turn starts; only a Hold guard that is still standing (not used up by the hits) carries over, once
+        $kept = min((int)$s['me']['keep'], (int)$s['me']['block']); $s['me']['faded'] = max(0, (int)$s['me']['block'] - $kept); $s['me']['kept'] = $kept;
+        $s['me']['block'] = $kept; $s['me']['keep'] = 0;
+    } else { $s['me']['block'] = $s['me']['keep']; $s['me']['keep'] = 0; }   // a new turn for you: last turn's guard is gone (a Hold guard carries over once)
+    $s['me']['thorns'] = false; $s['me']['evade'] = 0;
     pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + PF_DRAW - $slow));
     $s['gone'] = array_merge(array_map(fn($p) => pfb_gone_entry($s, $p, true), $s['spent'] ?? []), array_map(fn($p) => pfb_gone_entry($s, $p, false), $gone));   // for the replay: they are shown until everything has scored, then they go
     $s['spawn'] = pfb_spawn($s);
@@ -1172,6 +1190,7 @@ function pfb_pass(array &$s, int $turn): array
     if (!$w['over']) pfb_end_round($w);
     if (!empty($w['v1'])) $ev = array_merge($ev, pfb_env_events($w));
     if ($trip && !$w['over']) { $tn = pfb_note('trip'); $tn['ta'] = $ev ? (string)(end($ev)['ta'] ?? 'foe') : 'foe'; $ev[] = $tn; }
+    pfb_guard_notes($w, $ev);   // 2.6.77
     $s = $w;
     return ['ev' => $ev, 'err' => null];
 }
