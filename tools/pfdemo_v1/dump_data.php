@@ -1,7 +1,7 @@
 <?php
 // Build-time: the game's own data tables for the playable demo (read by tools/build_pf_demo_v1.py). Prints JSON.
 // php tools/pfdemo_v1/dump_data.php > data.json     (no database: the pure part of the deck model)
-$G = __DIR__ . '/../../game/includes/';
+$G = ($argv[1] ?? (__DIR__ . '/../..')) . '/game/includes/';   // the game root (a copy of a release, or the working copy)
 require $G . 'pfboard.php'; require $G . 'pfight_game.php'; require $G . 'pfdeck.php'; require $G . 'tools.php';
 $SLUGS = ['aphid-swarm' => 'CA', 'garden-snail' => 'NWE', 'leopard-slug' => 'SA', 'shore-crab' => 'SE', 'carrion-crow' => 'EE', 'thistle-beast' => 'ESA', 'orb-spider' => 'NA',
     'grass-snake' => 'SA', 'badger' => 'NWE', 'red-fox' => 'EE', 'bramble-wolf' => 'NA', 'dune-wyrm' => 'MENA', 'ancient-snapper' => 'CB'];

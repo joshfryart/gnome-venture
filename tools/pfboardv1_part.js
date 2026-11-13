@@ -364,7 +364,35 @@
 
   /** 2.6.78: the result card of a fight that is over waits (the server marks the fight pfv-endwait) until the last turn has been replayed in full, then it fades in. A skipped or absent replay shows it at once. */
   function endReveal() { if (!root.classList.contains('pfv-endwait')) return; root.classList.remove('pfv-endwait'); root.classList.add('pfv-endin'); }
+  /** 2.6.79 (Josh: "reload still occurring on End turn"): nothing reloads (checked on an emulated phone, no navigation, no plain submit), but the turn is swapped in place and for a moment the board and hand are EMPTY until the new script has drawn them: it looks like a quick reload.
+   So the old fight is snapshotted when a form is sent (canvases copied) and shown, frozen, over the new fight until the new board is drawn; then it goes. */
+  function ghostSnap() {
+    try {
+      var r = root.getBoundingClientRect(), g = root.cloneNode(true), a = root.querySelectorAll('canvas'), b = g.querySelectorAll('canvas'), i;
+      for (i = 0; i < a.length && i < b.length; i++) { try { b[i].getContext('2d').drawImage(a[i], 0, 0); } catch (e) {} }
+      g.removeAttribute('id'); g.removeAttribute('data-turn'); Array.prototype.forEach.call(g.querySelectorAll('[id]'), function (x) { x.removeAttribute('id'); });
+      Array.prototype.forEach.call(g.querySelectorAll('script, form, [hidden]'), function (x) { if (x.parentNode) x.parentNode.removeChild(x); });
+      g.classList.add('pfv-ghost'); g.setAttribute('aria-hidden', 'true');
+      var gh = window.__pfbGhost = { n: g, t: Date.now(), x: r.left, y: r.top, w: r.width, h: r.height, bg: getComputedStyle(document.body).backgroundColor, shown: false };
+      if (window.__pfbGhostObs) window.__pfbGhostObs.disconnect();
+      var obs = window.__pfbGhostObs = new MutationObserver(function () {   // the moment the new fight is swapped in (before anything is painted), the frozen old one goes over it
+        var n = document.getElementById('pfight'); if (!n || n === root || !n.parentNode || gh.shown) return;
+        gh.shown = true; obs.disconnect(); g.style.left = gh.x + 'px'; g.style.top = gh.y + 'px'; g.style.width = gh.w + 'px'; g.style.height = gh.h + 'px'; g.style.backgroundColor = gh.bg; n.parentNode.insertBefore(g, n.nextSibling);
+      });
+      obs.observe(document.body, { childList: true, subtree: true }); setTimeout(function () { obs.disconnect(); }, 15000);
+    } catch (e) { window.__pfbGhost = null; }
+  }
+  function ghostShow() {   // the new script has started: take the ghost away when the new board is drawn
+    var gh = window.__pfbGhost; window.__pfbGhost = null;
+    if (!gh || !gh.shown || Date.now() - gh.t > 15000) return;
+    var g = gh.n, t0 = Date.now(), tm = setInterval(function () {
+      var drawn = boardEl.children.length > 0 && !!boardEl.querySelector('canvas, .pfb-cell') && document.querySelectorAll('#pf-hand .pf-tile').length > 0;
+      if ((drawn && Date.now() - t0 > 120) || Date.now() - t0 > 2500) { clearInterval(tm); if (g.parentNode) g.parentNode.removeChild(g); }
+    }, 40);
+  }
   function v1Boot() {
+    root.addEventListener('submit', ghostSnap, true);
+    ghostShow();
     if (!willReplay || !SPD || !(data.replay && data.replay.length)) endReveal();
     else setTimeout(endReveal, 40000);   // never hold the card for ever (a replay that never ran)
     drawLegend();

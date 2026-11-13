@@ -95,6 +95,18 @@ if ($what === 'setbar') {   // 2.6.78: php tests/pbox_v1_seed.php GAME setbar FR
     $s['me']['hand'] = array_map(fn($k) => pfb_v1_tile(pf_make_tile($k, $st), $s['v1']), ['charm', 'offer', 'hum', 'lull', 'bond']);
     $enc['pf'] = $s; $save(); echo 'setbar: ' . $s['bar']['now'] . '/' . $s['bar']['max'] . ' hp ' . $s['me']['hp'] . ' turn ' . $s['turn'] . "\n"; exit;
 }
+if ($what === 'nofit') {   // 2.6.79: php tests/pbox_v1_seed.php GAME nofit SEED: the opening done, a hand of Charm pieces that fit nowhere (only End turn / Pass is possible)
+    $s = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[3] ?? 7), ['v1' => true, 'blank' => true, 'can_pluck' => false]);
+    $st = ['level' => 8]; if (!empty($s['start'])) pfb_start($s, 0, 'L');
+    $kb = ['knob', 'body']; $allk = ['L' => $kb, 'R' => $kb, 'T' => $kb, 'B' => $kb];   // knob against knob never fits: every piece on the board and in the hand has four knobs
+    foreach ($s['pcs'] as $id => $pc) if ($pc['by'] !== 'none') $s['pcs'][$id]['tile']['ed'] = $allk;
+    $proto = null; foreach ($s['pcs'] as $pc) if ($pc['by'] === 'foe') { $proto = $pc; break; }
+    $cx = intdiv(pfb_w($s), 2); $cy = intdiv(pfb_h($s), 2);   // the blank centre takes anything: close its four sides too
+    if ($proto) foreach ([[1, 0], [-1, 0], [0, 1], [0, -1]] as [$dx, $dy]) { $k = ($cx + $dx) . ',' . ($cy + $dy); if (isset($s['cell'][$k])) continue; $id = ++$s['pid']; $np = $proto; $np['id'] = $id; $np['x'] = $cx + $dx; $np['y'] = $cy + $dy; $s['pcs'][$id] = $np; $s['cell'][$k] = $id; }
+    $s['me']['hand'] = array_map(function ($k) use ($s, $st, $allk) { $tl = pfb_v1_tile(pf_make_tile($k, $st), $s['v1']); $tl['ed'] = $allk; return $tl; }, ['charm', 'offer', 'hum', 'lull', 'bond']);
+    $found = true; foreach ($s['me']['hand'] as $i => $tl) if (pfb_cell_preview($s, $i)) $found = false; $try = 0;
+    $enc['pfgo'] = 1; $enc['pf'] = $s; $save(); echo 'nofit: ' . ($found ? 'ok' : 'NOT FOUND') . ' try ' . $try . "\n"; exit;
+}
 if ($what === 'notes') {   // 2.6.76: php tests/pbox_v1_seed.php GAME notes quick|slow|trip|open [SEED]: a fight whose last turn (or opening) shows that notice
     $kind = $argv[3] ?? 'quick'; $enc['pfgo'] = 1; unset($enc['pf']); $save();
     $enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[4] ?? 8), ['v1' => true, 'can_pluck' => false]); $save();   // not the blank opening: the creature's opening pieces are on the board

@@ -829,10 +829,12 @@ gvAdvFold();
         if (!res) return;
         var doc = new DOMParser().parseFromString(res.html, 'text/html');
         if (!doc.querySelector('main')) { location.href = res.url; return; }
+        var swapped = false;   // 2.6.79: once the page content is swapped in, an error in the follow-up steps must not send the form again (that reloaded the page)
+        try {
         // Keep folds the player had open (e.g. buildings, hired help) open after the swap
         var openKeys = Array.prototype.map.call(document.querySelectorAll('main details[open]'), foldKey);
         var wasFight = !!document.querySelector('.advgrid.fighting');
-        swap(doc, 'main');
+        swap(doc, 'main'); swapped = true;
         rerunScripts(document.querySelector('main'));
         document.querySelectorAll('main details').forEach(function (d) { if (openKeys.indexOf(foldKey(d)) >= 0) d.open = true; });
         swap(doc, '.statusstrip');
@@ -869,6 +871,7 @@ gvAdvFold();
         gvShelves();   // v2.4.67: the swapped-in Satchel / Crafting shelves get their handlers
         if (window.gvShpopAfterSwap) window.gvShpopAfterSwap();   // and a Satchel sheet that was open opens again
         if (after) after();
+        } catch (e) { if (!swapped) throw e; busy = false; if (window.console) console.warn('gv: after the swap: ' + (e && e.message)); }
       })
       .catch(function () { busy = false; fallback(); });
   }
@@ -880,6 +883,7 @@ gvAdvFold();
   };
   document.addEventListener('submit', function (ev) {
     var form = ev.target;
+    if (busy && (form.method || '').toLowerCase() === 'post' && form.closest && form.closest('#pfight')) { ev.preventDefault(); return; }   // 2.6.79: a fight form sent while another in-place load is still running is dropped, never sent the plain way (that was a full page load)
     if (ev.defaultPrevented || busy || (form.method || '').toLowerCase() !== 'post' || form.hasAttribute('data-noajax')) return;
     if (form.enctype === 'multipart/form-data') return;
     var main = document.querySelector('main');

@@ -453,3 +453,5 @@ html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 .pfv-endin #pfv-res { animation: pfvresin .5s ease both; }
 @keyframes pfvresin { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .pfv-endin #pfv-res { animation: none; } }
+/* 2.6.79: the frozen old fight shown over the new one until the new board is drawn (no empty flash on End turn) */
+.pfv-ghost { position: fixed !important; z-index: 40; margin: 0 !important; pointer-events: none; overflow: hidden; }
