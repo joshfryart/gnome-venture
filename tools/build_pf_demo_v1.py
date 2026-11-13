@@ -5,11 +5,16 @@ data files (dumped by tools/pfdemo_v1/dump_data.php), the stylesheets (style.css
 tools/pfdemo_v1/ holds only the glue that plays the server: pfd.js (the deck model, port of pfdeck.php), views.js (the page markup, port of pfdeck_view.php + pfight_board_html), glue.js (requests, screens).
 The game files are read from a git ref (default 51645514b = the 2.6.78 release merge) so the demo shows the shipped game even while the working copy is being changed: PFDEMO_GAME_REF=HEAD to use the latest commit.
 Usage: python3 tools/build_pf_demo_v1.py [OUT.html] [DATA_OUT.json]   (run from anywhere; php needed for the data dump)"""
-import base64, json, os, re, subprocess, sys, tempfile
+import atexit, base64, json, os, re, shutil, subprocess, sys, tempfile
 R = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); os.chdir(R)
 REF = os.environ.get('PFDEMO_GAME_REF', '51645514b')
-TMP = tempfile.mkdtemp(prefix='pfdemo_')
-subprocess.check_call('git archive %s game tools/pfengine.js | tar -x -C %s' % (REF, TMP), shell=True)
+TMP = tempfile.mkdtemp(prefix='pfdemo_'); atexit.register(shutil.rmtree, TMP, True)
+NEED = ['game/includes', 'game/assets/style.css', 'game/assets/pfight.css', 'game/assets/pfv1.css', 'game/assets/pfx.js', 'game/assets/pfparts.js', 'game/assets/pfv1box.js', 'game/assets/pfboardv1.js',
+        'game/assets/img/pfight/parts', 'game/assets/img/mini', 'game/assets/img/gnome', 'game/assets/img/ico', 'game/assets/img/ui', 'tools/pfengine.js']
+subprocess.check_call('git archive %s %s | tar -x -C %s --exclude="*/img/pfight/edge-*" --exclude="*/img/pfight/piece-*"' % (REF, ' '.join(NEED), TMP), shell=True)
+for f in subprocess.check_output(['git', 'ls-tree', '--name-only', REF, 'game/assets/img/pfight/']).decode().split():   # the small icons and the chip picture only
+    if re.match(r'game/assets/img/pfight/(ico-[a-z]+(-s)?|chip-gnome|crown-boss)\.png$', f):
+        os.makedirs(os.path.dirname(os.path.join(TMP, f)), exist_ok=True); open(os.path.join(TMP, f), 'wb').write(subprocess.check_output(['git', 'show', '%s:%s' % (REF, f)]))
 OUT = sys.argv[1] if len(sys.argv) > 1 else 'claude/mockups/pf-demo-v1.html'
 DATA_OUT = sys.argv[2] if len(sys.argv) > 2 else None
 G = TMP + '/game/assets/'; IMG = G + 'img/'; P = IMG + 'pfight/'; PT = P + 'parts/'; D = 'tools/pfdemo_v1/'
@@ -60,7 +65,9 @@ page = rd(D + 'page.html')
 def put(mark, text):
     global page
     assert page.count(mark) == 1, mark; page = page.replace(mark, lambda m: text) if False else page.replace(mark, text)
-put('/*DATA*/{}', js(data)); put('/*ART*/{}', js(art)); put('/*ATLAS*/{}', js(atlas)); put('/*RIM*/{}', js(rim)); put('/*SRC*/{}', js(src))
+put('/*DATA*/{}', js(data)); put('/*ART*/{}', js(art)); put('/*ATLAS*/{}', js(atlas)); put('/*RIM*/{}', js(rim))
+for k, v in src.items(): put('/*SRC_%s*/' % k, esc(v))
+
 put('/*ENGINE*/', esc(rd(TMP + '/tools/pfengine.js'))); put('/*PFD*/', esc(rd(D + 'pfd.js'))); put('/*VIEWS*/', esc(rd(D + 'views.js'))); put('/*GLUE*/', esc(rd(D + 'glue.js')))
 put('/*CSS*/', css)
 open(OUT, 'w', encoding='utf-8').write(page); print(OUT, len(page) // 1024, 'KB')

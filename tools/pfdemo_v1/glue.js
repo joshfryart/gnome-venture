@@ -191,10 +191,8 @@
       t.parentNode.replaceChild(frag, t);
     });
   }
-  var injected = [];
   function runScripts(names) {
-    injected.forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); }); injected = [];
-    names.forEach(function (nm) { var el = document.createElement('script'); el.textContent = SRC[nm]; document.body.appendChild(el); injected.push(el); });
+    names.forEach(function (nm) { SRC[nm](); });   // the game's own scripts, each an IIFE: run again on the new markup, as the site does when it swaps a page in place
   }
   function themeSync() { var t = document.documentElement.getAttribute('data-theme'); document.body.classList.toggle('dark', t === 'dark'); }
   function render(keepScroll) {
