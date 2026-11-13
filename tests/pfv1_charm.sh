@@ -3,13 +3,14 @@
 # Josh: "Sometimes the page reloads quickly and it's weird. Usually after I play a pink piece" / "the charm bar fills but the fight does not end" / "play the last turn fully, then show the end".
 # Plays charm pieces (plain, in a row, a charm that fills the bar, a defeat) and asserts: the page is never reloaded or navigated (the swap is in place), no failed request,
 # no console error, the replay of the last turn plays (banners, the bar reaching full) BEFORE the end scene, and a reload after the end still lands on the result.
-# Usage: tests/pfv1_charm.sh [PORT]
+# Usage: tests/pfv1_charm.sh [GAME_COPY_DIR] [PORT] [ROUTER]   (default: copies src/game to a temp dir; SRC=dir uses another game tree; FUZZ=1 plays real seeded fights with charm first)
 HERE=$(cd "$(dirname "$0")" && pwd); ROOT=$(cd "$HERE/.." && pwd)
-PORT=${1:-8811}; T=$(mktemp -d); cp -r "${SRC:-$ROOT/game}" "$T/game"; GAME=$T/game
+GAME=${1:-}; PORT=${2:-8811}; ROUTER=${3:-$HERE/router.php}
+if [ -z "$GAME" ]; then T=$(mktemp -d); cp -r "${SRC:-$ROOT/game}" "$T/game"; GAME=$T/game; fi
 rm -f "$GAME/config.php"; rm -rf "$GAME/data"; mkdir -p "$GAME/data"
 BASE=http://127.0.0.1:$PORT; LOG=$(mktemp)
-php -d session.save_path=/tmp -d display_errors=1 -S 127.0.0.1:$PORT -t "$GAME" "$HERE/router.php" >$LOG 2>&1 & PID=$!; sleep 1
-trap "kill \$PID 2>/dev/null; rm -rf \"$T\"" EXIT
+php -d session.save_path=/tmp -d display_errors=1 -S 127.0.0.1:$PORT -t "$GAME" "$ROUTER" >$LOG 2>&1 & PID=$!; sleep 1
+trap "kill \$PID 2>/dev/null; [ -n \"\$T\" ] && rm -rf \"\$T\"" EXIT
 C=$(mktemp); H=$(mktemp)
 csrf() { grep -o 'name="csrf" value="[^"]*"' "$1" | head -1 | sed 's/.*value="\([^"]*\)".*/\1/'; }
 get() { curl -s -c $C -b $C "$BASE/$1" -o $H -w '%{http_code}'; }

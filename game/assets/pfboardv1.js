@@ -77,7 +77,7 @@
     var n = ENVD.n || V1.envn || 2;
     return { n: 'Environment turn', g: 'env', l: ['Every round goes: you, the creature, then the environment.',
       'On its turn the environment puts ' + (n === 1 ? 'a piece' : n + ' pieces') + ' on the board. The pieces shown as NEXT are the ones it places at the end of this round, the left one first.',
-      'Its pieces belong to nobody. Link to one and it fires in your chain, for you. The creature can do the same.',
+      'It tries to put each piece where it links to nothing, to keep fights varied. Its pieces belong to nobody. Link to one and it fires in your chain, for you. The creature can do the same.',
       'They count for the chain like any piece: a chain of ' + (V1.limit || 3) + ' or more uses them up.'], who: 'Same rules for you and the creature.' };
   }
   function envTurnNote() { var n = ENVD.n || V1.envn || 2; return 'Environment turn. It puts ' + (n === 1 ? 'its piece' : 'its ' + n + ' pieces') + ' on the board. Nothing fires on its turn.'; }
