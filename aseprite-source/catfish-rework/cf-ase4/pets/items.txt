@@ -1,0 +1,55 @@
+ceiling|banana_leaf_fan|Banana-leaf Fan|Just for looks. A big green leaf fan sways above.
+ceiling|brass_lantern|Brass Lantern|Just for looks. Fills the room with a warm glow.
+ceiling|kente_bunting|Kente Bunting|Just for looks. Bright woven flags to hang up.
+ceiling|marigold_garland|Marigold Garland|Just for looks. A bright orange flower garland.
+ceiling|panpipe_chime|Panpipe Chime|Just for looks. Hollow pipes that hum in a draught.
+ceiling|paper_lantern_string|Paper Lantern String|Just for looks. A string of soft paper lanterns.
+ceiling|rain_cloud_mobile|Rain-cloud Mobile|Tap for 15 minutes of Kibble. Ready every 24 hours.
+ceiling|siesta_fan|Siesta Fan|Away time earns 15 minutes longer.
+ceiling|southern_cross_mobile|Southern Cross Mobile|Adds 2% to your Kibble.
+ceiling|steel_pan_chime|Steel-pan Chime|Tap for 10 minutes of Kibble. Ready every 12 hours.
+floor-left|capybara_plush|Capybara Plush|Cat Show +1 if the cat you enter is lazy.
+floor-left|felt_boot_bed|Felt Boot Bed|Away time earns 10 minutes longer.
+floor-left|grass_tuft|Grass Tuft|Away time earns 10 minutes longer.
+floor-left|hammock_net|Hammock Net|Away time earns 10 minutes longer.
+floor-left|kilim_cushion|Kilim Cushion|Cat Show +1 for the cat you enter.
+floor-left|kiwi_plush|Kiwi Plush|Cat Show +1 for the cat you enter.
+floor-left|paddy_hat_bed|Paddy-hat Bed|Away time earns 15 minutes longer.
+floor-left|talking_drum|Talking Drum|One free shelter reroll a day. It still counts toward the limit.
+floor-left|tiger_stripe_rug|Tiger-stripe Rug|Just for looks. A striped rug for the corner.
+floor-right|calabash_bowl|Calabash Bowl|Adds 2% to your Kibble.
+floor-right|mosaic_mat|Mosaic Mat|Just for looks. A tiled mat for the floor.
+floor-right|rug_runner|Rug Runner|Just for looks. A cosy woven runner for the floor.
+floor-right|tea_tray|Tea Tray|Tap for 5 min of Kibble and happy cats. Every 12 hours.
+frame|chai_stall_sign|Chai Stall Sign|Adds 2% to your Kibble.
+frame|driftwood_board|Driftwood Board|Just for looks. A weathered board for the wall.
+frame|gecko_friend|Gecko Friend|Just for looks. A little gecko scurries across the frame.
+frame|mask_frame|Mask Frame|Just for looks. A carved wooden mask frames the wall.
+frame|mirage_mirror|Mirage Mirror|Says if tomorrow\
+rod|bell_lure|Bell Lure|Just for looks. Jingles, and gold combos give a pop.
+rod|coffee_bean_rattle|Coffee-bean Rattle|Your first 30 taps each day earn 25% more.
+rod|flying_fish_charm|Flying-fish Charm|Just for looks. Your rod charm leaps and flashes.
+rod|kite_tail_lure|Kite Tail Lure|Catnip Hour lasts 10 minutes longer.
+rod|koi_kite_lure|Koi Kite Lure|Rare fish +5%. Fish look like koi.
+rod|lemon_on_a_string|Lemon on a String|Adds 1% to your Kibble. Fish look like lemons.
+rod|painted_egg_charm|Painted Egg Charm|Just for looks. A painted egg with a little tassel.
+rod|seashell_lure|Seashell Lure|Rare fish +5%.
+rod|toucan_feather_lure|Toucan Feather Lure|Your first 10 taps each day count 1.5 times.
+shelf|amphora|Amphora|Tap for 15 minutes of Kibble. Ready every 20 hours.
+shelf|beaded_rack|Beaded Rack|Just for looks. A small rack of bright beaded things.
+shelf|bromeliad|Bromeliad|Just for looks. A tiny frog sometimes peeks out.
+shelf|conch_shell|Conch Shell|Just for looks. Your cats stop to listen to it.
+shelf|floating_lantern|Floating Lantern|Tap for 20 minutes of Kibble. Ready every 24 hours.
+shelf|maneki_neko|Maneki-neko|Tap for 15 min of Kibble, 1 in 40 chance of Yarn. Daily.
+shelf|matryoshka_mice|Matryoshka Mice|Tap for 5 min of Kibble, 1 in 50 chance of Yarn. Daily.
+shelf|sand_timer|Sand Timer|Tap for 20 minutes of Kibble. Ready every 24 hours.
+shelf|singing_bowl|Singing Bowl|Previews your cat\
+shelf|tide_pool_jar|Tide-pool Jar|Tap for 10 min of Kibble, 1 in 30 chance of Yarn. Daily.
+sill|acacia_perch|Acacia Perch|Cat Show +1 for the cat you enter.
+sill|bonsai|Bonsai|Adds 2% to your Kibble.
+sill|parrot_perch|Parrot Perch|Once a day, shows one coat in tomorrow\
+sill|rain_stick|Rain Stick|Tap for 10 minutes of Kibble and an hour of rain. Every 16 hours.
+sill|shadow_puppet_screen|Shadow-puppet Screen|Names one coat you have never seen.
+sill|sunflower_head|Sunflower Head|Adds 1% to your Kibble. Birds peck at the seeds.
+sill|terracotta_catgrass|Terracotta Catgrass|Adds 2% to your Kibble.
+sill|weaver_bird_nest|Weaver-bird Nest|Window bird visits twice as often. Rare fish +5%.
