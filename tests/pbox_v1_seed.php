@@ -75,6 +75,19 @@ if ($what === 'midfight') {
     echo $s ? 'midfight: turn ' . $s['turn'] . ', pieces ' . count($s['pcs']) . ', environment pieces ' . count(array_filter($s['pcs'], fn($p) => $p['by'] === 'env')) . ', face up ' . count($s['env']['next'] ?? []) . ', ground ' . count($s['ter'] ?? []) . ', aim ' . (empty($s['foe']['plan']) ? 'no' : 'yes') . ', over ' . ($s['over'] ?: 'no') . "\n" : "midfight: the fight ended\n";
     exit;
 }
+if ($what === 'charm') {   // 2.6.78: php tests/pbox_v1_seed.php GAME charm SEED VARIANT: a fight (opening done) whose hand is all Charm pieces. plain = bar empty, near = the bar one piece from full (a charm win in your own chain), nearfoe = ditto, defeat = you are on 1 health
+    $var = $argv[4] ?? 'plain'; $enc['pfgo'] = 1; unset($enc['pf']); $save();
+    $s = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[3] ?? 7), ['v1' => true, 'blank' => true, 'can_pluck' => false]);
+    $st = $s['me']['stats'] ?? ['level' => 8]; $st['level'] = 8;
+    $mk = fn(string $k) => pfb_v1_tile(pf_make_tile($k, $st), $s['v1']);
+    if (!empty($s['start'])) { $err = pfb_start($s, 0, 'L'); if ($err) { echo "start: $err\n"; exit(1); } }
+    $s['me']['hand'] = array_map($mk, ['charm', 'offer', 'hum', 'lull', 'bond']);
+    if ($var === 'near') $s['bar']['now'] = round($s['bar']['max'] * 0.9, 1);
+    if ($var === 'defeat') { $s['me']['hp'] = 1; $exp['hp'] = 1; }
+    $enc['pf'] = $s; $save();
+    echo 'charm ' . $var . ': turn ' . $s['turn'] . ', bar ' . $s['bar']['now'] . '/' . $s['bar']['max'] . ', hand ' . implode(',', array_column($s['me']['hand'], 'n')) . "\n";
+    exit;
+}
 if ($what === 'notes') {   // 2.6.76: php tests/pbox_v1_seed.php GAME notes quick|slow|trip|open [SEED]: a fight whose last turn (or opening) shows that notice
     $kind = $argv[3] ?? 'quick'; $enc['pfgo'] = 1; unset($enc['pf']); $save();
     $enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[4] ?? 8), ['v1' => true, 'can_pluck' => false]); $save();   // not the blank opening: the creature's opening pieces are on the board

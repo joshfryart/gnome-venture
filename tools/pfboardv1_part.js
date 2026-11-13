@@ -362,7 +362,11 @@
     return tt + 850 / SPD;
   }
 
+  /** 2.6.78: the result card of a fight that is over waits (the server marks the fight pfv-endwait) until the last turn has been replayed in full, then it fades in. A skipped or absent replay shows it at once. */
+  function endReveal() { if (!root.classList.contains('pfv-endwait')) return; root.classList.remove('pfv-endwait'); root.classList.add('pfv-endin'); }
   function v1Boot() {
+    if (!willReplay || !SPD || !(data.replay && data.replay.length)) endReveal();
+    else setTimeout(endReveal, 40000);   // never hold the card for ever (a replay that never ran)
     drawLegend();
     if (rowEl) rowEl.addEventListener('click', function (ev) { var b = ev.target.closest('[data-ev]'); if (!b) return; var e = dispEnvs()[+b.dataset.ev]; if (e) showPop({ t: 'ev', k: e.kind, rot: e.kind === 'gust' ? ROT[e.dir] : 0, y: e.y }); });
     if (legendEl) legendEl.addEventListener('click', function (ev) {

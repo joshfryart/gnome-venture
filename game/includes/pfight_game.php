@@ -154,6 +154,9 @@ function pfight_do(array $u, array &$exp, string $do): bool
     $s = pfight_state($u, $exp, $enc, $c);
     if (!hash_equals((string)$s['nonce'], (string)($_POST['nonce'] ?? ''))) { flash('That page is from another fight. Here is the current one.', 'err'); $exp['encounter'] = json_encode($enc); return false; }   // a stale page can never play into a different fight
     $s['me']['hp'] = min((int)$s['me']['max'], max(1, (int)$exp['hp']));   // the expedition's health is the truth (the flag may have been flipped mid-fight)
+    if ($do === 'pf_finish' && ($s['mode'] ?? '') === 'board' && !empty($s['v1']) && !empty($enc['lost']) && in_array($s['over'], ['defeat', 'stall'], true)) {   // 2.6.78: a LOST fight waited for this button too (its last turn was replayed first): now it ends
+        return pfight_lost_end($u, $exp, $c, $s, $enc);
+    }
     if ($do === 'pf_finish') {   // the fight was won on an earlier turn and the page waited for this button: now the reward
         if (($s['mode'] ?? '') !== 'board' || !in_array($s['over'], ['seen_off', 'charmed'], true) || empty($enc['won'])) return false;
         $charm = $s['over'] === 'charmed';
@@ -249,6 +252,9 @@ function pfight_do(array $u, array &$exp, string $do): bool
     }
     $enc['pf'] = $s;
     $exp['encounter'] = json_encode($enc);
+    if (!empty($s['v1']) && ($s['mode'] ?? '') === 'board' && in_array($s['over'], ['defeat', 'stall'], true)) {   // 2.6.78: a fight that is lost (or runs out of turns) waits like a won one: the page replays its last turn, THEN shows the result card with a Continue button (pf_finish)
+        $enc['lost'] = $s['over']; $exp['encounter'] = json_encode($enc); return true;
+    }
     if (!empty($s['v1']) && in_array($s['over'], ['defeat', 'run', 'stall'], true)) {   // v1 (stage C): the result card of a fight that was lost or left is shown on the next page (the encounter is gone by then)
         require_once __DIR__ . '/pfdeck_view.php';
         $_SESSION['pfv_res'] = ['how' => (string)$s['over'], 'name' => (string)$c['name'], 'slug' => (string)($c['slug'] ?? ''), 'size' => (string)($c['size'] ?? 'small'), 'hp' => $s['over'] === 'defeat' ? 0 : (int)$s['me']['hp'], 'max' => (int)$s['me']['max'], 'turns' => (int)$s['turn'], 'wear' => pfv_wear_rows($u, $s), 'at' => time()];
@@ -260,20 +266,27 @@ function pfight_do(array $u, array &$exp, string $do): bool
             fight_ev(['end' => $charm ? 'peace' : 'win']);
             win_fight($u, $exp, $c, $charm, $charm, (array)($enc['stolen'] ?? []));
             return true;
-        case 'defeat':
-            fight_ev(['end' => 'ko']);
-            knock_out($u, $exp, $c);
-            return true;
-        case 'run': case 'stall':
-            exp_log($exp, $s['over'] === 'run' ? '🏃 You slip away from the ' . $c['name'] . '.' : '🍂 The ' . $c['name'] . ' loses interest and wanders off.');
-            $exp['encounter'] = null;
-            if (($exp['kind'] ?? 'walk') === 'delve' && (int)$exp['depth'] >= ((int)($exp['steps_total'] ?? 0) ?: DELVE_ROOMS)) {
-                $exp['status'] = 'done';
-                exp_log($exp, '🪜 You climb back out. The chest stays guarded.');
-            }
-            return true;
+        case 'defeat': case 'run': case 'stall':
+            return pfight_lost_end($u, $exp, $c, $s, $enc);
     }
     return false;
+}
+
+/** A fight that did not end in a win: you are knocked out, you slip away, or it loses interest. (2.6.78: a v1 board fight gets here from the Continue button, after its last turn has been replayed.) */
+function pfight_lost_end(array $u, array &$exp, array $c, array $s, array $enc): bool
+{
+    if ($s['over'] === 'defeat') {
+        fight_ev(['end' => 'ko']);
+        knock_out($u, $exp, $c);
+        return true;
+    }
+    exp_log($exp, $s['over'] === 'run' ? '🏃 You slip away from the ' . $c['name'] . '.' : '🍂 The ' . $c['name'] . ' loses interest and wanders off.');
+    $exp['encounter'] = null;
+    if (($exp['kind'] ?? 'walk') === 'delve' && (int)$exp['depth'] >= ((int)($exp['steps_total'] ?? 0) ?: DELVE_ROOMS)) {
+        $exp['status'] = 'done';
+        exp_log($exp, '🪜 You climb back out. The chest stays guarded.');
+    }
+    return true;
 }
 
 /** A dry run of the planned placements (assets/pfboard.js asks after each change). Read only: nothing is saved, and only public things come back (what the pieces would do), never the draw pile or the creature's hand. Echoes JSON and exits. */
@@ -370,9 +383,11 @@ function pfight_bar_html(array $v): string
     $h = '<div class="pf-bars">'
         . '<span class="pf-fhp" role="img" aria-label="' . e($hpLabel) . '" title="Creature health. Hurt pieces take it down; at 0 it backs off."><span class="pfx-fill fhfill" data-w="' . round(100 * $left / $fm, 1) . '"></span><b>' . (int)ceil($left) . '</b></span>';
     if ($charmable) {
-        $label = 'Charm bar: fill it to win the creature over for a better reward. Only Charm pieces fill it. ' . (int)$now . ' of ' . (int)$max;
+        $v1 = isset($v['v1']);   // 2.6.78: the v1 bar shows the engine's own number (one decimal) and is never drawn full before the fight is won (a bar a hair short of full looked full)
+        $nowS = $v1 ? round($now, 1) : $now; $pct = $v1 ? ($nowS >= $max ? 100.0 : min(96.0, floor(1000 * $nowS / $max) / 10)) : round(100 * min(1.0, $now / $max), 1);
+        $label = 'Charm bar: fill it to win the creature over for a better reward. Only Charm pieces fill it. ' . ($v1 ? $nowS . ' of ' . round($max, 1) : (int)$now . ' of ' . (int)$max);
         if (!pfight_part('resolve-frame.png')) $h .= '<div class="pf-bar" role="img" aria-label="' . e($label) . '"><progress max="' . $max . '" value="' . $now . '"></progress></div>';
-        else $h .= '<div class="pf-bar pfx-bar" role="img" aria-label="' . e($label) . '"><span class="pfx-fill charm" data-w="' . round(100 * min(1.0, $now / $max), 1) . '"></span><img class="pfx-frame" src="' . e((string)pfight_part('resolve-frame.png')) . '" alt=""></div>';
+        else $h .= '<div class="pf-bar pfx-bar" role="img" aria-label="' . e($label) . '"><span class="pfx-fill charm" data-w="' . $pct . '"></span><img class="pfx-frame" src="' . e((string)pfight_part('resolve-frame.png')) . '" alt=""></div>';
     }
     return $h . '</div>';
 }
@@ -552,7 +567,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $v = pfb_view($s);
     $nonce = e((string)$s['nonce']);
     $sm = fn(string $t) => ($i = pfight_art('ico-' . $t . '-s.png')) ? '<img class="pfh-ico" src="' . e($i) . '" alt="">' : '<span class="pfh-emo" aria-hidden="true">' . e(pfight_icon($t)) . '</span>';
-    $h = '<div class="pfight pf-screen pf-boardmode' . (pfight_part('resolve-frame.png') ? ' pfx-art' : '') . (!empty($s['start']) ? ' pf-opening' : '') . (isset($v['v1']) ? ' pf-v1' : '') . '" id="pfight" data-turn="' . (int)$v['turn'] . '" data-mode="board" data-redraws="' . (int)$v['redraws'] . '">';
+    $h = '<div class="pfight pf-screen pf-boardmode' . (pfight_part('resolve-frame.png') ? ' pfx-art' : '') . (!empty($s['start']) ? ' pf-opening' : '') . (isset($v['v1']) ? ' pf-v1' : '') . (isset($v['v1']) && (!empty($enc['won']) || !empty($enc['lost'])) && !empty($enc['replay']) ? ' pfv-endwait' : '') . '" id="pfight" data-turn="' . (int)$v['turn'] . '" data-mode="board" data-redraws="' . (int)$v['redraws'] . '">';
     $mini = fn(string $cls, string $name, int $n) => '<span class="pfc-pile ' . $cls . '" role="img" aria-label="' . $name . ': ' . $n . ' pieces">' . (($pi = pfight_part($cls === 'deck' ? 'deck-book.png' : 'discard-bin.png')) ? '<img src="' . e($pi) . '" alt="">' : '<span aria-hidden="true">' . ($cls === 'deck' ? '📖' : '🗑️') . '</span>') . '<b>' . $n . '</b></span>';
     $h .= '@@TOP@@<div class="pfc-histrow"><ol class="pf-hist" aria-label="What has been played" aria-live="polite">';
     // the history bar IS the log: one chip per scored piece (actor, what it did, how much, who it landed on), the newest on the left, scrolling sideways; tap one to rewind the board to then.
@@ -592,7 +607,13 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '<ol class="pf-plan" id="pf-plan" aria-live="polite" hidden></ol>';
     $h .= '<form method="post" class="pf-form" id="pf-form">' . csrf_field() . '<input type="hidden" name="do" value="pfb_play"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="moves" id="pf-moves" value=""></form>';
     $won = !empty($enc['won']) && in_array($s['over'], ['seen_off', 'charmed'], true);
-    if ($won && isset($v['v1'])) {   // v1 (stage C): the result card (win or charm, tool wear, a link to the box) with the End fight button
+    $lost = isset($v['v1']) && !empty($enc['lost']) && in_array($s['over'], ['defeat', 'stall'], true);   // 2.6.78: a lost v1 fight waits for its Continue button, after the replay
+    if ($lost) {
+        require_once __DIR__ . '/pfdeck_view.php';
+        $h .= pfv_result_html(['how' => (string)$s['over'], 'name' => (string)$c['name'], 'slug' => (string)($c['slug'] ?? ''), 'size' => (string)($c['size'] ?? 'small'), 'hp' => $s['over'] === 'defeat' ? 0 : (int)$v['hp'], 'max' => (int)$v['max'], 'turns' => (int)$v['turn'], 'wear' => pfv_wear_rows($u, $s)],
+            '<form method="post" class="grow pf-endform">' . csrf_field() . '<input type="hidden" name="do" value="pf_finish"><input type="hidden" name="nonce" value="' . $nonce . '"><button class="btn primary" id="pf-end">' . ($s['over'] === 'defeat' ? '🏠 Go home to rest' : 'Continue') . '</button></form>');
+        $h .= '<button type="button" class="btn" id="pf-undo" hidden></button><button class="btn" id="pf-go" form="pf-form" hidden></button>';
+    } elseif ($won && isset($v['v1'])) {   // v1 (stage C): the result card (win or charm, tool wear, a link to the box) with the End fight button
         require_once __DIR__ . '/pfdeck_view.php';
         $h .= pfv_result_html(['how' => (string)$s['over'], 'name' => (string)$c['name'], 'slug' => (string)($c['slug'] ?? ''), 'size' => (string)($c['size'] ?? 'small'), 'hp' => (int)$v['hp'], 'max' => (int)$v['max'], 'turns' => (int)$v['turn'], 'wear' => pfv_wear_rows($u, $s)],
             '<form method="post" class="grow pf-endform">' . csrf_field() . '<input type="hidden" name="do" value="pf_finish"><input type="hidden" name="nonce" value="' . $nonce . '"><button class="btn primary" id="pf-end">🎁 Collect the reward</button></form>');
@@ -620,7 +641,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '</div>';
     if ($more !== '') $h .= '<details class="pfc-more"><summary>More: piece tips and the last turn</summary>' . $more . '</details>';
     // the board and the hand's edges for the script (public information: the board is out in the open)
-    $data = ['start' => !empty($s['start']), 'foe' => (string)$c['name'], 'won' => $won ? (string)$s['over'] : null, 'life' => PFB_LIFE, 'tags' => PF_TAGS, 'held' => $v['held'] ?? null, 'gone' => $v['gone'] ?? [], 'snaps' => (object)$usedSn, 'bar' => $v['bar']['now'], 'barmax' => $v['bar']['max'], 'fh' => $v['fh']['now'], 'fhmax' => $v['fh']['max'], 'charmable' => !empty($v['charmable']), 'hp' => $v['hp'], 'guard' => (int)$v['block'], 'replay' => $enc['replay'] ?? [], 'replay0' => $enc['replay0'] ?? null, 'mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3], $m[2]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
+    $data = ['start' => !empty($s['start']), 'foe' => (string)$c['name'], 'won' => ($won || $lost) ? (string)$s['over'] : null, 'life' => PFB_LIFE, 'tags' => PF_TAGS, 'held' => $v['held'] ?? null, 'gone' => $v['gone'] ?? [], 'snaps' => (object)$usedSn, 'bar' => $v['bar']['now'], 'barmax' => $v['bar']['max'], 'fh' => $v['fh']['now'], 'fhmax' => $v['fh']['max'], 'charmable' => !empty($v['charmable']), 'hp' => $v['hp'], 'guard' => (int)$v['block'], 'replay' => $enc['replay'] ?? [], 'replay0' => $enc['replay0'] ?? null, 'mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3], $m[2]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null, 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
     if (isset($v['v1'])) {   // the v1 board rules: ground, forecast, the creature's aim, flip, piece life (pfb_view); the page script for them is stage C
         foreach (['v1', 'round', 'ter', 'envs', 'envlog', 'aim', 'reaim', 'flip'] as $k) $data[$k] = $v[$k];
         foreach (['status', 'wear', 'env'] as $k) if (isset($v[$k])) $data[$k] = $v[$k];   // 2.6.74 deck model: what waits on each side (creature tags), tool wear so far

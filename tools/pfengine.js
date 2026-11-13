@@ -363,8 +363,9 @@
 
   function checkEnd(s) {
     if (s.over) return true;
-    if (s.fh.now >= s.fh.max) { s.over = 'seen_off'; return true; }
-    if (s.cm > 0 && s.bar.now >= s.bar.max) { s.over = 'charmed'; return true; }
+    var v1 = !!s.v1, fn = v1 ? round(s.fh.now, 1) : s.fh.now, bn = v1 ? round(s.bar.now, 1) : s.bar.now;   // 2.6.78 (v1): compared as shown (one decimal)
+    if (fn >= s.fh.max) { s.over = 'seen_off'; return true; }
+    if (s.cm > 0 && bn >= s.bar.max) { s.over = 'charmed'; return true; }
     if (s.me.hp <= 0) { s.over = 'defeat'; return true; }
     return false;
   }

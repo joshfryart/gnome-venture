@@ -448,3 +448,8 @@ html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 .pf-v1.pfv-docks .pfv-dock .pfv-dockidle li { display: inline; }
 .pfv-dock .pfv-dockidle li { white-space: normal; }
 .pf-v1.pfv-dockon .pfv-dock .pf-inspect .pfi-x { min-width: 32px; min-height: 32px; }
+/* 2.6.78: a fight that is over shows its result card only after its last turn has been replayed in full (the script lifts pfv-endwait, then the card fades in) */
+.pfv-endwait #pfv-res { display: none; }
+.pfv-endin #pfv-res { animation: pfvresin .5s ease both; }
+@keyframes pfvresin { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .pfv-endin #pfv-res { animation: none; } }
