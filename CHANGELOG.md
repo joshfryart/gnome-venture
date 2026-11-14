@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.986
+- **Fix: a creature's piece that was put down and used up in the same turn showed from the first frame of the replay, while your turn was still resolving (owner: check how Swarm turns are processed).** A Swarm creature (two pieces a turn) and any creature whose chain reaches 3 pieces use its own pieces up, and a used-up piece is drawn from the start as "gone" until everything has scored. The creature's new pieces were in that list, so they showed early. The gone entry now carries `fnew` (PHP, JS twin) and the page keeps it hidden until its own step (`pfboardv1_part.js`). In 30 seeded Swarm fights 134 such pieces were found, all now marked. Needs 2.6.97+, no DB change. Skip 2.6.981 to 2.6.985.
+
 ## 2.6.985
 - **Fix: a creature's class-rule effects played before its turn, while your turn was resolving (owner: "the enemy's turn play is happening slightly before when it should").** The replay hid a Plant's new Bramble and showed a Water-pushed piece already moved from the first frame. Now the Bramble stays off the board and the pushed piece stays where it stood until the creature's own step (`pfboardv1_part.js`: `envPre`, `envStepE`; the replay entry of a `current` note carries `moved`). Needs 2.6.97+, no DB change. Skip 2.6.981 to 2.6.984.
 
