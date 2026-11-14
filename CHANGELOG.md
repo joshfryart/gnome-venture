@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.6.98
+- **Puzzle combat v1, week 2: the aim can strike your pieces, every creature class has one rule, the environment places 1 piece a round.** Branch `claude/todo-md-jbud4h`, not built as a zip yet.
+- **Needs 2.6.95+, no DB change. Puzzle combat v1 is still admin-gated (`pfight_v1`). Only NEW fights get the changes; fights under way keep their rules.**
+- **Environment: 1 piece a round (was 2; Josh's call).** `PFB_ENV_N` in `pfboard.php` and `tools/pfengine.js`. A fight saved earlier keeps its own `envn`.
+- **Aim strike (`aimhit`, on in new fights).** If the creature's aimed piece is a Hurt and YOUR piece stands on its cell, it strikes that piece instead of picking again: the piece breaks (a Guard at least as strong as the hit holds), you take no damage, its piece is spent. The aim chip says "will strike your Swing (it breaks)", the board mark turns red, the help sheet says it, the piece cracks in the replay. Events carry `strike`.
+- **Bake-off for a board that lasts (`claude/reviews-2026-11-13/t15-bakeoff.md`).** `keepmine` (your pieces are never used up) and `useroot` (only the placed piece is used up) are built as switches but stay OFF: keepmine makes fights 4-5 turns and chain wins 95-99% at the current bar, and only reads fair at bar x3 (10-12 turns). `aimhit` alone was picked by the plan's decision rule; it barely moves real choice (15-19%) and lowers the health the careful bot loses.
+- **Class rules (switch `kinds`, on in new fights).** Critter **Swarm** (2 small pieces a turn, x0.6), Bird **Two aims** (a second aim on another cell; it plays it when you take the first), Beast **Grudge** (+25% Hurt per block, max 3, a landed hit clears it), Water **Current** (one of your touching pieces slides away), Plant **Grows** (a Bramble beside its piece, one of its own at a time), Reptile **Venom trail** (a cell where its piece left is venom for 2 turns; your piece there poisons you 2 x 2), Boss **Two turns** (it also shows the piece it plays next round, forced). Rule chip on the status row, rule line on the creature card, second-aim mark, venom cells, help text.
+- **Sims (chain/look/smart, `claude/reviews-2026-11-13/`):** the class rules move win rates by 0-7 points (inside noise at this n) and keep fights at the same length; real choice stays 14-20%, the plan's 50% target is NOT met.
+- **Tests:** `tests/pfboard_v1_lasting.php` (section 17), `tests/pfboard_v1_kinds.php` (section 19), parity runs the new switches, `pfv1_enemy_seed.php` is pinned to `kinds` 0 (its scenarios are single-piece turns), `pfdeck_v1.sh` allows 3 creature pieces a turn.
+
 ## 2.6.97
 - **Puzzle combat v1: the enemy's turn says what it does.** The creature's free board piece is a named replay step, older pieces its chain fires read "fires" (not "plays"), the aim chip names the environment pieces and Quick it uses, and the pieces its chain would fire light up on the board (rings and badges) before you move. The bullets below are the changes, newest first.
 - **Needs 2.6.95+, no DB change. Puzzle combat v1 is still admin-gated (`pfight_v1`).**

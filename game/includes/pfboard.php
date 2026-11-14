@@ -79,6 +79,16 @@ function pfb_kind_of(array $c, string $size): string
     foreach (['critter', 'bird', 'beast', 'water', 'plant', 'reptile'] as $k) if (str_starts_with($cl, $k)) return $k;
     return '';
 }
+/** The class rules in words (name, one sentence): the creature card and the page's chip say the same. */
+const PFB_KIND_TEXT = [
+    'critter' => ['Swarm', 'It plays two small pieces a turn. The aim shows the first.'],
+    'bird' => ['Two aims', 'It shows two moves on different cells. Take the first cell and it plays the second; take both and it picks again.'],
+    'beast' => ['Grudge', 'Each time you block its aim, its Hurt hits 25% harder (up to 3 times). A hit that lands on you clears it.'],
+    'water' => ['Current', 'After its piece lands, one of your pieces touching it slides a cell away, if that cell is free.'],
+    'plant' => ['Grows', 'After its turn it grows a Bramble beside its piece (one of its own at a time). Whoever chains the Bramble fires it.'],
+    'reptile' => ['Venom trail', 'When one of its pieces leaves the board, that cell is venom for 2 turns. A piece of yours put there poisons you (2 a round, 2 rounds).'],
+    'boss' => ['Two turns', 'It also shows the piece it will play next round. That piece is forced; its cell is chosen then.'],
+];
 /** The class rule of THIS fight ('' when the switch is off or an old state has none). */
 function pfb_kind(array $s): string { return pfb_v1r($s, 'kinds') === 1 ? (string)($s['foe']['kind'] ?? '') : ''; }
 /** The creature's bar in a NEW-rule fight (one shared bar, Hurt and Charm both fill it) is called its Yield: it yields when the bar is full (backed off by hurting, won over by charm).
@@ -116,7 +126,7 @@ function pfb_v1_cfg(string $size, array $over = [], int $level = 0): array
     $cfg = ['w' => $dims[0], 'h' => $dims[1], 'ground' => 0, 'nsun' => $g[0], 'nbr' => $g[1], 'nmud' => $g[2], 'sun' => PFB_SUN_MULT, 'bramble' => PFB_BRAMBLE, 'br_foe' => PFB_BRAMBLE_FOE,
         'events' => 0, 'nev' => PFB_EVENTS[$size], 'thorn' => PFB_THORN, 'ev_foe' => PFB_EVENT_FOE, 'limit' => PFB_USEUP, 'aim' => 1, 'team2' => 1.0, 'team3' => 1.0,   // 2.6.95: Teamwork off (2.6.94 fights carry 1.3 / 1.6 in their saved cfg)
         'edges' => 1, 'flip' => 1, 'life' => 0, 'tags' => 1, 'foe' => PFB_V1_FOE_MULT[$size], 'bar' => PFB_V1_BAR_MULT[$size],
-        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 1, 'aside' => 0, 'must' => 0, 'freepass' => 1, 'flip1' => 0, 'onebar' => 1, 'redraw' => 1, 'aimtot' => 1, 'aimhit' => 1] + PFB_V1_PRE;   // aimhit 1 (2.6.98, T15 bake-off: keepmine / useroot stay off, see CHANGELOG)   // nowm 1 (2.6.95): no Wind or Mud in the deck; aside 0, must 0, freepass 1 (2.6.95): no set-aside, a piece need not link (you), passing is free; flip1 0 (2.6.95): flip any piece, any number of times; onebar 1 (2.6.95): one shared bar, Hurt + Charm; redraw 1 (2.6.95): the whole hand is redrawn each round; aimtot 1 (2.6.95): the aim carries its total   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
+        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 1, 'aside' => 0, 'must' => 0, 'freepass' => 1, 'flip1' => 0, 'onebar' => 1, 'redraw' => 1, 'aimtot' => 1, 'aimhit' => 1, 'kinds' => 1] + PFB_V1_PRE;   // aimhit 1 (2.6.98, T15 bake-off: keepmine / useroot stay off, see CHANGELOG)   // nowm 1 (2.6.95): no Wind or Mud in the deck; aside 0, must 0, freepass 1 (2.6.95): no set-aside, a piece need not link (you), passing is free; flip1 0 (2.6.95): flip any piece, any number of times; onebar 1 (2.6.95): one shared bar, Hurt + Charm; redraw 1 (2.6.95): the whole hand is redrawn each round; aimtot 1 (2.6.95): the aim carries its total   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
     foreach ($over as $k => $v) if (array_key_exists($k, $cfg) && is_numeric($v)) $cfg[$k] = is_int($cfg[$k]) ? (int)$v : (float)$v;
     if (isset($over['foe_x'])) $cfg['foe'] = round($cfg['foe'] * (float)$over['foe_x'], 4);
     if (isset($over['bar_x'])) $cfg['bar'] = round($cfg['bar'] * (float)$over['bar_x'], 4);
@@ -1084,6 +1094,7 @@ function pfb_current(array &$s, int $id, array &$ev): void
 /** 2.6.98 Plant "Grows": after its turn it puts a Bramble (an environment piece that fits anywhere) on a free cell touching its newest piece; at most one of its own Brambles is out. */
 function pfb_grow(array &$s, array &$ev): void
 {
+    if (empty($s['v1']['env'])) return;   // no environment pieces in this fight (a 2.6.74 fight): nothing grows
     foreach ($s['pcs'] as $q) if ($q['by'] === 'env' && !empty($q['tile']['own'])) return;
     $last = end($s['lastfoe']); $p = $last ? ($s['pcs'][$last] ?? null) : null; if (!$p) return;
     $tile = null; foreach (pfb_env_deck('boss') as $et) if ($et['env'] === 'bramble') { $tile = $et; break; } if (!$tile) return;

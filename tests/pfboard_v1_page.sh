@@ -78,6 +78,7 @@ ck "the fight started" "$(encq 'empty($s["start"]) ? "started" : "opening"')" "s
 get adventure.php >/dev/null; ck "the creature's aim is in the page" "$(grep -c '"aim":{"k":"f:' $H)" "1"
 ck "T12 the aim carries its total (hp, guard eaten, bait, heal, pieces, why)" "$(grep -c '"aim":{"k":"f:[^}]*"tot":{"hp":[0-9]*,"g":[0-9]*,"bait":[0-9.]*,"heal":[0-9]*,"n":[0-9]*,"why":\[' $H)" "1"
 ck "T16 the board script knows the strike: aim chip text, red mark, crack in the replay, help text" "$(cd "$HERE/../game/assets" && echo $(grep -c 'will strike your' pfboardv1.js)$(grep -c 'pfv-struck' pfboardv1.js)$(grep -c 'aim.strike' pfv1.css))" "112"
+ck "T21 the board script knows the class rules: rule chip, second aim, next piece, venom cells" "$(cd "$HERE/../game/assets" && echo $(grep -c 'kindChip' pfboardv1.js)$(grep -c 'mk venom' pfboardv1.js)$(grep -c 'aimExtra' pfboardv1.js)$(grep -c 'tg.kind' pfv1.css))" "2131"
 MV=$(php "$HERE/pfboard_move.php" "$GAME" 2>&1 | tail -1)
 case "$MV" in [0-9]*,*) ENVP=$(enc); pf pfb_preview -d moves="$MV" >/dev/null; ck "T12 the preview answer holds the aim as it would stand (a total or 'broken')" "$(grep -c '"ok":true.*"aim":{' $H)" "1"; ck "T12 the preview changed nothing" "$(enc)" "$ENVP";; *) echo "skip preview (no placement: $MV)";; esac
 echo "== flip"

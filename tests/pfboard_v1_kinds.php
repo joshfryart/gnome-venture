@@ -10,11 +10,11 @@ $k19 = function (string $class, string $size = 'medium', array $over = [], int $
 $ft19 = fn(array $s, string $k, string $t, int $v, string $r = 'body') => ['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, $k, $t, $v, $r, 'creature');   // wild edges: it fits wherever it is aimed
 $plan19 = fn(array $t, int $x, int $y) => ['k' => $t['k'], 'n' => $t['n'], 't' => $t['t'], 'v' => $t['v'], 'tag' => '', 'x' => $x, 'y' => $y];
 
-chk('kinds is OFF in a new fight by default and the fight carries no kind', ($a = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Bird'], 7, ['v1' => true])) && pfb_kind($a) === '' && ($a['foe']['kind'] ?? '') === '' && pfb_foe_len($a) === 1);
+chk('kinds is ON in a new fight (T22) and the fight carries its kind; kinds 0 gives none', ($a = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Bird'], 7, ['v1' => true])) && pfb_kind($a) === 'bird' && ($b0 = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Critter'], 7, ['v1' => ['kinds' => 0]])) && pfb_kind($b0) === '' && pfb_foe_len($b0) === 1);
 chk('kind of a creature: the six classes, and the boss whatever its class', array_map(fn($c) => pfb_kind_of(['class' => $c], 'medium'), ['Critter', 'Bird', 'Beast', 'Water', 'Plant / Fungus', 'Reptile / Amphibian', 'Odd']) === ['critter', 'bird', 'beast', 'water', 'plant', 'reptile', ''] && pfb_kind_of(['class' => 'Bird'], 'boss') === 'boss');
 
 // ---- Critter: Swarm
-$a = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Critter'], 7, ['v1' => true]); $b = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Critter'], 7, ['v1' => ['kinds' => 1]]);
+$a = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Critter'], 7, ['v1' => ['kinds' => 0]]); $b = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Critter'], 7, ['v1' => ['kinds' => 1]]);
 $va = array_sum(array_column($a['foe']['hand'], 'v')); $vb = array_sum(array_column($b['foe']['hand'], 'v'));
 chk('Swarm: a Critter plays 2 pieces a turn', pfb_foe_len($b) === 2 && pfb_foe_len($a) === 1, [pfb_foe_len($b), count($b['foe']['hand'])]);
 chk('Swarm: its pieces are small (x0.6, at least 1)', $vb < $va && !array_filter($b['foe']['hand'], fn($t) => $t['v'] < 1), [$va, $vb]);

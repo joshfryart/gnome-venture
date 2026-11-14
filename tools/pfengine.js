@@ -552,7 +552,7 @@
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: 1, team3: 1,   // 2.6.95: Teamwork off
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 1, kinds: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
     var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
@@ -1347,13 +1347,15 @@
       if (!q || q.by !== 'me') continue;
       var nx = q.x + dx, ny = q.y + dy;
       if (nx < 0 || ny < 0 || nx >= pfbW(s) || ny >= pfbH(s) || has(s.cell, nx + ',' + ny)) continue;
+      var ox = toInt(q.x), oy = toInt(q.y);
       delete s.cell[q.x + ',' + q.y]; s.cell[nx + ',' + ny] = q.id; s.pcs[q.id].x = nx; s.pcs[q.id].y = ny;
-      var e = note('current', String(q.tile.n)); e.moved = { id: q.id, by: 'me', n: q.tile.n, x: nx, y: ny, fx: toInt(q.x), fy: toInt(q.y) }; ev.push(e);
+      var e = note('current', String(q.tile.n)); e.moved = { id: q.id, by: 'me', n: q.tile.n, x: nx, y: ny, fx: ox, fy: oy }; ev.push(e);
       return;
     }
   }
   /** 2.6.98 Plant "Grows" (pfb_grow). */
   function grow(s, ev) {
+    if (!truthy(s.v1.env)) return;
     var ks = Object.keys(s.pcs); for (var i = 0; i < ks.length; i++) { var q = s.pcs[ks[i]]; if (q.by === 'env' && q.tile.own) return; }
     var last = s.lastfoe.length ? s.lastfoe[s.lastfoe.length - 1] : null, p = last && has(s.pcs, last) ? s.pcs[last] : null; if (!p) return;
     var tile = null, deck = envDeck('boss'); for (var d = 0; d < deck.length; d++) if (deck[d].env === 'bramble') { tile = clone(deck[d]); break; } if (!tile) return;
