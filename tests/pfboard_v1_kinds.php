@@ -14,13 +14,7 @@ chk('kinds is ON in a new fight (T22) and the fight carries its kind; kinds 0 gi
 chk('kind of a creature: the six classes, and the boss whatever its class', array_map(fn($c) => pfb_kind_of(['class' => $c], 'medium'), ['Critter', 'Bird', 'Beast', 'Water', 'Plant / Fungus', 'Reptile / Amphibian', 'Odd']) === ['critter', 'bird', 'beast', 'water', 'plant', 'reptile', ''] && pfb_kind_of(['class' => 'Bird'], 'boss') === 'boss');
 
 // ---- Critter: Swarm
-$a = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Critter'], 7, ['v1' => ['kinds' => 0]]); $b = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Critter'], 7, ['v1' => ['kinds' => 1]]);
-$va = array_sum(array_column($a['foe']['hand'], 'v')); $vb = array_sum(array_column($b['foe']['hand'], 'v'));
-chk('Swarm: a Critter plays 2 pieces a turn', pfb_foe_len($b) === 2 && pfb_foe_len($a) === 1, [pfb_foe_len($b), count($b['foe']['hand'])]);
-chk('Swarm: its pieces are small (x0.6, at least 1)', $vb < $va && !array_filter($b['foe']['hand'], fn($t) => $t['v'] < 1), [$va, $vb]);
-$s = $k19('Critter'); $s['foe']['hand'] = [$ft19($s, 'f:a', 'charm', 2), $ft19($s, 'f:b', 'charm', 2, 'mind')]; $s['foe']['plan'] = null; $ev = pfb_foe_turn($s, 0);
-chk('Swarm: a turn puts down two pieces', count($s['lastfoe']) === 2, [count($s['lastfoe']), count($s['pcs']), array_map(fn($p) => [$p['by'], $p['x'], $p['y']], $s['pcs'])]);
-$s = $k19('Critter'); $s['foe']['slow'] = 1; chk('Swarm: a slowed Critter still loses its turn', pfb_foe_len($s) === 0);
+$s = $k19('Critter'); $s['foe']['slow'] = 1; chk('a slowed Critter loses its turn', pfb_foe_len($s) === 0);
 
 // ---- Beast: Grudge
 $s = $k19('Beast', 'medium', ['aimhit' => 0]); $mine = v1_put($s, 'me', v1_tile($s, 'p1', 'charm', 3, 'body'), 2, 2); $h = $ft19($s, 'f:claw', 'charm', 6);
@@ -96,7 +90,7 @@ chk('gone entry: a creature piece put down this turn is marked fnew (the page ke
 // a whole Swarm turn: every foe piece that is gone at the end of the turn but was placed in it carries fnew
 $ok = true; $seen = 0;
 for ($sd = 1; $sd <= 30; $sd++) { $s = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Critter'], $sd, ['v1' => true]); for ($t = 0; $t < 4 && !$s['over']; $t++) { $m = pfb_search($s, 'me'); $r = $m ? pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']) : pfb_pass($s, $s['turn']); foreach ($s['gone'] ?? [] as $g) if ($g['by'] === 'foe' && in_array($g['id'], $s['lastfoe'] ?? [], true)) { $seen++; if (empty($g['fnew'])) $ok = false; } } }
-chk('Swarm fights: every gone piece the creature placed this turn carries fnew (' . $seen . ' seen)', $ok && $seen > 0, $seen);
+chk('Critter fights: every gone piece the creature placed this turn carries fnew (' . $seen . ' seen)', $ok && $seen > 0, $seen);
 
 // ---- the aim total covers the WHOLE creature turn (2.6.986): a Swarm's second piece and a Quick piece are in the number
 $bad = 0; $n = 0; $bads = [];
@@ -109,3 +103,21 @@ foreach (['Critter', 'Bird', 'Beast'] as $cl) for ($sd = 1; $sd <= 25; $sd++) {
     }
 }
 chk('aim total: the health shown equals what the whole creature turn takes (Swarm and Quick pieces included): ' . $n . ' aims', $n > 100 && $bad === 0, [$bad, $bads]);
+
+// ---- 2.6.988: Swarm GROWS (one piece a turn, +1 Hurt for each other creature piece on the board); poison ticks are flat; Evade stops them
+$s = $k19('Critter'); $h = $ft19($s, 'f:h', 'hurt', 5); v1_put($s, 'foe', $ft19($s, 'f:a', 'charm', 2), 3, 3); v1_put($s, 'foe', $ft19($s, 'f:b', 'charm', 2), 3, 2); $ev = v1_place($s, 'foe', $h, 1, 3);   // base piece at 0,3 + two more = 3 others
+chk('Swarm grows: its Hurt 5 with 3 other creature pieces out counts 6 (+1 for every 2 others)', $ev && $ev[0]['v'] === 6, $ev[0]['v'] ?? null);
+$s = $k19('Critter'); foreach ([[3, 3], [3, 2], [3, 1], [2, 3]] as $i => [$gx, $gy]) v1_put($s, 'foe', $ft19($s, 'f:o' . $i, 'charm', 2), $gx, $gy); $ev = v1_place($s, 'foe', $ft19($s, 'f:h', 'hurt', 5), 1, 3);
+chk('Swarm grows: 5 other pieces out is +2, and 2 or fewer is +0', $ev && $ev[0]['v'] === 7, $ev[0]['v'] ?? null);
+$s = $k19('Beast'); $ev = v1_place($s, 'foe', $ft19($s, 'f:h', 'hurt', 5), 1, 3);
+chk('Swarm grows is the Critter\'s only (a Beast with the same board hits for 5)', $ev && $ev[0]['v'] === 5, $ev[0]['v'] ?? null);
+$s = $k19('Critter'); $s['foe']['hand'] = [$ft19($s, 'f:a', 'charm', 2), $ft19($s, 'f:b', 'charm', 2, 'mind')]; pfb_foe_turn($s, 0);
+chk('Swarm plays ONE piece a turn again (its pieces are not scaled down)', count($s['lastfoe']) === 1 && pfb_foe_len($s) === 1);
+$s = $k19('Critter'); $qa = $ft19($s, 'f:a', 'trick', 1, 'mind'); $qa['tag'] = 'quick'; $s['foe']['hand'] = [$qa, $ft19($s, 'f:b', 'charm', 2)]; $s['foe']['plan'] = $plan19($qa, 1, 3); $qe = pfb_foe_turn($s, 0);
+chk('Quick still adds a second piece for a Critter (up to 2 with Quick)', count($s['lastfoe']) === 2, [count($s['lastfoe']), array_map(fn($e) => ($e['n'] ?? '') . ($e['note'] ?? '') . (!empty($e['root']) ? '*' : ''), $qe), count($s['foe']['hand'])]);
+$s = $k19('Beast'); $s['ter']['1,3'] = 'sun'; $pt = $ft19($s, 'f:p', 'hurt', 8); $pt['tag'] = 'poison'; $ev = v1_place($s, 'foe', $pt, 1, 3);
+chk('poison is flat: a Sun does not raise the tick (Hurt 8 under Sun x2 ticks 3, as without the Sun)', $s['me']['poison'] > 0 && $s['me']['poison_v'] === 3, [$s['me']['poison'], $s['me']['poison_v']]);
+$s = $k19('Beast'); $s['me']['poison'] = 2; $s['me']['poison_v'] = 3; $s['me']['evade'] = 1; $hp = $s['me']['hp']; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []]; pfb_end_round($s);
+chk('Evade stops the poison tick (no health lost, the tick still counts down)', $s['me']['hp'] === $hp && $s['me']['poison'] === 1, [$s['me']['hp'] - $hp, $s['me']['poison']]);
+$s = $k19('Beast'); $s['me']['poison'] = 2; $s['me']['poison_v'] = 3; $hp = $s['me']['hp']; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []]; pfb_end_round($s);
+chk('without Evade the tick lands as before', $s['me']['hp'] === $hp - 3 && $s['me']['poison'] === 1, $s['me']['hp'] - $hp);

@@ -295,7 +295,7 @@
     if (t.g > 0 && t.hp > 0) why.push('your guard takes ' + t.g);
     return { head: head, why: why };
   }
-  var KIND = { critter: ['Swarm', 'It plays two small pieces a turn. The aim shows the first.'], bird: ['Two aims', 'It shows two moves on different cells. Take the first cell and it plays the second; take both and it picks again.'],
+  var KIND = { critter: ['Swarm', 'Its Hurt hits +1 for every 2 of its other pieces on the board (up to +2). Use up or outlast its pieces to shrink it.'], bird: ['Two aims', 'It shows two moves on different cells. Take the first cell and it plays the second; take both and it picks again.'],
     beast: ['Grudge', 'Each time you block its aim, its Hurt hits 25% harder (up to 3 times). A hit that lands on you clears it.'], water: ['Current', 'After its piece lands, one of your pieces touching it slides a cell away, if that cell is free.'],
     plant: ['Grows', 'After its turn it grows a Bramble beside its piece (one of its own at a time). Whoever chains the Bramble fires it.'], reptile: ['Venom trail', 'When one of its pieces leaves the board, that cell is venom for 2 turns. A piece of yours put there poisons you (2 a round, 2 rounds).'],
     boss: ['Two turns', 'It also shows the piece it will play next round. That piece is forced; its cell is chosen then.'] };
