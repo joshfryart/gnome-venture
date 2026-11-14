@@ -380,10 +380,16 @@ function pfight_guard_html(int $g): string
 function pfight_bar_html(array $v): string
 {
     $b = $v['bar']; $max = max(0.1, (float)$b['max']); $now = (float)$b['now'];
-    $fm = max(0.1, (float)$v['fh']['max']); $one = !empty($v['onebar']); $left = max(0.0, $fm - (float)$v['fh']['now'] - ($one ? (float)$v['bar']['now'] : 0.0)); $charmable = !empty($v['charmable']) && !$one;   // 2.6.95: one shared bar: Hurt and Charm both drain this one; the separate charm bar is not drawn
-    $hpLabel = $one ? 'Creature bar: ' . (int)ceil($left) . ' of ' . (int)ceil($fm) . ' left. Hurt and Charm pieces both fill it; at 0 it is over, and the larger share decides: charmed or seen off.' : 'Creature health: ' . (int)ceil($left) . ' of ' . (int)ceil($fm) . ' left. Hurt pieces take it down; at 0 it backs off.';
+    $fm = max(0.1, (float)$v['fh']['max']); $one = !empty($v['onebar']); $left = max(0.0, $fm - (float)$v['fh']['now'] - ($one ? (float)$v['bar']['now'] : 0.0)); $charmable = !empty($v['charmable']) && !$one;   // 2.6.95: one shared bar (above): there is no separate charm bar
+    $hpLabel = 'Creature health: ' . (int)ceil($left) . ' of ' . (int)ceil($fm) . ' left. Hurt pieces take it down; at 0 it backs off.';
+    if ($one) {   // T12 (2.6.95): one bar, a damage segment and a charm segment; the number is how full it is, the label says what each segment is
+        $dm = max(0.0, (float)$v['fh']['now']); $ch = max(0.0, $now); $full = $dm + $ch; $okc = !empty($v['charmable']);
+        $tot = (int)round($full); $chn = (int)round($ch); $dmn = max(0, $tot - $chn); $mx = (int)round($fm);
+        $lab = 'Bar ' . $tot . ' of ' . $mx . ': damage ' . $dmn . ', charm ' . $chn . '. Hurt pieces add damage, Charm pieces add charm. When the bar is full the fight ends' . ($okc ? ': more charm than damage and you win the creature over, otherwise it backs off.' : ' and it backs off (this one cannot be charmed).');
+        return '<div class="pf-bars"><span class="pf-fhp pf-one" role="img" aria-label="' . e($lab) . '" title="' . e('Bar ' . $tot . ' of ' . $mx . ': damage ' . $dmn . ', charm ' . $chn) . '"><span class="pfx-fill fhfill" data-w="' . round(min(100.0, 100 * $dm / $fm), 1) . '"></span><span class="pfx-fill chfill" data-w="' . round(min(100.0 - min(100.0, 100 * $dm / $fm), 100 * $ch / $fm), 1) . '"></span><b>' . $tot . '/' . $mx . '</b></span></div>';
+    }
     $h = '<div class="pf-bars">'
-        . '<span class="pf-fhp" role="img" aria-label="' . e($hpLabel) . '" title="' . e($one ? 'Creature bar. Hurt and Charm pieces fill it; the larger share decides how it ends.' : 'Creature health. Hurt pieces take it down; at 0 it backs off.') . '"><span class="pfx-fill fhfill" data-w="' . round(100 * $left / $fm, 1) . '"></span><b>' . (int)ceil($left) . '</b></span>';
+        . '<span class="pf-fhp" role="img" aria-label="' . e($hpLabel) . '" title="' . e('Creature health. Hurt pieces take it down; at 0 it backs off.') . '"><span class="pfx-fill fhfill" data-w="' . round(100 * $left / $fm, 1) . '"></span><b>' . (int)ceil($left) . '</b></span>';
     if ($charmable) {
         $v1 = isset($v['v1']);   // 2.6.78: the v1 bar shows the engine's own number (one decimal) and is never drawn full before the fight is won (a bar a hair short of full looked full)
         $nowS = $v1 ? round($now, 1) : $now; $pct = $v1 ? ($nowS >= $max ? 100.0 : min(96.0, floor(1000 * $nowS / $max) / 10)) : round(100 * min(1.0, $now / $max), 1);
@@ -440,7 +446,7 @@ function pfight_chip_event(array $e, ?int $snap = null, bool $one = false): arra
     $base = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'sn' => $snap, 'bar' => $e['barnow'] ?? null, 'fh' => pfight_fhnow($e, $one), 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'chain' => false];
     if (!empty($e['connect'])) return $base + ['by' => 'me', 'types' => $e['types'], 'tags' => [], 'txt' => 'joined ' . (int)$e['size'], 'tg' => null];
     if (isset($e['env'])) {   // v1: a terrain event (by 'env'): what it cost each side, or its name
-        $parts = []; if (!empty($e['me'])) $parts[] = 'you -' . (int)$e['me'] . ' hp'; if (!empty($e['foe'])) $parts[] = 'creature -' . (int)round((float)$e['foe']) . ' hp';
+        $parts = []; if (!empty($e['me'])) $parts[] = 'you -' . (int)$e['me'] . ' hp'; if (!empty($e['foe'])) $parts[] = $one ? 'bar +' . (int)round((float)$e['foe']) : 'creature -' . (int)round((float)$e['foe']) . ' hp';   // T12: one bar: it fills, nothing is 'health'
         return $base + ['by' => 'env', 'types' => ['env'], 'tags' => [(string)($e['kind'] ?? $e['env'])], 'txt' => (string)$e['n'] . ($parts ? ': ' . implode(' · ', $parts) : ''), 'tg' => !empty($e['me']) ? 'me' : (!empty($e['foe']) ? 'foe' : null)];
     }
     if (isset($e['note'])) return $base + ['by' => (string)$e['by'], 'types' => ['note'], 'tags' => [(string)$e['note']], 'txt' => match ($e['note']) { 'quick' => '⚡ Quick: plays 2', 'slow' => '⏳ loses its turn', 'fade' => '🛡️ guard fades -' . (int)$e['n'], 'hold' => '🛡️ Hold kept ' . (int)$e['n'], default => '🦶 you draw 1 fewer' }, 'tg' => null];   // 2.6.76
@@ -448,7 +454,7 @@ function pfight_chip_event(array $e, ?int $snap = null, bool $one = false): arra
     if (!empty($e['tick'])) $parts[] = '-' . (int)$e['v'] . ' hp';
     elseif ($by === 'me') {
         $bar = (float)($e['bar'] ?? 0); $fh = (float)($e['fh'] ?? 0);
-        if ($fh > 0) $parts[] = '-' . (int)round($fh) . ' hp';   // the creature's health
+        if ($fh > 0) $parts[] = $one ? '+' . (int)round($fh) . ' damage' : '-' . (int)round($fh) . ' hp';   // the creature's health (T12: one bar: damage that fills the bar)
         if ($bar > 0) $parts[] = '+' . (int)round($bar) . ' charm';
         if ($t === 'guard') { $parts[] = '+' . (int)$e['v'] . ' guard'; $tg = 'me'; }
         if (in_array($t, ['heal', 'item'], true)) { $parts[] = '+' . (int)$e['v'] . ' hp'; $tg = 'me'; }
@@ -631,7 +637,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         $h .= '<button type="button" class="btn" id="pf-undo" hidden></button><button class="btn" id="pf-go" form="pf-form" hidden></button>';
     } else {
         $h .= '<div class="pf-buttons"><a class="btn pf-box" href="' . e(url('puzzlebox.php')) . '" title="Your puzzle box" aria-label="Puzzle box">🧩</a><button type="button" class="btn" id="pf-undo" disabled>Undo</button><button class="btn primary" id="pf-go" form="pf-form" disabled>' . (!empty($s['start']) ? 'Confirm start' : 'End turn') . '</button>'
-            . (isset($v['v1']) && !empty($v['flip']['on']) ? '<button type="button" class="btn pfv-flipb" id="pf-flip" disabled aria-label="Flip: swap the top and bottom edges of the piece you picked (once a turn, free)">⇅ Flip</button>' : '')
+            . (isset($v['v1']) && !empty($v['flip']['on']) ? '<button type="button" class="btn pfv-flipb" id="pf-flip" disabled aria-label="Flip: swap the top and bottom edges of the piece you picked (' . (!empty($v['v1']['flip1']) ? 'once a turn, free' : 'free, as often as you like') . ')">⇅ Flip</button>' : '')
             . ($v['can_run'] && !$s['over'] ? '<form method="post" class="inline pf-runf">' . csrf_field() . '<input type="hidden" name="do" value="pf_run"><input type="hidden" name="nonce" value="' . $nonce . '"><button class="btn" title="Run away" aria-label="Run away">🏃</button></form>' : '') . '</div>';
     }
     $h .= '<div class="pf-tray"><div class="pf-hand" id="pf-hand" role="group" aria-label="Your hand">';
@@ -642,7 +648,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $more = '';
     if ($seen) { $more .= '<ul class="pf-tags help">'; foreach ($seen as $x) $more .= '<li>' . PF_TAGS[$x][0] . ' ' . e(PF_TAGS[$x][1]) . '</li>'; $more .= '</ul>'; }
     $h .= '<div class="pf-extra">';
-    $h .= '<form method="post" class="inline" id="pf-pform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="pfb_pass"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><button class="btn" id="pf-pass">Pass (nothing fits)</button></form>';
+    $h .= '<form method="post" class="inline" id="pf-pform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="pfb_pass"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '">' . (!empty($v['v1']['freepass']) ? '' : '<button class="btn" id="pf-pass">Pass (nothing fits)</button>') . '</form>';   // T12: with a free pass the End turn button says Pass (nothing placed) and posts this form (assets/pfboardv1.js); no second button
     $h .= '<form method="post" class="inline" id="pf-rform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="pf_redraw"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="card" id="pf-card" value=""></form>';
     if ($v['redraws'] > 0) $h .= '<small class="muted">🍀 ' . (int)$v['redraws'] . ' redraw' . ($v['redraws'] > 1 ? 's' : '') . '</small> <button type="button" class="btn" id="pf-redraw" hidden>Redraw a piece</button>';
     if (isset($v['v1'])) $h .= '<form method="post" class="inline" id="pf-fform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="pfb_flip"><input type="hidden" name="nonce" value="' . $nonce . '"><input type="hidden" name="turn" value="' . (int)$v['turn'] . '"><input type="hidden" name="hand" id="pf-fhand" value=""></form>';

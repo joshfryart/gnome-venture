@@ -6,6 +6,7 @@ const { chromium } = require('playwright');
 const { execSync } = require('child_process');
 const [base, out, game, here] = process.argv.slice(2);
 const seed = (...a) => execSync(`php -d display_errors=1 ${here}/pbox_v1_seed.php ${game} ${a.join(' ')}`).toString().trim();
+const seedNew = (...a) => execSync(`PBOX_RULES=new php -d display_errors=1 ${here}/pbox_v1_seed.php ${game} ${a.join(' ')}`).toString().trim();   // T12: a fight with the rules a new fight has (the other seeds keep the 2.6.94 rules)
 const sql = (q) => execSync(`php -r '$p=new PDO("sqlite:${game}/data/game.sqlite"); $p->exec($argv[1]);' ${JSON.stringify(q)}`);
 let fails = 0;
 const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.stringify(want); if (g === w) console.log('ok   ' + what); else { console.log(`FAIL ${what} (got ${g}, want ${w})`); fails++; } };
@@ -144,6 +145,21 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await p.click('#pf-flip'); await p.waitForTimeout(1200);
     ck(T('flip: after the automatic flip back, flipping the piece again flips it again'), [await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].querySelector('.pfh-cv').toDataURL(), pi) !== before.art, await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].classList.contains('pfv-flipped'), pi)], [true, true]);
     await shot('4-fight-flipped');
+
+    // ---- T12 (2.6.95): a NEW fight: one bar (damage + charm), no set-aside row, no Teamwork, End turn says Pass with nothing placed, the aim chip says what it does, the help sheet matches
+    seedNew('fight', 'large'); seedNew('midfight', '6', '2', 'soft'); await speed(0); await open('/adventure.php');
+    ck(T('T12 new fight: one bar with a damage and a charm segment, words "Bar N of M: damage D, charm C"'), await p.evaluate(() => { const e = document.querySelector('.pf-fhp.pf-one'); return [!!e, !!(e && e.querySelector('.fhfill')) && !!(e && e.querySelector('.chfill')), /^Bar \d+ of \d+: damage \d+, charm \d+/.test(e ? e.getAttribute('aria-label') : ''), document.querySelectorAll('.pf-bar').length]; }), [true, true, true, 0]);
+    ck(T('T12 new fight: no set-aside row, no Teamwork chip, no hand source icon, no Pass (nothing fits) button; End turn says Pass and is on'), [await p.locator('#pf-opts').isHidden(), await n('#pfv-row .tg.team'), await n('#pf-hand .src'), await n('#pf-pass'), (await p.locator('#pf-go').innerText()).trim(), await p.isDisabled('#pf-go')], [true, 0, 0, 0, 'Pass', false]);
+    ck(T('T12 new fight: the aim chip says what it would do ("Aims Snap: hits you for 9"), the reasons are behind a tap'), await p.evaluate(() => { const c = document.querySelector('#pfv-row .tg.aim'); return c ? /^Aims .+: .+/.test(c.textContent.trim()) && (!c.matches('button') || c.getAttribute('aria-label').endsWith('Press for the reasons')) : false; }), true);
+    const aimBtn = p.locator('#pfv-row button.tg.aim'); if (await aimBtn.count()) { await aimBtn.click(); await p.waitForTimeout(200); ck(T('T12 new fight: the aim reasons open in a popover'), await n('.pfv-pop'), 1); await shot('4-fight-aim-reasons', false); await p.click('.pfv-popx'); }
+    await p.locator('#pf-hand .pf-tile:not(.pfv-off)').first().click(); await p.waitForTimeout(500);
+    ck(T('T12 new fight: with a piece picked End turn waits for a placed piece (no Pass), the lit spots are every spot where it fits'), [(await p.locator('#pf-go').innerText()).trim(), await p.isDisabled('#pf-go'), await n('#pfb-board .pfb-lit') > 0], ['End turn', true, true]);
+    await shot('4-fight-new-rules');
+    await p.keyboard.press('Escape'); await open('/adventure.php');
+    await p.click('#pfv-legend [data-a=help]'); await p.waitForTimeout(200);
+    ck(T('T12 new fight: the help sheet has the two chain rules, the bar, free flip; no Teamwork, no Wind, no Mud'), await p.locator('.pfv-sheet').innerText().then(t => [/A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it/.test(t), /If its aim fires one of your pieces, your piece works for you/.test(t), /The bar/.test(t), /Free, as often as you like/.test(t), /Teamwork|once a turn/i.test(t), /Wind|Mud/.test(t)]), [true, true, true, true, false, false]);
+    await shot('4-fight-new-help', false);
+    await p.keyboard.press('Escape');
 
     // ---- the turn played back step by step: Your turn, the creature's turn, Terrain turn
     seed('fight', 'boss'); seed('midfight', '12', '3', 'soft'); await speed(0); await open('/adventure.php'); await speed(1);   // 2.6.94: seed 12 (the creature plays a piece on the 4 x 4 board; 8 was the seed for the old boards)

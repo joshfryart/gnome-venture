@@ -103,6 +103,25 @@ rep("blocks the creature\\u2019s hits until your next turn", "blocks the creatur
 rep("  function setHp(v) { var pr = root.querySelector('.pfc-top .pf-hp progress'); if (pr) pr.value = v; }", "  function setHp(v) {\n    var h = root.querySelector('.pfc-top .pf-hp'), pr = h && h.querySelector('progress'); if (pr) pr.value = v;\n    if (h) { var n = h.lastChild; while (n && !(n.nodeType === 3 && /\\d/.test(n.nodeValue))) n = n.previousSibling; if (n) n.nodeValue = ' ' + v; h.setAttribute('aria-label', 'Your health ' + v + (pr ? ' of ' + pr.max : '')); }\n  }")
 # --- 2.6.91 (Josh: "make sure the set aside buttons are nicely placed ... don't overlap. Tighten them up"): the set-aside choices are short (the name and an arrow for the side, the words stay in the title and the aria-label), and the list may grow the row instead of being clipped
 rep("      bt.textContent = o.k === 'h' ? 'next to ' + o.ref + ' (' + SIDE_TXT[o.side] + ')' : '+ ' + o.ref + ', ' + SIDE_TXT[o.side];", "      bt.textContent = (o.k === 'h' ? 'next to ' : '+ ') + o.ref + ' ' + { L: '\\u2190', R: '\\u2192', T: '\\u2191', B: '\\u2193' }[o.side]; bt.title = (o.k === 'h' ? 'next to ' + o.ref + ' (' : '+ ' + o.ref + ', ') + SIDE_TXT[o.side] + (o.k === 'h' ? ')' : '');")
+# --- T12 (2.6.95): the page for the week-1 rules. Everything below is gated on the fight's own resolved rules (MUSTL, ASIDE, FREEP, FLIP1, TEAM, ONE, AIMT in the v1 part), so a 2.6.94 fight under way looks and plays as before.
+# a piece need not link (you): the lit spots are every spot where it fits (the creature still links)
+rep("  function mustLink(b, hand) {\n    if (!b.count) return false;", "  function mustLink(b, hand) {\n    if (!b.count || !MUSTL) return false;   // T12: no must-link in a new fight")
+# no setting aside in a new fight (a group already held can still be added to and played)
+rep("    var list = joinOptions(selected); if (!list.length) { optsEl.hidden = true; return; }", "    var list = ASIDE || data.held ? joinOptions(selected) : []; if (!list.length) { optsEl.hidden = true; return; }")
+rep("hasJoin = !!(sel && joinOptions(selected).length);", "hasJoin = !!(sel && (ASIDE || data.held) && joinOptions(selected).length);")
+# a free pass: End turn says Pass (nothing placed) and posts the pass form; the old pass button is not drawn
+rep("    if (pform) pform.hidden = !(moves.length === 0 && !fits && selected === null);", "    if (pform) pform.hidden = FREEP || !(moves.length === 0 && !fits && selected === null);")
+rep("typeof selected !== 'number' || !data.hand[selected].canflip || redrawMode;", "typeof selected !== 'number' || !data.hand[selected].canflip || redrawMode;\n    passMode(busy);")
+rep("'No piece fits. Tap End turn to pass.'", "(FREEP ? 'No piece fits. Tap Pass to skip your turn.' : 'No piece fits. Tap End turn to pass.')")
+rep("'Pick a piece, then a lit spot. One piece a turn.')", "'Pick a piece, then a lit spot. One piece a turn.' + (FREEP ? ' Or tap Pass.' : ''))")
+rep("'Hurt empties its health, Charm fills the bar.'", "(ONE ? 'Hurt and Charm both fill the bar; when it is full the fight ends.' : 'Hurt empties its health, Charm fills the bar.')")
+# one bar: its two segments move with the replay; the tip, the first-turn hint and the plan line say bar, never health
+rep("    var c = root.querySelector('.pfx-fill.charm'); if (!max) return;", "    var c = root.querySelector('.pfx-fill.charm'); if (!max) return;\n    if (oneBar(null, now, max)) return;")
+rep("    var el = root.querySelector('.pf-fhp'); if (!el || !max) return; var left = Math.max(0, max - now);", "    var el = root.querySelector('.pf-fhp'); if (!el || !max) return;\n    if (oneBar(now, null, max)) return;\n    var left = Math.max(0, max - now);")
+rep("  var TIP = 'Two ways to win.", "  var TIP = ONE ? ONETIP : 'Two ways to win.")
+rep("'Empty its health or fill the charm bar \\u00B7 '", "(ONE ? 'Hurt and Charm both fill the bar' : 'Empty its health or fill the charm bar') + ' \\u00B7 '")
+rep("var ps = []; if (j.fh && j.fh[1] > j.fh[0]) ps.push('Creature health ' + Math.ceil(j.fh[2] - j.fh[0]) + ' \\u2192 ' + Math.ceil(j.fh[2] - j.fh[1])); if (j.bar[1] > j.bar[0]) ps.push('Charm ' + Math.round(j.bar[0]) + ' \\u2192 ' + Math.round(j.bar[1]) + ' of ' + Math.round(j.bar[2]));", "var ps = barParts(j); aimPlanLine(j);")
+rep(": !mustLink(baseBoard(), handEdges()) && baseBoard().count ?", ": MUSTL && !mustLink(baseBoard(), handEdges()) && baseBoard().count ?")   # no must-link: that notice would show all the time
 out = os.path.join(R, 'game/assets/pfboardv1.js')
 if '--check' in sys.argv:
     sys.exit(0 if open(out, encoding='utf-8').read() == s else 'build_pfboardv1: game/assets/pfboardv1.js is not what the build gives (run tools/build_pfboardv1.py)')
