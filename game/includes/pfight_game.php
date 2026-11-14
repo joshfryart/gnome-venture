@@ -455,7 +455,7 @@ function pfight_chip_event(array $e, ?int $snap = null, bool $one = false): arra
     if (!empty($e['tick'])) $parts[] = '-' . (int)$e['v'] . ' hp';
     elseif ($by === 'me') {
         $bar = (float)($e['bar'] ?? 0); $fh = (float)($e['fh'] ?? 0);
-        if ($fh > 0) $parts[] = $one ? '+' . (int)round($fh) . ' damage' : '-' . (int)round($fh) . ' hp';   // the creature's health (T12: one bar: damage that fills the bar)
+        if ($fh > 0) $parts[] = $one ? '+' . (int)round($fh) . ' hurt' : '-' . (int)round($fh) . ' hp';   // the creature's health (T12: one bar: damage that fills the bar)
         if ($bar > 0) $parts[] = '+' . (int)round($bar) . ' charm';
         if ($t === 'guard') { $parts[] = '+' . (int)$e['v'] . ' guard'; $tg = 'me'; }
         if (in_array($t, ['heal', 'item'], true)) { $parts[] = '+' . (int)$e['v'] . ' hp'; $tg = 'me'; }
