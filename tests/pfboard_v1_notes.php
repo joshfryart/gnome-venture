@@ -12,7 +12,7 @@ $ev = pfb_foe_turn($s, 0); chk('creature tags off: no notes', !array_filter($ev,
 $s = v1_bare('medium'); $s['foe']['hand'] = [v1_tile($s, 'f:h', 'hurt', 3, 'mind', 'creature')]; v1_put($s, 'me', v1_tile($s, 'c1', 'charm', 3, 'body'), 3, 2); $s['foe']['slow'] = 1; $n0 = count($s['pcs']);
 $ev = pfb_foe_turn($s, 0);
 chk('lost turn: a slowed creature places nothing and a note says so', count($s['pcs']) === $n0 && count($ev) === 1 && $ev[0]['note'] === 'slow' && str_contains(pfight_line($ev[0], 'Owl'), 'loses its turn'), $ev);
-$s = v1_bare('medium'); $s['me']['hand'] = []; $s['me']['slowdraw'] = 1; $h0 = 0;
+$s = v1_bare('medium', ['redraw' => 0]); $s['me']['hand'] = []; $s['me']['slowdraw'] = 1; $h0 = 0;
 $r = pfb_pass($s, $s['turn']); $last = end($r['ev']);
 chk('trip: you draw one fewer, the last event is a note, your state says tripped', $r['err'] === null && ($last['note'] ?? '') === 'trip' && $s['me']['tripped'] === 1 && count($s['me']['hand']) === PF_DRAW - 1 && str_contains(pfight_line($last, 'Owl'), 'Tripped: you draw 1 fewer'), [$r['err'], $last['note'] ?? null, $s['me']['tripped'], count($s['me']['hand'])]);
 $s['me']['hand'] = []; $r = pfb_pass($s, $s['turn']);

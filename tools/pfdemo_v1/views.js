@@ -50,15 +50,9 @@
     var c = d.counts, kit = c.kit;
     var h = '<div class="meter" role="img" aria-label="Deck ' + c.n + ': kit ' + kit + ', belt ' + c.belt + ', pals ' + c.pals + '"><b>' + c.n + '</b><span class="stack"><span class="k" data-f="' + Math.max(1, kit) + '">🧩 ' + kit + '</span>'
       + (c.belt ? '<span class="b" data-f="' + c.belt + '">🔧 ' + c.belt + '</span>' : '') + (c.pals ? '<span class="p" data-f="' + c.pals + '">🐾 ' + c.pals + '</span>' : '') + '</span></div>';
-    h += '<div class="teamrow"><b>Teamwork</b>';
-    [['pal', '🐾'], ['tool', '🔧'], ['crop', '🌾']].forEach(function (x) { h += '<span class="chip' + (c.src[x[0]] ? '' : ' off') + '">' + x[1] + ' ' + x[0] + ' ' + c.src[x[0]] + '</span>'; });
-    h += '<span>' + (c.team >= 3 ? '2 in a chain +30%, all 3 +60%' : (c.team === 2 ? 'both in one chain: +30%' : 'needs 2 of 3 sources')) + '</span></div>';
-    if (slim) return h;
-    var hm = d.harmony, f = hm.fam, tot = Math.max(1, f.body + f.mind + f.craft), top = Math.max(f.body, f.mind, f.craft) / tot, lk = Math.round(hm.link * 100), hd = Math.round(hm.hand * 100), seg = '';
-    ['body', 'mind', 'craft'].forEach(function (k) { if (f[k]) seg += '<span class="' + k + '" data-f="' + f[k] + '">' + k + ' ' + Math.round(100 * f[k] / tot) + '%</span>'; });
-    h += '<div class="harm" role="img" aria-label="Deck harmony: link rate ' + lk + ' percent, a hand links ' + hd + ' percent of the time"><b>Link rate</b><span class="hmeter' + (lk >= 30 ? ' good' : (lk >= 22 ? '' : ' low')) + '"><i data-w="' + Math.min(100, lk * 2) + '"></i><span>' + lk + '%</span></span><span class="chip" title="Chance that a hand of 5 has a piece that links">hand links ' + hd + '%</span></div>'
-      + '<div class="harm"><b>Knobs</b><span class="stack fam">' + seg + '</span></div>'
-      + '<p class="hint harmhint">' + (top >= 0.5 ? 'One family leads: easy chains, less Teamwork.' : 'Mixed families: more Teamwork, fewer links.') + ' Pals are body, tools craft, crops mind.</p>';
+    var n = c.n, hu = c.hurt;
+    h += '<div class="teamrow hurtrow"><b>Hurt pieces: ' + hu + ' of ' + n + '</b></div>';
+    if (n > 0 && hu * 10 < 3 * n) h += '<p class="hint">Few Hurt pieces: fights will be long</p>';
     return h;
   }
   function form(back) { return '<form method="post" id="pfv-f" hidden><input type="hidden" name="do" value=""><input type="hidden" name="key" value=""><input type="hidden" name="on" value=""><input type="hidden" name="tool" value="">' + (back || '') + '</form>'; }
@@ -81,7 +75,7 @@
     [['bold', '⚔️ Bold'], ['steady', '🛡️ Steady'], ['kind', '💗 Kind']].forEach(function (k) { kits += '<button class="btn" name="kit" value="' + k[0] + '" data-kit="' + e(d.kits[k[0]].join(',')) + '">' + k[1] + '</button>'; });
     var pp = ''; for (i = 0; i < C.picks; i++) pp += '<i></i>';
     return '<div class="box pbox pfv" id="pfv-starter" data-picks="' + C.picks + '">'
-      + '<div class="hrow"><h2>🧩 Pack your box</h2><span class="chip warn" id="pfv-hurt" title="Hurt pieces (at least 2)">⚔️ <b>1</b></span><span class="chip"><b id="pfv-n">4</b>/10</span></div>'
+      + '<div class="hrow"><h2>🧩 Pack your box</h2><span class="chip warn" id="pfv-hurt" title="Hurt pieces (at least 3)">⚔️ <b>1</b></span><span class="chip"><b id="pfv-n">4</b>/10</span></div>'
       + (inFight ? '<p class="note">A creature is waiting. Pack your first Puzzle box, then you meet it.</p>' : '')
       + '<form method="post" id="pfv-sform"><input type="hidden" name="do" value="pfd_starter">'
       + '<ul class="pcg c5" id="pfv-tray" aria-label="Your box: 10 slots">' + tray + '</ul>'
@@ -158,7 +152,7 @@
   }
 
   // ---------------------------------------------------------------- 3. the pre-fight screen
-  function foeV(c, v, tune) { var cfg = PFE.v1Cfg(c.size, tune || {}); return Math.max(1, Math.round(v * cfg.foe * (c.size === 'boss' ? BOSS_MULT : 1) * (C.foeFires > 0 ? FIRE_MULT : 1))); }
+  function foeV(c, v, tune) { var cfg = PFE.v1Cfg(c.size, tune || {}, c.level); /* the level curve (after 2.6.94) */ return Math.max(1, Math.round(v * cfg.foe * (c.size === 'boss' ? BOSS_MULT : 1) * (C.foeFires > 0 ? FIRE_MULT : 1))); }
   function foeCard(ctx, c) {
     var size = c.size || 'small', dims = PFE.v1Cfg(size, ctx.tune), cl = c.class, rn = D.regions[c.region] || '', by = {}, cells = '', lean = c.lean, order = { base: 0, reg: 1, rar: 2, uni: 3 };
     var pieces = c.deck.map(function (p, i) { return [p, i]; }).sort(function (a, b) { return (order[a[0].layer] - order[b[0].layer]) || (a[1] - b[1]); }).map(function (x) { return x[0]; });
@@ -225,6 +219,11 @@
   function barHtml(v) {
     var b = v.bar, max = Math.max(0.1, +b.max), now = +b.now, fm = Math.max(0.1, +v.fh.max), left = Math.max(0, fm - +v.fh.now), charmable = !!v.charmable;
     var hpLabel = 'Creature health: ' + Math.ceil(left) + ' of ' + Math.ceil(fm) + ' left. Hurt pieces take it down; at 0 it backs off.';
+    if (v.onebar) {   // T12 (2.6.95): one bar, a damage segment then a charm segment (port of pfight_bar_html)
+      var dm = Math.max(0, +v.fh.now), ch = Math.max(0, now), tot = Math.round(dm + ch), chn = Math.round(ch), dmn = Math.max(0, tot - chn), mx = Math.round(fm), pd = Math.min(100, 100 * dm / fm);
+      var lab = 'Bar ' + tot + ' of ' + mx + ': damage ' + dmn + ', charm ' + chn + '. Hurt pieces add damage, Charm pieces add charm. When the bar is full the fight ends' + (charmable ? ': more charm than damage and you win the creature over, otherwise it backs off.' : ' and it backs off (this one cannot be charmed).');
+      return '<div class="pf-bars"><span class="pf-fhp pf-one" role="img" aria-label="' + e(lab) + '" title="' + e('Bar ' + tot + ' of ' + mx + ': damage ' + dmn + ', charm ' + chn) + '"><span class="pfx-fill fhfill" data-w="' + (Math.round(pd * 10) / 10) + '"></span><span class="pfx-fill chfill" data-w="' + (Math.round(Math.min(100 - pd, 100 * ch / fm) * 10) / 10) + '"></span><b>' + tot + '/' + mx + '</b></span></div>';
+    }
     var h = '<div class="pf-bars"><span class="pf-fhp" role="img" aria-label="' + e(hpLabel) + '" title="Creature health. Hurt pieces take it down; at 0 it backs off."><span class="pfx-fill fhfill" data-w="' + (Math.round(1000 * left / fm) / 10) + '"></span><b>' + Math.ceil(left) + '</b></span>';
     if (charmable) {   // 2.6.78: the engine's own number (one decimal), never drawn full before the fight is won
       var nowS = Math.round(now * 10) / 10, pct = nowS >= max ? 100 : Math.min(96, Math.floor(1000 * nowS / max) / 10), label = 'Charm bar: fill it to win the creature over for a better reward. Only Charm pieces fill it. ' + nowS + ' of ' + (Math.round(max * 10) / 10);
@@ -290,16 +289,16 @@
       h += '<button type="button" class="btn" id="pf-undo" hidden></button><button class="btn" id="pf-go" form="pf-form" hidden></button>';
     } else {
       h += '<div class="pf-buttons"><a class="btn pf-box" href="puzzlebox.php" title="Your puzzle box" aria-label="Puzzle box">🧩</a><button type="button" class="btn" id="pf-undo" disabled>Undo</button><button class="btn primary" id="pf-go" form="pf-form" disabled>' + (s.start ? 'Confirm start' : 'End turn') + '</button>'
-        + (v1 && v.flip && v.flip.on ? '<button type="button" class="btn pfv-flipb" id="pf-flip" disabled aria-label="Flip: swap the top and bottom edges of the piece you picked (once a turn, free)">⇅ Flip</button>' : '')
+        + (v1 && v.flip && v.flip.on ? '<button type="button" class="btn pfv-flipb" id="pf-flip" disabled aria-label="Flip: swap the top and bottom edges of the piece you picked (' + (v.v1 && v.v1.flip1 !== undefined && !v.v1.flip1 ? 'free, as often as you like' : 'once a turn, free') + ')">⇅ Flip</button>' : '')
         + (v.can_run && !s.over ? '<form method="post" class="inline pf-runf"><input type="hidden" name="do" value="pf_run"><input type="hidden" name="nonce" value="' + nonce + '"><button class="btn" title="Run away" aria-label="Run away">🏃</button></form>' : '') + '</div>';
     }
     h += '<div class="pf-tray"><div class="pf-hand" id="pf-hand" role="group" aria-label="Your hand">'; v.hand.forEach(function (t, i) { h += boardPieceHtml(t, i); }); h += '</div></div>';
     h += '<div class="pf-inspect" id="pf-inspect" aria-live="polite" hidden><span class="pfi-art" id="pfi-art" aria-hidden="true"></span><span class="pf-itext"><b id="pfi-name"></b><br><span id="pfi-desc"></span></span><button type="button" class="pfi-x" id="pfi-x" aria-label="Close">✕</button></div>';
-    h += '<div class="pf-extra"><form method="post" class="inline" id="pf-pform" hidden><input type="hidden" name="do" value="pfb_pass"><input type="hidden" name="nonce" value="' + nonce + '"><input type="hidden" name="turn" value="' + (v.turn | 0) + '"><button class="btn" id="pf-pass">Pass (nothing fits)</button></form>';
+    h += '<div class="pf-extra"><form method="post" class="inline" id="pf-pform" hidden><input type="hidden" name="do" value="pfb_pass"><input type="hidden" name="nonce" value="' + nonce + '"><input type="hidden" name="turn" value="' + (v.turn | 0) + '">' + (v.v1 && v.v1.freepass ? '' : '<button class="btn" id="pf-pass">Pass (nothing fits)</button>') + '</form>';
     h += '<form method="post" class="inline" id="pf-rform" hidden><input type="hidden" name="do" value="pf_redraw"><input type="hidden" name="nonce" value="' + nonce + '"><input type="hidden" name="turn" value="' + (v.turn | 0) + '"><input type="hidden" name="card" id="pf-card" value=""></form>';
     if (v1) h += '<form method="post" class="inline" id="pf-fform" hidden><input type="hidden" name="do" value="pfb_flip"><input type="hidden" name="nonce" value="' + nonce + '"><input type="hidden" name="turn" value="' + (v.turn | 0) + '"><input type="hidden" name="hand" id="pf-fhand" value=""></form>';
     h += '</div>';
-    var data = { start: !!s.start, foe: c.name, won: (won || lost) ? s.over : null, life: 3, tags: TAGS, held: v.held || null, gone: v.gone || [], snaps: usedSn, bar: v.bar.now, barmax: v.bar.max, fh: v.fh.now, fhmax: v.fh.max, charmable: !!v.charmable, hp: v.hp, guard: v.block | 0,
+    var data = { start: !!s.start, foe: c.name, won: (won || lost) ? s.over : null, life: 3, tags: TAGS, held: v.held || null, gone: v.gone || [], snaps: usedSn, bar: v.bar.now, barmax: v.bar.max, fh: Math.round((+v.fh.now + (v.onebar ? +v.bar.now : 0)) * 10) / 10, fhmax: v.fh.max, charmable: !!v.charmable, hp: v.hp, guard: v.block | 0,
       replay: enc.replay || [], replay0: enc.replay0 || null, mods: [], art: 'art/', fx: v.fx || [], tint: PFE.crc32(String(c.slug || c.name)) % 360, parts: 'art/parts/', w: v.w, h: v.h, pcs: v.pcs,
       hand: v.hand.map(function (t) { return { e: t.e, t: t.t, tag: t.tag, m: t.m }; }), combos: v.combos, icons: { hurt: '⚔️', guard: '🛡️', heal: '💚', charm: '🌸', soothe: '😌', trick: '🎭', item: '🎒' } };
     if (v1) {

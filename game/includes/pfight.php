@@ -504,6 +504,11 @@ function pf_check_end(array &$s): bool
     if ($s['over']) return true;
     // 2.6.78 (v1): the bars are compared as they are SHOWN (one decimal, like the replay's barnow / fhnow and the page), so a bar that reads full always ends the fight (Josh: "the charm bar fills but the game does not end until you play another charm")
     $v1 = !empty($s['v1']); $fn = $v1 ? round((float)$s['fh']['now'], 1) : $s['fh']['now']; $bn = $v1 ? round((float)$s['bar']['now'], 1) : $s['bar']['now'];
+    if ($v1 && !empty($s['v1']['onebar'])) {   // 2.6.95 (one shared bar): Hurt and Charm fill the same bar; the larger share names the ending (bosses are always seen off)
+        if (round((float)$s['fh']['now'] + (float)$s['bar']['now'], 1) >= $s['fh']['max']) { $s['over'] = ($s['cm'] > 0 && empty($s['boss']) && $s['bar']['now'] > $s['fh']['now']) ? 'charmed' : 'seen_off'; return true; }
+        if ($s['me']['hp'] <= 0) { $s['over'] = 'defeat'; return true; }
+        return false;
+    }
     if ($fn >= $s['fh']['max']) { $s['over'] = 'seen_off'; return true; }   // its health is gone: it backs off
     if ($s['cm'] > 0 && $bn >= $s['bar']['max']) { $s['over'] = 'charmed'; return true; }   // the charm bar is full: won over
     if ($s['me']['hp'] <= 0) { $s['over'] = 'defeat'; return true; }

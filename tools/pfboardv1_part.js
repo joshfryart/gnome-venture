@@ -1,9 +1,12 @@
   // ================= v1 (2.6.74 stage C): state, texts and drawing helpers. Ported from the approved demo (tools/pfdemo_v1/app.js); the texts mirror claude/design-board-strategy.md, "Player-facing terrain text".
   var V1 = data.v1 || {}, PREV = data.prev || null, phase = 'now', terOver = {}, movedBack = {}, usedGone = {}, leavingUsed = {}, flashEnv = null, flashIds = {}, aimHide = false, stepNow = 0, stepNote = '';
   var ENV = !!V1.env, ENVD = data.env || { next: [] }, envLit = {}, slideIds = {}, fadeIds = {}, fxPop = null, stripRem = [], stripNew = false, stripBad = false, lastLegend = '';
+  // T12 (2.6.95): the week-1 rules as the view resolved them (a fight under way keeps its own: 2.6.94 fights carry set-aside, must-link, the pass button, the once-a-turn flip, Teamwork, Wind and Mud)
+  var MUSTL = V1.must === undefined || !!V1.must, ASIDE = V1.aside === undefined || !!V1.aside, FREEP = !!V1.freepass, FLIP1 = V1.flip1 === undefined || !!V1.flip1, TEAM = (V1.team2 || 1) > 1, ONE = !!V1.onebar, AIMT = !!V1.aimtot, NOWM = !!V1.nowm;
+  var ONETIP = 'One bar for both ways to win. Hurt pieces fill it with damage (red), Charm pieces fill it with charm (pink). When it is full the fight ends: with more charm than damage you win the creature over for a better reward, otherwise it backs off. Guard and Heal keep you alive meanwhile. Great creatures cannot be charmed.';
   var flipBusy = false, wrapObs = null, wrapEl = null, fitTW = 0, fitTH = 0;
   var planQ = null, offMsg = '', popEl = null, sheetEl = null, rowEl = document.getElementById('pfv-row'), legendEl = document.getElementById('pfv-legend'), flipBtn = document.getElementById('pf-flip');
-  var SPD = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '0' ? 0 : 1; } catch (e) {}
+  var SPD = 1, banMs = 1450, RF = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '0' ? 0 : 1; if (sp0 === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) SPD = 0; } catch (e) {}   // 2.6.96: reduced motion with no speed chosen = skip (the player's own choice wins)
   var FOETAG = { quick: 'Quick: it plays one more piece this turn', evade: 'Evade: your next hit on it misses', bash: 'Bash: adds its guard to its next hit', poison: 'Poison: 2 ticks on your health',
     trip: 'Trip: you draw 1 fewer next round', heal: 'Recovers a little', thorns: 'Thorns: hitting its guard pricks you', hold: 'Hold: this guard lasts a turn longer', pierce: 'Pierce: ignores your guard' };
   var EVN = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst' }, EVW = { sunbeam: 'sunny', creep: 'bramble', puddle: 'mud', gust: 'push', thorn: 'burst' };
@@ -39,11 +42,11 @@
     var who = 'Goes to whoever fires it: you or the creature.', lf = life ? ' It goes after ' + life + ' rounds.' : '', N = (V1.limit || 3);
     var T = {
       sun: { l: ['Fire it in your chain: your pieces in that chain count ' + times(V1.sun || 2) + ' (damage, charm, guard and healing).'], chip: '×' + (V1.sun || 2) + ' for the chain' },
-      bramble: { l: ['Fire it in your chain: the creature loses ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of its health. If the creature fires it, you lose ' + pc100(V1.bramble || 0) + ' of yours. Guard does not help.'], chip: '−' + pc100(V1.bramble || 0) + ' to the other side' },
+      bramble: { l: ['Fire it in your chain: ' + (ONE ? 'it adds ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of the bar as damage' : 'the creature loses ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of its health') + '. If the creature fires it, you lose ' + pc100(V1.bramble || 0) + ' of yours. Guard does not help.'], chip: '−' + pc100(V1.bramble || 0) + ' to the other side' },
       rain: { l: ['Fire it in your chain: you get guard worth ' + pc100(V1.rain || 0) + ' of your health. If the creature fires it, it gets the guard.'], chip: 'guard' },
       wind: { l: ['Fire it in your chain: the piece its arrow points at slides one cell along the arrow, if that cell is free.'], chip: 'pushes a piece' },
       mud: { l: ['Nothing links to it, so chains stop here. A piece next to it counts ' + pc100(V1.mud || 0) + ' less.' + lf], chip: 'no links, −' + pc100(V1.mud || 0) + ' next to it' },
-      thorn: { l: ['Fire it in your chain and you lose ' + pc100(V1.thorn || 0) + ' of your health. The creature loses ' + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' when it fires it. Link around it, or make the creature run into it.'], chip: '−' + pc100(V1.thorn || 0) + ' to you, −' + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' to the creature' }
+      thorn: { l: ['Fire it in your chain and you lose ' + pc100(V1.thorn || 0) + ' of your health. ' + (ONE ? 'The bar takes ' : 'The creature loses ') + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' when the creature fires it. Link around it, or make the creature run into it.'], chip: '−' + pc100(V1.thorn || 0) + ' to you, −' + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' to the creature' }
     }[kind];
     if (!T) return null;
     if (kind !== 'mud' && lf) T.l.push(lf.trim());
@@ -182,20 +185,42 @@
     if (countCells(h.e, must)) return null;
     if (h.canflip) { var e2 = edges.slice(); e2[i] = flipE(h.e); if (countCells(e2[i], mustLink(b, e2))) return null; }   // it fits once flipped: playable (the Flip button)
     if (countCells(h.e, false) || (h.canflip && countCells(flipE(h.e), false))) return 'No spot links. Another piece can link, so this one has to wait.';
-    return 'No spot fits this piece' + (V1.flip && !h.canflip && data.flip && data.flip.used ? ', and your flip is used this turn.' : ', flipped or not.');
+    return 'No spot fits this piece' + (FLIP1 && V1.flip && !h.canflip && data.flip && data.flip.used ? ', and your flip is used this turn.' : ', flipped or not.');
   }
   function handDeco(busy) {
     tiles.forEach(function (t, i) {
       var h = data.hand[i]; if (!h) return;
       if (!t.dataset.v1) { t.dataset.v1 = '1';
         if (h.life) t.appendChild(pipsEl(h.life, h.life));
-        if (SRCI[h.src]) { var s = document.createElement('span'); s.className = 'src'; s.title = 'Teamwork source: ' + h.src; s.setAttribute('aria-hidden', 'true'); s.textContent = SRCI[h.src]; t.appendChild(s); }
-        t.setAttribute('aria-label', t.getAttribute('aria-label') + '; stays ' + (h.life || 3) + ' rounds' + (SRCI[h.src] ? '; Teamwork source: ' + h.src : '') + (h.flip ? '; flipped' : ''));
+        if (TEAM && SRCI[h.src]) { var s = document.createElement('span'); s.className = 'src'; s.title = 'Teamwork source: ' + h.src; s.setAttribute('aria-hidden', 'true'); s.textContent = SRCI[h.src]; t.appendChild(s); }
+        t.setAttribute('aria-label', t.getAttribute('aria-label') + '; stays ' + (h.life || 3) + ' rounds' + (TEAM && SRCI[h.src] ? '; Teamwork source: ' + h.src : '') + (h.flip ? '; flipped' : ''));
       }
       t.classList.toggle('pfv-flipped', !!h.flip);
       var why = busy || redrawMode ? null : handWhy(i);
       t.classList.toggle('pfv-off', !!why); if (why) t.setAttribute('aria-disabled', 'true'); else t.removeAttribute('aria-disabled');
     });
+  }
+
+  // ---- T12: the creature's aim as one chip: what it would do now ("Aims Snap: hits you for 9"), the reasons behind a tap ("Sun x2, fires your Jab: 6 to it")
+  function aimBits(aim) {
+    var t = AIMT && aim && aim.tot && typeof aim.tot.hp === 'number' ? aim.tot : null; if (!t) return null;
+    var head = t.hp > 0 ? 'hits you for ' + t.hp : t.g > 0 ? 'is blocked by your guard' : t.heal > 0 ? 'heals ' + t.heal : aim.t === 'hurt' ? 'does no damage' : aim.t + ' ' + aim.v;
+    if (t.hp > 0 && t.heal > 0) head += ', heals ' + t.heal;
+    var why = (t.why || []).slice(), bait = Math.round((+t.bait || 0) * 10) / 10;
+    if (bait > 0) { var k = -1; why.forEach(function (w, i) { if (/^fires your /.test(w)) k = i; }); if (k >= 0) why[k] += ': ' + bait + ' to it'; else why.push('your pieces it fires: ' + bait + ' to it'); }
+    if (t.g > 0 && t.hp > 0) why.push('your guard takes ' + t.g);
+    return { head: head, why: why };
+  }
+  function aimChip(aim) {
+    var b = aimBits(aim), pick = data.reaim && phase !== 'pre' ? ' (picked again)' : '';
+    if (!b) return '<span class="tg aim">' + svg('aim') + 'Aims ' + esc(aim.n) + ' ' + esc(aim.t) + ' ' + aim.v + pick + '</span>';
+    var txt = 'Aims ' + esc(aim.n) + ': ' + esc(b.head) + pick;
+    if (!b.why.length) return '<span class="tg aim">' + svg('aim') + txt + '</span>';
+    return '<button type="button" class="tg aim" data-a="aim" aria-expanded="' + (popEl && popEl.dataset.k === 'aim:aim' ? 'true' : 'false') + '" aria-label="' + esc('Aims ' + aim.n + ': ' + b.head + '. Press for the reasons') + '">' + svg('aim') + txt + '<span class="pfv-more" aria-hidden="true">\u25BE</span></button>';
+  }
+  function aimText() {
+    var b = aimBits(dispAim()); if (!b) return null;
+    return { n: 'Why it ' + b.head, g: 'aim', l: b.why.length ? b.why : ['Nothing adds to it.'], who: 'This is what its aim does if nothing on the board changes.' };
   }
 
   // ---- the rows above the board: turn order, chain dots, Teamwork, the aim, the forecast (with words), what waits on each side, tool wear
@@ -205,14 +230,15 @@
     h += '<span class="tg step on" title="Every round goes: you, the creature, then the ' + (ENV ? 'environment' : 'terrain') + '">R' + (data.round || 1) + ' \u00B7 ' + (data.won ? 'over' : stepNow === 1 ? '<span class="fn">' + esc(foe) + '</span>' : stepNow === 2 ? (ENV ? 'Environment' : 'Terrain') : 'You') + '</span>';
     for (i = 1; i <= Math.max(lim, 3); i++) dots += '<i class="' + (n >= i ? (lim > 0 && n >= lim ? 'over' : 'on') : '') + '"></i>';
     h += '<span class="tg" role="img" aria-label="Pieces that fire in your chain: ' + n + '. ' + (lim > 0 ? lim + ' or more: every piece that fired is used up.' : '') + '" title="' + (lim > 0 ? 'A chain of ' + lim + ' or more uses up every piece that fired.' : 'Chain') + '"><span class="dots">' + dots + '</span></span>';   // 2.6.90 (Josh: "very busy"): no word, the dots say it
-    if (tw > 1) h += '<span class="tg team on" title="Pal, tool and crop pieces in one chain: 2 kinds +30%, all 3 +60%">Teamwork +' + Math.round((tw - 1) * 100) + '%</span>';   // 2.6.90: only when the chain has it (the rule is in the help sheet)
+    if (TEAM && tw > 1) h += '<span class="tg team on" title="Pal, tool and crop pieces in one chain: 2 kinds +30%, all 3 +60%">Teamwork +' + Math.round((tw - 1) * 100) + '%</span>';   // 2.6.90: only when the chain has it (the rule is in the help sheet)
     if (!data.won) {
       var aim = dispAim();
-      if (!data.start) h += st.foe_slow && phase !== 'pre' ? '<span class="tg good">' + esc(foe) + ' is slowed: no move</span>' : aim ? '<span class="tg aim">' + svg('aim') + 'Aims ' + esc(aim.n) + ' ' + esc(aim.t) + ' ' + aim.v + (data.reaim && phase !== 'pre' ? ' (picked again)' : '') + '</span>' : '<span class="tg aim">no aim</span>';
+      if (!data.start) h += st.foe_slow && phase !== 'pre' ? '<span class="tg good">' + esc(foe) + ' is slowed: no move</span>' : aim ? aimChip(aim) : '<span class="tg aim">no aim</span>';
       dispEnvs().forEach(function (e, k) { if (phase === 'pre' && envDone[k]) return; h += '<button type="button" class="tg ev" data-ev="' + k + '">' + svg(EVG[e.kind]) + (e.kind === 'gust' && e.on ? 'Gust: pushes ' + esc(e.on.n) : EVN[e.kind]) + '</button>'; });
       if (st.poison) h += '<span class="tg bad">poisoned ' + st.poison + '</span>';
       if (st.slowdraw) h += '<span class="tg bad">tripped −1 draw</span>';
       else if (data.tripped) h += '<span class="tg bad" title="The creature tripped you: you drew one fewer piece this turn">tripped −1 draw</span>';
+      if (st.foe_block > 0) h += '<span class="tg bad" title="The creature has guard: your Hurt pieces lose this much before they reach the bar" aria-label="The creature has ' + st.foe_block + ' guard">its guard ' + st.foe_block + '</span>';
       if (st.foe_evade) h += '<span class="tg bad" title="The creature dodges your next hit">dodges next hit</span>';
       if (st.foe_thorns) h += '<span class="tg bad">thorny guard</span>';
       if (st.foe_bash) h += '<span class="tg bad">bash waits</span>';
@@ -253,7 +279,7 @@
   function popHtml(pt, rot) { return '<span class="pfv-popi">' + svg(pt.g, 0) + '</span><span class="pfv-popt"><b>' + esc(pt.n) + '</b>' + pt.l.map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + '<i>' + esc(pt.who) + '</i>' + (pt.chip ? '<em class="pfv-pchip">' + esc(pt.chip) + '</em>' : '') + '</span>'; }
   function showPop(o) {
     var same = popEl && popEl.dataset.k === o.t + ':' + o.k; closePop(); if (same) return;
-    var pt = o.t === 'ter' ? terrText(o.k) : o.t === 'turn' ? (ENV ? envTurnText() : turnText()) : o.t === 'envp' ? envText(o.k, o.life) : evText2(o.k); if (!pt) return;
+    var pt = o.t === 'aim' ? aimText() : o.t === 'ter' ? terrText(o.k) : o.t === 'turn' ? (ENV ? envTurnText() : turnText()) : o.t === 'envp' ? envText(o.k, o.life) : evText2(o.k); if (!pt) return;
     popEl = document.createElement('div'); popEl.className = 'pfv-pop'; popEl.setAttribute('role', 'dialog'); popEl.setAttribute('aria-label', pt.n); popEl.dataset.k = o.t + ':' + o.k;
     popEl.innerHTML = popHtml(pt) + '<button type="button" class="pfv-popx" aria-label="Close">×</button>';
     if (o.rot) { var sv = popEl.querySelector('svg'); if (sv) sv.style.transform = 'rotate(' + o.rot + 'deg)'; }
@@ -263,6 +289,7 @@
     popEl.querySelector('.pfv-popx').addEventListener('click', closePop);
   }
   function boardTap(ev) {
+    if (playing) { stopPlay(true); return true; }   // 2.6.96: a tap on the board skips the replay (the Skip button is far from the thumb)
     var m = ev.target.closest('.mkb');
     if (m) { var e = dispEnvs()[+m.dataset.ev]; if (e) showPop({ t: 'ev', k: e.kind, rot: e.kind === 'gust' ? ROT[e.dir] : 0, y: e.y }); return true; }
     var g = ev.target.closest('.gc[data-ter]');
@@ -278,11 +305,12 @@
     sheetEl.innerHTML = '<button type="button" class="pfv-sheetbg" data-x="1" aria-label="Close"></button><div class="pfv-sheet" role="dialog" aria-label="How the board works"><div class="pfv-sheet-in">'
       + '<div class="hrow"><h2>How the board works</h2><button type="button" class="btn small" data-x="1">Done</button></div>'
       + '<div class="sl">The round</div><ul class="helpl">' + row(ENV ? envTurnText() : turnText())
-      + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again.'], who: '' })
-      + row({ n: 'Chains', g: 'gust', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + ' Pal, tool and crop pieces in one chain: 2 kinds +30%, all 3 +60%.'], who: '' })
+      + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again.' + (AIMT ? ' The chip says what it would do now; tap it for the reasons.' : '')], who: '' })
+      + (ONE ? row({ n: 'The bar', g: 'gust', l: ['One bar, two ways to win. Hurt pieces fill it with damage, Charm pieces fill it with charm. When it is full the fight ends: with more charm than damage you win the creature over, otherwise it backs off. A great creature cannot be charmed.'], who: '' }) : '')
+      + row({ n: 'Chains', g: 'gust', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + (TEAM ? ' Pal, tool and crop pieces in one chain: 2 kinds +' + Math.round((V1.team2 - 1) * 100) + '%, all 3 +' + Math.round(((V1.team3 || V1.team2) - 1) * 100) + '%.' : ''), 'A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it.', 'If its aim fires one of your pieces, your piece works for you.'], who: '' })
       + row({ n: 'Guard', g: 'gust', l: ['Your guard blocks the creature’s hits. It fades when your turn starts, unless Hold keeps it (what is left of a Hold guard stays up once).'], who: '' })
-      + row({ n: 'Flip', g: 'gust', l: ['Once a turn, free: Flip swaps the top and bottom edges of the piece you picked. A faded piece cannot be played right now; tap it to see why.'], who: '' })
-      + (ENV ? '</ul><div class="sl">Environment pieces <span>tap one in the Next strip</span></div><ul class="helpl">' + ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'].map(function (k) { return row(envText(k, null)); }).join('') + '</ul>' : '')
+      + row({ n: 'Flip', g: 'gust', l: [(FLIP1 ? 'Once a turn, free: ' : 'Free, as often as you like: ') + 'Flip swaps the top and bottom edges of the piece you picked. A faded piece cannot be played right now; tap it to see why.'], who: '' })
+      + (ENV ? '</ul><div class="sl">Environment pieces <span>tap one in the Next strip</span></div><ul class="helpl">' + ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'].filter(function (k) { return !(NOWM && (k === 'wind' || k === 'mud')); }).map(function (k) { return row(envText(k, null)); }).join('') + '</ul>' : '')
       + (ENV ? '' : '</ul><div class="sl">Terrain <span>tap a ground cell</span></div><ul class="helpl">' + ['sun', 'br', 'mud'].map(function (k) { return row(terrText(k)); }).join('') + '</ul>'
       + '<div class="sl">Events <span>marked a round ahead</span></div><p class="hint">' + WHEN + '</p><ul class="helpl">' + ['sunbeam', 'creep', 'puddle', 'gust', 'thorn'].map(function (k) { return row(evText2(k)); }).join('') + '</ul>')
       + '<div class="sl">Animation speed</div><div class="spdrow">' + [['1', '1×'], ['2', '2×'], ['0', 'Skip']].map(function (o) { return '<button type="button" class="btn small' + (String(SPD) === o[0] ? ' primary' : ' ghost') + '" data-spd="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>'
@@ -316,7 +344,7 @@
     movedBack = {}; envPush = {};
     Object.keys(pushes).forEach(function (id) { movedBack[id] = pushes[id][0]; envPush[id] = pushes[id].slice(1); });
   }
-  function replayDone() { if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
+  function replayDone() { banMs = 1450; if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
     fxPop = null; fadeIds = {}; slideIds = {}; phase = 'now'; terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = ''; }
   function envStepE(ev) {   // one step of the environment's own events: a piece fires in a chain, the environment places, finds no place, pieces fade
     var K = envKind(ev.kind);
@@ -354,12 +382,21 @@
     render();
     if (flashEnv !== null) { var done = flashEnv; playTimers.push(setTimeout(function () { envDone[done] = 1; }, 10)); }   // its mark stays for this step, then it is gone
   }
+  /** 2.6.96: the replay takes at most REPLAY_MS (at 1x; half of it at 2x) however many events there are: the creature's banner is short, the pieces' steps shrink by RF to fit. */
+  var REPLAY_MS = 4600;
+  function replayScale() {
+    var n = (data.replay || []).length, ups = 0, g = data.gone || [];
+    if (g.some(function (x) { return x.used === 'me'; })) ups++;
+    if (g.some(function (x) { return x.used === 'foe' || (x.fell && !x.used && x.by === 'foe'); })) ups++;
+    var fixed = 200 + 700, vary = n * 950 + ups * 850;
+    return Math.max(0.1, Math.min(1, (REPLAY_MS - fixed) / Math.max(1, vary)));
+  }
   function useUpStep(side, tt) {
     var ids = (data.gone || []).filter(function (g) { return g.used === side || (side === 'foe' && g.fell && !g.used && g.by === 'foe'); }).map(function (g) { return g.id; });
     if (!ids.length) return tt;
     playTimers.push(setTimeout(function () { ids.forEach(function (id) { leavingUsed[id] = 1; }); flashEnv = null; flashIds = {}; stepNote = side === 'me' ? 'A chain of ' + (V1.limit || 3) + ' or more: the pieces that fired are used up.' : 'Pieces that fired their last time, or in a chain of ' + (V1.limit || 3) + ', fall away.'; render(); }, tt));
-    playTimers.push(setTimeout(function () { ids.forEach(function (id) { usedGone[id] = 1; delete leavingUsed[id]; }); render(); }, tt + 800 / SPD));
-    return tt + 850 / SPD;
+    playTimers.push(setTimeout(function () { ids.forEach(function (id) { usedGone[id] = 1; delete leavingUsed[id]; }); render(); }, tt + 800 * RF / SPD));
+    return tt + 850 * RF / SPD;
   }
 
   /** 2.6.78: the result card of a fight that is over waits (the server marks the fight pfv-endwait) until the last turn has been replayed in full, then it fades in. A skipped or absent replay shows it at once. */
@@ -390,15 +427,58 @@
       if ((drawn && Date.now() - t0 > 120) || Date.now() - t0 > 2500) { clearInterval(tm); if (g.parentNode) g.parentNode.removeChild(g); }
     }, 40);
   }
+  // ---- T12: the one bar (a damage segment and a charm segment), the plan line for the aim, the End turn button that passes
+  var oneV = { tot: data.fh || 0, ch: data.bar || 0 };
+  function oneBar(tot, ch, max) {   // the bar the page drew: both segments and the words move with the replay (tot = damage + charm, ch = charm)
+    var el = root.querySelector('.pf-fhp.pf-one'); if (!el) return false;
+    if (tot !== null) oneV.tot = +tot; if (ch !== null) oneV.ch = +ch;
+    var t = Math.min(max, Math.max(0, oneV.tot)), c = Math.min(t, Math.max(0, oneV.ch)), d = t - c;
+    var fd = el.querySelector('.fhfill'), fc = el.querySelector('.chfill'), b = el.querySelector('b');
+    if (fd) fd.style.width = (100 * d / max) + '%'; if (fc) fc.style.width = (100 * c / max) + '%';
+    var tn = Math.round(t), cn = Math.round(c), dn = Math.max(0, tn - cn), mx = Math.round(max), head = 'Bar ' + tn + ' of ' + mx + ': damage ' + dn + ', charm ' + cn;
+    if (b) b.textContent = tn + '/' + mx;
+    el.title = head; el.setAttribute('aria-label', (el.getAttribute('aria-label') || '').replace(/^Bar \d+ of \d+: damage \d+, charm \d+/, head));
+    return true;
+  }
+  function barParts(j) {   // the plan line's bar part: one bar, or the 2.6.94 health and charm bars
+    var ps = [];
+    if (ONE) {
+      if (j.fh && j.bar) { var dd = (j.fh[1] - j.bar[1]) - (j.fh[0] - j.bar[0]), dc = j.bar[1] - j.bar[0], q = [];
+        if (dd > 0.04) q.push('damage +' + Math.round(dd)); if (dc > 0.04) q.push('charm +' + Math.round(dc));
+        if (q.length) ps.push('Bar ' + Math.round(j.fh[0]) + ' \u2192 ' + Math.round(j.fh[1]) + ' of ' + Math.round(j.fh[2]) + ' (' + q.join(', ') + ')'); }
+      return ps;
+    }
+    if (j.fh && j.fh[1] > j.fh[0]) ps.push('Creature health ' + Math.ceil(j.fh[2] - j.fh[0]) + ' \u2192 ' + Math.ceil(j.fh[2] - j.fh[1]));
+    if (j.bar[1] > j.bar[0]) ps.push('Charm ' + Math.round(j.bar[0]) + ' \u2192 ' + Math.round(j.bar[1]) + ' of ' + Math.round(j.bar[2]));
+    return ps;
+  }
+  function aimPlanLine(j) {   // after your placement: the creature's aim as it would stand (aimtot fights)
+    if (planEl) planEl.classList.remove('pf-hasaim');
+    if (!AIMT || !j.aim || !planEl) return;
+    var a = j.aim, txt, why = '', dispA = data.aim || {};
+    if (a.broken) txt = a.broken === 'slow' ? 'Its aim is gone: it loses its turn.' : 'Its aim is broken: it will pick again.';
+    else { var b = aimBits({ t: dispA.t, v: dispA.v, tot: a }); txt = b ? 'Its aim now ' + b.head + '.' : ''; why = b && b.why.length ? 'Because: ' + b.why.join(', ') + '.' : ''; }
+    if (!txt) return;
+    var li = document.createElement('li'); li.className = 'pf-plan-aim'; li.textContent = '\uD83C\uDFAF ' + txt; planEl.appendChild(li); planEl.classList.add('pf-hasaim');
+    if (why) { var lw = document.createElement('li'); lw.textContent = why; planEl.appendChild(lw); }   // the reasons show when the plan line is opened
+  }
+  function passMode(busy) {   // a free pass: with nothing placed or picked, End turn says Pass and posts the pass form (no second button)
+    if (!FREEP || !go) return;
+    var pm = !busy && !data.start && !data.won && !redrawMode && !data.held && moves.length === 0 && selected === null;
+    go.textContent = pm ? 'Pass' : data.start ? 'Confirm start' : 'End turn';
+    go.setAttribute('form', pm ? 'pf-pform' : 'pf-form'); go.disabled = busy || (!pm && moves.length === 0);
+    go.title = pm ? 'Skip your turn: no piece is played, the round goes on' : ''; go.classList.toggle('pfv-pass', pm);
+  }
   function v1Boot() {
+    if (pform && FREEP) pform.addEventListener('submit', function (e) { if (submitted || playing) { e.preventDefault(); return; } submitted = true; go.disabled = true; undo.disabled = true; });
     root.addEventListener('submit', ghostSnap, true);
     ghostShow();
-    if (data.bar !== undefined && data.barmax) setBar(data.replay0 && data.replay0.bar !== undefined ? data.replay0.bar : data.bar, data.barmax);   // 2.6.80: the N/100 number is there from the first frame
+    if (data.bar !== undefined && data.barmax) setBar(willReplay && data.replay0 && data.replay0.bar !== undefined ? data.replay0.bar : data.bar, data.barmax);   // 2.6.80: the N/100 number is there from the first frame
     if (willReplay && data.replay0) { setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }   // 2.6.88: the page is sent with the NEW health, guard and creature health in it; until the replay reaches the piece that changes them they show what they were before the turn
     if (!willReplay || !SPD || !(data.replay && data.replay.length)) endReveal();
     else setTimeout(endReveal, 40000);   // never hold the card for ever (a replay that never ran)
     drawLegend();
-    if (rowEl) rowEl.addEventListener('click', function (ev) { var b = ev.target.closest('[data-ev]'); if (!b) return; var e = dispEnvs()[+b.dataset.ev]; if (e) showPop({ t: 'ev', k: e.kind, rot: e.kind === 'gust' ? ROT[e.dir] : 0, y: e.y }); });
+    if (rowEl) rowEl.addEventListener('click', function (ev) { var ab = ev.target.closest('[data-a=aim]'); if (ab) { showPop({ t: 'aim', k: 'aim', y: null }); drawRows(); return; } var b = ev.target.closest('[data-ev]'); if (!b) return; var e = dispEnvs()[+b.dataset.ev]; if (e) showPop({ t: 'ev', k: e.kind, rot: e.kind === 'gust' ? ROT[e.dir] : 0, y: e.y }); });
     if (legendEl) legendEl.addEventListener('click', function (ev) {
       var b = ev.target.closest('button'); if (!b) return;
       if (b.dataset.en !== undefined) { var it = stripItems()[+b.dataset.en]; if (it) showPop({ t: 'envp', k: it.kind, life: it.life, y: null }); }
@@ -497,8 +577,8 @@
   /** FLIP (2.6.75: no page load): the server flips the picked piece and answers with the hand; the piece turns over where it is, its lit spots and their numbers are worked out again. */
   function flipLabel() {
     if (!flipBtn) return;
-    var used = !!(data.flip && data.flip.used), can = typeof selected === 'number' && data.hand[selected] && data.hand[selected].canflip;
-    var why = used && !can ? 'You have flipped a piece this turn. Flip that piece back to get the flip again.' : typeof selected !== 'number' ? 'Pick a piece from your hand first.' : !can ? 'This piece cannot be flipped.' : 'Flip: swap the top and bottom edges of the piece you picked (once a turn, free)';
+    var used = FLIP1 && !!(data.flip && data.flip.used), can = typeof selected === 'number' && data.hand[selected] && data.hand[selected].canflip;
+    var why = used && !can ? 'You have flipped a piece this turn. Flip that piece back to get the flip again.' : typeof selected !== 'number' ? 'Pick a piece from your hand first.' : !can ? 'This piece cannot be flipped.' : 'Flip: swap the top and bottom edges of the piece you picked (' + (FLIP1 ? 'once a turn, free' : 'free, as often as you like') + ')';
     flipBtn.textContent = used && !can ? '\u21C5 Flip used' : '\u21C5 Flip'; flipBtn.title = why; flipBtn.setAttribute('aria-label', why);
   }
   function redrawTile(i) {   // the hand piece is drawn again with its edges as they are now
@@ -507,8 +587,13 @@
     delete t.dataset.arted;
     if (!(window.PFParts && window.PFParts.ok)) ['B', 'T', 'R', 'L'].forEach(function (sd) { t.insertBefore(edgeSpan(data.hand[i].e[sd], sd), t.firstChild); });
   }
-  function doFlip() {
-    var i = selected;
+  /** after 2.6.94 (Josh): pick a different piece after flipping one and the flip is taken back by itself (the flip is free again for the piece you pick). While the flip is used, exactly the piece flipped this turn still says canflip. */
+  function unflipPrev(next) {
+    if (!(data.flip && data.flip.used) || !FLIP1) return;   // 2.6.95: flip1 off = flip any piece any number of times: nothing to take back
+    for (var p = 0; p < data.hand.length; p++) if (p !== next && data.hand[p] && data.hand[p].canflip) { doFlip(p); return; }
+  }
+  function doFlip(idx) {
+    var i = typeof idx === 'number' ? idx : selected;
     if (typeof i !== 'number' || playing || submitted || flipBusy || !data.hand[i] || !data.hand[i].canflip) return;
     flipBusy = true; flipBtn.disabled = true;
     var fd = new FormData(), qs = function (n) { var e = form.querySelector('[name=' + n + ']'); return e ? e.value : ''; };

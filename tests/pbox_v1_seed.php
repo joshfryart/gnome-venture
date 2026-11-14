@@ -10,6 +10,8 @@ require_once APP_ROOT . '/includes/adventure.php';
 require_once APP_ROOT . '/includes/pfight_game.php';
 require_once APP_ROOT . '/includes/pfdeck.php';
 require_once APP_ROOT . '/includes/puzzle_pals.php';
+const PBOX_V294 = ['team2' => PFB_TEAM2, 'team3' => PFB_TEAM3, 'life' => 1] + PFB_V1_PRE;   // the page tests seed fights with the 2.6.94 rules until the page learns the new ones (T12); a new fight plays Teamwork, Wind and per-piece life off
+define('PBOX_RULES', getenv('PBOX_RULES') === 'new' ? true : PBOX_V294);   // T12: PBOX_RULES=new seeds the fight with the rules a new fight has now (one bar, free pass, no set-aside, no Teamwork, flip any number of times); the default stays the 2.6.94 rules
 $u = q_one("SELECT * FROM users WHERE username = 'sprout'"); $uid = (int)$u['id']; $what = $argv[2] ?? 'box';
 $give = function (string $slug, int $n = 1) use ($uid) { $id = item_id_by_slug($slug); if ($id) give_item($uid, $id, $n); return $id; };
 
@@ -63,13 +65,20 @@ $turn = function (bool $worst = false) use (&$exp, &$enc, &$u, $c) {
     if (!empty($s['start'])) { $cx = intdiv(pfb_w($s), 2); $cy = intdiv(pfb_h($s), 2); $_POST['moves'] = '0,' . ($cx - 1) . ',' . $cy; pfight_do($u, $exp, 'pfb_play'); save_exp($exp); return true; }
     $best = null;
     foreach ($s['me']['hand'] as $i => $t) foreach (pfb_cell_preview($s, $i) as $key => $q) { $sc = ($q['dmg'] ?? 0) + ($q['ch'] ?? 0) + ($q['n'] ?? 0); if ($worst) $sc = -$sc; if ($best === null || $sc > $best[0]) $best = [$sc, $i, $key]; }
-    if ($best === null) { pfight_do($u, $exp, 'pfb_pass'); save_exp($exp); return true; }
+    if ($best === null) {   // nothing fits as it is: flip a piece that fits flipped and play it (a pass is refused while one does), else pass
+        foreach ($s['me']['hand'] as $i => $t) if (pfb_cell_preview($s, $i, true)) {
+            $_POST['hand'] = $i; pfight_do($u, $exp, 'pfb_flip'); save_exp($exp); $e2 = json_decode((string)$exp['encounter'], true);
+            foreach (pfb_cell_preview($e2['pf'], $i) as $key => $q) { $_POST = ['nonce' => $s['nonce'], 'turn' => $s['turn'], 'moves' => $i . ',' . $key]; pfight_do($u, $exp, 'pfb_play'); save_exp($exp); break; }
+            return true;
+        }
+        pfight_do($u, $exp, 'pfb_pass'); save_exp($exp); return true;
+    }
     $_POST['moves'] = $best[1] . ',' . $best[2]; pfight_do($u, $exp, 'pfb_play'); save_exp($exp);
     return true;
 };
 if ($what === 'midfight') {
     $enc['pfgo'] = 1; unset($enc['pf']); $save();
-    $enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[3] ?? 7), ['v1' => true, 'blank' => true, 'can_pluck' => false]); $save();   // as pfight_state deals it, with a fixed seed
+    $enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[3] ?? 7), ['v1' => PBOX_RULES, 'blank' => true, 'can_pluck' => false]); $save();   // as pfight_state deals it, with a fixed seed
     for ($i = 0; $i < (int)($argv[4] ?? 3); $i++) { $exp = active_expedition($uid); if (!$exp || !$exp['encounter']) break; $turn(($argv[5] ?? '') === 'soft'); }   // soft: the weakest move each turn, so the fight is still on afterwards
     $exp = active_expedition($uid); $enc = $exp ? json_decode((string)$exp['encounter'], true) : null; $s = $enc['pf'] ?? null;
     if ($s && ($argv[6] ?? '') === 'fade') {   // 2.6.79: hand pieces that fit nowhere are rarer now (the environment's pieces stand apart): give the first two hand pieces edges that fit nowhere on this board
@@ -84,7 +93,7 @@ if ($what === 'midfight') {
 }
 if ($what === 'charm') {   // 2.6.78: php tests/pbox_v1_seed.php GAME charm SEED VARIANT: a fight (opening done) whose hand is all Charm pieces. plain = bar empty, near = the bar one piece from full (a charm win in your own chain), nearfoe = ditto, defeat = you are on 1 health
     $var = $argv[4] ?? 'plain'; $enc['pfgo'] = 1; unset($enc['pf']); $save();
-    $s = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[3] ?? 7), ['v1' => true, 'blank' => true, 'can_pluck' => false]);
+    $s = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[3] ?? 7), ['v1' => PBOX_RULES, 'blank' => true, 'can_pluck' => false]);
     $st = $s['me']['stats'] ?? ['level' => 8]; $st['level'] = 8;
     $mk = fn(string $k) => pfb_v1_tile(pf_make_tile($k, $st), $s['v1']);
     if (!empty($s['start'])) { $err = pfb_start($s, 0, 'L'); if ($err) { echo "start: $err\n"; exit(1); } }
@@ -103,7 +112,7 @@ if ($what === 'setbar') {   // 2.6.78: php tests/pbox_v1_seed.php GAME setbar FR
     $enc['pf'] = $s; $save(); echo 'setbar: ' . $s['bar']['now'] . '/' . $s['bar']['max'] . ' hp ' . $s['me']['hp'] . ' turn ' . $s['turn'] . "\n"; exit;
 }
 if ($what === 'nofit') {   // 2.6.79: php tests/pbox_v1_seed.php GAME nofit SEED: the opening done, a hand of Charm pieces that fit nowhere (only End turn / Pass is possible)
-    $s = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[3] ?? 7), ['v1' => true, 'blank' => true, 'can_pluck' => false]);
+    $s = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[3] ?? 7), ['v1' => PBOX_RULES, 'blank' => true, 'can_pluck' => false]);
     $st = ['level' => 8]; if (!empty($s['start'])) pfb_start($s, 0, 'L');
     $kb = ['knob', 'body']; $allk = ['L' => $kb, 'R' => $kb, 'T' => $kb, 'B' => $kb];   // knob against knob never fits: every piece on the board and in the hand has four knobs
     foreach ($s['pcs'] as $id => $pc) if ($pc['by'] !== 'none') $s['pcs'][$id]['tile']['ed'] = $allk;
@@ -116,7 +125,7 @@ if ($what === 'nofit') {   // 2.6.79: php tests/pbox_v1_seed.php GAME nofit SEED
 }
 if ($what === 'notes') {   // 2.6.76: php tests/pbox_v1_seed.php GAME notes quick|slow|trip|open [SEED]: a fight whose last turn (or opening) shows that notice
     $kind = $argv[3] ?? 'quick'; $enc['pfgo'] = 1; unset($enc['pf']); $save();
-    $enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[4] ?? 8), ['v1' => true, 'can_pluck' => false]); $save();   // not the blank opening: the creature's opening pieces are on the board
+    $enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), (int)($argv[4] ?? 8), ['v1' => PBOX_RULES, 'can_pluck' => false]); $save();   // not the blank opening: the creature's opening pieces are on the board
     if ($kind !== 'open') {
         $s = $enc['pf'];
         if ($kind === 'quick') { foreach ($s['foe']['hand'] as $i => $t) $s['foe']['hand'][$i]['tag'] = 'quick'; $s['foe']['plan'] = null; }

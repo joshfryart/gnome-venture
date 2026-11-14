@@ -3,7 +3,7 @@ declare(strict_types=1);
 /**
  * Puzzle combat, the v1 DECK MODEL (2.6.74, behind the admin setting pfight_v1; design: claude/design-deckbuilder-combat.md, handover: claude/handover-v1-stageB.md).
  *
- * Part 1 (pure, no DB: also used by the tests and the balance sims): the data files, the layered creature deck, the player's deck built from a "sources" array, harmony.
+ * Part 1 (pure, no DB: also used by the tests and the balance sims): the data files, the layered creature deck, the player's deck built from a "sources" array.
  *   Data: data/pf_pieces.txt (player pieces), pf_class_base.txt (class base 4 + size extras), pf_creature_class.txt (slug=Class), pf_creature_pieces.txt (3 unique each), pf_region_pieces.txt.
  *   Creature deck = 4 base (class) + region pieces (small / medium 1, large / boss 2) + size extras (large 1, boss 2) + 3 unique.
  *   Player deck = kit (starter 10 + what the gnome switched on) + fight-belt tool pieces + active party pals' pieces. No maximum; at most 3 Rare and 1 Masterwork.
@@ -21,9 +21,9 @@ const PFD_CORE = ['swing', 'dodge', 'rest', 'charm'];   // the 4 fixed starter p
 const PFD_PICKS = 6;                          // the starter: 4 core + 6 of the 12 offered
 /** The 12 starter pieces offered (CALLING = the gnome's calling piece, Taunt without a calling; HOME = the home region's piece). A picked piece is owned from then on. */
 const PFD_OFFER = ['CALLING', 'jab', 'snack', 'hide', 'brace', 'soothe', 'hum', 'pierce', 'swing#2', 'c:grain', 'c:herb', 'r:HOME'];
-/** The one-tap kits (each 6 of the offer). */
-const PFD_KITS = ['bold' => ['CALLING', 'jab', 'swing#2', 'pierce', 'snack', 'c:grain'], 'steady' => ['CALLING', 'c:grain', 'c:herb', 'brace', 'r:HOME', 'jab'], 'kind' => ['hum', 'soothe', 'c:herb', 'snack', 'jab', 'CALLING']];
-const PFD_KIT_DEFAULT = 'steady';             // played while no starter is chosen yet (nothing is saved)
+/** The one-tap kits (each 6 of the offer; with the core Swing every kit holds 4 Hurt: the offer has exactly 4, so a pick of 4 would leave no choice). */
+const PFD_KITS = ['bold' => ['CALLING', 'jab', 'swing#2', 'pierce', 'snack', 'c:grain'], 'steady' => ['CALLING', 'jab', 'swing#2', 'pierce', 'brace', 'r:HOME'], 'kind' => ['CALLING', 'jab', 'swing#2', 'pierce', 'hum', 'soothe']];
+const PFD_KIT_DEFAULT = 'bold';               // played while no starter is chosen yet (nothing is saved)
 /** The fight belt: tier => [tool slots, item slug (null = every gnome has it), gnome level needed, price]. Bought only (Twigg's); the best belt the gnome owns and is old enough for counts. */
 const PFD_BELTS = [1 => [2, null, 1, 0], 2 => [3, 'stitched-fight-belt', 8, 600], 3 => [4, 'masterwork-fight-belt', 18, 2500]];
 const PFD_BELT_ITEMS = [
@@ -185,14 +185,14 @@ function pfd_offer_keys(string $calling, string $home, ?array $list = null): arr
     return array_map(fn($k) => $k === 'CALLING' ? $cal : ($k === 'r:HOME' ? $reg : $k), $list ?? PFD_OFFER);
 }
 
-/** null when the 6 picks make a legal starter (each from the offer, no repeats, 2 or more Hurt pieces with the core), else why not. */
+/** null when the 6 picks make a legal starter (each from the offer, no repeats, 3 or more Hurt pieces with the core), else why not. */
 function pfd_starter_check(array $picks, string $calling, string $home): ?string
 {
     $offer = pfd_offer_keys($calling, $home);
     if (count($picks) !== PFD_PICKS || count(array_unique($picks)) !== PFD_PICKS) return 'Pick exactly ' . PFD_PICKS . ' pieces.';
     foreach ($picks as $k) if (!is_string($k) || !in_array($k, $offer, true)) return 'Pick from the pieces on offer.';
     $hurt = 0; foreach (array_merge(PFD_CORE, $picks) as $k) if ((pfd_piece($k)['t'] ?? '') === 'hurt') $hurt++;
-    if ($hurt < 2) return 'Bring at least two Hurt pieces.';
+    if ($hurt < 3) return 'Bring at least three Hurt pieces.';
     return null;
 }
 
@@ -343,26 +343,6 @@ function pfd_tiles(array $entries, array $stats, array $typeBonus = [], string $
 function pfd_edges(array $e): array
 {
     return pfb_author_edges(['t' => $e['t'], 'r' => $e['r']], (string)($e['col'] ?? PFB_SRC_FAM[$e['src']] ?? PF_HOLE[$e['t']] ?? 'body'), isset($e['up']) ? (bool)$e['up'] : null);
-}
-
-/**
- * Deck harmony: how well the deck's pieces link with each other. 'link' = share of (piece next to piece, on any of the 4 sides, flip allowed) that link;
- * 'hand' = chance that a hand of 5 has a piece that links to one of 2 other deck pieces on the board (seeded sampling, the same every time); 'fam' = knob families in the deck.
- */
-function pfd_harmony(array $entries): array
-{
-    $ed = array_values(array_map('pfd_edges', $entries)); $n = count($ed); $fam = ['body' => 0, 'mind' => 0, 'craft' => 0]; $links = 0; $tot = 0;
-    $lk = fn(array $a, array $b): bool => pfb_joint($a, $b)[1];
-    $pair = fn(array $a, array $b): int => ($lk($a['R'], $b['L']) ? 1 : 0) + ($lk($b['R'], $a['L']) ? 1 : 0) + ($lk($a['B'], $b['T']) || $lk($a['B'], $b['B']) ? 1 : 0) + ($lk($b['B'], $a['T']) || $lk($b['T'], $a['T']) ? 1 : 0);
-    foreach ($ed as $e) { $fam[$e['R'][1]]++; $fam[$e['B'][1]]++; }
-    for ($i = 0; $i < $n; $i++) for ($j = 0; $j < $n; $j++) if ($i !== $j) { $links += $pair($ed[$i], $ed[$j]); $tot += 4; }
-    $seed = 12345; $rnd = function (int $m) use (&$seed): int { $seed = ($seed * 1103515245 + 12345) & 0x7fffffff; return $seed % $m; }; $hit = 0; $T = 240;
-    for ($t = 0; $t < $T && $n >= 7; $t++) {
-        $idx = range(0, $n - 1); for ($q = $n - 1; $q > 0; $q--) { $r = $rnd($q + 1); [$idx[$q], $idx[$r]] = [$idx[$r], $idx[$q]]; }
-        $ok = false; for ($h = 0; $h < 5 && !$ok; $h++) for ($b = 5; $b < 7 && !$ok; $b++) if ($pair($ed[$idx[$h]], $ed[$idx[$b]])) $ok = true;
-        if ($ok) $hit++;
-    }
-    return ['n' => $n, 'link' => $tot ? round($links / $tot, 4) : 0.0, 'hand' => $n >= 7 ? round($hit / $T, 4) : 0.0, 'fam' => $fam];
 }
 
 // ================================================================= Part 2: the game (DB)
@@ -530,12 +510,12 @@ function pfd_sources(int|array $u): array
     return $src;
 }
 
-/** The gnome's deck: pfd_build of their sources, plus 'harmony' (of the fight deck) and 'locked' (a fight is under way: no changes). */
+/** The gnome's deck: pfd_build of their sources, plus 'locked' (a fight is under way: no changes). */
 function pfd_deck(int|array $u): array
 {
     $u = pfd_user($u);
     $b = pfd_build(pfd_sources($u));
-    $b['harmony'] = pfd_harmony($b['deck']); $b['locked'] = pfd_locked((int)$u['id']); $b['belt_tier'] = pfd_belt_tier($u);
+    $b['locked'] = pfd_locked((int)$u['id']); $b['belt_tier'] = pfd_belt_tier($u);
     return $b;
 }
 

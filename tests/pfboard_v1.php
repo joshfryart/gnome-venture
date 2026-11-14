@@ -6,6 +6,7 @@ $GLOBALS['PFB_TEST_SIZES'] = ['small' => [5, 4], 'medium' => [5, 5], 'large' => 
 require __DIR__ . '/../game/includes/pfight_game.php';
 $bad = 0; $warn = [];
 set_error_handler(function (int $no, string $msg, string $file, int $line) use (&$warn) { $warn[] = "$msg ($file:$line)"; return true; });   // any PHP warning or notice in the engine fails the run (the last check)
+const V1_294 = ['team2' => PFB_TEAM2, 'team3' => PFB_TEAM3, 'life' => 1] + PFB_V1_PRE;   // the full 2.6.94 rule set (every rule the plan adds is off or as it was)
 const V1_OLD = ['env' => 0, 'ground' => 1, 'events' => 1];   // the 2.6.74 terrain (ground cells, forecast events): what a fight started before 2.6.75 carries
 function chk(string $name, bool $ok, $got = ''): void { global $bad; echo ($ok ? 'ok   ' : 'FAIL ') . $name . ($ok ? '' : ' (got ' . (is_string($got) ? $got : json_encode($got)) . ')') . "\n"; if (!$ok) $bad++; }
 function v1_me(int $lv = 8): array
@@ -107,7 +108,7 @@ $s3 = v1_bare('medium', V1_OLD); v1_put($s3, 'foe', v1_tile($s3, 'c1', 'charm', 
 chk('sunny: a Guard piece does not count double', $g && $g[0]['v'] === 4 && !isset($g[0]['sun']), $g[0]['v'] ?? null);
 $s4 = v1_bare('medium', V1_OLD); v1_put($s4, 'me', v1_tile($s4, 'c1', 'charm', 3, 'body'), 2, 2); $s4['ter']['3,2'] = 'sun'; $hp0 = $s4['me']['hp']; $f = v1_place($s4, 'foe', v1_tile($s4, 'f:x', 'hurt', 4, 'mind', 'creature'), 3, 2);
 chk('sunny works for the creature too: its Hurt piece hits for double', $f && $f[0]['v'] === 8 && $hp0 - $s4['me']['hp'] === 8, [$f[0]['v'] ?? null, $hp0 - $s4['me']['hp']]);
-$s5 = v1_bare('medium', V1_OLD); v1_put($s5, 'foe', v1_tile($s5, 'c1', 'charm', 3, 'body'), 2, 2); $s5['ter']['3,2'] = 'mud';
+$s5 = v1_bare('medium', V1_OLD + ['must' => 1]); v1_put($s5, 'foe', v1_tile($s5, 'c1', 'charm', 3, 'body'), 2, 2); $s5['ter']['3,2'] = 'mud';
 $j = pfb_check($s5, $swing, 3, 2); $j0 = pfb_check($s2, v1_tile($s2, 'h9', 'hurt', 5, 'mind'), 1, 2);
 chk('mud: a piece on mud fits but does not link (the same joint links on other ground)', $j !== null && !pfb_has_link($j) && pfb_has_link($j0), [$j, $j0]);
 chk('mud: while another spot links, the mud spot is not offered', !in_array([3, 2], pfb_cells($s5, $swing, 'me'), true) && in_array([3, 2], pfb_cells($s5, $swing), true));
@@ -213,10 +214,20 @@ $s = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => ['aim' => 0], 'blank' => tru
 chk('rule switch aim = 0: no aim is stored or shown', !isset($s['foe']['plan']) && pfb_view($s)['aim'] === null);
 $s = v1_bare(); v1_put($s, 'me', v1_tile($s, 'c1', 'charm', 3, 'body'), 2, 2); $s['foe']['hand'] = [v1_tile($s, 'f:h', 'hurt', 3, 'mind', 'creature')]; $s['foe']['slow'] = 1; pfb_intent($s);
 chk('a tripped creature shows no aim', $s['foe']['plan'] === null);
+// AIMSTICK: the shown aim holds when a use-up chain has removed every neighbour of its cell (it then touches nothing); only your piece on its cell, or an edge of yours that does not fit, makes it pick again
+$aimAlone = function (bool $misfit) {
+    $s = v1_bare(); $ft = v1_tile($s, 'f:h', 'hurt', 3, 'mind', 'creature'); $far = v1_put($s, 'me', v1_tile($s, 'c1', 'charm', 3, 'body'), 0, 0);   // a piece far away: the board is not empty
+    if ($misfit) { $n = v1_tile($s, 'g1', 'guard', 3, 'body'); $n['ed'] = ['L' => ['knob', 'craft'], 'R' => ['knob', 'craft'], 'T' => ['knob', 'craft'], 'B' => ['knob', 'craft']]; $ft['ed'] = ['L' => ['knob', 'craft'], 'R' => ['knob', 'craft'], 'T' => ['knob', 'craft'], 'B' => ['knob', 'craft']]; v1_put($s, 'me', $n, 2, 2); }   // knob against knob: does not fit
+    $s['foe']['hand'] = [$ft]; $s['foe']['plan'] = ['k' => 'f:h', 'n' => 'F:h', 't' => 'hurt', 'v' => 3, 'tag' => '', 'x' => 3, 'y' => 2];   // its aim at (3,2); nothing of its old neighbours is left
+    $ev = pfb_foe_turn($s, 0); $at = pfb_at($s, 3, 2);
+    return ['reaim' => (int)$s['reaim'], 'at' => $at ? $at['by'] . ':' . $at['tile']['k'] : null, 'ev' => count($ev)];
+};
+$g = $aimAlone(false); chk('AIMSTICK: an aim whose cell touches nothing now (its neighbours were used up) still lands on that cell, no re-aim', $g['reaim'] === 0 && $g['at'] === 'foe:f:h', $g);
+$g = $aimAlone(true); chk('AIMSTICK: an edge of yours that does not fit next to the aimed cell still makes it pick again', $g['reaim'] === 1 && $g['at'] !== 'foe:f:h', $g);
 
 echo "== 6. Teamwork: pal / tool / crop pieces of yours in one chain\n";
 $team = function (array $srcs, array $over = []) {   // a row of your pieces with these sources; the last one is placed and starts the chain. Returns its events.
-    $s = v1_bare('medium', $over + ['limit' => 0]); $row = [['c1', 'charm', 3, 'body'], ['h1', 'hurt', 5, 'mind'], ['c2', 'charm', 4, 'body']];
+    $s = v1_bare('medium', $over + ['limit' => 0] + V1_294); $row = [['c1', 'charm', 3, 'body'], ['h1', 'hurt', 5, 'mind'], ['c2', 'charm', 4, 'body']];
     foreach ($srcs as $i => $src) { $t = v1_tile($s, $row[$i][0], $row[$i][1], $row[$i][2], $row[$i][3], $src, ['col' => 'body']); if ($i < count($srcs) - 1) v1_put($s, 'me', $t, 1 + $i, 2); else $ev = v1_place($s, 'me', $t, 1 + $i, 2); }
     return $ev;
 };
@@ -225,7 +236,7 @@ chk('2 of the 3 sources in one chain: +30% on your pieces (and the event says tw
 chk('one source twice: no bonus', $one && array_column($one, 'v') === array_column($base, 'v') && !isset($one[0]['tw']));
 chk('all 3 sources: +60%', $three && count($three) === 3 && $three[0]['v'] === (int)round($three0[0]['v'] * PFB_TEAM3) && $three[2]['v'] === (int)round($three0[2]['v'] * PFB_TEAM3) && $three[0]['tw'] === PFB_TEAM3, [array_column($three0, 'v'), array_column($three, 'v')]);
 chk('pal + crop with a region piece between: still 2 sources, +30% on all three of your pieces', $mixed && ($mixed[1]['tw'] ?? 0) === PFB_TEAM2);
-$s = v1_bare('medium', ['limit' => 0]); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 1, 2); v1_put($s, 'me', v1_tile($s, 'c2', 'charm', 4, 'craft', 'tool', ['col' => 'body']), 3, 2); $ev = v1_place($s, 'me', v1_tile($s, 'h1', 'hurt', 5, 'mind', 'pal'), 2, 2);
+$s = v1_bare('medium', ['limit' => 0] + V1_294); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 1, 2); v1_put($s, 'me', v1_tile($s, 'c2', 'charm', 4, 'craft', 'tool', ['col' => 'body']), 3, 2); $ev = v1_place($s, 'me', v1_tile($s, 'h1', 'hurt', 5, 'mind', 'pal'), 2, 2);
 $foeEv = array_values(array_filter($ev, fn($e) => $e['by'] === 'foe'));
 chk('the creature\'s piece in your Teamwork chain gets no bonus', count($ev) === 3 && $foeEv && !isset($foeEv[0]['tw']) && $foeEv[0]['v'] === 3, array_column($ev, 'v'));
 chk('default sources by origin: base six basic, calling piece calling, pal pieces pal, creature pieces creature, the rest knacks',
@@ -260,7 +271,7 @@ chk('a creature: 3 pieces in 5 (deck order) stack in its lean family, the other 
 chk('a creature without a class still gets a lean, fixed by its slug', in_array(pfb_lean(['slug' => 'garden-snail']), ['body', 'mind', 'craft'], true) && pfb_lean(['slug' => 'garden-snail']) === pfb_lean(['slug' => 'garden-snail']));
 
 echo "== 8. flip\n";
-$s = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => true, 'blank' => true]); pfb_start($s, 0, 'L'); $t0 = $s['me']['hand'][0]; $e0 = pfb_edges($t0); $turn = $s['turn'];
+$s = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => V1_294, 'blank' => true]); pfb_start($s, 0, 'L'); $t0 = $s['me']['hand'][0]; $e0 = pfb_edges($t0); $turn = $s['turn'];
 $err = pfb_flip($s, 0, $turn); $e1 = pfb_edges($s['me']['hand'][0]);
 chk('flip swaps the top and bottom edges of the hand piece (left and right stay)', $err === null && $e1['T'] === $e0['B'] && $e1['B'] === $e0['T'] && $e1['L'] === $e0['L'] && $e1['R'] === $e0['R'], $err);
 chk('it is free: the turn has not moved, the creature has not played', $s['turn'] === $turn && pfb_view($s)['flip'] === ['on' => true, 'used' => true] && pfb_view($s)['hand'][0]['flip'] === true);
@@ -291,8 +302,8 @@ for ($seed = 1; $seed <= 60 && !$done; $seed++) {
     }
 }
 chk('(a flipped placement was found to test)', $done);
-// pass is refused while a flipped piece would fit
-$s = v1_bare(); v1_put($s, 'foe', v1_tile($s, 'f:g', 'guard', 3, 'body', 'creature', ['col' => 'body']), 2, 2);   // guard: top = hole body, bottom = knob body, left = hole body, right = knob body
+// pass is refused while a flipped piece would fit (2.6.94 rules: since 2.6.95 passing is free)
+$s = v1_bare('medium', V1_294); v1_put($s, 'foe', v1_tile($s, 'f:g', 'guard', 3, 'body', 'creature', ['col' => 'body']), 2, 2);   // guard: top = hole body, bottom = knob body, left = hole body, right = knob body
 $s['me']['held'] = null;
 $s['me']['hand'] = [v1_tile($s, 't1', 'trick', 3, 'craft', 'knack', ['col' => 'body', 'up' => true])]; $s['cell']['2,3'] = 99; $s['pcs'][99] = ['id' => 99, 'by' => 'foe', 'tile' => v1_tile($s, 'f:g2', 'guard', 3, 'body', 'creature', ['col' => 'craft']), 'x' => 2, 'y' => 3, 'born' => 1, 'seq' => 99];
 // now: above the top guard my piece needs bottom = knob body (it has hole body as dealt: knob on top) -> only flipped. Left/right of the guards: my right knob craft vs hole body, my left hole craft vs knob body: no fit.
@@ -301,10 +312,10 @@ chk('(scenario: the piece fits nowhere as dealt and somewhere flipped)', $dealt 
 chk('pass is refused while a piece fits when flipped', str_contains((string)pfb_pass($s, $s['turn'])['err'], 'flip'), pfb_pass($s, $s['turn'])['err']);
 
 echo "== 9. piece life\n";
-$s = v1_bare(); $life = fn(string $k, array $o = []) => pfb_v1_tile(pf_make_tile($k, ['level' => 1], 0, $o), $s['v1'])['life'];
+$s = v1_bare('medium', V1_294); $life = fn(string $k, array $o = []) => pfb_v1_tile(pf_make_tile($k, ['level' => 1], 0, $o), $s['v1'])['life'];
 chk('default life 3; Quick pieces (Jab) 2; Hold pieces (Brace) 4', $life('swing') === 3 && $life('jab') === 2 && $life('brace') === 4, [$life('swing'), $life('jab'), $life('brace')]);
 chk('a piece\'s own life wins, kept inside 2-4', $life('swing', ['life' => 4]) === 4 && $life('swing', ['life' => 9]) === 4 && $life('jab', ['life' => 1]) === 2);
-$s = v1_bare('medium', ['events' => 0, 'ground' => 0]); $s['foe']['hand'] = []; $s['foe']['draw'] = []; $s['foe']['discard'] = [];
+$s = v1_bare('medium', ['events' => 0, 'ground' => 0] + V1_294); $s['foe']['hand'] = []; $s['foe']['draw'] = []; $s['foe']['discard'] = [];
 $i2 = v1_put($s, 'me', v1_tile($s, 'a', 'guard', 1, 'body', 'knack', ['life' => 2]), 0, 0); $i3 = v1_put($s, 'me', v1_tile($s, 'b', 'guard', 1, 'body'), 2, 0); $i4 = v1_put($s, 'me', v1_tile($s, 'c', 'guard', 1, 'body', 'knack', ['life' => 4]), 4, 0);
 $vp = array_column(pfb_view($s)['pcs'], null, 'id');
 chk('the view gives each piece its life and the rounds it has left', [$vp[$i2]['life'], $vp[$i2]['left'], $vp[$i3]['life'], $vp[$i3]['left'], $vp[$i4]['life'], $vp[$i4]['left']] === [2, 2, 3, 3, 4, 4] && pfb_view($s)['hand'][0]['life'] >= 2, [$vp[$i2]['left'], $vp[$i3]['left'], $vp[$i4]['left']]);
@@ -315,13 +326,20 @@ $s0 = v1_bare('medium', ['life' => 0]); chk('rule switch life = 0: every piece l
 
 echo "== 10. creature values and bars by size\n";
 foreach (['small', 'medium', 'large', 'boss'] as $size) {
-    $c = v1_foe($size, 12); $base = pf_new(v1_me(12), $c, 5); $s = pfb_new(v1_me(12), $c, 5, ['v1' => true]);
-    $fm = PFB_V1_FOE_MULT[$size] * ($size === 'boss' ? PFB_BOSS_MULT : 1.0) * PFB_FOE_FIRE_MULT; $want = []; foreach (pf_foe_deck($c) as $t) $want[$t['k']] = max(1, (int)round($t['v'] * $fm));
+    $c = v1_foe($size, 12); $base = pf_new(v1_me(12), $c, 5); $s = pfb_new(v1_me(12), $c, 5, ['v1' => V1_294]);   // 2.6.95: the size numbers are the 2.6.94 two-bar ones (one bar x1.15: section 20)
+    $lf = pfb_v1_lvx(PFB_V1_LEVEL[$size], 12); $fmul = round(PFB_V1_FOE_MULT[$size] * $lf, 4); $bmul = round(PFB_V1_BAR_MULT[$size] * min(1.0, $lf), 4);   // after 2.6.94: the level curve (a lv 12 creature)
+    $fm = $fmul * ($size === 'boss' ? PFB_BOSS_MULT : 1.0) * PFB_FOE_FIRE_MULT; $want = []; foreach (pf_foe_deck($c) as $t) $want[$t['k']] = max(1, (int)round($t['v'] * $fm));
     $got = []; foreach (array_merge($s['foe']['hand'], $s['foe']['draw'], array_column($s['pcs'], 'tile')) as $t) $got[$t['k']] = $t['v']; ksort($want); ksort($got);
-    chk("$size: bar x" . PFB_V1_BAR_MULT[$size] . ', creature piece values x' . PFB_V1_FOE_MULT[$size], $s['bar']['max'] === round($base['bar']['max'] * PFB_V1_BAR_MULT[$size], 1) && $s['fh']['max'] === $s['bar']['max'] && $got === $want, [$s['bar']['max'], $got, $want]);
+    chk("$size lv 12: bar x$bmul, creature piece values x$fmul (size numbers x level curve $lf)", $s['v1']['lvx'] === $lf && $s['bar']['max'] === round($base['bar']['max'] * $bmul, 1) && $s['fh']['max'] === $s['bar']['max'] && $got === $want, [$s['bar']['max'], $got, $want]);
 }
-$s = pfb_new(v1_me(), v1_foe('large'), 5, ['v1' => ['foe_x' => 2, 'bar_x' => 0.5]]);
-chk('sim knobs foe_x / bar_x scale the size numbers', abs($s['v1']['foe'] - 2 * PFB_V1_FOE_MULT['large']) < 1e-9 && abs($s['v1']['bar'] - 0.5 * PFB_V1_BAR_MULT['large']) < 1e-9);
+$s = pfb_new(v1_me(), v1_foe('large'), 5, ['v1' => ['foe_x' => 2, 'bar_x' => 0.5]]); $lf = $s['v1']['lvx'];
+chk('sim knobs foe_x / bar_x scale the size numbers (then the level curve)', $lf === 0.85 && abs($s['v1']['foe'] - round(2 * PFB_V1_FOE_MULT['large'] * $lf, 4)) < 1e-9 && abs($s['v1']['bar'] - round(0.5 * PFB_V1_BAR_MULT['large'] * $lf, 4)) < 1e-9, $s['v1']);
+// the level curve itself: f = clamp(1 + slope x (level - ref), lo, hi); piece values x f, the bar x min(1, f)
+$lc = []; foreach ([['medium', 5], ['medium', 9], ['medium', 12], ['medium', 16], ['medium', 30], ['large', 14], ['large', 22], ['large', 40], ['small', 3], ['boss', 30]] as [$sz, $lv]) $lc["$sz $lv"] = pfb_v1_cfg($sz, [], $lv)['lvx'];
+chk('level curve: medium 0.85 up to lv 9, 1 at 12, 1.2 at 16, 1.35 cap; large 0.85 low, 1 at 22, 1.1 cap; small and boss flat', $lc === ['medium 5' => 0.85, 'medium 9' => 0.85, 'medium 12' => 1.0, 'medium 16' => 1.2, 'medium 30' => 1.35, 'large 14' => 0.85, 'large 22' => 1.0, 'large 40' => 1.1, 'small 3' => 1.0, 'boss 30' => 1.0], $lc);
+$hi = pfb_v1_cfg('medium', [], 30); $lo = pfb_v1_cfg('medium', [], 5); $no = pfb_v1_cfg('medium');
+chk('level curve: a strong creature only hits harder (bar unchanged), a weak one hits softer AND has a shorter bar; no level = no curve', $hi['bar'] === PFB_V1_BAR_MULT['medium'] && $hi['foe'] === round(PFB_V1_FOE_MULT['medium'] * 1.35, 4) && $lo['bar'] === round(PFB_V1_BAR_MULT['medium'] * 0.85, 4) && $lo['foe'] === round(PFB_V1_FOE_MULT['medium'] * 0.85, 4) && $no['lvx'] === 1.0 && $no['foe'] === PFB_V1_FOE_MULT['medium'], [$hi, $lo]);
+chk('level curve: \'lv\' => [slope, ref, lo, hi] replaces it (sims)', pfb_v1_cfg('large', ['lv' => [0.1, 10, 0.5, 2]], 15)['lvx'] === 1.5);
 
 echo "== 11. whole fights: invariants, save and load\n";
 $n = 0; $fail = []; $over = []; $turns = []; $evs = ['bar full ends' => 0, 'charm win' => 0, 'env' => 0, 'used' => 0, 'tw' => 0, 'sun' => 0, 'flip' => 0, 'reaim' => 0, 'old terrain' => 0, 'place' => 0, 'pass' => 0, 'expire' => 0, 'push' => 0, 'env used up' => 0, 'reshuffle' => 0, 'mud weakens' => 0];
@@ -331,7 +349,7 @@ foreach ($rows as $ci => $c) foreach ([0, 1, 2] as $k) {
     if ($k === 2 && $ci % 4) continue;   // every fourth creature also plays a fight with the 2.6.74 terrain
     $old = $k === 2; if ($k === 1) $c['region'] = $regs[$ci % count($regs)];
     $me = v1_me($c['level']); foreach ($me['deck'] as $i => $t) if ($k && $i % 2) $me['deck'][$i]['src'] = ['pal', 'tool', 'crop'][($i + $ci) % 3];
-    $s = pfb_new($me, $c, 300 + 17 * $ci + $k, ['v1' => $old ? V1_OLD : true, 'blank' => true]); $deckN = count($me['deck']); $tag = $c['slug'] . "#$k";
+    $s = pfb_new($me, $c, 300 + 17 * $ci + $k, ['v1' => $old ? V1_OLD + V1_294 : V1_294, 'blank' => true]); $deckN = count($me['deck']); $tag = $c['slug'] . "#$k";
     $envN = $old ? 0 : count(pfb_env_deck($c['size'], (string)($c['region'] ?? ''))); $ed0 = $old ? 0 : count($s['env']['draw']);
     if ($old) { unset($s['v1']['env'], $s['v1']['envn'], $s['v1']['rain'], $s['v1']['th_foe'], $s['v1']['mud'], $s['v1']['envcap']); $s['v1']['foe'] = 0.56; $s['v1']['bar'] = 1.3; }   // exactly the keys a 2.6.74 save has
     if (pfb_start($s, $ci % count($s['me']['hand']), 'LRTB'[$ci % 4]) !== null) { $fail[] = "$tag start"; continue; }
@@ -393,10 +411,14 @@ chk('those fights use every rule (environment pieces placed, kept back, fired by
 echo '     ' . json_encode($over) . ' avg turns ' . round(array_sum($turns) / max(1, count($turns)), 1) . ' ' . json_encode($evs) . "\n";
 
 echo "== 11b. the charm bar ends the fight the moment it reads full (2.6.78)\n";
-$s = v1_bare('small'); $s['bar']['max'] = 20.7; $s['bar']['now'] = 20.66; $s['cm'] = 1.0; $r = pf_check_end($s);
-chk('v1: a bar at 20.66 of 20.7 reads 20.7 (full) and the fight is won over', $r && $s['over'] === 'charmed', $s['over']);
-$s = v1_bare('small'); $s['bar']['max'] = 20.7; $s['bar']['now'] = 20.6; $s['cm'] = 1.0;
-chk('v1: a bar at 20.6 of 20.7 is not full: the fight goes on', !pf_check_end($s) && !$s['over']);
+$s = v1_bare('small', V1_294); $s['bar']['max'] = 20.7; $s['bar']['now'] = 20.66; $s['cm'] = 1.0; $r = pf_check_end($s);   // 2.6.95: the two-bar rule is pinned to V1_294; section 20 has the one-bar version
+chk('v1 (two bars): a bar at 20.66 of 20.7 reads 20.7 (full) and the fight is won over', $r && $s['over'] === 'charmed', $s['over']);
+$s = v1_bare('small'); $s['fh']['max'] = 20.7; $s['bar']['max'] = 20.7; $s['fh']['now'] = 0.0; $s['bar']['now'] = 20.66; $s['cm'] = 1.0; $r = pf_check_end($s);
+chk('v1 (one bar): a bar at 20.66 of 20.7 reads 20.7 (full) and the fight is won over', $r && $s['over'] === 'charmed', $s['over']);
+$s = v1_bare('small', V1_294); $s['bar']['max'] = 20.7; $s['bar']['now'] = 20.6; $s['cm'] = 1.0;
+chk('v1 (two bars): a bar at 20.6 of 20.7 is not full: the fight goes on', !pf_check_end($s) && !$s['over']);
+$s = v1_bare('small'); $s['fh']['max'] = 20.7; $s['bar']['now'] = 20.6; $s['cm'] = 1.0;
+chk('v1 (one bar): 20.6 of 20.7 is not full: the fight goes on', !pf_check_end($s) && !$s['over']);
 $s = v1_bare('small'); $s['fh']['now'] = $s['fh']['max'] - 0.04;
 chk('v1: a creature with 0.04 of its health left reads empty (the shown number) and is seen off', pf_check_end($s) && $s['over'] === 'seen_off', $s['over']);
 $s = pfb_new(v1_me(), v1_foe('small'), 5, []); $s['bar']['max'] = 20.7; $s['bar']['now'] = 20.66; $s['cm'] = 1.0;
@@ -424,6 +446,185 @@ $line = pfb_env_line(['env' => 'thorn', 'me' => 4, 'foe' => 2.4], 'Owl'); chk('a
 require __DIR__ . '/pfboard_v1_env.php';   // 13: environment pieces (2.6.75)
 require __DIR__ . '/pfboard_v1_notes.php';   // 14: notices (2.6.76)
 require __DIR__ . '/pfboard_v1_guard.php';   // 15: your guard fades when your turn starts (2.6.77)
+
+echo "== 16. compat framework: a state without the new keys plays by 2.6.94 (PRE)\n";
+$s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]);
+foreach (array_keys(PFB_V1_PRE) as $k) unset($s['v1'][$k]);
+$s = json_decode(json_encode($s), true);
+$bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($s, $k) !== $d) $bad16[] = $k;
+chk('a 2.6.94 state with none of the new keys resolves every key to PRE', !$bad16 && count(PFB_V1_PRE) === 12, $bad16);
+$v = pfb_view($s)['v1']; $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (!array_key_exists($k, $v) || (int)$v[$k] !== $d) $bad16[] = $k;
+chk('its view emits every key resolved to PRE', !$bad16, $bad16);
+$n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($n, $k) !== $d) $bad16[] = $k;
+chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot']), $bad16);
+$n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['onebar' => 1, 'redraw' => 1]]);
+chk('an override switches a key on', pfb_v1r($n, 'onebar') === 1 && pfb_v1r($n, 'redraw') === 1 && pfb_v1r($n, 'keepmine') === 0);
+chk('pfb_v1r on a fight without v1 rules is the PRE value too', pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5), 'aside') === 1);
+
+echo "== 17. week 1 cuts: Teamwork, per-piece life, Wind and Mud are off in a new fight (2.6.95); a fight saved under 2.6.94 keeps them\n";
+$envKinds = fn(array $s) => array_map(fn($t) => $t['env'], array_merge($s['env']['draw'], $s['env']['next']));
+$w1 = []; $w2 = [];
+foreach (['NA', 'SEA'] as $rg) foreach (['small', 'medium', 'large', 'boss'] as $sz) {
+    $n = pfb_new(v1_me(), v1_foe($sz) + ['region' => $rg], 11, ['v1' => true]);
+    $k = $envKinds($n); if (!$k || array_intersect($k, ['wind', 'mud'])) $w1[] = "$rg $sz";
+}
+chk('a new fight: no Wind or Mud in the environment deck (draw + next), regions NA and SEA, every size', !$w1, $w1);
+$n = pfb_new(v1_me(), v1_foe('medium') + ['region' => 'NA'], 11, ['v1' => true]);
+chk('a new fight: team2 and team3 are 1.0, life is off (no tile carries life), the view says so', $n['v1']['team2'] === 1.0 && $n['v1']['team3'] === 1.0 && !$n['v1']['life'] && pfb_v1r($n, 'nowm') === 1
+    && !array_filter(array_merge($n['me']['hand'], $n['me']['draw'], $n['foe']['hand'], $n['foe']['draw']), fn($t) => isset($t['life'])) && pfb_view($n)['v1']['nowm'] === 1 && pfb_view($n)['v1']['team2'] === 1.0 && pfb_view($n)['v1']['life'] === false, $n['v1']);
+for ($sd = 1; $sd <= 20; $sd++) { $o = pfb_new(v1_me(), v1_foe('medium') + ['region' => 'NA'], $sd, ['v1' => V1_294]); if (in_array('wind', $envKinds($o), true)) $w2[] = $sd; }
+chk('a fight made with V1_294 still has Wind in NA (20 seeds), Teamwork 1.3 / 1.6 and per-piece life', count($w2) === 20 && ($o['v1']['team2'] ?? 0) === PFB_TEAM2 && $o['v1']['team3'] === PFB_TEAM3 && $o['v1']['life'] === 1 && isset($o['me']['hand'][0]['life']), count($w2));
+$o = pfb_new(v1_me(), v1_foe('medium') + ['region' => 'SEA'], 3, ['v1' => V1_294]);
+chk('V1_294 in SEA keeps Mud', in_array('mud', $envKinds($o), true));
+chk('pfb_env_deck: the third argument drops Wind and Mud after the region leans', !array_intersect(array_map(fn($t) => $t['env'], pfb_env_deck('medium', 'SEA', true)), ['wind', 'mud']) && count(pfb_env_deck('small', '', true)) === count(pfb_env_deck('small')) - array_sum(array_map(fn($p) => $p['env'] === 'wind' || $p['env'] === 'mud' ? $p['w']['small'] : 0, pfb_env_table()['pieces'])));
+
+echo "== 18. week 1 cuts, part 2: set aside is off, a placed piece need not link, passing is free (2.6.95); a fight saved under 2.6.94 keeps all three\n";
+$join = null; $jseed = 0;   // a hand pair that can be set aside joined, on a new fight
+for ($sd = 1; $sd <= 60 && !$join; $sd++) {
+    $o = pfb_new(v1_me(), v1_foe('medium'), $sd, ['v1' => true, 'blank' => false]); $hd = $o['me']['hand'];
+    foreach ($hd as $ai => $ta) foreach ($hd as $bi => $tb) { if ($ai === $bi || $join) continue; foreach (PFB_SIDE as $side => [$dx, $dy]) if (!$join && pfb_group_fit(['pcs' => [['tile' => $ta, 'x' => 0, 'y' => 0]]], $tb, $dx, $dy) === true) { $join = [$ai, $bi, $side]; $jseed = $sd; } }
+}
+chk('(scenario: a hand pair that joins was found)', $join !== null);
+$new = pfb_new(v1_me(), v1_foe('medium'), $jseed, ['v1' => true]); $old = pfb_new(v1_me(), v1_foe('medium'), $jseed, ['v1' => V1_294]);
+$rn = pfb_play($new, [['j', $join[0], $join[1], $join[2]]], $new['turn']); $ro = pfb_play($old, [['j', $join[0], $join[1], $join[2]]], $old['turn']);
+chk('a new fight refuses to set pieces aside (j, h and c)', $rn['err'] === 'Those moves are not valid.' && pfb_play($new, [['h', 0, 0, 'R']], $new['turn'])['err'] === 'Those moves are not valid.' && pfb_play($new, [['c', 1, 1]], $new['turn'])['err'] === 'Those moves are not valid.' && empty($new['me']['held']), $rn['err']);
+chk('a V1_294 fight accepts it, and the group is held', $ro['err'] === null && !empty($old['me']['held']), $ro['err']);
+$held = pfb_new(v1_me(), v1_foe('medium'), $jseed, ['v1' => V1_294]); pfb_play($held, [['j', $join[0], $join[1], $join[2]]], $held['turn']); $held['v1']['aside'] = 0;   // a group already set aside under the old rules can still be placed
+$sp = pfb_group_spots($held, $held['me']['held']);
+chk('a fight that already holds a group can still place it with the switch off', $sp && pfb_play($held, [['c', $sp[0][0], $sp[0][1]]], $held['turn'], null, true)['err'] === null, $sp ? pfb_play($held, [['c', $sp[0][0], $sp[0][1]]], $held['turn'], null, true)['err'] : 'no spots');
+$lit = null;   // a hand piece that links somewhere AND fits somewhere that does not link
+for ($sd = 1; $sd <= 80 && !$lit; $sd++) {
+    $o = pfb_new(v1_me(), v1_foe('medium'), $sd, ['v1' => V1_294]); $o['start'] = false;
+    for ($k = 0; $k < 4 && !$lit && !$o['over']; $k++) {   // the first turns of the fight on the 2.6.94 rules: look for a state where must-link hides a fitting cell
+        if (pfb_must_link($o, 'me')) foreach ($o['me']['hand'] as $t) { $all = pfb_cells($o, $t); $lk = pfb_cells($o, $t, 'me'); if (count($lk) && count($all) > count($lk)) { $lit = [$sd, $k, $t, count($lk), count($all)]; break; } }
+        $m = pfb_search($o, 'me'); $r = $m ? pfb_play($o, [[$m[0], $m[1], $m[2]]], $o['turn']) : pfb_pass($o, $o['turn']); if ($r['err']) break;
+    }
+}
+chk('(scenario: a fight where must-link hides cells, on the 2.6.94 rules)', $lit !== null);
+if ($lit) {
+    $o = pfb_new(v1_me(), v1_foe('medium'), $lit[0], ['v1' => V1_294]); $o['start'] = false;   // replay the same turns on the 2.6.94 rules to reach the state, then switch the rule: must-link off
+    for ($k = 0; $k < $lit[1]; $k++) { $m = pfb_search($o, 'me'); $m ? pfb_play($o, [[$m[0], $m[1], $m[2]]], $o['turn']) : pfb_pass($o, $o['turn']); }
+    $o['v1']['must'] = 0;
+    chk('a new fight with a linking cell available also lights a fitting non-linking cell', count(pfb_cells($o, $lit[2], 'me')) === $lit[4] && $lit[4] > $lit[3] && !pfb_must_link($o, 'me'), [$lit[1], $lit[3], $lit[4], count(pfb_cells($o, $lit[2], 'me'))]);
+    $o['v1']['must'] = 1; $f0 = $o['foe']['hand'][0] ?? null;
+    chk('the creature still has to link: pfb_cells for the creature is unchanged by the switch', $f0 === null || (pfb_cells($o, $f0, 'foe') === (function ($q) use ($f0) { $q['v1']['must'] = 0; return pfb_cells($q, $f0, 'foe'); })($o)), 1);
+}
+$np = pfb_new(v1_me(), v1_foe('medium'), 9, ['v1' => true]); $np['start'] = false; $op = pfb_new(v1_me(), v1_foe('medium'), 9, ['v1' => V1_294]); $op['start'] = false;
+$rp = pfb_pass($np, $np['turn']); $rq = pfb_pass($op, $op['turn']);
+chk('pfb_pass on a new fight succeeds with legal moves, and is refused on V1_294', $rp['err'] === null && $rq['err'] !== null && str_contains((string)$rq['err'], 'still have a piece'), [$rp['err'], $rq['err']]);
+$ended = 0; $leaks = 0;   // a pass that ends the fight must not replay LAST round's leavers (2.6.88, now also on pass)
+for ($sd = 1; $sd <= 40; $sd++) {
+    $o = pfb_new(v1_me(), v1_foe('large', 20), $sd, ['v1' => ['freepass' => 1]]); $o['start'] = false; $o['me']['hp'] = 1; $o['me']['block'] = 0; $o['gone'] = [['id' => 9999, 'by' => 'foe', 'x' => 0, 'y' => 0, 'tile' => ['n' => 'Old', 't' => 'hurt', 'v' => 1, 'tag' => '', 'r' => null], 'age' => 1]]; $o['lastfoe'] = [9999];
+    $r = pfb_pass($o, $o['turn']); if ($r['err'] || !$o['over']) continue; $ended++;
+    foreach ($o['gone'] as $g) if ($g['id'] === 9999) $leaks++; if (in_array(9999, $o['lastfoe'], true)) $leaks++;
+}
+chk('after a pass that ends the fight, gone and lastfoe hold only this round (no stale piece)', $ended > 0 && $leaks === 0, [$ended, $leaks]);
+chk('pfb_view of a new fight says aside 0, must 0, freepass 1', ($v = pfb_view(pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]))['v1']) && $v['aside'] === 0 && $v['must'] === 0 && $v['freepass'] === 1, $v);
+
+echo "== 19. week 1 cuts, part 3: flip without a limit (2.6.95); a fight saved under 2.6.94 keeps one flip a turn\n";
+$fn = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => true, 'blank' => true]); pfb_start($fn, 0, 'L'); $fo = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => V1_294, 'blank' => true]); pfb_start($fo, 0, 'L');
+$tn = $fn['turn']; $a0 = pfb_edges($fn['me']['hand'][0]); $b0 = pfb_edges($fn['me']['hand'][1]);
+$e1 = pfb_flip($fn, 0, $tn); $e2 = pfb_flip($fn, 1, $tn); $e3 = pfb_flip($fo, 0, $fo['turn']); $e4 = pfb_flip($fo, 1, $fo['turn']);
+chk('a new fight: flipping piece 0 and then piece 1 both succeed and both stay flipped', $e1 === null && $e2 === null && !empty($fn['me']['hand'][0]['flip']) && !empty($fn['me']['hand'][1]['flip']) && pfb_edges($fn['me']['hand'][0])['T'] === $a0['B'] && pfb_edges($fn['me']['hand'][1])['T'] === $b0['B'], [$e1, $e2]);
+chk('a V1_294 fight: the second flip is refused', $e3 === null && $e4 !== null && empty($fo['me']['hand'][1]['flip']), [$e3, $e4]);
+chk('a new fight keeps no flip turn: view flip.used stays false, every hand piece with edges says canflip', pfb_view($fn)['flip']['used'] === false && !isset($fn['me']['hand'][0]['ft']) && (int)$fn['me']['flipt'] === 0 && pfb_can_flip($fn, 0) && pfb_can_flip($fn, 1) && pfb_view($fn)['v1']['flip1'] === 0 && pfb_view($fo)['v1']['flip1'] === 1);
+chk('a new fight: a flipped piece flips back, and flipping again works any number of times', pfb_flip($fn, 0, $tn) === null && pfb_edges($fn['me']['hand'][0]) === $a0 && pfb_flip($fn, 0, $tn) === null && pfb_flip($fn, 1, $tn) === null && empty($fn['me']['hand'][1]['flip']));
+chk('a new fight: the action [f, i] works for two pieces in one turn, free', ($r1 = pfb_play($fn, [['f', 2]], $tn))['err'] === null && ($r2 = pfb_play($fn, [['f', 3]], $tn))['err'] === null && $fn['turn'] === $tn && !empty($r2['free']), [$r1['err'] ?? null, $r2['err'] ?? null]);
+
+echo "== 20. week 1 cuts, part 4: one shared bar (2.6.95); a fight saved under 2.6.94 keeps two bars\n";
+$on = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => true]); $old = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => V1_294]);
+chk('a new fight has onebar 1, a saved 2.6.94 one has 0', pfb_v1r($on, 'onebar') === 1 && pfb_v1r($old, 'onebar') === 0 && $old['v1']['onebar'] === 0);
+chk('onebar: the bar is today\'s length x 1.15 (both counters read the same max)', abs($on['fh']['max'] - round($old['fh']['max'] * PFB_V1_ONEBAR_BAR, 1)) <= 0.11 && $on['bar']['max'] === $on['fh']['max'], [$on['fh']['max'], $old['fh']['max'], $on['bar']['max']]);
+$mk = function (float $fh, float $bar, float $cm = 1.0, bool $boss = false) { $g = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => true]); $g['cm'] = $cm; $g['boss'] = $boss; $g['fh']['max'] = 21.0; $g['bar']['max'] = 21.0; $g['fh']['now'] = $fh; $g['bar']['now'] = $bar; return $g; };
+$ge = $mk(10.0, 11.0); $r = pf_check_end($ge);
+chk('onebar: Hurt 10 + Charm 11 of 21 ends charmed (the larger share is Charm)', $r && $ge['over'] === 'charmed', $ge['over']);
+$ge = $mk(11.0, 10.0); $r = pf_check_end($ge);
+chk('onebar: Hurt 11 + Charm 10 of 21 ends seen_off', $r && $ge['over'] === 'seen_off', $ge['over']);
+$ge = $mk(10.0, 10.0);
+chk('onebar: 10 + 10 of 21 is not over', !pf_check_end($ge) && !$ge['over']);
+$ge = $mk(10.0, 10.96); $r = pf_check_end($ge);
+chk('onebar: the 2.6.78 one-decimal rule holds for the sum (10 + 10.96 reads 21.0: over)', $r && $ge['over'] === 'charmed', $ge['over']);
+$ge = $mk(10.0, 10.94);
+chk('onebar: 10 + 10.94 reads 20.9: not over', !pf_check_end($ge) && !$ge['over']);
+$ge = $mk(21.0, 0.0, 0.0); $r = pf_check_end($ge);
+chk('onebar: a creature with cm 0 ends seen_off', $r && $ge['over'] === 'seen_off', $ge['over']);
+$ge = $mk(4.0, 17.0, 0.6, true); $r = pf_check_end($ge);
+chk('onebar: a boss with bar > fh ends seen_off, never charmed', $r && $ge['over'] === 'seen_off', $ge['over']);
+$bs = pfb_new(v1_me(), v1_foe('boss', 12), 3, ['v1' => true]); $bo = pfb_new(v1_me(), v1_foe('boss', 12), 3, ['v1' => V1_294]);
+chk('onebar: a boss fight has cm 0.6 (Charm counts), a 2.6.94 boss has cm 0', abs($bs['cm'] - PF_HOSTILE_CM) < 1e-9 && $bo['cm'] === 0.0 && $bs['boss'], [$bs['cm'], $bo['cm']]);
+chk('onebar: the view of a boss says it is not charmable, a gentle creature is; the view says onebar and a 2.6.94 one does not', pfb_view($bs)['charmable'] === false && pfb_view($on)['charmable'] === true && !empty(pfb_view($on)['onebar']) && empty(pfb_view($old)['onebar']), [pfb_view($bs)['charmable']]);
+$bs['me']['hand'][0] = pfb_v1_tile(pf_make_tile('charm', ['level' => 10]), $bs['v1']); $b0 = $bs['bar']['now']; $ch = null;
+foreach (pfb_cell_preview($bs, 0) as $key => $q) { $ch = [$key, $q]; break; }
+$rb = $ch ? pfb_play($bs, [[0, ...array_map('intval', explode(',', $ch[0]))]], $bs['turn']) : ['err' => 'no cell'];
+chk('onebar: Charm played against a boss moves bar.now', $rb['err'] === null && $bs['bar']['now'] > $b0, [$rb['err'], $b0, $bs['bar']['now']]);
+$fs = pfb_new(v1_me(), v1_foe('small'), 5, []); $fs['cm'] = 1.0; $fs['bar']['now'] = $fs['bar']['max']; $fs['fh']['now'] = 0.0;
+chk('flag off (no v1): pf_check_end still ends charmed on a full charm bar', pf_check_end($fs) && $fs['over'] === 'charmed', $fs['over']);
+$s2 = $mk(10.0, 11.0); $s2['v1']['onebar'] = 0; $s2['fh']['max'] = 21.0;
+chk('V1_294: 10 + 11 of 21 is not over under two bars', !pf_check_end($s2) && !$s2['over']);
+$v1 = 0; $sc = ['charmed' => 0, 'seen_off' => 0, 'defeat' => 0];
+for ($sd = 1; $sd <= 30; $sd++) { $f = pfb_new(v1_me(10), v1_foe(['small', 'medium'][$sd % 2], 6 + $sd % 5), 1300 + $sd, ['v1' => true, 'blank' => true]); pfb_start($f, 0, 'LRTB'[$sd % 4]);
+    for ($t = 0; $t < 40 && !$f['over']; $t++) { $m = pfb_search($f, 'me'); $r = $m ? pfb_play($f, [[$m[0], $m[1], $m[2]]], $f['turn']) : pfb_pass($f, $f['turn']); if ($r['err']) break; if (!$f['over'] && round($f['fh']['now'] + $f['bar']['now'], 1) >= $f['fh']['max']) $v1++; }
+    $sc[$f['over'] ?: 'none'] = ($sc[$f['over'] ?: 'none'] ?? 0) + 1; }
+chk('30 whole onebar fights: never a full shared bar with the fight still on, and every fight ends', $v1 === 0 && ($sc['none'] ?? 0) === 0, $sc);
+
+echo "== 21. week 1 cuts, part 5: the hand is redrawn every round (2.6.95); a fight saved under 2.6.94 keeps the unplayed pieces\n";
+$rd = function ($v1) { $f = pfb_new(v1_me(12), v1_foe('medium', 8), 77, ['v1' => $v1, 'blank' => true]); pfb_start($f, 0, 'L');
+    $m = pfb_search($f, 'me'); $keep = []; foreach ($f['me']['hand'] as $i => $t) if ($m && $i !== $m[0]) $keep[] = $t['id'] ?? $t['k']; $played = $m ? $f['me']['hand'][$m[0]] : null; $tr = $f['turn'];
+    $r = $m ? pfb_play($f, [[$m[0], $m[1], $m[2]]], $f['turn']) : ['err' => 'no move']; return [$f, $keep, $r, $tr]; };
+[$nw, $keep, $r, $tr] = $rd(true);
+$ids = fn($a) => array_map(fn($t) => $t['id'] ?? $t['k'], $a);
+chk('a new fight: a round was played', $r['err'] === null && $nw['turn'] > $tr, $r['err']);
+$inD = array_intersect($keep, $ids($nw['me']['discard'])); $inH = array_intersect($keep, $ids($nw['me']['hand']));
+chk('a new fight: no unplayed piece is flagged flipped in the hand afterwards', !array_filter($nw['me']['hand'], fn($x) => isset($x['ft'])));
+chk('a new fight: the hand has 5 after the round', count($nw['me']['hand']) === PF_HAND_CAP, count($nw['me']['hand']));
+$bareF = fn($v1) => (function () use ($v1) { $f = v1_bare('medium', $v1); $f['me']['hand'] = [pf_make_tile('hurt', ['level' => 1]), pf_make_tile('hurt', ['level' => 1])]; return $f; })();
+$a = v1_bare('medium', ['redraw' => 1] + V1_294); $b = v1_bare('medium', V1_294);
+foreach ([&$a, &$b] as &$q) { $q['me']['hand'] = []; for ($i = 0; $i < 4; $i++) { $t = v1_tile($q, 'x' . $i, 'hurt', 3, 'mind', 'pal'); $t['flip'] = true; $t['ft'] = $q['turn']; $q['me']['hand'][] = $t; } $q['me']['discard'] = []; $q['me']['draw'] = []; for ($i = 0; $i < 9; $i++) $q['me']['draw'][] = v1_tile($q, 'd' . $i, 'hurt', 3, 'mind', 'pal'); } unset($q);
+pfb_end_round($a); pfb_end_round($b);
+$da = array_column($a['me']['discard'], 'k'); $ha = array_column($a['me']['hand'], 'k');
+chk('redraw: a hand piece not played (x0..x3) is in the discard, the hand is refilled to 5, flip and ft are cleared', count(array_intersect(['x0', 'x1', 'x2', 'x3'], $da)) === 4 && count($a['me']['hand']) === 5 && !array_filter($a['me']['discard'], fn($t) => isset($t['flip']) || isset($t['ft'])), [$da, count($a['me']['hand'])]);
+chk('V1_294: the unplayed pieces stay in the hand (x0..x3 still there, 5 in all)', count(array_intersect(['x0', 'x1', 'x2', 'x3'], array_column($b['me']['hand'], 'k'))) === 4 && count($b['me']['hand']) === 5);
+$a['v1']['tags'] = 1; $c = v1_bare('medium', ['redraw' => 1, 'tags' => 1] + V1_294); $c['me']['hand'] = [v1_tile($c, 'x0', 'hurt', 3, 'mind', 'pal')]; $c['me']['draw'] = []; for ($i = 0; $i < 9; $i++) $c['me']['draw'][] = v1_tile($c, 'd' . $i, 'hurt', 3, 'mind', 'pal'); $c['me']['discard'] = []; $c['me']['slowdraw'] = 1;
+pfb_end_round($c);
+chk('redraw when tripped (slow draw): the hand has 4 and x0 is in the discard', count($c['me']['hand']) === PF_HAND_CAP - 1 && in_array('x0', array_column($c['me']['discard'], 'k'), true), [count($c['me']['hand'])]);
+chk('a new fight has redraw 1, V1_294 has redraw 0', pfb_v1r($nw, 'redraw') === 1 && pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => V1_294]), 'redraw') === 0);
+
+echo "== 22. week 1 cuts, part 6: the aim shows its total (2.6.95); a fight saved under 2.6.94 shows none\n";
+$wild = ['L' => ['wild', null], 'R' => ['wild', null], 'T' => ['wild', null], 'B' => ['wild', null]];
+$wt = fn(array $s, string $k, string $t, int $v, array $x = []) => ['ed' => $wild] + v1_tile($s, $k, $t, $v, 'mind', 'pal', $x);
+$aimBoard = function (bool $mine, array $over = []) use ($wt) {   // its aimed Hurt 4 at 2,1 touches a Sun at 1,1, which touches a Hurt 3 (the creature's, or your Jab) at 1,2
+    $s = v1_bare('medium', $over + ['aimtot' => 1]); $s['me']['hp'] = $s['me']['max'] = 60; $s['me']['block'] = 0;
+    v1_put($s, 'env', v1_env('sun'), 1, 1); v1_put($s, $mine ? 'me' : 'foe', $wt($s, $mine ? 'jab' : 'f:h3', 'hurt', 3), 1, 2);
+    $h = $wt($s, 'f:h4', 'hurt', 4); $s['foe']['hand'] = [$h]; $s['foe']['plan'] = ['k' => 'f:h4', 'n' => 'F:h4', 't' => 'hurt', 'v' => 4, 'tag' => '', 'x' => 2, 'y' => 1];
+    return $s;
+};
+$s = $aimBoard(false); $tot = function_exists('pfb_aim_total') ? pfb_aim_total($s) : null;
+$hp0 = $s['me']['hp']; $r = pfb_pass($s, $s['turn']);
+chk('aim total: its Hurt 4 into a Sun and its Hurt 3: tot.hp is the health actually lost', is_array($tot) && $tot['hp'] === $hp0 - $s['me']['hp'] && $tot['hp'] > 0, [$tot, $hp0 - $s['me']['hp']]);
+chk('aim total: why names "Sun x2"', is_array($tot) && in_array('Sun x2', $tot['why'], true), $tot);
+chk('aim total: n counts the pieces fired (root, Sun, Hurt 3), no bait, no heal', is_array($tot) && $tot['n'] === 3 && $tot['bait'] == 0 && $tot['heal'] === 0 && $tot['g'] === 0, $tot);
+$s = $aimBoard(true); $tot = function_exists('pfb_aim_total') ? pfb_aim_total($s) : null; $fh0 = $s['fh']['now'];
+chk('aim total: its chain fires your Jab: bait > 0 and why says "fires your Jab"', is_array($tot) && $tot['bait'] > 0 && in_array('fires your Jab', $tot['why'], true), $tot);
+$s = $aimBoard(false); $s['me']['block'] = 5; $tot = function_exists('pfb_aim_total') ? pfb_aim_total($s) : null; $hp0 = $s['me']['hp']; pfb_pass($s, $s['turn']);
+chk('aim total: your guard is eaten first (g) and hp is what gets through', is_array($tot) && $tot['g'] === 5 && $tot['hp'] === $hp0 - $s['me']['hp'], $tot);
+$s = $aimBoard(false, ['limit' => 0]); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)];   // no use-up here, so the pieces it would link are still there
+$d = pfb_play($s, [[0, 2, 1]], $s['turn'], null, true, true);
+chk('aim total: a piece of yours on the aimed cell: the dry run says aim.broken === "cell"', $d['err'] === null && isset($d['aim']['broken']) && $d['aim']['broken'] === 'cell', $d['aim'] ?? 'no aim');
+$s = $aimBoard(false, ['limit' => 0]); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)]; $s['me']['hp'] = 60;
+$d = pfb_play($s, [[0, 0, 1]], $s['turn'], null, true, true); $dn = pfb_play($s, [[0, 0, 1]], $s['turn'], null, true);
+chk('aim total: a placement off the aim cell: aim carries the total, and without withAim the dry result has no aim', $d['err'] === null && !isset($d['aim']['broken']) && isset($d['aim']['hp']) && !array_key_exists('aim', $dn), [$d['aim'] ?? null, array_keys($dn)]);
+$hp0 = $d['hp']; $rr = pfb_play($s, [[0, 0, 1]], $s['turn']);   // $d['hp'] is your health after YOUR chain; the total is what its own turn then takes
+chk('aim total: that shown total is the health lost in its turn when the round is then played for real', $rr['err'] === null && isset($d['aim']['hp']) && $d['aim']['hp'] > 0 && $d['aim']['hp'] === $hp0 - $s['me']['hp'], [$d['aim'] ?? null, $hp0 - $s['me']['hp']]);
+$s = $aimBoard(false); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)]; $s['cell']['2,1'] = true; unset($s['cell']['2,1']); $s['foe']['plan']['x'] = 3; $s['foe']['plan']['y'] = 3;   // nothing near (3,3): its edges cannot touch anything
+$d = pfb_play($s, [[0, 0, 1]], $s['turn'], null, true, true);
+$s = $aimBoard(false); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)]; $d = pfb_play($s, [[0, 0, 1]], $s['turn'], null, true, true);   // use-up (3 fire) takes its Sun and Hurt 3: its cell touches nothing
+chk('aim total: a chain of yours that uses up what its cell touched leaves the aim broken "edge"', ($d['aim']['broken'] ?? '') === 'edge', $d['aim'] ?? 'no aim');
+chk('aim total: a cell that touches nothing now is broken "edge"', $d['err'] === null && ($d['aim']['broken'] ?? '') === 'edge', $d['aim'] ?? 'no aim');
+$n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $o = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => V1_294]);
+chk('a new fight stores plan.tot at intent time (hp, g, bait, heal, n, why) and the view carries it; a V1_294 fight stores none', is_array($n['foe']['plan']['tot'] ?? null) && !array_diff(['hp', 'g', 'bait', 'heal', 'n', 'why'], array_keys($n['foe']['plan']['tot'])) && isset(pfb_view($n)['aim']['tot']) && !isset($o['foe']['plan']['tot']), $n['foe']['plan'] ?? null);
+chk('a new fight has aimtot 1, V1_294 has aimtot 0, and the status line carries foe_block', pfb_v1r($n, 'aimtot') === 1 && pfb_v1r($o, 'aimtot') === 0 && ($n['v1']['tags'] ? array_key_exists('foe_block', pfb_view($n)['status'] ?? []) : true), pfb_view($n)['status'] ?? null);
+$j = json_decode(json_encode($o), true); unset($j['v1']['aimtot']); $dj = pfb_play($j, [[0, 0, 0]], $j['turn'], null, true, true);
+chk('a saved 2.6.94 state (no aimtot key) never computes a total', !isset($j['foe']['plan']['tot']) && !isset($dj['aim']['tot']) && !isset($dj['aim']['hp']), $dj['aim'] ?? null);
 
 chk('no PHP warning or notice anywhere in this run', !$warn, array_slice($warn, 0, 3));
 echo $bad ? "$bad FAILED\n" : "all ok\n";

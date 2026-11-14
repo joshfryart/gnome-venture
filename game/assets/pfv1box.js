@@ -189,8 +189,8 @@
           });
           all('i', pips).forEach(function (p, i) { p.classList.toggle('on', i < picked.length); }); pips.setAttribute('aria-label', picked.length + ' of ' + N);
           nEl.textContent = String(4 + picked.length); hurtEl.querySelector('b').textContent = String(hurt);
-          hurtEl.classList.toggle('good', hurt >= 2); hurtEl.classList.toggle('warn', hurt < 2);
-          go.disabled = !(picked.length === N && hurt >= 2);
+          hurtEl.classList.toggle('good', hurt >= 3); hurtEl.classList.toggle('warn', hurt < 3);
+          go.disabled = !(picked.length === N && hurt >= 3);
         };
         root.addEventListener('click', function (ev) {
           var kit = ev.target.closest('[data-kit]');

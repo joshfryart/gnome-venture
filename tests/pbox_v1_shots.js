@@ -6,6 +6,7 @@ const { chromium } = require('playwright');
 const { execSync } = require('child_process');
 const [base, out, game, here] = process.argv.slice(2);
 const seed = (...a) => execSync(`php -d display_errors=1 ${here}/pbox_v1_seed.php ${game} ${a.join(' ')}`).toString().trim();
+const seedNew = (...a) => execSync(`PBOX_RULES=new php -d display_errors=1 ${here}/pbox_v1_seed.php ${game} ${a.join(' ')}`).toString().trim();   // T12: a fight with the rules a new fight has (the other seeds keep the 2.6.94 rules)
 const sql = (q) => execSync(`php -r '$p=new PDO("sqlite:${game}/data/game.sqlite"); $p->exec($argv[1]);' ${JSON.stringify(q)}`);
 let fails = 0;
 const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.stringify(want); if (g === w) console.log('ok   ' + what); else { console.log(`FAIL ${what} (got ${g}, want ${w})`); fails++; } };
@@ -139,12 +140,26 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     ck(T('flip: the lit spots and their numbers are worked out again; the same piece may flip back'), [after.lit > 0, after.nums > 0, after.btn], [true, true, false]);
     const other = await p.evaluate((i) => [...document.querySelectorAll('#pf-hand .pf-tile')].findIndex((t, k) => k !== i && !t.classList.contains('pfv-off')), pi);
     if (other >= 0) { await p.locator('#pf-hand .pf-tile').nth(other).click(); await p.waitForTimeout(300);
-      ck(T('flip: with another piece picked the button is off and says why (Flip used)'), [await p.isDisabled('#pf-flip'), /Flip used/.test(await p.locator('#pf-flip').innerText()), /flipped a piece this turn/.test(await p.getAttribute('#pf-flip', 'title'))], [true, true, true]);
+      ck(T('flip: picking another piece takes the flip back by itself (after 2.6.94): the first piece is no longer flipped, the button is on'), [await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].classList.contains('pfv-flipped'), pi), await p.isDisabled('#pf-flip'), /Flip used/.test(await p.locator('#pf-flip').innerText())], [false, false, false]);
       await p.locator('#pf-hand .pf-tile').nth(pi).click(); await p.waitForTimeout(300); }
     await p.click('#pf-flip'); await p.waitForTimeout(1200);
-    ck(T('flip: flipping it back restores the piece and gives the flip back'), [await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].querySelector('.pfh-cv').toDataURL(), pi) === before.art, await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].classList.contains('pfv-flipped'), pi)], [true, false]);
-    await p.click('#pf-flip'); await p.waitForTimeout(1200);
+    ck(T('flip: after the automatic flip back, flipping the piece again flips it again'), [await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].querySelector('.pfh-cv').toDataURL(), pi) !== before.art, await p.evaluate((i) => document.querySelectorAll('#pf-hand .pf-tile')[i].classList.contains('pfv-flipped'), pi)], [true, true]);
     await shot('4-fight-flipped');
+
+    // ---- T12 (2.6.95): a NEW fight: one bar (damage + charm), no set-aside row, no Teamwork, End turn says Pass with nothing placed, the aim chip says what it does, the help sheet matches
+    seedNew('fight', 'large'); seedNew('midfight', '6', '2', 'soft'); await speed(0); await open('/adventure.php');
+    ck(T('T12 new fight: one bar with a damage and a charm segment, words "Bar N of M: damage D, charm C"'), await p.evaluate(() => { const e = document.querySelector('.pf-fhp.pf-one'); return [!!e, !!(e && e.querySelector('.fhfill')) && !!(e && e.querySelector('.chfill')), /^Bar \d+ of \d+: damage \d+, charm \d+/.test(e ? e.getAttribute('aria-label') : ''), document.querySelectorAll('.pf-bar').length]; }), [true, true, true, 0]);
+    ck(T('T12 new fight: no set-aside row, no Teamwork chip, no hand source icon, no Pass (nothing fits) button; End turn says Pass and is on'), [await p.locator('#pf-opts').isHidden(), await n('#pfv-row .tg.team'), await n('#pf-hand .src'), await n('#pf-pass'), (await p.locator('#pf-go').innerText()).trim(), await p.isDisabled('#pf-go')], [true, 0, 0, 0, 'Pass', false]);
+    ck(T('T12 new fight: the aim chip says what it would do ("Aims Snap: hits you for 9"), the reasons are behind a tap'), await p.evaluate(() => { const c = document.querySelector('#pfv-row .tg.aim'); return c ? /^Aims .+: .+/.test(c.textContent.trim()) && (!c.matches('button') || c.getAttribute('aria-label').endsWith('Press for the reasons')) : false; }), true);
+    const aimBtn = p.locator('#pfv-row button.tg.aim'); if (await aimBtn.count()) { await aimBtn.click(); await p.waitForTimeout(200); ck(T('T12 new fight: the aim reasons open in a popover'), await n('.pfv-pop'), 1); await shot('4-fight-aim-reasons', false); await p.click('.pfv-popx'); }
+    await p.locator('#pf-hand .pf-tile:not(.pfv-off)').first().click(); await p.waitForTimeout(500);
+    ck(T('T12 new fight: with a piece picked End turn waits for a placed piece (no Pass), the lit spots are every spot where it fits'), [(await p.locator('#pf-go').innerText()).trim(), await p.isDisabled('#pf-go'), await n('#pfb-board .pfb-lit') > 0], ['End turn', true, true]);
+    await shot('4-fight-new-rules');
+    await p.keyboard.press('Escape'); await open('/adventure.php');
+    await p.click('#pfv-legend [data-a=help]'); await p.waitForTimeout(200);
+    ck(T('T12 new fight: the help sheet has the two chain rules, the bar, free flip; no Teamwork, no Wind, no Mud'), await p.locator('.pfv-sheet').innerText().then(t => [/A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it/.test(t), /If its aim fires one of your pieces, your piece works for you/.test(t), /The bar/.test(t), /Free, as often as you like/.test(t), /Teamwork|once a turn/i.test(t), /Wind|Mud/.test(t)]), [true, true, true, true, false, false]);
+    await shot('4-fight-new-help', false);
+    await p.keyboard.press('Escape');
 
     // ---- the turn played back step by step: Your turn, the creature's turn, Terrain turn
     seed('fight', 'boss'); seed('midfight', '12', '3', 'soft'); await speed(0); await open('/adventure.php'); await speed(1);   // 2.6.94: seed 12 (the creature plays a piece on the 4 x 4 board; 8 was the seed for the old boards)
@@ -156,7 +171,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await shot('5-turn-planned');
     await p.click('#pf-go');
     const seen = {}; let cardHit = 0, cardOpen = 0, dockSteps = 0;
-    for (let k = 0; k < 90 && !(seen.me && seen.foe && seen.env && seen.flash); k++) {
+    for (let k = 0; k < 90 && !(seen.foe && seen.flash); k++) {   // 2.6.96: no banner for your own chain or for the environment (its step is in the creature's)
       await p.waitForTimeout(200);
       const s = await p.evaluate(() => { const e = document.querySelector('.pf-turn:not([hidden])'); return { t: e ? (e.className.match(/pf-turn-(me|foe|env)/) || [])[1] || '' : '', fl: document.querySelectorAll('.pfv-envin, .pfv-fx').length, skip: !!(document.getElementById('pf-skip') && !document.getElementById('pf-skip').hidden) }; }).catch(() => ({ t: '' }));
       const cd = await p.evaluate(() => { const i = document.getElementById('pf-inspect'), b = document.getElementById('pfb-board').getBoundingClientRect(), r = i.getBoundingClientRect(), dk = document.getElementById('pfv-dock'); return { open: !i.hidden, hit: !i.hidden && !(r.right <= b.left || r.left >= b.right || r.bottom <= b.top || r.top >= b.bottom), step: !!dk && /Now/.test(dk.textContent) }; }).catch(() => ({}));
@@ -165,7 +180,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
       if (s.fl && !seen.flash) { seen.flash = 1; await shot('5-turn-env-place', false); }
       if (s.skip) seen.skip = 1;
     }
-    ck(T('replay: the banners YOUR TURN, THEIR TURN and ENVIRONMENT TURN each show, an environment piece grows in or an effect shows, Skip is offered'), [!!seen.me, !!seen.foe, !!seen.env, !!seen.flash, !!seen.skip], [true, true, true, true, true]);
+    ck(T('replay: the THEIR TURN banner shows (2.6.96: no YOUR TURN banner before your own chain, no ENVIRONMENT TURN banner), an environment piece grows in or an effect shows, Skip is offered'), [!!seen.foe, !seen.env, !!seen.flash, !!seen.skip], [true, true, true, true]);
     ck(T('replay: the piece card is never open over the board, it is cleared when a replay starts, the docked area shows the current step'), [cardHit, cardOpen, dockSteps > 0], [0, 0, true]);
     await p.click('#pf-skip').catch(() => {}); await p.waitForTimeout(400);
     ck(T('replay: Skip ends it; the board is the new turn\'s'), [await p.evaluate(() => document.getElementById('pfight').classList.contains('pf-playing')), await n('#pfb-board .pfb-cell.pfb-env') > 0], [false, true]);
@@ -177,14 +192,14 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
       for (let sdn = 8; sdn < 16 && !got.line; sdn++) {   // 2.6.94: on a 4 x 4 board a seeded turn does not always show the notice (the creature may get no second piece down): try the next seed
         seed('fight', 'small'); seed('notes', kind, String(sdn)); await speed(1); await open('/adventure.php');
         got = { line: false, ban: '', envBan: '' };
-        for (let k = 0; k < 120 && !(got.line && (kind !== 'quick' || got.envBan)); k++) {
+        for (let k = 0; k < 120 && !(got.line && (kind !== 'quick' || got.ban)); k++) {
           await p.waitForTimeout(150);
           const r = await p.evaluate(() => { const b = document.querySelector('.pf-turn:not([hidden])'); return { pv: (document.getElementById('pf-preview') || {}).textContent || '', ban: b ? b.textContent : '', cls: b ? b.className : '' }; });
           if (re.test(r.pv)) got.line = true; if (/Quick|loses/.test(r.ban)) got.ban = r.ban; if (/pf-turn-env/.test(r.cls)) got.envBan = r.ban;
         }
       }
       ck(T(`notice ${kind}: the message line says it while the turn plays`), got.line, true);
-      if (kind === 'quick') ck(T('notice quick: the creature banner has a subtitle about the Quick piece; the environment banner says "environment ... not the creature"'), [/Quick/.test(got.ban), /environment places/i.test(got.envBan) && /not the creature/.test(got.envBan)], [true, true]);
+      if (kind === 'quick') ck(T('notice quick: the creature banner has a subtitle about the Quick piece; 2.6.96: there is no environment banner any more'), [/Quick/.test(got.ban), got.envBan], [true, '']);
       if (kind === 'slow') ck(T('notice slow: the creature banner says it loses its turn'), /loses its turn/.test(got.ban), true);
       await p.click('#pf-skip').catch(() => {}); await p.waitForTimeout(500);
       ck(T(`notice ${kind}: a history chip says it (by the creature), no layout growth`), [await p.locator('.pf-hist .pf-chip.foe').evaluateAll((els, rx) => els.some(e => new RegExp(rx).test(e.textContent)), chip.source), await p.evaluate(() => document.documentElement.scrollHeight <= innerHeight)], [true, true]);
