@@ -272,18 +272,22 @@ ok('the Sights card shows name, caption and a Walk-there button when you are awa
 
 // default hours by role (Josh, 2026-11-14): a row with no dp= is not there all day
 echo "== villagers' default hours by role\n";
-ok('shop hours are dawn, day and dusk with the default opening hours (06:00 to 22:00)', trail_sight_shop_dayparts() === ['dawn', 'day', 'dusk'], json_encode(trail_sight_shop_dayparts()));
 $roleName = fn(array $roles) => (string)q_val('SELECT name FROM stop_folk WHERE role IN (' . implode(',', array_fill(0, count($roles), '?')) . ') AND name NOT IN (SELECT name FROM stop_folk GROUP BY name HAVING COUNT(*) > 1) ORDER BY id LIMIT 1', $roles);
 $shopV = $roleName(['Stallholder', 'Baker', 'Cook', 'Miller']); $innV = $roleName(['Innkeeper']); $roadV = $roleName(['Pedlar', 'Pilgrim', 'Wanderer']);
 ok('role kinds: a stallholder keeps shop hours, an innkeeper is out any time, a pedlar keeps road hours', $shopV !== '' && $innV !== '' && $roadV !== '' && trail_sight_folk_role_kind($shopV)[0] === 'shop' && trail_sight_folk_role_kind($innV)[0] === 'allday' && trail_sight_folk_role_kind($roadV)[0] === 'road', json_encode([$shopV, $innV, $roadV]));
-ok('a shopkeeper is out in the day and at dusk, not at night', trail_sight_folk_role_hours($shopV, ['dp' => 'day']) && trail_sight_folk_role_hours($shopV, ['dp' => 'dusk']) && !trail_sight_folk_role_hours($shopV, ['dp' => 'night']));
+ok('a shopkeeper is out in the day only (Josh 2026-11-14): not at dawn, dusk or night', trail_sight_folk_role_hours($shopV, ['dp' => 'day']) && !trail_sight_folk_role_hours($shopV, ['dp' => 'dawn']) && !trail_sight_folk_role_hours($shopV, ['dp' => 'dusk']) && !trail_sight_folk_role_hours($shopV, ['dp' => 'night']));
 ok('an innkeeper is out at night too', trail_sight_folk_role_hours($innV, ['dp' => 'night']));
 ok('a pedlar is on the road at dawn and in the day, not at dusk or night', trail_sight_folk_role_hours($roadV, ['dp' => 'dawn']) && trail_sight_folk_role_hours($roadV, ['dp' => 'day']) && !trail_sight_folk_role_hours($roadV, ['dp' => 'dusk']) && !trail_sight_folk_role_hours($roadV, ['dp' => 'night']));
 require_once $argv[1] . '/includes/npc_life.php';
 $trav = q_one("SELECT * FROM npcs WHERE traveller IN ('merchant', 'minstrel', 'naturalist') AND active = 1 ORDER BY id LIMIT 1"); $ts = traveller_stop($trav);
-$farTown = (string)current(array_diff(traveller_towns(), [$ts['town'], $ts['next']]));
-ok('a traveller follows the circuit: out in the region they are in or walking to, at any time of day', trail_sight_folk_role_kind($trav['name'])[0] === 'traveller' && trail_sight_folk_role_hours($trav['name'], ['dp' => 'night', 'towns' => [$ts['town']]]) && trail_sight_folk_role_hours($trav['name'], ['dp' => 'day', 'towns' => [$ts['next']]]), json_encode($ts));
-ok('a traveller is not on the Trail of a region off their circuit stop', !trail_sight_folk_role_hours($trav['name'], ['dp' => 'day', 'towns' => [$farTown]]), $farTown);
+$circ = array_values(traveller_towns()); $nC = count($circ); $ci = array_search($ts['town'], $circ, true);
+$at = fn(int $d): string => $circ[(($ci + $d) % $nC + $nC) % $nC];
+ok('a traveller follows the circuit: out on the Trail of the region they are in, at any time of day', trail_sight_folk_role_kind($trav['name'])[0] === 'traveller' && trail_sight_folk_role_hours($trav['name'], ['dp' => 'night', 'towns' => [$ts['town']]]) && trail_sight_folk_role_hours($trav['name'], ['dp' => 'day', 'towns' => [$ts['next']]]), json_encode($ts));
+ok('the window is 3 stops behind to 4 ahead on the circuit (8 of 14 stops of 12 h = about 4 days a week)', $nC === 14 && trail_sight_folk_role_hours($trav['name'], ['dp' => 'day', 'towns' => [$at(4)]]) && trail_sight_folk_role_hours($trav['name'], ['dp' => 'day', 'towns' => [$at(-3)]])
+    && !trail_sight_folk_role_hours($trav['name'], ['dp' => 'day', 'towns' => [$at(5)]]) && !trail_sight_folk_role_hours($trav['name'], ['dp' => 'day', 'towns' => [$at(-4)]]), json_encode([$ts['town'], $at(4), $at(5), $at(-3), $at(-4)]));
+$days = 0; foreach ($circ as $region) { $hit = 0; for ($k = 0; $k < $nC; $k++) if (trail_sight_circuit_near($circ[$k], [$region])) $hit++; $days += $hit; }
+ok('each region sees a traveller 8 stops of 14 (' . round($days / $nC * 12 / 24, 1) . ' days a week)', $days === 8 * $nC, (string)$days);
+ok('a traveller is not on the Trail of a region far off their stop, nor of Mossbottom (not on the circuit)', !trail_sight_folk_role_hours($trav['name'], ['dp' => 'day', 'towns' => [$at(7)]]) && !trail_sight_folk_role_hours($trav['name'], ['dp' => 'day', 'towns' => ['Mossbottom']]), $at(7));
 $GLOBALS['gv_sight_folk_file'] = $w('folkrole.txt', "{$base['slug']}|$shopV|-|100|x|fp=1\n{$base['slug']}|$shopV|dp=night|100|y|fp=1\n{$base['slug']}|$innV|we=sun,rain,fog,wind,storm,snow,heat,cloud,frost,mist|100|z|fp=1\n");
 $nowN = ['dp' => 'night', 'se' => 'spring', 'we' => 'sun', 'hp' => '', 'towns' => []];
 ok('at night the shopkeeper row with no dp= is skipped, the row with dp=night and the innkeeper are here', array_column(trail_sight_folk_here($base['slug'], $nowN, 0), 'line') === ['y', 'z'], json_encode(array_column(trail_sight_folk_here($base['slug'], $nowN, 0), 'line')));
