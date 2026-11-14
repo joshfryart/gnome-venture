@@ -70,3 +70,8 @@ pfb_foe_turn($s, 0); $n0 = count($s['pcs']); pfb_end_round($s);
 chk('after a strike the board puts out no free piece (spawn null, nothing new on the board)', array_key_exists('spawn', $s) && $s['spawn'] === null && !array_filter($s['pcs'], fn($p) => $p['by'] === 'foe'), [$s['spawn'] ?? 'unset', array_map(fn($p) => $p['by'], $s['pcs'])]);
 [$s, $mine] = $aim17(['aimhit' => 0], 'hurt', 5); $s['foe']['plan'] = null; $s['foe']['draw'] = [['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, 'f:x', 'charm', 2, 'body', 'creature'), ['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, 'f:y', 'charm', 2, 'mind', 'creature')]; $s['foe']['hand'] = []; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []]; pfb_end_round($s);
 chk('with no strike the free piece still comes (spawn set)', ($s['spawn'] ?? null) !== null, $s['spawn'] ?? null);
+
+// ---- the opening side is read from where the Blank really is (2.6.983): a click next to it is a side, wherever it stands
+$s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true, 'blank' => true]); $bx = $s['pcs'][1]['x']; $by = $s['pcs'][1]['y'];
+chk('start side: the four cells next to the Blank read L, R, T, B', [pfb_start_side($s, $bx - 1, $by), pfb_start_side($s, $bx + 1, $by), pfb_start_side($s, $bx, $by - 1), pfb_start_side($s, $bx, $by + 1)] === ['L', 'R', 'T', 'B'], [$bx, $by]);
+chk('start side: a cell that is not next to the Blank reads null', pfb_start_side($s, $bx + 1, $by + 1) === null && pfb_start_side($s, $bx, $by) === null);

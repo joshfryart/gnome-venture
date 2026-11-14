@@ -1156,6 +1156,14 @@ function pfb_new(array $me, array $c, int $seed, array $opt = []): array
     return $s;
 }
 
+/** The side of the Blank a clicked cell is on ('L', 'R', 'T', 'B'), or null when it is not next to it. The Blank is where the state says it is (2.6.981: not always the centre). */
+function pfb_start_side(array $s, int $x, int $y): ?string
+{
+    $cx = (int)($s['pcs'][1]['x'] ?? intdiv(pfb_w($s), 2)); $cy = (int)($s['pcs'][1]['y'] ?? intdiv(pfb_h($s), 2)); $dx = $x - $cx; $dy = $y - $cy;
+    if (abs($dx) + abs($dy) !== 1) return null;
+    return $dx < 0 ? 'L' : ($dx > 0 ? 'R' : ($dy < 0 ? 'T' : 'B'));
+}
+
 /**
  * Blank-centre variant: the hidden start. You pick a hand piece and a side of the blank (L, R, T, B). The creature picked its piece and side already, without seeing yours
  * (its gentlest non-Hurt piece, a side by the seeded roll); if you chose the same side, yours stays and its piece takes the next free side. Nothing fires. A boss puts out two.

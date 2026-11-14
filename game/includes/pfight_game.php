@@ -179,8 +179,8 @@ function pfight_do(array $u, array &$exp, string $do): bool
         if (!pf_redraw($s, (int)($_POST['card'] ?? -1), (int)($_POST['turn'] ?? -1))) { $exp['encounter'] = json_encode($enc); return false; }   // no redraws left, or a stale page: nothing happens
     } elseif ($do === 'pfb_play' && !empty($s['start']) && ($s['mode'] ?? '') === 'board') {   // 2.6.66: the blank-centre opening: the page posts "hand,x,y" with x,y next to the blank; that is your start piece and its side (nothing fires)
         $moves = pfight_parse_moves((string)($_POST['moves'] ?? ''));
-        $cx = intdiv(pfb_w($s), 2); $cy = intdiv(pfb_h($s), 2); $side = null;
-        if ($moves && is_int($moves[0][0])) { $dx = $moves[0][1] - $cx; $dy = $moves[0][2] - $cy; if (abs($dx) + abs($dy) === 1) $side = $dx < 0 ? 'L' : ($dx > 0 ? 'R' : ($dy < 0 ? 'T' : 'B')); }
+        $cx = (int)($s['pcs'][1]['x'] ?? intdiv(pfb_w($s), 2)); $cy = (int)($s['pcs'][1]['y'] ?? intdiv(pfb_h($s), 2)); $side = null;   // where the Blank is (it starts on a random inner cell since 2.6.981)
+        if ($moves && is_int($moves[0][0])) $side = pfb_start_side($s, (int)$moves[0][1], (int)$moves[0][2]);
         if ($side === null) { flash('Pick a spot next to the blank.', 'err'); return false; }
         $mine = (string)($s['me']['hand'][$moves[0][0]]['n'] ?? '');
         $err = pfb_start($s, $moves[0][0], $side);

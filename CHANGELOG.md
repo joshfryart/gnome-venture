@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.983
+- **Fix: the first piece could not be placed (owner: "Live won't let me place my first piece. It resets when I press start").** Since the Blank starts on a random inner cell (2.6.981), the opening handler in `pfight_game.php` still worked out the side from the CENTRE of the board, so a piece placed next to the real Blank was refused ("Pick a spot next to the blank") and the page reset. It now reads where the Blank is (`pfb_start_side`). The demo had the same bug and was fixed in 2.6.982's rebuild. Needs 2.6.97+, no DB change. Skip 2.6.981 and 2.6.982.
+
 ## 2.6.982
 - **Fix: the class rule chip, venom cells and the strike crack were not reaching the page in 2.6.98 / 2.6.981.** The page data builder (`pfight_game.php`) only copies a list of keys from the board view; `kind`, `grudge` and `ven` (and the replay's `strike` / `broke`) were not on it, so the Swarm / Two aims / Grudge chip, the second-aim and venom marks, and the crack on a struck piece never showed (the text lines did). Now carried; `tests/pfboard_v1_page.sh` checks the page data. Found while rebuilding the demo artifact. Needs 2.6.97+, no DB change. Skip the 2.6.981 zip: this one has everything in it.
 - **Demo (`tools/pfdemo_v1`):** works with the 2.6.98+ rules (the glue read the Blank in the centre, the page data lacked the class keys, a removed `harmony` export); the Tuning sheet has switches for class rules, aim strike and keep-my-pieces; environment 1 a round.
