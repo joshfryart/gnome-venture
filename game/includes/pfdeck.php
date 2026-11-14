@@ -620,6 +620,19 @@ function pfd_unequip(int|array $u, string $type): ?string
     return null;
 }
 
+/** Take a worn-out (broken) or missing (none) tool off the belt so its slot frees up. Only the belt entry goes: the item stays in the satchel and its wear is kept, so a Tool Repair Kit can still fix it and it can go back on. Returns an error or null. */
+function pfd_remove_broken(int|array $u, string $type): ?string
+{
+    $u = pfd_user($u); $uid = (int)$u['id'];
+    if ($why = pfd_guard($u)) return $why;
+    $e = null; foreach (pfd_belt(pfd_sources($u)) as $b) if ($b['type'] === $type) { $e = $b; break; }
+    if ($e === null) return 'That tool is not on your belt.';
+    if (!in_array($e['state'], ['broken', 'none'], true)) return 'Only a worn-out or missing tool can be removed. Use Take off for the others.';
+    $belt = array_column(pfd_belt(pfd_sources($u)), 'type');
+    pfd_belt_save($uid, array_values(array_diff($belt, [$type])));
+    return null;
+}
+
 /** "Auto-use my current deck": the pre-fight screen is skipped. Remembered per gnome. */
 function pfd_set_auto(int|array $u, bool $on): ?string
 {
@@ -702,6 +715,7 @@ function pfd_end_fight(array $u, array $s): array
  *   do=pfd_toggle    key=KEY  [on=0|1]
  *   do=pfd_equip     tool=TYPE  [slot=N]
  *   do=pfd_unequip   tool=TYPE
+ *   do=pfd_remove    tool=TYPE   (a broken or missing tool: off the belt, the item stays)
  *   do=pfd_auto      on=0|1
  *   do=pfd_fix       tool=TYPE
  */
@@ -712,10 +726,11 @@ function pfd_post(array $u, string $do, array $in): array
         'pfd_toggle' => pfd_toggle($u, (string)($in['key'] ?? ''), isset($in['on']) ? (string)$in['on'] === '1' : null),
         'pfd_equip' => pfd_equip_tool($u, (string)($in['tool'] ?? ''), isset($in['slot']) && ctype_digit((string)$in['slot']) ? (int)$in['slot'] : null),
         'pfd_unequip' => pfd_unequip($u, (string)($in['tool'] ?? '')),
+        'pfd_remove' => pfd_remove_broken($u, (string)($in['tool'] ?? '')),
         'pfd_auto' => pfd_set_auto($u, (string)($in['on'] ?? '') === '1'),
         'pfd_fix' => pfd_fix($u, (string)($in['tool'] ?? '')),
         default => 'Unknown action.',
     };
-    $ok = ['pfd_starter' => 'Puzzle box packed.', 'pfd_toggle' => 'Deck changed.', 'pfd_equip' => 'Tool on your belt.', 'pfd_unequip' => 'Tool off your belt.', 'pfd_auto' => 'Saved.', 'pfd_fix' => 'Tool fixed.'];
+    $ok = ['pfd_starter' => 'Puzzle box packed.', 'pfd_toggle' => 'Deck changed.', 'pfd_equip' => 'Tool on your belt.', 'pfd_unequip' => 'Tool off your belt.', 'pfd_remove' => 'Removed from your belt.', 'pfd_auto' => 'Saved.', 'pfd_fix' => 'Tool fixed.'];
     return [$err === null, $err ?? ($ok[$do] ?? 'Done.')];
 }

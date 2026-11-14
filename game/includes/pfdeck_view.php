@@ -201,6 +201,8 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
             $onBelt[$b['type']] = $b['state'];
             $p = null; foreach ($P as $q) if ($q['tool'] === $b['type']) $p = $q;
             if ($p && $b['state'] === 'ok') $bs .= str_replace(['<li>', '</li>'], ['<li class="bslot">', pfv_durbar((int)$b['left'], (int)$b['max']) . '<small>' . (int)$b['left'] . '/' . (int)$b['max'] . '</small></li>'], pfv_pc($p, ['a' => 'info', 'dur' => [(int)$b['left'], (int)$b['max']], 'd' => pfv_desc($p, 'durability ' . (int)$b['left'] . '/' . (int)$b['max'] . ', −' . PFB_TOOL_WEAR . ' a play')]));
+            elseif (in_array($b['state'], ['broken', 'none'], true) && !$locked) $bs .= pfv_slot('<span class="pfv-bn">' . e((TOOL_TYPES[$b['type']][0] ?? ucfirst($b['type']))) . '<br>' . ($b['state'] === 'broken' ? 'broken' : 'gone') . '</span>'
+                . '<form method="post" class="pfv-rm">' . csrf_field() . '<input type="hidden" name="do" value="pfd_remove"><input type="hidden" name="tool" value="' . e($b['type']) . '">' . $back . '<button class="btn small ghost" aria-label="Remove the ' . e((TOOL_TYPES[$b['type']][0] ?? $b['type'])) . ' from the belt">Remove</button></form>');
             else $bs .= pfv_slot($b['state'] === 'broken' ? 'broken' : ($b['state'] === 'over' ? 'no slot' : 'gone'));
         }
         for ($i = count($d['belt']); $i < 4; $i++) $bs .= pfv_slot($i >= $slots ? 'locked<br>Belt ' . ($i === 2 ? 'II' : 'III') : '＋');
@@ -213,6 +215,7 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
             $pn = (string)pfd_catalog()['t:' . $type]['n']; $tt = TOOL_TYPES[$type] ?? [ucfirst($type), '🔧']; $on = ($onBelt[$type] ?? '') === 'ok'; $bk = !empty($w['broken']);
             $acts = [];   // what the detail line offers: do|label|class|disabled
             if (!$locked && ($bk || (int)$w['wear'] > 0)) $acts[] = 'pfd_fix|🔧 Fix|gold|' . ($kits < 1 ? '1' : '0');
+            if (!$locked && $bk && ($onBelt[$type] ?? '') === 'broken') $acts[] = 'pfd_remove|Remove|ghost|0';
             if (!$locked && !$bk) $acts[] = $on ? 'pfd_unequip|Take off|ghost|0' : 'pfd_equip|' . ($full ? 'Belt full' : 'Put on') . '|primary|' . ($full ? '1' : '0');
             $td = $tt[0] . ' tool · ' . PFD_RANK_NAME[(int)$w['tier']] . ' · durability ' . (int)$w['left'] . '/' . (int)$w['max'] . ($bk ? ' · worn out: fix it with a Tool Repair Kit' . ($kits < 1 ? ' (you have none)' : '') : ($on ? ' · on the belt' : '')) . '.';
             $h .= '<li><button type="button" class="tb t' . (int)$w['tier'] . ($bk ? ' broken' : '') . ($on ? ' on' : '') . '" data-a="tool" data-arg="' . e($type) . '" data-n="' . e($pn) . '" data-d="' . e($td) . '" data-acts="' . e(implode(';', $acts)) . '" data-dur="' . (int)$w['left'] . '/' . (int)$w['max'] . '" data-rk="' . (int)$w['tier'] . '" data-ico="' . e($tt[1]) . '" aria-pressed="' . ($on ? 'true' : 'false') . '" aria-label="' . e($pn . ', ' . $td) . '">'
@@ -220,7 +223,7 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
         }
         $h .= ($any ? '' : '<li class="hint">No tools yet. A garden or gathering tool in your satchel can go on the belt.</li>') . '</ul>';
         $h .= '<p class="hint">' . ($tier < 3 ? 'A bigger belt holds more tools: <a href="' . e(url('shop.php')) . '">buy one at Twigg’s</a> (Belt II from level ' . PFD_BELTS[2][2] . ', Belt III from level ' . PFD_BELTS[3][2] . ').' : 'Your belt holds the most tools a belt can.')
-            . ' A worn-out tool leaves the deck until you fix it with a Tool Repair Kit (crafted: flint, pine resin, coir fibre).</p>';
+            . ' A worn-out tool leaves the deck until you fix it with a Tool Repair Kit (crafted: flint, pine resin, coir fibre). Remove takes a broken tool off the belt: keep it to repair later.</p>';
         $hint = $locked ? 'Tap a tool to read it.' : 'Tap a tool, then put it on, take it off or fix it.';
     } else {
         $pl = '';
