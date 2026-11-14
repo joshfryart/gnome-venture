@@ -53,3 +53,13 @@ chk('aim total: a Guard 7 holds (broke false, guard 7)', ($tot['strike']['broke'
 chk('aim total, aimhit 0: still broken by the cell', ($tot['broken'] ?? '') === 'cell' && !isset($tot['strike']), $tot);
 [$s, $mine] = $aim17(['aimhit' => 1, 'aimtot' => 1], 'hurt', 5, 'charm', 4); $tot = pfb_aim_total($s);
 chk('aim total: a Charm aim on your piece is still broken by the cell', ($tot['broken'] ?? '') === 'cell', $tot);
+
+// ---- blankrand (2.6.98+): the inert Blank starts on a random inner cell, not always the centre
+$cellsB = []; $okB = true;
+for ($sd = 1; $sd <= 60; $sd++) { $s = pfb_new(v1_me(), v1_foe('medium'), $sd, ['v1' => true, 'blank' => true]); $b = $s['pcs'][1] ?? null; if (!$b || $b['by'] !== 'none' || $b['x'] < 1 || $b['y'] < 1 || $b['x'] > pfb_w($s) - 2 || $b['y'] > pfb_h($s) - 2 || ($s['cell'][$b['x'] . ',' . $b['y']] ?? 0) !== 1) $okB = false; if ($b) $cellsB[$b['x'] . ',' . $b['y']] = 1; }
+chk('blankrand: the Blank sits on an inner cell (all four sides on the board) and the cell map agrees; over 60 seeds it lands on every inner cell', $okB && count($cellsB) === (pfb_w($s) - 2) * (pfb_h($s) - 2), array_keys($cellsB));
+$s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true, 'blank' => true]); $bx = $s['pcs'][1]['x']; $by = $s['pcs'][1]['y']; $e = pfb_start($s, 0, 'L');
+chk('blankrand: both start pieces go next to the Blank wherever it is', $e === null && count(array_filter($s['pcs'], fn($p) => $p['by'] !== 'none' && abs($p['x'] - $bx) + abs($p['y'] - $by) === 1)) === 2, array_map(fn($p) => [$p['by'], $p['x'], $p['y']], $s['pcs']));
+$s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['blankrand' => 0], 'blank' => true]);
+chk('blankrand 0 (and a fight saved before it): the Blank is in the centre', $s['pcs'][1]['x'] === intdiv(pfb_w($s), 2) && $s['pcs'][1]['y'] === intdiv(pfb_h($s), 2));
+$s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['blankrand' => 1], 'blank' => true]); unset($s['v1']['blankrand']); chk('a state without the key reads as 0 (PRE)', pfb_v1r($s, 'blankrand') === 0);

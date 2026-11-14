@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.99
+- **Puzzle combat v1: the inert Blank starts on a random inner cell, and long piece text scrolls.** Branch `claude/todo-md-jbud4h`, not merged, no zip yet. Needs 2.6.98+, no DB change. Puzzle combat v1 is still admin-gated.
+- **The Blank starts anywhere (owner, for playtesting).** New rule key `blankrand` (new fights 1, fights saved before it 0): the Blank is put on a random one of the inner cells (all four sides on the board: 4 of the 16 on the 4x4 board), both start pieces go beside it wherever it is. PHP, JS twin, tests in `tests/pfboard_v1_lasting.php`.
+- **Piece info is no longer cut off (owner: "info on tapped pieces is truncated").** The docked piece card and the fitted card scroll instead of clipping (`pfv1.css`). Not checked on a phone.
+
 ## 2.6.98
 - **Puzzle combat v1, week 2: the aim can strike your pieces, every creature class has one rule, the environment places 1 piece a round.** Slim zip `releases/GnomeVenture-2.6.98-web-update.zip`.
 - **Needs 2.6.96+, no DB change. Puzzle combat v1 is still admin-gated (`pfight_v1`). Only NEW fights get the changes; fights under way keep their rules.**
