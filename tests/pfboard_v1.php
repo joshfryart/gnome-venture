@@ -6,7 +6,7 @@ $GLOBALS['PFB_TEST_SIZES'] = ['small' => [5, 4], 'medium' => [5, 5], 'large' => 
 require __DIR__ . '/../game/includes/pfight_game.php';
 $bad = 0; $warn = [];
 set_error_handler(function (int $no, string $msg, string $file, int $line) use (&$warn) { $warn[] = "$msg ($file:$line)"; return true; });   // any PHP warning or notice in the engine fails the run (the last check)
-const V1_294 = ['team2' => PFB_TEAM2, 'team3' => PFB_TEAM3, 'life' => 1] + PFB_V1_PRE;   // the full 2.6.94 rule set (every rule the plan adds is off or as it was)
+const V1_294 = ['team2' => PFB_TEAM2, 'team3' => PFB_TEAM3, 'life' => 1, 'envn' => 2] + PFB_V1_PRE;   // the full 2.6.94 rule set (every rule the plan adds is off or as it was)
 const V1_OLD = ['env' => 0, 'ground' => 1, 'events' => 1];   // the 2.6.74 terrain (ground cells, forecast events): what a fight started before 2.6.75 carries
 function chk(string $name, bool $ok, $got = ''): void { global $bad; echo ($ok ? 'ok   ' : 'FAIL ') . $name . ($ok ? '' : ' (got ' . (is_string($got) ? $got : json_encode($got)) . ')') . "\n"; if (!$ok) $bad++; }
 function v1_me(int $lv = 8): array
@@ -446,6 +446,8 @@ $line = pfb_env_line(['env' => 'thorn', 'me' => 4, 'foe' => 2.4], 'Owl'); chk('a
 require __DIR__ . '/pfboard_v1_env.php';   // 13: environment pieces (2.6.75)
 require __DIR__ . '/pfboard_v1_notes.php';   // 14: notices (2.6.76)
 require __DIR__ . '/pfboard_v1_guard.php';   // 15: your guard fades when your turn starts (2.6.77)
+require __DIR__ . '/pfboard_v1_lasting.php';   // 17: a board that lasts (2.6.98)
+require __DIR__ . '/pfboard_v1_kinds.php';   // 19: class rules (2.6.98)
 
 echo "== 16. compat framework: a state without the new keys plays by 2.6.94 (PRE)\n";
 $s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]);
@@ -456,7 +458,7 @@ chk('a 2.6.94 state with none of the new keys resolves every key to PRE', !$bad1
 $v = pfb_view($s)['v1']; $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (!array_key_exists($k, $v) || (int)$v[$k] !== $d) $bad16[] = $k;
 chk('its view emits every key resolved to PRE', !$bad16, $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($n, $k) !== $d) $bad16[] = $k;
-chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot']), $bad16);
+chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95; aimhit, kinds: 2.6.98)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot', 'aimhit', 'kinds']), $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['onebar' => 1, 'redraw' => 1]]);
 chk('an override switches a key on', pfb_v1r($n, 'onebar') === 1 && pfb_v1r($n, 'redraw') === 1 && pfb_v1r($n, 'keepmine') === 0);
 chk('pfb_v1r on a fight without v1 rules is the PRE value too', pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5), 'aside') === 1);
@@ -607,9 +609,9 @@ $s = $aimBoard(true); $tot = function_exists('pfb_aim_total') ? pfb_aim_total($s
 chk('aim total: its chain fires your Jab: bait > 0 and why says "fires your Jab"', is_array($tot) && $tot['bait'] > 0 && in_array('fires your Jab', $tot['why'], true), $tot);
 $s = $aimBoard(false); $s['me']['block'] = 5; $tot = function_exists('pfb_aim_total') ? pfb_aim_total($s) : null; $hp0 = $s['me']['hp']; pfb_pass($s, $s['turn']);
 chk('aim total: your guard is eaten first (g) and hp is what gets through', is_array($tot) && $tot['g'] === 5 && $tot['hp'] === $hp0 - $s['me']['hp'], $tot);
-$s = $aimBoard(false, ['limit' => 0]); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)];   // no use-up here, so the pieces it would link are still there
+$s = $aimBoard(false, ['limit' => 0, 'aimhit' => 0]); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)];   // no use-up here, so the pieces it would link are still there
 $d = pfb_play($s, [[0, 2, 1]], $s['turn'], null, true, true);
-chk('aim total: a piece of yours on the aimed cell: the dry run says aim.broken === "cell"', $d['err'] === null && isset($d['aim']['broken']) && $d['aim']['broken'] === 'cell', $d['aim'] ?? 'no aim');
+chk('aim total: a piece of yours on the aimed cell: the dry run says aim.broken === "cell" (aimhit off; with aimhit a Hurt aim reads strike, section 17)', $d['err'] === null && isset($d['aim']['broken']) && $d['aim']['broken'] === 'cell', $d['aim'] ?? 'no aim');
 $s = $aimBoard(false, ['limit' => 0]); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)]; $s['me']['hp'] = 60;
 $d = pfb_play($s, [[0, 0, 1]], $s['turn'], null, true, true); $dn = pfb_play($s, [[0, 0, 1]], $s['turn'], null, true);
 chk('aim total: a placement off the aim cell: aim carries the total, and without withAim the dry result has no aim', $d['err'] === null && !isset($d['aim']['broken']) && isset($d['aim']['hp']) && !array_key_exists('aim', $dn), [$d['aim'] ?? null, array_keys($dn)]);

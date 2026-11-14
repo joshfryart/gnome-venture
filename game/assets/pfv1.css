@@ -536,3 +536,15 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 /* after 2.6.95: the Remove button of a broken or gone belt tool is compact and stays inside its slot */
 .pfv .pfv-rm { margin: 4px 0 0; width: 100%; }
 .pfv .pfv-rm .btn { width: 100%; min-height: 24px; padding: 1px 4px; font-size: 11px; line-height: 1.2; }
+/* 2.6.98 aimhit (T16): its Hurt aim lands on a piece of yours: the mark turns dark red, a struck piece cracks in the replay */
+.pf-v1 .mk.aim.strike { box-shadow: inset 0 0 0 3px #ff3b1f, inset 0 0 12px 2px rgba(255, 59, 31, .7); }
+.pf-v1 .mk.aim.strike svg { color: #fff; background: #b3261e; }
+.pf-v1 .pfb-cell.pfv-struck { animation: pfv-strike .9s ease-out; outline: 3px solid #ff3b1f; outline-offset: -2px; }
+@keyframes pfv-strike { 0%, 100% { transform: translateX(0); } 15% { transform: translateX(-4px); } 30% { transform: translateX(4px); } 45% { transform: translateX(-3px); } 60% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) { .pf-v1 .pfb-cell.pfv-struck { animation: none; } }
+/* 2.6.98 class rules (T21): the rule chip, a Bird's second aim, venom cells */
+.pf-v1 .tg.kind { background: rgba(70, 40, 100, .55); color: #e6d4ff; border: 1px solid #8c6bc4; cursor: help; }
+.pf-v1 .mk.aim.alt { box-shadow: inset 0 0 0 2px #ffb04a; animation: none; opacity: .85; }
+.pf-v1 .mk.aim.alt svg { color: #ffc57a; }
+.pf-v1 .mk.venom { background: rgba(70, 150, 40, .35); box-shadow: inset 0 0 0 2px #7fd04a; color: #d6ffb0; font: 700 14px/1 var(--font, system-ui, sans-serif); display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.pf-v1 .foerule, .foecard .foerule { margin: 4px 0; font-size: 12px; color: #e6d4ff; }

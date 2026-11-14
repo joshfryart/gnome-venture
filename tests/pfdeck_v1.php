@@ -229,13 +229,13 @@ foreach ($rows as $ci => $c) {
         $r = $m ? pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']) : pfb_pass($s, $s['turn']);
         if ($r['err']) { $tot['bad'] = $c['slug'] . ': ' . $r['err']; break 2; }
         foreach ($r['ev'] as $e) foreach (['poisoned', 'tripped', 'bashed', 'evaded', 'pricked'] as $k) if (!empty($e[$k]) && (($e['by'] ?? '') === 'foe' || in_array($k, ['evaded', 'pricked'], true))) $tot['tags'][$k] = ($tot['tags'][$k] ?? 0) + 1;
-        if ($s['me']['poison'] > PF_POISON_CAP || $s['me']['slowdraw'] > 1 || count($s['me']['hand']) > PF_HAND_CAP || count($s['lastfoe'] ?? []) > 2) { $tot['bad'] = $c['slug']; break 2; }
+        if ($s['me']['poison'] > PF_POISON_CAP || $s['me']['slowdraw'] > 1 || count($s['me']['hand']) > PF_HAND_CAP || count($s['lastfoe'] ?? []) > 3) { $tot['bad'] = $c['slug']; break 2; }
         $cnt = count($s['foe']['hand']) + count($s['foe']['draw']) + count($s['foe']['discard']) + count(array_filter($s['pcs'], fn($p) => $p['by'] === 'foe'));
         if ($cnt !== count(pfd_foe_pieces($c, array_keys($R)[$ci % 14]))) { $tot['bad'] = $c['slug'] . ' lost a piece'; break 2; }
     }
     $tot['n']++; $tot['over'][(string)$s['over']] = ($tot['over'][(string)$s['over']] ?? 0) + 1;
 }
-chk('88 whole fights against the layered decks: every fight ends, no piece is lost, poison never above 3, at most 2 creature pieces a turn', $tot['n'] === 88 && !isset($tot['bad']) && !isset($tot['over']['']), $tot);
+chk('88 whole fights against the layered decks: every fight ends, no piece is lost, poison never above 3, at most 3 creature pieces a turn (a Critter's two plus a Quick one)', $tot['n'] === 88 && !isset($tot['bad']) && !isset($tot['over']['']), $tot);
 chk('in those fights poison, trip, bash, evade and thorns all happened', !array_diff(['poisoned', 'tripped', 'bashed', 'evaded', 'pricked'], array_keys($tot['tags'])), $tot['tags']);
 echo '     ' . json_encode($tot['over']) . ' ' . json_encode($tot['tags']) . "\n";
 

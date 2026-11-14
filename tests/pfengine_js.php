@@ -149,14 +149,14 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
         $opt['v1'] = true;
         if ($mode0 === 'v1chaos') {
             $old = ['env' => 0, 'ground' => 1, 'events' => 1];
-            $opt['v1'] = [$old + ['nev' => 3, 'thorn' => 0.3, 'bramble' => 0.25], ['env' => 0, 'events' => 1], ['limit' => 0], ['limit' => 4, 'foe_x' => 1.3], ['aim' => 0], ['edges' => 0], ['flip' => 0, 'life' => 0], ['envn' => 1, 'thorn' => 0.3, 'bramble' => 0.25, 'rain' => 0.3, 'th_foe' => 1, 'mud' => 0.5, 'envcap' => 0.4], ['team2' => 2, 'team3' => 3, 'bar_x' => 0.8, 'sun' => 3], ['envn' => 3, 'limit' => 0, 'envcap' => 1, 'mud' => 0], $old, true][mt_rand(0, 11)];
+            $opt['v1'] = [$old + ['nev' => 3, 'thorn' => 0.3, 'bramble' => 0.25], ['env' => 0, 'events' => 1], ['limit' => 0], ['limit' => 4, 'foe_x' => 1.3], ['aim' => 0], ['edges' => 0], ['flip' => 0, 'life' => 0], ['envn' => 1, 'thorn' => 0.3, 'bramble' => 0.25, 'rain' => 0.3, 'th_foe' => 1, 'mud' => 0.5, 'envcap' => 0.4], ['team2' => 2, 'team3' => 3, 'bar_x' => 0.8, 'sun' => 3], ['envn' => 3, 'limit' => 0, 'envcap' => 1, 'mud' => 0], $old, true, ['keepmine' => 1, 'aimhit' => 1], ['useroot' => 1, 'aimhit' => 1], ['keepmine' => 1], ['aimhit' => 1, 'limit' => 3], ['kinds' => 0], ['kinds' => 1, 'keepmine' => 1, 'aimhit' => 0]][mt_rand(0, 17)];   // 2.6.98: the three week-2 switches
             if (mt_rand(0, 1)) $opt['blank'] = true;
         }
         if ($mode0 !== 'v1' && $mode0 !== 'v1d') foreach ($me['deck'] as $i => $t) { $me['deck'][$i]['src'] = ['pal', 'tool', 'crop', 'craft', 'region'][($i + $ci) % 5]; if ($i % 4 === 0) $me['deck'][$i]['life'] = 2 + ($i + $ci) % 3; if ($i % 7 === 3) $me['deck'][$i]['edges'] = false; if ($i % 7 === 5) { $me['deck'][$i]['col'] = 'mind'; $me['deck'][$i]['up'] = false; } }
         if ($mode0 === 'v1pre' || $mode0 === 'v1preb') $opt['v1'] = ['team2' => PFB_TEAM2, 'team3' => PFB_TEAM3, 'life' => 1] + PFB_V1_PRE;   // the full 2.6.94 rule set (V1_294 in pfboard_v1.php): parity covers it as well as the defaults
         if ($mode0 === 'v1old') $opt['v1'] = ['env' => 0, 'ground' => 1, 'events' => 1];
         if ($mode0 !== 'v1d' && $ci % 2 === 0) $c['region'] = array_keys(pfb_env_table()['regions'])[$ci % 14];   // the region leans the environment's deck
-        if ($ci % 3 === 0 && $mode0 !== 'v1d') $c['class'] = ['Critter', 'Water', 'Bird', 'Plant / Fungus', 'Reptile / Amphibian', 'Beast'][$ci % 6];
+        if (($ci % 3 === 0 || $mode0 === 'v1chaos') && $mode0 !== 'v1d') $c['class'] = ['Critter', 'Water', 'Bird', 'Plant / Fungus', 'Reptile / Amphibian', 'Beast'][$ci % 6];
     }
     $s = pfb_new($me, $c, $seed + $c['level'], $opt);
     $rec = ['fight' => $c['slug'], 'mode' => $mode0, 'seed' => $seed + $c['level'], 'creature' => $c, 'opt' => $opt, 'me' => $me, 'args' => $args, 'deck0' => $deck0,

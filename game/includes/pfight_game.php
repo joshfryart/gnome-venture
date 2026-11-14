@@ -347,9 +347,10 @@ function pfight_cells_out(array $u, array $exp): void
 function pfight_line(array $e, string $foe): string
 {
     if (isset($e['env'])) return pfb_env_line($e, $foe);   // v1: a terrain event
+    if (!empty($e['strike'])) return '💥 STRUCK: its ' . $e['n'] . ' hit your ' . ($e['mine'] ?? 'piece') . ' (' . (int)$e['hit'] . ')' . (!empty($e['broke']) ? ' and it breaks.' : ' but your guard ' . (int)$e['guard'] . ' holds.');   // 2.6.98 aimhit
     if (!empty($e['connect'])) return '🧩 You set ' . $e['n'] . ' aside, joined (' . (int)$e['size'] . ' pieces).';
     if (!empty($e['tick'])) return '🧪 The poison works on the ' . $foe . ' (+' . (int)$e['v'] . ').';
-    if (isset($e['note'])) return match ($e['note']) { 'quick' => '⚡ ' . ($e['n'] !== '' ? $e['n'] . ': ' : '') . 'Quick. The ' . $foe . ' plays a second piece.', 'slow' => '⏳ The ' . $foe . ' loses its turn.', 'fade' => '🛡️ Your guard fades (-' . (int)$e['n'] . ') as your turn starts.', 'hold' => '🛡️ Hold: ' . (int)$e['n'] . ' guard stays up into your turn.', default => '🦶 Tripped: you draw 1 fewer piece next turn.' };   // 2.6.76
+    if (isset($e['note'])) return match ($e['note']) { 'quick' => '⚡ ' . ($e['n'] !== '' ? $e['n'] . ': ' : '') . 'Quick. The ' . $foe . ' plays a second piece.', 'slow' => '⏳ The ' . $foe . ' loses its turn.', 'fade' => '🛡️ Your guard fades (-' . (int)$e['n'] . ') as your turn starts.', 'hold' => '🛡️ Hold: ' . (int)$e['n'] . ' guard stays up into your turn.', 'current' => '🌊 The current pushes your ' . $e['n'] . ' one cell.', 'grows' => '🌿 The ' . $foe . ' grows a Bramble beside its piece.', 'venom' => '☠️ Venom: your ' . $e['n'] . ' poisons you (2 a round, 2 rounds).', default => '🦶 Tripped: you draw 1 fewer piece next turn.' };   // 2.6.76
     $who = $e['by'] === 'me' ? 'You play' : 'The ' . $foe . ' plays';
     if (!empty($e['ta']) && $e['ta'] !== $e['by'] && in_array($e['ta'], ['me', 'foe'], true) && in_array($e['by'], ['me', 'foe'], true)) $who = $e['ta'] === 'me' ? 'Your chain fires the ' . $foe . '’s' : 'The ' . $foe . '’s chain fires your';   // 2.6.76: a chain through the other side's piece
     elseif (($e['root'] ?? null) === false && in_array($e['by'], ['me', 'foe'], true)) $who = $e['by'] === 'me' ? 'Your chain fires your' : 'The ' . $foe . '’s chain fires its';   // after 2.6.96 (owner: "random plays"): a piece already on the board that fires in its own side's chain is not played again
@@ -451,7 +452,7 @@ function pfight_chip_event(array $e, ?int $snap = null, bool $one = false): arra
         $parts = []; if (!empty($e['me'])) $parts[] = 'you -' . (int)$e['me'] . ' hp'; if (!empty($e['foe'])) $parts[] = $one ? PF_YIELD . ' +' . (int)round((float)$e['foe']) : 'creature -' . (int)round((float)$e['foe']) . ' hp';   // T12: one bar: it fills, nothing is 'health'
         return $base + ['by' => 'env', 'types' => ['env'], 'tags' => [(string)($e['kind'] ?? $e['env'])], 'txt' => (string)$e['n'] . ($parts ? ': ' . implode(' · ', $parts) : ''), 'tg' => !empty($e['me']) ? 'me' : (!empty($e['foe']) ? 'foe' : null)];
     }
-    if (isset($e['note'])) return $base + ['by' => (string)$e['by'], 'types' => ['note'], 'tags' => [(string)$e['note']], 'txt' => match ($e['note']) { 'quick' => '⚡ Quick: plays 2', 'slow' => '⏳ loses its turn', 'fade' => '🛡️ guard fades -' . (int)$e['n'], 'hold' => '🛡️ Hold kept ' . (int)$e['n'], default => '🦶 you draw 1 fewer' }, 'tg' => null];   // 2.6.76
+    if (isset($e['note'])) return $base + ['by' => (string)$e['by'], 'types' => ['note'], 'tags' => [(string)$e['note']], 'txt' => match ($e['note']) { 'quick' => '⚡ Quick: plays 2', 'slow' => '⏳ loses its turn', 'fade' => '🛡️ guard fades -' . (int)$e['n'], 'hold' => '🛡️ Hold kept ' . (int)$e['n'], 'current' => '🌊 pushed ' . $e['n'], 'grows' => '🌿 grows a Bramble', 'venom' => '☠️ venom: poisoned', default => '🦶 you draw 1 fewer' }, 'tg' => null];   // 2.6.76
     $parts = []; $tg = 'foe'; $by = (string)($e['by'] ?? 'me'); $t = (string)($e['t'] ?? 'hurt');
     if (!empty($e['tick'])) $parts[] = '-' . (int)$e['v'] . ' hp';
     elseif ($by === 'me') {

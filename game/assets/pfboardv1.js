@@ -215,8 +215,16 @@
     var aim = dispAim(), st = data.status || {};
     if (aim && !data.start && !(st.foe_slow && phase !== 'pre') && typeof aim.x === 'number') {
       var am = document.createElement('div'); am.className = 'mk aim'; am.setAttribute('role', 'img'); am.setAttribute('aria-label', 'The creature aims ' + aim.n + ' ' + aim.t + ' ' + aim.v + ' here, column ' + (aim.x + 1) + ' row ' + (aim.y + 1));
+      if (aim.tot && aim.tot.strike) { am.classList.add('strike'); am.setAttribute('aria-label', 'The creature will strike this piece of yours, ' + aim.tot.strike.n + ': ' + aim.n + ' ' + aim.v + (aim.tot.strike.broke ? ', it breaks' : ', your guard holds')); am.title = 'It will strike this piece' + (aim.tot.strike.broke ? ' and break it' : ': your guard holds'); }   // 2.6.98: aimhit
       am.appendChild(svgEl('aim')); var ab = document.createElement('b'); ab.textContent = String(aim.v); am.appendChild(ab); putBody(am, aim.x, aim.y);
+      if (aim.alt && typeof aim.alt.x === 'number') {   // 2.6.98 Two aims
+        var a2 = document.createElement('div'); a2.className = 'mk aim alt'; a2.setAttribute('role', 'img'); a2.setAttribute('aria-label', 'Second aim: ' + aim.alt.n + ' ' + aim.alt.t + ' ' + aim.alt.v + ', column ' + (aim.alt.x + 1) + ' row ' + (aim.alt.y + 1)); a2.title = 'Its second aim: it plays this if you take the first cell';
+        a2.appendChild(svgEl('aim')); var b2 = document.createElement('b'); b2.textContent = String(aim.alt.v); a2.appendChild(b2); putBody(a2, aim.alt.x, aim.alt.y);
+      }
     }
+    (data.ven || []).forEach(function (vc) {   // 2.6.98 Venom trail
+      var vm = document.createElement('div'); vm.className = 'mk venom'; vm.setAttribute('role', 'img'); vm.setAttribute('aria-label', 'Venom, column ' + (vc.x + 1) + ' row ' + (vc.y + 1) + ': a piece of yours put here poisons you'); vm.title = 'Venom: a piece of yours put here poisons you (2 a round, 2 rounds)'; vm.textContent = '\u2620'; putBody(vm, vc.x, vc.y);
+    });
   }
   var envDone = {};
 
@@ -275,6 +283,7 @@
   }
   function aimBits(aim) {
     var t = AIMT && aim && aim.tot && typeof aim.tot.hp === 'number' ? aim.tot : null; if (!t) return null;
+    if (t.strike) return { head: 'will strike your ' + t.strike.n + (t.strike.broke ? ' (it breaks)' : ' (your guard ' + t.strike.guard + ' holds)'), why: ['A Hurt aim on a cell where your piece stands hits that piece, not you.', t.strike.broke ? 'It breaks (a Guard at least as strong as the hit would hold).' : 'Your Guard is at least as strong as the hit, so it holds.'] };   // 2.6.98 aimhit
     var head = t.hp > 0 ? 'hits you for ' + t.hp : t.g > 0 ? 'is blocked by your guard' : t.heal > 0 ? 'heals ' + t.heal : aim.t === 'hurt' ? 'does no damage' : aim.t + ' ' + aim.v;
     if (t.hp > 0 && t.heal > 0) head += ', heals ' + t.heal;
     var envs = []; (t.why || []).forEach(function (w) { var m = /^fires (Sun|Rain|Bramble|Thornburst|Wind|Mud)$/.exec(w); if (m) { if (envs.indexOf(m[1]) < 0) envs.push(m[1]); } else if (/^Sun x/.test(w) && envs.indexOf('Sun') < 0) envs.unshift('Sun'); });
@@ -285,11 +294,27 @@
     if (t.g > 0 && t.hp > 0) why.push('your guard takes ' + t.g);
     return { head: head, why: why };
   }
+  var KIND = { critter: ['Swarm', 'It plays two small pieces a turn. The aim shows the first.'], bird: ['Two aims', 'It shows two moves on different cells. Take the first cell and it plays the second; take both and it picks again.'],
+    beast: ['Grudge', 'Each time you block its aim, its Hurt hits 25% harder (up to 3 times). A hit that lands on you clears it.'], water: ['Current', 'After its piece lands, one of your pieces touching it slides a cell away, if that cell is free.'],
+    plant: ['Grows', 'After its turn it grows a Bramble beside its piece (one of its own at a time). Whoever chains the Bramble fires it.'], reptile: ['Venom trail', 'When one of its pieces leaves the board, that cell is venom for 2 turns. A piece of yours put there poisons you (2 a round, 2 rounds).'],
+    boss: ['Two turns', 'It also shows the piece it will play next round. That piece is forced; its cell is chosen then.'] };
+  function kindChip() {
+    var k = data.kind; if (!k || !KIND[k] || data.won) return '';
+    var g = k === 'beast' && data.grudge ? ' x' + data.grudge : '';
+    return '<span class="tg kind" title="' + esc(KIND[k][1]) + '" aria-label="' + esc(foe0() + ' rule: ' + KIND[k][0] + g + '. ' + KIND[k][1]) + '">' + esc(KIND[k][0]) + g + '</span>';
+  }
+  function foe0() { return data.foe || 'The creature'; }
+  function aimExtra(aim) {   // 2.6.98: a Bird's second aim, a boss's next piece
+    var x = '';
+    if (aim.alt) x += ' \u00B7 or ' + esc(aim.alt.n) + ' ' + aim.alt.v + ' at ' + String.fromCharCode(65 + aim.alt.x) + (aim.alt.y + 1);
+    if (aim.next) x += ' \u00B7 then ' + esc(aim.next.n) + ' ' + aim.next.v;
+    return x;
+  }
   function aimChip(aim) {
     var b = aimBits(aim), pick = data.reaim && phase !== 'pre' ? ' (picked again)' : '';
     var rt = ' title="' + RINGHELP + '"';   // after 2.6.96: the lit rings
-    if (!b) return '<span class="tg aim">' + svg('aim') + 'Aims ' + esc(aim.n) + ' ' + esc(aim.t) + ' ' + aim.v + pick + '</span>';
-    var txt = (/ \u00B7 /.test(b.head) ? '' : 'Aims ') + esc(aim.n) + ': ' + esc(b.head) + pick;   // after 2.6.96: with 'fires Sun' or '2 pieces' on it the chip drops 'Aims' (the target icon says it) to stay on one line
+    if (!b) return '<span class="tg aim">' + svg('aim') + 'Aims ' + esc(aim.n) + ' ' + esc(aim.t) + ' ' + aim.v + aimExtra(aim) + pick + '</span>';
+    var txt = (/ \u00B7 /.test(b.head) ? '' : 'Aims ') + esc(aim.n) + ': ' + esc(b.head) + aimExtra(aim) + pick;   // after 2.6.96: with 'fires Sun' or '2 pieces' on it the chip drops 'Aims' (the target icon says it) to stay on one line
     if (!b.why.length) return '<span class="tg aim"' + rt + '>' + svg('aim') + txt + '</span>';
     return '<button type="button" class="tg aim"' + rt + ' data-a="aim" aria-expanded="' + (popEl && popEl.dataset.k === 'aim:aim' ? 'true' : 'false') + '" aria-label="' + esc('Aims ' + aim.n + ': ' + b.head + '. Press for the reasons') + '">' + svg('aim') + txt + '<span class="pfv-more" aria-hidden="true">\u25BE</span></button>';
   }
@@ -309,6 +334,7 @@
     if (!data.won) {
       var aim = dispAim();
       if (!data.start) h += st.foe_slow && phase !== 'pre' ? '<span class="tg good">' + esc(foe) + ' is slowed: no move</span>' : aim ? aimChip(aim) : '<span class="tg aim">no aim</span>';
+      h += kindChip();   // 2.6.98: the creature's class rule
       dispEnvs().forEach(function (e, k) { if (phase === 'pre' && envDone[k]) return; h += '<button type="button" class="tg ev" data-ev="' + k + '">' + svg(EVG[e.kind]) + (e.kind === 'gust' && e.on ? 'Gust: pushes ' + esc(e.on.n) : EVN[e.kind]) + '</button>'; });
       if (st.poison) h += '<span class="tg bad">poisoned ' + st.poison + '</span>';
       if (st.slowdraw) h += '<span class="tg bad">tripped −1 draw</span>';
@@ -381,7 +407,7 @@
     sheetEl.innerHTML = '<button type="button" class="pfv-sheetbg" data-x="1" aria-label="Close"></button><div class="pfv-sheet" role="dialog" aria-label="How the board works"><div class="pfv-sheet-in">'
       + '<div class="hrow"><h2>How the board works</h2><button type="button" class="btn small" data-x="1">Done</button></div>'
       + '<div class="sl">The round</div><ul class="helpl">' + row(ENV ? envTurnText() : turnText())
-      + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again.' + (AIMT ? ' The chip says what it would do now; tap it for the reasons. ' + RINGHELP + '.' : '')], who: '' })
+      + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again. If its piece is a Hurt and you take the cell with one of YOUR pieces, it strikes that piece instead: the piece breaks (a Guard at least as strong holds) and you take no damage.' + (AIMT ? ' The chip says what it would do now; tap it for the reasons. ' + RINGHELP + '.' : '')], who: '' })
       + (ONE ? row({ n: 'The ' + YIELD + ' bar', g: 'gust', l: ['One bar, two ways to win. Hurt pieces fill it, Charm pieces fill it. When it is full the creature yields: with more charm than hurt you win it over, otherwise it backs off. A great creature cannot be charmed.'], who: '' }) : '')
       + row({ n: 'Chains', g: 'gust', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + (TEAM ? ' Pal, tool and crop pieces in one chain: 2 kinds +' + Math.round((V1.team2 - 1) * 100) + '%, all 3 +' + Math.round(((V1.team3 || V1.team2) - 1) * 100) + '%.' : ''), 'A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it.', 'If its aim fires one of your pieces, your piece works for you.'], who: '' })
       + row({ n: 'Guard', g: 'gust', l: ['Your guard blocks the creature’s hits. It fades when your turn starts, unless Hold keeps it (what is left of a Hold guard stays up once).'], who: '' })
@@ -1201,7 +1227,7 @@
         if (ev.id && hiddenIds[ev.id]) { delete hiddenIds[ev.id]; revealId = ev.id; render(); revealId = null; }   // its piece is put down now, then it scores
         Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
         stepNote = ev.ln || ''; envStep(ev);
-        if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); var pc = pieceById(ev.id); if (pc && ev.env !== 'place') { picked = ev.id; if (!dockOn) showText(pc.n, pieceInfo(pc), pc); } }
+        if (ev.id) { var c = boardEl.querySelector('.pfb-cell[data-id="' + ev.id + '"]'); if (c) c.classList.add('pfb-scoring'); if (c && ev.strike) { c.classList.add('pfv-struck'); var sk = c; setTimeout(function () { sk.classList.remove('pfv-struck'); }, 900); } var pc = pieceById(ev.id); if (pc && ev.env !== 'place') { picked = ev.id; if (!dockOn) showText(pc.n, pieceInfo(pc), pc); } }
         revealChip(k);
         if (ev.bar !== null && ev.bar !== undefined) setBar(ev.bar, data.barmax); if (ev.fh !== null && ev.fh !== undefined) setFh(ev.fh, data.fhmax); if (ev.hp !== null && ev.hp !== undefined) setHp(ev.hp);
         setGuard(ev.g);

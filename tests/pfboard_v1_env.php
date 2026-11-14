@@ -67,7 +67,7 @@ $sL['env'] = ['draw' => [], 'discard' => [], 'next' => [$tH]]; pfb_env_place($sL
 chk('fallback 2: the piece is placed on a linking cell rather than passing', count(array_filter($sL['pcs'], fn($p) => $p['by'] === 'env')) === 1, $sL['envlog']);
 $mud = v1_env('mud', null, false); $mc = pfb_env_cells($s, $mud);
 chk('Mud is placed like any piece: an isolated cell far from the action', $mc === $cells, $mc);
-$s['env'] = ['draw' => [v1_env('rain', null, false), v1_env('thorn', null, false)], 'discard' => [], 'next' => [$sun]]; $pid0 = $s['pid']; pfb_env_place($s); $np = $s['pcs'][$s['pid']];
+$s['env'] = ['draw' => [v1_env('rain', null, false), v1_env('thorn', null, false)], 'discard' => [], 'next' => [$sun]]; $s['v1']['envn'] = 2; $pid0 = $s['pid']; pfb_env_place($s); $np = $s['pcs'][$s['pid']];
 chk('the environment places its piece on one of those cells, born for the next round, and logs it (place, id, kind, name, cell); then it turns pieces face up until two lie open', $s['pid'] === $pid0 + 1 && $np['by'] === 'env' && in_array([$np['x'], $np['y']], $cells, true) && $np['born'] === $s['round'] + 1 && $s['envlog'] === [['k' => 'place', 'x' => $np['x'], 'y' => $np['y'], 'me' => 0, 'foe' => 0.0, 'id' => $np['id'], 'kind' => 'sun', 'n' => 'Sun']] && array_column($s['env']['next'], 'env') === ['thorn', 'rain'] && $s['env']['draw'] === [], $s['envlog']);
 $s = v1_bare(); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2); $s['env'] = ['draw' => [v1_env('thorn')], 'discard' => [], 'next' => [v1_env('rain'), v1_env('sun')]]; pfb_env_place($s); $ep = array_values(array_filter($s['pcs'], fn($p) => $p['by'] === 'env'));
 $near = $ep && abs($ep[0]['x'] - $ep[1]['x']) + abs($ep[0]['y'] - $ep[1]['y']) <= 1;
@@ -80,7 +80,7 @@ chk('a piece that fits nowhere (no isolated cell, no fit): the environment passe
 $ev = pfb_env_events($s); chk('a pass is an event too (by env, ta env, env pass) with a line', $ev[0]['env'] === 'pass' && $ev[0]['ta'] === 'env' && str_contains(pfight_line($ev[0], 'Owl'), 'no place for Sun'), $ev);
 $s = v1_bare(); v1_put($s, 'foe', v1_tile($s, 'f:c', 'charm', 3, 'body', 'creature'), 2, 2); $s['env'] = ['draw' => [], 'discard' => [], 'next' => []]; pfb_env_place($s);
 chk('every piece is out: it passes with nothing to place', $s['envlog'] === [['k' => 'pass', 'x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0]] && str_contains(pfb_env_line(pfb_env_events($s)[0], 'Owl'), 'no piece to place'), $s['envlog']);
-$s['env'] = ['draw' => [], 'discard' => [v1_env('rain'), v1_env('sun'), v1_env('wind')], 'next' => []]; pfb_env_draw($s);
+$s['env'] = ['draw' => [], 'discard' => [v1_env('rain'), v1_env('sun'), v1_env('wind')], 'next' => []]; $s['v1']['envn'] = 2; pfb_env_draw($s);
 chk('the deck is empty: the discard is shuffled back in and two pieces are turned face up', count($s['env']['next']) === 2 && count($s['env']['draw']) === 1 && $s['env']['discard'] === []);
 $s['env'] = ['draw' => [v1_env('rain')], 'discard' => [], 'next' => []]; pfb_env_draw($s);
 chk('one piece left in all: only one lies face up', count($s['env']['next']) === 1 && $s['env']['draw'] === []);

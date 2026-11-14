@@ -267,6 +267,7 @@ function pfv_foe_card(array $c, string $region): string
     $charm = $size === 'boss' ? 'cannot be charmed' : (pf_temper($c) === 'gentle' ? 'gentle' : 'wary');
     return '<div class="foecard"><div class="pic">' . $img . '</div><div class="fx"><h3>' . e((string)$c['name']) . ' <small>lv ' . (int)$c['level'] . '</small></h3>'
         . '<div class="chips small"><span class="chip">' . (PFV_CLASS_ICON[$cl] ?? '🐾') . ' ' . e($cl) . '</span>' . ($rn !== '' ? '<span class="chip">' . e($rn) . '</span>' : '') . '<span class="chip"><i class="szd ' . e($size) . '"></i>' . e($size) . ' · ' . $dims[0] . '×' . $dims[1] . '</span><span class="chip">' . $charm . '</span><span class="chip">leans ' . e($lean) . '</span></div></div></div>'
+        . (($kr = PFB_KIND_TEXT[pfb_kind_of(['class' => $cl], $size)] ?? null) && !empty(pfb_v1_cfg($size, [], max(1, (int)($c['level'] ?? 1)))['kinds']) ? '<p class="foerule"><b>' . e($kr[0]) . ':</b> ' . e($kr[1]) . '</p>' : '')   // 2.6.98: the class rule, when the fight will use it
         . '<div class="tally" role="img" aria-label="' . array_sum($by) . ' pieces in layers">' . $tally . '</div><ul class="pcg c5">' . $cells . '</ul>'
         . '<div class="pinfo" id="pfv-cinfo" aria-live="polite"><span>Tap one of its pieces. Each plays up to ' . PFB_FOE_FIRES . ' times.</span></div>';
 }
