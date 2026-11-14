@@ -23,7 +23,7 @@
   var showGone = willReplay, hideSpawn = willReplay, animateSpawn = false, histEl = root.querySelector('.pf-hist');   // pieces that left this turn stay until everything has scored; a piece the board adds for the creature waits until then too
   var glows = [], fxOn = !willReplay, glowTimer = 0, frame = 0;
   // ================= v1 (2.6.74 stage C): state, texts and drawing helpers. Ported from the approved demo (tools/pfdemo_v1/app.js); the texts mirror claude/design-board-strategy.md, "Player-facing terrain text".
-  var V1 = data.v1 || {}, PREV = data.prev || null, phase = 'now', terOver = {}, movedBack = {}, usedGone = {}, leavingUsed = {}, flashEnv = null, flashIds = {}, aimHide = false, stepNow = 0, stepNote = '';
+  var V1 = data.v1 || {}, PREV = data.prev || null, phase = 'now', terOver = {}, movedBack = {}, usedGone = {}, leavingUsed = {}, flashEnv = null, flashIds = {}, aimHide = false, stepNow = 0, stepNote = '', aimLive = null;
   var ENV = !!V1.env, ENVD = data.env || { next: [] }, envLit = {}, slideIds = {}, fadeIds = {}, fxPop = null, stripRem = [], stripNew = false, stripBad = false, lastLegend = '';
   // T12 (2.6.95): the week-1 rules as the view resolved them (a fight under way keeps its own: 2.6.94 fights carry set-aside, must-link, the pass button, the once-a-turn flip, Teamwork, Wind and Mud)
   var MUSTL = V1.must === undefined || !!V1.must, ASIDE = V1.aside === undefined || !!V1.aside, FREEP = !!V1.freepass, FLIP1 = V1.flip1 === undefined || !!V1.flip1, TEAM = (V1.team2 || 1) > 1, ONE = !!V1.onebar, AIMT = !!V1.aimtot, NOWM = !!V1.nowm;
@@ -245,6 +245,34 @@
   }
 
   // ---- T12: the creature's aim as one chip: what it would do now ("Aims Snap: hits you for 9"), the reasons behind a tap ("Sun x2, fires your Jab: 6 to it")
+  var RINGHELP = 'Lit rings: pieces its chain would fire';
+  /** after 2.6.96 (owner: the environment's pieces its chain fires were a surprise): the pieces its aimed chain would fire if nothing changes. The aim's total (plan.tot.ids, or the preview's aim after your placement) lists them:
+   *  an environment piece gets a pulsing ring and what it would give (it works for whoever's chain fires it), one of yours a dotted ring 'it fires this'. A fight saved before ids (no ids) shows none. */
+  function ringList() {
+    if (!AIMT || phase === 'pre' || playing || data.start || data.won || rewind) return [];
+    var t = moves.length ? aimLive : (data.aim && data.aim.tot);
+    return t && !t.broken && t.ids && t.ids.length ? t.ids.filter(function (q) { return q.by === 'env' || q.by === 'me'; }) : [];
+  }
+  function ringText(q, nm) {
+    var v = q.v || 0, k = q.kind;
+    return q.by === 'me' ? 'it fires this' : k === 'sun' ? nm + ' x' + String(Number(v)) + ' for it' : k === 'rain' ? nm + (v ? ' +' + v + ' guard' : ' guard') + ' for it' : k === 'bramble' ? nm + (v ? ' -' + v : '') + ' you' : k === 'thorn' ? nm + (v ? ' -' + v : '') + ' it' : nm + ' for it';
+  }
+  function paintRings() {
+    if (!boardEl) return;
+    Array.prototype.forEach.call(boardEl.querySelectorAll('.pfv-rg'), function (e) { e.remove(); });
+    Array.prototype.forEach.call(boardEl.querySelectorAll('.pfv-ring'), function (e) { e.classList.remove('pfv-ring', 'pfv-ring-env', 'pfv-ring-me'); });
+    var foe = data.foe || 'creature', PP = window.PFParts, SZ = PP && PP.ok && PP.atlas && PP.atlas.sizes ? PP.atlas.sizes.strip : null;
+    ringList().forEach(function (q) {
+      var cell = boardEl.querySelector('.pfb-cell[data-id="' + q.id + '"]'); if (!cell || cell.classList.contains('pfb-gone')) return;
+      var pc = data.pcs.filter(function (z) { return z.id === q.id; })[0], nm = pc ? pc.n : 'piece', txt = ringText(q, nm);
+      cell.classList.add('pfv-ring', q.by === 'env' ? 'pfv-ring-env' : 'pfv-ring-me');
+      var rg = document.createElement('span'); rg.className = 'pfv-rg'; rg.setAttribute('aria-hidden', 'true'); cell.appendChild(rg);
+      var rb = document.createElement('span'); rb.className = 'pfv-rb'; rb.setAttribute('aria-hidden', 'true'); rb.textContent = txt; cell.appendChild(rb);
+      if (SZ) { rg.style.cssText = 'inset:auto;left:' + (SZ.tab[0] * 100 / SZ.piece[0]) + '%;top:' + (SZ.tab[1] * 100 / SZ.piece[1]) + '%;width:' + (SZ.body[0] * 100 / SZ.piece[0]) + '%;height:' + (SZ.body[1] * 100 / SZ.piece[1]) + '%'; rb.style.top = (SZ.tab[1] * 100 / SZ.piece[1]) + '%'; }   // the ring is the piece's body (its tabs stay clear)
+      var why = 'The ' + foe + '\u2019s chain would fire this ' + (q.by === 'env' ? 'environment piece' : 'piece of yours') + ' (' + txt + ') if nothing changes.';
+      cell.title = why; cell.setAttribute('aria-label', (cell.getAttribute('aria-label') || nm) + ' ' + why);
+    });
+  }
   function aimBits(aim) {
     var t = AIMT && aim && aim.tot && typeof aim.tot.hp === 'number' ? aim.tot : null; if (!t) return null;
     var head = t.hp > 0 ? 'hits you for ' + t.hp : t.g > 0 ? 'is blocked by your guard' : t.heal > 0 ? 'heals ' + t.heal : aim.t === 'hurt' ? 'does no damage' : aim.t + ' ' + aim.v;
@@ -259,10 +287,11 @@
   }
   function aimChip(aim) {
     var b = aimBits(aim), pick = data.reaim && phase !== 'pre' ? ' (picked again)' : '';
+    var rt = ' title="' + RINGHELP + '"';   // after 2.6.96: the lit rings
     if (!b) return '<span class="tg aim">' + svg('aim') + 'Aims ' + esc(aim.n) + ' ' + esc(aim.t) + ' ' + aim.v + pick + '</span>';
     var txt = (/ \u00B7 /.test(b.head) ? '' : 'Aims ') + esc(aim.n) + ': ' + esc(b.head) + pick;   // after 2.6.96: with 'fires Sun' or '2 pieces' on it the chip drops 'Aims' (the target icon says it) to stay on one line
-    if (!b.why.length) return '<span class="tg aim">' + svg('aim') + txt + '</span>';
-    return '<button type="button" class="tg aim" data-a="aim" aria-expanded="' + (popEl && popEl.dataset.k === 'aim:aim' ? 'true' : 'false') + '" aria-label="' + esc('Aims ' + aim.n + ': ' + b.head + '. Press for the reasons') + '">' + svg('aim') + txt + '<span class="pfv-more" aria-hidden="true">\u25BE</span></button>';
+    if (!b.why.length) return '<span class="tg aim"' + rt + '>' + svg('aim') + txt + '</span>';
+    return '<button type="button" class="tg aim"' + rt + ' data-a="aim" aria-expanded="' + (popEl && popEl.dataset.k === 'aim:aim' ? 'true' : 'false') + '" aria-label="' + esc('Aims ' + aim.n + ': ' + b.head + '. Press for the reasons') + '">' + svg('aim') + txt + '<span class="pfv-more" aria-hidden="true">\u25BE</span></button>';
   }
   function aimText() {
     var b = aimBits(dispAim()); if (!b) return null;
@@ -352,7 +381,7 @@
     sheetEl.innerHTML = '<button type="button" class="pfv-sheetbg" data-x="1" aria-label="Close"></button><div class="pfv-sheet" role="dialog" aria-label="How the board works"><div class="pfv-sheet-in">'
       + '<div class="hrow"><h2>How the board works</h2><button type="button" class="btn small" data-x="1">Done</button></div>'
       + '<div class="sl">The round</div><ul class="helpl">' + row(ENV ? envTurnText() : turnText())
-      + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again.' + (AIMT ? ' The chip says what it would do now; tap it for the reasons.' : '')], who: '' })
+      + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again.' + (AIMT ? ' The chip says what it would do now; tap it for the reasons. ' + RINGHELP + '.' : '')], who: '' })
       + (ONE ? row({ n: 'The ' + YIELD + ' bar', g: 'gust', l: ['One bar, two ways to win. Hurt pieces fill it, Charm pieces fill it. When it is full the creature yields: with more charm than hurt you win it over, otherwise it backs off. A great creature cannot be charmed.'], who: '' }) : '')
       + row({ n: 'Chains', g: 'gust', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + (TEAM ? ' Pal, tool and crop pieces in one chain: 2 kinds +' + Math.round((V1.team2 - 1) * 100) + '%, all 3 +' + Math.round(((V1.team3 || V1.team2) - 1) * 100) + '%.' : ''), 'A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it.', 'If its aim fires one of your pieces, your piece works for you.'], who: '' })
       + row({ n: 'Guard', g: 'gust', l: ['Your guard blocks the creature’s hits. It fades when your turn starts, unless Hold keeps it (what is left of a Hold guard stays up once).'], who: '' })
@@ -512,6 +541,7 @@
     return ps;
   }
   function aimPlanLine(j) {   // after your placement: the creature's aim as it would stand (aimtot fights)
+    aimLive = AIMT && j && j.aim ? j.aim : null; paintRings();   // the rings follow the new aim
     if (planEl) planEl.classList.remove('pf-hasaim');
     if (!AIMT || !j.aim || !planEl) return;
     var a = j.aim, txt, why = '', dispA = data.aim || {};
@@ -978,7 +1008,7 @@
     tiles.forEach(function (t, i) { if (art && !t.dataset.arted) { t.dataset.arted = '1'; var hc = P.piece({ size: 'strip', owner: 'me', type: data.hand[i].t, tag: data.hand[i].tag, m: data.hand[i].m, rar: modRar(data.hand[i].m), edges: data.hand[i].e, num: t.dataset.v }); hc.className = 'pfh-cv'; hc.setAttribute('aria-hidden', 'true'); t.insertBefore(hc, t.firstChild); var hb = modBadge(data.hand[i].m); if (hb) t.appendChild(hb); t.classList.add('pf-art2'); } });
     tiles.forEach(function (t, i) { t.hidden = !usable(i); });
     var busy0 = playing || submitted || !!data.won || !!rewind; handDeco(busy0);
-    fan(); renderHeld(); showJoinChips(); planAsk(); numsSync();
+    fan(); renderHeld(); showJoinChips(); planAsk(); numsSync(); paintRings();
     var busy = playing || submitted || !!data.won || !!rewind;
     var endBtn = document.getElementById('pf-end'); if (endBtn) endBtn.disabled = playing;
     undo.disabled = busy || (moves.length === 0 && selected === null); go.disabled = busy || moves.length === 0;
@@ -1187,6 +1217,7 @@
   // what the planned pieces would do: the server runs them on a copy (nothing is saved) and answers with the lines and the resolve bar
   var planEl = document.getElementById('pf-plan'), planTimer = 0, planAbort = null;
   function planAsk() {
+    aimLive = null;
     if (!planEl || typeof fetch !== 'function' || data.start) { if (planEl) { planEl.hidden = true; planEl.textContent = ''; } return; }
     clearTimeout(planTimer);
     if (planAbort) planAbort.abort();

@@ -123,6 +123,9 @@ rep("  var TIP = 'Two ways to win.", "  var TIP = ONE ? ONETIP : 'Two ways to wi
 rep("'Empty its health or fill the charm bar \\u00B7 '", "(ONE ? 'Hurt and Charm both fill the ' + YIELD + ' bar' : 'Empty its health or fill the charm bar') + ' \\u00B7 '")
 rep("var ps = []; if (j.fh && j.fh[1] > j.fh[0]) ps.push('Creature health ' + Math.ceil(j.fh[2] - j.fh[0]) + ' \\u2192 ' + Math.ceil(j.fh[2] - j.fh[1])); if (j.bar[1] > j.bar[0]) ps.push('Charm ' + Math.round(j.bar[0]) + ' \\u2192 ' + Math.round(j.bar[1]) + ' of ' + Math.round(j.bar[2]));", "var ps = barParts(j); aimPlanLine(j);")
 rep(": !mustLink(baseBoard(), handEdges()) && baseBoard().count ?", ": MUSTL && !mustLink(baseBoard(), handEdges()) && baseBoard().count ?")   # no must-link: that notice would show all the time
+# --- after 2.6.96: the lit rings (pieces the aimed chain would fire): cleared when the preview is asked again, painted after the board is drawn and after the preview's aim arrives
+rep("  function planAsk() {\n", "  function planAsk() {\n    aimLive = null;\n")
+rep("    fan(); renderHeld(); showJoinChips(); planAsk(); numsSync();\n", "    fan(); renderHeld(); showJoinChips(); planAsk(); numsSync(); paintRings();\n")
 out = os.path.join(R, 'game/assets/pfboardv1.js')
 if '--check' in sys.argv:
     sys.exit(0 if open(out, encoding='utf-8').read() == s else 'build_pfboardv1: game/assets/pfboardv1.js is not what the build gives (run tools/build_pfboardv1.py)')
