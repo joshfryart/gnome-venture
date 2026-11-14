@@ -397,7 +397,7 @@
           theirs.hp = Math.max(0, theirs.hp - dmg);
           e.dmg = dmg; e.blocked = abs;
           if (ft) {
-            if (tile.tag === 'poison') { theirs.poison = Math.min(PF_POISON_CAP, toInt(nn(theirs.poison, 0)) + 2); theirs.poison_v = Math.max(toInt(nn(theirs.poison_v, 0)), Math.max(1, toInt(Math.ceil(val / 3)))); e.poisoned = theirs.poison; }
+            if (tile.tag === 'poison') { theirs.poison = Math.min(PF_POISON_CAP, toInt(nn(theirs.poison, 0)) + 2); theirs.poison_v = Math.max(toInt(nn(theirs.poison_v, 0)), Math.max(1, toInt(Math.ceil((s.v1 ? toInt(tile.v) : val) / 3)))); e.poisoned = theirs.poison; }
             if (tile.tag === 'trip') { theirs.slowdraw = 1; e.tripped = 1; }
             if (root && tile.tag === 'quick') s.foe.again = 1;
           }
@@ -408,7 +408,7 @@
           add = dmg * s.hm;
           s.fh.now += add;
           e.dmg = dmg; e.blocked = abs; e.fh = round(add, 1);
-          if (tile.tag === 'poison') { s.foe.poison = 2; s.foe.poison_v = Math.max(toInt(s.foe.poison_v), Math.max(1, toInt(Math.ceil(val / 2)))); }
+          if (tile.tag === 'poison') { s.foe.poison = 2; s.foe.poison_v = Math.max(toInt(s.foe.poison_v), Math.max(1, toInt(Math.ceil((s.v1 ? toInt(tile.v) : val) / 2)))); }
           if (tile.tag === 'trip') s.foe.slow = 1;
           if (root && tile.tag === 'quick') { draw(s, 'me', Math.min(PF_HAND_CAP, s.me.hand.length + 1)); e.drew = 1; }
           if (m === 'leech' && dmg > 0) { mine.hp = Math.min(mine.max, mine.hp + 1 + intdiv(val, 6)); e.leeched = 1; }
@@ -454,7 +454,7 @@
           if (tile.tag === 'evade') mine.evade = 1;
           if (tile.tag === 'bash') mine.bashnext = 1;
           if (tile.tag === 'thorns') mine.thorns = true;
-          if (tile.tag === 'poison') { theirs.poison = Math.min(PF_POISON_CAP, toInt(nn(theirs.poison, 0)) + 2); theirs.poison_v = Math.max(toInt(nn(theirs.poison_v, 0)), Math.max(1, toInt(Math.ceil(val / 2)))); e.poisoned = theirs.poison; }
+          if (tile.tag === 'poison') { theirs.poison = Math.min(PF_POISON_CAP, toInt(nn(theirs.poison, 0)) + 2); theirs.poison_v = Math.max(toInt(nn(theirs.poison_v, 0)), Math.max(1, toInt(Math.ceil((s.v1 ? toInt(tile.v) : val) / 2)))); e.poisoned = theirs.poison; }
           if (tile.tag === 'trip') { theirs.slowdraw = 1; e.tripped = 1; }
           if (tile.tag === 'heal') s.fh.now = Math.max(0.0, s.fh.now - val);
         }
@@ -519,7 +519,7 @@
   var PF_HOSTILE_CM = 0.6;
   var PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health
   var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0 };
-  var PFB_KIND_SWARM = 0.6, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;   // 2.6.98 class rules (pfb_kind_of ...)
+  var PFB_KIND_SWARM_ADD = 1, PFB_KIND_SWARM_MAX = 2, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;   // 2.6.98 class rules (pfb_kind_of ...)
   function kindOf(c, size) {
     if (size === 'boss') return 'boss';
     var cl = String(nn(c['class'], '')).toLowerCase(), ks = ['critter', 'bird', 'beast', 'water', 'plant', 'reptile'];
@@ -983,6 +983,7 @@
       var vv = value(pt ? pt.tile : null, tile, pt !== null && pt.by === who, false), ck = vv[2];
       var val = iround(vv[0] * Number(nn(p.cm, 1.0)));
       if (who === 'foe' && tile.t === 'hurt' && toInt(nn(s.foe.grudge, 0)) > 0 && kindNow(s) === 'beast') val = iround(val * (1 + PFB_KIND_GRUDGE * toInt(s.foe.grudge)));   // 2.6.98 Grudge
+      if (who === 'foe' && tile.t === 'hurt' && kindNow(s) === 'critter') { var others = 0; Object.keys(s.pcs).forEach(function (qk) { var q = s.pcs[qk]; if (q.by === 'foe' && toInt(q.id) !== toInt(id)) others++; }); val += Math.min(PFB_KIND_SWARM_MAX, Math.floor(others / 2)) * PFB_KIND_SWARM_ADD; }   // 2.6.988 Swarm grows
       var sunny = !!v1 && (tile.t === 'hurt' || tile.t === 'charm') && ter(s, p.x, p.y) === 'sun';
       if (sunny) val = iround(val * Number(v1.sun));
       if (esun > 1 && who === rb) { val = iround(val * esun); sunny = true; }
@@ -1278,7 +1279,7 @@
     return best;
   }
 
-  function foeLen(s) { var n = kindNow(s) === 'critter' ? 2 : 1; return Math.max(0, Math.min(s.foe.hand.length, toInt(s.foe.slow) > 0 ? 0 : n)); }   // 2.6.98 Swarm
+  function foeLen(s) { return Math.max(0, Math.min(s.foe.hand.length, 1 - toInt(s.foe.slow))); }
 
   function guardNotes(s, ev) {   // 2.6.77 (pfb_guard_notes)
     if (!s.v1 || s.over) return;
@@ -1435,7 +1436,7 @@
     if (mud) why.push('Mud -' + Math.round(100 * Number(nn(s.v1.mud, 0))) + '%');
     if (usedAlt) why.unshift('its second aim');
     var hpTot = hp0 - toInt(w.me.hp);
-    if (quick || kindNow(s) === 'critter') { var w3 = clone(s), h3 = toInt(w3.me.hp); foeTurn(w3); var more = h3 - toInt(w3.me.hp); if (more !== hpTot) { hpTot = more; why.push(quick ? 'Quick: its second piece is in the number' : 'Swarm: its second piece is in the number'); } }   // 2.6.986
+    if (quick) { var w3 = clone(s), h3 = toInt(w3.me.hp); foeTurn(w3); var more = h3 - toInt(w3.me.hp); if (more !== hpTot) { hpTot = more; why.push('Quick: its second piece is in the number'); } }   // 2.6.986
     return { hp: hpTot, g: g, bait: round(bait, 1), heal: heal, n: n, why: why, ids: ids };
   }
 
@@ -1451,7 +1452,6 @@
     if (v1) {
       s.w = v1.w; s.h = v1.h; delete v1.w; delete v1.h; s.v1 = v1;
       s.foe.kind = truthy(v1.kinds) ? kindOf(c, s.size) : ''; s.foe.grudge = 0; s.foe.nextk = null; s.ven = {};   // 2.6.98 class rules
-      if (s.foe.kind === 'critter') ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t0, i) { s.foe[z][i].v = Math.max(1, iround(t0.v * PFB_KIND_SWARM)); }); });   // Swarm
       v1Tiles(s, c); seedGround(s); s.envs = []; s.envlog = []; s.reaim = 0; s.me.flipt = 0;
       if (v1.env) { s.env = { draw: shuffle(s, envDeck(s.size, String(nn(c.region, '')), !!v1r(s, 'nowm'))), discard: [], next: [] }; envDraw(s); }   // 2.6.75: the environment's deck
       if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.me.slowdraw = 0; s.me.tripped = 0; s.foe.bashnext = 0; s.foe.again = 0; }
@@ -1520,7 +1520,8 @@
     var slow = 0;
     if (s.v1 && truthy(s.v1.tags)) {   // creature tags: its poison works on you, a trip costs you one draw
       if (toInt(s.me.poison) > 0) {
-        var pv = Math.max(1, toInt(s.me.poison_v)); s.me.hp = Math.max(0, s.me.hp - pv); s.me.poison--;
+        var pv = Math.max(1, toInt(s.me.poison_v)); if (toInt(s.me.evade) > 0) pv = 0;   // 2.6.988: Evade stops the poison tick
+        s.me.hp = Math.max(0, s.me.hp - pv); s.me.poison--;
         s.envlog.push({ k: 'poison', x: null, y: null, me: pv, foe: 0.0 });
         if (s.me.poison === 0) s.me.poison_v = 0;
         if (checkEnd(s)) return;

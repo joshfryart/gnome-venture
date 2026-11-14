@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.988
+- **Swarm is different now: it grows (owner: keep Quick, make Swarm unique another way).** A Critter plays ONE piece a turn again (its pieces are no longer x0.6), and its Hurt hits +1 for every 2 of its other pieces on the board, up to +2. Use up or outlast its pieces to shrink it. A first try with +1 per piece cost the chain bot 13 points on small creatures (45% against 58%); +1 per 2 is neutral (57% / 71% against 58% / 72% with the rules off). Needs 2.6.97+, no DB change. Skip 2.6.981 to 2.6.987.
+- **Poison ticks are flat and Evade stops them (owner).** A poison piece's tick is its own value over 2 or 3, as printed, not the value after Sun and combos (v1 board fights only). On your side, Evade up at the end of the round makes the poison tick do nothing (it still counts down). The Evade text says so.
+- **Trip and Lull still skip a whole creature turn** (owner: keep).
+- **Tests:** `tests/pfboard_v1_kinds.php` (Swarm grows, Quick, flat poison, Evade), the parity run, and `pfv1_finalturn.php` now plays until the creature has put pieces down and one has left instead of a fixed 3 turns.
+
 ## 2.6.987
 - **Rule book fixes (from the playthrough in `claude/reviews-2026-11-13/rulebook/`).** Needs 2.6.97+, no DB change. Skip 2.6.981 to 2.6.986.
 - **The aim total covers the whole creature turn.** A Swarm's second piece (and a Quick piece) were left out of "hits you for N": in 350 aims the number was wrong in 83 Critter turns. `pfb_aim_total` now plays the whole turn on a copy when the creature is a Critter or has Quick, and says so in the reasons. Property test in `tests/pfboard_v1_kinds.php`; JS twin and parity updated.

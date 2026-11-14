@@ -17,7 +17,7 @@ $turn = function () use (&$exp, &$enc, &$u) {
     if ($best === null) { pfight_do($u, $exp, 'pfb_pass'); save_exp($exp); return true; }
     $_POST['moves'] = $best[1] . ',' . $best[2]; pfight_do($u, $exp, 'pfb_play'); save_exp($exp); return true;
 };
-for ($i = 0; $i < 3; $i++) $turn();
+for ($i = 0; $i < 9; $i++) { $turn(); if ($i >= 2) { $e0 = active_expedition($uid); $s0 = json_decode((string)$e0['encounter'], true)['pf'] ?? []; if (count($s0['lastfoe'] ?? []) > 0 && count($s0['gone'] ?? []) > 0 && empty($s0['over'])) break; } }   // 2.6.988: play until the creature has put pieces down and one has left (the exact turn depends on the rules in force)
 $exp = active_expedition($uid); $enc = json_decode((string)$exp['encounter'], true); $s = $enc['pf'];
 $ck = function ($what, $got, $want) { $g = json_encode($got); $w = json_encode($want); if ($g === $w) echo "ok   $what\n"; else echo "FAIL $what (got $g, want $w)\n"; };
 $ck('before the last turn the creature has put pieces down and one has left (the test is meaningful)', [count($s['lastfoe'] ?? []) > 0, count($s['gone'] ?? []) > 0], [true, true]);

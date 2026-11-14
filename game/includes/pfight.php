@@ -60,7 +60,7 @@ const PF_TAGS_V1 = [
     'bash'   => ['🛡️', 'Bash: adds your guard to the hit, using it up'],
     'hold'   => ['⚓', 'Hold: this guard stays up one more turn'],
     'thorns' => ['🌵', 'Thorns: a hit this guard blocks pricks the creature'],
-    'evade'  => ['💨', 'Evade: the creature\'s first hit next turn misses'],
+    'evade'  => ['💨', 'Evade: its first hit misses and poison ticks do nothing'],
     'mend'   => ['🩹', 'Mend: heals you 2 as well'],
     'hum'    => ['🎵', 'Hum: also cuts its next hits by 2'],
     'lull'   => ['🌙', 'Lull: the creature skips its next turn'],
@@ -446,7 +446,7 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
                 $theirs['hp'] = max(0, $theirs['hp'] - $dmg);
                 $e['dmg'] = $dmg; $e['blocked'] = $abs;
                 if ($ft) {
-                    if ($tile['tag'] === 'poison') { $theirs['poison'] = min(PF_POISON_CAP, (int)($theirs['poison'] ?? 0) + 2); $theirs['poison_v'] = max((int)($theirs['poison_v'] ?? 0), max(1, (int)ceil($val / 3))); $e['poisoned'] = $theirs['poison']; }   // 2 ticks on your health, at most PF_POISON_CAP waiting
+                    if ($tile['tag'] === 'poison') { $theirs['poison'] = min(PF_POISON_CAP, (int)($theirs['poison'] ?? 0) + 2); $theirs['poison_v'] = max((int)($theirs['poison_v'] ?? 0), max(1, (int)ceil((!empty($s['v1']) ? (int)$tile['v'] : $val) / 3))); $e['poisoned'] = $theirs['poison']; }   // 2 ticks on your health, at most PF_POISON_CAP waiting
                     if ($tile['tag'] === 'trip') { $theirs['slowdraw'] = 1; $e['tripped'] = 1; }   // you draw one piece fewer next round (once a round however many trips land)
                     if ($root && $tile['tag'] === 'quick') $s['foe']['again'] = 1;   // the creature puts down one more piece this turn (once a turn)
                 }
@@ -457,7 +457,7 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
                 $add = $dmg * $s['hm'];
                 $s['fh']['now'] += $add;
                 $e['dmg'] = $dmg; $e['blocked'] = $abs; $e['fh'] = round($add, 1);
-                if ($tile['tag'] === 'poison') { $s['foe']['poison'] = 2; $s['foe']['poison_v'] = max((int)$s['foe']['poison_v'], max(1, (int)ceil($val / 2))); }
+                if ($tile['tag'] === 'poison') { $s['foe']['poison'] = 2; $s['foe']['poison_v'] = max((int)$s['foe']['poison_v'], max(1, (int)ceil((!empty($s['v1']) ? (int)$tile['v'] : $val) / 2))); }
                 if ($tile['tag'] === 'trip') $s['foe']['slow'] = 1;
                 if ($root && $tile['tag'] === 'quick') { pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + 1)); $e['drew'] = 1; }
                 if ($m === 'leech' && $dmg > 0) { $mine['hp'] = min($mine['max'], $mine['hp'] + 1 + intdiv($val, 6)); $e['leeched'] = 1; }
@@ -503,7 +503,7 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
                 if ($tile['tag'] === 'evade') $mine['evade'] = 1;
                 if ($tile['tag'] === 'bash') $mine['bashnext'] = 1;
                 if ($tile['tag'] === 'thorns') $mine['thorns'] = true;
-                if ($tile['tag'] === 'poison') { $theirs['poison'] = min(PF_POISON_CAP, (int)($theirs['poison'] ?? 0) + 2); $theirs['poison_v'] = max((int)($theirs['poison_v'] ?? 0), max(1, (int)ceil($val / 2))); $e['poisoned'] = $theirs['poison']; }
+                if ($tile['tag'] === 'poison') { $theirs['poison'] = min(PF_POISON_CAP, (int)($theirs['poison'] ?? 0) + 2); $theirs['poison_v'] = max((int)($theirs['poison_v'] ?? 0), max(1, (int)ceil((!empty($s['v1']) ? (int)$tile['v'] : $val) / 2))); $e['poisoned'] = $theirs['poison']; }
                 if ($tile['tag'] === 'trip') { $theirs['slowdraw'] = 1; $e['tripped'] = 1; }
                 if ($tile['tag'] === 'heal') $s['fh']['now'] = max(0.0, $s['fh']['now'] - $val);
             }
