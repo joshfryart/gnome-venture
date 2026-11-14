@@ -1027,7 +1027,7 @@ function pfb_note(string $kind, string $n = ''): array
  */
 function pfb_strike(array &$s, int $hi, int $cid): array
 {
-    $ft = $s['foe']['hand'][$hi]; array_splice($s['foe']['hand'], $hi, 1); $s['foe']['discard'][] = $ft;
+    $ft = $s['foe']['hand'][$hi]; array_splice($s['foe']['hand'], $hi, 1); $s['foe']['discard'][] = $ft; $s['nospawn'] = 1;
     $p = $s['pcs'][$cid]; $hit = (int)$ft['v']; $g = ($p['tile']['t'] ?? '') === 'guard' ? (int)$p['tile']['v'] : 0; $broke = $g < $hit;
     if ($broke) { pfb_discard($s, $p); $p['used'] = 'foe'; $s['spent'][] = $p; unset($s['cell'][$p['x'] . ',' . $p['y']], $s['pcs'][$cid]); }
     return ['by' => 'foe', 'strike' => true, 'id' => $cid, 'broke' => $broke, 'guard' => $g, 'x' => (int)$p['x'], 'y' => (int)$p['y'], 'k' => $ft['k'], 'n' => $ft['n'], 't' => 'hurt', 'tag' => '', 'v' => $hit, 'hit' => $hit, 'mine' => (string)($p['tile']['n'] ?? ''), 'fit' => false, 'combo' => null];
@@ -1399,7 +1399,7 @@ function pfb_end_round(array &$s): void
     if (pfb_v1r($s, 'redraw')) { foreach ($s['me']['hand'] as $ht) { unset($ht['flip'], $ht['ft']); $s['me']['discard'][] = $ht; } $s['me']['hand'] = []; pf_draw($s, 'me', PF_HAND_CAP - $slow); }   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
     else pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + PF_DRAW - $slow));
     $s['gone'] = array_merge(array_map(fn($p) => pfb_gone_entry($s, $p, true), $s['spent'] ?? []), array_map(fn($p) => pfb_gone_entry($s, $p, false), $gone));   // for the replay: they are shown until everything has scored, then they go
-    $s['spawn'] = pfb_spawn($s);
+    $s['spawn'] = !empty($s['nospawn']) ? null : pfb_spawn($s); unset($s['nospawn']);   // 2.6.99: a strike spent the creature's turn: no free piece pops in before yours
     if ($s['turn'] > PF_TURN_CAP) { $s['over'] = $s['boss'] ? 'defeat' : 'stall'; return; }
     pfb_intent($s);
 }

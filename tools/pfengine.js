@@ -1290,7 +1290,7 @@
   function note(kind, n) { return { by: 'foe', note: kind, k: 'note', n: n === undefined ? '' : n, t: 'note', tag: '', v: 0, fit: false, combo: null }; }   // 2.6.76: a notice event (pfb_note)
 
   function strike(s, hi, cid) {   // 2.6.98 (aimhit): its Hurt piece strikes YOUR piece; a Guard at least as strong holds, anything else breaks; you take nothing
-    var ft = s.foe.hand[hi]; s.foe.hand.splice(hi, 1); s.foe.discard.push(ft);
+    var ft = s.foe.hand[hi]; s.foe.hand.splice(hi, 1); s.foe.discard.push(ft); s.nospawn = 1;
     var p = s.pcs[cid], hit = toInt(ft.v), g = p.tile.t === 'guard' ? toInt(p.tile.v) : 0, broke = g < hit;
     if (broke) { discardPiece(s, p); p.used = 'foe'; if (!Array.isArray(s.spent)) s.spent = []; s.spent.push(p); delete s.cell[p.x + ',' + p.y]; delete s.pcs[cid]; }
     return { by: 'foe', strike: true, id: cid, broke: broke, guard: g, x: toInt(p.x), y: toInt(p.y), k: ft.k, n: ft.n, t: 'hurt', tag: '', v: hit, hit: hit, mine: String(nn(p.tile.n, '')), fit: false, combo: null };
@@ -1535,7 +1535,7 @@
     if (v1r(s, 'redraw')) { s.me.hand.forEach(function (ht) { var c = clone(ht); delete c.flip; delete c.ft; s.me.discard.push(c); }); s.me.hand = []; draw(s, 'me', PF_HAND_CAP - slow); }   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
     else draw(s, 'me', Math.min(PF_HAND_CAP, s.me.hand.length + PF_DRAW - slow));
     s.gone = nn(s.spent, []).map(function (p) { return goneEntry(s, p, true); }).concat(gone.map(function (p) { return goneEntry(s, p, false); }));
-    s.spawn = spawn(s);
+    s.spawn = truthy(s.nospawn) ? null : spawn(s); delete s.nospawn;   // 2.6.99: a strike spent its turn: no free piece
     if (s.turn > PF_TURN_CAP) { s.over = s.boss ? 'defeat' : 'stall'; return; }
     intent(s);
   }

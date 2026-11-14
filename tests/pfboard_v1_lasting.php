@@ -63,3 +63,10 @@ chk('blankrand: both start pieces go next to the Blank wherever it is', $e === n
 $s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['blankrand' => 0], 'blank' => true]);
 chk('blankrand 0 (and a fight saved before it): the Blank is in the centre', $s['pcs'][1]['x'] === intdiv(pfb_w($s), 2) && $s['pcs'][1]['y'] === intdiv(pfb_h($s), 2));
 $s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['blankrand' => 1], 'blank' => true]); unset($s['v1']['blankrand']); chk('a state without the key reads as 0 (PRE)', pfb_v1r($s, 'blankrand') === 0);
+
+// ---- no free piece after a strike (2.6.99): the creature spent its turn, nothing pops in before yours
+[$s, $mine] = $aim17(['aimhit' => 1], 'hurt', 5); $s['foe']['draw'] = [['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, 'f:x', 'charm', 2, 'body', 'creature'), ['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, 'f:y', 'charm', 2, 'mind', 'creature')]; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []];
+pfb_foe_turn($s, 0); $n0 = count($s['pcs']); pfb_end_round($s);
+chk('after a strike the board puts out no free piece (spawn null, nothing new on the board)', array_key_exists('spawn', $s) && $s['spawn'] === null && !array_filter($s['pcs'], fn($p) => $p['by'] === 'foe'), [$s['spawn'] ?? 'unset', array_map(fn($p) => $p['by'], $s['pcs'])]);
+[$s, $mine] = $aim17(['aimhit' => 0], 'hurt', 5); $s['foe']['plan'] = null; $s['foe']['draw'] = [['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, 'f:x', 'charm', 2, 'body', 'creature'), ['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, 'f:y', 'charm', 2, 'mind', 'creature')]; $s['foe']['hand'] = []; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []]; pfb_end_round($s);
+chk('with no strike the free piece still comes (spawn set)', ($s['spawn'] ?? null) !== null, $s['spawn'] ?? null);
