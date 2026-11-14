@@ -6,7 +6,7 @@
 echo "== 17. a board that lasts (keepmine, useroot, aimhit)\n";
 $swing17 = $swing;   // the row of section 4: charm -> Swing -> charm links
 $row17 = function (array $over = []) use ($swing17) { $s = v1_bare('medium', $over); $a = v1_put($s, 'me', v1_tile($s, 'c1', 'charm', 3, 'body'), 1, 2); $b = v1_put($s, 'foe', v1_tile($s, 'f:c2', 'charm', 3, 'craft', 'creature'), 3, 2); return [$s, $a, $b]; };
-chk('PRE: the three switches are off in a new fight (default OFF until T15 decides)', array_intersect_key(v1_bare()['v1'], ['keepmine' => 1, 'aimhit' => 1, 'useroot' => 1]) === ['keepmine' => 0, 'aimhit' => 0, 'useroot' => 0]);
+chk('T15: in a new fight aimhit is ON, keepmine and useroot are OFF', array_intersect_key(v1_bare()['v1'], ['keepmine' => 1, 'aimhit' => 1, 'useroot' => 1]) == ['keepmine' => 0, 'aimhit' => 1, 'useroot' => 0]);
 
 // ---- keepmine
 [$s, $a, $b] = $row17(['keepmine' => 1]); $ev = v1_place($s, 'me', $swing17, 2, 2);
