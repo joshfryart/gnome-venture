@@ -179,8 +179,8 @@ function pfight_do(array $u, array &$exp, string $do): bool
         if (!pf_redraw($s, (int)($_POST['card'] ?? -1), (int)($_POST['turn'] ?? -1))) { $exp['encounter'] = json_encode($enc); return false; }   // no redraws left, or a stale page: nothing happens
     } elseif ($do === 'pfb_play' && !empty($s['start']) && ($s['mode'] ?? '') === 'board') {   // 2.6.66: the blank-centre opening: the page posts "hand,x,y" with x,y next to the blank; that is your start piece and its side (nothing fires)
         $moves = pfight_parse_moves((string)($_POST['moves'] ?? ''));
-        $cx = intdiv(pfb_w($s), 2); $cy = intdiv(pfb_h($s), 2); $side = null;
-        if ($moves && is_int($moves[0][0])) { $dx = $moves[0][1] - $cx; $dy = $moves[0][2] - $cy; if (abs($dx) + abs($dy) === 1) $side = $dx < 0 ? 'L' : ($dx > 0 ? 'R' : ($dy < 0 ? 'T' : 'B')); }
+        $cx = (int)($s['pcs'][1]['x'] ?? intdiv(pfb_w($s), 2)); $cy = (int)($s['pcs'][1]['y'] ?? intdiv(pfb_h($s), 2)); $side = null;   // where the Blank is (it starts on a random inner cell since 2.6.981)
+        if ($moves && is_int($moves[0][0])) $side = pfb_start_side($s, (int)$moves[0][1], (int)$moves[0][2]);
         if ($side === null) { flash('Pick a spot next to the blank.', 'err'); return false; }
         $mine = (string)($s['me']['hand'][$moves[0][0]]['n'] ?? '');
         $err = pfb_start($s, $moves[0][0], $side);
@@ -243,7 +243,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
             exp_log($exp, $ln); $enc['last'][] = $ln;
             if ($board) $enc['replay'][] = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'by' => (string)$e['by'], 'ta' => (string)($e['ta'] ?? $e['by']), 'ln' => $ln, 'bar' => $e['barnow'] ?? null, 'fh' => pfight_fhnow($e, $one), 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'n' => (string)($e['n'] ?? ''), 't' => (string)($e['t'] ?? '')]   // the board page plays these back one at a time
                 + (isset($e['env']) ? ['env' => (string)$e['env'], 'x' => $e['x'] ?? null, 'y' => $e['y'] ?? null, 'dir' => $e['dir'] ?? null, 'moved' => $e['moved'] ?? null, 'ids' => $e['ids'] ?? null, 'me' => $e['me'] ?? 0, 'foe' => $e['foe'] ?? 0] + (isset($e['kind']) ? ['kind' => (string)$e['kind']] : []) + (isset($e['for']) ? ['for' => (string)$e['for']] : []) + (isset($e['guard']) ? ['guard' => (int)$e['guard']] : []) : [])   // v1 (stage C): a terrain event: where it landed and what it did
-                + (isset($e['note']) ? ['note' => (string)$e['note']] : []) + (!empty($e['used']) ? ['used' => $e['used']] : []) + (!empty($e['tw']) ? ['tw' => $e['tw']] : []) + (!empty($e['sun']) ? ['sun' => 1] : []) + (!empty($e['mud']) ? ['mud' => 1] : []) + (!empty($e['full']) ? ['full' => 1] : []);
+                + (isset($e['note']) ? ['note' => (string)$e['note']] + (isset($e['moved']) ? ['moved' => $e['moved']] : []) : []) + (!empty($e['strike']) ? ['strike' => 1, 'broke' => !empty($e['broke'])] : []) + (!empty($e['used']) ? ['used' => $e['used']] : []) + (!empty($e['tw']) ? ['tw' => $e['tw']] : []) + (!empty($e['sun']) ? ['sun' => 1] : []) + (!empty($e['mud']) ? ['mud' => 1] : []) + (!empty($e['full']) ? ['full' => 1] : []);
         }
     } else return false;
     $exp['hp'] = (int)$s['me']['hp'];
@@ -607,7 +607,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         }
         $h .= ' <span class="pfh-txt">' . e((string)$chip['txt']) . '</span>' . (($chip['tg'] ?? null) !== null ? $who((string)$chip['tg']) : '') . '</li>';
     }
-    if (empty($enc['hist'])) $h .= '<li class="pf-chip empty">' . (!empty($s['start']) ? 'Opening: the blank ✦ is in the middle. The creature picks its side too, hidden.' : e((string)($enc['note'] ?? 'Pieces are on the board. Place one next to them.'))) . '</li>';
+    if (empty($enc['hist'])) $h .= '<li class="pf-chip empty">' . (!empty($s['start']) ? 'Opening: the blank ✦ is ' . (!empty($s['v1']) ? 'on the board' : 'in the middle') . '. The creature picks its side too, hidden.' : e((string)($enc['note'] ?? 'Pieces are on the board. Place one next to them.'))) . '</li>';
     $h .= '</ol><button type="button" class="btn" id="pf-skip" hidden>Skip</button><span class="pfc-piles">' . $mini('deck', 'Puzzle book', (int)$v['piles']['draw']) . $mini('disc', 'Discard', (int)$v['piles']['discard']) . '</span></div>';
     $cim = creature_image((string)($c['slug'] ?? ''), true);
     $foeImg = $cim !== '' ? art_img($cim, 'lg', (string)$c['name']) : creature_icon((string)$c['name'], (string)$c['size']);
@@ -662,6 +662,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     if (isset($v['v1'])) {   // the v1 board rules: ground, forecast, the creature's aim, flip, piece life (pfb_view); the page script for them is stage C
         foreach (['v1', 'round', 'ter', 'envs', 'envlog', 'aim', 'reaim', 'flip'] as $k) $data[$k] = $v[$k];
         $data['yieldw'] = PF_YIELD;   // the word for the creature's bar in a new-rule fight, read by the board script (assets/pfboardv1.js); a flag-off page does not carry it
+        foreach (['kind', 'grudge', 'ven'] as $k) if (isset($v[$k])) $data[$k] = $v[$k];   // 2.6.98 class rules: the rule chip, the Beast's stacks, the venom cells
         foreach (['status', 'wear', 'env'] as $k) if (isset($v[$k])) $data[$k] = $v[$k];   // 2.6.74 deck model: what waits on each side (creature tags), tool wear so far
         foreach ($v['hand'] as $i => $t) $data['hand'][$i] += ['life' => $t['life'], 'src' => $t['src'], 'flip' => $t['flip'], 'canflip' => $t['canflip']];
         // stage C (the v1 page script, assets/pfboardv1.js): the state before the last turn for the replay, the fight tools (durability left before this fight), whose piece is a tool piece, the box link

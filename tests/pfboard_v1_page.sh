@@ -73,12 +73,16 @@ ck "page (2.6.75): the legend row is the environment strip (no terrain legend)" 
 ck "page data: the board size of the creature (small: 4x4 since 2.6.94, every size is 4x4)" "$(encq '$s["size"] . " " . $s["w"] . "x" . $s["h"]')" "small 4x4"; ck "page data carries that size" "$(grep -c '"w":4,"h":4' $H)" "1"
 ck "page data: hand pieces carry life, source, flip" "$(grep -c '"life":[234],"src":"[a-z]*","flip":false,"canflip":true' $H | awk '{print ($1>=1)?"yes":"no"}')" "yes"
 ck "no draw pile or seed in the page" "$(grep -c '"rng"\|"draw"' $H)" "0"
-ck "opening: start piece next to the blank (centre 2,2)" "$(pf pfb_play -d moves='0,1,2')" "302"
+BL=$(encq '$s["pcs"][1]["x"] . "," . $s["pcs"][1]["y"]'); BX=${BL%,*}; BY=${BL#*,}
+ck "the blank starts on an inner cell (2.6.981), not only the centre" "$(( BX >= 1 && BX <= 2 && BY >= 1 && BY <= 2 ))" "1"
+ck "opening: start piece next to the blank wherever it stands (blank $BL, 2.6.983)" "$(pf pfb_play -d moves="0,$((BX-1)),$BY")" "302"
 ck "the fight started" "$(encq 'empty($s["start"]) ? "started" : "opening"')" "started"
 get adventure.php >/dev/null; ck "the creature's aim is in the page" "$(grep -c '"aim":{"k":"f:' $H)" "1"
 ck "T12 the aim carries its total (hp, guard eaten, bait, heal, pieces, why)" "$(grep -c '"aim":{"k":"f:[^}]*"tot":{"hp":[0-9]*,"g":[0-9]*,"bait":[0-9.]*,"heal":[0-9]*,"n":[0-9]*,"why":\[' $H)" "1"
 ck "T16 the board script knows the strike: aim chip text, red mark, crack in the replay, help text" "$(cd "$HERE/../game/assets" && echo $(grep -c 'will strike your' pfboardv1.js)$(grep -c 'pfv-struck' pfboardv1.js)$(grep -c 'aim.strike' pfv1.css))" "112"
 ck "T21 the board script knows the class rules: rule chip, second aim, next piece, venom cells" "$(cd "$HERE/../game/assets" && echo $(grep -c 'kindChip' pfboardv1.js)$(grep -c 'mk venom' pfboardv1.js)$(grep -c 'aimExtra' pfboardv1.js)$(grep -c 'tg.kind' pfv1.css))" "2131"
+ck "T21 the page data carries the class rule (kind, grudge, venom cells): the chip and the venom marks read them" "$(grep -c '"kind":"[a-z]*","grudge":[0-9]*,"ven":\[' $H)" "1"
+ck "2.6.985 a Plant's Bramble and a Water push wait for their replay step (hidden / moved back until then)" "$(cd "$HERE/../game/assets" && echo $(grep -c "note === .grows. && ev.id) hiddenIds" pfboardv1.js)$(grep -c "note === .current. && ev.moved" pfboardv1.js))" "12"
 MV=$(php "$HERE/pfboard_move.php" "$GAME" 2>&1 | tail -1)
 case "$MV" in [0-9]*,*) ENVP=$(enc); pf pfb_preview -d moves="$MV" >/dev/null; ck "T12 the preview answer holds the aim as it would stand (a total or 'broken')" "$(grep -c '"ok":true.*"aim":{' $H)" "1"; ck "T12 the preview changed nothing" "$(enc)" "$ENVP";; *) echo "skip preview (no placement: $MV)";; esac
 echo "== flip"

@@ -1,6 +1,7 @@
   // ================= v1 (2.6.74 stage C): state, texts and drawing helpers. Ported from the approved demo (tools/pfdemo_v1/app.js); the texts mirror claude/design-board-strategy.md, "Player-facing terrain text".
   var V1 = data.v1 || {}, PREV = data.prev || null, phase = 'now', terOver = {}, movedBack = {}, usedGone = {}, leavingUsed = {}, flashEnv = null, flashIds = {}, aimHide = false, stepNow = 0, stepNote = '', aimLive = null;
   var ENV = !!V1.env, ENVD = data.env || { next: [] }, envLit = {}, slideIds = {}, fadeIds = {}, fxPop = null, stripRem = [], stripNew = false, stripBad = false, lastLegend = '';
+  if (willReplay) (data.gone || []).forEach(function (g) { if (g.fnew) hiddenIds[g.id] = true; });   // 2.6.986: a creature piece put down AND used up this turn shows at its own step, not from the first frame
   // T12 (2.6.95): the week-1 rules as the view resolved them (a fight under way keeps its own: 2.6.94 fights carry set-aside, must-link, the pass button, the once-a-turn flip, Teamwork, Wind and Mud)
   var MUSTL = V1.must === undefined || !!V1.must, ASIDE = V1.aside === undefined || !!V1.aside, FREEP = !!V1.freepass, FLIP1 = V1.flip1 === undefined || !!V1.flip1, TEAM = (V1.team2 || 1) > 1, ONE = !!V1.onebar, AIMT = !!V1.aimtot, NOWM = !!V1.nowm;
   var YIELD = data.yieldw || 'Yield';   // the creature's bar in a new-rule fight (PF_YIELD in pfboard.php sends it); a 2.6.94 fight keeps its health and charm bars
@@ -383,7 +384,7 @@
     sheetEl.innerHTML = '<button type="button" class="pfv-sheetbg" data-x="1" aria-label="Close"></button><div class="pfv-sheet" role="dialog" aria-label="How the board works"><div class="pfv-sheet-in">'
       + '<div class="hrow"><h2>How the board works</h2><button type="button" class="btn small" data-x="1">Done</button></div>'
       + '<div class="sl">The round</div><ul class="helpl">' + row(ENV ? envTurnText() : turnText())
-      + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again. If its piece is a Hurt and you take the cell with one of YOUR pieces, it strikes that piece instead: the piece breaks (a Guard at least as strong holds) and you take no damage.' + (AIMT ? ' The chip says what it would do now; tap it for the reasons. ' + RINGHELP + '.' : '')], who: '' })
+      + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again.' + (V1.aimhit ? ' If its piece is a Hurt and you take the cell with one of YOUR pieces, it strikes that piece instead: the piece breaks (a Guard at least as strong holds) and you take no damage.' : '') + (AIMT ? ' The chip says what it would do now; tap it for the reasons. ' + RINGHELP + '.' : '')], who: '' })
       + (ONE ? row({ n: 'The ' + YIELD + ' bar', g: 'gust', l: ['One bar, two ways to win. Hurt pieces fill it, Charm pieces fill it. When it is full the creature yields: with more charm than hurt you win it over, otherwise it backs off. A great creature cannot be charmed.'], who: '' }) : '')
       + row({ n: 'Chains', g: 'gust', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + (TEAM ? ' Pal, tool and crop pieces in one chain: 2 kinds +' + Math.round((V1.team2 - 1) * 100) + '%, all 3 +' + Math.round(((V1.team3 || V1.team2) - 1) * 100) + '%.' : ''), 'A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it.', 'If its aim fires one of your pieces, your piece works for you.'], who: '' })
       + row({ n: 'Guard', g: 'gust', l: ['Your guard blocks the creature’s hits. It fades when your turn starts, unless Hold keeps it (what is left of a Hold guard stays up once).'], who: '' })
@@ -417,10 +418,12 @@
     var pushes = {};
     (data.replay || []).forEach(function (ev) {
       if (ev.env === 'place' && ev.id) hiddenIds[ev.id] = true;
+      if (ev.note === 'grows' && ev.id) hiddenIds[ev.id] = true;   // 2.6.985: a Plant's Bramble appears at its own step, not while your turn resolves
       if (ev.env === 'fire' && ev.kind === 'wind' && ev.moved && ev.moved.id !== undefined && ev.dir && DXY[ev.dir]) { var d = DXY[ev.dir]; (pushes[ev.moved.id] = pushes[ev.moved.id] || []).push({ x: ev.moved.x - d[0], y: ev.moved.y - d[1] }); }
     });
     movedBack = {}; envPush = {};
     Object.keys(pushes).forEach(function (id) { movedBack[id] = pushes[id][0]; envPush[id] = pushes[id].slice(1); });
+    (data.replay || []).forEach(function (ev) { if (ev.note === 'current' && ev.moved && ev.moved.id !== undefined && typeof ev.moved.fx === 'number') movedBack[ev.moved.id] = { x: ev.moved.fx, y: ev.moved.fy }; });   // 2.6.985: a Water current pushes your piece at its own step, not before
   }
   function replayDone() { banMs = 1450; if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
     fxPop = null; fadeIds = {}; slideIds = {}; phase = 'now'; terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = ''; }
@@ -445,6 +448,8 @@
       flashIds[ev.id] = 1; fxPop = { id: ev.id, t: K.n, kind: ev.kind };
     } else if (ev.env === 'pass') { stripBad = true; }
     else if (ev.env === 'expire') { (ev.ids || []).forEach(function (id) { fadeIds[id] = 1; }); }
+    else if (ev.note === 'current' && ev.moved && ev.moved.id !== undefined) { delete movedBack[ev.moved.id]; flashIds[ev.moved.id] = 1; }   // 2.6.985
+    else if (ev.note === 'grows' && ev.id) { flashIds[ev.id] = 1; fxPop = { id: ev.id, t: 'Bramble', kind: 'bramble' }; }
     render(); drawLegend();
   }
   function envStep(ev) {

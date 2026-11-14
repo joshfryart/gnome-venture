@@ -68,7 +68,7 @@ const PFB_V1_LEVEL = ['small' => [0.0, 1, 1.0, 1.0], 'medium' => [0.05, 12, 0.85
  *  redraw = the hand is redrawn each round, onebar = one shared bar, aimtot = the aim shows its total, keepmine = your pieces survive use-up, aimhit = the aimed cell can be struck,
  *  useroot, kinds = class rules (later tasks). A NEW fight takes its defaults from pfb_v1_cfg (each task flips its own default); an old state falls back to this. */
 const PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health (rules.md: large 7.7 against 7.8 turns)
-const PFB_V1_PRE = ['aside' => 1, 'must' => 1, 'freepass' => 0, 'flip1' => 1, 'nowm' => 0, 'redraw' => 0, 'onebar' => 0, 'aimtot' => 0, 'keepmine' => 0, 'aimhit' => 0, 'useroot' => 0, 'kinds' => 0];
+const PFB_V1_PRE = ['aside' => 1, 'must' => 1, 'freepass' => 0, 'flip1' => 1, 'nowm' => 0, 'redraw' => 0, 'onebar' => 0, 'aimtot' => 0, 'keepmine' => 0, 'aimhit' => 0, 'useroot' => 0, 'kinds' => 0, 'blankrand' => 0];
 /** 2.6.98 class rules (switch kinds): one readable rule per creature class. Swarm: Critter plays 2 pieces a turn at x0.6. Grudge: Beast Hurt +25% per block (max 3). Venom: Reptile leaves venom 2 rounds, poison 2 x 2. */
 const PFB_KIND_SWARM = 0.6, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;
 /** The class rule a creature plays by: critter | bird | beast | water | plant | reptile, or boss (a boss plays the boss rule whatever its class); '' = none. */
@@ -126,7 +126,7 @@ function pfb_v1_cfg(string $size, array $over = [], int $level = 0): array
     $cfg = ['w' => $dims[0], 'h' => $dims[1], 'ground' => 0, 'nsun' => $g[0], 'nbr' => $g[1], 'nmud' => $g[2], 'sun' => PFB_SUN_MULT, 'bramble' => PFB_BRAMBLE, 'br_foe' => PFB_BRAMBLE_FOE,
         'events' => 0, 'nev' => PFB_EVENTS[$size], 'thorn' => PFB_THORN, 'ev_foe' => PFB_EVENT_FOE, 'limit' => PFB_USEUP, 'aim' => 1, 'team2' => 1.0, 'team3' => 1.0,   // 2.6.95: Teamwork off (2.6.94 fights carry 1.3 / 1.6 in their saved cfg)
         'edges' => 1, 'flip' => 1, 'life' => 0, 'tags' => 1, 'foe' => PFB_V1_FOE_MULT[$size], 'bar' => PFB_V1_BAR_MULT[$size],
-        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 1, 'aside' => 0, 'must' => 0, 'freepass' => 1, 'flip1' => 0, 'onebar' => 1, 'redraw' => 1, 'aimtot' => 1, 'aimhit' => 1, 'kinds' => 1] + PFB_V1_PRE;   // aimhit 1 (2.6.98, T15 bake-off: keepmine / useroot stay off, see CHANGELOG)   // nowm 1 (2.6.95): no Wind or Mud in the deck; aside 0, must 0, freepass 1 (2.6.95): no set-aside, a piece need not link (you), passing is free; flip1 0 (2.6.95): flip any piece, any number of times; onebar 1 (2.6.95): one shared bar, Hurt + Charm; redraw 1 (2.6.95): the whole hand is redrawn each round; aimtot 1 (2.6.95): the aim carries its total   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
+        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 1, 'aside' => 0, 'must' => 0, 'freepass' => 1, 'flip1' => 0, 'onebar' => 1, 'redraw' => 1, 'aimtot' => 1, 'aimhit' => 0, 'kinds' => 1, 'blankrand' => 1] + PFB_V1_PRE;   // aimhit 0 (2.6.984, owner: a piece on its planned spot must not be removed: it picks somewhere else)   // aimhit 1 (2.6.98, T15 bake-off: keepmine / useroot stay off, see CHANGELOG)   // nowm 1 (2.6.95): no Wind or Mud in the deck; aside 0, must 0, freepass 1 (2.6.95): no set-aside, a piece need not link (you), passing is free; flip1 0 (2.6.95): flip any piece, any number of times; onebar 1 (2.6.95): one shared bar, Hurt + Charm; redraw 1 (2.6.95): the whole hand is redrawn each round; aimtot 1 (2.6.95): the aim carries its total   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
     foreach ($over as $k => $v) if (array_key_exists($k, $cfg) && is_numeric($v)) $cfg[$k] = is_int($cfg[$k]) ? (int)$v : (float)$v;
     if (isset($over['foe_x'])) $cfg['foe'] = round($cfg['foe'] * (float)$over['foe_x'], 4);
     if (isset($over['bar_x'])) $cfg['bar'] = round($cfg['bar'] * (float)$over['bar_x'], 4);
@@ -711,6 +711,7 @@ function pfb_gone_entry(array $s, array $p, bool $fell): array
     $e = ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'tile' => $p['tile'], 'age' => $s['round'] - 1 - $p['born']];
     if ($fell) $e['fell'] = true;
     if (isset($p['used'])) $e['used'] = $p['used'];   // v1: used up by a chain of 3+ (whose chain it was)
+    if (!empty($s['v1']) && $p['by'] === 'foe' && in_array($p['id'], $s['lastfoe'] ?? [], true)) $e['fnew'] = true;   // 2.6.986: the creature put it down this turn: the replay shows it at its own step, not from the first frame
     return $e;
 }
 
@@ -1027,7 +1028,7 @@ function pfb_note(string $kind, string $n = ''): array
  */
 function pfb_strike(array &$s, int $hi, int $cid): array
 {
-    $ft = $s['foe']['hand'][$hi]; array_splice($s['foe']['hand'], $hi, 1); $s['foe']['discard'][] = $ft;
+    $ft = $s['foe']['hand'][$hi]; array_splice($s['foe']['hand'], $hi, 1); $s['foe']['discard'][] = $ft; $s['nospawn'] = 1;
     $p = $s['pcs'][$cid]; $hit = (int)$ft['v']; $g = ($p['tile']['t'] ?? '') === 'guard' ? (int)$p['tile']['v'] : 0; $broke = $g < $hit;
     if ($broke) { pfb_discard($s, $p); $p['used'] = 'foe'; $s['spent'][] = $p; unset($s['cell'][$p['x'] . ',' . $p['y']], $s['pcs'][$cid]); }
     return ['by' => 'foe', 'strike' => true, 'id' => $cid, 'broke' => $broke, 'guard' => $g, 'x' => (int)$p['x'], 'y' => (int)$p['y'], 'k' => $ft['k'], 'n' => $ft['n'], 't' => 'hurt', 'tag' => '', 'v' => $hit, 'hit' => $hit, 'mine' => (string)($p['tile']['n'] ?? ''), 'fit' => false, 'combo' => null];
@@ -1133,6 +1134,7 @@ function pfb_new(array $me, array $c, int $seed, array $opt = []): array
     }
     if (!empty($opt['blank'])) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see pfb_start)
         $s['pid'] = 1; $s['seq'] = 1; $cx = intdiv(pfb_w($s), 2); $cy = intdiv(pfb_h($s), 2);
+        if (pfb_v1r($s, 'blankrand') === 1) { $iw = max(1, pfb_w($s) - 2); $ih = max(1, pfb_h($s) - 2); $k = pf_rand($s, $iw * $ih); $cx = 1 + $k % $iw; $cy = 1 + intdiv($k, $iw); }   // 2.6.98: the inert Blank starts on a random inner cell (all four sides on the board)
         $s['pcs'][1] = ['id' => 1, 'by' => 'none', 'tile' => ['k' => 'blank', 'n' => 'Blank', 't' => 'blank', 'v' => 0, 'tag' => '', 'r' => null], 'x' => $cx, 'y' => $cy, 'born' => 1, 'seq' => 1];
         $s['cell']["$cx,$cy"] = 1; $s['start'] = true;
         pf_draw($s, 'foe', $s['foe']['hsize']); pfb_intent($s);
@@ -1155,6 +1157,14 @@ function pfb_new(array $me, array $c, int $seed, array $opt = []): array
     return $s;
 }
 
+/** The side of the Blank a clicked cell is on ('L', 'R', 'T', 'B'), or null when it is not next to it. The Blank is where the state says it is (2.6.981: not always the centre). */
+function pfb_start_side(array $s, int $x, int $y): ?string
+{
+    $cx = (int)($s['pcs'][1]['x'] ?? intdiv(pfb_w($s), 2)); $cy = (int)($s['pcs'][1]['y'] ?? intdiv(pfb_h($s), 2)); $dx = $x - $cx; $dy = $y - $cy;
+    if (abs($dx) + abs($dy) !== 1) return null;
+    return $dx < 0 ? 'L' : ($dx > 0 ? 'R' : ($dy < 0 ? 'T' : 'B'));
+}
+
 /**
  * Blank-centre variant: the hidden start. You pick a hand piece and a side of the blank (L, R, T, B). The creature picked its piece and side already, without seeing yours
  * (its gentlest non-Hurt piece, a side by the seeded roll); if you chose the same side, yours stays and its piece takes the next free side. Nothing fires. A boss puts out two.
@@ -1165,7 +1175,7 @@ function pfb_start(array &$s, int $handIdx, string $side): ?string
     if (empty($s['start'])) return 'The fight has already started.';
     if (!isset(PFB_SIDE[$side])) return 'Pick a side: L, R, T or B.';
     $tile = $s['me']['hand'][$handIdx] ?? null; if (!$tile) return 'No such piece in your hand.';
-    $cx = intdiv(pfb_w($s), 2); $cy = intdiv(pfb_h($s), 2);
+    $cx = (int)($s['pcs'][1]['x'] ?? intdiv(pfb_w($s), 2)); $cy = (int)($s['pcs'][1]['y'] ?? intdiv(pfb_h($s), 2));   // where the Blank is (2.6.98: not always the centre)
     $sides = array_keys(PFB_SIDE); $fs = $sides[pf_rand($s, 4)];   // the creature's choice is rolled before yours is looked at
     $put = function (string $who, int $idx, string $sd) use (&$s, $cx, $cy): void {
         [$dx, $dy] = PFB_SIDE[$sd]; $x = $cx + $dx; $y = $cy + $dy; $tile = $s[$who]['hand'][$idx];
@@ -1253,7 +1263,9 @@ function pfb_aim_total(array $s): ?array
     if ($quick) $why[] = 'Quick: plays again';
     if ($mud) $why[] = 'Mud -' . (int)round(100 * (float)($s['v1']['mud'] ?? 0)) . '%';
     if (!empty($usedAlt)) array_unshift($why, 'its second aim');
-    return ['hp' => $hp0 - (int)$w['me']['hp'], 'g' => $g, 'bait' => round($bait, 1), 'heal' => $heal, 'n' => $n, 'why' => $why, 'ids' => $ids];
+    $hpTot = $hp0 - (int)$w['me']['hp'];
+    if ($quick || pfb_kind($s) === 'critter') { $w3 = $s; $h3 = (int)$w3['me']['hp']; pfb_foe_turn($w3, 0); $more = $h3 - (int)$w3['me']['hp']; if ($more !== $hpTot) { $hpTot = $more; $why[] = $quick ? 'Quick: its second piece is in the number' : 'Swarm: its second piece is in the number'; } }   // 2.6.986: the whole turn, not just the first piece
+    return ['hp' => $hpTot, 'g' => $g, 'bait' => round($bait, 1), 'heal' => $heal, 'n' => $n, 'why' => $why, 'ids' => $ids];
 }
 
 /**
@@ -1398,7 +1410,7 @@ function pfb_end_round(array &$s): void
     if (pfb_v1r($s, 'redraw')) { foreach ($s['me']['hand'] as $ht) { unset($ht['flip'], $ht['ft']); $s['me']['discard'][] = $ht; } $s['me']['hand'] = []; pf_draw($s, 'me', PF_HAND_CAP - $slow); }   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
     else pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + PF_DRAW - $slow));
     $s['gone'] = array_merge(array_map(fn($p) => pfb_gone_entry($s, $p, true), $s['spent'] ?? []), array_map(fn($p) => pfb_gone_entry($s, $p, false), $gone));   // for the replay: they are shown until everything has scored, then they go
-    $s['spawn'] = pfb_spawn($s);
+    $s['spawn'] = !empty($s['nospawn']) ? null : pfb_spawn($s); unset($s['nospawn']);   // 2.6.99: a strike spent the creature's turn: no free piece pops in before yours
     if ($s['turn'] > PF_TURN_CAP) { $s['over'] = $s['boss'] ? 'defeat' : 'stall'; return; }
     pfb_intent($s);
 }
@@ -1449,7 +1461,7 @@ function pfb_view(array $s): array
         $v['envs'] = array_map(fn($e) => $e + ['n' => PFB_EVENT_NAME[$e['kind']], 'on' => ($q = pfb_at($s, $e['x'], $e['y'])) && $q['by'] !== 'none' ? ['id' => $q['id'], 'by' => $q['by'], 'n' => $q['tile']['n']] : null], $s['envs'] ?? []);   // the forecast: lands after the creature's move
         $v['envlog'] = $s['envlog'] ?? [];   // what the last terrain turn did
         if (!empty($c['env'])) {   // 2.6.75: the environment's deck: its next pieces (face up a round ahead, a list; empty = all on the board), how many wait in its deck ('deck') and in its discard ('used'; shuffled back in when the deck is empty), how many it places a round
-            $v['env'] = ['next' => array_map(fn($nx) => ['k' => $nx['k'], 'n' => $nx['n'], 'kind' => $nx['env'], 'life' => (int)$nx['life'], 'e' => pfb_edges($nx)], $s['env']['next']), 'deck' => count($s['env']['draw']), 'used' => count($s['env']['discard']), 'n' => (int)$c['envn']];   // next: a LIST, in the order they will be placed
+            $v['env'] = ['next' => array_map(fn($nx) => ['k' => $nx['k'], 'n' => $nx['n'], 'kind' => $nx['env'], 'life' => !empty($s['v1']['life']) ? (int)$nx['life'] : PFB_LIFE, 'e' => pfb_edges($nx)], $s['env']['next']), 'deck' => count($s['env']['draw']), 'used' => count($s['env']['discard']), 'n' => (int)$c['envn']];   // next: a LIST, in the order they will be placed
         }
         $v['aim'] = $s['foe']['plan'] ?? null;   // the creature's next piece and cell (null: it shows none, or it is tripped)
         if (pfb_kind($s) !== '') { $v['kind'] = pfb_kind($s); $v['grudge'] = (int)($s['foe']['grudge'] ?? 0); $v['ven'] = array_map(fn($k, $r) => ['x' => (int)explode(',', $k)[0], 'y' => (int)explode(',', $k)[1], 'r' => $r - 1], array_keys($s['ven'] ?? []), array_values($s['ven'] ?? [])); }   // 2.6.98 class rules

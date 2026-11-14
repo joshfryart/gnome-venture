@@ -6,7 +6,7 @@
 echo "== 17. a board that lasts (keepmine, useroot, aimhit)\n";
 $swing17 = $swing;   // the row of section 4: charm -> Swing -> charm links
 $row17 = function (array $over = []) use ($swing17) { $s = v1_bare('medium', $over); $a = v1_put($s, 'me', v1_tile($s, 'c1', 'charm', 3, 'body'), 1, 2); $b = v1_put($s, 'foe', v1_tile($s, 'f:c2', 'charm', 3, 'craft', 'creature'), 3, 2); return [$s, $a, $b]; };
-chk('T15: in a new fight aimhit is ON, keepmine and useroot are OFF', array_intersect_key(v1_bare()['v1'], ['keepmine' => 1, 'aimhit' => 1, 'useroot' => 1]) == ['keepmine' => 0, 'aimhit' => 1, 'useroot' => 0]);
+chk('2.6.984: in a new fight aimhit, keepmine and useroot are all OFF (a piece on its planned spot makes it pick again)', array_intersect_key(v1_bare()['v1'], ['keepmine' => 1, 'aimhit' => 1, 'useroot' => 1]) == ['keepmine' => 0, 'aimhit' => 0, 'useroot' => 0]);
 
 // ---- keepmine
 [$s, $a, $b] = $row17(['keepmine' => 1]); $ev = v1_place($s, 'me', $swing17, 2, 2);
@@ -53,3 +53,25 @@ chk('aim total: a Guard 7 holds (broke false, guard 7)', ($tot['strike']['broke'
 chk('aim total, aimhit 0: still broken by the cell', ($tot['broken'] ?? '') === 'cell' && !isset($tot['strike']), $tot);
 [$s, $mine] = $aim17(['aimhit' => 1, 'aimtot' => 1], 'hurt', 5, 'charm', 4); $tot = pfb_aim_total($s);
 chk('aim total: a Charm aim on your piece is still broken by the cell', ($tot['broken'] ?? '') === 'cell', $tot);
+
+// ---- blankrand (2.6.98+): the inert Blank starts on a random inner cell, not always the centre
+$cellsB = []; $okB = true;
+for ($sd = 1; $sd <= 60; $sd++) { $s = pfb_new(v1_me(), v1_foe('medium'), $sd, ['v1' => true, 'blank' => true]); $b = $s['pcs'][1] ?? null; if (!$b || $b['by'] !== 'none' || $b['x'] < 1 || $b['y'] < 1 || $b['x'] > pfb_w($s) - 2 || $b['y'] > pfb_h($s) - 2 || ($s['cell'][$b['x'] . ',' . $b['y']] ?? 0) !== 1) $okB = false; if ($b) $cellsB[$b['x'] . ',' . $b['y']] = 1; }
+chk('blankrand: the Blank sits on an inner cell (all four sides on the board) and the cell map agrees; over 60 seeds it lands on every inner cell', $okB && count($cellsB) === (pfb_w($s) - 2) * (pfb_h($s) - 2), array_keys($cellsB));
+$s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true, 'blank' => true]); $bx = $s['pcs'][1]['x']; $by = $s['pcs'][1]['y']; $e = pfb_start($s, 0, 'L');
+chk('blankrand: both start pieces go next to the Blank wherever it is', $e === null && count(array_filter($s['pcs'], fn($p) => $p['by'] !== 'none' && abs($p['x'] - $bx) + abs($p['y'] - $by) === 1)) === 2, array_map(fn($p) => [$p['by'], $p['x'], $p['y']], $s['pcs']));
+$s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['blankrand' => 0], 'blank' => true]);
+chk('blankrand 0 (and a fight saved before it): the Blank is in the centre', $s['pcs'][1]['x'] === intdiv(pfb_w($s), 2) && $s['pcs'][1]['y'] === intdiv(pfb_h($s), 2));
+$s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['blankrand' => 1], 'blank' => true]); unset($s['v1']['blankrand']); chk('a state without the key reads as 0 (PRE)', pfb_v1r($s, 'blankrand') === 0);
+
+// ---- no free piece after a strike (2.6.99): the creature spent its turn, nothing pops in before yours
+[$s, $mine] = $aim17(['aimhit' => 1], 'hurt', 5); $s['foe']['draw'] = [['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, 'f:x', 'charm', 2, 'body', 'creature'), ['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, 'f:y', 'charm', 2, 'mind', 'creature')]; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []];
+pfb_foe_turn($s, 0); $n0 = count($s['pcs']); pfb_end_round($s);
+chk('after a strike the board puts out no free piece (spawn null, nothing new on the board)', array_key_exists('spawn', $s) && $s['spawn'] === null && !array_filter($s['pcs'], fn($p) => $p['by'] === 'foe'), [$s['spawn'] ?? 'unset', array_map(fn($p) => $p['by'], $s['pcs'])]);
+[$s, $mine] = $aim17(['aimhit' => 0], 'hurt', 5); $s['foe']['plan'] = null; $s['foe']['draw'] = [['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, 'f:x', 'charm', 2, 'body', 'creature'), ['ed' => array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null])] + v1_tile($s, 'f:y', 'charm', 2, 'mind', 'creature')]; $s['foe']['hand'] = []; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []]; pfb_end_round($s);
+chk('with no strike the free piece still comes (spawn set)', ($s['spawn'] ?? null) !== null, $s['spawn'] ?? null);
+
+// ---- the opening side is read from where the Blank really is (2.6.983): a click next to it is a side, wherever it stands
+$s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true, 'blank' => true]); $bx = $s['pcs'][1]['x']; $by = $s['pcs'][1]['y'];
+chk('start side: the four cells next to the Blank read L, R, T, B', [pfb_start_side($s, $bx - 1, $by), pfb_start_side($s, $bx + 1, $by), pfb_start_side($s, $bx, $by - 1), pfb_start_side($s, $bx, $by + 1)] === ['L', 'R', 'T', 'B'], [$bx, $by]);
+chk('start side: a cell that is not next to the Blank reads null', pfb_start_side($s, $bx + 1, $by + 1) === null && pfb_start_side($s, $bx, $by) === null);

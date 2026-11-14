@@ -82,7 +82,7 @@ $tsz = $GLOBALS['PFB_TEST_SIZES']; unset($GLOBALS['PFB_TEST_SIZES']);   // this 
 chk('every creature size has a 4 x 4 board', array_values(array_unique(array_map(fn($d) => $d[0] . 'x' . $d[1], PFB_SIZE))) === ['4x4']);
 foreach (PFB_SIZE as $size => [$w, $h]) {
     $s = pfb_new(v1_me(), v1_foe($size), 9, ['v1' => true, 'blank' => true]); $bl = $s['pcs'][1];
-    chk("$size: board {$w}x{$h}, the blank in the centre, the view says so", $s['w'] === $w && $s['h'] === $h && $bl['x'] === intdiv($w, 2) && $bl['y'] === intdiv($h, 2) && pfb_view($s)['w'] === $w && pfb_view($s)['h'] === $h, [$s['w'], $s['h'], $bl['x'], $bl['y']]);
+    chk("$size: board {$w}x{$h}, the blank on an inner cell (blankrand), the view says so", $s['w'] === $w && $s['h'] === $h && $bl['x'] >= 1 && $bl['x'] <= $w - 2 && $bl['y'] >= 1 && $bl['y'] <= $h - 2 && pfb_view($s)['w'] === $w && pfb_view($s)['h'] === $h, [$s['w'], $s['h'], $bl['x'], $bl['y']]);
     pfb_start($s, 0, 'R'); $t = $s['me']['hand'][0];
     chk("$size: no cell outside the board is legal", pfb_check($s, $t, $w, 0) === null && pfb_check($s, $t, 0, $h) === null && !array_filter(pfb_cells($s, $t), fn($c) => $c[0] >= $w || $c[1] >= $h));
 }
@@ -454,11 +454,11 @@ $s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]);
 foreach (array_keys(PFB_V1_PRE) as $k) unset($s['v1'][$k]);
 $s = json_decode(json_encode($s), true);
 $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($s, $k) !== $d) $bad16[] = $k;
-chk('a 2.6.94 state with none of the new keys resolves every key to PRE', !$bad16 && count(PFB_V1_PRE) === 12, $bad16);
+chk('a 2.6.94 state with none of the new keys resolves every key to PRE', !$bad16 && count(PFB_V1_PRE) === 13, $bad16);
 $v = pfb_view($s)['v1']; $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (!array_key_exists($k, $v) || (int)$v[$k] !== $d) $bad16[] = $k;
 chk('its view emits every key resolved to PRE', !$bad16, $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($n, $k) !== $d) $bad16[] = $k;
-chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95; aimhit, kinds: 2.6.98)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot', 'aimhit', 'kinds']), $bad16);
+chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95; aimhit, kinds: 2.6.98)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot', 'kinds', 'blankrand']), $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['onebar' => 1, 'redraw' => 1]]);
 chk('an override switches a key on', pfb_v1r($n, 'onebar') === 1 && pfb_v1r($n, 'redraw') === 1 && pfb_v1r($n, 'keepmine') === 0);
 chk('pfb_v1r on a fight without v1 rules is the PRE value too', pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5), 'aside') === 1);

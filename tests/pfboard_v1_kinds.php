@@ -89,3 +89,23 @@ chk('kinds 0: venom on the cell does nothing', (int)$s['me']['poison'] === 0);
 // ---- views and notes
 $s = $k19('Bird'); $v = pfb_view($s, 'x'); chk('view: kind, grudge and venom cells for the page', ($v['kind'] ?? '') === 'bird' && array_key_exists('grudge', $v) && ($v['ven'] ?? null) === [], array_keys($v));
 $e = pfb_note('current', 'Swing'); chk('lines: the three new notes read, none falls to "Tripped"', str_contains(pfight_line($e, 'Owl'), 'current') && str_contains(pfight_line(pfb_note('grows'), 'Owl'), 'Bramble') && str_contains(pfight_line(pfb_note('venom', 'Swing'), 'Owl'), 'Venom'));
+
+// ---- a piece the creature put down this turn and used up in the same turn must not show before its step (2.6.986)
+$s = $k19('Critter'); $s['lastfoe'] = [7, 8]; $pp = fn($id) => ['id' => $id, 'by' => 'foe', 'x' => 1, 'y' => 1, 'tile' => v1_tile($s, 'f:z', 'charm', 2, 'body', 'creature'), 'born' => $s['round']];
+chk('gone entry: a creature piece put down this turn is marked fnew (the page keeps it hidden until its step)', !empty(pfb_gone_entry($s, $pp(7), true)['fnew']) && !empty(pfb_gone_entry($s, $pp(8), true)['fnew']) && empty(pfb_gone_entry($s, $pp(9), true)['fnew']) && empty(pfb_gone_entry($s, ['by' => 'me'] + $pp(7), true)['fnew']));
+// a whole Swarm turn: every foe piece that is gone at the end of the turn but was placed in it carries fnew
+$ok = true; $seen = 0;
+for ($sd = 1; $sd <= 30; $sd++) { $s = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Critter'], $sd, ['v1' => true]); for ($t = 0; $t < 4 && !$s['over']; $t++) { $m = pfb_search($s, 'me'); $r = $m ? pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']) : pfb_pass($s, $s['turn']); foreach ($s['gone'] ?? [] as $g) if ($g['by'] === 'foe' && in_array($g['id'], $s['lastfoe'] ?? [], true)) { $seen++; if (empty($g['fnew'])) $ok = false; } } }
+chk('Swarm fights: every gone piece the creature placed this turn carries fnew (' . $seen . ' seen)', $ok && $seen > 0, $seen);
+
+// ---- the aim total covers the WHOLE creature turn (2.6.986): a Swarm's second piece and a Quick piece are in the number
+$bad = 0; $n = 0; $bads = [];
+foreach (['Critter', 'Bird', 'Beast'] as $cl) for ($sd = 1; $sd <= 25; $sd++) {
+    $s = pfb_new(v1_me(), v1_foe('medium') + ['class' => $cl], $sd, ['v1' => true]);
+    for ($t = 0; $t < 5 && !$s['over']; $t++) {
+        $m = pfb_search($s, 'me'); if ($m) pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']); else pfb_pass($s, $s['turn']); if ($s['over']) break;
+        $tot = $s['foe']['plan']['tot'] ?? null; if (!$tot || isset($tot['broken'])) continue;
+        $w = $s; $hp0 = $w['me']['hp']; pfb_foe_turn($w, 0); $n++; if ($hp0 - $w['me']['hp'] !== $tot['hp']) { $bad++; $bads[$cl] = ($bads[$cl] ?? 0) + 1; }
+    }
+}
+chk('aim total: the health shown equals what the whole creature turn takes (Swarm and Quick pieces included): ' . $n . ' aims', $n > 100 && $bad === 0, [$bad, $bads]);

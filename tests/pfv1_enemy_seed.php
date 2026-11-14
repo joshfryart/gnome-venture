@@ -31,7 +31,8 @@ $hit = function (array $s, int $i, int $x, int $y) use ($case): ?string {
     $quick = array_filter($foe, fn($e) => ($e['note'] ?? '') === 'quick');
     $pass = array_filter($w['envlog'] ?? [], fn($L) => $L['k'] === 'pass' && isset($L['kind']));
     if ($case === 'spawn' && !empty($w['spawn']) && !$w['reaim'] && !$quick) return 'the board puts out ' . $w['pcs'][$w['spawn']]['tile']['n'];
-    if ($case === 'envfire' && $envf && !$w['reaim'] && !$quick && count($roots) === 1) return 'its chain fires ' . implode(', ', array_map(fn($e) => $e['n'], $envf));
+    $fit = false; $pl = $s['foe']['plan'] ?? null; if ($pl) foreach ($s['me']['hand'] as $ht) foreach (pfb_cells($s, $ht, 'me') as [$cx, $cy]) if ($cx === $pl['x'] && $cy === $pl['y'] && !$fit) { $hi2 = array_search($ht, $s['me']['hand'], true); $w2 = $s; $d2 = pfb_play($w2, [[$hi2, $cx, $cy]], $s['turn'], null, true, true); if (($d2['aim']['broken'] ?? '') === 'cell') $fit = true; }   // and that piece stays on the cell (not used up), so the aim reads broken   // 2.6.99: the rings test also takes the aimed cell, so a piece of yours must fit it
+    if ($case === 'envfire' && $envf && !$w['reaim'] && !$quick && count($roots) === 1 && $fit) return 'its chain fires ' . implode(', ', array_map(fn($e) => $e['n'], $envf));
     if ($case === 'quick' && $quick && count($roots) === 2 && !$w['reaim']) return 'quick: ' . $roots[0]['n'] . ' then ' . $roots[1]['n'];
     if ($case === 'repick' && $w['reaim'] && $roots && ($s['foe']['plan']['x'] ?? -1) === $x && ($s['foe']['plan']['y'] ?? -1) === $y) return 'you take its aimed cell: it plays ' . $roots[0]['n'];
     if ($case === 'pass' && $pass) return 'the environment keeps ' . reset($pass)['n'];
@@ -39,8 +40,8 @@ $hit = function (array $s, int $i, int $x, int $y) use ($case): ?string {
 };
 $found = null;
 for ($sd = 1; $sd <= 120 && !$found; $sd++) {
-    // 2.6.98: pinned to kinds 0: these scenarios are about a creature that plays ONE piece (a Critter's Swarm plays two); the class rules are tested in section 19 and by the parity suite
-    $s = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), $sd, ['v1' => ['kinds' => 0], 'blank' => true, 'can_pluck' => false]);
+    // 2.6.98: pinned to kinds 0 and aimhit 0: these scenarios are about a creature that plays ONE piece and picks again when its cell is taken (the strike has its own tests) (a Critter's Swarm plays two); the class rules are tested in section 19 and by the parity suite
+    $s = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), $sd, ['v1' => ['kinds' => 0, 'aimhit' => 0], 'blank' => true, 'can_pluck' => false]);
     foreach (['L', 'R', 'T', 'B'] as $sdd) { $w = $s; if (pfb_start($w, 0, $sdd) === null) { $s = $w; break; } }
     if ($case === 'quick') { foreach (['hand', 'draw'] as $z) foreach ($s['foe'][$z] as $k => $t) $s['foe'][$z][$k]['tag'] = 'quick'; pfb_intent($s); }
     for ($t = 0; $t <= 4 && !$found && !$s['over']; $t++) {

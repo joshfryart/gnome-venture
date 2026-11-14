@@ -122,7 +122,7 @@ const SEEDCASE = { rings: 'envfire', ringsbreak: 'repick' };   // after 2.6.96: 
       ok('[rings] no ring while the replay plays', frames.filter(f => f.playing).every(f => f.rings.length === 0), frames.filter(f => f.playing && f.rings.length).length);
       ok('[rings] a piece of yours fits the aimed cell (so the break can be tried)', !!brk);
       if (brk) {
-        ok('[rings] after you take its aimed cell no ring is left (aim broken)', brk.m.rings.length === 0 && /broken|pick again/i.test(brk.plan), [brk.m.rings, brk.plan]);
+        ok('[rings] after you take its aimed cell no ring is left (aim broken, or since 2.6.98 a strike on a Hurt aim)', brk.m.rings.length === 0 && /broken|pick again|will strike/i.test(brk.plan), [brk.m.rings, brk.plan]);
         ok('[rings] on a fresh page (nothing placed) the rings are back, as many as before', brk.back.rings.length === pre.rings.length, [brk.back.rings.length, pre.rings.length]);
       }
       (lays || []).forEach(L => {

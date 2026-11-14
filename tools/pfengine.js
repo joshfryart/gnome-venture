@@ -518,7 +518,7 @@
   // the compat rules (PFB_V1_PRE in pfboard.php, where the keys are explained): a saved fight without a key plays by the 2.6.94 value
   var PF_HOSTILE_CM = 0.6;
   var PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health
-  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0 };
+  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0 };
   var PFB_KIND_SWARM = 0.6, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;   // 2.6.98 class rules (pfb_kind_of ...)
   function kindOf(c, size) {
     if (size === 'boss') return 'boss';
@@ -552,9 +552,9 @@
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: 1, team3: 1,   // 2.6.95: Teamwork off
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 1, kinds: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
-    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
+    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
     for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
     if (over.foe_x !== undefined && over.foe_x !== null) cfg.foe = round(cfg.foe * Number(over.foe_x), 4);
@@ -1009,6 +1009,7 @@
     var e = { id: p.id, by: p.by, x: p.x, y: p.y, tile: p.tile, age: s.round - 1 - p.born };
     if (fell) e.fell = true;
     if (p.used !== undefined && p.used !== null) e.used = p.used;
+    if (s.v1 && p.by === 'foe' && (s.lastfoe || []).indexOf(p.id) >= 0) e.fnew = true;   // 2.6.986 (v1 fights only: a flag-off page stays as it was)
     return e;
   }
   // Fire budget: after a chain has finished, creature pieces that have fired their limit fall away (to their discard); never mid-chain.
@@ -1290,7 +1291,7 @@
   function note(kind, n) { return { by: 'foe', note: kind, k: 'note', n: n === undefined ? '' : n, t: 'note', tag: '', v: 0, fit: false, combo: null }; }   // 2.6.76: a notice event (pfb_note)
 
   function strike(s, hi, cid) {   // 2.6.98 (aimhit): its Hurt piece strikes YOUR piece; a Guard at least as strong holds, anything else breaks; you take nothing
-    var ft = s.foe.hand[hi]; s.foe.hand.splice(hi, 1); s.foe.discard.push(ft);
+    var ft = s.foe.hand[hi]; s.foe.hand.splice(hi, 1); s.foe.discard.push(ft); s.nospawn = 1;
     var p = s.pcs[cid], hit = toInt(ft.v), g = p.tile.t === 'guard' ? toInt(p.tile.v) : 0, broke = g < hit;
     if (broke) { discardPiece(s, p); p.used = 'foe'; if (!Array.isArray(s.spent)) s.spent = []; s.spent.push(p); delete s.cell[p.x + ',' + p.y]; delete s.pcs[cid]; }
     return { by: 'foe', strike: true, id: cid, broke: broke, guard: g, x: toInt(p.x), y: toInt(p.y), k: ft.k, n: ft.n, t: 'hurt', tag: '', v: hit, hit: hit, mine: String(nn(p.tile.n, '')), fit: false, combo: null };
@@ -1433,7 +1434,9 @@
     if (quick) why.push('Quick: plays again');
     if (mud) why.push('Mud -' + Math.round(100 * Number(nn(s.v1.mud, 0))) + '%');
     if (usedAlt) why.unshift('its second aim');
-    return { hp: hp0 - toInt(w.me.hp), g: g, bait: round(bait, 1), heal: heal, n: n, why: why, ids: ids };
+    var hpTot = hp0 - toInt(w.me.hp);
+    if (quick || kindNow(s) === 'critter') { var w3 = clone(s), h3 = toInt(w3.me.hp); foeTurn(w3); var more = h3 - toInt(w3.me.hp); if (more !== hpTot) { hpTot = more; why.push(quick ? 'Quick: its second piece is in the number' : 'Swarm: its second piece is in the number'); } }   // 2.6.986
+    return { hp: hpTot, g: g, bait: round(bait, 1), heal: heal, n: n, why: why, ids: ids };
   }
 
   // ------------------------------------------------------------------ the whole fight
@@ -1455,6 +1458,7 @@
     }
     if (opt && truthy(opt.blank)) {   // variant: a blank wild piece in the centre; both sides put a start piece next to it, hidden (see start)
       s.pid = 1; s.seq = 1; var cx = intdiv(pfbW(s), 2), cy = intdiv(pfbH(s), 2);
+      if (v1r(s, 'blankrand') === 1) { var iw = Math.max(1, pfbW(s) - 2), ih = Math.max(1, pfbH(s) - 2), kk = rand(s, iw * ih); cx = 1 + kk % iw; cy = 1 + intdiv(kk, iw); }   // 2.6.98: the inert Blank starts on a random inner cell
       s.pcs[1] = { id: 1, by: 'none', tile: { k: 'blank', n: 'Blank', t: 'blank', v: 0, tag: '', r: null }, x: cx, y: cy, born: 1, seq: 1 };
       s.cell[cx + ',' + cy] = 1; s.start = true;
       draw(s, 'foe', s.foe.hsize); intent(s);
@@ -1484,7 +1488,7 @@
     if (!truthy(s.start)) return 'The fight has already started.';
     if (!has(PFB_SIDE, side)) return 'Pick a side: L, R, T or B.';
     var tile = s.me.hand[handIdx]; if (!tile) return 'No such piece in your hand.';
-    var cx = intdiv(pfbW(s), 2), cy = intdiv(pfbH(s), 2), sides = ['L', 'R', 'T', 'B'], fs = sides[rand(s, 4)];
+    var cx = has(s.pcs, 1) ? toInt(s.pcs[1].x) : intdiv(pfbW(s), 2), cy = has(s.pcs, 1) ? toInt(s.pcs[1].y) : intdiv(pfbH(s), 2), sides = ['L', 'R', 'T', 'B'], fs = sides[rand(s, 4)];
     var put = function (who, idx, sd) {
       var d = PFB_SIDE[sd], x = cx + d[0], y = cy + d[1], t = s[who].hand[idx];
       s[who].hand.splice(idx, 1);
@@ -1534,7 +1538,7 @@
     if (v1r(s, 'redraw')) { s.me.hand.forEach(function (ht) { var c = clone(ht); delete c.flip; delete c.ft; s.me.discard.push(c); }); s.me.hand = []; draw(s, 'me', PF_HAND_CAP - slow); }   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
     else draw(s, 'me', Math.min(PF_HAND_CAP, s.me.hand.length + PF_DRAW - slow));
     s.gone = nn(s.spent, []).map(function (p) { return goneEntry(s, p, true); }).concat(gone.map(function (p) { return goneEntry(s, p, false); }));
-    s.spawn = spawn(s);
+    s.spawn = truthy(s.nospawn) ? null : spawn(s); delete s.nospawn;   // 2.6.99: a strike spent its turn: no free piece
     if (s.turn > PF_TURN_CAP) { s.over = s.boss ? 'defeat' : 'stall'; return; }
     intent(s);
   }
@@ -1665,7 +1669,7 @@
       v.ter = clone(nn(s.ter, {}));
       v.envs = nn(s.envs, []).map(function (e) { var o = clone(e), q = pieceAt(s, e.x, e.y); o.n = PFB_EVENT_NAME[e.kind]; o.on = q && q.by !== 'none' ? { id: q.id, by: q.by, n: q.tile.n } : null; return o; });
       v.envlog = clone(nn(s.envlog, []));
-      if (truthy(c.env)) v.env = { next: s.env.next.map(function (nx) { return { k: nx.k, n: nx.n, kind: nx.env, life: toInt(nx.life), e: edges(nx) }; }), deck: s.env.draw.length, used: s.env.discard.length, n: toInt(c.envn) };   // 2.6.75: next is a list
+      if (truthy(c.env)) v.env = { next: s.env.next.map(function (nx) { return { k: nx.k, n: nx.n, kind: nx.env, life: truthy(nn(s.v1.life, 0)) ? toInt(nx.life) : PFB_LIFE, e: edges(nx) }; }), deck: s.env.draw.length, used: s.env.discard.length, n: toInt(c.envn) };   // 2.6.75: next is a list
       v.aim = clone(nn(s.foe.plan, null));
       if (kindNow(s) !== '') { v.kind = kindNow(s); v.grudge = toInt(nn(s.foe.grudge, 0)); v.ven = Object.keys(nn(s.ven, {})).map(function (k) { var a = k.split(','); return { x: toInt(a[0]), y: toInt(a[1]), r: s.ven[k] - 1 }; }); }   // 2.6.98 class rules
       v.reaim = truthy(s.reaim);

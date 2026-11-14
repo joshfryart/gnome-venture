@@ -52,7 +52,7 @@ const PF_TAGS = [
 
 /** 2.6.96: what a tag does on the v1 board, one short plain sentence each (the v1 pages read this; PF_TAGS above is the text of the strip fights and of the pages with the v1 setting off, which stay as they were). */
 const PF_TAGS_V1 = [
-    'quick'  => ['⚡', 'Quick: draws you a piece when you place it'],
+    'quick'  => ['⚡', 'Quick: no extra effect for you (one piece a turn)'],   // 2.6.986: the whole hand is redrawn each round, so the old extra draw did nothing
     'heavy'  => ['🪨', 'Heavy: a big hit, nothing extra on this board'],   // the board has no Heavy rule (it only exists in strip fights: PF_TAGS)
     'pierce' => ['📌', 'Pierce: ignores the creature\'s guard'],
     'poison' => ['🧪', 'Poison: hits again each of the next 2 turns'],

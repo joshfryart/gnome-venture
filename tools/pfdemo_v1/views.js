@@ -265,7 +265,7 @@
       });
       hh += ' <span class="pfh-txt">' + e(chip.txt) + '</span>' + (chip.tg ? who(chip.tg) : '') + '</li>';
     }
-    if (!(enc.hist || []).length) hh += '<li class="pf-chip empty">' + (s.start ? 'Opening: the blank ✦ is in the middle. The creature picks its side too, hidden.' : e(enc.note || 'Pieces are on the board. Place one next to them.')) + '</li>';
+    if (!(enc.hist || []).length) hh += '<li class="pf-chip empty">' + (s.start ? 'Opening: the blank ✦ is on the board. The creature picks its side too, hidden.' : e(enc.note || 'Pieces are on the board. Place one next to them.')) + '</li>';
     hh += '</ol><button type="button" class="btn" id="pf-skip" hidden>Skip</button><span class="pfc-piles">' + mini('deck', 'Puzzle book', v.piles.draw) + mini('disc', 'Discard', v.piles.discard) + '</span></div>';
     top = '<div class="pfc-top"><div class="pfc-me"><span class="pfc-meav"><span class="pfc-av"><img src="' + art('gnome.png') + '" alt="Gnome"></span>' + guardHtml(v.block | 0) + '</span><span class="pf-hp" role="img" aria-label="Your health ' + v.hp + ' of ' + v.max + '">❤️ <progress max="' + v.max + '" value="' + v.hp + '"></progress> ' + v.hp + '</span></div>'
       + barHtml(v)
@@ -303,6 +303,7 @@
       hand: v.hand.map(function (t) { return { e: t.e, t: t.t, tag: t.tag, m: t.m }; }), combos: v.combos, icons: { hurt: '⚔️', guard: '🛡️', heal: '💚', charm: '🌸', soothe: '😌', trick: '🎭', item: '🎒' } };
     if (v1) {
       ['v1', 'round', 'ter', 'envs', 'envlog', 'aim', 'reaim', 'flip'].forEach(function (k) { data[k] = v[k]; });
+      ['kind', 'grudge', 'ven'].forEach(function (k) { if (v[k] !== undefined) data[k] = v[k]; });   // 2.6.98 class rules
       ['status', 'wear', 'env'].forEach(function (k) { if (v[k] !== undefined) data[k] = v[k]; });
       v.hand.forEach(function (t, i) { data.hand[i].life = t.life; data.hand[i].src = t.src; data.hand[i].flip = t.flip; data.hand[i].canflip = t.canflip; data.hand[i].tool = String(t.tool || ''); data.hand[i].rank = t.rank | 0; });
       data.prev = enc.replay && enc.replay.length ? (enc.prev || null) : null;

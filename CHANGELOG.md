@@ -1,5 +1,36 @@
 # Changelog
 
+## 2.6.987
+- **Rule book fixes (from the playthrough in `claude/reviews-2026-11-13/rulebook/`).** Needs 2.6.97+, no DB change. Skip 2.6.981 to 2.6.986.
+- **The aim total covers the whole creature turn.** A Swarm's second piece (and a Quick piece) were left out of "hits you for N": in 350 aims the number was wrong in 83 Critter turns. `pfb_aim_total` now plays the whole turn on a copy when the creature is a Critter or has Quick, and says so in the reasons. Property test in `tests/pfboard_v1_kinds.php`; JS twin and parity updated.
+- **"Stays N rounds" is right.** In a new fight every piece stays 3 rounds; the NEXT strip and the creature card said 2 to 4. They now say 3.
+- **The help sheet only describes the aim strike when it is on** (it is off by default).
+- **Quick's text for your pieces says it has no extra effect** (the whole hand is redrawn each round, so the old "draws you a piece" did nothing).
+- **Flag-off pages are the pages of 2.6.73 again.** 2.6.981 changed "in the middle" to "on the board" and 2.6.986 added `fnew` to gone pieces on pages that do not use the v1 rules; both now only in v1 fights (`tests/pbox_v1.sh`, which now prints what differs).
+- **Not changed (design questions, listed in the rule book):** poison ticks scale with Sun and combos and land through Evade; Trip and Lull skip a whole creature turn.
+
+## 2.6.986
+- **Fix: a creature's piece that was put down and used up in the same turn showed from the first frame of the replay, while your turn was still resolving (owner: check how Swarm turns are processed).** A Swarm creature (two pieces a turn) and any creature whose chain reaches 3 pieces use its own pieces up, and a used-up piece is drawn from the start as "gone" until everything has scored. The creature's new pieces were in that list, so they showed early. The gone entry now carries `fnew` (PHP, JS twin) and the page keeps it hidden until its own step (`pfboardv1_part.js`). In 30 seeded Swarm fights 134 such pieces were found, all now marked. Needs 2.6.97+, no DB change. Skip 2.6.981 to 2.6.985.
+
+## 2.6.985
+- **Fix: a creature's class-rule effects played before its turn, while your turn was resolving (owner: "the enemy's turn play is happening slightly before when it should").** The replay hid a Plant's new Bramble and showed a Water-pushed piece already moved from the first frame. Now the Bramble stays off the board and the pushed piece stays where it stood until the creature's own step (`pfboardv1_part.js`: `envPre`, `envStepE`; the replay entry of a `current` note carries `moved`). Needs 2.6.97+, no DB change. Skip 2.6.981 to 2.6.984.
+
+## 2.6.984
+- **Aim strike is OFF in new fights (owner: "If I play a piece on their planned spot it shouldn't remove my piece, that's rude. It should pick somewhere else").** `aimhit` defaults to 0 again: a piece of yours on the creature's aimed cell makes it pick again, as before 2.6.98. The strike code, its chip, mark and tests stay (switch `aimhit` 1, or the Tuning sheet in the demo). Needs 2.6.97+, no DB change. Skip 2.6.981 to 2.6.983.
+
+## 2.6.983
+- **Fix: the first piece could not be placed (owner: "Live won't let me place my first piece. It resets when I press start").** Since the Blank starts on a random inner cell (2.6.981), the opening handler in `pfight_game.php` still worked out the side from the CENTRE of the board, so a piece placed next to the real Blank was refused ("Pick a spot next to the blank") and the page reset. It now reads where the Blank is (`pfb_start_side`). The demo had the same bug and was fixed in 2.6.982's rebuild. Needs 2.6.97+, no DB change. Skip 2.6.981 and 2.6.982.
+
+## 2.6.982
+- **Fix: the class rule chip, venom cells and the strike crack were not reaching the page in 2.6.98 / 2.6.981.** The page data builder (`pfight_game.php`) only copies a list of keys from the board view; `kind`, `grudge` and `ven` (and the replay's `strike` / `broke`) were not on it, so the Swarm / Two aims / Grudge chip, the second-aim and venom marks, and the crack on a struck piece never showed (the text lines did). Now carried; `tests/pfboard_v1_page.sh` checks the page data. Found while rebuilding the demo artifact. Needs 2.6.97+, no DB change. Skip the 2.6.981 zip: this one has everything in it.
+- **Demo (`tools/pfdemo_v1`):** works with the 2.6.98+ rules (the glue read the Blank in the centre, the page data lacked the class keys, a removed `harmony` export); the Tuning sheet has switches for class rules, aim strike and keep-my-pieces; environment 1 a round.
+
+## 2.6.981
+- **Puzzle combat v1: the inert Blank starts on a random inner cell, and long piece text scrolls.** Branch `claude/todo-md-jbud4h`, not merged, no zip yet (version number 2.6.981 by owner's request). Needs 2.6.98+, no DB change. Puzzle combat v1 is still admin-gated.
+- **The Blank starts anywhere (owner, for playtesting).** New rule key `blankrand` (new fights 1, fights saved before it 0): the Blank is put on a random one of the inner cells (all four sides on the board: 4 of the 16 on the 4x4 board), both start pieces go beside it wherever it is. PHP, JS twin, tests in `tests/pfboard_v1_lasting.php`.
+- **No free piece after a strike (owner: "its pieces automatically pop in before my turn").** A strike spends the creature's turn without putting a piece down, which made the board put out its free piece (`pfb_spawn`) nearly every time. A strike now skips it that round (`nospawn`). Tests: section 17.
+- **Piece info is no longer cut off (owner: "info on tapped pieces is truncated").** The docked piece card and the fitted card scroll instead of clipping (`pfv1.css`). Not checked on a phone.
+
 ## 2.6.98
 - **Puzzle combat v1, week 2: the aim can strike your pieces, every creature class has one rule, the environment places 1 piece a round.** Slim zip `releases/GnomeVenture-2.6.98-web-update.zip`.
 - **Needs 2.6.96+, no DB change. Puzzle combat v1 is still admin-gated (`pfight_v1`). Only NEW fights get the changes; fights under way keep their rules.**
