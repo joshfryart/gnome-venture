@@ -129,5 +129,5 @@ Source: `game/includes/data/trail_maps/<region>_30x18.json` (the 14 region files
 - Every region from CA on has the same shape: 1 lock on its lair route, 1 lock on its delve route, 1 short cut, 3-4 extra mini-bosses. NA (3 routes) has only 1 short cut (Sturdy staff) and 1 extra mini-boss.
 - Every gate outside NA asks for a **Fine** (tier 3) tool, from CA (region Lv 4) to OC (Lv 35): the tier cap of 3 flattens the curve. A CA gnome meets a Fine-tool lock on its first lair road. Options: tier 2 for the early regions (CA, NWE, CB), tier 3 from SE on.
 - Locks block the lair / delve itself: without the tool the gnome cannot reach the boss / mini-boss at all (the short cuts never block). The 2 routes without a lock (327 CA, 448 EA) are therefore the only lair roads open to everyone.
-- Extra mini-boss levels follow 12 + 0.7 x region level, so CA's are 14-16 (region Lv 4) and even NA's one (route 229 area, region Lv 1) is a Lv 14 Grass Snake, while OC's are 32-37 (Lv 35): early regions get fights well above their road level.
+- Extra mini-boss levels follow 12 + 0.7 x region level, so CA's are 14-16 (region Lv 4) and even NA's one (route 237, region Lv 1) is a Lv 14 Grass Snake, while OC's are 32-37 (Lv 35): early regions get fights well above their road level.
 - Gone-open gates show no mark (known, todo.md section 4); nothing here was walked in a browser.
