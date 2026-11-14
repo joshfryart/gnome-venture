@@ -1,6 +1,8 @@
 # Trail gates and extra mini-bosses outside the Maplewold: review (2026-11-14)
 
-REVIEW ONLY: no data changed. Josh decided (2026-11-14): review all 230 generated routes, list counts per region, Josh adjusts.
+**CHANGED after the review (Josh 2026-11-14): the lower-level half of the regions by region level (NA, CA, NWE, CB, SE, SA, EE) now gate at tier 2 (Sturdy); MENA, EA, CSA, SEA, WCA, ESA, OC stay at tier 3 (Fine). 17 gates moved 3 -> 2 (CA 2, NWE 3, CB 3, SE 3, SA 3, EE 3); data only, no wall moved, no re-bake. The tables below are the state BEFORE that change.**
+
+Review: no data changed. Josh decided (2026-11-14): review all 230 generated routes, list counts per region, Josh adjusts.
 
 Source: `game/includes/data/trail_maps/<region>_30x18.json` (the 14 region files other than `maplewold_30x18.json`; `na` = the 3 NA routes outside the hand-tuned 16). Made by `tools/add_trail_extras.py` on 2026-11-10 (2.6.40). Rules there: gate tier = region rank + 1 capped at 3 (NA 2 Sturdy, every later region 3 Fine; tools have no tier 4); a **lock** = a wall across the last section of every delve (mini-boss) / lair (boss) route, before the E tile, with a 3-tile gap on the road that needs the tool; a **short cut** = the same wall plus a second opening far along it (the long way round is 6+ steps longer), one plain route per region; an **extra mini-boss** = one large creature of the route's land on the road of one section of about every 4th plain route, level nearest 12 + 0.7 x region level, never in a gate section.
 

@@ -12,7 +12,11 @@ _TP = open(os.path.join(REPO, "game/includes/tools.php"), encoding="utf-8").read
 TOOL_NAME = {(t, int(n)): name for t, n, name in re.findall(r"\['(\w+)', (\d), '([^']+)'", _TP)}   # (type, tier) -> name, from TOOL_ITEMS (tiers 1 Worn, 2 Sturdy, 3 Fine, 4 Masterwork)
 GATHER = {"forage", "pick", "net", "bucket", "axe", "rod", "basket", "staff", "lantern"}
 ORDER = ["NA", "CA", "NWE", "CB", "SE", "SA", "EE", "MENA", "EA", "CSA", "SEA", "WCA", "ESA", "OC"]   # includes/progression.php REGION_LEVELS order
-REGION_LEVEL = {c: i + 1 for i, c in enumerate(ORDER)}   # region rank, Maplewold = 1. Gate rule: min_tier = rank + 1 (Maplewold: Sturdy, CA Fine, the rest Masterwork), capped at 4
+REGION_LEVEL = {c: i + 1 for i, c in enumerate(ORDER)}   # region rank, Maplewold = 1. gate tier rule: gate_tier() below
+EARLY = set(ORDER[:7])   # Josh 2026-11-14: the lower-level half of the 14 regions by region level (NA 1, CA 4, NWE 6, CB 8, SE 10, SA 12, EE 14) gate at tier 2 Sturdy; MENA .. OC (17-35) at tier 3 Fine
+def gate_tier(region):
+    """The gate tier rule: tier 2 (Sturdy) in the early half of the regions, tier 3 (Fine) after (the gathering tools only go to tier 3); a region outside ORDER: 1."""
+    return (2 if region in EARLY else 3) if region in REGION_LEVEL else 1
 TIER_OVERRIDE = {(315, 1): 1}   # (route, section index): Josh 2026-11-10 decided the 315 pine slope needs only a Walking Stick (tier 1)
 FREE = {228, 232, 236, 311, 316}
 CREATURES = {}
@@ -30,7 +34,7 @@ def lint(path):
             if not any(c in line for c in tiles): bad.append(f"{t}: gate '{g['label']}' has no tile on the road")
             if any(s["rows"][y][x] == "#" for x, y in tiles): bad.append(f"{t}: gate tile is a wall")
             if g["tool_type"] not in GATHER: bad.append(f"{t}: gate tool type {g['tool_type']} is not an adventure tool type")
-            want = TIER_OVERRIDE.get((rid, i), min(3, REGION_LEVEL.get(r["region"], 0) + 1))
+            want = TIER_OVERRIDE.get((rid, i), gate_tier(r["region"]))
             if g["kind"] not in ("lock", "shortcut"): bad.append(f"{t}: gate kind")
             if g["min_tier"] != want: bad.append(f"{t}: gate tier {g['min_tier']}, rule says {want}")
             if g["tool_name"] != TOOL_NAME.get((g["tool_type"], g["min_tier"])): bad.append(f"{t}: tool name {g['tool_name']} is not the tier {g['min_tier']} {g['tool_type']}")

@@ -214,6 +214,17 @@ if (is_file($bake)) {
     ok('nearly every section with water has a walkable tile to fish from (a pool shut in by thicket has none)', $walkBy >= $n - 2, "$walkBy of $n");
     ok('228 section 2 (West River): fishing at the ford', trail_water_near($bj['228']['sections'][1], 12, 7));
 }
+echo "== gate tiers by region (Josh 2026-11-14: the lower-level half NA CA NWE CB SE SA EE Sturdy 2, MENA .. OC Fine 3)\n";
+$tierBad = []; $tierN = [2 => 0, 3 => 0];
+foreach (glob($game . '/includes/data/trail_maps/*_30x18.json') as $f) {
+    $reg = strtoupper(basename($f, '_30x18.json')); if ($reg === 'MAPLEWOLD') continue;
+    $want = in_array($reg, ['NA', 'CA', 'NWE', 'CB', 'SE', 'SA', 'EE'], true) ? 2 : 3;
+    foreach (json_decode((string)file_get_contents($f), true)['routes'] as $rid => $r) foreach ($r['sections'] as $si => $s) foreach ($s['gates'] ?? [] as $g) {
+        $tierN[(int)$g['min_tier']] = ($tierN[(int)$g['min_tier']] ?? 0) + 1;
+        if ((int)$g['min_tier'] !== $want) $tierBad[] = "$reg $rid#$si tier {$g['min_tier']}";
+    }
+}
+ok("every gate outside the Maplewold follows the region rule ({$tierN[2]} at tier 2, {$tierN[3]} at tier 3)", !$tierBad && $tierN[2] === 18 && $tierN[3] === 20, implode('; ', array_slice($tierBad, 0, 6)));
 echo "== decor: the rich look as data (2026-11-14, tools/trail_decor.py)\n";
 $gameAll = trail_authored_load($game . '/includes/data');
 $secN = $noDec = 0; $badRect = []; $overlap = []; $wrongTile = []; $agree = $disagree = 0; $dis = [];

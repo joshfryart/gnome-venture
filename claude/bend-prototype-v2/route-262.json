@@ -246,8 +246,8 @@
      ],
      "road_index": 23,
      "tool_type": "axe",
-     "min_tier": 3,
-     "tool_name": "Fine Felling Axe",
+     "min_tier": 2,
+     "tool_name": "Woodcutter’s Axe",
      "kind": "shortcut",
      "label": "overgrown short cut: an axe for the short way, the long way round is open",
      "bypass": [
