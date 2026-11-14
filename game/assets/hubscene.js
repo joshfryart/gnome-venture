@@ -48,6 +48,11 @@
       if (d.getAttribute('data-up')) return;
       d.setAttribute('data-up', '1');
       d.addEventListener('cancel', function (ev) { ev.preventDefault(); });   // Esc does nothing
+      /* 2.6.96: Chrome closes a modal anyway on a second Esc (or Android back) with no tap in between, cancel or not. A puzzle fight in it would vanish (the map, no way back but a reload): show it again. */
+      d.addEventListener('close', function () {
+        if (!d.isConnected || !d.querySelector('#pfight, #pfv-pre')) return;
+        setTimeout(function () { if (d.isConnected && !d.open && d.showModal) { try { d.showModal(); d.focus({ preventScroll: true }); } catch (e) {} } }, 0);
+      });
       if (d.showModal && !d.matches(':modal')) { try { d.removeAttribute('open'); d.showModal(); } catch (e) {} }
       d.setAttribute('tabindex', '-1'); try { d.focus({ preventScroll: true }); } catch (e) {}   // no stray focus ring on the first fold
     });

@@ -20,8 +20,9 @@
     var el = document.querySelector('#pfight.pf-v1') || document.getElementById('pfv-pre'); if (!el) return;
     var top = 0, bot = 0, st = document.documentElement.style;
     var dlg = el.closest('dialog'), modal = false; try { modal = !!(dlg && dlg.matches(':modal')); } catch (e) {}
-    if (!modal) {   // a modal popover (the Trail's) covers the header and the bottom bar; anything else leaves them in sight
-      if (!el.classList.contains('pfv-fit')) { try { window.scrollTo(0, 0); } catch (e) {} }
+    // a modal popover (the Trail's) on a phone is the whole window; anything else (and the Trail's on a wide window, 2.6.96) leaves the header and the bottom bar in sight
+    if (!modal || window.innerWidth >= 700) {
+      if (!modal && !el.classList.contains('pfv-fit')) { try { window.scrollTo(0, 0); } catch (e) {} }   // the page behind a modal keeps its scroll (the Trail map stays where it is)
       var hd = document.querySelector('.bannerin'), bb = document.querySelector('.bottombar');
       if (hd) top = Math.max(0, Math.round(hd.getBoundingClientRect().bottom));
       if (bb && getComputedStyle(bb).display !== 'none' && getComputedStyle(bb).position === 'fixed') bot = Math.max(0, Math.round(window.innerHeight - bb.getBoundingClientRect().top));
