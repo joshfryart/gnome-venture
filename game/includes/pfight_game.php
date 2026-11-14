@@ -607,7 +607,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         }
         $h .= ' <span class="pfh-txt">' . e((string)$chip['txt']) . '</span>' . (($chip['tg'] ?? null) !== null ? $who((string)$chip['tg']) : '') . '</li>';
     }
-    if (empty($enc['hist'])) $h .= '<li class="pf-chip empty">' . (!empty($s['start']) ? 'Opening: the blank ✦ is on the board. The creature picks its side too, hidden.' : e((string)($enc['note'] ?? 'Pieces are on the board. Place one next to them.'))) . '</li>';
+    if (empty($enc['hist'])) $h .= '<li class="pf-chip empty">' . (!empty($s['start']) ? 'Opening: the blank ✦ is ' . (!empty($s['v1']) ? 'on the board' : 'in the middle') . '. The creature picks its side too, hidden.' : e((string)($enc['note'] ?? 'Pieces are on the board. Place one next to them.'))) . '</li>';
     $h .= '</ol><button type="button" class="btn" id="pf-skip" hidden>Skip</button><span class="pfc-piles">' . $mini('deck', 'Puzzle book', (int)$v['piles']['draw']) . $mini('disc', 'Discard', (int)$v['piles']['discard']) . '</span></div>';
     $cim = creature_image((string)($c['slug'] ?? ''), true);
     $foeImg = $cim !== '' ? art_img($cim, 'lg', (string)$c['name']) : creature_icon((string)$c['name'], (string)$c['size']);

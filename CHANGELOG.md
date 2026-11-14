@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.6.987
+- **Rule book fixes (from the playthrough in `claude/reviews-2026-11-13/rulebook/`).** Needs 2.6.97+, no DB change. Skip 2.6.981 to 2.6.986.
+- **The aim total covers the whole creature turn.** A Swarm's second piece (and a Quick piece) were left out of "hits you for N": in 350 aims the number was wrong in 83 Critter turns. `pfb_aim_total` now plays the whole turn on a copy when the creature is a Critter or has Quick, and says so in the reasons. Property test in `tests/pfboard_v1_kinds.php`; JS twin and parity updated.
+- **"Stays N rounds" is right.** In a new fight every piece stays 3 rounds; the NEXT strip and the creature card said 2 to 4. They now say 3.
+- **The help sheet only describes the aim strike when it is on** (it is off by default).
+- **Quick's text for your pieces says it has no extra effect** (the whole hand is redrawn each round, so the old "draws you a piece" did nothing).
+- **Flag-off pages are the pages of 2.6.73 again.** 2.6.981 changed "in the middle" to "on the board" and 2.6.986 added `fnew` to gone pieces on pages that do not use the v1 rules; both now only in v1 fights (`tests/pbox_v1.sh`, which now prints what differs).
+- **Not changed (design questions, listed in the rule book):** poison ticks scale with Sun and combos and land through Evade; Trip and Lull skip a whole creature turn.
+
 ## 2.6.986
 - **Fix: a creature's piece that was put down and used up in the same turn showed from the first frame of the replay, while your turn was still resolving (owner: check how Swarm turns are processed).** A Swarm creature (two pieces a turn) and any creature whose chain reaches 3 pieces use its own pieces up, and a used-up piece is drawn from the start as "gone" until everything has scored. The creature's new pieces were in that list, so they showed early. The gone entry now carries `fnew` (PHP, JS twin) and the page keeps it hidden until its own step (`pfboardv1_part.js`). In 30 seeded Swarm fights 134 such pieces were found, all now marked. Needs 2.6.97+, no DB change. Skip 2.6.981 to 2.6.985.
 

@@ -1009,7 +1009,7 @@
     var e = { id: p.id, by: p.by, x: p.x, y: p.y, tile: p.tile, age: s.round - 1 - p.born };
     if (fell) e.fell = true;
     if (p.used !== undefined && p.used !== null) e.used = p.used;
-    if (p.by === 'foe' && (s.lastfoe || []).indexOf(p.id) >= 0) e.fnew = true;   // 2.6.986
+    if (s.v1 && p.by === 'foe' && (s.lastfoe || []).indexOf(p.id) >= 0) e.fnew = true;   // 2.6.986 (v1 fights only: a flag-off page stays as it was)
     return e;
   }
   // Fire budget: after a chain has finished, creature pieces that have fired their limit fall away (to their discard); never mid-chain.
@@ -1434,7 +1434,9 @@
     if (quick) why.push('Quick: plays again');
     if (mud) why.push('Mud -' + Math.round(100 * Number(nn(s.v1.mud, 0))) + '%');
     if (usedAlt) why.unshift('its second aim');
-    return { hp: hp0 - toInt(w.me.hp), g: g, bait: round(bait, 1), heal: heal, n: n, why: why, ids: ids };
+    var hpTot = hp0 - toInt(w.me.hp);
+    if (quick || kindNow(s) === 'critter') { var w3 = clone(s), h3 = toInt(w3.me.hp); foeTurn(w3); var more = h3 - toInt(w3.me.hp); if (more !== hpTot) { hpTot = more; why.push(quick ? 'Quick: its second piece is in the number' : 'Swarm: its second piece is in the number'); } }   // 2.6.986
+    return { hp: hpTot, g: g, bait: round(bait, 1), heal: heal, n: n, why: why, ids: ids };
   }
 
   // ------------------------------------------------------------------ the whole fight
@@ -1667,7 +1669,7 @@
       v.ter = clone(nn(s.ter, {}));
       v.envs = nn(s.envs, []).map(function (e) { var o = clone(e), q = pieceAt(s, e.x, e.y); o.n = PFB_EVENT_NAME[e.kind]; o.on = q && q.by !== 'none' ? { id: q.id, by: q.by, n: q.tile.n } : null; return o; });
       v.envlog = clone(nn(s.envlog, []));
-      if (truthy(c.env)) v.env = { next: s.env.next.map(function (nx) { return { k: nx.k, n: nx.n, kind: nx.env, life: toInt(nx.life), e: edges(nx) }; }), deck: s.env.draw.length, used: s.env.discard.length, n: toInt(c.envn) };   // 2.6.75: next is a list
+      if (truthy(c.env)) v.env = { next: s.env.next.map(function (nx) { return { k: nx.k, n: nx.n, kind: nx.env, life: truthy(nn(s.v1.life, 0)) ? toInt(nx.life) : PFB_LIFE, e: edges(nx) }; }), deck: s.env.draw.length, used: s.env.discard.length, n: toInt(c.envn) };   // 2.6.75: next is a list
       v.aim = clone(nn(s.foe.plan, null));
       if (kindNow(s) !== '') { v.kind = kindNow(s); v.grudge = toInt(nn(s.foe.grudge, 0)); v.ven = Object.keys(nn(s.ven, {})).map(function (k) { var a = k.split(','); return { x: toInt(a[0]), y: toInt(a[1]), r: s.ven[k] - 1 }; }); }   // 2.6.98 class rules
       v.reaim = truthy(s.reaim);

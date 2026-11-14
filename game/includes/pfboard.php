@@ -711,7 +711,7 @@ function pfb_gone_entry(array $s, array $p, bool $fell): array
     $e = ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'tile' => $p['tile'], 'age' => $s['round'] - 1 - $p['born']];
     if ($fell) $e['fell'] = true;
     if (isset($p['used'])) $e['used'] = $p['used'];   // v1: used up by a chain of 3+ (whose chain it was)
-    if ($p['by'] === 'foe' && in_array($p['id'], $s['lastfoe'] ?? [], true)) $e['fnew'] = true;   // 2.6.986: the creature put it down this turn: the replay shows it at its own step, not from the first frame
+    if (!empty($s['v1']) && $p['by'] === 'foe' && in_array($p['id'], $s['lastfoe'] ?? [], true)) $e['fnew'] = true;   // 2.6.986: the creature put it down this turn: the replay shows it at its own step, not from the first frame
     return $e;
 }
 
@@ -1263,7 +1263,9 @@ function pfb_aim_total(array $s): ?array
     if ($quick) $why[] = 'Quick: plays again';
     if ($mud) $why[] = 'Mud -' . (int)round(100 * (float)($s['v1']['mud'] ?? 0)) . '%';
     if (!empty($usedAlt)) array_unshift($why, 'its second aim');
-    return ['hp' => $hp0 - (int)$w['me']['hp'], 'g' => $g, 'bait' => round($bait, 1), 'heal' => $heal, 'n' => $n, 'why' => $why, 'ids' => $ids];
+    $hpTot = $hp0 - (int)$w['me']['hp'];
+    if ($quick || pfb_kind($s) === 'critter') { $w3 = $s; $h3 = (int)$w3['me']['hp']; pfb_foe_turn($w3, 0); $more = $h3 - (int)$w3['me']['hp']; if ($more !== $hpTot) { $hpTot = $more; $why[] = $quick ? 'Quick: its second piece is in the number' : 'Swarm: its second piece is in the number'; } }   // 2.6.986: the whole turn, not just the first piece
+    return ['hp' => $hpTot, 'g' => $g, 'bait' => round($bait, 1), 'heal' => $heal, 'n' => $n, 'why' => $why, 'ids' => $ids];
 }
 
 /**
@@ -1459,7 +1461,7 @@ function pfb_view(array $s): array
         $v['envs'] = array_map(fn($e) => $e + ['n' => PFB_EVENT_NAME[$e['kind']], 'on' => ($q = pfb_at($s, $e['x'], $e['y'])) && $q['by'] !== 'none' ? ['id' => $q['id'], 'by' => $q['by'], 'n' => $q['tile']['n']] : null], $s['envs'] ?? []);   // the forecast: lands after the creature's move
         $v['envlog'] = $s['envlog'] ?? [];   // what the last terrain turn did
         if (!empty($c['env'])) {   // 2.6.75: the environment's deck: its next pieces (face up a round ahead, a list; empty = all on the board), how many wait in its deck ('deck') and in its discard ('used'; shuffled back in when the deck is empty), how many it places a round
-            $v['env'] = ['next' => array_map(fn($nx) => ['k' => $nx['k'], 'n' => $nx['n'], 'kind' => $nx['env'], 'life' => (int)$nx['life'], 'e' => pfb_edges($nx)], $s['env']['next']), 'deck' => count($s['env']['draw']), 'used' => count($s['env']['discard']), 'n' => (int)$c['envn']];   // next: a LIST, in the order they will be placed
+            $v['env'] = ['next' => array_map(fn($nx) => ['k' => $nx['k'], 'n' => $nx['n'], 'kind' => $nx['env'], 'life' => !empty($s['v1']['life']) ? (int)$nx['life'] : PFB_LIFE, 'e' => pfb_edges($nx)], $s['env']['next']), 'deck' => count($s['env']['draw']), 'used' => count($s['env']['discard']), 'n' => (int)$c['envn']];   // next: a LIST, in the order they will be placed
         }
         $v['aim'] = $s['foe']['plan'] ?? null;   // the creature's next piece and cell (null: it shows none, or it is tripped)
         if (pfb_kind($s) !== '') { $v['kind'] = pfb_kind($s); $v['grudge'] = (int)($s['foe']['grudge'] ?? 0); $v['ven'] = array_map(fn($k, $r) => ['x' => (int)explode(',', $k)[0], 'y' => (int)explode(',', $k)[1], 'r' => $r - 1], array_keys($s['ven'] ?? []), array_values($s['ven'] ?? [])); }   // 2.6.98 class rules

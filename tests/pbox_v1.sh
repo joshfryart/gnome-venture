@@ -66,6 +66,7 @@ if git -C "$ROOT" cat-file -e $OLD^{commit} 2>/dev/null; then
   get adventure.php >/dev/null; ENC=$(php -r '$p=new PDO("sqlite:'$GAME'/data/game.sqlite"); echo $p->query("SELECT encounter FROM expeditions ORDER BY id DESC LIMIT 1")->fetchColumn();')
   php -r '$p=new PDO("sqlite:'$GAME0'/data/game.sqlite"); $p->prepare("UPDATE expeditions SET encounter=? WHERE id=(SELECT MAX(id) FROM expeditions)")->execute([$argv[1]]);' "$ENC"
   get adventure.php >/dev/null; norm $H > $H.new; curl -s -c $C0 -b $C0 "$BASE0/adventure.php" -o $H.o; norm $H.o > $H.old
+  [ "$(diff $H.new $H.old | wc -l | tr -d ' ')" = 0 ] || { diff $H.new $H.old | cut -c1-300 | head -4; cp $H.new /tmp/pbox_new.html; cp $H.old /tmp/pbox_old.html; }   # what differs, when it does
   ck "flag off: the board fight page is the page of 2.6.73 (same fight state)" "$(grep -c 'id="pfb-board"' $H.new) $(diff $H.new $H.old | wc -l | tr -d ' ')" "1 0"
   db "UPDATE expeditions SET encounter=NULL" >/dev/null
 else echo "skip the comparison with commit $OLD (not in this checkout)"; fi

@@ -259,7 +259,7 @@ function pfv_foe_card(array $c, string $region): string
     foreach (pfd_foe_pieces($c, $region) as $p) {   // in layer order (a boss plays them in its own order)
         $by[$p['layer']] = ($by[$p['layer']] ?? 0) + 1; $v = pfv_foe_v($c, (int)$p['v']);
         $q = ['n' => $p['n'], 't' => $p['t'], 'v' => $v, 'tag' => $p['tag'], 'life' => $p['life'], 'src' => 'creature', 'e' => pfb_author_edges(['t' => $p['t'], 'r' => $p['r']], (string)$p['col'])];
-        $d = (PFV_TYPE[$p['t']] ?? $p['t']) . ' ' . $v . ' · ' . PFD_LAYERS[$p['layer']] . ' · stays ' . (int)$p['life'] . ' rounds · plays ×' . PFB_FOE_FIRES . (isset(PFV_FOE_TAG[$p['tag']]) ? '. ' . PFV_FOE_TAG[$p['tag']] : '') . '.';
+        $d = (PFV_TYPE[$p['t']] ?? $p['t']) . ' ' . $v . ' · ' . PFD_LAYERS[$p['layer']] . ' · stays ' . PFB_LIFE . ' rounds · plays ×' . PFB_FOE_FIRES . (isset(PFV_FOE_TAG[$p['tag']]) ? '. ' . PFV_FOE_TAG[$p['tag']] : '') . '.';
         $cells .= pfv_pc($q, ['owner' => 'foe', 'cls' => 'L-' . $p['layer'], 'a' => 'info', 'd' => $d, 'x' => ' data-info="pfv-cinfo"']);
     }
     $tally = '';

@@ -97,3 +97,15 @@ chk('gone entry: a creature piece put down this turn is marked fnew (the page ke
 $ok = true; $seen = 0;
 for ($sd = 1; $sd <= 30; $sd++) { $s = pfb_new(v1_me(), v1_foe('medium') + ['class' => 'Critter'], $sd, ['v1' => true]); for ($t = 0; $t < 4 && !$s['over']; $t++) { $m = pfb_search($s, 'me'); $r = $m ? pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']) : pfb_pass($s, $s['turn']); foreach ($s['gone'] ?? [] as $g) if ($g['by'] === 'foe' && in_array($g['id'], $s['lastfoe'] ?? [], true)) { $seen++; if (empty($g['fnew'])) $ok = false; } } }
 chk('Swarm fights: every gone piece the creature placed this turn carries fnew (' . $seen . ' seen)', $ok && $seen > 0, $seen);
+
+// ---- the aim total covers the WHOLE creature turn (2.6.986): a Swarm's second piece and a Quick piece are in the number
+$bad = 0; $n = 0; $bads = [];
+foreach (['Critter', 'Bird', 'Beast'] as $cl) for ($sd = 1; $sd <= 25; $sd++) {
+    $s = pfb_new(v1_me(), v1_foe('medium') + ['class' => $cl], $sd, ['v1' => true]);
+    for ($t = 0; $t < 5 && !$s['over']; $t++) {
+        $m = pfb_search($s, 'me'); if ($m) pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']); else pfb_pass($s, $s['turn']); if ($s['over']) break;
+        $tot = $s['foe']['plan']['tot'] ?? null; if (!$tot || isset($tot['broken'])) continue;
+        $w = $s; $hp0 = $w['me']['hp']; pfb_foe_turn($w, 0); $n++; if ($hp0 - $w['me']['hp'] !== $tot['hp']) { $bad++; $bads[$cl] = ($bads[$cl] ?? 0) + 1; }
+    }
+}
+chk('aim total: the health shown equals what the whole creature turn takes (Swarm and Quick pieces included): ' . $n . ' aims', $n > 100 && $bad === 0, [$bad, $bads]);
