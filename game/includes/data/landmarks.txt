@@ -50,7 +50,7 @@ WCA|1|haven|Drum Circle Market|Music, stew and rest. See what the market has tod
 WCA|2|wonder|Mud Mosque Library|Old gnome scrolls on farming; Lore checks for guides.
 WCA|3|wonder|Gorilla Glade|Quiet giants who share forest fruits if you're polite (Charm).
 WCA|3|delve|The Canopy Bridges|Rope bridges high in the trees.
-WCA|3|lair|Hollow of the Silverback Spider|Boss lair.
+WCA|3|lair|Hollow of the Silverback Spider|Boss lair. A very old silver spider spins her stories in a hollow tree.
 ESA|1|haven|Baobab Inn|A guesthouse inside a giant baobab.
 ESA|2|wonder|Coffee Ceremony Hut|Three cups, three blessings: energy and buffs.
 ESA|1|wonder|The Great Migration|Herds pass by; follow them for lucky finds.
@@ -62,13 +62,13 @@ CSA|2|wonder|The Silk Road Caravanserai|Trade stop; swap seeds with travelling g
 CSA|3|wonder|Tea Garden Slopes|Pick tea for a Sense buff.
 CSA|4|wonder|Prayer-flag Pass|Flags carry wishes; Luck buff.
 CSA|4|delve|Snowleopard Ledges|Narrow mountain paths.
-CSA|3|lair|Temple of the Tiger Moth|Boss lair.
+CSA|3|lair|Temple of the Tiger Moth|Boss lair. A great striped moth haunts the lamps of a jungle temple.
 EA|1|haven|Cherry Blossom Teahouse|Tea, rest, and the best view in the Hollow.
 EA|2|wonder|The Thousand Gates|Walk the red gates; each one tests a stat.
 EA|3|wonder|Pearl Diver Cove|Dive for pearls (Hardiness).
 EA|2|wonder|Panda Bamboo Grove|Help a panda; shares bamboo shoots.
 EA|4|delve|The Long Wall Walk|A long, windy wall path.
-EA|4|lair|Lair of the Jade Dragon-fly|Boss lair.
+EA|4|lair|Lair of the Jade Dragon-fly|Boss lair. A dragonfly with jade wings hunts over the last oasis.
 SEA|1|haven|Floating Market|Boat stalls, noodles and rest. See what the boats carry today.
 SEA|2|wonder|Lantern Festival River|Float a lantern for a Luck buff.
 SEA|3|wonder|Volcano Spice Gardens|The original spice islands; rare treasure seeds.
@@ -80,4 +80,4 @@ OC|2|wonder|Glowworm Grotto|Ceiling of glowing worms; Sense trial for rare finds
 OC|1|wonder|Starpath Canoe|Learn wayfinding from navigators (Wayfinder bonus).
 OC|3|wonder|Stone Head Watchers|Giant carved heads that answer one question each.
 OC|4|delve|The Red Rock Songlines|Long desert paths that follow old songs.
-OC|2|lair|Reef of the Box Jelly Queen|Boss lair.
+OC|2|lair|Reef of the Box Jelly Queen|Boss lair. A glassy jelly queen drifts over the kelp, trailing stinging threads.

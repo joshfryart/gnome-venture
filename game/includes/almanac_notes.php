@@ -254,7 +254,7 @@ function ensure_almanac_howto(bool $rewrite): void
         q("UPDATE encyclopedia_entries SET hint = REPLACE(hint, ', and visit every zone)', ')') WHERE chapter = 'Regions'");
         q("UPDATE encyclopedia_entries SET body = ? WHERE chapter = 'General' AND title = 'Mossbottom Market'", [
             "The heart of Mossbottom, the little market town in the middle of the Hollow that every road leads back to. Its shops never close, and you can shop there from anywhere.\n\n"
-            . "[b]Twigg’s Seed Emporium[/b] sells everyday seeds, tools, compost and mulch. [b]The Dewdrop Kitchen[/b] sells ready meals. [b]Hedge & Hearth[/b] sells decorations for your yard.\n\n"
+            . "[b]Twigg’s Seed Emporium[/b] sells everyday seeds, tools, compost and mulch. [b]The Dewdrop Kitchen[/b] sells ready meals. [b]Hedge & Hearth[/b] sells decorations for your yard. [b]The Dye Pot[/b] sells hat and beard dyes (buy a colour once and it is yours for good). [b]Petalpin’s Posies[/b], the florist, sells cut flowers, string and scissors, and is glad of a helping hand.\n\n"
             . "Mossbottom’s town square has the Green, the teahouse, the Notice Board and the library, like every town."]);
         // The lone "People" page is replaced by the Folk chapter
         foreach (q("SELECT id FROM encyclopedia_entries WHERE chapter = 'General' AND unlock_key LIKE 'npc:%'")->fetchAll(PDO::FETCH_COLUMN) as $eid) {

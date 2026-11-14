@@ -77,6 +77,19 @@ function village_blurb(array $loc): string
     return $q ? $one . ' ' . $q[intdiv($rank, count($pool)) % count($q)] : $one;
 }
 
+/**
+ * A village's Almanac page text (2026-11-14): icon, "A <land> village in <zone>." and its own blurb (village_blurb: no two of the 146 read the same).
+ * $own = false gives the old text (the landscape line only, the same for every village of a zone), which ensure_almanac_fixes_1114 replaces.
+ */
+function village_page_body(array $v, string $zoneName, bool $own = true): string
+{
+    $L = LANDSCAPES[$v['landscape'] ?? ''] ?? ['', ucfirst((string)($v['landscape'] ?? '')), ''];
+    $head = $L[0] . (preg_match('/^[aeiou]/i', (string)$L[1]) ? ' An ' : ' A ') . strtolower((string)$L[1]) . ' village in ' . ($zoneName ?: 'the wilds') . '. ';
+    if (!$own) return $head . $L[2];
+    $blurb = village_blurb(['kind' => 'village'] + $v + ['description' => $L[2]]);   // an admin-written description is kept as it is
+    return $head . ($blurb !== '' ? $blurb : $L[2]);
+}
+
 /** v2.5.71: the 0-based position of a generated village (slug v-<region>-<zone>-<n>) among the villages of its landscape, in zones.txt order; null if unknown. */
 function village_land_rank(string $slug, string $land): ?int
 {
@@ -286,7 +299,7 @@ function import_adventure(array $regions, array $regionIds, array $regionById, a
             $L = LANDSCAPES[$v['landscape']] ?? ['', ucfirst((string)$v['landscape']), ''];
             db_insert('encyclopedia_entries', [
                 'chapter' => 'Villages', 'category' => substr((string)$v['region_name'], 0, 30), 'title' => $v['name'],
-                'body' => $L[0] . (preg_match('/^[aeiou]/i', (string)$L[1]) ? ' An ' : ' A ') . strtolower($L[1]) . ' village in ' . ($v['zone_name'] ?: 'the wilds') . '. ' . $L[2],
+                'body' => village_page_body($v, (string)($v['zone_name'] ?? '')),
                 'unlock_key' => 'village:' . $v['slug'],
                 'hint' => 'Visit it on your travels (' . strtolower($L[1]) . ').',
                 'sort_order' => (int)$v['sort_order'],

@@ -60,5 +60,26 @@ get book.php >/dev/null
 chk "rerun: marker back, truncation fixed once more" "$(db "SELECT value FROM settings WHERE name='almanac2646fix'") $(db "SELECT COUNT(*) FROM items WHERE description LIKE '%incomplete without them.%'")" "1 1"
 chk "rerun: no second Keeper line" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE body LIKE '%[b]Keeper:[/b]%'")" "$K1"
 chk "rerun: Coir Chips not prefixed twice" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE title='Coir Chips' AND body LIKE 'Coir Fibre cut up into Wood Chips, for when you have no logs. Coir Fibre%'")" 0
+echo "== data calls (almanac1114fix, Josh 2026-11-14)"
+chk "1114 marker set" "$(db "SELECT value FROM settings WHERE name='almanac1114fix'")" 1
+chk "Lotus Root is not a water lily" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE title='Lotus Root' AND body LIKE 'The rhizome of the sacred lotus%'")" 1
+chk "Banana: the clump keeps giving (perennial)" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE title='Banana' AND body LIKE '%Each stem fruits once%' AND body NOT LIKE '%Each plant fruits once%'")" 1
+chk "Cannonball Tree: born in the Amazon" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE title='Cannonball Tree' AND body LIKE '%Born in the Amazon%'")" 1
+chk "Mossbottom Market lists all its shops" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE title='Mossbottom Market' AND body LIKE '%The Dye Pot%' AND body LIKE '%Petalpin%'")" 1
+chk "no lair page is a bare 'Boss lair.'" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE body LIKE '%Boss lair.' || char(10) || '%' OR body LIKE '%Boss lair.' OR body LIKE '%Boss lair. ' || char(10) || '%'")" 0
+chk "village pages are all different" "$(db "SELECT COUNT(*) - COUNT(DISTINCT body) FROM encyclopedia_entries WHERE chapter='Villages'")" 0
+# an older world: put the old texts back, drop the marker, open the Almanac
+dbx "UPDATE encyclopedia_entries SET body = REPLACE(body, 'The rhizome of the sacred lotus (no kin of the water lily), lacy', 'The rhizome of the water lily, lacy')"
+dbx "UPDATE items SET description = REPLACE(description, 'Each stem fruits once, then a sucker from the same root takes its place, so the clump keeps giving.', 'Each plant fruits once, then new suckers take over.')"
+dbx "UPDATE landmarks SET description = 'Boss lair.' WHERE name = 'Temple of the Tiger Moth'"
+dbx "UPDATE encyclopedia_entries SET body = REPLACE(body, 'Boss lair. A great striped moth haunts the lamps of a jungle temple.', 'Boss lair.') WHERE title IN ('Temple of the Tiger Moth', 'Tiger Moth')"
+dbx "UPDATE encyclopedia_entries SET body = substr(body, 1, instr(body, '. ') + 1) || (SELECT CASE l.landscape WHEN 'grassland' THEN 'Rolling grass taller than any gnome, and sky in every direction.' ELSE body END FROM locations l WHERE 'village:' || l.slug = encyclopedia_entries.unlock_key) WHERE chapter = 'Villages' AND unlock_key IN (SELECT 'village:' || slug FROM locations WHERE landscape = 'grassland')"
+OLDV=$(db "SELECT COUNT(DISTINCT body) FROM encyclopedia_entries WHERE chapter='Villages'")
+dbx "DELETE FROM settings WHERE name='almanac1114fix'"
+get book.php >/dev/null
+chk "upgrade: Lotus page fixed" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE title='Lotus Root' AND body LIKE 'The rhizome of the sacred lotus%'")" 1
+chk "upgrade: Banana item fixed" "$(db "SELECT COUNT(*) FROM items WHERE slug='banana' AND description LIKE '%Each stem fruits once%'")" 1
+chk "upgrade: Tiger Moth pages get their line back, once" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE title IN ('Temple of the Tiger Moth', 'Tiger Moth') AND body LIKE '%Boss lair. A great striped moth haunts the lamps of a jungle temple.%' AND body NOT LIKE '%temple. A great striped%'")" 2
+chk "upgrade: village pages all different again (were $OLDV distinct)" "$(db "SELECT COUNT(*) - COUNT(DISTINCT body) FROM encyclopedia_entries WHERE chapter='Villages'")" 0
 [ $F = 0 ] && echo "all ok" || echo "FAILED"
 grep -c "PHP \(Warning\|Fatal\|Notice\)" $LOG | sed 's/^/php errors: /'
