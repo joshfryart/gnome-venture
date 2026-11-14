@@ -126,6 +126,8 @@ rep(": !mustLink(baseBoard(), handEdges()) && baseBoard().count ?", ": MUSTL && 
 # --- after 2.6.96: the lit rings (pieces the aimed chain would fire): cleared when the preview is asked again, painted after the board is drawn and after the preview's aim arrives
 rep("  function planAsk() {\n", "  function planAsk() {\n    aimLive = null;\n")
 rep("    fan(); renderHeld(); showJoinChips(); planAsk(); numsSync();\n", "    fan(); renderHeld(); showJoinChips(); planAsk(); numsSync(); paintRings();\n")
+# --- 2.6.98 (aimhit, T16): a piece the creature strikes cracks in the replay
+rep("if (c) c.classList.add('pfb-scoring');", "if (c) c.classList.add('pfb-scoring'); if (c && ev.strike) { c.classList.add('pfv-struck'); var sk = c; setTimeout(function () { sk.classList.remove('pfv-struck'); }, 900); }")
 out = os.path.join(R, 'game/assets/pfboardv1.js')
 if '--check' in sys.argv:
     sys.exit(0 if open(out, encoding='utf-8').read() == s else 'build_pfboardv1: game/assets/pfboardv1.js is not what the build gives (run tools/build_pfboardv1.py)')

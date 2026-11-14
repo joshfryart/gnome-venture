@@ -43,3 +43,13 @@ chk('aimhit: a non-Hurt aim on a taken cell still picks again (reaim 1, no strik
 chk('aimhit 0: the old rule (picks again, no strike)', $s['reaim'] === 1 && !array_filter($ev, fn($e) => !empty($e['strike'])) && isset($s['pcs'][$mine]));
 [$s, $mine] = $aim17(['aimhit' => 1], 'hurt', 5); $s['pcs'][$mine]['by'] = 'env'; $s['pcs'][$mine]['tile'] = v1_env('sun'); $s['env'] = ['draw' => [], 'discard' => [], 'next' => []];
 chk('aimhit: only YOUR piece is struck (an environment piece on the cell: it picks again)', ($ev = pfb_foe_turn($s, 0)) && !array_filter($ev, fn($e) => !empty($e['strike'])) && $s['reaim'] === 1);
+
+// ---- the aim total says STRIKE (T16): it must not read "broken: it will pick again" when your piece stands on its Hurt cell
+[$s, $mine] = $aim17(['aimhit' => 1, 'aimtot' => 1], 'hurt', 5); $tot = pfb_aim_total($s);
+chk('aim total: your piece on the Hurt aim cell reads strike (id, name, broke, hit, guard), no damage, not "broken"', isset($tot['strike']) && !isset($tot['broken']) && $tot['strike'] === ['id' => $mine, 'n' => 'P1', 'broke' => true, 'hit' => 6, 'guard' => 0] && $tot['hp'] === 0, $tot);
+[$s, $mine] = $aim17(['aimhit' => 1, 'aimtot' => 1], 'guard', 7); $tot = pfb_aim_total($s);
+chk('aim total: a Guard 7 holds (broke false, guard 7)', ($tot['strike']['broke'] ?? null) === false && ($tot['strike']['guard'] ?? null) === 7, $tot);
+[$s, $mine] = $aim17(['aimhit' => 0, 'aimtot' => 1], 'hurt', 5); $tot = pfb_aim_total($s);
+chk('aim total, aimhit 0: still broken by the cell', ($tot['broken'] ?? '') === 'cell' && !isset($tot['strike']), $tot);
+[$s, $mine] = $aim17(['aimhit' => 1, 'aimtot' => 1], 'hurt', 5, 'charm', 4); $tot = pfb_aim_total($s);
+chk('aim total: a Charm aim on your piece is still broken by the cell', ($tot['broken'] ?? '') === 'cell', $tot);

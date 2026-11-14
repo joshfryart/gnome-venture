@@ -1130,7 +1130,14 @@ function pfb_aim_total(array $s): ?array
     if (!$plan || !empty($s['over'])) return null;
     if (pfb_foe_len($s) < 1) return ['broken' => 'slow'];
     $x = (int)$plan['x']; $y = (int)$plan['y'];
-    if (isset($s['cell']["$x,$y"])) return ['broken' => 'cell'];
+    if (isset($s['cell']["$x,$y"])) {
+        $cid = $s['cell']["$x,$y"]; $mp = $s['pcs'][$cid] ?? null;   // 2.6.98 (aimhit): your piece on its Hurt cell is struck, so the aim is not broken: it says STRIKE
+        if (pfb_v1r($s, 'aimhit') === 1 && ($plan['t'] ?? '') === 'hurt' && $mp && $mp['by'] === 'me') {
+            $g = ($mp['tile']['t'] ?? '') === 'guard' ? (int)$mp['tile']['v'] : 0; $hit = (int)($plan['v'] ?? 0);
+            return ['hp' => 0, 'g' => 0, 'bait' => 0.0, 'heal' => 0, 'n' => 1, 'why' => [], 'ids' => [], 'strike' => ['id' => (int)$cid, 'n' => (string)($mp['tile']['n'] ?? ''), 'broke' => $g < $hit, 'hit' => $hit, 'guard' => $g]];
+        }
+        return ['broken' => 'cell'];
+    }
     $hi = null; foreach ($s['foe']['hand'] as $i => $ht) if ($ht['k'] === $plan['k']) { $hi = $i; break; }
     if ($hi === null) return ['broken' => 'edge'];
     $w = $s; $w['spent'] = []; $w['lastfoe'] = []; $w['gone'] = []; pfb_begin($w, 'foe');

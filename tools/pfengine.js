@@ -1329,7 +1329,14 @@
     if (!plan || truthy(s.over)) return null;
     if (foeLen(s) < 1) return { broken: 'slow' };
     var x = toInt(plan.x), y = toInt(plan.y);
-    if (has(s.cell, x + ',' + y) && s.cell[x + ',' + y] !== null) return { broken: 'cell' };
+    if (has(s.cell, x + ',' + y) && s.cell[x + ',' + y] !== null) {
+      var scid = s.cell[x + ',' + y], smp = has(s.pcs, scid) ? s.pcs[scid] : null;   // 2.6.98 (aimhit): your piece on its Hurt cell is struck: the aim says STRIKE, it is not broken
+      if (v1r(s, 'aimhit') === 1 && plan.t === 'hurt' && smp && smp.by === 'me') {
+        var sg = smp.tile.t === 'guard' ? toInt(smp.tile.v) : 0, shit = toInt(nn(plan.v, 0));
+        return { hp: 0, g: 0, bait: 0, heal: 0, n: 1, why: [], ids: [], strike: { id: toInt(scid), n: String(nn(smp.tile.n, '')), broke: sg < shit, hit: shit, guard: sg } };
+      }
+      return { broken: 'cell' };
+    }
     var hi = -1; for (var i = 0; i < s.foe.hand.length; i++) if (s.foe.hand[i].k === plan.k) { hi = i; break; }
     if (hi < 0) return { broken: 'edge' };
     var w = clone(s); w.spent = []; w.lastfoe = []; w.gone = []; begin(w, 'foe');
