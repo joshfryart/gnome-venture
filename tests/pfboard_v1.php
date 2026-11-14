@@ -447,6 +447,7 @@ require __DIR__ . '/pfboard_v1_env.php';   // 13: environment pieces (2.6.75)
 require __DIR__ . '/pfboard_v1_notes.php';   // 14: notices (2.6.76)
 require __DIR__ . '/pfboard_v1_guard.php';   // 15: your guard fades when your turn starts (2.6.77)
 require __DIR__ . '/pfboard_v1_lasting.php';   // 17: a board that lasts (2.6.98)
+require __DIR__ . '/pfboard_v1_kinds.php';   // 19: class rules (2.6.98)
 
 echo "== 16. compat framework: a state without the new keys plays by 2.6.94 (PRE)\n";
 $s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]);

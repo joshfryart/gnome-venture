@@ -519,6 +519,15 @@
   var PF_HOSTILE_CM = 0.6;
   var PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health
   var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0 };
+  var PFB_KIND_SWARM = 0.6, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;   // 2.6.98 class rules (pfb_kind_of ...)
+  function kindOf(c, size) {
+    if (size === 'boss') return 'boss';
+    var cl = String(nn(c['class'], '')).toLowerCase(), ks = ['critter', 'bird', 'beast', 'water', 'plant', 'reptile'];
+    for (var i = 0; i < ks.length; i++) if (cl.indexOf(ks[i]) === 0) return ks[i];
+    return '';
+  }
+  function kindNow(s) { return v1r(s, 'kinds') === 1 ? String(nn(s.foe.kind, '')) : ''; }
+  function venom(s, p) { if (p.by === 'foe' && kindNow(s) === 'reptile') { if (!s.ven) s.ven = {}; s.ven[p.x + ',' + p.y] = PFB_KIND_VENOM_RNDS + 1; } }
   function v1r(s, k) { var v = s.v1 && s.v1[k] !== undefined && s.v1[k] !== null ? s.v1[k] : PFB_V1_PRE[k]; return toInt(v === undefined ? 0 : v); }
   function v1Lvx(c, lv) { return round(Math.max(Number(c[2]), Math.min(Number(c[3]), 1 + Number(c[0]) * (lv - toInt(c[1])))), 4); }   // 2.6.79 retune for isolated environment pieces   // 2.6.75 retune for environment pieces
   // 2.6.75 ENVIRONMENT PIECES: the environment is a third player; after the creature's turn it places one piece from its own deck, its next piece lies face up a round ahead.
@@ -973,6 +982,7 @@
       if (pt && (pt.by === 'none' || pt.by === 'env')) pt = null;   // and a piece after it (or after an environment piece) has no combo parent
       var vv = value(pt ? pt.tile : null, tile, pt !== null && pt.by === who, false), ck = vv[2];
       var val = iround(vv[0] * Number(nn(p.cm, 1.0)));
+      if (who === 'foe' && tile.t === 'hurt' && toInt(nn(s.foe.grudge, 0)) > 0 && kindNow(s) === 'beast') val = iround(val * (1 + PFB_KIND_GRUDGE * toInt(s.foe.grudge)));   // 2.6.98 Grudge
       var sunny = !!v1 && (tile.t === 'hurt' || tile.t === 'charm') && ter(s, p.x, p.y) === 'sun';
       if (sunny) val = iround(val * Number(v1.sun));
       if (esun > 1 && who === rb) { val = iround(val * esun); sunny = true; }
@@ -1014,7 +1024,7 @@
         if (onlyRoot && froot !== null && fid !== froot) return;
         discardPiece(s, q); q.used = by;
         if (!Array.isArray(s.spent)) s.spent = [];
-        s.spent.push(q); used.push(fid);
+        s.spent.push(q); used.push(fid); venom(s, q);
         delete s.cell[q.x + ',' + q.y]; delete s.pcs[fid];
       });
     }
@@ -1024,7 +1034,7 @@
       if (lim > 0 && toInt(nn(p.f, 0)) >= lim) {
         discardPiece(s, p);
         if (!Array.isArray(s.spent)) s.spent = [];
-        s.spent.push(p);
+        s.spent.push(p); venom(s, p);
         delete s.cell[p.x + ',' + p.y]; delete s.pcs[ids[i]];
       }
     }
@@ -1060,6 +1070,10 @@
     if (ev.length) { ev[0].linked = joints; ev[0].snap = snap(s); }
     var used = spend(s);
     if (used.length && ev.length) ev[0].used = used;
+    if (ev.length && who === 'me' && s.ven && has(s.ven, x + ',' + y) && kindNow(s) === 'reptile' && truthy(s.v1.tags)) {   // 2.6.98 Venom trail
+      s.me.poison = toInt(s.me.poison) + PFB_KIND_VENOM_RNDS; s.me.poison_v = Math.max(toInt(s.me.poison_v), PFB_KIND_VENOM_POISON);
+      var vn = note('venom', String(tile.n)); vn.by = 'me'; ev.push(vn);
+    }
     return ev;
   }
 
@@ -1192,7 +1206,7 @@
     for (var i = 0; i < ids.length; i++) {
       var p = s.pcs[ids[i]];
       if (p.born <= s.round - lifeOf(s, p) + 1) {
-        discardPiece(s, p);
+        discardPiece(s, p); venom(s, p);
         gone.push(p);
         delete s.cell[p.x + ',' + p.y]; delete s.pcs[ids[i]];
       }
@@ -1239,15 +1253,18 @@
   }
 
   /** The best single placement for who: [handIdx, x, y, score] or null. */
-  function search(s, who, allowHeavy) {
+  function search(s, who, allowHeavy, onlyK, avoid) {
     if (allowHeavy === undefined) allowHeavy = true;
+    if (onlyK === undefined) onlyK = null; if (avoid === undefined) avoid = null;
     var best = null, hand = s[who].hand;
     for (var i = 0; i < hand.length; i++) {
       var tile = hand[i];
       if (!allowHeavy && tile.tag === 'heavy' && nn(tile.m, '') !== 'steady') continue;
+      if (onlyK !== null && tile.k !== onlyK) continue;
       var cs = cells(s, tile, who);
       for (var c = 0; c < cs.length; c++) {
         var x = cs[c][0], y = cs[c][1], w = clone(s);
+        if (avoid !== null && x === avoid[0] && y === avoid[1]) continue;
         if (place(w, who, i, x, y) === null) continue;
         var sc = score(s, w, who);
         if (s.v1 && has(w.cell, x + ',' + y)) {   // v1: bramble under a piece that stays out, and what the announced events will do to it
@@ -1260,7 +1277,7 @@
     return best;
   }
 
-  function foeLen(s) { return Math.max(0, Math.min(s.foe.hand.length, 1 - toInt(s.foe.slow))); }
+  function foeLen(s) { var n = kindNow(s) === 'critter' ? 2 : 1; return Math.max(0, Math.min(s.foe.hand.length, toInt(s.foe.slow) > 0 ? 0 : n)); }   // 2.6.98 Swarm
 
   function guardNotes(s, ev) {   // 2.6.77 (pfb_guard_notes)
     if (!s.v1 || s.over) return;
@@ -1289,7 +1306,7 @@
       if (checkEnd(s)) return ev;
     }
     if (s.v1 && truthy(s.v1.tags) && toInt(s.foe.slow) > 0 && s.foe.hand.length) ev.push(note('slow'));
-    var n = foeLen(s), again = false; s.lastfoe = [];
+    var n = foeLen(s), again = false, hp0 = toInt(s.me.hp), kind = kindNow(s); s.lastfoe = [];
     if (s.v1 && truthy(s.v1.tags)) s.foe.again = 0;
     if (s.v1) s.reaim = 0;
     for (var k = 0; k < n && !s.over; k++) {
@@ -1297,9 +1314,13 @@
       if (plan && plan.t === 'hurt' && v1r(s, 'aimhit') === 1) {   // 2.6.98 AIMHIT: your piece on its aimed cell is struck instead of it picking again
         var cid = nn(s.cell[plan.x + ',' + plan.y], null);
         if (cid !== null && s.pcs[cid].by === 'me') {
-          for (var sh = 0; sh < s.foe.hand.length; sh++) if (s.foe.hand[sh].k === plan.k) { ev.push(strike(s, sh, cid)); r = []; break; }
+          for (var sh = 0; sh < s.foe.hand.length; sh++) if (s.foe.hand[sh].k === plan.k) { ev.push(strike(s, sh, cid)); r = []; if (kind === 'beast') s.foe.grudge = Math.min(PFB_KIND_GRUDGE_MAX, toInt(nn(s.foe.grudge, 0)) + 1); break; }
           if (r !== null) continue;
         }
+      }
+      if (plan && has(s.cell, plan.x + ',' + plan.y) && s.cell[plan.x + ',' + plan.y] !== null) {   // its cell is taken
+        if (kind === 'bird' && plan.alt && !(has(s.cell, plan.alt.x + ',' + plan.alt.y) && s.cell[plan.alt.x + ',' + plan.alt.y] !== null)) plan = plan.alt;   // 2.6.98 Two aims
+        else if (kind === 'beast') s.foe.grudge = Math.min(PFB_KIND_GRUDGE_MAX, toInt(nn(s.foe.grudge, 0)) + 1);   // Grudge
       }
       if (plan) for (var hi = 0; hi < s.foe.hand.length; hi++) if (s.foe.hand[hi].k === plan.k) { s.aimforce = true; r = place(s, 'foe', hi, plan.x, plan.y); delete s.aimforce; break; }   // v1 AIM
       if (r === null) {   // no fumble: it picks again at full value
@@ -1308,18 +1329,62 @@
         if (m === null) break;
         r = place(s, 'foe', m[0], m[1], m[2]);
       }
-      if (r) { ev = ev.concat(r); s.lastfoe.push(s.pid); }
+      if (r) { ev = ev.concat(r); s.lastfoe.push(s.pid); if (kind === 'water') current(s, s.pid, ev); }
       if (truthy(s.foe.again)) { if (!again) { again = true; n++; if (s.v1 && truthy(s.v1.tags) && r && r.length) ev.push(note('quick', String(nn(r[0].n, '')))); } s.foe.again = 0; }   // a Quick piece: one more piece this turn (once)
     }
+    if (kind === 'beast' && toInt(s.me.hp) < hp0) s.foe.grudge = 0;   // Grudge: a hit that lands clears it
+    if (kind === 'plant' && !truthy(s.over)) grow(s, ev);
     s.foe.agg = 0; s.foe.slow = 0;
     return ev;
   }
 
+  /** 2.6.98 Water "Current" (pfb_current). */
+  function current(s, id, ev) {
+    var p = has(s.pcs, id) ? s.pcs[id] : null; if (!p || truthy(s.over)) return;
+    var sides = Object.keys(PFB_SIDE);
+    for (var i = 0; i < sides.length; i++) {
+      var dx = PFB_SIDE[sides[i]][0], dy = PFB_SIDE[sides[i]][1], q = pieceAt(s, p.x + dx, p.y + dy);
+      if (!q || q.by !== 'me') continue;
+      var nx = q.x + dx, ny = q.y + dy;
+      if (nx < 0 || ny < 0 || nx >= pfbW(s) || ny >= pfbH(s) || has(s.cell, nx + ',' + ny)) continue;
+      delete s.cell[q.x + ',' + q.y]; s.cell[nx + ',' + ny] = q.id; s.pcs[q.id].x = nx; s.pcs[q.id].y = ny;
+      var e = note('current', String(q.tile.n)); e.moved = { id: q.id, by: 'me', n: q.tile.n, x: nx, y: ny, fx: toInt(q.x), fy: toInt(q.y) }; ev.push(e);
+      return;
+    }
+  }
+  /** 2.6.98 Plant "Grows" (pfb_grow). */
+  function grow(s, ev) {
+    var ks = Object.keys(s.pcs); for (var i = 0; i < ks.length; i++) { var q = s.pcs[ks[i]]; if (q.by === 'env' && q.tile.own) return; }
+    var last = s.lastfoe.length ? s.lastfoe[s.lastfoe.length - 1] : null, p = last && has(s.pcs, last) ? s.pcs[last] : null; if (!p) return;
+    var tile = null, deck = envDeck('boss'); for (var d = 0; d < deck.length; d++) if (deck[d].env === 'bramble') { tile = clone(deck[d]); break; } if (!tile) return;
+    tile.ed = { L: ['wild', null], R: ['wild', null], T: ['wild', null], B: ['wild', null] }; tile.own = 1;
+    var sides = Object.keys(PFB_SIDE);
+    for (var k = 0; k < sides.length; k++) {
+      var x = p.x + PFB_SIDE[sides[k]][0], y = p.y + PFB_SIDE[sides[k]][1];
+      if (x < 0 || y < 0 || x >= pfbW(s) || y >= pfbH(s) || has(s.cell, x + ',' + y) || check(s, tile, x, y) === null) continue;
+      var id = ++s.pid; s.seq++;
+      s.pcs[id] = { id: id, by: 'env', tile: tile, x: x, y: y, born: s.round + 1, seq: s.seq };
+      s.cell[x + ',' + y] = id;
+      var e = note('grows', String(tile.n)); e.id = id; e.x = x; e.y = y; ev.push(e);
+      return;
+    }
+  }
+
   function intent(s) {
     if (s.v1) forecast(s);
-    var m = search(s, 'foe');
+    var kind = kindNow(s), m = null;
+    if (kind === 'boss' && s.foe.nextk) m = search(s, 'foe', true, String(s.foe.nextk));   // 2.6.98 Two turns
+    s.foe.nextk = null;
+    if (m === null) m = search(s, 'foe');
     s.foe.intent = m ? s.foe.hand[m[0]].t : null;
     if (s.v1 && truthy(s.v1.aim)) { var h = m ? s.foe.hand[m[0]] : null; s.foe.plan = h && foeLen(s) > 0 ? { k: h.k, n: h.n, t: h.t, v: h.v, tag: h.tag, x: m[1], y: m[2] } : null; }
+    if (kind !== '' && s.foe.plan) {   // 2.6.98 class rules that add to the aim
+      if (kind === 'bird') { var am = search(s, 'foe', true, null, [toInt(m[1]), toInt(m[2])]); if (am) { var ah = s.foe.hand[am[0]]; s.foe.plan.alt = { k: ah.k, n: ah.n, t: ah.t, v: ah.v, tag: ah.tag, x: am[1], y: am[2] }; } }
+      if (kind === 'boss') {
+        var w2 = clone(s);
+        if (place(w2, 'foe', m[0], toInt(m[1]), toInt(m[2])) !== null) { var nm = search(w2, 'foe'); if (nm) { var nh = w2.foe.hand[nm[0]]; s.foe.plan.next = { k: nh.k, n: nh.n, t: nh.t, v: nh.v, tag: nh.tag }; s.foe.nextk = nh.k; } }
+      }
+    }
     if (s.foe.plan && v1r(s, 'aimtot')) s.foe.plan.tot = aimTotal(s);   // 2.6.95: what its committed move would do now (one dry run; stored with the aim)
   }
 
@@ -1328,14 +1393,15 @@
     var plan = nn(s.foe.plan, null);
     if (!plan || truthy(s.over)) return null;
     if (foeLen(s) < 1) return { broken: 'slow' };
-    var x = toInt(plan.x), y = toInt(plan.y);
+    var x = toInt(plan.x), y = toInt(plan.y), usedAlt = false;
     if (has(s.cell, x + ',' + y) && s.cell[x + ',' + y] !== null) {
       var scid = s.cell[x + ',' + y], smp = has(s.pcs, scid) ? s.pcs[scid] : null;   // 2.6.98 (aimhit): your piece on its Hurt cell is struck: the aim says STRIKE, it is not broken
       if (v1r(s, 'aimhit') === 1 && plan.t === 'hurt' && smp && smp.by === 'me') {
         var sg = smp.tile.t === 'guard' ? toInt(smp.tile.v) : 0, shit = toInt(nn(plan.v, 0));
         return { hp: 0, g: 0, bait: 0, heal: 0, n: 1, why: [], ids: [], strike: { id: toInt(scid), n: String(nn(smp.tile.n, '')), broke: sg < shit, hit: shit, guard: sg } };
       }
-      return { broken: 'cell' };
+      if (kindNow(s) === 'bird' && plan.alt && !(has(s.cell, plan.alt.x + ',' + plan.alt.y) && s.cell[plan.alt.x + ',' + plan.alt.y] !== null)) { plan = plan.alt; x = toInt(plan.x); y = toInt(plan.y); usedAlt = true; }   // 2.6.98 Two aims
+      else return { broken: 'cell' };
     }
     var hi = -1; for (var i = 0; i < s.foe.hand.length; i++) if (s.foe.hand[i].k === plan.k) { hi = i; break; }
     if (hi < 0) return { broken: 'edge' };
@@ -1364,6 +1430,7 @@
     fires.forEach(function (f) { why.push(f); });
     if (quick) why.push('Quick: plays again');
     if (mud) why.push('Mud -' + Math.round(100 * Number(nn(s.v1.mud, 0))) + '%');
+    if (usedAlt) why.unshift('its second aim');
     return { hp: hp0 - toInt(w.me.hp), g: g, bait: round(bait, 1), heal: heal, n: n, why: why, ids: ids };
   }
 
@@ -1378,6 +1445,8 @@
     s.mode = 'board'; s.strip = []; s.pcs = {}; s.cell = {}; s.pid = 0; s.seq = 0; s.round = 1;
     if (v1) {
       s.w = v1.w; s.h = v1.h; delete v1.w; delete v1.h; s.v1 = v1;
+      s.foe.kind = truthy(v1.kinds) ? kindOf(c, s.size) : ''; s.foe.grudge = 0; s.foe.nextk = null; s.ven = {};   // 2.6.98 class rules
+      if (s.foe.kind === 'critter') ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t0, i) { s.foe[z][i].v = Math.max(1, iround(t0.v * PFB_KIND_SWARM)); }); });   // Swarm
       v1Tiles(s, c); seedGround(s); s.envs = []; s.envlog = []; s.reaim = 0; s.me.flipt = 0;
       if (v1.env) { s.env = { draw: shuffle(s, envDeck(s.size, String(nn(c.region, '')), !!v1r(s, 'nowm'))), discard: [], next: [] }; envDraw(s); }   // 2.6.75: the environment's deck
       if (v1.tags) { s.me.poison = 0; s.me.poison_v = 0; s.me.slowdraw = 0; s.me.tripped = 0; s.foe.bashnext = 0; s.foe.again = 0; }
@@ -1453,6 +1522,7 @@
       slow = truthy(s.me.slowdraw) ? 1 : 0; s.me.slowdraw = 0; s.me.tripped = slow;
     }
     var gone = expire(s);
+    if (s.ven) Object.keys(s.ven).forEach(function (vk) { if (s.ven[vk] <= 1) delete s.ven[vk]; else s.ven[vk] = s.ven[vk] - 1; });   // 2.6.98 venom fades
     if (s.v1 && truthy(s.v1.env)) { var eg = gone.filter(function (p) { return p.by === 'env'; }).map(function (p) { return p.id; }); if (eg.length) s.envlog.push({ k: 'expire', x: null, y: null, me: 0, foe: 0.0, ids: eg }); }   // 2.6.75
     draw(s, 'foe', s.foe.hsize);
     s.turn++; s.round++;
@@ -1595,6 +1665,7 @@
       v.envlog = clone(nn(s.envlog, []));
       if (truthy(c.env)) v.env = { next: s.env.next.map(function (nx) { return { k: nx.k, n: nx.n, kind: nx.env, life: toInt(nx.life), e: edges(nx) }; }), deck: s.env.draw.length, used: s.env.discard.length, n: toInt(c.envn) };   // 2.6.75: next is a list
       v.aim = clone(nn(s.foe.plan, null));
+      if (kindNow(s) !== '') { v.kind = kindNow(s); v.grudge = toInt(nn(s.foe.grudge, 0)); v.ven = Object.keys(nn(s.ven, {})).map(function (k) { var a = k.split(','); return { x: toInt(a[0]), y: toInt(a[1]), r: s.ven[k] - 1 }; }); }   // 2.6.98 class rules
       v.reaim = truthy(s.reaim);
       v.flip = { on: truthy(c.flip), used: toInt(nn(s.me.flipt, 0)) === toInt(s.turn) };
       if (truthy(c.tags)) v.status = { poison: toInt(s.me.poison), poison_v: toInt(s.me.poison_v), slowdraw: toInt(s.me.slowdraw), evade: toInt(s.me.evade),
@@ -1640,6 +1711,9 @@
       case 'slow': return '\u23F3 The ' + foe + ' loses its turn.';
       case 'fade': return '\uD83D\uDEE1\uFE0F Your guard fades (-' + toInt(e.n) + ') as your turn starts.';
       case 'hold': return '\uD83D\uDEE1\uFE0F Hold: ' + toInt(e.n) + ' guard stays up into your turn.';
+      case 'current': return '\uD83C\uDF0A The current pushes your ' + e.n + ' one cell.';
+      case 'grows': return '\uD83C\uDF3F The ' + foe + ' grows a Bramble beside its piece.';
+      case 'venom': return '\u2620\uFE0F Venom: your ' + e.n + ' poisons you (2 a round, 2 rounds).';
       default: return '\uD83E\uDDB6 Tripped: you draw 1 fewer piece next turn.';
     }
   }
@@ -1654,7 +1728,7 @@
       var ep = []; if (truthy(e.me)) ep.push('you -' + toInt(e.me) + ' hp'); if (truthy(e.foe)) ep.push('creature -' + iround(Number(e.foe)) + ' hp');
       return ext({ by: 'env', types: ['env'], tags: [String(nn(e.kind, e.env))], txt: String(e.n) + (ep.length ? ': ' + ep.join(' · ') : ''), tg: truthy(e.me) ? 'me' : (truthy(e.foe) ? 'foe' : null) });
     }
-    if (e.note !== undefined && e.note !== null) return ext({ by: String(e.by), types: ['note'], tags: [String(e.note)], txt: e.note === 'quick' ? '\u26A1 Quick: plays 2' : e.note === 'slow' ? '\u23F3 loses its turn' : e.note === 'fade' ? '\uD83D\uDEE1\uFE0F guard fades -' + toInt(e.n) : e.note === 'hold' ? '\uD83D\uDEE1\uFE0F Hold kept ' + toInt(e.n) : '\uD83E\uDDB6 you draw 1 fewer', tg: null });
+    if (e.note !== undefined && e.note !== null) return ext({ by: String(e.by), types: ['note'], tags: [String(e.note)], txt: e.note === 'quick' ? '\u26A1 Quick: plays 2' : e.note === 'slow' ? '\u23F3 loses its turn' : e.note === 'fade' ? '\uD83D\uDEE1\uFE0F guard fades -' + toInt(e.n) : e.note === 'hold' ? '\uD83D\uDEE1\uFE0F Hold kept ' + toInt(e.n) : e.note === 'current' ? '\uD83C\uDF0A pushed ' + e.n : e.note === 'grows' ? '\uD83C\uDF3F grows a Bramble' : e.note === 'venom' ? '\u2620\uFE0F venom: poisoned' : '\uD83E\uDDB6 you draw 1 fewer', tg: null });
     var parts = [], tg = 'foe', by = String(nn(e.by, 'me')), t = String(nn(e.t, 'hurt'));
     if (truthy(e.tick)) parts.push('-' + toInt(e.v) + ' hp');
     else if (by === 'me') {

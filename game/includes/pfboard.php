@@ -69,6 +69,18 @@ const PFB_V1_LEVEL = ['small' => [0.0, 1, 1.0, 1.0], 'medium' => [0.05, 12, 0.85
  *  useroot, kinds = class rules (later tasks). A NEW fight takes its defaults from pfb_v1_cfg (each task flips its own default); an old state falls back to this. */
 const PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health (rules.md: large 7.7 against 7.8 turns)
 const PFB_V1_PRE = ['aside' => 1, 'must' => 1, 'freepass' => 0, 'flip1' => 1, 'nowm' => 0, 'redraw' => 0, 'onebar' => 0, 'aimtot' => 0, 'keepmine' => 0, 'aimhit' => 0, 'useroot' => 0, 'kinds' => 0];
+/** 2.6.98 class rules (switch kinds): one readable rule per creature class. Swarm: Critter plays 2 pieces a turn at x0.6. Grudge: Beast Hurt +25% per block (max 3). Venom: Reptile leaves venom 2 rounds, poison 2 x 2. */
+const PFB_KIND_SWARM = 0.6, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;
+/** The class rule a creature plays by: critter | bird | beast | water | plant | reptile, or boss (a boss plays the boss rule whatever its class); '' = none. */
+function pfb_kind_of(array $c, string $size): string
+{
+    if ($size === 'boss') return 'boss';
+    $cl = strtolower((string)($c['class'] ?? ''));
+    foreach (['critter', 'bird', 'beast', 'water', 'plant', 'reptile'] as $k) if (str_starts_with($cl, $k)) return $k;
+    return '';
+}
+/** The class rule of THIS fight ('' when the switch is off or an old state has none). */
+function pfb_kind(array $s): string { return pfb_v1r($s, 'kinds') === 1 ? (string)($s['foe']['kind'] ?? '') : ''; }
 /** The creature's bar in a NEW-rule fight (one shared bar, Hurt and Charm both fill it) is called its Yield: it yields when the bar is full (backed off by hurting, won over by charm).
  *  The one place for the word: 'Yield 23/40' as the label, 'Yield bar' in sentences. A 2.6.94 fight (V1.onebar 0) keeps "Creature health" and the Charm bar. The browser reads it from the page data (`yieldw`). */
 const PF_YIELD = 'Yield';
@@ -655,6 +667,7 @@ function pfb_fire(array &$s, int $root): array
         if ($pt && ($pt['by'] === 'none' || $pt['by'] === 'env')) $pt = null;   // and a piece after it (or after an environment piece) has no combo parent
         [$val, , $ck] = pf_value($pt['tile'] ?? null, $tile, $pt !== null && $pt['by'] === $who, false);   // combos only off your own piece; no fit bonus (every link fits)
         $val = (int)round($val * (float)($p['cm'] ?? 1.0));   // a placed 3-piece group plays for more
+        if ($who === 'foe' && $tile['t'] === 'hurt' && ($gr = (int)($s['foe']['grudge'] ?? 0)) > 0 && pfb_kind($s) === 'beast') $val = (int)round($val * (1 + PFB_KIND_GRUDGE * $gr));   // 2.6.98 Grudge
         $sunny = $v1 && in_array($tile['t'], ['hurt', 'charm'], true) && pfb_ter($s, $p['x'], $p['y']) === 'sun';
         if ($sunny) $val = (int)round($val * (float)$v1['sun']);
         if ($esun > 1 && $who === $rb) { $val = (int)round($val * $esun); $sunny = true; }
@@ -703,14 +716,14 @@ function pfb_spend(array &$s): array
             if (!isset($s['pcs'][$id])) continue; $p = $s['pcs'][$id];
             if ($keepMine && $p['by'] === 'me') continue;
             if ($onlyRoot && $froot !== null && $id !== $froot) continue;
-            pfb_discard($s, $p); $p['used'] = $by; $s['spent'][] = $p; $used[] = $id;
+            pfb_discard($s, $p); $p['used'] = $by; $s['spent'][] = $p; $used[] = $id; pfb_venom($s, $p);
             unset($s['cell'][$p['x'] . ',' . $p['y']], $s['pcs'][$id]);
         }
     }
     foreach ($s['pcs'] as $id => $p) {
         $lim = pfb_fire_limit($p);
         if ($lim > 0 && (int)($p['f'] ?? 0) >= $lim) {
-            pfb_discard($s, $p); $s['spent'][] = $p;
+            pfb_discard($s, $p); $s['spent'][] = $p; pfb_venom($s, $p);
             unset($s['cell'][$p['x'] . ',' . $p['y']], $s['pcs'][$id]);
         }
     }
@@ -741,6 +754,10 @@ function pfb_place(array &$s, string $who, int $handIdx, int $x, int $y): ?array
     if ($ev) { $ev[0]['linked'] = $joints; $ev[0]['snap'] = pfb_snap($s); }   // linked: how many linked joints the new piece made; snap: the board for the history rewind
     $used = pfb_spend($s);
     if ($used && $ev) $ev[0]['used'] = $used;   // v1: the ids this chain used up
+    if ($ev && $who === 'me' && isset($s['ven']["$x,$y"]) && pfb_kind($s) === 'reptile' && !empty($s['v1']['tags'])) {   // 2.6.98 Venom trail: you stepped on it
+        $s['me']['poison'] = (int)$s['me']['poison'] + PFB_KIND_VENOM_RNDS; $s['me']['poison_v'] = max((int)$s['me']['poison_v'], PFB_KIND_VENOM_POISON);
+        $vn = pfb_note('venom', (string)$tile['n']); $vn['by'] = 'me'; $ev[] = $vn;
+    }
     return $ev;
 }
 
@@ -885,11 +902,17 @@ function pfb_check_after(array $s, int $id): int
 }
 
 /** Expire old pieces at the end of a round (after everything has scored): back to their owner's discard. Returns what left, for the replay. */
+/** 2.6.98 Venom trail: a Reptile's piece that leaves the board leaves venom on its cell (a piece of yours put there poisons you). Stored as rounds + 1: it decays after the round's expiry. */
+function pfb_venom(array &$s, array $p): void
+{
+    if ($p['by'] === 'foe' && pfb_kind($s) === 'reptile') $s['ven'][$p['x'] . ',' . $p['y']] = PFB_KIND_VENOM_RNDS + 1;
+}
+
 function pfb_expire(array &$s): array
 {
     $gone = [];
     foreach ($s['pcs'] as $id => $p) if ($p['born'] <= $s['round'] - pfb_life($s, $p) + 1) {
-        pfb_discard($s, $p);
+        pfb_discard($s, $p); pfb_venom($s, $p);
         $gone[] = $p;
         unset($s['cell'][$p['x'] . ',' . $p['y']], $s['pcs'][$id]);
     }
@@ -941,12 +964,14 @@ function pfb_score(array $b, array $a, string $who): float
 }
 
 /** The best single placement for $who by trying every tile in every legal cell on a copy. [handIdx, x, y, score] or null. Ties: first found (deterministic). */
-function pfb_search(array $s, string $who, bool $allowHeavy = true): ?array
+function pfb_search(array $s, string $who, bool $allowHeavy = true, ?string $onlyK = null, ?array $avoid = null): ?array
 {
     $best = null;
     foreach ($s[$who]['hand'] as $i => $tile) {
         if (!$allowHeavy && $tile['tag'] === 'heavy' && ($tile['m'] ?? '') !== 'steady') continue;
+        if ($onlyK !== null && $tile['k'] !== $onlyK) continue;   // 2.6.98: a boss's committed piece
         foreach (pfb_cells($s, $tile, $who) as [$x, $y]) {
+            if ($avoid !== null && $x === $avoid[0] && $y === $avoid[1]) continue;   // 2.6.98: a Bird's second aim is on another cell
             $w = $s;
             if (pfb_place($w, $who, $i, $x, $y) === null) continue;
             $sc = pfb_score($s, $w, $who);
@@ -963,7 +988,8 @@ function pfb_search(array $s, string $who, bool $allowHeavy = true): ?array
 /** How many pieces the creature puts down this turn: exactly one (so only the chain that piece makes fires; nothing disconnected from it). Trip/Lull make it skip the turn. */
 function pfb_foe_len(array $s): int
 {
-    return max(0, min(count($s['foe']['hand']), 1 - (int)$s['foe']['slow']));
+    $n = pfb_kind($s) === 'critter' ? 2 : 1;   // 2.6.98 Swarm
+    return max(0, min(count($s['foe']['hand']), (int)$s['foe']['slow'] > 0 ? 0 : $n));
 }
 
 /** 2.6.77: the notices for your guard at the start of your turn ('fade' = it ran out, 'hold' = a Hold guard stayed up), as events after the round's others; gnow is what the shield shows from there on. */
@@ -1009,7 +1035,7 @@ function pfb_foe_turn(array &$s, int $extra): array
         if (pf_check_end($s)) return $ev;
     }
     if (!empty($s['v1']['tags']) && (int)$s['foe']['slow'] > 0 && $s['foe']['hand']) $ev[] = pfb_note('slow');   // 2.6.76: it loses its turn
-    $n = pfb_foe_len($s); $s['lastfoe'] = []; $again = false;
+    $n = pfb_foe_len($s); $s['lastfoe'] = []; $again = false; $hp0 = (int)$s['me']['hp']; $kind = pfb_kind($s);
     if (!empty($s['v1']['tags'])) $s['foe']['again'] = 0;
     if (!empty($s['v1'])) $s['reaim'] = 0;   // the pieces it puts down this turn (the page holds only these back until the replay reaches them)
     for ($k = 0; $k < $n && !$s['over']; $k++) {
@@ -1017,9 +1043,13 @@ function pfb_foe_turn(array &$s, int $extra): array
         if ($plan && ($plan['t'] ?? '') === 'hurt' && pfb_v1r($s, 'aimhit') === 1) {   // 2.6.98 AIMHIT: YOUR piece on the cell its Hurt aim wanted is struck instead of the creature picking again
             $cid = $s['cell'][$plan['x'] . ',' . $plan['y']] ?? null;
             if ($cid !== null && ($s['pcs'][$cid]['by'] ?? '') === 'me') {
-                foreach ($s['foe']['hand'] as $hi => $ht) if ($ht['k'] === $plan['k']) { $ev[] = pfb_strike($s, $hi, (int)$cid); $r = []; break; }
+                foreach ($s['foe']['hand'] as $hi => $ht) if ($ht['k'] === $plan['k']) { $ev[] = pfb_strike($s, $hi, (int)$cid); $r = []; if ($kind === 'beast') $s['foe']['grudge'] = min(PFB_KIND_GRUDGE_MAX, (int)($s['foe']['grudge'] ?? 0) + 1); break; }
                 if ($r !== null) continue;
             }
+        }
+        if ($plan && isset($s['cell'][$plan['x'] . ',' . $plan['y']])) {   // its cell is taken
+            if ($kind === 'bird' && !empty($plan['alt']) && !isset($s['cell'][$plan['alt']['x'] . ',' . $plan['alt']['y']])) $plan = $plan['alt'];   // 2.6.98 Two aims: it plays the second one
+            elseif ($kind === 'beast') $s['foe']['grudge'] = min(PFB_KIND_GRUDGE_MAX, (int)($s['foe']['grudge'] ?? 0) + 1);   // 2.6.98 Grudge: you blocked it
         }
         if ($plan) { foreach ($s['foe']['hand'] as $hi => $ht) if ($ht['k'] === $plan['k']) { $s['aimforce'] = true; $r = pfb_place($s, 'foe', $hi, $plan['x'], $plan['y']); unset($s['aimforce']); break; } }   // v1 AIM: it plays the piece and the cell it showed
         if ($r === null) {   // no aim, or its cell is taken (or its piece is gone): it picks again at full value (no fumble)
@@ -1028,11 +1058,45 @@ function pfb_foe_turn(array &$s, int $extra): array
             if ($m === null) break;
             $r = pfb_place($s, 'foe', $m[0], $m[1], $m[2]);
         }
-        if ($r) { $ev = array_merge($ev, $r); $s['lastfoe'][] = $s['pid']; }
+        if ($r) { $ev = array_merge($ev, $r); $s['lastfoe'][] = $s['pid']; if ($kind === 'water') pfb_current($s, (int)$s['pid'], $ev); }
         if (!empty($s['foe']['again'])) { if (!$again) { $again = true; $n++; if (!empty($s['v1']['tags']) && $r) $ev[] = pfb_note('quick', (string)($r[0]['n'] ?? '')); } $s['foe']['again'] = 0; }   // a Quick piece it placed: one more piece this turn (once)
     }
+    if ($kind === 'beast' && (int)$s['me']['hp'] < $hp0) $s['foe']['grudge'] = 0;   // 2.6.98 Grudge: a hit that lands clears it
+    if ($kind === 'plant' && !$s['over']) pfb_grow($s, $ev);
     $s['foe']['agg'] = 0; $s['foe']['slow'] = 0;
     return $ev;
+}
+
+/** 2.6.98 Water "Current": after its piece lands, ONE of your pieces touching it slides a cell straight away from it, if that cell is free. */
+function pfb_current(array &$s, int $id, array &$ev): void
+{
+    $p = $s['pcs'][$id] ?? null; if (!$p || $s['over']) return;
+    foreach (PFB_SIDE as [$dx, $dy]) {
+        $q = pfb_at($s, $p['x'] + $dx, $p['y'] + $dy); if (!$q || $q['by'] !== 'me') continue;
+        $nx = $q['x'] + $dx; $ny = $q['y'] + $dy;
+        if ($nx < 0 || $ny < 0 || $nx >= pfb_w($s) || $ny >= pfb_h($s) || isset($s['cell']["$nx,$ny"])) continue;
+        unset($s['cell'][$q['x'] . ',' . $q['y']]); $s['cell']["$nx,$ny"] = $q['id']; $s['pcs'][$q['id']]['x'] = $nx; $s['pcs'][$q['id']]['y'] = $ny;
+        $e = pfb_note('current', (string)$q['tile']['n']); $e['moved'] = ['id' => $q['id'], 'by' => 'me', 'n' => $q['tile']['n'], 'x' => $nx, 'y' => $ny, 'fx' => (int)$q['x'], 'fy' => (int)$q['y']]; $ev[] = $e;
+        return;
+    }
+}
+
+/** 2.6.98 Plant "Grows": after its turn it puts a Bramble (an environment piece that fits anywhere) on a free cell touching its newest piece; at most one of its own Brambles is out. */
+function pfb_grow(array &$s, array &$ev): void
+{
+    foreach ($s['pcs'] as $q) if ($q['by'] === 'env' && !empty($q['tile']['own'])) return;
+    $last = end($s['lastfoe']); $p = $last ? ($s['pcs'][$last] ?? null) : null; if (!$p) return;
+    $tile = null; foreach (pfb_env_deck('boss') as $et) if ($et['env'] === 'bramble') { $tile = $et; break; } if (!$tile) return;
+    $tile['ed'] = ['L' => ['wild', null], 'R' => ['wild', null], 'T' => ['wild', null], 'B' => ['wild', null]]; $tile['own'] = 1;
+    foreach (PFB_SIDE as [$dx, $dy]) {
+        $x = $p['x'] + $dx; $y = $p['y'] + $dy;
+        if ($x < 0 || $y < 0 || $x >= pfb_w($s) || $y >= pfb_h($s) || isset($s['cell']["$x,$y"]) || pfb_check($s, $tile, $x, $y) === null) continue;
+        $id = ++$s['pid']; $s['seq']++;
+        $s['pcs'][$id] = ['id' => $id, 'by' => 'env', 'tile' => $tile, 'x' => $x, 'y' => $y, 'born' => $s['round'] + 1, 'seq' => $s['seq']];
+        $s['cell']["$x,$y"] = $id;
+        $e = pfb_note('grows', (string)$tile['n']); $e['id'] = $id; $e['x'] = $x; $e['y'] = $y; $ev[] = $e;
+        return;
+    }
 }
 
 // ---------------------------------------------------------------- the whole fight
@@ -1050,6 +1114,8 @@ function pfb_new(array $me, array $c, int $seed, array $opt = []): array
     $s['mode'] = 'board'; $s['strip'] = []; $s['pcs'] = []; $s['cell'] = []; $s['pid'] = 0; $s['seq'] = 0; $s['round'] = 1;
     if ($v1) {
         $s['w'] = $v1['w']; $s['h'] = $v1['h']; unset($v1['w'], $v1['h']); $s['v1'] = $v1;
+        $s['foe']['kind'] = !empty($v1['kinds']) ? pfb_kind_of($c, $s['size']) : ''; $s['foe']['grudge'] = 0; $s['foe']['nextk'] = null; $s['ven'] = [];   // 2.6.98 class rules
+        if ($s['foe']['kind'] === 'critter') foreach (['hand', 'draw', 'discard'] as $z) foreach ($s['foe'][$z] as $i => $t0) $s['foe'][$z][$i]['v'] = max(1, (int)round($t0['v'] * PFB_KIND_SWARM));   // Swarm: small pieces, two a turn
         pfb_v1_tiles($s, $c); pfb_seed_ground($s); $s['envs'] = []; $s['envlog'] = []; $s['reaim'] = 0; $s['me']['flipt'] = 0;
         if ($v1['env']) { $s['env'] = ['draw' => pf_shuffle($s, pfb_env_deck($s['size'], (string)($c['region'] ?? ''), (bool)pfb_v1r($s, 'nowm'))), 'discard' => [], 'next' => []]; pfb_env_draw($s); }   // 2.6.75: the environment's deck; its next pieces lie face up
         if ($v1['tags']) { $s['me']['poison'] = 0; $s['me']['poison_v'] = 0; $s['me']['slowdraw'] = 0; $s['me']['tripped'] = 0; $s['foe']['bashnext'] = 0; $s['foe']['again'] = 0; }
@@ -1112,9 +1178,19 @@ function pfb_start(array &$s, int $handIdx, string $side): ?string
 function pfb_intent(array &$s): void
 {
     if (!empty($s['v1'])) pfb_forecast($s);   // v1: the next terrain events are announced first (the creature's search knows them)
-    $m = pfb_search($s, 'foe');
+    $kind = pfb_kind($s); $m = null;
+    if ($kind === 'boss' && !empty($s['foe']['nextk'])) $m = pfb_search($s, 'foe', true, (string)$s['foe']['nextk']);   // 2.6.98 Two turns: the piece it showed last round is forced now (its cell is chosen now)
+    $s['foe']['nextk'] = null;
+    if ($m === null) $m = pfb_search($s, 'foe');
     $s['foe']['intent'] = $m ? $s['foe']['hand'][$m[0]]['t'] : null;
     if (!empty($s['v1']['aim'])) { $h = $m ? $s['foe']['hand'][$m[0]] : null; $s['foe']['plan'] = $h && pfb_foe_len($s) > 0 ? ['k' => $h['k'], 'n' => $h['n'], 't' => $h['t'], 'v' => $h['v'], 'tag' => $h['tag'], 'x' => $m[1], 'y' => $m[2]] : null; }   // v1 AIM: the piece and the cell of its next move, shown to the player and committed
+    if ($kind !== '' && !empty($s['foe']['plan'])) {   // 2.6.98 class rules that add to the aim
+        if ($kind === 'bird') { $am = pfb_search($s, 'foe', true, null, [(int)$m[1], (int)$m[2]]); if ($am) { $ah = $s['foe']['hand'][$am[0]]; $s['foe']['plan']['alt'] = ['k' => $ah['k'], 'n' => $ah['n'], 't' => $ah['t'], 'v' => $ah['v'], 'tag' => $ah['tag'], 'x' => $am[1], 'y' => $am[2]]; } }   // Two aims
+        if ($kind === 'boss') {   // Two turns: the piece after this one, chosen on the board as it will stand once the aim has landed
+            $w = $s;
+            if (pfb_place($w, 'foe', $m[0], (int)$m[1], (int)$m[2]) !== null) { $nm = pfb_search($w, 'foe'); if ($nm) { $nh = $w['foe']['hand'][$nm[0]]; $s['foe']['plan']['next'] = ['k' => $nh['k'], 'n' => $nh['n'], 't' => $nh['t'], 'v' => $nh['v'], 'tag' => $nh['tag']]; $s['foe']['nextk'] = $nh['k']; } }
+        }
+    }
     if (!empty($s['foe']['plan']) && pfb_v1r($s, 'aimtot')) $s['foe']['plan']['tot'] = pfb_aim_total($s);   // 2.6.95: what its committed move would do now (one dry run; stored with the aim)
 }
 
@@ -1136,7 +1212,8 @@ function pfb_aim_total(array $s): ?array
             $g = ($mp['tile']['t'] ?? '') === 'guard' ? (int)$mp['tile']['v'] : 0; $hit = (int)($plan['v'] ?? 0);
             return ['hp' => 0, 'g' => 0, 'bait' => 0.0, 'heal' => 0, 'n' => 1, 'why' => [], 'ids' => [], 'strike' => ['id' => (int)$cid, 'n' => (string)($mp['tile']['n'] ?? ''), 'broke' => $g < $hit, 'hit' => $hit, 'guard' => $g]];
         }
-        return ['broken' => 'cell'];
+        if (pfb_kind($s) === 'bird' && !empty($plan['alt']) && !isset($s['cell'][$plan['alt']['x'] . ',' . $plan['alt']['y']])) { $plan = $plan['alt']; $x = (int)$plan['x']; $y = (int)$plan['y']; $usedAlt = true; }   // 2.6.98 Two aims: the second aim plays
+        else return ['broken' => 'cell'];
     }
     $hi = null; foreach ($s['foe']['hand'] as $i => $ht) if ($ht['k'] === $plan['k']) { $hi = $i; break; }
     if ($hi === null) return ['broken' => 'edge'];
@@ -1164,6 +1241,7 @@ function pfb_aim_total(array $s): ?array
     foreach ($fires as $f) $why[] = $f;
     if ($quick) $why[] = 'Quick: plays again';
     if ($mud) $why[] = 'Mud -' . (int)round(100 * (float)($s['v1']['mud'] ?? 0)) . '%';
+    if (!empty($usedAlt)) array_unshift($why, 'its second aim');
     return ['hp' => $hp0 - (int)$w['me']['hp'], 'g' => $g, 'bait' => round($bait, 1), 'heal' => $heal, 'n' => $n, 'why' => $why, 'ids' => $ids];
 }
 
@@ -1297,6 +1375,7 @@ function pfb_end_round(array &$s): void
         $slow = !empty($s['me']['slowdraw']) ? 1 : 0; $s['me']['slowdraw'] = 0; $s['me']['tripped'] = $slow;   // 2.6.76: the hand area says so
     }
     $gone = pfb_expire($s);
+    foreach ($s['ven'] ?? [] as $vk => $vr) { if ($vr <= 1) unset($s['ven'][$vk]); else $s['ven'][$vk] = $vr - 1; }   // 2.6.98 venom fades
     if (!empty($s['v1']['env'])) { $eg = array_values(array_map(fn($p) => $p['id'], array_filter($gone, fn($p) => $p['by'] === 'env'))); if ($eg) $s['envlog'][] = ['k' => 'expire', 'x' => null, 'y' => null, 'me' => 0, 'foe' => 0.0, 'ids' => $eg]; }   // 2.6.75: environment pieces whose time is up
     pf_draw($s, 'foe', $s['foe']['hsize']);
     $s['turn']++; $s['round']++;
@@ -1362,6 +1441,7 @@ function pfb_view(array $s): array
             $v['env'] = ['next' => array_map(fn($nx) => ['k' => $nx['k'], 'n' => $nx['n'], 'kind' => $nx['env'], 'life' => (int)$nx['life'], 'e' => pfb_edges($nx)], $s['env']['next']), 'deck' => count($s['env']['draw']), 'used' => count($s['env']['discard']), 'n' => (int)$c['envn']];   // next: a LIST, in the order they will be placed
         }
         $v['aim'] = $s['foe']['plan'] ?? null;   // the creature's next piece and cell (null: it shows none, or it is tripped)
+        if (pfb_kind($s) !== '') { $v['kind'] = pfb_kind($s); $v['grudge'] = (int)($s['foe']['grudge'] ?? 0); $v['ven'] = array_map(fn($k, $r) => ['x' => (int)explode(',', $k)[0], 'y' => (int)explode(',', $k)[1], 'r' => $r - 1], array_keys($s['ven'] ?? []), array_values($s['ven'] ?? [])); }   // 2.6.98 class rules
         $v['reaim'] = !empty($s['reaim']);   // last turn it could not play its aim and picked again
         $v['flip'] = ['on' => (bool)$c['flip'], 'used' => (int)($s['me']['flipt'] ?? 0) === (int)$s['turn']];
         if (!empty($c['tags'])) $v['status'] = ['poison' => (int)$s['me']['poison'], 'poison_v' => (int)$s['me']['poison_v'], 'slowdraw' => (int)$s['me']['slowdraw'], 'evade' => (int)$s['me']['evade'],
