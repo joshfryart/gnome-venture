@@ -347,6 +347,7 @@ function pfight_cells_out(array $u, array $exp): void
 function pfight_line(array $e, string $foe): string
 {
     if (isset($e['env'])) return pfb_env_line($e, $foe);   // v1: a terrain event
+    if (!empty($e['strike'])) return '💥 STRUCK: its ' . $e['n'] . ' hit your ' . ($e['mine'] ?? 'piece') . ' (' . (int)$e['hit'] . ')' . (!empty($e['broke']) ? ' and it breaks.' : ' but your guard ' . (int)$e['guard'] . ' holds.');   // 2.6.98 aimhit
     if (!empty($e['connect'])) return '🧩 You set ' . $e['n'] . ' aside, joined (' . (int)$e['size'] . ' pieces).';
     if (!empty($e['tick'])) return '🧪 The poison works on the ' . $foe . ' (+' . (int)$e['v'] . ').';
     if (isset($e['note'])) return match ($e['note']) { 'quick' => '⚡ ' . ($e['n'] !== '' ? $e['n'] . ': ' : '') . 'Quick. The ' . $foe . ' plays a second piece.', 'slow' => '⏳ The ' . $foe . ' loses its turn.', 'fade' => '🛡️ Your guard fades (-' . (int)$e['n'] . ') as your turn starts.', 'hold' => '🛡️ Hold: ' . (int)$e['n'] . ' guard stays up into your turn.', default => '🦶 Tripped: you draw 1 fewer piece next turn.' };   // 2.6.76

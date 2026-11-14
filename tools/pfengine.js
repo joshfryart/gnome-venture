@@ -951,7 +951,7 @@
     var ev = [], ch = chain(s, root);
     var v1 = nn(s.v1, null), rb = s.pcs[root].by, tw = 1.0;
     if (v1) {   // v1: what fired (for use-up) and Teamwork
-      s.fired = []; s.firedby = rb; var srcs = {};
+      s.fired = []; s.firedby = rb; s.firedroot = root; var srcs = {};
       ch.forEach(function (c) { var cp = s.pcs[c[0]]; if (cp.by === rb && PFB_TEAM_SRC.indexOf(nn(cp.tile.src, '')) >= 0) srcs[cp.tile.src] = 1; });
       var ns = Object.keys(srcs).length;
       if (rb === 'me' && ns >= 3) tw = Number(v1.team3); else if (rb === 'me' && ns === 2) tw = Number(v1.team2);
@@ -1003,12 +1003,15 @@
   }
   // Fire budget: after a chain has finished, creature pieces that have fired their limit fall away (to their discard); never mid-chain.
   function spend(s) {
-    var fired = nn(s.fired, []), by = nn(s.firedby, 'me'), used = []; delete s.fired; delete s.firedby;
+    var fired = nn(s.fired, []), by = nn(s.firedby, 'me'), froot = has(s, 'firedroot') ? s.firedroot : null, used = []; delete s.fired; delete s.firedby; delete s.firedroot;
     if (s.over) return used;
     var lim3 = s.v1 ? toInt(nn(s.v1.limit, 0)) : 0;
     if (lim3 > 0 && fired.length >= lim3) {   // v1 USE-UP: a chain of 3 or more uses up every piece that fired
+      var keepMine = v1r(s, 'keepmine') === 1, onlyRoot = v1r(s, 'useroot') === 1;   // 2.6.98
       fired.forEach(function (fid) {
         if (!has(s.pcs, fid)) return; var q = s.pcs[fid];
+        if (keepMine && q.by === 'me') return;
+        if (onlyRoot && froot !== null && fid !== froot) return;
         discardPiece(s, q); q.used = by;
         if (!Array.isArray(s.spent)) s.spent = [];
         s.spent.push(q); used.push(fid);
@@ -1269,6 +1272,12 @@
   }
   function note(kind, n) { return { by: 'foe', note: kind, k: 'note', n: n === undefined ? '' : n, t: 'note', tag: '', v: 0, fit: false, combo: null }; }   // 2.6.76: a notice event (pfb_note)
 
+  function strike(s, hi, cid) {   // 2.6.98 (aimhit): its Hurt piece strikes YOUR piece; a Guard at least as strong holds, anything else breaks; you take nothing
+    var ft = s.foe.hand[hi]; s.foe.hand.splice(hi, 1); s.foe.discard.push(ft);
+    var p = s.pcs[cid], hit = toInt(ft.v), g = p.tile.t === 'guard' ? toInt(p.tile.v) : 0, broke = g < hit;
+    if (broke) { discardPiece(s, p); p.used = 'foe'; if (!Array.isArray(s.spent)) s.spent = []; s.spent.push(p); delete s.cell[p.x + ',' + p.y]; delete s.pcs[cid]; }
+    return { by: 'foe', strike: true, id: cid, broke: broke, guard: g, x: toInt(p.x), y: toInt(p.y), k: ft.k, n: ft.n, t: 'hurt', tag: '', v: hit, hit: hit, mine: String(nn(p.tile.n, '')), fit: false, combo: null };
+  }
   function foeTurn(s) {
     var ev = [];
     begin(s, 'foe');
@@ -1285,6 +1294,13 @@
     if (s.v1) s.reaim = 0;
     for (var k = 0; k < n && !s.over; k++) {
       var r = null, plan = (s.v1 && truthy(s.v1.aim) && k === 0) ? nn(s.foe.plan, null) : null;
+      if (plan && plan.t === 'hurt' && v1r(s, 'aimhit') === 1) {   // 2.6.98 AIMHIT: your piece on its aimed cell is struck instead of it picking again
+        var cid = nn(s.cell[plan.x + ',' + plan.y], null);
+        if (cid !== null && s.pcs[cid].by === 'me') {
+          for (var sh = 0; sh < s.foe.hand.length; sh++) if (s.foe.hand[sh].k === plan.k) { ev.push(strike(s, sh, cid)); r = []; break; }
+          if (r !== null) continue;
+        }
+      }
       if (plan) for (var hi = 0; hi < s.foe.hand.length; hi++) if (s.foe.hand[hi].k === plan.k) { s.aimforce = true; r = place(s, 'foe', hi, plan.x, plan.y); delete s.aimforce; break; }   // v1 AIM
       if (r === null) {   // no fumble: it picks again at full value
         if (plan) s.reaim = 1;
@@ -1589,6 +1605,7 @@
   // ------------------------------------------------------------------ text lines and history chips (pfight_game.php)
   function line(e, foe) {
     if (e.env !== undefined && e.env !== null) return envLine(e, foe);   // v1: a terrain event
+    if (truthy(e.strike)) return '💥 STRUCK: its ' + e.n + ' hit your ' + nn(e.mine, 'piece') + ' (' + toInt(e.hit) + ')' + (truthy(e.broke) ? ' and it breaks.' : ' but your guard ' + toInt(e.guard) + ' holds.');   // 2.6.98 aimhit
     if (truthy(e.connect)) return '🧩 You set ' + e.n + ' aside, joined (' + toInt(e.size) + ' pieces).';
     if (truthy(e.tick)) return '🧪 The poison works on the ' + foe + ' (+' + toInt(e.v) + ').';
     if (e.note !== undefined && e.note !== null) return noteLine(e, foe);

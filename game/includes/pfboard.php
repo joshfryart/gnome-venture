@@ -635,7 +635,7 @@ function pfb_fire(array &$s, int $root): array
     $chain = pfb_chain($s, $root);
     $v1 = $s['v1'] ?? null; $rb = $s['pcs'][$root]['by']; $tw = 1.0;
     if ($v1) {   // v1: what fired (for use-up) and Teamwork: the starter's pieces in this chain come from 2 or 3 of the sources pal, tool, crop
-        $s['fired'] = []; $s['firedby'] = $rb; $srcs = [];
+        $s['fired'] = []; $s['firedby'] = $rb; $s['firedroot'] = $root; $srcs = [];
         foreach ($chain as [$cid]) { $cp = $s['pcs'][$cid]; if ($cp['by'] === $rb && in_array($cp['tile']['src'] ?? '', PFB_TEAM_SRC, true)) $srcs[$cp['tile']['src']] = 1; }
         if ($rb === 'me' && count($srcs) >= 3) $tw = (float)$v1['team3']; elseif ($rb === 'me' && count($srcs) === 2) $tw = (float)$v1['team2'];
     }
@@ -694,12 +694,15 @@ function pfb_gone_entry(array $s, array $p, bool $fell): array
 /** Fire budget: after a chain has finished, creature pieces that have fired their limit fall away (to their discard). Never mid-chain, so a chain keeps its shape. Returns nothing; $s['spent'] lists them for the replay. */
 function pfb_spend(array &$s): array
 {
-    $fired = $s['fired'] ?? []; $by = $s['firedby'] ?? 'me'; unset($s['fired'], $s['firedby']); $used = [];
+    $fired = $s['fired'] ?? []; $by = $s['firedby'] ?? 'me'; $froot = $s['firedroot'] ?? null; unset($s['fired'], $s['firedby'], $s['firedroot']); $used = [];
     if ($s['over']) return $used;
     $lim3 = (int)($s['v1']['limit'] ?? 0);
     if ($lim3 > 0 && count($fired) >= $lim3) {   // v1 USE-UP: a chain of 3 or more uses up every piece that fired, whoever started it and whoever owns them
+        $keepMine = pfb_v1r($s, 'keepmine') === 1; $onlyRoot = pfb_v1r($s, 'useroot') === 1;   // 2.6.98: keepmine = your pieces are never used up; useroot = only the piece that was placed
         foreach ($fired as $id) {
             if (!isset($s['pcs'][$id])) continue; $p = $s['pcs'][$id];
+            if ($keepMine && $p['by'] === 'me') continue;
+            if ($onlyRoot && $froot !== null && $id !== $froot) continue;
             pfb_discard($s, $p); $p['used'] = $by; $s['spent'][] = $p; $used[] = $id;
             unset($s['cell'][$p['x'] . ',' . $p['y']], $s['pcs'][$id]);
         }
@@ -982,6 +985,18 @@ function pfb_note(string $kind, string $n = ''): array
     return ['by' => 'foe', 'note' => $kind, 'k' => 'note', 'n' => $n, 't' => 'note', 'tag' => '', 'v' => 0, 'fit' => false, 'combo' => null];
 }
 
+/**
+ * 2.6.98 (aimhit): the creature's Hurt piece (hand index $hi) strikes YOUR piece $cid instead of landing on the board. A Guard of yours with value >= the hit holds, anything else breaks (to your discard).
+ * The creature's piece is spent (its discard), you take nothing. Returns the event.
+ */
+function pfb_strike(array &$s, int $hi, int $cid): array
+{
+    $ft = $s['foe']['hand'][$hi]; array_splice($s['foe']['hand'], $hi, 1); $s['foe']['discard'][] = $ft;
+    $p = $s['pcs'][$cid]; $hit = (int)$ft['v']; $g = ($p['tile']['t'] ?? '') === 'guard' ? (int)$p['tile']['v'] : 0; $broke = $g < $hit;
+    if ($broke) { pfb_discard($s, $p); $p['used'] = 'foe'; $s['spent'][] = $p; unset($s['cell'][$p['x'] . ',' . $p['y']], $s['pcs'][$cid]); }
+    return ['by' => 'foe', 'strike' => true, 'id' => $cid, 'broke' => $broke, 'guard' => $g, 'x' => (int)$p['x'], 'y' => (int)$p['y'], 'k' => $ft['k'], 'n' => $ft['n'], 't' => 'hurt', 'tag' => '', 'v' => $hit, 'hit' => $hit, 'mine' => (string)($p['tile']['n'] ?? ''), 'fit' => false, 'combo' => null];
+}
+
 function pfb_foe_turn(array &$s, int $extra): array
 {
     $ev = [];
@@ -999,6 +1014,13 @@ function pfb_foe_turn(array &$s, int $extra): array
     if (!empty($s['v1'])) $s['reaim'] = 0;   // the pieces it puts down this turn (the page holds only these back until the replay reaches them)
     for ($k = 0; $k < $n && !$s['over']; $k++) {
         $r = null; $plan = !empty($s['v1']['aim']) && $k === 0 ? ($s['foe']['plan'] ?? null) : null;
+        if ($plan && ($plan['t'] ?? '') === 'hurt' && pfb_v1r($s, 'aimhit') === 1) {   // 2.6.98 AIMHIT: YOUR piece on the cell its Hurt aim wanted is struck instead of the creature picking again
+            $cid = $s['cell'][$plan['x'] . ',' . $plan['y']] ?? null;
+            if ($cid !== null && ($s['pcs'][$cid]['by'] ?? '') === 'me') {
+                foreach ($s['foe']['hand'] as $hi => $ht) if ($ht['k'] === $plan['k']) { $ev[] = pfb_strike($s, $hi, (int)$cid); $r = []; break; }
+                if ($r !== null) continue;
+            }
+        }
         if ($plan) { foreach ($s['foe']['hand'] as $hi => $ht) if ($ht['k'] === $plan['k']) { $s['aimforce'] = true; $r = pfb_place($s, 'foe', $hi, $plan['x'], $plan['y']); unset($s['aimforce']); break; } }   // v1 AIM: it plays the piece and the cell it showed
         if ($r === null) {   // no aim, or its cell is taken (or its piece is gone): it picks again at full value (no fumble)
             if ($plan) $s['reaim'] = 1;
