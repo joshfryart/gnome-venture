@@ -46,7 +46,7 @@ const PFB_TOOL_WEAR = 2;                      // 2.6.74 (deck model): a fight to
 // on the board (data/pf_env.txt), and its next piece lies face up a round ahead. Its pieces link and fire in chains like any piece; the effect goes to the side whose chain fires it.
 // A v1 fight started under 2.6.74 has no $s['v1']['env'] and keeps its ground and events to the end.
 const PFB_ENV_KINDS = ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'];
-const PFB_ENV_N = ['small' => 2, 'medium' => 2, 'large' => 2, 'boss' => 2];   // pieces the environment places a round (Josh, after Sim 5: 2 everywhere); as many lie face up a round ahead
+const PFB_ENV_N = ['small' => 1, 'medium' => 1, 'large' => 1, 'boss' => 1];   // pieces the environment places a round (Josh 2026-11-14: 1 everywhere; 2.6.75-2.6.97 had 2); as many lie face up a round ahead
 const PFB_ENV_CAP = 0.7;                      // the environment places nothing while this share of the board's cells (or more) is taken
 const PFB_MUD = 0.25;                         // Mud's teeth: a piece standing next to a Mud counts this much less when it fires (both sides)
 const PFB_RAIN = 0.15;                        // Rain: guard for the side that fires it, a share of its maximum (your health, the creature's bar)

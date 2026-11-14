@@ -114,7 +114,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     ck(T('fight: an environment piece on the board says it is the environment\'s and opens its card'), [/^Environment piece: /.test(ecol || ''), /belongs to nobody/.test(await p.locator('#pf-inspect').innerText())], [true, true]);
     await p.click('#pfi-x').catch(() => {});
     await p.click('#pfv-legend [data-a=turn]'); await p.waitForTimeout(100);
-    ck(T('fight: the Environment chip explains the round and the environment turn'), await p.locator('.pfv-pop').innerText().then(t => [/you, the creature, then the environment/.test(t), /two pieces|2 pieces/.test(t), /belong to nobody/.test(t)]), [true, true, true]);
+    ck(T('fight: the Environment chip explains the round and the environment turn'), await p.locator('.pfv-pop').innerText().then(t => [/you, the creature, then the environment/.test(t), /two pieces|2 pieces|a piece on the board/.test(t), /belong to nobody/.test(t)]), [true, true, true]);
     await p.click('#pfv-legend [data-a=help]'); await p.waitForTimeout(200);
     ck(T('fight: the ? help covers the environment turn, the aim, chains, flip and the six environment pieces'), await p.locator('.pfv-sheet').innerText().then(t => ['Environment turn', 'aim', 'Chains', 'Flip', 'Sun', 'Bramble', 'Rain', 'Wind', 'Mud', 'Thornburst', 'whoever fires it', 'Animation speed'].every(w => t.toLowerCase().includes(w.toLowerCase()))), true);
     await shot('4-fight-help', false);

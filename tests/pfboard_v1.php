@@ -6,7 +6,7 @@ $GLOBALS['PFB_TEST_SIZES'] = ['small' => [5, 4], 'medium' => [5, 5], 'large' => 
 require __DIR__ . '/../game/includes/pfight_game.php';
 $bad = 0; $warn = [];
 set_error_handler(function (int $no, string $msg, string $file, int $line) use (&$warn) { $warn[] = "$msg ($file:$line)"; return true; });   // any PHP warning or notice in the engine fails the run (the last check)
-const V1_294 = ['team2' => PFB_TEAM2, 'team3' => PFB_TEAM3, 'life' => 1] + PFB_V1_PRE;   // the full 2.6.94 rule set (every rule the plan adds is off or as it was)
+const V1_294 = ['team2' => PFB_TEAM2, 'team3' => PFB_TEAM3, 'life' => 1, 'envn' => 2] + PFB_V1_PRE;   // the full 2.6.94 rule set (every rule the plan adds is off or as it was)
 const V1_OLD = ['env' => 0, 'ground' => 1, 'events' => 1];   // the 2.6.74 terrain (ground cells, forecast events): what a fight started before 2.6.75 carries
 function chk(string $name, bool $ok, $got = ''): void { global $bad; echo ($ok ? 'ok   ' : 'FAIL ') . $name . ($ok ? '' : ' (got ' . (is_string($got) ? $got : json_encode($got)) . ')') . "\n"; if (!$ok) $bad++; }
 function v1_me(int $lv = 8): array
