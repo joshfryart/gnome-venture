@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.985
+- **Fix: a creature's class-rule effects played before its turn, while your turn was resolving (owner: "the enemy's turn play is happening slightly before when it should").** The replay hid a Plant's new Bramble and showed a Water-pushed piece already moved from the first frame. Now the Bramble stays off the board and the pushed piece stays where it stood until the creature's own step (`pfboardv1_part.js`: `envPre`, `envStepE`; the replay entry of a `current` note carries `moved`). Needs 2.6.97+, no DB change. Skip 2.6.981 to 2.6.984.
+
 ## 2.6.984
 - **Aim strike is OFF in new fights (owner: "If I play a piece on their planned spot it shouldn't remove my piece, that's rude. It should pick somewhere else").** `aimhit` defaults to 0 again: a piece of yours on the creature's aimed cell makes it pick again, as before 2.6.98. The strike code, its chip, mark and tests stay (switch `aimhit` 1, or the Tuning sheet in the demo). Needs 2.6.97+, no DB change. Skip 2.6.981 to 2.6.983.
 
