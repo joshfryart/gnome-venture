@@ -126,7 +126,8 @@ function link_hidden_places(): void
                 default => [1, 0, 0],   // villages and havens: matched to your level
             };
             $min = max(1, $lvl - intdiv($range, 2));
-            if ((string)$h['name'] === 'Den of the Great White Owl') { $lvl = 10; $min = 8; $range = 4; }   // v2.6.75: a fresh world: Lv 8-12 like the upgrade step den_owl_route_level_2675 (it sat on a hard-zone route of Lv 28-32 next to a Lv 3 village)
+            if ((string)$h['name'] === 'Den of the Great White Owl') { $lvl = 10; $min = 8; $range = 4; }
+            if ((string)$h['name'] === 'Hollow of the Silverback Spider') { $lvl = 20; $min = 18; $range = 4; }   // 2026-11-14 (Josh): Lv 18-22, its zone's level (the wonders beside it are 20 and 22) instead of the hard-zone lair top 28-32; upgrade step silverback_lair_level_1114   // v2.6.75: a fresh world: Lv 8-12 like the upgrade step den_owl_route_level_2675 (it sat on a hard-zone route of Lv 28-32 next to a Lv 3 village)
             db_insert('routes', ['a_id' => $anchor, 'b_id' => $h['id'], 'steps' => 2 + min(3, intdiv($lvl, 8)), 'minutes' => 4, 'level' => $lvl,
                 'min_level' => $min, 'max_level' => $min + $range, 'fixed' => $fixed, 'kind' => 'side', 'road_id' => null]);
         }

@@ -536,6 +536,18 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
             $den = (int)q_val('SELECT id FROM locations WHERE name = ?', ['Den of the Great White Owl']);
             if ($den > 0) q("UPDATE routes SET level = 10, min_level = 8, max_level = 12 WHERE kind = 'side' AND (a_id = ? OR b_id = ?) AND min_level > 12", [$den, $den]);
         });
+        boot_step('silverback_lair_level_1114', function () {   // 2026-11-14 (Josh): the Hollow of the Silverback Spider is at its zone's level, Lv 20 (route 18-22), not the hard-zone lair top 30 (a fresh world: link_hidden_places() in includes/roads.php). Only the old values are changed
+            $loc = q_one('SELECT id, slug FROM locations WHERE name = ?', ['Hollow of the Silverback Spider']);
+            if (!$loc) return;
+            q('UPDATE routes SET level = 20, min_level = 18, max_level = 22 WHERE (a_id = ? OR b_id = ?) AND min_level > 22', [$loc['id'], $loc['id']]);
+            $slug = 'boss-' . $loc['slug']; $lv = 20;
+            if ((int)q_val('SELECT level FROM creatures WHERE slug = ?', [$slug]) === 30) {   // same build as ensure_lair_bosses() at Lv 20
+                q('UPDATE creatures SET level = ?, hp = ?, attack = ?, defense = ?, dmg_bonus = ?, xp = ? WHERE slug = ?',
+                  [$lv, (int)round((5 + $lv * 3) * 2.4), 3 + intdiv($lv, 3), 12 + intdiv($lv, 3), intdiv($lv, 4), (int)round($lv * 6 * 2.4), $slug]);
+                q("UPDATE encyclopedia_entries SET body = REPLACE(body, '[b]Level:[/b] 30', '[b]Level:[/b] 20'), sort_order = 20 WHERE unlock_key = ?", ['creature:' . $slug]);
+                q("UPDATE encyclopedia_entries SET body = REPLACE(body, 'Silverback Spider, level 30.', 'Silverback Spider, level 20.') WHERE unlock_key = ?", ['landmark:' . $loc['slug']]);
+            }
+        });
         boot_step('sleep_days_start_2609', function () {   // v2.6.09: sleep-days goes live; every gnome starts on today's game day, once
             if (setting('gclock_started') === '') {
                 require_once __DIR__ . '/game_clock.php';

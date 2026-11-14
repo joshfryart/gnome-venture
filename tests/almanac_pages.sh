@@ -81,5 +81,21 @@ chk "upgrade: Lotus page fixed" "$(db "SELECT COUNT(*) FROM encyclopedia_entries
 chk "upgrade: Banana item fixed" "$(db "SELECT COUNT(*) FROM items WHERE slug='banana' AND description LIKE '%Each stem fruits once%'")" 1
 chk "upgrade: Tiger Moth pages get their line back, once" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE title IN ('Temple of the Tiger Moth', 'Tiger Moth') AND body LIKE '%Boss lair. A great striped moth haunts the lamps of a jungle temple.%' AND body NOT LIKE '%temple. A great striped%'")" 2
 chk "upgrade: village pages all different again (were $OLDV distinct)" "$(db "SELECT COUNT(*) - COUNT(DISTINCT body) FROM encyclopedia_entries WHERE chapter='Villages'")" 0
+echo "== Silverback Spider lair at its zone level, 20 (Josh 2026-11-14)"
+SB="(SELECT id FROM locations WHERE name='Hollow of the Silverback Spider')"
+chk "fresh world: the lair route is Lv 20 (18-22)" "$(db "SELECT level || ' ' || min_level || '-' || max_level FROM routes WHERE a_id=$SB OR b_id=$SB")" "20 18-22"
+chk "fresh world: the keeper is Lv 20" "$(db "SELECT level FROM creatures WHERE name='Silverback Spider'")" 20
+chk "fresh world: its pages say level 20" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE (title='Silverback Spider' AND body LIKE '%[b]Level:[/b] 20%') OR (title='Hollow of the Silverback Spider' AND body LIKE '%Silverback Spider, level 20.%')")" 2
+# an older world: put back the old Lv 30 values and replay the upgrade
+dbx "UPDATE routes SET level=30, min_level=28, max_level=32 WHERE a_id=$SB OR b_id=$SB"
+dbx "UPDATE creatures SET level=30, hp=228 WHERE name='Silverback Spider'"
+dbx "UPDATE encyclopedia_entries SET body = REPLACE(REPLACE(body, '[b]Level:[/b] 20', '[b]Level:[/b] 30'), 'Silverback Spider, level 20.', 'Silverback Spider, level 30.') WHERE title IN ('Silverback Spider', 'Hollow of the Silverback Spider')"
+OTHER=$(db "SELECT level FROM creatures WHERE name='Hurricane Crab'")
+dbx "UPDATE settings SET value='0' WHERE name='db_version'"
+get index.php >/dev/null; get book.php >/dev/null
+chk "upgrade: route back to 20 (18-22)" "$(db "SELECT level || ' ' || min_level || '-' || max_level FROM routes WHERE a_id=$SB OR b_id=$SB")" "20 18-22"
+chk "upgrade: keeper Lv 20 with Lv 20 stats" "$(db "SELECT level || ' ' || hp FROM creatures WHERE name='Silverback Spider'")" "20 156"
+chk "upgrade: both pages say 20" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE (title='Silverback Spider' AND body LIKE '%[b]Level:[/b] 20%') OR (title='Hollow of the Silverback Spider' AND body LIKE '%Silverback Spider, level 20.%')")" 2
+chk "upgrade: other lairs untouched" "$(db "SELECT level FROM creatures WHERE name='Hurricane Crab'")" "$OTHER"
 [ $F = 0 ] && echo "all ok" || echo "FAILED"
 grep -c "PHP \(Warning\|Fatal\|Notice\)" $LOG | sed 's/^/php errors: /'
