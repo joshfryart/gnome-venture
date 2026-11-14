@@ -50,6 +50,47 @@ const PF_TAGS = [
     'pluck'  => ['🤏', 'Pluck: a small chance to lift an item the creature could drop (Luck helps; once a fight)'],
 ];
 
+/** 2.6.96: what a tag does on the v1 board, one short plain sentence each (the v1 pages read this; PF_TAGS above is the text of the strip fights and of the pages with the v1 setting off, which stay as they were). */
+const PF_TAGS_V1 = [
+    'quick'  => ['⚡', 'Quick: draws you a piece when you place it'],
+    'heavy'  => ['🪨', 'Heavy: a big hit, nothing extra on this board'],   // the board has no Heavy rule (it only exists in strip fights: PF_TAGS)
+    'pierce' => ['📌', 'Pierce: ignores the creature\'s guard'],
+    'poison' => ['🧪', 'Poison: hits again each of the next 2 turns'],
+    'trip'   => ['🪢', 'Trip: the creature skips its next turn'],   // pfb_foe_len = 1 - slow: on the board it plays one piece a turn, so one fewer is none
+    'bash'   => ['🛡️', 'Bash: adds your guard to the hit, using it up'],
+    'hold'   => ['⚓', 'Hold: this guard stays up one more turn'],
+    'thorns' => ['🌵', 'Thorns: a hit this guard blocks pricks the creature'],
+    'evade'  => ['💨', 'Evade: the creature\'s first hit next turn misses'],
+    'mend'   => ['🩹', 'Mend: heals you 2 as well'],
+    'hum'    => ['🎵', 'Hum: also cuts its next hits by 2'],
+    'lull'   => ['🌙', 'Lull: the creature skips its next turn'],
+    'bond'   => ['🤝', 'Bond: your Charm fills 10% more, up to 3 times'],
+    'pluck'  => ['🤏', 'Pluck: small chance to lift its item, once a fight'],
+];
+
+/** Tags that carry no art icon of their own but still explain themselves (Snack: the item piece; pal: a pal's piece). */
+const PF_SPECIAL = [
+    'snack' => 'Snack: eats a food item from your satchel',
+    'pal'   => 'Pal: a piece your pal lends you while it comes along',
+];
+
+/** What each piece TYPE does for the player, in one sentence; # is the piece's number (pf_type_text). Hurt and Charm fill the creature's one Yield bar. */
+const PF_TYPE_TEXT = [
+    'hurt'   => 'Deals # damage, filling its Yield bar',
+    'guard'  => 'Blocks # damage until your next turn',
+    'heal'   => 'Heals you #',
+    'charm'  => 'Fills its Yield bar with # charm',
+    'soothe' => 'Its next hits do # less damage in all',
+    'trick'  => 'Boosts a Hurt or Guard fired right after it by +#',
+    'item'   => 'Heals you #',
+];
+
+/** The sentence for a type with its number put in ("Soothe 4: ..." reads "Its next hits do 4 less damage in all"); with no number the # becomes "its number". */
+function pf_type_text(string $t, ?int $v = null): string
+{
+    return str_replace('#', $v === null ? 'its number' : (string)$v, PF_TYPE_TEXT[$t] ?? '');
+}
+
 /** Upgrades (secondary effects) a tile can be given by completing puzzles: key => [name, glyph, description, rarity 0-2, tile types it fits]. One per tile; permanent until removed. */
 const PF_MODS = [
     'sticky'   => ['Sticky', '🧲', 'A snug fit also draws you a tile', 0, ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item']],
@@ -63,6 +104,14 @@ const PF_MODS = [
     'finisher' => ['Finisher', '🎯', '+3 when the creature is past 60% resolve', 2, ['hurt']],
     'lucky'    => ['Lucky', '🍀', 'Gives you one extra redraw this fight', 2, ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item']],
     'steady'   => ['Steady', '⚖️', 'A Heavy tile can go anywhere in the chain', 2, ['hurt']],
+];
+
+/** 2.6.96: the upgrade words the v1 pages use where the old ones name a rule that is gone or a bar that is renamed (Soothe 2, the creature's resolve, Heavy's place in a chain). */
+const PF_MODS_V1 = [
+    'swift'    => 'Does not count towards a four-tile chain',
+    'soft'     => 'Also soothes 2: its next hits do 2 less',
+    'finisher' => '+3 once its Yield bar is past 60%',
+    'steady'   => 'Heavy can go anywhere in a chain (old fights only)',
 ];
 
 /** The lines of a puzzle-combat data file (includes/data/): each a list of trimmed cells; comments and blank lines skipped; [] when the file is missing. No DB. */

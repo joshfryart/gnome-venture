@@ -15,7 +15,7 @@ const PFV_CLASS_ICON = ['Critter' => '🐛', 'Bird' => '🐦', 'Beast' => '🐾'
 const PFV_SRC_ICON = ['basic' => '🧩', 'knack' => '🧩', 'calling' => '🎩', 'crop' => '🌾', 'craft' => '🛠️', 'region' => '🗺️', 'tool' => '🔧', 'pal' => '🐾'];
 /** What a creature's tag does to you (the player's own tags read PF_TAGS). */
 const PFV_FOE_TAG = ['quick' => 'Quick: it plays one more piece this turn', 'evade' => 'Evade: your next hit on it misses', 'bash' => 'Bash: adds its guard to its next hit', 'poison' => 'Poison: 2 ticks on your health',
-    'trip' => 'Trip: you draw 1 fewer next round', 'heal' => 'Recovers a little', 'thorns' => 'Thorns: hitting its guard pricks you', 'hold' => 'Hold: this guard lasts a turn longer', 'pierce' => 'Pierce: ignores your guard'];
+    'trip' => 'Trip: you draw 1 fewer next round', 'heal' => 'Heal: empties some of its Yield bar', 'thorns' => 'Thorns: hitting its guard pricks you', 'hold' => 'Hold: this guard lasts a turn longer', 'pierce' => 'Pierce: ignores your guard'];
 
 /** The v1 pages are on for this gnome. */
 function pfv_on(array $u): bool
@@ -50,10 +50,17 @@ function pfv_last_extra(?string $x = null): string { static $last = ''; if ($x !
 function pfv_desc(array $p, string $extra = ''): string
 {
     pfv_last_extra($extra);   // the detail sheet shows it as its own note line
-    $tg = PF_TAGS[(string)($p['tag'] ?? '')] ?? null;
-    return (PFV_TYPE[$p['t']] ?? ucfirst((string)$p['t'])) . ' ' . (int)$p['v'] . (!empty($p['rank']) ? ' · ' . PFD_RANK_NAME[(int)$p['rank']] : '') . ' · stays ' . (int)$p['life'] . ' rounds'
-        . (in_array($p['src'] ?? '', PFB_TEAM_SRC, true) ? ' · Teamwork: ' . $p['src'] : '') . ($extra !== '' ? ' · ' . $extra : '')
+    $tg = pfv_tag_text($p);
+    return (PFV_TYPE[$p['t']] ?? ucfirst((string)$p['t'])) . ' ' . (int)$p['v'] . ': ' . pf_type_text((string)$p['t'], (int)$p['v']) . (!empty($p['rank']) ? ' · ' . PFD_RANK_NAME[(int)$p['rank']] : '')
+        . ($extra !== '' ? ' · ' . $extra : '')   // 2.6.96: no "stays N rounds" (every piece stays 3 rounds in a new fight) and no Teamwork (off in a new fight)
         . ($tg ? '. ' . $tg[1] : '') . (($p['blurb'] ?? '') !== '' ? '. ' . rtrim((string)$p['blurb'], '.') : '') . '.';
+}
+
+/** The tag of a piece as [icon, words]: PF_TAGS_V1, else a special with no icon of its own (PF_SPECIAL: snack, pal), else null. */
+function pfv_tag_text(array $p): ?array
+{
+    $k = (string)($p['tag'] ?? '');
+    return PF_TAGS_V1[$k] ?? (isset(PF_SPECIAL[$k]) ? ['', PF_SPECIAL[$k]] : null);
 }
 
 /**
@@ -62,13 +69,14 @@ function pfv_desc(array $p, string $extra = ''): string
  */
 function pfv_pc(array $p, array $o = []): string
 {
-    $life = max(1, (int)($p['life'] ?? 3)); $px = str_repeat('<i></i>', $life);
-    $tg = PF_TAGS[(string)($p['tag'] ?? '')] ?? null; $own = (string)($o['owner'] ?? 'me');
+    $life = PFB_LIFE;   // 2.6.96: every piece stays 3 rounds in a new fight (per-piece life is off), so the box shows 3, not the old Quick 2 / Hold 4
+    $px = str_repeat('<i></i>', $life);
+    $tg = PF_TAGS[(string)($p['tag'] ?? '')] ?? null; $tx = pfv_tag_text($p); $own = (string)($o['owner'] ?? 'me');
     $art = json_encode(['t' => $p['t'], 'e' => $p['e'], 'tag' => $tg ? (string)$p['tag'] : '', 'o' => $own], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
     $label = $p['n'] . ', ' . (PFV_TYPE[$p['t']] ?? $p['t']) . ' ' . (int)$p['v'] . (($p['tag'] ?? '') !== '' && ($p['tag'] ?? '') !== 'pal' ? ', ' . $p['tag'] : '') . (!empty($p['rank']) ? ', ' . PFD_RANK_NAME[(int)$p['rank']] : '') . ', stays ' . $life . ' rounds';
     // 2.6.76: everything the detail sheet shows for this piece (assets/pfv1box.js, PFSheet); the tag's words come from PF_TAGS, the one table
     $pcd = ['n' => (string)$p['n'], 't' => (string)$p['t'], 'ty' => PFV_TYPE[$p['t']] ?? ucfirst((string)$p['t']), 'v' => (int)$p['v'], 'rk' => (int)($p['rank'] ?? 0), 'rn' => !empty($p['rank']) ? PFD_RANK_NAME[(int)$p['rank']] : '', 'src' => (string)($p['src'] ?? ''), 'life' => $life,
-        'tag' => $tg ? (string)$p['tag'] : '', 'ti' => $tg ? $tg[0] : '', 'tt' => $tg ? $tg[1] : '', 'e' => $p['e'], 'bl' => (string)($p['blurb'] ?? ''), 'note' => isset($o['d']) ? pfv_last_extra() : '', 'own' => $own]
+        'tag' => $tg ? (string)$p['tag'] : '', 'ti' => $tx ? $tx[0] : '', 'tt' => $tx ? $tx[1] : '', 'tx' => pf_type_text((string)$p['t'], (int)$p['v']), 'e' => $p['e'], 'bl' => (string)($p['blurb'] ?? ''), 'note' => isset($o['d']) ? pfv_last_extra() : '', 'own' => $own]
         + (isset($o['dur']) ? ['dur' => $o['dur']] : []);
     return '<li' . (isset($o['g']) ? ' data-g="' . e((string)$o['g']) . '"' : '') . '><button type="button" class="pc' . (!empty($p['rank']) ? ' r' . (int)$p['rank'] : '') . (!empty($p['gear']) ? ' gear' : '') . (($o['cls'] ?? '') !== '' ? ' ' . e((string)$o['cls']) : '') . '"'
         . (isset($o['a']) ? ' data-a="' . e((string)$o['a']) . '" data-arg="' . e((string)($o['arg'] ?? $p['key'] ?? '')) . '"' : '') . ' data-n="' . e((string)$p['n']) . '" data-d="' . e((string)($o['d'] ?? '')) . '" data-t="' . e((string)$p['t']) . '" data-pc="' . e(json_encode($pcd, JSON_UNESCAPED_UNICODE)) . '"' . ($o['x'] ?? '')

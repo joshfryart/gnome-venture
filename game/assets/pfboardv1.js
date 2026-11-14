@@ -32,7 +32,7 @@
   var planQ = null, offMsg = '', popEl = null, sheetEl = null, rowEl = document.getElementById('pfv-row'), legendEl = document.getElementById('pfv-legend'), flipBtn = document.getElementById('pf-flip');
   var SPD = 1, banMs = 1450, RF = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '0' ? 0 : 1; if (sp0 === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) SPD = 0; } catch (e) {}   // 2.6.96: reduced motion with no speed chosen = skip (the player's own choice wins)
   var FOETAG = { quick: 'Quick: it plays one more piece this turn', evade: 'Evade: your next hit on it misses', bash: 'Bash: adds its guard to its next hit', poison: 'Poison: 2 ticks on your health',
-    trip: 'Trip: you draw 1 fewer next round', heal: 'Recovers a little', thorns: 'Thorns: hitting its guard pricks you', hold: 'Hold: this guard lasts a turn longer', pierce: 'Pierce: ignores your guard' };
+    trip: 'Trip: you draw 1 fewer next round', heal: 'Heal: empties some of its Yield bar', thorns: 'Thorns: hitting its guard pricks you', hold: 'Hold: this guard lasts a turn longer', pierce: 'Pierce: ignores your guard' };
   var EVN = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst' }, EVW = { sunbeam: 'sunny', creep: 'bramble', puddle: 'mud', gust: 'push', thorn: 'burst' };
   var EVG = { sunbeam: 'sun', creep: 'br', puddle: 'mud', gust: 'gust', thorn: 'thorn' }, EVT = { sunbeam: 'sun', creep: 'br', puddle: 'mud' }, GRN = { sun: 'Sunny patch', br: 'Bramble', mud: 'Mud' }, ROT = { R: 0, B: 90, L: 180, T: 270 };
   var SRCI = { tool: '🔧', pal: '🐾', crop: '🌾' };
@@ -531,7 +531,7 @@
     var old = insp.querySelector('.pfi-ch'); if (old) old.parentNode.removeChild(old);
     var TY = { hurt: 'Hurt', guard: 'Guard', heal: 'Heal', charm: 'Charm', soothe: 'Soothe', trick: 'Trick', item: 'Item' }, RN = ['', 'Common', 'Uncommon', 'Rare', 'Masterwork'];
     var pv = d.v !== undefined ? d.v : +(tiles[i] && tiles[i].dataset.v) || 0, pc = { t: d.t, ty: TY[d.t] || d.t, v: pv, rn: d.rank ? RN[d.rank] : '', rk: d.rank || 0, src: d.src && d.src !== 'knack' ? d.src : '', life: 0 };
-    var el = document.createElement('div'); el.className = 'pfi-ch'; el.innerHTML = window.PFSheet.chips(pc) + (d.life ? ' <span class="ch">stays ' + d.life + '</span>' : ''); insp.querySelector('.pf-itext').appendChild(el);
+    var el = document.createElement('div'); el.className = 'pfi-ch'; el.innerHTML = window.PFSheet.chips(pc) + (d.life ? ' <span class="ch">stays ' + d.life + '</span>' : '') + (window.PFSheet.typeText ? '<div class="pfi-tx">' + window.PFSheet.esc(window.PFSheet.typeText(d.t, pv)) + '</div>' : '');   // 2.6.96: what the piece type does, in words insp.querySelector('.pf-itext').appendChild(el);
   }
   function inspOut(ev) {   // a tap outside the piece card closes it
     if (!insp || insp.hidden || insp.contains(ev.target)) return;

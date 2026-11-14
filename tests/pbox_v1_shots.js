@@ -42,7 +42,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await open('/puzzlebox.php');
     const kitN = await n('.pfv-g .pc.sel');
     await p.locator('.pfv-g .pc.sel').nth(5).click();
-    ck(T('box: a tapped piece shows its detail line with a Take out button'), [await n('.pfv-dsheet [data-pfv-act]'), /stays \d rounds/.test(await p.locator('#pfv-info').innerText())], [1, true]);
+    ck(T('box: a tapped piece shows its detail line with a Take out button'), [await n('.pfv-dsheet [data-pfv-act]'), /(damage|Heals you|Blocks \d|Yield bar|Boosts)/.test(await p.locator('#pfv-info').innerText())], [1, true]);
     await shot('2-box-kit');
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('.pfv-dsheet [data-pfv-act]')]); await p.waitForTimeout(900);
     ck(T('box: Take out updates the page in place (one piece fewer in the kit)'), await n('.pfv-g .pc.sel'), kitN - 1);
