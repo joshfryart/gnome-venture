@@ -23,7 +23,7 @@
   Object.defineProperty(HTMLImageElement.prototype, 'src', { configurable: true, enumerable: true, get: function () { return isrc.get.call(this); }, set: function (v) { var k = String(v).replace(/^art\//, ''); isrc.set.call(this, (String(v).indexOf('art/') === 0 && ART[k]) ? ART[k] : v); } });
 
   // ---- the game in memory
-  var TUNE0 = { foe_x: 1, bar_x: 1, env_x: 1, sun: 2, bramble: 0.10, rain: 0.15, thorn: 0.10, mud: 0.25, limit: 3, envn: 2, lvl: 0, belt: 1, anim: '1' };
+  var TUNE0 = { foe_x: 1, bar_x: 1, env_x: 1, sun: 2, bramble: 0.10, rain: 0.15, thorn: 0.10, mud: 0.25, limit: 3, envn: 1, kinds: 1, aimhit: 1, keepmine: 0, lvl: 0, belt: 1, anim: '1' };
   var S = { src: PFD.blank(), cr: null, screen: 'box', tab: 'kit', enc: null, flash: null, seed: ((Date.now() % 100000) | 0) * 7919 + 13, tune: Object.assign({}, TUNE0), res: null, fights: 0 };
   safe(function () { var a = localStorage.getItem('pfvspd'); if (a === '0' || a === '2') S.tune.anim = a; });
   var scrollMem = 0;
@@ -34,7 +34,7 @@
   function locked() { return !!(S.enc && S.enc.pf && !S.enc.pf.over); }
   function v1tune() {
     var t = S.tune, x = t.env_x;
-    return { foe_x: t.foe_x, bar_x: t.bar_x, sun: t.sun, bramble: t.bramble * x, rain: t.rain * x, thorn: t.thorn * x, mud: t.mud * x, limit: t.limit, envn: t.envn };
+    return { foe_x: t.foe_x, bar_x: t.bar_x, sun: t.sun, bramble: t.bramble * x, rain: t.rain * x, thorn: t.thorn * x, mud: t.mud * x, limit: t.limit, envn: t.envn, kinds: t.kinds, aimhit: t.aimhit, keepmine: t.keepmine };
   }
   function setBelt() { var tier = S.tune.belt; S.src.beltTier = tier; S.src.slots = C.belts[tier][0]; }
 
@@ -73,7 +73,7 @@
     if (doo === 'pf_run') { if (s.over || !s.run_ok) { flash('You cannot run from this one.', 'err'); return true; } s.over = 'run'; }
     else if (doo === 'pfb_flip') { var err = PFE.flip(s, parseInt(f.hand, 10), parseInt(f.turn, 10)); if (err) { if (err !== 'stale') flash(err, 'err'); } return true; }
     else if (doo === 'pfb_play' && s.start) {
-      var mv = parseMoves(f.moves), cx = Math.floor(s.w / 2), cy = Math.floor(s.h / 2), side = null;
+      var mv = parseMoves(f.moves), bl = s.pcs[1] || null, cx = bl ? bl.x : Math.floor(s.w / 2), cy = bl ? bl.y : Math.floor(s.h / 2), side = null;   // 2.6.981: the Blank is not always in the centre
       if (mv && typeof mv[0][0] === 'number') { var dx = mv[0][1] - cx, dy = mv[0][2] - cy; if (Math.abs(dx) + Math.abs(dy) === 1) side = dx < 0 ? 'L' : (dx > 0 ? 'R' : (dy < 0 ? 'T' : 'B')); }
       if (side === null) { flash('Pick a spot next to the blank.', 'err'); return true; }
       var mine = (s.me.hand[mv[0][0]] || {}).n || '', er = PFE.start(s, mv[0][0], side);
@@ -93,6 +93,7 @@
         enc.hist.push(PFE.chipEvent(e, cur));
         var ln = PFE.line(e, c.name), rp = { id: (e.id !== undefined && e.id !== null) ? +e.id : null, by: String(e.by), ta: String(e.ta || e.by), ln: ln, bar: e.barnow !== undefined ? e.barnow : null, fh: e.fhnow !== undefined ? e.fhnow : null, hp: e.hpnow !== undefined ? e.hpnow : null, g: e.gnow !== undefined ? e.gnow : null, n: String(e.n || ''), t: String(e.t || '') };
         if (e.env !== undefined) { rp.env = String(e.env); rp.x = e.x !== undefined ? e.x : null; rp.y = e.y !== undefined ? e.y : null; rp.dir = e.dir !== undefined ? e.dir : null; rp.moved = e.moved !== undefined ? e.moved : null; rp.ids = e.ids !== undefined ? e.ids : null; rp.me = e.me || 0; rp.foe = e.foe || 0; if (e.kind !== undefined) rp.kind = String(e.kind); if (e['for'] !== undefined) rp['for'] = String(e['for']); if (e.guard !== undefined) rp.guard = e.guard | 0; }
+        if (e.strike) { rp.strike = 1; rp.broke = !!e.broke; }   // 2.6.98 aimhit
         if (e.note !== undefined) rp.note = String(e.note); if (e.used && e.used.length) rp.used = e.used; if (e.tw) rp.tw = e.tw; if (e.sun) rp.sun = 1; if (e.mud) rp.mud = 1; if (e.full) rp.full = 1;
         enc.replay.push(rp);
       });
@@ -261,6 +262,7 @@
       + slider('sun', 'Sun', 1, 4, 0.5, function (x) { return '×' + x; }, 'How much a Sun multiplies the chain.') + slider('bramble', 'Bramble', 0, 0.3, 0.01, fp, 'Share of the other side’s health.')
       + slider('rain', 'Rain guard', 0, 0.4, 0.01, fp) + slider('thorn', 'Thornburst', 0, 0.3, 0.01, fp) + slider('mud', 'Mud teeth', 0, 0.5, 0.05, fp, 'A piece next to a Mud counts this much less.')
       + slider('limit', 'Use-up limit', 2, 6, 1, function (x) { return x + '+'; }, 'A chain this long uses its pieces up.') + slider('envn', 'Environment pieces a round', 1, 3, 1, function (x) { return x; })
+      + slider('kinds', 'Class rules (Swarm, Two aims, Grudge ...)', 0, 1, 1, function (x) { return x ? 'on' : 'off'; }, 'One rule per creature class.') + slider('aimhit', 'Aim strike', 0, 1, 1, function (x) { return x ? 'on' : 'off'; }, 'A Hurt aim on your piece breaks it (a Guard at least as strong holds).') + slider('keepmine', 'Keep my pieces (off: the old use-up)', 0, 1, 1, function (x) { return x ? 'on' : 'off'; }, 'Your pieces are never used up. Built and measured; too easy at the current bar.')
       + slider('lvl', 'Your level vs the creature', -8, 4, 1, function (x) { return x > 0 ? '+' + x : x; }, 'Below 0 makes it harder.')
       + '<div class="tsel"><label for="t-belt">Fight belt (bought in the game)</label><select id="t-belt" data-k="belt"><option value="1">I · 2 slots</option><option value="2">II · 3 slots</option><option value="3">III · 4 slots</option></select></div>'
       + '<div class="tsel"><label for="t-anim">Animation</label><select id="t-anim" data-k="anim"><option value="1">Normal</option><option value="2">Fast</option><option value="0">Skip</option></select></div>'
@@ -269,7 +271,7 @@
   }
   sheetEl.addEventListener('input', function (ev) {
     var k = ev.target.getAttribute && ev.target.getAttribute('data-k'); if (!k || ev.target.tagName !== 'INPUT') return;
-    S.tune[k] = +ev.target.value; var o = sheetEl.querySelector('#o-' + k); if (o) o.textContent = (k === 'bramble' || k === 'rain' || k === 'thorn' || k === 'mud') ? fp(S.tune[k]) : (k === 'lvl' ? (S.tune[k] > 0 ? '+' + S.tune[k] : S.tune[k]) : (k === 'sun' ? '×' + S.tune[k] : (k === 'limit' ? S.tune[k] + '+' : (k === 'envn' ? S.tune[k] : fx(S.tune[k])))));
+    S.tune[k] = +ev.target.value; var o = sheetEl.querySelector('#o-' + k); if (o) o.textContent = (k === 'bramble' || k === 'rain' || k === 'thorn' || k === 'mud') ? fp(S.tune[k]) : (k === 'lvl' ? (S.tune[k] > 0 ? '+' + S.tune[k] : S.tune[k]) : (k === 'sun' ? '×' + S.tune[k] : (k === 'limit' ? S.tune[k] + '+' : (k === 'envn' ? S.tune[k] : (k === 'kinds' || k === 'aimhit' || k === 'keepmine' ? (S.tune[k] ? 'on' : 'off') : fx(S.tune[k]))))));
   });
   sheetEl.addEventListener('change', function (ev) {
     var k = ev.target.getAttribute && ev.target.getAttribute('data-k'); if (!k || ev.target.tagName !== 'SELECT') return;

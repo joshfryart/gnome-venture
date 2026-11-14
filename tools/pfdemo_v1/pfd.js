@@ -193,6 +193,6 @@
   function gnome(lv) { lv = Math.max(1, lv); var m = Math.max(0, Math.floor((lv + 3) / 14)); return { level: lv, max: 20 + 3 * lv + 5 * m, stats: { grit: m, nimble: m, hardiness: m, charm: m, lore: m, luck: m, level: lv } }; }
   function creature(slug) { for (var i = 0; i < D.creatures.length; i++) if (D.creatures[i].slug === slug) return D.creatures[i]; return D.creatures[0]; }
 
-  return { D: D, C: C, piece: piece, durMax: durMax, offerKeys: offerKeys, starterCheck: starterCheck, blank: blank, belt: belt, build: build, deck: deck, fightEntries: fightEntries, edges: edges, tiles: tiles, harmony: harmony,
+  return { D: D, C: C, piece: piece, durMax: durMax, offerKeys: offerKeys, starterCheck: starterCheck, blank: blank, belt: belt, build: build, deck: deck, fightEntries: fightEntries, edges: edges, tiles: tiles,
     post: post, wearAll: wearAll, wearAdd: wearAdd, wearRows: wearRows, gnome: gnome, creature: creature, validate: validate };
 });

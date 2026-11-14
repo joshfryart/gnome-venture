@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.982
+- **Fix: the class rule chip, venom cells and the strike crack were not reaching the page in 2.6.98 / 2.6.981.** The page data builder (`pfight_game.php`) only copies a list of keys from the board view; `kind`, `grudge` and `ven` (and the replay's `strike` / `broke`) were not on it, so the Swarm / Two aims / Grudge chip, the second-aim and venom marks, and the crack on a struck piece never showed (the text lines did). Now carried; `tests/pfboard_v1_page.sh` checks the page data. Found while rebuilding the demo artifact. Needs 2.6.97+, no DB change. Skip the 2.6.981 zip: this one has everything in it.
+- **Demo (`tools/pfdemo_v1`):** works with the 2.6.98+ rules (the glue read the Blank in the centre, the page data lacked the class keys, a removed `harmony` export); the Tuning sheet has switches for class rules, aim strike and keep-my-pieces; environment 1 a round.
+
 ## 2.6.981
 - **Puzzle combat v1: the inert Blank starts on a random inner cell, and long piece text scrolls.** Branch `claude/todo-md-jbud4h`, not merged, no zip yet (version number 2.6.981 by owner's request). Needs 2.6.98+, no DB change. Puzzle combat v1 is still admin-gated.
 - **The Blank starts anywhere (owner, for playtesting).** New rule key `blankrand` (new fights 1, fights saved before it 0): the Blank is put on a random one of the inner cells (all four sides on the board: 4 of the 16 on the 4x4 board), both start pieces go beside it wherever it is. PHP, JS twin, tests in `tests/pfboard_v1_lasting.php`.
