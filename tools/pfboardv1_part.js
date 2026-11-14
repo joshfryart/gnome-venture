@@ -63,6 +63,22 @@
   function envTurnNote() { var n = ENVD.n || V1.envn || 2; return 'Environment turn. It puts ' + (n === 1 ? 'its piece' : 'its ' + n + ' pieces') + ' on the board. Nothing fires on its turn.'; }
   function envTurnSub() { var n = ENVD.n || V1.envn || 2; return 'the environment places ' + (n === 1 ? 'a piece' : n + ' pieces') + ', not the creature'; }
   // 2.6.76: notices (Quick, a lost turn, a trip, the opening): short plain words for the banner, the message line and the row
+  /** after 2.6.96 (owner: "Enemy is getting random plays"): the creature's step says whether it plays the aim you saw, picks again, or had none */
+  function foeNote(fn) {
+    var a = PREV && PREV.aim, rp = data.replay || [];
+    if (rp.some(function (e) { return e.note === 'slow'; })) return 'The ' + fn + ' loses its turn.';
+    if (!a) return 'The ' + fn + ' showed no aim: it looks for a spot now.';
+    if (data.reaim) return 'The ' + fn + ' cannot play its aim (' + a.n + '): its cell was taken or it no longer fits there. It picks again.';
+    return 'The ' + fn + ' plays its aim, ' + a.n + ', on the marked cell.' + (rp.some(function (e) { return e.note === 'quick'; }) ? ' Quick: then a second piece.' : '');
+  }
+  var SPAWNW = 'put out for the creature by the board: it had fewer than 2 pieces out';
+  function spawnPiece() { return (data.pcs || []).filter(function (p) { return p.spawn; })[0] || null; }
+  /** the piece the board puts out for the creature (pfb_spawn): its own last step of the replay, with a line, instead of a wiggle after it */
+  function spawnStep(tt) {
+    var sp = hideSpawn ? spawnPiece() : null; if (!sp || data.won) return tt;
+    playTimers.push(setTimeout(function () { hideSpawn = false; animateSpawn = true; flashIds = {}; fxPop = null; stepNow = 1; stepNote = 'The board puts out ' + sp.n + ' for the ' + (data.foe || 'creature') + ' (it had under 2 pieces out). Its chain can use it next turn.'; render(); animateSpawn = false; }, tt));
+    return tt + 950 * RF / SPD;
+  }
   function foeSub() { var q = (data.replay || []).filter(function (e) { return e.note === 'quick' || e.note === 'slow'; })[0]; return q ? (q.note === 'slow' ? 'loses its turn' : (q.n ? q.n + ': ' : '') + 'Quick, plays a second piece') : ''; }
   function meSub() { return data.tripped ? 'Tripped: you drew 1 fewer piece' : (data.opened && root.dataset.turn === '1' ? 'the ' + (data.foe || 'creature') + ' opened with ' + data.opened + ' piece' + (data.opened === 1 ? '' : 's') : ''); }
   /** a piece drawn on a canvas: the vector icons above, painted with Path2D */
@@ -90,6 +106,7 @@
   function mudNear(x, y) { return ENV && data.pcs.some(function (q) { return q.kind === 'mud' && Math.abs(q.x - x) + Math.abs(q.y - y) === 1; }); }
   /** on a board cell: an environment piece's effect badge (Wind: its arrow) and the effect it is playing now; a player piece next to a Mud: the mud mark */
   function envDeco(cell, p) {
+    if (p.spawn && !hideSpawn && !p.gone && p.by === 'foe') { cell.classList.add('pfv-spawned'); cell.title = p.n + ': ' + SPAWNW + '.'; cell.setAttribute('aria-label', (cell.getAttribute('aria-label') || p.n) + ' ' + p.n + ' was ' + SPAWNW + '.'); }
     if (!ENV || p.ghost || p.gone || p.by === 'none') return;
     var b;
     if (p.by === 'env') {
@@ -208,6 +225,9 @@
     var t = AIMT && aim && aim.tot && typeof aim.tot.hp === 'number' ? aim.tot : null; if (!t) return null;
     var head = t.hp > 0 ? 'hits you for ' + t.hp : t.g > 0 ? 'is blocked by your guard' : t.heal > 0 ? 'heals ' + t.heal : aim.t === 'hurt' ? 'does no damage' : aim.t + ' ' + aim.v;
     if (t.hp > 0 && t.heal > 0) head += ', heals ' + t.heal;
+    var envs = []; (t.why || []).forEach(function (w) { var m = /^fires (Sun|Rain|Bramble|Thornburst|Wind|Mud)$/.exec(w); if (m) { if (envs.indexOf(m[1]) < 0) envs.push(m[1]); } else if (/^Sun x/.test(w) && envs.indexOf('Sun') < 0) envs.unshift('Sun'); });
+    if (envs.length) head += ' \u00B7 fires ' + envs.join(', ');   // after 2.6.96 (owner: "a free activate ... I wasn't aware"): the environment pieces its chain fires, on the chip, not only behind a tap
+    if ((t.why || []).indexOf('Quick: plays again') >= 0) head += ' \u00B7 2 pieces';   // Quick: a second piece comes this round
     var why = (t.why || []).slice(), bait = Math.round((+t.bait || 0) * 10) / 10;
     if (bait > 0) { var k = -1; why.forEach(function (w, i) { if (/^fires your /.test(w)) k = i; }); if (k >= 0) why[k] += ': ' + bait + ' to it'; else why.push('your pieces it fires: ' + bait + ' to it'); }
     if (t.g > 0 && t.hp > 0) why.push('your guard takes ' + t.g);
@@ -216,7 +236,7 @@
   function aimChip(aim) {
     var b = aimBits(aim), pick = data.reaim && phase !== 'pre' ? ' (picked again)' : '';
     if (!b) return '<span class="tg aim">' + svg('aim') + 'Aims ' + esc(aim.n) + ' ' + esc(aim.t) + ' ' + aim.v + pick + '</span>';
-    var txt = 'Aims ' + esc(aim.n) + ': ' + esc(b.head) + pick;
+    var txt = (/ \u00B7 /.test(b.head) ? '' : 'Aims ') + esc(aim.n) + ': ' + esc(b.head) + pick;   // after 2.6.96: with 'fires Sun' or '2 pieces' on it the chip drops 'Aims' (the target icon says it) to stay on one line
     if (!b.why.length) return '<span class="tg aim">' + svg('aim') + txt + '</span>';
     return '<button type="button" class="tg aim" data-a="aim" aria-expanded="' + (popEl && popEl.dataset.k === 'aim:aim' ? 'true' : 'false') + '" aria-label="' + esc('Aims ' + aim.n + ': ' + b.head + '. Press for the reasons') + '">' + svg('aim') + txt + '<span class="pfv-more" aria-hidden="true">\u25BE</span></button>';
   }
@@ -257,11 +277,12 @@
     if (phase === 'pre' && PREV && PREV.env) return (PREV.env.next || []).map(function (it, i) { return { it: it, i: i }; }).filter(function (o) { return stripRem.indexOf(o.i) < 0; }).map(function (o) { return o.it; });
     return ENVD.next || [];
   }
+  function NOPLACE(n) { return n + ' could not be placed: no free cell where it fits, or the board is too full. It waits here for the next round.'; }   // after 2.6.96: what the shake of a NEXT piece means
   function drawStrip() {
     var items = stripItems(), h = '<button type="button" class="tg envlab" data-a="turn" aria-label="Environment turn: what happens in a round">' + svg('env') + '<span class="el">Environment</span><span class="es">Env</span></button>';
     items.forEach(function (it, i) {
       var K = envKind(it.kind), pips = '<span class="xp" aria-hidden="true">'; for (var q = 0; q < it.life; q++) pips += '<i></i>'; pips += '</span>';
-      h += '<button type="button" class="tg envp k-' + it.kind + (stripNew ? ' pfv-flipup' : '') + (stripBad && i === 0 ? ' pfv-nope' : '') + '" data-en="' + i + '" aria-label="Next environment piece ' + (i + 1) + ': ' + K.n + ', stays ' + it.life + ' rounds. What it does">' + svg(K.i) + '<span class="fn">' + K.s + '</span>' + pips + '</button>';
+      h += '<button type="button" class="tg envp k-' + it.kind + (stripNew ? ' pfv-flipup' : '') + (stripBad && i === 0 ? ' pfv-nope' : '') + '" data-en="' + i + '"' + (stripBad && i === 0 ? ' title="' + esc(NOPLACE(K.n)) + '"' : '') + ' aria-label="' + (stripBad && i === 0 ? esc(NOPLACE(K.n)) + ' ' : '') + 'Next environment piece ' + (i + 1) + ': ' + K.n + ', stays ' + it.life + ' rounds. What it does">' + svg(K.i) + '<span class="fn">' + K.s + '</span>' + pips + '</button>';
     });
     if (!items.length) h += '<span class="tg envnone">all on the board</span>';
     h += '<button type="button" class="tg qm" data-a="help" aria-label="Help: how the board and the environment work">?</button>'
@@ -359,6 +380,7 @@
         : ev.kind === 'thorn' ? (ev.for === 'me' ? 'you \u2212' + (ev.me || 0) : 'creature \u2212' + Math.round(ev.foe || 0))
         : ev.kind === 'wind' ? (ev.moved ? 'push' : 'no push') : '';
       fxPop = { id: ev.id, t: t, kind: ev.kind };
+      stepNote = (ev.for === 'me' ? 'Your chain fires the ' + K.n + ': it works for you. ' : 'The ' + (data.foe || 'creature') + '\u2019s chain links into the ' + K.n + ' and fires it, for the ' + (data.foe || 'creature') + '. ') + (ev.ln || '');   // after 2.6.96: an environment piece works for whoever fires it: say whose chain it was
       if (ev.kind === 'wind' && ev.moved && ev.moved.id !== undefined) {
         var nxt = envPush[ev.moved.id] || []; if (nxt.length) movedBack[ev.moved.id] = nxt.shift(); else delete movedBack[ev.moved.id];
         flashIds[ev.moved.id] = 1; slideIds[ev.moved.id] = ev.dir || 'R';
@@ -390,7 +412,7 @@
     var n = (data.replay || []).length, ups = 0, g = data.gone || [];
     if (g.some(function (x) { return x.used === 'me'; })) ups++;
     if (g.some(function (x) { return x.used === 'foe' || (x.fell && !x.used && x.by === 'foe'); })) ups++;
-    var fixed = 200 + 700, vary = n * 950 + ups * 850;
+    var fixed = 200 + 700, vary = (n + (hideSpawn && spawnPiece() ? 1 : 0)) * 950 + ups * 850;   // after 2.6.96: the board's piece for the creature is a step too
     return Math.max(0.1, Math.min(1, (REPLAY_MS - fixed) / Math.max(1, vary)));
   }
   function useUpStep(side, tt) {
@@ -581,6 +603,7 @@
     var lines = [], chips = histEl ? Array.prototype.slice.call(histEl.querySelectorAll('.pf-chip:not([hidden])')) : [];
     chips.slice(0, 4).forEach(function (c) { var t = (c.getAttribute('aria-label') || c.textContent || '').replace(/\. Press to see the board then\.?$/, '').replace(/\s+/g, ' ').trim(); if (t) lines.push(t); });
     var nx = ''; if (ENV) { var it = stripItems(); nx = it.length ? 'Next in the environment: ' + it.map(function (x) { return envKind(x.kind).n; }).join(', ') + '.' : 'Next: the environment has nothing more to place.'; }
+    var sp = !playing && !hideSpawn ? spawnPiece() : null; if (sp && !sp.gone) lines.unshift('+1 ' + sp.n + ': put out for the ' + (data.foe || 'creature') + ' by the board.');   // after 2.6.96: the piece the board put out says so until your move
     if (playing) { var bn = turnEl && !turnEl.hidden ? turnEl.textContent : ''; lines = [(bn ? bn + ': ' : '') + (stepNote || 'playing…')]; nx = ''; }
     var key = (playing ? 'P' : '') + lines.join('|') + '#' + nx; if (idle.dataset.k === key) return; idle.dataset.k = key;
     idle.innerHTML = '<b class="dl">' + (playing ? 'Now' : 'Last plays') + '</b><ul>' + (lines.length ? lines.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') : '<li>Nothing played yet.</li>') + '</ul>' + (nx ? '<p class="dn">' + esc(nx) + '</p>' : '');

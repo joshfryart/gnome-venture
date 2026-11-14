@@ -202,6 +202,12 @@
 .pf-v1 .pfb-cell.pfv-used::after { content: 'used up'; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 0 3px; font: 700 9px/13px var(--font, system-ui, sans-serif); color: #fff; background: #8a2c1e; z-index: 5; white-space: nowrap; }
 @keyframes pfv-used { 0% { opacity: 1; transform: scale(1); } 60% { opacity: .9; transform: scale(1.06); } 100% { opacity: 0; transform: scale(.7) rotate(-6deg); } }
 .pf-v1 .pfb-cell.pfv-fnew .pfb-cv { filter: drop-shadow(0 0 3px #ff8a6a) drop-shadow(0 0 1px #ff8a6a); }
+/* after 2.6.96 (owner: "it shows and wiggles ... I can't tell why"): the piece the board puts out for the creature grows in without the wiggle (the replay's last step names it) and keeps a dashed red ring and a "+1" tag for the round */
+.pf-v1 .pfb-cell.pfb-spawn { animation: pfv-spawn .8s ease-out both; }
+@keyframes pfv-spawn { 0% { opacity: 0; transform: scale(.3); } 70% { opacity: 1; transform: scale(1.08); } 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .pf-v1 .pfb-cell.pfb-spawn { animation: none; } }
+.pf-v1 .pfb-cell.pfv-spawned::before { content: ''; position: absolute; inset: 9% 11%; border: 2px dashed #ff8a6a; border-radius: 6px; z-index: 3; pointer-events: none; }
+.pf-v1 .pfb-cell.pfv-spawned::after { content: '+1'; position: absolute; right: 6%; top: 4%; padding: 0 3px; font: 700 9px/13px var(--font, system-ui, sans-serif); color: #fff; background: #8a2c1e; border-radius: 3px; z-index: 5; pointer-events: none; }
 .pf-v1 .pfb-num .u { color: #ff8a6a; font-size: .85em; } .pf-v1 .pfb-num .t { color: #a9e08f; font-size: .85em; }
 /* the hand: life pips, source, flipped mark; a piece that cannot be played is faded */
 .pf-v1 .pf-hand .pf-tile .xp { position: absolute; left: 50%; bottom: 1px; transform: translateX(-50%); display: flex; gap: 1px; padding: 1px; background: rgba(24, 14, 8, .9); pointer-events: none; z-index: 3; }

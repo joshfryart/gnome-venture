@@ -1604,6 +1604,7 @@
       default: tail = '';
     }
     if (e.ta && e.ta !== e.by && (e.ta === 'me' || e.ta === 'foe') && (e.by === 'me' || e.by === 'foe')) who = e.ta === 'me' ? 'Your chain fires the ' + foe + '\u2019s' : 'The ' + foe + '\u2019s chain fires your';   // 2.6.76: a chain through the other side's piece
+    else if (e.root === false && (e.by === 'me' || e.by === 'foe')) who = e.by === 'me' ? 'Your chain fires your' : 'The ' + foe + '\u2019s chain fires its';   // after 2.6.96 (owner: "random plays"): a piece already on the board that fires in its own side's chain is not played again
     return (e.by === 'me' ? '🧩 ' : '💥 ') + who + ' ' + e.n + tail + (bits.length ? ' · ' + bits.join(', ') : '') + '.';
   }
   function noteLine(e, foe) {
