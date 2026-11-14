@@ -102,6 +102,7 @@
   }
   /** an environment piece: the parts kit's piece (so the edges and knobs are the real ones) in its own colour, a dark disc with the kind's icon, and a dashed cream frame no player piece has */
   function envCv(P, p, size) {
+    if (P.env) return P.env({ size: size, kind: p.kind, edges: p.e });   // the v48 kit draws the environment piece itself (glyph, stitch, crisp)
     var K = envKind(p.kind), sz = P.atlas.sizes[size], cv = P.piece({ size: size, owner: 'foe', type: 'soothe', tint: K.h, edges: p.e, old: false, num: '' }), g = cv.getContext('2d');
     g.globalCompositeOperation = 'source-atop'; g.fillStyle = K.c + 'a6'; g.fillRect(0, 0, cv.width, cv.height); g.globalCompositeOperation = 'source-over';
     var ia = sz.icon.at, is = sz.icon.size[0];
@@ -407,8 +408,8 @@
     render();
     if (flashEnv !== null) { var done = flashEnv; playTimers.push(setTimeout(function () { envDone[done] = 1; }, 10)); }   // its mark stays for this step, then it is gone
   }
-  /** 2.6.96: the replay takes at most REPLAY_MS (at 1x; half of it at 2x) however many events there are: the creature's banner is short, the pieces' steps shrink by RF to fit. */
-  var REPLAY_MS = 4600;
+  /** the replay takes at most REPLAY_MS (8.46 s at 1x; half of it at 2x) however many events there are: the creature's banner is short, the pieces' steps shrink by RF to fit. */
+  var REPLAY_MS = 8460;   // Josh: the replay is too fast to follow at 4.6 s, 8.46 s at 1x (half at 2x)
   function replayScale() {
     var n = (data.replay || []).length, ups = 0, g = data.gone || [];
     if (g.some(function (x) { return x.used === 'me'; })) ups++;
