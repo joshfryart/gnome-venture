@@ -251,6 +251,7 @@ ok('the section has its Sight in the marks, ready', count($marks) >= 1 && $marks
 $html = trail_view_html($u, $exp, $sc, false);
 ok('the map draws a gold ! (tmsight) over the landmark', str_contains($html, 'class="tmsight"'));
 $sc['x'] = 0; $sc['y'] = 0; $cards = trail_sights_cards_html($u, $sc, $marks);
+set_setting('stop_daypart_force', 'day'); setting('__reload__');   // a row with no dp= follows the villager's role hours (2026-11-14): Mabel keeps shop hours, so test in the day
 $GLOBALS['gv_sight_folk_file'] = $w('folkmap.txt', "{$base['slug']}|Mabel Pennywhistle|-|100|Mabel is out walking.|fp=1\n{$base['slug']}|Nobody Away|dp=nosuchdaypart|100|x|fp=1\n");
 $sc['x'] = $spot[0]; $sc['y'] = $spot[1]; $fm = trail_sights_folk_on_map($u, $exp, $sc, $marks);
 ok('a villager who is out and about (condition holds, rolled in) is drawn on the map beside the landmark', count($fm) === 1 && $fm[0][3] === 'Mabel Pennywhistle' && !($fm[0][0] === $sc['x'] && $fm[0][1] === $sc['y']) && max(abs($fm[0][0] - $marks[0]['x']), abs($fm[0][1] - $marks[0]['y'])) <= 2, json_encode($fm));
@@ -268,6 +269,26 @@ $GLOBALS['gv_sight_folk_file'] = $w('folkmap2.txt', "{$base['slug']}|Nobody Away
 ok('a villager whose time of day does not hold is not on the map', trail_sights_folk_on_map($u, $exp, $sc, $marks) === []);
 unset($GLOBALS['gv_sight_folk_file']); $sc['x'] = 0; $sc['y'] = 0;
 ok('the Sights card shows name, caption and a Walk-there button when you are away from it', str_contains($cards, 'sgcard') && str_contains($cards, 'Walk there') && str_contains($cards, 'clover patch'), substr($cards, 0, 200));
+
+// default hours by role (Josh, 2026-11-14): a row with no dp= is not there all day
+echo "== villagers' default hours by role\n";
+ok('shop hours are dawn, day and dusk with the default opening hours (06:00 to 22:00)', trail_sight_shop_dayparts() === ['dawn', 'day', 'dusk'], json_encode(trail_sight_shop_dayparts()));
+$roleName = fn(array $roles) => (string)q_val('SELECT name FROM stop_folk WHERE role IN (' . implode(',', array_fill(0, count($roles), '?')) . ') AND name NOT IN (SELECT name FROM stop_folk GROUP BY name HAVING COUNT(*) > 1) ORDER BY id LIMIT 1', $roles);
+$shopV = $roleName(['Stallholder', 'Baker', 'Cook', 'Miller']); $innV = $roleName(['Innkeeper']); $roadV = $roleName(['Pedlar', 'Pilgrim', 'Wanderer']);
+ok('role kinds: a stallholder keeps shop hours, an innkeeper is out any time, a pedlar keeps road hours', $shopV !== '' && $innV !== '' && $roadV !== '' && trail_sight_folk_role_kind($shopV)[0] === 'shop' && trail_sight_folk_role_kind($innV)[0] === 'allday' && trail_sight_folk_role_kind($roadV)[0] === 'road', json_encode([$shopV, $innV, $roadV]));
+ok('a shopkeeper is out in the day and at dusk, not at night', trail_sight_folk_role_hours($shopV, ['dp' => 'day']) && trail_sight_folk_role_hours($shopV, ['dp' => 'dusk']) && !trail_sight_folk_role_hours($shopV, ['dp' => 'night']));
+ok('an innkeeper is out at night too', trail_sight_folk_role_hours($innV, ['dp' => 'night']));
+ok('a pedlar is on the road at dawn and in the day, not at dusk or night', trail_sight_folk_role_hours($roadV, ['dp' => 'dawn']) && trail_sight_folk_role_hours($roadV, ['dp' => 'day']) && !trail_sight_folk_role_hours($roadV, ['dp' => 'dusk']) && !trail_sight_folk_role_hours($roadV, ['dp' => 'night']));
+require_once $argv[1] . '/includes/npc_life.php';
+$trav = q_one("SELECT * FROM npcs WHERE traveller IN ('merchant', 'minstrel', 'naturalist') AND active = 1 ORDER BY id LIMIT 1"); $ts = traveller_stop($trav);
+$farTown = (string)current(array_diff(traveller_towns(), [$ts['town'], $ts['next']]));
+ok('a traveller follows the circuit: out in the region they are in or walking to, at any time of day', trail_sight_folk_role_kind($trav['name'])[0] === 'traveller' && trail_sight_folk_role_hours($trav['name'], ['dp' => 'night', 'towns' => [$ts['town']]]) && trail_sight_folk_role_hours($trav['name'], ['dp' => 'day', 'towns' => [$ts['next']]]), json_encode($ts));
+ok('a traveller is not on the Trail of a region off their circuit stop', !trail_sight_folk_role_hours($trav['name'], ['dp' => 'day', 'towns' => [$farTown]]), $farTown);
+$GLOBALS['gv_sight_folk_file'] = $w('folkrole.txt', "{$base['slug']}|$shopV|-|100|x|fp=1\n{$base['slug']}|$shopV|dp=night|100|y|fp=1\n{$base['slug']}|$innV|we=sun,rain,fog,wind,storm,snow,heat,cloud,frost,mist|100|z|fp=1\n");
+$nowN = ['dp' => 'night', 'se' => 'spring', 'we' => 'sun', 'hp' => '', 'towns' => []];
+ok('at night the shopkeeper row with no dp= is skipped, the row with dp=night and the innkeeper are here', array_column(trail_sight_folk_here($base['slug'], $nowN, 0), 'line') === ['y', 'z'], json_encode(array_column(trail_sight_folk_here($base['slug'], $nowN, 0), 'line')));
+ok('in the day the shopkeeper row with no dp= is here', in_array('x', array_column(trail_sight_folk_here($base['slug'], ['dp' => 'day'] + $nowN, 0), 'line'), true));
+unset($GLOBALS['gv_sight_folk_file']);   // the day stays forced for the rest of the file: rows with no dp= keep role hours
 
 echo "== P4: the engine features (conditions, variants, pick, villagers, give, hints, titles, pages, new folk, quest orders, gates, event beats, item effects)\n";
 $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);

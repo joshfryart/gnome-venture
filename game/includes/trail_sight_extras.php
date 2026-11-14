@@ -391,11 +391,82 @@ function trail_sight_folk_here(string $slug, array $now, int $uid = 0): array
     $day = function_exists('gclock_my_date') ? gclock_my_date() : date('Y-m-d');
     foreach (trail_sight_folk()[$slug] ?? [] as $i => $f) {
         if ($f['when'] !== '-' && !trail_sight_cond_ok($f['when'], $now)) continue;
+        if (!str_contains($f['when'], 'dp=') && !trail_sight_folk_role_hours($f['who'], $now)) continue;   // 2026-11-14: a row with no dp= follows the villager's role (trail_sight_folk_role_hours)
         if (!trail_sight_folk_available($f['who'])) continue;
         if ($f['chance'] < 100 && hollow_unit('sgf|' . $uid . '|' . $slug . '|' . $f['who'] . '|' . $i . '|' . $day) * 100 >= $f['chance']) continue;
         $out[] = $f + ['idx' => $i];
     }
     return $out;
+}
+
+/**
+ * Default hours by role (Josh, 2026-11-14) for a villager row with no dp= in its `when`. Returns true when the villager is out at this time:
+ * - a travelling NPC (npcs.traveller: merchant, minstrel, naturalist, gourmand) follows their circuit: only on the Trail of the region they are in now or walking to
+ *   next (traveller_stop), at any time of day ($now['towns'] = the regions of the walk's two ends, from trail_sight_now);
+ * - a town NPC with a schedule (npc_now) is out unless their schedule has them at home;
+ * - a stop villager by role (stop_folk.role): TRAIL_SIGHT_ROLE_ALLDAY roles (inn, watch, light, signal) any time; TRAIL_SIGHT_ROLE_ROAD roles (pedlars, pilgrims,
+ *   wanderers) in the road hours (dawn and day: out early, home by dusk); every other role (they keep a stall, a trade or a shop) in shop hours: the times of day
+ *   that are at least half inside the default opening hours (gclock_place_hours: 06:00 to 22:00 = dawn, day and dusk).
+ * An unknown name is out (the lint and the tests catch unknown names).
+ */
+const TRAIL_SIGHT_ROLE_ALLDAY = ['Innkeeper', 'Keeper', 'Watcher', 'Lighthouse keeper', 'Signaller', 'Moth-watcher', 'Lair-watcher', 'Well-dweller', 'Scarecrow'];
+const TRAIL_SIGHT_ROLE_ROAD = ['Pedlar', 'Pilgrim', 'Wanderer', 'Scout', 'Porter', 'Sack-carrier'];
+const TRAIL_SIGHT_ROAD_DP = ['dawn', 'day'];
+
+function trail_sight_folk_role_hours(string $who, array $now): bool
+{
+    $kind = trail_sight_folk_role_kind($who);
+    $dp = (string)($now['dp'] ?? '');
+    try {
+        if ($kind[0] === 'traveller') {
+            require_once __DIR__ . '/npc_life.php';
+            $npc = q_one('SELECT * FROM npcs WHERE id = ?', [$kind[1]]);
+            if (!$npc) return true;
+            $s = traveller_stop($npc);
+            $towns = (array)($now['towns'] ?? []);
+            return (bool)array_intersect([(string)($s['town'] ?? ''), (string)($s['next'] ?? '')], $towns);
+        }
+        if ($kind[0] === 'npc') {
+            require_once __DIR__ . '/npc_life.php';
+            $npc = q_one('SELECT * FROM npcs WHERE id = ?', [$kind[1]]);
+            return !$npc || empty(npc_now($npc)['home']);
+        }
+    } catch (Throwable $e) { return true; }
+    if ($kind[0] === 'allday') return true;
+    if ($kind[0] === 'road') return in_array($dp, TRAIL_SIGHT_ROAD_DP, true);
+    if ($kind[0] === 'shop') return in_array($dp, trail_sight_shop_dayparts(), true);
+    return true;
+}
+
+/** [kind, id]: kind = traveller | npc (a npcs id) | allday | road | shop (a stop villager's role) | unknown. */
+function trail_sight_folk_role_kind(string $who): array
+{
+    static $memo = [];
+    if (isset($memo[$who]) && empty($GLOBALS['gv_sights_reload'])) return $memo[$who];
+    [$name] = trail_sight_split_who($who);
+    try {
+        $fid = trail_sight_folk_id($who);
+        if ($fid) {
+            $role = (string)q_val('SELECT role FROM stop_folk WHERE id = ?', [$fid]);
+            return $memo[$who] = [in_array($role, TRAIL_SIGHT_ROLE_ALLDAY, true) ? 'allday' : (in_array($role, TRAIL_SIGHT_ROLE_ROAD, true) ? 'road' : 'shop'), $fid];
+        }
+        $n = q_one('SELECT id, traveller FROM npcs WHERE name = ? ORDER BY id LIMIT 1', [$name]);
+        if ($n) return $memo[$who] = [!empty($n['traveller']) ? 'traveller' : 'npc', (int)$n['id']];
+    } catch (Throwable $e) {}
+    return $memo[$who] = ['unknown', 0];
+}
+
+/** The times of day that are at least half inside the default opening hours of shops and stops (06:00 to 22:00 = dawn, day, dusk with the default day parts). */
+function trail_sight_shop_dayparts(): array
+{
+    [$open, $close] = function_exists('gclock_place_hours') ? gclock_place_hours(null) : [360, 1320];
+    $in = []; $all = [];
+    for ($h = 0; $h < 24; $h++) {
+        $dp = hollow_daypart($h);
+        $all[$dp] = ($all[$dp] ?? 0) + 1;
+        if ($h * 60 >= $open && $h * 60 < $close) $in[$dp] = ($in[$dp] ?? 0) + 1;
+    }
+    return array_values(array_filter(array_keys($all), fn($dp) => ($in[$dp] ?? 0) * 2 >= $all[$dp]));
 }
 
 /** Is this named villager around today (a stop villager not away; a town NPC active and not away)? An unknown name is "available" (the lint and tests catch unknown names). */
@@ -495,6 +566,8 @@ function trail_sight_now(array $loc, ?array $sc, ?array $u = null): array
     if ($u && function_exists('trail_pal_urls')) { try { $pal = count(trail_pal_urls($u)); } catch (Throwable $e) {} }
     $now['pal'] = $pal > 0 ? '1' : '0';
     $now['tl'] = $u ? trail_sight_tallies((int)$u['id']) : [];
+    $now['towns'] = array_values(array_filter([(string)($loc['region'] ?? '')]));   // 2026-11-14: the regions of the walk's two ends (travellers follow their circuit)
+    if ($u && function_exists('active_expedition')) { try { $ex = active_expedition((int)$u['id']); if ($ex && ($rg = (string)q_val('SELECT region FROM locations WHERE id = ?', [(int)$ex['to_id']])) !== '') $now['towns'][] = $rg; } catch (Throwable $e) {} }
     $now['qd'] = [];
     if ($u) { try { $now['qd'] = array_column(q('SELECT quest FROM user_sight_quests WHERE user_id = ? AND done_at IS NOT NULL', [(int)$u['id']])->fetchAll(), 'quest'); } catch (Throwable $e) {} }
     return $now;
