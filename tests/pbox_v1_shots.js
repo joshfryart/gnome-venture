@@ -74,7 +74,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await shot('3-prefight-auto-on');
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-go')]); await p.waitForTimeout(1500);
     await p.waitForSelector('#pfb-board .gc', { timeout: 8000 }).catch(() => {});
-    ck(T('Let\'s fight: the board of a boss (4 by 4 cells, every board is 4 x 4 since 2.6.94), no ground cells, two face-up environment pieces in the strip'), [await n('#pfb-board .gc'), await n('#pfb-board .gc[data-ter]'), await n('#pfv-legend .envp'), await n('#pfv-legend [data-ter]')], [16, 0, 2, 0]);
+    ck(T('Let\'s fight: the board of a boss (4 by 4 cells, every board is 4 x 4 since 2.6.94), no ground cells, one face-up environment piece in the strip (2.6.98: 1 a round)'), [await n('#pfb-board .gc'), await n('#pfb-board .gc[data-ter]'), await n('#pfv-legend .envp'), await n('#pfv-legend [data-ter]')], [16, 0, 1, 0]);
     await shot('4-fight-opening');
 
     // ---- 4. the fight: a seeded position with ground, a forecast, the aim and hand pieces that cannot be played
@@ -94,8 +94,8 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
       envp: document.querySelectorAll('#pfv-legend .envp').length, envOnBoard: document.querySelectorAll('#pfb-board .pfb-cell.pfb-env').length, envBadge: document.querySelectorAll('#pfb-board .pfb-cell.pfb-env .pfv-eb').length, envPips: document.querySelectorAll('#pfb-board .pfb-cell.pfb-env .xp').length,
       aim: document.querySelectorAll('#pfb-board .mk.aim').length, off: document.querySelectorAll('#pf-hand .pfv-off').length, pips: document.querySelectorAll('#pf-hand .pf-tile .xp').length, aimchip: document.querySelectorAll('#pfv-row .tg.aim').length,
       team: document.querySelectorAll('#pfv-row .tg.team').length, envchips: document.querySelectorAll('.pf-chip.env').length, lifepips: document.querySelectorAll('#pfb-board .pfb-cell .xp').length > 0 })); }
-    ck(T('fight: no ground cells, legend or forecast marks; the Next strip shows 2 face-up environment pieces; environment pieces on the board with a badge and life pips; the aim marker, no Teamwork chip until a chain has it, life pips'),
-      [st.ground, st.marks, st.legendTer, st.evchips, st.envp, st.envOnBoard >= 1, st.envBadge === st.envOnBoard, st.envPips === st.envOnBoard, st.aim, st.aimchip, st.team, st.pips > 0], [0, 0, 0, 0, 2, true, true, true, 1, 1, 0, true]);   // 2.6.90: the Teamwork chip shows only when the planned chain has it (none planned here)
+    ck(T('fight: no ground cells, legend or forecast marks; the Next strip shows 1 face-up environment piece; environment pieces on the board with a badge and life pips; the aim marker, no Teamwork chip until a chain has it, life pips'),
+      [st.ground, st.marks, st.legendTer, st.evchips, st.envp, st.envOnBoard >= 1, st.envBadge === st.envOnBoard, st.envPips === st.envOnBoard, st.aim, st.aimchip, st.team, st.pips > 0], [0, 0, 0, 0, 1, true, true, true, 1, 1, 0, true]);   // 2.6.90: the Teamwork chip shows only when the planned chain has it (none planned here)
     ck(T('fight: some hand pieces cannot be played here and are faded'), st.off >= 1 && st.off < 5, true);
     ck(T('fight: a faded piece is 38% and grey'), await p.evaluate(() => { const s = getComputedStyle(document.querySelector('#pf-hand .pfv-off')); return [s.opacity, /grayscale/.test(s.filter)]; }), ['0.38', true]);
     // the faded pieces are exactly the ones the server has no lit cell for (flipped or not)
