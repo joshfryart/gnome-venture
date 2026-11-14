@@ -69,6 +69,25 @@ const PFB_V1_LEVEL = ['small' => [0.0, 1, 1.0, 1.0], 'medium' => [0.05, 12, 0.85
  *  useroot, kinds = class rules (later tasks). A NEW fight takes its defaults from pfb_v1_cfg (each task flips its own default); an old state falls back to this. */
 const PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health (rules.md: large 7.7 against 7.8 turns)
 const PFB_V1_PRE = ['aside' => 1, 'must' => 1, 'freepass' => 0, 'flip1' => 1, 'nowm' => 0, 'redraw' => 0, 'onebar' => 0, 'aimtot' => 0, 'keepmine' => 0, 'aimhit' => 0, 'useroot' => 0, 'kinds' => 0];
+/** The creature's bar in a NEW-rule fight (one shared bar, Hurt and Charm both fill it) is called its Yield: it yields when the bar is full (backed off by hurting, won over by charm).
+ *  The one place for the word: 'Yield 23/40' as the label, 'Yield bar' in sentences. A 2.6.94 fight (V1.onebar 0) keeps "Creature health" and the Charm bar. The browser reads it from the page data (`yieldw`). */
+const PF_YIELD = 'Yield';
+/** The Yield bar a fight against this creature starts with (size and level only, as pf_new and pfb_new size it for a new fight): what the almanac and any map preview can honestly show instead of the old HP. */
+function pfb_yield_max(array $c): int
+{
+    $size = (string)($c['size'] ?? 'small'); $boss = $size === 'boss'; $lv = max(1, (int)($c['level'] ?? 1));
+    $base = max(6.0, round(pf_pace($size) * ($boss ? PF_BAR_BOSS : PF_BAR_K) * (PF_BAR_BASE + PF_BAR_SLOPE * $lv), 1));
+    $cfg = pfb_v1_cfg($size, [], $lv);   // the same rule numbers pfb_new gives a new fight (the level curve shortens the bar of a weak creature)
+    return (int)round(round(round($base * $cfg['bar'], 1) * PFB_V1_ONEBAR_BAR, 1));
+}
+/** 'Yield bar 52': the almanac's words for a creature that is not in a fight. */
+function pf_yield_phrase(array $c): string { return PF_YIELD . ' bar ' . pfb_yield_max($c); }
+/** The almanac's numbers line for a creature: under the new rules (puzzle fights v1) its Yield bar, never its old HP; else the old words (health). */
+function pf_foe_numbers(array $c, bool $newRules): string
+{
+    return ($newRules ? pf_yield_phrase($c) : 'health ' . (int)$c['hp']) . ', attack +' . (int)$c['attack'] . ', defence ' . (int)$c['defense'] . '.';
+}
+
 /** One compat rule of a fight: its own value, or the 2.6.94 value when the state has none (an older save, or no v1 rules at all). */
 function pfb_v1r(array $s, string $k): int { return (int)($s['v1'][$k] ?? PFB_V1_PRE[$k] ?? 0); }
 

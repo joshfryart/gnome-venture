@@ -114,12 +114,13 @@ rep("    if (pform) pform.hidden = !(moves.length === 0 && !fits && selected ===
 rep("typeof selected !== 'number' || !data.hand[selected].canflip || redrawMode;", "typeof selected !== 'number' || !data.hand[selected].canflip || redrawMode;\n    passMode(busy);")
 rep("'No piece fits. Tap End turn to pass.'", "(FREEP ? 'No piece fits. Tap Pass to skip your turn.' : 'No piece fits. Tap End turn to pass.')")
 rep("'Pick a piece, then a lit spot. One piece a turn.')", "'Pick a piece, then a lit spot. One piece a turn.' + (FREEP ? ' Or tap Pass.' : ''))")
-rep("'Hurt empties its health, Charm fills the bar.'", "(ONE ? 'Hurt and Charm both fill the bar; when it is full the fight ends.' : 'Hurt empties its health, Charm fills the bar.')")
-# one bar: its two segments move with the replay; the tip, the first-turn hint and the plan line say bar, never health
+rep("'Hurt empties its health, Charm fills the bar.'", "(ONE ? 'Hurt and Charm both fill the ' + YIELD + ' bar; when it is full the fight ends.' : 'Hurt empties its health, Charm fills the bar.')")
+# one bar: its two segments move with the replay; the tip, the first-turn hint and the plan line say Yield bar (YIELD, from the page data), never health
+rep("aria.push(q.dmg + ' damage');", "aria.push(q.dmg + (ONE ? ' hurt' : ' damage'));")
 rep("    var c = root.querySelector('.pfx-fill.charm'); if (!max) return;", "    var c = root.querySelector('.pfx-fill.charm'); if (!max) return;\n    if (oneBar(null, now, max)) return;")
 rep("    var el = root.querySelector('.pf-fhp'); if (!el || !max) return; var left = Math.max(0, max - now);", "    var el = root.querySelector('.pf-fhp'); if (!el || !max) return;\n    if (oneBar(now, null, max)) return;\n    var left = Math.max(0, max - now);")
 rep("  var TIP = 'Two ways to win.", "  var TIP = ONE ? ONETIP : 'Two ways to win.")
-rep("'Empty its health or fill the charm bar \\u00B7 '", "(ONE ? 'Hurt and Charm both fill the bar' : 'Empty its health or fill the charm bar') + ' \\u00B7 '")
+rep("'Empty its health or fill the charm bar \\u00B7 '", "(ONE ? 'Hurt and Charm both fill the ' + YIELD + ' bar' : 'Empty its health or fill the charm bar') + ' \\u00B7 '")
 rep("var ps = []; if (j.fh && j.fh[1] > j.fh[0]) ps.push('Creature health ' + Math.ceil(j.fh[2] - j.fh[0]) + ' \\u2192 ' + Math.ceil(j.fh[2] - j.fh[1])); if (j.bar[1] > j.bar[0]) ps.push('Charm ' + Math.round(j.bar[0]) + ' \\u2192 ' + Math.round(j.bar[1]) + ' of ' + Math.round(j.bar[2]));", "var ps = barParts(j); aimPlanLine(j);")
 rep(": !mustLink(baseBoard(), handEdges()) && baseBoard().count ?", ": MUSTL && !mustLink(baseBoard(), handEdges()) && baseBoard().count ?")   # no must-link: that notice would show all the time
 out = os.path.join(R, 'game/assets/pfboardv1.js')

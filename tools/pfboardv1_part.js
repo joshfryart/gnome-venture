@@ -3,7 +3,8 @@
   var ENV = !!V1.env, ENVD = data.env || { next: [] }, envLit = {}, slideIds = {}, fadeIds = {}, fxPop = null, stripRem = [], stripNew = false, stripBad = false, lastLegend = '';
   // T12 (2.6.95): the week-1 rules as the view resolved them (a fight under way keeps its own: 2.6.94 fights carry set-aside, must-link, the pass button, the once-a-turn flip, Teamwork, Wind and Mud)
   var MUSTL = V1.must === undefined || !!V1.must, ASIDE = V1.aside === undefined || !!V1.aside, FREEP = !!V1.freepass, FLIP1 = V1.flip1 === undefined || !!V1.flip1, TEAM = (V1.team2 || 1) > 1, ONE = !!V1.onebar, AIMT = !!V1.aimtot, NOWM = !!V1.nowm;
-  var ONETIP = 'One bar for both ways to win. Hurt pieces fill it with damage (red), Charm pieces fill it with charm (pink). When it is full the fight ends: with more charm than damage you win the creature over for a better reward, otherwise it backs off. Guard and Heal keep you alive meanwhile. Great creatures cannot be charmed.';
+  var YIELD = data.yieldw || 'Yield';   // the creature's bar in a new-rule fight (PF_YIELD in pfboard.php sends it); a 2.6.94 fight keeps its health and charm bars
+  var ONETIP = 'The ' + YIELD + ' bar: both ways to win fill it. Hurt pieces fill it red, Charm pieces fill it pink. When it is full the creature yields: with more charm than hurt you win it over for a better reward, otherwise it backs off. Guard and Heal keep you alive meanwhile. Great creatures cannot be charmed.';
   var flipBusy = false, wrapObs = null, wrapEl = null, fitTW = 0, fitTH = 0;
   var planQ = null, offMsg = '', popEl = null, sheetEl = null, rowEl = document.getElementById('pfv-row'), legendEl = document.getElementById('pfv-legend'), flipBtn = document.getElementById('pf-flip');
   var SPD = 1, banMs = 1450, RF = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '0' ? 0 : 1; if (sp0 === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) SPD = 0; } catch (e) {}   // 2.6.96: reduced motion with no speed chosen = skip (the player's own choice wins)
@@ -42,11 +43,11 @@
     var who = 'Goes to whoever fires it: you or the creature.', lf = life ? ' It goes after ' + life + ' rounds.' : '', N = (V1.limit || 3);
     var T = {
       sun: { l: ['Fire it in your chain: your pieces in that chain count ' + times(V1.sun || 2) + ' (damage, charm, guard and healing).'], chip: '×' + (V1.sun || 2) + ' for the chain' },
-      bramble: { l: ['Fire it in your chain: ' + (ONE ? 'it adds ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of the bar as damage' : 'the creature loses ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of its health') + '. If the creature fires it, you lose ' + pc100(V1.bramble || 0) + ' of yours. Guard does not help.'], chip: '−' + pc100(V1.bramble || 0) + ' to the other side' },
+      bramble: { l: ['Fire it in your chain: ' + (ONE ? 'it adds ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of the ' + YIELD + ' bar' : 'the creature loses ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of its health') + '. If the creature fires it, you lose ' + pc100(V1.bramble || 0) + ' of yours. Guard does not help.'], chip: '−' + pc100(V1.bramble || 0) + ' to the other side' },
       rain: { l: ['Fire it in your chain: you get guard worth ' + pc100(V1.rain || 0) + ' of your health. If the creature fires it, it gets the guard.'], chip: 'guard' },
       wind: { l: ['Fire it in your chain: the piece its arrow points at slides one cell along the arrow, if that cell is free.'], chip: 'pushes a piece' },
       mud: { l: ['Nothing links to it, so chains stop here. A piece next to it counts ' + pc100(V1.mud || 0) + ' less.' + lf], chip: 'no links, −' + pc100(V1.mud || 0) + ' next to it' },
-      thorn: { l: ['Fire it in your chain and you lose ' + pc100(V1.thorn || 0) + ' of your health. ' + (ONE ? 'The bar takes ' : 'The creature loses ') + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' when the creature fires it. Link around it, or make the creature run into it.'], chip: '−' + pc100(V1.thorn || 0) + ' to you, −' + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' to the creature' }
+      thorn: { l: ['Fire it in your chain and you lose ' + pc100(V1.thorn || 0) + ' of your health. ' + (ONE ? 'The ' + YIELD + ' bar takes ' : 'The creature loses ') + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' when the creature fires it. Link around it, or make the creature run into it.'], chip: '−' + pc100(V1.thorn || 0) + ' to you, −' + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' to the creature' }
     }[kind];
     if (!T) return null;
     if (kind !== 'mud' && lf) T.l.push(lf.trim());
@@ -306,7 +307,7 @@
       + '<div class="hrow"><h2>How the board works</h2><button type="button" class="btn small" data-x="1">Done</button></div>'
       + '<div class="sl">The round</div><ul class="helpl">' + row(ENV ? envTurnText() : turnText())
       + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again.' + (AIMT ? ' The chip says what it would do now; tap it for the reasons.' : '')], who: '' })
-      + (ONE ? row({ n: 'The bar', g: 'gust', l: ['One bar, two ways to win. Hurt pieces fill it with damage, Charm pieces fill it with charm. When it is full the fight ends: with more charm than damage you win the creature over, otherwise it backs off. A great creature cannot be charmed.'], who: '' }) : '')
+      + (ONE ? row({ n: 'The ' + YIELD + ' bar', g: 'gust', l: ['One bar, two ways to win. Hurt pieces fill it, Charm pieces fill it. When it is full the creature yields: with more charm than hurt you win it over, otherwise it backs off. A great creature cannot be charmed.'], who: '' }) : '')
       + row({ n: 'Chains', g: 'gust', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + (TEAM ? ' Pal, tool and crop pieces in one chain: 2 kinds +' + Math.round((V1.team2 - 1) * 100) + '%, all 3 +' + Math.round(((V1.team3 || V1.team2) - 1) * 100) + '%.' : ''), 'A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it.', 'If its aim fires one of your pieces, your piece works for you.'], who: '' })
       + row({ n: 'Guard', g: 'gust', l: ['Your guard blocks the creature’s hits. It fades when your turn starts, unless Hold keeps it (what is left of a Hold guard stays up once).'], who: '' })
       + row({ n: 'Flip', g: 'gust', l: [(FLIP1 ? 'Once a turn, free: ' : 'Free, as often as you like: ') + 'Flip swaps the top and bottom edges of the piece you picked. A faded piece cannot be played right now; tap it to see why.'], who: '' })
@@ -435,17 +436,17 @@
     var t = Math.min(max, Math.max(0, oneV.tot)), c = Math.min(t, Math.max(0, oneV.ch)), d = t - c;
     var fd = el.querySelector('.fhfill'), fc = el.querySelector('.chfill'), b = el.querySelector('b');
     if (fd) fd.style.width = (100 * d / max) + '%'; if (fc) fc.style.width = (100 * c / max) + '%';
-    var tn = Math.round(t), cn = Math.round(c), dn = Math.max(0, tn - cn), mx = Math.round(max), head = 'Bar ' + tn + ' of ' + mx + ': damage ' + dn + ', charm ' + cn;
+    var tn = Math.round(t), cn = Math.round(c), dn = Math.max(0, tn - cn), mx = Math.round(max), head = YIELD + ' ' + tn + '/' + mx + ': hurt ' + dn + ', charm ' + cn;
     if (b) b.textContent = tn + '/' + mx;
-    el.title = head; el.setAttribute('aria-label', (el.getAttribute('aria-label') || '').replace(/^Bar \d+ of \d+: damage \d+, charm \d+/, head));
+    el.title = head; el.setAttribute('aria-label', (el.getAttribute('aria-label') || '').replace(/^[^:]*\d+ of \d+: hurt \d+, charm \d+/, YIELD + ' ' + tn + ' of ' + mx + ': hurt ' + dn + ', charm ' + cn));
     return true;
   }
   function barParts(j) {   // the plan line's bar part: one bar, or the 2.6.94 health and charm bars
     var ps = [];
     if (ONE) {
       if (j.fh && j.bar) { var dd = (j.fh[1] - j.bar[1]) - (j.fh[0] - j.bar[0]), dc = j.bar[1] - j.bar[0], q = [];
-        if (dd > 0.04) q.push('damage +' + Math.round(dd)); if (dc > 0.04) q.push('charm +' + Math.round(dc));
-        if (q.length) ps.push('Bar ' + Math.round(j.fh[0]) + ' \u2192 ' + Math.round(j.fh[1]) + ' of ' + Math.round(j.fh[2]) + ' (' + q.join(', ') + ')'); }
+        if (dd > 0.04) q.push('hurt +' + Math.round(dd)); if (dc > 0.04) q.push('charm +' + Math.round(dc));
+        if (q.length) ps.push(YIELD + ' ' + Math.round(j.fh[0]) + ' \u2192 ' + Math.round(j.fh[1]) + ' of ' + Math.round(j.fh[2]) + ' (' + q.join(', ') + ')'); }
       return ps;
     }
     if (j.fh && j.fh[1] > j.fh[0]) ps.push('Creature health ' + Math.ceil(j.fh[2] - j.fh[0]) + ' \u2192 ' + Math.ceil(j.fh[2] - j.fh[1]));
