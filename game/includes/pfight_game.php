@@ -165,7 +165,8 @@ function pfight_do(array $u, array &$exp, string $do): bool
         win_fight($u, $exp, $c, $charm, $charm, (array)($enc['stolen'] ?? []));
         return true;
     }
-    $rp0 = ['bar' => round((float)$s['bar']['now'], 1), 'fh' => round((float)$s['fh']['now'], 1), 'hp' => (int)$s['me']['hp'], 'g' => (int)$s['me']['block']];   // where the bar and your health stood before this turn (the board page plays the turn back from here)
+    $one = !empty($s['v1']['onebar']);   // 2.6.95: one shared bar; the page's creature bar shows Hurt + Charm (its charm bar is not drawn)
+    $rp0 = ['bar' => round((float)$s['bar']['now'], 1), 'fh' => round((float)$s['fh']['now'] + ($one ? (float)$s['bar']['now'] : 0.0), 1), 'hp' => (int)$s['me']['hp'], 'g' => (int)$s['me']['block']];   // where the bar and your health stood before this turn (the board page plays the turn back from here)
     $won = false;
     $prev = !empty($s['v1']) ? ['ter' => (object)($s['ter'] ?? []), 'envs' => $s['envs'] ?? [], 'aim' => $s['foe']['plan'] ?? null] + (!empty($s['v1']['env']) ? ['env' => pfb_view($s)['env']] : []) : null;   // 2.6.75: plus the environment's face-up piece   // v1 (stage C): the ground, the forecast and the aim as they stood before this turn (the page plays the turn back from there)
     if ($do === 'pf_run') {
@@ -221,7 +222,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
             $snaps = (array)($enc['snaps'] ?? []); $sn = (int)($enc['snapn'] ?? 0); $cur = isset($enc['snaplast']) ? (int)$enc['snaplast'] : null;
             foreach ($r['ev'] as $e) {
                 if (isset($e['snap'])) { $snaps[++$sn] = $e['snap']; $cur = $sn; }   // each placement keeps the board as it was, so a history chip can rewind to it
-                $enc['hist'][] = pfight_chip_event($e, $cur);
+                $enc['hist'][] = pfight_chip_event($e, $cur, $one);
             }
             ksort($snaps); $enc['snaps'] = array_slice($snaps, -14, null, true); $enc['snapn'] = $sn; $enc['snaplast'] = $cur; $enc['histnew'] = count($r['ev']);
         }   // one chip per scored piece; the board page plays them in one at a time
@@ -240,7 +241,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
                 }
             }
             exp_log($exp, $ln); $enc['last'][] = $ln;
-            if ($board) $enc['replay'][] = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'by' => (string)$e['by'], 'ta' => (string)($e['ta'] ?? $e['by']), 'ln' => $ln, 'bar' => $e['barnow'] ?? null, 'fh' => $e['fhnow'] ?? null, 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'n' => (string)($e['n'] ?? ''), 't' => (string)($e['t'] ?? '')]   // the board page plays these back one at a time
+            if ($board) $enc['replay'][] = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'by' => (string)$e['by'], 'ta' => (string)($e['ta'] ?? $e['by']), 'ln' => $ln, 'bar' => $e['barnow'] ?? null, 'fh' => pfight_fhnow($e, $one), 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'n' => (string)($e['n'] ?? ''), 't' => (string)($e['t'] ?? '')]   // the board page plays these back one at a time
                 + (isset($e['env']) ? ['env' => (string)$e['env'], 'x' => $e['x'] ?? null, 'y' => $e['y'] ?? null, 'dir' => $e['dir'] ?? null, 'moved' => $e['moved'] ?? null, 'ids' => $e['ids'] ?? null, 'me' => $e['me'] ?? 0, 'foe' => $e['foe'] ?? 0] + (isset($e['kind']) ? ['kind' => (string)$e['kind']] : []) + (isset($e['for']) ? ['for' => (string)$e['for']] : []) + (isset($e['guard']) ? ['guard' => (int)$e['guard']] : []) : [])   // v1 (stage C): a terrain event: where it landed and what it did
                 + (isset($e['note']) ? ['note' => (string)$e['note']] : []) + (!empty($e['used']) ? ['used' => $e['used']] : []) + (!empty($e['tw']) ? ['tw' => $e['tw']] : []) + (!empty($e['sun']) ? ['sun' => 1] : []) + (!empty($e['mud']) ? ['mud' => 1] : []) + (!empty($e['full']) ? ['full' => 1] : []);
         }
@@ -300,12 +301,12 @@ function pfight_preview_out(array $u, array $exp): void
     $s['me']['hp'] = min((int)$s['me']['max'], max(1, (int)$exp['hp']));
     $moves = pfight_parse_moves((string)($_POST['moves'] ?? ''));
     if ($moves === null) $out(['ok' => false, 'err' => 'moves']);
-    $before = (float)$s['bar']['now']; $fh0 = (float)$s['fh']['now'];
+    $before = (float)$s['bar']['now']; $one = !empty($s['v1']['onebar']); $fh0 = (float)$s['fh']['now'] + ($one ? $before : 0.0);   // 2.6.95: one shared bar: the creature bar is Hurt + Charm
     $r = pfb_play($s, $moves, (int)($_POST['turn'] ?? -1), null, true);
     if ($r['err']) $out(['ok' => false, 'err' => (string)$r['err']]);
     $lines = [];
     foreach ($r['ev'] as $e) $lines[] = isset($e['pluck']) ? '🤏 Pluck: a small chance to lift something.' : pfight_line($e, (string)$c['name']);
-    $out(['ok' => true, 'lines' => $lines, 'bar' => [$before, $r['bar'], $r['max']], 'fh' => [$fh0, $r['fh'], $r['fhmax']], 'over' => $r['over'] ?: null]);
+    $out(['ok' => true, 'lines' => $lines, 'bar' => [$before, $r['bar'], $r['max']], 'fh' => [$fh0, $r['fh'] + ($one ? $r['bar'] : 0.0), $r['fhmax']], 'over' => $r['over'] ?: null]);
 }
 
 /**
@@ -379,10 +380,10 @@ function pfight_guard_html(int $g): string
 function pfight_bar_html(array $v): string
 {
     $b = $v['bar']; $max = max(0.1, (float)$b['max']); $now = (float)$b['now'];
-    $fm = max(0.1, (float)$v['fh']['max']); $left = max(0.0, $fm - (float)$v['fh']['now']); $charmable = !empty($v['charmable']);
-    $hpLabel = 'Creature health: ' . (int)ceil($left) . ' of ' . (int)ceil($fm) . ' left. Hurt pieces take it down; at 0 it backs off.';
+    $fm = max(0.1, (float)$v['fh']['max']); $one = !empty($v['onebar']); $left = max(0.0, $fm - (float)$v['fh']['now'] - ($one ? (float)$v['bar']['now'] : 0.0)); $charmable = !empty($v['charmable']) && !$one;   // 2.6.95: one shared bar: Hurt and Charm both drain this one; the separate charm bar is not drawn
+    $hpLabel = $one ? 'Creature bar: ' . (int)ceil($left) . ' of ' . (int)ceil($fm) . ' left. Hurt and Charm pieces both fill it; at 0 it is over, and the larger share decides: charmed or seen off.' : 'Creature health: ' . (int)ceil($left) . ' of ' . (int)ceil($fm) . ' left. Hurt pieces take it down; at 0 it backs off.';
     $h = '<div class="pf-bars">'
-        . '<span class="pf-fhp" role="img" aria-label="' . e($hpLabel) . '" title="Creature health. Hurt pieces take it down; at 0 it backs off."><span class="pfx-fill fhfill" data-w="' . round(100 * $left / $fm, 1) . '"></span><b>' . (int)ceil($left) . '</b></span>';
+        . '<span class="pf-fhp" role="img" aria-label="' . e($hpLabel) . '" title="' . e($one ? 'Creature bar. Hurt and Charm pieces fill it; the larger share decides how it ends.' : 'Creature health. Hurt pieces take it down; at 0 it backs off.') . '"><span class="pfx-fill fhfill" data-w="' . round(100 * $left / $fm, 1) . '"></span><b>' . (int)ceil($left) . '</b></span>';
     if ($charmable) {
         $v1 = isset($v['v1']);   // 2.6.78: the v1 bar shows the engine's own number (one decimal) and is never drawn full before the fight is won (a bar a hair short of full looked full)
         $nowS = $v1 ? round($now, 1) : $now; $pct = $v1 ? ($nowS >= $max ? 100.0 : min(96.0, floor(1000 * $nowS / $max) / 10)) : round(100 * min(1.0, $now / $max), 1);
@@ -428,9 +429,15 @@ function pfight_chip(array $events, string $by): ?array
 
 /** Board mode: one chip per piece placed (its whole chain), who placed it, the types that fired and what came of it. */
 /** One history chip for one scored piece (board mode): who acted, what it did, how much, and who it landed on (tg: 'me' | 'foe' | null for setting aside); sn: the board snapshot for the rewind. Never null: the replay and the chips line up one to one. */
-function pfight_chip_event(array $e, ?int $snap = null): array
+/** The creature bar as the page draws it after this event: health lost, plus (one shared bar, 2.6.95) the charm gained. */
+function pfight_fhnow(array $e, bool $one)
 {
-    $base = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'sn' => $snap, 'bar' => $e['barnow'] ?? null, 'fh' => $e['fhnow'] ?? null, 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'chain' => false];
+    return !isset($e['fhnow']) ? null : ($one ? round((float)$e['fhnow'] + (float)($e['barnow'] ?? 0), 1) : $e['fhnow']);
+}
+
+function pfight_chip_event(array $e, ?int $snap = null, bool $one = false): array
+{
+    $base = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'sn' => $snap, 'bar' => $e['barnow'] ?? null, 'fh' => pfight_fhnow($e, $one), 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'chain' => false];
     if (!empty($e['connect'])) return $base + ['by' => 'me', 'types' => $e['types'], 'tags' => [], 'txt' => 'joined ' . (int)$e['size'], 'tg' => null];
     if (isset($e['env'])) {   // v1: a terrain event (by 'env'): what it cost each side, or its name
         $parts = []; if (!empty($e['me'])) $parts[] = 'you -' . (int)$e['me'] . ' hp'; if (!empty($e['foe'])) $parts[] = 'creature -' . (int)round((float)$e['foe']) . ' hp';
@@ -642,7 +649,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '</div>';
     if ($more !== '') $h .= '<details class="pfc-more"><summary>More: piece tips and the last turn</summary>' . $more . '</details>';
     // the board and the hand's edges for the script (public information: the board is out in the open)
-    $data = ['start' => !empty($s['start']), 'foe' => (string)$c['name'], 'won' => ($won || $lost) ? (string)$s['over'] : null, 'life' => PFB_LIFE, 'tags' => PF_TAGS, 'held' => $v['held'] ?? null, 'gone' => $v['gone'] ?? [], 'snaps' => (object)$usedSn, 'bar' => $v['bar']['now'], 'barmax' => $v['bar']['max'], 'fh' => $v['fh']['now'], 'fhmax' => $v['fh']['max'], 'charmable' => !empty($v['charmable']), 'hp' => $v['hp'], 'guard' => (int)$v['block'], 'replay' => $enc['replay'] ?? [], 'replay0' => $enc['replay0'] ?? null, 'mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3], $m[2]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => isset($v['v1']) ? pfight_parts_url() : (is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null), 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
+    $data = ['start' => !empty($s['start']), 'foe' => (string)$c['name'], 'won' => ($won || $lost) ? (string)$s['over'] : null, 'life' => PFB_LIFE, 'tags' => PF_TAGS, 'held' => $v['held'] ?? null, 'gone' => $v['gone'] ?? [], 'snaps' => (object)$usedSn, 'bar' => $v['bar']['now'], 'barmax' => $v['bar']['max'], 'fh' => round($v['fh']['now'] + (!empty($v['onebar']) ? $v['bar']['now'] : 0), 1), 'fhmax' => $v['fh']['max'], 'charmable' => !empty($v['charmable']), 'hp' => $v['hp'], 'guard' => (int)$v['block'], 'replay' => $enc['replay'] ?? [], 'replay0' => $enc['replay0'] ?? null, 'mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3], $m[2]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => isset($v['v1']) ? pfight_parts_url() : (is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null), 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
     if (isset($v['v1'])) {   // the v1 board rules: ground, forecast, the creature's aim, flip, piece life (pfb_view); the page script for them is stage C
         foreach (['v1', 'round', 'ter', 'envs', 'envlog', 'aim', 'reaim', 'flip'] as $k) $data[$k] = $v[$k];
         foreach (['status', 'wear', 'env'] as $k) if (isset($v[$k])) $data[$k] = $v[$k];   // 2.6.74 deck model: what waits on each side (creature tags), tool wear so far

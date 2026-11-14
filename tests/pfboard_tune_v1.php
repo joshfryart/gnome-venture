@@ -42,7 +42,17 @@ function tv_player(int $lv): array
     $m = max(0, intdiv($lv + 3, 14));
     if ((getenv('DECK') ?: 'real') === 'real') {   // stage B: the deck model's deck (DECK=old: the stage A sim deck with made-up sources)
         $st = ['grit' => $m, 'nimble' => $m, 'hardiness' => $m, 'charm' => $m, 'lore' => $m, 'luck' => $m, 'level' => $lv]; $max = 20 + 3 * $lv + 5 * $m; $src = tv_sources($lv);
-        return ['hp' => $max, 'max_hp' => $max, 'stats' => $st, 'deck' => pfd_tiles(pfd_fight_entries($src), $st, [], $src['calling'], $src['ctier']), 'luck' => $m];
+        $deck = pfd_tiles(pfd_fight_entries($src), $st, [], $src['calling'], $src['ctier']);
+        if ((getenv('KIT') ?: '') === 'charm') {   // 2.6.95: the kind gnome: one Hurt piece (the strongest) and seven Charm; further Hurt pieces are turned into Charm (same value and edges) until there are seven, then dropped
+            $bi = null; foreach ($deck as $i => $t) if ($t['t'] === 'hurt' && ($bi === null || $t['v'] > $deck[$bi]['v'])) $bi = $i;
+            $nc = count(array_filter($deck, fn($t) => $t['t'] === 'charm')); $out = [];
+            foreach ($deck as $i => $t) {
+                if ($t['t'] !== 'hurt' || $i === $bi) { $out[] = $t; continue; }
+                if ($nc < 7) { $nc++; $out[] = ['k' => 'charm', 'n' => 'Charm', 't' => 'charm', 'tag' => '', 'm' => ''] + $t; }
+            }
+            $deck = $out;
+        }
+        return ['hp' => $max, 'max_hp' => $max, 'stats' => $st, 'deck' => $deck, 'luck' => $m];
     } $st = ['grit' => $m, 'nimble' => $m, 'hardiness' => $m, 'charm' => $m, 'lore' => $m, 'luck' => $m, 'level' => $lv];
     $cals = array_keys(PF_CALLING_TILE); $cal = $cals[$lv % 6]; $own = pf_collection($lv, $cal); $cap = pf_box_capacity($lv);
     $want = ['hurt' => 5, 'charm' => 3, 'guard' => 3, 'heal' => 1, 'trick' => 1, 'item' => 1, 'soothe' => 0]; $box = []; $n = [];
@@ -170,6 +180,7 @@ function tv_print(string $bot, array $g, bool $blind): void
 foreach ($g as $d => $bySize) foreach (getenv('CLASS') ? array_keys($bySize) : ['small', 'medium', 'large', 'boss'] as $sz) {
     $a = $bySize[$sz] ?? []; if (!$a) continue; $n = count($a); $avg = fn(string $k) => array_sum(array_column($a, $k)) / $n;
     printf("%-5s d%+d %-6s n=%3d win=%3.0f%% hp_lost=%2.0f%% turns=%.1f | per fight: used-up chains %.1f, Teamwork %.2f, flips %.1f, re-aims %.1f, passes %.2f, turn cap %.0f%%\n", $bot, $d, $sz, $n, 100 * $avg('win'), 100 * $avg('hp'), $avg('turns'), $avg('used'), $avg('tw'), $avg('flip'), $avg('reaim'), $avg('pass'), 100 * $avg('cap'));
+    $wins = array_sum(array_column($a, 'win')); printf("      endings: charmed %.0f%% of wins (%d of %d)\n", 100 * array_sum(array_column($a, 'charm')) / max(1, $wins), array_sum(array_column($a, 'charm')), $wins);
     $tt = max(1, array_sum(array_column($a, 'nt'))); $ct = array_sum(array_column($a, 'cturns')); $sm = fn(string $k) => array_sum(array_column($a, $k));
     printf("      metrics: dead %.1f%% of turns, own-piece-at-start %.1f%%%s\n", 100 * $sm('dead') / $tt, 100 * (1 - $sm('mine0') / $tt), $ct > 0 ? sprintf(', real choice %.1f%%, ply-flip %.1f%% (of %d look turns)', 100 * $sm('real') / $ct, 100 * $sm('plyflip') / $ct, $ct) : '');
     if ($avg('eplace') > 0) {   // 2.6.75 environment pieces
@@ -218,7 +229,7 @@ foreach ($offs as $d) foreach (tv_creatures() as $c) {
             $st['pcs'] += count($s['pcs']); $st['maxpcs'] = max($st['maxpcs'], count($s['pcs'])); $st['efill'] = max($st['efill'], count($s['pcs']) / ($s['w'] * $s['h']));
             if (!empty($s['reaim'])) $st['reaim']++;
         }
-        $row = ['d' => $d, 'size' => $c['size'], 'slug' => $c['slug'], 'class' => $cr['class'] ?? pfd_class($c), 'clv' => $c['level'], 'win' => in_array($s['over'], ['seen_off', 'charmed'], true) ? 1 : 0, 'turns' => $s['turn'], 'hp' => 1 - $s['me']['hp'] / $s['me']['max'], 'cap' => $s['over'] === 'stall' || !$s['over'] ? 1 : 0] + $st;
+        $row = ['d' => $d, 'size' => $c['size'], 'slug' => $c['slug'], 'class' => $cr['class'] ?? pfd_class($c), 'clv' => $c['level'], 'win' => in_array($s['over'], ['seen_off', 'charmed'], true) ? 1 : 0, 'charm' => $s['over'] === 'charmed' ? 1 : 0, 'turns' => $s['turn'], 'hp' => 1 - $s['me']['hp'] / $s['me']['max'], 'cap' => $s['over'] === 'stall' || !$s['over'] ? 1 : 0] + $st;
         if ($json) echo json_encode(['bot' => $bot] + $row), "\n"; else $g[$d][$c['size']][] = $row;
     }
 }

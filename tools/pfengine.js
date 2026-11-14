@@ -364,6 +364,11 @@
   function checkEnd(s) {
     if (s.over) return true;
     var v1 = !!s.v1, fn = v1 ? round(s.fh.now, 1) : s.fh.now, bn = v1 ? round(s.bar.now, 1) : s.bar.now;   // 2.6.78 (v1): compared as shown (one decimal)
+    if (v1 && truthy(s.v1.onebar)) {   // 2.6.95 (one shared bar): the larger share names the ending (bosses are always seen off)
+      if (round(Number(s.fh.now) + Number(s.bar.now), 1) >= s.fh.max) { s.over = (s.cm > 0 && !s.boss && s.bar.now > s.fh.now) ? 'charmed' : 'seen_off'; return true; }
+      if (s.me.hp <= 0) { s.over = 'defeat'; return true; }
+      return false;
+    }
     if (fn >= s.fh.max) { s.over = 'seen_off'; return true; }
     if (s.cm > 0 && bn >= s.bar.max) { s.over = 'charmed'; return true; }
     if (s.me.hp <= 0) { s.over = 'defeat'; return true; }
@@ -511,6 +516,8 @@
   // after 2.6.94: the LEVEL CURVE (PFB_V1_LEVEL in pfboard.php, where the why is): f = clamp(1 + slope x (level - ref), lo, hi) as [slope, ref, lo, hi]; piece values x f, bar x min(1, f)
   var PFB_V1_LEVEL = { small: [0.0, 1, 1.0, 1.0], medium: [0.05, 12, 0.85, 1.35], large: [0.025, 22, 0.85, 1.10], boss: [0.0, 1, 1.0, 1.0] };
   // the compat rules (PFB_V1_PRE in pfboard.php, where the keys are explained): a saved fight without a key plays by the 2.6.94 value
+  var PF_HOSTILE_CM = 0.6;
+  var PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health
   var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0 };
   function v1r(s, k) { var v = s.v1 && s.v1[k] !== undefined && s.v1[k] !== null ? s.v1[k] : PFB_V1_PRE[k]; return toInt(v === undefined ? 0 : v); }
   function v1Lvx(c, lv) { return round(Math.max(Number(c[2]), Math.min(Number(c[3]), 1 + Number(c[0]) * (lv - toInt(c[1])))), 4); }   // 2.6.79 retune for isolated environment pieces   // 2.6.75 retune for environment pieces
@@ -536,7 +543,7 @@
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: 1, team3: 1,   // 2.6.95: Teamwork off
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0 };   // 2.6.95: no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1 };   // 2.6.95: one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
     var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
@@ -1304,7 +1311,9 @@
     var s = pfNew(me, c, seed, opt);
     var v1 = (opt && truthy(opt.v1)) ? v1Cfg(s.size, (typeof opt.v1 === 'object' && !Array.isArray(opt.v1)) ? opt.v1 : {}, Math.max(1, toInt(nn(c.level, 1)))) : null;
     ['hand', 'draw', 'discard'].forEach(function (z) { s.foe[z].forEach(function (t) { t.v = Math.max(1, iround(t.v * (v1 ? v1.foe : PFB_FOE_MULT) * (s.size === 'boss' ? PFB_BOSS_MULT : 1.0) * (truthy(opt && opt.blank) ? PFB_BLANK_FOE_MULT : 1.0) * (PFB_FOE_FIRES > 0 ? PFB_FOE_FIRE_MULT : 1.0))); }); });
-    s.bar.max = round(s.bar.max * (v1 ? v1.bar : PFB_BAR_MULT), 1); s.fh.max = s.bar.max;
+    s.bar.max = round(s.bar.max * (v1 ? v1.bar : PFB_BAR_MULT), 1);
+    if (v1 && truthy(v1.onebar)) { s.bar.max = round(s.bar.max * PFB_V1_ONEBAR_BAR, 1); if (s.cm <= 0 && s.boss) s.cm = PF_HOSTILE_CM; }   // 2.6.95 (one shared bar): 1.15 x as long; a boss takes Charm too (it still ends seen off)
+    s.fh.max = s.bar.max;
     s.mode = 'board'; s.strip = []; s.pcs = {}; s.cell = {}; s.pid = 0; s.seq = 0; s.round = 1;
     if (v1) {
       s.w = v1.w; s.h = v1.h; delete v1.w; delete v1.h; s.v1 = v1;
@@ -1498,6 +1507,7 @@
   /** What the client may see: no draw pile, no foe hand, no rng, no nonce. */
   function view(s) {
     var v = pfView(s), i;
+    if (s.v1 && truthy(s.v1.onebar)) { v.onebar = 1; v.charmable = s.cm > 0 && !s.boss; }   // 2.6.95: one shared bar
     v.start = truthy(s.start); v.mode = 'board'; v.w = pfbW(s); v.h = pfbH(s); v.fx = clone(nn(s.fx, []));
     var g = nn(s.me.held, null);
     v.held = g ? {

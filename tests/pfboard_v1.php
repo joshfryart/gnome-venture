@@ -326,7 +326,7 @@ $s0 = v1_bare('medium', ['life' => 0]); chk('rule switch life = 0: every piece l
 
 echo "== 10. creature values and bars by size\n";
 foreach (['small', 'medium', 'large', 'boss'] as $size) {
-    $c = v1_foe($size, 12); $base = pf_new(v1_me(12), $c, 5); $s = pfb_new(v1_me(12), $c, 5, ['v1' => true]);
+    $c = v1_foe($size, 12); $base = pf_new(v1_me(12), $c, 5); $s = pfb_new(v1_me(12), $c, 5, ['v1' => V1_294]);   // 2.6.95: the size numbers are the 2.6.94 two-bar ones (one bar x1.15: section 20)
     $lf = pfb_v1_lvx(PFB_V1_LEVEL[$size], 12); $fmul = round(PFB_V1_FOE_MULT[$size] * $lf, 4); $bmul = round(PFB_V1_BAR_MULT[$size] * min(1.0, $lf), 4);   // after 2.6.94: the level curve (a lv 12 creature)
     $fm = $fmul * ($size === 'boss' ? PFB_BOSS_MULT : 1.0) * PFB_FOE_FIRE_MULT; $want = []; foreach (pf_foe_deck($c) as $t) $want[$t['k']] = max(1, (int)round($t['v'] * $fm));
     $got = []; foreach (array_merge($s['foe']['hand'], $s['foe']['draw'], array_column($s['pcs'], 'tile')) as $t) $got[$t['k']] = $t['v']; ksort($want); ksort($got);
@@ -411,10 +411,14 @@ chk('those fights use every rule (environment pieces placed, kept back, fired by
 echo '     ' . json_encode($over) . ' avg turns ' . round(array_sum($turns) / max(1, count($turns)), 1) . ' ' . json_encode($evs) . "\n";
 
 echo "== 11b. the charm bar ends the fight the moment it reads full (2.6.78)\n";
-$s = v1_bare('small'); $s['bar']['max'] = 20.7; $s['bar']['now'] = 20.66; $s['cm'] = 1.0; $r = pf_check_end($s);
-chk('v1: a bar at 20.66 of 20.7 reads 20.7 (full) and the fight is won over', $r && $s['over'] === 'charmed', $s['over']);
-$s = v1_bare('small'); $s['bar']['max'] = 20.7; $s['bar']['now'] = 20.6; $s['cm'] = 1.0;
-chk('v1: a bar at 20.6 of 20.7 is not full: the fight goes on', !pf_check_end($s) && !$s['over']);
+$s = v1_bare('small', V1_294); $s['bar']['max'] = 20.7; $s['bar']['now'] = 20.66; $s['cm'] = 1.0; $r = pf_check_end($s);   // 2.6.95: the two-bar rule is pinned to V1_294; section 20 has the one-bar version
+chk('v1 (two bars): a bar at 20.66 of 20.7 reads 20.7 (full) and the fight is won over', $r && $s['over'] === 'charmed', $s['over']);
+$s = v1_bare('small'); $s['fh']['max'] = 20.7; $s['bar']['max'] = 20.7; $s['fh']['now'] = 0.0; $s['bar']['now'] = 20.66; $s['cm'] = 1.0; $r = pf_check_end($s);
+chk('v1 (one bar): a bar at 20.66 of 20.7 reads 20.7 (full) and the fight is won over', $r && $s['over'] === 'charmed', $s['over']);
+$s = v1_bare('small', V1_294); $s['bar']['max'] = 20.7; $s['bar']['now'] = 20.6; $s['cm'] = 1.0;
+chk('v1 (two bars): a bar at 20.6 of 20.7 is not full: the fight goes on', !pf_check_end($s) && !$s['over']);
+$s = v1_bare('small'); $s['fh']['max'] = 20.7; $s['bar']['now'] = 20.6; $s['cm'] = 1.0;
+chk('v1 (one bar): 20.6 of 20.7 is not full: the fight goes on', !pf_check_end($s) && !$s['over']);
 $s = v1_bare('small'); $s['fh']['now'] = $s['fh']['max'] - 0.04;
 chk('v1: a creature with 0.04 of its health left reads empty (the shown number) and is seen off', pf_check_end($s) && $s['over'] === 'seen_off', $s['over']);
 $s = pfb_new(v1_me(), v1_foe('small'), 5, []); $s['bar']['max'] = 20.7; $s['bar']['now'] = 20.66; $s['cm'] = 1.0;
@@ -452,7 +456,7 @@ chk('a 2.6.94 state with none of the new keys resolves every key to PRE', !$bad1
 $v = pfb_view($s)['v1']; $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (!array_key_exists($k, $v) || (int)$v[$k] !== $d) $bad16[] = $k;
 chk('its view emits every key resolved to PRE', !$bad16, $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($n, $k) !== $d) $bad16[] = $k;
-chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1: 2.6.95)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1']), $bad16);
+chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar: 2.6.95)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar']), $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['onebar' => 1, 'redraw' => 1]]);
 chk('an override switches a key on', pfb_v1r($n, 'onebar') === 1 && pfb_v1r($n, 'redraw') === 1 && pfb_v1r($n, 'aimtot') === 0);
 chk('pfb_v1r on a fight without v1 rules is the PRE value too', pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5), 'aside') === 1);
@@ -526,6 +530,42 @@ chk('a V1_294 fight: the second flip is refused', $e3 === null && $e4 !== null &
 chk('a new fight keeps no flip turn: view flip.used stays false, every hand piece with edges says canflip', pfb_view($fn)['flip']['used'] === false && !isset($fn['me']['hand'][0]['ft']) && (int)$fn['me']['flipt'] === 0 && pfb_can_flip($fn, 0) && pfb_can_flip($fn, 1) && pfb_view($fn)['v1']['flip1'] === 0 && pfb_view($fo)['v1']['flip1'] === 1);
 chk('a new fight: a flipped piece flips back, and flipping again works any number of times', pfb_flip($fn, 0, $tn) === null && pfb_edges($fn['me']['hand'][0]) === $a0 && pfb_flip($fn, 0, $tn) === null && pfb_flip($fn, 1, $tn) === null && empty($fn['me']['hand'][1]['flip']));
 chk('a new fight: the action [f, i] works for two pieces in one turn, free', ($r1 = pfb_play($fn, [['f', 2]], $tn))['err'] === null && ($r2 = pfb_play($fn, [['f', 3]], $tn))['err'] === null && $fn['turn'] === $tn && !empty($r2['free']), [$r1['err'] ?? null, $r2['err'] ?? null]);
+
+echo "== 20. week 1 cuts, part 4: one shared bar (2.6.95); a fight saved under 2.6.94 keeps two bars\n";
+$on = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => true]); $old = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => V1_294]);
+chk('a new fight has onebar 1, a saved 2.6.94 one has 0', pfb_v1r($on, 'onebar') === 1 && pfb_v1r($old, 'onebar') === 0 && $old['v1']['onebar'] === 0);
+chk('onebar: the bar is today\'s length x 1.15 (both counters read the same max)', abs($on['fh']['max'] - round($old['fh']['max'] * PFB_V1_ONEBAR_BAR, 1)) <= 0.11 && $on['bar']['max'] === $on['fh']['max'], [$on['fh']['max'], $old['fh']['max'], $on['bar']['max']]);
+$mk = function (float $fh, float $bar, float $cm = 1.0, bool $boss = false) { $g = pfb_new(v1_me(), v1_foe('medium'), 3, ['v1' => true]); $g['cm'] = $cm; $g['boss'] = $boss; $g['fh']['max'] = 21.0; $g['bar']['max'] = 21.0; $g['fh']['now'] = $fh; $g['bar']['now'] = $bar; return $g; };
+$ge = $mk(10.0, 11.0); $r = pf_check_end($ge);
+chk('onebar: Hurt 10 + Charm 11 of 21 ends charmed (the larger share is Charm)', $r && $ge['over'] === 'charmed', $ge['over']);
+$ge = $mk(11.0, 10.0); $r = pf_check_end($ge);
+chk('onebar: Hurt 11 + Charm 10 of 21 ends seen_off', $r && $ge['over'] === 'seen_off', $ge['over']);
+$ge = $mk(10.0, 10.0);
+chk('onebar: 10 + 10 of 21 is not over', !pf_check_end($ge) && !$ge['over']);
+$ge = $mk(10.0, 10.96); $r = pf_check_end($ge);
+chk('onebar: the 2.6.78 one-decimal rule holds for the sum (10 + 10.96 reads 21.0: over)', $r && $ge['over'] === 'charmed', $ge['over']);
+$ge = $mk(10.0, 10.94);
+chk('onebar: 10 + 10.94 reads 20.9: not over', !pf_check_end($ge) && !$ge['over']);
+$ge = $mk(21.0, 0.0, 0.0); $r = pf_check_end($ge);
+chk('onebar: a creature with cm 0 ends seen_off', $r && $ge['over'] === 'seen_off', $ge['over']);
+$ge = $mk(4.0, 17.0, 0.6, true); $r = pf_check_end($ge);
+chk('onebar: a boss with bar > fh ends seen_off, never charmed', $r && $ge['over'] === 'seen_off', $ge['over']);
+$bs = pfb_new(v1_me(), v1_foe('boss', 12), 3, ['v1' => true]); $bo = pfb_new(v1_me(), v1_foe('boss', 12), 3, ['v1' => V1_294]);
+chk('onebar: a boss fight has cm 0.6 (Charm counts), a 2.6.94 boss has cm 0', abs($bs['cm'] - PF_HOSTILE_CM) < 1e-9 && $bo['cm'] === 0.0 && $bs['boss'], [$bs['cm'], $bo['cm']]);
+chk('onebar: the view of a boss says it is not charmable, a gentle creature is; the view says onebar and a 2.6.94 one does not', pfb_view($bs)['charmable'] === false && pfb_view($on)['charmable'] === true && !empty(pfb_view($on)['onebar']) && empty(pfb_view($old)['onebar']), [pfb_view($bs)['charmable']]);
+$bs['me']['hand'][0] = pfb_v1_tile(pf_make_tile('charm', ['level' => 10]), $bs['v1']); $b0 = $bs['bar']['now']; $ch = null;
+foreach (pfb_cell_preview($bs, 0) as $key => $q) { $ch = [$key, $q]; break; }
+$rb = $ch ? pfb_play($bs, [[0, ...array_map('intval', explode(',', $ch[0]))]], $bs['turn']) : ['err' => 'no cell'];
+chk('onebar: Charm played against a boss moves bar.now', $rb['err'] === null && $bs['bar']['now'] > $b0, [$rb['err'], $b0, $bs['bar']['now']]);
+$fs = pfb_new(v1_me(), v1_foe('small'), 5, []); $fs['cm'] = 1.0; $fs['bar']['now'] = $fs['bar']['max']; $fs['fh']['now'] = 0.0;
+chk('flag off (no v1): pf_check_end still ends charmed on a full charm bar', pf_check_end($fs) && $fs['over'] === 'charmed', $fs['over']);
+$s2 = $mk(10.0, 11.0); $s2['v1']['onebar'] = 0; $s2['fh']['max'] = 21.0;
+chk('V1_294: 10 + 11 of 21 is not over under two bars', !pf_check_end($s2) && !$s2['over']);
+$v1 = 0; $sc = ['charmed' => 0, 'seen_off' => 0, 'defeat' => 0];
+for ($sd = 1; $sd <= 30; $sd++) { $f = pfb_new(v1_me(10), v1_foe(['small', 'medium'][$sd % 2], 6 + $sd % 5), 1300 + $sd, ['v1' => true, 'blank' => true]); pfb_start($f, 0, 'LRTB'[$sd % 4]);
+    for ($t = 0; $t < 40 && !$f['over']; $t++) { $m = pfb_search($f, 'me'); $r = $m ? pfb_play($f, [[$m[0], $m[1], $m[2]]], $f['turn']) : pfb_pass($f, $f['turn']); if ($r['err']) break; if (!$f['over'] && round($f['fh']['now'] + $f['bar']['now'], 1) >= $f['fh']['max']) $v1++; }
+    $sc[$f['over'] ?: 'none'] = ($sc[$f['over'] ?: 'none'] ?? 0) + 1; }
+chk('30 whole onebar fights: never a full shared bar with the fight still on, and every fight ends', $v1 === 0 && ($sc['none'] ?? 0) === 0, $sc);
 
 chk('no PHP warning or notice anywhere in this run', !$warn, array_slice($warn, 0, 3));
 echo $bad ? "$bad FAILED\n" : "all ok\n";

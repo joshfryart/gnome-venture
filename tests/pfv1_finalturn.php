@@ -1,5 +1,6 @@
 <?php
 // 2.6.88 (Josh: "the final turn seems to replay the turn before it"): a turn that ends the fight runs no creature turn and no end of round, so what the creature put down (lastfoe -> fnew) and what left (gone) in the round BEFORE stayed in the state and the page replayed them again.
+// 2.6.95: pinned to two bars (onebar 0): with one shared bar this fixture's fight is over in three turns, before the turn the test needs; the end of a fight by the shared bar is covered by tests/pfv1_charm.js ('charm win', bar near full) and tests/pfboard_v1.php section 20.
 // php tests/pfv1_finalturn.php GAME   (a creature is in front of sprout, see pbox_v1_seed.php fight)
 $_SERVER['SCRIPT_NAME'] = '/adventure.php';
 require $argv[1] . '/includes/bootstrap.php';
@@ -7,7 +8,7 @@ require_once APP_ROOT . '/includes/adventure.php'; require_once APP_ROOT . '/inc
 $u = q_one("SELECT * FROM users WHERE username = 'sprout'"); $uid = (int)$u['id'];
 $exp = active_expedition($uid); $enc = json_decode((string)$exp['encounter'], true); $c = encounter_creature($enc);
 $enc['pfgo'] = 1; unset($enc['pf']); $exp['encounter'] = json_encode($enc); save_exp($exp);
-$enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), 7, ['v1' => true, 'blank' => true, 'can_pluck' => false]); $exp['encounter'] = json_encode($enc); save_exp($exp);
+$enc['pf'] = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), 7, ['v1' => ['onebar' => 0], 'blank' => true, 'can_pluck' => false]); $exp['encounter'] = json_encode($enc); save_exp($exp);
 $turn = function () use (&$exp, &$enc, &$u) {
     $exp = active_expedition((int)$u['id']); $enc = json_decode((string)$exp['encounter'], true); $s = $enc['pf']; if ($s['over']) return false;
     $_POST = ['nonce' => $s['nonce'], 'turn' => $s['turn']];
