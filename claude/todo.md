@@ -37,7 +37,7 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
   - Villagers with no `dp=` get default hours by role (shopkeepers in shop hours, travellers by circuit).
   - Almanac Sights pages stay OUT of page counts / percentages.
   - No rope tool type (315 slope stays staff tier 1).
-  - Drop the `upload-zips` copy of the Trail ground pictures (rebuild zips only at release).
+  - Drop the `upload-zips` copy of the Trail ground pictures (rebuild zips only at release). DONE 2026-11-14: all 55 `upload-zips/gnome-venture-trail-ground-*.zip` removed (r, r3 and the old pre-2.6.40 `partNof9` ones, 310 MB; nothing in tests/tools read them). The pictures live only in `game/assets/img/trail/ground/*-r.png`; Admin > Images zips of them are made at release time only.
   - Gates / extra mini-bosses outside Maplewold: review all 230 routes (list counts per region, Josh adjusts).
   - Add a `decor` data field so the rich map looks are game data.
   - Island keeps coast ground art. Delve / lair run records stay admin only.
