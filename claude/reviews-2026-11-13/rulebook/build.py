@@ -1,0 +1,1058 @@
+#!/usr/bin/env python3
+"""Builds puzzle-combat-rulebook.html (print CSS, A4). Usage: python3 build.py [pages.json]
+pages.json (optional) maps heading ids to page numbers for the contents list; render.js writes it after a first pass."""
+import json, os, sys, re
+import figs
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+pages = {}
+if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
+    pages = json.load(open(sys.argv[1]))
+
+P = '<span class="v p" title="Seen in my own play on the real engine">played</span>'
+C = '<span class="v c" title="Read in the code, not seen in play">code</span>'
+Q = '<span class="v q" title="Could not verify">not verified</span>'
+
+CSS = r"""
+@page { size: A4; margin: 17mm 16mm 19mm 16mm; }
+* { box-sizing: border-box; }
+html { font-size: 11pt; }
+body { font-family: Inter, "DejaVu Sans", Arial, sans-serif; color: #1d1d1b; line-height: 1.42; margin: 0; }
+h1, h2, h3, h4 { font-family: "Bitstream Charter", Caladea, "DejaVu Serif", serif; color: #2b2a26; break-after: avoid; page-break-after: avoid; }
+h2 { font-size: 20pt; margin: 0 0 8pt; padding-bottom: 4pt; border-bottom: 2pt solid #7a8f4e; break-before: page; page-break-before: always; }
+h2 .n { color: #7a8f4e; margin-right: 8pt; }
+h3 { font-size: 13.5pt; margin: 15pt 0 5pt; }
+h3 .n, h4 .n { color: #7a8f4e; margin-right: 6pt; }
+h4 { font-size: 11.5pt; margin: 11pt 0 3pt; }
+p { margin: 0 0 6pt; orphans: 3; widows: 3; }
+ul, ol { margin: 0 0 7pt; padding-left: 16pt; }
+ol { padding-left: 22pt; }
+h3.pb { break-before: page; page-break-before: always; margin-top: 0; }
+li { margin-bottom: 2.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 6pt 0 10pt; font-size: 9.6pt; }
+thead { display: table-header-group; }
+tr { break-inside: avoid; page-break-inside: avoid; }
+th { background: #e9eddc; text-align: left; font-weight: 700; }
+th, td { border: 0.6pt solid #b9b6a8; padding: 3.2pt 5pt; vertical-align: top; }
+table.keep { break-inside: avoid; page-break-inside: avoid; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+.fig { break-inside: avoid; page-break-inside: avoid; margin: 8pt 0 10pt; text-align: center; }
+.fig svg { max-width: 100%; height: auto; }
+.fig .cap { font-size: 9pt; color: #555; margin-top: 2pt; }
+.box { break-inside: avoid; page-break-inside: avoid; border: 0.8pt solid #7a8f4e; background: #f5f7ec; border-radius: 5pt; padding: 7pt 10pt 4pt; margin: 8pt 0 10pt; }
+.box.warn { border-color: #b5651d; background: #fbf1e3; }
+.box.ex { border-color: #6c7fa3; background: #eef2f9; }
+.box h4 { margin-top: 0; }
+.v { font-size: 7.4pt; font-weight: 700; border-radius: 3pt; padding: 0.5pt 3.5pt; white-space: nowrap; vertical-align: 1pt; letter-spacing: 0.2pt; text-transform: uppercase; }
+.v.p { background: #dcebd0; color: #2f5d1c; }
+.v.c { background: #e3e6f2; color: #34406b; }
+.v.q { background: #f6dcd2; color: #8a2d12; }
+code { font-family: "DejaVu Sans Mono", monospace; font-size: 8.6pt; background: #f1efe8; padding: 0 2pt; border-radius: 2pt; }
+.cover { height: 250mm; display: flex; flex-direction: column; justify-content: center; text-align: center; break-after: page; page-break-after: always; }
+.cover h1 { font-size: 40pt; margin: 0 0 4pt; }
+.cover .sub { font-size: 16pt; color: #555; margin-bottom: 26pt; }
+.cover .meta { font-size: 10.5pt; color: #444; line-height: 1.7; }
+.cover .rule { width: 60mm; height: 3pt; background: #7a8f4e; margin: 16pt auto; }
+.toc { break-after: page; page-break-after: always; }
+.toc h2 { break-before: auto; page-break-before: auto; }
+.toc ol { list-style: none; padding: 0; margin: 0; column-count: 2; column-gap: 10mm; font-size: 9pt; }
+.toc li { display: flex; align-items: baseline; margin: 0; padding: 1.6pt 0; }
+.toc li.l1 { font-weight: 700; margin-top: 5pt; }
+.toc li.l2 { padding-left: 10pt; font-size: 8.6pt; padding-top: 0.8pt; padding-bottom: 0.8pt; }
+.toc li { break-inside: avoid; }
+.toc .dots { flex: 1; border-bottom: 0.6pt dotted #999; margin: 0 5pt; transform: translateY(-2.5pt); }
+.toc .tn { color: #7a8f4e; width: 24pt; display: inline-block; }
+.small { font-size: 9.3pt; color: #444; }
+.cheat h2 { margin-bottom: 4pt; }
+.cheat { font-size: 9pt; line-height: 1.32; }
+.cheat .cols { column-count: 2; column-gap: 9mm; }
+.cheat h4 { margin: 7pt 0 2pt; font-size: 10.5pt; color: #4e6124; }
+.cheat ul { margin-bottom: 3pt; padding-left: 12pt; }
+.cheat li { margin-bottom: 1pt; }
+.cheat .blk { break-inside: avoid; }
+.turn { font-size: 9.4pt; }
+.turn td:first-child { white-space: nowrap; font-weight: 700; }
+"""
+
+heads = []   # (level, id, number, title)
+
+
+def h2(num, title):
+    hid = 's' + num.replace('.', '_')
+    heads.append((1, hid, num, title))
+    return f'<h2 id="{hid}"><span class="n">{num}</span> {title}</h2>'
+
+
+def h3(num, title):
+    hid = 's' + num.replace('.', '_')
+    heads.append((2, hid, num, title))
+    pb = ' class="pb"' if num in ('A.2', 'A.3', 'A.4') else ''
+    return f'<h3 id="{hid}"{pb}><span class="n">{num}</span> {title}</h3>'
+
+
+def h4(num, title):
+    return f'<h4><span class="n">{num}</span>{title}</h4>'
+
+
+def fig(svg, cap):
+    return f'<div class="fig">{svg}<div class="cap">{cap}</div></div>'
+
+
+B = []
+w = B.append
+
+# ------------------------------------------------------------------ 1
+w(h2('1', 'What you are doing'))
+w(f"""
+<p>Puzzle combat is a small board game inside Gnome Venture. You meet a creature. You both put jigsaw pieces on a 4 by 4 board. Pieces that link fire together as a chain. This book describes the rules as they are in a <b>new fight today</b> (version 2.6.986, puzzle combat v1, still switched on for admins only).</p>
+{h3('1.1', 'The goal')}
+<p>Fill the creature's <b>Yield bar</b> before your <b>health</b> reaches 0. That is the whole game. {P}</p>
+{h3('1.2', 'The Yield bar')}
+<ul>
+<li>The creature has one bar. It starts empty, for example <b>Yield 0/43</b>.</li>
+<li>Your <b>Hurt</b> pieces fill it. Your <b>Charm</b> pieces fill the same bar. {P}</li>
+<li>When it is full the creature yields and you win.</li>
+<li>The label counts both parts: "Yield 23/40: hurt 15, charm 8". {C}</li>
+</ul>
+<p>How much a piece adds is not always its number:</p>
+<table class="keep">
+<thead><tr><th>Creature</th><th>Hurt 10 adds</th><th>Charm 10 adds</th><th>How you know</th></tr></thead>
+<tbody>
+<tr><td>Wary (most creatures)</td><td class="num">10</td><td class="num">6</td><td>The creature card says "wary".</td></tr>
+<tr><td>Gentle</td><td class="num">8</td><td class="num">10</td><td>The card says "gentle".</td></tr>
+<tr><td>Boss (a great creature)</td><td class="num">10</td><td class="num">6</td><td>The card says "cannot be charmed". Charm still fills the bar.</td></tr>
+</tbody></table>
+<p class="small">Code: <code>PF_GENTLE_HM</code> 0.8, <code>PF_HOSTILE_CM</code> 0.6 in <code>pfight.php</code>. Seen in play: Charm 5 added 3 against the Pincer Earwig (wary). {P}</p>
+<p>The bar is longer for bigger and higher creatures. From my fights, with a gnome of the creature's level:</p>
+<table class="keep">
+<thead><tr><th>Creature</th><th>Size, level</th><th class="num">Yield bar</th><th class="num">Your health</th><th class="num">A typical Hurt of yours</th><th class="num">A typical hit of its</th></tr></thead>
+<tbody>
+<tr><td>Pincer Earwig</td><td>small, 4</td><td class="num">42.8</td><td class="num">32</td><td class="num">4 to 5</td><td class="num">3 (two a turn)</td></tr>
+<tr><td>Carrion Crow</td><td>medium, 9</td><td class="num">74.6</td><td class="num">47</td><td class="num">5 to 8</td><td class="num">3 to 4</td></tr>
+<tr><td>Wild Boar</td><td>large, 21</td><td class="num">171.8</td><td class="num">88</td><td class="num">10 to 16</td><td class="num">6 to 7</td></tr>
+<tr><td>Great Hawk</td><td>boss, 28</td><td class="num">215.2</td><td class="num">114</td><td class="num">13 to 19</td><td class="num">8 to 10</td></tr>
+</tbody></table>
+<p class="small">The gnome here is the test gnome of <code>tests/pf_play.php</code> (health 20 + 3 per level, plus 5 per stat step). Your own gnome may differ. {Q}</p>
+{h3('1.3', 'Your health')}
+<ul>
+<li>Your health is the health of your expedition. You bring it into the fight and you take what is left out of it. {C}</li>
+<li>The creature's Hurt pieces lower it. So do Bramble, Thornburst and poison.</li>
+<li><b>Guard</b> blocks the creature's Hurt pieces. Guard does not block Bramble, Thornburst or poison. {P}</li>
+<li>At 0 you are knocked out and the fight is lost.</li>
+</ul>
+{h3('1.4', 'One round')}
+""")
+w(fig(figs.fig_round(), 'Figure 1. A round. You act once, then you watch.'))
+w(f"""
+<ul>
+<li>You do <b>one action</b>: place one piece, or pass. Flipping a piece is free and is not an action.</li>
+<li>Then the creature plays. Then the environment places one piece. Then old pieces leave and you draw a new hand.</li>
+<li>Your whole hand is thrown away and redrawn every round. You cannot save a piece for later. {P}</li>
+</ul>
+{h3('1.5', 'How a fight can end')}
+<table class="keep">
+<thead><tr><th>Ending</th><th>When</th><th>What you get</th></tr></thead>
+<tbody>
+<tr><td><b>It backs off</b> (seen off)</td><td>The bar is full and hurt is the larger share. Always, for a boss.</td><td>Full XP and its normal drops. {C}</td></tr>
+<tr><td><b>It is won over</b> (charmed)</td><td>The bar is full and charm is the larger share. Not possible for a boss.</td><td>Full XP, a gift, and its seed or guide drops. {C}</td></tr>
+<tr><td><b>You are knocked out</b></td><td>Your health is 0.</td><td>Nothing. You wake where you set out, with half your health. {C}</td></tr>
+<tr><td><b>You run</b></td><td>You press Run. Not allowed against a boss.</td><td>Nothing won, nothing lost. {C}</td></tr>
+<tr><td><b>It wanders off</b></td><td>24 turns pass. Against a boss this counts as a knock-out.</td><td>Nothing. {C}</td></tr>
+</tbody></table>
+<p class="small">If one chain both fills the bar and takes your last health, you win: the bar is checked first (<code>pf_check_end</code>). {C}</p>
+""")
+
+# ------------------------------------------------------------------ 2
+w(h2('2', 'The pieces'))
+w(f"""
+{h3('2.1', 'What is on a piece')}
+<p>Every piece has a <b>name</b>, a <b>type</b>, a <b>number</b>, four <b>edges</b> and sometimes a <b>tag</b>.</p>
+""")
+w(fig(figs.fig_anatomy(), 'Figure 2. Swing, the basic Hurt piece, and the three edge families.'))
+w(f"""
+{h3('2.2', 'The seven types')}
+<table class="keep">
+<thead><tr><th>Type</th><th>What its number does when it fires for you</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><b>Hurt</b></td><td>Adds that much hurt to the Yield bar.</td><td>The creature's guard soaks it first. Its Evade makes one Hurt miss.</td></tr>
+<tr><td><b>Charm</b></td><td>Adds that much charm to the Yield bar (x0.6 on a wary creature or a boss).</td><td>Guard, Evade and the creature's healing do not touch charm. {C}</td></tr>
+<tr><td><b>Guard</b></td><td>Blocks that much damage until your next turn starts.</td><td>It stays up through the creature's turn, then fades.</td></tr>
+<tr><td><b>Heal</b></td><td>Heals you that much.</td><td>Never above your maximum.</td></tr>
+<tr><td><b>Item</b> (Snack)</td><td>Heals you that much.</td><td>Snack eats a real snack from your satchel. It is refused at full health and after the fight's snack limit. {C}</td></tr>
+<tr><td><b>Soothe</b></td><td>The creature's next hits this round do that much less in all.</td><td>The pool is gone after the creature's turn. {C}</td></tr>
+<tr><td><b>Trick</b></td><td>Nothing by itself. It boosts a Hurt or Guard of yours that fires right after it (see 2.6).</td><td>Seen: Slip Past 6, then Chop 5, gave 14. {P}</td></tr>
+</tbody></table>
+<p>When a piece fires <b>for the creature</b> the same types work the other way: its Hurt lowers your health, its Guard soaks your Hurt, its Heal empties part of the hurt on the Yield bar. Its Charm and Soothe pieces do nothing. {C}</p>
+{h3('2.3', 'Edges, fitting and linking')}
+<ul>
+<li>Each edge is a <b>knob</b> (solid, sticks out) or a <b>hole</b> (hollow, cut in).</li>
+<li>Each knob and hole belongs to a <b>family</b>: body (round), mind (keyhole) or craft (triangle).</li>
+<li>Two edges <b>fit</b> when one is a knob and the other a hole of the <b>same family</b>.</li>
+<li>You may place a piece on an empty cell only if it <b>touches</b> at least one piece and <b>every</b> edge that touches a piece fits. {P}</li>
+<li>A joint that fits is a <b>link</b>. Chains run along links.</li>
+</ul>
+""")
+w(fig(figs.fig_fit(), 'Figure 3. Fitting. There is no "almost": a touching edge fits or the cell is closed to that piece.'))
+w(f"""
+<p>Two special edges exist:</p>
+<ul>
+<li><b>Wild</b>: fits anything. The Blank has four wild edges, but no chain runs through the Blank. A Plant's own Bramble also has wild edges, and it does link. {C}</li>
+<li><b>Flat</b>: fits anything and never links. Today only Offer (flat right edge) has one. Mud, which is out of the game for now, is flat all round. {C}</li>
+</ul>
+<h4>How your pieces are cut</h4>
+<p>You do not need to learn this by heart, the lit cells show where a piece goes. But the pattern helps you plan:</p>
+<table class="keep">
+<thead><tr><th>Edge</th><th>What it is</th><th>Example: Swing (Hurt)</th></tr></thead>
+<tbody>
+<tr><td>Left</td><td>A hole of the type's family. Hurt and Guard: body. Heal, Charm, Soothe: mind. Trick, Item: craft.</td><td>body hole</td></tr>
+<tr><td>Right</td><td>A knob. Its family is printed per piece.</td><td>mind knob</td></tr>
+<tr><td>Top, bottom</td><td>One knob and one hole of one family. Hurt, Charm and Trick have the knob on top. Guard, Heal, Soothe and Item have the hole on top.</td><td>body knob on top, body hole below</td></tr>
+</tbody></table>
+<p class="small">The top and bottom family follows where the piece comes from: tool and craft pieces craft, pal pieces body, crop pieces mind, all others the family of their type (<code>PFB_SRC_FAM</code>, <code>pfb_author_edges</code>). Checked against every hand I was dealt. {P}</p>
+<p>What follows from it: a Hurt or a Guard can sit to the <b>right</b> of any piece with a body knob on its right. Pieces of the same column family stack above and below each other, knob-on-top under hole-on-top.</p>
+{h3('2.4', 'Flipping')}
+""")
+w(fig(figs.fig_flip(), 'Figure 4. Flip.'))
+w(f"""
+<ul>
+<li>Flip is free and unlimited. Flip the piece, look at the new lit cells, flip it back if you like. {P}</li>
+<li>A flipped piece stays flipped on the board. It is the right way up again when it comes back into your hand.</li>
+<li>Flip matters when the only free cell next to your target is on the wrong side. In my Carrion Crow fight the flipped Pierce reached a cell worth 18. Unflipped, that cell was closed. {P}</li>
+</ul>
+{h3('2.5', 'Tags on your pieces')}
+<p>A tag is one extra effect. This table says what each tag really does on this board.</p>
+<table>
+<thead><tr><th>Tag</th><th>On</th><th>What it does</th><th>Checked</th></tr></thead>
+<tbody>
+<tr><td><b>Quick</b></td><td>Hurt</td><td>Draws you one piece when you place it. <b>In a new fight this gives you nothing</b>: you have no second action, and the whole hand is redrawn at the end of the round. See 10.2.</td><td>{C}</td></tr>
+<tr><td><b>Pierce</b></td><td>Hurt</td><td>Ignores the creature's guard.</td><td>{P}</td></tr>
+<tr><td><b>Poison</b></td><td>Hurt</td><td>At the start of each of the creature's next 2 turns the bar gets half of what the piece hit for (rounded up). A new Poison restarts the 2 turns; it does not stack.</td><td>{P}</td></tr>
+<tr><td><b>Trip</b></td><td>Hurt</td><td>The creature skips its next turn: this very round it places nothing.</td><td>{P}</td></tr>
+<tr><td><b>Bash</b></td><td>Hurt</td><td>Adds the guard you hold right now to the hit, and uses that guard up.</td><td>{C}</td></tr>
+<tr><td><b>Heavy</b></td><td>Hurt</td><td>Nothing on this board. It is just a bigger number.</td><td>{C}</td></tr>
+<tr><td><b>Hold</b></td><td>Guard</td><td>What is left of this guard after the creature's turn stays up one more turn.</td><td>{P}</td></tr>
+<tr><td><b>Thorns</b></td><td>Guard</td><td>While it is up, each hit it blocks adds 2 to the Yield bar.</td><td>{C}</td></tr>
+<tr><td><b>Evade</b></td><td>Guard</td><td>The creature's next Hurt misses completely. Careful: a creature Hurt fired in your own chain right after it uses the Evade up.</td><td>{P}</td></tr>
+<tr><td><b>Mend</b></td><td>Guard</td><td>Also heals you 2.</td><td>{C}</td></tr>
+<tr><td><b>Hum</b></td><td>Charm</td><td>Also soothes 2: its hits this round do 2 less in all.</td><td>{C}</td></tr>
+<tr><td><b>Lull</b></td><td>Charm</td><td>The creature skips its next turn, like Trip.</td><td>{P}</td></tr>
+<tr><td><b>Bond</b></td><td>Charm</td><td>Your Charm counts 10% more for the rest of the fight, up to 3 times, never above x1. No use against a gentle creature.</td><td>{C}</td></tr>
+<tr><td><b>Pluck</b></td><td>Trick</td><td>A small chance to lift an item the creature could drop. Once a fight, only when you place it. 8% plus 3% per Luck step, half against a boss.</td><td>{C}</td></tr>
+</tbody></table>
+{h3('2.6', 'Combos')}
+<p>A combo is a bonus for two of <b>your</b> pieces that fire one right after the other along a link. The bonus lands on the later piece. The fight text only says "COMBO" and the name, so here are the rules. {P}</p>
+<table class="keep">
+<thead><tr><th>Name</th><th>First fires</th><th>Then fires</th><th>Bonus on the second piece</th><th>Seen in play</th></tr></thead>
+<tbody>
+<tr><td><b>Ambush</b></td><td>Trick</td><td>Hurt</td><td>x1.5, plus the Trick's number</td><td>Slip Past 6, Chop 5: 14</td></tr>
+<tr><td><b>Riposte</b></td><td>Guard</td><td>Hurt</td><td>x1.5</td><td>Dodge 7, Samara Spin 8: 12</td></tr>
+<tr><td><b>Double Swing</b></td><td>Hurt</td><td>Hurt</td><td>+2</td><td>Jab 5, Swing 7: 9</td></tr>
+<tr><td><b>Bait</b></td><td>Trick</td><td>Guard</td><td>plus the Trick's number</td><td>not seen</td></tr>
+<tr><td><b>Calm Charm</b></td><td>Soothe</td><td>Charm</td><td>x1.5</td><td>not seen</td></tr>
+<tr><td><b>Win Over</b></td><td>Charm</td><td>Item</td><td>half the Item's number is also added as charm</td><td>not seen</td></tr>
+</tbody></table>
+<div class="box warn"><h4>The order rule that decides most turns</h4>
+<p>The piece you <b>place</b> fires <b>first</b>. So to get Ambush you place the <b>Trick</b> next to a Hurt that is already on the board. To get Riposte you place the <b>Guard</b> next to a Hurt that is already there. Placing the Hurt next to the Trick gives no combo at all.</p></div>
+<p>The creature gets the same combos from its own pieces. Its aim names them ("combo Double Swing").</p>
+{h3('2.7', 'How long a piece stays')}
+<table class="keep">
+<thead><tr><th>Piece</th><th>It leaves when</th></tr></thead>
+<tbody>
+<tr><td>Any piece</td><td>A chain of 3 or more fires it (use-up, see 5.5).</td></tr>
+<tr><td>Your piece</td><td>After 3 rounds: the round you placed it and two more.</td></tr>
+<tr><td>A creature piece</td><td>After 3 rounds, or as soon as it has fired twice. Being placed counts as the first firing.</td></tr>
+<tr><td>An environment piece</td><td>After 3 of your turns.</td></tr>
+<tr><td>The Blank</td><td>At the end of round 1.</td></tr>
+</tbody></table>
+<p class="small">Per-piece life is switched off: every piece stays 3 rounds (<code>pfb_life</code>). Some screens still print other numbers, see 10.3. {P}</p>
+{h3('2.8', 'Where the numbers come from')}
+<ul>
+<li>A piece's number is its base value, plus your stat for that type, plus a third of your gnome level, plus a rank bonus (Uncommon +2, Rare +4, Masterwork +5). {C}</li>
+<li>Stats by type: Hurt uses Grit, Guard Nimble, Heal Hardiness, Charm and Soothe Charm, Trick and Item Lore. {C}</li>
+<li>A tool piece wears its tool: 2 durability each time you play it. A chip in the fight shows the wear. {C}</li>
+</ul>
+""")
+
+# ------------------------------------------------------------------ 3
+w(h2('3', 'Setting up a fight'))
+w(f"""
+<p>Everything in this chapter is read from the page code (<code>pfdeck.php</code>, <code>pfdeck_view.php</code>). I did not open the live pages. {Q}</p>
+{h3('3.1', 'The Puzzle box and your deck')}
+<ul>
+<li>Your deck is built in the <b>Puzzle box</b>. It has three tabs: Kit, Belt, Pals.</li>
+<li>The first time, you pack a <b>starter</b>: 4 fixed pieces (Swing, Dodge, Rest, Charm) plus 6 of 12 offered pieces. One tap picks a ready kit instead:
+  <ul><li><b>Bold</b> (the default): your calling piece, Jab, a second Swing, Pierce, Snack, Oat Cake.</li>
+  <li><b>Steady</b>: calling piece, Jab, second Swing, Pierce, Brace, your home region's piece.</li>
+  <li><b>Kind</b>: calling piece, Jab, second Swing, Pierce, Hum, Soothe.</li></ul></li>
+<li>Later you switch on more pieces you own: knacks (by level), crop pieces, craft pieces, region pieces.</li>
+<li>Limits: at least 8 kit pieces, at least 3 Hurt pieces in a custom starter, at most 3 Rare and 1 Masterwork. There is no maximum size.</li>
+<li>The deck bar shows "Hurt pieces: N of M". Under 3 in 10 it warns: "Few Hurt pieces: fights will be long".</li>
+</ul>
+{h3('3.2', 'The belt')}
+<ul>
+<li>Each tool on your fight belt adds its one piece to the deck (axe: Chop; tilling tool: Hoe Hook; staff: Sweep; lantern: Glare; and so on).</li>
+<li>Belt slots: 2 for every gnome, 3 with the Stitched Fight Belt (level 8), 4 with the Masterwork Fight Belt (level 18).</li>
+<li>A tool has 20 durability, plus 4 per rank. Each play of its piece costs 2. A broken tool gives no piece. Fix it with a Tool Repair Kit, or Remove it from the belt.</li>
+</ul>
+{h3('3.3', 'Pals')}
+<p>Pals in your party lend one piece each (for example Bark Badger, a Guard; Samara Spin, a Hurt). Pal pieces have body tops and bottoms.</p>
+{h3('3.4', 'The pre-fight screen')}
+<ul>
+<li>When a creature stands in front of you, you see its <b>creature card</b>, your deck and your health, and the button <b>Let's fight</b>.</li>
+<li>With <b>Auto deck</b> on, the deck is locked and you only press the button. With it off, tap a deck piece to take it out or a bench piece to add it.</li>
+<li>"Nothing changes once the fight starts." The deck is locked during the fight.</li>
+</ul>
+{h3('3.5', 'Reading the creature card')}
+<table class="keep">
+<thead><tr><th>On the card</th><th>What it tells you</th></tr></thead>
+<tbody>
+<tr><td>Name and level</td><td>Higher level: longer bar, harder hits.</td></tr>
+<tr><td>Class chip</td><td>Critter, Bird, Beast, Reptile/Amphibian, Water or Plant/Fungus. The class sets its 4 base pieces and its <b>class rule</b> (chapter 6).</td></tr>
+<tr><td>Size chip</td><td>small, medium, large or boss, and "4x4". A boss always plays the boss rule.</td></tr>
+<tr><td>Temper chip</td><td>"gentle" (Charm counts fully, Hurt x0.8), "wary" (Charm x0.6) or "cannot be charmed" (boss).</td></tr>
+<tr><td>"leans body / mind / craft"</td><td>Three of every five of its pieces have that family on top and bottom. Your pieces of the same family can stack onto them.</td></tr>
+<tr><td>The rule line</td><td>One sentence, for example "<b>Swarm:</b> It plays two small pieces a turn. The aim shows the first."</td></tr>
+<tr><td>Its pieces</td><td>4 base pieces, 1 region piece (2 for large and boss), a size extra (large: Slam; boss: Scheme and Crush) and 3 pieces of its own. Tap one to read it.</td></tr>
+</tbody></table>
+<div class="box"><h4>What to check on the card before you press Let's fight</h4>
+<ul>
+<li><b>The class rule.</b> It changes how you answer the aim.</li>
+<li><b>Tags on its pieces.</b> Quick means two pieces in one turn. Pierce goes through your guard. Poison keeps costing health. Evade makes your next Hurt miss. Thorns punish hitting its guard.</li>
+<li><b>Temper.</b> Against a gentle creature Charm is the stronger type. Against a wary one it is the weaker.</li>
+<li><b>Your Hurt count.</b> In my runs almost every win above small size was a hurt win.</li>
+</ul></div>
+<p class="small">The card prints "stays N rounds" and "plays x2" per piece. "Plays x2" is right. The rounds number is not used in a new fight (10.3).</p>
+""")
+
+# ------------------------------------------------------------------ 4
+w(h2('4', 'The opening'))
+w(fig(figs.fig_opening(), 'Figure 5. The start of my first fight. Cells are named x,y from the top left: the Blank is on 2,2.'))
+w(f"""
+{h3('4.1', 'The board and the Blank')}
+<ul>
+<li>The board is 4 by 4 for every creature. {P}</li>
+<li>One <b>Blank</b> piece starts on a random one of the four inner cells. {P}</li>
+<li>The Blank fits every edge. It is inert: it never fires and a chain never passes through it. It leaves at the end of round 1. {P}</li>
+</ul>
+{h3('4.2', 'The start pieces')}
+<ol>
+<li>You get your first hand of 5.</li>
+<li>You pick one hand piece and one side of the Blank (left, right, above, below).</li>
+<li>The creature has already picked: its gentlest piece that is not a Hurt, and a random side. If you chose the same side, yours stays and its piece moves to the next free side {C}. A boss puts out two pieces. {P}</li>
+<li>Nothing fires. Turn 1 begins with your other 4 pieces still in hand.</li>
+</ol>
+{h3('4.3', 'Choosing your start piece')}
+<div class="box"><h4>Guideline: start with a Hurt, and check its partner</h4>
+<ul>
+<li>Put a <b>Hurt</b> out. On turn 1 you can then place a Trick or a Guard next to it and fire it with a combo.</li>
+<li>Before you confirm, find the partner in your hand and the side it must go on. Leave that cell free: do not put the Hurt where the partner's cell is off the board or is the Blank.</li>
+<li>The start piece is not wasted if it is used up later. It usually fires two or three times.</li>
+</ul></div>
+<div class="box ex"><h4>Example with numbers</h4>
+<p>Earwig, seed 11. Hand: Chop (Hurt 5), Slip Past (Trick 6), Swing, Dodge, Frost Bark. I put Chop left of the Blank. Slip Past can then go above, below or left of Chop. Turn 1: Slip Past above Chop, Ambush, 14 of 42.8 on the bar. {P}</p>
+<p>Wild Boar, seed 3. Hand: Hoe Hook (Hurt 15), Swing 12, Pierce 11, Oat Cake, Garden Greens. Hoe Hook below the Blank. Turn 1: Swing to its right also touched the creature's start piece: Swing 12, then Hoe Hook with Double Swing 17, in all 29 of 171.8. {P}</p></div>
+{h3('4.4', 'What the creature does in the opening')}
+<ul>
+<li>Its start piece is harmless when placed. But it stays, and it fires for the creature if a chain reaches it.</li>
+<li>Its first aim is shown as soon as both start pieces are down. Read it before your first move.</li>
+<li>During the start pick an aim mark is already on the board. It is worked out before the start pieces exist and is replaced once they are down. Ignore it. {P}</li>
+</ul>
+""")
+
+# ------------------------------------------------------------------ 5
+w(h2('5', 'Your turn, step by step'))
+w(f"""
+<p>A turn is: <b>look, pick, (flip), place, read the plan, End turn</b>. Three or four taps. The thinking is in "look" and "read the plan".</p>
+{h3('5.1', 'Step 1: look')}
+<p>Before you touch a piece, read the board in this order.</p>
+<table class="keep">
+<thead><tr><th>Look at</th><th>Ask</th></tr></thead>
+<tbody>
+<tr><td>The Yield bar</td><td>How much is missing? Can any piece end it this turn?</td></tr>
+<tr><td>The aim chip and the red mark</td><td>What will it play, where, and for how much ("hits you for 9")? Does the chip say "fires Sun", "fires Bramble" or "2 pieces"?</td></tr>
+<tr><td>The lit rings</td><td>Which environment pieces and which of your pieces would its chain fire?</td></tr>
+<tr><td>Its status chips</td><td>"its guard 6": your Hurt loses 6 first. "dodges next hit": your first Hurt misses. "thorny guard", "bash waits".</td></tr>
+<tr><td>The class rule chip</td><td>Swarm, Two aims, Grudge x2, Current, Grows, Venom trail, Two turns.</td></tr>
+<tr><td>Environment pieces on the board and NEXT</td><td>Can I fire Sun, Rain or Bramble? Can the creature? Where is Thornburst?</td></tr>
+<tr><td>Your health and your own chips</td><td>"poisoned 2", "tripped -1 draw", "you dodge next", held guard.</td></tr>
+</tbody></table>
+{h3('5.2', 'Step 2: pick a piece')}
+<ul>
+<li>Tap a hand piece. The cells where it may go light up. Each lit cell carries numbers: what the chain adds to the bar, and what it costs you.</li>
+<li>Tap Flip and look again. Every piece has two shapes.</li>
+<li>Check <b>every</b> piece. Hands are small, and the best cell is often on a piece you did not expect. In my Great Hawk fight the best move of the whole fight was a Trick with the number 20 that read "+77".</li>
+</ul>
+<div class="box warn"><h4>Read the health cost on the cell</h4>
+<p>A lit cell can cost you health. Two things cause it: your chain reaches a <b>creature Hurt</b> (it fires for the creature, at you), or your chain reaches a <b>Thornburst</b> (you lose a tenth of your health). In my 114 "biggest number" fights the player lost 13% of its health this way; the careful player 5%.</p></div>
+{h3('5.3', 'Step 3: place it and read the plan')}
+<ul>
+<li>Tap a lit cell. The piece is down but the turn is not over.</li>
+<li>The plan line lists your chain in firing order and the result ("Yield 12 to 23 of 40 (hurt +11)").</li>
+<li>The aim chip updates: it now says what the creature's move would do <b>after</b> your placement. It may say the aim is broken.</li>
+<li>Not happy? Pick again. Nothing counts until End turn.</li>
+</ul>
+{h3('5.4', 'How a chain fires')}
+<ol>
+<li>The piece you placed fires first.</li>
+<li>Then every piece linked to it fires, the <b>newest first</b>. From each of those the chain goes on through its own links before it comes back. A piece fires once per chain.</li>
+<li>Each piece fires <b>for its owner</b>: yours for you, the creature's for the creature.</li>
+<li>An environment piece fires for the side that <b>started</b> the chain.</li>
+<li>If the fight ends in the middle, the rest of the chain does not fire.</li>
+</ol>
+""")
+w(fig(figs.fig_chain(), 'Figure 6. Turn 1 against the Pincer Earwig (seed 11).'))
+w(fig(figs.fig_useup(), 'Figure 7. The Earwig’s answer in the same round. I planned this: see "Bait" below.'))
+w(f"""
+<h4>What it means when a creature piece is in your chain</h4>
+<ul>
+<li>Its Hurt hits you. Its Guard gives the creature guard that soaks your later Hurt. Its Heal empties the bar. Its tag works for it (Evade, Thorns, Poison, Trip).</li>
+<li>But it also spends one of that piece's two firings. A creature piece that has fired twice falls off the board.</li>
+<li>So firing a harmless creature piece (a Trick with no tag, a small Guard when you play Charm or Pierce) is a cheap way to remove it.</li>
+</ul>
+<h4>Bait: what it means when your piece is in the creature's chain</h4>
+<ul>
+<li>Your piece fires <b>for you</b>, with your combos, in the creature's turn. {P}</li>
+<li>The aim is fixed before you move. If you put a piece next to the aim cell with an edge that fits, the creature's piece will link to it and fire it.</li>
+<li>In the Earwig fight the creature's own chains gave me 14 + 4 + 4 = 22 of the 42.8 I needed.</li>
+<li>The aim chip shows it after you place: "fires your Chop: 14 to it".</li>
+<li>Bait fails when the creature has Evade up or gets it earlier in that chain: your Hurt misses.</li>
+</ul>
+{h3('5.5', 'The chain of 3 rule (use-up)')}
+<ul>
+<li>A chain that fires <b>3 or more</b> pieces <b>uses up every piece that fired</b>. They leave the board at once. {P}</li>
+<li>It does not matter who started the chain or who owns the pieces. Environment pieces count and are used up too.</li>
+<li>A chain of 1 or 2 uses nothing up. The pieces stay and can fire again next turn.</li>
+<li>Used-up pieces of yours go to your discard pile. You will draw them again later.</li>
+</ul>
+<div class="box"><h4>When is a chain of 3 worth it?</h4>
+<p><b>Usually yes.</b> The board empties all the time anyway: in my careful runs I had no piece of my own on the board at the start of 51% of my turns. A piece you "save" is often used up by the creature's chain, or it expires. Take the 3-chain when one of these is true:</p>
+<ul>
+<li>It adds clearly more to the bar than the best chain of 2. In the Crow fight, turn 2: 18 against 7.</li>
+<li>Your pieces in it are in their last round ("leaves this round").</li>
+<li>It uses up a creature piece you want gone (a Hurt next to the aim, an Evade piece).</li>
+<li>It ends the fight.</li>
+</ul>
+<p><b>Keep the chain at 2</b> when it fires a Bramble, Sun or Rain that you can fire again next turn and the creature cannot easily reach. A Bramble fired in a chain of 2 stays: in the Hawk and Crow fights each firing was worth a tenth of the bar.</p>
+<p><b>Never count pieces for their own sake.</b> A chain of 6 I was offered against the Great Hawk added 0 to the bar and cost 13 health: four of the six pieces were the creature's.</p></div>
+{h3('5.6', 'Passing')}
+<ul>
+<li>You may always pass. It costs nothing. The creature and the environment still play. {C}</li>
+<li>A pass makes no progress, and every extra round is one more creature turn. Pass only when every move is worse than doing nothing.</li>
+</ul>
+<table class="keep">
+<thead><tr><th>Pass when</th><th>Do not pass when</th></tr></thead>
+<tbody>
+<tr><td>Every lit cell costs health and adds little, and the aim is small.</td><td>Any move adds to the bar at no cost.</td></tr>
+<tr><td>The creature "dodges next hit" and you hold only Hurt pieces with bad cells.</td><td>You could place a Guard, a Heal or a Charm instead. Evade does not stop those.</td></tr>
+<tr><td>Your only moves would link a creature Hurt or a Thornburst into your chain.</td><td>You could take the aim cell or fire a Rain for guard.</td></tr>
+</tbody></table>
+<p class="small">My careful player passed in 0.05 turns a fight; the most cautious one in 0.29. Passing is rare.</p>
+{h3('5.7', 'End turn')}
+<ul>
+<li>End turn locks the move. There is no undo after it.</li>
+<li>Then you watch the replay: your chain, the creature's turn, the environment. A Skip button and a speed chip (1x, 2x, Skip) shorten it. {Q}</li>
+</ul>
+{h3('5.8', 'Guidelines for choosing')}
+<ol>
+<li><b>Can I win now?</b> If a cell ends the fight, take it. Nothing else matters.</li>
+<li><b>Gain against loss.</b> For each candidate: bar gained, minus health lost in my own chain, minus what the aim does afterwards. Compare shares: 10% of the bar for 10% of my health is a fair trade early and a bad one when I am low.</li>
+<li><b>Free guard first.</b> A Guard placed next to a Hurt both blocks and attacks (Riposte). Firing Rain gives guard worth 15% of your health on top of your chain.</li>
+<li><b>Use what is about to leave.</b> Pieces in their last round, and a Sun or Rain the creature would fire this turn.</li>
+<li><b>Mind the creature's guard and Evade.</b> With "its guard 12" up, a Hurt 3 adds 0: play Pierce or Charm. With "dodges next hit" up, your first Hurt is wasted: lead with a weak Hurt, or play another type.</li>
+<li><b>Do not block for its own sake.</b> Taking the aim cell only makes the creature pick again, at full strength. Block when the aim is unusually big (Sun, a combo, Bramble), or when your piece wants that cell anyway.</li>
+</ol>
+{h3('5.9', 'Common mistakes and what they cost')}
+<table>
+<thead><tr><th>Mistake</th><th>What happens</th><th>Cost in my play</th></tr></thead>
+<tbody>
+<tr><td>Always taking the biggest bar number</td><td>You link creature Hurts and Thornbursts into your chain and ignore the aim.</td><td>62% of health lost a fight, 89% wins. The careful player: 24% lost, 99% wins.</td></tr>
+<tr><td>Always making the longest chain</td><td>Long chains are mostly the creature's pieces.</td><td>79% of health lost, 64% wins. 24% of health went to its own chains.</td></tr>
+<tr><td>Trusting the aim number when the chip says "2 pieces" or the creature is a Critter</td><td>A second piece comes that is not in the number.</td><td>Sun Lizard, seed 5, turn 2: chip said 3, I lost 22 of 44.</td></tr>
+<tr><td>Swinging into "dodges next hit"</td><td>The Hurt adds 0. Its Sun or combo is wasted too.</td><td>Crow, turn 4: every Hurt cell read 0.</td></tr>
+<tr><td>Placing the Hurt next to the Trick</td><td>The Hurt fires first: no Ambush.</td><td>5 instead of 14 in the Earwig example.</td></tr>
+<tr><td>Blocking a Beast's small aim</td><td>Grudge: its next Hurts are 25% stronger.</td><td>Boar, turn 5: the blocked 6 came back as 8 + 10.</td></tr>
+<tr><td>Leaving a Sun next to its aim cell</td><td>Its whole chain counts double.</td><td>Crow, turn 4: aim 4 became 8, and the piece had Pierce.</td></tr>
+<tr><td>Healing at full health</td><td>The heal is lost. The move still takes your turn.</td><td>A wasted round.</td></tr>
+</tbody></table>
+{h3('5.10', 'When to flip')}
+<ul>
+<li>Flip <b>every</b> piece once while you look. It costs nothing and often opens a cell above or below.</li>
+<li>A piece with no lit cell at all may have several when flipped. In the Crow fight Brace had "no cells" unflipped and three cells flipped.</li>
+<li>Flipping never changes the left and right edges. If a piece cannot go beside a neighbour, flipping will not help.</li>
+</ul>
+""")
+
+# ------------------------------------------------------------------ 6
+w(h2('6', "The creature's turn"))
+w(f"""
+{h3('6.1', 'What happens, in order')}
+<ol>
+<li><b>Its old guard drops.</b> Guard the creature got on its last turn (or inside your chain) lasted through your turn. Now it is gone, unless a Hold piece keeps it.</li>
+<li><b>Your poison on it ticks.</b> The bar moves. If that fills it, you win before it acts. {P}</li>
+<li><b>It plays its aim</b>: the piece and the cell it showed you. If it cannot, it picks its best move now.</li>
+<li><b>Its chain fires</b>, by the same rules as yours. A chain of 3 or more uses up what fired.</li>
+<li><b>Extras</b>: a Critter's second piece, one more piece after a Quick piece, a Water creature's push, a Plant's Bramble.</li>
+<li><b>The environment</b> places one piece (chapter 7).</li>
+<li><b>Poison on you ticks.</b> A trip takes effect.</li>
+<li><b>Old pieces leave</b> (3 rounds old). Venom cells fade.</li>
+<li><b>You draw a new hand</b> of 5 (4 if you were tripped). Your guard fades, except what a Hold guard keeps.</li>
+<li><b>The free piece.</b> If the creature has fewer than 2 pieces on the board, the board puts out one for it: its gentlest piece that is not a Hurt, on a random cell where it fits. It does not fire now. {P}</li>
+<li><b>The new aim</b> is shown.</li>
+</ol>
+<p class="small">Code: <code>pfb_foe_turn</code>, <code>pfb_end_round</code>, <code>pfb_spawn</code>, <code>pfb_intent</code>. The replay on the page follows the same order. {Q}</p>
+{h3('6.2', 'The aim')}
+<ul>
+<li>The red mark is the cell. The chip names the piece and what it would do <b>right now</b>: "Peck: hits you for 9".</li>
+<li>The number is a real dry run of its move: its chain, combos, Sun, your guard, your pieces it fires. {C}</li>
+<li>The aim is a promise. The piece lands on that cell even if a use-up has left the cell touching nothing. {C}</li>
+</ul>
+<h4>What breaks the aim</h4>
+<table class="keep">
+<thead><tr><th>You do this</th><th>What the creature does</th></tr></thead>
+<tbody>
+<tr><td>Put a piece on the aim cell</td><td>It picks again: its best move on the board as it is now, at full strength. Your piece is not harmed. {P}</td></tr>
+<tr><td>Put a piece <b>next to</b> the aim cell whose edge does not fit the aimed piece</td><td>Same: it picks again. The chip reads "broken" after you place. {P}</td></tr>
+<tr><td>Play Trip or Lull</td><td>It loses the turn. The chip reads "is slowed: no move". {P}</td></tr>
+</tbody></table>
+<p class="small">"Aim strike" (the aimed Hurt breaks your piece on its cell) is built but switched <b>off</b> in new fights since 2.6.984. The help sheet still describes it (10.4).</p>
+<h4>What the number leaves out</h4>
+<ul>
+<li>The <b>second piece</b> of a Critter (Swarm), and the extra piece after a <b>Quick</b> piece. The chip only adds "2 pieces".</li>
+<li><b>Poison</b> ticks on you and a Reptile's venom.</li>
+<li>Anything after it picks again.</li>
+</ul>
+<p>In my careful runs the health I really lost on the creature's turn was more than the chip said on 40% of turns against small creatures, 51% against medium, 20% against large and 21% against bosses (turns on which a number was shown). Treat the number as a floor when the chip says "2 pieces" or the creature is a Critter.</p>
+{h3('6.3', "The creature's pieces")}
+<ul>
+<li>The creature holds 3 pieces (a boss 4) and plays one a turn. A boss plays its deck in a fixed order: one set-up piece, then two Hurts, again and again. {C}</li>
+<li>The creature must make a link if any of its pieces can. For you, touching and fitting is enough (beside the Blank, for example). {C}</li>
+<li>Every creature piece falls away after it has fired twice. The piece view says "plays x2".</li>
+<li>Its single pieces are small next to yours: the Earwig's 3 against your 5, the Boar's 6 to 7 against your 10 to 16. Most of its damage comes from <b>re-firing</b> an older Hurt with a new one (Double Swing), and from Sun and Bramble.</li>
+</ul>
+{h3('6.4', 'Tags on creature pieces')}
+<table class="keep">
+<thead><tr><th>Tag</th><th>What it does to you</th></tr></thead>
+<tbody>
+<tr><td>Quick</td><td>It plays one more piece this turn (once a turn).</td></tr>
+<tr><td>Pierce</td><td>Ignores your guard. Seen: Dive Bomb took 8 through 7 guard. {P}</td></tr>
+<tr><td>Poison</td><td>2 ticks on your health, a third of the hit each (at least 1). At most 3 ticks wait.</td></tr>
+<tr><td>Trip</td><td>You draw 4 pieces next round instead of 5.</td></tr>
+<tr><td>Bash</td><td>Adds its guard to the hit. A Trick with Bash lends the guard to its next Hurt.</td></tr>
+<tr><td>Evade</td><td>Your next Hurt misses. The chip reads "dodges next hit". It lasts until its next turn starts.</td></tr>
+<tr><td>Thorns</td><td>While its guard is up, each of your hits that the guard soaks pricks you (2, or 4% of your health if that is more).</td></tr>
+<tr><td>Hold</td><td>Its guard lasts a turn longer.</td></tr>
+<tr><td>Heal (on a Trick)</td><td>Empties some hurt from the Yield bar.</td></tr>
+</tbody></table>
+{h3('6.5', 'Class rules')}
+<p>Every creature has one extra rule from its class. A boss has the boss rule instead. The numbers under "careful player" are from 12 fights per class (24 for Critter, 30 for Boss), so they are rough.</p>
+""")
+
+classes = [
+    ('6.5.1', 'Critter: Swarm', 'It plays two small pieces a turn. The aim shows the first.',
+     ['Each of its pieces counts x0.6. It plays 2 a turn, and a Quick piece adds a third.', 'The aim number covers only the first piece. The second is picked after the first has landed.', 'Two pieces a turn means its chains reach 3 often. It uses up its own pieces, and yours.'],
+     ['Expect about double the chip. Keep some guard up.', 'Bait works well: two placements a turn means two chances to fire your piece. The Earwig fired mine three times in two rounds.', 'Trip and Lull cancel both pieces.', 'Small Critters are the one place where Charm wins fights: gentle ones take Charm at full value.'],
+     '27% of health lost, 100% wins. 42% of the wins were by charm.'),
+    ('6.5.2', 'Bird: Two aims', 'It shows two moves on different cells. Take the first cell and it plays the second; take both and it picks again.',
+     ['The second aim can be a different piece. The chip adds it: "or Wing Cover 2 at B4".', 'After you place, the chip shows the total of whichever aim will play ("its second aim").', 'Its base Trick, Flutter Off, gives it Evade whenever it fires.'],
+     ['Taking a cell rarely saves you. Guard does. So does a misfit next to the aim: that breaks it without a second aim.', 'Look at both cells for Sun. In the Crow fight aim 1 stood next to a Sun (8), aim 2 did not.', 'When it "dodges next hit", play Guard, Heal or Charm that turn.'],
+     '19% of health lost, 100% wins.'),
+    ('6.5.3', 'Beast: Grudge', 'Each time you block its aim, its Hurt hits 25% harder (up to 3 times). A hit that lands on you clears it.',
+     ['"Block" means: a piece stands on its aim cell when its turn comes. The chip shows "Grudge x1", "x2", "x3".', 'A misfit next to the cell also makes it pick again, and does <b>not</b> add Grudge. ' + C, 'Grudge ends when you lose health on its turn. A hit your guard fully soaks does not clear it.'],
+     ['Let small aims land. A 6 that lands clears the Grudge.', 'Block only the big ones, and prefer breaking the aim with a misfit.', 'Do not sit behind guard for many turns with Grudge x3 up: it never clears, and Bash and Pierce pieces get through.'],
+     '9% of health lost, 100% wins. The easiest class for a careful player.'),
+    ('6.5.4', 'Water: Current', 'After its piece lands, one of your pieces touching it slides a cell away, if that cell is free.',
+     ['Only one piece moves, one cell, straight away from the creature’s piece. Checked in the order left, right, above, below.', 'A moved piece keeps its edges. Its old links are gone; it may make new ones where it lands.'],
+     ['Do not count on a link next to the aim cell lasting.', 'A piece with a wall or another piece behind it cannot be pushed.', 'Its Trick, Undertow, trips you: a hand of 4 next round.'],
+     '32% of health lost, 100% wins.'),
+    ('6.5.5', 'Plant: Grows', 'After its turn it grows a Bramble beside its piece (one of its own at a time). Whoever chains the Bramble fires it.',
+     ['The Bramble has wild edges: it links to anything next to it.', 'It appears beside the piece the Plant just placed, so the Plant is first in line to fire it next turn: you lose a tenth of your health.', 'Its guard, Bramble Coat, has Thorns. Sap Mend empties the bar.'],
+     ['Fire the Bramble yourself first: a tenth of the bar for you, and in a chain of 2 it stays for another go.', 'Or take the cell that would link its next piece to the Bramble.', 'Hit its guard with Pierce or Charm, not with small Hurts.'],
+     '21% of health lost, 100% wins, the shortest fights (6.3 turns): its Brambles fed my bar.'),
+    ('6.5.6', 'Reptile: Venom trail', 'When one of its pieces leaves the board, that cell is venom for 2 turns. A piece of yours put there poisons you (2 a round, 2 rounds).',
+     ['Venom cells are marked on the board. Any way of leaving counts: use-up, firing twice, old age.', 'Its Trick, Venom Spit, also poisons. Poison is not in the aim number.'],
+     ['Read the mark before you place. The lit number does not show the venom.', 'Stepping on venom can still be right, for a win or a big chain: it costs 4 health in all.', 'Long fights are dangerous here: poison ignores guard.'],
+     '46% of health lost, 92% wins: the only class that beat my careful player (Sun Lizard, seed 5).'),
+    ('6.5.7', 'Boss: Two turns', 'It also shows the piece it will play next round. That piece is forced; its cell is chosen then.',
+     ['The chip adds "then Talon Dive 9". The piece is fixed, the cell is not.', 'A boss starts with two pieces, holds 4, cannot be charmed or run from, and wins if the fight reaches 24 turns.', 'Charm still fills its bar at x0.6. The ending is always "backs off".'],
+     ['Use the preview to time your guard: an Evade or Hold guard the turn before its Crush.', 'Its bar is long (215 for the Great Hawk). Sun, Bramble and Poison do the heavy work: one Sun turn of mine was worth 77, plus 44 from poison.', 'Do not block out of habit. It re-picks at full strength.'],
+     '18% of health lost, 100% wins. Bosses were not harder than large creatures.'),
+]
+for num, title, rule, how, counter, stat in classes:
+    w(f'<div class="box" style="background:#fbfaf5;border-color:#b9b6a8">{h4(num, title)}<p><i>Rule text in the game:</i> "{rule}"</p>'
+      f'<p><b>How it plays.</b></p><ul>{"".join("<li>" + x + "</li>" for x in how)}</ul>'
+      f'<p><b>Counter-play.</b></p><ul>{"".join("<li>" + x + "</li>" for x in counter)}</ul>'
+      f'<p class="small"><b>Careful player:</b> {stat}</p></div>')
+w(fig(figs.fig_bird(), 'Figure 8. Two aims.'))
+
+# ------------------------------------------------------------------ 7
+w(h2('7', 'The environment'))
+w(f"""
+{h3('7.1', 'How it works')}
+<ul>
+<li>The environment is a third player. After the creature's turn it places <b>one</b> piece. {P}</li>
+<li>Its next piece lies face up all round in the NEXT strip. You know what is coming, not where.</li>
+<li>It puts the piece on an empty cell with <b>nothing on any side</b>, among the three such cells farthest from all pieces. Nothing fires when it lands. {C}</li>
+<li>If no lonely cell exists it takes a cell where the piece fits. If 12 or more of the 16 cells are taken it places nothing. {C}</li>
+<li>Its pieces belong to nobody. Link one into your chain and it fires <b>for you</b>. The creature can do the same.</li>
+<li>They count for the chain length and are used up by a chain of 3. Otherwise they stay 3 of your turns.</li>
+<li>Wind and Mud exist in the code but are <b>not</b> in the deck of a new fight. {C}</li>
+</ul>
+""")
+w(fig(figs.fig_env(), 'Figure 9. The four environment pieces. Each has all three families on its edges, so most decks can link to it from some side.'))
+w(f"""
+{h3('7.2', 'The four pieces')}
+<table>
+<thead><tr><th>Piece</th><th>If your chain fires it</th><th>If the creature's chain fires it</th><th>How to use it</th></tr></thead>
+<tbody>
+<tr><td><b>Sun</b></td><td>Every piece of yours in that chain counts double: hurt, charm, guard and healing.</td><td>Every piece of its in that chain counts double.</td><td>Bring your biggest chain to it. Seen: Samara Spin 15 read 30; a Riposte read 46 with 26 guard. If its aim cell touches a Sun, take the Sun first or take the cell.</td></tr>
+<tr><td><b>Bramble</b></td><td>A tenth of the Yield bar is added.</td><td>You lose a tenth of your maximum health. Guard does not help.</td><td>The best piece on the board for you against long bars: 17 on the Boar, 21.5 on the Hawk. Fire it in a chain of 2 and it stays.</td></tr>
+<tr><td><b>Rain</b></td><td>You get guard worth 15% of your maximum health.</td><td>It gets guard worth 15% of its <b>Yield bar</b>.</td><td>Free guard on top of your move. Do not leave it for the creature: on a long bar its Rain guard is huge (26 on the Boar, 10.7).</td></tr>
+<tr><td><b>Thornburst</b></td><td>You lose a tenth of your maximum health.</td><td>5% of the Yield bar is added.</td><td>Link around it. Lit cells that touch it show the cost. Let the creature run into it: the Crow's own Thornburst ended my fight for me.</td></tr>
+</tbody></table>
+{h3('7.3', 'The deck')}
+<table class="keep">
+<thead><tr><th>Creature size</th><th class="num">Sun</th><th class="num">Bramble</th><th class="num">Rain</th><th class="num">Thornburst</th><th class="num">Pieces</th></tr></thead>
+<tbody>
+<tr><td>small</td><td class="num">2</td><td class="num">1</td><td class="num">2</td><td class="num">1</td><td class="num">6</td></tr>
+<tr><td>medium, large</td><td class="num">2</td><td class="num">2</td><td class="num">2</td><td class="num">2</td><td class="num">8</td></tr>
+<tr><td>boss</td><td class="num">2</td><td class="num">3</td><td class="num">2</td><td class="num">2</td><td class="num">9</td></tr>
+</tbody></table>
+<p>The region adds one copy of one kind: Sun in CA, CB and SE; Rain in SA, NWE, EA and SEA; Bramble in EE and WCA; Thornburst in ESA. The deck is shuffled, and reshuffled when it runs out. {C}</p>
+{h3('7.4', 'How the creature uses it')}
+<ul>
+<li>The creature looks for its best move like you do. A Sun, Rain or Bramble next to a cell it can reach raises that move's value, so its aim often points there.</li>
+<li>The aim chip names it: "hits you for 16, fires Bramble". The piece gets a ring on the board.</li>
+<li>The owner measured this before 2.6.97: the creature's chain fired an environment piece in 43% of rounds. I did not re-measure it. {Q}</li>
+</ul>
+<div class="box"><h4>Guidelines for the environment</h4>
+<ul>
+<li>Each turn ask: which side reaches each environment piece first?</li>
+<li>A Sun or Rain that the aim would fire can be denied in three ways: fire it yourself in a chain of 3 (it is used up), take the aim cell, or break the aim with a misfit.</li>
+<li>Prefer a chain of 2 on Bramble. Prefer a chain of 3 on a Sun the creature can reach.</li>
+<li>Thornburst is only bad for the side that fires it. But any piece of yours that touches it links to it (a touching edge must fit), so it will fire in that chain. Stay off cells that touch it, unless the lit number says the cost is worth it.</li>
+</ul></div>
+""")
+
+# ------------------------------------------------------------------ 8
+w(h2('8', 'Winning and losing'))
+w(f"""
+{h3('8.1', 'The hurt route')}
+<ul>
+<li>Hurt counts fully against wary creatures and bosses, x0.8 against gentle ones.</li>
+<li>Combos, Sun, Bramble and Poison all feed the hurt share.</li>
+<li>It is slowed by the creature's guard, Evade and healing. Pierce answers guard. Nothing answers Evade except not swinging.</li>
+</ul>
+{h3('8.2', 'The charm route')}
+<ul>
+<li>Charm fills the same bar. Guard, Evade and healing cannot touch it. {C}</li>
+<li>It counts x0.6 against wary creatures and bosses. Bond raises that by 0.1 per use, three times at most.</li>
+<li>You are "won over" only if charm is the <b>larger share</b> when the bar fills. Bramble, Thornburst and Poison count as hurt, so they pull the ending toward "backs off".</li>
+<li>The reward differs: a charm win gives a gift and the creature's seed or guide drops, but not its ordinary drops. A hurt win gives the ordinary drops. Both give full XP. {C}</li>
+</ul>
+<p>How often my fights ended by charm, by creature size:</p>
+<table class="keep">
+<thead><tr><th>Player</th><th class="num">small</th><th class="num">medium</th><th class="num">large</th><th class="num">boss</th></tr></thead>
+<tbody>
+<tr><td>Careful (no preference)</td><td class="num">56%</td><td class="num">6%</td><td class="num">3%</td><td class="num">0%</td></tr>
+<tr><td>Charmer (counts charm double when choosing)</td><td class="num">67%</td><td class="num">6%</td><td class="num">10%</td><td class="num">0%</td></tr>
+</tbody></table>
+<p class="small">18 small, 36 medium, 30 large and 30 boss fights per row. The small creatures in my set were mostly gentle. Above small size a charm ending is rare even when you want it.</p>
+<div class="box"><h4>Guideline</h4>
+<p>Play Charm when the creature is gentle, when its guard is high, or when it dodges your next hit. Do not plan a charm win against a medium or larger creature unless your deck is built for it.</p></div>
+{h3('8.3', 'Bosses')}
+<ul>
+<li>A boss cannot be charmed and you cannot run. Its ending is always "backs off".</li>
+<li>If the fight goes past turn 24 you lose. My longest boss fight took 16 turns (14 for the careful player, whose average was 9.2).</li>
+<li>Its rule shows you the next round's piece. Its deck order repeats: set-up, Hurt, Hurt.</li>
+<li>Your Charm pieces are not dead: they add x0.6 to the bar and ignore its guard.</li>
+</ul>
+{h3('8.4', 'Health carries over')}
+<ul>
+<li>You start the fight with the health your expedition has (at least 1). You leave with what is left. {C}</li>
+<li>So a fight won at 20% health makes the next fight on the same trip much harder. Health lost is the real score of a fight.</li>
+<li>Heal and Item pieces, Mend, and a Rest outside the fight bring it back. A Master Thornblade heals fully after a win. {C}</li>
+<li>After a knock-out you wake where you set out, with half your health and 2 energy less. You keep your things. {C}</li>
+</ul>
+{h3('8.5', 'The reward')}
+<ul>
+<li>After the last replay a result card shows. One tap, "Collect the reward", ends the fight. {Q}</li>
+<li>XP is the creature's XP, less in an area you have outgrown.</li>
+<li>Pluck, if it worked, already gave its item during the fight.</li>
+<li>Tool wear is saved when the fight ends, however it ended.</li>
+</ul>
+""")
+
+# ------------------------------------------------------------------ 9
+w(h2('9', 'Quick reference'))
+w(f"""
+{h3('9.1', 'Types')}
+<table class="keep">
+<thead><tr><th>Type</th><th>Left hole</th><th>Knob on top?</th><th>Fires for you</th><th>Fires for the creature</th></tr></thead>
+<tbody>
+<tr><td>Hurt</td><td>body</td><td>yes</td><td>+N hurt on the bar (after its guard)</td><td>-N health (after your guard)</td></tr>
+<tr><td>Guard</td><td>body</td><td>no</td><td>+N guard until your next turn</td><td>+N guard until its next turn</td></tr>
+<tr><td>Heal</td><td>mind</td><td>no</td><td>+N health</td><td>-N hurt on the bar</td></tr>
+<tr><td>Charm</td><td>mind</td><td>yes</td><td>+N charm on the bar (x0.6 wary, boss)</td><td>nothing</td></tr>
+<tr><td>Soothe</td><td>mind</td><td>no</td><td>its hits this round do N less in all</td><td>nothing</td></tr>
+<tr><td>Trick</td><td>craft</td><td>yes</td><td>sets up Ambush or Bait</td><td>its tag (Quick, Evade, Bash, Thorns, Poison, Trip, Heal)</td></tr>
+<tr><td>Item</td><td>craft</td><td>no</td><td>+N health</td><td>nothing</td></tr>
+</tbody></table>
+{h3('9.2', 'Your tags')}
+<table class="keep">
+<thead><tr><th>Tag</th><th>In one line</th><th>Example pieces</th></tr></thead>
+<tbody>
+<tr><td>Quick</td><td>draws a piece (no use in a new fight)</td><td>Jab, Dibber Poke, Pickle Splash</td></tr>
+<tr><td>Pierce</td><td>ignores its guard</td><td>Pierce, Hoe Hook, Nut Crack</td></tr>
+<tr><td>Poison</td><td>half the hit again on each of its next 2 turns</td><td>Sting, Compost Lob, Pepper Puff</td></tr>
+<tr><td>Trip</td><td>it skips its turn</td><td>Trip, Net Toss</td></tr>
+<tr><td>Bash</td><td>adds your guard to the hit, uses it up</td><td>Shield Bash, Rock Chip</td></tr>
+<tr><td>Heavy</td><td>nothing here</td><td>Smash, Fork Lift, Windfall</td></tr>
+<tr><td>Hold</td><td>what is left of the guard stays one more turn</td><td>Brace, Oat Cake, Spare Handle, Frost Bark</td></tr>
+<tr><td>Thorns</td><td>a blocked hit adds 2 to the bar</td><td>Thorn Hide, Thornbush</td></tr>
+<tr><td>Evade</td><td>its next Hurt misses</td><td>Roll, Sweep, Mist Veil, Heat Shimmer</td></tr>
+<tr><td>Mend</td><td>also heals 2</td><td>Mending</td></tr>
+<tr><td>Hum</td><td>also soothes 2</td><td>Hum, Wind Chime</td></tr>
+<tr><td>Lull</td><td>it skips its turn</td><td>Lull, Glare</td></tr>
+<tr><td>Bond</td><td>Charm +10%, up to 3 times</td><td>Bond, Sweet Pea</td></tr>
+<tr><td>Pluck</td><td>small chance of an item, once</td><td>Pluck</td></tr>
+</tbody></table>
+{h3('9.3', 'Class rules')}
+<table class="keep">
+<thead><tr><th>Class</th><th>Rule</th><th>Base pieces</th><th>Remember</th></tr></thead>
+<tbody>
+<tr><td>Critter</td><td>Swarm: 2 pieces a turn at x0.6</td><td>Nip, Sting, Chitin Shell, Skitter (Quick)</td><td>The chip shows only the first.</td></tr>
+<tr><td>Bird</td><td>Two aims</td><td>Peck, Talon Dive, Wing Cover, Flutter Off (Evade)</td><td>Guard, do not chase cells.</td></tr>
+<tr><td>Beast</td><td>Grudge: +25% Hurt per block, up to 3</td><td>Claw, Maul, Brace, Shoulder Barge (Bash)</td><td>Let small hits land.</td></tr>
+<tr><td>Water</td><td>Current: pushes one of your pieces</td><td>Snap, Splash, Slick Hide, Undertow (Trip)</td><td>Links next to its aim may not last.</td></tr>
+<tr><td>Plant, Fungus</td><td>Grows: a Bramble beside its piece</td><td>Lash Vine, Spore Puff, Bramble Coat (Thorns), Sap Mend (Heal)</td><td>Fire its Bramble first.</td></tr>
+<tr><td>Reptile, Amphibian</td><td>Venom trail: venom where its pieces leave</td><td>Bite, Tail Lash, Scale Guard, Venom Spit (Poison)</td><td>Check the cell for venom.</td></tr>
+<tr><td>Boss</td><td>Two turns: shows next round's piece</td><td>its class pieces plus Scheme and Crush</td><td>Cannot be charmed. 24 turns.</td></tr>
+</tbody></table>
+{h3('9.4', 'Environment pieces')}
+<table class="keep">
+<thead><tr><th>Piece</th><th>For the side that fires it</th><th>Edges: left, right, top, bottom</th></tr></thead>
+<tbody>
+<tr><td>Sun</td><td>its pieces in that chain count x2</td><td>body hole, mind knob, craft knob, craft hole</td></tr>
+<tr><td>Bramble</td><td>the other side loses a tenth (your health; its bar)</td><td>mind hole, craft knob, body knob, body hole</td></tr>
+<tr><td>Rain</td><td>guard: 15% of your health, or 15% of its bar</td><td>craft hole, body knob, mind knob, mind hole</td></tr>
+<tr><td>Thornburst</td><td>it is hurt: you a tenth of health, it 5% of the bar</td><td>mind hole, body knob, craft hole, craft knob</td></tr>
+</tbody></table>
+{h3('9.5', 'Chips and marks on the fight page')}
+<p>Read from <code>tools/pfboardv1_part.js</code>. I did not see the page. {Q}</p>
+<table>
+<thead><tr><th>You see</th><th>It means</th></tr></thead>
+<tbody>
+<tr><td>"R3 · You" / the creature's name / "Environment"</td><td>The round number and whose step it is.</td></tr>
+<tr><td>Dots after a chain</td><td>How many pieces your chain fires. 3 or more: everything that fired is used up.</td></tr>
+<tr><td>Red target mark on a cell</td><td>The aim cell. A Bird shows a second, smaller mark.</td></tr>
+<tr><td>"Aims Nip hurt 3", "Peck: hits you for 9"</td><td>The aim and its total now. Tap it for the reasons.</td></tr>
+<tr><td>"· fires Sun", "· fires Bramble"</td><td>Its chain would fire that environment piece.</td></tr>
+<tr><td>"· 2 pieces"</td><td>The aimed piece is Quick: a second piece follows, not in the number.</td></tr>
+<tr><td>"is blocked by your guard", "does no damage", "heals 4"</td><td>Other aim results.</td></tr>
+<tr><td>Solid pulsing ring on an environment piece</td><td>The aim's chain would fire it. A badge says what it gives ("Sun x2 for it").</td></tr>
+<tr><td>Dotted amber ring on your piece</td><td>The aim's chain would fire it: "it fires this". Your piece works for you.</td></tr>
+<tr><td>"no aim"</td><td>It shows no move. It will look for a spot on its turn.</td></tr>
+<tr><td>"... is slowed: no move"</td><td>Trip or Lull landed. It skips this turn.</td></tr>
+<tr><td>"Swarm", "Two aims", "Grudge x2", "Current", "Grows", "Venom trail", "Two turns"</td><td>The class rule. Tap or hover for the sentence.</td></tr>
+<tr><td>"its guard 6"</td><td>Your Hurt pieces lose 6 before they reach the bar. Pierce and Charm do not.</td></tr>
+<tr><td>"dodges next hit"</td><td>The creature has Evade: your next Hurt misses.</td></tr>
+<tr><td>"thorny guard"</td><td>Hits its guard soaks will prick you.</td></tr>
+<tr><td>"bash waits"</td><td>Its next Hurt adds its guard to the hit.</td></tr>
+<tr><td>"poisoned 2"</td><td>Poison ticks waiting on you.</td></tr>
+<tr><td>"tripped -1 draw"</td><td>You drew, or will draw, one piece fewer.</td></tr>
+<tr><td>"you dodge next"</td><td>Your Evade is up.</td></tr>
+<tr><td>Venom mark on an empty cell</td><td>A Reptile's piece left from here. Placing there poisons you.</td></tr>
+<tr><td>Wrench chip with a number</td><td>Tool pieces in play and their durability.</td></tr>
+<tr><td>NEXT strip</td><td>The environment's next piece. Tap it to read it.</td></tr>
+<tr><td>"?" and "1x"</td><td>The help sheet, and the replay speed (1x, 2x, Skip).</td></tr>
+</tbody></table>
+""")
+
+# cheat sheet (one page)
+w('<div class="cheat">' + h2('9.6', 'Cheat sheet') + f"""
+<div class="cols">
+<div class="blk"><h4>Goal</h4><ul><li>Fill the Yield bar. Hurt and Charm both fill it.</li><li>Do not let your health reach 0. It carries over to the next fight.</li></ul></div>
+<div class="blk"><h4>A round</h4><ul><li>You: one piece (or pass). Flip is free.</li><li>The creature: its aim, its chain, class extras.</li><li>The environment: one piece on a lonely cell.</li><li>Clean-up: poison, old pieces leave, new hand of 5.</li></ul></div>
+<div class="blk"><h4>Fitting</h4><ul><li>Knob into hole, same family (round, keyhole, triangle).</li><li>Every touching edge must fit. A fit is a link.</li><li>Left is a hole, right is a knob. Flip swaps top and bottom.</li></ul></div>
+<div class="blk"><h4>Chains</h4><ul><li>The placed piece fires first, then linked pieces, newest first.</li><li>Each piece fires for its owner. Environment pieces fire for the side that started the chain.</li><li>3 or more pieces fired: all of them leave the board.</li><li>Pieces stay 3 rounds. Creature pieces fall after 2 firings.</li></ul></div>
+<div class="blk"><h4>Combos (your two pieces, one after the other)</h4><ul><li>Trick then Hurt: x1.5 + the Trick's number (Ambush).</li><li>Guard then Hurt: x1.5 (Riposte).</li><li>Hurt then Hurt: +2 (Double Swing).</li><li>Trick then Guard: + the Trick's number (Bait).</li><li>Place the <b>first</b> piece of the pair. The second must already be on the board.</li></ul></div>
+<div class="blk"><h4>Before you place: seven checks</h4><ul><li>1. Can a cell end the fight?</li><li>2. Aim chip: how much, where, "fires ...", "2 pieces"?</li><li>3. Its chips: guard, dodges next hit, thorny, Grudge.</li><li>4. Lit cell: what does it cost me? (creature Hurt, Thornburst, venom)</li><li>5. Flipped: is there a better cell?</li><li>6. Sun, Rain, Bramble: who fires them first?</li><li>7. After placing: what does the aim chip say now?</li></ul></div>
+<div class="blk"><h4>The aim</h4><ul><li>It lands on its cell unless: your piece is on the cell, a misfit stands beside it, or it is slowed.</li><li>Then it picks again at full strength. No free turn.</li><li>The number leaves out a second piece (Swarm, Quick) and poison.</li><li>A fitting piece of yours beside the aim cell gets fired, for you (bait).</li></ul></div>
+<div class="blk"><h4>Environment</h4><ul><li>Sun: the chain's owner counts double.</li><li>Bramble: the other side loses a tenth. Fire it in a chain of 2 to keep it.</li><li>Rain: guard for whoever fires it. Do not leave it to the creature.</li><li>Thornburst: hurts whoever fires it. Stay off it.</li></ul></div>
+<div class="blk"><h4>Class rules</h4><ul><li>Critter: two pieces a turn. Expect double.</li><li>Bird: two aims. Guard instead of chasing.</li><li>Beast: blocking makes it hit harder. Let small hits land.</li><li>Water: pushes your piece away.</li><li>Plant: grows a Bramble. Fire it first.</li><li>Reptile: venom cells and poison. Finish fast.</li><li>Boss: shows next round's piece. No charm win, no running, 24 turns.</li></ul></div>
+<div class="blk"><h4>Do not</h4><ul><li>Take the biggest number without reading the cost.</li><li>Count chain length. Count bar and health.</li><li>Swing into "dodges next hit". Hit "its guard" with small Hurts.</li><li>Heal at full health. Pass when a free move exists.</li></ul></div>
+<div class="blk"><h4>Numbers</h4><ul><li>Board 4 by 4. Hand 5. One action. Fight limit 24 turns.</li><li>Charm x0.6 on wary creatures and bosses. Hurt x0.8 on gentle ones.</li><li>Sun x2. Bramble 10%. Rain 15%. Thornburst 10% (you), 5% (it).</li><li>Grudge +25% a block, up to 3. Venom 2 a round for 2 rounds.</li></ul></div>
+</div></div>
+""")
+
+# ------------------------------------------------------------------ 10
+w(h2('10', 'Open questions and confusing places'))
+w(f"""
+<p>These are the places where the rules, the texts or the numbers did not agree while I played, or where a rule works but will surprise a player. Each has a code place or a fight you can replay with <code>php tests/pf_play.php new STATE SLUG LEVEL SEED v1</code>. They are ordered by how much they hurt a player.</p>
+
+{h3('10.1', 'The aim number leaves out the second piece')}
+<ul>
+<li>The chip is a dry run of the <b>first</b> piece only (<code>pfb_aim_total</code>: "Quick's extra piece, the poison ticks and the terrain turn are not in the numbers").</li>
+<li>Sun Lizard, level 8, seed 5, careful policy, turn 2: the chip read 3 after my placement. Lizard Dart is Quick. It then played Venom Spit, which re-fired Lizard Dart with Ambush under a Sun. I lost 22 of 44 health in that round, and the fight.</li>
+<li>Carrion Crow, seed 5, turn 2: the chip read 9 with "Quick: plays again". My guard of 7 left 2. The extra piece then cost 9 more.</li>
+<li>Over all careful fights the loss was larger than the chip on 20% to 51% of turns (6.2). For a Critter the second piece comes <b>every</b> turn.</li>
+<li><b>Question:</b> should the chip show a range, or run the second piece too? "2 pieces" does not tell a player that the hit may triple.</li>
+</ul>
+
+{h3('10.2', 'Quick on your own pieces does nothing')}
+<ul>
+<li>Text: "Quick: draws you a piece when you place it" (<code>PF_TAGS_V1</code>).</li>
+<li>Rule: one action a turn, and the whole hand goes to the discard at the end of the round (<code>pfb_end_round</code>, <code>redraw</code> 1). The drawn piece can never be played.</li>
+<li>This touches Jab (in every ready kit), Dibber Poke and Pickle Splash. The "Sticky" upgrade draws a piece in the same dead way. {C}</li>
+<li>For the creature, Quick is strong: one more piece that turn.</li>
+<li><b>Question:</b> what should Quick do for the player now? A second action would be a new rule.</li>
+</ul>
+
+{h3('10.3', '"Stays N rounds" is printed in three places and is wrong in two')}
+<ul>
+<li>Per-piece life is off (<code>'life' => 0</code> in <code>pfb_v1_cfg</code>), so <code>pfb_life</code> returns 3 for every piece.</li>
+<li>The NEXT strip still reads the data file: "Sun, stays 2 rounds" (<code>pfb_view</code>, <code>env.next.life</code>). In play the Sun and the Rain then showed "stays 3" on the board and did stay 3 turns (Crow, seed 5: Sun placed in round 1, expired at the end of round 4).</li>
+<li>The creature card prints "stays 2 rounds" for Skitter (<code>pfv_foe_card</code>), and the data file comment says Quick pieces last 2 and Hold pieces 4.</li>
+<li>The piece card in the hand prints "stays 3" from a default, which happens to be right.</li>
+</ul>
+
+{h3('10.4', 'The help sheet explains a rule that is off')}
+<ul>
+<li>Aim strike has been off in new fights since 2.6.984 (<code>aimhit</code> 0).</li>
+<li>The help row "The creature's aim" always says: "If its piece is a Hurt and you take the cell with one of YOUR pieces, it strikes that piece instead: the piece breaks" (<code>tools/pfboardv1_part.js</code>, <code>helpSheet</code>; the sentence is not behind the switch).</li>
+<li>A player who reads the help will not dare to take the aim cell.</li>
+</ul>
+
+{h3('10.5', 'Trip and Lull remove a whole creature turn')}
+<ul>
+<li>The creature plays one piece a turn, so "one piece fewer" is none (<code>pfb_foe_len</code>). The text now says so: "the creature skips its next turn".</li>
+<li>It applies the same round, to a Critter's two pieces and to a boss.</li>
+<li>These are cheap pieces (Trip, Net Toss: Hurt base 2; Lull, Glare: Charm base 3). Against the Great Hawk, Lull offered "+8.4 and it loses the turn".</li>
+<li>The creature's Trip does something quite different to you: you draw 4 instead of 5. One word, two effects.</li>
+<li><b>Question:</b> is a full skip the intended strength?</li>
+</ul>
+
+{h3('10.6', 'Poison follows the boosted hit, and works through Evade')}
+<ul>
+<li>Each tick is half of the piece's fired value, after combos and Sun (<code>pf_apply</code>: <code>ceil($val / 2)</code>).</li>
+<li>Great Hawk, seed 9, turn 4: Pepper Puff 16 under Ambush and Sun fired for 88. The tick was 44. That tick ended a 215-point boss fight on turn 4.</li>
+<li>Turn 3 of the same fight: the Hawk dodged the hit (0 damage), but the poison was applied anyway: 16 a tick.</li>
+<li>The text says only "hits again each of the next 2 turns". How much is not said. A new Poison replaces the old ticks instead of adding to them, which the text does not say either.</li>
+</ul>
+
+{h3('10.7', 'Rain is not the same piece for both sides')}
+<ul>
+<li>Your Rain guard is 15% of your health. The creature's is 15% of its <b>Yield bar</b> (<code>pfb_env_fire</code>).</li>
+<li>Earwig: 5 guard for me, 6 for it, against my Hurt pieces of 3 to 5. With its own guards it stood at 12, and my Jab read 0.</li>
+<li>Wild Boar: 13 for me, 26 for it, against my Hurt pieces of 10 to 16.</li>
+<li>Its guard also soaks every Hurt in my chain until its next turn. Only Pierce and Charm get past.</li>
+<li>The help text says "it gets the guard" but not how much. The ring badge does show the number.</li>
+</ul>
+
+{h3('10.8', 'Grudge: what counts as a block')}
+<ul>
+<li>Rule text: "Each time you block its aim".</li>
+<li>Code: Grudge goes up only when a piece stands <b>on</b> the aim cell (<code>pfb_foe_turn</code>). Breaking the aim with a misfit beside the cell makes it pick again and adds no Grudge.</li>
+<li>If your chain of 3 uses up the piece you put on the cell, the cell is free again, the aim lands, and there is no Grudge (Boar, seed 3, turn 2).</li>
+<li>Grudge also raises a Beast Hurt that fires inside <b>your</b> chain.</li>
+<li>"A hit that lands" means you lost health during its turn. A fully guarded hit keeps the Grudge.</li>
+</ul>
+
+{h3('10.9', 'Hidden multipliers')}
+<ul>
+<li>A Charm 5 adds 3 to the bar of a wary creature. A Hurt 10 adds 8 to a gentle one. The piece shows 5 and 10.</li>
+<li>The lit cell shows the true number, so the page is honest at the moment of choice. The deck screen is not: there Charm looks as strong as Hurt.</li>
+<li>Bond does nothing against a gentle creature (Charm is already x1).</li>
+</ul>
+
+{h3('10.10', 'Things a new player will not guess')}
+<ul>
+<li><b>Trick order.</b> "Boosts a Hurt or Guard fired right after it" is true, but only if you place the Trick. Nothing says so.</li>
+<li><b>Bait.</b> The help says "If its aim fires one of your pieces, your piece works for you". In play this is one of the strongest moves, and the creature cannot avoid it, because its aim is fixed before you move. Is that intended?</li>
+<li><b>Evade eats bait.</b> A creature Guard or Trick with Evade that fires earlier in its chain makes your baited Hurt miss (Crow, seed 5, turn 7).</li>
+<li><b>Net health on a lit cell.</b> A heal in the same chain hides a Thornburst or a creature hit: the cell shows the net (the harness note says "h-0 can hide a loss").</li>
+<li><b>The creature finishing itself.</b> When its chain fires a Thornburst the bar grows by 5%. The aim total does not count that as "to it". The Crow fight ended this way.</li>
+<li><b>Heavy</b> is a tag with no effect on this board.</li>
+<li><b>The free piece.</b> The board gives the creature a piece when it has fewer than 2 out. It looks like a second move. The replay names it since 2.6.97.</li>
+</ul>
+
+{h3('10.11', 'The board does not last')}
+<ul>
+<li>At the start of my turn I had no piece of my own on the board in 51% of turns (careful) to 68% (longest chain).</li>
+<li>Use-up, two firings, three rounds and the full redraw all clear things away. Most turns are a fresh puzzle: which hand piece links to what the creature and the environment left.</li>
+<li>This is known (the T15 bake-off). I note it because several guidelines a rule book would like to give ("build a wall", "keep your trick for later") are not possible in the game as it stands.</li>
+</ul>
+
+{h3('10.12', 'Charm is a small-creature route')}
+<ul>
+<li>Charm endings: 56% small, 6% medium, 3% large, 0% boss for the careful player (8.2).</li>
+<li>Bramble, Thornburst and Poison count as hurt, so the environment pushes every long fight toward "backs off".</li>
+<li>The reward for a charm win is different (gift, seed, guide). A player who wants it has little control above small size.</li>
+</ul>
+
+{h3('10.13', 'Smaller text slips')}
+<ul>
+<li><code>tests/pf_play.php</code> footer still says: "a flip is free, once a turn", "A piece must make a linked joint unless nothing can", and lists Teamwork. All three are off. Testers who read it play by the old rules.</li>
+<li>The same harness prints "on side ?" for both start pieces when the Blank is not in the centre (it works the side out from the centre cell).</li>
+<li>The harness lets a Snack be placed at any health. The game refuses it at full health and after the snack limit (<code>pfight_game.php</code>). Bots that use the harness overrate Snack.</li>
+<li>The harness does not print the creature's guard, its Evade, the second aim, Grudge or venom cells. The page does. I read them from the state file.</li>
+<li><code>PFB_SUN_MULT</code> is commented "a Hurt or Charm piece"; the Sun piece doubles every type, as the help text says.</li>
+<li>The page names cells A1 to D4 (column letter, row number: "or Wing Cover 2 at B4"). The harness and this book count x,y from 0. Cell 2,1 here is C2 on the page.</li>
+</ul>
+
+{h3('10.14', 'What I could not verify')}
+<ul>
+<li>The live page: layout, taps, replay timing, the look of chips and rings. All page statements come from the source files.</li>
+<li>Rewards, knock-out and health carry-over: read in <code>adventure.php</code> and <code>pfight_game.php</code>, not played.</li>
+<li>The Puzzle box, belt and pre-fight screens.</li>
+<li>Real decks. My gnome is the test gnome of the harness, at the creature's level.</li>
+<li>The JS twin (<code>tools/pfengine.js</code>). I read its header and constants only; all play was on the PHP engine.</li>
+<li>Bait, Calm Charm and Win Over combos, Bash, Thorns, Mend, Bond and Pluck: read in code, not seen firing.</li>
+</ul>
+""")
+
+# ------------------------------------------------------------------ appendix A
+w(h2('A', 'Four fights, turn by turn'))
+w(f"""
+<p>All four were played by hand on the real engine with <code>tests/pf_play.php</code> (mode <code>v1</code>), the gnome at the creature's level. On the page cell 2,1 is called C2. For each move I looked at every hand piece, both ways up, on every legal cell, with the plan line the page would show. Cells are x,y from the top left. State files and logs are in <code>rulebook/play/</code>.</p>
+
+{h3('A.1', 'Small Critter: Pincer Earwig, level 4, seed 11')}
+<p>Yield bar 42.8. My health 32. Rule: Swarm. Won on turn 3 with 26 health.</p>
+<table class="turn">
+<thead><tr><th>Turn</th><th>What I saw</th><th>What I did and why</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td>Start</td><td>Hand: Chop 5, Slip Past (Trick 6), Swing 5, Dodge 5, Frost Bark 4. Blank on 2,2.</td><td>Chop left of the Blank. Slip Past can then go above, below or left of it.</td><td>Earwig put Humus Hide (Guard 2) on the right.</td></tr>
+<tr><td>1</td><td>Aim: Nip, Hurt 3, on 2,1, "hits you for 3". Slip Past next to Chop reads +14 on three cells. Dodge left of Chop reads +8 with 5 guard.</td><td>Slip Past on 1,1. That cell is beside the aim cell and its right knob fits Nip: bait.</td><td>Ambush 14. Nip landed, -3, and fired Slip Past and Chop again: 14 more. Bar 28. The chain of 3 used up Nip, Slip Past and Chop. Second swarm piece: a Guard.</td></tr>
+<tr><td>2</td><td>Aim: Pincer 3 on 1,0, "fires Rain". The creature has 2 guard, so Swing reads 3 and the Pierce pieces 4. A Guard of mine on 3,1 would make a chain of 3 out of its two Guards: nothing for me.</td><td>Hoe Hook (Pierce) on the aim cell 1,0. It fires the Rain for me (5 guard) and takes the Rain from the aim.</td><td>+4. It picked again: a Guard chained with its two Guards (used up), then Pincer beside my Hoe Hook: -3, my Hoe Hook fired again (+4), and the Rain gave <b>it</b> 6 guard. Bar 36.</td></tr>
+<tr><td>3</td><td>The creature holds 12 guard. Jab reads 0. Pierce on 3,2 reads 4 and fires a new Rain. Aim: Night Scuttle on 2,1, which links to that Rain.</td><td>Pierce on 3,2. It links to the Rain, and the aim will link to the Rain too: bait through the Rain.</td><td>+4 (bar 40). Its Trick fired the Rain, then my Pierce: +4. Bar 44: it backs off.</td></tr>
+</tbody></table>
+<p><b>What a thoughtful player looks at:</b> the cell beside the aim; the creature's guard before swinging; which pieces ignore guard. <b>What cost health:</b> only the two hits of 3 that I chose to take.</p>
+
+{h3('A.2', 'Medium Bird: Carrion Crow, level 9, seed 5')}
+<p>Yield bar 74.6. My health 47. Rule: Two aims. Won on turn 7 with 45 health.</p>
+<table class="turn">
+<thead><tr><th>Turn</th><th>What I saw</th><th>What I did and why</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td>Start</td><td>Hand: Mist Veil, Dodge 7, Samara Spin (Hurt 8), Charm 7, Bark Badger.</td><td>Samara Spin left of the Blank: two Guards in hand can Riposte it.</td><td>Crow put Heat Shimmer (Guard, Evade) above the Blank.</td></tr>
+<tr><td>1</td><td>Aim 1: Talon Dive 4 on 3,2. Aim 2: the same on 2,3. Dodge left of Samara reads +12.</td><td>Dodge on 0,2. Guard 7 covers either aim.</td><td>Riposte 12. Talon Dive fully blocked.</td></tr>
+<tr><td>2</td><td>Aim: Mob Caw 3, "hits you for 9, combo Double Swing, 2 pieces". Flipped Pierce on 0,3 reads +18, chain of 3. Compost Lob on the aim cell reads +6 but costs 4: it links the Crow's Talon Dive.</td><td>Flipped Pierce on 0,3: Pierce 6, Dodge 7 guard again, Samara Riposte 12. My pieces had one round left anyway.</td><td>Bar 30. Mob Caw and Talon Dive: 9, guard took 7. Then the Quick extra: Peck 4 and Mob Caw again 5. I lost 11. <b>The chip had said 9, so with 7 guard I expected to lose 2.</b></td></tr>
+<tr><td>3</td><td>Aim: Flutter Off, Ambush on Peck, "hits you for 7". Hoe Hook with the Sun reads +12. Swing on 1,3 reads +7 and fires a Rain: 7 guard.</td><td>Swing on 1,3. Five bar points less than the Sun play, seven health more.</td><td>Bar 37. The Ambush of 7 fully blocked.</td></tr>
+<tr><td>4</td><td>"dodges next hit": every Hurt cell reads 0. Aim: Dive Bomb 4 next to a Sun, "hits you for 8". Garden Greens next to the other Sun heals 12.</td><td>Garden Greens on 2,0. No Hurt this turn. The aim's chain would fire the Greens again for me.</td><td>Healed to 47. Dive Bomb 8 with Pierce, then my Greens healed 6. Health 45.</td></tr>
+<tr><td>5</td><td>A Bramble on 2,1. Jab on 1,2: +14, chain of 3 with my Swing and the Rain (both in their last round), 7 guard. Jab beside the Bramble: +12.5 and the Bramble stays.</td><td>Jab on 1,2: use what is leaving. The Bramble waits.</td><td>Bar 51. Mob Caw 3 blocked. Its chain fired Flutter Off: Evade again.</td></tr>
+<tr><td>6</td><td>Evade up. Three hand pieces have no cell. Two Hurt cells touch a Thornburst (-5). Flipped Dodge on 2,2: fires Mob Caw (3, blocked) and the Bramble, chain of 3.</td><td>Flipped Dodge on 2,2: +7.5, removes Mob Caw, keeps 4 guard for the Peck.</td><td>Bar 58.5. Peck blocked.</td></tr>
+<tr><td>7</td><td>Need 16.1. Best is Swing with a new Bramble: +14.4. Aim on 2,1; aim 2 on 0,0 links a Thornburst.</td><td>Swing on the aim cell 2,1. Its second aim must fire the Thornburst: 5% of the bar.</td><td>Bar 72.9. Heat Shimmer on 0,0 fired the Thornburst: +3.8. It backs off.</td></tr>
+</tbody></table>
+<p><b>What a thoughtful player looks at:</b> "2 pieces" on the chip; "dodges next hit"; which pieces leave this round; where the Thornburst is. <b>What cost health:</b> the Quick extra piece on turn 2 (9 of the 13 lost in the fight).</p>
+
+{h3('A.3', 'Large Beast: Wild Boar, level 21, seed 3')}
+<p>Yield bar 171.8. My health 88. Rule: Grudge. Won on turn 6 with 54 health.</p>
+<table class="turn">
+<thead><tr><th>Turn</th><th>What I saw</th><th>What I did and why</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td>Start</td><td>Hand: Swing 12, Pierce 11, Hoe Hook 15, Oat Cake, Garden Greens. Blank on 2,1.</td><td>Hoe Hook below the Blank, with the cell to its right free.</td><td>Boar put Steam (Trick 2) right of the Blank.</td></tr>
+<tr><td>1</td><td>Aim: Tusk Gore 7, Pierce. Swing on 3,2 touches Steam and Hoe Hook: +29, chain of 3.</td><td>Swing on 3,2. Steam is harmless, and the chain removes it.</td><td>Swing 12, Hoe Hook 17 (Double Swing). -7.</td></tr>
+<tr><td>2</td><td>Aim: Slam 7 on 0,2 beside a Bramble: "hits you for 16". Sting on 0,2: +27.2 with the Bramble, chain of 3, and Poison.</td><td>Sting on the aim cell. The chain uses my Sting up, so the cell is free again: no Grudge. The Bramble is gone, so the aim falls to 7.</td><td>Bar 56.2, then poison +5. -7.</td></tr>
+<tr><td>3</td><td>Aim: Claw with Double Swing, 15. Samara Spin beside a Sun: +30. Mist Veil would block everything and add nothing.</td><td>Samara Spin on 2,3. A sixth of the bar for a sixth of my health.</td><td>Bar 96.2 with the poison. -15.</td></tr>
+<tr><td>4</td><td>Aim: 15 again. Swing on 2,2: +58, chain of 3 with Samara and the Sun. Flipped Heat Shimmer on 2,2: +46, and 26 guard with Evade.</td><td>Heat Shimmer. Twelve bar points less, fifteen health more.</td><td>Bar 142.2. The 15 fully blocked.</td></tr>
+<tr><td>5</td><td>Need 29.6: no cell ends it. Aim: Maul 6 on 2,2, the only cell beside a Rain. Compost Lob there: +11, Poison, 13 guard.</td><td>Compost Lob on 2,2. Poison will carry part of the rest. It blocks the aim: Grudge x1.</td><td>Bar 159.2 with the poison. It picked again with Grudge: 8 and 10 instead of 6. Guard took 13. -5.</td></tr>
+<tr><td>6</td><td>Four different cells end the fight.</td><td>Pepper Puff on 1,1: Rain, then Compost Lob again.</td><td>Bar 181.2. It backs off.</td></tr>
+</tbody></table>
+<p><b>What a thoughtful player looks at:</b> the Bramble and the Sun; whether a block will add Grudge; guard that also attacks. <b>What cost health:</b> the three hits I let land (7, 7, 15) and the Grudge on turn 5 (5).</p>
+
+{h3('A.4', 'Boss: Great Hawk, level 28, seed 9')}
+<p>Yield bar 215.2. My health 114. Rule: Two turns. Won on turn 4 with 105 health.</p>
+<table class="turn">
+<thead><tr><th>Turn</th><th>What I saw</th><th>What I did and why</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td>Start</td><td>Hand: Swing 15, Nut Crack 14, Spare Handle (Guard 15, Hold), Garden Greens, Compost Lob (Hurt 14, Poison).</td><td>Compost Lob right of the Blank. Flipped Spare Handle can go above it.</td><td>The Hawk put out two pieces: Flutter Off and Wing Cover.</td></tr>
+<tr><td>1</td><td>Aim: Crush 10. Next round: Talon Dive. Swing beside the Lob: +31. Flipped Spare Handle above it: +21 and 15 guard.</td><td>Spare Handle on 2,0. The Riposte makes the Lob hit for 21, so its poison ticks are 11.</td><td>Bar 21, poison +11. Crush blocked. Hold kept 5 guard.</td></tr>
+<tr><td>2</td><td>"dodges next hit". Aim 16. Jab on 3,1: Jab misses, then Bramble 21.5, Lob 16, Spare Handle 15 guard. A chain of 6 on 1,1 reads +0 and -13.</td><td>Jab on 3,1: let the weakest Hurt take the miss.</td><td>Bar 80.5 with the poison. Hit of 21 blocked to 1.</td></tr>
+<tr><td>3</td><td>Evade again. Pepper Puff (Hurt 16, Poison) beside a Sun reads +0. Lull reads +8.4 and "it loses the turn".</td><td>Pepper Puff on 2,3. The hit misses, but the poison is set from the doubled value: 16 a tick.</td><td>Bar 96.5 with the tick. Coral Cut 8 with Pierce. The Hawk now holds 11 guard.</td></tr>
+<tr><td>4</td><td>Slip Past (Trick 20) on 1,3 reads <b>+77</b>: Ambush on Pepper Puff, doubled by the Sun, less 11 guard.</td><td>Slip Past on 1,3.</td><td>Pepper Puff fired for 88. Bar 173.5. The poison tick of 44 filled the bar before the Hawk moved.</td></tr>
+</tbody></table>
+<p><b>What a thoughtful player looks at:</b> the Evade chip; which Hurt goes first; Sun plus a combo on a Poison piece. <b>What cost health:</b> one Pierce hit of 8.</p>
+""")
+
+# ------------------------------------------------------------------ appendix B
+w(h2('B', 'Numbers from my play runs'))
+w(f"""
+<p>Besides the four hand-played fights I ran <b>684 whole fights</b> on the same engine with six fixed ways of choosing a move (<code>rulebook/play/sim.php</code>). Each policy played the same 19 creatures on seeds 1 to 6, with the test gnome at the creature's level. Every policy sees what the page shows: the lit-cell numbers and the aim total after placing. Every policy takes a winning move when one exists.</p>
+<p class="small">Creatures: Aphid Swarm, Pincer Earwig, Cave Glowworm (small); Orb Spider, Carrion Crow, Bog Leech, Thistle Beast, Sun Lizard, Frost Hare (medium); Wild Boar, Grass Snake, Grey Heron, Bog Pike, Moss Golem (large); Great Hawk, Old Bramblehorn, Jade Jaguar, Dune Wyrm, Reef Leviathan (boss). 114 fights per policy: a difference of under about 8 points in a win rate is noise. Raw rows: <code>rulebook/play/runs.jsonl</code>.</p>
+<table class="keep">
+<thead><tr><th>Policy</th><th>How it chooses</th><th class="num">Wins</th><th class="num">Health lost</th><th class="num">Turns</th><th class="num">Lost in its own chains</th><th class="num">Passes a fight</th></tr></thead>
+<tbody>
+<tr><td><b>Careful</b></td><td>Bar share gained, minus health share lost in its chain and to the aim afterwards.</td><td class="num">99%</td><td class="num">24%</td><td class="num">8.2</td><td class="num">5%</td><td class="num">0.05</td></tr>
+<tr><td>Careful, never breaks the aim</td><td>The same, but avoids taking or breaking the aim cell.</td><td class="num">99%</td><td class="num">26%</td><td class="num">9.4</td><td class="num">7%</td><td class="num">0.19</td></tr>
+<tr><td>Charmer</td><td>Careful, but counts charm double.</td><td class="num">99%</td><td class="num">31%</td><td class="num">8.1</td><td class="num">6%</td><td class="num">0.04</td></tr>
+<tr><td>Turtle</td><td>Least health lost first.</td><td class="num">100%</td><td class="num">17%</td><td class="num">11.1</td><td class="num">4%</td><td class="num">0.29</td></tr>
+<tr><td>Biggest number</td><td>The cell that adds most to the bar. Ignores cost and aim.</td><td class="num">89%</td><td class="num">62%</td><td class="num">6.8</td><td class="num">13%</td><td class="num">0</td></tr>
+<tr><td>Longest chain</td><td>The cell that fires most pieces.</td><td class="num">64%</td><td class="num">79%</td><td class="num">8.0</td><td class="num">24%</td><td class="num">0</td></tr>
+</tbody></table>
+<p>"Health lost" is the share of maximum health missing at the end of the fight, averaged over all fights. "Lost in its own chains" is health lost to creature Hurts and Thornbursts that the player's own chain fired.</p>
+<table class="keep">
+<thead><tr><th>By creature size</th><th class="num">small</th><th class="num">medium</th><th class="num">large</th><th class="num">boss</th></tr></thead>
+<tbody>
+<tr><td>Careful: wins</td><td class="num">100%</td><td class="num">97%</td><td class="num">100%</td><td class="num">100%</td></tr>
+<tr><td>Careful: health lost</td><td class="num">28%</td><td class="num">28%</td><td class="num">22%</td><td class="num">18%</td></tr>
+<tr><td>Careful: turns</td><td class="num">7.2</td><td class="num">8.0</td><td class="num">8.2</td><td class="num">9.2</td></tr>
+<tr><td>Biggest number: wins</td><td class="num">83%</td><td class="num">89%</td><td class="num">93%</td><td class="num">90%</td></tr>
+<tr><td>Biggest number: health lost</td><td class="num">71%</td><td class="num">62%</td><td class="num">58%</td><td class="num">62%</td></tr>
+<tr><td>Longest chain: wins</td><td class="num">67%</td><td class="num">61%</td><td class="num">60%</td><td class="num">70%</td></tr>
+<tr><td>Careful: real loss above the aim chip (share of turns)</td><td class="num">40%</td><td class="num">51%</td><td class="num">20%</td><td class="num">21%</td></tr>
+<tr><td>Careful: turns that start with none of my pieces out</td><td class="num">58%</td><td class="num">53%</td><td class="num">49%</td><td class="num">48%</td></tr>
+</tbody></table>
+<table class="keep">
+<thead><tr><th>Careful player, by class rule</th><th class="num">Fights</th><th class="num">Wins</th><th class="num">Health lost</th><th class="num">Turns</th></tr></thead>
+<tbody>
+<tr><td>Beast (Grudge)</td><td class="num">12</td><td class="num">100%</td><td class="num">9%</td><td class="num">8.5</td></tr>
+<tr><td>Boss (Two turns)</td><td class="num">30</td><td class="num">100%</td><td class="num">18%</td><td class="num">9.2</td></tr>
+<tr><td>Bird (Two aims)</td><td class="num">12</td><td class="num">100%</td><td class="num">19%</td><td class="num">8.0</td></tr>
+<tr><td>Plant (Grows)</td><td class="num">12</td><td class="num">100%</td><td class="num">21%</td><td class="num">6.3</td></tr>
+<tr><td>Critter (Swarm)</td><td class="num">24</td><td class="num">100%</td><td class="num">27%</td><td class="num">7.9</td></tr>
+<tr><td>Water (Current)</td><td class="num">12</td><td class="num">100%</td><td class="num">32%</td><td class="num">7.9</td></tr>
+<tr><td>Reptile (Venom trail)</td><td class="num">12</td><td class="num">92%</td><td class="num">46%</td><td class="num">8.7</td></tr>
+</tbody></table>
+<p class="small">These are my own runs, with my own policies. They are not the tuner's bots and should not be compared with the changelog's figures. The gap between "careful" and "biggest number" is the same finding as the rules review of 13 November: reading the cost of a cell is worth more than any chain.</p>
+""")
+
+body = '\n'.join(B)
+
+toc = ['<div class="toc"><h2>Contents</h2><ol>']
+for lvl, hid, num, title in heads:
+    pg = pages.get(hid, '')
+    toc.append(f'<li class="l{lvl}"><span class="tn">{num}</span><span>{title}</span><span class="dots"></span><span class="pg">{pg}</span></li>')
+toc.append('</ol></div>')
+
+cover = f"""
+<div class="cover">
+  <div style="margin: 0 auto 18pt">{figs.svg(300, 150, figs.piece(20, 15, 120, 'Slip Past', 'Trick 6', figs.SLIP) + figs.piece(20 + 116, 15, 120, 'Chop', 'Hurt 5', {'L': 'hb', 'R': 'kb', 'T': 'kc', 'B': 'hc'}), 'Two linked pieces')}</div>
+  <h1>Puzzle Combat</h1>
+  <div class="sub">The rule book for the v1 board</div>
+  <div class="rule"></div>
+  <div class="meta">
+    Gnome Venture 2.6.986 · branch <code>claude/todo-md-jbud4h</code><br>
+    Written for the owner's review, 14 November 2026<br>
+    Rules as a <b>new fight</b> plays them today: 4 by 4 board, one shared Yield bar, class rules on<br><br>
+    Every rule here was read in the code (<code>game/includes/pfboard.php</code>, <code>pfight.php</code>, the data files).<br>
+    Most were also seen in play: 4 fights by hand and 684 by fixed policies, on the real engine.<br>
+    No game file was changed. No rule was invented.
+  </div>
+  <div class="meta" style="margin-top:22pt">
+    {P} seen in my own play &nbsp;&nbsp; {C} read in the code only &nbsp;&nbsp; {Q} could not verify
+  </div>
+</div>
+"""
+
+html = f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Puzzle Combat: the rule book for the v1 board (2.6.986)</title>
+<style>{CSS}</style></head>
+<body>
+{cover}
+{''.join(toc)}
+{body}
+</body></html>
+"""
+open(os.path.join(HERE, 'puzzle-combat-rulebook.html'), 'w').write(html)
+json.dump([[hid, num, title] for _, hid, num, title in heads], open(os.path.join(HERE, 'play', 'heads.json'), 'w'))
+print('written', len(html), 'bytes;', len(heads), 'headings')
