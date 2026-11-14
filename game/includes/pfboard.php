@@ -711,6 +711,7 @@ function pfb_gone_entry(array $s, array $p, bool $fell): array
     $e = ['id' => $p['id'], 'by' => $p['by'], 'x' => $p['x'], 'y' => $p['y'], 'tile' => $p['tile'], 'age' => $s['round'] - 1 - $p['born']];
     if ($fell) $e['fell'] = true;
     if (isset($p['used'])) $e['used'] = $p['used'];   // v1: used up by a chain of 3+ (whose chain it was)
+    if ($p['by'] === 'foe' && in_array($p['id'], $s['lastfoe'] ?? [], true)) $e['fnew'] = true;   // 2.6.986: the creature put it down this turn: the replay shows it at its own step, not from the first frame
     return $e;
 }
 

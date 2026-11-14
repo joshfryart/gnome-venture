@@ -1009,6 +1009,7 @@
     var e = { id: p.id, by: p.by, x: p.x, y: p.y, tile: p.tile, age: s.round - 1 - p.born };
     if (fell) e.fell = true;
     if (p.used !== undefined && p.used !== null) e.used = p.used;
+    if (p.by === 'foe' && (s.lastfoe || []).indexOf(p.id) >= 0) e.fnew = true;   // 2.6.986
     return e;
   }
   // Fire budget: after a chain has finished, creature pieces that have fired their limit fall away (to their discard); never mid-chain.

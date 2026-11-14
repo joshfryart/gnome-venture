@@ -25,6 +25,7 @@
   // ================= v1 (2.6.74 stage C): state, texts and drawing helpers. Ported from the approved demo (tools/pfdemo_v1/app.js); the texts mirror claude/design-board-strategy.md, "Player-facing terrain text".
   var V1 = data.v1 || {}, PREV = data.prev || null, phase = 'now', terOver = {}, movedBack = {}, usedGone = {}, leavingUsed = {}, flashEnv = null, flashIds = {}, aimHide = false, stepNow = 0, stepNote = '', aimLive = null;
   var ENV = !!V1.env, ENVD = data.env || { next: [] }, envLit = {}, slideIds = {}, fadeIds = {}, fxPop = null, stripRem = [], stripNew = false, stripBad = false, lastLegend = '';
+  if (willReplay) (data.gone || []).forEach(function (g) { if (g.fnew) hiddenIds[g.id] = true; });   // 2.6.986: a creature piece put down AND used up this turn shows at its own step, not from the first frame
   // T12 (2.6.95): the week-1 rules as the view resolved them (a fight under way keeps its own: 2.6.94 fights carry set-aside, must-link, the pass button, the once-a-turn flip, Teamwork, Wind and Mud)
   var MUSTL = V1.must === undefined || !!V1.must, ASIDE = V1.aside === undefined || !!V1.aside, FREEP = !!V1.freepass, FLIP1 = V1.flip1 === undefined || !!V1.flip1, TEAM = (V1.team2 || 1) > 1, ONE = !!V1.onebar, AIMT = !!V1.aimtot, NOWM = !!V1.nowm;
   var YIELD = data.yieldw || 'Yield';   // the creature's bar in a new-rule fight (PF_YIELD in pfboard.php sends it); a 2.6.94 fight keeps its health and charm bars
@@ -806,7 +807,7 @@
   function working() {   // the board as it stands with my planned piece (or group) on it (or, rewound, as it stood after a past piece scored)
     var m = {}, n = 0;
     if (rewind) { rewind.pieces.forEach(function (p) { m[p.x + ',' + p.y] = p; n++; }); return { map: m, count: n }; }
-    if (showGone) (data.gone || []).forEach(function (g) { if (usedGone[g.id]) return; m[g.x + ',' + g.y] = Object.assign({ gone: true }, g); n++; });
+    if (showGone) (data.gone || []).forEach(function (g) { if (usedGone[g.id] || hiddenIds[g.id]) return; m[g.x + ',' + g.y] = Object.assign({ gone: true }, g); n++; });
     data.pcs.forEach(function (p) { if ((hideSpawn && p.spawn) || hiddenIds[p.id]) return; var q = movedBack[p.id] ? Object.assign({}, p, movedBack[p.id]) : p; m[q.x + ',' + q.y] = q; n++; });
     var mv = moves[0];
     if (mv && mv.k === 'p') { m[mv.x + ',' + mv.y] = { x: mv.x, y: mv.y, by: 'me', t: data.hand[mv.i].t, e: data.hand[mv.i].e, tag: data.hand[mv.i].tag, m: data.hand[mv.i].m, ghost: true, n: tiles[mv.i].dataset.name, v: tiles[mv.i].dataset.v }; n++; }
