@@ -512,7 +512,7 @@
   var PFB_SRC_FAM = { pal: 'body', tool: 'craft', crop: 'mind', craft: 'craft' }, PFB_UP = { hurt: 1, charm: 1, trick: 1 };
   var PFB_CLASS_LEAN = { critter: 'mind', insect: 'mind', water: 'body', bird: 'craft', plant: 'mind', fungus: 'mind', reptile: 'craft', amphibian: 'craft', beast: 'body' };
   var PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4, PFB_TOOL_WEAR = 2;
-  var PFB_V1_FOE_MULT = { small: 0.95, medium: 0.60, large: 0.42, boss: 0.585 }, PFB_V1_BAR_MULT = { small: 0.828, medium: 0.994, large: 1.15, boss: 0.611 };   // after 2.6.94 (AIMSTICK): boss x1.3 with its bar x0.8 (was 0.45 / 0.764)
+  var PFB_V1_FOE_MULT = { small: 0.855, medium: 0.48, large: 0.378, boss: 0.585 }, PFB_V1_BAR_MULT = { small: 1.325, medium: 1.491, large: 1.495, boss: 0.825 };   // week-1 retune (T13): was 0.95 / 0.60 / 0.42 / 0.585 and 0.828 / 0.994 / 1.15 / 0.611;   // after 2.6.94 (AIMSTICK): boss x1.3 with its bar x0.8 (was 0.45 / 0.764)
   // after 2.6.94: the LEVEL CURVE (PFB_V1_LEVEL in pfboard.php, where the why is): f = clamp(1 + slope x (level - ref), lo, hi) as [slope, ref, lo, hi]; piece values x f, bar x min(1, f)
   var PFB_V1_LEVEL = { small: [0.0, 1, 1.0, 1.0], medium: [0.05, 12, 0.85, 1.35], large: [0.025, 22, 0.85, 1.10], boss: [0.0, 1, 1.0, 1.0] };
   // the compat rules (PFB_V1_PRE in pfboard.php, where the keys are explained): a saved fight without a key plays by the 2.6.94 value
