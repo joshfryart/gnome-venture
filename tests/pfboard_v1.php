@@ -608,9 +608,9 @@ $s = $aimBoard(true); $tot = function_exists('pfb_aim_total') ? pfb_aim_total($s
 chk('aim total: its chain fires your Jab: bait > 0 and why says "fires your Jab"', is_array($tot) && $tot['bait'] > 0 && in_array('fires your Jab', $tot['why'], true), $tot);
 $s = $aimBoard(false); $s['me']['block'] = 5; $tot = function_exists('pfb_aim_total') ? pfb_aim_total($s) : null; $hp0 = $s['me']['hp']; pfb_pass($s, $s['turn']);
 chk('aim total: your guard is eaten first (g) and hp is what gets through', is_array($tot) && $tot['g'] === 5 && $tot['hp'] === $hp0 - $s['me']['hp'], $tot);
-$s = $aimBoard(false, ['limit' => 0]); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)];   // no use-up here, so the pieces it would link are still there
+$s = $aimBoard(false, ['limit' => 0, 'aimhit' => 0]); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)];   // no use-up here, so the pieces it would link are still there
 $d = pfb_play($s, [[0, 2, 1]], $s['turn'], null, true, true);
-chk('aim total: a piece of yours on the aimed cell: the dry run says aim.broken === "cell"', $d['err'] === null && isset($d['aim']['broken']) && $d['aim']['broken'] === 'cell', $d['aim'] ?? 'no aim');
+chk('aim total: a piece of yours on the aimed cell: the dry run says aim.broken === "cell" (aimhit off; with aimhit a Hurt aim reads strike, section 17)', $d['err'] === null && isset($d['aim']['broken']) && $d['aim']['broken'] === 'cell', $d['aim'] ?? 'no aim');
 $s = $aimBoard(false, ['limit' => 0]); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)]; $s['me']['hp'] = 60;
 $d = pfb_play($s, [[0, 0, 1]], $s['turn'], null, true, true); $dn = pfb_play($s, [[0, 0, 1]], $s['turn'], null, true);
 chk('aim total: a placement off the aim cell: aim carries the total, and without withAim the dry result has no aim', $d['err'] === null && !isset($d['aim']['broken']) && isset($d['aim']['hp']) && !array_key_exists('aim', $dn), [$d['aim'] ?? null, array_keys($dn)]);
