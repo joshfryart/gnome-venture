@@ -94,7 +94,7 @@
         var ln = PFE.line(e, c.name), rp = { id: (e.id !== undefined && e.id !== null) ? +e.id : null, by: String(e.by), ta: String(e.ta || e.by), ln: ln, bar: e.barnow !== undefined ? e.barnow : null, fh: e.fhnow !== undefined ? e.fhnow : null, hp: e.hpnow !== undefined ? e.hpnow : null, g: e.gnow !== undefined ? e.gnow : null, n: String(e.n || ''), t: String(e.t || '') };
         if (e.env !== undefined) { rp.env = String(e.env); rp.x = e.x !== undefined ? e.x : null; rp.y = e.y !== undefined ? e.y : null; rp.dir = e.dir !== undefined ? e.dir : null; rp.moved = e.moved !== undefined ? e.moved : null; rp.ids = e.ids !== undefined ? e.ids : null; rp.me = e.me || 0; rp.foe = e.foe || 0; if (e.kind !== undefined) rp.kind = String(e.kind); if (e['for'] !== undefined) rp['for'] = String(e['for']); if (e.guard !== undefined) rp.guard = e.guard | 0; }
         if (e.strike) { rp.strike = 1; rp.broke = !!e.broke; }   // 2.6.98 aimhit
-        if (e.note !== undefined) rp.note = String(e.note); if (e.used && e.used.length) rp.used = e.used; if (e.tw) rp.tw = e.tw; if (e.sun) rp.sun = 1; if (e.mud) rp.mud = 1; if (e.full) rp.full = 1;
+        if (e.note !== undefined) { rp.note = String(e.note); if (e.moved !== undefined) rp.moved = e.moved; } if (e.used && e.used.length) rp.used = e.used; if (e.tw) rp.tw = e.tw; if (e.sun) rp.sun = 1; if (e.mud) rp.mud = 1; if (e.full) rp.full = 1;
         enc.replay.push(rp);
       });
       var keys = Object.keys(snaps).map(Number).sort(function (a, b) { return a - b; }).slice(-14), ns = {}; keys.forEach(function (k) { ns[k] = snaps[k]; });

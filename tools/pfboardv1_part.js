@@ -417,10 +417,12 @@
     var pushes = {};
     (data.replay || []).forEach(function (ev) {
       if (ev.env === 'place' && ev.id) hiddenIds[ev.id] = true;
+      if (ev.note === 'grows' && ev.id) hiddenIds[ev.id] = true;   // 2.6.985: a Plant's Bramble appears at its own step, not while your turn resolves
       if (ev.env === 'fire' && ev.kind === 'wind' && ev.moved && ev.moved.id !== undefined && ev.dir && DXY[ev.dir]) { var d = DXY[ev.dir]; (pushes[ev.moved.id] = pushes[ev.moved.id] || []).push({ x: ev.moved.x - d[0], y: ev.moved.y - d[1] }); }
     });
     movedBack = {}; envPush = {};
     Object.keys(pushes).forEach(function (id) { movedBack[id] = pushes[id][0]; envPush[id] = pushes[id].slice(1); });
+    (data.replay || []).forEach(function (ev) { if (ev.note === 'current' && ev.moved && ev.moved.id !== undefined && typeof ev.moved.fx === 'number') movedBack[ev.moved.id] = { x: ev.moved.fx, y: ev.moved.fy }; });   // 2.6.985: a Water current pushes your piece at its own step, not before
   }
   function replayDone() { banMs = 1450; if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
     fxPop = null; fadeIds = {}; slideIds = {}; phase = 'now'; terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = ''; }
@@ -445,6 +447,8 @@
       flashIds[ev.id] = 1; fxPop = { id: ev.id, t: K.n, kind: ev.kind };
     } else if (ev.env === 'pass') { stripBad = true; }
     else if (ev.env === 'expire') { (ev.ids || []).forEach(function (id) { fadeIds[id] = 1; }); }
+    else if (ev.note === 'current' && ev.moved && ev.moved.id !== undefined) { delete movedBack[ev.moved.id]; flashIds[ev.moved.id] = 1; }   // 2.6.985
+    else if (ev.note === 'grows' && ev.id) { flashIds[ev.id] = 1; fxPop = { id: ev.id, t: 'Bramble', kind: 'bramble' }; }
     render(); drawLegend();
   }
   function envStep(ev) {

@@ -82,6 +82,7 @@ ck "T12 the aim carries its total (hp, guard eaten, bait, heal, pieces, why)" "$
 ck "T16 the board script knows the strike: aim chip text, red mark, crack in the replay, help text" "$(cd "$HERE/../game/assets" && echo $(grep -c 'will strike your' pfboardv1.js)$(grep -c 'pfv-struck' pfboardv1.js)$(grep -c 'aim.strike' pfv1.css))" "112"
 ck "T21 the board script knows the class rules: rule chip, second aim, next piece, venom cells" "$(cd "$HERE/../game/assets" && echo $(grep -c 'kindChip' pfboardv1.js)$(grep -c 'mk venom' pfboardv1.js)$(grep -c 'aimExtra' pfboardv1.js)$(grep -c 'tg.kind' pfv1.css))" "2131"
 ck "T21 the page data carries the class rule (kind, grudge, venom cells): the chip and the venom marks read them" "$(grep -c '"kind":"[a-z]*","grudge":[0-9]*,"ven":\[' $H)" "1"
+ck "2.6.985 a Plant's Bramble and a Water push wait for their replay step (hidden / moved back until then)" "$(cd "$HERE/../game/assets" && echo $(grep -c "note === .grows. && ev.id) hiddenIds" pfboardv1.js)$(grep -c "note === .current. && ev.moved" pfboardv1.js))" "12"
 MV=$(php "$HERE/pfboard_move.php" "$GAME" 2>&1 | tail -1)
 case "$MV" in [0-9]*,*) ENVP=$(enc); pf pfb_preview -d moves="$MV" >/dev/null; ck "T12 the preview answer holds the aim as it would stand (a total or 'broken')" "$(grep -c '"ok":true.*"aim":{' $H)" "1"; ck "T12 the preview changed nothing" "$(enc)" "$ENVP";; *) echo "skip preview (no placement: $MV)";; esac
 echo "== flip"
