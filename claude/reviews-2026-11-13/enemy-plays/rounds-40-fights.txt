@@ -1,0 +1,1050 @@
+
+=== FIGHT 0 aphid-swarm (small L1) seed 1000 board 4x4
+R1 aim shown: Swarm at 2,1 why[Quick: plays again] | env places 2, passes 0
+  PLACES Swarm hurt 2 (#5) = RE-PICK (not the shown aim Swarm)
+  QUICK note (Swarm): one more piece
+  PLACES Cloud Up guard 2 (#6) = QUICK EXTRA (never shown)
+  chain fires YOUR Chop #2 (works for you)
+R2 aim shown: River Silt at 3,3 why[] | env places 2, passes 0
+  PLACES River Silt heal 2 (#10) = the shown aim
+  chain fires its own Swarm hurt 2 #5
+  chain fires its own Chitin Shell guard 2 #3
+  END OF ROUND: board PUTS OUT Skitter trick 2 (#13) for the creature at 3,3 (spawn, no caption)
+R3 aim shown: Sting at 2,3 why[Sun x2] | env places 2, passes 0
+  PLACES Sting hurt 3 (#15) = the shown aim
+R4 aim shown: Nip at 1,1 why[fires Thornburst; fires Rain] | env places 1, passes 0
+  PLACES Nip hurt 4 (#19) = RE-PICK (not the shown aim Nip)
+  chain fires ENV Thornburst #17 for creature (you -0), on board before your move, named in aim reasons
+  chain fires ENV Rain #7 for creature (+5 guard), on board before your move, named in aim reasons
+
+=== FIGHT 1 sun-lizard (medium L8) seed 1013 board 4x4
+R1 aim shown: Tail Lash at 3,3 why[] | env places 2, passes 0
+  PLACES Tail Lash hurt 3 (#5) = the shown aim
+  chain fires its own Laterite Crust guard 3 #3
+R2 aim shown: Bite at 3,2 why[combo Double Swing] | env places 2, passes 0
+  PLACES Bite hurt 3 (#9) = the shown aim
+  chain fires its own Tail Lash hurt 5 #5
+  chain fires its own Laterite Crust guard 3 #3
+  END OF ROUND: board PUTS OUT Tail Drop guard 2 (#12) for the creature at 0,1 (spawn, no caption)
+R3 aim shown: Scale Guard at 2,3 why[fires Rain] | env places 2, passes 0
+  PLACES Scale Guard guard 3 (#14) = the shown aim
+  chain fires ENV Rain #10 for creature (+11 guard), on board before your move, named in aim reasons
+R4 aim shown: Venom Spit at 0,3 why[fires Rain; fires Rain] | env places 2, passes 0
+  PLACES Venom Spit trick 2 (#18) = the shown aim
+  chain fires ENV Rain #10 for creature (+11 guard), on board before your move, named in aim reasons
+  chain fires ENV Rain #16 for creature (+11 guard), on board before your move, named in aim reasons
+  chain fires its own Scale Guard guard 3 #14
+  END OF ROUND: board PUTS OUT Sun Bask heal 2 (#21) for the creature at 1,2 (spawn, no caption)
+R5 aim shown: Lizard Dart at 2,0 why[Sun x2; Quick: plays again] | env places 2, passes 0
+  PLACES Venom Spit trick 2 (#23) = RE-PICK (not the shown aim Lizard Dart)
+  chain fires ENV Bramble #19 for creature (you -4), on board before your move, NOT in aim reasons
+  chain fires its own Sun Bask heal 2 #21 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+R6 aim shown: Lizard Dart at 3,1 why[Sun x2; fires your Hum; Quick: plays again] | env places 2, passes 0
+  PLACES Lizard Dart hurt 3 (#27) = the shown aim
+  QUICK note (Lizard Dart): one more piece
+  PLACES Laterite Crust guard 3 (#28) = QUICK EXTRA (never shown)
+  chain fires its own Lizard Dart hurt 5 #27
+  END OF ROUND: board PUTS OUT Tail Drop guard 2 (#31) for the creature at 0,0 (spawn, no caption)
+
+=== FIGHT 2 jungle-tiger (large L26) seed 1026 board 4x4
+R1 aim shown: Tiger Pounce at 2,1 why[] | env places 2, passes 0
+  PLACES Tiger Pounce hurt 10 (#5) = RE-PICK (not the shown aim Tiger Pounce)
+R2 aim shown: Shoulder Barge at 0,1 why[Sun x2] | env places 2, passes 0
+  PLACES Shoulder Barge trick 8 (#9) = the shown aim
+  chain fires ENV Sun #7 for creature (x2), on board before your move, named in aim reasons
+R3 aim shown: Rake Claws at 2,0 why[fires Rain] | env places 2, passes 0
+  PLACES Rake Claws hurt 7 (#13) = the shown aim
+  chain fires ENV Rain #6 for creature (+30 guard), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Stripe Stalk trick 4 (#16) for the creature at 2,1 (spawn, no caption)
+R4 aim shown: Slam at 2,2 why[combo Ambush; fires Rain; fires Rain; fires Thornburst] | env places 2, passes 0
+  PLACES Slam hurt 9 (#18) = the shown aim
+  chain fires ENV Thornburst #11 for creature (you -0), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Brace guard 5 (#21) for the creature at 1,0 (spawn, no caption)
+R5 aim shown: Maul at 2,3 why[combo Double Swing; fires Thornburst] | env places 1, passes 1
+  PLACES Maul hurt 8 (#23) = the shown aim
+R6 aim shown: Stripe Stalk at 2,2 why[combo Ambush; fires Bramble] | env places 2, passes 0
+  PLACES Claw hurt 7 (#26) = RE-PICK (not the shown aim Stripe Stalk)
+  chain fires ENV Bramble #24 for creature (you -11), on board before your move, named in aim reasons
+  chain fires its own Maul hurt 10 #23
+  END OF ROUND: board PUTS OUT Stripe Stalk trick 4 (#29) for the creature at 3,3 (spawn, no caption)
+R7 aim shown: Paddy Surge at 2,2 why[fires Rain; fires your Thorn Cut; fires Bramble] | env places 2, passes 0
+  PLACES Paddy Surge hurt 7 (#31) = the shown aim
+  END OF ROUND: board PUTS OUT Shoulder Barge trick 4 (#34) for the creature at 0,0 (spawn, no caption)
+R7 aim shown: Rake Claws at 2,3 why[combo Double Swing; fires Rain] | env places 0, passes 0
+  PLACES Rake Claws hurt 7 (#36) = the shown aim
+  chain fires YOUR Smash #35 (works for you)
+  END OF ROUND: board PUTS OUT Shoulder Barge trick 4 (#34) for the creature at 0,0 (spawn, no caption)
+
+=== FIGHT 3 reef-leviathan (boss L29) seed 1039 board 4x4
+R1 aim shown: Canopy Drop at 3,3 why[] | env places 2, passes 0
+  PLACES Canopy Drop hurt 10 (#6) = the shown aim
+  chain fires its own Slick Hide guard 6 #4
+R2 aim shown: Crush at 3,2 why[combo Double Swing] | env places 2, passes 0
+  poison Poison
+  PLACES Crush hurt 10 (#10) = the shown aim
+R3 aim shown: Tidal Slam at 0,2 why[fires Bramble] | env places 2, passes 0
+  poison Poison
+  PLACES Tidal Slam hurt 10 (#14) = RE-PICK (not the shown aim Tidal Slam)
+  chain fires its own Crush hurt 12 #10
+R4 aim shown: Splash at 0,3 why[fires your Swing; fires Bramble; fires Bramble] | env places 2, passes 0
+  PLACES Splash hurt 7 (#18) = the shown aim
+
+=== FIGHT 4 earwig (small L4) seed 1052 board 4x4
+R1 aim shown: Nip at 2,1 why[] | env places 2, passes 0
+  PLACES Nip hurt 5 (#5) = RE-PICK (not the shown aim Nip)
+R2 aim shown: Night Scuttle at 0,0 why[fires Rain; Quick: plays again] | env places 2, passes 0
+  PLACES Night Scuttle trick 2 (#8) = the shown aim
+  chain fires ENV Rain #7 for creature (+6 guard), on board before your move, named in aim reasons
+  QUICK note (Night Scuttle): one more piece
+R3 aim shown: none | env places 0, passes 2
+
+R4 aim shown: none | env places 2, passes 0
+
+R5 aim shown: Pincer at 3,2 why[fires Rain] | env places 2, passes 0
+  PLACES Pincer hurt 5 (#15) = the shown aim
+  chain fires ENV Rain #13 for creature (+6 guard), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Chitin Shell guard 3 (#18) for the creature at 2,2 (spawn, no caption)
+R6 aim shown: Laterite Crust at 0,0 why[fires your Pierce; fires Bramble] | env places 2, passes 0
+  PLACES Laterite Crust guard 4 (#20) = the shown aim
+R7 aim shown: Tuck Under at 2,1 why[combo Riposte; fires Rain; fires Rain] | env places 0, passes 2
+
+
+=== FIGHT 5 carrion-crow (medium L9) seed 1065 board 4x4
+R1 aim shown: Dive Bomb at 1,3 why[fires your Sow Doubt] | env places 2, passes 0
+  poison Poison
+  PLACES Dive Bomb hurt 4 (#5) = the shown aim
+  chain fires its own Flutter Off trick 1 #3
+  chain fires YOUR Sow Doubt #2 (works for you)
+  chain fires YOUR Compost Lob #4 (works for you)
+  END OF ROUND: board PUTS OUT Hat Snatch trick 1 (#8) for the creature at 2,0 (spawn, no caption)
+R2 aim shown: Mob Caw at 2,1 why[fires Thornburst; Quick: plays again] | env places 2, passes 0
+  poison Poison
+  PLACES Mob Caw hurt 3 (#10) = the shown aim
+  QUICK note (Mob Caw): one more piece
+  PLACES Peck hurt 4 (#11) = QUICK EXTRA (never shown)
+  chain fires its own Mob Caw hurt 5 #10
+  END OF ROUND: board PUTS OUT Wing Cover guard 2 (#14) for the creature at 2,2 (spawn, no caption)
+R3 aim shown: Humus Hide at 1,0 why[combo Riposte; fires Rain] | env places 2, passes 0
+  poison Poison
+  PLACES Humus Hide guard 3 (#16) = the shown aim
+  chain fires its own Peck hurt 6 #11
+  chain fires ENV Rain #6 for creature (+11 guard), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Flutter Off trick 1 (#19) for the creature at 1,0 (spawn, no caption)
+R4 aim shown: Talon Dive at 0,0 why[Sun x2; fires Rain] | env places 2, passes 0
+  PLACES Talon Dive hurt 8 (#21) = the shown aim
+  chain fires its own Flutter Off trick 2 #19 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires ENV Rain #17 for creature (+11 guard), on board before your move, named in aim reasons
+  chain fires ENV Sun #18 for creature (x2), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Wing Cover guard 2 (#24) for the creature at 2,0 (spawn, no caption)
+R5 aim shown: Dive Bomb at 0,3 why[fires Rain; fires your Pierce] | env places 2, passes 0
+  PLACES Dive Bomb hurt 4 (#26) = the shown aim
+R5 aim shown: Peck at 0,2 why[combo Double Swing] | env places 0, passes 0
+  PLACES Peck hurt 4 (#30) = RE-PICK (not the shown aim Peck)
+  chain fires ENV Thornburst #22 for creature (you -0), on board before your move, NOT in aim reasons
+
+=== FIGHT 6 lichen-reindeer (large L28) seed 1078 board 4x4
+R1 aim shown: Slam at 3,3 why[] | env places 2, passes 0
+  PLACES Slam hurt 9 (#5) = the shown aim
+  chain fires its own Laterite Crust guard 5 #3
+R2 aim shown: Downpour at 3,2 why[combo Double Swing] | env places 2, passes 0
+  PLACES Downpour hurt 8 (#9) = the shown aim
+  chain fires its own Slam hurt 11 #5
+  chain fires its own Laterite Crust guard 5 #3
+  END OF ROUND: board PUTS OUT Snow Dig heal 4 (#12) for the creature at 2,3 (spawn, no caption)
+R3 aim shown: Brace at 3,0 why[fires Thornburst] | env places 2, passes 0
+  PLACES Brace guard 5 (#14) = the shown aim
+  chain fires ENV Thornburst #7 for creature (you -0), on board before your move, named in aim reasons
+R4 aim shown: Antler Sweep at 0,2 why[fires Rain; fires your Pierce; fires Bramble; fires Bramble] | env places 2, passes 0
+  PLACES Antler Sweep hurt 9 (#18) = the shown aim
+R5 aim shown: Shoulder Barge at 1,2 why[Sun x2; combo Ambush; fires Thornburst] | env places 2, passes 0
+  PLACES Shoulder Barge trick 8 (#22) = the shown aim
+  chain fires ENV Sun #20 for creature (x2), on board before your move, named in aim reasons
+  chain fires ENV Thornburst #16 for creature (you -0), on board before your move, named in aim reasons
+  chain fires its own Antler Sweep hurt 36 #18
+  END OF ROUND: board PUTS OUT Herd Wheel guard 5 (#25) for the creature at 0,2 (spawn, no caption)
+
+=== FIGHT 7 old-bramblehorn (boss L30) seed 1091 board 4x4
+R1 aim shown: Crush at 3,3 why[] | env places 2, passes 0
+  PLACES Crush hurt 10 (#6) = the shown aim
+  chain fires its own Bramble Coat guard 6 #4
+R2 aim shown: Lash Vine at 3,2 why[combo Double Swing] | env places 2, passes 0
+  PLACES Lash Vine hurt 7 (#10) = the shown aim
+  chain fires its own Crush hurt 12 #6
+  chain fires its own Bramble Coat guard 6 #4
+  END OF ROUND: board PUTS OUT Terra Wall guard 6 (#13) for the creature at 1,1 (spawn, no caption)
+R3 aim shown: Stone Throw at 3,2 why[fires Bramble] | env places 2, passes 0
+  PLACES Horn Gore hurt 10 (#15) = RE-PICK (not the shown aim Stone Throw)
+  chain fires its own Terra Wall guard 6 #13 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires its own Sap Mend trick 3 #3
+  END OF ROUND: board PUTS OUT Scheme trick 4 (#18) for the creature at 2,3 (spawn, no caption)
+R4 aim shown: Stone Throw at 2,0 why[fires Thornburst] | env places 2, passes 0
+  END OF ROUND: board PUTS OUT Ancient Root heal 4 (#22) for the creature at 3,0 (spawn, no caption)
+R5 aim shown: none | env places 2, passes 0
+  PLACES Spore Puff hurt 12 (#24) = PLAYED WITH NO AIM SHOWN
+  chain fires ENV Rain #21 for creature (+34 guard), on board before your move, NOT in aim reasons
+  chain fires ENV Sun #17 for creature (x2), on board before your move, NOT in aim reasons
+  chain fires ENV Thornburst #20 for creature (you -0), on board before your move, NOT in aim reasons
+  chain fires YOUR Spare Handle #19 (works for you)
+  chain fires its own Ancient Root heal 8 #22 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires ENV Rain #16 for creature (+34 guard), on board before your move, NOT in aim reasons
+R6 aim shown: Stone Throw at 2,1 why[fires Bramble] | env places 2, passes 0
+  PLACES Stone Throw hurt 8 (#28) = the shown aim
+  chain fires ENV Bramble #25 for creature (you -12), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Bramble Mantle guard 6 (#31) for the creature at 1,3 (spawn, no caption)
+
+=== FIGHT 8 dusk-moth (small L3) seed 1104 board 4x4
+R1 aim shown: Sting at 3,1 why[] | env places 2, passes 0
+  PLACES Sting hurt 3 (#5) = the shown aim
+  chain fires its own Wing Dust trick 2 #3
+R2 aim shown: Flutter Bump at 3,3 why[combo Ambush] | env places 2, passes 0
+  PLACES Flutter Bump hurt 3 (#9) = the shown aim
+  END OF ROUND: board PUTS OUT Skitter trick 2 (#12) for the creature at 1,3 (spawn, no caption)
+R3 aim shown: Nip at 3,2 why[combo Double Swing; fires Rain] | env places 2, passes 0
+  PLACES Nip hurt 4 (#14) = the shown aim
+  chain fires ENV Rain #10 for creature (+6 guard), on board before your move, named in aim reasons
+  chain fires its own Flutter Bump hurt 5 #9
+  END OF ROUND: board PUTS OUT Dusk Veil guard 2 (#17) for the creature at 3,2 (spawn, no caption)
+R4 aim shown: Chitin Shell at 3,3 why[fires Rain] | env places 2, passes 0
+  PLACES Chitin Shell guard 2 (#19) = the shown aim
+  chain fires its own Dusk Veil guard 2 #17 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires ENV Rain #15 for creature (+6 guard), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Skitter trick 2 (#22) for the creature at 3,1 (spawn, no caption)
+
+=== FIGHT 9 dune-scorpion (medium L10) seed 1117 board 4x4
+R1 aim shown: Claw Grab at 2,1 why[] | env places 2, passes 0
+  PLACES Claw Grab hurt 3 (#5) = the shown aim
+R2 aim shown: Plate Up at 3,3 why[] | env places 2, passes 0
+  PLACES Plate Up guard 3 (#9) = the shown aim
+  chain fires its own River Silt heal 2 #3
+R3 aim shown: Skitter at 1,0 why[fires Bramble; Quick: plays again] | env places 2, passes 0
+  PLACES Chitin Shell guard 2 (#13) = RE-PICK (not the shown aim Skitter)
+  chain fires its own Plate Up guard 3 #9
+  chain fires its own River Silt heal 2 #3
+  END OF ROUND: board PUTS OUT Skitter trick 1 (#16) for the creature at 2,2 (spawn, no caption)
+R4 aim shown: Tail Sting at 2,0 why[fires your Slip Past; fires Bramble; fires Rain] | env places 2, passes 0
+  PLACES Tail Sting hurt 3 (#18) = the shown aim
+  chain fires YOUR Slip Past #12 (works for you)
+  chain fires ENV Bramble #6 for creature (you -5), on board before your move, named in aim reasons
+  chain fires ENV Rain #7 for creature (+12 guard), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Skitter trick 1 (#21) for the creature at 2,1 (spawn, no caption)
+R5 aim shown: Sting at 1,1 why[Sun x2] | env places 2, passes 0
+  PLACES Nip hurt 3 (#23) = RE-PICK (not the shown aim Sting)
+  END OF ROUND: board PUTS OUT Plate Up guard 3 (#26) for the creature at 2,0 (spawn, no caption)
+
+=== FIGHT 10 wolverine (large L21) seed 1130 board 4x4
+R1 aim shown: Maul at 3,1 why[] | env places 2, passes 0
+  PLACES Maul hurt 6 (#5) = the shown aim
+  chain fires its own Brace guard 4 #3
+R2 aim shown: Stone Throw at 3,0 why[combo Double Swing] | env places 2, passes 0
+  PLACES Stone Throw hurt 6 (#9) = RE-PICK (not the shown aim Stone Throw)
+  END OF ROUND: board PUTS OUT Shoulder Barge trick 3 (#12) for the creature at 1,0 (spawn, no caption)
+R3 aim shown: Ripping Bite at 0,1 why[fires Bramble] | env places 2, passes 0
+  PLACES Ripping Bite hurt 7 (#14) = the shown aim
+R4 aim shown: Claw at 0,0 why[Sun x2; combo Double Swing] | env places 2, passes 0
+  PLACES Claw hurt 12 (#18) = the shown aim
+  chain fires ENV Sun #15 for creature (x2), on board before your move, named in aim reasons
+  chain fires its own Ripping Bite hurt 18 #14
+
+=== FIGHT 11 dune-wyrm (boss L30) seed 1143 board 4x4
+R1 aim shown: Crush at 2,0 why[] | env places 2, passes 0
+  PLACES Crush hurt 10 (#6) = the shown aim
+  chain fires its own Venom Spit trick 4 #3
+R2 aim shown: Bog Grip at 1,0 why[combo Double Swing; fires Rain] | env places 2, passes 0
+  SLOW: it loses its turn
+R3 aim shown: Bog Grip at 1,0 why[combo Double Swing; fires Rain] | env places 2, passes 0
+  poison Poison
+  SLOW: it loses its turn
+  END OF ROUND: board PUTS OUT Mist Veil guard 5 (#15) for the creature at 1,0 (spawn, no caption)
+R4 aim shown: Bog Grip at 2,2 why[Sun x2] | env places 2, passes 0
+  poison Poison
+  PLACES Bog Grip hurt 16 (#17) = RE-PICK (not the shown aim Bog Grip)
+  chain fires YOUR Samara Spin #16 (works for you)
+  chain fires ENV Sun #14 for creature (x2), on board before your move, named in aim reasons
+
+=== FIGHT 12 leopard-slug (small L2) seed 1156 board 4x4
+R1 aim shown: Nip at 2,1 why[] | env places 2, passes 0
+  PLACES Nip hurt 4 (#5) = the shown aim
+R2 aim shown: Slug Lunge at 0,0 why[Sun x2] | env places 2, passes 0
+  PLACES Slug Lunge hurt 3 (#9) = the shown aim
+R3 aim shown: Sting at 1,0 why[combo Double Swing; fires Rain] | env places 2, passes 0
+  PLACES Sting hurt 3 (#13) = the shown aim
+  chain fires ENV Rain #10 for creature (+6 guard), on board before your move, named in aim reasons
+  chain fires its own Slug Lunge hurt 5 #9
+  END OF ROUND: board PUTS OUT River Silt heal 2 (#16) for the creature at 0,0 (spawn, no caption)
+
+=== FIGHT 13 giant-centipede (medium L11) seed 1169 board 4x4
+R1 aim shown: Sting at 2,1 why[] | env places 2, passes 0
+  poison Poison
+  PLACES Sting hurt 3 (#5) = RE-PICK (not the shown aim Sting)
+R2 aim shown: Coil Up at 1,3 why[combo Riposte; fires your Garden Greens] | env places 2, passes 0
+  poison Poison
+  PLACES Coil Up guard 3 (#8) = the shown aim
+  chain fires its own Sting hurt 5 #5
+  chain fires YOUR Garden Greens #2 (works for you)
+R3 aim shown: Chitin Shell at 3,3 why[] | env places 2, passes 0
+  poison Poison
+  PLACES Chitin Shell guard 3 (#12) = the shown aim
+  chain fires its own Sea Breeze heal 2 #3
+  END OF ROUND: board PUTS OUT Skitter trick 2 (#15) for the creature at 0,1 (spawn, no caption)
+R4 aim shown: Venom Jaws at 2,0 why[fires Rain] | env places 2, passes 0
+  poison Poison
+  PLACES Venom Jaws hurt 4 (#17) = the shown aim
+  chain fires ENV Rain #6 for creature (+14 guard), on board before your move, named in aim reasons
+
+=== FIGHT 14 delta-gharial (large L24) seed 1182 board 4x4
+R1 aim shown: Petal Storm at 2,1 why[Quick: plays again] | env places 2, passes 0
+  PLACES Petal Storm hurt 6 (#5) = the shown aim
+  chain fires YOUR Chop #4 (works for you)
+  chain fires YOUR Hoe Hook #2 (works for you)
+  QUICK note (Petal Storm): one more piece
+  PLACES Thin Snout hurt 7 (#6) = QUICK EXTRA (never shown)
+  chain fires its own Venom Spit trick 4 #3
+R2 aim shown: Slam at 2,2 why[combo Ambush] | env places 2, passes 0
+  poison Poison
+  PLACES Slam hurt 8 (#10) = the shown aim
+  chain fires YOUR Compost Lob #9 (works for you)
+  chain fires ENV Rain #8 for creature (+29 guard), on board before your move, NOT in aim reasons
+  chain fires its own Venom Spit trick 4 #3
+  chain fires its own Thin Snout hurt 15 #6
+  END OF ROUND: board PUTS OUT Terrace Wall guard 5 (#13) for the creature at 2,2 (spawn, no caption)
+R3 aim shown: River Drift at 3,0 why[fires Rain] | env places 2, passes 0
+  poison Poison
+  PLACES River Drift guard 5 (#15) = the shown aim
+  chain fires ENV Rain #12 for creature (+29 guard), on board before your move, named in aim reasons
+R4 aim shown: Bite at 1,2 why[Sun x2; fires Thornburst] | env places 2, passes 0
+  poison Poison
+  SLOW: it loses its turn
+
+=== FIGHT 15 snow-owl-monarch (boss L30) seed 1195 board 4x4
+R1 aim shown: Crush at 2,0 why[] | env places 2, passes 0
+  poison Poison
+  PLACES Crush hurt 10 (#6) = the shown aim
+  chain fires its own Flutter Off trick 3 #3
+R2 aim shown: Bog Grip at 1,0 why[combo Double Swing; fires Rain; fires Rain] | env places 2, passes 0
+  poison Poison
+  PLACES Bog Grip hurt 8 (#10) = the shown aim
+  chain fires ENV Rain #7 for creature (+34 guard), on board before your move, named in aim reasons
+  chain fires its own Crush hurt 12 #6
+  chain fires its own Flutter Off trick 3 #3
+  chain fires ENV Rain #8 for creature (+34 guard), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Mist Veil guard 5 (#13) for the creature at 2,2 (spawn, no caption)
+R3 aim shown: Frost Wing at 1,0 why[fires Bramble] | env places 2, passes 0
+  poison Poison
+  PLACES Frost Wing hurt 8 (#15) = RE-PICK (not the shown aim Frost Wing)
+  chain fires its own Wing Cover guard 5 #4
+  chain fires its own Mist Veil guard 5 #13 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  END OF ROUND: board PUTS OUT Scheme trick 4 (#18) for the creature at 0,1 (spawn, no caption)
+R4 aim shown: Royal Talon at 0,0 why[Sun x2; fires Bramble] | env places 2, passes 0
+  PLACES Royal Talon hurt 10 (#20) = the shown aim
+  END OF ROUND: board PUTS OUT Snow Glare trick 4 (#23) for the creature at 3,3 (spawn, no caption)
+R5 aim shown: Talon Dive at 3,2 why[fires Bramble] | env places 2, passes 0
+  PLACES Talon Dive hurt 9 (#25) = the shown aim
+
+=== FIGHT 16 ant-scouts (small L2) seed 1208 board 4x4
+R1 aim shown: Sting at 2,1 why[] | env places 2, passes 0
+  PLACES Sting hurt 3 (#5) = RE-PICK (not the shown aim Sting)
+R2 aim shown: Nip at 0,2 why[fires your Garden Greens] | env places 2, passes 0
+  PLACES Nip hurt 4 (#9) = the shown aim
+  chain fires YOUR Garden Greens #2 (works for you)
+R3 aim shown: Scout Bite at 2,2 why[combo Double Swing; fires your Garden Greens] | env places 2, passes 0
+  PLACES Scout Bite hurt 3 (#12) = the shown aim
+  chain fires its own Sting hurt 5 #5
+  chain fires its own Chitin Shell guard 2 #3
+  chain fires YOUR Garden Greens #2 (works for you)
+  chain fires its own Nip hurt 4 #9
+  END OF ROUND: board PUTS OUT Ant Trail trick 2 (#15) for the creature at 2,2 (spawn, no caption)
+R4 aim shown: Carry Off at 2,3 why[fires Bramble] | env places 2, passes 0
+  PLACES Carry Off hurt 3 (#17) = the shown aim
+  chain fires its own Ant Trail trick 2 #15 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires ENV Bramble #14 for creature (you -3), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Skitter trick 2 (#20) for the creature at 1,0 (spawn, no caption)
+R5 aim shown: Nip at 3,3 why[fires Rain] | env places 1, passes 0
+  PLACES Nip hurt 4 (#21) = the shown aim
+  chain fires ENV Rain #19 for creature (+6 guard), on board before your move, named in aim reasons
+R6 aim shown: Carry Off at 3,1 why[fires Rain] | env places 1, passes 0
+  PLACES Carry Off hurt 3 (#24) = the shown aim
+  chain fires ENV Rain #19 for creature (+6 guard), on board before your move, named in aim reasons
+  chain fires its own Nip hurt 4 #21
+  END OF ROUND: board PUTS OUT Ant Trail trick 2 (#26) for the creature at 1,1 (spawn, no caption)
+R6 aim shown: Sting at 1,0 why[] | env places 0, passes 0
+  PLACES Sting hurt 3 (#28) = RE-PICK (not the shown aim Sting)
+  END OF ROUND: board PUTS OUT Ant Trail trick 2 (#26) for the creature at 1,1 (spawn, no caption)
+
+=== FIGHT 17 ember-beetle (medium L12) seed 1221 board 4x4
+R1 aim shown: Cinder Rush at 2,1 why[] | env places 2, passes 0
+  PLACES Cinder Rush hurt 5 (#5) = RE-PICK (not the shown aim Cinder Rush)
+R2 aim shown: Sting at 0,0 why[fires Rain] | env places 2, passes 0
+  PLACES Sting hurt 4 (#9) = the shown aim
+R3 aim shown: Nip at 0,1 why[combo Double Swing] | env places 2, passes 0
+  PLACES Nip hurt 4 (#13) = the shown aim
+  chain fires YOUR Charm #12 (works for you)
+  chain fires YOUR Snack #2 (works for you)
+  chain fires its own Sting hurt 6 #9
+  END OF ROUND: board PUTS OUT Skitter trick 2 (#16) for the creature at 2,0 (spawn, no caption)
+R4 aim shown: Hot Shell at 1,1 why[Sun x2; fires Bramble] | env places 2, passes 0
+  poison Poison
+  PLACES Hot Shell guard 3 (#18) = the shown aim
+  END OF ROUND: board PUTS OUT Chitin Shell guard 3 (#21) for the creature at 1,0 (spawn, no caption)
+R4 aim shown: Ember Spit at 2,3 why[fires Rain] | env places 0, passes 0
+  poison Poison
+  END OF ROUND: board PUTS OUT Chitin Shell guard 3 (#21) for the creature at 1,0 (spawn, no caption)
+
+=== FIGHT 18 prairie-bison (large L26) seed 1234 board 4x4
+R1 aim shown: Slam at 2,1 why[] | env places 2, passes 0
+  PLACES Slam hurt 9 (#5) = RE-PICK (not the shown aim Slam)
+R2 aim shown: none | env places 2, passes 0
+
+R3 aim shown: none | env places 2, passes 0
+  PLACES Stampede hurt 10 (#12) = PLAYED WITH NO AIM SHOWN
+  chain fires YOUR Swing #11 (works for you)
+  chain fires ENV Bramble #10 for creature (you -11), on board before your move, NOT in aim reasons
+  END OF ROUND: board PUTS OUT Dust Cloud trick 3 (#15) for the creature at 3,1 (spawn, no caption)
+R4 aim shown: Paddy Surge at 2,2 why[fires Rain] | env places 2, passes 0
+  SLOW: it loses its turn
+  END OF ROUND: board PUTS OUT Brace guard 5 (#19) for the creature at 2,2 (spawn, no caption)
+R5 aim shown: Paddy Surge at 3,2 why[fires Rain] | env places 2, passes 0
+  PLACES Paddy Surge hurt 7 (#21) = the shown aim
+  chain fires its own Brace guard 5 #19 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires ENV Rain #13 for creature (+30 guard), on board before your move, named in aim reasons
+R6 aim shown: Maul at 2,1 why[fires your Thorn Cut; fires Rain] | env places 2, passes 0
+  PLACES Maul hurt 8 (#25) = the shown aim
+  END OF ROUND: board PUTS OUT Shoulder Barge trick 4 (#28) for the creature at 3,3 (spawn, no caption)
+R7 aim shown: none | env places 2, passes 0
+  PLACES Claw hurt 7 (#30) = PLAYED WITH NO AIM SHOWN
+  chain fires its own Maul hurt 10 #25
+R7 aim shown: Paddy Surge at 1,0 why[combo Double Swing; fires Rain] | env places 0, passes 0
+  poison Poison
+
+=== FIGHT 19 storm-eagle (boss L30) seed 1247 board 4x4
+R1 aim shown: Crush at 3,1 why[] | env places 2, passes 0
+  SLOW: it loses its turn
+R2 aim shown: Crush at 3,3 why[] | env places 2, passes 0
+  poison Poison
+  SLOW: it loses its turn
+  END OF ROUND: board PUTS OUT Steam trick 3 (#11) for the creature at 0,2 (spawn, no caption)
+R3 aim shown: Talon Dive at 0,3 why[Sun x2; fires Rain] | env places 2, passes 0
+  poison Poison
+  PLACES Talon Dive hurt 10 (#13) = the shown aim
+  END OF ROUND: board PUTS OUT Scheme trick 5 (#16) for the creature at 0,2 (spawn, no caption)
+R4 aim shown: Thunder Dive at 2,0 why[fires Bramble; fires Rain] | env places 2, passes 0
+  PLACES Thunder Dive hurt 11 (#18) = the shown aim
+  chain fires ENV Bramble #15 for creature (you -12), on board before your move, named in aim reasons
+  chain fires YOUR Swing #17 (works for you)
+  chain fires ENV Rain #6 for creature (+35 guard), on board before your move, named in aim reasons
+R5 aim shown: Paddy Surge at 1,0 why[fires Rain] | env places 2, passes 0
+  PLACES Paddy Surge hurt 9 (#22) = the shown aim
+  chain fires ENV Rain #14 for creature (+35 guard), on board before your move, named in aim reasons
+
+=== FIGHT 20 aphid-swarm (small L1) seed 1260 board 4x4
+R1 aim shown: Cloud Up at 3,1 why[] | env places 2, passes 0
+  PLACES Cloud Up guard 2 (#5) = the shown aim
+  chain fires its own Chitin Shell guard 2 #3
+R2 aim shown: Honeydew at 3,3 why[] | env places 2, passes 0
+  PLACES Honeydew heal 2 (#9) = the shown aim
+  chain fires its own Chitin Shell guard 2 #3
+  chain fires its own Cloud Up guard 2 #5
+  END OF ROUND: board PUTS OUT Mist Veil guard 2 (#12) for the creature at 3,0 (spawn, no caption)
+R3 aim shown: Swarm at 2,1 why[fires Rain; Quick: plays again] | env places 2, passes 0
+  PLACES Swarm hurt 2 (#14) = RE-PICK (not the shown aim Swarm)
+  chain fires ENV Rain #10 for creature (+5 guard), on board before your move, named in aim reasons
+  chain fires YOUR Bloom #13 (works for you)
+  QUICK note (Swarm): one more piece
+  PLACES Sting hurt 3 (#15) = QUICK EXTRA (never shown)
+  chain fires ENV Rain #6 for creature (+5 guard), on board before your move, named in aim reasons
+  chain fires its own Mist Veil guard 2 #12 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  END OF ROUND: board PUTS OUT Skitter trick 2 (#18) for the creature at 2,2 (spawn, no caption)
+
+=== FIGHT 21 spice-monitor (medium L27) seed 1273 board 4x4
+R1 aim shown: Tail Whip at 3,1 why[] | env places 2, passes 0
+  poison Poison
+  PLACES Tail Whip hurt 10 (#5) = the shown aim
+  chain fires its own Venom Spit trick 5 #3
+R2 aim shown: Tail Lash at 3,3 why[combo Ambush] | env places 2, passes 0
+  poison Poison
+  PLACES Tail Lash hurt 9 (#9) = the shown aim
+  chain fires its own Venom Spit trick 5 #3
+  chain fires its own Tail Whip hurt 20 #5
+  END OF ROUND: board PUTS OUT Fork Tongue trick 4 (#12) for the creature at 2,1 (spawn, no caption)
+R3 aim shown: River Silt at 3,0 why[Sun x2] | env places 2, passes 0
+  poison Poison
+  PLACES River Silt heal 10 (#14) = the shown aim
+  chain fires ENV Sun #6 for creature (x2), on board before your move, named in aim reasons
+  chain fires its own Fork Tongue trick 8 #12 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  END OF ROUND: board PUTS OUT Scale Guard guard 7 (#17) for the creature at 1,0 (spawn, no caption)
+R4 aim shown: Spice Bite at 1,2 why[fires Rain; fires your Samara Spin; fires Bramble] | env places 2, passes 0
+  PLACES Spice Bite hurt 9 (#19) = the shown aim
+  chain fires ENV Rain #16 for creature (+24 guard), on board before your move, named in aim reasons
+  chain fires YOUR Nut Crack #18 (works for you)
+  chain fires YOUR Samara Spin #13 (works for you)
+  chain fires ENV Bramble #11 for creature (you -11), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Fork Tongue trick 4 (#22) for the creature at 2,3 (spawn, no caption)
+
+=== FIGHT 22 desert-gila-dragon (large L20) seed 1286 board 4x4
+R1 aim shown: Tail Lash at 2,1 why[] | env places 2, passes 0
+  PLACES Tail Lash hurt 5 (#5) = the shown aim
+R2 aim shown: Venom Spit at 3,1 why[Sun x2; combo Ambush] | env places 2, passes 0
+  PLACES Venom Spit trick 6 (#9) = the shown aim
+  chain fires ENV Sun #6 for creature (x2), on board before your move, named in aim reasons
+  chain fires its own Tail Lash hurt 22 #5
+  chain fires its own Dry Spell trick 4 #3
+  END OF ROUND: board PUTS OUT Scale Guard guard 4 (#12) for the creature at 1,2 (spawn, no caption)
+R3 aim shown: Slow Stomp at 2,1 why[fires Bramble] | env places 2, passes 0
+  PLACES Slow Stomp hurt 6 (#14) = the shown aim
+  END OF ROUND: board PUTS OUT Bead Hide guard 4 (#17) for the creature at 1,1 (spawn, no caption)
+R4 aim shown: Bite at 0,1 why[Sun x2; combo Riposte] | env places 2, passes 0
+  PLACES Bite hurt 10 (#19) = the shown aim
+  chain fires ENV Sun #16 for creature (x2), on board before your move, named in aim reasons
+  chain fires ENV Sun #15 for creature (x2), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Gila Chew hurt 5 (#22) for the creature at 2,3 (spawn, no caption)
+R5 aim shown: Slam at 2,2 why[combo Double Swing; fires Rain] | env places 2, passes 0
+  PLACES Slam hurt 7 (#24) = the shown aim
+  chain fires its own Gila Chew hurt 7 #22 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires ENV Rain #20 for creature (+24 guard), on board before your move, named in aim reasons
+R6 aim shown: Ash Spit at 1,0 why[fires your Swing; fires Rain] | env places 2, passes 0
+  PLACES Ash Spit hurt 5 (#28) = the shown aim
+  chain fires YOUR Swing #23 (works for you)
+  chain fires ENV Rain #21 for creature (+24 guard), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Venom Spit trick 3 (#31) for the creature at 2,3 (spawn, no caption)
+
+=== FIGHT 23 jade-jaguar (boss L30) seed 1299 board 4x4
+R1 aim shown: Breaker at 2,3 why[Quick: plays again] | env places 2, passes 0
+  PLACES Breaker hurt 8 (#6) = the shown aim
+  QUICK note (Breaker): one more piece
+  PLACES Crush hurt 11 (#7) = QUICK EXTRA (never shown)
+  chain fires YOUR Swing #5 (works for you)
+  chain fires YOUR Rest #2 (works for you)
+R2 aim shown: Jaguar Pounce at 1,0 why[fires Rain] | env places 1, passes 1
+  PLACES Claw hurt 9 (#11) = RE-PICK (not the shown aim Jaguar Pounce)
+  chain fires its own Breaker hurt 10 #6
+R3 aim shown: Jaguar Pounce at 2,3 why[combo Double Swing] | env places 2, passes 0
+  poison Poison
+  PLACES Jaguar Pounce hurt 11 (#14) = the shown aim
+  chain fires its own Claw hurt 11 #11
+  END OF ROUND: board PUTS OUT Sea Breeze heal 5 (#17) for the creature at 1,2 (spawn, no caption)
+R4 aim shown: Maul at 3,1 why[fires Rain; fires Bramble] | env places 2, passes 0
+  poison Poison
+  PLACES Maul hurt 10 (#19) = the shown aim
+  chain fires ENV Rain #16 for creature (+35 guard), on board before your move, named in aim reasons
+  chain fires ENV Bramble #9 for creature (you -12), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Scheme trick 5 (#22) for the creature at 3,2 (spawn, no caption)
+R5 aim shown: Spirit Stalk at 1,3 why[combo Riposte] | env places 2, passes 0
+  poison Poison
+  PLACES Spirit Stalk guard 6 (#24) = the shown aim
+  chain fires its own Jaguar Pounce hurt 17 #14
+R6 aim shown: Jade Gaze at 2,1 why[Sun x2; fires Bramble] | env places 2, passes 0
+  PLACES Jade Gaze trick 5 (#28) = the shown aim
+  chain fires ENV Bramble #20 for creature (you -12), on board before your move, named in aim reasons
+  chain fires its own Scheme trick 5 #22 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  END OF ROUND: board PUTS OUT Brace guard 6 (#31) for the creature at 1,2 (spawn, no caption)
+R7 aim shown: Breaker at 0,1 why[fires Bramble; Quick: plays again] | env places 2, passes 0
+  PLACES Breaker hurt 8 (#33) = RE-PICK (not the shown aim Breaker)
+  chain fires ENV Bramble #30 for creature (you -12), on board before your move, named in aim reasons
+  QUICK note (Breaker): one more piece
+R8 aim shown: none | env places 0, passes 2
+
+R8 aim shown: Crush at 2,2 why[Sun x2; combo Double Swing; fires Bramble; fires Rain] | env places 0, passes 0
+  PLACES Crush hurt 22 (#37) = the shown aim
+  chain fires ENV Sun #34 for creature (x2), on board before your move, named in aim reasons
+  chain fires YOUR Hoe Hook #36 (works for you)
+
+=== FIGHT 24 earwig (small L4) seed 1312 board 4x4
+R1 aim shown: Pincer at 2,1 why[] | env places 2, passes 0
+  PLACES Pincer hurt 5 (#5) = the shown aim
+R2 aim shown: Sting at 1,0 why[fires Rain] | env places 2, passes 0
+  PLACES Sting hurt 4 (#9) = the shown aim
+  chain fires ENV Rain #6 for creature (+6 guard), on board before your move, named in aim reasons
+R2 aim shown: Skitter at 1,2 why[fires Bramble; Quick: plays again] | env places 0, passes 0
+  PLACES Skitter trick 2 (#13) = the shown aim
+  chain fires ENV Bramble #10 for creature (you -3), on board before your move, named in aim reasons
+  chain fires YOUR Pierce #12 (works for you)
+  QUICK note (Skitter): one more piece
+
+=== FIGHT 25 outback-dingo (medium L30) seed 1325 board 4x4
+R1 aim shown: Maul at 3,2 why[] | env places 2, passes 0
+  PLACES Maul hurt 13 (#5) = the shown aim
+R2 aim shown: Claw at 3,3 why[combo Double Swing] | env places 2, passes 0
+  PLACES Claw hurt 12 (#9) = the shown aim
+  chain fires its own Maul hurt 15 #5
+R3 aim shown: Dust Roll at 2,3 why[combo Riposte; fires Rain] | env places 2, passes 0
+  PLACES Dust Roll guard 7 (#13) = the shown aim
+  chain fires ENV Rain #11 for creature (+29 guard), on board before your move, named in aim reasons
+  chain fires its own Claw hurt 18 #9
+  END OF ROUND: board PUTS OUT Circle Round trick 4 (#16) for the creature at 1,1 (spawn, no caption)
+R4 aim shown: Dingo Snap at 0,3 why[fires Rain; fires your Jab; fires Bramble; fires Bramble; Quick: plays again] | env places 2, passes 0
+  PLACES Dingo Snap hurt 10 (#18) = the shown aim
+  chain fires ENV Rain #15 for creature (+29 guard), on board before your move, named in aim reasons
+  QUICK note (Dingo Snap): one more piece
+  END OF ROUND: board PUTS OUT Dust Roll guard 7 (#21) for the creature at 0,1 (spawn, no caption)
+R5 aim shown: Brace at 0,0 why[Sun x2] | env places 2, passes 0
+  PLACES Brace guard 16 (#23) = the shown aim
+  chain fires its own Dust Roll guard 14 #21 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires ENV Sun #20 for creature (x2), on board before your move, named in aim reasons
+R6 aim shown: Claw at 1,0 why[Sun x2; fires your Tonic] | env places 1, passes 1
+  PLACES Claw hurt 12 (#27) = the shown aim
+  END OF ROUND: board PUTS OUT Circle Round trick 4 (#29) for the creature at 3,0 (spawn, no caption)
+
+=== FIGHT 26 moss-golem (large L20) seed 1338 board 4x4
+R1 aim shown: Slam at 2,1 why[] | env places 2, passes 0
+  PLACES Slam hurt 7 (#5) = RE-PICK (not the shown aim Slam)
+R2 aim shown: Lash Vine at 1,3 why[fires your Hum] | env places 2, passes 0
+  poison Poison
+  PLACES Lash Vine hurt 5 (#9) = the shown aim
+  chain fires its own Sap Mend trick 2 #3
+R3 aim shown: Heat Shimmer at 1,0 why[fires Rain] | env places 2, passes 0
+  poison Poison
+  PLACES Heat Shimmer guard 3 (#13) = the shown aim
+  chain fires ENV Rain #10 for creature (+24 guard), on board before your move, named in aim reasons
+R4 aim shown: Spore Puff at 0,1 why[fires Rain] | env places 2, passes 0
+  PLACES Spore Puff hurt 4 (#17) = RE-PICK (not the shown aim Spore Puff)
+  chain fires ENV Rain #14 for creature (+24 guard), on board before your move, named in aim reasons
+R5 aim shown: Sandsting at 1,2 why[Sun x2; combo Double Swing; fires Bramble; fires your Chop; fires Rain] | env places 2, passes 0
+  poison Poison
+  PLACES Sandsting hurt 5 (#21) = the shown aim
+R6 aim shown: Bramble Coat at 0,2 why[combo Riposte] | env places 2, passes 0
+  poison Poison
+  PLACES Bramble Coat guard 4 (#25) = the shown aim
+  chain fires its own Sandsting hurt 8 #21
+  END OF ROUND: board PUTS OUT Regrow heal 3 (#28) for the creature at 0,1 (spawn, no caption)
+R6 aim shown: none | env places 0, passes 0
+  poison Poison
+  END OF ROUND: board PUTS OUT Regrow heal 3 (#28) for the creature at 0,1 (spawn, no caption)
+
+=== FIGHT 27 coconut-crab-titan (boss L26) seed 1351 board 4x4
+R1 aim shown: Crush at 3,3 why[] | env places 2, passes 0
+  PLACES Crush hurt 10 (#6) = the shown aim
+  chain fires its own Slick Hide guard 5 #4
+R2 aim shown: Highland Charge at 3,2 why[combo Double Swing] | env places 2, passes 0
+  SLOW: it loses its turn
+R3 aim shown: Highland Charge at 1,3 why[combo Riposte] | env places 2, passes 0
+  PLACES Highland Charge hurt 9 (#13) = the shown aim
+  chain fires its own Slick Hide guard 5 #4
+  chain fires its own Crush hurt 15 #6
+  END OF ROUND: board PUTS OUT Thornbush guard 5 (#16) for the creature at 1,0 (spawn, no caption)
+R4 aim shown: Husk Crack at 0,2 why[fires Bramble] | env places 2, passes 0
+  PLACES Husk Crack hurt 10 (#18) = RE-PICK (not the shown aim Husk Crack)
+  chain fires YOUR Samara Spin #17 (works for you)
+  chain fires ENV Bramble #14 for creature (you -11), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Scheme trick 4 (#21) for the creature at 2,0 (spawn, no caption)
+R5 aim shown: Coconut Drop at 1,3 why[fires Rain] | env places 1, passes 1
+  PLACES Coconut Drop hurt 8 (#23) = RE-PICK (not the shown aim Coconut Drop)
+  chain fires ENV Thornburst #20 for creature (you -0), on board before your move, NOT in aim reasons
+R6 aim shown: Snap at 3,1 why[combo Bait; combo Double Swing; fires Bramble; fires Thornburst; fires Thornburst] | env places 2, passes 0
+  PLACES Snap hurt 7 (#26) = the shown aim
+  chain fires ENV Bramble #24 for creature (you -11), on board before your move, named in aim reasons
+  chain fires its own Scheme trick 4 #21 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires its own Thornbush guard 9 #16 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires ENV Thornburst #15 for creature (you -0), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Undertow trick 3 (#29) for the creature at 2,1 (spawn, no caption)
+
+=== FIGHT 28 dusk-moth (small L3) seed 1364 board 4x4
+R1 aim shown: Nip at 2,1 why[] | env places 2, passes 0
+  PLACES Nip hurt 4 (#5) = RE-PICK (not the shown aim Nip)
+R2 aim shown: Sting at 0,0 why[fires Rain] | env places 2, passes 0
+  PLACES Sting hurt 3 (#9) = the shown aim
+R3 aim shown: Wing Dust at 1,0 why[Sun x2; combo Ambush; fires Thornburst] | env places 2, passes 0
+  PLACES Wing Dust trick 2 (#13) = RE-PICK (not the shown aim Wing Dust)
+  chain fires YOUR Garden Greens #12 (works for you)
+  chain fires YOUR Oat Cake #2 (works for you)
+  chain fires its own Sting hurt 7 #9
+  END OF ROUND: board PUTS OUT Skitter trick 2 (#16) for the creature at 3,1 (spawn, no caption)
+R4 aim shown: Flutter Bump at 0,1 why[Sun x2; fires Rain] | env places 2, passes 0
+  PLACES Flutter Bump hurt 6 (#18) = the shown aim
+  chain fires ENV Rain #15 for creature (+6 guard), on board before your move, named in aim reasons
+  chain fires ENV Sun #14 for creature (x2), on board before your move, named in aim reasons
+R5 aim shown: Wing Dust at 1,0 why[Sun x2; fires Bramble; fires Thornburst] | env places 2, passes 0
+  PLACES Wing Dust trick 4 (#22) = the shown aim
+  chain fires ENV Bramble #19 for creature (you -3), on board before your move, named in aim reasons
+  chain fires YOUR Swing #21 (works for you)
+  chain fires ENV Thornburst #10 for creature (you -0), on board before your move, named in aim reasons
+  chain fires ENV Sun #11 for creature (x2), on board before your move, named in aim reasons
+  chain fires its own Skitter trick 4 #16 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  END OF ROUND: board PUTS OUT Dusk Veil guard 2 (#25) for the creature at 3,2 (spawn, no caption)
+R6 aim shown: Flutter Bump at 2,1 why[fires Rain] | env places 2, passes 0
+  PLACES Flutter Bump hurt 3 (#27) = the shown aim
+  chain fires ENV Rain #20 for creature (+6 guard), on board before your move, named in aim reasons
+  chain fires its own Dusk Veil guard 2 #25 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  END OF ROUND: board PUTS OUT Chitin Shell guard 2 (#30) for the creature at 1,0 (spawn, no caption)
+R7 aim shown: Sting at 0,1 why[Sun x2; fires Rain] | env places 2, passes 0
+  PLACES Terrace Wall guard 3 (#32) = RE-PICK (not the shown aim Sting)
+  END OF ROUND: board PUTS OUT Chitin Shell guard 2 (#35) for the creature at 3,2 (spawn, no caption)
+R8 aim shown: Nip at 2,0 why[fires Thornburst] | env places 2, passes 0
+  PLACES Nip hurt 4 (#37) = the shown aim
+  chain fires ENV Thornburst #34 for creature (you -0), on board before your move, named in aim reasons
+
+=== FIGHT 29 sea-otter-bandit (medium L13) seed 1377 board 4x4
+R1 aim shown: Kelp Wrap at 2,1 why[] | env places 2, passes 0
+  poison Poison
+  PLACES Kelp Wrap guard 3 (#5) = the shown aim
+R2 aim shown: Rock Crack at 1,0 why[fires Rain] | env places 2, passes 0
+  poison Poison
+  PLACES Rock Crack hurt 5 (#9) = the shown aim
+  chain fires ENV Rain #6 for creature (+16 guard), on board before your move, named in aim reasons
+R3 aim shown: Splash at 0,3 why[fires your Sting; fires your Chop] | env places 2, passes 0
+  poison Poison
+  PLACES Splash hurt 5 (#13) = the shown aim
+R4 aim shown: Snap at 0,2 why[Sun x2; combo Double Swing] | env places 2, passes 0
+  poison Poison
+  PLACES Snap hurt 10 (#17) = the shown aim
+  chain fires ENV Sun #15 for creature (x2), on board before your move, named in aim reasons
+  chain fires its own Splash hurt 14 #13
+R5 aim shown: Frost Bark at 1,3 why[fires Rain] | env places 1, passes 1
+  PLACES Frost Bark guard 3 (#21) = the shown aim
+  chain fires ENV Rain #11 for creature (+16 guard), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Pebble Pocket trick 2 (#23) for the creature at 2,3 (spawn, no caption)
+R6 aim shown: Splash at 1,1 why[fires Bramble; fires your Swing; fires Thornburst] | env places 2, passes 0
+  PLACES Splash hurt 5 (#25) = the shown aim
+  chain fires ENV Bramble #19 for creature (you -6), on board before your move, named in aim reasons
+  chain fires YOUR Swing #20 (works for you)
+  chain fires ENV Thornburst #14 for creature (you -0), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Undertow trick 2 (#28) for the creature at 0,0 (spawn, no caption)
+R6 aim shown: none | env places 0, passes 0
+  PLACES Kelp Wrap guard 3 (#30) = PLAYED WITH NO AIM SHOWN
+  chain fires YOUR Charm #29 (works for you)
+  END OF ROUND: board PUTS OUT Undertow trick 2 (#28) for the creature at 0,0 (spawn, no caption)
+
+=== FIGHT 30 salt-sea-lion (large L25) seed 1390 board 4x4
+R1 aim shown: Flipper Smack at 2,1 why[] | env places 2, passes 0
+  PLACES Flipper Smack hurt 8 (#5) = RE-PICK (not the shown aim Flipper Smack)
+R2 aim shown: Slam at 1,0 why[fires Rain] | env places 2, passes 0
+  PLACES Slam hurt 8 (#9) = the shown aim
+  chain fires ENV Rain #6 for creature (+30 guard), on board before your move, named in aim reasons
+R3 aim shown: none | env places 2, passes 0
+  PLACES Bull Bark trick 3 (#13) = PLAYED WITH NO AIM SHOWN
+  chain fires its own Slam hurt 15 #9
+  chain fires ENV Rain #6 for creature (+30 guard), on board before your move, NOT in aim reasons
+  END OF ROUND: board PUTS OUT Slick Hide guard 5 (#16) for the creature at 1,3 (spawn, no caption)
+R4 aim shown: Splash at 2,3 why[fires Rain; fires Bramble] | env places 2, passes 0
+  PLACES Splash hurt 7 (#18) = the shown aim
+R5 aim shown: Snap at 1,3 why[combo Double Swing] | env places 2, passes 0
+  PLACES Snap hurt 7 (#22) = the shown aim
+  chain fires its own Splash hurt 9 #18
+  END OF ROUND: board PUTS OUT Frost Bark guard 5 (#25) for the creature at 2,3 (spawn, no caption)
+R6 aim shown: none | env places 2, passes 0
+  poison Poison
+  PLACES Cold Snap hurt 7 (#27) = PLAYED WITH NO AIM SHOWN
+  chain fires ENV Bramble #15 for creature (you -11), on board before your move, NOT in aim reasons
+  chain fires YOUR Juicy Bite #21 (works for you)
+  END OF ROUND: board PUTS OUT Bull Bark trick 3 (#30) for the creature at 1,1 (spawn, no caption)
+R6 aim shown: Slam at 1,0 why[fires Thornburst] | env places 0, passes 0
+  poison Poison
+  END OF ROUND: board PUTS OUT Bull Bark trick 3 (#30) for the creature at 1,1 (spawn, no caption)
+
+=== FIGHT 31 great-hawk (boss L28) seed 1403 board 4x4
+R1 aim shown: Crush at 3,1 why[] | env places 2, passes 0
+  poison Poison
+  PLACES Crush hurt 10 (#6) = the shown aim
+  chain fires its own Wing Cover guard 5 #4
+  chain fires its own Flutter Off trick 3 #3
+  END OF ROUND: board PUTS OUT Heat Shimmer guard 5 (#9) for the creature at 3,0 (spawn, no caption)
+R2 aim shown: Sandsting at 2,0 why[fires Thornburst] | env places 2, passes 0
+  poison Poison
+  PLACES Sandsting hurt 8 (#11) = the shown aim
+  chain fires its own Heat Shimmer guard 5 #9 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires ENV Thornburst #8 for creature (you -0), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Scheme trick 4 (#14) for the creature at 2,2 (spawn, no caption)
+R3 aim shown: Talon Dive at 2,1 why[Sun x2; fires Rain] | env places 2, passes 0
+  poison Poison
+  PLACES Talon Dive hurt 18 (#16) = the shown aim
+  chain fires its own Scheme trick 8 #14 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires ENV Sun #12 for creature (x2), on board before your move, named in aim reasons
+  chain fires ENV Rain #13 for creature (+32 guard), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT High Circle guard 6 (#19) for the creature at 2,2 (spawn, no caption)
+R4 aim shown: Talon Grip at 3,0 why[fires Bramble] | env places 2, passes 0
+  PLACES Talon Grip hurt 8 (#21) = the shown aim
+  chain fires ENV Bramble #18 for creature (you -11), on board before your move, named in aim reasons
+R5 aim shown: Crush at 2,0 why[combo Double Swing; fires Bramble] | env places 2, passes 0
+  PLACES Crush hurt 10 (#25) = the shown aim
+R6 aim shown: Peck at 3,0 why[Sun x2; combo Double Swing] | env places 2, passes 0
+  SLOW: it loses its turn
+
+=== FIGHT 32 leopard-slug (small L2) seed 1416 board 4x4
+R1 aim shown: Nip at 3,3 why[] | env places 2, passes 0
+  PLACES Nip hurt 4 (#5) = the shown aim
+  chain fires its own Chitin Shell guard 2 #3
+R2 aim shown: Slug Lunge at 0,1 why[fires your Swing; fires your Jab] | env places 2, passes 0
+  PLACES Slug Lunge hurt 3 (#9) = the shown aim
+R3 aim shown: Thick Slime at 2,2 why[combo Riposte; fires Rain] | env places 2, passes 0
+  PLACES Thick Slime guard 3 (#13) = the shown aim
+  chain fires ENV Rain #10 for creature (+6 guard), on board before your move, named in aim reasons
+  chain fires its own Chitin Shell guard 2 #3
+  chain fires its own Nip hurt 6 #5
+  END OF ROUND: board PUTS OUT Mist Veil guard 2 (#16) for the creature at 2,2 (spawn, no caption)
+R4 aim shown: Slime Slick at 1,3 why[fires Rain; fires Bramble] | env places 2, passes 0
+  PLACES Slime Slick trick 2 (#17) = the shown aim
+  chain fires ENV Rain #14 for creature (+6 guard), on board before your move, named in aim reasons
+  chain fires its own Mist Veil guard 2 #16 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires ENV Bramble #11 for creature (you -3), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Skitter trick 2 (#20) for the creature at 1,1 (spawn, no caption)
+R5 aim shown: Sting at 0,2 why[fires Rain] | env places 2, passes 0
+  PLACES Sting hurt 3 (#22) = the shown aim
+  chain fires ENV Rain #19 for creature (+6 guard), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Thick Slime guard 3 (#25) for the creature at 0,0 (spawn, no caption)
+R6 aim shown: Nip at 2,0 why[fires Rain; fires Bramble] | env places 2, passes 0
+  PLACES Nip hurt 4 (#27) = the shown aim
+  chain fires ENV Rain #24 for creature (+6 guard), on board before your move, named in aim reasons
+  chain fires its own Thick Slime guard 3 #25 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires ENV Bramble #23 for creature (you -3), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Chitin Shell guard 2 (#30) for the creature at 1,3 (spawn, no caption)
+R7 aim shown: Slug Lunge at 0,1 why[combo Double Swing] | env places 2, passes 0
+  PLACES Slug Lunge hurt 3 (#32) = the shown aim
+  chain fires its own Sting hurt 5 #22
+  chain fires ENV Rain #19 for creature (+6 guard), on board before your move, NOT in aim reasons
+  chain fires its own Chitin Shell guard 2 #30 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  END OF ROUND: board PUTS OUT Mist Veil guard 2 (#35) for the creature at 3,0 (spawn, no caption)
+
+=== FIGHT 33 poison-dart-frog (medium L16) seed 1429 board 4x4
+R1 aim shown: Tail Lash at 2,0 why[] | env places 2, passes 0
+  poison Poison
+  PLACES Tail Lash hurt 7 (#5) = the shown aim
+  chain fires its own Bright Warning trick 3 #3
+R2 aim shown: Toxic Touch at 3,2 why[Sun x2] | env places 2, passes 0
+  poison Poison
+  PLACES Toxic Touch hurt 12 (#9) = the shown aim
+  chain fires ENV Sun #7 for creature (x2), on board before your move, named in aim reasons
+R3 aim shown: Venom Spit at 3,0 why[combo Ambush] | env places 2, passes 0
+  poison Poison
+  PLACES Venom Spit trick 4 (#13) = the shown aim
+  chain fires its own Tail Lash hurt 15 #5
+  chain fires its own Bright Warning trick 3 #3
+  END OF ROUND: board PUTS OUT Steam trick 3 (#16) for the creature at 2,0 (spawn, no caption)
+
+=== FIGHT 34 reef-turtle (large L16) seed 1442 board 4x4
+R1 aim shown: Short Fuse at 2,1 why[Quick: plays again] | env places 2, passes 0
+  poison Poison
+  PLACES Short Fuse hurt 4 (#5) = the shown aim
+  QUICK note (Short Fuse): one more piece
+  PLACES Reef Shell guard 4 (#6) = QUICK EXTRA (never shown)
+R2 aim shown: Black Earth at 0,0 why[fires Bramble] | env places 2, passes 0
+  poison Poison
+  PLACES Black Earth heal 2 (#10) = the shown aim
+  chain fires ENV Bramble #7 for creature (you -7), on board before your move, named in aim reasons
+R3 aim shown: Scale Guard at 0,1 why[fires Bramble] | env places 2, passes 0
+  poison Poison
+  PLACES Scale Guard guard 3 (#13) = the shown aim
+  chain fires its own Black Earth heal 2 #10
+  chain fires ENV Bramble #7 for creature (you -7), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Venom Spit trick 2 (#16) for the creature at 2,2 (spawn, no caption)
+R4 aim shown: Slam at 2,1 why[fires Bramble] | env places 2, passes 0
+  PLACES Slam hurt 5 (#18) = the shown aim
+  END OF ROUND: board PUTS OUT Bite hurt 4 (#21) for the creature at 2,0 (spawn, no caption)
+R5 aim shown: Tail Lash at 2,2 why[combo Double Swing; fires Rain] | env places 2, passes 0
+  PLACES Tail Lash hurt 4 (#23) = the shown aim
+  END OF ROUND: board PUTS OUT Scale Guard guard 3 (#26) for the creature at 0,3 (spawn, no caption)
+R6 aim shown: Slam at 2,1 why[combo Double Swing; fires Thornburst] | env places 2, passes 0
+  PLACES Slam hurt 5 (#28) = the shown aim
+  chain fires ENV Thornburst #24 for creature (you -0), on board before your move, named in aim reasons
+  chain fires its own Tail Lash hurt 6 #23
+
+=== FIGHT 35 ancient-snapper (boss L28) seed 1455 board 4x4
+R1 aim shown: Crush at 3,3 why[] | env places 2, passes 0
+  SLOW: it loses its turn
+R2 aim shown: Canopy Drop at 0,0 why[fires Bramble] | env places 2, passes 0
+  PLACES Crush hurt 10 (#9) = RE-PICK (not the shown aim Canopy Drop)
+  chain fires its own Venom Spit trick 4 #3
+R3 aim shown: none | env places 0, passes 2
+  END OF ROUND: board PUTS OUT Humus Hide guard 6 (#12) for the creature at 2,2 (spawn, no caption)
+R4 aim shown: Canopy Drop at 1,3 why[fires Rain; fires Thornburst] | env places 2, passes 0
+  poison Poison
+  PLACES Canopy Drop hurt 10 (#14) = the shown aim
+  chain fires ENV Rain #11 for creature (+32 guard), on board before your move, named in aim reasons
+  chain fires YOUR Pepper Puff #13 (works for you)
+  chain fires ENV Thornburst #10 for creature (you -0), on board before your move, named in aim reasons
+  chain fires its own Humus Hide guard 6 #12 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires its own Crush hurt 10 #9
+  END OF ROUND: board PUTS OUT Scheme trick 4 (#17) for the creature at 0,2 (spawn, no caption)
+R5 aim shown: Snapping Jaw at 3,2 why[fires Rain] | env places 2, passes 0
+  poison Poison
+  PLACES Snapping Jaw hurt 10 (#19) = the shown aim
+  chain fires ENV Rain #15 for creature (+32 guard), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Mud Sink trick 4 (#22) for the creature at 1,0 (spawn, no caption)
+R6 aim shown: Tail Lash at 1,2 why[fires Rain] | env places 2, passes 0
+  poison Poison
+  PLACES Tail Lash hurt 7 (#24) = the shown aim
+  chain fires ENV Rain #15 for creature (+32 guard), on board before your move, named in aim reasons
+  chain fires its own Snapping Jaw hurt 10 #19
+  END OF ROUND: board PUTS OUT Venom Spit trick 4 (#27) for the creature at 3,2 (spawn, no caption)
+R7 aim shown: Bite at 3,0 why[Sun x2; fires Rain] | env places 2, passes 0
+  poison Poison
+  PLACES Bite hurt 14 (#29) = the shown aim
+  chain fires ENV Rain #26 for creature (+32 guard), on board before your move, named in aim reasons
+  chain fires YOUR Juicy Bite #28 (works for you)
+  chain fires ENV Sun #25 for creature (x2), on board before your move, named in aim reasons
+  chain fires its own Venom Spit trick 8 #27 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  END OF ROUND: board PUTS OUT Mossy Shell guard 6 (#32) for the creature at 1,3 (spawn, no caption)
+R8 aim shown: Canopy Drop at 1,0 why[fires Rain] | env places 2, passes 0
+  PLACES Canopy Drop hurt 10 (#34) = the shown aim
+  chain fires ENV Rain #31 for creature (+32 guard), on board before your move, named in aim reasons
+R9 aim shown: Crush at 0,3 why[] | env places 2, passes 0
+  SLOW: it loses its turn
+  END OF ROUND: board PUTS OUT Scheme trick 4 (#40) for the creature at 2,0 (spawn, no caption)
+R10 aim shown: Crush at 0,3 why[Sun x2] | env places 2, passes 0
+  PLACES Crush hurt 10 (#42) = the shown aim
+
+=== FIGHT 36 ant-scouts (small L2) seed 1468 board 4x4
+R1 aim shown: Nip at 3,1 why[] | env places 2, passes 0
+  PLACES Nip hurt 4 (#5) = RE-PICK (not the shown aim Nip)
+R2 aim shown: Sting at 0,0 why[fires Rain] | env places 2, passes 0
+  PLACES Sting hurt 3 (#9) = the shown aim
+  chain fires ENV Rain #6 for creature (+6 guard), on board before your move, named in aim reasons
+R3 aim shown: Carry Off at 0,1 why[combo Double Swing; fires Rain] | env places 2, passes 0
+  PLACES Carry Off hurt 3 (#13) = the shown aim
+  chain fires its own Sting hurt 5 #9
+  chain fires ENV Rain #6 for creature (+6 guard), on board before your move, named in aim reasons
+R4 aim shown: Scout Bite at 2,1 why[Sun x2] | env places 2, passes 0
+  PLACES Scout Bite hurt 6 (#17) = the shown aim
+  chain fires YOUR Charm #16 (works for you)
+  chain fires ENV Sun #15 for creature (x2), on board before your move, named in aim reasons
+  chain fires ENV Sun #10 for creature (x2), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Ant Trail trick 2 (#20) for the creature at 3,1 (spawn, no caption)
+
+=== FIGHT 37 ptarmigan-flock (medium L18) seed 1481 board 4x4
+R1 aim shown: Snow Flurry at 3,1 why[Quick: plays again] | env places 2, passes 0
+  PLACES Snow Flurry hurt 6 (#5) = the shown aim
+  chain fires its own Huddle guard 6 #3
+  QUICK note (Snow Flurry): one more piece
+  PLACES Burst Up trick 3 (#6) = QUICK EXTRA (never shown)
+  chain fires its own Snow Flurry hurt 12 #5
+  chain fires its own Huddle guard 6 #3
+  END OF ROUND: board PUTS OUT Flutter Off trick 3 (#9) for the creature at 1,3 (spawn, no caption)
+R2 aim shown: Talon Dive at 3,1 why[Sun x2] | env places 2, passes 0
+  SLOW: it loses its turn
+R3 aim shown: none | env places 2, passes 0
+  PLACES Talon Dive hurt 18 (#14) = PLAYED WITH NO AIM SHOWN
+  chain fires ENV Sun #8 for creature (x2), on board before your move, NOT in aim reasons
+R4 aim shown: Wing Cover at 2,1 why[Sun x2; combo Riposte] | env places 2, passes 0
+  poison Poison
+  PLACES Wing Cover guard 5 (#18) = the shown aim
+R5 aim shown: Huddle at 2,2 why[fires Rain] | env places 2, passes 0
+  poison Poison
+  PLACES Huddle guard 6 (#22) = the shown aim
+  chain fires its own Wing Cover guard 5 #18
+  chain fires ENV Rain #20 for creature (+19 guard), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Burst Up trick 3 (#25) for the creature at 0,3 (spawn, no caption)
+R5 aim shown: Sea Breeze at 1,2 why[Sun x2] | env places 0, passes 0
+  PLACES Peck hurt 8 (#27) = RE-PICK (not the shown aim Sea Breeze)
+  chain fires ENV Thornburst #19 for creature (you -0), on board before your move, NOT in aim reasons
+  END OF ROUND: board PUTS OUT Burst Up trick 3 (#25) for the creature at 0,3 (spawn, no caption)
+
+=== FIGHT 38 mire-toad (large L18) seed 1494 board 4x4
+R1 aim shown: Tail Lash at 2,1 why[] | env places 2, passes 0
+  poison Poison
+  PLACES Tail Lash hurt 4 (#5) = the shown aim
+  chain fires YOUR Chop #4 (works for you)
+  chain fires YOUR Compost Lob #2 (works for you)
+  END OF ROUND: board PUTS OUT Sea Breeze heal 2 (#8) for the creature at 1,1 (spawn, no caption)
+R2 aim shown: Belly Flop at 3,1 why[fires Bramble] | env places 2, passes 0
+  poison Poison
+  PLACES Bog Breath trick 4 (#10) = RE-PICK (not the shown aim Belly Flop)
+  chain fires ENV Sun #7 for creature (x2), on board before your move, NOT in aim reasons
+  chain fires its own Sea Breeze heal 4 #8 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  END OF ROUND: board PUTS OUT Scale Guard guard 3 (#13) for the creature at 1,0 (spawn, no caption)
+R3 aim shown: Breaker at 0,3 why[fires Bramble; Quick: plays again] | env places 2, passes 0
+  poison Poison
+  PLACES Breaker hurt 4 (#15) = the shown aim
+  chain fires ENV Bramble #11 for creature (you -8), on board before your move, named in aim reasons
+  QUICK note (Breaker): one more piece
+  PLACES Slam hurt 5 (#16) = QUICK EXTRA (never shown)
+  chain fires its own Venom Spit trick 2 #3
+R4 aim shown: Bite at 2,1 why[combo Double Swing; fires Thornburst] | env places 2, passes 0
+  PLACES Bite hurt 4 (#20) = the shown aim
+  chain fires its own Slam hurt 7 #16
+  chain fires ENV Thornburst #18 for creature (you -0), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Venom Spit trick 2 (#23) for the creature at 0,2 (spawn, no caption)
+R5 aim shown: Toad Slime at 1,1 why[fires Thornburst] | env places 2, passes 0
+  PLACES Toad Slime guard 3 (#25) = the shown aim
+  chain fires its own Scale Guard guard 3 #13 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  chain fires ENV Thornburst #12 for creature (you -0), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Sea Breeze heal 2 (#28) for the creature at 2,3 (spawn, no caption)
+
+=== FIGHT 39 reef-leviathan (boss L29) seed 1507 board 4x4
+R1 aim shown: Highland Charge at 3,3 why[] | env places 2, passes 0
+  PLACES Highland Charge hurt 10 (#6) = RE-PICK (not the shown aim Highland Charge)
+  chain fires YOUR Dodge #2 (works for you)
+R2 aim shown: Crush at 1,0 why[fires Rain] | env places 2, passes 0
+  PLACES Crush hurt 10 (#10) = RE-PICK (not the shown aim Crush)
+  chain fires its own Highland Charge hurt 12 #6
+  chain fires YOUR Dodge #2 (works for you)
+R3 aim shown: Splash at 0,3 why[fires Thornburst; fires Bramble] | env places 2, passes 0
+  PLACES Splash hurt 7 (#14) = the shown aim
+R4 aim shown: Whirlpool at 2,2 why[fires Bramble; fires Thornburst] | env places 2, passes 0
+  PLACES Whirlpool hurt 8 (#18) = the shown aim
+  chain fires ENV Bramble #16 for creature (you -12), on board before your move, named in aim reasons
+  chain fires ENV Thornburst #15 for creature (you -0), on board before your move, named in aim reasons
+  END OF ROUND: board PUTS OUT Scheme trick 4 (#21) for the creature at 1,0 (spawn, no caption)
+R5 aim shown: Tidal Slam at 1,2 why[fires Bramble] | env places 2, passes 0
+  PLACES Tidal Slam hurt 10 (#23) = the shown aim
+  chain fires ENV Bramble #19 for creature (you -12), on board before your move, named in aim reasons
+  chain fires its own Scheme trick 4 #21 = A PIECE THE BOARD PUT OUT FOR IT (spawn)
+  END OF ROUND: board PUTS OUT Thornbush guard 6 (#26) for the creature at 3,0 (spawn, no caption)
+R6 aim shown: Crush at 2,2 why[Sun x2; fires your Chop] | env places 2, passes 0
+  PLACES Crush hurt 10 (#28) = the shown aim
+
+PER FIGHT
+{"fight":"0 aphid-swarm (small L1) seed 1000","rounds":4,"repick":2,"quick":1,"free_env":1,"fires_mine":1,"spawn":1,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"1 sun-lizard (medium L8) seed 1013","rounds":6,"repick":1,"quick":1,"free_env":3,"fires_mine":0,"spawn":3,"fires_spawn":1,"env_pass":0,"over":"seen_off"}
+{"fight":"2 jungle-tiger (large L26) seed 1026","rounds":8,"repick":2,"quick":0,"free_env":4,"fires_mine":1,"spawn":5,"fires_spawn":0,"env_pass":1,"over":"seen_off"}
+{"fight":"3 reef-leviathan (boss L29) seed 1039","rounds":4,"repick":1,"quick":0,"free_env":0,"fires_mine":0,"spawn":0,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"4 earwig (small L4) seed 1052","rounds":7,"repick":2,"quick":1,"free_env":2,"fires_mine":0,"spawn":1,"fires_spawn":0,"env_pass":2,"over":"seen_off"}
+{"fight":"5 carrion-crow (medium L9) seed 1065","rounds":6,"repick":1,"quick":1,"free_env":3,"fires_mine":1,"spawn":4,"fires_spawn":1,"env_pass":0,"over":"seen_off"}
+{"fight":"6 lichen-reindeer (large L28) seed 1078","rounds":5,"repick":0,"quick":0,"free_env":2,"fires_mine":0,"spawn":2,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"7 old-bramblehorn (boss L30) seed 1091","rounds":6,"repick":2,"quick":0,"free_env":2,"fires_mine":1,"spawn":4,"fires_spawn":2,"env_pass":0,"over":"seen_off"}
+{"fight":"8 dusk-moth (small L3) seed 1104","rounds":4,"repick":0,"quick":0,"free_env":2,"fires_mine":0,"spawn":3,"fires_spawn":1,"env_pass":0,"over":"seen_off"}
+{"fight":"9 dune-scorpion (medium L10) seed 1117","rounds":5,"repick":2,"quick":0,"free_env":1,"fires_mine":1,"spawn":3,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"10 wolverine (large L21) seed 1130","rounds":4,"repick":1,"quick":0,"free_env":1,"fires_mine":0,"spawn":1,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"11 dune-wyrm (boss L30) seed 1143","rounds":4,"repick":1,"quick":0,"free_env":1,"fires_mine":1,"spawn":1,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"12 leopard-slug (small L2) seed 1156","rounds":3,"repick":0,"quick":0,"free_env":1,"fires_mine":0,"spawn":1,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"13 giant-centipede (medium L11) seed 1169","rounds":4,"repick":1,"quick":0,"free_env":1,"fires_mine":1,"spawn":1,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"14 delta-gharial (large L24) seed 1182","rounds":4,"repick":0,"quick":1,"free_env":2,"fires_mine":2,"spawn":1,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"15 snow-owl-monarch (boss L30) seed 1195","rounds":5,"repick":1,"quick":0,"free_env":1,"fires_mine":0,"spawn":3,"fires_spawn":1,"env_pass":0,"over":"seen_off"}
+{"fight":"16 ant-scouts (small L2) seed 1208","rounds":7,"repick":2,"quick":0,"free_env":3,"fires_mine":2,"spawn":4,"fires_spawn":1,"env_pass":0,"over":"defeat"}
+{"fight":"17 ember-beetle (medium L12) seed 1221","rounds":5,"repick":1,"quick":0,"free_env":0,"fires_mine":1,"spawn":3,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"18 prairie-bison (large L26) seed 1234","rounds":8,"repick":1,"quick":0,"free_env":2,"fires_mine":1,"spawn":3,"fires_spawn":1,"env_pass":0,"over":"seen_off"}
+{"fight":"19 storm-eagle (boss L30) seed 1247","rounds":5,"repick":0,"quick":0,"free_env":2,"fires_mine":1,"spawn":2,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"20 aphid-swarm (small L1) seed 1260","rounds":3,"repick":1,"quick":1,"free_env":1,"fires_mine":1,"spawn":2,"fires_spawn":1,"env_pass":0,"over":"charmed"}
+{"fight":"21 spice-monitor (medium L27) seed 1273","rounds":4,"repick":0,"quick":0,"free_env":2,"fires_mine":1,"spawn":3,"fires_spawn":1,"env_pass":0,"over":"seen_off"}
+{"fight":"22 desert-gila-dragon (large L20) seed 1286","rounds":6,"repick":0,"quick":0,"free_env":4,"fires_mine":1,"spawn":4,"fires_spawn":1,"env_pass":0,"over":"seen_off"}
+{"fight":"23 jade-jaguar (boss L30) seed 1299","rounds":9,"repick":2,"quick":2,"free_env":4,"fires_mine":2,"spawn":3,"fires_spawn":1,"env_pass":2,"over":"seen_off"}
+{"fight":"24 earwig (small L4) seed 1312","rounds":3,"repick":0,"quick":1,"free_env":2,"fires_mine":1,"spawn":0,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"25 outback-dingo (medium L30) seed 1325","rounds":6,"repick":0,"quick":1,"free_env":3,"fires_mine":0,"spawn":3,"fires_spawn":1,"env_pass":1,"over":"seen_off"}
+{"fight":"26 moss-golem (large L20) seed 1338","rounds":7,"repick":2,"quick":0,"free_env":2,"fires_mine":0,"spawn":2,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"27 coconut-crab-titan (boss L26) seed 1351","rounds":6,"repick":2,"quick":0,"free_env":3,"fires_mine":1,"spawn":3,"fires_spawn":1,"env_pass":1,"over":"seen_off"}
+{"fight":"28 dusk-moth (small L3) seed 1364","rounds":8,"repick":3,"quick":0,"free_env":4,"fires_mine":2,"spawn":4,"fires_spawn":2,"env_pass":0,"over":"seen_off"}
+{"fight":"29 sea-otter-bandit (medium L13) seed 1377","rounds":7,"repick":0,"quick":0,"free_env":4,"fires_mine":2,"spawn":3,"fires_spawn":0,"env_pass":1,"over":"seen_off"}
+{"fight":"30 salt-sea-lion (large L25) seed 1390","rounds":7,"repick":1,"quick":0,"free_env":3,"fires_mine":1,"spawn":4,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"31 great-hawk (boss L28) seed 1403","rounds":6,"repick":0,"quick":0,"free_env":3,"fires_mine":0,"spawn":3,"fires_spawn":2,"env_pass":0,"over":"seen_off"}
+{"fight":"32 leopard-slug (small L2) seed 1416","rounds":7,"repick":0,"quick":0,"free_env":5,"fires_mine":0,"spawn":5,"fires_spawn":3,"env_pass":0,"over":"charmed"}
+{"fight":"33 poison-dart-frog (medium L16) seed 1429","rounds":3,"repick":0,"quick":0,"free_env":1,"fires_mine":0,"spawn":1,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"34 reef-turtle (large L16) seed 1442","rounds":6,"repick":0,"quick":1,"free_env":3,"fires_mine":0,"spawn":3,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"35 ancient-snapper (boss L28) seed 1455","rounds":10,"repick":1,"quick":0,"free_env":5,"fires_mine":2,"spawn":6,"fires_spawn":2,"env_pass":1,"over":"seen_off"}
+{"fight":"36 ant-scouts (small L2) seed 1468","rounds":4,"repick":1,"quick":0,"free_env":3,"fires_mine":1,"spawn":1,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"37 ptarmigan-flock (medium L18) seed 1481","rounds":6,"repick":1,"quick":1,"free_env":3,"fires_mine":0,"spawn":3,"fires_spawn":0,"env_pass":0,"over":"seen_off"}
+{"fight":"38 mire-toad (large L18) seed 1494","rounds":5,"repick":1,"quick":1,"free_env":4,"fires_mine":1,"spawn":4,"fires_spawn":2,"env_pass":0,"over":"seen_off"}
+{"fight":"39 reef-leviathan (boss L29) seed 1507","rounds":6,"repick":2,"quick":0,"free_env":2,"fires_mine":2,"spawn":2,"fires_spawn":1,"env_pass":0,"over":"seen_off"}
+
+TOTALS
+{
+    "rounds": 223,
+    "aim_as_shown": 165,
+    "repick": 38,
+    "quick": 13,
+    "quick_piece_not_aim": 0,
+    "slow": 11,
+    "foe_fires_mine": 39,
+    "foe_fires_env": 121,
+    "foe_fires_env_named": 106,
+    "foe_fires_own_old": 116,
+    "foe_fires_spawn": 26,
+    "spawn": 105,
+    "env_place": 408,
+    "env_pass": 13,
+    "env_pass_full": 0,
+    "rounds_env_pass": 9,
+    "rounds_spawn": 105,
+    "rounds_foe_free_env": 95,
+    "rounds_foe_fires_spawn": 26,
+    "aim_fires_spawn_shown": 96,
+    "env_unnamed_repick": 5,
+    "aim_shown_nothing_played": 5,
+    "env_unnamed_other": 10,
+    "noaim_but_played": 7
+}

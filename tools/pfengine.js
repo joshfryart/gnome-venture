@@ -1307,7 +1307,7 @@
     if (s.foe.plan && v1r(s, 'aimtot')) s.foe.plan.tot = aimTotal(s);   // 2.6.95: what its committed move would do now (one dry run; stored with the aim)
   }
 
-  /** 2.6.95 (aim total): what the creature's committed move would do to you if it played now (pfb_aim_total): { hp, g, bait, heal, n, why }, null (no aim) or { broken: 'cell' | 'edge' | 'slow' }. */
+  /** 2.6.95 (aim total): what the creature's committed move would do to you if it played now (pfb_aim_total): { hp, g, bait, heal, n, why, ids }, null (no aim) or { broken: 'cell' | 'edge' | 'slow' }. */
   function aimTotal(s) {
     var plan = nn(s.foe.plan, null);
     if (!plan || truthy(s.over)) return null;
@@ -1319,10 +1319,13 @@
     var w = clone(s); w.spent = []; w.lastfoe = []; w.gone = []; begin(w, 'foe');
     var hp0 = toInt(w.me.hp); w.aimforce = true; var ev = place(w, 'foe', hi, x, y); delete w.aimforce;
     if (ev === null) return { broken: 'edge' };
-    var g = 0, bait = 0, heal = 0, n = 0, sun = false, mud = false, combo = [], fires = [], quick = truthy(w.foe.again);
+    var g = 0, bait = 0, heal = 0, n = 0, sun = false, mud = false, combo = [], fires = [], quick = truthy(w.foe.again), ids = [];
     ev.forEach(function (e) {
       if (e.id === undefined || e.id === null) return;
       n++;
+      if (!truthy(e.root)) { var q = { id: toInt(e.id), by: e.by === 'foe' ? 'foe' : (e.by === 'env' ? 'env' : 'me') };   // after 2.6.96: which pieces fire, in order
+        if (q.by === 'env') { q.kind = String(nn(e.kind, '')); q.v = q.kind === 'sun' ? round(Number(s.v1.sun), 2) : (q.kind === 'rain' ? toInt(nn(e.guard, 0)) : (q.kind === 'bramble' ? toInt(e.me) : (q.kind === 'thorn' ? iround(Number(e.foe)) : 0))); }
+        ids.push(q); }
       if (e.by === 'env') { if (e.kind !== 'sun') fires.push('fires ' + e.n); return; }
       if (e.by === 'foe') {
         if (e.t === 'hurt') g += toInt(nn(e.blocked, 0));
@@ -1338,7 +1341,7 @@
     fires.forEach(function (f) { why.push(f); });
     if (quick) why.push('Quick: plays again');
     if (mud) why.push('Mud -' + Math.round(100 * Number(nn(s.v1.mud, 0))) + '%');
-    return { hp: hp0 - toInt(w.me.hp), g: g, bait: round(bait, 1), heal: heal, n: n, why: why };
+    return { hp: hp0 - toInt(w.me.hp), g: g, bait: round(bait, 1), heal: heal, n: n, why: why, ids: ids };
   }
 
   // ------------------------------------------------------------------ the whole fight
@@ -1604,6 +1607,7 @@
       default: tail = '';
     }
     if (e.ta && e.ta !== e.by && (e.ta === 'me' || e.ta === 'foe') && (e.by === 'me' || e.by === 'foe')) who = e.ta === 'me' ? 'Your chain fires the ' + foe + '\u2019s' : 'The ' + foe + '\u2019s chain fires your';   // 2.6.76: a chain through the other side's piece
+    else if (e.root === false && (e.by === 'me' || e.by === 'foe')) who = e.by === 'me' ? 'Your chain fires your' : 'The ' + foe + '\u2019s chain fires its';   // after 2.6.96 (owner: "random plays"): a piece already on the board that fires in its own side's chain is not played again
     return (e.by === 'me' ? '🧩 ' : '💥 ') + who + ' ' + e.n + tail + (bits.length ? ' · ' + bits.join(', ') : '') + '.';
   }
   function noteLine(e, foe) {

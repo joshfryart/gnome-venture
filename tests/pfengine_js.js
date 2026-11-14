@@ -2,6 +2,7 @@
 // and requires identical JSON: events, views, hidden-state digests, query answers, text lines, history chips and the final state.
 const fs = require('fs');
 const PFE = require('../tools/pfengine.js');
+let nIds = 0, nEnvIds = 0, nMeIds = 0;
 const lines = fs.readFileSync(process.argv[2], 'utf8').split('\n').filter(Boolean);
 
 // JSON-roundtrip, an empty object means the same as PHP's empty array, -0 is 0. Key order is kept (PHP array order = insertion order).
@@ -82,6 +83,7 @@ for (const ln of lines.slice(1)) {
     if (st.q && fail(c + ' queries', st.q, queries(s), 'q')) { stop = true; return; }
     const res = st.op === 'flip' ? { err: PFE.flip(s, st.hand, st.turn) } : st.op === 'start' ? { err: PFE.start(s, st.hand, st.side) } : st.op === 'pass' ? PFE.pass(s, st.turn) : PFE.play(s, st.moves, st.turn, st.dry, undefined, st.dry);
     if (fail(c + ' result', st.res, res, 'res')) { stop = true; return; }
+    { const ai = res.aim && res.aim.ids; if (ai) { nIds++; if (ai.some(q => q.by === 'env')) nEnvIds++; if (ai.some(q => q.by === 'me')) nMeIds++; } }   // after 2.6.96: the aim's ids are inside 'res' above (compared with PHP's)
     if (st.lines) {
       const fo = s.foe.name;
       if (fail(c + ' lines', st.lines, res.ev.map(e => PFE.line(e, fo)), 'lines') || fail(c + ' chips', st.chips, res.ev.map((e, k) => PFE.chipEvent(e, k)), 'chips') || fail(c + ' chips board', st.chipsb, PFE.chipsBoard(res.ev), 'chipsb')) { stop = true; return; }
@@ -92,6 +94,8 @@ for (const ln of lines.slice(1)) {
   });
   if (!stop) fail(ctx + ' final state', rec.final, ns(s), 'final');
 }
+if (!nIds || !nEnvIds || !nMeIds) { bad++; console.log('FAIL the trace never had a dry aim with ids (' + nIds + '), with an environment piece (' + nEnvIds + ') or with one of yours (' + nMeIds + ')'); }
 if (!done || done.fights !== nf) { bad++; console.log('FAIL trace incomplete (php wrote ' + (done ? done.fights : '?') + ' fights, read ' + nf + ')'); }
+if (!bad) console.log('aim ids compared: ' + nIds + ' dry aims, ' + nEnvIds + ' with an environment piece, ' + nMeIds + ' with one of yours');
 console.log(bad ? 'FAIL ' + bad + ' mismatches' : 'ok: ' + nf + ' fights, ' + na + ' actions (play, dry, pass, rejected moves) match the PHP engine; ' + hdr.rounds.length + ' round() and ' + hdr.crc.length + ' crc32 samples, ' + hdr.decks.length + ' deck builds');
 process.exit(bad ? 1 : 0);

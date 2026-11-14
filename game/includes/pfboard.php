@@ -1098,7 +1098,7 @@ function pfb_intent(array &$s): void
 
 /**
  * 2.6.95 (aim total): what the creature's committed move would do to you if it played now. A dry run on a copy, exactly as pfb_foe_turn plays it (aimforce, its first piece):
- * ['hp' => health you lose (through your guard), 'g' => guard of yours it eats, 'bait' => damage to the creature from YOUR pieces its chain fires, 'heal' => its own heal, 'n' => pieces fired, 'why' => short reasons].
+ * ['hp' => health you lose (through your guard), 'ids' => the pieces its chain fires besides the placed one, in order: [id, by 'me'|'foe'|'env', for an environment piece kind and v = Sun's multiplier / Rain's guard / Bramble's cost to you / Thornburst's cost to it], 'g' => guard of yours it eats, 'bait' => damage to the creature from YOUR pieces its chain fires, 'heal' => its own heal, 'n' => pieces fired, 'why' => short reasons].
  * Quick's extra piece, the poison ticks and the terrain turn are not in the numbers (Quick is named in 'why'). Returns null when there is no aim, or ['broken' => 'cell'|'edge'|'slow'] when the aim cannot play
  * ('cell' = something stands on its cell, 'edge' = its edges no longer fit there or its piece is gone, 'slow' = it loses its turn). Never called from pfb_cell_preview.
  */
@@ -1114,10 +1114,13 @@ function pfb_aim_total(array $s): ?array
     $w = $s; $w['spent'] = []; $w['lastfoe'] = []; $w['gone'] = []; pfb_begin($w, 'foe');
     $hp0 = (int)$w['me']['hp']; $w['aimforce'] = true; $ev = pfb_place($w, 'foe', $hi, $x, $y); unset($w['aimforce']);
     if ($ev === null) return ['broken' => 'edge'];
-    $g = 0; $bait = 0.0; $heal = 0; $n = 0; $why = []; $sun = false; $mud = false; $combo = []; $fires = []; $quick = !empty($w['foe']['again']);
+    $g = 0; $bait = 0.0; $heal = 0; $n = 0; $why = []; $sun = false; $mud = false; $combo = []; $fires = []; $quick = !empty($w['foe']['again']); $ids = [];
     foreach ($ev as $e) {
         if (!isset($e['id'])) continue;
         $n++;
+        if (empty($e['root'])) { $q = ['id' => (int)$e['id'], 'by' => $e['by'] === 'foe' ? 'foe' : ($e['by'] === 'env' ? 'env' : 'me')];   // after 2.6.96: which pieces fire, in order (the page lights the environment's and yours)
+            if ($q['by'] === 'env') { $q['kind'] = (string)($e['kind'] ?? ''); $q['v'] = $q['kind'] === 'sun' ? round((float)$s['v1']['sun'], 2) : ($q['kind'] === 'rain' ? (int)($e['guard'] ?? 0) : ($q['kind'] === 'bramble' ? (int)$e['me'] : ($q['kind'] === 'thorn' ? (int)round((float)$e['foe']) : 0))); }
+            $ids[] = $q; }
         if (($e['by'] ?? '') === 'env') { if (($e['kind'] ?? '') !== 'sun') $fires[] = 'fires ' . $e['n']; continue; }   // a Sun says 'Sun x2' instead
         if ($e['by'] === 'foe') {
             if ($e['t'] === 'hurt') $g += (int)($e['blocked'] ?? 0);
@@ -1132,7 +1135,7 @@ function pfb_aim_total(array $s): ?array
     foreach ($fires as $f) $why[] = $f;
     if ($quick) $why[] = 'Quick: plays again';
     if ($mud) $why[] = 'Mud -' . (int)round(100 * (float)($s['v1']['mud'] ?? 0)) . '%';
-    return ['hp' => $hp0 - (int)$w['me']['hp'], 'g' => $g, 'bait' => round($bait, 1), 'heal' => $heal, 'n' => $n, 'why' => $why];
+    return ['hp' => $hp0 - (int)$w['me']['hp'], 'g' => $g, 'bait' => round($bait, 1), 'heal' => $heal, 'n' => $n, 'why' => $why, 'ids' => $ids];
 }
 
 /**

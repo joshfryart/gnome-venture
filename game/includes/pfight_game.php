@@ -352,6 +352,7 @@ function pfight_line(array $e, string $foe): string
     if (isset($e['note'])) return match ($e['note']) { 'quick' => '⚡ ' . ($e['n'] !== '' ? $e['n'] . ': ' : '') . 'Quick. The ' . $foe . ' plays a second piece.', 'slow' => '⏳ The ' . $foe . ' loses its turn.', 'fade' => '🛡️ Your guard fades (-' . (int)$e['n'] . ') as your turn starts.', 'hold' => '🛡️ Hold: ' . (int)$e['n'] . ' guard stays up into your turn.', default => '🦶 Tripped: you draw 1 fewer piece next turn.' };   // 2.6.76
     $who = $e['by'] === 'me' ? 'You play' : 'The ' . $foe . ' plays';
     if (!empty($e['ta']) && $e['ta'] !== $e['by'] && in_array($e['ta'], ['me', 'foe'], true) && in_array($e['by'], ['me', 'foe'], true)) $who = $e['ta'] === 'me' ? 'Your chain fires the ' . $foe . '’s' : 'The ' . $foe . '’s chain fires your';   // 2.6.76: a chain through the other side's piece
+    elseif (($e['root'] ?? null) === false && in_array($e['by'], ['me', 'foe'], true)) $who = $e['by'] === 'me' ? 'Your chain fires your' : 'The ' . $foe . '’s chain fires its';   // after 2.6.96 (owner: "random plays"): a piece already on the board that fires in its own side's chain is not played again
     $bits = [];
     if (!empty($e['combo'])) $bits[] = '✨ ' . $e['combo'];
     if (!empty($e['fit'])) $bits[] = 'snug fit';
