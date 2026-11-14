@@ -428,7 +428,13 @@
   function endReveal() { if (!root.classList.contains('pfv-endwait')) return; root.classList.remove('pfv-endwait'); root.classList.add('pfv-endin'); }
   /** 2.6.79 (Josh: "reload still occurring on End turn"): nothing reloads (checked on an emulated phone, no navigation, no plain submit), but the turn is swapped in place and for a moment the board and hand are EMPTY until the new script has drawn them: it looks like a quick reload.
    So the old fight is snapshotted when a form is sent (canvases copied) and shown, frozen, over the new fight until the new board is drawn; then it goes. */
-  function ghostSnap() {
+  /* 2.6.96 (owner: "I started a new combat after winning an old one ... resolves on refresh"): the snapshot was taken on EVERY form sent from the fight, the result card's Collect / Continue and Run too, and it then waited
+     15 s for any new #pfight. The page after Collect has none, so it kept waiting, and the next encounter's pre-fight screen (pfv_assets: <i id="pfight" hidden>) got the frozen finished fight laid over it, fixed,
+     for good (no board script runs there to take it away). Now: only a turn's forms take it, only a new BOARD fight gets it, and the wait ends with the swap that answers the form. */
+  var GHOST_DO = { pfb_play: 1, pfb_pass: 1, pfb_flip: 1, pf_redraw: 1 };   // the forms whose answer is this same fight's next turn
+  function ghostSnap(ev) {
+    var dv = ev && ev.target && ev.target.querySelector ? ev.target.querySelector('input[name=do]') : null;
+    if (!dv || !GHOST_DO[dv.value]) return;
     try {
       var r = root.getBoundingClientRect(), g = root.cloneNode(true), a = root.querySelectorAll('canvas'), b = g.querySelectorAll('canvas'), i;
       for (i = 0; i < a.length && i < b.length; i++) { try { b[i].getContext('2d').drawImage(a[i], 0, 0); } catch (e) {} }
@@ -437,16 +443,21 @@
       g.classList.add('pfv-ghost'); g.setAttribute('aria-hidden', 'true');
       var gh = window.__pfbGhost = { n: g, t: Date.now(), x: r.left, y: r.top, w: r.width, h: r.height, bg: '#2b1d14', shown: false };
       if (window.__pfbGhostObs) window.__pfbGhostObs.disconnect();
-      var obs = window.__pfbGhostObs = new MutationObserver(function () {   // the moment the new fight is swapped in (before anything is painted), the frozen old one goes over it
-        var n = document.getElementById('pfight'); if (!n || n === root || !n.parentNode || gh.shown) return;
+      var place = function () {   // the moment the new fight is swapped in (before anything is painted), the frozen old one goes over it
+        var n = document.getElementById('pfight'); if (!n || n === root || !n.parentNode || n.dataset.mode !== 'board' || gh.shown) return;   // a board fight only: its script (ghostShow) takes the copy away
         gh.shown = true; obs.disconnect(); g.style.left = gh.x + 'px'; g.style.top = gh.y + 'px'; g.style.width = gh.w + 'px'; g.style.height = gh.h + 'px'; g.style.backgroundColor = gh.bg; n.parentNode.insertBefore(g, n.nextSibling);
-      });
-      obs.observe(document.body, { childList: true, subtree: true }); setTimeout(function () { obs.disconnect(); }, 15000);
+        setTimeout(function () { if (g.parentNode) g.parentNode.removeChild(g); }, 8000);   // never left up for good (a new script that did not start)
+      };
+      var obs = window.__pfbGhostObs = new MutationObserver(place);
+      var done = function () { document.removeEventListener('gv:swapped', done); place(); if (!gh.shown) { obs.disconnect(); if (window.__pfbGhost === gh) window.__pfbGhost = null; } };   // the swap that answers this form is over: no new fight in it = no copy
+      document.addEventListener('gv:swapped', done);
+      obs.observe(document.body, { childList: true, subtree: true }); setTimeout(function () { obs.disconnect(); document.removeEventListener('gv:swapped', done); }, 15000);
     } catch (e) { window.__pfbGhost = null; }
   }
   function ghostShow() {   // the new script has started: take the ghost away when the new board is drawn
     var gh = window.__pfbGhost; window.__pfbGhost = null;
-    if (!gh || !gh.shown || Date.now() - gh.t > 15000) return;
+    if (!gh || !gh.shown) return;
+    if (Date.now() - gh.t > 15000) { if (gh.n.parentNode) gh.n.parentNode.removeChild(gh.n); return; }   // too old to be this turn's: just take it away
     var g = gh.n, t0 = Date.now(), tm = setInterval(function () {
       var drawn = boardEl.children.length > 0 && !!boardEl.querySelector('canvas, .pfb-cell') && document.querySelectorAll('#pf-hand .pf-tile').length > 0;
       if ((drawn && Date.now() - t0 > 120) || Date.now() - t0 > 2500) { clearInterval(tm); if (g.parentNode) g.parentNode.removeChild(g); }
