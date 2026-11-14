@@ -517,3 +517,6 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 .pf-v1.pfv-fit .pf-plan .pf-plan-bar { margin-left: 0; }
 .pf-v1 .pf-plan:not(.open) li.pf-plan-aim { display: list-item; list-style: none; margin-left: 0; }
 .pf-v1.pfv-fit .pf-plan.pf-hasaim:not(.open) { max-height: 3em; }
+/* after 2.6.95: the Remove button of a broken or gone belt tool is compact and stays inside its slot */
+.pfv .pfv-rm { margin: 4px 0 0; width: 100%; }
+.pfv .pfv-rm .btn { width: 100%; min-height: 24px; padding: 1px 4px; font-size: 11px; line-height: 1.2; }
