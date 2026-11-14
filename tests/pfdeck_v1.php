@@ -182,7 +182,8 @@ pfb_end_round($s); pfb_end_round($s);
 chk('POISON runs out after its ticks', $s['me']['poison'] === 0 && $s['me']['poison_v'] === 0 && $s['me']['hp'] === $hp - 12, [$s['me']['poison'], $s['me']['hp'], $hp]);
 $s = dk_bare(); $s['me']['hp'] = 3; dk_fire($s, 'foe', dk_tile($s, 'f:a', 'trick', 8, 'poison')); $s['foe']['hand'] = []; $s['foe']['draw'] = []; pfb_end_round($s);
 chk('POISON can end the fight', $s['over'] === 'defeat' && $s['me']['hp'] === 0, [$s['over'], $s['me']['hp']]);
-$s = dk_bare(); $s['me']['hand'] = array_slice($s['me']['hand'], 0, 1);
+$s = dk_bare(); $s['v1']['redraw'] = 0;   // 2.6.95: the hand-top-up rule is the 2.6.94 one (the redraw version is in pfboard_v1.php section 21)
+ $s['me']['hand'] = array_slice($s['me']['hand'], 0, 1);
 dk_fire($s, 'foe', dk_tile($s, 'f:a', 'hurt', 2, 'trip')); dk_fire($s, 'foe', dk_tile($s, 'f:b', 'trick', 2, 'trip'));
 $s['foe']['hand'] = []; $s['foe']['draw'] = []; $n0 = count($s['me']['hand']); pfb_end_round($s);
 chk('TRIP: you draw one piece fewer next round, once however many trips landed', count($s['me']['hand']) === $n0 + PF_DRAW - 1 && $s['me']['slowdraw'] === 0, count($s['me']['hand']));

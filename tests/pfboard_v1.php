@@ -456,7 +456,7 @@ chk('a 2.6.94 state with none of the new keys resolves every key to PRE', !$bad1
 $v = pfb_view($s)['v1']; $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (!array_key_exists($k, $v) || (int)$v[$k] !== $d) $bad16[] = $k;
 chk('its view emits every key resolved to PRE', !$bad16, $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($n, $k) !== $d) $bad16[] = $k;
-chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar: 2.6.95)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar']), $bad16);
+chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw: 2.6.95)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw']), $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['onebar' => 1, 'redraw' => 1]]);
 chk('an override switches a key on', pfb_v1r($n, 'onebar') === 1 && pfb_v1r($n, 'redraw') === 1 && pfb_v1r($n, 'aimtot') === 0);
 chk('pfb_v1r on a fight without v1 rules is the PRE value too', pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5), 'aside') === 1);
@@ -566,6 +566,28 @@ for ($sd = 1; $sd <= 30; $sd++) { $f = pfb_new(v1_me(10), v1_foe(['small', 'medi
     for ($t = 0; $t < 40 && !$f['over']; $t++) { $m = pfb_search($f, 'me'); $r = $m ? pfb_play($f, [[$m[0], $m[1], $m[2]]], $f['turn']) : pfb_pass($f, $f['turn']); if ($r['err']) break; if (!$f['over'] && round($f['fh']['now'] + $f['bar']['now'], 1) >= $f['fh']['max']) $v1++; }
     $sc[$f['over'] ?: 'none'] = ($sc[$f['over'] ?: 'none'] ?? 0) + 1; }
 chk('30 whole onebar fights: never a full shared bar with the fight still on, and every fight ends', $v1 === 0 && ($sc['none'] ?? 0) === 0, $sc);
+
+echo "== 21. week 1 cuts, part 5: the hand is redrawn every round (2.6.95); a fight saved under 2.6.94 keeps the unplayed pieces\n";
+$rd = function ($v1) { $f = pfb_new(v1_me(12), v1_foe('medium', 8), 77, ['v1' => $v1, 'blank' => true]); pfb_start($f, 0, 'L');
+    $m = pfb_search($f, 'me'); $keep = []; foreach ($f['me']['hand'] as $i => $t) if ($m && $i !== $m[0]) $keep[] = $t['id'] ?? $t['k']; $played = $m ? $f['me']['hand'][$m[0]] : null; $tr = $f['turn'];
+    $r = $m ? pfb_play($f, [[$m[0], $m[1], $m[2]]], $f['turn']) : ['err' => 'no move']; return [$f, $keep, $r, $tr]; };
+[$nw, $keep, $r, $tr] = $rd(true);
+$ids = fn($a) => array_map(fn($t) => $t['id'] ?? $t['k'], $a);
+chk('a new fight: a round was played', $r['err'] === null && $nw['turn'] > $tr, $r['err']);
+$inD = array_intersect($keep, $ids($nw['me']['discard'])); $inH = array_intersect($keep, $ids($nw['me']['hand']));
+chk('a new fight: no unplayed piece is flagged flipped in the hand afterwards', !array_filter($nw['me']['hand'], fn($x) => isset($x['ft'])));
+chk('a new fight: the hand has 5 after the round', count($nw['me']['hand']) === PF_HAND_CAP, count($nw['me']['hand']));
+$bareF = fn($v1) => (function () use ($v1) { $f = v1_bare('medium', $v1); $f['me']['hand'] = [pf_make_tile('hurt', ['level' => 1]), pf_make_tile('hurt', ['level' => 1])]; return $f; })();
+$a = v1_bare('medium', ['redraw' => 1] + V1_294); $b = v1_bare('medium', V1_294);
+foreach ([&$a, &$b] as &$q) { $q['me']['hand'] = []; for ($i = 0; $i < 4; $i++) { $t = v1_tile($q, 'x' . $i, 'hurt', 3, 'mind', 'pal'); $t['flip'] = true; $t['ft'] = $q['turn']; $q['me']['hand'][] = $t; } $q['me']['discard'] = []; $q['me']['draw'] = []; for ($i = 0; $i < 9; $i++) $q['me']['draw'][] = v1_tile($q, 'd' . $i, 'hurt', 3, 'mind', 'pal'); } unset($q);
+pfb_end_round($a); pfb_end_round($b);
+$da = array_column($a['me']['discard'], 'k'); $ha = array_column($a['me']['hand'], 'k');
+chk('redraw: a hand piece not played (x0..x3) is in the discard, the hand is refilled to 5, flip and ft are cleared', count(array_intersect(['x0', 'x1', 'x2', 'x3'], $da)) === 4 && count($a['me']['hand']) === 5 && !array_filter($a['me']['discard'], fn($t) => isset($t['flip']) || isset($t['ft'])), [$da, count($a['me']['hand'])]);
+chk('V1_294: the unplayed pieces stay in the hand (x0..x3 still there, 5 in all)', count(array_intersect(['x0', 'x1', 'x2', 'x3'], array_column($b['me']['hand'], 'k'))) === 4 && count($b['me']['hand']) === 5);
+$a['v1']['tags'] = 1; $c = v1_bare('medium', ['redraw' => 1, 'tags' => 1] + V1_294); $c['me']['hand'] = [v1_tile($c, 'x0', 'hurt', 3, 'mind', 'pal')]; $c['me']['draw'] = []; for ($i = 0; $i < 9; $i++) $c['me']['draw'][] = v1_tile($c, 'd' . $i, 'hurt', 3, 'mind', 'pal'); $c['me']['discard'] = []; $c['me']['slowdraw'] = 1;
+pfb_end_round($c);
+chk('redraw when tripped (slow draw): the hand has 4 and x0 is in the discard', count($c['me']['hand']) === PF_HAND_CAP - 1 && in_array('x0', array_column($c['me']['discard'], 'k'), true), [count($c['me']['hand'])]);
+chk('a new fight has redraw 1, V1_294 has redraw 0', pfb_v1r($nw, 'redraw') === 1 && pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => V1_294]), 'redraw') === 0);
 
 chk('no PHP warning or notice anywhere in this run', !$warn, array_slice($warn, 0, 3));
 echo $bad ? "$bad FAILED\n" : "all ok\n";

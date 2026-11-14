@@ -59,6 +59,7 @@ function pp_show(array $s): string
 {
     $o = [];
     if (!empty($s['v1']['onebar'])) $o[] = sprintf('BAR %.1f/%.1f (damage %.1f, charm %.1f); fill it to win; the larger share decides: charmed or seen off (bosses are always seen off)', $s['fh']['now'] + $s['bar']['now'], $s['fh']['max'], $s['fh']['now'], $s['bar']['now']);   // 2.6.95: one shared bar
+    if (!empty($s['v1']['redraw'])) $o[] = 'Your hand is redrawn every round (what you do not play goes to the discard).';   // 2.6.95
     $o[] = sprintf('TURN %d | you HP %d/%d guard %d | creature "%s" (%s) DAMAGE %.1f/%.1f (full = it backs off)%s | creature intends: %s', min($s['turn'], PF_TURN_CAP), $s['me']['hp'], $s['me']['max'], $s['me']['block'], $s['foe']['name'], $s['size'], $s['fh']['now'], $s['fh']['max'], $s['cm'] > 0 ? sprintf(' CHARM %.1f/%.1f (full = won over)', $s['bar']['now'], $s['bar']['max']) : ' (no charm bar)', $s['foe']['intent'] ?? '-');
     $o[] = sprintf('Multipliers: your Hurt counts x%s on its damage bar, your Charm x%s on its charm bar. Guard shown is what you hold NOW; it resets when your next turn starts, so after the creature moves it reads 0 (it protected you during that move).', $s['hm'], $s['cm']);
     if ($s['over']) $o[] = 'FIGHT OVER: ' . $s['over'];
