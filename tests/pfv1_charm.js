@@ -82,14 +82,14 @@ const VERBOSE = !!process.env.VERBOSE;
   await start('plain', SD, 2);
   for (let k = 0; k < 2; k++) {
     const r = await playAndWatch(0);
-    ck(`charm turn ${k + 1}: the replay plays (your turn, the creature's turn) and the page is the same document`, [r.played, r.mark, r.banners.some(x => /Your turn/i.test(x)), k === 1 || r.banners.some(x => /turn/i.test(x) && !/Your turn/i.test(x))], [true, true, true, true]);   // (the second charm may already win the fight)
+    ck(`charm turn ${k + 1}: the replay plays (2.6.96: the creature's banner comes first, no 'Your turn' before your own chain) and the page is the same document`, [r.played, r.mark, r.banners.length === 0 || !/Your turn/i.test(r.banners[0]), k === 1 || r.banners.some(x => /turn/i.test(x) && !/Your turn/i.test(x))], [true, true, true, true]);   // (the second charm may already win the fight)
   }
   quietOk('charm pieces, 2 turns');
 
   // 2. the charm that fills the bar on the FIRST turn: the last turn is replayed, the bar fills, and only then the result card shows
   await start('near', SD, 1);
   let r = await playAndWatch(0);
-  ck('charm win (turn 1): the replay plays, the bar reaches full, and only then the result card shows (never over the replay)', [r.played, r.tBarFull !== null, r.tRes !== null && r.tBarFull !== null && r.tBarFull <= r.tRes, r.resWhilePlaying, r.banners.some(x => /Your turn/i.test(x))], [true, true, true, false, true]);
+  ck('charm win (turn 1): the replay plays, the bar reaches full, and only then the result card shows (never over the replay)', [r.played, r.tBarFull !== null, r.tRes !== null && r.tBarFull !== null && r.tBarFull <= r.tRes, r.resWhilePlaying, !r.banners.some(x => /Your turn/i.test(x))], [true, true, true, false, true]);   // 2.6.96: no 'Your turn' banner before your own chain
   ck('charm win (turn 1): the card says Charmed with the reward button, the page is the same document', [await p.locator('#pfv-res .badge-charm').count(), await p.locator('#pf-end').isVisible(), r.mark], [1, true, true]);
   quietOk('charm win turn 1');
   // a reload after the end lands on the result at once (no replay again)
@@ -108,7 +108,7 @@ const VERBOSE = !!process.env.VERBOSE;
   // 4. a lost fight: your last turn and the creature's answer are replayed, then the lost card with its Continue button; Continue ends the fight
   await start('defeat', SD, 1);
   r = await playAndWatch(0);
-  ck('defeat: the replay plays your turn and the creature\'s turn first, then the card (never over the replay)', [r.played, r.banners.some(x => /Your turn/i.test(x)), r.banners.some(x => /turn/i.test(x) && !/Your turn/i.test(x)), r.resWhilePlaying, r.tRes !== null], [true, true, true, false, true]);
+  ck('defeat: the replay plays the creature\'s turn (no \'Your turn\' banner before your own chain), then the card (never over the replay)', [r.played, !r.banners.some(x => /Your turn/i.test(x)), r.banners.some(x => /turn/i.test(x) && !/Your turn/i.test(x)), r.resWhilePlaying, r.tRes !== null], [true, true, true, false, true]);
   ck('defeat: the lost card with a button to go home (same document, no reload)', [await p.locator('#pfv-res .badge-lose').count(), await p.locator('#pf-end').isVisible(), r.mark], [1, true, true]);
   quietOk('defeat');
   await Promise.all([p.waitForResponse(x => x.request().method() === 'POST'), p.click('#pf-end')]); await p.waitForTimeout(1500);

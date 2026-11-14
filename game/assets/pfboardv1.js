@@ -27,7 +27,7 @@
   var ENV = !!V1.env, ENVD = data.env || { next: [] }, envLit = {}, slideIds = {}, fadeIds = {}, fxPop = null, stripRem = [], stripNew = false, stripBad = false, lastLegend = '';
   var flipBusy = false, wrapObs = null, wrapEl = null, fitTW = 0, fitTH = 0;
   var planQ = null, offMsg = '', popEl = null, sheetEl = null, rowEl = document.getElementById('pfv-row'), legendEl = document.getElementById('pfv-legend'), flipBtn = document.getElementById('pf-flip');
-  var SPD = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '0' ? 0 : 1; } catch (e) {}
+  var SPD = 1, banMs = 1450, RF = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '0' ? 0 : 1; if (sp0 === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) SPD = 0; } catch (e) {}   // 2.6.96: reduced motion with no speed chosen = skip (the player's own choice wins)
   var FOETAG = { quick: 'Quick: it plays one more piece this turn', evade: 'Evade: your next hit on it misses', bash: 'Bash: adds its guard to its next hit', poison: 'Poison: 2 ticks on your health',
     trip: 'Trip: you draw 1 fewer next round', heal: 'Recovers a little', thorns: 'Thorns: hitting its guard pricks you', hold: 'Hold: this guard lasts a turn longer', pierce: 'Pierce: ignores your guard' };
   var EVN = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst' }, EVW = { sunbeam: 'sunny', creep: 'bramble', puddle: 'mud', gust: 'push', thorn: 'burst' };
@@ -287,6 +287,7 @@
     popEl.querySelector('.pfv-popx').addEventListener('click', closePop);
   }
   function boardTap(ev) {
+    if (playing) { stopPlay(true); return true; }   // 2.6.96: a tap on the board skips the replay (the Skip button is far from the thumb)
     var m = ev.target.closest('.mkb');
     if (m) { var e = dispEnvs()[+m.dataset.ev]; if (e) showPop({ t: 'ev', k: e.kind, rot: e.kind === 'gust' ? ROT[e.dir] : 0, y: e.y }); return true; }
     var g = ev.target.closest('.gc[data-ter]');
@@ -340,7 +341,7 @@
     movedBack = {}; envPush = {};
     Object.keys(pushes).forEach(function (id) { movedBack[id] = pushes[id][0]; envPush[id] = pushes[id].slice(1); });
   }
-  function replayDone() { if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
+  function replayDone() { banMs = 1450; if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
     fxPop = null; fadeIds = {}; slideIds = {}; phase = 'now'; terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = ''; }
   function envStepE(ev) {   // one step of the environment's own events: a piece fires in a chain, the environment places, finds no place, pieces fade
     var K = envKind(ev.kind);
@@ -378,12 +379,21 @@
     render();
     if (flashEnv !== null) { var done = flashEnv; playTimers.push(setTimeout(function () { envDone[done] = 1; }, 10)); }   // its mark stays for this step, then it is gone
   }
+  /** 2.6.96: the replay takes at most REPLAY_MS (at 1x; half of it at 2x) however many events there are: the creature's banner is short, the pieces' steps shrink by RF to fit. */
+  var REPLAY_MS = 4600;
+  function replayScale() {
+    var n = (data.replay || []).length, ups = 0, g = data.gone || [];
+    if (g.some(function (x) { return x.used === 'me'; })) ups++;
+    if (g.some(function (x) { return x.used === 'foe' || (x.fell && !x.used && x.by === 'foe'); })) ups++;
+    var fixed = 200 + 700, vary = n * 950 + ups * 850;
+    return Math.max(0.1, Math.min(1, (REPLAY_MS - fixed) / Math.max(1, vary)));
+  }
   function useUpStep(side, tt) {
     var ids = (data.gone || []).filter(function (g) { return g.used === side || (side === 'foe' && g.fell && !g.used && g.by === 'foe'); }).map(function (g) { return g.id; });
     if (!ids.length) return tt;
     playTimers.push(setTimeout(function () { ids.forEach(function (id) { leavingUsed[id] = 1; }); flashEnv = null; flashIds = {}; stepNote = side === 'me' ? 'A chain of ' + (V1.limit || 3) + ' or more: the pieces that fired are used up.' : 'Pieces that fired their last time, or in a chain of ' + (V1.limit || 3) + ', fall away.'; render(); }, tt));
-    playTimers.push(setTimeout(function () { ids.forEach(function (id) { usedGone[id] = 1; delete leavingUsed[id]; }); render(); }, tt + 800 / SPD));
-    return tt + 850 / SPD;
+    playTimers.push(setTimeout(function () { ids.forEach(function (id) { usedGone[id] = 1; delete leavingUsed[id]; }); render(); }, tt + 800 * RF / SPD));
+    return tt + 850 * RF / SPD;
   }
 
   /** 2.6.78: the result card of a fight that is over waits (the server marks the fight pfv-endwait) until the last turn has been replayed in full, then it fades in. A skipped or absent replay shows it at once. */
@@ -982,10 +992,10 @@
     if (!boardEl || !boardEl.parentNode) return;
     if (!turnEl || turnEl.parentNode !== root) { turnEl = document.createElement('div'); turnEl.setAttribute('role', 'status'); root.appendChild(turnEl); }
     clearTimeout(turnTimer); turnEl.textContent = text; if (sub) { var sm = document.createElement('small'); sm.textContent = sub; turnEl.appendChild(sm); } turnEl.className = 'pf-turn pf-turn-' + who; turnEl.hidden = false;
-    turnEl.style.animationDuration = (1.4 / Math.max(1, SPD)) + 's';
+    turnEl.style.animationDuration = ((banMs - 50) / 1000 / Math.max(1, SPD)) + 's';
     turnEl.style.top = Math.max(4, boardEl.offsetTop + boardEl.offsetHeight / 2 - 18) + 'px';
     void turnEl.offsetWidth; turnEl.classList.add('pf-turn-on');
-    turnTimer = setTimeout(function () { if (turnEl) turnEl.hidden = true; }, 1450 / Math.max(1, SPD));
+    turnTimer = setTimeout(function () { if (turnEl) turnEl.hidden = true; }, banMs / Math.max(1, SPD));
   }
   function revealChip(k) { if (!histEl) return; var c = histEl.querySelector('.pf-chip-new[data-ev="' + k + '"]'); if (c) { c.hidden = false; c.classList.add('pf-chip-in'); } histEl.scrollLeft = 0; }
   function revealAllChips() { if (!histEl) return; Array.prototype.forEach.call(histEl.querySelectorAll('.pf-chip-new[hidden]'), function (c) { c.hidden = false; }); histEl.scrollLeft = 0; }
@@ -1022,7 +1032,7 @@
     if (data.bar !== undefined) setBar(data.bar, data.barmax); if (data.fh !== undefined) setFh(data.fh, data.fhmax); if (data.hp !== undefined) setHp(data.hp); setGuard(data.guard);
     if (insp) insp.hidden = true; root.classList.remove('pf-playing');
     var gone = boardEl.querySelectorAll('.pfb-gone');
-    if (gone.length && skipped !== true) { Array.prototype.forEach.call(gone, function (c) { c.classList.add('pfb-leaving'); }); playTimers.push(setTimeout(afterLeave, 800)); }
+    if (gone.length && skipped !== true) { Array.prototype.forEach.call(gone, function (c) { c.classList.add('pfb-leaving'); }); playTimers.push(setTimeout(afterLeave, 800 * RF / Math.max(1, SPD))); }
     else afterLeave();
   }
   function maybeReplay() {
@@ -1036,14 +1046,15 @@
     if (data.replay0) { setBar(data.replay0.bar, data.barmax); setFh(data.replay0.fh || 0, data.fhmax); setHp(data.replay0.hp); setGuard(data.replay0.g); }
     if (!SPD) { render(); stopPlay(true); return; }   // speed: skip
     replayStart();
-    var step = 950 / SPD, BAN = 1500 / SPD, tt = 300, lastBy = null, foeName = data.foe || 'Creature';   // each side: its banner shows, holds for a second, fades, and only then its pieces play
+    RF = replayScale(); banMs = 700;   // 2.6.96: at most 5 s from End turn at 1x: the creature's banner is short, no banner for your own chain or for the environment, the steps shrink to fit
+    var step = 950 * RF / SPD, BAN = 700 / SPD, tt = 200, lastBy = null, foeName = data.foe || 'Creature';   // each side: its banner shows, holds for a second, fades, and only then its pieces play
     data.replay.forEach(function (ev, k) {
       var side = ev.ta || ev.by;   // the turn it belongs to: a chain through the other side's pieces stays in one turn
       if (side !== lastBy) {
         if (lastBy === 'me' || lastBy === 'foe') tt = useUpStep(lastBy, tt);   // v1: the pieces that side's chain used up leave before the next turn
         lastBy = side;
-        (function (by, at) { playTimers.push(setTimeout(function () { stepNow = by === 'me' ? 0 : by === 'foe' ? 1 : 2; stepNote = by === 'env' ? (ENV ? envTurnNote() : 'Terrain turn. The marked events land in order, then bramble pricks, then old pieces expire.') : by === 'foe' ? (PREV && PREV.aim ? 'The ' + foeName + ' aims ' + PREV.aim.n + ' at the marked cell.' : 'The ' + foeName + ' looks for a spot.') : ''; render(); if (by === 'env') showTurn(ENV ? 'Environment turn' : 'Terrain turn', 'env', ENV ? envTurnSub() : 'events land, then bramble pricks'); else showTurn(by === 'me' ? 'Your turn' : foeName + "'s turn", by === 'me' ? 'me' : 'foe', by === 'foe' ? foeSub() : ''); }, at)); })(side, tt);
-        tt += BAN;
+        (function (by, at) { playTimers.push(setTimeout(function () { stepNow = by === 'me' ? 0 : by === 'foe' ? 1 : 2; stepNote = by === 'env' ? (ENV ? envTurnNote() : 'Terrain turn. The marked events land in order, then bramble pricks, then old pieces expire.') : by === 'foe' ? (PREV && PREV.aim ? 'The ' + foeName + ' aims ' + PREV.aim.n + ' at the marked cell.' : 'The ' + foeName + ' looks for a spot.') : ''; render(); if (by === 'foe') showTurn(foeName + "'s turn", 'foe', foeSub()); }, at)); })(side, tt);   // 2.6.96: only the creature has a banner (the chip names your turn and the environment)
+        if (side === 'foe') tt += BAN;
       }
       playTimers.push(setTimeout(function () {
         if ((ev.ta || ev.by) === 'foe') aimHide = true;   // its aim was on the board while its banner showed
