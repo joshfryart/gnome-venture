@@ -1,0 +1,27 @@
+PASS strip: 22 PNGs (7 mine, 7 creature, 6 environment, plate, digits; found 22) in the right size (piece 82x73, plate 16x12, digits 6x10 each) 
+PASS strip: no semi-transparent pixel in any PNG 
+PASS strip: every tile has its .aseprite source (layers base, bevel, [teeth | stitch], rim, glyph)
+PASS strip: all 20 tiles have exactly the v47 body silhouette 
+PASS strip: 20 glyphs centred on the body (within half a pixel) 
+PASS strip: no glyph overlaps a hole or its rim; smallest gap 0 px (0 = touching, as in v47) 
+PASS strip: no glyph touches the number plate 
+PASS strip: my glyph and the creature's glyph of a type are different shapes (shared silhouette at most 80%) 
+PASS strip: interlock of composed pieces, 3 families x 4 directions x both ways over all owners: overlap 0 px, gap 0 px
+PASS strip: cluster of 14 pieces: 0 overlapping pixels
+PASS strip: every silhouette edge pixel of 60 random pieces is dark (1 px outline) 
+PASS strip: no isolated pixel in 60 random pieces 
+PASS strip: 10 different digits, cream on the plate at 14.9:1
+PASS hand: 22 PNGs (7 mine, 7 creature, 6 environment, plate, digits; found 22) in the right size (piece 140x124, plate 28x20, digits 9x15 each) 
+PASS hand: no semi-transparent pixel in any PNG 
+PASS hand: every tile has its .aseprite source (layers base, bevel, [teeth | stitch], rim, glyph)
+PASS hand: all 20 tiles have exactly the v47 body silhouette 
+PASS hand: 20 glyphs centred on the body (within half a pixel) 
+PASS hand: no glyph overlaps a hole or its rim; smallest gap 0 px (0 = touching, as in v47) 
+PASS hand: no glyph touches the number plate 
+PASS hand: my glyph and the creature's glyph of a type are different shapes (shared silhouette at most 80%) 
+PASS hand: interlock of composed pieces, 3 families x 4 directions x both ways over all owners: overlap 0 px, gap 0 px
+PASS hand: cluster of 14 pieces: 0 overlapping pixels
+PASS hand: every silhouette edge pixel of 60 random pieces is dark (1 px outline) 
+PASS hand: no isolated pixel in 60 random pieces 
+PASS hand: 10 different digits, cream on the plate at 14.9:1
+RESULT ALL PASS

@@ -1,6 +1,8 @@
 /* Puzzle combat piece renderer for the v1 fight and the Puzzle box (2.6.89): the jigsaw kit (assets/img/pfight/parts47/, drawn in Aseprite, built by tools/build_parts47.py) when its atlas.json says version 47,
    otherwise exactly the old renderer of assets/pfparts.js (a copy of it, so the old board keeps its own untouched file). Exposes window.PFParts.
-   Old kit: base + one stamp per non-flat side (index colours) -> recolour by type -> icon -> number. Jigsaw kit: tile -> frame -> socks -> glyph -> plate and number. If any file is missing, ok stays false and the page keeps its CSS tiles. */
+   Old kit: base + one stamp per non-flat side (index colours) -> recolour by type -> icon -> number. Jigsaw kit: tile -> frame -> socks -> glyph -> plate and number. If any file is missing, ok stays false and the page keeps its CSS tiles.
+   The beauty pass (parts48/, tools/build_parts48.py, atlas "art": 48; "version" stays 47 = the same edge and sizes): my pieces by type, the creature's pieces on their own body with a glyph per type,
+   the environment's pieces on parchment with a drawn glyph per kind, the number in drawn digits on a drawn plate. And every piece picture is made crisp at the size it is shown (see "crisp" below). */
 (function () {
   var root = document.getElementById('pfight');
   var data = {}; try { data = JSON.parse(document.getElementById('pf-data').textContent); } catch (e) { return; }
@@ -81,15 +83,22 @@
 
   /* o = {size:'strip'|'hand', owner:'me'|'foe', type, edges:{L:[kind,fam],..}, old, num}. Returns a new canvas (the composed piece). */
   P.piece = function (o) {
-    var key = [o.size, o.owner, o.type, o.tag || '', o.m || '', o.old ? 1 : 0, o.num, o.owner === 'foe' && o.tint != null ? o.tint : '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|');
+    var key = [o.size, o.owner, o.type, o.tag || '', o.m || '', o.old ? 1 : 0, o.num, o.owner === 'foe' && o.tint != null ? o.tint : '', o.env || '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|');
     var hit = P.cache[key];
     if (!hit) hit = P.cache[key] = build(o);
     var c = document.createElement('canvas'); c.width = hit.width; c.height = hit.height; c.getContext('2d').drawImage(hit, 0, 0);
+    if (P.atlas.art >= 48) {
+      c._pf = o;   // what it shows: crisp() draws it again at the size it is shown
+      if (!o.env && envOf(o)) c.getContext = function () { return document.createElement('canvas').getContext('2d'); };   // the board's own envCv paints a tint, a disc and a vector icon over an environment piece: the kit draws all of it now, so that paint goes to a spare canvas (P.env is the direct way)
+      watch(c);
+    }
     return c;
   };
+  /* an environment piece of the beauty-pass kit: o = {size, kind:'sun'|'bramble'|'rain'|'wind'|'mud'|'thorn', edges} */
+  P.env = function (o) { return P.piece({ size: o.size, owner: 'foe', type: 'soothe', env: o.kind, edges: o.edges, old: false, num: '' }); };
 
   function build(o) {
-    if (P.atlas.version === 47) return build47(o);
+    if (P.atlas.version === 47) return P.atlas.art >= 48 ? build48(o) : build47(o);
     var A = P.atlas, sz = A.sizes[o.size], W = sz.piece[0], H = sz.piece[1], sh = P.sheets[o.size + '-' + o.owner], meta = A.sheets[o.size + '-' + o.owner];
     var role = new Uint8Array(W * H);
     var b = meta.base;
@@ -175,9 +184,79 @@
     if (o.m && !env) { mk('mod-' + o.m, sz.extra); if (o.rar !== undefined && o.rar !== null) mk('rarity-' + o.rar, sz.owner); }   // the upgrade's hexagon (bottom right) and its rarity gem (top right)
     return cv;
   }
+  /* ---------------- the beauty pass (atlas art 48). Mine: tile by type -> socks -> glyph or tag icon -> plate, number, marks. The creature's: its own body -> socks -> its glyph of the type -> plate, number, eye.
+     The environment's: parchment by kind -> socks -> the kind's glyph (no number). The same stamping as aseprite-source/pfight/v48/scripts/pv48.py piece(). */
+  var HUEKIND = { 46: 'sun', 105: 'bramble', 200: 'rain', 220: 'wind', 28: 'mud', 8: 'thorn' };   // how the board asks for an environment piece until it calls P.env: a foe piece without a number, tinted with the kind's hue
+  function envOf(o) { return o.env || (o.owner === 'foe' && o.num === '' && o.type === 'soothe' && o.tint != null && HUEKIND[o.tint]) || null; }
+  function build48(o) {
+    var A = P.atlas, sz = A.sizes[o.size], W = sz.piece[0], H = sz.piece[1], ord = A.order, ti = Math.max(0, ord.types.indexOf(o.type)), kind = envOf(o), ki = kind ? Math.max(0, ord.kinds.indexOf(kind)) : -1, foe = !kind && o.owner === 'foe', i, x, y, q;
+    var d = kind ? cell(o.size + '-envtiles', ki, W, H) : foe ? cell(o.size + '-foetile', 0, W, H) : cell(o.size + '-tiles', ti, W, H);
+    if (o.old) for (i = 0; i < W * H; i++) { q = i * 4; if (d[q + 3]) { d[q] = d[q] * .78; d[q + 1] = d[q + 1] * .78; d[q + 2] = d[q + 2] * .78; } }   // its last round: dimmer
+    var E = A.erase;
+    ['L', 'R', 'T', 'B'].forEach(function (s) {
+      var e = o.edges[s]; if (!e || e[0] === 'flat') return;
+      var k = ord.socks.indexOf(e[1] + '-' + e[0]); if (k < 0) return;
+      var sk = cell(o.size + '-socks', k, W, H), r = sz.socks[SIDEN[s]];
+      for (y = r[1]; y < r[3]; y++) for (x = r[0]; x < r[2]; x++) {
+        var p = (y * W + x) * 4; if (!sk[p + 3]) continue;
+        if (sk[p] === E[0] && sk[p + 1] === E[1] && sk[p + 2] === E[2]) d[p + 3] = 0;   // the hole: a real cut-out
+        else { d[p] = sk[p]; d[p + 1] = sk[p + 1]; d[p + 2] = sk[p + 2]; d[p + 3] = 255; }
+      }
+    });
+    var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    var cx = cv.getContext('2d'), img = cx.createImageData(W, H); img.data.set(d); cx.putImageData(img, 0, 0);
+    var tagI = !kind && !foe && o.tag ? P.tagIcon[o.tag + '|' + o.size] : null;
+    if (tagI) cx.drawImage(tagI, sz.icon.at[0], sz.icon.at[1], sz.icon.size[0], sz.icon.size[1]);   // a named piece of mine keeps its own icon
+    else cx.drawImage(P.imgs[o.size + (kind ? '-envglyphs' : foe ? '-foeglyphs' : '-glyphs')], (kind ? ki : ti) * W, 0, W, H, 0, 0, W, H);
+    if (!kind && String(o.num) !== '') number48(cx, o.size, sz, String(o.num));
+    var bi = ord.badges.indexOf('eye'), bw = sz.badge[0];
+    if (foe) cx.drawImage(P.imgs[o.size + '-badges'], bi * bw, 0, bw, sz.badge[1], sz.owner[0], sz.owner[1], bw, sz.badge[1]);
+    var mz = o.size === 'hand' ? 1.5 : 1, mk = function (name, a) { var im = P.marks[name]; if (im) { cx.imageSmoothingEnabled = false; cx.drawImage(im, a[0], a[1], im.width * mz, im.height * mz); } };   // the marks are drawn once, for the strip size
+    if (o.m && !kind && !foe) { mk('mod-' + o.m, sz.extra); if (o.rar !== undefined && o.rar !== null) mk('rarity-' + o.rar, sz.owner); }
+    return cv;
+  }
+  function number48(cx, size, sz, text) {   // the drawn digits on the drawn plate; a number too long for the plate falls back to the small figures
+    var plate = sz.plate, gw = sz.digit[0], gh = sz.digit[1], k = plate.k, w = text.length * gw + (text.length - 1) * k;
+    cx.drawImage(P.imgs[size + '-plate'], plate.at[0], plate.at[1]);
+    if (w > plate.size[0] - 2 || /[^0-9]/.test(text)) { number47(cx, { at: plate.at, size: plate.size, k: k - 1, bare: true }, text); return; }
+    var x0 = plate.at[0] + Math.floor((plate.size[0] - w) / 2), y0 = plate.at[1] + Math.floor((plate.size[1] - gh) / 2);
+    for (var n = 0; n < text.length; n++) cx.drawImage(P.imgs[size + '-digits'], (+text.charAt(n)) * gw, 0, gw, gh, x0 + n * (gw + k), y0, gw, gh);
+  }
+
+  /* ---------------- crisp: a piece picture is a small canvas that the page stretches to the size of its cell or its hand slot. That is clean only when one art pixel covers a whole number of screen pixels
+     (a phone: 3). On a desktop the scale is 1.2, 1.7, 0.75...: rows and columns of uneven width, broken digits. So every canvas made by P.piece is watched, and when it is shown at such a size its bitmap is
+     drawn again for exactly that many screen pixels, from the nearer of the two drawn sizes (strip 82 x 73, hand 140 x 124): enlarged by a whole number without smoothing, then brought to size with smoothing,
+     so only the pixel borders are softened. The layout does not change: if a canvas turns out to be sized by its bitmap, it gets its first bitmap back and is left alone. */
+  var live = [], RO = window.ResizeObserver ? new ResizeObserver(function (es) { es.forEach(function (e) { if (e.target.isConnected) crisp(e.target); else RO.unobserve(e.target); }); }) : null;   // a canvas that left the page is let go
+  function watch(c) {
+    if (!RO) return; RO.observe(c); c._pfT = Date.now(); live.push(c);
+    if (live.length > 300) { var now = Date.now(); live = live.filter(function (x) { if (x.isConnected || now - x._pfT < 5000) return true; RO.unobserve(x); return false; }); }   // pieces that were only painted into another canvas never reach the page
+  }
+  function cssW(c) { return parseFloat(getComputedStyle(c).width) || 0; }
+  function crisp(c) {
+    var o = c._pf; if (!o || c._pfFixed || !c.isConnected) return;
+    var A = P.atlas, nat = A.sizes[o.size].piece, w0 = cssW(c), dpr = window.devicePixelRatio || 1, tw = Math.round(w0 * dpr), th = Math.round(tw * nat[1] / nat[0]);
+    if (tw < 8 || tw === c._pfW) return;
+    var ctx = HTMLCanvasElement.prototype.getContext, src = null, n;
+    var whole = function (z) { var w = A.sizes[z].piece[0], k = Math.round(tw / w); return k >= 1 && Math.abs(tw - k * w) <= Math.max(1, k - 1); };   // a whole number of screen pixels per art pixel (give or take a pixel in all)
+    var size = whole('strip') ? 'strip' : whole('hand') ? 'hand' : tw >= A.sizes.strip.piece[0] * 1.42 ? 'hand' : 'strip';
+    var from = P.cache['c|' + size + '|' + P.keyOf(o)]; if (!from) { var o2 = {}; for (var k2 in o) o2[k2] = o[k2]; o2.size = size; from = P.cache['c|' + size + '|' + P.keyOf(o)] = build(o2); }
+    var set = function (w, h, draw) { c.width = w; c.height = h; draw(ctx.call(c, '2d')); c._pfW = tw; };
+    if (whole(size)) set(from.width, from.height, function (g) { g.drawImage(from, 0, 0); });   // the art as drawn: the page's own pixelated stretch is exact
+    else {
+      n = Math.max(1, Math.ceil(tw / from.width)); src = from;
+      if (n > 1) { src = document.createElement('canvas'); src.width = from.width * n; src.height = from.height * n; var g0 = src.getContext('2d'); g0.imageSmoothingEnabled = false; g0.drawImage(from, 0, 0, src.width, src.height); }
+      set(tw, th, function (g) { g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(src, 0, 0, tw, th); });
+    }
+    if (Math.abs(cssW(c) - w0) > .01) { var h1 = P.cache['c|' + o.size + '|' + P.keyOf(o)] || build(o); c._pfFixed = true; c.width = h1.width; c.height = h1.height; ctx.call(c, '2d').drawImage(h1, 0, 0); }   // the bitmap gives this canvas its size: hands off
+  }
+  P.keyOf = function (o) { return [o.owner, o.type, o.tag || '', o.m || '', o.rar == null ? '' : o.rar, o.old ? 1 : 0, o.num, o.tint == null ? '' : o.tint, o.env || '', ['L', 'R', 'T', 'B'].map(function (s) { return o.edges[s][0] + ':' + (o.edges[s][1] || ''); }).join('/')].join('|'); };
+  P.crisp = function () { live = live.filter(function (x) { return x.isConnected; }); live.forEach(function (x) { x._pfW = 0; crisp(x); }); };
+  window.addEventListener('resize', function () { P.crisp(); });
+
   function number47(cx, plate, text) {   // the number on its dark plate: 3 x 5 digits, 2 x (strip) or 3 x (hand) size, cream on dark
     var k = plate.k, gw = 3 * k, gh = 5 * k, w = text.length * gw + (text.length - 1) * k, x0 = plate.at[0] + Math.floor((plate.size[0] - w) / 2), y0 = plate.at[1] + Math.floor((plate.size[1] - gh) / 2);
-    cx.fillStyle = '#150d07'; cx.fillRect(plate.at[0], plate.at[1], plate.size[0], plate.size[1]);
+    if (!plate.bare) { cx.fillStyle = '#150d07'; cx.fillRect(plate.at[0], plate.at[1], plate.size[0], plate.size[1]); }
     cx.fillStyle = '#fff4d6';
     for (var n = 0; n < text.length; n++) {
       var g = FONT[text.charAt(n)]; if (!g) continue;
