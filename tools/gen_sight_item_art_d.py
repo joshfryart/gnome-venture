@@ -727,15 +727,15 @@ def crab_gavel(cv, rnd):
     return post
 
 
-ITEMS = {
-    "gate-rubbing": gate_rubbing, "hush-page": hush_page, "snore-note": snore_note, "lucky-wick": lucky_wick,
+ITEMS = {   # 2026-11-14: the weak pictures were redrawn in tools/gen_sight_item_art_f.py and taken out of this list
+
+    "gate-rubbing": gate_rubbing, "snore-note": snore_note, "lucky-wick": lucky_wick,
     "scouts-spyglass": scouts_spyglass, "book-of-hushes": book_of_hushes, "lullaby-song-sheet": lullaby_song_sheet,
-    "white-clover-sprig": white_clover_sprig, "mixed-up-letter": mixed_up_letter, "honey-parcel": honey_parcel,
+    "mixed-up-letter": mixed_up_letter, "honey-parcel": honey_parcel,
     "bunty-parcel": bunty_parcel, "owl-letter": owl_letter, "sticky-spoon": sticky_spoon, "spider-hammock": spider_hammock,
     "derby-rosette": derby_rosette, "beaver-badge": beaver_badge, "five-leaf-clover": five_leaf_clover,
     "clover-ledger": clover_ledger, "left-handed-spiral": left_handed_spiral, "starfish-friend": starfish_friend,
-    "crab-gavel": crab_gavel,
-}
+    }
 
 
 def render(slug):

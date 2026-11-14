@@ -753,10 +753,10 @@ def d_marrowbys_wooden_coin(cv, rnd):
     return dict(post=post)
 
 
-ITEMS = [
+ITEMS = [   # 2026-11-14: pine-snow-cone, pocket-whistle, barnacle-giggle were redrawn in tools/gen_sight_item_art_f.py and taken out of this list
     "squirrels-spare-key", "toadstool-stool", "brass-button", "teeny-axe", "mudskipper-medal", "willow-withies",
-    "icicle-chime", "bog-pressed-bookmark", "herons-programme-notes", "pine-snow-cone", "pocket-whistle",
-    "bottled-rainbow", "visitors-book-page", "echo-pebble", "gulls-medal", "barnacle-giggle", "dream-souvenir",
+    "icicle-chime", "bog-pressed-bookmark", "herons-programme-notes", 
+    "bottled-rainbow", "visitors-book-page", "echo-pebble", "gulls-medal", "dream-souvenir",
     "old-river-pebble", "mirage-marble", "cactus-bloom", "marrowbys-wooden-coin",
 ]
 
