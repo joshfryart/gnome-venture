@@ -93,6 +93,38 @@ function trail_water_tiles(array $art): array
     return $out;
 }
 
+/**
+ * 2026-11-14: the rich look of an authored section as data (field 'decor', written by tools/trail_decor.py from the dressing the ground picture was baked
+ * from; design: claude/plan-trail-decor.md). Nothing draws from it yet: the look is the ground picture and 'objs', unchanged. Returns the field cleaned up
+ * (bad entries dropped), or [] when the section has none: ['looks' => [[kind, x0, y0, x1, y1]], 'rough' => [...], 'floor' => [...], 'rough_default' => kind,
+ * 'props' => [[kind, x, y]], 'tree' => kind or ''].
+ */
+function trail_decor(array $art): array
+{
+    $d = $art['decor'] ?? null;
+    if (!is_array($d) || (int)($d['v'] ?? 0) !== 1) return [];
+    $rows = (array)($art['rows'] ?? []); $h = count($rows); $w = $h ? strlen((string)$rows[0]) : 0;
+    $kind = fn($k): bool => is_string($k) && preg_match('/^[a-z][a-z0-9]{1,19}$/', $k) === 1;
+    $rect = fn($r): bool => is_array($r) && count($r) === 5 && $kind($r[0]) && is_int($r[1]) && is_int($r[2]) && is_int($r[3]) && is_int($r[4])
+        && $r[1] >= 0 && $r[2] >= 0 && $r[1] <= $r[3] && $r[2] <= $r[4] && $r[3] < $w && $r[4] < $h;
+    $out = ['looks' => [], 'rough' => [], 'floor' => [], 'rough_default' => $kind($d['rough_default'] ?? null) ? $d['rough_default'] : '', 'props' => [], 'tree' => $kind($d['tree'] ?? null) ? $d['tree'] : ''];
+    foreach (['looks', 'rough', 'floor'] as $f) foreach ((array)($d[$f] ?? []) as $r) if ($rect($r)) $out[$f][] = $r;
+    foreach ((array)($d['props'] ?? []) as $p) if (is_array($p) && count($p) === 3 && $kind($p[0]) && is_int($p[1]) && is_int($p[2])) $out['props'][] = $p;
+    return $out;
+}
+
+/** What tile x, y of an authored section is dressed as (trail_decor): a thicket's look ('haybale', 'hedge', 'sea' ...), a rough tile's kind ('wheat', 'marsh' ...), a floor zone ('furrows'); null = no decor, or a plain tile. */
+function trail_decor_at(array $art, int $x, int $y): ?string
+{
+    $d = trail_decor($art);
+    $row = (string)($art['rows'][$y] ?? '');
+    $c = $x >= 0 && $x < strlen($row) ? $row[$x] : '';
+    if (!$d || $c === '') return null;
+    $f = $c === '#' ? 'looks' : ($c === ',' ? 'rough' : 'floor');
+    foreach ($d[$f] as [$k, $x0, $y0, $x1, $y1]) if ($x >= $x0 && $x <= $x1 && $y >= $y0 && $y <= $y1) return $k;   // the rects do not overlap
+    return $c === ',' && $d['rough_default'] !== '' ? $d['rough_default'] : null;
+}
+
 /** Is tile x, y water or right beside water (the 8 tiles round it)? This is where the gnome can fish. */
 function trail_water_near(array $art, int $x, int $y): bool
 {

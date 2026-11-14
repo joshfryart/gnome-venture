@@ -4,7 +4,7 @@ Per section: ground/<route>-<section>-r.png (terrain, water, rough, shadows and 
 [x, y, key, jit, jy] (64 x 96 sprites 'x-<name>-<args>', landmarks 'lm-<name>' in their own size), and obj/<key>.png once per key.
 The game draws the raised things and the walker in depth order (includes/trail_art.php; jy = the sprite's shift down in picture pixels).
 Finds, the boss mark and mini-boss marks are NOT in the pictures: the game draws those.
-Per section 'wet' = rows of 0/1, the water tiles of the picture (streams, fords, ponds, sea, ice); the game offers fishing on and beside them.
+Per section 'decor' = the look as data (tools/trail_decor.py; the ground picture is drawn from the same dressing). Per section 'wet' = rows of 0/1, the water tiles of the picture (streams, fords, ponds, sea, ice); the game offers fishing on and beside them.
 Output (staging, NOT the game): the 16 hand-tuned Maplewold routes (region "MW") -> claude/maplewold-bendy-maps/bake/, every other region (NA = the 3 other routes of the Maplewold region) -> claude/trail-rich-bake/ (git-ignored); in each
 {ground,obj}/ and one authored-map file per region <name>_30x18.json (Maplewold: trail_maps_maplewold_30x18.json). Source file of a route: render_bendy_rich.src_of().
 Usage: python3 -I tools/bake_trail_rich.py [route ids ... | --region CODE ... | --all] [--proof] [--jobs N]     no id = the 16 Maplewold routes; --proof also writes proof/<route>-<section>.png,
@@ -33,7 +33,10 @@ def job(a):
     from maplewold_rich_specs import rich_for
     from PIL import Image
     route = json.load(open(R.src_of(rid)))
-    base, objs, sprites, wet = R.paint(route, si, rich_for(rid, si, route), None, walker=False, split=True)
+    rich = rich_for(rid, si, route)
+    base, objs, sprites, wet = R.paint(route, si, rich, None, walker=False, split=True)
+    from trail_decor import decor_for
+    decor = decor_for(route, si, rich, R.ROUGH_DEFAULT[route['land']])   # 2026-11-14: the look as data (tools/trail_decor.py)
     base.convert("RGB").quantize(256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(os.path.join(OUT, "ground", f"{rid}-{si + 1}-r.png"), optimize=True)
     for k, im in sprites.items():
         f = os.path.join(OUT, "obj", k + ".png")
@@ -47,7 +50,7 @@ def job(a):
             if cl.width > 0 and cl.height > 0: pic.alpha_composite(cl, (max(x, 0), max(y, 0)))
         pic.convert("RGB").save(os.path.join(OUT, "proof", f"{rid}-{si + 1}.png"))
     W, H = len(route['sections'][si]['rows'][0]), len(route['sections'][si]['rows'])
-    return rid, si, objs, [''.join('1' if (x, y) in wet else '0' for x in range(W)) for y in range(H)]
+    return rid, si, objs, [''.join('1' if (x, y) in wet else '0' for x in range(W)) for y in range(H)], decor
 
 def all_ids():
     import render_bendy_rich as R
@@ -96,8 +99,8 @@ def main():
     data = B.convert([R.src_of(i) for i in ids])
     jobs = [(rid, si, proof) for rid in ids for si in range(len(data["routes"][str(rid)]["sections"]))]
     with Pool(jobsn or min(8, os.cpu_count() or 2)) as pool:
-        for rid, si, objs, wet in pool.imap_unordered(job, jobs, chunksize=1):
-            sec = data["routes"][str(rid)]["sections"][si]; sec["objs"] = objs; sec["pic"] = "r"   # pic r: the ground picture is <route>-<section>-r.png (the old 22 x 7 pictures keep their names)
+        for rid, si, objs, wet, decor in pool.imap_unordered(job, jobs, chunksize=1):
+            sec = data["routes"][str(rid)]["sections"][si]; sec["objs"] = objs; sec["pic"] = "r"; sec["decor"] = decor   # pic r: the ground picture is <route>-<section>-r.png (the old 22 x 7 pictures keep their names)
             if any("1" in r for r in wet): sec["wet"] = wet   # every water tile in the picture (streams, fords, ponds, sea, ice): the game offers fishing beside them
             print("baked", rid, si + 1, len(objs), "objs", flush=True)
     for reg in sorted({region_of(i) for i in ids}):
