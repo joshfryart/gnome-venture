@@ -7,6 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/garden_logic.php';
 require_once __DIR__ . '/world.php';
 require_once __DIR__ . '/items.php';
+require_once __DIR__ . '/pfight_game.php';   // pfight_v1_on, pf_foe_numbers (pfboard.php)
 
 /** The notes box for a page, from its unlock key ('' when there's nothing to add). */
 function almanac_notes(array $u, array $entry): string
@@ -302,7 +303,7 @@ function almanac_creature_notes(array $u, string $slug): string
     $L = [];
     $lv = (int)$c['level']; $me = (int)($u['level'] ?? 1);
     $L[] = '⚔️ Level ' . $lv . ' ' . e((string)$c['size']) . ' creature · ' . ($lv <= $me ? '<span class="good">fine for you</span>' : ($lv <= $me + 4 ? '<span class="warn">a bit above your level</span>' : '<span class="bad">well above your level</span>'))
-        . ' · health ' . (int)$c['hp'] . ', attack +' . (int)$c['attack'] . ', defence ' . (int)$c['defense'] . '.';
+        . ' · ' . pf_foe_numbers($c, pfight_v1_on($u));   // the Yield bar of a fight (the old HP is not used by the new fights)
     $L[] = '🗺️ Found in ' . ($c['landscapes'] === 'any' ? 'every landscape' : e(str_replace(',', ', ', (string)$c['landscapes']))) . ', on roads, side paths and off the path.';
     $drops = q('SELECT d.chance, d.special, i.id, i.name FROM creature_drops d LEFT JOIN items i ON i.id = d.item_id WHERE d.creature_id = ? ORDER BY d.chance DESC', [$c['id']])->fetchAll();
     if ($drops) {

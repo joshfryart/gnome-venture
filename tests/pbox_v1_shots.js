@@ -42,7 +42,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await open('/puzzlebox.php');
     const kitN = await n('.pfv-g .pc.sel');
     await p.locator('.pfv-g .pc.sel').nth(5).click();
-    ck(T('box: a tapped piece shows its detail line with a Take out button'), [await n('.pfv-dsheet [data-pfv-act]'), /stays \d rounds/.test(await p.locator('#pfv-info').innerText())], [1, true]);
+    ck(T('box: a tapped piece shows its detail line with a Take out button'), [await n('.pfv-dsheet [data-pfv-act]'), /(damage|Heals you|Blocks \d|Yield bar|Boosts)/.test(await p.locator('#pfv-info').innerText())], [1, true]);
     await shot('2-box-kit');
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('.pfv-dsheet [data-pfv-act]')]); await p.waitForTimeout(900);
     ck(T('box: Take out updates the page in place (one piece fewer in the kit)'), await n('.pfv-g .pc.sel'), kitN - 1);
@@ -148,7 +148,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
 
     // ---- T12 (2.6.95): a NEW fight: one bar (damage + charm), no set-aside row, no Teamwork, End turn says Pass with nothing placed, the aim chip says what it does, the help sheet matches
     seedNew('fight', 'large'); seedNew('midfight', '6', '2', 'soft'); await speed(0); await open('/adventure.php');
-    ck(T('T12 new fight: one bar with a damage and a charm segment, words "Bar N of M: damage D, charm C"'), await p.evaluate(() => { const e = document.querySelector('.pf-fhp.pf-one'); return [!!e, !!(e && e.querySelector('.fhfill')) && !!(e && e.querySelector('.chfill')), /^Bar \d+ of \d+: damage \d+, charm \d+/.test(e ? e.getAttribute('aria-label') : ''), document.querySelectorAll('.pf-bar').length]; }), [true, true, true, 0]);
+    ck(T('T12 new fight: one bar with a hurt and a charm segment, words "Yield N of M: hurt D, charm C"'), await p.evaluate(() => { const e = document.querySelector('.pf-fhp.pf-one'); return [!!e, !!(e && e.querySelector('.fhfill')) && !!(e && e.querySelector('.chfill')), /^Yield \d+ of \d+: hurt \d+, charm \d+/.test(e ? e.getAttribute('aria-label') : ''), document.querySelectorAll('.pf-bar').length]; }), [true, true, true, 0]);
     ck(T('T12 new fight: no set-aside row, no Teamwork chip, no hand source icon, no Pass (nothing fits) button; End turn says Pass and is on'), [await p.locator('#pf-opts').isHidden(), await n('#pfv-row .tg.team'), await n('#pf-hand .src'), await n('#pf-pass'), (await p.locator('#pf-go').innerText()).trim(), await p.isDisabled('#pf-go')], [true, 0, 0, 0, 'Pass', false]);
     ck(T('T12 new fight: the aim chip says what it would do ("Aims Snap: hits you for 9"), the reasons are behind a tap'), await p.evaluate(() => { const c = document.querySelector('#pfv-row .tg.aim'); return c ? /^Aims .+: .+/.test(c.textContent.trim()) && (!c.matches('button') || c.getAttribute('aria-label').endsWith('Press for the reasons')) : false; }), true);
     const aimBtn = p.locator('#pfv-row button.tg.aim'); if (await aimBtn.count()) { await aimBtn.click(); await p.waitForTimeout(200); ck(T('T12 new fight: the aim reasons open in a popover'), await n('.pfv-pop'), 1); await shot('4-fight-aim-reasons', false); await p.click('.pfv-popx'); }
@@ -157,7 +157,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await shot('4-fight-new-rules');
     await p.keyboard.press('Escape'); await open('/adventure.php');
     await p.click('#pfv-legend [data-a=help]'); await p.waitForTimeout(200);
-    ck(T('T12 new fight: the help sheet has the two chain rules, the bar, free flip; no Teamwork, no Wind, no Mud'), await p.locator('.pfv-sheet').innerText().then(t => [/A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it/.test(t), /If its aim fires one of your pieces, your piece works for you/.test(t), /The bar/.test(t), /Free, as often as you like/.test(t), /Teamwork|once a turn/i.test(t), /Wind|Mud/.test(t)]), [true, true, true, true, false, false]);
+    ck(T('T12 new fight: the help sheet has the two chain rules, the bar, free flip; no Teamwork, no Wind, no Mud'), await p.locator('.pfv-sheet').innerText().then(t => [/A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it/.test(t), /If its aim fires one of your pieces, your piece works for you/.test(t), /The Yield bar/.test(t), /Free, as often as you like/.test(t), /Teamwork|once a turn/i.test(t), /Wind|Mud/.test(t)]), [true, true, true, true, false, false]);
     await shot('4-fight-new-help', false);
     await p.keyboard.press('Escape');
 

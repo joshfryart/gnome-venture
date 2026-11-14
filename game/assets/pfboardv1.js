@@ -27,12 +27,13 @@
   var ENV = !!V1.env, ENVD = data.env || { next: [] }, envLit = {}, slideIds = {}, fadeIds = {}, fxPop = null, stripRem = [], stripNew = false, stripBad = false, lastLegend = '';
   // T12 (2.6.95): the week-1 rules as the view resolved them (a fight under way keeps its own: 2.6.94 fights carry set-aside, must-link, the pass button, the once-a-turn flip, Teamwork, Wind and Mud)
   var MUSTL = V1.must === undefined || !!V1.must, ASIDE = V1.aside === undefined || !!V1.aside, FREEP = !!V1.freepass, FLIP1 = V1.flip1 === undefined || !!V1.flip1, TEAM = (V1.team2 || 1) > 1, ONE = !!V1.onebar, AIMT = !!V1.aimtot, NOWM = !!V1.nowm;
-  var ONETIP = 'One bar for both ways to win. Hurt pieces fill it with damage (red), Charm pieces fill it with charm (pink). When it is full the fight ends: with more charm than damage you win the creature over for a better reward, otherwise it backs off. Guard and Heal keep you alive meanwhile. Great creatures cannot be charmed.';
+  var YIELD = data.yieldw || 'Yield';   // the creature's bar in a new-rule fight (PF_YIELD in pfboard.php sends it); a 2.6.94 fight keeps its health and charm bars
+  var ONETIP = 'The ' + YIELD + ' bar: both ways to win fill it. Hurt pieces fill it red, Charm pieces fill it pink. When it is full the creature yields: with more charm than hurt you win it over for a better reward, otherwise it backs off. Guard and Heal keep you alive meanwhile. Great creatures cannot be charmed.';
   var flipBusy = false, wrapObs = null, wrapEl = null, fitTW = 0, fitTH = 0;
   var planQ = null, offMsg = '', popEl = null, sheetEl = null, rowEl = document.getElementById('pfv-row'), legendEl = document.getElementById('pfv-legend'), flipBtn = document.getElementById('pf-flip');
   var SPD = 1, banMs = 1450, RF = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '0' ? 0 : 1; if (sp0 === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) SPD = 0; } catch (e) {}   // 2.6.96: reduced motion with no speed chosen = skip (the player's own choice wins)
   var FOETAG = { quick: 'Quick: it plays one more piece this turn', evade: 'Evade: your next hit on it misses', bash: 'Bash: adds its guard to its next hit', poison: 'Poison: 2 ticks on your health',
-    trip: 'Trip: you draw 1 fewer next round', heal: 'Recovers a little', thorns: 'Thorns: hitting its guard pricks you', hold: 'Hold: this guard lasts a turn longer', pierce: 'Pierce: ignores your guard' };
+    trip: 'Trip: you draw 1 fewer next round', heal: 'Heal: empties some of its Yield bar', thorns: 'Thorns: hitting its guard pricks you', hold: 'Hold: this guard lasts a turn longer', pierce: 'Pierce: ignores your guard' };
   var EVN = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst' }, EVW = { sunbeam: 'sunny', creep: 'bramble', puddle: 'mud', gust: 'push', thorn: 'burst' };
   var EVG = { sunbeam: 'sun', creep: 'br', puddle: 'mud', gust: 'gust', thorn: 'thorn' }, EVT = { sunbeam: 'sun', creep: 'br', puddle: 'mud' }, GRN = { sun: 'Sunny patch', br: 'Bramble', mud: 'Mud' }, ROT = { R: 0, B: 90, L: 180, T: 270 };
   var SRCI = { tool: '🔧', pal: '🐾', crop: '🌾' };
@@ -66,11 +67,11 @@
     var who = 'Goes to whoever fires it: you or the creature.', lf = life ? ' It goes after ' + life + ' rounds.' : '', N = (V1.limit || 3);
     var T = {
       sun: { l: ['Fire it in your chain: your pieces in that chain count ' + times(V1.sun || 2) + ' (damage, charm, guard and healing).'], chip: '×' + (V1.sun || 2) + ' for the chain' },
-      bramble: { l: ['Fire it in your chain: ' + (ONE ? 'it adds ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of the bar as damage' : 'the creature loses ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of its health') + '. If the creature fires it, you lose ' + pc100(V1.bramble || 0) + ' of yours. Guard does not help.'], chip: '−' + pc100(V1.bramble || 0) + ' to the other side' },
+      bramble: { l: ['Fire it in your chain: ' + (ONE ? 'it adds ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of the ' + YIELD + ' bar' : 'the creature loses ' + pc100((V1.bramble || 0) * (V1.br_foe || 1)) + ' of its health') + '. If the creature fires it, you lose ' + pc100(V1.bramble || 0) + ' of yours. Guard does not help.'], chip: '−' + pc100(V1.bramble || 0) + ' to the other side' },
       rain: { l: ['Fire it in your chain: you get guard worth ' + pc100(V1.rain || 0) + ' of your health. If the creature fires it, it gets the guard.'], chip: 'guard' },
       wind: { l: ['Fire it in your chain: the piece its arrow points at slides one cell along the arrow, if that cell is free.'], chip: 'pushes a piece' },
       mud: { l: ['Nothing links to it, so chains stop here. A piece next to it counts ' + pc100(V1.mud || 0) + ' less.' + lf], chip: 'no links, −' + pc100(V1.mud || 0) + ' next to it' },
-      thorn: { l: ['Fire it in your chain and you lose ' + pc100(V1.thorn || 0) + ' of your health. ' + (ONE ? 'The bar takes ' : 'The creature loses ') + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' when the creature fires it. Link around it, or make the creature run into it.'], chip: '−' + pc100(V1.thorn || 0) + ' to you, −' + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' to the creature' }
+      thorn: { l: ['Fire it in your chain and you lose ' + pc100(V1.thorn || 0) + ' of your health. ' + (ONE ? 'The ' + YIELD + ' bar takes ' : 'The creature loses ') + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' when the creature fires it. Link around it, or make the creature run into it.'], chip: '−' + pc100(V1.thorn || 0) + ' to you, −' + pc100((V1.thorn || 0) * (V1.th_foe || 1)) + ' to the creature' }
     }[kind];
     if (!T) return null;
     if (kind !== 'mud' && lf) T.l.push(lf.trim());
@@ -101,6 +102,7 @@
   }
   /** an environment piece: the parts kit's piece (so the edges and knobs are the real ones) in its own colour, a dark disc with the kind's icon, and a dashed cream frame no player piece has */
   function envCv(P, p, size) {
+    if (P.env) return P.env({ size: size, kind: p.kind, edges: p.e });   // the v48 kit draws the environment piece itself (glyph, stitch, crisp)
     var K = envKind(p.kind), sz = P.atlas.sizes[size], cv = P.piece({ size: size, owner: 'foe', type: 'soothe', tint: K.h, edges: p.e, old: false, num: '' }), g = cv.getContext('2d');
     g.globalCompositeOperation = 'source-atop'; g.fillStyle = K.c + 'a6'; g.fillRect(0, 0, cv.width, cv.height); g.globalCompositeOperation = 'source-over';
     var ia = sz.icon.at, is = sz.icon.size[0];
@@ -330,7 +332,7 @@
       + '<div class="hrow"><h2>How the board works</h2><button type="button" class="btn small" data-x="1">Done</button></div>'
       + '<div class="sl">The round</div><ul class="helpl">' + row(ENV ? envTurnText() : turnText())
       + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again.' + (AIMT ? ' The chip says what it would do now; tap it for the reasons.' : '')], who: '' })
-      + (ONE ? row({ n: 'The bar', g: 'gust', l: ['One bar, two ways to win. Hurt pieces fill it with damage, Charm pieces fill it with charm. When it is full the fight ends: with more charm than damage you win the creature over, otherwise it backs off. A great creature cannot be charmed.'], who: '' }) : '')
+      + (ONE ? row({ n: 'The ' + YIELD + ' bar', g: 'gust', l: ['One bar, two ways to win. Hurt pieces fill it, Charm pieces fill it. When it is full the creature yields: with more charm than hurt you win it over, otherwise it backs off. A great creature cannot be charmed.'], who: '' }) : '')
       + row({ n: 'Chains', g: 'gust', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + (TEAM ? ' Pal, tool and crop pieces in one chain: 2 kinds +' + Math.round((V1.team2 - 1) * 100) + '%, all 3 +' + Math.round(((V1.team3 || V1.team2) - 1) * 100) + '%.' : ''), 'A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it.', 'If its aim fires one of your pieces, your piece works for you.'], who: '' })
       + row({ n: 'Guard', g: 'gust', l: ['Your guard blocks the creature’s hits. It fades when your turn starts, unless Hold keeps it (what is left of a Hold guard stays up once).'], who: '' })
       + row({ n: 'Flip', g: 'gust', l: [(FLIP1 ? 'Once a turn, free: ' : 'Free, as often as you like: ') + 'Flip swaps the top and bottom edges of the piece you picked. A faded piece cannot be played right now; tap it to see why.'], who: '' })
@@ -406,8 +408,8 @@
     render();
     if (flashEnv !== null) { var done = flashEnv; playTimers.push(setTimeout(function () { envDone[done] = 1; }, 10)); }   // its mark stays for this step, then it is gone
   }
-  /** 2.6.96: the replay takes at most REPLAY_MS (at 1x; half of it at 2x) however many events there are: the creature's banner is short, the pieces' steps shrink by RF to fit. */
-  var REPLAY_MS = 4600;
+  /** the replay takes at most REPLAY_MS (8.46 s at 1x; half of it at 2x) however many events there are: the creature's banner is short, the pieces' steps shrink by RF to fit. */
+  var REPLAY_MS = 8460;   // Josh: the replay is too fast to follow at 4.6 s, 8.46 s at 1x (half at 2x)
   function replayScale() {
     var n = (data.replay || []).length, ups = 0, g = data.gone || [];
     if (g.some(function (x) { return x.used === 'me'; })) ups++;
@@ -427,7 +429,13 @@
   function endReveal() { if (!root.classList.contains('pfv-endwait')) return; root.classList.remove('pfv-endwait'); root.classList.add('pfv-endin'); }
   /** 2.6.79 (Josh: "reload still occurring on End turn"): nothing reloads (checked on an emulated phone, no navigation, no plain submit), but the turn is swapped in place and for a moment the board and hand are EMPTY until the new script has drawn them: it looks like a quick reload.
    So the old fight is snapshotted when a form is sent (canvases copied) and shown, frozen, over the new fight until the new board is drawn; then it goes. */
-  function ghostSnap() {
+  /* 2.6.96 (owner: "I started a new combat after winning an old one ... resolves on refresh"): the snapshot was taken on EVERY form sent from the fight, the result card's Collect / Continue and Run too, and it then waited
+     15 s for any new #pfight. The page after Collect has none, so it kept waiting, and the next encounter's pre-fight screen (pfv_assets: <i id="pfight" hidden>) got the frozen finished fight laid over it, fixed,
+     for good (no board script runs there to take it away). Now: only a turn's forms take it, only a new BOARD fight gets it, and the wait ends with the swap that answers the form. */
+  var GHOST_DO = { pfb_play: 1, pfb_pass: 1, pfb_flip: 1, pf_redraw: 1 };   // the forms whose answer is this same fight's next turn
+  function ghostSnap(ev) {
+    var dv = ev && ev.target && ev.target.querySelector ? ev.target.querySelector('input[name=do]') : null;
+    if (!dv || !GHOST_DO[dv.value]) return;
     try {
       var r = root.getBoundingClientRect(), g = root.cloneNode(true), a = root.querySelectorAll('canvas'), b = g.querySelectorAll('canvas'), i;
       for (i = 0; i < a.length && i < b.length; i++) { try { b[i].getContext('2d').drawImage(a[i], 0, 0); } catch (e) {} }
@@ -436,16 +444,21 @@
       g.classList.add('pfv-ghost'); g.setAttribute('aria-hidden', 'true');
       var gh = window.__pfbGhost = { n: g, t: Date.now(), x: r.left, y: r.top, w: r.width, h: r.height, bg: '#2b1d14', shown: false };
       if (window.__pfbGhostObs) window.__pfbGhostObs.disconnect();
-      var obs = window.__pfbGhostObs = new MutationObserver(function () {   // the moment the new fight is swapped in (before anything is painted), the frozen old one goes over it
-        var n = document.getElementById('pfight'); if (!n || n === root || !n.parentNode || gh.shown) return;
+      var place = function () {   // the moment the new fight is swapped in (before anything is painted), the frozen old one goes over it
+        var n = document.getElementById('pfight'); if (!n || n === root || !n.parentNode || n.dataset.mode !== 'board' || gh.shown) return;   // a board fight only: its script (ghostShow) takes the copy away
         gh.shown = true; obs.disconnect(); g.style.left = gh.x + 'px'; g.style.top = gh.y + 'px'; g.style.width = gh.w + 'px'; g.style.height = gh.h + 'px'; g.style.backgroundColor = gh.bg; n.parentNode.insertBefore(g, n.nextSibling);
-      });
-      obs.observe(document.body, { childList: true, subtree: true }); setTimeout(function () { obs.disconnect(); }, 15000);
+        setTimeout(function () { if (g.parentNode) g.parentNode.removeChild(g); }, 8000);   // never left up for good (a new script that did not start)
+      };
+      var obs = window.__pfbGhostObs = new MutationObserver(place);
+      var done = function () { document.removeEventListener('gv:swapped', done); place(); if (!gh.shown) { obs.disconnect(); if (window.__pfbGhost === gh) window.__pfbGhost = null; } };   // the swap that answers this form is over: no new fight in it = no copy
+      document.addEventListener('gv:swapped', done);
+      obs.observe(document.body, { childList: true, subtree: true }); setTimeout(function () { obs.disconnect(); document.removeEventListener('gv:swapped', done); }, 15000);
     } catch (e) { window.__pfbGhost = null; }
   }
   function ghostShow() {   // the new script has started: take the ghost away when the new board is drawn
     var gh = window.__pfbGhost; window.__pfbGhost = null;
-    if (!gh || !gh.shown || Date.now() - gh.t > 15000) return;
+    if (!gh || !gh.shown) return;
+    if (Date.now() - gh.t > 15000) { if (gh.n.parentNode) gh.n.parentNode.removeChild(gh.n); return; }   // too old to be this turn's: just take it away
     var g = gh.n, t0 = Date.now(), tm = setInterval(function () {
       var drawn = boardEl.children.length > 0 && !!boardEl.querySelector('canvas, .pfb-cell') && document.querySelectorAll('#pf-hand .pf-tile').length > 0;
       if ((drawn && Date.now() - t0 > 120) || Date.now() - t0 > 2500) { clearInterval(tm); if (g.parentNode) g.parentNode.removeChild(g); }
@@ -459,17 +472,17 @@
     var t = Math.min(max, Math.max(0, oneV.tot)), c = Math.min(t, Math.max(0, oneV.ch)), d = t - c;
     var fd = el.querySelector('.fhfill'), fc = el.querySelector('.chfill'), b = el.querySelector('b');
     if (fd) fd.style.width = (100 * d / max) + '%'; if (fc) fc.style.width = (100 * c / max) + '%';
-    var tn = Math.round(t), cn = Math.round(c), dn = Math.max(0, tn - cn), mx = Math.round(max), head = 'Bar ' + tn + ' of ' + mx + ': damage ' + dn + ', charm ' + cn;
+    var tn = Math.round(t), cn = Math.round(c), dn = Math.max(0, tn - cn), mx = Math.round(max), head = YIELD + ' ' + tn + '/' + mx + ': hurt ' + dn + ', charm ' + cn;
     if (b) b.textContent = tn + '/' + mx;
-    el.title = head; el.setAttribute('aria-label', (el.getAttribute('aria-label') || '').replace(/^Bar \d+ of \d+: damage \d+, charm \d+/, head));
+    el.title = head; el.setAttribute('aria-label', (el.getAttribute('aria-label') || '').replace(/^[^:]*\d+ of \d+: hurt \d+, charm \d+/, YIELD + ' ' + tn + ' of ' + mx + ': hurt ' + dn + ', charm ' + cn));
     return true;
   }
   function barParts(j) {   // the plan line's bar part: one bar, or the 2.6.94 health and charm bars
     var ps = [];
     if (ONE) {
       if (j.fh && j.bar) { var dd = (j.fh[1] - j.bar[1]) - (j.fh[0] - j.bar[0]), dc = j.bar[1] - j.bar[0], q = [];
-        if (dd > 0.04) q.push('damage +' + Math.round(dd)); if (dc > 0.04) q.push('charm +' + Math.round(dc));
-        if (q.length) ps.push('Bar ' + Math.round(j.fh[0]) + ' \u2192 ' + Math.round(j.fh[1]) + ' of ' + Math.round(j.fh[2]) + ' (' + q.join(', ') + ')'); }
+        if (dd > 0.04) q.push('hurt +' + Math.round(dd)); if (dc > 0.04) q.push('charm +' + Math.round(dc));
+        if (q.length) ps.push(YIELD + ' ' + Math.round(j.fh[0]) + ' \u2192 ' + Math.round(j.fh[1]) + ' of ' + Math.round(j.fh[2]) + ' (' + q.join(', ') + ')'); }
       return ps;
     }
     if (j.fh && j.fh[1] > j.fh[0]) ps.push('Creature health ' + Math.ceil(j.fh[2] - j.fh[0]) + ' \u2192 ' + Math.ceil(j.fh[2] - j.fh[1]));
@@ -531,7 +544,7 @@
     var old = insp.querySelector('.pfi-ch'); if (old) old.parentNode.removeChild(old);
     var TY = { hurt: 'Hurt', guard: 'Guard', heal: 'Heal', charm: 'Charm', soothe: 'Soothe', trick: 'Trick', item: 'Item' }, RN = ['', 'Common', 'Uncommon', 'Rare', 'Masterwork'];
     var pv = d.v !== undefined ? d.v : +(tiles[i] && tiles[i].dataset.v) || 0, pc = { t: d.t, ty: TY[d.t] || d.t, v: pv, rn: d.rank ? RN[d.rank] : '', rk: d.rank || 0, src: d.src && d.src !== 'knack' ? d.src : '', life: 0 };
-    var el = document.createElement('div'); el.className = 'pfi-ch'; el.innerHTML = window.PFSheet.chips(pc) + (d.life ? ' <span class="ch">stays ' + d.life + '</span>' : ''); insp.querySelector('.pf-itext').appendChild(el);
+    var el = document.createElement('div'); el.className = 'pfi-ch'; el.innerHTML = window.PFSheet.chips(pc) + (d.life ? ' <span class="ch">stays ' + d.life + '</span>' : '') + (window.PFSheet.typeText ? '<div class="pfi-tx">' + window.PFSheet.esc(window.PFSheet.typeText(d.t, pv)) + '</div>' : '');   // 2.6.96: what the piece type does, in words insp.querySelector('.pf-itext').appendChild(el);
   }
   function inspOut(ev) {   // a tap outside the piece card closes it
     if (!insp || insp.hidden || insp.contains(ev.target)) return;
@@ -954,7 +967,7 @@
     prev.textContent = offMsg && !playing && !rewind ? offMsg : stepNote && playing ? stepNote : sel && !redrawMode && !data.start && !Object.keys(lit).length && data.hand[selected].canflip ? sel.dataset.name + ' fits nowhere this way up. Flip it.' : data.start && !rewind && !playing ? (sel ? sel.dataset.name + ': pick a side of \u2726. Nothing fires.' : moves.length ? 'Start piece chosen. Confirm start when ready.' : 'Opening: pick a piece, then a side of \u2726. Nothing fires; the creature picks its side too, hidden.') : rewind ? 'Rewound. Nothing can be played until you go back to now.' : playing ? 'Watch the chain: each piece is scored in turn.' : data.won ? 'It is over. End the fight to collect your reward.' : redrawMode ? 'Tap the piece to swap for a fresh one.'
       : sel ? sel.dataset.name + ': ' + sel.dataset.desc.split('. ')[0] + '. Pick a lit spot' + (hasJoin ? ' or set it aside.' : '.') + ' The number is what your own chain does.' + (data.hand[selected].tool ? ' Tool piece: \u2212' + (data.toolwear || 2) + ' durability when played.' : '') + (data.flip && data.flip.used && !data.hand[selected].canflip ? ' Your flip is used this turn.' : '')
       : selected === 'group' ? hintText || 'Pick a lit spot for the group.'
-      : moves.length === 0 ? (fits ? (!anyFits() ? 'No piece fits this way up. Pick one and Flip it.' : MUSTL && !mustLink(baseBoard(), handEdges()) && baseBoard().count ? 'Nothing can connect, so you may place a piece anywhere it fits.' : root.dataset.turn === '1' ? (data.opened ? 'The creature opened with ' + data.opened + ' piece' + (data.opened === 1 ? '' : 's') + '. ' : '') + (ONE ? 'Hurt and Charm both fill the bar; when it is full the fight ends.' : 'Hurt empties its health, Charm fills the bar.') : 'Pick a piece, then a lit spot. One piece a turn.' + (FREEP ? ' Or tap Pass.' : '')) : (FREEP ? 'No piece fits. Tap Pass to skip your turn.' : 'No piece fits. Tap End turn to pass.'))
+      : moves.length === 0 ? (fits ? (!anyFits() ? 'No piece fits this way up. Pick one and Flip it.' : MUSTL && !mustLink(baseBoard(), handEdges()) && baseBoard().count ? 'Nothing can connect, so you may place a piece anywhere it fits.' : root.dataset.turn === '1' ? (data.opened ? 'The creature opened with ' + data.opened + ' piece' + (data.opened === 1 ? '' : 's') + '. ' : '') + (ONE ? 'Hurt and Charm both fill the ' + YIELD + ' bar; when it is full the fight ends.' : 'Hurt empties its health, Charm fills the bar.') : 'Pick a piece, then a lit spot. One piece a turn.' + (FREEP ? ' Or tap Pass.' : '')) : (FREEP ? 'No piece fits. Tap Pass to skip your turn.' : 'No piece fits. Tap End turn to pass.'))
       : moves[0].k === 'j' || moves[0].k === 'h' ? 'Set aside for a later turn. End turn when ready.'
       : 'Placed. End turn when ready.';
     prev.title = prev.textContent;
@@ -1178,7 +1191,7 @@
     Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-lit'), function (c) {
       var q = nums.d[c.dataset.x + ',' + c.dataset.y]; if (!q || c.querySelector('.pfb-num')) return;
       var bits = [], aria = [];
-      if (q.dmg) { bits.push('\u2694' + q.dmg); aria.push(q.dmg + ' damage'); }
+      if (q.dmg) { bits.push('\u2694' + q.dmg); aria.push(q.dmg + (ONE ? ' hurt' : ' damage')); }
       if (q.ch) { bits.push('\u273F' + q.ch); aria.push(q.ch + ' charm'); }
       if (q.hp) { bits.push('\u2764\u2212' + q.hp); aria.push('costs you ' + q.hp + ' health'); }
       if (q.rp) { bits.push('\u21A9\u2212' + q.rp); aria.push('the creature then takes about ' + q.rp + ' from you'); }
@@ -1298,7 +1311,7 @@
     if (root.dataset.turn === '1' && !(data.replay && data.replay.length) && !data.won) {   // a new fight: glow the bar and say what it is for
       barEl.classList.add('pf-barglow');
       var touch = window.matchMedia && window.matchMedia('(hover: none)').matches;
-      barHint = document.createElement('div'); barHint.className = 'pf-barhint'; barHint.setAttribute('role', 'status'); barHint.textContent = (ONE ? 'Hurt and Charm both fill the bar' : 'Empty its health or fill the charm bar') + ' \u00B7 ' + (touch ? 'tap' : 'hover') + ' for more'; root.appendChild(barHint);
+      barHint = document.createElement('div'); barHint.className = 'pf-barhint'; barHint.setAttribute('role', 'status'); barHint.textContent = (ONE ? 'Hurt and Charm both fill the ' + YIELD + ' bar' : 'Empty its health or fill the charm bar') + ' \u00B7 ' + (touch ? 'tap' : 'hover') + ' for more'; root.appendChild(barHint);
       setTimeout(function () { if (barHint) placeUnderBar(barHint); }, 300); placeUnderBar(barHint);
       hintTimer = setTimeout(function () { if (barHint) barHint.hidden = true; barEl.classList.remove('pf-barglow'); }, 7000);
     }

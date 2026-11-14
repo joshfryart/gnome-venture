@@ -1,6 +1,6 @@
 // 2.6.96: the replay is short and skippable (Josh/turn-flow review: a 14.6 s median wait after End turn with no control). node tests/pfv1_replay.js BASE GAME TESTSDIR
 // In a real browser on the served v1 fight page, on a seed whose replay has 11 events (a medium creature, four turns in, then one more turn; the review's 13-event seed is not named, 11 is the longest the seeds here give):
-//  - control is back in <= 5.2 s at 1x (it was 14.5 s), <= 3 s at 2x, at once at "skip"; the replay still walks every event in order;
+//  - control is back in <= 9.3 s at 1x (8.46 s cap; it was 14.5 s before 2.6.95 and 4.6 s in 2.6.95), <= 5.2 s at 2x, at once at "skip"; the replay still walks every event in order;
 //  - a tap on the board during the replay skips it; "prefers-reduced-motion" with no stored speed skips it; a stored speed wins over reduced motion;
 //  - no "Your turn" banner before the creature's, no separate environment banner (the environment places in the creature's step);
 //  - 2.6.88: the health number walks with the replay (never the new value early); 2.6.78: the last turn of a fight plays in full before the result card.
@@ -65,8 +65,8 @@ const SEEDARGS = (process.env.REPLAY_SEED || 'midfight 9 4 soft').split(' ');
   if (process.env.REPLAY_PROBE) { await b.close(); console.log('replay: done'); process.exit(0); }
   ck('the replay seed has a long replay (11 events; the turn-flow review measured 9 to 13)', r.n >= 10, true);
   ck('the replay does not start by itself before End turn was pressed (the page was quiet)', r.tPlay0 !== null, true);
-  le('1x: control is back after End turn', r.tc, 5200);
-  ck('1x: the replay really plays (at least 2.5 s, every event walked, not just skipped)', r.play >= 2500, true);
+  le('1x: control is back after End turn', r.tc, 9300);   // cap 8.46 s of replay + the End turn round trip
+  ck('1x: the replay really plays (at least 2.5 s, every event walked, not just skipped)', r.play >= 4000, true);
   ck('1x: the first banner of the replay is the creature\'s (no "Your turn" before it) and there is no environment banner', [r.bans.length > 0 && !/^Your turn/.test(r.bans[0]), r.bans.some(x => /Environment|Terrain/i.test(x))], [true, false]);
   ck('1x: no page error', r.errs, 0);
   // 2.6.88: the health number follows the replay: old value first, only values the events set, the final value last
@@ -74,7 +74,7 @@ const SEEDARGS = (process.env.REPLAY_SEED || 'midfight 9 4 soft').split(' ');
   ck('2.6.88 health: the number shown during the replay starts at the old value and only shows values the events set', [hps.length > 0 && hps[0] === +before.hp, hps.every(v => allowed.has(v))], [true, true]);
   ck('2.6.88 health: after the replay it reads the new value', await p.evaluate(() => (/\d+/.exec(document.querySelector('.pfc-top .pf-hp').textContent) || [])[0]), String(r.newhp));
   before = await ready(p, 2); r = await endTurn(p, before);
-  console.log(`replay: control after ${r.tc} ms at 2x (playing ${r.play} ms)`); le('2x: control is back after End turn', r.tc, 3000);
+  console.log(`replay: control after ${r.tc} ms at 2x (playing ${r.play} ms)`); le('2x: control is back after End turn', r.tc, 5200);
   before = await ready(p, 0); r = await endTurn(p, before);
   console.log(`replay: control after ${r.tc} ms at skip (playing ${r.play} ms)`); le('skip: control is back after End turn', r.tc, 1200);
   // ---- a tap on the board 0.5 s into the replay
@@ -101,7 +101,7 @@ const SEEDARGS = (process.env.REPLAY_SEED || 'midfight 9 4 soft').split(' ');
   const tl = await p.evaluate(() => window.__tl), pl = tl.filter(s => s.pl), res0 = tl.find(s => s.res);
   console.log(`replay: last turn of a fight, result card after ${tr} ms (playing ${pl.length ? Math.round(pl[pl.length - 1].at - pl[0].at) : 0} ms)`);
   ck('2.6.78 last turn: it plays in full (not skipped), the card is never over the replay and comes after it', [pl.length > 0 && pl[pl.length - 1].at - pl[0].at >= 800, tl.some(s => s.pl && s.res), !!res0 && res0.at >= pl[pl.length - 1].at], [true, false, true]);
-  le('last turn: the card shows within 5.2 s of End turn', tr, 5200);
+  le('last turn: the card shows within 9.3 s of End turn', tr, 9300);
   await c.close();
   console.log('replay: done'); await b.close(); process.exit(fails ? 1 : 0);
 })().catch(e => { console.log('FAIL ' + e.stack); process.exit(1); });

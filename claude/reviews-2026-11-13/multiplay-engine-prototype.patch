@@ -1,0 +1,180 @@
+--- /home/user/gnome-venture/game/includes/pfboard.php	2026-11-14 02:45:51.612800141 +0000
++++ game/includes/pfboard.php	2026-11-14 02:44:48.131769794 +0000
+@@ -68,26 +68,7 @@
+  *  redraw = the hand is redrawn each round, onebar = one shared bar, aimtot = the aim shows its total, keepmine = your pieces survive use-up, aimhit = the aimed cell can be struck,
+  *  useroot, kinds = class rules (later tasks). A NEW fight takes its defaults from pfb_v1_cfg (each task flips its own default); an old state falls back to this. */
+ const PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health (rules.md: large 7.7 against 7.8 turns)
+-const PFB_V1_PRE = ['aside' => 1, 'must' => 1, 'freepass' => 0, 'flip1' => 1, 'nowm' => 0, 'redraw' => 0, 'onebar' => 0, 'aimtot' => 0, 'keepmine' => 0, 'aimhit' => 0, 'useroot' => 0, 'kinds' => 0];
+-/** The creature's bar in a NEW-rule fight (one shared bar, Hurt and Charm both fill it) is called its Yield: it yields when the bar is full (backed off by hurting, won over by charm).
+- *  The one place for the word: 'Yield 23/40' as the label, 'Yield bar' in sentences. A 2.6.94 fight (V1.onebar 0) keeps "Creature health" and the Charm bar. The browser reads it from the page data (`yieldw`). */
+-const PF_YIELD = 'Yield';
+-/** The Yield bar a fight against this creature starts with (size and level only, as pf_new and pfb_new size it for a new fight): what the almanac and any map preview can honestly show instead of the old HP. */
+-function pfb_yield_max(array $c): int
+-{
+-    $size = (string)($c['size'] ?? 'small'); $boss = $size === 'boss'; $lv = max(1, (int)($c['level'] ?? 1));
+-    $base = max(6.0, round(pf_pace($size) * ($boss ? PF_BAR_BOSS : PF_BAR_K) * (PF_BAR_BASE + PF_BAR_SLOPE * $lv), 1));
+-    $cfg = pfb_v1_cfg($size, [], $lv);   // the same rule numbers pfb_new gives a new fight (the level curve shortens the bar of a weak creature)
+-    return (int)round(round(round($base * $cfg['bar'], 1) * PFB_V1_ONEBAR_BAR, 1));
+-}
+-/** 'Yield bar 52': the almanac's words for a creature that is not in a fight. */
+-function pf_yield_phrase(array $c): string { return PF_YIELD . ' bar ' . pfb_yield_max($c); }
+-/** The almanac's numbers line for a creature: under the new rules (puzzle fights v1) its Yield bar, never its old HP; else the old words (health). */
+-function pf_foe_numbers(array $c, bool $newRules): string
+-{
+-    return ($newRules ? pf_yield_phrase($c) : 'health ' . (int)$c['hp']) . ', attack +' . (int)$c['attack'] . ', defence ' . (int)$c['defense'] . '.';
+-}
+-
++const PFB_V1_PRE = ['aside' => 1, 'must' => 1, 'freepass' => 0, 'flip1' => 1, 'nowm' => 0, 'redraw' => 0, 'onebar' => 0, 'aimtot' => 0, 'keepmine' => 0, 'aimhit' => 0, 'useroot' => 0, 'kinds' => 0, 'multi' => 0, 'mcost' => 0, 'mstop' => 0, 'hand' => 0];
+ /** One compat rule of a fight: its own value, or the 2.6.94 value when the state has none (an older save, or no v1 rules at all). */
+ function pfb_v1r(array $s, string $k): int { return (int)($s['v1'][$k] ?? PFB_V1_PRE[$k] ?? 0); }
+ 
+@@ -1273,7 +1254,7 @@
+         $s['me']['block'] = $kept; $s['me']['keep'] = 0;
+     } else { $s['me']['block'] = $s['me']['keep']; $s['me']['keep'] = 0; }   // a new turn for you: last turn's guard is gone (a Hold guard carries over once)
+     $s['me']['thorns'] = false; $s['me']['evade'] = 0;
+-    if (pfb_v1r($s, 'redraw')) { foreach ($s['me']['hand'] as $ht) { unset($ht['flip'], $ht['ft']); $s['me']['discard'][] = $ht; } $s['me']['hand'] = []; pf_draw($s, 'me', PF_HAND_CAP - $slow); }   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
++    if (pfb_v1r($s, 'redraw')) { foreach ($s['me']['hand'] as $ht) { unset($ht['flip'], $ht['ft']); $s['me']['discard'][] = $ht; } $s['me']['hand'] = []; pf_draw($s, 'me', ((int)($s['v1']['hand'] ?? 0) ?: PF_HAND_CAP) - $slow); }   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
+     else pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + PF_DRAW - $slow));
+     $s['gone'] = array_merge(array_map(fn($p) => pfb_gone_entry($s, $p, true), $s['spent'] ?? []), array_map(fn($p) => pfb_gone_entry($s, $p, false), $gone));   // for the replay: they are shown until everything has scored, then they go
+     $s['spawn'] = pfb_spawn($s);
+@@ -1346,3 +1327,54 @@
+     }
+     return $v;
+ }
++
++// ---------------------------------------------------------------- MULTIPLAY prototype (scratch copy only)
++// v1 keys: multi = most pieces a turn (0 = 1, the shipped rule; 99 = unlimited); mcost 1 = each piece after the first costs 1 health, 2 = each piece after the first costs a hand piece (discarded);
++// mstop 1 = no more pieces once a chain of yours has fired a creature piece. The turn ends with pfb_mend (End turn / pass).
++function pfb_mcap(array $s): int { $m = (int)($s['v1']['multi'] ?? 0); return $m <= 0 ? 1 : $m; }
++function pfb_mcan(array $s): bool
++{
++    if ($s['over'] || !$s['me']['hand']) return false;
++    $n = (int)($s['mstep'] ?? 0); if ($n === 0) return true;
++    if (!empty($s['mlock']) || $n >= pfb_mcap($s)) return false;
++    $c = (int)($s['v1']['mcost'] ?? 0);
++    if ($c === 1 && $s['me']['hp'] <= 1) return false;
++    if ($c === 2 && count($s['me']['hand']) < 2) return false;
++    return true;
++}
++function pfb_msetup(array &$s): void
++{
++    $s['reshuf'] = []; $s['cut'] = 0; $s['spent'] = []; $s['lastfoe'] = []; $s['gone'] = []; if (!empty($s['v1'])) $s['envlog'] = []; pfb_begin($s, 'me'); $s['mev'] = []; $s['mlock'] = 0;
++}
++/** Place one piece inside the turn (nothing else moves). $disc: for mcost 2, the hand index (after the placement) to discard; null = the lowest value. Returns an error or null. */
++function pfb_mstep(array &$s, int $idx, int $x, int $y, ?int $disc = null): ?string
++{
++    if (!pfb_mcan($s)) return 'No more pieces this turn.';
++    $w = $s; if ((int)($w['mstep'] ?? 0) === 0) pfb_msetup($w);
++    $r = pfb_place($w, 'me', $idx, $x, $y); if ($r === null) return 'That piece does not fit there.';
++    foreach ($r as $i => $e) $r[$i]['ta'] = 'me';
++    $w['mstep'] = (int)($w['mstep'] ?? 0) + 1;
++    if ($w['mstep'] > 1 && !$w['over']) {
++        $c = (int)($w['v1']['mcost'] ?? 0);
++        if ($c === 1) { $w['me']['hp'] = max(0, $w['me']['hp'] - 1); pf_check_end($w); }
++        if ($c === 2 && $w['me']['hand']) { if ($disc === null || !isset($w['me']['hand'][$disc])) { $disc = 0; foreach ($w['me']['hand'] as $i => $t) if ($t['v'] < $w['me']['hand'][$disc]['v']) $disc = $i; } $t = $w['me']['hand'][$disc]; unset($t['flip'], $t['ft']); $w['me']['discard'][] = $t; array_splice($w['me']['hand'], $disc, 1); }
++    }
++    if (!empty($w['v1']['mstop'])) foreach ($r as $e) if (isset($e['id']) && ($e['by'] ?? '') === 'foe') $w['mlock'] = 1;
++    $w['mev'] = array_merge($w['mev'], $r);
++    $s = $w; return null;
++}
++/** End the turn (End turn, or a pass with nothing placed): the creature, the end of the round, the environment. */
++function pfb_mend(array &$s): array
++{
++    $w = $s; if ((int)($w['mstep'] ?? 0) === 0) pfb_msetup($w);
++    $ev = $w['mev'];
++    if (!$w['over']) { $fe = pfb_foe_turn($w, 0); foreach ($fe as $i => $e0) $fe[$i]['ta'] = 'foe'; $ev = array_merge($ev, $fe); }
++    $trip = !$w['over'] && !empty($w['v1']['tags']) && !empty($w['me']['slowdraw']);
++    if (!$w['over']) pfb_end_round($w);
++    if (!empty($w['v1'])) $ev = array_merge($ev, pfb_env_events($w));
++    if ($trip && !$w['over']) { $tn = pfb_note('trip'); $tn['ta'] = 'foe'; $ev[] = $tn; }
++    pfb_guard_notes($w, $ev);
++    $w['fx'] = pfb_fx($ev); $w['log'][] = ['turn' => $s['turn'], 'n' => (int)($w['mstep'] ?? 0)];
++    $w['mstep'] = 0; $w['mlock'] = 0; $w['mev'] = [];
++    $s = $w; return ['ev' => $ev, 'err' => null];
++}
+--- /home/user/gnome-venture/tests/pfboard_tune_v1.php	2026-11-14 02:24:41.854457389 +0000
++++ tests/pfboard_tune_v1.php	2026-11-14 02:45:26.820848959 +0000
+@@ -94,6 +94,11 @@
+ }
+ function tv_act(array &$s, array $a): array
+ {
++    if (!empty($GLOBALS['MULTI'])) {   // multiplay: a placement is placed inside the turn, then the turn ends ('end'/'pass' just ends it)
++        if ($a[0] === 'pass' || $a[0] === 'end') return pfb_mend($s);
++        $w = $s; if (!empty($a[3])) pfb_flip($w, $a[0], $w['turn']); $e = pfb_mstep($w, $a[0], $a[1], $a[2]); if ($e) return ['ev' => [], 'err' => $e];
++        $s = $w; return pfb_mend($s);
++    }
+     if ($a[0] === 'pass') return pfb_pass($s, $s['turn']);
+     if ($a[0] === 'j' || $a[0] === 'h') return pfb_play($s, [$a], $s['turn']);
+     if (!empty($a[3])) pfb_flip($s, $a[0], $s['turn']);
+@@ -174,6 +179,19 @@
+     $acts = array_merge($pl, tv_joins($s)); if (!$acts) return ['pass'];
+     return tv_smart($s, $acts) ?? ['pass'];
+ }
++/** Multiplay: the next step of the turn: a placement, or ['end']. chain: the longest chain; after the first piece only while it moves the bar. look: best 1-ply (place it and end) against ending now. smart: the same with tv_smart. */
++function tv_mchoose(array $s, string $bot, array $pl, int $np): array
++{
++    if (!$pl) return ['end'];
++    if ($bot === 'chain') {
++        $a = tv_choose($s, 'chain', $pl); if ($np === 0) return $a;
++        [$w] = tv_dry($s, $a); $gain = ($w['fh']['now'] + $w['bar']['now']) - ($s['fh']['now'] + $s['bar']['now']);
++        return ($gain > 1e-9 || ($w['over'] && $w['over'] !== 'defeat')) ? $a : ['end'];
++    }
++    $acts = $np > 0 ? array_merge($pl, [['end']]) : $pl;
++    if ($bot === 'look') return tv_ranked($s, $acts)[0][1] ?? ['end'];
++    return tv_smart($s, $acts) ?? ['end'];
++}
+ /** Print the table from rows grouped [offset][size]. */
+ function tv_print(string $bot, array $g, bool $blind): void
+ {
+@@ -183,6 +201,9 @@
+     $wins = array_sum(array_column($a, 'win')); printf("      endings: charmed %.0f%% of wins (%d of %d)\n", 100 * array_sum(array_column($a, 'charm')) / max(1, $wins), array_sum(array_column($a, 'charm')), $wins);
+     $tt = max(1, array_sum(array_column($a, 'nt'))); $ct = array_sum(array_column($a, 'cturns')); $sm = fn(string $k) => array_sum(array_column($a, $k));
+     printf("      metrics: dead %.1f%% of turns, own-piece-at-start %.1f%%%s\n", 100 * $sm('dead') / $tt, 100 * (1 - $sm('mine0') / $tt), $ct > 0 ? sprintf(', real choice %.1f%%, ply-flip %.1f%% (of %d look turns)', 100 * $sm('real') / $ct, 100 * $sm('plyflip') / $ct, $ct) : '');
++    if ($sm('mt') > 0) { $mt = $sm('mt'); printf("      multi: pieces/turn %.2f | turns playing 0/1/2/3/4+ pieces: %.0f/%.0f/%.0f/%.0f/%.0f%% | taps/turn %.2f | replay events/turn %.1f | use-up wipes/turn %.2f | board at turn start %.1f, after my pieces %.1f (max %d of 16) | jam turns (wanted to play, no cell) %.1f%% | mlock %.1f%%%s\n",
++        $sm('np') / $mt, 100 * $sm('h0') / $mt, 100 * $sm('h1') / $mt, 100 * $sm('h2') / $mt, 100 * $sm('h3') / $mt, 100 * $sm('h4') / $mt, $sm('taps') / $mt, $sm('evn') / $mt, $sm('used') / $mt, $sm('pcs0') / $mt, $sm('pcs1') / $mt, max(array_column($a, 'pcs1max')), 100 * $sm('jam') / $mt, 100 * $sm('lock') / $mt,
++        $sm('csteps') > 0 ? sprintf(' | real choice: %.1f%% of steps (%d), %.1f%% of turns have one', 100 * $sm('rsteps') / $sm('csteps'), $sm('csteps'), 100 * $sm('ranyt') / $mt) : ''); }
+     if ($sm('aimn') > 0) printf("      aimgap: mean |shown total - actual| %.2f health on %d unbroken aims (shown %.1f, actual %.1f; the number it showed before the total: %.1f)\n", $sm('aimgap') / $sm('aimn'), $sm('aimn'), $sm('aimsh') / $sm('aimn'), $sm('aimac') / $sm('aimn'), $sm('aimold') / $sm('aimn'));
+     if ($avg('eplace') > 0) {   // 2.6.75 environment pieces
+         $k = fn(string $p) => implode(' ', array_map(fn($ek) => substr($ek, 0, 2) . sprintf('%.2f', $avg($p . $ek)), PFB_ENV_KINDS));
+@@ -197,7 +218,7 @@
+     foreach ($G as $b => $g) tv_print((string)$b, $g, (bool)getenv('BLIND')); return;
+ }
+ $bot = $argv[1] ?? 'chain'; $offs = array_map('intval', explode(',', $argv[2] ?? '0')); $mult = (float)($argv[3] ?? 1); [$shard, $nsh] = array_map('intval', explode('/', $argv[4] ?? '0/1')); $json = ($argv[5] ?? '') === 'json';
+-$V1 = json_decode(getenv('V1') ?: '{}', true) ?: []; $ci = 0; $g = []; $blind = (bool)getenv('BLIND'); $choice = (bool)getenv('CHOICE');
++$V1 = json_decode(getenv('V1') ?: '{}', true) ?: []; $MULTI = (int)($V1['multi'] ?? 0) > 0; $ci = 0; $g = []; $blind = (bool)getenv('BLIND'); $choice = (bool)getenv('CHOICE');
+ foreach ($offs as $d) foreach (tv_creatures() as $c) {
+     if ($ci++ % $nsh !== $shard) continue;
+     $over = []; foreach ($V1 as $k => $v) $over[$k] = is_array($v) ? ($v[$c['size']] ?? null) : $v; $over = array_filter($over, fn($v) => $v !== null);
+@@ -208,9 +229,31 @@
+         $s = pfb_new(tv_player($lv), $cr, $seed, ['blank' => true, 'v1' => $over ?: true]);
+         $hand = $s['me']['hand']; $bi = 0; foreach ($hand as $i => $t) if ($t['t'] === 'hurt' && $t['v'] > $hand[$bi]['v']) $bi = $i;
+         pfb_start($s, $bi, ['L', 'R', 'T', 'B'][$k % 4]);
+-        $t = 0; $st = ['used' => 0, 'tw' => 0, 'flip' => 0, 'reaim' => 0, 'pass' => 0, 'eplace' => 0, 'epass' => 0, 'efire_me' => 0, 'efire_foe' => 0, 'push' => 0, 'echg' => 0, 'eturns' => 0, 'ecost' => 0.0, 'e_hp' => 0.0, 'e_bar' => 0.0, 'len' => 0, 'chains' => 0, 'pcs' => 0, 'refire' => 0, 'mud_me' => 0, 'mud_foe' => 0, 'full' => 0, 'maxpcs' => 0, 'efill' => 0, 'mine0' => 0, 'dead' => 0, 'real' => 0, 'plyflip' => 0, 'cturns' => 0, 'nt' => 0, 'aimn' => 0, 'aimgap' => 0.0, 'aimsh' => 0.0, 'aimac' => 0.0, 'aimold' => 0.0]; $firedIds = [];
++        $t = 0; $st = ['used' => 0, 'tw' => 0, 'flip' => 0, 'reaim' => 0, 'pass' => 0, 'eplace' => 0, 'epass' => 0, 'efire_me' => 0, 'efire_foe' => 0, 'push' => 0, 'echg' => 0, 'eturns' => 0, 'ecost' => 0.0, 'e_hp' => 0.0, 'e_bar' => 0.0, 'len' => 0, 'chains' => 0, 'pcs' => 0, 'refire' => 0, 'mud_me' => 0, 'mud_foe' => 0, 'full' => 0, 'maxpcs' => 0, 'efill' => 0, 'mine0' => 0, 'dead' => 0, 'real' => 0, 'plyflip' => 0, 'cturns' => 0, 'nt' => 0, 'aimn' => 0, 'aimgap' => 0.0, 'aimsh' => 0.0, 'aimac' => 0.0, 'aimold' => 0.0, 'mt' => 0, 'np' => 0, 'h0' => 0, 'h1' => 0, 'h2' => 0, 'h3' => 0, 'h4' => 0, 'taps' => 0, 'evn' => 0, 'pcs0' => 0, 'pcs1' => 0, 'pcs1max' => 0, 'jam' => 0, 'lock' => 0, 'csteps' => 0, 'rsteps' => 0, 'ranyt' => 0]; $firedIds = [];
+         foreach (PFB_ENV_KINDS as $ek) { $st['me_' . $ek] = 0; $st['foe_' . $ek] = 0; $st['pl_' . $ek] = 0; }
+         while (!$s['over'] && $t++ < 40) {
++            if ($MULTI) {
++                $pl = tv_places($s); $st['nt']++; $st['mt']++; $st['mine0'] += tv_mine0($s); $st['dead'] += tv_dead($s, $pl ?: [['pass']]); $st['pcs0'] += count($s['pcs']);
++                $np = 0; $fl = 0; $rany = 0;
++                while (pfb_mcan($s)) {
++                    $pl = tv_places($s); if (!$pl) { $st['jam']++; break; }
++                    if ($choice && $bot === 'look' && ($m = tv_real($s, $np > 0 ? array_merge($pl, [['end']]) : $pl))) { $st['csteps']++; $st['rsteps'] += $m['real']; $rany |= $m['real']; if ($np === 0) { $st['cturns']++; $st['real'] += $m['real']; $st['plyflip'] += $m['plyflip']; } }
++                    $a = tv_mchoose($s, $bot, $pl, $np); if ($a[0] === 'end') break;
++                    $w = $s; if (!empty($a[3])) pfb_flip($w, $a[0], $w['turn']); if (pfb_mstep($w, $a[0], $a[1], $a[2])) break;
++                    $s = $w; $np++; if (!empty($a[3])) { $fl++; $st['flip']++; }
++                }
++                if (!empty($s['mlock'])) $st['lock']++;
++                $st['ranyt'] += $rany; $st['pcs1'] += count($s['pcs']); $st['pcs1max'] = max($st['pcs1max'], count($s['pcs']));
++                if ($np === 0) $st['pass']++; $st['np'] += $np; $st['h' . min(4, $np)]++; $st['taps'] += 2 * $np + $fl + 1;
++                $r = pfb_mend($s); $st['evn'] += count($r['ev']);
++                foreach ($r['ev'] as $e) { if (isset($e['used']) && ($e['ta'] ?? '') === 'me') $st['used']++;
++                    if (($e['env'] ?? '') === 'place') { $st['eplace']++; $st['pl_' . $e['kind']]++; } if (($e['env'] ?? '') === 'pass') { $st['epass']++; if (!empty($e['full'])) $st['full']++; }
++                    if (($e['env'] ?? '') === 'fire') { $st['efire_' . $e['for']]++; $st[$e['for'] . '_' . $e['kind']]++; $st['e_hp'] += $e['me'] / $s['me']['max']; $st['e_bar'] += $e['foe'] / $s['fh']['max']; }
++                    if (!empty($e['root']) && ($e['ta'] ?? '') === 'me') $st['chains']++; if (isset($e['id']) && ($e['ta'] ?? '') === 'me') $st['len']++; }
++                $st['pcs'] += count($s['pcs']); $st['maxpcs'] = max($st['maxpcs'], count($s['pcs'])); $st['efill'] = max($st['efill'], count($s['pcs']) / ($s['w'] * $s['h']));
++                if (!empty($s['reaim'])) $st['reaim']++;
++                continue;
++            }
+             $pl = tv_places($s); $all = array_merge($pl, tv_joins($s));
+             $st['nt']++; $st['mine0'] += tv_mine0($s); $st['dead'] += tv_dead($s, $all ?: [['pass']]);
+             if ($choice && $bot === 'look' && ($m = tv_real($s, $all))) { $st['cturns']++; $st['real'] += $m['real']; $st['plyflip'] += $m['plyflip']; }

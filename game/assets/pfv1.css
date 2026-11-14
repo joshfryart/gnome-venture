@@ -272,10 +272,11 @@
 .pfv .pfv-deckfold { margin: 6px 0 0; }
 .pfv .pfv-deckfold > summary { cursor: pointer; min-height: 36px; padding: 6px 2px; font-size: 13px; font-weight: 700; }
 .pfv .pfv-deckfold > summary span { font-weight: 400; color: var(--muted); font-size: 12px; }
-/* a screen that fits the window (the fight, the pre-fight screen): fixed between the site's header and bottom bar (the script measures them), the page behind does not scroll */
+/* a screen that fits the window (the fight, the pre-fight screen): fixed between the site's header and bottom bar (the script measures them), the page behind does not scroll.
+   2.6.96: the fight is a 560px column (it was 760px), dimmed at .45 around it (it was .78): on a wide window the site shows at its left and right; a phone is all fight, as before. */
 html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 #pfv-pre.pfv-fit { position: fixed; z-index: 60; top: var(--pfv-top, 0px); bottom: var(--pfv-bot, 0px); left: 50%; width: min(100vw, 560px); max-width: none; transform: translateX(-50%); margin: 0; overflow-y: auto; overscroll-behavior: contain; box-sizing: border-box; }
-#pfight.pf-v1.pfv-fit { position: fixed; z-index: 60; top: var(--pfv-top, 0px); bottom: var(--pfv-bot, 0px); left: 50%; width: min(100vw, 760px); max-width: none; transform: translateX(-50%); margin: 0; padding: 4px 6px calc(4px + env(safe-area-inset-bottom, 0px)); border-radius: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: var(--pfv-gap, 3px); justify-content: center; overflow: hidden; background: #2b1d14; box-shadow: 0 0 0 100vmax rgba(12, 7, 4, .78); clip-path: inset(0 -100vmax); }
+#pfight.pf-v1.pfv-fit { position: fixed; z-index: 60; top: var(--pfv-top, 0px); bottom: var(--pfv-bot, 0px); left: 50%; width: min(100vw, 560px); max-width: none; transform: translateX(-50%); margin: 0; padding: 4px 6px calc(4px + env(safe-area-inset-bottom, 0px)); border-radius: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: var(--pfv-gap, 3px); justify-content: center; overflow: hidden; background: #2b1d14; box-shadow: 0 0 0 100vmax rgba(12, 7, 4, .45); clip-path: inset(0 -100vmax); }
 #pfight.pf-v1.pfv-fit > * { flex: none; margin-top: 0; margin-bottom: 0; min-width: 0; }
 #pfight.pf-v1.pfv-fit > .pfv-bwrap { flex: 1 1 0; min-height: 0; display: grid; place-items: center; overflow: hidden; position: relative; }
 #pfight.pf-v1.pfv-fit .pfb-board { margin: 0; flex: none; }
@@ -461,7 +462,11 @@ html:has(.pfv-fit), html:has(.pfv-fit) body { height: 100%; overflow: hidden; }
 .pf-bar .pf-charmn { position: absolute; inset: 0; z-index: 3; display: flex; align-items: center; justify-content: center; font: 700 .62rem/1 system-ui, sans-serif; color: #fff; text-shadow: 0 0 2px #2a0010, 0 0 2px #2a0010, 0 1px 1px #2a0010; pointer-events: none; font-variant-numeric: tabular-nums; }
 
 /* 2.6.84 (Josh: End turn "reloads"): the fight draws its own dim over the page (a huge box-shadow), so while a turn swaps the old fight for the new one the page behind (the Trail map) showed for a moment. The pop-up window itself is solid in the fight's colour, so there is nothing to show through. */
-dialog.trailpop.pfdlg { background: #0d0704; }   /* 2.6.85: the colour the margins around the fight have while it is on screen (its own dim over the dialog), so they do not change brightness while a turn is swapped in */
+/* 2.6.96 (owner: "Whole game covers over the website, we still want to see it behind it!"): the dialog is see-through again. Its ::backdrop is the one steady dim (the fight draws no dim of its own in here),
+   so the margins still never change brightness while a turn is swapped in, and the Trail map, the header and the menu show around the fight. */
+dialog.trailpop.pfdlg { background: transparent; }
+dialog.trailpop.pfdlg::backdrop { background: rgba(12, 7, 4, .45); }
+dialog.trailpop.pfdlg #pfight.pf-v1.pfv-fit { box-shadow: none; }
 /* The real cause: every turn the new fight panel (.encounter) replayed pfight.css's 0.25s fade-in (opacity + transform). While a transform is animating, the panel is the containing block of the fixed fight, so the fight shrank to the panel's 8px height for a moment and then jumped to full size: the "reload". The fight panel never animates in. */
 dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: none; }
 /* 2.6.85 (Josh, wide window): the charm bar is 8:1 and took the whole header width, so on a wide window it grew very tall. It is never wider than 320px (40px tall), centred in the header. */
@@ -512,3 +517,6 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 .pf-v1.pfv-fit .pf-plan .pf-plan-bar { margin-left: 0; }
 .pf-v1 .pf-plan:not(.open) li.pf-plan-aim { display: list-item; list-style: none; margin-left: 0; }
 .pf-v1.pfv-fit .pf-plan.pf-hasaim:not(.open) { max-height: 3em; }
+/* after 2.6.95: the Remove button of a broken or gone belt tool is compact and stays inside its slot */
+.pfv .pfv-rm { margin: 4px 0 0; width: 100%; }
+.pfv .pfv-rm .btn { width: 100%; min-height: 24px; padding: 1px 4px; font-size: 11px; line-height: 1.2; }

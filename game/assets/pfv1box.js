@@ -20,8 +20,9 @@
     var el = document.querySelector('#pfight.pf-v1') || document.getElementById('pfv-pre'); if (!el) return;
     var top = 0, bot = 0, st = document.documentElement.style;
     var dlg = el.closest('dialog'), modal = false; try { modal = !!(dlg && dlg.matches(':modal')); } catch (e) {}
-    if (!modal) {   // a modal popover (the Trail's) covers the header and the bottom bar; anything else leaves them in sight
-      if (!el.classList.contains('pfv-fit')) { try { window.scrollTo(0, 0); } catch (e) {} }
+    // a modal popover (the Trail's) on a phone is the whole window; anything else (and the Trail's on a wide window, 2.6.96) leaves the header and the bottom bar in sight
+    if (!modal || window.innerWidth >= 700) {
+      if (!modal && !el.classList.contains('pfv-fit')) { try { window.scrollTo(0, 0); } catch (e) {} }   // the page behind a modal keeps its scroll (the Trail map stays where it is)
       var hd = document.querySelector('.bannerin'), bb = document.querySelector('.bottombar');
       if (hd) top = Math.max(0, Math.round(hd.getBoundingClientRect().bottom));
       if (bb && getComputedStyle(bb).display !== 'none' && getComputedStyle(bb).position === 'fixed') bot = Math.max(0, Math.round(window.innerHeight - bb.getBoundingClientRect().top));
@@ -53,6 +54,9 @@
     if (e.L && e.L[0] === 'hole') bits.push('a piece with a ' + e.L[1] + ' knob on its left');
     return bits.length ? 'Links best with ' + bits.slice(0, 2).join(' and ') + '.' : '';
   }
+  /* the words for each piece type (mirror of PF_TYPE_TEXT in includes/pfight.php; # is the piece's number; tests/pf_piece_text.php checks they match) */
+  var TYTX = { hurt: 'Deals # damage, filling its Yield bar', guard: 'Blocks # damage until your next turn', heal: 'Heals you #', charm: 'Fills its Yield bar with # charm', soothe: 'Its next hits do # less damage in all', trick: 'Boosts a Hurt or Guard fired right after it by +#', item: 'Heals you #' };
+  function typeText(t, v) { return TYTX[t] ? TYTX[t].replace('#', v === '' || v === undefined || v === null ? 'its number' : String(v)) : ''; }
   function pips(n) { var h = ''; for (var i = 0; i < n; i++) h += '<i></i>'; return '<span class="lp" role="img" aria-label="stays ' + n + ' rounds">' + h + '</span>'; }
   function chips(pc) {
     var h = '<span class="ch ty">' + (TYI[pc.t] || '') + ' ' + esc(pc.ty || pc.t) + ' <b>' + esc(pc.v) + '</b></span>';
@@ -65,6 +69,7 @@
     o = o || {};
     var h = '<div class="dtop"><span class="dart" data-art="1"></span><div class="dmain"><b class="dn">' + esc(pc.n) + '</b><div class="dch">' + chips(pc) + '</div>'
       + (pc.life ? '<div class="dlife">' + pips(pc.life) + ' stays ' + esc(pc.life) + ' round' + (pc.life === 1 ? '' : 's') + '</div>' : '') + '</div></div>';
+    var tx = pc.tx || typeText(pc.t, pc.v); if (tx) h += '<p class="dnote dtype">' + esc(tx) + '</p>';
     if (pc.tt) h += '<p class="dtag"><span aria-hidden="true">' + esc(pc.ti) + '</span> ' + esc(pc.tt) + '</p>';
     if (pc.dur) h += '<p class="ddur"><span class="dur"><i data-w="' + Math.round(100 * pc.dur[0] / Math.max(1, pc.dur[1])) + '"></i></span> durability ' + esc(pc.dur[0]) + '/' + esc(pc.dur[1]) + '</p>';
     if (!o.slim) {
@@ -78,7 +83,7 @@
     var P = window.PFParts; if (!host) return; host.textContent = '';
     if (P && P.ok && pc.e) { try { var c = P.piece({ size: 'hand', owner: pc.own === 'foe' ? 'foe' : 'me', type: pc.t, tag: pc.tag || '', edges: pc.e, num: String(pc.v) }); c.className = 'pfi-cv'; host.appendChild(c); } catch (e) {} }
   }
-  window.PFSheet = { card: card, chips: chips, art: artInto, edges: edgeDiagram, esc: esc };
+  window.PFSheet = { typeText: typeText, card: card, chips: chips, art: artInto, edges: edgeDiagram, esc: esc };
 
   var sheet = null, sheetRoot = null, sheetBtn = null, sheetList = [], sx = 0, sy = 0;
   function btnData(b) {
