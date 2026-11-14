@@ -33,14 +33,20 @@ Rules: add new items here only. Tick or delete when done. History lives in `CHAN
 - All phone checks through 2.6.70 PASSED (Josh, 2026-11-12). Not browser-checked: 2.6.72 / 2.6.73 Wander from havens, dens, delves, wonders. Older DONE lines are in the archive.
 
 ## 3. JOSH: decisions needed (non-puzzle)
-- Trail Sights: (1) default villager hours by role (rows with no `dp=` show all day)? (2) keep Almanac Sights pages out of page counts / percentages? (3) play the data, say which rewards feel too big or small (Admin > Trail sights); (4) which weak item pictures / set pieces to redraw first.
-- Route maps: rope tool type (315 slope uses staff tier 1); how vertical N/S sections (18 tall) are paced; gates / extra mini-bosses outside Maplewold are a first pass (check feel, count); 2 routes have no lock (327 CA, 448 EA).
-- Rich Trail maps: Josh reviews; make looks game data (`decor` field)? shrink 250 MB ground pictures (2 copies in git)? island own ground art?
-- Art: P7 art order; 480x270 canvas final?
-- Pal jobs 'still need help': Josh never said what, ask. Other pal roles honouring bed picks (only Plant pal does)?
-- Delve / lair run records: player journal view undecided.
-- Which other picture pages need nav chrome: not defined.
-- Almanac data calls: Silverback Spider lair level 30 (from side route level), Shell Meal gives P (game has N/P/K only), tortoise greens list, Cannonball Tree native region, Lotus Root 'water lily rhizome', Banana 'fruits once' vs perennial, 146 villages share 56 descriptions, Mossbottom lists 3 shops, lair pages bare.
+- DECIDED 2026-11-14 (Josh, non-puzzle; all TO BUILD, nothing built yet):
+  - Villagers with no `dp=` get default hours by role (shopkeepers in shop hours, travellers by circuit).
+  - Almanac Sights pages stay OUT of page counts / percentages.
+  - No rope tool type (315 slope stays staff tier 1).
+  - Drop the `upload-zips` copy of the Trail ground pictures (rebuild zips only at release).
+  - Gates / extra mini-bosses outside Maplewold: review all 230 routes (list counts per region, Josh adjusts).
+  - Add a `decor` data field so the rich map looks are game data.
+  - Island keeps coast ground art. Delve / lair run records stay admin only.
+  - Pal jobs 'still need help': dropped. Only the Plant pal honours bed picks.
+  - Silverback Spider lair level: set to the zone level (find it, change it).
+  - Shell Meal P wording and tortoise greens list: leave.
+  - Craft-map canvas 480x270 is final. Nav chrome: Here / stops only.
+  - Redraw all 15 weak Sights items. Almanac: fix ALL remaining data calls (Cannonball Tree region, Lotus Root, Banana, 146 villages / 56 descriptions, Mossbottom 3 shops, bare lair pages).
+  - Still open for Josh: tune Sights rewards after play; vertical N/S section pacing.
 - (2026-11-14) After playing 2.6.97: (a) large 4-under is 60% (floor 67) and boss 4-under 50% (was 73): touch the level curve or accept? (b) Wind and Mud are cut for new fights: bring back as staged unlocks (`learn.md`) or leave out? (c) charm is only a real route with a Charm-heavy deck (plain chain bot charms 0% at medium and up): is the ending right for rewards? (d) the creature gets a free board piece in 47% of rounds (`pfb_spawn`, now announced): keep? (e) environment 1 piece a round instead of 2 (sim: wins +-5, fights +0.2-1.3 turns, no retune): do it? (f) removing a 'gone' belt tool leaves its old wear on record: clear it? (g) Soothe text 'Its next hits do # less damage in all': change to 'Next creature hit does # less'? (h) start week 2 and the first-fight teaching (learn.md)?
 - PUZZLE BOARD (2026-11-11, details `claude/handover-puzzle-board.md`): (1) blank multiplier 1.2 -> 1.0 (agents find blank much harder than classic); (2) show numbers (damage, HP cost, chain length) on cells instead of the bare `!`; (3) hidden or revealed creature start piece; (4) allow `pass` anyway (measured as a trap); (5) Charm on bosses; (6) does the blank-centre opening go into the live page (demo only now; the pick barely matters); (7) which creature tiles stick longer than 2 firings; (8) hostile Charm 0.6 -> 0.75.
 
