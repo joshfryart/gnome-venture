@@ -543,7 +543,7 @@
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: 1, team3: 1,   // 2.6.95: Teamwork off
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1 };   // 2.6.95: one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
     var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
@@ -1304,6 +1304,41 @@
     var m = search(s, 'foe');
     s.foe.intent = m ? s.foe.hand[m[0]].t : null;
     if (s.v1 && truthy(s.v1.aim)) { var h = m ? s.foe.hand[m[0]] : null; s.foe.plan = h && foeLen(s) > 0 ? { k: h.k, n: h.n, t: h.t, v: h.v, tag: h.tag, x: m[1], y: m[2] } : null; }
+    if (s.foe.plan && v1r(s, 'aimtot')) s.foe.plan.tot = aimTotal(s);   // 2.6.95: what its committed move would do now (one dry run; stored with the aim)
+  }
+
+  /** 2.6.95 (aim total): what the creature's committed move would do to you if it played now (pfb_aim_total): { hp, g, bait, heal, n, why }, null (no aim) or { broken: 'cell' | 'edge' | 'slow' }. */
+  function aimTotal(s) {
+    var plan = nn(s.foe.plan, null);
+    if (!plan || truthy(s.over)) return null;
+    if (foeLen(s) < 1) return { broken: 'slow' };
+    var x = toInt(plan.x), y = toInt(plan.y);
+    if (has(s.cell, x + ',' + y) && s.cell[x + ',' + y] !== null) return { broken: 'cell' };
+    var hi = -1; for (var i = 0; i < s.foe.hand.length; i++) if (s.foe.hand[i].k === plan.k) { hi = i; break; }
+    if (hi < 0) return { broken: 'edge' };
+    var w = clone(s); w.spent = []; w.lastfoe = []; w.gone = []; begin(w, 'foe');
+    var hp0 = toInt(w.me.hp); w.aimforce = true; var ev = place(w, 'foe', hi, x, y); delete w.aimforce;
+    if (ev === null) return { broken: 'edge' };
+    var g = 0, bait = 0, heal = 0, n = 0, sun = false, mud = false, combo = [], fires = [], quick = truthy(w.foe.again);
+    ev.forEach(function (e) {
+      if (e.id === undefined || e.id === null) return;
+      n++;
+      if (e.by === 'env') { if (e.kind !== 'sun') fires.push('fires ' + e.n); return; }
+      if (e.by === 'foe') {
+        if (e.t === 'hurt') g += toInt(nn(e.blocked, 0));
+        if (e.t === 'heal' || (e.t === 'trick' && e.tag === 'heal')) heal += toInt(e.v);
+        if (truthy(e.sun)) sun = true;
+        if (truthy(e.mud)) mud = true;
+        if (truthy(e.combo) && combo.indexOf(e.combo) < 0) combo.push(e.combo);
+      } else { bait += Number(nn(e.fh, 0)); fires.push('fires your ' + e.n); }
+    });
+    var why = [];
+    if (sun) why.push('Sun x' + String(Number(Number(s.v1.sun).toFixed(2))));
+    combo.forEach(function (c) { why.push('combo ' + c); });
+    fires.forEach(function (f) { why.push(f); });
+    if (quick) why.push('Quick: plays again');
+    if (mud) why.push('Mud -' + Math.round(100 * Number(nn(s.v1.mud, 0))) + '%');
+    return { hp: hp0 - toInt(w.me.hp), g: g, bait: round(bait, 1), heal: heal, n: n, why: why };
   }
 
   // ------------------------------------------------------------------ the whole fight
@@ -1410,7 +1445,7 @@
    * The player's turn: ONE action (see the move shapes at the top). Mutates s like the PHP (by reference); returns {ev, err}.
    * dry = true: report what a place would do (on a copy; no creature turn). canPlay(tile) -> reason|null is the optional PHP hook.
    */
-  function play(s, moves, turn, dry, canPlay) {
+  function play(s, moves, turn, dry, canPlay, withAim) {
     var bad = function () { return { ev: [], err: 'Those moves are not valid.' }; };
     if (s.over) return { ev: [], err: 'The fight is over.' };
     if (truthy(s.start)) return { ev: [], err: 'Pick your start piece first.' };
@@ -1450,7 +1485,7 @@
       ev = [{ snap: snap(w), by: 'me', connect: true, n: pcs.map(function (gp) { return String(gp.tile.n); }).join(' + '), types: pcs.map(function (gp) { return String(gp.tile.t); }), size: pcs.length }];
     } else return bad();
     ev.forEach(function (e0) { e0.ta = 'me'; });
-    if (dry) return { ev: ev, err: null, bar: round(w.bar.now, 1), max: w.bar.max, fh: round(w.fh.now, 1), fhmax: w.fh.max, hp: w.me.hp, block: w.me.block, over: w.over };
+    if (dry) { var dr = { ev: ev, err: null, bar: round(w.bar.now, 1), max: w.bar.max, fh: round(w.fh.now, 1), fhmax: w.fh.max, hp: w.me.hp, block: w.me.block, over: w.over }; if (withAim && v1r(w, 'aimtot')) dr.aim = aimTotal(w); return dr; }
     if (!w.over) { var fe = foeTurn(w); fe.forEach(function (e0) { e0.ta = 'foe'; }); ev = ev.concat(fe); }
     var trip = !w.over && w.v1 && truthy(w.v1.tags) && truthy(w.me.slowdraw);
     if (!w.over) endRound(w);
@@ -1538,6 +1573,7 @@
       v.flip = { on: truthy(c.flip), used: toInt(nn(s.me.flipt, 0)) === toInt(s.turn) };
       if (truthy(c.tags)) v.status = { poison: toInt(s.me.poison), poison_v: toInt(s.me.poison_v), slowdraw: toInt(s.me.slowdraw), evade: toInt(s.me.evade),
         foe_evade: toInt(s.foe.evade), foe_thorns: truthy(s.foe.thorns), foe_bash: toInt(s.foe.bashnext), foe_slow: toInt(s.foe.slow), foe_poison: toInt(s.foe.poison) };
+      if (v1r(s, 'aimtot') && v.status) v.status.foe_block = toInt(s.foe.block);
       v.wear = clone(nn(s.wear, {}));
       v.pcs.forEach(function (q) { var p = s.pcs[q.id], life = lifeOf(s, p); q.life = life; q.left = p.born + life - toInt(s.round); q.src = String(nn(p.tile.src, '')); q.flip = truthy(p.tile.flip); q.ter = ter(s, p.x, p.y); q.rank = toInt(nn(p.tile.rank, 0)); q.layer = String(nn(p.tile.layer, '')); if (p.by === 'env') { q.kind = String(p.tile.env); q.dir = nn(p.tile.dir, null); } });
       for (i = 0; i < v.hand.length; i++) { var ht = s.me.hand[i]; v.hand[i].life = toInt(nn(ht.life, PFB_LIFE)); v.hand[i].src = String(nn(ht.src, '')); v.hand[i].flip = truthy(ht.flip); v.hand[i].canflip = canFlip(s, i); v.hand[i].rank = toInt(nn(ht.rank, 0)); v.hand[i].tool = String(nn(ht.tool, '')); }

@@ -183,6 +183,7 @@ foreach ($g as $d => $bySize) foreach (getenv('CLASS') ? array_keys($bySize) : [
     $wins = array_sum(array_column($a, 'win')); printf("      endings: charmed %.0f%% of wins (%d of %d)\n", 100 * array_sum(array_column($a, 'charm')) / max(1, $wins), array_sum(array_column($a, 'charm')), $wins);
     $tt = max(1, array_sum(array_column($a, 'nt'))); $ct = array_sum(array_column($a, 'cturns')); $sm = fn(string $k) => array_sum(array_column($a, $k));
     printf("      metrics: dead %.1f%% of turns, own-piece-at-start %.1f%%%s\n", 100 * $sm('dead') / $tt, 100 * (1 - $sm('mine0') / $tt), $ct > 0 ? sprintf(', real choice %.1f%%, ply-flip %.1f%% (of %d look turns)', 100 * $sm('real') / $ct, 100 * $sm('plyflip') / $ct, $ct) : '');
+    if ($sm('aimn') > 0) printf("      aimgap: mean |shown total - actual| %.2f health on %d unbroken aims (shown %.1f, actual %.1f; the number it showed before the total: %.1f)\n", $sm('aimgap') / $sm('aimn'), $sm('aimn'), $sm('aimsh') / $sm('aimn'), $sm('aimac') / $sm('aimn'), $sm('aimold') / $sm('aimn'));
     if ($avg('eplace') > 0) {   // 2.6.75 environment pieces
         $k = fn(string $p) => implode(' ', array_map(fn($ek) => substr($ek, 0, 2) . sprintf('%.2f', $avg($p . $ek)), PFB_ENV_KINDS));
         printf("      env per fight: placed %.1f (pass %.2f), fired by me %.2f [%s], by creature %.2f [%s], pushes %.2f, fires of a piece that had fired before %.2f; env cost: me %.0f%% hp, creature %.0f%% bar; my chain length %.2f; pieces on board %.1f (most in a fight: mean %.1f, max %d = %.0f%% of the cells; passes for a full board %.2f); pieces weakened by Mud: mine %.2f, the creature's %.2f%s\n", $avg('eplace'), $avg('epass'), $avg('efire_me'), $k('me_'), $avg('efire_foe'), $k('foe_'), $avg('push'), $avg('refire'), 100 * $avg('e_hp'), 100 * $avg('e_bar'), array_sum(array_column($a, 'len')) / max(1, array_sum(array_column($a, 'chains'))), array_sum(array_column($a, 'pcs')) / max(1, array_sum(array_column($a, 'turns'))), $avg('maxpcs'), max(array_column($a, 'maxpcs')), 100 * max(array_column($a, 'efill')), $avg('full'), $avg('mud_me'), $avg('mud_foe'),
@@ -207,7 +208,7 @@ foreach ($offs as $d) foreach (tv_creatures() as $c) {
         $s = pfb_new(tv_player($lv), $cr, $seed, ['blank' => true, 'v1' => $over ?: true]);
         $hand = $s['me']['hand']; $bi = 0; foreach ($hand as $i => $t) if ($t['t'] === 'hurt' && $t['v'] > $hand[$bi]['v']) $bi = $i;
         pfb_start($s, $bi, ['L', 'R', 'T', 'B'][$k % 4]);
-        $t = 0; $st = ['used' => 0, 'tw' => 0, 'flip' => 0, 'reaim' => 0, 'pass' => 0, 'eplace' => 0, 'epass' => 0, 'efire_me' => 0, 'efire_foe' => 0, 'push' => 0, 'echg' => 0, 'eturns' => 0, 'ecost' => 0.0, 'e_hp' => 0.0, 'e_bar' => 0.0, 'len' => 0, 'chains' => 0, 'pcs' => 0, 'refire' => 0, 'mud_me' => 0, 'mud_foe' => 0, 'full' => 0, 'maxpcs' => 0, 'efill' => 0, 'mine0' => 0, 'dead' => 0, 'real' => 0, 'plyflip' => 0, 'cturns' => 0, 'nt' => 0]; $firedIds = [];
+        $t = 0; $st = ['used' => 0, 'tw' => 0, 'flip' => 0, 'reaim' => 0, 'pass' => 0, 'eplace' => 0, 'epass' => 0, 'efire_me' => 0, 'efire_foe' => 0, 'push' => 0, 'echg' => 0, 'eturns' => 0, 'ecost' => 0.0, 'e_hp' => 0.0, 'e_bar' => 0.0, 'len' => 0, 'chains' => 0, 'pcs' => 0, 'refire' => 0, 'mud_me' => 0, 'mud_foe' => 0, 'full' => 0, 'maxpcs' => 0, 'efill' => 0, 'mine0' => 0, 'dead' => 0, 'real' => 0, 'plyflip' => 0, 'cturns' => 0, 'nt' => 0, 'aimn' => 0, 'aimgap' => 0.0, 'aimsh' => 0.0, 'aimac' => 0.0, 'aimold' => 0.0]; $firedIds = [];
         foreach (PFB_ENV_KINDS as $ek) { $st['me_' . $ek] = 0; $st['foe_' . $ek] = 0; $st['pl_' . $ek] = 0; }
         while (!$s['over'] && $t++ < 40) {
             $pl = tv_places($s); $all = array_merge($pl, tv_joins($s));
@@ -220,7 +221,17 @@ foreach ($offs as $d) foreach (tv_creatures() as $c) {
                 if ($ab !== $a) { $w1 = $s; tv_act($w1, $a); $w2 = $s; tv_act($w2, $ab); $dv = tv_value($w1) - tv_value($w2); if ($dv > 0.005) { $st['echg']++; $st['ecost'] += $dv; } }
             }
             if ($a[0] === 'pass') $st['pass']++; if (!empty($a[3])) $st['flip']++;
+            $shown = null; $hpMid = (int)$s['me']['hp'];   // aimgap: the aim total shown after the chosen placement (or the pass) against the health its first chain then really takes
+            if (pfb_v1r($s, 'aimtot') && !empty($s['foe']['plan']) && $a[0] !== 'j' && $a[0] !== 'h') {
+                $w = $s; $old = (int)$s['foe']['plan']['v'];
+                if ($a[0] === 'pass') $shown = pfb_aim_total($w);
+                else { if (!empty($a[3])) pfb_flip($w, $a[0], $w['turn']); $dr = pfb_play($w, [[$a[0], $a[1], $a[2]]], $w['turn'], null, true, true); if (!$dr['err']) { $shown = $dr['aim'] ?? null; $hpMid = (int)$dr['hp']; } }
+            }
             $r = tv_act($s, $a);
+            if ($shown && isset($shown['hp']) && !$r['err'] && empty($s['reaim'])) {   // unbroken aim: the foe's first chain (poison ticks, Quick's second piece and the terrain turn are not in it)
+                $act = null; $last = null; foreach ($r['ev'] as $e) { if (($e['ta'] ?? '') !== 'foe') continue; if (!empty($e['root']) && ($e['by'] ?? '') === 'foe') { if ($act !== null) break; $act = 1; } if ($act !== null) { if (!isset($e['id'])) break; $last = $e; } }
+                if ($last !== null && isset($last['hpnow'])) { $st['aimn']++; $st['aimgap'] += abs($shown['hp'] - ($hpMid - $last['hpnow'])); $st['aimsh'] += $shown['hp']; $st['aimac'] += $hpMid - $last['hpnow']; $st['aimold'] += $old; }
+            }
             if ($r['err']) { $r = pfb_pass($s, $s['turn']); if ($r['err']) { if (!$pl) break; $r = tv_act($s, $pl[0]); if ($r['err']) break; } }
             foreach ($r['ev'] as $e) { if (isset($e['used']) && ($e['ta'] ?? '') === 'me') $st['used']++; if (isset($e['tw']) && !empty($e['root'])) $st['tw']++;
                 if (($e['env'] ?? '') === 'place') { $st['eplace']++; $st['pl_' . $e['kind']]++; } if (($e['env'] ?? '') === 'pass') { $st['epass']++; if (!empty($e['full'])) $st['full']++; } if (!empty($e['mud'])) $st['mud_' . $e['by']]++;

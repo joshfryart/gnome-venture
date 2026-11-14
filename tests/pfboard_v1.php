@@ -456,9 +456,9 @@ chk('a 2.6.94 state with none of the new keys resolves every key to PRE', !$bad1
 $v = pfb_view($s)['v1']; $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (!array_key_exists($k, $v) || (int)$v[$k] !== $d) $bad16[] = $k;
 chk('its view emits every key resolved to PRE', !$bad16, $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($n, $k) !== $d) $bad16[] = $k;
-chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw: 2.6.95)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw']), $bad16);
+chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot']), $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['onebar' => 1, 'redraw' => 1]]);
-chk('an override switches a key on', pfb_v1r($n, 'onebar') === 1 && pfb_v1r($n, 'redraw') === 1 && pfb_v1r($n, 'aimtot') === 0);
+chk('an override switches a key on', pfb_v1r($n, 'onebar') === 1 && pfb_v1r($n, 'redraw') === 1 && pfb_v1r($n, 'keepmine') === 0);
 chk('pfb_v1r on a fight without v1 rules is the PRE value too', pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5), 'aside') === 1);
 
 echo "== 17. week 1 cuts: Teamwork, per-piece life, Wind and Mud are off in a new fight (2.6.95); a fight saved under 2.6.94 keeps them\n";
@@ -588,6 +588,43 @@ $a['v1']['tags'] = 1; $c = v1_bare('medium', ['redraw' => 1, 'tags' => 1] + V1_2
 pfb_end_round($c);
 chk('redraw when tripped (slow draw): the hand has 4 and x0 is in the discard', count($c['me']['hand']) === PF_HAND_CAP - 1 && in_array('x0', array_column($c['me']['discard'], 'k'), true), [count($c['me']['hand'])]);
 chk('a new fight has redraw 1, V1_294 has redraw 0', pfb_v1r($nw, 'redraw') === 1 && pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => V1_294]), 'redraw') === 0);
+
+echo "== 22. week 1 cuts, part 6: the aim shows its total (2.6.95); a fight saved under 2.6.94 shows none\n";
+$wild = ['L' => ['wild', null], 'R' => ['wild', null], 'T' => ['wild', null], 'B' => ['wild', null]];
+$wt = fn(array $s, string $k, string $t, int $v, array $x = []) => ['ed' => $wild] + v1_tile($s, $k, $t, $v, 'mind', 'pal', $x);
+$aimBoard = function (bool $mine, array $over = []) use ($wt) {   // its aimed Hurt 4 at 2,1 touches a Sun at 1,1, which touches a Hurt 3 (the creature's, or your Jab) at 1,2
+    $s = v1_bare('medium', $over + ['aimtot' => 1]); $s['me']['hp'] = $s['me']['max'] = 60; $s['me']['block'] = 0;
+    v1_put($s, 'env', v1_env('sun'), 1, 1); v1_put($s, $mine ? 'me' : 'foe', $wt($s, $mine ? 'jab' : 'f:h3', 'hurt', 3), 1, 2);
+    $h = $wt($s, 'f:h4', 'hurt', 4); $s['foe']['hand'] = [$h]; $s['foe']['plan'] = ['k' => 'f:h4', 'n' => 'F:h4', 't' => 'hurt', 'v' => 4, 'tag' => '', 'x' => 2, 'y' => 1];
+    return $s;
+};
+$s = $aimBoard(false); $tot = function_exists('pfb_aim_total') ? pfb_aim_total($s) : null;
+$hp0 = $s['me']['hp']; $r = pfb_pass($s, $s['turn']);
+chk('aim total: its Hurt 4 into a Sun and its Hurt 3: tot.hp is the health actually lost', is_array($tot) && $tot['hp'] === $hp0 - $s['me']['hp'] && $tot['hp'] > 0, [$tot, $hp0 - $s['me']['hp']]);
+chk('aim total: why names "Sun x2"', is_array($tot) && in_array('Sun x2', $tot['why'], true), $tot);
+chk('aim total: n counts the pieces fired (root, Sun, Hurt 3), no bait, no heal', is_array($tot) && $tot['n'] === 3 && $tot['bait'] == 0 && $tot['heal'] === 0 && $tot['g'] === 0, $tot);
+$s = $aimBoard(true); $tot = function_exists('pfb_aim_total') ? pfb_aim_total($s) : null; $fh0 = $s['fh']['now'];
+chk('aim total: its chain fires your Jab: bait > 0 and why says "fires your Jab"', is_array($tot) && $tot['bait'] > 0 && in_array('fires your Jab', $tot['why'], true), $tot);
+$s = $aimBoard(false); $s['me']['block'] = 5; $tot = function_exists('pfb_aim_total') ? pfb_aim_total($s) : null; $hp0 = $s['me']['hp']; pfb_pass($s, $s['turn']);
+chk('aim total: your guard is eaten first (g) and hp is what gets through', is_array($tot) && $tot['g'] === 5 && $tot['hp'] === $hp0 - $s['me']['hp'], $tot);
+$s = $aimBoard(false, ['limit' => 0]); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)];   // no use-up here, so the pieces it would link are still there
+$d = pfb_play($s, [[0, 2, 1]], $s['turn'], null, true, true);
+chk('aim total: a piece of yours on the aimed cell: the dry run says aim.broken === "cell"', $d['err'] === null && isset($d['aim']['broken']) && $d['aim']['broken'] === 'cell', $d['aim'] ?? 'no aim');
+$s = $aimBoard(false, ['limit' => 0]); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)]; $s['me']['hp'] = 60;
+$d = pfb_play($s, [[0, 0, 1]], $s['turn'], null, true, true); $dn = pfb_play($s, [[0, 0, 1]], $s['turn'], null, true);
+chk('aim total: a placement off the aim cell: aim carries the total, and without withAim the dry result has no aim', $d['err'] === null && !isset($d['aim']['broken']) && isset($d['aim']['hp']) && !array_key_exists('aim', $dn), [$d['aim'] ?? null, array_keys($dn)]);
+$hp0 = $d['hp']; $rr = pfb_play($s, [[0, 0, 1]], $s['turn']);   // $d['hp'] is your health after YOUR chain; the total is what its own turn then takes
+chk('aim total: that shown total is the health lost in its turn when the round is then played for real', $rr['err'] === null && isset($d['aim']['hp']) && $d['aim']['hp'] > 0 && $d['aim']['hp'] === $hp0 - $s['me']['hp'], [$d['aim'] ?? null, $hp0 - $s['me']['hp']]);
+$s = $aimBoard(false); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)]; $s['cell']['2,1'] = true; unset($s['cell']['2,1']); $s['foe']['plan']['x'] = 3; $s['foe']['plan']['y'] = 3;   // nothing near (3,3): its edges cannot touch anything
+$d = pfb_play($s, [[0, 0, 1]], $s['turn'], null, true, true);
+$s = $aimBoard(false); $s['me']['hand'] = [$wt($s, 'mine', 'hurt', 2)]; $d = pfb_play($s, [[0, 0, 1]], $s['turn'], null, true, true);   // use-up (3 fire) takes its Sun and Hurt 3: its cell touches nothing
+chk('aim total: a chain of yours that uses up what its cell touched leaves the aim broken "edge"', ($d['aim']['broken'] ?? '') === 'edge', $d['aim'] ?? 'no aim');
+chk('aim total: a cell that touches nothing now is broken "edge"', $d['err'] === null && ($d['aim']['broken'] ?? '') === 'edge', $d['aim'] ?? 'no aim');
+$n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $o = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => V1_294]);
+chk('a new fight stores plan.tot at intent time (hp, g, bait, heal, n, why) and the view carries it; a V1_294 fight stores none', is_array($n['foe']['plan']['tot'] ?? null) && !array_diff(['hp', 'g', 'bait', 'heal', 'n', 'why'], array_keys($n['foe']['plan']['tot'])) && isset(pfb_view($n)['aim']['tot']) && !isset($o['foe']['plan']['tot']), $n['foe']['plan'] ?? null);
+chk('a new fight has aimtot 1, V1_294 has aimtot 0, and the status line carries foe_block', pfb_v1r($n, 'aimtot') === 1 && pfb_v1r($o, 'aimtot') === 0 && ($n['v1']['tags'] ? array_key_exists('foe_block', pfb_view($n)['status'] ?? []) : true), pfb_view($n)['status'] ?? null);
+$j = json_decode(json_encode($o), true); unset($j['v1']['aimtot']); $dj = pfb_play($j, [[0, 0, 0]], $j['turn'], null, true, true);
+chk('a saved 2.6.94 state (no aimtot key) never computes a total', !isset($j['foe']['plan']['tot']) && !isset($dj['aim']['tot']) && !isset($dj['aim']['hp']), $dj['aim'] ?? null);
 
 chk('no PHP warning or notice anywhere in this run', !$warn, array_slice($warn, 0, 3));
 echo $bad ? "$bad FAILED\n" : "all ok\n";

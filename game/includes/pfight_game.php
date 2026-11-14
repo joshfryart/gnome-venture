@@ -302,11 +302,11 @@ function pfight_preview_out(array $u, array $exp): void
     $moves = pfight_parse_moves((string)($_POST['moves'] ?? ''));
     if ($moves === null) $out(['ok' => false, 'err' => 'moves']);
     $before = (float)$s['bar']['now']; $one = !empty($s['v1']['onebar']); $fh0 = (float)$s['fh']['now'] + ($one ? $before : 0.0);   // 2.6.95: one shared bar: the creature bar is Hurt + Charm
-    $r = pfb_play($s, $moves, (int)($_POST['turn'] ?? -1), null, true);
+    $r = pfb_play($s, $moves, (int)($_POST['turn'] ?? -1), null, true, true);   // 2.6.95: withAim: what its committed move would do after this placement
     if ($r['err']) $out(['ok' => false, 'err' => (string)$r['err']]);
     $lines = [];
     foreach ($r['ev'] as $e) $lines[] = isset($e['pluck']) ? '🤏 Pluck: a small chance to lift something.' : pfight_line($e, (string)$c['name']);
-    $out(['ok' => true, 'lines' => $lines, 'bar' => [$before, $r['bar'], $r['max']], 'fh' => [$fh0, $r['fh'] + ($one ? $r['bar'] : 0.0), $r['fhmax']], 'over' => $r['over'] ?: null]);
+    $out(['ok' => true, 'lines' => $lines, 'bar' => [$before, $r['bar'], $r['max']], 'fh' => [$fh0, $r['fh'] + ($one ? $r['bar'] : 0.0), $r['fhmax']], 'over' => $r['over'] ?: null] + (array_key_exists('aim', $r) ? ['aim' => $r['aim']] : []));
 }
 
 /**

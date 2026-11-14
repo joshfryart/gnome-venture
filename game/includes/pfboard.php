@@ -85,7 +85,7 @@ function pfb_v1_cfg(string $size, array $over = [], int $level = 0): array
     $cfg = ['w' => $dims[0], 'h' => $dims[1], 'ground' => 0, 'nsun' => $g[0], 'nbr' => $g[1], 'nmud' => $g[2], 'sun' => PFB_SUN_MULT, 'bramble' => PFB_BRAMBLE, 'br_foe' => PFB_BRAMBLE_FOE,
         'events' => 0, 'nev' => PFB_EVENTS[$size], 'thorn' => PFB_THORN, 'ev_foe' => PFB_EVENT_FOE, 'limit' => PFB_USEUP, 'aim' => 1, 'team2' => 1.0, 'team3' => 1.0,   // 2.6.95: Teamwork off (2.6.94 fights carry 1.3 / 1.6 in their saved cfg)
         'edges' => 1, 'flip' => 1, 'life' => 0, 'tags' => 1, 'foe' => PFB_V1_FOE_MULT[$size], 'bar' => PFB_V1_BAR_MULT[$size],
-        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 1, 'aside' => 0, 'must' => 0, 'freepass' => 1, 'flip1' => 0, 'onebar' => 1, 'redraw' => 1] + PFB_V1_PRE;   // nowm 1 (2.6.95): no Wind or Mud in the deck; aside 0, must 0, freepass 1 (2.6.95): no set-aside, a piece need not link (you), passing is free; flip1 0 (2.6.95): flip any piece, any number of times; onebar 1 (2.6.95): one shared bar, Hurt + Charm; redraw 1 (2.6.95): the whole hand is redrawn each round   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
+        'env' => 1, 'envn' => PFB_ENV_N[$size], 'rain' => PFB_RAIN, 'th_foe' => PFB_THORN_FOE, 'mud' => PFB_MUD, 'envcap' => PFB_ENV_CAP, 'nowm' => 1, 'aside' => 0, 'must' => 0, 'freepass' => 1, 'flip1' => 0, 'onebar' => 1, 'redraw' => 1, 'aimtot' => 1] + PFB_V1_PRE;   // nowm 1 (2.6.95): no Wind or Mud in the deck; aside 0, must 0, freepass 1 (2.6.95): no set-aside, a piece need not link (you), passing is free; flip1 0 (2.6.95): flip any piece, any number of times; onebar 1 (2.6.95): one shared bar, Hurt + Charm; redraw 1 (2.6.95): the whole hand is redrawn each round; aimtot 1 (2.6.95): the aim carries its total   // 2.6.75: environment pieces (env); 'env' => 0 with 'ground' => 1, 'events' => 1 gives the 2.6.74 terrain
     foreach ($over as $k => $v) if (array_key_exists($k, $cfg) && is_numeric($v)) $cfg[$k] = is_int($cfg[$k]) ? (int)$v : (float)$v;
     if (isset($over['foe_x'])) $cfg['foe'] = round($cfg['foe'] * (float)$over['foe_x'], 4);
     if (isset($over['bar_x'])) $cfg['bar'] = round($cfg['bar'] * (float)$over['bar_x'], 4);
@@ -1074,6 +1074,46 @@ function pfb_intent(array &$s): void
     $m = pfb_search($s, 'foe');
     $s['foe']['intent'] = $m ? $s['foe']['hand'][$m[0]]['t'] : null;
     if (!empty($s['v1']['aim'])) { $h = $m ? $s['foe']['hand'][$m[0]] : null; $s['foe']['plan'] = $h && pfb_foe_len($s) > 0 ? ['k' => $h['k'], 'n' => $h['n'], 't' => $h['t'], 'v' => $h['v'], 'tag' => $h['tag'], 'x' => $m[1], 'y' => $m[2]] : null; }   // v1 AIM: the piece and the cell of its next move, shown to the player and committed
+    if (!empty($s['foe']['plan']) && pfb_v1r($s, 'aimtot')) $s['foe']['plan']['tot'] = pfb_aim_total($s);   // 2.6.95: what its committed move would do now (one dry run; stored with the aim)
+}
+
+/**
+ * 2.6.95 (aim total): what the creature's committed move would do to you if it played now. A dry run on a copy, exactly as pfb_foe_turn plays it (aimforce, its first piece):
+ * ['hp' => health you lose (through your guard), 'g' => guard of yours it eats, 'bait' => damage to the creature from YOUR pieces its chain fires, 'heal' => its own heal, 'n' => pieces fired, 'why' => short reasons].
+ * Quick's extra piece, the poison ticks and the terrain turn are not in the numbers (Quick is named in 'why'). Returns null when there is no aim, or ['broken' => 'cell'|'edge'|'slow'] when the aim cannot play
+ * ('cell' = something stands on its cell, 'edge' = its edges no longer fit there or its piece is gone, 'slow' = it loses its turn). Never called from pfb_cell_preview.
+ */
+function pfb_aim_total(array $s): ?array
+{
+    $plan = $s['foe']['plan'] ?? null;
+    if (!$plan || !empty($s['over'])) return null;
+    if (pfb_foe_len($s) < 1) return ['broken' => 'slow'];
+    $x = (int)$plan['x']; $y = (int)$plan['y'];
+    if (isset($s['cell']["$x,$y"])) return ['broken' => 'cell'];
+    $hi = null; foreach ($s['foe']['hand'] as $i => $ht) if ($ht['k'] === $plan['k']) { $hi = $i; break; }
+    if ($hi === null) return ['broken' => 'edge'];
+    $w = $s; $w['spent'] = []; $w['lastfoe'] = []; $w['gone'] = []; pfb_begin($w, 'foe');
+    $hp0 = (int)$w['me']['hp']; $w['aimforce'] = true; $ev = pfb_place($w, 'foe', $hi, $x, $y); unset($w['aimforce']);
+    if ($ev === null) return ['broken' => 'edge'];
+    $g = 0; $bait = 0.0; $heal = 0; $n = 0; $why = []; $sun = false; $mud = false; $combo = []; $fires = []; $quick = !empty($w['foe']['again']);
+    foreach ($ev as $e) {
+        if (!isset($e['id'])) continue;
+        $n++;
+        if (($e['by'] ?? '') === 'env') { if (($e['kind'] ?? '') !== 'sun') $fires[] = 'fires ' . $e['n']; continue; }   // a Sun says 'Sun x2' instead
+        if ($e['by'] === 'foe') {
+            if ($e['t'] === 'hurt') $g += (int)($e['blocked'] ?? 0);
+            if ($e['t'] === 'heal' || ($e['t'] === 'trick' && $e['tag'] === 'heal')) $heal += (int)$e['v'];
+            if (!empty($e['sun'])) $sun = true;
+            if (!empty($e['mud'])) $mud = true;
+            if (!empty($e['combo'])) $combo[$e['combo']] = 1;
+        } else { $bait += (float)($e['fh'] ?? 0); $fires[] = 'fires your ' . $e['n']; }
+    }
+    if ($sun) $why[] = 'Sun x' . rtrim(rtrim(number_format((float)$s['v1']['sun'], 2, '.', ''), '0'), '.');
+    foreach (array_keys($combo) as $c) $why[] = 'combo ' . $c;
+    foreach ($fires as $f) $why[] = $f;
+    if ($quick) $why[] = 'Quick: plays again';
+    if ($mud) $why[] = 'Mud -' . (int)round(100 * (float)($s['v1']['mud'] ?? 0)) . '%';
+    return ['hp' => $hp0 - (int)$w['me']['hp'], 'g' => $g, 'bait' => round($bait, 1), 'heal' => $heal, 'n' => $n, 'why' => $why];
 }
 
 /**
@@ -1082,9 +1122,9 @@ function pfb_intent(array &$s): void
  *   ['c', x, y]            place the set-aside group with its top-left at (x,y)
  *   ['j', a, b, side]      set aside two hand pieces joined: b on the `side` of a (no effect this turn)
  *   ['h', b, anc, side]    add hand piece b to the set-aside group, onto group piece anc's `side`
- * Returns ['ev' => events, 'err' => ?string]; on an error nothing changed. $dry = true: report what a place would do (a copy; no creature turn).
+ * Returns ['ev' => events, 'err' => ?string]; on an error nothing changed. $dry = true: report what a place would do (a copy; no creature turn). $withAim (dry, aimtot fights): adds 'aim' = the creature's committed move after this placement: pfb_aim_total (null: no aim).
  */
-function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null, bool $dry = false): array
+function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null, bool $dry = false, bool $withAim = false): array
 {
     if ($s['over']) return ['ev' => [], 'err' => 'The fight is over.'];
     if (!empty($s['start'])) return ['ev' => [], 'err' => 'Pick your start piece first.'];
@@ -1128,7 +1168,7 @@ function pfb_play(array &$s, array $moves, int $turn, ?callable $canPlay = null,
         $ev = [['snap' => pfb_snap($w), 'by' => 'me', 'connect' => true, 'n' => implode(' + ', $names), 'types' => array_map(fn($gp) => (string)$gp['tile']['t'], $w['me']['held']['pcs']), 'size' => count($names)]];
     } else return $bad;
     foreach ($ev as $i => $e0) $ev[$i]['ta'] = 'me';   // whose turn the event happened in (a chain can run through the other side's pieces; the page groups by this)
-    if ($dry) return ['ev' => $ev, 'err' => null, 'bar' => round($w['bar']['now'], 1), 'max' => $w['bar']['max'], 'fh' => round($w['fh']['now'], 1), 'fhmax' => $w['fh']['max'], 'hp' => $w['me']['hp'], 'block' => $w['me']['block'], 'over' => $w['over']];
+    if ($dry) return ['ev' => $ev, 'err' => null, 'bar' => round($w['bar']['now'], 1), 'max' => $w['bar']['max'], 'fh' => round($w['fh']['now'], 1), 'fhmax' => $w['fh']['max'], 'hp' => $w['me']['hp'], 'block' => $w['me']['block'], 'over' => $w['over']] + ($withAim && pfb_v1r($w, 'aimtot') ? ['aim' => pfb_aim_total($w)] : []);
     if (!$w['over']) { $fe = pfb_foe_turn($w, 0); foreach ($fe as $i => $e0) $fe[$i]['ta'] = 'foe'; $ev = array_merge($ev, $fe); }
     $trip = !$w['over'] && !empty($w['v1']['tags']) && !empty($w['me']['slowdraw']);
     if (!$w['over']) pfb_end_round($w);
@@ -1274,7 +1314,7 @@ function pfb_view(array $s): array
         $v['reaim'] = !empty($s['reaim']);   // last turn it could not play its aim and picked again
         $v['flip'] = ['on' => (bool)$c['flip'], 'used' => (int)($s['me']['flipt'] ?? 0) === (int)$s['turn']];
         if (!empty($c['tags'])) $v['status'] = ['poison' => (int)$s['me']['poison'], 'poison_v' => (int)$s['me']['poison_v'], 'slowdraw' => (int)$s['me']['slowdraw'], 'evade' => (int)$s['me']['evade'],
-            'foe_evade' => (int)$s['foe']['evade'], 'foe_thorns' => (bool)$s['foe']['thorns'], 'foe_bash' => (int)$s['foe']['bashnext'], 'foe_slow' => (int)$s['foe']['slow'], 'foe_poison' => (int)$s['foe']['poison']];   // 2.6.74: what is waiting on each side (creature tags)
+            'foe_evade' => (int)$s['foe']['evade'], 'foe_thorns' => (bool)$s['foe']['thorns'], 'foe_bash' => (int)$s['foe']['bashnext'], 'foe_slow' => (int)$s['foe']['slow'], 'foe_poison' => (int)$s['foe']['poison']] + (pfb_v1r($s, 'aimtot') ? ['foe_block' => (int)$s['foe']['block']] : []);   // 2.6.74: what is waiting on each side (creature tags)
         $v['wear'] = (object)($s['wear'] ?? []);   // tool type => durability its piece has cost so far this fight
         foreach ($v['pcs'] as $i => $q) {
             $p = $s['pcs'][$q['id']]; $life = pfb_life($s, $p);

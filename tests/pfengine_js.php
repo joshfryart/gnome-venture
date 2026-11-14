@@ -204,7 +204,7 @@ foreach ($rows as $ci => $c) foreach ([['single', 11], ['builder', 22], ['chaos'
                 if (!$r['err']) break; else continue;
             }
             if (($mode !== 'single' || $tn % 3 === 0) && ($t % 2 === 0 || $mode === 'chaos')) {   // a dry run first: it must not change anything
-                $r = pfb_play($s, [$mv], $tn, null, true); $emit(['op' => 'play', 'moves' => [$mv], 'turn' => $tn, 'dry' => true, 'res' => $r]);
+                $r = pfb_play($s, [$mv], $tn, null, true, true); $emit(['op' => 'play', 'moves' => [$mv], 'turn' => $tn, 'dry' => true, 'res' => $r]);   // withAim: the aim total after the placement (2.6.95) is part of the parity
             }
             $r = pfb_play($s, [$mv], $tn);
             $step = ['op' => 'play', 'moves' => [$mv], 'turn' => $tn, 'dry' => false, 'res' => $r];
