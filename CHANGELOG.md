@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.984
+- **Aim strike is OFF in new fights (owner: "If I play a piece on their planned spot it shouldn't remove my piece, that's rude. It should pick somewhere else").** `aimhit` defaults to 0 again: a piece of yours on the creature's aimed cell makes it pick again, as before 2.6.98. The strike code, its chip, mark and tests stay (switch `aimhit` 1, or the Tuning sheet in the demo). Needs 2.6.97+, no DB change. Skip 2.6.981 to 2.6.983.
+
 ## 2.6.983
 - **Fix: the first piece could not be placed (owner: "Live won't let me place my first piece. It resets when I press start").** Since the Blank starts on a random inner cell (2.6.981), the opening handler in `pfight_game.php` still worked out the side from the CENTRE of the board, so a piece placed next to the real Blank was refused ("Pick a spot next to the blank") and the page reset. It now reads where the Blank is (`pfb_start_side`). The demo had the same bug and was fixed in 2.6.982's rebuild. Needs 2.6.97+, no DB change. Skip 2.6.981 and 2.6.982.
 

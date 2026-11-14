@@ -23,7 +23,7 @@
   Object.defineProperty(HTMLImageElement.prototype, 'src', { configurable: true, enumerable: true, get: function () { return isrc.get.call(this); }, set: function (v) { var k = String(v).replace(/^art\//, ''); isrc.set.call(this, (String(v).indexOf('art/') === 0 && ART[k]) ? ART[k] : v); } });
 
   // ---- the game in memory
-  var TUNE0 = { foe_x: 1, bar_x: 1, env_x: 1, sun: 2, bramble: 0.10, rain: 0.15, thorn: 0.10, mud: 0.25, limit: 3, envn: 1, kinds: 1, aimhit: 1, keepmine: 0, lvl: 0, belt: 1, anim: '1' };
+  var TUNE0 = { foe_x: 1, bar_x: 1, env_x: 1, sun: 2, bramble: 0.10, rain: 0.15, thorn: 0.10, mud: 0.25, limit: 3, envn: 1, kinds: 1, aimhit: 0, keepmine: 0, lvl: 0, belt: 1, anim: '1' };
   var S = { src: PFD.blank(), cr: null, screen: 'box', tab: 'kit', enc: null, flash: null, seed: ((Date.now() % 100000) | 0) * 7919 + 13, tune: Object.assign({}, TUNE0), res: null, fights: 0 };
   safe(function () { var a = localStorage.getItem('pfvspd'); if (a === '0' || a === '2') S.tune.anim = a; });
   var scrollMem = 0;
