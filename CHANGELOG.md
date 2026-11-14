@@ -1,8 +1,8 @@
 # Changelog
 
 ## 2.6.98
-- **Puzzle combat v1, week 2: the aim can strike your pieces, every creature class has one rule, the environment places 1 piece a round.** Branch `claude/todo-md-jbud4h`, not built as a zip yet.
-- **Needs 2.6.95+, no DB change. Puzzle combat v1 is still admin-gated (`pfight_v1`). Only NEW fights get the changes; fights under way keep their rules.**
+- **Puzzle combat v1, week 2: the aim can strike your pieces, every creature class has one rule, the environment places 1 piece a round.** Slim zip `releases/GnomeVenture-2.6.98-web-update.zip`.
+- **Needs 2.6.96+, no DB change. Puzzle combat v1 is still admin-gated (`pfight_v1`). Only NEW fights get the changes; fights under way keep their rules.**
 - **Environment: 1 piece a round (was 2; Josh's call).** `PFB_ENV_N` in `pfboard.php` and `tools/pfengine.js`. A fight saved earlier keeps its own `envn`.
 - **Aim strike (`aimhit`, on in new fights).** If the creature's aimed piece is a Hurt and YOUR piece stands on its cell, it strikes that piece instead of picking again: the piece breaks (a Guard at least as strong as the hit holds), you take no damage, its piece is spent. The aim chip says "will strike your Swing (it breaks)", the board mark turns red, the help sheet says it, the piece cracks in the replay. Events carry `strike`.
 - **Bake-off for a board that lasts (`claude/reviews-2026-11-13/t15-bakeoff.md`).** `keepmine` (your pieces are never used up) and `useroot` (only the placed piece is used up) are built as switches but stay OFF: keepmine makes fights 4-5 turns and chain wins 95-99% at the current bar, and only reads fair at bar x3 (10-12 turns). `aimhit` alone was picked by the plan's decision rule; it barely moves real choice (15-19%) and lowers the health the careful bot loses.
