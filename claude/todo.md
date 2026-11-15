@@ -130,3 +130,5 @@ Combat intent/Guard, KO cost on road fights, Inbox, test environment, growing vi
 - Windows release builds: `build_update.sh` breaks on spaces, relative output dir, CRLF; use a space-free out dir.
 - Branch hygiene: see `claude/branches.md`; do not clean old branches without asking.
 - Icons: emoji are swapped for drawn icons by `ico_swap` (e.g. 🪙 shows as the petal). JS must not overwrite icon markup; change only text nodes.
+
+- DONE (2.7.00): wearable art approved by Josh: 15 avatar layers (game/assets/img/gnome25/), 33 icons + tailor-1/2/3 (game/assets/img/ph/). Weak spots: boots barely tall, front pack corners only, cloak icon boxy, back glove thumb.
