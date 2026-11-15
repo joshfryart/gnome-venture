@@ -124,6 +124,31 @@ function tailor_chance(int $power): int { return min(WEAR_UP_CAP, WEAR_UP_BASE +
 /** Extra commission percent from the points above WEAR_POWER_CAP. */
 function tailor_commission_pct(int $power): int { return max(0, $power - WEAR_POWER_CAP) * WEAR_COMMISSION_PER_POINT; }
 
+/** Is a level 3 Tailor's free first craft of the game day still there? */
+function tailor_free_ready(int $uid): bool
+{
+    require_once __DIR__ . '/games.php';
+    return max(0, ...tailor_levels($uid)) >= 3 && !q_val("SELECT 1 FROM festival_flags WHERE festival = 'tailor-free' AND user_id = ? AND day = ?", [$uid, game_day()]);
+}
+
+/** Use up today's free craft (true only for the one request that gets it). */
+function tailor_free_take(int $uid): bool
+{
+    if (!tailor_free_ready($uid)) return false;
+    try { db_insert('festival_flags', ['festival' => 'tailor-free', 'user_id' => $uid, 'day' => game_day(), 'at' => date('Y-m-d H:i:s')]); return true; }
+    catch (Throwable $e) { return false; }
+}
+
+/** Commission Petals for a finished job: the power over WEAR_POWER_CAP gives that many percent of the wearable's base price (at least 1). 0 with no extra power. */
+function tailor_commission(int $uid, string $slug, ?int $power = null): int
+{
+    $pct = tailor_commission_pct($power ?? tailor_power($uid));
+    if ($pct <= 0) return 0;
+    $price = (int)q_val('SELECT base_price FROM items WHERE slug = ?', [$slug]);
+    $n = max(1, (int)round($price * $pct / 100));
+    return give_petals($uid, $n, 'tailor commission') ? $n : 0;
+}
+
 /** Does the gnome have a Tailor in at least one garden? */
 function tailor_has(int $uid): bool { return tailor_levels($uid) !== []; }
 
@@ -199,11 +224,15 @@ function tailor_craft(array $u, string $base, string $cut = 'a'): array
     if (!$d || ($d['get'] ?? '') !== 'craft' || !isset($d['cuts'][$cut])) return [false, 'That is not something the Tailor makes.'];
     if (!tailor_has($uid)) return [false, 'You need a Tailor built in one of your gardens first.'];
     wear_ensure_items();
-    foreach ($d['mats'] as $s => $n) if (wear_qty($uid, $s) < $n) return [false, 'You need ' . wear_mats_text($d['mats']) . '.'];
-    if (!spend_energy($uid, (int)$d['energy'], 'craft')) return [false, 'You need ' . (int)$d['energy'] . ' energy for that.'];
-    wear_take($uid, $d['mats']);
+    $free = tailor_free_take($uid);   // a level 3 Tailor: the first craft of the day costs nothing
+    if (!$free) {
+        foreach ($d['mats'] as $s => $n) if (wear_qty($uid, $s) < $n) return [false, 'You need ' . wear_mats_text($d['mats']) . '.'];
+        if (!spend_energy($uid, (int)$d['energy'], 'craft')) return [false, 'You need ' . (int)$d['energy'] . ' energy for that.'];
+        wear_take($uid, $d['mats']);
+    }
     give_item($uid, item_id_by_slug(wear_slug($base, $cut, 1)), 1);
-    return [true, '🧵 You make ' . $d['name'] . ' (' . $d['cuts'][$cut][0] . ').'];
+    $c = tailor_commission($uid, wear_slug($base, $cut, 1));
+    return [true, '🧵 You make ' . $d['name'] . ' (' . $d['cuts'][$cut][0] . ').' . ($free ? ' Your level 3 Tailor made it for nothing today.' : '') . ($c ? ' Commission: ' . $c . ' Petals.' : '')];
 }
 
 /**
@@ -230,7 +259,8 @@ function tailor_line(array $u, string $slug, bool $pity = false, ?callable $roll
     if ($sure || $roll(tailor_chance(tailor_power($uid)))) {
         give_item($uid, item_id_by_slug($slug), -1);
         give_item($uid, item_id_by_slug(wear_slug($base, $cut, $rank + 1)), 1);
-        return [true, '🧵 The ' . $name . ' comes out ' . WEAR_RANK_NAME[$rank + 1] . '!' . ($sure ? ' (a sure thing: ' . WEAR_PITY . ' Threads)' : '')];
+        $c = tailor_commission($uid, wear_slug($base, $cut, $rank + 1));
+        return [true, '🧵 The ' . $name . ' comes out ' . WEAR_RANK_NAME[$rank + 1] . '!' . ($sure ? ' (a sure thing: ' . WEAR_PITY . ' Threads)' : '') . ($c ? ' Commission: ' . $c . ' Petals.' : '')];
     }
     give_item($uid, item_id_by_slug(WEAR_THREAD), 1);
     return [true, '🧵 The lining would not take this time. You keep a length of Tailor’s Thread (' . wear_qty($uid, WEAR_THREAD) . '/' . WEAR_PITY . ' for a sure thing).'];

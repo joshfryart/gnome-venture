@@ -35,7 +35,7 @@ page_header('Tailor');
   <p class="help">You need a <b>Tailor</b> built in at least one of your gardens (garden level <?= (int)BUILDINGS['tailor'][2] ?>, <?= money((int)BUILDINGS['tailor'][3]) ?>). Then you can make wearables here, line them and re-cut them. <a href="<?= e(url('garden.php')) ?>">Go to your garden</a></p>
 <?php endif; ?>
 <?php if ($has): ?>
-  <p class="help">Your Tailors: <?= e(implode(', ', array_map(fn($l) => 'level ' . $l, $levels))) ?>. Tailor power <b><?= $power ?></b>: a lining attempt takes <b><?= tailor_chance($power) ?>%</b> of the time<?= $power > WEAR_POWER_CAP ? ' (' . tailor_commission_pct($power) . '% extra commission from the points over ' . WEAR_POWER_CAP . ' is not in the game yet)' : '' ?>. A lining that does not take gives a Tailor’s Thread; <?= WEAR_PITY ?> Threads make the next one a sure thing. You have <b><?= $threads ?></b> Thread<?= $threads === 1 ? '' : 's' ?>.</p>
+  <p class="help">Your Tailors: <?= e(implode(', ', array_map(fn($l) => 'level ' . $l, $levels))) ?>. Tailor power <b><?= $power ?></b>: a lining attempt takes <b><?= tailor_chance($power) ?>%</b> of the time<?= $power > WEAR_POWER_CAP ? ' (the points over ' . WEAR_POWER_CAP . ' pay ' . tailor_commission_pct($power) . '% of the wearable’s price in commission Petals on each job)' : '' ?>. A lining that does not take gives a Tailor’s Thread; <?= WEAR_PITY ?> Threads make the next one a sure thing. You have <b><?= $threads ?></b> Thread<?= $threads === 1 ? '' : 's' ?>.<?= tailor_free_ready($uid) ? ' Your level 3 Tailor makes your first craft today for nothing.' : '' ?></p>
   <h2>Make</h2>
   <ul class="rcards tlr">
   <?php foreach (WEAR_DEFS as $base => $d): if (($d['get'] ?? '') !== 'craft') continue; ?>

@@ -102,5 +102,19 @@ $src['state'] = ['w:work-gloves-b' => true]; $gl = array_column(pfd_tiles(array_
 ok('Knuckle Down is Hurt with Bash; a Fine piece is worth +4 over the Common value (3 + 4 = 7 at stat 0, level 3)', ($gl['Knuckle Down']['t'] ?? '') === 'hurt' && ($gl['Knuckle Down']['tag'] ?? '') === 'bash' && ($gl['Knuckle Down']['v'] ?? 0) === 8, json_encode($gl['Knuckle Down'] ?? null));
 $pfb = pfb_src(['src' => 'wear']);
 ok('the board engine knows the source and gives it the body family', $pfb === 'wear' && (PFB_SRC_FAM['wear'] ?? '') === 'body');
+echo "== level 3 free craft and commission\n";
+q('UPDATE garden_buildings SET level = 3 WHERE plot_id = ? AND building = ?', [$plot, 'tailor']);
+q("DELETE FROM festival_flags WHERE festival = 'tailor-free' AND user_id = ?", [$uid]);
+ok('a level 3 Tailor: the free craft is ready', tailor_free_ready($uid));
+$e1 = (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]); $g0 = $qty('work-gloves');
+[$a, $m] = tailor_craft($u, 'work-gloves', 'a');
+ok('the first craft of the day needs no materials or energy', $a && $qty('work-gloves') === $g0 + 1 && (int)q_val('SELECT energy FROM users WHERE id = ?', [$uid]) === $e1 && str_contains($m, 'for nothing'), $m);
+ok('and only the first', !tailor_free_ready($uid) && !tailor_craft($u, 'work-gloves', 'a')[0]);
+q('UPDATE garden_buildings SET level = 1 WHERE plot_id = ? AND building = ?', [$plot, 'tailor']);
+ok('a level 1 Tailor has no free craft', !tailor_free_ready($uid));
+ok('power 6 or less pays no commission', tailor_commission($uid, 'work-gloves') === 0);
+$c0 = (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]);
+$cm = tailor_commission($uid, 'work-gloves', 10);   // power 10
+ok('power over 6 pays commission Petals (20% of the price, at least 1)', $cm >= 1 && (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]) === $c0 + $cm, "$cm");
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);
