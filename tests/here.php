@@ -175,6 +175,36 @@ ok('lint: fewer than 4 stand slots is caught', here_lint_layout($bad) !== []);
 $big = json_decode(str_replace('"', '"', json_encode($all['generic'])), true); array_walk_recursive($big, function (&$v, $k) { if (in_array($k, ['x', 'y', 'w', 'h', 'horizon'], true)) $v *= 2; });
 ok('canvas size is not hard-coded: a 960x540 layout lints by its own size', here_lint_layout($big) === []);
 
+echo "== shop street labels\n";
+require_once $game . '/includes/hub_scene.php';
+$SL = here_layouts_shipped()['shops-street'];
+$long = ['Lamp Lane Lamps', 'Curio Cabinet', "Twigg's Seed Emporium", 'Moss and Mallow Market'];
+$mk = function (string $id, string $mark, string $name, string $state) use ($SL) {
+    foreach ($SL['spots'] as $sp) if ($sp['k'] === $id) return ['id' => $id, 'x' => $sp['x'], 'y' => $sp['y'], 'box' => $sp['box'], 'label' => $mark . ' ' . $name, 'state' => $state];
+};
+$hs = [];
+foreach (['loc-1', 'loc-2', 'loc-3', 'loc-4'] as $i => $id) $hs[] = $mk($id, '📍', $long[$i], 'open');
+foreach (['hub-seeds', 'hub-food', 'hub-florist', 'hub-decor'] as $i => $id) $hs[] = $mk($id, '🍄', $long[$i], ['open', 'closed', 'away', 'open'][$i]);
+foreach (['hub-dyes', 'hub-pets', 'hub-more'] as $i => $id) $hs[] = $mk($id, '🍄', $long[$i], 'open');
+$out = hub_street_pill_layout($hs, $SL);
+$bx = []; $inside = true; $full = true; $clear = true;
+$obst = [$SL['compass_clear']]; foreach ($SL['stand'] as $sp) $obst[] = [$sp['x'] - 14, $sp['y'] - 14, $sp['x'] + 14, $sp['y'] + 14];
+foreach ($out as $h) {
+    [$cx, $cy, $w, $t] = $h['pill'];
+    $r = [$cx - intdiv($w, 2), $cy - 6, $cx - intdiv($w, 2) + $w, $cy + 7];
+    if ($r[0] < 2 || $r[2] > 478 || $r[1] < 0 || $r[3] > 300) $inside = false;
+    if ($t !== $h['label']) $full = false;
+    foreach ($obst as $o) if ($r[0] < $o[2] && $r[2] > $o[0] && $r[1] < $o[3] && $r[3] > $o[1]) $clear = false;
+    $bx[] = $r;
+}
+$noov = true;
+foreach ($bx as $i => $a) foreach ($bx as $j => $b) if ($i < $j && $a[0] < $b[2] && $b[0] < $a[2] && $a[1] < $b[3] && $b[1] < $a[3]) $noov = false;
+ok('shop street: 11 pills placed, none overlapping', count($bx) === 11 && $noov);
+ok('shop street: every pill inside the canvas', $inside);
+ok('shop street: long names shown in full (no ellipsis)', $full);
+ok('shop street: pills stay off the compass corner and the stand points', $clear);
+ok('shop street: local pills get a dashed leader, hub pills do not', $out[0]['street']['lead'] !== null && $out[5]['street']['lead'] === null);
+
 echo "== settings and schema\n";
 require_once $game . '/includes/here_schema.php';
 $s = here_settings();

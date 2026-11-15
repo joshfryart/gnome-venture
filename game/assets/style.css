@@ -7933,6 +7933,17 @@ details.sgq summary{cursor:pointer}
 .scard.is-away { opacity: .62; }
 .scard.is-away .scard__art img { filter: grayscale(.6) opacity(.8); }
 .hubsvg.chrome .hs.is-away .pill, .hubsvg.chrome .hs.is-away .tag { opacity: .6; }
+/* v2.7.01 Shop Street labels: the pill is part of its shop's link (tappable), a state square sits in its right end, a dashed leader runs to the door */
+.hubsvg.chrome .pill.lbl, .hubsvg.chrome .pill.lbl rect, .hubsvg.chrome .pill.lbl text { pointer-events: auto; }
+.hubsvg.chrome .pill.lbl text { text-anchor: start; }
+.hubsvg.chrome .pill.lbl rect.stt { stroke: #fff; stroke-width: .6; }
+.hubsvg.chrome .pill.lbl rect.stt-open { fill: #3fb950; }
+.hubsvg.chrome .pill.lbl rect.stt-closed { fill: #e5484d; }
+.hubsvg.chrome .pill.lbl rect.stt-away { fill: #9aa0a6; }
+.hubsvg.chrome .hs.on .pill.lbl rect.stt-open, .hubsvg.chrome .hs:hover .pill.lbl rect.stt-open, .hubsvg.chrome .hs:focus-visible .pill.lbl rect.stt-open { fill: #3fb950; }
+.hubsvg.chrome .hs.on .pill.lbl rect.stt-closed, .hubsvg.chrome .hs:hover .pill.lbl rect.stt-closed, .hubsvg.chrome .hs:focus-visible .pill.lbl rect.stt-closed { fill: #e5484d; }
+.hubsvg.chrome .hs.on .pill.lbl rect.stt-away, .hubsvg.chrome .hs:hover .pill.lbl rect.stt-away, .hubsvg.chrome .hs:focus-visible .pill.lbl rect.stt-away { fill: #9aa0a6; }
+.hubsvg.chrome .hs line.lead { stroke: #f4e3b0; stroke-width: 1; opacity: .85; pointer-events: none; }
 .hubsvg.chrome .hs.is-closed .pill { opacity: .8; }
 .hubscene .hubsvg .pix.back { image-rendering: pixelated; }
 .sbadge { display: inline-block; margin-right: 4px; padding: 0 6px; font: 700 11px/1.5 var(--font); white-space: nowrap; background: rgba(42, 26, 16, .14); border: 1px solid rgba(42, 26, 16, .35); }

@@ -617,7 +617,7 @@ function shop_street_hotspots(array $L, array $local, array $hub, string $town):
             continue;
         }
         $hot[] = $h + ['label' => $mark . preg_replace('/^The\s+/u', '', (string)$s['name']), 'href' => shop_street_href($s), 'chip' => $s['st']['chip'],
-                       'cls' => $s['st']['state'] === 'away' ? 'is-away' : ($s['st']['state'] === 'closed' ? 'is-closed' : '')];
+                       'cls' => $s['st']['state'] === 'away' ? 'is-away' : ($s['st']['state'] === 'closed' ? 'is-closed' : ''), 'state' => $s['st']['state'] === 'away' ? 'away' : ($s['st']['state'] === 'closed' ? 'closed' : 'open')];
     }
     return $hot;
 }
@@ -638,7 +638,7 @@ function shop_street_html(array $u, string $town): string
     $L = here_layouts_all()['shops-street'] ?? null;
     if ($L && (is_admin() || gnav_on())) {
         $key = shop_street_art_key($town);
-        $h .= hub_scene($key, shop_street_hotspots($L, $local, $hub, $town), [], ['layout' => $L, 'art' => 'here', 'alt' => 'Shop Street in ' . $town, 'chrome' => true, 'pills' => true, 'noleg' => true, 'twin' => false, 'title' => 'Shops']);
+        $h .= hub_scene($key, shop_street_hotspots($L, $local, $hub, $town), [], ['layout' => $L, 'art' => 'here', 'alt' => 'Shop Street in ' . $town, 'chrome' => true, 'pills' => 'street', 'noleg' => true, 'twin' => false, 'title' => 'Shops']);
     }
     $h .= '<div id="shops-list">';
     if (!$inHub) {

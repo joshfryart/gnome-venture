@@ -118,6 +118,14 @@ function hub_hotspot_box(array $h, array $L): string
         . 'M' . ($x1 - $i) . ' ' . ($y1 - $k) . 'V' . ($y1 - $i) . 'H' . ($x1 - $k) . 'M' . ($x0 + $k) . ' ' . ($y1 - $i) . 'H' . ($x0 + $i) . 'V' . ($y1 - $k) . '"/>';
     if (!empty($h['pill'])) {   // a named pill (label in the picture): 11-unit text on a dark plate, positions resolved by hub_pill_layout()
         [$pcx, $pcy, $pw, $ptext] = $h['pill'];
+        if (!empty($h['street'])) {   // v2.7.01 Shop Street: the full name, a state square at the right end, the pill is part of the same link; a dashed leader to the door for the local group
+            $st = $h['street'];
+            $px = $pcx - intdiv($pw, 2);
+            if (!empty($st['lead'])) $a .= '<line class="lead" x1="' . $st['lead'][0] . '" y1="' . $st['lead'][1] . '" x2="' . $st['lead'][2] . '" y2="' . $st['lead'][3] . '" stroke-dasharray="2 2"/>';
+            $a .= '<g class="pill lbl"><rect x="' . $px . '" y="' . ($pcy - 6) . '" width="' . $pw . '" height="13" rx="6"/><text x="' . ($px + 7) . '" y="' . ($pcy + 3) . '" font-size="8.5">' . e($ptext) . '</text>'
+                . (($st['state'] ?? '') !== '' ? '<rect class="stt stt-' . e((string)$st['state']) . '" x="' . ($px + $pw - 13) . '" y="' . ($pcy - 3) . '" width="7" height="7"/>' : '') . '</g>';
+            return $a . '</a>';
+        }
         $a .= '<g class="pill"><rect x="' . ($pcx - intdiv($pw, 2)) . '" y="' . ($pcy - 8) . '" width="' . $pw . '" height="16" rx="8"/><text x="' . $pcx . '" y="' . ($pcy + 4) . '" text-anchor="middle" font-size="11">' . e($ptext) . '</text></g>';
         return $a . '</a>';
     }
@@ -230,6 +238,76 @@ function hub_pill_layout(array $hotspots, array $L): array
     return $hotspots;
 }
 
+/**
+ * v2.7.01 Shop Street labels: every name in full (no truncation unless nothing else fits), staggered into label rows per group
+ * (local: below the buildings, two more rows over the building feet only when those are full, with a dashed leader to the door; hub front row; hub upper row). Greedy, left to right, first row without an
+ * overlap (3 unit gap) that also avoids the compass corner and the stand points. Sets $h['pill'] = [cx, cy, w, text] and $h['street'] = [state, lead].
+ * A pill is 13 units high, 5.6 units per character + 30 padding (the state square sits inside its right end).
+ */
+function hub_street_pill_layout(array $hotspots, array $L): array
+{
+    $W = (int)$L['w']; $H = (int)$L['h'];
+    $obst = [];   // [x0, y0, x1, y1]
+    if (!empty($L['compass_clear'])) $obst[] = array_map('intval', $L['compass_clear']);
+    foreach ($L['stand'] ?? [] as $sp) $obst[] = [(int)$sp['x'] - 14, (int)$sp['y'] - 14, (int)$sp['x'] + 14, (int)$sp['y'] + 14];
+    $groups = [
+        'local' => ['rows' => [262, 278, 293, 247, 232], 'ids' => ['loc-1', 'loc-2', 'loc-3', 'loc-4', 'loc-more']],
+        'front' => ['rows' => [150, 164, 178], 'ids' => ['hub-seeds', 'hub-food', 'hub-florist', 'hub-decor']],
+        'upper' => ['rows' => [44, 58, 72], 'ids' => ['hub-dyes', 'hub-pets', 'hub-more']],
+    ];
+    $placed = [];   // [x0, y0, x1, y1]
+    $free = function (int $x0, int $y0, int $x1, int $y1) use (&$placed, $obst, $W, $H): bool {
+        if ($x0 < 2 || $x1 > $W - 2 || $y0 < 1 || $y1 > $H - 1) return false;
+        foreach ($obst as $o) if ($x0 < $o[2] && $x1 > $o[0] && $y0 < $o[3] && $y1 > $o[1]) return false;
+        foreach ($placed as $p) if ($x0 < $p[2] + 3 && $x1 + 3 > $p[0] && $y0 < $p[3] && $y1 > $p[1]) return false;   // 3 unit gap sideways; rows are 14 apart, so only a real overlap counts vertically
+        return true;
+    };
+    $byId = [];
+    foreach ($hotspots as $k => $h) $byId[(string)($h['id'] ?? '')] = $k;
+    foreach ($groups as $gname => $g) {
+        $rows = $g['rows'];
+        foreach ($g['ids'] as $id) {
+            if (!isset($byId[$id])) continue;
+            $k = $byId[$id]; $h = $hotspots[$k];
+            if (!empty($h['nopill'])) continue;
+            [$x0, $y0, $x1, $y1] = here_hit_box($h, $L);
+            $text = trim((string)($h['label'] ?? ''));
+            $w = (int)ceil(hub_text_units($text) * 5.6) + 30;
+            $bcx = intdiv($x0 + $x1, 2);
+            $cx0 = max(intdiv($w, 2) + 2, min($W - intdiv($w, 2) - 2, $bcx));
+            $at = null;
+            foreach ($rows as $cy) { if ($free($cx0 - intdiv($w, 2), $cy - 6, $cx0 - intdiv($w, 2) + $w, $cy + 7)) { $at = [$cx0, $cy]; break; } }
+            for ($d = 6; $at === null && $d <= 240; $d += 6) {   // slide sideways along a row before ever shortening the name
+                foreach ($rows as $cy) foreach ([-$d, $d] as $dx) {
+                    $cx = $cx0 + $dx;
+                    if ($free($cx - intdiv($w, 2), $cy - 6, $cx - intdiv($w, 2) + $w, $cy + 7)) { $at = [$cx, $cy]; break 3; }
+                }
+            }
+            if ($at === null) {   // last resort: shorten with an ellipsis on the last row
+                $cy = $rows[2] ?? end($rows);
+                $t = $text;
+                while (mb_strlen($t) > 6) {
+                    $t = rtrim(mb_substr($t, 0, mb_strlen($t) - 2)) . '…';
+                    $w = (int)ceil(hub_text_units($t) * 5.6) + 30;
+                    $cx = max(intdiv($w, 2) + 2, min($W - intdiv($w, 2) - 2, $bcx));
+                    if ($free($cx - intdiv($w, 2), $cy - 6, $cx - intdiv($w, 2) + $w, $cy + 7)) break;
+                }
+                $text = $t; $at = [$cx ?? $cx0, $cy];
+            }
+            [$cx, $cy] = $at;
+            $placed[] = [$cx - intdiv($w, 2), $cy - 6, $cx - intdiv($w, 2) + $w, $cy + 7];
+            $lead = null;
+            if ($gname === 'local' && $cy - 6 > $y1 + 2) {   // dashed leader from the door (box bottom) to the pill
+                $lx = max($cx - intdiv($w, 2) + 4, min($cx + intdiv($w, 2) - 4, $bcx));
+                $lead = [$bcx, $y1, $lx, $cy - 6];
+            }
+            $hotspots[$k]['pill'] = [$cx, $cy, $w, $text];
+            $hotspots[$k]['street'] = ['state' => (string)($h['state'] ?? ''), 'lead' => $lead];
+        }
+    }
+    return $hotspots;
+}
+
 /** The compass and the world globe, bottom-right (HTML buttons over the picture; the bottom-right 100 x 40 of the art stays clear). Each opens a card. */
 function hub_navbuttons(array $routes, array $world): string
 {
@@ -284,7 +362,8 @@ function hub_scene(string $key, array $hotspots, array $sprites, array $opts): s
     $art = (string)($opts['art'] ?? 'here');
     $path = $key !== '' ? scene_path($art, $key) : '';
     $chrome = !empty($opts['chrome']);
-    if ($chrome && !empty($opts['pills'])) $hotspots = hub_pill_layout($hotspots, $L);   // named pills on the picture
+    if ($chrome && ($opts['pills'] ?? '') === 'street') $hotspots = hub_street_pill_layout($hotspots, $L);   // Shop Street: staggered full-name labels
+    elseif ($chrome && !empty($opts['pills'])) $hotspots = hub_pill_layout($hotspots, $L);   // named pills on the picture
     $svg = '<svg class="hubsvg' . ($chrome ? ' chrome' : '') . ($chrome && $path === '' ? ' noart' : '') . '" viewBox="0 0 ' . $W . ' ' . $H . '" role="group" aria-label="' . e((string)($opts['alt'] ?? 'Picture')) . '" focusable="false">';
     if ($path !== '') {
         $svg .= '<image class="pix back" href="' . e(url($path)) . '" x="0" y="0" width="' . $W . '" height="' . $H . '" image-rendering="pixelated"/>';
