@@ -1,5 +1,9 @@
 <?php
 declare(strict_types=1);
+
+/** 2026-11-15 (Josh): the medium-zone lairs of the late regions were Lv 16 (the medium-zone lair rule), far under their region. Now region level + 4, as Condor's Crag
+ *  (SA, region Lv 12, lair 16) sits: CSA 23 -> 27, SEA 26 -> 30, ESA 32 -> 36, OC 35 -> 39. Route = level - 2 .. level + 2. Existing worlds: boot step medium_lair_levels_1115. */
+const LAIR_LEVEL_1115 = ['Temple of the Tiger Moth' => 27, 'Dragonlizard Den' => 30, 'Snowcrown Peak' => 36, 'Reef of the Box Jelly Queen' => 39];
 /**
  * Roads (v0.7.24).
  * The mycelium network is laid out as roads: town → three villages → a neighbouring region's town.
@@ -127,6 +131,7 @@ function link_hidden_places(): void
             };
             $min = max(1, $lvl - intdiv($range, 2));
             if ((string)$h['name'] === 'Den of the Great White Owl') { $lvl = 10; $min = 8; $range = 4; }
+            if (isset(LAIR_LEVEL_1115[(string)$h['name']])) { $lvl = LAIR_LEVEL_1115[(string)$h['name']]; $min = $lvl - 2; $range = 4; }   // 2026-11-15 (Josh): medium-zone lairs of the late regions at region level + 4; upgrade step medium_lair_levels_1115
             if ((string)$h['name'] === 'Hollow of the Silverback Spider') { $lvl = 20; $min = 18; $range = 4; }   // 2026-11-14 (Josh): Lv 18-22, its zone's level (the wonders beside it are 20 and 22) instead of the hard-zone lair top 28-32; upgrade step silverback_lair_level_1114   // v2.6.75: a fresh world: Lv 8-12 like the upgrade step den_owl_route_level_2675 (it sat on a hard-zone route of Lv 28-32 next to a Lv 3 village)
             db_insert('routes', ['a_id' => $anchor, 'b_id' => $h['id'], 'steps' => 2 + min(3, intdiv($lvl, 8)), 'minutes' => 4, 'level' => $lvl,
                 'min_level' => $min, 'max_level' => $min + $range, 'fixed' => $fixed, 'kind' => 'side', 'road_id' => null]);

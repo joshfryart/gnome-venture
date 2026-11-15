@@ -97,5 +97,23 @@ chk "upgrade: route back to 20 (18-22)" "$(db "SELECT level || ' ' || min_level 
 chk "upgrade: keeper Lv 20 with Lv 20 stats" "$(db "SELECT level || ' ' || hp FROM creatures WHERE name='Silverback Spider'")" "20 156"
 chk "upgrade: both pages say 20" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE (title='Silverback Spider' AND body LIKE '%[b]Level:[/b] 20%') OR (title='Hollow of the Silverback Spider' AND body LIKE '%Silverback Spider, level 20.%')")" 2
 chk "upgrade: other lairs untouched" "$(db "SELECT level FROM creatures WHERE name='Hurricane Crab'")" "$OTHER"
+echo "== late-region medium-zone lairs at region level + 4 (Josh 2026-11-15)"
+for pair in "Temple of the Tiger Moth|27" "Dragonlizard Den|30" "Snowcrown Peak|36" "Reef of the Box Jelly Queen|39"; do
+  N=${pair%|*}; LV=${pair#*|}; LOC="(SELECT id FROM locations WHERE name='$N')"; SL="(SELECT 'boss-' || slug FROM locations WHERE name='$N')"
+  chk "fresh: $N route Lv $LV" "$(db "SELECT level || ' ' || min_level || '-' || max_level FROM routes WHERE a_id=$LOC OR b_id=$LOC")" "$LV $((LV-2))-$((LV+2))"
+  chk "fresh: $N keeper Lv $LV, pages say so" "$(db "SELECT level FROM creatures WHERE slug=$SL") $(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE (unlock_key = 'creature:' || $SL AND body LIKE '%[b]Level:[/b] $LV%') OR (unlock_key = 'landmark:' || substr($SL, 6) AND body LIKE '%, level $LV.%')")" "$LV 2"
+  dbx "UPDATE routes SET level=16, min_level=14, max_level=18 WHERE a_id=$LOC OR b_id=$LOC"
+  dbx "UPDATE creatures SET level=16 WHERE slug=$SL"
+  dbx "UPDATE encyclopedia_entries SET body = REPLACE(REPLACE(body, '[b]Level:[/b] $LV', '[b]Level:[/b] 16'), ', level $LV.', ', level 16.') WHERE unlock_key IN ('creature:' || $SL, 'landmark:' || substr($SL, 6))"
+done
+CONDOR=$(db "SELECT level FROM creatures WHERE name='Guardian of Condor''s Crag'")
+dbx "UPDATE settings SET value='0' WHERE name='db_version'"
+get index.php >/dev/null; get book.php >/dev/null
+for pair in "Temple of the Tiger Moth|27" "Dragonlizard Den|30" "Snowcrown Peak|36" "Reef of the Box Jelly Queen|39"; do
+  N=${pair%|*}; LV=${pair#*|}; LOC="(SELECT id FROM locations WHERE name='$N')"; SL="(SELECT 'boss-' || slug FROM locations WHERE name='$N')"
+  HP=$(php -r "echo (int)round((5 + $LV * 3) * 2.4);")
+  chk "upgrade: $N route, keeper Lv + hp, pages" "$(db "SELECT level || ' ' || min_level || '-' || max_level FROM routes WHERE a_id=$LOC OR b_id=$LOC") $(db "SELECT level || ' ' || hp FROM creatures WHERE slug=$SL") $(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE (unlock_key = 'creature:' || $SL AND body LIKE '%[b]Level:[/b] $LV%') OR (unlock_key = 'landmark:' || substr($SL, 6) AND body LIKE '%, level $LV.%')")" "$LV $((LV-2))-$((LV+2)) $LV $HP 2"
+done
+chk "upgrade: Condor's Crag (SA) stays $CONDOR" "$(db "SELECT level FROM creatures WHERE name='Guardian of Condor''s Crag'")" "16"
 [ $F = 0 ] && echo "all ok" || echo "FAILED"
 grep -c "PHP \(Warning\|Fatal\|Notice\)" $LOG | sed 's/^/php errors: /'
