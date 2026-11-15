@@ -140,3 +140,43 @@ Level 28, creatures 22+, n = 195 (chain) / 110 (look).
 - Appendix-fight and policy sims were not re-run on 2.7.00 rules (not cheap).
 - The bots do not value Evade, Hold, Thorns or Mend timing; real players may get more from the Guard cuts than shown.
 - Decks: the tuner's gnome (`tv_sources`), not real players' boxes.
+
+## 11. Retune (Josh: retune the Guard wearables and Evade now), re-run of sims 1, 5, 7, 8, 10
+2026-11-15, same driver and seeds; engine and `WEAR_DEFS` changed, nothing else.
+
+### Why Evade did not cut poison
+- The tick (`pfb_end_round`) skipped when `me.evade > 0`. But your Evade is used up by the creature's first Hurt in its turn (`pf_apply`: `evade--`), which comes before the tick. So the tick only skipped in rounds where the creature hit nothing: almost never.
+- Fix (PHP `pfight.php` / `pfboard.php`, JS `tools/pfengine.js`): your Evade also sets `me.evd` for the round; the tick reads `evade > 0 || evd`; `evd` is cleared when the round ends. The tag text ("its first hit misses and poison ticks do nothing") is now true. Test: `tests/pfboard_v1_kinds.php` (seen failing on the old code).
+
+### Why the Guard wearables were rarely played
+- `chain` scores a move as chain length x 1000 + bar gained. A Guard piece gains no bar, so it is only played when it makes the strictly longest chain: 0.18-0.23 plays a fight whatever its value. `look` plays them more (0.45-0.78) but they saved little health; the two Thorns cuts saved none.
+- Value does not help: base 3 -> 5 for all five (Brim Down 2 -> 5) moved nothing for either bot (chain plays 0.18-0.22, wins 92.5-93.3; look health lost within 0.5).
+- Change: every Guard cut carries the existing Spiky knack (2 on the creature's bar when played), as Firm Grip carries Leech. Base values unchanged (Brim Down stays 2). Texts say so; Puddle Hop now says poison does nothing that round.
+
+### Sim 1 after (chain n = 252 / look n = 252)
+| run | win % chain | turns chain / look | health lost chain / look | plays chain / look (before) |
+|---|---|---|---|---|
+| none | 92.9 | 6.48 / 6.87 | 62.2 / 19.5 | 0 |
+| Puddle Hop r1 / r3 | 93.7 / 93.3 | 6.65 / 7.01 | 60.9-60.4 / 17.4 | 0.35 / 0.70 (0.19 / 0.44) |
+| Sure Foot r1 / r3 | 92.9 / 93.3 | 6.65 / 7.08-7.10 | 61.6-59.6 / 18.7-17.5 | 0.35 / 0.78-0.98 (0.19 / 0.57-0.78) |
+| Brim Down r1 / r3 | 94.0 / 93.7 | 6.60-6.62 / 6.82-6.92 | 62.0-60.4 / 19.9-19.1 | 0.37 / 0.60-0.67 (0.23 / 0.45-0.55) |
+| Wrap Up r1 / r3 | 93.3 / 92.9 | 6.65 / 7.06-7.10 | 61.2-59.9 / 18.1-16.6 | 0.35 / 0.74-0.80 (0.19 / 0.54-0.59) |
+| Hood Up r1 / r3 | 93.7 | 6.60-6.62 / 6.81-6.85 | 61.7-60.2 / 19.6-18.8 | 0.36 / 0.62-0.68 (0.23 / 0.49-0.58) |
+
+- Guard cuts are now played as often as the Common Hurt cuts by `chain` (0.35-0.37 against Firm Grip 0.36), twice as often by `look`, and cut health lost by up to 2.6 (chain) / 2.9 (look) points.
+- **Rule holds:** no single wearable moves `chain` wins by more than +1.1 points (92.9 -> 94.0). Fight length +0.12-0.18 turns (was +0.17-0.23). The other six cuts did not change (same numbers as section 1).
+
+### Sim 8 after (Reptiles; chain n = 252, look n = 126)
+| run | win % chain | poison chain / look | health lost chain / look |
+|---|---|---|---|
+| none | 94.0 | 6.42 / 4.60 | 61.1 / 22.4 |
+| Puddle Hop (evade), Lined | 98.0 | **5.93 / 4.34** | 58.2 / 19.9 |
+| Sure Foot (hold), Lined | 98.0 | 6.43 / 5.39 | 57.7 / 20.0 |
+
+- Evade now cuts poison: 8% (chain) / 20% (look) less than Sure Foot, the same deck with a Hold piece. Against no wearable the cut looks smaller for `look` because a worn piece makes fights longer (more ticks).
+- Both Boots cuts give `chain` +4.0 win points on Reptiles (was +3.2 before the retune). Noise is about 2 points at n = 252; over every creature (sim 1) the gain is +0.4-0.8. Open for Josh: this Reptile-only number is past the 3-point line.
+
+### Sims 5, 7, 10 after
+- **Sim 7** (Firm Grip + Wrap Up, Lined, n = 46): all-body 97.8% / per-type 97.8% (chain); still no measurable difference.
+- **Sim 10** (level 28): Knuckle Down Fine 90.0% vs none 92.7%. Knuckle Down Fine + Sure Foot Fine gives the same numbers: with the Rare cap now counting wearables last, Sure Foot Fine is the 4th Rare and is left out (`out` in all 110 fights). The Hold-then-Bash question cannot be tested at level 28 with two Fine wearables any more.
+- **Sim 5** (level 40, n = 46): each single Fine cut 93.5-97.8% (chain) against 100% with none, as before the retune (n = 46: noise 8 points). The four Guard cuts give identical rows here (0.11 plays a fight).
