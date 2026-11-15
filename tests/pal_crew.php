@@ -119,6 +119,17 @@ ok('recalled pal is home and resting until the next sleep', pj_pal($uid, $p3)['s
 [$c2] = pcrew_recall($u, $plot, 'harvest');
 ok('recall of an empty slot says so', $c2 === false);
 
+echo "== a slot whose pal is gone (the ledger shows 'Pal not found'; Free the job clears it)\n";
+q("INSERT INTO garden_pal_slots (plot_id, user_id, role, pal_uid, mode, nights, done, start_day) VALUES (?, ?, 'weed', ?, 'full', 0, 0, 1)", [$plot, $uid, 'deadbeefdeadbeef']);
+$gid = (int)q_val("SELECT id FROM garden_pal_slots WHERE plot_id = ? AND role = 'weed'", [$plot]);
+ok('the gone pal is not found', pj_pal($uid, 'deadbeefdeadbeef') === null);
+[$f1, $m1] = pcrew_free_slot($u, $gid);
+ok('free the job: the slot is gone and the message says so', $f1 === true && $m1 === 'That job is free again.' && !isset(pcrew_slots($plot)['weed']), $m1);
+[$f2] = pcrew_free_slot($u, $gid);
+ok('freeing it again says nobody is on it', $f2 === false);
+[$f3] = pcrew_free_slot(['id' => $uid + 999, 'game_day' => 1], $gid);
+ok("another gnome cannot free someone else's job", $f3 === false);
+
 echo "== planting (the Plant slot)\n";
 $plant2 = q_one('SELECT * FROM plants WHERE grow_minutes <= 20 AND kind NOT IN (\'cover\',\'flower\') AND produce_item_id IS NOT NULL AND id <> ? ORDER BY id LIMIT 1', [$plant['id']]);
 ok('a second quick crop exists', (bool)$plant2);

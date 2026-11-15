@@ -7910,3 +7910,11 @@ details.sgq summary{cursor:pointer}
 .tmfolk-in svg{animation:tmfolkbob .3s steps(2,end) 6}
 @media (prefers-reduced-motion: reduce){.tmfolk-in,.tmfolk-in svg{animation:none}}
 .sgrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
+
+/* Pal Jobs: Garden crew panel, grouped by garden (next release) */
+.pjcrew .pjcrewgarden { margin: .7rem 0 .2rem; font-size: .95rem; opacity: .85; }
+.pjcrew .pjcrewrow { display: flex; align-items: center; gap: .6rem; padding: .35rem 0; border-top: 1px solid rgba(255, 255, 255, .08); }
+.pjcrew .pjcrewrow .pjimg { flex: 0 0 auto; }
+.pjcrew .pjcrewrow .pjcrewtxt { flex: 1 1 auto; min-width: 0; }
+.pjcrew .pjcrewrow form.inline { flex: 0 0 auto; margin: 0; }
+.pjcrew .pjcrewrow.is-gone .pjcrewtxt b { opacity: .8; }

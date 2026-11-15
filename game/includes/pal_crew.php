@@ -137,6 +137,19 @@ function pcrew_recall(array $u, int $plotId, string $role): array
     return [true, ($p['name'] ?? 'Your pal') . ' comes home to rest until you sleep.'];
 }
 
+/** Free a crew job whose pal is gone (not in the Pal Book any more), so the slot can be filled again. A job whose pal is still around is recalled the usual way (the pal rests). */
+function pcrew_free_slot(array $u, int $slotId): array
+{
+    $uid = (int)$u['id'];
+    pcrew_boot();
+    $s = q_one('SELECT * FROM garden_pal_slots WHERE id = ? AND user_id = ?', [$slotId, $uid]);
+    if (!$s) return [false, 'Nobody is on that job.'];
+    $p = pj_pal($uid, (string)$s['pal_uid']);
+    q('DELETE FROM garden_pal_slots WHERE id = ?', [$s['id']]);
+    if ($p) { pcrew_send_home($uid, (string)$s['pal_uid'], (int)$u['game_day']); return [true, $p['name'] . ' comes home to rest until you sleep.']; }
+    return [true, 'That job is free again.'];
+}
+
 /** The night pass for one gnome, called from game_new_day() after the day has moved on. Never throws. */
 function pcrew_night(int $uid): void
 {
