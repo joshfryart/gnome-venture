@@ -200,7 +200,7 @@ w(f"""
 <tr><td><b>Heal</b></td><td>Heals you that much.</td><td>Never above your maximum. {P}</td></tr>
 <tr><td><b>Item</b> (Snack)</td><td>Heals you that much.</td><td>Snack eats a real snack from your satchel. It is refused at full health and after the fight's snack limit. {C} The three legendary Item pieces have no Snack tag: they eat nothing and are never refused (10.20). {C}</td></tr>
 <tr><td><b>Soothe</b></td><td>The creature's next hits this round do that much less in all.</td><td>The pool is gone after the creature's turn. {C}</td></tr>
-<tr><td><b>Trick</b></td><td>Nothing by itself. It boosts a Hurt or Guard of yours that fires right after it (see 2.6).</td><td>Seen: Slip Past 6, then Chop 5, gave 14. {P}</td></tr>
+<tr><td><b>Trick</b></td><td>Nothing by itself. It boosts a Hurt or Guard of yours that it is linked to as the first of the pair (see 2.6).</td><td>Seen: Slip Past 6, then Chop 5, gave 14. {P}</td></tr>
 </tbody></table>
 <p>When a piece fires <b>for the creature</b> the same types work the other way: its Hurt lowers your health, its Guard soaks your Hurt, its Heal empties the Yield bar (the hurt part first, then the charm part). Its Charm and Soothe pieces do nothing. {C}</p>
 <p class="small">The heal rule is <code>pf_foe_heal</code> (<code>pfight.php</code> line 687). I ran it on a set-up position: hurt 3 and charm 10 on the bar, a heal of 5, left hurt 0 and charm 8 (<code>play/checks.php</code>). Before 2.6.989 a bar filled by Charm could not be emptied.</p>
@@ -266,7 +266,7 @@ w(f"""
 </tbody></table>
 <p class="small">Texts: <code>PF_TAGS_V1</code> in <code>pfight.php</code> (lines 54 to 72). Evade's line now reads "its first hit misses and poison ticks do nothing". Evade and Trip were "played" in the 2.6.986 edition; I did not place either in a 2.6.990 fight, so they are "code" here. The poison part of Evade was run on a set-up position (<code>play/checks.php</code>).</p>
 {h3('2.6', 'Combos')}
-<p>A combo is a bonus for two of <b>your</b> pieces that fire one right after the other along a link. The bonus lands on the later piece. The fight text only says "COMBO" and the name, so here are the rules. {P}</p>
+<p>A combo is a bonus for two of <b>your</b> pieces that are linked: the piece you placed (or the piece the chain came from) and the piece it links to. It does not depend on firing order (5.4). The bonus lands on the later piece. The fight text only says "COMBO" and the name, so here are the rules. {P}</p>
 <table class="keep">
 <thead><tr><th>Name</th><th>First fires</th><th>Then fires</th><th>Bonus on the second piece</th><th>Seen in play on 2.6.990</th></tr></thead>
 <tbody>
@@ -278,7 +278,7 @@ w(f"""
 <tr><td><b>Win Over</b></td><td>Charm</td><td>Item</td><td>half the Item's number is also added as charm</td><td>not seen</td></tr>
 </tbody></table>
 <div class="box warn"><h4>The order rule that decides most turns</h4>
-<p>The piece you <b>place</b> fires <b>first</b>. So to get Ambush you place the <b>Trick</b> next to a Hurt that is already on the board. To get Riposte you place the <b>Guard</b> next to a Hurt that is already there. Placing the Hurt next to the Trick gives no combo at all.</p></div>
+<p>The piece you <b>place</b> is the first of the pair, and the piece it links to gets the bonus. This is about links, not about which piece fires first (since 2.7.00 the firing order is by rank, 5.4). So to get Ambush you place the <b>Trick</b> next to a Hurt that is already on the board. To get Riposte you place the <b>Guard</b> next to a Hurt that is already there. Placing the Hurt next to the Trick gives no combo at all, even though the Trick fires first in rank order.</p></div>
 <p>The creature gets the same combos from its own pieces. Its aim names them ("combo Double Swing"). {P}</p>
 {h3('2.7', 'How long a piece stays')}
 <table class="keep">
@@ -448,10 +448,10 @@ w(f"""
 <tr><td><b>Yarn Scarf</b></td><td>Yarn Wrap</td><td>Charm</td><td class="num">3</td><td>none</td><td>Cat Fish</td></tr>
 </tbody></table>
 <ul>
-<li><b>Ranks.</b> A Lined wearable and a Fine wearable play the same cut at a higher rank. <b>Fine is +4 value over Common</b> and counts as a <b>Rare</b> piece (the deck holds at most 3 Rare, 3.1). If you own two ranks of the same cut, the best one is the piece. You can choose to wear a Fine piece <b>as Lined</b> (the toggle writes the table <code>wear_lined</code>), so it is not Rare and a little weaker. The piece keeps its key when its rank changes, so its on/off switch stays as you set it.</li>
+<li><b>Ranks.</b> A Lined wearable and a Fine wearable play the same cut at a higher rank. <b>Lined is +2 and Fine is +4 over Common</b> (<code>PFD_RANK_BONUS</code>), and Fine counts as a <b>Rare</b> piece (the deck holds at most 3 Rare, 3.1). If you own two ranks of the same cut, the best one is the piece. You can choose to wear a Fine piece <b>as Lined</b> (the toggle writes the table <code>wear_lined</code>), so it is not Rare and a little weaker. The piece keeps its key when its rank changes, so its on/off switch stays as you set it.</li>
 <li>Two copies of the same cut are one piece. The two cuts of one wearable are two pieces.</li>
 <li><b>The Tailor</b> is a garden building: garden level 6, 1800 Petals. You need one in at least one garden to craft Flood Boots, Work Gloves and a Travel Cloak, to line a wearable and to re-cut one.</li>
-<li><b>Lining</b> (Common to Lined, then Lined to Fine): the chance is 30%, plus 8% for each Tailor power point (the sum of the levels of all your Tailors, each at most 3), up to 78%. Only the first 6 power points help; power above 6 pays commission Petals instead (5% of the base price for each point). A lining that fails gives you a <b>Tailor's Thread</b>. <b>5 Threads make the next lining a sure thing.</b> Re-cutting costs 1 Thread (free at a level 2 Tailor).</li>
+<li><b>Lining</b> (Common to Lined, then Lined to Fine): the chance is 30%, plus 8% for each Tailor power point (the sum of the levels of all your Tailors, each at most 3), up to 78%. Only the first 6 power points help; power above 6 pays commission Petals instead (5% of the base price for each point). A lining that fails gives you a <b>Tailor's Thread</b>. <b>5 Threads make the next lining a sure thing.</b> Re-cutting costs 1 Thread (free at a level 2 Tailor). A <b>level 3 Tailor</b> makes your first wearable craft of the game day free (no materials, no energy). Lining is never free. (The building's own text in the garden says "lining or craft"; the code frees only the craft.)</li>
 <li>The Puzzle box deck has a 🧵 filter for wearables. They also show on the 2.5D gnome (layers for boots, gloves, cape, brim and pack).</li>
 </ul>
 <p class="small"><b>Not done in 2.7.00</b> (the changelog says so): the bots (<code>pfb_score</code>) do not value wearables or the new firing order, and there is no balance run with wearables in the deck. I did not run one either. {Q} The base values above come from the data table <code>WEAR_DEFS</code>; I did not check the rank bonus on a live piece beyond the "+4" in the code notes. {Q}</p>
@@ -544,8 +544,8 @@ Inside one rank the old order holds (newest first, depth first). This is the sam
 <li>Fights from before 2.7.00 keep the old order: the placed piece first, then the links. (Rule <code>order</code> 0 in <code>PFB_V1_PRE</code>.)</li>
 </ol>
 """)
-w(fig(figs.fig_chain(), 'Figure 7. Turn 1 against the Pincer Earwig (seed 11). Played on 2.6.990, in the old firing order.'))
-w(fig(figs.fig_useup(), 'Figure 8. A creature\'s chain that I set up on purpose: see "Bait" below.'))
+w(fig(figs.fig_chain(), 'Figure 7. Turn 1 against the Pincer Earwig (seed 11). Played on 2.6.990; the same chain fires in the same order and gives the same numbers in 2.7.00.'))
+w(fig(figs.fig_useup(), 'Figure 8. A creature\'s chain that I set up on purpose: see "Bait" below. Numbers show the 2.7.00 firing order; the 2.6.990 fight fired Boar Rush first.'))
 w(f"""
 <h4>What it means when a creature piece is in your chain</h4>
 <ul>
@@ -618,7 +618,7 @@ w(f"""
 <tr><td>Always making the longest chain</td><td>Long chains are mostly the creature's pieces.</td><td>80% of health lost, 63% wins. 25% of health went to its own chains.</td></tr>
 <tr><td>Reading the aim number as the whole loss against a poisoner</td><td>Poison ticks and venom are not in the number.</td><td>Against Reptiles 18% of my health a fight went to poison. On 64% of turns I lost more than the chip said.</td></tr>
 <tr><td>Swinging into "dodges next hit"</td><td>The Hurt adds 0. Its combo is wasted too.</td><td>Crow, turn 2: the Riposte of 8 added 0. I had placed the Guard for its guard, knowing that.</td></tr>
-<tr><td>Placing the Hurt next to the Trick</td><td>The Hurt fires first: no Ambush.</td><td>5 instead of 14 in the Earwig fight, turn 2.</td></tr>
+<tr><td>Placing the Hurt next to the Trick</td><td>The Hurt is the first of the pair, not the Trick: no Ambush (the Trick still fires first, in rank order).</td><td>5 instead of 14 in the Earwig fight, turn 2.</td></tr>
 <tr><td>Blocking a Beast's small aim</td><td>Grudge: its next Hurts are 25% stronger.</td><td>Boar, turn 5: the blocked 6 came back as 8, and the next aim read 9 + 10 instead of 7 + 8.</td></tr>
 <tr><td>Leaving a Sun next to its aim cell</td><td>Its whole chain counts double.</td><td>Crow, turn 4: Talon Dive 4 and Peck 4 read 16. Hawk, turn 5: Talon Grip 8 hit for 16.</td></tr>
 <tr><td>Leaving a Rain to a big creature</td><td>It gets guard worth 15% of its bar.</td><td>Hawk, turn 2: 32 guard. Next turn two of my three Hurt pieces read 0.</td></tr>
@@ -702,7 +702,7 @@ w(f"""
 classes = [
     ('6.5.1', 'Critter: Swarm', 'Its Hurt hits +1 for every 2 of its other pieces on the board (up to +2). Use up or outlast its pieces to shrink it.',
      ['<b>New rule since 2.6.988.</b> A Critter plays <b>one</b> piece a turn, like everyone else, and its pieces have their full number (the old rule was two pieces a turn at x0.6).',
-      'When one of its Hurt pieces fires, count its <b>other</b> pieces on the board at that moment: 2 or 3 give +1, 4 or more give +2. Guards, Tricks, the free piece and the start piece all count. ' + C + ' (run: a Hurt 4 fired for 4, 4, 5, 5, 6, 6, 6 with 0 to 6 others)',
+      'When one of its Hurt pieces fires, count its <b>other</b> pieces on the board at that moment: 2 or 3 give +1, 4 or more give +2. Guards, Tricks and the start piece all count. (Until 2.7.00 the free piece counted too; new fights no longer get one.) ' + C + ' (run: a Hurt 4 fired for 4, 4, 5, 5, 6, 6, 6 with 0 to 6 others)',
       'The bonus is added to every Hurt in its chain, after its combo and before a Sun doubles it. It is in the aim number. ' + P,
       'It also applies when its Hurt fires inside <b>your</b> chain. ' + C,
       'Its base Trick, Skitter, is Quick: that turn it still plays a second piece.'],
@@ -962,7 +962,7 @@ w('<div class="cheat">' + h2('9.6', 'Cheat sheet') + f"""
 <div class="blk"><h4>A round</h4><ul><li>You: one piece (or pass). Flip is free.</li><li>The creature: its aim, its chain, class extras.</li><li>The environment: one piece on a lonely cell.</li><li>Clean-up: poison, Simmer, old pieces leave, new hand of 5.</li></ul></div>
 <div class="blk"><h4>Fitting</h4><ul><li>Knob into hole, same family (round, keyhole, triangle).</li><li>Every touching edge must fit. A fit is a link.</li><li>Left is a hole, right is a knob. Flip swaps top and bottom.</li></ul></div>
 <div class="blk"><h4>Chains</h4><ul><li>The chain is the placed piece and what links to it, newest first. It fires in rank order: environment, Guard / Soothe, Tricks, Hurt / Charm, healing.</li><li>Each piece fires for its owner. Environment pieces fire for the side that started the chain.</li><li>3 or more pieces fired: all of them leave the board.</li><li>Pieces stay 3 rounds. Creature pieces fall after 2 firings.</li></ul></div>
-<div class="blk"><h4>Combos (your two pieces, one after the other)</h4><ul><li>Trick then Hurt: x1.5 + the Trick's number (Ambush).</li><li>Guard then Hurt: x1.5 (Riposte).</li><li>Hurt then Hurt: +2 (Double Swing).</li><li>Trick then Guard: + the Trick's number (Bait).</li><li>Place the <b>first</b> piece of the pair. The second must already be on the board.</li></ul></div>
+<div class="blk"><h4>Combos (your two linked pieces: placed piece first, linked piece second)</h4><ul><li>Trick then Hurt: x1.5 + the Trick's number (Ambush).</li><li>Guard then Hurt: x1.5 (Riposte).</li><li>Hurt then Hurt: +2 (Double Swing).</li><li>Trick then Guard: + the Trick's number (Bait).</li><li>Place the <b>first</b> piece of the pair. The second must already be on the board.</li></ul></div>
 <div class="blk"><h4>Before you place: seven checks</h4><ul><li>1. Can a cell end the fight?</li><li>2. Aim chip: how much, where, "fires ..."? Poison on top?</li><li>3. Its chips: guard, dodges next hit, thorny, Grudge, Swarm.</li><li>4. Lit cell: what does it cost me? (creature Hurt, Thornburst, venom)</li><li>5. Flipped: is there a better cell?</li><li>6. Sun, Rain, Bramble: who fires them first?</li><li>7. After placing: what does the aim chip say now?</li></ul></div>
 <div class="blk"><h4>The aim</h4><ul><li>It lands on its cell unless: your piece is on the cell, a misfit stands beside it, or it is slowed.</li><li>Then it picks again at full strength. No free turn.</li><li>The number is its whole turn. It leaves out poison and venom.</li><li>A fitting piece of yours beside the aim cell gets fired, for you (bait).</li></ul></div>
 <div class="blk"><h4>Environment</h4><ul><li>Sun: the chain's owner counts double.</li><li>Bramble: the other side loses a tenth. Fire it in a chain of 2 to keep it.</li><li>Rain: guard for whoever fires it. Do not leave it to the creature.</li><li>Thornburst: hurts whoever fires it. Stay off it.</li></ul></div>
@@ -1079,7 +1079,7 @@ w(f"""
 
 {h3('10.10', 'Things a new player will not guess', OP)}
 <ul>
-<li><b>Trick order.</b> "Boosts a Hurt or Guard fired right after it" is true, but only if you place the Trick. Nothing says so.</li>
+<li><b>Trick order.</b> "Boosts a Hurt or Guard it is linked to" is true, but only if you place the Trick. Nothing says so.</li>
 <li><b>Bait.</b> The help says "If its aim fires one of your pieces, your piece works for you". In play this is one of the strongest moves, and the creature cannot avoid it, because its aim is fixed before you move. Is that intended? (Hawk, turn 5: 19 of bait. Boar, turn 3: 11.)</li>
 <li><b>Evade eats bait.</b> A creature Guard or Trick with Evade that fires earlier in its chain makes your baited Hurt miss. {C}</li>
 <li><b>Net health on a lit cell.</b> A heal in the same chain hides a Thornburst or a creature hit: the cell shows the net (the harness note says "h-0 can hide a loss").</li>
@@ -1157,7 +1157,7 @@ w(f"""
 <li>If the smaller deck falls under 8 kit pieces or has no Hurt, the fight silently plays the default kit (<code>pfd_fight_entries</code>).</li>
 <li><b>Starter crop pieces take Larder slots.</b> The Bold kit holds Oat Cake, a crop piece. A level 9 Bold gnome has 2 free slots, not 3 (run: the third legendary piece was refused). The Steady and Kind kits have 3.</li>
 <li><b>Two answers for one state.</b> With more on than slots, <code>pfd_build</code> marks the extra piece "left out" <i>and</i> <code>pfd_validate</code> calls the whole deck illegal ("Take one out first"). The page then has to show both. I could not see how it looks. {Q}</li>
-<li>The Keepsake slots (2, 3 from level 15) exist with nothing to put in them. The pips are hidden until then, so this is not visible.</li>
+<li>Keepsake slots: 1 from level 1, 2 from 15, 3 from 25, 4 from 40 (2.7.00). They hold wearables now (3.8); until then they held nothing and the pips were hidden.</li>
 </ul>
 
 {h3('10.18', 'Keeper, Plenty and Simmer: the small print', NW)}

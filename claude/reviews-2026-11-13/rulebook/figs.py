@@ -176,12 +176,12 @@ def fig_chain():
     b += piece(gx + 0 * S, gy + 1 * S, S, 'Chop', 'Hurt 5', CHOP, 'me', badge='2')
     b += piece(gx + 1 * S, gy + 1 * S, S, 'Dodge', 'Guard 5', DODGE, 'me', badge='1')
     tx = gx + 3 * S + 22
-    for i, t in enumerate(['1  Dodge fires first: it is the piece you placed.', '    You hold 5 guard.',
-                           '2  Chop is linked to it, so it fires next.', '    Guard then Hurt is the combo Riposte:', '    5 x 1.5 = 7.5, rounded to 8 on the Yield bar.', '',
+    for i, t in enumerate(['1  Dodge fires first: Guard goes before Hurt.', '    You hold 5 guard.',
+                           '2  Chop is linked to Dodge, so it fires next.', '    Guard then Hurt is the combo Riposte:', '    5 x 1.5 = 7.5, rounded to 8 on the Yield bar.', '',
                            'Two pieces fired. Nothing is used up.', 'Both stay on the board.', '',
-                           'Had you placed Chop next to a Dodge already', 'on the board, Chop would fire first: no combo, 5.']):
+                           'Had you placed Chop next to a Dodge already', 'on the board: Dodge still fires first, but Chop', 'is the first of the pair, so no combo: 5.']):
         b += note(tx, 52 + i * 15, t, 10.5)
-    return svg(640, 300, b, 'A chain of two: the placed piece fires first, then the piece linked to it')
+    return svg(640, 300, b, 'A chain of two: Guard fires before Hurt (rank order), and the Hurt linked to it gets the combo')
 
 
 def fig_useup():
@@ -190,12 +190,12 @@ def fig_useup():
     gx, gy = 24, 30
     b = note(gx, 18, 'The creature’s chain of 3 (Wild Boar, seed 3, turn 3)', 11, bold=True)
     b += grid(gx, gy, S, 3, 3, labels=False)
-    b += piece(gx + 1 * S, gy + 1 * S, S, 'Boar Rush', 'Hurt 6', BRUSH, 'foe', badge='1')
-    b += piece(gx + 1 * S, gy + 2 * S, S, 'Bramble', '-10%', BRAMBLE, 'env', badge='2')
+    b += piece(gx + 1 * S, gy + 1 * S, S, 'Boar Rush', 'Hurt 6', BRUSH, 'foe', badge='2')
+    b += piece(gx + 1 * S, gy + 2 * S, S, 'Bramble', '-10%', BRAMBLE, 'env', badge='1')
     b += piece(gx + 0 * S, gy + 2 * S, S, 'Pierce', 'Hurt 11', PIERCE, 'me', badge='3')
     tx = gx + 3 * S + 22
-    for i, t in enumerate(['1  The Boar places Boar Rush on its aim cell:', '    6, all of it blocked by my guard.', '2  Boar Rush links to the Bramble below it. The', '    Bramble fires for the Boar: I lose 9 health.',
-                           '3  The Bramble links to my Pierce. It fires, for me:', '    11 on the Yield bar, in the creature’s turn.', '',
+    for i, t in enumerate(['The Boar places Boar Rush on its aim cell. It links', 'to the Bramble, which links to my Pierce.', 'Environment fires first (2.7.00 order):',
+                           '1  The Bramble fires for the Boar: I lose 9 health.', '2  Boar Rush fires: 6, all of it blocked by my guard.', '3  Pierce fires, for me: 11 on the Yield bar.', '',
                            'Three pieces fired, so all three are used up:', 'Boar Rush, the Bramble and Pierce leave the board.', '',
                            'Each piece works for its owner, whoever started the', 'chain. An environment piece works for the starter.']):
         b += note(tx, 46 + i * 15, t, 10.5)
