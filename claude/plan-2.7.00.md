@@ -25,7 +25,7 @@ Status: PLAN ONLY. Nothing built. Start work after the Fable rulebook is done. C
 6. Camp spots: one per route, all routes (~246), added to map data (needs re-bake). Camp button on the camp tile on the Trail map opens a card with a dropdown: Sleep, Nap 2h, Wait 10-60 min. Sleep free and safe. Wait energy +1 per 2 min. No daily cap. Fight chance: wait over 30 min 25%, 30 min or less 5%, halved on toll roads.
 7. Rest of "rest spots on tall N/S routes" is covered by camp spots.
 8. Items (short Almanac pages like Sights items): toll receipt (flavour), camp kit, flood boots, scarf (existing, Cat Fish). Ferry token dropped. Last 4 weak items redrawn (ginseng, stone-wall-end, tomato, stuffed-peppers-goat) + landmark nits, vine twine redraw.
-9. Wearables = Keepsakes: boots, hat, gloves, cloak, pack, scarf. Share the Keepsake slots (2, 3 from level 15). Sources: craft at a new Tailor spot (a section of the workshop picture), buy, found. Combat effects proposed by Fable from the rulebook rules (after the book is done). Flood boots take a Keepsake slot. Check: the slot numbers in `pfd_slots()` vs "2 at 15, 3 at 20".
+9. Wearables = Keepsakes: boots, hat, gloves, cloak, pack, scarf. Share the Keepsake slots. DECIDED slot count: 1 at level 1, 2 at level 15, 3 at level 25, 4 at level 40 (code today is 2, 3 from level 15: change `pfd_slots()` / `PFD_KEEP_SRC` in `pfdeck.php`, Puzzle box pips, tests). Sources: craft at a new Tailor spot (a section of the workshop picture), buy, found. Combat effects proposed by Fable from the rulebook rules (after the book is done). Flood boots take a Keepsake slot. 
 10. Trail event/hotspot icons 32x32: current kinds plus ferry, tunnel, toll, camp, overgrown/flooded.
 
 ## Art (Aseprite 1.3.18.6 works in this container: run `Aseprite_1.3.18.6-x64.AppImage` with `--appimage-extract-and-run` or `sh`; do not chmod the repo copy)
@@ -40,5 +40,4 @@ Status: PLAN ONLY. Nothing built. Start work after the Fable rulebook is done. C
 
 ## Open items for Josh
 - Handoff gaps: sights engine "buffs" and "destination lines" left out; Trek content out.
-- Keepsake slot numbers (2/3 at level 15 vs level 20).
 - Flooded roads have no clearing rule except flood boots halving the slowdown.
