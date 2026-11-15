@@ -831,7 +831,15 @@ def main():
         out = sys.argv[sys.argv.index('--out') + 1]
         args = [a for a in args if a != out]
     os.makedirs(out, exist_ok=True)
-    for slug, fn in SPECS.items():
+    specs = dict(SPECS)
+    import importlib.util, glob
+    for f in sorted(glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ruin_places', '*.py'))):
+        slug = os.path.basename(f)[:-3]               # tools/ruin_places/<kind>-<slug>.py defines build(p)
+        spec = importlib.util.spec_from_file_location('ruin_' + slug.replace('-', '_'), f)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        specs[slug] = mod.build
+    for slug, fn in specs.items():
         if args and slug not in args:
             continue
         p = Pic(os.path.join(SRC, slug + '.png'))
