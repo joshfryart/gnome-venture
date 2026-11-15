@@ -121,3 +121,15 @@ $s = $k19('Beast'); $s['me']['poison'] = 2; $s['me']['poison_v'] = 3; $s['me']['
 chk('Evade stops the poison tick (no health lost, the tick still counts down)', $s['me']['hp'] === $hp && $s['me']['poison'] === 1, [$s['me']['hp'] - $hp, $s['me']['poison']]);
 $s = $k19('Beast'); $s['me']['poison'] = 2; $s['me']['poison_v'] = 3; $hp = $s['me']['hp']; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []]; pfb_end_round($s);
 chk('without Evade the tick lands as before', $s['me']['hp'] === $hp - 3 && $s['me']['poison'] === 1, $s['me']['hp'] - $hp);
+
+// ---- venom never takes the poison above the cap (found by the deck whole-fight test)
+$s = $k19('Reptile'); $s['me']['poison'] = PF_POISON_CAP; $s['ven']['1,3'] = 3; $s['me']['hand'] = [$ft19($s, 'p1', 'charm', 3)]; $evv = pfb_place($s, 'me', 0, 1, 3);
+chk('venom: a piece of yours on venom while already at the poison cap stays at the cap', $s['me']['poison'] === PF_POISON_CAP, $s['me']['poison']);
+
+// ---- 2.6.989: a creature's heal acts on the shared Yield bar (the Hurt part first, then the Charm part)
+$s = $k19('Beast'); $s['bar']['now'] = 10.0; $s['bar']['charm'] = 10.0; $s['fh']['now'] = 0.0; $ev = v1_place($s, 'foe', $ft19($s, 'f:heal', 'heal', 4), 1, 3);
+chk('onebar: a heal of 4 on a bar that is all Charm takes 4 off the Yield bar (10 -> 6)', $ev && round($s['bar']['now'], 1) === 6.0 && round($s['bar']['charm'], 1) === 6.0 && round($s['fh']['now'], 1) === 0.0, [$s['bar']['now'], $s['fh']['now']]);
+$s = $k19('Beast'); $s['bar']['now'] = 10.0; $s['bar']['charm'] = 10.0; $s['fh']['now'] = 3.0; $ev = v1_place($s, 'foe', $ft19($s, 'f:heal', 'heal', 4), 1, 3);
+chk('onebar: the Hurt part goes first (3 Hurt + 10 Charm, heal 4: Hurt 0, Charm 9)', $ev && round($s['fh']['now'], 1) === 0.0 && round($s['bar']['now'], 1) === 9.0, [$s['bar']['now'], $s['fh']['now']]);
+$s = $k19('Beast', 'medium', ['onebar' => 0]); $s['bar']['now'] = 10.0; $s['fh']['now'] = 0.0; $ev = v1_place($s, 'foe', $ft19($s, 'f:heal', 'heal', 4), 1, 3);
+chk('two bars (a 2.6.94 fight): a heal still only touches the health bar', $ev && round($s['bar']['now'], 1) === 10.0);

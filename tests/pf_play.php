@@ -156,7 +156,7 @@ switch ($cmd) {
 if (isset($r)) { $ev = $r['ev']; $err = $r['err']; }
 if ($err !== null) { pp_save($f, $s, $cmd . ' ' . implode(' ', $a), [], $err); echo "REFUSED: $err\n(nothing changed)\n"; exit(2); }
 pp_save($f, $s, $cmd . ' ' . implode(' ', $a), $ev, null);
-if ($cmd === 'start') { $cx = intdiv(pfb_w($s), 2); $cy = intdiv(pfb_h($s), 2); $sd = ['-1,0' => 'L', '1,0' => 'R', '0,-1' => 'T', '0,1' => 'B']; $o = [];
+if ($cmd === 'start') { $cx = (int)($s['pcs'][1]['x'] ?? intdiv(pfb_w($s), 2)); $cy = (int)($s['pcs'][1]['y'] ?? intdiv(pfb_h($s), 2)); $sd = ['-1,0' => 'L', '1,0' => 'R', '0,-1' => 'T', '0,1' => 'B']; $o = [];
     foreach ($s['pcs'] as $p) if ($p['by'] !== 'none') $o[] = ($p['by'] === 'me' ? 'YOU' : 'CREATURE') . ' put "' . $p['tile']['n'] . '" (' . $p['tile']['t'] . ' ' . $p['tile']['v'] . ') on side ' . ($sd[($p['x'] - $cx) . ',' . ($p['y'] - $cy)] ?? '?');
     $ev = []; echo "START (nothing fires; turn 1 is your next action; the blank vanishes at the end of turn 1):\n  " . implode("\n  ", $o) . "\n\n" . pp_show($s) . "\n"; exit; }
 $notes = [];

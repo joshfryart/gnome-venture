@@ -168,7 +168,7 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
     if (!in_array($tab, ['kit', 'belt', 'pals'], true)) $tab = 'kit';
     $c = $d['counts']; $locked = !empty($d['locked']); $P = pfv_entries($u, $d['pieces']); $mods = pfight_mods($uid);
     $back = '<input type="hidden" name="t" value="' . $tab . '">';
-    $h = '<div class="box pbox pfv" id="pfv-box"' . ($locked ? ' data-locked="1"' : '') . '><div class="hrow"><h2>🧩 Puzzle box</h2>' . pfv_cap_pips((int)$c['rare'], PFD_RARE_CAP, '', 'Rare') . pfv_cap_pips((int)$c['mw'], PFD_MW_CAP, 'mw', 'Masterwork') . '</div>';
+    $h = '<div class="box pbox pfv" id="pfv-box"' . ($locked ? ' data-locked="1"' : '') . '><div class="hrow"><h2>🧩 Puzzle box</h2>' . pfv_cap_pips((int)$c['rare'], PFD_RARE_CAP, '', 'Rare') . pfv_cap_pips((int)$c['mw'], PFD_MW_CAP, 'mw', 'Masterwork') . pfv_cap_pips((int)min($c['larder'], $c['larder_max']), (int)$c['larder_max'], 'lard', 'Larder (crop pieces)') . (array_filter($P, fn($q) => in_array($q['src'], PFD_KEEP_SRC, true)) ? pfv_cap_pips((int)min($c['keeps'], $c['keeps_max']), (int)$c['keeps_max'], 'keep', 'Keepsakes') : '') . '</div>';
     $h .= '<nav class="tabs" aria-label="Puzzle box">';
     foreach (['kit' => 'Kit', 'belt' => 'Belt', 'pals' => 'Pals'] as $k => $l) $h .= '<a href="' . e(url('puzzlebox.php' . ($k === 'kit' ? '' : '?t=' . $k))) . '"' . ($k === $tab ? ' class="on" aria-current="page"' : '') . '>' . $l . '</a>';
     $h .= '</nav>' . pfv_deckbar($d);
@@ -184,8 +184,8 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
             if ($p['gear']) continue;
             $md = isset($mods[$p['k']]) ? (PF_MODS[$mods[$p['k']]] ?? null) : null;
             $x = ($md ? 'upgrade ' . $md[0] : '');
-            if ($p['on']) $in .= pfv_pc($p, ['cls' => 'sel' . ($p['out'] !== '' ? ' out' : ''), 'a' => $locked ? 'info' : 'tog', 'g' => $grp($p), 'd' => pfv_desc($p, trim(($p['out'] !== '' ? 'left out: over the rarity cap' : ($p['core'] ? 'core' : '')) . ($x !== '' ? ' · ' . $x : ''), ' ·')), 'x' => ' data-on="1"']);
-            else $col .= pfv_pc($p, ['a' => $locked ? 'info' : 'tog', 'g' => $grp($p), 'd' => pfv_desc($p, $x), 'x' => ' data-on="0"']);
+            if ($p['on']) $in .= pfv_pc($p, ['cls' => 'sel' . ($p['out'] !== '' ? ' out' : ''), 'a' => $locked ? 'info' : 'tog', 'g' => $grp($p), 'd' => pfv_desc($p, trim(($p['out'] === 'slots' ? 'left out: your ' . (in_array($p['src'], PFD_KEEP_SRC, true) ? 'Keepsake slots are' : 'Larder is') . ' full' : ($p['out'] !== '' ? 'left out: over the rarity cap' : ($p['core'] ? 'core' : ''))) . ($x !== '' ? ' · ' . $x : ''), ' ·')), 'x' => ' data-on="1"']);
+            else $col .= pfv_pc($p, ['cls' => !empty($p['new']) ? 'isnew' : '', 'a' => $locked ? 'info' : 'tog', 'g' => $grp($p), 'd' => pfv_desc($p, trim((!empty($p['new']) ? 'new: switched off until you pack it' : '') . ($x !== '' ? ' · ' . $x : ''), ' ·')), 'x' => ' data-on="0"']);
         }
         $h .= '<div class="sl">In the kit <span>' . ((int)$c['kit'] < PFD_KIT_MIN ? (int)$c['kit'] . ' · need ' . PFD_KIT_MIN : (int)$c['kit'] . ' · no maximum') . '</span></div><ul class="pcg pfv-g">' . ($in ?: pfv_slot('none')) . '</ul>'
             . '<div class="sl">Collection <span>' . ($locked ? 'locked' : 'tap to pack') . '</span></div><ul class="pcg pfv-g">' . ($col ?: pfv_slot('none')) . '</ul>';

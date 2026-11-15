@@ -434,7 +434,7 @@
         break;
       case 'heal':
         if (who === 'me') { mine.hp = Math.max(mine.hp, Math.min(mine.max, mine.hp + val + (m === 'tender' ? 2 : 0))); if (m === 'soft') s.foe.agg += 2; }
-        else s.fh.now = Math.max(0.0, s.fh.now - val);
+        else foeHeal(s, Number(val));
         break;
       case 'charm':
         if (who === 'me') {
@@ -456,7 +456,7 @@
           if (tile.tag === 'thorns') mine.thorns = true;
           if (tile.tag === 'poison') { theirs.poison = Math.min(PF_POISON_CAP, toInt(nn(theirs.poison, 0)) + 2); theirs.poison_v = Math.max(toInt(nn(theirs.poison_v, 0)), Math.max(1, toInt(Math.ceil((s.v1 ? toInt(tile.v) : val) / 2)))); e.poisoned = theirs.poison; }
           if (tile.tag === 'trip') { theirs.slowdraw = 1; e.tripped = 1; }
-          if (tile.tag === 'heal') s.fh.now = Math.max(0.0, s.fh.now - val);
+          if (tile.tag === 'heal') foeHeal(s, Number(val));
         }
         if (root && who === 'me' && tile.tag === 'pluck') {
           if (!s.can_pluck || truthy(s.plucked)) e.pluck = 'none';
@@ -1073,7 +1073,7 @@
     var used = spend(s);
     if (used.length && ev.length) ev[0].used = used;
     if (ev.length && who === 'me' && s.ven && has(s.ven, x + ',' + y) && kindNow(s) === 'reptile' && truthy(s.v1.tags)) {   // 2.6.98 Venom trail
-      s.me.poison = toInt(s.me.poison) + PFB_KIND_VENOM_RNDS; s.me.poison_v = Math.max(toInt(s.me.poison_v), PFB_KIND_VENOM_POISON);
+      s.me.poison = Math.min(PF_POISON_CAP, toInt(s.me.poison) + PFB_KIND_VENOM_RNDS); s.me.poison_v = Math.max(toInt(s.me.poison_v), PFB_KIND_VENOM_POISON);
       var vn = note('venom', String(tile.n)); vn.by = 'me'; ev.push(vn);
     }
     return ev;
@@ -1279,6 +1279,12 @@
     return best;
   }
 
+  /** 2.6.989: the creature recovers val. One shared bar: the Yield bar goes down, the Hurt part first, then the Charm part; two bars: only the health bar. */
+  function foeHeal(s, val) {
+    if (!(s.v1 && truthy(s.v1.onebar))) { s.fh.now = Math.max(0.0, s.fh.now - val); return; }
+    var d = Math.min(Number(s.fh.now), val); s.fh.now -= d; var rest = val - d;
+    if (rest > 0) { var c = Math.min(Number(s.bar.now), rest); s.bar.now -= c; s.bar.charm = Math.max(0.0, Number(s.bar.charm) - c); }
+  }
   function foeLen(s) { return Math.max(0, Math.min(s.foe.hand.length, 1 - toInt(s.foe.slow))); }
 
   function guardNotes(s, ev) {   // 2.6.77 (pfb_guard_notes)

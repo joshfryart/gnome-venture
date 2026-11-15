@@ -767,7 +767,7 @@ function pfb_place(array &$s, string $who, int $handIdx, int $x, int $y): ?array
     $used = pfb_spend($s);
     if ($used && $ev) $ev[0]['used'] = $used;   // v1: the ids this chain used up
     if ($ev && $who === 'me' && isset($s['ven']["$x,$y"]) && pfb_kind($s) === 'reptile' && !empty($s['v1']['tags'])) {   // 2.6.98 Venom trail: you stepped on it
-        $s['me']['poison'] = (int)$s['me']['poison'] + PFB_KIND_VENOM_RNDS; $s['me']['poison_v'] = max((int)$s['me']['poison_v'], PFB_KIND_VENOM_POISON);
+        $s['me']['poison'] = min(PF_POISON_CAP, (int)$s['me']['poison'] + PFB_KIND_VENOM_RNDS); $s['me']['poison_v'] = max((int)$s['me']['poison_v'], PFB_KIND_VENOM_POISON);
         $vn = pfb_note('venom', (string)$tile['n']); $vn['by'] = 'me'; $ev[] = $vn;
     }
     return $ev;
