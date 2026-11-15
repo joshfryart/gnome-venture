@@ -26,7 +26,7 @@ Rule: the road must be bendy, not a straight line all the time. Even where the r
 
 10. **Wiggle rule.** Generator adds seeded gentle wander to the path in every section (cap on straight run length, e.g. no more than about 8 tiles in a row without a turn; exact cap to pick). Wander must keep entry and exit tiles fixed so joins (item 4) still match. Lint flags any section whose path is too straight.
 
-11. **Gated areas (to consider).** Some areas can only be passed with a tool of a given quality (e.g. a better axe to clear a thicket, a rope for a ravine). Questions for the layout:
+11. **Gated areas (to consider).** Some areas can only be passed with a tool of a given quality (e.g. a better axe to clear a thicket; tool kinds are the existing tool types only: no rope tool type, Josh 2026-11-14). Questions for the layout:
     - Where does a gate sit: on a section tile, at a section join, or on a side trail only?
     - Gate placement must not break the main road. Keep an open route between every stop pair, with the gated path as a shortcut or a side branch, unless the gate is a deliberate lock.
     - Store per gate: tile(s), tool kind, minimum quality. Lint checks that the tile sits on the path and that a bypass exists where needed.
@@ -39,7 +39,7 @@ Rule: the road must be bendy, not a straight line all the time. Even where the r
     - Optional new mini-boss spots (new data needed): 312 great stump, Bramble Wolf (22); 314 lantern rocks, Clam Lurker (23) or Tide Crab Knight (19); 310 snowdrift pass, Grumpy Wolverine (21); 309 icicle cave mouth, Arctic Fox (17).
     - Keep free of fights: starter routes 228, 232, 236; havens Sugar Shack (311) and Aurora Camp (316).
     - Other region bosses by landscape if lairs are added: forest Old Bramblehorn 30, coast Reef Leviathan 29, grassland Great Hawk 28.
-    - Pair with gates (item 11): 315 gates (rope, then pick) lead to the boss; 313 lantern-gated tunnel mouth holds its mini-boss.
+    - Pair with gates (item 11): 315 gates (slope, then pick) lead to the boss (built: the slope gate is `staff` tier 1, Walking Stick; DECIDED 2026-11-14 by Josh: there is NO rope tool type); 313 lantern-gated tunnel mouth holds its mini-boss.
 
 ## Open choices
 - DECIDED: wandering road. Sections are bigger (about 30 x 18) and the road wanders inside them, entering and leaving on any edge. Corner sections (item 3) are dropped unless a turn proves too sharp for one section.

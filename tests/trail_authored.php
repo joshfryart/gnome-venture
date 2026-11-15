@@ -136,6 +136,11 @@ ok('a sprite with a shift down (5th value) is drawn that many picture pixels low
 ok('the old 22 x 7 picture name is used for a section without pic r', trail_art_sfx(['pic' => 'x']) === '' && trail_art_sfx($b) === '-r');
 ok('228 section 2 has water to fish by', trail_water_near($b, 12, 7) && !trail_water_near(trail_authored_section(228, 0), 5, 5));
 
+// 2026-11-14: the decor field rides along with the section and does not change the picture
+$bNo = $b; unset($bNo['decor']);
+$lk = trail_decor($b)['looks'][0] ?? ['', 0, 0];
+ok('228 section 2 carries its decor and draws the same SVG with or without it', trail_decor($b) !== [] && trail_decor_at($b, $lk[1], $lk[2]) === $lk[0] && $lk[0] !== '' && trail_art_svg(trail_map_authored($bNo)[0], ['px' => (int)$bm['entry'][0], 'py' => (int)$bm['entry'][1], 'x0' => 0, 'y0' => 0, 'cols' => 30, 'rows' => 18, 'tokens' => []]) === $bs, json_encode($lk));
+
 echo "== the picture\n";
 // v2.6.39: every route is 30 x 18 now, so the old 22 x 7 path is tested on route 260 as the OLD file data/trail_maps.json still holds it (loaded alone from a scratch folder).
 $oldDir = sys_get_temp_dir() . '/trail-old22-' . getmypid(); @mkdir($oldDir);

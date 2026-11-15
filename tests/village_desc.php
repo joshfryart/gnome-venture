@@ -9,7 +9,7 @@ foreach (file($game . '/includes/data/zones.txt', FILE_IGNORE_NEW_LINES) as $l) 
     if ($l === '' || $l[0] === '#') continue;
     $f = array_map('trim', explode('|', $l));
     if (count($f) < 6) continue;
-    for ($i = 1; $i <= max(1, min(5, (int)$f[5])); $i++) $slugs[] = ['v-' . strtolower($f[0]) . '-' . (int)$f[1] . '-' . $i, $f[2]];
+    for ($i = 1; $i <= max(1, min(5, (int)$f[5])); $i++) $slugs[] = ['v-' . strtolower($f[0]) . '-' . (int)$f[1] . '-' . $i, $f[2], $f[3]];
 }
 function clashes(array $slugs): array
 {
@@ -22,4 +22,12 @@ function clashes(array $slugs): array
 }
 $dups = clashes($slugs);
 echo count($slugs) . " villages, " . count($dups) . " clashes " . implode(', ', array_slice($dups, 0, 5)) . "\n";
-exit($dups ? 1 : 0);
+// 2026-11-14: the Almanac village pages use the same blurb (village_page_body): 146 pages, 146 texts (they were 56, one per zone)
+$pages = []; $oldPages = [];
+foreach ($slugs as [$slug, $land, $zone]) {
+    $v = ['kind' => 'village', 'slug' => $slug, 'landscape' => $land, 'description' => LANDSCAPES[$land][2]];
+    $pages[village_page_body($v, $zone)] = 1; $oldPages[village_page_body($v, $zone, false)] = 1;
+}
+$pageOk = count($pages) === count($slugs);
+echo count($slugs) . " village pages, " . count($pages) . " different texts (old text: " . count($oldPages) . ")" . ($pageOk ? '' : ' FAIL') . "\n";
+exit($dups || !$pageOk ? 1 : 0);

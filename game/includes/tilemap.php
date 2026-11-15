@@ -385,6 +385,7 @@ function tm_render_svg(array $map, string $theme, array $state): string
     $isWall = fn(int $x, int $y): bool => $vis($x, $y) && tm_tile($map, $x, $y) === '#';
     $L = [];
     $add = function (string $layer, string $d) use (&$L): void { $L[$layer] = ($L[$layer] ?? '') . $d; };
+    $tint = [];
     for ($y = $y0; $y < $y0 + $rows; $y++) {
         for ($x = $x0; $x < $x0 + $cols; $x++) {
             if (!$vis($x, $y)) continue;
@@ -393,6 +394,7 @@ function tm_render_svg(array $map, string $theme, array $state): string
             $sq = tm_rr($X, $Y, $C, $C, 0);
             $hh = tm_h($x, $y);
             $t = tm_tile($map, $x, $y);
+            if (isset($state['tints'][$x . ',' . $y])) $tint[$state['tints'][$x . ',' . $y]][] = [$X, $Y, $t === '#'];   // 2026-11-14: the decor fallback look (trail_decor_tints), only passed when a Trail section has no ground picture
             if ($t === '#') {
                 $r = $isWall($x + 1, $y);
                 $d = $isWall($x, $y + 1);
@@ -431,6 +433,11 @@ function tm_render_svg(array $map, string $theme, array $state): string
     $fills = ['rock' => $P['rock'], 'floor' => $P['floor'], 'bed' => $P['bed'], 'rock2' => $P['rock2'], 'rock3' => $P['rock3']];
     foreach ($fills as $layer => $col) if (isset($L[$layer])) $o .= '<path fill="' . $col . '" d="' . $L[$layer] . '"/>';
     if (isset($L['haz'])) $o .= '<path class="tmhaz" fill="' . htmlspecialchars((string)$state['haz'][1], ENT_QUOTES, 'UTF-8') . '" opacity=".6" d="' . $L['haz'] . '"/>';
+    foreach ($tint as $col => $cells) {   // decor fallback: thicket tiles get a full tile of their look's colour, walkable ones a soft patch on the bed
+        $d = '';
+        foreach ($cells as [$X, $Y, $wallT]) $d .= $wallT ? tm_rr($X + 1, $Y + 1, $C - 2, $C - 2, 6) : tm_rr($X + 6, $Y + 6, $C - 12, $C - 12, 10);
+        $o .= '<path class="tmdecor" fill="' . htmlspecialchars((string)$col, ENT_QUOTES, 'UTF-8') . '" opacity=".55" d="' . $d . '"/>';
+    }
     $dots = ['speck_lit' => [$P['rock3'], '.8'], 'speck' => [$P['ink'], '.5'], 'moss' => [$P['moss'], '.9'], 'peb' => [$P['dot'], '.45']];
     foreach ($dots as $layer => [$col, $op]) if (isset($L[$layer])) $o .= '<path fill="' . $col . '" opacity="' . $op . '" d="' . $L[$layer] . '"/>';
     $strokes = ['crack' => [$P['ink'], '1.3', '.6'], 'arc' => [$P['rock3'], '1.5', '.35'], 'stair' => [$P['cream'], '2.4', '.8']];

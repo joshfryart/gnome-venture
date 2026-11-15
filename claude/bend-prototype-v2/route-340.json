@@ -964,8 +964,8 @@
      ],
      "road_index": 5,
      "tool_type": "staff",
-     "min_tier": 3,
-     "tool_name": "Wayfarer’s Staff",
+     "min_tier": 2,
+     "tool_name": "Hiking Staff",
      "kind": "lock",
      "label": "steep steps: needs a staff to climb"
     }

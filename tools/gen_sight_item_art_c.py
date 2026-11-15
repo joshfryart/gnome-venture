@@ -625,14 +625,13 @@ def taper(rnd):
     v = p.over; sparkle(v, 44, 8, GOLD[0]); sparkle(v, 20, 14, CREAM)
     return p
 
-ITEMS = {
-    "wishing-coin": wishing_coin, "giant-fern-spores": giant_fern_spores, "vine-twine": vine_twine,
-    "giants-bark-curl": giants_bark_curl, "raindrop-bead": raindrop_bead, "lantern-fruit": lantern_fruit,
-    "soup-mist-jar": soup_mist_jar, "cave-echo-shell": cave_echo_shell, "bell-shell": bell_shell,
+ITEMS = {   # 2026-11-14: the weak pictures were redrawn in tools/gen_sight_item_art_f.py and taken out of this list
+
+    "wishing-coin": wishing_coin, "giant-fern-spores": giant_fern_spores, "giants-bark-curl": giants_bark_curl, "raindrop-bead": raindrop_bead, "lantern-fruit": lantern_fruit,
+    "soup-mist-jar": soup_mist_jar, "bell-shell": bell_shell,
     "beach-ball": beach_ball, "lagoon-glass-bead": lagoon_glass_bead, "aurora-ribbon": aurora_ribbon,
     "frost-window-pane": frost_window_pane, "squeaky-ice-chip": squeaky_ice_chip, "stargazers-chalk": stargazers_chalk,
-    "sauna-bun": sauna_bun, "mirror-salt-crystal": mirror_salt_crystal, "amber-seed": amber_seed,
-    "flamingo-feather": flamingo_feather, "taper": taper,
+    "sauna-bun": sauna_bun, "mirror-salt-crystal": mirror_salt_crystal, "flamingo-feather": flamingo_feather, "taper": taper,
 }
 
 def main(sheet=None):

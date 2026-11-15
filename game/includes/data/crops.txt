@@ -44,7 +44,7 @@ kangkong|Water Spinach|vegetable|1|0|Hollow-stemmed greens that grow in water. V
 amaranth|Amaranth|vegetable|2|0|Grown for both leaves and grain. Called callaloo in Jamaica.
 jute-mallow|Jute Mallow|vegetable|2|0|The leaves make molokhia, a beloved Egyptian soup.
 perilla|Perilla|herb|2|0|Fragrant leaves used to wrap food in Korea.
-lotus-root|Lotus Root|vegetable|5|0|The rhizome of the water lily, lacy with holes when sliced.
+lotus-root|Lotus Root|vegetable|5|0|The rhizome of the sacred lotus (no kin of the water lily), lacy with holes when sliced.
 bamboo-shoot|Bamboo Shoot|vegetable|5|1|Young bamboo, harvested as it bursts from the ground.
 egusi|Egusi Melon|vegetable|4|0|A melon grown for its seeds, ground into rich West African soups.
 green-bean|Green Bean|legume|2|0|Tender young pods eaten whole. Long beans are a close relative.
@@ -93,7 +93,7 @@ passion-fruit|Passion Fruit|fruit|5|1|A climbing vine with wrinkly fruit full of
 dragon-fruit|Dragon Fruit|fruit|5|1|The fruit of a climbing cactus that flowers at night.
 papaya|Papaya|fruit|5|1|A fast-growing tree-like plant that fruits within a year.
 plantain|Plantain|fruit|6|1|A starchy cooking banana, fried, boiled or pounded.
-banana|Banana|fruit|6|1|Technically a giant herb. Each plant fruits once, then new suckers take over.
+banana|Banana|fruit|6|1|Technically a giant herb. Each stem fruits once, then a sucker from the same root takes its place, so the clump keeps giving.
 ensete|Enset|fruit|6|1|The "false banana". Its stem, not its fruit, feeds millions in Ethiopia.
 nopal|Prickly Pear Cactus|fruit|5|1|Both the pads and the fruit are eaten.
 coconut|Coconut|tree|6|1|A palm that gives water, meat, oil and fibre.
