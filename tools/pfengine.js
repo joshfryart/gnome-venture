@@ -519,7 +519,7 @@
   // the compat rules (PFB_V1_PRE in pfboard.php, where the keys are explained): a saved fight without a key plays by the 2.6.94 value
   var PF_HOSTILE_CM = 0.6;
   var PFB_V1_ONEBAR_BAR = 1.15;   // 2.6.95: the shared bar is this much longer than the old creature health
-  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0 };
+  var PFB_V1_PRE = { aside: 1, must: 1, freepass: 0, flip1: 1, nowm: 0, redraw: 0, onebar: 0, aimtot: 0, keepmine: 0, aimhit: 0, useroot: 0, kinds: 0, blankrand: 0, order: 0, spawn: 1 };
   var PFB_KIND_SWARM_ADD = 1, PFB_KIND_SWARM_MAX = 2, PFB_KIND_GRUDGE = 0.25, PFB_KIND_GRUDGE_MAX = 3, PFB_KIND_VENOM_RNDS = 2, PFB_KIND_VENOM_POISON = 2;   // 2.6.98 class rules (pfb_kind_of ...)
   function kindOf(c, size) {
     if (size === 'boss') return 'boss';
@@ -553,9 +553,9 @@
     var cfg = { w: PFB_SIZE[size][0], h: PFB_SIZE[size][1], ground: 0, nsun: g[0], nbr: g[1], nmud: g[2], sun: PFB_SUN_MULT, bramble: PFB_BRAMBLE, br_foe: PFB_BRAMBLE_FOE,
       events: 0, nev: PFB_EVENTS[size], thorn: PFB_THORN, ev_foe: PFB_EVENT_FOE, limit: PFB_USEUP, aim: 1, team2: 1, team3: 1,   // 2.6.95: Teamwork off
       edges: 1, flip: 1, life: 0, tags: 1, foe: PFB_V1_FOE_MULT[size], bar: PFB_V1_BAR_MULT[size],
-      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
+      env: 1, envn: PFB_ENV_N[size], rain: PFB_RAIN, th_foe: PFB_THORN_FOE, mud: PFB_MUD, envcap: PFB_ENV_CAP, nowm: 1, aside: 0, must: 0, freepass: 1, flip1: 0, onebar: 1, redraw: 1, aimtot: 1, aimhit: 0, kinds: 1, blankrand: 1, order: 1, spawn: 0 };   // 2.6.95: the aim carries its total; one shared bar; no set-aside, a piece need not link (you), passing is free   // 2.6.75: environment pieces; env 0 with ground 1, events 1 gives the 2.6.74 terrain
     for (var pk in PFB_V1_PRE) if (cfg[pk] === undefined) cfg[pk] = PFB_V1_PRE[pk];
-    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
+    var INTS = { aside: 1, must: 1, freepass: 1, flip1: 1, nowm: 1, redraw: 1, onebar: 1, aimtot: 1, keepmine: 1, aimhit: 1, useroot: 1, kinds: 1, blankrand: 1, blankrand: 1, order: 1, spawn: 1, w: 1, h: 1, ground: 1, nsun: 1, nbr: 1, nmud: 1, events: 1, nev: 1, limit: 1, aim: 1, edges: 1, flip: 1, life: 1, tags: 1, env: 1, envn: 1 };
     over = over || {};
     for (var k in over) if (has(cfg, k) && isNumeric(over[k])) cfg[k] = INTS[k] ? toInt(over[k]) : Number(over[k]);
     if (over.foe_x !== undefined && over.foe_x !== null) cfg.foe = round(cfg.foe * Number(over.foe_x), 4);
@@ -957,8 +957,22 @@
     return order;
   }
 
+  // next release (Josh's vote): the order a chain's pieces take effect in: environment, defence (guard, soothe), augments (trick), hurt / charm, healing. Same rank keeps the link order; fights from before keep the link order.
+  function rank(p) {
+    if (p.by === 'env') return 1;
+    var t = nn(p.tile.t, '');
+    return t === 'guard' || t === 'soothe' ? 2 : t === 'trick' ? 3 : (t === 'heal' || t === 'item') ? 5 : 4;
+  }
+  function fireOrder(s, root) {
+    var ch = chain(s, root);
+    if (v1r(s, 'order') !== 1) return ch;
+    var idx = ch.map(function (c, i) { return i; });
+    idx.sort(function (a, b) { var ra = rank(s.pcs[ch[a][0]]), rb = rank(s.pcs[ch[b][0]]); return ra !== rb ? ra - rb : a - b; });
+    return idx.map(function (i) { return ch[i]; });
+  }
+
   function fire(s, root) {
-    var ev = [], ch = chain(s, root);
+    var ev = [], ch = fireOrder(s, root);
     var v1 = nn(s.v1, null), rb = s.pcs[root].by, tw = 1.0;
     if (v1) {   // v1: what fired (for use-up) and Teamwork
       s.fired = []; s.firedby = rb; s.firedroot = root; var srcs = {};
@@ -1070,7 +1084,7 @@
     if (who === 'me' && tile.tool !== undefined && tile.tool !== null) { if (!s.wear) s.wear = {}; s.wear[tile.tool] = toInt(nn(s.wear[tile.tool], 0)) + PFB_TOOL_WEAR; }   // tool wear
     var joints = checkAfter(s, id);
     var ev = fire(s, id);
-    if (ev.length) { ev[0].linked = joints; ev[0].snap = snap(s); }
+    if (ev.length) { ev[0].linked = joints; ev[0].snap = snap(s); ev[0].cs = 1; ev[0].rid = id; }
     var used = spend(s);
     if (used.length && ev.length) ev[0].used = used;
     if (ev.length && who === 'me' && s.ven && has(s.ven, x + ',' + y) && kindNow(s) === 'reptile' && truthy(s.v1.tags)) {   // 2.6.98 Venom trail
@@ -1198,7 +1212,7 @@
     }
     s[who].held = null;
     var ev = fire(s, root);
-    if (ev.length) { ev[0].linked = checkAfter(s, root); ev[0].snap = snap(s); }
+    if (ev.length) { ev[0].linked = checkAfter(s, root); ev[0].snap = snap(s); ev[0].cs = 1; ev[0].rid = root; }
     var used = spend(s);
     if (used.length && ev.length) ev[0].used = used;
     return ev;
@@ -1339,7 +1353,7 @@
         r = place(s, 'foe', m[0], m[1], m[2]);
       }
       if (r) { ev = ev.concat(r); s.lastfoe.push(s.pid); if (kind === 'water') current(s, s.pid, ev); }
-      if (truthy(s.foe.again)) { if (!again) { again = true; n++; if (s.v1 && truthy(s.v1.tags) && r && r.length) ev.push(note('quick', String(nn(r[0].n, '')))); } s.foe.again = 0; }   // a Quick piece: one more piece this turn (once)
+      if (truthy(s.foe.again)) { if (!again) { again = true; n++; if (s.v1 && truthy(s.v1.tags) && r && r.length) ev.push(note('quick', String(r[0].rid && s.pcs[r[0].rid] ? s.pcs[r[0].rid].tile.n : nn(r[0].n, '')))); } s.foe.again = 0; }   // a Quick piece: one more piece this turn (once)
     }
     if (kind === 'beast' && toInt(s.me.hp) < hp0) s.foe.grudge = 0;   // Grudge: a hit that lands clears it
     if (kind === 'plant' && !truthy(s.over)) grow(s, ev);
@@ -1549,7 +1563,7 @@
     if (v1r(s, 'redraw')) { var kept = []; s.me.hand.forEach(function (ht) { if (nn(ht.tag, '') === 'keep') { kept.push(ht); return; } var c = clone(ht); delete c.flip; delete c.ft; s.me.discard.push(c); }); s.me.hand = kept; draw(s, 'me', PF_HAND_CAP - slow + more); }   // 2.6.990 Keeper   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
     else draw(s, 'me', Math.min(PF_HAND_CAP + more, s.me.hand.length + PF_DRAW - slow));
     s.gone = nn(s.spent, []).map(function (p) { return goneEntry(s, p, true); }).concat(gone.map(function (p) { return goneEntry(s, p, false); }));
-    s.spawn = truthy(s.nospawn) ? null : spawn(s); delete s.nospawn;   // 2.6.99: a strike spent its turn: no free piece
+    s.spawn = (truthy(s.nospawn) || !v1r(s, 'spawn')) ? null : spawn(s); delete s.nospawn;   // 2.6.99: a strike spent its turn: no free piece
     if (s.turn > PF_TURN_CAP) { s.over = s.boss ? 'defeat' : 'stall'; return; }
     intent(s);
   }

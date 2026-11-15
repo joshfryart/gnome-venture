@@ -2,7 +2,7 @@
 // 2.6.98 WEEK 2b (T17-T20): one rule per creature class, behind the rule switch `kinds` (section 18 of tests/pfboard_v1.php).
 echo "== 19. class rules: Swarm, Grudge, Two aims, Two turns, Current, Grows, Venom trail (switch kinds)\n";
 $k19 = function (string $class, string $size = 'medium', array $over = [], int $seed = 7) {
-    $s = pfb_new(v1_me(), v1_foe($size) + ['class' => $class], $seed, ['v1' => ['kinds' => 1, 'aim' => 1] + $over]);
+    $s = pfb_new(v1_me(), v1_foe($size) + ['class' => $class], $seed, ['v1' => ['kinds' => 1, 'aim' => 1, 'order' => 0, 'spawn' => 1] + $over]);
     $s['pcs'] = []; $s['cell'] = []; $s['ter'] = []; $s['envs'] = []; $s['foe']['plan'] = null; $s['spent'] = []; $s['ven'] = []; $s['env'] = ['draw' => [], 'discard' => [], 'next' => []];
     $bt = v1_tile($s, 'f:base', 'guard', 1, 'body', 'creature'); $bt['ed'] = array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null]); v1_put($s, 'foe', $bt, 0, 3);   // a far corner piece, so the board is not empty (cells need a neighbour, an aimed cell does not)
     return $s;
