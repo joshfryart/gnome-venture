@@ -194,7 +194,9 @@ $seed = (int)q_val("SELECT id FROM items WHERE slug = 'radish-seed'");
 give_item($uid, $seed, 2);
 q('UPDATE users SET energy = 100 WHERE id = ?', [$uid]);
 $x = (int)q_val('SELECT x FROM plot_tiles WHERE user_id = ? AND id <> ? ORDER BY id LIMIT 1', [$uid, $tile]); $y = (int)q_val('SELECT y FROM plot_tiles WHERE user_id = ? AND id <> ? ORDER BY id LIMIT 1', [$uid, $tile]);
-foreach ([['till', 0], ['plant', $seed], ['water', 0]] as [$act, $item]) { [$okA, $mA] = garden_action($uid, $act, $x, $y, $item); if (!$okA) echo "    $act: ", implode(' ', $mA), "\n"; }
+foreach ([['till', 0], ['plant', $seed], ['water', 0]] as [$act, $item]) {
+    if ($act === 'water') { set_setting('weather_force', 'sun'); setting('__reload__'); }   // the test must not depend on today's weather: rain waters the bed and the watering is refused
+    [$okA, $mA] = garden_action($uid, $act, $x, $y, $item); if (!$okA) echo "    $act: ", implode(' ', $mA), "\n"; }
 ok('garden plant emits tend (kind vegetable)', $g($tTend) === 1, (string)$g($tTend));
 ok('garden water emits water', $g($tWater) === 1, (string)$g($tWater));
 
