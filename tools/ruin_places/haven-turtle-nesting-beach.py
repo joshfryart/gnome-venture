@@ -654,10 +654,10 @@ def build(p):
     E_W, E_L, E_S, E_D = hx('#e4ded6'), hx('#c9c0c4'), hx('#a296a8'), hx('#5a4c5e')
     PL = {'L': W_LT, 'M': W_MID, 'D': W_DK, 'e': E_W, 's': W_SH}
     PLAQUE = ["LLLLLLLLL",
-              "LMMMeMMMD",
-              "LMMeeeMMD",
-              "LMMeeeMMD",
-              "LMMMeMMMD",
+              "LMMeeMMMD",
+              "LMeeeeMMD",
+              "LMeeeeMMD",
+              "LMMeeMMMD",
               "MDDDDDDDD"]
 
     def marker(x, yb, lean=0.0, h=11):
@@ -686,7 +686,7 @@ def build(p):
             for i in range(10):
                 p.dot(x + i, y + (i // 5), W_MID)
                 p.dot(x + i, y + 1 + (i // 5), W_DK)
-            stamp(x + 10, y - 2, ["LLLLLLL", "LMMeMMD", "LMeeeMD", "LMMeMMD", "MDDDDDD"], PL)
+            stamp(x + 10, y - 2, ["LLLLLLL", "LMeeMMD", "LeeeeMD", "LMeeMMD", "MDDDDDD"], PL)
         shadow(x + 1, x + 17, y + 3, 1)
         inked(draw)
     fallen_marker(78, 254)

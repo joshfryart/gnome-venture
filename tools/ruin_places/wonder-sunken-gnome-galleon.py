@@ -413,18 +413,30 @@ def build(p):
     def barnacles(pts):
         ok = lambda x, y: is_hull(x, y) or col(x, y) in (M_LT, M_MID, M_DK)
         for (bx, by) in pts:
-            if all(ok(bx + i, by + j) for i in (0, 1, 2) for j in (0, 1, 2)):
-                stamp(bx, by, [".L.", "LdM", ".M."], {'L': hx('#c2c0ae'), 'M': hx('#96958a'), 'd': hx('#5e5a5c')})
+            if all(ok(bx + i, by + j) for i in (0, 1, 2, 3) for j in (0, 1, 2)):
+                stamp(bx, by, [".LL.", "LMoD", "MDDD"], {'L': hx('#b5b2a0'), 'M': hx('#8f8c80'), 'D': hx('#625e5e'),
+                                                          'o': hx('#463f46')})
     barnacles(((150, 228), (153, 230), (156, 227), (204, 234), (207, 232), (210, 235),
                (249, 231), (252, 233), (340, 212), (343, 209), (136, 208), (139, 211), (133, 205)))
 
     # ---- stern lantern, dead ---------------------------------------------------------------------------------
+    LANT = ["...ll....",
+                     "..l..d...",
+                     "...ld....",
+                     "..lmmdd..",
+                     ".lmmmmdd.",
+                     ".mGgmgem.",
+                     ".mGgmeem.",
+                     ".mggmgem.",
+                     ".mggmeem.",
+                     ".lmmmmdd.",
+                     "..ddddd.."]
+    LPAL = {'l': I_LT, 'm': I_MID, 'd': I_DK, 'G': hx('#7b8a80'), 'g': hx('#56655f'), 'e': VD}
+
     def lantern():
         p.line([(121, 164), (121, 151)], I_DK)
-        p.line([(121, 151), (115, 151)], I_DK)
-        p.dot(115, 152, I_DK)
-        stamp(112, 152, ["..iii..", ".i...i.", ".iiiii.", "iGgigdi", "iggiddi", "iggidgi", "iiiiiii"],
-              {'i': I_MID, 'g': hx('#56655f'), 'G': hx('#7b8a80'), 'd': VD})
+        p.line([(121, 150), (114, 150)], I_DK)
+        stamp(111, 151, LANT, LPAL)
     inked(lantern)
 
     # ---- seabed ------------------------------------------------------------------------------------------------
@@ -678,25 +690,20 @@ def build(p):
 
     # ---- small things left behind -----------------------------------------------------------------------------------
     def hat():                                                          # the keeper's cap, faded, left in the silt
-        shadow([(x, 261 + k) for x in range(266, 278) for k in (0, 1)])
-        stamp(263, 250, ["....r....",
-                         "....rR...",
-                         "...rRR...",
-                         "...rRRd..",
-                         "..rRRRd..",
-                         "..rRRRd..",
-                         ".rRRRRdd.",
-                         ".rRRRRRd.",
-                         "rRRRRRRdd",
-                         "rRRRRRRdd",
-                         "rRRRRRRdd"], {'r': hx('#b06a5e'), 'R': hx('#96584f'), 'd': hx('#74464a')})
+        shadow([(x, 261 + k) for x in range(262, 277) for k in (0, 1)])
+        stamp(260, 254, ["...rrrr........",
+                         "..rRRRRrr......",
+                         ".orRRRRRRrr....",
+                         "oorRRRRRRRRrd..",
+                         "oodRRRRRRRRddd.",
+                         ".odRRRRddddd.dd",
+                         "..ddddd.......d"], {'r': hx('#b06a5e'), 'R': hx('#96584f'), 'd': hx('#74464a'), 'o': VD2})
     inked(hat)
-    drift(267, 262, 8, 2)
+    drift(264, 262, 6, 1)
 
     def lantern2():                                                     # a lantern dropped in the silt
-        shadow([(x, 262 + k) for x in range(209, 221) for k in (0, 1)])
-        stamp(208, 255, ["..iii..", ".i...i.", ".iiiii.", "iGgigdi", "iggiddi", "iggidgi", "iiiiiii"],
-              {'i': I_MID, 'g': hx('#56655f'), 'G': hx('#7b8a80'), 'd': VD})
+        shadow([(x, 262 + k) for x in range(210, 222) for k in (0, 1)])
+        stamp(208, 251, LANT, LPAL)
     inked(lantern2)
     drift(212, 263, 7, 2)
 
