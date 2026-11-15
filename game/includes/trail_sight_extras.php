@@ -175,7 +175,8 @@ function trail_sight_quest_lint(array $q, array $sights, array $allQuests = []):
         elseif (!isset($sights[$s])) $bad[] = 'beat on unknown Sight ' . $s;
         if ($label === '') $bad[] = 'a beat has no label';
         if ($when !== '-') foreach (explode('/', $when) as $part) if (!preg_match(TRAIL_SIGHT_COND_RE, trim($part))) $bad[] = 'bad beat condition ' . $part;
-        if ($needs !== '' && !preg_match('/^take=[a-z0-9-]+(:\d+)?$/', $needs)) $bad[] = 'bad beat needs ' . $needs;
+        if (preg_match('/^npc=[^|;]+$/', $needs)) { /* 2.7.01: npc=Name = the beat counts only while that villager is at the Sight (their weekly clockwork) */ }
+        elseif ($needs !== '' && !preg_match('/^take=[a-z0-9-]+(:\d+)?$/', $needs)) $bad[] = 'bad beat needs ' . $needs;
         elseif ($needs !== '' && !trail_sight_item_known(explode(':', substr($needs, 5))[0])) $bad[] = 'beat needs unknown item ' . $needs;
     }
     if ($q['gate'] !== '' && (!preg_match('/^quest:([a-z0-9-]+)$/', $q['gate'], $m) || ($allQuests && !isset($allQuests[$m[1]])))) $bad[] = 'bad gate ' . $q['gate'];
@@ -236,7 +237,7 @@ function trail_sight_beat_open(array $q, array $done, int $i): bool
 /** An item the beat asks for: [item id, qty, name] or null. */
 function trail_sight_beat_need(array $b): ?array
 {
-    if ($b[3] === '') return null;
+    if ($b[3] === '' || !str_starts_with($b[3], 'take=')) return null;
     [$sl, $qt] = array_pad(explode(':', substr($b[3], 5), 2), 2, '1');
     $id = (int)q_val('SELECT id FROM items WHERE slug = ?', [$sl]);
     return $id ? [$id, max(1, (int)$qt), (string)q_val('SELECT name FROM items WHERE id = ?', [$id])] : null;
@@ -278,15 +279,21 @@ function trail_sight_quest_hook(array $u, string $slug, array $loc, array $now):
         if ($row && $row['done_at'] !== null) continue;
         $done = trail_sight_quest_done($q, $row);
         if ($row && count($done) >= count($q['beats'])) { $fl = trail_sight_quest_finish($u, $q, $loc, $now); if ($fl !== '') $out[] = $fl; continue; }   // a line whose beats were all done before a data edit: finish it now
-        $idx = null; $needMissing = null;
+        $idx = null; $needMissing = null; $npcMissing = null;
         foreach ($q['beats'] as $i => $b) {
             $hit = $b[0] === $slug || ($b[0] !== '' && $b[0][0] === '@' && $slug !== '' && $slug[0] === '@' && trail_sight_event_match($b[0], $slug));
             if (!$hit || !trail_sight_beat_open($q, $done, $i)) continue;
             if ($b[2] !== '-' && !trail_sight_cond_ok($b[2], $now)) continue;
+            if (str_starts_with($b[3], 'npc=') && $slug !== '' && $slug[0] !== '@') {   // 2.7.01: the villager has to be here (appointment); a miss says when they are next
+                require_once __DIR__ . '/npc_clockwork.php';
+                $nm = substr($b[3], 4); $cw = npc_cw_sight_check($nm, $slug);
+                $here = $cw ?? (bool)array_filter(trail_sight_folk_here($slug, $now, $uid), fn($f) => trail_sight_split_who($f['who'])[0] === trail_sight_split_who($nm)[0]);
+                if (!$here) { $fc = npc_cw_forecast($nm, $slug); $npcMissing = $npcMissing ?? [$q['title'], trail_sight_split_who($nm)[0], $fc ? $fc['text'] : 'in a while']; continue; }
+            }
             if (($nd = trail_sight_beat_need($b)) && (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $nd[0]]) < $nd[1]) { $needMissing = $needMissing ?? [$q['title'], $nd]; continue; }   // say what is missing, try another beat
             $idx = $i; break;
         }
-        if ($idx === null) { if ($needMissing) $out[] = '📜 ' . $needMissing[0] . ': this step needs ' . $needMissing[1][1] . ' × ' . $needMissing[1][2] . '.'; continue; }
+        if ($idx === null) { if ($npcMissing && !$needMissing) $out[] = '📜 ' . $npcMissing[0] . ': ' . $npcMissing[1] . ' is not here now. Next: ' . $npcMissing[2] . '.'; if ($needMissing) $out[] = '📜 ' . $needMissing[0] . ': this step needs ' . $needMissing[1][1] . ' × ' . $needMissing[1][2] . '.'; continue; }
         $need = trail_sight_beat_need($q['beats'][$idx]);
         $new = array_merge($done, [$idx]); $oldJson = $row ? (string)$row['beats'] : '[]'; $newJson = trail_sight_quest_store($q, $new);
         try {

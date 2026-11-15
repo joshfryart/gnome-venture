@@ -7936,3 +7936,5 @@ details.sgq summary{cursor:pointer}
 .cwbar i{background:rgba(127,127,127,.28);border-radius:1px}
 .cwbar i.on{background:var(--moss, #4f9a45)}
 .cwbar i.now{outline:2px solid var(--gold, #e8a317);outline-offset:0;z-index:1}
+/* Trail map families (2.7.01): the layer above the map */
+.trailfam{display:grid;gap:6px;margin:0 0 6px}
