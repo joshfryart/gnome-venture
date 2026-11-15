@@ -112,7 +112,7 @@ w = B.append
 # ------------------------------------------------------------------ 1
 w(h2('1', 'What you are doing'))
 w(f"""
-<p>Puzzle combat is a small board game inside Gnome Venture. You meet a creature. You both put jigsaw pieces on a 4 by 4 board. Pieces that link fire together as a chain. This book describes the rules as they are in a <b>new fight today</b> (version 2.6.990, puzzle combat v1, still switched on for admins only).</p>
+<p>Puzzle combat is a small board game inside Gnome Venture. You meet a creature. You both put jigsaw pieces on a 4 by 4 board. Pieces that link fire together as a chain. This book describes the rules as they are in a <b>new fight today</b> (version 2.7.00, puzzle combat v1, still switched on for admins only: setting <code>pfight_v1</code> Off / Admins only). Fights already saved keep the rules they started with (<code>PFB_V1_PRE</code>).</p>
 {h3('1.1', 'The goal')}
 <p>Fill the creature's <b>Yield bar</b> before your <b>health</b> reaches 0. That is the whole game. {P}</p>
 {h3('1.2', 'The Yield bar')}
@@ -177,7 +177,9 @@ w(f"""
 <tr><td>2.6.988</td><td>Swarm is a new rule: a Critter plays one piece a turn at full value, and its Hurt grows with the pieces it has out. Poison ticks are flat. Your Evade stops a poison tick.</td><td>6.5.1, 2.10, 6.4</td></tr>
 <tr><td>2.6.989</td><td>A creature's heal empties the Yield bar, hurt first, then charm. New pieces arrive switched off with a NEW mark. Crop pieces need a Larder slot. Venom cannot push poison above 3 ticks.</td><td>2.2, 3.6, 6.5.6</td></tr>
 <tr><td>2.6.990</td><td>Three new tags: Keeper, Plenty, Simmer. 42 legendary crop pieces, some with a built-in knack. A crown filter in the Puzzle box.</td><td>2.9, 2.11, 3.7, appendix C</td></tr>
+<tr><td>2.7.00</td><td>A chain fires in a new order: environment, guard, tricks, hurt and charm, healing. The creature no longer gets a free piece at the end of your turn. Six wearables, made at a new Tailor, are Keepsake pieces. Keepsake slots 1 to 4.</td><td>5.4, 6.1, 3.6, 3.8</td></tr>
 </tbody></table>
+<p class="small"><b>About the 2.7.00 edition.</b> The rules in these three places were read in the code on 2.7.00 {C}. I did not play new fights or re-run the 684 policy fights. Every figure marked {P} and every table of runs is from 2.6.990, and the fights in appendix B were played in the old chain order and with the free piece. Read them as examples of the board, not as 2.7.00 results. The rules in chapters 5.4, 6.1, 3.6 and 3.8 override them. Saved fights keep the old rules (no new order, free piece on).</p>
 """)
 
 # ------------------------------------------------------------------ 2
@@ -356,7 +358,7 @@ w(f"""
   <li><b>Kind</b>: calling piece, Jab, second Swing, Pierce, Hum, Soothe.</li></ul></li>
 <li>Later you switch on more pieces you own: knacks (by level), crop pieces, legendary crop pieces, craft pieces, region pieces.</li>
 <li><b>New in 2.6.989:</b> a piece you have just earned arrives switched <b>off</b>, with a NEW mark, until you switch it once. Before, crop, craft and region pieces arrived switched on. A gnome who already owned such pieces finds them marked NEW and off after the update. (Run: a gnome with a new crop piece and two new legendary pieces got all three "off, NEW".)</li>
-<li>Limits: at least 8 kit pieces, at least 3 Hurt pieces in a custom starter, at least 1 Hurt piece in any deck, at most 3 Rare and 1 Masterwork, and the slots of 3.6. There is no maximum size.</li>
+<li>Limits: at least 8 kit pieces, at least 3 Hurt pieces in a custom starter, at least 1 Hurt piece in any deck, at most 3 Rare and 1 Masterwork (a Fine wearable counts as Rare, see 3.8), and the slots of 3.6. There is no maximum size.</li>
 <li>If the deck as switched is not legal (under 8 kit pieces or no Hurt), the fight plays the default kit instead.</li>
 <li>The deck bar shows "Hurt pieces: N of M". Under 3 in 10 it warns: "Few Hurt pieces: fights will be long".</li>
 <li>The Kit tab has filter buttons: All, basic, crop, a crown for legendary crop pieces (new in 2.6.990), craft, region.</li>
@@ -402,13 +404,13 @@ w(f"""
 <thead><tr><th>Slots</th><th>Holds</th><th class="num">Level 1 to 9</th><th class="num">10 to 14</th><th class="num">15 to 19</th><th class="num">20 and up</th></tr></thead>
 <tbody>
 <tr><td><b>Larder</b></td><td>Crop pieces and legendary crop pieces (and food pieces, which do not exist yet)</td><td class="num">3</td><td class="num">4</td><td class="num">4</td><td class="num">5</td></tr>
-<tr><td><b>Keepsakes</b></td><td>Friend, Gourmand and lair-trophy pieces. None of these exist yet.</td><td class="num">2</td><td class="num">2</td><td class="num">3</td><td class="num">3</td></tr>
 </tbody></table>
+<p><b>Keepsakes (changed in 2.7.00).</b> Friend, Gourmand and lair-trophy pieces (none exist yet) and <b>wearables</b> (3.8). The count now follows its own levels: <b>1</b> slot from level 1, <b>2</b> from level 15, <b>3</b> from level 25, <b>4</b> from level 40. {C} (The 2.6.990 edition said 2, 2, 3, 3 for the four bands above.) A switched-on wearable takes one Keepsake slot; one over the count stays out of the deck ("left out").</p>
 <ul>
 <li>Every switched-on crop piece and legendary crop piece takes one Larder slot. A crop piece in your <b>starter</b> counts too: the Bold kit's Oat Cake takes one of your three.</li>
 <li>Switching on one too many is refused: "Your Larder holds 3 crop pieces. Take one out first."</li>
 <li>If more are on than the Larder holds (for example after losing a slot rule), the extra ones stay out of the deck. Their note reads "left out: your Larder is full".</li>
-<li>The Puzzle box head shows pips: Rare, Masterwork, and now "Larder (crop pieces)". Keepsake pips only appear once you own a Keepsake piece.</li>
+<li>The Puzzle box head shows pips: Rare, Masterwork, and now "Larder (crop pieces)". Keepsake pips only appear once you own a Keepsake piece (a wearable is one).</li>
 <li>Region pieces, craft pieces, knacks, tool pieces and pal pieces are <b>not</b> slotted.</li>
 </ul>
 <p class="small">Code: <code>pfd_slots</code> (<code>pfdeck.php</code> line 22), <code>PFD_LARDER_SRC</code>, <code>PFD_KEEP_SRC</code>, the count in <code>pfd_build</code> (lines 298, 299), the refusal in <code>pfd_validate</code> (line 321), the pips in <code>pfv_box_html</code> (<code>pfdeck_view.php</code> line 171), the NEW mark in <code>pfv1.css</code> (class <code>isnew</code>). Run on <code>pfd_build</code>: a level 4 gnome with four legendary pieces on had the fourth left out; a level 9 gnome with the Bold kit could switch on two, and the third was refused. {C} I did not see the page. {Q}</p>
@@ -424,6 +426,35 @@ w(f"""
 <li>In the fight a legendary piece is an ordinary piece of yours: it stays 3 rounds, it can be used up, it comes back from the discard.</li>
 </ul>
 <p class="small">Code: source <code>legend</code>, keys <code>g:SLUG</code> in <code>data/pf_pieces.txt</code>; ownership and rank in <code>pfd_sources</code> (<code>pfdeck.php</code> lines 501 to 507, needs the database: not run); the crown in <code>pfdeck_view.php</code> lines 15 and 180. I counted the 42 in the data file against the 14 treasure rows of <code>region_crops.txt</code>. {C} Three of them (Cranberry Preserve, Buckthorn Zing, Pecan Pie) I played. {P} The changelog says each piece matches its crop's stat (luck, lore, charm, grit); I could not check that. {Q}</p>
+{h3('3.8', 'Wearables and the Tailor')}
+<p>New in 2.7.00. Read in the code only (<code>wearables.php</code>, <code>pfdeck.php</code>) {C}. Everything about wearables is behind the same admin setting as puzzle combat v1: with <code>pfight_v1</code> Off there is no Tailor, no tile and no shop stock (<code>wear_live</code>).</p>
+<ul>
+<li>A wearable is a thing your gnome wears and also <b>one puzzle piece</b>. It is a <b>Keepsake</b> piece: it needs a Keepsake slot (3.6), is off until you switch it on, and is not counted as a kit piece of the starter. Source "wear", family "body", key <code>w:&lt;wearable&gt;</code> (<code>-b</code> for the second cut).</li>
+<li>Six wearables, each with one or two cuts, 11 cuts in all. Each cut comes in three ranks, Common, Lined and Fine: 33 items.</li>
+</ul>
+<table class="keep">
+<thead><tr><th>Wearable</th><th>Cut</th><th>Type</th><th class="num">Base</th><th>Tag</th><th>How you get it</th></tr></thead>
+<tbody>
+<tr><td rowspan="2"><b>Flood Boots</b></td><td>Puddle Hop</td><td>Guard</td><td class="num">3</td><td>Evade</td><td rowspan="2">Tailor (craft)</td></tr>
+<tr><td>Sure Foot</td><td>Guard</td><td class="num">3</td><td>Hold</td></tr>
+<tr><td rowspan="2"><b>Wayfarer's Hat</b></td><td>Brim Down</td><td>Guard</td><td class="num">2</td><td>Thorns</td><td rowspan="2">Shop, level 5, 300 Petals</td></tr>
+<tr><td>Tip Back</td><td>Soothe</td><td class="num">3</td><td>none</td></tr>
+<tr><td rowspan="2"><b>Work Gloves</b></td><td>Firm Grip</td><td>Hurt</td><td class="num">3</td><td>Leech (knack)</td><td rowspan="2">Tailor (craft)</td></tr>
+<tr><td>Knuckle Down</td><td>Hurt</td><td class="num">3</td><td>Bash</td></tr>
+<tr><td rowspan="2"><b>Travel Cloak</b></td><td>Wrap Up</td><td>Guard</td><td class="num">3</td><td>Mend</td><td rowspan="2">Tailor (craft)</td></tr>
+<tr><td>Hood Up</td><td>Guard</td><td class="num">3</td><td>Thorns</td></tr>
+<tr><td rowspan="2"><b>Trail Pack</b></td><td>Rummage</td><td>Trick</td><td class="num">2</td><td>Pluck</td><td rowspan="2">Shop, level 15, 800 Petals</td></tr>
+<tr><td>Tidy Up</td><td>Trick</td><td class="num">2</td><td>none (plain)</td></tr>
+<tr><td><b>Yarn Scarf</b></td><td>Yarn Wrap</td><td>Charm</td><td class="num">3</td><td>none</td><td>Cat Fish</td></tr>
+</tbody></table>
+<ul>
+<li><b>Ranks.</b> A Lined wearable and a Fine wearable play the same cut at a higher rank. <b>Fine is +4 value over Common</b> and counts as a <b>Rare</b> piece (the deck holds at most 3 Rare, 3.1). If you own two ranks of the same cut, the best one is the piece. You can choose to wear a Fine piece <b>as Lined</b> (the toggle writes the table <code>wear_lined</code>), so it is not Rare and a little weaker. The piece keeps its key when its rank changes, so its on/off switch stays as you set it.</li>
+<li>Two copies of the same cut are one piece. The two cuts of one wearable are two pieces.</li>
+<li><b>The Tailor</b> is a garden building: garden level 6, 1800 Petals. You need one in at least one garden to craft Flood Boots, Work Gloves and a Travel Cloak, to line a wearable and to re-cut one.</li>
+<li><b>Lining</b> (Common to Lined, then Lined to Fine): the chance is 30%, plus 8% for each Tailor power point (the sum of the levels of all your Tailors, each at most 3), up to 78%. Only the first 6 power points help; power above 6 pays commission Petals instead (5% of the base price for each point). A lining that fails gives you a <b>Tailor's Thread</b>. <b>5 Threads make the next lining a sure thing.</b> Re-cutting costs 1 Thread (free at a level 2 Tailor).</li>
+<li>The Puzzle box deck has a 🧵 filter for wearables. They also show on the 2.5D gnome (layers for boots, gloves, cape, brim and pack).</li>
+</ul>
+<p class="small"><b>Not done in 2.7.00</b> (the changelog says so): the bots (<code>pfb_score</code>) do not value wearables or the new firing order, and there is no balance run with wearables in the deck. I did not run one either. {Q} The base values above come from the data table <code>WEAR_DEFS</code>; I did not check the rank bonus on a live piece beyond the "+4" in the code notes. {Q}</p>
 """)
 
 # ------------------------------------------------------------------ 4
@@ -496,14 +527,24 @@ w(f"""
 </ul>
 {h3('5.4', 'How a chain fires')}
 <ol>
-<li>The piece you placed fires first.</li>
-<li>Then every piece linked to it fires, the <b>newest first</b>. From each of those the chain goes on through its own links before it comes back. A piece fires once per chain.</li>
+<li>First the chain is worked out: the piece you placed, then every piece linked to it, the <b>newest first</b>. From each of those the chain goes on through its own links before it comes back. A piece is in a chain once.</li>
+<li><b>New fights since 2.7.00 fire that chain in rank order</b> (Josh's vote). {C}
+<table class="keep"><thead><tr><th>Rank</th><th>Pieces</th></tr></thead><tbody>
+<tr><td class="num">1</td><td>Environment pieces in the chain (Sun, Rain, Bramble, Thornburst, Mud, Wind)</td></tr>
+<tr><td class="num">2</td><td>Defence: Guard and Soothe</td></tr>
+<tr><td class="num">3</td><td>Augments: Tricks</td></tr>
+<tr><td class="num">4</td><td>Hurt and Charm (and any piece not named here)</td></tr>
+<tr><td class="num">5</td><td>Healing: Heal and Item pieces</td></tr>
+</tbody></table>
+Inside one rank the old order holds (newest first, depth first). This is the same for the creature's chain. The placed piece is not first any more: a Hurt you place fires after a Guard that is linked to it.</li>
+<li>Combos did not move: a piece still reads the piece it <b>linked to</b> as its parent (Ambush, Riposte, Double Swing, Bait), not the piece that fired just before it.</li>
 <li>Each piece fires <b>for its owner</b>: yours for you, the creature's for the creature.</li>
 <li>An environment piece fires for the side that <b>started</b> the chain.</li>
-<li>If the fight ends in the middle, the rest of the chain does not fire. (Earwig, turn 8: my Pierce filled the bar, the Rain linked to it never fired.) {P}</li>
+<li>If the fight ends in the middle, the rest of the chain does not fire. (Earwig, turn 8: my Pierce filled the bar, the Rain linked to it never fired. {P} That was the old order. Environment pieces fire first now, so the Rain would have fired before the Pierce.)</li>
+<li>Fights from before 2.7.00 keep the old order: the placed piece first, then the links. (Rule <code>order</code> 0 in <code>PFB_V1_PRE</code>.)</li>
 </ol>
 """)
-w(fig(figs.fig_chain(), 'Figure 7. Turn 1 against the Pincer Earwig (seed 11).'))
+w(fig(figs.fig_chain(), 'Figure 7. Turn 1 against the Pincer Earwig (seed 11). Played on 2.6.990, in the old firing order.'))
 w(fig(figs.fig_useup(), 'Figure 8. A creature\'s chain that I set up on purpose: see "Bait" below.'))
 w(f"""
 <h4>What it means when a creature piece is in your chain</h4>
@@ -606,7 +647,7 @@ w(f"""
 <li><b>Poison on you ticks</b>, unless your Evade is still up. Then <b>Simmer</b> heals you 2 if it is running. A trip takes effect.</li>
 <li><b>Old pieces leave</b> (3 rounds old). Venom cells fade.</li>
 <li><b>You draw a new hand</b>: Keeper pieces stay, everything else is thrown away, and the hand is filled to 5 (4 if you were tripped, one more after a Plenty). Your guard fades, except what a Hold guard keeps.</li>
-<li><b>The free piece.</b> If the creature has fewer than 2 pieces on the board, the board puts out one for it: its gentlest piece that is not a Hurt, on a random cell where it fits. It does not fire now. {P}</li>
+<li><b>The free piece: gone in new fights (2.7.00).</b> Before 2.7.00, if the creature had fewer than 2 pieces on the board, the board put out one for it just before your turn: its gentlest piece that is not a Hurt, on a random cell where it fits. It did not fire. Josh called an enemy piece appearing at the end of your resolution a bug. New fights (rule <code>spawn</code> 0) get no such piece. Saved fights still do (<code>pfb_end_round</code> gates <code>pfb_spawn</code>). {C} Everything in this book that says "the board hands it a free piece" is about saved fights only.</li>
 <li><b>The new aim</b> is shown.</li>
 </ol>
 <p class="small">Code: <code>pfb_foe_turn</code>, <code>pfb_end_round</code>, <code>pfb_spawn</code>, <code>pfb_intent</code>. The replay on the page follows the same order. {Q}</p>
@@ -667,7 +708,7 @@ classes = [
       'Its base Trick, Skitter, is Quick: that turn it still plays a second piece.'],
      ['Count its pieces before you read the aim. With two others out, a Double Swing of two Hurts printed 5 and 4 read 13.',
       'Shrink it: a chain of 3 that runs through its pieces uses them up. Its pieces also fall after two firings and leave after 3 rounds.',
-      'It cannot go below one piece for long: the board hands it a free piece whenever it has fewer than 2 out. So +1 is common and +2 is rare (it needs 5 pieces on a 16-cell board).',
+      'Before 2.7.00 it could not go below one piece for long: the board handed it a free piece whenever it had fewer than 2 out. That piece is gone in new fights, so its count can stay at 0 or 1 after a clean-out. I did not re-measure how often +1 and +2 happen. ' + Q,
       'Trip and Lull cancel its piece.',
       'Small Critters are the one place where Charm wins fights: the gentle ones take Charm at full value.'],
      '28% of health lost, 100% wins, 6.9 turns. 38% of the wins were by charm. The real loss was above the chip on 12% of turns (it was 52% under the old rule).'),
@@ -920,7 +961,7 @@ w('<div class="cheat">' + h2('9.6', 'Cheat sheet') + f"""
 <div class="blk"><h4>Goal</h4><ul><li>Fill the Yield bar. Hurt and Charm both fill it. Its heal empties it.</li><li>Do not let your health reach 0. It carries over to the next fight.</li></ul></div>
 <div class="blk"><h4>A round</h4><ul><li>You: one piece (or pass). Flip is free.</li><li>The creature: its aim, its chain, class extras.</li><li>The environment: one piece on a lonely cell.</li><li>Clean-up: poison, Simmer, old pieces leave, new hand of 5.</li></ul></div>
 <div class="blk"><h4>Fitting</h4><ul><li>Knob into hole, same family (round, keyhole, triangle).</li><li>Every touching edge must fit. A fit is a link.</li><li>Left is a hole, right is a knob. Flip swaps top and bottom.</li></ul></div>
-<div class="blk"><h4>Chains</h4><ul><li>The placed piece fires first, then linked pieces, newest first.</li><li>Each piece fires for its owner. Environment pieces fire for the side that started the chain.</li><li>3 or more pieces fired: all of them leave the board.</li><li>Pieces stay 3 rounds. Creature pieces fall after 2 firings.</li></ul></div>
+<div class="blk"><h4>Chains</h4><ul><li>The chain is the placed piece and what links to it, newest first. It fires in rank order: environment, Guard / Soothe, Tricks, Hurt / Charm, healing.</li><li>Each piece fires for its owner. Environment pieces fire for the side that started the chain.</li><li>3 or more pieces fired: all of them leave the board.</li><li>Pieces stay 3 rounds. Creature pieces fall after 2 firings.</li></ul></div>
 <div class="blk"><h4>Combos (your two pieces, one after the other)</h4><ul><li>Trick then Hurt: x1.5 + the Trick's number (Ambush).</li><li>Guard then Hurt: x1.5 (Riposte).</li><li>Hurt then Hurt: +2 (Double Swing).</li><li>Trick then Guard: + the Trick's number (Bait).</li><li>Place the <b>first</b> piece of the pair. The second must already be on the board.</li></ul></div>
 <div class="blk"><h4>Before you place: seven checks</h4><ul><li>1. Can a cell end the fight?</li><li>2. Aim chip: how much, where, "fires ..."? Poison on top?</li><li>3. Its chips: guard, dodges next hit, thorny, Grudge, Swarm.</li><li>4. Lit cell: what does it cost me? (creature Hurt, Thornburst, venom)</li><li>5. Flipped: is there a better cell?</li><li>6. Sun, Rain, Bramble: who fires them first?</li><li>7. After placing: what does the aim chip say now?</li></ul></div>
 <div class="blk"><h4>The aim</h4><ul><li>It lands on its cell unless: your piece is on the cell, a misfit stands beside it, or it is slowed.</li><li>Then it picks again at full strength. No free turn.</li><li>The number is its whole turn. It leaves out poison and venom.</li><li>A fitting piece of yours beside the aim cell gets fired, for you (bait).</li></ul></div>
@@ -1044,7 +1085,7 @@ w(f"""
 <li><b>Net health on a lit cell.</b> A heal in the same chain hides a Thornburst or a creature hit: the cell shows the net (the harness note says "h-0 can hide a loss").</li>
 <li><b>The creature finishing itself.</b> When its chain fires a Thornburst the bar grows by 5%. The aim total does not count that as "to it". Boar, turn 4: the chip said "fires Thornburst" and nothing about the 8.6 it then gave me. {P}</li>
 <li><b>Heavy</b> is a tag with no effect on this board.</li>
-<li><b>The free piece.</b> The board gives the creature a piece when it has fewer than 2 out. It looks like a second move. The replay names it since 2.6.97. With the new Swarm it matters more: see 10.16.</li>
+<li><b>The free piece.</b> RESOLVED for new fights in 2.7.00: it was a piece the board gave the creature when it had fewer than 2 out, and it looked like a second move. New fights do not get it. Saved fights do.</li>
 </ul>
 
 {h3('10.11', 'The board does not last', OP)}
@@ -1101,7 +1142,7 @@ w(f"""
 {h3('10.16', 'The new Swarm: what the sentence does not say', NW)}
 <ul>
 <li>Rule text: "Its Hurt hits +1 for every 2 of its other pieces on the board (up to +2). Use up or outlast its pieces to shrink it."</li>
-<li><b>It counts every piece of its:</b> start piece, free piece, Guards, Tricks. And the board hands a Critter a free piece whenever it has fewer than 2 out (<code>pfb_spawn</code>). "Outlast" therefore rarely gets it to zero: after a clean-out it is back at one or two pieces before your next turn. Earwig, seed 11: it had 2 or 3 pieces out at the start of 5 of my 8 turns.</li>
+<li><b>It counts every piece of its:</b> start piece, free piece, Guards, Tricks. Until 2.7.00 the board also handed a Critter a free piece whenever it had fewer than 2 out (<code>pfb_spawn</code>); new fights no longer get it, so "Outlast" can get it to zero now. I did not re-measure that. The next lines are from 2.6.990, with the free piece: after a clean-out it is back at one or two pieces before your next turn. Earwig, seed 11: it had 2 or 3 pieces out at the start of 5 of my 8 turns.</li>
 <li><b>It works in your chain too.</b> A Critter Hurt that your chain fires hits with the bonus (<code>pfb_fire</code>, <code>pfboard.php</code> line 681 has no check of whose chain it is). The lit cell shows the cost, the rule text does not say it.</li>
 <li><b>The chip is silent.</b> "Swarm" shows no "+1" the way Grudge shows "x2". The aim number has it inside. A player who wants to know why Nip 5 reads 6 has to count pieces.</li>
 <li><b>Small creatures hit as hard as you now.</b> With x0.6 gone, the Earwig's Nip is 5 against my Chop 5, on a gnome with 32 health. An Ambush of two of its pieces with +1 each read 17: more than half my health in one aim, on turn 3 of a level 4 fight. I broke that aim; a new player would not know how.</li>
@@ -1332,24 +1373,24 @@ cover = f"""
   <div class="sub">The rule book for the v1 board</div>
   <div class="rule"></div>
   <div class="meta">
-    Gnome Venture 2.6.990 (live) · <code>origin/main</code>, merge <code>33b0f9af</code><br>
-    Written for the owner's review. Second edition, 15 November 2026<br>
-    (first edition: 14 November 2026, for 2.6.986)<br>
+    Gnome Venture 2.7.00 (<code>main</code>, 15 November 2026)<br>
+    Written for the owner's review. Third edition, 15 November 2026<br>
+    (second edition: 2.6.990. First edition: 14 November 2026, for 2.6.986)<br>
     Rules as a <b>new fight</b> plays them today: 4 by 4 board, one shared Yield bar, class rules on<br><br>
     Every rule here was read in the code (<code>game/includes/pfboard.php</code>, <code>pfight.php</code>, <code>pfdeck.php</code>, the data files).<br>
-    Most were also seen in play on the 2.6.990 engine: 4 fights by hand, 2 short ones with legendary pieces,<br>
-    and 684 by fixed policies. Every figure from play was measured again for this edition.<br>
+    The new 2.7.00 rules (chain order, the missing free piece, wearables) are read in the code only.<br>
+    The played fights and the 684 policy fights are from the 2.6.990 edition and were <b>not</b> redone.<br>
     No game file was changed. No rule was invented.
   </div>
   <div class="meta" style="margin-top:22pt">
-    {P} seen in my own play on 2.6.990 &nbsp;&nbsp; {C} read in the code only &nbsp;&nbsp; {Q} could not verify
+    {P} seen in my own play on 2.6.990 (not redone for 2.7.00) &nbsp;&nbsp; {C} read in the code only &nbsp;&nbsp; {Q} could not verify
   </div>
 </div>
 """
 
 html = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Puzzle Combat: the rule book for the v1 board (2.6.990)</title>
+<title>Puzzle Combat: the rule book for the v1 board (2.7.00)</title>
 <style>{CSS}</style></head>
 <body>
 {cover}

@@ -1,3 +1,22 @@
+# Puzzle Combat rule book: third edition (2.7.00)
+
+15 November 2026. Rules re-read in the code on `main` at 2.7.00. 60 pages (was 58). Nothing was replayed.
+
+| Section | Change |
+|---|---|
+| Cover, title, footer, 1 intro | 2.7.00, third edition; says what was and was not redone |
+| 1.6 | New row for 2.7.00 and a note on what the edition covers |
+| 3.1 | Fine wearable counts as Rare |
+| 3.6 | Keepsake slots 1 / 2 / 3 / 4 at levels 1 / 15 / 25 / 40 (were 2, 2, 3, 3) |
+| **3.8 (new)** | Wearables and the Tailor |
+| 5.4 | Chain fires in rank order (environment, guard, tricks, hurt/charm, healing); old order for saved fights |
+| 6.1, 6.5.1, 10, 10.16 | The creature's free piece is gone in new fights (`spawn` 0) |
+| Cheat sheet | Chain line |
+
+Not redone: the four appendix fights, the 684 policy fights, figure 7 (all 2.6.990, old order, free piece on). Bots do not value the new order or wearables; no balance run with wearables.
+
+---
+
 # Puzzle Combat rule book: changes from the 2.6.986 edition to the 2.6.990 edition
 
 Second edition, 15 November 2026. Code read from `origin/main` (merge `33b0f9af`, version 2.6.990). 58 pages (was 42).
