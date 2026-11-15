@@ -54,17 +54,17 @@ Each needs: the hook in PHP and the JS twin, a line in `PF_TAGS_V1` and the icon
 | 34 | Carob | luck | **Carob Crust** | Guard | 5 | Hardy (+2) | A thick crust. |
 | 35 | Coffee | luck | **Coffee Rush** | Hurt | 4 | PLENTY | Next round you pick from 6 pieces. |
 | 36 | Durian | luck | **Durian Stink** | Guard | 5 | Thorns | Hurts the creature when it hits you. |
-| 37 | Finger Lime | luck | **Lime Pearls** | Item | 5 | Soft touch | Pops sour; also calms the creature. |
+| 37 | Finger Lime | luck | **Lime Pearls** | Heal | 4 | Soft touch | Pops sour, heals, and calms the creature. |
 | 38 | Kava | luck | **Kava Calm** | Soothe | 6 | - | Its next hits do less. |
 | 39 | Mangosteen | luck | **Mangosteen Gold** | Heal | 6 | - | The plain big heal. |
-| 40 | Quince | luck | **Quince Jelly** | Guard | 5 | KEEPER | Keeps in your hand until you play it. |
+| 40 | Quince | luck | **Quince Jelly** | Guard | 6 | KEEPER | Keeps in your hand until you play it. |
 | 41 | Salak | luck | **Snakeskin Plate** | Guard | 5 | Evade | The creature's first hit misses. |
 | 42 | Yuzu | luck | **Yuzu Zest** | Item | 4 | Soft touch | A sharp snack; also calms the creature. |
 
 ## Checks I made
 
 - 42 pieces, one per treasure crop, no crop left out (the list comes from `region_crops.txt`).
-- No two pieces share the same type, effect and value (a test would enforce this).
+- No two pieces share the same type, effect and value (checked by script on this draft; a test would enforce it).
 - Balance: values 3 to 7 at rank I; the strongest plain hits are Macadamia Smash (Hurt 7) and the poison / finisher mixes (Hurt 6). Today's kind pieces sit at 3 to 5. A test would require every legendary piece to be within +2 of a same-type kind piece at the same rank.
 - Types by stat: lore (11 nuts) = Hurt, Soothe, Guard, Pluck; charm (11 spices) = Charm and poison Hurts; luck (19 fruit and trees) = Heal, Item, Guard, Charm, Soothe; grit (sugarcane) = Hurt. The family spread keeps a Larder of 3 to 5 able to cover Hurt, Guard, Heal and Charm.
 
