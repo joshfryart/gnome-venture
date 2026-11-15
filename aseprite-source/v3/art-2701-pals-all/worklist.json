@@ -1,0 +1,6258 @@
+[
+ [
+  {
+   "pic": "maplewold",
+   "key": "mw-leaf-tuck",
+   "name": "Leaf Tuck",
+   "slug": "leaf-tuck",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "edge-TTB",
+   "knob": "round",
+   "blurb": "Folds itself into the nearest red leaf pile."
+  },
+  {
+   "pic": "maizehollow",
+   "key": "mh-cob-scout",
+   "name": "Cob Scout",
+   "slug": "cob-scout",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TBB",
+   "knob": "peg",
+   "blurb": "Counts rows of kernels to keep from getting lost."
+  },
+  {
+   "pic": "maizehollow",
+   "key": "mh-kernel-knock",
+   "name": "Kernel Knock",
+   "slug": "kernel-knock",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBBB",
+   "knob": "round",
+   "blurb": "Knocks twice, then pops with excitement."
+  },
+  {
+   "pic": "maizehollow",
+   "key": "mh-stitch-crow",
+   "name": "Stitch Crow",
+   "slug": "stitch-crow",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTBB",
+   "knob": "hook",
+   "blurb": "A scarecrow\u2019s apprentice, very serious about hats."
+  },
+  {
+   "pic": "maizehollow",
+   "key": "mh-golden-ring",
+   "name": "Golden Ring",
+   "slug": "golden-ring",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A hole shaped like a good harvest."
+  },
+  {
+   "pic": "maizehollow",
+   "key": "mh-popcorn-moon",
+   "name": "Popcorn Moon",
+   "slug": "popcorn-moon",
+   "rarity": "rare",
+   "calling": "brewroot",
+   "shape": "whimsy-moon",
+   "knob": "double",
+   "blurb": "Rises over the field and goes pop at midnight."
+  },
+  {
+   "pic": "sunsprinkle",
+   "key": "ss-palm-fidget",
+   "name": "Palm Fidget",
+   "slug": "palm-fidget",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "edge-BTB",
+   "knob": "keyhole",
+   "blurb": "Cannot sit still when the breeze is fresh."
+  },
+  {
+   "pic": "sunsprinkle",
+   "key": "ss-tide-tuck",
+   "name": "Tide Tuck",
+   "slug": "tide-tuck",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TTTB",
+   "knob": "round",
+   "blurb": "Tucks itself into the sand just before a wave."
+  }
+ ],
+ [
+  {
+   "pic": "sunsprinkle",
+   "key": "ss-coral-cuff",
+   "name": "Coral Cuff",
+   "slug": "coral-cuff",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four tiny reefs on four small knobs."
+  },
+  {
+   "pic": "sunsprinkle",
+   "key": "ss-lagoon-loop",
+   "name": "Lagoon Loop",
+   "slug": "lagoon-loop",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "A hole in the picture where a lagoon winks."
+  },
+  {
+   "pic": "rainroot",
+   "key": "rr-hammock-hush",
+   "name": "Hammock Hush",
+   "slug": "hammock-hush",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "edge-BTB",
+   "knob": "keyhole",
+   "blurb": "Hangs upside down for hours and calls it thinking."
+  },
+  {
+   "pic": "rainroot",
+   "key": "rr-bromeliad-bolt",
+   "name": "Bromeliad Bolt",
+   "slug": "bromeliad-bolt",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "tri",
+   "blurb": "Keeps a cup of rain in its spiky crown and shares it with nobody."
+  },
+  {
+   "pic": "rainroot",
+   "key": "rr-highland-ring",
+   "name": "Highland Ring",
+   "slug": "highland-ring",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A cloud-cold hoop that claims to be the highest hoop in the world."
+  },
+  {
+   "pic": "mistmoor",
+   "key": "mm-skerry-seal",
+   "name": "Skerry Seal",
+   "slug": "skerry-seal",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "Barks at the lighthouse and waits for a fish to be invented."
+  },
+  {
+   "pic": "mistmoor",
+   "key": "mm-peat-sip",
+   "name": "Peat Sip",
+   "slug": "peat-sip",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBBB",
+   "knob": "peg",
+   "blurb": "Puffs warm smoke over the cottage roof and hums about tea."
+  },
+  {
+   "pic": "mistmoor",
+   "key": "mm-kite-knot",
+   "name": "Kite Knot",
+   "slug": "kite-knot",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTBB",
+   "knob": "hook",
+   "blurb": "Ties its tail in a bow and flies off in a huff."
+  }
+ ],
+ [
+  {
+   "pic": "olivewhistle",
+   "key": "ow-net-nudge",
+   "name": "Net Nudge",
+   "slug": "net-nudge",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "Mends one net a day and nudges the fish towards the quay."
+  },
+  {
+   "pic": "olivewhistle",
+   "key": "ow-olive-pip",
+   "name": "Olive Pip",
+   "slug": "olive-pip",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "edge-TBT",
+   "knob": "double",
+   "blurb": "Grew up in an olive grove and still thinks every tree is hers."
+  },
+  {
+   "pic": "olivewhistle",
+   "key": "ow-jar-hum",
+   "name": "Jar Hum",
+   "slug": "jar-hum",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "peg",
+   "blurb": "Hums at the oil jars until they hum back."
+  },
+  {
+   "pic": "olivewhistle",
+   "key": "ow-sun-glint",
+   "name": "Sun Glint",
+   "slug": "sun-glint",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTTT",
+   "knob": "tri",
+   "blurb": "Winks off the sea at breakfast and keeps going all afternoon."
+  },
+  {
+   "pic": "olivewhistle",
+   "key": "ow-press-ring",
+   "name": "Press Ring",
+   "slug": "press-ring",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A stone hoop that squeezes the most golden oil in town."
+  },
+  {
+   "pic": "olivewhistle",
+   "key": "ow-harbour-leap",
+   "name": "Harbour Leap",
+   "slug": "harbour-leap",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-dolphin",
+   "knob": "hook",
+   "blurb": "Leaps the breakwater and lands in the same bay every time."
+  },
+  {
+   "pic": "birchbramble",
+   "key": "bb-slushbelly",
+   "name": "Slushbelly",
+   "slug": "slushbelly",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-BB",
+   "knob": "round",
+   "blurb": "Melts a little every time somebody is looking."
+  },
+  {
+   "pic": "birchbramble",
+   "key": "bb-gander-gait",
+   "name": "Gander Gait",
+   "slug": "gander-gait",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "Marches in a neat line and expects everyone to follow."
+  }
+ ],
+ [
+  {
+   "pic": "birchbramble",
+   "key": "bb-samovar-puff",
+   "name": "Samovar Puff",
+   "slug": "samovar-puff",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBBB",
+   "knob": "peg",
+   "blurb": "Steams up the porch and pours tea nobody asked for."
+  },
+  {
+   "pic": "birchbramble",
+   "key": "bb-catkin-crown",
+   "name": "Catkin Crown",
+   "slug": "catkin-crown",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Wears a crown of catkins and sneezes gold when pleased."
+  },
+  {
+   "pic": "birchbramble",
+   "key": "bb-chimney-nest",
+   "name": "Chimney Nest",
+   "slug": "chimney-nest",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "A stork\u2019s nest on a chimney, and a stork who never moves out."
+  },
+  {
+   "pic": "birchbramble",
+   "key": "bb-homing-stork",
+   "name": "Homing Stork",
+   "slug": "homing-stork",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-stork",
+   "knob": "tri",
+   "blurb": "Knows the way home from anywhere and never asks directions."
+  },
+  {
+   "pic": "dunewhisper",
+   "key": "dw-sherbet-sip",
+   "name": "Sherbet Sip",
+   "slug": "sherbet-sip",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "corner-TT",
+   "knob": "round",
+   "blurb": "Pours mint tea from very high up and hopes nobody spills."
+  },
+  {
+   "pic": "dunewhisper",
+   "key": "dw-scarab-roll",
+   "name": "Scarab Roll",
+   "slug": "scarab-roll",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-BTB",
+   "knob": "keyhole",
+   "blurb": "Rolls a tiny ball of sand across the dunes at a steady pace."
+  },
+  {
+   "pic": "dunewhisper",
+   "key": "dw-lantern-lark",
+   "name": "Lantern Lark",
+   "slug": "lantern-lark",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBBB",
+   "knob": "peg",
+   "blurb": "Sings to the lantern strings until the sky turns violet."
+  },
+  {
+   "pic": "dunewhisper",
+   "key": "dw-canyon-crown",
+   "name": "Canyon Crown",
+   "slug": "canyon-crown",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTTT",
+   "knob": "tri",
+   "blurb": "Wears a rose-red crown of cliff and never takes it off."
+  }
+ ],
+ [
+  {
+   "pic": "dunewhisper",
+   "key": "dw-oasis-hoop",
+   "name": "Oasis Hoop",
+   "slug": "oasis-hoop",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "Floats in the oasis pool and keeps a date for every friend."
+  },
+  {
+   "pic": "dunewhisper",
+   "key": "dw-mirage-moon",
+   "name": "Mirage Moon",
+   "slug": "mirage-moon",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-moon",
+   "knob": "keyhole",
+   "blurb": "Shines over the dunes and makes the camels blink."
+  },
+  {
+   "pic": "greatcanopy",
+   "key": "gc-calabash-cup",
+   "name": "Calabash Cup",
+   "slug": "calabash-cup",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-BB",
+   "knob": "round",
+   "blurb": "A gourd that catches roof rain and passes it along politely."
+  },
+  {
+   "pic": "greatcanopy",
+   "key": "gc-drum-tap",
+   "name": "Drum Tap",
+   "slug": "drum-tap",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "edge-TBB",
+   "knob": "double",
+   "blurb": "Taps a rhythm on the pavilion and gets the rain to join in."
+  },
+  {
+   "pic": "greatcanopy",
+   "key": "gc-yam-nub",
+   "name": "Yam Nub",
+   "slug": "yam-nub",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "peg",
+   "blurb": "A knobbly root that giggles whenever it is dug up."
+  },
+  {
+   "pic": "greatcanopy",
+   "key": "gc-shellstep",
+   "name": "Shellstep",
+   "slug": "shellstep",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Takes a very slow walk to the stall and still arrives on time."
+  },
+  {
+   "pic": "greatcanopy",
+   "key": "gc-canopy-loop",
+   "name": "Canopy Loop",
+   "slug": "canopy-loop",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "Swings from bridge to bridge and says good morning to every parrot."
+  },
+  {
+   "pic": "greatcanopy",
+   "key": "gc-parrot-pennant",
+   "name": "Parrot Pennant",
+   "slug": "parrot-pennant",
+   "rarity": "rare",
+   "calling": "thornblade",
+   "shape": "whimsy-parrot",
+   "knob": "hook",
+   "blurb": "Repeats everything the rain says, then shouts it louder."
+  }
+ ],
+ [
+  {
+   "pic": "thornacre",
+   "key": "th-coffee-crumb",
+   "name": "Coffee Crumb",
+   "slug": "coffee-crumb",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "corner-TT",
+   "knob": "round",
+   "blurb": "Roasts the beans with great care and a very large hat."
+  },
+  {
+   "pic": "thornacre",
+   "key": "th-flamingo-flick",
+   "name": "Flamingo Flick",
+   "slug": "flamingo-flick",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "edge-BTB",
+   "knob": "keyhole",
+   "blurb": "Stands on one leg in the waterhole and dares you to try."
+  },
+  {
+   "pic": "thornacre",
+   "key": "th-termite-tower",
+   "name": "Termite Tower",
+   "slug": "termite-tower",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "inner-TBBB",
+   "knob": "round",
+   "blurb": "Builds a red tower one grain at a time and never says sorry."
+  },
+  {
+   "pic": "thornacre",
+   "key": "th-acacia-antler",
+   "name": "Acacia Antler",
+   "slug": "acacia-antler",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTTT",
+   "knob": "tri",
+   "blurb": "Grows antler-like twigs and hangs weaver nests from every one."
+  },
+  {
+   "pic": "thornacre",
+   "key": "th-kopje-keeper",
+   "name": "Kopje Keeper",
+   "slug": "kopje-keeper",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTBB",
+   "knob": "hook",
+   "blurb": "Keeps a stony watch over the savanna and never once blinks."
+  },
+  {
+   "pic": "thornacre",
+   "key": "th-tall-tiptoe",
+   "name": "Tall Tiptoe",
+   "slug": "tall-tiptoe",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-giraffe",
+   "knob": "double",
+   "blurb": "Reaches the top leaves before anybody else is out of bed."
+  },
+  {
+   "pic": "spicepeak",
+   "key": "sp-saffron-snip",
+   "name": "Saffron Snip",
+   "slug": "saffron-snip",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-BB",
+   "knob": "round",
+   "blurb": "Snips saffron threads with tiny scissors and hums while picking."
+  },
+  {
+   "pic": "spicepeak",
+   "key": "sp-yak-yonder",
+   "name": "Yak Yonder",
+   "slug": "yak-yonder",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TTB",
+   "knob": "double",
+   "blurb": "Leads a laden yak across the bridge, because yonder is always further."
+  }
+ ],
+ [
+  {
+   "pic": "spicepeak",
+   "key": "sp-chilli-chime",
+   "name": "Chilli Chime",
+   "slug": "chilli-chime",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "peg",
+   "blurb": "Hangs chilli garlands that tinkle whenever the wind comes through."
+  },
+  {
+   "pic": "spicepeak",
+   "key": "sp-stupa-snug",
+   "name": "Stupa Snug",
+   "slug": "stupa-snug",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Sits snug under a white dome and keeps the prayer flags tidy."
+  },
+  {
+   "pic": "spicepeak",
+   "key": "sp-teal-ferry",
+   "name": "Teal Ferry",
+   "slug": "teal-ferry",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTBB",
+   "knob": "hook",
+   "blurb": "Ferries flower boats down the teal river and waves at every fish."
+  },
+  {
+   "pic": "spicepeak",
+   "key": "sp-lofty-kite",
+   "name": "Lofty Kite",
+   "slug": "lofty-kite",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-kite",
+   "knob": "tri",
+   "blurb": "Flies high over the ridge and always looks down on everything."
+  },
+  {
+   "pic": "blossomreach",
+   "key": "br-petal-pinch",
+   "name": "Petal Pinch",
+   "slug": "petal-pinch",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "corner-TT",
+   "knob": "round",
+   "blurb": "Pinches one pink petal from every tree and keeps them in a pocket."
+  },
+  {
+   "pic": "blossomreach",
+   "key": "br-koi-kin",
+   "name": "Koi Kin",
+   "slug": "koi-kin",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBT",
+   "knob": "keyhole",
+   "blurb": "Swims round the koi pond with a great many cousins, all orange."
+  },
+  {
+   "pic": "blossomreach",
+   "key": "br-panda-puff",
+   "name": "Panda Puff",
+   "slug": "panda-puff",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TTTB",
+   "knob": "peg",
+   "blurb": "A fluffy bamboo fan who eats one stalk at a time, very slowly."
+  },
+  {
+   "pic": "blossomreach",
+   "key": "br-pagoda-pin",
+   "name": "Pagoda Pin",
+   "slug": "pagoda-pin",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Points to the top of the pagoda and says it was up there first."
+  }
+ ],
+ [
+  {
+   "pic": "blossomreach",
+   "key": "br-torii-loop",
+   "name": "Torii Loop",
+   "slug": "torii-loop",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "hook",
+   "blurb": "Hops through every red gate on the stairs and comes back for more."
+  },
+  {
+   "pic": "blossomreach",
+   "key": "br-dragon-dart",
+   "name": "Dragon Dart",
+   "slug": "dragon-dart",
+   "rarity": "rare",
+   "calling": "thornblade",
+   "shape": "whimsy-dragonfly",
+   "knob": "tri",
+   "blurb": "Darts over the koi pond on paper wings and winks at the Long Wall."
+  },
+  {
+   "pic": "monsoontangle",
+   "key": "mt-stilt-stoop",
+   "name": "Stilt Stoop",
+   "slug": "stilt-stoop",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "Lives up on stilts and waves at the canal every morning."
+  },
+  {
+   "pic": "monsoontangle",
+   "key": "mt-seedling-plod",
+   "name": "Seedling Plod",
+   "slug": "seedling-plod",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TBB",
+   "knob": "peg",
+   "blurb": "Plods through the paddy one seedling at a time and sings to each."
+  },
+  {
+   "pic": "monsoontangle",
+   "key": "mt-lotus-lump",
+   "name": "Lotus Lump",
+   "slug": "lotus-lump",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "Floats on the canal and sleeps through the whole downpour."
+  },
+  {
+   "pic": "monsoontangle",
+   "key": "mt-sky-lantern",
+   "name": "Sky Lantern",
+   "slug": "sky-lantern",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTTT",
+   "knob": "tri",
+   "blurb": "Drifts up at dusk and tells the rain to hurry along."
+  },
+  {
+   "pic": "monsoontangle",
+   "key": "mt-fig-knot",
+   "name": "Fig Knot",
+   "slug": "fig-knot",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTBB",
+   "knob": "hook",
+   "blurb": "Wraps itself round the temple and never lets go of a secret."
+  },
+  {
+   "pic": "monsoontangle",
+   "key": "mt-bill-brolly",
+   "name": "Bill Brolly",
+   "slug": "bill-brolly",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-hornbill",
+   "knob": "double",
+   "blurb": "Carries a giant leaf for an umbrella and shares it with the nearest frog."
+  }
+ ],
+ [
+  {
+   "pic": "coralscatter",
+   "key": "cs-snorkel-snip",
+   "name": "Snorkel Snip",
+   "slug": "snorkel-snip",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-BB",
+   "knob": "round",
+   "blurb": "Snorkels the reef with a shell in each hand and no plan at all."
+  },
+  {
+   "pic": "coralscatter",
+   "key": "cs-octo-ogle",
+   "name": "Octo Ogle",
+   "slug": "octo-ogle",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "Ogles every shiny thing in the lagoon and then stares some more."
+  },
+  {
+   "pic": "coralscatter",
+   "key": "cs-anemone-nudge",
+   "name": "Anemone Nudge",
+   "slug": "anemone-nudge",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "double",
+   "blurb": "Nudges the clownfish home whenever they wander too far."
+  },
+  {
+   "pic": "coralscatter",
+   "key": "cs-claw-sail",
+   "name": "Claw Sail",
+   "slug": "claw-sail",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTTT",
+   "knob": "tri",
+   "blurb": "Sails the outrigger with a crab-claw sail and a very large grin."
+  },
+  {
+   "pic": "coralscatter",
+   "key": "cs-grotto-glim",
+   "name": "Grotto Glim",
+   "slug": "grotto-glim",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "Glows with the glowworms in the cave and whispers ooh."
+  },
+  {
+   "pic": "coralscatter",
+   "key": "cs-keel-drift",
+   "name": "Keel Drift",
+   "slug": "keel-drift",
+   "rarity": "rare",
+   "calling": "thornblade",
+   "shape": "whimsy-turtle",
+   "knob": "hook",
+   "blurb": "Glides past the reef with a slow wink and a very old shell."
+  },
+  {
+   "pic": "pl-lair-barrow-of-the-frost-toad-c2f07b",
+   "key": "pl-frt-1",
+   "name": "Rime Crumb",
+   "slug": "rime-crumb",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TT",
+   "knob": "peg",
+   "blurb": "A crumb of frost the toad coughed up, still croaking softly."
+  },
+  {
+   "pic": "pl-lair-barrow-of-the-frost-toad-c2f07b",
+   "key": "pl-frt-2",
+   "name": "Puddle Croak",
+   "slug": "puddle-croak",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "hook",
+   "blurb": "Sits in a cold puddle and hums a lullaby for toads."
+  }
+ ],
+ [
+  {
+   "pic": "pl-lair-barrow-of-the-frost-toad-c2f07b",
+   "key": "pl-frt-3",
+   "name": "Thawdrop Pip",
+   "slug": "thawdrop-pip",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "tri",
+   "blurb": "A drop of spring meltwater saved from the toad\u2019s last yawn."
+  },
+  {
+   "pic": "pl-lair-barrow-of-the-frost-toad-c2f07b",
+   "key": "pl-frt-4",
+   "name": "Frostwart Bumps",
+   "slug": "frostwart-bumps",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four frosty warts off the toad\u2019s back that go bump in the cold."
+  },
+  {
+   "pic": "pl-lair-barrow-of-the-frost-toad-c2f07b",
+   "key": "pl-frt-5",
+   "name": "Barrow Peephole",
+   "slug": "barrow-peephole",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-BBBB",
+   "knob": "hook",
+   "blurb": "A peephole in the old barrow door, frosty round the edges."
+  },
+  {
+   "pic": "pl-lair-barrow-of-the-frost-toad-c2f07b",
+   "key": "pl-frt-6",
+   "name": "Barrow Icecrown",
+   "slug": "barrow-icecrown",
+   "rarity": "rare",
+   "calling": "thornblade",
+   "shape": "whimsy-icecrown",
+   "knob": "hook",
+   "blurb": "The frost toad\u2019s spare crown of ice, still croaking when nobody looks."
+  },
+  {
+   "pic": "pl-lair-condors-crag-c1d06d",
+   "key": "pl-cnd-1",
+   "name": "Crag Quill",
+   "slug": "crag-quill",
+   "rarity": "common",
+   "calling": "thornblade",
+   "shape": "corner-TB",
+   "knob": "hook",
+   "blurb": "A bronze quill the condor dropped, and it thinks it is a spear."
+  },
+  {
+   "pic": "pl-lair-condors-crag-c1d06d",
+   "key": "pl-cnd-2",
+   "name": "Ledge Feather",
+   "slug": "ledge-feather",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-BTB",
+   "knob": "tri",
+   "blurb": "Drifts off every ledge and always finds its way back."
+  },
+  {
+   "pic": "pl-lair-condors-crag-c1d06d",
+   "key": "pl-cnd-3",
+   "name": "Updraft Fluff",
+   "slug": "updraft-fluff",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "peg",
+   "blurb": "A puff of cream neck fluff that rides the wind to see the view."
+  },
+  {
+   "pic": "pl-lair-condors-crag-c1d06d",
+   "key": "pl-cnd-4",
+   "name": "Talon Clutch",
+   "slug": "talon-clutch",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four curled talons that grip the crag and never let go."
+  }
+ ],
+ [
+  {
+   "pic": "pl-lair-condors-crag-c1d06d",
+   "key": "pl-cnd-5",
+   "name": "Nest Wobble",
+   "slug": "nest-wobble",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-TTBB",
+   "knob": "hook",
+   "blurb": "A twiggy nest on a cloud that sways in the wind and never quite falls off."
+  },
+  {
+   "pic": "pl-lair-condors-crag-c1d06d",
+   "key": "pl-cnd-6",
+   "name": "Grand Condor Plume",
+   "slug": "grand-condor-plume",
+   "rarity": "rare",
+   "calling": "thornblade",
+   "shape": "whimsy-condor",
+   "knob": "peg",
+   "blurb": "The biggest feather the Grand Condor ever dropped, and it still floats."
+  },
+  {
+   "pic": "pl-lair-den-of-the-great-white-owl-34dfad",
+   "key": "pl-owl-1",
+   "name": "Pinfeather Hush",
+   "slug": "pinfeather-hush",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-TT",
+   "knob": "peg",
+   "blurb": "A soft brown feather that hushes anything trying to hoot."
+  },
+  {
+   "pic": "pl-lair-den-of-the-great-white-owl-34dfad",
+   "key": "pl-owl-2",
+   "name": "Nightglow Fleck",
+   "slug": "nightglow-fleck",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-BTB",
+   "knob": "hook",
+   "blurb": "A fleck of moon the owl dropped on the way home."
+  },
+  {
+   "pic": "pl-lair-den-of-the-great-white-owl-34dfad",
+   "key": "pl-owl-3",
+   "name": "Aurora Thread",
+   "slug": "aurora-thread",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "inner-TBTB",
+   "knob": "tri",
+   "blurb": "A green and purple thread the owl wears like a scarf."
+  },
+  {
+   "pic": "pl-lair-den-of-the-great-white-owl-34dfad",
+   "key": "pl-owl-4",
+   "name": "Owlet Peep",
+   "slug": "owlet-peep",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "A sleepy owlet in the den who peeps when it is bored."
+  },
+  {
+   "pic": "pl-lair-den-of-the-great-white-owl-34dfad",
+   "key": "pl-owl-5",
+   "name": "Snowcrag Halo",
+   "slug": "snowcrag-halo",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-BBBB",
+   "knob": "peg",
+   "blurb": "A round snowy hollow where the owlets nap under the aurora."
+  },
+  {
+   "pic": "pl-lair-den-of-the-great-white-owl-34dfad",
+   "key": "pl-owl-6",
+   "name": "Great White Plumelet",
+   "slug": "great-white-plumelet",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-feather",
+   "knob": "hook",
+   "blurb": "The great white owl\u2019s finest feather, dipped in aurora light."
+  }
+ ],
+ [
+  {
+   "pic": "pl-lair-dragonlizard-den-418047",
+   "key": "pl-dlz-1",
+   "name": "Scalecrust Tot",
+   "slug": "scalecrust-tot",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "hook",
+   "blurb": "A tiny scale that flakes off every time it laughs."
+  },
+  {
+   "pic": "pl-lair-dragonlizard-den-418047",
+   "key": "pl-dlz-2",
+   "name": "Tongue Flicker",
+   "slug": "tongue-flicker",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "edge-TBT",
+   "knob": "tri",
+   "blurb": "A forked red tongue that flicks at flies and misses on purpose."
+  },
+  {
+   "pic": "pl-lair-dragonlizard-den-418047",
+   "key": "pl-dlz-3",
+   "name": "Tail Tick",
+   "slug": "tail-tick",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "double",
+   "blurb": "Ticks its tail against every rock on the path just to hear it."
+  },
+  {
+   "pic": "pl-lair-dragonlizard-den-418047",
+   "key": "pl-dlz-4",
+   "name": "Diamond Spur",
+   "slug": "diamond-spur",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "hook",
+   "blurb": "Four diamond bumps off the lizard\u2019s back, very proud of their pattern."
+  },
+  {
+   "pic": "pl-lair-dragonlizard-den-418047",
+   "key": "pl-dlz-5",
+   "name": "Karst Yawn",
+   "slug": "karst-yawn",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTBB",
+   "knob": "peg",
+   "blurb": "A scrap of the dark den mouth that yawns whenever the lizard does."
+  },
+  {
+   "pic": "pl-lair-dragonlizard-den-418047",
+   "key": "pl-dlz-6",
+   "name": "Mossback Monitor",
+   "slug": "mossback-monitor",
+   "rarity": "rare",
+   "calling": "thornblade",
+   "shape": "whimsy-lizard",
+   "knob": "double",
+   "blurb": "A pocket-sized monitor lizard, polished by a hundred jungle naps."
+  },
+  {
+   "pic": "pl-lair-forge-of-the-cinder-wyrm-db3da4",
+   "key": "pl-cwy-1",
+   "name": "Ember Flake",
+   "slug": "ember-flake",
+   "rarity": "common",
+   "calling": "thornblade",
+   "shape": "corner-BB",
+   "knob": "hook",
+   "blurb": "A cinder that drifted off the wyrm\u2019s back and stayed warm."
+  },
+  {
+   "pic": "pl-lair-forge-of-the-cinder-wyrm-db3da4",
+   "key": "pl-cwy-2",
+   "name": "Slag Drip",
+   "slug": "slag-drip",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "tri",
+   "blurb": "A thick glowing drip that takes its time falling off the forge."
+  }
+ ],
+ [
+  {
+   "pic": "pl-lair-forge-of-the-cinder-wyrm-db3da4",
+   "key": "pl-cwy-3",
+   "name": "Scorch Sliver",
+   "slug": "scorch-sliver",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "inner-TBBB",
+   "knob": "peg",
+   "blurb": "A sharp red sliver that still smells faintly of smoke."
+  },
+  {
+   "pic": "pl-lair-forge-of-the-cinder-wyrm-db3da4",
+   "key": "pl-cwy-4",
+   "name": "Spine Spark",
+   "slug": "spine-spark",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four little spikes that pop like sparklers when stepped on."
+  },
+  {
+   "pic": "pl-lair-forge-of-the-cinder-wyrm-db3da4",
+   "key": "pl-cwy-5",
+   "name": "Ash Wreath",
+   "slug": "ash-wreath",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-BBBB",
+   "knob": "hook",
+   "blurb": "A hollow wreath of cool grey ash that still hopes for a fire."
+  },
+  {
+   "pic": "pl-lair-forge-of-the-cinder-wyrm-db3da4",
+   "key": "pl-cwy-6",
+   "name": "Last Forge Flame",
+   "slug": "last-forge-flame",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-flame",
+   "knob": "tri",
+   "blurb": "The wyrm\u2019s last little flame from the forge, curled up and dreaming of dragons."
+  },
+  {
+   "pic": "pl-lair-hollow-of-the-silverback-spider-65e1ea",
+   "key": "pl-sbs-1",
+   "name": "Silkthread Tuft",
+   "slug": "silkthread-tuft",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-TT",
+   "knob": "peg",
+   "blurb": "Spun from the spider\u2019s worries and still a little bit sticky."
+  },
+  {
+   "pic": "pl-lair-hollow-of-the-silverback-spider-65e1ea",
+   "key": "pl-sbs-2",
+   "name": "Web Snag",
+   "slug": "web-snag",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-BTB",
+   "knob": "hook",
+   "blurb": "A loose thread of web that snags hats, then hands them back."
+  },
+  {
+   "pic": "pl-lair-hollow-of-the-silverback-spider-65e1ea",
+   "key": "pl-sbs-3",
+   "name": "Buttress Tangle",
+   "slug": "buttress-tangle",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "inner-TBTB",
+   "knob": "tri",
+   "blurb": "A knot of silk tucked in the buttress roots, guarding a good hiding spot."
+  },
+  {
+   "pic": "pl-lair-hollow-of-the-silverback-spider-65e1ea",
+   "key": "pl-sbs-4",
+   "name": "Eightlegs Clasp",
+   "slug": "eightlegs-clasp",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Eight spider legs that hold on tight and wiggle."
+  }
+ ],
+ [
+  {
+   "pic": "pl-lair-hollow-of-the-silverback-spider-65e1ea",
+   "key": "pl-sbs-5",
+   "name": "Dewweb Eye",
+   "slug": "dewweb-eye",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "hook",
+   "blurb": "A round gap in the web, ringed with morning dew that sparkles."
+  },
+  {
+   "pic": "pl-lair-hollow-of-the-silverback-spider-65e1ea",
+   "key": "pl-sbs-6",
+   "name": "Silverback Spool",
+   "slug": "silverback-spool",
+   "rarity": "rare",
+   "calling": "seedkeeper",
+   "shape": "whimsy-spider",
+   "knob": "peg",
+   "blurb": "The big spider\u2019s spare spool, still humming its old web song."
+  },
+  {
+   "pic": "pl-lair-of-the-grey-wolf-king-d7db5e",
+   "key": "pl-gwk-1",
+   "name": "Fang Chip",
+   "slug": "fang-chip",
+   "rarity": "common",
+   "calling": "thornblade",
+   "shape": "corner-TT",
+   "knob": "hook",
+   "blurb": "A chipped wolf fang that only growls when the moon is out."
+  },
+  {
+   "pic": "pl-lair-of-the-grey-wolf-king-d7db5e",
+   "key": "pl-gwk-2",
+   "name": "Pawprint Cuff",
+   "slug": "pawprint-cuff",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "edge-TTB",
+   "knob": "double",
+   "blurb": "A soft snow cuff with one perfect pawprint pressed into it."
+  },
+  {
+   "pic": "pl-lair-of-the-grey-wolf-king-d7db5e",
+   "key": "pl-gwk-3",
+   "name": "Moonpale Mantle",
+   "slug": "moonpale-mantle",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "peg",
+   "blurb": "A pale scrap of mantle that only glows under the full moon."
+  },
+  {
+   "pic": "pl-lair-of-the-grey-wolf-king-d7db5e",
+   "key": "pl-gwk-4",
+   "name": "Crown Points",
+   "slug": "crown-points",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "tri",
+   "blurb": "Four little golden points from the king\u2019s old crown."
+  },
+  {
+   "pic": "pl-lair-of-the-grey-wolf-king-d7db5e",
+   "key": "pl-gwk-5",
+   "name": "Howl Echo",
+   "slug": "howl-echo",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTBB",
+   "knob": "hook",
+   "blurb": "A howl that rings around once and comes back a little smaller."
+  },
+  {
+   "pic": "pl-lair-of-the-grey-wolf-king-d7db5e",
+   "key": "pl-gwk-6",
+   "name": "Grey Wolf Whistle",
+   "slug": "grey-wolf-whistle",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-wolf",
+   "knob": "double",
+   "blurb": "A whistle the king carried, and the wolves still answer it."
+  }
+ ],
+ [
+  {
+   "pic": "pl-lair-of-the-hurricane-crab-9f245a",
+   "key": "pl-hcr-1",
+   "name": "Lightning Pinch",
+   "slug": "lightning-pinch",
+   "rarity": "common",
+   "calling": "thornblade",
+   "shape": "corner-BB",
+   "knob": "hook",
+   "blurb": "A little claw of lightning that snaps at anyone who sneezes."
+  },
+  {
+   "pic": "pl-lair-of-the-hurricane-crab-9f245a",
+   "key": "pl-hcr-2",
+   "name": "Shell Splinter",
+   "slug": "shell-splinter",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "edge-TBB",
+   "knob": "peg",
+   "blurb": "A bit of orange shell that rattles whenever the wind blows."
+  },
+  {
+   "pic": "pl-lair-of-the-hurricane-crab-9f245a",
+   "key": "pl-hcr-3",
+   "name": "Gust Ribbon",
+   "slug": "gust-ribbon",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "double",
+   "blurb": "A leaf ribbon that flutters around in a little circle."
+  },
+  {
+   "pic": "pl-lair-of-the-hurricane-crab-9f245a",
+   "key": "pl-hcr-4",
+   "name": "Whirl Pincer",
+   "slug": "whirl-pincer",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "tri",
+   "blurb": "Four pincers spun into a whirl and stuck together."
+  },
+  {
+   "pic": "pl-lair-of-the-hurricane-crab-9f245a",
+   "key": "pl-hcr-5",
+   "name": "Eye of the Storm",
+   "slug": "eye-of-the-storm",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "hook",
+   "blurb": "A calm round hole in the middle of a very loud wind."
+  },
+  {
+   "pic": "pl-lair-of-the-hurricane-crab-9f245a",
+   "key": "pl-hcr-6",
+   "name": "Gale Islander",
+   "slug": "gale-islander",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-crab",
+   "knob": "peg",
+   "blurb": "A pocket crab with a whole tiny island on its back, palm trees and all."
+  },
+  {
+   "pic": "pl-lair-of-the-jade-dragon-fly-88201f",
+   "key": "pl-jdf-1",
+   "name": "Wing Jot",
+   "slug": "wing-jot",
+   "rarity": "common",
+   "calling": "thornblade",
+   "shape": "corner-TT",
+   "knob": "tri",
+   "blurb": "A jade flake that falls off a wing and hums while it drifts."
+  },
+  {
+   "pic": "pl-lair-of-the-jade-dragon-fly-88201f",
+   "key": "pl-jdf-2",
+   "name": "Reedleg Cling",
+   "slug": "reedleg-cling",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBT",
+   "knob": "hook",
+   "blurb": "Holds onto the reeds with six tiny legs and will not let go."
+  }
+ ],
+ [
+  {
+   "pic": "pl-lair-of-the-jade-dragon-fly-88201f",
+   "key": "pl-jdf-3",
+   "name": "Jade Shimmer",
+   "slug": "jade-shimmer",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "inner-TBBB",
+   "knob": "peg",
+   "blurb": "A sparkly green shimmer that gets everywhere on sunny days."
+  },
+  {
+   "pic": "pl-lair-of-the-jade-dragon-fly-88201f",
+   "key": "pl-jdf-4",
+   "name": "Jadewing Quartet",
+   "slug": "jadewing-quartet",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four little wing bits that all want to go first."
+  },
+  {
+   "pic": "pl-lair-of-the-jade-dragon-fly-88201f",
+   "key": "pl-jdf-5",
+   "name": "Lantern Eye Pair",
+   "slug": "lantern-eye-pair",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTBB",
+   "knob": "tri",
+   "blurb": "A pair of orange eyes that glow whenever the dragonfly flies."
+  },
+  {
+   "pic": "pl-lair-of-the-jade-dragon-fly-88201f",
+   "key": "pl-jdf-6",
+   "name": "Lotus Perch",
+   "slug": "lotus-perch",
+   "rarity": "rare",
+   "calling": "bloomcaller",
+   "shape": "whimsy-lotus",
+   "knob": "hook",
+   "blurb": "A pink lotus where the jade dragon-fly naps, humming with its wingbeat."
+  },
+  {
+   "pic": "pl-lair-reef-of-the-box-jelly-queen-6c4091",
+   "key": "pl-bjq-1",
+   "name": "Tentacle Wisp",
+   "slug": "tentacle-wisp",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-TB",
+   "knob": "peg",
+   "blurb": "A pink tentacle curl that sways to music nobody else can hear."
+  },
+  {
+   "pic": "pl-lair-reef-of-the-box-jelly-queen-6c4091",
+   "key": "pl-bjq-2",
+   "name": "Clownfish Peek",
+   "slug": "clownfish-peek",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "edge-TTB",
+   "knob": "tri",
+   "blurb": "A little striped fish that peeks out of the coral, then hides again."
+  },
+  {
+   "pic": "pl-lair-reef-of-the-box-jelly-queen-6c4091",
+   "key": "pl-bjq-3",
+   "name": "Bell Bead",
+   "slug": "bell-bead",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "inner-TBTB",
+   "knob": "hook",
+   "blurb": "A tiny blue bell that only rings when the queen is near."
+  },
+  {
+   "pic": "pl-lair-reef-of-the-box-jelly-queen-6c4091",
+   "key": "pl-bjq-4",
+   "name": "Gold Spike Tiara",
+   "slug": "gold-spike-tiara",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four gold spikes from a crown that is mostly bubbles."
+  }
+ ],
+ [
+  {
+   "pic": "pl-lair-reef-of-the-box-jelly-queen-6c4091",
+   "key": "pl-bjq-5",
+   "name": "Jellybell Porthole",
+   "slug": "jellybell-porthole",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-BBBB",
+   "knob": "peg",
+   "blurb": "A see-through porthole in the queen\u2019s bell, her favourite window."
+  },
+  {
+   "pic": "pl-lair-reef-of-the-box-jelly-queen-6c4091",
+   "key": "pl-bjq-6",
+   "name": "Little Box Queen",
+   "slug": "little-box-queen",
+   "rarity": "rare",
+   "calling": "seedkeeper",
+   "shape": "whimsy-jelly",
+   "knob": "tri",
+   "blurb": "A box jelly as square as a cube who insists she is the queen."
+  },
+  {
+   "pic": "pl-lair-smokecap-caldera-32490a",
+   "key": "pl-smk-1",
+   "name": "Ashpuff Drifter",
+   "slug": "ashpuff-drifter",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-TT",
+   "knob": "hook",
+   "blurb": "A puff of crater smoke that drifts off looking for a warmer hat."
+  },
+  {
+   "pic": "pl-lair-smokecap-caldera-32490a",
+   "key": "pl-smk-2",
+   "name": "Smokecap Button",
+   "slug": "smokecap-button",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "edge-TBT",
+   "knob": "tri",
+   "blurb": "A little grey mushroom from the crater\u2019s edge that smells faintly of rain."
+  },
+  {
+   "pic": "pl-lair-smokecap-caldera-32490a",
+   "key": "pl-smk-3",
+   "name": "Ember Speckle",
+   "slug": "ember-speckle",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "inner-TBBB",
+   "knob": "peg",
+   "blurb": "A yellow spot that slid off the sleeping salamander and still glows."
+  },
+  {
+   "pic": "pl-lair-smokecap-caldera-32490a",
+   "key": "pl-smk-4",
+   "name": "Caldera Prongs",
+   "slug": "caldera-prongs",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four warm rock prongs from the crater rim where the salamander curls up."
+  },
+  {
+   "pic": "pl-lair-smokecap-caldera-32490a",
+   "key": "pl-smk-5",
+   "name": "Smoke Ringlet",
+   "slug": "smoke-ringlet",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-BBBB",
+   "knob": "hook",
+   "blurb": "A round hole of smoke that the wind keeps trying to fill."
+  },
+  {
+   "pic": "pl-lair-smokecap-caldera-32490a",
+   "key": "pl-smk-6",
+   "name": "Sleepy Salamander",
+   "slug": "sleepy-salamander",
+   "rarity": "rare",
+   "calling": "bloomcaller",
+   "shape": "whimsy-salamander",
+   "knob": "peg",
+   "blurb": "A pocket fire salamander that snores little smoke puffs in its sleep."
+  }
+ ],
+ [
+  {
+   "pic": "pl-lair-snowcrown-peak-52d64c",
+   "key": "pl-snw-1",
+   "name": "Frost Nibble",
+   "slug": "frost-nibble",
+   "rarity": "common",
+   "calling": "thornblade",
+   "shape": "corner-BB",
+   "knob": "hook",
+   "blurb": "A sliver of snow that nibbles at the tip of your nose."
+  },
+  {
+   "pic": "pl-lair-snowcrown-peak-52d64c",
+   "key": "pl-snw-2",
+   "name": "Acacia Sprig",
+   "slug": "acacia-sprig",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-BTB",
+   "knob": "peg",
+   "blurb": "A flat-top acacia sprig that always points toward the peak."
+  },
+  {
+   "pic": "pl-lair-snowcrown-peak-52d64c",
+   "key": "pl-snw-3",
+   "name": "Snowmelt Trickle",
+   "slug": "snowmelt-trickle",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "tri",
+   "blurb": "A tiny trickle off the snowcrown that giggles all the way down."
+  },
+  {
+   "pic": "pl-lair-snowcrown-peak-52d64c",
+   "key": "pl-snw-4",
+   "name": "Snowcrown Peaks",
+   "slug": "snowcrown-peaks",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four snowy points that poke up like the top of the mountain."
+  },
+  {
+   "pic": "pl-lair-snowcrown-peak-52d64c",
+   "key": "pl-snw-5",
+   "name": "Lion Paw Pair",
+   "slug": "lion-paw-pair",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-TTBB",
+   "knob": "hook",
+   "blurb": "A pair of big soft lion paws that never stop waving hello."
+  },
+  {
+   "pic": "pl-lair-snowcrown-peak-52d64c",
+   "key": "pl-snw-6",
+   "name": "Snowpeak Cub",
+   "slug": "snowpeak-cub",
+   "rarity": "rare",
+   "calling": "seedkeeper",
+   "shape": "whimsy-lion",
+   "knob": "peg",
+   "blurb": "A pocket mountain lion with a mane as fluffy as the peak\u2019s snow."
+  },
+  {
+   "pic": "pl-lair-temple-of-the-tiger-moth-b3f761",
+   "key": "pl-tgm-1",
+   "name": "Tiger Dust",
+   "slug": "tiger-dust",
+   "rarity": "common",
+   "calling": "thornblade",
+   "shape": "corner-TB",
+   "knob": "hook",
+   "blurb": "A dusting of orange wing powder that tickles the nose."
+  },
+  {
+   "pic": "pl-lair-temple-of-the-tiger-moth-b3f761",
+   "key": "pl-tgm-2",
+   "name": "Prayerflag Slip",
+   "slug": "prayerflag-slip",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TTB",
+   "knob": "double",
+   "blurb": "A bright prayer flag scrap that flutters only when it feels nervous."
+  }
+ ],
+ [
+  {
+   "pic": "pl-lair-temple-of-the-tiger-moth-b3f761",
+   "key": "pl-tgm-3",
+   "name": "Temple Chip",
+   "slug": "temple-chip",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "inner-TBBB",
+   "knob": "peg",
+   "blurb": "A grey stone flake from the temple steps that loves being counted."
+  },
+  {
+   "pic": "pl-lair-temple-of-the-tiger-moth-b3f761",
+   "key": "pl-tgm-4",
+   "name": "Tiger Wing Quad",
+   "slug": "tiger-wing-quad",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "tri",
+   "blurb": "Four orange and black wing bits that flap in four directions."
+  },
+  {
+   "pic": "pl-lair-temple-of-the-tiger-moth-b3f761",
+   "key": "pl-tgm-5",
+   "name": "Moonhoop",
+   "slug": "moonhoop",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A round moon hole the moth flutters through at night."
+  },
+  {
+   "pic": "pl-lair-temple-of-the-tiger-moth-b3f761",
+   "key": "pl-tgm-6",
+   "name": "Tiger Moth Locket",
+   "slug": "tiger-moth-locket",
+   "rarity": "rare",
+   "calling": "bloomcaller",
+   "shape": "whimsy-moth",
+   "knob": "hook",
+   "blurb": "A wing eyespot kept like a locket, glowing softly like a lantern."
+  },
+  {
+   "pic": "pl-lair-tomb-of-the-sand-scarab-c727bc",
+   "key": "pl-scr-1",
+   "name": "Pyramid Speck",
+   "slug": "pyramid-speck",
+   "rarity": "common",
+   "calling": "thornblade",
+   "shape": "corner-BB",
+   "knob": "hook",
+   "blurb": "A tan speck of tomb dust that wants to be a tiny pyramid."
+  },
+  {
+   "pic": "pl-lair-tomb-of-the-sand-scarab-c727bc",
+   "key": "pl-scr-2",
+   "name": "Scarab Glint",
+   "slug": "scarab-glint",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "edge-TBB",
+   "knob": "peg",
+   "blurb": "A teal shell chip with gold lines that catches the desert sun."
+  },
+  {
+   "pic": "pl-lair-tomb-of-the-sand-scarab-c727bc",
+   "key": "pl-scr-3",
+   "name": "Dune Ticktock",
+   "slug": "dune-ticktock",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "double",
+   "blurb": "A grain of dune sand that ticks like a clock and never tells the time."
+  },
+  {
+   "pic": "pl-lair-tomb-of-the-sand-scarab-c727bc",
+   "key": "pl-scr-4",
+   "name": "Scarab Leg March",
+   "slug": "scarab-leg-march",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "tri",
+   "blurb": "Four skinny legs that march back to the tomb each night."
+  }
+ ],
+ [
+  {
+   "pic": "pl-lair-tomb-of-the-sand-scarab-c727bc",
+   "key": "pl-scr-5",
+   "name": "Sundisk Window",
+   "slug": "sundisk-window",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "hook",
+   "blurb": "A golden disk over the tomb door, with a hole for peeking at noon."
+  },
+  {
+   "pic": "pl-lair-tomb-of-the-sand-scarab-c727bc",
+   "key": "pl-scr-6",
+   "name": "Sandlit Scarab Charm",
+   "slug": "sandlit-scarab-charm",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-scarab",
+   "knob": "double",
+   "blurb": "A cart-sized beetle shrunk to a charm, its red jewel still blinking."
+  },
+  {
+   "pic": "pl-delve-anaconda-hollows-734b93",
+   "key": "pl-ana-1",
+   "name": "Tailtip Tickle",
+   "slug": "tailtip-tickle",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TT",
+   "knob": "peg",
+   "blurb": "The tip of the anaconda\u2019s tail, which pokes out of the creek to tickle any toe it finds."
+  },
+  {
+   "pic": "pl-delve-anaconda-hollows-734b93",
+   "key": "pl-ana-2",
+   "name": "Tongue Taster",
+   "slug": "tongue-taster",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "edge-TBT",
+   "knob": "tri",
+   "blurb": "Tastes every breeze with a forked tongue and reports back to nobody."
+  },
+  {
+   "pic": "pl-delve-anaconda-hollows-734b93",
+   "key": "pl-ana-3",
+   "name": "Creek Sipper",
+   "slug": "creek-sipper",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "Sips the jungle creek one ripple at a time and burps out a bubble."
+  },
+  {
+   "pic": "pl-delve-anaconda-hollows-734b93",
+   "key": "pl-ana-4",
+   "name": "Scale Diamonds",
+   "slug": "scale-diamonds",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four diamond markings off the anaconda\u2019s back that shine like wet creek pebbles."
+  },
+  {
+   "pic": "pl-delve-anaconda-hollows-734b93",
+   "key": "pl-ana-5",
+   "name": "Coil Nest",
+   "slug": "coil-nest",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "peg",
+   "blurb": "The warm ring the anaconda curls into, with just enough room in the middle for a gnome nap."
+  },
+  {
+   "pic": "pl-delve-anaconda-hollows-734b93",
+   "key": "pl-ana-6",
+   "name": "Big Grin Anaconda",
+   "slug": "big-grin-anaconda",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-anaconda",
+   "knob": "round",
+   "blurb": "A huge anaconda coiled in the hollows creek, grinning from ear to ear, who only ever wants a hug."
+  }
+ ],
+ [
+  {
+   "pic": "pl-delve-beaverdam-tunnels-a12bc9",
+   "key": "pl-bvd-1",
+   "name": "Willow Chew",
+   "slug": "willow-chew",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-BB",
+   "knob": "round",
+   "blurb": "Chews one stick every morning and calls it breakfast in the lodge."
+  },
+  {
+   "pic": "pl-delve-beaverdam-tunnels-a12bc9",
+   "key": "pl-bvd-2",
+   "name": "Paddletail Slap",
+   "slug": "paddletail-slap",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "Slaps the pond with a flat tail to say hello, goodbye and dinner time."
+  },
+  {
+   "pic": "pl-delve-beaverdam-tunnels-a12bc9",
+   "key": "pl-bvd-3",
+   "name": "Tunnel Trickle",
+   "slug": "tunnel-trickle",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "tri",
+   "blurb": "A trickle that runs the flooded tunnels under the lodge and never takes a wrong turn."
+  },
+  {
+   "pic": "pl-delve-beaverdam-tunnels-a12bc9",
+   "key": "pl-bvd-4",
+   "name": "Damwall Logs",
+   "slug": "damwall-logs",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four stubby logs off the dam, piled crooked, that creak when a beaver leans on them."
+  },
+  {
+   "pic": "pl-delve-beaverdam-tunnels-a12bc9",
+   "key": "pl-bvd-5",
+   "name": "Lodge Door",
+   "slug": "lodge-door",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "The low round door of the lodge at the waterline, always open to a friend who can swim."
+  },
+  {
+   "pic": "pl-delve-beaverdam-tunnels-a12bc9",
+   "key": "pl-bvd-6",
+   "name": "Dam Captain",
+   "slug": "dam-captain",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-beaver",
+   "knob": "double",
+   "blurb": "A beaver captain whose flat tail keeps time for the whole dam while it chews."
+  },
+  {
+   "pic": "pl-delve-firefly-caves-dfbe7c",
+   "key": "pl-ffy-1",
+   "name": "Glowtail Dot",
+   "slug": "glowtail-dot",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-TT",
+   "knob": "round",
+   "blurb": "A firefly dot with a glowing tail that blinks on and off on purpose."
+  },
+  {
+   "pic": "pl-delve-firefly-caves-dfbe7c",
+   "key": "pl-ffy-2",
+   "name": "Canoe Glimmer",
+   "slug": "canoe-glimmer",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "edge-BTB",
+   "knob": "tri",
+   "blurb": "The little lamp on the outrigger canoe, which the fireflies think is a long-lost aunt."
+  }
+ ],
+ [
+  {
+   "pic": "pl-delve-firefly-caves-dfbe7c",
+   "key": "pl-ffy-3",
+   "name": "Lake Twinkle",
+   "slug": "lake-twinkle",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "peg",
+   "blurb": "A firefly\u2019s reflection that fell into the cave lake and keeps blinking from underneath."
+  },
+  {
+   "pic": "pl-delve-firefly-caves-dfbe7c",
+   "key": "pl-ffy-4",
+   "name": "Spare Wings",
+   "slug": "spare-wings",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four spare firefly wings in a neat stack, all of them fluttering at once."
+  },
+  {
+   "pic": "pl-delve-firefly-caves-dfbe7c",
+   "key": "pl-ffy-5",
+   "name": "Night Archway",
+   "slug": "night-archway",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "tri",
+   "blurb": "The round far mouth of the cave, where the moonlit night peeks in to count the fireflies."
+  },
+  {
+   "pic": "pl-delve-firefly-caves-dfbe7c",
+   "key": "pl-ffy-6",
+   "name": "Firefly Lamplighter",
+   "slug": "firefly-lamplighter",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-firefly",
+   "knob": "round",
+   "blurb": "A big chibi firefly who lights the cave one blink at a time and calls itself a star."
+  },
+  {
+   "pic": "pl-delve-fynbos-fire-trails-06ba6d",
+   "key": "pl-fyn-1",
+   "name": "Firelily Flicker",
+   "slug": "firelily-flicker",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "A fire lily that pops up orange from the ash, as if the flames left a present behind."
+  },
+  {
+   "pic": "pl-delve-fynbos-fire-trails-06ba6d",
+   "key": "pl-fyn-2",
+   "name": "Ash Sprout",
+   "slug": "ash-sprout",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "peg",
+   "blurb": "A green sprout that pops up through the ash the week after the fire."
+  },
+  {
+   "pic": "pl-delve-fynbos-fire-trails-06ba6d",
+   "key": "pl-fyn-3",
+   "name": "Charcoal Twiglet",
+   "slug": "charcoal-twiglet",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "tri",
+   "blurb": "A charred fynbos twig with one ember still glowing at its tip, like a sleepy candle."
+  },
+  {
+   "pic": "pl-delve-fynbos-fire-trails-06ba6d",
+   "key": "pl-fyn-4",
+   "name": "Protea Petals",
+   "slug": "protea-petals",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "A king protea as big as a dassie\u2019s head, with pink petals pointing every way at once."
+  }
+ ],
+ [
+  {
+   "pic": "pl-delve-fynbos-fire-trails-06ba6d",
+   "key": "pl-fyn-5",
+   "name": "Sunset Gap",
+   "slug": "sunset-gap",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A gap in the smoke where the dusk sun peeks over the ridge before bed."
+  },
+  {
+   "pic": "pl-delve-fynbos-fire-trails-06ba6d",
+   "key": "pl-fyn-6",
+   "name": "Trail Dassie",
+   "slug": "trail-dassie",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-dassie",
+   "knob": "double",
+   "blurb": "A chibi rock dassie sitting on the ash trail, sniffing a protea as if it were cake."
+  },
+  {
+   "pic": "pl-delve-jaguar-root-caves-0a418b",
+   "key": "pl-jrc-1",
+   "name": "Rosette Nub",
+   "slug": "rosette-nub",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-BB",
+   "knob": "round",
+   "blurb": "A spotty rosette the jaguar lost in the root tangle, still purring."
+  },
+  {
+   "pic": "pl-delve-jaguar-root-caves-0a418b",
+   "key": "pl-jrc-2",
+   "name": "Rootlet Swing",
+   "slug": "rootlet-swing",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "peg",
+   "blurb": "Swings from a hanging root over the cave path and drops onto the jaguar\u2019s nose for fun."
+  },
+  {
+   "pic": "pl-delve-jaguar-root-caves-0a418b",
+   "key": "pl-jrc-3",
+   "name": "Glowcap Nibble",
+   "slug": "glowcap-nibble",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "tri",
+   "blurb": "A glow mushroom from the twisty side tunnel that lights the jaguar\u2019s way to bed."
+  },
+  {
+   "pic": "pl-delve-jaguar-root-caves-0a418b",
+   "key": "pl-jrc-4",
+   "name": "Softpad Prints",
+   "slug": "softpad-prints",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four soft paw prints pressed into the root path, all pointing at the sunny cave mouth."
+  },
+  {
+   "pic": "pl-delve-jaguar-root-caves-0a418b",
+   "key": "pl-jrc-5",
+   "name": "Sunspill Arch",
+   "slug": "sunspill-arch",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "The round sunlit mouth of the cave, where the jaguar sits to warm its whiskers."
+  },
+  {
+   "pic": "pl-delve-jaguar-root-caves-0a418b",
+   "key": "pl-jrc-6",
+   "name": "Boulder Jaguar",
+   "slug": "boulder-jaguar",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-jaguar",
+   "knob": "peg",
+   "blurb": "A chibi jaguar curled on its mossy boulder, guarding the twisty path with a very serious purr."
+  }
+ ],
+ [
+  {
+   "pic": "pl-delve-mangrove-root-maze-195d16",
+   "key": "pl-mgr-1",
+   "name": "Tidewater Toes",
+   "slug": "tidewater-toes",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "Dips its toes off the stilt roots at low tide and calls it a bath."
+  },
+  {
+   "pic": "pl-delve-mangrove-root-maze-195d16",
+   "key": "pl-mgr-2",
+   "name": "Frog Peeper",
+   "slug": "frog-peeper",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "Peeks out from the mossy log between the roots and blinks at every bug."
+  },
+  {
+   "pic": "pl-delve-mangrove-root-maze-195d16",
+   "key": "pl-mgr-3",
+   "name": "Jarlight Twig",
+   "slug": "jarlight-twig",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "tri",
+   "blurb": "A firefly in a glass jar on a twig, held up high so the frog never loses the way."
+  },
+  {
+   "pic": "pl-delve-mangrove-root-maze-195d16",
+   "key": "pl-mgr-4",
+   "name": "Stiltroot Prance",
+   "slug": "stiltroot-prance",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four knobbly stilt roots that hold up the whole tree and still dance with the tide."
+  },
+  {
+   "pic": "pl-delve-mangrove-root-maze-195d16",
+   "key": "pl-mgr-5",
+   "name": "Tangle Gap",
+   "slug": "tangle-gap",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "The round gap in the tangled roots where the warm sky shows through; only a frog fits."
+  },
+  {
+   "pic": "pl-delve-mangrove-root-maze-195d16",
+   "key": "pl-mgr-6",
+   "name": "Mazeroot Mangrove",
+   "slug": "mazeroot-mangrove",
+   "rarity": "rare",
+   "calling": "seedkeeper",
+   "shape": "whimsy-mangrove",
+   "knob": "tri",
+   "blurb": "A little mangrove that grew its roots into a maze over the dark water and forgot the way out."
+  },
+  {
+   "pic": "pl-delve-pirate-gull-grottoes-0265f9",
+   "key": "pl-pgg-1",
+   "name": "Hat Brim",
+   "slug": "hat-brim",
+   "rarity": "common",
+   "calling": "thornblade",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "Tips a tiny pirate hat at every passing wave and never once falls off."
+  },
+  {
+   "pic": "pl-delve-pirate-gull-grottoes-0265f9",
+   "key": "pl-pgg-2",
+   "name": "Squawk Shanty",
+   "slug": "squawk-shanty",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "tri",
+   "blurb": "Sings sea shanties in a squawk so loud the fish come up to listen."
+  }
+ ],
+ [
+  {
+   "pic": "pl-delve-pirate-gull-grottoes-0265f9",
+   "key": "pl-pgg-3",
+   "name": "Stalactite Tap",
+   "slug": "stalactite-tap",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "peg",
+   "blurb": "Taps the grotto stalactites in a rhythm the whole sunny cove can dance to."
+  },
+  {
+   "pic": "pl-delve-pirate-gull-grottoes-0265f9",
+   "key": "pl-pgg-4",
+   "name": "Loot Heap",
+   "slug": "loot-heap",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "A heap of pinched gold coins that clinks four ways whenever a gull sits on it."
+  },
+  {
+   "pic": "pl-delve-pirate-gull-grottoes-0265f9",
+   "key": "pl-pgg-5",
+   "name": "Pinched Pearls",
+   "slug": "pinched-pearls",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "tri",
+   "blurb": "A stolen pearl necklace looped round and round, which the gulls take turns wearing."
+  },
+  {
+   "pic": "pl-delve-pirate-gull-grottoes-0265f9",
+   "key": "pl-pgg-6",
+   "name": "Quartermaster Gull",
+   "slug": "quartermaster-gull",
+   "rarity": "rare",
+   "calling": "thornblade",
+   "shape": "whimsy-gull",
+   "knob": "peg",
+   "blurb": "A pirate gull in a tricorn hat who counts the loot twice and the fish three times."
+  },
+  {
+   "pic": "pl-delve-rose-red-canyon-city-5571a1",
+   "key": "pl-rrc-1",
+   "name": "Bunting Flag",
+   "slug": "bunting-flag",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "One flag off the bunting strung across the gorge, snapping in the warm wind."
+  },
+  {
+   "pic": "pl-delve-rose-red-canyon-city-5571a1",
+   "key": "pl-rrc-2",
+   "name": "Window Peek",
+   "slug": "window-peek",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "A little lamp-lit window carved in the canyon wall, peeking out at the camel."
+  },
+  {
+   "pic": "pl-delve-rose-red-canyon-city-5571a1",
+   "key": "pl-rrc-3",
+   "name": "Rosestone Pillar",
+   "slug": "rosestone-pillar",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "tri",
+   "blurb": "A rose-pink column on the carved facade that hums whenever a breeze plays across it."
+  },
+  {
+   "pic": "pl-delve-rose-red-canyon-city-5571a1",
+   "key": "pl-rrc-4",
+   "name": "Saddle Stripes",
+   "slug": "saddle-stripes",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four bright stripes off the camel\u2019s woven saddle blanket, each one a different sunset."
+  }
+ ],
+ [
+  {
+   "pic": "pl-delve-rose-red-canyon-city-5571a1",
+   "key": "pl-rrc-5",
+   "name": "Lamplit Doorway",
+   "slug": "lamplit-doorway",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-TTBB",
+   "knob": "round",
+   "blurb": "The dark carved doorway of the canyon city, with one lamp left on for late visitors."
+  },
+  {
+   "pic": "pl-delve-rose-red-canyon-city-5571a1",
+   "key": "pl-rrc-6",
+   "name": "Rose Canyon Camel",
+   "slug": "rose-canyon-camel",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-camel",
+   "knob": "round",
+   "blurb": "A chibi camel resting on the warm canyon sand in its striped blanket, in no hurry at all."
+  },
+  {
+   "pic": "pl-delve-salt-mine-galleries-228a12",
+   "key": "pl-smg-1",
+   "name": "Brass Hardhat",
+   "slug": "brass-hardhat",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-BB",
+   "knob": "peg",
+   "blurb": "A tiny lamp helmet that clinks against the salt ceiling every time it nods."
+  },
+  {
+   "pic": "pl-delve-salt-mine-galleries-228a12",
+   "key": "pl-smg-2",
+   "name": "Salt Lick",
+   "slug": "salt-lick",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "tri",
+   "blurb": "Licks the salty walls and claims they taste like soup."
+  },
+  {
+   "pic": "pl-delve-salt-mine-galleries-228a12",
+   "key": "pl-smg-3",
+   "name": "Crystal Pendant",
+   "slug": "crystal-pendant",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "A carved salt crystal off the chandelier that tinkles whenever a cart goes by."
+  },
+  {
+   "pic": "pl-delve-salt-mine-galleries-228a12",
+   "key": "pl-smg-4",
+   "name": "Railtrack Rattle",
+   "slug": "railtrack-rattle",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four iron rail ends that rattle like a drum roll as the cart rolls past."
+  },
+  {
+   "pic": "pl-delve-salt-mine-galleries-228a12",
+   "key": "pl-smg-5",
+   "name": "Salthall Roundel",
+   "slug": "salthall-roundel",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "peg",
+   "blurb": "The round lit window of a carved gnome hall, warm as a bun from the oven."
+  },
+  {
+   "pic": "pl-delve-salt-mine-galleries-228a12",
+   "key": "pl-smg-6",
+   "name": "Saltblock Minecart",
+   "slug": "saltblock-minecart",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-minecart",
+   "knob": "tri",
+   "blurb": "A little mine cart piled with salt blocks that rumbles down the galleries and sings at every bend."
+  }
+ ],
+ [
+  {
+   "pic": "pl-delve-sea-cave-smugglers-run-588ce7",
+   "key": "pl-scg-1",
+   "name": "Clifftop Lamp",
+   "slug": "clifftop-lamp",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-BB",
+   "knob": "round",
+   "blurb": "The little hut light on the clifftop that blinks once for all clear."
+  },
+  {
+   "pic": "pl-delve-sea-cave-smugglers-run-588ce7",
+   "key": "pl-scg-2",
+   "name": "Sack Snooze",
+   "slug": "sack-snooze",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TBT",
+   "knob": "peg",
+   "blurb": "A lumpy sack aboard the rowboat that snores through every wave."
+  },
+  {
+   "pic": "pl-delve-sea-cave-smugglers-run-588ce7",
+   "key": "pl-scg-3",
+   "name": "Lantern Wink",
+   "slug": "lantern-wink",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "tri",
+   "blurb": "A hooded lantern that winks at the coast guard and then at the cave."
+  },
+  {
+   "pic": "pl-delve-sea-cave-smugglers-run-588ce7",
+   "key": "pl-scg-4",
+   "name": "Tide Notches",
+   "slug": "tide-notches",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four notches on the tide pole that tell the rowboat when the sea cave is safe to enter."
+  },
+  {
+   "pic": "pl-delve-sea-cave-smugglers-run-588ce7",
+   "key": "pl-scg-5",
+   "name": "Deepcave Glow",
+   "slug": "deepcave-glow",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "The warm round glow deep in the sea cave, where the lantern light waits for the boat."
+  },
+  {
+   "pic": "pl-delve-sea-cave-smugglers-run-588ce7",
+   "key": "pl-scg-6",
+   "name": "Moonlit Keg",
+   "slug": "moonlit-keg",
+   "rarity": "rare",
+   "calling": "thornblade",
+   "shape": "whimsy-barrel",
+   "knob": "hook",
+   "blurb": "A keg on the tide ledge that hides a moonbeam and sneaks it past the coast guard."
+  },
+  {
+   "pic": "pl-delve-snowleopard-ledges-9a49a1",
+   "key": "pl-sll-1",
+   "name": "Cairn Stack",
+   "slug": "cairn-stack",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TT",
+   "knob": "round",
+   "blurb": "A tower of grey stones under the wool pennants that wobbles but never quite falls over."
+  },
+  {
+   "pic": "pl-delve-snowleopard-ledges-9a49a1",
+   "key": "pl-sll-2",
+   "name": "Ledge Hop",
+   "slug": "ledge-hop",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-BTB",
+   "knob": "peg",
+   "blurb": "Hops up the switchback ledges on tiny paws and never looks down."
+  }
+ ],
+ [
+  {
+   "pic": "pl-delve-snowleopard-ledges-9a49a1",
+   "key": "pl-sll-3",
+   "name": "Ichu Whisker",
+   "slug": "ichu-whisker",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "tri",
+   "blurb": "A tuft of golden ichu grass on the cliff that tickles the leopard\u2019s nose."
+  },
+  {
+   "pic": "pl-delve-snowleopard-ledges-9a49a1",
+   "key": "pl-sll-4",
+   "name": "Woolly Pennants",
+   "slug": "woolly-pennants",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four woven wool pennants on the cairn pole, flapping in four mountain colours."
+  },
+  {
+   "pic": "pl-delve-snowleopard-ledges-9a49a1",
+   "key": "pl-sll-5",
+   "name": "Snowcap Scoop",
+   "slug": "snowcap-scoop",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-TTBB",
+   "knob": "round",
+   "blurb": "The snowy tip of the far peak, which the leopard swears is a giant scoop of ice cream."
+  },
+  {
+   "pic": "pl-delve-snowleopard-ledges-9a49a1",
+   "key": "pl-sll-6",
+   "name": "Fluffytail Snow Leopard",
+   "slug": "fluffytail-snow-leopard",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-fluffytail",
+   "knob": "peg",
+   "blurb": "A fluffy snow leopard curled up in its own long tail on the ledge, purring like a little avalanche."
+  },
+  {
+   "pic": "pl-delve-the-canopy-bridges-073a0a",
+   "key": "pl-tcb-1",
+   "name": "Dawnleaf Drift",
+   "slug": "dawnleaf-drift",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TT",
+   "knob": "round",
+   "blurb": "An orange walnut leaf that drifts off the canopy and lands on the same plank every dawn."
+  },
+  {
+   "pic": "pl-delve-the-canopy-bridges-073a0a",
+   "key": "pl-tcb-2",
+   "name": "Plank Skipper",
+   "slug": "plank-skipper",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "tri",
+   "blurb": "Skips every other plank of the high rope bridge and waves to the sheep below."
+  },
+  {
+   "pic": "pl-delve-the-canopy-bridges-073a0a",
+   "key": "pl-tcb-3",
+   "name": "Yurt Kettle",
+   "slug": "yurt-kettle",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "peg",
+   "blurb": "A kettle in the tiny valley yurt that whistles whenever the bridge creaks."
+  },
+  {
+   "pic": "pl-delve-the-canopy-bridges-073a0a",
+   "key": "pl-tcb-4",
+   "name": "Bridge Knots",
+   "slug": "bridge-knots",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four fat rope knots tying the bridge to the trunks, each one tied by a different marmot."
+  }
+ ],
+ [
+  {
+   "pic": "pl-delve-the-canopy-bridges-073a0a",
+   "key": "pl-tcb-5",
+   "name": "Treetop Porch",
+   "slug": "treetop-porch",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A round platform on the trunk where the wind sits down for a rest."
+  },
+  {
+   "pic": "pl-delve-the-canopy-bridges-073a0a",
+   "key": "pl-tcb-6",
+   "name": "Bridgewalk Marmot",
+   "slug": "bridgewalk-marmot",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-marmot",
+   "knob": "tri",
+   "blurb": "A chibi marmot crossing the high rope bridge with a walnut held up like a prize."
+  },
+  {
+   "pic": "pl-delve-the-long-wall-walk-7eadc6",
+   "key": "pl-lwp-1",
+   "name": "Sentry Straw",
+   "slug": "sentry-straw",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-BB",
+   "knob": "round",
+   "blurb": "A straw hat tied on with red cord that keeps watch on the wall and never blows away."
+  },
+  {
+   "pic": "pl-delve-the-long-wall-walk-7eadc6",
+   "key": "pl-lwp-2",
+   "name": "Brick Counter",
+   "slug": "brick-counter",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "peg",
+   "blurb": "Counts every brick on the long wall, then starts again to be sure."
+  },
+  {
+   "pic": "pl-delve-the-long-wall-walk-7eadc6",
+   "key": "pl-lwp-3",
+   "name": "Autumn Flutter",
+   "slug": "autumn-flutter",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "tri",
+   "blurb": "An autumn leaf riding the gale along the wall, never once touching the stones."
+  },
+  {
+   "pic": "pl-delve-the-long-wall-walk-7eadc6",
+   "key": "pl-lwp-4",
+   "name": "Battlement Whistle",
+   "slug": "battlement-whistle",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four stubby battlements in a row that the wind plays like a flute."
+  },
+  {
+   "pic": "pl-delve-the-long-wall-walk-7eadc6",
+   "key": "pl-lwp-5",
+   "name": "Galeswing Lantern",
+   "slug": "galeswing-lantern",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "peg",
+   "blurb": "A round red lantern on the watchtower that swings sideways in the gale and never goes out."
+  },
+  {
+   "pic": "pl-delve-the-long-wall-walk-7eadc6",
+   "key": "pl-lwp-6",
+   "name": "Lookout Turret",
+   "slug": "lookout-turret",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-watchtower",
+   "knob": "hook",
+   "blurb": "A pocket watchtower that keeps the wall honest and the birds good company."
+  }
+ ],
+ [
+  {
+   "pic": "pl-delve-the-red-rock-songlines-c16ad4",
+   "key": "pl-rrs-1",
+   "name": "Dotted Trail",
+   "slug": "dotted-trail",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-BB",
+   "knob": "round",
+   "blurb": "A trail of painted dots that sings the kangaroo the way home."
+  },
+  {
+   "pic": "pl-delve-the-red-rock-songlines-c16ad4",
+   "key": "pl-rrs-2",
+   "name": "Galah Chatter",
+   "slug": "galah-chatter",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "A pink galah that chatters all the way across the desert and never runs out of gossip."
+  },
+  {
+   "pic": "pl-delve-the-red-rock-songlines-c16ad4",
+   "key": "pl-rrs-3",
+   "name": "Hummed Note",
+   "slug": "hummed-note",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "tri",
+   "blurb": "A little gold song note that floats off the songline and hums until it finds its place again."
+  },
+  {
+   "pic": "pl-delve-the-red-rock-songlines-c16ad4",
+   "key": "pl-rrs-4",
+   "name": "Dotcircle Painting",
+   "slug": "dotcircle-painting",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Rings of painted dots on the boulder that tell the story of the whole songline."
+  },
+  {
+   "pic": "pl-delve-the-red-rock-songlines-c16ad4",
+   "key": "pl-rrs-5",
+   "name": "Monolith Hidey",
+   "slug": "monolith-hidey",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-TTBB",
+   "knob": "round",
+   "blurb": "A small cave in the side of the great red rock where the kangaroo hides from the noon sun."
+  },
+  {
+   "pic": "pl-delve-the-red-rock-songlines-c16ad4",
+   "key": "pl-rrs-6",
+   "name": "Songline Kangaroo",
+   "slug": "songline-kangaroo",
+   "rarity": "rare",
+   "calling": "seedkeeper",
+   "shape": "whimsy-kangaroo",
+   "knob": "tri",
+   "blurb": "A little kangaroo wayfarer who points a paw along the song and hops the whole way home."
+  },
+  {
+   "pic": "pl-haven-aurora-camp-fdffc1",
+   "key": "pl-aurc-1",
+   "name": "Tent Flap",
+   "slug": "tent-flap",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "The red flag on top of the tent, waving at the aurora to say the camp is open for the night."
+  },
+  {
+   "pic": "pl-haven-aurora-camp-fdffc1",
+   "key": "pl-aurc-2",
+   "name": "Spark Hop",
+   "slug": "spark-hop",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "Hops off the campfire and floats up to join the aurora for a little dance before bed."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-aurora-camp-fdffc1",
+   "key": "pl-aurc-3",
+   "name": "Pine Watch",
+   "slug": "pine-watch",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "A pine tree at the edge of camp that keeps watch through the snowy night and never nods off."
+  },
+  {
+   "pic": "pl-haven-aurora-camp-fdffc1",
+   "key": "pl-aurc-4",
+   "name": "Aurora Band",
+   "slug": "aurora-band",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "A green ribbon of aurora that rolls over the snowy mountains and drapes itself across the sky."
+  },
+  {
+   "pic": "pl-haven-aurora-camp-fdffc1",
+   "key": "pl-aurc-5",
+   "name": "Peak Peep",
+   "slug": "peak-peep",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A tiny snowy mountain peak that peeks out under the aurora to say good night to the campers."
+  },
+  {
+   "pic": "pl-haven-aurora-camp-fdffc1",
+   "key": "pl-aurc-6",
+   "name": "Nightcap Fox",
+   "slug": "nightcap-fox",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-fox",
+   "knob": "peg",
+   "blurb": "A cosy little fox curled up by the camp, who wraps its tail around the warmest spot of the night."
+  },
+  {
+   "pic": "pl-haven-baobab-inn-9e5f82",
+   "key": "pl-baob-1",
+   "name": "Pot Simmer",
+   "slug": "pot-simmer",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "A clay pot of stew on the step, kept warm for whichever traveller comes in late."
+  },
+  {
+   "pic": "pl-haven-baobab-inn-9e5f82",
+   "key": "pl-baob-2",
+   "name": "Branch Bird",
+   "slug": "branch-bird",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "A bird on the baobab branch that sings every guest awake before the sun is up."
+  },
+  {
+   "pic": "pl-haven-baobab-inn-9e5f82",
+   "key": "pl-baob-3",
+   "name": "Supper Sun",
+   "slug": "supper-sun",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "The savanna sun sinking behind the baobab, which the guests treat as the signal for supper."
+  },
+  {
+   "pic": "pl-haven-baobab-inn-9e5f82",
+   "key": "pl-baob-4",
+   "name": "Canopy Rustle",
+   "slug": "canopy-rustle",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "A bushy knot of baobab leaves that rustles whenever a guest comes up the path."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-baobab-inn-9e5f82",
+   "key": "pl-baob-5",
+   "name": "Trunk Peephole",
+   "slug": "trunk-peephole",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A round window in the trunk, glowing warm for anyone still out on the savanna."
+  },
+  {
+   "pic": "pl-haven-baobab-inn-9e5f82",
+   "key": "pl-baob-6",
+   "name": "Baobab Innkeeper",
+   "slug": "baobab-innkeeper",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-baobab",
+   "knob": "peg",
+   "blurb": "A baobab-shaped innkeeper with a glowing door, who welcomes every traveller with a friendly rustle."
+  },
+  {
+   "pic": "pl-haven-cherry-blossom-teahouse-ad6328",
+   "key": "pl-cblo-1",
+   "name": "Teapot Tilt",
+   "slug": "teapot-tilt",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "A little blue teapot that tips a bow to every cup before the first sip."
+  },
+  {
+   "pic": "pl-haven-cherry-blossom-teahouse-ad6328",
+   "key": "pl-cblo-2",
+   "name": "Sakura Flurry",
+   "slug": "sakura-flurry",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "A pink puff of sakura that drops one petal into every cup of tea served on the hill."
+  },
+  {
+   "pic": "pl-haven-cherry-blossom-teahouse-ad6328",
+   "key": "pl-cblo-3",
+   "name": "Fuji Bow",
+   "slug": "fuji-bow",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "The snowy mountain across the valley, which the gnomes greet with a bow every dawn."
+  },
+  {
+   "pic": "pl-haven-cherry-blossom-teahouse-ad6328",
+   "key": "pl-cblo-4",
+   "name": "Lantern Bob",
+   "slug": "lantern-bob",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "A round red lantern under the eaves, glowing for every guest climbing the hill path."
+  },
+  {
+   "pic": "pl-haven-cherry-blossom-teahouse-ad6328",
+   "key": "pl-cblo-5",
+   "name": "Roof Medallion",
+   "slug": "roof-medallion",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "The round gold medallion on the teahouse roof, which catches the dawn sun before anything else."
+  },
+  {
+   "pic": "pl-haven-cherry-blossom-teahouse-ad6328",
+   "key": "pl-cblo-6",
+   "name": "Hilltop Teahouse",
+   "slug": "hilltop-teahouse",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-teahouse",
+   "knob": "peg",
+   "blurb": "A little teahouse with curly eaves and a warm window, who waves at everyone on the hill path."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-driftwood-tavern-c9dacd",
+   "key": "pl-drft-1",
+   "name": "Pan Ting",
+   "slug": "pan-ting",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "The round steel pan on its stand, which rings a bright tune whenever the wind taps it."
+  },
+  {
+   "pic": "pl-haven-driftwood-tavern-c9dacd",
+   "key": "pl-drft-2",
+   "name": "Frond Nod",
+   "slug": "frond-nod",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "A palm frond on the left of the bar that nods along to the steel-pan music."
+  },
+  {
+   "pic": "pl-haven-driftwood-tavern-c9dacd",
+   "key": "pl-drft-3",
+   "name": "Dusk Lap",
+   "slug": "dusk-lap",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "Waves at sunset that lap up the sand and tickle the bar\u2019s toes between songs."
+  },
+  {
+   "pic": "pl-haven-driftwood-tavern-c9dacd",
+   "key": "pl-drft-4",
+   "name": "Thatch Ridge",
+   "slug": "thatch-ridge",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "The thatched roof of the beach bar, rippling in the breeze over the coconut cups."
+  },
+  {
+   "pic": "pl-haven-driftwood-tavern-c9dacd",
+   "key": "pl-drft-5",
+   "name": "Pink Porthole",
+   "slug": "pink-porthole",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A round pink window on the bar wall, glowing for guests who want a view of the sea."
+  },
+  {
+   "pic": "pl-haven-driftwood-tavern-c9dacd",
+   "key": "pl-drft-6",
+   "name": "Pinkhat Drummer",
+   "slug": "pinkhat-drummer",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-drum",
+   "knob": "peg",
+   "blurb": "A chibi gnome in a pink pointed hat who drums out the beach-bar tune until the sun drops into the sea."
+  },
+  {
+   "pic": "pl-haven-drum-circle-market-1b1e7c",
+   "key": "pl-drmc-1",
+   "name": "Groundnut Bubble",
+   "slug": "groundnut-bubble",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "A groundnut stew bubbling in the big black pot, stirred by whichever gnome is hungriest."
+  },
+  {
+   "pic": "pl-haven-drum-circle-market-1b1e7c",
+   "key": "pl-drmc-2",
+   "name": "Moon Croon",
+   "slug": "moon-croon",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "A crescent moon over the market that hums along with the drums until the night is over."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-drum-circle-market-1b1e7c",
+   "key": "pl-drmc-3",
+   "name": "Clap Along",
+   "slug": "clap-along",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "A gnome in a red hat who claps along to every beat of the drum circle, a bit off the rhythm."
+  },
+  {
+   "pic": "pl-haven-drum-circle-market-1b1e7c",
+   "key": "pl-drmc-4",
+   "name": "Acacia Parasol",
+   "slug": "acacia-parasol",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "A flat acacia tree over the market, its crown spread out like a shady umbrella for the drummers."
+  },
+  {
+   "pic": "pl-haven-drum-circle-market-1b1e7c",
+   "key": "pl-drmc-5",
+   "name": "Firelit Circle",
+   "slug": "firelit-circle",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "The circle of gnomes around the fire, glowing warm where the stew simmers."
+  },
+  {
+   "pic": "pl-haven-drum-circle-market-1b1e7c",
+   "key": "pl-drmc-6",
+   "name": "Hut Dweller",
+   "slug": "hut-dweller",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-hut",
+   "knob": "peg",
+   "blurb": "A round mud hut with a thatched roof and a lit doorway, who opens up for every late drummer."
+  },
+  {
+   "pic": "pl-haven-floating-flower-market-da20bd",
+   "key": "pl-flfm-1",
+   "name": "Blooming Barge",
+   "slug": "blooming-barge",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "A barge heaped with pink and orange blooms that drifts slowly along the lake each morning."
+  },
+  {
+   "pic": "pl-haven-floating-flower-market-da20bd",
+   "key": "pl-flfm-2",
+   "name": "Bobbing Blooms",
+   "slug": "bobbing-blooms",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "Orange marigolds floating on the water, bobbing gently and waiting to be strung into garlands."
+  },
+  {
+   "pic": "pl-haven-floating-flower-market-da20bd",
+   "key": "pl-flfm-3",
+   "name": "Sunrise Snowcap",
+   "slug": "sunrise-snowcap",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "The snowy mountain at the far end of the lake, which the flower boats face at sunrise."
+  },
+  {
+   "pic": "pl-haven-floating-flower-market-da20bd",
+   "key": "pl-flfm-4",
+   "name": "Petal Heap",
+   "slug": "petal-heap",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "A heap of pale flowers piled high in the boat, ready for the next garland order."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-floating-flower-market-da20bd",
+   "key": "pl-flfm-5",
+   "name": "Temple Arch",
+   "slug": "temple-arch",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "The arched doorway of the lakeside dome, where morning light spills out across the water."
+  },
+  {
+   "pic": "pl-haven-floating-flower-market-da20bd",
+   "key": "pl-flfm-6",
+   "name": "Garland Florist",
+   "slug": "garland-florist",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-marigold",
+   "knob": "peg",
+   "blurb": "A little marigold in a pink hat who rows through the lake market and sells garlands to every passing boat."
+  },
+  {
+   "pic": "pl-haven-floating-market-f899c8",
+   "key": "pl-flmk-1",
+   "name": "Noodle Awning",
+   "slug": "noodle-awning",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "A red and white awning over the noodle boat, shading the bowls and flapping in every breeze."
+  },
+  {
+   "pic": "pl-haven-floating-market-f899c8",
+   "key": "pl-flmk-2",
+   "name": "Shutter Hello",
+   "slug": "shutter-hello",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "Wooden shutters swung wide on a little house over the water, greeting the morning market."
+  },
+  {
+   "pic": "pl-haven-floating-market-f899c8",
+   "key": "pl-flmk-3",
+   "name": "Stir Wave",
+   "slug": "stir-wave",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "A steaming pot the gnome cook stirs with one hand while waving at the canal with the other."
+  },
+  {
+   "pic": "pl-haven-floating-market-f899c8",
+   "key": "pl-flmk-4",
+   "name": "Coconut Lookout",
+   "slug": "coconut-lookout",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "The palm that leans over the canal, dropping coconuts only when the boats are looking away."
+  },
+  {
+   "pic": "pl-haven-floating-market-f899c8",
+   "key": "pl-flmk-5",
+   "name": "Basket Rock",
+   "slug": "basket-rock",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A round basket of melons and fruit on the right-hand boat, rocking gently on the canal."
+  },
+  {
+   "pic": "pl-haven-floating-market-f899c8",
+   "key": "pl-flmk-6",
+   "name": "Noodle Skipper",
+   "slug": "noodle-skipper",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-noodlebowl",
+   "knob": "round",
+   "blurb": "A gnome in a pointed straw hat who sells noodles from a little boat and always has one more bowl."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-gaucho-gnome-ranch-3c3ac8",
+   "key": "pl-gaun-1",
+   "name": "Redroof Rest",
+   "slug": "redroof-rest",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "The red roof of the ranch house, where the gauchos sit out to share a mate after supper."
+  },
+  {
+   "pic": "pl-haven-gaucho-gnome-ranch-3c3ac8",
+   "key": "pl-gaun-2",
+   "name": "Rail Lean",
+   "slug": "rail-lean",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "A long fence rail across the pampas, where the cows lean in for a scratch."
+  },
+  {
+   "pic": "pl-haven-gaucho-gnome-ranch-3c3ac8",
+   "key": "pl-gaun-3",
+   "name": "Gourd Pass",
+   "slug": "gourd-pass",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "A yerba-mate gourd on the stump, passed round the fire until the whole ranch has had a sip."
+  },
+  {
+   "pic": "pl-haven-gaucho-gnome-ranch-3c3ac8",
+   "key": "pl-gaun-4",
+   "name": "Windmill Whirl",
+   "slug": "windmill-whirl",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "A windmill vane that turns in the pampas breeze and pumps water for the horses."
+  },
+  {
+   "pic": "pl-haven-gaucho-gnome-ranch-3c3ac8",
+   "key": "pl-gaun-5",
+   "name": "Noon Shade",
+   "slug": "noon-shade",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A round tree on the pampas, its crown shading the riders at noon."
+  },
+  {
+   "pic": "pl-haven-gaucho-gnome-ranch-3c3ac8",
+   "key": "pl-gaun-6",
+   "name": "Pampas Rider",
+   "slug": "pampas-rider",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-horse",
+   "knob": "round",
+   "blurb": "A chibi gaucho gnome riding his chibi horse across the pampas, tipping his hat to every cow."
+  },
+  {
+   "pic": "pl-haven-kava-circle-fb178e",
+   "key": "pl-kava-1",
+   "name": "Sliver Rise",
+   "slug": "sliver-rise",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "A thin moon over the sea that rises just in time for the kava circle to start."
+  },
+  {
+   "pic": "pl-haven-kava-circle-fb178e",
+   "key": "pl-kava-2",
+   "name": "Palm Eavesdrop",
+   "slug": "palm-eavesdrop",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "A palm tree leaning over the circle to listen in, dropping a leaf whenever it laughs."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-kava-circle-fb178e",
+   "key": "pl-kava-3",
+   "name": "Quiet Sipper",
+   "slug": "quiet-sipper",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "A gnome in a red hat who sits in the ring and sips quietly while the evening lamps glow."
+  },
+  {
+   "pic": "pl-haven-kava-circle-fb178e",
+   "key": "pl-kava-4",
+   "name": "Dome Shelter",
+   "slug": "dome-shelter",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "The round thatched roof over the kava circle, keeping the sea breeze out and the gnomes cosy."
+  },
+  {
+   "pic": "pl-haven-kava-circle-fb178e",
+   "key": "pl-kava-5",
+   "name": "Shared Cup",
+   "slug": "shared-cup",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "The big wooden tanoa bowl passed around the circle, one shared cup at a time."
+  },
+  {
+   "pic": "pl-haven-kava-circle-fb178e",
+   "key": "pl-kava-6",
+   "name": "Tanoa Buddy",
+   "slug": "tanoa-buddy",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-tanoa",
+   "knob": "peg",
+   "blurb": "A chibi kava bowl with a sleepy smile, who keeps the circle company until the sea goes dark."
+  },
+  {
+   "pic": "pl-haven-lemon-grove-monastery-c58bd8",
+   "key": "pl-lemn-1",
+   "name": "Belfry Ding",
+   "slug": "belfry-ding",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "corner-TT",
+   "knob": "round",
+   "blurb": "Rings the belfry bell at dawn so every monk knows the herbs are ready."
+  },
+  {
+   "pic": "pl-haven-lemon-grove-monastery-c58bd8",
+   "key": "pl-lemn-2",
+   "name": "Cowl Hum",
+   "slug": "cowl-hum",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "A brown-robed monk who hums to the herbs and never quite finishes the tune."
+  },
+  {
+   "pic": "pl-haven-lemon-grove-monastery-c58bd8",
+   "key": "pl-lemn-3",
+   "name": "Jar Jostle",
+   "slug": "jar-jostle",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "Jars of lemon cordial that clink together on the bench, a little louder whenever a gnome walks by."
+  },
+  {
+   "pic": "pl-haven-lemon-grove-monastery-c58bd8",
+   "key": "pl-lemn-4",
+   "name": "Arch Parade",
+   "slug": "arch-parade",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "round",
+   "blurb": "A row of tall arched windows standing shoulder to shoulder like a choir, humming in the evening light."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-lemon-grove-monastery-c58bd8",
+   "key": "pl-lemn-5",
+   "name": "Sunset Halo",
+   "slug": "sunset-halo",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "peg",
+   "blurb": "A round sun sinking behind the monastery sea, right on time for evening prayers."
+  },
+  {
+   "pic": "pl-haven-lemon-grove-monastery-c58bd8",
+   "key": "pl-lemn-6",
+   "name": "Abbot Lemon",
+   "slug": "abbot-lemon",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-lemon",
+   "knob": "round",
+   "blurb": "A wise lemon-faced abbot who blesses every fruit and keeps the best one for himself."
+  },
+  {
+   "pic": "pl-haven-market-of-a-thousand-chilies-ba9373",
+   "key": "pl-chil-1",
+   "name": "Stripe Shade",
+   "slug": "stripe-shade",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "A striped awning pulled low so the sun can\u2019t wilt the peppers on the stall."
+  },
+  {
+   "pic": "pl-haven-market-of-a-thousand-chilies-ba9373",
+   "key": "pl-chil-2",
+   "name": "Pennant Wave",
+   "slug": "pennant-wave",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-BTB",
+   "knob": "peg",
+   "blurb": "Waves a red pennant from the pole so every shopper finds the cocoa house at last."
+  },
+  {
+   "pic": "pl-haven-market-of-a-thousand-chilies-ba9373",
+   "key": "pl-chil-3",
+   "name": "Cocoa Curl",
+   "slug": "cocoa-curl",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "Curls up from the cocoa house chimney and tickles the passing clouds."
+  },
+  {
+   "pic": "pl-haven-market-of-a-thousand-chilies-ba9373",
+   "key": "pl-chil-4",
+   "name": "Chili Cluster",
+   "slug": "chili-cluster",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "A stall full of bright red chilies, piled up and glowing in the warm market light."
+  },
+  {
+   "pic": "pl-haven-market-of-a-thousand-chilies-ba9373",
+   "key": "pl-chil-5",
+   "name": "Cocoa Cauldron",
+   "slug": "cocoa-cauldron",
+   "rarity": "uncommon",
+   "calling": "brewroot",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A dark round window where the cocoa pot sits warm and bubbling."
+  },
+  {
+   "pic": "pl-haven-market-of-a-thousand-chilies-ba9373",
+   "key": "pl-chil-6",
+   "name": "Pepper Prince",
+   "slug": "pepper-prince",
+   "rarity": "rare",
+   "calling": "thornblade",
+   "shape": "whimsy-chili",
+   "knob": "peg",
+   "blurb": "A plump red chili in a tiny crown, who sells the spiciest bargains in the whole market."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-northern-lights-sauna-d871cc",
+   "key": "pl-aurs-1",
+   "name": "Steam Hello",
+   "slug": "steam-hello",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "corner-BB",
+   "knob": "round",
+   "blurb": "Puffs warm steam from the sauna chimney so the stars know the bath is hot."
+  },
+  {
+   "pic": "pl-haven-northern-lights-sauna-d871cc",
+   "key": "pl-aurs-2",
+   "name": "Pine Shiver",
+   "slug": "pine-shiver",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "edge-TBT",
+   "knob": "peg",
+   "blurb": "A tall pine by the frozen lake that shivers happily and keeps an eye on the sauna."
+  },
+  {
+   "pic": "pl-haven-northern-lights-sauna-d871cc",
+   "key": "pl-aurs-3",
+   "name": "Dock Creak",
+   "slug": "dock-creak",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "inner-TBTB",
+   "knob": "peg",
+   "blurb": "A wooden plank of the lake dock that creaks happily under every tiny bare foot."
+  },
+  {
+   "pic": "pl-haven-northern-lights-sauna-d871cc",
+   "key": "pl-aurs-4",
+   "name": "Green Ripple",
+   "slug": "green-ripple",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "round",
+   "blurb": "A swirl of green light that dances over the frozen lake and waves at the sauna gnomes."
+  },
+  {
+   "pic": "pl-haven-northern-lights-sauna-d871cc",
+   "key": "pl-aurs-5",
+   "name": "Cool Dip",
+   "slug": "cool-dip",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "peg",
+   "blurb": "A round hole cut in the lake ice where the sauna gnomes take a quick cool dip."
+  },
+  {
+   "pic": "pl-haven-northern-lights-sauna-d871cc",
+   "key": "pl-aurs-6",
+   "name": "Towel Bear",
+   "slug": "towel-bear",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-bear",
+   "knob": "round",
+   "blurb": "A sleepy bear wrapped in a warm towel, who steams happily outside the sauna and waves at the aurora."
+  },
+  {
+   "pic": "pl-haven-olive-press-piazza-f69430",
+   "key": "pl-oliv-1",
+   "name": "Pennant Frolic",
+   "slug": "pennant-frolic",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-TT",
+   "knob": "round",
+   "blurb": "A string of pennants swinging across the piazza, which the wind turns into a dance."
+  },
+  {
+   "pic": "pl-haven-olive-press-piazza-f69430",
+   "key": "pl-oliv-2",
+   "name": "Leaf Sweep",
+   "slug": "leaf-sweep",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "edge-TBB",
+   "knob": "peg",
+   "blurb": "A silver-green olive tree that sheds a leaf on the piazza and sweeps it up again."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-olive-press-piazza-f69430",
+   "key": "pl-oliv-3",
+   "name": "Loaf Share",
+   "slug": "loaf-share",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "A basket of warm bread rolls that everyone swears is only for sharing."
+  },
+  {
+   "pic": "pl-haven-olive-press-piazza-f69430",
+   "key": "pl-oliv-4",
+   "name": "Piazza Chime",
+   "slug": "piazza-chime",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "A tower window with a little golden bell glowing in it, ringing the hour over the piazza."
+  },
+  {
+   "pic": "pl-haven-olive-press-piazza-f69430",
+   "key": "pl-oliv-5",
+   "name": "Millstone Turn",
+   "slug": "millstone-turn",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A great round millstone that turns slowly over the olives and grinds out golden oil."
+  },
+  {
+   "pic": "pl-haven-olive-press-piazza-f69430",
+   "key": "pl-oliv-6",
+   "name": "Pressed Gold",
+   "slug": "pressed-gold",
+   "rarity": "rare",
+   "calling": "seedkeeper",
+   "shape": "whimsy-olive",
+   "knob": "peg",
+   "blurb": "A plump olive that was squeezed into the finest golden oil and is quite proud of it."
+  },
+  {
+   "pic": "pl-haven-painted-egg-house-abccd0",
+   "key": "pl-eggs-1",
+   "name": "Painted Bough",
+   "slug": "painted-bough",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "A little tree dressed in painted eggs that rattle politely when the spring wind passes."
+  },
+  {
+   "pic": "pl-haven-painted-egg-house-abccd0",
+   "key": "pl-eggs-2",
+   "name": "Dabbing Painter",
+   "slug": "dabbing-painter",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "A gnome in a red hat who dabs a fresh stripe on every egg and hums while he works."
+  },
+  {
+   "pic": "pl-haven-painted-egg-house-abccd0",
+   "key": "pl-eggs-3",
+   "name": "Spring Chick",
+   "slug": "spring-chick",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "A fluffy yellow chick that follows the painted eggs around like a little shadow."
+  },
+  {
+   "pic": "pl-haven-painted-egg-house-abccd0",
+   "key": "pl-eggs-4",
+   "name": "Fence Eggs",
+   "slug": "fence-eggs",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "Painted eggs lined up along the fence, each one dressed in a different spring stripe."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-painted-egg-house-abccd0",
+   "key": "pl-eggs-5",
+   "name": "Wreath Hollow",
+   "slug": "wreath-hollow",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A round orange wreath on the wall that frames the garden like a little window."
+  },
+  {
+   "pic": "pl-haven-painted-egg-house-abccd0",
+   "key": "pl-eggs-6",
+   "name": "Pink Stripe Egg",
+   "slug": "pink-stripe-egg",
+   "rarity": "rare",
+   "calling": "bloomcaller",
+   "shape": "whimsy-egg",
+   "knob": "round",
+   "blurb": "A chibi painted egg in a red bow, grinning and never once cracking under pressure."
+  },
+  {
+   "pic": "pl-haven-spice-souk-8d3043",
+   "key": "pl-spsk-1",
+   "name": "Awning Flutter",
+   "slug": "awning-flutter",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-TT",
+   "knob": "round",
+   "blurb": "Red and cream stripes hung over the stall so the sun has to take the long way round."
+  },
+  {
+   "pic": "pl-haven-spice-souk-8d3043",
+   "key": "pl-spsk-2",
+   "name": "Palm Sway",
+   "slug": "palm-sway",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "edge-TBT",
+   "knob": "peg",
+   "blurb": "A little palm by the souk gate that sways to the sound of the mint tea kettle."
+  },
+  {
+   "pic": "pl-haven-spice-souk-8d3043",
+   "key": "pl-spsk-3",
+   "name": "Lamp Dangle",
+   "slug": "lamp-dangle",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "A hanging lantern that swings above the spice bowls and keeps the mint tea warm."
+  },
+  {
+   "pic": "pl-haven-spice-souk-8d3043",
+   "key": "pl-spsk-4",
+   "name": "Spice Dunes",
+   "slug": "spice-dunes",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "Cones of spice in red, gold and green piled up in the stall, all smelling of mint."
+  },
+  {
+   "pic": "pl-haven-spice-souk-8d3043",
+   "key": "pl-spsk-5",
+   "name": "Brass Glimmer",
+   "slug": "brass-glimmer",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A round brass bowl that holds the day\u2019s cinnamon sticks and a dusting of gold."
+  },
+  {
+   "pic": "pl-haven-spice-souk-8d3043",
+   "key": "pl-spsk-6",
+   "name": "Minty Fez Vendor",
+   "slug": "minty-fez-vendor",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-fez",
+   "knob": "peg",
+   "blurb": "A little fez with a friendly face who sells every spice with a wink and a cup of mint tea."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-thatchtop-tearoom-0ce3c9",
+   "key": "pl-thch-1",
+   "name": "Chimney Wink",
+   "slug": "chimney-wink",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "corner-BB",
+   "knob": "round",
+   "blurb": "A chimney on the thatch with a pot on top that winks at the clouds."
+  },
+  {
+   "pic": "pl-haven-thatchtop-tearoom-0ce3c9",
+   "key": "pl-thch-2",
+   "name": "Sill Sprinkle",
+   "slug": "sill-sprinkle",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "A window box of pink flowers that gets watered with a tiny teapot every morning."
+  },
+  {
+   "pic": "pl-haven-thatchtop-tearoom-0ce3c9",
+   "key": "pl-thch-3",
+   "name": "Knock Knock",
+   "slug": "knock-knock",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "A green round-topped door that opens to any friend who brings a scone."
+  },
+  {
+   "pic": "pl-haven-thatchtop-tearoom-0ce3c9",
+   "key": "pl-thch-4",
+   "name": "Scone Tower",
+   "slug": "scone-tower",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "Golden scones stacked high with a dollop of jam on top, shared by the whole table."
+  },
+  {
+   "pic": "pl-haven-thatchtop-tearoom-0ce3c9",
+   "key": "pl-thch-5",
+   "name": "Gable Eye",
+   "slug": "gable-eye",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A round gable window under the thatch that watches the garden like a sleepy owl."
+  },
+  {
+   "pic": "pl-haven-thatchtop-tearoom-0ce3c9",
+   "key": "pl-thch-6",
+   "name": "Teatime Hedgehog",
+   "slug": "teatime-hedgehog",
+   "rarity": "rare",
+   "calling": "brewroot",
+   "shape": "whimsy-hedgehog",
+   "knob": "peg",
+   "blurb": "A round little hedgehog who trots between the tables with a tiny treat and never spills a drop."
+  },
+  {
+   "pic": "pl-haven-the-sugar-shack-364637",
+   "key": "pl-sugr-1",
+   "name": "Bucket Plink",
+   "slug": "bucket-plink",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TT",
+   "knob": "round",
+   "blurb": "A tin bucket hung on a maple, catching sweet sap one slow drip at a time."
+  },
+  {
+   "pic": "pl-haven-the-sugar-shack-364637",
+   "key": "pl-sugr-2",
+   "name": "Tapper Tip",
+   "slug": "tapper-tip",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-BTB",
+   "knob": "peg",
+   "blurb": "A red-hatted tapper gnome who drills each maple just gently enough."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-the-sugar-shack-364637",
+   "key": "pl-sugr-3",
+   "name": "Sweet Steam Wander",
+   "slug": "sweet-steam-wander",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "Sweet steam pours from the cabin chimney and drifts off into the maple wood."
+  },
+  {
+   "pic": "pl-haven-the-sugar-shack-364637",
+   "key": "pl-sugr-4",
+   "name": "Maple Quartet",
+   "slug": "maple-quartet",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "Orange maple leaves that the autumn wind keeps blowing across the shack roof."
+  },
+  {
+   "pic": "pl-haven-the-sugar-shack-364637",
+   "key": "pl-sugr-5",
+   "name": "Syrup Shine",
+   "slug": "syrup-shine",
+   "rarity": "uncommon",
+   "calling": "rootwarden",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A warm orange window where the syrup bubbles, glowing on cold mornings."
+  },
+  {
+   "pic": "pl-haven-the-sugar-shack-364637",
+   "key": "pl-sugr-6",
+   "name": "Maple Mayor",
+   "slug": "maple-mayor",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-maple",
+   "knob": "peg",
+   "blurb": "A jolly maple-leaf mayor who taps every tree in town and hands out syrup at the door."
+  },
+  {
+   "pic": "pl-haven-turtle-nesting-beach-ffa682",
+   "key": "pl-turt-1",
+   "name": "Moonlit Beam",
+   "slug": "moonlit-beam",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "corner-TB",
+   "knob": "round",
+   "blurb": "A big full moon that lights the whole beach so the hatchlings can find the sea."
+  },
+  {
+   "pic": "pl-haven-turtle-nesting-beach-ffa682",
+   "key": "pl-turt-2",
+   "name": "Flipper Dash",
+   "slug": "flipper-dash",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "peg",
+   "blurb": "The smallest hatchling in the line, who flaps hard and never once looks back."
+  },
+  {
+   "pic": "pl-haven-turtle-nesting-beach-ffa682",
+   "key": "pl-turt-3",
+   "name": "Wave Ribbon",
+   "slug": "wave-ribbon",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "round",
+   "blurb": "A ribbon of moonlit wave that rolls up the sand and tickles the hatchlings\u2019 toes."
+  },
+  {
+   "pic": "pl-haven-turtle-nesting-beach-ffa682",
+   "key": "pl-turt-4",
+   "name": "Hatchling Line",
+   "slug": "hatchling-line",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "peg",
+   "blurb": "Four hatchlings in a neat line, each one following the flipper prints in front."
+  }
+ ],
+ [
+  {
+   "pic": "pl-haven-turtle-nesting-beach-ffa682",
+   "key": "pl-turt-5",
+   "name": "Mama Shell",
+   "slug": "mama-shell",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "round",
+   "blurb": "A big round turtle shell, mossy green, resting on the sand after a long swim."
+  },
+  {
+   "pic": "pl-haven-turtle-nesting-beach-ffa682",
+   "key": "pl-turt-6",
+   "name": "Moonshell Hatchling",
+   "slug": "moonshell-hatchling",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-hatchling",
+   "knob": "peg",
+   "blurb": "A chibi hatchling with a moonlit shell, who leads the others down to the water."
+  },
+  {
+   "pic": "pl-wonder-cedar-sanctuary-ff7cde",
+   "key": "pl-wced-1",
+   "name": "Misty Moonpeek",
+   "slug": "misty-moonpeek",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-BB",
+   "knob": "keyhole",
+   "blurb": "A pale morning moon peeking over the cedars, shy as a first yawn."
+  },
+  {
+   "pic": "pl-wonder-cedar-sanctuary-ff7cde",
+   "key": "pl-wced-2",
+   "name": "Fireside Flickerling",
+   "slug": "fireside-flickerling",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "A flame-sprite on the stone ring that warms one cedar needle at a time."
+  },
+  {
+   "pic": "pl-wonder-cedar-sanctuary-ff7cde",
+   "key": "pl-wced-3",
+   "name": "Toadstool Tiptoe",
+   "slug": "toadstool-tiptoe",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A red-capped toadstool by the cedar roots that tiptoes round the ring."
+  },
+  {
+   "pic": "pl-wonder-cedar-sanctuary-ff7cde",
+   "key": "pl-wced-4",
+   "name": "Far Snowcaps",
+   "slug": "far-snowcaps",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Two snowy peaks beyond the cedars, far away and sleepy."
+  },
+  {
+   "pic": "pl-wonder-cedar-sanctuary-ff7cde",
+   "key": "pl-wced-5",
+   "name": "Mossring Cushion",
+   "slug": "mossring-cushion",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "The red cushion in the middle of the mossy ring, saving a seat for you."
+  },
+  {
+   "pic": "pl-wonder-cedar-sanctuary-ff7cde",
+   "key": "pl-wced-6",
+   "name": "Branch Meditator",
+   "slug": "branch-meditator",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-woodspirit",
+   "knob": "keyhole",
+   "blurb": "A little carved wood spirit who meditates in the cedar and hums when the mist rolls in."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-cenote-of-echoes-f27683",
+   "key": "pl-wcen-1",
+   "name": "Mossy Ledge Croaker",
+   "slug": "mossy-ledge-croaker",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TT",
+   "knob": "keyhole",
+   "blurb": "A green frog on the pool ledge who croaks hello and waits for the pool to answer."
+  },
+  {
+   "pic": "pl-wonder-cenote-of-echoes-f27683",
+   "key": "pl-wcen-2",
+   "name": "Plinking Pebbles",
+   "slug": "plinking-pebbles",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-BTB",
+   "knob": "keyhole",
+   "blurb": "Dark smooth stones on the pool floor that plink once, a beat after any drip."
+  },
+  {
+   "pic": "pl-wonder-cenote-of-echoes-f27683",
+   "key": "pl-wcen-3",
+   "name": "Chestful of Twinkles",
+   "slug": "chestful-of-twinkles",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "The sunken treasure chest, lid ajar and sparkling, saved for the one who dives in."
+  },
+  {
+   "pic": "pl-wonder-cenote-of-echoes-f27683",
+   "key": "pl-wcen-4",
+   "name": "Slanting Sunbeams",
+   "slug": "slanting-sunbeams",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four beams of green light that tiptoe down through the water."
+  },
+  {
+   "pic": "pl-wonder-cenote-of-echoes-f27683",
+   "key": "pl-wcen-5",
+   "name": "Ripples Running Late",
+   "slug": "ripples-running-late",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "Rings of ripple that run back across the pool a moment after the shout."
+  },
+  {
+   "pic": "pl-wonder-cenote-of-echoes-f27683",
+   "key": "pl-wcen-6",
+   "name": "Chestwatch Goldfish",
+   "slug": "chestwatch-goldfish",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-goldfish",
+   "knob": "keyhole",
+   "blurb": "A plump goldfish who guards the sunken chest and fans a fin at the echoes."
+  },
+  {
+   "pic": "pl-wonder-coffee-ceremony-hut-e84613",
+   "key": "pl-wcof-1",
+   "name": "Thatchtop Bauble",
+   "slug": "thatchtop-bauble",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "keyhole",
+   "blurb": "The little gold ball on the hut\u2019s thatched peak, first to catch the moon."
+  },
+  {
+   "pic": "pl-wonder-coffee-ceremony-hut-e84613",
+   "key": "pl-wcof-2",
+   "name": "Bowl of Puffs",
+   "slug": "bowl-of-puffs",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "A bowl of fluffy white snacks by the door, passed round before the second cup."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-coffee-ceremony-hut-e84613",
+   "key": "pl-wcof-3",
+   "name": "Grumbling Coals",
+   "slug": "grumbling-coals",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBBB",
+   "knob": "keyhole",
+   "blurb": "A pot on glowing coals that mutters a warm tune while the beans roast."
+  },
+  {
+   "pic": "pl-wonder-coffee-ceremony-hut-e84613",
+   "key": "pl-wcof-4",
+   "name": "Cuppa Constellation",
+   "slug": "cuppa-constellation",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Tiny cups set out like stars, one for waking, one for talking, one for blessing."
+  },
+  {
+   "pic": "pl-wonder-coffee-ceremony-hut-e84613",
+   "key": "pl-wcof-5",
+   "name": "Doorway Aglow",
+   "slug": "doorway-aglow",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "The round orange door of the hut, lit up warm for whoever walks over."
+  },
+  {
+   "pic": "pl-wonder-coffee-ceremony-hut-e84613",
+   "key": "pl-wcof-6",
+   "name": "Headband Pourer",
+   "slug": "headband-pourer",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-host",
+   "knob": "keyhole",
+   "blurb": "A calm host in a striped headband who pours three cups and spills not a drop."
+  },
+  {
+   "pic": "pl-wonder-fairy-ring-clearing-8e1394",
+   "key": "pl-wfri-1",
+   "name": "Moon Spotlight",
+   "slug": "moon-spotlight",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-BB",
+   "knob": "keyhole",
+   "blurb": "A round moon that shines down on the clearing like a spotlight for the dancing caps."
+  },
+  {
+   "pic": "pl-wonder-fairy-ring-clearing-8e1394",
+   "key": "pl-wfri-2",
+   "name": "Ribboned Gift",
+   "slug": "ribboned-gift",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "A small pink present by the little door, tied with a ribbon by very tiny fingers."
+  },
+  {
+   "pic": "pl-wonder-fairy-ring-clearing-8e1394",
+   "key": "pl-wfri-3",
+   "name": "Mycelium Twinkles",
+   "slug": "mycelium-twinkles",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "Golden sparkles in the soil, the underground threads waving hello."
+  },
+  {
+   "pic": "pl-wonder-fairy-ring-clearing-8e1394",
+   "key": "pl-wfri-4",
+   "name": "Redcap Congregation",
+   "slug": "redcap-congregation",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four glowing mushrooms leaning close together to share a secret."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-fairy-ring-clearing-8e1394",
+   "key": "pl-wfri-5",
+   "name": "Tiny Door Ajar",
+   "slug": "tiny-door-ajar",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "A teeny round door in the old stump, open just a crack for a visitor."
+  },
+  {
+   "pic": "pl-wonder-fairy-ring-clearing-8e1394",
+   "key": "pl-wfri-6",
+   "name": "Dancing Pinkcap",
+   "slug": "dancing-pinkcap",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-toadstool",
+   "knob": "keyhole",
+   "blurb": "A plump pink mushroom who twirls at the head of the ring and hands round small gifts."
+  },
+  {
+   "pic": "pl-wonder-flamingo-shallows-707c2a",
+   "key": "pl-wfla-1",
+   "name": "Peppermint Awning",
+   "slug": "peppermint-awning",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "keyhole",
+   "blurb": "A red and cream awning over the feather stall, bright as a boiled sweet."
+  },
+  {
+   "pic": "pl-wonder-flamingo-shallows-707c2a",
+   "key": "pl-wfla-2",
+   "name": "Quill Bouquet",
+   "slug": "quill-bouquet",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "A fan of pink feathers on the stall counter, tied with twine and ready to trade."
+  },
+  {
+   "pic": "pl-wonder-flamingo-shallows-707c2a",
+   "key": "pl-wfla-3",
+   "name": "Faraway Pink Fuzz",
+   "slug": "faraway-pink-fuzz",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A far flock of flamingos that looks like pink fuzz on the water."
+  },
+  {
+   "pic": "pl-wonder-flamingo-shallows-707c2a",
+   "key": "pl-wfla-4",
+   "name": "Long-Neck Lineup",
+   "slug": "long-neck-lineup",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four long necks in a row at the stalls, taking turns to peek over the counter."
+  },
+  {
+   "pic": "pl-wonder-flamingo-shallows-707c2a",
+   "key": "pl-wfla-5",
+   "name": "Question-Mark Neck",
+   "slug": "question-mark-neck",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "A flamingo whose neck curls into a question mark, wondering what you brought to trade."
+  },
+  {
+   "pic": "pl-wonder-flamingo-shallows-707c2a",
+   "key": "pl-wfla-6",
+   "name": "Stallkeeper Plumeling",
+   "slug": "stallkeeper-plumeling",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-stallbird",
+   "knob": "keyhole",
+   "blurb": "A small flamingo who minds the feather stall and counts every plume twice."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-glowworm-grotto-c58e7b",
+   "key": "pl-wgwo-1",
+   "name": "Dangling Dripstone",
+   "slug": "dangling-dripstone",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TT",
+   "knob": "keyhole",
+   "blurb": "A purple stalactite with a sparkle at its tip, practising how to stay still."
+  },
+  {
+   "pic": "pl-wonder-glowworm-grotto-c58e7b",
+   "key": "pl-wgwo-2",
+   "name": "Wanderlight Wisps",
+   "slug": "wanderlight-wisps",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "A trail of loose glow dots that wander off the ceiling and come back."
+  },
+  {
+   "pic": "pl-wonder-glowworm-grotto-c58e7b",
+   "key": "pl-wgwo-3",
+   "name": "Hopscotch Stones",
+   "slug": "hopscotch-stones",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "Flat dark stones dotted over the pool, just right for a small hop."
+  },
+  {
+   "pic": "pl-wonder-glowworm-grotto-c58e7b",
+   "key": "pl-wgwo-4",
+   "name": "Ceiling Constellation",
+   "slug": "ceiling-constellation",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four tiny glowing dots on the cave roof, arranged like a star map."
+  },
+  {
+   "pic": "pl-wonder-glowworm-grotto-c58e7b",
+   "key": "pl-wgwo-5",
+   "name": "Pool of Quiet",
+   "slug": "pool-of-quiet",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "The still round pool, so calm that it hushes anyone who looks in."
+  },
+  {
+   "pic": "pl-wonder-glowworm-grotto-c58e7b",
+   "key": "pl-wgwo-6",
+   "name": "Swinging Glowtail",
+   "slug": "swinging-glowtail",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-glowworm",
+   "knob": "keyhole",
+   "blurb": "A plump glowworm on a silk thread who swings above the pool and hums to the light."
+  },
+  {
+   "pic": "pl-wonder-goat-path-vineyards-19fd4a",
+   "key": "pl-wgoa-1",
+   "name": "Terracotta Topknot",
+   "slug": "terracotta-topknot",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-BB",
+   "knob": "keyhole",
+   "blurb": "The red tiled roof of the farmhouse, warm as toast after a sunny day."
+  },
+  {
+   "pic": "pl-wonder-goat-path-vineyards-19fd4a",
+   "key": "pl-wgoa-2",
+   "name": "Green Pencil Cypress",
+   "slug": "green-pencil-cypress",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "A tall slim cypress that sways in the breeze like a pencil doodling the sky."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-goat-path-vineyards-19fd4a",
+   "key": "pl-wgoa-3",
+   "name": "Squishy Grape Crate",
+   "slug": "squishy-grape-crate",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A crate heaped with purple grapes, sticky and waiting for the cart."
+  },
+  {
+   "pic": "pl-wonder-goat-path-vineyards-19fd4a",
+   "key": "pl-wgoa-4",
+   "name": "Harvest Hat Parade",
+   "slug": "harvest-hat-parade",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Pointy hats bobbing along the vine rows, each one over a basket of grapes."
+  },
+  {
+   "pic": "pl-wonder-goat-path-vineyards-19fd4a",
+   "key": "pl-wgoa-5",
+   "name": "Hoopsy Barrels",
+   "slug": "hoopsy-barrels",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "Two round barrel tops with iron hoops, waiting for the grapes."
+  },
+  {
+   "pic": "pl-wonder-goat-path-vineyards-19fd4a",
+   "key": "pl-wgoa-6",
+   "name": "Supervising Billy",
+   "slug": "supervising-billy",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-goat",
+   "knob": "keyhole",
+   "blurb": "A woolly goat on the wall who watches the harvest and takes one grape for his trouble."
+  },
+  {
+   "pic": "pl-wonder-gorilla-glade-90c244",
+   "key": "pl-wgor-1",
+   "name": "Marmalade Treetop",
+   "slug": "marmalade-treetop",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TT",
+   "knob": "keyhole",
+   "blurb": "A round tree with orange fruit, glowing like marmalade where the sunbeam lands."
+  },
+  {
+   "pic": "pl-wonder-gorilla-glade-90c244",
+   "key": "pl-wgor-2",
+   "name": "Peekaboo Pipsqueak",
+   "slug": "peekaboo-pipsqueak",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "A baby gorilla peeking round its mother\u2019s shoulder with big shy eyes."
+  },
+  {
+   "pic": "pl-wonder-gorilla-glade-90c244",
+   "key": "pl-wgor-3",
+   "name": "Rainbow Fruit Tumble",
+   "slug": "rainbow-fruit-tumble",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A heap of colourful forest fruit in the grass, free to anyone with manners."
+  },
+  {
+   "pic": "pl-wonder-gorilla-glade-90c244",
+   "key": "pl-wgor-4",
+   "name": "Sunbeam Staircase",
+   "slug": "sunbeam-staircase",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Slanting beams of sunshine through the trees, like steps for dust motes."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-gorilla-glade-90c244",
+   "key": "pl-wgor-5",
+   "name": "Orange Offering",
+   "slug": "orange-offering",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "The orange held out in a big gentle hand, an invitation to say please."
+  },
+  {
+   "pic": "pl-wonder-gorilla-glade-90c244",
+   "key": "pl-wgor-6",
+   "name": "Frowny Silverback",
+   "slug": "frowny-silverback",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-gorilla",
+   "knob": "keyhole",
+   "blurb": "A huge, soft-hearted silverback who looks stern but shares his fruit, one at a time."
+  },
+  {
+   "pic": "pl-wonder-lantern-festival-river-05dda1",
+   "key": "pl-wlfe-1",
+   "name": "Upturned Pagoda Eaves",
+   "slug": "upturned-pagoda-eaves",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "keyhole",
+   "blurb": "The curly roof of the pagoda on the far shore, smiling up at the night."
+  },
+  {
+   "pic": "pl-wonder-lantern-festival-river-05dda1",
+   "key": "pl-wlfe-2",
+   "name": "Butter Moonlet",
+   "slug": "butter-moonlet",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "A round, buttery moon that lights the river for the drifting lanterns."
+  },
+  {
+   "pic": "pl-wonder-lantern-festival-river-05dda1",
+   "key": "pl-wlfe-3",
+   "name": "Lollipop Tree",
+   "slug": "lollipop-tree",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A little round tree on the bank, dappled with lantern light."
+  },
+  {
+   "pic": "pl-wonder-lantern-festival-river-05dda1",
+   "key": "pl-wlfe-4",
+   "name": "Beads on the Bridge",
+   "slug": "beads-on-the-bridge",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Red lanterns hung along the bridge rail, bright as a row of cherries."
+  },
+  {
+   "pic": "pl-wonder-lantern-festival-river-05dda1",
+   "key": "pl-wlfe-5",
+   "name": "Roundbelly Lanternling",
+   "slug": "roundbelly-lanternling",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "A big round paper lantern bobbing in the shallows, glowing from the inside."
+  },
+  {
+   "pic": "pl-wonder-lantern-festival-river-05dda1",
+   "key": "pl-wlfe-6",
+   "name": "Candle Boat Pilot",
+   "slug": "candle-boat-pilot",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-wishlight",
+   "knob": "keyhole",
+   "blurb": "A small floating lantern that steers itself along the river, carrying one wish."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-lighthouse-of-the-lost-lantern-390d6d",
+   "key": "pl-wlig-1",
+   "name": "Brass Bonnet",
+   "slug": "brass-bonnet",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TT",
+   "knob": "keyhole",
+   "blurb": "The gold cap on the lighthouse lamp room, polished by the sea wind."
+  },
+  {
+   "pic": "pl-wonder-lighthouse-of-the-lost-lantern-390d6d",
+   "key": "pl-wlig-2",
+   "name": "Tipsy Crescent",
+   "slug": "tipsy-crescent",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBT",
+   "knob": "keyhole",
+   "blurb": "A slim crescent moon over the sea, leaning like it is about to nod off."
+  },
+  {
+   "pic": "pl-wonder-lighthouse-of-the-lost-lantern-390d6d",
+   "key": "pl-wlig-3",
+   "name": "Thimble Sailboat",
+   "slug": "thimble-sailboat",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A tiny sailboat far out on the water, as small as a thimble."
+  },
+  {
+   "pic": "pl-wonder-lighthouse-of-the-lost-lantern-390d6d",
+   "key": "pl-wlig-4",
+   "name": "Sunset Layer Cake",
+   "slug": "sunset-layer-cake",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Bands of purple, pink and gold over the sea, stacked like a layer cake."
+  },
+  {
+   "pic": "pl-wonder-lighthouse-of-the-lost-lantern-390d6d",
+   "key": "pl-wlig-5",
+   "name": "Wide-Eyed Windows",
+   "slug": "wide-eyed-windows",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "Two round windows on the lighthouse that look out like surprised eyes."
+  },
+  {
+   "pic": "pl-wonder-lighthouse-of-the-lost-lantern-390d6d",
+   "key": "pl-wlig-6",
+   "name": "Candlehead Crab",
+   "slug": "candlehead-crab",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-lampcrab",
+   "knob": "keyhole",
+   "blurb": "A crab who holds up a lit candle in each claw so the boats can find the rocks."
+  },
+  {
+   "pic": "pl-wonder-mud-mosque-library-e5856f",
+   "key": "pl-wmud-1",
+   "name": "Onion Dome Daydream",
+   "slug": "onion-dome-daydream",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-BB",
+   "knob": "keyhole",
+   "blurb": "A blue-tiled onion dome that daydreams about rain it has never needed."
+  },
+  {
+   "pic": "pl-wonder-mud-mosque-library-e5856f",
+   "key": "pl-wmud-2",
+   "name": "Wobbly Bookpile",
+   "slug": "wobbly-bookpile",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "A leaning pile of books by the gate, held up by hope and string."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-mud-mosque-library-e5856f",
+   "key": "pl-wmud-3",
+   "name": "Candy Minaret",
+   "slug": "candy-minaret",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A banded tower at the edge of the library, striped like a stick of candy."
+  },
+  {
+   "pic": "pl-wonder-mud-mosque-library-e5856f",
+   "key": "pl-wmud-4",
+   "name": "Rainbow Spine Shelves",
+   "slug": "rainbow-spine-shelves",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Shelves of scrolls and books in every colour, stacked up the tall wall."
+  },
+  {
+   "pic": "pl-wonder-mud-mosque-library-e5856f",
+   "key": "pl-wmud-5",
+   "name": "Cobalt Peekhole",
+   "slug": "cobalt-peekhole",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "A round blue-trimmed window high on the wall, just right for peeking."
+  },
+  {
+   "pic": "pl-wonder-mud-mosque-library-e5856f",
+   "key": "pl-wmud-6",
+   "name": "Slowpage Tortoise",
+   "slug": "slowpage-tortoise",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-tortoise",
+   "knob": "keyhole",
+   "blurb": "A tortoise in spectacles who guides readers through the scrolls, one dignified step at a time."
+  },
+  {
+   "pic": "pl-wonder-panda-bamboo-grove-564306",
+   "key": "pl-wpan-1",
+   "name": "Knock-Knock Bamboo",
+   "slug": "knock-knock-bamboo",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TT",
+   "knob": "keyhole",
+   "blurb": "Tall green bamboo that knocks softly in the breeze, calling the cubs home."
+  },
+  {
+   "pic": "pl-wonder-panda-bamboo-grove-564306",
+   "key": "pl-wpan-2",
+   "name": "Basket Munchkin",
+   "slug": "basket-munchkin",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "A cub tucked in a bamboo bowl, munching shoots and dropping only a few."
+  },
+  {
+   "pic": "pl-wonder-panda-bamboo-grove-564306",
+   "key": "pl-wpan-3",
+   "name": "Sproutling Patch",
+   "slug": "sproutling-patch",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBBB",
+   "knob": "keyhole",
+   "blurb": "Pointy bamboo shoots poking up through the grass, crunchy and green."
+  },
+  {
+   "pic": "pl-wonder-panda-bamboo-grove-564306",
+   "key": "pl-wpan-4",
+   "name": "Fuzzy Black Boots",
+   "slug": "fuzzy-black-boots",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Four plump black paws planted in the grass, soft as bedroom slippers."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-panda-bamboo-grove-564306",
+   "key": "pl-wpan-5",
+   "name": "Dark Eye Patches",
+   "slug": "dark-eye-patches",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "Two round dark patches round the panda\u2019s eyes, blinking slowly at you."
+  },
+  {
+   "pic": "pl-wonder-panda-bamboo-grove-564306",
+   "key": "pl-wpan-6",
+   "name": "Splinter Paw Panda",
+   "slug": "splinter-paw-panda",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-panda",
+   "knob": "keyhole",
+   "blurb": "A serious panda who holds up one paw to show a splinter, then nibbles shoots like a judge."
+  },
+  {
+   "pic": "pl-wonder-pearl-diver-cove-680a36",
+   "key": "pl-wpea-1",
+   "name": "Bobbing Cherry Buoy",
+   "slug": "bobbing-cherry-buoy",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "keyhole",
+   "blurb": "A cherry-red buoy that bobs on its rope, marking where the pearls are."
+  },
+  {
+   "pic": "pl-wonder-pearl-diver-cove-680a36",
+   "key": "pl-wpea-2",
+   "name": "Marmalade Minnow",
+   "slug": "marmalade-minnow",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "A little orange fish that darts under the raft and back, just for fun."
+  },
+  {
+   "pic": "pl-wonder-pearl-diver-cove-680a36",
+   "key": "pl-wpea-3",
+   "name": "Coral Fingerlings",
+   "slug": "coral-fingerlings",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "Orange coral fingers that wave at passing fish."
+  },
+  {
+   "pic": "pl-wonder-pearl-diver-cove-680a36",
+   "key": "pl-wpea-4",
+   "name": "Oysterbed Choir",
+   "slug": "oysterbed-choir",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Oysters in a row on the sand, shut tight and humming a tune."
+  },
+  {
+   "pic": "pl-wonder-pearl-diver-cove-680a36",
+   "key": "pl-wpea-5",
+   "name": "Pearl Peekaboo",
+   "slug": "pearl-peekaboo",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "An oyster that opens a crack to show one shining pearl, then shuts again."
+  },
+  {
+   "pic": "pl-wonder-pearl-diver-cove-680a36",
+   "key": "pl-wpea-6",
+   "name": "Whiskerwatch Diver",
+   "slug": "whiskerwatch-diver",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-diver",
+   "knob": "keyhole",
+   "blurb": "A bearded diver on the raft who holds a pearl up to the sun and keeps the rest for later."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-pink-river-dolphin-pools-29137e",
+   "key": "pl-wdol-1",
+   "name": "Lilypad Parasol",
+   "slug": "lilypad-parasol",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-BB",
+   "knob": "keyhole",
+   "blurb": "A broad green lily pad that shades the little frogs from the afternoon sun."
+  },
+  {
+   "pic": "pl-wonder-pink-river-dolphin-pools-29137e",
+   "key": "pl-wdol-2",
+   "name": "Scarlet Chatterbox",
+   "slug": "scarlet-chatterbox",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "A scarlet macaw on a perch who yells hello at every dolphin."
+  },
+  {
+   "pic": "pl-wonder-pink-river-dolphin-pools-29137e",
+   "key": "pl-wdol-3",
+   "name": "Notch-Ladder Trunk",
+   "slug": "notch-ladder-trunk",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A tall trunk with little notches and hanging vines, a ladder for small climbers."
+  },
+  {
+   "pic": "pl-wonder-pink-river-dolphin-pools-29137e",
+   "key": "pl-wdol-4",
+   "name": "Rosy Fin Salute",
+   "slug": "rosy-fin-salute",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "A pink fin raised out of the water like a friendly wave."
+  },
+  {
+   "pic": "pl-wonder-pink-river-dolphin-pools-29137e",
+   "key": "pl-wdol-5",
+   "name": "Parcel on a Pad",
+   "slug": "parcel-on-a-pad",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "A bundle of seeds on a lily pad, delivered by a dolphin\u2019s nose."
+  },
+  {
+   "pic": "pl-wonder-pink-river-dolphin-pools-29137e",
+   "key": "pl-wdol-6",
+   "name": "Nudging Boto",
+   "slug": "nudging-boto",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-boto",
+   "knob": "keyhole",
+   "blurb": "A chubby pink river dolphin who nudges you toward the next hidden seed."
+  },
+  {
+   "pic": "pl-wonder-prayer-flag-pass-4260ac",
+   "key": "pl-wpry-1",
+   "name": "Gilded Nubbin",
+   "slug": "gilded-nubbin",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TT",
+   "knob": "keyhole",
+   "blurb": "The gold ball on top of the prayer pole, shiny from many hopeful touches."
+  },
+  {
+   "pic": "pl-wonder-prayer-flag-pass-4260ac",
+   "key": "pl-wpry-2",
+   "name": "Glacier Hat",
+   "slug": "glacier-hat",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "A snowy peak wearing a white hat above the pass."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-prayer-flag-pass-4260ac",
+   "key": "pl-wpry-3",
+   "name": "Pilgrim Pebble",
+   "slug": "pilgrim-pebble",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A round pebble by the path, picked up and set down again for luck."
+  },
+  {
+   "pic": "pl-wonder-prayer-flag-pass-4260ac",
+   "key": "pl-wpry-4",
+   "name": "Windtalking Bunting",
+   "slug": "windtalking-bunting",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "Strings of blue, green, red and yellow flags that read the wishes out in the wind."
+  },
+  {
+   "pic": "pl-wonder-prayer-flag-pass-4260ac",
+   "key": "pl-wpry-5",
+   "name": "Stone Doughnuts",
+   "slug": "stone-doughnuts",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "Round stones stacked in rings at the foot of the pole, topped with a wish."
+  },
+  {
+   "pic": "pl-wonder-prayer-flag-pass-4260ac",
+   "key": "pl-wpry-6",
+   "name": "Redsaddle Yak",
+   "slug": "redsaddle-yak",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-yak",
+   "knob": "keyhole",
+   "blurb": "A shaggy yak in a red saddle who carries the wishes up the pass, one slow step at a time."
+  },
+  {
+   "pic": "pl-wonder-root-wrapped-temple-83a03a",
+   "key": "pl-wroo-1",
+   "name": "Mossy Topslab",
+   "slug": "mossy-topslab",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-BB",
+   "knob": "keyhole",
+   "blurb": "The mossy slab on top of the temple, a hat for a stone head."
+  },
+  {
+   "pic": "pl-wonder-root-wrapped-temple-83a03a",
+   "key": "pl-wroo-2",
+   "name": "Elbow Root Hug",
+   "slug": "elbow-root-hug",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "A curling root that hugs the temple like an elbow around a friend."
+  },
+  {
+   "pic": "pl-wonder-root-wrapped-temple-83a03a",
+   "key": "pl-wroo-3",
+   "name": "Vine Bead Dangle",
+   "slug": "vine-bead-dangle",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A green bead on a hanging vine, swinging gently in the canopy."
+  },
+  {
+   "pic": "pl-wonder-root-wrapped-temple-83a03a",
+   "key": "pl-wroo-4",
+   "name": "Dotted Script Panel",
+   "slug": "dotted-script-panel",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "A little panel carved with rows of dots, a letter written for the moss."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-root-wrapped-temple-83a03a",
+   "key": "pl-wroo-5",
+   "name": "Archway Ember",
+   "slug": "archway-ember",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-BBBB",
+   "knob": "keyhole",
+   "blurb": "A tiny lantern burning in the arched doorway, left on for any visitor."
+  },
+  {
+   "pic": "pl-wonder-root-wrapped-temple-83a03a",
+   "key": "pl-wroo-6",
+   "name": "Grinning Stone Face",
+   "slug": "grinning-stone-face",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-temple",
+   "knob": "keyhole",
+   "blurb": "A stone face with a kind smile, snug in the arms of the roots."
+  },
+  {
+   "pic": "pl-wonder-starpath-canoe-a8df46",
+   "key": "pl-wsta-1",
+   "name": "Dot-to-Dot Sky",
+   "slug": "dot-to-dot-sky",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TB",
+   "knob": "keyhole",
+   "blurb": "Gold dots in the night sky joined by thin lines, a map drawn by the stars."
+  },
+  {
+   "pic": "pl-wonder-starpath-canoe-a8df46",
+   "key": "pl-wsta-2",
+   "name": "Hazy Island Nap",
+   "slug": "hazy-island-nap",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "A far island dozing on the horizon, waiting for the canoe to wake it."
+  },
+  {
+   "pic": "pl-wonder-starpath-canoe-a8df46",
+   "key": "pl-wsta-3",
+   "name": "Torchlet Wiggle",
+   "slug": "torchlet-wiggle",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A beach torch that wiggles its flame in the breeze and warms the sand."
+  },
+  {
+   "pic": "pl-wonder-starpath-canoe-a8df46",
+   "key": "pl-wsta-4",
+   "name": "Cream Sail Billow",
+   "slug": "cream-sail-billow",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "A cream sail with a little red mark, catching every breeze."
+  },
+  {
+   "pic": "pl-wonder-starpath-canoe-a8df46",
+   "key": "pl-wsta-5",
+   "name": "Crescent Hull Smile",
+   "slug": "crescent-hull-smile",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-TTBB",
+   "knob": "keyhole",
+   "blurb": "The curved dark hull of the voyaging canoe, smiling at the sand."
+  },
+  {
+   "pic": "pl-wonder-starpath-canoe-a8df46",
+   "key": "pl-wsta-6",
+   "name": "Starwise Cheerer",
+   "slug": "starwise-cheerer",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-navigator",
+   "knob": "keyhole",
+   "blurb": "A navigator in a bright headband who cheers when the stars line up."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-stone-head-watchers-88f47d",
+   "key": "pl-wsto-1",
+   "name": "Cherry Topper",
+   "slug": "cherry-topper",
+   "rarity": "common",
+   "calling": "rootwarden",
+   "shape": "corner-TT",
+   "knob": "keyhole",
+   "blurb": "A cherry-red cap on the first stone head, shading its green hair."
+  },
+  {
+   "pic": "pl-wonder-stone-head-watchers-88f47d",
+   "key": "pl-wsto-2",
+   "name": "Roll-Away Seed",
+   "slug": "roll-away-seed",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "A gold seed that rolls off across the grass, as if the stone had blinked."
+  },
+  {
+   "pic": "pl-wonder-stone-head-watchers-88f47d",
+   "key": "pl-wsto-3",
+   "name": "Noon Sunwink",
+   "slug": "noon-sunwink",
+   "rarity": "common",
+   "calling": "brewroot",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A round yellow sun winking over the headland."
+  },
+  {
+   "pic": "pl-wonder-stone-head-watchers-88f47d",
+   "key": "pl-wsto-4",
+   "name": "Eyebrow Row",
+   "slug": "eyebrow-row",
+   "rarity": "uncommon",
+   "calling": "thornblade",
+   "shape": "inner-TTTT",
+   "knob": "double",
+   "blurb": "A row of carved heads on the headland, all raising one stony eyebrow."
+  },
+  {
+   "pic": "pl-wonder-stone-head-watchers-88f47d",
+   "key": "pl-wsto-5",
+   "name": "Round-Eyed Peeker",
+   "slug": "round-eyed-peeker",
+   "rarity": "uncommon",
+   "calling": "bloomcaller",
+   "shape": "inner-TTBB",
+   "knob": "keyhole",
+   "blurb": "A big carved face with round eyes, peeking round the edge of the picture."
+  },
+  {
+   "pic": "pl-wonder-stone-head-watchers-88f47d",
+   "key": "pl-wsto-6",
+   "name": "Blinkseed Stonehead",
+   "slug": "blinkseed-stonehead",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-stonehead",
+   "knob": "keyhole",
+   "blurb": "A carved head in a small red cap who blinks once and drops a gold seed for every question."
+  },
+  {
+   "pic": "pl-wonder-stork-chimney-village-fd6bb4",
+   "key": "pl-stkv-1",
+   "name": "Pink Dusk Lullaby",
+   "slug": "pink-dusk-lullaby",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "corner-TB",
+   "knob": "keyhole",
+   "blurb": "The pink evening sky above the rooftops, so soft that the storks lower their voices."
+  },
+  {
+   "pic": "pl-wonder-stork-chimney-village-fd6bb4",
+   "key": "pl-stkv-2",
+   "name": "Airmail Parcel Sway",
+   "slug": "airmail-parcel-sway",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-BTB",
+   "knob": "keyhole",
+   "blurb": "A little parcel swinging from a flying stork\u2019s beak, bound for a chimney it knows by heart."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-stork-chimney-village-fd6bb4",
+   "key": "pl-stkv-3",
+   "name": "Sunflower Nodder",
+   "slug": "sunflower-nodder",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A sunflower by the village green that nods hello to every stork going home."
+  },
+  {
+   "pic": "pl-wonder-stork-chimney-village-fd6bb4",
+   "key": "pl-stkv-4",
+   "name": "Bowtie Bundle",
+   "slug": "bowtie-bundle",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "A gift parcel with a big red bow, tied so neatly that the stork is rather proud."
+  },
+  {
+   "pic": "pl-wonder-stork-chimney-village-fd6bb4",
+   "key": "pl-stkv-5",
+   "name": "Lamplit Shutters",
+   "slug": "lamplit-shutters",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A warm lit window with blue shutters, left glowing for the storks coming home."
+  },
+  {
+   "pic": "pl-wonder-stork-chimney-village-fd6bb4",
+   "key": "pl-stkv-6",
+   "name": "Rooftop Courier",
+   "slug": "rooftop-courier",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-whitestork",
+   "knob": "keyhole",
+   "blurb": "A chibi white stork on a rooftop perch, parcel ready, waiting for the evening delivery round."
+  },
+  {
+   "pic": "pl-wonder-sunken-gnome-galleon-1c85cc",
+   "key": "pl-sung-1",
+   "name": "Sunnyfin Shoal",
+   "slug": "sunnyfin-shoal",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "corner-TT",
+   "knob": "keyhole",
+   "blurb": "A shoal of yellow fish who circle the old galleon, each one sure it found the wreck first."
+  },
+  {
+   "pic": "pl-wonder-sunken-gnome-galleon-1c85cc",
+   "key": "pl-sung-2",
+   "name": "Chestful Snore",
+   "slug": "chestful-snore",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TBT",
+   "knob": "keyhole",
+   "blurb": "A treasure chest on the sandy floor, snoring softly as the bubbles drift past."
+  },
+  {
+   "pic": "pl-wonder-sunken-gnome-galleon-1c85cc",
+   "key": "pl-sung-3",
+   "name": "Bubble Bop",
+   "slug": "bubble-bop",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A square little bubble that rises from the wreck and goes pop on the way up."
+  },
+  {
+   "pic": "pl-wonder-sunken-gnome-galleon-1c85cc",
+   "key": "pl-sung-4",
+   "name": "Topsail Bandage",
+   "slug": "topsail-bandage",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "The cream sail, patched with an orange mend, still hoping for a good current."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-sunken-gnome-galleon-1c85cc",
+   "key": "pl-sung-5",
+   "name": "Porthole Peekaboo",
+   "slug": "porthole-peekaboo",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A round porthole in the hull, just right for a curious eye to peek out of."
+  },
+  {
+   "pic": "pl-wonder-sunken-gnome-galleon-1c85cc",
+   "key": "pl-sung-6",
+   "name": "Hullmate Octopus",
+   "slug": "hullmate-octopus",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-octopus",
+   "knob": "keyhole",
+   "blurb": "A chibi red octopus with big startled eyes, tucked beside the hull and waving a curly arm."
+  },
+  {
+   "pic": "pl-wonder-tea-garden-slopes-eb52f5",
+   "key": "pl-tegr-1",
+   "name": "Heapsy Basket",
+   "slug": "heapsy-basket",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "corner-BB",
+   "knob": "keyhole",
+   "blurb": "A basket piled high with fresh green tea leaves, heavier than it looks."
+  },
+  {
+   "pic": "pl-wonder-tea-garden-slopes-eb52f5",
+   "key": "pl-tegr-2",
+   "name": "Magenta Muffler",
+   "slug": "magenta-muffler",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "A picker\u2019s bright magenta scarf, bobbing along between the tea rows."
+  },
+  {
+   "pic": "pl-wonder-tea-garden-slopes-eb52f5",
+   "key": "pl-tegr-3",
+   "name": "Steeping Cuppa",
+   "slug": "steeping-cuppa",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A little cup of tea steaming at the edge of the slope, the reward for the climb."
+  },
+  {
+   "pic": "pl-wonder-tea-garden-slopes-eb52f5",
+   "key": "pl-tegr-4",
+   "name": "Conehat Cluster",
+   "slug": "conehat-cluster",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "Three straw hats in a row, nodding along as the pickers chat down the terrace."
+  },
+  {
+   "pic": "pl-wonder-tea-garden-slopes-eb52f5",
+   "key": "pl-tegr-5",
+   "name": "Buttermilk Daybreak",
+   "slug": "buttermilk-daybreak",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A pale round sun over the misty ridge, rising just in time for the first pick."
+  },
+  {
+   "pic": "pl-wonder-tea-garden-slopes-eb52f5",
+   "key": "pl-tegr-6",
+   "name": "Beaming Headpicker",
+   "slug": "beaming-headpicker",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-picker",
+   "knob": "keyhole",
+   "blurb": "A chibi head picker in a big straw cone hat, grinning proudly at the best tea of the slope."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-the-amber-woods-f02aa5",
+   "key": "pl-ambr-1",
+   "name": "Sapdrop Bead",
+   "slug": "sapdrop-bead",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "corner-BB",
+   "knob": "keyhole",
+   "blurb": "A bead of golden sap sliding down a birch trunk, slow as a sleepy snail."
+  },
+  {
+   "pic": "pl-wonder-the-amber-woods-f02aa5",
+   "key": "pl-ambr-2",
+   "name": "Barkband Ladder",
+   "slug": "barkband-ladder",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "Black bands up a white birch trunk, like tiny rungs for any beetle that fancies a climb."
+  },
+  {
+   "pic": "pl-wonder-the-amber-woods-f02aa5",
+   "key": "pl-ambr-3",
+   "name": "Redcap Pips",
+   "slug": "redcap-pips",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "Two red-capped toadstools in the leaf litter, sharing a very small secret."
+  },
+  {
+   "pic": "pl-wonder-the-amber-woods-f02aa5",
+   "key": "pl-ambr-4",
+   "name": "Pinetop Procession",
+   "slug": "pinetop-procession",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "A row of dark pine tops, marching past the low golden sun."
+  },
+  {
+   "pic": "pl-wonder-the-amber-woods-f02aa5",
+   "key": "pl-ambr-5",
+   "name": "Sprout Nook",
+   "slug": "sprout-nook",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A dark little hollow in the big amber, with a green sprout peeking out of it."
+  },
+  {
+   "pic": "pl-wonder-the-amber-woods-f02aa5",
+   "key": "pl-ambr-6",
+   "name": "Plumetail Digger",
+   "slug": "plumetail-digger",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-redsquirrel",
+   "knob": "keyhole",
+   "blurb": "A chibi red squirrel with a great plume of tail, perched on a crate beside the glowing amber."
+  },
+  {
+   "pic": "pl-wonder-the-great-migration-764397",
+   "key": "pl-migr-1",
+   "name": "Powderpuff Dust",
+   "slug": "powderpuff-dust",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-TT",
+   "knob": "keyhole",
+   "blurb": "A soft puff of savanna dust that the herd kicked up and forgot to put away."
+  },
+  {
+   "pic": "pl-wonder-the-great-migration-764397",
+   "key": "pl-migr-2",
+   "name": "Faraway Dashes",
+   "slug": "faraway-dashes",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "edge-TBT",
+   "knob": "keyhole",
+   "blurb": "A line of tiny far-off herd shapes trotting across the gold horizon."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-the-great-migration-764397",
+   "key": "pl-migr-3",
+   "name": "Acacia Umbrella",
+   "slug": "acacia-umbrella",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A flat-topped acacia that shades whoever needs a rest on the long walk."
+  },
+  {
+   "pic": "pl-wonder-the-great-migration-764397",
+   "key": "pl-migr-4",
+   "name": "Jade Sparklet",
+   "slug": "jade-sparklet",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "A green gem with bright facets, lying in the dust where the herd just passed."
+  },
+  {
+   "pic": "pl-wonder-the-great-migration-764397",
+   "key": "pl-migr-5",
+   "name": "Honeysun Disc",
+   "slug": "honeysun-disc",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A low honey-coloured sun, which the whole herd walks toward all day."
+  },
+  {
+   "pic": "pl-wonder-the-great-migration-764397",
+   "key": "pl-migr-6",
+   "name": "Pinstripe Plodder",
+   "slug": "pinstripe-plodder",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-zebra",
+   "knob": "keyhole",
+   "blurb": "A chibi zebra with bold black stripes, plodding happily along with the herd and never falling behind."
+  },
+  {
+   "pic": "pl-wonder-the-hanging-garden-ruins-f5f93d",
+   "key": "pl-hang-1",
+   "name": "Fruit Tray Tumble",
+   "slug": "fruit-tray-tumble",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "corner-TB",
+   "knob": "keyhole",
+   "blurb": "A tray of red, purple and green fruit, jumbled together after a happy harvest."
+  },
+  {
+   "pic": "pl-wonder-the-hanging-garden-ruins-f5f93d",
+   "key": "pl-hang-2",
+   "name": "Leaning Palm Fringe",
+   "slug": "leaning-palm-fringe",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "A palm that leans over the ruin to see the garden, fringe fluttering in the breeze."
+  },
+  {
+   "pic": "pl-wonder-the-hanging-garden-ruins-f5f93d",
+   "key": "pl-hang-3",
+   "name": "Brimful Pool",
+   "slug": "brimful-pool",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "The little blue pool at the foot of the terraces, always full to the brim."
+  },
+  {
+   "pic": "pl-wonder-the-hanging-garden-ruins-f5f93d",
+   "key": "pl-hang-4",
+   "name": "Berrybush Bobbles",
+   "slug": "berrybush-bobbles",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "Round green bushes bobbing with red berries, row after row on a stone step."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-the-hanging-garden-ruins-f5f93d",
+   "key": "pl-hang-5",
+   "name": "Vine Curtain Gateway",
+   "slug": "vine-curtain-gateway",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A pair of green vines dangling under the old stone arch, swaying like a curtain."
+  },
+  {
+   "pic": "pl-wonder-the-hanging-garden-ruins-f5f93d",
+   "key": "pl-hang-6",
+   "name": "Swallow Swoop",
+   "slug": "swallow-swoop",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-swallow",
+   "knob": "keyhole",
+   "blurb": "A chibi swallow swooping round the ruin, wings tucked and tail flicked, delivering seeds to the terraces."
+  },
+  {
+   "pic": "pl-wonder-the-labyrinth-isle-1eea49",
+   "key": "pl-labi-1",
+   "name": "Cypress Candle",
+   "slug": "cypress-candle",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "corner-TT",
+   "knob": "keyhole",
+   "blurb": "A dark cypress standing at the edge of the island like a green candle."
+  },
+  {
+   "pic": "pl-wonder-the-labyrinth-isle-1eea49",
+   "key": "pl-labi-2",
+   "name": "Creamsail Dawdle",
+   "slug": "creamsail-dawdle",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBT",
+   "knob": "keyhole",
+   "blurb": "A cream sail drifting round the island, in no hurry to land."
+  },
+  {
+   "pic": "pl-wonder-the-labyrinth-isle-1eea49",
+   "key": "pl-labi-3",
+   "name": "Gatepost Lampshine",
+   "slug": "gatepost-lampshine",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "Two gateposts with orange lamps at the maze entrance, lit for any visitor who dares."
+  },
+  {
+   "pic": "pl-wonder-the-labyrinth-isle-1eea49",
+   "key": "pl-labi-4",
+   "name": "Hedgerow Swirls",
+   "slug": "hedgerow-swirls",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "Hedge lanes curling round and round, every turn a little greener than the last."
+  },
+  {
+   "pic": "pl-wonder-the-labyrinth-isle-1eea49",
+   "key": "pl-labi-5",
+   "name": "Questionmark Bubble",
+   "slug": "questionmark-bubble",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A round speech bubble with a big question mark, floating over the maze."
+  },
+  {
+   "pic": "pl-wonder-the-labyrinth-isle-1eea49",
+   "key": "pl-labi-6",
+   "name": "Plinth Riddler",
+   "slug": "plinth-riddler",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-stonegnome",
+   "knob": "keyhole",
+   "blurb": "A chibi stone gnome in a grey pointy hat, who asks the same riddle and waits very patiently."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-the-mirror-salt-flat-712d75",
+   "key": "pl-mirr-1",
+   "name": "Nugget Nap",
+   "slug": "nugget-nap",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "corner-TB",
+   "knob": "keyhole",
+   "blurb": "A heap of golden nuggets dozing on the salt, sparkling now and then in its sleep."
+  },
+  {
+   "pic": "pl-wonder-the-mirror-salt-flat-712d75",
+   "key": "pl-mirr-2",
+   "name": "Pinklegs Strut",
+   "slug": "pinklegs-strut",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "Long pink flamingo legs tiptoeing across the flat without a single splash."
+  },
+  {
+   "pic": "pl-wonder-the-mirror-salt-flat-712d75",
+   "key": "pl-mirr-3",
+   "name": "Saltcrack Smile",
+   "slug": "saltcrack-smile",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "Cracks in the salt crust that curl up like a row of tiny smiles."
+  },
+  {
+   "pic": "pl-wonder-the-mirror-salt-flat-712d75",
+   "key": "pl-mirr-4",
+   "name": "Fluffy Pinkbelly",
+   "slug": "fluffy-pinkbelly",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "A round pink flamingo tummy, fluffed up and very proud of it."
+  },
+  {
+   "pic": "pl-wonder-the-mirror-salt-flat-712d75",
+   "key": "pl-mirr-5",
+   "name": "Peach Dawn Coin",
+   "slug": "peach-dawn-coin",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A round peach sun just above the mountains, as if the sky had dropped a coin."
+  },
+  {
+   "pic": "pl-wonder-the-mirror-salt-flat-712d75",
+   "key": "pl-mirr-6",
+   "name": "Puddle Dancer",
+   "slug": "puddle-dancer",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-saltflamingo",
+   "knob": "keyhole",
+   "blurb": "A chibi flamingo twirling on the wet salt, drawing a pink reflection with every step."
+  },
+  {
+   "pic": "pl-wonder-the-oasis-that-moves-dd37ca",
+   "key": "pl-oasi-1",
+   "name": "Awning Flop",
+   "slug": "awning-flop",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "corner-BB",
+   "knob": "keyhole",
+   "blurb": "An orange awning that flaps over a sleepy doorway, tired from being moved."
+  },
+  {
+   "pic": "pl-wonder-the-oasis-that-moves-dd37ca",
+   "key": "pl-oasi-2",
+   "name": "Frond Fanfare",
+   "slug": "frond-fanfare",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "Green palm fronds spread like a fan, rustling a welcome to the new village."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-the-oasis-that-moves-dd37ca",
+   "key": "pl-oasi-3",
+   "name": "Plum Window Blink",
+   "slug": "plum-window-blink",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A plum-dark window in a sandstone wall, peeking out at the morning\u2019s surprise."
+  },
+  {
+   "pic": "pl-wonder-the-oasis-that-moves-dd37ca",
+   "key": "pl-oasi-4",
+   "name": "Goldbead Dates",
+   "slug": "goldbead-dates",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "Golden dates hanging in bunches from a palm, each one round as a bead."
+  },
+  {
+   "pic": "pl-wonder-the-oasis-that-moves-dd37ca",
+   "key": "pl-oasi-5",
+   "name": "Rimmed Pool Saucer",
+   "slug": "rimmed-pool-saucer",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "The little blue pool with its green rim, round as a moon in the sand."
+  },
+  {
+   "pic": "pl-wonder-the-oasis-that-moves-dd37ca",
+   "key": "pl-oasi-6",
+   "name": "Twinhump Stroller",
+   "slug": "twinhump-stroller",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-bactrian",
+   "knob": "keyhole",
+   "blurb": "A chibi two-humped camel in a red saddle blanket, strolling in with the oasis every morning."
+  },
+  {
+   "pic": "pl-wonder-the-silk-road-caravanserai-f002ba",
+   "key": "pl-silk-1",
+   "name": "Potstack Teeter",
+   "slug": "potstack-teeter",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "corner-TT",
+   "knob": "keyhole",
+   "blurb": "Pots stacked in the courtyard, teetering a little and giggling about it."
+  },
+  {
+   "pic": "pl-wonder-the-silk-road-caravanserai-f002ba",
+   "key": "pl-silk-2",
+   "name": "Doorlamp Dozer",
+   "slug": "doorlamp-dozer",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "A golden lamp by a courtyard door, dozing until the caravans come in."
+  },
+  {
+   "pic": "pl-wonder-the-silk-road-caravanserai-f002ba",
+   "key": "pl-silk-3",
+   "name": "Greenjar Giggle",
+   "slug": "greenjar-giggle",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A round green jar tucked among the wares, with a giggle that rattles the lid."
+  },
+  {
+   "pic": "pl-wonder-the-silk-road-caravanserai-f002ba",
+   "key": "pl-silk-4",
+   "name": "Starry Tilework",
+   "slug": "starry-tilework",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "Blue tiles with little gold stars on the great gate, each one hand-set by a traveller."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-the-silk-road-caravanserai-f002ba",
+   "key": "pl-silk-5",
+   "name": "Basin Splashback",
+   "slug": "basin-splashback",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "The rim of the courtyard fountain, where the splashes always come home."
+  },
+  {
+   "pic": "pl-wonder-the-silk-road-caravanserai-f002ba",
+   "key": "pl-silk-6",
+   "name": "Purplehat Haggler",
+   "slug": "purplehat-haggler",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-merchant",
+   "knob": "keyhole",
+   "blurb": "A chibi travelling gnome in a purple cone hat, swapping seeds with a dozen lands at once."
+  },
+  {
+   "pic": "pl-wonder-the-singing-waterfall-c23710",
+   "key": "pl-sing-1",
+   "name": "Hummed Quaver",
+   "slug": "hummed-quaver",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "corner-TB",
+   "knob": "keyhole",
+   "blurb": "A cream music note drifting off the cliff, humming along with the waterfall."
+  },
+  {
+   "pic": "pl-wonder-the-singing-waterfall-c23710",
+   "key": "pl-sing-2",
+   "name": "Prism Streamer",
+   "slug": "prism-streamer",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBT",
+   "knob": "keyhole",
+   "blurb": "A rainbow ribbon curving off the cliff, there when the spray meets the sun."
+  },
+  {
+   "pic": "pl-wonder-the-singing-waterfall-c23710",
+   "key": "pl-sing-3",
+   "name": "Misty Foamcap",
+   "slug": "misty-foamcap",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A white puff of foam at the foot of the fall, bobbing on the cool pool."
+  },
+  {
+   "pic": "pl-wonder-the-singing-waterfall-c23710",
+   "key": "pl-sing-4",
+   "name": "Pondrock Islets",
+   "slug": "pondrock-islets",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "Grey rocks in the pool below the fall, each one a tiny island for a flower hunter\u2019s boots."
+  },
+  {
+   "pic": "pl-wonder-the-singing-waterfall-c23710",
+   "key": "pl-sing-5",
+   "name": "Tuckaway Ledge",
+   "slug": "tuckaway-ledge",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "The dark ledge behind the curtain of water, where the rarest flowers are tucked away."
+  },
+  {
+   "pic": "pl-wonder-the-singing-waterfall-c23710",
+   "key": "pl-sing-6",
+   "name": "Hollowhome Bluebird",
+   "slug": "hollowhome-bluebird",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-bluebird",
+   "knob": "keyhole",
+   "blurb": "A chibi bluebird peeking from a round hollow in the green cliff, singing along to the fall."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-the-sky-city-ruins-5b061c",
+   "key": "pl-skyc-1",
+   "name": "Cloudstep Climb",
+   "slug": "cloudstep-climb",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "corner-BB",
+   "knob": "keyhole",
+   "blurb": "A stone staircase that climbs off the ruins and just keeps going up."
+  },
+  {
+   "pic": "pl-wonder-the-sky-city-ruins-5b061c",
+   "key": "pl-skyc-2",
+   "name": "Pinkpad Float",
+   "slug": "pinkpad-float",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "A big pink floating pad, drifting by the cliff like a tiny raft of cloud."
+  },
+  {
+   "pic": "pl-wonder-the-sky-city-ruins-5b061c",
+   "key": "pl-skyc-3",
+   "name": "Apricot Sunbun",
+   "slug": "apricot-sunbun",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A soft round sun sinking behind the mountain, warm as a fresh bun."
+  },
+  {
+   "pic": "pl-wonder-the-sky-city-ruins-5b061c",
+   "key": "pl-skyc-4",
+   "name": "Stonestep Benches",
+   "slug": "stonestep-benches",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "Long stone steps cut into the green hillside, like a staircase for giants."
+  },
+  {
+   "pic": "pl-wonder-the-sky-city-ruins-5b061c",
+   "key": "pl-skyc-5",
+   "name": "Amberlit Window",
+   "slug": "amberlit-window",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A tall window in the ruin wall, glowing amber from the sunset behind it."
+  },
+  {
+   "pic": "pl-wonder-the-sky-city-ruins-5b061c",
+   "key": "pl-skyc-6",
+   "name": "Trailpack Cubbie",
+   "slug": "trailpack-cubbie",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-bearcub",
+   "knob": "keyhole",
+   "blurb": "A chibi brown cub with a red pack, perched on the cliff edge and gazing out at the sky."
+  },
+  {
+   "pic": "pl-wonder-the-standing-stones-f29dd4",
+   "key": "pl-stnd-1",
+   "name": "Spiral Scribble",
+   "slug": "spiral-scribble",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "corner-TT",
+   "knob": "keyhole",
+   "blurb": "A swirly spiral carved into a stone, drawn so long ago nobody remembers."
+  },
+  {
+   "pic": "pl-wonder-the-standing-stones-f29dd4",
+   "key": "pl-stnd-2",
+   "name": "Goldtip Twinkle",
+   "slug": "goldtip-twinkle",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "A little gold knob on top of a mossy stone, twinkling in the moonlight."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-the-standing-stones-f29dd4",
+   "key": "pl-stnd-3",
+   "name": "Lilac Sprinkle",
+   "slug": "lilac-sprinkle",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "Lilac flecks sprinkled over the grass ring, as if the night had spilled some stars."
+  },
+  {
+   "pic": "pl-wonder-the-standing-stones-f29dd4",
+   "key": "pl-stnd-4",
+   "name": "Mosscap Toppers",
+   "slug": "mosscap-toppers",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "Green mossy caps sitting on the tall stones like cosy woolly hats."
+  },
+  {
+   "pic": "pl-wonder-the-standing-stones-f29dd4",
+   "key": "pl-stnd-5",
+   "name": "Buttercream Moonlight",
+   "slug": "buttercream-moonlight",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A round buttercream moon over the hill, which the stones all turn to face."
+  },
+  {
+   "pic": "pl-wonder-the-standing-stones-f29dd4",
+   "key": "pl-stnd-6",
+   "name": "Hollowtop Menhir",
+   "slug": "hollowtop-menhir",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-menhir",
+   "knob": "keyhole",
+   "blurb": "A chibi standing stone with a mossy cap and a little dark hollow on top, humming softly at dusk."
+  },
+  {
+   "pic": "pl-wonder-the-stepped-seed-temple-fd002d",
+   "key": "pl-step-1",
+   "name": "Grumpy Mossmask",
+   "slug": "grumpy-mossmask",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "corner-BB",
+   "knob": "keyhole",
+   "blurb": "A round carved face with leafy ears and big round eyes, grumbling kindly at climbers."
+  },
+  {
+   "pic": "pl-wonder-the-stepped-seed-temple-fd002d",
+   "key": "pl-step-2",
+   "name": "Glyph Doodle",
+   "slug": "glyph-doodle",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "Little triangles and squares carved along the terrace, the temple\u2019s old doodles."
+  },
+  {
+   "pic": "pl-wonder-the-stepped-seed-temple-fd002d",
+   "key": "pl-step-3",
+   "name": "Marigold Dot Duo",
+   "slug": "marigold-dot-duo",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "Orange and pink flowers in the grass, nodding together at the temple\u2019s foot."
+  },
+  {
+   "pic": "pl-wonder-the-stepped-seed-temple-fd002d",
+   "key": "pl-step-4",
+   "name": "Ziggurat Zigzag",
+   "slug": "ziggurat-zigzag",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "A zigzag of stone terraces that climbs up to the temple door."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-the-stepped-seed-temple-fd002d",
+   "key": "pl-step-5",
+   "name": "Goldseal Gleam",
+   "slug": "goldseal-gleam",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A round gold medallion on the temple roof, shining over the whole climb."
+  },
+  {
+   "pic": "pl-wonder-the-stepped-seed-temple-fd002d",
+   "key": "pl-step-6",
+   "name": "Scarlet Riddlecaller",
+   "slug": "scarlet-riddlecaller",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-macaw",
+   "knob": "keyhole",
+   "blurb": "A chibi scarlet macaw on the top terrace, calling every riddle out loud for the climbers."
+  },
+  {
+   "pic": "pl-wonder-the-thousand-gates-147003",
+   "key": "pl-gate-1",
+   "name": "Lollipop Maple",
+   "slug": "lollipop-maple",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "corner-TB",
+   "knob": "keyhole",
+   "blurb": "A round red maple on the hillside, like a lollipop stuck in the grass."
+  },
+  {
+   "pic": "pl-wonder-the-thousand-gates-147003",
+   "key": "pl-gate-2",
+   "name": "Hilltop Bowl Shimmer",
+   "slug": "hilltop-bowl-shimmer",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "A little gold bowl on the hilltop shrine, catching the first rays of the sun."
+  },
+  {
+   "pic": "pl-wonder-the-thousand-gates-147003",
+   "key": "pl-gate-3",
+   "name": "Torii Tophat",
+   "slug": "torii-tophat",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "The dark roof of the nearest red gate, tipped like a great black hat."
+  },
+  {
+   "pic": "pl-wonder-the-thousand-gates-147003",
+   "key": "pl-gate-4",
+   "name": "Redgate Staircase",
+   "slug": "redgate-staircase",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "Red gates stepping up the hillside one after another, each a little smaller."
+  },
+  {
+   "pic": "pl-wonder-the-thousand-gates-147003",
+   "key": "pl-gate-5",
+   "name": "Dawnglow Pearl",
+   "slug": "dawnglow-pearl",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "A big pale sun rising over the hill, its light spilling onto every gate."
+  },
+  {
+   "pic": "pl-wonder-the-thousand-gates-147003",
+   "key": "pl-gate-6",
+   "name": "Whisker Sentinel",
+   "slug": "whisker-sentinel",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-gatecat",
+   "knob": "keyhole",
+   "blurb": "A chibi shrine cat with a red collar, sitting very still beside the path and watching every climber."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-thousand-rings-stump-668470",
+   "key": "pl-trng-1",
+   "name": "Redcap Speck",
+   "slug": "redcap-speck",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "corner-TT",
+   "knob": "keyhole",
+   "blurb": "A tiny red mushroom with white spots on the stump\u2019s edge, proud as can be."
+  },
+  {
+   "pic": "pl-wonder-thousand-rings-stump-668470",
+   "key": "pl-trng-2",
+   "name": "Leaf Raft",
+   "slug": "leaf-raft",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "edge-TBB",
+   "knob": "keyhole",
+   "blurb": "A green leaf lying on the rings like a little raft on a wooden pond."
+  },
+  {
+   "pic": "pl-wonder-thousand-rings-stump-668470",
+   "key": "pl-trng-3",
+   "name": "Cellar Apple Gleam",
+   "slug": "cellar-apple-gleam",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A red apple tucked in a doorway under the stump, glowing in the dark."
+  },
+  {
+   "pic": "pl-wonder-thousand-rings-stump-668470",
+   "key": "pl-trng-4",
+   "name": "Looking Glass Sparkle",
+   "slug": "looking-glass-sparkle",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "A golden magnifying glass left on the rings, ready to count every year."
+  },
+  {
+   "pic": "pl-wonder-thousand-rings-stump-668470",
+   "key": "pl-trng-5",
+   "name": "Velvet Hollow",
+   "slug": "velvet-hollow",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "The dark hollow in the middle of the stump, soft as velvet and full of tiny glints."
+  },
+  {
+   "pic": "pl-wonder-thousand-rings-stump-668470",
+   "key": "pl-trng-6",
+   "name": "Tuftear Chipmunk",
+   "slug": "tuftear-chipmunk",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-chipmunk",
+   "knob": "keyhole",
+   "blurb": "A chibi chipmunk with big tufty ears and purple socks, holding a little white orb on top of the stump."
+  },
+  {
+   "pic": "pl-wonder-volcano-spice-gardens-174315",
+   "key": "pl-volc-1",
+   "name": "Cinnamon Puff Bounce",
+   "slug": "cinnamon-puff-bounce",
+   "rarity": "common",
+   "calling": "wayfinder",
+   "shape": "corner-BB",
+   "knob": "keyhole",
+   "blurb": "Round grey puffs bouncing up from the crater, scented like warm cinnamon buns."
+  },
+  {
+   "pic": "pl-wonder-volcano-spice-gardens-174315",
+   "key": "pl-volc-2",
+   "name": "Spiced Bun Snooze",
+   "slug": "spiced-bun-snooze",
+   "rarity": "common",
+   "calling": "seedkeeper",
+   "shape": "edge-TTB",
+   "knob": "keyhole",
+   "blurb": "A warm spiced bun on the market ground, snoozing in the sun."
+  }
+ ],
+ [
+  {
+   "pic": "pl-wonder-volcano-spice-gardens-174315",
+   "key": "pl-volc-3",
+   "name": "Podtree Wiggle",
+   "slug": "podtree-wiggle",
+   "rarity": "common",
+   "calling": "bloomcaller",
+   "shape": "inner-TBTB",
+   "knob": "keyhole",
+   "blurb": "A tall pod-covered spice tree, wiggling its red-dotted branches in the breeze."
+  },
+  {
+   "pic": "pl-wonder-volcano-spice-gardens-174315",
+   "key": "pl-volc-4",
+   "name": "Pinkpetal Rows",
+   "slug": "pinkpetal-rows",
+   "rarity": "uncommon",
+   "calling": "seedkeeper",
+   "shape": "inner-TTTT",
+   "knob": "keyhole",
+   "blurb": "Rows of pink flowers striping the terrace, planted one tidy stripe at a time."
+  },
+  {
+   "pic": "pl-wonder-volcano-spice-gardens-174315",
+   "key": "pl-volc-5",
+   "name": "Cratermouth Hearth",
+   "slug": "cratermouth-hearth",
+   "rarity": "uncommon",
+   "calling": "wayfinder",
+   "shape": "inner-BBBB",
+   "knob": "double",
+   "blurb": "The warm orange glow of the crater, snug as a hearth on top of the mountain."
+  },
+  {
+   "pic": "pl-wonder-volcano-spice-gardens-174315",
+   "key": "pl-volc-6",
+   "name": "Sunhat Spicer",
+   "slug": "sunhat-spicer",
+   "rarity": "rare",
+   "calling": "wayfinder",
+   "shape": "whimsy-spicegnome",
+   "knob": "keyhole",
+   "blurb": "A chibi gnome with a straw cone hat and a brown beard, gathering spice for the market below."
+  }
+ ]
+]
