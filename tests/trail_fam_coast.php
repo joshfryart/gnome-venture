@@ -17,44 +17,54 @@ set_setting('npc_clockwork', '1');
 foreach (q("SELECT * FROM locations WHERE kind = 'village' ORDER BY id")->fetchAll() as $v) stop_folk_ensure($v);
 $all = trail_sights_all();
 $mark = fn(string $slug) => ['x' => 1, 'y' => 1, 'slug' => $slug, 'row' => $all[$slug], 'left' => $all[$slug]['uses'], 'why' => ''];
-$ctx = fn(string $dp, array $marks, array $clock = [3, 8.0, 20001], array $tl = []) => ['now' => ['dp' => $dp, 'tl' => $tl], 'marks' => $marks, 'clock' => $clock, 'land' => 'coast'];
+$ctx = fn(string $dp, array $marks, array $clock = [3, 8.0, 20001], array $tl = []) => ['now' => ['dp' => $dp, 'tl' => $tl, 'ti' => moon_tide((float)$clock[1], (int)$clock[2])['state']], 'marks' => $marks, 'clock' => $clock, 'land' => 'coast'];
 $kelp = 'coast-the-kelp-line'; $steps = 'coast-the-tide-pool-steps'; $wall = 'coast-the-barnacle-wall'; $sandbar = 'coast-the-sandbar-causeway'; $rack = 'coast-the-rope-and-net-rack'; $gap = 'coast-the-sea-stack-gap';
 $light = 'coast-the-lighthouse-shadow'; $post = 'coast-the-bottle-post';
 
-echo "== the tide (a pure function of the game clock)\n";
+require_once $argv[1] . '/includes/moon.php';
+$findH = function (int $di, string $state): float { for ($h = 0.0; $h < 24; $h += 0.25) if (moon_tide($h, $di)['state'] === $state) return $h; return -1.0; };
+$DI = 20003; $lowH = $findH($DI, 'low'); $highH = $findH($DI, 'high'); $fallH = $findH($DI, 'falling'); $riseH = $findH($DI, 'rising');
+echo "== the moon and the tide\n";
 $a = trail_fam_coast_tide(9.0, 20000); $b = trail_fam_coast_tide(9.0, 20000);
 ok('same clock, same tide', $a === $b);
-$lowsHit = 0; $highsHit = 0; $bad = 0;
-foreach ([20000, 20001, 20002] as $di) {
-    $t = trail_fam_coast_tide(0.0, $di);
-    if (count($t['lows']) !== 2 || count($t['highs']) !== 2) $bad++;
-    foreach ($t['lows'] as $h) { $s = trail_fam_coast_tide((float)$h, $di); if ($s['state'] === 'low') $lowsHit++; }
-    foreach ($t['highs'] as $h) { $s = trail_fam_coast_tide((float)$h, $di); if ($s['state'] === 'high') $highsHit++; }
-    $n = 0; $prev = null; for ($m = 0; $m < 48; $m++) { $s = trail_fam_coast_tide($m / 2, $di)['state']; if ($s !== $prev && $s === 'low') $n++; $prev = $s; }
-    ok("day $di: two lows in 24 h", $n === 2 || ($n === 1 && trail_fam_coast_tide(0.0, $di)['state'] === 'low' && $prev === 'low') || $n === 3, (string)$n);
+$ph = array_map(fn($d) => moon_phase($d)['key'], range(0, 27));
+ok('a month is 28 game days with new at 0 and full at 14', moon_phase(0)['key'] === 'new' && moon_phase(14)['key'] === 'full' && moon_phase(28)['key'] === 'new' && count(array_unique($ph)) === 8, json_encode(array_count_values($ph)));
+ok('spring tides at new and full, neap at the quarters', moon_phase(0)['range'] === 'spring' && moon_phase(14)['range'] === 'spring' && moon_phase(7)['range'] === 'neap' && moon_phase(21)['range'] === 'neap');
+ok('spring tides are taller than neap', moon_phase(0)['amp'] > moon_phase(7)['amp'] + 0.3);
+$bad = 0; $lowsHit = 0; $n = 0;
+foreach (range(0, 27) as $di) {
+    $t = moon_tide(0.0, $di);
+    if (count($t['lows']) < 1 || count($t['lows']) > 2 || count($t['highs']) < 1 || count($t['highs']) > 2) $bad++;
+    foreach ($t['highs'] as $h) if (moon_level((float)$h, $di) < 0.5) $bad++;
 }
-ok('two highs and two lows each day, found at the hours it names', $bad === 0 && $lowsHit === 6 && $highsHit === 6, "$bad/$lowsHit/$highsHit");
-ok('the days differ (shifted by the game day)', trail_fam_coast_tide(0.0, 20000)['lows'] !== trail_fam_coast_tide(0.0, 20001)['lows']);
-$hours = [];
-foreach ([20000, 20001, 20002] as $di) $hours[] = trail_fam_coast_tide(0.0, $di)['lows'][0];
-ok('lows move by an hour a day over three days', count(array_unique($hours)) === 3, json_encode($hours));
-$t = trail_fam_coast_tide(3.0, 20001);   // day shift -1: low at 5.5, band from 3.5: "falling", low in 1 h
-ok('words: "Low tide in N h" before a low', $t['state'] === 'falling' && $t['text'] === 'Low tide in 1 h', json_encode($t));
-$t = trail_fam_coast_tide(9.0, 20001);
-ok('words: "High tide in N h" while it rises', $t['state'] === 'rising' && str_starts_with($t['text'], 'High tide in '), $t['text']);
-ok('words: low now says when it turns', str_starts_with(trail_fam_coast_tide(6.5, 20001)['text'], 'Low tide now, turning in '));
+ok('every day has one or two highs and lows, each real high is high', $bad === 0, (string)$bad);
+$dh = fmod(moon_tide(0.0, 101)['highs'][0] - moon_tide(0.0, 100)['highs'][0] + 24.88, MOON_TIDE_PERIOD);
+ok('the tides come about 53 minutes later each day (a lunar day)', abs($dh - 0.89) < 0.9 || abs($dh - (MOON_TIDE_PERIOD - 0.89)) < 0.9, (string)$dh);
+ok('level is continuous over midnight', abs(moon_level(23.99, 5) - moon_level(0.0, 6)) < 0.05, (string)(moon_level(23.99, 5) - moon_level(0.0, 6)));
+ok('a neap low barely opens the pools; a spring low goes right out', moon_phase(7)['amp'] * -1 > -0.7 && moon_phase(0)['amp'] === 1.0);
+$low = null; for ($h = 0; $h < 24; $h += 0.25) if (moon_tide($h, 20000)['state'] === 'low') { $low = $h; break; }
+$GLOBALS['gv_cw_time'] = [3, $low ?? 6.0, 20000];
+require_once $argv[1] . '/includes/trail_sight_extras.php';
+$nowA = trail_sight_now(['landscape' => 'coast', 'name' => 'x', 'region' => 'The Maplewold'], null, null);
+ok('the Sights `now` carries the moon and the tide, and ti=low holds at low tide', $low !== null && $nowA['ti'] === 'low' && trail_sight_cond_ok('ti=low', $nowA) && !trail_sight_cond_ok('ti=high', $nowA) && trail_sight_cond_ok('mo=' . $nowA['mo'], $nowA), json_encode([$low, $nowA['ti'] ?? null, $nowA['mo'] ?? null]));
+unset($GLOBALS['gv_cw_time']);
+$t = trail_fam_coast_tide($fallH, $DI);
+ok('words: "Low tide in N h" while it falls', $fallH >= 0 && $t['state'] === 'falling' && str_starts_with($t['text'], 'Low tide in '), json_encode($t['text']));
+$t = trail_fam_coast_tide($riseH, $DI);
+ok('words: "High tide in N h" while it rises', $riseH >= 0 && $t['state'] === 'rising' && str_starts_with($t['text'], 'High tide in '), $t['text']);
+ok('words: low now says when it turns', $lowH >= 0 && str_starts_with(trail_fam_coast_tide($lowH, $DI)['text'], 'Low tide now, turning in '));
 
 echo "== the layer\n";
-$h = trail_fam_coast($ctx('dawn', [$mark($kelp), $mark($steps), $mark($gap)], [3, 3.0, 20001]));
-ok('renders for a section with coast Sights', str_contains($h, 'tfcoast') && str_contains($h, 'Low tide in 1 h'), $h);
+$h = trail_fam_coast($ctx('dawn', [$mark($kelp), $mark($steps), $mark($gap)], [3, $lowH, $DI]));
+ok('renders for a section with coast Sights, with the moon', str_contains($h, 'tfcoast') && str_contains($h, 'Low tide now') && str_contains($h, 'tfc-moon') && str_contains($h, moon_phase($DI)['name']), $h);
 ok('the arc is an inline SVG with a text alternative and a notch for now', str_contains($h, '<svg class="tfc-svg"') && str_contains($h, 'role="img"') && str_contains($h, 'aria-label="Tide today:') && str_contains($h, 'tfc-now'), $h);
-ok('the state is said in words, not colour only', str_contains($h, '(falling now'), $h);
-$h2 = trail_fam_coast($ctx('dawn', [$mark($kelp), $mark($steps), $mark($gap)], [3, 3.0, 20001]));
+ok('the state is said in words, not colour only', str_contains($h, '(low now'), $h);
+$h2 = trail_fam_coast($ctx('dawn', [$mark($kelp), $mark($steps), $mark($gap)], [3, $lowH, $DI]));
 ok('the same clock draws the same strip', $h === $h2);
 ok('the notch moves with the hour', trail_fam_coast($ctx('day', [$mark($kelp)], [3, 12.0, 20000])) !== trail_fam_coast($ctx('day', [$mark($kelp)], [3, 14.0, 20000])));
-ok('the pools: open at dawn, under water by day', str_contains($h, 'tfc-p open') && !str_contains($h, 'tfc-p shut'));
-$hd = trail_fam_coast($ctx('day', [$mark($kelp), $mark($steps)], [3, 12.0, 20000]));
-ok('by day the pools say under water and 0 of 2 open', str_contains($hd, 'under water') && str_contains($hd, '0 of 2 open'), $hd);
+ok('the pools: open at low tide', str_contains($h, 'tfc-p open') && !str_contains($h, 'tfc-p shut'));
+$hd = trail_fam_coast($ctx('day', [$mark($kelp), $mark($steps)], [3, $highH, $DI]));
+ok('at high tide the pools say under water and 0 of 2 open', str_contains($hd, 'under water') && str_contains($hd, '0 of 2 open'), $hd);
 ok('not for a section with no coast Sight (a grassland one, none at all)', trail_fam_coast($ctx('dawn', [$mark('grassland-the-clover-patch')])) === '' && trail_fam_coast($ctx('dawn', [])) === '');
 ok('not for a Maplewold-style mark list (numbered slugs)', trail_fam_coast($ctx('dawn', [['x' => 1, 'y' => 1, 'slug' => '12-the-old-well', 'row' => $all[$kelp], 'left' => 1, 'why' => '']])) === '');
 ok('a coast mark among Maplewold ones still draws it', str_contains(trail_fam_coast($ctx('dawn', [['x' => 1, 'y' => 1, 'slug' => '12-the-old-well', 'row' => $all[$kelp], 'left' => 1, 'why' => ''], $mark($gap)])), 'tfcoast'));
@@ -82,7 +92,7 @@ set_setting('npc_clockwork', '1'); setting('__reload__');
 echo "== Tide Table rows\n";
 $tokens = fn(string $s) => array_map(fn($t) => $t['tok'] . ($t['cond'] !== '' ? '?' . $t['cond'] : ''), trail_sight_tokens($all[$s]['rewards']));
 foreach ([$kelp, $steps, $wall, $sandbar] as $s) {
-    ok("$s opens at dawn and dusk only", $all[$s]['when'] === 'dp=dawn,dusk' && trail_sight_cond_ok($all[$s]['when'], ['dp' => 'dusk']) && trail_sight_cond_ok($all[$s]['when'], ['dp' => 'dawn']) && !trail_sight_cond_ok($all[$s]['when'], ['dp' => 'day']) && !trail_sight_cond_ok($all[$s]['when'], ['dp' => 'night']));
+    ok("$s opens at low tide only", $all[$s]['when'] === 'ti=low' && trail_sight_cond_ok($all[$s]['when'], ['ti' => 'low']) && !trail_sight_cond_ok($all[$s]['when'], ['ti' => 'high']) && !trail_sight_cond_ok($all[$s]['when'], ['ti' => 'rising']));
     ok("$s counts a tide pool and pays at 5 and 12", in_array('tally=tide-pools', $tokens($s), true) && (bool)preg_grep('/^item=sea-glass:1\?tn=tide-pools:5$/', $tokens($s)) && (bool)preg_grep('/^title=Tide Reader\?tn=tide-pools:12$/', $tokens($s)));
     $lint = array_filter(trail_sight_lint($all[$s]), fn($p) => !str_starts_with($p, 'no landmark picture'));
     ok("$s lints clean", !$lint, json_encode(array_values($lint)));
@@ -113,18 +123,18 @@ trail_sights_ensure_tables();
 q('DELETE FROM trail_sight_rows WHERE slug = ?', [$base['slug']]);
 db_insert('trail_sight_rows', ['slug' => $base['slug'], 'verb' => $base['verb'], 'icon' => $base['icon'], 'energy' => 0, 'cd' => 55, 'uses' => 9, 'cond' => $all[$kelp]['when'], 'chk' => '-', 'rewards' => $all[$kelp]['rewards'], 'win' => 'x', 'lose' => '', 'tool' => '-', 'fail_en' => 0, 'active' => 1]);
 $GLOBALS['gv_sights_reload'] = true; trail_sights_all();
-$setMin = function (string $dp) { set_setting('stop_daypart_force', $dp); setting('__reload__'); };   // the part of the day the Sight sees (the test has no logged-in clock)
+$setMin = function (string $dp) use ($lowH, $highH, $DI) { $GLOBALS['gv_cw_time'] = [3, $dp === 'low' ? $lowH : $highH, $DI]; };   // the part of the day the Sight sees (the test has no logged-in clock)
 $use = function () use (&$u, &$exp, $base) { $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $exp = active_expedition((int)$u['id']); $GLOBALS['gv_sights_reload'] = true; $r = trail_sight_do($u, $exp, $base['slug']); save_exp($exp); return $r; };
-$setMin('day');
-[$a, $msg0] = $use(); ok('at midday (high water) the pool row will not work', !$a);
+$setMin('high');
+[$a, $msg0] = $use(); ok('at high water the pool row will not work', !$a);
 $tally = fn() => (trail_sight_tallies((int)$u['id'])['tide-pools'] ?? 0);
 ok('and counts nothing', $tally() === 0);
 $glass = fn() => (int)q_val("SELECT COALESCE(SUM(ui.qty),0) FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND i.slug = 'sea-glass'", [$u['id']]);
-for ($i = 1; $i <= 5; $i++) { $setMin($i % 2 ? 'dawn' : 'dusk'); [$a, $msg] = $use(); ok("pool visit $i (dawn/dusk) works", $a, json_encode($msg)); }
+for ($i = 1; $i <= 5; $i++) { $setMin('low'); [$a, $msg] = $use(); ok("pool visit $i (low tide) works", $a, json_encode($msg)); }
 ok('five visits: the tally is 5', $tally() === 5, (string)$tally());
 ok('the fifth visit paid the sea glass gift (a chance row also gives some)', $glass() >= 1, (string)$glass());
 
-set_setting('stop_daypart_force', ''); setting('__reload__');
+unset($GLOBALS['gv_cw_time']); set_setting('stop_daypart_force', ''); setting('__reload__');
 echo "== The Message in the Bottle\n";
 $qs = trail_sight_quests()['message-in-the-bottle'] ?? null;
 ok('the line exists with 5 beats and at least 2 npc= beats', $qs && count($qs['beats']) === 5 && count(array_filter($qs['beats'], fn($b) => str_starts_with($b[3], 'npc='))) >= 2);

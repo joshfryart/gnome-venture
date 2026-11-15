@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /**
  * Coast family layer (2.7.01): "Tide strip". Above a section that has a coast Sight (a mark whose slug starts `coast-`; a Maplewold route can be coast land too) a small strip draws the
- * day's tide as an inline SVG arc (two highs, two lows a game day) with a notch for now, and says it in words ("Low tide in 3 h"). The tide is a pure function of the game clock
+ * day's tide as an inline SVG arc (two highs, two lows a game day) with a notch for now, and says it in words ("Low tide in 3 h"). The tide follows the MOON (moon.php: 28 game day month, spring and neap tides, about 53 minutes later each day)
  * (ctx['clock'] = [dow, hour, game day index]; npc_cw_clock): see trail_fam_coast_tide(). Below the arc: the tide pools (Tide Table, data/trail_sights_shared.txt: they open at dawn
  * and dusk, which is where the tide lows fall, so the rows use `dp=dawn,dusk` since a `when` cannot say an hour), the Tide Reader tally, and a chip per villager due at one of the
  * section's coast Sights (npc_cw_sight_lines). Style: assets/style.css "Coast family" block. No JS. Text says the tide; colour alone never does.
@@ -11,32 +11,11 @@ declare(strict_types=1);
 /** The pool Sights of the Tide Table: open at low tide (dawn and dusk). */
 const TRAIL_FAM_COAST_POOLS = ['coast-the-kelp-line', 'coast-the-tide-pool-steps', 'coast-the-barnacle-wall', 'coast-the-sandbar-causeway'];
 
-/**
- * The tide at a clock hour. A tide is a 12 hour wave: highs at 0:30 and 12:30, lows at 6:30 and 18:30, moved by -1, 0 or +1 hour with the game day (index mod 3), so no two days
- * look the same. Low tide is the water at or below a third of the way down (about 2 h either side of the low), high the same at the top.
- * Returns ['h' => -1..1 (the water level), 'state' => low|rising|high|falling, 'next' => 'low'|'high', 'in' => whole hours (ceil) to the next low or high, or to the turn when it is low / high now, 'text', 'lows' => [h, h], 'highs' => [h, h]].
- */
+/** The tide at a clock hour: the moon's tide (moon.php): spring tides at new and full moon, small neap tides at the quarters; see moon_tide() for the keys. */
 function trail_fam_coast_tide(float $hour, int $dayIndex): array
 {
-    $shift = ($dayIndex % 3 + 3) % 3 - 1;
-    $hi = fmod(0.5 + $shift + 24.0, 12.0);   // first high of the day, 11.5 .. 13.5 is the other
-    $level = fn(float $t): float => cos(2 * M_PI * ($t - $hi) / 12.0);
-    $h = $level($hour);
-    $low = $h <= -0.5; $high = $h >= 0.5;
-    $falling = sin(2 * M_PI * ($hour - $hi) / 12.0) > 0;   // after a high the water falls; after a low it rises
-    $state = $low ? 'low' : ($high ? 'high' : ($falling ? 'falling' : 'rising'));
-    // the next low (when it is high or falling) or high (when it is low or rising): scan ahead in 6 minute steps for the band; for a low or high now, when it turns
-    $want = ($state === 'high' || $state === 'falling') ? 'low' : 'high';
-    $in = 0;
-    for ($i = 1; $i <= 240; $i++) {
-        $lv = $level($hour + $i / 10.0);
-        if (($state === 'low' && $lv > -0.5) || ($state === 'high' && $lv < 0.5)) { $in = (int)ceil($i / 10.0 - 1e-9); break; }
-        if ($state !== 'low' && $state !== 'high' && (($want === 'low' && $lv <= -0.5) || ($want === 'high' && $lv >= 0.5))) { $in = (int)ceil($i / 10.0 - 1e-9); break; }
-    }
-    $text = $state === 'low' ? 'Low tide now, turning in ' . $in . ' h' : ($state === 'high' ? 'High tide now, turning in ' . $in . ' h' : ucfirst($want) . ' tide in ' . $in . ' h');
-    $lows = [fmod($hi + 6.0, 24.0), fmod($hi + 18.0, 24.0)]; $highs = [$hi, fmod($hi + 12.0, 24.0)];
-    sort($lows); sort($highs);
-    return ['h' => $h, 'state' => $state, 'next' => $want, 'in' => $in, 'text' => $text, 'lows' => $lows, 'highs' => $highs];
+    require_once __DIR__ . '/moon.php';
+    return moon_tide($hour, $dayIndex);
 }
 
 /** The tide arc as an inline SVG (24 h wide, the notch at $hour). */
@@ -79,11 +58,11 @@ function trail_fam_coast(array $ctx): string
         $pools .= '<li class="tfc-p ' . ($isOpen ? 'open' : 'shut') . '"><span aria-hidden="true">' . ($isOpen ? '🦀' : '🌊') . '</span> ' . e(trail_sight_label($m['slug'])[0]) . ' <b>' . ($isOpen ? 'open' : 'under water') . '</b></li>';
     }
     $h = '<section class="tfcoast tfc-' . e($tide['state']) . '" aria-label="Tide strip">'
-        . '<p class="tfc-h"><span aria-hidden="true">🌊</span> <b>' . e($tide['text']) . '</b> <span class="tfc-st">(' . e($tide['state']) . ' now · ' . e(hour_label((int)floor($hour))) . ')</span></p>'
+        . '<p class="tfc-h"><span aria-hidden="true">🌊</span> <b>' . e($tide['text']) . '</b> <span class="tfc-st">(' . e($tide['state']) . ' now · ' . e(hour_label((int)floor($hour))) . ')</span> <span class="tfc-moon" title="The moon sets the tide">' . e($tide['moon']['icon']) . ' ' . e($tide['moon']['name']) . ' · ' . e($tide['range']) . ' tides · day ' . ((int)$tide['moon']['age'] + 1) . ' of ' . MOON_DAYS . '</span></p>'
         . trail_fam_coast_svg($hour, $di, $tide);
     if ($np) {
         $tl = (int)(($now['tl'] ?? [])['tide-pools'] ?? 0);
-        $h .= '<p class="tfc-note">Tide pools open at dawn and dusk (low tide).' . ($np ? ' ' . $open . ' of ' . $np . ' open here.' : '') . ' Pools worked: ' . $tl . ' (a gift at 5, a title at 12).</p><ul class="tfc-pools">' . $pools . '</ul>';
+        $h .= '<p class="tfc-note">Tide pools open at low tide (' . ($tide['moon']['range'] === 'spring' ? 'big spring tides: the water goes right out' : ($tide['moon']['range'] === 'neap' ? 'small neap tides: the pools barely open' : 'middling tides')) . ').' . ($np ? ' ' . $open . ' of ' . $np . ' open here.' : '') . ' Pools worked: ' . $tl . ' (a gift at 5, a title at 12).</p><ul class="tfc-pools">' . $pools . '</ul>';
     }
     $chips = [];
     if (npc_cw_on()) {

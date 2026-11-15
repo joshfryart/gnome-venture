@@ -612,6 +612,11 @@ function trail_sight_now(array $loc, ?array $sc, ?array $u = null): array
     if ($u && function_exists('trail_pal_urls')) { try { $pal = count(trail_pal_urls($u)); } catch (Throwable $e) {} }
     $now['pal'] = $pal > 0 ? '1' : '0';
     $now['gd'] = $u && function_exists('gclock_on') && gclock_on() ? (int)($u['game_day'] ?? 0) : (int)floor(time() / 86400);   // 2.7.00: the game day (conditions gd=M:R)
+    require_once __DIR__ . '/moon.php';
+    require_once __DIR__ . '/npc_clockwork.php';
+    [, $ch, $cdi] = npc_cw_clock();
+    $now['mo'] = moon_phase($cdi)['key'];   // 2.7.01: the moon (conditions mo=new,full,...) and the tide (ti=low,high,rising,falling)
+    $now['ti'] = moon_tide($ch, $cdi)['state'];
     $now['tl'] = $u ? trail_sight_tallies((int)$u['id']) : [];
     $now['towns'] = array_values(array_filter([(string)($loc['region'] ?? '')]));   // 2026-11-14: the regions of the walk's two ends (travellers follow their circuit)
     if ($u && function_exists('active_expedition')) { try { $ex = active_expedition((int)$u['id']); if ($ex && ($rg = (string)q_val('SELECT region FROM locations WHERE id = ?', [(int)$ex['to_id']])) !== '') $now['towns'][] = $rg; } catch (Throwable $e) {} }
@@ -629,7 +634,7 @@ function trail_sight_cond_ok(string $cond, array $now): bool
         if ($k === 'tl' || $k === 'tn') { [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); $have = (int)(($now['tl'] ?? [])[$tk] ?? 0); if ($k === 'tl' ? $have < (int)$tn : $have !== (int)$tn) return false; continue; }   // tl=<key>:N = a tally is at least N; tn=<key>:N = exactly N (pays once, on the use that reaches it)
         if ($k === 'gd') { $okd = false; foreach (explode(',', $v) as $mr) { [$gm, $gr] = array_pad(explode(':', trim($mr), 2), 2, '0'); if ((int)$gm > 0 && ((int)($now['gd'] ?? 0)) % (int)$gm === (int)$gr) $okd = true; } if (!$okd) return false; continue; }   // 2.7.00: every Mth game day (day mod M = R)
         if ($k === 'qd') { if (!array_intersect(array_map('trim', explode(',', $v)), (array)($now['qd'] ?? []))) return false; continue; }   // qd=<quest slug>[,..] = that Sight quest line is done
-        if (!in_array($k, ['dp', 'se', 'we', 'hp', 'st', 'pal'], true) || $v === '') return false;
+        if (!in_array($k, ['dp', 'se', 'we', 'hp', 'st', 'pal', 'mo', 'ti'], true) || $v === '') return false;
         if (!in_array((string)($now[$k] ?? ''), array_values(array_filter(array_map('trim', explode(',', $v)))), true)) return false;
     }
     return true;
@@ -659,6 +664,8 @@ function trail_sight_cond_text(string $cond): string
         elseif ($k === 'st') $bits[] = implode(' or ', array_map(fn($x) => $x === 'sneak' ? 'sneaking' : ($x === 'hunt' ? 'hunting' : 'walking normally'), explode(',', $v)));
         elseif ($k === 'tl' || $k === 'tn') { [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); $bits[] = 'after ' . $tn . ' ' . $tk; }
         elseif ($k === 'gd') $bits[] = implode(' or ', array_map(function ($mr) { [$gm, $gr] = array_pad(explode(':', trim($mr), 2), 2, '0'); return 'every ' . (int)$gm . 'th game day' . ((int)$gm > 1 ? ' (day ' . (int)$gr . ' of ' . (int)$gm . ')' : ''); }, explode(',', $v)));
+        elseif ($k === 'mo') $bits[] = 'at ' . implode(' or ', array_map(fn($x) => strtolower(MOON_PHASES[trim($x)][1] ?? $x), explode(',', $v)));
+        elseif ($k === 'ti') $bits[] = 'at ' . implode(' or ', array_map('trim', explode(',', $v))) . ' tide';
         elseif ($k === 'qd') $bits[] = 'once ' . str_replace('-', ' ', $v) . ' is done';
         elseif (isset($w[$k])) $bits[] = $w[$k] . implode(' or ', explode(',', $v));
     }
