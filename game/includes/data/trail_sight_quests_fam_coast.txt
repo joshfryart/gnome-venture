@@ -1,0 +1,8 @@
+# Coast family quest line (2.7.01). Q|slug|title|giver|icon|order|reward|intro|outro|gate  then  B|slug|sight|label|when|needs
+# The bottle drifts down the coast. Low tide (the pools open at dawn and dusk) leaves it in the kelp. Three beats need a villager by their weekly clockwork (npc=).
+Q|message-in-the-bottle|The Message in the Bottle|Keeper Loamwick|🍾|seq|xp=60,c=40,item=sea-glass:2,fp=2,title=Bottle Courier|A bottle with a note inside has been drifting down the coast, one landmark at a time, and Keeper Loamwick would very much like to know who it is for.|At dawn you hand the bottle to Keeper Loamwick. He reads it with his nose, goes quiet, and flashes the lamp twice. The note was for him, from a sister who sails past each spring.|
+B|message-in-the-bottle|coast-the-bottle-post|Find the bottle on the post and tuck its note into your pocket|-|
+B|message-in-the-bottle|coast-the-rope-and-net-rack|Sorrel Dewdrop saw it caught in the nets and says which way it floated|-|npc=Sorrel Dewdrop
+B|message-in-the-bottle|coast-the-kelp-line|At low tide the kelp lets go of it|dp=dawn,dusk|
+B|message-in-the-bottle|coast-the-sea-stack-gap|Alder Puddlefoot fished it out of the spray at dusk and washes the glass for you|-|npc=Alder Puddlefoot
+B|message-in-the-bottle|coast-the-lighthouse-shadow|Hand the bottle to Keeper Loamwick at the dawn shift|dp=dawn|npc=Keeper Loamwick

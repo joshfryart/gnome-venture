@@ -7967,3 +7967,64 @@ details.sgq summary{cursor:pointer}
 @keyframes tff-glow{from{text-shadow:0 0 4px var(--tff-glow)}to{text-shadow:0 0 12px var(--tff-glow)}}
 @keyframes tff-fly{from{transform:translate(0,0);opacity:.55}to{transform:translate(4px,-4px);opacity:1}}
 @media (prefers-reduced-motion: reduce){.tff-l.lit .tff-ico,.tff-fly i{animation:none}}
+
+/* Maplewold family (2.7.01): the Sugar-shack ledger above a Maplewold Trail map (includes/trail_fam_maplewold.php) */
+.mwl{margin:0;padding:8px 10px;background:var(--felt);color:var(--felt-ink);border:2px solid var(--line-2);outline:2px dashed var(--thread);outline-offset:-6px;display:grid;gap:6px}
+.mwl p,.mwl ul{margin:0}
+.mwl ul{list-style:none;padding:0}
+.mwl-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 8px;align-items:baseline;font-size:.95rem}
+.mwl-n{font-size:.85rem;color:var(--thread-bright)}
+.mwl-bar{height:8px;border:1px solid var(--felt-muted);background:rgba(0,0,0,.25)}
+.mwl-bar i{display:block;height:100%;background:var(--thread)}
+.mwl-row{display:flex;flex-wrap:wrap;gap:6px}
+.mwp{display:flex;gap:6px;align-items:center;flex:1 1 128px;max-width:100%;padding:4px 6px;border:1px dashed var(--felt-muted);font-size:.8rem;line-height:1.2;opacity:.82}
+.mwp-i{font-size:1.3rem;filter:grayscale(.8);opacity:.6}
+.mwp-t{display:grid;min-width:0}
+.mwp-t b{overflow-wrap:anywhere}
+.mwp-t small{color:var(--felt-muted);font-size:.72rem}
+.mwp.done{border-style:solid;opacity:1}
+.mwp.done .mwp-i{filter:none;opacity:1}
+.mwp.lit{border:2px solid var(--thread-bright);box-shadow:0 0 8px 1px rgba(245,207,106,.45);opacity:1}
+.mwp.lit .mwp-i{filter:none;opacity:1}
+.mwp.lit small{color:var(--thread-bright)}
+.mwl-chips{display:flex;flex-wrap:wrap;gap:4px 6px}
+.mwl-chip{padding:2px 8px;border:1px solid var(--felt-muted);font-size:.8rem;overflow-wrap:anywhere}
+.mwl-chip.now{border-color:var(--thread-bright);color:var(--thread-bright);font-weight:600}
+.mwl-pan{font-size:.85rem}
+.mwl-pan ul{display:grid;gap:3px;margin-top:3px}
+.mwl-pan li{padding:2px 0 2px 8px;border-left:3px dotted var(--felt-muted)}
+.mwl-pan li.have{border-left-style:solid;border-left-color:var(--thread)}
+.mwl-pan li.done{border-left-style:solid;opacity:.7}
+.mwl-pan small{color:var(--felt-muted)}
+.mwl-par{font-size:.85rem}
+.mwl-par small{color:var(--felt-muted)}
+.mwl-quilt summary{cursor:pointer;min-height:var(--tap);display:flex;align-items:center;gap:6px;font-size:.9rem}
+.mwl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(32px,1fr));gap:4px}
+.mwq{position:relative;aspect-ratio:1;display:grid;place-items:center;border:1px dashed var(--felt-muted);font-size:1.1rem;color:var(--felt-muted)}
+.mwq.done{border-style:solid;border-color:var(--thread);color:var(--felt-ink)}
+.mwq.done::after{content:"✓";position:absolute;right:1px;bottom:-1px;font-size:.55rem;color:var(--thread-bright)}
+.mwq.lit{outline:2px solid var(--thread-bright);outline-offset:1px}
+.mwq-t{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:root[data-theme="dark"] .mwl{border-color:var(--line)}
+@media (prefers-reduced-motion: no-preference){.mwp.lit{transition:box-shadow .3s}}
+
+/* Coast family (2.7.01): the Tide strip above a coast Trail map (includes/trail_fam_coast.php) */
+.tfcoast{--tfc-bg:#d9eef5;--tfc-ink:#1f4a6a;--tfc-sea:#7fbad4;--tfc-line:#25637d;--tfc-now:#e8a317;margin:0;padding:8px 10px;background:var(--tfc-bg);color:var(--tfc-ink);border:2px solid var(--info-line, #3f8fb0)}
+:root[data-theme="dark"] .tfcoast{--tfc-bg:#14262f;--tfc-ink:#cfe6f0;--tfc-sea:#2c5d73;--tfc-line:#7fbad4;border-color:var(--line)}
+.tfcoast p{margin:0}
+.tfc-h{font-size:.9rem}
+.tfc-st{font-size:.78rem;opacity:.85}
+.tfc-svg{display:block;width:100%;max-width:420px;height:auto;margin:4px 0}
+.tfc-sea{fill:var(--tfc-sea);opacity:.6}
+.tfc-wave{stroke:var(--tfc-line);stroke-width:2;stroke-linejoin:round}
+.tfc-tick,.tfc-nowline{stroke:var(--tfc-ink);stroke-width:1;opacity:.6}
+.tfc-nowline{stroke-dasharray:2 2;opacity:.9}
+.tfc-now{fill:var(--tfc-now);stroke:var(--tfc-ink);stroke-width:1.5}
+.tfc-lbl,.tfc-ex{fill:var(--tfc-ink);font-size:8px;font-family:var(--font)}
+.tfc-ex{font-weight:700}
+.tfc-note{font-size:.8rem}
+.tfc-pools{list-style:none;margin:4px 0;padding:0;display:flex;flex-wrap:wrap;gap:4px 6px}
+.tfc-p{font-size:.78rem;padding:2px 6px;border:1px solid var(--tfc-line);line-height:1.3}
+.tfc-p.shut{opacity:.7;border-style:dashed}
+.tfc-chip{margin-top:4px;font-size:.82rem}
+.tfc-chip.now{font-weight:600}

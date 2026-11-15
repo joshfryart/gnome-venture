@@ -1,0 +1,6 @@
+# Coast family folk rows (2.7.01, claude/sights/family-coast.md). sight|villager|when|chance|line|rewards
+# Tide Table: a fisher on the rocks makes the pool's check a sure thing (nocheck). Pools are open at dawn and dusk (low tide approximation), so these rows sit there too.
+coast-the-tide-pool-steps|Nettle Teaspoon|dp=dusk|45|Nettle Teaspoon, an angler, reads the pools like a menu and points you to the crab with the shortest opinion.|nocheck,fp=1,item=tide-shell:1@40
+coast-the-barnacle-wall|Tuck Puddlefoot|dp=dawn|45|Tuck Puddlefoot mends nets beside the wall and tells you which barnacles laugh at what. Your joke goes down a treat.|nocheck,fp=1
+# The Message in the Bottle finale: the lighthouse keeper's dawn shift (he also keeps the night row in the shared file).
+coast-the-lighthouse-shadow|Keeper Loamwick|dp=dawn|100|Keeper Loamwick has just put out the lamp. He holds out a paw for the bottle and reads the note with his nose, since his eyes are not what they were.|fp=2
