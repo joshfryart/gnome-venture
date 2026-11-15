@@ -125,3 +125,124 @@ function tailor_commission_pct(int $power): int { return max(0, $power - WEAR_PO
 
 /** Does the gnome have a Tailor in at least one garden? */
 function tailor_has(int $uid): bool { return tailor_levels($uid) !== []; }
+
+// ---------------------------------------------------------------- items and the Tailor's work
+
+/** The Tailor's Thread: what a failed lining attempt gives. WEAR_PITY of them make the next attempt a sure thing, and re-cutting a wearable costs one. */
+const WEAR_THREAD_ITEM = ['Tailor’s Thread', 'part', 8, 5, 'A length of strong thread, left over from a lining that did not take. Five make the next lining a sure thing.'];
+
+/** Make the wearable items and the Thread if missing. Safe to call often; an item an admin edited is left alone. */
+function wear_ensure_items(): void
+{
+    static $done = false;
+    if ($done) return;
+    $done = true;
+    try {
+        foreach (wear_items() as $slug => $it) {
+            if (item_id_by_slug($slug)) continue;
+            db_insert('items', ['name' => $it['name'], 'slug' => $slug, 'category' => 'supply', 'rarity' => $it['rarity'], 'base_price' => $it['price'], 'description' => $it['desc'], 'edible' => 0, 'tradable' => 1]);
+        }
+        if (!item_id_by_slug(WEAR_THREAD)) { [$n, $cat, $rar, $pr, $ds] = WEAR_THREAD_ITEM; db_insert('items', ['name' => $n, 'slug' => WEAR_THREAD, 'category' => $cat, 'rarity' => $rar, 'base_price' => $pr, 'description' => $ds, 'edible' => 0, 'tradable' => 1]); }
+    } catch (Throwable $e) { error_log('wear_ensure_items: ' . $e->getMessage()); }
+}
+
+/** How many of an item (by slug) the gnome has. */
+function wear_qty(int $uid, string $slug): int
+{
+    $id = item_id_by_slug($slug);
+    return $id > 0 ? (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $id]) : 0;
+}
+
+/** [item slug => qty] of every wearable item the gnome owns (any cut, any rank). */
+function wear_owned(int $uid): array
+{
+    $o = [];
+    foreach (q("SELECT i.slug, ui.qty FROM user_items ui JOIN items i ON i.id = ui.item_id WHERE ui.user_id = ? AND ui.qty > 0 AND i.category = 'supply'", [$uid])->fetchAll() as $r) if (wear_parse((string)$r['slug'])) $o[(string)$r['slug']] = (int)$r['qty'];
+    return $o;
+}
+
+/** Does the gnome carry ANY Flood Boots (any cut, any rank)? The road effect works from the satchel. */
+function wear_has_boots(int $uid): bool
+{
+    foreach (wear_owned($uid) as $slug => $q) if ((wear_parse($slug)[0] ?? '') === 'flood-boots') return true;
+    return false;
+}
+
+/** Take the materials ([slug => qty]) if the gnome has all of them; false (nothing taken) if not. */
+function wear_take(int $uid, array $mats): bool
+{
+    foreach ($mats as $slug => $n) if (wear_qty($uid, (string)$slug) < (int)$n) return false;
+    foreach ($mats as $slug => $n) give_item($uid, item_id_by_slug((string)$slug), -(int)$n);
+    return true;
+}
+
+function wear_mats_text(array $mats): string
+{
+    $o = []; foreach ($mats as $slug => $n) $o[] = $n . ' × ' . ((string)q_val('SELECT name FROM items WHERE slug = ?', [$slug]) ?: $slug);
+    return implode(', ', $o);
+}
+
+/** The materials of a lining attempt from this rank (1 to Lined, 2 to Fine). */
+function wear_line_mats(int $fromRank): array { return $fromRank === 1 ? ['cottongrass' => 2, 'butterfly-scales' => 1] : ['seed-pearl' => 1, 'snow-moth-dust' => 1]; }
+
+/** Make a wearable at the Tailor: Common, cut 'a' or 'b'. Only the 'craft' wearables (boots, gloves, cloak); the Hat and Pack are bought. [ok, message] */
+function tailor_craft(array $u, string $base, string $cut = 'a'): array
+{
+    $uid = (int)$u['id']; $d = WEAR_DEFS[$base] ?? null;
+    if (!$d || ($d['get'] ?? '') !== 'craft' || !isset($d['cuts'][$cut])) return [false, 'That is not something the Tailor makes.'];
+    if (!tailor_has($uid)) return [false, 'You need a Tailor built in one of your gardens first.'];
+    wear_ensure_items();
+    foreach ($d['mats'] as $s => $n) if (wear_qty($uid, $s) < $n) return [false, 'You need ' . wear_mats_text($d['mats']) . '.'];
+    if (!spend_energy($uid, (int)$d['energy'], 'craft')) return [false, 'You need ' . (int)$d['energy'] . ' energy for that.'];
+    wear_take($uid, $d['mats']);
+    give_item($uid, item_id_by_slug(wear_slug($base, $cut, 1)), 1);
+    return [true, '🧵 You make ' . $d['name'] . ' (' . $d['cuts'][$cut][0] . ').'];
+}
+
+/**
+ * Line (Common to Lined) or finish (Lined to Fine) a wearable you hold: one attempt. The materials are used up either way; it works with the chance of
+ * tailor_chance(power). A failed attempt gives a Thread. With $pity and WEAR_PITY Threads the attempt is a sure thing (the Threads are used up). [ok, message]
+ */
+function tailor_line(array $u, string $slug, bool $pity = false, ?callable $roll = null): array
+{
+    $uid = (int)$u['id']; $p = wear_parse($slug);
+    if (!$p || wear_qty($uid, $slug) < 1) return [false, 'You do not have that.'];
+    [$base, $cut, $rank] = $p;
+    if ($rank >= 3) return [false, 'That is as fine as it gets.'];
+    if (!tailor_has($uid)) return [false, 'You need a Tailor built in one of your gardens first.'];
+    wear_ensure_items();
+    $mats = wear_line_mats($rank);
+    foreach ($mats as $s => $n) if (wear_qty($uid, $s) < $n) return [false, 'You need ' . wear_mats_text($mats) . '.'];
+    $sure = $pity && wear_qty($uid, WEAR_THREAD) >= WEAR_PITY;
+    if ($pity && !$sure) return [false, 'You need ' . WEAR_PITY . ' Tailor’s Thread for a sure thing.'];
+    if (!spend_energy($uid, 2, 'craft')) return [false, 'You need 2 energy for that.'];
+    wear_take($uid, $mats);
+    $roll ??= fn(int $pct): bool => random_int(1, 100) <= $pct;
+    $name = WEAR_DEFS[$base]['name'];
+    if ($sure) { give_item($uid, item_id_by_slug(WEAR_THREAD), -WEAR_PITY); }
+    if ($sure || $roll(tailor_chance(tailor_power($uid)))) {
+        give_item($uid, item_id_by_slug($slug), -1);
+        give_item($uid, item_id_by_slug(wear_slug($base, $cut, $rank + 1)), 1);
+        return [true, '🧵 The ' . $name . ' comes out ' . WEAR_RANK_NAME[$rank + 1] . '!' . ($sure ? ' (a sure thing: ' . WEAR_PITY . ' Threads)' : '')];
+    }
+    give_item($uid, item_id_by_slug(WEAR_THREAD), 1);
+    return [true, '🧵 The lining would not take this time. You keep a length of Tailor’s Thread (' . wear_qty($uid, WEAR_THREAD) . '/' . WEAR_PITY . ' for a sure thing).'];
+}
+
+/** Re-cut a wearable to its other cut, same rank (costs 1 Thread; a level 2 Tailor needs none). [ok, message] */
+function tailor_recut(array $u, string $slug): array
+{
+    $uid = (int)$u['id']; $p = wear_parse($slug);
+    if (!$p || wear_qty($uid, $slug) < 1) return [false, 'You do not have that.'];
+    [$base, $cut, $rank] = $p;
+    if (count(WEAR_DEFS[$base]['cuts']) < 2) return [false, 'That has only one cut.'];
+    if (!tailor_has($uid)) return [false, 'You need a Tailor built in one of your gardens first.'];
+    $free = tailor_power($uid) >= 2 && max(tailor_levels($uid)) >= 2;   // a level 2 Tailor does it for nothing
+    wear_ensure_items();
+    if (!$free && wear_qty($uid, WEAR_THREAD) < 1) return [false, 'A re-cut takes 1 Tailor’s Thread (a level 2 Tailor needs none).'];
+    if (!$free) give_item($uid, item_id_by_slug(WEAR_THREAD), -1);
+    $to = $cut === 'a' ? 'b' : 'a';
+    give_item($uid, item_id_by_slug($slug), -1);
+    give_item($uid, item_id_by_slug(wear_slug($base, $to, $rank)), 1);
+    return [true, '🧵 You re-cut the ' . WEAR_DEFS[$base]['name'] . ': it is now ' . WEAR_DEFS[$base]['cuts'][$to][0] . '.'];
+}
