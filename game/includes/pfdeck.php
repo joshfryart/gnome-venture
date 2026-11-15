@@ -18,8 +18,8 @@ const PFD_RANK_NAME = ['', 'Common', 'Uncommon', 'Rare', 'Masterwork'];
 const PFD_RANK_BONUS = [0, 0, 2, 4, 5];       // value added by rank (I Common .. IV Masterwork)
 const PFD_LARDER_SRC = ['crop', 'legend', 'food'];        // 2.6.989: the Larder holds crop (and, later, food) pieces ...
 const PFD_KEEP_SRC = ['friend', 'gourmand', 'trophy'];   // ... the Keepsakes the friend, Gourmand and lair-trophy pieces (none exist yet)
-/** Slots by gnome level: the Larder 3 (4 from level 10, 5 from level 20), the Keepsakes 2 (3 from level 15). */
-function pfd_slots(int $level): array { return ['larder' => $level >= 20 ? 5 : ($level >= 10 ? 4 : 3), 'keeps' => $level >= 15 ? 3 : 2]; }
+/** Slots by gnome level: the Larder 3 (4 from level 10, 5 from level 20), the Keepsakes 1 (2 from level 15, 3 from level 25, 4 from level 40; Josh 2026-11-15). */
+function pfd_slots(int $level): array { return ['larder' => $level >= 20 ? 5 : ($level >= 10 ? 4 : 3), 'keeps' => $level >= 40 ? 4 : ($level >= 25 ? 3 : ($level >= 15 ? 2 : 1))]; }
 const PFD_RARE_CAP = 3, PFD_MW_CAP = 1;       // a deck holds at most 3 Rare and 1 Masterwork pieces (kit + gear)
 const PFD_KIT_MIN = 8;                        // kit pieces (not counting gear) a deck needs
 const PFD_CORE = ['swing', 'dodge', 'rest', 'charm'];   // the 4 fixed starter pieces
