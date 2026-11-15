@@ -7927,3 +7927,12 @@ details.sgq summary{cursor:pointer}
 .campcard { margin: .4rem 0; padding: .6rem .7rem; border: 1px solid rgba(255, 255, 255, .18); border-radius: 8px; }
 .campcard p { margin: 0 0 .4rem; }
 .campcard .campsel select { max-width: 100%; }
+
+/* NPC clockwork: who is at a Sight and when (2.7.01) */
+.cwtime{margin:6px 0;display:grid;gap:4px}
+.cwrow{margin:0;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:.9em}
+.cwrow.here{font-weight:600}
+.cwbar{display:inline-grid;grid-template-columns:repeat(24,5px);gap:1px;height:10px}
+.cwbar i{background:rgba(127,127,127,.28);border-radius:1px}
+.cwbar i.on{background:var(--moss, #4f9a45)}
+.cwbar i.now{outline:2px solid var(--gold, #e8a317);outline-offset:0;z-index:1}

@@ -7,6 +7,7 @@ require_once $argv[1] . '/includes/adventure.php';
 require_once $argv[1] . '/includes/trail_tiles.php';
 require_once $argv[1] . '/includes/trail_sights.php';
 $fails = 0;
+set_setting('npc_clockwork', '0');   // 2.7.01: these tests are about the Sights rules (role hours, chance, give, needs); tests/npc_clockwork.php covers the weekly clockwork
 $GLOBALS['gv_sights_nocache'] = true;
 $tmp = sys_get_temp_dir() . '/sights-p4-' . getmypid(); @mkdir($tmp);
 $w = fn(string $name, string $body) => file_put_contents("$tmp/$name", $body) !== false ? "$tmp/$name" : '';   // writes a scratch data file for the override hooks (gv_sight_*_file)   // the tests change the rows under the request-scoped caches
@@ -265,6 +266,9 @@ if ($gp) {
 $sc['x'] = 0; $sc['y'] = 0; $cards = trail_sights_cards_html($u, $sc, $marks);
 set_setting('stop_daypart_force', 'day'); setting('__reload__');   // a row with no dp= follows the villager's role hours (2026-11-14): Mabel keeps shop hours, so test in the day
 $GLOBALS['gv_sight_folk_file'] = $w('folkmap.txt', "{$base['slug']}|Mabel Pennywhistle|-|100|Mabel is out walking.|fp=1\n{$base['slug']}|Nobody Away|dp=nosuchdaypart|100|x|fp=1\n");
+require_once $argv[1] . '/includes/npc_clockwork.php';
+set_setting('npc_clockwork', '1'); setting('__reload__'); $GLOBALS['gv_sights_reload'] = true; $di0 = npc_cw_clock()[2]; $fc = npc_cw_forecast('Mabel Pennywhistle', $base['slug']);
+$GLOBALS['gv_cw_time'] = [$fc['dow'], $fc['from'] + 0.2, $di0 + $fc['in']];   // 2.7.01 clockwork: put Mabel at the Sight (her weekly appointment)
 $sc['x'] = $spot[0]; $sc['y'] = $spot[1]; $fm = trail_sights_folk_on_map($u, $exp, $sc, $marks);
 ok('a villager who is out and about (condition holds, rolled in) is drawn on the map beside the landmark', count($fm) === 1 && $fm[0][3] === 'Mabel Pennywhistle' && !($fm[0][0] === $sc['x'] && $fm[0][1] === $sc['y']) && max(abs($fm[0][0] - $marks[0]['x']), abs($fm[0][1] - $marks[0]['y'])) <= 2, json_encode($fm));
 ok('the map markup has the villager (tmfolk)', str_contains(trail_view_html($u, $exp, $sc, false), 'class="tmfolk'));
@@ -273,6 +277,7 @@ $fm2 = trail_sights_folk_on_map($u, $exp, $sc, $marks, true); $fm3 = trail_sight
 ok('a villager walks in once (the animation flag is set the first time only)', $fm2 && $fm2[0][7] === true && $fm3[0][7] === false, json_encode([$fm2[0][7] ?? null, $fm3[0][7] ?? null]));
 $card = trail_sight_folk_card_html($u, $fe0);
 ok('the villager card names them and offers Chat', str_contains($card, 'Mabel Pennywhistle') && str_contains($card, 'sightchat'), substr($card, 0, 160));
+unset($GLOBALS['gv_cw_time'], $GLOBALS['gv_sights_reload']); set_setting('npc_clockwork', '0'); setting('__reload__');
 $fkey = $fe0[5] . $fe0[6]; $fp0 = $fe0[5] === 's' ? stop_friend_points((int)$u['id'], (int)$fe0[6]) : 0;
 [$c1] = trail_sight_folk_talk($u, $exp, 'chat', $fkey); save_exp($exp);
 ok('chat with a villager met on the road works and logs a line', $c1 && str_contains((string)q_val('SELECT log FROM expeditions WHERE id = ?', [$exp['id']]), 'Mabel'));

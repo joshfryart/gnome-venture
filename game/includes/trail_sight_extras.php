@@ -391,9 +391,12 @@ function trail_sight_folk_here(string $slug, array $now, int $uid = 0): array
     $day = function_exists('gclock_my_date') ? gclock_my_date() : date('Y-m-d');
     foreach (trail_sight_folk()[$slug] ?? [] as $i => $f) {
         if ($f['when'] !== '-' && !trail_sight_cond_ok($f['when'], $now)) continue;
-        if (!str_contains($f['when'], 'dp=') && !trail_sight_folk_role_hours($f['who'], $now)) continue;   // 2026-11-14: a row with no dp= follows the villager's role (trail_sight_folk_role_hours)
+        require_once __DIR__ . '/npc_clockwork.php';
+        $cw = npc_cw_sight_check($f['who'], $slug);   // 2.7.01 clockwork: a villager is at a Sight on their own weekly schedule (true / false), null = the old rules below
+        if ($cw === false) continue;
+        if ($cw === null && !str_contains($f['when'], 'dp=') && !trail_sight_folk_role_hours($f['who'], $now)) continue;   // 2026-11-14: a row with no dp= follows the villager's role (trail_sight_folk_role_hours)
         if (!trail_sight_folk_available($f['who'])) continue;
-        if ($f['chance'] < 100 && hollow_unit('sgf|' . $uid . '|' . $slug . '|' . $f['who'] . '|' . $i . '|' . $day) * 100 >= $f['chance']) continue;
+        if ($cw === null && $f['chance'] < 100 && hollow_unit('sgf|' . $uid . '|' . $slug . '|' . $f['who'] . '|' . $i . '|' . $day) * 100 >= $f['chance']) continue;
         $out[] = $f + ['idx' => $i];
     }
     return $out;
@@ -817,6 +820,8 @@ function trail_sights_cards_html(array $u, array $sc, array $marks, ?array $exp 
             }
             $folkNote .= '</p>';
         }
+        require_once __DIR__ . '/npc_clockwork.php';
+        $folkNote .= npc_cw_sight_card_html($m['slug']);   // 2.7.01: who is here, and when they are next
         $pk = trail_sight_pick_info($row); $ch = trail_sight_choose_info($row);
         $act = $m['left'] < 1
             ? '<button class="btn" disabled>' . e($row['icon']) . ' ' . e($row['verb']) . ' <small>' . e($m['why'] ?: 'again soon') . '</small></button>'
