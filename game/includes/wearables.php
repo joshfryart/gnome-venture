@@ -27,20 +27,22 @@ const WEAR_RANK_NAME = [1 => 'Common', 2 => 'Lined', 3 => 'Fine'];
  * base slug => name, what it is, where a gnome gets it, the materials of the first craft (Tailor), and its cuts.
  * cut => [piece name, type, base value, tag ('' none), knack mod ('' none), what it does in words].
  * Every tag is one pf_apply reads for that type (guard: hold thorns evade mend; hurt: bash and the leech knack; trick: pluck; soothe, charm: none).
+ * 2.7.01 (Tailor sims, claude/sims-tailor-2.7.01.md): every Guard cut carries the Spiky knack (2 on the creature's bar when played). Plain Guard wearables were
+ * played about 0.2 times a fight by the careless bot (no bar gain) and their value did not change that (base 3 -> 5 moved nothing); with Spiky 0.35, wins +0 to +0.8.
  */
 const WEAR_DEFS = [
     'flood-boots' => ['name' => 'Flood Boots', 'icon' => '👢', 'get' => 'craft', 'mats' => ['rubber-sap' => 2, 'coir-fibre' => 2, 'cork-bark' => 1], 'energy' => 4,
         'desc' => 'Tall waxed boots that keep the water out. Carry them and flooded roads slow you half as much.',
-        'cuts' => ['a' => ['Puddle Hop', 'guard', 3, 'evade', '', 'Its next Hurt misses completely.'], 'b' => ['Sure Foot', 'guard', 3, 'hold', '', 'Some of the guard is still there next turn.']]],
+        'cuts' => ['a' => ['Puddle Hop', 'guard', 3, 'evade', 'spiky', 'Its next Hurt misses and poison does nothing this round. Pricks the creature for 2.'], 'b' => ['Sure Foot', 'guard', 3, 'hold', 'spiky', 'Some of the guard is still there next turn. Pricks the creature for 2.']]],
     'wayfarers-hat' => ['name' => 'Wayfarer’s Hat', 'icon' => '🎩', 'get' => 'shop', 'price' => 300, 'level' => 5,
         'desc' => 'A wide brown felt hat with a feather. Pull the brim down and the next thing to hit you gets a prick for its trouble.',
-        'cuts' => ['a' => ['Brim Down', 'guard', 2, 'thorns', '', 'A blocked hit pricks the creature back.'], 'b' => ['Tip Back', 'soothe', 3, '', '', 'Its next hits do less damage.']]],
+        'cuts' => ['a' => ['Brim Down', 'guard', 2, 'thorns', 'spiky', 'Pricks the creature for 2, and a blocked hit pricks it back.'], 'b' => ['Tip Back', 'soothe', 3, '', '', 'Its next hits do less damage.']]],
     'work-gloves' => ['name' => 'Work Gloves', 'icon' => '🧤', 'get' => 'craft', 'mats' => ['coir-fibre' => 2, 'pine-resin' => 1, 'stag-beetle-shell' => 1], 'energy' => 4,
         'desc' => 'Thick tan gloves for thorns and stings.',
         'cuts' => ['a' => ['Firm Grip', 'hurt', 3, '', 'leech', 'Heals you a little each time it lands.'], 'b' => ['Knuckle Down', 'hurt', 3, 'bash', '', 'Your guard becomes damage.']]],
     'travel-cloak' => ['name' => 'Travel Cloak', 'icon' => '🧥', 'get' => 'craft', 'mats' => ['cottongrass' => 3, 'sphagnum' => 2], 'energy' => 4,
         'desc' => 'Wool against the wind, moss green with a wooden toggle.',
-        'cuts' => ['a' => ['Wrap Up', 'guard', 3, 'mend', '', 'A block that also heals you a little.'], 'b' => ['Hood Up', 'guard', 3, 'thorns', '', 'A blocked hit pricks the creature back.']]],
+        'cuts' => ['a' => ['Wrap Up', 'guard', 3, 'mend', 'spiky', 'A block that also heals you a little. Pricks the creature for 2.'], 'b' => ['Hood Up', 'guard', 3, 'thorns', 'spiky', 'Pricks the creature for 2, and a blocked hit pricks it back.']]],
     'trail-pack' => ['name' => 'Trail Pack', 'icon' => '🎒', 'get' => 'shop', 'price' => 800, 'level' => 15,
         'desc' => 'A small canvas pack with a rolled blanket. There is always something at the bottom.',
         'cuts' => ['a' => ['Rummage', 'trick', 2, 'pluck', '', 'A small chance to lift something the creature carries.'], 'b' => ['Tidy Up', 'trick', 2, '', '', 'A plain set-up piece for combos.']]],

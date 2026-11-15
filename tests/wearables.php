@@ -49,8 +49,14 @@ $pc = wear_pieces(['flood-boots' => 1, 'flood-boots-lined' => 1, 'flood-boots-b'
 $keys = array_column($pc, 'key'); sort($keys);
 ok('two cuts of one wearable are two pieces, the best rank of each cut is the one worn, nothing for qty 0 or non-wearables', $keys === ['w:flood-boots', 'w:flood-boots-b', 'w:trail-pack'], json_encode($keys));
 $byKey = array_column($pc, null, 'key');
-ok('the piece key does not change with the rank (the switch stays); the row has the fields pfdeck needs (src wear, body knob, rank, type, value, ref = the best item)', ($r = $byKey['w:flood-boots']) && $r['src'] === 'wear' && $r['r'] === 'body' && $r['rank'] === 2 && $r['t'] === 'guard' && $r['v'] === 3 && $r['tag'] === 'evade' && $r['n'] === 'Puddle Hop' && $r['ref'] === 'flood-boots-lined' && !isset($r['mod']) && $byKey['w:trail-pack']['rank'] === 3 && $byKey['w:trail-pack']['t'] === 'trick');
+ok('the piece key does not change with the rank (the switch stays); the row has the fields pfdeck needs (src wear, body knob, rank, type, value, ref = the best item)', ($r = $byKey['w:flood-boots']) && $r['src'] === 'wear' && $r['r'] === 'body' && $r['rank'] === 2 && $r['t'] === 'guard' && $r['v'] === 3 && $r['tag'] === 'evade' && $r['n'] === 'Puddle Hop' && $r['ref'] === 'flood-boots-lined' && ($r['mod'] ?? '') === 'spiky' && !isset($byKey['w:trail-pack']['mod']) && $byKey['w:trail-pack']['rank'] === 3 && $byKey['w:trail-pack']['t'] === 'trick');
 ok('no items, no pieces', wear_pieces([]) === []);
+// 2.7.01 retune (claude/sims-tailor-2.7.01.md): plain Guard cuts were played ~0.2 times a fight by the careless bot and raising their value moved nothing; every Guard cut now has Spiky
+$gc = []; foreach (WEAR_DEFS as $base => $d) foreach ($d['cuts'] as $cut => $cc) if ($cc[1] === 'guard') $gc[$cc[0]] = $cc[4];
+ok('every Guard cut carries the Spiky knack (2 on the creature when played): Puddle Hop, Sure Foot, Brim Down, Wrap Up, Hood Up', count($gc) === 5 && array_unique(array_values($gc)) === ['spiky'], json_encode($gc));
+$gt = pf_make_tile('w:flood-boots', ['level' => 3], 0, ['n' => 'Puddle Hop', 't' => 'guard', 'v' => 3, 'r' => 'body', 'tag' => 'evade', 'mod' => (string)($byKey['w:flood-boots']['mod'] ?? '')]);
+ok('the worn Guard piece reaches the engine with the knack (tile m = spiky)', $gt['m'] === 'spiky', json_encode($gt));
+ok('Puddle Hop says what Evade does against poison', str_contains($c('flood-boots', 'a')[5], 'poison'), $c('flood-boots', 'a')[5]);
 
 echo "== the Tailor\n";
 ok('power is the sum of the levels (levels clamp to 0..3)', tailor_power_of([]) === 0 && tailor_power_of([1]) === 1 && tailor_power_of([3, 2]) === 5 && tailor_power_of([3, 3, 3, 3]) === 12 && tailor_power_of([7]) === 3);
