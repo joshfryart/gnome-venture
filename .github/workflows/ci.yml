@@ -46,6 +46,14 @@ jobs:
           extensions: pdo, pdo_sqlite, mbstring, gd
           coverage: none
           ini-values: opcache.jit=off, opcache.jit_buffer_size=0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Playwright + Chromium (browser suites: fight_scene, fight_scene_trail, here)   # 2.7.01
+        run: |
+          npm install --no-save --prefix "$RUNNER_TEMP/pw" playwright
+          npx --prefix "$RUNNER_TEMP/pw" playwright install --with-deps chromium
+          echo "NODE_PATH=$RUNNER_TEMP/pw/node_modules" >> "$GITHUB_ENV"
       - name: db_migrate / give_item error handling
         run: php tests/db_errors.php
       - name: Install and playthrough
@@ -70,17 +78,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           extensions: pdo, pdo_sqlite, mbstring, gd
           coverage: none
           ini-values: opcache.jit=off, opcache.jit_buffer_size=0
-      - name: Fresh install vs upgrade from the previous release zip
+      - name: Fresh install vs upgrade from an older commit (2.7.01: the source zips are no longer in git, so the old game/ comes from git history)
         run: |
-          old=$(ls releases/GnomeVenture-*-source.zip | sort -V | tail -2 | head -1)
-          echo "upgrading from $old"
-          bash tests/upgrade_check.sh "$old" 8790
+          rev=$(git rev-list --first-parent HEAD | sed -n '31p'); [ -n "$rev" ] || rev=$(git rev-list --max-parents=0 HEAD | tail -1)
+          echo "upgrading from $rev"
+          git archive --format=zip -o "$RUNNER_TEMP/old-source.zip" "$rev" game
+          bash tests/upgrade_check.sh "$RUNNER_TEMP/old-source.zip" 8790
 
   mysql:
     name: MySQL 8 (install, migrate, upgrade)

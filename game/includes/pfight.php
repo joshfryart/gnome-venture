@@ -1,6 +1,27 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/pfight_data.php';
+
+/** 2.7.01: round() as PHP 8.0-8.3 does it (half away from zero, pre-rounded to 15 significant digits). PHP 8.4 changed round(), which made the PHP engine disagree with the JS port (tools/pfengine.js) on CI's latest PHP. Same steps as the JS round(). */
+function pf_round(float $value, int $places = 0): float
+{
+    if (!is_finite($value) || $value == 0.0) return $value;
+    $half = static fn(float $v): float => $v >= 0 ? floor($v + 0.5) : ceil($v - 0.5);
+    $pp = 14 - (int)floor(log10(abs($value)));
+    $f1 = 10.0 ** abs($places);
+    if ($pp > $places && $pp - 15 < $places) {
+        $use = $pp < -60 ? -60 : $pp;
+        $tmp = $use >= 0 ? $value * (10.0 ** $use) : $value / (10.0 ** -$use);
+        $tmp = $half($tmp);
+        $use = $places - $use; if ($use < -60) $use = -60;
+        $tmp = $tmp / (10.0 ** abs($use));
+    } else {
+        $tmp = $places >= 0 ? $value * $f1 : $value / $f1;
+        if (abs($tmp) >= 1e15) return $value;
+    }
+    $tmp = $half($tmp);
+    return $places > 0 ? $tmp / $f1 : $tmp * $f1;
+}
 /**
  * Puzzle Combat engine (design: claude/plan-puzzle-combat.md). Pure PHP: no DB, no session, no clock.
  * State is a plain array (JSON-safe) so it can live in the expedition row. Seeded RNG: same seed + same moves = same fight.
@@ -316,7 +337,7 @@ function pf_foe_deck(array $c): array
     $size = (string)($c['size'] ?? 'small');
     $temper = pf_temper($c);
     $boss = $size === 'boss';
-    $v = max(1, (int)round((((int)($c['dmg_die'] ?? 4) + 1) / 2 + (int)($c['dmg_bonus'] ?? 0)) * ($boss ? PF_FOE_BOSS : PF_FOE_DMG)));
+    $v = max(1, (int)pf_round((((int)($c['dmg_die'] ?? 4) + 1) / 2 + (int)($c['dmg_bonus'] ?? 0)) * ($boss ? PF_FOE_BOSS : PF_FOE_DMG)));
     $mk = fn(string $k, string $n, string $t, int $val, ?string $r, string $tag = '') => ['k' => 'f:' . $k, 'n' => $n, 't' => $t, 'v' => max(1, $val), 'r' => $r, 'tag' => $tag];
     $deck = [
         $mk('hit1', 'Lunge', 'hurt', $v, 'mind'), $mk('hit2', 'Snap', 'hurt', $v, 'body'),
@@ -368,7 +389,7 @@ function pf_new(array $me, array $c, int $seed, array $opt = []): array
     $foeDeck = pf_foe_deck($c);
     $s['foe']['ordered'] = $boss;
     $s['foe']['draw'] = $boss ? array_reverse($foeDeck) : pf_shuffle($s, $foeDeck);   // a boss plays its authored order (the deck list), over and over
-    $s['bar']['max'] = max(6.0, round(pf_pace($size) * ($boss ? PF_BAR_BOSS : PF_BAR_K) * (PF_BAR_BASE + PF_BAR_SLOPE * max(1, (int)($c['level'] ?? 1))), 1));   // sized by the creature, so your stats and level shorten fights
+    $s['bar']['max'] = max(6.0, pf_round(pf_pace($size) * ($boss ? PF_BAR_BOSS : PF_BAR_K) * (PF_BAR_BASE + PF_BAR_SLOPE * max(1, (int)($c['level'] ?? 1))), 1));   // sized by the creature, so your stats and level shorten fights
     $s['fh']['max'] = $s['bar']['max'];
     // turn one: player draws up to the cap, foe draws its hand
     pf_draw($s, 'me', PF_HAND_CAP);
@@ -410,11 +431,11 @@ function pf_value(?array $a, array $b, bool $combo = true, bool $fitBonus = true
 {   // $combo false = the open end is the other side's tile: it can still fit, but it cannot start your combo. $fitBonus false (board): joints always fit, so there is no extra
     $v = (float)$b['v'];
     $fit = pf_fits($a, $b);
-    if ($fit && $fitBonus) $v += max(1, (int)round($b['v'] * 0.25));
+    if ($fit && $fitBonus) $v += max(1, (int)pf_round($b['v'] * 0.25));
     $ck = null;
     $cb = $combo ? pf_combo($a, $b) : null;
     if ($cb) { $ck = $a['t'] . '>' . $b['t']; $v = $v * $cb['mul'] / 100 + ($cb['flat'] === 'prev' ? (int)$a['v'] : (int)$cb['flat']); }
-    return [(int)round($v), $fit, $ck];
+    return [(int)pf_round($v), $fit, $ck];
 }
 
 /** The strip's open end: [tile, who played it] or [null, null]. */
@@ -446,7 +467,7 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
             if ($who === 'foe') {   // against the player's HP
                 if ($theirs['evade'] > 0) { $theirs['evade']--; $e['evaded'] = $dmg; $dmg = 0; }   // Roll: the first Hurt misses completely
                 $abs = $ft && $tile['tag'] === 'pierce' ? 0 : min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;   // creature Pierce: ignores your guard
-                if ($abs > 0 && $theirs['thorns']) { $pr = 2 * $s['hm']; $s['fh']['now'] += $pr; $e['pricked'] = round($pr, 1); }   // Thorn Hide: a blocked hit pricks back
+                if ($abs > 0 && $theirs['thorns']) { $pr = 2 * $s['hm']; $s['fh']['now'] += $pr; $e['pricked'] = pf_round($pr, 1); }   // Thorn Hide: a blocked hit pricks back
                 $theirs['hp'] = max(0, $theirs['hp'] - $dmg);
                 $e['dmg'] = $dmg; $e['blocked'] = $abs;
                 if ($ft) {
@@ -457,10 +478,10 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
             } else {   // against the foe's bar, through its guard (Pierce ignores the guard)
                 if ($ft && $theirs['evade'] > 0) { $theirs['evade']--; $e['evaded'] = $dmg; $dmg = 0; }   // the creature's Evade: your first Hurt misses
                 $abs = $tile['tag'] === 'pierce' ? 0 : min($theirs['block'], $dmg); $theirs['block'] -= $abs; $dmg -= $abs;
-                if ($ft && $abs > 0 && $theirs['thorns']) { $pr = max(2, (int)round(0.04 * $mine['max'])); $mine['hp'] = max(0, $mine['hp'] - $pr); $e['pricked'] = $pr; }   // the creature's Thorns: a blocked hit pricks you
+                if ($ft && $abs > 0 && $theirs['thorns']) { $pr = max(2, (int)pf_round(0.04 * $mine['max'])); $mine['hp'] = max(0, $mine['hp'] - $pr); $e['pricked'] = $pr; }   // the creature's Thorns: a blocked hit pricks you
                 $add = $dmg * $s['hm'];
                 $s['fh']['now'] += $add;
-                $e['dmg'] = $dmg; $e['blocked'] = $abs; $e['fh'] = round($add, 1);
+                $e['dmg'] = $dmg; $e['blocked'] = $abs; $e['fh'] = pf_round($add, 1);
                 if ($tile['tag'] === 'poison') { $s['foe']['poison'] = 2; $s['foe']['poison_v'] = max((int)$s['foe']['poison_v'], max(1, (int)ceil((!empty($s['v1']) ? (int)$tile['v'] : $val) / 2))); }
                 if ($tile['tag'] === 'trip') $s['foe']['slow'] = 1;
                 if ($root && $tile['tag'] === 'quick') { pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + 1)); $e['drew'] = 1; }
@@ -478,7 +499,7 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
             if ($seam && $prev && $prev['t'] === 'hurt' && $prevBy === $other) {   // Riposte across the seam: reflect part of the hit
                 $refl = intdiv($val, 2);
                 $e['combo'] = $e['combo'] ?: 'Riposte';
-                if ($who === 'me') { $add = $refl * $s['hm']; $s['fh']['now'] += $add; $e['bar'] = round($add, 1); }
+                if ($who === 'me') { $add = $refl * $s['hm']; $s['fh']['now'] += $add; $e['bar'] = pf_round($add, 1); }
                 else {   // the foe's reflect goes through your block like any other hit
                     $abs = min($theirs['block'], $refl); $theirs['block'] -= $abs; $refl -= $abs;
                     $e['reflect'] = min($refl, $theirs['hp']); $theirs['hp'] = max(0, $theirs['hp'] - $refl);
@@ -491,7 +512,7 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
             break;
         case 'charm':
             if ($who === 'me') {
-                $add = $val * $s['cm']; $s['bar']['now'] += $add; $s['bar']['charm'] += $add; $e['bar'] = round($add, 1);
+                $add = $val * $s['cm']; $s['bar']['now'] += $add; $s['bar']['charm'] += $add; $e['bar'] = pf_round($add, 1);
                 if ($tile['tag'] === 'hum') $s['foe']['agg'] += 2;
                 if ($tile['tag'] === 'lull') $s['foe']['slow'] = 1;
                 if ($tile['tag'] === 'bond' && $s['cm'] > 0 && $s['bond'] < 3) { $s['bond']++; $s['cm'] = min(1.0, $s['cm'] + 0.1); $e['bonded'] = 1; }
@@ -527,7 +548,7 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
     if ($root && $who === 'me' && $m === 'sticky' && $fit) pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + 1));
     if ($root && $who === 'me' && $m === 'lucky' && empty($s['lucky_used'][$tile['k']])) { $s['lucky_used'][$tile['k']] = 1; $mine['redraws'] = min(3, $mine['redraws'] + 1); }
     if (!empty($ck) && !empty(PF_COMBOS[$ck]['barPct']) && $who === 'me') {   // Win Over: a slice of bar
-        $add = $val * PF_COMBOS[$ck]['barPct'] / 100 * $s['cm']; $s['bar']['now'] += $add; $s['bar']['charm'] += $add; $e['bar'] = round(($e['bar'] ?? 0) + $add, 1);
+        $add = $val * PF_COMBOS[$ck]['barPct'] / 100 * $s['cm']; $s['bar']['now'] += $add; $s['bar']['charm'] += $add; $e['bar'] = pf_round(($e['bar'] ?? 0) + $add, 1);
     }
     unset($mine, $theirs);
 }
@@ -557,9 +578,9 @@ function pf_check_end(array &$s): bool
 {
     if ($s['over']) return true;
     // 2.6.78 (v1): the bars are compared as they are SHOWN (one decimal, like the replay's barnow / fhnow and the page), so a bar that reads full always ends the fight (Josh: "the charm bar fills but the game does not end until you play another charm")
-    $v1 = !empty($s['v1']); $fn = $v1 ? round((float)$s['fh']['now'], 1) : $s['fh']['now']; $bn = $v1 ? round((float)$s['bar']['now'], 1) : $s['bar']['now'];
+    $v1 = !empty($s['v1']); $fn = $v1 ? pf_round((float)$s['fh']['now'], 1) : $s['fh']['now']; $bn = $v1 ? pf_round((float)$s['bar']['now'], 1) : $s['bar']['now'];
     if ($v1 && !empty($s['v1']['onebar'])) {   // 2.6.95 (one shared bar): Hurt and Charm fill the same bar; the larger share names the ending (bosses are always seen off)
-        if (round((float)$s['fh']['now'] + (float)$s['bar']['now'], 1) >= $s['fh']['max']) { $s['over'] = ($s['cm'] > 0 && empty($s['boss']) && $s['bar']['now'] > $s['fh']['now']) ? 'charmed' : 'seen_off'; return true; }
+        if (pf_round((float)$s['fh']['now'] + (float)$s['bar']['now'], 1) >= $s['fh']['max']) { $s['over'] = ($s['cm'] > 0 && empty($s['boss']) && $s['bar']['now'] > $s['fh']['now']) ? 'charmed' : 'seen_off'; return true; }
         if ($s['me']['hp'] <= 0) { $s['over'] = 'defeat'; return true; }
         return false;
     }
@@ -625,7 +646,7 @@ function pf_foe_turn(array &$s, int $extra): array
         $add = $s['foe']['poison_v'] * $s['hm'];
         $s['fh']['now'] += $add; $s['foe']['poison']--;
         if ($s['foe']['poison'] === 0) $s['foe']['poison_v'] = 0;
-        $ev[] = ['by' => 'me', 'tag' => 'poison', 'k' => 'poison', 'n' => 'Poison', 't' => 'hurt', 'v' => (int)round($add), 'fit' => false, 'combo' => null, 'tick' => true];
+        $ev[] = ['by' => 'me', 'tag' => 'poison', 'k' => 'poison', 'n' => 'Poison', 't' => 'hurt', 'v' => (int)pf_round($add), 'fit' => false, 'combo' => null, 'tick' => true];
         if (pf_check_end($s)) return $ev;
     }
     $n = pf_foe_len($s, $extra);
@@ -738,8 +759,8 @@ function pf_view(array $s): array
         'hp' => $s['me']['hp'], 'max' => $s['me']['max'], 'block' => $s['me']['block'],
         'hand' => array_map(fn($t) => ['n' => $t['n'], 't' => $t['t'], 'v' => $t['v'], 'r' => $t['r'], 'hole' => PF_HOLE[$t['t']], 'tag' => $t['tag'], 'm' => (string)($t['m'] ?? '')], $s['me']['hand']),
         'redraws' => $s['me']['redraws'],
-        'bar' => ['now' => round($s['bar']['now'], 1), 'max' => $s['bar']['max'], 'hurt' => 0, 'charm' => round($s['bar']['charm'], 1)],
-        'fh' => ['now' => round($s['fh']['now'], 1), 'max' => $s['fh']['max']], 'charmable' => $s['cm'] > 0,
+        'bar' => ['now' => pf_round($s['bar']['now'], 1), 'max' => $s['bar']['max'], 'hurt' => 0, 'charm' => pf_round($s['bar']['charm'], 1)],
+        'fh' => ['now' => pf_round($s['fh']['now'], 1), 'max' => $s['fh']['max']], 'charmable' => $s['cm'] > 0,
         'foe' => ['name' => $s['foe']['name'], 'hand' => count($s['foe']['hand']), 'intent' => $s['foe']['intent'], 'block' => $s['foe']['block'], 'calm' => $s['foe']['agg']],
         'piles' => ['draw' => count($s['me']['draw']), 'discard' => count($s['me']['discard'])], 'strip' => $strip, 'open' => $open, 'open_t' => $ot['t'] ?? null, 'open_v' => $ot['v'] ?? 0, 'open_by' => $oby, 'can_run' => $s['run_ok'], 'combos' => PF_COMBOS,
     ];

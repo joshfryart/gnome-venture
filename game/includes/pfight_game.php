@@ -115,7 +115,7 @@ function pfight_pal_tiles(array $u): array
         if (isset($used[$swap])) foreach (['hide', 'rest', 'dodge'] as $alt) if (!isset($used[$alt])) { $swap = $alt; break; }   // two pals of one kind replace two different tiles
         if (isset($used[$swap])) continue;   // nothing left to swap: this pal stays home
         $used[$swap] = true;
-        $out[] = ['swap' => $swap, 'n' => (string)($pal['name'] ?? 'Pal'), 't' => $t, 'v' => 4 + min(4, (int)round($score[$t] / 2)) + 2 * $rar, 'r' => $knob[$t]];
+        $out[] = ['swap' => $swap, 'n' => (string)($pal['name'] ?? 'Pal'), 't' => $t, 'v' => 4 + min(4, (int)pf_round($score[$t] / 2)) + 2 * $rar, 'r' => $knob[$t]];
     }
     return $out;
 }
@@ -166,7 +166,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
         return true;
     }
     $one = !empty($s['v1']['onebar']);   // 2.6.95: one shared bar; the page's creature bar shows Hurt + Charm (its charm bar is not drawn)
-    $rp0 = ['bar' => round((float)$s['bar']['now'], 1), 'fh' => round((float)$s['fh']['now'] + ($one ? (float)$s['bar']['now'] : 0.0), 1), 'hp' => (int)$s['me']['hp'], 'g' => (int)$s['me']['block']];   // where the bar and your health stood before this turn (the board page plays the turn back from here)
+    $rp0 = ['bar' => pf_round((float)$s['bar']['now'], 1), 'fh' => pf_round((float)$s['fh']['now'] + ($one ? (float)$s['bar']['now'] : 0.0), 1), 'hp' => (int)$s['me']['hp'], 'g' => (int)$s['me']['block']];   // where the bar and your health stood before this turn (the board page plays the turn back from here)
     $won = false;
     $prev = !empty($s['v1']) ? ['ter' => (object)($s['ter'] ?? []), 'envs' => $s['envs'] ?? [], 'aim' => $s['foe']['plan'] ?? null] + (!empty($s['v1']['env']) ? ['env' => pfb_view($s)['env']] : []) : null;   // 2.6.75: plus the environment's face-up piece   // v1 (stage C): the ground, the forecast and the aim as they stood before this turn (the page plays the turn back from there)
     if ($do === 'pf_run') {
@@ -376,7 +376,7 @@ function pfight_part(string $file): ?string
 /** Your guard under your head: a blue bar with the number; the board page moves it as guard is built and attacks are blocked (assets/pfboard.js setGuard). */
 function pfight_guard_html(int $g): string
 {
-    return '<span class="pf-guard' . ($g > 0 ? '' : ' pf-guard-0') . '" role="img" aria-label="Guard ' . $g . ': blocks the creature\'s hits until your next turn" title="Guard: blocks the creature\'s hits until your next turn"><span class="pfx-fill gfill" data-w="' . min(100, (int)round($g * 100 / 16)) . '"></span><b>' . $g . '</b></span>';
+    return '<span class="pf-guard' . ($g > 0 ? '' : ' pf-guard-0') . '" role="img" aria-label="Guard ' . $g . ': blocks the creature\'s hits until your next turn" title="Guard: blocks the creature\'s hits until your next turn"><span class="pfx-fill gfill" data-w="' . min(100, (int)pf_round($g * 100 / 16)) . '"></span><b>' . $g . '</b></span>';
 }
 
 function pfight_bar_html(array $v): string
@@ -386,17 +386,17 @@ function pfight_bar_html(array $v): string
     $hpLabel = 'Creature health: ' . (int)ceil($left) . ' of ' . (int)ceil($fm) . ' left. Hurt pieces take it down; at 0 it backs off.';
     if ($one) {   // T12 (2.6.95): one bar, a damage segment and a charm segment; the number is how full it is, the label says what each segment is
         $dm = max(0.0, (float)$v['fh']['now']); $ch = max(0.0, $now); $full = $dm + $ch; $okc = !empty($v['charmable']);
-        $tot = (int)round($full); $chn = (int)round($ch); $dmn = max(0, $tot - $chn); $mx = (int)round($fm);
+        $tot = (int)pf_round($full); $chn = (int)pf_round($ch); $dmn = max(0, $tot - $chn); $mx = (int)pf_round($fm);
         $head = PF_YIELD . ' ' . $tot . '/' . $mx . ': hurt ' . $dmn . ', charm ' . $chn;   // 'Yield 23/40' (the word is PF_YIELD, pfboard.php)
         $lab = PF_YIELD . ' ' . $tot . ' of ' . $mx . ': hurt ' . $dmn . ', charm ' . $chn . '. Hurt pieces and Charm pieces both fill the ' . PF_YIELD . ' bar. When it is full the creature yields' . ($okc ? ': more charm than hurt and you win it over, otherwise it backs off.' : ' and backs off (this one cannot be charmed).');
-        return '<div class="pf-bars"><span class="pf-fhp pf-one" role="img" aria-label="' . e($lab) . '" title="' . e($head) . '"><span class="pfx-fill fhfill" data-w="' . round(min(100.0, 100 * $dm / $fm), 1) . '"></span><span class="pfx-fill chfill" data-w="' . round(min(100.0 - min(100.0, 100 * $dm / $fm), 100 * $ch / $fm), 1) . '"></span><b>' . $tot . '/' . $mx . '</b></span></div>';
+        return '<div class="pf-bars"><span class="pf-fhp pf-one" role="img" aria-label="' . e($lab) . '" title="' . e($head) . '"><span class="pfx-fill fhfill" data-w="' . pf_round(min(100.0, 100 * $dm / $fm), 1) . '"></span><span class="pfx-fill chfill" data-w="' . pf_round(min(100.0 - min(100.0, 100 * $dm / $fm), 100 * $ch / $fm), 1) . '"></span><b>' . $tot . '/' . $mx . '</b></span></div>';
     }
     $h = '<div class="pf-bars">'
-        . '<span class="pf-fhp" role="img" aria-label="' . e($hpLabel) . '" title="' . e('Creature health. Hurt pieces take it down; at 0 it backs off.') . '"><span class="pfx-fill fhfill" data-w="' . round(100 * $left / $fm, 1) . '"></span><b>' . (int)ceil($left) . '</b></span>';
+        . '<span class="pf-fhp" role="img" aria-label="' . e($hpLabel) . '" title="' . e('Creature health. Hurt pieces take it down; at 0 it backs off.') . '"><span class="pfx-fill fhfill" data-w="' . pf_round(100 * $left / $fm, 1) . '"></span><b>' . (int)ceil($left) . '</b></span>';
     if ($charmable) {
         $v1 = isset($v['v1']);   // 2.6.78: the v1 bar shows the engine's own number (one decimal) and is never drawn full before the fight is won (a bar a hair short of full looked full)
-        $nowS = $v1 ? round($now, 1) : $now; $pct = $v1 ? ($nowS >= $max ? 100.0 : min(96.0, floor(1000 * $nowS / $max) / 10)) : round(100 * min(1.0, $now / $max), 1);
-        $label = 'Charm bar: fill it to win the creature over for a better reward. Only Charm pieces fill it. ' . ($v1 ? $nowS . ' of ' . round($max, 1) : (int)$now . ' of ' . (int)$max);
+        $nowS = $v1 ? pf_round($now, 1) : $now; $pct = $v1 ? ($nowS >= $max ? 100.0 : min(96.0, floor(1000 * $nowS / $max) / 10)) : pf_round(100 * min(1.0, $now / $max), 1);
+        $label = 'Charm bar: fill it to win the creature over for a better reward. Only Charm pieces fill it. ' . ($v1 ? $nowS . ' of ' . pf_round($max, 1) : (int)$now . ' of ' . (int)$max);
         if (!pfight_part('resolve-frame.png')) $h .= '<div class="pf-bar" role="img" aria-label="' . e($label) . '"><progress max="' . $max . '" value="' . $now . '"></progress></div>';
         else $h .= '<div class="pf-bar pfx-bar" role="img" aria-label="' . e($label) . '"><span class="pfx-fill charm" data-w="' . $pct . '"></span><img class="pfx-frame" src="' . e((string)pfight_part('resolve-frame.png')) . '" alt=""></div>';
     }
@@ -431,7 +431,7 @@ function pfight_chip(array $events, string $by): ?array
         else { $dmg += (int)($e['dmg'] ?? 0); if ($e['t'] === 'guard') $guard += (int)$e['v']; if ($e['t'] === 'heal') $heal += (int)$e['v']; }
     }
     $parts = [];
-    if ($by === 'me') { if ($fhs > 0) $parts[] = '-' . (int)round($fhs) . ' hp'; if ($bar > 0) $parts[] = '+' . (int)round($bar) . ' charm'; if ($guard) $parts[] = '+' . $guard . ' guard'; if ($heal) $parts[] = '+' . $heal . ' hp'; }
+    if ($by === 'me') { if ($fhs > 0) $parts[] = '-' . (int)pf_round($fhs) . ' hp'; if ($bar > 0) $parts[] = '+' . (int)pf_round($bar) . ' charm'; if ($guard) $parts[] = '+' . $guard . ' guard'; if ($heal) $parts[] = '+' . $heal . ' hp'; }
     else { if ($dmg) $parts[] = '-' . $dmg . ' hp'; if ($guard) $parts[] = '+' . $guard . ' guard'; if ($heal) $parts[] = 'heals'; }
     return ['by' => $by, 'types' => $types, 'txt' => ($parts ? implode(' · ', $parts) : 'setup'), 'chain' => count($mine) > 1];
 }
@@ -441,7 +441,7 @@ function pfight_chip(array $events, string $by): ?array
 /** The creature bar as the page draws it after this event: health lost, plus (one shared bar, 2.6.95) the charm gained. */
 function pfight_fhnow(array $e, bool $one)
 {
-    return !isset($e['fhnow']) ? null : ($one ? round((float)$e['fhnow'] + (float)($e['barnow'] ?? 0), 1) : $e['fhnow']);
+    return !isset($e['fhnow']) ? null : ($one ? pf_round((float)$e['fhnow'] + (float)($e['barnow'] ?? 0), 1) : $e['fhnow']);
 }
 
 function pfight_chip_event(array $e, ?int $snap = null, bool $one = false): array
@@ -449,7 +449,7 @@ function pfight_chip_event(array $e, ?int $snap = null, bool $one = false): arra
     $base = ['id' => isset($e['id']) ? (int)$e['id'] : null, 'sn' => $snap, 'bar' => $e['barnow'] ?? null, 'fh' => pfight_fhnow($e, $one), 'hp' => $e['hpnow'] ?? null, 'g' => $e['gnow'] ?? null, 'chain' => false];
     if (!empty($e['connect'])) return $base + ['by' => 'me', 'types' => $e['types'], 'tags' => [], 'txt' => 'joined ' . (int)$e['size'], 'tg' => null];
     if (isset($e['env'])) {   // v1: a terrain event (by 'env'): what it cost each side, or its name
-        $parts = []; if (!empty($e['me'])) $parts[] = 'you -' . (int)$e['me'] . ' hp'; if (!empty($e['foe'])) $parts[] = $one ? PF_YIELD . ' +' . (int)round((float)$e['foe']) : 'creature -' . (int)round((float)$e['foe']) . ' hp';   // T12: one bar: it fills, nothing is 'health'
+        $parts = []; if (!empty($e['me'])) $parts[] = 'you -' . (int)$e['me'] . ' hp'; if (!empty($e['foe'])) $parts[] = $one ? PF_YIELD . ' +' . (int)pf_round((float)$e['foe']) : 'creature -' . (int)pf_round((float)$e['foe']) . ' hp';   // T12: one bar: it fills, nothing is 'health'
         return $base + ['by' => 'env', 'types' => ['env'], 'tags' => [(string)($e['kind'] ?? $e['env'])], 'txt' => (string)$e['n'] . ($parts ? ': ' . implode(' · ', $parts) : ''), 'tg' => !empty($e['me']) ? 'me' : (!empty($e['foe']) ? 'foe' : null)];
     }
     if (isset($e['note'])) return $base + ['by' => (string)$e['by'], 'types' => ['note'], 'tags' => [(string)$e['note']], 'txt' => match ($e['note']) { 'quick' => '⚡ Quick: plays 2', 'slow' => '⏳ loses its turn', 'fade' => '🛡️ guard fades -' . (int)$e['n'], 'hold' => '🛡️ Hold kept ' . (int)$e['n'], 'simmer' => '🍵 Simmer +' . (int)$e['n'], 'current' => '🌊 pushed ' . $e['n'], 'grows' => '🌿 grows a Bramble', 'venom' => '☠️ venom: poisoned', default => '🦶 you draw 1 fewer' }, 'tg' => null];   // 2.6.76
@@ -457,8 +457,8 @@ function pfight_chip_event(array $e, ?int $snap = null, bool $one = false): arra
     if (!empty($e['tick'])) $parts[] = '-' . (int)$e['v'] . ' hp';
     elseif ($by === 'me') {
         $bar = (float)($e['bar'] ?? 0); $fh = (float)($e['fh'] ?? 0);
-        if ($fh > 0) $parts[] = $one ? '+' . (int)round($fh) . ' hurt' : '-' . (int)round($fh) . ' hp';   // the creature's health (T12: one bar: damage that fills the bar)
-        if ($bar > 0) $parts[] = '+' . (int)round($bar) . ' charm';
+        if ($fh > 0) $parts[] = $one ? '+' . (int)pf_round($fh) . ' hurt' : '-' . (int)pf_round($fh) . ' hp';   // the creature's health (T12: one bar: damage that fills the bar)
+        if ($bar > 0) $parts[] = '+' . (int)pf_round($bar) . ' charm';
         if ($t === 'guard') { $parts[] = '+' . (int)$e['v'] . ' guard'; $tg = 'me'; }
         if (in_array($t, ['heal', 'item'], true)) { $parts[] = '+' . (int)$e['v'] . ' hp'; $tg = 'me'; }
     } else {
@@ -490,7 +490,7 @@ function pfight_chips_board(array $events): array
             else { $dmg += (int)($e['dmg'] ?? 0); }
         }
         $parts = [];
-        if ($fhs > 0) $parts[] = '-' . (int)round($fhs) . ' hp'; if ($bar > 0) $parts[] = '+' . (int)round($bar) . ' charm'; if ($guard) $parts[] = '+' . $guard . ' guard'; if ($heal) $parts[] = '+' . $heal . ' hp'; if ($dmg) $parts[] = '-' . $dmg . ' hp';
+        if ($fhs > 0) $parts[] = '-' . (int)pf_round($fhs) . ' hp'; if ($bar > 0) $parts[] = '+' . (int)pf_round($bar) . ' charm'; if ($guard) $parts[] = '+' . $guard . ' guard'; if ($heal) $parts[] = '+' . $heal . ' hp'; if ($dmg) $parts[] = '-' . $dmg . ' hp';
         $chips[] = ['by' => $by, 'types' => $types, 'tags' => $tags, 'txt' => $parts ? implode(' · ', $parts) : 'setup', 'chain' => count($g) > 1];
     }
     return $chips;
@@ -658,7 +658,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
     $h .= '</div>';
     if ($more !== '') $h .= '<details class="pfc-more"><summary>More: piece tips and the last turn</summary>' . $more . '</details>';
     // the board and the hand's edges for the script (public information: the board is out in the open)
-    $data = ['start' => !empty($s['start']), 'foe' => (string)$c['name'], 'won' => ($won || $lost) ? (string)$s['over'] : null, 'life' => PFB_LIFE, 'tags' => isset($v['v1']) ? PF_TAGS_V1 : PF_TAGS, 'held' => $v['held'] ?? null, 'gone' => $v['gone'] ?? [], 'snaps' => (object)$usedSn, 'bar' => $v['bar']['now'], 'barmax' => $v['bar']['max'], 'fh' => round($v['fh']['now'] + (!empty($v['onebar']) ? $v['bar']['now'] : 0), 1), 'fhmax' => $v['fh']['max'], 'charmable' => !empty($v['charmable']), 'hp' => $v['hp'], 'guard' => (int)$v['block'], 'replay' => $enc['replay'] ?? [], 'replay0' => $enc['replay0'] ?? null, 'mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3], $m[2]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => isset($v['v1']) ? pfight_parts_url() : (is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null), 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
+    $data = ['start' => !empty($s['start']), 'foe' => (string)$c['name'], 'won' => ($won || $lost) ? (string)$s['over'] : null, 'life' => PFB_LIFE, 'tags' => isset($v['v1']) ? PF_TAGS_V1 : PF_TAGS, 'held' => $v['held'] ?? null, 'gone' => $v['gone'] ?? [], 'snaps' => (object)$usedSn, 'bar' => $v['bar']['now'], 'barmax' => $v['bar']['max'], 'fh' => pf_round($v['fh']['now'] + (!empty($v['onebar']) ? $v['bar']['now'] : 0), 1), 'fhmax' => $v['fh']['max'], 'charmable' => !empty($v['charmable']), 'hp' => $v['hp'], 'guard' => (int)$v['block'], 'replay' => $enc['replay'] ?? [], 'replay0' => $enc['replay0'] ?? null, 'mods' => array_map(fn($m) => [$m[1], $m[0], (int)$m[3], $m[2]], PF_MODS), 'art' => url('assets/img/pfight/'), 'fx' => $v['fx'] ?? [], 'tint' => (int)(crc32((string)($c['slug'] ?? $c['name'] ?? '')) % 360), 'parts' => isset($v['v1']) ? pfight_parts_url() : (is_file(__DIR__ . '/../assets/img/pfight/parts/atlas.json') ? url('assets/img/pfight/parts/') : null), 'w' => $v['w'], 'h' => $v['h'], 'pcs' => $v['pcs'], 'hand' => array_map(fn($t) => ['e' => $t['e'], 't' => $t['t'], 'tag' => $t['tag'], 'm' => $t['m']], $v['hand']), 'combos' => $v['combos'], 'icons' => ['hurt' => '⚔️', 'guard' => '🛡️', 'heal' => '💚', 'charm' => '🌸', 'soothe' => '😌', 'trick' => '🎭', 'item' => '🎒']];
     if (isset($v['v1'])) {   // the v1 board rules: ground, forecast, the creature's aim, flip, piece life (pfb_view); the page script for them is stage C
         foreach (['v1', 'round', 'ter', 'envs', 'envlog', 'aim', 'reaim', 'flip'] as $k) $data[$k] = $v[$k];
         $data['yieldw'] = PF_YIELD;   // the word for the creature's bar in a new-rule fight, read by the board script (assets/pfboardv1.js); a flag-off page does not carry it

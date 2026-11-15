@@ -132,7 +132,7 @@ function pfd_region_pieces(): array
 /** The archetype value of a creature ($v in pf_foe_deck): its piece values are multiples of this. */
 function pfd_foe_v(array $c): int
 {
-    return max(1, (int)round((((int)($c['dmg_die'] ?? 4) + 1) / 2 + (int)($c['dmg_bonus'] ?? 0)) * (($c['size'] ?? '') === 'boss' ? PF_FOE_BOSS : PF_FOE_DMG)));
+    return max(1, (int)pf_round((((int)($c['dmg_die'] ?? 4) + 1) / 2 + (int)($c['dmg_bonus'] ?? 0)) * (($c['size'] ?? '') === 'boss' ? PF_FOE_BOSS : PF_FOE_DMG)));
 }
 
 /**
@@ -147,7 +147,7 @@ function pfd_foe_pieces(array $c, string $region = ''): array
     $out = []; $n = [];
     $add = function (string $layer, array $q) use (&$out, &$n, $v, $lean) {
         $i = count($out); $n[$layer] = ($n[$layer] ?? -1) + 1;
-        $out[] = ['k' => 'f:' . ['base' => 'b', 'reg' => 'g', 'rar' => 'x', 'uni' => 'u'][$layer] . $n[$layer], 'n' => $q['n'], 't' => $q['t'], 'v' => max(1, (int)round($q['m'] * $v)), 'r' => $q['r'], 'tag' => $q['tag'], 'life' => $q['life'],
+        $out[] = ['k' => 'f:' . ['base' => 'b', 'reg' => 'g', 'rar' => 'x', 'uni' => 'u'][$layer] . $n[$layer], 'n' => $q['n'], 't' => $q['t'], 'v' => max(1, (int)pf_round($q['m'] * $v)), 'r' => $q['r'], 'tag' => $q['tag'], 'life' => $q['life'],
             'col' => $i % 5 < 3 ? $lean : (PF_HOLE[$q['t']] ?? 'body'), 'layer' => $layer];
     };
     foreach ($K['classes'][$cl]['P'] as $q) $add('base', $q);
@@ -418,7 +418,7 @@ function pfd_ensure_content(): void
         $id = item_id_by_slug($slug);
         if (!$id) $id = db_insert('items', ['name' => $name, 'slug' => $slug, 'category' => 'supply', 'rarity' => $rarity, 'base_price' => $price, 'description' => $desc, 'edible' => 0, 'effects' => json_encode(['fight_belt' => (int)array_search($slug, array_column(PFD_BELTS, 1), true) + 1]), 'tradable' => 0, 'max_stack' => 1]);
         if ($shop && $id && !q_val('SELECT 1 FROM shop_stock WHERE shop_id = ? AND item_id = ?', [$shop, $id])) {
-            db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => $id, 'price_min' => $price, 'price_max' => (int)round($price * 1.1), 'max_stock' => 1, 'restock_chance' => 40, 'current_stock' => 1, 'current_price' => $price]);
+            db_insert('shop_stock', ['shop_id' => $shop, 'item_id' => $id, 'price_min' => $price, 'price_max' => (int)pf_round($price * 1.1), 'max_stock' => 1, 'restock_chance' => 40, 'current_stock' => 1, 'current_price' => $price]);
         }
     }
     if (!item_id_by_slug(PFD_REPAIR)) {
@@ -478,7 +478,7 @@ function pfd_pal_pieces(array $u): array
         arsort($score);
         $t = (string)array_key_first($score);
         $rar = ['common' => 0, 'uncommon' => 1, 'rare' => 2][$pal['rarity'] ?? 'common'] ?? 0;
-        $out[] = ['n' => (string)($pal['name'] ?? 'Pal'), 't' => $t, 'v' => 4 + min(4, (int)round($score[$t] / 2)) + 2 * $rar, 'r' => PFD_PAL_KNOB[(string)($pal['knob'] ?? '')] ?? $knob[$t], 'rank' => $rar + 1, 'ref' => (string)($pal['key'] ?? '')];
+        $out[] = ['n' => (string)($pal['name'] ?? 'Pal'), 't' => $t, 'v' => 4 + min(4, (int)pf_round($score[$t] / 2)) + 2 * $rar, 'r' => PFD_PAL_KNOB[(string)($pal['knob'] ?? '')] ?? $knob[$t], 'rank' => $rar + 1, 'ref' => (string)($pal['key'] ?? '')];
     }
     return $out;
 }
