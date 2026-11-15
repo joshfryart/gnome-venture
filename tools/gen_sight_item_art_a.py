@@ -698,12 +698,13 @@ def fern_drip_hat_charm(cv, rnd):
     return post
 
 
-ITEMS = {
-    "flour": flour, "maple-sap": maple_sap, "maple-syrup": maple_syrup, "toffee": toffee, "marshmallow": marshmallow,
+ITEMS = {   # 2026-11-14: the weak pictures were redrawn in tools/gen_sight_item_art_f.py and taken out of this list
+
+    "flour": flour, "maple-sap": maple_sap, "maple-syrup": maple_syrup, "marshmallow": marshmallow,
     "message-bottle": message_bottle, "map-scrap": map_scrap, "snowman-scarf": snowman_scarf, "lost-mitten": lost_mitten,
-    "glowcap-repair-kit": glowcap_repair_kit, "glowcap-garden-light": glowcap_garden_light, "star-chart": star_chart,
+    "glowcap-garden-light": glowcap_garden_light, "star-chart": star_chart,
     "lost-sock": lost_sock, "grumpys-hedge-shears": grumpys_hedge_shears, "tuft-of-fleece": tuft_of_fleece,
-    "daisy-chain-crown": daisy_chain_crown, "dew-pearl": dew_pearl, "root-race-ribbon": root_race_ribbon,
+    "dew-pearl": dew_pearl, "root-race-ribbon": root_race_ribbon,
     "glow-moss-nightlight": glow_moss_nightlight, "bookmark-snail": bookmark_snail, "fern-drip-hat-charm": fern_drip_hat_charm,
 }
 

@@ -472,8 +472,8 @@
      ],
      "road_index": 18,
      "tool_type": "pick",
-     "min_tier": 3,
-     "tool_name": "Fine Rock Hammer",
+     "min_tier": 2,
+     "tool_name": "Prospector’s Pick",
      "kind": "shortcut",
      "label": "rocky short cut: a pick for the short way, the long way round is open",
      "bypass": [

@@ -214,6 +214,69 @@ if (is_file($bake)) {
     ok('nearly every section with water has a walkable tile to fish from (a pool shut in by thicket has none)', $walkBy >= $n - 2, "$walkBy of $n");
     ok('228 section 2 (West River): fishing at the ford', trail_water_near($bj['228']['sections'][1], 12, 7));
 }
+echo "== gate tiers by region (Josh 2026-11-14: the lower-level half NA CA NWE CB SE SA EE Sturdy 2, MENA .. OC Fine 3)\n";
+$tierBad = []; $tierN = [2 => 0, 3 => 0];
+foreach (glob($game . '/includes/data/trail_maps/*_30x18.json') as $f) {
+    $reg = strtoupper(basename($f, '_30x18.json')); if ($reg === 'MAPLEWOLD') continue;
+    $want = in_array($reg, ['NA', 'CA', 'NWE', 'CB', 'SE', 'SA', 'EE'], true) ? 2 : 3;
+    foreach (json_decode((string)file_get_contents($f), true)['routes'] as $rid => $r) foreach ($r['sections'] as $si => $s) foreach ($s['gates'] ?? [] as $g) {
+        $tierN[(int)$g['min_tier']] = ($tierN[(int)$g['min_tier']] ?? 0) + 1;
+        if ((int)$g['min_tier'] !== $want) $tierBad[] = "$reg $rid#$si tier {$g['min_tier']}";
+    }
+}
+ok("every gate outside the Maplewold follows the region rule ({$tierN[2]} at tier 2, {$tierN[3]} at tier 3)", !$tierBad && $tierN[2] === 18 && $tierN[3] === 20, implode('; ', array_slice($tierBad, 0, 6)));
+echo "== decor: the rich look as data (2026-11-14, tools/trail_decor.py)\n";
+$gameAll = trail_authored_load($game . '/includes/data');
+$secN = $noDec = 0; $badRect = []; $overlap = []; $wrongTile = []; $agree = $disagree = 0; $dis = [];
+$alias = ['appletree' => ['apple'], 'reeds' => ['pond', 'reeds'], 'dryreeds' => ['pond', 'dryreeds']];   // a look whose sprite has another name
+foreach ($gameAll as $rid => $r) foreach ($r['sections'] as $si => $s) {
+    $secN++;
+    $d = trail_decor($s);
+    if (!$d) { $noDec++; continue; }
+    $raw = $s['decor'];
+    if (count($d['looks']) !== count($raw['looks'] ?? []) || count($d['rough']) !== count($raw['rough'] ?? []) || count($d['floor']) !== count($raw['floor'] ?? []) || count($d['props']) !== count($raw['props'] ?? [])) $badRect[] = "$rid/$si";
+    $seen = [];
+    foreach (['looks' => '#', 'rough' => ',', 'floor' => '.'] as $f => $want) foreach ($d[$f] as [$k, $x0, $y0, $x1, $y1]) for ($y = $y0; $y <= $y1; $y++) for ($x = $x0; $x <= $x1; $x++) {
+        if (isset($seen["$f $x,$y"])) $overlap[] = "$rid/$si $f $x,$y"; $seen["$f $x,$y"] = 1;
+        $c = $s['rows'][$y][$x];
+        if ($want === '#' ? $c !== '#' : ($want === ',' ? $c !== ',' : ($c === '#' || $c === ','))) $wrongTile[] = "$rid/$si $f $k $x,$y '$c'";
+    }
+    foreach ($s['objs'] ?? [] as $o) {   // a raised thicket sprite stands on a tile whose look is that thing: the decor matches the baked picture
+        if (!str_starts_with($o[2], 'x-')) continue;
+        $at = trail_decor_at($s, (int)$o[0], (int)$o[1]); $kind = explode('-', $o[2])[1];
+        if ($at === null || ($s['rows'][$o[1]][$o[0]] ?? '') !== '#') continue;
+        if ($at === $kind || in_array($at, $alias[$kind] ?? [], true)) $agree++; else { $disagree++; $dis[] = "$rid/$si {$o[2]} on $at"; }
+    }
+}
+ok("every section of the game (all " . count($gameAll) . " routes) has a valid decor field", $secN >= 665 && $noDec === 0 && !$badRect, "$noDec of $secN without; bad: " . implode(' ', array_slice($badRect, 0, 5)));
+ok('decor rectangles do not overlap and sit on their kind of tile (looks on thicket, rough on rough, floor on floor)', !$overlap && !$wrongTile, implode('; ', array_slice(array_merge($overlap, $wrongTile), 0, 6)));
+ok("the decor agrees with the baked sprites ($agree raised thicket sprites stand on a tile of their own look)", $agree > 1000 && $disagree === 0, implode('; ', array_slice($dis, 0, 6)));
+$s228 = $gameAll['228']['sections'][0];
+ok('228 section 1: the hay-bale maze, wheat, clover and furrows read back by tile', trail_decor_at($s228, 6, 2) === 'haybale' && trail_decor_at($s228, 23, 6) === 'wheat' && trail_decor_at($s228, 7, 10) === 'clover' && trail_decor_at($s228, 23, 3) === 'furrows', json_encode([trail_decor_at($s228, 6, 2), trail_decor_at($s228, 23, 6), trail_decor_at($s228, 7, 10), trail_decor_at($s228, 23, 3)]));
+$plainRough = null; foreach ($s228['rows'] as $y => $row) for ($x = 0; $x < strlen($row); $x++) if ($row[$x] === ',' && $plainRough === null) { $hit = false; foreach (trail_decor($s228)['rough'] as $rr) if ($x >= $rr[1] && $x <= $rr[3] && $y >= $rr[2] && $y <= $rr[4]) $hit = true; if (!$hit) $plainRough = [$x, $y]; }
+ok('a rough tile in no rect is the land default (grass)', $plainRough && trail_decor_at($s228, $plainRough[0], $plainRough[1]) === 'grass', json_encode($plainRough));
+ok('a 311 section knows its trees are maples', trail_decor($gameAll['311']['sections'][0])['tree'] === 'maple');
+ok('no decor: empty, and every tile null', trail_decor(['rows' => ['...']]) === [] && trail_decor_at(['rows' => ['.,#']], 1, 0) === null);
+$junk = ['rows' => ['#,.', '#,.'], 'decor' => ['v' => 1, 'looks' => [['hedge', 0, 0, 0, 1], ['Bad Kind', 0, 0, 0, 0], ['hedge', 0, 0, 9, 9], 'x'], 'rough' => [['wheat', 1, 0, 1, 1]], 'rough_default' => 'grass', 'props' => [['goat', 2, 1], ['goat', 'a', 1]]]];
+ok('bad decor entries are dropped, good ones kept (a hand edit cannot break a walk)', count(trail_decor($junk)['looks']) === 1 && count(trail_decor($junk)['props']) === 1 && trail_decor_at($junk, 0, 1) === 'hedge' && trail_decor_at($junk, 1, 1) === 'wheat' && trail_decor_at($junk, 2, 0) === null, json_encode(trail_decor($junk)));
+ok('decor of another version is ignored', trail_decor(['rows' => ['#'], 'decor' => ['v' => 2, 'looks' => [['hedge', 0, 0, 0, 0]]]]) === []);
+$noDecor = $s228; unset($noDecor['decor']);
+ok('the look does not change: the map and its picture are the same with or without decor', array_diff_key(trail_map_authored($s228 + ['route' => 228, 'sec' => 0, 'boss' => ''])[0], ['art' => 1]) === array_diff_key(trail_map_authored($noDecor + ['route' => 228, 'sec' => 0, 'boss' => ''])[0], ['art' => 1]));
+echo "== decor slice 2: the fallback look (a section without its ground picture)\n";
+$kinds = [];
+foreach ($gameAll as $r) foreach ($r['sections'] as $s) { $d = trail_decor($s); foreach (['looks', 'rough', 'floor'] as $f) foreach ($d[$f] as $rr) $kinds[$rr[0]] = 1; $kinds[$d['rough_default']] = 1; }
+$noTint = array_diff(array_keys($kinds), array_keys(TRAIL_DECOR_TINT));
+ok('every decor kind in the game data has a fallback colour (' . count($kinds) . ' kinds)', !$noTint, implode(' ', $noTint));
+$tn = trail_decor_tints($s228);
+ok('228 section 1: the hay-bale maze and the wheat are tinted, a plain floor tile is not', ($tn['6,2'] ?? '') === TRAIL_DECOR_TINT['haybale'] && ($tn['23,6'] ?? '') === TRAIL_DECOR_TINT['wheat'] && !isset($tn[($s228['entry']['x'] ?? 0) . ',' . ($s228['entry']['y'] ?? 0)]), json_encode([$tn['6,2'] ?? null, $tn['23,6'] ?? null]));
+ok('no decor, no tints', trail_decor_tints(['rows' => ['#,.']]) === []);
+[$fm] = trail_map_authored($s228 + ['route' => 228, 'sec' => 0, 'boss' => '', 'land' => 'grassland']);
+$st = ['px' => 6, 'py' => 4, 'seen' => str_repeat('1', 30 * 18), 'x0' => 3, 'y0' => 0, 'cols' => 9, 'rows' => 9, 'light' => 8];
+$plain = tm_render_svg($fm, 'grassland', $st);
+ok('the old fallback look is byte for byte the same without tints, or with an empty list', $plain === tm_render_svg($fm, 'grassland', $st + ['tints' => []]) && !str_contains($plain, 'tmdecor'));
+$tinted = tm_render_svg($fm, 'grassland', $st + ['tints' => $tn]);
+ok('with tints the fallback draws the decor colours (class tmdecor), haybale among them', str_contains($tinted, 'class="tmdecor" fill="' . TRAIL_DECOR_TINT['haybale'] . '"'), substr($tinted, 0, 120));
+ok('the baked look never takes tints: trail_art_svg is the same with them in its state', trail_art_svg($fm, ['px' => 6, 'py' => 4, 'x0' => 3, 'y0' => 0, 'cols' => 9, 'rows' => 9, 'tokens' => []]) === trail_art_svg($fm, ['px' => 6, 'py' => 4, 'x0' => 3, 'y0' => 0, 'cols' => 9, 'rows' => 9, 'tokens' => [], 'tints' => $tn]));
 array_map('unlink', glob($tmp . '/trail_maps/*')); @rmdir($tmp . '/trail_maps'); @rmdir($tmp);
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);

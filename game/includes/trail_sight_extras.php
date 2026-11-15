@@ -391,11 +391,84 @@ function trail_sight_folk_here(string $slug, array $now, int $uid = 0): array
     $day = function_exists('gclock_my_date') ? gclock_my_date() : date('Y-m-d');
     foreach (trail_sight_folk()[$slug] ?? [] as $i => $f) {
         if ($f['when'] !== '-' && !trail_sight_cond_ok($f['when'], $now)) continue;
+        if (!str_contains($f['when'], 'dp=') && !trail_sight_folk_role_hours($f['who'], $now)) continue;   // 2026-11-14: a row with no dp= follows the villager's role (trail_sight_folk_role_hours)
         if (!trail_sight_folk_available($f['who'])) continue;
         if ($f['chance'] < 100 && hollow_unit('sgf|' . $uid . '|' . $slug . '|' . $f['who'] . '|' . $i . '|' . $day) * 100 >= $f['chance']) continue;
         $out[] = $f + ['idx' => $i];
     }
     return $out;
+}
+
+/**
+ * Default hours by role (Josh, 2026-11-14) for a villager row with no dp= in its `when`. Returns true when the villager is out at this time:
+ * - a travelling NPC (npcs.traveller: merchant, minstrel, naturalist, gourmand) follows their circuit: on the Trail of a region while that region is within
+ *   TRAIL_SIGHT_CIRCUIT_WINDOW stops of where they are now (3 stops behind, 4 ahead: 8 of the 14 12-hour stops, about 4 days a week; Josh 2026-11-14), at any time
+ *   of day ($now['towns'] = the regions of the walk's two ends, from trail_sight_now; the circuit order is traveller_towns());
+ * - a town NPC with a schedule (npc_now) is out unless their schedule has them at home;
+ * - a stop villager by role (stop_folk.role): TRAIL_SIGHT_ROLE_ALLDAY roles (inn, watch, light, signal) any time; TRAIL_SIGHT_ROLE_ROAD roles (pedlars, pilgrims,
+ *   wanderers) in the road hours (dawn and day: out early, home by dusk); every other role (they keep a stall, a trade or a shop) in the day only (Josh 2026-11-14).
+ * An unknown name is out (the lint and the tests catch unknown names).
+ */
+const TRAIL_SIGHT_ROLE_ALLDAY = ['Innkeeper', 'Keeper', 'Watcher', 'Lighthouse keeper', 'Signaller', 'Moth-watcher', 'Lair-watcher', 'Well-dweller', 'Scarecrow'];
+const TRAIL_SIGHT_ROLE_ROAD = ['Pedlar', 'Pilgrim', 'Wanderer', 'Scout', 'Porter', 'Sack-carrier'];
+const TRAIL_SIGHT_ROAD_DP = ['dawn', 'day'];
+const TRAIL_SIGHT_SHOP_DP = ['day'];
+const TRAIL_SIGHT_CIRCUIT_WINDOW = [3, 4];   // a traveller is on a region's Trail from 3 stops before they reach it to 4 stops after (8 of 14 stops of 12 h)
+
+function trail_sight_folk_role_hours(string $who, array $now): bool
+{
+    $kind = trail_sight_folk_role_kind($who);
+    $dp = (string)($now['dp'] ?? '');
+    try {
+        if ($kind[0] === 'traveller') {
+            require_once __DIR__ . '/npc_life.php';
+            $npc = q_one('SELECT * FROM npcs WHERE id = ?', [$kind[1]]);
+            if (!$npc) return true;
+            return trail_sight_circuit_near((string)(traveller_stop($npc)['town'] ?? ''), (array)($now['towns'] ?? []));
+        }
+        if ($kind[0] === 'npc') {
+            require_once __DIR__ . '/npc_life.php';
+            $npc = q_one('SELECT * FROM npcs WHERE id = ?', [$kind[1]]);
+            return !$npc || empty(npc_now($npc)['home']);
+        }
+    } catch (Throwable $e) { return true; }
+    if ($kind[0] === 'allday') return true;
+    if ($kind[0] === 'road') return in_array($dp, TRAIL_SIGHT_ROAD_DP, true);
+    if ($kind[0] === 'shop') return in_array($dp, TRAIL_SIGHT_SHOP_DP, true);
+    return true;
+}
+
+/** [kind, id]: kind = traveller | npc (a npcs id) | allday | road | shop (a stop villager's role) | unknown. */
+function trail_sight_folk_role_kind(string $who): array
+{
+    static $memo = [];
+    if (isset($memo[$who]) && empty($GLOBALS['gv_sights_reload'])) return $memo[$who];
+    [$name] = trail_sight_split_who($who);
+    try {
+        $fid = trail_sight_folk_id($who);
+        if ($fid) {
+            $role = (string)q_val('SELECT role FROM stop_folk WHERE id = ?', [$fid]);
+            return $memo[$who] = [in_array($role, TRAIL_SIGHT_ROLE_ALLDAY, true) ? 'allday' : (in_array($role, TRAIL_SIGHT_ROLE_ROAD, true) ? 'road' : 'shop'), $fid];
+        }
+        $n = q_one('SELECT id, traveller FROM npcs WHERE name = ? ORDER BY id LIMIT 1', [$name]);
+        if ($n) return $memo[$who] = [!empty($n['traveller']) ? 'traveller' : 'npc', (int)$n['id']];
+    } catch (Throwable $e) {}
+    return $memo[$who] = ['unknown', 0];
+}
+
+/** Is one of these regions within TRAIL_SIGHT_CIRCUIT_WINDOW stops of $town on the travellers' circuit (traveller_towns order, it wraps round)? A town off the circuit only matches itself. */
+function trail_sight_circuit_near(string $town, array $towns): bool
+{
+    require_once __DIR__ . '/npc_life.php';
+    $c = array_values(traveller_towns()); $n = count($c); $i = array_search($town, $c, true);
+    foreach ($towns as $t) {
+        if ($t === $town && $t !== '') return true;
+        $j = array_search((string)$t, $c, true);
+        if ($i === false || $j === false || !$n) continue;
+        $d = (($j - $i) % $n + $n) % $n;   // stops from where the traveller is now to that region, going forward
+        if ($d <= TRAIL_SIGHT_CIRCUIT_WINDOW[1] || $n - $d <= TRAIL_SIGHT_CIRCUIT_WINDOW[0]) return true;
+    }
+    return false;
 }
 
 /** Is this named villager around today (a stop villager not away; a town NPC active and not away)? An unknown name is "available" (the lint and tests catch unknown names). */
@@ -495,6 +568,8 @@ function trail_sight_now(array $loc, ?array $sc, ?array $u = null): array
     if ($u && function_exists('trail_pal_urls')) { try { $pal = count(trail_pal_urls($u)); } catch (Throwable $e) {} }
     $now['pal'] = $pal > 0 ? '1' : '0';
     $now['tl'] = $u ? trail_sight_tallies((int)$u['id']) : [];
+    $now['towns'] = array_values(array_filter([(string)($loc['region'] ?? '')]));   // 2026-11-14: the regions of the walk's two ends (travellers follow their circuit)
+    if ($u && function_exists('active_expedition')) { try { $ex = active_expedition((int)$u['id']); if ($ex && ($rg = (string)q_val('SELECT region FROM locations WHERE id = ?', [(int)$ex['to_id']])) !== '') $now['towns'][] = $rg; } catch (Throwable $e) {} }
     $now['qd'] = [];
     if ($u) { try { $now['qd'] = array_column(q('SELECT quest FROM user_sight_quests WHERE user_id = ? AND done_at IS NOT NULL', [(int)$u['id']])->fetchAll(), 'quest'); } catch (Throwable $e) {} }
     return $now;
