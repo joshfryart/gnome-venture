@@ -382,8 +382,8 @@ w(two(
          ['Bait', T('Trick'), T('Guard'), 'plus the Trick\'s number'],
          ['Calm Charm', T('Soothe'), T('Charm'), 'x1.5'],
          ['Win Over', T('Charm'), T('Item'), 'half the Item\'s number is also added as charm']]),
-    box('The rule that decides most turns', '<p>The chain starts at the piece you <b>place</b> and runs outward. So <b>place the first piece of the pair next to the second</b>, which is already on the board.</p>'
-        + ul('Ambush: place the Trick next to a Hurt.', 'Riposte: place the Guard next to a Hurt.', 'Placing the Hurt next to the Trick gives <b>no combo</b>.',
+    box('The rule that decides most turns', '<p>A combo is decided by <b>which piece you place and which it links to</b>, not by firing order. The piece you place is the first of the pair. The piece it links to is the second and gets the bonus. Put the first piece next to the second, which is already on the board.</p>'
+        + ul('Ambush: place the Trick next to a Hurt.', 'Riposte: place the Guard next to a Hurt.', 'Placing the Hurt next to the Trick gives <b>no combo</b>, even though the Trick fires first (rank order).',
              'A piece reached through the Blank or an environment piece has no combo partner.', 'The creature gets the same combos from its own pieces.')), 1.25, 1))
 w(h3('How a chain fires'))
 w(ol('<b>Build the chain.</b> Start at the piece just placed. Add every piece linked to it, newest first, and from each of those follow its own links. A piece is in a chain once.',
@@ -536,7 +536,7 @@ w(two(
        'The three legendary Item pieces are not Snacks: they eat nothing and are never refused.'), 1, 1.25))
 
 # ================================================================ 12
-w(ch('12', 'Wearables and the Tailor', f'{NEW}'))
+w(ch('12', 'Wearables and the Tailor', f'{NEW}', pb=True))
 w('<p>A wearable is something your gnome wears and also one puzzle piece: a <b>Keepsake</b> piece. It needs a Keepsake slot and is off until you switch it on. Wearables exist only where puzzle combat v1 is switched on.</p>')
 w(two(
     table(['Wearable', 'Cut (piece)', 'Type', 'Base', 'Tag', 'How you get it'],
