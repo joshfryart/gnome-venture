@@ -32,3 +32,7 @@ I checked every icon at 8x, 2x, 1x and 16 px (box downscale) on map green (`#6fa
 | trail-market | The awning shows canvas pleats (a lit ridge on each teal fold, a shaded trough in each cream fold). The posts have turned beads. The counter has nail heads and grain streaks. The loaf is a scored crusty loaf with cream slashes and a glint (no longer an orange mound). The cabbage has veins. | The grey mouse, now bigger with a pink ear, an eye and a tail, runs off with an apple | The pleats make the stripes slightly less crisp at 16 px. The jars are unchanged. |
 
 Off-palette colours are reported, not errors: colour is not capped in the v3 guide.
+
+## Installed (2.7.01, `tools/install_art_2701.py`)
+The 7 markers are copied to `game/assets/img/trail/mark/<kind>.png` (haven, wonder, delve, lair, overgrown, flooded, market; 32x32, unchanged); `wayfarers-hat-b` to `game/assets/img/ph/wayfarers-hat-b.png` (protected in `derive_icons.py`; its -lined/-fine are re-derived from it).
+Not placed yet: the Trail map has no landmark or road-kind tokens. Landmarks show as emoji on the region maps (`maps.php` `$kindIcon`, `explore.php`, `destination.php`, `adventure_data.php` `LANDMARK_ICONS`); overgrown / flooded are route-card text (`place_ui.php`); market has no Trail token.

@@ -18,3 +18,6 @@ save). Re-run: `AppRun -b --script-param out=<this dir>/ --script <name>.lua`. N
 
 Every icon has a different main hue (red, wood+red, yellow/black, teal, blue/cream, wood/stone, violet, slate blue)
 and a different silhouette, and none repeats the existing `ico-fist`, `ico-shield` or `ico-hammer` designs.
+
+## Installed (2.7.01, `tools/install_art_2701.py`)
+Box-downscaled (alpha snapped to 0/255) to `game/assets/img/pfight/ico-<name>.png` 32x32 and `ico-<name>-s.png` 20x20 (the tag icons of `PF_TAG_ICON` / `TAGICON` in `pfparts*.js`). The 12x12 tag marks in `pfight/parts*/marks/` are unchanged.
