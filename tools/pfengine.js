@@ -470,6 +470,7 @@
         if (who === 'me') { mine.hp = Math.max(mine.hp, Math.min(mine.max, mine.hp + val + (m === 'tender' ? 2 : 0))); if (m === 'soft') s.foe.agg += 2; }
         break;
     }
+    if (root && who === 'me' && ft) { if (tile.tag === 'plenty') mine.more = 1; if (tile.tag === 'simmer') mine.regen = 2; }   // 2.6.990
     if (root && who === 'me' && m === 'sticky' && fit) draw(s, 'me', Math.min(PF_HAND_CAP, s.me.hand.length + 1));
     if (root && who === 'me' && m === 'lucky' && !(s.lucky_used && truthy(s.lucky_used[tile.k]))) {
       if (!s.lucky_used) s.lucky_used = {};
@@ -1290,7 +1291,7 @@
   function guardNotes(s, ev) {   // 2.6.77 (pfb_guard_notes)
     if (!s.v1 || s.over) return;
     var ta = ev.length ? String(nn(ev[ev.length - 1].ta, 'foe')) : 'foe';
-    [['fade', toInt(nn(s.me.faded, 0))], ['hold', toInt(nn(s.me.kept, 0))]].forEach(function (q) {
+    [['fade', toInt(nn(s.me.faded, 0))], ['hold', toInt(nn(s.me.kept, 0))], ['simmer', toInt(nn(s.me.simmer, 0))]].forEach(function (q) {
       if (q[1] <= 0) return;
       var e = note(q[0], String(q[1])); e.by = 'me'; e.ta = ta; e.barnow = round(Number(s.bar.now), 1); e.fhnow = round(Number(s.fh.now), 1); e.hpnow = toInt(s.me.hp); e.gnow = toInt(s.me.block); ev.push(e);
     });
@@ -1532,6 +1533,8 @@
         if (s.me.poison === 0) s.me.poison_v = 0;
         if (checkEnd(s)) return;
       }
+      s.me.simmer = 0;
+      if (toInt(nn(s.me.regen, 0)) > 0) { var hh = Math.min(2, toInt(s.me.max) - toInt(s.me.hp)); s.me.hp += Math.max(0, hh); s.me.regen--; s.me.simmer = Math.max(0, hh); }   // 2.6.990 Simmer
       slow = truthy(s.me.slowdraw) ? 1 : 0; s.me.slowdraw = 0; s.me.tripped = slow;
     }
     var gone = expire(s);
@@ -1542,8 +1545,9 @@
     if (s.v1 && truthy(s.v1)) { var kept = Math.min(toInt(s.me.keep), toInt(s.me.block)); s.me.faded = Math.max(0, toInt(s.me.block) - kept); s.me.kept = kept; s.me.block = kept; s.me.keep = 0; }   // 2.6.77: your guard fades when your turn starts; only a Hold guard still standing carries over, once
     else { s.me.block = s.me.keep; s.me.keep = 0; }
     s.me.thorns = false; s.me.evade = 0;
-    if (v1r(s, 'redraw')) { s.me.hand.forEach(function (ht) { var c = clone(ht); delete c.flip; delete c.ft; s.me.discard.push(c); }); s.me.hand = []; draw(s, 'me', PF_HAND_CAP - slow); }   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
-    else draw(s, 'me', Math.min(PF_HAND_CAP, s.me.hand.length + PF_DRAW - slow));
+    var more = toInt(nn(s.me.more, 0)); s.me.more = 0;   // 2.6.990 Plenty
+    if (v1r(s, 'redraw')) { var kept = []; s.me.hand.forEach(function (ht) { if (nn(ht.tag, '') === 'keep') { kept.push(ht); return; } var c = clone(ht); delete c.flip; delete c.ft; s.me.discard.push(c); }); s.me.hand = kept; draw(s, 'me', PF_HAND_CAP - slow + more); }   // 2.6.990 Keeper   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
+    else draw(s, 'me', Math.min(PF_HAND_CAP + more, s.me.hand.length + PF_DRAW - slow));
     s.gone = nn(s.spent, []).map(function (p) { return goneEntry(s, p, true); }).concat(gone.map(function (p) { return goneEntry(s, p, false); }));
     s.spawn = truthy(s.nospawn) ? null : spawn(s); delete s.nospawn;   // 2.6.99: a strike spent its turn: no free piece
     if (s.turn > PF_TURN_CAP) { s.over = s.boss ? 'defeat' : 'stall'; return; }
@@ -1724,6 +1728,7 @@
       case 'slow': return '\u23F3 The ' + foe + ' loses its turn.';
       case 'fade': return '\uD83D\uDEE1\uFE0F Your guard fades (-' + toInt(e.n) + ') as your turn starts.';
       case 'hold': return '\uD83D\uDEE1\uFE0F Hold: ' + toInt(e.n) + ' guard stays up into your turn.';
+      case 'simmer': return '\uD83C\uDF75 Simmer: you heal ' + toInt(e.n) + ' as your turn starts.';
       case 'current': return '\uD83C\uDF0A The current pushes your ' + e.n + ' one cell.';
       case 'grows': return '\uD83C\uDF3F The ' + foe + ' grows a Bramble beside its piece.';
       case 'venom': return '\u2620\uFE0F Venom: your ' + e.n + ' poisons you (2 a round, 2 rounds).';
@@ -1741,7 +1746,7 @@
       var ep = []; if (truthy(e.me)) ep.push('you -' + toInt(e.me) + ' hp'); if (truthy(e.foe)) ep.push('creature -' + iround(Number(e.foe)) + ' hp');
       return ext({ by: 'env', types: ['env'], tags: [String(nn(e.kind, e.env))], txt: String(e.n) + (ep.length ? ': ' + ep.join(' · ') : ''), tg: truthy(e.me) ? 'me' : (truthy(e.foe) ? 'foe' : null) });
     }
-    if (e.note !== undefined && e.note !== null) return ext({ by: String(e.by), types: ['note'], tags: [String(e.note)], txt: e.note === 'quick' ? '\u26A1 Quick: plays 2' : e.note === 'slow' ? '\u23F3 loses its turn' : e.note === 'fade' ? '\uD83D\uDEE1\uFE0F guard fades -' + toInt(e.n) : e.note === 'hold' ? '\uD83D\uDEE1\uFE0F Hold kept ' + toInt(e.n) : e.note === 'current' ? '\uD83C\uDF0A pushed ' + e.n : e.note === 'grows' ? '\uD83C\uDF3F grows a Bramble' : e.note === 'venom' ? '\u2620\uFE0F venom: poisoned' : '\uD83E\uDDB6 you draw 1 fewer', tg: null });
+    if (e.note !== undefined && e.note !== null) return ext({ by: String(e.by), types: ['note'], tags: [String(e.note)], txt: e.note === 'quick' ? '\u26A1 Quick: plays 2' : e.note === 'slow' ? '\u23F3 loses its turn' : e.note === 'fade' ? '\uD83D\uDEE1\uFE0F guard fades -' + toInt(e.n) : e.note === 'hold' ? '\uD83D\uDEE1\uFE0F Hold kept ' + toInt(e.n) : e.note === 'simmer' ? '\uD83C\uDF75 Simmer +' + toInt(e.n) : e.note === 'current' ? '\uD83C\uDF0A pushed ' + e.n : e.note === 'grows' ? '\uD83C\uDF3F grows a Bramble' : e.note === 'venom' ? '\u2620\uFE0F venom: poisoned' : '\uD83E\uDDB6 you draw 1 fewer', tg: null });
     var parts = [], tg = 'foe', by = String(nn(e.by, 'me')), t = String(nn(e.t, 'hurt'));
     if (truthy(e.tick)) parts.push('-' + toInt(e.v) + ' hp');
     else if (by === 'me') {

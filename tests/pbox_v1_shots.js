@@ -16,7 +16,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     sql(`UPDATE users SET theme='${theme}' WHERE username='sprout'`);
     const c = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
     const p = await c.newPage(); const errs = [];
-    p.on('pageerror', e => errs.push(String(e))); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
+    p.on('pageerror', e => errs.push(String(e))); p.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errs.push(m.text()); }); p.on('response', r => { if (r.status() >= 400) errs.push(r.status() + ' ' + r.url().replace(/^https?:\/\/[^/]+/, '')); });   // a failed load names its URL
     const T = (s) => `${theme}: ${s}`;
     const shot = async (name, full = true) => { await p.screenshot({ path: `${out}/${name}-${theme}.png`, fullPage: full }); const over = await p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1); if (over) { console.log(`FAIL ${T(name)}: the page scrolls sideways`); fails++; } };
     const speed = (v) => p.evaluate((x) => { try { localStorage.setItem('pfvspd', x); } catch (e) {} }, String(v));

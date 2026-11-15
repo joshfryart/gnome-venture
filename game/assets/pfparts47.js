@@ -23,7 +23,7 @@
   }
   function getJson(file) { return fetch(base + file).then(function (r) { if (!r.ok) throw new Error(file); return r.json(); }); }
 
-  var TAGICON = { quick: 'jab', heavy: 'smash', pierce: 'pierce', poison: 'sting', trip: 'trip', bash: 'bash', hold: 'brace', evade: 'roll', thorns: 'thornhide', mend: 'mending', hum: 'hum', lull: 'lull', bond: 'bond', pluck: 'pluck' };
+  var TAGICON = { quick: 'jab', heavy: 'smash', pierce: 'pierce', poison: 'sting', trip: 'trip', bash: 'bash', hold: 'brace', evade: 'roll', thorns: 'thornhide', mend: 'mending', hum: 'hum', lull: 'lull', bond: 'bond', keep: 'brace', plenty: 'bond', simmer: 'mending', pluck: 'pluck' };
   P.marks = {};   // 'tag-pierce', 'mod-sticky', 'rarity-1' -> image (parts/marks/), when the file exists
   var MARKAT = { strip: { tag: [13, 32], mod: [49, 32], rarity: [51, 7] }, hand: { tag: [24, 64], mod: [96, 64], rarity: [98, 18] } };
   P.tagIcon = {};   // 'tag|size' -> image, when the file exists (a tag without one keeps its type icon)

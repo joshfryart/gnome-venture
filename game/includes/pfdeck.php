@@ -12,10 +12,11 @@ declare(strict_types=1);
 require_once __DIR__ . '/pfboard.php';
 
 const PFD_FAM = ['body', 'mind', 'craft'];
-const PFD_PLAYER_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'region'];
+const PFD_PLAYER_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'region', 'legend'];
+const PFD_LEGEND_HARVESTS = 3;                // 2.6.990: a legendary crop's piece is yours after you have harvested that crop this many times
 const PFD_RANK_NAME = ['', 'Common', 'Uncommon', 'Rare', 'Masterwork'];
 const PFD_RANK_BONUS = [0, 0, 2, 4, 5];       // value added by rank (I Common .. IV Masterwork)
-const PFD_LARDER_SRC = ['crop', 'food'];        // 2.6.989: the Larder holds crop (and, later, food) pieces ...
+const PFD_LARDER_SRC = ['crop', 'legend', 'food'];        // 2.6.989: the Larder holds crop (and, later, food) pieces ...
 const PFD_KEEP_SRC = ['friend', 'gourmand', 'trophy'];   // ... the Keepsakes the friend, Gourmand and lair-trophy pieces (none exist yet)
 /** Slots by gnome level: the Larder 3 (4 from level 10, 5 from level 20), the Keepsakes 2 (3 from level 15). */
 function pfd_slots(int $level): array { return ['larder' => $level >= 20 ? 5 : ($level >= 10 ? 4 : 3), 'keeps' => $level >= 15 ? 3 : 2]; }
@@ -54,6 +55,7 @@ function pfd_catalog(): array
         $e = explode('/', $r[6]);
         $p = ['k' => $r[0], 'n' => $r[1], 'src' => $r[2], 'ref' => $r[3] === '-' ? '' : $r[3], 't' => $r[4], 'v' => (int)$r[5], 'r' => in_array($e[0], PFD_FAM, true) ? $e[0] : null,
             'tag' => $r[7] === '-' ? '' : $r[7], 'life' => $r[8] === '-' ? 0 : (int)$r[8], 'rar' => $r[9] === 'src' ? 'src' : (int)$r[9], 'blurb' => (string)($r[10] ?? '')];
+        if (!empty($r[11]) && $r[11] !== '-') $p['mod'] = (string)$r[11];   // a built-in knack (PF_MODS)
         if (isset($e[1]) && in_array($e[1], PFD_FAM, true)) $p['col'] = $e[1];
         if (isset($e[2])) $p['up'] = $e[2] === 'up' ? 1 : 0;
         $C[$r[0]] = $p;
@@ -211,7 +213,7 @@ function pfd_sources_blank(int $level = 1, string $calling = '', string $home = 
         'slots' => PFD_BELTS[1][0], // belt slots
         'wear' => [],               // tool type => fight wear so far
         'pals' => [],               // active party pals: [['n', 't', 'v', 'r', 'rank' 1-3], ...]
-        'crops' => [], 'crafts' => [], 'regions' => [],   // crop kind / recipe category / region code => rank 1-4
+        'crops' => [], 'crafts' => [], 'regions' => [], 'legends' => [],   // crop kind / recipe category / region code / legendary crop slug => rank 1-4
         'auto' => false];
 }
 
@@ -250,7 +252,7 @@ function pfd_build(array $src): array
     $starter = $chosen ? array_values($src['starter']) : array_merge(PFD_CORE, pfd_offer_keys($cal, (string)$src['home'], PFD_KITS[PFD_KIT_DEFAULT]));
     $rankOf = function (array $p) use ($src): int {   // the rank of a piece: fixed in the file, or the rank of the gnome's source (at least Common)
         if ($p['rar'] !== 'src') return (int)$p['rar'];
-        $have = ['crop' => $src['crops'], 'craft' => $src['crafts'], 'region' => $src['regions'], 'tool' => $src['tools']][$p['src']] ?? [];
+        $have = ['crop' => $src['crops'], 'craft' => $src['crafts'], 'region' => $src['regions'], 'tool' => $src['tools'], 'legend' => $src['legends'] ?? []][$p['src']] ?? [];
         return max(1, min(4, (int)($have[$p['ref']] ?? 1)));
     };
     $owned = function (array $p) use ($src, $lvl, $cal): bool {
@@ -261,6 +263,7 @@ function pfd_build(array $src): array
             case 'crop': return isset($src['crops'][$p['ref']]);
             case 'craft': return isset($src['crafts'][$p['ref']]);
             case 'region': return isset($src['regions'][$p['ref']]);
+            case 'legend': return isset($src['legends'][$p['ref']]);
         }
         return false;   // tool pieces come from the belt
     };
@@ -268,7 +271,7 @@ function pfd_build(array $src): array
         $e = ['key' => $key, 'k' => $p['k'], 'n' => $p['n'], 't' => $p['t'], 'v' => (int)$p['v'], 'r' => $p['r'], 'tag' => (string)$p['tag'], 'src' => $p['src'], 'ref' => (string)($p['ref'] ?? ''), 'rank' => $rank,
             'life' => (int)($p['life'] ?? 0) ?: ($rank >= 4 ? 4 : ($p['tag'] === 'quick' ? 2 : ($p['tag'] === 'hold' ? 4 : PFB_LIFE))), 'blurb' => (string)($p['blurb'] ?? ''),
             'gear' => false, 'tool' => '', 'starter' => false, 'core' => false, 'on' => false, 'out' => ''];
-        foreach (['col', 'up'] as $f) if (isset($p[$f])) $e[$f] = $p[$f];
+        foreach (['col', 'up', 'mod'] as $f) if (isset($p[$f])) $e[$f] = $p[$f];
         return $x + $e;
     };
     $pieces = []; $seen = [];
@@ -340,7 +343,7 @@ function pfd_tiles(array $entries, array $stats, array $typeBonus = [], string $
         if ($e['src'] === 'calling') $b += max(0, $ctier - 1) * 2;
         if ($e['src'] !== 'pal') $b += PFD_RANK_BONUS[(int)$e['rank']] ?? 0;
         $over = ['n' => $e['n'], 't' => $t, 'v' => (int)$e['v'], 'r' => $e['r'], 'tag' => (string)$e['tag'], 'src' => $e['src'], 'life' => (int)$e['life'], 'rank' => (int)$e['rank']];
-        foreach (['col', 'up'] as $f) if (isset($e[$f])) $over[$f] = $e[$f];
+        foreach (['col', 'up', 'mod'] as $f) if (isset($e[$f])) $over[$f] = $e[$f];
         if ($e['tool'] !== '') $over['tool'] = $e['tool'];
         $deck[] = pf_make_tile($k, $stats, $b, $over);
     }
@@ -493,6 +496,13 @@ function pfd_sources(int|array $u): array
         foreach (q('SELECT i.slug, m.eaten + m.grown AS n FROM user_food_mastery m JOIN items i ON i.id = m.item_id WHERE m.user_id = ? AND m.grown > 0', [$uid])->fetchAll() as $r) {
             $kind = $kinds[(string)$r['slug']] ?? ''; if ($kind === '' || !isset(pfd_catalog()['c:' . $kind])) continue;
             $src['crops'][$kind] = max((int)($src['crops'][$kind] ?? 1), max(1, min(4, food_mastery_tier((int)$r['n']))));
+        }
+    });
+    $try(function () use (&$src, $uid) {   // 2.6.990 legendary crops: the piece of a treasure crop is yours after PFD_LEGEND_HARVESTS harvests; its rank is your mastery of that crop
+        require_once __DIR__ . '/food_mastery.php';
+        foreach (q('SELECT i.slug, m.eaten + m.grown AS n, m.grown AS g FROM user_food_mastery m JOIN items i ON i.id = m.item_id WHERE m.user_id = ? AND m.grown >= ?', [$uid, PFD_LEGEND_HARVESTS])->fetchAll() as $r) {
+            if (!isset(pfd_catalog()['g:' . $r['slug']])) continue;
+            $src['legends'][(string)$r['slug']] = max(1, min(4, food_mastery_tier((int)$r['n'])));
         }
     });
     $try(function () use (&$src, $uid) {   // crafts: a category is owned once something in it was made; rank 1 + its category mastery

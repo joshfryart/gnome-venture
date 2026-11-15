@@ -12,7 +12,7 @@ require_once __DIR__ . '/pfdeck.php';
 
 const PFV_TYPE = ['hurt' => 'Hurt', 'guard' => 'Guard', 'heal' => 'Heal', 'charm' => 'Charm', 'soothe' => 'Soothe', 'trick' => 'Trick', 'item' => 'Item'];
 const PFV_CLASS_ICON = ['Critter' => '🐛', 'Bird' => '🐦', 'Beast' => '🐾', 'Reptile/Amphibian' => '🦎', 'Water' => '🐟', 'Plant/Fungus' => '🍄'];
-const PFV_SRC_ICON = ['basic' => '🧩', 'knack' => '🧩', 'calling' => '🎩', 'crop' => '🌾', 'craft' => '🛠️', 'region' => '🗺️', 'tool' => '🔧', 'pal' => '🐾'];
+const PFV_SRC_ICON = ['basic' => '🧩', 'knack' => '🧩', 'calling' => '🎩', 'crop' => '🌾', 'legend' => '👑', 'craft' => '🛠️', 'region' => '🗺️', 'tool' => '🔧', 'pal' => '🐾'];
 /** What a creature's tag does to you (the player's own tags read PF_TAGS). */
 const PFV_FOE_TAG = ['quick' => 'Quick: it plays one more piece this turn', 'evade' => 'Evade: your next hit on it misses', 'bash' => 'Bash: adds its guard to its next hit', 'poison' => 'Poison: 2 ticks on your health',
     'trip' => 'Trip: you draw 1 fewer next round', 'heal' => 'Heal: empties some of its Yield bar', 'thorns' => 'Thorns: hitting its guard pricks you', 'hold' => 'Hold: this guard lasts a turn longer', 'pierce' => 'Pierce: ignores your guard'];
@@ -177,7 +177,7 @@ function pfv_box_html(array $u, string $tab = 'kit'): string
     if ($tab === 'kit') {
         $grp = fn(array $p): string => in_array($p['src'], ['knack', 'calling'], true) ? 'basic' : (string)$p['src'];
         $h .= '<nav class="chips fbar" id="pfv-filt" aria-label="Filter by source">';
-        foreach (['all' => 'All', 'basic' => '🧩', 'crop' => '🌾', 'craft' => '🛠️', 'region' => '🗺️'] as $k => $l) $h .= '<button type="button" data-g="' . $k . '"' . ($k === 'all' ? ' class="on"' : '') . ' aria-label="' . ($k === 'all' ? 'All pieces' : ucfirst($k) . ' pieces') . '" aria-pressed="' . ($k === 'all' ? 'true' : 'false') . '">' . $l . '</button>';
+        foreach (['all' => 'All', 'basic' => '🧩', 'crop' => '🌾', 'legend' => '👑', 'craft' => '🛠️', 'region' => '🗺️'] as $k => $l) $h .= '<button type="button" data-g="' . $k . '"' . ($k === 'all' ? ' class="on"' : '') . ' aria-label="' . ($k === 'all' ? 'All pieces' : ucfirst($k) . ' pieces') . '" aria-pressed="' . ($k === 'all' ? 'true' : 'false') . '">' . $l . '</button>';
         $h .= '</nav>';
         $in = ''; $col = '';
         foreach ($P as $p) {
