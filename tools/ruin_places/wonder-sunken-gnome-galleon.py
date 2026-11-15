@@ -22,9 +22,17 @@ def build(p):
         return px[x, y][:3] if 0 <= x < p.w and 0 <= y < p.h else None
 
     def inked(draw):
+        shadow_log.clear()
         b = p.snapshot()
         draw()
+        bp = b.load()
+        for (x, y, c) in shadow_log:                  # contact shadows on the silt are not objects: no ink
+            if px[x, y][:3] == c:
+                bp[x, y] = px[x, y]
+        shadow_log.clear()
         p.outline_new(b)
+
+    shadow_log = []
 
     def stamp(x, y, rows, pal):
         for j, row in enumerate(rows):
@@ -424,6 +432,7 @@ def build(p):
         for (x, y) in pts:
             if is_sand(x, y):
                 p.dot(x, y, S5 if col(x, y) in (S4, S5) else S4)
+                shadow_log.append((x, y, col(x, y)))
 
     def plank(x0, y0, ln, slope, th=3, cols=None):
         hi, mid, dk = cols or (W_LT, W_MID, W_DK)
@@ -523,28 +532,34 @@ def build(p):
     GOLD = (G_LT, G_MID, G_DK)
 
     def chest():
-        x0, x1, xs, y0, y1 = 380, 418, 424, 228, 250            # front face x0..x1, side face to xs
+        x0, x1, xs, y0, y1 = 380, 418, 424, 230, 250            # front face x0..x1, side face to xs
         vb = {}                                                   # the V break in the front board
         for x in range(390, 407):
             d = abs(x - 397.5)
-            vb[x] = 236 - int(d * 0.9) + (1 if x in (393, 401) else 0) - (1 if x == 404 else 0)
+            vb[x] = 238 - int(d * 0.9) + (1 if x in (393, 401) else 0) - (1 if x == 404 else 0)
         for y in range(222, y1 + 1):
             for x in range(x0, xs + 1):
                 if x > x1:                                        # side face, its top slants up to the back
-                    top = 228 - (x - x1)
+                    top = 229 - (x - x1)
                     if y < top:
                         continue
-                    c = C_SD if (y - 228) % 7 else INK
+                    c = C_SD if (y - y0) % 7 else C_WD
                     if x == x1 + 1:
                         c = C_WD
                     p.dot(x, y, c)
                     continue
                 if y < 222 + 1:
                     continue
-                if y <= 227:                                       # the open mouth: back rim, inner wall, dark well
+                if y < y0:                                         # the open mouth: back rim, inner wall, dark well
                     if x < x0 + 1 or x > x1:
                         continue
-                    c = C_WL if y == 223 else (C_WD if y <= 225 else VD2)
+                    c = C_WL if y == 223 else (C_WD if y <= 225 else (VD2 if y < 228 else VD))
+                    for (m0, m1) in ({229: ((383, 389), (408, 416)), 228: ((384, 387), (410, 414)),
+                                      227: ((411, 412),)}.get(y, ())):
+                        if m0 <= x <= m1:                            # what is left of the hoard, in two heaps
+                            c = G_MID if x < m1 - 1 else G_DK
+                            if y == 228 and x == m0 or y == 227:
+                                c = G_LT
                     if y == 224 and x % 9 == 3:
                         c = C_SD
                     p.dot(x, y, c)
@@ -565,26 +580,25 @@ def build(p):
         for x in vb:
             if col(x, vb[x] + 1) not in (VD, VD2):
                 p.dot(x, vb[x] + 1, C_WL)
-        for (x, y) in ((391, 233), (403, 232), (395, 236), (400, 236)):
+        for (x, y) in ((391, 235), (403, 234), (395, 238), (400, 238)):
             p.dot(x, y, C_WL)
         # tarnished iron straps with rivets
         for sx in (384, 412):
-            for y in range(228, 251):
+            for y in range(230, 251):
                 if col(sx, y) in (VD, VD2):
                     continue
                 p.dot(sx, y, RIM)
                 p.dot(sx + 1, y, I_MID)
                 p.dot(sx + 2, y, I_DK)
-                if y in (230, 240, 248):
+                if y in (232, 241, 248):
                     p.dot(sx + 1, y, I_LT)
-            for y in (232, 243):
+            for y in (236, 245):
                 p.dot(sx + 1, y, hx('#74907c'))                     # verdigris
-        for y in range(222, 251):                                   # strap round the side
-            if y >= 228 - 3:
-                p.dot(421, y, I_DK)
-        # coins glint in the well and drip over the split
-        for (x, y) in ((386, 227), (392, 226), (408, 227), (414, 226), (396, 234), (399, 235), (397, 237)):
-            p.dot(x, y, G_DK if y < 230 else G_MID)
+        for y in range(227, 251):                                   # strap round the side
+            p.dot(421, y, I_DK)
+        # coins caught on the split
+        for (x, y) in ((396, 236), (399, 237), (397, 239)):
+            p.dot(x, y, G_MID)
     inked(chest)
     for x in range(379, 428):                                       # contact shadow under the chest
         for y in (251, 252):
@@ -592,23 +606,22 @@ def build(p):
                 p.dot(x, y, S5 if y == 251 else S4)
 
     def coins():
-        heap = ["......gGGg..........",
-                ".....gGggGg.........",
-                "....ggGGgggg........",
-                "...gGGgggGGgd.......",
-                "..ggggGGggggdd......",
-                ".gGGgggggGGggdd.....",
-                "ggggGGgggggGgddd....",
-                "gGggggggGGgggdddd...",
-                "ggGGgggGgggGGgddddd.",
-                "gggggGGggggggddddddd",
-                ".ddggdddggdddddddd.."]
-        shadow([(x, 252 + k) for x in range(378, 402) for k in (0, 1)])
-        stamp(380, 242, heap, {'g': G_MID, 'G': G_LT, 'd': G_DK})
-        # the trickle from the split down the front board
-        for (x, y) in ((396, 238), (397, 239), (395, 240), (396, 241)):
-            p.dot(x, y, G_MID); p.dot(x + 1, y, G_DK)
-        p.dot(396, 238, G_LT)
+        shadow([(x, 252 + k) for x in range(376, 404) for k in (0, 1)])
+        ax, ay = 389, 240                                           # heap apex, spilling from the split
+        for y in range(ay, 253):
+            half = int((y - ay) * 1.15) + 1
+            for x in range(ax - half, ax + half + 1):
+                if y == 252 and abs(x - ax) > half - 2:
+                    continue
+                t = (x - ax) / float(half + 1)
+                c = G_LT if t < -.35 and y < 250 else (G_MID if t < .4 else G_DK)
+                if y >= 251:
+                    c = G_DK if t > -.6 else G_MID
+                if (y - ay) % 3 == 2 and (x + (y // 3) * 2) % 5 in (0, 1) and c != G_DK:
+                    c = G_DK if c == G_MID else G_MID                # coin rims, stacked rows
+                p.dot(x, y, c)
+        for (x, y) in ((396, 238), (395, 239), (394, 240)):         # the trickle out of the split
+            p.dot(x, y, G_LT); p.dot(x + 1, y, G_DK)
     inked(coins)
     def lid():
         shadow([(x, 249 + k) for x in range(432, 458) for k in (0, 1)])
@@ -622,7 +635,7 @@ def build(p):
     inked(lid)
 
     def loose():
-        for (x, y) in ((362, 259), (374, 262), (384, 260), (398, 258), (355, 252), (428, 256), (406, 262)):
+        for (x, y) in ((369, 256), (374, 260), (406, 256), (360, 262)):
             p.dot(x, y, G_LT); p.dot(x + 1, y, G_LT); p.dot(x + 2, y, G_MID)
             p.dot(x, y + 1, G_MID); p.dot(x + 1, y + 1, G_DK); p.dot(x + 2, y + 1, G_DK)
         # a goblet on its side

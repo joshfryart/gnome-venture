@@ -464,10 +464,10 @@ def build(p):
     for (x, y, L) in ((329, 178, 22), (387, 181, 16), (404, 183, 30), (458, 186, 24), (341, 179, 9)):
         p.vine(x, y + dy(x), L, (M_DK, M_MID))
 
-    # the left wall lantern: cold, sooty glass, a crack, cap knocked askew
+    # the left wall lantern: cold, sooty glass, a crack, its studs left
     def dead_lantern(cx, cy):
-        for y in range(cy - 7, cy + 8):
-            for x in range(cx - 7, cx + 8):
+        for y in range(cy - 10, cy + 11):
+            for x in range(cx - 10, cx + 11):
                 d = math.hypot(x - cx, y - cy)
                 if d < 4.6:
                     u = (x - cx) + (y - cy)
@@ -477,7 +477,7 @@ def build(p):
                     p.dot(x, y, c)
                 elif d < 5.6:
                     p.dot(x, y, INK)
-                elif d < 9.6 and x >= 326 and sum(col(x, y)) < 200 and (x, y) in hut:
+                elif d < 9.6 and 326 <= x <= 339 and sum(col(x, y)) < 200 and (x, y) in hut:
                     p.dot(x, y, rm(spx[x, 208][:3]))               # the old lamp's spikes go
         for (x, y) in ((cx - 2, cy - 3), (cx - 3, cy - 2)):
             p.dot(x, y, hx('#9a9cb2'))
@@ -485,8 +485,6 @@ def build(p):
             p.dot(x, y, hx('#2e2c3a'))                              # crack in the glass
         for (x, y) in ((cx, cy - 6), (cx, cy + 6), (cx - 6, cy), (cx + 6, cy)):
             p.dot(x, y, INK)                                        # the frame studs, like the live lamp
-        for (x, y) in ((cx - 1, cy + 4), (cx + 1, cy + 4)):
-            p.dot(x, y, hx('#4c4a60'))
     dead_lantern(333, 195)
 
     # ================= 5. the beach ==========================================================================
@@ -800,6 +798,11 @@ def build(p):
                     p.dot(x, y + 1, c1)
         inked(draw)
     log(156, 259, 44, 3, 2)
+    log(12, 229, 52, 3, 0)                                     # a big bleached trunk washed far up the beach
+    stick([(63, 227), (67, 225), (70, 221), (74, 220)])         # its root fan
+    stick([(63, 230), (69, 229), (75, 227)])
+    stick([(63, 231), (68, 234), (72, 234), (77, 236)])
+    stick([(30, 226), (33, 222)])                              # a snapped branch stub
     stick([(186, 254), (192, 249), (197, 248)])                # branch stub on the log
     shadow(8, 44, 214, 1)
     stick([(8, 212), (22, 210), (34, 212), (44, 209)])

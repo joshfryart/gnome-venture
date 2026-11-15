@@ -384,6 +384,12 @@ def build(p):
     p.recolor((257, 58, 290, 80), lambda r, g, b: tuple(min(255, int(v * .9) + 14) for v in (r, g, b))
               if (r, g, b) != INK and (r, g, b) not in SK.values() else None)
 
+    for yy in range(62, 74):                                                 # stray pixels of the torn-off tip
+        for xx in range(281, 291):
+            nb = [col(xx + dx, yy + dy) for (dx, dy) in ((-1, 0), (1, 0), (0, -1), (0, 1))]
+            if col(xx, yy) == INK and sum(c != INK for c in nb) >= 3 and all(c == INK or c in SK.values() or c == col(291, yy) for c in nb):
+                put(xx, yy, col(291, yy))
+
     # C3 left stall: the snapped post
     def post():
         p.poly([(99, 162), (101, 159), (103, 163), (105, 160), (106, 164), (106, 173), (99, 173)], W_MID)
@@ -520,31 +526,34 @@ def build(p):
     # C8 cold brazier tipped over in the street
     IR_L, IR_M, IR_D, ASH, ASH2, COAL = hx('#7c7688'), hx('#5a5466'), hx('#3e3848'), hx('#aaa6b2'), hx('#8c8896'), hx('#322a34')
 
-    def brazier():
-        stamp(222, 224, (
-            "....aAAa......",
-            "..aAAaaAAa....",
-            "LLLLLLLLLLLLLL",
-            "dmmLLmmmmmmmmd",
-            ".dmmLmmmmmmdd.",
-            "..dmmmmmmmdd..",
-            "...ddmmmddd...",
-            "....dddddd....",
-            "...l..ll..l...",
-            "..l...ll...l..",
-            "..l...ll...l..",
-            ".l....ll....l.",
-        ), {'m': IR_M, 'L': IR_L, 'd': IR_D, 'l': IR_D, 'a': ASH2, 'A': ASH})
+    RU_L, RU_M, RU_D = hx('#9a7c70'), hx('#7a5c58'), hx('#56404a')
+    ASH, ASH2 = hx('#cfcbd2'), hx('#aaa5b2')
+
+    def brazier():                                                            # cold: a heap of grey ash, charred sticks
+        stamp(220, 220, (
+            ".......k..k.....",
+            "........kk......",
+            "......AAkAa.....",
+            "....AAAAaaaaa...",
+            "...AAAaaaaaaaa..",
+            "LLLLLLLLLLLLLLLd",
+            "hmmmmmmmmmmmmmmd",
+            ".dhmmmmmmmmmmdd.",
+            "..ddmmmmmmmddd..",
+            "....dddddddd....",
+        ), {'m': RU_M, 'L': RU_L, 'h': RU_L, 'd': RU_D, 'a': ASH2, 'A': ASH, 'k': COAL})
     inked(brazier)
-    for xx in range(221, 238):
-        if col(xx, 237) != INK:
-            tone(xx, 237, -24)
+    for (a, b_) in (((224, 230), (222, 235)), ((231, 230), (233, 235)), ((227, 230), (227, 234))):   # thin iron legs
+        p.line([a, b_], INK)
+    for xx in range(219, 238):
+        if col(xx, 236) != INK:
+            tone(xx, 236, -24)
 
     def ash():
-        for (x0, x1, y) in ((243, 249, 234), (241, 252, 235), (240, 253, 236)):
+        for (x0, x1, y) in ((241, 247, 233), (240, 251, 234), (240, 253, 235)):
             for xx in range(x0, x1 + 1):
-                put(xx, y, ASH if y == 234 else (ASH2 if (xx + y) % 4 else hx('#726e7e')))
-        put(246, 233, COAL); put(247, 233, COAL); put(250, 234, COAL)
+                put(xx, y, ASH if y == 233 or (y == 234 and xx < 245) else (hx('#8e8a98') if y == 235 and xx > 247 else ASH2))
+        put(244, 232, COAL); put(245, 232, COAL); put(249, 233, COAL)
     inked(ash)
 
     # ================= D. age: stains, moss, vines, weeds, fallen husks ==================================

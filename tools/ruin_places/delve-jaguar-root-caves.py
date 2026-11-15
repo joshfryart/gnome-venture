@@ -469,8 +469,8 @@ def build(p):
                 "kkKkkbbbbbbbbbb",
                 "KKkkiBBbBBBBBBd",
                 ".KKkidBdddddddd"]
-        return stamp(x, y, rows, {'w': hx('8f8a90'), 'k': hx('4a3e46'), 'K': hx('2e2434'), 'b': R_LT,
-                                  'B': R_MID, 'd': R_DK, 'i': hx('6c6880')})
+        return stamp(x, y, rows, {'w': hx('8f8a90'), 'k': hx('3e3440'), 'K': hx('2e2434'), 'b': hx('8a7466'),
+                                  'B': hx('6a5650'), 'd': hx('4e3e44'), 'i': hx('6c6880')})
 
     for (tx, ty) in ((64, 255), (438, 238)):
         for k in range(1, 15):
@@ -478,6 +478,7 @@ def build(p):
                 p.dot(tx + k, ty + 6, F_VD)
         torch(tx, ty)
     # a little heap of ash and char by the first one
+    stamp(455, 239, ["..a..", ".aAa.", "aAAkA"], {'a': hx('8f8a90'), 'A': hx('6e6a74'), 'k': hx('3c3038')}, ink=False)
     stamp(80, 256, [".aAa.", "aAAkA"], {'a': hx('8f8a90'), 'A': hx('6e6a74'), 'k': hx('3c3038')}, ink=False)
 
     # wall sconce with a dead torch, soot above it
@@ -671,13 +672,20 @@ def build(p):
     p.recolor((44, 222, 98, 262), dull)
 
     # ---- 16. a chunk broken out of the arch crown, lying at its foot -------------------------------------------
-    chunk = set()
-    for (x, y) in ((396, 66), (397, 66), (398, 66), (399, 66), (400, 66), (401, 66), (402, 66), (397, 67), (398, 67),
-                   (399, 67), (400, 67), (401, 67), (398, 68), (399, 68), (400, 68), (399, 69)):
-        if col(x, y) in WALLS:
-            chunk.add((x, y))
-    for (x, y) in chunk:
-        p.dot(x, y, W_SH if (x, y + 1) in chunk else W_VD)
+    skyc = col(404, 74)
+    bite = set()
+    for y in range(56, 72):
+        for x in range(394, 416):
+            if ((x - 405) / 7.0) ** 2 + ((y - 67) / 5.0) ** 2 <= 1 and col(x, y) in WALLS | {INK}:
+                bite.add((x, y))
+    for (x, y) in bite:
+        p.dot(x, y, skyc)
+    for (x, y) in bite:
+        for (a_, b_) in ((x, y - 1), (x - 1, y), (x + 1, y)):
+            if (a_, b_) not in bite and col(a_, b_) in WALLS:
+                p.dot(a_, b_, INK)
+                if col(a_, b_ - 1) in WALLS and a_ > 404:
+                    p.dot(a_, b_ - 1, W_LT)                      # fresh broken face, lit
     rk(436, 214, 4, 3, 66, ROCK2, shadow=True)
 
     # ---- 17. gravel spilled around the rock falls (little clustered stones with contact shadows) -------------
@@ -691,7 +699,7 @@ def build(p):
             if col(x + a + 1, y + 2) not in (INK, None):
                 p.dot(x + a + 1, y + 2, F_VD)
     gr = random.Random(5)
-    for (cx, cy, n) in ((372, 222, 7), (300, 226, 6), (246, 250, 4), (420, 220, 4)):
+    for (cx, cy, n) in ():
         for _ in range(n):
             pebble(cx + gr.randint(-16, 16), cy + gr.randint(-3, 4), gr.random() < 0.6)
 
