@@ -74,7 +74,7 @@ rainforest-the-fallen-giant|Juniper Puddlefoot|dp=dusk|40|Juniper Puddlefoot is 
 rainforest-the-rain-drum-leaf|Rue Hollowell|we=rain/dp=day|45|Rue Hollowell is dancing to the rain drum, and you dance too, very splashily.|fp=2
 rainforest-the-lantern-fruit|Posy Marrowby|dp=night|40|Posy Marrowby only dares walk the dark Trail with a lantern fruit, and has not got one. Could you spare yours?|give=lantern-fruit:1,fp=4
 rainforest-the-mist-pool|Pomeroy Crumbworth|we=fog/dp=dawn|40|Pomeroy Crumbworth insists the mist smells of soup and asks you to describe the flavour. Leek, you say. He writes it down.|fp=2,xp=20
-island-the-hammock-palms|Pinchwell|dp=day|35|Pinchwell, the crab who writes letters, tells the hammock crab you are a friend, so of course you may share. There is a letter for you too.|nocheck,fp=1,item=cowrie-shell:1@40
+island-the-hammock-palms|Pinchwell|dp=dawn,dusk|35|Pinchwell, the crab who writes letters, tells the hammock crab you are a friend, so of course you may share. There is a letter for you too.|nocheck,fp=1,item=cowrie-shell:1@40
 island-the-tide-cave|Willa Thistledown|we=cloud|40|Willa Thistledown is napping to the cave's breathing, so you breathe very quietly too.|fp=2
 island-the-shell-bell-tree|Lyra Fiddlewing|dp=dusk|40|Lyra Fiddlewing plays a duet with the shell bells, and you get to ring the high one.|fp=1,xp=3
 island-the-sand-spit|Tansy Thistledown|dp=dawn|40|Tansy Thistledown wonders what the sand spit points at, so you look together and spot a sea-bird.|fp=2,page=sand-spit-seabird

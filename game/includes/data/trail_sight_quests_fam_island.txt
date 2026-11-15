@@ -1,0 +1,2 @@
+# Island family quest line (2.7.01). Q|slug|title|giver|icon|order|reward|intro|outro|gate  then  B|slug|sight|label|when|needs
+# Pinchwell's postcards are scattered over four islands. Collect them in order, then hand them over at the hammock palms when the ferry docks on a 7th game day (gd=7:0). Two beats need a villager by their weekly clockwork (npc=).

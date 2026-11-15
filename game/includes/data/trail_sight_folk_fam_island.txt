@@ -1,0 +1,6 @@
+# Island family folk rows (2.7.01, claude/sights/family-island.md). sight|villager|when|chance|line|rewards
+# Pinchwell's Postcards: the postcard senders wait at their islands on the clockwork; Pinchwell takes the last delivery on a 7th game day (gd=7:0) when the ferry docks.
+island-the-hammock-palms|Pinchwell|dp=dawn,dusk/gd=7:0|100|Pinchwell has been waiting on the dock-side hammock all week, claws folded, one eye on the ferry. "Post," he says, very softly, and holds out a claw.|fp=2
+island-the-sand-spit|Tansy Thistledown|dp=dawn|100|Tansy Thistledown has found a postcard in the sand, the first of a set, and tucks it in your pack with a very serious face.|fp=1
+island-the-shell-bell-tree|Lyra Fiddlewing|dp=dusk|100|Lyra Fiddlewing hums the second postcard's tune and hands the card over, a little bell-shell glued to the corner.|fp=1
+island-the-lagoon-edge|Fennel Mossgrove|dp=dawn|100|Fennel Mossgrove has the fourth postcard drying on a flat stone, and practises a speech about it. You say thanks first.|fp=1
