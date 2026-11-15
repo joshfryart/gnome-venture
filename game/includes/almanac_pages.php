@@ -242,3 +242,34 @@ function almanac_unlock_2646(int $uid, string $key): void
     ensure_almanac_pages_2646();
     unlock_entries($uid, $key);
 }
+
+
+/**
+ * 2.7.00 road kinds: one Almanac page, made once per world (marker almanac2700roads) and opened the first time a walk starts on a road with a kind.
+ * Numbers come from includes/road_kinds.php so the page cannot drift from the rules.
+ */
+function ensure_almanac_pages_2700(): void
+{
+    if (setting('almanac2700roads') === '1') return;
+    require_once __DIR__ . '/road_kinds.php';
+    $title = 'Special roads';
+    if (!q_val("SELECT 1 FROM encyclopedia_entries WHERE chapter = 'General' AND title = ?", [$title])) {
+        $body = "A few Trail roads are not plain roads. The road card says which, and a tap on the label tells you more.\n\n"
+            . '[b]Ferry[/b]: ' . rk_text('ferry') . "\n"
+            . '[b]Tunnel[/b]: ' . rk_text('tunnel', 2) . " The tier is shown on the road card.\n"
+            . '[b]Pass[/b]: ' . rk_text('pass', 2) . " The tier is shown on the road card.\n"
+            . '[b]Toll road[/b]: ' . rk_text('toll') . "\n"
+            . '[b]Overgrown[/b]: ' . rk_text('overgrown') . "\n"
+            . '[b]Flooded[/b]: ' . rk_text('flooded') . " Flood Boots are sold in the Home & curios shops.";
+        try {
+            db_insert('encyclopedia_entries', ['chapter' => 'General', 'category' => 'Places', 'title' => $title, 'body' => $body, 'unlock_key' => 'roadkinds', 'hint' => 'Walk a ferry, tunnel, pass, toll, overgrown or flooded road.', 'sort_order' => 70]);
+        } catch (PDOException $e) { return; }   // made at the same moment
+    }
+    set_setting('almanac2700roads', '1');
+}
+
+function almanac_unlock_2700(int $uid, string $key): void
+{
+    ensure_almanac_pages_2700();
+    unlock_entries($uid, $key);
+}

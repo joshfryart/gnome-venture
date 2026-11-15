@@ -47,6 +47,13 @@ for reg in LEVELS:
         pick = next((r for r in best if (not lands or r['land'] in lands or r['land'] in FALLBACK.get(kind, ())) and score(r, kind, lands) > 0), None)
         if pick is None: out[reg].append((kind, rule, None)); continue
         used.add(pick['id']); out[reg].append((kind, rule, pick))
+if os.environ.get('ROADKINDS_DATA'):
+    L = ['# Road kinds (2.7.00, approved by Josh 2026-11-15; made by tools/draft_road_kinds.py, then edited by hand: this file is the truth).',
+         '# route id | kind (ferry tunnel pass toll overgrown flooded) | tier (tunnel = lantern, pass = staff: the tool tier needed; 0 for the other kinds)']
+    for reg in LEVELS:
+        for kind, rule, r in out[reg]:
+            if r is not None: L.append('%d|%s|%d' % (r['id'], kind, tier(reg) if kind in ('tunnel', 'pass') else 0))
+    print('\n'.join(L)); raise SystemExit
 print('# Road kinds 2.7.00: draft route list (veto me)\n')
 print('Draft by `tools/draft_road_kinds.py` from the route data (`claude/bend-prototype-v2/`). Nothing is in the game yet. Kinds and rules: `claude/plan-2.7.00.md` item 5. One route per kind per region where the land fits (`-` = no fitting route: say if you want a pick anyway). **Tier** is for tunnel (lantern) and pass (staff) only: Sturdy (2) up to region level 12, Fine (3) after (those tools stop at tier 3). A route keeps one kind. Routes that already have a tool gate or a boss are skipped.\n')
 print('Veto: strike a row, or write the route id you want instead.\n')

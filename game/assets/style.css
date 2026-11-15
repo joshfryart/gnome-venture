@@ -7918,3 +7918,9 @@ details.sgq summary{cursor:pointer}
 .pjcrew .pjcrewrow .pjcrewtxt { flex: 1 1 auto; min-width: 0; }
 .pjcrew .pjcrewrow form.inline { flex: 0 0 auto; margin: 0; }
 .pjcrew .pjcrewrow.is-gone .pjcrewtxt b { opacity: .8; }
+
+/* 2.7.00 road kinds: the kind chip on a route card and the toll card on the Trail */
+.pchip--kind { font-weight: 600; }
+.trailstrip .tkind { margin-left: auto; font-size: .85rem; opacity: .95; }
+.tollcard { margin: .4rem 0; padding: .6rem .7rem; border: 1px solid rgba(255, 255, 255, .18); border-radius: 8px; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.tollcard p { flex: 1 1 100%; margin: 0 0 .2rem; }

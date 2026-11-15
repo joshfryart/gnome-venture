@@ -69,6 +69,7 @@ function go_panel_html(array $u, array $node, string $here, callable $badge, arr
               <span class="pchip"><?= (int)$r['steps'] ?> steps</span>
               <span class="pchip">⚡<?= (int)(gclock_on() ? game_energy_cost($u, route_energy($u, $r)) : route_energy($u, $r)) ?></span>
               <?php if (gclock_on()): ?><span class="pchip" title="Game time: <?= (int)gclock_time_cost('travel') ?> min per section">🕐 <?= e(gclock_span_text(gclock_time_cost('travel') * max(1, function_exists('trail_sections') ? trail_sections($r) : (int)$r['steps']))) ?></span><?php endif; ?>
+              <?php require_once __DIR__ . '/road_kinds.php'; if ($rkc = rk_of((int)$r['id'])): ?><span class="pchip pchip--kind" title="<?= e(rk_text($rkc['kind'], $rkc['tier'])) ?>"><?= e(rk_label($rkc)) ?></span><?php endif; /* 2.7.00 road kinds */ ?>
               <?php if (!empty($r['quick'])): ?><span class="pchip">💨 <?= e(nice_time((int)$r['walk_min'] * 60)) ?></span><?php endif; ?>
               <?= go_level_chip($lvl, $dMin, $dMax) ?>
             </span>

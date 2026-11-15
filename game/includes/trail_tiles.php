@@ -324,6 +324,8 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
     if (!$sc) return [false, 'There is no tile map for this walk.'];
     if ($exp['encounter']) return [false, 'Deal with what is in front of you first.'];
     if ($sc['st']['phase'] !== 'section') return [false, 'Choose Continue or Turn back first.'];
+    require_once __DIR__ . '/road_kinds.php';
+    if (rk_toll_open((int)substr((string)$sc['row']['map_key'], 6), $sc['st'])) return [false, '🪙 A toll road: pay the toll or take the old road first.'];   // 2.7.00
     $map = $sc['map'];
     $t = tm_tile($map, $tx, $ty);
     if ($t === '#' || $t === ' ') return [false, 'That is solid rock.'];
@@ -341,7 +343,7 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
         if (tm_path($map, $sc['x'], $sc['y'], $tx, $ty, trail_gate($sc2, $tx, $ty, $shut))) return [false, '⚔️ A fight waits in the way. Walk to the ⚔️ spot first.'];
         return [false, 'There is no way there from here.'];
     }
-    [$stop, $sc['st']['quiet'], $sc['st']['fights']] = trail_encounter_index($map, $path, (int)($sc['st']['quiet'] ?? 0), (int)($sc['st']['fights'] ?? 0), null, (string)($sc['st']['stance'] ?? ''));
+    [$stop, $sc['st']['quiet'], $sc['st']['fights']] = trail_encounter_index($map, $path, (int)($sc['st']['quiet'] ?? 0), (int)($sc['st']['fights'] ?? 0), null, (string)($sc['st']['stance'] ?? ''), rk_enc_base($sc['st']));   // 2.7.00: a paid toll road halves the chance
     if ($stop !== null) {   // something rustles: the walk stops on that tile and a random fight starts
         $path = array_slice($path, 0, $stop + 1);
         [$tx, $ty] = end($path);
@@ -359,6 +361,19 @@ function trail_go(array $u, array &$exp, int $tx, int $ty): array
     if ($fire !== null) trail_token_event($u, $exp, $fire, (string)($map['art']['boss'] ?? ''), $fire === 'M' ? trail_extra_mini($map['art'] ?? [], $tx, $ty) : null);
     $_SESSION['dm_walk'] = ['e' => (int)$exp['id'], 't' => time(), 'p' => $walked];
     return [true, ''];
+}
+
+/** 2.7.00: the toll road's question at the first stretch: pay (safer, faster) or take the old road. Free of energy. [ok, message] */
+function trail_toll(array $u, array &$exp, bool $pay): array
+{
+    $sc = trail_scene($exp);
+    if (!$sc) return [false, 'Not on a tile walk.'];
+    if ($exp['encounter']) return [false, 'Deal with what is in front of you first.'];
+    require_once __DIR__ . '/road_kinds.php';
+    [$ok, $msg] = rk_toll_set($u, $sc, $pay);
+    if (!$ok) return [false, $msg];
+    if (!trail_save($sc)) return [false, 'That already happened. Look again.'];   // the compare-and-swap: a double tap or a second tab lands here and pays nothing
+    return [true, rk_toll_apply($u, $pay, (int)$sc['st']['S'])];
 }
 
 /** Sneak or Hunt (or back to a normal walk): the stance for the rest of this walk. Free. [ok, message] */
@@ -393,6 +408,7 @@ function trail_next(array $u, array &$exp): array
     $new['st'] = ['sec' => $nsec, 'S' => (int)$sc['st']['S'], 'sx' => (int)($sc['st']['sx'] ?? $exp['id']), 'phase' => 'section', 'stance' => (string)($sc['st']['stance'] ?? ''), 'hist' => $hist,
         'tokens' => $revisit ? $hist[$nsec] : trail_pickup_apply((int)$exp['user_id'], $rid, trail_phys_sec($rid, $nsec, $sc['st']), array_map(fn($t) => [$t[0], $t[1], $t[2], 0], $tokens))];
     if (!empty($sc['st']['rev'])) $new['st']['rev'] = 1;
+    if (isset($sc['st']['toll'])) $new['st']['toll'] = $sc['st']['toll'];   // 2.7.00: the toll answer stays for the whole walk
     $new['x'] = $map['entry'][0];
     $new['y'] = $map['entry'][1];
     $new['seen'] = $seen;
@@ -422,6 +438,7 @@ function trail_prev(array $u, array &$exp): array
     $new = $sc;
     $new['st'] = ['sec' => $psec, 'S' => (int)$st['S'], 'sx' => (int)($st['sx'] ?? $exp['id']), 'phase' => 'section', 'stance' => (string)($st['stance'] ?? ''), 'hist' => $hist, 'tokens' => $ptokens];
     if (!empty($st['rev'])) $new['st']['rev'] = 1;
+    if (isset($st['toll'])) $new['st']['toll'] = $st['toll'];
     $new['st']['phase'] = 'confirm';   // you stand on that stretch's exit: Continue is offered at once (or "Not yet" to look around)
     $new['x'] = $ex; $new['y'] = $ey; $new['seen'] = $seen;
     if (!trail_save($new)) return [false, 'You already moved. Look again.'];
@@ -471,7 +488,16 @@ function trail_strip_html(array $u, array $exp, array $sc): string
         [$hp, $max] = hp_display($u);
         $o .= '<span class="thp" title="Health">❤️ ' . hp_bar_html($hp, $max, 'hpbar-s') . ' ' . $hp . '/' . $max . '</span>';
     }
-    return $o . '</div>';
+    require_once __DIR__ . '/road_kinds.php';   // 2.7.00 road kinds
+    $rid = (int)substr((string)($sc['row']['map_key'] ?? ''), 6); $rk = rk_of($rid);
+    if ($rk) $o .= '<span class="tkind" title="' . e(rk_text($rk['kind'], $rk['tier'])) . '">' . e(rk_label($rk)) . '</span>';
+    $o .= '</div>';
+    if (rk_toll_open($rid, (array)$sc['st']) && empty($exp['encounter'])) {
+        $o .= '<div class="trailui tollcard" role="group" aria-label="Toll road"><p>' . e(rk_text('toll')) . '</p>'
+            . '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="trail_toll"><input type="hidden" name="pay" value="1"><button class="btn primary">🪙 Pay ' . RK_TOLL_PETALS . ' Petals</button></form>'
+            . '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="trail_toll"><input type="hidden" name="pay" value="0"><button class="btn alt">Take the old road</button></form></div>';
+    }
+    return $o;
 }
 
 /** The tile map block for adventure.php: the section picture with its buttons (same markup and script as the delve map), then the confirm card. */

@@ -565,6 +565,10 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
                 q('UPDATE encyclopedia_entries SET body = REPLACE(body, ?, ?) WHERE unlock_key = ?', [$c['name'] . ', level ' . $was . '.', $c['name'] . ', level ' . $lv . '.', 'landmark:' . $loc['slug']]);
             }
         });
+        boot_step('road_kind_items_2700', function () {   // 2.7.00 road kinds: Flood Boots (on sale in the Home & curios shops) and the Toll Receipt (includes/road_kinds.php)
+            require_once __DIR__ . '/road_kinds.php';
+            rk_ensure_items();
+        });
         boot_step('sleep_days_start_2609', function () {   // v2.6.09: sleep-days goes live; every gnome starts on today's game day, once
             if (setting('gclock_started') === '') {
                 require_once __DIR__ . '/game_clock.php';
