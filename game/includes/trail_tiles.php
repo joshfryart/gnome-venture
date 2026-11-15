@@ -497,7 +497,8 @@ function trail_strip_html(array $u, array $exp, array $sc): string
             . '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="trail_toll"><input type="hidden" name="pay" value="1"><button class="btn primary">🪙 Pay ' . RK_TOLL_PETALS . ' Petals</button></form>'
             . '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="trail_toll"><input type="hidden" name="pay" value="0"><button class="btn alt">Take the old road</button></form></div>';
     }
-    return $o;
+    require_once __DIR__ . '/trail_camps.php';
+    return $o . tc_card_html($u, $exp, $sc);   // 2.7.00: the camp card while you stand on the camp tile
 }
 
 /** The tile map block for adventure.php: the section picture with its buttons (same markup and script as the delve map), then the confirm card. */
@@ -518,6 +519,9 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     }
     [$ex, $ey] = $map['spots']['9'];
     if ($ex !== $sc['x'] || $ey !== $sc['y']) $tokens[] = [$ex, $ey, '🚪', 'gold', false];
+    require_once __DIR__ . '/trail_camps.php';   // 2.7.00: the camp tile of this route (when this is its stretch)
+    $campSpot = tc_spot((array)($map['art'] ?? []));
+    if ($campSpot && ($campSpot[0] !== $sc['x'] || $campSpot[1] !== $sc['y'])) $tokens[] = [$campSpot[0], $campSpot[1], '🏕️', 'gold', false];
     // 2026-11-10: a tool gate that is still shut for this gnome gets a 🔒 mark on its middle tile, and every tile of it says what it needs
     $shut = function_exists('tool_tier') && !empty($map['art']['gates']) ? trail_gates_closed($map['art'], fn(string $type): int => tool_tier((int)$u['id'], $type)) : [];
     $shutSeen = [];
@@ -599,6 +603,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
             if ($tk >= 0) { $done = (int)$sc['st']['tokens'][$tk][3]; $cls .= ' spot' . ($done ? ' done' : ''); $label = ($sc['st']['tokens'][$tk][2] === 'E' || ($sc['st']['tokens'][$tk][2] === 'M' && !$easyMini)) ? ($done ? 'Fight, done' : 'A fight waits here') : ($done ? 'Find, done' : 'Something to find'); }
             elseif (isset($shut[$x . ',' . $y])) { $cls .= ' gate'; $label = trail_gate_message($shut, [[$x, $y]]) ?? 'A shut gate'; }
             elseif (isset($openMid[$x . ',' . $y])) $label = $openMid[$x . ',' . $y];
+            elseif ($campSpot && $campSpot[0] === $x && $campSpot[1] === $y) { $cls .= ' spot'; $label = 'A camp spot: sleep, nap or wait'; }
             elseif ($t === '9') { $cls .= ' spot'; $label = 'The way on'; }
             elseif ($t === 'S') $label = (int)$sc['st']['sec'] > 0 ? 'The way back' : 'Where this stretch begins';
         }

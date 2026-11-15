@@ -7924,3 +7924,6 @@ details.sgq summary{cursor:pointer}
 .trailstrip .tkind { margin-left: auto; font-size: .85rem; opacity: .95; }
 .tollcard { margin: .4rem 0; padding: .6rem .7rem; border: 1px solid rgba(255, 255, 255, .18); border-radius: 8px; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
 .tollcard p { flex: 1 1 100%; margin: 0 0 .2rem; }
+.campcard { margin: .4rem 0; padding: .6rem .7rem; border: 1px solid rgba(255, 255, 255, .18); border-radius: 8px; }
+.campcard p { margin: 0 0 .4rem; }
+.campcard .campsel select { max-width: 100%; }

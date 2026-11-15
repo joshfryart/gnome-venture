@@ -140,7 +140,7 @@ if (is_post()) {
             elseif ($do === 'visit' && explore_visit($u, $exp, (int)($_POST['place'] ?? 0))) $visited = true;
             elseif ($do === 'gather') explore_gather($u, $exp, (string)($_POST['tool'] ?? ''));   // v0.7.80
             if (in_array($do, ['deeper', 'roam', 'back'], true)) rest_after_explore($exp, $logBefore);   // v1.3.0
-        } elseif (in_array($do, ['trail_go', 'trail_next', 'trail_prev', 'trail_stay', 'trail_back', 'trail_arrive', 'trail_wander', 'trail_stance', 'trail_toll', 'gather', 'sight', 'sightgive', 'sightchat', 'sightgift'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
+        } elseif (in_array($do, ['trail_go', 'trail_next', 'trail_prev', 'trail_stay', 'trail_back', 'trail_arrive', 'trail_wander', 'trail_stance', 'trail_toll', 'trail_camp', 'gather', 'sight', 'sightgive', 'sightchat', 'sightgift'], true) && ($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp)) {   // graphical navigation 2d
             if ($do === 'trail_go') { $xy = explode(',', (string)($_POST['go'] ?? '')); [$tok, $tmsg] = trail_go($u, $exp, (int)($xy[0] ?? -1), (int)($xy[1] ?? -1)); }
             elseif ($do === 'trail_next') [$tok, $tmsg] = trail_next($u, $exp);
             elseif ($do === 'trail_prev') [$tok, $tmsg] = trail_prev($u, $exp);
@@ -152,12 +152,13 @@ if (is_post()) {
             elseif ($do === 'sightgive') { $sgp = fn(string $k): string => is_scalar($_POST[$k] ?? null) ? (string)$_POST[$k] : ''; [$tok, $tmsg] = trail_sight_give($u, $exp, $sgp('slug'), $sgp('idx') !== '' && ctype_digit($sgp('idx')) ? (int)$sgp('idx') : -1); }   // v2.6.68 Trail Sights
             elseif ($do === 'trail_stance') [$tok, $tmsg] = trail_stance($u, $exp, (string)($_POST['mode'] ?? ''));
             elseif ($do === 'trail_toll') [$tok, $tmsg] = trail_toll($u, $exp, (string)($_POST['pay'] ?? '') === '1');   // 2.7.00
+            elseif ($do === 'trail_camp') { require_once __DIR__ . '/includes/trail_camps.php'; [$cm, $cmin] = tc_parse((string)($_POST['mode_min'] ?? '')); [$tok, $tmsg] = trail_camp($u, $exp, $cm, $cmin); }   // 2.7.00
             elseif ($do === 'trail_wander') { [$tok, $tmsg] = trail_wander($u, $exp); }
             elseif ($do === 'trail_back') { [$tok, $tmsg] = trail_back($u, $exp); $visited = true; }
             elseif (trail_can_arrive($exp)) { arrive($u, $exp); dm_scene_drop((int)$exp['id']); $arrivedAt = (int)$exp['to_id']; $tok = true; $tmsg = ''; }
             else { $tok = false; $tmsg = 'Not there yet.'; }
             if (!$tok && $tmsg !== '') flash($tmsg, 'err');
-            elseif ($tok && in_array($do, ['trail_back', 'trail_wander', 'trail_stance', 'trail_toll'], true)) flash($tmsg, 'ok');
+            elseif ($tok && in_array($do, ['trail_back', 'trail_wander', 'trail_stance', 'trail_toll', 'trail_camp'], true)) flash($tmsg, 'ok');
         } elseif ($do === 'continue' && (int)$exp['step'] < (int)$exp['steps_total'] && !(($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp))) {   // a tile walk is only walked on its map (trail_go ...), never by the old step button
             next_step($u, $exp);
         } elseif ($do === 'arrive' && (int)$exp['step'] >= (int)$exp['steps_total'] && ts($exp['arrive_at']) <= time() && !(($exp['kind'] ?? 'walk') === 'walk' && trail_scene($exp))) {
