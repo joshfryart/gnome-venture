@@ -95,7 +95,7 @@ trail_sights_ensure_tables();
 q('DELETE FROM trail_sight_rows WHERE slug = ?', [$base['slug']]);
 db_insert('trail_sight_rows', ['slug' => $base['slug'], 'verb' => $base['verb'], 'icon' => $base['icon'], 'energy' => 0, 'cd' => 0, 'uses' => 99, 'cond' => $all[$palms]['when'], 'chk' => '-', 'rewards' => $all[$palms]['rewards'], 'win' => 'x', 'lose' => '', 'tool' => '-', 'fail_en' => 0, 'active' => 1]);
 $GLOBALS['gv_sights_reload'] = true; trail_sights_all();
-$use = function (float $hr) use (&$u, &$exp, $base) { $GLOBALS['gv_cw_time'] = [3, $hr, 20003]; $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $exp = active_expedition((int)$u['id']); $GLOBALS['gv_sights_reload'] = true; $r = trail_sight_do($u, $exp, $base['slug']); save_exp($exp); return $r; };
+$use = function (float $hr) use (&$u, &$exp, $base) { $GLOBALS['gv_cw_time'] = [3, $hr, 20003]; set_setting('stop_daypart_force', $hr < 8 ? 'dawn' : 'day'); setting('__reload__'); $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $exp = active_expedition((int)$u['id']); $GLOBALS['gv_sights_reload'] = true; $r = trail_sight_do($u, $exp, $base['slug']); save_exp($exp); return $r; };
 [$a] = $use(12.0);
 ok('with the ferry away (midday) the palms will not work', !$a);
 $tally = fn() => (trail_sight_tallies((int)$u['id'])['crossings'] ?? 0);
@@ -109,10 +109,9 @@ echo "== Pinchwell's Postcards
 $qs = trail_sight_quests()['pinchwells-postcards'] ?? null;
 ok('the line exists with 5 beats and at least 2 npc= beats', $qs && count($qs['beats']) === 5 && count(array_filter($qs['beats'], fn($b) => str_starts_with($b[3], 'npc='))) >= 2);
 ok('it passes the quest lint', $qs && !trail_sight_quest_lint($qs, $all, trail_sight_quests()), json_encode($qs ? trail_sight_quest_lint($qs, $all, trail_sight_quests()) : null));
-ok('four islands in order then the palms on a 7th game day', $qs && array_column($qs['beats'], 0) === [$spit, $bell, $cave, $lag, $palms] && str_contains($qs['beats'][4][2], 'gd=7:0'));
+ok('four islands in order then the palms on a 7th game day', $qs && array_column($qs['beats'], 0) === [$spit, $cave, $bell, $lag, $palms] && str_contains($qs['beats'][4][2], 'gd=7:0'));
 ok('no mentor is used', !array_filter(array_map(fn($b) => substr($b[3], 4), array_filter($qs['beats'], fn($b) => str_starts_with($b[3], 'npc='))), fn($n) => in_array($n, npc_cw_fixed_names(), true)));
-foreach (['Lyra Fiddlewing','Willa Thistledown','Pip Mossgrove','Fennel Mossgrove','Wren Thimblewick','Pomeroy Crumbworth','Pinchwell'] as $pn) echo 'PROBE ' . $pn . ' ' . json_encode(npc_cw_profile(npc_cw_who_key($pn))['mode'] ?? null) . "\n";
-$npcs = ['Tansy Thistledown' => $spit, 'Lyra Fiddlewing' => $bell];
+$npcs = ['Tansy Thistledown' => $spit, 'Willa Thistledown' => $cave, 'Fennel Mossgrove' => $lag];
 foreach ($npcs as $n => $s) ok("$n is a free villager (the clockwork moves them)", npc_cw_profile(npc_cw_who_key($n))['mode'] === 'free');
 foreach ([[20000, 0], [20003, 2], [20009, 5], [20015, 6]] as [$di, $dow]) {
     $GLOBALS['gv_cw_time'] = [$dow, 8.0, $di];
@@ -136,11 +135,12 @@ $step = function (int $nth, string $slug, string $who, string $dp) use (&$base_t
     return true;
 };
 $step(1, $spit, 'Tansy Thistledown', 'dawn');
-$step(2, $bell, 'Lyra Fiddlewing', 'dusk');
+$step(2, $cave, 'Willa Thistledown', 'dawn');
 $GLOBALS['gv_cw_time'] = $base_t;
-$o = $hook($cave, 'day'); ok('beat 3 (tide cave) does not count by day', !str_contains($o, ' of 5)'), $o);
-$o = $hook($cave, 'dawn'); ok('beat 3: at dawn the cave breathes out the postcard', str_contains($o, '(3 of 5)'), $o);
-$o = $hook($lag, 'dawn'); ok('beat 4: the lagoon postcard', str_contains($o, '(4 of 5)'), $o);
+$o = $hook($bell, 'day'); ok('beat 3 (shell-bell tree) does not count by day', !str_contains($o, ' of 5)'), $o);
+$o = $hook($bell, 'dusk'); ok('beat 3: at dusk the postcard chimes down', str_contains($o, '(3 of 5)'), $o);
+$step(4, $lag, 'Fennel Mossgrove', 'dawn');
+$GLOBALS['gv_cw_time'] = $base_t;
 $o = $hook($palms, 'dawn'); ok('finale on game day 10 (not a 7th day): the ferry brings nothing, no count', !str_contains($o, 'is done') && !str_contains($o, '5 of 5'), $o);
 $gd = 14;
 $o = $hook($palms, 'day'); ok('finale on day 14 but with the ferry away (day): no count', !str_contains($o, 'is done'), $o);

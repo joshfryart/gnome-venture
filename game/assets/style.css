@@ -8164,3 +8164,104 @@ details.sgq summary{cursor:pointer}
 .tfw-chip.now{font-weight:600}
 @keyframes tfw-ripple{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.4);opacity:.4}}
 @media (prefers-reduced-motion: reduce){.tfw-r.open .tfw-ring{animation:none}}
+/* Tundra family (2.7.01): aurora overlay + warm huts */
+.tftundra{--tft-bg:#e8f1f6;--tft-ink:#1f3442;--tft-line:#7fa8c0;--tft-glow:#f0a030;position:relative;overflow:hidden;margin:0;padding:8px 10px;background:var(--tft-bg);color:var(--tft-ink);border:2px solid var(--tft-line)}
+.tftundra.tft-on{--tft-bg:#0f1c2e;--tft-ink:#e4f2ee;--tft-line:#5fd4a8}
+:root[data-theme="dark"] .tftundra{--tft-bg:#16222c;--tft-ink:#d6e6ee;--tft-line:#5d8aa3;border-color:var(--line)}
+:root[data-theme="dark"] .tftundra.tft-on{--tft-bg:#0b1522;--tft-ink:#e4f2ee;--tft-line:#5fd4a8}
+.tftundra p,.tftundra ul{position:relative;margin:0}
+.tft-h{font-size:.9rem}
+.tft-moon{display:block;font-size:.85em;opacity:.85}
+.tft-sky{position:absolute;inset:0;pointer-events:none;opacity:.5}
+.tft-b1 .tft-sky{opacity:.25}.tft-b2 .tft-sky{opacity:.4}.tft-b3 .tft-sky{opacity:.65}.tft-b4 .tft-sky{opacity:.9}
+.tft-sky i{position:absolute;left:-20%;width:140%;height:34px;border-radius:50%;filter:blur(8px);background:linear-gradient(90deg,transparent,#3fe0a0,#7a8cf0,#e070c8,transparent);animation:tft-drift 9s ease-in-out infinite alternate}
+.tft-sky i:nth-child(1){top:4px}.tft-sky i:nth-child(2){top:22px;animation-duration:12s;animation-delay:-3s;opacity:.7}.tft-sky i:nth-child(3){top:40px;animation-duration:15s;animation-delay:-6s;opacity:.5}
+.tft-huts{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:4px 6px;margin:4px 0}
+.tft-hut{font-size:.78rem;padding:2px 6px;border:1px solid var(--tft-line);line-height:1.3;background:rgba(255,255,255,.12)}
+.tft-chain{font-size:.82rem;margin-top:4px}
+.tft-lamps{display:inline-flex;gap:3px;vertical-align:middle}
+.tft-lamps i{width:8px;height:8px;border-radius:50%;border:1px solid var(--tft-line);background:transparent}
+.tft-lamps i.on{background:var(--tft-glow);border-color:var(--tft-glow);box-shadow:0 0 5px var(--tft-glow)}
+.tft-chip{margin-top:4px;font-size:.82rem}
+.tft-chip.now{font-weight:600}
+@keyframes tft-drift{0%{transform:translateX(-6%) scaleY(.8)}100%{transform:translateX(6%) scaleY(1.2)}}
+@media (prefers-reduced-motion: reduce){.tft-sky i{animation:none}}
+
+/* Haven family (2.7.01): guest book and bedtime round above a haven Trail map (includes/trail_fam_haven.php) */
+.tfhaven{--tfh-bg:#f6ecdc;--tfh-ink:#4a3523;--tfh-dim:#7a6048;--tfh-line:#b98f5e;--tfh-hot:#a8561c;margin:0;padding:8px 10px;background:var(--tfh-bg);color:var(--tfh-ink);border:2px solid var(--tfh-line)}
+:root[data-theme="dark"] .tfhaven{--tfh-bg:#251c14;--tfh-ink:#f0dfc4;--tfh-dim:#b49c7e;--tfh-line:#5c4630;--tfh-hot:#f0b070;border-color:var(--line)}
+.tfhaven p{margin:0}
+.tfh-h{font-size:.9rem}
+.tfh-sub{margin-top:6px;font-size:.8rem;font-weight:600}
+.tfh-book{list-style:none;margin:4px 0;padding:0;display:flex;flex-wrap:wrap;gap:4px}
+.tfh-sig{display:grid;grid-template-columns:auto 1fr;column-gap:6px;flex:1 1 140px;max-width:100%;padding:3px 6px;border:1px solid var(--tfh-line);font-size:.8rem;line-height:1.2}
+.tfh-ico{grid-row:1 / span 2;font-size:1.2rem}
+.tfh-nm{font-weight:600;overflow-wrap:anywhere}
+.tfh-st{color:var(--tfh-dim);font-size:.72rem}
+.tfh-sig.signed{border-style:solid;border-color:var(--tfh-hot)}
+.tfh-sig.blank{border-style:dashed}
+.tfh-round{margin:4px 0;padding:0;list-style:none;font-size:.8rem;line-height:1.35}
+.tfh-bed.tuck .tfh-st{color:var(--tfh-hot);font-weight:700}
+.tfh-bed.asleep{opacity:.7}
+.tfh-tally{margin-top:4px;font-size:.75rem;color:var(--tfh-dim)}
+
+/* Wonder family (2.7.01): postcard frame and album above a wonder Trail map (includes/trail_fam_wonder.php) */
+.tfwonder{--tfw-bg:#f4efe2;--tfw-ink:#3d3426;--tfw-dim:#74684f;--tfw-line:#c9b98f;--tfw-hot:#8a5a1c;margin:0;padding:8px 10px;background:var(--tfw-bg);color:var(--tfw-ink);border:2px solid var(--tfw-line)}
+:root[data-theme="dark"] .tfwonder{--tfw-bg:#222019;--tfw-ink:#efe6cf;--tfw-dim:#b3a785;--tfw-line:#5a5238;--tfw-hot:#f0c070;border-color:var(--line)}
+.tfwonder p{margin:4px 0 0}
+.tfw-card{margin:0 0 6px;padding:6px;display:grid;grid-template-columns:48px 1fr;gap:2px 8px;background:#fffdf6;border:3px double var(--tfw-line);box-shadow:2px 2px 0 var(--tfw-line)}
+:root[data-theme="dark"] .tfw-card{background:#2c291f}
+.tfw-card.hush{border-style:dashed}
+.tfw-pic{grid-row:1/3;font-size:32px;line-height:48px;text-align:center;background:var(--tfw-bg);border:1px solid var(--tfw-line)}
+.tfw-card figcaption{display:flex;flex-direction:column;font-size:13px}
+.tfw-sub,.tfw-post{color:var(--tfw-dim);font-size:12px}
+.tfw-stk{font-size:12px;font-weight:700}
+.tfw-stk.off{color:var(--tfw-dim);font-weight:400;border:1px dashed var(--tfw-line);padding:0 4px;justify-self:start}
+.tfw-stk.on{color:var(--tfw-hot)}
+.tfw-h{font-size:13px}
+.tfw-album{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:3px}
+.tfw-s{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border:1px solid var(--tfw-line);font-size:15px}
+.tfw-s.off{opacity:.55;border-style:dashed}
+.tfw-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.tfw-chip{font-size:12px;color:var(--tfw-dim)}
+.tfw-chip.now{color:var(--tfw-hot);font-weight:700}
+
+/* Delve family (2.7.01): the torch bar above a delve Trail map (includes/trail_fam_delve.php) */
+.tfdelve{--tfd-bg:#2b2420;--tfd-ink:#f4e6cf;--tfd-dim:#c1ad92;--tfd-line:#6b5340;--tfd-glow:#ffb347;margin:0;padding:8px 10px;background:var(--tfd-bg);color:var(--tfd-ink);border:2px solid var(--tfd-line)}
+:root[data-theme="dark"] .tfdelve{--tfd-bg:#17120f;--tfd-line:#4a3a2c;border-color:var(--line)}
+.tfdelve p{margin:0}
+.tfd-h{font-size:.9rem}
+.tfd-reach{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:.8rem}
+.tfd-ring{position:relative;flex:0 0 auto;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle,var(--tfd-glow) 0,rgba(255,179,71,.35) calc(var(--tfd-r,3) * 9%),#000 calc(var(--tfd-r,3) * 9% + 28%));border:1px solid var(--tfd-line)}
+.tfd-pips{display:inline-flex;gap:3px;vertical-align:middle}
+.tfd-pips i{width:8px;height:8px;border-radius:50%;border:1px solid var(--tfd-glow);background:transparent}
+.tfd-pips i.on{background:var(--tfd-glow)}
+.tfd-torches{list-style:none;margin:6px 0 4px;padding:0;display:flex;flex-wrap:wrap;gap:4px}
+.tfd-t{display:grid;grid-template-columns:auto 1fr;column-gap:6px;flex:1 1 140px;max-width:100%;padding:3px 6px;border:1px solid var(--tfd-line);font-size:.8rem;line-height:1.2}
+.tfd-ico{grid-row:1 / span 2;font-size:1.2rem}
+.tfd-nm{font-weight:600;overflow-wrap:anywhere}
+.tfd-st{color:var(--tfd-dim);font-size:.72rem}
+.tfd-t.lit{border-color:var(--tfd-glow)}
+.tfd-t.unlit{border-style:dashed}
+.tfd-tally,.tfd-chip{margin-top:4px;font-size:.78rem;color:var(--tfd-dim)}
+.tfd-chip.now{color:var(--tfd-ink);font-weight:600}
+
+/* Lair family (2.7.01): the footprint tracker above a lair Trail map (includes/trail_fam_lair.php) */
+.tflair{--tfl-bg:#efe3cf;--tfl-ink:#3a2a1c;--tfl-dim:#6f5a44;--tfl-line:#a88960;margin:0;padding:8px 10px;background:var(--tfl-bg);color:var(--tfl-ink);border:2px solid var(--tfl-line)}
+:root[data-theme="dark"] .tflair{--tfl-bg:#1e1812;--tfl-ink:#f0e2cb;--tfl-dim:#bba68a;--tfl-line:#4f3f2f;border-color:var(--line)}
+.tflair p{margin:0}
+.tfl-h{font-size:.9rem}
+.tfl-age{margin-top:4px;font-size:.8rem}
+.tfl-prints{display:inline-flex;gap:2px;vertical-align:middle}
+.tfl-prints i{font-style:normal;opacity:.3}
+.tfl-prints i.on{opacity:1}
+.tfl-old .tfl-prints i.on{filter:grayscale(1)}
+.tfl-list{list-style:none;margin:6px 0 4px;padding:0;display:flex;flex-wrap:wrap;gap:4px}
+.tfl-t{display:grid;grid-template-columns:auto 1fr;column-gap:6px;flex:1 1 140px;max-width:100%;padding:3px 6px;border:1px solid var(--tfl-line);font-size:.8rem;line-height:1.2}
+.tfl-ico{grid-row:1 / span 2;font-size:1.2rem}
+.tfl-nm{font-weight:600;overflow-wrap:anywhere}
+.tfl-st{color:var(--tfl-dim);font-size:.72rem}
+.tfl-t.read{border-style:dashed}
+.tfl-hint,.tfl-tally,.tfl-chip{margin-top:4px;font-size:.78rem;color:var(--tfl-dim)}
+.tfl-hint{color:var(--tfl-ink);font-weight:600}
+.tfl-chip.now{color:var(--tfl-ink);font-weight:600}

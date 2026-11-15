@@ -1,0 +1,8 @@
+# Tundra family quest line (2.7.01). Q|slug|title|giver|icon|order|reward|intro|outro|gate  then  B|slug|sight|label|when|needs
+# Ferrin Pennywhistle wants to see the aurora on the longest night. Snow beats on the way; three need him by his weekly clockwork (npc=); the last needs a winter night.
+Q|ferrins-long-night|Ferrin's Long Night|Ferrin Pennywhistle|🌌|seq|xp=60,c=40,item=aurora-ribbon:2,fp=2,title=Long Night Keeper|Ferrin Pennywhistle has crossed the tundra every winter for forty winters and has never once seen the aurora, because he always falls asleep. He asks you to keep him company through the long night, one snowy stop at a time.|Ferrin lies on the rise with green light rippling over his hat, and for once he does not say a single word. Then he says one: "Oh."|
+B|ferrins-long-night|tundra-the-snow-fort|Ferrin Pennywhistle is at the snow fort in the falling snow, counting nights|we=snow|npc=Ferrin Pennywhistle
+B|ferrins-long-night|tundra-the-lone-fir|Shake the snow off the lone fir while the snow keeps falling, to warm up|we=snow|
+B|ferrins-long-night|tundra-the-frozen-stream|Ferrin Pennywhistle is playing his whistle over the ice and asks you to hold the lantern|we=snow|npc=Ferrin Pennywhistle
+B|ferrins-long-night|tundra-the-star-chart-stones|Trace the winter stars on the stones after dark|se=winter/dp=night|
+B|ferrins-long-night|tundra-the-aurora-rise|Lie back beside Ferrin Pennywhistle on a winter night and wait for the sky|se=winter/dp=night|npc=Ferrin Pennywhistle
