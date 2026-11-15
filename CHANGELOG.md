@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.7.01
+- **Shop Street.** The Shops view (`town.php?view=shops`) and the World page's Shops tab show a street picture (14 regional pictures `scenes/here-shops-street-<code>.png`, default `here-shops-street.png`, layout `shops-street` with `view: street`; picture navigation on) with Mossbottom's shops on the `hub-<type>` fronts and the town's own on `loc-1..4` (free fronts are shuttered "To let"), then one text list in two sections (📍 Here in the town, 🍄 Mossbottom, open from anywhere) with an open / closed / away state on every card. New `shop_state()`, `shop_is_hub()`, `shop_street_html()`; the folded Mossbottom list on World is gone. Import with `python3 tools/import_gate_layouts.py --shops-street`; `tools/lint_here.php` checks the regional picture sizes. (APP_VERSION not bumped here.)
+
 ## 2.7.00
 - **Road kinds (owner-approved list, `data/road_kinds.txt`).** Some Trail routes are no longer plain roads: ferries (20 Petals a crossing), tunnels (lantern tier needed), passes (staff tier needed), toll roads (10 Petals: safer and quicker, or the old road), overgrown roads (slow; an axe clears them) and flooded roads (slow; Flood Boots halve it). Route cards and the Almanac say which. Boot step `road_kind_items_2700` (Toll Receipt).
 - **Camp spots.** Each Trail route has one camp tile (`data/trail_camps.json`): Sleep and Nap are free and safe; Wait 10 to 60 minutes gives 1 energy per 2 minutes, with a chance a fight finds you (halved on a paid toll road).

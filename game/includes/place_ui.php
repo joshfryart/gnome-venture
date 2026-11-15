@@ -607,7 +607,7 @@ function shop_street_hotspots(array $L, array $local, array $hub, string $town):
         $list = $put[$k] ?? [];
         if (!$list) {
             if (!$isHub && $town === HUB_REGION) continue;   // Mossbottom has no town row of its own
-            $hot[] = $h + ['label' => 'To let', 'href' => '#shops-list', 'chip' => 'To let', 'cls' => 'locked', 'nopill' => true];
+            $hot[] = $h + ['label' => 'To let', 'href' => '#shops-list', 'chip' => '', 'cls' => 'locked', 'nopill' => true];
             continue;
         }
         if (count($list) === 1 || !str_ends_with($k, '-more')) $s = $list[0];

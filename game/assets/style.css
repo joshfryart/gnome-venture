@@ -7927,3 +7927,14 @@ details.sgq summary{cursor:pointer}
 .campcard { margin: .4rem 0; padding: .6rem .7rem; border: 1px solid rgba(255, 255, 255, .18); border-radius: 8px; }
 .campcard p { margin: 0 0 .4rem; }
 .campcard .campsel select { max-width: 100%; }
+
+/* 2.7.01 Shop Street: shops away from you are dimmed; the 📍 (this town) / 🍄 (Mossbottom) badge on each shop card. No inline styles; art stays pixelated. */
+.scard.is-away { opacity: .62; }
+.scard.is-away .scard__art img { filter: grayscale(.6) opacity(.8); }
+.hubsvg.chrome .hs.is-away .pill, .hubsvg.chrome .hs.is-away .tag { opacity: .6; }
+.hubsvg.chrome .hs.is-closed .pill { opacity: .8; }
+.hubscene .hubsvg .pix.back { image-rendering: pixelated; }
+.sbadge { display: inline-block; margin-right: 4px; padding: 0 6px; font: 700 11px/1.5 var(--font); white-space: nowrap; background: rgba(42, 26, 16, .14); border: 1px solid rgba(42, 26, 16, .35); }
+.sbadge--hub { background: rgba(122, 181, 92, .3); }
+.sbadge--here { background: rgba(232, 163, 23, .28); }
+#shops-list { scroll-margin-top: 12px; }
