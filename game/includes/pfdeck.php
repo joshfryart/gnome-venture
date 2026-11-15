@@ -301,12 +301,14 @@ function pfd_build(array $src): array
         $pieces[] = $entry($key, ['k' => $key, 'n' => $nm, 't' => (string)$q['t'], 'v' => (int)$q['v'], 'r' => $q['r'] ?? null, 'tag' => 'pal', 'src' => 'pal', 'ref' => (string)($q['ref'] ?? ''), 'life' => 0], max(1, min(3, (int)($q['rank'] ?? 1))), ['gear' => true, 'on' => true]);
     }
     $sl = pfd_slots($lvl); $cnt = ['n' => 0, 'kit' => 0, 'belt' => 0, 'pals' => 0, 'hurt' => 0, 'rare' => 0, 'mw' => 0, 'larder' => 0, 'larder_max' => $sl['larder'], 'keeps' => 0, 'keeps_max' => $sl['keeps'], 'src' => ['pal' => 0, 'tool' => 0, 'crop' => 0]];
+    $capOut = pfd_cap_out($pieces);
     foreach ($pieces as $i => $e) {
         if (!$e['on']) continue;
         if (in_array($e['src'], PFD_LARDER_SRC, true) && ++$cnt['larder'] > $sl['larder']) $pieces[$i]['out'] = 'slots';   // 2.6.989: more crop pieces on than the Larder holds: the extra ones stay out
         if (in_array($e['src'], PFD_KEEP_SRC, true) && ++$cnt['keeps'] > $sl['keeps']) $pieces[$i]['out'] = 'slots';
-        if ($e['rank'] === 3 && ++$cnt['rare'] > PFD_RARE_CAP) $pieces[$i]['out'] = 'cap';
-        if ($e['rank'] === 4 && ++$cnt['mw'] > PFD_MW_CAP) $pieces[$i]['out'] = 'cap';
+        if ($e['rank'] === 3) $cnt['rare']++;
+        if ($e['rank'] === 4) $cnt['mw']++;
+        if (!empty($capOut[$i])) $pieces[$i]['out'] = 'cap';
         $cnt['n']++; if (!$e['gear']) $cnt['kit']++; if ($e['t'] === 'hurt') $cnt['hurt']++;
         if ($e['src'] === 'tool') $cnt['belt']++; if ($e['src'] === 'pal') $cnt['pals']++;
         if (isset($cnt['src'][$e['src']])) $cnt['src'][$e['src']]++;
@@ -316,6 +318,20 @@ function pfd_build(array $src): array
     return ['pieces' => $pieces, 'deck' => array_values(array_filter($pieces, fn($e) => $e['on'] && $e['out'] === '')), 'counts' => $cnt, 'err' => $err,
         'starter' => $chosen, 'offer' => pfd_offer_keys($cal, (string)$src['home']), 'kits' => array_map(fn($k) => pfd_offer_keys($cal, (string)$src['home'], $k), PFD_KITS),
         'belt' => $belt, 'slots' => (int)$src['slots'], 'auto' => !empty($src['auto'])];
+}
+
+/** 2.7.01 (Josh): which pieces (by index) the Rare / Masterwork cap leaves out. Pieces count in list order, except wearables (key w:...) which count LAST, so they never push a belt tool out of the deck. */
+function pfd_cap_out(array $pieces): array
+{
+    $out = []; $rr = 0; $mm = 0;
+    $order = array_keys($pieces);
+    usort($order, fn($x, $y) => (int)str_starts_with((string)$pieces[$x]['key'], 'w:') <=> (int)str_starts_with((string)$pieces[$y]['key'], 'w:'));
+    foreach ($order as $i) {
+        if (!$pieces[$i]['on']) continue;
+        if ($pieces[$i]['rank'] === 3 && ++$rr > PFD_RARE_CAP) $out[$i] = 1;
+        if ($pieces[$i]['rank'] === 4 && ++$mm > PFD_MW_CAP) $out[$i] = 1;
+    }
+    return $out;
 }
 
 /** Why a deck may not be used, or null. $counts = pfd_build()['counts'] (or a whole build). */
