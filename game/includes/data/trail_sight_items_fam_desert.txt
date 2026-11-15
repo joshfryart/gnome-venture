@@ -1,0 +1,2 @@
+# Desert family items (2.7.01). slug | Name | category | rarity 1-30 | base_price | edible 0/1 | description | effects (optional JSON). Art: claude/sights/family-desert.md
+well-water|Flask of Well Water|supply|6|8|0|A flask of cold, clear water from the desert well. Tobias Trundle will trade a seed for one.

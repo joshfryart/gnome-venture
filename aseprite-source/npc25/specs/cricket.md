@@ -79,7 +79,7 @@ Hop cycle: crouch, launch, apex, descend, land, settle. Feet leave the ground in
 - [ ] no `#000000`, no `#ffffff`
 - [ ] outline `#2b1c26` present on every silhouette edge
 - [ ] feet line: lowest opaque row = 71 in all 8 frames
-- [ ] head top: idle frame 1 at y 7, frame 2 at y 6; walk frame 5 (apex or hover rise) may reach y 4, nothing higher
+- [ ] head top: idle frame 1 at y 7, frame 2 at y 6; walk frames 4-6 (launch, apex, descend; frame 5 is the apex) may reach y 4, nothing higher
 - [ ] width at idle frame 1 is 40 px or less in each view
 - [ ] each view non-empty in every frame
 - [ ] frames 1 and 2 differ; frames 3-8 differ pairwise

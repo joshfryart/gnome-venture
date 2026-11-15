@@ -88,14 +88,18 @@ db_insert('trail_sight_rows', ['slug' => $base['slug'], 'verb' => $base['verb'],
 $GLOBALS['gv_sights_reload'] = true; trail_sights_all();
 $tally = fn() => (trail_sight_tallies((int)$u['id'])['echo-cheeks'] ?? 0);
 $wins = 0; $losses = 0;
-for ($i = 0; $i < 12; $i++) {
+for ($i = 0; $i < 8; $i++) {
     $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); $exp = active_expedition((int)$u['id']); $GLOBALS['gv_sights_reload'] = true;
-    $GLOBALS['gv_cw_time'] = [3, 8.0, 20000 + $i];
-    $a = trail_sight_do($u, $exp, $base['slug'], ['pick' => $i % 3]); save_exp($exp);
-    if ($a[0]) $wins++; else $losses++;
+    $row = trail_sights_all()[$base['slug']];
+    $right = trail_sight_pick_right($u, trail_scene($exp), $row);
+    $before = $tally();
+    $pickN = $i % 2 === 0 ? $right : ($right + 1) % 3;
+    $a = trail_sight_do($u, $exp, $base['slug'], ['pick' => $pickN]); save_exp($exp);
+    $after = $tally();
+    if ($i % 2 === 0) { $wins += $after === $before + 1 ? 1 : 0; } else { $losses += $after === $before ? 1 : 0; }
 }
-ok('the rhythm check can be won and lost (one of three is right each day)', $wins >= 1 && $losses >= 1, "wins $wins losses $losses");
-ok('the tally counts the cheeky echoes won', $tally() === $wins, $tally() . ' vs ' . $wins);
+ok('the right rhythm counts a cheeky echo (4 of 4)', $wins === 4, (string)$wins);
+ok('a wrong rhythm counts nothing (4 of 4)', $losses === 4, (string)$losses);
 unset($GLOBALS['gv_cw_time']);
 
 echo "== The Goat Ledge Census\n";

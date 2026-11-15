@@ -8080,3 +8080,44 @@ details.sgq summary{cursor:pointer}
 .tfg-l.got{font-weight:600}
 .tfg-chip{margin-top:4px!important;font-size:.82rem}
 .tfg-chip.now{font-weight:600}
+
+/* Desert family (2.7.01): Caravan Stop heat and shade strip above a desert Trail map (includes/trail_fam_desert.php) */
+.tfdesert{--tfd-bg:#f3dfae;--tfd-ink:#4a3418;--tfd-dim:#7a5c30;--tfd-acc:#c4571e;--tfd-cool:#2f6f8f;margin:0;padding:8px 10px;background:var(--tfd-bg);color:var(--tfd-ink);border:2px solid var(--line-2);display:grid;gap:5px}
+:root[data-theme="dark"] .tfdesert{--tfd-bg:#2b2114;--tfd-ink:#f0dcae;--tfd-dim:#bfa06a;--tfd-acc:#e8884a;border-color:var(--line)}
+.tfdesert.tfd-cool{--tfd-bg:#e3e6ee;--tfd-ink:#26324a;--tfd-dim:#4f5d7a}
+:root[data-theme="dark"] .tfdesert.tfd-cool{--tfd-bg:#141a28;--tfd-ink:#d6dff2;--tfd-dim:#8f9dbb}
+.tfdesert p,.tfdesert ul{margin:0}
+.tfdesert ul{list-style:none;padding:0}
+.tfd-h{font-size:.92rem}
+.tfd-st{color:var(--tfd-dim);font-size:.78rem}
+.tfd-shimmer .tfd-h{animation:tfd-shimmer 2.4s ease-in-out infinite alternate}
+.tfd-gauge{display:flex;align-items:center;gap:8px;font-size:.8rem}
+.tfd-pips{display:flex;gap:3px}
+.tfd-pips i{width:16px;height:10px;border:1px solid var(--tfd-dim);background:transparent}
+.tfd-pips i.on{background:var(--tfd-cool);border-color:var(--tfd-cool)}
+.tfd-bl,.tfd-shade{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.8rem}
+.tfd-b.on{font-weight:600}
+.tfd-b.off{opacity:.75}
+.tfd-sh{padding:1px 6px;border:1px dashed var(--tfd-dim)}
+.tfd-cv{font-size:.8rem;color:var(--tfd-dim)}
+.tfd-chip{font-size:.82rem}
+.tfd-chip.now{color:var(--tfd-acc);font-weight:600}
+@keyframes tfd-shimmer{from{transform:translateY(0) skewX(0)}to{transform:translateY(-1px) skewX(1.2deg)}}
+@media (prefers-reduced-motion: reduce){.tfd-shimmer .tfd-h{animation:none}}
+
+/* Rainforest family (2.7.01): Canopy layers and the Mist Pool Tally above a rainforest Trail map (includes/trail_fam_rainforest.php) */
+.tfrain{--tfr-bg:#e3f1de;--tfr-ink:#1f4a28;--tfr-line:#3f7d4a;--tfr-hi:#b8dcae;margin:0;padding:8px 10px;background:var(--tfr-bg);color:var(--tfr-ink);border:2px solid var(--tfr-line)}
+.tfrain.tfr-night{--tfr-bg:#1c3326;--tfr-ink:#e2f2dc;--tfr-line:#7fbf8c;--tfr-hi:#2e5640}
+:root[data-theme="dark"] .tfrain{--tfr-bg:#16261b;--tfr-ink:#d4ecd2;--tfr-line:#7fbf8c;--tfr-hi:#274a35;border-color:var(--line)}
+.tfrain p{margin:0}
+.tfr-h{font-size:.9rem}
+.tfr-moon{display:block;font-size:.85em;opacity:.85}
+.tfr-layer{margin:4px 0;border:1px solid var(--tfr-line)}
+.tfr-layer>summary{cursor:pointer;padding:4px 8px;min-height:32px;font-size:.85rem;font-weight:600;background:var(--tfr-hi)}
+.tfr-layer[open]>summary{border-bottom:1px solid var(--tfr-line)}
+.tfr-list{list-style:none;margin:0;padding:4px 6px;display:flex;flex-wrap:wrap;gap:4px 6px}
+.tfr-s{font-size:.78rem;padding:2px 6px;border:1px solid var(--tfr-line);line-height:1.3}
+.tfr-s.rest{opacity:.7;border-style:dashed}
+.tfr-note{font-size:.8rem;margin-top:4px}
+.tfr-chip{margin-top:4px;font-size:.82rem}
+.tfr-chip.now{font-weight:600}

@@ -1,0 +1,8 @@
+# Wetland family quest line (2.7.01). Q|slug|title|giver|icon|order|reward|intro|outro|gate  then  B|slug|sight|label|when|needs
+# Count the dragonfly species at the bend season by season (se=), ask Fig Hollowell about the reed species, and have Pip Oakenpot rate the list at dusk. A miss costs nothing.
+Q|dragonfly-bend-count|The Dragonfly Bend Count|Pip Oakenpot|🪰|anylast|xp=60,c=40,item=dragonfly-wing:2,fp=2,title=Bend Counter|Pip Oakenpot is counting every kind of dragonfly at the bend, one list for the whole year, and his eyes are tired. Count what flies in each season and bring him the list at dusk.|At dusk Pip rates your list: complete, neatly ruled, only one species he disputes. He writes your name under "Counters" in the notebook, which has no other names yet.|
+B|dragonfly-bend-count|wetland-the-dragonfly-bend|Count the spring damselflies at the bend|se=spring|
+B|dragonfly-bend-count|wetland-the-dragonfly-bend|Count the summer hawkers at the bend|se=summer|
+B|dragonfly-bend-count|wetland-the-dragonfly-bend|Count the autumn darters at the bend|se=autumn|
+B|dragonfly-bend-count|wetland-the-reed-causeway|Fig Hollowell names the reed-perching species while cutting reeds|-|npc=Fig Hollowell
+B|dragonfly-bend-count|wetland-the-dragonfly-bend|Hand the list to Pip Oakenpot at dusk|dp=dusk|npc=Pip Oakenpot

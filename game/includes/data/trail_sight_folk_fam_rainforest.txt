@@ -1,0 +1,4 @@
+# Rainforest family folk rows (2.7.01, claude/sights/family-rainforest.md). sight|villager|when|chance|line|rewards
+# "The Orchid That Opens at Night": two free villagers keep the night watch at the fallen giant and the orchid tree (dp=night gives the clockwork its 9-11 pm window).
+rainforest-the-fallen-giant|Juniper Puddlefoot|dp=night|100|Juniper Puddlefoot sits on the fallen trunk with a lamp turned low, watching one fat green bud on the orchid tree across the clearing. "Not yet," Juniper whispers. "Soon."|fp=1
+rainforest-the-orchid-tree|Quill Thistledown|dp=night|100|Quill Thistledown has a lamp, a stool and a notebook. The great orchid bud trembles, and then, very slowly, opens. Quill forgets to write anything down.|fp=2
