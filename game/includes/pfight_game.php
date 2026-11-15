@@ -34,6 +34,30 @@ function pf_learner_left(int $uid): bool
     if ($n <= 0) return false;
     try { return (int)q_val('SELECT fights FROM pf_learn WHERE user_id = ?', [$uid]) < $n; } catch (Throwable $e) { return false; }
 }
+/** Finished v1 fights so far (pf_learn; 0 before the table exists). */
+function pf_learn_fights(int $uid): int
+{
+    try { return (int)q_val('SELECT fights FROM pf_learn WHERE user_id = ?', [$uid]); } catch (Throwable $e) { return 0; }
+}
+/** 2.7.01 costly cell: End turn asks once before a move that costs health while a free spot was open, in a gnome's first fights (setting pfight_costwarn_n, default 5; 0 = never). */
+function pf_cost_warn(int $uid): bool
+{
+    $n = setting('pfight_costwarn_n'); $n = $n === '' ? 5 : (int)$n;
+    return $n > 0 && pf_learn_fights($uid) < $n;
+}
+/** 2.7.01 "New today": the rules the learner fights held back, said once at the start of the first fight that has them ([] for any other fight). */
+function pf_new_today(int $uid): array
+{
+    $n = setting('pfight_learner_n'); $n = $n === '' ? 3 : (int)$n;
+    if ($n <= 0 || pf_learn_fights($uid) !== $n) return [];
+    return ['Thornburst. It hurts whoever fires it: keep it out of your own chains.', 'Creature tags. Some creature pieces carry one (Quick, Poison, Evade ...): tap a creature piece to read it.', 'Creature pieces hit at full strength now.'];
+}
+/** The one-line card for those rules, on the fight's first turn only. */
+function pf_new_today_html(array $s): string
+{
+    if (empty($s['newt']) || (int)$s['turn'] > 1) return '';
+    return '<div class="pfv-new" id="pfv-new" role="status"><b>New today:</b> ' . implode(' ', array_map('e', (array)$s['newt'])) . '</div>';
+}
 /** One more finished fight for the gnome (called once per fight). */
 function pf_learner_bump(int $uid): void
 {
@@ -148,6 +172,7 @@ function pfight_state(array $u, array $exp, array &$enc, array $c): array
         if ($v1 && pf_learner_left((int)$u['id'])) $v1 = ['foe_x' => 0.8, 'tags' => 0, 'nothorn' => 1];   // 2.7.01 learner rules: the first fights
         if ($v1) { require_once __DIR__ . '/pfdeck.php'; $c = pfd_foe_row($c, pfd_exp_region($exp)); }   // the creature's layered deck: 4 base (class) + region + size extras + 3 unique
         $enc['pf'] = $new(pfight_me($u, $exp, $enc), $c, random_int(1, 0x7FFFFFFE), ['v1' => $v1, 'blank' => setting('pfight_blank') !== '0', 'can_pluck' => (int)q_val('SELECT COUNT(*) FROM creature_drops WHERE creature_id = ? AND item_id IS NOT NULL', [$c['id']]) > 0]);
+        if ($v1 && ($nt = pf_new_today((int)$u['id']))) $enc['pf']['newt'] = $nt;   // 2.7.01: the first fight after the learner fights says what is new
     }
     return $enc['pf'];
 }
@@ -637,6 +662,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         . '<div class="pfc-foe"><span class="pfc-fname"><b>' . e((string)$c['name']) . '</b><small>lv ' . (int)$c['level'] . ' · ' . ($s['temper'] === 'gentle' ? 'gentle' : 'wary') . ' · 🃏 ' . (int)$v['foe']['hand'] . ($v['foe']['calm'] ? ' · 😌 ' . (int)$v['foe']['calm'] : '') . '</small></span><span class="pfc-av">' . $foeImg . '<span class="pf-intent-bubble" title="Likely next move" aria-label="Likely next move: ' . e((string)$v['foe']['intent']) . '">' . $sm((string)$v['foe']['intent']) . '</span></span></div></div>';
     $h = str_replace('@@TOP@@', $top, $h);
     $h .= '<div class="pf-rewind" id="pf-rewind" role="status" hidden><span id="pf-rw-t"></span><button type="button" class="btn" id="pf-rw-back">Back to now</button></div>';
+    if (isset($v['v1'])) $h .= pf_new_today_html($s);   // 2.7.01: "New today" on the first turn of the first full-rules fight
     if (isset($v['v1'])) $h .= '<div class="pfv-row" id="pfv-row"></div>';   // v1 (stage C): turn order, chain dots, Teamwork, the aim, the forecast and what waits on each side (assets/pfboardv1.js fills it)
     $h .= '<div class="pfb-board" id="pfb-board" role="group" aria-label="The play area: pick a piece from your hand, then a lit spot. Scroll, pinch or use the zoom buttons to zoom"></div>';   // JS draws the pieces from #pf-data
     if (isset($v['v1'])) $h .= '<div class="pfv-legend" id="pfv-legend" role="group" aria-label="' . (!empty($v['v1']['env']) ? 'The environment: its next pieces' : 'Terrain legend') . '"></div>';
@@ -691,6 +717,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         $data['prev'] = !empty($enc['replay']) ? ($enc['prev'] ?? null) : null;
         $data['tripped'] = (int)($s['me']['tripped'] ?? 0);   // 2.6.76: you drew one fewer this turn
         if ((int)$s['turn'] === 1 && empty($s['start'])) $data['opened'] = count(array_filter($s['pcs'], fn($p) => $p['by'] === 'foe'));   // the creature's opening pieces
+        $data['costwarn'] = pf_cost_warn((int)$u['id']);   // 2.7.01: End turn asks once before a move that costs health (first fights)
         $data['box'] = url('puzzlebox.php'); $data['turncap'] = PF_TURN_CAP; $data['toolwear'] = PFB_TOOL_WEAR; $data['fires'] = PFB_FOE_FIRES;
         $data['tools'] = (object)[];
         if (!empty((array)$v['wear']) || array_filter(array_column($data['hand'], 'tool'))) {

@@ -553,3 +553,8 @@ dialog.trailpop .encounter, .advgrid.fighting.pfover .encounter { animation: non
 .pfv .pcg li.isnew::after { content: 'NEW'; position: absolute; top: -6px; right: -4px; padding: 0 4px; font: 700 9px/13px var(--font, system-ui, sans-serif); background: #e8a317; color: #2a1a10; }
 .pfv .capp.lard i.on { background: #7ab55c; }
 .pfv .capp.keep i.on { background: #c3b2ea; }
+/* 2.7.01 costly cell: a lit spot whose chain costs your health has a solid red edge (not only the dark red number); the line above End turn says what it fires */
+.pf-v1 .pfb-cell.pfb-lit.pfv-costly { border: 3px solid #e0402f; background: rgba(224, 64, 47, .2); }
+.pf-v1 .pf-preview.pfv-costwarn { color: #fff; background: #a8261b; border-radius: .4rem; padding: .2rem .5rem; font-weight: 600; }
+/* 2.7.01 "New today": one line at the start of the first fight with the full rules */
+.pf-v1 .pfv-new { margin: .3rem 0; padding: .35rem .6rem; border-radius: .5rem; background: #2d4a2a; color: #f2f7e8; border: 1px solid #7fb069; font-size: .92em; }

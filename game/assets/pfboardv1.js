@@ -31,6 +31,7 @@
   var YIELD = data.yieldw || 'Yield';   // the creature's bar in a new-rule fight (PF_YIELD in pfboard.php sends it); a 2.6.94 fight keeps its health and charm bars
   var ONETIP = 'The ' + YIELD + ' bar: both ways to win fill it. Hurt pieces fill it red, Charm pieces fill it pink. When it is full the creature yields: with more charm than hurt you win it over for a better reward, otherwise it backs off. Guard and Heal keep you alive meanwhile. Great creatures cannot be charmed.';
   var flipBusy = false, wrapObs = null, wrapEl = null, fitTW = 0, fitTH = 0;
+  var costOk = false, planFree = false, COSTW = !!data.costwarn;   // 2.7.01 costly cell: End turn asked once (costOk); a lit spot that costs nothing was open for the placed piece (planFree); the ask is on (first fights)
   var planQ = null, offMsg = '', popEl = null, sheetEl = null, rowEl = document.getElementById('pfv-row'), legendEl = document.getElementById('pfv-legend'), flipBtn = document.getElementById('pf-flip');
   var SPD = 1, banMs = 1450, RF = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '0' ? 0 : 1; if (sp0 === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) SPD = 0; } catch (e) {}   // 2.6.96: reduced motion with no speed chosen = skip (the player's own choice wins)
   var FOETAG = { quick: 'Quick: it plays one more piece this turn', evade: 'Evade: your next hit on it misses', bash: 'Bash: adds its guard to its next hit', poison: 'Poison: 2 ticks on your health',
@@ -47,7 +48,13 @@
     rain: '<path d="M4.4 9.2A2.9 2.9 0 0 1 4.9 3.6a3.6 3.6 0 0 1 6.9 1.1 2.5 2.5 0 0 1-.5 4.5z" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M5 11.2v2.6M8 11v3.4M11 11.2v2.6" stroke="currentColor" stroke-width="1.6" fill="none"/>',
     wind: '<path d="M1.5 5.5h8.2a2 2 0 1 0-2-2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M1.5 8.6h11.2a2 2 0 1 1-2 2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M1.5 11.7h5.5" stroke="currentColor" stroke-width="1.7" fill="none"/>',
     env: '<path d="M1 13.5l4.6-7.6 3 4.6 2-2.9L15 13.5z" fill="currentColor"/><circle cx="12" cy="3.6" r="1.8" fill="currentColor"/>',
-    aim: '<circle cx="8" cy="8" r="5.2" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><path d="M8 0v3.4M8 12.6V16M0 8h3.4M12.6 8H16" stroke="currentColor" stroke-width="1.8"/>'
+    aim: '<circle cx="8" cy="8" r="5.2" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><path d="M8 0v3.4M8 12.6V16M0 8h3.4M12.6 8H16" stroke="currentColor" stroke-width="1.8"/>',
+    win: '<path d="M8 1l2.1 4.4 4.8.6-3.5 3.3.9 4.7L8 11.7 3.7 14l.9-4.7L1.1 6l4.8-.6z" fill="currentColor"/>',   // 2.7.01 help sheet: its own mark for each row (Chains, Guard and Flip all used the gust arrow)
+    chain: '<rect x="1" y="5" width="7" height="6" rx="3" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="8" y="5" width="7" height="6" rx="3" stroke="currentColor" stroke-width="1.8" fill="none"/>',
+    guard: '<path d="M8 1l6 2.2v4.3c0 3.6-2.6 6.2-6 7.5-3.4-1.3-6-3.9-6-7.5V3.2z" stroke="currentColor" stroke-width="1.7" fill="none"/>',
+    flip: '<path d="M4 2v11M1.5 10.5L4 13l2.5-2.5M12 14V3M9.5 5.5L12 3l2.5 2.5" stroke="currentColor" stroke-width="1.8" fill="none"/>',
+    num: '<path d="M5.5 1.5L4 14.5M12 1.5l-1.5 13M1.5 5.5h13M1 10.5h13" stroke="currentColor" stroke-width="1.7" fill="none"/>',
+    combo: '<path d="M1 12l4-4 3 3 6-8" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="14" cy="3" r="1.6" fill="currentColor"/>'
   };
   function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function svg(k, rot) { return '<svg viewBox="0 0 16 16" aria-hidden="true"' + (rot ? ' class="pfv-r' + rot + '"' : '') + '>' + SVG[k] + '</svg>'; }
@@ -407,12 +414,16 @@
     sheetEl = document.createElement('div');
     sheetEl.innerHTML = '<button type="button" class="pfv-sheetbg" data-x="1" aria-label="Close"></button><div class="pfv-sheet" role="dialog" aria-label="How the board works"><div class="pfv-sheet-in">'
       + '<div class="hrow"><h2>How the board works</h2><button type="button" class="btn small" data-x="1">Done</button></div>'
+      + '<div class="sl">Win and lose</div><ul class="helpl">' + row({ n: 'How a fight ends', g: 'win', l: [ONE ? 'You win when the ' + YIELD + ' bar is full: Hurt and Charm both fill it.' : 'You win when the creature\u2019s health is empty (Hurt) or its charm bar is full (Charm).', 'You lose when your health reaches 0. After ' + (data.turncap || 24) + ' turns the creature loses interest and wanders off (a boss does not).'], who: '' }) + '</ul>'
       + '<div class="sl">The round</div><ul class="helpl">' + row(ENV ? envTurnText() : turnText())
       + row({ n: 'The creature’s aim', g: 'aim', l: ['The red mark is where its next piece goes. Take the cell and it has to pick again.' + (V1.aimhit ? ' If its piece is a Hurt and you take the cell with one of YOUR pieces, it strikes that piece instead: the piece breaks (a Guard at least as strong holds) and you take no damage.' : '') + (AIMT ? ' The chip says what it would do now; tap it for the reasons. ' + RINGHELP + '.' : '')], who: '' })
       + (ONE ? row({ n: 'The ' + YIELD + ' bar', g: 'gust', l: ['One bar, two ways to win. Hurt pieces fill it, Charm pieces fill it. When it is full the creature yields: with more charm than hurt you win it over, otherwise it backs off. A great creature cannot be charmed.'], who: '' }) : '')
-      + row({ n: 'Chains', g: 'gust', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + (TEAM ? ' Pal, tool and crop pieces in one chain: 2 kinds +' + Math.round((V1.team2 - 1) * 100) + '%, all 3 +' + Math.round(((V1.team3 || V1.team2) - 1) * 100) + '%.' : ''), 'A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it.', 'If its aim fires one of your pieces, your piece works for you.'], who: '' })
-      + row({ n: 'Guard', g: 'gust', l: ['Your guard blocks the creature’s hits. It fades when your turn starts, unless Hold keeps it (what is left of a Hold guard stays up once).'], who: '' })
-      + row({ n: 'Flip', g: 'gust', l: [(FLIP1 ? 'Once a turn, free: ' : 'Free, as often as you like: ') + 'Flip swaps the top and bottom edges of the piece you picked. A faded piece cannot be played right now; tap it to see why.'], who: '' })
+      + row({ n: 'Chains', g: 'chain', l: ['A piece you place fires, then every piece linked to it.' + (lim ? ' A chain of ' + lim + ' or more uses up every piece that fired.' : '') + (TEAM ? ' Pal, tool and crop pieces in one chain: 2 kinds +' + Math.round((V1.team2 - 1) * 100) + '%, all 3 +' + Math.round(((V1.team3 || V1.team2) - 1) * 100) + '%.' : ''), 'A piece of the creature linked into your chain fires for the creature; Thornburst hurts whoever fires it.', 'If its aim fires one of your pieces, your piece works for you.'], who: '' })
+      + row({ n: 'Numbers on a lit spot', g: 'num', l: ['Pick a piece and every spot it can go shows what your chain would do there: \u2694 hurt to the creature, \u273F charm, \u2764\u2212 health YOU lose (a creature piece or a Thornburst in your chain). A spot with a red edge costs you health; tap it to see why.', '\u00d7N used: the chain is long enough to use its pieces up. \u2013 nothing counted. \u2605 the fight ends.'], who: '' })
+      + row({ n: 'Combos', g: 'combo', l: ['Two of your pieces linked in a set pair fire stronger: Trick then Hurt (Ambush), Guard then Hurt (Riposte), Hurt then Hurt (Double Swing), Soothe then Charm (Calm Charm), Charm then Item (Win Over), Trick then Guard (Bait). The second piece of the pair gets the bonus; its name shows with a sparkle in the plan.'], who: '' })
+      + (ASIDE ? row({ n: 'Set aside', g: 'chain', l: ['Instead of placing a piece you can set two hand pieces aside, joined; play the group on a later turn and it fires for more.'], who: '' }) : '')
+      + row({ n: 'Guard', g: 'guard', l: ['Your guard blocks the creature’s hits. It fades when your turn starts, unless Hold keeps it (what is left of a Hold guard stays up once).'], who: '' })
+      + row({ n: 'Flip', g: 'flip', l: [(FLIP1 ? 'Once a turn, free: ' : 'Free, as often as you like: ') + 'Flip swaps the top and bottom edges of the piece you picked. A faded piece cannot be played right now; tap it to see why.'], who: '' })
       + (ENV ? '</ul><div class="sl">Environment pieces <span>tap one in the Next strip</span></div><ul class="helpl">' + ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'].filter(function (k) { return !(NOWM && (k === 'wind' || k === 'mud')); }).map(function (k) { return row(envText(k, null)); }).join('') + '</ul>' : '')
       + (ENV ? '' : '</ul><div class="sl">Terrain <span>tap a ground cell</span></div><ul class="helpl">' + ['sun', 'br', 'mud'].map(function (k) { return row(terrText(k)); }).join('') + '</ul>'
       + '<div class="sl">Events <span>marked a round ahead</span></div><p class="hint">' + WHEN + '</p><ul class="helpl">' + ['sunbeam', 'creep', 'puddle', 'gust', 'thorn'].map(function (k) { return row(evText2(k)); }).join('') + '</ul>')
@@ -589,7 +600,23 @@
     go.setAttribute('form', pm ? 'pf-pform' : 'pf-form'); go.disabled = busy || (!pm && moves.length === 0);
     go.title = pm ? 'Skip your turn: no piece is played, the round goes on' : ''; go.classList.toggle('pfv-pass', pm);
   }
+  // ---- 2.7.01 costly cell (learn.md item 1): a lit spot whose chain costs your health has a red edge and names the cause; once placed, the line above End turn says it; in the first fights End turn asks once
+  function costNames(q) {
+    var out = [];
+    (q && q.hw || []).forEach(function (w) { var t = w[1] === 'foe' ? 'the ' + (data.foe || 'creature') + '\u2019s ' + w[0] : w[1] === 'me' ? 'your ' + w[0] : w[0]; if (out.indexOf(t) < 0) out.push(t); });
+    return out.join(' and ');
+  }
+  function costPlaced() {
+    if (!planQ || !planQ.hp || !moves.length || (moves[0].k !== 'p' && moves[0].k !== 'c') || playing || submitted) return '';
+    var nm = costNames(planQ), t = (nm ? 'This fires ' + nm + '. ' : 'This move costs health. ') + 'You lose ' + planQ.hp + ' health.';
+    return costOk ? t + (planFree ? ' A lit spot that costs nothing was open.' : '') + ' Tap End turn again to play it anyway.' : t;
+  }
+  function costAsk(ev) {   // a capture listener on End turn: the first tap on a costly move (with a free spot open) only asks
+    if (!COSTW || costOk || !planFree || !costPlaced()) return;
+    ev.preventDefault(); ev.stopImmediatePropagation(); costOk = true; render();
+  }
   function v1Boot() {
+    if (go) go.addEventListener('click', costAsk, true);
     if (pform && FREEP) pform.addEventListener('submit', function (e) { if (submitted || playing) { e.preventDefault(); return; } submitted = true; go.disabled = true; undo.disabled = true; });
     root.addEventListener('submit', ghostSnap, true);
     ghostShow();
@@ -931,6 +958,7 @@
   function place(x, y) {
     if (selected === null || playing || submitted || data.won || rewind) return;
     planQ = nums.d ? nums.d[x + ',' + y] || null : null; offMsg = ''; closePop();
+    planFree = !!(nums.d && Object.keys(nums.d).some(function (k) { return !nums.d[k].hp; })); costOk = false;
     moves = [selected === 'group' ? { k: 'c', x: x, y: y } : { k: 'p', i: selected, x: x, y: y }];
     clearPicks(); selected = null; render();
   }
@@ -1053,7 +1081,8 @@
       : selected === 'group' ? hintText || 'Pick a lit spot for the group.'
       : moves.length === 0 ? (fits ? (!anyFits() ? 'No piece fits this way up. Pick one and Flip it.' : MUSTL && !mustLink(baseBoard(), handEdges()) && baseBoard().count ? 'Nothing can connect, so you may place a piece anywhere it fits.' : root.dataset.turn === '1' ? (data.opened ? 'The creature opened with ' + data.opened + ' piece' + (data.opened === 1 ? '' : 's') + '. ' : '') + (ONE ? 'Hurt and Charm both fill the ' + YIELD + ' bar; when it is full the fight ends.' : 'Hurt empties its health, Charm fills the bar.') : 'Pick a piece, then a lit spot. One piece a turn.' + (FREEP ? ' Or tap Pass.' : '')) : (FREEP ? 'No piece fits. Tap Pass to skip your turn.' : 'No piece fits. Tap End turn to pass.'))
       : moves[0].k === 'j' || moves[0].k === 'h' ? 'Set aside for a later turn. End turn when ready.'
-      : 'Placed. End turn when ready.';
+      : costPlaced() || 'Placed. End turn when ready.';
+    prev.classList.toggle('pfv-costwarn', !!costPlaced());
     prev.title = prev.textContent;
     if (rewind) { var rc = boardEl.querySelector('.pfb-cell[data-id="' + rewind.id + '"]'); if (rc) rc.classList.add('pfb-scoring'); }
     drawRows(); if (ENV) drawLegend(); flipLabel(); fitBoard();
@@ -1283,6 +1312,7 @@
       if (q.hp) { bits.push('\u2764\u2212' + q.hp); aria.push('costs you ' + q.hp + ' health'); }
       if (q.rp) { bits.push('\u21A9\u2212' + q.rp); aria.push('the creature then takes about ' + q.rp + ' from you'); }
       var s = document.createElement('span'); s.className = 'pfb-num' + (q.hp ? ' pfb-num-hurt' : ''); s.setAttribute('aria-hidden', 'true'); s.textContent = bits.join(' ') || (q.end ? '\u2605' : '\u2013'); c.appendChild(s);
+      if (q.hp) { c.classList.add('pfv-costly'); var cw = costNames(q); if (cw) aria.push('it fires ' + cw); c.title = 'Costs you ' + q.hp + ' health' + (cw ? ': it fires ' + cw : ''); }
       if (q.used) { var us = document.createElement('span'); us.className = 'u'; us.textContent = ' \u00d7' + q.n + ' used'; s.appendChild(us); aria.push('all ' + q.n + ' pieces are used up'); }
       else if (q.tw > 1) { var ts = document.createElement('span'); ts.className = 't'; ts.textContent = ' team'; s.appendChild(ts); aria.push('Teamwork plus ' + Math.round((q.tw - 1) * 100) + ' percent'); }
       if (ENV) { if (q.sun) { var ss = document.createElement('span'); ss.className = 'u s'; ss.textContent = ' \u2600\u00d7' + (V1.sun || 2); s.appendChild(ss); aria.push('a Sun doubles ' + q.sun + ' of your pieces'); } if (q.mud) { var ms = document.createElement('span'); ms.className = 'u m'; ms.textContent = ' mud'; s.appendChild(ms); aria.push('Mud weakens ' + q.mud + ' of your pieces'); } } else if (q.sun) aria.push('on a sunny patch');
