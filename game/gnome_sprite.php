@@ -12,13 +12,16 @@ foreach (['h' => 'hat', 'b' => 'beard', 's' => 'scarf'] as $k => $role) {
         $cols[$role] = '#' . strtolower($v);
     }
 }
+$wear = (string)($_GET['w'] ?? '');   // 2.7.00: worn wearables as codes (b g c h p)
+if ($wear !== '' && !preg_match('/^[bgchp]{1,5}$/', $wear)) { http_response_code(400); exit; }
+$wear = count_chars($wear, 3);   // sorted, no repeats: one cache file per set
 $dir = APP_ROOT . '/data/gnome25';
-$file = $dir . '/' . $view . '-' . implode('-', array_map(fn($r) => ltrim($cols[$r] ?? 'x', '#'), ['hat', 'beard', 'scarf'])) . '.png';
+$file = $dir . '/' . $view . '-' . implode('-', array_map(fn($r) => ltrim($cols[$r] ?? 'x', '#'), ['hat', 'beard', 'scarf'])) . ($wear !== '' ? '-w' . $wear : '') . '.png';
 if (!in_array($view, ['front', 'back', 'side'], true)) { http_response_code(400); exit; }
 $png = is_file($file) ? (string)file_get_contents($file) : '';
 if ($png === '') {
     if (!sprite_miss_ok()) { http_response_code(429); exit; }   // too many new colour sets from this address
-    $png = gnome25_compose($view, $cols);
+    $png = gnome25_compose($view, $cols, [], $wear);
     if ($png === '') { http_response_code(404); exit; }
     if (!is_dir($dir)) @mkdir($dir, 0775, true);
     if (is_dir($dir) && is_writable($dir) && sprite_cache_room($dir)) @file_put_contents($file, $png);
