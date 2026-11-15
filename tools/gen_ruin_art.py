@@ -45,6 +45,19 @@ def driftwood_tavern(p):
                 if (xx - cx) ** 2 + (yy - cy) ** 2 <= r * r:
                     p.recolor((xx, yy, xx, yy), lamp)
     p.remap(sat=0.55, val=0.86, tint=DUSK)
+    # the turtle musician is gone (a ruin would only make him sad): paint sea and sky back over him and the notes
+    def fill_from(box, src_x):
+        x0, y0, x1, y1 = box
+        for yy in range(y0, y1 + 1):
+            c = p.px[src_x, yy]
+            for xx in range(x0, x1 + 1):
+                p.px[xx, yy] = c
+    fill_from((138, 158, 186, 187), 130)
+    fill_from((187, 158, 198, 187), 130)
+    fill_from((104, 140, 114, 154), 136)     # music notes
+    fill_from((123, 158, 131, 170), 137)
+    fill_from((176, 128, 186, 138), 130)
+    fill_from((198, 146, 210, 160), 214)
     # crab leaves: paint wall back over the crab, then add a knocked-over cup
     wall = [p.sample(300, 143), p.sample(345, 150)]
     plank = [p.sample(300, 152), p.sample(304, 152), p.sample(309, 152)]
@@ -191,6 +204,8 @@ def driftwood_tavern(p):
     p.line([(78, 208), (110, 214)], hx('#8a7340'), 2)
     for k in range(0, 30, 4):
         p.line([(80 + k, 209 + k // 6), (78 + k, 204 + k // 6)], hx('#8a7340'))
+    fill_from((138, 158, 198, 164), 130)       # stray ink rows where the turtle sat
+    before.paste(p.im.crop((138, 157, 199, 166)), (138, 157))
     p.outline_new(before)
 
 
