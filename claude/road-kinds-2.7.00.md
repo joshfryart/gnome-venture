@@ -25,8 +25,8 @@ Veto: strike a row, or write the route id you want instead.
 | NWE (6) | 260 | Mistmoor Market to Hollowknoll | forest | road | overgrown | +10 game min per section; axe = none | - | forest route, 3 sections |
 | NWE (6) | 355 | Larkden to Spraywell | coast | trail | flooded | +10 game min per section; flood boots +5 | - | 142 water cells, coast |
 | CB (8) | 243 | Breezehollow to The Sunsprinkle Isles Market | island | road | ferry | pay 20 Petals per crossing | - | 160 water cells over 3 sections |
-| CB (8) | - | - | - | - | tunnel | lantern gate | - | no fitting route |
-| CB (8) | - | - | - | - | pass | staff gate | - | no fitting route |
+| CB (8) | 328 | Shoreford to Sandpipergate | coast | trail | tunnel | lantern gate | 2 | coast route, 2 sections (different land: nothing mountain here) |
+| CB (8) | 329 | Breezehollow to Foamknoll | coast | trail | pass | staff gate | 2 | coast route, 2 sections (different land: nothing mountain here) |
 | CB (8) | 248 | The Sunsprinkle Isles Market to Palmknoll | island | road | toll | pay 10 Petals once per route; safer, faster | - | road between markets/ports |
 | CB (8) | 331 | Shoreford to Lianacombe | rainforest | trail | overgrown | +10 game min per section; axe = none | - | rainforest route, 2 sections |
 | CB (8) | 336 | Palmknoll to Sunken Gnome Galleon | coast | trail | flooded | +10 game min per section; flood boots +5 | - | 165 water cells, coast |
@@ -34,8 +34,8 @@ Veto: strike a row, or write the route id you want instead.
 | SE (10) | 365 | Brinewick to Cliffbrook | mountain | trail | tunnel | lantern gate | 2 | mountain route, 2 sections |
 | SE (10) | 366 | Driftmead to Screebottom | mountain | trail | pass | staff gate | 2 | mountain route, 2 sections |
 | SE (10) | 259 | Driftmead to Olivewhistle Shore Market | coast | road | toll | pay 10 Petals once per route; safer, faster | - | road between markets/ports |
-| SE (10) | - | - | - | - | overgrown | +10 game min per section; axe = none | - | no fitting route |
-| SE (10) | 264 | Olivewhistle Shore Market to Sprayglen | coast | road | flooded | +10 game min per section; flood boots +5 | - | 150 water cells, coast |
+| SE (10) | 264 | Olivewhistle Shore Market to Sprayglen | coast | road | overgrown | +10 game min per section; axe = none | - | coast route, 3 sections (different land: nothing wooded here) |
+| SE (10) | 372 | Driftmead to Olive Press Piazza | coast | trail | flooded | +10 game min per section; flood boots +5 | - | 143 water cells, coast |
 | SA (12) | 253 | Highcove to Palmgate | island | exit | ferry | pay 20 Petals per crossing | - | 225 water cells over 3 sections |
 | SA (12) | 341 | Barleyglen to Stoneden | mountain | trail | tunnel | lantern gate | 2 | mountain route, 2 sections |
 | SA (12) | 348 | Thistlebottom to The Sky City Ruins | mountain | trail | pass | staff gate | 2 | mountain route, 3 sections |
@@ -52,11 +52,11 @@ Veto: strike a row, or write the route id you want instead.
 | MENA (17) | 392 | Brineburrow to Craghollow | mountain | trail | tunnel | lantern gate | 3 | mountain route, 2 sections |
 | MENA (17) | 393 | Meadowbrook to Cragmead | mountain | trail | pass | staff gate | 3 | mountain route, 2 sections |
 | MENA (17) | 272 | The Dunewhisper Market to Brineburrow | coast | road | toll | pay 10 Petals once per route; safer, faster | - | road between markets/ports |
-| MENA (17) | - | - | - | - | overgrown | +10 game min per section; axe = none | - | no fitting route |
+| MENA (17) | 276 | The Dunewhisper Market to Meadowbrook | grassland | road | overgrown | +10 game min per section; axe = none | - | grassland route, 3 sections (different land: nothing wooded here) |
 | MENA (17) | 397 | Meadowbrook to Spice Souk | coast | trail | flooded | +10 game min per section; flood boots +5 | - | 104 water cells, coast |
 | EA (20) | 446 | Bramblebrook to Pearl Diver Cove | coast | trail | ferry | pay 20 Petals per crossing | - | 234 water cells over 3 sections |
-| EA (20) | - | - | - | - | tunnel | lantern gate | - | no fitting route |
-| EA (20) | - | - | - | - | pass | staff gate | - | no fitting route |
+| EA (20) | 441 | Bramblebrook to Coppergate | desert | trail | tunnel | lantern gate | 3 | desert route, 2 sections (different land: nothing mountain here) |
+| EA (20) | 442 | Birchford to Dunewick | desert | trail | pass | staff gate | 3 | desert route, 2 sections (different land: nothing mountain here) |
 | EA (20) | 239 | Clovercove to Blossomreach Market | grassland | road | toll | pay 10 Petals once per route; safer, faster | - | road between markets/ports |
 | EA (20) | 290 | Poppywell to Bramblebrook | forest | road | overgrown | +10 game min per section; axe = none | - | forest route, 3 sections |
 | EA (20) | 439 | Clovercove to Sprayholt | coast | trail | flooded | +10 game min per section; flood boots +5 | - | 184 water cells, coast |
@@ -67,14 +67,14 @@ Veto: strike a row, or write the route id you want instead.
 | CSA (23) | 292 | Spicepeak Market to Leafmead | forest | road | overgrown | +10 game min per section; axe = none | - | forest route, 3 sections |
 | CSA (23) | 270 | Newtdell to Rushdell | wetland | road | flooded | +10 game min per section; flood boots +5 | - | 1 water cells, wetland |
 | SEA (26) | 457 | Sandpiperglen to Volcano Spice Gardens | island | trail | ferry | pay 20 Petals per crossing | - | 200 water cells over 3 sections |
-| SEA (26) | - | - | - | - | tunnel | lantern gate | - | no fitting route |
-| SEA (26) | - | - | - | - | pass | staff gate | - | no fitting route |
+| SEA (26) | 449 | Marshcrest to Sandpiperhollow | coast | trail | tunnel | lantern gate | 3 | coast route, 2 sections (different land: nothing mountain here) |
+| SEA (26) | 456 | Lilyby to Lantern Festival River | coast | trail | pass | staff gate | 3 | coast route, 3 sections (different land: nothing mountain here) |
 | SEA (26) | 295 | Rushglen to The Monsoon Tangle Market | wetland | road | toll | pay 10 Petals once per route; safer, faster | - | road between markets/ports |
 | SEA (26) | 452 | Sandpiperglen to Canopyford | rainforest | trail | overgrown | +10 game min per section; axe = none | - | rainforest route, 2 sections |
 | SEA (26) | 300 | The Monsoon Tangle Market to Shellnook | coast | road | flooded | +10 game min per section; flood boots +5 | - | 243 water cells, coast |
 | WCA (29) | 409 | Cloverbottom to Driftglen | coast | trail | ferry | pay 20 Petals per crossing | - | 114 water cells over 2 sections |
-| WCA (29) | - | - | - | - | tunnel | lantern gate | - | no fitting route |
-| WCA (29) | - | - | - | - | pass | staff gate | - | no fitting route |
+| WCA (29) | 410 | Thistleholt to Pebblenook | coast | trail | tunnel | lantern gate | 3 | coast route, 2 sections (different land: nothing mountain here) |
+| WCA (29) | 411 | Hayglen to Drum Circle Market | grassland | trail | pass | staff gate | 3 | grassland route, 2 sections (different land: nothing mountain here) |
 | WCA (29) | 275 | Thistleholt to The Greatcanopy Market | grassland | road | toll | pay 10 Petals once per route; safer, faster | - | road between markets/ports |
 | WCA (29) | 406 | Cloverbottom to Vineden | rainforest | trail | overgrown | +10 game min per section; axe = none | - | rainforest route, 2 sections |
 | WCA (29) | 403 | Cloverbottom to Fenmead | wetland | trail | flooded | +10 game min per section; flood boots +5 | - | 1 water cells, wetland |
@@ -82,13 +82,13 @@ Veto: strike a row, or write the route id you want instead.
 | ESA (32) | 416 | Meadowden to Pinecombe | mountain | trail | tunnel | lantern gate | 3 | mountain route, 2 sections |
 | ESA (32) | 417 | Clovergate to Echoford | mountain | trail | pass | staff gate | 3 | mountain route, 2 sections |
 | ESA (32) | 283 | Clovergate to Thornacre Savanna Market | grassland | road | toll | pay 10 Petals once per route; safer, faster | - | road between markets/ports |
-| ESA (32) | - | - | - | - | overgrown | +10 game min per section; axe = none | - | no fitting route |
+| ESA (32) | 419 | Summitglen to Newtcombe | wetland | trail | overgrown | +10 game min per section; axe = none | - | wetland route, 2 sections (different land: nothing wooded here) |
 | ESA (32) | 426 | Meadowbottom to Flamingo Shallows | wetland | trail | flooded | +10 game min per section; flood boots +5 | - | 3 water cells, wetland |
 | OC (35) | 255 | Reefknoll to The Coralscatter Market | island | road | ferry | pay 20 Petals per crossing | - | 190 water cells over 3 sections |
-| OC (35) | - | - | - | - | tunnel | lantern gate | - | no fitting route |
-| OC (35) | - | - | - | - | pass | staff gate | - | no fitting route |
+| OC (35) | 465 | Palmgate to Miragewell | desert | trail | tunnel | lantern gate | 3 | desert route, 2 sections (different land: nothing mountain here) |
+| OC (35) | 466 | Reefknoll to Oasiswick | desert | trail | pass | staff gate | 3 | desert route, 2 sections (different land: nothing mountain here) |
 | OC (35) | 303 | Brineglen to The Coralscatter Market | coast | road | toll | pay 10 Petals once per route; safer, faster | - | road between markets/ports |
 | OC (35) | 463 | Turtleburrow to Mossby | forest | trail | overgrown | +10 game min per section; axe = none | - | forest route, 2 sections |
 | OC (35) | 302 | Turtleburrow to Brineglen | coast | road | flooded | +10 game min per section; flood boots +5 | - | 189 water cells, coast |
 
-71 routes picked of 246.
+84 routes picked of 246.
