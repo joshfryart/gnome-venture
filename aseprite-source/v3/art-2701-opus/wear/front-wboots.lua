@@ -37,8 +37,7 @@ local function boot(px, mine, x0, dy, after, mud)
         if v == 70 then c = ((u % 3) == 2) and SOLE[1] or SOLE[2] end   -- tread sole
         if v == 70 and u == 1 then c = SOLE[3] end
         local k = y * W + x
-        -- hem shadow: the row right under the tunic is a step darker (the shaft runs on under it)
-        if v < 68 and after[(y - 1) * W + x] and not after[k] then c = G[clamp(t - 1)] end
+        -- 2.7.01: no hem shadow any more: the layer now draws OVER the tunic (GNOME25_WEAR_AFTER front wboots => tunic), so the rim at row 60 shows
         px[k] = c; mine[k] = true
       end
     end
