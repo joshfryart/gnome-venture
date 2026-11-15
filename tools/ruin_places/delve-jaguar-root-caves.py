@@ -74,7 +74,7 @@ def build(p):
             ((150, 78, 160, 93), 155), ((20, 70, 31, 114), 26))
     for box, _ in CUTS:
         heal(nonwall(box), tile=12)
-    heal([q for q in nonwall((210, 3, 237, 66)) if q[1] != 2] + nonwall((190, 3, 204, 40))
+    heal([q for q in nonwall((210, 3, 237, 66)) if q[1] != 2] + nonwall((186, 3, 204, 82))
          + [q for q in nonwall((243, 3, 268, 100)) if q[1] != 2], tile=12)
 
     # the sun goes behind cloud (before the remap, on true colours, inside the arch only)
@@ -181,7 +181,7 @@ def build(p):
     hole = set()
     for xx, d in depth.items():
         for yy in range(0, d + 1):
-            if col(xx, yy) in WALLS or yy == 2:
+            if not (yy == 2 and orig[(xx, yy)][:3] == hx('f5b82e')):
                 hole.add((xx, yy))
     for (xx, yy) in hole:
         d = depth[xx]
@@ -572,6 +572,5 @@ def build(p):
     web(479, 4, [(446, 8), (451, 19), (460, 27), (471, 31)], (0.4, 0.7, 1.0))
     web(343, 104, [(348, 126), (356, 119), (362, 107), (363, 94)], (0.5, 1.0))
     for (a, b, sg) in (((91, 14), (99, 16), 2), ((90, 26), (99, 30), 3), ((90, 40), (97, 42), 2),
-                       ((15, 44), (24, 46), 3), ((14, 60), (25, 58), 3), ((134, 48), (141, 50), 2),
-                       ((255, 44), (262, 47), 2), ((256, 58), (263, 60), 2)):
+                       ((15, 44), (24, 46), 3), ((14, 60), (25, 58), 3), ((134, 48), (141, 50), 2)):
         web_line(a, b, sg)

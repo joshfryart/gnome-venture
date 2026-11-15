@@ -466,39 +466,46 @@ def build(p):
                     sand_put(x, y, si - 1)
 
     # the empty nests
-    pit(40, 242, 23, 7, 0.3)
-    pit(150, 240, 15, 5, 1.7)
-    pit(222, 249, 17, 5, 2.6)
-    pit(108, 256, 10, 3, 0.9)
-    pit(318, 258, 11, 3, 3.3)
-    pit(256, 228, 9, 3, 4.0)
-    drift(66, 238, 22, 4)
-    drift(14, 236, 20, 3)
-    drift(172, 236, 16, 3)
+    pit(40, 243, 27, 8, 0.3)
+    pit(150, 241, 17, 6, 1.7)
+    pit(222, 250, 18, 6, 2.6)
+    pit(108, 258, 11, 4, 0.9)
+    pit(318, 259, 11, 3, 3.3)
+    pit(250, 230, 9, 3, 4.0)
+    drift(74, 240, 18, 4)
+    drift(8, 238, 14, 3)
     drift(446, 244, 60, 6)       # blown up against the sunken corner of the hut
     drift(470, 252, 30, 4)
 
     # tide-line weed
     K1, K2, K3 = hx('#3c4a3c'), hx('#52603f'), hx('#5c4a48')
 
-    def weed(cx, cy, n, seed, spread=9):
+    def weed(cx, cy, rx, ry, seed):
         r = random.Random(seed)
-        for _ in range(n):
-            x, y = cx + r.randint(-spread, spread), cy + r.randint(-1, 2)
-            c = r.choice((K1, K1, K2, K3))
+        f = ragged(cx, cy, rx, ry, seed * 1.3, 1.4)
+        for y in range(cy - ry - 2, cy + ry + 3):
+            for x in range(cx - rx - 3, cx + rx + 4):
+                if f(x, y) and col(x, y) != INK and y > yfoam(max(0, min(479, x))) + 1:
+                    u, v = (x - cx) / float(rx), (y - cy) / float(max(ry, 1))
+                    p.dot(x, y, K2 if (v < -.3 and (x // 3) % 2 == 0) else (K3 if (u > .4 and v > 0) else K1))
+        for _ in range(3 + rx // 3):                            # loose strands trailing off the clump
+            x, y = cx + r.randint(-rx, rx), cy + r.randint(-ry, ry)
             d = r.choice((-1, 1))
-            for i in range(r.randint(4, 9)):
-                if col(x, y) != INK and y > yfoam(max(0, min(479, x))):
+            c = r.choice((K1, K1, K3))
+            for i in range(r.randint(5, 10)):
+                if col(x, y) != INK and y > yfoam(max(0, min(479, x))) + 1:
                     p.dot(x, y, c)
                 x += d
                 if i % 3 == 2:
-                    y += r.choice((-1, 0, 1))
-    for i, (cx, n, s) in enumerate(((22, 7, 8), (58, 4, 5), (97, 9, 11), (141, 5, 6), (188, 8, 9), (236, 5, 6), (281, 9, 10),
-                                    (310, 4, 5), (12, 3, 4), (165, 3, 4), (300, 5, 6))):
-        weed(cx, yfoam(cx) + 5 + (i % 3), n, 40 + i, s)
-    weed(130, 232, 5, 60, 6)
-    weed(292, 262, 6, 61, 7)
-    weed(205, 262, 4, 62, 5)
+                    y += r.choice((-1, 0, 1, 1))
+        shadow(cx - rx + 2, cx + rx + 1, cy + ry + 1, 1)
+    for i, (cx, rx, ry) in enumerate(((20, 9, 2), (62, 5, 1), (101, 10, 2), (146, 6, 1), (190, 9, 2), (238, 6, 1),
+                                      (283, 11, 2), (312, 4, 1))):
+        weed(cx, yfoam(cx) + 6 + (i % 2), rx, ry, 40 + i)
+    weed(128, 233, 7, 2, 60)
+    weed(292, 262, 8, 1, 61)
+    weed(206, 263, 5, 1, 62)
+    weed(30, 259, 8, 2, 63)
 
     # ---- guide fence: posts and a slack rope, half knocked down ---------------------------------------------
     ROPE, ROPE_D = hx('#b7a58c'), hx('#8a7a6e')
@@ -510,22 +517,28 @@ def build(p):
                 y = yb - i
                 p.dot(xx, y, W_LT)
                 p.dot(xx + 1, y, W_MID)
-                p.dot(xx + 2, y, W_DK)
+                p.dot(xx + 2, y, W_MID if (i + x) % 7 else W_DK)
+                p.dot(xx + 3, y, W_DK)
             xx = x + int(round((h - 1) * lean))
-            p.dot(xx, yb - h + 1, W_LT)
-            p.dot(xx + 1, yb - h + 1, W_LT)
-        shadow(x + 2, x + 7, yb, 2)
+            for k in range(3):
+                p.dot(xx + k, yb - h + 1, hx('#cdb39c'))
+            for k in range(4):                                  # rope band round the top
+                p.dot(xx + k - (1 if lean > .2 else 0), yb - h + 4, ROPE_D)
+        shadow(x + 3, x + 10, yb, 2)
         inked(draw)
-        return (x + int(round((h - 1) * lean)) + 1, yb - h + 3)
+        return (x + int(round((h - 4) * lean)) + 2, yb - h + 4)
 
     def flat_post(x, y, L, up=0):
         def draw():
             for i in range(L):
                 yy = y - (i * up) // L
                 p.dot(x + i, yy, W_LT)
-                p.dot(x + i, yy + 1, W_MID if i % 6 else W_DK)
-                p.dot(x + i, yy + 2, W_DK)
-        shadow(x + 1, x + L + 1, y + 3, 1)
+                p.dot(x + i, yy + 1, W_MID)
+                p.dot(x + i, yy + 2, W_MID if i % 6 else W_DK)
+                p.dot(x + i, yy + 3, W_DK)
+            for k in range(1, 3):
+                p.dot(x, y + k, hx('#cdb39c'))
+        shadow(x + 1, x + L + 2, y + 4, 1)
         inked(draw)
 
     def rope(a, b, sag):
@@ -537,34 +550,35 @@ def build(p):
             if col(x, y) != INK and col(x, y) not in (W_LT, W_MID, W_DK):
                 p.dot(x, y, ROPE if i % 5 else ROPE_D)
 
-    t1 = post(88, 222, 10)
-    t2 = post(110, 223, 10, 0.1)
-    t3 = post(133, 222, 10, -0.15)
-    flat_post(150, 221, 12, 1)
-    t5 = post(182, 223, 9, 0.45)
-    t6 = post(204, 222, 10)
-    flat_post(222, 223, 11, -1)
-    t8 = post(268, 221, 10, -0.3)
-    t9 = post(290, 222, 10, 0.05)
+    t1 = post(86, 224, 14)
+    t2 = post(110, 225, 14, 0.1)
+    t3 = post(134, 224, 13, -0.15)
+    flat_post(150, 221, 15, 1)
+    t5 = post(180, 225, 12, 0.5)
+    t6 = post(206, 224, 14)
+    flat_post(222, 222, 14, -1)
+    t8 = post(270, 223, 13, -0.3)
+    t9 = post(294, 224, 14, 0.05)
     rope(t1, t2, 3)
     rope(t2, t3, 4)
-    rope(t3, (150, 221), 2)                                     # drops to the fallen post
+    rope(t3, (150, 222), 3)                                     # drops to the fallen post
     rope(t5, t6, 3)
-    rope(t6, (224, 223), 1)
-    rope((236, 225), (250, 226), 1)                             # loose end on the sand
+    rope(t6, (223, 223), 2)
+    rope((237, 227), (254, 226), 1)                             # loose end on the sand
     rope(t8, t9, 4)
-    drift(92, 223, 16, 3)
-    drift(208, 223, 18, 3)
-    drift(275, 222, 14, 2)
+    drift(92, 226, 18, 3, over=True)
+    drift(212, 226, 18, 3, over=True)
+    drift(276, 225, 14, 2, over=True)
 
     # ---- nest markers: stake + little egg plaque, knocked about ----------------------------------------------
     E_W, E_L, E_S, E_D = hx('#e4ded6'), hx('#c9c0c4'), hx('#a296a8'), hx('#5a4c5e')
     PL = {'L': W_LT, 'M': W_MID, 'D': W_DK, 'e': E_W, 's': W_SH}
-    PLAQUE = ["LLLLLLL",
-              "LMMeMMD",
-              "LMeeeMD",
-              "LMMeMMD",
-              "MDDDDDD"]
+    PLAQUE = ["LLLLLLLLL",
+              "LMMMeMMMD",
+              "LMMeeeMMD",
+              "LMMeeeMMD",
+              "LMMMeMMMD",
+              "MDDDDDDDD"]
 
     def marker(x, yb, lean=0.0, h=11):
         def draw():
@@ -573,18 +587,18 @@ def build(p):
                 p.dot(xx, yb - i, W_MID)
                 p.dot(xx + 1, yb - i, W_DK)
             tx = x + int(round(h * lean))
-            stamp(tx - 3, yb - h - 4, PLAQUE, PL)
+            stamp(tx - 4, yb - h - 5, PLAQUE, PL)
         shadow(x + 1, x + 6, yb, 2)
         inked(draw)
-    marker(176, 244, 0.35)                                      # leaning by the second nest
+    marker(178, 247, 0.35, 12)                                      # leaning by the second nest
     # snapped stake by the main nest, plaque face down in the sand beside it
 
     def stub():
         for i in range(4):
-            p.dot(72, 246 - i, W_MID)
-            p.dot(73, 246 - i, W_DK)
-        p.dot(72, 242, W_LT)
-    shadow(73, 78, 246, 2)
+            p.dot(72, 250 - i, W_MID)
+            p.dot(73, 250 - i, W_DK)
+        p.dot(72, 246, W_LT)
+    shadow(73, 78, 250, 2)
     inked(stub)
 
     def fallen_marker(x, y):
@@ -592,24 +606,33 @@ def build(p):
             for i in range(10):
                 p.dot(x + i, y + (i // 5), W_MID)
                 p.dot(x + i, y + 1 + (i // 5), W_DK)
-            stamp(x + 10, y - 1, ["LLLLLL", "LMeeMD", "LMeeMD", "MDDDDD"], PL)
+            stamp(x + 10, y - 2, ["LLLLLLL", "LMMeMMD", "LMeeeMD", "LMMeMMD", "MDDDDDD"], PL)
         shadow(x + 1, x + 17, y + 3, 1)
         inked(draw)
-    fallen_marker(76, 251)
-    fallen_marker(238, 255)
-    marker(303, 252, -0.25, 9)
+    fallen_marker(78, 254)
+    fallen_marker(240, 258)
+    marker(304, 252, -0.25, 10)
 
     # ---- broken eggshells --------------------------------------------------------------------------------------
     EP = {'W': E_W, 'w': E_L, 's': E_S, 'd': E_D}
-    CUP = [".W.W.w.",
-           "WWdWdws",
+    CUP = ["..dd.dd..",
+           ".WdWdWdw.",
+           "WWWWWWwws",
+           "WWWWWwwss",
+           "WWWWwwwss",
+           ".WWwwwss.",
+           "..wwsss.."]
+    TIP = ["..WWWw....",
+           ".WWWWWdd..",
+           "WWWWWdddw.",
+           "WWWWwdddds",
+           "WWWwwddds.",
+           ".wwwsss...",
+           "..sss....."]
+    CAP = ["..WWw..",
+           ".WWWws.",
            "WWWWwss",
-           "WWWwwss",
-           ".WWwss."]
-    TIP = [".WWWw..",
-           "WWWdddw",
-           "WWwddds",
-           ".wwsss."]
+           "W.Ww.ws"]
     BIT = ["W.W",
            "Wws"]
     BIT2 = ["Ww",
@@ -622,15 +645,16 @@ def build(p):
         for (kind, x, y) in items:
             shadow(x + 2, x + len(kind[0]) + 1, y + len(kind), 1)
         inked(draw)
-    shells([(CUP, 28, 238), (TIP, 42, 241), (CUP, 52, 236), (BIT, 37, 245), (BIT2, 22, 243), (BIT2, 60, 246), (BIT, 47, 247)])
-    shells([(TIP, 143, 238), (CUP, 155, 237), (BIT2, 150, 243), (BIT, 164, 246)])
-    shells([(CUP, 214, 246), (BIT, 226, 250), (TIP, 231, 247), (BIT2, 208, 253)])
-    shells([(BIT, 104, 255), (TIP, 110, 254), (BIT2, 122, 259)])
-    shells([(BIT, 315, 257), (BIT2, 324, 259), (BIT2, 255, 228), (BIT, 190, 233), (BIT2, 96, 240), (BIT2, 131, 249)])
+    shells([(CUP, 24, 238), (TIP, 38, 241), (CUP, 53, 237), (CAP, 33, 247), (BIT2, 19, 246), (BIT, 62, 247),
+            (BIT, 48, 248), (BIT2, 45, 239)])
+    shells([(TIP, 140, 238), (CUP, 154, 237), (BIT2, 150, 246), (BIT, 166, 249), (CAP, 126, 246)])
+    shells([(CUP, 212, 246), (BIT, 225, 253), (TIP, 229, 248), (BIT2, 206, 255)])
+    shells([(BIT, 101, 258), (CAP, 108, 256), (BIT2, 122, 262)])
+    shells([(BIT, 314, 258), (BIT2, 324, 260), (BIT2, 248, 230), (BIT, 190, 234), (BIT2, 96, 242), (CAP, 197, 240)])
 
     # ---- cold fire ring -----------------------------------------------------------------------------------
-    ST = (hx('#8a8696'), hx('#6c687a'), hx('#4e4a5e'))
-    ASH1, ASH2 = hx('#77737e'), hx('#5a5662')
+    ST = (hx('#a29eac'), hx('#807c8e'), hx('#5c586c'))
+    ASH1, ASH2 = hx('#8d8992'), hx('#6a6672')
 
     def stone(cx, cy, rx, ry):
         def draw():
@@ -640,13 +664,13 @@ def build(p):
                     if u * u + v * v <= 1:
                         p.dot(x, y, ST[0] if u + v < -.5 else (ST[2] if u + v > .45 else ST[1]))
         inked(draw)
-    fx, fy = 272, 243
-    shadow(fx - 10, fx + 15, fy + 4, 2)
-    for y in range(fy - 3, fy + 4):
-        for x in range(fx - 10, fx + 11):
-            u, v = (x - fx) / 10.0, (y - fy) / 3.5
+    fx, fy = 276, 244
+    shadow(fx - 12, fx + 17, fy + 6, 2)
+    for y in range(fy - 4, fy + 5):
+        for x in range(fx - 12, fx + 13):
+            u, v = (x - fx) / 12.0, (y - fy) / 4.5
             if u * u + v * v <= 1:
-                p.dot(x, y, ASH1 if (u * .6 - v) > .25 else ASH2)
+                p.dot(x, y, ASH1 if (u * .6 - v) > .2 else ASH2)
 
     def char_logs():
         for i in range(13):
@@ -658,9 +682,9 @@ def build(p):
         p.dot(fx - 6, fy + 1, W_SH)
         p.dot(fx + 2, fy - 2, W_SH)
     inked(char_logs)
-    for (cx, cy, rx, ry) in ((fx - 11, fy - 1, 2, 2), (fx - 7, fy - 4, 2, 1), (fx, fy - 5, 3, 1), (fx + 8, fy - 4, 2, 1),
-                             (fx + 12, fy, 2, 2), (fx + 7, fy + 4, 3, 1), (fx - 2, fy + 5, 2, 1), (fx - 9, fy + 3, 2, 1),
-                             (fx + 20, fy + 6, 2, 1)):
+    for (cx, cy, rx, ry) in ((fx - 13, fy - 1, 2, 2), (fx - 8, fy - 5, 3, 1), (fx, fy - 6, 3, 1), (fx + 8, fy - 5, 3, 1),
+                             (fx + 14, fy, 2, 2), (fx + 9, fy + 5, 3, 1), (fx, fy + 6, 3, 1), (fx - 9, fy + 5, 3, 1),
+                             (fx + 23, fy + 8, 2, 1)):
         stone(cx, cy, rx, ry)
 
     # ---- driftwood --------------------------------------------------------------------------------------------
@@ -716,18 +740,17 @@ def build(p):
     inked(step)
     drift(414, 261, 24, 6, over=True)
 
-    LP = {'k': hx('#3b3644'), 'm': hx('#57525f'), 'g': hx('#5d5a6e'), 'h': hx('#84829a'), 'd': hx('#403d4f')}
-    LANT = ["..kk.....",
-            ".kmmkkk..",
-            "kmghgdmk.",
-            "kmggddmkk",
-            "kmgdddmk.",
-            ".kmmkkk..",
-            "..kk....."]
-    shadow(452, 462, 262, 1)
+    LP = {'k': hx('#4a4554'), 'm': hx('#6a6474'), 'g': hx('#7a7c92'), 'h': hx('#a3a5b8'), 'd': hx('#5a5c72'),
+          'x': VD2}
+    LANT = ["..kkkkkk....",
+            ".kmmmmmmk.k.",
+            "kmghgxdmkkmk",
+            "kmggxddmk..k",
+            "kmgxxddmkkmk",
+            ".kmmmmmmk.k.",
+            "..kkkkkk...."]
+    shadow(452, 465, 263, 1)
     inked(lambda: stamp(450, 255, LANT, LP))
-    for (x, y) in ((460, 259), (461, 258), (462, 258), (463, 259), (463, 260), (462, 261)):   # its bent handle
-        p.dot(x, y, hx('#3b3644'))
     # the bent hook left on the wall where it hung
     hx_, hy_ = 465, 190 + dy(465)
     for (x, y) in ((hx_, hy_), (hx_ - 1, hy_), (hx_ - 2, hy_ + 1), (hx_ - 2, hy_ + 2)):

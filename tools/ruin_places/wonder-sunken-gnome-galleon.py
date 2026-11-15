@@ -134,7 +134,7 @@ def build(p):
     M_LT, M_MID, M_DK = hx('#84946a'), hx('#667a55'), hx('#4b5d48')                         # algae
     I_LT, I_MID, I_DK = hx('#8d9492'), hx('#666c70'), hx('#474a54')                         # iron
     G_LT, G_MID, G_DK = hx('#cdb873'), hx('#a89152'), hx('#7a683f')                         # dull gold
-    B_LT, B_MID, B_DK = hx('#d3cfc2'), hx('#b4b0a6'), hx('#918d88')                         # bleached coral
+    B_LT, B_MID, B_DK = hx('#e2ded2'), hx('#b9b4aa'), hx('#8d8884')                         # bleached coral
     is_sand = lambda x, y: col(x, y) in SANDSET
     is_hull = lambda x, y: col(x, y) in HULLSET
     is_water = lambda x, y: col(x, y) in WSET
@@ -270,6 +270,23 @@ def build(p):
             p.dot(xr, y, H_LT)
         if is_hull(xl, y):
             p.dot(xl, y, H_DK)
+    # snapped plank ends still jut into the gap
+    for (y0, y1, ln, side) in ((168, 174, 5, 0), (183, 190, 7, 0), (198, 203, 4, 0), (212, 216, 4, 0),
+                               (172, 178, 5, 1), (188, 194, 7, 1), (203, 207, 3, 1)):
+        mid = (y0 + y1) / 2.0
+        for y in range(y0 - 1, y1 + 2):
+            n = ln - int(abs(y - mid)) if y0 <= y <= y1 else ln - int(abs(y - mid)) - 1
+            for i in range(max(n, 0)):
+                x = hole_l[y] + i if side == 0 else hole_r[y] - i
+                if y < y0 or y > y1:
+                    c = INK
+                else:
+                    c = H_LT if y == y0 else (H_DK if y == y1 else H_MID)
+                    if i == n - 1 and side == 0:
+                        c = H_DK
+                    if i == n - 1 and side == 1:
+                        c = H_LT
+                p.dot(x, y, c)
     # silt has poured into the foot of the split
     for y in range(212, 232):
         for x in range(290, 316):
@@ -289,7 +306,7 @@ def build(p):
         return 0
 
     def sail():
-        holes = ((259, 138, 3, 4), (272, 157, 3, 3), (278, 150, 2, 3), (264, 166, 2, 2))
+        holes = ((260, 139, 4, 6), (262, 143, 3, 4), (274, 158, 4, 4), (276, 155, 3, 3))
         for x in range(250, 286):
             top, bot = spar_y(x) + 3, hem(x)
             for y in range(top, bot + 1):
@@ -356,21 +373,19 @@ def build(p):
         p.vine(vx, spar_y(vx) + 6, ln, (M_DK, M_MID), sway=1, leaf=.25)
     # barnacle crusts low on the hull
     def barnacles(pts):
+        ok = lambda x, y: is_hull(x, y) or col(x, y) in (M_LT, M_MID, M_DK)
         for (bx, by) in pts:
-            if all(is_hull(bx + i, by + j) or col(bx + i, by + j) in (M_LT, M_MID, M_DK) for i in (0, 1) for j in (0, 1)):
-                p.dot(bx, by, hx('#c2c0ae'))
-                p.dot(bx + 1, by, hx('#a3a294'))
-                p.dot(bx, by + 1, hx('#a3a294'))
-                p.dot(bx + 1, by + 1, hx('#77766f'))
-    barnacles(((150, 228), (153, 230), (156, 227), (158, 231), (204, 235), (207, 233), (210, 236), (213, 234),
-               (249, 232), (252, 234), (255, 231), (340, 212), (343, 209), (346, 212), (136, 208), (139, 211)))
+            if all(ok(bx + i, by + j) for i in (0, 1, 2) for j in (0, 1, 2)):
+                stamp(bx, by, [".L.", "LdM", ".M."], {'L': hx('#c2c0ae'), 'M': hx('#96958a'), 'd': hx('#5e5a5c')})
+    barnacles(((150, 228), (153, 230), (156, 227), (204, 234), (207, 232), (210, 235),
+               (249, 231), (252, 233), (340, 212), (343, 209), (136, 208), (139, 211), (133, 205)))
 
     # ---- stern lantern, dead ---------------------------------------------------------------------------------
     def lantern():
         p.line([(121, 164), (121, 151)], I_DK)
         p.line([(121, 151), (115, 151)], I_DK)
         p.dot(115, 152, I_DK)
-        stamp(112, 153, [".iiii.", "iggGgi", "igdggi", "iggdgi", "igdddi", ".iiii."],
+        stamp(112, 152, ["..iii..", ".i...i.", ".iiiii.", "iGgigdi", "iggiddi", "iggidgi", "iiiiiii"],
               {'i': I_MID, 'g': hx('#56655f'), 'G': hx('#7b8a80'), 'd': VD})
     inked(lantern)
 
@@ -396,17 +411,20 @@ def build(p):
         inked(d)
     plank(282, 238, 20, 0.2)
     plank(296, 247, 17, -0.25)
-    plank(256, 251, 14, 0.1)
-    plank(178, 256, 19, -0.1)
+    plank(236, 254, 14, 0.1)
+    plank(170, 256, 19, -0.1)
     plank(318, 256, 13, 0.3)
     # the yard, half buried on the left
     plank(22, 251, 62, -0.08, th=4, cols=(W_LT, W_MID, W_SH))
 
     def yard_rag():
+        off = [0, 1, 2, 2, 1, 0, -1, 0, 1, 3, 3, 2, 0, -1, 0, 1, 1, 0]
         for x in range(40, 58):
-            for y in range(246 - (1 if x % 4 < 2 else 0), 256 + (2 if x % 6 < 3 else 0) - (x - 40) // 6):
-                f = (x - 40) % 6
-                p.dot(x, y, C_LT if f < 2 else (C_MID if f < 4 else C_DK) if y < 254 else C_ST)
+            top = 247 - (1 if 44 <= x <= 52 else 0)
+            bot = 255 + off[x - 40]
+            for y in range(top, bot + 1):
+                f = (x + y) % 7
+                p.dot(x, y, C_ST if y > bot - 2 else (C_LT if f < 3 else (C_MID if f < 5 else C_DK)))
     inked(yard_rag)
     # silt drifted over things and against the hull
     def drift(cx, cy, rx, ry, over=None):
@@ -450,6 +468,8 @@ def build(p):
     plank(68, 240, 10, 0.2, th=3, cols=(B_LT, B_MID, B_DK))
     plank(428, 250, 9, -0.15, th=3, cols=(B_LT, B_MID, B_DK))
 
+    am = {rm('#58d878'): hx('#86a078'), rm('#38a858'): hx('#5f7a58')}
+    p.recolor((0, 180, 479, 262), lambda r_, g, b: am.get((r_, g, b)))
     # new algae strands, dull
     def strand(x, yb, h, seed, cols=(M_MID, M_DK)):
         rr = random.Random(seed)
@@ -474,45 +494,39 @@ def build(p):
         for x in range(423, 428):
             px[x, y] = px[428, y]
     C_W, C_WD, C_WL = rm('#a9714a'), rm('#8a5a3c'), rm('#c88858')
-    for x in range(380, 426):                                         # new, ragged top edge where the lid tore away
-        t = 226 + (1 if x % 9 in (3, 4) else 0) + (2 if x % 17 in (8, 9, 10) else 0)
-        for y in range(226, 232):
-            if y < t:
-                p.dot(x, y, S3 if (x // 6) % 2 else S2)
-            elif y == t:
-                p.dot(x, y, INK)
-    for y in range(227, 241):                                        # the lock is gone, bare board
+    for x in range(379, 427):                                        # the lid tore away: new open top
+        p.dot(x, 226, INK)
+        if 380 <= x <= 425:
+            p.dot(x, 227, C_WD)
+            p.dot(x, 228, C_WD if x % 11 < 7 else C_W)
+    for y in range(229, 241):                                        # the lock is gone, bare board
         for x in range(396, 406):
             if col(x, y) not in (INK,):
                 p.dot(x, y, C_W)
-    stamp(390, 229, ["...xxxxxxxxxxxxxx....",
-                     "..xxxxxxxxxxxxxxxx...",
-                     ".xxxxxxxxxxxxxxxxxx..",
-                     "xxxxxxxxxxxxxxxxxxxx.",
-                     "xxxxxxxxxxxxxxxxxxxxx",
-                     ".xxxxxxxxxxxxxxxxxxxx",
-                     ".xxxxxxxxxxxxxxxxxxx.",
-                     "..xxxxxxxxxxxxxxxxxx.",
-                     "..xxxxxxxxxxxxxxxxx..",
-                     "...xxxxxxxxxxxxxxxx..",
-                     "..xxxxxxxxxxxxxxxxxx.",
-                     ".xxxxxxxxxxxxxxxxxxx.",
-                     ".xxxxxxxxxxxxxxxxxxxx",
-                     "..xxxxxxxxxxxxxxxxxx.",
-                     "...xxxxxxxxxxxxxxxx..",
-                     "...xxxxxxxxxxxxxxx...",
-                     "....xxxxxxxxxxxxx....",
-                     "....xxxxxxxxxxxxx....",
-                     ".....xxxxxxxxxxx.....",
-                     ".....xxxxxxxxxxx.....",
-                     "......xxxxxxxxx......"], {'x': VD})
-    for y in range(229, 251):                                        # depth inside, lit splintered rim
-        for x in range(388, 413):
+    stamp(393, 230, ["....x.....x....",
+                     "...xxx...xxx...",
+                     "x..xxxxxxxxx..x",
+                     "xxxxxxxxxxxxxxx",
+                     ".xxxxxxxxxxxxx.",
+                     "..xxxxxxxxxxxx.",
+                     ".xxxxxxxxxxxxxx",
+                     "xxxxxxxxxxxxxx.",
+                     ".xxxxxxxxxxxx..",
+                     "..xxxxxxxxxxxx.",
+                     ".xxxxxxxxxxxxxx",
+                     "xxxxxxxxxxxxxxx",
+                     "xxxxxxxxxxxxxxx",
+                     ".xxxxxxxxxxxxx.",
+                     ".xxxxxxxxxxxxx."], {'x': VD})
+    for y in range(229, 246):                                        # depth inside, lit splintered rim
+        for x in range(390, 410):
             if col(x, y) == VD:
-                if col(x, y - 1) != VD and col(x, y - 1) != VD2 or col(x - 1, y) not in (VD, VD2):
+                if col(x, y - 1) not in (VD, VD2) or col(x - 1, y) not in (VD, VD2):
                     p.dot(x, y, VD2)
                 if col(x + 1, y) not in (VD, VD2, INK):
                     p.dot(x + 1, y, C_WL)
+                if col(x, y + 1) not in (VD, VD2, INK) and y < 244:
+                    p.dot(x, y + 1, C_WL)
 
     def lid():
         shadow([(x, 249 + k) for x in range(432, 458) for k in (0, 1)])
@@ -525,26 +539,38 @@ def build(p):
                 p.dot(432 + i, y + j, c)
     inked(lid)
 
+    gm = {rm('#ffd060'): G_MID, rm('#f5b82e'): G_DK, rm('#ffe38a'): G_LT, rm('#ffb03a'): G_DK}
+    p.recolor((366, 244, 396, 259), lambda r_, g, b: gm.get((r_, g, b)))
+    GOLD = (G_LT, G_MID, G_DK)
+    for y in range(244, 260):
+        for x in range(366, 397):
+            if col(x, y) == G_MID:
+                if col(x, y - 1) not in GOLD:
+                    p.dot(x, y, G_LT)
+                elif col(x, y + 1) not in GOLD or col(x + 1, y) not in GOLD:
+                    p.dot(x, y, G_DK)
+
     def coins():
-        heap = ["......gggg........",
-                "....ggGGggg.......",
-                "...gGGgggGGgg.....",
-                "..ggggGGggggdg....",
+        heap = ["......gGGg........",
+                ".....gGggGg.......",
+                "....ggGGgggg......",
+                "...gGGgggGGgd.....",
+                "..ggggGGggggdd....",
                 ".gGGgggggGGggdd...",
                 "ggggGGgggggGgddd..",
                 "gGggggggGGgggdddd.",
-                ".ddggdddggddddd..."]
-        stamp(391, 243, heap, {'g': G_MID, 'G': G_LT, 'd': G_DK})
+                "ggGGgggGgggGGgdddd",
+                "gggggGGggggggddddd",
+                ".ddggdddggddddddd."]
+        stamp(390, 242, heap, {'g': G_MID, 'G': G_LT, 'd': G_DK})
     inked(coins)
-    gm = {rm('#ffd060'): G_MID, rm('#f5b82e'): G_DK, rm('#ffe38a'): G_LT, rm('#ffb03a'): G_DK}
-    p.recolor((366, 244, 396, 259), lambda r_, g, b: gm.get((r_, g, b)))
 
     def loose():
-        for (x, y) in ((362, 259), (374, 262), (384, 260), (398, 257), (410, 259), (355, 252), (418, 254), (404, 262)):
+        for (x, y) in ((362, 259), (374, 262), (384, 260), (398, 258), (355, 252), (428, 256), (406, 262)):
             p.dot(x, y, G_LT); p.dot(x + 1, y, G_LT); p.dot(x + 2, y, G_MID)
             p.dot(x, y + 1, G_MID); p.dot(x + 1, y + 1, G_DK); p.dot(x + 2, y + 1, G_DK)
         # a goblet on its side
-        stamp(412, 244, ["GGg....", "Gggggg.", "Gggdgg.", "ggd...."], {'g': G_MID, 'G': G_LT, 'd': G_DK})
+        stamp(414, 255, ["GGg....", "Gggggg.", "Gggdgg.", "ggd...."], {'g': G_MID, 'G': G_LT, 'd': G_DK})
     inked(loose)
 
     # ---- anchor and its tangled chain ----------------------------------------------------------------------------
@@ -568,12 +594,12 @@ def build(p):
 
     def chain():
         pts = [(352, 169 + i) for i in range(0, 52)]
-        path = [(352, 221), (350, 226), (346, 230), (349, 236), (356, 239), (362, 235), (360, 229), (354, 227),
-                (348, 232), (344, 231), (341, 229)]
-        for (a, b) in zip(path, path[1:]):
-            n = max(abs(b[0] - a[0]), abs(b[1] - a[1]))
+        for (ccx, ccy, rx, ry, a0) in ((350, 227, 5, 3, 0), (356, 231, 5, 3, 2.5), (347, 232, 4, 2, 1)):
+            n = 30
             for i in range(n):
-                pts.append((a[0] + round((b[0] - a[0]) * i / n), a[1] + round((b[1] - a[1]) * i / n)))
+                a = a0 + i * 2 * math.pi / n
+                pts.append((ccx + int(round(rx * math.cos(a))), ccy + int(round(ry * math.sin(a)))))
+        pts += [(343, 231), (342, 230), (341, 229)]
         for i, (x, y) in enumerate(pts):
             c = I_LT if i % 4 < 2 else I_DK
             p.dot(x, y, c)
@@ -582,22 +608,28 @@ def build(p):
     inked(chain)
 
     # ---- small things left behind -----------------------------------------------------------------------------------
-    def hat():                                                          # the keeper's cap, faded, on the sand
-        shadow([(x, 261 + k) for x in range(264, 280) for k in (0, 1)])
-        stamp(262, 253, ["..........rr..",
-                         ".......rrrrRd.",
-                         "....rrrRRRRRd.",
-                         ".rrrRRRRRRRdd.",
-                         "rRRRRRRRRRddd.",
-                         "....rRRRdddd..",
-                         ".......ddd...."], {'r': hx('#b06a5e'), 'R': hx('#96584f'), 'd': hx('#74464a')})
+    def hat():                                                          # the keeper's cap, faded, left in the silt
+        shadow([(x, 261 + k) for x in range(266, 278) for k in (0, 1)])
+        stamp(263, 250, ["....r....",
+                         "....rR...",
+                         "...rRR...",
+                         "...rRRd..",
+                         "..rRRRd..",
+                         "..rRRRd..",
+                         ".rRRRRdd.",
+                         ".rRRRRRd.",
+                         "rRRRRRRdd",
+                         "rRRRRRRdd",
+                         "rRRRRRRdd"], {'r': hx('#b06a5e'), 'R': hx('#96584f'), 'd': hx('#74464a')})
     inked(hat)
+    drift(267, 262, 8, 2)
 
-    def lantern2():                                                     # a lantern fallen on its side
-        shadow([(x, 262 + k) for x in range(206, 220) for k in (0, 1)])
-        stamp(204, 255, [".iiiiiii..", "igGggdgii.", "iggdddgiiI", "igggdggii.", ".iiiiiii.."],
-              {'i': I_MID, 'I': I_LT, 'g': hx('#56655f'), 'G': hx('#7b8a80'), 'd': VD})
+    def lantern2():                                                     # a lantern dropped in the silt
+        shadow([(x, 262 + k) for x in range(209, 221) for k in (0, 1)])
+        stamp(208, 255, ["..iii..", ".i...i.", ".iiiii.", "iGgigdi", "iggiddi", "iggidgi", "iiiiiii"],
+              {'i': I_MID, 'g': hx('#56655f'), 'G': hx('#7b8a80'), 'd': VD})
     inked(lantern2)
+    drift(212, 263, 7, 2)
 
     def shell():
         stamp(142, 258, [".ss.", "sSos", "sooo"], {'s': hx('#c9c2b0'), 'S': hx('#e0dccb'), 'o': hx('#9c9486')})
