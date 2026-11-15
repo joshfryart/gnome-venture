@@ -193,14 +193,38 @@ def build(p):
     # drifting silt motes: short slanted trails, lighter than the band they hang in
     for (mx, my, n) in ((30, 60, 4), (120, 120, 5), (70, 150, 4), (180, 40, 4), (330, 70, 5), (400, 150, 5),
                         (450, 60, 4), (300, 110, 3), (20, 120, 3), (150, 95, 3), (430, 110, 4), (250, 30, 3)):
-        for i in range(n):
+        for i in range(0, n, 2):
             xx, yy = mx + i * 5 + r.randint(-1, 1), my + i * 3 + r.randint(-1, 1)
-            if is_water(xx, yy) and is_water(xx + 1, yy):
+            if all(col(xx + j, yy) == col(xx, yy) and is_water(xx + j, yy) for j in range(3)):
                 k = NEWW.index(col(xx, yy))
                 c = NEWW[k - 1] if k > 0 else hx('#93ada2')
-                p.dot(xx, yy, c)
-                if i % 2 == 0:
-                    p.dot(xx + 1, yy, c)
+                for j in range(3 - (i % 4) // 2):
+                    p.dot(xx + j, yy, c)
+
+    # ---- silt clouds hang in the water: long low lenses, one shade darker than the band they sit in ------
+    for (cx, cy, ln) in ((60, 44, 46), (300, 30, 60), (420, 92, 40), (150, 128, 34), (380, 140, 30), (40, 112, 26)):
+        k = NEWW.index(col(cx, cy)) if col(cx, cy) in NEWW else None
+        if k is None or k == 4:
+            continue
+        dk = NEWW[k + 1] if k < 3 else hx('#435f64')
+        for (dy, inset) in ((0, 0), (-1, ln // 4), (1, ln // 3)):
+            for x in range(cx - ln // 2 + inset, cx + ln // 2 - inset // 2):
+                if col(x, cy + dy) == NEWW[k]:
+                    p.dot(x, cy + dy, dk)
+
+    # ---- a scrap of sail drifting down through the murk -----------------------------------------------------------
+    def scrap():
+        rows = ["LLLL................",
+                ".LLLLLLMM...........",
+                "..LLLLLMMMMLL.......",
+                "..LLLLMMMMMLLLLM....",
+                "...LLMMMDDMMLLLMMM..",
+                "...LMMMDDDDMMMMMMDD.",
+                "....MMDDD..DMMMMDDDD",
+                "....MDD.....DDMMDD..",
+                ".....D.......DD.D..."]
+        stamp(366, 54, rows, {'L': C_LT, 'M': C_MID, 'D': C_DK})
+    inked(scrap)
 
     # ---- portholes: tarnished rims, dead glass ----------------------------------------------------------
     RIM, RIM_D = hx('#8e8a66'), hx('#6e6c56')
@@ -325,6 +349,11 @@ def build(p):
                     if i == n - 1 and side == 1:
                         c = H_LT
                 p.dot(x, y, c)
+    # no glass of the old porthole may float in the dark of the split
+    for y in range(180, 215):
+        for x in range(hole_l[y], hole_r[y] + 1):
+            if col(x, y) in (NEWW[4], NEWW[3], GL, GL_D, GL_H):
+                p.dot(x, y, VD)
     # silt has poured into the foot of the split
     for y in range(212, 232):
         for x in range(290, 316):
@@ -420,23 +449,22 @@ def build(p):
                (249, 231), (252, 233), (340, 212), (343, 209), (136, 208), (139, 211), (133, 205)))
 
     # ---- stern lantern, dead ---------------------------------------------------------------------------------
-    LANT = ["...ll....",
-                     "..l..d...",
-                     "...ld....",
-                     "..lmmdd..",
-                     ".lmmmmdd.",
-                     ".mGgmgem.",
-                     ".mGgmeem.",
-                     ".mggmgem.",
-                     ".mggmeem.",
-                     ".lmmmmdd.",
-                     "..ddddd.."]
-    LPAL = {'l': I_LT, 'm': I_MID, 'd': I_DK, 'G': hx('#7b8a80'), 'g': hx('#56655f'), 'e': VD}
+    LANT = ["..lll..",
+            ".l...d.",
+            "..ldd..",
+            ".lmmmd.",
+            "lmmmmdd",
+            ".mGmgm.",
+            ".mGmem.",
+            ".mgmem.",
+            ".mgmem.",
+            "lmmmmdd"]
+    LPAL = {'l': I_LT, 'm': I_MID, 'd': I_DK, 'G': hx('#8a9a90'), 'g': hx('#5f6e66'), 'e': hx('#3f4a4c')}
 
     def lantern():
         p.line([(121, 164), (121, 151)], I_DK)
-        p.line([(121, 150), (114, 150)], I_DK)
-        stamp(111, 151, LANT, LPAL)
+        p.line([(121, 150), (115, 150)], I_DK)
+        stamp(112, 151, LANT, LPAL)
     inked(lantern)
 
     # ---- seabed ------------------------------------------------------------------------------------------------
@@ -516,7 +544,27 @@ def build(p):
                     p.dot(x, y, B_DK)
                 elif col(x, y) in CORAL and (x * 3 + y) % 11 == 0 and col(x - 1, y) in CORAL:
                     p.dot(x, y, B_DK)
-    plank(68, 240, 10, 0.2, th=3, cols=(B_LT, B_MID, B_DK))
+    # snapped tops and stubby side branches so the dead coral still reads as coral
+    for (bx, top, stubs) in ((36, 216, ((226, 'L'), (236, 'R'))), (44, 222, ((231, 'R'),)), (50, 216, ((224, 'L'), (234, 'L'))),
+                             (56, 206, ((214, 'L'), (222, 'R'))), (446, 212, ((222, 'L'),)), (453, 202, ((212, 'R'), (220, 'L'))),
+                             (460, 212, ((226, 'R'),)), (466, 217, ((224, 'L'),))):
+        bg = px[bx - 2, top][:3]
+        p.dot(bx, top, bg)                                       # ragged break at the tip
+        if (bx // 2) % 2:
+            p.dot(bx + 2, top, bg)
+            p.dot(bx + 1, top, B_LT)
+        for (sy, side) in stubs:
+            if side == 'L':
+                p.dot(bx - 1, sy, B_MID); p.dot(bx - 2, sy - 1, B_LT); p.dot(bx - 2, sy - 2, B_LT); p.dot(bx - 1, sy - 1, B_MID)
+            else:
+                p.dot(bx + 3, sy, B_DK); p.dot(bx + 4, sy - 1, B_MID); p.dot(bx + 4, sy - 2, B_DK); p.dot(bx + 3, sy - 1, B_DK)
+    for (tx, ty, ln, sl) in ((24, 241, 8, 1), (61, 243, 6, -1)):     # the broken-off tips lie at the foot
+        for i in range(ln):
+            yy = ty + (i // 3) * sl
+            p.dot(tx + i, yy, B_LT if i < ln - 2 else B_MID)
+            p.dot(tx + i, yy + 1, B_DK)
+            if is_sand(tx + i + 1, yy + 2):
+                p.dot(tx + i + 1, yy + 2, S4)
 
     am = {rm('#58d878'): hx('#86a078'), rm('#38a858'): hx('#5f7a58')}
     p.recolor((0, 180, 479, 262), lambda r_, g, b: am.get((r_, g, b)))
@@ -537,6 +585,10 @@ def build(p):
                                      (301, 226, 34), (305, 228, 22), (436, 234, 28), (476, 240, 34), (366, 226, 18),
                                      (123, 236, 24))):
         strand(sx, yb, h, 50 + i)
+    # tall dead kelp at the edges, darker, reaching up into the murk
+    KD = hx('#3f5246')
+    for i, (sx, yb, h) in enumerate(((4, 240, 92), (19, 236, 64), (476, 238, 104), (424, 222, 58), (92, 230, 48))):
+        strand(sx, yb, h, 80 + i, cols=(M_DK, KD))
 
     # ---- the burst chest: lid torn off, front board split, the hoard spilled into the silt -------------------------
     C_W, C_WD, C_WL = rm('#a9714a'), rm('#8a5a3c'), rm('#c88858')
@@ -691,19 +743,20 @@ def build(p):
     # ---- small things left behind -----------------------------------------------------------------------------------
     def hat():                                                          # the keeper's cap, faded, left in the silt
         shadow([(x, 261 + k) for x in range(262, 277) for k in (0, 1)])
-        stamp(260, 254, ["...rrrr........",
-                         "..rRRRRrr......",
-                         ".orRRRRRRrr....",
-                         "oorRRRRRRRRrd..",
-                         "oodRRRRRRRRddd.",
-                         ".odRRRRddddd.dd",
-                         "..ddddd.......d"], {'r': hx('#b06a5e'), 'R': hx('#96584f'), 'd': hx('#74464a'), 'o': VD2})
+        stamp(260, 254, ["...brrr........",
+                         "..bbRRRrr......",
+                         ".obbRRRRRrr....",
+                         "oobbRRRRRRRr...",
+                         "oocbRRRRRRRRdd.",
+                         ".occRRRRdddddd.",
+                         "..ccdddd.....dd"], {'r': hx('#b06a5e'), 'R': hx('#96584f'), 'd': hx('#74464a'), 'o': VD2,
+                                              'b': hx('#bfae96'), 'c': hx('#968a7c')})
     inked(hat)
     drift(264, 262, 6, 1)
 
     def lantern2():                                                     # a lantern dropped in the silt
         shadow([(x, 262 + k) for x in range(210, 222) for k in (0, 1)])
-        stamp(208, 251, LANT, LPAL)
+        stamp(209, 252, LANT, LPAL)
     inked(lantern2)
     drift(212, 263, 7, 2)
 
