@@ -214,7 +214,12 @@ foreach ($qOrder as $qs) {
             if ($nd = trail_sight_beat_need($b)) give_item((int)$u['id'], $nd[0], $nd[1]);
             if ($b[0][0] === '@') { $kind = explode(':', substr($b[0], 1))[0]; if ($kind === 'friend') { $fo = trail_sight_folk_id(substr($b[0], 8)); if ($fo) stop_friend_add((int)$u['id'], $fo, 10); $lines = array_merge($lines, trail_sight_quest_hook($u, 'grassland-the-old-milestone', $loc, $cond('-'))); }
                 else $lines = array_merge($lines, trail_sight_quest_event($u, $kind, explode(':', $b[0], 2)[1] ?? 'a-lair')); }
-            else $lines = array_merge($lines, trail_sight_quest_hook($u, $b[0], $loc, $cond($b[2])));
+            else {
+                $npcB = str_starts_with($b[3], 'npc=');   // 2.7.01: a beat that needs a villager at the Sight: put them there by their clockwork
+                if ($npcB) { require_once $argv[1] . '/includes/npc_clockwork.php'; set_setting('npc_clockwork', '1'); setting('__reload__'); $GLOBALS['gv_sights_reload'] = true; $di1 = npc_cw_clock()[2]; $fc1 = npc_cw_forecast(substr($b[3], 4), $b[0]); if ($fc1) $GLOBALS['gv_cw_time'] = [$fc1['dow'], $fc1['from'] + 0.2, $di1 + $fc1['in']]; }
+                $lines = array_merge($lines, trail_sight_quest_hook($u, $b[0], $loc, $cond($b[2])));
+                if ($npcB) { unset($GLOBALS['gv_cw_time'], $GLOBALS['gv_sights_reload']); set_setting('npc_clockwork', '0'); setting('__reload__'); }
+            }
             $moved = true; break;
         }
         if (!$moved) break;

@@ -79,7 +79,7 @@ function trail_fam_maplewold_pantry(array $ctx): array
         $it = q_one('SELECT id, name FROM items WHERE slug = ?', [$g[0]]);
         $have = $it ? (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, (int)$it['id']]) : 0;
         $hrs = array_keys(npc_cw_on() ? npc_cw_hours_at($r['who'], $slug) : []);
-        $out[] = ['who' => $r['who'], 'first' => trail_fam_maplewold_first($r['who']), 'slug' => $slug, 'sight' => trail_sight_label($slug)[0], 'name' => $it ? (string)$it['name'] : $g[0], 'need' => $need, 'have' => $have,
+        $out[] = ['who' => $r['who'], 'first' => trail_fam_maplewold_first($r['who']), 'slug' => $slug, 'sight' => trail_sight_label($slug)[0], 'name' => $it ? (string)$it['name'] : (trail_sight_items_file()[$g[0]][0] ?? ucfirst(str_replace('-', ' ', $g[0]))), 'need' => $need, 'have' => $have,
             'hours' => $hrs ? [min($hrs), max($hrs) + 1] : null, 'now' => in_array($nowH, $hrs, true), 'done' => (int)($tal['give~' . substr(md5($slug . '|' . $idx), 0, 16)] ?? 0) === $dayNo];
     }
     return $out;

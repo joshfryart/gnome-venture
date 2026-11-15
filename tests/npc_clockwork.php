@@ -74,7 +74,7 @@ foreach (trail_sight_folk() as $slug => $rows) foreach ($rows as $r) {
     $k = npc_cw_who_key($r['who']);
     if ($k && npc_cw_profile($k)['mode'] === 'free') {
         $f = npc_cw_forecast($r['who'], $slug);
-        if ($f) { $appoint++; if ($f['in'] > 14 || $f['to'] <= $f['from']) ok('forecast sane for ' . $r['who'], false, json_encode($f)); }
+        if ($f) { $appoint++; if ($f['in'] > 28 || $f['to'] <= $f['from']) ok('forecast sane for ' . $r['who'], false, json_encode($f)); }
     }
 }
 ok('rows checked', $checked > 100, (string)$checked);

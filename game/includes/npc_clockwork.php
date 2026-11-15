@@ -289,7 +289,7 @@ function npc_cw_sight_check(string $who, string $slug): ?bool
 }
 
 /**
- * The next time this villager is at a Sight (from now, up to 14 game days ahead), by the schedule only (season and weather rows are not foretold):
+ * The next time this villager is at a Sight (from now, up to 28 game days ahead), by the schedule only (season and weather rows are not foretold):
  * ['in' => game days from today, 'dow', 'from', 'to' (hours at the Sight), 'now' => bool (they are there now), 'text'] or null.
  */
 function npc_cw_forecast(string $who, string $slug): ?array
@@ -297,7 +297,7 @@ function npc_cw_forecast(string $who, string $slug): ?array
     $k = npc_cw_who_key($who);
     if ($k === '' || !npc_cw_profile($k) || !npc_cw_on()) return null;
     [$dow, $hour, $di] = npc_cw_clock();
-    for ($d = 0; $d <= 14; $d++) {
+    for ($d = 0; $d <= 28; $d++) {
         $dw = ($dow + $d) % 7; $wk = npc_cw_week_no($di + $d);
         foreach (npc_cw_week($k, $wk) as $dg) {
             if (!in_array($dw, $dg['days'], true) || ($dg['stops'][0]['slug'] ?? '') !== $slug) continue;
@@ -320,7 +320,7 @@ function npc_cw_sight_lines(string $slug): array
         $k = npc_cw_who_key($r['who']);
         if ($k === '' || !($p = npc_cw_profile($k)) || $p['mode'] !== 'free') continue;
         $f = npc_cw_forecast($r['who'], $slug);
-        $out[] = ['who' => $r['who'], 'name' => trail_sight_split_who($r['who'])[0], 'text' => $f ? $f['text'] : 'not this fortnight', 'now' => (bool)($f['now'] ?? false)];
+        $out[] = ['who' => $r['who'], 'name' => trail_sight_split_who($r['who'])[0], 'text' => $f ? $f['text'] : 'not for a while', 'now' => (bool)($f['now'] ?? false)];
     }
     return $out;
 }
