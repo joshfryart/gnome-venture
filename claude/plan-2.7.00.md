@@ -1,9 +1,9 @@
 # Plan: 2.7.00 (decided with Josh, 2026-11-15, 99 questions)
 
-Status: PLAN ONLY. Nothing built. Start work after the Fable rulebook is done. Combat puzzle bot output is merged by Claude on Josh's word. Push main only on "Merge push main".
+Status: PLAN ONLY. Nothing built. Start work after the Fable rulebook is done. Combat work = main 2.6.990 (Josh pasted its handoff 2026-11-15); merge origin/main into this branch with the handoff branch. Push main only on "Merge push main".
 
 ## Base and rules
-- Base: merge `ccr-fb812cec-kj1m4j` (non-puzzle handoff, `claude/handoff-non-puzzle-2026-11-15.md`) into this branch. Puzzle combat stays admin-only (`pfight_v1`), no player note for it.
+- Base: merge `origin/main` (2.6.990) and `ccr-fb812cec-kj1m4j` (non-puzzle handoff, `claude/handoff-non-puzzle-2026-11-15.md`) into this branch. Puzzle combat stays admin-only (`pfight_v1`), no player note for it.
 - Theme: two equal headlines, combat puzzle + trail/world.
 - Claude does it all for this release: bump `APP_VERSION` to `2.7.00` (check `tools/check_versions.sh` accepts the format), CHANGELOG top entry, FULL zip (not slim), art zips for Admin > Images, in-game player Release notes (trail, camps, road kinds).
 - Gate: full CI + MySQL + browser run first. Fix the 13 known failures (stops100 stopkinds here pantry css_lint here_bang animals120 calling contest market100 delvemap flowers sinks097) before release. Browser: Playwright at 412x915, 390x844, 360x640, 1280x720. Josh checks a real phone.
@@ -35,7 +35,7 @@ Status: PLAN ONLY. Nothing built. Start work after the Fable rulebook is done. C
 
 ## Puzzle combat
 - Rulebook updated to 2.6.990 by Fable (`claude/reviews-2026-11-13/rulebook/`), committed on this branch.
-- Demo artifact https://claude.ai/artifact/SCVTp8FLRTbibtA7vNWC2S: add the full rulebook as a new tab with links into the playable tabs; after the bot output rebuild the "new system" tab at 2.6.990 rules; fix the artifact's slow load between moves and missing animation (live is fine).
+- Demo artifact https://claude.ai/artifact/SCVTp8FLRTbibtA7vNWC2S: add the full rulebook as a new tab with links into the playable tabs; after the rulebook rebuild the "new system" tab at 2.6.990 rules; fix the artifact's slow load between moves and missing animation (live is fine).
 - Still open there: bots do not value Keeper/Plenty/Simmer, no sim with the 42 legendary pieces, 6-piece hand on a phone, per-dish / Gourmand / mentor / trophy pieces, first-fight teaching, real-choice 14-20% vs 50%.
 
 ## Open items for Josh
