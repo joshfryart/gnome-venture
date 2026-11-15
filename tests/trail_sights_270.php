@@ -31,9 +31,10 @@ ok('check= needs stat:dc', !$bad('check=grit:12') && $bad('check=grit') );
 echo "== tier odds\n";
 ok('a tier picks its number, none or tier 1 the first, past the end the last', trail_sight_tier_chance('item=x:1@5/15/30', 2) === 'item=x:1@15' && trail_sight_tier_chance('item=x:1@5/15/30', 0) === 'item=x:1@5' && trail_sight_tier_chance('item=x:1@5/15/30', 4) === 'item=x:1@30' && trail_sight_tier_chance('xp=3@50', 3) === 'xp=3@50');
 
-echo "== rewards pass (off until approved)\n";
+echo "== rewards pass (approved: 3% a level by default)\n";
+ok('the default is 3 (Josh approved 2026-11-15)', (string)setting('sights_flat_pct_per_level') === '3', (string)setting('sights_flat_pct_per_level'));
 set_setting('sights_flat_pct_per_level', '0'); setting('__reload__');
-ok('off by default: nothing changes', trail_sight_flat_scale('xp=10', 35) === 'xp=10');
+ok('set to 0: nothing changes', trail_sight_flat_scale('xp=10', 35) === 'xp=10');
 set_setting('sights_flat_pct_per_level', '3'); setting('__reload__');
 ok('on: a flat reward grows 3% a level above 1 (level 35: 10 -> 20)', trail_sight_flat_scale('xp=10', 35) === 'xp=20' && trail_sight_flat_scale('xp=10', 1) === 'xp=10' && trail_sight_flat_scale('c=20@20', 11) === 'c=26@20', trail_sight_flat_scale('xp=10', 35));
 ok('a reward with a per-level part, and other tokens, are left alone', trail_sight_flat_scale('xp=3:1', 35) === 'xp=3:1' && trail_sight_flat_scale('item=x:1', 35) === 'item=x:1' && trail_sight_flat_scale('en=3', 35) === 'en=3');

@@ -273,3 +273,31 @@ function almanac_unlock_2700(int $uid, string $key): void
     ensure_almanac_pages_2700();
     unlock_entries($uid, $key);
 }
+
+/**
+ * 2.7.00 wearables: one Almanac page (marker almanac2700wear), opened when the Tailor page is first visited. The pieces come from includes/wearables.php so the page cannot drift.
+ */
+function ensure_almanac_wearables_2700(): void
+{
+    if (setting('almanac2700wear') === '1') return;
+    require_once __DIR__ . '/wearables.php';
+    $title = 'Wearables and the Tailor';
+    if (!q_val("SELECT 1 FROM encyclopedia_entries WHERE chapter = 'General' AND title = ?", [$title])) {
+        $b = "A wearable is a piece you wear AND a piece you play: switch it on in your Puzzle box (a Keepsake slot: 1 at level 1, 2 at 15, 3 at 25, 4 at 40). A [b]Tailor[/b] built in at least one of your gardens makes some of them, lines them and re-cuts them. Every level of every Tailor you own makes a lining likelier to take; a lining that does not take gives a Tailor’s Thread, and " . WEAR_PITY . " Threads make the next one a sure thing. Common, Lined and Fine pieces are worth 0, 2 and 4 more; a Fine one counts as a Rare piece.\n";
+        foreach (WEAR_DEFS as $d) {
+            $b .= "\n[b]" . $d['name'] . '[/b]: ' . $d['desc'] . ' ';
+            $cs = []; foreach ($d['cuts'] as $c) $cs[] = $c[0] . ' (' . ucfirst($c[1]) . ' ' . $c[2] . ($c[3] !== '' ? ', ' . $c[3] : ($c[4] !== '' ? ', ' . $c[4] : '')) . ')';
+            $b .= 'Cuts: ' . implode(' or ', $cs) . '. ' . ($d['get'] === 'craft' ? 'Made by the Tailor.' : ($d['get'] === 'shop' ? 'Sold at Twigg’s.' : 'From Cat Fish.'));
+        }
+        try {
+            db_insert('encyclopedia_entries', ['chapter' => 'General', 'category' => 'Garden life', 'title' => $title, 'body' => $b, 'unlock_key' => 'wearables', 'hint' => 'Visit the Tailor.', 'sort_order' => 71]);
+        } catch (PDOException $e) { return; }
+    }
+    set_setting('almanac2700wear', '1');
+}
+
+function almanac_unlock_wearables_2700(int $uid): void
+{
+    ensure_almanac_wearables_2700();
+    unlock_entries($uid, 'wearables');
+}

@@ -7,6 +7,7 @@ require_once __DIR__ . '/includes/wearables.php';
 $u = require_login();
 $uid = (int)$u['id'];
 wear_ensure_items();
+require_once __DIR__ . '/includes/almanac_pages.php'; almanac_unlock_wearables_2700($uid);   // the Almanac page opens on the first visit
 
 if (is_post()) {
     csrf_check();

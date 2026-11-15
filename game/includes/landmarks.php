@@ -599,9 +599,12 @@ function landmark_scene(array $lm, bool $ruined = false): string
 {
     $kind = (string)($lm['kind'] ?? '');
     if (!in_array($kind, ['haven', 'wonder', 'delve', 'lair'], true)) return '';
-    $rel = art_path('assets/img/wonders/' . landmark_scene_slug($kind, (string)$lm['name']) . '.png');
+    $file = landmark_scene_slug($kind, (string)$lm['name']) . '.png';
+    $drawn = false;   // 2.7.00: a ruined place with its own ruin picture (assets/img/wonders/ruin/<same name>) shows that instead of the greyed live picture
+    $rel = $ruined ? art_path('assets/img/wonders/ruin/' . $file) : '';
+    if ($rel !== '') $drawn = true; else $rel = art_path('assets/img/wonders/' . $file);
     if ($rel === '') return '';
-    return '<img class="lmscene pix' . ($ruined ? ' lmscene-ruin' : '') . '" src="' . e(url($rel)) . '" width="480" height="270" alt="' . e((string)$lm['name']) . '" loading="lazy" decoding="async">';
+    return '<img class="lmscene pix' . ($ruined && !$drawn ? ' lmscene-ruin' : '') . '" src="' . e(url($rel)) . '" width="480" height="270" alt="' . e((string)$lm['name']) . '" loading="lazy" decoding="async">';
 }
 
 // ---------------- The panel on the World page ----------------
