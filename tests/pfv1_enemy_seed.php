@@ -40,8 +40,9 @@ $hit = function (array $s, int $i, int $x, int $y) use ($case): ?string {
 };
 $found = null;
 for ($sd = 1; $sd <= 120 && !$found; $sd++) {
+    // 2.7.01: the spawn case pins spawn 1 (a new fight has no free creature piece since 2.7.00; fights started before keep it, and the page still announces it)
     // 2.6.98: pinned to kinds 0 and aimhit 0: these scenarios are about a creature that plays ONE piece and picks again when its cell is taken (the strike has its own tests) (a Critter's Swarm plays two); the class rules are tested in section 19 and by the parity suite
-    $s = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), $sd, ['v1' => ['kinds' => 0, 'aimhit' => 0], 'blank' => true, 'can_pluck' => false]);
+    $s = pfb_new(pfight_me($u, $exp, $enc), pfd_foe_row($c, pfd_exp_region($exp)), $sd, ['v1' => ['kinds' => 0, 'aimhit' => 0] + ($case === 'spawn' ? ['spawn' => 1] : []), 'blank' => true, 'can_pluck' => false]);
     foreach (['L', 'R', 'T', 'B'] as $sdd) { $w = $s; if (pfb_start($w, 0, $sdd) === null) { $s = $w; break; } }
     if ($case === 'quick') { foreach (['hand', 'draw'] as $z) foreach ($s['foe'][$z] as $k => $t) $s['foe'][$z][$k]['tag'] = 'quick'; pfb_intent($s); }
     for ($t = 0; $t <= 4 && !$found && !$s['over']; $t++) {
