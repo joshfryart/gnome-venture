@@ -262,6 +262,21 @@ ok('bad decor entries are dropped, good ones kept (a hand edit cannot break a wa
 ok('decor of another version is ignored', trail_decor(['rows' => ['#'], 'decor' => ['v' => 2, 'looks' => [['hedge', 0, 0, 0, 0]]]]) === []);
 $noDecor = $s228; unset($noDecor['decor']);
 ok('the look does not change: the map and its picture are the same with or without decor', array_diff_key(trail_map_authored($s228 + ['route' => 228, 'sec' => 0, 'boss' => ''])[0], ['art' => 1]) === array_diff_key(trail_map_authored($noDecor + ['route' => 228, 'sec' => 0, 'boss' => ''])[0], ['art' => 1]));
+echo "== decor slice 2: the fallback look (a section without its ground picture)\n";
+$kinds = [];
+foreach ($gameAll as $r) foreach ($r['sections'] as $s) { $d = trail_decor($s); foreach (['looks', 'rough', 'floor'] as $f) foreach ($d[$f] as $rr) $kinds[$rr[0]] = 1; $kinds[$d['rough_default']] = 1; }
+$noTint = array_diff(array_keys($kinds), array_keys(TRAIL_DECOR_TINT));
+ok('every decor kind in the game data has a fallback colour (' . count($kinds) . ' kinds)', !$noTint, implode(' ', $noTint));
+$tn = trail_decor_tints($s228);
+ok('228 section 1: the hay-bale maze and the wheat are tinted, a plain floor tile is not', ($tn['6,2'] ?? '') === TRAIL_DECOR_TINT['haybale'] && ($tn['23,6'] ?? '') === TRAIL_DECOR_TINT['wheat'] && !isset($tn[($s228['entry']['x'] ?? 0) . ',' . ($s228['entry']['y'] ?? 0)]), json_encode([$tn['6,2'] ?? null, $tn['23,6'] ?? null]));
+ok('no decor, no tints', trail_decor_tints(['rows' => ['#,.']]) === []);
+[$fm] = trail_map_authored($s228 + ['route' => 228, 'sec' => 0, 'boss' => '', 'land' => 'grassland']);
+$st = ['px' => 6, 'py' => 4, 'seen' => str_repeat('1', 30 * 18), 'x0' => 3, 'y0' => 0, 'cols' => 9, 'rows' => 9, 'light' => 8];
+$plain = tm_render_svg($fm, 'grassland', $st);
+ok('the old fallback look is byte for byte the same without tints, or with an empty list', $plain === tm_render_svg($fm, 'grassland', $st + ['tints' => []]) && !str_contains($plain, 'tmdecor'));
+$tinted = tm_render_svg($fm, 'grassland', $st + ['tints' => $tn]);
+ok('with tints the fallback draws the decor colours (class tmdecor), haybale among them', str_contains($tinted, 'class="tmdecor" fill="' . TRAIL_DECOR_TINT['haybale'] . '"'), substr($tinted, 0, 120));
+ok('the baked look never takes tints: trail_art_svg is the same with them in its state', trail_art_svg($fm, ['px' => 6, 'py' => 4, 'x0' => 3, 'y0' => 0, 'cols' => 9, 'rows' => 9, 'tokens' => []]) === trail_art_svg($fm, ['px' => 6, 'py' => 4, 'x0' => 3, 'y0' => 0, 'cols' => 9, 'rows' => 9, 'tokens' => [], 'tints' => $tn]));
 array_map('unlink', glob($tmp . '/trail_maps/*')); @rmdir($tmp . '/trail_maps'); @rmdir($tmp);
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);

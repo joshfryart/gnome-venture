@@ -125,6 +125,37 @@ function trail_decor_at(array $art, int $x, int $y): ?string
     return $c === ',' && $d['rough_default'] !== '' ? $d['rough_default'] : null;
 }
 
+/**
+ * 2026-11-14, decor slice 2: the colour each dressed tile gets in the FALLBACK look (a section whose ground picture is missing, drawn by tm_render_svg).
+ * Only that look uses it: with the picture present nothing changes. Kinds not listed get no colour.
+ */
+const TRAIL_DECOR_TINT = [
+    // water and ice
+    'pond' => '#3a86b0', 'sea' => '#2a6a9a', 'icehole' => '#2a4a7a', 'ice' => '#bfe0f2', 'marsh' => '#5f8a6a', 'mud' => '#6e5a46', 'kelp' => '#3c6a50',
+    // green and growing
+    'hedge' => '#3f7a40', 'topiary' => '#4c9a44', 'bush' => '#4c8a40', 'bramble' => '#5a6a3a', 'berry' => '#7a4a6a', 'apple' => '#5fae4f', 'maple' => '#c2562e',
+    'birch' => '#9ab86a', 'beanpole' => '#6aa04a', 'reeds' => '#8aa05a', 'clover' => '#7cc35a', 'flowers' => '#c97aa8', 'wheat' => '#e0c070', 'grass' => '#86b85a',
+    'ferns' => '#4c9a54', 'leaves' => '#b4783e', 'toadstools' => '#c8604e', 'glowcaps' => '#7ef0c0', 'bigshroom' => '#b05a4a', 'dunegrass' => '#b8b46a',
+    // wood, stone, sand, snow
+    'haybale' => '#e0b860', 'fence' => '#a8743e', 'barrels' => '#8a5a34', 'biglog' => '#7a5034', 'sticks' => '#8a6a4a', 'driftwood' => '#b8a488',
+    'boulder' => '#8a8a9a', 'cairn' => '#9a98a8', 'glowrock' => '#9ad8c8', 'starstone' => '#c8c0f0', 'gravel' => '#a8a2a0', 'pebbles' => '#b0a898',
+    'shells' => '#ecd8c0', 'ripples' => '#e8c88a', 'dunetuft' => '#c8b070', 'ploughed' => '#8a5a3a', 'furrows' => '#7a4e30', 'tracks' => '#d6e4f0',
+    'snowdrift' => '#eef6fc', 'snowbank' => '#e4f0fa', 'snowwall' => '#d6e6f4', 'snowman' => '#f4fbff', 'icewall' => '#a9c9ea', 'icicle' => '#cfe6f6',
+];
+
+/** ["x,y" => colour] for every dressed tile of an authored section (trail_decor_at + TRAIL_DECOR_TINT); [] without decor. For the fallback look only. */
+function trail_decor_tints(array $art): array
+{
+    $d = trail_decor($art);
+    if (!$d) return [];
+    $out = [];
+    foreach ((array)$art['rows'] as $y => $row) for ($x = 0, $n = strlen((string)$row); $x < $n; $x++) {
+        $k = trail_decor_at($art, $x, (int)$y);
+        if ($k !== null && isset(TRAIL_DECOR_TINT[$k])) $out[$x . ',' . (int)$y] = TRAIL_DECOR_TINT[$k];
+    }
+    return $out;
+}
+
 /** Is tile x, y water or right beside water (the 8 tiles round it)? This is where the gnome can fish. */
 function trail_water_near(array $art, int $x, int $y): bool
 {

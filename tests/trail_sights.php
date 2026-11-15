@@ -250,6 +250,18 @@ $marks = trail_sights_marks($u, $sc);
 ok('the section has its Sight in the marks, ready', count($marks) >= 1 && $marks[0]['left'] >= 1, json_encode(array_column($marks, 'slug')));
 $html = trail_view_html($u, $exp, $sc, false);
 ok('the map draws a gold ! (tmsight) over the landmark', str_contains($html, 'class="tmsight"'));
+// decor slice 2 (2026-11-14): only a section WITHOUT its ground picture takes the decor colours (class tmdecor); with the picture the page is the baked look
+$gp = trail_ground_file(240, (int)$sc['st']['sec'] + 1, $argv[1], '-r');
+ok('decor fallback: with the ground picture the page has the baked look and no decor colours', $gp !== null && str_contains($html, 'ground/240-') && !str_contains($html, 'tmdecor'), (string)$gp);
+if ($gp) {
+    $htmlA = trail_view_html($u, $exp, $sc, false);   // the page renders the same twice in a row (the first render above may use up a one-time walk-in)
+    rename($gp, $gp . '.away'); clearstatcache();
+    $htmlNo = trail_view_html($u, $exp, $sc, false);
+    rename($gp . '.away', $gp); clearstatcache();
+    ok('decor fallback: without the picture the tile look draws the section decor colours', !str_contains($htmlNo, 'ground/240-') && str_contains($htmlNo, 'class="tmdecor"'));
+    $noN = fn(string $h): string => preg_replace('/name="_n" value="[0-9a-f]+"/', 'name="_n"', $h);   // the form nonce is new on every render
+    ok('decor fallback: the picture back, the page is the same as before (but the form nonce)', $noN(trail_view_html($u, $exp, $sc, false)) === $noN($htmlA));
+}
 $sc['x'] = 0; $sc['y'] = 0; $cards = trail_sights_cards_html($u, $sc, $marks);
 set_setting('stop_daypart_force', 'day'); setting('__reload__');   // a row with no dp= follows the villager's role hours (2026-11-14): Mabel keeps shop hours, so test in the day
 $GLOBALS['gv_sight_folk_file'] = $w('folkmap.txt', "{$base['slug']}|Mabel Pennywhistle|-|100|Mabel is out walking.|fp=1\n{$base['slug']}|Nobody Away|dp=nosuchdaypart|100|x|fp=1\n");
