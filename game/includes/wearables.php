@@ -84,13 +84,16 @@ function wear_items(): array
  * The piece rows of the wearables a gnome owns: $owned = [item slug => qty] (any wearable item). One row per wearable BASE (their best rank of that cut is worn:
  * two copies of the same cut are one piece; the two cuts are two pieces). Row: key w:<base>[-b] (the same at every rank), k, n, src 'wear', ref = the item slug, t, v, r 'body', tag, mod, rank.
  */
-function wear_pieces(array $owned): array
+function wear_pieces(array $owned, array $lined = []): array
 {
     $best = [];   // "base|cut" => [rank, slug]
     foreach ($owned as $slug => $qty) {
         if ((int)$qty < 1 || ($p = wear_parse((string)$slug)) === null) continue;
         [$base, $cut, $rank] = $p; $k = $base . '|' . $cut;
         if (!isset($best[$k]) || $rank > $best[$k][0]) $best[$k] = [$rank, (string)$slug];
+    }
+    foreach ($best as $k => [$rank, $slug]) {   // worn as Lined on purpose: a Fine piece counts as Lined (not a Rare piece)
+        if ($rank === 3 && in_array($k, $lined, true)) { [$b, $c] = explode('|', $k); $best[$k] = [2, wear_slug($b, $c, 2)]; }
     }
     $out = [];
     foreach ($best as $k => [$rank, $slug]) {
@@ -147,6 +150,30 @@ function tailor_commission(int $uid, string $slug, ?int $power = null): int
     $price = (int)q_val('SELECT base_price FROM items WHERE slug = ?', [$slug]);
     $n = max(1, (int)round($price * $pct / 100));
     return give_petals($uid, $n, 'tailor commission') ? $n : 0;
+}
+
+/** The table (schema.php) is there? */
+function wear_lined_table(): bool { return true; }
+
+/** ["base|cut", ...] the gnome wears as Lined. */
+function wear_lined_set(int $uid): array
+{
+    if (!wear_lined_table()) return [];
+    return q('SELECT wkey FROM wear_lined WHERE user_id = ?', [$uid])->fetchAll(PDO::FETCH_COLUMN) ?: [];
+}
+
+/** Switch "wear this Fine piece as Lined" on or off for a wearable you hold. [ok, message] */
+function wear_lined_toggle(array $u, string $slug): array
+{
+    $uid = (int)$u['id']; $p = wear_parse($slug);
+    if (!$p || wear_qty($uid, $slug) < 1) return [false, 'You do not have that.'];
+    [$base, $cut, $rank] = $p;
+    if ($rank !== 3) return [false, 'Only a Fine wearable can be worn as Lined.'];
+    if (!wear_lined_table()) return [false, 'Not now.'];
+    $k = $base . '|' . $cut;
+    if (in_array($k, wear_lined_set($uid), true)) { q('DELETE FROM wear_lined WHERE user_id = ? AND wkey = ?', [$uid, $k]); return [true, '🧵 The ' . WEAR_DEFS[$base]['name'] . ' is worn as Fine again.']; }
+    db_insert('wear_lined', ['user_id' => $uid, 'wkey' => $k]);
+    return [true, '🧵 The ' . WEAR_DEFS[$base]['name'] . ' is worn as Lined now: not a Rare piece, a little weaker.'];
 }
 
 /** Does the gnome have a Tailor in at least one garden? */

@@ -19,6 +19,7 @@ if (is_post()) {
         'craft' => tailor_craft($u, $base, $cut),
         'line' => tailor_line($u, $slug, !empty($_POST['pity'])),
         'recut' => tailor_recut($u, $slug),
+        'lined' => wear_lined_toggle($u, $slug),
         default => [false, 'Nothing to do.'],
     };
     flash($res[1], $res[0] ? 'ok' : 'err');
@@ -27,7 +28,7 @@ if (is_post()) {
 
 $levels = tailor_levels($uid); $power = tailor_power($uid); $has = $levels !== [];
 $threads = wear_qty($uid, WEAR_THREAD);
-$owned = wear_owned($uid);
+$owned = wear_owned($uid); $linedSet = wear_lined_set($uid);
 page_header('Tailor');
 ?>
 <h1>🧵 Tailor</h1>
@@ -53,6 +54,9 @@ page_header('Tailor');
   <?php foreach ($owned as $slug => $qty): [$base, $cut, $rank] = wear_parse($slug); $d = WEAR_DEFS[$base]; $c = $d['cuts'][$cut]; ?>
     <li class="box"><b><?= $d['icon'] ?> <?= e($d['name']) ?></b> <span class="tag"><?= e(WEAR_RANK_NAME[$rank]) ?></span> <small class="muted">× <?= (int)$qty ?></small><br>
       <span class="help">Piece: <b><?= e($c[0]) ?></b>, <?= e(ucfirst($c[1])) ?> <?= (int)$c[2] ?>. <?= e($c[5]) ?></span>
+      <?php if ($rank === 3): $asL = in_array($base . '|' . $cut, $linedSet, true); ?>
+        <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="lined"><input type="hidden" name="slug" value="<?= e($slug) ?>"><button class="btn small alt"><?= $asL ? 'Wear as Fine' : 'Wear as Lined' ?></button></form>
+      <?php endif; ?>
       <?php if ($has): ?>
         <?php if ($rank < 3): $mats = wear_line_mats($rank); ?>
         <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="line"><input type="hidden" name="slug" value="<?= e($slug) ?>">

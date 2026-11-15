@@ -286,7 +286,7 @@ function pfd_build(array $src): array
     }
     if (!empty($src['wears'])) {   // 2.7.00 wearables: each is a Keepsake piece (key w:<wearable>[-b]), off until switched on; its rank is the rank of the best item of that cut
         require_once __DIR__ . '/wearables.php';
-        foreach (wear_pieces((array)$src['wears']) as $wp) {
+        foreach (wear_pieces((array)$src['wears'], (array)($src['wears_lined'] ?? [])) as $wp) {
             if (isset($seen[$wp['key']])) continue; $seen[$wp['key']] = 1;
             $pieces[] = $entry($wp['key'], $wp, (int)$wp['rank'], ['on' => (bool)($src['state'][$wp['key']] ?? false), 'new' => !isset($src['state'][$wp['key']])]);
         }
@@ -525,7 +525,7 @@ function pfd_sources(int|array $u): array
         $n = count(array_unique($codes)); $rank = $n >= 12 ? 4 : ($n >= 7 ? 3 : ($n >= 3 ? 2 : 1));
         foreach ($codes as $c) if (isset(pfd_catalog()['r:' . $c])) $src['regions'][$c] = $rank;
     });
-    $try(function () use (&$src, $uid) { require_once __DIR__ . '/wearables.php'; $src['wears'] = wear_owned($uid); });   // 2.7.00: the wearables in the satchel
+    $try(function () use (&$src, $uid) { require_once __DIR__ . '/wearables.php'; $src['wears'] = wear_owned($uid); $src['wears_lined'] = wear_lined_set($uid); });   // 2.7.00: the wearables in the satchel
     if (!pfd_ensure()) return $src;
     $row = q_one('SELECT * FROM pf_decks WHERE user_id = ?', [$uid]);
     $src['auto'] = !empty($row['auto_use']);

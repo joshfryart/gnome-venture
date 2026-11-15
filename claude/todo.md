@@ -132,4 +132,4 @@ Combat intent/Guard, KO cost on road fights, Inbox, test environment, growing vi
 - Icons: emoji are swapped for drawn icons by `ico_swap` (e.g. 🪙 shows as the petal). JS must not overwrite icon markup; change only text nodes.
 
 - DONE (2.7.00): wearable art approved by Josh: 15 avatar layers (game/assets/img/gnome25/), 33 icons + tailor-1/2/3 (game/assets/img/ph/). Weak spots: boots barely tall, front pack corners only, cloak icon boxy, back glove thumb.
-- BUILT (2.7.00): Tailor level 3 free first craft each game day (festival_flags tailor-free); commission Petals for Tailor power over 6 (5% of the wearable price per point, min 1) on craft and lining. NOT built: wear Fine as Lined; wearables as Sights/road rewards.
+- BUILT (2.7.00): Tailor level 3 free first craft each game day (festival_flags tailor-free); commission Petals for Tailor power over 6 (5% of the wearable price per point, min 1) on craft and lining. BUILT: wear Fine as Lined (table wear_lined, button on Tailor page, not a Rare piece when Lined). NOT built: wearables as Sights/road rewards.

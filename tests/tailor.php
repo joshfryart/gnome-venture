@@ -116,5 +116,15 @@ ok('power 6 or less pays no commission', tailor_commission($uid, 'work-gloves') 
 $c0 = (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]);
 $cm = tailor_commission($uid, 'work-gloves', 10);   // power 10
 ok('power over 6 pays commission Petals (20% of the price, at least 1)', $cm >= 1 && (int)q_val('SELECT coins FROM users WHERE id = ?', [$uid]) === $c0 + $cm, "$cm");
+echo "== wear Fine as Lined\n";
+$give('work-gloves-b-fine', 1);
+[$a, $m] = wear_lined_toggle($u, 'work-gloves-b-lined');
+ok('only a Fine wearable can be worn as Lined', !$a, $m);
+ok('Fine, worn as Fine: rank 3', (array_column(wear_pieces(wear_owned($uid), wear_lined_set($uid)), null, 'key')['w:work-gloves-b']['rank'] ?? 0) === 3);
+[$a, $m] = wear_lined_toggle($u, 'work-gloves-b-fine');
+$pc = array_column(wear_pieces(wear_owned($uid), wear_lined_set($uid)), null, 'key')['w:work-gloves-b'] ?? [];
+ok('switched to Lined: the piece is rank 2, same key', $a && ($pc['rank'] ?? 0) === 2 && ($pc['v'] ?? 0) < 8 && ($pc['ref'] ?? '') === 'work-gloves-b-lined', json_encode($pc));
+[$a, $m] = wear_lined_toggle($u, 'work-gloves-b-fine');
+ok('switched back to Fine', $a && (array_column(wear_pieces(wear_owned($uid), wear_lined_set($uid)), null, 'key')['w:work-gloves-b']['rank'] ?? 0) === 3);
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);
