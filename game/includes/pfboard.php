@@ -1369,9 +1369,10 @@ function pfb_cell_preview(array $s, $handIdx, bool $flip = false): array
         foreach ($cells as $c) {
             $w = $s; $r = pfb_play($w, [[$handIdx === 'c' ? 'c' : (int)$handIdx, $c[0], $c[1]]], $s['turn'], null, true);
             if ($r['err']) continue;
-            $n = 0; $tw = 1.0; $sun = 0; $mud = 0;
-            foreach ($r['ev'] as $e) { if (!isset($e['barnow'])) continue; $n++; if (isset($e['tw'])) $tw = (float)$e['tw']; if (!empty($e['sun']) && $e['by'] === 'me') $sun++; if (!empty($e['mud']) && $e['by'] === 'me') $mud++; }
-            $o[$c[0] . ',' . $c[1]] = ['dmg' => (int)pf_round($r['fh'] - $fh0), 'ch' => (int)pf_round($r['bar'] - $b0), 'hp' => max(0, $hp0 - (int)$r['hp']), 'n' => $n, 'used' => !empty($r['ev'][0]['used']), 'tw' => $tw, 'sun' => $sun, 'end' => (bool)$r['over']] + (!empty($s['v1']['env']) ? ['mud' => $mud] : []);   // mud: your pieces in the chain that a Mud weakens
+            $n = 0; $tw = 1.0; $sun = 0; $mud = 0; $hw = []; $hpp = $hp0;
+            foreach ($r['ev'] as $e) { if (!isset($e['barnow'])) continue; $n++; if (isset($e['tw'])) $tw = (float)$e['tw']; if (!empty($e['sun']) && $e['by'] === 'me') $sun++; if (!empty($e['mud']) && $e['by'] === 'me') $mud++;
+                if ((int)$e['hpnow'] < $hpp) $hw[] = [(string)$e['n'], (string)$e['by'], $hpp - (int)$e['hpnow']]; $hpp = (int)$e['hpnow']; }   // 2.7.01 costly cell: each piece of the chain that took your health (name, whose, how much)
+            $o[$c[0] . ',' . $c[1]] = ['dmg' => (int)pf_round($r['fh'] - $fh0), 'ch' => (int)pf_round($r['bar'] - $b0), 'hp' => max(0, $hp0 - (int)$r['hp']), 'n' => $n, 'used' => !empty($r['ev'][0]['used']), 'tw' => $tw, 'sun' => $sun, 'end' => (bool)$r['over']] + (!empty($s['v1']['env']) ? ['mud' => $mud] : []) + ($hp0 > (int)$r['hp'] && $hw ? ['hw' => $hw] : []);   // mud: your pieces in the chain that a Mud weakens; hw (2.7.01): only on a cell that costs health
         }
         return $o;
     }

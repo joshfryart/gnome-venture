@@ -450,6 +450,7 @@ require __DIR__ . '/pfboard_v1_guard.php';   // 15: your guard fades when your t
 require __DIR__ . '/pfboard_v1_lasting.php';   // 17: a board that lasts (2.6.98)
 require __DIR__ . '/pfboard_v1_order.php';   // 18: activation order and no free creature piece (next release)
 require __DIR__ . '/pfboard_v1_kinds.php';   // 19: class rules (2.6.98)
+require __DIR__ . '/pfboard_v1_costly.php';   // 30: costly cell names its cause (2.7.01)
 
 echo "== 16. compat framework: a state without the new keys plays by 2.6.94 (PRE)\n";
 $s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]);

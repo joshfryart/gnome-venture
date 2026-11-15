@@ -1660,10 +1660,12 @@
     cs.forEach(function (c) {
       var r = play(clone(s), [[handIdx === 'c' ? 'c' : handIdx, c[0], c[1]]], s.turn, true);
       if (r.err) return;
-      var n = 0, tw = 1.0, sun = 0, mud = 0;
-      r.ev.forEach(function (e) { if (e.barnow === undefined) return; n++; if (e.tw !== undefined) tw = Number(e.tw); if (truthy(e.sun) && e.by === 'me') sun++; if (truthy(e.mud) && e.by === 'me') mud++; });
+      var n = 0, tw = 1.0, sun = 0, mud = 0, hw = [], hpp = hp0;
+      r.ev.forEach(function (e) { if (e.barnow === undefined) return; n++; if (e.tw !== undefined) tw = Number(e.tw); if (truthy(e.sun) && e.by === 'me') sun++; if (truthy(e.mud) && e.by === 'me') mud++;
+        if (toInt(e.hpnow) < hpp) hw.push([String(e.n), String(e.by), hpp - toInt(e.hpnow)]); hpp = toInt(e.hpnow); });   // 2.7.01 costly cell (pfb_cell_preview)
       o[c[0] + ',' + c[1]] = { dmg: iround(r.fh - fh0), ch: iround(r.bar - b0), hp: Math.max(0, hp0 - toInt(r.hp)), n: n, used: !!(r.ev[0] && r.ev[0].used && r.ev[0].used.length), tw: tw, sun: sun, end: truthy(r.over) };
       if (truthy(s.v1.env)) o[c[0] + ',' + c[1]].mud = mud;
+      if (hp0 > toInt(r.hp) && hw.length) o[c[0] + ',' + c[1]].hw = hw;
     });
     return o;
   }
