@@ -46,9 +46,9 @@ ok('not wearables: camping-gear, flood-boots-c, yarn-scarf-b (the scarf has one 
 echo "== the pieces a gnome's wearables make\n";
 $pc = wear_pieces(['flood-boots' => 1, 'flood-boots-lined' => 1, 'flood-boots-b' => 1, 'work-gloves' => 0, 'camping-gear' => 3, 'trail-pack-fine' => 2]);
 $keys = array_column($pc, 'key'); sort($keys);
-ok('two cuts of one wearable are two pieces, the best rank of each cut is the one worn, nothing for qty 0 or non-wearables', $keys === ['w:flood-boots-b', 'w:flood-boots-lined', 'w:trail-pack-fine'], json_encode($keys));
+ok('two cuts of one wearable are two pieces, the best rank of each cut is the one worn, nothing for qty 0 or non-wearables', $keys === ['w:flood-boots', 'w:flood-boots-b', 'w:trail-pack'], json_encode($keys));
 $byKey = array_column($pc, null, 'key');
-ok('a piece row has the fields pfdeck needs (src wear, body knob, rank, type, value)', ($r = $byKey['w:flood-boots-lined']) && $r['src'] === 'wear' && $r['r'] === 'body' && $r['rank'] === 2 && $r['t'] === 'guard' && $r['v'] === 3 && $r['tag'] === 'evade' && $r['n'] === 'Puddle Hop' && $byKey['w:trail-pack-fine']['rank'] === 3 && $byKey['w:trail-pack-fine']['t'] === 'trick');
+ok('the piece key does not change with the rank (the switch stays); the row has the fields pfdeck needs (src wear, body knob, rank, type, value, ref = the best item)', ($r = $byKey['w:flood-boots']) && $r['src'] === 'wear' && $r['r'] === 'body' && $r['rank'] === 2 && $r['t'] === 'guard' && $r['v'] === 3 && $r['tag'] === 'evade' && $r['n'] === 'Puddle Hop' && $r['ref'] === 'flood-boots-lined' && !isset($r['mod']) && $byKey['w:trail-pack']['rank'] === 3 && $byKey['w:trail-pack']['t'] === 'trick');
 ok('no items, no pieces', wear_pieces([]) === []);
 
 echo "== the Tailor\n";

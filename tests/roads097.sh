@@ -50,7 +50,8 @@ chk "arrival in 3 minutes (half of 6)" "$(db "SELECT CAST(ROUND((julianday(arriv
 get adventure.php >/dev/null; grep -qE 'quick walk' $H && echo "  ok   adventure page mentions the quick walk" || { echo "  FAIL adventure page"; FAIL=1; }
 dbx "UPDATE expeditions SET status='done'"
 echo "== upgrade from 0.9.5 (new creatures come back, higher gnomes get easy roads off, nothing else touched)"
-ITEMS=$(db "SELECT COUNT(*) FROM items"); CRE=$(db "SELECT COUNT(*) FROM creatures")
+NEW270=$(php -r 'require "'$GAME'/includes/wearables.php"; echo "\x27".implode("\x27,\x27", array_merge(array_keys(wear_items()), ["tailors-thread", "toll-receipt"]))."\x27";')   # the items 2.7.00 makes on an upgrade boot (wearables, Thread, Toll Receipt) are not what this check is about
+ITEMS=$(db "SELECT COUNT(*) FROM items WHERE slug NOT IN ($NEW270)"); CRE=$(db "SELECT COUNT(*) FROM creatures")
 dbx "UPDATE creatures SET hp = 999 WHERE slug='red-fox'"
 dbx "DELETE FROM creature_drops WHERE creature_id IN (SELECT id FROM creatures WHERE slug IN ('deep-octopus','jungle-tiger'))"
 dbx "DELETE FROM creatures WHERE slug IN ('deep-octopus','jungle-tiger')"
@@ -59,7 +60,7 @@ dbx "UPDATE users SET level=12, easy_roads=1 WHERE username='sprout'"
 dbx "UPDATE settings SET value='0.9.5' WHERE name='db_version'"
 get world.php >/dev/null
 chk "creatures back" "$(db "SELECT COUNT(*) FROM creatures")" "$CRE"
-chk "items unchanged" "$(db "SELECT COUNT(*) FROM items")" "$ITEMS"
+chk "items unchanged" "$(db "SELECT COUNT(*) FROM items WHERE slug NOT IN ($NEW270)")" "$ITEMS"
 chk "admin edit kept" "$(db "SELECT hp FROM creatures WHERE slug='red-fox'")" 999
 chk "level 12 gnome: easy roads off" "$(db "SELECT easy_roads FROM users WHERE username='sprout'")" 0
 chk "pages back" "$(db "SELECT COUNT(*) FROM encyclopedia_entries WHERE unlock_key IN ('creature:deep-octopus','creature:jungle-tiger')")" 2

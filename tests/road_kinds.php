@@ -72,9 +72,9 @@ ok('overgrown with an axe (tier 1): no slowdown', $a && $d2 === $base, "got $d2"
 [$rid, $k] = $pick('flooded'); $S = $sections($rid); $base = gclock_time_cost('travel') * $S;
 $u = $setup($rid); $t0 = $clock(); [$a] = start_expedition($u, $rid); $d3 = $clock() - $t0;
 ok('flooded: +10 per section', $a && $d3 === $base + 10 * $S, "got $d3");
-$u = $setup($rid); rk_ensure_items(); give_item($uid, item_id_by_slug('flood-boots'), 1); $t0 = $clock(); [$a] = start_expedition(q_one('SELECT * FROM users WHERE id = ?', [$uid]), $rid); $d4 = $clock() - $t0;
+$u = $setup($rid); rk_ensure_items(); give_item($uid, item_id_by_slug('flood-boots'), 1);   // carried, any cut or rank (a wearable) $t0 = $clock(); [$a] = start_expedition(q_one('SELECT * FROM users WHERE id = ?', [$uid]), $rid); $d4 = $clock() - $t0;
 ok('flooded with Flood Boots: +5 per section', $a && $d4 === $base + 5 * $S, "got $d4");
-ok('Flood Boots are on sale in a shop', (int)q_val('SELECT COUNT(*) FROM shop_stock WHERE item_id = ?', [item_id_by_slug('flood-boots')]) > 0);
+ok('Flood Boots are a wearable item, made by the Tailor (not sold)', item_id_by_slug('flood-boots') > 0 && (int)q_val('SELECT COUNT(*) FROM shop_stock WHERE item_id = ?', [item_id_by_slug('flood-boots')]) === 0);
 
 echo "== toll: the question at the first stretch\n";
 [$rid, $k] = $pick('toll'); $S = $sections($rid); $base = gclock_time_cost('travel') * $S;
