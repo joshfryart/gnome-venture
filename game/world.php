@@ -49,27 +49,6 @@ if (!empty($node['region_id'])) record_region_visit((int)$u['id'], (int)$node['r
 $home = home_region($u);
 $here = player_location($u);
 $guidedRegions = guide_regions((int)$u['id']);
-$locationShops = function (string $regionName): array {
-    return q('SELECT s.*, l.name AS loc_name, l.id AS loc_id FROM shops s JOIN locations l ON l.id = s.location_id
-              WHERE l.region = ? AND s.open = 1 ORDER BY s.name', [$regionName])->fetchAll();
-};
-
-function shop_cards(array $shops, array $u): string
-{
-    $out = '';
-    foreach ($shops as $s) {
-        $staff = staff_on_duty((int)$s['id']);
-        // v1.2.2: a shop in a town you're not standing in can't be used: no link, and a way to walk there
-        $reach = shop_reachable($u, $s);
-        $title = $reach ? '<a href="' . e(url('shop.php?id=' . (int)$s['id'])) . '">' . e($s['name']) . '</a>' : e($s['name']);
-        $out .= '<div class="box shopcard' . ($staff ? '' : ' shut') . '"><h3>' . $title . '</h3>'
-            . '<p class="sdesc">' . e($s['description']) . '</p><p class="help sstaff">'
-            . ($staff ? '🟢 ' . e(implode(', ', array_column($staff, 'name'))) : '⚪ Closed, nobody on shift')
-            . ($reach ? '' : ' · <a href="' . e(url('world.php?go=' . (int)$s['loc_id'] . '#gopanel')) . '">🚶 Walk to ' . e((string)$s['loc_name']) . '</a>')
-            . '</p></div>';
-    }
-    return $out;
-}
 
 $regionList = all_regions();
 // v0.7.47: "Where you are" and the world map are one page; Markets stays a tab
@@ -305,14 +284,7 @@ $GL = LANDSCAPES[$gatherLand] ?? ['🌱', ucfirst($gatherLand)]; ?>
 
 <?php if ($tab === 'markets'): ?>
 <h2>Shops in <?= e($here) ?></h2>
-<?php
-$shops = $locationShops($here);
-echo $shops ? '<div class="shopgrid">' . shop_cards($shops, $u) . '</div>' : '<p class="muted">No shops here yet.</p>';
-?>
-
-<?php $hubShops = $locationShops(HUB_REGION); ?>
-<details class="fold" id="hubshops"><summary>🏘️ Mossbottom hub <small class="muted">(<?= count($hubShops) ?> shops, reachable from anywhere)</small></summary>
-<div class="shopgrid"><?= shop_cards($hubShops, $u) ?></div></details>
+<?= shop_street_html($u, $here) ?>   <?php /* v2.7.01: Shop Street: the picture and one list (here + Mossbottom); the old collapsed hub list is gone */ ?>
 
 <?php endif; ?>
 <?php page_footer();

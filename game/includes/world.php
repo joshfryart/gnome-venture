@@ -307,6 +307,36 @@ function shop_reachable(array $u, array $shop): bool
     return (int)player_node($u)['id'] === (int)$loc['id'];
 }
 
+/** Is this shop one of Mossbottom's (the hub market: reachable from anywhere)? Takes a shops row (a 'loc_region' column saves the lookup). */
+function shop_is_hub(array $shop): bool
+{
+    if (isset($shop['loc_region'])) return (string)$shop['loc_region'] === HUB_REGION;
+    $loc = !empty($shop['location_id']) ? q_one('SELECT region, kind FROM locations WHERE id = ?', [$shop['location_id']]) : null;
+    return $loc && ((string)$loc['region'] === HUB_REGION || (string)$loc['kind'] === 'hub');
+}
+
+/**
+ * v2.7.01: what a shop is like for this gnome right now (Shop Street picture and its list). Takes a shops row (open_minute / close_minute are read from it).
+ * Returns ['state' => 'open'|'closed'|'away', 'why' => a sentence, 'chip' => a few words, 'staff' => [names]].
+ * away = not reachable from where the gnome stands (a town shop while elsewhere); closed = the game clock says shut, or nobody is on shift; else open.
+ */
+function shop_state(array $u, array $shop): array
+{
+    $staff = array_column(staff_on_duty((int)$shop['id']), 'name');
+    if (!shop_reachable($u, $shop)) {
+        $where = (string)($shop['loc_name'] ?? '');
+        return ['state' => 'away', 'why' => $where !== '' ? 'Walk to ' . $where . ' to shop here.' : 'You need to be in that town to shop here.', 'chip' => 'away', 'staff' => $staff];
+    }
+    if ($why = gclock_closed_reason($u, $shop)) return ['state' => 'closed', 'why' => $why, 'chip' => 'closed for now', 'staff' => $staff];
+    if (!$staff) return ['state' => 'closed', 'why' => 'Closed, nobody on shift.', 'chip' => 'nobody on shift', 'staff' => []];
+    $hours = '';
+    if (gclock_on()) {
+        [$o, $c] = gclock_place_hours($shop);
+        $hours = sprintf('%02d:%02d-%02d:%02d', intdiv($o, 60) % 24, $o % 60, intdiv($c, 60) % 24, $c % 60);
+    }
+    return ['state' => 'open', 'why' => 'At the counter: ' . implode(', ', $staff) . ($hours !== '' ? ' (open ' . $hours . ')' : ''), 'chip' => $hours !== '' ? $hours : 'open', 'staff' => $staff];
+}
+
 /** Returns [ok, message, cost, item name]. */
 function buy_from_shop(array $u, int $stockId, int $qty): array
 {

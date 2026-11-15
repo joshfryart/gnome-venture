@@ -15,7 +15,7 @@ declare(strict_types=1);
  * Sprite:  ['id', 'x' (feet), 'y' (feet), 'w', 'h' (natural px), 'src' => img path|'', 'emoji', 'name', 'href' => ''|link, 'card' => html|'', 'mark' => emoji]
  * Options: layout (array, required), alt, open (hotspot/sprite id), twin (bool, default true), more (['label' =>, 'href' =>] "+N more" chip),
  *          debug (bool, admin only: numbered dots on every slot), art (kind of picture file: default 'here'), title (heading for the twin)
- *          chrome (bool: the no-circles look, see hub_hotspot_box), dress (milestone/trophy layers [['k','x','y','w','h','src']]); the layout's optional 'anim' list is drawn by itself (see here_layers_present), nav (['routes' => [...], 'world' => [...]]: compass + globe cards)
+ *          noleg (bool: no chip legend, the page has its own text list), chrome (bool: the no-circles look, see hub_hotspot_box), dress (milestone/trophy layers [['k','x','y','w','h','src']]); the layout's optional 'anim' list is drawn by itself (see here_layers_present), nav (['routes' => [...], 'world' => [...]]: compass + globe cards)
  */
 require_once __DIR__ . '/here_layout.php';
 require_once __DIR__ . '/scene.php';
@@ -195,6 +195,7 @@ function hub_pill_layout(array $hotspots, array $L): array
     $W = (int)$L['w']; $H = (int)$L['h'];
     $placed = [];
     foreach ($hotspots as $k => $h) {
+        if (!empty($h['nopill'])) continue;   // a plain tag instead (Shop Street 'To let' shutters)
         [$x0, $y0, $x1, $y1] = here_hit_box($h, $L);
         $w = (int)ceil(mb_strlen(hub_pill_text((string)($h['label'] ?? ''))) * 6.3) + 14;
         $cx = max(intdiv($w, 2) + 3, min($W - intdiv($w, 2) - 3, intdiv($x0 + $x1, 2)));
@@ -311,12 +312,12 @@ function hub_scene(string $key, array $hotspots, array $sprites, array $opts): s
 
     // legend: the labels live in HTML, because SVG text is unreadable at phone size
     $leg = '';
-    foreach ($hotspots as $h) {
+    foreach (!empty($opts['noleg']) ? [] : $hotspots as $h) {   // 'noleg': the page draws its own text list under the picture (Shop Street)
         $id = hub_id((string)$h['id']);
         $leg .= '<li><a class="hubchip ' . e((string)($h['cls'] ?? '')) . '" href="' . e((string)$h['href']) . '" data-for="hs-' . $id . '"' . (!empty($h['hl']) ? ' data-hl="' . e((string)$h['hl']) . '"' : '') . (($h['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '"' : '') . '>'
             . '<span class="hubchip-t">' . e((string)($h['label'] ?? '')) . '</span>' . (($h['chip'] ?? '') !== '' ? ' <small class="hubchip-c">' . e((string)$h['chip']) . '</small>' : '') . '</a></li>';
     }
-    if (!empty($opts['more'])) $leg .= '<li><a class="hubchip" href="' . e((string)$opts['more']['href']) . '"><span class="hubchip-t">' . e((string)$opts['more']['label']) . '</span></a></li>';
+    if (!empty($opts['more']) && empty($opts['noleg'])) $leg .= '<li><a class="hubchip" href="' . e((string)$opts['more']['href']) . '"><span class="hubchip-t">' . e((string)$opts['more']['label']) . '</span></a></li>';
     $out = '<div class="hubscene' . ($chrome ? ' chrome' : '') . '" data-hub="' . e($key) . '">' . ($chrome ? '<div class="hubstage">' . $svg . (!empty($opts['nav']) && empty($opts['navbar']) ? hub_navbuttons($opts['nav']['routes'], $opts['nav']['world']) : '') . '</div>' . (!empty($opts['nav']) && !empty($opts['navbar']) ? hub_navbar($opts['nav']['routes'], $opts['nav']['world'], $opts['nav']['extra'] ?? []) : '') . (!empty($opts['street']) ? hub_street($sprites) : '') : $svg . (!empty($opts['nav']) && !empty($opts['navbar']) ? hub_navbar($opts['nav']['routes'], $opts['nav']['world'], $opts['nav']['extra'] ?? []) : '')) . ($leg !== '' ? (!empty($opts['legfold']) ? '<details class="hubfold"><summary>' . e((string)($opts['legtitle'] ?? 'List of places')) . '</summary><ul class="hubleg' . (!empty($opts['legtidy']) ? ' tidy' : '') . '" aria-label="In this picture">' . $leg . '</ul></details>' : '<ul class="hubleg" aria-label="In this picture">' . $leg . '</ul>') : '');
 
     // cards: one <dialog> per hotspot/sprite with a card. 'open' shows that one (no-JS: it sits open under the picture)

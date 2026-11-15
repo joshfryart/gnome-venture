@@ -18,6 +18,7 @@ foreach (glob($game . '/assets/img/scenes/{here-*,resid-*,door-*,craft-*,tree-*,
     if (!$sz || $sz[2] !== IMAGETYPE_PNG) { echo "FAIL $f is not a PNG\n"; $bad++; continue; }
     if (str_starts_with($f, 'tree-dress-')) continue;
     if (preg_match('/^(?:tree|yard|craft)-(?:anim|trophy)-|^here-[a-z0-9_-]+-anim-/', $f)) continue;   // optional layers: sizes checked below from the layout lists   // optional dressing layers (sizes are in the treehouse layout's 'dress' list)
+    if (!isset($files[$f]) && isset($all['shops-street']) && preg_match('/^here-shops-street-[a-z]+\.png$/', $f)) $files[$f] = ['shops-street', (int)$all['shops-street']['w'], (int)$all['shops-street']['h']];   // regional Shop Street art
     if (!isset($files[$f]) && str_starts_with($f, 'door-')) $files[$f] = ['door', (int)$all['door']['w'], (int)$all['door']['h']];   // door-<slug>.png: a villager's own door
     if (str_starts_with($f, 'fight-')) { if ($sz[0] !== 480 || $sz[1] !== 270) { echo "FAIL $f is {$sz[0]}x{$sz[1]}, fight backdrops are 480x270\n"; $bad++; } continue; }
     if (!isset($files[$f])) { echo "note $f has no layout of its own (a layout for it will fall back to a shared one)\n"; continue; }

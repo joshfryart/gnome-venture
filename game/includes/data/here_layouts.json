@@ -866,7 +866,209 @@
    }
   ]
  },
- "workshop": {"w": 480, "h": 270, "horizon": 0, "spots": [{"k": "cooking", "x": 89, "y": 112, "box": [42, 54, 136, 165]}, {"k": "pantry", "x": 190, "y": 103, "box": [149, 57, 231, 149]}, {"k": "tools", "x": 300, "y": 126, "box": [255, 93, 345, 159]}, {"k": "garden", "x": 399, "y": 112, "box": [357, 65, 441, 158]}, {"k": "potions", "x": 141, "y": 212, "box": [93, 172, 190, 248]}, {"k": "building", "x": 284, "y": 225, "box": [237, 199, 331, 249]}, {"k": "decor", "x": 387, "y": 200, "box": [343, 171, 432, 229]}], "anim": [{"k": "cooking", "for": "cooking", "fx": "flicker", "x": 65, "y": 98, "w": 49, "h": 54}, {"k": "cooking2", "for": "cooking", "fx": "bob", "x": 78, "y": 96, "w": 21, "h": 18}, {"k": "pantry", "for": "pantry", "fx": "twinkle", "x": 158, "y": 68, "w": 63, "h": 63}, {"k": "tools", "for": "tools", "fx": "twinkle", "x": 257, "y": 98, "w": 55, "h": 20}, {"k": "tools2", "for": "tools", "fx": "bob", "x": 285, "y": 108, "w": 23, "h": 12}, {"k": "garden", "for": "garden", "fx": "sway", "x": 371, "y": 83, "w": 20, "h": 28}, {"k": "garden2", "for": "garden", "fx": "bob", "x": 393, "y": 103, "w": 8, "h": 12}, {"k": "potions", "for": "potions", "fx": "bob", "x": 117, "y": 160, "w": 41, "h": 28}, {"k": "potions2", "for": "potions", "fx": "pulse", "x": 104, "y": 177, "w": 68, "h": 19}, {"k": "building", "for": "building", "fx": "bob", "x": 246, "y": 196, "w": 73, "h": 19}, {"k": "building2", "for": "building", "fx": "twinkle", "x": 238, "y": 203, "w": 83, "h": 35}, {"k": "decor", "for": "decor", "fx": "drift", "x": 367, "y": 202, "w": 18, "h": 6}, {"k": "decor2", "for": "decor", "fx": "twinkle", "x": 360, "y": 175, "w": 64, "h": 43}]},
+ "workshop": {
+  "w": 480,
+  "h": 270,
+  "horizon": 0,
+  "spots": [
+   {
+    "k": "cooking",
+    "x": 89,
+    "y": 112,
+    "box": [
+     42,
+     54,
+     136,
+     165
+    ]
+   },
+   {
+    "k": "pantry",
+    "x": 190,
+    "y": 103,
+    "box": [
+     149,
+     57,
+     231,
+     149
+    ]
+   },
+   {
+    "k": "tools",
+    "x": 300,
+    "y": 126,
+    "box": [
+     255,
+     93,
+     345,
+     159
+    ]
+   },
+   {
+    "k": "garden",
+    "x": 399,
+    "y": 112,
+    "box": [
+     357,
+     65,
+     441,
+     158
+    ]
+   },
+   {
+    "k": "potions",
+    "x": 141,
+    "y": 212,
+    "box": [
+     93,
+     172,
+     190,
+     248
+    ]
+   },
+   {
+    "k": "building",
+    "x": 284,
+    "y": 225,
+    "box": [
+     237,
+     199,
+     331,
+     249
+    ]
+   },
+   {
+    "k": "decor",
+    "x": 387,
+    "y": 200,
+    "box": [
+     343,
+     171,
+     432,
+     229
+    ]
+   }
+  ],
+  "anim": [
+   {
+    "k": "cooking",
+    "for": "cooking",
+    "fx": "flicker",
+    "x": 65,
+    "y": 98,
+    "w": 49,
+    "h": 54
+   },
+   {
+    "k": "cooking2",
+    "for": "cooking",
+    "fx": "bob",
+    "x": 78,
+    "y": 96,
+    "w": 21,
+    "h": 18
+   },
+   {
+    "k": "pantry",
+    "for": "pantry",
+    "fx": "twinkle",
+    "x": 158,
+    "y": 68,
+    "w": 63,
+    "h": 63
+   },
+   {
+    "k": "tools",
+    "for": "tools",
+    "fx": "twinkle",
+    "x": 257,
+    "y": 98,
+    "w": 55,
+    "h": 20
+   },
+   {
+    "k": "tools2",
+    "for": "tools",
+    "fx": "bob",
+    "x": 285,
+    "y": 108,
+    "w": 23,
+    "h": 12
+   },
+   {
+    "k": "garden",
+    "for": "garden",
+    "fx": "sway",
+    "x": 371,
+    "y": 83,
+    "w": 20,
+    "h": 28
+   },
+   {
+    "k": "garden2",
+    "for": "garden",
+    "fx": "bob",
+    "x": 393,
+    "y": 103,
+    "w": 8,
+    "h": 12
+   },
+   {
+    "k": "potions",
+    "for": "potions",
+    "fx": "bob",
+    "x": 117,
+    "y": 160,
+    "w": 41,
+    "h": 28
+   },
+   {
+    "k": "potions2",
+    "for": "potions",
+    "fx": "pulse",
+    "x": 104,
+    "y": 177,
+    "w": 68,
+    "h": 19
+   },
+   {
+    "k": "building",
+    "for": "building",
+    "fx": "bob",
+    "x": 246,
+    "y": 196,
+    "w": 73,
+    "h": 19
+   },
+   {
+    "k": "building2",
+    "for": "building",
+    "fx": "twinkle",
+    "x": 238,
+    "y": 203,
+    "w": 83,
+    "h": 35
+   },
+   {
+    "k": "decor",
+    "for": "decor",
+    "fx": "drift",
+    "x": 367,
+    "y": 202,
+    "w": 18,
+    "h": 6
+   },
+   {
+    "k": "decor2",
+    "for": "decor",
+    "fx": "twinkle",
+    "x": 360,
+    "y": 175,
+    "w": 64,
+    "h": 43
+   }
+  ]
+ },
  "treehouse": {
   "w": 480,
   "h": 270,
@@ -5921,6 +6123,182 @@
    230,
    480,
    270
+  ]
+ },
+ "shops-street": {
+  "w": 480,
+  "h": 300,
+  "horizon": 96,
+  "view": "street",
+  "spots": [
+   {
+    "k": "loc-1",
+    "name": "Local shop 1",
+    "x": 30,
+    "y": 140,
+    "box": [
+     4,
+     30,
+     56,
+     250
+    ]
+   },
+   {
+    "k": "loc-2",
+    "name": "Local shop 2",
+    "x": 86,
+    "y": 155,
+    "box": [
+     60,
+     60,
+     112,
+     250
+    ]
+   },
+   {
+    "k": "loc-3",
+    "name": "Local shop 3",
+    "x": 140,
+    "y": 170,
+    "box": [
+     116,
+     90,
+     164,
+     250
+    ]
+   },
+   {
+    "k": "loc-4",
+    "name": "Local shop 4",
+    "x": 184,
+    "y": 185,
+    "box": [
+     168,
+     120,
+     200,
+     250
+    ]
+   },
+   {
+    "k": "loc-more",
+    "name": "More local shops",
+    "x": 240,
+    "y": 220,
+    "box": [
+     206,
+     190,
+     274,
+     250
+    ]
+   },
+   {
+    "k": "hub-seeds",
+    "name": "Seed shop",
+    "x": 308,
+    "y": 200,
+    "box": [
+     286,
+     150,
+     330,
+     250
+    ]
+   },
+   {
+    "k": "hub-food",
+    "name": "Kitchen",
+    "x": 356,
+    "y": 200,
+    "box": [
+     334,
+     150,
+     378,
+     250
+    ]
+   },
+   {
+    "k": "hub-florist",
+    "name": "Florist",
+    "x": 404,
+    "y": 200,
+    "box": [
+     382,
+     150,
+     426,
+     250
+    ]
+   },
+   {
+    "k": "hub-decor",
+    "name": "Home and curios",
+    "x": 452,
+    "y": 200,
+    "box": [
+     430,
+     150,
+     474,
+     250
+    ]
+   },
+   {
+    "k": "hub-dyes",
+    "name": "Dye shop",
+    "x": 330,
+    "y": 90,
+    "box": [
+     300,
+     40,
+     360,
+     140
+    ]
+   },
+   {
+    "k": "hub-pets",
+    "name": "Pet shop",
+    "x": 395,
+    "y": 90,
+    "box": [
+     366,
+     40,
+     424,
+     140
+    ]
+   },
+   {
+    "k": "hub-more",
+    "name": "More Mossbottom shops",
+    "x": 453,
+    "y": 90,
+    "box": [
+     430,
+     40,
+     476,
+     140
+    ]
+   }
+  ],
+  "stand": [
+   {
+    "x": 214,
+    "y": 272
+   },
+   {
+    "x": 250,
+    "y": 282
+   },
+   {
+    "x": 280,
+    "y": 268
+   },
+   {
+    "x": 300,
+    "y": 280
+   }
+  ],
+  "compass_clear": [
+   380,
+   262,
+   480,
+   300
   ]
  }
 }
