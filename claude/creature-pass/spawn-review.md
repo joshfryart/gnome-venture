@@ -7,12 +7,12 @@ Read-only review. Method: read the spawn code; installed the working tree into a
 1. One picker serves roads, Trail tiles, camp Wait, explore, delves: `pick_creature(land, level)`. Its only inputs are the **destination's landscape**, the **walk level**, the cond tag (x3 weight, never excludes) and a no-repeat ring. Region, route id, stretch, tile, set piece, road kind and camp are not inputs. Treks use their own zone pools.
 2. A creature is eligible when `level - 6 <= creature level <= level + 2`. So each creature is on-level for a 9-level window.
 3. Land is taken from the place you walk **to**. 172 of 245 routes have a different land on the way back (side paths: forest/tundra/desert out, grassland back). The map art land (`trail_maps` `land`) always equals the outbound land.
-4. No small creature exists above L5. Medium stops at L11 (forest), L12 (grassland, island), L13 (coast), L15 (desert), L16-18 (wetland, rainforest, mountain, tundra) until three L27-35 mediums. Pools at L19-28 are all large.
+4. No small creature exists above L5, so no pool has a small from walk level 10-12 up. The last medium is L11 (forest), L12 (grassland, island), L13 (coast), L15 (desert), L16-18 (wetland, rainforest, mountain, tundra); only three mediums follow (L27, L29, L35). All-large pools: grassland L19-26, forest L18-40, wetland L23-40, coast L20-24 and L34-40, island L19-24 and L34-40, desert L22-32, mountain and tundra L25-40, rainforest L24 and L34-40.
 5. Late game is empty: from L30 most lands have 1-3 candidates, from L36 1-2; forest L33, wetland L37+, tundra L35+, mountain L40 have none on-level (a weaker one is scaled up). The four top regions (SEA 26, WCA 29, ESA 32, OC 35) always walk at gnome level, so this is where their walks sit.
 6. Tundra exists only in NA (L1) and NWE (L6) (and one explore step in EE). 7 tundra-capable creatures L11-28 have no tundra host level; glacier-bear, lichen-reindeer and snow-owl-monarch have no region fit at all. NA tundra side paths have 2 candidates (aphids, ants).
 7. Wonder and delve side paths have absolute levels (1-5, 8-12, 18-22, 10-14, 20-24) unrelated to the region: -34 (OC Starpath Canoe L1-5 in a L35 region) to +12 (CB Mangrove Root Maze L20-24 in a L8 region).
-8. 56 fixed extra mini-bosses sit on route tiles; 27 are 8+ levels over the route (max +28), 5 block the only path.
-9. The "boss" spot on 9 of 14 lair routes cannot find a boss and gives an ordinary creature (NA: Grumpy Lemming class).
+8. 56 fixed extra mini-bosses sit on route tiles; 30 are 8+ levels over the route (max +28), 5 block the only path.
+9. The "boss" spot on 8 of 14 lair routes can never find a boss (a ninth only at its top levels) and gives an ordinary creature (NA: Grumpy Lemming class).
 10. Fresh installs: route ids from 239 up are one lower than the map / camp / road-kind data; 13 lair routes get a section count that differs from their authored map.
 
 ## 1. How spawn selection works
@@ -62,7 +62,7 @@ Result: gnome level only matters near home and in SEA / WCA / ESA / OC. Everywhe
 
 ## 2. Regions, landscapes, candidates
 
-### 2.1 Creature ladder per landscape (88 creatures: 10 S, 27 M, 42 L, 9 B)
+### 2.1 Creature ladder per landscape (88 creatures: 10 S, 26 M, 43 L, 9 B)
 
 "Thin levels" = walk levels where the on-level pool has fewer than 3 (or is empty and gets scaled).
 
@@ -369,7 +369,7 @@ Columns 6-7 list regions where the creature is inside the band at a level the re
 | desert-camel | L | 27 | desert |  | ESA | MENA EA OC | 1 region |
 | lichen-reindeer | L | 28 | tundra |  |  |  | NO REGION FIT (gnome-level only) |
 
-Summary: NEVER spawn: none. No region fit (gnome-level only): glacier-bear, lichen-reindeer, snow-owl-monarch. No plain road at region level: arctic-fox, mischief-monkey, reef-turtle, leafcutter-column, desert-tortoise and all 9 bosses (by design: bosses need a fixed route, explore step 7+, or a lair-route E spot). One region only: 13 creatures (flag column). 16 creatures are on-level on plain roads in no region; 12 in one.
+Summary: NEVER spawn: none. No region fit (gnome-level only): glacier-bear, lichen-reindeer, snow-owl-monarch. No plain road at region level: arctic-fox, mischief-monkey, reef-turtle, leafcutter-column, desert-tortoise and all 9 bosses (by design: bosses need a fixed route, explore step 7+, or a lair-route E spot). One region only: 12 creatures (flag column). 16 creatures are on-level on plain roads in no region; 12 in one.
 
 ## 3. Per route map
 
@@ -377,7 +377,7 @@ Summary: NEVER spawn: none. No region fit (gnome-level only): glacier-bear, lich
 
 | spot | tiles | creature |
 |---|---|---|
-| random fight `R` | any walkable `.` or `,` tile on the path taken, 3+ tiles from entry and exit. `,` (rough ground: 13-42% of a route's fight tiles, mean 27%) is 2.5x | pool of (destination land, walk level); no boss |
+| random fight `R` | any walkable `.` or `,` tile on the path taken, 3+ tiles from entry and exit. `,` (rough ground: 14-42% of a route's fight tiles, mean 27%) is 2.5x | pool of (destination land, walk level); no boss |
 | door between stretches | not a tile: rolled on Continue | same pool; boss 6% on fixed routes |
 | `E` | one tile on the last stretch of the 14 delve and 14 lair routes (1 of 28 blocks the only path) | 3.2 last column |
 | `M` | 56 tiles (`extra_minibosses`), on the road line | the named creature at its own level (3.3) |
@@ -477,7 +477,7 @@ Lair bosses (inside the lair, not on the route):
 | Dragonlizard Den | SEA (26) | island | Guardian of Dragonlizard Den L30 | 30 |
 | Reef of the Box Jelly Queen | OC (35) | coast | Box Jelly Queen L37 | 37 |
 
-### 3.3 Fixed extra mini-bosses 6+ levels over the route, or blocking (of 56; made by `tools/add_trail_extras.py:89` with target level `12 + 0.7 x region level`)
+### 3.3 Fixed extra mini-bosses 6+ levels over the route, or blocking (of 56; made by `tools/add_trail_extras.py:88` with target level `12 + 0.7 x region level`)
 
 | route | region | from > to | land | route Lv | fixed creature | its Lv | Δ | blocks only path |
 |---|---|---|---|---|---|---|---|---|
@@ -861,8 +861,8 @@ All pool slugs exist; all non-boss trek creatures are in a pool.
 
 | # | gap | where it bites | wanted |
 |---|---|---|---|
-| G1 | no S above L5 | every land, L8-40 | 1-2 swarm / flock / brood variants per land per 10 levels |
-| G2 | no M at L13-26 (grassland), L12-36 (forest), L17-40 (wetland), L14-26 (coast), L13-26 (island), L16-34 (desert), L19-40 (mountain), L18-26 (rainforest) | EE, MENA, EA, CSA roads; all landmark routes L18-24 | 2-3 M per land in these bands |
+| G1 | no S above L5: no small in any pool from walk level 9-12 up | every land | 1-2 swarm / flock / brood variants per land per 10 levels |
+| G2 | pools with no M: grassland L19-26, forest L18-40, wetland L23-40, coast L20-24 / L34-40, island L19-24 / L34-40, desert L22-32, mountain L25-40, rainforest L24 / L34-40 | EE, MENA, EA, CSA roads; all landmark routes L18-24 | 2-3 M per land in these bands |
 | G3 | late game thin: grassland L36+ (2 -> 1), forest L29+ (4 -> 1; none at 33), wetland L31+ (2 -> 0), coast L34+ (2), desert L38+ (2 -> 1), mountain L32+ (2 -> 0), rainforest L32+ (2 -> 1) | WCA, ESA, OC and every near-home walk of a L30+ gnome | 4-6 per land at L30-40, mixed sizes |
 | G4 | island L12-31 (3, then 2 at L23-31) | SEA island L26 (450, 451), OC 253 L23, 301 L30, 469, 457 | 4-5 island creatures L20-30 |
 | G5 | tundra L1-3 (2), L12-14 (1-2) | NA 309 / 310 / 316; lair routes 315, 363; NWE explore steps 7-8 (L13, L15) | 3 S at L1-3; 4-5 at L8-16 |
@@ -1019,7 +1019,7 @@ Format: tier · name · size · landscapes · level · cond. Bosses' variants ar
 | desert-camel (L27; desert) | B · **Camel Calf** · M · desert · L23 · -<br>B · **Wild Bactrian** · L · desert,mountain · L37 · - |
 | lichen-reindeer (L28; tundra) | B · **Reindeer Calf Herd** · M · tundra · L4 · se=spring,summer<br>A · **Caribou Bull** · L · tundra · L12 · se=autumn |
 
-Placement notes:
+Placement notes (both tiers):
 - Swarms (S) carry G1: Fly Swarm L12, Mite Swarm L15, Fire Ant Raiders L18, Kelp Fly Swarm L21, Salt Mite Swarm L22, Beach Hopper Horde L25, Carpenter Ant Gang L28, Yellowjacket Mob L30, Mosquito Storm L31, Tumblebug Troupe L33, Zorilla Stink Squad L35, Dingo Pup Pack L37.
 - Tundra (G5, G6): Lemming Kit Scurry 1, Snow Flea Swarm 2, Snowshoe Leveret Dash 3, Reindeer Calf Herd 4, Arctic Fox Kit 5 for NA / NWE roads; Snow Moth 9, Glacier Cub 9, Stoat 10, Frost Beetle 12, Caribou Bull 12, Snowy Owl Scout 14, Ice Bear 16, boss Frost Owl Regent 14 for the two lair routes and NWE steps 7-8. Tundra tags above L16 (Tundra Fox, Snow Lynx, Musk Ox, Wood Bison) only show for out-levelled gnomes.
 - Island (G4): Coconut Crab Youngster 22, Golden Orb Weaver 23, Land Crab March 24, Storm Wisp 24, Moray Lurker 24, Beach Hopper Horde 25, Coral Golem 26, Stink Badger 26, Coconut Hermit 27, Tree Snake 28, Giant Clam 28, Ship Rat Crew 28, Frigatebird 29.
@@ -1039,7 +1039,7 @@ Placement notes:
 | B7 | Delve mini-boss pool has no lower bound | `trail_tiles.php:245-246`: every large `<= L+4`, uniform `array_rand`, no cond, no ring | grass-snake L14 grown to L20-24 is as likely as an on-level large; 362 and 376 have one candidate (grey-heron, reef-turtle), below L11 / L12 none |
 | B8 | Boss pick: lower bound missing too | `adventure.php:356`: any boss `<= L+8` however far below | coconut-crab-titan L26 grown to L35-39 on OC routes |
 | B9 | `quiet` and `fights` counters do nothing | `trail_art.php:284-297`: counted, returned, saved, never used in the chance | no pity timer and no cap: fights per stretch are unbounded (Hunt on rough ground = 18.75% a tile) |
-| B10 | Camp entry for a route that does not exist | `trail_camps.json` has `239`; so does `road_kinds.txt` (`239|toll`) | harmless on old worlds; on a fresh install (B1) it lands on Maizehollow Market > Meadowmere |
+| B10 | Camp entry for a route that does not exist | `trail_camps.json` has `239`; so does `road_kinds.txt` (line `239` = toll) | harmless on old worlds; on a fresh install (B1) it lands on Maizehollow Market > Meadowmere |
 | B11 | Weather / time come from the destination region | `road_now()` | snow / frost conds (frost-hare) can only match where the region has that weather; mountain creatures in SE / MENA rarely get their boost |
 | B12 | creatures.txt header says "3x likelier ... never excluded", and `!` makes it a must | `road_cond_weight()` | no creature uses `!`; all 23 conds are soft |
 | B13 | `pick_creature` last-resort branch returns an unscaled creature of any level | `adventure.php:364-368` | unreachable while `any` creatures exist at L1-5; becomes live if they are retagged |
