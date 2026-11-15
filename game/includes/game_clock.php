@@ -307,7 +307,7 @@ function gclock_rest_options(array $u): array
         $opt('home_nap', 'Nap in your hovel (' . $nap . ' h, +' . $napPct . '% energy)', 'nap', 'free');
         return $out;
     }
-    $fee = gclock_setting_int('inn_fee_petals', 110);
+    $fee = gclock_inn_fee($uid);
     $chore = gclock_setting_int('inn_chore_minutes', 240);
     $opt('inn_pay', 'Rent a room at the inn', 'sleep', $fee . ' ' . setting('currency_name'), (int)$u['coins'] >= $fee, 'Not enough ' . setting('currency_name') . '.');
     $opt('inn_chores', 'Help around the inn for a bed', 'sleep', ($chore / 60) . ' game hours of chores');
@@ -323,6 +323,15 @@ function gclock_rest_options(array $u): array
     }
     $opt('villager', $host ? 'Stay with ' . $host : 'Stay with a friendly villager', 'sleep', 'free', $host !== null, 'A villager here must be a ' . (FRIEND_LEVELS[$need][1] ?? 'closer friend') . ' first.');
     return $out;
+}
+
+/** The inn's price for this gnome (2.7.00: a Trail Sight can take a share off for a while). */
+function gclock_inn_fee(int $uid): int
+{
+    $fee = gclock_setting_int('inn_fee_petals', 110);
+    require_once __DIR__ . '/trail_sight_extras.php';
+    $d = trail_sight_disc_pct($uid, 'rest');
+    return $d > 0 ? max(1, (int)round($fee * (100 - $d) / 100)) : $fee;
 }
 
 /** Do one rest option. Returns [ok, message]. Pays costs; refuses if the option is not on offer. */
@@ -376,7 +385,7 @@ function gclock_rest_do(int $uid, string $key, array $u): array
         case 'bench':
             return game_sleep($uid, gclock_setting_int('bench_sleep_energy_pct', 30)) ? [true, 'A stiff night on the bench. A new day, a little rested.'] : [false, 'Something stirred. Try again.'];
         case 'inn_pay':
-            $fee = gclock_setting_int('inn_fee_petals', 110);
+            $fee = gclock_inn_fee($uid);
             if (q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$fee, $uid, $fee])->rowCount() !== 1) return [false, 'Not enough ' . setting('currency_name') . '.'];
             if (!game_sleep($uid)) { q('UPDATE users SET coins = coins + ? WHERE id = ?', [$fee, $uid]); return [false, 'Something stirred. Try again.']; }
             return [true, 'A proper bed. A new day: energy full.'];

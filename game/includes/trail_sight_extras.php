@@ -391,11 +391,84 @@ function trail_sight_folk_here(string $slug, array $now, int $uid = 0): array
     $day = function_exists('gclock_my_date') ? gclock_my_date() : date('Y-m-d');
     foreach (trail_sight_folk()[$slug] ?? [] as $i => $f) {
         if ($f['when'] !== '-' && !trail_sight_cond_ok($f['when'], $now)) continue;
+        if (!str_contains($f['when'], 'dp=') && !trail_sight_folk_role_hours($f['who'], $now)) continue;   // 2026-11-14: a row with no dp= follows the villager's role (trail_sight_folk_role_hours)
         if (!trail_sight_folk_available($f['who'])) continue;
         if ($f['chance'] < 100 && hollow_unit('sgf|' . $uid . '|' . $slug . '|' . $f['who'] . '|' . $i . '|' . $day) * 100 >= $f['chance']) continue;
         $out[] = $f + ['idx' => $i];
     }
     return $out;
+}
+
+/**
+ * Default hours by role (Josh, 2026-11-14) for a villager row with no dp= in its `when`. Returns true when the villager is out at this time:
+ * - a travelling NPC (npcs.traveller: merchant, minstrel, naturalist, gourmand) follows their circuit: on the Trail of a region while that region is within
+ *   TRAIL_SIGHT_CIRCUIT_WINDOW stops of where they are now (3 stops behind, 4 ahead: 8 of the 14 12-hour stops, about 4 days a week; Josh 2026-11-14), at any time
+ *   of day ($now['towns'] = the regions of the walk's two ends, from trail_sight_now; the circuit order is traveller_towns());
+ * - a town NPC with a schedule (npc_now) is out unless their schedule has them at home;
+ * - a stop villager by role (stop_folk.role): TRAIL_SIGHT_ROLE_ALLDAY roles (inn, watch, light, signal) any time; TRAIL_SIGHT_ROLE_ROAD roles (pedlars, pilgrims,
+ *   wanderers) in the road hours (dawn and day: out early, home by dusk); every other role (they keep a stall, a trade or a shop) in the day only (Josh 2026-11-14).
+ * An unknown name is out (the lint and the tests catch unknown names).
+ */
+const TRAIL_SIGHT_ROLE_ALLDAY = ['Innkeeper', 'Keeper', 'Watcher', 'Lighthouse keeper', 'Signaller', 'Moth-watcher', 'Lair-watcher', 'Well-dweller', 'Scarecrow'];
+const TRAIL_SIGHT_ROLE_ROAD = ['Pedlar', 'Pilgrim', 'Wanderer', 'Scout', 'Porter', 'Sack-carrier'];
+const TRAIL_SIGHT_ROAD_DP = ['dawn', 'day'];
+const TRAIL_SIGHT_SHOP_DP = ['day'];
+const TRAIL_SIGHT_CIRCUIT_WINDOW = [3, 4];   // a traveller is on a region's Trail from 3 stops before they reach it to 4 stops after (8 of 14 stops of 12 h)
+
+function trail_sight_folk_role_hours(string $who, array $now): bool
+{
+    $kind = trail_sight_folk_role_kind($who);
+    $dp = (string)($now['dp'] ?? '');
+    try {
+        if ($kind[0] === 'traveller') {
+            require_once __DIR__ . '/npc_life.php';
+            $npc = q_one('SELECT * FROM npcs WHERE id = ?', [$kind[1]]);
+            if (!$npc) return true;
+            return trail_sight_circuit_near((string)(traveller_stop($npc)['town'] ?? ''), (array)($now['towns'] ?? []));
+        }
+        if ($kind[0] === 'npc') {
+            require_once __DIR__ . '/npc_life.php';
+            $npc = q_one('SELECT * FROM npcs WHERE id = ?', [$kind[1]]);
+            return !$npc || empty(npc_now($npc)['home']);
+        }
+    } catch (Throwable $e) { return true; }
+    if ($kind[0] === 'allday') return true;
+    if ($kind[0] === 'road') return in_array($dp, TRAIL_SIGHT_ROAD_DP, true);
+    if ($kind[0] === 'shop') return in_array($dp, TRAIL_SIGHT_SHOP_DP, true);
+    return true;
+}
+
+/** [kind, id]: kind = traveller | npc (a npcs id) | allday | road | shop (a stop villager's role) | unknown. */
+function trail_sight_folk_role_kind(string $who): array
+{
+    static $memo = [];
+    if (isset($memo[$who]) && empty($GLOBALS['gv_sights_reload'])) return $memo[$who];
+    [$name] = trail_sight_split_who($who);
+    try {
+        $fid = trail_sight_folk_id($who);
+        if ($fid) {
+            $role = (string)q_val('SELECT role FROM stop_folk WHERE id = ?', [$fid]);
+            return $memo[$who] = [in_array($role, TRAIL_SIGHT_ROLE_ALLDAY, true) ? 'allday' : (in_array($role, TRAIL_SIGHT_ROLE_ROAD, true) ? 'road' : 'shop'), $fid];
+        }
+        $n = q_one('SELECT id, traveller FROM npcs WHERE name = ? ORDER BY id LIMIT 1', [$name]);
+        if ($n) return $memo[$who] = [!empty($n['traveller']) ? 'traveller' : 'npc', (int)$n['id']];
+    } catch (Throwable $e) {}
+    return $memo[$who] = ['unknown', 0];
+}
+
+/** Is one of these regions within TRAIL_SIGHT_CIRCUIT_WINDOW stops of $town on the travellers' circuit (traveller_towns order, it wraps round)? A town off the circuit only matches itself. */
+function trail_sight_circuit_near(string $town, array $towns): bool
+{
+    require_once __DIR__ . '/npc_life.php';
+    $c = array_values(traveller_towns()); $n = count($c); $i = array_search($town, $c, true);
+    foreach ($towns as $t) {
+        if ($t === $town && $t !== '') return true;
+        $j = array_search((string)$t, $c, true);
+        if ($i === false || $j === false || !$n) continue;
+        $d = (($j - $i) % $n + $n) % $n;   // stops from where the traveller is now to that region, going forward
+        if ($d <= TRAIL_SIGHT_CIRCUIT_WINDOW[1] || $n - $d <= TRAIL_SIGHT_CIRCUIT_WINDOW[0]) return true;
+    }
+    return false;
 }
 
 /** Is this named villager around today (a stop villager not away; a town NPC active and not away)? An unknown name is "available" (the lint and tests catch unknown names). */
@@ -458,6 +531,11 @@ function trail_sight_pay(array $u, array $loc, string $rewards, string $who = ''
 {
     require_once __DIR__ . '/stops.php';
     $plain = []; $lines = [];   // $now = the conditions of the use that pays (stance, pal ...); without it they are worked out here
+    foreach (trail_sight_tokens($rewards) as $t) if (str_starts_with($t['tok'], 'check=') && ($t['cond'] === '' || trail_sight_cond_ok($t['cond'], $now ??= trail_sight_now($loc, null, $u)))) {   // 2.7.00: a villager's own stat check: fail it and they pay nothing
+        [$cs, $cdc] = array_pad(explode(':', substr($t['tok'], 6), 2), 2, '10'); require_once __DIR__ . '/stops.php';
+        [$cok] = stop_check($u, $cs, (int)$cdc);
+        if (!$cok) return ['💬 They ask more of you than you can manage today (' . $cs . ' ' . (int)$cdc . ').'];
+    }
     foreach (trail_sight_tokens($rewards) as $t) {
         if ($t['cond'] !== '') { $now ??= trail_sight_now($loc, null, $u); if (!trail_sight_cond_ok($t['cond'], $now)) continue; }
         $tok = $t['tok'];
@@ -467,10 +545,39 @@ function trail_sight_pay(array $u, array $loc, string $rewards, string $who = ''
         elseif (str_starts_with($tok, 'title=')) { if (trail_sight_give_title((int)$u['id'], substr($tok, 6))) $lines[] = '🏅 Title: ' . substr($tok, 6); }
         elseif (str_starts_with($tok, 'page=')) { if (unlock_entries((int)$u['id'], 'sightpage:' . substr($tok, 5)) > 0) $lines[] = '📖 A new Almanac page'; }
         elseif (str_starts_with($tok, 'hint=')) $lines[] = trail_sight_hint($u, $loc, substr($tok, 5));
-        elseif (str_starts_with($tok, 'take=') || str_starts_with($tok, 'gather=') || str_starts_with($tok, 'unlock=') || str_starts_with($tok, 'give=') || $tok === 'nocheck') continue;
+        elseif (str_starts_with($tok, 'disc=')) { [$dk, $dp, $dm] = array_pad(explode(':', substr($tok, 5), 3), 3, '0'); $lines[] = trail_sight_disc_set((int)$u['id'], $dk, (int)$dp, (int)$dm); }
+        elseif (str_starts_with($tok, 'check=')) continue;
+        elseif (str_starts_with($tok, 'take=') || str_starts_with($tok, 'choose=') || str_starts_with($tok, 'gather=') || str_starts_with($tok, 'unlock=') || str_starts_with($tok, 'give=') || $tok === 'nocheck') continue;
         else $plain[] = $tok;
     }
     return array_values(array_filter(array_merge($plain ? stop_rewards($u, $loc, implode(',', $plain), 1.0) : [], $lines), fn($l) => $l !== ''));
+}
+
+/**
+ * Temporary discounts a Sight can give (2.7.00, token disc=rest|shop:percent:minutes, REAL minutes): 'rest' takes that share off a room at the inn, 'shop' off the shop prices.
+ * Kept in users.ev_disc as {"rest":[pct, until],"shop":[pct, until]}. A new one of the same kind replaces an old one only if it is better.
+ */
+function trail_sight_disc_set(int $uid, string $kind, int $pct, int $minutes): string
+{
+    if (!in_array($kind, ['rest', 'shop'], true) || $pct < 1 || $minutes < 1) return '';
+    try {
+        $cur = json_decode((string)q_val('SELECT ev_disc FROM users WHERE id = ?', [$uid]), true); $cur = is_array($cur) ? $cur : [];
+        $old = $cur[$kind] ?? null;
+        if (!$old || (int)$old[1] < time() || (int)$old[0] <= $pct) $cur[$kind] = [min(60, $pct), time() + $minutes * 60];
+        q('UPDATE users SET ev_disc = ? WHERE id = ?', [json_encode($cur), $uid]);
+    } catch (Throwable $e) { return ''; }
+    return '🏷️ ' . $pct . '% off ' . ($kind === 'rest' ? 'a room at the inn' : 'in the shops') . ' for ' . ($minutes >= 60 ? round($minutes / 60, 1) . ' hours' : $minutes . ' minutes');
+}
+
+/** The discount percent (0 if none or run out) of a kind for a gnome. */
+function trail_sight_disc_pct(int $uid, string $kind): int
+{
+    static $c = [];
+    try {
+        $j = json_decode((string)q_val('SELECT ev_disc FROM users WHERE id = ?', [$uid]), true);
+    } catch (Throwable $e) { return 0; }
+    $r = is_array($j) ? ($j[$kind] ?? null) : null;
+    return $r && (int)$r[1] >= time() ? max(0, min(60, (int)$r[0])) : 0;
 }
 
 /** Friendship with a named villager (`Name` or `Name@village-slug`): a stop villager or a town NPC. Returns the journal fragment ('' if nobody has that name). */
@@ -494,7 +601,10 @@ function trail_sight_now(array $loc, ?array $sc, ?array $u = null): array
     $pal = 0;
     if ($u && function_exists('trail_pal_urls')) { try { $pal = count(trail_pal_urls($u)); } catch (Throwable $e) {} }
     $now['pal'] = $pal > 0 ? '1' : '0';
+    $now['gd'] = $u && function_exists('gclock_on') && gclock_on() ? (int)($u['game_day'] ?? 0) : (int)floor(time() / 86400);   // 2.7.00: the game day (conditions gd=M:R)
     $now['tl'] = $u ? trail_sight_tallies((int)$u['id']) : [];
+    $now['towns'] = array_values(array_filter([(string)($loc['region'] ?? '')]));   // 2026-11-14: the regions of the walk's two ends (travellers follow their circuit)
+    if ($u && function_exists('active_expedition')) { try { $ex = active_expedition((int)$u['id']); if ($ex && ($rg = (string)q_val('SELECT region FROM locations WHERE id = ?', [(int)$ex['to_id']])) !== '') $now['towns'][] = $rg; } catch (Throwable $e) {} }
     $now['qd'] = [];
     if ($u) { try { $now['qd'] = array_column(q('SELECT quest FROM user_sight_quests WHERE user_id = ? AND done_at IS NOT NULL', [(int)$u['id']])->fetchAll(), 'quest'); } catch (Throwable $e) {} }
     return $now;
@@ -507,6 +617,7 @@ function trail_sight_cond_ok(string $cond, array $now): bool
     foreach (explode('/', $cond) as $part) {
         [$k, $v] = array_pad(explode('=', trim($part), 2), 2, '');
         if ($k === 'tl' || $k === 'tn') { [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); $have = (int)(($now['tl'] ?? [])[$tk] ?? 0); if ($k === 'tl' ? $have < (int)$tn : $have !== (int)$tn) return false; continue; }   // tl=<key>:N = a tally is at least N; tn=<key>:N = exactly N (pays once, on the use that reaches it)
+        if ($k === 'gd') { $okd = false; foreach (explode(',', $v) as $mr) { [$gm, $gr] = array_pad(explode(':', trim($mr), 2), 2, '0'); if ((int)$gm > 0 && ((int)($now['gd'] ?? 0)) % (int)$gm === (int)$gr) $okd = true; } if (!$okd) return false; continue; }   // 2.7.00: every Mth game day (day mod M = R)
         if ($k === 'qd') { if (!array_intersect(array_map('trim', explode(',', $v)), (array)($now['qd'] ?? []))) return false; continue; }   // qd=<quest slug>[,..] = that Sight quest line is done
         if (!in_array($k, ['dp', 'se', 'we', 'hp', 'st', 'pal'], true) || $v === '') return false;
         if (!in_array((string)($now[$k] ?? ''), array_values(array_filter(array_map('trim', explode(',', $v)))), true)) return false;
@@ -537,6 +648,7 @@ function trail_sight_cond_text(string $cond): string
         if ($k === 'pal') $bits[] = $v === '1' ? 'with a Puzzle Pal along' : 'on your own';
         elseif ($k === 'st') $bits[] = implode(' or ', array_map(fn($x) => $x === 'sneak' ? 'sneaking' : ($x === 'hunt' ? 'hunting' : 'walking normally'), explode(',', $v)));
         elseif ($k === 'tl' || $k === 'tn') { [$tk, $tn] = array_pad(explode(':', $v, 2), 2, '0'); $bits[] = 'after ' . $tn . ' ' . $tk; }
+        elseif ($k === 'gd') $bits[] = implode(' or ', array_map(function ($mr) { [$gm, $gr] = array_pad(explode(':', trim($mr), 2), 2, '0'); return 'every ' . (int)$gm . 'th game day' . ((int)$gm > 1 ? ' (day ' . (int)$gr . ' of ' . (int)$gm . ')' : ''); }, explode(',', $v)));
         elseif ($k === 'qd') $bits[] = 'once ' . str_replace('-', ' ', $v) . ' is done';
         elseif (isset($w[$k])) $bits[] = $w[$k] . implode(' or ', explode(',', $v));
     }
@@ -705,13 +817,15 @@ function trail_sights_cards_html(array $u, array $sc, array $marks, ?array $exp 
             }
             $folkNote .= '</p>';
         }
-        $pk = trail_sight_pick_info($row);
+        $pk = trail_sight_pick_info($row); $ch = trail_sight_choose_info($row);
         $act = $m['left'] < 1
             ? '<button class="btn" disabled>' . e($row['icon']) . ' ' . e($row['verb']) . ' <small>' . e($m['why'] ?: 'again soon') . '</small></button>'
             : ($near
-                ? ($pk
+                ? ($ch
+                    ? '<form method="post" class="inline sgpick">' . csrf_field() . '<input type="hidden" name="do" value="sight"><input type="hidden" name="slug" value="' . e($m['slug']) . '"><span class="muted">Choose your reward: </span>' . implode('', array_map(fn($i, $o) => '<button class="btn" name="reward" value="' . $i . '">' . e($row['icon']) . ' ' . e($o[1]) . '</button>', array_keys($ch), $ch)) . '</form>'
+                    : ($pk
                     ? '<form method="post" class="inline sgpick">' . csrf_field() . '<input type="hidden" name="do" value="sight"><input type="hidden" name="slug" value="' . e($m['slug']) . '">' . implode('', array_map(fn($i, $lb) => '<button class="btn" name="pick" value="' . $i . '">' . e($row['icon']) . ' ' . e($lb) . '</button>', array_keys($pk[1]), $pk[1])) . '</form>'
-                    : '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="sight"><input type="hidden" name="slug" value="' . e($m['slug']) . '"><button class="btn">' . e($row['icon']) . ' ' . e($row['verb']) . '</button></form>')
+                    : '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="sight"><input type="hidden" name="slug" value="' . e($m['slug']) . '"><button class="btn">' . e($row['icon']) . ' ' . e($row['verb']) . '</button></form>'))
                 : '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="trail_go"><button class="btn alt" name="go" value="' . $m['x'] . ',' . $m['y'] . '">👣 Walk there</button></form>');
         $h .= '<div class="sgcard"><img class="sgpic" alt="" src="' . e(trail_art_url('obj/lm-' . $m['slug'] . '.png')) . '"><div class="sgbody"><h4>' . e($name) . '</h4>'
             . ($cap !== '' ? '<p class="help">' . e($cap) . '</p>' : '') . '<p class="muted sgdo">' . e($row['icon']) . ' ' . e($row['verb']) . ' · ' . e(implode(' · ', array_filter($bits))) . '</p>' . $notes . $folkNote . $act . '</div></div>';

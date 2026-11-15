@@ -23,6 +23,7 @@ echo "== install + register + welcome"
 get install.php >/dev/null
 post install.php -d driver=sqlite -d "site_name=Gnome Venture" -d base_url= -d admin_user=admin -d admin_email=a@b.local -d admin_pass=TestPassword123 -d admin_pass2=TestPassword123 >/dev/null
 grep -q 'All planted' $H && echo installed || { echo "INSTALL FAILED"; tail -5 $LOG; exit 1; }
+dbx "INSERT OR REPLACE INTO settings (name, value) VALUES ('game_clock_on','0')"   # health regenerates by real minutes: a real-time rule (flag-on it follows game time: tests/game_clock.php); pinned like garden100
 rm -f $C
 get register.php >/dev/null; post register.php -d username=sprout -d email=s@b.local -d password=TestPass123! -d password2=TestPass123! -d rules=1 -d age=1 >/dev/null
 get welcome.php >/dev/null; post welcome.php -d do=gnome -d "gnome_name=Bramble" -d 'hat=#2e7d4f' -d 'beard=#b5651d' >/dev/null

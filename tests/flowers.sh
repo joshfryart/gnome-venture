@@ -16,6 +16,7 @@ SID=$(db "SELECT id FROM users WHERE username='sprout'")
 dbx "UPDATE users SET onboarded=1, tour_step=0, coins=5000, energy=100, level=10 WHERE id=$SID"
 item() { db "SELECT id FROM items WHERE slug='$1'"; }
 qty() { db "SELECT COALESCE(SUM(qty),0) FROM user_items WHERE user_id=$SID AND item_id=$1"; }
+dbx "INSERT OR REPLACE INTO settings (name,value) VALUES ('game_clock_on','0')"   # the drying rack and florist shift checks are real-time rules (flag-on they follow sleeps: tests/game_clock.php); pinned like garden100, from the start so the season does not change mid-run
 for s in damask-rose dahlia cosmos lavender chamomile bluebell dutch-tulip; do dbx "INSERT OR REPLACE INTO user_items (user_id,item_id,qty) SELECT $SID,id,4 FROM items WHERE slug='cut-$s'"; done
 R=$(item cut-damask-rose); D=$(item cut-dahlia); C=$(item cut-cosmos); L=$(item cut-lavender)
 FL=$(db "SELECT id FROM shops WHERE slug='petalpins-posies'")

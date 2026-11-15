@@ -19,7 +19,8 @@ function v1_foe(string $size, int $lv = 8, string $slug = 'test-thing'): array {
 /** A v1 fight with an empty board, no ground, no forecast and no aim: the checks put down exactly what they need. */
 function v1_bare(string $size = 'medium', array $over = [], int $seed = 7): array
 {
-    $s = pfb_new(v1_me(), v1_foe($size), $seed, ['v1' => $over ?: true]);
+    $over += ['order' => 0, 'spawn' => 1];   // the helpers keep the rules their positional checks were written for (link-order firing, the board's free creature piece); the new rules have their own section (14b)
+    $s = pfb_new(v1_me(), v1_foe($size), $seed, ['v1' => $over]);
     $s['pcs'] = []; $s['cell'] = []; $s['ter'] = []; $s['envs'] = []; $s['foe']['plan'] = null; $s['spent'] = [];
     return $s;
 }
@@ -204,7 +205,7 @@ foreach (['small', 'medium', 'large', 'boss'] as $size) for ($seed = 1; $seed <=
         if (!$aim || !$foeRoot) continue;
         if ($block && isset($s['cell']) && ($mv[1] === $aim['x'] && $mv[2] === $aim['y'])) { $taken++; $at = pfb_at($s, $aim['x'], $aim['y']); if (!empty($s['reaim']) || $s['over'] || !$at || $at['by'] === 'foe') $takenFull++; continue; }   // (your piece may have been used up by its own chain: then the cell is free again and the aim plays)
         if (!empty($s['reaim'])) $re++;
-        else { $played++; $p = null; foreach ($r['ev'] as $e) if (isset($e['snap'], $e['id']) && ($e['ta'] ?? '') === 'foe') foreach ($e['snap'] as $q) if ($q['id'] === $e['id'] && $p === null) $p = $q; /* the FIRST piece it placed (a Quick piece may add a second) */ if ($foeRoot['k'] !== $aim['k'] || ($p && !array_filter($r['ev'], fn($e) => isset($e['moved'])) && ($p['x'] !== $aim['x'] || $p['y'] !== $aim['y']))) $wrong++;   /* (a Wind in the chain may push the piece off its cell afterwards: that is the Wind, not a wrong aim) */ }
+        else { $played++; $p = null; foreach ($r['ev'] as $e) if (isset($e['snap'], $e['id']) && ($e['ta'] ?? '') === 'foe') foreach ($e['snap'] as $q) if ($q['id'] === ($e['rid'] ?? $e['id']) && $p === null) $p = $q; /* the FIRST piece it placed (a Quick piece may add a second) */ if ($foeRoot['k'] !== $aim['k'] || ($p && !array_filter($r['ev'], fn($e) => isset($e['moved'])) && ($p['x'] !== $aim['x'] || $p['y'] !== $aim['y']))) $wrong++;   /* (a Wind in the chain may push the piece off its cell afterwards: that is the Wind, not a wrong aim) */ }
     }
 }
 chk('the aim is in the state and the view; when the creature plays its aim it is that piece on that cell', $played > 40 && $wrong === 0, compact('played', 're', 'wrong', 'noAim'));
@@ -447,6 +448,7 @@ require __DIR__ . '/pfboard_v1_env.php';   // 13: environment pieces (2.6.75)
 require __DIR__ . '/pfboard_v1_notes.php';   // 14: notices (2.6.76)
 require __DIR__ . '/pfboard_v1_guard.php';   // 15: your guard fades when your turn starts (2.6.77)
 require __DIR__ . '/pfboard_v1_lasting.php';   // 17: a board that lasts (2.6.98)
+require __DIR__ . '/pfboard_v1_order.php';   // 18: activation order and no free creature piece (next release)
 require __DIR__ . '/pfboard_v1_kinds.php';   // 19: class rules (2.6.98)
 
 echo "== 16. compat framework: a state without the new keys plays by 2.6.94 (PRE)\n";
@@ -454,11 +456,11 @@ $s = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]);
 foreach (array_keys(PFB_V1_PRE) as $k) unset($s['v1'][$k]);
 $s = json_decode(json_encode($s), true);
 $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($s, $k) !== $d) $bad16[] = $k;
-chk('a 2.6.94 state with none of the new keys resolves every key to PRE', !$bad16 && count(PFB_V1_PRE) === 13, $bad16);
+chk('a 2.6.94 state with none of the new keys resolves every key to PRE', !$bad16 && count(PFB_V1_PRE) === 15, $bad16);
 $v = pfb_view($s)['v1']; $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (!array_key_exists($k, $v) || (int)$v[$k] !== $d) $bad16[] = $k;
 chk('its view emits every key resolved to PRE', !$bad16, $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => true]); $bad16 = []; foreach (PFB_V1_PRE as $k => $d) if (pfb_v1r($n, $k) !== $d) $bad16[] = $k;
-chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95; aimhit, kinds: 2.6.98)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot', 'kinds', 'blankrand']), $bad16);
+chk('a new fight carries PRE as its defaults, except the keys a later task has flipped (nowm, aside, must, freepass, flip1, onebar, redraw, aimtot: 2.6.95; aimhit, kinds: 2.6.98; order, spawn: next release)', !array_diff($bad16, ['nowm', 'aside', 'must', 'freepass', 'flip1', 'onebar', 'redraw', 'aimtot', 'kinds', 'blankrand', 'order', 'spawn']), $bad16);
 $n = pfb_new(v1_me(), v1_foe('medium'), 5, ['v1' => ['onebar' => 1, 'redraw' => 1]]);
 chk('an override switches a key on', pfb_v1r($n, 'onebar') === 1 && pfb_v1r($n, 'redraw') === 1 && pfb_v1r($n, 'keepmine') === 0);
 chk('pfb_v1r on a fight without v1 rules is the PRE value too', pfb_v1r(pfb_new(v1_me(), v1_foe('medium'), 5), 'aside') === 1);

@@ -1,0 +1,1 @@
+One file per place: `<kind>-<slug>.py` with `def build(p)` (p = `ruin_lib.Pic` of the live picture). Run `python3 -I tools/gen_ruin_art.py <kind>-<slug>`. The tavern lives in `gen_ruin_art.py` (`driftwood_tavern`).

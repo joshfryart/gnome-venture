@@ -728,15 +728,15 @@ def feather_pillow(cv, rnd):
     feather(cv, (49, 26), math.radians(-58), 19)
 
 
-ITEMS = {
+ITEMS = {   # 2026-11-14: the weak pictures were redrawn in tools/gen_sight_item_art_f.py and taken out of this list
+
     "mirror-pebble": mirror_pebble, "dare-pebble": dare_pebble, "rivers-postcard": rivers_postcard,
     "blue-stitch-hat-patch": blue_stitch_hat_patch, "parrot-phrasebook": parrot_phrasebook, "planks-gratitude": planks_gratitude,
-    "scree-xylophone": scree_xylophone, "waterfall-sketch": waterfall_sketch, "arch-shell-mobile": arch_shell_mobile,
+    "waterfall-sketch": waterfall_sketch, "arch-shell-mobile": arch_shell_mobile,
     "salt-sign": salt_sign, "snow-fort-banner": snow_fort_banner, "fir-ornament": fir_ornament, "runaway-kite": runaway_kite,
-    "hatters-thimble": hatters_thimble, "bridgewardens-badge": bridgewardens_badge, "seaside-stationery": seaside_stationery,
+    "hatters-thimble": hatters_thimble, "seaside-stationery": seaside_stationery,
     "pocket-star-wheel": pocket_star_wheel, "patchwork-picnic-blanket": patchwork_picnic_blanket,
-    "hollow-round-song-sheet": hollow_round_song_sheet, "marrowbys-price-book": marrowbys_price_book, "feather-pillow": feather_pillow,
-}
+    "hollow-round-song-sheet": hollow_round_song_sheet, "marrowbys-price-book": marrowbys_price_book, }
 
 
 def render(slug):

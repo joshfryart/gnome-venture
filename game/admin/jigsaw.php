@@ -41,14 +41,14 @@ function jigsaw_admin_ingest(string $tmp, int $size, string $name): array
     $src = @$fn($tmp);
     if (!$src) return [$name . ': the picture couldn’t be read.', []];
     $dir = APP_ROOT . '/uploads/jigsaw';
-    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) { imagedestroy($src); return ['The uploads/jigsaw folder is missing and couldn’t be made.', []]; }
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) { return ['The uploads/jigsaw folder is missing and couldn’t be made.', []]; }
     $hex = bin2hex(random_bytes(12));
     $big = imagecreatetruecolor(JIGSAW_W, JIGSAW_H);
     imagecopyresampled($big, $src, 0, 0, 0, 0, JIGSAW_W, JIGSAW_H, $w, $h);   // a fresh canvas: no EXIF, no metadata, exact 1800 x 1200
     $th = imagecreatetruecolor(450, 300);
     imagecopyresampled($th, $big, 0, 0, 0, 0, 450, 300, JIGSAW_W, JIGSAW_H);
     $ok = @imagejpeg($big, $dir . '/' . $hex . '.jpg', 85) && @imagejpeg($th, $dir . '/' . $hex . '-thumb.jpg', 85);
-    imagedestroy($src); imagedestroy($big); imagedestroy($th);
+   
     if (!$ok) { @unlink($dir . '/' . $hex . '.jpg'); @unlink($dir . '/' . $hex . '-thumb.jpg'); return [$name . ': couldn’t save it. Is the uploads folder writable?', []]; }
     @chmod($dir . '/' . $hex . '.jpg', 0644); @chmod($dir . '/' . $hex . '-thumb.jpg', 0644);
     return ['', ['hex' => $hex, 'bytes' => (int)@filesize($dir . '/' . $hex . '.jpg'), 'from' => $w . 'x' . $h]];

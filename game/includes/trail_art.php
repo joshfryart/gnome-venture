@@ -93,6 +93,69 @@ function trail_water_tiles(array $art): array
     return $out;
 }
 
+/**
+ * 2026-11-14: the rich look of an authored section as data (field 'decor', written by tools/trail_decor.py from the dressing the ground picture was baked
+ * from; design: claude/plan-trail-decor.md). Nothing draws from it yet: the look is the ground picture and 'objs', unchanged. Returns the field cleaned up
+ * (bad entries dropped), or [] when the section has none: ['looks' => [[kind, x0, y0, x1, y1]], 'rough' => [...], 'floor' => [...], 'rough_default' => kind,
+ * 'props' => [[kind, x, y]], 'tree' => kind or ''].
+ */
+function trail_decor(array $art): array
+{
+    $d = $art['decor'] ?? null;
+    if (!is_array($d) || (int)($d['v'] ?? 0) !== 1) return [];
+    $rows = (array)($art['rows'] ?? []); $h = count($rows); $w = $h ? strlen((string)$rows[0]) : 0;
+    $kind = fn($k): bool => is_string($k) && preg_match('/^[a-z][a-z0-9]{1,19}$/', $k) === 1;
+    $rect = fn($r): bool => is_array($r) && count($r) === 5 && $kind($r[0]) && is_int($r[1]) && is_int($r[2]) && is_int($r[3]) && is_int($r[4])
+        && $r[1] >= 0 && $r[2] >= 0 && $r[1] <= $r[3] && $r[2] <= $r[4] && $r[3] < $w && $r[4] < $h;
+    $out = ['looks' => [], 'rough' => [], 'floor' => [], 'rough_default' => $kind($d['rough_default'] ?? null) ? $d['rough_default'] : '', 'props' => [], 'tree' => $kind($d['tree'] ?? null) ? $d['tree'] : ''];
+    foreach (['looks', 'rough', 'floor'] as $f) foreach ((array)($d[$f] ?? []) as $r) if ($rect($r)) $out[$f][] = $r;
+    foreach ((array)($d['props'] ?? []) as $p) if (is_array($p) && count($p) === 3 && $kind($p[0]) && is_int($p[1]) && is_int($p[2])) $out['props'][] = $p;
+    return $out;
+}
+
+/** What tile x, y of an authored section is dressed as (trail_decor): a thicket's look ('haybale', 'hedge', 'sea' ...), a rough tile's kind ('wheat', 'marsh' ...), a floor zone ('furrows'); null = no decor, or a plain tile. */
+function trail_decor_at(array $art, int $x, int $y): ?string
+{
+    $d = trail_decor($art);
+    $row = (string)($art['rows'][$y] ?? '');
+    $c = $x >= 0 && $x < strlen($row) ? $row[$x] : '';
+    if (!$d || $c === '') return null;
+    $f = $c === '#' ? 'looks' : ($c === ',' ? 'rough' : 'floor');
+    foreach ($d[$f] as [$k, $x0, $y0, $x1, $y1]) if ($x >= $x0 && $x <= $x1 && $y >= $y0 && $y <= $y1) return $k;   // the rects do not overlap
+    return $c === ',' && $d['rough_default'] !== '' ? $d['rough_default'] : null;
+}
+
+/**
+ * 2026-11-14, decor slice 2: the colour each dressed tile gets in the FALLBACK look (a section whose ground picture is missing, drawn by tm_render_svg).
+ * Only that look uses it: with the picture present nothing changes. Kinds not listed get no colour.
+ */
+const TRAIL_DECOR_TINT = [
+    // water and ice
+    'pond' => '#3a86b0', 'sea' => '#2a6a9a', 'icehole' => '#2a4a7a', 'ice' => '#bfe0f2', 'marsh' => '#5f8a6a', 'mud' => '#6e5a46', 'kelp' => '#3c6a50',
+    // green and growing
+    'hedge' => '#3f7a40', 'topiary' => '#4c9a44', 'bush' => '#4c8a40', 'bramble' => '#5a6a3a', 'berry' => '#7a4a6a', 'apple' => '#5fae4f', 'maple' => '#c2562e',
+    'birch' => '#9ab86a', 'beanpole' => '#6aa04a', 'reeds' => '#8aa05a', 'clover' => '#7cc35a', 'flowers' => '#c97aa8', 'wheat' => '#e0c070', 'grass' => '#86b85a',
+    'ferns' => '#4c9a54', 'leaves' => '#b4783e', 'toadstools' => '#c8604e', 'glowcaps' => '#7ef0c0', 'bigshroom' => '#b05a4a', 'dunegrass' => '#b8b46a',
+    // wood, stone, sand, snow
+    'haybale' => '#e0b860', 'fence' => '#a8743e', 'barrels' => '#8a5a34', 'biglog' => '#7a5034', 'sticks' => '#8a6a4a', 'driftwood' => '#b8a488',
+    'boulder' => '#8a8a9a', 'cairn' => '#9a98a8', 'glowrock' => '#9ad8c8', 'starstone' => '#c8c0f0', 'gravel' => '#a8a2a0', 'pebbles' => '#b0a898',
+    'shells' => '#ecd8c0', 'ripples' => '#e8c88a', 'dunetuft' => '#c8b070', 'ploughed' => '#8a5a3a', 'furrows' => '#7a4e30', 'tracks' => '#d6e4f0',
+    'snowdrift' => '#eef6fc', 'snowbank' => '#e4f0fa', 'snowwall' => '#d6e6f4', 'snowman' => '#f4fbff', 'icewall' => '#a9c9ea', 'icicle' => '#cfe6f6',
+];
+
+/** ["x,y" => colour] for every dressed tile of an authored section (trail_decor_at + TRAIL_DECOR_TINT); [] without decor. For the fallback look only. */
+function trail_decor_tints(array $art): array
+{
+    $d = trail_decor($art);
+    if (!$d) return [];
+    $out = [];
+    foreach ((array)$art['rows'] as $y => $row) for ($x = 0, $n = strlen((string)$row); $x < $n; $x++) {
+        $k = trail_decor_at($art, $x, (int)$y);
+        if ($k !== null && isset(TRAIL_DECOR_TINT[$k])) $out[$x . ',' . (int)$y] = TRAIL_DECOR_TINT[$k];
+    }
+    return $out;
+}
+
 /** Is tile x, y water or right beside water (the 8 tiles round it)? This is where the gnome can fish. */
 function trail_water_near(array $art, int $x, int $y): bool
 {
@@ -139,6 +202,28 @@ function trail_authored_all(): array
     return $all ??= trail_authored_load(__DIR__ . '/data');
 }
 
+/**
+ * 2.7.00: the decor an admin saved in Admin > Trail decor for one section (table trail_decor_edits), or null. Read once per request; no table (before Upgrade database), no database
+ * (a test of the pure functions) or a bad row = null, so the map data is used.
+ */
+function trail_decor_edit(int $routeId, int $sec): ?array
+{
+    static $all = null;
+    if (!empty($GLOBALS['gv_decor_edits_reload'])) { $all = null; $GLOBALS['gv_decor_edits_reload'] = false; }
+    if ($all === null) {
+        $all = [];
+        if (function_exists('q')) {
+            try {
+                foreach (q('SELECT route_id, sec, decor FROM trail_decor_edits')->fetchAll() as $r) {
+                    $d = json_decode((string)$r['decor'], true);
+                    if (is_array($d)) $all[(int)$r['route_id'] . ':' . (int)$r['sec']] = $d;
+                }
+            } catch (Throwable $e) { /* no table yet */ }
+        }
+    }
+    return $all[$routeId . ':' . $sec] ?? null;
+}
+
 /** How many sections an authored route has (0 = not authored). */
 function trail_authored_count(int $routeId): int
 {
@@ -156,6 +241,7 @@ function trail_authored_section(int $routeId, int $sec): ?array
     if (!empty($r['art'])) $s['art'] = (string)$r['art'];
     $s['route'] = $routeId;
     $s['sec'] = $sec;
+    if (($ed = trail_decor_edit($routeId, $sec)) !== null) $s['decor'] = $ed;   // 2.7.00: the dressing an admin edited replaces the one of the map data
     $s['boss'] = ($sec === count($r['sections']) - 1) ? (string)($r['boss'] ?? '') : '';
     return $s;
 }
@@ -279,7 +365,7 @@ function trail_art_edge_colour(array $art): string
             if (!imageistruecolor($im)) { $q = imagecolorsforindex($im, $p); $p = ($q['red'] << 16) | ($q['green'] << 8) | $q['blue']; }
             $r += ($p >> 16) & 255; $g += ($p >> 8) & 255; $b += $p & 255; $n++;
         }
-        imagedestroy($im);
+        
         if ($n) $c = sprintf('#%02x%02x%02x', (int)($r / $n * .72), (int)($g / $n * .72), (int)($b / $n * .72));
     }
     return $memo[$f] = $c;

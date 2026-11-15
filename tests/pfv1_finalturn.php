@@ -31,4 +31,4 @@ $v = pfb_view($s); $fnew = array_filter($v['pcs'], fn($p) => $p['fnew']);
 $ck('the winning turn ends the fight', $s['over'], 'charmed');
 $ck('the winning turn: no piece is marked as put down by the creature this turn', [$s['lastfoe'] ?? null, count($fnew)], [[], 0]);
 $ck('the winning turn: nothing is shown as leaving from the round before', count($s['gone'] ?? []), 0);
-$ck('the winning turn: the replay holds only your piece', array_map(fn($r) => $r['by'], $enc['replay'] ?? []), ['me']);
+$ck('the winning turn: the replay holds only your piece (and the environment pieces of its chain, which fire first since the activation order of the next release)', array_values(array_filter(array_map(fn($r) => $r['by'], $enc['replay'] ?? []), fn($b) => $b !== 'env')), ['me']);

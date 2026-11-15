@@ -1,0 +1,6 @@
+#!/bin/bash
+# lmv.sh STATE start I SIDE | place I X Y | flipplace I X Y | pass : like mv.sh, on the harness copy whose gnome owns legendary pieces (pf_play_legend.php); then the hand, health and the Keeper / Plenty / Simmer counters
+cd "$(dirname "$0")"; f=$1; shift
+if [ "$1" = flipplace ]; then php pf_play_legend.php flip $f $2 >/dev/null; set -- place $2 $3 $4; fi
+php pf_play_legend.php "$1" $f "${@:2}" 2>&1 | sed -n '/^WHAT HAPPENED\|^START\|^REFUSED/,/^$/p' | cut -c1-200
+php -r '$s=json_decode(file_get_contents($argv[1]),true); printf("T%d hp %d/%d guard %d | yield %.1f/%.1f | more=%d regen=%d simmer=%d evade=%d poison=%dx%d | foe poison %dx%d guard %d%s\n",$s["turn"],$s["me"]["hp"],$s["me"]["max"],$s["me"]["block"],$s["fh"]["now"]+$s["bar"]["now"],$s["fh"]["max"],$s["me"]["more"]??0,$s["me"]["regen"]??0,$s["me"]["simmer"]??0,$s["me"]["evade"],$s["me"]["poison"]??0,$s["me"]["poison_v"]??0,$s["foe"]["poison"],$s["foe"]["poison_v"],$s["foe"]["block"],$s["over"]?" OVER ".$s["over"]:""); echo "HAND(".count($s["me"]["hand"])."): ".implode(", ",array_map(fn($t)=>$t["n"]."[".$t["t"]." ".$t["v"]." ".$t["tag"].(($t["m"]??"")?" m:".$t["m"]:"").(!empty($t["flip"])?" FLIPPED":"")."]",$s["me"]["hand"]))."\n";' $f

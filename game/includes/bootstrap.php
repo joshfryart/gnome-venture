@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.6.990');
+define('APP_VERSION', '2.7.00');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -535,6 +535,43 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
         boot_step('den_owl_route_level_2675', function () {   // v2.6.75: the Den of the Great White Owl (Maplewold, tundra) sat on a hard-zone route of Lv 28-32 next to a Lv 3 village; it is now Lv 8-12 (a fresh world gets the same Lv 8-12 where the side routes are laid, `link_hidden_places()` in `includes/roads.php`). Only a side route still at the old 28-32 is changed
             $den = (int)q_val('SELECT id FROM locations WHERE name = ?', ['Den of the Great White Owl']);
             if ($den > 0) q("UPDATE routes SET level = 10, min_level = 8, max_level = 12 WHERE kind = 'side' AND (a_id = ? OR b_id = ?) AND min_level > 12", [$den, $den]);
+        });
+        boot_step('silverback_lair_level_1114', function () {   // 2026-11-14 (Josh): the Hollow of the Silverback Spider is at its zone's level, Lv 20 (route 18-22), not the hard-zone lair top 30 (a fresh world: link_hidden_places() in includes/roads.php). Only the old values are changed
+            $loc = q_one('SELECT id, slug FROM locations WHERE name = ?', ['Hollow of the Silverback Spider']);
+            if (!$loc) return;
+            q('UPDATE routes SET level = 20, min_level = 18, max_level = 22 WHERE (a_id = ? OR b_id = ?) AND min_level > 22', [$loc['id'], $loc['id']]);
+            $slug = 'boss-' . $loc['slug']; $lv = 20;
+            if ((int)q_val('SELECT level FROM creatures WHERE slug = ?', [$slug]) === 30) {   // same build as ensure_lair_bosses() at Lv 20
+                q('UPDATE creatures SET level = ?, hp = ?, attack = ?, defense = ?, dmg_bonus = ?, xp = ? WHERE slug = ?',
+                  [$lv, (int)round((5 + $lv * 3) * 2.4), 3 + intdiv($lv, 3), 12 + intdiv($lv, 3), intdiv($lv, 4), (int)round($lv * 6 * 2.4), $slug]);
+                q("UPDATE encyclopedia_entries SET body = REPLACE(body, '[b]Level:[/b] 30', '[b]Level:[/b] 20'), sort_order = 20 WHERE unlock_key = ?", ['creature:' . $slug]);
+                q("UPDATE encyclopedia_entries SET body = REPLACE(body, 'Silverback Spider, level 30.', 'Silverback Spider, level 20.') WHERE unlock_key = ?", ['landmark:' . $loc['slug']]);
+            }
+        });
+        boot_step('medium_lair_levels_1115', function () {   // 2026-11-15 (Josh): every lair at region level + 4 (LAIR_LEVEL_1115 in includes/roads.php; a fresh world: link_hidden_places()). Whatever level the lair has now (16 medium, 30 hard) becomes the new one, fought or charmed or not
+            require_once __DIR__ . '/roads.php';
+            foreach (LAIR_LEVEL_1115 as $name => $lv) {
+                $loc = q_one('SELECT id, slug FROM locations WHERE name = ?', [$name]);
+                if (!$loc) continue;
+                $old = (int)q_val("SELECT MAX(level) FROM routes WHERE kind = 'side' AND (a_id = ? OR b_id = ?)", [$loc['id'], $loc['id']]);
+                q('UPDATE routes SET level = ?, min_level = ?, max_level = ? WHERE (a_id = ? OR b_id = ?) AND level = ?', [$lv, $lv - 2, $lv + 2, $loc['id'], $loc['id'], $old]);
+                $slug = 'boss-' . $loc['slug'];
+                $c = q_one('SELECT name, level FROM creatures WHERE slug = ?', [$slug]);
+                if (!$c || (int)$c['level'] === $lv) continue;
+                $was = (int)$c['level'];   // same build as ensure_lair_bosses() at the new level
+                q('UPDATE creatures SET level = ?, hp = ?, attack = ?, defense = ?, dmg_bonus = ?, xp = ? WHERE slug = ?',
+                  [$lv, (int)round((5 + $lv * 3) * 2.4), 3 + intdiv($lv, 3), 12 + intdiv($lv, 3), intdiv($lv, 4), (int)round($lv * 6 * 2.4), $slug]);
+                q("UPDATE encyclopedia_entries SET body = REPLACE(body, ?, ?), sort_order = ? WHERE unlock_key = ?", ['[b]Level:[/b] ' . $was, '[b]Level:[/b] ' . $lv, $lv, 'creature:' . $slug]);
+                q('UPDATE encyclopedia_entries SET body = REPLACE(body, ?, ?) WHERE unlock_key = ?', [$c['name'] . ', level ' . $was . '.', $c['name'] . ', level ' . $lv . '.', 'landmark:' . $loc['slug']]);
+            }
+        });
+        boot_step('wearables_2700', function () {   // 2.7.00 wearables: the 33 wearable items, the Tailor's Thread, the Hat and the Pack on sale at Twigg's (includes/wearables.php)
+            require_once __DIR__ . '/wearables.php';
+            wear_ensure_items();
+        });
+        boot_step('road_kind_items_2700', function () {   // 2.7.00 road kinds: Flood Boots (on sale in the Home & curios shops) and the Toll Receipt (includes/road_kinds.php)
+            require_once __DIR__ . '/road_kinds.php';
+            rk_ensure_items();
         });
         boot_step('sleep_days_start_2609', function () {   // v2.6.09: sleep-days goes live; every gnome starts on today's game day, once
             if (setting('gclock_started') === '') {

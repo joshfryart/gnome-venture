@@ -582,8 +582,8 @@
      ],
      "road_index": 10,
      "tool_type": "pick",
-     "min_tier": 3,
-     "tool_name": "Fine Rock Hammer",
+     "min_tier": 2,
+     "tool_name": "Prospector’s Pick",
      "kind": "lock",
      "label": "rockfall: needs a pick to clear the rocks"
     }

@@ -1229,6 +1229,7 @@
       }
       playTimers.push(setTimeout(function () {
         if ((ev.ta || ev.by) === 'foe') aimHide = true;   // its aim was on the board while its banner showed
+        if (ev.cs && ev.rid && hiddenIds[ev.rid]) { delete hiddenIds[ev.rid]; revealId = ev.rid; render(); revealId = null; }   // next release: the placed piece appears when its chain starts, even when other pieces of the chain (environment, guard, trick) fire before it
         if (ev.id && hiddenIds[ev.id]) { delete hiddenIds[ev.id]; revealId = ev.id; render(); revealId = null; }   // its piece is put down now, then it scores
         Array.prototype.forEach.call(boardEl.querySelectorAll('.pfb-scoring'), function (c) { c.classList.remove('pfb-scoring'); });
         stepNote = ev.ln || ''; envStep(ev);

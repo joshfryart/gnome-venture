@@ -16,6 +16,7 @@ $town = (string)$node['region'];
 $folk = town_folk($town);
 ok('the market town has townsfolk', count($folk) >= 3, (string)count($folk));
 foreach ($folk as $n) { q('DELETE FROM npc_friends WHERE user_id = ? AND npc_id = ?', [$uid, $n['id']]); db_insert('npc_friends', ['user_id' => $uid, 'npc_id' => $n['id'], 'points' => 300, 'talks' => 0, 'gifts' => 0, 'known' => '[]']); }
+set_setting('orders_board_max', '1'); setting('__reload__');   // the town has 3 townsfolk and the board shows up to 3: show one, so the others are 'without an order'
 $board = orders_board($town); $onBoard = array_map(fn($b) => (int)$b['npc']['id'], $board);
 $off = array_values(array_filter($folk, fn($n) => !in_array((int)$n['id'], $onBoard, true)));
 ok('some townsfolk are NOT on the Orders board (the board shows a few)', count($off) >= 1 && count($board) >= 1, count($off) . ' off, ' . count($board) . ' on');

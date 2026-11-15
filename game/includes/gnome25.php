@@ -8,6 +8,13 @@ declare(strict_types=1);
  */
 const GNOME25_MARK = ['#f0f0f0' => 0, '#b4b4b4' => 1, '#787878' => 2, '#3c3c3c' => 3];   // hi, base, shade, deep marker greys
 const GNOME25_ORDER = [['shadow', null], ['outline', null], ['boots', 'boots'], ['tunic', 'tunic'], ['scarf', 'scarf'], ['skin', 'skin'], ['beard', 'beard'], ['face', null], ['hat', 'hat'], ['trim', 'trim']];
+/** 2.7.00 wearables on the rig: code => layer name; the art is `<view>-<layer>.png` (512 x 80, 8 frames like the other layers). A layer with no file is skipped, so nothing changes until it is drawn.
+ *  b = Flood Boots (tall boots, drawn over the boots), g = Work Gloves (the hands), c = Travel Cloak, h = Wayfarer's Hat (a brim and band over the hat), p = Trail Pack, s = (the Scarf is the existing scarf layer). */
+const GNOME25_WEAR = ['b' => 'wboots', 'g' => 'gloves', 'c' => 'cape', 'h' => 'brim', 'p' => 'pack'];
+/** where each wearable layer goes in the stack, per view: it is drawn right AFTER the named base layer ('' = first). The cloak and the pack sit behind the body in front view, over the tunic in back and side view. */
+const GNOME25_WEAR_AFTER = ['front' => ['cape' => '', 'pack' => '', 'wboots' => 'boots', 'gloves' => 'skin', 'brim' => 'hat'],
+    'back' => ['cape' => 'tunic', 'pack' => 'tunic', 'wboots' => 'boots', 'gloves' => 'skin', 'brim' => 'hat'],
+    'side' => ['cape' => 'tunic', 'pack' => 'tunic', 'wboots' => 'boots', 'gloves' => 'skin', 'brim' => 'hat']];
 const GNOME25_DEFAULT = [   // the colours the gnome was drawn with: hi, base, shade, deep
     'hat' => ['#ff8a5c', '#e8493b', '#b52e3f', '#6e2038'], 'tunic' => ['#b6f0e0', '#5fc4c8', '#3a86b0', '#2a4a7a'], 'scarf' => ['#ffe38a', '#f5b82e', '#d98322', '#51302b'],
     'beard' => ['#fff4d6', '#e2e0e6', '#aaa9b8', '#74758c'], 'boots' => ['#e8b982', '#b97a4a', '#864c33', '#51302b'], 'skin' => ['#ffe0bd', '#f0b98d', '#c98462', '#51302b'],
@@ -66,12 +73,19 @@ function gnome25_ramp(string $base): array
 }
 
 /** The strip (PNG bytes) for a view and colours ['hat' => '#rrggbb', 'beard' => ..., 'scarf' => ...] (missing = as drawn), or '' when the art or GD is missing. */
-function gnome25_compose(string $view, array $cols, array $skip = []): string
+function gnome25_compose(string $view, array $cols, array $skip = [], string $wear = ''): string
 {
     if (!function_exists('imagecreatetruecolor') || !in_array($view, ['front', 'back', 'side'], true)) return '';
     $dir = APP_ROOT . '/assets/img/gnome25/';
     $out = null;
+    $stack = [];   // the base layers with the worn wearables' layers put in (2.7.00)
+    $worn = array_values(array_filter(array_map(fn($ch) => GNOME25_WEAR[$ch] ?? '', str_split($wear))));
+    foreach ($worn as $wl) if ((GNOME25_WEAR_AFTER[$view][$wl] ?? null) === '' && is_file($dir . $view . '-' . $wl . '.png')) $stack[] = [$wl, null];
     foreach (GNOME25_ORDER as [$name, $role]) {
+        $stack[] = [$name, $role];
+        foreach ($worn as $wl) if ((GNOME25_WEAR_AFTER[$view][$wl] ?? null) === $name && is_file($dir . $view . '-' . $wl . '.png')) $stack[] = [$wl, null];
+    }
+    foreach ($stack as [$name, $role]) {
         if (in_array($name, $skip, true)) continue;   // rig parts (tools/gnome_rig_parts.php) leave layers out
         $f = $dir . $view . '-' . $name . '.png';
         if (!is_file($f)) return '';
@@ -93,10 +107,10 @@ function gnome25_compose(string $view, array $cols, array $skip = []): string
         }
         imagealphablending($out, true);
         imagecopy($out, $im, 0, 0, 0, 0, $w, $h);
-        imagedestroy($im);
+       
     }
     imagesavealpha($out, true);
-    ob_start(); imagepng($out); $png = (string)ob_get_clean(); imagedestroy($out);
+    ob_start(); imagepng($out); $png = (string)ob_get_clean();
     return $png;
 }
 
@@ -116,6 +130,7 @@ function gnome25_url(array $u, string $view = 'front'): string
     if (!is_file(APP_ROOT . '/assets/img/gnome25/front-hat.png')) return '';
     $c = gnome25_colours($u);
     $q = ['v' => $view];
+    if (($w = gnome25_worn($u)) !== '') $q['w'] = $w;   // 2.7.00: the wearables switched on in the Puzzle box
     foreach (['hat' => 'h', 'beard' => 'b', 'scarf' => 's'] as $role => $k) if (isset($c[$role])) $q[$k] = ltrim($c[$role], '#');
     return url('gnome_sprite.php?' . http_build_query($q));
 }
@@ -127,4 +142,26 @@ function gnome25_avatar(array $u, int $size = 96): string
     if ($url === '') return '';
     return '<svg class="gnomeart gnome25" width="' . $size . '" height="' . (int)round($size * 1.25) . '" viewBox="0 0 64 80" role="img" aria-label="Your gnome">'
         . '<image href="' . e($url) . '" x="0" y="0" width="512" height="80" image-rendering="pixelated"/></svg>';
+}
+
+/**
+ * 2.7.00: the wearables a gnome WEARS = the ones switched on in the Puzzle box (key w:<base>[-b]), as sorted codes of GNOME25_WEAR ('' = none). Cached for the request; '' without
+ * the deck tables. The art has one look per wearable whatever its cut or rank.
+ */
+function gnome25_worn(array $u): string
+{
+    static $c = [];
+    $uid = (int)($u['id'] ?? 0);
+    if ($uid < 1) return '';
+    if (isset($c[$uid])) return $c[$uid];
+    $codes = '';
+    try {
+        $map = ['flood-boots' => 'b', 'work-gloves' => 'g', 'travel-cloak' => 'c', 'wayfarers-hat' => 'h', 'trail-pack' => 'p'];
+        foreach (q("SELECT piece_key FROM pf_deck_pieces WHERE user_id = ? AND active = 1 AND piece_key LIKE 'w:%'", [$uid])->fetchAll(PDO::FETCH_COLUMN) as $k) {
+            $base = preg_replace('/-b$/', '', substr((string)$k, 2));
+            if (isset($map[$base]) && !str_contains($codes, $map[$base])) $codes .= $map[$base];
+        }
+    } catch (Throwable $e) { $codes = ''; }
+    $a = str_split($codes); sort($a);
+    return $c[$uid] = implode('', $a);
 }

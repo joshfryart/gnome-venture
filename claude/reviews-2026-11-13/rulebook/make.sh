@@ -11,7 +11,7 @@ for pg in range(3, n + 1):
     for hid, num, title in heads:
         if hid in pages: continue
         t = re.sub(r'<[^>]+>', '', title).replace('&amp;', '&')
-        if re.search(r'^\s*' + re.escape(num) + r'\s+' + re.escape(t) + r'\s*$', txt, re.M): pages[hid] = pg
+        if re.search(r'^\s*' + re.escape(num) + r'\s+' + re.escape(t) + r'\s*(?:RESOLVED|CHANGED|STILL OPEN|NEW)?\s*$', txt, re.M | re.I): pages[hid] = pg   # 2.6.990 edition: a chapter 10 heading may end in its state label
 json.dump(pages, open('play/pages.json', 'w')); print(n, 'pages;', len(pages), 'of', len(heads), 'headings found; missing:', [h[1] for h in heads if h[0] not in pages])
 PY
 python3 build.py play/pages.json && node render.js && pdfinfo puzzle-combat-rulebook.pdf | grep Pages

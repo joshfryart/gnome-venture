@@ -487,7 +487,7 @@ function lair_victory(array $u, array &$exp): void
     $exp['status'] = 'done';
     if (function_exists('trail_sight_quest_event') || is_file(__DIR__ . '/trail_sights.php')) {   // v2.6.68: a Trail Sights quest line may ask for a lair won (@boss)
         require_once __DIR__ . '/trail_sights.php';
-        foreach (trail_sight_quest_event($u, 'boss', (string)$lm['slug']) as $ql) exp_log($exp, $ql);
+        foreach (trail_sight_quest_event($u, 'boss', (string)($lm['slug'] ?? slugify((string)($lm['name'] ?? '')))) as $ql) exp_log($exp, $ql);
     }
 }
 
@@ -599,9 +599,12 @@ function landmark_scene(array $lm, bool $ruined = false): string
 {
     $kind = (string)($lm['kind'] ?? '');
     if (!in_array($kind, ['haven', 'wonder', 'delve', 'lair'], true)) return '';
-    $rel = art_path('assets/img/wonders/' . landmark_scene_slug($kind, (string)$lm['name']) . '.png');
+    $file = landmark_scene_slug($kind, (string)$lm['name']) . '.png';
+    $drawn = false;   // 2.7.00: a ruined place with its own ruin picture (assets/img/wonders/ruin/<same name>) shows that instead of the greyed live picture
+    $rel = $ruined ? art_path('assets/img/wonders/ruin/' . $file) : '';
+    if ($rel !== '') $drawn = true; else $rel = art_path('assets/img/wonders/' . $file);
     if ($rel === '') return '';
-    return '<img class="lmscene pix' . ($ruined ? ' lmscene-ruin' : '') . '" src="' . e(url($rel)) . '" width="480" height="270" alt="' . e((string)$lm['name']) . '" loading="lazy" decoding="async">';
+    return '<img class="lmscene pix' . ($ruined && !$drawn ? ' lmscene-ruin' : '') . '" src="' . e(url($rel)) . '" width="480" height="270" alt="' . e((string)$lm['name']) . '" loading="lazy" decoding="async">';
 }
 
 // ---------------- The panel on the World page ----------------

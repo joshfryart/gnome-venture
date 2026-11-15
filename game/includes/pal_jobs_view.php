@@ -146,12 +146,20 @@ function pjv_ledger(array $c): string
     <?php if ($crewRows): ?>
     <section class="box pjpanel pjcrew" aria-labelledby="pjcrewh">
       <header class="pjpanelhd"><h2 id="pjcrewh">🌱 Garden crew</h2><small class="muted">working while you sleep</small></header>
-      <?php foreach ($crewRows as $cr): $cp = pj_pal((int)$cr['user_id'], (string)$cr['pal_uid']); ?>
-        <div class="pjcrewrow">
-          <span class="pjcrewtxt"><?= PCREW_ROLES[$cr['role']][0] ?? '🧩' ?> <b><?= e($cp['name'] ?? 'A pal') ?></b><?= pcrew_tired($cr) ? ' <span class="bang" title="Wants a change">!</span>' : '' ?> · <?= e(PCREW_ROLES[$cr['role']][1] ?? $cr['role']) ?><br>
-            <small class="muted"><?= e((string)($cr['plot_name'] ?? 'Garden')) ?> · <?= $cr['mode'] === 'full' ? 'full time' : 'sleep ' . min((int)$cr['nights'], (int)$cr['done'] + 1) . ' of ' . (int)$cr['nights'] ?></small></span>
+      <?php $crewBy = []; foreach ($crewRows as $cr) $crewBy[(string)($cr['plot_name'] ?? '') !== '' ? (string)$cr['plot_name'] : 'Garden'][] = $cr;   // one block per garden, roles in order
+      foreach ($crewBy as $gname => $rows): ?>
+      <h3 class="pjcrewgarden"><?= e($gname) ?></h3>
+      <?php usort($rows, fn($x, $y) => array_search((string)$x['role'], array_keys(PCREW_ROLES)) <=> array_search((string)$y['role'], array_keys(PCREW_ROLES)));
+      foreach ($rows as $cr): $cp = pj_pal((int)$cr['user_id'], (string)$cr['pal_uid']); ?>
+        <div class="pjcrewrow<?= $cp ? '' : ' is-gone' ?>">
+          <?php if ($cp): ?><?= ppal_img($cp['key'], '', 'ppalimg pjimg', 36) ?><?php endif; ?>
+          <span class="pjcrewtxt"><?= PCREW_ROLES[$cr['role']][0] ?? '🧩' ?> <b><?= $cp ? e($cp['name']) : 'Pal not found' ?></b><?= $cp && pcrew_tired($cr) ? ' <span class="bang" title="Wants a change">!</span>' : '' ?> · <?= e(PCREW_ROLES[$cr['role']][1] ?? $cr['role']) ?><br>
+            <small class="muted"><?= $cp ? ($cr['mode'] === 'full' ? 'full time' : 'sleep ' . min((int)$cr['nights'], (int)$cr['done'] + 1) . ' of ' . (int)$cr['nights']) : 'This pal is not in your Pal Book any more, so nobody is working this job.' ?></small></span>
+          <?php if (!$cp): ?>
+          <form method="post" action="<?= e(url('paljobs.php')) ?>" class="inline"><?= csrf_field() ?><?= $bk ?><input type="hidden" name="slot" value="<?= (int)$cr['id'] ?>"><button class="btn small alt" name="do" value="crew_free">Free the job</button></form>
+          <?php endif; ?>
         </div>
-      <?php endforeach; ?>
+      <?php endforeach; endforeach; ?>
       <p class="pjcrewlink"><a class="btn small alt" href="<?= e(url('garden.php?t=help')) ?>">About the crew</a></p>
     </section>
     <?php endif; ?>

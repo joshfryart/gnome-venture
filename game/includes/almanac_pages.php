@@ -164,9 +164,68 @@ function ensure_almanac_fixes_2646(): void
     set_setting('almanac2646fix', '1');
 }
 
+/**
+ * Almanac data calls (Josh, 2026-11-14), once per world (marker almanac1114fix). Only exact old text is replaced, so an admin-edited page is left alone.
+ * Lotus Root is not a water lily; Banana "fruits once" vs its perennial stats (each stem fruits once, the clump keeps going); the Cannonball Tree is native
+ * to the Amazon (the page says why Spicepeak claims it); Mossbottom Market lists all 5 of its shops; the 4 bare "Boss lair." pages get a line;
+ * the 146 village pages (56 shared texts) read like the village's own World-page blurb (village_page_body). Shell Meal's P and the tortoise greens: left (Josh).
+ */
+const ALMANAC_1114_TEXT = [   // [old, new]: pages, items, plants
+    ['The rhizome of the water lily, lacy with holes when sliced.', 'The rhizome of the sacred lotus (no kin of the water lily), lacy with holes when sliced.'],
+    ['Technically a giant herb. Each plant fruits once, then new suckers take over.', 'Technically a giant herb. Each stem fruits once, then a sucker from the same root takes its place, so the clump keeps giving.'],
+    ['Pink temple flowers growing straight from the trunk.', 'Pink temple flowers growing straight from the trunk. Born in the Amazon, it has grown beside Spicepeak’s temples so long that the region calls it its own.'],
+    ['[b]Hedge & Hearth[/b] sells decorations for your yard.', '[b]Hedge & Hearth[/b] sells decorations for your yard. [b]The Dye Pot[/b] sells hat and beard dyes (buy a colour once and it is yours for good). [b]Petalpin’s Posies[/b], the florist, sells cut flowers, string and scissors, and is glad of a helping hand.'],
+];
+const ALMANAC_1114_LAIRS = [   // lair name => its line (data/landmarks.txt says the same for a fresh world)
+    'Hollow of the Silverback Spider' => 'A very old silver spider spins her stories in a hollow tree.',
+    'Temple of the Tiger Moth' => 'A great striped moth haunts the lamps of a jungle temple.',
+    'Lair of the Jade Dragon-fly' => 'A dragonfly with jade wings hunts over the last oasis.',
+    'Reef of the Box Jelly Queen' => 'A glassy jelly queen drifts over the kelp, trailing stinging threads.',
+];
+
+function ensure_almanac_fixes_1114(): void
+{
+    if (setting('almanac1114fix') === '1') return;
+    $swap = function (string $t): string {
+        foreach (ALMANAC_1114_TEXT as [$a, $b]) if (!str_contains($t, $b)) $t = str_replace($a, $b, $t);
+        return $t;
+    };
+    foreach (['encyclopedia_entries' => 'body', 'items' => 'description', 'plants' => 'description'] as $table => $col) {
+        foreach (q("SELECT id, $col AS t FROM $table WHERE $col LIKE ? OR $col LIKE ? OR $col LIKE ? OR $col LIKE ?",
+                   ['%rhizome of the water lily%', '%Each plant fruits once%', '%Pink temple flowers%', '%sells decorations for your yard.%'])->fetchAll() as $row) {
+            $new = $swap((string)$row['t']);
+            if ($new !== (string)$row['t']) q("UPDATE $table SET $col = ? WHERE id = ?", [$new, $row['id']]);
+        }
+    }
+    foreach (ALMANAC_1114_LAIRS as $name => $line) {
+        q("UPDATE landmarks SET description = ? WHERE kind = 'lair' AND name = ? AND description = 'Boss lair.'", ['Boss lair. ' . $line, $name]);
+        $loc = q_one("SELECT id, slug, description FROM locations WHERE kind = 'lair' AND name = ?", [$name]);
+        if (!$loc) continue;
+        if ((string)$loc['description'] === 'Boss lair.') q('UPDATE locations SET description = ? WHERE id = ?', ['Boss lair. ' . $line, $loc['id']]);
+        $page = q_one('SELECT id, body FROM encyclopedia_entries WHERE unlock_key = ?', ['landmark:' . $loc['slug']]);
+        if ($page && preg_match('/^(\S+ )Boss lair\.\n/u', (string)$page['body'], $m)) q('UPDATE encyclopedia_entries SET body = ? WHERE id = ?', [$m[1] . 'Boss lair. ' . $line . "\n" . substr((string)$page['body'], strlen($m[0])), $page['id']]);
+        $old = 'The legendary keeper of ' . $name . '. Boss lair.';
+        foreach (q('SELECT id, description FROM creatures WHERE slug = ?', ['boss-' . $loc['slug']])->fetchAll() as $c) {
+            if ((string)$c['description'] === $old) q('UPDATE creatures SET description = ? WHERE id = ?', [$old . ' ' . $line, $c['id']]);
+        }
+        $cp = q_one('SELECT id, body FROM encyclopedia_entries WHERE unlock_key = ?', ['creature:boss-' . $loc['slug']]);
+        if ($cp && str_starts_with((string)$cp['body'], $old . "\n")) q('UPDATE encyclopedia_entries SET body = ? WHERE id = ?', [$old . ' ' . $line . substr((string)$cp['body'], strlen($old)), $cp['id']]);
+    }
+    // village pages: the old text was the same for every village of a zone; now the village's own blurb (unique, tests/village_desc.php)
+    require_once __DIR__ . '/adventure_data.php';
+    foreach (q("SELECT l.*, z.name AS zone_name FROM locations l LEFT JOIN zones z ON z.id = l.zone_id WHERE l.kind = 'village'")->fetchAll() as $v) {
+        $page = q_one('SELECT id, body FROM encyclopedia_entries WHERE unlock_key = ?', ['village:' . $v['slug']]);
+        if (!$page) continue;
+        $oldBody = village_page_body($v, (string)($v['zone_name'] ?? ''), false);
+        if ((string)$page['body'] === $oldBody) q('UPDATE encyclopedia_entries SET body = ? WHERE id = ?', [village_page_body($v, (string)($v['zone_name'] ?? '')), $page['id']]);
+    }
+    set_setting('almanac1114fix', '1');
+}
+
 function ensure_almanac_pages_2646(): void
 {
     ensure_almanac_fixes_2646();
+    ensure_almanac_fixes_1114();
     if (setting('almanac2646') === '1') return;
     foreach (ALMANAC_2646_PAGES as $title => [$category, $sort, $key, $hint, $body]) {
         if (q_val("SELECT 1 FROM encyclopedia_entries WHERE chapter = 'General' AND title = ?", [$title])) continue;
@@ -182,4 +241,63 @@ function almanac_unlock_2646(int $uid, string $key): void
 {
     ensure_almanac_pages_2646();
     unlock_entries($uid, $key);
+}
+
+
+/**
+ * 2.7.00 road kinds: one Almanac page, made once per world (marker almanac2700roads) and opened the first time a walk starts on a road with a kind.
+ * Numbers come from includes/road_kinds.php so the page cannot drift from the rules.
+ */
+function ensure_almanac_pages_2700(): void
+{
+    if (setting('almanac2700roads') === '1') return;
+    require_once __DIR__ . '/road_kinds.php';
+    $title = 'Special roads';
+    if (!q_val("SELECT 1 FROM encyclopedia_entries WHERE chapter = 'General' AND title = ?", [$title])) {
+        $body = "A few Trail roads are not plain roads. The road card says which, and a tap on the label tells you more.\n\n"
+            . '[b]Ferry[/b]: ' . rk_text('ferry') . "\n"
+            . '[b]Tunnel[/b]: ' . rk_text('tunnel', 2) . " The tier is shown on the road card.\n"
+            . '[b]Pass[/b]: ' . rk_text('pass', 2) . " The tier is shown on the road card.\n"
+            . '[b]Toll road[/b]: ' . rk_text('toll') . "\n"
+            . '[b]Overgrown[/b]: ' . rk_text('overgrown') . "\n"
+            . '[b]Flooded[/b]: ' . rk_text('flooded') . " Flood Boots are sold in the Home & curios shops.";
+        try {
+            db_insert('encyclopedia_entries', ['chapter' => 'General', 'category' => 'Places', 'title' => $title, 'body' => $body, 'unlock_key' => 'roadkinds', 'hint' => 'Walk a ferry, tunnel, pass, toll, overgrown or flooded road.', 'sort_order' => 70]);
+        } catch (PDOException $e) { return; }   // made at the same moment
+    }
+    set_setting('almanac2700roads', '1');
+}
+
+function almanac_unlock_2700(int $uid, string $key): void
+{
+    ensure_almanac_pages_2700();
+    unlock_entries($uid, $key);
+}
+
+/**
+ * 2.7.00 wearables: one Almanac page (marker almanac2700wear), opened when the Tailor page is first visited. The pieces come from includes/wearables.php so the page cannot drift.
+ */
+function ensure_almanac_wearables_2700(): void
+{
+    if (setting('almanac2700wear') === '1') return;
+    require_once __DIR__ . '/wearables.php';
+    $title = 'Wearables and the Tailor';
+    if (!q_val("SELECT 1 FROM encyclopedia_entries WHERE chapter = 'General' AND title = ?", [$title])) {
+        $b = "A wearable is a piece you wear AND a piece you play: switch it on in your Puzzle box (a Keepsake slot: 1 at level 1, 2 at 15, 3 at 25, 4 at 40). A [b]Tailor[/b] built in at least one of your gardens makes some of them, lines them and re-cuts them. Every level of every Tailor you own makes a lining likelier to take; a lining that does not take gives a Tailor’s Thread, and " . WEAR_PITY . " Threads make the next one a sure thing. Common, Lined and Fine pieces are worth 0, 2 and 4 more; a Fine one counts as a Rare piece.\n";
+        foreach (WEAR_DEFS as $d) {
+            $b .= "\n[b]" . $d['name'] . '[/b]: ' . $d['desc'] . ' ';
+            $cs = []; foreach ($d['cuts'] as $c) $cs[] = $c[0] . ' (' . ucfirst($c[1]) . ' ' . $c[2] . ($c[3] !== '' ? ', ' . $c[3] : ($c[4] !== '' ? ', ' . $c[4] : '')) . ')';
+            $b .= 'Cuts: ' . implode(' or ', $cs) . '. ' . ($d['get'] === 'craft' ? 'Made by the Tailor.' : ($d['get'] === 'shop' ? 'Sold at Twigg’s.' : 'From Cat Fish.'));
+        }
+        try {
+            db_insert('encyclopedia_entries', ['chapter' => 'General', 'category' => 'Garden life', 'title' => $title, 'body' => $b, 'unlock_key' => 'wearables', 'hint' => 'Visit the Tailor.', 'sort_order' => 71]);
+        } catch (PDOException $e) { return; }
+    }
+    set_setting('almanac2700wear', '1');
+}
+
+function almanac_unlock_wearables_2700(int $uid): void
+{
+    ensure_almanac_wearables_2700();
+    unlock_entries($uid, 'wearables');
 }

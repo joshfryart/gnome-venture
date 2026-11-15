@@ -97,6 +97,7 @@ function admin_menu_def(): array
             ['texts.php', '📝', 'Page text', 'Edit the wording of game pages', ''],
             ['road_text.php', '🛣️', 'Road text', 'Edit road lines, scenes, wonder and delve wording', ''],
             ['trailsights.php', '🔎', 'Trail sights', 'What a gnome can do next to a big set piece on a Trail map', ''],   // v2.6.68
+            ['trail_decor.php', '🌿', 'Trail decor', 'Edit how a section of a Trail map is dressed (looks, zones, props)', ''],   // 2.7.00
             ['code.php', '🧑‍💻', 'Page code', 'See or edit the code of a game page', ''],   // v2.6.37
             ['r:encyclopedia_entries', '📚', null, 'The Almanac’s pages', 't:encyclopedia_entries'],
             ['r:news', '📰', null, 'News posts on the front page', 't:news'],

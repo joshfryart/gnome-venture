@@ -225,6 +225,8 @@ function start_expedition(array $u, int $routeId): array
         $dest = q_one('SELECT * FROM locations WHERE id = ?', [$to]);
         if (!$dest || (!on_road($to) && !place_known((int)$u['id'], $dest))) return [false, 'You don’t know the way there yet. Explore off the road to find it.'];
     }
+    require_once __DIR__ . '/road_kinds.php';   // 2.7.00: ferry, tunnel, pass, toll, overgrown, flooded roads
+    if (($rkWhy = rk_start_check($u, $route)) !== null) return [false, $rkWhy];
     require_once __DIR__ . '/trail_tiles.php';   // graphical navigation 2d
     $trail = trail_on();   // tile walk: one energy to step on, the rest of the Trail is free; a timer walk is unchanged
     $cost = $trail ? trail_base_cost($u, $route) : route_energy($u, $route);
@@ -237,7 +239,18 @@ function start_expedition(array $u, int $routeId): array
     $quick = q('UPDATE users SET ev_quickwalk = 0 WHERE id = ? AND ev_quickwalk = 1', [$u['id']])->rowCount() === 1;   // fireflies (v0.7.31): an instant walk, free roads too (v0.9.1 review)
     if ($quick) $cost = 0;
     if ($cost > 0 && !spend_energy((int)$u['id'], $cost)) return [false, "You need $cost energy for this walk. Rest or eat something first."];
-    gclock_charge((int)$u['id'], 'travel', function_exists('trail_sections') ? max(1, (int)trail_sections($route)) : max(1, (int)$route['steps']));   // sleep-days: game time per trail section
+    [$rkMin, $rkPetals, $rkNote] = rk_start_costs($u, $route);   // 2.7.00 road kinds: a ferry takes Petals, an overgrown or flooded road takes longer, a toll road settles its time at the first stretch
+    if ($rkPetals > 0 && !take_petals((int)$u['id'], $rkPetals, 'ferry')) {
+        if ($cost > 0) q('UPDATE users SET energy = energy + ? WHERE id = ?', [$cost, $u['id']]);   // somebody spent the Petals meanwhile: give the energy back
+        return [false, 'The ferry costs ' . $rkPetals . ' Petals and you do not have them.'];
+    }
+    if (rk_of((int)$route['id'])) { require_once __DIR__ . '/almanac_pages.php'; almanac_unlock_2700((int)$u['id'], 'roadkinds'); }   // 2.7.00: the Special roads page
+    $rkSecs = function_exists('trail_sections') ? max(1, (int)trail_sections($route)) : max(1, (int)$route['steps']);
+    $rkDefer = $trail && (rk_of((int)$route['id'])['kind'] ?? '') === 'toll';   // a toll road on the tile map is charged when the toll is answered (rk_toll_apply)
+    if (!$rkDefer) {
+        gclock_charge((int)$u['id'], 'travel', $rkSecs);   // sleep-days: game time per trail section
+        if ($rkMin > 0) rk_charge_travel((int)$u['id'], $rkSecs, $rkMin);
+    }
     $gc = gnome_combat($u, true);
     [$min, $max, $scaled] = route_danger($u, $route);
     [$mins, $quickWalk] = route_walk_minutes($u, $route);   // v0.9.7: a road far below you is a quick walk
@@ -258,11 +271,14 @@ function start_expedition(array $u, int $routeId): array
         && (int)q_val("SELECT MIN(id) FROM expeditions WHERE user_id = ? AND status = 'active'", [$u['id']]) !== $newExp) {
         q('DELETE FROM expeditions WHERE id = ?', [$newExp]);
         if ($cost > 0) q('UPDATE users SET energy = energy + ? WHERE id = ?', [$cost, $u['id']]);
+        if ($rkPetals > 0) q('UPDATE users SET coins = coins + ? WHERE id = ?', [$rkPetals, $u['id']]);   // 2.7.00: the ferry fare back too
         return [false, 'You’re already on the road.'];
     }
-    if ($trail && trail_scene_make((int)$u['id'], $newExp, $route, (int)$route['b_id'] === (int)$here['id'] && (int)$route['a_id'] !== (int)$here['id'])) q('UPDATE expeditions SET steps_total = ?, arrive_at = ? WHERE id = ?', [trail_sections($route), now(), $newExp]);   // 2d: sections instead of steps and minutes
+    $rkScene = $trail && trail_scene_make((int)$u['id'], $newExp, $route, (int)$route['b_id'] === (int)$here['id'] && (int)$route['a_id'] !== (int)$here['id']);
+    if ($rkScene) q('UPDATE expeditions SET steps_total = ?, arrive_at = ? WHERE id = ?', [trail_sections($route), now(), $newExp]);   // 2d: sections instead of steps and minutes
+    if ($rkDefer && !$rkScene) { gclock_charge((int)$u['id'], 'travel', $rkSecs); }   // no tile map to ask the toll on: the plain road's time
     return [true, '🍄 You step onto the mycelium. ' . ($quickWalk && !$quick ? '💨 Quick walk. ' : '') . ($cost ? '(−' . $cost . ' energy)' : ($roadFree ? '🧭 A Wayfinder knows the road: no energy used.' : '🦯 Your staff makes light work of it: no energy used.'))
-        . ($staffWear ? ' ' . $staffWear : '')];
+        . ($staffWear ? ' ' . $staffWear : '') . ($rkNote !== '' ? ' ' . $rkNote : '')];
 }
 
 /** v1.9.0: how many log lines to keep: the usual 25, or 160 while a fight is on (the whole fight, for "Show all"). */

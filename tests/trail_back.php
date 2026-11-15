@@ -16,6 +16,8 @@ $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
 [$sok, $m] = start_expedition($u, (int)visible_routes($u, $mk)[0]['id']);
 ok('a tile walk starts', $sok, (string)$m);
 $exp = active_expedition((int)$u['id']);
+require_once $argv[1] . '/includes/road_kinds.php';
+if (($sc0 = trail_scene($exp)) && rk_toll_open((int)substr((string)$sc0['row']['map_key'], 6), $sc0['st'])) trail_toll($u, $exp, false);   // 2.7.00: the first road of the market is a toll road: take the old road
 $sc = trail_scene($exp);
 ok('it has more than one section', $sc && (int)$sc['st']['S'] > 1, json_encode($sc['st'] ?? null));
 if (!$sc || (int)$sc['st']['S'] < 2) exit(1);

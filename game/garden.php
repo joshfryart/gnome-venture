@@ -762,6 +762,7 @@ $tb = fn(int $n, string $cls = '') => $n > 0 ? ' <span class="tbadge' . $cls . '
 $bBuilt = $bCan = $bLater = [];
 foreach (BUILDINGS as $key => $bdef) {
     if (critter_is_home($key) && (setting('animals_on') === '0' || animals120_blocked($key) || animals140_blocked($key)) && !isset($built[$key])) continue;   // v1.0.0: animals switched off
+    if ($key === 'tailor' && !isset($built[$key])) { require_once __DIR__ . '/includes/wearables.php'; if (!wear_live($u)) continue; }   // 2.7.00: with the Puzzle combat setting
     if (isset($built[$key])) $bBuilt[$key] = $bdef;
     elseif ((int)$plot['garden_level'] >= $bdef[2]) $bCan[$key] = $bdef;
     else $bLater[$key] = $bdef;

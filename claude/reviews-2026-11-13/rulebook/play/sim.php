@@ -79,11 +79,11 @@ foreach ($names as $slug) for ($seed = (int)(getenv("SEED") ?: 1); $seed <= (get
     $c = $all[$slug]; $cr = pfd_foe_row($c, $keys[(crc32($slug) + $seed) % 14]) + ['region' => ''];
     $s = pfb_new(pp_player($c['level']), $cr, $seed, ['blank' => true, 'v1' => true]);
     [$si, $sd] = start_pick($pol, $s); pfb_start($s, $si, $sd);
-    $st = ['own' => 0, 'ownFoe' => 0, 'ownThorn' => 0, 'foeTurn' => 0, 'pass' => 0, 'blocked' => 0, 'useups' => 0, 'aimShown' => 0, 'aimReal' => 0, 'aimOver' => 0, 'aimTurns' => 0, 'emptyStart' => 0, 'quickTurns' => 0, 'big' => 0];
+    $st = ['aimOverNP' => 0, 'poisonLost' => 0, 'own' => 0, 'ownFoe' => 0, 'ownThorn' => 0, 'foeTurn' => 0, 'pass' => 0, 'blocked' => 0, 'useups' => 0, 'aimShown' => 0, 'aimReal' => 0, 'aimOver' => 0, 'aimTurns' => 0, 'emptyStart' => 0, 'quickTurns' => 0, 'big' => 0];
     while (!$s['over']) {
         if (!array_filter($s['pcs'], fn($p) => $p['by'] === 'me')) $st['emptyStart']++;
         $opts = options($s); $o = choose($pol, $s, $opts); $hp0 = $s['me']['hp']; $pb = $s['foe']['plan'] ?? null; $planBefore = $pb ? [$pb['n'], $pb['t'], $pb['v'], $pb['tag'], $pb['x'] . ',' . $pb['y'], 'hits ' . ($pb['tot']['hp'] ?? '?')] : null;
-        if ($o === null) { $r = pfb_pass($s, $s['turn']); $st['pass']++; $shown = (int)($s['foe']['plan']['tot']['hp'] ?? -1); $hpMid = $hp0; }
+        if ($o === null) { $shown = (int)($pb['tot']['hp'] ?? -1); $r = pfb_pass($s, $s['turn']); $st['pass']++; $hpMid = $hp0; }   // 2.6.990 re-run: the chip as it stood BEFORE the pass (the 2.6.986 run read the next round's chip here)
         else {
             if ($o['fl']) pfb_flip($s, $o['i'], $s['turn']);
             $c2 = $s; $d = pfb_play($c2, [[$o['i'], $o['x'], $o['y']]], $s['turn'], null, true, true); $hpMid = (int)$d['hp']; $shown = $o['aim'] ?? -1;
@@ -98,6 +98,8 @@ foreach ($names as $slug) for ($seed = (int)(getenv("SEED") ?: 1); $seed <= (get
             fwrite(STDERR, sprintf("T%d %s | aim before: %s | shown after: %s | hp %d -> %d\n   %s\n", $s['turn'] - ($s['over'] ? 0 : 1), $o ? ($s['over'] ? '' : '') . 'play ' . $o['t'] . ($o['fl'] ? ' flipped' : '') . " @{$o['x']},{$o['y']} yield " . round($o['yield'], 1) . ' n' . $o['n'] : 'PASS', json_encode($planBefore), $shown, $hp0, $s['me']['hp'], implode(' ; ', $tx)));
         }
         $lost = $hpMid - $s['me']['hp']; if ($lost > 0) $st['foeTurn'] += $lost;
+        $pz = 0; foreach ($s['envlog'] ?? [] as $L) if (($L['k'] ?? '') === 'poison') $pz += (int)$L['me']; $st['poisonLost'] += $pz;   // 2.6.990 re-run: poison ticks on me this round (not in the chip)
+        if ($shown >= 0 && $lost - $pz > $shown) $st['aimOverNP']++;
         if ($shown >= 0) { $st['aimTurns']++; $st['aimShown'] += $shown; $st['aimReal'] += max(0, $lost); if ($lost > $shown) $st['aimOver']++; if ($lost >= 2 * max(1, $shown) && $lost >= 4) $st['big']++; }
     }
     echo json_encode(['pol' => $pol, 'slug' => $slug, 'size' => $c['size'], 'kind' => $s['foe']['kind'], 'lv' => $c['level'], 'seed' => $seed, 'over' => $s['over'], 'turns' => min($s['turn'], PF_TURN_CAP), 'hp' => $s['me']['hp'], 'max' => $s['me']['max'], 'lostpct' => round(100 * ($s['me']['max'] - $s['me']['hp']) / $s['me']['max']), 'charmShare' => round(100 * $s['bar']['now'] / max(0.1, $s['fh']['max']))] + $st) . "\n";

@@ -4781,7 +4781,7 @@ dialog.tkr::backdrop, dialog.tkscene::backdrop, dialog.tkcamp::backdrop { -webki
 .tkdhead { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--line); }
 .tkdbody { flex: 1; overflow-y: auto; padding: 8px 12px 24px; -webkit-overflow-scrolling: touch; }
 .tkdrawer form.sending { opacity: .6; }
-@media (max-width: 600px) { .tkdrawer { top: 12vh; border-left: 0; border-top: var(--px, 2px) solid var(--ol, #2a1a10); width: 100vw; } }
+@media (max-width: 640px) { .tkdrawer { top: 12vh; border-left: 0; border-top: var(--px, 2px) solid var(--ol, #2a1a10); width: 100vw; } }
 .tkpage main > h1 { display: none; }
 .tkpage nav.tabs { margin-top: 0; }
 .tkpage .tksmuterow { margin: 2px 0; text-align: center; }
@@ -7826,7 +7826,7 @@ button.hpick-it:focus-visible { outline: 3px solid var(--focus); outline-offset:
 .chg li i { font-style: normal; flex: none; }
 .chg li span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chg li b { flex: none; font-variant-numeric: tabular-nums; }
-@media (max-width: 340px) { .chall { grid-template-columns: 1fr; } }
+@media (max-width: 380px) { .chall { grid-template-columns: 1fr; } }   /* 2.7.00: was 340; one small-phone breakpoint fewer (css_lint ratchet) */
 
 /* Contest hall: tabs and contest squares */
 .chtabs { display: flex; gap: 6px; margin: 2px 0 10px; }
@@ -7883,7 +7883,7 @@ button.hpick-it:focus-visible { outline: 3px solid var(--focus); outline-offset:
 /* 2.6.65: Almanac chapter chips and bigger section tiles */
 .almnav { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 6px 0 10px; } .almnav a { flex: none; white-space: nowrap; }
 .contents .secgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 10px 0 14px; }
-@media (min-width: 720px) { .contents .secgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 721px) { .contents .secgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .contents .seccard { align-items: center; text-align: center; padding: 14px 8px; border-radius: 14px; } .contents .seccard .secicon { font-size: 2rem; line-height: 1; }
 
 /* 2.6.65: Fair class squares and sheets */
@@ -7910,3 +7910,20 @@ details.sgq summary{cursor:pointer}
 .tmfolk-in svg{animation:tmfolkbob .3s steps(2,end) 6}
 @media (prefers-reduced-motion: reduce){.tmfolk-in,.tmfolk-in svg{animation:none}}
 .sgrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
+
+/* Pal Jobs: Garden crew panel, grouped by garden (next release) */
+.pjcrew .pjcrewgarden { margin: .7rem 0 .2rem; font-size: .95rem; opacity: .85; }
+.pjcrew .pjcrewrow { display: flex; align-items: center; gap: .6rem; padding: .35rem 0; border-top: 1px solid rgba(255, 255, 255, .08); }
+.pjcrew .pjcrewrow .pjimg { flex: 0 0 auto; }
+.pjcrew .pjcrewrow .pjcrewtxt { flex: 1 1 auto; min-width: 0; }
+.pjcrew .pjcrewrow form.inline { flex: 0 0 auto; margin: 0; }
+.pjcrew .pjcrewrow.is-gone .pjcrewtxt b { opacity: .8; }
+
+/* 2.7.00 road kinds: the kind chip on a route card and the toll card on the Trail */
+.pchip--kind { font-weight: 600; }
+.trailstrip .tkind { margin-left: auto; font-size: .85rem; opacity: .95; }
+.tollcard { margin: .4rem 0; padding: .6rem .7rem; border: 1px solid rgba(255, 255, 255, .18); border-radius: 8px; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.tollcard p { flex: 1 1 100%; margin: 0 0 .2rem; }
+.campcard { margin: .4rem 0; padding: .6rem .7rem; border: 1px solid rgba(255, 255, 255, .18); border-radius: 8px; }
+.campcard p { margin: 0 0 .4rem; }
+.campcard .campsel select { max-width: 100%; }

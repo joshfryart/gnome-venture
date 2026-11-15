@@ -22,6 +22,7 @@ All files are in `game/includes/data/`. Each kind has a base file and one file p
 `sight slug|villager|when|chance %|line|rewards`
 - villager = an exact name (a stop villager or a town NPC/traveller); when two villagers share a name use `Name@village-slug` (the village's location slug, e.g. `v-na-1-3`).
 - Chance is rolled once per gnome, Sight, villager and game day (so the Sights card can say who is here). A villager who is **away today** (visiting family) or a **hidden NPC** (Pomeroy Crumbworth before the Gourmand opens) is not there.
+- **Default hours by role** (2026-11-14, Josh): a row whose `when` has no `dp=` is NOT there all day; it follows the villager's role (`trail_sight_folk_role_hours`): a travelling NPC (merchant, minstrel, naturalist, the Gourmand) follows their circuit: on the Trail of a region (the walk's start or end region) from 3 stops before they reach it to 4 stops after (8 of the 14 twelve-hour stops: about 4 days a week), any time of day; a town NPC with a schedule is out unless the schedule has them at home; a stop villager whose role is Innkeeper, Keeper, Watcher, Lighthouse keeper, Signaller, Moth-watcher, Lair-watcher, Well-dweller or Scarecrow: any time; Pedlar, Pilgrim, Wanderer, Scout, Porter, Sack-carrier: road hours (dawn, day); every other role (a stall, a trade, a shop): in the day only (Josh 2026-11-14). Write `dp=` in the row to override.
 - rewards: any Sight reward tokens, plus: **`nocheck`** (their being here makes the Sight's check a sure thing) and **`give=<item>:<qty>`** (they ask for that item: the gnome gets a "Give" button on the Sights card; the item is used up and the OTHER tokens pay). `fp=N` = friendship with THIS villager. A row with `give=` pays only on giving; a row without pays automatically after a win (the first present one).
 
 ## Quest lines: `trail_sight_quests_<set>.txt`
@@ -42,3 +43,12 @@ All files are in `game/includes/data/`. Each kind has a base file and one file p
 `Name|species|personality|role|bio|village slug`: a villager the world did not make (Keeper Marram ...), added to that village's stop villagers (slot 9+). Then rows may name them. (Find village slugs: location slugs like `v-na-1-3`; list them with a scratch install, see `claude/sights/folk-todo.md` for the snippet.)
 
 ## Names and captions: `trail_sight_info_<set>.txt` (`slug|Name|caption`): one per Sight; already written.
+
+
+## 2.7.00 additions (engine gaps; tests `tests/trail_sights_270.sh`)
+- **`gd=M:R`** (a `when` / `?cond` key): every Mth game day, i.e. the gnome's game day mod M = R. Several values = any of them: `gd=7:0,7:3`. With the game clock off it counts real days. Example: a villager on every 7th game day: `when` = `gd=7:0`.
+- **`choose=A;B;C`** (a reward token, 2 to 4 plain rewards joined by `;`, no `pick:` check on the row): the gnome picks ONE reward on the Sights card before using the Sight (one button per option; refused without a choice). Options: `c= xp= en= item= crop= seed= fish= find= buff= disc=`.
+- **`disc=rest|shop:percent:minutes`**: a temporary discount (real minutes, max 60%): `rest` = a room at the inn, `shop` = shop prices. A smaller one never replaces a bigger one that still runs. Stored in `users.ev_disc`.
+- **Tool-tier odds** `item=x:1@5/15/30/50`: the chance by the tier of the row's `tool` (tier 1 = first number ... a tier past the list repeats the last). The row needs a tool column.
+- **`check=stat:dc`** (a reward token on a VILLAGER row, `trail_sight_folk_*.txt`): the villager only pays if the gnome passes that stat check; otherwise their line says they ask for more.
+- Rewards pass: `trail_sight_flat_scale` (setting `sights_flat_pct_per_level`, 0 = off): see `claude/sights-rewards-2.7.00.md`.

@@ -91,6 +91,7 @@ if (is_post()) {
         'send_trip' => pj_trip_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (string)($_POST['land'] ?? ''), (string)($_POST['tool'] ?? ''), (int)($_POST['hours'] ?? 0), $pots, $unq, !empty($_POST['luck']), $potMore),
         'send_delve' => pj_delve_send($u, $pal !== '' ? $pal : ($picked[0] ?? ''), (int)($_POST['delve'] ?? 0), $pots, $unq, $potMore),
         'recall' => pj_recall($u, (int)($_POST['job'] ?? 0)),
+        'crew_free' => (function () use ($u) { require_once __DIR__ . '/includes/pal_crew.php'; return pcrew_free_slot($u, (int)($_POST['slot'] ?? 0)); })(),
         'heal' => pj_heal($u, $pal, (string)($_POST['potion'] ?? PJ_POTION)),
         'collect' => pj_collect($u, (int)($_POST['job'] ?? 0)),
         default => [false, 'Nothing to do.'],

@@ -140,14 +140,22 @@ def fig_flip():
     return svg(600, 140, b, 'Flipping a piece swaps its top and bottom edges')
 
 
+NSCUT = {'L': 'hc', 'R': 'km', 'T': 'km', 'B': 'hm'}
+BRUSH = {'L': 'hb', 'R': 'km', 'T': 'kb', 'B': 'hb'}
+PIERCE = {'L': 'hb', 'R': 'km', 'T': 'kb', 'B': 'hb'}
+JAB = {'L': 'hb', 'R': 'kc', 'T': 'kb', 'B': 'hb'}
+FLUT = {'L': 'hc', 'R': 'kc', 'T': 'kc', 'B': 'hc'}
+
+
 def fig_opening():
+    """2.6.990 replay: Pincer Earwig, level 4, seed 11. Blank on 1,1; my Chop below it; its Night Scuttle left of it; the aim (Nip) on 0,0."""
     S = 76
     gx, gy = 30, 26
     b = grid(gx, gy, S)
-    b += piece(gx + 2 * S, gy + 2 * S, S, 'Blank', '', WILD, 'none', dashed=True)
+    b += piece(gx + 1 * S, gy + 1 * S, S, 'Blank', '', WILD, 'none', dashed=True)
     b += piece(gx + 1 * S, gy + 2 * S, S, 'Chop', 'Hurt 5', CHOP, 'me')
-    b += piece(gx + 3 * S, gy + 2 * S, S, 'Humus H.', 'Guard 2', HUMUS, 'foe')
-    b += aim(gx + 2 * S, gy + 1 * S, S)
+    b += piece(gx + 0 * S, gy + 1 * S, S, 'Night Sc.', 'Trick 2', NSCUT, 'foe')
+    b += aim(gx + 0 * S, gy + 0 * S, S)
     tx = gx + 4 * S + 24
     b += note(tx, 44, 'The opening (Pincer Earwig, seed 11)', 11, bold=True)
     lines = ['The Blank sits on one of the four inner cells.', 'It fits every edge. It never fires and', 'no chain runs through it.', '',
@@ -159,45 +167,46 @@ def fig_opening():
 
 
 def fig_chain():
+    """2.6.990 replay, Earwig turn 1: Dodge placed right of Chop: Riposte 8."""
     S = 84
     gx, gy = 24, 30
-    b = note(gx, 18, 'Your chain: you place Slip Past above Chop', 11, bold=True)
+    b = note(gx, 18, 'Your chain: you place Dodge to the right of Chop', 11, bold=True)
     b += grid(gx, gy, S, 3, 3, labels=False)
-    b += piece(gx + 1 * S, gy + 1 * S, S, 'Chop', 'Hurt 5', CHOP, 'me', badge='2')
-    b += piece(gx + 1 * S, gy + 0 * S, S, 'Slip Past', 'Trick 6', SLIP, 'me', badge='1')
-    b += piece(gx + 2 * S, gy + 1 * S, S, 'Blank', '', WILD, 'none', dashed=True)
+    b += piece(gx + 0 * S, gy + 0 * S, S, 'Blank', '', WILD, 'none', dashed=True)
+    b += piece(gx + 0 * S, gy + 1 * S, S, 'Chop', 'Hurt 5', CHOP, 'me', badge='2')
+    b += piece(gx + 1 * S, gy + 1 * S, S, 'Dodge', 'Guard 5', DODGE, 'me', badge='1')
     tx = gx + 3 * S + 22
-    for i, t in enumerate(['1  Slip Past fires first: it is the piece you placed.', '    A Trick does nothing by itself.',
-                           '2  Chop is linked to it, so it fires next.', '    Trick then Hurt is the combo Ambush:', '    5 x 1.5 + 6 = 14 on the Yield bar.', '',
+    for i, t in enumerate(['1  Dodge fires first: it is the piece you placed.', '    You hold 5 guard.',
+                           '2  Chop is linked to it, so it fires next.', '    Guard then Hurt is the combo Riposte:', '    5 x 1.5 = 7.5, rounded to 8 on the Yield bar.', '',
                            'Two pieces fired. Nothing is used up.', 'Both stay on the board.', '',
-                           'Had you placed Chop next to a Slip Past already', 'on the board, Chop would fire first: no combo, 5.']):
+                           'Had you placed Chop next to a Dodge already', 'on the board, Chop would fire first: no combo, 5.']):
         b += note(tx, 52 + i * 15, t, 10.5)
     return svg(640, 300, b, 'A chain of two: the placed piece fires first, then the piece linked to it')
 
 
 def fig_useup():
+    """2.6.990 replay, Wild Boar (seed 3) turn 3: its Boar Rush lands on the aim cell, links the Bramble and, through it, my Pierce."""
     S = 84
     gx, gy = 24, 30
-    b = note(gx, 18, 'The creature’s chain of 3 (its turn, same fight)', 11, bold=True)
+    b = note(gx, 18, 'The creature’s chain of 3 (Wild Boar, seed 3, turn 3)', 11, bold=True)
     b += grid(gx, gy, S, 3, 3, labels=False)
-    b += piece(gx + 0 * S, gy + 1 * S, S, 'Chop', 'Hurt 5', CHOP, 'me', badge='3')
-    b += piece(gx + 0 * S, gy + 0 * S, S, 'Slip Past', 'Trick 6', SLIP, 'me', badge='2')
-    b += piece(gx + 1 * S, gy + 0 * S, S, 'Nip', 'Hurt 3', NIP, 'foe', badge='1')
-    b += piece(gx + 1 * S, gy + 1 * S, S, 'Blank', '', WILD, 'none', dashed=True)
+    b += piece(gx + 1 * S, gy + 1 * S, S, 'Boar Rush', 'Hurt 6', BRUSH, 'foe', badge='1')
+    b += piece(gx + 1 * S, gy + 2 * S, S, 'Bramble', '-10%', BRAMBLE, 'env', badge='2')
+    b += piece(gx + 0 * S, gy + 2 * S, S, 'Pierce', 'Hurt 11', PIERCE, 'me', badge='3')
     tx = gx + 3 * S + 22
-    for i, t in enumerate(['1  The Earwig places Nip on its aim cell: you lose 3.', '2  Nip links to your Slip Past. It fires, for you.',
-                           '3  Slip Past links to your Chop: Ambush again,', '    another 14 on the Yield bar.', '',
-                           'Three pieces fired, so all three are used up:', 'Nip, Slip Past and Chop leave the board.', '',
-                           'Each piece works for its owner,', 'whoever started the chain.']):
-        b += note(tx, 52 + i * 15, t, 10.5)
-    return svg(640, 300, b, 'A chain of three started by the creature fires two of your pieces for you, then all three are used up')
+    for i, t in enumerate(['1  The Boar places Boar Rush on its aim cell:', '    6, all of it blocked by my guard.', '2  Boar Rush links to the Bramble below it. The', '    Bramble fires for the Boar: I lose 9 health.',
+                           '3  The Bramble links to my Pierce. It fires, for me:', '    11 on the Yield bar, in the creature’s turn.', '',
+                           'Three pieces fired, so all three are used up:', 'Boar Rush, the Bramble and Pierce leave the board.', '',
+                           'Each piece works for its owner, whoever started the', 'chain. An environment piece works for the starter.']):
+        b += note(tx, 46 + i * 15, t, 10.5)
+    return svg(640, 300, b, 'A chain of three started by the creature fires an environment piece for the creature and one of your pieces for you, then all three are used up')
 
 
 def fig_round():
     w = 640
     b = ''
     steps = [('You', '#f6e7bf', ['look, pick, flip,', 'place one piece', '(or pass),', 'End turn']), ('The creature', '#f3cdc8', ['plays its aim', '(or picks again),', 'its chain fires,', 'class rule extras']),
-             ('The environment', '#d9ead0', ['places 1 piece', 'on an empty,', 'lonely cell.', 'Nothing fires.']), ('Clean-up', '#e6e6e6', ['poison on you,', 'old pieces leave,', 'new hand of 5,', 'new aim is shown'])]
+             ('The environment', '#d9ead0', ['places 1 piece', 'on an empty,', 'lonely cell.', 'Nothing fires.']), ('Clean-up', '#e6e6e6', ['poison, Simmer,', 'old pieces leave,', 'new hand of 5,', 'new aim is shown'])]
     bw = 138
     for i, (t, c, ls) in enumerate(steps):
         x = 8 + i * (bw + 20)
@@ -223,16 +232,56 @@ def fig_env():
 
 
 def fig_bird():
+    """2.6.990 replay: Carrion Crow, level 9, seed 5, turn 1."""
     S = 70
     gx, gy = 24, 24
     b = grid(gx, gy, S)
-    b += piece(gx + 1 * S, gy + 2 * S, S, 'Samara', 'Hurt 8', {'L': 'hb', 'R': 'kb', 'T': 'kb', 'B': 'hb'}, 'me')
-    b += piece(gx + 2 * S, gy + 1 * S, S, 'Heat Sh.', 'Guard 2', {'L': 'hb', 'R': 'km', 'T': 'hb', 'B': 'kb'}, 'foe')
-    b += piece(gx + 2 * S, gy + 2 * S, S, 'Blank', '', WILD, 'none', dashed=True)
-    b += aim(gx + 3 * S, gy + 2 * S, S, "AIM 1") + aim(gx + 2 * S, gy + 3 * S, S, "AIM 2")
+    b += piece(gx + 1 * S, gy + 2 * S, S, 'Jab', 'Hurt 5', JAB, 'me')
+    b += piece(gx + 1 * S, gy + 0 * S, S, 'Flutter O.', 'Trick 1', FLUT, 'foe')
+    b += piece(gx + 1 * S, gy + 1 * S, S, 'Blank', '', WILD, 'none', dashed=True)
+    b += aim(gx + 0 * S, gy + 1 * S, S, "AIM 1") + aim(gx + 2 * S, gy + 1 * S, S, "AIM 2")
     tx = gx + 4 * S + 24
-    for i, t in enumerate(['Bird rule, Two aims (Carrion Crow, seed 5, turn 1).', '', 'Aim 1: Talon Dive, Hurt 4, on cell 3,2.', 'Aim 2: the same piece on cell 2,3.', '',
-                           'Put a piece on aim 1 and it plays aim 2.', 'Put pieces on both and it picks again.', '', 'Taking one cell does not stop the hit.',
-                           'Guard does: Dodge 7 took all of the 4.']):
+    for i, t in enumerate(['Bird rule, Two aims (Carrion Crow, seed 5, turn 1).', '', 'Aim 1: Mob Caw, Hurt 3, Quick, on cell 0,1.', 'Aim 2: the same piece on cell 2,1.', '',
+                           'Put a piece on aim 1 and it plays aim 2.', 'Put pieces on both and it picks again.', '', 'Taking one cell does not stop the hit. Here it', 'made it worse: with a piece on aim 1 the chip',
+                           'read 9 for aim 2 (its Quick extra piece links', 'better from there). Left alone it was 3.']):
         b += note(tx, 44 + i * 15, t, 10.5, bold=(i == 0))
     return svg(640, 320, b, 'A Bird shows two aims on different cells')
+
+
+def fig_hand():
+    """2.6.990: the hand over three rounds with a Keeper, a Plenty and a Simmer piece (as played: Pincer Earwig, seed 3, with the harness copy whose gnome owns the three pieces)."""
+    b = ''
+    rows = [('Round 1', ['Charm', 'Buckthorn Z.', 'Cranberry P.', 'Pierce'], 'I play Buckthorn Zing (Plenty). Cranberry Preserve (Keeper) is not played.', {1: 'play', 2: 'keep'}),
+            ('Round 2', ['Cranberry P.', 'Swing', 'Bark Badger', 'Pecan Pie', 'Hoe Hook', 'Dodge'], 'Six pieces: the Keeper stayed, five new ones came. I play Pecan Pie (Simmer).', {0: 'keep', 3: 'play'}),
+            ('Round 3', ['Cranberry P.', 'Frost Bark', 'Slip Past', 'Jab', 'Rest'], 'Back to five. As the turn starts: Simmer heals 2 (again next round, then it is over).', {0: 'keep'})]
+    y = 8
+    for name, hand, text, marks in rows:
+        b += note(6, y + 22, name, 10.5, bold=True)
+        for i, n in enumerate(hand):
+            x = 66 + i * 94
+            m = marks.get(i)
+            fill = '#f6e7bf' if m is None else ('#cfe6c0' if m == 'keep' else '#f7d9a0')
+            sw = '2.2' if m else '1.2'
+            b += f'<rect x="{x}" y="{y + 4}" width="88" height="28" rx="5" fill="{fill}" stroke="#8a6a1f" stroke-width="{sw}"/>'
+            b += note(x + 44, y + 22, n, 9.6, 'middle')
+        b += note(66, y + 47, text, 9.6, color='#444')
+        y += 62
+    b += f'<rect x="66" y="{y + 2}" width="14" height="12" rx="3" fill="#cfe6c0" stroke="#8a6a1f"/>' + note(86, y + 12, 'Keeper: stays in the hand', 9.6)
+    b += f'<rect x="250" y="{y + 2}" width="14" height="12" rx="3" fill="#f7d9a0" stroke="#8a6a1f"/>' + note(270, y + 12, 'the piece I placed that round', 9.6)
+    b += note(66, y + 30, 'Round 1 shows 4 pieces: the fifth was my start piece.', 9.2, color='#555')
+    return svg(640, y + 38, b, 'The hand over three rounds: a Keeper piece stays, Plenty gives a sixth piece for one round, Simmer heals 2 at the start of the next two turns')
+
+
+def fig_swarm():
+    """2.6.988 Swarm grows: +1 Hurt per 2 other creature pieces on the board, at most +2 (checked on the engine: play/checks.php)."""
+    b = ''
+    cols = [('0 or 1 other pieces', 0), ('2 or 3 other pieces', 1), ('4 or more', 2)]
+    for i, (t, add) in enumerate(cols):
+        x = 10 + i * 212
+        b += f'<rect x="{x}" y="6" width="200" height="74" rx="8" fill="#f3cdc8" stroke="#9b3b33"/>'
+        b += note(x + 100, 24, t, 10.5, 'middle', bold=True)
+        n = [1, 3, 5][i]
+        for k in range(n):
+            b += f'<rect x="{x + 100 - n * 11 + k * 22}" y="34" width="18" height="18" rx="3" fill="{"#9b3b33" if k == 0 else "#fff"}" stroke="#9b3b33"/>'
+        b += note(x + 100, 70, 'Nip, printed 5, hits for ' + str(5 + add), 10.5, 'middle')
+    return svg(640, 88, b, 'Swarm: a Critter Hurt hits 1 harder for every 2 of its other pieces on the board, up to 2 harder')

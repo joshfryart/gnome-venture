@@ -2,7 +2,7 @@
 """Tool gates and extra mini-boss spots for the 230 generated routes (claude/bend-prototype-v2/route-<id>.json; the 16 hand-tuned Maplewold routes have theirs from
 tools/build_maplewold_bendy.py). Deterministic and idempotent (a section that already has `gates` / `extra_minibosses` is left alone). Edits the committed route files in place
 (do NOT rerun tools/gen_bendy_trail_proto.py: its output is not reproducible). Josh 2026-11-10: yes to gates and extra mini-bosses for the other regions.
-  Gate tier rule = region rank + 1 (rank = place in REGION_LEVELS order, Maplewold = 1), capped at 3: NA 2 (Sturdy), every later region 3 (Fine). Josh's cap 4 cannot be used: staff, lantern, pick and axe have no tier 4.
+  Gate tier rule (lint_maplewold_extras.gate_tier; Josh 2026-11-14): the lower-level half of the regions NA CA NWE CB SE SA EE tier 2 (Sturdy), MENA EA CSA SEA WCA ESA OC tier 3 (Fine). Staff, lantern, pick and axe have no tier 4.
   Locks (a wall across the whole section with a 3 tile gap on the road; nothing else gets through): one on the last section of every delve / lair route, before the E tile.
   Shortcuts (same wall, plus a second 2 tile opening far along it; the way round is >= 6 steps longer): one plain route per region.
   Extra mini-bosses: one large creature of the route's land on the road of one section of about every 4th plain route; level = the creature's own (creatures.txt), the one nearest
@@ -25,7 +25,7 @@ for l in open(os.path.join(REPO, "game/includes/data/creatures.txt"), encoding="
     if l.startswith("#") or "|" not in l: continue
     f = l.split("|"); CRE.append((f[0], f[1], f[2], [x.strip() for x in f[3].split(",")], int(f[4])))
 
-def tier_of(region): return min(3, ORDER.index(region) + 2)   # the gathering tools only go to tier 3 (Fine)
+def tier_of(region): return LX.gate_tier(region)   # Josh 2026-11-14: NA .. EE tier 2 (Sturdy), MENA .. OC tier 3 (Fine); was rank + 1 capped at 3
 
 def put_gate(route, si, k, tool, kind):
     """The section with a wall across it at road index k, or None when it does not fit (a landmark, find or E in the wall, lint fails, no good bypass)."""

@@ -55,9 +55,9 @@ ok('a meter drains with the days (3 days, ' . STOP_METER_DECAY . ' a day)', stop
 ok('no perk yet, so no extra slot', stop_perk_bonus($lu, $lid) === 0 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc));
 [$v, $filled] = stop_meter_add($lu, $lid, 'cheer', 120);
 ok('a full meter fills, restarts, and gives a perk', $filled === 'cheer' && $v === STOP_METER_AFTER && isset(stop_perks($lu, $lid)['cheer']));
-ok('the perk is one more thing per visit', stop_slots($lkLoc, $lu) === stop_slots($lkLoc) + 1);
+ok('the old per-stop perk no longer adds a slot (retired in 2.6.33: perks are the player\'s now, player_perks.php)', stop_perk_bonus($lu, $lid) === 0 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc));
 stop_meter_add($lu, $lid, 'larder', 120);
-ok('perks stack: two full meters give two more', stop_perk_bonus($lu, $lid) === 2 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc) + 2);
+ok('two full meters give two perks (still recorded), and still no extra slot', count(stop_perks($lu, $lid)) === 2 && stop_perk_bonus($lu, $lid) === 0 && stop_slots($lkLoc, $lu) === stop_slots($lkLoc));
 q('DELETE FROM stop_prog WHERE user_id = ? AND k = ?', [$lu, 'perk:larder']);
 ok('the perk is only at that stop', stop_perk_bonus($lu, $lid + 99999) === 0);
 ok('the perk ends after its days', (function () use ($lu, $lid) { stop_prog_set($lu, $lid, 'perk:cheer', 1, ['until' => gmdate('Y-m-d', strtotime(today() . ' 12:00:00 UTC -1 days'))]); return stop_perk_bonus($lu, $lid) === 0; })());
@@ -318,7 +318,7 @@ foreach (array_keys(stop_types()) as $type) {
     foreach (['dawn' => ['sun', 'spring'], 'night' => ['rain', 'winter'], 'day' => ['wind', 'autumn']] as $dp => [$we, $se]) {
         cfg(['stop_daypart_force' => $dp, 'weather_force' => $we, 'season_force' => $se]);
         foreach (stop_pool($loc)['offer'] as $a) {
-            q('DELETE FROM stop_log'); at($loc);
+            q('DELETE FROM stop_log'); q("UPDATE users SET game_minute = 360 WHERE username = 'sprout'"); at($loc);   // sleep-days: 06:00 for every attempt, or the stop closes for the day
             $in = ['opt' => 0, 'pick' => 1, 'power' => 3, 'item_id' => (int)q_val("SELECT id FROM items WHERE category = 'seed' LIMIT 1")];
             give_item((int)me()['id'], (int)q_val("SELECT id FROM items WHERE category = 'seed' LIMIT 1"), 2);
             give_item((int)me()['id'], (int)q_val("SELECT id FROM items WHERE slug = 'food-scrap'"), 4);

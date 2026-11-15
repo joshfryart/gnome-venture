@@ -134,7 +134,11 @@ if ($f) {
     ok('arrangement order delivered', $ok, $m);
     ok('the low one stays in the satchel', (int)q_val('SELECT qty FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, $lowId]) === 1);
 }
-$f = find_order($folk, 'feast');
+// the town has 3 townsfolk and a feast is 4% of the orders: add 12 more (copies of one) so a feast order turns up whatever the ids hash to
+$proto = q_one('SELECT * FROM npcs WHERE id = ?', [(int)$folk[0]['id']]);
+for ($i = 1; $i <= 12; $i++) { $c = $proto; unset($c['id']); foreach (['name', 'slug'] as $k) if (isset($c[$k])) $c[$k] = $c[$k] . ' Extra' . $i; try { db_insert('npcs', $c); } catch (Throwable $e) { break; } }
+$folkMore = town_folk($town);
+$f = find_order($folkMore, 'feast');
 ok('found a feast order', (bool)$f);
 if ($f) {
     [$n, $o] = $f;

@@ -967,8 +967,8 @@
      ],
      "road_index": 17,
      "tool_type": "lantern",
-     "min_tier": 3,
-     "tool_name": "Glowcap Lantern",
+     "min_tier": 2,
+     "tool_name": "Miner’s Lantern",
      "kind": "lock",
      "label": "dark passage: needs a lantern to find the way"
     }

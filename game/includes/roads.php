@@ -1,5 +1,14 @@
 <?php
 declare(strict_types=1);
+
+/** 2026-11-15 (Josh): lairs at region level + 4 (route = level - 2 .. level + 2), as Condor's Crag (SA, region Lv 12, lair 16) sits.
+ *  Medium-zone lairs of the late regions were Lv 16: CSA 23 -> 27, SEA 26 -> 30, ESA 32 -> 36, OC 35 -> 39 -> 37 (Josh: no creature in the data is above Lv 37).
+ *  Hard-zone lairs of the early regions were Lv 30: CA 4 -> 8, NWE 6 -> 10, CB 8 -> 12, SE 10 -> 14, EE 14 -> 18, MENA 17 -> 21, EA 20 -> 24.
+ *  Kept: Den of the Great White Owl Lv 10, Hollow of the Silverback Spider Lv 20 (boot step silverback_lair_level_1114).
+ *  Existing worlds: boot step medium_lair_levels_1115 (every lair takes the new level, fought or charmed ones too). */
+const LAIR_LEVEL_1115 = ['Temple of the Tiger Moth' => 27, 'Dragonlizard Den' => 30, 'Snowcrown Peak' => 36, 'Reef of the Box Jelly Queen' => 37,
+    'Smokecap Caldera' => 8, 'Barrow of the Frost Toad' => 10, 'Lair of the Hurricane Crab' => 12, 'Forge of the Cinder Wyrm' => 14,
+    'Lair of the Grey Wolf King' => 18, 'Tomb of the Sand Scarab' => 21, 'Lair of the Jade Dragon-fly' => 24];
 /**
  * Roads (v0.7.24).
  * The mycelium network is laid out as roads: town → three villages → a neighbouring region's town.
@@ -126,7 +135,9 @@ function link_hidden_places(): void
                 default => [1, 0, 0],   // villages and havens: matched to your level
             };
             $min = max(1, $lvl - intdiv($range, 2));
-            if ((string)$h['name'] === 'Den of the Great White Owl') { $lvl = 10; $min = 8; $range = 4; }   // v2.6.75: a fresh world: Lv 8-12 like the upgrade step den_owl_route_level_2675 (it sat on a hard-zone route of Lv 28-32 next to a Lv 3 village)
+            if ((string)$h['name'] === 'Den of the Great White Owl') { $lvl = 10; $min = 8; $range = 4; }
+            if (isset(LAIR_LEVEL_1115[(string)$h['name']])) { $lvl = LAIR_LEVEL_1115[(string)$h['name']]; $min = $lvl - 2; $range = 4; }   // 2026-11-15 (Josh): medium-zone lairs of the late regions at region level + 4; upgrade step medium_lair_levels_1115
+            if ((string)$h['name'] === 'Hollow of the Silverback Spider') { $lvl = 20; $min = 18; $range = 4; }   // 2026-11-14 (Josh): Lv 18-22, its zone's level (the wonders beside it are 20 and 22) instead of the hard-zone lair top 28-32; upgrade step silverback_lair_level_1114   // v2.6.75: a fresh world: Lv 8-12 like the upgrade step den_owl_route_level_2675 (it sat on a hard-zone route of Lv 28-32 next to a Lv 3 village)
             db_insert('routes', ['a_id' => $anchor, 'b_id' => $h['id'], 'steps' => 2 + min(3, intdiv($lvl, 8)), 'minutes' => 4, 'level' => $lvl,
                 'min_level' => $min, 'max_level' => $min + $range, 'fixed' => $fixed, 'kind' => 'side', 'road_id' => null]);
         }

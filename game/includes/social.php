@@ -114,6 +114,11 @@ function social100_schema(string $PK, string $ID, string $END): array
         day VARCHAR(10) NOT NULL,
         PRIMARY KEY (user_id, day)
     )$END";
+    $t[] = "CREATE TABLE IF NOT EXISTS wear_lined (
+        user_id $ID NOT NULL,
+        wkey VARCHAR(60) NOT NULL,
+        PRIMARY KEY (user_id, wkey)
+    )$END";
     $t[] = "CREATE TABLE IF NOT EXISTS festival_flags (
         festival VARCHAR(40) NOT NULL,
         user_id $ID NOT NULL,
@@ -174,7 +179,7 @@ function social_note_return(array $u): void
 /** Remove a gnome's social rows (used by Admin → Fresh start). Call inside the caller's transaction. */
 function social_fresh_start(int $uid): void
 {
-    foreach (['first_week_claims', 'daily_ticks', 'hollow_goal_contrib', 'hollow_goal_claims', 'festival_flags', 'festival_buys', 'festival_claims', 'garden_stamps'] as $t) {
+    foreach (['first_week_claims', 'daily_ticks', 'hollow_goal_contrib', 'hollow_goal_claims', 'festival_flags', 'festival_buys', 'festival_claims', 'garden_stamps', 'wear_lined'] as $t) {
         q("DELETE FROM $t WHERE user_id = ?", [$uid]);
     }
     q('DELETE FROM garden_stamps WHERE plot_id IN (SELECT id FROM plots WHERE user_id = ?)', [$uid]);
