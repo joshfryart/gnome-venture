@@ -52,6 +52,9 @@ const PF_TAGS = [
 
 /** 2.6.96: what a tag does on the v1 board, one short plain sentence each (the v1 pages read this; PF_TAGS above is the text of the strip fights and of the pages with the v1 setting off, which stay as they were). */
 const PF_TAGS_V1 = [
+    'keep'   => ['🧺', 'Keeper: stays in your hand until you play it'],
+    'plenty' => ['🍽️', 'Plenty: next round you pick from 6 pieces'],
+    'simmer' => ['🍵', 'Simmer: heals you 2 as each of your next 2 turns starts'],
     'quick'  => ['⚡', 'Quick: no extra effect for you (one piece a turn)'],   // 2.6.986: the whole hand is redrawn each round, so the old extra draw did nothing
     'heavy'  => ['🪨', 'Heavy: a big hit, nothing extra on this board'],   // the board has no Heavy rule (it only exists in strip fights: PF_TAGS)
     'pierce' => ['📌', 'Pierce: ignores the creature\'s guard'],
@@ -213,6 +216,7 @@ function pf_make_tile(string $key, array $stats, int $bonus = 0, array $over = [
     $stat = max(0, (int)($stats[PF_STAT[$d['t']]] ?? 0));
     $lvl = intdiv(max(1, (int)($stats['level'] ?? 1)), 3);
     $t = ['k' => $key, 'n' => $d['n'], 't' => $d['t'], 'v' => max(1, (int)$d['v'] + $stat + $lvl + $bonus), 'r' => $d['r'], 'tag' => (string)$d['tag'], 'm' => ''];
+    if (!empty($d['mod'])) $t['m'] = (string)$d['mod'];   // 2.6.990: a built-in knack (a legendary crop piece)
     foreach (['src', 'life', 'col', 'up', 'edges', 'rank', 'tool'] as $k) if (isset($d[$k])) $t[$k] = $d[$k];   // 2.6.74 (v1 board rules, see pfb_v1_tile): where the piece comes from, its life in rounds, its authored edges. No tile carries them yet
     return $t;
 }
@@ -519,6 +523,7 @@ function pf_apply(array &$s, string $who, array $tile, int $val, bool $fit, ?str
             if ($who === 'me') { $mine['hp'] = max($mine['hp'], min($mine['max'], $mine['hp'] + $val + ($m === 'tender' ? 2 : 0))); if ($m === 'soft') $s['foe']['agg'] += 2; }   // Snack/Item: heal; the caller consumes the real item
             break;
     }
+    if ($root && $who === 'me' && $ft) { if ($tile['tag'] === 'plenty') $mine['more'] = 1; if ($tile['tag'] === 'simmer') $mine['regen'] = 2; }   // 2.6.990: Plenty (next round you hold 6 pieces), Simmer (heals 2 as each of your next 2 turns starts)
     if ($root && $who === 'me' && $m === 'sticky' && $fit) pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + 1));
     if ($root && $who === 'me' && $m === 'lucky' && empty($s['lucky_used'][$tile['k']])) { $s['lucky_used'][$tile['k']] = 1; $mine['redraws'] = min(3, $mine['redraws'] + 1); }
     if (!empty($ck) && !empty(PF_COMBOS[$ck]['barPct']) && $who === 'me') {   // Win Over: a slice of bar

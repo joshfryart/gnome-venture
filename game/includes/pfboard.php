@@ -36,8 +36,8 @@ const PFB_BRAMBLE = 0.10, PFB_BRAMBLE_FOE = 1.0;   // bramble: share of max heal
 const PFB_THORN = 0.10, PFB_EVENT_FOE = 0.5;  // thorn burst: share of max health per piece in the zone; event damage on the creature is halved
 const PFB_TEAM2 = 1.3, PFB_TEAM3 = 1.6;       // Teamwork: your pieces in a chain you start come from 2 / 3 of the sources pal, tool, crop
 const PFB_TEAM_SRC = ['pal', 'tool', 'crop'];
-const PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'creature', 'env'];   // where a piece comes from (tile field 'src')
-const PFB_SRC_FAM = ['pal' => 'body', 'tool' => 'craft', 'crop' => 'mind', 'craft' => 'craft'];   // authored edges: the column family (top and bottom) of a sourced piece; other pieces use their type family
+const PFB_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'pal', 'region', 'legend', 'creature', 'env'];   // where a piece comes from (tile field 'src')
+const PFB_SRC_FAM = ['pal' => 'body', 'tool' => 'craft', 'crop' => 'mind', 'craft' => 'craft', 'legend' => 'mind'];   // authored edges: the column family (top and bottom) of a sourced piece; other pieces use their type family
 const PFB_UP = ['hurt' => 1, 'charm' => 1, 'trick' => 1];   // these types carry the column knob on top and the hole below; guard, heal, soothe and item the other way round
 const PFB_CLASS_LEAN = ['critter' => 'mind', 'insect' => 'mind', 'water' => 'body', 'bird' => 'craft', 'plant' => 'mind', 'fungus' => 'mind', 'reptile' => 'craft', 'amphibian' => 'craft', 'beast' => 'body'];   // a creature class leans to a family: 3 of its pieces in 5 stack in it
 const PFB_LIFE_MIN = 2, PFB_LIFE_MAX = 4;     // per-piece life in rounds (tile field 'life'; default PFB_LIFE, Quick pieces 2, Hold pieces 4)
@@ -1008,7 +1008,7 @@ function pfb_guard_notes(array &$s, array &$ev): void
 {
     if (empty($s['v1']) || $s['over']) return;
     $ta = $ev ? (string)(end($ev)['ta'] ?? 'foe') : 'foe';
-    foreach ([['fade', (int)($s['me']['faded'] ?? 0)], ['hold', (int)($s['me']['kept'] ?? 0)]] as [$k, $n]) {
+    foreach ([['fade', (int)($s['me']['faded'] ?? 0)], ['hold', (int)($s['me']['kept'] ?? 0)], ['simmer', (int)($s['me']['simmer'] ?? 0)]] as [$k, $n]) {
         if ($n <= 0) continue;
         $e = pfb_note($k, (string)$n); $e['by'] = 'me'; $e['ta'] = $ta;
         $e['barnow'] = round((float)$s['bar']['now'], 1); $e['fhnow'] = round((float)$s['fh']['now'], 1); $e['hpnow'] = (int)$s['me']['hp']; $e['gnow'] = (int)$s['me']['block'];
@@ -1395,6 +1395,8 @@ function pfb_end_round(array &$s): void
             if ($s['me']['poison'] === 0) $s['me']['poison_v'] = 0;
             if (pf_check_end($s)) return;
         }
+        $s['me']['simmer'] = 0;
+        if ((int)($s['me']['regen'] ?? 0) > 0) { $hh = min(2, (int)$s['me']['max'] - (int)$s['me']['hp']); $s['me']['hp'] += max(0, $hh); $s['me']['regen']--; $s['me']['simmer'] = max(0, $hh); }   // 2.6.990 Simmer
         $slow = !empty($s['me']['slowdraw']) ? 1 : 0; $s['me']['slowdraw'] = 0; $s['me']['tripped'] = $slow;   // 2.6.76: the hand area says so
     }
     $gone = pfb_expire($s);
@@ -1407,8 +1409,9 @@ function pfb_end_round(array &$s): void
         $s['me']['block'] = $kept; $s['me']['keep'] = 0;
     } else { $s['me']['block'] = $s['me']['keep']; $s['me']['keep'] = 0; }   // a new turn for you: last turn's guard is gone (a Hold guard carries over once)
     $s['me']['thorns'] = false; $s['me']['evade'] = 0;
-    if (pfb_v1r($s, 'redraw')) { foreach ($s['me']['hand'] as $ht) { unset($ht['flip'], $ht['ft']); $s['me']['discard'][] = $ht; } $s['me']['hand'] = []; pf_draw($s, 'me', PF_HAND_CAP - $slow); }   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
-    else pf_draw($s, 'me', min(PF_HAND_CAP, count($s['me']['hand']) + PF_DRAW - $slow));
+    $more = (int)($s['me']['more'] ?? 0); $s['me']['more'] = 0;   // 2.6.990 Plenty: one more piece this round
+    if (pfb_v1r($s, 'redraw')) { $kept = []; foreach ($s['me']['hand'] as $ht) { if (($ht['tag'] ?? '') === 'keep') { $kept[] = $ht; continue; } unset($ht['flip'], $ht['ft']); $s['me']['discard'][] = $ht; } $s['me']['hand'] = $kept; pf_draw($s, 'me', PF_HAND_CAP - $slow + $more); }   // 2.6.990 Keeper: a Keeper piece stays in the hand   // 2.6.95: every unplayed piece goes to the discard (flip cleared), then a fresh hand of 5 (4 when tripped)
+    else pf_draw($s, 'me', min(PF_HAND_CAP + $more, count($s['me']['hand']) + PF_DRAW - $slow));
     $s['gone'] = array_merge(array_map(fn($p) => pfb_gone_entry($s, $p, true), $s['spent'] ?? []), array_map(fn($p) => pfb_gone_entry($s, $p, false), $gone));   // for the replay: they are shown until everything has scored, then they go
     $s['spawn'] = !empty($s['nospawn']) ? null : pfb_spawn($s); unset($s['nospawn']);   // 2.6.99: a strike spent the creature's turn: no free piece pops in before yours
     if ($s['turn'] > PF_TURN_CAP) { $s['over'] = $s['boss'] ? 'defeat' : 'stall'; return; }

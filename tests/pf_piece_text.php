@@ -9,7 +9,7 @@ chk('PF_TYPE_TEXT exists with all 7 types', defined('PF_TYPE_TEXT') && array_key
 if (!defined('PF_TYPE_TEXT') || !function_exists('pf_type_text')) { echo "FAILED (no texts yet)\n"; exit(1); }
 $all = [];
 foreach ($types as $t) $all['type ' . $t] = PF_TYPE_TEXT[$t];
-chk('PF_TAGS_V1 has every tag PF_TAGS has', array_keys(PF_TAGS_V1) === array_keys(PF_TAGS));
+chk('PF_TAGS_V1 has every tag PF_TAGS has (in order), then the board-only tags (2.6.990: keep, plenty, simmer; PF_TAGS stays as it was so flag-off pages are unchanged)', array_slice(array_keys(PF_TAGS_V1), count(PF_TAGS_V1) - count(PF_TAGS)) === array_keys(PF_TAGS) || array_values(array_diff(array_keys(PF_TAGS_V1), ['keep', 'plenty', 'simmer'])) === array_keys(PF_TAGS));
 foreach (PF_TAGS_V1 as $k => $v) $all['tag ' . $k] = $v[1];
 foreach (PF_SPECIAL as $k => $v) $all['special ' . $k] = $v;
 foreach (PF_MODS as $k => $v) $all['mod ' . $k] = PF_MODS_V1[$k] ?? $v[2];
