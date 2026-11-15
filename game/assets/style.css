@@ -8029,3 +8029,54 @@ details.sgq summary{cursor:pointer}
 .tfc-chip{margin-top:4px;font-size:.82rem}
 .tfc-chip.now{font-weight:600}
 .tfc-moon{display:block;font-size:.85em;opacity:.85}
+
+/* Mountain family (2.7.01): the Echo Chain strip above a mountain Trail map (includes/trail_fam_mountain.php) */
+.tfmountain{--tfm-bg:#e6ecef;--tfm-ink:#2b3a45;--tfm-line:#4d6b7d;--tfm-dot:#c9792b;margin:0;padding:8px 10px;background:var(--tfm-bg);color:var(--tfm-ink);border:2px solid #6b8797}
+.tfmountain.tfm-a1{--tfm-bg:#dde6ec}
+.tfmountain.tfm-a2{--tfm-bg:#d2dee8}
+.tfmountain.tfm-a3{--tfm-bg:#c6d6e4}
+.tfmountain.tfm-mist{background-image:linear-gradient(rgba(255,255,255,.45),rgba(255,255,255,0))}
+:root[data-theme="dark"] .tfmountain{--tfm-bg:#1d252b;--tfm-ink:#d6e1e8;--tfm-line:#8fb0c4;border-color:var(--line)}
+:root[data-theme="dark"] .tfmountain.tfm-a2{--tfm-bg:#18222b}
+:root[data-theme="dark"] .tfmountain.tfm-a3{--tfm-bg:#131c26}
+:root[data-theme="dark"] .tfmountain.tfm-mist{background-image:linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,0))}
+.tfmountain p{margin:0}
+.tfm-h{font-size:.9rem}
+.tfm-moon{display:block;font-size:.85em;opacity:.85}
+.tfm-svg{display:block;width:100%;max-width:420px;height:auto;margin:4px 0}
+.tfm-ring{stroke:var(--tfm-line);stroke-width:1.5;opacity:.6}
+.tfm-wall{fill:var(--tfm-ink)}
+.tfm-ray{stroke:var(--tfm-line);stroke-width:1;stroke-dasharray:3 3}
+.tfm-dot{fill:var(--tfm-dot);stroke:var(--tfm-ink);stroke-width:1}
+.tfm-lbl{fill:var(--tfm-ink);font-size:8px;font-family:var(--font)}
+.tfm-note{font-size:.8rem}
+.tfm-chip{margin-top:4px;font-size:.82rem}
+.tfm-chip.now{font-weight:600}
+/* Walkers and 2.5D villagers on the Trail map (2.7.01): the strip's frames 1-2 idle, 3-8 walk */
+@keyframes tmwalk{from{transform:translateX(-128px)}to{transform:translateX(-512px)}}
+@keyframes tmidle{from{transform:translateX(0)}to{transform:translateX(-128px)}}
+.tmwalk{animation:tmwalk .72s steps(6) infinite;transform:translateX(-128px)}
+.tmidle{animation:tmidle 1.6s steps(2) infinite}
+@media (prefers-reduced-motion: reduce){.tmwalk,.tmidle{animation:none}.tmwalk{transform:translateX(-128px)}}
+
+/* Grassland family (2.7.01): the Kite sky strip above a grassland Trail map (includes/trail_fam_grassland.php) */
+.tfgrass{--tfg-bg:#e3f1d6;--tfg-ink:#2c4a1f;--tfg-sky:#bfe0f2;--tfg-grass:#7fb257;--tfg-kite:#d8493a;--tfg-line:#4d7a34;margin:0;padding:8px 10px;background:var(--tfg-bg);color:var(--tfg-ink);border:2px solid var(--tfg-line)}
+:root[data-theme="dark"] .tfgrass{--tfg-bg:#1d2a17;--tfg-ink:#d8ecc8;--tfg-sky:#1e3a4d;--tfg-grass:#3f6a2a;--tfg-kite:#f0806f;--tfg-line:#6c9c52}
+.tfgrass p{margin:0}
+.tfg-h{font-size:.9rem}
+.tfg-st{font-size:.78rem;opacity:.85}
+.tfg-svg{display:block;width:100%;max-width:420px;height:auto;margin:4px 0}
+.tfg-sky{fill:var(--tfg-sky)}
+.tfg-grass{fill:var(--tfg-grass)}
+.tfg-string{stroke:var(--tfg-ink);stroke-width:1}
+.tfg-kite{fill:var(--tfg-kite);stroke:var(--tfg-ink);stroke-width:1}
+.tfg-dial{fill:var(--tfg-bg);stroke:var(--tfg-ink);stroke-width:1}
+.tfg-arrow{fill:var(--tfg-ink)}
+.tfg-n{fill:var(--tfg-ink);font-size:8px;font-weight:700;font-family:var(--font)}
+.tfg-note{font-size:.8rem;margin-top:4px!important}
+.tfg-kites,.tfg-letters{list-style:none;margin:4px 0;padding:0;display:flex;flex-wrap:wrap;gap:4px 6px}
+.tfg-k,.tfg-l{font-size:.78rem;padding:2px 6px;border:1px solid var(--tfg-line);line-height:1.3}
+.tfg-k.calm,.tfg-l.todo{border-style:dashed;opacity:.85}
+.tfg-l.got{font-weight:600}
+.tfg-chip{margin-top:4px!important;font-size:.82rem}
+.tfg-chip.now{font-weight:600}

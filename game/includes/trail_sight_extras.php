@@ -878,10 +878,12 @@ function trail_sight_quests_box(array $u): string
  */
 function trail_sights_folk_on_map(array $u, array $exp, array $sc, array $marks, bool $consume = false): array
 {
-    if (!$marks || ($sc['st']['phase'] ?? '') !== 'section') return [];
+    if (($sc['st']['phase'] ?? '') !== 'section') return [];
     static $memo = []; $mk = (int)$u['id'] . '|' . (int)($sc['row']['id'] ?? 0) . '|' . (int)$sc['x'] . ',' . (int)$sc['y'] . '|' . md5((string)($sc['old'] ?? ''));
     if (!$consume && isset($memo[$mk]) && empty($GLOBALS['gv_sights_nocache'])) return $memo[$mk];   // the Trail page asks twice (map and pop-ups): one answer per request
-    $out = trail_sights_folk_on_map_build($u, $exp, $sc, $marks, $consume);
+    $out = $marks ? trail_sights_folk_on_map_build($u, $exp, $sc, $marks, $consume) : [];
+    require_once __DIR__ . '/trail_walkers.php';   // 2.7.01: villagers walking the road between two stops (their weekly clockwork)
+    foreach (trail_walkers_on_map($u, $exp, $sc) as $wk) { $busy = false; foreach ($out as $o) if ($o[0] === $wk[0] && $o[1] === $wk[1]) $busy = true; if (!$busy && !array_filter($out, fn($o) => $o[5] . $o[6] === $wk[5] . $wk[6])) $out[] = $wk; }
     if (!$consume) $memo[$mk] = $out;
     return $out;
 }
@@ -903,7 +905,8 @@ function trail_sights_folk_on_map_build(array $u, array $exp, array $sc, array $
             $taken[$spot[0] . ',' . $spot[1]] = true;
             $anim = false;   // walks in once per game day and place (the page swaps in place after every step: the session remembers they have arrived)
             if ($consume) { $key = (function_exists('gclock_my_date') ? gclock_my_date() : date('Y-m-d')) . '|' . $m['slug'] . '|' . $name; if (session_status() === PHP_SESSION_ACTIVE && empty($_SESSION['sgfk'][$key])) { $_SESSION['sgfk'][$key] = 1; $anim = true; if (count($_SESSION['sgfk']) > 60) $_SESSION['sgfk'] = array_slice($_SESSION['sgfk'], -30, null, true); } }
-            $out[] = [$spot[0], $spot[1], $pic[0], $name, $pic[1], $pic[2], $pic[3], $anim, $m['slug'], $f['who']];
+            $e25 = null; if (isset($pic[4])) $e25 = ['cell' => $pic[4], 'walk' => false, 'dir' => 1, 'label' => ''];
+            $out[] = [$spot[0], $spot[1], $pic[0], $name, $pic[1], $pic[2], $pic[3], $anim, $m['slug'], $f['who']] + ($e25 ? [10 => $e25] : []);
             break;
         }
     }
@@ -937,12 +940,14 @@ function trail_sight_tile_in_gate(array $art, int $x, int $y): bool
 /** A named villager's map picture: [url, frames, kind 's' stop villager | 'n' town NPC, id] (a 4-frame sprite sheet shows its first frame), or null. */
 function trail_sight_folk_pic(string $who): ?array
 {
+    require_once __DIR__ . '/trail_walkers.php';
     try {
         $fid = trail_sight_folk_id($who);
         if ($fid) {
             require_once __DIR__ . '/stop_folk.php';
             $folk = q_one('SELECT * FROM stop_folk WHERE id = ?', [$fid]);
             $rel = $folk ? stop_folk_art($folk, 'sprite') : '';
+            if ($folk && function_exists('npc25_strip') && ($st = npc25_strip((string)$folk['species'], 'front'))) return [$st[0], 8, 's', $fid, $st[1]];   // 2.7.01: the 2.5D strip once the species is drawn
             return $rel !== '' ? [url($rel), 4, 's', $fid] : null;
         }
         [$name] = trail_sight_split_who($who);
@@ -971,7 +976,7 @@ function trail_sight_folk_card_html(array $u, array $e, ?array $sc = null): stri
     } catch (Throwable $ex) {}
     $key = $kind . $id;
     $h = '<div class="sgcard sgfolkcard"><div class="sgbody"><h4>' . e($name) . '</h4><p class="muted">' . e($meta) . '</p>' . ($bio !== '' ? '<p class="help">' . e($bio) . '</p>' : '') . ($lvl !== '' ? '<p>💛 ' . e((string)$lvl) . '</p>' : '')
-        . '<p class="help">' . e($name) . ' is out and about by ' . e(trail_sight_label($slug)[0]) . '.</p>'
+        . '<p class="help">' . e($name) . ($slug === '' ? ' is out walking: ' . e(lcfirst((string)($e[10]['label'] ?? 'on the road'))) . '.' : ' is out and about by ' . e(trail_sight_label($slug)[0]) . '.') . '</p>'
         . ($sc && ((int)$sc['x'] !== (int)$e[0] || (int)$sc['y'] !== (int)$e[1]) ? '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="trail_go"><button class="btn alt" name="go" value="' . (int)$e[0] . ',' . (int)$e[1] . '">👣 Walk over</button></form> ' : '')
         . '<form method="post" class="inline">' . csrf_field() . '<input type="hidden" name="do" value="sightchat"><input type="hidden" name="fk" value="' . e($key) . '"><input type="hidden" name="slug" value="' . e($slug) . '"><button class="btn">💬 Chat</button></form>';
     $gifts = [];

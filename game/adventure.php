@@ -369,7 +369,7 @@ elseif ($exp && !$trailSc && !$fsc && !$pfAct && !($overMap && !$hasMap)) { echo
   <?php if (!empty($sgMarks)): ?><dialog class="picker hubpop" id="hubpop-tsights" aria-labelledby="hubpop-tsights-t"<?= !empty($_GET['sg']) ? ' open' : '' ?>><div class="pickbox">
     <div class="pickhead"><h3 id="hubpop-tsights-t">🔎 Sights here</h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
     <div class="hubcard sgcards"><?= trail_sights_cards_html($u, $trailSc, $sgMarks, $exp) ?></div></div></dialog><?php endif; ?>
-  <?php foreach (!empty($sgMarks) ? trail_sights_folk_on_map($u, $exp, $trailSc, $sgMarks) : [] as $fi => $fe): /* v2.6.68: tap a villager out and about at a Sight: their card (chat, gift) */ ?><dialog class="picker hubpop" id="hubpop-tfolk-<?= (int)$fi ?>" aria-labelledby="hubpop-tfolk-<?= (int)$fi ?>-t"><div class="pickbox">
+  <?php foreach (empty($exp['encounter']) ? trail_sights_folk_on_map($u, $exp, $trailSc, $sgMarks) : [] as $fi => $fe): /* v2.6.68: tap a villager out and about at a Sight: their card (chat, gift) */ ?><dialog class="picker hubpop" id="hubpop-tfolk-<?= (int)$fi ?>" aria-labelledby="hubpop-tfolk-<?= (int)$fi ?>-t"><div class="pickbox">
     <div class="pickhead"><h3 id="hubpop-tfolk-<?= (int)$fi ?>-t">💬 <?= e((string)$fe[3]) ?></h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
     <div class="hubcard sgcards"><?= trail_sight_folk_card_html($u, $fe, $trailSc) ?></div></div></dialog><?php endforeach; ?>
   <dialog class="picker hubpop" id="hubpop-tgather" aria-labelledby="hubpop-tgather-t"<?= !empty($_GET['g']) ? ' open' : '' ?>><div class="pickbox">

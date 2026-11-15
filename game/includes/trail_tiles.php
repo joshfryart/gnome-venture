@@ -543,7 +543,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     $sightMarks = [];   // v2.6.68 Trail Sights: where a Sight is ready (a gold ! over the landmark)
     $sightAll = function_exists('trail_sights_marks') && !$busy ? trail_sights_marks($u, $sc) : [];
     foreach ($sightAll as $sm) if ($sm['left'] > 0) $sightMarks[$sm['x'] . ',' . $sm['y']] = true;
-    $folkMap = $sightAll && function_exists('trail_sights_folk_on_map') ? trail_sights_folk_on_map($u, $exp, $sc, $sightAll, true) : [];
+    $folkMap = !$busy && function_exists('trail_sights_folk_on_map') ? trail_sights_folk_on_map($u, $exp, $sc, $sightAll, true) : [];
     $folkTiles = []; foreach ($folkMap as $fi => $fe) $folkTiles[$fe[0] . ',' . $fe[1]] = $fi;   // tap a villager: their card   // villagers out and about at a Sight now
     $gate = trail_gate($sc);
     $reach = tm_reach($map, $sc['x'], $sc['y'], $gate);

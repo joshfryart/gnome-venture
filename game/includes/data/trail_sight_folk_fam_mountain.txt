@@ -1,0 +1,4 @@
+# Mountain family folk rows (2.7.01, claude/sights/family-mountain.md). sight|villager|when|chance|line|rewards
+# The goat herder works the high ledges at dawn (the quest "The Goat Ledge Census" meets her here; the clockwork gives her a window at each).
+mountain-the-goat-ledge|Hazel Dewdrop|dp=dawn|100|Hazel Dewdrop is out with her tally stick before the sun, nodding at each goat as if it owed her money.|fp=1
+mountain-the-pine-shelf|Hazel Dewdrop|dp=dawn|100|Hazel Dewdrop clings to the pine shelf with one hand and her tally stick with the other, counting goats you cannot see.|fp=1
