@@ -114,6 +114,11 @@ function social100_schema(string $PK, string $ID, string $END): array
         day VARCHAR(10) NOT NULL,
         PRIMARY KEY (user_id, day)
     )$END";
+    $t[] = "CREATE TABLE IF NOT EXISTS pf_learn (
+        user_id $ID NOT NULL,
+        fights INT NOT NULL DEFAULT 0,
+        PRIMARY KEY (user_id)
+    )$END";
     $t[] = "CREATE TABLE IF NOT EXISTS wear_lined (
         user_id $ID NOT NULL,
         wkey VARCHAR(60) NOT NULL,

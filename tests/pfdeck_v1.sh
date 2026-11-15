@@ -61,7 +61,7 @@ php -d display_errors=1 "$HERE/pfdeck_v1.php" "$GAME" 2>&1 | tee $H.db | grep -v
 FAILS=$((FAILS + $(grep -c '^FAIL' $H.db)))
 ck "the database checks ran to the end" "$(grep -c 'database checks: all ok' $H.db)" "1"
 echo "== a fight on the page with the deck model"
-set_ pfight_blank 1
+set_ pfight_blank 1; set_ pfight_learner_n 0   # 2.7.01: the full rules (learner rules are tested in pf_learner)
 php -d display_errors=1 "$HERE/advforce.php" "$GAME" fight 2>&1 | tail -1
 MID=$(db "SELECT id FROM creatures WHERE slug='tunnel-mole'"); MHP=$(db "SELECT hp FROM creatures WHERE slug='tunnel-mole'")   # a level 9 creature for the level 9 gnome: a fight long enough for tool pieces to be played
 db "UPDATE expeditions SET encounter='{\"type\":\"creature\",\"id\":$MID,\"lv\":0,\"sp\":100,\"hpp\":100,\"hp\":$MHP,\"max\":$MHP,\"bark\":0,\"poison\":0,\"used\":false}', hp=max_hp WHERE status='active'" >/dev/null

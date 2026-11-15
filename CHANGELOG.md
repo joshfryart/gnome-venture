@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.7.01 (in progress; APP_VERSION still 2.7.00)
+- **Learner rules for the first fights (new fights, behind `pfight_v1`).** A gnome's first 3 finished fights (setting `pfight_learner_n`, 0 = off) have no Thornburst in the environment deck, creature tags off and creature pieces x0.8 (sim: a careless level 1-2 player goes from 76% to 98% wins). New table `pf_learn`; new rule key `nothorn` (PHP `pfb_v1_cfg`, JS `tools/pfengine.js`).
+- **Wearables as Trail Sight rewards.** Five Sights can now drop a Rank 1 wearable at a low chance (scarecrow: Wayfarer's Hat 3%, mudslide: Flood Boots 4%, icicle curtain: Travel Cloak 3%, woodcutter's stump: Work Gloves 4%, mossy stair: Trail Pack 3%); they drop only while `pfight_v1` is on for the gnome.
+- **Fixes.** Tailor level 3 text now says the first *craft* each day is free (it never freed lining). `pf_round()` replaces `round()` in the puzzle engine so PHP 8.4 matches the JS port. `pfdeck_v1` tool-piece check is deterministic.
+- **CI.** Playwright + Chromium for the browser suites; the upgrade job builds the old release from git history (the source zips are not in git).
+
 ## 2.7.00
 - **Road kinds (owner-approved list, `data/road_kinds.txt`).** Some Trail routes are no longer plain roads: ferries (20 Petals a crossing), tunnels (lantern tier needed), passes (staff tier needed), toll roads (10 Petals: safer and quicker, or the old road), overgrown roads (slow; an axe clears them) and flooded roads (slow; Flood Boots halve it). Route cards and the Almanac say which. Boot step `road_kind_items_2700` (Toll Receipt).
 - **Camp spots.** Each Trail route has one camp tile (`data/trail_camps.json`): Sleep and Nap are free and safe; Wait 10 to 60 minutes gives 1 energy per 2 minutes, with a chance a fight finds you (halved on a paid toll road).

@@ -24,6 +24,25 @@ function pfight_v1_on(array $u): bool
     return $v === '1' || ($v === 'admin' && ($u['role'] ?? '') === 'admin');
 }
 
+/**
+ * 2.7.01 learner rules (claude/reviews-2026-11-13/learn.md): a gnome's first fights (setting pfight_learner_n, default 3; 0 = off) are gentler: creature pieces x0.8,
+ * creature tags off, no Thornburst in the environment's deck. Careless play at level 1-2 goes from 76% to 98% wins with fights as long as before.
+ */
+function pf_learner_left(int $uid): bool
+{
+    $n = setting('pfight_learner_n'); $n = $n === '' ? 3 : (int)$n;
+    if ($n <= 0) return false;
+    try { return (int)q_val('SELECT fights FROM pf_learn WHERE user_id = ?', [$uid]) < $n; } catch (Throwable $e) { return false; }
+}
+/** One more finished fight for the gnome (called once per fight). */
+function pf_learner_bump(int $uid): void
+{
+    try {
+        if (q_val('SELECT 1 FROM pf_learn WHERE user_id = ?', [$uid])) q('UPDATE pf_learn SET fights = fights + 1 WHERE user_id = ?', [$uid]);
+        else db_insert('pf_learn', ['user_id' => $uid, 'fights' => 1]);
+    } catch (Throwable $e) { /* table missing before the upgrade: no learner rules */ }
+}
+
 /** The gnome's tile numbers: stat modifiers (with the pal road perk and the old calling numbers remapped) and the per-type bonuses. Used by the fight and the Puzzle box page. */
 function pfight_calc(array $u): array
 {
@@ -126,6 +145,7 @@ function pfight_state(array $u, array $exp, array &$enc, array $c): array
     if (empty($enc['pf'])) {   // a new fight starts in the mode the setting says; a fight already under way keeps its own
         $v1 = pfight_v1_on($u);   // the v1 board rules: always a board fight; the state carries $s['v1'], so a fight under way keeps the rules it started with
         $new = $v1 || setting('pfight_mode') === 'board' ? 'pfb_new' : 'pf_new';
+        if ($v1 && pf_learner_left((int)$u['id'])) $v1 = ['foe_x' => 0.8, 'tags' => 0, 'nothorn' => 1];   // 2.7.01 learner rules: the first fights
         if ($v1) { require_once __DIR__ . '/pfdeck.php'; $c = pfd_foe_row($c, pfd_exp_region($exp)); }   // the creature's layered deck: 4 base (class) + region + size extras + 3 unique
         $enc['pf'] = $new(pfight_me($u, $exp, $enc), $c, random_int(1, 0x7FFFFFFE), ['v1' => $v1, 'blank' => setting('pfight_blank') !== '0', 'can_pluck' => (int)q_val('SELECT COUNT(*) FROM creature_drops WHERE creature_id = ? AND item_id IS NOT NULL', [$c['id']]) > 0]);
     }
@@ -247,6 +267,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
         }
     } else return false;
     $exp['hp'] = (int)$s['me']['hp'];
+    if ($s['over'] && !empty($s['v1']) && empty($enc['learnsaved'])) { $enc['learnsaved'] = 1; pf_learner_bump((int)$u['id']); }   // 2.7.01: one more fight finished (learner rules last for the first few)
     if ($s['over'] && !empty($s['wear']) && empty($enc['wearsaved'])) {   // v1 deck model: the fight is over (however it ended), so the wear of the fight tools whose pieces were played is saved, once
         require_once __DIR__ . '/pfdeck.php';
         $enc['wearsaved'] = 1;
