@@ -10,8 +10,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/trail_sight_extras.php';
 
 const TRAIL_SIGHT_COLS = ['slug', 'verb', 'icon', 'energy', 'cd', 'uses', 'when', 'check', 'rewards', 'win', 'lose', 'tool', 'fail_en'];
-const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather', 'take', 'unlock', 'hint', 'title', 'page', 'nocheck', 'give', 'fpto', 'tally'];
-const TRAIL_SIGHT_COND_RE = '/^((dp|se|we|hp|st|pal)=[a-z0-9,]+|(tl|tn)=[a-z0-9-]+:\d+|qd=[a-z0-9,-]+)$/';   // tl = a tally is AT LEAST N, tn = a tally is EXACTLY N (the use that reaches it: pays once), qd = one of these Sight quest lines is done   // a condition part: dp= se= we= hp= (rest-stop words), st= (sneak hunt normal), pal= (1 with a Puzzle Pal along)
+const TRAIL_SIGHT_REWARD_TOKENS = ['c', 'xp', 'en', 'item', 'crop', 'find', 'fish', 'seed', 'buff', 'fp', 'reveal', 'gather', 'take', 'unlock', 'hint', 'title', 'page', 'nocheck', 'give', 'fpto', 'tally', 'check', 'choose', 'disc'];
+const TRAIL_SIGHT_COND_RE = '/^((dp|se|we|hp|st|pal)=[a-z0-9,]+|(tl|tn)=[a-z0-9-]+:\d+|qd=[a-z0-9,-]+|gd=\d+:\d+(,\d+:\d+)*)$/';   // gd = the game day: gd=7:3 is every 7th game day (day mod 7 = 3), several values = any of them (2.7.00)   // tl = a tally is AT LEAST N, tn = a tally is EXACTLY N (the use that reaches it: pays once), qd = one of these Sight quest lines is done   // a condition part: dp= se= we= hp= (rest-stop words), st= (sneak hunt normal), pal= (1 with a Puzzle Pal along)
 
 /** One data row (an array of strings in TRAIL_SIGHT_COLS order, the last two optional) as a Sight row, or null if it is not one. */
 function trail_sight_row(array $p): ?array
@@ -105,7 +105,11 @@ function trail_sight_lint(array $r, bool $db = true): array
     foreach (trail_sight_tokens($r['rewards']) as $t) {
         $tok = $t['tok'];
         if ($t['cond'] !== '') foreach (explode('/', $t['cond']) as $part) if (!preg_match(TRAIL_SIGHT_COND_RE, trim($part))) $bad[] = 'bad condition "' . $part . '" in ' . $tok;
-        if (preg_match('/^(.*)@(\d+)$/', $tok, $cm)) { $tok = $cm[1]; if ((int)$cm[2] > 100) $bad[] = 'bad chance in ' . $tok; }   // a trailing @N is a chance (a villager's @village-slug is not)
+        if (preg_match('/^(.*)@(\d+(?:\/\d+){1,3})$/', $tok, $cm)) {   // 2.7.00 tool-tier odds: @a/b/c/d = the chance at the Sight's tool tier 1 / 2 / 3 / 4 (the last one repeats for a higher tier)
+            $tok = $cm[1]; if ($r['tool'] === '-') $bad[] = 'tier odds @a/b/c need a tool column in ' . $tok;
+            foreach (explode('/', $cm[2]) as $pc) if ((int)$pc > 100) $bad[] = 'bad chance in ' . $tok;
+        }
+        elseif (preg_match('/^(.*)@(\d+)$/', $tok, $cm)) { $tok = $cm[1]; if ((int)$cm[2] > 100) $bad[] = 'bad chance in ' . $tok; }   // a trailing @N is a chance (a villager's @village-slug is not)
         elseif (str_contains($tok, '@') && !str_starts_with($tok, 'fpto=') && !str_starts_with($tok, 'fp=')) $bad[] = 'bad chance in ' . $tok;
         [$k, $v] = array_pad(explode('=', $tok, 2), 2, '');
         if (!in_array($k, TRAIL_SIGHT_REWARD_TOKENS, true)) { $bad[] = 'unknown reward "' . $k . '"'; continue; }
@@ -115,6 +119,18 @@ function trail_sight_lint(array $r, bool $db = true): array
         if ($k === 'page' && !isset(trail_sight_pages()[$v])) $bad[] = 'page= needs a key in trail_sight_pages.txt';
         if ($k === 'title' && ($v === '' || mb_strlen($v) > 60)) $bad[] = 'title= needs a title of 1 to 60 characters';
         if ($k === 'nocheck' && $v !== '') $bad[] = 'nocheck takes no value';
+        if ($k === 'disc' && !preg_match('/^(rest|shop):([1-9]\d?|100):([1-9]\d{0,3})$/', $v)) $bad[] = 'disc= needs rest|shop:percent:minutes (real minutes), e.g. disc=rest:10:120';
+        if ($k === 'check' && !preg_match('/^[a-z]+:\d{1,2}$/', $v)) $bad[] = 'check= needs stat:difficulty (a villager row)';
+        if ($k === 'choose') {   // choose=A;B;C: the gnome picks ONE of these rewards (2.7.00); each is a plain reward token
+            $opts = array_values(array_filter(array_map('trim', explode(';', $v))));
+            if (count($opts) < 2 || count($opts) > 4) $bad[] = 'choose= needs 2 to 4 rewards joined by ;';
+            if ($r['check'] !== '-' && str_starts_with($r['check'], 'pick')) $bad[] = 'choose= cannot go with a pick check';
+            foreach ($opts as $o) {
+                $ok0 = explode('=', $o, 2)[0];
+                if (!in_array($ok0, ['c', 'xp', 'en', 'item', 'crop', 'seed', 'fish', 'find', 'buff', 'disc'], true)) $bad[] = 'choose= option "' . $o . '" is not a plain reward';
+                if ($ok0 === 'item' && $db && !trail_sight_item_known(explode(':', explode('=', $o, 2)[1] ?? '')[0])) $bad[] = 'choose= item "' . $o . '" does not exist';
+            }
+        }
         if ($k === 'tally' && !preg_match('/^[a-z0-9-]{2,30}$/', $v)) $bad[] = 'tally= needs a key of 2 to 30 letters, digits or -';
         if ($k === 'fpto' && !preg_match('/^[^:@]+(@[a-z0-9-]+)?(:\d+)?$/', $v)) $bad[] = 'fpto= needs Name[@village][:points]';
         if ($k === 'take' && ($t['cond'] !== '' || $t['first'] || str_contains($t['tok'], '@'))) $bad[] = 'take= is a cost: it cannot have a condition, first: or a chance';
@@ -227,6 +243,56 @@ function trail_sight_pick_info(array $row): ?array
     return [$n, $labels];
 }
 
+/** The options of a `choose=A;B;C` reward: [[token, label], ...] or null. */
+function trail_sight_choose_info(array $row): ?array
+{
+    foreach (trail_sight_tokens($row['rewards']) as $t) if (str_starts_with($t['tok'], 'choose=')) {
+        $opts = array_values(array_filter(array_map('trim', explode(';', substr($t['tok'], 7)))));
+        return $opts ? array_map(fn($o) => [$o, trail_sight_reward_label($o)], $opts) : null;
+    }
+    return null;
+}
+
+/** A short player-facing name for one reward token (a button label). */
+function trail_sight_reward_label(string $tok): string
+{
+    [$k, $v] = array_pad(explode('=', $tok, 2), 2, '');
+    $n = (int)explode(':', $v)[0];
+    switch ($k) {
+        case 'c': return $n . ' ' . (function_exists('setting') && setting('currency_name') !== '' ? setting('currency_name') : 'Petals');
+        case 'en': return $n . ' energy';
+        case 'xp': return $n . ' XP';
+        case 'item': $q = (int)(explode(':', $v)[1] ?? 1); $nm = (string)q_val('SELECT name FROM items WHERE slug = ?', [explode(':', $v)[0]]) ?: explode(':', $v)[0]; return ($q > 1 ? $q . ' × ' : '') . $nm;
+        case 'crop': return 'A crop';
+        case 'seed': return 'A seed';
+        case 'fish': return 'A fish';
+        case 'find': return 'A find';
+        case 'buff': return 'A boost';
+        case 'disc': [$kind, $pct] = explode(':', $v) + [1 => '']; return $pct . '% off ' . ($kind === 'rest' ? 'a room at the inn' : 'in the shops');
+    }
+    return $tok;
+}
+
+/** Tool-tier odds: `item=x:1@5/15/30/50` becomes `item=x:1@15` for a gnome whose tool of the Sight's type is tier 2 (no tool or tier 1 = the first number; a tier past the list repeats the last). */
+function trail_sight_tier_chance(string $tok, int $tier): string
+{
+    if (!preg_match('/^(.*)@(\d+(?:\/\d+){1,3})$/', $tok, $m)) return $tok;
+    $c = explode('/', $m[2]);
+    return $m[1] . '@' . $c[max(0, min(count($c), $tier) - 1)];
+}
+
+/**
+ * Rewards pass (2.7.00): a flat Petals or XP reward (`xp=5`, no second number) grows with the level of the place where the walk began, by the setting
+ * sights_flat_pct_per_level percent a level (default 0 = off: Josh approves the number first; claude/sights-rewards-2.7.00.md proposes 2.5). Rewards that already carry a per-level
+ * part (`xp=3:1`) are left alone, and so is everything else. `xp=5` at level 1 stays 5.
+ */
+function trail_sight_flat_scale(string $tok, int $level): string
+{
+    $pct = (int)setting('sights_flat_pct_per_level');
+    if ($pct <= 0 || $level <= 1 || !preg_match('/^(c|xp)=(\d+)(@.*)?$/', $tok, $m)) return $tok;
+    return $m[1] . '=' . max(1, (int)round((int)$m[2] * (1 + $pct / 100 * ($level - 1)))) . ($m[3] ?? '');
+}
+
 /** Forget the cached use rows (after a use, so the next read is fresh). */
 function trail_sight_state_reset(): void
 {
@@ -258,6 +324,8 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
     $pick = trail_sight_pick_info($row);
     $folkHere = trail_sight_folk_here($slug, $now, (int)$u['id']);
     $sure = false; foreach ($folkHere as $fh) if (in_array('nocheck', array_map(fn($t) => $t['tok'], trail_sight_tokens($fh['rewards'])), true)) { $sure = $fh; break; }
+    $choose = trail_sight_choose_info($row);
+    if ($choose && (!isset($opt['reward']) || (int)$opt['reward'] < 0 || (int)$opt['reward'] >= count($choose))) return [false, 'Choose your reward.'];   // 2.7.00
     if ($pick && !$sure && (!isset($opt['pick']) || (int)$opt['pick'] < 0 || (int)$opt['pick'] >= $pick[0])) return [false, 'Choose one.'];   // a villager with nocheck settles a pick too
     if ($row['tool'] !== '-') {   // needs a gathering tool of at least this tier
         require_once __DIR__ . '/gathering.php';
@@ -289,13 +357,16 @@ function trail_sight_do(array $u, array &$exp, string $slug, array $opt = []): a
             if ($t['cond'] !== '' && !trail_sight_cond_ok($t['cond'], $now)) continue;
             $tok = $t['tok'];
             if (str_starts_with($tok, 'take=') || str_starts_with($tok, 'tally=')) continue;
+            if (str_starts_with($tok, 'choose=')) { $tok = $choose[(int)$opt['reward']][0]; if (preg_match('/^(hint|title|page|fpto|disc)=/', $tok)) { $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now)); continue; } $plain[] = $tok; continue; }
+            $tok = trail_sight_flat_scale($tok, stop_level($loc));   // 2.7.00 rewards pass (off until approved)
+            if ($row['tool'] !== '-' && str_contains($tok, '@')) $tok = trail_sight_tier_chance($tok, tool_tier((int)$u['id'], explode(':', $row['tool'])[0]));   // 2.7.00 tool-tier odds
             if (str_starts_with($tok, 'gather=')) {
                 require_once __DIR__ . '/gathering.php';
                 $gl = gather_on_walk($u, $loc['landscape'], substr($tok, 7), true, $found);
                 if ($found) gather_reveal_set($found);
                 $lines[] = $gl ?? 'You find nothing this time.';
             } elseif (str_starts_with($tok, 'unlock=')) { if (unlock_entries((int)$u['id'], substr($tok, 7)) > 0) $lines[] = '📖 A new Almanac page'; }
-            elseif (preg_match('/^(hint|title|page|fpto)=/', $tok)) $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now));
+            elseif (preg_match('/^(hint|title|page|fpto|disc)=/', $tok)) $lines = array_merge($lines, trail_sight_pay($u, $loc, $tok, '', $now));
             else $plain[] = $tok;
         }
         foreach ($takes as [$tid, $tq]) give_item((int)$u['id'], $tid, -$tq);

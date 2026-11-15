@@ -1389,6 +1389,7 @@ function schema_statements(string $driver): array
     // Columns added after v0.7.0 (fresh install). Older installs get them via "Upgrade database".
     $c = [
         ['users', 'gnome_name', 'VARCHAR(30) NULL'],
+        ['users', 'ev_disc', 'TEXT NULL'],     // 2.7.00: Trail Sight discounts {rest:[pct,until], shop:[pct,until]}
         ['garden_pal_slots', 'seeds', 'VARCHAR(200) NULL'],     // v2.6.40 garden crew: the Plant pal's ticked seeds
         ['feedback', 'user_unread', 'TINYINT NOT NULL DEFAULT 0'],     // v2.6.37 messages: 1 = an admin reply the player has not opened yet
         ['feedback', 'last_at', 'DATETIME NULL'],                      // v2.6.37 messages: time of the newest message in the thread
