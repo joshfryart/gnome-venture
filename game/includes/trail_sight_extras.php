@@ -58,6 +58,8 @@ function trail_sight_label(string $slug): array
 function trail_sight_item_known(string $slug): bool
 {
     if (isset(trail_sight_items_file()[$slug])) return true;
+    require_once __DIR__ . '/wearables.php';
+    if (isset(wear_items()[$slug])) return true;   // 2.7.01: wearables can be Sight rewards
     try { return (bool)q_val('SELECT id FROM items WHERE slug = ?', [$slug]); } catch (Throwable $e) { return false; }
 }
 

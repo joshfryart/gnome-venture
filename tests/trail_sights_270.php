@@ -115,6 +115,14 @@ $x0 = $xp(); $lines = trail_sight_pay($u, $loc, 'check=grit:99,xp=40:1', 'Someon
 ok('a check they cannot pass pays nothing and says so', $xp() === $x0 && str_contains(implode(' ', $lines), 'ask more of you'), implode(' | ', $lines));
 $x0 = $xp(); $lines = trail_sight_pay($u, $loc, 'check=grit:0,xp=40:1', 'Someone');
 ok('a check of difficulty 0 pays', $xp() > $x0, implode(' | ', $lines));
+echo "== 2.7.01 wearables as Sight rewards\n";
+require_once $argv[1] . '/includes/wearables.php'; wear_ensure_items();
+ok('lint accepts a wearable as an item reward', !trail_sight_lint(['rewards' => 'item=flood-boots:1@100'] + $base));
+$put(['energy' => 0, 'tool' => '-', 'rewards' => 'item=flood-boots:1@100']); $fresh(); set_setting('pfight_v1', '0'); setting('__reload__'); $w0 = wear_qty((int)$u['id'], 'flood-boots');
+[$a] = $go(); ok('with puzzle combat off a wearable does not drop', $a && wear_qty((int)$u['id'], 'flood-boots') === $w0, 'qty ' . wear_qty((int)$u['id'], 'flood-boots'));
+$put(['energy' => 0, 'tool' => '-', 'rewards' => 'item=flood-boots:1@100']); $fresh(); set_setting('pfight_v1', '1'); setting('__reload__');
+[$a] = $go(); ok('with puzzle combat on it drops', $a && wear_qty((int)$u['id'], 'flood-boots') === $w0 + 1, 'qty ' . wear_qty((int)$u['id'], 'flood-boots'));
+set_setting('pfight_v1', '0'); setting('__reload__');
 q('DELETE FROM trail_sight_rows WHERE slug = ?', [$base['slug']]);
 echo $fails ? "$fails FAILED\n" : "ok\n";
 exit($fails ? 1 : 0);
