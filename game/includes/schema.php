@@ -1064,6 +1064,14 @@ function schema_statements(string $driver): array
         seeds VARCHAR(200) NULL,
         UNIQUE (plot_id, role)
     )$END";   // v2.6.40: garden crew: one pal per role per garden, working while the gnome sleeps (includes/pal_crew.php)
+    $t[] = "CREATE TABLE IF NOT EXISTS trail_decor_edits (
+        id $PK,
+        route_id $ID NOT NULL,
+        sec INT NOT NULL,
+        decor TEXT NOT NULL,
+        updated_at DATETIME NULL,
+        UNIQUE (route_id, sec)
+    )$END";   // 2.7.00: the dressing of a Trail section edited in Admin > Trail decor (a row replaces the section's 'decor' of the map data; Back to the data deletes it)
     $t[] = "CREATE TABLE IF NOT EXISTS garden_pal_memory (
         id $PK,
         tile_id $ID NOT NULL,

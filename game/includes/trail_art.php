@@ -202,6 +202,28 @@ function trail_authored_all(): array
     return $all ??= trail_authored_load(__DIR__ . '/data');
 }
 
+/**
+ * 2.7.00: the decor an admin saved in Admin > Trail decor for one section (table trail_decor_edits), or null. Read once per request; no table (before Upgrade database), no database
+ * (a test of the pure functions) or a bad row = null, so the map data is used.
+ */
+function trail_decor_edit(int $routeId, int $sec): ?array
+{
+    static $all = null;
+    if (!empty($GLOBALS['gv_decor_edits_reload'])) { $all = null; $GLOBALS['gv_decor_edits_reload'] = false; }
+    if ($all === null) {
+        $all = [];
+        if (function_exists('q')) {
+            try {
+                foreach (q('SELECT route_id, sec, decor FROM trail_decor_edits')->fetchAll() as $r) {
+                    $d = json_decode((string)$r['decor'], true);
+                    if (is_array($d)) $all[(int)$r['route_id'] . ':' . (int)$r['sec']] = $d;
+                }
+            } catch (Throwable $e) { /* no table yet */ }
+        }
+    }
+    return $all[$routeId . ':' . $sec] ?? null;
+}
+
 /** How many sections an authored route has (0 = not authored). */
 function trail_authored_count(int $routeId): int
 {
@@ -219,6 +241,7 @@ function trail_authored_section(int $routeId, int $sec): ?array
     if (!empty($r['art'])) $s['art'] = (string)$r['art'];
     $s['route'] = $routeId;
     $s['sec'] = $sec;
+    if (($ed = trail_decor_edit($routeId, $sec)) !== null) $s['decor'] = $ed;   // 2.7.00: the dressing an admin edited replaces the one of the map data
     $s['boss'] = ($sec === count($r['sections']) - 1) ? (string)($r['boss'] ?? '') : '';
     return $s;
 }
