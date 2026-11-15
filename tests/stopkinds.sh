@@ -29,7 +29,7 @@ dbx "UPDATE users SET level=8, energy=60, coins=1000, location_id=$LOC WHERE id=
 OUT=$(phpx '$SID=(int)'$SID'; $u0=q_one("SELECT * FROM users WHERE id='$SID'"); $loc=q_one("SELECT * FROM locations WHERE id='$LOC'");
   $try = function(string $slug, array $in) use ($SID, $loc) {
     // a fresh visit each time: clear this stop log, then force the act on offer by calling stop_do directly
-    q("DELETE FROM stop_log WHERE user_id=?", [$SID]);
+    q("DELETE FROM stop_log WHERE user_id=?", [$SID]); q("UPDATE users SET game_minute=360 WHERE id=?", [$SID]);   // sleep-days: every try at 06:00, or the stop is closed for the day after a few acts
     $u = q_one("SELECT * FROM users WHERE id=?", [$SID]); $_SESSION["stop_visit"] = null;
     [$ok,$m] = stop_do($u, $loc, $slug, $in); return [$ok, $m]; };
   // make every regional act offered: put them all in the pool by clearing conditions, and open enough slots
@@ -76,7 +76,7 @@ OUT=$(phpx '$types = array_keys(stop_types()); $bad = [];
     foreach ($types as $t) {
       q("UPDATE locations SET stop_type=? WHERE id=?", [$t, $loc["id"]]); $loc["stop_type"] = $t;
       foreach (stop_pool($loc)["offer"] as $a) {
-        q("DELETE FROM stop_log WHERE user_id=?", [$SID]);
+        q("DELETE FROM stop_log WHERE user_id=?", [$SID]); q("UPDATE users SET game_minute=360 WHERE id=?", [$SID]);   // sleep-days: 06:00 for every act
         foreach (stop_craft_parts($a["kind"] === "craft" ? $a["spec"] : "x:1>x:1")[0] as [$is, $iq]) { $iid = (int)q_val("SELECT id FROM items WHERE slug=?", [$is]); if ($iid) give_item($SID, $iid, $iq); }
         $u = q_one("SELECT * FROM users WHERE id=?", [$SID]); $_SESSION["stop_visit"] = null;
         try { [$o, $m] = stop_do($u, $loc, $a["slug"], ["opt"=>0,"pick"=>1,"power"=>3,"move"=>0,"item_id"=>0]); $ran++; if ($o) $ok++; elseif (!preg_match("/energy|Petals|swap|seeds|stall|nothing|already|isn’t|full of|rested|Pick|have|enough|empty|need/i", $m)) { echo "? {$a["slug"]} ({$rg["code"]}/$t): $m\n"; $errs++; } }
