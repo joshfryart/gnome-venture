@@ -98,14 +98,10 @@ def driftwood_tavern(p):
     for yy in range(186, 190):                                               # the shadow he sat in
         for xx in range(141, 181):
             px[xx, yy] = px[136, yy] if yy < 189 else px[136, 190]
-    for xx in range(140, 183):                                               # give the stump top its ink edge back
-        for yy in range(186, 198):
-            c = px[xx, yy][:3]
-            if c == INK:
-                break
-            if c != px[136, 190][:3] and c != px[136, yy][:3]:
-                px[xx, yy - 1] = INK + (255,)
-                break
+    for xx in range(140, 183):                                               # stray rows just above the stump top
+        for yy in (190, 191):
+            if px[xx, yy][:3] != INK and px[xx, yy + 1][:3] != INK and px[xx, yy - 1][:3] == px[136, 190][:3]:
+                px[xx, yy] = px[136, 190]
 
     # palettes (all taken from / matched to the recoloured picture)
     SAND = {rm(h) for h in ('#f2c890', '#d8a878', '#f9dca8', '#fff0c0')} | \
@@ -718,7 +714,7 @@ def driftwood_tavern(p):
     inked(lambda: (p.ell(165, 213, 2, 2, hx('#b0705e')), p.dot(164, 212, hx('#d39a86')),
                    p.ell(182, 218, 2, 2, hx('#b0705e')), p.dot(181, 217, hx('#d39a86'))))       # cork floats
     SG, SGL = hx('#5d8a46'), hx('#8fb866')
-    p.line([(152, 190), (152, 184)], SG)                                     # seedling on the stump
+    p.line([(152, 191), (152, 184)], SG)                                     # seedling on the stump
     stamp(148, 181, ['.LL...LL.', 'LLLS.SLLL', '.LLSSSL..', '....S....'], {'L': SGL, 'S': SG})
     # table: rust weeps down the leg, a web strung under the top
     for (x, y) in ((212, 216), (212, 217), (213, 221), (212, 226), (212, 227), (213, 233)):
