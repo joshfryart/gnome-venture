@@ -83,13 +83,29 @@ def driftwood_tavern(p):
     p.recolor((0, 0, 479, 269), lambda r, g, b: INK if (r, g, b) == ink_rm else None)   # outlines stay true ink
 
     # ---- 2. the turtle musician and his notes are gone: sea and sky painted back -------------------------
-    fill_from((138, 158, 186, 187), 130)
-    fill_from((187, 158, 198, 187), 130)
-    fill_from((104, 140, 114, 154), 136)
-    fill_from((123, 158, 131, 170), 137)
-    fill_from((176, 128, 186, 138), 130)
-    fill_from((198, 146, 210, 160), 214)
-    fill_from((138, 158, 198, 164), 130)
+    def heal(box):
+        """paint a box over with its surroundings: each pixel takes the nearer of the two columns beside the box"""
+        x0, y0, x1, y1 = box
+        for yy in range(y0, y1 + 1):
+            a, b_ = px[x0 - 1, yy], px[x1 + 1, yy]
+            for xx in range(x0, x1 + 1):
+                px[xx, yy] = a if xx - x0 <= x1 - xx else b_
+    heal((138, 157, 198, 187))
+    heal((104, 140, 114, 154))
+    heal((123, 158, 131, 170))
+    heal((176, 128, 186, 138))
+    heal((198, 146, 210, 160))
+    for yy in range(186, 190):                                               # the shadow he sat in
+        for xx in range(141, 181):
+            px[xx, yy] = px[136, yy] if yy < 189 else px[136, 190]
+    for xx in range(140, 183):                                               # give the stump top its ink edge back
+        for yy in range(186, 198):
+            c = px[xx, yy][:3]
+            if c == INK:
+                break
+            if c != px[136, 190][:3] and c != px[136, yy][:3]:
+                px[xx, yy - 1] = INK + (255,)
+                break
 
     # palettes (all taken from / matched to the recoloured picture)
     SAND = {rm(h) for h in ('#f2c890', '#d8a878', '#f9dca8', '#fff0c0')} | \
@@ -282,6 +298,10 @@ def driftwood_tavern(p):
             p.dot(x, 216, S_DK)
 
     # ---- 6. roof: thatch courses, holes with rafters, moss, a sagging eave ------------------------------
+    for y in range(83, 119):                                                 # the shell is gone: thatch where it sat
+        for x in range(334, 372):
+            if px[x, y][:3] not in THATCH or 84 <= y <= 111 or (344 <= x <= 361 and y >= 108):
+                px[x, y] = px[x - 38, y] if px[x - 38, y][:3] in THATCH else px[x - 38, y - 3]
     r = random.Random(31)
     for ty in (76, 87, 98, 109):                                             # overlapping straw courses
         x = 264
@@ -292,12 +312,10 @@ def driftwood_tavern(p):
                 xx, yy = x + i, ty + off + (1 if i > run - 3 else 0)
                 if is_thatch(xx, yy):
                     tone(xx, yy, -36)
-                    if is_thatch(xx, yy - 1) and i % 6 < 4:
-                        tone(xx, yy - 1, 12)
-                    if i % 3 == 1 and is_thatch(xx, yy + 1):
-                        tone(xx, yy + 1, -36)
-                        if (i // 3) % 2 and is_thatch(xx, yy + 2):
-                            tone(xx, yy + 2, -36)
+                    if r.random() < .38:
+                        for k in range(1, r.choice((2, 2, 3, 4))):
+                            if is_thatch(xx, yy + k):
+                                tone(xx, yy + k, -36)
             x += run + r.randint(2, 5)
     for (tx, ty, n) in ((282, 96, 4), (306, 70, 5), (326, 104, 4), (378, 72, 5), (392, 104, 4), (410, 92, 3),
                         (290, 114, 5), (318, 84, 3), (384, 92, 4), (274, 108, 3), (400, 114, 4)):
@@ -307,18 +325,28 @@ def driftwood_tavern(p):
                 if is_thatch(tx + i * 2, ty + k):
                     tone(tx + i * 2, ty + k, 16 if i % 2 == 0 else -30)
     # the big hole where the shell crashed through
-    hole = [(333, 96), (336, 87), (342, 85), (346, 80), (354, 82), (362, 78), (369, 84), (375, 91), (372, 100),
-            (376, 108), (369, 113), (363, 118), (352, 120), (344, 117), (339, 110), (334, 105)]
+    hole = [(334, 99), (338, 93), (337, 89), (343, 88), (347, 83), (353, 85), (360, 81), (365, 85), (371, 87), (371, 93),
+            (376, 98), (372, 103), (374, 109), (367, 110), (364, 115), (357, 113), (351, 117), (346, 112), (340, 112),
+            (340, 105)]
+    for x in range(333, 378, 4):                                             # damp running down from the hole
+        for k in range(4 + (x * 5) % 9):
+            for dx in (0, 1):
+                if is_thatch(x + dx, 108 + k):
+                    tone(x + dx, 108 + k, -20)
+    for x in range(298, 316, 4):
+        for k in range(3 + (x * 3) % 6):
+            if is_thatch(x, 92 + k):
+                tone(x, 92 + k, -20)
     p.poly(hole, VD, INK)
-    p.poly([(341, 93), (347, 87), (360, 85), (368, 91), (367, 104), (359, 112), (348, 112), (341, 104)], VD2)
+    p.poly([(344, 96), (349, 91), (359, 90), (366, 94), (366, 103), (358, 108), (349, 108), (344, 103)], VD2)
     HOLE = (VD, VD2)
     for y in range(78, 121):                                                 # purlin + two rafters seen through it
         for x in range(332, 378):
             if px[x, y][:3] in HOLE:
-                if y in (99, 100):
-                    p.dot(x, y, W_MID if y == 99 else W_DK)
+                if False:
+                    p.dot(x, y, W_MID if y == 92 else W_DK)
     for y in range(78, 121):
-        for x0 in (344, 365):
+        for x0 in (350, 365):
             x = x0 + (y - 78) // 14
             for i, c in ((0, W_LT), (1, W_MID), (2, W_DK)):
                 if px[x + i, y][:3] in HOLE + (W_MID, W_DK) and not (x0 == 365 and y > 104):
@@ -468,8 +496,8 @@ def driftwood_tavern(p):
         for yy in range(y, 170):
             p.dot(x, yy, PM if yy > y else PL)                               # splintered stub
     # counter top restored where the crab's menu lay
-    for x in range(342, 371):
-        sx = 373 + (x - 342) % 16
+    for x in range(340, 371):
+        sx = 373 + (x - 340) % 16
         for y in range(170, 178):
             px[x, y] = px[sx, y]
     # nails with rust weeping down the wall planks
@@ -681,19 +709,14 @@ def driftwood_tavern(p):
         p.crack(x0, y0, L, col=hx('#3a2e3c'))
     NET, NETD = hx('#c2b8a6'), hx('#8f8676')
 
-    def in_net(x, y):
-        if not (157 <= x <= 191 and y >= 190):
-            return False
-        return y <= 207 + 11 * (x - 157) / 34.0 + 2 * math.sin((x - 157) / 3.5) and x >= 157 + max(0, y - 198) * .5
-    for y in range(190, 226):                                                # net thrown over the corner: diamond mesh
-        for x in range(157, 192):
-            if in_net(x, y):
-                if not in_net(x, y + 1) or not in_net(x - 1, y):
-                    p.dot(x, y, NETD)                                        # the weighted edge rope
-                elif (x + y) % 6 == 0 or (x - y) % 6 == 0:
-                    p.dot(x, y, NET)
-    inked(lambda: (p.ell(166, 211, 2, 2, hx('#b0705e')), p.dot(165, 210, hx('#d39a86')),
-                   p.ell(182, 217, 2, 2, hx('#b0705e')), p.dot(181, 216, hx('#d39a86'))))       # cork floats
+    rope = [(146, 192), (152, 198), (160, 204), (170, 209), (180, 211), (187, 208), (191, 201)]
+    p.line([(x, y + 1) for (x, y) in rope], hx('#4d3c48'))
+    inked(lambda: p.line(rope, NET, 2)) if False else p.line(rope, NET)
+    for i, (a, b_) in enumerate(zip(rope, rope[1:])):                        # twist marks along the rope
+        p.dot((a[0] + b_[0]) // 2, (a[1] + b_[1]) // 2, NETD)
+    p.line([(165, 207), (165, 210)], NETD); p.line([(182, 211), (182, 215)], NETD)
+    inked(lambda: (p.ell(165, 213, 2, 2, hx('#b0705e')), p.dot(164, 212, hx('#d39a86')),
+                   p.ell(182, 218, 2, 2, hx('#b0705e')), p.dot(181, 217, hx('#d39a86'))))       # cork floats
     SG, SGL = hx('#5d8a46'), hx('#8fb866')
     p.line([(152, 190), (152, 184)], SG)                                     # seedling on the stump
     stamp(148, 181, ['.LL...LL.', 'LLLS.SLLL', '.LLSSSL..', '....S....'], {'L': SGL, 'S': SG})
