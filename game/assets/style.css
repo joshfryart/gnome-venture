@@ -7322,6 +7322,7 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .wanderhide { height: 0; overflow: hidden; }
 
 /* Here, gate view: named pills on the picture, round compass + globe and the villagers in a line UNDER the picture, villager popovers */
+.hubsvg.chrome .pill, .hubsvg.chrome .pill rect, .hubsvg.chrome .pill text { pointer-events: none; }
 .hubsvg.chrome .pill rect { fill: rgba(30, 20, 10, .9); stroke: #d4a017; stroke-width: 1.2; }
 .hubsvg.chrome .pill text { fill: #fff; font-weight: 700; pointer-events: none; }
 .hubsvg.chrome .hs.on .pill rect, .hubsvg.chrome .hs:hover .pill rect, .hubsvg.chrome .hs:focus-visible .pill rect, .hubsvg.chrome .hs.lit .pill rect { fill: #ffe9a3; }

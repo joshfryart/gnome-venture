@@ -327,12 +327,19 @@ function shop_state(array $u, array $shop): array
         $where = (string)($shop['loc_name'] ?? '');
         return ['state' => 'away', 'why' => $where !== '' ? 'Walk to ' . $where . ' to shop here.' : 'You need to be in that town to shop here.', 'chip' => 'away', 'staff' => $staff];
     }
-    if ($why = gclock_closed_reason($u, $shop)) return ['state' => 'closed', 'why' => $why, 'chip' => 'closed for now', 'staff' => $staff];
+    // The same rules each shop's buy path uses: ordinary shops clock then staff (buy_from_shop), pet shops only the admin switch (petshop_buy), Dye Pot / Curio Cabinet staff only (sink_shop_post).
+    if (($shop['shop_type'] ?? '') === 'pets') {
+        require_once __DIR__ . '/catfish_pets.php';
+        if (catfish_pet_cfg('catfish_pet_shops_open', 1) < 1) return ['state' => 'closed', 'why' => 'The pet shops are closed for now.', 'chip' => 'closed for now', 'staff' => $staff];
+        return ['state' => 'open', 'why' => 'Open.', 'chip' => 'open', 'staff' => $staff];
+    }
+    $sink = sink_shop_kind($shop) !== '';
+    if (!$sink && ($why = gclock_closed_reason($u, $shop))) return ['state' => 'closed', 'why' => $why, 'chip' => 'closed for now', 'staff' => $staff];
     if (!$staff) return ['state' => 'closed', 'why' => 'Closed, nobody on shift.', 'chip' => 'nobody on shift', 'staff' => []];
     $hours = '';
-    if (gclock_on()) {
+    if (!$sink && gclock_on()) {
         [$o, $c] = gclock_place_hours($shop);
-        $hours = sprintf('%02d:%02d-%02d:%02d', intdiv($o, 60) % 24, $o % 60, intdiv($c, 60) % 24, $c % 60);
+        $hours = sprintf('%02d:%02d-%02d:%02d', intdiv($o, 60) % 24, $o % 60, $c >= 1440 ? 24 : intdiv($c, 60) % 24, $c >= 1440 ? 0 : $c % 60);
     }
     return ['state' => 'open', 'why' => 'At the counter: ' . implode(', ', $staff) . ($hours !== '' ? ' (open ' . $hours . ')' : ''), 'chip' => $hours !== '' ? $hours : 'open', 'staff' => $staff];
 }

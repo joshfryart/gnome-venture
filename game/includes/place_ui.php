@@ -603,11 +603,12 @@ function shop_street_hotspots(array $L, array $local, array $hub, string $town):
     foreach ($spots as $k => $sp) {
         $isHub = str_starts_with($k, 'hub-');
         $mark = $isHub ? '🍄 ' : '📍 ';
+        if ($k === 'hub-pets' && !isset($put[$k])) continue;   // Mossbottom has no pet shop: no front for that slot at all
         $h = ['id' => $k, 'x' => (int)$sp['x'], 'y' => (int)$sp['y']] + (isset($sp['box']) ? ['box' => $sp['box']] : []);
         $list = $put[$k] ?? [];
         if (!$list) {
             if (!$isHub && $town === HUB_REGION) continue;   // Mossbottom has no town row of its own
-            $hot[] = $h + ['label' => 'To let', 'href' => '#shops-list', 'chip' => '', 'cls' => 'locked', 'nopill' => true];
+            $hot[] = $h + ['label' => 'To let', 'href' => '#shops-list', 'chip' => '', 'cls' => 'locked', 'nopill' => true, 'inert' => true];
             continue;
         }
         if (count($list) === 1 || !str_ends_with($k, '-more')) $s = $list[0];
@@ -615,7 +616,7 @@ function shop_street_hotspots(array $L, array $local, array $hub, string $town):
             $hot[] = $h + ['label' => $mark . '+' . count($list) . ' more', 'href' => '#shops-list-' . ($isHub ? 'hub' : 'local'), 'chip' => count($list) . ' more shops'];
             continue;
         }
-        $hot[] = $h + ['label' => $mark . (string)$s['name'], 'href' => shop_street_href($s), 'chip' => $s['st']['chip'],
+        $hot[] = $h + ['label' => $mark . preg_replace('/^The\s+/u', '', (string)$s['name']), 'href' => shop_street_href($s), 'chip' => $s['st']['chip'],
                        'cls' => $s['st']['state'] === 'away' ? 'is-away' : ($s['st']['state'] === 'closed' ? 'is-closed' : '')];
     }
     return $hot;

@@ -102,9 +102,10 @@ function hub_hotspot_box(array $h, array $L): string
     $cls = 'hs hsb' . (($h['cls'] ?? '') !== '' ? ' ' . preg_replace('/[^a-z0-9 _-]/i', '', (string)$h['cls']) : '');
     $label = (string)($h['label'] ?? '');
     $chip = (string)($h['chip'] ?? '');
-    $a = '<a class="' . $cls . '" id="hs-' . $id . '" href="' . e((string)$h['href']) . '" aria-label="' . e($label . ($chip !== '' ? ', ' . $chip : '')) . '"'
+    $inert = !empty($h['inert']);   // a front with nothing behind it (Shop Street "To let"): no keyboard stop, hidden from screen readers
+    $a = '<a class="' . $cls . '" id="hs-' . $id . '" href="' . e((string)$h['href']) . '"' . ($inert ? ' tabindex="-1" aria-hidden="true"' : ' aria-label="' . e($label . ($chip !== '' ? ', ' . $chip : '')) . '"')
         . (($h['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '" aria-haspopup="dialog"' : '') . (!empty($h['hl']) ? ' data-hl="' . e((string)$h['hl']) . '"' : '') . '>'
-        . '<title>' . e($label) . '</title>'
+        . ($inert ? '' : '<title>' . e($label) . '</title>')
         . '<rect class="hit" x="' . $x0 . '" y="' . $y0 . '" width="' . ($x1 - $x0) . '" height="' . ($y1 - $y0) . '"/>';
     $icon = (string)($h['icon'] ?? '');
     if ($icon !== '') $a .= '<image class="pix" href="' . e($icon) . '" x="' . $x0 . '" y="' . $y0 . '" width="' . ($x1 - $x0) . '" height="' . ($y1 - $y0) . '" preserveAspectRatio="xMidYMid meet" image-rendering="pixelated"/>';
@@ -116,8 +117,8 @@ function hub_hotspot_box(array $h, array $L): string
     $a .= '<path class="brk" d="M' . ($x0 + $i) . ' ' . ($y0 + $k) . 'V' . ($y0 + $i) . 'H' . ($x0 + $k) . 'M' . ($x1 - $k) . ' ' . ($y0 + $i) . 'H' . ($x1 - $i) . 'V' . ($y0 + $k)
         . 'M' . ($x1 - $i) . ' ' . ($y1 - $k) . 'V' . ($y1 - $i) . 'H' . ($x1 - $k) . 'M' . ($x0 + $k) . ' ' . ($y1 - $i) . 'H' . ($x0 + $i) . 'V' . ($y1 - $k) . '"/>';
     if (!empty($h['pill'])) {   // a named pill (label in the picture): 11-unit text on a dark plate, positions resolved by hub_pill_layout()
-        [$pcx, $pcy, $pw] = $h['pill'];
-        $a .= '<g class="pill"><rect x="' . ($pcx - intdiv($pw, 2)) . '" y="' . ($pcy - 8) . '" width="' . $pw . '" height="16" rx="8"/><text x="' . $pcx . '" y="' . ($pcy + 4) . '" text-anchor="middle" font-size="11">' . e(hub_pill_text($label)) . '</text></g>';
+        [$pcx, $pcy, $pw, $ptext] = $h['pill'];
+        $a .= '<g class="pill"><rect x="' . ($pcx - intdiv($pw, 2)) . '" y="' . ($pcy - 8) . '" width="' . $pw . '" height="16" rx="8"/><text x="' . $pcx . '" y="' . ($pcy + 4) . '" text-anchor="middle" font-size="11">' . e($ptext) . '</text></g>';
         return $a . '</a>';
     }
     $half = (int)ceil(mb_strlen($label) * 2.6) + 4;   // keep the tag inside the picture
@@ -182,11 +183,25 @@ function hub_sprite_chrome(array $s, array $L): string
     return '<a class="hsp" id="sp-' . $id . '" href="' . e($href) . '" aria-label="' . e($name) . '"' . (($s['card'] ?? '') !== '' ? ' data-pop="hubpop-' . $id . '" aria-haspopup="dialog"' : '') . '><title>' . e($name) . '</title>' . $hit . $g . '</a>';
 }
 
-/** The short name on a pill: drop a leading "The ", cap at 22 characters. */
-function hub_pill_text(string $label): string
+/** Text width in "characters" for pill sizing: an emoji (outside the BMP) counts as 2. */
+function hub_text_units(string $t): int
+{
+    $n = 0;
+    foreach (preg_split('//u', $t, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $c) $n += mb_ord($c) > 0xFFFF ? 2 : 1;
+    return $n;
+}
+
+/** The short name on a pill: drop a leading "The ", cap at $max characters (emoji count 2) with an ellipsis. */
+function hub_pill_text(string $label, int $max = 22): string
 {
     $t = preg_replace('/^The\s+/u', '', trim($label));
-    return mb_strlen($t) > 22 ? mb_substr($t, 0, 21) . '…' : $t;
+    if (hub_text_units($t) <= $max) return $t;
+    $out = '';
+    foreach (preg_split('//u', $t, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $c) {
+        if (hub_text_units($out . $c) > $max - 1) break;
+        $out .= $c;
+    }
+    return rtrim($out) . '…';
 }
 
 /** Pill positions: centred a third down each box, inside the picture, moved down/up until no two pills overlap. Sets $h['pill'] = [cx, cy, width]. */
@@ -197,7 +212,9 @@ function hub_pill_layout(array $hotspots, array $L): array
     foreach ($hotspots as $k => $h) {
         if (!empty($h['nopill'])) continue;   // a plain tag instead (Shop Street 'To let' shutters)
         [$x0, $y0, $x1, $y1] = here_hit_box($h, $L);
-        $w = (int)ceil(mb_strlen(hub_pill_text((string)($h['label'] ?? ''))) * 6.3) + 14;
+        $max = max(6, min(22, (int)floor(($x1 - $x0 - 14) / 6.3)));   // the pill stays about the box's width
+        $text = hub_pill_text((string)($h['label'] ?? ''), $max);
+        $w = (int)ceil(hub_text_units($text) * 6.3) + 14;
         $cx = max(intdiv($w, 2) + 3, min($W - intdiv($w, 2) - 3, intdiv($x0 + $x1, 2)));
         $cy = min($H - 12, max(12, $y0 + intdiv($y1 - $y0, 3)));
         $dir = [20, -40, 60, -80, 100, -120, 140, -160];
@@ -208,7 +225,7 @@ function hub_pill_layout(array $hotspots, array $L): array
             $cy = max(12, min($H - 12, $cy + $dir[$try]));
         }
         $placed[] = [$cx, $cy, $w];
-        $hotspots[$k]['pill'] = [$cx, $cy, $w];
+        $hotspots[$k]['pill'] = [$cx, $cy, $w, $text];
     }
     return $hotspots;
 }
