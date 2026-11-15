@@ -1,6 +1,6 @@
 # Puzzle combat pieces of the PLAYER (2.6.74, v1 deck model). Read by pf_tiles() (the basic, knack and calling rows: the old tile library) and pfd_catalog() (everything). Linted by tests/pfdeck_v1.php.
-# key|name|source|ref|type|v|knob/edges|tag|life|rarity|blurb
-# source: basic, knack, calling, tool, crop, craft, region.  ref: knack = the level it unlocks at; calling = the calling; tool = tool type (TOOL_TYPES); crop = crop kind (crops.txt);
+# key|name|source|ref|type|v|knob/edges|tag|life|rarity|blurb|mod
+# source: basic, knack, calling, tool, crop, craft, region, legend (key g:SLUG, ref = the crop slug).  ref: knack = the level it unlocks at; calling = the calling; tool = tool type (TOOL_TYPES); crop = crop kind (crops.txt);
 #   craft = recipe category (CRAFT_CATEGORIES); region = region code (regions.txt).  key: tool pieces t:TYPE, crop c:KIND, craft k:CATEGORY, region r:CODE.
 # type: hurt guard heal charm soothe trick item.  v: base value (the gnome's stat, level / 3 and the rank bonus are added).
 # knob/edges: the family of the RIGHT knob (body, mind, craft; - = flat), then optionally /COLUMN family and /up or /down (default: the source's column family, see PFB_SRC_FAM; knob on top for hurt, charm, trick).
@@ -93,3 +93,47 @@ r:CSA|River Silt|region|CSA|heal|3|body|-|-|src|Spicepeak: silt from the great r
 r:EA|Terrace Wall|region|EA|guard|3|mind|hold|-|src|Blossomreach: a hillside terrace.
 r:SEA|Steam|region|SEA|trick|3|mind|-|-|src|The Monsoon Tangle: thick steam.
 r:OC|Island Time|region|OC|guard|3|body|hold|-|src|The Coralscatter: no hurry at all.
+
+# --- 2.6.990 legendary crops: one piece per TREASURE crop (region_crops.txt), unlocked by harvesting the crop 3 times, ranked by your mastery of that crop. Column 12 = a built-in knack (tender, leech, spiky, soft, warm, finisher, hardy). They sit in the Larder.
+g:blueberry|Blueberry Burst|legend|blueberry|heal|4|body|-|-|src|Heals a bit more than it looks.|tender
+g:cloudberry|Cloudberry Gold|legend|cloudberry|item|5|body|-|-|src|A rare sweet snack; also calms the creature.|soft
+g:cranberry|Cranberry Preserve|legend|cranberry|guard|5|body|keep|-|src|Keeps in your hand until you play it.|-
+g:gooseberry|Gooseberry Prickle|legend|gooseberry|guard|4|body|-|-|src|Pricks the creature for 2 when played.|spiky
+g:sea-buckthorn|Buckthorn Zing|legend|sea-buckthorn|heal|5|body|plenty|-|src|Next round you pick from 6 pieces.|-
+g:sugarcane|Cane Crush|legend|sugarcane|hurt|6|body|-|-|src|Heals you a little when it hits.|leech
+g:almond|Almond Crack|legend|almond|hurt|5|mind|pierce|-|src|Ignores the creature's guard.|-
+g:brazil-nut|Brazil Nut Bash|legend|brazil-nut|hurt|6|mind|bash|-|src|Adds your guard to the hit, using it up.|-
+g:cashew|Cashew Calm|legend|cashew|soothe|5|mind|-|-|src|Its next hits do less.|-
+g:chestnut|Chestnut Roast|legend|chestnut|hurt|5|mind|-|-|src|A quarter of its damage also counts as Charm.|warm
+g:hazelnut|Hazelnut Hide|legend|hazelnut|guard|4|mind|hold|-|src|Some guard stays up into your next turn.|-
+g:kola|Kola Jolt|legend|kola|hurt|5|mind|-|-|src|+3 when the Yield bar is past 60%.|finisher
+g:macadamia|Macadamia Smash|legend|macadamia|hurt|7|mind|-|-|src|The plain big hit.|-
+g:pecan|Pecan Pie|legend|pecan|heal|5|mind|simmer|-|src|Heals you 2 at the start of your next 2 turns.|-
+g:pistachio|Pistachio Pop|legend|pistachio|trick|3|mind|pluck|-|src|Tries to lift an item from the creature.|-
+g:shea|Shea Shield|legend|shea|guard|4|mind|-|-|src|A thick butter coat.|hardy
+g:walnut|Walnut Crack|legend|walnut|hurt|6|mind|pierce|-|src|Ignores the creature's guard.|-
+g:saffron|Saffron Thread|legend|saffron|charm|6|craft|bond|-|src|The creature warms to Charm for the fight.|-
+g:caper|Caper Pop|legend|caper|guard|3|craft|evade|-|src|The creature's first hit misses.|-
+g:cardamom|Cardamom Hum|legend|cardamom|charm|5|craft|hum|-|src|It will not hit as hard this turn.|-
+g:grains-of-paradise|Paradise Lull|legend|grains-of-paradise|charm|5|craft|lull|-|src|It loses its next turn.|-
+g:black-pepper|Pepper Sting|legend|black-pepper|hurt|5|craft|poison|-|src|Hits again for the next 2 turns.|-
+g:cinnamon|Cinnamon Swirl|legend|cinnamon|charm|5|craft|-|-|src|Also calms the creature.|soft
+g:clove|Clove Prick|legend|clove|hurt|4|craft|trip|-|src|It skips its next turn.|-
+g:ginseng|Ginseng Root|legend|ginseng|heal|6|craft|-|-|src|Heals 2 more.|tender
+g:nutmeg|Nutmeg Whisper|legend|nutmeg|charm|6|craft|hum|-|src|It will not hit as hard this turn.|-
+g:vanilla|Vanilla Cream|legend|vanilla|charm|6|craft|-|-|src|Also calms the creature.|soft
+g:wasabi|Wasabi Burn|legend|wasabi|hurt|6|craft|poison|-|src|Poison, and +3 late in the fight.|finisher
+g:tea|Tea Leaf|legend|tea|heal|3|body|simmer|-|src|Heals you 2 at the start of your next 2 turns.|-
+g:acai|Açaí Bowl|legend|acai|heal|5|body|-|-|src|Heals and calms the creature.|soft
+g:ackee|Ackee Surprise|legend|ackee|item|4|body|-|-|src|A snack that heals more.|tender
+g:baobab|Baobab Bark|legend|baobab|guard|6|body|hold|-|src|Guard that stays up into your next turn.|-
+g:cacao|Cacao Bite|legend|cacao|charm|5|body|bond|-|src|The creature warms to Charm for the fight.|-
+g:carob|Carob Crust|legend|carob|guard|5|body|-|-|src|A thick crust.|hardy
+g:coffee|Coffee Rush|legend|coffee|hurt|4|body|plenty|-|src|Next round you pick from 6 pieces.|-
+g:durian|Durian Stink|legend|durian|guard|5|body|thorns|-|src|Hurts the creature when it hits you.|-
+g:finger-lime|Lime Pearls|legend|finger-lime|heal|4|body|-|-|src|Pops sour, heals, and calms the creature.|soft
+g:kava|Kava Calm|legend|kava|soothe|6|body|-|-|src|Its next hits do less.|-
+g:mangosteen|Mangosteen Gold|legend|mangosteen|heal|6|body|-|-|src|The plain big heal.|-
+g:quince|Quince Jelly|legend|quince|guard|6|body|keep|-|src|Keeps in your hand until you play it.|-
+g:salak|Snakeskin Plate|legend|salak|guard|5|body|evade|-|src|The creature's first hit misses.|-
+g:yuzu|Yuzu Zest|legend|yuzu|item|4|body|-|-|src|A sharp snack; also calms the creature.|soft

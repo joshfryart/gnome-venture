@@ -52,8 +52,9 @@ $raw = array_map(fn($r) => $r[0], pf_data_lines('pf_pieces.txt'));
 chk('every piece key is unique', count($raw) === count(array_unique($raw)), array_diff_key($raw, array_unique($raw)));
 $err = []; $bySrc = [];
 foreach (pf_data_lines('pf_pieces.txt') as $r) {
-    if (count($r) !== 11) { $err[] = $r[0] . ': 11 columns'; continue; }
+    if (count($r) !== 11 && count($r) !== 12) { $err[] = $r[0] . ': 11 columns (12 with a built-in knack)'; continue; }
     [$k, $n, $src, $ref, $t, $v, $kn, $tag, $life, $rar, $blurb] = $r; $bySrc[$src][] = $ref;
+    if (isset($r[11]) && $r[11] !== '-' && !isset(PF_MODS[$r[11]])) $err[] = "$k: knack {$r[11]}";
     if (!preg_match('/^[a-z0-9:A-Z-]+$/', $k) || $n === '' || $blurb === '') $err[] = "$k: key, name or blurb";
     if (!in_array($src, PFD_PLAYER_SRC, true)) $err[] = "$k: source $src";
     if (!isset(PF_HOLE[$t])) $err[] = "$k: type $t";
@@ -62,10 +63,10 @@ foreach (pf_data_lines('pf_pieces.txt') as $r) {
     if (!in_array($e[0], PFD_FAM, true) && !($e[0] === '-' && $k === 'offer')) $err[] = "$k: knob $kn";
     if (isset($e[1]) && !in_array($e[1], PFD_FAM, true)) $err[] = "$k: column $kn";
     if (isset($e[2]) && !in_array($e[2], ['up', 'down'], true)) $err[] = "$k: way up $kn";
-    if ($tag !== '-' && $tag !== 'snack' && !isset(PF_TAGS[$tag])) $err[] = "$k: tag $tag";
+    if ($tag !== '-' && $tag !== 'snack' && !isset(PF_TAGS_V1[$tag])) $err[] = "$k: tag $tag";   // PF_TAGS_V1 also holds keep, plenty and simmer (2.6.990)
     if ($life !== '-' && ((int)$life < PFB_LIFE_MIN || (int)$life > PFB_LIFE_MAX)) $err[] = "$k: life $life";
     if ($rar !== 'src' && !in_array($rar, ['0', '1', '2', '3', '4'], true)) $err[] = "$k: rarity $rar";
-    if (in_array($src, ['tool', 'crop', 'craft', 'region'], true) && $k !== ['tool' => 't:', 'crop' => 'c:', 'craft' => 'k:', 'region' => 'r:'][$src] . $ref) $err[] = "$k: key does not match its source and ref";
+    if (in_array($src, ['tool', 'crop', 'craft', 'region', 'legend'], true) && $k !== ['tool' => 't:', 'crop' => 'c:', 'craft' => 'k:', 'region' => 'r:', 'legend' => 'g:'][$src] . $ref) $err[] = "$k: key does not match its source and ref";
 }
 chk('pf_pieces.txt: every row is well formed (source, type, value, knob / edges, tag, life 2-4, rarity)', !$err, $err);
 // no orphan sources: every ref names something the game has, and every tool type, crop kind, craft category and region has its piece
@@ -256,6 +257,26 @@ $src = pfd_sources_blank(12, 'bloomcaller', 'EA'); $src['crops'] = ['spice' => 3
 chk('crop, craft and region pieces the gnome owns are in the deck once switched on (2.6.989: they arrive off; no maximum deck size)', !array_diff(['c:spice', 'c:fruit', 'k:potions', 'r:EA', 'r:OC'], $keys) && count($keys) === 15 && $b['err'] === null, $keys);
 chk('a piece of a source the gnome does not have is not owned (no tuber, no garden craft, no Dunewhisper guide)', !array_filter($b['pieces'], fn($e) => in_array($e['key'], ['c:tuber', 'k:garden', 'r:MENA'], true)));
 chk('the rank comes from the source: spice mastery 3 = Rare, potions 2 = Uncommon', array_column($b['pieces'], 'rank', 'key')['c:spice'] === 3 && array_column($b['pieces'], 'rank', 'key')['k:potions'] === 2);
+// ---- 2.6.990 legendary crop pieces: one per treasure crop, harvest 3 times, mastery rank, in the Larder
+$LG = array_filter(pfd_catalog(), fn($p) => $p['src'] === 'legend'); $treas = [];
+foreach (file($DATA . 'region_crops.txt', FILE_IGNORE_NEW_LINES) as $l) { if ($l === '' || $l[0] === '#') continue; $c = explode('|', $l); if (($c[1] ?? '') === 'treasure') foreach (explode(',', $c[2]) as $s0) $treas[trim($s0)] = 1; }
+chk('legendary pieces: exactly one per treasure crop (' . count($treas) . ')', count($LG) === count($treas) && !array_diff_key($treas, array_column($LG, null, 'ref')) && !array_diff_key(array_column($LG, null, 'ref'), $treas), [count($LG), count($treas)]);
+$combo = []; $badL = [];
+foreach ($LG as $k => $p) {
+    $combo[$p['t'] . '|' . $p['tag'] . '|' . ($p['mod'] ?? '') . '|' . $p['v']][] = $p['ref'];
+    if ($k !== 'g:' . $p['ref'] || !in_array($p['t'], ['hurt', 'guard', 'heal', 'charm', 'soothe', 'trick', 'item'], true) || ($p['tag'] !== '' && !isset(PF_TAGS_V1[$p['tag']])) || (isset($p['mod']) && !in_array($p['t'], PF_MODS[$p['mod']][4] ?? [], true)) || $p['rar'] !== 'src' || $p['v'] < 3 || $p['v'] > 7) $badL[] = $k;
+}
+chk('legendary pieces: keys, types, tags, knacks (fit the type), values 3-7, rank from mastery', !$badL, $badL);
+chk('legendary pieces: no two share the same type, effect, knack and value', !array_filter($combo, fn($v) => count($v) > 1), array_filter($combo, fn($v) => count($v) > 1));
+chk('the three new effects are each on exactly two legendary pieces', array_count_values(array_column($LG, 'tag'))['keep'] === 2 && array_count_values(array_column($LG, 'tag'))['plenty'] === 2 && array_count_values(array_column($LG, 'tag'))['simmer'] === 2);
+$srcG = pfd_sources_blank(12, 'bloomcaller', 'EA'); $bG = pfd_build($srcG);
+chk('a gnome who has not harvested a legendary crop owns none of the 42', !array_filter($bG['pieces'], fn($e) => $e['src'] === 'legend'));
+$srcG['legends'] = ['cacao' => 3, 'wasabi' => 1]; $bG = pfd_build($srcG); $byg = array_column($bG['pieces'], null, 'key');
+chk('after harvesting: the piece is owned, off, New, ranked by mastery (cacao Rare, wasabi Common)', isset($byg['g:cacao'], $byg['g:wasabi']) && !$byg['g:cacao']['on'] && $byg['g:cacao']['new'] && $byg['g:cacao']['rank'] === 3 && $byg['g:wasabi']['rank'] === 1 && count(array_filter($bG['pieces'], fn($e) => $e['src'] === 'legend')) === 2);
+$tl = pfd_tiles([$byg['g:wasabi']], dk_stats(12)); $tw = $tl[0];
+chk('the tile carries its tag and built-in knack (wasabi: poison + finisher)', $tw['tag'] === 'poison' && $tw['m'] === 'finisher' && $tw['src'] === 'legend', $tw);
+$srcG['level'] = 1; $srcG['legends'] = ['cacao' => 1, 'wasabi' => 1, 'tea' => 1, 'coffee' => 1]; $srcG['state'] = ['g:cacao' => true, 'g:wasabi' => true, 'g:tea' => true, 'g:coffee' => true]; $bG = pfd_build($srcG);
+chk('legendary pieces share the Larder with crop pieces: with the starter\'s Oat Cake and 4 legendary on at level 1 (3 slots) only 3 crop-type pieces are in the deck, and the deck says why', count(array_filter($bG['deck'], fn($e) => in_array($e['src'], ['crop', 'legend'], true))) === 3 && str_contains((string)$bG['err'], 'Larder'), [$bG['counts']['larder'], $bG['err']]);
 // ---- 2.6.989 slots: new pieces arrive switched off; the Larder holds crop pieces, the Keepsakes the friend / Gourmand / trophy pieces
 $sl = pfd_slots(1); $sl15 = pfd_slots(15); $sl20 = pfd_slots(20); $sl10 = pfd_slots(10);
 chk('slots by level: Larder 3 (4 at level 10, 5 at level 20), Keepsakes 2 (3 at level 15)', [$sl['larder'], $sl10['larder'], $sl20['larder'], $sl['keeps'], $sl15['keeps']] === [3, 4, 5, 2, 3], [$sl, $sl10, $sl15, $sl20]);
@@ -392,6 +413,10 @@ $pv = fn(string $k) => array_column(pfd_deck($uid)['pieces'], null, 'key')[$k] ?
 chk('crops: growing a tomato (a vegetable) gives Garden Greens, arriving off and marked New (2.6.989)', $tomato > 0 && ($pv('c:vegetable')['new'] ?? false) && !($pv('c:vegetable')['on'] ?? true) && !in_array('c:vegetable', array_column(pfd_deck($uid)['deck'], 'key'), true), $pv('c:vegetable'));
 chk('crops: switching it on puts it in the deck and clears New', pfd_toggle($uid, 'c:vegetable', true) === null && in_array('c:vegetable', array_column(pfd_deck($uid)['deck'], 'key'), true) && empty($pv('c:vegetable')['new']));
 $rid = (int)q_val('SELECT id FROM recipes WHERE slug = ?', [PFD_REPAIR]); q('INSERT INTO user_recipes (user_id, recipe_id, learned_at, made) VALUES (?, ?, ?, 2)', [$uid, $rid, now()]);
+$cac = item_id_by_slug('cacao'); if ($cac) q('INSERT INTO user_food_mastery (user_id, item_id, eaten, grown) VALUES (?, ?, 0, 2)', [$uid, $cac]);
+chk('legendary: 2 harvests of cacao is not enough for Cacao Bite', $cac > 0 && $pv('g:cacao') === null, $pv('g:cacao'));
+if ($cac) q('UPDATE user_food_mastery SET grown = 3 WHERE user_id = ? AND item_id = ?', [$uid, $cac]);
+chk('legendary: the third harvest gives Cacao Bite (off, New, a legendary piece)', ($pv('g:cacao')['new'] ?? false) && !($pv('g:cacao')['on'] ?? true) && ($pv('g:cacao')['src'] ?? '') === 'legend', $pv('g:cacao'));
 chk('crafts: making something in Garden supplies gives Compost Lob (off, New)', ($pv('k:garden')['new'] ?? false) && !($pv('k:garden')['on'] ?? true));
 q('INSERT INTO user_guides (user_id, guide_key, read_at) VALUES (?, ?, ?)', [$uid, 'region:MENA', now()]);
 chk('regions: reading the Dunewhisper guide gives Heat Shimmer (off, New)', ($pv('r:MENA')['new'] ?? false) && !($pv('r:MENA')['on'] ?? true));

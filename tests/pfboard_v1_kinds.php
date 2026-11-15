@@ -133,3 +133,21 @@ $s = $k19('Beast'); $s['bar']['now'] = 10.0; $s['bar']['charm'] = 10.0; $s['fh']
 chk('onebar: the Hurt part goes first (3 Hurt + 10 Charm, heal 4: Hurt 0, Charm 9)', $ev && round($s['fh']['now'], 1) === 0.0 && round($s['bar']['now'], 1) === 9.0, [$s['bar']['now'], $s['fh']['now']]);
 $s = $k19('Beast', 'medium', ['onebar' => 0]); $s['bar']['now'] = 10.0; $s['fh']['now'] = 0.0; $ev = v1_place($s, 'foe', $ft19($s, 'f:heal', 'heal', 4), 1, 3);
 chk('two bars (a 2.6.94 fight): a heal still only touches the health bar', $ev && round($s['bar']['now'], 1) === 10.0);
+
+// ---- 2.6.990: the three new effects: Keeper (stays in hand through the redraw), Plenty (6 pieces next round), Simmer (heals 2 at the start of your next 2 turns)
+$mk = function (string $tag, string $t = 'heal', int $v = 3) { $s = v1_bare('medium', ['kinds' => 0]); $s['env'] = ['draw' => [], 'discard' => [], 'next' => []]; $tl = v1_tile($s, 'z:' . $tag, $t, $v, 'body', 'legend'); $tl['tag'] = $tag; $tl['ed'] = array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null]); return [$s, $tl]; };
+[$s, $kp] = $mk('keep', 'guard', 4); $oth = array_map(fn($i) => v1_tile($s, 'o' . $i, 'hurt', 2, 'body'), [1, 2, 3, 4]); $s['me']['hand'] = array_merge([$kp], $oth); $s['me']['draw'] = array_map(fn($i) => v1_tile($s, 'd' . $i, 'hurt', 2, 'body'), range(1, 12)); $s['me']['discard'] = [];
+$cen = [intdiv(pfb_w($s), 2), intdiv(pfb_h($s), 2)]; $bt = v1_tile($s, 'base', 'guard', 1, 'body'); $bt['ed'] = array_fill_keys(['L', 'R', 'T', 'B'], ['wild', null]); v1_put($s, 'foe', $bt, 0, 3);
+$s['me']['hand'] = array_merge([$kp], $oth); pfb_play($s, [[1, 0, 2]], $s['turn']);
+chk('Keeper: a Keeper piece you did not play is still in your hand next round, and the hand is back to 5', in_array('z:keep', array_column($s['me']['hand'], 'k'), true) && count($s['me']['hand']) === PF_HAND_CAP, array_column($s['me']['hand'], 'k'));
+[$s, $kp] = $mk('keep', 'guard', 4); $s['me']['hand'] = array_merge([$kp], array_map(fn($i) => v1_tile($s, 'o' . $i, 'hurt', 2, 'body'), [1, 2, 3, 4])); $s['me']['draw'] = array_map(fn($i) => v1_tile($s, 'd' . $i, 'hurt', 2, 'body'), range(1, 12)); v1_put($s, 'foe', $bt, 0, 3); pfb_play($s, [[0, 0, 2]], $s['turn']);
+chk('Keeper: played, it goes to the discard like any piece (not kept)', !in_array('z:keep', array_column($s['me']['hand'], 'k'), true));
+[$s, $pp] = $mk('plenty', 'heal', 4); $s['me']['hand'] = array_merge([$pp], array_map(fn($i) => v1_tile($s, 'o' . $i, 'hurt', 2, 'body'), [1, 2, 3, 4])); $s['me']['draw'] = array_map(fn($i) => v1_tile($s, 'd' . $i, 'hurt', 2, 'body'), range(1, 20)); v1_put($s, 'foe', $bt, 0, 3); pfb_play($s, [[0, 0, 2]], $s['turn']);
+chk('Plenty: after you play it, next round you hold 6 pieces', count($s['me']['hand']) === PF_HAND_CAP + 1, count($s['me']['hand']));
+$mv = pfb_search($s, 'me'); pfb_play($s, [[$mv[0], $mv[1], $mv[2]]], $s['turn']);
+chk('Plenty: it does not stack: the round after you are back to 5', count($s['me']['hand']) === PF_HAND_CAP, count($s['me']['hand']));
+[$s, $sm] = $mk('simmer', 'heal', 3); $s['me']['hp'] = $s['me']['max'] - 10; $s['me']['hand'] = array_merge([$sm], array_map(fn($i) => v1_tile($s, 'o' . $i, 'hurt', 2, 'body'), [1, 2, 3, 4])); $s['me']['draw'] = array_map(fn($i) => v1_tile($s, 'd' . $i, 'hurt', 2, 'body'), range(1, 20)); v1_put($s, 'foe', $bt, 0, 3);
+$s['foe']['hand'] = []; $s['foe']['draw'] = []; $s['foe']['discard'] = []; $hp0 = $s['me']['hp']; pfb_play($s, [[0, 0, 2]], $s['turn']); $h1 = $s['me']['hp']; $r1 = (int)($s['me']['regen'] ?? 0); $mv = pfb_search($s, 'me'); pfb_play($s, [[$mv[0], $mv[1], $mv[2]]], $s['turn']); $h2 = $s['me']['hp']; $r2 = (int)($s['me']['regen'] ?? 0); $mv = pfb_search($s, 'me'); pfb_play($s, [[$mv[0], $mv[1], $mv[2]]], $s['turn']); $h3 = $s['me']['hp'];
+$heal0 = $h1 - $hp0 - 2;   // the piece's own heal, then the first tick of 2 at the start of the next turn
+chk('Simmer: the piece heals its value now and 2 more as your next turn starts (1 charge left)', $heal0 >= 1 && $r1 === 1, [$hp0, $h1, $r1]);
+chk('Simmer: the second tick uses the last charge, then nothing more (a chain can fire the heal piece again: that is its own heal)', $h2 - $h1 >= 2 && $r2 === 0 && $h3 - $h2 <= $h2 - $h1 - 2, [$h1, $h2, $h3, $r2, array_map(fn($x) => $x['k'], $s['me']['hand'])]);
