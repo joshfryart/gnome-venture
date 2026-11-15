@@ -309,6 +309,15 @@ function trail_art_obj_size(string $key): array
     return $cache[$key];
 }
 
+/** 2.7.01: the drawn marker for a map token (assets/img/trail/mark/<name>.png, 32x32), or '' to keep the emoji tile. Only the tokens the Trail map draws today:
+ *  ⚔️ fight, 🏕️ camp. The other markers in mark/ (ferry tunnel pass toll sight villager haven wonder delve lair overgrown flooded market) have no map token yet. */
+const TRAIL_MARKS = ['⚔️' => 'fight', '🏕️' => 'camp'];
+function trail_mark_file(string $icon): string
+{
+    $k = TRAIL_MARKS[$icon] ?? '';
+    return $k !== '' && is_file(__DIR__ . '/../assets/img/trail/mark/' . $k . '.png') ? $k : '';
+}
+
 function trail_art_url(string $rel): string
 {
     $p = 'assets/img/trail/' . $rel;
@@ -449,7 +458,9 @@ function trail_art_svg(array $map, array $state): string
         } elseif ($icon === '🔓') {   // an open tool gate: a small green-outlined tile with an open lock (no inline styles; attributes only)
             $marks .= '<g class="tmgateopen"><rect x="' . ($X + 2) . '" y="' . ($Y + 2) . '" width="' . ($C - 4) . '" height="' . ($C - 4) . '" fill="rgba(20,60,20,.25)" stroke="#6bbf59" stroke-width="2" stroke-dasharray="2 4"/>'
                 . '<text x="' . ($X + $C / 2) . '" y="' . $n($Y + $C / 2 + 5) . '" font-size="14" text-anchor="middle">' . e($icon) . '</text></g>';
-        } else {   // the way on and the fixed fight: red-outlined placeholder tiles until their art is drawn
+        } elseif (($mk = trail_mark_file($icon)) !== '') {   // 2.7.01: a drawn 32x32 marker (art-2701 Opus): the fight and the camp spot
+            $items[] = [$ty + .45, $tx, '<image class="tmmark"' . ($done ? ' opacity=".5"' : '') . ' href="' . e(trail_art_url('mark/' . $mk . '.png')) . '" x="' . $n($X) . '" y="' . $n($Y) . '" width="' . $C . '" height="' . $C . '" image-rendering="pixelated"/>'];
+        } else {   // the way on: a red-outlined placeholder tile until its art is drawn
             $marks .= '<g' . ($done ? ' opacity=".5"' : '') . '><rect x="' . ($X + 2) . '" y="' . ($Y + 2) . '" width="' . ($C - 4) . '" height="' . ($C - 4) . '" fill="rgba(255,255,255,.18)" stroke="#e02020" stroke-width="2.5"/>'
                 . '<text x="' . ($X + $C / 2) . '" y="' . $n($Y + $C / 2 + 6) . '" font-size="17" text-anchor="middle">' . e($icon) . '</text></g>';
         }
