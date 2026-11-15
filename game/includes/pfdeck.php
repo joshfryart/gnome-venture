@@ -15,6 +15,10 @@ const PFD_FAM = ['body', 'mind', 'craft'];
 const PFD_PLAYER_SRC = ['basic', 'knack', 'calling', 'tool', 'crop', 'craft', 'region'];
 const PFD_RANK_NAME = ['', 'Common', 'Uncommon', 'Rare', 'Masterwork'];
 const PFD_RANK_BONUS = [0, 0, 2, 4, 5];       // value added by rank (I Common .. IV Masterwork)
+const PFD_LARDER_SRC = ['crop', 'food'];        // 2.6.989: the Larder holds crop (and, later, food) pieces ...
+const PFD_KEEP_SRC = ['friend', 'gourmand', 'trophy'];   // ... the Keepsakes the friend, Gourmand and lair-trophy pieces (none exist yet)
+/** Slots by gnome level: the Larder 3 (4 from level 10, 5 from level 20), the Keepsakes 2 (3 from level 15). */
+function pfd_slots(int $level): array { return ['larder' => $level >= 20 ? 5 : ($level >= 10 ? 4 : 3), 'keeps' => $level >= 15 ? 3 : 2]; }
 const PFD_RARE_CAP = 3, PFD_MW_CAP = 1;       // a deck holds at most 3 Rare and 1 Masterwork pieces (kit + gear)
 const PFD_KIT_MIN = 8;                        // kit pieces (not counting gear) a deck needs
 const PFD_CORE = ['swing', 'dodge', 'rest', 'charm'];   // the 4 fixed starter pieces
@@ -274,7 +278,7 @@ function pfd_build(array $src): array
     }
     foreach ($C as $key => $p) {   // then everything else the gnome owns: crop, craft and region pieces are on unless switched off; knacks and the rest are off unless switched on
         if (isset($seen[$key]) || !in_array($p['src'], PFD_PLAYER_SRC, true) || !$owned($p)) continue;
-        $pieces[] = $entry($key, $p, $rankOf($p), ['on' => (bool)($src['state'][$key] ?? in_array($p['src'], ['crop', 'craft', 'region'], true))]);
+        $pieces[] = $entry($key, $p, $rankOf($p), ['on' => (bool)($src['state'][$key] ?? false), 'new' => !isset($src['state'][$key])]);   // 2.6.989: a piece the gnome has just earned arrives switched off, marked New, until they switch it
     }
     $belt = pfd_belt($src);
     foreach ($belt as $b) {   // gear: the tools on the belt that work
@@ -285,9 +289,11 @@ function pfd_build(array $src): array
         $nm = (string)($q['n'] ?? 'Pal'); $key = 'pal:' . $nm; if (isset($seen[$key])) continue; $seen[$key] = 1;
         $pieces[] = $entry($key, ['k' => $key, 'n' => $nm, 't' => (string)$q['t'], 'v' => (int)$q['v'], 'r' => $q['r'] ?? null, 'tag' => 'pal', 'src' => 'pal', 'ref' => (string)($q['ref'] ?? ''), 'life' => 0], max(1, min(3, (int)($q['rank'] ?? 1))), ['gear' => true, 'on' => true]);
     }
-    $cnt = ['n' => 0, 'kit' => 0, 'belt' => 0, 'pals' => 0, 'hurt' => 0, 'rare' => 0, 'mw' => 0, 'src' => ['pal' => 0, 'tool' => 0, 'crop' => 0]];
+    $sl = pfd_slots($lvl); $cnt = ['n' => 0, 'kit' => 0, 'belt' => 0, 'pals' => 0, 'hurt' => 0, 'rare' => 0, 'mw' => 0, 'larder' => 0, 'larder_max' => $sl['larder'], 'keeps' => 0, 'keeps_max' => $sl['keeps'], 'src' => ['pal' => 0, 'tool' => 0, 'crop' => 0]];
     foreach ($pieces as $i => $e) {
         if (!$e['on']) continue;
+        if (in_array($e['src'], PFD_LARDER_SRC, true) && ++$cnt['larder'] > $sl['larder']) $pieces[$i]['out'] = 'slots';   // 2.6.989: more crop pieces on than the Larder holds: the extra ones stay out
+        if (in_array($e['src'], PFD_KEEP_SRC, true) && ++$cnt['keeps'] > $sl['keeps']) $pieces[$i]['out'] = 'slots';
         if ($e['rank'] === 3 && ++$cnt['rare'] > PFD_RARE_CAP) $pieces[$i]['out'] = 'cap';
         if ($e['rank'] === 4 && ++$cnt['mw'] > PFD_MW_CAP) $pieces[$i]['out'] = 'cap';
         $cnt['n']++; if (!$e['gear']) $cnt['kit']++; if ($e['t'] === 'hurt') $cnt['hurt']++;
@@ -309,6 +315,8 @@ function pfd_validate(array $counts): ?string
     if ((int)$c['hurt'] < 1) return 'Bring at least one Hurt piece (the great creatures cannot be charmed).';
     if ((int)$c['rare'] > PFD_RARE_CAP) return 'At most ' . PFD_RARE_CAP . ' Rare pieces a deck. Take one out first.';
     if ((int)$c['mw'] > PFD_MW_CAP) return 'At most ' . PFD_MW_CAP . ' Masterwork piece a deck. Take the other one out first.';
+    if ((int)($c['larder'] ?? 0) > (int)($c['larder_max'] ?? 99)) return 'Your Larder holds ' . (int)$c['larder_max'] . ' crop pieces. Take one out first.';
+    if ((int)($c['keeps'] ?? 0) > (int)($c['keeps_max'] ?? 99)) return 'You have ' . (int)$c['keeps_max'] . ' Keepsake slots. Take one out first.';
     return null;
 }
 

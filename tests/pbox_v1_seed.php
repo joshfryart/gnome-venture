@@ -62,7 +62,7 @@ $save = function () use (&$exp, &$enc) { $exp['encounter'] = json_encode($enc); 
 $turn = function (bool $worst = false) use (&$exp, &$enc, &$u, $c) {
     $enc = json_decode((string)$exp['encounter'], true); $s = $enc['pf']; if ($s['over']) return false;
     $_POST = ['nonce' => $s['nonce'], 'turn' => $s['turn']];
-    if (!empty($s['start'])) { $cx = intdiv(pfb_w($s), 2); $cy = intdiv(pfb_h($s), 2); $_POST['moves'] = '0,' . ($cx - 1) . ',' . $cy; pfight_do($u, $exp, 'pfb_play'); save_exp($exp); return true; }
+    if (!empty($s['start'])) { $cx = (int)($s['pcs'][1]['x'] ?? intdiv(pfb_w($s), 2)); $cy = (int)($s['pcs'][1]['y'] ?? intdiv(pfb_h($s), 2)); $_POST['moves'] = '0,' . ($cx - 1) . ',' . $cy; pfight_do($u, $exp, 'pfb_play'); save_exp($exp); return true; }
     $best = null;
     foreach ($s['me']['hand'] as $i => $t) foreach (pfb_cell_preview($s, $i) as $key => $q) { $sc = ($q['dmg'] ?? 0) + ($q['ch'] ?? 0) + ($q['n'] ?? 0); if ($worst) $sc = -$sc; if ($best === null || $sc > $best[0]) $best = [$sc, $i, $key]; }
     if ($best === null) {   // nothing fits as it is: flip a piece that fits flipped and play it (a pass is refused while one does), else pass
@@ -117,7 +117,7 @@ if ($what === 'nofit') {   // 2.6.79: php tests/pbox_v1_seed.php GAME nofit SEED
     $kb = ['knob', 'body']; $allk = ['L' => $kb, 'R' => $kb, 'T' => $kb, 'B' => $kb];   // knob against knob never fits: every piece on the board and in the hand has four knobs
     foreach ($s['pcs'] as $id => $pc) if ($pc['by'] !== 'none') $s['pcs'][$id]['tile']['ed'] = $allk;
     $proto = null; foreach ($s['pcs'] as $pc) if ($pc['by'] === 'foe') { $proto = $pc; break; }
-    $cx = intdiv(pfb_w($s), 2); $cy = intdiv(pfb_h($s), 2);   // the blank centre takes anything: close its four sides too
+    $cx = (int)($s['pcs'][1]['x'] ?? intdiv(pfb_w($s), 2)); $cy = (int)($s['pcs'][1]['y'] ?? intdiv(pfb_h($s), 2));   // the blank centre takes anything: close its four sides too
     if ($proto) foreach ([[1, 0], [-1, 0], [0, 1], [0, -1]] as [$dx, $dy]) { $k = ($cx + $dx) . ',' . ($cy + $dy); if (isset($s['cell'][$k])) continue; $id = ++$s['pid']; $np = $proto; $np['id'] = $id; $np['x'] = $cx + $dx; $np['y'] = $cy + $dy; $s['pcs'][$id] = $np; $s['cell'][$k] = $id; }
     $s['me']['hand'] = array_map(function ($k) use ($s, $st, $allk) { $tl = pfb_v1_tile(pf_make_tile($k, $st), $s['v1']); $tl['ed'] = $allk; return $tl; }, ['charm', 'offer', 'hum', 'lull', 'bond']);
     $found = true; foreach ($s['me']['hand'] as $i => $tl) if (pfb_cell_preview($s, $i)) $found = false; $try = 0;

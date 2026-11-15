@@ -229,13 +229,13 @@ foreach ($rows as $ci => $c) {
         $r = $m ? pfb_play($s, [[$m[0], $m[1], $m[2]]], $s['turn']) : pfb_pass($s, $s['turn']);
         if ($r['err']) { $tot['bad'] = $c['slug'] . ': ' . $r['err']; break 2; }
         foreach ($r['ev'] as $e) foreach (['poisoned', 'tripped', 'bashed', 'evaded', 'pricked'] as $k) if (!empty($e[$k]) && (($e['by'] ?? '') === 'foe' || in_array($k, ['evaded', 'pricked'], true))) $tot['tags'][$k] = ($tot['tags'][$k] ?? 0) + 1;
-        if ($s['me']['poison'] > PF_POISON_CAP || $s['me']['slowdraw'] > 1 || count($s['me']['hand']) > PF_HAND_CAP || count($s['lastfoe'] ?? []) > 3) { $tot['bad'] = $c['slug']; break 2; }
+        if ($s['me']['poison'] > PF_POISON_CAP || $s['me']['slowdraw'] > 1 || count($s['me']['hand']) > PF_HAND_CAP || count($s['lastfoe'] ?? []) > 2) { $tot['bad'] = $c['slug']; break 2; }
         $cnt = count($s['foe']['hand']) + count($s['foe']['draw']) + count($s['foe']['discard']) + count(array_filter($s['pcs'], fn($p) => $p['by'] === 'foe'));
         if ($cnt !== count(pfd_foe_pieces($c, array_keys($R)[$ci % 14]))) { $tot['bad'] = $c['slug'] . ' lost a piece'; break 2; }
     }
     $tot['n']++; $tot['over'][(string)$s['over']] = ($tot['over'][(string)$s['over']] ?? 0) + 1;
 }
-chk('88 whole fights against the layered decks: every fight ends, no piece is lost, poison never above 3, at most 3 creature pieces a turn (a Critter's two plus a Quick one)', $tot['n'] === 88 && !isset($tot['bad']) && !isset($tot['over']['']), $tot);
+chk('88 whole fights against the layered decks: every fight ends, no piece is lost, poison never above 3, at most 2 creature pieces a turn (one plus a Quick one; Swarm grows since 2.6.988 instead of playing two)', $tot['n'] === 88 && !isset($tot['bad']) && !isset($tot['over']['']), $tot);
 chk('in those fights poison, trip, bash, evade and thorns all happened', !array_diff(['poisoned', 'tripped', 'bashed', 'evaded', 'pricked'], array_keys($tot['tags'])), $tot['tags']);
 echo '     ' . json_encode($tot['over']) . ' ' . json_encode($tot['tags']) . "\n";
 
@@ -252,24 +252,38 @@ $src['starter'] = array_merge(PFD_CORE, pfd_offer_keys('thornblade', 'NWE', PFD_
 chk('the Bold kit: a second Swing is in the deck (10 pieces, 5 Hurt)', $b['starter'] && count($b['deck']) === 10 && $b['counts']['hurt'] === 5 && in_array('swing#2', array_column($b['deck'], 'key'), true) && array_count_values(array_column(pfd_tiles($b['deck'], dk_stats(1)), 'k'))['swing'] === 2, $b['counts']);
 chk('a starter piece is owned even without its source (Oat Cake with no grain grown: rank Common)', (function () use ($b) { foreach ($b['pieces'] as $e) if ($e['key'] === 'c:grain') return $e['starter'] && $e['rank'] === 1 && $e['on']; return false; })());
 chk('level 1 owns no knack beyond the starter; level 16 owns all 17 (off until switched on)', count(array_filter($b['pieces'], fn($e) => $e['src'] === 'knack' && !$e['starter'])) === 0 && (function () { $b = pfd_build(['level' => 16] + pfd_sources_blank(16, 'thornblade')); $k = array_filter($b['pieces'], fn($e) => $e['src'] === 'knack'); return count($k) === 17 && count(array_filter($k, fn($e) => $e['on'])) === 2; })());
-$src = pfd_sources_blank(12, 'bloomcaller', 'EA'); $src['crops'] = ['spice' => 3, 'fruit' => 1]; $src['crafts'] = ['potions' => 2]; $src['regions'] = ['EA' => 1, 'OC' => 1]; $b = pfd_build($src); $keys = array_column($b['deck'], 'key');
-chk('crop, craft and region pieces the gnome owns are in the deck by default (no maximum deck size)', !array_diff(['c:spice', 'c:fruit', 'k:potions', 'r:EA', 'r:OC'], $keys) && count($keys) === 15 && $b['err'] === null, $keys);
+$src = pfd_sources_blank(12, 'bloomcaller', 'EA'); $src['crops'] = ['spice' => 3, 'fruit' => 1]; $src['crafts'] = ['potions' => 2]; $src['regions'] = ['EA' => 1, 'OC' => 1]; $src['state'] = array_fill_keys(['c:spice', 'c:fruit', 'k:potions', 'r:EA', 'r:OC'], true); $b = pfd_build($src); $keys = array_column($b['deck'], 'key');
+chk('crop, craft and region pieces the gnome owns are in the deck once switched on (2.6.989: they arrive off; no maximum deck size)', !array_diff(['c:spice', 'c:fruit', 'k:potions', 'r:EA', 'r:OC'], $keys) && count($keys) === 15 && $b['err'] === null, $keys);
 chk('a piece of a source the gnome does not have is not owned (no tuber, no garden craft, no Dunewhisper guide)', !array_filter($b['pieces'], fn($e) => in_array($e['key'], ['c:tuber', 'k:garden', 'r:MENA'], true)));
 chk('the rank comes from the source: spice mastery 3 = Rare, potions 2 = Uncommon', array_column($b['pieces'], 'rank', 'key')['c:spice'] === 3 && array_column($b['pieces'], 'rank', 'key')['k:potions'] === 2);
+// ---- 2.6.989 slots: new pieces arrive switched off; the Larder holds crop pieces, the Keepsakes the friend / Gourmand / trophy pieces
+$sl = pfd_slots(1); $sl15 = pfd_slots(15); $sl20 = pfd_slots(20); $sl10 = pfd_slots(10);
+chk('slots by level: Larder 3 (4 at level 10, 5 at level 20), Keepsakes 2 (3 at level 15)', [$sl['larder'], $sl10['larder'], $sl20['larder'], $sl['keeps'], $sl15['keeps']] === [3, 4, 5, 2, 3], [$sl, $sl10, $sl15, $sl20]);
+$srcN = pfd_sources_blank(12, 'bloomcaller', 'EA'); $srcN['crops'] = ['spice' => 3, 'fruit' => 1]; $srcN['crafts'] = ['potions' => 2]; $srcN['regions'] = ['EA' => 1]; $bN = pfd_build($srcN); $byk = array_column($bN['pieces'], null, 'key');
+chk('new pieces arrive switched off with a New mark: crop, craft and region', !$byk['c:spice']['on'] && !$byk['c:fruit']['on'] && !$byk['k:potions']['on'] && !$byk['r:EA']['on'] && $byk['c:spice']['new'] && $byk['r:EA']['new'] && !in_array('c:spice', array_column($bN['deck'], 'key'), true), array_map(fn($e) => [$e['on'], $e['new'] ?? null], array_intersect_key($byk, array_flip(['c:spice', 'k:potions', 'r:EA']))));
+$srcN['state'] = ['c:spice' => true, 'c:fruit' => false]; $bN = pfd_build($srcN); $byk = array_column($bN['pieces'], null, 'key');
+chk('once you switch a piece (on or off) it is no longer New', $byk['c:spice']['on'] && empty($byk['c:spice']['new']) && !$byk['c:fruit']['on'] && empty($byk['c:fruit']['new']) && !empty($byk['k:potions']['new']));
+$srcL = pfd_sources_blank(1, 'bloomcaller', 'EA'); $srcL['crops'] = ['spice' => 1, 'fruit' => 1, 'grain' => 1, 'herb' => 1, 'nut' => 1]; $srcL['state'] = array_fill_keys(['c:spice', 'c:fruit', 'c:grain', 'c:herb', 'c:nut'], true); $bL = pfd_build($srcL); $outL = array_column(array_filter($bL['pieces'], fn($e) => $e['src'] === 'crop' && $e['out'] !== ''), 'out', 'key');
+chk('Larder: 5 crop pieces on at level 1 (3 slots): the first 3 are in the deck, the last 2 are out (slots) and the deck says why', count(array_filter($bL['deck'], fn($e) => $e['src'] === 'crop')) === 3 && count($outL) === 2 && array_unique(array_values($outL)) === ['slots'] && str_contains((string)$bL['err'], 'Larder'), [$outL, $bL['err']]);
+chk('the counts carry the slots: larder 5 on of 3, keepsakes 0 of 2', $bL['counts']['larder'] === 5 && $bL['counts']['larder_max'] === 3 && $bL['counts']['keeps'] === 0 && $bL['counts']['keeps_max'] === 2, $bL['counts']);
+$srcL['level'] = 20; $bL20 = pfd_build($srcL);
+chk('Larder: 5 crop pieces fit at level 20 (5 slots), no error', count(array_filter($bL20['deck'], fn($e) => $e['src'] === 'crop')) === 5 && $bL20['err'] === null, $bL20['err']);
+$srcR = pfd_sources_blank(1, 'bloomcaller', 'EA'); $srcR['regions'] = ['EA' => 1, 'OC' => 1, 'NA' => 1, 'SE' => 1]; $srcR['crafts'] = ['potions' => 1, 'garden' => 1, 'tools' => 1]; $srcR['state'] = array_fill_keys(['r:EA', 'r:OC', 'r:NA', 'r:SE', 'k:potions', 'k:garden', 'k:tools'], true); $bR = pfd_build($srcR);
+chk('regions and crafts are not slotted: seven of them on at level 1, all in the deck', count(array_filter($bR['deck'], fn($e) => in_array($e['src'], ['region', 'craft'], true))) === 7 && $bR['err'] === null, $bR['err']);
 chk('another calling\'s piece is not owned; your own is', !in_array('thorn', array_column($b['pieces'], 'key'), true) && in_array('bloom', array_column($b['pieces'], 'key'), true));
 $src['state'] = ['c:fruit' => false, 'lull' => true, 'smash' => true]; $b2 = pfd_build($src); $k2 = array_column($b2['deck'], 'key');
 chk('switching: a crop piece off, an owned knack on; a knack above your level stays out', !in_array('c:fruit', $k2, true) && in_array('lull', $k2, true) && !in_array('smash', $k2, true), $k2);
 $src['state'] = array_fill_keys(['dodge', 'rest', 'charm', 'c:grain', 'snack', 'swing#2', 'pierce', 'c:fruit', 'k:potions'], false); $b3 = pfd_build($src);
-chk('validate: fewer than 8 kit pieces is refused', $b3['counts']['kit'] === 6 && $b3['err'] === 'Pack at least 8 kit pieces.', $b3['counts']);
+chk('validate: fewer than 8 kit pieces is refused', $b3['counts']['kit'] === 3 && $b3['err'] === 'Pack at least 8 kit pieces.', $b3['counts']);
 chk('a fight with an illegal deck falls back to the default kit (never an illegal deck in a fight)', count(pfd_fight_entries($src)) >= PFD_KIT_MIN && pfd_validate(pfd_build(['starter' => null, 'state' => []] + $src)) === null);
 $src = pfd_sources_blank(12, 'rootwarden'); $src['state'] = ['swing' => false, 'jab' => false, 'swing#2' => false, 'pierce' => false, 'taunt' => true, 'soothe' => true, 'hum' => true]; $b4 = pfd_build($src);
 chk('validate: no Hurt piece is refused', $b4['counts']['hurt'] === 0 && str_starts_with((string)$b4['err'], 'Bring at least one Hurt piece'), $b4['counts']);
-$src = pfd_sources_blank(20, 'thornblade'); $src['crops'] = ['spice' => 3, 'fruit' => 3, 'nut' => 3, 'herb' => 3]; $b5 = pfd_build($src);
+$src = pfd_sources_blank(20, 'thornblade'); $src['crops'] = ['spice' => 3, 'fruit' => 3, 'nut' => 3, 'herb' => 3]; $src['state'] = array_fill_keys(['c:spice', 'c:fruit', 'c:nut', 'c:herb'], true); $b5 = pfd_build($src);
 chk('rarity cap: a 4th Rare piece is over the cap (refused; in a fight it is left out)', $b5['counts']['rare'] === 4 && $b5['err'] === 'At most 3 Rare pieces a deck. Take one out first.' && count(array_filter($b5['pieces'], fn($e) => $e['out'] === 'cap')) === 1 && count(array_filter($b5['deck'], fn($e) => $e['rank'] === 3)) === 3, $b5['counts']);
 $src = pfd_sources_blank(20, 'thornblade'); $src['tools'] = ['axe' => 4, 'till' => 4]; $b6 = pfd_build($src);
 chk('rarity cap: a 2nd Masterwork is over the cap', $b6['counts']['mw'] === 2 && $b6['err'] === 'At most 1 Masterwork piece a deck. Take the other one out first.' && count(array_filter($b6['deck'], fn($e) => $e['rank'] === 4)) === 1, $b6['counts']);
 $src = pfd_sources_blank(20, 'thornblade'); $src['tools'] = ['axe' => 3, 'till' => 4]; $src['crops'] = ['spice' => 3, 'fruit' => 3]; $src['pals'] = [['n' => 'Moth Glow', 't' => 'charm', 'v' => 8, 'r' => 'body', 'rank' => 2]];
-$src['state'] = ['brace' => true, 'snack' => false]; $b7 = pfd_build($src);
+$src['state'] = ['brace' => true, 'snack' => false, 'c:spice' => true, 'c:fruit' => true]; $b7 = pfd_build($src);
 chk('3 Rare + 1 Masterwork is legal (kit + gear together)', $b7['counts']['rare'] === 3 && $b7['counts']['mw'] === 1 && $b7['err'] === null, $b7['counts']);
 chk('gear: tool pieces from the belt and the party pal\'s piece are ADDED (source tool / pal); Teamwork sources counted', $b7['counts']['belt'] === 2 && $b7['counts']['pals'] === 1 && $b7['counts']['team'] === 3 && $b7['counts']['n'] === 15, $b7['counts']);
 $tiles = pfd_tiles($b7['deck'], dk_stats(20)); $byK = array_column($tiles, null, 'k');
@@ -374,11 +388,13 @@ q('UPDATE users SET level = 9 WHERE id = ?', [$uid]);
 chk('level 9: Pierce is owned (off), and can be switched on', pfd_toggle($uid, 'pierce', true) === null && in_array('pierce', array_column(pfd_deck($uid)['deck'], 'key'), true));
 // sources from the game
 $tomato = item_id_by_slug('tomato'); if ($tomato) q('INSERT INTO user_food_mastery (user_id, item_id, eaten, grown) VALUES (?, ?, 0, 3)', [$uid, $tomato]);
-chk('crops: growing a tomato (a vegetable) gives Garden Greens, on by default', $tomato > 0 && in_array('c:vegetable', array_column(pfd_deck($uid)['deck'], 'key'), true), array_column(pfd_deck($uid)['deck'], 'key'));
+$pv = fn(string $k) => array_column(pfd_deck($uid)['pieces'], null, 'key')[$k] ?? null;
+chk('crops: growing a tomato (a vegetable) gives Garden Greens, arriving off and marked New (2.6.989)', $tomato > 0 && ($pv('c:vegetable')['new'] ?? false) && !($pv('c:vegetable')['on'] ?? true) && !in_array('c:vegetable', array_column(pfd_deck($uid)['deck'], 'key'), true), $pv('c:vegetable'));
+chk('crops: switching it on puts it in the deck and clears New', pfd_toggle($uid, 'c:vegetable', true) === null && in_array('c:vegetable', array_column(pfd_deck($uid)['deck'], 'key'), true) && empty($pv('c:vegetable')['new']));
 $rid = (int)q_val('SELECT id FROM recipes WHERE slug = ?', [PFD_REPAIR]); q('INSERT INTO user_recipes (user_id, recipe_id, learned_at, made) VALUES (?, ?, ?, 2)', [$uid, $rid, now()]);
-chk('crafts: making something in Garden supplies gives Compost Lob', in_array('k:garden', array_column(pfd_deck($uid)['deck'], 'key'), true));
+chk('crafts: making something in Garden supplies gives Compost Lob (off, New)', ($pv('k:garden')['new'] ?? false) && !($pv('k:garden')['on'] ?? true));
 q('INSERT INTO user_guides (user_id, guide_key, read_at) VALUES (?, ?, ?)', [$uid, 'region:MENA', now()]);
-chk('regions: reading the Dunewhisper guide gives Heat Shimmer', in_array('r:MENA', array_column(pfd_deck($uid)['deck'], 'key'), true));
+chk('regions: reading the Dunewhisper guide gives Heat Shimmer (off, New)', ($pv('r:MENA')['new'] ?? false) && !($pv('r:MENA')['on'] ?? true));
 chk('toggle: an owned crop piece can be switched off again', pfd_toggle($uid, 'c:vegetable', false) === null && !in_array('c:vegetable', array_column(pfd_deck($uid)['deck'], 'key'), true));
 // belt
 $item('hatchet'); $item('worn-trowel'); $item('willow-fishing-rod'); tool_cache_reset();
@@ -425,7 +441,7 @@ $wk = array_map(fn($e) => $e['k'] === 'snack' && !in_array('snack', array_column
 chk('flag = admin, an admin: the fight is dealt from the gnome\'s deck (' . count($mk) . ' pieces, tool pieces with their tool)', isset($s['v1']) && $mk === $wk && count(array_filter($mine, fn($t) => isset($t['tool']))) === $want['counts']['belt'], [$mk, $wk]);
 $region = pfd_exp_region($exp);
 chk('the creature is layered: Beast base 4 + the region\'s pieces (' . ($region ?: 'no region') . ') + Slam + the Badger\'s 3', count($foe) === 4 + ($region !== '' ? 2 : 0) + 1 + 3 && !array_diff(['Claw', 'Maul', 'Brace', 'Shoulder Barge', 'Slam', 'Dig In', 'Badger Maul', 'Bash Back'], array_column($foe, 'n')) && ($region === '' || in_array(pfd_region_pieces()[$region]['other']['n'], array_column($foe, 'n'), true)), array_column($foe, 'n'));
-chk('the board is the large one (7x5)', $s['w'] === 7 && $s['h'] === 5);
+chk('the board is 4x4 (every board since 2.6.94)', $s['w'] === 4 && $s['h'] === 4);
 $exp['encounter'] = json_encode($enc); save_exp($exp);
 chk('during the fight the deck is locked: toggle, equip, unequip and starter are refused', pfd_locked($uid) && pfd_deck($uid)['locked'] && pfd_toggle($uid, 'soothe') === 'You are in a fight. The deck is locked until it is over.' && pfd_unequip($uid, 'axe') !== null && pfd_equip_tool($uid, 'rod') !== null && pfd_post($re(), 'pfd_toggle', ['key' => 'hum'])[0] === false);
 chk('auto-use can still be changed during a fight (it is a setting, not the deck)', pfd_set_auto($uid, true) === null);
