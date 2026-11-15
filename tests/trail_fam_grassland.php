@@ -47,14 +47,15 @@ ok('css has the block and the dark theme', str_contains($css, '.tfgrass') && str
 
 echo "== Mabel's chip\n";
 $who = 'Mabel Pennywhistle@v-na-1-2';
+$GLOBALS['gv_cw_time'] = [3, 8.0, 20000];
 $f = npc_cw_forecast($who, $ring);
 ok('Mabel has a forecast at the daisy ring', $f !== null);
 if ($f) {
     $GLOBALS['gv_cw_time'] = [$f['dow'], $f['from'] + 0.2, 20000 + $f['in']];
     $h = trail_fam_grassland($ctx('cloud', [$mark($ring)], $GLOBALS['gv_cw_time']));
     ok('while she is there: a "here now" chip', str_contains($h, 'Mabel Pennywhistle at The daisy ring') && str_contains($h, 'here now') && str_contains($h, 'tfg-chip now'), $h);
-    unset($GLOBALS['gv_cw_time']);
 }
+unset($GLOBALS['gv_cw_time']);
 set_setting('npc_clockwork', '0'); setting('__reload__');
 ok('clockwork off: no chips, the strip stays', !str_contains(trail_fam_grassland($ctx('wind', [$mark($ring)])), 'tfg-chip') && str_contains(trail_fam_grassland($ctx('wind', [$mark($ring)])), 'tfgrass'));
 set_setting('npc_clockwork', '1'); setting('__reload__');
@@ -115,7 +116,7 @@ foreach ([[20000, 0], [20003, 2], [20009, 5], [20015, 6]] as [$di, $dow]) {
 $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]);
 q('DELETE FROM user_sight_quests WHERE user_id = ?', [$u['id']]);
 $loc = q_one('SELECT * FROM locations WHERE id = ?', [(int)$r['a_id']]);
-$hook = function (string $slug, string $we) use (&$u, $loc) { $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); return implode(' | ', trail_sight_quest_hook($u, $slug, $loc, ['dp' => 'day', 'we' => $we, 'tl' => [], 'gd' => 10])); };
+$hook = function (string $slug, string $we) use (&$u, $loc) { $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); return implode(' | ', array_filter(trail_sight_quest_hook($u, $slug, $loc, ['dp' => 'day', 'we' => $we, 'tl' => [], 'gd' => 10]), fn($l) => str_contains($l, "Sky Letters"))); };   // only my line (other families' quests share these Sights)
 $GLOBALS['gv_cw_time'] = [3, 8.0, 20000];
 $o = $hook($knoll, 'rain');
 ok('the wrong weather does not count (sun letter in rain)', !str_contains($o, ' of 5)') && !str_contains($o, 'A quest begins'), $o);
