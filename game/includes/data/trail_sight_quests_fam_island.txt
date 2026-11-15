@@ -1,2 +1,8 @@
 # Island family quest line (2.7.01). Q|slug|title|giver|icon|order|reward|intro|outro|gate  then  B|slug|sight|label|when|needs
 # Pinchwell's postcards are scattered over four islands. Collect them in order, then hand them over at the hammock palms when the ferry docks on a 7th game day (gd=7:0). Two beats need a villager by their weekly clockwork (npc=).
+Q|pinchwells-postcards|Pinchwell's Postcards|Pinchwell|💌|seq|xp=60,c=40,item=cowrie-shell:2,fp=2,title=Postcard Courier|Pinchwell the crab writes to a friend on every island, and the answers got scattered by the tide. He cannot leave his hammock, so he asks you to collect the four postcards in order and bring them to him when the ferry docks on the seventh day.|Pinchwell reads all four postcards twice, very slowly, and turns the last one over to check the back. Then he writes a very short, very warm letter to you, and it takes him all afternoon.|
+B|pinchwells-postcards|island-the-sand-spit|Tansy Thistledown found the first postcard in the sand at dawn|dp=dawn|npc=Tansy Thistledown
+B|pinchwells-postcards|island-the-shell-bell-tree|Lyra Fiddlewing chimes the second postcard down from the shells at dusk|dp=dusk|npc=Lyra Fiddlewing
+B|pinchwells-postcards|island-the-tide-cave|The third postcard is wedged in the cave, and the cave breathes it out at dawn|dp=dawn|
+B|pinchwells-postcards|island-the-lagoon-edge|The fourth postcard dries on a flat stone beside the lagoon|dp=dawn|
+B|pinchwells-postcards|island-the-hammock-palms|On the seventh day take the ferry across and hand all four postcards to Pinchwell|dp=dawn,dusk/gd=7:0|

@@ -8121,3 +8121,46 @@ details.sgq summary{cursor:pointer}
 .tfr-note{font-size:.8rem;margin-top:4px}
 .tfr-chip{margin-top:4px;font-size:.82rem}
 .tfr-chip.now{font-weight:600}
+
+/* Island family (2.7.01): the Ferry strip above an island Trail map (includes/trail_fam_island.php) */
+.tfisland{--tfi-bg:#e3f3ee;--tfi-ink:#1d4a44;--tfi-sea:#8ccfc3;--tfi-line:#2c7a6e;--tfi-now:#e8a317;margin:0;padding:8px 10px;background:var(--tfi-bg);color:var(--tfi-ink);border:2px solid #4fa595}
+:root[data-theme="dark"] .tfisland{--tfi-bg:#12292a;--tfi-ink:#d1ece6;--tfi-sea:#2a6a65;--tfi-line:#7fcfc2;border-color:var(--line)}
+.tfisland p{margin:0}
+.tfi-h{font-size:.9rem}
+.tfi-st{font-size:.78rem;opacity:.85}
+.tfi-svg{display:block;width:100%;max-width:420px;height:auto;margin:4px 0}
+.tfi-lane{stroke:var(--tfi-line);stroke-width:2;stroke-dasharray:4 3}
+.tfi-dock{fill:var(--tfi-sea);stroke:var(--tfi-line);stroke-width:1.5}
+.tfi-tick{stroke:var(--tfi-ink);stroke-width:1;opacity:.6}
+.tfi-lbl{fill:var(--tfi-ink);font-size:8px;font-family:var(--font)}
+.tfi-boat{fill:var(--tfi-now);stroke:var(--tfi-ink);stroke-width:1.5}
+.tfi-nowline{stroke:var(--tfi-ink);stroke-width:1;stroke-dasharray:2 2;opacity:.8}
+.tfi-note{font-size:.8rem}
+.tfi-palms{list-style:none;margin:4px 0;padding:0;display:flex;flex-wrap:wrap;gap:4px 6px}
+.tfi-p{font-size:.78rem;padding:2px 6px;border:1px solid var(--tfi-line);line-height:1.3}
+.tfi-p.shut{opacity:.7;border-style:dashed}
+.tfi-chip{margin-top:4px;font-size:.82rem}
+.tfi-chip.now{font-weight:600}
+
+/* Wetland family (2.7.01): Reed-line ripples and the firefly row above a wetland Trail map (includes/trail_fam_wetland.php) */
+.tfwetland{--tfw-bg:#e2f0dc;--tfw-ink:#26452c;--tfw-line:#4a8a56;--tfw-glow:#e8c82a;margin:0;padding:8px 10px;background:var(--tfw-bg);color:var(--tfw-ink);border:2px solid #6aa37a}
+.tfwetland.tfw-dusk{--tfw-bg:#1f3a35;--tfw-ink:#e6f2dc;--tfw-line:#8fcf9c}
+:root[data-theme="dark"] .tfwetland{--tfw-bg:#16261f;--tfw-ink:#d6ecd4;--tfw-line:#8fcf9c;border-color:var(--line)}
+.tfwetland p{margin:0}
+.tfw-h{font-size:.9rem}
+.tfw-moon{display:block;font-size:.85em;opacity:.85}
+.tfw-rips{list-style:none;margin:4px 0;padding:0;display:flex;flex-wrap:wrap;gap:4px 6px}
+.tfw-r{font-size:.78rem;padding:2px 6px;border:1px solid var(--tfw-line);line-height:1.3}
+.tfw-r.rest{opacity:.7;border-style:dashed}
+.tfw-ring{display:inline-block;width:10px;height:10px;border:2px solid var(--tfw-line);border-radius:50%;vertical-align:middle}
+.tfw-r.open .tfw-ring{animation:tfw-ripple 2.4s ease-out infinite}
+.tfw-r.rest .tfw-ring{border-style:dashed}
+.tfw-note{font-size:.8rem}
+.tfw-ff{font-size:.82rem;margin-top:4px}
+.tfw-lamps{display:inline-flex;gap:3px;vertical-align:middle}
+.tfw-lamps i{width:8px;height:8px;border-radius:50%;border:1px solid var(--tfw-line);background:transparent}
+.tfw-lamps i.on{background:var(--tfw-glow);border-color:var(--tfw-glow);box-shadow:0 0 5px var(--tfw-glow)}
+.tfw-chip{margin-top:4px;font-size:.82rem}
+.tfw-chip.now{font-weight:600}
+@keyframes tfw-ripple{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.4);opacity:.4}}
+@media (prefers-reduced-motion: reduce){.tfw-r.open .tfw-ring{animation:none}}
