@@ -234,8 +234,8 @@ def build(p):
     # and one on the right
     tgap2 = []
     for y in range(196, 240):
-        for x in range(303, 327):
-            if (col(x, y) in BR or col(x, y) == INK) and y >= 196 + ((x * 5) % 4):
+        for x in range(303, 328 - ((y * 3) % 4)):
+            if (col(x, y) in BR or col(x, y) == INK) and y >= 196 + ((x * 5) % 4) and (x >= 309 or y >= 214):
                 tgap2.append((x, y))
     tfill2 = {}
     for (x, y) in tgap2:
@@ -438,7 +438,7 @@ def build(p):
             px[x, 179] = WATER_F[4] + (255,)
 
     # 7e. dead lantern post on the boardwalk
-    GLASS = [hx('#59606a'), hx('#454a55'), hx('#7b8288')]
+    GLASS = [hx('#66707c'), hx('#4a5260'), hx('#8d969c')]
     def lamp_post():
         for y in range(212, 245):
             p.dot(470, y, PLANK[0]); p.dot(471, y, PLANK[1]); p.dot(472, y, PLANK[3])
@@ -455,7 +455,7 @@ def build(p):
 
     # 7f. the keeper's lantern fell on the island: lying on its side, glass dark and cracked, cord trailing
     def lantern():
-        BRASS = [hx('#9a8d78'), hx('#75695e'), hx('#51474a')]
+        BRASS = [hx('#8b8a90'), hx('#5c5a66'), hx('#3d3b47')]
         p.poly([(232, 225), (249, 220), (252, 229), (235, 233)], GLASS[1])
         p.line([(234, 226), (248, 222)], GLASS[0])
         p.line([(237, 227), (243, 225)], GLASS[2])

@@ -70,11 +70,12 @@ def build(p):
                 px[xx, yy] = orig[(xx - 100, yy - 30)] if is_wall_raw(xx - 100, yy - 30) else (0x68, 0x4b, 0x5d, 255)
 
     # snapped roots: everything of these strands below the break goes
-    CUTS = (((118, 56, 137, 112), 125), ((186, 40, 204, 80), 196), ((268, 58, 285, 100), 279),
+    CUTS = (((118, 56, 137, 112), 125), ((269, 58, 285, 100), 279),
             ((150, 78, 160, 93), 155), ((20, 70, 31, 114), 26))
     for box, _ in CUTS:
         heal(nonwall(box), tile=12)
-    heal([q for q in nonwall((210, 3, 237, 66)) if q[1] != 2] + nonwall((190, 3, 204, 40)), tile=12)
+    heal([q for q in nonwall((210, 3, 237, 66)) if q[1] != 2] + nonwall((190, 3, 204, 40))
+         + [q for q in nonwall((243, 3, 268, 100)) if q[1] != 2], tile=12)
 
     # the sun goes behind cloud (before the remap, on true colours, inside the arch only)
     SKY = hx('a8dcc8')
@@ -98,7 +99,7 @@ def build(p):
     ROCK2 = (hx('aaa4b0'), hx('8e8799'), hx('6f6a80'), hx('555068'), hx('403c52'))   # greyer (ceiling stone)
     R_LT, R_MID, R_DK, R_SH = hx('a59a8c'), hx('86796f'), hx('67595a'), hx('4a3d46')  # dead root
     M_LT, M_MID, M_DK = hx('7f8f66'), hx('637550'), hx('4a5a44')
-    FU_LT, FU_MID, FU_DK, FU_ST = hx('95a09c'), hx('6f7c7e'), hx('505c64'), hx('b0aa9e')
+    FU_LT, FU_MID, FU_DK, FU_ST = hx('9aa09c'), hx('777e80'), hx('575c66'), hx('b0aa9e')
     WEB = hx('a9a2b0')
     SKY_R = rm(SKY)
 
@@ -223,16 +224,16 @@ def build(p):
                     if lite and col(x + 1, y) in WALLS and col(x + 1, y) != dark:
                         p.dot(x + 1, y, lite)
     W_HI = hx('8b7482')
-    crack([(203, 20), (198, 30), (192, 36), (191, 50), (184, 58), (183, 70)], seed=1, lite=W_HI)
+    crack([(203, 20), (198, 30), (192, 36), (191, 50), (184, 58), (183, 70)], seed=1)
     crack([(192, 36), (184, 39), (178, 37)], seed=2)
-    crack([(243, 27), (248, 40), (246, 51), (254, 60), (255, 72)], seed=3, lite=W_HI)
+    crack([(243, 27), (248, 40), (246, 51), (254, 60), (255, 72)], seed=3)
     crack([(248, 40), (258, 44)], seed=4)
-    crack([(399, 66), (396, 55), (401, 46), (397, 34), (389, 26), (388, 14)], seed=5, lite=W_HI)
+    crack([(399, 66), (396, 55), (401, 46), (397, 34), (389, 26), (388, 14)], seed=5)
     crack([(401, 46), (411, 40), (414, 31)], seed=6)
     crack([(397, 34), (388, 36)], seed=6)
-    crack([(346, 100), (338, 96), (331, 99), (322, 92), (318, 82)], seed=7, lite=W_HI)
-    crack([(458, 108), (464, 100), (470, 102), (476, 92)], seed=8, lite=W_HI)
-    crack([(60, 8), (64, 22), (60, 34), (66, 46)], seed=9, lite=W_HI)
+    crack([(346, 100), (338, 96), (331, 99), (322, 92), (318, 82)], seed=7)
+    crack([(458, 108), (464, 100), (470, 102), (476, 92)], seed=8)
+    crack([(60, 8), (64, 22), (60, 34), (66, 46)], seed=9)
 
     # ---- 6. the stone seat: cracked through ---------------------------------------------------------------
     for (xa, ya, xb, yb) in ((171, 204, 174, 211), (174, 211, 171, 218), (171, 218, 176, 224), (176, 224, 175, 230)):
@@ -366,11 +367,8 @@ def build(p):
             lighten(xx, yy)
     for yy in range(212, 262):                                   # where it lands
         for xx in range(215, 345):
-            if col(xx, yy) in SLAB:
-                continue
             dx, dy = (xx - 282) / 58.0, (yy - 232) / 19.0
-            if dx * dx + dy * dy <= 1 and ((xx, yy) in rock_px or yy >= 212) and not (yy < 231 and xx < 263
-                                                                                       and (xx, yy) not in rock_px):
+            if dx * dx + dy * dy <= 1 and ((xx, yy) in rock_px or yy >= 212) :
                 lighten(xx, yy, (20, 19, 17))
     for (mx, my) in ((226, 44), (243, 70), (238, 102), (262, 96), (252, 132), (274, 150), (247, 158), (268, 60)):
         p.dot(mx, my, hx('c9c2c6'))                               # dust hanging in the light
@@ -458,8 +456,8 @@ def build(p):
                     ".KK............"]
         else:
             rows = ["kw.", "kk.", "KK.", "bB.", "bB.", "bB.", "bd."]
-        return stamp(x, y, rows, {'w': hx('8f8a90'), 'k': hx('3c3038'), 'K': hx('2a2030'), 'b': R_MID, 'B': R_DK,
-                                  'd': R_SH})
+        return stamp(x, y, rows, {'w': hx('a09aa0'), 'k': hx('4a3e46'), 'K': hx('2e2434'), 'b': R_LT, 'B': R_MID,
+                                  'd': R_DK})
     for (tx, ty) in ((64, 255), (438, 238)):
         for k in range(1, 15):
             if col(tx + k, ty + 5) not in (INK, None):
@@ -497,8 +495,8 @@ def build(p):
                "...bBd....",
                "...bBd....",
                "....d....."],
-              {'w': hx('8f8a90'), 'k': hx('3c3038'), 'K': hx('2a2030'), 'b': R_MID, 'B': R_DK, 'd': R_SH,
-               'i': hx('5a5666')})
+              {'w': hx('a09aa0'), 'k': hx('4a3e46'), 'K': hx('2e2434'), 'b': R_LT, 'B': R_MID, 'd': R_DK,
+               'i': hx('7c7890')})
 
     # dust and grit drifted against things (flat lumps, no outline)
     def drift(cx, cy, rx, ry, seed):

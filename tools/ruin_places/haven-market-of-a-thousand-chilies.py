@@ -106,11 +106,12 @@ def build(p):
 
     # A2 the frog keeper is gone
     for yy in range(141, 177):
-        x1 = 262 if yy <= 159 else 253
+        x1 = 262 if yy <= 159 else (253 if yy <= 162 else 259)
         for xx in range(223, x1 + 1):
             if (xx - 270) ** 2 + (yy - 148) ** 2 <= 81:
                 continue                                                    # the lamp stays
-            px[xx, yy] = wall(yy) + (255,)
+            lim = 156 + (3 if xx % 17 < 9 else 0) + (2 if xx % 7 < 3 else 0)
+            px[xx, yy] = (hx('#a86858') if yy < lim else hx('#895250')) + (255,)
 
     # A3 the counter is bare
     for yy in range(172, 184):
@@ -139,7 +140,7 @@ def build(p):
             return hx('#6f6a44') if lum > 150 else hx('#4e4c38')
         return hx('#c8a070') if lum > 185 else hx('#a87850') if lum > 130 else hx('#84583e') if lum > 85 else hx('#5e3c34')
     for box in ((8, 128, 96, 157), (383, 126, 465, 156), (160, 137, 178, 172), (300, 137, 318, 172),
-                (176, 150, 302, 160), (128, 136, 143, 192), (337, 136, 351, 197)):
+                (176, 150, 302, 160), (150, 149, 163, 161), (128, 136, 143, 192), (337, 136, 351, 197)):
         p.recolor(box, husk)
 
     def husk_crate(r, g, b):
@@ -161,7 +162,12 @@ def build(p):
     # A5 strings that fell
     for box in ((57, 128, 70, 157), (79, 128, 92, 157), (425, 127, 439, 156), (403, 140, 417, 156)):
         heal(box)
-    heal((13, 142, 26, 157))
+    for yy in range(142, 158):
+        for xx in range(14, 27):
+            px[xx, yy] = px[27, yy]
+    for xx in range(47, 99):                                                 # the string rail goes with them
+        for yy in range(125, 129):
+            px[xx, yy] = px[xx, 130]
 
     # A6 left stall: right post snapped, the awning sags down on that side
     heal((99, 126, 106, 173))
@@ -176,6 +182,9 @@ def build(p):
             px[xx, yy + dy] = px[xx, yy]
         for yy in range(top, top + dy):
             px[xx, yy] = sky
+    for yy in range(84, 101):
+        for xx in range(111, 119):
+            px[xx, yy] = px[119, 84]
 
     # ================= B. overcast ======================================================================
     p.remap(sat=SAT, val=VAL, tint=DUSK)
@@ -254,10 +263,10 @@ def build(p):
     rr = random.Random(21)
     edge = {}
     wl = wr = 0
-    for yy in range(101, 142):
+    for yy in range(101, 135):
         wl = max(-2, min(2, wl + rr.choice((-1, 0, 0, 1))))
         wr = max(-2, min(2, wr + rr.choice((-1, 0, 0, 1))))
-        half = HW - (yy - 101) * 0.52
+        half = HW - (yy - 101) * 0.6
         edge[yy] = (int(CX - half + wl), int(CX + half + wr))
     edge[101] = edge[102] = edge[103] = (CX - HW, CX + HW)
     mask = set()
@@ -291,16 +300,26 @@ def build(p):
         put(sx + d, v + 1, INK)
         put(sx + d, v + 3, INK)
         put(sx + 2 * d, v + 4, INK)
-    for k in range(9):                                                       # a rafter inside, catching a little light
-        put(206 + k, 126 + k, RIM)
-        put(207 + k, 126 + k, hx('#4a3c48'))
+    BACK = hx('#4a3c4a')
+    for (x, y) in mask:                                                      # the back wall of the loft, dimly
+        if col(x, y) == VD and y >= 118 + (x - 200) // 4 and x >= 204:
+            put(x, y, BACK)
+    for (x0, y0, x1, y1) in ((198, 110, 212, 131), (232, 109, 219, 128), (203, 122, 224, 117)):   # broken rafters inside
+        n = max(abs(x1 - x0), abs(y1 - y0))
+        for i in range(n + 1):
+            x = x0 + (x1 - x0) * i // n
+            y = y0 + (y1 - y0) * i // n
+            if col(x, y) in (VD, VD2, BACK) and y > vline(x) + 3:
+                put(x, y, hx('#7a6260'))
+                if col(x + 1, y) in (VD, VD2, BACK):
+                    put(x + 1, y, hx('#5a4850'))
     for (tx, ty, n) in ((196, 121, 4), (229, 118, 5), (222, 132, 3), (201, 131, 3)):   # threads hanging off the torn edge
         for k in range(n):
-            if col(tx, ty + k) in (VD, VD2, RIM):
+            if col(tx, ty + k) in (VD, VD2, RIM, BACK):
                 put(tx, ty + k, C_CREAM2)
 
     # smaller tear in the cocoa house awning
-    m = ragged(300, 119, 7, 6, 31)
+    m = ragged(302, 120, 8, 5, 37)
     cut(m, lambda x, y: VD)
     for (x, y) in m:
         if (x - 1, y) not in m or (x, y - 1) not in m or (x - 1, y - 1) not in m:
@@ -321,8 +340,7 @@ def build(p):
                 if (x, top[x] + k) in m:
                     put(x, top[x] + k, C_CREAM2)
     # notches ripped up from the hems
-    for (nx, w, hgt, ybase) in ((452, 5, 13, 124), (380, 4, 9, 124), (300 - 40, 5, 12, 140), (345, 4, 10, 138),
-                                (150, 4, 9, 138)):
+    for (nx, w, hgt, ybase) in ((444, 5, 13, 124), (406, 4, 9, 124), (34, 4, 10, 124)):
         m = set()
         for k in range(hgt):
             ww = max(0, int(w * (1 - k / float(hgt))))
@@ -336,7 +354,7 @@ def build(p):
     # the pennant: faded and half torn away
     fm = set()
     for yy in range(58, 80):
-        for xx in range(272, 288):
+        for xx in range(272, 291):
             if xx >= 272 + abs(yy - 68) // 2 + (2 if yy % 5 < 2 else 0) and col(xx, yy) not in SK.values():
                 fm.add((xx, yy))
     skyrow = {yy: col(292, yy) for yy in range(56, 82)}
@@ -444,38 +462,53 @@ def build(p):
         for (x, y) in ((264, 255), (267, 252), (289, 256), (283, 249), (271, 250)):
             put(x, y, H_MID)
             put(x + 1, y, H_DK)
-    spill()
-    for xx in range(268, 289):
-        if col(xx, 257) not in (H_LT, H_MID, H_DK, INK):
-            tone(xx, 257, -24)
-    m = set()
-    for k in range(7):
-        for xx in range(286 - k // 3, 289):
-            m.add((xx, 243 + k))
-    cut(m, lambda x, y: VD)
+    BEAN, BEAN2, BEAN3 = hx('#8a6456'), hx('#6a4a46'), hx('#4e3840')
+
+    def spill2():
+        for (x0, x1, y) in ((272, 280, 250), (268, 284, 251), (265, 286, 252), (263, 287, 253), (262, 287, 254)):
+            for xx in range(x0, x1 + 1):
+                put(xx, y, BEAN if (xx + y) % 5 < 2 and y < 253 else (BEAN3 if (xx * 3 + y) % 7 == 0 else BEAN2))
+        for (x, y) in ((256, 254), (259, 251), (252, 252)):
+            put(x, y, BEAN2); put(x + 1, y, BEAN3)
+    inked(spill2)
+    for xx in range(258, 290):
+        if col(xx, 256) != INK:
+            tone(xx, 256, -24)
+    for (x, y) in ((287, 246), (286, 247), (286, 248), (285, 249), (286, 250)):   # the split seam
+        put(x, y, INK)
+    for (x, y) in ((287, 247), (287, 248), (286, 249)):
+        put(x, y, BEAN2)
 
     # C8 cold brazier tipped over in the street
     IR_L, IR_M, IR_D, ASH, ASH2, COAL = hx('#7c7688'), hx('#5a5466'), hx('#3e3848'), hx('#aaa6b2'), hx('#8c8896'), hx('#322a34')
 
     def brazier():
-        stamp(226, 231, (
-            "....mmmm.....",
-            "..mmLLLLm.l..",
-            ".mLLmmmmmll..",
-            "cmLmmmmmdd...",
-            "cCmmmmmddlll.",
-            "cmmmmmddd...l",
-            ".mmmmddd.l...",
-            "..mdddd...l..",
-            "....dd.....l.",
-        ), {'m': IR_M, 'L': IR_L, 'd': IR_D, 'l': IR_D, 'c': COAL, 'C': ASH2})
+        stamp(222, 224, (
+            "....aAAa......",
+            "..aAAaaAAa....",
+            "LLLLLLLLLLLLLL",
+            "dmmLLmmmmmmmmd",
+            ".dmmLmmmmmmdd.",
+            "..dmmmmmmmdd..",
+            "...ddmmmddd...",
+            "....dddddd....",
+            "...l..ll..l...",
+            "..l...ll...l..",
+            "..l...ll...l..",
+            ".l....ll....l.",
+        ), {'m': IR_M, 'L': IR_L, 'd': IR_D, 'l': IR_D, 'a': ASH2, 'A': ASH})
     inked(brazier)
-    p.blob(218, 239, 7, 2, (ASH, ASH2, hx('#726e7e')), wobble=1)
-    for (x, y) in ((209, 240), (213, 237), (221, 242), (224, 237)):
-        put(x, y, COAL)
-    for xx in range(212, 240):
-        if col(xx, 242) not in (ASH, ASH2, COAL, INK, hx('#726e7e')):
-            tone(xx, 242, -22)
+    for xx in range(221, 238):
+        if col(xx, 237) != INK:
+            tone(xx, 237, -24)
+    p.web(225, 232, 4, WEB)
+
+    def ash():
+        for (x0, x1, y) in ((243, 249, 234), (241, 252, 235), (240, 253, 236)):
+            for xx in range(x0, x1 + 1):
+                put(xx, y, ASH if y == 234 else (ASH2 if (xx + y) % 4 else hx('#726e7e')))
+        put(246, 233, COAL); put(247, 233, COAL); put(250, 234, COAL)
+    inked(ash)
 
     # ================= D. age: stains, moss, vines, weeds, fallen husks ==================================
     in_box = lambda x0, y0, x1, y1: (lambda x, y: x0 <= x <= x1 and y0 <= y <= y1)
