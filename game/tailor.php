@@ -40,7 +40,7 @@ page_header('Tailor');
   <h2>Make</h2>
   <ul class="rcards tlr">
   <?php foreach (WEAR_DEFS as $base => $d): if (($d['get'] ?? '') !== 'craft') continue; ?>
-    <li class="box"><b><?= $d['icon'] ?> <?= e($d['name']) ?></b> <small class="muted"><?= e(wear_mats_text($d['mats'])) ?> · ⚡<?= (int)$d['energy'] ?></small><br><span class="help"><?= e($d['desc']) ?></span>
+    <li class="box"><b><?= ($pi = ph_path($base)) !== '' ? art_img($pi, 'md', $d['name']) : $d['icon'] ?> <?= e($d['name']) ?></b> <small class="muted"><?= e(wear_mats_text($d['mats'])) ?> · ⚡<?= (int)$d['energy'] ?></small><br><span class="help"><?= e($d['desc']) ?></span>
       <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="craft"><input type="hidden" name="base" value="<?= e($base) ?>">
         <select name="cut" aria-label="Cut"><?php foreach ($d['cuts'] as $k => $c): ?><option value="<?= e($k) ?>"><?= e($c[0]) ?>: <?= e(ucfirst($c[1])) ?> <?= (int)$c[2] ?><?= $c[3] !== '' ? ', ' . e($c[3]) : ($c[4] !== '' ? ', ' . e($c[4]) : '') ?></option><?php endforeach; ?></select>
         <button class="btn small">Make</button></form></li>
@@ -52,7 +52,7 @@ page_header('Tailor');
 <?php if (!$owned): ?><p class="muted">You have no wearables yet.</p><?php else: ?>
   <ul class="rcards tlr">
   <?php foreach ($owned as $slug => $qty): [$base, $cut, $rank] = wear_parse($slug); $d = WEAR_DEFS[$base]; $c = $d['cuts'][$cut]; ?>
-    <li class="box"><b><?= $d['icon'] ?> <?= e($d['name']) ?></b> <span class="tag"><?= e(WEAR_RANK_NAME[$rank]) ?></span> <small class="muted">× <?= (int)$qty ?></small><br>
+    <li class="box"><b><?= ($pi = ph_path($slug)) !== '' ? art_img($pi, 'md', $d['name']) : $d['icon'] ?> <?= e($d['name']) ?></b> <span class="tag"><?= e(WEAR_RANK_NAME[$rank]) ?></span> <small class="muted">× <?= (int)$qty ?></small><br>
       <span class="help">Piece: <b><?= e($c[0]) ?></b>, <?= e(ucfirst($c[1])) ?> <?= (int)$c[2] ?>. <?= e($c[5]) ?></span>
       <?php if ($rank === 3): $asL = in_array($base . '|' . $cut, $linedSet, true); ?>
         <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="lined"><input type="hidden" name="slug" value="<?= e($slug) ?>"><button class="btn small alt"><?= $asL ? 'Wear as Fine' : 'Wear as Lined' ?></button></form>
@@ -60,7 +60,7 @@ page_header('Tailor');
       <?php if ($has): ?>
         <?php if ($rank < 3): $mats = wear_line_mats($rank); ?>
         <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="line"><input type="hidden" name="slug" value="<?= e($slug) ?>">
-          <button class="btn small"><?= $rank === 1 ? 'Line it' : 'Finish it' ?> <small><?= e(wear_mats_text($mats)) ?> · ⚡2</small></button>
+          <button class="btn small"><?= $rank === 1 ? 'Line it' : 'Finish it' ?></button> <small class="muted"><?= e(wear_mats_text($mats)) ?> · ⚡2</small>
           <?php if ($threads >= WEAR_PITY): ?><button class="btn small alt" name="pity" value="1">A sure thing <small><?= WEAR_PITY ?> Threads</small></button><?php endif; ?></form>
         <?php endif; ?>
         <?php if (count($d['cuts']) > 1): ?>
