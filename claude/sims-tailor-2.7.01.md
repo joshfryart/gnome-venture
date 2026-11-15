@@ -180,3 +180,40 @@ Level 28, creatures 22+, n = 195 (chain) / 110 (look).
 - **Sim 7** (Firm Grip + Wrap Up, Lined, n = 46): all-body 97.8% / per-type 97.8% (chain); still no measurable difference.
 - **Sim 10** (level 28): Knuckle Down Fine 90.0% vs none 92.7%. Knuckle Down Fine + Sure Foot Fine gives the same numbers: with the Rare cap now counting wearables last, Sure Foot Fine is the 4th Rare and is left out (`out` in all 110 fights). The Hold-then-Bash question cannot be tested at level 28 with two Fine wearables any more.
 - **Sim 5** (level 40, n = 46): each single Fine cut 93.5-97.8% (chain) against 100% with none, as before the retune (n = 46: noise 8 points). The four Guard cuts give identical rows here (0.11 plays a fight).
+
+## 12. Follow-up (Josh: fix the Reptile Boots number, sim 10, sim 5 at level 40)
+2026-11-15, same driver and seeds, more seeds per creature (MULT). No game file changed: all three were sample size.
+
+### Boots against Reptiles (sim 8): +4.0 was one seed block, not a Reptile effect
+`chain`, MULT 5 (n = 2520 per run, 15 Reptiles), paired by creature and seed.
+
+| run | win % | poison | health lost % |
+|---|---|---|---|
+| none | 93.6 | 6.51 | 63.0 |
+| Puddle Hop (evade), Lined | 94.7 | **6.13** | 61.3 |
+| Sure Foot (hold), Lined | 94.8 | 6.49 | 61.0 |
+
+- Gain over none: Puddle Hop +1.15, Sure Foot +1.23 points (paired standard error 0.65). Within the 3-point rule; about the same as over every creature (sim 1, +0.4-1.1).
+- Split into ten blocks of 252 fights (k mod 10), the Puddle Hop gain per block is -2.0, -1.2, 0.8, 0.8, 0.8, 1.6, 2.0, 2.0, 2.4, 4.4. The n = 252 run of section 11 was one such block. A worn piece adds one tile to the deck, so every shuffle after it differs: the "paired" seeds do not pair the draws, and a difference of two win % at n = 252 is noisy by about 2-3 points, not 2.
+- Per creature (n = 100-460) only Sun Lizard moves much (82.5 -> 90.6 / 91.9, n = 160); the others are within -4 to +5.
+- Evade still works: Puddle Hop takes 6% (chain, above) / 18% (`look`, MULT 1, n = 504: 4.33 vs 5.30, none 4.85) less poison than Sure Foot. `look` wins 100% in all three.
+- So nothing in Puddle Hop, Sure Foot, Spiky or Venom was changed.
+
+### Sim 10 rewritten: Hold then Bash with a Lined Guard
+The tuner's gnome at 28 and 40 has 2 Rare belt tools (Chop, Hoe Hook), so only ONE Fine wearable fits under the 3 Rare cap (sim 6; the "four Fine" row of sim 5 is really Boots alone: `out` in every fight). Sim 10 now wears Knuckle Down Fine + a Lined Guard (rank 2 does not count), with Puddle Hop Lined (same Guard 3 + Spiky, no Hold) as the control. The driver stops if any variant has a wearable out. `bashed` = guard your Bash pieces put into hits, a fight. Level 28, creatures 22+; `chain` MULT 5 (n = 1780), `look` MULT 1 (n = 356).
+
+| run | win % chain | hitavg chain / look | hitmax chain / look | bashed chain / look | health lost chain / look |
+|---|---|---|---|---|---|
+| none | 86.8 | 38.1 / 35.1 | 98 / 98 | 0 / 0 | 68.7 / 23.2 |
+| Knuckle Down Fine | 86.7 | 39.7 / 38.4 | 108 / 98 | 7.6 / 6.6 | 69.0 / 22.2 |
+| + Sure Foot Lined (hold) | 87.0 | 39.9 / 40.0 | 122 / 98 | 9.0 / 9.9 | 67.8 / 21.3 |
+| + Puddle Hop Lined (no hold) | 87.1 | 39.8 / 38.9 | 122 / 98 | 8.4 / 9.1 | 67.6 / 20.2 |
+
+- Hold before Bash adds 0.6-0.7 guard a fight to Bash hits over a plain Guard, and 0.1-1.1 to the mean largest hit. No runaway: the largest hit rises with any second piece (122 is the deck's top with an extra Guard for the chain), Hold or not.
+- Wins move by 0.3 points at most. The 5.7-point (section 10) and 2.7-point (section 11) losses at n = 110-195 were noise.
+
+### Level 40, one Fine wearable (sim 5): no cost
+`chain`, MULT 5 (n = 790 per run, creatures 30+): none 98.2%; each of the 22 single cuts (Common and Fine) 97.6-98.6%; turns 6.13-6.46 against 6.39. The "2-6.5 points" at n = 46 was 3 fights: the first 46 seeds were 100% with no wearable, and any added tile (Common too) reshuffles the deck. No fix.
+
+### Re-run
+`php tools/sims/tailor_sims_2701.php 8 chain 5 i/4` (four shards, about 10 s), `10 chain 5`, `10 look 1`, `5 chain 5`; aggregate with `agg`. Use MULT 5 (or more) before reading a win % difference under 5 points.

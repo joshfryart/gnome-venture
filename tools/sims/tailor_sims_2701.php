@@ -30,7 +30,7 @@ function ts_fight(array $me, array $c, int $seed, string $bot, int $k, array $ov
     $s = pfb_new($me, $cr, $seed, ['blank' => true, 'v1' => $over ?: true, 'can_pluck' => $pluck]);
     $hand = $s['me']['hand']; $bi = 0; foreach ($hand as $i => $t) if ($t['t'] === 'hurt' && $t['v'] > $hand[$bi]['v']) $bi = $i;
     pfb_start($s, $bi, ['L', 'R', 'T', 'B'][$k % 4]);
-    $t = 0; $maxHit = 0.0; $maxHitBy = ''; $poison = 0; $plays = 0; $wearPlays = 0; $evadeHits = 0;
+    $t = 0; $maxHit = 0.0; $maxHitBy = ''; $poison = 0; $plays = 0; $wearPlays = 0; $evadeHits = 0; $bashed = 0;
     while (!$s['over'] && $t++ < 40) {
         $pl = tv_places($s); $a = tv_choose($s, $bot, $pl);
         if (isset($a[0]) && is_int($a[0]) && ($s['me']['hand'][$a[0]]['src'] ?? '') === 'wear') $wearPlays++;
@@ -39,6 +39,7 @@ function ts_fight(array $me, array $c, int $seed, string $bot, int $k, array $ov
         if ($r['err']) { $r = pfb_pass($s, $s['turn']); if ($r['err']) { if (!$pl) break; $r = tv_act($s, $pl[0]); if ($r['err']) break; } }
         $prev = $fh0;
         foreach ($r['ev'] as $e) {
+            if (($e['by'] ?? '') === 'me' && !empty($e['bashed'])) $bashed += (int)$e['bashed'];   // guard your Bash pieces put into hits
             if (!isset($e['fhnow'])) continue;
             $now = (float)$e['fhnow'] + (float)$e['barnow'];
             if (($e['by'] ?? '') === 'me' && $now - $prev > $maxHit) { $maxHit = $now - $prev; $maxHitBy = (string)$e['n'] . ($e['combo'] ? ' (' . $e['combo'] . ')' : ''); }
@@ -49,7 +50,7 @@ function ts_fight(array $me, array $c, int $seed, string $bot, int $k, array $ov
         $plays++;
     }
     return ['win' => in_array($s['over'], ['seen_off', 'charmed'], true) ? 1 : 0, 'turns' => $s['turn'], 'hp' => round(1 - $s['me']['hp'] / $s['me']['max'], 4), 'maxhit' => round($maxHit, 1), 'maxby' => $maxHitBy,
-        'pluck' => (int)($s['plucked'] ?? 0), 'poison' => $poison, 'worn' => $worn, 'out' => $out, 'wplays' => $wearPlays, 'size' => $c['size'], 'clv' => $c['level'], 'slug' => $c['slug'], 'class' => $cr['class'] ?? ''];
+        'pluck' => (int)($s['plucked'] ?? 0), 'poison' => $poison, 'worn' => $worn, 'out' => $out, 'wplays' => $wearPlays, 'bashed' => $bashed, 'size' => $c['size'], 'clv' => $c['level'], 'slug' => $c['slug'], 'class' => $cr['class'] ?? ''];
 }
 
 /** The fights of a run: every creature (or those $keep accepts), gnome at $lvFn(creature), seeds as the tuner's, x MULT. */
@@ -82,9 +83,9 @@ $cuts = []; foreach (WEAR_DEFS as $base => $d) foreach ($d['cuts'] as $cut => $c
 if ($sim === 'agg') {   // rows grouped by tag: n, win %, turns, health lost %, mean and max of the per-fight largest hit, pluck %, poison taken, fights where the wearable was out
     $G = []; while (($l = fgets(STDIN)) !== false) { $r = json_decode($l, true); if ($r) $G[$r['tag'] . ' ' . $r['bot']][] = $r; }
     ksort($G);
-    printf("%-34s %5s %6s %6s %6s %7s %7s %6s %7s %5s %6s\n", 'run', 'n', 'win%', 'turns', 'hp%', 'hitavg', 'hitmax', 'pluck', 'poison', 'out', 'wplay');
+    printf("%-34s %5s %6s %6s %6s %7s %7s %6s %7s %5s %6s %6s\n", 'run', 'n', 'win%', 'turns', 'hp%', 'hitavg', 'hitmax', 'pluck', 'poison', 'out', 'wplay', 'bashed');
     foreach ($G as $k => $rs) { $n = count($rs); $f = fn($x) => array_sum(array_column($rs, $x)) / $n;
-        printf("%-34s %5d %6.1f %6.2f %6.1f %7.1f %7.1f %6.1f %7.2f %5d %6.2f\n", $k, $n, 100 * $f('win'), $f('turns'), 100 * $f('hp'), $f('maxhit'), max(array_column($rs, 'maxhit')), 100 * $f('pluck'), $f('poison'), count(array_filter($rs, fn($r) => $r['out'])), $f('wplays')); }
+        printf("%-34s %5d %6.1f %6.2f %6.1f %7.1f %7.1f %6.1f %7.2f %5d %6.2f %6.2f\n", $k, $n, 100 * $f('win'), $f('turns'), 100 * $f('hp'), $f('maxhit'), max(array_column($rs, 'maxhit')), 100 * $f('pluck'), $f('poison'), count(array_filter($rs, fn($r) => $r['out'])), $f('wplays'), $f('bashed')); }
     exit;
 }
 if ($sim === '1' || $sim === '5') {   // each cut alone, Common and Fine, against no wearable; sim 5: a level 40 gnome (4 belt slots, 4 Keepsake slots) against every creature of level 30+
@@ -120,9 +121,13 @@ if ($sim === '8') {   // Evade stops poison: Puddle Hop (evade) against Reptiles
     }
     exit;
 }
-if ($sim === '10') {   // "Shove" (built as Knuckle Down: Hurt 3, bash) after a Hold guard (Sure Foot): the largest single hit, level 28, creatures 22+
-    foreach (['none' => [], 'Knuckle Down Fine' => ['work-gloves-b-fine' => 1], 'Knuckle Down Fine + Sure Foot Fine' => ['work-gloves-b-fine' => 1, 'flood-boots-b-fine' => 1]] as $nm => $w)
-        ts_run("s10 $nm", fn($lv) => ts_player($lv, $w), $bot, $mult, $shard, fn($c) => $c['level'] >= 22, fn($c) => 28);
+if ($sim === '10') {   // "Shove" (built as Knuckle Down: Hurt 3, bash) after a Hold guard (Sure Foot): level 28, creatures 22+.
+    // 2.7.01 rewrite: the Guard is LINED (not Rare), so the 3 Rare cap cannot drop it (the tuner's gnome at 28 already has 2 Rare belt tools: one Fine wearable is all that fits).
+    // Control: Puddle Hop Lined, the same Guard 3 + Spiky without Hold, so "Hold then Bash" is read against "any Guard then Bash". 'bashed' = guard your Bash pieces added to hits a fight.
+    $V = ['none' => [], 'Knuckle Down Fine' => ['work-gloves-b-fine' => 1], 'Knuckle Down Fine + Sure Foot Lined (hold)' => ['work-gloves-b-fine' => 1, 'flood-boots-b-lined' => 1],
+        'Knuckle Down Fine + Puddle Hop Lined (no hold)' => ['work-gloves-b-fine' => 1, 'flood-boots-lined' => 1]];
+    foreach ($V as $nm => $w) { $p = ts_player(28, $w); if ($p['_out'] || count($p['_worn']) !== count($w)) { fwrite(STDERR, "sim 10: '$nm' does not wear every wearable (out: " . implode(', ', $p['_out']) . ")\n"); exit(1); } }
+    foreach ($V as $nm => $w) ts_run("s10 $nm", fn($lv) => ts_player($lv, $w), $bot, $mult, $shard, fn($c) => $c['level'] >= 22, fn($c) => 28);
     exit;
 }
 if ($sim === '6') {   // the Rare cap: which piece the deck drops when a Fine wearable is the 4th Rare (pfd_build order: kit and owned pieces, then wearables, then belt tools, then pals)
